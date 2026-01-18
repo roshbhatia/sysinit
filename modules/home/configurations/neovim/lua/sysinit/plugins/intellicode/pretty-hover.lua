@@ -1,6 +1,4 @@
-local M = {}
-
-M.plugins = {
+return {
   {
     "Fildo7525/pretty_hover",
     opts = {
@@ -20,5 +18,3 @@ M.plugins = {
     end,
   },
 }
-
-return M

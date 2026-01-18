@@ -1,6 +1,4 @@
-local M = {}
-
-M.plugins = {
+return {
   {
     "rachartier/tiny-devicons-auto-colors.nvim",
     dependencies = {
@@ -18,4 +16,3 @@ M.plugins = {
     end,
   },
 }
-return M

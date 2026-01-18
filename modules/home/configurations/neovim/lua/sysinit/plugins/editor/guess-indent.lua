@@ -1,6 +1,4 @@
-local M = {}
-
-M.plugins = {
+return {
   {
     "nmac427/guess-indent.nvim",
     event = "InsertEnter",
@@ -9,5 +7,3 @@ M.plugins = {
     end,
   },
 }
-
-return M

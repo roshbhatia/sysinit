@@ -16,16 +16,7 @@ function plugin_manager.setup_package_manager()
   vim.opt.rtp:prepend(lazypath)
 end
 
-function plugin_manager.setup_plugins(modules)
-  local specs = {}
-  for _, M in ipairs(modules) do
-    if M.plugins then
-      for _, plugin in ipairs(M.plugins) do
-        table.insert(specs, plugin)
-      end
-    end
-  end
-
+function plugin_manager.setup_plugins()
   require("lazy").setup({
     root = vim.fn.stdpath("data") .. "/lazy",
     lockfile = vim.fn.stdpath("data") .. "/lazy/lazy-lock.json",
@@ -33,7 +24,18 @@ function plugin_manager.setup_plugins(modules)
       enabled = true,
       root = vim.fn.stdpath("data") .. "/lazy-rocks",
     },
-    spec = specs,
+    spec = {
+      { import = "sysinit.plugins.core" },
+      { import = "sysinit.plugins.debugger" },
+      { import = "sysinit.plugins.editor" },
+      { import = "sysinit.plugins.file" },
+      { import = "sysinit.plugins.git" },
+      { import = "sysinit.plugins.intellicode" },
+      { import = "sysinit.plugins.keymaps" },
+      { import = "sysinit.plugins.library" },
+      { import = "sysinit.plugins.orgmode" },
+      { import = "sysinit.plugins.ui" },
+    },
     performance = {
       rtp = {
         disabled_plugins = {

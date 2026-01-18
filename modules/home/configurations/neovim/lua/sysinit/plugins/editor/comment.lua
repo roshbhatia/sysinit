@@ -1,11 +1,7 @@
-local M = {}
-
-M.plugins = {
+return {
   {
     "nvim-mini/mini.comment",
     event = "VeryLazy",
     version = "*",
   },
 }
-
-return M

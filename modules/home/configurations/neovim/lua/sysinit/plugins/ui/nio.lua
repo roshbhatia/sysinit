@@ -1,9 +1,5 @@
-local M = {}
-
-M.plugins = {
+return {
   {
     "nvim-neotest/nvim-nio",
   },
 }
-
-return M

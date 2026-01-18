@@ -1,6 +1,4 @@
-local M = {}
-
-M.plugins = {
+return {
   {
     "L3MON4D3/LuaSnip",
     lazy = true,
@@ -14,5 +12,3 @@ M.plugins = {
     end,
   },
 }
-
-return M

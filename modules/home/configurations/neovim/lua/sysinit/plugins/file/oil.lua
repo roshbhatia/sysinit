@@ -1,6 +1,4 @@
-local M = {}
-
-M.plugins = {
+return {
   {
     "stevearc/oil.nvim",
     cmd = "Oil",
@@ -62,14 +60,14 @@ M.plugins = {
         {
           "<leader>ee",
           function()
-            vim.cmd("Oil --preview")
+            vim.cmd("Oil")
           end,
           desc = "Explore current directory",
         },
         {
           "<leader>eE",
           function()
-            vim.cmd("Oil --preview .")
+            vim.cmd("Oil .")
           end,
           desc = "Explore project root",
         },
@@ -77,5 +75,3 @@ M.plugins = {
     end,
   },
 }
-
-return M

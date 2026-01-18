@@ -1,33 +1,18 @@
-local M = {}
-
-local function get_bg_color()
-  local hl = vim.api.nvim_get_hl(0, { name = "Normal", link = false })
-  return hl and hl.bg and string.format("#%06x", hl.bg) or "#949cbb"
-end
-
-M.plugins = {
+return {
   {
     "rachartier/tiny-glimmer.nvim",
     event = "VeryLazy",
     config = function()
+      local normal_bg = vim.api.nvim_get_hl(0, { name = "Normal" }).bg
+
       require("tiny-glimmer").setup({
+        transparency_color = string.format("#%06x", normal_bg),
         overwrite = {
-          search = {
-            enabled = true,
-          },
-          undo = {
-            enabled = true,
-            undo_mapping = "u",
-          },
-          redo = {
-            enabled = true,
-            redo_mapping = "U",
-          },
+          search = { enabled = true },
+          undo = { enabled = true, undo_mapping = "u" },
+          redo = { enabled = true, redo_mapping = "U" },
         },
-        transparency_color = get_bg_color(),
       })
     end,
   },
 }
-
-return M

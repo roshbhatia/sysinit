@@ -1,7 +1,7 @@
 local M = {}
 
 local ai_manager = require("sysinit.utils.ai.ai_manager")
-local agents = require("sysinit.utils.agents")
+local agents = require("sysinit.utils.ai.agents")
 local input = require("sysinit.utils.ai.input")
 local picker = require("sysinit.utils.ai.picker")
 local history = require("sysinit.utils.ai.history")

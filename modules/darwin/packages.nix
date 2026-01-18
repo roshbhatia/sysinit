@@ -24,6 +24,7 @@ let
     "bcrypt"
     "block-goose-cli"
     "colima"
+    "ctags"
     "hashicorp/tap/terraform"
     "libgit2@1.8"
     "luarocks"

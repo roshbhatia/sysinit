@@ -1,6 +1,4 @@
-local M = {}
-
-M.plugins = {
+return {
   {
     "stevearc/conform.nvim",
     event = "BufWritePre",
@@ -78,5 +76,3 @@ M.plugins = {
     end,
   },
 }
-
-return M

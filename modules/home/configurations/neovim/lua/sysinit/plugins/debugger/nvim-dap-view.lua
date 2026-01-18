@@ -1,6 +1,4 @@
-local M = {}
-
-M.plugins = {
+return {
   {
     "igorlfs/nvim-dap-view",
     opts = {},
@@ -17,5 +15,3 @@ M.plugins = {
     end,
   },
 }
-
-return M

@@ -1,9 +1,5 @@
-local M = {}
-
-M.plugins = {
+return {
   {
     "onsails/lspkind.nvim",
   },
 }
-
-return M

@@ -167,7 +167,7 @@ function M.open(termname)
     return
   end
 
-  local agents = require("sysinit.utils.agents")
+  local agents = require("sysinit.utils.ai.agents")
   local agent = agents.get_by_name(termname)
   local cwd = vim.fn.getcwd()
 

@@ -1,6 +1,4 @@
-local M = {}
-
-M.plugins = {
+return {
   {
     "nvim-treesitter/nvim-treesitter",
     build = ":TSUpdate",
@@ -187,5 +185,3 @@ M.plugins = {
     },
   },
 }
-
-return M

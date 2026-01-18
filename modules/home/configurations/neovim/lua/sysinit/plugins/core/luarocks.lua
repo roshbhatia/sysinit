@@ -1,6 +1,4 @@
-local M = {}
-
-M.plugins = {
+return {
   {
     "vhyrro/luarocks.nvim",
     priority = 9998,
@@ -31,5 +29,3 @@ M.plugins = {
     },
   },
 }
-
-return M

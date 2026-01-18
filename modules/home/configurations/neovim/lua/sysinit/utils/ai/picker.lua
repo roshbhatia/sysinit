@@ -1,7 +1,7 @@
 local M = {}
 
 function M.pick_agent()
-  local agents = require("sysinit.utils.agents")
+  local agents = require("sysinit.utils.ai.agents")
   local ai_manager = require("sysinit.utils.ai.ai_manager")
   local active = ai_manager.get_active()
 

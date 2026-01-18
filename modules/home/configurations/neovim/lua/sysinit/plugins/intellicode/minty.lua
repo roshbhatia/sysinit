@@ -1,6 +1,4 @@
-local M = {}
-
-M.plugins = {
+return {
   {
     "nvzone/minty",
     dependencies = {
@@ -12,5 +10,3 @@ M.plugins = {
     },
   },
 }
-
-return M

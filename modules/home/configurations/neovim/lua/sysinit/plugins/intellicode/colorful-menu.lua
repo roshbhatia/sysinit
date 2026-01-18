@@ -1,6 +1,4 @@
-local M = {}
-
-M.plugins = {
+return {
   {
     "xzbdmw/colorful-menu.nvim",
     config = function()
@@ -8,5 +6,3 @@ M.plugins = {
     end,
   },
 }
-
-return M

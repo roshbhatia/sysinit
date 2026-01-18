@@ -1,6 +1,4 @@
-local M = {}
-
-M.plugins = {
+return {
   {
     "nvim-orgmode/orgmode",
     dependencies = {
@@ -33,5 +31,3 @@ M.plugins = {
     end,
   },
 }
-
-return M

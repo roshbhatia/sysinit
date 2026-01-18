@@ -1,6 +1,4 @@
-local M = {}
-
-M.plugins = {
+return {
   {
     "pmizio/typescript-tools.nvim",
     dependencies = {
@@ -22,5 +20,3 @@ M.plugins = {
     },
   },
 }
-
-return M

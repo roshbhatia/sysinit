@@ -1,6 +1,4 @@
-local M = {}
-
-M.plugins = {
+return {
   {
     "mfussenegger/nvim-dap",
     config = function()
@@ -80,4 +78,3 @@ M.plugins = {
     },
   },
 }
-return M

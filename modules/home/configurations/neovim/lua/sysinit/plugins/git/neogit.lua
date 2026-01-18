@@ -1,6 +1,4 @@
-local M = {}
-
-M.plugins = {
+return {
   {
     "NeogitOrg/neogit",
     dependencies = {
@@ -113,5 +111,3 @@ M.plugins = {
     },
   },
 }
-
-return M

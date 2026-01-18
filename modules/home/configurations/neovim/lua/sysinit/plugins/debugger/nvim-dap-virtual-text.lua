@@ -1,6 +1,4 @@
-local M = {}
-
-M.plugins = {
+return {
   {
     "theHamsta/nvim-dap-virtual-text",
     dependencies = {
@@ -12,5 +10,3 @@ M.plugins = {
     end,
   },
 }
-
-return M

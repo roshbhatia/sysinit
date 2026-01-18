@@ -1,6 +1,4 @@
-local M = {}
-
-M.plugins = {
+return {
   {
     "onsails/diaglist.nvim",
     event = "LSPAttach",
@@ -24,5 +22,3 @@ M.plugins = {
     end,
   },
 }
-
-return M

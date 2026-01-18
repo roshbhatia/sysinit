@@ -1,6 +1,4 @@
-local M = {}
-
-M.plugins = {
+return {
   {
     "nvim-mini/mini.surround",
     version = "*",
@@ -20,5 +18,3 @@ M.plugins = {
     },
   },
 }
-
-return M

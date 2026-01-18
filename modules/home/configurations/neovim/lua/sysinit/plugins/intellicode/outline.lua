@@ -1,6 +1,4 @@
-local M = {}
-
-M.plugins = {
+return {
   {
     "hedyhli/outline.nvim",
     cmd = {
@@ -50,5 +48,3 @@ M.plugins = {
     },
   },
 }
-
-return M

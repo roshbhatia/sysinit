@@ -1,6 +1,4 @@
-local M = {}
-
-M.plugins = {
+return {
   {
     "smoka7/hop.nvim",
     cmd = {
@@ -25,5 +23,3 @@ M.plugins = {
     end,
   },
 }
-
-return M

@@ -1,8 +1,5 @@
-local M = {}
-
-M.plugins = {
+return {
   {
     "nvim-tree/nvim-web-devicons",
   },
 }
-return M

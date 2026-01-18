@@ -1,6 +1,4 @@
-local M = {}
-
-M.plugins = {
+return {
   {
     "ThePrimeagen/refactoring.nvim",
     event = "LSPAttach",
@@ -11,5 +9,3 @@ M.plugins = {
     opts = {},
   },
 }
-
-return M

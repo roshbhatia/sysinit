@@ -1,9 +1,5 @@
-local M = {}
-
-M.plugins = {
+return {
   {
     "rafamadriz/friendly-snippets",
   },
 }
-
-return M

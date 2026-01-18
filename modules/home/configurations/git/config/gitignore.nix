@@ -2,8 +2,6 @@ _:
 
 let
   gitignorePatterns = [
-    "!.aider.conf.yml"
-    "!.aiderignore"
     "**/.goose/"
     "*.backup"
     "*.backup*"
@@ -23,7 +21,6 @@ let
     ".Trashes"
     ".VolumeIcon.icns"
     "._*"
-    ".aider*"
     ".beads/"
     ".claude/"
     ".com.apple.timemachine.donotpresent"
@@ -44,6 +41,7 @@ let
     "node_modules/"
     "npm-debug.log"
     "shell.nix"
+    "tags"
     "yarn-debug.log"
     "yarn-error.log"
   ];

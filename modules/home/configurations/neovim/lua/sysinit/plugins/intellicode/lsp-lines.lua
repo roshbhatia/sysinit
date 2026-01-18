@@ -1,6 +1,4 @@
-local M = {}
-
-M.plugins = {
+return {
   {
     "https://git.sr.ht/~whynothugo/lsp_lines.nvim",
     event = "LSPAttach",
@@ -31,5 +29,3 @@ M.plugins = {
     end,
   },
 }
-
-return M

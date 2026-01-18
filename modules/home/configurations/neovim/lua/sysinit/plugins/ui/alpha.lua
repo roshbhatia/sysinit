@@ -1,6 +1,4 @@
-local M = {}
-
-M.plugins = {
+return {
   {
     "goolord/alpha-nvim",
     cmd = "Alpha",
@@ -83,5 +81,3 @@ M.plugins = {
     end,
   },
 }
-
-return M

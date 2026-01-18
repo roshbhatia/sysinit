@@ -2,9 +2,7 @@ local servers = require("sysinit.utils.lsp.servers")
 local diagnostics = require("sysinit.utils.lsp.diagnostics")
 local keymaps = require("sysinit.utils.lsp.keymaps")
 
-local M = {}
-
-M.plugins = {
+return {
   {
     "neovim/nvim-lspconfig",
     event = { "BufReadPre", "BufNewFile" },
@@ -21,5 +19,3 @@ M.plugins = {
     keys = keymaps.get_keymaps(),
   },
 }
-
-return M

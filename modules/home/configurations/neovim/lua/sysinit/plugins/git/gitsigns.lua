@@ -1,7 +1,6 @@
 ---@diagnostic disable: param-type-mismatch
-local M = {}
 
-M.plugins = {
+return {
   {
     "lewis6991/gitsigns.nvim",
     event = "VeryLazy",
@@ -119,5 +118,3 @@ M.plugins = {
     end,
   },
 }
-
-return M

@@ -1,6 +1,4 @@
-local M = {}
-
-M.plugins = {
+return {
   {
     "norcalli/nvim-colorizer.lua",
     event = "BufReadPre",
@@ -9,5 +7,3 @@ M.plugins = {
     end,
   },
 }
-
-return M

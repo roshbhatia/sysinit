@@ -1,6 +1,4 @@
-local M = {}
-
-M.plugins = {
+return {
   {
     "esmuellert/codediff.nvim",
     dependencies = {
@@ -47,5 +45,3 @@ M.plugins = {
     },
   },
 }
-
-return M

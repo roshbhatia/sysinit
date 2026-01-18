@@ -1,6 +1,4 @@
-local M = {}
-
-M.plugins = {
+return {
   {
     "Bekaboo/dropbar.nvim",
     branch = "master",
@@ -24,5 +22,3 @@ M.plugins = {
     end,
   },
 }
-
-return M

@@ -1,6 +1,4 @@
-local M = {}
-
-M.plugins = {
+return {
   {
     "pwntester/octo.nvim",
     requires = {
@@ -34,5 +32,3 @@ M.plugins = {
     end,
   },
 }
-
-return M

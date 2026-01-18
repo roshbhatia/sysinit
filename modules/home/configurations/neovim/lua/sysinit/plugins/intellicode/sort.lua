@@ -1,6 +1,4 @@
-local M = {}
-
-M.plugins = {
+return {
   {
     "sQVe/sort.nvim",
     cmd = "Sort",
@@ -19,5 +17,3 @@ M.plugins = {
     end,
   },
 }
-
-return M

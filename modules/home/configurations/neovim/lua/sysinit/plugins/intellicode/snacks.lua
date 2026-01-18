@@ -1,6 +1,4 @@
-local M = {}
-
-M.plugins = {
+return {
   {
     "folke/snacks.nvim",
     priority = 9800,
@@ -171,7 +169,7 @@ M.plugins = {
         return Snacks.notifier.notify(msg, level, opts or {})
       end
 
-      local agents = require("sysinit.utils.agents")
+      local agents = require("sysinit.utils.ai.agents")
       local ai_manager = require("sysinit.utils.ai.ai_manager")
       local completion = require("sysinit.utils.ai.completion")
       local file_refresh = require("sysinit.utils.ai.file_refresh")
@@ -310,4 +308,3 @@ M.plugins = {
     end,
   },
 }
-return M

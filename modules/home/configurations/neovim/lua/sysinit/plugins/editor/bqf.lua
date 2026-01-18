@@ -1,6 +1,4 @@
-local M = {}
-
-M.plugins = {
+return {
   {
     "kevinhwang91/nvim-bqf",
     event = "VeryLazy",
@@ -47,5 +45,3 @@ M.plugins = {
     end,
   },
 }
-
-return M

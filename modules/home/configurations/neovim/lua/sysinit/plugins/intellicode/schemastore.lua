@@ -1,10 +1,6 @@
-local M = {}
-
-M.plugins = {
+return {
   {
     "b0o/SchemaStore.nvim",
     version = "*",
   },
 }
-
-return M

@@ -1,6 +1,4 @@
-local M = {}
-
-M.plugins = {
+return {
   {
     "nvim-mini/mini.nvim",
     event = "CursorMoved",
@@ -20,5 +18,3 @@ M.plugins = {
     end,
   },
 }
-
-return M

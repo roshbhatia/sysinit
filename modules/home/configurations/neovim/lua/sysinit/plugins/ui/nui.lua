@@ -1,9 +1,6 @@
-local M = {}
-
-M.plugins = {
+return {
   {
     "MunifTanjim/nui.nvim",
+    lazy = true,
   },
 }
-
-return M

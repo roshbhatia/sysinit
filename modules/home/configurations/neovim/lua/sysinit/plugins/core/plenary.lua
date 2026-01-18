@@ -1,11 +1,7 @@
-local M = {}
-
-M.plugins = {
+return {
   {
     "nvim-lua/plenary.nvim",
     priority = 9999,
     lazy = false,
   },
 }
-
-return M

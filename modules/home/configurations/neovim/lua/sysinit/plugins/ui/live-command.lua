@@ -1,6 +1,4 @@
-local M = {}
-
-M.plugins = {
+return {
   {
     "smjonas/live-command.nvim",
     event = "VeryLazy",
@@ -9,5 +7,3 @@ M.plugins = {
     end,
   },
 }
-
-return M

@@ -1,6 +1,4 @@
-local M = {}
-
-M.plugins = {
+return {
   {
     "MagicDuck/grug-far.nvim",
     config = function()
@@ -50,5 +48,3 @@ M.plugins = {
     end,
   },
 }
-
-return M

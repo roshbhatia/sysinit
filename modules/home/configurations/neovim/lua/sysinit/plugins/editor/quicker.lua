@@ -1,6 +1,4 @@
-local M = {}
-
-M.plugins = {
+return {
   {
     "stevearc/quicker.nvim",
     ft = "qf",
@@ -56,5 +54,3 @@ M.plugins = {
     },
   },
 }
-
-return M

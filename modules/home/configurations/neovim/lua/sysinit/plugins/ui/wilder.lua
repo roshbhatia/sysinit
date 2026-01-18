@@ -1,6 +1,4 @@
-local M = {}
-
-M.plugins = {
+return {
   {
     "gelguy/wilder.nvim",
     event = "CmdlineEnter",
@@ -123,5 +121,3 @@ M.plugins = {
     end,
   },
 }
-
-return M

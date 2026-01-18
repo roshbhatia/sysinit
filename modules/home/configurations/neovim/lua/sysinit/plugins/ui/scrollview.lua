@@ -1,6 +1,4 @@
-local M = {}
-
-M.plugins = {
+return {
   {
     "dstein64/nvim-scrollview",
     event = "VeryLazy",
@@ -12,5 +10,3 @@ M.plugins = {
     end,
   },
 }
-
-return M

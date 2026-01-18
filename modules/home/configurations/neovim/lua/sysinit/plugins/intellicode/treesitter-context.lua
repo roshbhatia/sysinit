@@ -1,6 +1,4 @@
-local M = {}
-
-M.plugins = {
+return {
   {
     "nvim-treesitter/nvim-treesitter-context",
     dependencies = {
@@ -27,5 +25,3 @@ M.plugins = {
     }
   end,
 }
-
-return M

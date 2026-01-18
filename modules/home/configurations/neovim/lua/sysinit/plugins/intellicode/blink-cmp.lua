@@ -1,6 +1,4 @@
-local M = {}
-
-M.plugins = {
+return {
   {
     "saghen/blink.cmp",
     version = "1.*",
@@ -218,5 +216,3 @@ M.plugins = {
     },
   },
 }
-
-return M

@@ -1,5 +1,3 @@
-local M = {}
-
 local function get_palette_colors()
   local good = vim.api.nvim_get_hl(0, { name = "@variable", link = false })
   local error = vim.api.nvim_get_hl(0, { name = "Error", link = false })
@@ -9,7 +7,7 @@ local function get_palette_colors()
   }
 end
 
-M.plugins = {
+return {
   {
     "shellRaining/hlchunk.nvim",
     event = {
@@ -41,5 +39,3 @@ M.plugins = {
     end,
   },
 }
-
-return M

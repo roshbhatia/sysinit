@@ -1,6 +1,4 @@
-local M = {}
-
-M.plugins = {
+return {
   {
     "mrjones2014/smart-splits.nvim",
     event = "VeryLazy",
@@ -105,5 +103,3 @@ M.plugins = {
     end,
   },
 }
-
-return M

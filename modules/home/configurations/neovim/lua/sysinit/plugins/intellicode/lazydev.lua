@@ -1,6 +1,4 @@
-local M = {}
-
-M.plugins = {
+return {
   {
     "folke/lazydev.nvim",
     dependencies = {
@@ -25,5 +23,3 @@ M.plugins = {
     },
   },
 }
-
-return M

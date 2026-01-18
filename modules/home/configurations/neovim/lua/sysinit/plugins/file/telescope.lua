@@ -1,6 +1,4 @@
-local M = {}
-
-M.plugins = {
+return {
   {
     "nvim-telescope/telescope.nvim",
     branch = "master",
@@ -230,5 +228,3 @@ M.plugins = {
     end,
   },
 }
-
-return M

@@ -22,7 +22,10 @@ in
   xdg = {
     configFile = {
       "nvim/init.lua".source = ./init.lua;
+      # Filetype-specific settings loaded after defaults
+      "nvim/after/ftplugin".source = ./after/ftplugin;
       "nvim/lua/sysinit/config".source = ./lua/sysinit/config;
+      # Plugin directories (auto-discovered by lazy.nvim via import)
       "nvim/lua/sysinit/plugins/core/".source = ./lua/sysinit/plugins/core;
       "nvim/lua/sysinit/plugins/debugger/".source = ./lua/sysinit/plugins/debugger;
       "nvim/lua/sysinit/plugins/editor/".source = ./lua/sysinit/plugins/editor;
@@ -32,7 +35,9 @@ in
       "nvim/lua/sysinit/plugins/keymaps/".source = ./lua/sysinit/plugins/keymaps;
       "nvim/lua/sysinit/plugins/library/".source = ./lua/sysinit/plugins/library;
       "nvim/lua/sysinit/plugins/orgmode/".source = ./lua/sysinit/plugins/orgmode;
+      # UI plugins (includes modular themes/ subdirectory)
       "nvim/lua/sysinit/plugins/ui/".source = ./lua/sysinit/plugins/ui;
+      # Utilities (includes code_actions/ and ai/ subdirectories)
       "nvim/lua/sysinit/utils".source = ./lua/sysinit/utils;
       "nvim/queries".source = ./queries;
       "nvim/theme_config.json".text = themes.toJsonFile (themes.generateAppJSON "neovim" values.theme);

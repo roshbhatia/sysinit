@@ -1,7 +1,6 @@
-local M = {}
 local config = require("sysinit.utils.config")
 
-M.plugins = {
+return {
   {
     "folke/which-key.nvim",
     event = "VeryLazy",
@@ -50,5 +49,3 @@ M.plugins = {
     end,
   },
 }
-
-return M

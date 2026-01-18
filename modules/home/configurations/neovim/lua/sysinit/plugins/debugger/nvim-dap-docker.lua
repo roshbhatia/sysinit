@@ -1,6 +1,4 @@
-local M = {}
-
-M.plugins = {
+return {
   {
     "docker/nvim-dap-docker",
     dependencies = {
@@ -12,5 +10,3 @@ M.plugins = {
     end,
   },
 }
-
-return M

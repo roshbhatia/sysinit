@@ -1,6 +1,4 @@
-local M = {}
-
-M.plugins = {
+return {
   {
     "dnlhc/glance.nvim",
     cmd = "Glance",
@@ -49,5 +47,3 @@ M.plugins = {
     end,
   },
 }
-
-return M

@@ -1,0 +1,418 @@
+-- Go template specific settings
+
+-- Formatting
+vim.opt_local.tabstop = 2
+vim.opt_local.shiftwidth = 2
+vim.opt_local.expandtab = true
+
+-- Comment string for Go templates
+vim.opt_local.commentstring = "{{/* %s */}}"
+
+-- Keymaps for template actions
+local map = vim.keymap.set
+local opts = { buffer = true, silent = true }
+
+-- Insert common Go template patterns
+map("n", "<localleader>tiv", "i{{ . }}<Esc>", vim.tbl_extend("force", opts, { desc = "Template: Insert variable" }))
+map(
+  "n",
+  "<localleader>tir",
+  "i{{ range . }}<CR>{{ end }}<Esc>k",
+  vim.tbl_extend("force", opts, { desc = "Template: Insert range" })
+)
+map(
+  "n",
+  "<localleader>tii",
+  "i{{ if . }}<CR>{{ end }}<Esc>k",
+  vim.tbl_extend("force", opts, { desc = "Template: Insert if" })
+)
+
+local function sprig(name, desc, ...)
+  local args = { ... }
+  local arg_str = #args > 0 and " " .. table.concat(args, " ") or ""
+  return {
+    desc = "sprig: " .. desc,
+    t = "{{ " .. name .. arg_str .. " }}",
+  }
+end
+
+vim.snippet.add({
+  sprig("trim", "Remove surrounding whitespace", "${1:arg}"),
+  sprig("trimAll", "Remove characters from start/end", "${1:chars}", " ", "${2:arg}"),
+  sprig("trimSuffix", "Remove suffix", "${1:suffix}", " ", "${2:arg}"),
+  sprig("trimPrefix", "Remove prefix", "${1:prefix}", " ", "${2:arg}"),
+  sprig("upper", "Convert to uppercase", "${1:arg}"),
+  sprig("lower", "Convert to lowercase", "${1:arg}"),
+  sprig("title", "Convert to title case", "${1:arg}"),
+  sprig("untitle", "Remove title casing", "${1:arg}"),
+  sprig("repeat", "Repeat string n times", "${1:count}", " ", "${2:arg}"),
+  sprig("substr", "Get substring", "${1:start}", " ", "${2:end}", " ", "${3:arg}"),
+  sprig("nospace", "Remove all whitespace", "${1:arg}"),
+  sprig("trunc", "Truncate string", "${1:length}", " ", "${2:arg}"),
+  sprig("abbrev", "Abbreviate with ellipsis", "${1:maxlen}", " ", "${2:arg}"),
+  sprig("abbrevboth", "Abbreviate both sides", "${1:left}", " ", "${2:right}", " ", "${3:arg}"),
+  sprig("initials", "Get initials", "${1:arg}"),
+  sprig("randAlphaNum", "Random alphanumeric string", "${1:length}"),
+  sprig("randAlpha", "Random alphabetic string", "${1:length}"),
+  sprig("randNumeric", "Random numeric string", "${1:length}"),
+  sprig("randAscii", "Random ASCII string", "${1:length}"),
+  sprig("wrap", "Wrap text at column", "${1:width}", " ", "${2:arg}"),
+  sprig("wrapWith", "Wrap with custom string", "${1:width}", " ", "${2:wrapstr}", " ", "${3:arg}"),
+  sprig("contains", "Check if string contains substring", "${1:substr}", " ", "${2:arg}"),
+  sprig("hasPrefix", "Check if starts with prefix", "${1:prefix}", " ", "${2:arg}"),
+  sprig("hasSuffix", "Check if ends with suffix", "${1:suffix}", " ", "${2:arg}"),
+  sprig("quote", "Wrap in double quotes", "${1:arg}"),
+  sprig("squote", "Wrap in single quotes", "${1:arg}"),
+  sprig("cat", "Concatenate strings", "${1:arg1}", " ", "${2:arg2}", " ", "${3:...}"),
+  sprig("indent", "Indent each line", "${1:width}", " ", "${2:arg}"),
+  sprig("nindent", "Indent with newline prefix", "${1:width}", " ", "${2:arg}"),
+  sprig("replace", "Simple string replacement", "${1:old}", " ", "${2:new}", " ", "${3:arg}"),
+  sprig("plural", "Pluralize string", "${1:count}", " ", "${2:singular}", " ", "${3:plural}"),
+  sprig("snakecase", "Convert to snake_case", "${1:arg}"),
+  sprig("camelcase", "Convert to CamelCase", "${1:arg}"),
+  sprig("kebabcase", "Convert to kebab-case", "${1:arg}"),
+  sprig("swapcase", "Swap case", "${1:arg}"),
+  sprig("shuffle", "Randomize string characters", "${1:arg}"),
+  sprig("regexMatch", "Regex match", "${1:pattern}", " ", "${2:arg}"),
+  sprig("mustRegexMatch", "Regex match (must)", "${1:pattern}", " ", "${2:arg}"),
+  sprig("regexFindAll", "Find all regex matches", "${1:pattern}", " ", "${2:arg}", " ", "${3:n}"),
+  sprig("mustRegexFindAll", "Find all regex matches (must)", "${1:pattern}", " ", "${2:arg}", " ", "${3:n}"),
+  sprig("regexFind", "Find first regex match", "${1:pattern}", " ", "${2:arg}"),
+  sprig("mustRegexFind", "Find first regex match (must)", "${1:pattern}", " ", "${2:arg}"),
+  sprig("regexReplaceAll", "Replace all regex matches", "${1:pattern}", " ", "${2:repl}", " ", "${3:arg}"),
+  sprig("mustRegexReplaceAll", "Replace all regex matches (must)", "${1:pattern}", " ", "${2:repl}", " ", "${3:arg}"),
+  sprig("regexReplaceAllLiteral", "Replace regex literal", "${1:pattern}", " ", "${2:repl}", " ", "${3:arg}"),
+  sprig(
+    "mustRegexReplaceAllLiteral",
+    "Replace regex literal (must)",
+    "${1:pattern}",
+    " ",
+    "${2:repl}",
+    " ",
+    "${3:arg}"
+  ),
+  sprig("regexSplit", "Split by regex", "${1:pattern}", " ", "${2:arg}", " ", "${3:n}"),
+  sprig("mustRegexSplit", "Split by regex (must)", "${1:pattern}", " ", "${2:arg}", " ", "${3:n}"),
+  sprig("regexQuoteMeta", "Escape regex metacharacters", "${1:arg}"),
+})
+
+vim.snippet.add({
+  sprig("add", "Add numbers", "${1:arg1}", " ", "${2:arg2}", " ", "${3:...}"),
+  sprig("add1", "Increment by 1", "${1:arg}"),
+  sprig("sub", "Subtract numbers", "${1:arg1}", " ", "${2:arg2}", " ", "${3:...}"),
+  sprig("div", "Integer division", "${1:dividend}", " ", "${2:divisor}"),
+  sprig("mod", "Modulo", "${1:arg1}", " ", "${2:arg2}"),
+  sprig("mul", "Multiply numbers", "${1:arg1}", " ", "${2:arg2}", " ", "${3:...}"),
+  sprig("max", "Maximum of numbers", "${1:arg1}", " ", "${2:arg2}", " ", "${3:...}"),
+  sprig("min", "Minimum of numbers", "${1:arg1}", " ", "${2:arg2}", " ", "${3:...}"),
+  sprig("floor", "Floor to integer", "${1:arg}"),
+  sprig("ceil", "Ceiling to integer", "${1:arg}"),
+  sprig("round", "Round to decimal places", "${1:arg}", " ", "${2:precision}"),
+  sprig("randInt", "Random integer in range", "${1:min}", " ", "${2:max}"),
+  sprig("addf", "Add floats", "${1:arg1}", " ", "${2:arg2}", " ", "${3:...}"),
+  sprig("add1f", "Increment float by 1", "${1:arg}"),
+  sprig("subf", "Subtract floats", "${1:arg1}", " ", "${2:arg2}", " ", "${3:...}"),
+  sprig("divf", "Float division", "${1:dividend}", " ", "${2:divisor}"),
+  sprig("mulf", "Multiply floats", "${1:arg1}", " ", "${2:arg2}", " ", "${3:...}"),
+  sprig("maxf", "Maximum of floats", "${1:arg1}", " ", "${2:arg2}", " ", "${3:...}"),
+  sprig("minf", "Minimum of floats", "${1:arg1}", " ", "${2:arg2}", " ", "${3:...}"),
+})
+
+vim.snippet.add({
+  sprig("now", "Current time"),
+  sprig("ago", "Duration ago from now", "${1:timestamp}"),
+  sprig("date", "Format date", "${1:layout}", " ", "${2:time}"),
+  sprig("dateInZone", "Format date in timezone", "${1:layout}", " ", "${2:time}", " ", "${3:zone}"),
+  sprig("duration", "Format duration in seconds", "${1:seconds}"),
+  sprig("durationRound", "Round duration", "${1:duration}"),
+  sprig("unixEpoch", "Unix timestamp", "${1:time}"),
+  sprig("dateModify", "Modify date", "${1:delta}", " ", "${2:time}"),
+  sprig("mustDateModify", "Modify date (must)", "${1:delta}", " ", "${2:time}"),
+  sprig("htmlDate", "Format for HTML date input", "${1:time}"),
+  sprig("htmlDateInZone", "Format for HTML date input in zone", "${1:time}", " ", "${2:zone}"),
+  sprig("toDate", "Parse string to date", "${1:layout}", " ", "${2:arg}"),
+  sprig("mustToDate", "Parse string to date (must)", "${1:layout}", " ", "${2:arg}"),
+})
+
+vim.snippet.add({
+  sprig("default", "Use default if empty", "${1:default}", " ", "${2:arg}"),
+  sprig("empty", "Check if empty", "${1:arg}"),
+  sprig("coalesce", "First non-empty value", "${1:arg1}", " ", "${2:arg2}", " ", "${3:...}"),
+  sprig("all", "All values non-empty", "${1:arg1}", " ", "${2:arg2}", " ", "${3:...}"),
+  sprig("any", "Any value non-empty", "${1:arg1}", " ", "${2:arg2}", " ", "${3:...}"),
+  sprig("fromJson", "Decode JSON", "${1:json}"),
+  sprig("mustFromJson", "Decode JSON (must)", "${1:json}"),
+  sprig("toJson", "Encode to JSON", "${1:arg}"),
+  sprig("mustToJson", "Encode to JSON (must)", "${1:arg}"),
+  sprig("toPrettyJson", "Encode to pretty JSON", "${1:arg}"),
+  sprig("mustToPrettyJson", "Encode to pretty JSON (must)", "${1:arg}"),
+  sprig("toRawJson", "Encode to raw JSON", "${1:arg}"),
+  sprig("mustToRawJson", "Encode to raw JSON (must)", "${1:arg}"),
+  sprig("ternary", "Ternary operator", "${1:if}", " ", "${2:else}", " ", "${3:test}"),
+  sprig("b64enc", "Base64 encode", "${1:arg}"),
+  sprig("b64dec", "Base64 decode", "${1:arg}"),
+  sprig("b32enc", "Base32 encode", "${1:arg}"),
+  sprig("b32dec", "Base32 decode", "${1:arg}"),
+})
+
+vim.snippet.add({
+  sprig("list", "Create list", "${1:arg1}", " ", "${2:arg2}", " ", "${3:...}"),
+  sprig("first", "First element", "${1:list}"),
+  sprig("mustFirst", "First element (must)", "${1:list}"),
+  sprig("rest", "All except first", "${1:list}"),
+  sprig("mustRest", "All except first (must)", "${1:list}"),
+  sprig("last", "Last element", "${1:list}"),
+  sprig("mustLast", "Last element (must)", "${1:list}"),
+  sprig("initial", "All except last", "${1:list}"),
+  sprig("mustInitial", "All except last (must)", "${1:list}"),
+  sprig("append", "Append to list", "${1:list}", " ", "${2:element}"),
+  sprig("mustAppend", "Append to list (must)", "${1:list}", " ", "${2:element}"),
+  sprig("prepend", "Prepend to list", "${1:list}", " ", "${2:element}"),
+  sprig("mustPrepend", "Prepend to list (must)", "${1:list}", " ", "${2:element}"),
+  sprig("concat", "Concatenate lists", "${1:list1}", " ", "${2:list2}", " ", "${3:...}"),
+  sprig("reverse", "Reverse list", "${1:list}"),
+  sprig("mustReverse", "Reverse list (must)", "${1:list}"),
+  sprig("uniq", "Remove duplicates", "${1:list}"),
+  sprig("mustUniq", "Remove duplicates (must)", "${1:list}"),
+  sprig("without", "Remove elements", "${1:list}", " ", "${2:element1}", " ", "${3:element2}", " ", "${4:...}"),
+  sprig(
+    "mustWithout",
+    "Remove elements (must)",
+    "${1:list}",
+    " ",
+    "${2:element1}",
+    " ",
+    "${3:element2}",
+    " ",
+    "${4:...}"
+  ),
+  sprig("has", "Check list contains element", "${1:element}", " ", "${2:list}"),
+  sprig("mustHas", "Check list contains element (must)", "${1:element}", " ", "${2:list}"),
+  sprig("compact", "Remove empty values", "${1:list}"),
+  sprig("mustCompact", "Remove empty values (must)", "${1:list}"),
+  sprig("slice", "Sublist", "${1:list}", " ", "${2:start}", " ", "${3:end}"),
+  sprig("mustSlice", "Sublist (must)", "${1:list}", " ", "${2:start}", " ", "${3:end}"),
+  sprig("chunk", "Split into chunks", "${1:size}", " ", "${2:list}"),
+})
+
+vim.snippet.add({
+  sprig(
+    "dict",
+    "Create dictionary",
+    "${1:key1}",
+    " ",
+    "${2:val1}",
+    " ",
+    "${3:key2}",
+    " ",
+    "${4:val2}",
+    " ",
+    "${5:...}"
+  ),
+  sprig("get", "Get value by key", "${1:dict}", " ", "${2:key}"),
+  sprig("set", "Set key-value pair", "${1:dict}", " ", "${2:key}", " ", "${3:value}"),
+  sprig("unset", "Remove key", "${1:dict}", " ", "${2:key}"),
+  sprig("hasKey", "Check if key exists", "${1:dict}", " ", "${2:key}"),
+  sprig(
+    "pluck",
+    "Get values by key from multiple dicts",
+    "${1:key}",
+    " ",
+    "${2:dict1}",
+    " ",
+    "${3:dict2}",
+    " ",
+    "${4:...}"
+  ),
+  sprig(
+    "dig",
+    "Traverse nested dicts",
+    "${1:key1}",
+    " ",
+    "${2:key2}",
+    " ",
+    "${3:key3}",
+    " ",
+    "...",
+    " ",
+    "${N:default}",
+    " ",
+    "${dict}"
+  ),
+  sprig("merge", "Merge dictionaries", "${1:dest}", " ", "${2:source1}", " ", "${3:source2}", " ", "${4:...}"),
+  sprig(
+    "mustMerge",
+    "Merge dictionaries (must)",
+    "${1:dest}",
+    " ",
+    "${2:source1}",
+    " ",
+    "${3:source2}",
+    " ",
+    "${4:...}"
+  ),
+  sprig(
+    "mergeOverwrite",
+    "Merge with overwrite",
+    "${1:dest}",
+    " ",
+    "${2:source1}",
+    " ",
+    "${3:source2}",
+    " ",
+    "${4:...}"
+  ),
+  sprig(
+    "mustMergeOverwrite",
+    "Merge with overwrite (must)",
+    "${1:dest}",
+    " ",
+    "${2:source1}",
+    " ",
+    "${3:source2}",
+    " ",
+    "${4:...}"
+  ),
+  sprig("keys", "Get dictionary keys", "${1:dict1}", " ", "${2:dict2}", " ", "${3:...}"),
+  sprig("pick", "Pick keys", "${1:dict}", " ", "${2:key1}", " ", "${3:key2}", " ", "${4:...}"),
+  sprig("omit", "Omit keys", "${1:dict}", " ", "${2:key1}", " ", "${3:key2}", " ", "${4:...}"),
+  sprig("values", "Get dictionary values", "${1:dict}"),
+  sprig("deepCopy", "Deep copy value", "${1:arg}"),
+  sprig("mustDeepCopy", "Deep copy value (must)", "${1:arg}"),
+})
+
+vim.snippet.add({
+  sprig("atoi", "String to int", "${1:arg}"),
+  sprig("float64", "To float64", "${1:arg}"),
+  sprig("int", "To int", "${1:arg}"),
+  sprig("int64", "To int64", "${1:arg}"),
+  sprig("toDecimal", "Octal to decimal", "${1:arg}"),
+  sprig("toString", "To string", "${1:arg}"),
+  sprig("toStrings", "List to strings", "${1:list}"),
+})
+
+vim.snippet.add({
+  sprig("splitList", "Split into list", "${1:sep}", " ", "${2:arg}"),
+  sprig("split", "Split to dict", "${1:sep}", " ", "${2:arg}"),
+  sprig("splitn", "Split to dict with limit", "${1:sep}", " ", "${2:n}", " ", "${3:arg}"),
+  sprig("join", "Join list with separator", "${1:sep}", " ", "${2:list}"),
+  sprig("sortAlpha", "Sort alphabetically", "${1:list}"),
+  sprig("until", "Range 0 to n-1", "${1:n}"),
+  sprig("untilStep", "Range with step", "${1:start}", " ", "${2:stop}", " ", "${3:step}"),
+  sprig("seq", "Number sequence", "${1:start}", " ", "${2:step}", " ", "${3:end}"),
+})
+
+vim.snippet.add({
+  sprig("base", "Path basename", "${1:path}"),
+  sprig("dir", "Path directory", "${1:path}"),
+  sprig("ext", "Path extension", "${1:path}"),
+  sprig("clean", "Clean path", "${1:path}"),
+  sprig("isAbs", "Is absolute path", "${1:path}"),
+  sprig("osBase", "OS basename", "${1:path}"),
+  sprig("osDir", "OS directory", "${1:path}"),
+  sprig("osExt", "OS extension", "${1:path}"),
+  sprig("osClean", "OS clean path", "${1:path}"),
+  sprig("osIsAbs", "Is OS absolute path", "${1:path}"),
+})
+
+vim.snippet.add({
+  sprig("semver", "Parse semver", "${1:version}"),
+  sprig("semverCompare", "Compare semver versions", "${1:constraint}", " ", "${2:version}"),
+})
+
+vim.snippet.add({
+  sprig("env", "Get environment variable", "${1:name}"),
+  sprig("expandenv", "Expand env vars in string", "${1:arg}"),
+  sprig("uuidv4", "Generate UUID v4"),
+  sprig("urlParse", "Parse URL", "${1:url}"),
+  sprig("urlJoin", "Join URL parts", "${1:urldict}"),
+  sprig("getHostByName", "Resolve hostname to IP", "${1:hostname}"),
+})
+
+vim.snippet.add({
+  sprig("sha1sum", "SHA1 checksum", "${1:arg}"),
+  sprig("sha256sum", "SHA256 checksum", "${1:arg}"),
+  sprig("sha512sum", "SHA512 checksum", "${1:arg}"),
+  sprig("adler32sum", "Adler-32 checksum", "${1:arg}"),
+  sprig("bcrypt", "Bcrypt hash", "${1:password}"),
+  sprig("htpasswd", "Generate htpasswd entry", "${1:user}", " ", "${2:pass}", " ", "${3:algo}"),
+  sprig("randBytes", "Random bytes", "${1:count}"),
+  sprig(
+    "derivePassword",
+    "Derive password",
+    "${1:counter}",
+    " ",
+    "${2:passClass}",
+    " ",
+    "${3:pass}",
+    " ",
+    "${4:user}",
+    " ",
+    "${5:site}"
+  ),
+  sprig("genPrivateKey", "Generate private key", "${1:type}"),
+  sprig("genCA", "Generate CA", "${1:cn}", " ", "${2:days}"),
+  sprig("genCAWithKey", "Generate CA with key", "${1:cn}", " ", "${2:days}", " ", "${3:key}"),
+  sprig(
+    "genSelfSignedCert",
+    "Generate self-signed cert",
+    "${1:cn}",
+    " ",
+    "${2:ips}",
+    " ",
+    "${3:domains}",
+    " ",
+    "${4:days}"
+  ),
+  sprig(
+    "genSelfSignedCertWithKey",
+    "Generate self-signed cert with key",
+    "${1:cn}",
+    " ",
+    "${2:ips}",
+    " ",
+    "${3:domains}",
+    " ",
+    "${4:days}",
+    " ",
+    "${5:key}"
+  ),
+  sprig(
+    "genSignedCert",
+    "Generate signed cert",
+    "${1:cn}",
+    " ",
+    "${2:ips}",
+    " ",
+    "${3:domains}",
+    " ",
+    "${4:days}",
+    " ",
+    "${5:ca}"
+  ),
+  sprig(
+    "genSignedCertWithKey",
+    "Generate signed cert with key",
+    "${1:cn}",
+    " ",
+    "${2:ips}",
+    " ",
+    "${3:domains}",
+    " ",
+    "${4:days}",
+    " ",
+    "${5:ca}",
+    " ",
+    "${6:key}"
+  ),
+  sprig("buildCustomCert", "Build custom cert", "${1:crt}", " ", "${2:key}"),
+  sprig("encryptAES", "AES encrypt", "${1:key}", " ", "${2:plaintext}"),
+  sprig("decryptAES", "AES decrypt", "${1:key}", " ", "${2:ciphertext}"),
+  sprig("fail", "Fail with message", "${1:msg}"),
+  sprig("kindOf", "Get kind of value", "${1:arg}"),
+  sprig("kindIs", "Check kind", "${1:kind}", " ", "${2:arg}"),
+  sprig("typeOf", "Get type of value", "${1:arg}"),
+  sprig("typeIs", "Check type", "${1:type}", " ", "${2:arg}"),
+  sprig("typeIsLike", "Check type (with pointers)", "${1:type}", " ", "${2:arg}"),
+  sprig("deepEqual", "Deep equality check", "${1:arg1}", " ", "${2:arg2}"),
+})
