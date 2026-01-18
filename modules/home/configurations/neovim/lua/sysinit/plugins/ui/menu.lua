@@ -14,6 +14,16 @@ M.plugins = {
       -- Override default menu
       package.loaded["menus.default"] = {
         {
+          name = "Code Actions",
+          hl = "Exblue",
+          cmd = vim.lsp.buf.code_action,
+        },
+        {
+          name = "Lsp Actions",
+          hl = "Exblue",
+          items = "lsp",
+        },
+        {
           name = "Format Buffer",
           cmd = function()
             local ok, conform = pcall(require, "conform")
@@ -25,26 +35,14 @@ M.plugins = {
             end
           end,
         },
-        {
-          name = "Code Actions",
-          cmd = vim.lsp.buf.code_action,
-          rtxt = "<leader>ca",
-        },
-        {
-          name = "Lsp Actions",
-          hl = "Exblue",
-          items = "lsp",
-        },
         { name = "separator" },
         {
           name = "Copy Content",
           cmd = "%y+",
-          rtxt = "<C-c>",
         },
         {
           name = "Delete Content",
           cmd = "%d",
-          rtxt = "dc",
         },
       }
 
