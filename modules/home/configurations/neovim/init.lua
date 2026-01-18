@@ -1,15 +1,5 @@
 require("sysinit.config.pre.profiler").setup()
 
-vim.env.PATH = vim.fn.getenv("PATH")
----@diagnostic disable-next-line: inject-field
-package.path = package.path
-  .. ";"
-  .. vim.fn.stdpath("config")
-  .. "/?.lua"
-  .. ";"
-  .. vim.fn.stdpath("config")
-  .. "/lua/?.lua"
-
 require("sysinit.config.opts.autoread").setup()
 require("sysinit.config.opts.completion").setup()
 require("sysinit.config.opts.editor").setup()
