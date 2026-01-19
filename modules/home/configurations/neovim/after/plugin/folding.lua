@@ -10,7 +10,6 @@ local config = {
 local ns = vim.api.nvim_create_namespace("foldsign")
 
 vim.opt.foldenable = true
-vim.opt.foldlevel = 99
 vim.opt.fillchars:append({ fold = " " })
 
 local function should_display_foldsign()
@@ -41,12 +40,6 @@ local function update_foldsign()
   end
   vim.api.nvim_buf_clear_namespace(0, ns, topline, botline)
 
-  local numberwidth = #tostring(vim.fn.line("$"))
-  local min_width = vim.o.numberwidth - 1
-  if numberwidth < min_width then
-    numberwidth = min_width
-  end
-
   local pre = 0
   for i = topline + 1, botline do
     local foldlevel = vim.fn.foldlevel(i)
@@ -63,7 +56,6 @@ local function update_foldsign()
       end
 
       vim.api.nvim_buf_set_extmark(0, ns, i - 1, 0, {
-        virt_text_win_col = config.offset - numberwidth,
         virt_text = { { foldtext, "FoldColumn" } },
       })
     end
