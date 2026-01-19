@@ -42,33 +42,6 @@ func Test{}(t *testing.T) {{
     )
   ),
 
-  -- Table-driven test
-  s(
-    "testt",
-    fmt(
-      [[
-func Test{}(t *testing.T) {{
-	tests := []struct {{
-		name string
-		{}
-	}}{{
-		{{
-			name: "{}",
-			{}: {},
-		}},
-	}}
-
-	for _, tt := range tests {{
-		t.Run(tt.name, func(t *testing.T) {{
-			{}
-		}})
-	}}
-}}
-]],
-      { i(1, "Function"), i(2, "input string"), i(3, "test case"), i(4, "input"), i(5, `"value"`), i(0) }
-    )
-  ),
-
   -- Struct definition
   s(
     "struct",
