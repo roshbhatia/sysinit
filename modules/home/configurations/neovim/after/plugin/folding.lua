@@ -95,9 +95,7 @@ function M.setup(opt)
   end
 
   local folding = require("folding")
-  vim.cmd(
-    'au VimEnter,WinEnter,BufWinEnter,ModeChanged,CursorMoved,CursorHold * lua require("folding").foldsign()'
-  )
+  vim.cmd('au VimEnter,WinEnter,BufWinEnter,ModeChanged,CursorMoved,CursorHold * lua require("folding").foldsign()')
 end
 
 return M
