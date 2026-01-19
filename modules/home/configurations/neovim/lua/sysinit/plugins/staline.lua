@@ -41,6 +41,7 @@ return {
         special_table = {
           qf = { "QuickFix", " " },
           ["neo-tree"] = { "File Tree", " " },
+          Outline = { "Outline", " " },
         },
         mode_colors = {
           n = get_fg("Normal"),
