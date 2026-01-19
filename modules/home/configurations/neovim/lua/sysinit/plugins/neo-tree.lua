@@ -2,7 +2,7 @@ return {
   {
     "s1n7ax/nvim-window-picker",
     version = "2.*",
-    event = "VeryLazy",
+    cmd = "Neotree",
     config = function()
       require("window-picker").setup({
         hint = "floating-big-letter",
@@ -23,7 +23,7 @@ return {
   },
   {
     "antosha417/nvim-lsp-file-operations",
-    event = "VeryLazy",
+    lazy = true,
     dependencies = {
       "nvim-lua/plenary.nvim",
       "nvim-neo-tree/neo-tree.nvim",
@@ -35,7 +35,7 @@ return {
   {
     "nvim-neo-tree/neo-tree.nvim",
     branch = "v3.x",
-    event = "VeryLazy",
+    cmd = "Neotree",
     dependencies = {
       "nvim-lua/plenary.nvim",
       "nvim-tree/nvim-web-devicons",
