@@ -169,10 +169,10 @@ return {
         return Snacks.notifier.notify(msg, level, opts or {})
       end
 
-      local agents = require("ai.agents")
-      local ai_manager = require("ai.ai_manager")
-      local completion = require("ai.completion")
-      local file_refresh = require("ai.file_refresh")
+      local agents = require("sysinit.utils.ai.agents")
+      local session = require("sysinit.utils.ai.session")
+      local completion = require("sysinit.utils.ai.completion")
+      local file_refresh = require("sysinit.utils.ai.file_refresh")
 
       completion.setup()
 
@@ -183,7 +183,7 @@ return {
         }
       end
 
-      ai_manager.setup({
+      session.setup({
         terminals = terminals_config,
         env = {
           PAGER = "bat",
@@ -200,7 +200,7 @@ return {
       })
     end,
     keys = function()
-      local keymaps = require("ai.keymaps")
+      local keymaps = require("sysinit.utils.ai.keymaps")
       local ai_keys = keymaps.generate_all_keymaps()
 
       local default_keys = {

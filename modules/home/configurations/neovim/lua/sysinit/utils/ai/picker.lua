@@ -2,17 +2,17 @@ local M = {}
 
 function M.pick_agent()
   local agents = require("sysinit.utils.ai.agents")
-  local ai_manager = require("sysinit.utils.ai.ai_manager")
-  local active = ai_manager.get_active()
+  local session = require("sysinit.utils.ai.session")
+  local active = session.get_active()
 
   -- If there's an active terminal and its tmux session exists, toggle visibility
-  if active and ai_manager.exists(active) then
-    if ai_manager.is_visible(active) then
+  if active and session.exists(active) then
+    if session.is_visible(active) then
       -- Pane is visible -> hide it (kill WezTerm pane, keep tmux session)
-      ai_manager.hide(active)
+      session.hide(active)
     else
       -- Pane is hidden but session exists -> bring it back
-      ai_manager.activate(active)
+      session.activate(active)
     end
     return
   end
@@ -53,7 +53,7 @@ function M.pick_agent()
           actions.close(prompt_bufnr)
           local selection = action_state.get_selected_entry()
           if selection then
-            ai_manager.activate(selection.value.agent.name)
+            session.activate(selection.value.agent.name)
             vim.notify(
               string.format("%s %s activated", selection.value.agent.icon, selection.value.agent.label),
               vim.log.levels.INFO
@@ -67,26 +67,26 @@ function M.pick_agent()
 end
 
 function M.kill_and_pick()
-  local ai_manager = require("sysinit.utils.ai.ai_manager")
-  local active = ai_manager.get_active()
+  local session = require("sysinit.utils.ai.session")
+  local active = session.get_active()
 
   if active then
-    ai_manager.close(active)
+    session.close(active)
   end
 
   M.pick_agent()
 end
 
 function M.kill_active()
-  local ai_manager = require("sysinit.utils.ai.ai_manager")
-  local active = ai_manager.get_active()
+  local session = require("sysinit.utils.ai.session")
+  local active = session.get_active()
 
   if not active then
     vim.notify("No active AI session", vim.log.levels.WARN)
     return
   end
 
-  ai_manager.close(active)
+  session.close(active)
   vim.notify("AI session killed", vim.log.levels.INFO)
 end
 

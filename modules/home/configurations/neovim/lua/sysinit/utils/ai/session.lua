@@ -153,7 +153,7 @@ end
 function M.open(termname)
   local agent_config = config.terminals[termname]
   if not agent_config then
-    vim.notify(string.format("Unknown terminal: %s. Check ai_manager.setup() config", termname), vim.log.levels.ERROR)
+    vim.notify(string.format("Unknown terminal: %s. Check session.setup() config", termname), vim.log.levels.ERROR)
     return
   end
 

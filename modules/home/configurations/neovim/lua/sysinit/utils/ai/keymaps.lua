@@ -1,13 +1,13 @@
 local M = {}
 
-local ai_manager = require("sysinit.utils.ai.ai_manager")
+local session = require("sysinit.utils.ai.session")
 local agents = require("sysinit.utils.ai.agents")
 local input = require("sysinit.utils.ai.input")
 local picker = require("sysinit.utils.ai.picker")
 local history = require("sysinit.utils.ai.history")
 
 local function ensure_active_terminal()
-  local active = ai_manager.get_active()
+  local active = session.get_active()
   if not active then
     vim.notify("No active AI terminal. Select one with <leader>jj", vim.log.levels.WARN)
     return nil
@@ -30,7 +30,7 @@ local function create_context_input(action, default_text)
     action = action,
     default = default_text,
     on_confirm = function(text)
-      ai_manager.ensure_active_and_send(text)
+      session.ensure_active_and_send(text)
     end,
   })
 end
@@ -70,7 +70,7 @@ function M.generate_all_keymaps()
     table.insert(keymaps, {
       "<leader>j" .. agent.priority,
       function()
-        ai_manager.activate(agent.name)
+        session.activate(agent.name)
         vim.notify(string.format("%s %s activated", agent.icon, agent.label), vim.log.levels.INFO)
       end,
       desc = string.format("AI: Activate %s", agent.label),
@@ -126,7 +126,7 @@ function M.generate_all_keymaps()
       local terminal = require("sysinit.utils.ai.terminal")
       local last_prompt = terminal.get_last_prompt(active)
       if last_prompt and last_prompt ~= "" then
-        ai_manager.ensure_active_and_send(last_prompt)
+        session.ensure_active_and_send(last_prompt)
       else
         vim.notify("No previous prompt found for active terminal", vim.log.levels.WARN)
       end
@@ -137,7 +137,7 @@ function M.generate_all_keymaps()
   table.insert(keymaps, {
     "<leader>jr",
     function()
-      history.create_history_picker(ai_manager.get_active())
+      history.create_history_picker(session.get_active())
     end,
     desc = "Browse history (active or all)",
   })

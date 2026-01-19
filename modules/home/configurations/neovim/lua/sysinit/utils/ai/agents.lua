@@ -1,6 +1,6 @@
 local M = {}
 
-local all_agents = {
+local agents = {
   {
     name = "opencode",
     label = "OpenCode",
@@ -51,24 +51,6 @@ local all_agents = {
     priority = 7,
   },
 }
-
--- Load optional config to enable/disable agents
-local config_path = vim.fn.stdpath("config") .. "/agents_config.json"
-local agents_config = {}
-if vim.fn.filereadable(config_path) == 1 then
-  local ok, json = pcall(vim.json.decode, vim.fn.readfile(config_path))
-  if ok and json then
-    agents_config = json.agents or {}
-  end
-end
-
--- Filter and sort agents
-local agents = {}
-for _, agent in ipairs(all_agents) do
-  if agents_config[agent.name] ~= false then
-    table.insert(agents, agent)
-  end
-end
 
 table.sort(agents, function(a, b)
   return (a.priority or 999) < (b.priority or 999)
