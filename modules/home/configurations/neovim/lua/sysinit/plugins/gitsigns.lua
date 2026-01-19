@@ -13,7 +13,7 @@ return {
           row = 0,
           col = 1,
         },
-        numhl = true,
+        numhl = false,
       })
     end,
     keys = function()
