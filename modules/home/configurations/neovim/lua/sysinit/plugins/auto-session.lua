@@ -11,7 +11,6 @@ return {
       "neo-tree",
     },
     git_use_branch_name = true,
-    show_auto_restore_notif = true,
     no_restore_cmds = {
       function()
         if vim.fn.argc(-1) == 0 then
