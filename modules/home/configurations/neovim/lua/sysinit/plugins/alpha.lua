@@ -5,7 +5,6 @@ return {
     dependencies = {
       "nvim-tree/nvim-web-devicons",
       "nvim-telescope/telescope.nvim",
-      "olimorris/persisted.nvim",
     },
     config = function()
       local alpha = require("alpha")
@@ -50,10 +49,10 @@ return {
 
       dashboard.section.buttons.val = function()
         local buttons = {}
-        table.insert(buttons, dashboard.button("l", "󰄚 Load last session", ":ene | SessionLoad<CR>"))
-        table.insert(buttons, dashboard.button("i", "󱡃 New file", ":ene | startinsert<CR>"))
         table.insert(buttons, dashboard.button("f", " Find file", ":ene | Telescope find_files<CR>"))
-        table.insert(buttons, dashboard.button("q", "󰓥 Quit", ":qa<CR>"))
+        table.insert(buttons, dashboard.button("g", "󰓥 Grep string", ":ene | lua Snacks.picker.grep()<CR>"))
+        table.insert(buttons, dashboard.button("i", "󱡃 New file", ":ene | startinsert<CR>"))
+        table.insert(buttons, dashboard.button("q", "󰄚 Quit", ":qa<CR>"))
         return buttons
       end
 

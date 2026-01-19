@@ -261,49 +261,6 @@ return {
         table.insert(default_keys, key)
       end
 
-      if vim.env.SYSINIT_DEBUG ~= "1" then
-        return default_keys
-      end
-      local debug_keys = {
-        {
-          "<leader>px",
-          function()
-            Snacks.profiler.stop()
-          end,
-          desc = "Stop profiler",
-        },
-        {
-          "<leader>pf",
-          function()
-            Snacks.profiler.pick()
-          end,
-          desc = "Find profiler events",
-        },
-        {
-          "<leader>pp",
-          function()
-            Snacks.toggle.profiler()
-          end,
-          desc = "Toggle profiler",
-        },
-        {
-          "<leader>ph",
-          function()
-            Snacks.toggle.profiler_highlights()
-          end,
-          desc = "Toggle profiler highlights",
-        },
-        {
-          "<leader>ps",
-          function()
-            Snacks.profiler.scratch()
-          end,
-          desc = "Toggle profiler scratch buffer",
-        },
-      }
-      for _, key in ipairs(debug_keys) do
-        table.insert(default_keys, key)
-      end
       return default_keys
     end,
   },

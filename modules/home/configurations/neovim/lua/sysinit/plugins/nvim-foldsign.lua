@@ -1,7 +1,7 @@
 return {
   {
     "yaocccc/nvim-foldsign",
-    event = "BufReadPost",
+    event = "VeryLazy",
     config = function()
       require("nvim-foldsign").setup({
         offset = -3,
