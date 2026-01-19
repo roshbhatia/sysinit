@@ -31,7 +31,33 @@ return {
           style = "minimal",
         },
         picker = {
-          enabled = false,
+          enabled = true,
+          layout = {
+            preset = "ivy",
+          },
+          matcher = {
+            fuzzy = true,
+            smartcase = true,
+            ignorecase = true,
+          },
+          win = {
+            input = {
+              keys = {
+                ["<Tab>"] = "list_down",
+                ["<S-Tab>"] = "list_up",
+                ["<S-j>"] = "preview_scroll_down",
+                ["<S-k>"] = "preview_scroll_up",
+                ["<localleader>s"] = "edit_split",
+                ["<localleader>v"] = "edit_vsplit",
+              },
+            },
+            list = {
+              keys = {
+                ["j"] = "list_down",
+                ["k"] = "list_up",
+              },
+            },
+          },
         },
         rename = {
           enabled = true,
@@ -217,6 +243,49 @@ return {
             Snacks.picker.undo()
           end,
           desc = "Undo history",
+        },
+        {
+          "<leader>?",
+          function()
+            Snacks.picker.commands({ layout = "ivy", preview = false })
+          end,
+          desc = "Commands",
+        },
+        {
+          "<leader>fb",
+          function()
+            Snacks.picker.buffers({
+              layout = "ivy",
+              preview = false,
+              sort_mru = true,
+              current = true,
+            })
+          end,
+          desc = "Buffers",
+        },
+        {
+          "<leader>fd",
+          function()
+            Snacks.picker.diagnostics({ layout = "ivy" })
+          end,
+          desc = "Diagnostics",
+        },
+        {
+          "<leader>ff",
+          function()
+            Snacks.picker.files({
+              hidden = true,
+              follow = true,
+            })
+          end,
+          desc = "Files",
+        },
+        {
+          "<leader>fj",
+          function()
+            Snacks.picker.jumplist({ layout = "ivy" })
+          end,
+          desc = "Jumplist",
         },
         {
           "<leader>ns",

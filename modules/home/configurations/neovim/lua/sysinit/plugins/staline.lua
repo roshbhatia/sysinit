@@ -16,13 +16,16 @@ return {
       require("staline").setup({
         sections = {
           left = {
-            "mode",
+            "- ",
+            "-mode",
+            " ",
+            "branch",
             "file_name",
           },
-          mid = {
-            "lsp",
-          },
+          mid = {},
           right = {
+            "lsp",
+            "lsp_name",
             "file_size",
             "line_column",
           },
@@ -31,14 +34,14 @@ return {
           expand_null_ls = false,
           true_colors = true,
           line_column = ":%c [%l/%L]",
-          lsp_client_symbol = "󰘧",
+          lsp_client_symbol = "󰘧 ",
           lsp_client_character_length = 40,
           file_size_suffix = true,
-          branch_symbol = " ",
+          branch_symbol = " ",
         },
         special_table = {
-          qf = { "QuickFix", "" },
-          ["neo-tree"] = { "Tree", "" },
+          qf = { "QuickFix", " " },
+          ["neo-tree"] = { "File Tree", " " },
         },
         mode_colors = {
           n = get_fg("Normal"),
