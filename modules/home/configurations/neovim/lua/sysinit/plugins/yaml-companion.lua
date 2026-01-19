@@ -1,4 +1,3 @@
--- YAML schema detection and Kubernetes enhancements
 return {
   {
     "someone-stole-my-name/yaml-companion.nvim",
@@ -13,11 +12,11 @@ return {
 
       require("yaml-companion").setup({
         builtin_matchers = {
-          kubernetes = { enabled = true },
-          cloud_init = { enabled = true },
+          cloud_init = { enabled = false },
           docker_compose = { enabled = true },
-          gitlab = { enabled = true },
           github_workflow = { enabled = true },
+          gitlab = { enabled = false },
+          kubernetes = { enabled = true },
         },
         schemas = {
           result = {
