@@ -1,5 +1,3 @@
-local config = require("sysinit.utils.config")
-
 return {
   {
     "folke/which-key.nvim",
@@ -40,12 +38,6 @@ return {
         { "<localleader>m", group = "Markdown", ft = "markdown" },
         { "gr", group = "LSP" },
       })
-
-      if config.get().debug then
-        wk.add({
-          { "<leader>p", group = "Profiler" },
-        })
-      end
     end,
   },
 }
