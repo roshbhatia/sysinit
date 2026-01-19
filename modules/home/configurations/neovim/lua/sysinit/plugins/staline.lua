@@ -16,13 +16,13 @@ return {
       require("staline").setup({
         sections = {
           left = {
-            "- ",
-            "-mode",
+            "mode",
             " ",
             "branch",
+          },
+          mid = {
             "file_name",
           },
-          mid = {},
           right = {
             "lsp",
             "lsp_name",
