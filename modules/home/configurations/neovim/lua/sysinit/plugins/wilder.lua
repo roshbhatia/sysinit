@@ -94,9 +94,9 @@ return {
 
       local wildmenu_renderer = wilder.wildmenu_renderer({
         highlights = {
-          default = "Slimline",
+          default = "Pmenu",
           selected = "WilderWildmenuSelected",
-          accent = "WilderWildmenuAccent",
+          accent = "WilderAccent",
         },
         separator = " · ",
         right = {
