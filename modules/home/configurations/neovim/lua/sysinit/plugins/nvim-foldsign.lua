@@ -1,7 +1,7 @@
 return {
   {
     "yaocccc/nvim-foldsign",
-    event = "CursorHold",
+    event = "BufReadPost",
     config = function()
       require("nvim-foldsign").setup({
         require("nvim-foldsign").setup({
