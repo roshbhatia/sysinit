@@ -2,7 +2,7 @@ return {
   {
     "Bekaboo/dropbar.nvim",
     branch = "master",
-    event = "LSPAttach",
+    lazy = false,
     config = function()
       require("dropbar").setup({
         icons = {

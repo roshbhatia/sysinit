@@ -7,7 +7,7 @@ return {
     },
     opts = {
       winbar = {
-        enable = true,
+        enable = false,
       },
       border = {
         enable = true,
