@@ -4,7 +4,6 @@ return {
     cmd = "Alpha",
     dependencies = {
       "nvim-tree/nvim-web-devicons",
-      "nvim-telescope/telescope.nvim",
     },
     config = function()
       local alpha = require("alpha")
@@ -49,7 +48,7 @@ return {
 
       dashboard.section.buttons.val = function()
         local buttons = {}
-        table.insert(buttons, dashboard.button("f", " Find file", ":ene | Telescope find_files<CR>"))
+        table.insert(buttons, dashboard.button("f", " Find file", ":ene | lua Snacks.picker.files()<CR>"))
         table.insert(buttons, dashboard.button("g", "󰓥 Grep string", ":ene | lua Snacks.picker.grep()<CR>"))
         table.insert(buttons, dashboard.button("i", "󱡃 New file", ":ene | startinsert<CR>"))
         table.insert(buttons, dashboard.button("q", "󰄚 Quit", ":qa<CR>"))

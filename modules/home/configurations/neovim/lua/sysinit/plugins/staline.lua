@@ -19,10 +19,9 @@ return {
             "mode",
             " ",
             "branch",
-          },
-          mid = {
             "file_name",
           },
+          mid = {},
           right = {
             "lsp",
             "lsp_name",
