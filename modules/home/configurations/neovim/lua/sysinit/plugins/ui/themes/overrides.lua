@@ -1,4 +1,4 @@
-local highlight_gen = require("sysinit.utils.highlight_generator")
+local highlight_gen = require("sysinit.plugins.ui.themes.highlight_generator")
 
 local M = {}
 

@@ -1,5 +1,4 @@
 local wezterm = require("wezterm")
-local platform = require("sysinit.pkg.utils")
 local utils = require("sysinit.pkg.utils")
 
 local tabline = wezterm.plugin.require("https://github.com/michaelbrusegard/tabline.wez")
@@ -20,7 +19,7 @@ local function should_apply_nvim_overrides(tab)
 end
 
 function M.setup(config)
-  local config_data = utils.json_loader.load_json_file(utils.json_loader.get_config_path("config.json"))
+  local config_data = utils.load_json_file(utils.get_config_path("config.json"))
   local font = wezterm.font_with_fallback({
     {
       family = config_data.font.monospace,
@@ -35,7 +34,7 @@ function M.setup(config)
     config_data.font.symbols,
   })
 
-  config.adjust_window_size_when_changing_font_size = not platform.is_darwin()
+  config.adjust_window_size_when_changing_font_size = not utils.is_darwin()
   config.animation_fps = 120
   config.color_scheme = config_data.color_scheme
   config.cursor_blink_rate = 320
@@ -44,13 +43,13 @@ function M.setup(config)
   config.enable_scroll_bar = true
   config.font = font
   config.font_size = 13.0
-  config.macos_window_background_blur = platform.is_darwin() and config_data.transparency.blur or 0
+  config.macos_window_background_blur = utils.is_darwin() and config_data.transparency.blur or 0
   config.max_fps = 240
   config.quick_select_alphabet = "fjdkslaghrueiwoncmv"
   config.scrollback_lines = 20000
   config.tab_bar_at_bottom = true
   config.window_background_opacity = config_data.transparency.opacity
-  config.window_decorations = platform.is_darwin() and "RESIZE|MACOS_FORCE_ENABLE_SHADOW" or "RESIZE"
+  config.window_decorations = utils.is_darwin() and "RESIZE|MACOS_FORCE_ENABLE_SHADOW" or "RESIZE"
   config.window_frame = {
     font = font,
     font_size = 13.0,

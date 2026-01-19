@@ -1,5 +1,3 @@
--- JSON-specific settings and keymaps
-
 -- Formatting
 vim.opt_local.tabstop = 2
 vim.opt_local.shiftwidth = 2

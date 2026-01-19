@@ -1,28 +1,53 @@
-require("sysinit.config.pre.profiler").setup()
+local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
+---@diagnostic disable-next-line: undefined-field
+if not vim.uv.fs_stat(lazypath) then
+  vim.fn.system({
+    "git",
+    "clone",
+    "--filter=blob:none",
+    "https://github.com/folke/lazy.nvim.git",
+    "--branch=stable",
+    lazypath,
+  })
+end
+vim.opt.rtp:prepend(lazypath)
 
-require("sysinit.config.opts.autoread").setup()
-require("sysinit.config.opts.completion").setup()
-require("sysinit.config.opts.editor").setup()
-require("sysinit.config.opts.filetypes").setup()
-require("sysinit.config.opts.folding").setup()
-require("sysinit.config.opts.indentation").setup()
-require("sysinit.config.opts.leader").setup()
-require("sysinit.config.opts.performance").setup()
-require("sysinit.config.opts.search").setup()
-require("sysinit.config.opts.ui").setup()
-require("sysinit.config.opts.undo").setup()
-require("sysinit.config.opts.wrapping").setup()
-
-require("sysinit.config.autocmds.buf").setup()
-require("sysinit.config.autocmds.msg-dump").setup()
-
-require("sysinit.config.usercmds.patch").setup()
-require("sysinit.config.usercmds.sudo").setup()
-
-require("sysinit.utils.plugin_manager").setup_package_manager()
-require("sysinit.utils.plugin_manager").setup_plugins()
-
-require("sysinit.config.keybindings.lists").setup()
-require("sysinit.config.keybindings.super").setup()
-require("sysinit.config.keybindings.undo").setup()
-require("sysinit.config.keybindings.visual").setup()
+require("lazy").setup({
+  root = vim.fn.stdpath("data") .. "/lazy",
+  lockfile = vim.fn.stdpath("data") .. "/lazy/lazy-lock.json",
+  rocks = {
+    enabled = true,
+    root = vim.fn.stdpath("data") .. "/lazy-rocks",
+  },
+  spec = {
+    { import = "sysinit.plugins" },
+  },
+  performance = {
+    rtp = {
+      disabled_plugins = {
+        "gzip",
+        "netrwPlugin",
+        "tarPlugin",
+        "tohtml",
+        "tutor",
+        "zipPlugin",
+        "matchit",
+        "matchparen",
+        "shada_plugin",
+      },
+    },
+    reset_packpath = true,
+    reset_rtp = true,
+  },
+  change_detection = {
+    notify = true,
+    enabled = true,
+  },
+  concurrency = 12,
+  dev = {
+    path = vim.fn.stdpath("data") .. "/lazy-dev",
+  },
+  ui = {
+    border = "rounded",
+  },
+})
