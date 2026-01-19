@@ -15,7 +15,6 @@ require("sysinit.config.opts.wrapping").setup()
 
 require("sysinit.config.autocmds.buf").setup()
 require("sysinit.config.autocmds.msg-dump").setup()
-require("sysinit.config.autocmds.nvim-rpc").setup()
 
 require("sysinit.config.usercmds.patch").setup()
 require("sysinit.config.usercmds.sudo").setup()

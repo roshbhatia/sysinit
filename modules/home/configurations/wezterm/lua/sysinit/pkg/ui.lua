@@ -1,6 +1,6 @@
 local wezterm = require("wezterm")
-local platform = require("sysinit.pkg.utils.platform")
-local json_loader = require("sysinit.pkg.utils.json_loader")
+local platform = require("sysinit.pkg.utils")
+local utils = require("sysinit.pkg.utils")
 
 local tabline = wezterm.plugin.require("https://github.com/michaelbrusegard/tabline.wez")
 
@@ -20,7 +20,7 @@ local function should_apply_nvim_overrides(tab)
 end
 
 function M.setup(config)
-  local config_data = json_loader.load_json_file(json_loader.get_config_path("config.json"))
+  local config_data = utils.json_loader.load_json_file(utils.json_loader.get_config_path("config.json"))
   local font = wezterm.font_with_fallback({
     {
       family = config_data.font.monospace,

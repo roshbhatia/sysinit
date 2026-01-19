@@ -22,19 +22,22 @@ in
   xdg = {
     configFile = {
       "nvim/init.lua".source = ./init.lua;
-      # Filetype-specific settings loaded after defaults
-      "nvim/after/ftplugin".source = ./after/ftplugin;
+      # After directory - loaded after all other runtime paths
+      # See :help after-directory for details
+      "nvim/after/ftplugin".source = ./after/ftplugin; # Filetype-specific settings
+      "nvim/after/plugin/".source = ./after/plugin; # Post-load plugin overrides
+      "nvim/after/snippets/".source = ./after/snippets; # Language-organized snippets
+      "nvim/after/lsp/".source = ./after/lsp; # LSP config overrides (highest priority)
       "nvim/lua/sysinit/config".source = ./lua/sysinit/config;
       # Plugin directories (auto-discovered by lazy.nvim via import)
-      "nvim/lua/sysinit/plugins/core/".source = ./lua/sysinit/plugins/core;
-      "nvim/lua/sysinit/plugins/debugger/".source = ./lua/sysinit/plugins/debugger;
+      # Organized following kickstart/lazyvim conventions
+      "nvim/lua/sysinit/plugins/coding/".source = ./lua/sysinit/plugins/coding;
+      "nvim/lua/sysinit/plugins/dap/".source = ./lua/sysinit/plugins/dap;
       "nvim/lua/sysinit/plugins/editor/".source = ./lua/sysinit/plugins/editor;
-      "nvim/lua/sysinit/plugins/file/".source = ./lua/sysinit/plugins/file;
       "nvim/lua/sysinit/plugins/git/".source = ./lua/sysinit/plugins/git;
-      "nvim/lua/sysinit/plugins/intellicode/".source = ./lua/sysinit/plugins/intellicode;
-      "nvim/lua/sysinit/plugins/keymaps/".source = ./lua/sysinit/plugins/keymaps;
-      "nvim/lua/sysinit/plugins/library/".source = ./lua/sysinit/plugins/library;
-      "nvim/lua/sysinit/plugins/orgmode/".source = ./lua/sysinit/plugins/orgmode;
+      "nvim/lua/sysinit/plugins/lang/".source = ./lua/sysinit/plugins/lang;
+      "nvim/lua/sysinit/plugins/lsp/".source = ./lua/sysinit/plugins/lsp;
+      "nvim/lua/sysinit/plugins/util/".source = ./lua/sysinit/plugins/util;
       # UI plugins (includes modular themes/ subdirectory)
       "nvim/lua/sysinit/plugins/ui/".source = ./lua/sysinit/plugins/ui;
       # Utilities (includes code_actions/ and ai/ subdirectories)

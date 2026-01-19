@@ -25,16 +25,15 @@ function plugin_manager.setup_plugins()
       root = vim.fn.stdpath("data") .. "/lazy-rocks",
     },
     spec = {
-      { import = "sysinit.plugins.core" },
-      { import = "sysinit.plugins.debugger" },
+      -- Organized following kickstart/lazyvim conventions
+      { import = "sysinit.plugins.coding" },
+      { import = "sysinit.plugins.dap" },
       { import = "sysinit.plugins.editor" },
-      { import = "sysinit.plugins.file" },
       { import = "sysinit.plugins.git" },
-      { import = "sysinit.plugins.intellicode" },
-      { import = "sysinit.plugins.keymaps" },
-      { import = "sysinit.plugins.library" },
-      { import = "sysinit.plugins.orgmode" },
+      { import = "sysinit.plugins.lang" },
+      { import = "sysinit.plugins.lsp" },
       { import = "sysinit.plugins.ui" },
+      { import = "sysinit.plugins.util" },
     },
     performance = {
       rtp = {

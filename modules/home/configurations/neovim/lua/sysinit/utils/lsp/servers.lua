@@ -1,72 +1,47 @@
 local M = {}
 
 function M.get_builtin_configs()
-  local schemastore = require("schemastore")
+  -- Base LSP server configurations
+  -- Server-specific settings and overrides are in after/lsp/*.lua
+  -- which have higher priority in the config merge order.
+  --
+  -- See :help lsp-config-merge for details
 
   local configs = {
-    copilot_ls = {
-      on_attach = function(client, bufnr)
-        require("sysinit.utils.lsp.copilot").setup(client, bufnr)
-      end,
-    },
+    copilot_ls = {}, -- Config in after/lsp/copilot_ls.lua
     eslint = {},
-    gopls = {},
+    gopls = {}, -- Config in after/lsp/gopls.lua
     tflint = {},
     helm_ls = {},
     jqls = {},
-    lua_ls = {},
-    nil_ls = {
-      settings = {
-        ["nil"] = {
-          nix = {
-            flake = {
-              autoArchive = false,
-            },
-          },
-        },
-      },
-    },
+    lua_ls = {}, -- Config in after/lsp/lua_ls.lua
+    nil_ls = {}, -- Config in after/lsp/nil_ls.lua
     nixd = {},
     openscad_lsp = {},
-    pyright = {},
+    pyright = {}, -- Config in after/lsp/pyright.lua
     terraformls = {},
-    rust_analyzer = {},
+    rust_analyzer = {}, -- Config in after/lsp/rust_analyzer.lua
     bashls = {},
     marksman = {},
     zls = {},
     awk_ls = {},
     statix = {},
     docker_compose_language_service = {},
-    jsonls = {
-      settings = {
-        json = {
-          schemas = schemastore.json.schemas(),
-          validate = { enable = true },
-        },
-      },
-    },
-    yamlls = {
-      settings = {
-        yaml = {
-          schemaStore = { enable = false, url = "" },
-          schemas = vim.tbl_extend("force", schemastore.yaml.schemas(), {
-            Kubernetes = "globPattern",
-          }),
-        },
-      },
-    },
+    jsonls = {}, -- Config in after/lsp/jsonls.lua
+    yamlls = {}, -- Config in after/lsp/yamlls.lua
   }
 
   return configs
 end
 
 function M.get_custom_configs()
+  -- Custom LSP servers not in nvim-lspconfig
+  -- Server-specific settings and overrides are in after/lsp/*.lua
+  --
+  -- See :help lsp-config-merge for details
+
   return {
-    up = {
-      cmd = { "up", "xpls", "serve" },
-      filetypes = { "yaml" },
-      root_dir = require("lspconfig").util.root_pattern("crossplane.yaml"),
-    },
+    up = {}, -- Config in after/lsp/up.lua (Crossplane)
   }
 end
 
