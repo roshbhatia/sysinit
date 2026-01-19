@@ -17,7 +17,6 @@ return {
         sections = {
           left = {
             "mode",
-            " ",
             "branch",
             "file_name",
           },
