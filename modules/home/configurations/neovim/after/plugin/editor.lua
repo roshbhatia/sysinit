@@ -1,6 +1,7 @@
 vim.opt.mouse = "a"
 vim.o.mousemoveevent = true
 vim.opt.clipboard = "unnamedplus"
+
 -- https://github.com/tjdevries/config.nvim/blob/master/plugin/clipboard.lua
 if vim.env.SSH_CONNECTION then
   local function vim_paste()
