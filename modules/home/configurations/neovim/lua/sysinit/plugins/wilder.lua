@@ -94,7 +94,7 @@ return {
 
       local wildmenu_renderer = wilder.wildmenu_renderer({
         highlights = {
-          default = "StatusLineNC",
+          default = "Slimline",
           selected = "WilderWildmenuSelected",
           accent = "WilderWildmenuAccent",
         },
