@@ -131,26 +131,6 @@ return {
           sections = {
             { section = "header" },
             { section = "keys", gap = 1, padding = 1 },
-            function()
-              local in_git = Snacks.git.get_root() ~= nil
-              local cmds = {
-                {
-                  icon = " ",
-                  title = "Git Status",
-                  cmd = "git --no-pager diff --stat -B -M -C",
-                  height = 10,
-                },
-              }
-              return vim.tbl_map(function(cmd)
-                return vim.tbl_extend("force", {
-                  section = "terminal",
-                  enabled = in_git,
-                  padding = 1,
-                  ttl = 5 * 60,
-                }, cmd)
-              end, cmds)
-            end,
-            { section = "startup" },
           },
         },
         debug = {
@@ -303,6 +283,28 @@ return {
           show_notifications = true,
         },
       })
+
+      -- Fix for snacks dashboard autocommand group cleanup error
+      -- Safely handle autocommand group deletion to prevent E367 errors
+      local safe_delete_augroup = function(group_id)
+        if group_id and group_id > 0 then
+          local ok, err = pcall(function()
+            vim.api.nvim_del_augroup_by_id(group_id)
+          end)
+          if not ok and err:find("No such group") then
+            -- Group already deleted or doesn't exist, silently ignore
+            return true
+          end
+          return ok
+        end
+        return true
+      end
+
+      -- Override snacks dashboard cleanup to use safe deletion
+      local original_delete_augroup = vim.api.nvim_del_augroup_by_id
+      vim.api.nvim_del_augroup_by_id = function(group_id)
+        return safe_delete_augroup(group_id) or original_delete_augroup(group_id)
+      end
     end,
     keys = function()
       local keymaps = require("sysinit.utils.ai.keymaps")
