@@ -33,7 +33,8 @@ function M.pick_agent()
     items = items,
     layout = "vscode",
     preview = false,
-    confirm = function(_, item)
+    confirm = function(picker, item)
+      picker:close()
       if item then
         session.activate(item.name)
       end
