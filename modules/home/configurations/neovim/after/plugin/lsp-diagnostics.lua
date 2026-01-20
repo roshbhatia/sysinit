@@ -3,7 +3,9 @@ vim.lsp.inlay_hint.enable(true)
 vim.diagnostic.config({
   severity_sort = true,
   virtual_text = false,
-  virtual_lines = true,
+  virtual_lines = {
+    highlight_whole_line = true,
+  },
   update_in_insert = false,
   float = {
     border = "rounded",
