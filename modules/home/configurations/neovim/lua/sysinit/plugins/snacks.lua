@@ -87,7 +87,7 @@ return {
           sections = {
             {
               section = "terminal",
-              cmd = "chafa ~/.config/nvim/dashboard.png --format symbols --symbols vhalf --size 60x17 --stretch; sleep .1",
+              cmd = "cat ~/.config/macchina/themes/rosh-color.ascii",
               height = 17,
               padding = 1,
             },
