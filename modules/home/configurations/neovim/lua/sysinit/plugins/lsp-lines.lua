@@ -30,7 +30,7 @@ return {
     keys = function()
       return {
         {
-          "<localleader>cL",
+          "<leader>cL",
           function()
             require("lsp_lines").toggle()
           end,
