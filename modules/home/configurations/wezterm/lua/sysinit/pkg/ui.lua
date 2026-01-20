@@ -70,6 +70,14 @@ function M.setup(config)
     fade_out_duration_ms = 100,
   }
 
+  local function locked_indicator()
+    local keybindings = require("sysinit.pkg.keybindings")
+    if keybindings.locked_mode then
+      return "  "
+    end
+    return "  "
+  end
+
   tabline.setup({
     options = {
       theme = config_data.color_scheme,
@@ -89,8 +97,7 @@ function M.setup(config)
     sections = {
       tabline_a = {
         "mode",
-        (keybindings.locked_mode and wezterm.nerdfonts.md_lock_alert or wezterm.nerdfonts.md_lock_open_variant_outline)
-          .. " ",
+        locked_indicator,
       },
       tabline_x = {},
       tabline_y = {},

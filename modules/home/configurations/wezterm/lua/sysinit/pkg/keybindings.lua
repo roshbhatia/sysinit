@@ -32,7 +32,7 @@ local function create_lockable_action(key, mods, wezterm_action)
   end)
 end
 
--- Passthrough to nvim/helix for pane navigation and splitting
+-- Passthrough to nvim/helix for pane navigation, splitting, and scrolling
 local function create_pane_nav_action(action_type, key, mods)
   local DIRECTION_KEYS = {
     h = "Left",
@@ -48,10 +48,19 @@ local function create_pane_nav_action(action_type, key, mods)
       -- Let nvim/helix handle these keys
       win:perform_action({ SendKey = { key = key, mods = mods } }, pane)
     else
-      -- Otherwise use wezterm's pane navigation
-      local action = action_type == "resize" and { AdjustPaneSize = { DIRECTION_KEYS[key], 3 } }
-        or { ActivatePaneDirection = DIRECTION_KEYS[key] }
-      win:perform_action(action, pane)
+      -- Otherwise use wezterm's actions
+      if action_type == "resize" then
+        win:perform_action({ AdjustPaneSize = { DIRECTION_KEYS[key], 3 } }, pane)
+      elseif action_type == "scroll" then
+        if key == "u" then
+          win:perform_action({ ScrollByLine = -40 }, pane)
+        elseif key == "d" then
+          win:perform_action({ ScrollByLine = 40 }, pane)
+        end
+      else
+        -- move
+        win:perform_action({ ActivatePaneDirection = DIRECTION_KEYS[key] }, pane)
+      end
     end
   end)
 end
@@ -198,22 +207,12 @@ local function get_scroll_keys()
     {
       key = "u",
       mods = "CTRL",
-      action = create_lockable_action("u", "CTRL", act.ScrollByLine(-40)),
+      action = create_pane_nav_action("scroll", "u", "CTRL"),
     },
     {
       key = "d",
       mods = "CTRL",
-      action = create_lockable_action("d", "CTRL", act.ScrollByLine(40)),
-    },
-    {
-      key = "u",
-      mods = "CTRL|SHIFT",
-      action = create_lockable_action("u", "CTRL|SHIFT", act.ScrollToTop),
-    },
-    {
-      key = "d",
-      mods = "CTRL|SHIFT",
-      action = create_lockable_action("d", "CTRL|SHIFT", act.ScrollToBottom),
+      action = create_pane_nav_action("scroll", "d", "CTRL"),
     },
   }
 end
