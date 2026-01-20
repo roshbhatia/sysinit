@@ -71,15 +71,17 @@ function M.setup(config)
   -- Locked mode indicator component
   local locked_indicator = {
     "locked_mode",
-    fmt = function(str)
+    icon = function(tab, element)
       local keybindings = require("sysinit.pkg.keybindings")
       if keybindings.locked_mode then
-        return wezterm.format({
-          { Foreground = { Color = "red" } },
-          { Text = " " },
-        })
+        return {
+          wezterm.nerdfonts.md_lock,
+          color = { fg = "#ff0000" },
+        }
       end
-      return " "
+      return {
+        wezterm.nerdfonts.md_lock_open,
+      }
     end,
     padding = 0,
   }
