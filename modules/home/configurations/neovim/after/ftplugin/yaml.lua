@@ -8,26 +8,12 @@ vim.opt_local.foldmethod = "indent"
 vim.opt_local.foldlevel = 99
 
 -- Keymaps
-local map = vim.keymap.set
-local opts = { buffer = true, silent = true }
-
--- YAML schema selection
-map(
-  "n",
-  "<localleader>ys",
-  "<cmd>Telescope yaml_schema<cr>",
-  vim.tbl_extend("force", opts, { desc = "YAML: Select schema" })
-)
+Snacks.keymap.set("n", "<localleader>s", "<cmd>Telescope yaml_schema<cr>", { ft = "yaml", desc = "Select schema" })
 
 -- Kubernetes-specific helpers (when in k8s files)
 local filename = vim.fn.expand("%:t")
 if filename:match("%.ya?ml$") and (vim.fn.expand("%:p"):match("/k8s/") or filename:match("kustomization")) then
   -- Quick navigation between manifests
-  map("n", "]k", "/^---\\s*$<cr>:nohl<cr>", vim.tbl_extend("force", opts, { desc = "YAML: Next Kubernetes resource" }))
-  map(
-    "n",
-    "[k",
-    "?^---\\s*$<cr>:nohl<cr>",
-    vim.tbl_extend("force", opts, { desc = "YAML: Previous Kubernetes resource" })
-  )
+  Snacks.keymap.set("n", "]k", "/^---\\s*$<cr>:nohl<cr>", { ft = "yaml", desc = "Next Kubernetes resource" })
+  Snacks.keymap.set("n", "[k", "?^---\\s*$<cr>:nohl<cr>", { ft = "yaml", desc = "Previous Kubernetes resource" })
 end

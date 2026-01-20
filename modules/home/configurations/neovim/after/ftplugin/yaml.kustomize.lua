@@ -2,20 +2,14 @@
 vim.cmd("runtime! ftplugin/yaml.lua")
 
 -- Keymaps specific to Kustomize
-local map = vim.keymap.set
-local opts = { buffer = true, silent = true }
-
--- Build kustomization
-map("n", "<localleader>kb", function()
+Snacks.keymap.set("n", "<localleader>b", function()
   vim.cmd("split | term kubectl kustomize .")
-end, vim.tbl_extend("force", opts, { desc = "Kustomize: Build" }))
+end, { ft = "yaml.kustomize", desc = "Build" })
 
--- Apply kustomization
-map("n", "<localleader>ka", function()
+Snacks.keymap.set("n", "<localleader>a", function()
   vim.cmd("split | term kubectl apply -k .")
-end, vim.tbl_extend("force", opts, { desc = "Kustomize: Apply" }))
+end, { ft = "yaml.kustomize", desc = "Apply" })
 
--- Diff kustomization
-map("n", "<localleader>kd", function()
+Snacks.keymap.set("n", "<localleader>d", function()
   vim.cmd("split | term kubectl diff -k .")
-end, vim.tbl_extend("force", opts, { desc = "Kustomize: Diff" }))
+end, { ft = "yaml.kustomize", desc = "Diff" })

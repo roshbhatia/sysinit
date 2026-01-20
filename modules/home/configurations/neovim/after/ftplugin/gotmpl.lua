@@ -1,6 +1,3 @@
--- Go template specific settings
-
--- Formatting
 vim.opt_local.tabstop = 2
 vim.opt_local.shiftwidth = 2
 vim.opt_local.expandtab = true
@@ -9,24 +6,11 @@ vim.opt_local.expandtab = true
 vim.opt_local.commentstring = "{{/* %s */}}"
 
 -- Keymaps for template actions
-local map = vim.keymap.set
-local opts = { buffer = true, silent = true }
+Snacks.keymap.set("n", "<localleader>v", "i{{ . }}<Esc>", { ft = "gotmpl", desc = "Insert variable" })
+Snacks.keymap.set("n", "<localleader>r", "i{{ range . }}<CR>{{ end }}<Esc>k", { ft = "gotmpl", desc = "Insert range" })
+Snacks.keymap.set("n", "<localleader>i", "i{{ if . }}<CR>{{ end }}<Esc>k", { ft = "gotmpl", desc = "Insert if" })
 
--- Insert common Go template patterns
-map("n", "<localleader>tiv", "i{{ . }}<Esc>", vim.tbl_extend("force", opts, { desc = "Template: Insert variable" }))
-map(
-  "n",
-  "<localleader>tir",
-  "i{{ range . }}<CR>{{ end }}<Esc>k",
-  vim.tbl_extend("force", opts, { desc = "Template: Insert range" })
-)
-map(
-  "n",
-  "<localleader>tii",
-  "i{{ if . }}<CR>{{ end }}<Esc>k",
-  vim.tbl_extend("force", opts, { desc = "Template: Insert if" })
-)
-
+-- [Keep all the snippet definitions - they're not keymaps so no conversion needed]
 local function sprig(name, desc, ...)
   local args = { ... }
   local arg_str = #args > 0 and " " .. table.concat(args, " ") or ""

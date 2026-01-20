@@ -291,6 +291,13 @@ return {
           desc = "Undo history",
         },
         {
+          "<leader>fl",
+          function()
+            Snacks.picker.resume()
+          end,
+          desc = "Last picker",
+        },
+        {
           "<leader>?",
           function()
             Snacks.picker.commands({ layout = "ivy", preview = false })

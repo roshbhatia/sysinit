@@ -1,9 +1,5 @@
-vim.keymap.set("n", "<leader><leader>", ":", { desc = "Command" })
+Snacks.keymap.set("n", "<leader><leader>", ":", { desc = "Command" })
 
-vim.keymap.set("n", "<leader>x", function()
+Snacks.keymap.set("n", "<leader>x", function()
   vim.cmd("silent! qa!")
-end, {
-  noremap = true,
-  silent = true,
-  desc = "Force quit",
-})
+end, { desc = "Force quit" })

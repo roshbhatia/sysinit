@@ -101,13 +101,13 @@ local function smart_toggle()
   end
 end
 
-vim.keymap.set("n", "<leader>qq", toggle_qf, { desc = "Toggle quickfix" })
-vim.keymap.set("n", "<leader>ql", toggle_loclist, { desc = "Toggle loclist" })
-vim.keymap.set("n", "<leader>qo", smart_toggle, { desc = "Smart toggle qf/loc" })
-vim.keymap.set("n", "]q", next_item, { desc = "Next qf/loc item" })
-vim.keymap.set("n", "[q", prev_item, { desc = "Prev qf/loc item" })
-vim.keymap.set("n", "<leader>q[", "<cmd>colder<cr>", { desc = "Older qflist" })
-vim.keymap.set("n", "<leader>q]", "<cmd>cnewer<cr>", { desc = "Newer qflist" })
+Snacks.keymap.set("n", "<leader>qq", toggle_qf, { desc = "Toggle quickfix" })
+Snacks.keymap.set("n", "<leader>ql", toggle_loclist, { desc = "Toggle loclist" })
+Snacks.keymap.set("n", "<leader>qo", smart_toggle, { desc = "Smart toggle qf/loc" })
+Snacks.keymap.set("n", "]q", next_item, { desc = "Next qf/loc item" })
+Snacks.keymap.set("n", "[q", prev_item, { desc = "Prev qf/loc item" })
+Snacks.keymap.set("n", "<leader>q[", "<cmd>colder<cr>", { desc = "Older qflist" })
+Snacks.keymap.set("n", "<leader>q]", "<cmd>cnewer<cr>", { desc = "Newer qflist" })
 
 local augroup = vim.api.nvim_create_augroup("QuickfixConfig", { clear = true })
 
@@ -142,6 +142,6 @@ vim.api.nvim_create_autocmd("FileType", {
     vim.opt_local.wrap = false
     vim.opt_local.spell = false
     vim.opt_local.cursorline = true
-    vim.keymap.set("n", "q", "<cmd>close<cr>", { buffer = true, desc = "Close" })
+    Snacks.keymap.set("n", "q", "<cmd>close<cr>", { buffer = true, desc = "Close" })
   end,
 })

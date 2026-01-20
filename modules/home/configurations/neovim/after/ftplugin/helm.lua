@@ -1,6 +1,3 @@
--- Helm-specific settings and keymaps
-
--- Formatting (YAML-based)
 vim.opt_local.tabstop = 2
 vim.opt_local.shiftwidth = 2
 vim.opt_local.expandtab = true
@@ -11,38 +8,14 @@ vim.opt_local.foldlevel = 99
 vim.opt_local.commentstring = "{{/* %s */}}"
 
 -- Keymaps
-local map = vim.keymap.set
-local opts = { buffer = true, silent = true }
-
--- Helm template actions
-map(
-  "n",
-  "<localleader>ht",
-  "<cmd>!helm template .<cr>",
-  vim.tbl_extend("force", opts, { desc = "Helm: Template chart" })
-)
-map("n", "<localleader>hl", "<cmd>!helm lint .<cr>", vim.tbl_extend("force", opts, { desc = "Helm: Lint chart" }))
+Snacks.keymap.set("n", "<localleader>t", "<cmd>!helm template .<cr>", { ft = "helm", desc = "Template chart" })
+Snacks.keymap.set("n", "<localleader>l", "<cmd>!helm lint .<cr>", { ft = "helm", desc = "Lint chart" })
 
 -- Quick navigation between Helm resources (similar to k8s)
-map("n", "]k", "/^---\\s*$<cr>:nohl<cr>", vim.tbl_extend("force", opts, { desc = "Helm: Next resource" }))
-map("n", "[k", "?^---\\s*$<cr>:nohl<cr>", vim.tbl_extend("force", opts, { desc = "Helm: Previous resource" }))
+Snacks.keymap.set("n", "]k", "/^---\\s*$<cr>:nohl<cr>", { ft = "helm", desc = "Next resource" })
+Snacks.keymap.set("n", "[k", "?^---\\s*$<cr>:nohl<cr>", { ft = "helm", desc = "Previous resource" })
 
 -- Insert common Helm template expressions
-map(
-  "n",
-  "<localleader>hv",
-  "i{{ .Values. }}<Esc>",
-  vim.tbl_extend("force", opts, { desc = "Helm: Insert Values reference" })
-)
-map(
-  "n",
-  "<localleader>hr",
-  "i{{ .Release. }}<Esc>",
-  vim.tbl_extend("force", opts, { desc = "Helm: Insert Release reference" })
-)
-map(
-  "n",
-  "<localleader>hc",
-  "i{{ .Chart. }}<Esc>",
-  vim.tbl_extend("force", opts, { desc = "Helm: Insert Chart reference" })
-)
+Snacks.keymap.set("n", "<localleader>v", "i{{ .Values. }}<Esc>", { ft = "helm", desc = "Insert Values reference" })
+Snacks.keymap.set("n", "<localleader>r", "i{{ .Release. }}<Esc>", { ft = "helm", desc = "Insert Release reference" })
+Snacks.keymap.set("n", "<localleader>c", "i{{ .Chart. }}<Esc>", { ft = "helm", desc = "Insert Chart reference" })

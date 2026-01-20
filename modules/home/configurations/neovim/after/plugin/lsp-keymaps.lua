@@ -1,28 +1,25 @@
 vim.api.nvim_create_autocmd("LspAttach", {
   callback = function(args)
     local bufnr = args.buf
-    local map = function(lhs, rhs, desc)
-      vim.keymap.set("n", lhs, rhs, { buffer = bufnr, silent = true, desc = desc })
-    end
 
-    map("<leader>cD", vim.lsp.buf.definition, "Go to definition")
-    map("gri", vim.lsp.buf.implementation, "Go to implementation")
-    map("grr", vim.lsp.buf.references, "Go to references")
-    map("grt", vim.lsp.buf.type_definition, "Go to type definition")
+    Snacks.keymap.set("n", "<leader>cD", vim.lsp.buf.definition, { buffer = bufnr, desc = "Go to definition" })
+    Snacks.keymap.set("n", "gri", vim.lsp.buf.implementation, { buffer = bufnr, desc = "Go to implementation" })
+    Snacks.keymap.set("n", "grr", vim.lsp.buf.references, { buffer = bufnr, desc = "Go to references" })
+    Snacks.keymap.set("n", "grt", vim.lsp.buf.type_definition, { buffer = bufnr, desc = "Go to type definition" })
 
-    map("gO", vim.lsp.buf.document_symbol, "Document outline")
-    map("<leader>cS", vim.lsp.buf.workspace_symbol, "Workspace symbols")
+    Snacks.keymap.set("n", "gO", vim.lsp.buf.document_symbol, { buffer = bufnr, desc = "Document outline" })
+    Snacks.keymap.set("n", "<leader>cS", vim.lsp.buf.workspace_symbol, { buffer = bufnr, desc = "Workspace symbols" })
 
-    map("<leader>ca", vim.lsp.buf.code_action, "Code action")
-    map("gra", vim.lsp.buf.code_action, "Code action")
-    map("<leader>cA", vim.lsp.codelens.run, "Run codelens action")
-    map("grn", vim.lsp.buf.rename, "Rename symbol")
+    Snacks.keymap.set("n", "<leader>ca", vim.lsp.buf.code_action, { buffer = bufnr, desc = "Code action" })
+    Snacks.keymap.set("n", "gra", vim.lsp.buf.code_action, { buffer = bufnr, desc = "Code action" })
+    Snacks.keymap.set("n", "<leader>cA", vim.lsp.codelens.run, { buffer = bufnr, desc = "Run codelens action" })
+    Snacks.keymap.set("n", "grn", vim.lsp.buf.rename, { buffer = bufnr, desc = "Rename symbol" })
 
-    map("<leader>cn", vim.diagnostic.goto_next, "Next diagnostic")
-    map("<leader>cp", vim.diagnostic.goto_prev, "Previous diagnostic")
+    Snacks.keymap.set("n", "<leader>cn", vim.diagnostic.goto_next, { buffer = bufnr, desc = "Next diagnostic" })
+    Snacks.keymap.set("n", "<leader>cp", vim.diagnostic.goto_prev, { buffer = bufnr, desc = "Previous diagnostic" })
 
-    map("<leader>cj", function()
+    Snacks.keymap.set("n", "<leader>cj", function()
       vim.lsp.buf.signature_help({ border = "rounded" })
-    end, "Signature help")
+    end, { buffer = bufnr, desc = "Signature help" })
   end,
 })

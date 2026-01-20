@@ -1,11 +1,2 @@
-vim.keymap.set("n", "u", "g-`[", {
-  noremap = true,
-  silent = true,
-  desc = "Undo previous state",
-})
-
-vim.keymap.set("n", "U", "g+`[", {
-  noremap = true,
-  silent = true,
-  desc = "Redo next state",
-})
+Snacks.keymap.set("n", "u", "g-`[", { desc = "Undo previous state" })
+Snacks.keymap.set("n", "U", "g+`[", { desc = "Redo next state" })
