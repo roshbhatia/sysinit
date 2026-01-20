@@ -301,8 +301,7 @@ return {
           "<leader>fb",
           function()
             Snacks.picker.buffers({
-              layout = "ivy",
-              preview = false,
+              layout = "vscode",
               sort_mru = true,
               current = true,
             })

@@ -30,15 +30,12 @@ function M.pick_agent()
 
   -- Show Snacks picker with dropdown layout
   Snacks.picker.pick({
-    prompt = "Select AI Agent: ",
     items = items,
-    format = "text",
     layout = "vscode",
     preview = false,
     confirm = function(_, item)
       if item then
         session.activate(item.name)
-        vim.notify(string.format("%s %s activated", item.icon, item.label), vim.log.levels.INFO)
       end
     end,
   })
