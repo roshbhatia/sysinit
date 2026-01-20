@@ -31,6 +31,16 @@ local function is_process_in_list(pane, process_list)
   return false
 end
 
+local function create_lockable_action(key, mods, wezterm_action)
+  return wezterm.action_callback(function(win, pane)
+    if M.locked_mode then
+      win:perform_action({ SendKey = { key = key, mods = mods } }, pane)
+    else
+      win:perform_action(wezterm_action, pane)
+    end
+  end)
+end
+
 local function create_passthrough_action(key, mods, wezterm_action, process_list)
   return wezterm.action_callback(function(win, pane)
     if M.locked_mode or is_process_in_list(pane, process_list or PASSTHROUGH_PROCESSES) then
@@ -60,18 +70,18 @@ local function create_pane_action(action_type, key, mods)
   end)
 end
 
-local function create_multi_bindings(key, mods_list, action)
-  local bindings = {}
-  for _, mods in ipairs(mods_list) do
-    table.insert(bindings, { key = key, mods = mods, action = action })
-  end
-  return bindings
-end
-
 local function get_pane_keys()
   local keys = {
-    { key = "s", mods = "CTRL", action = act.SplitVertical({ domain = "CurrentPaneDomain" }) },
-    { key = "v", mods = "CTRL", action = act.SplitHorizontal({ domain = "CurrentPaneDomain" }) },
+    {
+      key = "s",
+      mods = "CTRL",
+      action = create_lockable_action("s", "CTRL", act.SplitVertical({ domain = "CurrentPaneDomain" })),
+    },
+    {
+      key = "v",
+      mods = "CTRL",
+      action = create_lockable_action("v", "CTRL", act.SplitHorizontal({ domain = "CurrentPaneDomain" })),
+    },
   }
 
   for _, key in ipairs({ "h", "j", "k", "l" }) do
@@ -92,13 +102,13 @@ end
 
 local function get_system_keys()
   return {
-    { key = "c", mods = "SUPER", action = act.CopyTo("Clipboard") },
-    { key = "v", mods = "SUPER", action = act.PasteFrom("Clipboard") },
-    { key = "m", mods = "SUPER", action = act.Hide },
-    { key = "h", mods = "SUPER", action = act.HideApplication },
-    { key = "q", mods = "SUPER", action = act.QuitApplication },
-    { key = ";", mods = "CTRL", action = act.ActivateCommandPalette },
-    { key = "l", mods = "CTRL|SHIFT", action = act.ShowDebugOverlay },
+    { key = "c", mods = "SUPER", action = create_lockable_action("c", "SUPER", act.CopyTo("Clipboard")) },
+    { key = "v", mods = "SUPER", action = create_lockable_action("v", "SUPER", act.PasteFrom("Clipboard")) },
+    { key = "m", mods = "SUPER", action = create_lockable_action("m", "SUPER", act.Hide) },
+    { key = "h", mods = "SUPER", action = create_lockable_action("h", "SUPER", act.HideApplication) },
+    { key = "q", mods = "SUPER", action = create_lockable_action("q", "SUPER", act.QuitApplication) },
+    { key = ";", mods = "CTRL", action = create_lockable_action(";", "CTRL", act.ActivateCommandPalette) },
+    { key = "l", mods = "CTRL|SHIFT", action = create_lockable_action("l", "CTRL|SHIFT", act.ShowDebugOverlay) },
     {
       key = "k",
       mods = "SUPER",
@@ -108,6 +118,9 @@ local function get_system_keys()
       key = "Enter",
       mods = "SHIFT",
       action = wezterm.action_callback(function(win, pane)
+        if M.locked_mode then
+          return
+        end
         if is_process_in_list(pane, { GOOSE_PROCESS }) then
           win:perform_action({ SendKey = { key = "j", mods = "CTRL" } }, pane)
         end
@@ -118,49 +131,69 @@ end
 
 local function get_font_keys()
   local keys = {}
-  for _, binding in ipairs(create_multi_bindings("-", { "CTRL", "SUPER" }, act.DecreaseFontSize)) do
-    table.insert(keys, binding)
-  end
-  for _, binding in ipairs(create_multi_bindings("=", { "CTRL", "SUPER" }, act.IncreaseFontSize)) do
-    table.insert(keys, binding)
+  for _, mods in ipairs({ "CTRL", "SUPER" }) do
+    table.insert(keys, { key = "-", mods = mods, action = create_lockable_action("-", mods, act.DecreaseFontSize) })
+    table.insert(keys, { key = "=", mods = mods, action = create_lockable_action("=", mods, act.IncreaseFontSize) })
   end
   return keys
 end
 
 local function get_tab_keys()
   local keys = {
-    { key = "w", mods = "CTRL|SHIFT", action = act.CloseCurrentTab({ confirm = true }) },
-    { key = "Tab", mods = "CTRL", action = act.ActivateTabRelative(1) },
-    { key = "Tab", mods = "CTRL|SHIFT", action = act.ActivateTabRelative(-1) },
-    { key = "o", mods = "CTRL|SHIFT", action = act.ActivateLastTab },
+    {
+      key = "w",
+      mods = "CTRL|SHIFT",
+      action = create_lockable_action("w", "CTRL|SHIFT", act.CloseCurrentTab({ confirm = true })),
+    },
+    { key = "Tab", mods = "CTRL", action = create_lockable_action("Tab", "CTRL", act.ActivateTabRelative(1)) },
+    {
+      key = "Tab",
+      mods = "CTRL|SHIFT",
+      action = create_lockable_action("Tab", "CTRL|SHIFT", act.ActivateTabRelative(-1)),
+    },
+    { key = "o", mods = "CTRL|SHIFT", action = create_lockable_action("o", "CTRL|SHIFT", act.ActivateLastTab) },
   }
 
-  for _, binding in ipairs(create_multi_bindings("t", { "CTRL", "SUPER" }, act.SpawnTab("CurrentPaneDomain"))) do
-    table.insert(keys, binding)
+  for _, mods in ipairs({ "CTRL", "SUPER" }) do
+    table.insert(
+      keys,
+      { key = "t", mods = mods, action = create_lockable_action("t", mods, act.SpawnTab("CurrentPaneDomain")) }
+    )
   end
 
   for i = 1, 8 do
-    for _, binding in ipairs(create_multi_bindings(tostring(i), { "CTRL", "SUPER" }, act.ActivateTab(i - 1))) do
-      table.insert(keys, binding)
+    for _, mods in ipairs({ "CTRL", "SUPER" }) do
+      table.insert(
+        keys,
+        { key = tostring(i), mods = mods, action = create_lockable_action(tostring(i), mods, act.ActivateTab(i - 1)) }
+      )
     end
   end
 
-  for _, binding in ipairs(create_multi_bindings("9", { "CTRL", "SUPER" }, act.ActivateTab(-1))) do
-    table.insert(keys, binding)
+  for _, mods in ipairs({ "CTRL", "SUPER" }) do
+    table.insert(keys, { key = "9", mods = mods, action = create_lockable_action("9", mods, act.ActivateTab(-1)) })
   end
 
   return keys
 end
 
 local function get_window_keys()
-  return create_multi_bindings("n", { "CTRL", "SUPER" }, act.SpawnWindow)
+  local keys = {}
+  for _, mods in ipairs({ "CTRL", "SUPER" }) do
+    table.insert(keys, { key = "n", mods = mods, action = create_lockable_action("n", mods, act.SpawnWindow) })
+  end
+  return keys
 end
 
 local function get_search_keys()
   return {
-    { key = "Escape", mods = "CTRL", action = act.ActivateCopyMode },
-    { key = "/", mods = "CTRL", action = act.Search("CurrentSelectionOrEmptyString") },
-    { key = "f", mods = "CTRL", action = act.PaneSelect },
+    { key = "Escape", mods = "CTRL", action = create_lockable_action("Escape", "CTRL", act.ActivateCopyMode) },
+    {
+      key = "/",
+      mods = "CTRL",
+      action = create_lockable_action("/", "CTRL", act.Search("CurrentSelectionOrEmptyString")),
+    },
+    { key = "f", mods = "CTRL", action = create_lockable_action("f", "CTRL", act.PaneSelect) },
   }
 end
 

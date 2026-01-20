@@ -65,9 +65,9 @@ function M.setup(config)
   local function locked_indicator()
     local keybindings = require("sysinit.pkg.keybindings")
     if keybindings.locked_mode then
-      return "🔒 LOCKED"
+      return " [  LOCKED  ] "
     end
-    return ""
+    return " [ UNLOCKED ] "
   end
 
   tabline.setup({
@@ -87,7 +87,7 @@ function M.setup(config)
       },
     },
     sections = {
-      tabline_x = { locked_indicator },
+      tabline_a = { locked_indicator, "mode" },
       tabline_y = {},
     },
     extensions = {},
