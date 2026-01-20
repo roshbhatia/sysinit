@@ -1,7 +1,8 @@
 local wezterm = require("wezterm")
+
+local keybindings = require("sysinit.pkg.keybindings")
 local utils = require("sysinit.pkg.utils")
 
-local keybindings = wezterm.plugin.require("sysinit.pkg.keybindings")
 local tabline = wezterm.plugin.require("https://github.com/michaelbrusegard/tabline.wez")
 
 local M = {}
