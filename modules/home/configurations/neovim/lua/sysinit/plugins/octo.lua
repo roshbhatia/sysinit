@@ -11,7 +11,7 @@ return {
       require("octo").setup({
         use_local_fs = true,
         enable_builtin = true,
-        default_merge_method = "squash",
+        default_merge_method = "rebase",
         default_delete_branch = true,
         picker = "snacks",
       })
@@ -27,6 +27,18 @@ return {
           noremap = true,
           silent = true,
           desc = "Review PR from current branch",
+        },
+        {
+          "<leader>grs",
+          function()
+            require("octo.utils").create_base_search_command({ include_current_repo = true })
+          end,
+          desc = "Search GitHub",
+        },
+        {
+          "<leader>op",
+          "<CMD>Octo pr list<CR>",
+          desc = "List GitHub PRs",
         },
       }
     end,
