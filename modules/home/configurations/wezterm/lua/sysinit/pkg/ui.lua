@@ -18,6 +18,19 @@ local function should_apply_nvim_overrides(tab)
   return false
 end
 
+local function should_apply_k9s_overrides(tab)
+  for _, pane in ipairs(tab:panes()) do
+    local info = pane:get_foreground_process_info()
+    if info then
+      local executable = string.gsub(info.executable, "(.*[/\\])(.*)", "%2")
+      if executable == "k9s" then
+        return true
+      end
+    end
+  end
+  return false
+end
+
 function M.setup(config)
   local config_data = utils.load_json_file(utils.get_config_path("config.json"))
   local font = wezterm.font_with_fallback({
@@ -133,6 +146,18 @@ function M.setup(config)
       overrides.enable_scroll_bar = false
     else
       overrides.enable_scroll_bar = nil
+    end
+    window:set_config_overrides(overrides)
+  end)
+
+  wezterm.on("update-status", function(window, pane)
+    local tab = pane:tab()
+    local should_switch = should_apply_k9s_overrides(tab)(tab)
+    local overrides = window:get_config_overrides() or {}
+    if should_switch then
+      overrides.opacity = 1.0
+    else
+      overrides.opacity = nil
     end
     window:set_config_overrides(overrides)
   end)
