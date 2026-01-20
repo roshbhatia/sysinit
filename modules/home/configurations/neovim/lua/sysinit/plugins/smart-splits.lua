@@ -92,7 +92,7 @@ return {
           desc = "Split pane horizontally",
         },
         {
-          "<C-w>",
+          "<leader>w",
           function()
             vim.cmd("silent! xit")
           end,
