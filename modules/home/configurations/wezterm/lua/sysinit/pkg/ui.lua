@@ -22,11 +22,6 @@ local function should_apply_nvim_overrides(tab)
   return executable == "nvim" or executable == "tmux" or executable == "hx"
 end
 
-local function should_apply_k9s_overrides(tab)
-  local executable = get_foreground_executable(tab)
-  return executable == "k9s"
-end
-
 function M.setup(config)
   local config_data = utils.load_json_file(utils.get_config_path("config.json"))
   local font = wezterm.font_with_fallback({
@@ -143,10 +138,6 @@ function M.setup(config)
     -- Apply nvim/tmux/hx overrides (hide scrollbar)
     local should_apply_nvim = should_apply_nvim_overrides(tab)
     overrides.enable_scroll_bar = should_apply_nvim and false or nil
-
-    -- Apply k9s overrides (full opacity)
-    local should_apply_k9s = should_apply_k9s_overrides(tab)
-    overrides.window_background_opacity = should_apply_k9s and 1.0 or nil
 
     window:set_config_overrides(overrides)
   end)

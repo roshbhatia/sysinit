@@ -7,7 +7,6 @@ _: {
     "atuin"
     "vivid"
     "helix"
-    "k9s"
   ];
 
   ansiColorMap = {
