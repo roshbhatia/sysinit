@@ -1,6 +1,7 @@
 local wezterm = require("wezterm")
 local utils = require("sysinit.pkg.utils")
 
+local keybindings = wezterm.plugin.require("sysinit.pkg.keybindings")
 local tabline = wezterm.plugin.require("https://github.com/michaelbrusegard/tabline.wez")
 
 local M = {}
@@ -68,18 +69,6 @@ function M.setup(config)
     fade_out_duration_ms = 100,
   }
 
-  local function locked_indicator()
-    local keybindings = require("sysinit.pkg.keybindings")
-    if keybindings.locked_mode then
-      return {
-        wezterm.nerdfonts.md_lock_alert,
-      }
-    end
-    return {
-      wezterm.nerdfonts.md_lock_open_variant_outline,
-    }
-  end
-
   tabline.setup({
     options = {
       theme = config_data.color_scheme,
@@ -97,7 +86,11 @@ function M.setup(config)
       },
     },
     sections = {
-      tabline_a = { "mode", locked_indicator },
+      tabline_a = {
+        "mode",
+        (keybindings.locked_mode and wezterm.nerdfonts.md_lock_alert or wezterm.nerdfonts.md_lock_open_variant_outline)
+          .. " ",
+      },
       tabline_x = {},
       tabline_y = {},
     },
