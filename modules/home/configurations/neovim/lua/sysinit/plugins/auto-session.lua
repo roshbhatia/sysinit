@@ -24,7 +24,11 @@ return {
       function()
         -- Open dashboard if no files were restored
         if vim.fn.argc(-1) == 0 and #vim.fn.getbufinfo({ buflisted = 1 }) == 0 then
-          Snacks.dashboard.open()
+          Snacks.dashboard.open({
+            wo = {
+              cursorline = true,
+            },
+          })
         end
       end,
     },
@@ -32,7 +36,11 @@ return {
       function()
         -- Open dashboard when starting without arguments and no session to restore
         if vim.fn.argc(-1) == 0 then
-          Snacks.dashboard.open()
+          Snacks.dashboard.open({
+            wo = {
+              cursorline = true,
+            },
+          })
         end
       end,
     },
