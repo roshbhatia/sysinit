@@ -30,10 +30,10 @@ function M.pick_agent()
 
   -- Show Snacks picker with dropdown layout
   Snacks.picker.pick({
-    prompt = "Select AI Agent",
+    prompt = "Select AI Agent: ",
     items = items,
     format = "text",
-    layout = "dropdown",
+    layout = "vscode",
     preview = false,
     confirm = function(_, item)
       if item then
