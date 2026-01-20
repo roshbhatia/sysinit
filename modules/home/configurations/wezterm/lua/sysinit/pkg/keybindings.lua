@@ -3,12 +3,7 @@ local act = wezterm.action
 
 local M = {}
 
--- Global state for locked mode
 M.locked_mode = false
-
--- ============================================================================
--- Process Detection
--- ============================================================================
 
 local function get_process_name(pane)
   local proc = pane:get_foreground_process_name()
@@ -26,10 +21,6 @@ end
 local function is_goose(pane)
   return get_process_name(pane) == "goose"
 end
-
--- ============================================================================
--- Action Builders
--- ============================================================================
 
 local function create_lockable_action(key, mods, wezterm_action)
   return wezterm.action_callback(function(win, pane)
@@ -65,10 +56,6 @@ local function create_pane_nav_action(action_type, key, mods)
   end)
 end
 
--- ============================================================================
--- Integrations: Process-specific keybindings
--- ============================================================================
-
 local function get_goose_keys()
   return {
     {
@@ -85,10 +72,6 @@ local function get_goose_keys()
     },
   }
 end
-
--- ============================================================================
--- Keygroup Builders
--- ============================================================================
 
 local function get_pane_keys()
   local keys = {

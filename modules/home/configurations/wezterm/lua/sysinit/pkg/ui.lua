@@ -68,24 +68,17 @@ function M.setup(config)
     fade_out_duration_ms = 100,
   }
 
-  -- Locked mode indicator component
-  local locked_indicator = {
-    "locked_mode",
-    icon = function(tab, element)
-      local keybindings = require("sysinit.pkg.keybindings")
-      if keybindings.locked_mode then
-        return {
-          wezterm.nerdfonts.cod_lock,
-          { Foreground = { AnsiColor = "Red" } },
-          { Attribute = { Underline = "Single" } },
-        }
-      end
+  local function locked_indicator()
+    local keybindings = require("sysinit.pkg.keybindings")
+    if keybindings.locked_mode then
       return {
-        wezterm.nerdfonts.cod_unlock,
+        wezterm.nerdfonts.md_lock_alert,
       }
-    end,
-    padding = 0,
-  }
+    end
+    return {
+      wezterm.nerdfonts.md_lock_open_variant_outline,
+    }
+  end
 
   tabline.setup({
     options = {
