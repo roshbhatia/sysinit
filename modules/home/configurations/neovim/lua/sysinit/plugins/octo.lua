@@ -3,7 +3,6 @@ return {
     "pwntester/octo.nvim",
     requires = {
       "nvim-lua/plenary.nvim",
-      "nvim-telescope/telescope.nvim",
       "nvim-tree/nvim-web-devicons",
       "nvim-treesitter/nvim-treesitter",
     },
@@ -14,6 +13,7 @@ return {
         enable_builtin = true,
         default_merge_method = "squash",
         default_delete_branch = true,
+        picker = "snacks",
       })
 
       vim.treesitter.language.register("markdown", "octo")

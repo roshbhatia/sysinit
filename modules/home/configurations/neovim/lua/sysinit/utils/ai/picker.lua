@@ -34,7 +34,8 @@ function M.pick_agent()
     items = items,
     format = "text",
     layout = "dropdown",
-    confirm = function(picker, item)
+    preview = false,
+    confirm = function(_, item)
       if item then
         session.activate(item.name)
         vim.notify(string.format("%s %s activated", item.icon, item.label), vim.log.levels.INFO)

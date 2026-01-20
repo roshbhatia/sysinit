@@ -14,7 +14,7 @@ return {
     no_restore_cmds = {
       function()
         if vim.fn.argc(-1) == 0 then
-          vim.cmd("Alpha")
+          Snacks.dashboard.open()
         end
       end,
     },

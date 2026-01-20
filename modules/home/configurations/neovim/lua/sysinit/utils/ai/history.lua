@@ -82,7 +82,7 @@ function M.create_history_picker(termname)
     format = "text",
     layout = "default",
     preview = false,
-    confirm = function(picker, item)
+    confirm = function(_, item)
       if item then
         vim.fn.setreg("+", item.prompt)
         vim.notify("Copied to clipboard: " .. item.prompt:sub(1, 50) .. "...", vim.log.levels.INFO)
