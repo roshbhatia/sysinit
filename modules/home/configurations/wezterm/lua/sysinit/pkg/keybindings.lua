@@ -13,55 +13,40 @@ local function get_process_name(pane)
   return proc:match("([^/\\]+)$")
 end
 
-local function is_nvim_or_helix(pane)
-  local process_name = get_process_name(pane)
-  return process_name == "nvim" or process_name == "vim" or process_name == "hx"
-end
-
 local function is_goose(pane)
   return get_process_name(pane) == "goose"
 end
 
-local function create_lockable_action(key, mods, wezterm_action)
+-- Process lists for passthrough behavior
+local EDITORS = { "nvim", "vim", "hx" }
+
+-- Unified action builder
+-- @param key: the key
+-- @param mods: modifiers
+-- @param wezterm_action: action to perform when NOT locked and NOT passthrough
+-- @param opts: optional table with:
+--   - passthrough: list of process names to pass through to (e.g., EDITORS)
+local function create_smart_action(key, mods, wezterm_action, opts)
   return wezterm.action_callback(function(win, pane)
+    -- Locked mode: always send key to pane
     if M.locked_mode then
       win:perform_action({ SendKey = { key = key, mods = mods } }, pane)
-    else
-      win:perform_action(wezterm_action, pane)
+      return
     end
-  end)
-end
 
--- Passthrough to nvim/helix for pane navigation, splitting, and scrolling
-local function create_pane_nav_action(action_type, key, mods)
-  local DIRECTION_KEYS = {
-    h = "Left",
-    j = "Down",
-    k = "Up",
-    l = "Right",
-  }
-
-  return wezterm.action_callback(function(win, pane)
-    if M.locked_mode then
-      win:perform_action({ SendKey = { key = key, mods = mods } }, pane)
-    elseif is_nvim_or_helix(pane) then
-      -- Let nvim/helix handle these keys
-      win:perform_action({ SendKey = { key = key, mods = mods } }, pane)
-    else
-      -- Otherwise use wezterm's actions
-      if action_type == "resize" then
-        win:perform_action({ AdjustPaneSize = { DIRECTION_KEYS[key], 3 } }, pane)
-      elseif action_type == "scroll" then
-        if key == "u" then
-          win:perform_action({ ScrollByLine = -40 }, pane)
-        elseif key == "d" then
-          win:perform_action({ ScrollByLine = 40 }, pane)
+    -- Check passthrough processes
+    if opts and opts.passthrough then
+      local proc = get_process_name(pane)
+      for _, p in ipairs(opts.passthrough) do
+        if proc == p then
+          win:perform_action({ SendKey = { key = key, mods = mods } }, pane)
+          return
         end
-      else
-        -- move
-        win:perform_action({ ActivatePaneDirection = DIRECTION_KEYS[key] }, pane)
       end
     end
+
+    -- Default: use wezterm action
+    win:perform_action(wezterm_action, pane)
   end)
 end
 
@@ -83,34 +68,53 @@ local function get_goose_keys()
 end
 
 local function get_pane_keys()
+  local DIRECTION_KEYS = { h = "Left", j = "Down", k = "Up", l = "Right" }
   local keys = {
     {
       key = "s",
       mods = "CTRL",
-      action = create_lockable_action("s", "CTRL", act.SplitVertical({ domain = "CurrentPaneDomain" })),
+      action = create_smart_action("s", "CTRL", act.SplitVertical({ domain = "CurrentPaneDomain" })),
     },
     {
       key = "v",
       mods = "CTRL",
-      action = create_lockable_action("v", "CTRL", act.SplitHorizontal({ domain = "CurrentPaneDomain" })),
+      action = create_smart_action("v", "CTRL", act.SplitHorizontal({ domain = "CurrentPaneDomain" })),
     },
     {
       key = "m",
       mods = "CTRL",
-      action = create_lockable_action("m", "CTRL", act.TogglePaneZoomState),
+      action = create_smart_action("m", "CTRL", act.TogglePaneZoomState),
     },
   }
 
   for _, key in ipairs({ "h", "j", "k", "l" }) do
-    table.insert(keys, { key = key, mods = "CTRL", action = create_pane_nav_action("move", key, "CTRL") })
-    table.insert(keys, { key = key, mods = "CTRL|SHIFT", action = create_pane_nav_action("resize", key, "CTRL|SHIFT") })
+    table.insert(keys, {
+      key = key,
+      mods = "CTRL",
+      action = create_smart_action(
+        key,
+        "CTRL",
+        { ActivatePaneDirection = DIRECTION_KEYS[key] },
+        { passthrough = EDITORS }
+      ),
+    })
+    table.insert(keys, {
+      key = key,
+      mods = "CTRL|SHIFT",
+      action = create_smart_action(
+        key,
+        "CTRL|SHIFT",
+        { AdjustPaneSize = { DIRECTION_KEYS[key], 3 } },
+        { passthrough = EDITORS }
+      ),
+    })
   end
 
   for _, mods in ipairs({ "CTRL", "SUPER" }) do
     table.insert(keys, {
       key = "w",
       mods = mods,
-      action = create_lockable_action("w", mods, act.CloseCurrentPane({ confirm = true })),
+      action = create_smart_action("w", mods, act.CloseCurrentPane({ confirm = true })),
     })
   end
 
@@ -119,17 +123,17 @@ end
 
 local function get_system_keys()
   return {
-    { key = "c", mods = "SUPER", action = create_lockable_action("c", "SUPER", act.CopyTo("Clipboard")) },
-    { key = "v", mods = "SUPER", action = create_lockable_action("v", "SUPER", act.PasteFrom("Clipboard")) },
-    { key = "m", mods = "SUPER", action = create_lockable_action("m", "SUPER", act.Hide) },
-    { key = "h", mods = "SUPER", action = create_lockable_action("h", "SUPER", act.HideApplication) },
-    { key = "q", mods = "SUPER", action = create_lockable_action("q", "SUPER", act.QuitApplication) },
-    { key = ";", mods = "CTRL", action = create_lockable_action(";", "CTRL", act.ActivateCommandPalette) },
-    { key = "l", mods = "CTRL|SHIFT", action = create_lockable_action("l", "CTRL|SHIFT", act.ShowDebugOverlay) },
+    { key = "c", mods = "SUPER", action = create_smart_action("c", "SUPER", act.CopyTo("Clipboard")) },
+    { key = "v", mods = "SUPER", action = create_smart_action("v", "SUPER", act.PasteFrom("Clipboard")) },
+    { key = "m", mods = "SUPER", action = create_smart_action("m", "SUPER", act.Hide) },
+    { key = "h", mods = "SUPER", action = create_smart_action("h", "SUPER", act.HideApplication) },
+    { key = "q", mods = "SUPER", action = create_smart_action("q", "SUPER", act.QuitApplication) },
+    { key = ";", mods = "CTRL", action = create_smart_action(";", "CTRL", act.ActivateCommandPalette) },
+    { key = "l", mods = "CTRL|SHIFT", action = create_smart_action("l", "CTRL|SHIFT", act.ShowDebugOverlay) },
     {
       key = "k",
       mods = "SUPER",
-      action = create_lockable_action("k", "SUPER", act.ClearScrollback("ScrollbackAndViewport")),
+      action = create_smart_action("k", "SUPER", act.ClearScrollback("ScrollbackAndViewport")),
     },
   }
 end
@@ -137,8 +141,8 @@ end
 local function get_font_keys()
   local keys = {}
   for _, mods in ipairs({ "CTRL", "SUPER" }) do
-    table.insert(keys, { key = "-", mods = mods, action = create_lockable_action("-", mods, act.DecreaseFontSize) })
-    table.insert(keys, { key = "=", mods = mods, action = create_lockable_action("=", mods, act.IncreaseFontSize) })
+    table.insert(keys, { key = "-", mods = mods, action = create_smart_action("-", mods, act.DecreaseFontSize) })
+    table.insert(keys, { key = "=", mods = mods, action = create_smart_action("=", mods, act.IncreaseFontSize) })
   end
   return keys
 end
@@ -148,21 +152,21 @@ local function get_tab_keys()
     {
       key = "w",
       mods = "CTRL|SHIFT",
-      action = create_lockable_action("w", "CTRL|SHIFT", act.CloseCurrentTab({ confirm = true })),
+      action = create_smart_action("w", "CTRL|SHIFT", act.CloseCurrentTab({ confirm = true })),
     },
-    { key = "Tab", mods = "CTRL", action = create_lockable_action("Tab", "CTRL", act.ActivateTabRelative(1)) },
+    { key = "Tab", mods = "CTRL", action = create_smart_action("Tab", "CTRL", act.ActivateTabRelative(1)) },
     {
       key = "Tab",
       mods = "CTRL|SHIFT",
-      action = create_lockable_action("Tab", "CTRL|SHIFT", act.ActivateTabRelative(-1)),
+      action = create_smart_action("Tab", "CTRL|SHIFT", act.ActivateTabRelative(-1)),
     },
-    { key = "o", mods = "CTRL|SHIFT", action = create_lockable_action("o", "CTRL|SHIFT", act.ActivateLastTab) },
+    { key = "o", mods = "CTRL|SHIFT", action = create_smart_action("o", "CTRL|SHIFT", act.ActivateLastTab) },
   }
 
   for _, mods in ipairs({ "CTRL", "SUPER" }) do
     table.insert(
       keys,
-      { key = "t", mods = mods, action = create_lockable_action("t", mods, act.SpawnTab("CurrentPaneDomain")) }
+      { key = "t", mods = mods, action = create_smart_action("t", mods, act.SpawnTab("CurrentPaneDomain")) }
     )
   end
 
@@ -170,13 +174,13 @@ local function get_tab_keys()
     for _, mods in ipairs({ "CTRL", "SUPER" }) do
       table.insert(
         keys,
-        { key = tostring(i), mods = mods, action = create_lockable_action(tostring(i), mods, act.ActivateTab(i - 1)) }
+        { key = tostring(i), mods = mods, action = create_smart_action(tostring(i), mods, act.ActivateTab(i - 1)) }
       )
     end
   end
 
   for _, mods in ipairs({ "CTRL", "SUPER" }) do
-    table.insert(keys, { key = "9", mods = mods, action = create_lockable_action("9", mods, act.ActivateTab(-1)) })
+    table.insert(keys, { key = "9", mods = mods, action = create_smart_action("9", mods, act.ActivateTab(-1)) })
   end
 
   return keys
@@ -185,20 +189,20 @@ end
 local function get_window_keys()
   local keys = {}
   for _, mods in ipairs({ "CTRL", "SUPER" }) do
-    table.insert(keys, { key = "n", mods = mods, action = create_lockable_action("n", mods, act.SpawnWindow) })
+    table.insert(keys, { key = "n", mods = mods, action = create_smart_action("n", mods, act.SpawnWindow) })
   end
   return keys
 end
 
 local function get_search_keys()
   return {
-    { key = "Escape", mods = "CTRL", action = create_lockable_action("Escape", "CTRL", act.ActivateCopyMode) },
+    { key = "Escape", mods = "CTRL", action = create_smart_action("Escape", "CTRL", act.ActivateCopyMode) },
     {
       key = "/",
       mods = "CTRL",
-      action = create_lockable_action("/", "CTRL", act.Search("CurrentSelectionOrEmptyString")),
+      action = create_smart_action("/", "CTRL", act.Search("CurrentSelectionOrEmptyString")),
     },
-    { key = "f", mods = "CTRL", action = create_lockable_action("f", "CTRL", act.PaneSelect) },
+    { key = "f", mods = "CTRL", action = create_smart_action("f", "CTRL", act.PaneSelect) },
   }
 end
 
@@ -207,12 +211,12 @@ local function get_scroll_keys()
     {
       key = "u",
       mods = "CTRL",
-      action = create_pane_nav_action("scroll", "u", "CTRL"),
+      action = create_smart_action("u", "CTRL", { ScrollByLine = -40 }, { passthrough = EDITORS }),
     },
     {
       key = "d",
       mods = "CTRL",
-      action = create_pane_nav_action("scroll", "d", "CTRL"),
+      action = create_smart_action("d", "CTRL", { ScrollByLine = 40 }, { passthrough = EDITORS }),
     },
   }
 end
