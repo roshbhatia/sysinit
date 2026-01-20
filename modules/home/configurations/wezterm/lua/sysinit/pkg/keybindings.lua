@@ -82,6 +82,11 @@ local function get_pane_keys()
       mods = "CTRL",
       action = create_lockable_action("v", "CTRL", act.SplitHorizontal({ domain = "CurrentPaneDomain" })),
     },
+    {
+      key = "m",
+      mods = "CTRL",
+      action = create_lockable_action("m", "CTRL", act.TogglePaneZoomState),
+    },
   }
 
   for _, key in ipairs({ "h", "j", "k", "l" }) do
