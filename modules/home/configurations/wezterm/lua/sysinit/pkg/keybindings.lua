@@ -186,6 +186,13 @@ local function get_scroll_keys()
   }
 end
 
+local function get_locked_key_table()
+  return {
+    -- Ctrl+g to exit locked mode
+    { key = "g", mods = "CTRL", action = act.PopKeyTable },
+  }
+end
+
 function M.setup(config)
   config.disable_default_key_bindings = true
 
@@ -206,8 +213,22 @@ function M.setup(config)
     end
   end
 
+  -- Add Ctrl+g to toggle locked mode
+  table.insert(all_keys, {
+    key = "g",
+    mods = "CTRL",
+    action = act.ActivateKeyTable({
+      name = "locked",
+      one_shot = false,
+    }),
+  })
+
   config.keys = all_keys
-  config.key_tables = wezterm.gui and wezterm.gui.default_key_tables() or {}
+
+  -- Setup key tables
+  local key_tables = wezterm.gui and wezterm.gui.default_key_tables() or {}
+  key_tables.locked = get_locked_key_table()
+  config.key_tables = key_tables
 end
 
 return M

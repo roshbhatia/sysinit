@@ -126,6 +126,19 @@ function M.setup(config)
     end
     window:set_config_overrides(overrides)
   end)
+
+  -- Show locked mode indicator in status bar
+  wezterm.on("update-right-status", function(window, _)
+    local key_table = window:active_key_table()
+    if key_table == "locked" then
+      window:set_right_status(wezterm.format({
+        { Foreground = { Color = "#ff6c6b" } },
+        { Text = " 🔒 LOCKED " },
+      }))
+    else
+      window:set_right_status("")
+    end
+  end)
 end
 
 return M
