@@ -61,6 +61,15 @@ function M.setup(config)
     fade_out_duration_ms = 100,
   }
 
+  -- Locked mode indicator component
+  local function locked_indicator()
+    local keybindings = require("sysinit.pkg.keybindings")
+    if keybindings.locked_mode then
+      return "🔒 LOCKED"
+    end
+    return ""
+  end
+
   tabline.setup({
     options = {
       theme = config_data.color_scheme,
@@ -78,7 +87,7 @@ function M.setup(config)
       },
     },
     sections = {
-      tabline_x = {},
+      tabline_x = { locked_indicator },
       tabline_y = {},
     },
     extensions = {},
@@ -125,19 +134,6 @@ function M.setup(config)
       overrides.enable_scroll_bar = nil
     end
     window:set_config_overrides(overrides)
-  end)
-
-  -- Show locked mode indicator in status bar
-  wezterm.on("update-right-status", function(window, _)
-    local key_table = window:active_key_table()
-    if key_table == "locked" then
-      window:set_right_status(wezterm.format({
-        { Foreground = { Color = "#ff6c6b" } },
-        { Text = " 🔒 LOCKED " },
-      }))
-    else
-      window:set_right_status("")
-    end
   end)
 end
 

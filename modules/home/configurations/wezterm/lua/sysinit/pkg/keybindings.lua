@@ -7,6 +7,9 @@ local PASSTHROUGH_PROCESSES = { "nvim", "vim", "hx", "k9s" }
 local VIM_PROCESSES = { "nvim", "vim" }
 local GOOSE_PROCESS = "goose"
 
+-- Global state for locked mode
+M.locked_mode = false
+
 local function get_process_name(pane)
   local proc = pane:get_foreground_process_name()
   if not proc then
@@ -30,7 +33,7 @@ end
 
 local function create_passthrough_action(key, mods, wezterm_action, process_list)
   return wezterm.action_callback(function(win, pane)
-    if is_process_in_list(pane, process_list or PASSTHROUGH_PROCESSES) then
+    if M.locked_mode or is_process_in_list(pane, process_list or PASSTHROUGH_PROCESSES) then
       win:perform_action({ SendKey = { key = key, mods = mods } }, pane)
     else
       win:perform_action(wezterm_action, pane)
@@ -47,7 +50,7 @@ local DIRECTION_KEYS = {
 
 local function create_pane_action(action_type, key, mods)
   return wezterm.action_callback(function(win, pane)
-    if is_process_in_list(pane, PASSTHROUGH_PROCESSES) then
+    if M.locked_mode or is_process_in_list(pane, PASSTHROUGH_PROCESSES) then
       win:perform_action({ SendKey = { key = key, mods = mods } }, pane)
     else
       local action = action_type == "resize" and { AdjustPaneSize = { DIRECTION_KEYS[key], 3 } }
@@ -186,13 +189,6 @@ local function get_scroll_keys()
   }
 end
 
-local function get_locked_key_table()
-  return {
-    -- Ctrl+g to exit locked mode
-    { key = "g", mods = "CTRL", action = act.PopKeyTable },
-  }
-end
-
 function M.setup(config)
   config.disable_default_key_bindings = true
 
@@ -217,18 +213,13 @@ function M.setup(config)
   table.insert(all_keys, {
     key = "g",
     mods = "CTRL",
-    action = act.ActivateKeyTable({
-      name = "locked",
-      one_shot = false,
-    }),
+    action = wezterm.action_callback(function(_, _)
+      M.locked_mode = not M.locked_mode
+    end),
   })
 
   config.keys = all_keys
-
-  -- Setup key tables
-  local key_tables = wezterm.gui and wezterm.gui.default_key_tables() or {}
-  key_tables.locked = get_locked_key_table()
-  config.key_tables = key_tables
+  config.key_tables = wezterm.gui and wezterm.gui.default_key_tables() or {}
 end
 
 return M
