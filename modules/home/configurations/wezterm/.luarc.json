@@ -3,7 +3,8 @@
     "version": "Lua 5.4"
   },
   "diagnostics": {
-    "disable": ["undefined-doc-name"],
+    "disable": ["undefined-doc-name",
+            "unused-local"],
     "globals": ["wezterm",
             "process_name"]
   },

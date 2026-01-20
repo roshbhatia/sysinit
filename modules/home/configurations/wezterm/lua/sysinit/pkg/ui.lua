@@ -5,30 +5,24 @@ local tabline = wezterm.plugin.require("https://github.com/michaelbrusegard/tabl
 
 local M = {}
 
-local function should_apply_nvim_overrides(tab)
+local function get_foreground_executable(tab)
   for _, pane in ipairs(tab:panes()) do
     local info = pane:get_foreground_process_info()
     if info then
-      local executable = string.gsub(info.executable, "(.*[/\\])(.*)", "%2")
-      if executable == "nvim" or executable == "tmux" or executable == "hx" then
-        return true
-      end
+      return string.gsub(info.executable, "(.*[/\\])(.*)", "%2")
     end
   end
-  return false
+  return nil
+end
+
+local function should_apply_nvim_overrides(tab)
+  local executable = get_foreground_executable(tab)
+  return executable == "nvim" or executable == "tmux" or executable == "hx"
 end
 
 local function should_apply_k9s_overrides(tab)
-  for _, pane in ipairs(tab:panes()) do
-    local info = pane:get_foreground_process_info()
-    if info then
-      local executable = string.gsub(info.executable, "(.*[/\\])(.*)", "%2")
-      if executable == "k9s" then
-        return true
-      end
-    end
-  end
-  return false
+  local executable = get_foreground_executable(tab)
+  return executable == "k9s"
 end
 
 function M.setup(config)
@@ -75,13 +69,20 @@ function M.setup(config)
   }
 
   -- Locked mode indicator component
-  local function locked_indicator()
-    local keybindings = require("sysinit.pkg.keybindings")
-    if keybindings.locked_mode then
-      return "  "
-    end
-    return "  "
-  end
+  local locked_indicator = {
+    "locked_mode",
+    fmt = function(str)
+      local keybindings = require("sysinit.pkg.keybindings")
+      if keybindings.locked_mode then
+        return wezterm.format({
+          { Foreground = { Color = "red" } },
+          { Text = " " },
+        })
+      end
+      return " "
+    end,
+    padding = 0,
+  }
 
   tabline.setup({
     options = {
@@ -140,25 +141,16 @@ function M.setup(config)
 
   wezterm.on("update-status", function(window, pane)
     local tab = pane:tab()
-    local should_switch = should_apply_nvim_overrides(tab)
     local overrides = window:get_config_overrides() or {}
-    if should_switch then
-      overrides.enable_scroll_bar = false
-    else
-      overrides.enable_scroll_bar = nil
-    end
-    window:set_config_overrides(overrides)
-  end)
 
-  wezterm.on("update-status", function(window, pane)
-    local tab = pane:tab()
-    local should_switch = should_apply_k9s_overrides(tab)(tab)
-    local overrides = window:get_config_overrides() or {}
-    if should_switch then
-      overrides.opacity = 1.0
-    else
-      overrides.opacity = nil
-    end
+    -- Apply nvim/tmux/hx overrides (hide scrollbar)
+    local should_apply_nvim = should_apply_nvim_overrides(tab)
+    overrides.enable_scroll_bar = should_apply_nvim and false or nil
+
+    -- Apply k9s overrides (full opacity)
+    local should_apply_k9s = should_apply_k9s_overrides(tab)
+    overrides.window_background_opacity = should_apply_k9s and 1.0 or nil
+
     window:set_config_overrides(overrides)
   end)
 end
