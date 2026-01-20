@@ -75,12 +75,13 @@ function M.setup(config)
       local keybindings = require("sysinit.pkg.keybindings")
       if keybindings.locked_mode then
         return {
-          wezterm.nerdfonts.md_lock,
-          color = { fg = "#ff0000" },
+          wezterm.nerdfonts.cod_lock,
+          { Foreground = { AnsiColor = "Red" } },
+          { Attribute = { Underline = "Single" } },
         }
       end
       return {
-        wezterm.nerdfonts.md_lock_open,
+        wezterm.nerdfonts.cod_unlock,
       }
     end,
     padding = 0,

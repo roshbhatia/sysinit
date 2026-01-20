@@ -3,12 +3,12 @@ local act = wezterm.action
 
 local M = {}
 
-local PASSTHROUGH_PROCESSES = { "nvim", "vim", "hx", "k9s" }
-local VIM_PROCESSES = { "nvim", "vim" }
-local GOOSE_PROCESS = "goose"
-
 -- Global state for locked mode
 M.locked_mode = false
+
+-- ============================================================================
+-- Process Detection
+-- ============================================================================
 
 local function get_process_name(pane)
   local proc = pane:get_foreground_process_name()
@@ -18,18 +18,18 @@ local function get_process_name(pane)
   return proc:match("([^/\\]+)$")
 end
 
-local function is_process_in_list(pane, process_list)
+local function is_nvim_or_helix(pane)
   local process_name = get_process_name(pane)
-  if not process_name then
-    return false
-  end
-  for _, proc in ipairs(process_list) do
-    if process_name == proc then
-      return true
-    end
-  end
-  return false
+  return process_name == "nvim" or process_name == "vim" or process_name == "hx"
 end
+
+local function is_goose(pane)
+  return get_process_name(pane) == "goose"
+end
+
+-- ============================================================================
+-- Action Builders
+-- ============================================================================
 
 local function create_lockable_action(key, mods, wezterm_action)
   return wezterm.action_callback(function(win, pane)
@@ -41,34 +41,54 @@ local function create_lockable_action(key, mods, wezterm_action)
   end)
 end
 
-local function create_passthrough_action(key, mods, wezterm_action, process_list)
+-- Passthrough to nvim/helix for pane navigation and splitting
+local function create_pane_nav_action(action_type, key, mods)
+  local DIRECTION_KEYS = {
+    h = "Left",
+    j = "Down",
+    k = "Up",
+    l = "Right",
+  }
+
   return wezterm.action_callback(function(win, pane)
-    if M.locked_mode or is_process_in_list(pane, process_list or PASSTHROUGH_PROCESSES) then
+    if M.locked_mode then
+      win:perform_action({ SendKey = { key = key, mods = mods } }, pane)
+    elseif is_nvim_or_helix(pane) then
+      -- Let nvim/helix handle these keys
       win:perform_action({ SendKey = { key = key, mods = mods } }, pane)
     else
-      win:perform_action(wezterm_action, pane)
-    end
-  end)
-end
-
-local DIRECTION_KEYS = {
-  h = "Left",
-  j = "Down",
-  k = "Up",
-  l = "Right",
-}
-
-local function create_pane_action(action_type, key, mods)
-  return wezterm.action_callback(function(win, pane)
-    if M.locked_mode or is_process_in_list(pane, PASSTHROUGH_PROCESSES) then
-      win:perform_action({ SendKey = { key = key, mods = mods } }, pane)
-    else
+      -- Otherwise use wezterm's pane navigation
       local action = action_type == "resize" and { AdjustPaneSize = { DIRECTION_KEYS[key], 3 } }
         or { ActivatePaneDirection = DIRECTION_KEYS[key] }
       win:perform_action(action, pane)
     end
   end)
 end
+
+-- ============================================================================
+-- Integrations: Process-specific keybindings
+-- ============================================================================
+
+local function get_goose_keys()
+  return {
+    {
+      key = "Enter",
+      mods = "SHIFT",
+      action = wezterm.action_callback(function(win, pane)
+        if M.locked_mode then
+          return
+        end
+        if is_goose(pane) then
+          win:perform_action({ SendKey = { key = "j", mods = "CTRL" } }, pane)
+        end
+      end),
+    },
+  }
+end
+
+-- ============================================================================
+-- Keygroup Builders
+-- ============================================================================
 
 local function get_pane_keys()
   local keys = {
@@ -90,15 +110,15 @@ local function get_pane_keys()
   }
 
   for _, key in ipairs({ "h", "j", "k", "l" }) do
-    table.insert(keys, { key = key, mods = "CTRL", action = create_pane_action("move", key, "CTRL") })
-    table.insert(keys, { key = key, mods = "CTRL|SHIFT", action = create_pane_action("resize", key, "CTRL|SHIFT") })
+    table.insert(keys, { key = key, mods = "CTRL", action = create_pane_nav_action("move", key, "CTRL") })
+    table.insert(keys, { key = key, mods = "CTRL|SHIFT", action = create_pane_nav_action("resize", key, "CTRL|SHIFT") })
   end
 
   for _, mods in ipairs({ "CTRL", "SUPER" }) do
     table.insert(keys, {
       key = "w",
       mods = mods,
-      action = create_passthrough_action("w", mods, act.CloseCurrentPane({ confirm = true }), VIM_PROCESSES),
+      action = create_lockable_action("w", mods, act.CloseCurrentPane({ confirm = true })),
     })
   end
 
@@ -117,19 +137,7 @@ local function get_system_keys()
     {
       key = "k",
       mods = "SUPER",
-      action = create_passthrough_action("k", "CTRL", act.ClearScrollback("ScrollbackAndViewport")),
-    },
-    {
-      key = "Enter",
-      mods = "SHIFT",
-      action = wezterm.action_callback(function(win, pane)
-        if M.locked_mode then
-          return
-        end
-        if is_process_in_list(pane, { GOOSE_PROCESS }) then
-          win:perform_action({ SendKey = { key = "j", mods = "CTRL" } }, pane)
-        end
-      end),
+      action = create_lockable_action("k", "SUPER", act.ClearScrollback("ScrollbackAndViewport")),
     },
   }
 end
@@ -207,22 +215,22 @@ local function get_scroll_keys()
     {
       key = "u",
       mods = "CTRL",
-      action = create_passthrough_action("u", "CTRL", act.ScrollByLine(-40)),
+      action = create_lockable_action("u", "CTRL", act.ScrollByLine(-40)),
     },
     {
       key = "d",
       mods = "CTRL",
-      action = create_passthrough_action("d", "CTRL", act.ScrollByLine(40)),
+      action = create_lockable_action("d", "CTRL", act.ScrollByLine(40)),
     },
     {
       key = "u",
       mods = "CTRL|SHIFT",
-      action = create_passthrough_action("u", "CTRL|SHIFT", act.ScrollToTop),
+      action = create_lockable_action("u", "CTRL|SHIFT", act.ScrollToTop),
     },
     {
       key = "d",
       mods = "CTRL|SHIFT",
-      action = create_passthrough_action("d", "CTRL|SHIFT", act.ScrollToBottom),
+      action = create_lockable_action("d", "CTRL|SHIFT", act.ScrollToBottom),
     },
   }
 end
@@ -239,6 +247,7 @@ function M.setup(config)
     get_search_keys(),
     get_tab_keys(),
     get_window_keys(),
+    get_goose_keys(),
   }
 
   for _, group in ipairs(key_groups) do
