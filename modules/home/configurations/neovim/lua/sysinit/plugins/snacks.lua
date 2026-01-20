@@ -33,9 +33,8 @@ return {
         picker = {
           enabled = true,
           matcher = {
-            fuzzy = true,
-            smartcase = true,
-            ignorecase = true,
+            frecency = true,
+            history_bonus = true,
           },
           sources = {
             files = {
@@ -43,13 +42,14 @@ return {
               ignored = false,
             },
           },
+          formatters = {
+            files = { filename_first = true },
+          },
           win = {
             input = {
               keys = {
-                ["<Tab>"] = "list_down",
-                ["<S-Tab>"] = "list_up",
-                ["<S-j>"] = "preview_scroll_down",
-                ["<S-k>"] = "preview_scroll_up",
+                ["<Tab>"] = { "list_down", mode = { "i", "n" } },
+                ["<S-Tab>"] = { "list_up", mode = { "i", "n" } },
                 ["<localleader>s"] = "edit_split",
                 ["<localleader>v"] = "edit_vsplit",
               },
@@ -78,7 +78,7 @@ return {
           enabled = true,
           preset = {
             keys = {
-              { icon = " ", key = "f", desc = "Find File", action = ":lua Snacks.picker.files()" },
+              { icon = "󱡂 ", key = "f", desc = "Find File", action = ":lua Snacks.picker.files()" },
               { icon = "󰓥 ", key = "g", desc = "Grep string", action = ":lua Snacks.picker.grep()" },
               { icon = "󱡃 ", key = "i", desc = "New file", action = ":ene | startinsert" },
               { icon = "󰄚 ", key = "q", desc = "Quit", action = ":qa" },
@@ -329,7 +329,7 @@ return {
         {
           "<leader>fj",
           function()
-            Snacks.picker.jumplist({ layout = "ivy" })
+            Snacks.picker.jumps({ layout = "ivy" })
           end,
           desc = "Jumplist",
         },
