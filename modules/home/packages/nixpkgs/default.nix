@@ -146,6 +146,7 @@ let
     eslint
     gopls
     jq-lsp
+    lsp-ai
     lua-language-server
     nil
     openscad-lsp
@@ -153,8 +154,8 @@ let
     shellcheck
     simple-completion-language-server
     typescript-language-server
-    vscode-langservers-extracted
     vale-ls
+    vscode-langservers-extracted
     yaml-language-server
     zls
   ];
