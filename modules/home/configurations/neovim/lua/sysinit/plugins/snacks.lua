@@ -218,33 +218,23 @@ return {
       local ai_keys = keymaps.generate_all_keymaps()
 
       local default_keys = {
+        -- Pickers
         {
-          "<leader>fr",
+          "<leader>ff",
+          function()
+            Snacks.picker.files({
+              hidden = true,
+              ignored = false,
+            })
+          end,
+          desc = "Files",
+        },
+        {
+          "<leader>fG",
           function()
             Snacks.picker.grep()
           end,
           desc = "Grep (alt.)",
-        },
-        {
-          "<leader>fu",
-          function()
-            Snacks.picker.undo()
-          end,
-          desc = "Undo history",
-        },
-        {
-          "<leader>fl",
-          function()
-            Snacks.picker.resume()
-          end,
-          desc = "Last picker",
-        },
-        {
-          "<leader>?",
-          function()
-            Snacks.picker.commands({ layout = "ivy", preview = false })
-          end,
-          desc = "Commands",
         },
         {
           "<leader>fb",
@@ -258,21 +248,18 @@ return {
           desc = "Buffers",
         },
         {
-          "<leader>fd",
+          "<leader>fu",
           function()
-            Snacks.picker.diagnostics({ layout = "ivy" })
+            Snacks.picker.undo()
           end,
-          desc = "Diagnostics",
+          desc = "Undo history",
         },
         {
-          "<leader>ff",
+          "<leader>fr",
           function()
-            Snacks.picker.files({
-              hidden = true,
-              ignored = false,
-            })
+            Snacks.picker.resume()
           end,
-          desc = "Files",
+          desc = "Last picker",
         },
         {
           "<leader>fj",
@@ -281,6 +268,72 @@ return {
           end,
           desc = "Jumplist",
         },
+        -- LSP
+        {
+          "<leader>cfd",
+          function()
+            Snacks.picker.lsp_definitions({ layout = "right" })
+          end,
+          desc = "LSP Definitions",
+        },
+        {
+          "<leader>cfD",
+          function()
+            Snacks.picker.lsp_declarations({ layout = "right" })
+          end,
+          desc = "LSP Declarations",
+        },
+        {
+          "<leader>cfr",
+          function()
+            Snacks.picker.lsp_references({ layout = "ivy" })
+          end,
+          desc = "References",
+          nowait = true,
+        },
+        {
+          "<leader>cfi",
+          function()
+            Snacks.picker.lsp_implementations({ layout = "right" })
+          end,
+          desc = "Implementations",
+        },
+        {
+          "<leader>cfy",
+          function()
+            Snacks.picker.lsp_type_definitions({ layout = "right" })
+          end,
+          desc = "Type Definition",
+        },
+        {
+          "<leader>cfI",
+          function()
+            Snacks.picker.lsp_incoming_calls({ layout = "ivy" })
+          end,
+          desc = "Incoming Calls",
+        },
+        {
+          "<leader>cfo",
+          function()
+            Snacks.picker.lsp_outgoing_calls({ layout = "ivy" })
+          end,
+          desc = "Outgoing Calls",
+        },
+        {
+          "<leader>cfs",
+          function()
+            Snacks.picker.lsp_symbols({ layout = "bottom" })
+          end,
+          desc = "Document Symbols",
+        },
+        {
+          "<leader>cfS",
+          function()
+            Snacks.picker.lsp_workspace_symbols({ layout = "bottom" })
+          end,
+          desc = "Workspace Symbols",
+        },
+        -- Notifications
         {
           "<leader>ns",
           function()
