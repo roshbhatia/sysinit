@@ -16,16 +16,13 @@ let
   '';
 in
 {
-  # Tailscale VPN
   services.tailscale.enable = lib.mkIf tailscaleEnabled true;
 
-  # Jankyborders (window borders)
   services.jankyborders = lib.mkIf bordersEnabled {
     enable = true;
-    width = 4.0;
+    width = 5.0;
   };
 
-  # Ollama local LLM service
   launchd.user.agents.ollama = {
     serviceConfig = {
       Label = "com.ollama.default";
