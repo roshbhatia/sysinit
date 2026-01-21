@@ -18,7 +18,7 @@ return {
     keys = function()
       return {
         {
-          "<leader>fg",
+          "<leader>fG",
           function()
             require("grug-far").toggle_instance({
               instanceName = "far-global",
@@ -28,21 +28,7 @@ return {
               },
             })
           end,
-          desc = "Grep",
-        },
-        {
-          "<leader>fi",
-          function()
-            require("grug-far").toggle_instance({
-              instanceName = "far-local",
-              staticTitle = "Local Search",
-              prefills = {
-                paths = vim.fn.expand("%"),
-                search = vim.fn.expand("<cword>"),
-              },
-            })
-          end,
-          desc = "Grep in buffer",
+          desc = "Grep (alt.)",
         },
       }
     end,

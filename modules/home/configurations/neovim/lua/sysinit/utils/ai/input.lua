@@ -8,7 +8,8 @@ function M.create_input(termname, agent_icon, opts)
   local prompt = string.format("%s  %s", agent_icon, action_name)
   local title = string.format("%s  %s", agent_icon or "", action_name)
 
-  local initial_state = require("sysinit.utils.ai.context").current_position()
+  local context = require("sysinit.utils.ai.context")
+  local initial_state = context.new()
 
   local snacks = require("snacks")
   local hist = history.load_history(termname)
@@ -34,7 +35,7 @@ function M.create_input(termname, agent_icon, opts)
   }, function(value)
     if opts.on_confirm and value and value ~= "" then
       history.save_to_history(termname, value)
-      opts.on_confirm(placeholders.apply_placeholders(value, initial_state))
+      opts.on_confirm(placeholders.apply(value, initial_state))
     end
   end)
 
@@ -42,7 +43,7 @@ function M.create_input(termname, agent_icon, opts)
     local buf = vim.api.nvim_get_current_buf()
     if vim.api.nvim_buf_is_valid(buf) and vim.bo[buf].filetype == "ai_terminals_input" then
       vim.api.nvim_buf_call(buf, function()
-        vim.fn.matchadd("Special", "[@!]\\w\\+")
+        vim.fn.matchadd("Special", "@[%w_]\\+")
       end)
 
       local current_history_index = history.get_current_history_index()

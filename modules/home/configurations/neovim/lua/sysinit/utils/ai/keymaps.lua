@@ -79,7 +79,7 @@ function M.generate_all_keymaps()
 
   table.insert(keymaps, {
     "<leader>ja",
-    create_mode_context_input("Ask", " @cursor: ", " @selection: "),
+    create_mode_context_input("Ask", " @this: ", " @this: "),
     mode = { "n", "v" },
     desc = "Ask active",
   })
@@ -94,7 +94,7 @@ function M.generate_all_keymaps()
 
   table.insert(keymaps, {
     "<leader>jk",
-    create_mode_context_input("Comment", " Comment @cursor: ", " Comment @selection: "),
+    create_mode_context_input("Comment", " Comment @this: ", " Comment @this: "),
     mode = { "n", "v" },
     desc = "Comment (active)",
   })

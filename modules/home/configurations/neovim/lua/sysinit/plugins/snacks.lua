@@ -244,11 +244,11 @@ return {
           desc = "Project diagnostics",
         },
         {
-          "<leader>fG",
+          "<leader>fg",
           function()
             Snacks.picker.grep()
           end,
-          desc = "Grep (alt.)",
+          desc = "Grep",
         },
         {
           "<leader>fb",

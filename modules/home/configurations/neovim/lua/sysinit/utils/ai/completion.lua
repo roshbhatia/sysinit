@@ -8,12 +8,21 @@ function M.setup()
   if blink_source_setup_done then
     return
   end
+
   local ok, blink = pcall(require, "blink.cmp")
   if not ok then
     return
   end
-  blink.add_source_provider("ai_placeholders", { module = "sysinit.utils.ai.completion", name = "ai_placeholders" })
-  blink.add_filetype_source("ai_terminals_input", "ai_placeholders")
+
+  -- Register our source
+  blink.add_source_provider("ai_context", {
+    module = "sysinit.utils.ai.completion",
+    name = "ai_context",
+  })
+
+  -- Add to ai_terminals_input filetype with path completion
+  blink.add_filetype_source("ai_terminals_input", { "ai_context", "path" })
+
   blink_source_setup_done = true
 end
 
@@ -31,29 +40,34 @@ function blink_source:enabled()
 end
 
 function blink_source:get_trigger_characters()
-  return { "+" }
+  return { "@" }
 end
 
-function blink_source:get_completions(_, callback)
+function blink_source:get_completions(ctx, callback)
   local items = {}
   local types_ok, types = pcall(require, "blink.cmp.types")
   if not types_ok then
     callback({ items = {}, is_incomplete_forward = false, is_incomplete_backward = false })
     return function() end
   end
-  for _, p in ipairs(placeholders.placeholder_descriptions) do
+
+  -- Add placeholder completions
+  for _, p in ipairs(placeholders.descriptions) do
     table.insert(items, {
       label = p.token,
-      kind = types.CompletionItemKind.Enum,
-      filterText = p.token,
+      kind = types.CompletionItemKind.Variable,
+      filterText = p.token:sub(2),
       insertText = p.token,
       insertTextFormat = vim.lsp.protocol.InsertTextFormat.PlainText,
+      sortText = "0" .. p.token,
       documentation = {
         kind = "markdown",
-        value = string.format("`%s`\n\n%s", p.token, p.description),
+        value = string.format("**%s**\n\n%s", p.token, p.description),
       },
+      data = { source = "ai_context", type = "placeholder" },
     })
   end
+
   callback({ items = items, is_incomplete_forward = false, is_incomplete_backward = false })
   return function() end
 end
