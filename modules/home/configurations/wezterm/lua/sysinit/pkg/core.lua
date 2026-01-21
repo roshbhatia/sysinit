@@ -1,7 +1,6 @@
-local M = {}
+local utils = require("sysinit.pkg.utils")
 
-local username = os.getenv("USER") or ""
-local nix_bin = "/etc/profiles/per-user/" .. username .. "/bin"
+local M = {}
 
 local function get_basic_config()
   return {
@@ -9,7 +8,7 @@ local function get_basic_config()
     -- We use a nix-installed zsh as the default shell.
     -- On darwin there's a /bin/zsh that we choose to not mess with
     default_prog = {
-      nix_bin .. "/zsh",
+      utils.get_nix_binary("zsh"),
     },
     -- Will only work when connected to the tailnet.
     -- As such, can safely ignore this when we're on the work machine.
@@ -18,17 +17,17 @@ local function get_basic_config()
       {
         name = "arrakis",
         remote_address = "arrakis",
-        username = username,
+        username = utils.get_username(),
       },
       {
         name = "varre",
         remote_address = "varre",
-        username = username,
+        username = utils.get_username(),
       },
       {
         name = "lv426",
         remote_address = "lv426",
-        username = username,
+        username = utils.get_username(),
       },
     },
   }

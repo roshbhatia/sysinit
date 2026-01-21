@@ -7,19 +7,14 @@ local tabline = wezterm.plugin.require("https://github.com/michaelbrusegard/tabl
 
 local M = {}
 
-local function get_foreground_executable(tab)
+local function should_apply_nvim_overrides(tab)
   for _, pane in ipairs(tab:panes()) do
-    local info = pane:get_foreground_process_info()
-    if info then
-      return string.gsub(info.executable, "(.*[/\\])(.*)", "%2")
+    local executable = utils.get_process_name(pane)
+    if executable == "nvim" or executable == "tmux" or executable == "hx" then
+      return true
     end
   end
-  return nil
-end
-
-local function should_apply_nvim_overrides(tab)
-  local executable = get_foreground_executable(tab)
-  return executable == "nvim" or executable == "tmux" or executable == "hx"
+  return false
 end
 
 function M.setup(config)
@@ -106,27 +101,81 @@ function M.setup(config)
     top = "1cell",
   }
 
-  -- Configure hyperlink rules for file paths and URIs
-  config.hyperlink_rules = {
-    { regex = "\\b\\w+://(?:[\\w.-]+)\\.[a-z]{2,15}\\S*\\b", format = "$0" },
-    { regex = "\\b\\w+@[\\w-]+(\\.[\\w-]+)+\\b", format = "mailto:$0" },
-    { regex = "\\bfile://\\S*\\b", format = "$0" },
-    { regex = "/[\\w./_-]+", format = "$EDITOR:$0" },
-    { regex = "\\.[./][\\w./_-]+", format = "$EDITOR:$0" },
-    {
-      regex = "[\\w.-]+\\.(?:rs|ts|js|py|go|c|h|cpp|java|rb|lua|vim|nix|sh|bash|zsh|sql|json|yaml|yml|toml|xml|html|css|md|txt|log|env)",
-      format = "$EDITOR:$0",
-    },
-    { regex = "[\\w./_-]+/", format = "$EDITOR:$0" },
-  }
+  -- Hyperlink rules for clickable URLs and file paths
+  config.hyperlink_rules = wezterm.default_hyperlink_rules()
 
-  local username = os.getenv("USER") or ""
-  local nix_bin = "/etc/profiles/per-user/" .. username .. "/bin"
+  -- Standard URL protocols (http, https, git, ssh, etc)
+  -- Matches: https://example.com, ssh://user@host, git://repo, etc
+  table.insert(config.hyperlink_rules, {
+    regex = [[\b\w+://\S+\b]],
+    format = "$0",
+  })
+
+  -- Unix domain socket paths
+  -- Matches: unix:///path/to/socket, unix:/var/run/docker.sock
+  table.insert(config.hyperlink_rules, {
+    regex = [[unix://[/\w\d.\-_]+]],
+    format = "$0",
+  })
+
+  -- SCP-style paths (user@host:/path or host:/path)
+  -- Matches: user@example.com:/path/to/file, server:/var/log/app.log
+  table.insert(config.hyperlink_rules, {
+    regex = [[\b[\w\-\.]+@?[\w\-\.]+:\S+]],
+    format = "scp://$0",
+  })
+
+  -- FTP paths
+  -- Matches: ftp://ftp.example.com/path
+  table.insert(config.hyperlink_rules, {
+    regex = [[ftp://[^\s]+]],
+    format = "$0",
+  })
+
+  -- Absolute file paths (starts with / or ~)
+  -- Matches: /path/to/file, ~/documents/file.txt (optionally quoted)
+  table.insert(config.hyperlink_rules, {
+    regex = [=[["]?([\w\d]{1}[\w\d.\-_]+(/[\w\d.\-_]+)+)["]?]=],
+    format = "file://$1",
+  })
+
+  -- Relative paths (starts with ./ or ../)
+  -- Matches: ./file, ../parent/file, ../../another/path
+  table.insert(config.hyperlink_rules, {
+    regex = [=[\.\.?/[\w\d.\-_/]+]=],
+    format = "file://$0",
+  })
+
+  -- Handle custom URI schemes
   wezterm.on("open-uri", function(window, pane, uri)
-    if uri:sub(1, 8) == "$EDITOR:" then
-      window:perform_action(wezterm.action.SpawnCommandInNewWindow({ args = { nix_bin .. "/nvim", uri:sub(9) } }), pane)
+    -- Handle file:// URLs - open in nvim
+    if uri:find("^file://") then
+      local filepath = uri:gsub("^file://", "")
+      local foreground_process = pane:get_foreground_process_name()
+
+      -- If nvim is running, send :e command to open file in existing instance
+      -- This allows flatten.nvim to handle the file opening
+      if foreground_process and foreground_process:find("n?vim$") then
+        window:perform_action(wezterm.action.SendString(string.format(":e %s\r", filepath)), pane)
+        return false
+      end
+
+      -- Otherwise, spawn nvim in the current pane
+      window:perform_action(
+        wezterm.action.SendString(string.format("%s %s\r", utils.get_nix_binary("nvim"), filepath)),
+        pane
+      )
       return false
     end
+
+    -- Handle scp:// URLs - send scp command to shell
+    if uri:find("^scp://") then
+      local scp_path = uri:gsub("^scp://", "")
+      window:perform_action(wezterm.action.SendString(string.format("scp %s .\r", scp_path)), pane)
+      return false
+    end
+
+    -- Let default handler handle other schemes (http, https, ftp, unix, etc)
     return true
   end)
 

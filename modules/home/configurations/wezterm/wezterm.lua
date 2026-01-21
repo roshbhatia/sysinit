@@ -1,11 +1,7 @@
 local wezterm = require("wezterm")
 
-local home_dir = os.getenv("HOME")
-if not home_dir then
-  local username = os.getenv("USER")
-  home_dir = "/Users/" .. username
-end
-
+-- Bootstrap package path before loading modules
+local home_dir = os.getenv("HOME") or (os.getenv("USER") and "/Users/" .. os.getenv("USER"))
 package.path = package.path
   .. ";"
   .. home_dir

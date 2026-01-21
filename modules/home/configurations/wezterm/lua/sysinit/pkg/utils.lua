@@ -20,6 +20,39 @@ function M.is_darwin()
   return result:match("Darwin") ~= nil
 end
 
+-- Get current username with empty string fallback
+function M.get_username()
+  return os.getenv("USER") or ""
+end
+
+-- Get home directory with fallback to /Users/{username}
+function M.get_home_dir()
+  local home = os.getenv("HOME")
+  if home then
+    return home
+  end
+  return "/Users/" .. M.get_username()
+end
+
+-- Get nix user bin directory
+function M.get_nix_user_bin()
+  return "/etc/profiles/per-user/" .. M.get_username() .. "/bin"
+end
+
+-- Get nix binary path for a specific binary
+function M.get_nix_binary(name)
+  return M.get_nix_user_bin() .. "/" .. name
+end
+
+-- Extract process name from pane (returns just the executable name)
+function M.get_process_name(pane)
+  local proc = pane:get_foreground_process_name()
+  if not proc then
+    return nil
+  end
+  return proc:match("([^/\\]+)$")
+end
+
 function M.load_json_file(filepath)
   local file = io.open(filepath, "r")
   if not file then
@@ -40,12 +73,7 @@ function M.load_json_file(filepath)
 end
 
 function M.get_config_path(filename)
-  local home_dir = os.getenv("HOME")
-  if not home_dir then
-    local username = os.getenv("USER")
-    home_dir = "/Users/" .. username
-  end
-  return home_dir .. "/.config/wezterm/" .. filename
+  return M.get_home_dir() .. "/.config/wezterm/" .. filename
 end
 
 return M

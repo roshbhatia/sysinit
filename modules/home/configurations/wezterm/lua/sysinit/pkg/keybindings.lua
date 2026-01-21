@@ -1,20 +1,13 @@
 local wezterm = require("wezterm")
 local act = wezterm.action
+local utils = require("sysinit.pkg.utils")
 
 local M = {}
 
 M.locked_mode = false
 
-local function get_process_name(pane)
-  local proc = pane:get_foreground_process_name()
-  if not proc then
-    return nil
-  end
-  return proc:match("([^/\\]+)$")
-end
-
 local function is_goose(pane)
-  return get_process_name(pane) == "goose"
+  return utils.get_process_name(pane) == "goose"
 end
 
 -- Process lists for passthrough behavior
@@ -36,7 +29,7 @@ local function create_smart_action(key, mods, wezterm_action, opts)
 
     -- Check passthrough processes
     if opts and opts.passthrough then
-      local proc = get_process_name(pane)
+      local proc = utils.get_process_name(pane)
       for _, p in ipairs(opts.passthrough) do
         if proc == p then
           win:perform_action({ SendKey = { key = key, mods = mods } }, pane)
