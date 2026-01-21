@@ -188,9 +188,6 @@ function M.setup(config)
     local should_apply_nvim = should_apply_nvim_overrides(tab)
     overrides.enable_scroll_bar = should_apply_nvim and false or nil
 
-    local should_be_opaque = keybindings.locked_mode
-    overrides.window_background_opacity = should_be_opaque and 1.0 or nil
-
     window:set_config_overrides(overrides)
   end)
 end
