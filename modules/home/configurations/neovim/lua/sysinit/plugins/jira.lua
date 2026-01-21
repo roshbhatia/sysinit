@@ -14,7 +14,7 @@ return {
         email = os.getenv("JIRA_EMAIL"),
         token = os.getenv("JIRA_TOKEN"),
         type = os.getenv("JIRA_AUTH_TYPE"),
-        api_version = 3,
+        api_version = 2,
         limit = 200,
       },
     },
