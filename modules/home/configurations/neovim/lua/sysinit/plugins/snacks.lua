@@ -230,6 +230,20 @@ return {
           desc = "Files",
         },
         {
+          "<leader>fd",
+          function()
+            Snacks.picker.diagnostics_buffer({ layout = "right" })
+          end,
+          desc = "Buffer diagnostics",
+        },
+        {
+          "<leader>fD",
+          function()
+            Snacks.picker.diagnostics()
+          end,
+          desc = "Project diagnostics",
+        },
+        {
           "<leader>fG",
           function()
             Snacks.picker.grep()
@@ -264,7 +278,7 @@ return {
         {
           "<leader>fj",
           function()
-            Snacks.picker.jumps({ layout = "ivy" })
+            Snacks.picker.jumps({ layout = "top" })
           end,
           desc = "Jumplist",
         },
@@ -286,7 +300,7 @@ return {
         {
           "<leader>cfr",
           function()
-            Snacks.picker.lsp_references({ layout = "ivy" })
+            Snacks.picker.lsp_references({ layout = "top" })
           end,
           desc = "References",
           nowait = true,
@@ -308,21 +322,21 @@ return {
         {
           "<leader>cfI",
           function()
-            Snacks.picker.lsp_incoming_calls({ layout = "ivy" })
+            Snacks.picker.lsp_incoming_calls()
           end,
           desc = "Incoming Calls",
         },
         {
           "<leader>cfo",
           function()
-            Snacks.picker.lsp_outgoing_calls({ layout = "ivy" })
+            Snacks.picker.lsp_outgoing_calls()
           end,
           desc = "Outgoing Calls",
         },
         {
           "<leader>cfs",
           function()
-            Snacks.picker.lsp_symbols({ layout = "bottom" })
+            Snacks.picker.lsp_symbols({ layout = "right" })
           end,
           desc = "Document Symbols",
         },
