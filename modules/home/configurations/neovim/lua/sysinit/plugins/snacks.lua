@@ -359,7 +359,7 @@ return {
               live = true,
               supports_live = true,
               finder = function(opts, ctx)
-                local cmd = "sg"
+                local cmd = "ast-grep"
                 local args = { "run", "--color=never", "--json=stream", "--no-ignore=hidden" }
                 local pattern, pargs = Snacks.picker.util.parse(ctx.filter.search)
                 table.insert(args, string.format("--pattern=%s", pattern))
