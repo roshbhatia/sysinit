@@ -1,6 +1,10 @@
 {
   librarian = import ./librarian.nix;
   oracle = import ./oracle.nix;
+  nixFlakeOperator = import ./nix-flake-operator.nix;
+  luaConfigSpecialist = import ./lua-config-specialist.nix;
+  valuesSchemaManager = import ./values-schema-manager.nix;
+  buildValidator = import ./build-validator.nix;
 
   formatSubagentAsMarkdown =
     { name, config }:
