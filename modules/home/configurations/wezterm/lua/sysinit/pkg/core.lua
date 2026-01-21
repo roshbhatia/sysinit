@@ -4,6 +4,7 @@ local M = {}
 
 local function get_basic_config()
   return {
+    status_update_interval = 200,
     pane_focus_follows_mouse = false,
     -- We use a nix-installed zsh as the default shell.
     -- On darwin there's a /bin/zsh that we choose to not mess with
