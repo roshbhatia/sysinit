@@ -14,14 +14,15 @@ function M.setup()
     return
   end
 
-  -- Register our source
+  -- Register our source provider
   blink.add_source_provider("ai_context", {
     module = "sysinit.utils.ai.completion",
     name = "ai_context",
   })
 
-  -- Add to ai_terminals_input filetype with path completion
-  blink.add_filetype_source("ai_terminals_input", { "ai_context", "path" })
+  -- Add sources to ai_terminals_input filetype
+  blink.add_filetype_source("ai_terminals_input", "ai_context")
+  blink.add_filetype_source("ai_terminals_input", "path")
 
   blink_source_setup_done = true
 end
