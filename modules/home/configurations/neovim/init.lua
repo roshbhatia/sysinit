@@ -14,6 +14,7 @@ if not vim.uv.fs_stat(lazypath) then
     lazypath,
   })
 end
+
 vim.opt.rtp:prepend(lazypath)
 
 require("lazy").setup({
@@ -23,7 +24,7 @@ require("lazy").setup({
     },
   },
   install = {
-    colorscheme = "default",
+    colorscheme = { "default" },
   },
   performance = {
     rtp = {
