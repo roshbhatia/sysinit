@@ -222,11 +222,9 @@ return {
         {
           "<leader>ff",
           function()
-            Snacks.picker.explorer({
-              layout = {
-                preset = "default",
-                preview = true,
-              },
+            Snacks.picker.files({
+              cmd = "rg",
+              hidden = true,
             })
           end,
           desc = "Files",
