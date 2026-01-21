@@ -99,6 +99,7 @@ function M.setup(config)
     left = "1cell",
     right = "1cell",
     top = "1cell",
+    bottom = "0cell",
   }
 
   -- Hyperlink rules for clickable URLs and file paths
