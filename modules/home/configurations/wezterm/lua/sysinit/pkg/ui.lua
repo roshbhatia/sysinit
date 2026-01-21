@@ -7,16 +7,6 @@ local tabline = wezterm.plugin.require("https://github.com/michaelbrusegard/tabl
 
 local M = {}
 
-local function should_apply_nvim_overrides(tab)
-  for _, pane in ipairs(tab:panes()) do
-    local executable = utils.get_process_name(pane)
-    if executable == "nvim" or executable == "tmux" or executable == "hx" then
-      return true
-    end
-  end
-  return false
-end
-
 function M.setup(config)
   local config_data = utils.load_json_file(utils.get_config_path("config.json"))
   local font = wezterm.font_with_fallback({
@@ -178,17 +168,6 @@ function M.setup(config)
 
     -- Let default handler handle other schemes (http, https, ftp, unix, etc)
     return true
-  end)
-
-  wezterm.on("update-status", function(window, pane)
-    local tab = pane:tab()
-    local overrides = window:get_config_overrides() or {}
-
-    -- Apply nvim/tmux/hx overrides (hide scrollbar)
-    local should_apply_nvim = should_apply_nvim_overrides(tab)
-    overrides.enable_scroll_bar = should_apply_nvim and false or nil
-
-    window:set_config_overrides(overrides)
   end)
 end
 
