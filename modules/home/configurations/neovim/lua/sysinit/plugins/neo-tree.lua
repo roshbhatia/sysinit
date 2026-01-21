@@ -108,6 +108,7 @@ return {
         },
         filesystem = {
           follow_current_file = { enabled = true },
+          hijack_netrw_behavior = "disabled",
           use_libuv_file_watcher = true,
           find_command = "fd",
           find_args = {
