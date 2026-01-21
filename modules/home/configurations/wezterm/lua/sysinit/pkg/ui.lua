@@ -24,18 +24,17 @@ function M.setup(config)
   })
 
   config.adjust_window_size_when_changing_font_size = not utils.is_darwin()
-  config.animation_fps = 120
+  config.animation_fps = 240
   config.color_scheme = config_data.color_scheme
   config.cursor_blink_rate = 320
   config.cursor_thickness = 1
   config.dpi = 144
-  config.enable_scroll_bar = true
   config.font = font
   config.font_size = 13.0
   config.macos_window_background_blur = utils.is_darwin() and config_data.transparency.blur or 0
   config.max_fps = 240
   config.quick_select_alphabet = "fjdkslaghrueiwoncmv"
-  config.scrollback_lines = 20000
+  config.scrollback_lines = 200000
   config.tab_bar_at_bottom = true
   config.window_background_opacity = config_data.transparency.opacity
   config.window_decorations = utils.is_darwin() and "RESIZE|MACOS_FORCE_ENABLE_SHADOW" or "RESIZE"
