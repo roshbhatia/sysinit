@@ -15,6 +15,7 @@ return {
         },
         preview = {
           winblend = 0,
+          auto_preview = false,
         },
         show_title = {
           default = false,
@@ -30,18 +31,6 @@ return {
   {
     "yorickpeterse/nvim-pqf",
     event = "VeryLazy",
-    config = function()
-      require("pqf").setup({
-        signs = {
-          error = { text = "", hl = "DiagnosticSignError" },
-          warning = { text = "", hl = "DiagnosticSignWarn" },
-          info = { text = "", hl = "DiagnosticSignInfo" },
-          hint = { text = "", hl = "DiagnosticSignHint" },
-        },
-        show_multiple_lines = false,
-        max_filename_length = 40,
-        filename_truncate_prefix = "[…]",
-      })
-    end,
+    opts = {},
   },
 }
