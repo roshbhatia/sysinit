@@ -288,14 +288,14 @@ return {
           function()
             Snacks.picker.lsp_definitions({ layout = "right" })
           end,
-          desc = "LSP Definitions",
+          desc = "LSP definitions",
         },
         {
           "<leader>cfD",
           function()
             Snacks.picker.lsp_declarations({ layout = "right" })
           end,
-          desc = "LSP Declarations",
+          desc = "LSP declarations",
         },
         {
           "<leader>cfr",
@@ -317,35 +317,73 @@ return {
           function()
             Snacks.picker.lsp_type_definitions({ layout = "right" })
           end,
-          desc = "Type Definition",
+          desc = "Type definition",
         },
         {
           "<leader>cfI",
           function()
             Snacks.picker.lsp_incoming_calls()
           end,
-          desc = "Incoming Calls",
+          desc = "Incoming calls",
         },
         {
           "<leader>cfo",
           function()
             Snacks.picker.lsp_outgoing_calls()
           end,
-          desc = "Outgoing Calls",
+          desc = "Outgoing calls",
         },
         {
           "<leader>cfs",
           function()
             Snacks.picker.lsp_symbols({ layout = "right" })
           end,
-          desc = "Document Symbols",
+          desc = "Document symbols",
         },
         {
           "<leader>cfS",
           function()
             Snacks.picker.lsp_workspace_symbols({ layout = "bottom" })
           end,
-          desc = "Workspace Symbols",
+          desc = "Workspace symbols",
+        },
+        {
+          "<leader>cft",
+          desc = "AST Grep",
+          function()
+            Snacks.picker.pick({
+              title = "AST Grep",
+              format = "file",
+              notify = false,
+              show_empty = true,
+              live = true,
+              supports_live = true,
+              finder = function(opts, ctx)
+                local cmd = "sg"
+                local args = { "run", "--color=never", "--json=stream", "--no-ignore=hidden" }
+                local pattern, pargs = Snacks.picker.util.parse(ctx.filter.search)
+                table.insert(args, string.format("--pattern=%s", pattern))
+                vim.list_extend(args, pargs)
+                opts = vim.tbl_extend("force", opts, {
+                  cmd = cmd,
+                  args = args,
+                  transform = function(item)
+                    local entry = vim.json.decode(item.text)
+                    if vim.tbl_isempty(entry) then
+                      return false
+                    end
+                    local start = entry.range.start
+                    item.cwd = vim.fs.normalize(opts and opts.cwd or vim.uv.cwd() or ".") or nil
+                    item.file = entry.file
+                    item.line = entry.line
+                    item.pos = { tonumber(start.line) + 1, tonumber(start.column) }
+                    return true
+                  end,
+                })
+                return require("snacks.picker.source.proc").proc(opts, ctx)
+              end,
+            })
+          end,
         },
         -- Notifications
         {
