@@ -25,6 +25,7 @@ return {
               staticTitle = "Global Search",
               prefills = {
                 search = vim.fn.expand("<cword>"),
+                filesFilter = "*",
               },
             })
           end,
