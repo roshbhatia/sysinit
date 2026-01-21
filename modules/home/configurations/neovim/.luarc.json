@@ -3,7 +3,8 @@
     "version": "LuaJIT"
   },
   "diagnostics": {
-    "disable": ["undefined-doc-name"],
+    "disable": ["undefined-doc-name",
+            "need-check-nil"],
     "globals": ["vim", "Snacks"]
   },
   "workspace": {

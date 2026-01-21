@@ -8,18 +8,8 @@ return {
     },
     config = function()
       require("snacks").setup({
-        animate = {
-          enabled = false,
-        },
-        bigfile = {
-          enabled = true,
-        },
-        bufdelete = {
-          enabled = true,
-        },
-        lazygit = {
-          enabled = false,
-        },
+        bigfile = { enabled = true },
+        bufdelete = { enabled = true },
         notifier = {
           enabled = true,
           top_down = true,
@@ -31,7 +21,6 @@ return {
           style = "minimal",
         },
         picker = {
-          enabled = true,
           matcher = {
             frecency = true,
             history_bonus = true,
@@ -61,18 +50,6 @@ return {
               },
             },
           },
-        },
-        rename = {
-          enabled = true,
-        },
-        scratch = {
-          enabled = true,
-        },
-        statuscolumn = {
-          enabled = false,
-        },
-        words = {
-          enabled = true,
         },
         dashboard = {
           enabled = true,
@@ -133,27 +110,6 @@ return {
             { section = "keys", gap = 1, padding = 1 },
           },
         },
-        debug = {
-          enabled = false,
-        },
-        dim = {
-          enabled = false,
-        },
-        explorer = {
-          enabled = false,
-        },
-        git = {
-          enabled = false,
-        },
-        gitbrowse = {
-          enabled = false,
-        },
-        image = {
-          enabled = false,
-        },
-        indent = {
-          enabled = false,
-        },
         input = {
           enabled = true,
           icon = " ",
@@ -163,38 +119,8 @@ return {
           win = { style = "input" },
           expand = true,
         },
-        layout = {
-          enabled = false,
-        },
-        profiler = {
-          enabled = true,
-        },
         quickfile = {
           enabled = true,
-        },
-        terminal = {
-          enabled = true,
-          win = {
-            style = "float",
-            width = 0.9,
-            height = 0.8,
-            border = "rounded",
-            title = " Terminal ",
-            title_pos = "center",
-            backdrop = 80,
-            wo = {
-              winblend = 10,
-            },
-          },
-          bo = {
-            filetype = "snacks_terminal",
-          },
-          wo = {
-            sidescroll = 0,
-          },
-        },
-        scope = {
-          enabled = false,
         },
         scroll = {
           enabled = true,
@@ -212,25 +138,6 @@ return {
               and vim.b[buf].snacks_scroll ~= false
               and vim.bo[buf].buftype ~= "terminal"
           end,
-        },
-        toggle = {
-          enabled = false,
-        },
-        win = {
-          enabled = false,
-        },
-        zen = {
-          enabled = false,
-        },
-        styles = {
-          lazygit = {
-            width = 0,
-            height = 0,
-            backdrop = false,
-            wo = {
-              winblend = 0,
-            },
-          },
         },
       })
 
@@ -377,7 +284,9 @@ return {
         {
           "<leader>ns",
           function()
-            Snacks.notifier.show_history()
+            Snacks.notifier.show_history({
+              minimal = true,
+            })
           end,
           desc = "Show notification history",
         },
@@ -387,30 +296,6 @@ return {
             Snacks.notifier.hide()
           end,
           desc = "Dismiss notification",
-        },
-        {
-          "<Esc><Esc>",
-          "<C-\\><C-n>",
-          mode = "t",
-          desc = "Terminal normal mode",
-        },
-        {
-          "<leader>gG",
-          function()
-            Snacks.terminal.toggle("gh dash", {
-              win = {
-                style = "float",
-                width = 0.9,
-                height = 0.8,
-                border = "rounded",
-                title = " GitHub CLI ",
-                title_pos = "center",
-                backdrop = 80,
-                wo = { winblend = 10 },
-              },
-            })
-          end,
-          desc = "Toggle",
         },
       }
       for _, key in ipairs(ai_keys) do
