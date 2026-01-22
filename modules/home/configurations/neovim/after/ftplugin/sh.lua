@@ -13,7 +13,6 @@ Snacks.keymap.set("n", "<localleader>r", function()
   vim.cmd("split | term " .. vim.fn.shellescape(file))
 end, { ft = "sh", desc = "Run script" })
 
--- Insert shebang if missing
 local function ensure_shebang()
   local first_line = vim.fn.getline(1)
   if not first_line:match("^#!") then
@@ -24,7 +23,6 @@ local function ensure_shebang()
   end
 end
 
--- Auto-add shebang for new files
 vim.api.nvim_create_autocmd("BufNewFile", {
   buffer = 0,
   callback = ensure_shebang,

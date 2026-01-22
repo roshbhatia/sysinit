@@ -5,12 +5,10 @@ vim.opt_local.expandtab = true
 -- Comment string for Go templates
 vim.opt_local.commentstring = "{{/* %s */}}"
 
--- Keymaps for template actions
 Snacks.keymap.set("n", "<localleader>v", "i{{ . }}<Esc>", { ft = "gotmpl", desc = "Insert variable" })
 Snacks.keymap.set("n", "<localleader>r", "i{{ range . }}<CR>{{ end }}<Esc>k", { ft = "gotmpl", desc = "Insert range" })
 Snacks.keymap.set("n", "<localleader>i", "i{{ if . }}<CR>{{ end }}<Esc>k", { ft = "gotmpl", desc = "Insert if" })
 
--- [Keep all the snippet definitions - they're not keymaps so no conversion needed]
 local function sprig(name, desc, ...)
   local args = { ... }
   local arg_str = #args > 0 and " " .. table.concat(args, " ") or ""
