@@ -8,7 +8,6 @@ return {
     config = function()
       require("neogit").setup({
         graph_style = "kitty",
-        process_spinner = true,
         commit_editor = {
           staged_diff_split_kind = "auto",
         },
