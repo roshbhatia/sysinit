@@ -4,7 +4,7 @@ return {
     dependencies = {
       "nvim-tree/nvim-web-devicons",
     },
-    lazy = false,
+    event = "UIEnter",
     config = function()
       local function get_fg(hl_name)
         local hl = vim.api.nvim_get_hl(0, { name = hl_name, link = false })
@@ -61,7 +61,7 @@ return {
 
       local function code_action_indicator()
         if code_action_available then
-          return "󱣀 "
+          return "󰓥 "
         end
         return ""
       end
@@ -72,10 +72,9 @@ return {
             "mode",
             "branch",
             "file_name",
-          },
-          mid = {
             code_action_indicator,
           },
+          mid = {},
           right = {
             "lsp",
             "lsp_name",
