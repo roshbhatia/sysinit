@@ -27,8 +27,13 @@ return {
 
         local client = clients[1]
         local params = vim.lsp.util.make_range_params(0, client.offset_encoding)
+        local line = vim.api.nvim_win_get_cursor(0)[1] - 1
+        local line_diagnostics = vim.diagnostic.get(bufnr, { lnum = line })
+        local lsp_diagnostics = vim.tbl_map(function(d)
+          return vim.lsp.diagnostic.from(d, bufnr, client.id)
+        end, line_diagnostics)
         params.context = {
-          diagnostics = vim.diagnostic.get(bufnr, { lnum = vim.api.nvim_win_get_cursor(0)[1] - 1 }),
+          diagnostics = lsp_diagnostics,
           only = nil,
           triggerKind = vim.lsp.protocol.CodeActionTriggerKind.Automatic,
         }
