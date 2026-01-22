@@ -1,7 +1,12 @@
 -- Crossplane XPLS language server
 return {
   cmd = { "up", "xpls", "serve" },
-  filetypes = { "yaml" },
-  root_markers = { "crossplane.yaml" },
+  filetypes = {
+    "yaml",
+  },
+  root_markers = {
+    "crossplane.yaml",
+    ".git",
+  },
   single_file_support = false,
 }
