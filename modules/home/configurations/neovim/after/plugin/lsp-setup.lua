@@ -25,6 +25,7 @@ local servers = {
   "tflint",
   "up",
   "yamlls",
+  "vectorcode_server",
   "zls",
 }
 

@@ -6,15 +6,7 @@ M.providers = {}
 
 -- Position/Location providers
 
--- @this: Smart context (position for files, selection for non-files)
-M.providers.this = function(ctx)
-  if context.is_file(ctx.buf) then
-    return M.providers.position(ctx)
-  end
-  return M.providers.selection(ctx)
-end
-
--- @position: Full location (file:line:col)
+-- +position: Full location (file:line:col)
 M.providers.position = function(ctx)
   if not context.is_file(ctx.buf) then
     return nil
@@ -23,7 +15,7 @@ M.providers.position = function(ctx)
   return string.format("@%s:%d:%d", path, ctx.row, ctx.col)
 end
 
--- @file: Current file path
+-- +file: Current file path
 M.providers.file = function(ctx)
   if not context.is_file(ctx.buf) then
     return nil
@@ -32,7 +24,7 @@ M.providers.file = function(ctx)
   return "@" .. path
 end
 
--- @line: File and line number
+-- +line: File and line number
 M.providers.line = function(ctx)
   if not context.is_file(ctx.buf) then
     return nil
@@ -47,7 +39,7 @@ M.providers.buffer = M.providers.file
 
 -- Buffer operations
 
--- @buffers: List all open buffer file paths
+-- +buffers: List all open buffer file paths
 M.providers.buffers = function(ctx)
   local items = {}
   for _, b in ipairs(vim.api.nvim_list_bufs()) do
@@ -61,7 +53,7 @@ M.providers.buffers = function(ctx)
   return #items > 0 and table.concat(items, "\n") or nil
 end
 
--- @selection: Visual selection text
+-- +selection: Visual selection text
 M.providers.selection = function(ctx)
   if not ctx.range then
     return nil
@@ -84,7 +76,7 @@ M.providers.selection = function(ctx)
   return text ~= "" and text or nil
 end
 
--- @word: Word under cursor
+-- +word: Word under cursor
 M.providers.word = function(ctx)
   local line = vim.api.nvim_buf_get_lines(ctx.buf, ctx.row - 1, ctx.row, false)[1]
   if not line then
@@ -98,7 +90,7 @@ end
 
 -- Diagnostics
 
--- @diagnostic: Diagnostics at current line only
+-- +diagnostic: Diagnostics at current line only
 M.providers.diagnostic = function(ctx)
   local diags = vim.diagnostic.get(ctx.buf, { lnum = ctx.row - 1 })
   if #diags == 0 then
@@ -120,7 +112,7 @@ M.providers.diagnostic = function(ctx)
   return table.concat(lines, "\n")
 end
 
--- @diagnostics: All buffer diagnostics (max 20)
+-- +diagnostics: All buffer diagnostics (max 20)
 M.providers.diagnostics = function(ctx)
   local diags = vim.diagnostic.get(ctx.buf)
   if #diags == 0 then
@@ -149,7 +141,7 @@ end
 
 -- Treesitter textobjects
 
--- @function: Surrounding function with code (treesitter)
+-- +function: Surrounding function with code (treesitter)
 M.providers["function"] = function(ctx)
   local ok, ts_utils = pcall(require, "nvim-treesitter.ts_utils")
   if not ok then
@@ -179,7 +171,7 @@ M.providers["function"] = function(ctx)
   return nil
 end
 
--- @class: Surrounding class with code (treesitter)
+-- +class: Surrounding class with code (treesitter)
 M.providers.class = function(ctx)
   local ok, ts_utils = pcall(require, "nvim-treesitter.ts_utils")
   if not ok then
@@ -215,7 +207,7 @@ end
 
 -- Git operations
 
--- @git: Git status
+-- +git: Git status
 M.providers.git = function(ctx)
   local result = vim.fn.system("git status --short --branch 2>/dev/null")
   if vim.v.shell_error ~= 0 or result == "" then
@@ -224,7 +216,7 @@ M.providers.git = function(ctx)
   return vim.trim(result)
 end
 
--- @diff: Git diff for current file
+-- +diff: Git diff for current file
 M.providers.diff = function(ctx)
   if not context.is_file(ctx.buf) then
     return nil
@@ -247,7 +239,7 @@ end
 
 -- Lists
 
--- @quickfix/@qflist: Quickfix list entries
+-- +quickfix/+qflist: Quickfix list entries
 M.providers.quickfix = function(ctx)
   local qf = vim.fn.getqflist()
   if #qf == 0 then
@@ -267,7 +259,7 @@ end
 
 M.providers.qflist = M.providers.quickfix
 
--- @loclist: Location list entries
+-- +loclist: Location list entries
 M.providers.loclist = function(ctx)
   local ll = vim.fn.getloclist(ctx.win)
   if #ll == 0 then
@@ -287,7 +279,7 @@ end
 
 -- Misc
 
--- @folder: Current folder path
+-- +folder: Current folder path
 M.providers.folder = function(ctx)
   if not context.is_file(ctx.buf) then
     return nil
@@ -297,7 +289,7 @@ M.providers.folder = function(ctx)
   return "@" .. context.strip_git_root(dir)
 end
 
--- @marks: Buffer marks
+-- +marks: Buffer marks
 M.providers.marks = function(ctx)
   local marks = vim.fn.getmarklist(ctx.buf)
   if not marks or #marks == 0 then
@@ -313,7 +305,7 @@ M.providers.marks = function(ctx)
   return #result > 0 and table.concat(result, ", ") or nil
 end
 
--- @search: Current search pattern
+-- +search: Current search pattern
 M.providers.search = function(ctx)
   local pattern = vim.fn.getreg("/")
   return (pattern and pattern ~= "") and pattern or nil
@@ -321,27 +313,26 @@ end
 
 -- Description table for completion UI
 M.descriptions = {
-  { token = "@this", description = "Smart context (position for files, selection otherwise)" },
-  { token = "@position", description = "Full location (file:line:col)" },
-  { token = "@file", description = "Current file path" },
-  { token = "@line", description = "File and line number" },
-  { token = "@cursor", description = "Alias for @line" },
-  { token = "@buffer", description = "Alias for @file" },
-  { token = "@buffers", description = "List of open buffer paths" },
-  { token = "@selection", description = "Visual selection text" },
-  { token = "@word", description = "Word under cursor" },
-  { token = "@diagnostic", description = "Diagnostics at current line" },
-  { token = "@diagnostics", description = "All buffer diagnostics" },
-  { token = "@function", description = "Surrounding function (treesitter)" },
-  { token = "@class", description = "Surrounding class (treesitter)" },
-  { token = "@git", description = "Git status" },
-  { token = "@diff", description = "Git diff for current file" },
-  { token = "@quickfix", description = "Quickfix list entries" },
-  { token = "@qflist", description = "Alias for @quickfix" },
-  { token = "@loclist", description = "Location list entries" },
-  { token = "@folder", description = "Current folder path" },
-  { token = "@marks", description = "Buffer marks" },
-  { token = "@search", description = "Current search pattern" },
+  { token = "+position", description = "Full location (file:line:col)" },
+  { token = "+file", description = "Current file path" },
+  { token = "+line", description = "File and line number" },
+  { token = "+cursor", description = "Alias for +line" },
+  { token = "+buffer", description = "Alias for +file" },
+  { token = "+buffers", description = "List of open buffer paths" },
+  { token = "+selection", description = "Visual selection text" },
+  { token = "+word", description = "Word under cursor" },
+  { token = "+diagnostic", description = "Diagnostics at current line" },
+  { token = "+diagnostics", description = "All buffer diagnostics" },
+  { token = "+function", description = "Surrounding function (treesitter)" },
+  { token = "+class", description = "Surrounding class (treesitter)" },
+  { token = "+git", description = "Git status" },
+  { token = "+diff", description = "Git diff for current file" },
+  { token = "+quickfix", description = "Quickfix list entries" },
+  { token = "+qflist", description = "Alias for +quickfix" },
+  { token = "+loclist", description = "Location list entries" },
+  { token = "+folder", description = "Current folder path" },
+  { token = "+marks", description = "Buffer marks" },
+  { token = "+search", description = "Current search pattern" },
 }
 
 -- Escape Lua pattern special characters
@@ -349,9 +340,14 @@ local function escape_pattern(s)
   return (s:gsub("([%^%$%(%)%%%.%[%]%*%+%-%?])", "%%%1"))
 end
 
+-- Escape replacement string for gsub (% is special in replacement)
+local function escape_replacement(s)
+  return (s:gsub("%%", "%%%%"))
+end
+
 -- Apply placeholders to input string
--- Handles @token format and supports fallbacks via context:get("a|b")
--- @param input string Input text with @tokens
+-- Handles +token format and supports fallbacks via context:get("a|b")
+-- @param input string Input text with +tokens
 -- @param state table|Context Optional state (raw table or Context object)
 -- @return string Expanded text with placeholders substituted
 function M.apply(input, state)
@@ -376,12 +372,12 @@ function M.apply(input, state)
 
   local result = input
 
-  -- Find all @token patterns and replace
-  -- Pattern: @word (letters, numbers, underscores)
-  for token in input:gmatch("@([%w_]+)") do
+  -- Find all +token patterns and replace
+  -- Pattern: +word (letters, numbers, underscores)
+  for token in input:gmatch("%+([%w_]+)") do
     local value = ctx:get(token)
     if value then
-      result = result:gsub("@" .. escape_pattern(token), value)
+      result = result:gsub("%+" .. escape_pattern(token), escape_replacement(value))
     end
   end
 

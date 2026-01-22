@@ -79,7 +79,7 @@ function M.generate_all_keymaps()
 
   table.insert(keymaps, {
     "<leader>ja",
-    create_mode_context_input("Ask", " @this: ", " @this: "),
+    create_mode_context_input("Ask", " +cursor: ", " +selection: "),
     mode = { "n", "v" },
     desc = "Ask active",
   })
@@ -87,14 +87,14 @@ function M.generate_all_keymaps()
   table.insert(keymaps, {
     "<leader>jf",
     function()
-      create_context_input("Fix diagnostics", " Fix @diagnostics: ")
+      create_context_input("Fix diagnostics", " Fix +diagnostics: ")
     end,
     desc = "Fix diagnostics (active)",
   })
 
   table.insert(keymaps, {
     "<leader>jk",
-    create_mode_context_input("Comment", " Comment @this: ", " Comment @this: "),
+    create_mode_context_input("Comment", " Comment +cursor: ", " Comment +selection: "),
     mode = { "n", "v" },
     desc = "Comment (active)",
   })
@@ -102,7 +102,7 @@ function M.generate_all_keymaps()
   table.insert(keymaps, {
     "<leader>jq",
     function()
-      create_context_input("Analyze quickfix list", " Analyze @qflist: ")
+      create_context_input("Analyze quickfix list", " Analyze +qflist: ")
     end,
     desc = "Send quickfix (active)",
   })
@@ -110,7 +110,7 @@ function M.generate_all_keymaps()
   table.insert(keymaps, {
     "<leader>jl",
     function()
-      create_context_input("Analyze location list", " Analyze @loclist: ")
+      create_context_input("Analyze location list", " Analyze +loclist: ")
     end,
     desc = "Send location list (active)",
   })
@@ -145,7 +145,7 @@ function M.generate_all_keymaps()
   table.insert(keymaps, {
     "<leader>jg",
     function()
-      create_context_input("Review git changes", " Review @git and @diff: ")
+      create_context_input("Review git changes", " Review +git and +diff: ")
     end,
     desc = "Review git changes (active)",
   })
@@ -153,7 +153,7 @@ function M.generate_all_keymaps()
   table.insert(keymaps, {
     "<leader>ji",
     function()
-      create_context_input("Explain imports", " Explain @buffer: ")
+      create_context_input("Explain imports", " Explain +buffer: ")
     end,
     desc = "Explain imports (active)",
   })
@@ -161,7 +161,7 @@ function M.generate_all_keymaps()
   table.insert(keymaps, {
     "<leader>jp",
     function()
-      create_context_input("Analyze clipboard", " Analyze @buffer: ")
+      create_context_input("Analyze clipboard", " Analyze +buffer: ")
     end,
     desc = "Analyze clipboard (active)",
   })

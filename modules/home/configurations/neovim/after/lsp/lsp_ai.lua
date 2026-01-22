@@ -55,9 +55,34 @@ local init_options_json = [[
 
 return {
   cmd = { "lsp-ai", "--stdio" },
-  -- Always return cwd as root so it activates everywhere
-  root_dir = function(_, on_dir)
-    on_dir(vim.uv.cwd())
-  end,
+  filetypes = {
+    "asciidoc",
+    "c",
+    "cpp",
+    "cs",
+    "gitcommit",
+    "go",
+    "html",
+    "java",
+    "javascript",
+    "lua",
+    "markdown",
+    "nix",
+    "python",
+    "ruby",
+    "rust",
+    "swift",
+    "toml",
+    "typescript",
+    "typescriptreact",
+    "haskell",
+    "cmake",
+    "typst",
+    "php",
+    "dart",
+    "clojure",
+    "sh",
+  },
+  root_markers = { ".git" },
   init_options = vim.fn.json_decode(init_options_json),
 }
