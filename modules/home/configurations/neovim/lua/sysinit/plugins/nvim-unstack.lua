@@ -7,7 +7,7 @@ return {
     },
     version = "*",
     opts = {
-      layout = "vsplit",
+      layout = "quickfix_list",
       mapkey = "",
     },
   },
