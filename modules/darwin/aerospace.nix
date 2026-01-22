@@ -153,9 +153,10 @@
         alt-shift-k = "move up";
         alt-shift-l = "move right";
 
-        # Split orientation (i3: $mod+v for vertical, $mod+b for horizontal)
-        alt-v = "split vertical";
-        alt-b = "split horizontal";
+        # Join with adjacent window (i3: $mod+v/b for split, aerospace recommends join-with)
+        # join-with creates a container with the focused window and the nearest window in that direction
+        alt-v = "join-with down";
+        alt-b = "join-with right";
 
         # Layout toggles (i3: $mod+e for split, $mod+s for stacking, $mod+w for tabbed)
         alt-e = "layout tiles horizontal vertical";
