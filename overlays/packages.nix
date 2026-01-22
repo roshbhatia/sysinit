@@ -77,7 +77,23 @@ in
 
   neovim-unwrapped = inputs.neovim-nightly-overlay.packages.${system}.default;
 
-  bv = inputs.bv.packages.${system}.default;
+  bv = final.buildGoModule {
+    pname = "bv";
+    version = "0.11.3";
+    src = inputs.bv;
+    vendorHash = null; # Uses vendored dependencies in repo
+    subPackages = [ "cmd/bv" ];
+    ldflags = [
+      "-s"
+      "-w"
+    ];
+    meta = with final.lib; {
+      description = "Terminal UI for viewing beads files";
+      homepage = "https://github.com/Dicklesworthstone/beads_viewer";
+      license = licenses.mit;
+      mainProgram = "bv";
+    };
+  };
 
   kubernetes-zeitgeist = final.buildGoModule rec {
     pname = "kubernetes-zeitgeist";
