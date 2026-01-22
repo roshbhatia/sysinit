@@ -30,6 +30,8 @@ return {
             },
           })
         end
+
+        vim.cmd.redraw()
       end,
     },
     no_restore_cmds = {

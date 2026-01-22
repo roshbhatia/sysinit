@@ -13,15 +13,6 @@ return {
         end
       end
 
-      -- Force statusline refresh after session load
-      vim.api.nvim_create_autocmd("SessionLoadPost", {
-        callback = function()
-          vim.schedule(function()
-            vim.cmd.redrawstatus({ bang = true })
-          end)
-        end,
-      })
-
       require("staline").setup({
         -- If it's "intactive" we just want it to look normal
         inactive_color = get_fg("Normal"),
