@@ -140,7 +140,7 @@
       ];
 
       mode.main.binding = {
-        alt-enter = "exec-and-forget /bin/bash -c ${pkgs.wezterm}/bin/wezterm start --always-new-process";
+        alt-enter = "exec-and-forget osascript tell application 'Wezterm' to activate";
         alt-t = "layout tiles horizontal vertical";
         alt-a = "layout accordion horizontal vertical";
         alt-h = "focus left";
