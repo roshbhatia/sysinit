@@ -6,11 +6,9 @@
 }:
 let
   agents = import ../shared/agents.nix;
-  lsp = import ../shared/lsp.nix;
+  lspConfig = import ../shared/lsp.nix;
   mcpServers = import ../shared/mcp.nix { inherit lib values; };
   skills = import ../shared/skills.nix { inherit lib pkgs; };
-  # yaml-language-server tends to pollute context with false positives on non-YAML files
-  filteredLsp = lib.filterAttrs (name: _: name != "yaml-language-server") lsp.lsp;
 
   formatMcpForOpencode =
     mcpServers:
@@ -36,18 +34,23 @@ let
   formatLspForOpencode =
     lspCfg:
     builtins.mapAttrs (
-      _name: lspCfg:
+      name: lspCfg:
       let
         cmd =
           if lspCfg ? command then
             if builtins.isList lspCfg.command then lspCfg.command else [ lspCfg.command ]
           else
             [ ];
+        # yaml-language-server tends to pollute context with false positives on non-YAML files
+        isDisabled = name == "yaml-language-server" || name == "yaml";
       in
-      {
-        command = cmd ++ (lspCfg.args or [ ]);
-        extensions = lspCfg.extensions or [ ];
-      }
+      if isDisabled then
+        { disabled = true; }
+      else
+        {
+          command = cmd ++ (lspCfg.args or [ ]);
+          extensions = lspCfg.extensions or [ ];
+        }
     ) lspCfg;
 
   opencodeConfigJson = builtins.toJSON {
@@ -58,7 +61,7 @@ let
     theme = "system";
 
     mcp = formatMcpForOpencode mcpServers.servers;
-    lsp = formatLspForOpencode filteredLsp;
+    lsp = formatLspForOpencode lspConfig.lsp;
 
     instructions = [
       "**/.cursorrules"

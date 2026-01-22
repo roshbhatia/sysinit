@@ -2,6 +2,22 @@ vim.g.mapleader = " "
 vim.g.maplocalleader = "\\"
 vim.o.sessionoptions = "blank,buffers,curdir,folds,help,tabpages,winsize,winpos,terminal,localoptions"
 
+-- Filter out noisy/unhelpful error messages
+local original_notify = vim.notify
+vim.notify = function(msg, level, opts)
+  if type(msg) == "string" then
+    -- Filter Neovim nightly extui window race condition errors
+    if msg:match("Invalid window id:") and msg:match("_extui/cmdline%.lua") then
+      return
+    end
+    -- Filter nil_ls flake input evaluation errors (expected for some inputs)
+    if msg:match("Flake input .* cannot be evaluated") then
+      return
+    end
+  end
+  return original_notify(msg, level, opts)
+end
+
 require("vim._extui").enable({})
 
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
