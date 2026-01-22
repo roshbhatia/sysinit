@@ -155,7 +155,6 @@ let
     simple-completion-language-server
     typescript-language-server
     vale-ls
-    vectorcode
     vscode-langservers-extracted
     yaml-language-server
     zls
