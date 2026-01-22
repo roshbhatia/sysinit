@@ -31,7 +31,7 @@ return {
           })
         end
 
-        vim.cmd.redraw()
+        vim.cmd("e!")
       end,
     },
     no_restore_cmds = {
