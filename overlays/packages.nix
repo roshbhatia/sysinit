@@ -39,10 +39,14 @@ in
     };
   };
 
-  # Fix setproctitle test failures on macOS with Python 3.13
+  # Fix setproctitle and accelerate test failures on macOS with Python 3.13
+  # accelerate tests fail with Trace/BPT trap during pytest on darwin
   python313 = _prev.python313.override {
     packageOverrides = _pythonFinal: pythonPrev: {
       setproctitle = pythonPrev.setproctitle.overridePythonAttrs (_old: {
+        doCheck = false;
+      });
+      accelerate = pythonPrev.accelerate.overridePythonAttrs (_old: {
         doCheck = false;
       });
     };
@@ -51,6 +55,9 @@ in
   python311 = _prev.python311.override {
     packageOverrides = _pythonFinal: pythonPrev: {
       setproctitle = pythonPrev.setproctitle.overridePythonAttrs (_old: {
+        doCheck = false;
+      });
+      accelerate = pythonPrev.accelerate.overridePythonAttrs (_old: {
         doCheck = false;
       });
     };
