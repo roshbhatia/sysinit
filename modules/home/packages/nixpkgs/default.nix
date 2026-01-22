@@ -95,7 +95,7 @@ let
     kubernetes-zeitgeist
     kustomize
     stern
-    upbound-main
+    up
   ];
 
   # Cloud and infrastructure
