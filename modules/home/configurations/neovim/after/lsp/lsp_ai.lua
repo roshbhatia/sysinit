@@ -2,8 +2,7 @@ return {
   cmd = {
     "lsp-ai",
   },
-  filetypes = {},
-  root_dir = nil,
+  root_dir = vim.loop.cwd(),
   init_options = {
     memory = {
       file_store = vim.empty_dict(),
