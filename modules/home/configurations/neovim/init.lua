@@ -2,6 +2,8 @@ vim.g.mapleader = " "
 vim.g.maplocalleader = "\\"
 vim.o.sessionoptions = "blank,buffers,curdir,folds,help,tabpages,winsize,winpos,terminal,localoptions"
 
+require("vim._extui").enable({})
+
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
 ---@diagnostic disable-next-line: undefined-field
 if not vim.uv.fs_stat(lazypath) then
