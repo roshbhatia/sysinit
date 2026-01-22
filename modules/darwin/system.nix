@@ -10,7 +10,7 @@
   # Nix configuration (via Determinate)
   nix.enable = false;
 
-  determinate-nix.customSettings = {
+  determinateNix.customSettings = {
     experimental-features = "nix-command flakes";
     lazy-trees = true;
     extra-substituters = "https://nix-community.cachix.org https://cache.iog.io";
