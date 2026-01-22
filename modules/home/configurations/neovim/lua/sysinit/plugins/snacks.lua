@@ -10,16 +10,6 @@ return {
       require("snacks").setup({
         bigfile = { enabled = true },
         bufdelete = { enabled = true },
-        notifier = {
-          enabled = true,
-          top_down = true,
-          margin = {
-            top = 2,
-            right = 1,
-            bottom = 1,
-          },
-          style = "minimal",
-        },
         picker = {
           matcher = {
             frecency = true,
@@ -140,26 +130,6 @@ return {
           end,
         },
       })
-
-      vim.notify = function(msg, level, opts)
-        if type(msg) ~= "string" then
-          return Snacks.notifier.notify(msg, level, opts or {})
-        end
-
-        local ignore_patterns = {
-          "^Reloaded %d+ file",
-          "failed to run generator",
-          "reload buffer",
-        }
-
-        for _, pattern in ipairs(ignore_patterns) do
-          if msg:find(pattern) then
-            return
-          end
-        end
-
-        return Snacks.notifier.notify(msg, level, opts or {})
-      end
 
       local agents = require("sysinit.utils.ai.agents")
       local session = require("sysinit.utils.ai.session")
@@ -384,23 +354,6 @@ return {
               end,
             })
           end,
-        },
-        -- Notifications
-        {
-          "<leader>ns",
-          function()
-            Snacks.notifier.show_history({
-              minimal = true,
-            })
-          end,
-          desc = "Show notification history",
-        },
-        {
-          "<leader>nc",
-          function()
-            Snacks.notifier.hide()
-          end,
-          desc = "Dismiss notification",
         },
       }
       for _, key in ipairs(ai_keys) do
