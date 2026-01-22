@@ -42,6 +42,12 @@ return {
           ["neo-tree"] = { "File Tree", " " },
           Outline = { "Outline", " " },
         },
+        lsp_symbols = {
+          Error = " ",
+          Info = " ",
+          Warn = " ",
+          Hint = " ",
+        },
         mode_colors = {
           n = get_fg("Normal"),
           i = get_fg("String"),
