@@ -30,8 +30,6 @@ return {
             },
           })
         end
-
-        vim.cmd("e!")
       end,
     },
     no_restore_cmds = {
