@@ -136,7 +136,7 @@
       # i3-style keybindings (alt = $mod)
       mode.main.binding = {
         # Launch terminal (i3: $mod+Return)
-        alt-enter = "exec-and-forget wezterm start --always-new-process";
+        alt-enter = "exec-and-forget /bin/bash -c ${pkgs.wezterm}/bin/wezterm start --always-new-process";
 
         # Kill focused window (i3: $mod+Shift+q)
         alt-shift-q = "close";
@@ -179,18 +179,12 @@
         # Workspaces (i3: $mod+number)
         alt-1 = "workspace 1";
         alt-2 = "workspace 2";
-        alt-3 = "workspace 3";
-        alt-4 = "workspace 4";
-        alt-5 = "workspace 5";
         alt-c = "workspace C";
         alt-m = "workspace M";
 
         # Move to workspace (i3: $mod+Shift+number)
         alt-shift-1 = "move-node-to-workspace 1 --focus-follows-window";
         alt-shift-2 = "move-node-to-workspace 2 --focus-follows-window";
-        alt-shift-3 = "move-node-to-workspace 3 --focus-follows-window";
-        alt-shift-4 = "move-node-to-workspace 4 --focus-follows-window";
-        alt-shift-5 = "move-node-to-workspace 5 --focus-follows-window";
         alt-shift-c = "move-node-to-workspace C --focus-follows-window";
         alt-shift-m = "move-node-to-workspace M --focus-follows-window";
 
