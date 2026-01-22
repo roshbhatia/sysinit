@@ -7,11 +7,11 @@ vim.api.nvim_create_autocmd("LspAttach", {
     Snacks.keymap.set("n", "grr", vim.lsp.buf.references, { buffer = bufnr, desc = "Go to references" })
     Snacks.keymap.set("n", "grt", vim.lsp.buf.type_definition, { buffer = bufnr, desc = "Go to type definition" })
 
-    Snacks.keymap.set("n", "gO", vim.lsp.buf.document_symbol, { buffer = bufnr, desc = "Document outline" })
+    Snacks.keymap.set("n", "gO", vim.cmd("Outline!"), { buffer = bufnr, desc = "Document outline" })
     Snacks.keymap.set("n", "<leader>cS", vim.lsp.buf.workspace_symbol, { buffer = bufnr, desc = "Workspace symbols" })
 
-    Snacks.keymap.set("n", "<leader>ca", vim.lsp.buf.code_action, { buffer = bufnr, desc = "Code action" })
-    Snacks.keymap.set("n", "gra", vim.lsp.buf.code_action, { buffer = bufnr, desc = "Code action" })
+    Snacks.keymap.set({ "n", "v" }, "<leader>ca", vim.lsp.buf.code_action, { buffer = bufnr, desc = "Code action" })
+    Snacks.keymap.set({ "n", "v" }, "gra", vim.lsp.buf.code_action, { buffer = bufnr, desc = "Code action" })
     Snacks.keymap.set("n", "<leader>cA", vim.lsp.codelens.run, { buffer = bufnr, desc = "Run codelens action" })
     Snacks.keymap.set("n", "grn", vim.lsp.buf.rename, { buffer = bufnr, desc = "Rename symbol" })
 
