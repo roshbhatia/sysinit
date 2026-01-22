@@ -91,19 +91,35 @@ end
 function M.capture()
   -- Find most recent non-terminal window
   local wins = vim.tbl_filter(function(w)
+    if not vim.api.nvim_win_is_valid(w) then
+      return false
+    end
     local buf = vim.api.nvim_win_get_buf(w)
     local ft = vim.bo[buf].filetype
     return ft ~= "snacks_terminal" and ft ~= "ai_terminals_input"
   end, vim.api.nvim_list_wins())
 
-  local win = wins[1] or vim.api.nvim_get_current_win()
+  local win = wins[1]
+  if not win or not vim.api.nvim_win_is_valid(win) then
+    win = vim.api.nvim_get_current_win()
+  end
+
   local buf = vim.api.nvim_win_get_buf(win)
   local cursor = vim.api.nvim_win_get_cursor(win)
+
+  -- Use window-local cwd if valid, otherwise fall back to global cwd
+  local cwd
+  local ok, result = pcall(vim.fn.getcwd, win)
+  if ok and result then
+    cwd = vim.fs.normalize(result)
+  else
+    cwd = vim.fs.normalize(vim.fn.getcwd())
+  end
 
   return {
     win = win,
     buf = buf,
-    cwd = vim.fs.normalize(vim.fn.getcwd(win)),
+    cwd = cwd,
     row = cursor[1],
     col = cursor[2] + 1,
     range = M.get_selection_range(buf),

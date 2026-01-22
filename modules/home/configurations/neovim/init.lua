@@ -14,6 +14,10 @@ vim.notify = function(msg, level, opts)
     if msg:match("Flake input .* cannot be evaluated") then
       return
     end
+    -- Filter Neovim nightly LSP diagnostic handler errors (malformed diagnostic data)
+    if msg:match("attempt to get length of local 'diagnostics'") then
+      return
+    end
   end
   return original_notify(msg, level, opts)
 end
