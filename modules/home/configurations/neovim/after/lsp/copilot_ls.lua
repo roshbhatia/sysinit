@@ -1,3 +1,40 @@
+-- Files that should never have Copilot enabled (secrets, credentials, etc.)
+local secret_patterns = {
+  "%.env$",
+  "%.env%.",
+  "%.envrc$",
+  "%.zshsecrets$",
+  "credentials",
+  "%.pem$",
+  "%.key$",
+  "%.crt$",
+  "id_rsa",
+  "id_ed25519",
+  "id_ecdsa",
+  "known_hosts",
+  "authorized_keys",
+  "%.gpg$",
+  "%.asc$",
+  "secret",
+  "password",
+  "token",
+}
+
+local function is_secret_file(filepath)
+  if not filepath then
+    return false
+  end
+  local filename = vim.fn.fnamemodify(filepath, ":t")
+  local fullpath = vim.fn.fnamemodify(filepath, ":p")
+
+  for _, pattern in ipairs(secret_patterns) do
+    if filename:lower():match(pattern) or fullpath:lower():match(pattern) then
+      return true
+    end
+  end
+  return false
+end
+
 local function setup(client, bufnr)
   local au = vim.api.nvim_create_augroup("copilotlsp.init", { clear = true })
 
@@ -142,6 +179,16 @@ function setup_commands()
 end
 
 return {
+  -- Dynamically decide whether to activate based on file path
+  root_dir = function(bufnr, on_dir)
+    local bufname = vim.api.nvim_buf_get_name(bufnr)
+    if is_secret_file(bufname) then
+      -- Don't call on_dir to prevent LSP from attaching
+      return
+    end
+    -- Use cwd as root for all other files
+    on_dir(vim.uv.cwd())
+  end,
   on_attach = function(client, bufnr)
     setup(client, bufnr)
   end,

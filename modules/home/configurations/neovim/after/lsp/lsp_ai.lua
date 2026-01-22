@@ -55,6 +55,11 @@ local init_options_json = [[
 
 return {
   cmd = { "lsp-ai" },
-  root_dir = vim.loop.cwd(),
+  -- Empty filetypes means attach to ALL file types
+  filetypes = {},
+  -- Always return cwd as root so it activates everywhere
+  root_dir = function(_, on_dir)
+    on_dir(vim.uv.cwd())
+  end,
   init_options = vim.fn.json_decode(init_options_json),
 }

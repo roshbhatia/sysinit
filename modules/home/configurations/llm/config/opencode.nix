@@ -9,6 +9,8 @@ let
   lsp = import ../shared/lsp.nix;
   mcpServers = import ../shared/mcp.nix { inherit lib values; };
   skills = import ../shared/skills.nix { inherit lib pkgs; };
+  # yaml-language-server tends to pollute context with false positives on non-YAML files
+  filteredLsp = lib.filterAttrs (name: _: name != "yaml-language-server") lsp.lsp;
 
   formatMcpForOpencode =
     mcpServers:
@@ -56,7 +58,7 @@ let
     theme = "system";
 
     mcp = formatMcpForOpencode mcpServers.servers;
-    lsp = formatLspForOpencode lsp.lsp;
+    lsp = formatLspForOpencode filteredLsp;
 
     instructions = [
       "**/.cursorrules"
