@@ -4,7 +4,7 @@ return {
     dependencies = {
       "nvim-tree/nvim-web-devicons",
     },
-    event = "BufReadPost",
+    lazy = false,
     config = function()
       local function get_fg(hl_name)
         local hl = vim.api.nvim_get_hl(0, { name = hl_name, link = false })
@@ -27,13 +27,8 @@ return {
 
         local client = clients[1]
         local params = vim.lsp.util.make_range_params(0, client.offset_encoding)
-        local line = vim.api.nvim_win_get_cursor(0)[1] - 1
-        local line_diagnostics = vim.diagnostic.get(bufnr, { lnum = line })
-        local lsp_diagnostics = vim.tbl_map(function(d)
-          return vim.lsp.diagnostic.from(d, bufnr, client.id)
-        end, line_diagnostics)
         params.context = {
-          diagnostics = lsp_diagnostics,
+          diagnostics = {},
           only = nil,
           triggerKind = vim.lsp.protocol.CodeActionTriggerKind.Automatic,
         }
@@ -62,6 +57,15 @@ return {
 
       vim.api.nvim_create_autocmd({ "CursorMoved", "CursorMovedI", "BufEnter", "InsertLeave" }, {
         callback = debounced_check_code_actions,
+      })
+
+      -- Force statusline refresh after session load
+      vim.api.nvim_create_autocmd("SessionLoadPost", {
+        callback = function()
+          vim.schedule(function()
+            vim.cmd.redrawstatus({ bang = true })
+          end)
+        end,
       })
 
       local function code_action_indicator()
