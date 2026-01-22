@@ -87,24 +87,112 @@ function M.get_selection_range(buf)
   }
 end
 
--- Capture current editor state
-function M.capture()
-  -- Find most recent non-terminal window
-  local wins = vim.tbl_filter(function(w)
-    if not vim.api.nvim_win_is_valid(w) then
-      return false
-    end
-    local buf = vim.api.nvim_win_get_buf(w)
-    local ft = vim.bo[buf].filetype
-    return ft ~= "snacks_terminal" and ft ~= "ai_terminals_input"
-  end, vim.api.nvim_list_wins())
+-- Track last focused source window for accurate context capture
+local last_source_win = nil
 
-  local win = wins[1]
-  if not win or not vim.api.nvim_win_is_valid(win) then
-    win = vim.api.nvim_get_current_win()
+-- Filetypes to exclude from source window tracking (UI/special buffers)
+local excluded_filetypes = {
+  snacks_terminal = true,
+  ai_terminals_input = true,
+  ["neo-tree"] = true,
+  NvimTree = true,
+  Outline = true,
+  qf = true,
+  TelescopePrompt = true,
+  TelescopeResults = true,
+  lazy = true,
+  mason = true,
+  notify = true,
+  noice = true,
+  fidget = true,
+  trouble = true,
+  Trouble = true,
+  dap_repl = true,
+  dapui_watches = true,
+  dapui_stacks = true,
+  dapui_breakpoints = true,
+  dapui_scopes = true,
+  dapui_console = true,
+  oil = true,
+  fugitive = true,
+  git = true,
+  gitcommit = true,
+  DiffviewFiles = true,
+  DiffviewFileHistory = true,
+  undotree = true,
+  spectre_panel = true,
+}
+
+-- Check if window/buffer is a valid source (not a UI element)
+local function is_source_window(win)
+  if not vim.api.nvim_win_is_valid(win) then
+    return false
   end
 
   local buf = vim.api.nvim_win_get_buf(win)
+  local ft = vim.bo[buf].filetype
+  local bt = vim.bo[buf].buftype
+
+  -- Exclude special filetypes
+  if excluded_filetypes[ft] then
+    return false
+  end
+
+  -- Exclude floating windows (popups, hover, etc)
+  local config = vim.api.nvim_win_get_config(win)
+  if config.relative ~= "" then
+    return false
+  end
+
+  -- Accept normal buffers and help buffers
+  return bt == "" or bt == "help" or bt == "acwrite"
+end
+
+-- Track source window on focus changes
+vim.api.nvim_create_autocmd({ "WinEnter", "BufEnter" }, {
+  callback = function()
+    local win = vim.api.nvim_get_current_win()
+    if is_source_window(win) then
+      last_source_win = win
+    end
+  end,
+})
+
+-- Capture current editor state
+function M.capture()
+  local win, buf
+
+  -- Priority 1: Use tracked source window if still valid
+  if last_source_win and is_source_window(last_source_win) then
+    win = last_source_win
+    buf = vim.api.nvim_win_get_buf(win)
+  else
+    -- Priority 2: Try alternate window (vim's # window)
+    local alt_winnr = vim.fn.winnr("#")
+    if alt_winnr ~= 0 then
+      local alt_win = vim.fn.win_getid(alt_winnr)
+      if alt_win ~= 0 and is_source_window(alt_win) then
+        win = alt_win
+        buf = vim.api.nvim_win_get_buf(win)
+      end
+    end
+
+    -- Priority 3: Filter all windows and find first valid source
+    if not win then
+      local wins = vim.tbl_filter(is_source_window, vim.api.nvim_list_wins())
+      if #wins > 0 then
+        win = wins[1]
+        buf = vim.api.nvim_win_get_buf(win)
+      end
+    end
+
+    -- Priority 4: Fallback to current window
+    if not win then
+      win = vim.api.nvim_get_current_win()
+      buf = vim.api.nvim_win_get_buf(win)
+    end
+  end
+
   local cursor = vim.api.nvim_win_get_cursor(win)
 
   -- Use window-local cwd if valid, otherwise fall back to global cwd

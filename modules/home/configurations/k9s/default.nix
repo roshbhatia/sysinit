@@ -5,56 +5,62 @@ _:
 
   programs.k9s = {
     enable = true;
-    settings = {
-      k9s = {
-        liveViewAutoRefresh = true;
-        screenDumpDir = "/tmp/dumps";
-        refreshRate = 1;
-        maxConnRetry = 5;
-        readOnly = false;
-        noExitOnCtrlC = true;
-        ui = {
-          enableMouse = false;
-          headless = false;
-          logoless = true;
-          crumbsless = false;
-          noIcons = true;
-          reactive = true;
-          defaultsToFullScreen = true;
-        };
-        noIcons = false;
-        skipLatestRevCheck = true;
-        keepMissingClusters = false;
-        logger = {
-          tail = 1000;
-          buffer = 100;
-          sinceSeconds = 86400;
-          textWrap = true;
-          showTime = false;
-          fullscreen = true;
-        };
-        shellPod = {
-          image = "killerAdmin";
-          namespace = "default";
-          limits = {
-            cpu = "150m";
-            memory = "100Mi";
-          };
-          tty = true;
-        };
-      };
-    };
 
     aliases = {
-      dp = "deployments";
-      sec = "v1/secrets";
-      jo = "jobs";
+      app = "applications";
       cr = "clusterroles";
       crb = "clusterrolebindings";
-      ro = "roles";
-      rb = "rolebindings";
+      dp = "deployments";
+      jo = "jobs";
       np = "networkpolicies";
-      app = "applications";
+      rb = "rolebindings";
+      ro = "roles";
+      sec = "v1/secrets";
+    };
+
+    settings.k9s = {
+      # General settings
+      liveViewAutoRefresh = true;
+      maxConnRetry = 5;
+      noExitOnCtrlC = true;
+      readOnly = false;
+      refreshRate = 1;
+      screenDumpDir = "/tmp/dumps";
+      skipLatestRevCheck = true;
+      keepMissingClusters = false;
+
+      # UI settings
+      noIcons = false;
+      ui = {
+        crumbsless = false;
+        defaultsToFullScreen = true;
+        enableMouse = false;
+        headless = false;
+        logoless = true;
+        noIcons = true;
+        reactive = true;
+      };
+
+      # Logger settings
+      logger = {
+        buffer = 100;
+        fullscreen = true;
+        showTime = false;
+        sinceSeconds = 86400;
+        tail = 1000;
+        textWrap = true;
+      };
+
+      # Shell pod settings
+      shellPod = {
+        image = "killerAdmin";
+        namespace = "default";
+        tty = true;
+        limits = {
+          cpu = "150m";
+          memory = "100Mi";
+        };
+      };
     };
   };
 }

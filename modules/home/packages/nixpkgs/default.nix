@@ -24,7 +24,6 @@ let
       gnugrep
       gnused
       jq
-      lua54Packages.cjson
       socat
       watch
       wget
@@ -32,7 +31,7 @@ let
     ]
     ++ lib.optionals pkgs.stdenv.isDarwin [ sbarlua ];
 
-  # Terminal and shells
+  # Terminal and shell environments
   terminalPkgs = with pkgs; [
     atuin
     bash
@@ -46,44 +45,29 @@ let
     zsh
   ];
 
-  # Development tools
-  devPkgs = with pkgs; [
-    argc
-    asciinema
-    asciinema-agg
-    ast-grep
-    cachix
-    caddy
-    chafa
-    crush
-    delta
-    devbox
-    diffnav
+  # File management and navigation
+  filePkgs = with pkgs; [
     duf
     fd
-    glow
-    gnumake
-    gum
-    lazygit
-    libgit2
-    meld
-    mods
+    fzf-preview
     ripgrep
-    sad
-    tig
-    tlrc
-    vivid
     yazi
-    yq
   ];
 
   # Git and version control
   gitPkgs = with pkgs; [
+    delta
+    diffnav
     gh
     gh-dash
     git
     git-crypt
     git-filter-repo
+    lazygit
+    libgit2
+    meld
+    sad
+    tig
   ];
 
   # Container and Docker
@@ -97,7 +81,7 @@ let
     docker-language-server
   ];
 
-  # Kubernetes tools
+  # Kubernetes
   k8sPkgs = with pkgs; [
     argocd
     crossplane-cli
@@ -126,7 +110,7 @@ let
     tfsec
   ];
 
-  # Programming languages
+  # Programming languages and runtimes
   langPkgs = with pkgs; [
     go
     luajit
@@ -179,9 +163,10 @@ let
   # Build tools and package managers
   buildPkgs = with pkgs; [
     cargo-watch
+    gnumake
     go-task
-    pkg-config
     pipx
+    pkg-config
     uv
     yarn
   ];
@@ -192,8 +177,9 @@ let
     postgresql_17
   ];
 
-  # Nix tools
+  # Nix ecosystem
   nixPkgs = with pkgs; [
+    cachix
     nh
     nix-output-monitor
     nix-prefetch
@@ -205,42 +191,55 @@ let
     nixd
   ];
 
-  # Project management and collaboration
+  # CLI utilities and tools
+  cliPkgs = with pkgs; [
+    argc
+    asciinema
+    asciinema-agg
+    ast-grep
+    bv
+    chafa
+    crush
+    cursor-cli
+    devbox
+    glow
+    gum
+    jqp
+    jsonld-cli
+    lua54Packages.cjson
+    mods
+    tlrc
+    vivid
+    yq
+  ];
+
+  # Project management
   projectPkgs = with pkgs; [
-    # bv
     jira-cli-go
     mermaid-cli
   ];
 
-  # Documentation and utilities
-  docPkgs = with pkgs; [
-    cursor-cli
-    jqp
-    jsonld-cli
-  ];
-
-  # Security and password management
+  # Security and credentials
   securityPkgs = with pkgs; [
+    _1password-cli
+    _1password-gui
     gnupg
     openssh
     sshpass
-    _1password-cli
-    _1password-gui
   ];
 
   # Fonts
   fontPkgs = with pkgs; [
-    nerd-fonts.monaspace
     nerd-fonts.agave
+    nerd-fonts.monaspace
   ];
 
-  # Debug tools
+  # Debugging
   debugPkgs = with pkgs; [
     delve
-    fzf-preview
   ];
 
-  # CAD tools
+  # CAD and 3D modeling
   cadPkgs = with pkgs; [
     openscad
   ];
@@ -248,7 +247,7 @@ let
   allPackages =
     basePkgs
     ++ terminalPkgs
-    ++ devPkgs
+    ++ filePkgs
     ++ gitPkgs
     ++ containerPkgs
     ++ k8sPkgs
@@ -259,14 +258,13 @@ let
     ++ buildPkgs
     ++ databasePkgs
     ++ nixPkgs
+    ++ cliPkgs
     ++ projectPkgs
-    ++ docPkgs
     ++ securityPkgs
     ++ fontPkgs
     ++ debugPkgs
     ++ cadPkgs
-    ++ additionalPackages
-    ++ [ fzf-preview ];
+    ++ additionalPackages;
 in
 {
   home.packages = allPackages;

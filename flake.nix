@@ -41,6 +41,11 @@
       url = "github:DreamMaoMao/mangowc";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    bv = {
+      url = "github:Dicklesworthstone/beads_viewer";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs =
