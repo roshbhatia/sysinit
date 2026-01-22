@@ -25,17 +25,19 @@ return {
           return
         end
 
-        local params = vim.lsp.util.make_range_params()
+        local client = clients[1]
+        local params = vim.lsp.util.make_range_params(0, client.offset_encoding)
         params.context = {
-          diagnostics = vim.lsp.diagnostic.get_line_diagnostics(bufnr),
+          diagnostics = vim.diagnostic.get(bufnr, { lnum = vim.api.nvim_win_get_cursor(0)[1] - 1 }),
           only = nil,
           triggerKind = vim.lsp.protocol.CodeActionTriggerKind.Automatic,
         }
 
         vim.lsp.buf_request_all(bufnr, "textDocument/codeAction", params, function(results)
           code_action_available = false
-          for _, result in pairs(results or {}) do
-            if result.result and #result.result > 0 then
+          for client_id, result in pairs(results or {}) do
+            local responding_client = vim.lsp.get_client_by_id(client_id)
+            if responding_client and responding_client.name ~= "lsp_ai" and result.result and #result.result > 0 then
               code_action_available = true
               break
             end
