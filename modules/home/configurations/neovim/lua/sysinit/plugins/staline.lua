@@ -67,6 +67,8 @@ return {
       end
 
       require("staline").setup({
+        -- If it's "intactive" we just want it to look normal
+        inactive_color = get_fg("Normal"),
         sections = {
           left = {
             "mode",
@@ -84,17 +86,23 @@ return {
         },
         defaults = {
           expand_null_ls = false,
-          true_colors = true,
           line_column = ":%c [%l/%L]",
           lsp_client_symbol = "󰘧 ",
-          lsp_client_character_length = 40,
+          lsp_client_character_length = 16,
           file_size_suffix = true,
           branch_symbol = " ",
         },
+        -- No need for this
         special_table = {
-          qf = { "QuickFix", " " },
-          ["neo-tree"] = { "File Tree", " " },
-          Outline = { "Outline", " " },
+          NvimTree = { "", "" },
+          packer = { "", "" },
+          dashboard = { "", "" },
+          help = { "", "" },
+          qf = { "", "" },
+          alpha = { "", "" },
+          Jaq = { "", "" },
+          Fm = { "", "" },
+          TelescopePrompt = { "", "" },
         },
         lsp_symbols = {
           Error = " ",
