@@ -13,52 +13,6 @@ return {
         end
       end
 
-      -- Track code action availability for the current line
-      local code_action_available = false
-      local code_action_timer = nil
-
-      local function check_code_actions()
-        local bufnr = vim.api.nvim_get_current_buf()
-        local clients = vim.lsp.get_clients({ bufnr = bufnr, method = "textDocument/codeAction" })
-        if #clients == 0 then
-          code_action_available = false
-          return
-        end
-
-        local client = clients[1]
-        local params = vim.lsp.util.make_range_params(0, client.offset_encoding)
-        params.context = {
-          diagnostics = {},
-          only = nil,
-          triggerKind = vim.lsp.protocol.CodeActionTriggerKind.Automatic,
-        }
-
-        vim.lsp.buf_request_all(bufnr, "textDocument/codeAction", params, function(results)
-          code_action_available = false
-          for client_id, result in pairs(results or {}) do
-            local responding_client = vim.lsp.get_client_by_id(client_id)
-            if responding_client and responding_client.name ~= "lsp_ai" and result.result and #result.result > 0 then
-              code_action_available = true
-              break
-            end
-          end
-          vim.cmd.redrawstatus()
-        end)
-      end
-
-      local function debounced_check_code_actions()
-        if code_action_timer then
-          vim.fn.timer_stop(code_action_timer)
-        end
-        code_action_timer = vim.fn.timer_start(150, function()
-          vim.schedule(check_code_actions)
-        end)
-      end
-
-      vim.api.nvim_create_autocmd({ "CursorMoved", "CursorMovedI", "BufEnter", "InsertLeave" }, {
-        callback = debounced_check_code_actions,
-      })
-
       -- Force statusline refresh after session load
       vim.api.nvim_create_autocmd("SessionLoadPost", {
         callback = function()
@@ -68,13 +22,6 @@ return {
         end,
       })
 
-      local function code_action_indicator()
-        if code_action_available then
-          return "󰓥 "
-        end
-        return ""
-      end
-
       require("staline").setup({
         -- If it's "intactive" we just want it to look normal
         inactive_color = get_fg("Normal"),
@@ -83,12 +30,10 @@ return {
             "mode",
             "branch",
             "file_name",
-            code_action_indicator,
           },
           mid = {},
           right = {
             "lsp",
-            "lsp_name",
             "file_size",
             "line_column",
           },
