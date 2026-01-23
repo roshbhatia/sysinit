@@ -60,20 +60,7 @@ return {
         },
         left = {
           " ",
-          wilder.popupmenu_devicons({
-            get_icon = function(file_name, is_dir)
-              if is_dir then
-                return " "
-              end
-              local devicons_ok, devicons = pcall(require, "nvim-web-devicons")
-              if devicons_ok then
-                local icon, _ = devicons.get_icon(file_name, vim.fn.fnamemodify(file_name, ":e"))
-                return icon or " "
-              end
-              return " "
-            end,
-            padding = { 0, 1 },
-          }),
+          wilder.popupmenu_devicons(),
           {
             " ",
             "WilderSeparator",

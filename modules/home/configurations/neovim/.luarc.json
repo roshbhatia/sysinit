@@ -4,7 +4,8 @@
   },
   "diagnostics": {
     "disable": ["undefined-doc-name",
-            "need-check-nil"],
+            "need-check-nil",
+            "undefined-global"],
     "globals": ["vim", "Snacks"]
   },
   "workspace": {
