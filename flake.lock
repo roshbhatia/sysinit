@@ -188,11 +188,11 @@
       },
       "locked": {
         "dir": "repos/rycee/pkgs/firefox-addons",
-        "lastModified": 1769202030,
-        "narHash": "sha256-LE+Pydt3ZQNhfS1A1vpIa4dAF5ouIvR/3LdFxi1GrRI=",
+        "lastModified": 1769204992,
+        "narHash": "sha256-X6YLCr0Xr66qH8jviyRgYtpIEMuEPGUm+Rrd38USXEs=",
         "owner": "nix-community",
         "repo": "nur-combined",
-        "rev": "038e8803e7c990c2db42113c8d2b7db4532f3a91",
+        "rev": "a1d10c508438a7013817fdd6f4fcc04deb683cbc",
         "type": "github"
       },
       "original": {
@@ -745,11 +745,11 @@
         "nixpkgs": "nixpkgs_7"
       },
       "locked": {
-        "lastModified": 1769201696,
-        "narHash": "sha256-99ia/BaiSdy55N54SZ1ULojqm/uvRlB3f8WcyJ0JNsg=",
+        "lastModified": 1769204633,
+        "narHash": "sha256-B8+OiD8kYXtFc4vJc9+d7q8+MOic8VYR0G8wbSHjuSc=",
         "owner": "nix-community",
         "repo": "NUR",
-        "rev": "f3cabaf289d443b25fcd9415c40953a9a68ef1a7",
+        "rev": "bea55329cc806cfe3b826f7baab0503fd6b6892f",
         "type": "github"
       },
       "original": {
@@ -863,11 +863,11 @@
         "tinted-zed": "tinted-zed"
       },
       "locked": {
-        "lastModified": 1769200644,
-        "narHash": "sha256-BHqGkX7EiyI0xTnzgZ7zxDKhnbuLHHOIvqO6Uu+0qmc=",
+        "lastModified": 1769202415,
+        "narHash": "sha256-6XUTQjam/xLFGeJFj9XCo+12XSxd2iBxkAdLe6IJqiw=",
         "owner": "nix-community",
         "repo": "stylix",
-        "rev": "a387b3ac6c032e23f9a4c21cd2dd54c32edfa849",
+        "rev": "296aa01b461af5146612cd26cc115c1d3e5ed4ae",
         "type": "github"
       },
       "original": {
