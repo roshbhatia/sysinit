@@ -6,7 +6,6 @@
 
 final: _prev:
 let
-  # Platform-specific source information for contextive language server
   contextiveVersion = "1.17.8";
   contextiveSources = {
     "x86_64-linux" = {
