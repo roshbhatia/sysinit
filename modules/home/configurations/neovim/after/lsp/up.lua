@@ -6,7 +6,6 @@ return {
   },
   root_markers = {
     "crossplane.yaml",
-    ".git",
   },
   single_file_support = false,
 }
