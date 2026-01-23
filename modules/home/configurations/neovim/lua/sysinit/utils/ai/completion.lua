@@ -41,7 +41,7 @@ function blink_source:enabled()
 end
 
 function blink_source:get_trigger_characters()
-  return { "@" }
+  return { "+" }
 end
 
 function blink_source:get_completions(ctx, callback)
