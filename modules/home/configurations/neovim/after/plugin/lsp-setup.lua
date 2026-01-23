@@ -5,6 +5,7 @@ vim.lsp.config("*", {
 local servers = {
   "awk_ls",
   "bashls",
+  "contextive",
   "copilot_ls",
   "docker_compose_language_service",
   "eslint",

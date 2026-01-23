@@ -126,6 +126,7 @@ let
   lspPkgs = with pkgs; [
     awk-language-server
     bash-language-server
+    contextive
     copilot-language-server
     eslint
     gopls

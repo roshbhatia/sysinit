@@ -6,6 +6,28 @@
 
 final: _prev:
 let
+  # Platform-specific source information for contextive language server
+  contextiveVersion = "1.17.8";
+  contextiveSources = {
+    "x86_64-linux" = {
+      platform = "linux-x64";
+      sha256 = "sha256-bueEFxsLPm9NU8HFLNRYtJb/3aEGZn9lWpJIMNgb//g=";
+    };
+    "aarch64-linux" = {
+      platform = "linux-arm64";
+      sha256 = "sha256-NqGgpKVql9BFhCdnLNRHRJL9/eASZn9voc400nXWt4w=";
+    };
+    "x86_64-darwin" = {
+      platform = "osx-x64";
+      sha256 = "sha256-ZDzzhUE+PNo6+kfp2OZohBNoMTJ0Vf8F7jxgJM0F4wc=";
+    };
+    "aarch64-darwin" = {
+      platform = "osx-arm64";
+      sha256 = "sha256-AGqk0NcrAtB2a7ORxmZkbNJhJkDbdEeINzi/u7REiGA=";
+    };
+  };
+  contextiveSource = contextiveSources.${system};
+
   crossplane-1-17-1 =
     import
       (fetchTarball {
@@ -122,6 +144,47 @@ in
       license = licenses.asl20;
       maintainers = [ ];
       mainProgram = "zeitgeist";
+    };
+  };
+
+  contextive = final.stdenv.mkDerivation {
+    pname = "contextive";
+    version = contextiveVersion;
+
+    src = final.fetchzip {
+      url = "https://github.com/dev-cycles/contextive/releases/download/v${contextiveVersion}/Contextive.LanguageServer-${contextiveSource.platform}-${contextiveVersion}.zip";
+      inherit (contextiveSource) sha256;
+      stripRoot = false;
+    };
+
+    nativeBuildInputs = final.lib.optionals final.stdenv.isLinux [ final.autoPatchelfHook ];
+
+    buildInputs = final.lib.optionals final.stdenv.isLinux [
+      final.stdenv.cc.cc.lib
+      final.icu
+      final.openssl
+      final.zlib
+    ];
+
+    installPhase = ''
+      runHook preInstall
+      mkdir -p $out/bin
+      cp -r . $out/lib
+      ln -s $out/lib/Contextive.LanguageServer $out/bin/Contextive.LanguageServer
+      runHook postInstall
+    '';
+
+    meta = with final.lib; {
+      description = "Language server for managing domain-driven design ubiquitous language definitions";
+      homepage = "https://github.com/dev-cycles/contextive";
+      license = licenses.mit;
+      platforms = [
+        "x86_64-linux"
+        "aarch64-linux"
+        "x86_64-darwin"
+        "aarch64-darwin"
+      ];
+      mainProgram = "Contextive.LanguageServer ";
     };
   };
 }
