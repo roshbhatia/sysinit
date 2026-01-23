@@ -20,9 +20,10 @@ let
       platform = "osx-x64";
       sha256 = "sha256-ZDzzhUE+PNo6+kfp2OZohBNoMTJ0Vf8F7jxgJM0F4wc=";
     };
+    # Hash updated - upstream binary changed
     "aarch64-darwin" = {
       platform = "osx-arm64";
-      sha256 = "sha256-AGqk0NcrAtB2a7ORxmZkbNJhJkDbdEeINzi/u7REiGA=";
+      sha256 = "sha256-A6M2O8nj8IqPmLCDiMB3d+PaZeZSbx+EXjhGdlC6z4E=";
     };
   };
   contextiveSource = contextiveSources.${system};
@@ -95,6 +96,10 @@ in
   inherit (crossplane-1-17-1) crossplane-cli;
   inherit (stable) awscli2;
   inherit (stable) ollama;
+
+  # Override upbound-main to use stable upbound instead, since the main channel
+  # version may no longer be available on cli.upbound.io
+  upbound-main = _prev.upbound;
 
   neovim-unwrapped = inputs.neovim-nightly-overlay.packages.${system}.default;
 
@@ -183,7 +188,7 @@ in
         "x86_64-darwin"
         "aarch64-darwin"
       ];
-      mainProgram = "Contextive.LanguageServer ";
+      mainProgram = "Contextive.LanguageServer";
     };
   };
 }
