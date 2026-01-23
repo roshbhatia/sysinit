@@ -115,7 +115,14 @@ return {
               border = "rounded",
             },
             draw = function(opts)
-              if opts.item and opts.item.documentation then
+              -- documentation can be either a string or a MarkupContent object per LSP spec
+              -- only process when it's an object with a value field
+              if
+                opts.item
+                and opts.item.documentation
+                and type(opts.item.documentation) == "table"
+                and opts.item.documentation.value
+              then
                 local out = require("pretty_hover.parser").parse(opts.item.documentation.value)
                 opts.item.documentation.value = out:string()
               end

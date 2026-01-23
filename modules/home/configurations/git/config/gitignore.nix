@@ -1,17 +1,8 @@
 _:
 
 let
-  gitignorePatterns = [
-    "**/.goose/"
-    "*.backup"
-    "*.backup*"
-    "*.bak"
-    "*.bak*"
-    "*.crush/"
-    "*.log"
-    "*.swo"
-    "*.swp"
-    "*~"
+  # macOS system files
+  macosPatterns = [
     ".AppleDouble"
     ".DS_Store"
     ".DocumentRevisions-V100"
@@ -21,30 +12,74 @@ let
     ".Trashes"
     ".VolumeIcon.icns"
     "._*"
+    ".com.apple.timemachine.donotpresent"
+    ".fseventsd"
+  ];
+
+  # Editor and IDE files
+  editorPatterns = [
+    "*.swo"
+    "*.swp"
+    "*~"
+    ".cursor/"
+    ".idea/"
+    ".vscode/"
+    "tags"
+  ];
+
+  # Backup files
+  backupPatterns = [
+    "*.backup"
+    "*.backup*"
+    "*.bak"
+    "*.bak*"
+  ];
+
+  # AI assistant directories and files
+  aiAssistantPatterns = [
+    "**/.goose/"
     ".beads/"
     ".claude/"
-    ".com.apple.timemachine.donotpresent"
-    ".cursor/"
-    ".direnv/"
-    ".envrc"
-    ".fseventsd"
-    ".gitattributes"
     ".goose/"
     ".goosehints"
-    ".idea/"
     ".serena/"
     ".sysinit/"
-    ".vscode/"
+    "*.crush/"
     "AGENTS.md"
     "CLAUDE.md"
     "CRUSH.md"
+  ];
+
+  # Development environment files
+  devEnvPatterns = [
+    ".direnv/"
+    ".envrc"
+    ".gitattributes"
+    "shell.nix"
+  ];
+
+  # Node.js and JavaScript
+  nodePatterns = [
     "node_modules/"
     "npm-debug.log"
-    "shell.nix"
-    "tags"
     "yarn-debug.log"
     "yarn-error.log"
   ];
+
+  # Miscellaneous
+  miscPatterns = [
+    "**/*.glossary.yml"
+    "*.log"
+  ];
+
+  gitignorePatterns =
+    macosPatterns
+    ++ editorPatterns
+    ++ backupPatterns
+    ++ aiAssistantPatterns
+    ++ devEnvPatterns
+    ++ nodePatterns
+    ++ miscPatterns;
 
 in
 {
