@@ -1,60 +1,57 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+# Pre-commit hook: validates code without modifying files
+# Run 'task fmt' manually before committing if checks fail
+
 if [ "$(id -u)" -eq 0 ] && [ -z "${SUDO_USER:-}" ]; then
-  echo "Git operations should not run as root"
+  echo "ERROR: Git operations should not run as root"
   exit 1
 fi
 
 check_command() { command -v "$1" >/dev/null 2>&1; }
 
-for cmd in "task" "nixfmt" "stylua" "deadnix" "statix" "nix"; do
+for cmd in "task" "nixfmt" "stylua" "deadnix" "statix"; do
   if ! check_command "$cmd"; then
     echo "Skipping hooks: $cmd not found"
     exit 0
   fi
 done
 
-files_modified=0
 staged_nix_files=$(git diff --cached --name-only --diff-filter=ACM | grep '\.nix$' || true)
 
+# Check for dead nix code (check only, don't fix)
 if [ -n "$staged_nix_files" ]; then
+  dead_code_found=0
   while IFS= read -r file; do
-    [ -f "$file" ] && statix fix "$file" 2>/dev/null || true
+    if [ -f "$file" ] && deadnix "$file" 2>/dev/null | grep -q "Found"; then
+      dead_code_found=1
+      echo "ERROR: Dead code found in $file"
+      deadnix "$file" 2>/dev/null
+    fi
   done <<<"$staged_nix_files"
-fi
-
-if [ -n "$staged_nix_files" ]; then
-  while IFS= read -r file; do
-    [ -f "$file" ] && deadnix --edit "$file" 2>/dev/null || true
-  done <<<"$staged_nix_files"
-  if ! git diff --quiet --exit-code -- "$staged_nix_files" 2>/dev/null; then
-    files_modified=1
+  if [ "$dead_code_found" -eq 1 ]; then
+    echo ""
+    echo "Run 'deadnix --edit <file>' to fix, then stage and commit again."
+    exit 1
   fi
 fi
 
-task fmt >/dev/null 2>&1
-staged_files=$(git diff --cached --name-only --diff-filter=ACM)
-if [ -n "$staged_files" ]; then
-  for file in $staged_files; do
-    if [ -f "$file" ] && ! git diff --quiet -- "$file" 2>/dev/null; then
-      files_modified=1
-      break
-    fi
-  done
-fi
-
-task docs:values >/dev/null 2>&1
-if ! git diff --quiet README.md 2>/dev/null; then
-  files_modified=1
-fi
-
-root_files=$(find . -path ./.git -prune -o -user root -print 2>/dev/null || true)
-if [ -n "$root_files" ]; then
-  sudo chown -R "$USER":"$(id -gn)" .
+# Check formatting (don't modify)
+echo "Checking formatting..."
+if ! task fmt:all:check >/dev/null 2>&1; then
+  echo "ERROR: Formatting check failed."
+  echo "Run 'task fmt' to fix, then stage and commit again."
   exit 1
 fi
 
-if [ "$files_modified" -eq 1 ]; then
-  git add -u
+# Check for root-owned files
+root_files=$(find . -path ./.git -prune -o -user root -print 2>/dev/null | grep -v "^$" || true)
+if [ -n "$root_files" ]; then
+  echo "ERROR: Found root-owned files:"
+  echo "$root_files"
+  echo "Run: sudo chown -R \$USER:\$(id -gn) ."
+  exit 1
 fi
+
+echo "Pre-commit checks passed!"
