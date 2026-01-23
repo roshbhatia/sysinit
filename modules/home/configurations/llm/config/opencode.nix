@@ -42,7 +42,7 @@ let
           else
             [ ];
         # yaml-language-server tends to pollute context with false positives on non-YAML files
-        isDisabled = name == "yaml-language-server" || name == "yaml";
+        isDisabled = name == "yaml-language-server";
       in
       if isDisabled then
         { disabled = true; }
@@ -61,7 +61,11 @@ let
     theme = "system";
 
     mcp = formatMcpForOpencode mcpServers.servers;
-    lsp = formatLspForOpencode lspConfig.lsp;
+    lsp = formatLspForOpencode lspConfig.lsp // {
+      yaml = {
+        disabled = true;
+      };
+    };
 
     instructions = [
       "**/.cursorrules"
