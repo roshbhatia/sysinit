@@ -8,7 +8,7 @@
 }:
 
 let
-  themes = import ../../shared/lib/theme { inherit lib; };
+  themes = import ../../shared/lib/theme.nix { inherit lib; };
   themeConfig = values.theme // {
     presets = values.theme.presets or [ ];
     overrides = values.theme.overrides or { };

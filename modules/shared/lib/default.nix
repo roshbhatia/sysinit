@@ -8,10 +8,11 @@
 {
 
   modules = import ./modules { inherit lib; };
-  packages = import ./packages { inherit lib pkgs system; };
-  paths = import ./paths { inherit lib; };
-  platform = import ./platform { inherit lib system; };
-  shell = import ./shell { inherit lib; };
-  theme = import ./theme { inherit lib; };
-  values = import ./values { inherit lib; };
+  packages = import ./packages.nix { inherit lib pkgs system; };
+  paths = import ./paths.nix { inherit lib; };
+  platform = import ./platform.nix { inherit lib system; };
+  lsp = import ./lsp-config.nix;
+  shell = import ./shell.nix { inherit lib; };
+  theme = import ./theme.nix { inherit lib; };
+  schema = import ./schema.nix { inherit lib; };
 }

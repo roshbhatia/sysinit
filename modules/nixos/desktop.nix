@@ -8,7 +8,7 @@
 }:
 
 let
-  themes = import ../shared/lib/theme { inherit lib; };
+  themes = import ../shared/lib/theme.nix { inherit lib; };
   semanticColors = themes.getSemanticColors values.theme.colorscheme values.theme.variant;
 
   colorToTuigreetTheme =

@@ -5,7 +5,7 @@
 }:
 
 let
-  themes = import ../../../shared/lib/theme { inherit lib; };
+  themes = import ../../../shared/lib/theme.nix { inherit lib; };
   atuinAdapter = import ./impl.nix { inherit lib; };
 
   validatedTheme = values.theme;

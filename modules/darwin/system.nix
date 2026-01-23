@@ -7,7 +7,7 @@
 }:
 
 {
-  # Nix configuration (via Determinate)
+  # Disable nix-darwin's nix module - using Determinate Nix Installer which manages the Nix daemon
   nix.enable = false;
 
   determinateNix.customSettings = {

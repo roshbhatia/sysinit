@@ -7,7 +7,7 @@
 }:
 
 let
-  themes = import ../../shared/lib/theme { inherit lib; };
+  themes = import ../../shared/lib/theme.nix { inherit lib; };
   semanticColors = themes.getSemanticColors values.theme.colorscheme values.theme.variant;
   c = color: lib.removePrefix "#" color;
   hexToMango = color: "0x${c color}ff";
@@ -170,6 +170,7 @@ in
   # === Waybar Status Bar ===
   programs.waybar = {
     enable = true;
+    # Disable systemd integration - waybar is launched from mango's autostart_sh
     systemd.enable = false;
 
     settings.mainBar = {

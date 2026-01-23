@@ -67,7 +67,6 @@ let
       "**/.cursorrules"
       "**/AGENTS.md"
       "**/CLAUDE.md"
-      "**/CLAUDE.md"
       "**/CONSTITUTION.md"
       "**/CONTRIBUTING.md"
       "**/COPILOT.md"

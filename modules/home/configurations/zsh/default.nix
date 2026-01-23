@@ -6,8 +6,8 @@
   ...
 }:
 let
-  themes = import ../../../shared/lib/theme { inherit lib; };
-  shellUtils = import ../../../shared/lib/shell { inherit lib; };
+  themes = import ../../../shared/lib/theme.nix { inherit lib; };
+  shellUtils = import ../../../shared/lib/shell.nix { inherit lib; };
 
   palette = themes.getThemePalette values.theme.colorscheme values.theme.variant;
   colors = themes.getUnifiedColors palette;
@@ -72,11 +72,10 @@ in
 
     autocd = true;
 
+    # Disable built-in zsh plugins - using custom oh-my-zsh and fzf-based alternatives for better performance
     enableCompletion = false;
     historySubstringSearch.enable = false;
-
     autosuggestion.enable = false;
-
     syntaxHighlighting.enable = false;
 
     history = {

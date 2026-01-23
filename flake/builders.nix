@@ -26,7 +26,7 @@
 
   mkUtils = { system, pkgs }: import ../modules/shared/lib { inherit lib pkgs system; };
 
-  mkOverlays = system: import ../overlays { inherit inputs system; };
+  mkOverlays = system: import ../overlays.nix { inherit inputs system; };
 
   processValues =
     { utils, userValues }:
@@ -34,7 +34,7 @@
       modules = [
         {
           options.values = lib.mkOption {
-            type = utils.values.valuesType;
+            type = utils.schema.valuesType;
           };
           config.values = userValues;
         }
@@ -113,6 +113,7 @@
               onepassword-shell-plugins.hmModules.default
               pkgs.nur.repos.charmbracelet.modules.homeManager.crush
             ];
+            # Disable NixOS manual generation - reduces build time and disk usage
             documentation.enable = false;
           }
         ];
@@ -144,6 +145,7 @@
             inherit utils;
           })
           {
+            # Disable NixOS manual generation - reduces build time and disk usage
             documentation.enable = false;
             home-manager.sharedModules = [
               inputs.mangowc.hmModules.mango

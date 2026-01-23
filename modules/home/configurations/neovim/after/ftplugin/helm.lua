@@ -7,7 +7,6 @@ vim.opt_local.foldlevel = 99
 vim.opt_local.commentstring = "{{/* %s */}}"
 
 Snacks.keymap.set("n", "<localleader>t", "<cmd>!helm template .<cr>", { ft = "helm", desc = "Template chart" })
-Snacks.keymap.set("n", "<localleader>v", "<cmd>!helm lint .<cr>", { ft = "helm", desc = "Lint chart" })
 
 Snacks.keymap.set("n", "]k", "/^---\\s*$<cr>:nohl<cr>", { ft = "helm", desc = "Next resource" })
 Snacks.keymap.set("n", "[k", "?^---\\s*$<cr>:nohl<cr>", { ft = "helm", desc = "Previous resource" })

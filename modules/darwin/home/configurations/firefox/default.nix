@@ -34,6 +34,7 @@ let
       '';
 in
 {
+  # Disable stylix for firefox - managing userChrome.css and theme separately
   stylix.targets.firefox.enable = false;
 
   programs.firefox = {

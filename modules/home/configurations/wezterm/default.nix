@@ -5,11 +5,12 @@
 }:
 
 let
-  themes = import ../../../shared/lib/theme { inherit lib; };
+  themes = import ../../../shared/lib/theme.nix { inherit lib; };
   themeNames = import ../../../shared/lib/theme/adapters/theme-names.nix { inherit lib; };
   themeName = themeNames.getWeztermTheme values.theme.colorscheme values.theme.variant;
 in
 {
+  # Disable stylix for wezterm - using custom theme integration from shared/lib/theme.nix
   stylix.targets.wezterm.enable = false;
 
   xdg.configFile = {

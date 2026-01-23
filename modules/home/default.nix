@@ -6,10 +6,10 @@
   ...
 }:
 let
-  shellLib = import ../shared/lib/shell {
+  shellLib = import ../shared/lib/shell.nix {
     inherit lib;
   };
-  themes = import ../shared/lib/theme {
+  themes = import ../shared/lib/theme.nix {
     inherit lib;
   };
   palette = themes.getThemePalette values.theme.colorscheme values.theme.variant;

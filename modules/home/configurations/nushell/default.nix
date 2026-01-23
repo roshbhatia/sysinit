@@ -7,8 +7,8 @@
 
 with lib;
 let
-  shell = import ../../../shared/lib/shell { inherit lib; };
-  paths_lib = import ../../../shared/lib/paths { inherit config lib; };
+  shell = import ../../../shared/lib/shell.nix { inherit lib; };
+  paths_lib = import ../../../shared/lib/paths.nix { inherit config lib; };
 
   sharedAliases = shell.aliases;
   pathsList = paths_lib.getAllPaths config.home.username config.home.homeDirectory;

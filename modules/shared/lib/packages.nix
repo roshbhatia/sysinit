@@ -8,12 +8,12 @@ with lib;
 
 let
   defaultManagers =
-    (import ../../../home/packages/node/lib.nix { inherit pkgs; })
-    // (import ../../../home/packages/cargo/lib.nix { inherit pkgs; })
-    // (import ../../../home/packages/python/lib.nix { inherit pkgs; })
-    // (import ../../../home/packages/go/lib.nix { inherit pkgs; })
-    // (import ../../../home/packages/gh/lib.nix { inherit pkgs; })
-    // (import ../../../home/packages/vet/lib.nix { });
+    (import ../../home/packages/node/lib.nix { inherit pkgs; })
+    // (import ../../home/packages/cargo/lib.nix { inherit pkgs; })
+    // (import ../../home/packages/python/lib.nix { inherit pkgs; })
+    // (import ../../home/packages/go/lib.nix { inherit pkgs; })
+    // (import ../../home/packages/gh/lib.nix { inherit pkgs; })
+    // (import ../../home/packages/vet/lib.nix { });
 
   mkPackageManagerScript =
     config: manager: packages:

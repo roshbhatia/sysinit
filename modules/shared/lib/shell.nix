@@ -11,14 +11,14 @@
     in
     lib.concatStringsSep "\n" nonHeaderLines;
 
-  aliases = import ./aliases.nix;
+  aliases = import ./shell/aliases.nix;
 
   env =
     {
       colors,
       appTheme,
     }:
-    import ./env.nix {
+    import ./shell/env.nix {
       inherit
         lib
         colors

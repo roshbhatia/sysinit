@@ -19,6 +19,7 @@ in
     ./config/gitignore.nix
   ];
 
+  # Disable home-manager's git module - using custom .gitconfig file for better control over advanced features
   programs.git.enable = false;
   home = {
     file = {

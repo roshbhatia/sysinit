@@ -9,11 +9,12 @@ let
           cfg.command or null;
     in
     (removeAttrs cfg [ "extensions" ]) // (if cmd != null then { command = cmd; } else { })
-  ) (import ../../../shared/lib/lsp).lsp;
+  ) (import ../../../shared/lib/lsp-config.nix).lsp;
 in
 {
   stylix.targets.helix = {
     enable = true;
+    # Disable stylix opacity - terminal background transparency is sufficient
     opacity.enable = false;
   };
 

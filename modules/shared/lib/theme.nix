@@ -3,29 +3,29 @@
 with lib;
 
 let
-  types = import ./core/types.nix { inherit lib; };
-  constants = import ./core/constants.nix { inherit lib; };
-  utils = import ./core/utils.nix { inherit lib; };
-  themeNames = import ./adapters/theme-names.nix { inherit lib; };
+  types = import ./theme/core/types.nix { inherit lib; };
+  constants = import ./theme/core/constants.nix { inherit lib; };
+  utils = import ./theme/core/utils.nix { inherit lib; };
+  themeNames = import ./theme/adapters/theme-names.nix { inherit lib; };
 
-  catppuccin = import ./palettes/catppuccin.nix { inherit lib; };
-  kanagawa = import ./palettes/kanagawa.nix { inherit lib; };
-  kanso = import ./palettes/kanso.nix { inherit lib; };
-  rosePine = import ./palettes/rose-pine.nix { inherit lib; };
-  gruvbox = import ./palettes/gruvbox.nix { inherit lib; };
-  solarized = import ./palettes/solarized.nix { inherit lib; };
-  nord = import ./palettes/nord.nix { inherit lib; };
-  everforest = import ./palettes/everforest.nix { inherit lib; };
-  blackMetal = import ./palettes/black-metal.nix { inherit lib; };
-  tokyonight = import ./palettes/tokyonight.nix { inherit lib; };
-  monokai = import ./palettes/monokai.nix { inherit lib; };
-  retroism = import ./palettes/retroism.nix { inherit lib; };
+  catppuccin = import ./theme/palettes/catppuccin.nix { inherit lib; };
+  kanagawa = import ./theme/palettes/kanagawa.nix { inherit lib; };
+  kanso = import ./theme/palettes/kanso.nix { inherit lib; };
+  rosePine = import ./theme/palettes/rose-pine.nix { inherit lib; };
+  gruvbox = import ./theme/palettes/gruvbox.nix { inherit lib; };
+  solarized = import ./theme/palettes/solarized.nix { inherit lib; };
+  nord = import ./theme/palettes/nord.nix { inherit lib; };
+  everforest = import ./theme/palettes/everforest.nix { inherit lib; };
+  blackMetal = import ./theme/palettes/black-metal.nix { inherit lib; };
+  tokyonight = import ./theme/palettes/tokyonight.nix { inherit lib; };
+  monokai = import ./theme/palettes/monokai.nix { inherit lib; };
+  retroism = import ./theme/palettes/retroism.nix { inherit lib; };
 
-  adapterBase = import ./core/adapter-base.nix { inherit lib utils; };
-  weztermAdapter = import ./adapters/wezterm.nix { inherit lib utils adapterBase; };
-  neovimAdapter = import ./adapters/neovim.nix { inherit lib utils adapterBase; };
-  firefoxAdapter = import ./adapters/firefox.nix { inherit lib utils adapterBase; };
-  base16Schemes = import ./adapters/base16-schemes.nix { inherit lib; };
+  adapterBase = import ./theme/core/adapter-base.nix { inherit lib utils; };
+  weztermAdapter = import ./theme/adapters/wezterm.nix { inherit lib utils adapterBase; };
+  neovimAdapter = import ./theme/adapters/neovim.nix { inherit lib utils adapterBase; };
+  firefoxAdapter = import ./theme/adapters/firefox.nix { inherit lib utils adapterBase; };
+  base16Schemes = import ./theme/adapters/base16-schemes.nix { inherit lib; };
 
   themes = {
     inherit catppuccin;
