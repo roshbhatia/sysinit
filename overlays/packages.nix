@@ -97,10 +97,6 @@ in
   inherit (stable) awscli2;
   inherit (stable) ollama;
 
-  # Override upbound-main to use stable upbound instead, since the main channel
-  # version may no longer be available on cli.upbound.io
-  upbound-main = _prev.upbound;
-
   neovim-unwrapped = inputs.neovim-nightly-overlay.packages.${system}.default;
 
   bv = final.buildGoModule {
@@ -148,56 +144,6 @@ in
       license = licenses.asl20;
       maintainers = [ ];
       mainProgram = "zeitgeist";
-    };
-  };
-
-  contextive = final.stdenv.mkDerivation {
-    pname = "contextive";
-    version = contextiveVersion;
-
-    src = final.fetchurl {
-      url = "https://github.com/dev-cycles/contextive/releases/download/v${contextiveVersion}/Contextive.LanguageServer-${contextiveSource.platform}-${contextiveVersion}.zip";
-      inherit (contextiveSource) sha256;
-    };
-
-    nativeBuildInputs = [
-      final.unzip
-    ]
-    ++ final.lib.optionals final.stdenv.isLinux [ final.autoPatchelfHook ];
-
-    buildInputs = final.lib.optionals final.stdenv.isLinux [
-      final.stdenv.cc.cc.lib
-      final.icu
-      final.openssl
-      final.zlib
-    ];
-
-    unpackPhase = ''
-      runHook preUnpack
-      unzip $src -d .
-      runHook postUnpack
-    '';
-
-    installPhase = ''
-      runHook preInstall
-      mkdir -p $out/bin $out/lib
-      cp Contextive.LanguageServer $out/lib/
-      chmod +x $out/lib/Contextive.LanguageServer
-      ln -s $out/lib/Contextive.LanguageServer $out/bin/Contextive.LanguageServer
-      runHook postInstall
-    '';
-
-    meta = with final.lib; {
-      description = "Language server for managing domain-driven design ubiquitous language definitions";
-      homepage = "https://github.com/dev-cycles/contextive";
-      license = licenses.mit;
-      platforms = [
-        "x86_64-linux"
-        "aarch64-linux"
-        "x86_64-darwin"
-        "aarch64-darwin"
-      ];
-      mainProgram = "Contextive.LanguageServer";
     };
   };
 }
