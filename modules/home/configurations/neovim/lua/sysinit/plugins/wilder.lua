@@ -4,7 +4,6 @@ return {
     event = "CmdlineEnter",
     dependencies = {
       "romgrk/fzy-lua-native",
-      "kyazdani42/nvim-web-devicons",
     },
     build = ":UpdateRemotePlugins",
     config = function()
@@ -60,7 +59,6 @@ return {
         },
         left = {
           " ",
-          wilder.popupmenu_devicons(),
           {
             " ",
             "WilderSeparator",
