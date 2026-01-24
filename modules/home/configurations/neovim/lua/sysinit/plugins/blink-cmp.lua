@@ -126,8 +126,6 @@ return {
                 local out = require("pretty_hover.parser").parse(opts.item.documentation.value)
                 opts.item.documentation.value = out:string()
               end
-
-              opts.default_implementation(opts)
             end,
           },
           ghost_text = {
