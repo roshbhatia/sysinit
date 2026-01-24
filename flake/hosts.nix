@@ -13,8 +13,8 @@ common:
         "steam"
       ];
       theme = {
-        colorscheme = "rose-pine";
-        variant = "moon";
+        colorscheme = "catppuccin";
+        variant = "macchiato";
       };
       llm.mcp.additionalServers = {
         playwright = {
