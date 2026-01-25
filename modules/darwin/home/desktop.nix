@@ -17,8 +17,8 @@ in
 {
   # === Hammerspoon ===
   home.file = {
-    ".hammerspoon/init.lua".source = ./configurations/hammerspoon/init.lua;
-    ".hammerspoon/lua".source = ./configurations/hammerspoon/lua;
+    ".hammerspoon/init.lua".source = ./hammerspoon/init.lua;
+    ".hammerspoon/lua".source = ./hammerspoon/lua;
     ".hammerspoon/Spoons/VimMode.spoon" = {
       source = pkgs.fetchFromGitHub {
         owner = "dbalatero";
@@ -32,7 +32,7 @@ in
 
   # === Karabiner Elements ===
   xdg.configFile."karabiner/karabiner.json".source =
-    config.lib.file.mkOutOfStoreSymlink ./configurations/karabiner-elements/karabiner.json;
+    config.lib.file.mkOutOfStoreSymlink ./karabiner/karabiner.json;
 
   # === Sketchybar ===
   xdg.configFile = {
@@ -62,7 +62,7 @@ in
       '';
       executable = true;
     };
-    "sketchybar/lua".source = ./configurations/sketchybar/lua;
+    "sketchybar/lua".source = ./sketchybar/lua;
     "sketchybar/config.json".text = builtins.toJSON (themes.generateAppJSON "sketchybar" themeConfig);
   };
 }

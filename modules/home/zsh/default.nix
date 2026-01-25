@@ -6,8 +6,8 @@
   ...
 }:
 let
-  themes = import ../../../shared/lib/theme.nix { inherit lib; };
-  shellUtils = import ../../../shared/lib/shell.nix { inherit lib; };
+  themes = import ../../shared/lib/theme.nix { inherit lib; };
+  shellUtils = import ../../shared/lib/shell.nix { inherit lib; };
 
   palette = themes.getThemePalette values.theme.colorscheme values.theme.variant;
   colors = themes.getUnifiedColors palette;

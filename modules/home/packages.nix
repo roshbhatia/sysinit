@@ -10,7 +10,7 @@ let
 
   # Custom scripts
   fzf-preview = pkgs.writeScriptBin "fzf-preview" (
-    builtins.readFile ../../../home/configurations/utils/dev/fzf-preview.nu
+    builtins.readFile ./configurations/utils/dev/fzf-preview.nu
   );
 
   # Core system utilities

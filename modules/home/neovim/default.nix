@@ -5,7 +5,7 @@
 }:
 
 let
-  themes = import ../../../shared/lib/theme.nix { inherit lib; };
+  themes = import ../../shared/lib/theme.nix { inherit lib; };
 in
 
 {

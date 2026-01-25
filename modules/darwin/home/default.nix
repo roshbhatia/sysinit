@@ -2,6 +2,6 @@
 {
   imports = [
     ./desktop.nix
-    ./configurations/firefox # Keep firefox separate - it's large
+    ./firefox.nix
   ];
 }
