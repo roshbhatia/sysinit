@@ -4,7 +4,7 @@
 let
   menus = pkgs.stdenv.mkDerivation {
     name = "menus";
-    src = ./home/configurations/sketchybar/helpers/menus;
+    src = ./home/sketchybar/helpers/menus;
     buildPhase = "make";
     installPhase = ''
       mkdir -p $out/bin
