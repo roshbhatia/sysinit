@@ -142,24 +142,81 @@ function M.get_file_commits(filepath)
   return commits
 end
 
--- Open CodeDiff for the commit under cursor in quickfix
+-- Open CodeDiff for branch commit under cursor in quickfix
 function M.open_codediff_for_qf_entry()
   local qf_list = vim.fn.getqflist()
   local idx = vim.fn.line(".")
+
   if idx > #qf_list or idx < 1 then
     return
   end
 
   local entry = qf_list[idx]
-  -- The commit hash is stored in the filename field
-  local commit_hash = entry.filename
+  local commit_hash = entry.user_data
 
   if commit_hash and commit_hash ~= "" then
-    -- Close quickfix temporarily for cleaner view
     vim.cmd("cclose")
-    -- Open CodeDiff history for this commit (shows commit vs its parent)
     vim.cmd("CodeDiff history " .. commit_hash)
   end
+end
+
+-- Open vimdiff for file history commit under cursor in quickfix
+function M.open_file_diff_for_qf_entry()
+  local qf_list = vim.fn.getqflist()
+  local qf_info = vim.fn.getqflist({ title = 1 })
+  local idx = vim.fn.line(".")
+
+  if idx > #qf_list or idx < 1 then
+    return
+  end
+
+  local entry = qf_list[idx]
+  local commit_hash = entry.user_data
+
+  if not commit_hash or commit_hash == "" then
+    return
+  end
+
+  -- Extract filename from quickfix title "File History: <filename> (N commits)"
+  local filename = qf_info.title:match("^File History: ([^%(]+)")
+  if filename then
+    filename = vim.trim(filename)
+  else
+    return
+  end
+
+  -- Get the file path relative to git root
+  local git_root = vim.fn.systemlist("git rev-parse --show-toplevel 2>/dev/null")[1]
+  if vim.v.shell_error ~= 0 or not git_root then
+    return
+  end
+
+  vim.cmd("cclose")
+
+  -- Create temp files for the two versions
+  local parent_hash = commit_hash .. "^"
+  local parent_content = vim.fn.systemlist(string.format("git show %s:%s 2>/dev/null", parent_hash, filename))
+  local commit_content = vim.fn.systemlist(string.format("git show %s:%s 2>/dev/null", commit_hash, filename))
+
+  if vim.v.shell_error ~= 0 then
+    -- If parent doesn't exist, this might be the first commit
+    parent_content = {}
+  end
+
+  -- Open in vertical split with diff
+  vim.cmd("tabnew")
+  vim.api.nvim_buf_set_lines(0, 0, -1, false, parent_content)
+  vim.bo.buftype = "nofile"
+  vim.bo.bufhidden = "wipe"
+  vim.api.nvim_buf_set_name(0, string.format("%s (%s^)", filename, commit_hash:sub(1, 7)))
+  vim.cmd("diffthis")
+
+  vim.cmd("vnew")
+  vim.api.nvim_buf_set_lines(0, 0, -1, false, commit_content)
+  vim.bo.buftype = "nofile"
+  vim.bo.bufhidden = "wipe"
+  vim.api.nvim_buf_set_name(0, string.format("%s (%s)", filename, commit_hash:sub(1, 7)))
+  vim.cmd("diffthis")
 end
 
 -- State for commit range selection
@@ -177,7 +234,7 @@ function M.mark_commit_for_range()
   end
 
   local entry = qf_list[idx]
-  local commit_hash = entry.filename
+  local commit_hash = entry.user_data
 
   if commit_hash and commit_hash ~= "" then
     M.range_selection.first_commit = commit_hash
@@ -198,7 +255,7 @@ function M.open_codediff_range()
   end
 
   local entry = qf_list[idx]
-  local second_commit = entry.filename
+  local second_commit = entry.user_data
 
   if not M.range_selection.first_commit then
     -- No first commit marked, just show single commit diff
@@ -225,23 +282,23 @@ function M.is_codediff_qf()
   local is_branch_commits = qf_title:match("^Branch Commits:")
   local is_file_history = qf_title:match("^File History:")
   local is_commit_range = qf_title:match("^Commit Range:")
-  return is_branch_commits or is_file_history or is_commit_range, qf_title:match("^Commit Range:")
+  return is_branch_commits or is_file_history or is_commit_range, qf_title:match("^Commit Range:"), is_file_history
 end
 
 -- Handle <CR> in quickfix - intercepts and checks if it's our list
 function M.handle_qf_enter()
-  local is_ours, is_range = M.is_codediff_qf()
+  local is_ours, is_range, is_file = M.is_codediff_qf()
+
   if not is_ours then
-    -- Not our quickfix list, use standard quickfix behavior
-    -- Get current line index and jump to that entry
     local idx = vim.fn.line(".")
     vim.cmd("cclose")
     vim.cmd("cc " .. idx)
     return
   end
 
-  -- It's our quickfix list
-  if is_range and M.range_selection.first_commit then
+  if is_file then
+    M.open_file_diff_for_qf_entry()
+  elseif is_range and M.range_selection.first_commit then
     M.open_codediff_range()
   else
     M.open_codediff_for_qf_entry()
@@ -259,16 +316,11 @@ function M.handle_qf_mark()
   M.mark_commit_for_range()
 end
 
--- Setup keymaps for quickfix buffer (called on FileType qf)
+-- Setup keymaps for quickfix buffer
 function M.setup_qf_keymaps()
   local bufnr = vim.api.nvim_get_current_buf()
 
-  vim.notify(string.format("setup_qf_keymaps called for buffer %d", bufnr), vim.log.levels.DEBUG)
-
-  -- Use vim.keymap.set with buffer option - this sets our mapping
-  -- We always set the mapping, but our handler checks if it's our qf list
   vim.keymap.set("n", "<CR>", function()
-    vim.notify("CodeDiff <CR> handler triggered", vim.log.levels.DEBUG)
     M.handle_qf_enter()
   end, {
     buffer = bufnr,
@@ -278,7 +330,6 @@ function M.setup_qf_keymaps()
   })
 
   vim.keymap.set("n", "m", function()
-    vim.notify("CodeDiff 'm' handler triggered", vim.log.levels.DEBUG)
     M.handle_qf_mark()
   end, {
     buffer = bufnr,
@@ -286,8 +337,6 @@ function M.setup_qf_keymaps()
     noremap = true,
     silent = true,
   })
-
-  vim.notify("CodeDiff keymaps set successfully", vim.log.levels.DEBUG)
 end
 
 -- Populate quickfix with branch commits
@@ -304,8 +353,7 @@ function M.populate_branch_commits_qf()
   for _, commit in ipairs(commits) do
     table.insert(qf_items, {
       text = string.format("%s %s %-20s %s", commit.hash, commit.date, commit.author:sub(1, 20), commit.message),
-      -- Store hash in filename field for easy retrieval
-      filename = commit.hash,
+      user_data = commit.hash,
     })
   end
 
@@ -315,8 +363,6 @@ function M.populate_branch_commits_qf()
   })
 
   vim.cmd("copen")
-  -- Keymaps are set by FileType autocmd after bqf
-
   vim.notify(string.format("Loaded %d commits. Press <CR> to view commit diff.", #commits), vim.log.levels.INFO)
 end
 
@@ -336,8 +382,7 @@ function M.populate_file_commits_qf(filepath)
   for _, commit in ipairs(commits) do
     table.insert(qf_items, {
       text = string.format("%s %s %-20s %s", commit.hash, commit.date, commit.author:sub(1, 20), commit.message),
-      -- Store hash in filename field for easy retrieval
-      filename = commit.hash,
+      user_data = commit.hash,
     })
   end
 
@@ -347,8 +392,6 @@ function M.populate_file_commits_qf(filepath)
   })
 
   vim.cmd("copen")
-  -- Keymaps are set by FileType autocmd after bqf
-
   vim.notify(
     string.format("Loaded %d commits for %s. Press <CR> to view diff.", #commits, filename),
     vim.log.levels.INFO
@@ -369,7 +412,7 @@ function M.populate_commit_range_qf()
   for _, commit in ipairs(commits) do
     table.insert(qf_items, {
       text = string.format("%s %s %-20s %s", commit.hash, commit.date, commit.author:sub(1, 20), commit.message),
-      filename = commit.hash,
+      user_data = commit.hash,
     })
   end
 
@@ -379,27 +422,21 @@ function M.populate_commit_range_qf()
   })
 
   vim.cmd("copen")
-  -- Keymaps are set by FileType autocmd after bqf
-
   vim.notify("Press 'm' to mark first commit, then <CR> on second commit to compare range.", vim.log.levels.INFO)
 end
 
--- Setup autocmd to override bqf keymaps in quickfix buffers
 local function setup_qf_autocmd()
   vim.api.nvim_create_augroup("CodeDiffQF", { clear = true })
 
-  -- Use FileType event with defer to run AFTER bqf sets its keymaps
   vim.api.nvim_create_autocmd("FileType", {
     group = "CodeDiffQF",
     pattern = "qf",
     callback = function()
-      -- Use a longer defer to ensure bqf has finished setting its keymaps
-      -- bqf uses BufEnter, so we wait a bit longer
       vim.defer_fn(function()
         if vim.bo.filetype == "qf" then
           M.setup_qf_keymaps()
         end
-      end, 100) -- Increased delay to ensure bqf has finished
+      end, 100)
     end,
   })
 end
