@@ -263,9 +263,12 @@ end
 function M.setup_qf_keymaps()
   local bufnr = vim.api.nvim_get_current_buf()
 
+  vim.notify(string.format("setup_qf_keymaps called for buffer %d", bufnr), vim.log.levels.DEBUG)
+
   -- Use vim.keymap.set with buffer option - this sets our mapping
   -- We always set the mapping, but our handler checks if it's our qf list
   vim.keymap.set("n", "<CR>", function()
+    vim.notify("CodeDiff <CR> handler triggered", vim.log.levels.DEBUG)
     M.handle_qf_enter()
   end, {
     buffer = bufnr,
@@ -275,6 +278,7 @@ function M.setup_qf_keymaps()
   })
 
   vim.keymap.set("n", "m", function()
+    vim.notify("CodeDiff 'm' handler triggered", vim.log.levels.DEBUG)
     M.handle_qf_mark()
   end, {
     buffer = bufnr,
@@ -282,6 +286,8 @@ function M.setup_qf_keymaps()
     noremap = true,
     silent = true,
   })
+
+  vim.notify("CodeDiff keymaps set successfully", vim.log.levels.DEBUG)
 end
 
 -- Populate quickfix with branch commits
@@ -309,7 +315,7 @@ function M.populate_branch_commits_qf()
   })
 
   vim.cmd("copen")
-  -- Keymaps are set by after/ftplugin/qf.lua automatically
+  -- Keymaps are set by FileType autocmd after bqf
 
   vim.notify(string.format("Loaded %d commits. Press <CR> to view commit diff.", #commits), vim.log.levels.INFO)
 end
@@ -341,7 +347,7 @@ function M.populate_file_commits_qf(filepath)
   })
 
   vim.cmd("copen")
-  -- Keymaps are set by after/ftplugin/qf.lua automatically
+  -- Keymaps are set by FileType autocmd after bqf
 
   vim.notify(
     string.format("Loaded %d commits for %s. Press <CR> to view diff.", #commits, filename),
@@ -373,9 +379,29 @@ function M.populate_commit_range_qf()
   })
 
   vim.cmd("copen")
-  -- Keymaps are set by after/ftplugin/qf.lua automatically
+  -- Keymaps are set by FileType autocmd after bqf
 
   vim.notify("Press 'm' to mark first commit, then <CR> on second commit to compare range.", vim.log.levels.INFO)
+end
+
+-- Setup autocmd to override bqf keymaps in quickfix buffers
+local function setup_qf_autocmd()
+  vim.api.nvim_create_augroup("CodeDiffQF", { clear = true })
+
+  -- Use FileType event with defer to run AFTER bqf sets its keymaps
+  vim.api.nvim_create_autocmd("FileType", {
+    group = "CodeDiffQF",
+    pattern = "qf",
+    callback = function()
+      -- Use a longer defer to ensure bqf has finished setting its keymaps
+      -- bqf uses BufEnter, so we wait a bit longer
+      vim.defer_fn(function()
+        if vim.bo.filetype == "qf" then
+          M.setup_qf_keymaps()
+        end
+      end, 100) -- Increased delay to ensure bqf has finished
+    end,
+  })
 end
 
 -- User commands
@@ -409,8 +435,8 @@ end
 
 -- Initialize the module (called from config)
 function M.setup()
+  setup_qf_autocmd()
   setup_commands()
-  -- Keymaps are now handled by after/ftplugin/qf.lua
 end
 
 -- Plugin specification
