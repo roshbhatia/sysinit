@@ -309,11 +309,7 @@ function M.populate_branch_commits_qf()
   })
 
   vim.cmd("copen")
-
-  -- Setup keymaps after quickfix is open (deferred to ensure buffer is ready)
-  vim.schedule(function()
-    M.setup_qf_keymaps()
-  end)
+  -- Keymaps are set by after/ftplugin/qf.lua automatically
 
   vim.notify(string.format("Loaded %d commits. Press <CR> to view commit diff.", #commits), vim.log.levels.INFO)
 end
@@ -345,11 +341,7 @@ function M.populate_file_commits_qf(filepath)
   })
 
   vim.cmd("copen")
-
-  -- Setup keymaps after quickfix is open (deferred to ensure buffer is ready)
-  vim.schedule(function()
-    M.setup_qf_keymaps()
-  end)
+  -- Keymaps are set by after/ftplugin/qf.lua automatically
 
   vim.notify(
     string.format("Loaded %d commits for %s. Press <CR> to view diff.", #commits, filename),
@@ -381,35 +373,9 @@ function M.populate_commit_range_qf()
   })
 
   vim.cmd("copen")
-
-  -- Setup keymaps after quickfix is open (deferred to ensure buffer is ready)
-  vim.schedule(function()
-    M.setup_qf_keymaps()
-  end)
+  -- Keymaps are set by after/ftplugin/qf.lua automatically
 
   vim.notify("Press 'm' to mark first commit, then <CR> on second commit to compare range.", vim.log.levels.INFO)
-end
-
--- Setup quickfix autocmd for our custom quickfix lists
-local function setup_qf_autocmd()
-  vim.api.nvim_create_augroup("CodeDiffQF", { clear = true })
-
-  -- Use BufEnter with vim.defer_fn to ensure our keymaps are set AFTER bqf
-  -- bqf sets its keymaps on BufEnter/FileType qf, so we need to run after it
-  vim.api.nvim_create_autocmd("BufEnter", {
-    group = "CodeDiffQF",
-    callback = function()
-      if vim.bo.filetype == "qf" then
-        -- Use defer_fn with small delay to ensure we run after bqf
-        vim.defer_fn(function()
-          -- Double-check we're still in quickfix buffer
-          if vim.bo.filetype == "qf" then
-            M.setup_qf_keymaps()
-          end
-        end, 10)
-      end
-    end,
-  })
 end
 
 -- User commands
@@ -443,8 +409,8 @@ end
 
 -- Initialize the module (called from config)
 function M.setup()
-  setup_qf_autocmd()
   setup_commands()
+  -- Keymaps are now handled by after/ftplugin/qf.lua
 end
 
 -- Plugin specification
