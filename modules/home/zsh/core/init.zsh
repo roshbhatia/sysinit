@@ -4,14 +4,11 @@
 typeset -gU path PATH fpath FPATH
 stty stop undef
 
-setopt autocd
-setopt autopushd
-setopt pushdsilent
-setopt pushdignoredups
+setopt autocd autopushd pushdsilent pushdignoredups
+setopt correct completeinword listambiguous
+setopt extendedglob autoremoveslash
+setopt interactivecomments
 
-setopt correct
-setopt completeinword
-setopt listambiguous
+unsetopt BEEP
 
-setopt extendedglob
-setopt autoremoveslash
+export KEYTIMEOUT=1

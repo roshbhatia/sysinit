@@ -154,18 +154,6 @@ in
     ];
 
     initContent = lib.mkMerge [
-      (lib.mkOrder 50 ''
-        # If we're just launching nushell via `zsh -c nu`, skip heavy zsh config
-        # This allows WezTerm to use zsh for environment setup, then exec nu directly
-        if [[ $# -eq 2 && "$1" == "-c" && "$2" == "nu" ]]; then
-          exec nu
-        fi
-      '')
-
-      (lib.mkOrder 100 ''
-        [[ -n "$SYSINIT_DEBUG" ]] && zmodload zsh/zprof
-      '')
-
       (lib.mkOrder 200 ''
         ${coreInit}
       '')
@@ -183,12 +171,15 @@ in
         autoload -Uz compinit
         compinit -C -d "${config.xdg.cacheHome}/zsh/zcompdump/.zcompdump"
 
-        zstyle ':completion:*:git-checkout:*' sort false
-        zstyle ':completion:*:descriptions' format '[%d]'
+        zstyle ':completion:*' use-cache on
+        zstyle ':completion:*' cache-path "${config.xdg.cacheHome}/zsh/zcompcache"
         zstyle ':completion:*' list-colors ''${(s.:.)LS_COLORS}
-        zstyle ':completion:*' matcher-list 'm:{a-zA-Z}={A-Za-z}'
-        zstyle ':completion:*:complete:*' use-cache on
+        zstyle ':completion:*' matcher-list 'm:{a-zA-Z}={A-Za-z}' 'r:|[._-]=* r:|=*' 'l:|=* r:|=*'
         zstyle ':completion:*' menu no
+
+        zstyle ':completion:*' group-name '''
+        zstyle ':completion:*:descriptions' format '[%d]'
+        zstyle ':completion:*:git-checkout:*' sort false
 
         zstyle ':fzf-tab:*' use-fzf-default-opts yes
         zstyle ':fzf-tab:*' fzf-pad 4
@@ -199,16 +190,8 @@ in
         zstyle ':fzf-tab:*' continuous-trigger "/"
         zstyle ':fzf-tab:*' fzf-bindings "tab:down" "btab:up" "enter:accept"
 
-        zstyle ':fzf-tab:complete:bat:*' fzf-preview 'fzf-preview "''${realpath:-$word}"'
-        zstyle ':fzf-tab:complete:cat:*' fzf-preview 'fzf-preview "''${realpath:-$word}"'
-        zstyle ':fzf-tab:complete:cd:*' fzf-preview 'fzf-preview "''${realpath:-$word}"'
-        zstyle ':fzf-tab:complete:chafa:*' fzf-preview 'fzf-preview "''${realpath:-$word}"'
-        zstyle ':fzf-tab:complete:eza:*' fzf-preview 'fzf-preview "''${realpath:-$word}"'
-        zstyle ':fzf-tab:complete:ls:*' fzf-preview 'fzf-preview "''${realpath:-$word}"'
-        zstyle ':fzf-tab:complete:nvim:*' fzf-preview 'fzf-preview "''${realpath:-$word}"'
-        zstyle ':fzf-tab:complete:v:*' fzf-preview 'fzf-preview "''${realpath:-$word}"'
-        zstyle ':fzf-tab:complete:vi:*' fzf-preview 'fzf-preview "''${realpath:-$word}"'
-        zstyle ':fzf-tab:complete:vim:*' fzf-preview 'fzf-preview "''${realpath:-$word}"'
+        zstyle ':fzf-tab:complete:(bat|cat|cd|chafa|eza|ls|nvim|v|vi|vim):*' \
+          fzf-preview 'fzf-preview "''${realpath:-$word}"'
       '')
 
       (lib.mkOrder 600 ''
@@ -220,10 +203,6 @@ in
 
       (lib.mkOrder 899 ''
         ${uiPrompt}
-      '')
-
-      (lib.mkOrder 900 ''
-        [[ -n "$SYSINIT_DEBUG" ]] && zprof
       '')
     ];
   };
