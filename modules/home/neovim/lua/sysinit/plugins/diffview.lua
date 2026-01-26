@@ -4,39 +4,14 @@ return {
     dependencies = {
       "nvim-tree/nvim-web-devicons",
     },
-    cmd = {
-      "DiffviewOpen",
-      "DiffviewClose",
-      "DiffviewToggleFiles",
-      "DiffviewFocusFiles",
-      "DiffviewRefresh",
-      "DiffviewFileHistory",
-    },
     config = function()
       require("diffview").setup({
-        enhanced_diff_hl = true,
-        use_icons = true,
-        show_help_hints = true,
-        view = {
-          default = {
-            layout = "diff2_horizontal",
-          },
-          merge_tool = {
-            layout = "diff3_horizontal",
-          },
-          file_history = {
-            layout = "diff2_horizontal",
-          },
+        default_args = {
+          DiffviewOpen = { "--imply-local" },
         },
-        file_panel = {
-          listing_style = "tree",
-          tree_options = {
-            flatten_dirs = true,
-            folder_statuses = "only_folded",
-          },
-          win_config = {
-            position = "left",
-            width = 35,
+        view = {
+          merge_tool = {
+            layout = "diff3_mixed",
           },
         },
       })
@@ -57,7 +32,7 @@ return {
             vim.cmd("DiffviewOpen master")
           end
         end,
-        desc = "Diff against main/master",
+        desc = "Diff against default branch",
       },
       {
         "<leader>dh",
