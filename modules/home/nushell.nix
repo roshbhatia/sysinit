@@ -22,8 +22,7 @@ let
   aliases = removeAttrs sharedAliases nushellBuiltins;
 in
 {
-  # Install custom commands to vendor autoload directory
-  xdg.dataFile."nushell/vendor/autoload/custom-commands.nu" = {
+  xdg.dataFile."nushell/custom-commands.nu" = {
     source = ./configurations/nushell/custom-commands.nu;
   };
 
@@ -72,7 +71,8 @@ in
     extraConfig = ''
       use std/dirs shells-aliases *
 
-      # Custom commands are auto-loaded from vendor autoload directory
+      # Load custom commands from vendor autoload directory
+      source ${config.xdg.dataHome}/nushell/custom-commands.nu
 
       # Enhanced keybindings with FZF-style shortcuts
       $env.config.keybindings = [
@@ -159,10 +159,10 @@ in
       alias z = __zoxide_z_pushd
       alias zi = __zoxide_zi_pushd
 
-      # Load secrets from ~/.nushell-secrets.nu
-      let secrets_file = $"($nu.home-path)/.nushell-secrets.nu"
-      if ($secrets_file | path exists) {
-        source $secrets_file
+      # Load secrets from ~/.nushell-secrets.nu (if exists)
+      # Note: source requires literal path, using try to handle missing file gracefully
+      try {
+        source ~/.nushell-secrets.nu
       }
 
       # Performance monitoring in debug mode
