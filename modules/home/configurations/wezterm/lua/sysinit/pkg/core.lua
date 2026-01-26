@@ -11,7 +11,7 @@ local function get_basic_config()
     default_prog = {
       utils.get_nix_binary("zsh"),
       "-c",
-      "nu",
+      utils.get_nix_binary("nu"),
     },
     -- Will only work when connected to the tailnet.
     -- As such, can safely ignore this when we're on the work machine.
