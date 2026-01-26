@@ -1,12 +1,9 @@
--- codediff.lua
--- Enhanced codediff.nvim configuration with branch history navigation via quickfix
+-- diffview.lua
+-- Enhanced diffview.nvim configuration with branch history navigation via quickfix
 
--- Create a global namespace for our codediff extensions
--- This ensures the module is accessible from lazy.nvim keymaps
-_G.CodeDiffExtensions = _G.CodeDiffExtensions or {}
-local M = _G.CodeDiffExtensions
+_G.DiffviewExtensions = _G.DiffviewExtensions or {}
+local M = _G.DiffviewExtensions
 
--- Get the default branch (main or master)
 function M.get_default_branch()
   local result = vim.fn.system("git rev-parse --verify main 2>/dev/null")
   if vim.v.shell_error == 0 then
@@ -19,7 +16,6 @@ function M.get_default_branch()
   return nil
 end
 
--- Get merge-base between current branch and default branch
 function M.get_merge_base()
   local default_branch = M.get_default_branch()
   if not default_branch then
@@ -32,7 +28,6 @@ function M.get_merge_base()
   return result[1]
 end
 
--- Get current branch name
 function M.get_current_branch()
   local result = vim.fn.systemlist("git branch --show-current 2>/dev/null")
   if vim.v.shell_error ~= 0 or #result == 0 then
@@ -41,29 +36,18 @@ function M.get_current_branch()
   return result[1]
 end
 
--- Check if we're on the default branch
-function M.is_on_default_branch()
-  local current = M.get_current_branch()
-  local default_branch = M.get_default_branch()
-  return current == default_branch
-end
-
--- Get commits since merge-base (or last N commits if on default branch)
--- Returns table of { hash, date, author, message }, and a description string
 function M.get_branch_commits()
   local current_branch = M.get_current_branch()
   local default_branch = M.get_default_branch()
   local cmd
   local description
 
-  -- If on default branch, just show last 50 commits
   if current_branch == default_branch then
     cmd = "git log --format='%h|%ad|%an|%s' --date=short -50 2>/dev/null"
     description = "last 50"
   else
     local merge_base = M.get_merge_base()
     if merge_base then
-      -- Check if there are any commits between merge-base and HEAD
       local count_result = vim.fn.systemlist(string.format("git rev-list --count %s..HEAD 2>/dev/null", merge_base))
       local count = tonumber(count_result[1] or "0") or 0
 
@@ -71,12 +55,10 @@ function M.get_branch_commits()
         cmd = string.format("git log --format='%%h|%%ad|%%an|%%s' --date=short %s..HEAD 2>/dev/null", merge_base)
         description = string.format("%d since %s", count, default_branch or "base")
       else
-        -- No commits since merge-base, show last 50
         cmd = "git log --format='%h|%ad|%an|%s' --date=short -50 2>/dev/null"
         description = "last 50"
       end
     else
-      -- No merge-base found, show last 50
       cmd = "git log --format='%h|%ad|%an|%s' --date=short -50 2>/dev/null"
       description = "last 50"
     end
@@ -102,14 +84,11 @@ function M.get_branch_commits()
   return commits, description
 end
 
--- Get commits that modified a specific file
--- Returns table of { hash, date, author, message }
 function M.get_file_commits(filepath)
   if not filepath or filepath == "" then
     filepath = vim.fn.expand("%:p")
   end
 
-  -- Get relative path from git root
   local git_root = vim.fn.systemlist("git rev-parse --show-toplevel 2>/dev/null")[1]
   if vim.v.shell_error ~= 0 or not git_root then
     return {}
@@ -117,7 +96,7 @@ function M.get_file_commits(filepath)
 
   local rel_path = filepath
   if filepath:sub(1, #git_root) == git_root then
-    rel_path = filepath:sub(#git_root + 2) -- +2 to skip the trailing slash
+    rel_path = filepath:sub(#git_root + 2)
   end
 
   local cmd = string.format("git log --format='%%h|%%ad|%%an|%%s' --date=short --follow -- '%s' 2>/dev/null", rel_path)
@@ -142,8 +121,7 @@ function M.get_file_commits(filepath)
   return commits
 end
 
--- Open CodeDiff for branch commit under cursor in quickfix
-function M.open_codediff_for_qf_entry()
+function M.open_diffview_for_qf_entry()
   local qf_list = vim.fn.getqflist()
   local idx = vim.fn.line(".")
 
@@ -156,12 +134,11 @@ function M.open_codediff_for_qf_entry()
 
   if commit_hash and commit_hash ~= "" then
     vim.cmd("cclose")
-    vim.cmd("CodeDiff history " .. commit_hash)
+    vim.cmd("DiffviewOpen " .. commit_hash .. "^.." .. commit_hash)
   end
 end
 
--- Open vimdiff for file history commit under cursor in quickfix
-function M.open_file_diff_for_qf_entry()
+function M.open_file_history_for_qf_entry()
   local qf_list = vim.fn.getqflist()
   local qf_info = vim.fn.getqflist({ title = 1 })
   local idx = vim.fn.line(".")
@@ -177,7 +154,6 @@ function M.open_file_diff_for_qf_entry()
     return
   end
 
-  -- Extract filename from quickfix title "File History: <filename> (N commits)"
   local filename = qf_info.title:match("^File History: ([^%(]+)")
   if filename then
     filename = vim.trim(filename)
@@ -185,47 +161,20 @@ function M.open_file_diff_for_qf_entry()
     return
   end
 
-  -- Get the file path relative to git root
   local git_root = vim.fn.systemlist("git rev-parse --show-toplevel 2>/dev/null")[1]
   if vim.v.shell_error ~= 0 or not git_root then
     return
   end
 
   vim.cmd("cclose")
-
-  -- Create temp files for the two versions
-  local parent_hash = commit_hash .. "^"
-  local parent_content = vim.fn.systemlist(string.format("git show %s:%s 2>/dev/null", parent_hash, filename))
-  local commit_content = vim.fn.systemlist(string.format("git show %s:%s 2>/dev/null", commit_hash, filename))
-
-  if vim.v.shell_error ~= 0 then
-    -- If parent doesn't exist, this might be the first commit
-    parent_content = {}
-  end
-
-  -- Open in vertical split with diff
-  vim.cmd("tabnew")
-  vim.api.nvim_buf_set_lines(0, 0, -1, false, parent_content)
-  vim.bo.buftype = "nofile"
-  vim.bo.bufhidden = "wipe"
-  vim.api.nvim_buf_set_name(0, string.format("%s (%s^)", filename, commit_hash:sub(1, 7)))
-  vim.cmd("diffthis")
-
-  vim.cmd("vnew")
-  vim.api.nvim_buf_set_lines(0, 0, -1, false, commit_content)
-  vim.bo.buftype = "nofile"
-  vim.bo.bufhidden = "wipe"
-  vim.api.nvim_buf_set_name(0, string.format("%s (%s)", filename, commit_hash:sub(1, 7)))
-  vim.cmd("diffthis")
+  vim.cmd(string.format("DiffviewOpen %s^..%s -- %s", commit_hash, commit_hash, filename))
 end
 
--- State for commit range selection
 M.range_selection = M.range_selection or {
   first_commit = nil,
   qf_title = nil,
 }
 
--- Mark first commit for range comparison
 function M.mark_commit_for_range()
   local qf_list = vim.fn.getqflist()
   local idx = vim.fn.line(".")
@@ -246,8 +195,7 @@ function M.mark_commit_for_range()
   end
 end
 
--- Open CodeDiff comparing two commits (for range selection mode)
-function M.open_codediff_range()
+function M.open_diffview_range()
   local qf_list = vim.fn.getqflist()
   local idx = vim.fn.line(".")
   if idx > #qf_list or idx < 1 then
@@ -258,26 +206,22 @@ function M.open_codediff_range()
   local second_commit = entry.user_data
 
   if not M.range_selection.first_commit then
-    -- No first commit marked, just show single commit diff
-    M.open_codediff_for_qf_entry()
+    M.open_diffview_for_qf_entry()
     return
   end
 
   local first_commit = M.range_selection.first_commit
 
-  -- Clear selection state
   M.range_selection.first_commit = nil
   M.range_selection.qf_title = nil
 
   if second_commit and second_commit ~= "" then
     vim.cmd("cclose")
-    -- CodeDiff supports two-revision comparison
-    vim.cmd(string.format("CodeDiff %s %s", first_commit, second_commit))
+    vim.cmd(string.format("DiffviewOpen %s..%s", first_commit, second_commit))
   end
 end
 
--- Check if current quickfix title is one of ours
-function M.is_codediff_qf()
+function M.is_diffview_qf()
   local qf_title = vim.fn.getqflist({ title = 1 }).title or ""
   local is_branch_commits = qf_title:match("^Branch Commits:")
   local is_file_history = qf_title:match("^File History:")
@@ -285,9 +229,8 @@ function M.is_codediff_qf()
   return is_branch_commits or is_file_history or is_commit_range, qf_title:match("^Commit Range:"), is_file_history
 end
 
--- Handle <CR> in quickfix - intercepts and checks if it's our list
 function M.handle_qf_enter()
-  local is_ours, is_range, is_file = M.is_codediff_qf()
+  local is_ours, is_range, is_file = M.is_diffview_qf()
 
   if not is_ours then
     local idx = vim.fn.line(".")
@@ -297,26 +240,23 @@ function M.handle_qf_enter()
   end
 
   if is_file then
-    M.open_file_diff_for_qf_entry()
+    M.open_file_history_for_qf_entry()
   elseif is_range and M.range_selection.first_commit then
-    M.open_codediff_range()
+    M.open_diffview_range()
   else
-    M.open_codediff_for_qf_entry()
+    M.open_diffview_for_qf_entry()
   end
 end
 
--- Handle 'm' in quickfix for marking commits
 function M.handle_qf_mark()
-  local is_ours = M.is_codediff_qf()
+  local is_ours = M.is_diffview_qf()
   if not is_ours then
-    -- Not our list, pass through default 'm' behavior
     vim.cmd("normal! m")
     return
   end
   M.mark_commit_for_range()
 end
 
--- Setup keymaps for quickfix buffer
 function M.setup_qf_keymaps()
   local bufnr = vim.api.nvim_get_current_buf()
 
@@ -324,7 +264,7 @@ function M.setup_qf_keymaps()
     M.handle_qf_enter()
   end, {
     buffer = bufnr,
-    desc = "CodeDiff: Open commit or default qf action",
+    desc = "Diffview: Open commit or default qf action",
     noremap = true,
     silent = true,
   })
@@ -333,13 +273,12 @@ function M.setup_qf_keymaps()
     M.handle_qf_mark()
   end, {
     buffer = bufnr,
-    desc = "CodeDiff: Mark commit for range",
+    desc = "Diffview: Mark commit for range",
     noremap = true,
     silent = true,
   })
 end
 
--- Populate quickfix with branch commits
 function M.populate_branch_commits_qf()
   local commits, description = M.get_branch_commits()
   if #commits == 0 then
@@ -363,10 +302,9 @@ function M.populate_branch_commits_qf()
   })
 
   vim.cmd("copen")
-  vim.notify(string.format("Loaded %d commits. Press <CR> to view commit diff.", #commits), vim.log.levels.INFO)
+  vim.notify(string.format("Loaded %d commits. Press <CR> to view diff.", #commits), vim.log.levels.INFO)
 end
 
--- Populate quickfix with file history commits
 function M.populate_file_commits_qf(filepath)
   filepath = filepath or vim.fn.expand("%:p")
   local commits = M.get_file_commits(filepath)
@@ -398,7 +336,6 @@ function M.populate_file_commits_qf(filepath)
   )
 end
 
--- Populate quickfix for commit range selection
 function M.populate_commit_range_qf()
   local commits, description = M.get_branch_commits()
   if #commits == 0 then
@@ -426,10 +363,10 @@ function M.populate_commit_range_qf()
 end
 
 local function setup_qf_autocmd()
-  vim.api.nvim_create_augroup("CodeDiffQF", { clear = true })
+  vim.api.nvim_create_augroup("DiffviewQF", { clear = true })
 
   vim.api.nvim_create_autocmd("FileType", {
-    group = "CodeDiffQF",
+    group = "DiffviewQF",
     pattern = "qf",
     callback = function()
       vim.defer_fn(function()
@@ -441,111 +378,166 @@ local function setup_qf_autocmd()
   })
 end
 
--- User commands
 local function setup_commands()
-  -- :DiffBranchCommits - List branch commits in quickfix
   vim.api.nvim_create_user_command("DiffBranchCommits", function()
     M.populate_branch_commits_qf()
-  end, { desc = "List branch commits in quickfix for CodeDiff navigation" })
+  end, { desc = "List branch commits in quickfix for Diffview navigation" })
 
-  -- :DiffFileHistory - List commits for current file in quickfix
   vim.api.nvim_create_user_command("DiffFileHistory", function(opts)
     local filepath = opts.args ~= "" and opts.args or nil
     M.populate_file_commits_qf(filepath)
   end, { desc = "List file history commits in quickfix", nargs = "?" })
 
-  -- :DiffCommitRange [from] [to] - Compare two commits
   vim.api.nvim_create_user_command("DiffCommitRange", function(opts)
     local args = vim.split(opts.args, " ", { trimempty = true })
     if #args >= 2 then
-      -- Direct comparison with provided commits
-      vim.cmd(string.format("CodeDiff %s %s", args[1], args[2]))
+      vim.cmd(string.format("DiffviewOpen %s..%s", args[1], args[2]))
     elseif #args == 1 then
-      -- Single commit provided, compare with HEAD
-      vim.cmd(string.format("CodeDiff %s HEAD", args[1]))
+      vim.cmd(string.format("DiffviewOpen %s..HEAD", args[1]))
     else
-      -- No args: open branch commits quickfix for selection
       M.populate_commit_range_qf()
     end
-  end, { desc = "Compare two commits with CodeDiff", nargs = "*" })
+  end, { desc = "Compare two commits with Diffview", nargs = "*" })
 end
 
--- Initialize the module (called from config)
 function M.setup()
   setup_qf_autocmd()
   setup_commands()
 end
 
--- Plugin specification
 return {
   {
-    "esmuellert/codediff.nvim",
+    "sindrets/diffview.nvim",
     dependencies = {
-      "MunifTanjim/nui.nvim",
+      "nvim-tree/nvim-web-devicons",
     },
-    cmd = { "CodeDiff", "DiffBranchCommits", "DiffFileHistory", "DiffCommitRange" },
+    cmd = {
+      "DiffviewOpen",
+      "DiffviewClose",
+      "DiffviewToggleFiles",
+      "DiffviewFocusFiles",
+      "DiffviewRefresh",
+      "DiffviewFileHistory",
+      "DiffBranchCommits",
+      "DiffFileHistory",
+      "DiffCommitRange",
+    },
     config = function()
-      require("codediff").setup({
-        explorer = {
-          position = "bottom",
-          view_mode = "tree",
+      require("diffview").setup({
+        enhanced_diff_hl = true,
+        use_icons = true,
+        show_help_hints = true,
+        view = {
+          default = {
+            layout = "diff2_horizontal",
+          },
+          merge_tool = {
+            layout = "diff3_horizontal",
+          },
+          file_history = {
+            layout = "diff2_horizontal",
+          },
+        },
+        file_panel = {
+          listing_style = "tree",
+          tree_options = {
+            flatten_dirs = true,
+            folder_statuses = "only_folded",
+          },
+          win_config = {
+            position = "left",
+            width = 35,
+          },
         },
         keymaps = {
           view = {
-            toggle_explorer = "<localleader>e",
+            ["<tab>"] = false,
+            ["<s-tab>"] = false,
+            ["gf"] = false,
+            ["<leader>e"] = "<Cmd>DiffviewToggleFiles<CR>",
+            ["<leader>co"] = "<Cmd>DiffviewConflictChooseOurs<CR>",
+            ["<leader>ct"] = "<Cmd>DiffviewConflictChooseTheirs<CR>",
+            ["<leader>cb"] = "<Cmd>DiffviewConflictChooseBoth<CR>",
+            ["<leader>cx"] = "<Cmd>DiffviewConflictChooseNone<CR>",
           },
-          explorer = {
-            toggle_view_mode = "t",
+          file_panel = {
+            ["j"] = "<Cmd>lua require('diffview.actions').next_entry()<CR>",
+            ["k"] = "<Cmd>lua require('diffview.actions').prev_entry()<CR>",
+            ["<cr>"] = "<Cmd>lua require('diffview.actions').select_entry()<CR>",
+            ["o"] = "<Cmd>lua require('diffview.actions').select_entry()<CR>",
+            ["<2-LeftMouse>"] = "<Cmd>lua require('diffview.actions').select_entry()<CR>",
+            ["<leader>e"] = "<Cmd>DiffviewToggleFiles<CR>",
+            ["g<C-x>"] = "<Cmd>lua require('diffview.actions').cycle_layout()<CR>",
+            ["[x"] = "<Cmd>lua require('diffview.actions').prev_conflict()<CR>",
+            ["]x"] = "<Cmd>lua require('diffview.actions').next_conflict()<CR>",
           },
-          conflict = {
-            accept_incoming = "<localleader>i",
-            accept_current = "<localleader>c",
-            accept_both = "<localleader>b",
-            discard = "<localleader>x",
+          file_history_panel = {
+            ["j"] = "<Cmd>lua require('diffview.actions').next_entry()<CR>",
+            ["k"] = "<Cmd>lua require('diffview.actions').prev_entry()<CR>",
+            ["<cr>"] = "<Cmd>lua require('diffview.actions').select_entry()<CR>",
+            ["o"] = "<Cmd>lua require('diffview.actions').select_entry()<CR>",
+            ["<2-LeftMouse>"] = "<Cmd>lua require('diffview.actions').select_entry()<CR>",
+            ["g!"] = "<Cmd>lua require('diffview.actions').options()<CR>",
+            ["<leader>e"] = "<Cmd>DiffviewToggleFiles<CR>",
+            ["g<C-x>"] = "<Cmd>lua require('diffview.actions').cycle_layout()<CR>",
+          },
+          option_panel = {
+            ["<tab>"] = "<Cmd>lua require('diffview.actions').select_entry()<CR>",
+            ["q"] = "<Cmd>lua require('diffview.actions').close()<CR>",
           },
         },
       })
 
-      -- Setup our custom commands and quickfix integration
       M.setup()
     end,
     keys = {
-      -- Existing keymaps
       {
         "<leader>dd",
         function()
-          vim.cmd("CodeDiff HEAD")
+          vim.cmd("DiffviewOpen")
         end,
-        desc = "HEAD",
+        desc = "Diff HEAD",
       },
       {
         "<leader>dm",
         function()
-          vim.cmd("CodeDiff main")
+          local default_branch = _G.DiffviewExtensions.get_default_branch() or "main"
+          vim.cmd("DiffviewOpen " .. default_branch)
         end,
-        desc = "Main",
+        desc = "Diff main",
       },
-      -- New keymaps for branch history navigation
       {
         "<leader>db",
         function()
-          _G.CodeDiffExtensions.populate_branch_commits_qf()
+          _G.DiffviewExtensions.populate_branch_commits_qf()
         end,
         desc = "Branch commits",
       },
       {
         "<leader>df",
         function()
-          _G.CodeDiffExtensions.populate_file_commits_qf()
+          _G.DiffviewExtensions.populate_file_commits_qf()
         end,
         desc = "File history",
       },
       {
         "<leader>dr",
         function()
-          _G.CodeDiffExtensions.populate_commit_range_qf()
+          _G.DiffviewExtensions.populate_commit_range_qf()
         end,
         desc = "Commit range",
+      },
+      {
+        "<leader>dh",
+        function()
+          vim.cmd("DiffviewFileHistory %")
+        end,
+        desc = "Current file history",
+      },
+      {
+        "<leader>dc",
+        "<Cmd>DiffviewClose<CR>",
+        desc = "Close Diffview",
       },
     },
   },
