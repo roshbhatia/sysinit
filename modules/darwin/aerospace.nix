@@ -143,7 +143,6 @@
         alt-enter = ''
           exec-and-forget osascript -e '
             tell application "Wezterm"
-              do script
               activate
             end tell'
         '';
