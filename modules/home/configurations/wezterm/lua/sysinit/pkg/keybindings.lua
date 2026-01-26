@@ -246,6 +246,14 @@ function M.setup(config)
 
   config.keys = all_keys
   config.key_tables = wezterm.gui and wezterm.gui.default_key_tables() or {}
+
+  config.mouse_bindings = {
+    {
+      event = { Down = { streak = 3, button = "Left" } },
+      action = wezterm.action.SelectTextAtMouseCursor("SemanticZone"),
+      mods = "NONE",
+    },
+  }
 end
 
 return M
