@@ -79,59 +79,12 @@ local function prev_item()
   end
 end
 
-local function smart_toggle()
-  local win = vim.api.nvim_get_current_win()
-  local loc_winid = get_loc_winid(win)
-  local qf_winid = get_qf_winid()
-
-  if loc_winid then
-    vim.cmd("lclose")
-  elseif qf_winid then
-    vim.cmd("cclose")
-  else
-    local loclist = vim.fn.getloclist(win)
-    local qflist = vim.fn.getqflist()
-    if not vim.tbl_isempty(loclist) then
-      vim.cmd(string.format("lopen %d", math.min(#loclist, 10)))
-    elseif not vim.tbl_isempty(qflist) then
-      vim.cmd(string.format("copen %d", math.min(#qflist, 10)))
-    else
-      vim.notify("Both quickfix and location lists are empty", vim.log.levels.INFO)
-    end
-  end
-end
-
 Snacks.keymap.set("n", "<leader>qq", toggle_qf, { desc = "Toggle quickfix" })
 Snacks.keymap.set("n", "<leader>ql", toggle_loclist, { desc = "Toggle loclist" })
-Snacks.keymap.set("n", "<leader>qo", smart_toggle, { desc = "Smart toggle qf/loc" })
 Snacks.keymap.set("n", "]q", next_item, { desc = "Next qf/loc item" })
 Snacks.keymap.set("n", "[q", prev_item, { desc = "Prev qf/loc item" })
-Snacks.keymap.set("n", "<leader>q[", "<cmd>colder<cr>", { desc = "Older qflist" })
-Snacks.keymap.set("n", "<leader>q]", "<cmd>cnewer<cr>", { desc = "Newer qflist" })
 
 local augroup = vim.api.nvim_create_augroup("QuickfixConfig", { clear = true })
-
-vim.api.nvim_create_autocmd("QuickfixCmdPost", {
-  group = augroup,
-  pattern = "[^l]*",
-  callback = function()
-    local qflist = vim.fn.getqflist()
-    if not vim.tbl_isempty(qflist) and not get_qf_winid() then
-      vim.cmd(string.format("copen %d", math.min(#qflist, 10)))
-    end
-  end,
-})
-
-vim.api.nvim_create_autocmd("QuickfixCmdPost", {
-  group = augroup,
-  pattern = "l*",
-  callback = function()
-    local loclist = vim.fn.getloclist(0)
-    if not vim.tbl_isempty(loclist) and not get_loc_winid() then
-      vim.cmd(string.format("lopen %d", math.min(#loclist, 10)))
-    end
-  end,
-})
 
 vim.api.nvim_create_autocmd("FileType", {
   group = augroup,
