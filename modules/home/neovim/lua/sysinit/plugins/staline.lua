@@ -13,15 +13,6 @@ return {
         end
       end
 
-      local function nes_present()
-        local ok, nes = pcall(require, "sidekick.nes")
-        if ok and nes and nes.have() then
-          return " 󰌒  "
-        else
-          return ""
-        end
-      end
-
       require("staline").setup({
         -- If it's "intactive" we just want it to look normal
         inactive_color = get_fg("Normal"),
@@ -31,11 +22,7 @@ return {
             "branch",
             "file_name",
           },
-          mid = {
-            "-",
-            nes_present,
-            "-",
-          },
+          mid = {},
           right = {
             "lsp",
             "file_size",
