@@ -8,7 +8,7 @@ return {
         log_level = "error",
         provider = {
           type = "autocomplete",
-          url = "http://localhost:11434/api",
+          url = "http://localhost:11434",
           model = "llama3.2:3b",
         },
       })
