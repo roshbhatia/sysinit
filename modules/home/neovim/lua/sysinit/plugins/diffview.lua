@@ -50,7 +50,7 @@ return {
       {
         "<leader>dm",
         function()
-          local default_branch = vim.fn.system("git rev-parse --verify main 2>/dev/null")
+          vim.fn.system("git rev-parse --verify main 2>/dev/null")
           if vim.v.shell_error == 0 then
             vim.cmd("DiffviewOpen main")
           else

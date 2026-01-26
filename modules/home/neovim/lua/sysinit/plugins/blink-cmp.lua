@@ -183,9 +183,6 @@ return {
             "fallback",
           },
           ["<Tab>"] = {
-            function()
-              return require("sidekick").nes_jump_or_apply()
-            end,
             function(cmp)
               local ok, copilot = pcall(require, "blink-copilot")
               if ok and copilot.is_visible and copilot.is_visible() then
