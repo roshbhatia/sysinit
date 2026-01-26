@@ -154,6 +154,14 @@ in
     ];
 
     initContent = lib.mkMerge [
+      (lib.mkOrder 50 ''
+        # If we're just launching nushell via `zsh -c nu`, skip heavy zsh config
+        # This allows WezTerm to use zsh for environment setup, then exec nu directly
+        if [[ $# -eq 2 && "$1" == "-c" && "$2" == "nu" ]]; then
+          exec nu
+        fi
+      '')
+
       (lib.mkOrder 100 ''
         [[ -n "$SYSINIT_DEBUG" ]] && zmodload zsh/zprof
       '')

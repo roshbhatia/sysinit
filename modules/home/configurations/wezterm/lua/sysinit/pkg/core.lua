@@ -7,8 +7,11 @@ local function get_basic_config()
     status_update_interval = 200,
     pane_focus_follows_mouse = false,
     -- We use a nix-installed nushell as the default shell.
+    -- Launch through zsh to get proper environment setup, then exec nu
     default_prog = {
-      utils.get_nix_binary("nu"),
+      utils.get_nix_binary("zsh"),
+      "-c",
+      "nu",
     },
     -- Will only work when connected to the tailnet.
     -- As such, can safely ignore this when we're on the work machine.
