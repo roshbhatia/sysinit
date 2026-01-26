@@ -6,10 +6,9 @@ local function get_basic_config()
   return {
     status_update_interval = 200,
     pane_focus_follows_mouse = false,
-    -- We use a nix-installed zsh as the default shell.
-    -- On darwin there's a /bin/zsh that we choose to not mess with
+    -- We use a nix-installed nushell as the default shell.
     default_prog = {
-      utils.get_nix_binary("zsh"),
+      utils.get_nix_binary("nu"),
     },
     -- Will only work when connected to the tailnet.
     -- As such, can safely ignore this when we're on the work machine.

@@ -41,6 +41,7 @@ in
     ./terminal.nix
     ./dev-tools.nix
     ./nushell.nix
+    ./configurations/nushell
     ./ssh.nix
     ./omp.nix
     ./git

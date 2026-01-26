@@ -22,6 +22,11 @@ let
   aliases = removeAttrs sharedAliases nushellBuiltins;
 in
 {
+  # Install custom commands to vendor autoload directory
+  xdg.dataFile."nushell/vendor/autoload/custom-commands.nu" = {
+    source = ./configurations/nushell/custom-commands.nu;
+  };
+
   programs.nushell = {
     enable = true;
     package = pkgs.nushell.override {
@@ -67,6 +72,9 @@ in
     extraConfig = ''
       use std/dirs shells-aliases *
 
+      # Custom commands are auto-loaded from vendor autoload directory
+
+      # Enhanced keybindings with FZF-style shortcuts
       $env.config.keybindings = [
         {
           name: completion_menu
@@ -79,6 +87,26 @@ in
               { send: menunext }
               { edit: complete }
             ]
+          }
+        }
+        {
+          name: file_finder
+          modifier: control
+          keycode: char_t
+          mode: [vi_insert vi_normal]
+          event: {
+            send: executehostcommand
+            cmd: "vf"
+          }
+        }
+        {
+          name: dir_finder
+          modifier: control
+          keycode: char_g
+          mode: [vi_insert vi_normal]
+          event: {
+            send: executehostcommand
+            cmd: "cdf"
           }
         }
       ]
@@ -102,7 +130,13 @@ in
         }
       }
 
-      def --env --wrapped __zoxide_z [...rest: string] {
+      # Enhanced zoxide with pushd support for directory stack management
+      def --env --wrapped __zoxide_z_pushd [...rest: string] {
+        if ('DIR_STACK' not-in $env) {
+          $env.DIR_STACK = []
+        }
+        $env.DIR_STACK = ([$env.PWD] ++ $env.DIR_STACK)
+
         let path = match $rest {
           [] => {'~'},
           [ '-' ] => {'-'},
@@ -114,12 +148,27 @@ in
         cd $path
       }
 
-      def --env --wrapped __zoxide_zi [...rest:string] {
+      def --env --wrapped __zoxide_zi_pushd [...rest:string] {
+        if ('DIR_STACK' not-in $env) {
+          $env.DIR_STACK = []
+        }
+        $env.DIR_STACK = ([$env.PWD] ++ $env.DIR_STACK)
         cd $'(zoxide query --interactive -- ...$rest | str trim -r -c "\n")'
       }
 
-      alias z = __zoxide_z
-      alias zi = __zoxide_zi
+      alias z = __zoxide_z_pushd
+      alias zi = __zoxide_zi_pushd
+
+      # Load secrets from ~/.nushell-secrets.nu
+      let secrets_file = $"($nu.home-path)/.nushell-secrets.nu"
+      if ($secrets_file | path exists) {
+        source $secrets_file
+      }
+
+      # Performance monitoring in debug mode
+      if ('SYSINIT_DEBUG' in $env) {
+        print $"Nushell startup time: ($nu.startup-time)"
+      }
 
       # WezTerm integration
       if (which wezterm | is-not-empty) {
