@@ -19,15 +19,11 @@ let
     inherit colors appTheme;
   };
   allAliases = shellLib.aliases // {
-    h = "hx";
     f = "yazi";
     tree = "eza --tree --icons=never";
-    zi = "__zoxide_zi";
     org = "nvim ~/org/notes";
     cat = "bat -pp";
     ll = "eza --icons=always -l -a";
-    kgA = "kubectl get -A";
-    kgN = "kubectl get -n";
   };
 in
 {
@@ -41,7 +37,6 @@ in
     ./terminal.nix
     ./dev-tools.nix
     ./nushell.nix
-    ./configurations/nushell
     ./ssh.nix
     ./omp.nix
     ./git
