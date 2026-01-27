@@ -24,7 +24,7 @@ return {
       wk.add({
         { "<leader>c", group = "Code" },
         { "<leader>ce", group = "Debug" },
-        { "<leader>cuf", group = "Find" },
+        { "<leader>cf", group = "Find" },
         { "<leader>d", group = "Diff" },
         { "<leader>e", group = "Editor" },
         { "<leader>f", group = "Find" },
