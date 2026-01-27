@@ -5,15 +5,16 @@ return {
     config = function()
       require("conform").setup({
         formatters_by_ft = {
+          cue = {
+            "cue_fmt",
+          },
           lua = {
             "stylua",
           },
           nix = {
             "deadnix",
             "nixfmt",
-            stop_after_first = false,
           },
-          markdown = {},
           javascript = {
             "prettier",
           },
@@ -43,7 +44,6 @@ return {
           },
           bash = {
             "shfmt",
-            "shellcheck",
           },
           zsh = {
             "shfmt",
