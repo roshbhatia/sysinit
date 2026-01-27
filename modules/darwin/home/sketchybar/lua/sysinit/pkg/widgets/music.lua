@@ -40,11 +40,11 @@ local function get_music_info()
         title = utils.truncate(utils.trim(title), 25)
         artist = utils.truncate(utils.trim(artist), 25)
 
-        local icon = "󰐊"
-        local label = title .. "  " .. artist
+        local icon = "󰐊 "
+        local label = title .. " - " .. artist
 
         if state == "paused" then
-          icon = "󰏤"
+          icon = "󰏤 "
           label = title .. "  " .. artist
         elseif state == "stopped" then
           utils.animate_visibility({ music, music_separator }, false)
