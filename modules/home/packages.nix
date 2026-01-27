@@ -113,6 +113,7 @@ let
 
   # Programming languages and runtimes
   langPkgs = with pkgs; [
+    cue
     go
     luajit
     nodejs_22
@@ -128,6 +129,7 @@ let
     awk-language-server
     bash-language-server
     copilot-language-server
+    cuelsp
     eslint
     gopls
     jq-lsp

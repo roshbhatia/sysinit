@@ -7,6 +7,7 @@ local servers = {
   "bashls",
   "contextive",
   "copilot_ls",
+  "cue",
   "docker_compose_language_service",
   "eslint",
   "gopls",
