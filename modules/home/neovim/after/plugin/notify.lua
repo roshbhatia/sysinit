@@ -2,8 +2,8 @@ local M = {}
 
 local hidden_patterns = {
   "null%-ls.*failed to run generator",
-  "Flake input * cannot be evaluated",
-  "Invalid window id: *",
+  "Flake input .* cannot be evaluated",
+  "Invalid window id: %d+",
 }
 
 local original_notify = vim.notify
