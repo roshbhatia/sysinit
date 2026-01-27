@@ -1,5 +1,3 @@
-vim.opt_local.expandtab = true
-
 Snacks.keymap.set("n", "<localleader>x", function()
   local file = vim.fn.expand("%:p")
   vim.fn.system(string.format("chmod +x %s", vim.fn.shellescape(file)))

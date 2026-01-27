@@ -1,6 +1,3 @@
-vim.opt_local.expandtab = true
-
--- Comment string for Go templates
 vim.opt_local.commentstring = "{{/* %s */}}"
 
 Snacks.keymap.set("n", "<localleader>v", "i{{ . }}<Esc>", { ft = "gotmpl", desc = "Insert variable" })

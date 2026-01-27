@@ -1,7 +1,5 @@
-vim.opt_local.expandtab = true
-vim.opt_local.conceallevel = 0 -- Show quotes
+vim.opt_local.conceallevel = 0
 
--- Validation via :make
 vim.opt_local.makeprg = "jq empty %"
 vim.opt_local.errorformat = "jq: parse error: %m at line %l\\, column %c"
 
