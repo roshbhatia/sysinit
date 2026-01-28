@@ -218,7 +218,6 @@ let
 
   # Project management
   projectPkgs = with pkgs; [
-    jira-cli-go
     mermaid-cli
   ];
 
