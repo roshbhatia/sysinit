@@ -8,7 +8,6 @@ let
 
   baseTaps = [
     "charmbracelet/tap"
-    "epk/epk"
     "hashicorp/tap"
     "jakehilborn/jakehilborn"
     "mediosz/tap"
@@ -26,7 +25,6 @@ let
     "block-goose-cli"
     "colima"
     "ctags"
-    "font-sf-mono-nerd-font"
     "hashicorp/tap/terraform"
     "libgit2@1.8"
     "luarocks"
@@ -42,6 +40,7 @@ let
     "1password"
     "1password-cli"
     "firefox"
+    "font-sf-mono-nerd-font-ligaturized"
     "font-sf-mono-nerd-font-ligaturized"
     "font-symbols-only-nerd-font"
     "hammerspoon"
