@@ -11,7 +11,7 @@ return {
         },
         file_panel = {
           win_config = {
-            position = "bottom",
+            position = "right",
           },
         },
         view = {
