@@ -13,9 +13,12 @@ common:
         "steam"
       ];
       theme = {
-        colorscheme = "apple-system-colors";
+        colorscheme = "flexoki";
         variant = "light";
         appearance = "light";
+        font = {
+          monospace = "Liga SFMono Nerd Font";
+        };
       };
       llm.mcp.additionalServers = {
         playwright = {
