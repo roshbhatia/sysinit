@@ -34,13 +34,13 @@
           ];
           top = [
             { monitor."LG HDR 4K" = 200; }
-            { monitor."DELL U3824DW" = 52; }
-            52
+            { monitor."DELL U3824DW" = 56; }
+            56
           ];
           bottom = [
             { monitor."LG HDR 4K" = 200; }
-            { monitor."DELL U3824DW" = 26; }
-            26
+            { monitor."DELL U3824DW" = 28; }
+            28
           ];
         };
       };
