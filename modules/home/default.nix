@@ -64,6 +64,7 @@ in
 
       NODE_NO_WARNINGS = 1;
       NODE_TLS_REJECT_UNAUTHORIZED = 0;
+      BEADS_DIR = "${config.xdg.dataHome}/.beads";
     }
     // shellEnv;
 
