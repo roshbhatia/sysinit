@@ -13,9 +13,9 @@ common:
         "steam"
       ];
       theme = {
-        colorscheme = "flexoki";
-        variant = "light";
-        appearance = "light";
+        colorscheme = "catppuccin";
+        variant = "macchiato";
+        appearance = "dark";
         font = {
           monospace = "Liga SFMono Nerd Font";
         };
