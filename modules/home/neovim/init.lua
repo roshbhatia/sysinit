@@ -4,6 +4,7 @@ vim.o.sessionoptions = "blank,buffers,curdir,folds,help,tabpages,winsize,winpos,
 
 -- Filter out noisy/unhelpful error messages
 local original_notify = vim.notify
+---@diagnostic disable-next-line: duplicate-set-field
 vim.notify = function(msg, level, opts)
   if type(msg) == "string" then
     -- Filter Neovim nightly extui window race condition errors
