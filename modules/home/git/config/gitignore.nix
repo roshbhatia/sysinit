@@ -72,6 +72,7 @@ let
     "**/sgconfig.yaml"
     "**/sgconfig.yml"
     "*.log"
+    "ast-grep/"
   ];
 
   gitignorePatterns =
