@@ -8,6 +8,7 @@ let
 
   baseTaps = [
     "charmbracelet/tap"
+    "epk/epk"
     "hashicorp/tap"
     "jakehilborn/jakehilborn"
     "mediosz/tap"
@@ -25,6 +26,7 @@ let
     "block-goose-cli"
     "colima"
     "ctags"
+    "font-sf-mono-nerd-font"
     "hashicorp/tap/terraform"
     "libgit2@1.8"
     "luarocks"

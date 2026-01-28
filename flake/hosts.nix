@@ -14,6 +14,8 @@ common:
       ];
       theme = {
         colorscheme = "apple-system-colors";
+        variant = "light";
+        appearance = "light";
       };
       llm.mcp.additionalServers = {
         playwright = {
