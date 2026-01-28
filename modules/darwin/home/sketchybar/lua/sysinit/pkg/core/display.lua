@@ -45,7 +45,7 @@ function M.get_y_offset()
   local displays = get_displays()
   for _, d in ipairs(displays) do
     if d.notch then
-      return 48
+      return 52
     end
   end
   return 8
