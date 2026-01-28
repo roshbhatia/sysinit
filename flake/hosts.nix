@@ -15,10 +15,6 @@ common:
       theme = {
         colorscheme = "catppuccin";
         variant = "macchiato";
-        appearance = "dark";
-        font = {
-          monospace = "Liga SFMono Nerd Font";
-        };
       };
       llm.mcp.additionalServers = {
         playwright = {
