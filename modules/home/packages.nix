@@ -200,7 +200,6 @@ let
     asciinema
     asciinema-agg
     ast-grep
-    bv
     chafa
     crush
     cursor-cli

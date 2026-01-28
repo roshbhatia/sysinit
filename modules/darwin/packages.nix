@@ -7,6 +7,7 @@ let
   additionalCasks = values.darwin.homebrew.additionalPackages.casks;
 
   baseTaps = [
+    "assimelha/tap"
     "charmbracelet/tap"
     "hashicorp/tap"
     "jakehilborn/jakehilborn"
@@ -22,6 +23,7 @@ let
   baseBrews = [
     "bashdb"
     "bcrypt"
+    "bdui"
     "block-goose-cli"
     "colima"
     "ctags"
