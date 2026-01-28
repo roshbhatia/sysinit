@@ -135,12 +135,7 @@ return {
 
               -- documentation can be either a string or a MarkupContent object per LSP spec
               -- only process when it's an object with a value field
-              if
-                item
-                and item.documentation
-                and type(item.documentation) == "table"
-                and item.documentation.value
-              then
+              if item and item.documentation and type(item.documentation) == "table" and item.documentation.value then
                 local out = require("pretty_hover.parser").parse(item.documentation.value)
                 item.documentation.value = out:string()
               end
