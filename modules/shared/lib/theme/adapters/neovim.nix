@@ -6,16 +6,59 @@
 
 with lib;
 
+let
+  themeNames = import ./theme-names.nix { inherit lib; };
+in
+
 {
-  # Pixel.nvim adapter - uses terminal ANSI colors, so no theme-specific config needed
   createNeovimConfig =
     themeData: config: overrides:
     let
+      pluginInfo = themeNames.getNeovimMetadata themeData.meta.id config.variant;
+
       baseConfig = {
-        # Pixel.nvim is configured directly in the Neovim plugin file
-        # and automatically uses terminal ANSI colors
-        colorscheme = "pixel";
-        plugin = "bjarneo/pixel.nvim";
+        inherit (pluginInfo)
+          plugin
+          name
+          setup
+          colorscheme
+          ;
+
+        config = {
+          transparent = true;
+          terminal_colors = true;
+          styles = {
+            comments = {
+              italic = true;
+            };
+            keywords = {
+              bold = true;
+            };
+            functions = {
+              bold = true;
+            };
+            strings = {
+              italic = true;
+            };
+            variables = { };
+            numbers = {
+              bold = true;
+            };
+            booleans = {
+              bold = true;
+              italic = true;
+            };
+            properties = {
+              italic = true;
+            };
+            types = {
+              bold = true;
+            };
+            operators = {
+              bold = true;
+            };
+          };
+        };
       };
     in
     utils.mergeThemeConfigs baseConfig overrides;
@@ -27,9 +70,7 @@ with lib;
       semanticColors = utils.createSemanticMapping palette;
     in
     {
-      # Always use pixel as the colorscheme since it adapts to terminal colors
-      colorscheme = "pixel";
-      inherit (config) variant;
+      inherit (config) colorscheme variant;
       transparency = config.transparency or (throw "Missing transparency configuration");
       inherit semanticColors;
     };

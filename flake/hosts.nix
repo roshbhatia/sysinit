@@ -13,8 +13,7 @@ common:
         "steam"
       ];
       theme = {
-        colorscheme = "rose-pine";
-        variant = "moon";
+        colorscheme = "apple-system-colors";
       };
       llm.mcp.additionalServers = {
         playwright = {

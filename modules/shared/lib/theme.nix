@@ -110,7 +110,7 @@ let
     let
       appThemeFunctions = {
         wezterm = themeNames.getWeztermTheme;
-        neovim = _cs: _v: "pixel"; # Always use pixel.nvim which adapts to terminal colors
+        neovim = _cs: _v: (themeNames.getNeovimConfig _cs _v).colorscheme;
         atuin = themeNames.getAtuinTheme;
       };
     in

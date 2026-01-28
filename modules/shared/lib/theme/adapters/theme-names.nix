@@ -113,6 +113,15 @@ let
   getWeztermTheme =
     colorscheme: variant: getAppMetadata "wezterm" colorscheme variant "${colorscheme}-${variant}";
 
+  getNeovimMetadata =
+    colorscheme: variant:
+    getAppMetadata "neovim" colorscheme variant {
+      plugin = "${colorscheme}/${colorscheme}.nvim";
+      name = colorscheme;
+      setup = colorscheme;
+      colorscheme = "${colorscheme}-${variant}";
+    };
+
   getAtuinTheme =
     colorscheme: variant: getAppMetadata "atuin" colorscheme variant "${colorscheme}-${variant}";
 in
@@ -121,6 +130,7 @@ in
   inherit
     getAppMetadata
     getWeztermTheme
+    getNeovimMetadata
     getAtuinTheme
     ;
 }
