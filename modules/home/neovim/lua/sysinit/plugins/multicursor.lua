@@ -6,28 +6,37 @@ return {
       local mc = require("multicursor-nvim")
       mc.setup()
 
-      local set = vim.keymap.set
+      Snacks.keymap.set("n", "<c-leftmouse>", mc.handleMouse, { desc = "Multi-cursor mouse" })
+      Snacks.keymap.set("n", "<c-leftdrag>", mc.handleMouseDrag, { desc = "Multi-cursor drag" })
+      Snacks.keymap.set("n", "<c-leftrelease>", mc.handleMouseRelease, { desc = "Multi-cursor release" })
 
-      set("n", "<c-leftmouse>", mc.handleMouse)
-      set("n", "<c-leftdrag>", mc.handleMouseDrag)
-      set("n", "<c-leftrelease>", mc.handleMouseRelease)
+      Snacks.keymap.set({ "n", "x" }, "X", mc.toggleCursor, { desc = "Toggle cursor" })
 
-      set({ "n", "x" }, "<C-c>", mc.toggleCursor)
+      Snacks.keymap.set({ "n", "x" }, "<C-x>", mc.clearCursors, { desc = "Clear cursors" })
 
-      set({ "n", "x" }, "<C-S-c>", mc.clearCursors)
+      vim.api.nvim_create_user_command("MultiCursorClear", function()
+        mc.clearCursors()
+      end, {
+        desc = "Clear all multi-cursors",
+      })
 
-      mc.addKeymapLayer(function(layerSet)
-        layerSet({ "n", "x" }, "<left>", mc.prevCursor)
-        layerSet({ "n", "x" }, "<right>", mc.nextCursor)
+      vim.api.nvim_create_user_command("MultiCursorEnable", function()
+        mc.enableCursors()
+      end, {
+        desc = "Enable multi-cursors",
+      })
 
-        layerSet("n", "<esc>", function()
-          if not mc.cursorsEnabled() then
-            mc.enableCursors()
-          else
-            mc.clearCursors()
-          end
-        end)
-      end)
+      vim.api.nvim_create_user_command("MultiCursorNext", function()
+        mc.nextCursor()
+      end, {
+        desc = "Next multi-cursor",
+      })
+
+      vim.api.nvim_create_user_command("MultiCursorPrev", function()
+        mc.prevCursor()
+      end, {
+        desc = "Previous multi-cursor",
+      })
 
       local hl = vim.api.nvim_set_hl
       hl(0, "MultiCursorCursor", { reverse = true })
