@@ -6,7 +6,18 @@ let
   flattenPermissions =
     perms: lib.lists.flatten (map (x: if builtins.isList x then x else [ x ]) perms);
 
-  defaultServers = { };
+  defaultServers = {
+    beads = {
+      command = "uvx";
+      args = [
+        "--isolated"
+        "--with"
+        "packaging"
+        "beads-mcp"
+      ];
+      description = "Beads issue tracker MCP for persistent memories";
+    };
+  };
 
   permissions = {
     git = [
@@ -89,6 +100,10 @@ let
     crossplane = [
       "crossplane*"
       "up*"
+    ];
+
+    beads = [
+      "bd"
     ];
   };
 

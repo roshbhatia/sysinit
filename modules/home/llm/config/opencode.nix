@@ -5,34 +5,43 @@
   ...
 }:
 let
+  # We use a plugin for this, so don't need the MCP.
+  disabledMcpServers = [ "beads" ];
+
+  # yaml-language-server tends to pollute context with false positives on non-YAML files.
+  disabledLspServers = [ "yaml-language-server" ];
+
   agents = import ../shared/agents.nix;
   lspConfig = import ../shared/lsp.nix;
   mcpServers = import ../shared/mcp.nix { inherit lib values; };
   skills = import ../shared/skills.nix { inherit lib pkgs; };
 
   formatMcpForOpencode =
-    mcpServers:
+    servers:
     builtins.mapAttrs (
-      _name: server:
-      if (server.type or "local") == "http" then
-        {
-          type = "remote";
-          enabled = server.enabled or true;
-          inherit (server) url;
-        }
-        // lib.attrsets.optionalAttrs (server.headers or null != null) { inherit (server) headers; }
-        // lib.attrsets.optionalAttrs (server.timeout or null != null) { inherit (server) timeout; }
-      else
-        {
-          type = "local";
-          enabled = server.enabled or true;
-          command = [ server.command ] ++ server.args;
-        }
-        // lib.attrsets.optionalAttrs (server.env or { } != { }) { environment = server.env; }
-    ) mcpServers;
+      name: server:
+      let
+        isDisabled = builtins.elem name disabledMcpServers;
+        baseConfig =
+          if (server.type or "local") == "http" then
+            {
+              type = "remote";
+              inherit (server) url;
+            }
+            // lib.attrsets.optionalAttrs (server.headers or null != null) { inherit (server) headers; }
+            // lib.attrsets.optionalAttrs (server.timeout or null != null) { inherit (server) timeout; }
+          else
+            {
+              type = "local";
+              command = [ server.command ] ++ server.args;
+            }
+            // lib.attrsets.optionalAttrs (server.env or { } != { }) { environment = server.env; };
+      in
+      baseConfig // { enabled = if isDisabled then false else (server.enabled or true); }
+    ) servers;
 
   formatLspForOpencode =
-    lspCfg:
+    lspServers:
     builtins.mapAttrs (
       name: lspCfg:
       let
@@ -41,8 +50,7 @@ let
             if builtins.isList lspCfg.command then lspCfg.command else [ lspCfg.command ]
           else
             [ ];
-        # yaml-language-server tends to pollute context with false positives on non-YAML files
-        isDisabled = name == "yaml-language-server";
+        isDisabled = builtins.elem name disabledLspServers;
       in
       if isDisabled then
         { disabled = true; }
@@ -51,7 +59,7 @@ let
           command = cmd ++ (lspCfg.args or [ ]);
           extensions = lspCfg.extensions or [ ];
         }
-    ) lspCfg;
+    ) lspServers;
 
   opencodeConfigJson = builtins.toJSON {
     "$schema" = "https://opencode.ai/config.json";
