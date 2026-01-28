@@ -20,8 +20,6 @@ let
   tokyonight = import ./theme/palettes/tokyonight.nix { inherit lib; };
   monokai = import ./theme/palettes/monokai.nix { inherit lib; };
   retroism = import ./theme/palettes/retroism.nix { inherit lib; };
-  flexoki = import ./theme/palettes/flexoki.nix { inherit lib; };
-  appleSystemColors = import ./theme/palettes/apple-system-colors.nix { inherit lib; };
 
   adapterBase = import ./theme/core/adapter-base.nix { inherit lib utils; };
   weztermAdapter = import ./theme/adapters/wezterm.nix { inherit lib utils adapterBase; };
@@ -42,8 +40,6 @@ let
     inherit tokyonight;
     inherit monokai;
     inherit retroism;
-    inherit flexoki;
-    apple-system-colors = appleSystemColors;
   };
 
   getTheme =
@@ -110,7 +106,7 @@ let
     let
       appThemeFunctions = {
         wezterm = themeNames.getWeztermTheme;
-        neovim = _cs: _v: "pixel"; # Always use pixel.nvim which adapts to terminal colors
+        neovim = _cs: _v: (themeNames.getNeovimConfig _cs _v).colorscheme;
         atuin = themeNames.getAtuinTheme;
       };
     in

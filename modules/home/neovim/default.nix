@@ -1,6 +1,12 @@
 {
+  lib,
+  values,
   ...
 }:
+
+let
+  themes = import ../../shared/lib/theme.nix { inherit lib; };
+in
 
 {
   programs.neovim = {
@@ -23,6 +29,7 @@
       "nvim/lua/sysinit/plugins/".source = ./lua/sysinit/plugins;
       "nvim/lua/sysinit/utils".source = ./lua/sysinit/utils;
       "nvim/queries".source = ./queries;
+      "nvim/theme_config.json".text = themes.toJsonFile (themes.generateAppJSON "neovim" values.theme);
     };
   };
 }
