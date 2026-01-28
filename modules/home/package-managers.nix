@@ -57,7 +57,10 @@ let
   '';
 
   # === Node (npm + yarn) ===
-  npmPackages = values.npm.additionalPackages or [ ];
+  npmPackages = [
+    "@beads/bd"
+  ]
+  ++ (values.npm.additionalPackages or [ ]);
 
   yarnPackages = [
     "@anthropic-ai/claude-code"

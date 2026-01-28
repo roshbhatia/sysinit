@@ -95,9 +95,6 @@ in
     };
   };
 
-  # beads (bd) issue tracker CLI
-  bd = inputs.bd.packages.${system}.default;
-
   kubernetes-zeitgeist = final.buildGoModule rec {
     pname = "kubernetes-zeitgeist";
     version = "0.5.3";

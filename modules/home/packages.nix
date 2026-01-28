@@ -200,7 +200,6 @@ let
     asciinema
     asciinema-agg
     ast-grep
-    bd
     bv
     chafa
     crush
