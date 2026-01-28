@@ -3,6 +3,7 @@ vim.lsp.config("*", {
 })
 
 local servers = {
+  "ast_grep",
   "awk_ls",
   "bashls",
   "contextive",

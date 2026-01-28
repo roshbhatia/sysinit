@@ -69,6 +69,7 @@ let
   # Miscellaneous
   miscPatterns = [
     "**/*.glossary.yml"
+    "**/sgconfig.yaml"
     "**/sgconfig.yml"
     "*.log"
   ];
