@@ -5,11 +5,12 @@ local overrides = require("sysinit.plugins.ui.themes.overrides")
 local theme_config = json_loader.load_json_file(json_loader.get_config_path("theme_config.json"), "theme_config")
 
 local function setup_theme()
-  local active_scheme = theme_config.colorscheme
+  local active_scheme = theme_config and theme_config.colorscheme or "nord"
   local plugin_config = theme_metadata[active_scheme]
 
   if not plugin_config then
-    error("No theme config found for: " .. active_scheme)
+    active_scheme = "nord"
+    plugin_config = theme_metadata[active_scheme]
   end
 
   -- Map theme names to config files
@@ -54,11 +55,12 @@ local function setup_theme()
 end
 
 local function build_plugins()
-  local scheme = theme_config.colorscheme
+  local scheme = theme_config and theme_config.colorscheme or "nord"
   local metadata = theme_metadata[scheme]
 
   if not metadata then
-    error("Unknown theme: " .. scheme)
+    scheme = "nord"
+    metadata = theme_metadata[scheme]
   end
 
   return {
