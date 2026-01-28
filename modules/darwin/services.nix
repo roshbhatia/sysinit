@@ -20,7 +20,7 @@ in
 
   services.jankyborders = lib.mkIf bordersEnabled {
     enable = true;
-    width = 5.0;
+    width = 6.0;
   };
 
   launchd.user.agents.ollama = {
