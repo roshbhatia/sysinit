@@ -115,16 +115,34 @@ return {
               border = "rounded",
             },
             draw = function(opts)
+              -- Close window if there's no documentation or detail to show
+              local item = opts.item
+              local has_detail = item and item.detail and item.detail ~= ""
+              local has_doc = item and item.documentation
+
+              if type(has_doc) == "table" then
+                has_doc = has_doc.value and has_doc.value ~= ""
+              elseif type(has_doc) == "string" then
+                has_doc = has_doc ~= ""
+              else
+                has_doc = false
+              end
+
+              if not has_detail and not has_doc then
+                opts.window:close()
+                return
+              end
+
               -- documentation can be either a string or a MarkupContent object per LSP spec
               -- only process when it's an object with a value field
               if
-                opts.item
-                and opts.item.documentation
-                and type(opts.item.documentation) == "table"
-                and opts.item.documentation.value
+                item
+                and item.documentation
+                and type(item.documentation) == "table"
+                and item.documentation.value
               then
-                local out = require("pretty_hover.parser").parse(opts.item.documentation.value)
-                opts.item.documentation.value = out:string()
+                local out = require("pretty_hover.parser").parse(item.documentation.value)
+                item.documentation.value = out:string()
               end
             end,
           },

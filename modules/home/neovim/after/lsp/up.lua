@@ -29,4 +29,14 @@ return {
     end
   end,
   single_file_support = false,
+  handlers = {
+    ["textDocument/publishDiagnostics"] = function(err, result, ctx, config)
+      -- Fix: up xpls sometimes sends diagnostics = {} (object) instead of [] (array)
+      -- Neovim decodes empty JSON object as vim.empty_dict() userdata, causing crash
+      if result and type(result.diagnostics) == "userdata" then
+        result.diagnostics = {}
+      end
+      return vim.lsp.handlers["textDocument/publishDiagnostics"](err, result, ctx, config)
+    end,
+  },
 }

@@ -65,7 +65,6 @@ let
     "$schema" = "https://opencode.ai/config.json";
     autoupdate = false;
     share = "disabled";
-
     theme = "system";
 
     mcp = formatMcpForOpencode mcpServers.servers;
@@ -115,7 +114,6 @@ let
       "@zenobius/opencode-background"
       "opencode-beads"
       "opencode-handoff"
-      "opencode-websearch-cited@1.2.0"
     ];
   };
 
