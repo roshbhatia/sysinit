@@ -9,6 +9,9 @@ return {
         default_args = {
           DiffviewOpen = { "--imply-local" },
         },
+        win_config = {
+          position = "bottom",
+        },
         view = {
           merge_tool = {
             layout = "diff3_mixed",
