@@ -39,6 +39,7 @@ let
   aiAssistantPatterns = [
     "**/.goose/"
     ".beads/"
+    ".bv/"
     ".claude/"
     ".goose/"
     ".goosehints"
