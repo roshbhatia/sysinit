@@ -6,28 +6,6 @@
 
 final: _prev:
 let
-  contextiveVersion = "1.17.8";
-  # Hashes are for the raw zip file (used with fetchurl, not fetchzip)
-  contextiveSources = {
-    "x86_64-linux" = {
-      platform = "linux-x64";
-      sha256 = "sha256-bnmEFxtcCi/D/lNyjm8OHGoRj6HFWKkD7CWD0GG//4s=";
-    };
-    "aarch64-linux" = {
-      platform = "linux-arm64";
-      sha256 = "sha256-NqAaBKVql9QFgcUnzUdFxJb9/jASZn9voc4tJ1fWt4w=";
-    };
-    "x86_64-darwin" = {
-      platform = "osx-x64";
-      sha256 = "sha256-ZDqPWkE849oMK0r6XY4miBNo0xJ0Vfb57GqNkSTNBX8=";
-    };
-    "aarch64-darwin" = {
-      platform = "osx-arm64";
-      sha256 = "sha256-AGqk0NeysNV7ZmuTxWZZYNISZkCgt/Qei8NkcLTUSGA=";
-    };
-  };
-  contextiveSource = contextiveSources.${system};
-
   crossplane-1-17-1 =
     import
       (fetchTarball {
@@ -116,6 +94,9 @@ in
       mainProgram = "bv";
     };
   };
+
+  # beads (bd) issue tracker CLI
+  bd = inputs.bd.packages.${system}.default;
 
   kubernetes-zeitgeist = final.buildGoModule rec {
     pname = "kubernetes-zeitgeist";

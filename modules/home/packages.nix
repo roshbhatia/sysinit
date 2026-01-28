@@ -200,7 +200,7 @@ let
     asciinema
     asciinema-agg
     ast-grep
-    beads
+    bd
     bv
     chafa
     crush
