@@ -45,4 +45,14 @@ return {
     setup = "tokyonight",
     colorscheme = "tokyonight",
   },
+  flexoki = {
+    plugin = "RRethy/base16-nvim",
+    setup = "base16-colorscheme",
+    colorscheme = "flexoki-light",
+  },
+  ["apple-system-colors"] = {
+    plugin = "RRethy/base16-nvim",
+    setup = "base16-colorscheme",
+    colorscheme = "apple-system-colors-light",
+  },
 }

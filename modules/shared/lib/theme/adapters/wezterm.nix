@@ -1,5 +1,6 @@
 {
   lib,
+  utils,
   ...
 }:
 
@@ -24,10 +25,14 @@ in
     themeData: config:
     let
       themeName = themeNames.getWeztermTheme themeData.meta.id config.variant;
+      palette = themeData.palettes.${config.variant};
+      semanticColors = utils.createSemanticMapping palette;
+      ansi = utils.generateAnsiMappings semanticColors;
     in
     {
       inherit themeName;
       transparency = config.transparency or (throw "Missing transparency configuration");
       font = config.font or { };
+      inherit ansi palette semanticColors;
     };
 }

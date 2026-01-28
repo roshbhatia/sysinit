@@ -50,6 +50,12 @@ let
         storm = "Tokyo Night Storm (Gogh)";
         day = "Tokyo Night Day (Gogh)";
       };
+      flexoki = {
+        light = "flexoki-light";
+      };
+      "apple-system-colors" = {
+        light = "apple-system-colors-light";
+      };
     };
     atuin = {
       catppuccin = {
@@ -98,6 +104,12 @@ let
         night = "tokyonight";
         storm = "tokyonight";
         day = "tokyonight";
+      };
+      flexoki = {
+        light = "flexoki";
+      };
+      "apple-system-colors" = {
+        light = "apple-system-colors";
       };
     };
   };

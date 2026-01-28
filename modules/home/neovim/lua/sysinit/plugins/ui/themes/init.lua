@@ -22,6 +22,8 @@ local function setup_theme()
     ["rose-pine"] = "sysinit.plugins.ui.themes.config.neomodern",
     kanagawa = "sysinit.plugins.ui.themes.config.kanso",
     tokyonight = "sysinit.plugins.ui.themes.config.tokyonight",
+    flexoki = "sysinit.plugins.ui.themes.config.flexoki",
+    ["apple-system-colors"] = "sysinit.plugins.ui.themes.config.apple-system-colors",
   }
 
   local config_module = config_modules[active_scheme]
@@ -29,8 +31,11 @@ local function setup_theme()
     local config_func = require(config_module)
     local config = config_func(theme_config)
 
+    -- base16-nvim themes use setup() with color table directly
+    if plugin_config.setup == "base16-colorscheme" then
+      require(plugin_config.setup).setup(config)
     -- Themes that use vim.g variables don't need setup() call
-    if plugin_config.setup == "everforest" or plugin_config.setup == "gruvbox-material" then
+    elseif plugin_config.setup == "everforest" or plugin_config.setup == "gruvbox-material" then
       -- Config already applied via vim.g variables in the config function
     else
       require(plugin_config.setup).setup(config)
