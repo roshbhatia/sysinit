@@ -202,7 +202,7 @@ return {
         {
           "<leader>fd",
           function()
-            Snacks.picker.diagnostics_buffer({ layout = "right" })
+            Snacks.picker.diagnostics_buffer()
           end,
           desc = "Buffer diagnostics",
         },
@@ -306,7 +306,7 @@ return {
         {
           "<leader>cfs",
           function()
-            Snacks.picker.lsp_symbols({ layout = "right" })
+            Snacks.picker.lsp_symbols({ layout = "bottom" })
           end,
           desc = "Document symbols",
         },
