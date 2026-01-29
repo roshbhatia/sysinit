@@ -16,8 +16,8 @@ let
     in
     if m == null then
       ''
-        echo "Unknown package manager: ${manager}"
-        exit 1
+        echo "Warning: Unknown package manager: ${manager}, skipping package installation"
+        exit 0
       ''
     else
       ''
