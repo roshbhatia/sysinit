@@ -60,15 +60,16 @@ let
 
   # Only fetch wezterm integration on darwin (where it's commonly used)
   # This avoids evaluation issues during nix flake check on NixOS
-  integrationsWezterm = if pkgs.stdenv.isDarwin then
-    builtins.readFile (
-      pkgs.fetchurl {
-        url = "https://raw.githubusercontent.com/wezterm/wezterm/refs/heads/main/assets/shell-integration/wezterm.sh";
-        sha256 = "sha256-1b5rxq9lzqw5gf3islamgqwsilyiw9svhq51249lxgq72drq608r";
-      }
-    )
-  else
-    "";
+  integrationsWezterm =
+    if pkgs.stdenv.isDarwin then
+      builtins.readFile (
+        pkgs.fetchurl {
+          url = "https://raw.githubusercontent.com/wezterm/wezterm/refs/heads/main/assets/shell-integration/wezterm.sh";
+          sha256 = "sha256-GQGDcxMHv04TEaFguHXi0dOoOX5VUR2He4XjTxPuuaw=";
+        }
+      )
+    else
+      "";
 in
 {
   programs.zsh = {
