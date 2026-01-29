@@ -14,7 +14,7 @@ return {
         },
         file_panel = {
           win_config = {
-            position = "top",
+            type = "float",
           },
         },
         hooks = {
@@ -36,6 +36,11 @@ return {
         "<leader>dd",
         "<Cmd>DiffviewOpen<CR>",
         desc = "Diff against index",
+      },
+      {
+        "<leader>df",
+        "<Cmd>DiffviewToggleFiles<CR>",
+        desc = "Toggle file panel",
       },
       {
         "<leader>dm",
