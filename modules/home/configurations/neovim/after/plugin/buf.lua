@@ -45,10 +45,26 @@ vim.api.nvim_create_autocmd("FileType", {
   command = "wincmd L",
 })
 
-vim.api.nvim_create_user_command("Bufdelete", function()
+vim.api.nvim_create_user_command("Bufclean", function()
   Snacks.bufdelete.other({
     force = true,
   })
 end, {
   desc = "Delete all other buffers",
+})
+
+vim.api.nvim_create_user_command("Tabclean", function()
+  local current_tab = vim.api.nvim_get_current_tabpage()
+  local all_tabs = vim.api.nvim_list_tabpages()
+
+  for _, tab in ipairs(all_tabs) do
+    if tab ~= current_tab then
+      vim.api.nvim_set_current_tabpage(tab)
+      vim.cmd("tabclose")
+    end
+  end
+
+  vim.api.nvim_set_current_tabpage(current_tab)
+end, {
+  desc = "Close all other tabs",
 })
