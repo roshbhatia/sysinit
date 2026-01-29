@@ -14,7 +14,6 @@ return {
         },
         hooks = {
           diff_buf_read = function(bufnr)
-            vim.diagnostic.disable(bufnr)
             vim.opt_local.list = false
             vim.opt_local.relativenumber = false
             vim.opt_local.wrap = false
