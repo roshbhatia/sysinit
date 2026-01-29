@@ -1,5 +1,0 @@
-return {
-  {
-    "mattboehm/vim-unstack",
-  },
-}
