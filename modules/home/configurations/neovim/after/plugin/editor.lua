@@ -28,11 +28,12 @@ vim.opt.signcolumn = "yes:3"
 vim.opt.numberwidth = 4
 vim.opt.fillchars:append({ eob = " ", diff = " " })
 vim.opt.diffopt = {
-  "internal",
-  "filler",
+  "algorithm:histogram",
   "closeoff",
   "context:12",
-  "algorithm:histogram",
+  "filler",
+  "inline:none",
+  "internal",
   "linematch:200",
 }
 vim.opt.cursorline = false
