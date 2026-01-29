@@ -25,6 +25,7 @@ return {
           mid = {},
           right = {
             "lsp",
+            "lsp_name",
             "file_size",
             "line_column",
           },
