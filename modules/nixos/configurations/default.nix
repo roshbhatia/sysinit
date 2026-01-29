@@ -2,14 +2,14 @@
 
 {
   imports = [
-    ./audio
-    ./desktop
-    ./hardware
-    ./networking
-    ./packages
-    ./security
-    ./stylix
-    ./system
+    ./audio.nix
+    ./desktop.nix
+    ./hardware.nix
+    ./networking.nix
+    ./packages.nix
+    ./security.nix
+    ./stylix.nix
+    ./system.nix
   ]
-  ++ lib.optionals values.nix.gaming.enable [ ./gaming ];
+  ++ lib.optionals values.nix.gaming.enable [ ./gaming.nix ];
 }
