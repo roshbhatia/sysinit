@@ -35,7 +35,6 @@ function M.generate_diff_highlights(colors)
     DiffAdd = { bg = colors.diff.add_bg, fg = colors.diff.add },
     DiffChange = { bg = colors.diff.change_bg, fg = colors.diff.change },
     DiffDelete = { bg = colors.diff.delete_bg, fg = colors.diff.delete },
-    DiffText = { bg = colors.diff.change_bg, fg = colors.diff.change },
   }
 end
 
