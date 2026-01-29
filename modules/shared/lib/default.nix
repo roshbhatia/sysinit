@@ -8,7 +8,7 @@
 {
 
   modules = import ./modules { inherit lib; };
-  packages = import ./packages.nix { inherit lib pkgs system; };
+  packages = import ./packages.nix { inherit lib pkgs; };
   paths = import ./paths.nix { inherit lib; };
   platform = import ./platform.nix { inherit lib system; };
   lsp = import ./lsp-config.nix;
