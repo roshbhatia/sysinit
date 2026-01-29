@@ -9,9 +9,7 @@ let
   additionalPackages = values.nix.additionalPackages or [ ];
 
   # Custom scripts
-  fzf-preview = pkgs.writeScriptBin "fzf-preview" (
-    builtins.readFile ./configurations/utils/dev/fzf-preview.nu
-  );
+  fzf-preview = pkgs.writeScriptBin "fzf-preview" (builtins.readFile ./utils/dev/fzf-preview.nu);
 
   # Core system utilities
   basePkgs =
