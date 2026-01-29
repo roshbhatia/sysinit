@@ -28,7 +28,7 @@ vim.opt.signcolumn = "yes:3"
 vim.opt.numberwidth = 4
 vim.opt.fillchars:append({ eob = " ", diff = " " })
 vim.opt.diffopt = {
-  "algorithm:histogram",
+  "algorithm:minimal",
   "closeoff",
   "context:12",
   "filler",

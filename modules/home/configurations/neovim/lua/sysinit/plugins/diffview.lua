@@ -12,11 +12,17 @@ return {
         default_args = {
           DiffviewOpen = { "--imply-local" },
         },
+        file_panel = {
+          win_config = {
+            position = "bottom",
+          },
+        },
         hooks = {
           diff_buf_read = function(bufnr)
-            vim.opt_local.wrap = false
-            vim.opt_local.list = false
             vim.diagnostic.disable(bufnr)
+            vim.opt_local.list = false
+            vim.opt_local.signcolumn = "no"
+            vim.opt_local.wrap = false
           end,
         },
         view = {
