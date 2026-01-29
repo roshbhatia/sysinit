@@ -4,13 +4,13 @@
 
 {
   imports = [
-    ./aerospace
-    ./desktop
-    ./packages
-    ./security
-    ./services
-    ./sketchybar
-    ./stylix
-    ./system
+    ./aerospace.nix
+    ./desktop.nix
+    ./packages.nix
+    ./security.nix
+    ./services.nix
+    ./sketchybar.nix
+    ./stylix.nix
+    ./system.nix
   ];
 }
