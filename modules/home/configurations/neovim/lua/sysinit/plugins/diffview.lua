@@ -39,6 +39,11 @@ return {
         desc = "File history",
       },
       {
+        "<leader>dt",
+        "<Cmd>DiffviewToggleFiles<CR>",
+        desc = "Toggle explorer tree",
+      },
+      {
         "<leader>dH",
         "<Cmd>DiffviewFileHistory<CR>",
         desc = "Branch history",
