@@ -3,7 +3,6 @@
   lib,
   values,
   utils,
-  pkgs,
   ...
 }:
 
