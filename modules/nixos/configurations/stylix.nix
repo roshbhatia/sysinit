@@ -1,10 +1,8 @@
-# Theming: Stylix configuration with centralized target management
 { pkgs, values, ... }:
 
 let
   themeConfig = values.theme;
 
-  # Map custom colorschemes to base16-schemes for GTK
   base16Scheme =
     if themeConfig.colorscheme == "black-metal" then
       "black-metal"
@@ -23,7 +21,6 @@ in
   stylix = {
     enable = true;
     autoEnable = true;
-    enableReleaseChecks = false;
 
     polarity = themeConfig.appearance;
     base16Scheme = "${pkgs.base16-schemes}/share/themes/${base16Scheme}.yaml";
@@ -52,8 +49,5 @@ in
       desktop = 1.0;
       popups = themeConfig.transparency.opacity;
     };
-
-    # Only enable GTK theming - disable others (we use custom theming)
-    targets.gtk.enable = true;
   };
 }
