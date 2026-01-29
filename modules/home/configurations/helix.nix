@@ -9,7 +9,7 @@ let
           cfg.command or null;
     in
     (removeAttrs cfg [ "extensions" ]) // (if cmd != null then { command = cmd; } else { })
-  ) (import ../../../shared/lib/lsp-config.nix).lsp;
+  ) (import ../../shared/lib/lsp-config.nix).lsp;
 in
 {
   stylix.targets.helix = {

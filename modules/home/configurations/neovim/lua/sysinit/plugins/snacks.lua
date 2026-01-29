@@ -362,6 +362,13 @@ return {
           end,
           desc = "Project diagnostics",
         },
+        {
+          "<leader>cfb",
+          function()
+            Snacks.picker.diagnostics_buffer({ layout = "right" })
+          end,
+          desc = "Buffer diagnostics",
+        },
       }
       for _, key in ipairs(ai_keys) do
         table.insert(default_keys, key)
