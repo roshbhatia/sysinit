@@ -3,14 +3,7 @@
 
 {
   imports = [
-    ./system.nix
-    ./desktop.nix
-    ./security.nix
-    ./services.nix
-    ./aerospace.nix
-    ./sketchybar.nix
-    ./stylix.nix
-    ./packages.nix
+    ./configurations
     ./home-manager.nix
   ];
 
