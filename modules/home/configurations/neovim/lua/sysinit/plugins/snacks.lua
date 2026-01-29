@@ -355,6 +355,13 @@ return {
             })
           end,
         },
+        {
+          "<leader>cfx",
+          function()
+            Snacks.picker.diagnostics({ layout = "right" })
+          end,
+          desc = "Project diagnostics",
+        },
       }
       for _, key in ipairs(ai_keys) do
         table.insert(default_keys, key)
