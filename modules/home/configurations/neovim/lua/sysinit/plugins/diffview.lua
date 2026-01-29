@@ -4,6 +4,10 @@ return {
     dependencies = {
       "nvim-tree/nvim-web-devicons",
     },
+    cmd = {
+      "DiffviewOpen",
+      "DiffviewFileHistory",
+    },
     config = function()
       require("diffview").setup({
         default_args = {
