@@ -6,12 +6,18 @@ return {
     },
     cmd = {
       "DiffviewOpen",
-      "DiffviewFileHistory",
     },
     config = function()
       require("diffview").setup({
         default_args = {
           DiffviewOpen = { "--imply-local" },
+        },
+        hooks = {
+          diff_buf_read = function(bufnr)
+            vim.opt_local.wrap = false
+            vim.opt_local.list = false
+            vim.diagnostic.disable(bufnr)
+          end,
         },
         view = {
           merge_tool = {

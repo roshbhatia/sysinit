@@ -26,7 +26,7 @@ vim.opt.number = true
 vim.opt.relativenumber = true
 vim.opt.signcolumn = "yes:3"
 vim.opt.numberwidth = 4
-vim.opt.fillchars:append({ eob = " ", diff = " " })
+vim.opt.fillchars:append({ eob = " ", diff = "/" })
 vim.opt.diffopt = {
   "internal",
   "filler",
