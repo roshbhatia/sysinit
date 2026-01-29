@@ -28,21 +28,8 @@ let
 in
 {
   imports = [
-    ./packages.nix
-    ./package-managers.nix
-    ./shell-tools.nix
-    ./files.nix
-    ./editors.nix
-    ./kubernetes.nix
-    ./terminal.nix
-    ./dev-tools.nix
-    ./nushell.nix
-    ./ssh.nix
-    ./omp.nix
-    ./git
-    ./zsh
-    ./neovim
-    ./llm
+    ./configurations
+    ./packages
   ];
 
   xdg = {

@@ -26,6 +26,7 @@
     ./neovim
     ./nushell
     ./omp
+    ./packages
     ./ssh
     ./utils
     ./vivid
