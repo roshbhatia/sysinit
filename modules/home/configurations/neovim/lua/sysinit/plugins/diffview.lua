@@ -17,10 +17,10 @@ return {
             local c = { type = "float" }
             local editor_width = vim.o.columns
             local editor_height = vim.o.lines
-            c.width = math.min(100, editor_width)
-            c.height = math.min(24, editor_height)
-            c.col = math.floor(editor_width * 0.5 - c.width * 0.5)
-            c.row = math.floor(editor_height * 0.5 - c.height * 0.5)
+            c.width = math.floor(editor_width * 0.9)
+            c.height = math.min(16, math.floor(editor_height * 0.3))
+            c.col = math.floor((editor_width - c.width) * 0.5)
+            c.row = editor_height - c.height - 2
             return c
           end,
         },
@@ -41,11 +41,28 @@ return {
     keys = {
       {
         "<leader>dd",
-        "<Cmd>DiffviewOpen<CR>",
-        desc = "Diff against index",
+        function()
+          if vim.g.diffview_is_open then
+            vim.cmd("DiffviewClose")
+            vim.g.diffview_is_open = false
+          else
+            vim.cmd("DiffviewOpen")
+            vim.g.diffview_is_open = true
+          end
+        end,
+        desc = "Toggle diffview",
       },
       {
         "<leader>df",
+        function()
+          vim.cmd("DiffviewOpen --selected-file")
+          vim.cmd("DiffviewToggleFiles")
+          vim.g.diffview_is_open = true
+        end,
+        desc = "File diff",
+      },
+      {
+        "<leader>de",
         "<Cmd>DiffviewToggleFiles<CR>",
         desc = "Toggle file panel",
       },
@@ -73,7 +90,10 @@ return {
       },
       {
         "<leader>dc",
-        "<Cmd>DiffviewClose<CR>",
+        function()
+          vim.cmd("DiffviewClose")
+          vim.g.diffview_is_open = false
+        end,
         desc = "Close diffview",
       },
     },
