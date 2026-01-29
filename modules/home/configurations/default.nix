@@ -4,35 +4,35 @@
 
 {
   imports = [
-    ./_1password
-    ./ast-grep
+    ./_1password.nix
+    ./ast-grep.nix
     ./atuin
-    ./bat
-    ./btop
-    ./carapace
-    ./dircolors
-    ./direnv
-    ./editorconfig
-    ./eza
-    ./fd
-    ./fzf
+    ./bat.nix
+    ./btop.nix
+    ./carapace.nix
+    ./dircolors.nix
+    ./direnv.nix
+    ./editorconfig.nix
+    ./eza.nix
+    ./fd.nix
+    ./fzf.nix
     ./git
-    ./helix
-    ./hushlogin
-    ./k9s
-    ./kubectl
+    ./helix.nix
+    ./hushlogin.nix
+    ./k9s.nix
+    ./kubectl.nix
     ./llm
     ./macchina
     ./neovim
-    ./nushell
-    ./omp
-    ./packages
-    ./ssh
+    ./nushell.nix
+    ./omp.nix
+    ./packages.nix
+    ./ssh.nix
     ./utils
     ./vivid
     ./wezterm
     ./yazi
-    ./zoxide
+    ./zoxide.nix
     ./zsh
   ];
 }
