@@ -14,14 +14,13 @@ return {
         },
         file_panel = {
           win_config = {
-            position = "bottom",
+            position = "top",
           },
         },
         hooks = {
           diff_buf_read = function(bufnr)
             vim.diagnostic.disable(bufnr)
             vim.opt_local.list = false
-            vim.opt_local.signcolumn = "no"
             vim.opt_local.wrap = false
           end,
         },
