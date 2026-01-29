@@ -13,9 +13,16 @@ return {
           DiffviewOpen = { "--imply-local" },
         },
         file_panel = {
-          win_config = {
-            type = "float",
-          },
+          win_config = function()
+            local c = { type = "float" }
+            local editor_width = vim.o.columns
+            local editor_height = vim.o.lines
+            c.width = math.min(100, editor_width)
+            c.height = math.min(24, editor_height)
+            c.col = math.floor(editor_width * 0.5 - c.width * 0.5)
+            c.row = math.floor(editor_height * 0.5 - c.height * 0.5)
+            return c
+          end,
         },
         hooks = {
           diff_buf_read = function(bufnr)
