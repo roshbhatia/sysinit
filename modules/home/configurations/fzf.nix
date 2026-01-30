@@ -14,18 +14,19 @@
     changeDirWidgetCommand = "${pkgs.fd}/bin/fd --type d --hidden --follow --exclude .git --exclude node_modules";
 
     defaultOptions = [
-      "--style=minimal"
-      "--layout=reverse"
-      "--height=80%"
-      "--info=inline"
-      "--scheme=history"
-      "--border=rounded"
-      "--preview-window=right:50%:wrap"
-      "--bind=resize:refresh-preview"
       "--bind=ctrl-/:toggle-preview"
       "--bind=ctrl-d:half-page-down"
       "--bind=ctrl-u:half-page-up"
+      "--bind=resize:refresh-preview"
+      "--border=rounded"
       "--color=bg+:-1,bg:-1"
+      "--color=preview-bg:-1"
+      "--height=80%"
+      "--info=inline"
+      "--layout=reverse"
+      "--preview-window=right:50%:wrap"
+      "--scheme=history"
+      "--style=minimal"
     ];
 
     fileWidgetOptions = [
