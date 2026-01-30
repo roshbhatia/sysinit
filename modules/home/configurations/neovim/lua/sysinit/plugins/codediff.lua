@@ -26,9 +26,17 @@ return {
         desc = "Open repo diff",
       },
       {
+        "<leader>dH",
+        "<Cmd>CodeDiff history<CR>",
+        desc = "Open repo history",
+      },
+      {
         "<leader>dh",
-        "<Cmd>Cod%<CR>",
-        desc = "Open file history diff",
+        function()
+          local filepath = vim.fn.expand("%")
+          vim.cmd("CodeDiff history " .. filepath)
+        end,
+        desc = "Current file history",
       },
     },
   },
