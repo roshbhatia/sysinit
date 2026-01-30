@@ -70,6 +70,24 @@ in
       bg_alt = bg_dark;
       surface_alt = bg_visual;
       teal = cyan;
+
+      # Base16 colors for stylix
+      base00 = bg;
+      base01 = bg_dark;
+      base02 = bg_highlight;
+      base03 = comment;
+      base04 = fg_dark;
+      base05 = fg;
+      base06 = fg_sidebar;
+      base07 = bg_visual;
+      base08 = red;
+      base09 = orange;
+      base0A = yellow;
+      base0B = green;
+      base0C = cyan;
+      base0D = blue;
+      base0E = purple;
+      base0F = magenta;
     };
 
     storm = utils.validatePalette rec {
@@ -114,6 +132,24 @@ in
       bg_alt = bg_dark;
       surface_alt = bg_visual;
       teal = cyan;
+
+      # Base16 colors for stylix
+      base00 = bg;
+      base01 = bg_dark;
+      base02 = bg_highlight;
+      base03 = comment;
+      base04 = fg_dark;
+      base05 = fg;
+      base06 = fg_sidebar;
+      base07 = bg_visual;
+      base08 = red;
+      base09 = orange;
+      base0A = yellow;
+      base0B = green;
+      base0C = cyan;
+      base0D = blue;
+      base0E = purple;
+      base0F = magenta;
     };
 
     day = utils.validatePalette rec {
@@ -158,6 +194,24 @@ in
       bg_alt = bg_dark;
       surface_alt = bg_visual;
       teal = cyan;
+
+      # Base16 colors for stylix
+      base00 = bg;
+      base01 = bg_dark;
+      base02 = bg_highlight;
+      base03 = comment;
+      base04 = fg_dark;
+      base05 = fg;
+      base06 = fg_sidebar;
+      base07 = bg_visual;
+      base08 = red;
+      base09 = orange;
+      base0A = yellow;
+      base0B = green;
+      base0C = cyan;
+      base0D = blue;
+      base0E = purple;
+      base0F = magenta;
     };
   };
 

@@ -63,6 +63,24 @@ in
       teal = foam;
       accent = iris;
       accent_dim = overlay;
+
+      # Base16 colors for stylix
+      base00 = base;
+      base01 = surface;
+      base02 = overlay;
+      base03 = muted;
+      base04 = subtle;
+      base05 = text;
+      base06 = subtext1;
+      base07 = highlight_low;
+      base08 = love;
+      base09 = rose;
+      base0A = gold;
+      base0B = leaf;
+      base0C = foam;
+      base0D = pine;
+      base0E = iris;
+      base0F = rose;
     };
 
     moon = utils.validatePalette rec {
@@ -103,6 +121,24 @@ in
       teal = foam;
       accent = iris;
       accent_dim = overlay;
+
+      # Base16 colors for stylix
+      base00 = base;
+      base01 = surface;
+      base02 = overlay;
+      base03 = muted;
+      base04 = subtle;
+      base05 = text;
+      base06 = subtext1;
+      base07 = highlight_low;
+      base08 = love;
+      base09 = rose;
+      base0A = gold;
+      base0B = leaf;
+      base0C = foam;
+      base0D = pine;
+      base0E = iris;
+      base0F = rose;
     };
   };
 

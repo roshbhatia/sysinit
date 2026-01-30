@@ -1,28 +1,49 @@
-{ pkgs, values, ... }:
+{
+  pkgs,
+  lib,
+  values,
+  ...
+}:
 
 let
+  themes = import ../../shared/lib/theme.nix { inherit lib; };
   themeConfig = values.theme;
 
-  base16Scheme =
-    if themeConfig.colorscheme == "black-metal" then
-      "black-metal"
-    else if themeConfig.colorscheme == "rose-pine" && themeConfig.variant == "dawn" then
-      "rose-pine-dawn"
-    else if themeConfig.colorscheme == "rose-pine" then
-      "rose-pine-moon"
-    else if themeConfig.colorscheme == "gruvbox" then
-      "gruvbox-dark-hard"
-    else if themeConfig.colorscheme == "catppuccin" then
-      "catppuccin-mocha"
-    else
-      "default-dark";
+  # Get the palette for current colorscheme + variant
+  palette = themes.getThemePalette themeConfig.colorscheme themeConfig.variant;
+
+  # Helper to remove # prefix from color values
+  stripHash = color: lib.removePrefix "#" color;
+
+  # Convert palette to base16 format for stylix
+  base16Attrs = {
+    scheme = "${themeConfig.colorscheme}-${themeConfig.variant}";
+    author = "sysinit";
+
+    base00 = stripHash palette.base00;
+    base01 = stripHash palette.base01;
+    base02 = stripHash palette.base02;
+    base03 = stripHash palette.base03;
+    base04 = stripHash palette.base04;
+    base05 = stripHash palette.base05;
+    base06 = stripHash palette.base06;
+    base07 = stripHash palette.base07;
+    base08 = stripHash palette.base08;
+    base09 = stripHash palette.base09;
+    base0A = stripHash palette.base0A;
+    base0B = stripHash palette.base0B;
+    base0C = stripHash palette.base0C;
+    base0D = stripHash palette.base0D;
+    base0E = stripHash palette.base0E;
+    base0F = stripHash palette.base0F;
+  };
 in
 {
   stylix = {
     enable = true;
 
     polarity = themeConfig.appearance;
-    base16Scheme = "${pkgs.base16-schemes}/share/themes/${base16Scheme}.yaml";
+    base16Scheme = base16Attrs;
 
     fonts = {
       monospace.name = themeConfig.font.monospace;

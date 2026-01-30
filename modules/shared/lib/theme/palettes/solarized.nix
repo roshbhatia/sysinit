@@ -59,6 +59,24 @@ in
       teal = cyan;
       accent = blue;
       accent_dim = base02;
+
+      # Base16 colors for stylix (using solarized base16 scheme)
+      base00 = base03;
+      base01 = base02;
+      base02 = base01;
+      base03 = base00;
+      base04 = base0;
+      base05 = base1;
+      base06 = base2;
+      base07 = base3;
+      base08 = red;
+      base09 = orange;
+      base0A = yellow;
+      base0B = green;
+      base0C = cyan;
+      base0D = blue;
+      base0E = violet;
+      base0F = magenta;
     };
 
     light = utils.validatePalette rec {
@@ -95,6 +113,24 @@ in
       teal = cyan;
       accent = blue;
       accent_dim = base2;
+
+      # Base16 colors for stylix (using solarized base16 scheme)
+      base00 = base3;
+      base01 = base2;
+      base02 = base1;
+      base03 = base0;
+      base04 = base00;
+      base05 = base01;
+      base06 = base02;
+      base07 = base03;
+      base08 = red;
+      base09 = orange;
+      base0A = yellow;
+      base0B = green;
+      base0C = cyan;
+      base0D = blue;
+      base0E = violet;
+      base0F = magenta;
     };
   };
 

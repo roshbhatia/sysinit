@@ -67,6 +67,24 @@ in
       purple = nord15;
       accent = nord10;
       accent_dim = nord2;
+
+      # Base16 colors for stylix
+      base00 = nord0;
+      base01 = nord1;
+      base02 = nord2;
+      base03 = nord3;
+      base04 = nord4;
+      base05 = nord6;
+      base06 = nord5;
+      base07 = nord6;
+      base08 = nord11;
+      base09 = nord12;
+      base0A = nord13;
+      base0B = nord14;
+      base0C = nord8;
+      base0D = nord10;
+      base0E = nord15;
+      base0F = nord12;
     };
 
     light = utils.validatePalette rec {
@@ -111,6 +129,24 @@ in
       purple = nord15;
       accent = nord8;
       accent_dim = nord5;
+
+      # Base16 colors for stylix
+      base00 = nord6;
+      base01 = nord5;
+      base02 = nord4;
+      base03 = nord3;
+      base04 = nord2;
+      base05 = nord0;
+      base06 = nord1;
+      base07 = nord0;
+      base08 = nord11;
+      base09 = nord12;
+      base0A = nord13;
+      base0B = nord14;
+      base0C = nord7;
+      base0D = nord8;
+      base0E = nord15;
+      base0F = nord12;
     };
   };
 

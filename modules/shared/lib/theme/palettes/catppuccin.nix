@@ -81,6 +81,24 @@ in
       accent_secondary = teal;
       accent_tertiary = mauve;
       accent_dim = surface1;
+
+      # Base16 colors for stylix
+      base00 = base;
+      base01 = mantle;
+      base02 = surface;
+      base03 = overlay0;
+      base04 = overlay1;
+      base05 = text;
+      base06 = subtext1;
+      base07 = crust;
+      base08 = red;
+      base09 = peach;
+      base0A = yellow;
+      base0B = green;
+      base0C = teal;
+      base0D = blue;
+      base0E = mauve;
+      base0F = rosewater;
     };
 
     macchiato = utils.validatePalette rec {
@@ -139,6 +157,24 @@ in
       accent_secondary = teal;
       accent_tertiary = mauve;
       accent_dim = surface1;
+
+      # Base16 colors for stylix
+      base00 = base;
+      base01 = mantle;
+      base02 = surface;
+      base03 = overlay0;
+      base04 = overlay1;
+      base05 = text;
+      base06 = subtext1;
+      base07 = crust;
+      base08 = red;
+      base09 = peach;
+      base0A = yellow;
+      base0B = green;
+      base0C = teal;
+      base0D = blue;
+      base0E = mauve;
+      base0F = rosewater;
     };
   };
 

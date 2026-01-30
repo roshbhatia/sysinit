@@ -4,8 +4,6 @@
   ...
 }:
 
-with lib;
-
 let
   themeNames = import ./theme-names.nix { inherit lib; };
 in

@@ -60,6 +60,24 @@ in
       fg_alt = fg1;
       accent = blue;
       accent_dim = bg2;
+
+      # Base16 colors for stylix
+      base00 = bg1;
+      base01 = bg0;
+      base02 = bg2;
+      base03 = comment;
+      base04 = fg2;
+      base05 = fg0;
+      base06 = fg1;
+      base07 = bg3;
+      base08 = red;
+      base09 = orange;
+      base0A = yellow;
+      base0B = green;
+      base0C = cyan;
+      base0D = blue;
+      base0E = purple;
+      base0F = pink;
     };
 
     ink = utils.validatePalette rec {
@@ -95,6 +113,24 @@ in
       fg_alt = fg1;
       accent = blue;
       accent_dim = bg2;
+
+      # Base16 colors for stylix
+      base00 = bg1;
+      base01 = bg0;
+      base02 = bg2;
+      base03 = comment;
+      base04 = fg2;
+      base05 = fg0;
+      base06 = fg1;
+      base07 = bg3;
+      base08 = red;
+      base09 = orange;
+      base0A = yellow;
+      base0B = green;
+      base0C = cyan;
+      base0D = blue;
+      base0E = purple;
+      base0F = pink;
     };
 
     mist = utils.validatePalette rec {
@@ -130,6 +166,24 @@ in
       fg_alt = fg1;
       accent = blue;
       accent_dim = bg2;
+
+      # Base16 colors for stylix
+      base00 = bg1;
+      base01 = bg0;
+      base02 = bg2;
+      base03 = comment;
+      base04 = fg2;
+      base05 = fg0;
+      base06 = fg1;
+      base07 = bg3;
+      base08 = red;
+      base09 = orange;
+      base0A = yellow;
+      base0B = green;
+      base0C = cyan;
+      base0D = blue;
+      base0E = purple;
+      base0F = pink;
     };
 
     pearl = utils.validatePalette rec {
@@ -165,6 +219,24 @@ in
       fg_alt = fg1;
       accent = blue;
       accent_dim = bg2;
+
+      # Base16 colors for stylix
+      base00 = bg1;
+      base01 = bg0;
+      base02 = bg2;
+      base03 = comment;
+      base04 = fg2;
+      base05 = fg0;
+      base06 = fg1;
+      base07 = bg3;
+      base08 = red;
+      base09 = orange;
+      base0A = yellow;
+      base0B = green;
+      base0C = cyan;
+      base0D = blue;
+      base0E = purple;
+      base0F = pink;
     };
   };
 

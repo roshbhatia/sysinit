@@ -74,6 +74,24 @@ in
       teal = aqua;
       accent = cyan;
       accent_dim = cyan_dim;
+
+      # Base16 colors for stylix
+      base00 = bg0;
+      base01 = bg0_h;
+      base02 = bg1;
+      base03 = gray;
+      base04 = fg3;
+      base05 = fg0;
+      base06 = fg2;
+      base07 = bg4;
+      base08 = red;
+      base09 = orange;
+      base0A = yellow;
+      base0B = green;
+      base0C = cyan;
+      base0D = blue;
+      base0E = purple;
+      base0F = purple_dim;
     };
 
     # Amber monitor variant (warm CRT aesthetic)
@@ -122,6 +140,24 @@ in
       teal = aqua;
       accent = cyan;
       accent_dim = cyan_dim;
+
+      # Base16 colors for stylix
+      base00 = bg0;
+      base01 = bg0_h;
+      base02 = bg1;
+      base03 = gray;
+      base04 = fg3;
+      base05 = fg0;
+      base06 = fg2;
+      base07 = bg4;
+      base08 = red;
+      base09 = orange;
+      base0A = yellow;
+      base0B = green;
+      base0C = cyan;
+      base0D = blue;
+      base0E = purple;
+      base0F = purple_dim;
     };
 
     # White/green monochrome variant (classic computer monitor)
@@ -169,6 +205,24 @@ in
       teal = aqua;
       accent = cyan;
       accent_dim = cyan_dim;
+
+      # Base16 colors for stylix
+      base00 = bg0;
+      base01 = bg0_h;
+      base02 = bg1;
+      base03 = gray;
+      base04 = fg3;
+      base05 = fg0;
+      base06 = fg2;
+      base07 = bg4;
+      base08 = red;
+      base09 = orange;
+      base0A = yellow;
+      base0B = green;
+      base0C = cyan;
+      base0D = blue;
+      base0E = purple;
+      base0F = purple_dim;
     };
   };
 

@@ -81,6 +81,24 @@ in
       teal = aqua;
       accent = blue;
       accent_dim = bg1;
+
+      # Base16 colors for stylix
+      base00 = bg0;
+      base01 = bg0_h;
+      base02 = bg1;
+      base03 = gray;
+      base04 = fg3;
+      base05 = fg1;
+      base06 = fg2;
+      base07 = fg0;
+      base08 = red;
+      base09 = orange;
+      base0A = yellow;
+      base0B = green;
+      base0C = aqua;
+      base0D = blue;
+      base0E = purple;
+      base0F = orange;
     };
 
     light = utils.validatePalette rec {
@@ -133,6 +151,24 @@ in
       teal = aqua;
       accent = blue;
       accent_dim = bg1;
+
+      # Base16 colors for stylix
+      base00 = bg0;
+      base01 = bg0_h;
+      base02 = bg1;
+      base03 = gray;
+      base04 = fg3;
+      base05 = fg1;
+      base06 = fg2;
+      base07 = fg0;
+      base08 = red;
+      base09 = orange;
+      base0A = yellow;
+      base0B = green;
+      base0C = aqua;
+      base0D = blue;
+      base0E = purple;
+      base0F = orange;
     };
   };
 

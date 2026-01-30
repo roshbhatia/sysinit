@@ -78,6 +78,24 @@ in
       teal = aqua;
       accent = green;
       accent_dim = bg1;
+
+      # Base16 colors for stylix
+      base00 = bg0;
+      base01 = bg_dim;
+      base02 = bg1;
+      base03 = grey1;
+      base04 = grey2;
+      base05 = fg;
+      base06 = grey2;
+      base07 = bg5;
+      base08 = red;
+      base09 = orange;
+      base0A = yellow;
+      base0B = green;
+      base0C = aqua;
+      base0D = blue;
+      base0E = purple;
+      base0F = orange;
     };
 
     dark-medium = utils.validatePalette rec {
@@ -129,6 +147,24 @@ in
       teal = aqua;
       accent = green;
       accent_dim = bg1;
+
+      # Base16 colors for stylix
+      base00 = bg0;
+      base01 = bg_dim;
+      base02 = bg1;
+      base03 = grey1;
+      base04 = grey2;
+      base05 = fg;
+      base06 = grey2;
+      base07 = bg5;
+      base08 = red;
+      base09 = orange;
+      base0A = yellow;
+      base0B = green;
+      base0C = aqua;
+      base0D = blue;
+      base0E = purple;
+      base0F = orange;
     };
 
     dark-soft = utils.validatePalette rec {
@@ -180,6 +216,24 @@ in
       teal = aqua;
       accent = green;
       accent_dim = bg1;
+
+      # Base16 colors for stylix
+      base00 = bg0;
+      base01 = bg_dim;
+      base02 = bg1;
+      base03 = grey1;
+      base04 = grey2;
+      base05 = fg;
+      base06 = grey2;
+      base07 = bg5;
+      base08 = red;
+      base09 = orange;
+      base0A = yellow;
+      base0B = green;
+      base0C = aqua;
+      base0D = blue;
+      base0E = purple;
+      base0F = orange;
     };
 
     light-hard = utils.validatePalette rec {
@@ -231,6 +285,24 @@ in
       teal = aqua;
       accent = green;
       accent_dim = bg1;
+
+      # Base16 colors for stylix
+      base00 = bg0;
+      base01 = bg_dim;
+      base02 = bg1;
+      base03 = grey1;
+      base04 = grey2;
+      base05 = fg;
+      base06 = grey2;
+      base07 = bg5;
+      base08 = red;
+      base09 = orange;
+      base0A = yellow;
+      base0B = green;
+      base0C = aqua;
+      base0D = blue;
+      base0E = purple;
+      base0F = orange;
     };
 
     light-medium = utils.validatePalette rec {
@@ -282,6 +354,24 @@ in
       teal = aqua;
       accent = green;
       accent_dim = bg1;
+
+      # Base16 colors for stylix
+      base00 = bg0;
+      base01 = bg_dim;
+      base02 = bg1;
+      base03 = grey1;
+      base04 = grey2;
+      base05 = fg;
+      base06 = grey2;
+      base07 = bg5;
+      base08 = red;
+      base09 = orange;
+      base0A = yellow;
+      base0B = green;
+      base0C = aqua;
+      base0D = blue;
+      base0E = purple;
+      base0F = orange;
     };
 
     light-soft = utils.validatePalette rec {
@@ -333,6 +423,24 @@ in
       teal = aqua;
       accent = green;
       accent_dim = bg1;
+
+      # Base16 colors for stylix
+      base00 = bg0;
+      base01 = bg_dim;
+      base02 = bg1;
+      base03 = grey1;
+      base04 = grey2;
+      base05 = fg;
+      base06 = grey2;
+      base07 = bg5;
+      base08 = red;
+      base09 = orange;
+      base0A = yellow;
+      base0B = green;
+      base0C = aqua;
+      base0D = blue;
+      base0E = purple;
+      base0F = orange;
     };
   };
 

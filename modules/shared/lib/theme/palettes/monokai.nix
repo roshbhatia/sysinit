@@ -60,6 +60,24 @@ in
       fg_alt = subtext1;
       accent = blue;
       accent_dim = overlay;
+
+      # Base16 colors for stylix
+      base00 = bg;
+      base01 = bg_alt;
+      base02 = surface;
+      base03 = comment;
+      base04 = subtext1;
+      base05 = fg;
+      base06 = text;
+      base07 = overlay;
+      base08 = red;
+      base09 = orange;
+      base0A = yellow;
+      base0B = green;
+      base0C = cyan;
+      base0D = blue;
+      base0E = purple;
+      base0F = brown;
     };
 
     light = utils.validatePalette rec {
@@ -97,6 +115,24 @@ in
       fg_alt = subtext1;
       accent = blue;
       accent_dim = overlay;
+
+      # Base16 colors for stylix
+      base00 = bg;
+      base01 = bg_alt;
+      base02 = surface;
+      base03 = comment;
+      base04 = subtext1;
+      base05 = fg;
+      base06 = text;
+      base07 = overlay;
+      base08 = red;
+      base09 = orange;
+      base0A = yellow;
+      base0B = green;
+      base0C = cyan;
+      base0D = blue;
+      base0E = purple;
+      base0F = brown;
     };
   };
 

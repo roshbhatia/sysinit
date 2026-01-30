@@ -44,6 +44,10 @@ in
 
       # Required theme system mappings
       base = paper;
+      bg = paper;
+      bg_alt = base_50;
+      fg = base_800;
+      fg_alt = base_700;
       surface = base_100;
       surface_alt = base_150;
       overlay = base_200;
@@ -53,6 +57,7 @@ in
       subtext0 = base_600;
       comment = base_500;
       subtle = base_400;
+      teal = cyan_600;
 
       # Required color mappings
       red = red_600;
@@ -74,6 +79,24 @@ in
       highlight_low = base_50;
       highlight_med = base_100;
       highlight_high = base_150;
+
+      # Base16 colors for stylix
+      base00 = paper;
+      base01 = base_50;
+      base02 = base_100;
+      base03 = base_500;
+      base04 = base_600;
+      base05 = base_800;
+      base06 = base_700;
+      base07 = base_150;
+      base08 = red_600;
+      base09 = orange_600;
+      base0A = yellow_600;
+      base0B = green_600;
+      base0C = cyan_600;
+      base0D = blue_600;
+      base0E = purple_600;
+      base0F = magenta_600;
     };
   };
 

@@ -97,6 +97,24 @@ in
       purple = lotusViolet4;
       accent = lotusBlue4;
       accent_dim = lotusWhite1;
+
+      # Base16 colors for stylix
+      base00 = lotusWhite3;
+      base01 = lotusWhite2;
+      base02 = lotusWhite1;
+      base03 = lotusGray2;
+      base04 = lotusGray;
+      base05 = fujiWhite;
+      base06 = oldWhite;
+      base07 = lotusWhite0;
+      base08 = lotusRed;
+      base09 = lotusOrange;
+      base0A = lotusYellow4;
+      base0B = lotusGreen;
+      base0C = lotusCyan;
+      base0D = lotusBlue4;
+      base0E = lotusViolet4;
+      base0F = lotusPink;
     };
 
     wave = utils.validatePalette rec {
@@ -162,6 +180,24 @@ in
       purple = oniViolet;
       accent = crystalBlue;
       accent_dim = sumiInk2;
+
+      # Base16 colors for stylix
+      base00 = sumiInk1;
+      base01 = sumiInk0;
+      base02 = sumiInk2;
+      base03 = fujiGray;
+      base04 = oldWhite;
+      base05 = fujiWhite;
+      base06 = oldWhite;
+      base07 = sumiInk4;
+      base08 = autumnRed;
+      base09 = surimiOrange;
+      base0A = carpYellow;
+      base0B = springGreen;
+      base0C = springBlue;
+      base0D = crystalBlue;
+      base0E = oniViolet;
+      base0F = sakuraPink;
     };
 
     dragon = utils.validatePalette rec {
@@ -212,6 +248,24 @@ in
       purple = dragonViolet;
       accent = dragonBlue;
       accent_dim = dragonBlack2;
+
+      # Base16 colors for stylix
+      base00 = dragonBlack3;
+      base01 = dragonBlack1;
+      base02 = dragonBlack2;
+      base03 = dragonGray3;
+      base04 = dragonGray;
+      base05 = dragonWhite;
+      base06 = dragonGray;
+      base07 = dragonBlack6;
+      base08 = dragonRed;
+      base09 = dragonOrange;
+      base0A = dragonYellow;
+      base0B = dragonGreen;
+      base0C = dragonAqua;
+      base0D = dragonBlue;
+      base0E = dragonViolet;
+      base0F = dragonPink;
     };
   };
 

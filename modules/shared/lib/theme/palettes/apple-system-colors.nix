@@ -43,9 +43,14 @@ in
 
       # Required theme system mappings
       base = systemBackground;
+      bg = systemBackground;
+      bg_alt = secondarySystemBackground;
+      fg = labelColor;
+      fg_alt = secondaryLabelColor;
       surface = secondarySystemBackground;
       surface_alt = separatorColor;
       overlay = separatorColor;
+      teal = systemTeal;
 
       text = labelColor;
       subtext1 = secondaryLabelColor;
@@ -73,6 +78,24 @@ in
       highlight_low = systemBackground;
       highlight_med = secondarySystemBackground;
       highlight_high = separatorColor;
+
+      # Base16 colors for stylix
+      base00 = systemBackground;
+      base01 = secondarySystemBackground;
+      base02 = separatorColor;
+      base03 = systemGray;
+      base04 = tertiaryLabelColor;
+      base05 = labelColor;
+      base06 = secondaryLabelColor;
+      base07 = separatorColor;
+      base08 = systemRed;
+      base09 = systemOrange;
+      base0A = systemYellow;
+      base0B = systemGreen;
+      base0C = systemTeal;
+      base0D = systemBlue;
+      base0E = systemPurple;
+      base0F = systemPink;
     };
   };
 
