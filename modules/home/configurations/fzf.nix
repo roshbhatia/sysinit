@@ -6,7 +6,6 @@
 {
   programs.fzf = {
     enable = true;
-    enableBashIntegration = true;
     enableZshIntegration = true;
 
     fileWidgetCommand = "${pkgs.fd}/bin/fd --type f --hidden --follow --exclude .git --exclude node_modules";
