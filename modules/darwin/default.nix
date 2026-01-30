@@ -4,7 +4,6 @@
 {
   imports = [
     ./configurations
-    ./home-manager.nix
   ];
 
   system.build.applications = pkgs.buildEnv {

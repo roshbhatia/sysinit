@@ -4,6 +4,5 @@
 {
   imports = [
     ./configurations
-    ./home-manager.nix
   ];
 }
