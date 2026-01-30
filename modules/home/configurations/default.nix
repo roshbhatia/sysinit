@@ -10,7 +10,6 @@
     ./bat.nix
     ./btop.nix
     ./carapace.nix
-    ./dircolors.nix
     ./direnv.nix
     ./editorconfig.nix
     ./eza.nix
