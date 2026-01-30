@@ -284,7 +284,6 @@ function M.generate_core_highlights(colors, transparency)
     M.generate_menu_highlights(colors),
     M.generate_diff_highlights(colors),
     M.generate_gitsigns_highlights(colors),
-    M.generate_telescope_highlights(colors),
     M.generate_treesitter_highlights(colors),
     M.generate_diagnostic_highlights(colors),
     M.generate_lsp_highlights(colors)
