@@ -488,7 +488,7 @@
       },
       "original": {
         "type": "tarball",
-        "url": "https://flakehub.com/f/nix-community/home-manager/0"
+        "url": "https://flakehub.com/f/nix-community/home-manager/0.2511.5855"
       }
     },
     "mangowc": {
@@ -903,16 +903,14 @@
       "locked": {
         "lastModified": 1769728672,
         "narHash": "sha256-/sCPdG7t3r0l8A16+siLKmFScoHkG0oPDM1q0CZgnZ0=",
-        "owner": "nix-community",
-        "repo": "stylix",
         "rev": "861c3c92a9f865d5adae1c1917a6c383170eff13",
-        "type": "github"
+        "revCount": 1346,
+        "type": "tarball",
+        "url": "https://api.flakehub.com/f/pinned/nix-community/stylix/0.1.1346%2Brev-861c3c92a9f865d5adae1c1917a6c383170eff13/019c0d72-bfd6-7e99-adb0-2ca02ad8f175/source.tar.gz"
       },
       "original": {
-        "owner": "nix-community",
-        "ref": "master",
-        "repo": "stylix",
-        "type": "github"
+        "type": "tarball",
+        "url": "https://flakehub.com/f/nix-community/stylix/0.1.1346"
       }
     },
     "systems": {
