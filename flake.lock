@@ -209,11 +209,11 @@
       },
       "locked": {
         "dir": "repos/rycee/pkgs/firefox-addons",
-        "lastModified": 1769749901,
-        "narHash": "sha256-fEveQD6FdHTTqGXklJwNP/mhqbOJGrmixdyW4B5PEUU=",
+        "lastModified": 1769794181,
+        "narHash": "sha256-41FK17IzkavHuWsiVEVLHPemHW/YHHW3i/5XA6h1IzU=",
         "owner": "nix-community",
         "repo": "nur-combined",
-        "rev": "a098cecb2ce97b6a5e187ee78c7eaf059fafbeb5",
+        "rev": "8b7c8a374b70517df8f4f114e2555b634811ae33",
         "type": "github"
       },
       "original": {
@@ -479,16 +479,18 @@
         ]
       },
       "locked": {
-        "lastModified": 1769580047,
-        "narHash": "sha256-tNqCP/+2+peAXXQ2V8RwsBkenlfWMERb+Uy6xmevyhM=",
-        "rev": "366d78c2856de6ab3411c15c1cb4fb4c2bf5c826",
-        "revCount": 5855,
-        "type": "tarball",
-        "url": "https://api.flakehub.com/f/pinned/nix-community/home-manager/0.2511.5855%2Brev-366d78c2856de6ab3411c15c1cb4fb4c2bf5c826/019c0331-86a3-7732-bd80-956dfeb5985a/source.tar.gz"
+        "lastModified": 1769776025,
+        "narHash": "sha256-70a1kVC08AMTvPc7iqQsJbbD4Y1fukakMVudz4oY9SM=",
+        "owner": "nix-community",
+        "repo": "home-manager",
+        "rev": "0fba737f8d5571d41467f3d99a878e11b8c0f0f0",
+        "type": "github"
       },
       "original": {
-        "type": "tarball",
-        "url": "https://flakehub.com/f/nix-community/home-manager/0.2511.5855"
+        "owner": "nix-community",
+        "ref": "master",
+        "repo": "home-manager",
+        "type": "github"
       }
     },
     "mangowc": {
@@ -748,16 +750,18 @@
     },
     "nixpkgs_6": {
       "locked": {
-        "lastModified": 1769598131,
-        "narHash": "sha256-e7VO/kGLgRMbWtpBqdWl0uFg8Y2XWFMdz0uUJvlML8o=",
-        "rev": "fa83fd837f3098e3e678e6cf017b2b36102c7211",
-        "revCount": 906709,
-        "type": "tarball",
-        "url": "https://api.flakehub.com/f/pinned/NixOS/nixpkgs/0.2511.906709%2Brev-fa83fd837f3098e3e678e6cf017b2b36102c7211/019c084c-b4eb-7e65-90ad-f4fc053d9dee/source.tar.gz"
+        "lastModified": 1769740369,
+        "narHash": "sha256-xKPyJoMoXfXpDM5DFDZDsi9PHArf2k5BJjvReYXoFpM=",
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "rev": "6308c3b21396534d8aaeac46179c14c439a89b8a",
+        "type": "github"
       },
       "original": {
-        "type": "tarball",
-        "url": "https://flakehub.com/f/NixOS/nixpkgs/0"
+        "owner": "NixOS",
+        "ref": "nixpkgs-unstable",
+        "repo": "nixpkgs",
+        "type": "github"
       }
     },
     "nixpkgs_7": {
@@ -782,11 +786,11 @@
         "nixpkgs": "nixpkgs_7"
       },
       "locked": {
-        "lastModified": 1769754202,
-        "narHash": "sha256-2+xvtXGhfpkcIMJTM+qsZkjslZwHNOgWk8Y6EZ7WrvI=",
+        "lastModified": 1769793828,
+        "narHash": "sha256-U1JvDBCYuAnoDhEPae/qe1mfrfXhUx0L4136FIsXxHE=",
         "owner": "nix-community",
         "repo": "NUR",
-        "rev": "110d3237a49700b05a52dfc82055f903169b712d",
+        "rev": "fb50f712f55b8e6698f719b71cfb7e95ea3be94e",
         "type": "github"
       },
       "original": {
@@ -901,16 +905,18 @@
         "tinted-zed": "tinted-zed"
       },
       "locked": {
-        "lastModified": 1769728672,
-        "narHash": "sha256-/sCPdG7t3r0l8A16+siLKmFScoHkG0oPDM1q0CZgnZ0=",
-        "rev": "861c3c92a9f865d5adae1c1917a6c383170eff13",
-        "revCount": 1346,
-        "type": "tarball",
-        "url": "https://api.flakehub.com/f/pinned/nix-community/stylix/0.1.1346%2Brev-861c3c92a9f865d5adae1c1917a6c383170eff13/019c0d72-bfd6-7e99-adb0-2ca02ad8f175/source.tar.gz"
+        "lastModified": 1769782950,
+        "narHash": "sha256-bMJPPDyG/BV7Qx0r5JuO9oQG/o/VlnEOFnC8zKhJsBQ=",
+        "owner": "danth",
+        "repo": "stylix",
+        "rev": "aad90ca763be126c0ed67c29826bbb9b5ca665d8",
+        "type": "github"
       },
       "original": {
-        "type": "tarball",
-        "url": "https://flakehub.com/f/nix-community/stylix/0.1.1346"
+        "owner": "danth",
+        "ref": "master",
+        "repo": "stylix",
+        "type": "github"
       }
     },
     "systems": {

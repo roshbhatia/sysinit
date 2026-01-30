@@ -2,7 +2,7 @@
   description = "Personal system configuration";
 
   inputs = {
-    nixpkgs.url = "https://flakehub.com/f/NixOS/nixpkgs/0";
+    nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
 
     darwin = {
       url = "https://flakehub.com/f/nix-darwin/nix-darwin/0";
@@ -12,7 +12,7 @@
     determinate.url = "https://flakehub.com/f/DeterminateSystems/determinate/3";
 
     home-manager = {
-      url = "https://flakehub.com/f/nix-community/home-manager/0.2511.5855";
+      url = "github:nix-community/home-manager/master";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
@@ -24,7 +24,7 @@
     nix-homebrew.url = "github:zhaofengli-wip/nix-homebrew";
 
     stylix = {
-      url = "https://flakehub.com/f/nix-community/stylix/0.1.1346";
+      url = "github:danth/stylix/master";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 

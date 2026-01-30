@@ -17,16 +17,6 @@ let
         inherit (final) config;
       };
 
-  stable =
-    import
-      (fetchTarball {
-        url = "https://github.com/NixOS/nixpkgs/archive/nixos-24.05.tar.gz";
-        sha256 = "0zydsqiaz8qi4zd63zsb2gij2p614cgkcaisnk11wjy3nmiq0x1s";
-      })
-      {
-        inherit system;
-        inherit (final) config;
-      };
 in
 {
   firefox-addons = inputs.firefox-addons.packages.${system};
@@ -72,8 +62,6 @@ in
   });
 
   inherit (crossplane-1-17-1) crossplane-cli;
-  inherit (stable) awscli2;
-  inherit (stable) ollama;
 
   neovim-unwrapped = inputs.neovim-nightly-overlay.packages.${system}.default;
 
