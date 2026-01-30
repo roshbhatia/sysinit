@@ -8,15 +8,19 @@
     enable = true;
     enableZshIntegration = true;
 
+    defaultCommand = "${pkgs.fd}/bin/fd --type f --hidden --follow --exclude .git --exclude node_modules";
     fileWidgetCommand = "${pkgs.fd}/bin/fd --type f --hidden --follow --exclude .git --exclude node_modules";
     changeDirWidgetCommand = "${pkgs.fd}/bin/fd --type d --hidden --follow --exclude .git --exclude node_modules";
 
     defaultOptions = [
-      "--height=60%"
+      "--style=minimal"
       "--layout=reverse"
-      "--border=rounded"
+      "--height=80%"
       "--info=inline"
+      "--scheme=history"
+      "--border=rounded"
       "--preview-window=right:50%:wrap"
+      "--bind=resize:refresh-preview"
       "--bind=ctrl-/:toggle-preview"
       "--bind=ctrl-d:half-page-down"
       "--bind=ctrl-u:half-page-up"
