@@ -54,36 +54,6 @@ function M.generate_gitsigns_highlights(colors)
   }
 end
 
-function M.generate_telescope_highlights(colors)
-  return {
-    TelescopeNormal = { link = "Normal" },
-    TelescopeBorder = { link = "FloatBorder" },
-    TelescopeSelection = { fg = colors.semantic.error, bold = true },
-    telescopeselectionCaret = { link = "pmenusel" },
-
-    TelescopePromptNormal = { link = "Normal" },
-    TelescopePromptBorder = { link = "FloatBorder" },
-    TelescopePromptTitle = { link = "FloatTitle" },
-    TelescopePromptPrefix = { fg = colors.accent.primary, bold = true },
-    TelescopePromptCounter = { fg = colors.foreground.secondary },
-
-    TelescopeResultsNormal = { link = "Normal" },
-    TelescopeResultsBorder = { link = "FloatBorder" },
-    TelescopeResultsTitle = { link = "FloatTitle" },
-    TelescopeResultsLineNr = { link = "LineNr" },
-
-    TelescopePreviewNormal = { link = "Normal" },
-    TelescopePreviewBorder = { link = "FloatBorder" },
-    TelescopePreviewTitle = { link = "FloatTitle" },
-    TelescopePreviewLine = { bg = colors.ui.cursor_line },
-    TelescopePreviewMatch = {
-      bg = colors.semantic.warning,
-      fg = colors.background.primary,
-      bold = true,
-    },
-  }
-end
-
 function M.generate_treesitter_highlights(colors)
   return {
     ["@variable"] = { fg = colors.syntax.variable },
@@ -173,7 +143,7 @@ function M.generate_treesitter_highlights(colors)
   }
 end
 
-function M.generate_diagnostic_highlights(colors, transparency)
+function M.generate_diagnostic_highlights(colors)
   local highlights = {
     DiagnosticError = { fg = colors.semantic.error, bold = true },
     DiagnosticWarn = { fg = colors.semantic.warning, bold = true },
@@ -270,8 +240,10 @@ function M.generate_transparency_highlights(transparency)
   }
 
   local highlights = {}
-  for _, group in ipairs(transparent_groups) do
-    highlights[group] = { bg = "none" }
+  if transparency.opacity < 1 then
+    for _, group in ipairs(transparent_groups) do
+      highlights[group] = { bg = "none" }
+    end
   end
 
   return highlights
@@ -314,7 +286,7 @@ function M.generate_core_highlights(colors, transparency)
     M.generate_gitsigns_highlights(colors),
     M.generate_telescope_highlights(colors),
     M.generate_treesitter_highlights(colors),
-    M.generate_diagnostic_highlights(colors, transparency),
+    M.generate_diagnostic_highlights(colors),
     M.generate_lsp_highlights(colors)
   )
 end
