@@ -25,12 +25,16 @@ in
 
   # Fix setproctitle and accelerate test failures on macOS with Python 3.13
   # accelerate tests fail with Trace/BPT trap during pytest on darwin
+  # aiohttp has flaky performance tests (test_regex_performance)
   python313 = _prev.python313.override {
     packageOverrides = _pythonFinal: pythonPrev: {
       setproctitle = pythonPrev.setproctitle.overridePythonAttrs (_old: {
         doCheck = false;
       });
       accelerate = pythonPrev.accelerate.overridePythonAttrs (_old: {
+        doCheck = false;
+      });
+      aiohttp = pythonPrev.aiohttp.overridePythonAttrs (_old: {
         doCheck = false;
       });
     };
