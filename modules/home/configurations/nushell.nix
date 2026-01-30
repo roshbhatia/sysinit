@@ -22,8 +22,6 @@ let
   aliases = removeAttrs sharedAliases nushellBuiltins;
 in
 {
-  stylix.targets.nushell.enable = true;
-
   programs.nushell = {
     enable = true;
     package = pkgs.nushell.override {

@@ -3,7 +3,7 @@ _:
 {
   programs.zoxide = {
     enable = true;
-    enableZshIntegration = false; # Handled manually in zsh config
+    enableZshIntegration = true;
     enableNushellIntegration = true;
     options = [
       "--cmd cd"

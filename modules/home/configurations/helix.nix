@@ -12,11 +12,7 @@ let
   ) (import ../../shared/lib/lsp-config.nix).lsp;
 in
 {
-  stylix.targets.helix = {
-    enable = true;
-    # Disable stylix opacity - terminal background transparency is sufficient
-    opacity.enable = false;
-  };
+  stylix.targets.helix.opacity.enable = false;
 
   programs.helix = {
     enable = true;
