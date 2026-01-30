@@ -24,10 +24,6 @@
       "--bind=ctrl-/:toggle-preview"
       "--bind=ctrl-d:half-page-down"
       "--bind=ctrl-u:half-page-up"
-      "--bind=ctrl-f:page-down"
-      "--bind=ctrl-b:page-up"
-      "--bind=ctrl-a:select-all"
-      "--bind=ctrl-y:execute-silent(echo -n {2..} | pbcopy)+abort"
     ];
 
     fileWidgetOptions = [
