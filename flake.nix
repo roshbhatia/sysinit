@@ -12,7 +12,7 @@
     determinate.url = "https://flakehub.com/f/DeterminateSystems/determinate/3";
 
     home-manager = {
-      url = "https://flakehub.com/f/nix-community/home-manager/0";
+      url = "https://flakehub.com/f/nix-community/home-manager/0.2511.5855";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
@@ -24,7 +24,7 @@
     nix-homebrew.url = "github:zhaofengli-wip/nix-homebrew";
 
     stylix = {
-      url = "github:nix-community/stylix/master";
+      url = "https://flakehub.com/f/nix-community/stylix/0.1.1346";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
