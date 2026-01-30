@@ -43,5 +43,8 @@
     ];
   };
 
-  programs.zsh.initContent = lib.mkAfter "source <(${pkgs.fzf}/bin/fzf --zsh)";
+  programs.zsh.initContent = lib.mkAfter ''
+    source <(${pkgs.fzf}/bin/fzf --zsh)
+    bindkey '^r' fzf-history-widget
+  '';
 }

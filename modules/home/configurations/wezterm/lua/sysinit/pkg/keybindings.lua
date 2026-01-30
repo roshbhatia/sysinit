@@ -181,7 +181,7 @@ end
 
 local function get_window_keys()
   local keys = {}
-  for _, mods in ipairs({ "CTRL", "SUPER" }) do
+  for _, mods in ipairs({ "SUPER" }) do
     table.insert(keys, { key = "n", mods = mods, action = create_smart_action("n", mods, act.SpawnWindow) })
   end
   return keys
