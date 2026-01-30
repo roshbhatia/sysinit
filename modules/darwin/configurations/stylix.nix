@@ -1,4 +1,3 @@
-# Darwin stylix: theming
 { pkgs, values, ... }:
 
 let
