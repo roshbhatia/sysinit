@@ -29,7 +29,7 @@
     ./packages.nix
     ./ssh.nix
     ./utils
-    ./vivid
+    ./vivid.nix
     ./wezterm
     ./yazi
     ./zoxide.nix
