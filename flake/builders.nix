@@ -110,7 +110,6 @@
           {
             _module.args.utils = utils;
             home-manager.sharedModules = [
-              stylix.homeModules.stylix
               onepassword-shell-plugins.hmModules.default
               pkgs.nur.repos.charmbracelet.modules.homeManager.crush
             ];
@@ -149,7 +148,6 @@
             # Disable NixOS manual generation - reduces build time and disk usage
             documentation.enable = false;
             home-manager.sharedModules = [
-              stylix.homeModules.stylix
               inputs.mangowc.hmModules.mango
             ];
           }
