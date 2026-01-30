@@ -5,8 +5,6 @@ _: {
     "bat"
     "git"
     "atuin"
-    "vivid"
-    "helix"
   ];
 
   ansiColorMap = {

@@ -14,9 +14,8 @@ let
   };
   palette = themes.getThemePalette values.theme.colorscheme values.theme.variant;
   colors = themes.getUnifiedColors palette;
-  appTheme = themes.getAppTheme "vivid" values.theme.colorscheme values.theme.variant;
   shellEnv = shellLib.env {
-    inherit colors appTheme;
+    inherit colors;
   };
   allAliases = shellLib.aliases // {
     f = "yazi";

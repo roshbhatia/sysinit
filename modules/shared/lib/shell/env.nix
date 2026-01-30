@@ -1,6 +1,5 @@
 {
   colors,
-  appTheme,
   lib,
 }:
 let
@@ -33,6 +32,4 @@ in
   _ZO_FZF_OPTS = builtins.concatStringsSep " " commonFzfOpts;
 
   FZF_DEFAULT_COMMAND = "fd --type f --hidden --follow --exclude .git --exclude node_modules";
-
-  VIVID_THEME = appTheme;
 }

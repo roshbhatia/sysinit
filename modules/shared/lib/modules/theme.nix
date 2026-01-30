@@ -76,7 +76,6 @@ in
         neovim = themes.getAppTheme "neovim" cfg.colorscheme cfg.variant;
         wezterm = themes.getAppTheme "wezterm" cfg.colorscheme cfg.variant;
         atuin = themes.getAppTheme "atuin" cfg.colorscheme cfg.variant;
-        vivid = themes.getAppTheme "vivid" cfg.colorscheme cfg.variant;
         sketchybar = themes.getAppTheme "sketchybar" cfg.colorscheme cfg.variant;
       };
       description = "App-specific theme names";

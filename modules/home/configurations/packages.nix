@@ -209,7 +209,6 @@ let
     lua54Packages.cjson
     mods
     tlrc
-    vivid
     yq
   ];
 
