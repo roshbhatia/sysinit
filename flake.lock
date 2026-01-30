@@ -481,16 +481,14 @@
       "locked": {
         "lastModified": 1769580047,
         "narHash": "sha256-tNqCP/+2+peAXXQ2V8RwsBkenlfWMERb+Uy6xmevyhM=",
-        "owner": "nix-community",
-        "repo": "home-manager",
         "rev": "366d78c2856de6ab3411c15c1cb4fb4c2bf5c826",
-        "type": "github"
+        "revCount": 5855,
+        "type": "tarball",
+        "url": "https://api.flakehub.com/f/pinned/nix-community/home-manager/0.2511.5855%2Brev-366d78c2856de6ab3411c15c1cb4fb4c2bf5c826/019c0331-86a3-7732-bd80-956dfeb5985a/source.tar.gz"
       },
       "original": {
-        "owner": "nix-community",
-        "ref": "release-25.11",
-        "repo": "home-manager",
-        "type": "github"
+        "type": "tarball",
+        "url": "https://flakehub.com/f/nix-community/home-manager/0"
       }
     },
     "mangowc": {
