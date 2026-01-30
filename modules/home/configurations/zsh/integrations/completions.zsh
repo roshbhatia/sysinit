@@ -3,7 +3,6 @@
 
 __setup_completions() {
   _evalcache task --completion zsh
-  _evalcache zoxide init zsh
   _evalcache uv generate-shell-completion zsh
   _evalcache nix-your-shell zsh
   _evalcache kubectl completion zsh

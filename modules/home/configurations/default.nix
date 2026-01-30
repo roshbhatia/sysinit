@@ -25,7 +25,6 @@
     ./nh.nix
     ./nushell.nix
     ./omp.nix
-    ./packages.nix
     ./ssh.nix
     ./utils
     ./vivid.nix

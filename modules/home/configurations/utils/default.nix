@@ -21,5 +21,10 @@ _:
       source = ./dev/loglib.nu;
       executable = true;
     };
+
+    ".local/bin/fzf-preview" = {
+      source = ./dev/fzf-preview.nu;
+      executable = true;
+    };
   };
 }

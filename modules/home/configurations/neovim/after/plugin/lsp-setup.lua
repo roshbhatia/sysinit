@@ -20,7 +20,6 @@ local servers = {
   "marksman",
   "nil_ls",
   "nixd",
-  "openscad_lsp",
   "pyright",
   "rust_analyzer",
   "statix",
