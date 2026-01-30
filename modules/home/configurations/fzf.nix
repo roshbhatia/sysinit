@@ -43,5 +43,5 @@
     ];
   };
 
-  programs.zsh.initContent = lib.mkAfter "source <(fzf --zsh)";
+  programs.zsh.initContent = lib.mkAfter "source <(${pkgs.fzf}/bin/fzf --zsh)";
 }
