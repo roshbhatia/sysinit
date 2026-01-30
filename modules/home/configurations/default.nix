@@ -23,6 +23,7 @@
     ./llm
     ./macchina
     ./neovim
+    ./nh.nix
     ./nushell.nix
     ./omp.nix
     ./packages.nix

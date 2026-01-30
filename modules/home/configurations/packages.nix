@@ -181,7 +181,6 @@ let
   # Nix ecosystem
   nixPkgs = with pkgs; [
     cachix
-    nh
     nix-output-monitor
     nix-prefetch
     nix-prefetch-docker
