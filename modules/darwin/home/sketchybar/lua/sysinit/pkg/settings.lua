@@ -5,11 +5,11 @@ local monospace_font = config.font.monospace
 return {
   fonts = {
     text = {
-      regular = { family = monospace_font, style = "Regular", size = 13.0 },
-      bold = { family = monospace_font, style = "Bold", size = 13.0 },
+      regular = { family = monospace_font, style = "Regular", size = 11.0 },
+      bold = { family = monospace_font, style = "Bold", size = 11.0 },
     },
     icons = {
-      regular = { family = "Symbols Nerd Font Mono", style = "Regular", size = 14.0 },
+      regular = { family = "Symbols Nerd Font Mono", style = "Regular", size = 12.0 },
     },
     separators = {
       bold = { family = monospace_font, style = "Bold", size = 18.0 },

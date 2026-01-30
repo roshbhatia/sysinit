@@ -27,14 +27,8 @@ in
 
     fonts = {
       monospace.name = themeConfig.font.monospace;
-      sansSerif = {
-        name = "DejaVu Sans";
-        package = pkgs.dejavu_fonts;
-      };
-      serif = {
-        name = "DejaVu Serif";
-        package = pkgs.dejavu_fonts;
-      };
+      sansSerif.name = themeConfig.font.monospace;
+      serif.name = themeConfig.font.monospace;
       sizes = {
         terminal = 11;
         applications = 11;
@@ -46,7 +40,7 @@ in
     opacity = {
       terminal = themeConfig.transparency.opacity;
       applications = themeConfig.transparency.opacity;
-      desktop = 1.0;
+      desktop = themeConfig.transparency.opacity;
       popups = themeConfig.transparency.opacity;
     };
   };

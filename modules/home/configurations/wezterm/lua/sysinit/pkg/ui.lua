@@ -30,7 +30,7 @@ function M.setup(config)
   config.cursor_thickness = 1
   config.dpi = 144
   config.font = font
-  config.font_size = 13.0
+  config.font_size = 11.0
   config.macos_window_background_blur = utils.is_darwin() and config_data.transparency.blur or 0
   config.max_fps = 240
   config.quick_select_alphabet = "fjdkslaghrueiwoncmv"
@@ -40,7 +40,7 @@ function M.setup(config)
   config.window_decorations = utils.is_darwin() and "RESIZE|MACOS_FORCE_ENABLE_SHADOW" or "RESIZE"
   config.window_frame = {
     font = font,
-    font_size = 13.0,
+    font_size = 11.0,
   }
   config.visual_bell = {
     fade_in_function = "EaseIn",
