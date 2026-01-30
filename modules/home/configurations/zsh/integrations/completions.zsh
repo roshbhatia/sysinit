@@ -2,7 +2,6 @@
 # shellcheck disable=all
 
 __setup_completions() {
-  _evalcache atuin init zsh --disable-up-arrow
   _evalcache task --completion zsh
   _evalcache zoxide init zsh
   _evalcache uv generate-shell-completion zsh

@@ -12,9 +12,6 @@ result/
 # Mac
 .DS_Store
 
-# Atuin
-atuin/atuin-receipt.json
-
 # Nix build outputs
 result
 result-*

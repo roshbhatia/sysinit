@@ -31,7 +31,6 @@ let
 
   # Terminal and shell environments
   terminalPkgs = with pkgs; [
-    atuin
     bash
     bashInteractive
     direnv

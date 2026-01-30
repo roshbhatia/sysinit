@@ -109,8 +109,7 @@ let
     let
       appThemeFunctions = {
         wezterm = themeNames.getWeztermTheme;
-        neovim = _cs: _v: (themeNames.getNeovimConfig _cs _v).colorscheme;
-        atuin = themeNames.getAtuinTheme;
+        neovim = _cs: _v: (themeNames.getNeovimMetadata _cs _v).colorscheme;
       };
     in
     if hasAttr app appThemeFunctions then

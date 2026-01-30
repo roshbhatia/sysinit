@@ -4,7 +4,6 @@ _: {
     "wezterm"
     "bat"
     "git"
-    "atuin"
   ];
 
   ansiColorMap = {

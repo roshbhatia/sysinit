@@ -6,7 +6,6 @@
   imports = [
     ./_1password.nix
     ./ast-grep.nix
-    ./atuin
     ./bat.nix
     ./btop.nix
     ./carapace.nix

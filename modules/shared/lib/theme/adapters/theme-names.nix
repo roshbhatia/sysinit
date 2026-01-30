@@ -57,61 +57,6 @@ let
         light = "apple-system-colors-light";
       };
     };
-    atuin = {
-      catppuccin = {
-        latte = "catppuccin-latte";
-        macchiato = "catppuccin-macchiato";
-      };
-      "rose-pine" = {
-        dawn = "rose-pine";
-        moon = "rose-pine";
-      };
-      gruvbox = {
-        dark = "gruvbox";
-        light = "gruvbox";
-      };
-      solarized = {
-        dark = "solarized-dark";
-        light = "solarized-light";
-      };
-      nord = {
-        default = "nord";
-        light = "nord";
-      };
-      everforest = {
-        dark-hard = "everforest";
-        dark-medium = "everforest";
-        dark-soft = "everforest";
-        light-hard = "everforest";
-        light-medium = "everforest";
-        light-soft = "everforest";
-      };
-      kanagawa = {
-        lotus = "kanagawa";
-        wave = "kanagawa";
-        dragon = "kanagawa";
-      };
-      "black-metal" = {
-        gorgoroth = "black-metal";
-      };
-      kanso = {
-        zen = "kanso";
-        ink = "kanso";
-        mist = "kanso";
-        pearl = "kanso";
-      };
-      tokyonight = {
-        night = "tokyonight";
-        storm = "tokyonight";
-        day = "tokyonight";
-      };
-      flexoki = {
-        light = "flexoki";
-      };
-      "apple-system-colors" = {
-        light = "apple-system-colors";
-      };
-    };
   };
   getAppMetadata =
     app: colorscheme: variant: fallback:
@@ -133,9 +78,6 @@ let
       setup = colorscheme;
       colorscheme = "${colorscheme}-${variant}";
     };
-
-  getAtuinTheme =
-    colorscheme: variant: getAppMetadata "atuin" colorscheme variant "${colorscheme}-${variant}";
 in
 
 {
@@ -143,6 +85,5 @@ in
     getAppMetadata
     getWeztermTheme
     getNeovimMetadata
-    getAtuinTheme
     ;
 }
