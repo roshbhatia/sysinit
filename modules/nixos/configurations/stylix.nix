@@ -39,7 +39,6 @@ in
     opacity = {
       terminal = themeConfig.transparency.opacity;
       applications = themeConfig.transparency.opacity;
-      desktop = themeConfig.transparency.opacity;
       popups = themeConfig.transparency.opacity;
     };
   };
