@@ -78,7 +78,6 @@ in
 
     autocd = true;
 
-    # Disable built-in zsh plugins - using custom oh-my-zsh and fzf-based alternatives for better performance
     enableCompletion = false;
     historySubstringSearch.enable = false;
     autosuggestion.enable = false;

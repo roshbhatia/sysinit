@@ -20,7 +20,6 @@ in
 {
   stylix = {
     enable = true;
-    autoEnable = true;
 
     polarity = themeConfig.appearance;
     base16Scheme = "${pkgs.base16-schemes}/share/themes/${base16Scheme}.yaml";
