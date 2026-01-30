@@ -54,23 +54,23 @@ in
 
         [merge]
           conflictstyle = zdiff3
-          tool = diffview
+          tool = nvim
 
         [mergetool]
           keepBackup = false
           prompt = false
 
-        [mergetool "diffview"]
-          cmd = nvim -n -f -c "DiffViewOpen"
+        [mergetool "nvim"]
+          cmd = nvim "MERGED" -c "CodeDiff merge ''$MERGED'"
 
         [diff]
-          tool = diffview
+          tool = nvim
 
         [difftool]
           prompt = false
 
-        [difftool "diffview"]
-          cmd = nvim -n -c "DiffViewOpen" "$LOCAL" "$REMOTE"
+        [difftool "nvim"]
+          cmd = nvim "$LOCAL" "$REMOTE" +"CodeDiff file $LOCAL $REMOTE"
 
         [includeIf "gitdir:~/github/work/"]
           path = ~/.gitconfig.work
