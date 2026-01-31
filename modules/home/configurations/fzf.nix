@@ -34,7 +34,6 @@
       "--jump-labels=fjdkslaghrueiwoncmv"
       "--layout=reverse"
       "--no-hscroll"
-      "--no-scroll"
       "--preview-window=right:50%:wrap"
       "--style=minimal"
     ];
