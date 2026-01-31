@@ -13,7 +13,7 @@
     fileWidgetCommand = "${pkgs.fd}/bin/fd --type f --hidden --follow --exclude .git --exclude node_modules";
     changeDirWidgetCommand = "${pkgs.fd}/bin/fd --type d --hidden --follow --exclude .git --exclude node_modules";
 
-    colors = lib.mkForce {
+    colors = lib.mkMerge {
       bg = "-1";
       "bg+" = "-1";
       gutter = "-1";
@@ -22,8 +22,8 @@
 
     defaultOptions = [
       "--bind=ctrl-d:half-page-down"
-      "--bind=ctrl-i:toggle-preview"
-      "--bind=ctrl-space:jump,jump:accept"
+      "--bind=ctrl-f:jump,jump:accept"
+      "--bind=ctrl-k:toggle-preview"
       "--bind=ctrl-u:half-page-up"
       "--bind=resize:refresh-preview"
       "--bind=shift-tab:up"
