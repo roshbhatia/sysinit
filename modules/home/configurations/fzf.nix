@@ -21,7 +21,7 @@
     };
 
     defaultOptions = [
-      "--bind=ctrl-/:toggle-preview"
+      "--bind=ctrl-i:toggle-preview"
       "--bind=ctrl-d:half-page-down"
       "--bind=ctrl-u:half-page-up"
       "--bind=resize:refresh-preview"
