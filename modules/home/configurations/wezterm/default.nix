@@ -13,6 +13,12 @@ in
   # Disable stylix for wezterm - using custom theme integration from shared/lib/theme.nix
   stylix.targets.wezterm.enable = false;
 
+  programs.wezterm = {
+    enable = true;
+    enableZshIntegration = true;
+    enableBashIntegration = true;
+  };
+
   xdg.configFile = {
     "wezterm/wezterm.lua".source = ./wezterm.lua;
     "wezterm/lua".source = ./lua;

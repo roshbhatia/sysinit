@@ -13,7 +13,7 @@
 
   programs.fzf = {
     enable = true;
-    enableZshIntegration = true;
+    enableZshIntegration = false; # zsh vi mode messes with ZLE
 
     defaultCommand = "${pkgs.fd}/bin/fd --type f --hidden --follow --exclude .git --exclude node_modules";
     fileWidgetCommand = "${pkgs.fd}/bin/fd --type f --hidden --follow --exclude .git --exclude node_modules";
@@ -24,6 +24,8 @@
       "--bind=ctrl-d:half-page-down"
       "--bind=ctrl-u:half-page-up"
       "--bind=resize:refresh-preview"
+      "--bind=tab:down"
+      "--bind=shift-tab:up"
       "--border=rounded"
       "--height=80%"
       "--info=inline"

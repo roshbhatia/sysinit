@@ -147,7 +147,6 @@ let
       vscode-langservers-extracted
       watch
       wget
-      wezterm
       which
       yaml-language-server
       yamllint
