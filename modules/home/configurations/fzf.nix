@@ -21,12 +21,12 @@
     };
 
     defaultOptions = [
-      "--bind=ctrl-i:toggle-preview"
       "--bind=ctrl-d:half-page-down"
+      "--bind=ctrl-i:toggle-preview"
+      "--bind=ctrl-space:jump,jump:accept"
       "--bind=ctrl-u:half-page-up"
       "--bind=resize:refresh-preview"
       "--bind=shift-tab:up"
-      "--bind=space:jump,jump:accept"
       "--bind=tab:down"
       "--border=none"
       "--height=80%"
