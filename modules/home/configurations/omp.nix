@@ -91,7 +91,7 @@ let
 in
 {
   xdg.configFile."oh-my-posh/themes/sysinit.omp.json" = {
-    text = themes.toJsonFile themeConfig;
+    text = builtins.toJSON themeConfig;
     force = true;
   };
 }
