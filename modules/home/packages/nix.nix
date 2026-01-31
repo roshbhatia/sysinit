@@ -107,7 +107,7 @@ let
       nix-tree
       nix-your-shell
       nixd
-      nixfmt-rfc-style
+      nixfmt
       nodejs_22
       oh-my-posh
       openssh

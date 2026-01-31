@@ -1,37 +1,41 @@
 {
+  lib,
   pkgs,
   ...
 }:
 
 {
-  stylix.targets.fzf.colors.override = {
-    bg = "-1";
-    "bg+" = "-1";
-    gutter = "-1";
-    "preview-bg" = "-1";
-  };
-
   programs.fzf = {
     enable = true;
-    enableZshIntegration = false; # zsh vi mode messes with ZLE
+    enableZshIntegration = false; # zsh vi mode messes with ZLE, so we manually source it
 
     defaultCommand = "${pkgs.fd}/bin/fd --type f --hidden --follow --exclude .git --exclude node_modules";
     fileWidgetCommand = "${pkgs.fd}/bin/fd --type f --hidden --follow --exclude .git --exclude node_modules";
     changeDirWidgetCommand = "${pkgs.fd}/bin/fd --type d --hidden --follow --exclude .git --exclude node_modules";
+
+    colors = lib.mkForce {
+      bg = "-1";
+      "bg+" = "-1";
+      gutter = "-1";
+      "preview-bg" = "-1";
+    };
 
     defaultOptions = [
       "--bind=ctrl-/:toggle-preview"
       "--bind=ctrl-d:half-page-down"
       "--bind=ctrl-u:half-page-up"
       "--bind=resize:refresh-preview"
-      "--bind=tab:down"
       "--bind=shift-tab:up"
-      "--border=rounded"
+      "--bind=space:jump,jump:accept"
+      "--bind=tab:down"
+      "--border=none"
       "--height=80%"
       "--info=inline"
+      "--jump-labels=fjdkslaghrueiwoncmv"
       "--layout=reverse"
+      "--no-hscroll"
+      "--no-scroll"
       "--preview-window=right:50%:wrap"
-      "--scheme=history"
       "--style=minimal"
     ];
 
@@ -44,8 +48,10 @@
     ];
 
     historyWidgetOptions = [
+      "--scheme=history"
+      "--smart-case"
       "--sort"
-      "--exact"
+      "--height=30%"
     ];
   };
 }
