@@ -6,13 +6,13 @@ let
   themes = import ./theme { inherit lib; };
   cfg = config.sysinit.theme;
 
-  allVariants = unique (flatten (map (theme: theme.meta.variants) (attrValues themes.themes)));
+  allVariants = unique (flatten (map (meta: meta.variants) (attrValues themes.metadata)));
 
 in
 {
   options.sysinit.theme = {
     colorscheme = mkOption {
-      type = types.enum (attrNames themes.themes);
+      type = types.enum (attrNames themes.metadata);
       default = "rose-pine";
       description = "The color scheme to use system-wide";
     };
@@ -55,20 +55,6 @@ in
       description = "Color overrides";
     };
 
-    palette = mkOption {
-      type = types.attrs;
-      readOnly = true;
-      default = themes.getThemePalette cfg.colorscheme cfg.variant;
-      description = "Color palette for the current theme";
-    };
-
-    semanticColors = mkOption {
-      type = types.attrs;
-      readOnly = true;
-      default = themes.getSemanticColors cfg.colorscheme cfg.variant;
-      description = "Semantic color mappings";
-    };
-
     appThemes = mkOption {
       type = types.attrs;
       readOnly = true;
@@ -80,17 +66,6 @@ in
       description = "App-specific theme names";
     };
 
-    ansiMappings = mkOption {
-      type = types.attrs;
-      readOnly = true;
-      default =
-        if hasAttrByPath [ cfg.colorscheme cfg.variant ] themes.ansiMappings then
-          themes.ansiMappings.${cfg.colorscheme}.${cfg.variant}
-        else
-          throw "ANSI mappings not found for theme '${cfg.colorscheme}' variant '${cfg.variant}'";
-      description = "ANSI color mappings for terminal applications";
-    };
-
     meta = mkOption {
       type = types.attrs;
       readOnly = true;
@@ -100,17 +75,7 @@ in
   };
 
   config = {
-
-    home.file.".config/sysinit/theme_config.json" = {
-      text = builtins.toJSON (
-        themes.generateAppJSON "neovim" {
-          inherit (cfg) colorscheme;
-          inherit (cfg) variant;
-          inherit (cfg) transparency;
-          inherit (cfg) presets;
-          inherit (cfg) overrides;
-        }
-      );
-    };
+    # Theme configuration is now handled through stylix
+    # Colors are accessed via config.lib.stylix.colors
   };
 }

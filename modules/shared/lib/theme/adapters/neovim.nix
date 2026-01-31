@@ -12,7 +12,7 @@ in
   createNeovimConfig =
     themeData: config: overrides:
     let
-      pluginInfo = themeNames.getNeovimMetadata themeData.meta.id config.variant;
+      pluginInfo = themeNames.getNeovimMetadata themeData.id config.variant;
 
       baseConfig = {
         inherit (pluginInfo)
@@ -61,15 +61,9 @@ in
     in
     utils.mergeThemeConfigs baseConfig overrides;
 
-  generateNeovimJSON =
-    themeData: config:
-    let
-      palette = themeData.palettes.${config.variant};
-      semanticColors = utils.createSemanticMapping palette;
-    in
-    {
-      inherit (config) colorscheme variant;
-      transparency = config.transparency or (throw "Missing transparency configuration");
-      inherit semanticColors;
-    };
+  # Legacy function - no longer used since migration to stylix
+  generateNeovimJSON = _themeData: config: {
+    inherit (config) colorscheme variant;
+    transparency = config.transparency or (throw "Missing transparency configuration");
+  };
 }

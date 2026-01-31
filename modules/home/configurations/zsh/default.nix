@@ -6,11 +6,7 @@
   ...
 }:
 let
-  themes = import ../../../shared/lib/theme.nix { inherit lib; };
   shellUtils = import ../../../shared/lib/shell.nix { inherit lib; };
-
-  palette = themes.getThemePalette values.theme.colorscheme values.theme.variant;
-  colors = themes.getUnifiedColors palette;
 
   systemPaths = {
     nix = [
@@ -88,8 +84,9 @@ in
       ZVM_LINE_INIT_MODE = "i";
       ZVM_SYSTEM_CLIPBOARD_ENABLED = true;
       ZVM_INSERT_MODE_CURSOR = "be";
-      ZVM_VI_HIGHLIGHT_BACKGROUND = colors.foreground.primary;
-      ZVM_VI_HIGHLIGHT_FOREGROUND = colors.accent.primary;
+      # VI mode highlight colors from stylix
+      ZVM_VI_HIGHLIGHT_BACKGROUND = "#${config.lib.stylix.colors.base05}";
+      ZVM_VI_HIGHLIGHT_FOREGROUND = "#${config.lib.stylix.colors.base0D}";
     };
 
     plugins = [

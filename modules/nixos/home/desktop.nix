@@ -1,5 +1,6 @@
 # Home desktop configuration: mangowc, waybar, fuzzel, mako, nemo
 {
+  config,
   lib,
   pkgs,
   values,
@@ -7,8 +8,6 @@
 }:
 
 let
-  themes = import ../../shared/lib/theme.nix { inherit lib; };
-  semanticColors = themes.getSemanticColors values.theme.colorscheme values.theme.variant;
   c = color: lib.removePrefix "#" color;
   hexToMango = color: "0x${c color}ff";
   hexToMangoAlpha = color: alpha: "0x${c color}${alpha}";
@@ -59,7 +58,7 @@ in
       shadows_blur = 20
       shadows_position_x = 0
       shadows_position_y = 5
-      shadowscolor = ${hexToMangoAlpha semanticColors.background.primary "80"}
+      shadowscolor = ${hexToMangoAlpha "#${config.lib.stylix.colors.base00}" "80"}
 
       border_radius = 10
       no_radius_when_single = 0
@@ -67,10 +66,10 @@ in
       unfocused_opacity = ${toString opacity}
 
       borderpx = 2
-      focuscolor = ${hexToMango semanticColors.accent.primary}
-      bordercolor = ${hexToMango semanticColors.background.secondary}
-      rootcolor = ${hexToMango semanticColors.background.primary}
-      urgentcolor = ${hexToMango semanticColors.semantic.error}
+      focuscolor = ${hexToMango "#${config.lib.stylix.colors.base0D}"}
+      bordercolor = ${hexToMango "#${config.lib.stylix.colors.base01}"}
+      rootcolor = ${hexToMango "#${config.lib.stylix.colors.base00}"}
+      urgentcolor = ${hexToMango "#${config.lib.stylix.colors.base08}"}
 
       # Animation
       animation_type = zoom

@@ -7,10 +7,6 @@
 }:
 
 let
-  inherit (utils.theme) mkThemedConfig;
-
-  themeCfg = mkThemedConfig values "macchina" { };
-  semanticColors = themeCfg.themes.getSemanticColors values.theme.colorscheme values.theme.variant;
   tomlFormat = pkgs.formats.toml { };
 
   commonTheme = {
@@ -46,21 +42,22 @@ let
     };
   };
 
+  # Use stylix base16 colors directly
   roshTheme = commonTheme // {
-    key_color = semanticColors.foreground.primary;
-    separator_color = semanticColors.accent.secondary;
+    key_color = "#${config.lib.stylix.colors.base05}"; # Foreground
+    separator_color = "#${config.lib.stylix.colors.base0C}"; # Cyan (accent secondary)
     box = {
       title = "rosh";
     };
     custom_ascii = {
-      color = semanticColors.accent.primary;
+      color = "#${config.lib.stylix.colors.base0D}"; # Blue (accent primary)
       path = "${config.home.homeDirectory}/.config/macchina/themes/rosh.ascii";
     };
   };
 
   roshColorTheme = commonTheme // {
-    key_color = semanticColors.foreground.primary;
-    separator_color = semanticColors.accent.secondary;
+    key_color = "#${config.lib.stylix.colors.base05}";
+    separator_color = "#${config.lib.stylix.colors.base0C}";
     box = {
       title = "rosh";
     };
@@ -70,37 +67,37 @@ let
   };
 
   nixTheme = commonTheme // {
-    key_color = semanticColors.foreground.primary;
-    separator_color = semanticColors.accent.secondary;
+    key_color = "#${config.lib.stylix.colors.base05}";
+    separator_color = "#${config.lib.stylix.colors.base0C}";
     box = {
       title = "rosh";
     };
     custom_ascii = {
-      color = semanticColors.accent.primary;
+      color = "#${config.lib.stylix.colors.base0D}";
       path = "${config.home.homeDirectory}/.config/macchina/themes/nix.ascii";
     };
   };
 
   mgsTheme = commonTheme // {
-    key_color = semanticColors.foreground.primary;
-    separator_color = semanticColors.accent.secondary;
+    key_color = "#${config.lib.stylix.colors.base05}";
+    separator_color = "#${config.lib.stylix.colors.base0C}";
     box = {
       title = "rosh";
     };
     custom_ascii = {
-      color = semanticColors.accent.primary;
+      color = "#${config.lib.stylix.colors.base0D}";
       path = "${config.home.homeDirectory}/.config/macchina/themes/mgs.ascii";
     };
   };
 
   varreTheme = commonTheme // {
-    key_color = semanticColors.foreground.primary;
-    separator_color = semanticColors.accent.secondary;
+    key_color = "#${config.lib.stylix.colors.base05}";
+    separator_color = "#${config.lib.stylix.colors.base0C}";
     box = {
       title = "rosh";
     };
     custom_ascii = {
-      color = semanticColors.accent.primary;
+      color = "#${config.lib.stylix.colors.base0D}";
       path = "${config.home.homeDirectory}/.config/macchina/themes/varre.ascii";
     };
   };

@@ -9,15 +9,7 @@ let
   shellLib = import ../shared/lib/shell.nix {
     inherit lib;
   };
-  themes = import ../shared/lib/theme.nix {
-    inherit lib;
-  };
-  palette = themes.getThemePalette values.theme.colorscheme values.theme.variant;
-  colors = themes.getUnifiedColors palette;
-  appTheme = themes.getAppTheme "shell" values.theme.colorscheme values.theme.variant;
-  shellEnv = shellLib.env {
-    inherit colors appTheme;
-  };
+  shellEnv = shellLib.env { };
   allAliases = shellLib.aliases // {
     f = "yazi";
     tree = "eza --tree --icons=never";

@@ -12,7 +12,7 @@ in
   createWeztermConfig =
     themeData: config: _overrides:
     let
-      themeName = themeNames.getWeztermTheme themeData.meta.id config.variant;
+      themeName = themeNames.getWeztermTheme themeData.id config.variant;
       transparency = config.transparency or (throw "Missing transparency configuration");
     in
     {
@@ -21,18 +21,15 @@ in
       window_background_opacity = transparency.opacity or 1.0;
     };
 
+  # Legacy function - no longer used since migration to stylix
   generateWeztermJSON =
     themeData: config:
     let
-      themeName = themeNames.getWeztermTheme themeData.meta.id config.variant;
-      palette = themeData.palettes.${config.variant};
-      semanticColors = utils.createSemanticMapping palette;
-      ansi = utils.generateAnsiMappings semanticColors;
+      themeName = themeNames.getWeztermTheme themeData.id config.variant;
     in
     {
       inherit themeName;
       transparency = config.transparency or (throw "Missing transparency configuration");
       font = config.font or { };
-      inherit ansi palette semanticColors;
     };
 }

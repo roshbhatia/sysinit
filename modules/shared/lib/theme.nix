@@ -7,50 +7,22 @@ let
   constants = import ./theme/core/constants.nix { inherit lib; };
   utils = import ./theme/core/utils.nix { inherit lib; };
   themeNames = import ./theme/adapters/theme-names.nix { inherit lib; };
-
-  catppuccin = import ./theme/palettes/catppuccin.nix { inherit lib; };
-  kanagawa = import ./theme/palettes/kanagawa.nix { inherit lib; };
-  kanso = import ./theme/palettes/kanso.nix { inherit lib; };
-  rosePine = import ./theme/palettes/rose-pine.nix { inherit lib; };
-  gruvbox = import ./theme/palettes/gruvbox.nix { inherit lib; };
-  solarized = import ./theme/palettes/solarized.nix { inherit lib; };
-  nord = import ./theme/palettes/nord.nix { inherit lib; };
-  everforest = import ./theme/palettes/everforest.nix { inherit lib; };
-  blackMetal = import ./theme/palettes/black-metal.nix { inherit lib; };
-  tokyonight = import ./theme/palettes/tokyonight.nix { inherit lib; };
-  monokai = import ./theme/palettes/monokai.nix { inherit lib; };
-  retroism = import ./theme/palettes/retroism.nix { inherit lib; };
-  flexoki = import ./theme/palettes/flexoki.nix { inherit lib; };
-  appleSystemColors = import ./theme/palettes/apple-system-colors.nix { inherit lib; };
+  metadata = import ./theme/metadata.nix { inherit lib; };
 
   adapterBase = import ./theme/core/adapter-base.nix { inherit lib utils; };
   weztermAdapter = import ./theme/adapters/wezterm.nix { inherit lib utils adapterBase; };
   neovimAdapter = import ./theme/adapters/neovim.nix { inherit lib utils adapterBase; };
   firefoxAdapter = import ./theme/adapters/firefox.nix { inherit lib utils adapterBase; };
 
-  themes = {
-    inherit catppuccin;
-    inherit kanagawa;
-    inherit kanso;
-    rose-pine = rosePine;
-    inherit gruvbox;
-    inherit solarized;
-    inherit nord;
-    inherit everforest;
-    black-metal = blackMetal;
-    inherit tokyonight;
-    inherit monokai;
-    inherit retroism;
-    inherit flexoki;
-    apple-system-colors = appleSystemColors;
-  };
+  # Convert metadata to old theme format for compatibility
+  themes = mapAttrs (id: meta: { inherit meta; }) metadata;
 
   getTheme =
     themeId:
-    if hasAttr themeId themes then
-      themes.${themeId}
+    if hasAttr themeId metadata then
+      metadata.${themeId}
     else
-      throw "Theme '${themeId}' not found. Available themes: ${concatStringsSep ", " (attrNames themes)}";
+      throw "Theme '${themeId}' not found. Available themes: ${concatStringsSep ", " (attrNames metadata)}";
 
   deriveVariantFromAppearance =
     colorscheme: appearance: currentVariant:
@@ -59,13 +31,13 @@ let
       effectiveAppearance = appearance;
       mapping =
         if effectiveAppearance != null then
-          theme.meta.appearanceMapping.${effectiveAppearance} or null
+          theme.appearanceMapping.${effectiveAppearance} or null
         else
           null;
       variantMatchesAppearance =
         if effectiveAppearance == null then
           true
-        else if elem currentVariant theme.meta.variants then
+        else if elem currentVariant theme.variants then
           if isList mapping then
             elem currentVariant mapping
           else if mapping != null then
@@ -86,23 +58,21 @@ let
     else
       mapping;
 
-  getThemePalette =
-    colorscheme: variant:
+  # Get base16 scheme path for stylix
+  getBase16SchemePath =
+    pkgs: colorscheme: variant:
     let
-      theme = getTheme colorscheme;
+      mapping = import ./theme/base16-mapping.nix { inherit pkgs; };
     in
-    if hasAttr variant theme.palettes then
-      theme.palettes.${variant}
+    if hasAttr colorscheme mapping then
+      if hasAttr variant mapping.${colorscheme} then
+        mapping.${colorscheme}.${variant}
+      else
+        throw "Variant '${variant}' not found for colorscheme '${colorscheme}'. Available variants: ${
+          concatStringsSep ", " (attrNames mapping.${colorscheme})
+        }"
     else
-      throw "Palette for variant '${variant}' not found in theme '${colorscheme}'";
-
-  getSemanticColors =
-    colorscheme: variant:
-    let
-      theme = getTheme colorscheme;
-      palette = getThemePalette colorscheme variant;
-    in
-    theme.semanticMapping palette;
+      throw "Colorscheme '${colorscheme}' not found in base16 mapping. Available: ${concatStringsSep ", " (attrNames mapping)}";
 
   getAppTheme =
     app: colorscheme: variant:
@@ -117,74 +87,6 @@ let
     else
       "${colorscheme}-${variant}";
 
-  createAppConfig =
-    app: themeConfig: overrides:
-    let
-      validatedConfig = themeConfig;
-      theme = getTheme validatedConfig.colorscheme;
-      palette = getThemePalette validatedConfig.colorscheme validatedConfig.variant;
-      semanticColors = getSemanticColors validatedConfig.colorscheme validatedConfig.variant;
-
-      appConfig =
-        if app == "wezterm" then
-          weztermAdapter.createWeztermConfig theme validatedConfig overrides
-        else if app == "neovim" then
-          neovimAdapter.createNeovimConfig theme validatedConfig overrides
-        else if app == "firefox" then
-          firefoxAdapter.createFirefoxConfig theme validatedConfig overrides
-        else
-          {
-            theme = getAppTheme app validatedConfig.colorscheme validatedConfig.variant;
-            inherit palette semanticColors;
-            config = validatedConfig;
-          };
-
-    in
-    {
-      inherit (theme) meta;
-      inherit palette;
-      inherit semanticColors;
-      config = validatedConfig;
-      colorscheme = "${validatedConfig.colorscheme}-${validatedConfig.variant}";
-      inherit (validatedConfig) variant;
-      transparency =
-        if hasAttr "transparency" validatedConfig then
-          validatedConfig.transparency
-        else
-          throw "Missing transparency configuration in theme config";
-    }
-    // appConfig;
-
-  generateAppJSON =
-    app: themeConfig:
-    let
-      validatedConfig = themeConfig;
-      theme = getTheme validatedConfig.colorscheme;
-      palette = getThemePalette validatedConfig.colorscheme validatedConfig.variant;
-      semanticColors = getSemanticColors validatedConfig.colorscheme validatedConfig.variant;
-      appTheme = getAppTheme app validatedConfig.colorscheme validatedConfig.variant;
-      ansi = utils.generateAnsiMappings semanticColors;
-    in
-    if app == "wezterm" then
-      weztermAdapter.generateWeztermJSON theme validatedConfig
-    else if app == "neovim" then
-      neovimAdapter.generateNeovimJSON theme validatedConfig
-    else if app == "firefox" then
-      firefoxAdapter.generateFirefoxJSON theme validatedConfig
-    else
-      {
-        inherit (validatedConfig) colorscheme;
-        inherit (validatedConfig) variant;
-        font = if hasAttr "font" validatedConfig then validatedConfig.font else null;
-        inherit (validatedConfig) transparency;
-        inherit
-          palette
-          semanticColors
-          appTheme
-          ansi
-          ;
-      };
-
   mkThemedConfig =
     values: app: extraConfig:
     let
@@ -197,12 +99,8 @@ let
       themes = {
         inherit
           getTheme
-          getThemePalette
-          getSemanticColors
-          getUnifiedColors
           getAppTheme
-          createAppConfig
-          generateAppJSON
+          getBase16SchemePath
           ;
       };
 
@@ -281,29 +179,18 @@ let
     else
       { };
 
-  getUnifiedColors = palette: utils.createSemanticMapping palette;
   mergeThemeConfig = utils.mergeThemeConfigs;
 
-  listAvailableThemes = map (theme: {
-    inherit (theme.meta) id;
-    inherit (theme.meta) name;
-    inherit (theme.meta) variants;
-    inherit (theme.meta) supports;
-  }) (attrValues themes);
+  listAvailableThemes = map (meta: {
+    inherit (meta)
+      id
+      name
+      variants
+      supports
+      ;
+  }) (attrValues metadata);
 
-  getThemeInfo =
-    themeId:
-    let
-      theme = getTheme themeId;
-    in
-    theme.meta;
-
-  ansiMappings = mapAttrs (
-    _themeId: theme:
-    mapAttrs (
-      _variant: palette: utils.generateAnsiMappings (theme.semanticMapping palette)
-    ) theme.palettes
-  ) themes;
+  getThemeInfo = getTheme;
 
   # Helper functions for generating application configuration files
   makeThemeJsonConfig =
@@ -324,11 +211,8 @@ in
 {
   inherit
     getTheme
-    getThemePalette
-    getSemanticColors
     getAppTheme
-    createAppConfig
-    generateAppJSON
+    getBase16SchemePath
     deriveVariantFromAppearance
     ;
 
@@ -338,12 +222,10 @@ in
     types
     ;
 
-  inherit themes listAvailableThemes getThemeInfo;
+  inherit metadata listAvailableThemes getThemeInfo;
 
   inherit
-    getUnifiedColors
     mergeThemeConfig
-    ansiMappings
     makeThemeJsonConfig
     toJsonFile
     ;

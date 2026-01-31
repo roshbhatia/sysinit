@@ -1,5 +1,6 @@
 # Desktop: display manager, Wayland, XDG portals, mangowc
 {
+  config,
   pkgs,
   lib,
   values,
@@ -8,8 +9,6 @@
 }:
 
 let
-  themes = import ../../shared/lib/theme.nix { inherit lib; };
-  semanticColors = themes.getSemanticColors values.theme.colorscheme values.theme.variant;
 
   colorToTuigreetTheme =
     color:
@@ -41,16 +40,17 @@ let
     ${mangoPackage}/bin/mango "''${@}" >> "$LOG_FILE" 2>&1 || exit $?
   '';
 
+  # Use stylix base16 colors directly
   tuigreetTheme =
-    "text=${colorToTuigreetTheme semanticColors.foreground.primary};"
-    + "container=${colorToTuigreetTheme semanticColors.background.primary};"
-    + "border=${colorToTuigreetTheme semanticColors.accent.primary};"
-    + "title=${colorToTuigreetTheme semanticColors.accent.primary};"
-    + "prompt=${colorToTuigreetTheme semanticColors.foreground.secondary};"
-    + "input=${colorToTuigreetTheme semanticColors.accent.primary};"
-    + "action=${colorToTuigreetTheme semanticColors.foreground.muted};"
-    + "button=${colorToTuigreetTheme semanticColors.accent.secondary};"
-    + "greet=${colorToTuigreetTheme semanticColors.foreground.primary}";
+    "text=${colorToTuigreetTheme "#${config.lib.stylix.colors.base05}"};"
+    + "container=${colorToTuigreetTheme "#${config.lib.stylix.colors.base00}"};"
+    + "border=${colorToTuigreetTheme "#${config.lib.stylix.colors.base0D}"};"
+    + "title=${colorToTuigreetTheme "#${config.lib.stylix.colors.base0D}"};"
+    + "prompt=${colorToTuigreetTheme "#${config.lib.stylix.colors.base04}"};"
+    + "input=${colorToTuigreetTheme "#${config.lib.stylix.colors.base0D}"};"
+    + "action=${colorToTuigreetTheme "#${config.lib.stylix.colors.base03}"};"
+    + "button=${colorToTuigreetTheme "#${config.lib.stylix.colors.base0C}"};"
+    + "greet=${colorToTuigreetTheme "#${config.lib.stylix.colors.base05}"}";
 in
 {
   # Disable X server, enable dbus

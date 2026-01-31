@@ -1,4 +1,5 @@
 {
+  config,
   lib,
   utils,
   values,
@@ -6,31 +7,25 @@
 }:
 
 let
-  inherit (utils.theme) getThemePalette;
-
-  palette = getThemePalette values.theme.colorscheme values.theme.variant;
-  semanticColors = utils.theme.utils.createSemanticMapping palette;
-
-  getColor = color: fallback: if color != null then color else fallback;
-
+  # Use stylix base16 colors directly
   themeColors = {
     text = {
-      inherit (semanticColors.foreground) primary;
-      inherit (semanticColors.foreground) secondary;
-      inverted = semanticColors.background.primary;
-      faint = semanticColors.foreground.muted;
-      warning = semanticColors.semantic.error;
-      inherit (semanticColors.semantic) success;
+      primary = "#${config.lib.stylix.colors.base05}"; # Foreground
+      secondary = "#${config.lib.stylix.colors.base04}"; # Lighter foreground
+      inverted = "#${config.lib.stylix.colors.base00}"; # Background
+      faint = "#${config.lib.stylix.colors.base03}"; # Comments/muted
+      warning = "#${config.lib.stylix.colors.base08}"; # Red
+      success = "#${config.lib.stylix.colors.base0B}"; # Green
     };
 
     background = {
-      selected = semanticColors.accent.dim or semanticColors.background.tertiary;
+      selected = "#${config.lib.stylix.colors.base02}"; # Selection background
     };
 
     border = {
-      primary = getColor (palette.surface1 or null) semanticColors.background.secondary;
-      secondary = getColor (palette.surface2 or null) semanticColors.background.tertiary;
-      faint = semanticColors.background.secondary;
+      primary = "#${config.lib.stylix.colors.base02}"; # Surface
+      secondary = "#${config.lib.stylix.colors.base03}"; # Comments
+      faint = "#${config.lib.stylix.colors.base01}"; # Lighter background
     };
 
     inline.icons = {

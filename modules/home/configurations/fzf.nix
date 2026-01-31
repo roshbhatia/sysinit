@@ -29,6 +29,7 @@
       "--bind=shift-tab:up"
       "--bind=tab:down"
       "--border=none"
+      "--gutter="
       "--height=80%"
       "--info=inline"
       "--jump-labels=fjdkslaghrueiwoncmv"

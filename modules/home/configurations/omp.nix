@@ -1,23 +1,17 @@
 {
+  config,
   lib,
   values,
   ...
 }:
 let
-  themes = import ../../shared/lib/theme.nix { inherit lib; };
-
-  validatedTheme = values.theme;
-  palette = themes.getThemePalette validatedTheme.colorscheme validatedTheme.variant;
-  semanticColors = themes.getSemanticColors validatedTheme.colorscheme validatedTheme.variant;
-
+  # Use stylix base16 colors directly
   ompColors = {
-    inherit (semanticColors.accent) primary;
-    muted = semanticColors.accent.dim;
-    inherit (semanticColors.semantic) error;
-    accent =
-      palette.lavender or palette.iris or palette.violet or palette.foam
-        or semanticColors.accent.tertiary;
-    inherit (semanticColors.semantic) info;
+    primary = "#${config.lib.stylix.colors.base0D}"; # Blue (accent primary)
+    muted = "#${config.lib.stylix.colors.base03}"; # Comments (accent dim)
+    error = "#${config.lib.stylix.colors.base08}"; # Red
+    accent = "#${config.lib.stylix.colors.base0E}"; # Purple (accent tertiary)
+    info = "#${config.lib.stylix.colors.base0D}"; # Blue
   };
 
   themeConfig = {
