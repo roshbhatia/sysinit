@@ -1,10 +1,16 @@
 {
-  lib,
   pkgs,
   ...
 }:
 
 {
+  stylix.targets.fzf.colors.override = {
+    bg = "-1";
+    "bg+" = "-1";
+    gutter = "-1";
+    "preview-bg" = "-1";
+  };
+
   programs.fzf = {
     enable = true;
     enableZshIntegration = true;
@@ -12,13 +18,6 @@
     defaultCommand = "${pkgs.fd}/bin/fd --type f --hidden --follow --exclude .git --exclude node_modules";
     fileWidgetCommand = "${pkgs.fd}/bin/fd --type f --hidden --follow --exclude .git --exclude node_modules";
     changeDirWidgetCommand = "${pkgs.fd}/bin/fd --type d --hidden --follow --exclude .git --exclude node_modules";
-
-    colors = lib.mkForce {
-      bg = "-1";
-      "bg+" = "-1";
-      gutter = "-1";
-      "preview-bg" = "-1";
-    };
 
     defaultOptions = [
       "--bind=ctrl-/:toggle-preview"
