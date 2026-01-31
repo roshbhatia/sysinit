@@ -8,10 +8,12 @@
 }:
 
 let
-  themes = import ../../shared/lib/theme.nix { inherit lib; };
-  themeConfig = values.theme // {
-    presets = values.theme.presets or [ ];
-    overrides = values.theme.overrides or { };
+  # Minimal theme config for sketchybar - colors now handled by stylix
+  themeConfig = {
+    colorscheme = values.theme.colorscheme;
+    variant = values.theme.variant;
+    appearance = values.theme.appearance;
+    transparency = values.theme.transparency;
   };
 in
 {
@@ -63,6 +65,6 @@ in
       executable = true;
     };
     "sketchybar/lua".source = ./sketchybar/lua;
-    "sketchybar/config.json".text = builtins.toJSON (themes.generateAppJSON "sketchybar" themeConfig);
+    "sketchybar/config.json".text = builtins.toJSON themeConfig;
   };
 }
