@@ -1,17 +1,23 @@
 {
   pkgs,
-  lib,
   ...
 }:
 
 {
   programs.fzf = {
     enable = true;
-    enableZshIntegration = true; # Broken? We add it to our config directly anyways below.
+    enableZshIntegration = true;
 
     defaultCommand = "${pkgs.fd}/bin/fd --type f --hidden --follow --exclude .git --exclude node_modules";
     fileWidgetCommand = "${pkgs.fd}/bin/fd --type f --hidden --follow --exclude .git --exclude node_modules";
     changeDirWidgetCommand = "${pkgs.fd}/bin/fd --type d --hidden --follow --exclude .git --exclude node_modules";
+
+    colors = {
+      bg = "-1";
+      "bg+" = "-1";
+      gutter = "-1";
+      "preview-bg" = "-1";
+    };
 
     defaultOptions = [
       "--bind=ctrl-/:toggle-preview"
@@ -19,8 +25,6 @@
       "--bind=ctrl-u:half-page-up"
       "--bind=resize:refresh-preview"
       "--border=rounded"
-      "--color=bg+:-1,bg:-1"
-      "--color=preview-bg:-1"
       "--height=80%"
       "--info=inline"
       "--layout=reverse"
@@ -42,9 +46,4 @@
       "--exact"
     ];
   };
-
-  programs.zsh.initContent = lib.mkAfter ''
-    source <(${pkgs.fzf}/bin/fzf --zsh)
-    bindkey '^r' fzf-history-widget
-  '';
 }
