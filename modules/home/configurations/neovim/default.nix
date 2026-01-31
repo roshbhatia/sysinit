@@ -5,7 +5,13 @@
 }:
 
 let
-  themes = import ../../../shared/lib/theme.nix { inherit lib; };
+  # Minimal theme config for neovim - colors now handled by stylix
+  themeConfig = {
+    colorscheme = values.theme.colorscheme;
+    variant = values.theme.variant;
+    appearance = values.theme.appearance;
+    transparency = values.theme.transparency;
+  };
 in
 
 {
@@ -29,7 +35,7 @@ in
       "nvim/lua/sysinit/plugins/".source = ./lua/sysinit/plugins;
       "nvim/lua/sysinit/utils".source = ./lua/sysinit/utils;
       "nvim/queries".source = ./queries;
-      "nvim/theme_config.json".text = themes.toJsonFile (themes.generateAppJSON "neovim" values.theme);
+      "nvim/theme_config.json".text = builtins.toJSON themeConfig;
     };
   };
 }
