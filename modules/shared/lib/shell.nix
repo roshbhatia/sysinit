@@ -13,16 +13,6 @@
 
   aliases = import ./shell/aliases.nix;
 
-  env =
-    {
-      colors,
-      appTheme,
-    }:
-    import ./shell/env.nix {
-      inherit
-        lib
-        colors
-        appTheme
-        ;
-    };
+  # Environment variables - no longer requires theme colors
+  env = _args: import ./shell/env.nix { };
 }
