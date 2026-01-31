@@ -6,14 +6,6 @@
 }:
 
 let
-  inherit (utils.theme) createAppConfig;
-
-  themeConfig = values.theme // {
-    presets = values.theme.presets or [ ];
-    overrides = values.theme.overrides or { };
-  };
-
-  firefoxTheme = createAppConfig "firefox" themeConfig { };
 
   # macOS Firefox wrapper - /Applications is macOS-specific hardcoded path
   # This is acceptable here because this entire module is macOS-only (in modules/home/configurations)
@@ -34,8 +26,9 @@ let
       '';
 in
 {
-  # Disable stylix for firefox - managing userChrome.css and theme separately
-  stylix.targets.firefox.enable = false;
+  # Firefox theming now handled by stylix
+  # Custom CSS removed - using base16 colors via stylix
+  stylix.targets.firefox.enable = true;
 
   programs.firefox = {
     enable = true;
@@ -47,9 +40,6 @@ in
       id = 0;
       isDefault = true;
       name = "default";
-
-      userChrome = firefoxTheme.userChromeCSS or "";
-      userContent = firefoxTheme.userContentCSS or "";
 
       extensions.packages = with pkgs.firefox-addons; [
         ublock-origin
