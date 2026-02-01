@@ -107,9 +107,7 @@ return {
           },
         },
         filesystem = {
-          follow_current_file = {
-            enabled = true,
-          },
+          follow_current_file = { enabled = true },
           hijack_netrw_behavior = "disabled",
           use_libuv_file_watcher = true,
           find_command = "fd",
@@ -148,8 +146,11 @@ return {
     keys = {
       {
         "<leader>et",
-        "<CMD>Neotree toggle<CR>",
-        desc = "Toggle file tree ",
+        function()
+          vim.cmd("Neotree toggle")
+          vim.cmd("wincmd p")
+        end,
+        desc = "Toggle explorer tree",
       },
     },
   },
