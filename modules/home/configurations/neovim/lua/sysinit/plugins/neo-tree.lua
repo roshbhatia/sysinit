@@ -149,10 +149,19 @@ return {
       {
         "<leader>et",
         function()
-          vim.cmd("Neotree toggle")
-          vim.cmd("wincmd p")
+          -- Check if the current buffer is a real file
+          local current_file = vim.api.nvim_buf_get_name(0)
+          local is_real_file = current_file ~= "" and vim.fn.filereadable(current_file) == 1
+
+          require("neo-tree.command").execute({
+            action = "toggle",
+            -- If it's a real file, reveal it; otherwise, just open the CWD
+            reveal_file = is_real_file and current_file or nil,
+            -- This is the key: it forces the tree root to change to the file's dir
+            reveal_force_cwd = true,
+          })
         end,
-        desc = "Toggle explorer tree",
+        desc = "Toggle explorer tree (Reveal File)",
       },
     },
   },
