@@ -15,7 +15,7 @@ return {
         previous_key = "<S-Tab>",
         accept_key = "<CR>",
         reject_key = "<Esc>",
-        accept_completion_auto_select = false,
+        accept_completion_auto_select = true,
       })
 
       wilder.set_option("use_python_remote_plugin", 0)
