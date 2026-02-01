@@ -7,6 +7,7 @@ local function get_transparency_state()
 end
 
 local function get_base16_colors()
+  -- stylix generates base16-colorscheme module with setup() call and colors embedded
   local ok, colorscheme = pcall(require, "base16-colorscheme")
   if ok and colorscheme.colors then
     return colorscheme.colors
@@ -16,68 +17,85 @@ local function get_base16_colors()
 end
 
 local function apply_transparency()
-  if not get_transparency_state() then
+  local trans_state = get_transparency_state()
+  if not trans_state then
     return
   end
 
-  vim.api.nvim_set_hl(0, "Normal", { bg = "NONE", ctermbg = "NONE" })
-  vim.api.nvim_set_hl(0, "NormalNC", { bg = "NONE", ctermbg = "NONE" })
-  vim.api.nvim_set_hl(0, "NonText", { bg = "NONE", ctermbg = "NONE" })
-  vim.api.nvim_set_hl(0, "SignColumn", { bg = "NONE", ctermbg = "NONE" })
-  vim.api.nvim_set_hl(0, "LineNr", { bg = "NONE", ctermbg = "NONE" })
-  vim.api.nvim_set_hl(0, "LineNrAbove", { bg = "NONE", ctermbg = "NONE" })
-  vim.api.nvim_set_hl(0, "LineNrBelow", { bg = "NONE", ctermbg = "NONE" })
-  vim.api.nvim_set_hl(0, "CursorLineNr", { bg = "NONE", ctermbg = "NONE" })
-  vim.api.nvim_set_hl(0, "FoldColumn", { bg = "NONE", ctermbg = "NONE" })
-  vim.api.nvim_set_hl(0, "EndOfBuffer", { bg = "NONE", ctermbg = "NONE" })
+  -- Debug: log that we're applying transparency
+  local normal_before = vim.api.nvim_get_hl(0, { name = "Normal", link = false })
+  vim.fn.writefile({ "Normal before transparency: " .. vim.inspect(normal_before) }, "/tmp/nvim_transparency.log", "a")
 
-  vim.api.nvim_set_hl(0, "NormalFloat", { bg = "NONE", ctermbg = "NONE" })
-  vim.api.nvim_set_hl(0, "FloatBorder", { bg = "NONE", ctermbg = "NONE" })
-  vim.api.nvim_set_hl(0, "FloatTitle", { bg = "NONE", ctermbg = "NONE" })
+  local transparent_groups = {
+    "Normal",
+    "NormalNC",
+    "NonText",
+    "SignColumn",
+    "LineNr",
+    "LineNrAbove",
+    "LineNrBelow",
+    "CursorLineNr",
+    "FoldColumn",
+    "EndOfBuffer",
+    "NormalFloat",
+    "FloatBorder",
+    "FloatTitle",
+    "Pmenu",
+    "PmenuBorder",
+    "PmenuSbar",
+    "PmenuThumb",
+    "WilderMenu",
+    "WilderBorder",
+    "WilderAccent",
+    "BlinkCmpDoc",
+    "BlinkCmpDocBorder",
+    "BlinkCmpMenu",
+    "BlinkCmpMenuBorder",
+    "BlinkCmpSignatureHelp",
+    "BlinkCmpSignatureHelpBorder",
+    "TelescopeBorder",
+    "TelescopeNormal",
+    "TelescopePromptBorder",
+    "TelescopePromptNormal",
+    "TelescopeResultsBorder",
+    "TelescopeResultsNormal",
+    "TelescopePreviewBorder",
+    "TelescopePreviewNormal",
+    "TelescopeSelection",
+    "WhichKeyBorder",
+    "WhichKeyFloat",
+    "LazyNormal",
+    "StatusLine",
+    "StatusLineNC",
+    "TabLine",
+    "TabLineFill",
+    "WinBar",
+    "WinBarNC",
+    "WinSeparator",
+    "CursorLine",
+    "CursorColumn",
+    "ColorColumn",
+  }
 
-  vim.api.nvim_set_hl(0, "Pmenu", { bg = "NONE", ctermbg = "NONE" })
-  vim.api.nvim_set_hl(0, "PmenuBorder", { bg = "NONE", ctermbg = "NONE" })
-  vim.api.nvim_set_hl(0, "PmenuSbar", { bg = "NONE", ctermbg = "NONE" })
-  vim.api.nvim_set_hl(0, "PmenuThumb", { bg = "NONE", ctermbg = "NONE" })
+  for _, group in ipairs(transparent_groups) do
+    -- Get existing highlight to preserve fg and other attributes
+    local existing = vim.api.nvim_get_hl(0, { name = group, link = false })
+    -- Create new highlight with transparent background
+    -- Set bg to "NONE" string, and preserve all existing attributes except bg
+    local new_hl = {}
+    for key, value in pairs(existing) do
+      if key ~= "bg" and key ~= "ctermbg" then
+        new_hl[key] = value
+      end
+    end
+    -- Explicitly set transparent background
+    new_hl.bg = "NONE"
+    vim.api.nvim_set_hl(0, group, new_hl)
+  end
 
-  vim.api.nvim_set_hl(0, "WilderMenu", { bg = "NONE", ctermbg = "NONE" })
-  vim.api.nvim_set_hl(0, "WilderBorder", { bg = "NONE", ctermbg = "NONE" })
-  vim.api.nvim_set_hl(0, "WilderAccent", { bg = "NONE", ctermbg = "NONE" })
-
-  vim.api.nvim_set_hl(0, "BlinkCmpDoc", { bg = "NONE", ctermbg = "NONE" })
-  vim.api.nvim_set_hl(0, "BlinkCmpDocBorder", { bg = "NONE", ctermbg = "NONE" })
-  vim.api.nvim_set_hl(0, "BlinkCmpMenu", { bg = "NONE", ctermbg = "NONE" })
-  vim.api.nvim_set_hl(0, "BlinkCmpMenuBorder", { bg = "NONE", ctermbg = "NONE" })
-  vim.api.nvim_set_hl(0, "BlinkCmpSignatureHelp", { bg = "NONE", ctermbg = "NONE" })
-  vim.api.nvim_set_hl(0, "BlinkCmpSignatureHelpBorder", { bg = "NONE", ctermbg = "NONE" })
-
-  vim.api.nvim_set_hl(0, "TelescopeBorder", { bg = "NONE", ctermbg = "NONE" })
-  vim.api.nvim_set_hl(0, "TelescopeNormal", { bg = "NONE", ctermbg = "NONE" })
-  vim.api.nvim_set_hl(0, "TelescopePromptBorder", { bg = "NONE", ctermbg = "NONE" })
-  vim.api.nvim_set_hl(0, "TelescopePromptNormal", { bg = "NONE", ctermbg = "NONE" })
-  vim.api.nvim_set_hl(0, "TelescopeResultsBorder", { bg = "NONE", ctermbg = "NONE" })
-  vim.api.nvim_set_hl(0, "TelescopeResultsNormal", { bg = "NONE", ctermbg = "NONE" })
-  vim.api.nvim_set_hl(0, "TelescopePreviewBorder", { bg = "NONE", ctermbg = "NONE" })
-  vim.api.nvim_set_hl(0, "TelescopePreviewNormal", { bg = "NONE", ctermbg = "NONE" })
-  vim.api.nvim_set_hl(0, "TelescopeSelection", { bg = "NONE", ctermbg = "NONE" })
-
-  vim.api.nvim_set_hl(0, "WhichKeyBorder", { bg = "NONE", ctermbg = "NONE" })
-  vim.api.nvim_set_hl(0, "WhichKeyFloat", { bg = "NONE", ctermbg = "NONE" })
-
-  vim.api.nvim_set_hl(0, "LazyNormal", { bg = "NONE", ctermbg = "NONE" })
-
-  vim.api.nvim_set_hl(0, "StatusLine", { bg = "NONE", ctermbg = "NONE" })
-  vim.api.nvim_set_hl(0, "StatusLineNC", { bg = "NONE", ctermbg = "NONE" })
-  vim.api.nvim_set_hl(0, "TabLine", { bg = "NONE", ctermbg = "NONE" })
-  vim.api.nvim_set_hl(0, "TabLineFill", { bg = "NONE", ctermbg = "NONE" })
-
-  vim.api.nvim_set_hl(0, "WinBar", { bg = "NONE", ctermbg = "NONE" })
-  vim.api.nvim_set_hl(0, "WinBarNC", { bg = "NONE", ctermbg = "NONE" })
-  vim.api.nvim_set_hl(0, "WinSeparator", { bg = "NONE", ctermbg = "NONE" })
-
-  vim.api.nvim_set_hl(0, "CursorLine", { bg = "NONE", ctermbg = "NONE" })
-  vim.api.nvim_set_hl(0, "CursorColumn", { bg = "NONE", ctermbg = "NONE" })
-  vim.api.nvim_set_hl(0, "ColorColumn", { bg = "NONE", ctermbg = "NONE" })
+  -- Debug: log after applying transparency
+  local normal_after = vim.api.nvim_get_hl(0, { name = "Normal", link = false })
+  vim.fn.writefile({ "Normal after transparency: " .. vim.inspect(normal_after) }, "/tmp/nvim_transparency.log", "a")
 end
 
 local function apply_highlights()
@@ -85,8 +103,6 @@ local function apply_highlights()
   if not colors then
     return
   end
-
-  apply_transparency()
 
   vim.api.nvim_set_hl(0, "Cursor", { bg = colors.base0D, fg = colors.base00 })
   vim.api.nvim_set_hl(0, "lCursor", { link = "Cursor" })
@@ -248,16 +264,68 @@ local function apply_highlights()
   vim.api.nvim_set_hl(0, "@lsp.typemod.variable.readonly", { fg = colors.base09 })
 end
 
+-- Apply highlights immediately (colors should be available from base16-colorscheme.setup() call)
 apply_highlights()
 
+-- Debug: log which triggers are calling apply_transparency
+local transparency_call_count = 0
+
+-- Defer transparency application to VimEnter to ensure nix variables are set
+vim.api.nvim_create_autocmd("VimEnter", {
+  pattern = "*",
+  callback = function()
+    transparency_call_count = transparency_call_count + 1
+    vim.fn.writefile(
+      { "VimEnter calling apply_transparency (call #" .. transparency_call_count .. ")" },
+      "/tmp/nvim_transparency.log",
+      "a"
+    )
+    apply_transparency()
+  end,
+  once = true,
+  desc = "Apply transparency after VimEnter when nix vars are ready",
+})
+
+-- Reapply after any colorscheme change to override defaults
+-- This is important because base16-colorscheme.setup() triggers ColorScheme event
 vim.api.nvim_create_autocmd("ColorScheme", {
   pattern = "*",
-  callback = apply_highlights,
-  desc = "Reapply custom highlights after colorscheme change",
+  callback = function()
+    transparency_call_count = transparency_call_count + 1
+    vim.fn.writefile(
+      { "ColorScheme calling apply_transparency (call #" .. transparency_call_count .. ")" },
+      "/tmp/nvim_transparency.log",
+      "a"
+    )
+    -- Apply highlights immediately, then transparency
+    apply_highlights()
+    -- Schedule transparency to run after ColorScheme event completes
+    vim.schedule(apply_transparency)
+  end,
+  desc = "Reapply custom highlights and transparency after colorscheme change",
 })
 
 vim.api.nvim_create_user_command("Colorscheme", function()
-  require("snacks").picker.colorschemes({ layout = "right" })
+  local original_transparency_state = get_transparency_state()
+
+  require("snacks").picker.colorschemes({
+    layout = "right",
+    on_show = function()
+      if original_transparency_state then
+        vim.g.transparency_user_override = false
+        local current_colorscheme = vim.g.colors_name
+        if current_colorscheme then
+          vim.cmd.colorscheme(current_colorscheme)
+        end
+      end
+    end,
+    on_close = function()
+      vim.g.transparency_user_override = original_transparency_state
+      if original_transparency_state then
+        apply_transparency()
+      end
+    end,
+  })
 end, {
   desc = "Open colorscheme picker",
 })
@@ -289,7 +357,9 @@ vim.api.nvim_create_user_command("HighlightAudit", function()
   table.sort(highlights)
 
   table.insert(lines, "=== Neovim Highlight Groups Audit ===")
-  table.insert(lines, "Transparency enabled: " .. tostring(get_transparency_state()))
+  table.insert(lines, "vim.g.nix_transparency_enabled = " .. tostring(vim.g.nix_transparency_enabled))
+  table.insert(lines, "vim.g.transparency_user_override = " .. tostring(vim.g.transparency_user_override))
+  table.insert(lines, "Transparency enabled (effective): " .. tostring(get_transparency_state()))
   table.insert(lines, "Generated: " .. os.date("%Y-%m-%d %H:%M:%S"))
   table.insert(lines, "")
 
