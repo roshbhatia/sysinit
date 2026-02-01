@@ -25,14 +25,6 @@
     withPython3 = true;
     withRuby = true;
 
-    # Add base16-nvim as a plugin so it's available for stylix
-    plugins = [
-      {
-        plugin = pkgs.vimPlugins.base16-nvim;
-        optional = false;
-      }
-    ];
-
     # This will be combined with stylix's generated config
     initLua = ''
       -- Nix/home-manager management indicator
@@ -83,6 +75,18 @@
 
       require("lazy").setup({
         spec = {
+          -- Add base16-nvim directly to spec
+          {
+            "RRethy/base16-nvim",
+            lazy = false,
+            priority = 1000,
+            config = function()
+              -- Only set fallback theme if NOT Nix-managed
+              if not vim.g.nix_hm_managed then
+                vim.cmd.colorscheme("base16-macchiato")
+              end
+            end,
+          },
           {
             import = "sysinit.plugins",
           },
@@ -108,12 +112,6 @@
           border = "rounded",
         },
       })
-
-      -- Fallback theme when not Nix-managed
-      require("sysinit.core.theme-fallback").setup()
-
-      -- Apply transparency settings
-      require("sysinit.core.transparency").apply()
     '';
   };
 
