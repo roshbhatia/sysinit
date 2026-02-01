@@ -236,7 +236,7 @@ local THEMES = {
 local theme_cfg = vim.g.nix_managed
     and json_loader.load_json_file(json_loader.get_config_path("theme_config.json"), "theme_config")
   or {
-    colorscheme = "minicyan",
+    colorscheme = "miniautumn",
   }
 
 local meta = THEMES[theme_cfg.colorscheme]
@@ -267,13 +267,10 @@ return {
         meta.setup(theme_cfg)
       end
 
-      if not vim.g.nix_managed then
-        vim.o.background = "light"
-      end
-
       vim.cmd.colorscheme(meta.colorscheme)
 
       apply_highlights()
+
       vim.api.nvim_create_autocmd("ColorScheme", {
         pattern = meta.colorscheme,
         callback = apply_highlights,
