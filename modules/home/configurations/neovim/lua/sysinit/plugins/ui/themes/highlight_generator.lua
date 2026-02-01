@@ -2,26 +2,7 @@ local M = {}
 
 function M.generate_cursor_highlights()
   return {
-    Cursor = { link = "TermCursor" },
-    lCursor = { link = "Cursor" },
-    CursorIM = { link = "Cursor" },
-    TermCursor = { link = "Cursor" },
-    -- Keep NC as a dimmed version of standard Cursor
-    TermCursorNC = { link = "Cursor" },
-    CursorLine = { link = "CursorLine" },
-    CursorColumn = { link = "CursorColumn" },
-    CursorLineNr = { link = "CursorLineNr" },
-    CursorLineFold = { link = "FoldColumn" },
-    CursorLineSign = { link = "SignColumn" },
-    LineNr = { link = "LineNr" },
-    LineNrAbove = { link = "LineNr" },
-    LineNrBelow = { link = "LineNr" },
-    Visual = { link = "Visual" },
-    VisualNOS = { link = "Visual" },
-    Search = { link = "Search" },
-    IncSearch = { link = "IncSearch" },
-    CurSearch = { link = "CurSearch" },
-    MatchParen = { link = "MatchParen" },
+    -- Don't override these - let the colorscheme define them
   }
 end
 
@@ -29,17 +10,13 @@ function M.generate_menu_highlights()
   return {
     PmenuSel = { link = "Visual" },
     Pmenu = { link = "NormalFloat" },
-    PmenuSbar = { link = "PmenuSbar" },
-    PmenuThumb = { link = "PmenuThumb" },
+    -- Don't override PmenuSbar and PmenuThumb - let the colorscheme define them
   }
 end
 
 function M.generate_diff_highlights()
   return {
-    DiffAdd = { link = "DiffAdd" },
-    DiffChange = { link = "DiffChange" },
-    DiffDelete = { link = "DiffDelete" },
-    DiffText = { link = "DiffText" },
+    -- Don't override these - let the colorscheme define them
   }
 end
 
