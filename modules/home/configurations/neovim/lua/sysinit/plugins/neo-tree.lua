@@ -148,38 +148,8 @@ return {
     keys = {
       {
         "<leader>et",
-        function()
-          local target_dir = ""
-
-          -- Check if nvim was opened with arguments
-          local argv = vim.fn.argv()
-          if #argv > 0 then
-            local first_arg = vim.fn.fnamemodify(argv[1], ":p")
-
-            -- If it's a directory, use it
-            if vim.fn.isdirectory(first_arg) == 1 then
-              target_dir = first_arg
-            else
-              -- If it's a file, use its parent directory
-              target_dir = vim.fn.fnamemodify(first_arg, ":p:h")
-            end
-          else
-            -- No arguments - check if there's a file in the current buffer
-            local current_file = vim.fn.expand("%:p")
-            if current_file ~= "" then
-              target_dir = vim.fn.fnamemodify(current_file, ":p:h")
-            end
-            -- else: target_dir stays empty, will use cwd
-          end
-
-          -- Use Neotree command with optional directory argument
-          if target_dir ~= "" then
-            vim.cmd("Neotree toggle dir=" .. vim.fn.fnameescape(target_dir))
-          else
-            vim.cmd("Neotree toggle")
-          end
-        end,
-        desc = "Toggle Neotree (Sync to File/Dir)",
+        "<CMD>Neotree toggle<CR>",
+        desc = "Toggle file tree ",
       },
     },
   },
