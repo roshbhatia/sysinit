@@ -97,6 +97,22 @@ local function apply_highlights()
     return
   end
 
+  -- If transparency is enabled, ensure base groups don't have backgrounds
+  local transparency_enabled = get_transparency_state()
+  if transparency_enabled then
+    for _, group in ipairs({ "Normal", "NormalNC", "NormalFloat" }) do
+      local existing = vim.api.nvim_get_hl(0, { name = group, link = false })
+      local new_hl = {}
+      for key, value in pairs(existing) do
+        if key ~= "bg" and key ~= "ctermbg" then
+          new_hl[key] = value
+        end
+      end
+      new_hl.bg = "NONE"
+      vim.api.nvim_set_hl(0, group, new_hl)
+    end
+  end
+
   vim.api.nvim_set_hl(0, "Cursor", { bg = colors.base0D, fg = colors.base00 })
   vim.api.nvim_set_hl(0, "lCursor", { link = "Cursor" })
   vim.api.nvim_set_hl(0, "CursorIM", { link = "Cursor" })
@@ -292,6 +308,8 @@ vim.api.nvim_create_user_command("Colorscheme", function()
     end,
     on_close = function()
       vim.g.transparency_user_override = original_transparency_state
+      -- Reapply highlights and transparency after colorscheme selection
+      apply_highlights()
       if original_transparency_state then
         apply_transparency()
       end
@@ -307,9 +325,12 @@ vim.api.nvim_create_user_command("TransparencyToggle", function()
   vim.g.transparency_user_override = new_state
 
   if new_state then
+    -- Enable transparency: reapply highlights first, then transparency
+    apply_highlights()
     apply_transparency()
     print("Transparency enabled")
   else
+    -- Disable transparency: reload colorscheme to restore backgrounds
     local current_colorscheme = vim.g.colors_name
     if current_colorscheme then
       vim.cmd.colorscheme(current_colorscheme)
