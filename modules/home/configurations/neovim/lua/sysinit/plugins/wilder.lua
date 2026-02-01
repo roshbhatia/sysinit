@@ -10,8 +10,16 @@ return {
     vim.opt.wildcharm = 0
     vim.opt.wildmode = ""
 
+    vim.keymap.set("c", "<Tab>", function()
+      return wilder.in_context() and wilder.next() or "<Tab>"
+    end, { noremap = true, expr = true })
+
+    vim.keymap.set("c", "<S-Tab>", function()
+      return wilder.in_context() and wilder.previous() or "<S-Tab>"
+    end, { noremap = true, expr = true })
+
     wilder.setup({
-      modes = { ":", "/", "?" },
+      modes = { ":" },
       next_key = "<Tab>",
       previous_key = "<S-Tab>",
       accept_key = "<CR>",
@@ -23,12 +31,14 @@ return {
 
     wilder.set_option("pipeline", {
       wilder.branch(
+        wilder.cmdline_history(30),
+
         wilder.cmdline_pipeline({
+          language = "vim",
           fuzzy = 2,
           fuzzy_filter = wilder.lua_fzy_filter(),
           debounce = 30,
-        }),
-        wilder.vim_search_pipeline({ debounce = 50 })
+        })
       ),
     })
 
@@ -36,7 +46,7 @@ return {
       "renderer",
       wilder.popupmenu_renderer(wilder.popupmenu_palette_theme({
         border = "rounded",
-        max_height = "50%",
+        max_height = "45%",
         min_height = 0,
         prompt_position = "top",
         reverse = 0,
@@ -48,7 +58,10 @@ return {
           border = "FloatBorder",
           accent = "WilderAccent",
         },
-        left = { " ", wilder.popupmenu_devicons() },
+        left = {
+          " ",
+          wilder.popupmenu_devicons(),
+        },
         right = {
           " ",
           wilder.popupmenu_scrollbar({
@@ -57,7 +70,7 @@ return {
           }),
         },
         empty_message = wilder.popupmenu_empty_message_with_spinner({
-          message = " nothing found ",
+          message = " no matches ",
           spinner_hl = "WilderSpinner",
         }),
       }))
