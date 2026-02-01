@@ -4,7 +4,7 @@ return {
     dependencies = {
       "nvim-tree/nvim-web-devicons",
     },
-    lazy = false,
+    event = "VeryLazy",
     config = function()
       local function get_fg(hl_name)
         local hl = vim.api.nvim_get_hl(0, { name = hl_name, link = false })
