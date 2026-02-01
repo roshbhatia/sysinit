@@ -29,8 +29,8 @@ in
   services.jankyborders = lib.mkIf bordersEnabled {
     enable = true;
     width = 6.0;
-    active_color = hexToJanky colors.base0D; # Accent blue for active window
-    inactive_color = hexToJanky colors.base02; # Subtle gray for inactive windows
+    active_color = lib.mkForce (hexToJanky colors.base0D); # Accent blue for active window
+    inactive_color = lib.mkForce (hexToJanky colors.base02); # Subtle gray for inactive windows
   };
 
   launchd.user.agents.ollama = {

@@ -25,7 +25,7 @@
     withRuby = true;
 
     # Set flag indicating Nix/home-manager management
-    extraLuaConfig = lib.mkBefore ''
+    initLua = lib.mkBefore ''
       -- Nix/home-manager management indicator
       vim.g.nix_hm_managed = true
 
