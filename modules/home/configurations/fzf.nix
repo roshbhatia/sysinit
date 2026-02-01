@@ -1,5 +1,4 @@
 {
-  lib,
   pkgs,
   ...
 }:
@@ -12,13 +11,6 @@
     defaultCommand = "${pkgs.fd}/bin/fd --type f --hidden --follow --exclude .git --exclude node_modules";
     fileWidgetCommand = "${pkgs.fd}/bin/fd --type f --hidden --follow --exclude .git --exclude node_modules";
     changeDirWidgetCommand = "${pkgs.fd}/bin/fd --type d --hidden --follow --exclude .git --exclude node_modules";
-
-    colors = lib.mkForce {
-      bg = "-1";
-      "bg+" = "-1";
-      gutter = "-1";
-      "preview-bg" = "-1";
-    };
 
     defaultOptions = [
       "--bind=ctrl-d:half-page-down"
@@ -37,6 +29,8 @@
       "--no-hscroll"
       "--preview-window=right:50%:wrap"
       "--style=minimal"
+      "--color=gutter:-1"
+      "--color=preview-bg:-1"
     ];
 
     fileWidgetOptions = [

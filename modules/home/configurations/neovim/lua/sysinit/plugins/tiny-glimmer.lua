@@ -3,8 +3,8 @@ return {
     "rachartier/tiny-glimmer.nvim",
     event = "VeryLazy",
     config = function()
-      local hl = vim.api.nvim_get_hl(0, { name = "StatusLineNC" })
-      local fg = hl.fg or vim.api.nvim_get_hl(0, { name = "Normal" }).fg or 0x808080
+      local hl = vim.api.nvim_get_hl(0, { name = "Normal" })
+      local fg = hl.fg
 
       require("tiny-glimmer").setup({
         transparency_color = string.format("#%06x", fg),
