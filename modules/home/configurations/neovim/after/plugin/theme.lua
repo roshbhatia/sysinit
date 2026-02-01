@@ -73,11 +73,9 @@ local function apply_theme()
   local bg_s = is_trans and "NONE" or colors.background.secondary
 
   local hls = {
+    -- Core
     Normal = { fg = colors.foreground.primary, bg = bg_p },
     NormalNC = { fg = colors.foreground.primary, bg = bg_p },
-    NormalFloat = { fg = colors.foreground.primary, bg = "NONE" },
-    FloatBorder = { fg = colors.syntax.comment, bg = "NONE" },
-    FloatTitle = { fg = colors.accent.primary, bg = "NONE", bold = true },
     Cursor = { bg = colors.ui.cursor, fg = colors.background.primary },
     lCursor = { link = "Cursor" },
     CursorIM = { link = "Cursor" },
@@ -85,18 +83,22 @@ local function apply_theme()
     TermCursorNC = { bg = colors.ui.cursor, fg = colors.background.primary },
     CursorLine = { bg = is_trans and "NONE" or colors.ui.cursor_line },
     CursorColumn = { bg = is_trans and "NONE" or colors.ui.cursor_line },
-    CursorLineNr = { fg = colors.ui.line_number_active, bg = "NONE", bold = true },
-    LineNr = { fg = colors.ui.line_number, bg = "NONE" },
+    CursorLineNr = { bg = "NONE", fg = colors.ui.line_number_active, bold = true },
+    LineNr = { bg = "NONE", fg = colors.ui.line_number },
     LineNrAbove = { fg = colors.ui.line_number, bg = "NONE" },
     LineNrBelow = { fg = colors.ui.line_number, bg = "NONE" },
     Visual = { bg = colors.ui.visual_selection, fg = colors.foreground.primary, bold = true },
     VisualNOS = { bg = colors.ui.visual_selection, fg = colors.foreground.primary },
-    Search = { bg = colors.plugins.search.match_bg, fg = colors.plugins.search.match_fg, bold = true },
-    IncSearch = { bg = colors.plugins.search.incremental_bg, fg = colors.plugins.search.incremental_fg, bold = true },
-    CurSearch = { link = "IncSearch" },
     MatchParen = { bg = colors.ui.match_paren, fg = colors.background.primary, bold = true },
     SignColumn = { bg = "NONE" },
     FoldColumn = { bg = "NONE" },
+
+    -- Search
+    Search = { bg = colors.plugins.search.match_bg, fg = colors.plugins.search.match_fg, bold = true },
+    IncSearch = { bg = colors.plugins.search.incremental_bg, fg = colors.plugins.search.incremental_fg, bold = true },
+    CurSearch = { link = "IncSearch" },
+
+    -- Window & Menu
     StatusLine = { bg = "NONE", fg = colors.plugins.window.statusline_active },
     StatusLineNC = { bg = "NONE", fg = colors.plugins.window.statusline_inactive },
     WinBar = { bg = "NONE", fg = colors.plugins.window.winbar_active },
@@ -105,6 +107,91 @@ local function apply_theme()
     Pmenu = { bg = "NONE", fg = colors.foreground.primary },
     PmenuBorder = { bg = "NONE", fg = colors.plugins.completion.border },
     PmenuSel = { bg = colors.plugins.completion.selection_bg, fg = colors.plugins.completion.selection_fg, bold = true },
+
+    -- Floats
+    NormalFloat = { bg = "NONE", fg = colors.foreground.primary },
+    FloatBorder = { bg = "NONE", fg = colors.syntax.comment },
+    FloatTitle = { bg = "NONE", fg = colors.accent.primary, bold = true },
+    DropBarMenuFloatBorder = { bg = "NONE", fg = colors.foreground.subtle },
+
+    -- Diff / Git
+    DiffAdd = { bg = colors.diff.add_bg },
+    DiffChange = { bg = colors.diff.change_bg },
+    DiffDelete = { bg = colors.diff.delete_bg },
+    DiffText = { bg = colors.diff.text, fg = colors.background.primary, bold = true },
+
+    -- Neogit Overrides
+    NeogitDiffContext = { bg = "NONE", fg = colors.foreground.primary },
+    NeogitDiffContextCursor = { bg = colors.background.secondary, fg = colors.foreground.primary, bold = true },
+    NeogitDiffContextHighlight = { bg = colors.background.secondary, fg = colors.foreground.primary },
+    NeogitDiffAdd = { bg = colors.diff.add_bg, fg = colors.diff.add },
+    NeogitDiffAddCursor = { bg = colors.diff.add_bg, fg = colors.diff.add, bold = true },
+    NeogitDiffAddHighlight = { bg = colors.diff.add_bg, fg = colors.diff.add },
+    NeogitDiffDelete = { bg = colors.diff.delete_bg, fg = colors.diff.delete },
+    NeogitDiffDeleteCursor = { bg = colors.diff.delete_bg, fg = colors.diff.delete, bold = true },
+    NeogitDiffDeleteHighlight = { bg = colors.diff.delete_bg, fg = colors.diff.delete },
+
+    -- Diagnostics
+    DiagnosticError = { fg = colors.semantic.error, bold = true },
+    DiagnosticWarn = { fg = colors.semantic.warning, bold = true },
+    DiagnosticInfo = { fg = colors.semantic.info, bold = true },
+    DiagnosticHint = { fg = colors.semantic.info, bold = true },
+    DiagnosticVirtualLinesError = { fg = colors.semantic.error, bold = true },
+    DiagnosticVirtualLinesWarn = { fg = colors.semantic.warning, bold = true },
+    DiagnosticVirtualLinesInfo = { fg = colors.semantic.info, bold = true },
+    DiagnosticVirtualLinesHint = { fg = colors.semantic.info, bold = true },
+
+    -- Wilder
+    WilderSelected = { fg = colors.plugins.completion.selection_fg, bold = true },
+    WilderAccent = { fg = colors.accent.primary, bold = true },
+    WilderWildmenuSelected = { fg = colors.plugins.completion.selection_fg, bold = true, bg = "NONE" },
+    WilderWildmenuAccent = { fg = colors.accent.primary, bold = true },
+    WilderSeparator = { fg = colors.syntax.comment },
+    WilderSpinner = { fg = colors.syntax.comment, bold = true },
+
+    -- Outline
+    OutlineCurrent = { fg = colors.accent.primary, bold = true, bg = colors.background.secondary },
+    OutlineGuides = { fg = colors.syntax.comment },
+    OutlineFoldMarker = { fg = colors.foreground.subtle },
+    OutlineDetails = { fg = colors.syntax.comment },
+    OutlineLineno = { fg = colors.ui.line_number },
+    OutlineJumpHighlight = { fg = colors.background.primary, bg = colors.accent.primary },
+
+    -- NeoTree Overrides
+    NeoTreeNormal = { bg = "NONE", fg = colors.foreground.primary },
+    NeoTreeNormalNC = { bg = "NONE", fg = colors.foreground.primary },
+    NeoTreeEndOfBuffer = { bg = "NONE", fg = "NONE" },
+    NeoTreeFloatBorder = { bg = "NONE", fg = colors.syntax.comment },
+    NeoTreeFloatTitle = { bg = "NONE", fg = colors.accent.primary, bold = true },
+    NeoTreeTitleBar = { bg = "NONE", fg = colors.accent.primary, bold = true },
+    NeoTreeCursorLine = { bg = colors.background.secondary, bold = true },
+    NeoTreeDimText = { fg = colors.foreground.muted },
+    NeoTreeDirectoryIcon = { fg = colors.accent.secondary },
+    NeoTreeDirectoryName = { fg = colors.foreground.primary },
+    NeoTreeFileName = { fg = colors.foreground.primary },
+    NeoTreeFileIcon = { fg = colors.foreground.subtle },
+    NeoTreeFileNameOpened = { fg = colors.accent.primary, bold = true },
+    NeoTreeFilterTerm = { fg = colors.accent.primary, bold = true },
+    NeoTreeFloatNormal = { bg = "NONE", fg = colors.foreground.primary },
+    NeoTreeGitAdded = { fg = colors.diff.add },
+    NeoTreeGitConflict = { fg = colors.semantic.error, bold = true },
+    NeoTreeGitDeleted = { fg = colors.diff.delete },
+    NeoTreeGitIgnored = { fg = colors.foreground.muted },
+    NeoTreeGitModified = { fg = colors.diff.change },
+    NeoTreeGitUnstaged = { fg = colors.semantic.warning },
+    NeoTreeGitUntracked = { fg = colors.foreground.subtle },
+    NeoTreeGitStaged = { fg = colors.diff.add },
+    NeoTreeIndentMarker = { fg = colors.syntax.comment },
+    NeoTreeExpander = { fg = colors.syntax.comment },
+    NeoTreeRootName = { fg = colors.accent.primary, bold = true },
+    NeoTreeSymbolicLinkTarget = { fg = colors.accent.secondary },
+    NeoTreeTabActive = { bg = colors.background.secondary, fg = colors.accent.primary, bold = true },
+    NeoTreeTabInactive = { bg = "NONE", fg = colors.foreground.muted },
+    NeoTreeTabSeparatorActive = { bg = colors.background.secondary, fg = colors.accent.primary },
+    NeoTreeTabSeparatorInactive = { bg = "NONE", fg = colors.syntax.comment },
+    NeoTreeWinSeparator = { fg = colors.plugins.window.separator, bold = true },
+
+    -- Syntax / TS
     ["@variable"] = { fg = colors.syntax.variable },
     ["@variable.builtin"] = { fg = colors.syntax.builtin, bold = true },
     ["@variable.parameter"] = { fg = colors.syntax.variable, italic = true },
@@ -189,6 +276,8 @@ local function apply_theme()
     ["@diff.plus"] = { link = "DiffAdd" },
     ["@diff.minus"] = { link = "DiffDelete" },
     ["@diff.delta"] = { link = "DiffChange" },
+
+    -- LSP
     ["@lsp.type.class"] = { link = "@type" },
     ["@lsp.type.decorator"] = { link = "@function" },
     ["@lsp.type.enum"] = { link = "@type" },
@@ -212,27 +301,16 @@ local function apply_theme()
     ["@lsp.typemod.variable.defaultLibrary"] = { link = "@variable.builtin" },
     ["@lsp.typemod.variable.readonly"] = { fg = colors.syntax.constant },
     LspInlayHint = { fg = colors.foreground.muted, bg = "NONE" },
-    DiagnosticError = { fg = colors.semantic.error, bold = true },
-    DiagnosticWarn = { fg = colors.semantic.warning, bold = true },
-    DiagnosticInfo = { fg = colors.semantic.info, bold = true },
-    DiagnosticHint = { fg = colors.semantic.info, bold = true },
-    DiagnosticVirtualLinesError = { fg = colors.semantic.error, bold = true },
-    DiagnosticVirtualLinesWarn = { fg = colors.semantic.warning, bold = true },
-    DiagnosticVirtualLinesInfo = { fg = colors.semantic.info, bold = true },
-    DiagnosticVirtualLinesHint = { fg = colors.semantic.info, bold = true },
-    DiffAdd = { bg = colors.diff.add_bg, fg = colors.diff.add },
-    DiffChange = { bg = colors.diff.change_bg, fg = colors.diff.change },
-    DiffDelete = { bg = colors.diff.delete_bg, fg = colors.diff.delete },
-    DiffText = { bg = colors.diff.text, fg = colors.background.primary, bold = true },
-    GitSignsAdd = { fg = colors.diff.add, bold = true },
-    GitSignsChange = { fg = colors.diff.change, bold = true },
-    GitSignsDelete = { fg = colors.diff.delete, bold = true },
+
+    -- Telescope
     TelescopeNormal = { link = "Normal" },
     TelescopeBorder = { link = "FloatBorder" },
     TelescopeSelection = { fg = colors.semantic.error, bold = true },
     telescopeselectionCaret = { link = "PmenuSel" },
     TelescopePromptPrefix = { fg = colors.accent.primary, bold = true },
     TelescopePreviewMatch = { bg = colors.semantic.warning, fg = colors.background.primary, bold = true },
+
+    -- Blink
     BlinkCmpMenu = { link = "Pmenu" },
     BlinkCmpMenuBorder = { link = "PmenuBorder" },
     BlinkCmpMenuSelection = { link = "PmenuSel" },
@@ -240,20 +318,16 @@ local function apply_theme()
     BlinkCmpDocBorder = { link = "FloatBorder" },
     BlinkCmpLabel = { fg = colors.foreground.primary },
     BlinkCmpLabelMatch = { fg = colors.accent.primary, bold = true },
-    NeogitDiffAdd = { bg = colors.diff.add_bg, fg = colors.diff.add },
-    NeogitDiffDelete = { bg = colors.diff.delete_bg, fg = colors.diff.delete },
-    NeogitDiffContextHighlight = { bg = bg_s, fg = colors.foreground.primary },
-    WilderSelected = { fg = colors.plugins.completion.selection_fg, bold = true },
-    WilderAccent = { fg = colors.accent.primary, bold = true },
-    NeoTreeNormal = { bg = "NONE", fg = colors.foreground.primary },
-    NeoTreeNormalNC = { bg = "NONE", fg = colors.foreground.primary },
-    NeoTreeDirectoryName = { fg = colors.foreground.primary },
-    NeoTreeRootName = { fg = colors.accent.primary, bold = true },
-    NeoTreeFileNameOpened = { fg = colors.accent.primary, bold = true },
-    NeoTreeWinSeparator = { fg = colors.plugins.window.separator, bold = true },
-    DropBarMenuFloatBorder = { bg = "NONE", fg = colors.foreground.subtle },
-    OutlineCurrent = { fg = colors.accent.primary, bold = true, bg = bg_s },
-    OutlineJumpHighlight = { fg = colors.background.primary, bg = colors.accent.primary },
+
+    -- GitSigns
+    GitSignsAdd = { fg = colors.diff.add, bold = true },
+    GitSignsChange = { fg = colors.diff.change, bold = true },
+    GitSignsDelete = { fg = colors.diff.delete, bold = true },
+
+    -- Snacks
+    SnacksPicker = { link = "Normal" },
+    SnacksPickerBorder = { link = "FloatBorder" },
+    SnacksPickerMatch = { fg = colors.accent.primary, bold = true },
   }
 
   for name, hl in pairs(hls) do
@@ -261,12 +335,22 @@ local function apply_theme()
   end
 end
 
+-- Commands
 vim.api.nvim_create_user_command("TransparencyToggle", function()
-  vim.g.transparency_user_override = not (vim.g.transparency_user_override or false)
+  if vim.g.transparency_user_override == nil then
+    vim.g.transparency_user_override = not (vim.g.nix_transparency_enabled or false)
+  else
+    vim.g.transparency_user_override = not vim.g.transparency_user_override
+  end
   apply_theme()
   vim.cmd("redraw!")
 end, {})
 
+vim.api.nvim_create_user_command("Colorscheme", function()
+  require("snacks").picker.colorschemes()
+end, {})
+
+-- Init
 apply_theme()
 
 vim.api.nvim_create_autocmd("ColorScheme", {
