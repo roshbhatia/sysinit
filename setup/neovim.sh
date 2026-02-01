@@ -93,6 +93,11 @@ nvim_exists() {
 }
 
 install_neovim() {
+  if [ -f /etc/NIXOS ] || [ -f /etc/os-release ] && grep -q "ID=nixos" /etc/os-release 2> /dev/null; then
+    log "NixOS detected. Use: nix run github:nix-community/neovim-nightly-overlay"
+    return
+  fi
+
   if nvim_exists; then
     log "Neovim already installed, skipping"
     return
