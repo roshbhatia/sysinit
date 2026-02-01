@@ -58,7 +58,7 @@ vim.diagnostic.handlers.signs = {
   end,
 }
 
-vim.api.nvim_create_autocmd("LspAttach", {
+vim.api.nvim_create_autocmd("BufEnter", {
   callback = function(args)
     local bufnr = args.buf
 
@@ -72,10 +72,18 @@ vim.api.nvim_create_autocmd("LspAttach", {
     Snacks.keymap.set({ "n", "v" }, "grr", vim.lsp.buf.references, { buffer = bufnr, desc = "References" })
     Snacks.keymap.set({ "n", "v" }, "grt", vim.lsp.buf.type_definition, { buffer = bufnr, desc = "Type definition" })
     Snacks.keymap.set("n", "<leader>cA", vim.lsp.codelens.run, { buffer = bufnr, desc = "Run codelens action" })
-
-    Snacks.keymap.set("n", "<leader>cn", vim.diagnostic.goto_next, { buffer = bufnr, desc = "Next diagnostic" })
-    Snacks.keymap.set("n", "<leader>cp", vim.diagnostic.goto_prev, { buffer = bufnr, desc = "Previous diagnostic" })
-
+    Snacks.keymap.set(
+      "n",
+      "<leader>cn",
+      vim.diagnostic.jump,
+      { count = 1, float = true, buffer = bufnr, desc = "Next diagnostic" }
+    )
+    Snacks.keymap.set(
+      "n",
+      "<leader>cp",
+      vim.diagnostic.jump,
+      { count = -1, float = true, buffer = bufnr, desc = "Previous diagnostic" }
+    )
     Snacks.keymap.set("n", "<leader>cj", function()
       vim.lsp.buf.signature_help({ border = "rounded" })
     end, { buffer = bufnr, desc = "Signature help" })
