@@ -231,47 +231,23 @@ local function apply_highlights()
   end
 
   local overrides = {
-    -- Treesitter
-    ["@variable"] = { link = "Identifier" },
-    ["@variable.builtin"] = { link = "Special" },
-    ["@variable.parameter"] = { link = "Identifier" },
-    ["@variable.member"] = { link = "Identifier" },
+    DiagnosticError = { link = "ErrorMsg" },
+    DiagnosticHint = { link = "Comment" },
+    DiagnosticInfo = { link = "Identifier" },
+    DiagnosticOk = { link = "Question" },
+    DiagnosticWarn = { link = "WarningMsg" },
     ["@constant.builtin"] = { link = "Special" },
+    ["@constructor"] = { link = "Typedef" },
+    ["@function.builtin"] = { link = "Special" },
+    ["@markup.heading"] = { link = "Title" },
+    ["@markup.link.label"] = { link = "Special" },
+    ["@markup.raw"] = { link = "String" },
     ["@module"] = { link = "Include" },
     ["@string.special.url"] = { link = "Underlined" },
-    ["@function.builtin"] = { link = "Special" },
-    ["@constructor"] = { link = "Typedef" },
-    ["@markup.heading"] = { link = "Title" },
-    ["@markup.raw"] = { link = "String" },
-    ["@markup.link.label"] = { link = "Special" },
-
-    -- Diagnostics
-    DiagnosticError = { link = "ErrorMsg" },
-    DiagnosticWarn = { link = "WarningMsg" },
-    DiagnosticInfo = { link = "Identifier" },
-    DiagnosticHint = { link = "Comment" },
-    DiagnosticOk = { link = "Question" },
-
-    -- LSP / misc
-    ["@lsp.mod.deprecated"] = { strikethrough = true },
-
-    -- UI elements
-    FloatBorder = { link = "Comment" },
-    FloatTitle = { link = "Title" },
-    PmenuSel = { link = "Visual" },
-    WinSeparator = { link = "VertSplit" },
-    WinBar = { link = "StatusLine" },
-    WinBarNC = { link = "StatusLineNC" },
-
-    -- Neo-tree
-    NeoTreeDirectoryIcon = { link = "Directory" },
-    NeoTreeDirectoryName = { link = "Directory" },
-    NeoTreeFileName = { link = "Normal" },
-    NeoTreeGitAdded = { link = "DiffAdd" },
-    NeoTreeGitModified = { link = "DiffChange" },
-    NeoTreeGitDeleted = { link = "DiffDelete" },
-    NeoTreeIndentMarker = { link = "NonText" },
-    NeoTreeExpander = { link = "Comment" },
+    ["@variable"] = { link = "Identifier" },
+    ["@variable.builtin"] = { link = "Special" },
+    ["@variable.member"] = { link = "Identifier" },
+    ["@variable.parameter"] = { link = "Identifier" },
   }
 
   for group, attrs in pairs(overrides) do
