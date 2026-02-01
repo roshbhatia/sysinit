@@ -229,11 +229,11 @@ local function setup_theme(cfg)
   })
 end
 
-local theme_cfg = vim.g.nix_managed and { colorscheme = "miniautumn" }
+local theme_cfg = (not vim.g.nix_managed) and { colorscheme = "miniautumn" }
   or json_loader.load_json_file(json_loader.get_config_path("theme_config.json"), "theme_config")
   or {}
 
-local meta = vim.g.nix_managed and { plugin = "nvim-mini/mini.base16" }
+local meta = (not vim.g.nix_managed) and { plugin = "nvim-mini/mini.base16" }
   or THEME_METADATA[theme_cfg.colorscheme]
   or { plugin = "nvim-mini/mini.base16" }
 
@@ -243,7 +243,7 @@ return {
     lazy = false,
     priority = 1000,
     config = function()
-      if vim.g.nix_managed then
+      if not vim.g.nix_managed then
         vim.cmd.colorscheme("miniautumn")
         apply_highlights()
       else
