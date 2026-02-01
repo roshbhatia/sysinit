@@ -37,7 +37,6 @@ vim.opt.rtp:prepend(lazypath)
 
 require("lazy").setup({
   spec = {
-    "RRethy/base16-nvim",
     {
       import = "sysinit.plugins",
     },

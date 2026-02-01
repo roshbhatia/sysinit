@@ -3,15 +3,7 @@
 }:
 
 {
-  # Enable stylix neovim target in home-manager
-  stylix.targets.neovim = {
-    enable = true;
-    plugin = "base16-nvim";
-    transparentBackground = {
-      main = true;
-      signColumn = true;
-    };
-  };
+  stylix.targets.neovim.plugin = "base16-nvim";
 
   programs.neovim = {
     enable = true;

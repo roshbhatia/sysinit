@@ -1,3 +1,6 @@
+-- Transparency state
+local transparency_enabled = true
+
 local function get_base16_colors()
   local ok, colorscheme = pcall(require, "base16-colorscheme")
   if ok and colorscheme.colors then
@@ -7,84 +10,90 @@ local function get_base16_colors()
   return nil
 end
 
+local function apply_transparency()
+  if not transparency_enabled then
+    return
+  end
+
+  -- Core transparency groups
+  vim.api.nvim_set_hl(0, "Normal", { bg = "NONE", ctermbg = "NONE" })
+  vim.api.nvim_set_hl(0, "NormalNC", { bg = "NONE", ctermbg = "NONE" })
+  vim.api.nvim_set_hl(0, "NonText", { bg = "NONE", ctermbg = "NONE" })
+  vim.api.nvim_set_hl(0, "SignColumn", { bg = "NONE", ctermbg = "NONE" })
+  vim.api.nvim_set_hl(0, "LineNr", { bg = "NONE", ctermbg = "NONE" })
+  vim.api.nvim_set_hl(0, "LineNrAbove", { bg = "NONE", ctermbg = "NONE" })
+  vim.api.nvim_set_hl(0, "LineNrBelow", { bg = "NONE", ctermbg = "NONE" })
+  vim.api.nvim_set_hl(0, "CursorLineNr", { bg = "NONE", ctermbg = "NONE" })
+  vim.api.nvim_set_hl(0, "FoldColumn", { bg = "NONE", ctermbg = "NONE" })
+  vim.api.nvim_set_hl(0, "EndOfBuffer", { bg = "NONE", ctermbg = "NONE" })
+
+  -- Float and popup transparency
+  vim.api.nvim_set_hl(0, "NormalFloat", { bg = "NONE", ctermbg = "NONE" })
+  vim.api.nvim_set_hl(0, "FloatBorder", { bg = "NONE", ctermbg = "NONE" })
+  vim.api.nvim_set_hl(0, "FloatTitle", { bg = "NONE", ctermbg = "NONE" })
+
+  -- Pmenu transparency
+  vim.api.nvim_set_hl(0, "Pmenu", { bg = "NONE", ctermbg = "NONE" })
+  vim.api.nvim_set_hl(0, "PmenuBorder", { bg = "NONE", ctermbg = "NONE" })
+  vim.api.nvim_set_hl(0, "PmenuSbar", { bg = "NONE", ctermbg = "NONE" })
+  vim.api.nvim_set_hl(0, "PmenuThumb", { bg = "NONE", ctermbg = "NONE" })
+
+  -- Wilder transparency (fixes two-tone border)
+  vim.api.nvim_set_hl(0, "WilderMenu", { bg = "NONE", ctermbg = "NONE" })
+  vim.api.nvim_set_hl(0, "WilderBorder", { bg = "NONE", ctermbg = "NONE" })
+  vim.api.nvim_set_hl(0, "WilderAccent", { bg = "NONE", ctermbg = "NONE" })
+
+  -- Blink completion transparency
+  vim.api.nvim_set_hl(0, "BlinkCmpDoc", { bg = "NONE", ctermbg = "NONE" })
+  vim.api.nvim_set_hl(0, "BlinkCmpDocBorder", { bg = "NONE", ctermbg = "NONE" })
+  vim.api.nvim_set_hl(0, "BlinkCmpMenu", { bg = "NONE", ctermbg = "NONE" })
+  vim.api.nvim_set_hl(0, "BlinkCmpMenuBorder", { bg = "NONE", ctermbg = "NONE" })
+  vim.api.nvim_set_hl(0, "BlinkCmpSignatureHelp", { bg = "NONE", ctermbg = "NONE" })
+  vim.api.nvim_set_hl(0, "BlinkCmpSignatureHelpBorder", { bg = "NONE", ctermbg = "NONE" })
+
+  -- Telescope transparency
+  vim.api.nvim_set_hl(0, "TelescopeBorder", { bg = "NONE", ctermbg = "NONE" })
+  vim.api.nvim_set_hl(0, "TelescopeNormal", { bg = "NONE", ctermbg = "NONE" })
+  vim.api.nvim_set_hl(0, "TelescopePromptBorder", { bg = "NONE", ctermbg = "NONE" })
+  vim.api.nvim_set_hl(0, "TelescopePromptNormal", { bg = "NONE", ctermbg = "NONE" })
+  vim.api.nvim_set_hl(0, "TelescopeResultsBorder", { bg = "NONE", ctermbg = "NONE" })
+  vim.api.nvim_set_hl(0, "TelescopeResultsNormal", { bg = "NONE", ctermbg = "NONE" })
+  vim.api.nvim_set_hl(0, "TelescopePreviewBorder", { bg = "NONE", ctermbg = "NONE" })
+  vim.api.nvim_set_hl(0, "TelescopePreviewNormal", { bg = "NONE", ctermbg = "NONE" })
+  vim.api.nvim_set_hl(0, "TelescopeSelection", { bg = "NONE", ctermbg = "NONE" })
+
+  -- WhichKey transparency
+  vim.api.nvim_set_hl(0, "WhichKeyBorder", { bg = "NONE", ctermbg = "NONE" })
+  vim.api.nvim_set_hl(0, "WhichKeyFloat", { bg = "NONE", ctermbg = "NONE" })
+
+  -- Lazy transparency
+  vim.api.nvim_set_hl(0, "LazyNormal", { bg = "NONE", ctermbg = "NONE" })
+
+  -- Statusline/Tabline transparency
+  vim.api.nvim_set_hl(0, "StatusLine", { bg = "NONE", ctermbg = "NONE" })
+  vim.api.nvim_set_hl(0, "StatusLineNC", { bg = "NONE", ctermbg = "NONE" })
+  vim.api.nvim_set_hl(0, "TabLine", { bg = "NONE", ctermbg = "NONE" })
+  vim.api.nvim_set_hl(0, "TabLineFill", { bg = "NONE", ctermbg = "NONE" })
+
+  -- Winbar transparency
+  vim.api.nvim_set_hl(0, "WinBar", { bg = "NONE", ctermbg = "NONE" })
+  vim.api.nvim_set_hl(0, "WinBarNC", { bg = "NONE", ctermbg = "NONE" })
+  vim.api.nvim_set_hl(0, "WinSeparator", { bg = "NONE", ctermbg = "NONE" })
+
+  -- Misc transparency
+  vim.api.nvim_set_hl(0, "CursorLine", { bg = "NONE", ctermbg = "NONE" })
+  vim.api.nvim_set_hl(0, "CursorColumn", { bg = "NONE", ctermbg = "NONE" })
+  vim.api.nvim_set_hl(0, "ColorColumn", { bg = "NONE", ctermbg = "NONE" })
+end
+
 local function apply_highlights()
   local colors = get_base16_colors()
   if not colors then
     return
   end
 
-  -- Transparency highlights
-  local transparent_groups = {
-    "BlinkCmpDoc",
-    "BlinkCmpDocBorder",
-    "BlinkCmpMenu",
-    "BlinkCmpMenuBorder",
-    "BlinkCmpSignatureHelp",
-    "BlinkCmpSignatureHelpBorder",
-    "ColorColumn",
-    "CursorColumn",
-    "CursorLine",
-    "CursorLineFold",
-    "CursorLineNr",
-    "CursorLineSign",
-    "DiagnosticVirtualTextError",
-    "DiagnosticVirtualTextHint",
-    "DiagnosticVirtualTextInfo",
-    "DiagnosticVirtualTextWarn",
-    "DropBarCurrentContext",
-    "DropBarIconKindDefault",
-    "DropBarIconKindDefaultNC",
-    "DropBarMenuFloatBorder",
-    "DropBarMenuNormalFloat",
-    "FloatBorder",
-    "FloatTitle",
-    "FoldColumn",
-    "GitSignsAdd",
-    "GitSignsChange",
-    "GitSignsDelete",
-    "LazyNormal",
-    "LineNr",
-    "LineNrAbove",
-    "LineNrBelow",
-    "MsgSeparator",
-    "Normal",
-    "NormalFloat",
-    "NormalNC",
-    "Pmenu",
-    "PmenuBorder",
-    "PmenuSbar",
-    "PmenuThumb",
-    "SignColumn",
-    "StatusLine",
-    "StatusLineNC",
-    "StatusLineTerm",
-    "StatusLineTermNC",
-    "TabLine",
-    "TabLineFill",
-    "TelescopeBorder",
-    "TelescopeNormal",
-    "TelescopePromptBorder",
-    "TelescopePromptNormal",
-    "TelescopeResultsBorder",
-    "TelescopeResultsNormal",
-    "TelescopePreviewBorder",
-    "TelescopePreviewNormal",
-    "TelescopeSelection",
-    "TreesitterContext",
-    "TreesitterContextLineNumber",
-    "WhichKeyBorder",
-    "WhichKeyFloat",
-    "WinBar",
-    "WinBarNC",
-    "WinSeparator",
-  }
-
-  for _, group in ipairs(transparent_groups) do
-    vim.api.nvim_set_hl(0, group, { bg = "NONE" })
-  end
-
-  -- Additional transparency for core groups
-  vim.api.nvim_set_hl(0, "NonText", { bg = "NONE", ctermbg = "NONE" })
+  -- Apply transparency first
+  apply_transparency()
 
   -- Cursor highlights
   vim.api.nvim_set_hl(0, "Cursor", { bg = colors.base0D, fg = colors.base00 })
@@ -92,12 +101,10 @@ local function apply_highlights()
   vim.api.nvim_set_hl(0, "CursorIM", { link = "Cursor" })
   vim.api.nvim_set_hl(0, "TermCursor", { link = "Cursor" })
   vim.api.nvim_set_hl(0, "TermCursorNC", { bg = colors.base0D, fg = colors.base00 })
-  vim.api.nvim_set_hl(0, "CursorLine", { bg = "NONE" })
-  vim.api.nvim_set_hl(0, "CursorColumn", { bg = "NONE" })
-  vim.api.nvim_set_hl(0, "CursorLineNr", { fg = colors.base0D, bold = true })
-  vim.api.nvim_set_hl(0, "LineNr", { fg = colors.base03 })
-  vim.api.nvim_set_hl(0, "LineNrAbove", { fg = colors.base03 })
-  vim.api.nvim_set_hl(0, "LineNrBelow", { fg = colors.base03 })
+  vim.api.nvim_set_hl(0, "CursorLineNr", { fg = colors.base0D, bold = true, bg = "NONE" })
+  vim.api.nvim_set_hl(0, "LineNr", { fg = colors.base03, bg = "NONE" })
+  vim.api.nvim_set_hl(0, "LineNrAbove", { fg = colors.base03, bg = "NONE" })
+  vim.api.nvim_set_hl(0, "LineNrBelow", { fg = colors.base03, bg = "NONE" })
   vim.api.nvim_set_hl(0, "Visual", { bg = colors.base02, fg = colors.base05, bold = true })
   vim.api.nvim_set_hl(0, "VisualNOS", { bg = colors.base02, fg = colors.base05 })
   vim.api.nvim_set_hl(0, "Search", { bg = colors.base0A, fg = colors.base00, bold = true })
@@ -270,4 +277,19 @@ vim.api.nvim_create_user_command("Colorscheme", function()
   require("snacks").picker.colorschemes({ layout = "right" })
 end, {
   desc = "Open colorscheme picker",
+})
+
+-- Transparency toggle command
+vim.api.nvim_create_user_command("TransparencyToggle", function()
+  transparency_enabled = not transparency_enabled
+  if transparency_enabled then
+    apply_transparency()
+    print("Transparency enabled")
+  else
+    -- Reapply all highlights to restore backgrounds
+    apply_highlights()
+    print("Transparency disabled")
+  end
+end, {
+  desc = "Toggle transparency on/off",
 })
