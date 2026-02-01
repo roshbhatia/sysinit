@@ -35,12 +35,10 @@ eval "$(/opt/homebrew/bin/brew shellenv)" && \
 brew install go-task/tap/go-task
 ```
 
-## Installing Neovim only (with fallback theming)
+## Installing Neovim only 
 
 ```bash
-git clone --depth 1 https://github.com/roshbhatia/sysinit.git /tmp/sysinit && \
-mkdir -p ~/.config/nvim && \
-cp -r /tmp/sysinit/modules/home/configurations/neovim/ ~/.config/nvim/
+curl -fsSL https://raw.githubusercontent.com/roshbhatia/sysinit/main/setup/neovim.sh | bash
 ```
 
 ## Usage

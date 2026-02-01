@@ -1,13 +1,13 @@
 {
   pkgs,
-  config,
+  lib,
   ...
 }:
 
 {
   stylix.targets.fzf.colors.override = {
-    bg = config.lib.stylix.mkOpacityHexColor config.lib.stylix.colors.base00 0;
-    "bg+" = config.lib.stylix.mkOpacityHexColor config.lib.stylix.colors.base01 0;
+    bg = lib.mkForce "-1";
+    "bg+" = lib.mkForce "-1";
   };
 
   programs.fzf = {
