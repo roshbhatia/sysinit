@@ -1,4 +1,3 @@
--- Shared style definitions used across themes
 return {
   comments = { "italic" },
   conditionals = { "italic" },
