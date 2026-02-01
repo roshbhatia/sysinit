@@ -14,6 +14,13 @@ err() {
   echo "$*" >&2
   exit 1
 }
+maybe_sudo() {
+  if [ "$(id -u)" -eq 0 ]; then
+    "$@"
+  else
+    sudo "$@"
+  fi
+}
 
 usage() {
   cat << EOF
@@ -116,8 +123,8 @@ install_neovim_macos() {
   tar xzf "$archive"
 
   log "Installing to $INSTALL_DIR_MACOS"
-  sudo rm -rf "$INSTALL_DIR_MACOS"
-  sudo mv "nvim-macos-${ARCH}" "$INSTALL_DIR_MACOS"
+  maybe_sudo rm -rf "$INSTALL_DIR_MACOS"
+  maybe_sudo mv "nvim-macos-${ARCH}" "$INSTALL_DIR_MACOS"
 
   add_to_path "$INSTALL_DIR_MACOS/bin"
   cd - > /dev/null
@@ -127,7 +134,7 @@ install_neovim_macos() {
 install_neovim_linux() {
   if command -v pacman &> /dev/null && pacman -Ss neovim-nightly-bin &> /dev/null; then
     log "Installing via pacman"
-    sudo pacman -S --noconfirm neovim-nightly-bin || install_neovim_linux_tarball
+    maybe_sudo pacman -S --noconfirm neovim-nightly-bin || install_neovim_linux_tarball
     return
   fi
 
@@ -151,9 +158,9 @@ install_neovim_linux_tarball() {
     tar xzf "$archive"
 
     log "Installing to $install_dir"
-    sudo rm -rf "$install_dir"
-    sudo mkdir -p /opt
-    sudo mv nvim-linux-x86_64 "$install_dir"
+    maybe_sudo rm -rf "$install_dir"
+    maybe_sudo mkdir -p /opt
+    maybe_sudo mv nvim-linux-x86_64 "$install_dir"
 
     add_to_path "$install_dir/bin"
     cd - > /dev/null
@@ -180,9 +187,9 @@ install_neovim_linux_appimage() {
   ./"$appimage" --appimage-extract > /dev/null 2>&1
 
   log "Installing to $INSTALL_DIR_LINUX"
-  sudo rm -rf "$INSTALL_DIR_LINUX"
-  sudo mkdir -p "$(dirname "$INSTALL_DIR_LINUX")"
-  sudo mv squashfs-root "$INSTALL_DIR_LINUX"
+  maybe_sudo rm -rf "$INSTALL_DIR_LINUX"
+  maybe_sudo mkdir -p "$(dirname "$INSTALL_DIR_LINUX")"
+  maybe_sudo mv squashfs-root "$INSTALL_DIR_LINUX"
 
   add_to_path "$INSTALL_DIR_LINUX/usr/bin"
   cd - > /dev/null
