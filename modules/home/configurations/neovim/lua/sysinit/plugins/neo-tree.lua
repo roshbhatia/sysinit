@@ -149,19 +149,20 @@ return {
       {
         "<leader>et",
         function()
-          -- Check if the current buffer is a real file
-          local current_file = vim.api.nvim_buf_get_name(0)
-          local is_real_file = current_file ~= "" and vim.fn.filereadable(current_file) == 1
+          local reveal_file = vim.fn.expand("%:p")
+          -- If the buffer has no name, use the current working directory
+          if reveal_file == "" then
+            reveal_file = vim.fn.getcwd()
+          end
 
           require("neo-tree.command").execute({
             action = "toggle",
-            -- If it's a real file, reveal it; otherwise, just open the CWD
-            reveal_file = is_real_file and current_file or nil,
-            -- This is the key: it forces the tree root to change to the file's dir
+            reveal_file = reveal_file,
+            -- This ensures the tree root actually moves to the file's folder
             reveal_force_cwd = true,
           })
         end,
-        desc = "Toggle explorer tree (Reveal File)",
+        desc = "Toggle Neotree (Sync to File)",
       },
     },
   },

@@ -58,6 +58,10 @@ let
     appearance = values.theme.appearance;
     transparency = values.theme.transparency;
     semanticColors = semanticColors;
+    font = {
+      monospace = values.theme.font.monospace;
+      symbols = values.theme.font.symbols or "Symbols Nerd Font";
+    };
   };
 in
 {
