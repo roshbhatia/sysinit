@@ -149,39 +149,35 @@ return {
       {
         "<leader>et",
         function()
-          local reveal_dir = ""
-          local reveal_file = nil
+          local target_dir = ""
 
           -- Check if nvim was opened with arguments
           local argv = vim.fn.argv()
           if #argv > 0 then
             local first_arg = vim.fn.fnamemodify(argv[1], ":p")
 
-            -- If it's a directory, use it as the reveal_dir
+            -- If it's a directory, use it
             if vim.fn.isdirectory(first_arg) == 1 then
-              reveal_dir = first_arg
+              target_dir = first_arg
             else
-              -- If it's a file, reveal the file and set dir to its parent
-              reveal_file = first_arg
-              reveal_dir = vim.fn.fnamemodify(first_arg, ":p:h")
+              -- If it's a file, use its parent directory
+              target_dir = vim.fn.fnamemodify(first_arg, ":p:h")
             end
           else
             -- No arguments - check if there's a file in the current buffer
             local current_file = vim.fn.expand("%:p")
             if current_file ~= "" then
-              reveal_file = current_file
-              reveal_dir = vim.fn.fnamemodify(current_file, ":p:h")
+              target_dir = vim.fn.fnamemodify(current_file, ":p:h")
             end
-            -- else: reveal_dir stays empty, will use cwd
+            -- else: target_dir stays empty, will use cwd
           end
 
-          require("neo-tree.command").execute({
-            action = "toggle",
-            source = "filesystem",
-            position = "left",
-            dir = reveal_dir,
-            reveal_file = reveal_file,
-          })
+          -- Use Neotree command with optional directory argument
+          if target_dir ~= "" then
+            vim.cmd("Neotree toggle dir=" .. vim.fn.fnameescape(target_dir))
+          else
+            vim.cmd("Neotree toggle")
+          end
         end,
         desc = "Toggle Neotree (Sync to File/Dir)",
       },

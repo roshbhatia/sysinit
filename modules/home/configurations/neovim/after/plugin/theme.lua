@@ -264,3 +264,10 @@ vim.api.nvim_create_autocmd("ColorScheme", {
   callback = apply_highlights,
   desc = "Reapply custom highlights after colorscheme change",
 })
+
+-- Colorscheme picker command
+vim.api.nvim_create_user_command("Colorscheme", function()
+  require("snacks").picker.colorschemes({ layout = "right" })
+end, {
+  desc = "Open colorscheme picker",
+})
