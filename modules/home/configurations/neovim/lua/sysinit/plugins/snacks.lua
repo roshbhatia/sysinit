@@ -141,7 +141,7 @@ return {
       local terminals_config = {}
       for _, agent in ipairs(agents.get_all()) do
         terminals_config[agent.name] = {
-          cmd = agent.cmd,
+          cmd = agent.full_cmd,
         }
       end
 
@@ -193,7 +193,6 @@ return {
           "<leader>ff",
           function()
             Snacks.picker.files({
-              cmd = "rg",
               hidden = true,
             })
           end,
