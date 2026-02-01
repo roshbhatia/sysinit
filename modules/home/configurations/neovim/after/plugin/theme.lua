@@ -1,3 +1,7 @@
+if not vim.g.nix_managed then
+  vim.cmd.colorscheme("base16-tokyo-city-terminal-light")
+end
+
 local function get_transparency_state()
   local state = vim.g.transparency_user_override
   if state == nil then
@@ -7,7 +11,6 @@ local function get_transparency_state()
 end
 
 local function get_base16_colors()
-  -- stylix generates base16-colorscheme module with setup() call and colors embedded
   local ok, colorscheme = pcall(require, "base16-colorscheme")
   if ok and colorscheme.colors then
     return colorscheme.colors
@@ -19,7 +22,6 @@ end
 local function apply_transparency()
   local trans_state = get_transparency_state()
   if not trans_state then
-    -- If transparency is not enabled, do nothing silently
     return
   end
 

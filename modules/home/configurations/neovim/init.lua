@@ -29,15 +29,7 @@ vim.opt.rtp:prepend(lazypath)
 
 require("lazy").setup({
   spec = {
-    {
-      "RRethy/base16-nvim",
-      lazy = false,
-      config = function()
-        if not vim.g.nix_managed then
-          vim.cmd.colorscheme("base16-tokyo-city-terminal-light")
-        end
-      end,
-    },
+    "RRethy/base16-nvim",
     {
       import = "sysinit.plugins",
     },
