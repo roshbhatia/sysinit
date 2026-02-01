@@ -16,12 +16,13 @@
     withRuby = true;
 
     initLua = ''
-      ${builtins.readFile ./init.lua}
-
+      -- Set nix-managed flags FIRST, before any plugins load
       vim.g.nix_hm_managed = true
       vim.g.nix_transparency_enabled = ${
         if values.theme.transparency.opacity < 1.0 then "true" else "false"
       }
+
+      ${builtins.readFile ./init.lua}
     '';
   };
 

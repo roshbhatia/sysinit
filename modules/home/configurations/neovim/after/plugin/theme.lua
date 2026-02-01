@@ -19,12 +19,9 @@ end
 local function apply_transparency()
   local trans_state = get_transparency_state()
   if not trans_state then
+    -- If transparency is not enabled, do nothing silently
     return
   end
-
-  -- Debug: log that we're applying transparency
-  local normal_before = vim.api.nvim_get_hl(0, { name = "Normal", link = false })
-  vim.fn.writefile({ "Normal before transparency: " .. vim.inspect(normal_before) }, "/tmp/nvim_transparency.log", "a")
 
   local transparent_groups = {
     "Normal",
@@ -92,10 +89,6 @@ local function apply_transparency()
     new_hl.bg = "NONE"
     vim.api.nvim_set_hl(0, group, new_hl)
   end
-
-  -- Debug: log after applying transparency
-  local normal_after = vim.api.nvim_get_hl(0, { name = "Normal", link = false })
-  vim.fn.writefile({ "Normal after transparency: " .. vim.inspect(normal_after) }, "/tmp/nvim_transparency.log", "a")
 end
 
 local function apply_highlights()
@@ -267,36 +260,14 @@ end
 -- Apply highlights immediately (colors should be available from base16-colorscheme.setup() call)
 apply_highlights()
 
--- Debug: log which triggers are calling apply_transparency
-local transparency_call_count = 0
-
--- Defer transparency application to VimEnter to ensure nix variables are set
-vim.api.nvim_create_autocmd("VimEnter", {
-  pattern = "*",
-  callback = function()
-    transparency_call_count = transparency_call_count + 1
-    vim.fn.writefile(
-      { "VimEnter calling apply_transparency (call #" .. transparency_call_count .. ")" },
-      "/tmp/nvim_transparency.log",
-      "a"
-    )
-    apply_transparency()
-  end,
-  once = true,
-  desc = "Apply transparency after VimEnter when nix vars are ready",
-})
+-- Apply transparency immediately (nix_transparency_enabled is already set by nix during init)
+apply_transparency()
 
 -- Reapply after any colorscheme change to override defaults
 -- This is important because base16-colorscheme.setup() triggers ColorScheme event
 vim.api.nvim_create_autocmd("ColorScheme", {
   pattern = "*",
   callback = function()
-    transparency_call_count = transparency_call_count + 1
-    vim.fn.writefile(
-      { "ColorScheme calling apply_transparency (call #" .. transparency_call_count .. ")" },
-      "/tmp/nvim_transparency.log",
-      "a"
-    )
     -- Apply highlights immediately, then transparency
     apply_highlights()
     -- Schedule transparency to run after ColorScheme event completes
@@ -357,9 +328,7 @@ vim.api.nvim_create_user_command("HighlightAudit", function()
   table.sort(highlights)
 
   table.insert(lines, "=== Neovim Highlight Groups Audit ===")
-  table.insert(lines, "vim.g.nix_transparency_enabled = " .. tostring(vim.g.nix_transparency_enabled))
-  table.insert(lines, "vim.g.transparency_user_override = " .. tostring(vim.g.transparency_user_override))
-  table.insert(lines, "Transparency enabled (effective): " .. tostring(get_transparency_state()))
+  table.insert(lines, "Transparency enabled: " .. tostring(get_transparency_state()))
   table.insert(lines, "Generated: " .. os.date("%Y-%m-%d %H:%M:%S"))
   table.insert(lines, "")
 

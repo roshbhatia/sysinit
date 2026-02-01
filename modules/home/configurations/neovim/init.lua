@@ -1,7 +1,11 @@
 -- Defaults that are overriden by my nix configuration.
--- If set, just configures some installer plugins and theme configs
-vim.g.nix_managed = false
-vim.g.nix_transparency_enabled = false
+-- Only set if not already set by nix (which appends before this file)
+if vim.g.nix_managed == nil then
+  vim.g.nix_managed = false
+end
+if vim.g.nix_transparency_enabled == nil then
+  vim.g.nix_transparency_enabled = false
+end
 
 vim.g.mapleader = " "
 vim.g.maplocalleader = "\\"
