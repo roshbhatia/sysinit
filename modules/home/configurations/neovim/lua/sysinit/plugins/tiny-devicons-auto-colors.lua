@@ -3,12 +3,16 @@ return {
     "rachartier/tiny-devicons-auto-colors.nvim",
     dependencies = {
       "nvim-tree/nvim-web-devicons",
+      "catppuccin/nvim",
     },
     event = "VeryLazy",
     config = function()
-      -- When Nix-managed, colors come from stylix
-      -- When not Nix-managed, use default colors from the colorscheme
-      require("tiny-devicons-auto-colors").setup()
+      local json_loader = require("sysinit.utils.json_loader")
+      local theme_config = json_loader.load_json_file(json_loader.get_config_path("theme_config.json"))
+
+      require("tiny-devicons-auto-colors").setup({
+        colors = theme_config.palette,
+      })
     end,
   },
 }

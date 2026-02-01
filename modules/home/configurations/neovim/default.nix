@@ -3,8 +3,16 @@
   ...
 }:
 
+let
+  themeConfig = {
+    colorscheme = values.theme.colorscheme;
+    variant = values.theme.variant;
+    appearance = values.theme.appearance;
+    transparency = values.theme.transparency;
+  };
+in
 {
-  stylix.targets.neovim.plugin = "base16-nvim";
+  stylix.targets.neovim.enable = "false";
 
   programs.neovim = {
     enable = true;
@@ -18,9 +26,6 @@
     initLua = ''
       -- Injected by home-manager
       vim.g.nix_hm_managed = true
-      vim.g.nix_transparency_enabled = ${
-        if values.theme.transparency.opacity < 1.0 then "true" else "false"
-      }
 
       ${builtins.readFile ./init.lua}
     '';
@@ -35,6 +40,7 @@
       "nvim/lua/sysinit/plugins/".source = ./lua/sysinit/plugins;
       "nvim/lua/sysinit/utils".source = ./lua/sysinit/utils;
       "nvim/queries".source = ./queries;
+      "nvim/theme_config.json".text = builtins.toJSON themeConfig;
     };
   };
 }

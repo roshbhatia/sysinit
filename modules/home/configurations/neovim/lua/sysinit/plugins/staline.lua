@@ -14,6 +14,8 @@ return {
       end
 
       require("staline").setup({
+        -- If it's "intactive" we just want it to look normal
+        inactive_color = get_fg("Normal"),
         sections = {
           left = {
             "mode",
@@ -29,7 +31,6 @@ return {
           },
         },
         defaults = {
-          inactive_color = get_fg("Normal"),
           expand_null_ls = false,
           line_column = ":%c [%l/%L]",
           lsp_client_symbol = "󰘧 ",

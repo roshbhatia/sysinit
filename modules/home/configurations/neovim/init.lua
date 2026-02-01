@@ -2,10 +2,6 @@ if vim.g.nix_managed == nil then
   vim.g.nix_managed = false
 end
 
-if vim.g.nix_transparency_enabled == nil then
-  vim.g.nix_transparency_enabled = false
-end
-
 vim.g.mapleader = " "
 vim.g.maplocalleader = "\\"
 vim.o.sessionoptions = "blank,buffers,curdir,folds,help,tabpages,winsize,winpos,terminal,localoptions"
@@ -28,7 +24,6 @@ vim.opt.rtp:prepend(lazypath)
 
 require("lazy").setup({
   spec = {
-    "RRethy/base16-nvim",
     {
       import = "sysinit.plugins",
     },
