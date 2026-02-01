@@ -4,6 +4,11 @@
 }:
 
 {
+  stylix.targets.fzf.colors.override = {
+    bg = "-1";
+    "bg+" = "-1";
+  };
+
   programs.fzf = {
     enable = true;
     enableZshIntegration = false; # zsh vi mode messes with ZLE, so we manually source it
