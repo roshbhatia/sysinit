@@ -15,7 +15,116 @@ local SYNTAX_STYLES = {
   operators = { "bold" },
 }
 
-local THEME_METADATA = {
+local TRANSPARENT_GROUPS = {
+  "BlinkCmpDoc",
+  "BlinkCmpDocBorder",
+  "BlinkCmpMenu",
+  "BlinkCmpMenuBorder",
+  "BlinkCmpSignatureHelp",
+  "BlinkCmpSignatureHelpBorder",
+  "ColorColumn",
+  "CursorColumn",
+  "CursorLine",
+  "CursorLineFold",
+  "CursorLineNr",
+  "CursorLineSign",
+  "DiagnosticVirtualTextError",
+  "DiagnosticVirtualTextHint",
+  "DiagnosticVirtualTextInfo",
+  "DiagnosticVirtualTextWarn",
+  "DropBarCurrentContext",
+  "DropBarIconKindDefault",
+  "DropBarIconKindDefaultNC",
+  "DropBarMenuFloatBorder",
+  "DropBarMenuNormalFloat",
+  "FloatBorder",
+  "FloatTitle",
+  "FoldColumn",
+  "GitSignsAddLnInline",
+  "GitSignsAddPreview",
+  "GitSignsChangeLnInline",
+  "GitSignsDeleteLnInline",
+  "GitSignsDeletePreview",
+  "GitSignsDeleteVirtLn",
+  "GitSignsStagedAdd",
+  "GitSignsStagedAddCul",
+  "GitSignsStagedAddLn",
+  "GitSignsStagedAddNr",
+  "GitSignsStagedChange",
+  "GitSignsStagedChangeCul",
+  "GitSignsStagedChangeLn",
+  "GitSignsStagedChangeNr",
+  "GitSignsStagedDelete",
+  "GitSignsStagedDeleteCul",
+  "GitSignsStagedDeleteLn",
+  "GitSignsStagedDeleteNr",
+  "GitSignsStagedTopdelete",
+  "GitSignsStagedTopdeleteCul",
+  "GitSignsStagedTopdeleteNr",
+  "GitSignsStagedUntracked",
+  "GitSignsStagedUntrackedCul",
+  "GitSignsStagedUntrackedLn",
+  "GitSignsStagedUntrackedNr",
+  "GitSignsVirtLnum",
+  "LazyNormal",
+  "LineNr",
+  "LineNrAbove",
+  "LineNrBelow",
+  "MsgSeparator",
+  "NeoTreeGitAdded",
+  "NeoTreeGitDeleted",
+  "NeoTreeGitModified",
+  "NeoTreeGitRenamed",
+  "Normal",
+  "NormalFloat",
+  "NormalNC",
+  "Pmenu",
+  "PmenuBorder",
+  "PmenuSbar",
+  "PmenuThumb",
+  "SignColumn",
+  "StatusLine",
+  "StatusLineNC",
+  "StatusLineTerm",
+  "StatusLineTermNC",
+  "TabLine",
+  "TabLineFill",
+  "TreesitterContext",
+  "TreesitterContextLineNumber",
+  "WhichKeyBorder",
+  "WhichKeyFloat",
+  "WilderGradient1",
+  "WilderGradient2",
+  "WilderGradient3",
+  "WilderGradient4",
+  "WilderSeparator",
+  "WilderSpinner",
+  "WinBar",
+  "WinBarNC",
+  "WinSeparator",
+}
+
+local HIGHLIGHT_OVERRIDES = {
+  DiagnosticError = { link = "ErrorMsg" },
+  DiagnosticHint = { link = "Comment" },
+  DiagnosticInfo = { link = "Identifier" },
+  DiagnosticOk = { link = "Question" },
+  DiagnosticWarn = { link = "WarningMsg" },
+  ["@constant.builtin"] = { link = "Special" },
+  ["@constructor"] = { link = "Typedef" },
+  ["@function.builtin"] = { link = "Special" },
+  ["@markup.heading"] = { link = "Title" },
+  ["@markup.link.label"] = { link = "Special" },
+  ["@markup.raw"] = { link = "String" },
+  ["@module"] = { link = "Include" },
+  ["@string.special.url"] = { link = "Underlined" },
+  ["@variable"] = { link = "Identifier" },
+  ["@variable.builtin"] = { link = "Special" },
+  ["@variable.member"] = { link = "Identifier" },
+  ["@variable.parameter"] = { link = "Identifier" },
+}
+
+local THEMES = {
   catppuccin = {
     plugin = "catppuccin/nvim",
     colorscheme = "catppuccin",
@@ -30,29 +139,22 @@ local THEME_METADATA = {
           cmp = true,
           dap = true,
           dap_ui = true,
-          dropbar = { enabled = true, color_mode = true },
           fzf = true,
           gitsigns = true,
           grug_far = true,
           hop = true,
-          indent_blankline = {
-            enabled = true,
-            scope_color = "lavender",
-            colored_indent_levels = true,
-          },
-          native_lsp = {
-            enabled = true,
-            virtual_text = { errors = { "italic" }, hints = { "italic" } },
-          },
           notify = true,
           nvimtree = true,
           markview = true,
           semantic_tokens = true,
-          snacks = { enabled = true },
-          telescope = { enabled = true, style = "nvchad" },
           treesitter = true,
           treesitter_context = true,
           which_key = true,
+          snacks = { enabled = true },
+          telescope = { enabled = true, style = "nvchad" },
+          dropbar = { enabled = true, color_mode = true },
+          indent_blankline = { enabled = true, scope_color = "lavender", colored_indent_levels = true },
+          native_lsp = { enabled = true, virtual_text = { errors = { "italic" }, hints = { "italic" } } },
         },
       })
     end,
@@ -115,7 +217,6 @@ local THEME_METADATA = {
           bg = p
         end
       end
-
       vim.g.everforest_background = bg
       vim.g.everforest_better_performance = 1
       vim.g.everforest_enable_italic = 1
@@ -136,121 +237,12 @@ local function apply_highlights()
   local highlights = {}
 
   if vim.g.nix_managed == true then
-    local transparent_groups = {
-      "BlinkCmpDoc",
-      "BlinkCmpDocBorder",
-      "BlinkCmpMenu",
-      "BlinkCmpMenuBorder",
-      "BlinkCmpSignatureHelp",
-      "BlinkCmpSignatureHelpBorder",
-      "ColorColumn",
-      "CursorColumn",
-      "CursorLine",
-      "CursorLineFold",
-      "CursorLineNr",
-      "CursorLineSign",
-      "DiagnosticVirtualTextError",
-      "DiagnosticVirtualTextHint",
-      "DiagnosticVirtualTextInfo",
-      "DiagnosticVirtualTextWarn",
-      "DropBarCurrentContext",
-      "DropBarIconKindDefault",
-      "DropBarIconKindDefaultNC",
-      "DropBarMenuFloatBorder",
-      "DropBarMenuNormalFloat",
-      "FloatBorder",
-      "FloatTitle",
-      "FoldColumn",
-      "GitSignsAddLnInline",
-      "GitSignsAddPreview",
-      "GitSignsChangeLnInline",
-      "GitSignsDeleteLnInline",
-      "GitSignsDeletePreview",
-      "GitSignsDeleteVirtLn",
-      "GitSignsStagedAdd",
-      "GitSignsStagedAddCul",
-      "GitSignsStagedAddLn",
-      "GitSignsStagedAddNr",
-      "GitSignsStagedChange",
-      "GitSignsStagedChangeCul",
-      "GitSignsStagedChangeLn",
-      "GitSignsStagedChangeNr",
-      "GitSignsStagedDelete",
-      "GitSignsStagedDeleteCul",
-      "GitSignsStagedDeleteLn",
-      "GitSignsStagedDeleteNr",
-      "GitSignsStagedTopdelete",
-      "GitSignsStagedTopdeleteCul",
-      "GitSignsStagedTopdeleteNr",
-      "GitSignsStagedUntracked",
-      "GitSignsStagedUntrackedCul",
-      "GitSignsStagedUntrackedLn",
-      "GitSignsStagedUntrackedNr",
-      "GitSignsVirtLnum",
-      "LazyNormal",
-      "LineNr",
-      "LineNrAbove",
-      "LineNrBelow",
-      "MsgSeparator",
-      "NeoTreeGitAdded",
-      "NeoTreeGitDeleted",
-      "NeoTreeGitModified",
-      "NeoTreeGitRenamed",
-      "Normal",
-      "NormalFloat",
-      "NormalNC",
-      "Pmenu",
-      "PmenuBorder",
-      "PmenuSbar",
-      "PmenuThumb",
-      "SignColumn",
-      "StatusLine",
-      "StatusLineNC",
-      "StatusLineTerm",
-      "StatusLineTermNC",
-      "TabLine",
-      "TabLineFill",
-      "TreesitterContext",
-      "TreesitterContextLineNumber",
-      "WhichKeyBorder",
-      "WhichKeyFloat",
-      "WilderGradient1",
-      "WilderGradient2",
-      "WilderGradient3",
-      "WilderGradient4",
-      "WilderSeparator",
-      "WilderSpinner",
-      "WinBar",
-      "WinBarNC",
-      "WinSeparator",
-    }
-
-    for _, group in ipairs(transparent_groups) do
+    for _, group in ipairs(TRANSPARENT_GROUPS) do
       highlights[group] = { bg = "none" }
     end
   end
 
-  local overrides = {
-    DiagnosticError = { link = "ErrorMsg" },
-    DiagnosticHint = { link = "Comment" },
-    DiagnosticInfo = { link = "Identifier" },
-    DiagnosticOk = { link = "Question" },
-    DiagnosticWarn = { link = "WarningMsg" },
-    ["@constant.builtin"] = { link = "Special" },
-    ["@constructor"] = { link = "Typedef" },
-    ["@function.builtin"] = { link = "Special" },
-    ["@markup.heading"] = { link = "Title" },
-    ["@markup.link.label"] = { link = "Special" },
-    ["@markup.raw"] = { link = "String" },
-    ["@module"] = { link = "Include" },
-    ["@string.special.url"] = { link = "Underlined" },
-    ["@variable"] = { link = "Identifier" },
-    ["@variable.builtin"] = { link = "Special" },
-    ["@variable.member"] = { link = "Identifier" },
-    ["@variable.parameter"] = { link = "Identifier" },
-  }
-
-  for group, attrs in pairs(overrides) do
+  for group, attrs in pairs(HIGHLIGHT_OVERRIDES) do
     highlights[group] = attrs
   end
 
@@ -259,14 +251,7 @@ local function apply_highlights()
   end
 end
 
-local function setup_theme(cfg)
-  local meta = THEME_METADATA[cfg.colorscheme]
-  if not meta then
-    vim.cmd.colorscheme("default")
-    apply_highlights()
-    return
-  end
-
+local function setup_theme(meta, cfg)
   if meta.setup then
     meta.setup(cfg)
   end
@@ -280,26 +265,33 @@ local function setup_theme(cfg)
   })
 end
 
-local theme_cfg = (not vim.g.nix_managed) and { colorscheme = "minicyan" }
-  or json_loader.load_json_file(json_loader.get_config_path("theme_config.json"), "theme_config")
-  or {}
+local function get_theme_config()
+  local config = { colorscheme = "miniautumn" }
 
-local meta = (not vim.g.nix_managed) and { plugin = "nvim-mini/mini.base16" }
-  or THEME_METADATA[theme_cfg.colorscheme]
-  or { plugin = "nvim-mini/mini.base16" }
+  if vim.g.nix_managed then
+    local loaded = json_loader.load_json_file(json_loader.get_config_path("theme_config.json"), "theme_config")
+    if loaded then
+      config = loaded
+    end
+  end
+
+  return config
+end
+
+local active_cfg = get_theme_config()
+local active_meta = THEMES[active_cfg.colorscheme] or { plugin = "nvim-mini/mini.base16" }
 
 return {
   {
-    meta.plugin,
+    active_meta.plugin,
     lazy = false,
     priority = 1000,
     config = function()
       if not vim.g.nix_managed then
-        vim.opt.background = "light"
-        vim.cmd.colorscheme("minicyan")
+        vim.cmd.colorscheme("autumn")
         apply_highlights()
       else
-        setup_theme(theme_cfg)
+        setup_theme(active_meta, active_cfg)
       end
     end,
   },
