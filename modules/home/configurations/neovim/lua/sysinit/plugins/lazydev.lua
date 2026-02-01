@@ -1,6 +1,7 @@
 return {
   {
     "folke/lazydev.nvim",
+    enabled = vim.g.nix_managed,
     dependencies = {
       "neovim/nvim-lspconfig",
     },
