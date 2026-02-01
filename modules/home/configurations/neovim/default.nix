@@ -1,5 +1,6 @@
 {
   lib,
+  pkgs,
   values,
   ...
 }:
@@ -23,6 +24,14 @@
     withNodeJs = true;
     withPython3 = true;
     withRuby = true;
+
+    # Add base16-nvim as a plugin so it's available for stylix
+    plugins = [
+      {
+        plugin = pkgs.vimPlugins.base16-nvim;
+        optional = false;
+      }
+    ];
 
     # This will be combined with stylix's generated config
     initLua = ''

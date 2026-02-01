@@ -150,9 +150,26 @@ return {
         "<leader>et",
         function()
           local reveal_file = vim.fn.expand("%:p")
-          -- If the buffer has no name, use the current working directory
+
+          -- If the buffer has no name, check if nvim was opened with a directory argument
           if reveal_file == "" then
-            reveal_file = vim.fn.getcwd()
+            local argv = vim.fn.argv()
+            if #argv > 0 then
+              -- Get the first argument passed to nvim
+              local first_arg = argv[1]
+              local expanded = vim.fn.expand(first_arg)
+
+              -- If it's a directory, use it
+              if vim.fn.isdirectory(expanded) == 1 then
+                reveal_file = expanded
+              else
+                -- If it's a file, use its directory
+                reveal_file = vim.fn.fnamemodify(expanded, ":p:h")
+              end
+            else
+              -- No arguments, use current working directory
+              reveal_file = vim.fn.getcwd()
+            end
           end
 
           require("neo-tree.command").execute({
