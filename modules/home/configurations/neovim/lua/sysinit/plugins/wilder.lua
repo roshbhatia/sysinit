@@ -40,7 +40,7 @@ return {
         min_height = 0,
         prompt_position = "top",
         reverse = 0,
-        pumblend = 20,
+        pumblend = 0,
         highlighter = wilder.lua_fzy_highlighter(),
         highlights = {
           default = "Pmenu",
