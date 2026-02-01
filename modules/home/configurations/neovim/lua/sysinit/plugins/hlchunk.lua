@@ -1,9 +1,8 @@
 local function get_palette_colors()
-  local good = vim.api.nvim_get_hl(0, { name = "@variable", link = false })
-  local error = vim.api.nvim_get_hl(0, { name = "Error", link = false })
+  local hl_utils = require("sysinit.utils.highlight")
   return {
-    good = string.format("#%06x", good.fg),
-    error = string.format("#%06x", error.fg),
+    good = hl_utils.get_fg("@variable"),
+    error = hl_utils.get_fg("Error"),
   }
 end
 

@@ -1,127 +1,55 @@
+-- Session management facade with auto-detection of terminal backend
 local M = {}
 
+local base = require("sysinit.utils.ai.backends.base")
+local backend = nil -- Backend module (wezterm or native)
 local config = {}
 local terminals = {}
 local active_terminal = nil
 local augroup = nil
-local parent_pane_id = nil
 
-local function get_current_pane_id()
-  return tonumber(vim.env.WEZTERM_PANE)
-end
-
-local function get_pane_info(pane_id)
-  if not pane_id then
-    return nil
+-- Detect which backend to use based on environment
+-- @return string: "wezterm" or "native"
+local function detect_backend()
+  -- Priority 1: SSH → force native (even if WEZTERM_PANE exists)
+  if vim.env.SSH_CONNECTION then
+    return "native"
   end
 
-  local result = vim.fn.system("wezterm cli list --format json 2>/dev/null")
-  if vim.v.shell_error ~= 0 then
-    return nil
-  end
-
-  local ok, panes = pcall(vim.fn.json_decode, result)
-  if not ok or not panes then
-    return nil
-  end
-
-  for _, pane in ipairs(panes) do
-    if pane.pane_id == pane_id then
-      return pane
+  -- Priority 2: WezTerm available → use wezterm
+  if vim.env.WEZTERM_PANE then
+    local pane_id = tonumber(vim.env.WEZTERM_PANE)
+    if pane_id then
+      -- Verify wezterm CLI actually works
+      vim.fn.system("wezterm cli list 2>/dev/null")
+      if vim.v.shell_error == 0 then
+        return "wezterm"
+      end
     end
   end
 
-  return nil
+  -- Priority 3: Fallback to native
+  return "native"
 end
 
-local function get_session_name(termname, cwd)
-  -- Use full, sanitized path to avoid collisions
-  local full = vim.fn.fnamemodify(cwd, ":p")
-  local safe = full:gsub("[/:%s]", "_")
-  local timestamp = os.date("%Y%m%d-%H%M%S")
-  return string.format("ai-%s-%s-%s", termname, safe, timestamp)
-end
-
-local function find_existing_session(termname, cwd)
-  -- Use full, sanitized path for prefix matching
-  local full = vim.fn.fnamemodify(cwd, ":p")
-  local safe = full:gsub("[/:%s]", "_")
-  local prefix = string.format("ai-%s-%s-", termname, safe)
-  local out = vim.fn.system("tmux list-sessions -F '#S' 2>/dev/null")
-  if vim.v.shell_error ~= 0 or not out or out == "" then
-    return nil
-  end
-  for s in string.gmatch(out, "[^\n]+") do
-    local name = vim.trim(s)
-    if vim.startswith(name, prefix) then
-      return name
-    end
-  end
-  return nil
-end
-
-local function tmux_session_exists(session_name)
-  vim.fn.system(string.format("tmux has-session -t %s 2>/dev/null", vim.fn.shellescape(session_name)))
-  return vim.v.shell_error == 0
-end
-
-local function pane_exists(pane_id)
-  local pane_info = get_pane_info(pane_id)
-  if not pane_info then
-    return false
-  end
-
-  local parent_info = get_pane_info(parent_pane_id)
-  if not parent_info then
-    return true
-  end
-
-  return pane_info.window_id == parent_info.window_id and pane_info.tab_id == parent_info.tab_id
-end
-
-local function is_visible(termname)
-  local term_data = terminals[termname]
-  if not term_data or not term_data.pane_id then
-    return false
-  end
-  return pane_exists(term_data.pane_id)
-end
-
-local function wait_for_pane(pane_id, max_retries)
-  max_retries = max_retries or 5
-  local retry = 0
-  while retry < max_retries do
-    if get_pane_info(pane_id) then
-      return true
-    end
-    retry = retry + 1
-    if retry < max_retries then
-      vim.fn.system("sleep 0.1")
-    end
-  end
-  return false
-end
-
-local function activate_pane(pane_id)
-  vim.fn.system(string.format("wezterm cli activate-pane --pane-id %d 2>/dev/null", pane_id))
-  return vim.v.shell_error == 0
-end
-
-local function kill_pane(pane_id)
-  vim.fn.system(string.format("wezterm cli kill-pane --pane-id %d 2>/dev/null", pane_id))
-  return vim.v.shell_error == 0
-end
-
+-- Setup the session manager with backend detection
+-- @param opts table: Configuration options
 function M.setup(opts)
   config = opts or {}
   config.terminals = config.terminals or {}
   config.env = config.env or {}
 
-  parent_pane_id = get_current_pane_id()
-  if not parent_pane_id then
-    return
+  -- Detect and load backend
+  local backend_type = detect_backend()
+  if backend_type == "wezterm" then
+    backend = require("sysinit.utils.ai.backends.wezterm")
+  else
+    backend = require("sysinit.utils.ai.backends.native")
   end
 
+  backend.setup(config)
+
+  -- Setup autocmds (cleanup tracking fields for both backends)
   if not augroup then
     augroup = vim.api.nvim_create_augroup("AIManager", { clear = true })
 
@@ -129,8 +57,10 @@ function M.setup(opts)
       group = augroup,
       callback = function()
         for _, term_data in pairs(terminals) do
-          if term_data.pane_id and not pane_exists(term_data.pane_id) then
+          if not backend.is_visible(term_data) then
+            -- Clear backend-specific visibility tracking
             term_data.pane_id = nil
+            term_data.win = nil
           end
         end
       end,
@@ -139,197 +69,134 @@ function M.setup(opts)
     vim.api.nvim_create_autocmd("VimLeavePre", {
       group = augroup,
       callback = function()
-        for _, term_data in pairs(terminals) do
-          if term_data.pane_id then
-            kill_pane(term_data.pane_id)
-          end
-        end
+        backend.cleanup_all(terminals)
       end,
     })
   end
 end
 
+-- Open a terminal (creates or focuses existing)
+-- @param termname string: Terminal name
 function M.open(termname)
   local agent_config = config.terminals[termname]
   if not agent_config then
     return
   end
 
-  if is_visible(termname) then
+  if terminals[termname] and backend.is_visible(terminals[termname]) then
     M.focus(termname)
     return
   end
 
-  if not parent_pane_id then
-    vim.notify("Cannot spawn AI terminal: parent pane ID not available", vim.log.levels.ERROR)
+  if not backend then
+    vim.notify("Backend not initialized", vim.log.levels.ERROR)
     return
   end
 
   local cwd = vim.fn.getcwd()
+  local term_data = backend.open(termname, agent_config, cwd)
 
-  local session_name = find_existing_session(termname, cwd)
-  local is_new_session = false
-
-  if not session_name then
-    session_name = get_session_name(termname, cwd)
-    is_new_session = true
+  if term_data then
+    terminals[termname] = term_data
+    active_terminal = termname
   end
-
-  local env_str = ""
-  for key, value in pairs(config.env) do
-    env_str = env_str .. string.format("export %s=%s; ", key, vim.fn.shellescape(value))
-  end
-
-  if vim.env.NVIM_SOCKET_PATH then
-    env_str = env_str .. string.format("export NVIM_SOCKET_PATH=%s; ", vim.fn.shellescape(vim.env.NVIM_SOCKET_PATH))
-  end
-
-  local tmux_cmd
-  if is_new_session then
-    tmux_cmd = string.format(
-      "tmux new-session -s %s -c %s 'tmux set-option -t %s status off; %s%s'",
-      vim.fn.shellescape(session_name),
-      vim.fn.shellescape(cwd),
-      vim.fn.shellescape(session_name),
-      env_str,
-      agent_config.cmd
-    )
-  else
-    tmux_cmd = string.format("tmux attach-session -t %s", vim.fn.shellescape(session_name))
-  end
-
-  local spawn_cmd = string.format(
-    "wezterm cli split-pane --pane-id %d --right --percent 50 --cwd %s -- %s 2>/dev/null",
-    parent_pane_id,
-    vim.fn.shellescape(cwd),
-    tmux_cmd
-  )
-
-  local result = vim.fn.system(spawn_cmd)
-
-  if vim.v.shell_error ~= 0 then
-    vim.notify("Failed to spawn pane", vim.log.levels.ERROR)
-    return
-  end
-
-  local pane_id = tonumber(vim.trim(result))
-  if not pane_id then
-    vim.notify("Failed to parse pane ID from wezterm", vim.log.levels.ERROR)
-    return
-  end
-
-  if not wait_for_pane(pane_id, 5) then
-    return
-  end
-
-  terminals[termname] = {
-    pane_id = pane_id,
-    session_name = session_name,
-    cmd = agent_config.cmd,
-    cwd = cwd,
-  }
-  active_terminal = termname
 end
 
+-- Toggle terminal visibility
+-- @param termname string: Terminal name
 function M.toggle(termname)
   local term_data = terminals[termname]
 
-  if term_data and pane_exists(term_data.pane_id) then
+  if term_data and backend and backend.is_visible(term_data) then
     M.focus(termname)
   else
     M.open(termname)
   end
 end
 
+-- Focus a terminal
+-- @param termname string: Terminal name
 function M.focus(termname)
   local term_data = terminals[termname]
 
-  if not term_data then
+  if not term_data or not backend then
     return
   end
 
-  if not term_data.pane_id or not pane_exists(term_data.pane_id) then
-    vim.notify(string.format("Pane no longer exists for %s. Reopening...", termname), vim.log.levels.WARN)
+  if not backend.is_visible(term_data) then
+    vim.notify(string.format("Terminal no longer visible for %s. Reopening...", termname), vim.log.levels.WARN)
     term_data.pane_id = nil
+    term_data.win = nil
     M.open(termname)
     return
   end
 
-  activate_pane(term_data.pane_id)
+  if not backend.focus(term_data) then
+    vim.notify(string.format("Failed to focus %s. Reopening...", termname), vim.log.levels.WARN)
+    term_data.pane_id = nil
+    term_data.win = nil
+    M.open(termname)
+    return
+  end
+
   active_terminal = termname
 end
 
+-- Hide a terminal (closes visible UI, keeps tmux session)
+-- @param termname string: Terminal name
 function M.hide(termname)
   local term_data = terminals[termname]
 
-  if not term_data or not term_data.pane_id then
+  if not term_data or not backend then
     return
   end
 
-  if not pane_exists(term_data.pane_id) then
-    term_data.pane_id = nil
-    return
-  end
-
-  kill_pane(term_data.pane_id)
-  term_data.pane_id = nil
-
-  if parent_pane_id then
-    activate_pane(parent_pane_id)
-  end
+  backend.hide(term_data)
 end
 
+-- Show a hidden terminal (reattach to tmux session)
+-- @param termname string: Terminal name
 function M.show(termname)
   local term_data = terminals[termname]
 
-  if not term_data then
+  if not term_data or not backend then
     vim.notify(string.format("Terminal not found: %s", termname), vim.log.levels.WARN)
     return
   end
 
-  if not tmux_session_exists(term_data.session_name) then
+  if not base.tmux_session_exists(term_data.session_name) then
     terminals[termname] = nil
     M.open(termname)
     return
   end
 
-  if is_visible(termname) then
+  if backend.is_visible(term_data) then
     M.focus(termname)
     return
   end
 
-  local tmux_cmd = string.format("tmux attach-session -t %s", vim.fn.shellescape(term_data.session_name))
-
-  local spawn_cmd = string.format(
-    "wezterm cli split-pane --pane-id %d --right --percent 50 --cwd %s -- %s 2>/dev/null",
-    parent_pane_id,
-    vim.fn.shellescape(term_data.cwd),
-    tmux_cmd
-  )
-
-  local result = vim.fn.system(spawn_cmd)
-
-  if vim.v.shell_error ~= 0 then
-    return
+  local updated = backend.show(term_data)
+  if updated then
+    terminals[termname] = updated
+    active_terminal = termname
   end
-
-  local pane_id = tonumber(vim.trim(result))
-  if not pane_id then
-    return
-  end
-
-  if not wait_for_pane(pane_id, 5) then
-    return
-  end
-
-  term_data.pane_id = pane_id
-  active_terminal = termname
 end
 
+-- Check if terminal is visible
+-- @param termname string: Terminal name
+-- @return boolean: True if visible
 function M.is_visible(termname)
-  return is_visible(termname)
+  local term_data = terminals[termname]
+  if not term_data or not backend then
+    return false
+  end
+  return backend.is_visible(term_data)
 end
 
+-- Send text to a terminal
+-- @param termname string: Terminal name
+-- @param text string: Text to send
+-- @param opts table: Options with optional 'submit' field
 function M.send(termname, text, opts)
   opts = opts or {}
   local term_data = terminals[termname]
@@ -338,36 +205,33 @@ function M.send(termname, text, opts)
     return
   end
 
-  if not tmux_session_exists(term_data.session_name) then
-    return
-  end
-
-  local send_cmd =
-    string.format("tmux send-keys -t %s %s", vim.fn.shellescape(term_data.session_name), vim.fn.shellescape(text))
-  vim.fn.system(send_cmd)
-
-  if opts.submit then
-    vim.fn.system(string.format("tmux send-keys -t %s Enter", vim.fn.shellescape(term_data.session_name)))
-  end
+  base.send_to_tmux(term_data.session_name, text, opts)
 end
 
+-- Get terminal information
+-- @param termname string: Terminal name
+-- @return table|nil: Terminal info or nil if not found
 function M.get_info(termname)
   local term_data = terminals[termname]
 
-  if not term_data then
+  if not term_data or not backend then
     return nil
   end
 
   return {
     name = termname,
-    visible = is_visible(termname),
+    visible = backend.is_visible(term_data),
     pane_id = term_data.pane_id,
     session_name = term_data.session_name,
     cmd = term_data.cmd,
     cwd = term_data.cwd,
+    win = term_data.win,
+    buf = term_data.buf,
   }
 end
 
+-- Get all terminal information
+-- @return table: Map of terminal name to info
 function M.get_all()
   local result = {}
   for name, _ in pairs(terminals) do
@@ -376,26 +240,29 @@ function M.get_all()
   return result
 end
 
+-- Check if terminal exists (has active tmux session)
+-- @param termname string: Terminal name
+-- @return boolean: True if exists
 function M.exists(termname)
   local term_data = terminals[termname]
   if not term_data then
     return false
   end
-  return tmux_session_exists(term_data.session_name)
+  return base.tmux_session_exists(term_data.session_name)
 end
 
+-- Close a terminal (kill tmux session and UI)
+-- @param termname string: Terminal name
 function M.close(termname)
   local term_data = terminals[termname]
 
-  if not term_data then
+  if not term_data or not backend then
     return
   end
 
-  if term_data.pane_id then
-    kill_pane(term_data.pane_id)
-  end
+  backend.kill(term_data)
 
-  if tmux_session_exists(term_data.session_name) then
+  if base.tmux_session_exists(term_data.session_name) then
     vim.fn.system(string.format("tmux kill-session -t %s", vim.fn.shellescape(term_data.session_name)))
   end
 
@@ -405,6 +272,8 @@ function M.close(termname)
   end
 end
 
+-- Cleanup terminal from tracking (doesn't kill session)
+-- @param termname string: Terminal name
 function M.cleanup_terminal(termname)
   terminals[termname] = nil
   if active_terminal == termname then
@@ -412,23 +281,29 @@ function M.cleanup_terminal(termname)
   end
 end
 
+-- Get the active terminal name
+-- @return string|nil: Active terminal name or nil
 function M.get_active()
   return active_terminal
 end
 
+-- Set the active terminal
+-- @param termname string: Terminal name
 function M.set_active(termname)
   if terminals[termname] then
     active_terminal = termname
   end
 end
 
+-- Activate a terminal (open if needed, show if hidden, focus if visible)
+-- @param termname string: Terminal name
 function M.activate(termname)
   local term_data = terminals[termname]
 
   if not term_data then
     M.open(termname)
   else
-    if is_visible(termname) then
+    if backend and backend.is_visible(term_data) then
       M.focus(termname)
     else
       M.show(termname)
@@ -437,6 +312,9 @@ function M.activate(termname)
   end
 end
 
+-- Send text to the active terminal
+-- @param text string: Text to send
+-- @param opts table: Options with optional 'submit' field
 function M.send_to_active(text, opts)
   if not active_terminal then
     vim.notify("No active AI terminal", vim.log.levels.WARN)
@@ -445,6 +323,8 @@ function M.send_to_active(text, opts)
   M.send(active_terminal, text, opts)
 end
 
+-- Ensure active terminal exists and send text
+-- @param text string: Text to send
 function M.ensure_active_and_send(text)
   if not active_terminal then
     vim.notify("No active AI terminal. Select one with <leader>jj", vim.log.levels.WARN)
@@ -461,7 +341,7 @@ function M.ensure_active_and_send(text)
       M.send(active_terminal, text, { submit = true })
     end
   else
-    if not is_visible(active_terminal) then
+    if backend and not backend.is_visible(terminals[active_terminal]) then
       M.show(active_terminal)
       vim.fn.system("sleep 0.1")
     else

@@ -4,10 +4,8 @@ return {
     dependencies = { "nvim-tree/nvim-web-devicons" },
     event = "VeryLazy",
     config = function()
-      local function get_fg(hl_name)
-        local hl = vim.api.nvim_get_hl(0, { name = hl_name })
-        return hl.fg and string.format("#%06x", hl.fg) or "#FFFFFF"
-      end
+      local hl_utils = require("sysinit.utils.highlight")
+      local get_fg = hl_utils.get_fg
 
       require("staline").setup({
         sections = {

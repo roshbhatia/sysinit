@@ -3,11 +3,10 @@ return {
     "rachartier/tiny-glimmer.nvim",
     event = "VeryLazy",
     config = function()
-      local hl = vim.api.nvim_get_hl(0, { name = "Normal" })
-      local fg = hl.fg
+      local hl_utils = require("sysinit.utils.highlight")
 
       require("tiny-glimmer").setup({
-        transparency_color = string.format("#%06x", fg),
+        transparency_color = hl_utils.get_fg("Normal"),
         overwrite = {
           search = { enabled = true },
           undo = { enabled = true, undo_mapping = "u" },
