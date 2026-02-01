@@ -135,20 +135,24 @@ local THEME_METADATA = {
 local function generate_transparency_highlights(cfg)
   if cfg.transparency and cfg.transparency.opacity < 1 then
     return {
+      CursorLine = { bg = "none" },
+      FoldColumn = { bg = "none" },
+      LineNr = { bg = "none" },
+      NeoTreeGitAdded = { bg = "none" },
+      NeoTreeGitModified = { bg = "none" },
+      NeoTreeNormal = { bg = "none" },
+      NeoTreeNormalNC = { bg = "none" },
+      NeotreeGitDeleted = { bg = "none" },
+      NeotreeGitRenamed = { bg = "none" },
       Normal = { bg = "none" },
       NormalFloat = { bg = "none" },
       NormalNC = { bg = "none" },
-      LineNr = { bg = "none" },
-      FoldColumn = { bg = "none" },
-      CursorLine = { bg = "none" },
       Pmenu = { bg = "none" },
       StatusLine = { bg = "none" },
       StatusLineNC = { bg = "none" },
-      WinSeparator = { bg = "none" },
-      TelescopeNormal = { bg = "none" },
       TelescopeBorder = { bg = "none" },
-      NeoTreeNormal = { bg = "none" },
-      NeoTreeNormalNC = { bg = "none" },
+      TelescopeNormal = { bg = "none" },
+      WinSeparator = { bg = "none" },
     }
   end
   return {}

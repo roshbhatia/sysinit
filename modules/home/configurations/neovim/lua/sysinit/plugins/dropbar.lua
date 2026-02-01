@@ -20,5 +20,16 @@ return {
         },
       })
     end,
+    keys = function()
+      return {
+        {
+          "<leader>cc",
+          function()
+            require("dropbar.api").pick()
+          end,
+          desc = "Pick breadcrumbs",
+        },
+      }
+    end,
   },
 }
