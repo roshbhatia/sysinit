@@ -1,27 +1,12 @@
--- Theme setup and comprehensive highlight configuration
--- This runs after all plugins are loaded
-
--- Only run if Nix-managed (stylix provides colors)
-if vim.g.nix_hm_managed then
-  -- Stylix generates a call to require('base16-colorscheme') but base16-nvim uses 'base16'
-  -- Create a compatibility shim
-  package.preload["base16-colorscheme"] = function()
-    return require("base16")
-  end
-end
-
--- Get base16 colors after colorscheme is loaded
 local function get_base16_colors()
-  -- Access colors from base16-colorscheme after it's loaded
   local ok, colorscheme = pcall(require, "base16-colorscheme")
   if ok and colorscheme.colors then
     return colorscheme.colors
   end
-  -- Fallback: return nil and let highlights use default colors
+
   return nil
 end
 
--- Apply all highlight groups using base16 colors
 local function apply_highlights()
   local colors = get_base16_colors()
   if not colors then
@@ -271,14 +256,11 @@ local function apply_highlights()
   vim.api.nvim_set_hl(0, "@lsp.typemod.variable.readonly", { fg = colors.base09 })
 end
 
--- Apply on startup (with delay to ensure colorscheme is loaded)
-vim.defer_fn(apply_highlights, 100)
+apply_highlights()
 
 -- Reapply after colorscheme changes
 vim.api.nvim_create_autocmd("ColorScheme", {
   pattern = "*",
-  callback = function()
-    vim.defer_fn(apply_highlights, 50)
-  end,
+  callback = apply_highlights,
   desc = "Reapply custom highlights after colorscheme change",
 })

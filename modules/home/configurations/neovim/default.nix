@@ -35,6 +35,11 @@
       vim.g.nix_variant = "${values.theme.variant}"
       vim.g.nix_appearance = "${values.theme.appearance}"
 
+      -- Stylix compatibility shim: base16-nvim uses 'base16' module, not 'base16-colorscheme'
+      package.preload["base16-colorscheme"] = function()
+        return require("base16")
+      end
+
       -- Copy content from init.lua below:
       vim.g.mapleader = " "
       vim.g.maplocalleader = "\\"

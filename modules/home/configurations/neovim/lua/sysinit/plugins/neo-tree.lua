@@ -149,24 +149,38 @@ return {
       {
         "<leader>et",
         function()
-          local reveal_file = vim.fn.expand("%:p")
-          local reveal_dir = nil
+          local reveal_dir = ""
+          local reveal_file = nil
 
-          if reveal_file == "" then
-            -- No file open - use current working directory
-            -- This respects the directory passed to nvim (e.g., nvim ~/.config)
-            reveal_dir = vim.fn.getcwd()
+          -- Check if nvim was opened with arguments
+          local argv = vim.fn.argv()
+          if #argv > 0 then
+            local first_arg = vim.fn.fnamemodify(argv[1], ":p")
+
+            -- If it's a directory, use it as the reveal_dir
+            if vim.fn.isdirectory(first_arg) == 1 then
+              reveal_dir = first_arg
+            else
+              -- If it's a file, reveal the file and set dir to its parent
+              reveal_file = first_arg
+              reveal_dir = vim.fn.fnamemodify(first_arg, ":p:h")
+            end
           else
-            -- File is open - reveal it in neotree
-            reveal_dir = vim.fn.fnamemodify(reveal_file, ":p:h")
+            -- No arguments - check if there's a file in the current buffer
+            local current_file = vim.fn.expand("%:p")
+            if current_file ~= "" then
+              reveal_file = current_file
+              reveal_dir = vim.fn.fnamemodify(current_file, ":p:h")
+            end
+            -- else: reveal_dir stays empty, will use cwd
           end
 
           require("neo-tree.command").execute({
-            action = "show",
+            action = "toggle",
             source = "filesystem",
             position = "left",
             dir = reveal_dir,
-            reveal_file = reveal_file ~= "" and reveal_file or nil,
+            reveal_file = reveal_file,
           })
         end,
         desc = "Toggle Neotree (Sync to File/Dir)",
