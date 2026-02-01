@@ -132,41 +132,97 @@ local THEME_METADATA = {
   },
 }
 
-local function generate_transparency_highlights(cfg)
-  if cfg.transparency and cfg.transparency.opacity < 1 then
-    return {
-      CursorLine = { bg = "none" },
-      FoldColumn = { bg = "none" },
-      LineNr = { bg = "none" },
-      NeoTreeGitAdded = { bg = "none" },
-      NeoTreeGitModified = { bg = "none" },
-      NeoTreeNormal = { bg = "none" },
-      NeoTreeNormalNC = { bg = "none" },
-      NeotreeGitDeleted = { bg = "none" },
-      NeotreeGitRenamed = { bg = "none" },
-      Normal = { bg = "none" },
-      NormalFloat = { bg = "none" },
-      NormalNC = { bg = "none" },
-      Pmenu = { bg = "none" },
-      StatusLine = { bg = "none" },
-      StatusLineNC = { bg = "none" },
-      TelescopeBorder = { bg = "none" },
-      TelescopeNormal = { bg = "none" },
-      WinSeparator = { bg = "none" },
-    }
-  end
-  return {}
-end
+local function apply_highlights()
+  local highlights = {}
 
-local function get_custom_highlights()
-  return vim.tbl_deep_extend("force", {}, generate_transparency_highlights({ transparency = { opacity = 0 } }), {
+  if vim.g.nix_managed == true then
+    local transparent_groups = {
+      -- Completion / popup related
+      "BlinkCmpDoc",
+      "BlinkCmpDocBorder",
+      "BlinkCmpMenu",
+      "BlinkCmpMenuBorder",
+      "BlinkCmpSignatureHelp",
+      "BlinkCmpSignatureHelpBorder",
+      "Pmenu",
+      "PmenuBorder",
+      "PmenuSbar",
+      "PmenuThumb",
+
+      -- Core editor transparency
+      "Normal",
+      "NormalFloat",
+      "NormalNC",
+      "ColorColumn",
+      "CursorColumn",
+      "CursorLine",
+      "CursorLineFold",
+      "CursorLineNr",
+      "CursorLineSign",
+      "SignColumn",
+      "FoldColumn",
+      "LineNr",
+      "LineNrAbove",
+      "LineNrBelow",
+
+      -- Floating / border elements
+      "FloatBorder",
+      "FloatTitle",
+      "WinSeparator",
+      "WinBar",
+      "WinBarNC",
+
+      -- Status / Tab lines
+      "StatusLine",
+      "StatusLineNC",
+      "StatusLineTerm",
+      "StatusLineTermNC",
+      "TabLine",
+      "TabLineFill",
+
+      -- Diagnostics virtual text
+      "DiagnosticVirtualTextError",
+      "DiagnosticVirtualTextWarn",
+      "DiagnosticVirtualTextInfo",
+      "DiagnosticVirtualTextHint",
+
+      -- Wilder
+      "WilderGradient1",
+      "WilderGradient2",
+      "WilderGradient3",
+      "WilderGradient4",
+      "WilderSeparator",
+      "WilderSpinner",
+
+      -- Other plugins
+      "DropBarCurrentContext",
+      "DropBarIconKindDefault",
+      "DropBarIconKindDefaultNC",
+      "DropBarMenuFloatBorder",
+      "DropBarMenuNormalFloat",
+      "LazyNormal",
+      "MsgSeparator",
+      "TreesitterContext",
+      "TreesitterContextLineNumber",
+      "WhichKeyBorder",
+      "WhichKeyFloat",
+    }
+
+    for _, group in ipairs(transparent_groups) do
+      highlights[group] = { bg = "none" }
+    end
+  end
+
+  local overrides = {
+    -- GitSigns
     GitSignsAdd = { link = "DiffAdd" },
     GitSignsChange = { link = "DiffChange" },
     GitSignsDelete = { link = "DiffDelete" },
     GitSignsAddInline = { link = "DiffAdd" },
     GitSignsChangeInline = { link = "DiffChange" },
     GitSignsDeleteInline = { link = "DiffDelete" },
-  }, {
+
+    -- Treesitter
     ["@variable"] = { link = "Identifier" },
     ["@variable.builtin"] = { link = "Special" },
     ["@variable.parameter"] = { link = "Identifier" },
@@ -179,15 +235,18 @@ local function get_custom_highlights()
     ["@markup.heading"] = { link = "Title" },
     ["@markup.raw"] = { link = "String" },
     ["@markup.link.label"] = { link = "Special" },
-  }, {
+
+    -- Diagnostics
     DiagnosticError = { link = "ErrorMsg" },
     DiagnosticWarn = { link = "WarningMsg" },
     DiagnosticInfo = { link = "Identifier" },
     DiagnosticHint = { link = "Comment" },
     DiagnosticOk = { link = "Question" },
-  }, {
+
+    -- LSP / misc
     ["@lsp.mod.deprecated"] = { strikethrough = true },
-  }, {
+
+    -- UI elements
     FloatBorder = { link = "Comment" },
     FloatTitle = { link = "Title" },
     PmenuSel = { link = "Visual" },
@@ -195,6 +254,7 @@ local function get_custom_highlights()
     WinBar = { link = "StatusLine" },
     WinBarNC = { link = "StatusLineNC" },
 
+    -- Neo-tree
     NeoTreeDirectoryIcon = { link = "Directory" },
     NeoTreeDirectoryName = { link = "Directory" },
     NeoTreeFileName = { link = "Normal" },
@@ -203,11 +263,13 @@ local function get_custom_highlights()
     NeoTreeGitDeleted = { link = "DiffDelete" },
     NeoTreeIndentMarker = { link = "NonText" },
     NeoTreeExpander = { link = "Comment" },
-  })
-end
+  }
 
-local function apply_highlights()
-  for name, val in pairs(get_custom_highlights()) do
+  for group, attrs in pairs(overrides) do
+    highlights[group] = attrs
+  end
+
+  for name, val in pairs(highlights) do
     vim.api.nvim_set_hl(0, name, val)
   end
 end
