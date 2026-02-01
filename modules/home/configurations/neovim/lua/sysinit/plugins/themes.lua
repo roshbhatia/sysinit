@@ -4,10 +4,6 @@ if not vim.g.nix_managed then
       "nvim-mini/mini.base16",
       priority = 1000,
       config = function()
-        require("mini.base16").setup({
-          use_cterm = true,
-          plugins = { default = true },
-        })
         vim.cmd.colorscheme("miniautumn")
       end,
     },
