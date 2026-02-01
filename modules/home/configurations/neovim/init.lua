@@ -67,3 +67,9 @@ require("lazy").setup({
     border = "rounded",
   },
 })
+
+-- Fallback theme when not Nix-managed
+require("sysinit.core.theme-fallback").setup()
+
+-- Apply transparency settings
+require("sysinit.core.transparency").apply()

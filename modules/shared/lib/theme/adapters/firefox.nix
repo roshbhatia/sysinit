@@ -8,39 +8,12 @@ with lib;
 
 {
   createFirefoxConfig =
-    _themeData: config: overrides:
+    _themeData: themeConfig: overrides:
     let
-      transparency = config.transparency or (throw "Missing transparency configuration");
+      transparency = themeConfig.transparency or (throw "Missing transparency configuration");
 
-      # Note: Firefox theming now handled by stylix
-      # This function is kept for compatibility but returns minimal config
-      semanticColors = {
-        background = {
-          primary = "#000000";
-          secondary = "#111111";
-          tertiary = "#222222";
-          overlay = "#333333";
-        };
-        foreground = {
-          primary = "#ffffff";
-          secondary = "#eeeeee";
-          muted = "#cccccc";
-          subtle = "#aaaaaa";
-        };
-        accent = {
-          primary = "#0066cc";
-          secondary = "#00cccc";
-          tertiary = "#cc00cc";
-          dim = "#333333";
-        };
-        semantic = {
-          error = "#ff0000";
-          warning = "#ffcc00";
-          success = "#00ff00";
-          info = "#0066cc";
-        };
-        extended = { };
-      };
+      # Use semantic colors from theme config (injected from stylix colors)
+      semanticColors = themeConfig.semanticColors or (throw "Missing semanticColors in theme config");
 
       paletteBaseColors =
         let

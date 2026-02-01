@@ -1,11 +1,14 @@
 {
   pkgs,
+  lib,
   values,
   utils,
+  config,
   ...
 }:
 
 let
+  themeLib = utils.theme;
 
   # macOS Firefox wrapper - /Applications is macOS-specific hardcoded path
   # This is acceptable here because this entire module is macOS-only (in modules/home/configurations)
@@ -24,11 +27,61 @@ let
         EOF
         chmod +x $out/bin/firefox
       '';
+
+  # Access stylix colors
+  colors = config.lib.stylix.colors;
+
+  # Map base16 colors to semantic names for Firefox
+  semanticColors = {
+    background = {
+      primary = "#${colors.base00}";
+      secondary = "#${colors.base01}";
+      tertiary = "#${colors.base02}";
+      overlay = "#${colors.base01}";
+    };
+    foreground = {
+      primary = "#${colors.base05}";
+      secondary = "#${colors.base04}";
+      muted = "#${colors.base03}";
+      subtle = "#${colors.base03}";
+    };
+    accent = {
+      primary = "#${colors.base0D}";
+      secondary = "#${colors.base0C}";
+      tertiary = "#${colors.base0E}";
+      dim = "#${colors.base02}";
+    };
+    semantic = {
+      error = "#${colors.base08}";
+      warning = "#${colors.base0A}";
+      success = "#${colors.base0B}";
+      info = "#${colors.base0D}";
+    };
+    syntax = {
+      keyword = "#${colors.base0E}";
+      string = "#${colors.base0B}";
+      number = "#${colors.base09}";
+      comment = "#${colors.base03}";
+      function = "#${colors.base0D}";
+      variable = "#${colors.base08}";
+      type = "#${colors.base0A}";
+      operator = "#${colors.base05}";
+      constant = "#${colors.base09}";
+      builtin = "#${colors.base0C}";
+    };
+  };
+
+  # Generate custom config with stylix colors
+  themeConfigWithColors = values.theme // {
+    semanticColors = semanticColors;
+  };
+
+  # Generate Firefox CSS using stylix colors
+  firefoxConfig = themeLib.adapters.firefox.createFirefoxConfig { } themeConfigWithColors { };
 in
 {
-  # Firefox theming now handled by stylix
-  # Custom CSS removed - using base16 colors via stylix
-  stylix.targets.firefox.enable = true;
+  # Disable stylix firefox target to use custom CSS
+  stylix.targets.firefox.enable = false;
 
   programs.firefox = {
     enable = true;
@@ -40,6 +93,10 @@ in
       id = 0;
       isDefault = true;
       name = "default";
+
+      # Custom CSS with stylix colors
+      userChrome = firefoxConfig.userChromeCSS or "";
+      userContent = firefoxConfig.userContentCSS or "";
 
       extensions.packages = with pkgs.firefox-addons; [
         ublock-origin

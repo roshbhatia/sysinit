@@ -4,17 +4,17 @@
   ...
 }:
 
-let
-  # Minimal theme config for neovim - colors now handled by stylix
-  themeConfig = {
-    colorscheme = values.theme.colorscheme;
-    variant = values.theme.variant;
-    appearance = values.theme.appearance;
-    transparency = values.theme.transparency;
-  };
-in
-
 {
+  # Enable stylix neovim target in home-manager
+  stylix.targets.neovim = {
+    enable = true;
+    plugin = "base16-nvim";
+    transparentBackground = {
+      main = true;
+      signColumn = true;
+    };
+  };
+
   programs.neovim = {
     enable = true;
     defaultEditor = true;
@@ -23,6 +23,17 @@ in
     withNodeJs = true;
     withPython3 = true;
     withRuby = true;
+
+    # Set flag indicating Nix/home-manager management
+    extraLuaConfig = lib.mkBefore ''
+      -- Nix/home-manager management indicator
+      vim.g.nix_hm_managed = true
+
+      -- Theme info from Nix
+      vim.g.nix_colorscheme = "${values.theme.colorscheme}"
+      vim.g.nix_variant = "${values.theme.variant}"
+      vim.g.nix_appearance = "${values.theme.appearance}"
+    '';
   };
 
   xdg = {
@@ -34,8 +45,8 @@ in
       "nvim/after/lsp/".source = ./after/lsp;
       "nvim/lua/sysinit/plugins/".source = ./lua/sysinit/plugins;
       "nvim/lua/sysinit/utils".source = ./lua/sysinit/utils;
+      "nvim/lua/sysinit/core".source = ./lua/sysinit/core;
       "nvim/queries".source = ./queries;
-      "nvim/theme_config.json".text = builtins.toJSON themeConfig;
     };
   };
 }

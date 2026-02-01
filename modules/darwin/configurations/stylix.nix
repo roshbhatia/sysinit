@@ -45,7 +45,5 @@ in
       desktop = themeConfig.transparency.opacity;
       popups = themeConfig.transparency.opacity;
     };
-
-    targets.jankyborders.enable = true;
   };
 }

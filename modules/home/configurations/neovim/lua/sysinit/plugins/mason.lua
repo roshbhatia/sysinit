@@ -1,8 +1,8 @@
 return {
   {
     "mason-org/mason.nvim",
-    -- Only install on systems without nix.
-    enabled = not vim.fn.executable("nix") == 1,
+    -- Only enable if NOT Nix/home-manager managed
+    enabled = not vim.g.nix_hm_managed,
     opts = {},
   },
 }

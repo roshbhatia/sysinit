@@ -8,12 +8,56 @@
 }:
 
 let
-  # Minimal theme config for sketchybar - colors now handled by stylix
+  # Access stylix colors
+  colors = config.lib.stylix.colors;
+
+  # Map base16 colors to semantic names for sketchybar and jankyborders
+  semanticColors = {
+    background = {
+      primary = "#${colors.base00}";
+      secondary = "#${colors.base01}";
+      tertiary = "#${colors.base02}";
+      overlay = "#${colors.base01}";
+    };
+    foreground = {
+      primary = "#${colors.base05}";
+      secondary = "#${colors.base04}";
+      muted = "#${colors.base03}";
+      subtle = "#${colors.base03}";
+    };
+    accent = {
+      primary = "#${colors.base0D}";
+      secondary = "#${colors.base0C}";
+      tertiary = "#${colors.base0E}";
+      dim = "#${colors.base02}";
+    };
+    semantic = {
+      error = "#${colors.base08}";
+      warning = "#${colors.base0A}";
+      success = "#${colors.base0B}";
+      info = "#${colors.base0D}";
+    };
+    syntax = {
+      keyword = "#${colors.base0E}";
+      string = "#${colors.base0B}";
+      number = "#${colors.base09}";
+      comment = "#${colors.base03}";
+      function = "#${colors.base0D}";
+      variable = "#${colors.base08}";
+      type = "#${colors.base0A}";
+      operator = "#${colors.base05}";
+      constant = "#${colors.base09}";
+      builtin = "#${colors.base0C}";
+    };
+  };
+
+  # Theme config for sketchybar with stylix colors
   themeConfig = {
     colorscheme = values.theme.colorscheme;
     variant = values.theme.variant;
     appearance = values.theme.appearance;
     transparency = values.theme.transparency;
+    semanticColors = semanticColors;
   };
 in
 {
