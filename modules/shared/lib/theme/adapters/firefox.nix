@@ -91,8 +91,8 @@ with lib;
       '';
 
       monospaceFont =
-        if hasAttr "font" config && hasAttr "monospace" config.font then
-          config.font.monospace
+        if hasAttr "font" themeConfig && hasAttr "monospace" themeConfig.font then
+          themeConfig.font.monospace
         else
           "JetBrainsMono Nerd Font";
 
