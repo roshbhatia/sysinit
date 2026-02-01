@@ -1,5 +1,3 @@
-local M = {}
-
 local hidden_patterns = {
   "null%-ls.*failed to run generator",
   "Flake input .* cannot be evaluated",
@@ -18,5 +16,3 @@ vim.notify = function(msg, level, opts)
   end
   return original_notify(msg, level, opts)
 end
-
-return M

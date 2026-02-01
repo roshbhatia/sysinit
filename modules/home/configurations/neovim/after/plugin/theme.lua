@@ -1,6 +1,9 @@
-local transparency_enabled = vim.g.transparency_user_override
-if transparency_enabled == nil then
-  transparency_enabled = vim.g.nix_transparency_enabled or false
+local function get_transparency_state()
+  local state = vim.g.transparency_user_override
+  if state == nil then
+    state = vim.g.nix_transparency_enabled or false
+  end
+  return state
 end
 
 local function get_base16_colors()
@@ -13,11 +16,10 @@ local function get_base16_colors()
 end
 
 local function apply_transparency()
-  if not transparency_enabled then
+  if not get_transparency_state() then
     return
   end
 
-  -- Core transparency groups
   vim.api.nvim_set_hl(0, "Normal", { bg = "NONE", ctermbg = "NONE" })
   vim.api.nvim_set_hl(0, "NormalNC", { bg = "NONE", ctermbg = "NONE" })
   vim.api.nvim_set_hl(0, "NonText", { bg = "NONE", ctermbg = "NONE" })
@@ -29,23 +31,19 @@ local function apply_transparency()
   vim.api.nvim_set_hl(0, "FoldColumn", { bg = "NONE", ctermbg = "NONE" })
   vim.api.nvim_set_hl(0, "EndOfBuffer", { bg = "NONE", ctermbg = "NONE" })
 
-  -- Float and popup transparency
   vim.api.nvim_set_hl(0, "NormalFloat", { bg = "NONE", ctermbg = "NONE" })
   vim.api.nvim_set_hl(0, "FloatBorder", { bg = "NONE", ctermbg = "NONE" })
   vim.api.nvim_set_hl(0, "FloatTitle", { bg = "NONE", ctermbg = "NONE" })
 
-  -- Pmenu transparency
   vim.api.nvim_set_hl(0, "Pmenu", { bg = "NONE", ctermbg = "NONE" })
   vim.api.nvim_set_hl(0, "PmenuBorder", { bg = "NONE", ctermbg = "NONE" })
   vim.api.nvim_set_hl(0, "PmenuSbar", { bg = "NONE", ctermbg = "NONE" })
   vim.api.nvim_set_hl(0, "PmenuThumb", { bg = "NONE", ctermbg = "NONE" })
 
-  -- Wilder transparency (fixes two-tone border)
   vim.api.nvim_set_hl(0, "WilderMenu", { bg = "NONE", ctermbg = "NONE" })
   vim.api.nvim_set_hl(0, "WilderBorder", { bg = "NONE", ctermbg = "NONE" })
   vim.api.nvim_set_hl(0, "WilderAccent", { bg = "NONE", ctermbg = "NONE" })
 
-  -- Blink completion transparency
   vim.api.nvim_set_hl(0, "BlinkCmpDoc", { bg = "NONE", ctermbg = "NONE" })
   vim.api.nvim_set_hl(0, "BlinkCmpDocBorder", { bg = "NONE", ctermbg = "NONE" })
   vim.api.nvim_set_hl(0, "BlinkCmpMenu", { bg = "NONE", ctermbg = "NONE" })
@@ -53,7 +51,6 @@ local function apply_transparency()
   vim.api.nvim_set_hl(0, "BlinkCmpSignatureHelp", { bg = "NONE", ctermbg = "NONE" })
   vim.api.nvim_set_hl(0, "BlinkCmpSignatureHelpBorder", { bg = "NONE", ctermbg = "NONE" })
 
-  -- Telescope transparency
   vim.api.nvim_set_hl(0, "TelescopeBorder", { bg = "NONE", ctermbg = "NONE" })
   vim.api.nvim_set_hl(0, "TelescopeNormal", { bg = "NONE", ctermbg = "NONE" })
   vim.api.nvim_set_hl(0, "TelescopePromptBorder", { bg = "NONE", ctermbg = "NONE" })
@@ -64,25 +61,20 @@ local function apply_transparency()
   vim.api.nvim_set_hl(0, "TelescopePreviewNormal", { bg = "NONE", ctermbg = "NONE" })
   vim.api.nvim_set_hl(0, "TelescopeSelection", { bg = "NONE", ctermbg = "NONE" })
 
-  -- WhichKey transparency
   vim.api.nvim_set_hl(0, "WhichKeyBorder", { bg = "NONE", ctermbg = "NONE" })
   vim.api.nvim_set_hl(0, "WhichKeyFloat", { bg = "NONE", ctermbg = "NONE" })
 
-  -- Lazy transparency
   vim.api.nvim_set_hl(0, "LazyNormal", { bg = "NONE", ctermbg = "NONE" })
 
-  -- Statusline/Tabline transparency
   vim.api.nvim_set_hl(0, "StatusLine", { bg = "NONE", ctermbg = "NONE" })
   vim.api.nvim_set_hl(0, "StatusLineNC", { bg = "NONE", ctermbg = "NONE" })
   vim.api.nvim_set_hl(0, "TabLine", { bg = "NONE", ctermbg = "NONE" })
   vim.api.nvim_set_hl(0, "TabLineFill", { bg = "NONE", ctermbg = "NONE" })
 
-  -- Winbar transparency
   vim.api.nvim_set_hl(0, "WinBar", { bg = "NONE", ctermbg = "NONE" })
   vim.api.nvim_set_hl(0, "WinBarNC", { bg = "NONE", ctermbg = "NONE" })
   vim.api.nvim_set_hl(0, "WinSeparator", { bg = "NONE", ctermbg = "NONE" })
 
-  -- Misc transparency
   vim.api.nvim_set_hl(0, "CursorLine", { bg = "NONE", ctermbg = "NONE" })
   vim.api.nvim_set_hl(0, "CursorColumn", { bg = "NONE", ctermbg = "NONE" })
   vim.api.nvim_set_hl(0, "ColorColumn", { bg = "NONE", ctermbg = "NONE" })
@@ -94,10 +86,8 @@ local function apply_highlights()
     return
   end
 
-  -- Apply transparency first
   apply_transparency()
 
-  -- Cursor highlights
   vim.api.nvim_set_hl(0, "Cursor", { bg = colors.base0D, fg = colors.base00 })
   vim.api.nvim_set_hl(0, "lCursor", { link = "Cursor" })
   vim.api.nvim_set_hl(0, "CursorIM", { link = "Cursor" })
@@ -114,15 +104,11 @@ local function apply_highlights()
   vim.api.nvim_set_hl(0, "CurSearch", { link = "IncSearch" })
   vim.api.nvim_set_hl(0, "MatchParen", { bg = colors.base02, fg = colors.base0D, bold = true })
 
-  -- Menu highlights
   vim.api.nvim_set_hl(0, "PmenuSel", { bg = "NONE", fg = colors.base0D, bold = true })
 
-  -- Diff highlights
   vim.api.nvim_set_hl(0, "DiffAdd", { bg = colors.base01, fg = colors.base0B })
   vim.api.nvim_set_hl(0, "DiffChange", { bg = colors.base01, fg = colors.base0A })
   vim.api.nvim_set_hl(0, "DiffDelete", { bg = colors.base01, fg = colors.base08 })
-
-  -- GitSigns highlights
   vim.api.nvim_set_hl(0, "GitSignsAdd", { fg = colors.base0B, bold = true })
   vim.api.nvim_set_hl(0, "GitSignsChange", { fg = colors.base0A, bold = true })
   vim.api.nvim_set_hl(0, "GitSignsDelete", { fg = colors.base08, bold = true })
@@ -135,7 +121,6 @@ local function apply_highlights()
   vim.api.nvim_set_hl(0, "GitSignsAddPreview", { link = "DiffAdd" })
   vim.api.nvim_set_hl(0, "GitSignsDeletePreview", { link = "DiffDelete" })
 
-  -- Treesitter highlights using base16 colors
   vim.api.nvim_set_hl(0, "@variable", { fg = colors.base08 })
   vim.api.nvim_set_hl(0, "@variable.builtin", { fg = colors.base0C, bold = true })
   vim.api.nvim_set_hl(0, "@variable.parameter", { fg = colors.base08, italic = true })
@@ -221,7 +206,6 @@ local function apply_highlights()
   vim.api.nvim_set_hl(0, "@diff.minus", { link = "DiffDelete" })
   vim.api.nvim_set_hl(0, "@diff.delta", { link = "DiffChange" })
 
-  -- Diagnostic highlights
   vim.api.nvim_set_hl(0, "DiagnosticError", { fg = colors.base08, bold = true })
   vim.api.nvim_set_hl(0, "DiagnosticWarn", { fg = colors.base0A, bold = true })
   vim.api.nvim_set_hl(0, "DiagnosticInfo", { fg = colors.base0D, bold = true })
@@ -240,7 +224,6 @@ local function apply_highlights()
   vim.api.nvim_set_hl(0, "DiagnosticDeprecated", { fg = colors.base03, strikethrough = true })
   vim.api.nvim_set_hl(0, "DiagnosticUnnecessary", { fg = colors.base03, italic = true })
 
-  -- LSP highlights
   vim.api.nvim_set_hl(0, "@lsp.type.class", { link = "@type" })
   vim.api.nvim_set_hl(0, "@lsp.type.decorator", { link = "@function" })
   vim.api.nvim_set_hl(0, "@lsp.type.enum", { link = "@type" })
@@ -267,32 +250,27 @@ end
 
 apply_highlights()
 
--- Reapply after colorscheme changes
 vim.api.nvim_create_autocmd("ColorScheme", {
   pattern = "*",
   callback = apply_highlights,
   desc = "Reapply custom highlights after colorscheme change",
 })
 
--- Colorscheme picker command
 vim.api.nvim_create_user_command("Colorscheme", function()
   require("snacks").picker.colorschemes({ layout = "right" })
 end, {
   desc = "Open colorscheme picker",
 })
 
--- Transparency toggle command
 vim.api.nvim_create_user_command("TransparencyToggle", function()
-  transparency_enabled = not transparency_enabled
+  local current_state = get_transparency_state()
+  local new_state = not current_state
+  vim.g.transparency_user_override = new_state
 
-  -- Persist the state globally so colorscheme changes respect it
-  vim.g.transparency_user_override = transparency_enabled
-
-  if transparency_enabled then
+  if new_state then
     apply_transparency()
     print("Transparency enabled")
   else
-    -- Trigger colorscheme reload to restore backgrounds
     local current_colorscheme = vim.g.colors_name
     if current_colorscheme then
       vim.cmd.colorscheme(current_colorscheme)
@@ -303,17 +281,15 @@ end, {
   desc = "Toggle transparency on/off",
 })
 
--- Audit highlight groups command
 vim.api.nvim_create_user_command("HighlightAudit", function()
   local output_file = vim.fn.expand("~/nvim-highlights-audit.txt")
   local lines = {}
 
-  -- Get all highlight groups
   local highlights = vim.fn.getcompletion("", "highlight")
   table.sort(highlights)
 
   table.insert(lines, "=== Neovim Highlight Groups Audit ===")
-  table.insert(lines, "Transparency enabled: " .. tostring(transparency_enabled))
+  table.insert(lines, "Transparency enabled: " .. tostring(get_transparency_state()))
   table.insert(lines, "Generated: " .. os.date("%Y-%m-%d %H:%M:%S"))
   table.insert(lines, "")
 
@@ -355,7 +331,6 @@ vim.api.nvim_create_user_command("HighlightAudit", function()
     end
   end
 
-  -- Write to file
   vim.fn.writefile(lines, output_file)
   print("Highlight audit written to: " .. output_file)
 end, {
