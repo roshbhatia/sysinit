@@ -37,7 +37,6 @@
       "nvim/after/lsp/".source = ./after/lsp;
       "nvim/lua/sysinit/plugins/".source = ./lua/sysinit/plugins;
       "nvim/lua/sysinit/utils".source = ./lua/sysinit/utils;
-      "nvim/lua/sysinit/core".source = ./lua/sysinit/core;
       "nvim/queries".source = ./queries;
     };
   };
