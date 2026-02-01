@@ -6,3 +6,22 @@ vim.opt.showmode = false
 vim.opt.showtabline = 0
 vim.opt.sidescrolloff = 0
 vim.opt.termguicolors = true
+
+Snacks.keymap.set("n", "<leader>v", function()
+  vim.cmd("vsplit")
+end, {
+  desc = "Split pane vertically",
+})
+
+-- Horizontal split
+Snacks.keymap.set("n", "<leader>s", function()
+  vim.cmd("split")
+end, {
+  desc = "Split pane horizontally",
+})
+
+Snacks.keymap.set("n", "<leader>w", function()
+  vim.cmd("silent! xit")
+end, {
+  desc = "Close pane",
+})

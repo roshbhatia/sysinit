@@ -1,6 +1,7 @@
 return {
   {
     "mrjones2014/smart-splits.nvim",
+    enabled = vim.g.nix_managed,
     event = "VeryLazy",
     config = function()
       require("smart-splits").setup({
@@ -74,30 +75,6 @@ return {
           end,
           mode = { "n", "i", "v", "t" },
           desc = "Increase pane width",
-        },
-        {
-          "<leader>v",
-          function()
-            vim.cmd("vsplit")
-          end,
-          mode = { "n" },
-          desc = "Split pane vertically",
-        },
-        {
-          "<leader>s",
-          function()
-            vim.cmd("split")
-          end,
-          mode = { "n" },
-          desc = "Split pane horizontally",
-        },
-        {
-          "<leader>w",
-          function()
-            vim.cmd("silent! xit")
-          end,
-          mode = { "n" },
-          desc = "Close pane",
         },
       }
     end,

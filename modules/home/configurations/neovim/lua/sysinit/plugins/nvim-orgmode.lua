@@ -1,6 +1,7 @@
 return {
   {
     "nvim-orgmode/orgmode",
+    enabled = vim.g.nix_managed,
     dependencies = {
       "danilshvalov/org-modern.nvim",
     },
