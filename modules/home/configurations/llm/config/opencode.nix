@@ -83,6 +83,7 @@ let
       "**/COPILOT.md"
       "**/docs/guidelines.md"
       ".cursor/rules"
+      ".sysinit/lessons.md"
     ];
 
     keybinds = {
