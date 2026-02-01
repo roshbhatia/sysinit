@@ -186,6 +186,34 @@ local function apply_highlights()
       "DiagnosticVirtualTextInfo",
       "DiagnosticVirtualTextHint",
 
+      -- Git
+      "GitSignsStagedAdd",
+      "GitSignsStagedAddLn",
+      "GitSignsStagedAddNr",
+      "GitSignsStagedAddCul",
+      "GitSignsStagedChange",
+      "GitSignsStagedChangeLn",
+      "GitSignsStagedChangeNr",
+      "GitSignsStagedChangeCul",
+      "GitSignsStagedDelete",
+      "GitSignsStagedDeleteLn",
+      "GitSignsStagedDeleteNr",
+      "GitSignsStagedDeleteCul",
+      "GitSignsStagedTopdelete",
+      "GitSignsStagedTopdeleteNr",
+      "GitSignsStagedTopdeleteCul",
+      "GitSignsStagedUntracked",
+      "GitSignsStagedUntrackedLn",
+      "GitSignsStagedUntrackedNr",
+      "GitSignsStagedUntrackedCul",
+      "GitSignsAddPreview",
+      "GitSignsDeletePreview",
+      "GitSignsAddLnInline",
+      "GitSignsChangeLnInline",
+      "GitSignsDeleteLnInline",
+      "GitSignsDeleteVirtLn",
+      "GitSignsVirtLnum",
+
       -- Wilder
       "WilderGradient1",
       "WilderGradient2",
@@ -214,14 +242,6 @@ local function apply_highlights()
   end
 
   local overrides = {
-    -- GitSigns
-    GitSignsAdd = { link = "DiffAdd" },
-    GitSignsChange = { link = "DiffChange" },
-    GitSignsDelete = { link = "DiffDelete" },
-    GitSignsAddInline = { link = "DiffAdd" },
-    GitSignsChangeInline = { link = "DiffChange" },
-    GitSignsDeleteInline = { link = "DiffDelete" },
-
     -- Treesitter
     ["@variable"] = { link = "Identifier" },
     ["@variable.builtin"] = { link = "Special" },
