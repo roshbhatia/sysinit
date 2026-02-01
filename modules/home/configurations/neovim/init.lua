@@ -2,6 +2,8 @@ vim.g.mapleader = " "
 vim.g.maplocalleader = "\\"
 vim.o.sessionoptions = "blank,buffers,curdir,folds,help,tabpages,winsize,winpos,terminal,localoptions"
 
+vim.g.nix_transparency_enabled = false
+
 -- Filter out noisy/unhelpful error messages
 local original_notify = vim.notify
 vim.notify = function(msg, level, opts)

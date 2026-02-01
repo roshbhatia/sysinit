@@ -1,5 +1,7 @@
--- Transparency state
-local transparency_enabled = true
+local transparency_enabled = vim.g.transparency_user_override
+if transparency_enabled == nil then
+  transparency_enabled = vim.g.nix_transparency_enabled or false
+end
 
 local function get_base16_colors()
   local ok, colorscheme = pcall(require, "base16-colorscheme")
@@ -282,14 +284,80 @@ end, {
 -- Transparency toggle command
 vim.api.nvim_create_user_command("TransparencyToggle", function()
   transparency_enabled = not transparency_enabled
+
+  -- Persist the state globally so colorscheme changes respect it
+  vim.g.transparency_user_override = transparency_enabled
+
   if transparency_enabled then
     apply_transparency()
     print("Transparency enabled")
   else
-    -- Reapply all highlights to restore backgrounds
-    apply_highlights()
+    -- Trigger colorscheme reload to restore backgrounds
+    local current_colorscheme = vim.g.colors_name
+    if current_colorscheme then
+      vim.cmd.colorscheme(current_colorscheme)
+    end
     print("Transparency disabled")
   end
 end, {
   desc = "Toggle transparency on/off",
+})
+
+-- Audit highlight groups command
+vim.api.nvim_create_user_command("HighlightAudit", function()
+  local output_file = vim.fn.expand("~/nvim-highlights-audit.txt")
+  local lines = {}
+
+  -- Get all highlight groups
+  local highlights = vim.fn.getcompletion("", "highlight")
+  table.sort(highlights)
+
+  table.insert(lines, "=== Neovim Highlight Groups Audit ===")
+  table.insert(lines, "Transparency enabled: " .. tostring(transparency_enabled))
+  table.insert(lines, "Generated: " .. os.date("%Y-%m-%d %H:%M:%S"))
+  table.insert(lines, "")
+
+  for _, hl_name in ipairs(highlights) do
+    local hl = vim.api.nvim_get_hl(0, { name = hl_name, link = false })
+    if next(hl) ~= nil then
+      local hl_str = hl_name .. ": "
+      local parts = {}
+
+      if hl.fg then
+        table.insert(parts, string.format("fg=#%06x", hl.fg))
+      end
+      if hl.bg then
+        table.insert(parts, string.format("bg=#%06x", hl.bg))
+      end
+      if hl.sp then
+        table.insert(parts, string.format("sp=#%06x", hl.sp))
+      end
+      if hl.bold then
+        table.insert(parts, "bold")
+      end
+      if hl.italic then
+        table.insert(parts, "italic")
+      end
+      if hl.underline then
+        table.insert(parts, "underline")
+      end
+      if hl.strikethrough then
+        table.insert(parts, "strikethrough")
+      end
+      if hl.link then
+        table.insert(parts, "link=" .. hl.link)
+      end
+
+      if #parts > 0 then
+        hl_str = hl_str .. table.concat(parts, " ")
+        table.insert(lines, hl_str)
+      end
+    end
+  end
+
+  -- Write to file
+  vim.fn.writefile(lines, output_file)
+  print("Highlight audit written to: " .. output_file)
+end, {
+  desc = "Dump all highlight groups to ~/nvim-highlights-audit.txt",
 })

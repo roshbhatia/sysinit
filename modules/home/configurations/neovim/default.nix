@@ -1,4 +1,5 @@
 {
+  values,
   ...
 }:
 
@@ -18,6 +19,10 @@
       vim.g.nix_hm_managed = true
 
       ${builtins.readFile ./init.lua}
+
+      vim.g.nix_transparency_enabled = ${
+        if values.theme.transparency.opacity < 1.0 then "true" else "false"
+      }
     '';
   };
 
