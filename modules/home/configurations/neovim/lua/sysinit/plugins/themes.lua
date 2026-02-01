@@ -280,7 +280,7 @@ local function setup_theme(cfg)
   })
 end
 
-local theme_cfg = (not vim.g.nix_managed) and { colorscheme = "miniautumn" }
+local theme_cfg = (not vim.g.nix_managed) and { colorscheme = "minicyan" }
   or json_loader.load_json_file(json_loader.get_config_path("theme_config.json"), "theme_config")
   or {}
 
@@ -295,7 +295,8 @@ return {
     priority = 1000,
     config = function()
       if not vim.g.nix_managed then
-        vim.cmd.colorscheme("miniautumn")
+        vim.opt.background = "light"
+        vim.cmd.colorscheme("minicyan")
         apply_highlights()
       else
         setup_theme(theme_cfg)
