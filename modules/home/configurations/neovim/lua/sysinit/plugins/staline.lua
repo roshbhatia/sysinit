@@ -6,17 +6,17 @@ return {
     config = function()
       local function get_fg(hl_name)
         local hl = vim.api.nvim_get_hl(0, { name = hl_name })
-        return hl.fg and string.format("#%06x", hl.fg)
+        return hl.fg and string.format("#%06x", hl.fg) or "#000000"
       end
 
       require("staline").setup({
-        inactive_color = get_fg("Normal"),
         sections = {
           left = { "mode", "branch", "file_name" },
           mid = {},
           right = { "lsp", "lsp_name", "file_size", "line_column" },
         },
         defaults = {
+          inactive_color = get_fg("Normal"),
           expand_null_ls = false,
           line_column = ":%c [%l/%L]",
           lsp_client_symbol = "󰘧 ",
