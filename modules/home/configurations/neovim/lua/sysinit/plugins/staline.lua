@@ -6,7 +6,7 @@ return {
     config = function()
       local function get_fg(hl_name)
         local hl = vim.api.nvim_get_hl(0, { name = hl_name })
-        return hl.fg and string.format("#%06x", hl.fg) or "#000000"
+        return hl.fg and string.format("#%06x", hl.fg) or "#FFFFFF"
       end
 
       require("staline").setup({
