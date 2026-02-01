@@ -7,12 +7,16 @@ return {
     },
     event = "VeryLazy",
     config = function()
-      local json_loader = require("sysinit.utils.json_loader")
-      local theme_config = json_loader.load_json_file(json_loader.get_config_path("theme_config.json"))
+      local setup_opts = {}
 
-      require("tiny-devicons-auto-colors").setup({
-        colors = theme_config.palette,
-      })
+      -- Only load theme_config.json if managed by Nix
+      if vim.g.nix_managed then
+        local json_loader = require("sysinit.utils.json_loader")
+        local theme_config = json_loader.load_json_file(json_loader.get_config_path("theme_config.json"))
+        setup_opts.colors = theme_config.palette
+      end
+
+      require("tiny-devicons-auto-colors").setup(setup_opts)
     end,
   },
 }

@@ -27,15 +27,22 @@ vim.opt.relativenumber = true
 vim.opt.signcolumn = "yes:3"
 vim.opt.numberwidth = 4
 vim.opt.fillchars:append({ eob = " ", diff = " " })
-vim.opt.diffopt = {
+
+-- Base diffopt options
+local diffopt = {
   "algorithm:minimal",
   "closeoff",
   "context:12",
   "filler",
-  "inline:none",
   "internal",
-  "linematch:200",
 }
+
+-- Add newer options if available (Neovim 0.9+)
+if vim.fn.has("nvim-0.9") == 1 then
+  table.insert(diffopt, "linematch:60")
+end
+
+vim.opt.diffopt = diffopt
 vim.opt.cursorline = false
 vim.opt.spell = true
 vim.opt.fixeol = false
