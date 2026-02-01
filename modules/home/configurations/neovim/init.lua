@@ -1,8 +1,7 @@
--- Defaults that are overriden by my nix configuration.
--- Only set if not already set by nix (which appends before this file)
 if vim.g.nix_managed == nil then
   vim.g.nix_managed = false
 end
+
 if vim.g.nix_transparency_enabled == nil then
   vim.g.nix_transparency_enabled = false
 end

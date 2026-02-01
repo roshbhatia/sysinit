@@ -16,7 +16,7 @@
     withRuby = true;
 
     initLua = ''
-      -- Set nix-managed flags FIRST, before any plugins load
+      -- Injected by home-manager
       vim.g.nix_hm_managed = true
       vim.g.nix_transparency_enabled = ${
         if values.theme.transparency.opacity < 1.0 then "true" else "false"
