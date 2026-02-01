@@ -1,7 +1,6 @@
 -- Native Neovim splits backend implementation using snacks.nvim
 local M = {}
 
-local base = require("sysinit.utils.ai.backends.base")
 local config = {}
 
 -- Initialize the native backend
@@ -11,22 +10,26 @@ function M.setup(opts)
 end
 
 -- Open a new terminal in a native Neovim split
--- @param termname string: Terminal name
+-- @param _termname string: Terminal name (unused without tmux)
 -- @param agent_config table: Agent configuration
--- @param cwd string: Working directory
+-- @param cwd string: working directory
 -- @return table|nil: Terminal data or nil on failure
-function M.open(termname, agent_config, cwd)
-  local session_name = base.find_existing_session(termname, cwd)
-  local is_new = not session_name
-
-  if not session_name then
-    session_name = base.get_session_name(termname, cwd)
+function M.open(_termname, agent_config, cwd)
+  -- Build environment setup
+  local env_str = ""
+  for key, value in pairs(config.env or {}) do
+    env_str = env_str .. string.format("export %s=%s; ", key, vim.fn.shellescape(value))
   end
 
-  local tmux_cmd = base.build_tmux_command(session_name, cwd, agent_config, config.env or {}, is_new)
+  if vim.env.NVIM_SOCKET_PATH then
+    env_str = env_str .. string.format("export NVIM_SOCKET_PATH=%s; ", vim.fn.shellescape(vim.env.NVIM_SOCKET_PATH))
+  end
+
+  -- Run agent command directly without tmux (no persistence needed for Snacks)
+  local cmd = env_str .. agent_config.cmd
 
   -- Open terminal in right split using snacks.nvim
-  local term = Snacks.terminal.open(tmux_cmd, {
+  local term = Snacks.terminal.open(cmd, {
     cwd = cwd,
     win = {
       position = "right",
@@ -38,7 +41,6 @@ function M.open(termname, agent_config, cwd)
     buf = term.buf,
     win = term.win,
     term = term, -- Store full terminal object
-    session_name = session_name,
     cmd = agent_config.cmd,
     cwd = cwd,
   }
@@ -55,7 +57,7 @@ function M.focus(term_data)
   return true
 end
 
--- Hide a terminal (close window, keep tmux session)
+-- Hide a terminal (close window, no persistence without tmux)
 -- @param term_data table: Terminal data
 function M.hide(term_data)
   if term_data.win and vim.api.nvim_win_is_valid(term_data.win) then
@@ -66,29 +68,13 @@ function M.hide(term_data)
   term_data.term = nil
 end
 
--- Show a hidden terminal (reattach to tmux session in new window)
--- @param term_data table: Terminal data
--- @return table|nil: Updated terminal data or nil on failure
-function M.show(term_data)
-  if not base.tmux_session_exists(term_data.session_name) then
-    return nil
-  end
-
-  local tmux_cmd = string.format("tmux attach-session -t %s", vim.fn.shellescape(term_data.session_name))
-
-  local term = Snacks.terminal.open(tmux_cmd, {
-    cwd = term_data.cwd,
-    win = {
-      position = "right",
-      width = 0.5,
-    },
-  })
-
-  term_data.buf = term.buf
-  term_data.win = term.win
-  term_data.term = term
-
-  return term_data
+-- Show a hidden terminal (not supported without tmux persistence)
+-- @param _term_data table: Terminal data (unused without tmux)
+-- @return table|nil: Always returns nil (no persistence without tmux)
+function M.show(_term_data)
+  -- Without tmux, we can't restore terminal state
+  -- User should create a new terminal instead
+  return nil
 end
 
 -- Check if terminal is visible
