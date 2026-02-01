@@ -5,8 +5,8 @@ return {
     event = "VeryLazy",
     config = function()
       local function get_fg(hl_name)
-        local hl = vim.api.nvim_get_hl(0, { name = hl_name, link = false })
-        return hl.fg and string.format("#%06x", hl.fg) or "#808080"
+        local hl = vim.api.nvim_get_hl(0, { name = hl_name })
+        return hl.fg and string.format("#%06x", hl.fg)
       end
 
       require("staline").setup({
@@ -22,24 +22,7 @@ return {
           lsp_client_symbol = "󰘧 ",
           lsp_client_character_length = 16,
           file_size_suffix = true,
-          branch_symbol = " ",
-        },
-        special_table = {
-          NvimTree = { "", "" },
-          packer = { "", "" },
-          dashboard = { "", "" },
-          help = { "", "" },
-          qf = { "", "" },
-          alpha = { "", "" },
-          Jaq = { "", "" },
-          Fm = { "", "" },
-          TelescopePrompt = { "", "" },
-        },
-        lsp_symbols = {
-          Error = " ",
-          Info = " ",
-          Warn = " ",
-          Hint = " ",
+          branch_symbol = " ",
         },
         mode_colors = {
           n = get_fg("Normal"),
