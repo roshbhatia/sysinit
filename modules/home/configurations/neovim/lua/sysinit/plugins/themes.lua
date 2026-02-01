@@ -233,68 +233,51 @@ local THEMES = {
   },
 }
 
-local function apply_highlights()
-  local highlights = {}
+local theme_cfg = vim.g.nix_managed
+    and json_loader.load_json_file(json_loader.get_config_path("theme_config.json"), "theme_config")
+  or {
+    colorscheme = "minicyan",
+  }
 
-  if vim.g.nix_managed == true then
+local meta = THEMES[theme_cfg.colorscheme]
+  or {
+    plugin = "nvim-mini/mini.base16",
+    colorscheme = theme_cfg.colorscheme,
+  }
+
+local function apply_highlights()
+  if vim.g.nix_managed then
     for _, group in ipairs(TRANSPARENT_GROUPS) do
-      highlights[group] = { bg = "none" }
+      vim.api.nvim_set_hl(0, group, { bg = "none" })
     end
   end
 
   for group, attrs in pairs(HIGHLIGHT_OVERRIDES) do
-    highlights[group] = attrs
-  end
-
-  for name, val in pairs(highlights) do
-    vim.api.nvim_set_hl(0, name, val)
+    vim.api.nvim_set_hl(0, group, attrs)
   end
 end
-
-local function setup_theme(meta, cfg)
-  if meta.setup then
-    meta.setup(cfg)
-  end
-
-  vim.cmd.colorscheme(meta.colorscheme)
-  apply_highlights()
-
-  vim.api.nvim_create_autocmd({ "ColorScheme" }, {
-    pattern = meta.colorscheme,
-    callback = apply_highlights,
-  })
-end
-
-local function get_theme_config()
-  local config = {
-    colorscheme = "miniautumn",
-  }
-
-  if vim.g.nix_managed then
-    local loaded = json_loader.load_json_file(json_loader.get_config_path("theme_config.json"), "theme_config")
-    if loaded then
-      config = loaded
-    end
-  end
-
-  return config
-end
-
-local active_cfg = get_theme_config()
-local active_meta = THEMES[active_cfg.colorscheme] or { plugin = "nvim-mini/mini.base16" }
 
 return {
   {
-    active_meta.plugin,
+    meta.plugin,
     lazy = false,
     priority = 1000,
     config = function()
-      if not vim.g.nix_managed then
-        vim.cmd.colorscheme(active_meta.colorscheme)
-        apply_highlights()
-      else
-        setup_theme(active_meta, active_cfg)
+      if meta.setup then
+        meta.setup(theme_cfg)
       end
+
+      if not vim.g.nix_managed then
+        vim.o.background = "light"
+      end
+
+      vim.cmd.colorscheme(meta.colorscheme)
+
+      apply_highlights()
+      vim.api.nvim_create_autocmd("ColorScheme", {
+        pattern = meta.colorscheme,
+        callback = apply_highlights,
+      })
     end,
   },
 }
