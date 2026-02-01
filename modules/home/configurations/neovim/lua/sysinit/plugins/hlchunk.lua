@@ -2,8 +2,8 @@ local function get_palette_colors()
   local good = vim.api.nvim_get_hl(0, { name = "@variable", link = false })
   local error = vim.api.nvim_get_hl(0, { name = "Error", link = false })
   return {
-    good = good and good.fg and string.format("#%06x", good.fg) or "#806d9c",
-    error = error and error.fg and string.format("#%06x", error.fg) or "#c21f30",
+    good = string.format("#%06x", good.fg),
+    error = string.format("#%06x", error.fg),
   }
 end
 

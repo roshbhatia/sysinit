@@ -1,16 +1,10 @@
--- Comprehensive theme and UI configuration
--- Handles both nix-managed and standalone configurations
-
 if not vim.g.nix_managed then
-  -- Standalone mode: use mini.base16 with miniautumn
   return {
     {
-      "echasnovski/mini.base16",
-      version = false,
+      "nvim-mini/mini.base16",
       priority = 1000,
       config = function()
         require("mini.base16").setup({
-          palette = require("mini.base16").mini_palette("#2a261c", "#e0dcc7", 75),
           use_cterm = true,
           plugins = { default = true },
         })
@@ -20,10 +14,8 @@ if not vim.g.nix_managed then
   }
 end
 
--- Nix-managed mode: full custom theme configuration
 local json_loader = require("sysinit.utils.json_loader")
 
--- Theme metadata
 local THEME_METADATA = {
   catppuccin = {
     plugin = "catppuccin/nvim",
@@ -47,7 +39,6 @@ local THEME_METADATA = {
   },
 }
 
--- Syntax styles
 local SYNTAX_STYLES = {
   comments = { "italic" },
   conditionals = { "italic" },
@@ -63,7 +54,6 @@ local SYNTAX_STYLES = {
   operators = { "bold" },
 }
 
--- Theme-specific configs
 local function get_catppuccin_config(theme_config)
   return {
     flavour = theme_config.variant,
@@ -181,7 +171,6 @@ local function get_everforest_config(theme_config)
   return {}
 end
 
--- Highlight generators
 local function generate_gitsigns_highlights()
   return {
     GitSignsAdd = { link = "DiffAdd" },
@@ -288,43 +277,31 @@ local function generate_transparency_highlights(transparency)
   return highlights
 end
 
--- Apply all highlight overrides
 local function apply_highlights(theme_config)
   local highlights = {}
 
-  -- Merge all highlight groups
   vim.tbl_deep_extend("force", highlights, generate_transparency_highlights(theme_config.transparency))
   vim.tbl_deep_extend("force", highlights, generate_gitsigns_highlights())
   vim.tbl_deep_extend("force", highlights, generate_treesitter_highlights())
   vim.tbl_deep_extend("force", highlights, generate_diagnostic_highlights())
   vim.tbl_deep_extend("force", highlights, generate_lsp_highlights())
 
-  -- Manual plugin-specific overrides
   local manual_overrides = {
-    -- Floats & Menus
     FloatBorder = { link = "Comment" },
     FloatTitle = { link = "Title" },
     NormalFloat = { link = "Normal" },
     Pmenu = { link = "Normal" },
     PmenuSel = { link = "Visual" },
-
-    -- Windows & Status
     WinSeparator = { link = "VertSplit" },
     WinBar = { link = "StatusLine" },
     WinBarNC = { link = "StatusLineNC" },
-
-    -- Diagnostics
     DiagnosticVirtualLinesError = { link = "DiagnosticError" },
     DiagnosticVirtualLinesWarn = { link = "DiagnosticWarn" },
     DiagnosticVirtualLinesInfo = { link = "DiagnosticInfo" },
     DiagnosticVirtualLinesHint = { link = "DiagnosticHint" },
-
-    -- Git (Neogit)
     NeogitDiffAdd = { link = "DiffAdd" },
     NeogitDiffDelete = { link = "DiffDelete" },
     NeogitDiffContextHighlight = { link = "CursorLine" },
-
-    -- Neo-tree
     NeoTreeNormal = { link = "Normal" },
     NeoTreeDirectoryIcon = { link = "Directory" },
     NeoTreeDirectoryName = { link = "Directory" },
@@ -335,120 +312,22 @@ local function apply_highlights(theme_config)
     NeoTreeGitDeleted = { link = "DiffDelete" },
     NeoTreeIndentMarker = { link = "NonText" },
     NeoTreeExpander = { link = "Comment" },
-
-    -- Wilder / Completion
     WilderSelected = { link = "PmenuSel" },
     WilderAccent = { link = "Keyword" },
   }
 
   vim.tbl_deep_extend("force", highlights, manual_overrides)
 
-  -- Apply all highlights
   for name, hl in pairs(highlights) do
     vim.api.nvim_set_hl(0, name, hl)
   end
 end
 
--- Staline setup (deferred until after colorscheme loads)
-local function setup_staline()
-  local function get_fg(hl_name)
-    local hl = vim.api.nvim_get_hl(0, { name = hl_name, link = false })
-    if hl and hl.fg then
-      return string.format("#%06x", hl.fg)
-    end
-    -- Shouldn't happen if colorscheme is loaded, but safety fallback
-    return "#808080"
-  end
-
-  require("staline").setup({
-    inactive_color = get_fg("Normal"),
-    sections = {
-      left = { "mode", "branch", "file_name" },
-      mid = {},
-      right = { "lsp", "lsp_name", "file_size", "line_column" },
-    },
-    defaults = {
-      expand_null_ls = false,
-      line_column = ":%c [%l/%L]",
-      lsp_client_symbol = "󰘧 ",
-      lsp_client_character_length = 16,
-      file_size_suffix = true,
-      branch_symbol = " ",
-    },
-    special_table = {
-      NvimTree = { "", "" },
-      packer = { "", "" },
-      dashboard = { "", "" },
-      help = { "", "" },
-      qf = { "", "" },
-      alpha = { "", "" },
-      Jaq = { "", "" },
-      Fm = { "", "" },
-      TelescopePrompt = { "", "" },
-    },
-    lsp_symbols = {
-      Error = " ",
-      Info = " ",
-      Warn = " ",
-      Hint = " ",
-    },
-    mode_colors = {
-      n = get_fg("Normal"),
-      i = get_fg("String"),
-      c = get_fg("Special"),
-      v = get_fg("Statement"),
-      V = get_fg("Statement"),
-      [""] = get_fg("Statement"),
-      R = get_fg("Constant"),
-      r = get_fg("Constant"),
-      s = get_fg("Type"),
-      S = get_fg("Type"),
-      t = get_fg("Directory"),
-      ic = get_fg("String"),
-      Rc = get_fg("Constant"),
-      cv = get_fg("Special"),
-    },
-    mode_icons = {
-      n = "NORMAL",
-      i = "INSERT",
-      c = "COMMAND",
-      v = "VISUAL",
-      V = "V-LINE",
-      [""] = "V-BLOCK",
-      R = "REPLACE",
-      r = "REPLACE",
-      s = "SELECT",
-      S = "S-LINE",
-      t = "TERMINAL",
-      ic = "INSERT",
-      Rc = "REPLACE",
-      cv = "VIM EX",
-    },
-  })
-end
-
--- Tiny glimmer setup
-local function setup_tiny_glimmer()
-  local hl = vim.api.nvim_get_hl(0, { name = "Normal" })
-  local fg = hl.fg
-
-  require("tiny-glimmer").setup({
-    transparency_color = string.format("#%06x", fg),
-    overwrite = {
-      search = { enabled = true },
-      undo = { enabled = true, undo_mapping = "u" },
-      redo = { enabled = true, redo_mapping = "U" },
-    },
-  })
-end
-
--- Main theme setup function
 local function setup_theme()
   local theme_config = json_loader.load_json_file(json_loader.get_config_path("theme_config.json"), "theme_config")
   local active_scheme = theme_config and theme_config.colorscheme
   local plugin_config = THEME_METADATA[active_scheme]
 
-  -- Configure theme-specific settings
   if active_scheme == "catppuccin" then
     local config = get_catppuccin_config(theme_config)
     require("catppuccin").setup(config)
@@ -461,19 +340,9 @@ local function setup_theme()
     get_everforest_config(theme_config)
   end
 
-  -- Apply colorscheme
   vim.cmd.colorscheme(plugin_config.colorscheme)
-
-  -- Apply custom highlights
   apply_highlights(theme_config)
 
-  -- Setup UI plugins after colorscheme is loaded
-  vim.schedule(function()
-    setup_staline()
-    setup_tiny_glimmer()
-  end)
-
-  -- Re-apply on colorscheme change
   vim.api.nvim_create_autocmd({ "ColorScheme", "CmdLineEnter" }, {
     pattern = plugin_config.colorscheme,
     callback = function()
@@ -482,32 +351,15 @@ local function setup_theme()
   })
 end
 
--- Build plugin spec
 local theme_config = json_loader.load_json_file(json_loader.get_config_path("theme_config.json"), "theme_config")
 local scheme = theme_config and theme_config.colorscheme
 local metadata = THEME_METADATA[scheme]
 
 return {
-  -- Main theme plugin
   {
     metadata.plugin,
     lazy = false,
     priority = 1000,
     config = setup_theme,
-  },
-  -- Staline statusline
-  {
-    "tamton-aquib/staline.nvim",
-    lazy = true,
-    dependencies = {
-      "nvim-tree/nvim-web-devicons",
-      metadata.plugin,
-    },
-  },
-  -- Tiny glimmer effects
-  {
-    "rachartier/tiny-glimmer.nvim",
-    lazy = true,
-    dependencies = { metadata.plugin },
   },
 }
