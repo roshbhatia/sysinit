@@ -266,7 +266,9 @@ local function setup_theme(meta, cfg)
 end
 
 local function get_theme_config()
-  local config = { colorscheme = "miniautumn" }
+  local config = {
+    colorscheme = "miniautumn",
+  }
 
   if vim.g.nix_managed then
     local loaded = json_loader.load_json_file(json_loader.get_config_path("theme_config.json"), "theme_config")
@@ -288,7 +290,7 @@ return {
     priority = 1000,
     config = function()
       if not vim.g.nix_managed then
-        vim.cmd.colorscheme("autumn")
+        vim.cmd.colorscheme(active_meta.colorscheme)
         apply_highlights()
       else
         setup_theme(active_meta, active_cfg)
