@@ -52,7 +52,6 @@ let
     variant = values.theme.variant;
     appearance = values.theme.appearance;
     transparency = values.theme.transparency;
-    # Provide base16 palette directly for more direct access
     base16 = {
       base00 = "#${colors.base00}";
       base01 = "#${colors.base01}";

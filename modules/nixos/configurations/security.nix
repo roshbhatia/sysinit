@@ -8,7 +8,6 @@
 }:
 
 {
-  # Sudo
   security.sudo = {
     enable = true;
     wheelNeedsPassword = false;
@@ -17,7 +16,6 @@
     '';
   };
 
-  # SSH hardening
   services.openssh = {
     enable = true;
     ports = [ 22 ];
@@ -35,7 +33,6 @@
     };
   };
 
-  # User account
   programs.zsh.enable = true;
 
   users.users.${values.user.username} = {
@@ -60,7 +57,6 @@
 
   users.groups.${values.user.username} = { };
 
-  # nix-ld for non-Nix binaries
   programs.nix-ld = {
     enable = true;
     libraries = with pkgs; [ stdenv.cc.cc ];

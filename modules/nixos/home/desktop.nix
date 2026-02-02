@@ -13,45 +13,44 @@ let
   hexToMangoAlpha = color: alpha: "0x${c color}${alpha}";
   inherit (values.theme.transparency) opacity;
 
-  # Extract colors from Stylix for semantic color mapping
   colors = config.lib.stylix.colors;
 
   semanticColors = {
     background = {
-      primary = "#${colors.base00}"; # Default background
-      secondary = "#${colors.base01}"; # Lighter background (selections)
-      tertiary = "#${colors.base02}"; # Even lighter background
-      overlay = "#${colors.base01}"; # Overlay background
+      primary = "#${colors.base00}";
+      secondary = "#${colors.base01}";
+      tertiary = "#${colors.base02}";
+      overlay = "#${colors.base01}";
     };
     foreground = {
-      primary = "#${colors.base05}"; # Default foreground
-      secondary = "#${colors.base04}"; # Lighter foreground
-      muted = "#${colors.base03}"; # Comments, secondary content
-      subtle = "#${colors.base03}"; # Subtle text
+      primary = "#${colors.base05}";
+      secondary = "#${colors.base04}";
+      muted = "#${colors.base03}";
+      subtle = "#${colors.base03}";
     };
     accent = {
-      primary = "#${colors.base0D}"; # Blue - primary accent
-      secondary = "#${colors.base0C}"; # Cyan - secondary accent
-      tertiary = "#${colors.base0E}"; # Magenta - tertiary accent
-      dim = "#${colors.base02}"; # Dimmed accent
+      primary = "#${colors.base0D}";
+      secondary = "#${colors.base0C}";
+      tertiary = "#${colors.base0E}";
+      dim = "#${colors.base02}";
     };
     semantic = {
-      error = "#${colors.base08}"; # Red - errors, urgent
-      warning = "#${colors.base0A}"; # Yellow - warnings
-      success = "#${colors.base0B}"; # Green - success
-      info = "#${colors.base0D}"; # Blue - information
+      error = "#${colors.base08}";
+      warning = "#${colors.base0A}";
+      success = "#${colors.base0B}";
+      info = "#${colors.base0D}";
     };
     syntax = {
-      keyword = "#${colors.base0E}"; # Magenta
-      string = "#${colors.base0B}"; # Green
-      number = "#${colors.base09}"; # Orange
-      comment = "#${colors.base03}"; # Gray
-      function = "#${colors.base0D}"; # Blue
-      variable = "#${colors.base08}"; # Red
-      type = "#${colors.base0A}"; # Yellow
-      operator = "#${colors.base05}"; # Foreground
-      constant = "#${colors.base09}"; # Orange
-      builtin = "#${colors.base0C}"; # Cyan
+      keyword = "#${colors.base0E}";
+      string = "#${colors.base0B}";
+      number = "#${colors.base09}";
+      comment = "#${colors.base03}";
+      function = "#${colors.base0D}";
+      variable = "#${colors.base08}";
+      type = "#${colors.base0A}";
+      operator = "#${colors.base05}";
+      constant = "#${colors.base09}";
+      builtin = "#${colors.base0C}";
     };
   };
 
@@ -61,14 +60,12 @@ let
   };
 in
 {
-  # Disable Stylix for apps using custom theming
   stylix.targets = {
     waybar.enable = false;
     fuzzel.enable = false;
     mako.enable = false;
   };
 
-  # === Mangowc Window Manager (home-manager module) ===
   wayland.windowManager.mango = {
     enable = true;
     systemd.enable = true;
@@ -208,10 +205,8 @@ in
     '';
   };
 
-  # === Waybar Status Bar ===
   programs.waybar = {
     enable = true;
-    # Disable systemd integration - waybar is launched from mango's autostart_sh
     systemd.enable = false;
 
     settings.mainBar = {
@@ -306,7 +301,6 @@ in
     '';
   };
 
-  # === Fuzzel App Launcher ===
   programs.fuzzel = {
     enable = true;
     settings = {
@@ -338,7 +332,6 @@ in
     };
   };
 
-  # === Mako Notifications ===
   services.mako = {
     enable = true;
     font = "${values.theme.font.monospace} 11";
@@ -364,13 +357,11 @@ in
     '';
   };
 
-  # === Wallpaper ===
   home.file.".background-image" = {
     source = wallpaper;
     force = true;
   };
 
-  # === Nemo File Manager ===
   home.file.".local/share/nemo/actions/open-terminal.nemo_action".text = ''
     [Nemo Action]
     Active=true
