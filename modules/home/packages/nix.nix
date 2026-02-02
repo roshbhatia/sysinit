@@ -63,9 +63,9 @@ let
       git-crypt
       git-filter-repo
       glow
+      gnugrep
       gnumake
       gnupg
-      gnugrep
       gnused
       go
       go-task
@@ -88,6 +88,7 @@ let
       kustomize
       lazygit
       libgit2
+      lima
       lsp-ai
       lua-language-server
       lua54Packages.cjson
@@ -111,8 +112,8 @@ let
       nodejs_22
       oh-my-posh
       openssh
-      pkg-config
       pipx
+      pkg-config
       postgresql17Packages.pgvector
       postgresql_17
       proselint
@@ -159,7 +160,6 @@ let
     ])
     ++ lib.optionals pkgs.stdenv.isDarwin [
       pkgs.sbarlua
-      pkgs.lima
     ]
     ++ additionalPackages;
 in
