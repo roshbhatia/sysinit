@@ -14,12 +14,21 @@
   home.sessionVariables = {
     _ZO_FZF_OPTS = builtins.concatStringsSep " " (
       [
-        "--layout=reverse"
+        "--bind=ctrl-d:half-page-down"
+        "--bind=ctrl-f:jump,jump:accept"
+        "--bind=ctrl-k:toggle-preview"
+        "--bind=ctrl-u:half-page-up"
+        "--bind=resize:refresh-preview"
+        "--bind=shift-tab:up"
+        "--bind=tab:down"
+        "--border=none"
+        "--gutter=' '"
         "--height=80%"
         "--info=inline"
+        "--jump-labels=fjdkslaghrueiwoncmv"
+        "--layout=reverse"
         "--scheme=history"
-        "--bind=resize:refresh-preview"
-        "--bind=ctrl-/:toggle-preview"
+        "--style=minimal"
       ]
       ++ lib.optionals (config.stylix.enable or false) [
         "--color=bg:-1"

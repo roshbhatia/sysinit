@@ -48,11 +48,8 @@
       "--height=30%"
     ];
 
-    # Override colors with highest priority to ensure transparency
-    # Merge with stylix colors but force transparent backgrounds
     colors = lib.mkForce (
       lib.optionalAttrs (config.stylix.enable or false) {
-        # Use stylix colors for foreground elements
         fg = "#${config.lib.stylix.colors.base05}";
         "fg+" = "#${config.lib.stylix.colors.base06}";
         hl = "#${config.lib.stylix.colors.base0D}";
@@ -65,7 +62,6 @@
         header = "#${config.lib.stylix.colors.base0A}";
       }
       // {
-        # Force all background elements to be transparent
         bg = "-1";
         "bg+" = "-1";
         gutter = "-1";
