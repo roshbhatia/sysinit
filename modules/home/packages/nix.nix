@@ -157,7 +157,10 @@ let
       zls
       zsh
     ])
-    ++ lib.optionals pkgs.stdenv.isDarwin [ pkgs.sbarlua ]
+    ++ lib.optionals pkgs.stdenv.isDarwin [
+      pkgs.sbarlua
+      pkgs.lima
+    ]
     ++ additionalPackages;
 in
 {

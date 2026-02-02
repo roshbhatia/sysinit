@@ -1,4 +1,3 @@
-# Darwin sketchybar: status bar service and monitor reload
 { pkgs, ... }:
 
 let

@@ -1,8 +1,6 @@
-# Darwin desktop: dock, finder, keyboard, NSGlobalDomain settings
 { values, ... }:
 
 {
-  # Dock
   system.defaults.dock = {
     autohide = true;
     expose-group-apps = true;
@@ -15,7 +13,6 @@
     tilesize = 30;
   };
 
-  # Finder
   system.defaults.finder = {
     _FXShowPosixPathInTitle = true;
     AppleShowAllExtensions = true;
@@ -26,7 +23,6 @@
     ShowPathbar = true;
   };
 
-  # Global UI settings
   system.defaults.NSGlobalDomain = {
     "com.apple.sound.beep.feedback" = 0;
     AppleInterfaceStyle = if values.theme.appearance == "dark" then "Dark" else null;
@@ -41,7 +37,6 @@
     _HIHideMenuBar = true;
   };
 
-  # Keyboard
   system.keyboard = {
     enableKeyMapping = true;
     remapCapsLockToControl = true;

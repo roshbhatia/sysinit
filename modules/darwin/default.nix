@@ -1,8 +1,9 @@
-# Darwin configuration entry point
 { pkgs, config, ... }:
 
 {
   imports = [
+    # Packages first, then configurations
+    ./packages
     ./configurations
   ];
 

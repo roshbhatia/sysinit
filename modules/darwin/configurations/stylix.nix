@@ -9,7 +9,6 @@ let
   themeLib = import ../../shared/lib/theme.nix { inherit lib; };
   themeConfig = values.theme;
 
-  # Get base16 scheme path (upstream or custom YAML)
   schemePath = themeLib.getBase16SchemePath pkgs themeConfig.colorscheme themeConfig.variant;
 in
 {

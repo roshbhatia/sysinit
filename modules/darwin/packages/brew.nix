@@ -1,4 +1,3 @@
-# Darwin packages: Homebrew
 { values, ... }:
 
 let
@@ -23,7 +22,6 @@ let
     "bashdb"
     "bcrypt"
     "block-goose-cli"
-    "colima"
     "ctags"
     "hashicorp/tap/terraform"
     "libgit2@1.8"

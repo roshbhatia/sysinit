@@ -5,12 +5,13 @@
 {
   imports = [
     ./aerospace.nix
+    ./borders.nix
     ./desktop.nix
-    ./packages.nix
+    ./ollama.nix
     ./security.nix
-    ./services.nix
     ./sketchybar.nix
     ./stylix.nix
     ./system.nix
+    ./tailscale.nix
   ];
 }

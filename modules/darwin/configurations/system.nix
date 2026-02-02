@@ -1,4 +1,3 @@
-# Darwin system: nix, hostname, user, environment, shells
 {
   values,
   pkgs,
@@ -24,7 +23,6 @@
     builders-use-substitutes = true;
   };
 
-  # Remote builders
   nix.buildMachines = [
     {
       hostName = "arrakis";
@@ -45,13 +43,10 @@
 
   nix.settings.builders-use-substitutes = true;
 
-  # Hostname
   networking.hostName = hostname;
 
-  # User
   users.users.${values.user.username}.home = "/Users/${values.user.username}";
 
-  # Environment
   environment.shells = [
     pkgs.bashInteractive
     pkgs.nushell
@@ -70,7 +65,6 @@
     ]
   );
 
-  # System state
   system = {
     defaults.LaunchServices.LSQuarantine = false;
     primaryUser = values.user.username;

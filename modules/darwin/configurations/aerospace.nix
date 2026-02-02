@@ -1,4 +1,3 @@
-# Darwin aerospace: tiling window manager
 { pkgs, ... }:
 
 {

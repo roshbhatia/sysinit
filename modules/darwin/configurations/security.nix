@@ -1,4 +1,3 @@
-# Darwin security: sudo, Touch ID
 { values, ... }:
 
 {
