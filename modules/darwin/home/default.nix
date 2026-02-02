@@ -1,4 +1,3 @@
-# Darwin home-manager configuration
 {
   imports = [
     ./desktop.nix

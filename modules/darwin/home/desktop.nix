@@ -1,6 +1,4 @@
-# Darwin home desktop: hammerspoon, karabiner, sketchybar
 {
-  lib,
   pkgs,
   config,
   values,
@@ -8,10 +6,8 @@
 }:
 
 let
-  # Access stylix colors
   colors = config.lib.stylix.colors;
 
-  # Map base16 colors to semantic names for sketchybar and jankyborders
   semanticColors = {
     background = {
       primary = "#${colors.base00}";
@@ -51,7 +47,6 @@ let
     };
   };
 
-  # Theme config for sketchybar with stylix colors
   themeConfig = {
     colorscheme = values.theme.colorscheme;
     variant = values.theme.variant;
@@ -65,7 +60,6 @@ let
   };
 in
 {
-  # === Hammerspoon ===
   home.file = {
     ".hammerspoon/init.lua".source = ./hammerspoon/init.lua;
     ".hammerspoon/lua".source = ./hammerspoon/lua;
@@ -80,11 +74,9 @@ in
     };
   };
 
-  # === Karabiner Elements ===
   xdg.configFile."karabiner/karabiner.json".source =
     config.lib.file.mkOutOfStoreSymlink ./karabiner/karabiner.json;
 
-  # === Sketchybar ===
   xdg.configFile = {
     "sketchybar/sketchybarrc" = {
       text = ''
