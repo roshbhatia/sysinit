@@ -150,11 +150,11 @@
         alt-a = "layout accordion horizontal vertical";
 
         alt-x = [
-          "exec-and-forget /bin/bash -c ${pkgs.sketchybar}/bin/sketchybar --trigger aerospace_mode_changed MODE=MOVE"
+          "exec-and-forget -c ${pkgs.sketchybar}/bin/sketchybar --trigger aerospace_mode_changed MODE=MOVE"
           "mode move"
         ];
         alt-g = [
-          "exec-and-forget /bin/bash -c ${pkgs.sketchybar}/bin/sketchybar --trigger aerospace_mode_changed MODE=LOCKED"
+          "exec-and-forget ${pkgs.sketchybar}/bin/sketchybar --trigger aerospace_mode_changed MODE=LOCKED"
           "mode locked"
         ];
 
@@ -188,16 +188,17 @@
 
       mode.locked.binding = {
         alt-esc = [
-          "exec-and-forget /bin/bash -c ${pkgs.sketchybar}/bin/sketchybar --trigger aerospace_mode_changed MODE=MAIN"
+          "exec-and-forget ${pkgs.sketchybar}/bin/sketchybar --trigger aerospace_mode_changed MODE=MAIN"
           "mode main"
         ];
       };
 
       mode.move.binding = {
         alt-esc = [
-          "exec-and-forget /bin/bash -c ${pkgs.sketchybar}/bin/sketchybar --trigger aerospace_mode_changed MODE=MAIN"
+          "exec-and-forget ${pkgs.sketchybar}/bin/sketchybar --trigger aerospace_mode_changed MODE=MAIN"
           "mode main"
         ];
+
         alt-h = "move left";
         alt-j = "move down";
         alt-k = "move up";
