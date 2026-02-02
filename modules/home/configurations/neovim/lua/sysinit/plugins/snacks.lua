@@ -130,6 +130,7 @@ return {
               and vim.bo[buf].buftype ~= "terminal"
           end,
         },
+        words = {},
       })
 
       local agents = require("sysinit.utils.ai.agents")
