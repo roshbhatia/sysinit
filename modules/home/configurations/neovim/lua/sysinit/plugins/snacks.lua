@@ -391,14 +391,14 @@ return {
           mode = { "n", "t" },
         },
         {
-          "gd",
+          "grd",
           function()
             Snacks.picker.lsp_definitions()
           end,
           desc = "Goto Definition",
         },
         {
-          "gD",
+          "grD",
           function()
             Snacks.picker.lsp_declarations()
           end,
@@ -413,14 +413,14 @@ return {
           desc = "References",
         },
         {
-          "gI",
+          "grI",
           function()
             Snacks.picker.lsp_implementations()
           end,
           desc = "Goto Implementation",
         },
         {
-          "gy",
+          "gry",
           function()
             Snacks.picker.lsp_type_definitions()
           end,
