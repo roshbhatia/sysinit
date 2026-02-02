@@ -72,6 +72,7 @@ let
       gopls
       gum
       helm-ls
+      imagemagick
       jq
       jq-lsp
       jqp

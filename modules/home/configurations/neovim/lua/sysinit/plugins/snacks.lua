@@ -41,6 +41,7 @@ return {
             },
           },
         },
+        image = {},
         dashboard = {
           enabled = true,
           preset = {
