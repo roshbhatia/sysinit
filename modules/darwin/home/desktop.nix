@@ -79,6 +79,9 @@ let
   };
 in
 {
+  # SketchyBar packages
+  home.packages = [ pkgs.sbarlua ];
+
   home.file = {
     ".hammerspoon/init.lua".source = ./hammerspoon/init.lua;
     ".hammerspoon/lua".source = ./hammerspoon/lua;
