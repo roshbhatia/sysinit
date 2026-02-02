@@ -18,7 +18,6 @@
     ./helix.nix
     ./hushlogin.nix
     ./k9s.nix
-    ./kitty.nix
     ./kubectl.nix
     ./llm
     ./macchina
