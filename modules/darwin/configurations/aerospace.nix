@@ -145,41 +145,59 @@
               activate
             end tell'
         '';
+
         alt-t = "layout tiles horizontal vertical";
         alt-a = "layout accordion horizontal vertical";
+
+        alt-x = [
+          "exec-and-forget /bin/bash -c ${pkgs.sketchybar}/bin/sketchybar --trigger aerospace_mode_changed MODE=MOVE"
+          "mode move"
+        ];
+        alt-g = [
+          "exec-and-forget /bin/bash -c ${pkgs.sketchybar}/bin/sketchybar --trigger aerospace_mode_changed MODE=LOCKED"
+          "mode locked"
+        ];
+
         alt-h = "focus left";
         alt-j = "focus down";
         alt-k = "focus up";
         alt-l = "focus right";
-        alt-x = "mode move";
-        alt-g = "mode locked";
         alt-shift-h = "resize width -72";
         alt-shift-j = "resize height -72";
         alt-shift-k = "resize height +72";
         alt-shift-l = "resize width +72";
+
         alt-1 = "workspace 1";
         alt-2 = "workspace 2";
         alt-c = "workspace C";
         alt-e = "workspace E";
         alt-m = "workspace M";
-        alt-tab = "workspace --wrap-around next";
-        alt-shift-tab = "workspace --wrap-around prev";
-        alt-p = "workspace-back-and-forth";
         alt-shift-1 = "move-node-to-workspace 1 --focus-follows-window";
         alt-shift-2 = "move-node-to-workspace 2 --focus-follows-window";
         alt-shift-c = "move-node-to-workspace C --focus-follows-window";
         alt-shift-e = "move-node-to-workspace E --focus-follows-window";
         alt-shift-m = "move-node-to-workspace M --focus-follows-window";
+
+        alt-tab = "workspace --wrap-around next";
+        alt-shift-tab = "workspace --wrap-around prev";
+        alt-p = "workspace-back-and-forth";
+
         alt-f = "fullscreen";
         alt-esc = "mode main";
       };
 
       mode.locked.binding = {
-        alt-esc = "mode main";
+        alt-esc = [
+          "exec-and-forget /bin/bash -c ${pkgs.sketchybar}/bin/sketchybar --trigger aerospace_mode_changed MODE=MAIN"
+          "mode main"
+        ];
       };
 
       mode.move.binding = {
-        alt-esc = "mode main";
+        alt-esc = [
+          "exec-and-forget /bin/bash -c ${pkgs.sketchybar}/bin/sketchybar --trigger aerospace_mode_changed MODE=MAIN"
+          "mode main"
+        ];
         alt-h = "move left";
         alt-j = "move down";
         alt-k = "move up";
