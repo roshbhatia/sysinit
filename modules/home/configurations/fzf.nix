@@ -1,15 +1,11 @@
 {
   pkgs,
   lib,
+  config,
   ...
 }:
 
 {
-  stylix.targets.fzf.colors.override = {
-    bg = lib.mkForce "-1";
-    "bg+" = lib.mkForce "-1";
-  };
-
   programs.fzf = {
     enable = true;
     enableZshIntegration = false; # zsh vi mode messes with ZLE, so we manually source it
@@ -35,8 +31,6 @@
       "--no-hscroll"
       "--preview-window=right:50%:wrap"
       "--style=minimal"
-      "--color=gutter:-1"
-      "--color=preview-bg:-1"
     ];
 
     fileWidgetOptions = [
@@ -53,5 +47,30 @@
       "--sort"
       "--height=30%"
     ];
+
+    # Override colors with highest priority to ensure transparency
+    # Merge with stylix colors but force transparent backgrounds
+    colors = lib.mkForce (
+      lib.optionalAttrs (config.stylix.enable or false) {
+        # Use stylix colors for foreground elements
+        fg = "#${config.lib.stylix.colors.base05}";
+        "fg+" = "#${config.lib.stylix.colors.base06}";
+        hl = "#${config.lib.stylix.colors.base0D}";
+        "hl+" = "#${config.lib.stylix.colors.base0D}";
+        info = "#${config.lib.stylix.colors.base0A}";
+        prompt = "#${config.lib.stylix.colors.base0D}";
+        pointer = "#${config.lib.stylix.colors.base0D}";
+        marker = "#${config.lib.stylix.colors.base0D}";
+        spinner = "#${config.lib.stylix.colors.base0D}";
+        header = "#${config.lib.stylix.colors.base0A}";
+      }
+      // {
+        # Force all background elements to be transparent
+        bg = "-1";
+        "bg+" = "-1";
+        gutter = "-1";
+        "preview-bg" = "-1";
+      }
+    );
   };
 }
