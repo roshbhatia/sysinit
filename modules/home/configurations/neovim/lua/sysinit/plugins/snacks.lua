@@ -374,6 +374,72 @@ return {
           end,
           desc = "Buffer diagnostics",
         },
+        {
+          "]]",
+          function()
+            Snacks.words.jump(vim.v.count1)
+          end,
+          desc = "Next Reference",
+          mode = { "n", "t" },
+        },
+        {
+          "[[",
+          function()
+            Snacks.words.jump(-vim.v.count1)
+          end,
+          desc = "Prev Reference",
+          mode = { "n", "t" },
+        },
+        {
+          "gd",
+          function()
+            Snacks.picker.lsp_definitions()
+          end,
+          desc = "Goto Definition",
+        },
+        {
+          "gD",
+          function()
+            Snacks.picker.lsp_declarations()
+          end,
+          desc = "Goto Declaration",
+        },
+        {
+          "grr",
+          function()
+            Snacks.picker.lsp_references()
+          end,
+          nowait = true,
+          desc = "References",
+        },
+        {
+          "gI",
+          function()
+            Snacks.picker.lsp_implementations()
+          end,
+          desc = "Goto Implementation",
+        },
+        {
+          "gy",
+          function()
+            Snacks.picker.lsp_type_definitions()
+          end,
+          desc = "Goto T[y]pe Definition",
+        },
+        {
+          "gai",
+          function()
+            Snacks.picker.lsp_incoming_calls()
+          end,
+          desc = "C[a]lls Incoming",
+        },
+        {
+          "gao",
+          function()
+            Snacks.picker.lsp_outgoing_calls()
+          end,
+          desc = "C[a]lls Outgoing",
+        },
       }
       for _, key in ipairs(ai_keys) do
         table.insert(default_keys, key)
