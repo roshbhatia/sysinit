@@ -36,7 +36,7 @@ in
 
     sessionVariables = {
       # Use lima directly as the docker host
-      DOCKER_HOST = "''$(limactl list docker --format 'unix://{{.Dir}}/sock/docker.sock')";
+      DOCKER_HOST = "''$(${pkgs.lima}/bin/limactl list docker --format 'unix://{{.Dir}}/sock/docker.sock')";
 
       XDG_CACHE_HOME = config.xdg.cacheHome;
       XDG_CONFIG_HOME = config.xdg.configHome;
