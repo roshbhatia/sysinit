@@ -9,7 +9,7 @@ local mode_item
 
 local mode_colors = {
   MAIN = colors.foreground_primary,
-  MOVE = colors.semantic_warning,
+  SWAP = colors.semantic_warning,
   LOCKED = colors.semantic_error,
 }
 
