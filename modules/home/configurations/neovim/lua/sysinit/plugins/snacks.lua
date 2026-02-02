@@ -41,7 +41,9 @@ return {
             },
           },
         },
-        image = {},
+        image = {
+          enabled = true,
+        },
         dashboard = {
           enabled = true,
           preset = {
@@ -130,7 +132,9 @@ return {
               and vim.bo[buf].buftype ~= "terminal"
           end,
         },
-        words = {},
+        words = {
+          enabled = true,
+        },
       })
 
       local agents = require("sysinit.utils.ai.agents")
