@@ -151,10 +151,8 @@
         alt-j = "focus down";
         alt-k = "focus up";
         alt-l = "focus right";
-        alt-cmd-h = "move left";
-        alt-cmd-j = "move down";
-        alt-cmd-k = "move up";
-        alt-cmd-l = "move right";
+        alt-x = "mode move";
+        alt-g = "mode locked";
         alt-shift-h = "resize width -72";
         alt-shift-j = "resize height -72";
         alt-shift-k = "resize height +72";
@@ -173,10 +171,19 @@
         alt-shift-e = "move-node-to-workspace E --focus-follows-window";
         alt-shift-m = "move-node-to-workspace M --focus-follows-window";
         alt-f = "fullscreen";
-        alt-esc = [
-          "reload-config"
-          "mode main"
-        ];
+        alt-esc = "mode main";
+      };
+
+      mode.locked.binding = {
+        alt-esc = "mode main";
+      };
+
+      mode.move.binding = {
+        alt-esc = "mode main";
+        alt-h = "move left";
+        alt-j = "move down";
+        alt-k = "move up";
+        alt-l = "move right";
       };
     };
   };
