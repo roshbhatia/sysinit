@@ -35,9 +35,6 @@ in
     stateVersion = "23.11";
 
     sessionVariables = {
-      # Use lima directly as the docker host
-      DOCKER_HOST = "''$(${pkgs.lima}/bin/limactl list docker --format 'unix://{{.Dir}}/sock/docker.sock')";
-
       XDG_CACHE_HOME = config.xdg.cacheHome;
       XDG_CONFIG_HOME = config.xdg.configHome;
       XDG_DATA_HOME = config.xdg.dataHome;
