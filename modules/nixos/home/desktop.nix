@@ -13,6 +13,48 @@ let
   hexToMangoAlpha = color: alpha: "0x${c color}${alpha}";
   inherit (values.theme.transparency) opacity;
 
+  # Extract colors from Stylix for semantic color mapping
+  colors = config.lib.stylix.colors;
+
+  semanticColors = {
+    background = {
+      primary = "#${colors.base00}"; # Default background
+      secondary = "#${colors.base01}"; # Lighter background (selections)
+      tertiary = "#${colors.base02}"; # Even lighter background
+      overlay = "#${colors.base01}"; # Overlay background
+    };
+    foreground = {
+      primary = "#${colors.base05}"; # Default foreground
+      secondary = "#${colors.base04}"; # Lighter foreground
+      muted = "#${colors.base03}"; # Comments, secondary content
+      subtle = "#${colors.base03}"; # Subtle text
+    };
+    accent = {
+      primary = "#${colors.base0D}"; # Blue - primary accent
+      secondary = "#${colors.base0C}"; # Cyan - secondary accent
+      tertiary = "#${colors.base0E}"; # Magenta - tertiary accent
+      dim = "#${colors.base02}"; # Dimmed accent
+    };
+    semantic = {
+      error = "#${colors.base08}"; # Red - errors, urgent
+      warning = "#${colors.base0A}"; # Yellow - warnings
+      success = "#${colors.base0B}"; # Green - success
+      info = "#${colors.base0D}"; # Blue - information
+    };
+    syntax = {
+      keyword = "#${colors.base0E}"; # Magenta
+      string = "#${colors.base0B}"; # Green
+      number = "#${colors.base09}"; # Orange
+      comment = "#${colors.base03}"; # Gray
+      function = "#${colors.base0D}"; # Blue
+      variable = "#${colors.base08}"; # Red
+      type = "#${colors.base0A}"; # Yellow
+      operator = "#${colors.base05}"; # Foreground
+      constant = "#${colors.base09}"; # Orange
+      builtin = "#${colors.base0C}"; # Cyan
+    };
+  };
+
   wallpaper = pkgs.fetchurl {
     url = "https://preview.redd.it/58ugyimgkj661.jpg?auto=webp&s=5db2c277e7e8e8fe7389ff64ea1b9c252fca7e01";
     sha256 = "1v2yn0aan04rqp70ybv1485isgk9jq0gv5r6lqv1hin6y279pf83";
@@ -183,9 +225,8 @@ in
 
       modules-left = [
         "custom/logo"
-        "dwl/window#window"
       ];
-      modules-center = [ "dwl/tags" ];
+      modules-center = [ "custom/workspaces" ];
       modules-right = [
         "pulseaudio"
         "custom/sep"
@@ -209,19 +250,9 @@ in
         format = "|";
         tooltip = false;
       };
-      "dwl/tags" = {
-        num-tags = 5;
-        tag-labels = [
-          "1"
-          "2"
-          "C"
-          "E"
-          "M"
-        ];
-      };
-      "dwl/window#window" = {
-        format = "{title}";
-        max-length = 50;
+      "custom/workspaces" = {
+        format = "1  2  C  E  M";
+        tooltip = false;
       };
       clock = {
         format = "{:%H:%M}";
@@ -258,18 +289,10 @@ in
     style = ''
       * { font-family: "${values.theme.font.monospace}", monospace; font-size: 12px; min-height: 0; padding: 0; margin: 0; }
       window#waybar { background: #${c semanticColors.background.primary}; color: #${c semanticColors.foreground.primary}; border-radius: 10px; border: 1px solid #${c semanticColors.background.secondary}; }
-      #custom-logo, #tags, #window, #clock, #cpu, #memory, #network, #pulseaudio, #tray { padding: 0 10px; }
+      #custom-logo, #custom-workspaces, #clock, #cpu, #memory, #network, #pulseaudio, #tray { padding: 0 10px; }
       #custom-logo { color: #${c semanticColors.accent.primary}; font-size: 14px; padding-left: 12px; }
       #custom-sep { color: #${c semanticColors.foreground.muted}; padding: 0 4px; }
-      #tags { padding: 0 4px; }
-      #tags button { padding: 0 8px; color: #${c semanticColors.foreground.muted}; background: transparent; border: none; border-radius: 6px; margin: 4px 2px; min-width: 24px; }
-      #tags button:hover { background: #${c semanticColors.background.secondary}; color: #${c semanticColors.foreground.primary}; }
-      #tags button.focused { color: #${c semanticColors.accent.primary}; background: #${c semanticColors.background.secondary}; }
-      #tags button.focused::before { content: "{"; }
-      #tags button.focused::after { content: "}"; }
-      #tags button.urgent { color: #${c semanticColors.semantic.error}; }
-      #tags button.occupied { color: #${c semanticColors.foreground.primary}; }
-      #window { color: #${c semanticColors.foreground.secondary}; }
+      #custom-workspaces { color: #${c semanticColors.foreground.primary}; letter-spacing: 2px; }
       #clock { color: #${c semanticColors.foreground.primary}; }
       #clock.utc { color: #${c semanticColors.foreground.muted}; }
       #cpu, #memory { color: #${c semanticColors.foreground.muted}; }
