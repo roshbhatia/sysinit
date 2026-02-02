@@ -27,7 +27,11 @@
       X11Forwarding = false;
       PrintMotd = false;
       AllowUsers = [ values.user.username ];
-      AcceptEnv = "TERM_PROGRAM TERM_PROGRAM_VERSION WEZTERM_*";
+      AcceptEnv = [
+        "TERM_PROGRAM"
+        "TERM_PROGRAM_VERSION"
+        "WEZTERM_*"
+      ];
     };
   };
 
