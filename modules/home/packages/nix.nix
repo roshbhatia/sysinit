@@ -158,6 +158,10 @@ let
       zls
       zsh
     ])
+    ++ lib.optionals pkgs.stdenv.isDarwin [
+      # SketchyBar Lua bindings
+      pkgs.sbarlua
+    ]
     ++ additionalPackages;
 in
 {
