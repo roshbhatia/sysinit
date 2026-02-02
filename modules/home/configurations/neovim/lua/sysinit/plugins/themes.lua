@@ -236,12 +236,12 @@ local THEMES = {
 local theme_cfg = vim.g.nix_managed
     and json_loader.load_json_file(json_loader.get_config_path("theme_config.json"), "theme_config")
   or {
-    colorscheme = "miniautumn",
+    colorscheme = "base16-rose-pine-dawn",
   }
 
 local meta = THEMES[theme_cfg.colorscheme]
   or {
-    plugin = "nvim-mini/mini.base16",
+    plugin = "RRethy/base16-nvim",
     colorscheme = theme_cfg.colorscheme,
   }
 

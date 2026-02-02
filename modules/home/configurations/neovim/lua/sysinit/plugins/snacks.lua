@@ -261,21 +261,21 @@ return {
         {
           "<leader>cfd",
           function()
-            Snacks.picker.lsp_definitions({ layout = "right" })
+            Snacks.picker.lsp_definitions()
           end,
           desc = "LSP definitions",
         },
         {
           "<leader>cfD",
           function()
-            Snacks.picker.lsp_declarations({ layout = "right" })
+            Snacks.picker.lsp_declarations()
           end,
           desc = "LSP declarations",
         },
         {
           "<leader>cfr",
           function()
-            Snacks.picker.lsp_references({ layout = "top" })
+            Snacks.picker.lsp_references()
           end,
           desc = "References",
           nowait = true,
@@ -283,14 +283,14 @@ return {
         {
           "<leader>cfi",
           function()
-            Snacks.picker.lsp_implementations({ layout = "right" })
+            Snacks.picker.lsp_implementations()
           end,
           desc = "Implementations",
         },
         {
           "<leader>cfy",
           function()
-            Snacks.picker.lsp_type_definitions({ layout = "right" })
+            Snacks.picker.lsp_type_definitions()
           end,
           desc = "Type definition",
         },
@@ -363,14 +363,14 @@ return {
         {
           "<leader>cfx",
           function()
-            Snacks.picker.diagnostics({ layout = "right" })
+            Snacks.picker.diagnostics()
           end,
           desc = "Project diagnostics",
         },
         {
           "<leader>cfb",
           function()
-            Snacks.picker.diagnostics_buffer({ layout = "right" })
+            Snacks.picker.diagnostics_buffer({ layout = "bottom" })
           end,
           desc = "Buffer diagnostics",
         },
@@ -389,56 +389,6 @@ return {
           end,
           desc = "Prev Reference",
           mode = { "n", "t" },
-        },
-        {
-          "grd",
-          function()
-            Snacks.picker.lsp_definitions()
-          end,
-          desc = "Goto Definition",
-        },
-        {
-          "grD",
-          function()
-            Snacks.picker.lsp_declarations()
-          end,
-          desc = "Goto Declaration",
-        },
-        {
-          "grr",
-          function()
-            Snacks.picker.lsp_references()
-          end,
-          nowait = true,
-          desc = "References",
-        },
-        {
-          "grI",
-          function()
-            Snacks.picker.lsp_implementations()
-          end,
-          desc = "Goto Implementation",
-        },
-        {
-          "gry",
-          function()
-            Snacks.picker.lsp_type_definitions()
-          end,
-          desc = "Goto T[y]pe Definition",
-        },
-        {
-          "gai",
-          function()
-            Snacks.picker.lsp_incoming_calls()
-          end,
-          desc = "C[a]lls Incoming",
-        },
-        {
-          "gao",
-          function()
-            Snacks.picker.lsp_outgoing_calls()
-          end,
-          desc = "C[a]lls Outgoing",
         },
       }
       for _, key in ipairs(ai_keys) do
