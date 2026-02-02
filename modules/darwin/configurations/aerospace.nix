@@ -149,10 +149,11 @@
         alt-t = "layout tiles horizontal vertical";
         alt-a = "layout accordion horizontal vertical";
 
-        alt-x = [
+        alt-w = [
           "exec-and-forget -c ${pkgs.sketchybar}/bin/sketchybar --trigger aerospace_mode_changed MODE=MOVE"
           "mode move"
         ];
+
         alt-g = [
           "exec-and-forget ${pkgs.sketchybar}/bin/sketchybar --trigger aerospace_mode_changed MODE=LOCKED"
           "mode locked"
