@@ -150,7 +150,7 @@
         alt-a = "layout accordion horizontal vertical";
 
         alt-x = [
-          "exec-and-forget -c ${pkgs.sketchybar}/bin/sketchybar --trigger aerospace_mode_changed MODE=MOVE"
+          "exec-and-forget ${pkgs.sketchybar}/bin/sketchybar --trigger aerospace_mode_changed MODE=MOVE"
           "mode move"
         ];
 
