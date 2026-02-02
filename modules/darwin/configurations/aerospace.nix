@@ -149,9 +149,9 @@
         alt-t = "layout tiles horizontal vertical";
         alt-a = "layout accordion horizontal vertical";
 
-        alt-s = [
-          "exec-and-forget -c ${pkgs.sketchybar}/bin/sketchybar --trigger aerospace_mode_changed MODE=SWAP"
-          "mode swap"
+        alt-x = [
+          "exec-and-forget -c ${pkgs.sketchybar}/bin/sketchybar --trigger aerospace_mode_changed MODE=MOVE"
+          "mode move"
         ];
 
         alt-g = [
@@ -194,9 +194,9 @@
         ];
       };
 
-      mode.swap.binding = {
+      mode.move.binding = {
         alt-esc = [
-          "exec-and-forget ${pkgs.sketchybar}/bin/sketchybar --trigger aerospace_mode_changed MODE=MOVE"
+          "exec-and-forget ${pkgs.sketchybar}/bin/sketchybar --trigger aerospace_mode_changed MODE=MAIN"
           "mode main"
         ];
 
