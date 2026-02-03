@@ -9,7 +9,11 @@ let
   disabledMcpServers = [ "beads" ];
 
   # yaml-language-server tends to pollute context with false positives on non-YAML files.
-  disabledLspServers = [ "yaml-language-server" ];
+  disabledLspServers = [
+    "yaml-language-server"
+    "yaml"
+    "yaml-ls"
+  ];
 
   agents = import ../shared/agents.nix;
   lspConfig = import ../shared/lsp.nix;
