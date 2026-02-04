@@ -7,7 +7,6 @@
     ./_1password.nix
     ./ast-grep.nix
     ./bat.nix
-    ./btop.nix
     ./carapace.nix
     ./direnv.nix
     ./editorconfig.nix
@@ -16,6 +15,7 @@
     ./fzf.nix
     ./git
     ./helix.nix
+    ./htop.nix
     ./hushlogin.nix
     ./k9s.nix
     ./kubectl.nix
