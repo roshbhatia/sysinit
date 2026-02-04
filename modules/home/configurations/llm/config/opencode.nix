@@ -57,7 +57,7 @@ let
         isDisabled = builtins.elem name disabledLspServers;
       in
       if isDisabled then
-        false
+        { disabled = true; }
       else
         {
           command = cmd ++ (lspCfg.args or [ ]);
