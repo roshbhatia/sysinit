@@ -26,6 +26,7 @@
     ./nushell.nix
     ./omp.nix
     ./ssh.nix
+    ./tmux.nix
     ./utils
     ./vivid.nix
     ./wezterm
