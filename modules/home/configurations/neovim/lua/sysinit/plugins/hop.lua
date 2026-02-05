@@ -2,8 +2,9 @@ return {
   {
     "smoka7/hop.nvim",
     cmd = {
-      "HopWord",
+      "HopAnywhere",
       "HopLine",
+      "HopWord",
     },
     opts = {
       keys = "fjdkslaghrueiwoncmv",
@@ -17,8 +18,16 @@ return {
           function()
             vim.cmd("HopWord")
           end,
-          mode = { "n", "v" },
+          mode = { "n" },
           desc = "Jump to word",
+        },
+        {
+          "f",
+          function()
+            vim.cmd("HopAnywhere")
+          end,
+          mode = { "v" },
+          desc = "Jump to anywhere",
         },
         {
           "F",
