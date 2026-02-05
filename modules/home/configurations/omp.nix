@@ -1,11 +1,8 @@
 {
   config,
-  lib,
-  values,
   ...
 }:
 let
-  # Use stylix base16 colors directly
   ompColors = {
     primary = "#${config.lib.stylix.colors.base0D}"; # Blue (accent primary)
     muted = "#${config.lib.stylix.colors.base03}"; # Comments (accent dim)
