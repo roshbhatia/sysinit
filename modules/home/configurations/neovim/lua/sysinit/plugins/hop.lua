@@ -19,15 +19,15 @@ return {
           function()
             vim.cmd("HopWord")
           end,
-          mode = { "n" },
+          mode = { "n", "v" },
           desc = "Jump to word",
         },
         {
-          "f",
+          "t",
           function()
             vim.cmd("HopAnywhere")
           end,
-          mode = { "v" },
+          mode = { "n", "v" },
           desc = "Jump to anywhere",
         },
         {
