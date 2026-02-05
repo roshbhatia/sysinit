@@ -18,9 +18,6 @@
     max-jobs = "auto";
     cores = 0;
     connect-timeout = 10;
-    stalled-download-timeout = 300;
-    download-attempts = 3;
-    builders-use-substitutes = true;
   };
 
   nix.buildMachines = [
