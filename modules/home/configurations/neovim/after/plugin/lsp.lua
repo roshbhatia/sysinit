@@ -111,6 +111,7 @@ local servers = {
   "tflint",
   "up",
   "yamlls",
+  "yr_ls",
   "zls",
 }
 
