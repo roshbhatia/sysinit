@@ -89,7 +89,7 @@ task: Available tasks for this project:
 | `SYSINIT_MACCHINA_THEME` | `rosh` | Macchina theme name |
 
 <!-- VALUES_SCHEMA_START -->
--
+
 ## Values Configuration Schema
 
 | Field | Type | Default | Required | Description |
