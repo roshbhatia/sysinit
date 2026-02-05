@@ -5,6 +5,7 @@ return {
       "HopAnywhere",
       "HopLine",
       "HopWord",
+      "HopNodes",
     },
     opts = {
       keys = "fjdkslaghrueiwoncmv",
@@ -28,6 +29,14 @@ return {
           end,
           mode = { "v" },
           desc = "Jump to anywhere",
+        },
+        {
+          "@",
+          function()
+            vim.cmd("HopNodes")
+          end,
+          mode = { "v" },
+          desc = "Jump to node",
         },
         {
           "F",
