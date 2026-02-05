@@ -5,7 +5,7 @@ function M.pick_agent()
   local session = require("sysinit.utils.ai.session")
   local active = session.get_active()
 
-  -- If there's an active terminal and its tmux session exists, toggle visibility
+  -- If there's an active terminal, toggle visibility
   if active and session.exists(active) then
     if session.is_visible(active) then
       session.hide(active)

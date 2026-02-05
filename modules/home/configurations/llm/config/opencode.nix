@@ -10,8 +10,8 @@ let
 
   # yaml-language-server tends to pollute context with false positives on non-YAML files.
   disabledLspServers = [
-    "yaml-language-server"
     "yaml"
+    "yaml-language-server"
     "yaml-ls"
   ];
 

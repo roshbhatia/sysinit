@@ -10,7 +10,7 @@ function M.setup(opts)
 end
 
 -- Open a new terminal in a native Neovim split
--- @param _termname string: Terminal name (unused without tmux)
+-- @param _termname string: Terminal name (unused)
 -- @param agent_config table: Agent configuration
 -- @param cwd string: working directory
 -- @return table|nil: Terminal data or nil on failure
@@ -25,7 +25,7 @@ function M.open(_termname, agent_config, cwd)
     env_str = env_str .. string.format("export NVIM_SOCKET_PATH=%s; ", vim.fn.shellescape(vim.env.NVIM_SOCKET_PATH))
   end
 
-  -- Run agent command directly without tmux (no persistence needed for Snacks)
+  -- Run agent command directly (no persistence needed for Snacks)
   local cmd = env_str .. agent_config.cmd
 
   -- Open terminal in right split using snacks.nvim
@@ -57,7 +57,7 @@ function M.focus(term_data)
   return true
 end
 
--- Hide a terminal (close window, no persistence without tmux)
+-- Hide a terminal (close window, no persistence)
 -- @param term_data table: Terminal data
 function M.hide(term_data)
   if term_data.win and vim.api.nvim_win_is_valid(term_data.win) then
@@ -68,12 +68,11 @@ function M.hide(term_data)
   term_data.term = nil
 end
 
--- Show a hidden terminal (not supported without tmux persistence)
--- @param _term_data table: Terminal data (unused without tmux)
--- @return table|nil: Always returns nil (no persistence without tmux)
+-- Show a hidden terminal (not supported, no persistence)
+-- @param _term_data table: Terminal data (unused)
+-- @return table|nil: Always returns nil (no persistence)
 function M.show(_term_data)
-  -- Without tmux, we can't restore terminal state
-  -- User should create a new terminal instead
+  -- Can't restore terminal state, create a new terminal instead
   return nil
 end
 

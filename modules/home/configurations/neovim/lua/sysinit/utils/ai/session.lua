@@ -1,7 +1,6 @@
 -- Session management facade with auto-detection of terminal backend
 local M = {}
 
-local base = require("sysinit.utils.ai.backends.base")
 local backend = nil -- Backend module (wezterm or native)
 local config = {}
 local terminals = {}
@@ -142,7 +141,7 @@ function M.focus(termname)
   active_terminal = termname
 end
 
--- Hide a terminal (closes visible UI, keeps tmux session)
+-- Hide a terminal (closes visible UI, no persistence)
 -- @param termname string: Terminal name
 function M.hide(termname)
   local term_data = terminals[termname]
@@ -154,7 +153,7 @@ function M.hide(termname)
   backend.hide(term_data)
 end
 
--- Show a hidden terminal (reattach to tmux session)
+-- Show a hidden terminal (not supported without persistence)
 -- @param termname string: Terminal name
 function M.show(termname)
   local term_data = terminals[termname]
@@ -164,22 +163,9 @@ function M.show(termname)
     return
   end
 
-  if not base.tmux_session_exists(term_data.session_name) then
-    terminals[termname] = nil
-    M.open(termname)
-    return
-  end
-
-  if backend.is_visible(term_data) then
-    M.focus(termname)
-    return
-  end
-
-  local updated = backend.show(term_data)
-  if updated then
-    terminals[termname] = updated
-    active_terminal = termname
-  end
+  -- Without persistence, just reopen the terminal
+  terminals[termname] = nil
+  M.open(termname)
 end
 
 -- Check if terminal is visible
@@ -205,7 +191,22 @@ function M.send(termname, text, opts)
     return
   end
 
-  base.send_to_tmux(term_data.session_name, text, opts)
+  -- For WezTerm backend, use wezterm CLI to send text
+  if term_data.pane_id then
+    local send_cmd =
+      string.format("wezterm cli send-text --pane-id %d --no-paste %s", term_data.pane_id, vim.fn.shellescape(text))
+    vim.fn.system(send_cmd)
+
+    if opts.submit then
+      vim.fn.system(string.format("wezterm cli send-text --pane-id %d --no-paste '\n'", term_data.pane_id))
+    end
+  -- For native backend, use Snacks terminal functionality
+  elseif term_data.term then
+    term_data.term:send(text)
+    if opts.submit then
+      term_data.term:send("\n")
+    end
+  end
 end
 
 -- Get terminal information
@@ -222,7 +223,6 @@ function M.get_info(termname)
     name = termname,
     visible = backend.is_visible(term_data),
     pane_id = term_data.pane_id,
-    session_name = term_data.session_name,
     cmd = term_data.cmd,
     cwd = term_data.cwd,
     win = term_data.win,
@@ -240,18 +240,18 @@ function M.get_all()
   return result
 end
 
--- Check if terminal exists (has active tmux session)
+-- Check if terminal exists (is tracked and visible)
 -- @param termname string: Terminal name
 -- @return boolean: True if exists
 function M.exists(termname)
   local term_data = terminals[termname]
-  if not term_data then
+  if not term_data or not backend then
     return false
   end
-  return base.tmux_session_exists(term_data.session_name)
+  return backend.is_visible(term_data)
 end
 
--- Close a terminal (kill tmux session and UI)
+-- Close a terminal (kill UI)
 -- @param termname string: Terminal name
 function M.close(termname)
   local term_data = terminals[termname]
@@ -261,10 +261,6 @@ function M.close(termname)
   end
 
   backend.kill(term_data)
-
-  if base.tmux_session_exists(term_data.session_name) then
-    vim.fn.system(string.format("tmux kill-session -t %s", vim.fn.shellescape(term_data.session_name)))
-  end
 
   terminals[termname] = nil
   if active_terminal == termname then

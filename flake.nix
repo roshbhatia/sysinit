@@ -42,8 +42,6 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    bv.url = "github:Dicklesworthstone/beads_viewer";
-
     bd = {
       url = "github:steveyegge/beads";
       inputs.nixpkgs.follows = "nixpkgs";
