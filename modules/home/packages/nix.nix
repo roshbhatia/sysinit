@@ -151,7 +151,6 @@ let
       which
       yaml-language-server
       yamllint
-      yara-x
       yarn
       yazi
       yq

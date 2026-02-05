@@ -22,17 +22,9 @@ return {
         go = { "goimports", "gofmt" },
         rust = { "rustfmt" },
         terraform = { "terraform_fmt" },
-        yara = { "yara_fmt" },
       },
       default_format_opts = {
         lsp_format = "fallback",
-      },
-      formatters = {
-        yara_fmt = {
-          command = "yr",
-          args = { "fmt", "$FILENAME" },
-          stdin = false,
-        },
       },
       notify_on_error = false,
       format_after_save = function(bufnr)
