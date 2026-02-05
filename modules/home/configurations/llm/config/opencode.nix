@@ -115,8 +115,6 @@ let
     };
 
     plugin = [
-      "@mohak34/opencode-notifier@latest"
-      "@zenobius/opencode-background"
       "opencode-beads"
       "opencode-handoff"
     ];
