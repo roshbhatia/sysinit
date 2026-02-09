@@ -236,7 +236,7 @@ local THEMES = {
 local theme_cfg = vim.g.nix_managed
     and json_loader.load_json_file(json_loader.get_config_path("theme_config.json"), "theme_config")
   or {
-    colorscheme = "base16-gruvbox-light-soft",
+    colorscheme = "base16-black-metal",
   }
 
 local meta = THEMES[theme_cfg.colorscheme]
