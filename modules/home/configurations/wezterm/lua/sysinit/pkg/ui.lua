@@ -123,16 +123,16 @@ function M.setup(config)
   })
 
   -- Absolute file paths (starts with / or ~)
-  -- Matches: /path/to/file, ~/documents/file.txt (optionally quoted)
+  -- Matches: /path/to/file, ~/documents/file.txt, /etc/config-*.yaml (optionally quoted)
   table.insert(config.hyperlink_rules, {
-    regex = [=[["]?([\w\d]{1}[\w\d.\-_]+(/[\w\d.\-_]+)+)["]?]=],
+    regex = [=[["]?([\w\d]{1}[\w\d.\-_*?]+(/[\w\d.\-_*?]+)+)["]?]=],
     format = "file://$1",
   })
 
   -- Relative paths (starts with ./ or ../)
-  -- Matches: ./file, ../parent/file, ../../another/path
+  -- Matches: ./file, ../parent/file, ./something-*.yaml, ../../another/path
   table.insert(config.hyperlink_rules, {
-    regex = [=[\.\.?/[\w\d.\-_/]+]=],
+    regex = [=[\.\.?/[\w\d.\-_/*?]+]=],
     format = "file://$0",
   })
 
@@ -145,8 +145,14 @@ function M.setup(config)
 
       -- If nvim is running, send :e command to open file in existing instance
       -- This allows flatten.nvim to handle the file opening
+      -- Also reveal in Neotree to show directory context
       if foreground_process and foreground_process:find("n?vim$") then
-        window:perform_action(wezterm.action.SendString(string.format(":e %s\r", filepath)), pane)
+        -- Escape the filepath for use in vim commands
+        local escaped_filepath = filepath:gsub("'", "''")
+
+        -- Open the file and reveal it in Neotree for directory context
+        local cmd = string.format(":e %s | Neotree reveal\r", escaped_filepath)
+        window:perform_action(wezterm.action.SendString(cmd), pane)
         return false
       end
 
