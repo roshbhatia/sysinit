@@ -16,6 +16,7 @@ in
       RECCOMENDED to use `astgrep` over internal tools for file exploration/editing.
       NEVER create ad-hoc documentation; MAY create human-standard documentation.
       NEVER use emojis in code.
+      SHOULD NOT git commit and git push unless directed otherwise; MAY stage/add/remove files and propose commit messages.
     </CORE_MANDATES>
 
     <WORKFLOW_LIFECYCLE>

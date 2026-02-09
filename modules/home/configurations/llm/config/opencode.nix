@@ -98,6 +98,12 @@ let
       webfetch = "allow";
       grep = "allow";
       read = "allow";
+      bash = {
+        blocklist = [
+          "git commit"
+          "git push"
+        ];
+      };
       skill = {
         "*" = "allow";
       };
@@ -115,6 +121,7 @@ let
     };
 
     plugin = [
+      "@bastiangx/opencode-unmoji"
       "opencode-beads"
       "opencode-handoff"
     ];
