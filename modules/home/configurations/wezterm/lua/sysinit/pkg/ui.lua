@@ -108,13 +108,6 @@ function M.setup(config)
     format = "$0",
   })
 
-  -- SCP-style paths (user@host:/path or host:/path)
-  -- Matches: user@example.com:/path/to/file, server:/var/log/app.log
-  table.insert(config.hyperlink_rules, {
-    regex = [[\b[\w\-\.]+@?[\w\-\.]+:\S+]],
-    format = "scp://$0",
-  })
-
   -- FTP paths
   -- Matches: ftp://ftp.example.com/path
   table.insert(config.hyperlink_rules, {
@@ -164,14 +157,25 @@ function M.setup(config)
       return false
     end
 
-    -- Handle scp:// URLs - send scp command to shell
-    if uri:find("^scp://") then
-      local scp_path = uri:gsub("^scp://", "")
-      window:perform_action(wezterm.action.SendString(string.format("scp %s .\r", scp_path)), pane)
+    -- For other URIs (http, https, etc), handle based on foreground process
+    local foreground_process = pane:get_foreground_process_name()
+
+    -- If nvim is running, spawn a new wezterm instance to open the URI
+    if foreground_process and foreground_process:find("n?vim$") then
+      local escaped_uri = uri:gsub("'", "'\\''")
+      local open_cmd = utils.is_darwin() and "open" or "xdg-open"
+
+      window:perform_action(
+        wezterm.action.SpawnCommandInNewWindow({
+          args = { "sh", "-c", string.format("%s '%s'", open_cmd, escaped_uri) },
+        }),
+        pane
+      )
+
       return false
     end
 
-    -- Let default handler handle other schemes (http, https, ftp, unix, etc)
+    -- Otherwise, let default handler handle other schemes (http, https, ftp, unix, etc)
     return true
   end)
 end
