@@ -36,6 +36,7 @@ let
       crush
       cue
       cuelsp
+      cupcake-cli
       curl
       cursor-cli
       deadnix
