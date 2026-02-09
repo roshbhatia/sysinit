@@ -160,16 +160,17 @@ function M.show_schema_picker(force_all)
 
   Snacks.picker.pick({
     title = "YAML Schema Selector",
-    format = function(item)
-      return item.text
-    end,
+    format = "text",
     preview = function(item, ctx)
-      return {
+      local lines = {
         { "Name: " .. item.name, "@text.title" },
         { "Source: " .. item.source, "@text.uri" },
         { "URL: " .. item.url, "@comment" },
-        item.description and { "\n" .. item.description, "@text" } or nil,
       }
+      if item.description and item.description ~= "" then
+        table.insert(lines, { "\n" .. item.description, "@text" })
+      end
+      return lines
     end,
     finder = function()
       return items
