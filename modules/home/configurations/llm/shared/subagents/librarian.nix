@@ -25,14 +25,6 @@
     lsp = false;
     patch = false;
     read = true;
-    serena_find_file = true;
-    serena_find_referencing_symbols = true;
-    serena_find_symbol = true;
-    serena_get_symbols_overview = true;
-    serena_list_dir = true;
-    serena_replace_content = false;
-    serena_replace_symbol_body = false;
-    serena_search_for_pattern = true;
     skill = false;
     webfetch = true;
     write = false;

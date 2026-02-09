@@ -1,11 +1,9 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/../.serena/loglib.sh" || {
-  log_info() { echo "[INFO] $*"; }
-  log_success() { echo "[SUCCESS] $*"; }
-  log_error() { echo "[ERROR] $*"; }
-}
+log_info() { echo "[INFO] $*"; }
+log_success() { echo "[SUCCESS] $*"; }
+log_error() { echo "[ERROR] $*"; }
 
 log_info "Updating nix configuration"
 

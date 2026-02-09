@@ -28,13 +28,6 @@
     lsp = true;
     patch = false;
     read = true;
-    serena_find_file = false;
-    serena_find_referencing_symbols = true;
-    serena_find_symbol = true;
-    serena_get_symbols_overview = true;
-    serena_list_dir = false;
-    serena_replace_content = false;
-    serena_search_for_pattern = false;
     skill = false;
     webfetch = false;
     write = false;

@@ -43,7 +43,6 @@ let
     ".claude/"
     ".goose/"
     ".goosehints"
-    ".serena/"
     ".sysinit/"
     "*.crush/"
     "AGENTS.md"
