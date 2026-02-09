@@ -98,11 +98,25 @@ let
       webfetch = "allow";
       grep = "allow";
       read = "allow";
+      lsp = "allow";
       bash = {
-        blocklist = [
-          "git commit"
-          "git push"
-        ];
+        # Safe read-only operations
+        "git status*" = "allow";
+        "git diff*" = "allow";
+        "git log*" = "allow";
+        "git show*" = "allow";
+        "git branch*" = "allow";
+        "ls*" = "allow";
+        "bd ready*" = "allow";
+        "bd list*" = "allow";
+        "bd show*" = "allow";
+        "bd stats*" = "allow";
+        "bd blocked*" = "allow";
+        "task --list*" = "allow";
+        "nix flake check*" = "allow";
+        "nix eval*" = "allow";
+        # Everything else requires confirmation
+        "*" = "ask";
       };
       skill = {
         "*" = "allow";
