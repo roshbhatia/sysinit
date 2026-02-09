@@ -10,6 +10,7 @@
     ./config/goose.nix
     ./config/opencode.nix
     ./config/copilot-cli.nix
+    ./shared/cupcake.nix
     ./tools.nix
   ];
 }

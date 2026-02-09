@@ -13,6 +13,7 @@ let
     "yaml"
     "yaml-language-server"
     "yaml-ls"
+    "yamlls"
   ];
 
   agents = import ../shared/agents.nix;
@@ -73,7 +74,7 @@ let
 
     mcp = formatMcpForOpencode mcpServers.servers;
     lsp = formatLspForOpencode lspConfig.lsp // {
-      yaml = {
+      yaml-language-server = {
         disabled = true;
       };
     };

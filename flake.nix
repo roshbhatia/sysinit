@@ -46,6 +46,11 @@
       url = "github:steveyegge/beads";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    cupcake = {
+      url = "github:eqtylab/cupcake";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs =
