@@ -154,8 +154,6 @@ let
       yarn
       yazi
       yq
-      zig
-      zls
       zsh
     ])
     ++ additionalPackages;

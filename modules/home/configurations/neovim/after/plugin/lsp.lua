@@ -111,7 +111,6 @@ local servers = {
   "tflint",
   "up",
   "yamlls",
-  "zls",
 }
 
 vim.lsp.enable(servers)
