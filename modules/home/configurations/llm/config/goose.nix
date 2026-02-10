@@ -4,9 +4,9 @@
   ...
 }:
 let
-  mcp = import ../shared/mcp.nix { inherit lib values; };
-  agents = import ../shared/agents.nix;
-  subagents = import ../shared/subagents;
+  mcp = import ../mcp.nix { inherit lib values; };
+  agents = import ../agents.nix;
+  subagents = import ../subagents;
 
   formatSubagentAsGooseRecipe =
     {

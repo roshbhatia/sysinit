@@ -4,9 +4,9 @@
   ...
 }:
 let
-  agents = import ../shared/agents.nix;
-  lspConfig = (import ../shared/lsp.nix).lsp;
-  mcpServers = import ../shared/mcp.nix { inherit lib values; };
+  agents = import ../agents.nix;
+  lspConfig = (import ../lsp.nix).lsp;
+  mcpServers = import ../mcp.nix { inherit lib values; };
 
   agentsMd = ''
     ${agents.general}

@@ -86,7 +86,8 @@ let
 
 in
 {
-  home.file.".gitignore.global" = {
+  home.file.".gitexcludes" = {
     text = builtins.concatStringsSep "\n" gitignorePatterns + "\n";
+    force = true;
   };
 }

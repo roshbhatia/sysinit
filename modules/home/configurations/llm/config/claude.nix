@@ -5,9 +5,9 @@
   ...
 }:
 let
-  mcpServers = import ../shared/mcp.nix { inherit lib values; };
-  skills = import ../shared/skills.nix { inherit lib pkgs; };
-  mcpFormatters = import ../shared/mcp-formatters.nix { inherit lib; };
+  mcpServers = import ../mcp.nix { inherit lib values; };
+  skills = import ../skills.nix { inherit lib pkgs; };
+  mcpFormatters = import ../mcp-formatters.nix { inherit lib; };
 
   claudeConfig = builtins.toJSON {
     mcpServers = mcpFormatters.formatMcpFor "claude" mcpServers.servers;
@@ -43,7 +43,10 @@ in
 {
   xdg.configFile = lib.mkMerge [
     {
-      "Claude/claude_desktop_config.json".text = claudeConfig;
+      "Claude/claude_desktop_config.json" = {
+        text = claudeConfig;
+        force = true;
+      };
     }
     skillLinksClaude
   ];
@@ -52,6 +55,7 @@ in
     "Claude/hooks/append_agentsmd_context.sh" = {
       text = claudeHookScript;
       executable = true;
+      force = true;
     };
   };
 }

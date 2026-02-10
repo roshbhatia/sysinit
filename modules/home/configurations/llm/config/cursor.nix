@@ -4,7 +4,7 @@
   ...
 }:
 let
-  mcpServers = import ../shared/mcp.nix { inherit lib values; };
+  mcpServers = import ../mcp.nix { inherit lib values; };
 
   formatPermissionsForCursor = _perms: map (cmd: "Shell(${cmd})") mcpServers.allPermissions;
 

@@ -16,10 +16,10 @@ let
     "yamlls"
   ];
 
-  agents = import ../shared/agents.nix;
-  lspConfig = import ../shared/lsp.nix;
-  mcpServers = import ../shared/mcp.nix { inherit lib values; };
-  skills = import ../shared/skills.nix { inherit lib pkgs; };
+  agents = import ../agents.nix;
+  lspConfig = import ../lsp.nix;
+  mcpServers = import ../mcp.nix { inherit lib values; };
+  skills = import ../skills.nix { inherit lib pkgs; };
 
   formatMcpForOpencode =
     servers:
@@ -75,6 +75,14 @@ let
     mcp = formatMcpForOpencode mcpServers.servers;
     lsp = formatLspForOpencode lspConfig.lsp // {
       yaml-language-server = {
+        disabled = true;
+      };
+
+      yaml-ls = {
+        disabled = true;
+      };
+
+      yaml = {
         disabled = true;
       };
     };
@@ -157,7 +165,10 @@ in
 {
   xdg.configFile = lib.mkMerge [
     {
-      "opencode/opencode.json".text = opencodeConfigJson;
+      "opencode/opencode.json" = {
+        text = opencodeConfigJson;
+        force = true;
+      };
     }
     subagentFiles
     skillLinksOpencode
