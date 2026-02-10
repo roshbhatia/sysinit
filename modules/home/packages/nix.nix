@@ -158,7 +158,6 @@ let
       weechatScripts.url_hint
       weechatScripts.weechat-autosort
       weechatScripts.weechat-grep
-      weechatScripts.weechat-matrix-bridge
       wget
       which
       yaml-language-server
