@@ -168,7 +168,7 @@ local function get_search_keys()
     create_smart_keybind("Escape", "CTRL", act.ActivateCopyMode),
     create_smart_keybind("/", "CTRL", act.Search("CurrentSelectionOrEmptyString")),
     create_smart_keybind("f", "CTRL", act.QuickSelect),
-    create_smart_keybind("f", "CTRL", act.PaneSelect),
+    create_smart_keybind("f", "CTRL|SHIFT", act.PaneSelect),
   }
 end
 
