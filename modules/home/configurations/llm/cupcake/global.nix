@@ -35,23 +35,11 @@ let
             description: "Get current branch name and protection status"
 
       builtins:
-        # Built-in policies for OpenCode
+        # Only rulebook_security_guardrails enabled - protects .cupcake/ directory
+        # All other blocking moved to OpenCode native 'ask' permission system
         # See: https://cupcake.eqtylab.io/reference/policies/builtin-config/
         
         rulebook_security_guardrails:
-          enabled: true
-        
-        protected_paths:
-          enabled: true
-          paths:
-            - "/System/"
-            - "~/.ssh/"
-          message: "Critical system paths are protected"
-        
-        git_pre_check:
-          enabled: true
-        
-        git_block_no_verify:
           enabled: true
     '';
 

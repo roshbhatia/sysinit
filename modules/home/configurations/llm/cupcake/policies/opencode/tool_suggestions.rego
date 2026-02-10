@@ -45,47 +45,5 @@ add_context contains context if {
 	context := "Consider using 'ast-grep' (or 'sg') for structural code searches that understand syntax."
 }
 
-# Block dangerous find operations
-deny contains decision if {
-	input.tool_name == "Bash"
-	command := input.tool_input.command
-
-	contains(command, "find")
-	regex.match(`find.*-exec.*rm`, command)
-
-	decision := {
-		"rule_id": "FIND_EXEC_RM",
-		"reason": "find -exec rm is dangerous. Use fd with explicit file review or interactive deletion.",
-		"severity": "HIGH",
-	}
-}
-
-# Block dangerous grep/sed inline edits
-deny contains decision if {
-	input.tool_name == "Bash"
-	command := input.tool_input.command
-
-	regex.match(`(grep|sed).*-i`, command)
-
-	decision := {
-		"rule_id": "GREP_SED_INPLACE",
-		"reason": "In-place editing with grep/sed -i can cause data loss. Use the Edit tool or ast-grep --rewrite with review.",
-		"severity": "MEDIUM",
-	}
-}
-
-# Block ast-grep rewrite without review
-deny contains decision if {
-	input.tool_name == "Bash"
-	command := input.tool_input.command
-
-	contains(command, "ast-grep")
-	contains(command, "--rewrite")
-	not contains(command, "--interactive")
-
-	decision := {
-		"rule_id": "ASTGREP_NO_REVIEW",
-		"reason": "ast-grep --rewrite without --interactive can modify many files. Use --interactive flag or the Edit tool.",
-		"severity": "MEDIUM",
-	}
-}
+# NOTE: No deny rules - OpenCode native 'ask' handles confirmations
+# Cupcake only provides educational suggestions via add_context
