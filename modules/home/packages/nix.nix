@@ -114,6 +114,7 @@ let
       nixfmt
       nodejs_22
       oh-my-posh
+      open-policy-agent
       openssh
       pipx
       pkg-config
@@ -122,6 +123,7 @@ let
       proselint
       pyright
       python311
+      regols
       ripgrep
       rustc
       rustup
@@ -156,7 +158,7 @@ let
       weechatScripts.url_hint
       weechatScripts.weechat-autosort
       weechatScripts.weechat-grep
-      weechatScripts.weechat-matrix
+      weechatScripts.weechat-matrix-bridge
       wget
       which
       yaml-language-server

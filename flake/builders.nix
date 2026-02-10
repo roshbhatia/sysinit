@@ -21,6 +21,9 @@
             "_1password-gui"
             "crush"
           ];
+        permittedInsecurePackages = [
+          "olm-3.2.16"
+        ];
       };
     };
 
