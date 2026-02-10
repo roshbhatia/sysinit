@@ -11,7 +11,7 @@ end, {
 })
 
 -- Keymap: <localleader>s to select schema
-vim.keymap.set("n", "<localleader>s", function()
+Snacks.keymap.set("n", "<localleader>s", function()
   local yaml_schema = require("sysinit.utils.yaml_schema")
   yaml_schema.show_schema_picker(false)
 end, {
@@ -20,7 +20,7 @@ end, {
 })
 
 -- Keymap: <localleader>S to force show all schemas
-vim.keymap.set("n", "<localleader>S", function()
+Snacks.keymap.set("n", "<localleader>S", function()
   local yaml_schema = require("sysinit.utils.yaml_schema")
   yaml_schema.show_schema_picker(true)
 end, {
