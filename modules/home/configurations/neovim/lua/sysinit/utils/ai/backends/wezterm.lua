@@ -1,7 +1,6 @@
--- WezTerm backend implementation with tmux persistence
+-- WezTerm backend implementation (no persistence)
 local M = {}
 
-local base = require("sysinit.utils.ai.backends.base")
 local config = {}
 local parent_pane_id = nil
 
@@ -100,35 +99,35 @@ function M.setup(opts)
   end
 end
 
--- Open a new terminal in a WezTerm pane with tmux session
--- @param termname string: Terminal name for session naming
+-- Open a new terminal in a WezTerm pane
+-- @param _termname string: Terminal name (unused without persistence)
 -- @param agent_config table: Agent configuration
 -- @param cwd string: Working directory
 -- @return table|nil: Terminal data or nil on failure
-function M.open(termname, agent_config, cwd)
+function M.open(_termname, agent_config, cwd)
   if not parent_pane_id then
     vim.notify("Cannot spawn AI terminal: parent pane ID not available", vim.log.levels.ERROR)
     return nil
   end
 
-  local session_name
-  local is_new = true
-
-  local existing_session = base.find_existing_session(termname, cwd)
-  if existing_session then
-    session_name = existing_session
-    is_new = false
-  else
-    session_name = base.get_session_name(termname, cwd)
+  -- Build environment setup
+  local env_str = ""
+  for key, value in pairs(config.env or {}) do
+    env_str = env_str .. string.format("export %s=%s; ", key, vim.fn.shellescape(value))
   end
 
-  local tmux_cmd = base.build_tmux_command(session_name, cwd, agent_config, config.env or {}, is_new)
+  if vim.env.NVIM_SOCKET_PATH then
+    env_str = env_str .. string.format("export NVIM_SOCKET_PATH=%s; ", vim.fn.shellescape(vim.env.NVIM_SOCKET_PATH))
+  end
+
+  -- Run agent command directly
+  local cmd = env_str .. agent_config.cmd
 
   local spawn_cmd = string.format(
-    "wezterm cli split-pane --pane-id %d --right --percent 50 --cwd %s -- %s 2>/dev/null",
+    "wezterm cli split-pane --pane-id %d --right --percent 50 --cwd %s -- sh -c %s 2>/dev/null",
     parent_pane_id,
     vim.fn.shellescape(cwd),
-    vim.fn.shellescape(tmux_cmd)
+    vim.fn.shellescape(cmd)
   )
 
   local result = vim.fn.system(spawn_cmd)
@@ -150,7 +149,6 @@ function M.open(termname, agent_config, cwd)
 
   return {
     pane_id = pane_id,
-    session_name = session_name,
     cmd = agent_config.cmd,
     cwd = cwd,
   }
@@ -168,7 +166,7 @@ function M.focus(term_data)
   return true
 end
 
--- Hide a terminal (kill pane, keep tmux session)
+-- Hide a terminal (kill pane, no persistence)
 -- @param term_data table: Terminal data
 function M.hide(term_data)
   if not term_data.pane_id then
@@ -188,40 +186,12 @@ function M.hide(term_data)
   end
 end
 
--- Show a hidden terminal (reattach to tmux session in new pane)
--- @param term_data table: Terminal data
--- @return table|nil: Updated terminal data or nil on failure
-function M.show(term_data)
-  if not parent_pane_id then
-    return nil
-  end
-
-  if not base.tmux_session_exists(term_data.session_name) then
-    return nil
-  end
-
-  local tmux_cmd = string.format("tmux attach-session -t %s", vim.fn.shellescape(term_data.session_name))
-
-  local spawn_cmd = string.format(
-    "wezterm cli split-pane --pane-id %d --right --percent 50 --cwd %s -- %s 2>/dev/null",
-    parent_pane_id,
-    vim.fn.shellescape(term_data.cwd),
-    vim.fn.shellescape(tmux_cmd)
-  )
-
-  local result = vim.fn.system(spawn_cmd)
-
-  if vim.v.shell_error ~= 0 then
-    return nil
-  end
-
-  local pane_id = tonumber(vim.trim(result))
-  if not pane_id or not wait_for_pane(pane_id, 5) then
-    return nil
-  end
-
-  term_data.pane_id = pane_id
-  return term_data
+-- Show a hidden terminal (not supported, no persistence)
+-- @param _term_data table: Terminal data (unused)
+-- @return table|nil: Always returns nil (no persistence)
+function M.show(_term_data)
+  -- Can't restore terminal state, create a new terminal instead
+  return nil
 end
 
 -- Check if terminal is visible
@@ -234,14 +204,11 @@ function M.is_visible(term_data)
   return pane_exists(term_data.pane_id)
 end
 
--- Kill a terminal pane and its tmux session
+-- Kill a terminal pane
 -- @param term_data table: Terminal data
 function M.kill(term_data)
   if term_data.pane_id then
     kill_pane(term_data.pane_id)
-  end
-  if term_data.session_name then
-    base.kill_session(term_data.session_name)
   end
 end
 
@@ -251,9 +218,6 @@ function M.cleanup_all(terminals)
   for _, term_data in pairs(terminals) do
     if term_data.pane_id then
       kill_pane(term_data.pane_id)
-    end
-    if term_data.session_name then
-      base.kill_session(term_data.session_name)
     end
   end
 end
