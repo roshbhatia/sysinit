@@ -166,6 +166,12 @@ let
       ];
     };
 
+    regols = {
+      command = "regols";
+      args = [ ];
+      extensions = [ ".rego" ];
+    };
+
     copilot = {
       command = "copilot-language-server";
       args = [ "--stdio" ];
@@ -581,6 +587,16 @@ let
         "copilot"
       ];
       auto-format = true;
+    }
+    {
+      name = "rego";
+      scope = "source.rego";
+      file-types = [ "rego" ];
+      language-servers = [
+        "regols"
+        "copilot"
+      ];
+      auto-format = false;
     }
     {
       name = "git-commit";

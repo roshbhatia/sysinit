@@ -1,5 +1,6 @@
 {
   pkgs,
+  lib,
   ...
 }:
 let
@@ -34,4 +35,8 @@ in
     "cupcake/policies/opencode/nix_workflow.rego".source =
       ./cupcake/policies/opencode/nix_workflow.rego;
   };
+
+  home.activation.cupcakeInit = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+    run ${pkgs.cupcake-cli}/bin/cupcake init --global --harness opencode
+  '';
 }

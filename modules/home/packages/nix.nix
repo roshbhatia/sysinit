@@ -164,7 +164,7 @@ let
       yamllint
       yarn
       yazi
-      yq
+      yq-go
       zsh
     ])
     ++ additionalPackages;
