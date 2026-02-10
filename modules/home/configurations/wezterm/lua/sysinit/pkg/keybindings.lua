@@ -96,8 +96,7 @@ end
 
 local function get_system_keys()
   return {
-    create_smart_keybind(":", "CTRL", act.ActivateCommandPalette),
-    create_smart_keybind(":", "CTRL|SHIFT", act.ShowDebugOverlay),
+    create_smart_keybind(":", "CTRL|SHIFT", act.ActivateCommandPalette),
     create_smart_keybind("c", "SUPER", act.CopyTo("Clipboard")),
     create_smart_keybind("h", "SUPER", act.HideApplication),
     create_smart_keybind("k", "SUPER", act.ClearScrollback("ScrollbackAndViewport")),
