@@ -5,10 +5,8 @@
   ...
 }:
 let
-  # We use a plugin for this, so don't need the MCP.
   disabledMcpServers = [ "beads" ];
 
-  # yaml-language-server tends to pollute context with false positives on non-YAML files.
   disabledLspServers = [
     "yaml"
     "yaml-language-server"
@@ -20,72 +18,16 @@ let
   lspConfig = import ../lsp.nix;
   mcpServers = import ../mcp.nix { inherit lib values; };
   skills = import ../skills.nix { inherit lib pkgs; };
+  formatters = import ../opencode-formatters.nix { inherit lib; };
 
-  formatMcpForOpencode =
-    servers:
-    builtins.mapAttrs (
-      name: server:
-      let
-        isDisabled = builtins.elem name disabledMcpServers;
-        baseConfig =
-          if (server.type or "local") == "http" then
-            {
-              type = "remote";
-              inherit (server) url;
-            }
-            // lib.attrsets.optionalAttrs (server.headers or null != null) { inherit (server) headers; }
-            // lib.attrsets.optionalAttrs (server.timeout or null != null) { inherit (server) timeout; }
-          else
-            {
-              type = "local";
-              command = [ server.command ] ++ server.args;
-            }
-            // lib.attrsets.optionalAttrs (server.env or { } != { }) { environment = server.env; };
-      in
-      baseConfig // { enabled = if isDisabled then false else (server.enabled or true); }
-    ) servers;
-
-  formatLspForOpencode =
-    lspServers:
-    builtins.mapAttrs (
-      name: lspCfg:
-      let
-        cmd =
-          if lspCfg ? command then
-            if builtins.isList lspCfg.command then lspCfg.command else [ lspCfg.command ]
-          else
-            [ ];
-        isDisabled = builtins.elem name disabledLspServers;
-      in
-      if isDisabled then
-        { disabled = true; }
-      else
-        {
-          command = cmd ++ (lspCfg.args or [ ]);
-          extensions = lspCfg.extensions or [ ];
-        }
-    ) lspServers;
-
-  opencodeConfigJson = builtins.toJSON {
+  opencodeConfig = {
     "$schema" = "https://opencode.ai/config.json";
     autoupdate = false;
     share = "disabled";
     theme = "system";
 
-    mcp = formatMcpForOpencode mcpServers.servers;
-    lsp = formatLspForOpencode lspConfig.lsp // {
-      yaml-language-server = {
-        disabled = true;
-      };
-
-      yaml-ls = {
-        disabled = true;
-      };
-
-      yaml = {
-        disabled = true;
-      };
-    };
+    mcp = formatters.formatMcpForOpencode disabledMcpServers mcpServers.servers;
+    lsp = formatters.formatLspForOpencode disabledLspServers lspConfig.lsp;
 
     instructions = [
       "**/.cursorrules"
@@ -147,7 +89,7 @@ in
   xdg.configFile = lib.mkMerge [
     {
       "opencode/opencode.json" = {
-        text = opencodeConfigJson;
+        text = builtins.toJSON opencodeConfig;
         force = true;
       };
     }
