@@ -8,7 +8,6 @@ common:
     values = common.values // {
       darwin.homebrew.additionalPackages.casks = [
         "betterdiscord-installer"
-        "calibre"
         "discord"
         "steam"
       ];
