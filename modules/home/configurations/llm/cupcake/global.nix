@@ -35,31 +35,19 @@ let
             description: "Get current branch name and protection status"
 
       builtins:
-        # DISABLED: All builtins disabled for now (too restrictive)
-        # Re-enable selectively as needed
-        
-        # git_pre_check:
-        #   enabled: false
-        
-        # git_block_no_verify:
-        #   enabled: false
-        
-        # protected_paths:
-        #   enabled: false
-        
-        # rulebook_security_guardrails:
-        #   enabled: false
+        # Minimal builtins - no policies loaded, just path protection
+        protected_paths:
+          enabled: true
+          paths:
+            - "/System/"
+            - "~/.ssh/"
+          message: "Critical system paths are protected"
     '';
 
-  # Policy files to install (DISABLED - too restrictive)
+  # Policy files - ALL DISABLED for now (were too restrictive with 'ask' prompts)
+  # Re-enable individually as needed after testing
   policyFiles = {
-    # "cupcake/policies/opencode/system_protection.rego" = ./policies/opencode/system_protection.rego;
-    # "cupcake/policies/opencode/git_workflow.rego" = ./policies/opencode/git_workflow.rego;
-    # "cupcake/policies/opencode/file_protection.rego" = ./policies/opencode/file_protection.rego;
-    # "cupcake/policies/opencode/nix_workflow.rego" = ./policies/opencode/nix_workflow.rego;
-    # "cupcake/policies/opencode/sysinit_protection.rego" = ./policies/opencode/sysinit_protection.rego;
-    # "cupcake/policies/opencode/bash_protection.rego" = ./policies/opencode/bash_protection.rego;
-    # "cupcake/policies/opencode/style_enforcement.rego" = ./policies/opencode/style_enforcement.rego;
+    # All policies disabled - they had too many blocking 'ask' rules
   };
 
   # Signal scripts to install
