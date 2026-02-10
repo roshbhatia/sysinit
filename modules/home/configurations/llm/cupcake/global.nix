@@ -74,6 +74,7 @@ let
     "cupcake/policies/opencode/nix_workflow.rego" = ./policies/opencode/nix_workflow.rego;
     "cupcake/policies/opencode/sysinit_protection.rego" = ./policies/opencode/sysinit_protection.rego;
     "cupcake/policies/opencode/bash_protection.rego" = ./policies/opencode/bash_protection.rego;
+    "cupcake/policies/opencode/style_enforcement.rego" = ./policies/opencode/style_enforcement.rego;
   };
 
   # Signal scripts to install
