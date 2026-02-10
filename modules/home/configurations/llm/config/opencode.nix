@@ -51,7 +51,7 @@ let
       read = "allow";
       lsp = "allow";
       bash = {
-        # OS builtins - always allow
+        # OS builtins - always allow (simple read-only tools)
         "ls*" = "allow";
         "cat*" = "allow";
         "pwd*" = "allow";
@@ -67,53 +67,23 @@ let
         "sort*" = "allow";
         "uniq*" = "allow";
         "cut*" = "allow";
-        "awk*" = "allow";
-        "sed*" = "allow";
 
-        # Beads - allow all operations
-        "bd *" = "allow";
-
-        # Git read operations - always allow
-        "git status*" = "allow";
-        "git diff*" = "allow";
-        "git log*" = "allow";
-        "git show*" = "allow";
-        "git branch*" = "allow";
-        "git remote*" = "allow";
-        "git fetch*" = "allow";
-        "git ls-files*" = "allow";
-        "git rev-parse*" = "allow";
-        "git describe*" = "allow";
-
-        # Search tools - allow read-only (no edit/exec flags)
-        "rg *" = "allow";
-        "ripgrep *" = "allow";
-        "fd *" = "allow";
-        "ag *" = "allow";
-        "find *" = "allow";
-        "grep *" = "allow";
-
-        # ast-grep - allow search, not rewrite
-        "ast-grep search*" = "allow";
-        "sg search*" = "allow";
-        "ast-grep scan*" = "allow";
-        "sg scan*" = "allow";
-
-        # Nix read operations - always allow
-        "nix flake check*" = "allow";
-        "nix flake show*" = "allow";
-        "nix flake metadata*" = "allow";
-        "nix eval*" = "allow";
-        "nix search*" = "allow";
-        "nix-instantiate*" = "allow";
-        "nix show-config*" = "allow";
-        "nix-store --query*" = "allow";
-        "nix path-info*" = "allow";
-
-        # Task read operations
-        "task --list*" = "allow";
-        "task --summary*" = "allow";
-        "task -l*" = "allow";
+        # Tools with Cupcake validation (rego enforces safe usage)
+        "awk*" = "allow"; # Cupcake blocks dangerous patterns
+        "sed*" = "allow"; # Cupcake blocks dangerous patterns
+        "git*" = "allow"; # Cupcake validates operations (blocks --no-verify, etc)
+        "bd*" = "allow"; # Cupcake validates beads operations
+        "rg*" = "allow"; # Cupcake blocks -exec/-delete flags
+        "ripgrep*" = "allow";
+        "fd*" = "allow"; # Cupcake blocks -exec/-delete flags
+        "ag*" = "allow";
+        "find*" = "allow"; # Cupcake blocks -exec/-delete/-i flags
+        "grep*" = "allow";
+        "ast-grep*" = "allow"; # Cupcake blocks --rewrite
+        "sg*" = "allow"; # Cupcake blocks --rewrite
+        "nix*" = "allow"; # Cupcake validates read vs write operations
+        "nix-*" = "allow"; # Cupcake validates nix-* tools
+        "task*" = "allow"; # Cupcake validates task operations
 
         # Everything else requires user confirmation
         "*" = "ask";

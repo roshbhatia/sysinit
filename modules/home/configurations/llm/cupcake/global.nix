@@ -56,9 +56,10 @@ let
           enabled: true
     '';
 
-  # Policy files - enable only deny-based policies (no 'ask' rules)
+  # Policy files - enable deny-based security + allow-based safe operations
   policyFiles = {
     "cupcake/policies/opencode/tool_suggestions.rego" = ./policies/opencode/tool_suggestions.rego;
+    "cupcake/policies/opencode/safe_operations.rego" = ./policies/opencode/safe_operations.rego;
   };
 
   # Signal scripts to install
