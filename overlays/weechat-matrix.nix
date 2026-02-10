@@ -33,6 +33,15 @@ in
         weechat
       ];
 
+      passthru = {
+        scripts = [ "matrix.so" ];
+      };
+
+      postInstall = ''
+        mkdir -p $out/share
+        ln -s $out/lib/libmatrix${final.stdenv.hostPlatform.extensions.sharedLibrary} $out/share/matrix.so
+      '';
+
       meta = with final.lib; {
         description = "Matrix protocol client for WeeChat written in Rust";
         homepage = "https://github.com/poljar/weechat-matrix-rs";
