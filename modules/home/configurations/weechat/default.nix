@@ -9,15 +9,14 @@
       configure =
         { availablePlugins, ... }:
         {
-          plugins = (builtins.attrValues (builtins.removeAttrs availablePlugins [ "php" ])) ++ [
-            pkgs.weechatScripts.weechat-matrix-rs
-          ];
+          plugins = (builtins.attrValues (builtins.removeAttrs availablePlugins [ "php" ]));
           scripts = with pkgs.weechatScripts; [
             colorize_nicks
             edit
             url_hint
             weechat-autosort
             weechat-grep
+            weechat-matrix
           ];
         };
     })
