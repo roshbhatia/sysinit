@@ -1,4 +1,5 @@
 {
+  config,
   pkgs,
   lib,
   ...
@@ -110,7 +111,12 @@ in
 
   # Initialize Cupcake for all harnesses
   home.activation.cupcakeInit = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
-    # OpenCode plugin installation (automatic via cupcake init)
+    # OpenCode plugin installation
+    run mkdir -p ${config.xdg.configHome}/opencode/plugin
+    if [ ! -f ${config.xdg.configHome}/opencode/plugin/cupcake.js ]; then
+      run curl -fsSL https://github.com/eqtylab/cupcake/releases/download/opencode-plugin-latest/opencode-plugin.js \
+        -o ${config.xdg.configHome}/opencode/plugin/cupcake.js || echo "Warning: Failed to download cupcake plugin"
+    fi
     run ${pkgs.cupcake-cli}/bin/cupcake init --global --harness opencode
 
     # Cursor hooks setup
