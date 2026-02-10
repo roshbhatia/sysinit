@@ -50,6 +50,44 @@ let
       grep = "allow";
       read = "allow";
       lsp = "allow";
+      bash = {
+        # Safe read-only operations - always allow
+        "git status*" = "allow";
+        "git diff*" = "allow";
+        "git log*" = "allow";
+        "git show*" = "allow";
+        "git branch*" = "allow";
+        "git remote*" = "allow";
+        "ls*" = "allow";
+        "cat*" = "allow";
+        "pwd*" = "allow";
+        "which*" = "allow";
+        "echo*" = "allow";
+
+        # Beads operations - always allow
+        "bd ready*" = "allow";
+        "bd list*" = "allow";
+        "bd show*" = "allow";
+        "bd stats*" = "allow";
+        "bd blocked*" = "allow";
+        "bd create*" = "allow";
+        "bd update*" = "allow";
+        "bd close*" = "allow";
+        "bd dep*" = "allow";
+        "bd sync*" = "allow";
+
+        # Task operations - always allow
+        "task --list*" = "allow";
+        "task --summary*" = "allow";
+
+        # Nix read operations - always allow
+        "nix flake check*" = "allow";
+        "nix eval*" = "allow";
+        "nix search*" = "allow";
+
+        # Everything else requires user confirmation via OpenCode native ask
+        "*" = "ask";
+      };
       skill = {
         "*" = "allow";
       };
