@@ -45,6 +45,7 @@ let
       devbox
       diffnav
       direnv
+      discordo
       docker
       docker-buildx
       docker-color-output
@@ -148,6 +149,16 @@ let
       vale-ls
       vscode-langservers-extracted
       watch
+      weechat-unwrapped
+      weechatScripts.colorize_nicks
+      weechatScripts.edit
+      weechatScripts.go
+      weechatScripts.multiline
+      weechatScripts.url_hint
+      weechatScripts.wee-slack
+      weechatScripts.weechat-autosort
+      weechatScripts.weechat-grep
+      weechatScripts.weechat-matrix
       wget
       which
       yaml-language-server
