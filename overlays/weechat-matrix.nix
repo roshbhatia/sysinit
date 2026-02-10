@@ -39,7 +39,6 @@ in
       '';
 
       passthru = {
-        scripts = [ "matrix.so" ];
         pluginFile = "$out/lib/weechat/plugins/matrix.so";
       };
 
