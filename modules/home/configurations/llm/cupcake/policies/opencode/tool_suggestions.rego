@@ -45,5 +45,20 @@ add_context contains context if {
 	context := "Consider using 'ast-grep' (or 'sg') for structural code searches that understand syntax."
 }
 
+# Suggest using merge editor for git commits to enable review
+add_context contains context if {
+	input.tool_name == "Bash"
+	command := input.tool_input.command
+
+	# Match git commit commands
+	regex.match(`^\s*git\s+commit`, command)
+
+	# Don't suggest for commands that already use --edit or open editor
+	not contains(command, "--edit")
+	not contains(command, "--no-edit")
+
+	context := "Tip: Use the merge editor to review commits before they're created. Allows you to audit and reject if needed."
+}
+
 # NOTE: No deny rules - OpenCode native 'ask' handles confirmations
 # Cupcake only provides educational suggestions via add_context
