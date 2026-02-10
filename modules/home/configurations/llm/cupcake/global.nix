@@ -62,6 +62,7 @@ let
     "cupcake/policies/opencode/file_protection.rego" = ./policies/opencode/file_protection.rego;
     "cupcake/policies/opencode/nix_workflow.rego" = ./policies/opencode/nix_workflow.rego;
     "cupcake/policies/opencode/sysinit_protection.rego" = ./policies/opencode/sysinit_protection.rego;
+    "cupcake/policies/opencode/bash_protection.rego" = ./policies/opencode/bash_protection.rego;
   };
 
   # Convert policy files to xdg.configFile format with force = true
