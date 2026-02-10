@@ -51,41 +51,71 @@ let
       read = "allow";
       lsp = "allow";
       bash = {
-        # Safe read-only operations - always allow
+        # OS builtins - always allow
+        "ls*" = "allow";
+        "cat*" = "allow";
+        "pwd*" = "allow";
+        "which*" = "allow";
+        "echo*" = "allow";
+        "whoami*" = "allow";
+        "hostname*" = "allow";
+        "uname*" = "allow";
+        "date*" = "allow";
+        "wc*" = "allow";
+        "head*" = "allow";
+        "tail*" = "allow";
+        "sort*" = "allow";
+        "uniq*" = "allow";
+        "cut*" = "allow";
+        "awk*" = "allow";
+        "sed*" = "allow";
+
+        # Beads - allow all operations
+        "bd *" = "allow";
+
+        # Git read operations - always allow
         "git status*" = "allow";
         "git diff*" = "allow";
         "git log*" = "allow";
         "git show*" = "allow";
         "git branch*" = "allow";
         "git remote*" = "allow";
-        "ls*" = "allow";
-        "cat*" = "allow";
-        "pwd*" = "allow";
-        "which*" = "allow";
-        "echo*" = "allow";
+        "git fetch*" = "allow";
+        "git ls-files*" = "allow";
+        "git rev-parse*" = "allow";
+        "git describe*" = "allow";
 
-        # Beads operations - always allow
-        "bd ready*" = "allow";
-        "bd list*" = "allow";
-        "bd show*" = "allow";
-        "bd stats*" = "allow";
-        "bd blocked*" = "allow";
-        "bd create*" = "allow";
-        "bd update*" = "allow";
-        "bd close*" = "allow";
-        "bd dep*" = "allow";
-        "bd sync*" = "allow";
+        # Search tools - allow read-only (no edit/exec flags)
+        "rg *" = "allow";
+        "ripgrep *" = "allow";
+        "fd *" = "allow";
+        "ag *" = "allow";
+        "find *" = "allow";
+        "grep *" = "allow";
 
-        # Task operations - always allow
-        "task --list*" = "allow";
-        "task --summary*" = "allow";
+        # ast-grep - allow search, not rewrite
+        "ast-grep search*" = "allow";
+        "sg search*" = "allow";
+        "ast-grep scan*" = "allow";
+        "sg scan*" = "allow";
 
         # Nix read operations - always allow
         "nix flake check*" = "allow";
+        "nix flake show*" = "allow";
+        "nix flake metadata*" = "allow";
         "nix eval*" = "allow";
         "nix search*" = "allow";
+        "nix-instantiate*" = "allow";
+        "nix show-config*" = "allow";
+        "nix-store --query*" = "allow";
+        "nix path-info*" = "allow";
 
-        # Everything else requires user confirmation via OpenCode native ask
+        # Task read operations
+        "task --list*" = "allow";
+        "task --summary*" = "allow";
+        "task -l*" = "allow";
+
+        # Everything else requires user confirmation
         "*" = "ask";
       };
       skill = {

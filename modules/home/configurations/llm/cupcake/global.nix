@@ -55,10 +55,9 @@ let
           enabled: true
     '';
 
-  # Policy files - ALL DISABLED for now (were too restrictive with 'ask' prompts)
-  # Re-enable individually as needed after testing
+  # Policy files - enable only deny-based policies (no 'ask' rules)
   policyFiles = {
-    # All policies disabled - they had too many blocking 'ask' rules
+    "cupcake/policies/opencode/tool_suggestions.rego" = ./policies/opencode/tool_suggestions.rego;
   };
 
   # Signal scripts to install
