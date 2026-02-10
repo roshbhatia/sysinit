@@ -35,13 +35,24 @@ let
             description: "Get current branch name and protection status"
 
       builtins:
-        # Minimal builtins - no policies loaded, just path protection
+        # Built-in policies for OpenCode
+        # See: https://cupcake.eqtylab.io/reference/policies/builtin-config/
+        
+        rulebook_security_guardrails:
+          enabled: true
+        
         protected_paths:
           enabled: true
           paths:
             - "/System/"
             - "~/.ssh/"
           message: "Critical system paths are protected"
+        
+        git_pre_check:
+          enabled: true
+        
+        git_block_no_verify:
+          enabled: true
     '';
 
   # Policy files - ALL DISABLED for now (were too restrictive with 'ask' prompts)
@@ -81,20 +92,22 @@ in
       };
     };
 
-  # Initialize Cupcake for all harnesses (DISABLED - policies too restrictive)
+  # Initialize Cupcake for all harnesses
   home.activation.cupcakeInit = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
-    # OpenCode plugin installation (DISABLED)
-    # run mkdir -p ${config.xdg.configHome}/opencode/plugin
-    # if [ ! -f ${config.xdg.configHome}/opencode/plugin/cupcake.js ]; then
-    #   run curl -fsSL https://github.com/eqtylab/cupcake/releases/download/opencode-plugin-latest/opencode-plugin.js \
-    #     -o ${config.xdg.configHome}/opencode/plugin/cupcake.js || echo "Warning: Failed to download cupcake plugin"
-    # fi
-    # run ${pkgs.cupcake-cli}/bin/cupcake init --global --harness opencode
+    # OpenCode plugin installation
+    run mkdir -p ${config.xdg.configHome}/opencode/plugin
+    if [ ! -f ${config.xdg.configHome}/opencode/plugin/cupcake.js ]; then
+      run curl -fsSL https://github.com/eqtylab/cupcake/releases/download/opencode-plugin-latest/opencode-plugin.js \
+        -o ${config.xdg.configHome}/opencode/plugin/cupcake.js || echo "Warning: Failed to download cupcake plugin"
+    fi
 
-    # Cursor hooks setup (DISABLED)
+    # Note: cupcake init --global not needed for OpenCode (plugin-based, not hook-based)
+    # Global rulebook is already installed via xdg.configFile
+
+    # Cursor hooks setup (DISABLED - not configured yet)
     # run ${pkgs.cupcake-cli}/bin/cupcake init --global --harness cursor
 
-    # Claude Code hooks setup (DISABLED)
+    # Claude Code hooks setup (DISABLED - not configured yet)
     # run ${pkgs.cupcake-cli}/bin/cupcake init --global --harness claude
   '';
 }
