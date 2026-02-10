@@ -149,15 +149,15 @@ let
       vale-ls
       vscode-langservers-extracted
       watch
-      weechat-unwrapped
-      weechatScripts.colorize_nicks
-      weechatScripts.edit
-      weechatScripts.multiline
-      weechatScripts.url_hint
-      weechatScripts.wee-slack
-      weechatScripts.weechat-autosort
-      weechatScripts.weechat-grep
-      weechatScripts.weechat-matrix
+      # weechat-unwrapped
+      # weechatScripts.colorize_nicks
+      # weechatScripts.edit
+      # weechatScripts.multiline
+      # weechatScripts.url_hint
+      # weechatScripts.wee-slack
+      # weechatScripts.weechat-autosort
+      # weechatScripts.weechat-grep
+      # weechatScripts.weechat-matrix
       wget
       which
       yaml-language-server
