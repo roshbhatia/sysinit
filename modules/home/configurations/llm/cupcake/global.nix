@@ -5,6 +5,7 @@
 }:
 let
   policyBase = ./policies;
+  signalBase = ./signals;
 
   # Global rulebook with builtins and signals
   makeRulebook =
@@ -21,6 +22,16 @@ let
           enabled: true
         filesystem:
           enabled: true
+        custom:
+          git_staged_sysinit:
+            command: "${signalBase}/git_staged_sysinit.sh"
+            description: "Check if .sysinit files are staged"
+          git_unpushed:
+            command: "${signalBase}/git_unpushed.sh"
+            description: "Count unpushed commits"
+          git_current_branch:
+            command: "${signalBase}/git_current_branch.sh"
+            description: "Get current branch name and protection status"
 
       builtins:
         # Git protection builtins
@@ -65,20 +76,36 @@ let
     "cupcake/policies/opencode/bash_protection.rego" = ./policies/opencode/bash_protection.rego;
   };
 
-  # Convert policy files to xdg.configFile format with force = true
+  # Signal scripts to install
+  signalFiles = {
+    "cupcake/signals/git_staged_sysinit.sh" = ./signals/git_staged_sysinit.sh;
+    "cupcake/signals/git_unpushed.sh" = ./signals/git_unpushed.sh;
+    "cupcake/signals/git_current_branch.sh" = ./signals/git_current_branch.sh;
+  };
+
+  # Convert files to xdg.configFile format with force = true
   policyFileConfigs = lib.mapAttrs (_name: source: {
     inherit source;
     force = true;
   }) policyFiles;
 
+  signalFileConfigs = lib.mapAttrs (_name: source: {
+    source = source;
+    force = true;
+    executable = true;
+  }) signalFiles;
+
 in
 {
-  xdg.configFile = policyFileConfigs // {
-    "cupcake/rulebook.yml" = {
-      source = makeRulebook "opencode";
-      force = true;
+  xdg.configFile =
+    policyFileConfigs
+    // signalFileConfigs
+    // {
+      "cupcake/rulebook.yml" = {
+        source = makeRulebook "opencode";
+        force = true;
+      };
     };
-  };
 
   # Initialize Cupcake for all harnesses
   home.activation.cupcakeInit = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
