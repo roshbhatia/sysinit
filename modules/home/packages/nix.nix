@@ -152,7 +152,6 @@ let
       weechat-unwrapped
       weechatScripts.colorize_nicks
       weechatScripts.edit
-      weechatScripts.go
       weechatScripts.multiline
       weechatScripts.url_hint
       weechatScripts.wee-slack
