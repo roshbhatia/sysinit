@@ -71,20 +71,7 @@ let
         # Tools with Cupcake validation (rego enforces safe usage)
         "awk*" = "allow"; # Cupcake blocks dangerous patterns
         "sed*" = "allow"; # Cupcake blocks dangerous patterns
-
-        # Git - allow read operations, ask for write operations
-        "git status*" = "allow";
-        "git diff*" = "allow";
-        "git log*" = "allow";
-        "git show*" = "allow";
-        "git branch*" = "allow";
-        "git remote*" = "allow";
-        "git fetch*" = "allow";
-        "git ls-files*" = "allow";
-        "git rev-parse*" = "allow";
-        "git describe*" = "allow";
-        "git*" = "ask"; # All other git operations require confirmation (commit, push, etc)
-
+        "git*" = "ask"; # Cupcake allows safe read ops, OpenCode prompts for write ops
         "bd*" = "allow"; # Cupcake validates beads operations
         "rg*" = "allow"; # Cupcake blocks -exec/-delete flags
         "ripgrep*" = "allow";
