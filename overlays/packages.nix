@@ -26,6 +26,7 @@ in
   # Fix setproctitle and accelerate test failures on macOS with Python 3.13
   # accelerate tests fail with Trace/BPT trap during pytest on darwin
   # aiohttp has flaky performance tests (test_regex_performance)
+  # future-1.0.0 not yet marked as compatible with Python 3.13
   python313 = _prev.python313.override {
     packageOverrides = _pythonFinal: pythonPrev: {
       setproctitle = pythonPrev.setproctitle.overridePythonAttrs (_old: {
@@ -36,6 +37,9 @@ in
       });
       aiohttp = pythonPrev.aiohttp.overridePythonAttrs (_old: {
         doCheck = false;
+      });
+      future = pythonPrev.future.overridePythonAttrs (_old: {
+        disabled = false;
       });
     };
   };
