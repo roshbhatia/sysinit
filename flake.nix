@@ -48,7 +48,7 @@
     };
 
     cupcake = {
-      url = "github:eqtylab/cupcake";
+      url = "github:eqtylab/cupcake/c23affc55e68419cff1a77dfbd87a1b5efecc22f";
       inputs.nixpkgs.follows = "nixpkgs";
     };
   };
