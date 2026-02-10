@@ -22,3 +22,4 @@ nix.secrets.conf
 
 # bv (beads viewer) local config and caches
 .bv/
+.cupcake/
