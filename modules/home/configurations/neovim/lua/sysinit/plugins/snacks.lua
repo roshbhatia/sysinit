@@ -26,7 +26,7 @@ return {
                 layout = {
                   -- relative width (0-1) or absolute columns depending on layout resolver
                   width = 0.95,
-                  height = 0.85,
+                  height = 0.95,
                 },
               },
             },
