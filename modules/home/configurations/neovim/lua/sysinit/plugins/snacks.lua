@@ -347,6 +347,20 @@ return {
           end,
         },
         {
+          "<leader>cfx",
+          function()
+            Snacks.picker.qflist()
+          end,
+          desc = "Quickfix list",
+        },
+        {
+          "<leader>cfb",
+          function()
+            Snacks.picker.loclist()
+          end,
+          desc = "Location list",
+        },
+        {
           "]]",
           function()
             Snacks.words.jump(vim.v.count1)
