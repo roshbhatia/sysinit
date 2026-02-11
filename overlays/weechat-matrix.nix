@@ -20,6 +20,9 @@ in
         inherit rev sha256;
       };
 
+      # Remove patches that are already applied upstream
+      patches = [ ];
+
       # Update propagatedBuildInputs to match current dependencies
       propagatedBuildInputs = with final.python3Packages; [
         matrix-nio
