@@ -29,7 +29,7 @@ let
       checkmake
       codespell
       colima
-      copilot-cli
+      github-copilot-cli
       copilot-language-server
       coreutils
       crossplane-cli
