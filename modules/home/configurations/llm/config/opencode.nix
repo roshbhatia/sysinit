@@ -10,6 +10,14 @@ let
   instructionsLib = import ../instructions.nix;
   mcpServers = import ../mcp.nix { inherit lib values; };
 
+  # Produce a minimal default instruction text without importing the full
+  # skills library (avoids evaluation/duplication issues). Claude can create
+  # richer skill pages on demand from the project config.
+  defaultInstructions = instructionsLib.makeInstructions {
+    localSkillDescriptions = { };
+    remoteSkillDescriptions = { };
+  };
+
   formatMcpForOpencode =
     disabledServers: servers:
     builtins.mapAttrs (
@@ -136,6 +144,14 @@ in
     {
       "opencode/opencode.json" = {
         text = builtins.toJSON opencodeConfig;
+        force = true;
+      };
+    }
+    # Write the formatted default instructions to AGENTS.md so editors and
+    # tools (like OpenCode) can pick them up from ~/.config/opencode/AGENTS.md
+    {
+      "opencode/AGENTS.md" = {
+        text = defaultInstructions;
         force = true;
       };
     }

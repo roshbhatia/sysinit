@@ -4,12 +4,17 @@
   ...
 }:
 let
-  skills = import ../skills.nix {
-    inherit lib;
-    pkgs = null;
-  };
   instructionsLib = import ../instructions.nix;
   mcpServers = import ../mcp.nix { inherit lib values; };
+
+  # Produce a minimal default instruction text without importing the full
+  # skills library. Claude can create richer skill pages on demand from the
+  # project config; avoid importing skills here to prevent evaluation
+  # duplication/complexity.
+  defaultInstructions = instructionsLib.makeInstructions {
+    localSkillDescriptions = { };
+    remoteSkillDescriptions = { };
+  };
 
   formatMcpForClaude = builtins.mapAttrs (
     _name: server:
@@ -71,6 +76,14 @@ in
     {
       "claude/claude_desktop_config.json" = {
         text = claudeConfig;
+        force = true;
+      };
+    }
+    {
+      # Provide the default instructions formatted for human consumption
+      # and for CLAUDE to pick up as CLAUDE.md in the project config dir.
+      "claude/CLAUDE.md" = {
+        text = defaultInstructions;
         force = true;
       };
     }
