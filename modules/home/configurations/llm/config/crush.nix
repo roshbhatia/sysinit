@@ -5,7 +5,6 @@
 }:
 let
   agents = import ../agents.nix;
-  lspConfig = (import ../lsp.nix).lsp;
   mcpServers = import ../mcp.nix { inherit lib values; };
 
   agentsMd = ''
@@ -29,23 +28,7 @@ let
         }
     ) mcpServers;
 
-  formatLspForCrush =
-    lspCfg:
-    builtins.mapAttrs (
-      _name: lspCfg:
-      if lspCfg ? command then
-        {
-          command = if builtins.isList lspCfg.command then builtins.head lspCfg.command else lspCfg.command;
-          enabled = true;
-        }
-      else
-        {
-          enabled = false;
-        }
-    ) lspCfg;
-
   crushSettings = {
-    lsp = formatLspForCrush lspConfig;
     mcp = formatMcpForCrush mcpServers.servers;
   };
 

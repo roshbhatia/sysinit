@@ -7,15 +7,7 @@
 let
   disabledMcpServers = [ "beads" ];
 
-  disabledLspServers = [
-    "yaml"
-    "yaml-language-server"
-    "yaml-ls"
-    "yamlls"
-  ];
-
   agents = import ../agents.nix;
-  lspConfig = import ../lsp.nix;
   mcpServers = import ../mcp.nix { inherit lib values; };
   skills = import ../skills.nix { inherit lib pkgs; };
   formatters = import ../opencode-formatters.nix { inherit lib; };
@@ -27,7 +19,12 @@ let
     theme = "system";
 
     mcp = formatters.formatMcpForOpencode disabledMcpServers mcpServers.servers;
-    lsp = formatters.formatLspForOpencode disabledLspServers lspConfig.lsp;
+
+    lsp = {
+      yaml-ls = {
+        disabled = true;
+      };
+    };
 
     instructions = [
       "**/.cursorrules"
