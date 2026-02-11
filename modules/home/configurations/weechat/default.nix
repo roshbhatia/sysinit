@@ -9,7 +9,7 @@
       configure =
         { availablePlugins, ... }:
         {
-          plugins = (builtins.attrValues (builtins.removeAttrs availablePlugins [ "php" ])) ++ [
+          plugins = (builtins.attrValues (removeAttrs availablePlugins [ "php" ])) ++ [
             pkgs.weechatScripts.weechat-matrix-rs
           ];
           scripts = with pkgs.weechatScripts; [
