@@ -37,10 +37,10 @@ let
       builtins:
         # Security boundaries - hard blocks for dangerous operations
         # See: https://cupcake.eqtylab.io/reference/policies/builtin-config/
-        
+
         rulebook_security_guardrails:
           enabled: true
-        
+
         protected_paths:
           enabled: true
           paths:
@@ -48,10 +48,10 @@ let
             - "~/.ssh/"
             - "/etc/"
           message: "Critical system paths are protected"
-        
+
         git_pre_check:
           enabled: true
-        
+
         git_block_no_verify:
           enabled: true
     '';
@@ -95,20 +95,8 @@ in
 
   # Initialize Cupcake for all harnesses
   home.activation.cupcakeInit = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
-    # OpenCode plugin installation
-    run mkdir -p ${config.xdg.configHome}/opencode/plugin
-    if [ ! -f ${config.xdg.configHome}/opencode/plugin/cupcake.js ]; then
-      run curl -fsSL https://github.com/eqtylab/cupcake/releases/download/opencode-plugin-latest/opencode-plugin.js \
-        -o ${config.xdg.configHome}/opencode/plugin/cupcake.js || echo "Warning: Failed to download cupcake plugin"
-    fi
-
-    # Note: cupcake init --global not needed for OpenCode (plugin-based, not hook-based)
-    # Global rulebook is already installed via xdg.configFile
-
-    # Cursor hooks setup (DISABLED - not configured yet)
-    # run ${pkgs.cupcake-cli}/bin/cupcake init --global --harness cursor
-
-    # Claude Code hooks setup (DISABLED - not configured yet)
-    # run ${pkgs.cupcake-cli}/bin/cupcake init --global --harness claude
+    run ${pkgs.cupcake-cli}/bin/cupcake init --global --harness opencode
+    run ${pkgs.cupcake-cli}/bin/cupcake init --global --harness cursor
+    run ${pkgs.cupcake-cli}/bin/cupcake init --global --harness claude
   '';
 }
