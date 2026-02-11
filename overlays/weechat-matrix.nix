@@ -36,6 +36,7 @@ in
         attrs
         pygments
         logbook
+        cffi
       ];
     });
   };
