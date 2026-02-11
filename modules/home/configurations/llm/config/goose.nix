@@ -4,8 +4,14 @@
   ...
 }:
 let
+  skills = import ../skills.nix {
+    inherit lib;
+    pkgs = null;
+  };
+  instructions = (import ../instructions.nix).makeInstructions {
+    inherit (skills) localSkillDescriptions remoteSkillDescriptions;
+  };
   mcp = import ../mcp.nix { inherit lib values; };
-  instructions = import ../instructions.nix;
   subagents = import ../subagents;
 
   gooseBuiltinExtensions = {
@@ -48,9 +54,7 @@ let
     };
   };
 
-  gooseHintsMd = ''
-    ${instructions.general}
-  '';
+  gooseHintsMd = instructions;
 
   capitalizeFirst =
     str:
@@ -177,6 +181,26 @@ let
       ) subagentNames
     );
 
+  skillRecipesGoose =
+    let
+      localSkills = builtins.attrNames skills.localSkillDescriptions;
+    in
+    lib.listToAttrs (
+      map (
+        name:
+        lib.nameValuePair "goose/recipes/${name}.yaml" {
+          text = ''
+            title: ${capitalizeFirst name}
+            description: ${skills.localSkillDescriptions.${name}}
+            prompt: |
+              Read the skill file at ~/.agents/skills/${name}/SKILL.md for full workflow details.
+
+              ${skills.localSkillDescriptions.${name}}
+          '';
+        }
+      ) localSkills
+    );
+
 in
 {
   xdg.configFile = lib.mkMerge [
@@ -188,5 +212,6 @@ in
       "goose/goosehints.md".text = gooseHintsMd;
     }
     subagentRecipeLinksGoose
+    skillRecipesGoose
   ];
 }

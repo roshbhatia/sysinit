@@ -28,6 +28,23 @@ let
     "writing-skills"
   ];
 
+  remoteSkillDescriptions = {
+    brainstorming = "creative ideation and exploration";
+    dispatching-parallel-agents = "coordinating multiple agent workers";
+    executing-plans = "structured plan execution";
+    finishing-a-development-branch = "branch cleanup and merge prep";
+    receiving-code-review = "processing and applying review feedback";
+    requesting-code-review = "preparing code for review";
+    subagent-driven-development = "delegating work to sub-agents";
+    systematic-debugging = "structured debugging methodology";
+    test-driven-development = "TDD workflow";
+    using-git-worktrees = "parallel branch work with worktrees";
+    using-superpowers = "leveraging the superpowers skill system";
+    verification-before-completion = "pre-completion verification checks";
+    writing-plans = "creating structured plans";
+    writing-skills = "authoring new skills";
+  };
+
   localSkillContent = import ./skills;
 
   remoteSkills = builtins.listToAttrs (
@@ -38,10 +55,13 @@ let
   );
 
   localSkills = builtins.mapAttrs (
-    name: content: pkgs.writeText "skill-${name}-SKILL.md" content
+    name: skill: pkgs.writeText "skill-${name}-SKILL.md" skill.content
   ) localSkillContent;
+
+  localSkillDescriptions = builtins.mapAttrs (name: skill: skill.description) localSkillContent;
 
 in
 {
   allSkills = remoteSkills // localSkills;
+  inherit localSkillDescriptions remoteSkillDescriptions;
 }

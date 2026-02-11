@@ -7,7 +7,7 @@
 let
   disabledMcpServers = [ "beads" ];
 
-  instructions = import ../instructions.nix;
+  instructionsLib = import ../instructions.nix;
   mcpServers = import ../mcp.nix { inherit lib values; };
 
   formatMcpForOpencode =
@@ -126,9 +126,9 @@ let
   subagentFiles = lib.mapAttrs' (
     name: config:
     lib.nameValuePair "opencode/agent/${name}.md" {
-      text = instructions.formatSubagentAsMarkdown { inherit name config; };
+      text = instructionsLib.formatSubagentAsMarkdown { inherit name config; };
     }
-  ) (lib.filterAttrs (n: _: n != "formatSubagentAsMarkdown") instructions.subagents);
+  ) (lib.filterAttrs (n: _: n != "formatSubagentAsMarkdown") instructionsLib.subagents);
 
 in
 {

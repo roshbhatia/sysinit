@@ -4,7 +4,11 @@
   ...
 }:
 let
-  instructions = import ../instructions.nix;
+  skills = import ../skills.nix {
+    inherit lib;
+    pkgs = null;
+  };
+  instructionsLib = import ../instructions.nix;
   mcpServers = import ../mcp.nix { inherit lib values; };
 
   formatMcpForClaude = builtins.mapAttrs (
@@ -56,10 +60,10 @@ let
   subagentFiles = lib.mapAttrs' (
     name: config:
     lib.nameValuePair ".claude/agent/${name}.md" {
-      text = instructions.formatSubagentAsMarkdown { inherit name config; };
+      text = instructionsLib.formatSubagentAsMarkdown { inherit name config; };
       force = true;
     }
-  ) (lib.filterAttrs (n: _: n != "formatSubagentAsMarkdown") instructions.subagents);
+  ) (lib.filterAttrs (n: _: n != "formatSubagentAsMarkdown") instructionsLib.subagents);
 
 in
 {

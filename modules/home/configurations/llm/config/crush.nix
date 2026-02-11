@@ -4,12 +4,16 @@
   ...
 }:
 let
-  instructions = import ../instructions.nix;
+  skills = import ../skills.nix {
+    inherit lib;
+    pkgs = null;
+  };
+  instructions = (import ../instructions.nix).makeInstructions {
+    inherit (skills) localSkillDescriptions remoteSkillDescriptions;
+  };
   mcpServers = import ../mcp.nix { inherit lib values; };
 
-  agentsMd = ''
-    ${instructions.general}
-  '';
+  agentsMd = instructions;
 
   formatMcpForCrush =
     mcpServers:
