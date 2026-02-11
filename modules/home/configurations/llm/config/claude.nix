@@ -1,19 +1,17 @@
 {
   lib,
+  pkgs,
   values,
   ...
 }:
 let
   instructionsLib = import ../instructions.nix;
   mcpServers = import ../mcp.nix { inherit lib values; };
+  skillsLib = import ../skills.nix { inherit pkgs; };
 
-  # Produce a minimal default instruction text without importing the full
-  # skills library. Claude can create richer skill pages on demand from the
-  # project config; avoid importing skills here to prevent evaluation
-  # duplication/complexity.
   defaultInstructions = instructionsLib.makeInstructions {
-    localSkillDescriptions = { };
-    remoteSkillDescriptions = { };
+    inherit (skillsLib) localSkillDescriptions remoteSkillDescriptions;
+    skillsRoot = "~/.claude/skills";
   };
 
   formatMcpForClaude = builtins.mapAttrs (
