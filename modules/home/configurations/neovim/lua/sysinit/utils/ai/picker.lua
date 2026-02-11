@@ -5,8 +5,8 @@ function M.pick_agent()
   local session = require("sysinit.utils.ai.session")
   local active = session.get_active()
 
-  -- If there's an active terminal, just hide it
-  if active and session.exists(active) then
+  -- If there's an active terminal with a live session, toggle it
+  if active and session.is_tracked(active) then
     if session.is_visible(active) then
       session.hide(active)
     else

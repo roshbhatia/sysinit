@@ -17,13 +17,16 @@ in
       NEVER create ad-hoc documentation; MAY create human-standard documentation.
       NEVER use emojis in code.
       SHOULD NOT git commit and git push unless directed otherwise; MAY stage/add/remove files and propose commit messages.
+      NEVER push to main.
     </CORE_MANDATES>
 
     <WORKFLOW_LIFECYCLE>
       <PHASE_1_INIT>
         MUST initiate new features by creating a Product Requirement Document (PRD) from template. Do not make assumptions on feature scope. Use what the user has said verbatim.
+        MUST use https://github.com/opulo-inc/prd-template/blob/main/prd.md as the template.
         MUST save PRD to `.sysinit/<prdname>.md` (this folder is gitignored globally).
         MUST NOT proceed to task breakdown until PRD is explicitly approved by the user.
+        NEVER check in the .sysinit/ folder or any of it's contents into git, or any gitignored files unless specifically told otherwise.
       </PHASE_1_INIT>
 
       <PHASE_2_TASKING>

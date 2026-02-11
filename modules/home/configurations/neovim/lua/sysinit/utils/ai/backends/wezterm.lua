@@ -1,6 +1,7 @@
 -- WezTerm backend implementation with tmux persistence
 local M = {}
 
+local base = require("sysinit.utils.ai.backends.base")
 local config = {}
 local parent_pane_id = nil
 
@@ -99,45 +100,7 @@ function M.setup(opts)
   end
 end
 
--- Generate a unique session name based on terminal name and cwd
--- @param termname string: Terminal name
--- @param cwd string: Working directory
--- @return string: Session name
-local function get_session_name(termname, cwd)
-  local full = vim.fn.fnamemodify(cwd, ":p")
-  local safe = full:gsub("[/:%s]", "_")
-  local timestamp = os.date("%Y%m%d-%H%M%S")
-  return string.format("ai-%s-%s-%s", termname, safe, timestamp)
-end
-
--- Find an existing tmux session for this terminal/cwd combo
--- @param termname string: Terminal name
--- @param cwd string: Working directory
--- @return string|nil: Session name if found
-local function find_existing_session(termname, cwd)
-  local full = vim.fn.fnamemodify(cwd, ":p")
-  local safe = full:gsub("[/:%s]", "_")
-  local prefix = string.format("ai-%s-%s-", termname, safe)
-  local out = vim.fn.system("tmux list-sessions -F '#S' 2>/dev/null")
-  if vim.v.shell_error ~= 0 or not out or out == "" then
-    return nil
-  end
-  for s in string.gmatch(out, "[^\n]+") do
-    local name = vim.trim(s)
-    if vim.startswith(name, prefix) then
-      return name
-    end
-  end
-  return nil
-end
-
--- Check if a tmux session exists
--- @param session_name string: Session name
--- @return boolean: True if session exists
-local function tmux_session_exists(session_name)
-  vim.fn.system(string.format("tmux has-session -t %s 2>/dev/null", vim.fn.shellescape(session_name)))
-  return vim.v.shell_error == 0
-end
+-- Delegate session naming and lookup to base module for consistent short names
 
 -- Open a new terminal in a WezTerm pane with tmux persistence
 -- @param termname string: Terminal name (for tmux session naming)
@@ -151,11 +114,11 @@ function M.open(termname, agent_config, cwd)
   end
 
   -- Check for existing tmux session
-  local session_name = find_existing_session(termname, cwd)
+  local session_name = base.find_existing_session(termname, cwd)
   local is_new_session = not session_name
 
   if not session_name then
-    session_name = get_session_name(termname, cwd)
+    session_name = base.get_session_name(termname, cwd)
   end
 
   -- Build environment setup
@@ -260,7 +223,7 @@ function M.show(term_data)
   end
 
   -- Check if tmux session still exists
-  if not tmux_session_exists(term_data.session_name) then
+  if not base.tmux_session_exists(term_data.session_name) then
     vim.notify("Tmux session no longer exists: " .. term_data.session_name, vim.log.levels.WARN)
     return nil
   end
@@ -320,7 +283,7 @@ end
 -- Kill the tmux session completely
 -- @param term_data table: Terminal data
 function M.kill_session(term_data)
-  if term_data.session_name and tmux_session_exists(term_data.session_name) then
+  if term_data.session_name and base.tmux_session_exists(term_data.session_name) then
     vim.fn.system(string.format("tmux kill-session -t %s 2>/dev/null", vim.fn.shellescape(term_data.session_name)))
   end
   if term_data.pane_id then

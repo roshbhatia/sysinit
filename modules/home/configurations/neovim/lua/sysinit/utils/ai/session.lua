@@ -153,7 +153,7 @@ function M.hide(termname)
   backend.hide(term_data)
 end
 
--- Show a hidden terminal (not supported without persistence)
+-- Show a hidden terminal (reattach to tmux session)
 -- @param termname string: Terminal name
 function M.show(termname)
   local term_data = terminals[termname]
@@ -163,7 +163,17 @@ function M.show(termname)
     return
   end
 
-  -- Without persistence, just reopen the terminal
+  -- Delegate to backend.show() which reattaches to the tmux session
+  if backend.show then
+    local updated = backend.show(term_data)
+    if updated then
+      terminals[termname] = updated
+      active_terminal = termname
+      return
+    end
+  end
+
+  -- Fallback: session gone or backend doesn't support show, reopen
   terminals[termname] = nil
   M.open(termname)
 end
@@ -177,6 +187,26 @@ function M.is_visible(termname)
     return false
   end
   return backend.is_visible(term_data)
+end
+
+-- Check if terminal is tracked (has session data, may or may not be visible)
+-- @param termname string: Terminal name
+-- @return boolean: True if tracked with a live tmux session
+function M.is_tracked(termname)
+  local term_data = terminals[termname]
+  if not term_data then
+    return false
+  end
+  -- If we have a session_name, check if the tmux session is still alive
+  if term_data.session_name then
+    local base = require("sysinit.utils.ai.backends.base")
+    return base.tmux_session_exists(term_data.session_name)
+  end
+  -- No session_name means no persistence, fall back to visibility
+  if backend then
+    return backend.is_visible(term_data)
+  end
+  return false
 end
 
 -- Send text to a terminal
