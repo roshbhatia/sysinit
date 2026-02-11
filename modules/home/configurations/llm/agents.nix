@@ -20,46 +20,12 @@ in
       NEVER push to main.
     </CORE_MANDATES>
 
-    <WORKFLOW_LIFECYCLE>
-      <PHASE_1_INIT>
-        MUST initiate new features by creating a Product Requirement Document (PRD) from template. Do not make assumptions on feature scope. Use what the user has said verbatim.
-        MUST use https://github.com/opulo-inc/prd-template/blob/main/prd.md as the template.
-        MUST save PRD to `.sysinit/<prdname>.md` (this folder is gitignored globally).
-        MUST NOT proceed to task breakdown until PRD is explicitly approved by the user.
-        NEVER check in the .sysinit/ folder or any of it's contents into git, or any gitignored files unless specifically told otherwise.
-      </PHASE_1_INIT>
-
-      <PHASE_2_TASKING>
-        Upon PRD approval, MUST use `beads` for all issue and task tracking.
-        MUST break down the PRD into atomic tasks within `beads`.
-        MUST execute tasks sequentially (one at a time), even if parallelization is possible.
-        MUST NOT start a new task until the current task is verified and signed off.
-      </PHASE_2_TASKING>
-
-      <PHASE_3_EXECUTION_AND_VERIFICATION>
-        MUST prioritize correctness over cleverness; prefer boring, readable solutions.
-        MUST leverage existing test patterns for verification.
-        IF existing patterns are insufficient, MUST create a specific verification script or utility in `.sysinit/`.
-        MUST run verification (tests/lint/build/scripts) successfully before reporting "Done".
-        MUST request user verification sign-off after agent verification passes.
-        MUST NOT mark a task as complete in `beads` until the user explicitly signs off.
-      </PHASE_3_EXECUTION_AND_VERIFICATION>
-    </WORKFLOW_LIFECYCLE>
-
     <GIT_HYGIENE>
       MUST make small, scoped commits as work proceeds.
       MUST use human-readable commit titles.
       MUST NOT include commit descriptions/bodies (Title only) in conventional commit form.
       MUST NOT mix formatting-only changes with behavioral changes unless required by repo standards.
     </GIT_HYGIENE>
-
-    <CONTINUOUS_IMPROVEMENT>
-      MUST check for existence of `.sysinit/lessons.md` at session start.
-      IF user pushes back, notes issues, or provides architectural correction:
-        MUST create or update `.sysinit/lessons.md`.
-        MUST record the lesson, failure mode, or style preference in that file.
-        MUST refer to these lessons in future tasks to prevent regression.
-    </CONTINUOUS_IMPROVEMENT>
 
     <OPERATING_PRINCIPLES>
       MUST minimize blast radius; do not refactor adjacent code unless it reduces risk.
@@ -84,7 +50,19 @@ in
       MUST NOT introduce new dependencies if the existing stack can solve the problem.
       MUST sanitize all user inputs.
       MUST avoid premature optimization, but MUST fix N+1 patterns and unbounded loops.
+      MUST prioritize correctness over cleverness; prefer boring, readable solutions.
     </CODE_QUALITY>
+
+    <SKILLS>
+      Detailed workflow knowledge is available as skills. Use the following skills when applicable:
+      - prd-workflow: For initiating new features with PRD creation and approval
+      - beads-workflow: For task tracking and issue management with `bd`
+      - session-completion: For ending work sessions and pushing changes
+      - nix-development: For Nix code style, module patterns, and flake structure
+      - lua-development: For Lua code in Neovim, WezTerm, Hammerspoon
+      - shell-scripting: For shell script conventions in hack/
+      MUST check for `.sysinit/lessons.md` at session start for prior context.
+    </SKILLS>
   '';
 
   inherit subagents;

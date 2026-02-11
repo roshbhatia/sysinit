@@ -119,7 +119,7 @@ let
   ) (lib.filterAttrs (n: _: n != "formatSubagentAsMarkdown") agents.subagents);
 
   skillLinksOpencode = lib.mapAttrs' (
-    name: _path: lib.nameValuePair "opencode/skill/${name}/SKILL.md" { source = _path; }
+    name: _path: lib.nameValuePair "opencode/skills/${name}/SKILL.md" { source = _path; }
   ) skills.allSkills;
 
 in

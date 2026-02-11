@@ -34,7 +34,6 @@ task fmt:all:check            # Check all formatting without changes
 ```bash
 task nix:validate             # Validate flake configuration
 nix flake check               # Direct flake validation
-nix eval .#checks.x86_64-linux.<system> --json  # Evaluate specific check
 ```
 
 ### Maintenance
@@ -47,123 +46,23 @@ task nix:secrets:init         # Initialize secrets with GitHub token
 task docs:values              # Generate values.nix documentation
 ```
 
-## Code Style Guidelines
+## Always-Followed Rules
 
-### Nix
-- **Formatting**: `nixfmt --width=100`
-- **Structure**: `default.nix` for entry points, `name.nix` for implementations
-- **Imports**: `{ lib }: with lib;` at top, then `with lib;` for convenience
-- **Types**: Define schemas in `modules/shared/lib/values/default.nix`
-- **Options**: Use `mkOption { type = types.str; description = "..."; }`
-- **Naming**: `camelCase` for variables, `snake_case` for file names
-- **Error Handling**: Use `assert` for preconditions, `throw` for errors
-- **Organization**: Group related options, use `//` for merging
-
-### Lua (Neovim/WezTerm/Hammerspoon)
-- **Formatting**: `.stylua.toml` (column_width=100, indent_width=2, spaces)
-- **Structure**: `local M = {}` pattern for modules
-- **Naming**: `snake_case` for variables/functions, `PascalCase` for modules
-- **Imports**: `local module = require("path")` or `local var = require("path").var`
-- **Error Handling**: Use `pcall()` for optional operations, explicit error messages
-- **Tables**: Use `{}` for objects, `[]` for arrays, consistent comma placement
-- **Functions**: Prefer `function()` over `() ->` for clarity
-- **Location**: `modules/home/configurations/{app}/lua/sysinit/`
-
-### Shell Scripts
-- **Shebang**: `#!/usr/bin/env bash`
-- **Safety**: `set -euo pipefail` always first
-- **Logging**: Source `{{.LOGLIB_PATH}}`, use `log_*` functions
-- **Formatting**: `shfmt -i 2 -ci -sr -s -w`
-- **Executability**: All `.sh` files must be executable
-- **Error Handling**: Check command success, meaningful errors
-- **Variables**: Use `local` in functions, quote all variables
-
-### General Rules
-- **No Emojis**: Strictly enforced
+- **No Emojis**: Strictly enforced in all code and documentation
 - **DRY**: Extract repeated patterns to shared utilities
 - **Comments**: Use for complex logic only
 - **Testing**: Run `task nix:build` before commits
+- **Pre-Commit**: `task fmt:all:check` then `task nix:validate` then `task nix:build`
 
-## Key Files & Patterns
+## Skills
 
-### Configuration Structure
-- **`flake.nix`**: Input definitions and output routing
-- **`values.nix`**: User settings (create from schema in `modules/shared/lib/values/default.nix`)
-- **`modules/shared/lib/values/default.nix`**: Type schemas and validation
-- **`modules/darwin/default.nix`**: macOS system configuration
-- **`modules/nixos/default.nix`**: NixOS system configuration
-- **`modules/home/default.nix`**: User-level home-manager configuration
+Domain-specific knowledge is managed as Nix-defined skills in `modules/home/configurations/llm/skills/`. Each skill is a `.nix` file returning SKILL.md content, built into the Nix store alongside external superpowers skills. Skills are loaded on demand by LLM tools.
 
-### Module Patterns
-```nix
-# default.nix (entry point)
-{ config, lib, ... }: {
-  imports = [ ./name.nix ];
-}
-
-# name.nix (implementation)
-{ config, lib, values, ... }: {
-  # Implementation
-}
-```
-
-### Lua Plugin Pattern
-```lua
-local M = {}
-
-M.plugins = {
-  {
-    "plugin/name",
-    opts = function()
-      return {
-        -- Configuration
-      }
-    end,
-  }
-}
-
-return M
-```
-
-## Testing & Validation
-
-### Pre-Commit Checks
-1. `task fmt:all:check` - Verify formatting (no modifications)
-2. `task nix:validate` - Validate flake syntax
-3. `task nix:build` - Build-time validation
-4. Manual review of changes
-
-### Single System Testing
-- Test macOS only: `task nix:build:lv426`
-- Test NixOS only: `task nix:build:arrakis`
-- Dry-run work build: `task nix:build:work --dry-run`
-
----
-
-This file provides coding guidelines for agentic assistants. See README.md for user documentation.
-
-## Landing the Plane (Session Completion)
-
-**When ending a work session**, you MUST complete ALL steps below. Work is NOT complete until `git push` succeeds.
-
-**MANDATORY WORKFLOW:**
-
-1. **File issues for remaining work** - Create issues for anything that needs follow-up
-2. **Run quality gates** (if code changed) - Tests, linters, builds
-3. **Update issue status** - Close finished work, update in-progress items
-4. **PUSH TO REMOTE** - This is MANDATORY:
-   ```bash
-   git pull --rebase
-   bd sync
-   git push
-   git status  # MUST show "up to date with origin"
-   ```
-5. **Clean up** - Clear stashes, prune remote branches
-6. **Verify** - All changes committed AND pushed
-7. **Hand off** - Provide context for next session
-
-**CRITICAL RULES:**
-- Work is NOT complete until `git push` succeeds
-- NEVER stop before pushing - that leaves work stranded locally
-- NEVER say "ready to push when you are" - YOU must push
-- If push fails, resolve and retry until it succeeds
+| Skill | When to use |
+|-------|-------------|
+| `nix-development` | Writing or modifying Nix code, module patterns, flake structure |
+| `lua-development` | Writing or modifying Lua code for Neovim, WezTerm, Hammerspoon |
+| `shell-scripting` | Writing or modifying shell scripts in `hack/` or elsewhere |
+| `beads-workflow` | Task tracking, issue management, multi-step feature work |
+| `prd-workflow` | Starting new features, creating product requirement documents |
+| `session-completion` | Ending a work session, pushing changes, handing off context |

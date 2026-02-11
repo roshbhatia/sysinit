@@ -23,6 +23,7 @@ let
       bash
       bash-language-server
       bashInteractive
+      bun
       cachix
       cargo-watch
       chafa

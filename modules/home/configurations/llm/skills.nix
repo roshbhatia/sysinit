@@ -11,7 +11,7 @@ let
     sha256 = "sha256-0/biMK5A9DwXI/UeouBX2aopkUslzJPiNi+eZFkkzXI=";
   };
 
-  allSkills = [
+  remoteSkillNames = [
     "brainstorming"
     "dispatching-parallel-agents"
     "executing-plans"
@@ -28,14 +28,22 @@ let
     "writing-skills"
   ];
 
-in
-{
-  allSkills = builtins.listToAttrs (
+  localSkillContent = import ./skills;
+
+  remoteSkills = builtins.listToAttrs (
     map (skillName: {
       name = skillName;
       value = "${skillsRepo}/skills/${skillName}";
-    }) allSkills
+    }) remoteSkillNames
   );
+
+  localSkills = builtins.mapAttrs (
+    name: content: "${pkgs.writeTextDir "SKILL.md" content}"
+  ) localSkillContent;
+
+in
+{
+  allSkills = remoteSkills // localSkills;
 
   agentsMd = ''
     Keywords: MUST, MUST NOT, REQUIRED, SHALL, SHALL NOT, SHOULD, SHOULD NOT, RECOMMENDED, MAY, OPTIONAL. (RFC 2119)
