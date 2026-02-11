@@ -268,6 +268,27 @@ function M.close(termname)
   end
 end
 
+-- Kill a terminal session completely (kills tmux session)
+-- @param termname string: Terminal name
+function M.kill_session(termname)
+  local term_data = terminals[termname]
+
+  if not term_data or not backend then
+    return
+  end
+
+  if backend.kill_session then
+    backend.kill_session(term_data)
+  else
+    backend.kill(term_data)
+  end
+
+  terminals[termname] = nil
+  if active_terminal == termname then
+    active_terminal = nil
+  end
+end
+
 -- Cleanup terminal from tracking (doesn't kill session)
 -- @param termname string: Terminal name
 function M.cleanup_terminal(termname)

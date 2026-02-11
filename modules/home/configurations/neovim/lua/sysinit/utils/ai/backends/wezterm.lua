@@ -317,6 +317,17 @@ function M.kill(term_data)
   end
 end
 
+-- Kill the tmux session completely
+-- @param term_data table: Terminal data
+function M.kill_session(term_data)
+  if term_data.session_name and tmux_session_exists(term_data.session_name) then
+    vim.fn.system(string.format("tmux kill-session -t %s 2>/dev/null", vim.fn.shellescape(term_data.session_name)))
+  end
+  if term_data.pane_id then
+    kill_pane(term_data.pane_id)
+  end
+end
+
 -- Cleanup all terminals on exit
 -- @param terminals table: Map of terminal name to terminal data
 function M.cleanup_all(terminals)

@@ -5,7 +5,7 @@ function M.pick_agent()
   local session = require("sysinit.utils.ai.session")
   local active = session.get_active()
 
-  -- If there's an active terminal, toggle visibility
+  -- If there's an active terminal, just hide it
   if active and session.exists(active) then
     if session.is_visible(active) then
       session.hide(active)
@@ -46,11 +46,11 @@ function M.kill_and_pick()
   local session = require("sysinit.utils.ai.session")
   local active = session.get_active()
 
-  if active then
-    session.close(active)
+  if not active then
+    return
   end
 
-  M.pick_agent()
+  session.kill_session(active)
 end
 
 function M.kill_active()
@@ -58,12 +58,10 @@ function M.kill_active()
   local active = session.get_active()
 
   if not active then
-    vim.notify("No active AI session", vim.log.levels.WARN)
     return
   end
 
-  session.close(active)
-  vim.notify("AI session killed", vim.log.levels.INFO)
+  session.kill_session(active)
 end
 
 return M
