@@ -35,6 +35,7 @@ in
         atomicwrites
         attrs
         pygments
+        logbook
       ];
     });
   };
