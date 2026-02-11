@@ -3,6 +3,7 @@
 
 __setup_completions() {
   _evalcache fzf --zsh
+  _evalcache goose term init zsh
   _evalcache kubectl completion zsh
   _evalcache nix-your-shell zsh
   _evalcache task --completion zsh
