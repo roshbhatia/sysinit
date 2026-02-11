@@ -1,6 +1,15 @@
 {
+  lib,
+  pkgs,
   ...
 }:
+let
+  skills = import ./skills.nix { inherit lib pkgs; };
+
+  globalSkillFiles = lib.mapAttrs' (
+    name: path: lib.nameValuePair ".agents/skills/${name}/SKILL.md" { source = path; }
+  ) skills.allSkills;
+in
 {
   imports = [
     ./config/amp.nix
@@ -13,4 +22,6 @@
     ./cupcake
     ./tools.nix
   ];
+
+  home.file = globalSkillFiles;
 }

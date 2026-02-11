@@ -1,12 +1,10 @@
 {
   lib,
-  pkgs,
   values,
   ...
 }:
 let
   mcpServers = import ../mcp.nix { inherit lib values; };
-  skills = import ../skills.nix { inherit lib pkgs; };
   mcpFormatters = import ../mcp-formatters.nix { inherit lib; };
 
   claudeConfig = builtins.toJSON {
@@ -35,24 +33,17 @@ let
         echo ""
     done
   '';
-
-  skillLinksClaude = lib.mapAttrs' (
-    name: _path: lib.nameValuePair "Claude/skill/${name}/SKILL.md" { source = _path; }
-  ) skills.allSkills;
 in
 {
-  xdg.configFile = lib.mkMerge [
-    {
-      "Claude/claude_desktop_config.json" = {
-        text = claudeConfig;
-        force = true;
-      };
-    }
-    skillLinksClaude
-  ];
+  xdg.configFile = {
+    "claude/claude_desktop_config.json" = {
+      text = claudeConfig;
+      force = true;
+    };
+  };
 
   xdg.dataFile = {
-    "Claude/hooks/append_agentsmd_context.sh" = {
+    "claude/hooks/append_agentsmd_context.sh" = {
       text = claudeHookScript;
       executable = true;
       force = true;

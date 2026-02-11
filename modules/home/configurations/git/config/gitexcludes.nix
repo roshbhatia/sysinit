@@ -38,13 +38,14 @@ let
   # AI assistant directories and files
   aiAssistantPatterns = [
     "**/.goose/"
+    "*.crush/"
+    ".agents/"
     ".beads/"
     ".bv/"
     ".claude/"
     ".goose/"
     ".goosehints"
     ".sysinit/"
-    "*.crush/"
     "AGENTS.md"
     "CLAUDE.md"
     "CRUSH.md"

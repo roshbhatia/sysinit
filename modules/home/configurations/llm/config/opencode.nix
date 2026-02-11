@@ -9,7 +9,6 @@ let
 
   agents = import ../agents.nix;
   mcpServers = import ../mcp.nix { inherit lib values; };
-  skills = import ../skills.nix { inherit lib pkgs; };
   formatters = import ../opencode-formatters.nix { inherit lib; };
 
   opencodeConfig = {
@@ -115,10 +114,6 @@ let
     }
   ) (lib.filterAttrs (n: _: n != "formatSubagentAsMarkdown") agents.subagents);
 
-  skillLinksOpencode = lib.mapAttrs' (
-    name: _path: lib.nameValuePair "opencode/skills/${name}/SKILL.md" { source = _path; }
-  ) skills.allSkills;
-
 in
 {
   xdg.configFile = lib.mkMerge [
@@ -129,6 +124,5 @@ in
       };
     }
     subagentFiles
-    skillLinksOpencode
   ];
 }
