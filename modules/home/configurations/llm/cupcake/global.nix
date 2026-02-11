@@ -1,5 +1,4 @@
 {
-  config,
   pkgs,
   lib,
   ...
@@ -8,7 +7,6 @@ let
   policyBase = ./policies;
   signalBase = ./signals;
 
-  # Global rulebook with builtins and signals
   makeRulebook =
     harness:
     pkgs.writeText "rulebook-${harness}.yml" ''
@@ -56,20 +54,17 @@ let
           enabled: true
     '';
 
-  # Policy files - enable deny-based security + allow-based safe operations
   policyFiles = {
     "cupcake/policies/opencode/tool_suggestions.rego" = ./policies/opencode/tool_suggestions.rego;
     "cupcake/policies/opencode/safe_operations.rego" = ./policies/opencode/safe_operations.rego;
   };
 
-  # Signal scripts to install
   signalFiles = {
     "cupcake/signals/git_staged_sysinit.sh" = ./signals/git_staged_sysinit.sh;
     "cupcake/signals/git_unpushed.sh" = ./signals/git_unpushed.sh;
     "cupcake/signals/git_current_branch.sh" = ./signals/git_current_branch.sh;
   };
 
-  # Convert files to xdg.configFile format with force = true
   policyFileConfigs = lib.mapAttrs (_name: source: {
     inherit source;
     force = true;
@@ -93,7 +88,6 @@ in
       };
     };
 
-  # Initialize Cupcake for all harnesses
   home.activation.cupcakeInit = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
     run ${pkgs.cupcake-cli}/bin/cupcake init --global --harness opencode
     run ${pkgs.cupcake-cli}/bin/cupcake init --global --harness cursor
