@@ -37,12 +37,46 @@ return {
       },
       {
         "<leader>cl",
-        "<cmd>Trouble loclist toggle<cr>",
+        function()
+          local diagnostics = vim.diagnostic.get(0)
+          local items = {}
+          for _, d in ipairs(diagnostics) do
+            table.insert(items, {
+              bufnr = d.bufnr or 0,
+              lnum = d.lnum + 1,
+              col = d.col + 1,
+              text = d.message,
+              type = d.severity == vim.diagnostic.severity.ERROR and "E"
+                or d.severity == vim.diagnostic.severity.WARN and "W"
+                or d.severity == vim.diagnostic.severity.INFO and "I"
+                or "H",
+            })
+          end
+          vim.fn.setloclist(0, items)
+          vim.cmd("Trouble loclist toggle")
+        end,
         desc = "Loclist diagnostics",
       },
       {
         "<leader>cq",
-        "<cmd>Trouble qflist toggle<cr>",
+        function()
+          local diagnostics = vim.diagnostic.get()
+          local items = {}
+          for _, d in ipairs(diagnostics) do
+            table.insert(items, {
+              bufnr = d.bufnr or 0,
+              lnum = d.lnum + 1,
+              col = d.col + 1,
+              text = d.message,
+              type = d.severity == vim.diagnostic.severity.ERROR and "E"
+                or d.severity == vim.diagnostic.severity.WARN and "W"
+                or d.severity == vim.diagnostic.severity.INFO and "I"
+                or "H",
+            })
+          end
+          vim.fn.setqflist(items)
+          vim.cmd("Trouble qflist toggle")
+        end,
         desc = "Qflist diagnostics",
       },
     },

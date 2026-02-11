@@ -205,20 +205,6 @@ return {
           desc = "Files",
         },
         {
-          "<leader>fd",
-          function()
-            Snacks.picker.diagnostics_buffer()
-          end,
-          desc = "Buffer diagnostics",
-        },
-        {
-          "<leader>fD",
-          function()
-            Snacks.picker.diagnostics()
-          end,
-          desc = "Project diagnostics",
-        },
-        {
           "<leader>fg",
           function()
             Snacks.picker.grep()
@@ -359,20 +345,6 @@ return {
               end,
             })
           end,
-        },
-        {
-          "<leader>cfx",
-          function()
-            Snacks.picker.diagnostics()
-          end,
-          desc = "Project diagnostics",
-        },
-        {
-          "<leader>cfb",
-          function()
-            Snacks.picker.diagnostics_buffer({ layout = "bottom" })
-          end,
-          desc = "Buffer diagnostics",
         },
         {
           "]]",
