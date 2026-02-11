@@ -25,8 +25,7 @@ return {
                 -- `layout.layout` mirrors the example shape used by snacks for per-source overrides
                 layout = {
                   -- relative width (0-1) or absolute columns depending on layout resolver
-                  width = 0.85,
-                  min_width = 120,
+                  width = 0.95,
                   height = 0.85,
                 },
               },
