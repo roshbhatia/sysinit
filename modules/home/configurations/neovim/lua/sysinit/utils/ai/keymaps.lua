@@ -64,19 +64,6 @@ function M.generate_all_keymaps()
     desc = "Kill active session",
   })
 
-  -- Direct agent activation keymaps (leader j + priority number)
-  local all_agents = agents.get_all()
-  for _, agent in ipairs(all_agents) do
-    table.insert(keymaps, {
-      "<leader>j" .. agent.priority,
-      function()
-        session.activate(agent.name)
-        vim.notify(string.format("%s %s activated", agent.icon, agent.label), vim.log.levels.INFO)
-      end,
-      desc = string.format("AI: Activate %s", agent.label),
-    })
-  end
-
   table.insert(keymaps, {
     "<leader>ja",
     create_mode_context_input("Ask", " +cursor: ", " +selection: "),
@@ -89,30 +76,14 @@ function M.generate_all_keymaps()
     function()
       create_context_input("Fix diagnostics", " Fix +diagnostics: ")
     end,
-    desc = "Fix diagnostics (active)",
+    desc = "Fix diagnostics",
   })
 
   table.insert(keymaps, {
-    "<leader>jk",
+    "<leader>jc",
     create_mode_context_input("Comment", " Comment +cursor: ", " Comment +selection: "),
     mode = { "n", "v" },
-    desc = "Comment (active)",
-  })
-
-  table.insert(keymaps, {
-    "<leader>jq",
-    function()
-      create_context_input("Analyze quickfix list", " Analyze +qflist: ")
-    end,
-    desc = "Send quickfix (active)",
-  })
-
-  table.insert(keymaps, {
-    "<leader>jl",
-    function()
-      create_context_input("Analyze location list", " Analyze +loclist: ")
-    end,
-    desc = "Send location list (active)",
+    desc = "Comment",
   })
 
   table.insert(keymaps, {
@@ -131,39 +102,15 @@ function M.generate_all_keymaps()
         vim.notify("No previous prompt found for active terminal", vim.log.levels.WARN)
       end
     end,
-    desc = "Resend previous (active)",
+    desc = "Resend previous",
   })
 
   table.insert(keymaps, {
-    "<leader>jr",
+    "<leader>jh",
     function()
-      history.create_history_picker(session.get_active())
+      history.create_history_picker(nil)
     end,
-    desc = "Browse history (active or all)",
-  })
-
-  table.insert(keymaps, {
-    "<leader>jg",
-    function()
-      create_context_input("Review git changes", " Review +git and +diff: ")
-    end,
-    desc = "Review git changes (active)",
-  })
-
-  table.insert(keymaps, {
-    "<leader>ji",
-    function()
-      create_context_input("Explain imports", " Explain +buffer: ")
-    end,
-    desc = "Explain imports (active)",
-  })
-
-  table.insert(keymaps, {
-    "<leader>jp",
-    function()
-      create_context_input("Analyze clipboard", " Analyze +buffer: ")
-    end,
-    desc = "Analyze clipboard (active)",
+    desc = "Browse history",
   })
 
   return keymaps
