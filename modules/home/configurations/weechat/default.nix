@@ -16,6 +16,7 @@ let
   # Script to bootstrap the weechat-matrix venv with uv
   setupScript = pkgs.writeShellScript "setup-weechat-matrix" ''
     set -euo pipefail
+
     VENV_DIR="${weechatMatrixVenvDir}"
     WEECHAT_PYTHON_DIR="$HOME/.local/share/weechat/python/autoload"
 
@@ -25,10 +26,20 @@ let
       ${lib.getExe pkgs.uv} venv "$VENV_DIR" --python ${pkgs.python3}/bin/python3
     fi
 
-    # Install dependencies from the source's requirements
+    # Install dependencies (matrix-nio without e2e to avoid deprecated python-olm)
     echo "Installing weechat-matrix dependencies..."
     ${lib.getExe pkgs.uv} pip install --python "$VENV_DIR/bin/python" \
-      -r ${weechatMatrixSrc}/requirements.txt
+      'matrix-nio>=0.21.0' \
+      pyopenssl \
+      webcolors \
+      atomicwrites \
+      attrs \
+      logbook \
+      pygments \
+      aiohttp \
+      python-magic \
+      requests \
+      pillow
 
     # Symlink matrix.py into weechat's autoload directory
     mkdir -p "$WEECHAT_PYTHON_DIR"
