@@ -33,9 +33,6 @@ in
           [diff]
             ignoreSpaceAtEol = true
 
-          [pull]
-            rebase = true
-
           [init]
             defaultBranch = main
 
