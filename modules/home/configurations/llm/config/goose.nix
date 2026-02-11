@@ -5,8 +5,60 @@
 }:
 let
   mcp = import ../mcp.nix { inherit lib values; };
-  agents = import ../agents.nix;
+  instructions = import ../instructions.nix;
   subagents = import ../subagents;
+
+  gooseBuiltinExtensions = {
+    autovisualiser = {
+      available_tools = [ ];
+      bundled = true;
+      description = null;
+      display_name = "Auto Visualiser";
+      enabled = true;
+      name = "autovisualiser";
+      timeout = 300;
+      type = "builtin";
+    };
+    computercontroller = {
+      available_tools = [
+        "browser_action"
+        "computer_use"
+      ];
+      bundled = true;
+      display_name = "Computer Controller";
+      enabled = true;
+      name = "computercontroller";
+      timeout = 300;
+      type = "builtin";
+    };
+    developer = {
+      available_tools = [
+        "text_editor"
+        "shell"
+        "analyze"
+        "screen_capture"
+        "image_processor"
+      ];
+      bundled = true;
+      display_name = "Developer";
+      enabled = true;
+      name = "developer";
+      timeout = 300;
+      type = "builtin";
+    };
+  };
+
+  gooseHintsMd = ''
+    ${instructions.general}
+  '';
+
+  capitalizeFirst =
+    str:
+    let
+      firstChar = builtins.substring 0 1 str;
+      rest = builtins.substring 1 (-1) str;
+    in
+    (lib.strings.toUpper firstChar) + rest;
 
   formatSubagentAsGooseRecipe =
     {
@@ -14,13 +66,6 @@ let
       config,
     }:
     let
-      capitalizeFirst =
-        str:
-        let
-          firstChar = builtins.substring 0 1 str;
-          rest = builtins.substring 1 (-1) str;
-        in
-        (lib.strings.toUpper firstChar) + rest;
       title = capitalizeFirst name;
       description = config.description or "";
       content = config.instructions or config.description or "";
@@ -81,58 +126,6 @@ let
         }
         Tools: write=${formatTool "write"}, edit=${formatTool "edit"}, background_task=${formatTool "background_task"}
     '';
-
-  gooseBuiltinExtensions = {
-    autovisualiser = {
-      available_tools = [ ];
-      bundled = true;
-      description = null;
-      display_name = "Auto Visualiser";
-      enabled = true;
-      name = "autovisualiser";
-      timeout = 300;
-      type = "builtin";
-    };
-    computercontroller = {
-      available_tools = [
-        "browser_action"
-        "computer_use"
-      ];
-      bundled = true;
-      display_name = "Computer Controller";
-      enabled = true;
-      name = "computercontroller";
-      timeout = 300;
-      type = "builtin";
-    };
-    developer = {
-      available_tools = [
-        "text_editor"
-        "shell"
-        "analyze"
-        "screen_capture"
-        "image_processor"
-      ];
-      bundled = true;
-      display_name = "Developer";
-      enabled = true;
-      name = "developer";
-      timeout = 300;
-      type = "builtin";
-    };
-  };
-
-  gooseHintsMd = ''
-    ${agents.general}
-  '';
-
-  capitalizeFirst =
-    str:
-    let
-      firstChar = builtins.substring 0 1 str;
-      rest = builtins.substring 1 (-1) str;
-    in
-    (lib.strings.toUpper firstChar) + rest;
 
   formatMcpForGoose =
     mcp:

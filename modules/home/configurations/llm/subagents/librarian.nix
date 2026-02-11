@@ -22,7 +22,6 @@
     glob = true;
     grep = true;
     list = true;
-    lsp = false;
     patch = false;
     read = true;
     skill = false;

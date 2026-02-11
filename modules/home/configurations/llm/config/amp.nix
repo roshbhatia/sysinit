@@ -22,42 +22,40 @@ let
         }
     ) mcpServers;
 
-  formatPermissionsForAmp = _perms: [
-    {
-      tool = "Bash";
-      matches = {
-        cmd = "*git commit*";
-      };
-      action = "ask";
-    }
-    {
-      tool = "Bash";
-      matches = {
-        cmd = [
-          "*git status*"
-          "*git diff*"
-          "*git log*"
-          "*git show*"
-        ];
-      };
-      action = "allow";
-    }
-    {
-      tool = "mcp__*";
-      action = "allow";
-    }
-    {
-      tool = "*";
-      action = "ask";
-    }
-  ];
-
   ampConfig = builtins.toJSON {
     "amp.experimental.planMode" = true;
     "amp.git.commit.ampThread.enabled" = false;
     "amp.git.commit.coauthor.enabled" = false;
     "amp.mcpServers" = formatMcpForAmp mcpServers.servers;
-    "amp.permissions" = formatPermissionsForAmp mcpServers.allPermissions;
+    "amp.permissions" = [
+      {
+        tool = "Bash";
+        matches = {
+          cmd = "*git commit*";
+        };
+        action = "ask";
+      }
+      {
+        tool = "Bash";
+        matches = {
+          cmd = [
+            "*git status*"
+            "*git diff*"
+            "*git log*"
+            "*git show*"
+          ];
+        };
+        action = "allow";
+      }
+      {
+        tool = "mcp__*";
+        action = "allow";
+      }
+      {
+        tool = "*";
+        action = "ask";
+      }
+    ];
   };
 in
 {

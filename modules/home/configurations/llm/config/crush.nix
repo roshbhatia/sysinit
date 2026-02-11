@@ -4,11 +4,11 @@
   ...
 }:
 let
-  agents = import ../agents.nix;
+  instructions = import ../instructions.nix;
   mcpServers = import ../mcp.nix { inherit lib values; };
 
   agentsMd = ''
-    ${agents.general}
+    ${instructions.general}
   '';
 
   formatMcpForCrush =

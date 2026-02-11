@@ -1,6 +1,12 @@
 let
   subagents = import ./subagents;
 
+  compressSkillDescriptions =
+    skills:
+    builtins.concatStringsSep "|" (
+      builtins.attrValues (builtins.mapAttrs (name: desc: "${name}:${desc}") skills)
+    );
+
   localSkillDescriptions = {
     beads-workflow = "task tracking, issue management, multi-step work with bd";
     lua-development = "Lua for Neovim, WezTerm, Hammerspoon, Sketchybar";
@@ -26,12 +32,6 @@ let
     writing-plans = "creating structured plans";
     writing-skills = "authoring new skills";
   };
-
-  formatSkillIndex =
-    skills:
-    builtins.concatStringsSep "\n" (
-      builtins.attrValues (builtins.mapAttrs (name: desc: "  - ${name}: ${desc}") skills)
-    );
 in
 {
   general = ''
@@ -54,6 +54,7 @@ in
     - NEVER use emojis in code
     - SHOULD NOT git commit/push unless directed; MAY stage/add and propose commit messages
     - NEVER push to main
+    - SHOULD NOT put comments on the top of files
 
     ## Git
 
@@ -88,11 +89,8 @@ in
 
     Read the SKILL.md file for full workflow details before acting on a skill.
 
-    Local (repo-specific):
-    ${formatSkillIndex localSkillDescriptions}
-
-    Remote (obra/superpowers):
-    ${formatSkillIndex remoteSkillDescriptions}
+    Local (repo-specific):|${compressSkillDescriptions localSkillDescriptions}
+    Remote (obra/superpowers):|${compressSkillDescriptions remoteSkillDescriptions}
 
     ## Context
 

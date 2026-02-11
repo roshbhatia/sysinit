@@ -4,11 +4,30 @@
   ...
 }:
 let
+  instructions = import ../instructions.nix;
   mcpServers = import ../mcp.nix { inherit lib values; };
-  mcpFormatters = import ../mcp-formatters.nix { inherit lib; };
+
+  formatMcpForClaude = builtins.mapAttrs (
+    _name: server:
+    if (server.type or "local") == "http" then
+      {
+        type = "http";
+        inherit (server) url;
+        description = server.description or "";
+        enabled = server.enabled or true;
+      }
+    else
+      {
+        inherit (server) command;
+        inherit (server) args;
+        description = server.description or "";
+        enabled = server.enabled or true;
+        env = server.env or { };
+      }
+  );
 
   claudeConfig = builtins.toJSON {
-    mcpServers = mcpFormatters.formatMcpFor "claude" mcpServers.servers;
+    mcpServers = formatMcpForClaude mcpServers.servers;
     hooks = {
       SessionStart = [
         {
@@ -33,14 +52,26 @@ let
         echo ""
     done
   '';
+
+  subagentFiles = lib.mapAttrs' (
+    name: config:
+    lib.nameValuePair ".claude/agent/${name}.md" {
+      text = instructions.formatSubagentAsMarkdown { inherit name config; };
+      force = true;
+    }
+  ) (lib.filterAttrs (n: _: n != "formatSubagentAsMarkdown") instructions.subagents);
+
 in
 {
-  xdg.configFile = {
-    "claude/claude_desktop_config.json" = {
-      text = claudeConfig;
-      force = true;
-    };
-  };
+  xdg.configFile = lib.mkMerge [
+    {
+      "claude/claude_desktop_config.json" = {
+        text = claudeConfig;
+        force = true;
+      };
+    }
+    subagentFiles
+  ];
 
   xdg.dataFile = {
     "claude/hooks/append_agentsmd_context.sh" = {

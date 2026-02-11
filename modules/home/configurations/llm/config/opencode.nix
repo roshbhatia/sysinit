@@ -7,9 +7,32 @@
 let
   disabledMcpServers = [ "beads" ];
 
-  agents = import ../agents.nix;
+  instructions = import ../instructions.nix;
   mcpServers = import ../mcp.nix { inherit lib values; };
-  formatters = import ../opencode-formatters.nix { inherit lib; };
+
+  formatMcpForOpencode =
+    disabledServers: servers:
+    builtins.mapAttrs (
+      name: server:
+      let
+        isDisabled = builtins.elem name disabledServers;
+        baseConfig =
+          if (server.type or "local") == "http" then
+            {
+              type = "remote";
+              inherit (server) url;
+            }
+            // lib.optionalAttrs (server.headers or null != null) { inherit (server) headers; }
+            // lib.optionalAttrs (server.timeout or null != null) { inherit (server) timeout; }
+          else
+            {
+              type = "local";
+              command = [ server.command ] ++ server.args;
+            }
+            // lib.optionalAttrs (server.env or { } != { }) { environment = server.env; };
+      in
+      baseConfig // { enabled = if isDisabled then false else (server.enabled or true); }
+    ) servers;
 
   opencodeConfig = {
     "$schema" = "https://opencode.ai/config.json";
@@ -17,13 +40,7 @@ let
     share = "disabled";
     theme = "system";
 
-    mcp = formatters.formatMcpForOpencode disabledMcpServers mcpServers.servers;
-
-    lsp = {
-      yaml-ls = {
-        disabled = true;
-      };
-    };
+    mcp = formatMcpForOpencode disabledMcpServers mcpServers.servers;
 
     instructions = [
       "**/.cursorrules"
@@ -45,7 +62,6 @@ let
       webfetch = "allow";
       grep = "allow";
       read = "allow";
-      lsp = "allow";
       bash = {
         # OS builtins - always allow (simple read-only tools)
         "ls*" = "allow";
@@ -110,9 +126,9 @@ let
   subagentFiles = lib.mapAttrs' (
     name: config:
     lib.nameValuePair "opencode/agent/${name}.md" {
-      text = agents.formatSubagentAsMarkdown { inherit name config; };
+      text = instructions.formatSubagentAsMarkdown { inherit name config; };
     }
-  ) (lib.filterAttrs (n: _: n != "formatSubagentAsMarkdown") agents.subagents);
+  ) (lib.filterAttrs (n: _: n != "formatSubagentAsMarkdown") instructions.subagents);
 
 in
 {
