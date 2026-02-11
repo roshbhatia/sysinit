@@ -19,6 +19,7 @@ return {
             files = {
               hidden = true,
               ignored = false,
+              follow = true, -- follow symlinks by default for files picker
             },
           },
           formatters = {
@@ -31,12 +32,17 @@ return {
                 ["<S-Tab>"] = { "list_up", mode = { "i", "n" } },
                 ["<localleader>s"] = "edit_split",
                 ["<localleader>v"] = "edit_vsplit",
+                -- prefer localleader for follow/maximize toggles (Alt/Ctrl often captured by terminals)
+                ["<localleader>f"] = { "toggle_follow", mode = { "i", "n" } },
+                ["<localleader>m"] = { "toggle_maximize", mode = { "i", "n" } },
               },
             },
             list = {
               keys = {
                 ["j"] = "list_down",
                 ["k"] = "list_up",
+                ["<localleader>f"] = "toggle_follow",
+                ["<localleader>m"] = "toggle_maximize",
               },
             },
           },
@@ -199,6 +205,7 @@ return {
           "<leader>ff",
           function()
             Snacks.picker.files({
+              follow = true,
               hidden = true,
             })
           end,
