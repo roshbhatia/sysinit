@@ -349,16 +349,16 @@ return {
         {
           "<leader>cfx",
           function()
-            Snacks.picker.qflist()
+            Snacks.picker.diagnostics()
           end,
-          desc = "Quickfix list",
+          desc = "Workspace diagnostics",
         },
         {
           "<leader>cfb",
           function()
-            Snacks.picker.loclist()
+            Snacks.picker.diagnostics({ buf = 0 })
           end,
-          desc = "Location list",
+          desc = "Buffer diagnostics",
         },
         {
           "]]",
