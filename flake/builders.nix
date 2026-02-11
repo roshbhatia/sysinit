@@ -19,7 +19,6 @@
           pkg:
           builtins.elem (nixpkgs.lib.getName pkg) [
             "_1password-gui"
-            "crush"
           ];
       };
     };

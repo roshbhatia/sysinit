@@ -23,19 +23,19 @@ local agents = {
     priority = 1,
   },
   {
-    name = "claude",
-    label = "Claude",
-    icon = "  ",
-    cmd = "claude",
-    args = { "--permission-mode", "plan" },
-    priority = 2,
-  },
-  {
     name = "goose",
     label = "Goose",
     icon = "  ",
     cmd = "goose",
     args = {},
+    priority = 2,
+  },
+  {
+    name = "claude",
+    label = "Claude",
+    icon = "  ",
+    cmd = "claude",
+    args = { "--permission-mode", "plan" },
     priority = 3,
   },
   {
@@ -61,14 +61,6 @@ local agents = {
     cmd = "copilot",
     args = { "--allow-all-paths" },
     priority = 6,
-  },
-  {
-    name = "crush",
-    label = "Crush",
-    icon = " 󱝁 ",
-    cmd = "crush",
-    args = {},
-    priority = 7,
   },
 }
 

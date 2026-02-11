@@ -38,7 +38,6 @@ let
   # AI assistant directories and files
   aiAssistantPatterns = [
     "**/.goose/"
-    "*.crush/"
     ".agents/"
     ".beads/"
     ".bv/"
@@ -48,7 +47,6 @@ let
     ".sysinit/"
     "AGENTS.md"
     "CLAUDE.md"
-    "CRUSH.md"
   ];
 
   # Development environment files

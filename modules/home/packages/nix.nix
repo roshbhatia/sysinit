@@ -34,7 +34,6 @@ let
       copilot-language-server
       coreutils
       crossplane-cli
-      crush
       cue
       cuelsp
       cupcake-cli
