@@ -12,6 +12,8 @@ let
     };
 
     gopls = {
+      command = "gopls";
+      args = [ "serve" ];
       config = {
         gofumpt = true;
         staticcheck = true;
