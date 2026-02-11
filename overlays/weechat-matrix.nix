@@ -4,40 +4,51 @@
 
 final: prev:
 let
-  # Pin to latest master branch commit
-  version = "unstable-2023-07-23";
-  rev = "feae9fda26ea9de98da9cd6733980a203115537e";
-  sha256 = "sha256-flv1XF0tZgu3qoMFfJZ2MzeHYI++t12nkq3jJkRiCQ0=";
+  # Pin to latest main branch commit (bleeding edge)
+  version = "unstable-2025-10-09";
+  rev = "4cc5777b630ba4d6a9c964248531f283178a4717";
+  sha256 = "sha256-CF4xDoRYey9F8/XSW/euNb8IjZXyP6k0Nj61shsmyEo=";
 in
 {
   weechatScripts = prev.weechatScripts // {
-    weechat-matrix = prev.weechatScripts.weechat-matrix.overrideAttrs (_old: {
+    weechat-matrix-rs = final.rustPlatform.buildRustPackage {
+      pname = "weechat-matrix-rs";
       inherit version;
 
       src = final.fetchFromGitHub {
         owner = "poljar";
-        repo = "weechat-matrix";
+        repo = "weechat-matrix-rs";
         inherit rev sha256;
       };
 
-      # Remove patches that are already applied upstream
-      patches = [ ];
+      cargoHash = "sha256-jAlBCmLJfWWAUHd3ySB930iqAVXMh6ueba7xS///Rt0=";
 
-      # Update propagatedBuildInputs to match current dependencies
-      propagatedBuildInputs = with final.python3Packages; [
-        matrix-nio
-        aiohttp
-        requests
-        python-magic
-        pillow
-        pyopenssl
-        webcolors
-        atomicwrites
-        attrs
-        pygments
-        logbook
-        cffi
+      nativeBuildInputs = with final; [
+        pkg-config
       ];
-    });
+
+      buildInputs = with final; [
+        openssl
+        sqlite
+        weechat
+      ];
+
+      postInstall = ''
+        mkdir -p $out/lib/weechat/plugins
+        ln -s $out/lib/libmatrix${final.stdenv.hostPlatform.extensions.sharedLibrary} $out/lib/weechat/plugins/matrix.so
+      '';
+
+      passthru = {
+        pluginFile = "${placeholder "out"}/lib/weechat/plugins/matrix.so";
+      };
+
+      meta = with final.lib; {
+        description = "Matrix protocol client for WeeChat written in Rust";
+        homepage = "https://github.com/poljar/weechat-matrix-rs";
+        license = licenses.isc;
+        maintainers = [ ];
+        platforms = platforms.unix;
+      };
+    };
   };
 }
