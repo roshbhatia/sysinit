@@ -2,6 +2,15 @@ return {
   {
     "folke/trouble.nvim",
     opts = {
+      win = { position = "right" },
+      modes = {
+        qflist = {
+          win = { position = "bottom" },
+        },
+        loclist = {
+          win = { position = "bottom" },
+        },
+      },
       specs = {
         "folke/snacks.nvim",
         opts = function(_, opts)
@@ -28,7 +37,7 @@ return {
       {
         "<leader>cx",
         "<cmd>Trouble diagnostics toggle<cr>",
-        desc = "Project diagnostics",
+        desc = "Workspace diagnostics",
       },
       {
         "<leader>cb",
