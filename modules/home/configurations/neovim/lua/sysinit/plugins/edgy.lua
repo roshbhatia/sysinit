@@ -22,11 +22,11 @@ return {
           filter = function(buf)
             return vim.b[buf].neo_tree_source == "filesystem"
           end,
-          size = { width = 30 },
+          size = { width = 0.3 },
         },
         {
           ft = "trouble",
-          size = { width = 30 },
+          size = { width = 0.3 },
           ---@diagnostic disable-next-line: unused-local
           filter = function(buf, win)
             return vim.w[win].trouble_type == nil or vim.w[win].trouble_type == ""
@@ -34,12 +34,7 @@ return {
         },
         {
           ft = "grug-far",
-          size = { width = 40 },
-        },
-        {
-          ft = "qf",
-          title = "QuickFix",
-          size = { width = 10 },
+          size = { width = 0.4 },
         },
       },
     },
