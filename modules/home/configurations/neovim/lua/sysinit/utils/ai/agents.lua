@@ -62,6 +62,22 @@ local agents = {
     args = { "--allow-all-paths" },
     priority = 6,
   },
+  {
+    name = "gemini",
+    label = "Gemini",
+    icon = " 󰊭 ",
+    cmd = "gemini",
+    args = {},
+    priority = 7,
+  },
+  {
+    name = "codex",
+    label = "Codex",
+    icon = " 󱗿 ",
+    cmd = "codex",
+    args = {},
+    priority = 8,
+  },
 }
 
 table.sort(agents, function(a, b)

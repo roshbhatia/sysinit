@@ -22,8 +22,10 @@ in
     ./config/amp.nix
     ./config/beads.nix
     ./config/claude.nix
+    ./config/codex.nix
     ./config/copilot-cli.nix
     ./config/cursor.nix
+    ./config/gemini.nix
     ./config/goose.nix
     ./config/opencode.nix
     ./cupcake
