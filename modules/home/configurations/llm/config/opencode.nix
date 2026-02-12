@@ -5,40 +5,16 @@
   ...
 }:
 let
-  disabledMcpServers = [ "beads" ];
-
-  instructionsLib = import ../instructions.nix;
+  llmLib = import ../lib { inherit lib; };
   mcpServers = import ../mcp.nix { inherit lib values; };
   skillsLib = import ../skills.nix { inherit pkgs; };
 
-  defaultInstructions = instructionsLib.makeInstructions {
+  disabledMcpServers = [ "beads" ];
+
+  defaultInstructions = llmLib.instructions.makeInstructions {
     inherit (skillsLib) localSkillDescriptions remoteSkillDescriptions;
     skillsRoot = "~/.config/opencode/skills";
   };
-
-  formatMcpForOpencode =
-    disabledServers: servers:
-    builtins.mapAttrs (
-      name: server:
-      let
-        isDisabled = builtins.elem name disabledServers;
-        baseConfig =
-          if (server.type or "local") == "http" then
-            {
-              type = "remote";
-              inherit (server) url;
-            }
-            // lib.optionalAttrs (server.headers or null != null) { inherit (server) headers; }
-            // lib.optionalAttrs (server.timeout or null != null) { inherit (server) timeout; }
-          else
-            {
-              type = "local";
-              command = [ server.command ] ++ server.args;
-            }
-            // lib.optionalAttrs (server.env or { } != { }) { environment = server.env; };
-      in
-      baseConfig // { enabled = if isDisabled then false else (server.enabled or true); }
-    ) servers;
 
   opencodeConfig = {
     "$schema" = "https://opencode.ai/config.json";
@@ -46,7 +22,7 @@ let
     share = "disabled";
     theme = "system";
 
-    mcp = formatMcpForOpencode disabledMcpServers mcpServers.servers;
+    mcp = llmLib.mcp.formatForOpencode disabledMcpServers mcpServers.servers;
 
     instructions = [
       "**/.cursorrules"
@@ -69,7 +45,6 @@ let
       grep = "allow";
       read = "allow";
       bash = {
-        # OS builtins - always allow (simple read-only tools)
         "ls*" = "allow";
         "cat*" = "allow";
         "pwd*" = "allow";
@@ -85,25 +60,21 @@ let
         "sort*" = "allow";
         "uniq*" = "allow";
         "cut*" = "allow";
-
-        # Tools with Cupcake validation (rego enforces safe usage)
-        "awk*" = "allow"; # Cupcake blocks dangerous patterns
-        "sed*" = "allow"; # Cupcake blocks dangerous patterns
-        "git*" = "ask"; # Cupcake allows safe read ops, OpenCode prompts for write ops
-        "bd*" = "allow"; # Cupcake validates beads operations
-        "rg*" = "allow"; # Cupcake blocks -exec/-delete flags
+        "awk*" = "allow";
+        "sed*" = "allow";
+        "git*" = "ask";
+        "bd*" = "allow";
+        "rg*" = "allow";
         "ripgrep*" = "allow";
-        "fd*" = "allow"; # Cupcake blocks -exec/-delete flags
+        "fd*" = "allow";
         "ag*" = "allow";
-        "find*" = "allow"; # Cupcake blocks -exec/-delete/-i flags
+        "find*" = "allow";
         "grep*" = "allow";
-        "ast-grep*" = "allow"; # Cupcake blocks --rewrite
-        "sg*" = "allow"; # Cupcake blocks --rewrite
-        "nix*" = "allow"; # Cupcake validates read vs write operations
-        "nix-*" = "allow"; # Cupcake validates nix-* tools
-        "task*" = "allow"; # Cupcake validates task operations
-
-        # Everything else requires user confirmation
+        "ast-grep*" = "allow";
+        "sg*" = "allow";
+        "nix*" = "allow";
+        "nix-*" = "allow";
+        "task*" = "allow";
         "*" = "ask";
       };
       skill = {
@@ -132,9 +103,9 @@ let
   subagentFiles = lib.mapAttrs' (
     name: config:
     lib.nameValuePair "opencode/agent/${name}.md" {
-      text = instructionsLib.formatSubagentAsMarkdown { inherit name config; };
+      text = llmLib.instructions.formatSubagentAsMarkdown { inherit name config; };
     }
-  ) (lib.filterAttrs (n: _: n != "formatSubagentAsMarkdown") instructionsLib.subagents);
+  ) (lib.filterAttrs (n: _: n != "formatSubagentAsMarkdown") llmLib.instructions.subagents);
 
 in
 {
@@ -145,8 +116,6 @@ in
         force = true;
       };
     }
-    # Write the formatted default instructions to AGENTS.md so editors and
-    # tools (like OpenCode) can pick them up from ~/.config/opencode/AGENTS.md
     {
       "opencode/AGENTS.md" = {
         text = defaultInstructions;

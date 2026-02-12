@@ -4,16 +4,9 @@
   ...
 }:
 let
+  llmLib = import ../lib { inherit lib; };
   mcpServers = import ../mcp.nix { inherit lib values; };
   cfg = values.llm.copilot or { };
-
-  formatMcpForCopilot =
-    mcpServers:
-    builtins.mapAttrs (_name: server: {
-      type = "stdio";
-      inherit (server) command;
-      inherit (server) args;
-    }) mcpServers;
 
   copilotConfig = builtins.toJSON {
     banner = cfg.banner or "never";
@@ -21,7 +14,7 @@ let
     screen_reader = cfg.screenReader or false;
     theme = cfg.theme or "auto";
     trusted_folders = cfg.trustedFolders or [ ];
-    mcpServers = formatMcpForCopilot mcpServers.servers;
+    mcpServers = llmLib.mcp.formatForCopilot mcpServers.servers;
   };
 in
 {

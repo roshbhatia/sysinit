@@ -58,10 +58,19 @@ let
     name: skill: pkgs.writeText "skill-${name}-SKILL.md" skill.content
   ) localSkillContent;
 
-  localSkillDescriptions = builtins.mapAttrs (name: skill: skill.description) localSkillContent;
+  localSkillDescriptions = builtins.mapAttrs (_name: skill: skill.description) localSkillContent;
 
+  allSkills = remoteSkills // localSkills;
+
+  # Generate home.file entries to install skills to a directory
+  # Returns an attrset suitable for home.file or xdg.configFile
+  installSkillsTo = _basePath: builtins.mapAttrs (_name: path: { source = path; }) allSkills;
 in
 {
-  allSkills = remoteSkills // localSkills;
-  inherit localSkillDescriptions remoteSkillDescriptions;
+  inherit
+    allSkills
+    localSkillDescriptions
+    remoteSkillDescriptions
+    installSkillsTo
+    ;
 }

@@ -4,14 +4,13 @@
   ...
 }:
 let
+  llmLib = import ../lib { inherit lib; };
   mcpServers = import ../mcp.nix { inherit lib values; };
-
-  formatPermissionsForCursor = _perms: map (cmd: "Shell(${cmd})") mcpServers.allPermissions;
 
   cursorConfig = builtins.toJSON {
     version = 1;
     permissions = {
-      allow = formatPermissionsForCursor mcpServers.allPermissions;
+      allow = llmLib.mcp.formatPermissionsForCursor mcpServers.allPermissions;
       deny = [ ];
     };
     editor = {

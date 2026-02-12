@@ -5,36 +5,17 @@
   ...
 }:
 let
-  instructionsLib = import ../instructions.nix;
+  llmLib = import ../lib { inherit lib; };
   mcpServers = import ../mcp.nix { inherit lib values; };
   skillsLib = import ../skills.nix { inherit pkgs; };
 
-  defaultInstructions = instructionsLib.makeInstructions {
+  defaultInstructions = llmLib.instructions.makeInstructions {
     inherit (skillsLib) localSkillDescriptions remoteSkillDescriptions;
     skillsRoot = "~/.claude/skills";
   };
 
-  formatMcpForClaude = builtins.mapAttrs (
-    _name: server:
-    if (server.type or "local") == "http" then
-      {
-        type = "http";
-        inherit (server) url;
-        description = server.description or "";
-        enabled = server.enabled or true;
-      }
-    else
-      {
-        inherit (server) command;
-        inherit (server) args;
-        description = server.description or "";
-        enabled = server.enabled or true;
-        env = server.env or { };
-      }
-  );
-
   claudeConfig = builtins.toJSON {
-    mcpServers = formatMcpForClaude mcpServers.servers;
+    mcpServers = llmLib.mcp.formatForClaude mcpServers.servers;
     hooks = {
       SessionStart = [
         {
@@ -63,10 +44,10 @@ let
   subagentFiles = lib.mapAttrs' (
     name: config:
     lib.nameValuePair ".claude/agent/${name}.md" {
-      text = instructionsLib.formatSubagentAsMarkdown { inherit name config; };
+      text = llmLib.instructions.formatSubagentAsMarkdown { inherit name config; };
       force = true;
     }
-  ) (lib.filterAttrs (n: _: n != "formatSubagentAsMarkdown") instructionsLib.subagents);
+  ) (lib.filterAttrs (n: _: n != "formatSubagentAsMarkdown") llmLib.instructions.subagents);
 
 in
 {
@@ -78,8 +59,6 @@ in
       };
     }
     {
-      # Provide the default instructions formatted for human consumption
-      # and for CLAUDE to pick up as CLAUDE.md in the project config dir.
       "claude/CLAUDE.md" = {
         text = defaultInstructions;
         force = true;

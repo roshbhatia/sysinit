@@ -4,18 +4,19 @@
   ...
 }:
 let
-  skills = import ./skills.nix { inherit lib pkgs; };
+  skills = import ./skills.nix { inherit pkgs; };
 
-  # Install skills to both ~/.agents/skills and ~/.claude/skills
-  agentsSkillFiles = lib.mapAttrs' (
-    name: path: lib.nameValuePair ".agents/skills/${name}/SKILL.md" { source = path; }
-  ) skills.allSkills;
-
+  # Claude Code standard path - most tools can read from here
   claudeSkillFiles = lib.mapAttrs' (
     name: path: lib.nameValuePair ".claude/skills/${name}/SKILL.md" { source = path; }
   ) skills.allSkills;
 
-  skillFiles = agentsSkillFiles // claudeSkillFiles;
+  # OpenCode native path (also reads from .claude/skills but this is primary)
+  opencodeSkillFiles = lib.mapAttrs' (
+    name: path: lib.nameValuePair ".config/opencode/skills/${name}/SKILL.md" { source = path; }
+  ) skills.allSkills;
+
+  skillFiles = claudeSkillFiles // opencodeSkillFiles;
 in
 {
   imports = [
