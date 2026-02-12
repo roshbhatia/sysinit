@@ -10,11 +10,6 @@ M.locked_mode = false
 local EDITORS = { "nvim", "vim", "hx" }
 local COMMON_MODS = { "CTRL", "SUPER" }
 
--- Helper: Check if current process is goose
-local function is_goose(pane)
-  return utils.get_process_name(pane) == "goose"
-end
-
 -- Create a smart keybind that respects locked mode and passthrough processes
 local function create_smart_keybind(key, mods, wezterm_action, opts)
   return {
@@ -48,20 +43,6 @@ local function create_multi_mod_bindings(key, action_fn, mod_list)
     table.insert(bindings, create_smart_keybind(key, mods, action_fn(mods)))
   end
   return bindings
-end
-
-local function get_goose_keys()
-  return {
-    {
-      key = "Enter",
-      mods = "SHIFT",
-      action = wezterm.action_callback(function(win, pane)
-        if not M.locked_mode and is_goose(pane) then
-          win:perform_action({ SendKey = { key = "j", mods = "CTRL" } }, pane)
-        end
-      end),
-    },
-  }
 end
 
 local function get_pane_keys()
@@ -201,8 +182,7 @@ function M.setup(config)
     get_scroll_keys(),
     get_search_keys(),
     get_tab_keys(),
-    get_window_keys(),
-    get_goose_keys()
+    get_window_keys()
   )
 
   -- Add locked mode toggle
