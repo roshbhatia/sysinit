@@ -2,31 +2,38 @@ return {
   {
     "folke/edgy.nvim",
     event = "VeryLazy",
-    init = function()
-      vim.opt.laststatus = 3
-      vim.opt.splitkeep = "screen"
-    end,
     opts = {
       animate = {
         enabled = false,
       },
+      exit_when_last = true,
       keys = {
         ["q"] = function(win)
-          win:close()
+          win:hide()
         end,
+        ["<c-q>"] = false,
+        ["Q"] = false,
+        ["]w"] = false,
+        ["[w"] = false,
+        ["]W"] = false,
+        ["[W"] = false,
+        ["<c-w>>"] = false,
+        ["<c-w><lt>"] = false,
+        ["<c-w>+"] = false,
+        ["<c-w>-"] = false,
+        ["<c-w>="] = false,
       },
       left = {
         {
-          title = "Neo-Tree",
           ft = "neo-tree",
           filter = function(buf)
             return vim.b[buf].neo_tree_source == "filesystem"
           end,
-          size = { width = 0.3 },
+          size = { width = 0.275 },
         },
         {
           ft = "trouble",
-          size = { width = 0.3 },
+          size = { width = 0.275 },
           ---@diagnostic disable-next-line: unused-local
           filter = function(buf, win)
             return vim.w[win].trouble_type == nil or vim.w[win].trouble_type == ""
@@ -35,6 +42,15 @@ return {
         {
           ft = "grug-far",
           size = { width = 0.4 },
+        },
+      },
+      right = {
+        {
+          ft = "help",
+          size = { width = 0.5 },
+          filter = function(buf)
+            return vim.bo[buf].buftype == "help"
+          end,
         },
       },
     },
