@@ -1,6 +1,7 @@
 {
   lib,
   values,
+  pkgs,
   ...
 }:
 let
@@ -38,4 +39,8 @@ in
       force = true;
     };
   };
+
+  home.packages = with pkgs; [
+    goose-cli
+  ];
 }

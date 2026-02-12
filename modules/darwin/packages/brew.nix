@@ -20,7 +20,6 @@ let
   baseBrews = [
     "bashdb"
     "bcrypt"
-    "block-goose-cli"
     "ctags"
     "hashicorp/tap/terraform"
     "libgit2@1.8"

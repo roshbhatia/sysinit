@@ -528,4 +528,8 @@ in
     }
     subagentFiles
   ];
+
+  home.packages = with pkgs; [
+    opencode
+  ];
 }
