@@ -48,4 +48,8 @@ in
       force = true;
     };
   };
+
+  home.packages = with pkgs; [
+    crush
+  ];
 }
