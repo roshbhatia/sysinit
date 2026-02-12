@@ -29,7 +29,6 @@
     ./tmux.nix
     ./utils
     ./vivid.nix
-    ./weechat
     ./wezterm
     ./yazi
     ./zoxide.nix
