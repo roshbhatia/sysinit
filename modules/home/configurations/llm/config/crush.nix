@@ -33,6 +33,12 @@ let
 
   crushSettings = {
     mcp = formatMcpForCrush mcpServers.servers;
+    options = {
+      initialize_as = "AGENTS.md";
+      trailer_style = "none";
+      generated_with = false;
+      disable_metrics = true;
+    };
   };
 
   crushConfig = builtins.toJSON crushSettings;
