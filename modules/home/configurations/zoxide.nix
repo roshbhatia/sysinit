@@ -14,14 +14,12 @@
   home.sessionVariables = {
     _ZO_FZF_OPTS = builtins.concatStringsSep " " (
       [
-        "--multi"
         "--bind=ctrl-d:half-page-down"
-        "--bind=ctrl-f:jump,jump:toggle"
+        "--bind=ctrl-f:jump,jump:accept"
         "--bind=ctrl-k:toggle-preview"
         "--bind=ctrl-u:half-page-up"
         "--bind=resize:refresh-preview"
         "--bind=shift-tab:up"
-        "--bind=space:toggle"
         "--bind=tab:down"
         "--border=none"
         "--gutter=' '"
