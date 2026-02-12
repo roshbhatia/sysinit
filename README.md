@@ -86,7 +86,6 @@ task: Available tasks for this project:
 | Variable | Default | Description |
 |----------|---------|-------------|
 | `SYSINIT_DEBUG` | `false` | Enable debugging for zsh/nu/nvim |
-| `SYSINIT_MACCHINA_THEME` | `rosh` | Macchina theme name |
 
 <!-- VALUES_SCHEMA_START -->
 

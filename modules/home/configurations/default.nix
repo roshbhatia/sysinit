@@ -20,7 +20,6 @@
     ./k9s.nix
     ./kubectl.nix
     ./llm
-    ./macchina
     ./neovim
     ./nh.nix
     ./nushell.nix

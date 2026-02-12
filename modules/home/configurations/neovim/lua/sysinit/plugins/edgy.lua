@@ -29,7 +29,7 @@ return {
           filter = function(buf)
             return vim.b[buf].neo_tree_source == "filesystem"
           end,
-          size = { width = 0.2625 },
+          size = { width = 0.2585 },
         },
         {
           ft = "trouble",

@@ -97,7 +97,6 @@ let
       lua-language-server
       lua54Packages.cjson
       luajit
-      macchina
       meld
       mermaid-cli
       mods
