@@ -20,15 +20,15 @@ local agents = {
     icon = "  ",
     cmd = "crush",
     args = {},
-    priority = 0,
   },
   {
     name = "opencode",
     label = "OpenCode",
     icon = "  ",
     cmd = "opencode",
-    args = {},
-    priority = 1,
+    args = {
+      "--continue",
+    },
   },
   {
     name = "goose",
@@ -36,7 +36,6 @@ local agents = {
     icon = "  ",
     cmd = "goose",
     args = {},
-    priority = 2,
   },
   {
     name = "claude",
@@ -44,7 +43,6 @@ local agents = {
     icon = "  ",
     cmd = "claude",
     args = { "--permission-mode", "plan" },
-    priority = 3,
   },
   {
     name = "amp",
@@ -52,7 +50,6 @@ local agents = {
     icon = " 󰫤 ",
     cmd = "amp",
     args = { "--ide" },
-    priority = 4,
   },
   {
     name = "cursor",
@@ -60,7 +57,6 @@ local agents = {
     icon = "  ",
     cmd = "cursor-agent",
     args = {},
-    priority = 5,
   },
   {
     name = "copilot",
@@ -68,7 +64,6 @@ local agents = {
     icon = "  ",
     cmd = "copilot",
     args = { "--allow-all-paths" },
-    priority = 6,
   },
   {
     name = "gemini",
@@ -76,7 +71,6 @@ local agents = {
     icon = " 󰊭 ",
     cmd = "gemini",
     args = {},
-    priority = 7,
   },
   {
     name = "codex",
@@ -84,12 +78,11 @@ local agents = {
     icon = " 󱗿 ",
     cmd = "codex",
     args = {},
-    priority = 8,
   },
 }
 
 table.sort(agents, function(a, b)
-  return (a.priority or 999) < (b.priority or 999)
+  return a.name < b.name
 end)
 
 function M.get_all()
