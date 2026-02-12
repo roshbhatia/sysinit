@@ -222,9 +222,7 @@ function M.show(term_data)
     return nil
   end
 
-  -- Check if tmux session still exists
   if not base.tmux_session_exists(term_data.session_name) then
-    vim.notify("Tmux session no longer exists: " .. term_data.session_name, vim.log.levels.WARN)
     return nil
   end
 
