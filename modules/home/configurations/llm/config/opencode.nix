@@ -22,8 +22,10 @@ let
     share = "disabled";
     theme = "system";
 
-    scroll_acceleration = {
-      enabled = true;
+    tui = {
+      scroll_acceleration = {
+        enabled = true;
+      };
     };
 
     mcp = llmLib.mcp.formatForOpencode disabledMcpServers mcpServers.servers;
