@@ -33,6 +33,12 @@ function M.pick_agent()
     items = items,
     layout = "vscode",
     preview = false,
+    format = function(item, _)
+      return {
+        { item.icon .. " ", "SnacksPickerIcon" },
+        { item.label },
+      }
+    end,
     confirm = function(picker, item)
       picker:close()
       if item then

@@ -11,12 +11,7 @@ let
     name: path: lib.nameValuePair ".claude/skills/${name}/SKILL.md" { source = path; }
   ) skills.allSkills;
 
-  # OpenCode native path (also reads from .claude/skills but this is primary)
-  opencodeSkillFiles = lib.mapAttrs' (
-    name: path: lib.nameValuePair ".config/opencode/skills/${name}/SKILL.md" { source = path; }
-  ) skills.allSkills;
-
-  skillFiles = claudeSkillFiles // opencodeSkillFiles;
+  skillFiles = claudeSkillFiles;
 in
 {
   imports = [

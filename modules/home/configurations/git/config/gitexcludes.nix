@@ -42,11 +42,14 @@ let
     ".beads/"
     ".bv/"
     ".claude/"
+    ".gemini/"
     ".goose/"
     ".goosehints"
+    ".openspec/"
     ".sysinit/"
     "AGENTS.md"
     "CLAUDE.md"
+    "GEMINI.md"
   ];
 
   # Development environment files

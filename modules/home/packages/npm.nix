@@ -10,6 +10,7 @@ let
 
   packages = [
     "@beads/bd"
+    "@fission-ai/openspec"
   ]
   ++ (values.npm.additionalPackages or [ ]);
 in
