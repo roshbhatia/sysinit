@@ -55,6 +55,13 @@ return {
         sort_case_insensitive = true,
         auto_clean_after_session_restore = true,
         sources = { "filesystem" },
+        open_files_do_not_replace_types = {
+          "Trouble",
+          "edgy",
+          "grug-far",
+          "qf",
+          "terminal",
+        },
         default_component_configs = {
           indent = {
             with_expanders = true,

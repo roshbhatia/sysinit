@@ -2,7 +2,7 @@ return {
   {
     "folke/trouble.nvim",
     opts = {
-      win = { position = "right" },
+      win = { position = "left" },
       modes = {
         qflist = {
           win = { position = "bottom" },

@@ -1,4 +1,3 @@
--- WezTerm backend implementation with tmux persistence
 local M = {}
 
 local base = require("sysinit.utils.ai.backends.base")
