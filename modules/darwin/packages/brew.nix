@@ -9,7 +9,6 @@ let
     "charmbracelet/tap"
     "hashicorp/tap"
     "jakehilborn/jakehilborn"
-    "mediosz/tap"
     "noahgorstein/tap"
     "osx-cross/arm"
     "osx-cross/avr"
@@ -43,7 +42,6 @@ let
     "font-symbols-only-nerd-font"
     "hammerspoon"
     "handy"
-    "mediosz/tap/swipeaerospace"
     "raycast"
     "slack"
   ];
