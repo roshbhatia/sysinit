@@ -82,6 +82,7 @@ let
       jqp
       jsonld-cli
       k9s
+      kind
       krew
       kube-linter
       kubecolor
