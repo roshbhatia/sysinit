@@ -20,6 +20,7 @@ in
     ./config/claude.nix
     ./config/codex.nix
     ./config/copilot-cli.nix
+    ./config/crush.nix
     ./config/cursor.nix
     ./config/gemini.nix
     ./config/goose.nix

@@ -15,6 +15,14 @@ end
 
 local agents = {
   {
+    name = "crush",
+    label = "Crush",
+    icon = "  ",
+    cmd = "crush",
+    args = {},
+    priority = 0,
+  },
+  {
     name = "opencode",
     label = "OpenCode",
     icon = "  ",

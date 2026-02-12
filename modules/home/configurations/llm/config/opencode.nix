@@ -488,7 +488,6 @@ let
 
     plugin = [
       "@bastiangx/opencode-unmoji"
-      "opencode-agent-skills"
       "opencode-handoff"
       "opencode-plugin-openspec"
     ];
