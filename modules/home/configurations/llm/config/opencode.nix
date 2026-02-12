@@ -12,7 +12,7 @@ let
   disabledMcpServers = [ "beads" ];
 
   defaultInstructions = llmLib.instructions.makeInstructions {
-    inherit (skillsLib) localSkillDescriptions remoteSkillDescriptions;
+    inherit (skillsLib) localSkillDescriptions;
     skillsRoot = "~/.config/opencode/skills";
   };
 
@@ -490,7 +490,6 @@ let
 
     plugin = [
       "@bastiangx/opencode-unmoji"
-      "@pantheon-ai/opencode-warcraft-notifications"
       "opencode-agent-skills"
       "opencode-handoff"
       "opencode-plugin-openspec"

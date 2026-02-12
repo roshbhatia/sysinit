@@ -280,55 +280,6 @@ export default async function SysinitSpecPlugin({ client, $, worktree, directory
       if (beadsWatcher) {
         beadsWatcher.close()
       }
-    },
-
-    // Tools
-    tool: {
-      // /plan - Create OpenSpec PRD
-      plan: async (args, context) => {
-        const featureName = args?.featureName || args?.[0]
-        
-        if (!featureName) {
-          return "Usage: /plan <feature-name>\nExample: /plan user-authentication"
-        }
-        
-        try {
-          // Check if beads is initialized, init if not
-          const fs = await import('fs')
-          const path = await import('path')
-          const beadsDir = path.join(worktree, '.beads')
-          
-          if (!fs.existsSync(beadsDir)) {
-            console.log('Beads not initialized, running bd init...')
-            await $`bd init`.quiet()
-            await client.app.notify({
-              title: 'SysinitSpec',
-              message: 'Beads initialized for this project'
-            })
-          }
-          
-          // Create OpenSpec feature
-          await $`openspec create-feature ${featureName} --template standard`.quiet()
-          
-          const specPath = path.join(worktree, '.openspec', 'features', featureName, 'spec.md')
-          
-          // Open spec for user review
-          await client.editor.openFile({
-            filePath: specPath,
-            create: true
-          })
-          
-          await client.app.notify({
-            title: 'SysinitSpec',
-            message: `Created PRD for "${featureName}". Review and save to proceed.`
-          })
-          
-          return `Created PRD at ${specPath}`
-        } catch (error) {
-          console.error('Failed to create PRD:', error)
-          throw new Error(`Failed to create PRD: ${error.message}`)
-        }
-      }
     }
   }
 }

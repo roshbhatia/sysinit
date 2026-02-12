@@ -10,7 +10,7 @@ let
   skillsLib = import ../skills.nix { inherit pkgs; };
 
   defaultInstructions = llmLib.instructions.makeInstructions {
-    inherit (skillsLib) localSkillDescriptions remoteSkillDescriptions;
+    inherit (skillsLib) localSkillDescriptions;
     skillsRoot = "~/.claude/skills";
   };
 

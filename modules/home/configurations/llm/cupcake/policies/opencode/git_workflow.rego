@@ -76,3 +76,21 @@ ask contains decision if {
         "severity": "MEDIUM"
     }
 }
+
+# Block committing gitignored directories
+deny contains decision if {
+    input.tool_name == "Bash"
+    command := input.tool_input.command
+    
+    contains(command, "git add")
+    
+    gitignored_dirs := ["openspec/", ".opencode/", ".claude/", ".sysinit/"]
+    some dir in gitignored_dirs
+    contains(command, dir)
+    
+    decision := {
+        "rule_id": "GIT_IGNORED_DIR",
+        "reason": sprintf("Attempting to commit gitignored directory: %s. These directories should not be committed to git.", [dir]),
+        "severity": "HIGH"
+    }
+}

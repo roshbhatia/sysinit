@@ -12,12 +12,10 @@ let
   makeInstructions =
     {
       localSkillDescriptions,
-      remoteSkillDescriptions,
       skillsRoot ? "~/.agents/skills",
     }:
     let
       localSkills = formatSkills localSkillDescriptions;
-      remoteSkills = formatSkills remoteSkillDescriptions;
 
       sections = {
         preamble = ''
@@ -77,8 +75,7 @@ let
 
         skills = ''
           ## Skills|${skillsRoot}
-          ${if localSkills != "" then "Local·${localSkills}" else ""}
-          ${if remoteSkills != "" then "Remote·${remoteSkills}" else ""}
+          ${localSkills}
         '';
 
         sysinitSpec = ''

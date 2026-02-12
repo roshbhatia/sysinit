@@ -8,7 +8,7 @@
 
   ## Overview
 
-  All new features begin with a Product Requirement Document (PRD). The PRD is created from a template, reviewed by the user, and explicitly approved before any implementation begins. This prevents scope creep and ensures shared understanding.
+  All new features begin with a Product Requirement Document (PRD). Use the OpenSpec tool to create PRDs from a template, review with the user, and explicitly approve before implementation. This prevents scope creep and ensures shared understanding.
 
   ## When to Use
 
@@ -24,17 +24,43 @@
   - Configuration tweaks
   - Refactoring with well-defined scope
 
-  ## PRD Creation
+  ## PRD Creation with OpenSpec
 
-  1. Use the template from https://github.com/opulo-inc/prd-template/blob/main/prd.md
-  2. Do not make assumptions on feature scope -- use what the user has said verbatim
-  3. Save the PRD to `.sysinit/<prdname>.md`
+  1. Use the `plan` tool: `plan <feature-name>` (e.g., `plan user-authentication`)
+  2. The tool will:
+     - Initialize beads if not already initialized
+     - Create OpenSpec feature with standard template
+     - Open the spec for your review
+  3. PRD is saved to `openspec/features/<feature-name>/spec.md`
+  4. Review and edit the spec - do not proceed until explicitly approved
+
+  ## Beads Integration
+
+  After PRD approval:
+
+  1. Create beads task linked to the spec:
+     ```
+     bd create "Implement <feature-name>" --external-ref openspec:<feature-name> --type feature
+     ```
+  2. The SysinitSpec plugin provides bidirectional sync:
+     - OpenCode todos automatically sync to beads tasks
+     - Beads task updates sync back to OpenCode todos
+     - Conflict resolution: last-write-wins with timestamps
+  3. If sync is not automatic, manually ensure todos and beads tasks stay in sync
+
+  ## Todo Syncing
+
+  The plugin attempts automatic bidirectional sync, but verify:
+
+  - When you create a todo in OpenCode, check `bd list` shows the task
+  - When you close a beads task, verify the todo is marked complete
+  - If they get out of sync, manually update with matching `--external-ref` links
 
   ## The `.sysinit/` Directory
 
   - Located at project root
   - Globally gitignored -- contents are never committed
-  - Used for PRDs, lessons learned, and scratch work
+  - Used for lessons learned and scratch work
   - Check for `.sysinit/lessons.md` at session start for prior context
 
   ## Approval Gate
@@ -63,6 +89,8 @@
   ## Critical Rules
 
   - NEVER check in the `.sysinit/` folder or any of its contents into git
+  - NEVER check in `openspec/` folder into git (it is gitignored)
+  - NEVER check in `.opencode/` or `.claude/` folders into git
   - NEVER check in any gitignored files unless specifically told otherwise
   - NEVER proceed to implementation without explicit PRD approval
   - Use the user's words verbatim in the PRD, do not embellish or assume
