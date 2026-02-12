@@ -49,7 +49,7 @@ in
     };
   };
 
-  home.packages = with pkgs; [
-    crush
-  ];
+  # home.packages = with pkgs; [
+  #   crush
+  # ];
 }
