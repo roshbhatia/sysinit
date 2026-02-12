@@ -28,16 +28,6 @@ let
 
         core = ''
           ## Core
-          - MUST be concise and clear in communication
-          - MUST understand project scope and tech stack before execution
-          - MUST fix errors proactively and clarify stack assumptions
-          - MUST read context files and documentation first
-          - MUST start code with path/filename and include purpose comments
-          - MUST apply modularity, DRY, performance, security principles
-          - MUST finish one file before starting another
-          - MUST use astgrep over internal tools for file exploration/editing
-          - NEVER create ad-hoc documentation; MAY create human-standard documentation
-          - NEVER use emojis in code
           - SHOULD NOT git commit/push unless directed; MAY stage/add and propose commit messages
           - NEVER push to main
         '';
@@ -53,7 +43,6 @@ let
           ## Operating Principles
           - Minimize blast radius; no adjacent refactors unless risk-reducing
           - Be explicit about uncertainty; propose safety steps when verification is impossible
-          - Use subagents for parallel exploration, merge outputs before coding
           - Thin vertical slices over big-bang changes
           - Stop immediately if new information invalidates the plan
         '';
@@ -71,7 +60,6 @@ let
           - No `any` or type suppressions unless explicitly permitted
           - No new dependencies if existing stack suffices
           - Sanitize all user inputs
-          - Fix N+1 patterns and unbounded loops; no premature optimization
           - Correctness over cleverness; prefer boring, readable solutions
         '';
 

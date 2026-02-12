@@ -67,8 +67,6 @@ in
 
   neovim-unwrapped = inputs.neovim-nightly-overlay.packages.${system}.default;
 
-  cupcake-cli = inputs.cupcake.packages.${system}.cupcake-cli;
-
   kubernetes-zeitgeist = final.buildGoModule rec {
     pname = "kubernetes-zeitgeist";
     version = "0.5.3";

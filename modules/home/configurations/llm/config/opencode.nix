@@ -439,9 +439,7 @@ let
 
         # Docker/podman (ask)
         "docker*" = "ask";
-        "podman*" = "ask";
         "docker-compose*" = "ask";
-        "podman-compose*" = "ask";
 
         # Kubernetes (ask)
         "kubectl*" = "ask";

@@ -36,7 +36,6 @@ let
       crossplane-cli
       cue
       cuelsp
-      cupcake-cli
       curl
       cursor-cli
       deadnix
