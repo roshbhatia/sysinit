@@ -188,7 +188,6 @@ return {
           null_ls.builtins.diagnostics.actionlint,
           null_ls.builtins.diagnostics.checkmake,
           null_ls.builtins.diagnostics.deadnix,
-          null_ls.builtins.diagnostics.golangci_lint,
           null_ls.builtins.diagnostics.kube_linter,
           null_ls.builtins.diagnostics.staticcheck,
           null_ls.builtins.diagnostics.terraform_validate,
