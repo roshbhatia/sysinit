@@ -32,12 +32,34 @@ let
     ) servers;
 
   crushSettings = {
+    "$schema" = "https://charm.land/crush.json";
     mcp = formatMcpForCrush mcpServers.servers;
+    tools = {
+      ls = { };
+      grep = { };
+    };
+    permissions = {
+      allowed_tools = [
+        "view"
+        "beads"
+        "openspec"
+        "ls"
+        "ripgrep"
+        "fd"
+        "ast-grep"
+      ];
+    };
     options = {
-      initialize_as = "AGENTS.md";
-      trailer_style = "none";
-      generated_with = false;
+      disabled_tools = [
+        "find"
+        "grep"
+      ];
       disable_metrics = true;
+      attribution = {
+        generated_with = false;
+        trailer_style = "none";
+      };
+      initialize_as = "AGENTS.md";
     };
   };
 
