@@ -40,16 +40,16 @@ let
     "**/.goose/"
     ".agents/"
     ".beads/"
-    ".bv/"
     ".claude/"
     ".gemini/"
     ".goose/"
     ".goosehints"
-    ".openspec/"
+    ".opencode/"
     ".sysinit/"
     "AGENTS.md"
     "CLAUDE.md"
     "GEMINI.md"
+    "openspec/"
   ];
 
   # Development environment files

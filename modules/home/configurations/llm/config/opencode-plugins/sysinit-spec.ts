@@ -2,7 +2,6 @@
 // Provides bidirectional sync between OpenCode todos and beads tasks
 // Auto-detects planning intent and generates OpenSpec PRDs
 
-import { tool } from "@opencode-ai/plugin"
 import { watch } from "fs"
 import { readFile } from "fs/promises"
 import { join } from "path"
@@ -105,8 +104,20 @@ async function syncBeadsToOpenCode(task, client) {
 }
 
 // Watch beads database for changes
-function watchBeadsDatabase($, client, worktree) {
+async function watchBeadsDatabase($, client, worktree) {
   const beadsDir = join(worktree, '.beads')
+
+  // Check if beads directory exists before watching
+  try {
+    const fs = await import('fs')
+    if (!fs.existsSync(beadsDir)) {
+      console.log('Beads not initialized - skipping watcher')
+      return null
+    }
+  } catch (error) {
+    console.error('Failed to check beads directory:', error)
+    return null
+  }
 
   try {
     const watcher = watch(beadsDir, { recursive: true }, async (eventType, filename) => {
@@ -140,9 +151,9 @@ function watchBeadsDatabase($, client, worktree) {
 }
 
 // Main plugin export
-export const SysinitSpecPlugin = async ({ client, $, worktree, directory }) => {
+export default async function SysinitSpecPlugin({ client, $, worktree, directory }) {
   // Setup bidirectional sync
-  const beadsWatcher = watchBeadsDatabase($, client, worktree)
+  const beadsWatcher = await watchBeadsDatabase($, client, worktree)
 
   return {
     // Auto-detect planning intent and create OpenSpec PRD
@@ -240,7 +251,6 @@ export const SysinitSpecPlugin = async ({ client, $, worktree, directory }) => {
         if (lastSync.get(remindedKey)) return
 
         // Get task scope from description or labels
-        const scope = currentTask.description?.match(/scope:\s*([^\n]+)/)?.[1]
         const scopeLabels = currentTask.labels?.filter(l => l.startsWith('scope:')) || []
 
         // Check if file is in scope
@@ -270,9 +280,55 @@ export const SysinitSpecPlugin = async ({ client, $, worktree, directory }) => {
       if (beadsWatcher) {
         beadsWatcher.close()
       }
+    },
+
+    // Tools
+    tool: {
+      // /plan - Create OpenSpec PRD
+      plan: async (args, context) => {
+        const featureName = args?.featureName || args?.[0]
+        
+        if (!featureName) {
+          return "Usage: /plan <feature-name>\nExample: /plan user-authentication"
+        }
+        
+        try {
+          // Check if beads is initialized, init if not
+          const fs = await import('fs')
+          const path = await import('path')
+          const beadsDir = path.join(worktree, '.beads')
+          
+          if (!fs.existsSync(beadsDir)) {
+            console.log('Beads not initialized, running bd init...')
+            await $`bd init`.quiet()
+            await client.app.notify({
+              title: 'SysinitSpec',
+              message: 'Beads initialized for this project'
+            })
+          }
+          
+          // Create OpenSpec feature
+          await $`openspec create-feature ${featureName} --template standard`.quiet()
+          
+          const specPath = path.join(worktree, '.openspec', 'features', featureName, 'spec.md')
+          
+          // Open spec for user review
+          await client.editor.openFile({
+            filePath: specPath,
+            create: true
+          })
+          
+          await client.app.notify({
+            title: 'SysinitSpec',
+            message: `Created PRD for "${featureName}". Review and save to proceed.`
+          })
+          
+          return `Created PRD at ${specPath}`
+        } catch (error) {
+          console.error('Failed to create PRD:', error)
+          throw new Error(`Failed to create PRD: ${error.message}`)
+        }
+      }
     }
   }
 }
-
-// Export as default for plugin loading
-export default SysinitSpecPlugin
