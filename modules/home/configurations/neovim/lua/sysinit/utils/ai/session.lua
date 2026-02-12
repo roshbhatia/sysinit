@@ -141,7 +141,7 @@ function M.focus(termname)
   active_terminal = termname
 end
 
--- Hide a terminal (closes visible UI, no persistence)
+-- Hide a terminal (closes visible UI)
 -- @param termname string: Terminal name
 function M.hide(termname)
   local term_data = terminals[termname]
@@ -151,31 +151,10 @@ function M.hide(termname)
   end
 
   backend.hide(term_data)
-end
-
--- Show a hidden terminal (reattach to tmux session)
--- @param termname string: Terminal name
-function M.show(termname)
-  local term_data = terminals[termname]
-
-  if not term_data or not backend then
-    vim.notify(string.format("Terminal not found: %s", termname), vim.log.levels.WARN)
-    return
-  end
-
-  -- Delegate to backend.show() which reattaches to the tmux session
-  if backend.show then
-    local updated = backend.show(term_data)
-    if updated then
-      terminals[termname] = updated
-      active_terminal = termname
-      return
-    end
-  end
-
-  -- Fallback: session gone or backend doesn't support show, reopen
   terminals[termname] = nil
-  M.open(termname)
+  if active_terminal == termname then
+    active_terminal = nil
+  end
 end
 
 -- Check if terminal is visible
@@ -189,20 +168,14 @@ function M.is_visible(termname)
   return backend.is_visible(term_data)
 end
 
--- Check if terminal is tracked (has session data, may or may not be visible)
+-- Check if terminal is tracked
 -- @param termname string: Terminal name
--- @return boolean: True if tracked with a live tmux session
+-- @return boolean: True if tracked and visible
 function M.is_tracked(termname)
   local term_data = terminals[termname]
   if not term_data then
     return false
   end
-  -- If we have a session_name, check if the tmux session is still alive
-  if term_data.session_name then
-    local base = require("sysinit.utils.ai.backends.base")
-    return base.tmux_session_exists(term_data.session_name)
-  end
-  -- No session_name means no persistence, fall back to visibility
   if backend then
     return backend.is_visible(term_data)
   end
@@ -298,7 +271,7 @@ function M.close(termname)
   end
 end
 
--- Kill a terminal session completely (kills tmux session)
+-- Kill a terminal completely
 -- @param termname string: Terminal name
 function M.kill_session(termname)
   local term_data = terminals[termname]
@@ -307,11 +280,7 @@ function M.kill_session(termname)
     return
   end
 
-  if backend.kill_session then
-    backend.kill_session(term_data)
-  else
-    backend.kill(term_data)
-  end
+  backend.kill(term_data)
 
   terminals[termname] = nil
   if active_terminal == termname then
@@ -342,21 +311,17 @@ function M.set_active(termname)
   end
 end
 
--- Activate a terminal (open if needed, show if hidden, focus if visible)
+-- Activate a terminal (open if needed, focus if visible)
 -- @param termname string: Terminal name
 function M.activate(termname)
   local term_data = terminals[termname]
 
-  if not term_data then
+  if not term_data or not backend or not backend.is_visible(term_data) then
     M.open(termname)
   else
-    if backend and backend.is_visible(term_data) then
-      M.focus(termname)
-    else
-      M.show(termname)
-    end
-    active_terminal = termname
+    M.focus(termname)
   end
+  active_terminal = termname
 end
 
 -- Send text to the active terminal
@@ -388,12 +353,7 @@ function M.ensure_active_and_send(text)
       M.send(active_terminal, text, { submit = true })
     end
   else
-    if backend and not backend.is_visible(terminals[active_terminal]) then
-      M.show(active_terminal)
-      vim.fn.system("sleep 0.1")
-    else
-      M.focus(active_terminal)
-    end
+    M.focus(active_terminal)
     M.send(active_terminal, text, { submit = true })
   end
 end

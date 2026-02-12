@@ -1,6 +1,5 @@
 local M = {}
 
-local base = require("sysinit.utils.ai.backends.base")
 local config = {}
 local parent_pane_id = nil
 
@@ -99,10 +98,8 @@ function M.setup(opts)
   end
 end
 
--- Delegate session naming and lookup to base module for consistent short names
-
--- Open a new terminal in a WezTerm pane with tmux persistence
--- @param termname string: Terminal name (for tmux session naming)
+-- Open a new terminal in a WezTerm pane
+-- @param termname string: Terminal name
 -- @param agent_config table: Agent configuration
 -- @param cwd string: Working directory
 -- @return table|nil: Terminal data or nil on failure
@@ -110,14 +107,6 @@ function M.open(termname, agent_config, cwd)
   if not parent_pane_id then
     vim.notify("Cannot spawn AI terminal: parent pane ID not available", vim.log.levels.ERROR)
     return nil
-  end
-
-  -- Check for existing tmux session
-  local session_name = base.find_existing_session(termname, cwd)
-  local is_new_session = not session_name
-
-  if not session_name then
-    session_name = base.get_session_name(termname, cwd)
   end
 
   -- Build environment setup
@@ -130,27 +119,15 @@ function M.open(termname, agent_config, cwd)
     env_str = env_str .. string.format("export NVIM_SOCKET_PATH=%s; ", vim.fn.shellescape(vim.env.NVIM_SOCKET_PATH))
   end
 
-  -- Build tmux command
-  local tmux_cmd
-  if is_new_session then
-    tmux_cmd = string.format(
-      "tmux new-session -s %s -c %s 'tmux set-option -t %s status off; %s%s'",
-      vim.fn.shellescape(session_name),
-      vim.fn.shellescape(cwd),
-      vim.fn.shellescape(session_name),
-      env_str,
-      agent_config.cmd
-    )
-  else
-    tmux_cmd = string.format("tmux attach-session -t %s", vim.fn.shellescape(session_name))
-  end
+  -- Build command with environment variables
+  local full_cmd = env_str .. agent_config.cmd
 
-  -- Spawn wezterm pane with tmux command
+  -- Spawn wezterm pane
   local spawn_cmd = string.format(
-    "wezterm cli split-pane --pane-id %d --right --percent 50 --cwd %s -- %s 2>/dev/null",
+    "wezterm cli split-pane --pane-id %d --right --percent 50 --cwd %s -- sh -c %s 2>/dev/null",
     parent_pane_id,
     vim.fn.shellescape(cwd),
-    tmux_cmd
+    vim.fn.shellescape(full_cmd)
   )
 
   local result = vim.fn.system(spawn_cmd)
@@ -173,9 +150,9 @@ function M.open(termname, agent_config, cwd)
 
   return {
     pane_id = pane_id,
-    session_name = session_name,
     cmd = agent_config.cmd,
     cwd = cwd,
+    name = termname,
   }
 end
 
@@ -191,7 +168,7 @@ function M.focus(term_data)
   return true
 end
 
--- Hide a terminal (close pane, keep tmux session running)
+-- Hide a terminal (close pane)
 -- @param term_data table: Terminal data
 function M.hide(term_data)
   if not term_data.pane_id then
@@ -203,7 +180,6 @@ function M.hide(term_data)
     return
   end
 
-  -- Just kill the pane - tmux session stays alive
   kill_pane(term_data.pane_id)
   term_data.pane_id = nil
 
@@ -212,51 +188,11 @@ function M.hide(term_data)
   end
 end
 
--- Show a hidden terminal (reattach to tmux session in new pane)
+-- Show a hidden terminal (not supported - need to reopen)
 -- @param term_data table: Terminal data
--- @return table|nil: Updated terminal data or nil on failure
+-- @return table|nil: nil (not supported)
 function M.show(term_data)
-  if not parent_pane_id then
-    vim.notify("Cannot spawn AI terminal: parent pane ID not available", vim.log.levels.ERROR)
-    return nil
-  end
-
-  if not base.tmux_session_exists(term_data.session_name) then
-    return nil
-  end
-
-  -- Build tmux attach command
-  local tmux_cmd = string.format("tmux attach-session -t %s", vim.fn.shellescape(term_data.session_name))
-
-  -- Spawn new wezterm pane attached to existing tmux session
-  local spawn_cmd = string.format(
-    "wezterm cli split-pane --pane-id %d --right --percent 50 --cwd %s -- %s 2>/dev/null",
-    parent_pane_id,
-    vim.fn.shellescape(term_data.cwd),
-    tmux_cmd
-  )
-
-  local result = vim.fn.system(spawn_cmd)
-
-  if vim.v.shell_error ~= 0 then
-    vim.notify("Failed to spawn pane: " .. vim.trim(result), vim.log.levels.ERROR)
-    return nil
-  end
-
-  local pane_id = tonumber(vim.trim(result))
-  if not pane_id then
-    vim.notify("Failed to parse pane ID from wezterm", vim.log.levels.ERROR)
-    return nil
-  end
-
-  if not wait_for_pane(pane_id, 5) then
-    vim.notify("Pane did not appear within timeout", vim.log.levels.ERROR)
-    return nil
-  end
-
-  -- Update term_data with new pane_id
-  term_data.pane_id = pane_id
-  return term_data
+  return nil
 end
 
 -- Check if terminal is visible
@@ -272,17 +208,6 @@ end
 -- Kill a terminal pane
 -- @param term_data table: Terminal data
 function M.kill(term_data)
-  if term_data.pane_id then
-    kill_pane(term_data.pane_id)
-  end
-end
-
--- Kill the tmux session completely
--- @param term_data table: Terminal data
-function M.kill_session(term_data)
-  if term_data.session_name and base.tmux_session_exists(term_data.session_name) then
-    vim.fn.system(string.format("tmux kill-session -t %s 2>/dev/null", vim.fn.shellescape(term_data.session_name)))
-  end
   if term_data.pane_id then
     kill_pane(term_data.pane_id)
   end

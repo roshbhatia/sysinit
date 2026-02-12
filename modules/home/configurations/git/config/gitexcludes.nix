@@ -37,19 +37,25 @@ let
 
   # AI assistant directories and files
   aiAssistantPatterns = [
+    "**/.agents/"
+    "**/.amp/"
+    "**/.beads/"
+    "**/.claude/"
+    "**/.codex/"
+    "**/.crush/"
+    "**/.cursor/"
+    "**/.cursorrules/"
+    "**/.gemini/"
     "**/.goose/"
-    ".agents/"
-    ".beads/"
-    ".claude/"
-    ".gemini/"
-    ".goose/"
-    ".goosehints"
-    ".opencode/"
+    "**/.goose/"
+    "**/.goosehints"
+    "**/.opencode/"
+    "**/AGENTS.md"
+    "**/CLAUDE.md"
+    "**/CRUSH.md"
+    "**/GEMINI.md"
+    "**/openspec/"
     ".sysinit/"
-    "AGENTS.md"
-    "CLAUDE.md"
-    "GEMINI.md"
-    "openspec/"
   ];
 
   # Development environment files
