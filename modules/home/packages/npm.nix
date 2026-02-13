@@ -9,7 +9,6 @@
 let
 
   packages = [
-    "@beads/bd"
     "@charmland/crush"
     "@fission-ai/openspec"
   ]

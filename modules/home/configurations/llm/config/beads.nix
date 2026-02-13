@@ -1,5 +1,6 @@
 {
   lib,
+  pkgs,
   ...
 }:
 {
@@ -10,4 +11,8 @@
     };
     force = true;
   };
+
+  home.packages = with pkgs; [
+    beads
+  ];
 }
