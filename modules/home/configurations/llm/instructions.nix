@@ -72,7 +72,9 @@ let
         context = ''
           ## Context
           - Check .sysinit/lessons.md at session start for prior context
-          - .sysinit/ is gitignored scratch space for PRDs, lessons, and notes
+          - .sysinit/ is gitignored scratch space for lessons and notes
+          - Task tracking via beads (bd): use `bd ready` for unblocked tasks, `bd create` for new ones, `bd close` when done
+          - Always `bd sync && git push` before ending sessions
         '';
       };
 

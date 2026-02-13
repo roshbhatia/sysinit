@@ -54,6 +54,12 @@ task docs:values              # Generate values.nix documentation
 - **Testing**: Run `task nix:build` before commits
 - **Pre-Commit**: `task fmt:all:check` then `task nix:validate` then `task nix:build`
 
+## Task & Feature Management
+
+- **Beads**: Git-backed task tracking via `bd` CLI. Use `bd ready` to see tasks, `bd create` for new ones, `bd close` when done. Always `bd sync && git push` before ending sessions. Use `--json` for machine output. Never use `bd edit` (interactive); use `bd update --title/--notes/--status` instead.
+- **Features**: Start non-trivial features with `plan <name>` to create spec in `openspec/`. Get explicit approval before implementing. Link to beads: `bd create --external-ref openspec:<name>`. 
+- **Context**: Check `.sysinit/lessons.md` at session start for prior learnings (gitignored scratch space).
+
 ## Skills
 
 Domain-specific knowledge is managed as Nix-defined skills in `modules/home/configurations/llm/skills/`. Each skill is a `.nix` file returning SKILL.md content, built into the Nix store alongside external superpowers skills. Skills are loaded on demand by LLM tools.
@@ -63,6 +69,4 @@ Domain-specific knowledge is managed as Nix-defined skills in `modules/home/conf
 | `nix-development` | Writing or modifying Nix code, module patterns, flake structure |
 | `lua-development` | Writing or modifying Lua code for Neovim, WezTerm, Hammerspoon |
 | `shell-scripting` | Writing or modifying shell scripts in `hack/` or elsewhere |
-| `beads-workflow` | Task tracking, issue management, multi-step feature work |
-| `prd-workflow` | Starting new features, creating product requirement documents |
 | `session-completion` | Ending a work session, pushing changes, handing off context |

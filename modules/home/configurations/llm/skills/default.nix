@@ -1,12 +1,4 @@
 {
-  beads-workflow = {
-    description = "task tracking, issue management, multi-step work with bd";
-    content = import ./beads-workflow.nix;
-  };
-  prd-workflow = {
-    description = "new features: PRD creation, approval, implementation";
-    content = import ./prd-workflow.nix;
-  };
   session-completion = {
     description = "ending sessions: commit, push, hand off context";
     content = import ./session-completion.nix;
