@@ -144,6 +144,8 @@ let
       tfsec
       tig
       tlrc
+      tokei
+      tree
       typescript
       typescript-language-server
       upbound
