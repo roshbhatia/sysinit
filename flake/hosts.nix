@@ -26,21 +26,4 @@ common:
       };
     };
   };
-
-  arrakis = {
-    system = "x86_64-linux";
-    platform = "linux";
-    inherit (common) username;
-    values = common.values // {
-      nix.gaming.enable = true;
-      theme = {
-        colorscheme = "rose-pine";
-        variant = "dawn";
-        appearance = "light";
-        font = {
-          monospace = "Iosevka Nerd Font";
-        };
-      };
-    };
-  };
 }

@@ -52,13 +52,11 @@ task: Available tasks for this project:
 
 * nix:build:              Build system configuration (defaults to lv426)
 * nix:build:lv426:        Build lv426 (macOS) system configuration
-* nix:build:arrakis:      Build arrakis (NixOS) system configuration
 * nix:build:all:          Build all system configurations
 * nix:build:work:         Build work system configuration
 
 * nix:refresh:            Apply system configuration (defaults to lv426)
 * nix:refresh:lv426:      Apply lv426 (macOS) system configuration
-* nix:refresh:arrakis:    Apply arrakis (NixOS) system configuration
 * nix:refresh:work:       Apply work system configuration
 
 * nix:config:             Copy nix configs to /etc/nix/

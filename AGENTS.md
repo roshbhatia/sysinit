@@ -8,12 +8,11 @@ Nix-flakes configuration for macOS (Apple Silicon) and NixOS. Reproducible syste
 ```bash
 task nix:build                # Test current system config (default: lv426/macOS)
 task nix:build:lv426          # Build/test macOS config specifically
-task nix:build:arrakis        # Build/test NixOS config specifically
 task nix:build:all            # Build all system configurations
 task nix:build:work           # Dry-run build for work config (reduced resources)
 task nix:refresh              # Apply current config to system (use with caution)
 task nix:refresh:lv426        # Apply macOS config
-task nix:refresh:arrakis      # Apply NixOS config
+task nix:refresh:work         # Apply work config
 ```
 
 ### Format/Lint
