@@ -1,11 +1,11 @@
 {
-  values,
+  config,
   pkgs,
   ...
 }:
 
 let
-  cfg = values.git;
+  cfg = config.sysinit.git;
 
   personalEmail = if cfg.personalEmail != null then cfg.personalEmail else cfg.email;
   workEmail = if cfg.workEmail != null then cfg.workEmail else cfg.email;
@@ -14,6 +14,7 @@ let
 in
 {
   imports = [
+    ./options.nix
     ./config/gh-dash.nix
     ./config/lazygit.nix
     ./config/gitexcludes.nix

@@ -22,6 +22,10 @@
         imports = [
           ../home
           ./home
+          # Inline module to set sysinit values from common.nix values
+          {
+            config.sysinit.git = values.git;
+          }
         ];
       };
   };

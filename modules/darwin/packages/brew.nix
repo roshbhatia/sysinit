@@ -63,7 +63,6 @@ in
     };
     global = {
       brewfile = true;
-      lockfiles = true;
       autoUpdate = true;
     };
     taps = baseTaps ++ additionalTaps;
