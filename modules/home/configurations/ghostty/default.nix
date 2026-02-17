@@ -25,6 +25,10 @@
       window-padding-y = 8;
       window-padding-balance = true;
 
+      # Fix character spacing
+      adjust-cell-width = 0;
+      adjust-cell-height = 0;
+
       quick-terminal-position = "center";
       quick-terminal-size = "90%,80%";
 
