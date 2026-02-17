@@ -2,6 +2,9 @@
 
 {
   imports = [
+    # Shared modules (available at system level)
+    ../shared/lib/modules/user.nix
+    ../home/configurations/git/options.nix
     # Packages first, then configurations
     ./packages
     ./configurations

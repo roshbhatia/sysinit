@@ -1,4 +1,4 @@
-{ pkgs, values, ... }:
+{ pkgs, config, ... }:
 
 {
   # Minimal macOS host profile
@@ -16,7 +16,7 @@
     lima
   ];
 
-  home-manager.users.${values.user.username} = {
+  home-manager.users.${config.sysinit.user.username} = {
     imports = [
       # Base profile
       ./base.nix

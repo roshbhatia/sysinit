@@ -106,6 +106,10 @@ in
             # Let Determinate Nix handle Nix configuration rather than nix-darwin
             nix.enable = false;
           }
+          {
+            config.sysinit.user.username = hostConfig.username;
+            config.sysinit.git = hostConfig.sysinit.git;
+          }
           ../modules/darwin
           (import ../modules/darwin/home-manager.nix {
             inherit (values.user) username;
@@ -142,6 +146,10 @@ in
             _module.args = {
               inherit hostname;
             };
+          }
+          {
+            config.sysinit.user.username = hostConfig.username;
+            config.sysinit.git = hostConfig.sysinit.git;
           }
           ../modules/nixos
           home-manager.nixosModules.home-manager

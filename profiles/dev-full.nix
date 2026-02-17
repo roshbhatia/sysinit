@@ -1,10 +1,10 @@
-{ pkgs, values, ... }:
+{ pkgs, config, ... }:
 
 {
   # Complete development environment for Lima VMs (NixOS)
   # Includes all dev tools, editors, and CLI utilities
 
-  home-manager.users.${values.user.username} = {
+  home-manager.users.${config.sysinit.user.username} = {
     imports = [
       ./base.nix
       ../modules/home/configurations/neovim

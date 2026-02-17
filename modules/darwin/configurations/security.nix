@@ -1,4 +1,4 @@
-{ values, ... }:
+{ config, ... }:
 
 {
   # Touch ID for sudo
@@ -6,6 +6,6 @@
 
   # Passwordless sudo for user
   security.sudo.extraConfig = ''
-    ${values.user.username} ALL=(ALL) NOPASSWD: ALL
+    ${config.sysinit.user.username} ALL=(ALL) NOPASSWD: ALL
   '';
 }

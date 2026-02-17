@@ -1,5 +1,5 @@
 {
-  values,
+  config,
   pkgs,
   hostname,
   ...
@@ -42,7 +42,7 @@
 
   networking.hostName = hostname;
 
-  users.users.${values.user.username}.home = "/Users/${values.user.username}";
+  users.users.${config.sysinit.user.username}.home = "/Users/${config.sysinit.user.username}";
 
   environment.shells = [
     pkgs.bashInteractive
@@ -64,7 +64,7 @@
 
   system = {
     defaults.LaunchServices.LSQuarantine = false;
-    primaryUser = values.user.username;
+    primaryUser = config.sysinit.user.username;
     stateVersion = 4;
   };
 }

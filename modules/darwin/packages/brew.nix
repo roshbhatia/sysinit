@@ -1,4 +1,4 @@
-{ values, ... }:
+{ config, values, ... }:
 
 let
   additionalTaps = values.darwin.homebrew.additionalPackages.taps;
@@ -49,7 +49,7 @@ in
   nix-homebrew = {
     enable = true;
     enableRosetta = true;
-    user = values.user.username;
+    user = config.sysinit.user.username;
     autoMigrate = true;
     mutableTaps = true;
   };

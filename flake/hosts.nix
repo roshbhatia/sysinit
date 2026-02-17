@@ -10,6 +10,9 @@ common:
     # Reference profile instead of inline configuration
     profile = "host-minimal";
 
+    # Sysinit namespace values (from common.sysinit)
+    sysinit = common.sysinit;
+
     # Host-specific overrides
     values = common.values // {
       darwin.homebrew.additionalPackages.casks = [
@@ -41,6 +44,9 @@ common:
 
     profile = "dev-full";
 
+    # Sysinit namespace values (from common.sysinit)
+    sysinit = common.sysinit;
+
     values = common.values // {
       theme = {
         colorscheme = "everforest";
@@ -56,6 +62,9 @@ common:
     username = "dev";
 
     profile = "dev-minimal";
+
+    # Sysinit namespace values (from common.sysinit)
+    sysinit = common.sysinit;
 
     values = common.values // {
       theme = {

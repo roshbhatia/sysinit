@@ -1,6 +1,5 @@
 # Security: SSH, sudo, user account, nix-ld
 {
-  values,
   pkgs,
   lib,
   config,
@@ -24,7 +23,7 @@
       PasswordAuthentication = false;
       X11Forwarding = false;
       PrintMotd = false;
-      AllowUsers = [ values.user.username ];
+      AllowUsers = [ config.sysinit.user.username ];
       AcceptEnv = [
         "TERM_PROGRAM"
         "TERM_PROGRAM_VERSION"
@@ -35,11 +34,11 @@
 
   programs.zsh.enable = true;
 
-  users.users.${values.user.username} = {
+  users.users.${config.sysinit.user.username} = {
     isNormalUser = true;
     createHome = true;
-    home = "/home/${values.user.username}";
-    group = values.user.username;
+    home = "/home/${config.sysinit.user.username}";
+    group = config.sysinit.user.username;
     shell = pkgs.zsh;
     extraGroups = [
       "wheel"
@@ -49,13 +48,13 @@
       "input"
     ]
     ++ lib.optionals config.programs.gamemode.enable [ "gamemode" ];
-    description = values.git.name;
+    description = config.sysinit.git.name;
     openssh.authorizedKeys.keys = [
       "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIIWYK84u+ZlSasw3Z7LwsA2eT9S7xDXKVj61xOqAubKe rshnbhatia@lv426"
     ];
   };
 
-  users.groups.${values.user.username} = { };
+  users.groups.${config.sysinit.user.username} = { };
 
   programs.nix-ld = {
     enable = true;

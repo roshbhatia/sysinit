@@ -1,5 +1,9 @@
 {
   sysinit = {
+    user = {
+      username = "rshnbhatia";
+    };
+
     git = {
       name = "Roshan Bhatia";
       email = "rshnbhatia@gmail.com";
@@ -21,6 +25,10 @@
   };
 
   values = {
+    user = {
+      username = "rshnbhatia";
+    };
+
     git = {
       name = "Roshan Bhatia";
       email = "rshnbhatia@gmail.com";
