@@ -19,6 +19,7 @@
       ../modules/home/configurations/ast-grep.nix
       ../modules/home/configurations/yazi
       ../modules/home/configurations/zsh
+      ../modules/dev/home/shell/zellij
     ];
 
     home.packages = with pkgs; [

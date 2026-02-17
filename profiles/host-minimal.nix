@@ -21,7 +21,10 @@
       # Base profile
       ./base.nix
 
-      # Terminal - currently WezTerm, will be Ghostty after PRD-04
+      # Terminal - Ghostty (PRD-04)
+      ../modules/desktop/home/ghostty
+
+      # Keep WezTerm for now (removed in PRD-06)
       ../modules/home/configurations/wezterm
 
       # Minimal shell for host operations
