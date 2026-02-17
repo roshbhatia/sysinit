@@ -133,9 +133,8 @@ let
             bind "Ctrl 9" { GoToTab 9; }
 
             // Session management
-            bind "Ctrl a" "D" { Detach; }
-            bind "Ctrl a" "q" { Quit; }
-            bind "Ctrl a" "f" { ToggleFocusFullscreen; }
+            bind "Ctrl d" { Detach; }
+            bind "Ctrl f" { ToggleFocusFullscreen; }
             bind "Super k" { Clear; }
         }
 
