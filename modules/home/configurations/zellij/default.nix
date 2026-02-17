@@ -17,10 +17,11 @@ in
 
     settings = {
       default_shell = "${pkgs.zsh}/bin/zsh";
-      on_force_close = "detach";
-      simplified_ui = true;
       auto_layout = true;
+      mouse_mode = false;
+      on_force_close = "detach";
       show_startup_tips = false;
+      simplified_ui = true;
 
       scroll_buffer_size = 200000;
       scrollback_editor = "${pkgs.neovim-unwrapped}/bin/nvim";
@@ -32,7 +33,7 @@ in
               pane
           }
 
-          pane size=1 borderless=true {
+          pane size=1 borderless=false {
               plugin location="${zjstatusUrl}" {
                   format_left  "{mode} {tabs}"
                   format_right " "
