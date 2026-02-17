@@ -29,6 +29,7 @@
       quick-terminal-size = "90%,80%";
 
       keybind = [
+        "clear-defaults=true"
         "global:alt+enter=toggle_quick_terminal"
         "super+semicolon=toggle_command_palette"
         "super+c=copy_to_clipboard"
