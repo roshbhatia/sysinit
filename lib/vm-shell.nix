@@ -7,6 +7,8 @@ let
 
   limactl = "${pkgs.lima}/bin/limactl";
 
+  # Detect Docker socket from active context
+
 in
 rec {
   # Generate Lima config from parameters
@@ -36,10 +38,11 @@ rec {
 
       # Configure mounts based on semantic flags
       dockerMounts =
-        if shareDockerFromHost then
+        if shareDockerFromHost && dockerSocketPath != "" then
           ''
-            - location: "/var/run/docker.sock"
+            - location: "${dockerSocketPath}"
               writable: true
+              mountPoint: /var/run/docker.sock
           ''
         else
           "";
@@ -127,6 +130,32 @@ rec {
       _lima_dir="$_project_dir/.lima"
       _lima_config="$_lima_dir/config.yaml"
 
+      # Detect and cache Docker socket if sharing from host
+      DOCKER_SOCKET_PATH=""
+      if [[ "${if shareDockerFromHost then "true" else "false"}" == "true" ]]; then
+        echo "Detecting Docker socket from active context..."
+        DOCKER_SOCKET_PATH=$(${detectDockerSocket})
+        CURRENT_CONTEXT=$(docker context show 2>/dev/null || echo "")
+        CACHED_CONTEXT=""
+        
+        if [[ -f "$_lima_dir/.docker-context" ]]; then
+          CACHED_CONTEXT=$(cat "$_lima_dir/.docker-context")
+        fi
+        
+        # Regenerate config if context changed
+        if [[ -n "$CURRENT_CONTEXT" ]] && [[ "$CURRENT_CONTEXT" != "$CACHED_CONTEXT" ]]; then
+          if [[ -n "$CACHED_CONTEXT" ]]; then
+            echo "Docker context changed: $CACHED_CONTEXT → $CURRENT_CONTEXT"
+            echo "Regenerating VM configuration..."
+          else
+            echo "Using Docker context: $CURRENT_CONTEXT"
+          fi
+          rm -f "$_lima_config"
+        fi
+        
+        echo "Docker socket: $DOCKER_SOCKET_PATH"
+      fi
+
       # Create .lima directory if it doesn't exist
       if [[ ! -d "$_lima_dir" ]]; then
         echo "Creating .lima directory..."
@@ -139,7 +168,17 @@ rec {
       *.pid
       ha.log
       serial.log
+
+      # Docker context tracking
+      .docker-context
+      .docker-socket
       EOF
+      fi
+
+      # Save Docker context and socket path if sharing from host
+      if [[ "${if shareDockerFromHost then "true" else "false"}" == "true" ]]; then
+        echo "$CURRENT_CONTEXT" > "$_lima_dir/.docker-context"
+        echo "$DOCKER_SOCKET_PATH" > "$_lima_dir/.docker-socket"
       fi
 
       # Generate Lima config if it doesn't exist
@@ -156,10 +195,14 @@ rec {
           disk
           shareDockerFromHost
           ;
+        dockerSocketPath = "$DOCKER_SOCKET_PATH";
       }}
       EOF
-        # Substitute actual project directory (handle tilde expansion)
-        ${pkgs.gnused}/bin/sed -i.bak "s|${projectDir}|$_project_dir|g" "$_lima_config"
+        # Substitute actual project directory and Docker socket path
+        ${pkgs.gnused}/bin/sed -i.bak \
+          -e "s|${projectDir}|$_project_dir|g" \
+          -e "s|\$DOCKER_SOCKET_PATH|$DOCKER_SOCKET_PATH|g" \
+          "$_lima_config"
         rm "$_lima_config.bak"
       fi
 

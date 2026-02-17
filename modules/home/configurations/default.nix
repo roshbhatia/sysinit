@@ -26,7 +26,6 @@
     ./ssh.nix
     ./utils
     ./vivid.nix
-    ./wezterm
     ./zoxide.nix
     ./zsh
   ];
