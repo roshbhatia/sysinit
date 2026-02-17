@@ -5,15 +5,13 @@
 }:
 
 {
-  # On macOS, Ghostty is installed via Homebrew cask to avoid building from source
-  # which requires Wayland dependencies that fail on Darwin
   stylix.targets.ghostty = {
     enable = true;
   };
 
   programs.ghostty = {
-    # Only enable nix-managed ghostty on Linux platforms
-    enable = pkgs.stdenv.isLinux;
+    enable = true;
+    package = if pkgs.stdenv.isDarwin then null else pkgs.ghostty;
 
     settings = {
       macos-titlebar-style = "hidden";
