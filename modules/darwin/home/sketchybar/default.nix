@@ -1,7 +1,6 @@
 {
   pkgs,
   config,
-  values,
   ...
 }:
 
@@ -48,10 +47,10 @@ let
   };
 
   themeConfig = {
-    colorscheme = values.theme.colorscheme;
-    variant = values.theme.variant;
-    appearance = values.theme.appearance;
-    transparency = values.theme.transparency;
+    colorscheme = config.sysinit.theme.colorscheme;
+    variant = config.sysinit.theme.variant;
+    appearance = config.sysinit.theme.appearance;
+    transparency = config.sysinit.theme.transparency;
     base16 = {
       base00 = "#${colors.base00}";
       base01 = "#${colors.base01}";
@@ -72,8 +71,8 @@ let
     };
     semanticColors = semanticColors;
     font = {
-      monospace = values.theme.font.monospace;
-      symbols = values.theme.font.symbols or "Symbols Nerd Font";
+      monospace = config.sysinit.theme.font.monospace;
+      symbols = config.sysinit.theme.font.symbols;
     };
   };
 in

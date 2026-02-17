@@ -3,16 +3,26 @@
 with lib;
 
 let
-  themes = import ./theme { inherit lib; };
+  themes = import ../theme { inherit lib; };
+  metadata = import ../theme/metadata.nix { inherit lib; };
   cfg = config.sysinit.theme;
 
-  allVariants = unique (flatten (map (meta: meta.variants) (attrValues themes.metadata)));
+  allVariants = unique (flatten (map (meta: meta.variants) (attrValues metadata)));
 
 in
 {
   options.sysinit.theme = {
+    appearance = mkOption {
+      type = types.enum [
+        "light"
+        "dark"
+      ];
+      default = "dark";
+      description = "Appearance mode (light or dark)";
+    };
+
     colorscheme = mkOption {
-      type = types.enum (attrNames themes.metadata);
+      type = types.enum (attrNames metadata);
       default = "rose-pine";
       description = "The color scheme to use system-wide";
     };
@@ -21,6 +31,21 @@ in
       type = types.enum allVariants;
       default = "moon";
       description = "The variant of the chosen color scheme";
+    };
+
+    font = {
+      monospace = mkOption {
+        type = types.str;
+        default = "TX-02";
+        description = "Monospace font for terminal and editor";
+      };
+
+      symbols = mkOption {
+        type = types.str;
+        default = "Symbols Nerd Font";
+        readOnly = true;
+        description = "Fallback font for nerd font glyphs (always Symbols Nerd Font)";
+      };
     };
 
     transparency = {
@@ -69,7 +94,7 @@ in
     meta = mkOption {
       type = types.attrs;
       readOnly = true;
-      default = themes.getThemeInfo cfg.colorscheme;
+      default = metadata.${cfg.colorscheme} or { };
       description = "Theme metadata";
     };
   };

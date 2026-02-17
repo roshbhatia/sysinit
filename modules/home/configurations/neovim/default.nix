@@ -1,14 +1,14 @@
 {
-  values,
+  config,
   ...
 }:
 
 let
   themeConfig = {
-    colorscheme = values.theme.colorscheme;
-    variant = values.theme.variant;
-    appearance = values.theme.appearance;
-    transparency = values.theme.transparency;
+    colorscheme = config.sysinit.theme.colorscheme;
+    variant = config.sysinit.theme.variant;
+    appearance = config.sysinit.theme.appearance;
+    transparency = config.sysinit.theme.transparency;
   };
 in
 {

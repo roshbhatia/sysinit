@@ -3,7 +3,6 @@
   config,
   lib,
   pkgs,
-  values,
   ...
 }:
 
@@ -11,7 +10,7 @@ let
   c = color: lib.removePrefix "#" color;
   hexToMango = color: "0x${c color}ff";
   hexToMangoAlpha = color: alpha: "0x${c color}${alpha}";
-  inherit (values.theme.transparency) opacity;
+  inherit (config.sysinit.theme.transparency) opacity;
 
   colors = config.lib.stylix.colors;
 
@@ -282,7 +281,7 @@ in
     };
 
     style = ''
-      * { font-family: "${values.theme.font.monospace}", monospace; font-size: 12px; min-height: 0; padding: 0; margin: 0; }
+      * { font-family: "${config.sysinit.theme.font.monospace}", monospace; font-size: 12px; min-height: 0; padding: 0; margin: 0; }
       window#waybar { background: #${c semanticColors.background.primary}; color: #${c semanticColors.foreground.primary}; border-radius: 10px; border: 1px solid #${c semanticColors.background.secondary}; }
       #custom-logo, #custom-workspaces, #clock, #cpu, #memory, #network, #pulseaudio, #tray { padding: 0 10px; }
       #custom-logo { color: #${c semanticColors.accent.primary}; font-size: 14px; padding-left: 12px; }
@@ -305,7 +304,7 @@ in
     enable = true;
     settings = {
       main = {
-        font = "${values.theme.font.monospace}:size=12";
+        font = "${config.sysinit.theme.font.monospace}:size=12";
         dpi-aware = "no";
         width = 35;
         horizontal-pad = 20;
@@ -334,7 +333,7 @@ in
 
   services.mako = {
     enable = true;
-    font = "${values.theme.font.monospace} 11";
+    font = "${config.sysinit.theme.font.monospace} 11";
     backgroundColor = semanticColors.background.primary;
     textColor = semanticColors.foreground.primary;
     borderColor = semanticColors.accent.primary;

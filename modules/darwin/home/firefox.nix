@@ -1,7 +1,5 @@
 {
   pkgs,
-  lib,
-  values,
   utils,
   config,
   ...
@@ -72,7 +70,7 @@ let
   };
 
   # Generate custom config with stylix colors
-  themeConfigWithColors = values.theme // {
+  themeConfigWithColors = config.sysinit.theme // {
     semanticColors = semanticColors;
   };
 
