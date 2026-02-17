@@ -1,11 +1,11 @@
 {
+  config,
   pkgs,
-  values,
   ...
 }:
 
 let
-  additionalPackages = values.nix.additionalPackages or [ ];
+  additionalPackages = config.sysinit.nix.additionalPackages;
 
   allPackages =
     (with pkgs; [

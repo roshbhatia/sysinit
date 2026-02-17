@@ -1,7 +1,6 @@
 {
   config,
   lib,
-  values,
   utils,
   ...
 }:
@@ -12,7 +11,7 @@ let
     "hererocks"
     "https://github.com/github/spec-kit.git"
   ]
-  ++ (values.uvx.additionalPackages or [ ]);
+  ++ config.sysinit.uvx.additionalPackages;
 in
 {
   home.activation.uvxPackages = lib.hm.dag.entryAfter [ "writeBoundary" ] (

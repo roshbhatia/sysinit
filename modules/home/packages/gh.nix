@@ -1,13 +1,12 @@
 {
   config,
   lib,
-  values,
   utils,
   ...
 }:
 
 let
-  packages = [ ] ++ (values.gh.additionalPackages or [ ]);
+  packages = [ ] ++ config.sysinit.gh.additionalPackages;
 in
 lib.mkIf (packages != [ ]) {
   home.activation.ghPackages = lib.hm.dag.entryAfter [ "writeBoundary" ] (

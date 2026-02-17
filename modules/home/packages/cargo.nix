@@ -1,14 +1,13 @@
 {
   config,
   lib,
-  values,
   utils,
   ...
 }:
 
 let
 
-  packages = values.cargo.additionalPackages or [ ];
+  packages = config.sysinit.cargo.additionalPackages;
 in
 lib.mkIf (packages != [ ]) {
   home.activation.cargoPackages = lib.hm.dag.entryAfter [ "writeBoundary" ] (

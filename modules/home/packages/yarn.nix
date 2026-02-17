@@ -1,7 +1,6 @@
 {
   config,
   lib,
-  values,
   utils,
   ...
 }:
@@ -15,7 +14,7 @@ let
     "@sourcegraph/amp@latest"
     "opencode-ai@latest"
   ]
-  ++ (values.yarn.additionalPackages or [ ]);
+  ++ config.sysinit.yarn.additionalPackages;
 in
 {
   home.activation.yarnPackages = lib.hm.dag.entryAfter [ "writeBoundary" ] (

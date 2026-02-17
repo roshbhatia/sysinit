@@ -1,14 +1,13 @@
 {
   config,
   lib,
-  values,
   utils,
   ...
 }:
 
 let
 
-  packages = values.vet.additionalPackages or [ ];
+  packages = config.sysinit.vet.additionalPackages;
 in
 {
   home.activation.vetPackages = lib.hm.dag.entryAfter [ "writeBoundary" ] (

@@ -1,14 +1,13 @@
 {
   config,
   lib,
-  values,
   utils,
   ...
 }:
 
 let
 
-  packages = values.pipx.additionalPackages or [ ];
+  packages = config.sysinit.pipx.additionalPackages;
 in
 {
   home.activation.pipxPackages = lib.hm.dag.entryAfter [ "writeBoundary" ] (

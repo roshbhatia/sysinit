@@ -1,7 +1,6 @@
 {
   config,
   lib,
-  values,
   utils,
   ...
 }:
@@ -25,7 +24,7 @@ let
     "gotest.tools/gotestsum@latest"
     "mvdan.cc/gofumpt@latest"
   ]
-  ++ (values.go.additionalPackages or [ ]);
+  ++ config.sysinit.go.additionalPackages;
 in
 {
   home.activation.goPackages = lib.hm.dag.entryAfter [ "writeBoundary" ] (
