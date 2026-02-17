@@ -21,6 +21,7 @@ local app_icons = {
   ["Ferdium"] = "󰙯",
   ["Finder"] = "󰀶",
   ["Firefox"] = "",
+  ["Ghostty"] = "󱙝",
   ["Google Chrome"] = "󰊯",
   ["Goose"] = "",
   ["Mail"] = "󰇰",
@@ -36,10 +37,10 @@ local app_icons = {
   ["System Preferences"] = "",
   ["System Settings"] = "",
   ["Wezterm"] = "",
-  ["wezterm-gui"] = "",
   ["Xcode"] = "",
   ["Zoom"] = "󰍫",
   ["firefox"] = "",
+  ["wezterm-gui"] = "",
   ["zoom.us"] = "󰍫",
 }
 
@@ -50,6 +51,7 @@ local app_display_names = {
   ["MicrosoftOutlook"] = "Outlook",
   ["Visual Studio Code"] = "VS Code",
   ["firefox"] = "Firefox",
+  ["ghostty"] = "Ghostty",
   ["wezterm-gui"] = "Wezterm",
   ["zoom.us"] = "Zoom",
 }
