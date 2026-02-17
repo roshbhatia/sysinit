@@ -26,7 +26,7 @@
       window-padding-balance = true;
 
       quick-terminal-position = "center";
-      quick-terminal-size = "80%,60%";
+      quick-terminal-size = "90%,80%";
 
       keybind = [
         "global:alt+enter=toggle_quick_terminal"

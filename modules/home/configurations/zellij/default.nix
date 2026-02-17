@@ -35,7 +35,7 @@ in
 
           pane size=1 borderless=true {
               plugin location="${zjstatusUrl}" {
-                  format_left  " {mode} {tabs}"
+                  format_left  "{mode} {tabs}"
                   format_right "{session} "
                   format_space ""
 
@@ -51,8 +51,8 @@ in
                   mode_search        "#[fg=#${colors.base00},bg=#${colors.base09},bold] SEARCH #[fg=#${colors.base05},bg=#${colors.base09}]"
                   mode_session       "#[fg=#${colors.base00},bg=#${colors.base0D},bold] SESSION #[fg=#${colors.base05},bg=#${colors.base0D}]"
 
-                  tab_normal   " {index}:{name} "
-                  tab_active   "#[bold] {index}:{name} "
+                  tab_normal   "{index}:{name} "
+                  tab_active   "#[bold]{index}:{name} "
               }
           }
       }
@@ -252,8 +252,8 @@ in
         add-zsh-hook preexec set_tab_to_command_line
     fi
 
-    # Auto-attach to Zellij (but not in WezTerm, Ghostty, or Neovim)
-    if [[ -z "$ZELLIJ" ]] && [[ -z "$NVIM" ]] && [[ "$TERM_PROGRAM" != "WezTerm" ]] && [[ "$TERM_PROGRAM" != "ghostty" ]]; then
+    # Auto-attach to Zellij (but not in WezTerm or Neovim)
+    if [[ -z "$ZELLIJ" ]] && [[ -z "$NVIM" ]] && [[ "$TERM_PROGRAM" != "WezTerm" ]]; then
         if [[ "$ZELLIJ_AUTO_ATTACH" == "true" ]]; then
             zellij attach -c
         else
