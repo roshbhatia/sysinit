@@ -15,6 +15,7 @@
 
     settings = {
       macos-titlebar-style = "hidden";
+      macos-window-shadow = false;
 
       background-opacity = config.sysinit.theme.transparency.opacity;
       background-opacity-cells = true;
@@ -24,8 +25,8 @@
       window-padding-y = 8;
       window-padding-balance = true;
 
-      quick-terminal-position = "bottom";
-      quick-terminal-size = "60%";
+      quick-terminal-position = "center";
+      quick-terminal-size = "80%,60%";
 
       keybind = [
         "global:alt+enter=toggle_quick_terminal"

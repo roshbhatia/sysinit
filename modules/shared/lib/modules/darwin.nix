@@ -1,14 +1,10 @@
 { lib, ... }:
 
 let
-  inherit (lib) mkOption mkEnableOption types;
+  inherit (lib) mkOption types;
 in
 {
   options.sysinit.darwin = {
-    borders = {
-      enable = mkEnableOption "JankyBorders window borders";
-    };
-
     tailscale = {
       enable = mkOption {
         type = types.bool;
