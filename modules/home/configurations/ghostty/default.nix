@@ -41,14 +41,11 @@ in
       # Auto-launch zellij and exit when it closes
       command = "${pkgs.zsh}/bin/zsh -c ${pkgs.zellij}/bin/zellij";
 
-      # Cursor trail shader for smooth cursor movement
-      cursor-style-unfocused = "hollow";
-
       quick-terminal-position = "center";
       quick-terminal-size = "90%,80%";
 
       keybind = [
-        "clear-defaults=true"
+        "clear"
         "global:alt+enter=toggle_quick_terminal"
         "super+semicolon=toggle_command_palette"
         "super+c=copy_to_clipboard"

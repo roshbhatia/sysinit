@@ -1,5 +1,4 @@
 {
-  config,
   pkgs,
   ...
 }:
@@ -14,8 +13,6 @@ let
     url = "https://github.com/hiasr/vim-zellij-navigator/releases/download/0.3.0/vim-zellij-navigator.wasm";
     sha256 = "13f54hf77bwcqhsbmkvpv07pwn3mblyljx15my66j6kw5zva5rbp";
   };
-
-  inherit (config.lib.stylix) colors;
 in
 {
   programs.zellij = {
@@ -42,12 +39,18 @@ in
 
           pane size=1 borderless=true {
               plugin location="file:${zjstatus}" {
-                  format_space  "#[fg=0,bg=10][{session}]  {tabs}"
-                  format_right "  "
-                  format_space "  "
+                format_left  "#[fg=0,bg=10][{session}]  {tabs}"
+                format_right "#[fg=0,bg=10]{datetime}"
+                format_space "#[bg=10]"
 
-                  tab_normal   "{index}:{name}  "
-                  tab_active   "{index}:{name}* "
+                hide_frame_for_single_pane "true"
+
+                tab_normal   "{index}:{name}  "
+                tab_active   "{index}:{name}* "
+
+                datetime          " {format} "
+                datetime_format   "%H:%M %d-%b-%y"
+                datetime_timezone "Europe/London"
               }
           }
       }
@@ -60,6 +63,19 @@ in
           }
           vim-zellij-navigator {
               path "file:${vimZellijNavigator}"
+          }
+      }
+
+      plugin_permissions {
+          zjstatus {
+              data ReadWrite
+              filesystem ReadWrite
+              network ReadWrite
+          }
+          vim-zellij-navigator {
+              data ReadWrite
+              filesystem ReadWrite
+              network ReadWrite
           }
       }
 
