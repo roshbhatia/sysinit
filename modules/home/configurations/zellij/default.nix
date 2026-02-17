@@ -119,7 +119,7 @@ let
 
             // Scrollback and search (matching WezTerm keybindings)
             bind "Ctrl Esc" { SwitchToMode "scroll"; }
-            bind "Ctrl /" { SwitchToMode "search"; }
+            bind "Ctrl /" { SwitchToMode "entersearch"; }
 
             // Pane navigation (vim keys)
             bind "Ctrl h" {
@@ -214,10 +214,13 @@ let
             bind "End" { ScrollToBottom; }
 
             // Search
-            bind "/" { SwitchToMode "search"; }
-            bind "Ctrl /" { SwitchToMode "search"; }
+            bind "/" { SwitchToMode "entersearch"; }
+            bind "Ctrl /" { SwitchToMode "entersearch"; }
             bind "n" { Search "down"; }
             bind "N" { Search "up"; }
+
+            // Edit scrollback in $EDITOR
+            bind "e" { EditScrollback; SwitchToMode "normal"; }
 
             // Copy mode
             bind "v" { Copy; }
@@ -230,14 +233,36 @@ let
             bind "Enter" { SwitchToMode "normal"; }
         }
 
+        entersearch {
+            // This mode is for typing the search query
+            bind "Ctrl c" { ScrollToBottom; SwitchToMode "normal"; }
+            bind "Esc" { ScrollToBottom; SwitchToMode "normal"; }
+            bind "Enter" { SwitchToMode "search"; }
+        }
+
         search {
-            // Navigation
+            // This mode is for navigating search results
             bind "n" { Search "down"; }
             bind "N" { Search "up"; }
             bind "j" { Search "down"; }
             bind "k" { Search "up"; }
             bind "Down" { Search "down"; }
             bind "Up" { Search "up"; }
+
+            // Page scrolling while searching
+            bind "Ctrl d" { HalfPageScrollDown; }
+            bind "Ctrl u" { HalfPageScrollUp; }
+            bind "Ctrl f" { PageScrollDown; }
+            bind "Ctrl b" { PageScrollUp; }
+            bind "d" { HalfPageScrollDown; }
+            bind "u" { HalfPageScrollUp; }
+            bind "h" { PageScrollUp; }
+            bind "l" { PageScrollDown; }
+
+            // Search options
+            bind "c" { SearchToggleOption "CaseSensitivity"; }
+            bind "w" { SearchToggleOption "Wrap"; }
+            bind "o" { SearchToggleOption "WholeWord"; }
 
             // Exit search
             bind "Esc" { ScrollToBottom; SwitchToMode "normal"; }
