@@ -37,12 +37,6 @@ pkgs.mkShell {
     image = "lima-dev";
     cpus = 4;
     memory = "8GiB";
-    ports = [
-      3000
-      8080
-      5173
-      5432
-    ];
     verbose = true;
   };
 }

@@ -18,18 +18,22 @@ rec {
       image ? "lima-dev",
       cpus ? 4,
       memory ? "8GiB",
-      disk ? "50GiB",
-      ports ? [
-        3000
-        8080
-        5173
-      ],
+      disk ? "8GiB",
+      ports ? null,
     }:
     let
-      portForwards = lib.concatMapStrings (port: ''
-        - guestPort: ${toString port}
-          hostPort: ${toString port}
-      '') ports;
+      # Use port range by default, or individual ports if specified
+      portForwards =
+        if ports == null then
+          ''
+            - guestPortRange: [1024, 65535]
+              hostPortRange: [1024, 65535]
+          ''
+        else
+          lib.concatMapStrings (port: ''
+            - guestPort: ${toString port}
+              hostPort: ${toString port}
+          '') ports;
     in
     ''
       vmType: "vz"
@@ -104,12 +108,8 @@ rec {
       image ? "lima-dev",
       cpus ? 4,
       memory ? "8GiB",
-      disk ? "50GiB",
-      ports ? [
-        3000
-        8080
-        5173
-      ],
+      disk ? "8GiB",
+      ports ? null,
       verbose ? true,
     }:
     ''
@@ -210,12 +210,8 @@ rec {
       image ? "lima-dev",
       cpus ? 4,
       memory ? "8GiB",
-      disk ? "50GiB",
-      ports ? [
-        3000
-        8080
-        5173
-      ],
+      disk ? "8GiB",
+      ports ? null,
       verbose ? true,
     }:
     ''
