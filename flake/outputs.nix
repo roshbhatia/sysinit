@@ -29,6 +29,11 @@ let
     inherit (builders) mkOverlays;
     inherit (builders) processValues;
   };
+
+  nixosConfigurationsOutput = outputBuilders.mkConfigurations {
+    configs = nixosConfigs;
+    inherit buildConfig;
+  };
 in
 {
   darwinConfigurations = outputBuilders.mkConfigurations {
@@ -42,9 +47,14 @@ in
     };
   };
 
-  nixosConfigurations = outputBuilders.mkConfigurations {
-    configs = nixosConfigs;
-    inherit buildConfig;
+  nixosConfigurations = nixosConfigurationsOutput;
+
+  # Lima VM images - for PRD-03, exposing configurations
+  # Actual QCOW2 images can be built with nixos-generators or
+  # by using official NixOS cloud images with declarative config
+  packages.aarch64-darwin = {
+    # Expose configurations for later image building
+    # For now, validate that configs build successfully
   };
 
   lib = {

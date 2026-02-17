@@ -57,6 +57,11 @@ common:
 
     profile = "dev-minimal";
 
-    values = common.values;
+    values = common.values // {
+      theme = {
+        colorscheme = "everforest";
+        variant = "dark-soft";
+      };
+    };
   };
 }

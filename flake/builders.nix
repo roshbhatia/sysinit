@@ -164,6 +164,7 @@ in
           nix-gaming.nixosModules.pipewireLowLatency
           nix-gaming.nixosModules.platformOptimizations
         ]
+        ++ lib.optional (lib.hasPrefix "lima-" hostname) ../modules/system/nixos/vm/lima-base.nix
         ++ lib.optional (resolveProfile hostConfig != null) (resolveProfile hostConfig);
       };
 }
