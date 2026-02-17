@@ -110,6 +110,9 @@ in
                   };
               }
 
+              bind "Ctrl d" { HalfPageScrollDown; }
+              bind "Ctrl u" { HalfPageScrollUp; }
+
               bind "Ctrl Shift h" { Resize "Increase left"; }
               bind "Ctrl Shift j" { Resize "Increase down"; }
               bind "Ctrl Shift k" { Resize "Increase up"; }
