@@ -158,7 +158,6 @@ let
       yaml-language-server
       yamllint
       yarn
-      yazi
       yq-go
       zsh
     ])

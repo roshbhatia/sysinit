@@ -10,7 +10,6 @@ let
   };
   shellEnv = shellLib.env { };
   allAliases = shellLib.aliases // {
-    f = "yazi";
     tree = "eza --tree --icons=never";
     org = "nvim ~/org/notes";
     cat = "bat -pp";

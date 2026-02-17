@@ -14,7 +14,6 @@
     ./fd.nix
     ./fzf.nix
     ./git
-    ./helix.nix
     ./htop.nix
     ./hushlogin.nix
     ./k9s.nix
@@ -28,7 +27,6 @@
     ./utils
     ./vivid.nix
     ./wezterm
-    ./yazi
     ./zoxide.nix
     ./zsh
   ];
