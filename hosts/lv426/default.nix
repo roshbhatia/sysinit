@@ -1,28 +1,10 @@
-{ pkgs, config, ... }:
+# lv426 - Personal macOS desktop
+{ ... }:
 
 {
-  environment.systemPackages = with pkgs; [
-    lima
+  imports = [
+    ../_base/darwin.nix
   ];
 
-  home-manager.users.${config.sysinit.user.username} = {
-    imports = [
-      ../../modules/darwin/home/firefox.nix
-    ];
-
-    home.packages = with pkgs; [
-      curl
-      wget
-      unzip
-      zip
-      htop
-      ripgrep
-      fd
-      bat
-      eza
-      gh
-    ];
-
-    programs.home-manager.enable = true;
-  };
+  # Host-specific overrides go here
 }

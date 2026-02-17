@@ -113,9 +113,8 @@ modules/
   environment.systemPackages = with pkgs; [ lima ];
   
   home-manager.users.${config.sysinit.user.username} = {
-    imports = [
-      ../../modules/darwin/home/firefox.nix  # Only darwin-specific module
-    ];
+    # No imports needed - everything auto-imported!
+    # Firefox is auto-imported via modules/darwin/home/default.nix
   };
 }
 ```
@@ -161,13 +160,14 @@ modules/home/configurations/helix.nix     # LSP config inlined directly
 - Delete `modules/shared/lib/lsp-config.nix`
 
 ### 3. Clean Up lv426 Host Config
-Remove all redundant imports:
+Remove ALL redundant imports:
 - Lines 5-10: Darwin system imports (aerospace, borders, sketchybar, stylix, desktop)
-- Lines 18-23: Home imports except firefox (ghostty, wezterm, zsh, git, zellij)
+- Lines 18-23: Home imports (ghostty, wezterm, zsh, git, zellij, firefox)
 
 Keep only:
 - `environment.systemPackages` with lima
-- `../../modules/darwin/home/firefox.nix` import
+
+Note: Firefox is auto-imported via `modules/darwin/home/default.nix` for ALL Darwin systems.
 
 ### 4. Clean Up lima-dev Host Config
 Remove all home-manager imports (all 13 are auto-imported):
@@ -182,13 +182,15 @@ Remove all home-manager imports (all 4 are auto-imported):
 1. `task nix:build` succeeds on personal repo
 2. Ghostty is installed on both personal and work repos
 3. Zellij is installed on all hosts (lv426, lima-dev, lima-minimal)
-4. No packages are lost after cleanup (verify with `home-manager packages`)
-5. `nix flake check` passes validation
-6. lv426 host config has only firefox import
-7. lima-dev and lima-minimal have no home-manager imports
-8. `modules/shared/lib/lsp-config.nix` does not exist
-9. Helix still works with all language servers
-10. `modules/desktop/` and `modules/dev/` directories do not exist
+4. Firefox is installed on all Darwin hosts (lv426, work)
+5. No packages are lost after cleanup (verify with `home-manager packages`)
+6. `nix flake check` passes validation
+7. lv426 host config has NO home-manager imports (all auto-imported)
+8. lima-dev and lima-minimal have no home-manager imports
+9. `modules/shared/lib/lsp-config.nix` does not exist
+10. Helix still works with all language servers
+11. `modules/desktop/` and `modules/dev/` directories do not exist
+12. Work repo build succeeds and gets all shared modules automatically
 
 ## Testing
 

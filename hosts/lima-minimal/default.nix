@@ -1,20 +1,10 @@
-{ pkgs, config, ... }:
+# lima-minimal - Minimal VM for quick tasks
+{ ... }:
 
 {
-  home-manager.users.${config.sysinit.user.username} = {
-    home.packages = with pkgs; [
-      curl
-      wget
-      unzip
-      zip
-      htop
-      ripgrep
-      fd
-      bat
-      eza
-      jq
-    ];
+  imports = [
+    ../_base/lima.nix
+  ];
 
-    programs.home-manager.enable = true;
-  };
+  # Minimal VM - no additional packages beyond base
 }
