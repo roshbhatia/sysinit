@@ -40,28 +40,38 @@ in
               pane
           }
 
-          pane size=1 borderless=true {
-              plugin location="file:${zjstatus}" {
-                  format_left  "{mode} {tabs}"
-                  format_right "{session} "
-                  format_space ""
+           pane size=1 borderless=true {
+               plugin location="file:${zjstatus}" {
+                   format_left  "#[bg={mode_color}]{mode}#[bg={mode_color}] {tabs}"
+                   format_right "#[bg={mode_color}]{session} "
+                   format_space "#[bg={mode_color}]"
 
-                  hide_frame_for_single_pane "false"
+                   hide_frame_for_single_pane "false"
 
-                  mode_normal        "#[fg=#${colors.base05},bg=#${colors.base01},bold] NORMAL #[fg=#${colors.base05},bg=#${colors.base01}]"
-                  mode_locked        "#[fg=#${colors.base00},bg=#${colors.base08},bold] LOCKED #[fg=#${colors.base05},bg=#${colors.base08}]"
-                  mode_resize        "#[fg=#${colors.base00},bg=#${colors.base0E},bold] RESIZE #[fg=#${colors.base05},bg=#${colors.base0E}]"
-                  mode_pane          "#[fg=#${colors.base00},bg=#${colors.base0B},bold] PANE #[fg=#${colors.base05},bg=#${colors.base0B}]"
-                  mode_tab           "#[fg=#${colors.base00},bg=#${colors.base0A},bold] TAB #[fg=#${colors.base05},bg=#${colors.base0A}]"
-                  mode_scroll        "#[fg=#${colors.base00},bg=#${colors.base0C},bold] SCROLL #[fg=#${colors.base05},bg=#${colors.base0C}]"
-                  mode_enter_search  "#[fg=#${colors.base00},bg=#${colors.base09},bold] SEARCH #[fg=#${colors.base05},bg=#${colors.base09}]"
-                  mode_search        "#[fg=#${colors.base00},bg=#${colors.base09},bold] SEARCH #[fg=#${colors.base05},bg=#${colors.base09}]"
-                  mode_session       "#[fg=#${colors.base00},bg=#${colors.base0D},bold] SESSION #[fg=#${colors.base05},bg=#${colors.base0D}]"
+                   mode_normal        "#[fg=#${colors.base05},bg=#${colors.base01},bold] NORMAL "
+                   mode_locked        "#[fg=#${colors.base00},bg=#${colors.base08},bold] LOCKED "
+                   mode_resize        "#[fg=#${colors.base00},bg=#${colors.base0E},bold] RESIZE "
+                   mode_pane          "#[fg=#${colors.base00},bg=#${colors.base0B},bold] PANE "
+                   mode_tab           "#[fg=#${colors.base00},bg=#${colors.base0A},bold] TAB "
+                   mode_scroll        "#[fg=#${colors.base00},bg=#${colors.base0C},bold] SCROLL "
+                   mode_enter_search  "#[fg=#${colors.base00},bg=#${colors.base09},bold] SEARCH "
+                   mode_search        "#[fg=#${colors.base00},bg=#${colors.base09},bold] SEARCH "
+                   mode_session       "#[fg=#${colors.base00},bg=#${colors.base0D},bold] SESSION "
 
-                  tab_normal   "{index}:{name} "
-                  tab_active   "#[bold]{index}:{name} "
-              }
-          }
+                   mode_color_normal       "#${colors.base01}"
+                   mode_color_locked       "#${colors.base08}"
+                   mode_color_resize       "#${colors.base0E}"
+                   mode_color_pane         "#${colors.base0B}"
+                   mode_color_tab          "#${colors.base0A}"
+                   mode_color_scroll       "#${colors.base0C}"
+                   mode_color_enter_search "#${colors.base09}"
+                   mode_color_search       "#${colors.base09}"
+                   mode_color_session      "#${colors.base0D}"
+
+                   tab_normal   "#[fg=#${colors.base05},bg={mode_color}]{index}:{name} "
+                   tab_active   "#[fg=#${colors.base05},bg={mode_color},bold]{index}:{name} "
+               }
+           }
       }
     '';
 
@@ -147,15 +157,17 @@ in
               bind "Super k" { Clear; }
           }
 
-          resize {
-              bind "h" { Resize "Increase left"; }
-              bind "j" { Resize "Increase down"; }
-              bind "k" { Resize "Increase up"; }
-              bind "l" { Resize "Increase right"; }
-              bind "Esc" { SwitchToMode "normal"; }
-              bind "Enter" { SwitchToMode "normal"; }
-              bind "q" { SwitchToMode "normal"; }
-          }
+           resize {
+               bind "h" { Resize "Increase left"; }
+               bind "j" { Resize "Increase down"; }
+               bind "k" { Resize "Increase up"; }
+               bind "l" { Resize "Increase right"; }
+               bind "Ctrl d" { HalfPageScrollDown; }
+               bind "Ctrl u" { HalfPageScrollUp; }
+               bind "Esc" { SwitchToMode "normal"; }
+               bind "Enter" { SwitchToMode "normal"; }
+               bind "q" { SwitchToMode "normal"; }
+           }
 
           scroll {
               bind "j" { ScrollDown; }
@@ -218,9 +230,11 @@ in
               bind "q" { ScrollToBottom; SwitchToMode "normal"; }
           }
 
-          locked {
-              bind "Ctrl g" { SwitchToMode "normal"; }
-          }
+           locked {
+               bind "Ctrl g" { SwitchToMode "normal"; }
+               bind "Ctrl d" { HalfPageScrollDown; SwitchToMode "normal"; }
+               bind "Ctrl u" { HalfPageScrollUp; SwitchToMode "normal"; }
+           }
       }
     '';
   };
