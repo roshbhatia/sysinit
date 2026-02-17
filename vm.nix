@@ -3,22 +3,11 @@
 }:
 
 let
-  # Fetch VM library from sysinit repo
-  vmLib =
-    import
-      (
-        pkgs.fetchFromGitHub {
-          owner = "roshbhatia";
-          repo = "sysinit";
-          rev = "ba1035ac4b4edc19634fe60c53bc0f136141db0b";
-          sha256 = "sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=";
-        }
-        + "/lib/vm-shell.nix"
-      )
-      {
-        inherit pkgs;
-        inherit (pkgs) lib;
-      };
+  # Import VM library from local repo
+  vmLib = import ./lib/vm-shell.nix {
+    inherit pkgs;
+    inherit (pkgs) lib;
+  };
 
   inherit (pkgs) lib;
 

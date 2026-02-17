@@ -106,7 +106,12 @@
           ../modules/darwin
           (import ../modules/darwin/home-manager.nix {
             inherit (values.user) username;
-            inherit values utils pkgs;
+            inherit
+              values
+              utils
+              pkgs
+              inputs
+              ;
           })
           home-manager.darwinModules.home-manager
           stylix.darwinModules.stylix
