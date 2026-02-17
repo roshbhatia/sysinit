@@ -4,6 +4,12 @@
   ...
 }:
 
+let
+  cursorTailShader = pkgs.fetchurl {
+    url = "https://raw.githubusercontent.com/sahaj-b/ghostty-cursor-shaders/main/cursor_tail.glsl";
+    sha256 = "1g9vsbsxnvcj0y6rzdkxrd4mj0ldl9aha7381g8nfs3bz829y46w";
+  };
+in
 {
   stylix.targets.ghostty = {
     enable = true;
@@ -32,9 +38,11 @@
         "+ss02"
       ];
 
-      # Adjust cell height for better spacing with Berkeley Mono
-      adjust-cell-width = 0;
-      adjust-cell-height = "-2%";
+      # Auto-launch zellij and exit when it closes
+      command = "${pkgs.zsh}/bin/zsh -c ${pkgs.zellij}/bin/zellij";
+
+      # Cursor trail shader for smooth cursor movement
+      cursor-style-unfocused = "hollow";
 
       quick-terminal-position = "center";
       quick-terminal-size = "90%,80%";
@@ -67,4 +75,6 @@
       ];
     };
   };
+
+  xdg.configFile."ghostty/cursor_tail.glsl".source = cursorTailShader;
 }
