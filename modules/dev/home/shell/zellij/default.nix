@@ -74,61 +74,69 @@ let
 
     keybinds clear-defaults=true {
         normal {
-            // Mode switching
+            // Mode switching (matching WezTerm)
+            bind "Ctrl g" { SwitchToMode "locked"; }
             bind "Ctrl a" "a" { SwitchToMode "locked"; }
             bind "Ctrl a" "r" { SwitchToMode "resize"; }
-            bind "Ctrl a" "S" { SwitchToMode "scroll"; }
-            bind "Ctrl a" "/" { SwitchToMode "search"; }
             
-            // Quick scrollback access (no prefix needed)
-            bind "Alt [" { SwitchToMode "scroll"; }
-            bind "Alt v" { SwitchToMode "scroll"; }
+            // Scrollback and search (matching WezTerm keybindings)
+            bind "Ctrl Escape" { SwitchToMode "scroll"; }
+            bind "Ctrl /" { SwitchToMode "search"; }
 
             // Pane navigation (vim keys)
-            bind "Ctrl a" "h" {
+            bind "Ctrl h" {
                 MessagePlugin "${vimZellijNavigatorUrl}" {
                     name "move_focus";
                     payload "left";
                 };
             }
-            bind "Ctrl a" "j" {
+            bind "Ctrl j" {
                 MessagePlugin "${vimZellijNavigatorUrl}" {
                     name "move_focus";
                     payload "down";
                 };
             }
-            bind "Ctrl a" "k" {
+            bind "Ctrl k" {
                 MessagePlugin "${vimZellijNavigatorUrl}" {
                     name "move_focus";
                     payload "up";
                 };
             }
-            bind "Ctrl a" "l" {
+            bind "Ctrl l" {
                 MessagePlugin "${vimZellijNavigatorUrl}" {
                     name "move_focus";
                     payload "right";
                 };
             }
 
-            // Pane splitting
-            bind "Ctrl a" "v" { NewPane "Right"; }
-            bind "Ctrl a" "s" { NewPane "Down"; }
-            bind "Ctrl a" "w" { CloseFocus; }
+            // Pane resize
+            bind "Ctrl Shift h" { Resize "Increase left"; }
+            bind "Ctrl Shift j" { Resize "Increase down"; }
+            bind "Ctrl Shift k" { Resize "Increase up"; }
+            bind "Ctrl Shift l" { Resize "Increase right"; }
 
-            // Tab management
-            bind "Ctrl a" "t" { NewTab; }
-            bind "Ctrl a" "1" { GoToTab 1; }
-            bind "Ctrl a" "2" { GoToTab 2; }
-            bind "Ctrl a" "3" { GoToTab 3; }
-            bind "Ctrl a" "4" { GoToTab 4; }
-            bind "Ctrl a" "5" { GoToTab 5; }
-            bind "Ctrl a" "6" { GoToTab 6; }
+            // Pane splitting (matching WezTerm)
+            bind "Ctrl v" { NewPane "Right"; }
+            bind "Ctrl s" { NewPane "Down"; }
+            bind "Ctrl w" { CloseFocus; }
+
+            // Tab management (matching WezTerm)
+            bind "Ctrl t" { NewTab; }
+            bind "Ctrl 1" { GoToTab 1; }
+            bind "Ctrl 2" { GoToTab 2; }
+            bind "Ctrl 3" { GoToTab 3; }
+            bind "Ctrl 4" { GoToTab 4; }
+            bind "Ctrl 5" { GoToTab 5; }
+            bind "Ctrl 6" { GoToTab 6; }
+            bind "Ctrl 7" { GoToTab 7; }
+            bind "Ctrl 8" { GoToTab 8; }
+            bind "Ctrl 9" { GoToTab 9; }
 
             // Session management
             bind "Ctrl a" "D" { Detach; }
             bind "Ctrl a" "q" { Quit; }
             bind "Ctrl a" "f" { ToggleFocusFullscreen; }
-            bind "Ctrl a" "k" { Clear; }
+            bind "Super k" { Clear; }
         }
 
         resize {
@@ -152,13 +160,15 @@ let
             bind "Down" { ScrollDown; }
             bind "Up" { ScrollUp; }
             
-            // Page movement
+            // Page movement (matching WezTerm Ctrl+u/d behavior)
             bind "Ctrl d" { HalfPageScrollDown; }
             bind "Ctrl u" { HalfPageScrollUp; }
             bind "Ctrl f" { PageScrollDown; }
             bind "Ctrl b" { PageScrollUp; }
             bind "PageDown" { PageScrollDown; }
             bind "PageUp" { PageScrollUp; }
+            bind "d" { HalfPageScrollDown; }
+            bind "u" { HalfPageScrollUp; }
             
             // Jump to top/bottom
             bind "g" { ScrollToTop; }
@@ -168,6 +178,7 @@ let
             
             // Search
             bind "/" { SwitchToMode "search"; }
+            bind "Ctrl /" { SwitchToMode "search"; }
             bind "n" { Search "down"; }
             bind "N" { Search "up"; }
             
@@ -177,6 +188,7 @@ let
             
             // Exit scroll mode
             bind "Esc" { SwitchToMode "normal"; }
+            bind "Ctrl Escape" { SwitchToMode "normal"; }
             bind "q" { SwitchToMode "normal"; }
             bind "i" { SwitchToMode "normal"; }
             bind "Enter" { SwitchToMode "normal"; }
@@ -198,6 +210,7 @@ let
         }
 
         locked {
+            bind "Ctrl g" { SwitchToMode "normal"; }
             bind "Ctrl a" "Esc" { SwitchToMode "normal"; }
             bind "Ctrl a" "a" { SwitchToMode "normal"; }
         }
