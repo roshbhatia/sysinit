@@ -1,19 +1,15 @@
 {
-  lib,
   pkgs,
   config,
   ...
 }:
 
 let
-  themes = import ../../../shared/lib/theme { inherit lib; };
-
-  zellijThemeName =
-    themes.getAppTheme "zellij" config.sysinit.theme.colorscheme
-      config.sysinit.theme.variant;
-
   zjstatusUrl = "https://github.com/dj95/zjstatus/releases/latest/download/zjstatus.wasm";
   vimZellijNavigatorUrl = "https://github.com/hiasr/vim-zellij-navigator/releases/download/0.3.0/vim-zellij-navigator.wasm";
+
+  # Use Stylix colors
+  inherit (config.lib.stylix) colors;
 
   defaultLayoutContent = ''
     layout {
@@ -22,13 +18,42 @@ let
         }
         pane size=1 borderless=true {
             plugin location="${zjstatusUrl}" {
-                hide_frame_for_single_pane "false"
+                format_left   "{mode}#[bg=default] {session} {tabs}"
+                format_center ""
+                format_right  "#[fg=#${colors.base03},bg=default]{command_git_branch}"
+                format_space  ""
+                format_hide_on_overlength "true"
+                format_precedence "lrc"
 
-                mode_default_to_mode "tmux"
+                border_enabled  "false"
+                hide_frame_for_single_pane "true"
 
-                tab_fullscreen_indicator "□ "
-                tab_sync_indicator       "  "
-                tab_floating_indicator   "󰉈 "
+                mode_normal        "#[bg=#${colors.base0D},fg=#${colors.base00},bold] NORMAL #[bg=default,fg=#${colors.base0D}]"
+                mode_locked        "#[bg=#${colors.base08},fg=#${colors.base00},bold] LOCKED #[bg=default,fg=#${colors.base08}]"
+                mode_resize        "#[bg=#${colors.base0E},fg=#${colors.base00},bold] RESIZE #[bg=default,fg=#${colors.base0E}]"
+                mode_pane          "#[bg=#${colors.base0B},fg=#${colors.base00},bold] PANE #[bg=default,fg=#${colors.base0B}]"
+                mode_tab           "#[bg=#${colors.base0A},fg=#${colors.base00},bold] TAB #[bg=default,fg=#${colors.base0A}]"
+                mode_scroll        "#[bg=#${colors.base0C},fg=#${colors.base00},bold] SCROLL #[bg=default,fg=#${colors.base0C}]"
+                mode_enter_search  "#[bg=#${colors.base09},fg=#${colors.base00},bold] SEARCH #[bg=default,fg=#${colors.base09}]"
+                mode_search        "#[bg=#${colors.base09},fg=#${colors.base00},bold] SEARCH #[bg=default,fg=#${colors.base09}]"
+                mode_rename_tab    "#[bg=#${colors.base0A},fg=#${colors.base00},bold] RENAME #[bg=default,fg=#${colors.base0A}]"
+                mode_rename_pane   "#[bg=#${colors.base0B},fg=#${colors.base00},bold] RENAME #[bg=default,fg=#${colors.base0B}]"
+                mode_session       "#[bg=#${colors.base0D},fg=#${colors.base00},bold] SESSION #[bg=default,fg=#${colors.base0D}]"
+                mode_move          "#[bg=#${colors.base0E},fg=#${colors.base00},bold] MOVE #[bg=default,fg=#${colors.base0E}]"
+                mode_prompt        "#[bg=#${colors.base08},fg=#${colors.base00},bold] PROMPT #[bg=default,fg=#${colors.base08}]"
+                mode_tmux          "#[bg=#${colors.base0B},fg=#${colors.base00},bold] TMUX #[bg=default,fg=#${colors.base0B}]"
+
+                tab_normal              "#[fg=#${colors.base03}] {index} {name} "
+                tab_normal_fullscreen   "#[fg=#${colors.base03}] {index} {name} [] "
+                tab_normal_sync         "#[fg=#${colors.base03}] {index} {name}  "
+                tab_active              "#[fg=#${colors.base0D},bold] {index} {name} #[fg=#${colors.base03}]│"
+                tab_active_fullscreen   "#[fg=#${colors.base0D},bold] {index} {name} [] #[fg=#${colors.base03}]│"
+                tab_active_sync         "#[fg=#${colors.base0D},bold] {index} {name}  #[fg=#${colors.base03}]│"
+
+                command_git_branch_command     "git rev-parse --abbrev-ref HEAD 2>/dev/null"
+                command_git_branch_format      " {stdout}"
+                command_git_branch_interval    "10"
+                command_git_branch_rendermode  "static"
             }
         }
     }
@@ -59,7 +84,6 @@ let
     pane_frames true
 
     default_mode "normal"
-    theme "${zellijThemeName}"
 
     load_plugins "session-manager" "zjstatus" "vim-zellij-navigator"
     plugins {
@@ -71,6 +95,18 @@ let
         }
         vim-zellij-navigator {
             location "${vimZellijNavigatorUrl}"
+        }
+    }
+
+    plugin_permissions {
+        location "${zjstatusUrl}" {
+            _allow_all_permissions true
+        }
+        location "${vimZellijNavigatorUrl}" {
+            _allow_all_permissions true
+        }
+        location "zellij:session-manager" {
+            _allow_all_permissions true
         }
     }
 
@@ -135,9 +171,9 @@ let
             bind "Ctrl 9" { GoToTab 9; }
 
             // Session management
-            bind "Ctrl d" { Detach; }
-            bind "Ctrl f" { ToggleFocusFullscreen; }
-            bind "Super k" { Clear; }
+            bind "Ctrl+Shift+d" { Detach; }
+            bind "Ctrl+m" { ToggleFocusFullscreen; }
+            bind "Super+k" { Clear; }
         }
 
         resize {
