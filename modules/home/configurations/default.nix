@@ -13,7 +13,6 @@
     ./eza.nix
     ./fd.nix
     ./fzf.nix
-    ./ghostty
     ./git
     ./helix.nix
     ./htop.nix
@@ -30,7 +29,6 @@
     ./vivid.nix
     ./wezterm
     ./yazi
-    ./zellij
     ./zoxide.nix
     ./zsh
   ];

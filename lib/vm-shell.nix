@@ -55,7 +55,6 @@ rec {
 
       env:
         PROJECT_NAME: "${projectName}"
-        ZELLIJ_SESSION: "${projectName}"
 
       portForwards:
       ${portForwards}
@@ -167,13 +166,12 @@ rec {
       fi
     '';
 
-  # Enter VM with auto-attach to Zellij
-  enterVM = vmName: projectName: verbose: ''
+  # Enter VM
+  enterVM = vmName: _projectName: verbose: ''
     _vm_name="${vmName}"
 
-    ${lib.optionalString verbose ''echo "Connecting to $_vm_name (Zellij will auto-attach)..."''}
+    ${lib.optionalString verbose ''echo "Connecting to $_vm_name..."''}
 
-    export ZELLIJ_SESSION="${projectName}"
     export SYSINIT_IN_VM=1
 
     # Check if already in a VM

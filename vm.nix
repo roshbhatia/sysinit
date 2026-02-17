@@ -10,8 +10,8 @@ let
         pkgs.fetchFromGitHub {
           owner = "roshbhatia";
           repo = "sysinit";
-          rev = "main";
-          sha256 = lib.fakeHash;
+          rev = "ba1035ac4b4edc19634fe60c53bc0f136141db0b";
+          sha256 = "sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=";
         }
         + "/lib/vm-shell.nix"
       )

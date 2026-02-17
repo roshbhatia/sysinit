@@ -1,4 +1,4 @@
-{ pkgs, ... }:
+{ pkgs, inputs, ... }:
 
 {
   programs = {
@@ -7,6 +7,7 @@
       enableZshIntegration = true;
       enableNushellIntegration = true;
       nix-direnv.enable = true;
+      package = inputs.direnv-instant.packages.${pkgs.system}.default;
 
       stdlib = ''
         # VM detection and helpers
