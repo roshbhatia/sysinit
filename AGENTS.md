@@ -52,6 +52,7 @@ task docs:values              # Generate values.nix documentation
 - **Comments**: Use for complex logic only
 - **Testing**: Run `task nix:build` before commits
 - **Pre-Commit**: `task fmt:all:check` then `task nix:validate` then `task nix:build`
+- **Hostname-based tasks**: When on work machine (hostname: APKR2N5D495296), use `task nix:build:work` and `task nix:refresh:work` instead of lv426 equivalents
 
 ## Task & Feature Management
 

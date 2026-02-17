@@ -7,36 +7,26 @@ tasks:
     cmds:
       - hack/nix-build.sh lv426
 
-  build:arrakis:
-    desc: Build arrakis (NixOS) system configuration
+  build:work:
+    desc: Build work system configuration (builds in work repo with reduced resources)
     cmds:
-      - hack/nix-build.sh arrakis
+      - hack/nix-build.sh work --dry-run
 
   build:all:
-    desc: Build all system configurations (lv426 and arrakis)
+    desc: Build all system configurations (lv426 and work)
     cmds:
       - task: build:lv426
-      - task: build:arrakis
+      - task: build:work
 
   refresh:lv426:
     desc: Apply lv426 (macOS) system configuration
     cmds:
       - hack/nix-refresh.sh lv426
 
-  refresh:arrakis:
-    desc: Apply arrakis (NixOS) system configuration
-    cmds:
-      - hack/nix-refresh.sh arrakis
-
   refresh:work:
     desc: Apply work system configuration (builds and applies in work repo)
     cmds:
       - hack/nix-refresh.sh work
-
-  build:work:
-    desc: Build work system configuration (builds in work repo with reduced resources)
-    cmds:
-      - hack/nix-build.sh work --dry-run
 
   clean:
     desc: Clean Nix store and delete old generations
