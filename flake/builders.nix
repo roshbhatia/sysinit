@@ -4,6 +4,14 @@
   inputs,
 }:
 
+let
+  # Import profiles for profile-based configurations
+  profiles = import ../profiles { inherit nixpkgs; };
+
+  # Resolve profile module if hostConfig has a profile field
+  resolveProfile = hostConfig: if hostConfig ? profile then profiles.${hostConfig.profile} else null; # Fallback to old values-based system
+in
+
 {
   mkPkgs =
     {
@@ -115,7 +123,8 @@
             # Disable NixOS manual generation - reduces build time and disk usage
             documentation.enable = false;
           }
-        ];
+        ]
+        ++ lib.optional (resolveProfile hostConfig != null) (resolveProfile hostConfig);
       }
     else
       lib.nixosSystem {
@@ -154,6 +163,7 @@
         ++ lib.optionals (values.nix.gaming.enable && nix-gaming != null) [
           nix-gaming.nixosModules.pipewireLowLatency
           nix-gaming.nixosModules.platformOptimizations
-        ];
+        ]
+        ++ lib.optional (resolveProfile hostConfig != null) (resolveProfile hostConfig);
       };
 }

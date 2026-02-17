@@ -1,10 +1,16 @@
 common:
 
 {
+  # macOS host - use minimal profile
   lv426 = {
     system = "aarch64-darwin";
     platform = "darwin";
     inherit (common) username;
+
+    # Reference profile instead of inline configuration
+    profile = "host-minimal";
+
+    # Host-specific overrides
     values = common.values // {
       darwin.homebrew.additionalPackages.casks = [
         "betterdiscord-installer"
@@ -25,5 +31,32 @@ common:
         };
       };
     };
+  };
+
+  # Lima dev VM - full development environment (stub for PRD-03)
+  lima-dev = {
+    system = "aarch64-linux";
+    platform = "linux";
+    username = "dev";
+
+    profile = "dev-full";
+
+    values = common.values // {
+      theme = {
+        colorscheme = "everforest";
+        variant = "dark-soft";
+      };
+    };
+  };
+
+  # Lima minimal VM - basic dev tools only (stub for PRD-03)
+  lima-minimal = {
+    system = "aarch64-linux";
+    platform = "linux";
+    username = "dev";
+
+    profile = "dev-minimal";
+
+    values = common.values;
   };
 }
