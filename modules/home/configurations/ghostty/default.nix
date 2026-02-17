@@ -27,8 +27,6 @@
       quick-terminal-position = "bottom";
       quick-terminal-size = "60%";
 
-      command = "${pkgs.zsh}/bin/zsh -c ${pkgs.zellij}/bin/zellij";
-
       keybind = [
         "global:alt+enter=toggle_quick_terminal"
         "super+semicolon=toggle_command_palette"
