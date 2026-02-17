@@ -82,8 +82,8 @@ let
             bind "Ctrl a" "r" { SwitchToMode "resize"; }
             
             // Scrollback and search (matching WezTerm keybindings)
-            bind "Ctrl Escape" { SwitchToMode "scroll"; }
-            bind "Ctrl /" { SwitchToMode "search"; }
+            bind "Ctrl+Esc" { SwitchToMode "scroll"; }
+            bind "Ctrl+/" { SwitchToMode "search"; }
 
             // Pane navigation (vim keys)
             bind "Ctrl h" {
@@ -112,10 +112,10 @@ let
             }
 
             // Pane resize
-            bind "Ctrl Shift h" { Resize "Increase left"; }
-            bind "Ctrl Shift j" { Resize "Increase down"; }
-            bind "Ctrl Shift k" { Resize "Increase up"; }
-            bind "Ctrl Shift l" { Resize "Increase right"; }
+            bind "Ctrl+Shift+h" { Resize "Increase left"; }
+            bind "Ctrl+Shift+j" { Resize "Increase down"; }
+            bind "Ctrl+Shift+k" { Resize "Increase up"; }
+            bind "Ctrl+Shift+l" { Resize "Increase right"; }
 
             // Pane splitting (matching WezTerm)
             bind "Ctrl v" { NewPane "Right"; }
@@ -189,7 +189,7 @@ let
             
             // Exit scroll mode
             bind "Esc" { SwitchToMode "normal"; }
-            bind "Ctrl Escape" { SwitchToMode "normal"; }
+            bind "Ctrl+Esc" { SwitchToMode "normal"; }
             bind "q" { SwitchToMode "normal"; }
             bind "i" { SwitchToMode "normal"; }
             bind "Enter" { SwitchToMode "normal"; }

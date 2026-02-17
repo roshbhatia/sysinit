@@ -26,8 +26,8 @@
 
       keybind = [
         "global:alt+enter=toggle_quick_terminal"
-        "performable:super+c=copy_to_clipboard"
-        "performable:super+v=paste_from_clipboard"
+        "super+c=copy_to_clipboard"
+        "super+v=paste_from_clipboard"
         "super+1=goto_tab:1"
         "super+2=goto_tab:2"
         "super+3=goto_tab:3"
@@ -45,7 +45,6 @@
         "super+q=quit"
         "super+shift+z=redo"
         "super+t=new_tab"
-        "super+v=paste_from_clipboard"
         "super+w=close_tab"
         "super+z=undo"
       ];
