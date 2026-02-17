@@ -112,12 +112,10 @@ let
 
     keybinds clear-defaults=true {
         normal {
-            // Mode switching (matching WezTerm)
+            // Mode switching
             bind "Ctrl g" { SwitchToMode "locked"; }
-            bind "Ctrl a" "a" { SwitchToMode "locked"; }
-            bind "Ctrl a" "r" { SwitchToMode "resize"; }
 
-            // Scrollback and search (matching WezTerm keybindings)
+            // Scrollback and search
             bind "Ctrl Esc" { SwitchToMode "scroll"; }
             bind "Ctrl /" { SwitchToMode "entersearch"; }
 
@@ -153,12 +151,12 @@ let
             bind "Ctrl Shift k" { Resize "Increase up"; }
             bind "Ctrl Shift l" { Resize "Increase right"; }
 
-            // Pane splitting (matching WezTerm)
+            // Pane splitting
             bind "Ctrl v" { NewPane "Right"; }
             bind "Ctrl s" { NewPane "Down"; }
             bind "Ctrl w" { CloseFocus; }
 
-            // Tab management (matching WezTerm)
+            // Tab management
             bind "Ctrl t" { NewTab; }
             bind "Ctrl 1" { GoToTab 1; }
             bind "Ctrl 2" { GoToTab 2; }
@@ -171,9 +169,9 @@ let
             bind "Ctrl 9" { GoToTab 9; }
 
             // Session management
-            bind "Ctrl+Shift+d" { Detach; }
-            bind "Ctrl+m" { ToggleFocusFullscreen; }
-            bind "Super+k" { Clear; }
+            bind "Ctrl Shift d" { Detach; }
+            bind "Ctrl m" { ToggleFocusFullscreen; }
+            bind "Super k" { Clear; }
         }
 
         resize {
@@ -197,7 +195,7 @@ let
             bind "Down" { ScrollDown; }
             bind "Up" { ScrollUp; }
 
-            // Page movement (matching WezTerm Ctrl+u/d behavior)
+            // Page movement
             bind "Ctrl d" { HalfPageScrollDown; }
             bind "Ctrl u" { HalfPageScrollUp; }
             bind "Ctrl f" { PageScrollDown; }
