@@ -25,8 +25,8 @@ let
                 format_hide_on_overlength "true"
                 format_precedence "lrc"
 
-                border_enabled  "false"
-                hide_frame_for_single_pane "true"
+                border_enabled  "true"
+                hide_frame_for_single_pane "false"
 
                 mode_normal        "#[bg=#${colors.base0D},fg=#${colors.base00},bold] NORMAL #[bg=default,fg=#${colors.base0D}]"
                 mode_locked        "#[bg=#${colors.base08},fg=#${colors.base00},bold] LOCKED #[bg=default,fg=#${colors.base08}]"
