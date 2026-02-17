@@ -328,3 +328,85 @@ The work repo (`rbha18_nike/sysinit`) should:
 - Builder pattern: `lib/builders.nix`
 - Host configs: `hosts/*/default.nix`
 - Lessons learned: `.sysinit/lessons.md`
+
+## Completion Summary
+
+**Status: COMPLETE**
+
+Successfully consolidated modules and introduced base host pattern. All builds passing on personal and work repos.
+
+### Architecture Improvements
+
+**1. Module Auto-Import Pattern**
+- Shared home configs auto-imported via `modules/home/configurations/default.nix` (28 modules)
+- Darwin configs auto-imported via `modules/darwin/configurations/default.nix`
+- Platform-specific configs in `modules/darwin/home/` (firefox, desktop)
+
+**2. Base Host Pattern Introduced**
+```
+hosts/_base/
+├── darwin.nix  # Base for all macOS hosts (lima, common packages)
+└── lima.nix    # Base for all Lima VMs (minimal packages)
+
+hosts/lv426/         → imports _base/darwin.nix
+hosts/work/          → imports _base/darwin.nix (via sysinit input)
+hosts/lima-dev/      → imports _base/lima.nix + dev packages
+hosts/lima-minimal/  → imports _base/lima.nix only
+```
+
+**3. Consistency Throughout**
+
+All hosts (macOS + VMs) get identical configs:
+- Shell: zsh, oh-my-posh, history, aliases
+- Editors: neovim, helix (full LSP, plugins, keybindings)
+- Git: user info, aliases, commit style
+- Multiplexer: zellij (auto-attach on SSH)
+- CLI tools: bat, eza, fd, ripgrep, fzf, zoxide, direnv
+- Dev tools: kubectl, k9s, docker integration
+
+**VMs feel native** - same muscle memory and workflow everywhere.
+
+### Files Changed
+
+**Personal Repo:**
+- `modules/home/configurations/default.nix` - Added ghostty, zellij
+- `modules/home/configurations/helix.nix` - Inlined LSP config (612 lines)
+- `modules/home/configurations/ghostty/` - Moved from desktop/
+- `modules/home/configurations/zellij/` - Moved from dev/
+- `hosts/_base/darwin.nix` - NEW: Base for macOS hosts
+- `hosts/_base/lima.nix` - NEW: Base for Lima VMs
+- `hosts/lv426/default.nix` - Simplified to 9 lines
+- `hosts/lima-dev/default.nix` - Simplified to 19 lines
+- `hosts/lima-minimal/default.nix` - Simplified to 9 lines
+- Deleted: `modules/shared/lib/lsp-config.nix`
+- Deleted: `modules/desktop/`, `modules/dev/` directories
+
+**Work Repo:**
+- `flake.nix` - Pass sysinit via specialArgs
+- `modules/darwin/default.nix` - Import base darwin from personal repo
+- Removed: 25 lines of duplicated packages and config
+
+### Verification
+
+All acceptance criteria met:
+- ✓ Personal repo build passes
+- ✓ Work repo build passes
+- ✓ Ghostty installed on both repos
+- ✓ Zellij installed on all hosts
+- ✓ Firefox installed on all Darwin hosts
+- ✓ No packages lost (verified with diff)
+- ✓ Helix LSP servers working
+- ✓ Empty directories removed
+- ✓ Host configs minimal and clean
+
+### Commits
+
+Personal repo:
+- `5bcad7464` - Module consolidation and cleanup
+- `e35dc8248` - Base host pattern introduction
+
+Work repo:
+- `ccea902` - Sync with personal repo consolidation
+- `fcc8c30` - Use base darwin pattern
+
+All changes pushed to remote.
