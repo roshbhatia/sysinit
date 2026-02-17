@@ -94,7 +94,6 @@ graph LR
 ## Non-Goals
 
 - Not creating container-based environments (using VMs instead)
-- Not replacing current NixOS configurations (arrakis unchanged)
 - Not changing theme system (works fine, leave as-is)
 - Not refactoring LLM configs (works fine, leave as-is)
 
