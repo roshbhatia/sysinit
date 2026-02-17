@@ -25,6 +25,17 @@
 
 This comprises most of my dotfiles, managed (mostly) by `nix`.
 
+## Structure
+
+- `flake.nix` - Flake entry point
+- `hosts/` - Per-host configurations (lv426, lima-dev, lima-minimal)
+- `lib/` - Nix builder functions and utilities
+- `modules/` - Reusable NixOS/Darwin/home-manager modules
+- `profiles/` - Reusable configuration bundles
+- `pkgs/` - Custom package definitions
+- `templates/` - Project templates (VM dev environments)
+- `hack/` - Build and maintenance scripts
+
 ## Install Dependencies
 
 ```bash

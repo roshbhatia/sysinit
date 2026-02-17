@@ -49,9 +49,93 @@
   };
 
   outputs =
-    inputs@{ self, ... }:
-    (import ./flake/outputs.nix (inputs // { inherit self; }))
-    // {
-      formatter.aarch64-darwin = inputs.nixpkgs.legacyPackages.aarch64-darwin.nixfmt;
+    inputs@{ self, nixpkgs, ... }:
+    let
+      inherit (nixpkgs) lib;
+
+      sysinitLib = import ./lib {
+        inherit lib nixpkgs inputs;
+      };
+
+      common = sysinitLib.common;
+      hostConfigs = (import ./hosts) common;
+      builders = sysinitLib.builders;
+      outputBuilders = sysinitLib.outputBuilders;
+
+      darwinConfigs = lib.filterAttrs (_: cfg: cfg.platform == "darwin") hostConfigs;
+      nixosConfigs = lib.filterAttrs (_: cfg: cfg.platform == "linux") hostConfigs;
+
+      buildConfig = builders.buildConfiguration {
+        inherit (inputs)
+          darwin
+          home-manager
+          stylix
+          nix-homebrew
+          onepassword-shell-plugins
+          ;
+        inherit (builders) mkPkgs mkUtils mkOverlays;
+      };
+    in
+    {
+      darwinConfigurations = outputBuilders.mkConfigurations {
+        configs = darwinConfigs;
+        inherit buildConfig;
+        extras = {
+          bootstrap = inputs.darwin.lib.darwinSystem {
+            system = "aarch64-darwin";
+            modules = [ (import ./flake/bootstrap.nix) ];
+          };
+        };
+      };
+
+      nixosConfigurations = outputBuilders.mkConfigurations {
+        configs = nixosConfigs;
+        inherit buildConfig;
+      };
+
+      packages.aarch64-darwin = { };
+
+      lib = {
+        inherit
+          builders
+          hostConfigs
+          common
+          ;
+      };
+
+      templates = {
+        vm-dev = {
+          path = self + /templates/vm-dev;
+          description = "Full development project with automatic Lima VM integration";
+          welcomeText = ''
+            # Development project created!
+
+            ## Setup
+            1. Review shell.nix and customize VM settings
+            2. Run: direnv allow
+            3. The VM will auto-create and you'll be dropped into it
+
+            ## Manual controls
+            - Stop VM: task lima:stop
+            - Destroy VM: task lima:destroy
+            - Status: task lima:status
+
+            ## Disable auto-entry
+            Set SYSINIT_NO_AUTO_VM=1 in .envrc to disable automatic VM entry.
+          '';
+        };
+
+        vm-minimal = {
+          path = self + /templates/vm-minimal;
+          description = "Minimal project with basic Lima VM";
+          welcomeText = ''
+            # Minimal project created!
+
+            Run 'direnv allow' to enable automatic VM management.
+          '';
+        };
+      };
+
+      formatter.aarch64-darwin = nixpkgs.legacyPackages.aarch64-darwin.nixfmt;
     };
 }

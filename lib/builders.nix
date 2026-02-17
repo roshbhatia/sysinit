@@ -4,12 +4,6 @@
   inputs,
 }:
 
-let
-  profiles = import ../profiles { inherit nixpkgs; };
-
-  resolveProfile = hostConfig: if hostConfig ? profile then profiles.${hostConfig.profile} else null;
-in
-
 {
   mkPkgs =
     {
@@ -127,7 +121,7 @@ in
             documentation.enable = false;
           }
         ]
-        ++ lib.optional (resolveProfile hostConfig != null) (resolveProfile hostConfig);
+        ++ lib.optional (hostConfig ? config) hostConfig.config;
       }
     else
       lib.nixosSystem {
@@ -178,6 +172,6 @@ in
           }
         ]
         ++ lib.optional (lib.hasPrefix "lima-" hostname) ../modules/system/nixos/vm/lima-base.nix
-        ++ lib.optional (resolveProfile hostConfig != null) (resolveProfile hostConfig);
+        ++ lib.optional (hostConfig ? config) hostConfig.config;
       };
 }

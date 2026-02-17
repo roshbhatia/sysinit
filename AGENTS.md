@@ -2,6 +2,19 @@
 
 Nix-flakes configuration for macOS (Apple Silicon) and NixOS. Reproducible system setup via nix-darwin + home-manager.
 
+## Repository Structure
+
+**Idiomatic Nix flake layout:**
+- `flake.nix` - Entry point defining inputs and outputs
+- `hosts/` - Per-host configuration directories (lv426, lima-dev, lima-minimal)
+  - Each host has `default.nix` (config) and `values.nix` (host-specific values)
+- `lib/` - Builder functions and utilities (builders.nix, common.nix, output-builders.nix)
+- `modules/` - Reusable modules organized by platform (darwin, nixos, home, shared)
+- `profiles/` - Configuration bundles (base, desktop, dev-full, dev-minimal, host-minimal)
+- `pkgs/` - Custom package definitions
+- `templates/` - Flake templates for VM dev environments
+- `hack/` - Build/format/maintenance scripts called by Taskfile
+
 ## Essential Commands
 
 ### Build/Test/Apply
