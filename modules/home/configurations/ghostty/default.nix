@@ -66,7 +66,6 @@
         "super+n=new_window"
         "super+q=quit"
         "super+shift+z=redo"
-        "super+t=new_tab"
         "super+w=close_tab"
         "super+z=undo"
       ];
