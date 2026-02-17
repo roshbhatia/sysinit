@@ -19,16 +19,20 @@
       window-padding-balance = true;
 
       keybind = [
-        "super+h=toggle_visibility"
-        "super+q=quit"
-        "super+w=close_tab"
         "global:alt+enter=toggle_quick_terminal"
         "performable:super+c=copy_to_clipboard"
         "performable:super+v=paste_from_clipboard"
-        "super+plus=paste_from_clipboard"
-        "super+v=paste_from_clipboard"
-        "super+z=undo"
+        "super+a=select_all"
+        "super+equals=increase_font_size:1"
+        "super+h=toggle_visibility"
+        "super+minus=decrease_font_size:1"
+        "super+n=new_window"
+        "super+q=quit"
         "super+shift+z=redo"
+        "super+t=new_tab"
+        "super+v=paste_from_clipboard"
+        "super+w=close_tab"
+        "super+z=undo"
       ];
     };
   };
