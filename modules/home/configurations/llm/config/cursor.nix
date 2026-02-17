@@ -1,11 +1,14 @@
 {
   lib,
-  values,
+  config,
   ...
 }:
 let
   llmLib = import ../lib { inherit lib; };
-  mcpServers = import ../mcp.nix { inherit lib values; };
+  mcpServers = import ../mcp.nix {
+    inherit lib;
+    additionalServers = config.sysinit.llm.mcp.additionalServers;
+  };
 
   cursorConfig = builtins.toJSON {
     version = 1;

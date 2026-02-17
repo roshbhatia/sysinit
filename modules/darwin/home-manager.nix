@@ -26,6 +26,7 @@
           # Import shared module options
           ../shared/lib/modules/theme.nix
           ../shared/lib/modules/packages.nix
+          ../shared/lib/modules/llm.nix
           # Inline module to set sysinit values from common.nix values
           {
             config.sysinit.git = values.git;
@@ -46,6 +47,9 @@
             config.sysinit.uvx.additionalPackages = values.uvx.additionalPackages or [ ];
             config.sysinit.vet.additionalPackages = values.vet.additionalPackages or [ ];
             config.sysinit.yarn.additionalPackages = values.yarn.additionalPackages or [ ];
+            # LLM configuration
+            config.sysinit.llm.mcp.additionalServers = values.llm.mcp.additionalServers or { };
+            config.sysinit.llm.copilot = values.llm.copilot or { };
           }
         ];
       };

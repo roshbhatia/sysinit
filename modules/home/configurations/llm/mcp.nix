@@ -1,6 +1,6 @@
 {
   lib,
-  values,
+  additionalServers ? { },
 }:
 let
   flattenPermissions =
@@ -17,6 +17,9 @@ let
       ];
       description = "Beads issue tracker MCP for persistent memories";
     };
+  };
+
+  permissions = {
   };
 
   permissions = {
@@ -108,7 +111,7 @@ let
   };
 
   allPermissions = flattenPermissions (builtins.attrValues permissions);
-  allServers = defaultServers // values.llm.mcp.additionalServers or { };
+  allServers = defaultServers // additionalServers;
 in
 {
   servers = allServers;

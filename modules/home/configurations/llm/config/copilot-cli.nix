@@ -1,12 +1,15 @@
 {
   lib,
-  values,
+  config,
   ...
 }:
 let
   llmLib = import ../lib { inherit lib; };
-  mcpServers = import ../mcp.nix { inherit lib values; };
-  cfg = values.llm.copilot or { };
+  mcpServers = import ../mcp.nix {
+    inherit lib;
+    additionalServers = config.sysinit.llm.mcp.additionalServers;
+  };
+  cfg = config.sysinit.llm.copilot;
 
   copilotConfig = builtins.toJSON {
     banner = cfg.banner or "never";

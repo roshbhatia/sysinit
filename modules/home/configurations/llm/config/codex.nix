@@ -1,12 +1,15 @@
 {
   lib,
   pkgs,
-  values,
+  config,
   ...
 }:
 let
   llmLib = import ../lib { inherit lib; };
-  mcpServers = import ../mcp.nix { inherit lib values; };
+  mcpServers = import ../mcp.nix {
+    inherit lib;
+    additionalServers = config.sysinit.llm.mcp.additionalServers;
+  };
   skillsLib = import ../skills.nix { inherit pkgs; };
 
   defaultInstructions = llmLib.instructions.makeInstructions {
