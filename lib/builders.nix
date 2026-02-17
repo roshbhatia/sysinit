@@ -95,7 +95,6 @@
                 };
             };
             config.sysinit.darwin = {
-              borders.enable = values.darwin.borders.enable or false;
               tailscale.enable = values.darwin.tailscale.enable or true;
               homebrew.additionalPackages = {
                 taps = values.darwin.homebrew.additionalPackages.taps or [ ];
