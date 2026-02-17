@@ -8,6 +8,9 @@ includes:
   fmt:
     taskfile: ./tasks/format.yml
     optional: true
+  lima:
+    taskfile: ./tasks/lima.yml
+    optional: true
 
 tasks:
   default:

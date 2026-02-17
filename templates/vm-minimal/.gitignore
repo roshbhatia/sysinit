@@ -1,0 +1,9 @@
+# Direnv
+.direnv/
+
+# Lima VM
+.lima/
+
+# Nix
+result
+result-*

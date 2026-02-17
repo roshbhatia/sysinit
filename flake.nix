@@ -49,8 +49,8 @@
   };
 
   outputs =
-    inputs:
-    (import ./flake/outputs.nix inputs)
+    inputs@{ self, ... }:
+    (import ./flake/outputs.nix (inputs // { inherit self; }))
     // {
       formatter.aarch64-darwin = inputs.nixpkgs.legacyPackages.aarch64-darwin.nixfmt;
     };
