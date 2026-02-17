@@ -39,6 +39,7 @@ let
     "font-sf-mono-nerd-font-ligaturized"
     "font-sf-mono-nerd-font-ligaturized"
     "font-symbols-only-nerd-font"
+    "ghostty"
     "hammerspoon"
     "handy"
     "raycast"

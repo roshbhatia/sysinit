@@ -5,8 +5,15 @@
 }:
 
 let
-  zjstatusUrl = "https://github.com/dj95/zjstatus/releases/latest/download/zjstatus.wasm";
-  vimZellijNavigatorUrl = "https://github.com/hiasr/vim-zellij-navigator/releases/download/0.3.0/vim-zellij-navigator.wasm";
+  zjstatus = pkgs.fetchurl {
+    url = "https://github.com/dj95/zjstatus/releases/latest/download/zjstatus.wasm";
+    sha256 = "0lyxah0pzgw57wbrvfz2y0bjrna9bgmsw9z9f898dgqw1g92dr2d";
+  };
+
+  vimZellijNavigator = pkgs.fetchurl {
+    url = "https://github.com/hiasr/vim-zellij-navigator/releases/download/0.3.0/vim-zellij-navigator.wasm";
+    sha256 = "13f54hf77bwcqhsbmkvpv07pwn3mblyljx15my66j6kw5zva5rbp";
+  };
 
   inherit (config.lib.stylix) colors;
 in
@@ -34,10 +41,22 @@ in
           }
 
           pane size=1 borderless=true {
-              plugin location="${zjstatusUrl}" {
-                  format_left  "#[fg=0,bg=10][{session}]  {tabs}"
-                  format_right "#[fg=0,bg=10]{datetime}"
-                  format_space "#[bg=10]"
+              plugin location="file:${zjstatus}" {
+                  format_left  "{mode} {tabs}"
+                  format_right "{session} "
+                  format_space ""
+
+                  hide_frame_for_single_pane "true"
+
+                  mode_normal        "#[fg=#${colors.base05},bg=#${colors.base01},bold] NORMAL #[fg=#${colors.base05},bg=#${colors.base01}]"
+                  mode_locked        "#[fg=#${colors.base00},bg=#${colors.base08},bold] LOCKED #[fg=#${colors.base05},bg=#${colors.base08}]"
+                  mode_resize        "#[fg=#${colors.base00},bg=#${colors.base0E},bold] RESIZE #[fg=#${colors.base05},bg=#${colors.base0E}]"
+                  mode_pane          "#[fg=#${colors.base00},bg=#${colors.base0B},bold] PANE #[fg=#${colors.base05},bg=#${colors.base0B}]"
+                  mode_tab           "#[fg=#${colors.base00},bg=#${colors.base0A},bold] TAB #[fg=#${colors.base05},bg=#${colors.base0A}]"
+                  mode_scroll        "#[fg=#${colors.base00},bg=#${colors.base0C},bold] SCROLL #[fg=#${colors.base05},bg=#${colors.base0C}]"
+                  mode_enter_search  "#[fg=#${colors.base00},bg=#${colors.base09},bold] SEARCH #[fg=#${colors.base05},bg=#${colors.base09}]"
+                  mode_search        "#[fg=#${colors.base00},bg=#${colors.base09},bold] SEARCH #[fg=#${colors.base05},bg=#${colors.base09}]"
+                  mode_session       "#[fg=#${colors.base00},bg=#${colors.base0D},bold] SESSION #[fg=#${colors.base05},bg=#${colors.base0D}]"
 
                   tab_normal   "{index}:{name} "
                   tab_active   "#[bold]{index}:{name} "
@@ -47,22 +66,12 @@ in
     '';
 
     extraConfig = ''
-      load_plugins "zjstatus" "vim-zellij-navigator"
       plugins {
           zjstatus {
-              location "${zjstatusUrl}"
+              path "file:${zjstatus}"
           }
           vim-zellij-navigator {
-              location "${vimZellijNavigatorUrl}"
-          }
-      }
-
-      plugin_permissions {
-          location "${zjstatusUrl}" {
-              _allow_all_permissions true
-          }
-          location "${vimZellijNavigatorUrl}" {
-              _allow_all_permissions true
+              path "file:${vimZellijNavigator}"
           }
       }
 
@@ -73,25 +82,25 @@ in
               bind "Ctrl /" { SwitchToMode "entersearch"; }
 
               bind "Ctrl h" {
-                  MessagePlugin "${vimZellijNavigatorUrl}" {
+                  MessagePlugin "file:${vimZellijNavigator}" {
                       name "move_focus";
                       payload "left";
                   };
               }
               bind "Ctrl j" {
-                  MessagePlugin "${vimZellijNavigatorUrl}" {
+                  MessagePlugin "file:${vimZellijNavigator}" {
                       name "move_focus";
                       payload "down";
                   };
               }
               bind "Ctrl k" {
-                  MessagePlugin "${vimZellijNavigatorUrl}" {
+                  MessagePlugin "file:${vimZellijNavigator}" {
                       name "move_focus";
                       payload "up";
                   };
               }
               bind "Ctrl l" {
-                  MessagePlugin "${vimZellijNavigatorUrl}" {
+                  MessagePlugin "file:${vimZellijNavigator}" {
                       name "move_focus";
                       payload "right";
                   };
