@@ -1,4 +1,4 @@
-{ values, ... }:
+{ config, ... }:
 
 {
   system.defaults.dock = {
@@ -25,7 +25,7 @@
 
   system.defaults.NSGlobalDomain = {
     "com.apple.sound.beep.feedback" = 0;
-    AppleInterfaceStyle = if values.theme.appearance == "dark" then "Dark" else null;
+    AppleInterfaceStyle = if config.sysinit.theme.appearance == "dark" then "Dark" else null;
     ApplePressAndHoldEnabled = false;
     AppleShowAllExtensions = true;
     AppleShowAllFiles = true;

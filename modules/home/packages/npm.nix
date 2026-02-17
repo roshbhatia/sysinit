@@ -1,7 +1,6 @@
 {
   config,
   lib,
-  values,
   utils,
   ...
 }:
@@ -12,7 +11,7 @@ let
     "@charmland/crush"
     "@fission-ai/openspec"
   ]
-  ++ (values.npm.additionalPackages or [ ]);
+  ++ config.sysinit.npm.additionalPackages;
 in
 {
   home.file.".npmrc" = {

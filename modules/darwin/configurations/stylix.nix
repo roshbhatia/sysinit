@@ -1,13 +1,13 @@
 {
   pkgs,
   lib,
-  values,
+  config,
   ...
 }:
 
 let
   themeLib = import ../../shared/lib/theme.nix { inherit lib; };
-  themeConfig = values.theme;
+  themeConfig = config.sysinit.theme;
 
   schemePath = themeLib.getBase16SchemePath pkgs themeConfig.colorscheme themeConfig.variant;
 in

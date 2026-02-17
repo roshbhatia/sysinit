@@ -109,6 +109,13 @@ in
           {
             config.sysinit.user.username = hostConfig.username;
             config.sysinit.git = hostConfig.sysinit.git;
+            config.sysinit.theme = {
+              appearance = values.theme.appearance;
+              colorscheme = values.theme.colorscheme;
+              variant = values.theme.variant;
+              font.monospace = values.theme.font.monospace;
+              transparency = values.theme.transparency;
+            };
             config.sysinit.darwin = {
               borders.enable = values.darwin.borders.enable or false;
               tailscale.enable = values.darwin.tailscale.enable or true;
@@ -159,6 +166,13 @@ in
           {
             config.sysinit.user.username = hostConfig.username;
             config.sysinit.git = hostConfig.sysinit.git;
+            config.sysinit.theme = {
+              appearance = values.theme.appearance;
+              colorscheme = values.theme.colorscheme;
+              variant = values.theme.variant;
+              font.monospace = values.theme.font.monospace;
+              transparency = values.theme.transparency;
+            };
           }
           ../modules/nixos
           home-manager.nixosModules.home-manager

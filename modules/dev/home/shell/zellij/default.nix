@@ -1,14 +1,16 @@
 {
   lib,
   pkgs,
-  values,
+  config,
   ...
 }:
 
 let
   themes = import ../../../../shared/lib/theme { inherit lib; };
 
-  zellijThemeName = themes.getAppTheme "zellij" values.theme.colorscheme values.theme.variant;
+  zellijThemeName =
+    themes.getAppTheme "zellij" config.sysinit.theme.colorscheme
+      config.sysinit.theme.variant;
 
   zjstatusUrl = "https://github.com/dj95/zjstatus/releases/latest/download/zjstatus.wasm";
   vimZellijNavigatorUrl = "https://github.com/hiasr/vim-zellij-navigator/releases/download/0.3.0/vim-zellij-navigator.wasm";
