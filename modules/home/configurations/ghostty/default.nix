@@ -38,7 +38,7 @@
       shell-integration = "none";
 
       # Cursor tail shader - Kitty-like comet trail (subtle, shows direction)
-      custom-shader = ./shaders/cursor_tail.glsl;
+      custom-shader = toString ./shaders/cursor_tail.glsl;
       custom-shader-animation = "always";
 
       quick-terminal-position = "center";
