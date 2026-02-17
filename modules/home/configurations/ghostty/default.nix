@@ -25,9 +25,16 @@
       window-padding-y = 8;
       window-padding-balance = true;
 
-      # Fix character spacing
+      # Berkeley Mono (TX-02) font features
+      # Enable contextual alternates (ligatures) and dotted 0
+      font-feature = [
+        "+calt"
+        "+ss02"
+      ];
+
+      # Adjust cell height for better spacing with Berkeley Mono
       adjust-cell-width = 0;
-      adjust-cell-height = 0;
+      adjust-cell-height = "-2%";
 
       quick-terminal-position = "center";
       quick-terminal-size = "90%,80%";
