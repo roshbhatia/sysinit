@@ -24,9 +24,6 @@
       # Terminal - Ghostty (PRD-04)
       ../modules/desktop/home/ghostty
 
-      # Keep WezTerm for now (removed in PRD-06)
-      ../modules/home/configurations/wezterm
-
       # Minimal shell for host operations
       ../modules/home/configurations/zsh
 
@@ -43,6 +40,9 @@
       fd
       bat
       eza
+
+      # GitHub CLI (for dotfiles management)
+      gh
     ];
   };
 }

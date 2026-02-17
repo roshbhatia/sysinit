@@ -2,6 +2,16 @@
 version: "3"
 
 tasks:
+  build:
+    desc: Build system configuration (auto-detects based on repo location)
+    cmds:
+      - hack/nix-build.sh $(hack/detect-config.sh)
+
+  refresh:
+    desc: Apply system configuration (auto-detects based on repo location)
+    cmds:
+      - hack/nix-refresh.sh $(hack/detect-config.sh)
+
   build:lv426:
     desc: Build lv426 (macOS) system configuration
     cmds:
