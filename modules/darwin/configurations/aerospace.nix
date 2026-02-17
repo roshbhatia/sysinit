@@ -139,13 +139,6 @@
       ];
 
       mode.main.binding = {
-        alt-enter = ''
-          exec-and-forget osascript -e '
-            tell application "Wezterm"
-              activate
-            end tell'
-        '';
-
         alt-t = "layout tiles horizontal vertical";
         alt-a = "layout accordion horizontal vertical";
 
