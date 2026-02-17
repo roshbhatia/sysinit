@@ -283,6 +283,7 @@ let
         [[ -z "$TMUX" ]] &&
         [[ "$TERM_PROGRAM" != "WezTerm" ]] &&
         [[ "$TERM_PROGRAM" != "vscode" ]] &&
+        [[ "$TERM_PROGRAM" != "ghostty" ]] &&
         [[ -z "$NVIM" ]]
     }
 

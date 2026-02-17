@@ -24,8 +24,12 @@
       window-padding-y = 8;
       window-padding-balance = true;
 
+      quick-terminal-position = "bottom";
+      quick-terminal-size = "60%";
+
       keybind = [
         "global:alt+enter=toggle_quick_terminal"
+        "super+semicolon=toggle_command_palette"
         "super+c=copy_to_clipboard"
         "super+v=paste_from_clipboard"
         "super+1=goto_tab:1"
@@ -38,7 +42,7 @@
         "super+8=goto_tab:8"
         "super+9=goto_tab:9"
         "super+a=select_all"
-        "super+equals=increase_font_size:1"
+        "super+equal=increase_font_size:1"
         "super+h=toggle_visibility"
         "super+minus=decrease_font_size:1"
         "super+n=new_window"
