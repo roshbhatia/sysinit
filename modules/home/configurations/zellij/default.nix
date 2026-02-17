@@ -8,50 +8,22 @@ let
   zjstatusUrl = "https://github.com/dj95/zjstatus/releases/latest/download/zjstatus.wasm";
   vimZellijNavigatorUrl = "https://github.com/hiasr/vim-zellij-navigator/releases/download/0.3.0/vim-zellij-navigator.wasm";
 
-  # Use Stylix colors
   inherit (config.lib.stylix) colors;
 in
 {
   programs.zellij = {
     enable = true;
-    enableZshIntegration = true;
+    enableZshIntegration = false; # We'll use custom integration below
 
     settings = {
-      default_shell = "zsh";
-      copy_clipboard = "primary";
-      copy_command = "pbcopy";
+      default_shell = "${pkgs.zsh}/bin/zsh";
       on_force_close = "detach";
       simplified_ui = true;
-      pane_frames = true;
       auto_layout = true;
-      session_serialization = false;
+      show_startup_tips = false;
 
       scroll_buffer_size = 200000;
       scrollback_editor = "${pkgs.neovim-unwrapped}/bin/nvim";
-      copy_on_select = true;
-
-      ui = {
-        pane_frames = {
-          rounded_corners = false;
-        };
-      };
-
-      default_mode = "normal";
-
-      theme = "custom";
-      themes.custom = {
-        fg = "#${colors.base05}";
-        bg = "#${colors.base00}";
-        black = "#${colors.base00}";
-        red = "#${colors.base08}";
-        green = "#${colors.base0B}";
-        yellow = "#${colors.base0A}";
-        blue = "#${colors.base0D}";
-        magenta = "#${colors.base0E}";
-        cyan = "#${colors.base0C}";
-        white = "#${colors.base05}";
-        orange = "#${colors.base09}";
-      };
     };
 
     layouts.default = ''
@@ -63,10 +35,8 @@ in
           pane size=1 borderless=true {
               plugin location="${zjstatusUrl}" {
                   format_left  "{mode} {tabs}"
-                  format_right ""
-                  format_space ""
-
-                  hide_frame_for_single_pane "true"
+                  format_right " "
+                  format_space " "
 
                   mode_normal        "#[fg=#${colors.base00},bg=#${colors.base0D},bold] NORMAL #[bg=default]"
                   mode_locked        "#[fg=#${colors.base00},bg=#${colors.base08},bold] LOCKED #[bg=default]"
@@ -238,4 +208,19 @@ in
       }
     '';
   };
+
+  # Custom Zsh integration - only auto-attach if not in WezTerm, Ghostty, or Neovim
+  programs.zsh.initExtra = ''
+    if [[ -z "$ZELLIJ" ]] && [[ -z "$NVIM" ]] && [[ "$TERM_PROGRAM" != "WezTerm" ]] && [[ "$TERM_PROGRAM" != "ghostty" ]]; then
+        if [[ "$ZELLIJ_AUTO_ATTACH" == "true" ]]; then
+            zellij attach -c
+        else
+            zellij
+        fi
+
+        if [[ "$ZELLIJ_AUTO_EXIT" == "true" ]]; then
+            exit
+        fi
+    fi
+  '';
 }
