@@ -33,24 +33,26 @@ in
               pane
           }
 
-          pane size=1 borderless=false {
+          pane size=1 borderless=true {
               plugin location="${zjstatusUrl}" {
-                  format_left  "{mode} {tabs}"
-                  format_right " "
-                  format_space " "
+                  format_left  "#[bg=#${colors.base01}]{mode} {tabs}"
+                  format_right "#[bg=#${colors.base01}]{session}#[bg=#${colors.base01}] "
+                  format_space "#[bg=#${colors.base01}]"
 
-                  mode_normal        "#[fg=#${colors.base00},bg=#${colors.base0D},bold] NORMAL #[bg=default]"
-                  mode_locked        "#[fg=#${colors.base00},bg=#${colors.base08},bold] LOCKED #[bg=default]"
-                  mode_resize        "#[fg=#${colors.base00},bg=#${colors.base0E},bold] RESIZE #[bg=default]"
-                  mode_pane          "#[fg=#${colors.base00},bg=#${colors.base0B},bold] PANE #[bg=default]"
-                  mode_tab           "#[fg=#${colors.base00},bg=#${colors.base0A},bold] TAB #[bg=default]"
-                  mode_scroll        "#[fg=#${colors.base00},bg=#${colors.base0C},bold] SCROLL #[bg=default]"
-                  mode_enter_search  "#[fg=#${colors.base00},bg=#${colors.base09},bold] SEARCH #[bg=default]"
-                  mode_search        "#[fg=#${colors.base00},bg=#${colors.base09},bold] SEARCH #[bg=default]"
-                  mode_session       "#[fg=#${colors.base00},bg=#${colors.base0D},bold] SESSION #[bg=default]"
+                  hide_frame_for_single_pane "true"
 
-                  tab_normal   "{index}:{name}  "
-                  tab_active   "{index}:{name}* "
+                  mode_normal        "#[fg=#${colors.base00},bg=#${colors.base0D},bold] NORMAL #[bg=#${colors.base01}]"
+                  mode_locked        "#[fg=#${colors.base00},bg=#${colors.base08},bold] LOCKED #[bg=#${colors.base01}]"
+                  mode_resize        "#[fg=#${colors.base00},bg=#${colors.base0E},bold] RESIZE #[bg=#${colors.base01}]"
+                  mode_pane          "#[fg=#${colors.base00},bg=#${colors.base0B},bold] PANE #[bg=#${colors.base01}]"
+                  mode_tab           "#[fg=#${colors.base00},bg=#${colors.base0A},bold] TAB #[bg=#${colors.base01}]"
+                  mode_scroll        "#[fg=#${colors.base00},bg=#${colors.base0C},bold] SCROLL #[bg=#${colors.base01}]"
+                  mode_enter_search  "#[fg=#${colors.base00},bg=#${colors.base09},bold] SEARCH #[bg=#${colors.base01}]"
+                  mode_search        "#[fg=#${colors.base00},bg=#${colors.base09},bold] SEARCH #[bg=#${colors.base01}]"
+                  mode_session       "#[fg=#${colors.base00},bg=#${colors.base0D},bold] SESSION #[bg=#${colors.base01}]"
+
+                  tab_normal   "#[bg=#${colors.base01}] {index}:{name} "
+                  tab_active   "#[bg=#${colors.base01},bold] {index}:{name} "
               }
           }
       }
