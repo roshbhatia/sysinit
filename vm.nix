@@ -9,9 +9,7 @@ let
     inherit (pkgs) lib;
   };
 
-  inherit (pkgs) lib;
-
-  projectName = builtins.baseNameOf (builtins.toString ./.);
+  projectName = baseNameOf (toString ./.);
   vmName = "${projectName}-dev";
 
   # Import existing shell.nix if it exists
