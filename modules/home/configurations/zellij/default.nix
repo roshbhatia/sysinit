@@ -189,7 +189,6 @@ let
 
             // Exit scroll mode
             bind "Esc" { SwitchToMode "normal"; }
-            bind "Ctrl+Esc" { SwitchToMode "normal"; }
             bind "q" { SwitchToMode "normal"; }
             bind "i" { SwitchToMode "normal"; }
             bind "Enter" { SwitchToMode "normal"; }
