@@ -79,6 +79,10 @@ let
             bind "Ctrl a" "r" { SwitchToMode "resize"; }
             bind "Ctrl a" "S" { SwitchToMode "scroll"; }
             bind "Ctrl a" "/" { SwitchToMode "search"; }
+            
+            // Quick scrollback access (no prefix needed)
+            bind "Alt [" { SwitchToMode "scroll"; }
+            bind "Alt v" { SwitchToMode "scroll"; }
 
             // Pane navigation (vim keys)
             bind "Ctrl a" "h" {
@@ -133,27 +137,69 @@ let
             bind "k" { Resize "Increase up"; }
             bind "l" { Resize "Increase right"; }
             bind "Esc" { SwitchToMode "normal"; }
+            bind "Enter" { SwitchToMode "normal"; }
+            bind "q" { SwitchToMode "normal"; }
         }
 
         scroll {
+            // Vim-style navigation
             bind "j" { ScrollDown; }
             bind "k" { ScrollUp; }
+            bind "h" { PageScrollUp; }
+            bind "l" { PageScrollDown; }
+            
+            // Arrow keys
+            bind "Down" { ScrollDown; }
+            bind "Up" { ScrollUp; }
+            
+            // Page movement
             bind "Ctrl d" { HalfPageScrollDown; }
             bind "Ctrl u" { HalfPageScrollUp; }
+            bind "Ctrl f" { PageScrollDown; }
+            bind "Ctrl b" { PageScrollUp; }
+            bind "PageDown" { PageScrollDown; }
+            bind "PageUp" { PageScrollUp; }
+            
+            // Jump to top/bottom
             bind "g" { ScrollToTop; }
             bind "G" { ScrollToBottom; }
+            bind "Home" { ScrollToTop; }
+            bind "End" { ScrollToBottom; }
+            
+            // Search
             bind "/" { SwitchToMode "search"; }
+            bind "n" { Search "down"; }
+            bind "N" { Search "up"; }
+            
+            // Copy mode
+            bind "v" { Copy; }
+            bind "y" { Copy; }
+            
+            // Exit scroll mode
             bind "Esc" { SwitchToMode "normal"; }
+            bind "q" { SwitchToMode "normal"; }
+            bind "i" { SwitchToMode "normal"; }
+            bind "Enter" { SwitchToMode "normal"; }
         }
 
         search {
+            // Navigation
             bind "n" { Search "down"; }
             bind "N" { Search "up"; }
-            bind "Esc" { SwitchToMode "normal"; }
+            bind "j" { Search "down"; }
+            bind "k" { Search "up"; }
+            bind "Down" { Search "down"; }
+            bind "Up" { Search "up"; }
+            
+            // Exit search
+            bind "Esc" { ScrollToBottom; SwitchToMode "normal"; }
+            bind "Enter" { SwitchToMode "scroll"; }
+            bind "q" { ScrollToBottom; SwitchToMode "normal"; }
         }
 
         locked {
             bind "Ctrl a" "Esc" { SwitchToMode "normal"; }
+            bind "Ctrl a" "a" { SwitchToMode "normal"; }
         }
     }
   '';
