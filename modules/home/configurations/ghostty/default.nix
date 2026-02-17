@@ -5,9 +5,11 @@
 }:
 
 let
-  cursorTailShader = pkgs.fetchurl {
-    url = "https://raw.githubusercontent.com/sahaj-b/ghostty-cursor-shaders/main/cursor_tail.glsl";
-    sha256 = "1g9vsbsxnvcj0y6rzdkxrd4mj0ldl9aha7381g8nfs3bz829y46w";
+  ghosttyCursorShaders = pkgs.fetchFromGitHub {
+    owner = "sahaj-b";
+    repo = "ghostty-cursor-shaders";
+    rev = "4faa83e4b9306750fc8de64b38c6f53c57862db8";
+    sha256 = "sha256-ruhEqXnWRCYdX5mRczpY3rj1DTdxyY3BoN9pdlDOKrE=";
   };
 in
 {
@@ -41,6 +43,10 @@ in
       # Auto-launch zellij and exit when it closes
       command = "${pkgs.zsh}/bin/zsh -c ${pkgs.zellij}/bin/zellij";
 
+      # Cursor trail shader for smooth cursor movement
+      custom-shader = "${ghosttyCursorShaders}/cursor_tail.glsl";
+      custom-shader-animation = "always";
+
       quick-terminal-position = "center";
       quick-terminal-size = "90%,80%";
 
@@ -72,6 +78,4 @@ in
       ];
     };
   };
-
-  xdg.configFile."ghostty/cursor_tail.glsl".source = cursorTailShader;
 }

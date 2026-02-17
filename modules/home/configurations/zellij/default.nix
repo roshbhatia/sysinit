@@ -68,14 +68,14 @@ in
 
       plugin_permissions {
           zjstatus {
-              data ReadWrite
-              filesystem ReadWrite
-              network ReadWrite
+              data "ReadWrite";
+              filesystem "ReadWrite";
+              network "ReadWrite";
           }
           vim-zellij-navigator {
-              data ReadWrite
-              filesystem ReadWrite
-              network ReadWrite
+              data "ReadWrite";
+              filesystem "ReadWrite";
+              network "ReadWrite";
           }
       }
 
