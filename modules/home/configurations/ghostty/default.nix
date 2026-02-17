@@ -37,12 +37,10 @@
       command = "${pkgs.zsh}/bin/zsh -c ${pkgs.zellij}/bin/zellij";
       shell-integration = "none";
 
-      # Cursor tail shader - Kitty-like comet trail (subtle, shows direction)
       custom-shader = toString ./shaders/cursor_tail.glsl;
-      custom-shader-animation = "always";
 
       quick-terminal-position = "center";
-      quick-terminal-size = "2400,1600";
+      quick-terminal-size = "2400px,1600px";
 
       keybind = [
         "clear"

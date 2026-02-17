@@ -42,8 +42,8 @@ in
 
            pane size=1 borderless=true {
                plugin location="file:${zjstatus}" {
-                   format_left  "#[bg={mode_color}]{mode}#[bg={mode_color}] {tabs}"
-                   format_right "#[bg={mode_color}]{session} "
+                   format_left  "  #[bg={mode_color}]{mode}#[bg={mode_color}] {tabs}"
+                   format_right "#[bg={mode_color}]{session}  "
                    format_space "#[bg={mode_color}]"
 
                    hide_frame_for_single_pane "false"
