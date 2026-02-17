@@ -10,86 +10,90 @@ let
 
   # Use Stylix colors
   inherit (config.lib.stylix) colors;
+in
+{
+  programs.zellij = {
+    enable = true;
+    enableZshIntegration = false; # We'll handle Ghostty command separately
 
-  defaultLayoutContent = ''
+    settings = {
+      default_shell = "zsh";
+      copy_clipboard = "primary";
+      copy_command = "pbcopy";
+      mouse_mode = true;
+      on_force_close = "detach";
+      simplified_ui = true;
+      pane_frames = true;
+      auto_layout = true;
+      session_serialization = false;
+
+      scroll_buffer_size = 100000;
+      scrollback_editor = "nvim";
+      copy_on_select = true;
+
+      ui = {
+        pane_frames = {
+          rounded_corners = false;
+          hide_session_name = true;
+        };
+      };
+
+      default_mode = "normal";
+
+      theme = "custom";
+      themes.custom = {
+        fg = "#${colors.base05}";
+        bg = "#${colors.base00}";
+        black = "#${colors.base00}";
+        red = "#${colors.base08}";
+        green = "#${colors.base0B}";
+        yellow = "#${colors.base0A}";
+        blue = "#${colors.base0D}";
+        magenta = "#${colors.base0E}";
+        cyan = "#${colors.base0C}";
+        white = "#${colors.base05}";
+        orange = "#${colors.base09}";
+      };
+    };
+  };
+
+  # Custom layout with zjstatus
+  xdg.configFile."zellij/layouts/default.kdl".text = ''
     layout {
         pane split_direction="vertical" {
             pane
         }
         pane size=1 borderless=true {
             plugin location="${zjstatusUrl}" {
-                format_left   "{mode}#[bg=default] {session} {tabs}"
+                format_left   "{mode} {tabs}"
                 format_center ""
-                format_right  "#[fg=#${colors.base03},bg=default]{command_git_branch}"
+                format_right  ""
                 format_space  ""
-                format_hide_on_overlength "true"
-                format_precedence "lrc"
 
-                border_enabled  "true"
-                hide_frame_for_single_pane "false"
+                border_enabled  "false"
+                hide_frame_for_single_pane "true"
 
-                mode_normal        "#[bg=#${colors.base0D},fg=#${colors.base00},bold] NORMAL #[bg=default,fg=#${colors.base0D}]"
-                mode_locked        "#[bg=#${colors.base08},fg=#${colors.base00},bold] LOCKED #[bg=default,fg=#${colors.base08}]"
-                mode_resize        "#[bg=#${colors.base0E},fg=#${colors.base00},bold] RESIZE #[bg=default,fg=#${colors.base0E}]"
-                mode_pane          "#[bg=#${colors.base0B},fg=#${colors.base00},bold] PANE #[bg=default,fg=#${colors.base0B}]"
-                mode_tab           "#[bg=#${colors.base0A},fg=#${colors.base00},bold] TAB #[bg=default,fg=#${colors.base0A}]"
-                mode_scroll        "#[bg=#${colors.base0C},fg=#${colors.base00},bold] SCROLL #[bg=default,fg=#${colors.base0C}]"
-                mode_enter_search  "#[bg=#${colors.base09},fg=#${colors.base00},bold] SEARCH #[bg=default,fg=#${colors.base09}]"
-                mode_search        "#[bg=#${colors.base09},fg=#${colors.base00},bold] SEARCH #[bg=default,fg=#${colors.base09}]"
-                mode_rename_tab    "#[bg=#${colors.base0A},fg=#${colors.base00},bold] RENAME #[bg=default,fg=#${colors.base0A}]"
-                mode_rename_pane   "#[bg=#${colors.base0B},fg=#${colors.base00},bold] RENAME #[bg=default,fg=#${colors.base0B}]"
-                mode_session       "#[bg=#${colors.base0D},fg=#${colors.base00},bold] SESSION #[bg=default,fg=#${colors.base0D}]"
-                mode_move          "#[bg=#${colors.base0E},fg=#${colors.base00},bold] MOVE #[bg=default,fg=#${colors.base0E}]"
-                mode_prompt        "#[bg=#${colors.base08},fg=#${colors.base00},bold] PROMPT #[bg=default,fg=#${colors.base08}]"
-                mode_tmux          "#[bg=#${colors.base0B},fg=#${colors.base00},bold] TMUX #[bg=default,fg=#${colors.base0B}]"
+                mode_normal        "#[bg=#${colors.base0D},fg=#${colors.base00},bold] NORMAL#[bg=default] "
+                mode_locked        "#[bg=#${colors.base08},fg=#${colors.base00},bold] LOCKED#[bg=default] "
+                mode_resize        "#[bg=#${colors.base0E},fg=#${colors.base00},bold] RESIZE#[bg=default] "
+                mode_pane          "#[bg=#${colors.base0B},fg=#${colors.base00},bold] PANE#[bg=default] "
+                mode_tab           "#[bg=#${colors.base0A},fg=#${colors.base00},bold] TAB#[bg=default] "
+                mode_scroll        "#[bg=#${colors.base0C},fg=#${colors.base00},bold] SCROLL#[bg=default] "
+                mode_enter_search  "#[bg=#${colors.base09},fg=#${colors.base00},bold] SEARCH#[bg=default] "
+                mode_search        "#[bg=#${colors.base09},fg=#${colors.base00},bold] SEARCH#[bg=default] "
+                mode_session       "#[bg=#${colors.base0D},fg=#${colors.base00},bold] SESSION#[bg=default] "
 
-                tab_normal              "#[fg=#${colors.base03}] {index} {name} "
-                tab_normal_fullscreen   "#[fg=#${colors.base03}] {index} {name} [] "
-                tab_normal_sync         "#[fg=#${colors.base03}] {index} {name}  "
-                tab_active              "#[fg=#${colors.base0D},bold] {index} {name} #[fg=#${colors.base03}]│"
-                tab_active_fullscreen   "#[fg=#${colors.base0D},bold] {index} {name} [] #[fg=#${colors.base03}]│"
-                tab_active_sync         "#[fg=#${colors.base0D},bold] {index} {name}  #[fg=#${colors.base03}]│"
-
-                command_git_branch_command     "git rev-parse --abbrev-ref HEAD 2>/dev/null"
-                command_git_branch_format      " {stdout}"
-                command_git_branch_interval    "10"
-                command_git_branch_rendermode  "static"
+                tab_normal   " {index} {name} "
+                tab_active   "#[fg=#${colors.base0D},bold] {index} {name}#[fg=#${colors.base03}] │"
             }
         }
     }
   '';
 
-  configContent = ''
-    default_shell "zsh"
-    copy_clipboard "primary"
-    copy_command "pbcopy"
-    mouse_mode true
-    on_force_close "detach"
-    simplified_ui true
-    auto_layout true
-    session_serialization false
-    show_startup_tips false
-
-    scroll_buffer_size 100000
-    scrollback_editor "nvim"
-    scrollback_lines_to_serialize 50000
-    copy_on_select true
-
-    ui {
-        pane_frames {
-            rounded_corners false
-            hide_session_name false
-        }
-    }
-    pane_frames true
-
-    default_mode "normal"
-
-    load_plugins "session-manager" "zjstatus" "vim-zellij-navigator"
+  # Custom keybinds config (home-manager doesn't support keybinds in settings yet)
+  xdg.configFile."zellij/config.kdl".text = pkgs.lib.mkAfter ''
+    load_plugins "zjstatus" "vim-zellij-navigator"
     plugins {
-        session-manager {
-            location "zellij:session-manager"
-        }
         zjstatus {
             location "${zjstatusUrl}"
         }
@@ -105,21 +109,14 @@ let
         location "${vimZellijNavigatorUrl}" {
             _allow_all_permissions true
         }
-        location "zellij:session-manager" {
-            _allow_all_permissions true
-        }
     }
 
     keybinds clear-defaults=true {
         normal {
-            // Mode switching
             bind "Ctrl g" { SwitchToMode "locked"; }
-
-            // Scrollback and search
             bind "Ctrl Esc" { SwitchToMode "scroll"; }
             bind "Ctrl /" { SwitchToMode "entersearch"; }
 
-            // Pane navigation (vim keys)
             bind "Ctrl h" {
                 MessagePlugin "${vimZellijNavigatorUrl}" {
                     name "move_focus";
@@ -145,18 +142,15 @@ let
                 };
             }
 
-            // Pane resize
             bind "Ctrl Shift h" { Resize "Increase left"; }
             bind "Ctrl Shift j" { Resize "Increase down"; }
             bind "Ctrl Shift k" { Resize "Increase up"; }
             bind "Ctrl Shift l" { Resize "Increase right"; }
 
-            // Pane splitting
             bind "Ctrl v" { NewPane "Right"; }
             bind "Ctrl s" { NewPane "Down"; }
             bind "Ctrl w" { CloseFocus; }
 
-            // Tab management
             bind "Ctrl t" { NewTab; }
             bind "Ctrl 1" { GoToTab 1; }
             bind "Ctrl 2" { GoToTab 2; }
@@ -168,7 +162,6 @@ let
             bind "Ctrl 8" { GoToTab 8; }
             bind "Ctrl 9" { GoToTab 9; }
 
-            // Session management
             bind "Ctrl Shift d" { Detach; }
             bind "Ctrl m" { ToggleFocusFullscreen; }
             bind "Super k" { Clear; }
@@ -185,17 +178,12 @@ let
         }
 
         scroll {
-            // Vim-style navigation
             bind "j" { ScrollDown; }
             bind "k" { ScrollUp; }
             bind "h" { PageScrollUp; }
             bind "l" { PageScrollDown; }
-
-            // Arrow keys
             bind "Down" { ScrollDown; }
             bind "Up" { ScrollUp; }
-
-            // Page movement
             bind "Ctrl d" { HalfPageScrollDown; }
             bind "Ctrl u" { HalfPageScrollUp; }
             bind "Ctrl f" { PageScrollDown; }
@@ -204,27 +192,17 @@ let
             bind "PageUp" { PageScrollUp; }
             bind "d" { HalfPageScrollDown; }
             bind "u" { HalfPageScrollUp; }
-
-            // Jump to top/bottom
             bind "g" { ScrollToTop; }
             bind "G" { ScrollToBottom; }
             bind "Home" { ScrollToTop; }
             bind "End" { ScrollToBottom; }
-
-            // Search
             bind "/" { SwitchToMode "entersearch"; }
             bind "Ctrl /" { SwitchToMode "entersearch"; }
             bind "n" { Search "down"; }
             bind "N" { Search "up"; }
-
-            // Edit scrollback in $EDITOR
             bind "e" { EditScrollback; SwitchToMode "normal"; }
-
-            // Copy mode
             bind "v" { Copy; }
             bind "y" { Copy; }
-
-            // Exit scroll mode
             bind "Esc" { SwitchToMode "normal"; }
             bind "q" { SwitchToMode "normal"; }
             bind "i" { SwitchToMode "normal"; }
@@ -232,22 +210,18 @@ let
         }
 
         entersearch {
-            // This mode is for typing the search query
             bind "Ctrl c" { ScrollToBottom; SwitchToMode "normal"; }
             bind "Esc" { ScrollToBottom; SwitchToMode "normal"; }
             bind "Enter" { SwitchToMode "search"; }
         }
 
         search {
-            // This mode is for navigating search results
             bind "n" { Search "down"; }
             bind "N" { Search "up"; }
             bind "j" { Search "down"; }
             bind "k" { Search "up"; }
             bind "Down" { Search "down"; }
             bind "Up" { Search "up"; }
-
-            // Page scrolling while searching
             bind "Ctrl d" { HalfPageScrollDown; }
             bind "Ctrl u" { HalfPageScrollUp; }
             bind "Ctrl f" { PageScrollDown; }
@@ -256,13 +230,9 @@ let
             bind "u" { HalfPageScrollUp; }
             bind "h" { PageScrollUp; }
             bind "l" { PageScrollDown; }
-
-            // Search options
             bind "c" { SearchToggleOption "CaseSensitivity"; }
             bind "w" { SearchToggleOption "Wrap"; }
             bind "o" { SearchToggleOption "WholeWord"; }
-
-            // Exit search
             bind "Esc" { ScrollToBottom; SwitchToMode "normal"; }
             bind "Enter" { SwitchToMode "scroll"; }
             bind "q" { ScrollToBottom; SwitchToMode "normal"; }
@@ -273,46 +243,4 @@ let
         }
     }
   '';
-
-  autoAttachScript = ''
-    #!/usr/bin/env zsh
-    # Auto-attach to Zellij when connecting via SSH (Lima)
-
-    should_run_zellij() {
-      [[ -z "$ZELLIJ" ]] &&
-        [[ -z "$TMUX" ]] &&
-        [[ "$TERM_PROGRAM" != "WezTerm" ]] &&
-        [[ "$TERM_PROGRAM" != "vscode" ]] &&
-        [[ "$TERM_PROGRAM" != "ghostty" ]] &&
-        [[ -z "$NVIM" ]]
-    }
-
-    if [[ $- == *i* && "$SHLVL" -eq 1 ]]; then
-      if should_run_zellij && command -v zellij > /dev/null 2>&1; then
-        SESSION_NAME="''${ZELLIJ_SESSION:-$(basename "$PWD")}"
-
-        if zellij list-sessions 2>/dev/null | grep -q "^$SESSION_NAME"; then
-          exec zellij attach "$SESSION_NAME"
-        else
-          exec zellij attach --create "$SESSION_NAME"
-        fi
-      fi
-    fi
-  '';
-in
-{
-  home.packages = [ pkgs.zellij ];
-
-  xdg.configFile."zellij/config.kdl" = {
-    text = configContent;
-  };
-
-  xdg.configFile."zellij/layouts/default.kdl" = {
-    text = defaultLayoutContent;
-  };
-
-  xdg.configFile."zsh/extras/zellij.sh" = {
-    text = autoAttachScript;
-    executable = true;
-  };
 }
