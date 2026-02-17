@@ -3,7 +3,6 @@
 {
   home-manager.users.${config.sysinit.user.username} = {
     imports = [
-      ../../profiles/base.nix
       ../../modules/home/configurations/neovim
       ../../modules/home/configurations/helix.nix
       ../../modules/home/configurations/git
@@ -20,6 +19,11 @@
     ];
 
     home.packages = with pkgs; [
+      curl
+      wget
+      unzip
+      zip
+      htop
       nodejs
       python3
       rustc
@@ -36,5 +40,7 @@
       cmake
       docker-compose
     ];
+
+    programs.home-manager.enable = true;
   };
 }
