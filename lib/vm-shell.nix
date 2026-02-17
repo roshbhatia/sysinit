@@ -245,4 +245,44 @@ rec {
       # Auto-enter VM
       ${enterVM vmName projectName verbose}
     '';
+
+  # VM management packages required by shell
+  vmPackages = with pkgs; [
+    lima
+    jq
+  ];
+
+  # Create a complete VM shell (simplest API)
+  mkVmShell =
+    {
+      projectName ? baseNameOf (toString ./.),
+      vmName ? "${projectName}-dev",
+      baseShell ? null,
+      extraPackages ? [ ],
+      image ? "lima-dev",
+      cpus ? 4,
+      memory ? "8GiB",
+      disk ? "8GiB",
+      ports ? null,
+      verbose ? true,
+    }:
+    pkgs.mkShell {
+      name = "${projectName}-vm-shell";
+
+      buildInputs =
+        (if baseShell != null then (baseShell.buildInputs or [ ]) else [ ]) ++ vmPackages ++ extraPackages;
+
+      shellHook = autoEnterShellHook {
+        inherit
+          vmName
+          projectName
+          image
+          cpus
+          memory
+          disk
+          ports
+          verbose
+          ;
+      };
+    };
 }
