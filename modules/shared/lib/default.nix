@@ -14,5 +14,4 @@
   lsp = import ./lsp-config.nix;
   shell = import ./shell.nix { inherit lib; };
   theme = import ./theme.nix { inherit lib; };
-  schema = import ./schema.nix { inherit lib; };
 }

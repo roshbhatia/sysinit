@@ -30,11 +30,15 @@
           {
             config.sysinit.git = values.git;
             config.sysinit.theme = {
-              appearance = values.theme.appearance;
+              appearance = values.theme.appearance or "dark";
               colorscheme = values.theme.colorscheme;
               variant = values.theme.variant;
-              font.monospace = values.theme.font.monospace;
-              transparency = values.theme.transparency;
+              font.monospace = values.theme.font.monospace or "TX-02";
+              transparency =
+                values.theme.transparency or {
+                  opacity = 0.8;
+                  blur = 70;
+                };
             };
             # Package manager additional packages
             config.sysinit.cargo.additionalPackages = values.cargo.additionalPackages or [ ];

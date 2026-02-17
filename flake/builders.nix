@@ -35,31 +35,16 @@ in
 
   mkOverlays = system: import ../overlays.nix { inherit inputs system; };
 
-  processValues =
-    { utils, userValues }:
-    (lib.evalModules {
-      modules = [
-        {
-          options.values = lib.mkOption {
-            type = utils.schema.valuesType;
-          };
-          config.values = userValues;
-        }
-      ];
-    }).config.values;
-
   buildConfiguration =
     {
       darwin,
       home-manager,
       stylix,
-      nix-gaming ? null,
       nix-homebrew,
       onepassword-shell-plugins,
       mkPkgs,
       mkUtils,
       mkOverlays,
-      processValues,
     }:
     {
       hostConfig,
@@ -75,12 +60,9 @@ in
         inherit (hostConfig) system;
         inherit pkgs;
       };
-      userValuesWithUsername = hostConfig.values // {
+      # Merge username into values for backward compatibility with bridge code
+      values = hostConfig.values // {
         user.username = hostConfig.username;
-      };
-      values = processValues {
-        inherit utils;
-        userValues = userValuesWithUsername;
       };
     in
     if hostConfig.platform == "darwin" then
@@ -110,11 +92,15 @@ in
             config.sysinit.user.username = hostConfig.username;
             config.sysinit.git = hostConfig.sysinit.git;
             config.sysinit.theme = {
-              appearance = values.theme.appearance;
+              appearance = values.theme.appearance or "dark";
               colorscheme = values.theme.colorscheme;
               variant = values.theme.variant;
-              font.monospace = values.theme.font.monospace;
-              transparency = values.theme.transparency;
+              font.monospace = values.theme.font.monospace or "TX-02";
+              transparency =
+                values.theme.transparency or {
+                  opacity = 0.8;
+                  blur = 70;
+                };
             };
             config.sysinit.darwin = {
               borders.enable = values.darwin.borders.enable or false;
@@ -167,11 +153,15 @@ in
             config.sysinit.user.username = hostConfig.username;
             config.sysinit.git = hostConfig.sysinit.git;
             config.sysinit.theme = {
-              appearance = values.theme.appearance;
+              appearance = values.theme.appearance or "dark";
               colorscheme = values.theme.colorscheme;
               variant = values.theme.variant;
-              font.monospace = values.theme.font.monospace;
-              transparency = values.theme.transparency;
+              font.monospace = values.theme.font.monospace or "TX-02";
+              transparency =
+                values.theme.transparency or {
+                  opacity = 0.8;
+                  blur = 70;
+                };
             };
           }
           ../modules/nixos
@@ -190,10 +180,6 @@ in
               inputs.mangowc.hmModules.mango
             ];
           }
-        ]
-        ++ lib.optionals (values.nix.gaming.enable && nix-gaming != null) [
-          nix-gaming.nixosModules.pipewireLowLatency
-          nix-gaming.nixosModules.platformOptimizations
         ]
         ++ lib.optional (lib.hasPrefix "lima-" hostname) ../modules/system/nixos/vm/lima-base.nix
         ++ lib.optional (resolveProfile hostConfig != null) (resolveProfile hostConfig);

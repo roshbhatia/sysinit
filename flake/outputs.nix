@@ -21,14 +21,12 @@ let
       darwin
       home-manager
       stylix
-      nix-gaming
       nix-homebrew
       onepassword-shell-plugins
       ;
     inherit (builders) mkPkgs;
     inherit (builders) mkUtils;
     inherit (builders) mkOverlays;
-    inherit (builders) processValues;
   };
 
   nixosConfigurationsOutput = outputBuilders.mkConfigurations {
