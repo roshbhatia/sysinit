@@ -5,11 +5,9 @@
 }:
 
 let
-  # Import profiles for profile-based configurations
   profiles = import ../profiles { inherit nixpkgs; };
 
-  # Resolve profile module if hostConfig has a profile field
-  resolveProfile = hostConfig: if hostConfig ? profile then profiles.${hostConfig.profile} else null; # Fallback to old values-based system
+  resolveProfile = hostConfig: if hostConfig ? profile then profiles.${hostConfig.profile} else null;
 in
 
 {
@@ -126,7 +124,6 @@ in
               onepassword-shell-plugins.hmModules.default
               pkgs.nur.repos.charmbracelet.modules.homeManager.crush
             ];
-            # Disable NixOS manual generation - reduces build time and disk usage
             documentation.enable = false;
           }
         ]
@@ -174,7 +171,6 @@ in
             inherit utils;
           })
           {
-            # Disable NixOS manual generation - reduces build time and disk usage
             documentation.enable = false;
             home-manager.sharedModules = [
               inputs.mangowc.hmModules.mango

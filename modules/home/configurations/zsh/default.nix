@@ -83,7 +83,6 @@ in
       ZVM_LINE_INIT_MODE = "i";
       ZVM_SYSTEM_CLIPBOARD_ENABLED = true;
       ZVM_INSERT_MODE_CURSOR = "be";
-      # VI mode highlight colors from stylix
       ZVM_VI_HIGHLIGHT_BACKGROUND = "#${config.lib.stylix.colors.base05}";
       ZVM_VI_HIGHLIGHT_FOREGROUND = "#${config.lib.stylix.colors.base0D}";
     };
