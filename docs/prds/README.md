@@ -14,7 +14,8 @@ This directory contains Product Requirement Documents (PRDs) for refactoring the
 | PRD | Title | Status | Dependencies |
 |-----|-------|--------|--------------|
 | [00](./00-overview.md) | Overview | Reference | - |
-| [01](./01-profile-system.md) | Profile System | Not Started | None |
+| [00.5](./00.5-remove-arrakis.md) | Remove Arrakis | Not Started | None |
+| [01](./01-profile-system.md) | Profile System | Not Started | PRD-00.5 |
 | [02](./02-module-options.md) | Module Options | Not Started | PRD-01 |
 | [03](./03-lima-foundation.md) | Lima Foundation | Not Started | PRD-01 |
 | [04](./04-ghostty-zellij.md) | Ghostty + Zellij | Not Started | PRD-01, PRD-03 |
@@ -24,19 +25,22 @@ This directory contains Product Requirement Documents (PRDs) for refactoring the
 ## Dependency Graph
 
 ```
-PRD-01 (Profile System)
-├─→ PRD-02 (Module Options)
-│   └─→ PRD-06 (Minimal Host)
-│
-└─→ PRD-03 (Lima Foundation)
-    └─→ PRD-04 (Ghostty + Zellij)
-        └─→ PRD-05 (Project VMs)
-            └─→ PRD-06 (Minimal Host)
+PRD-00.5 (Remove Arrakis) - FIRST
+    │
+    └─→ PRD-01 (Profile System)
+        ├─→ PRD-02 (Module Options)
+        │   └─→ PRD-06 (Minimal Host)
+        │
+        └─→ PRD-03 (Lima Foundation)
+            └─→ PRD-04 (Ghostty + Zellij)
+                └─→ PRD-05 (Project VMs)
+                    └─→ PRD-06 (Minimal Host)
 ```
 
 ## Critical Path
 
 The fastest path to completion:
+0. PRD-00.5: Remove Arrakis (cleanup first)
 1. PRD-01: Profile System (foundation)
 2. PRD-03: Lima Foundation (VM base)
 3. PRD-04: Ghostty + Zellij (terminal/multiplexer)
