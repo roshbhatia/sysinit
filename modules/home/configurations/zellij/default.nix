@@ -43,7 +43,7 @@ in
                 format_right "#[fg=0,bg=10]{datetime}"
                 format_space "#[bg=10]"
 
-                hide_frame_for_single_pane "true"
+                hide_frame_for_single_pane "false"
 
                 tab_normal   "{index}:{name}  "
                 tab_active   "{index}:{name}* "

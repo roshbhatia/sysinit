@@ -41,7 +41,9 @@ in
       ];
 
       # Auto-launch zellij and exit when it closes
+      # Shell integration disabled because it doesn't work inside terminal multiplexers
       command = "${pkgs.zsh}/bin/zsh -c ${pkgs.zellij}/bin/zellij";
+      shell-integration = "none";
 
       # Cursor trail shader for smooth cursor movement
       custom-shader = "${ghosttyCursorShaders}/cursor_tail.glsl";
