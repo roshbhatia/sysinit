@@ -56,83 +56,49 @@ curl -fsSL https://raw.githubusercontent.com/roshbhatia/sysinit/main/setup/neovi
 
 ### System Configuration
 ```bash
-# Build configuration (test without applying)
-task nix:build
+task nix:build      # Build configuration (test without applying)
+task nix:refresh    # Apply configuration changes
+task nix:update     # Update dependencies
+task fmt            # Format all code
 
-# Apply configuration changes
-task nix:refresh
-
-# Update dependencies
-task nix:update
+# See all available tasks
+task --list
 ```
 
 ### Development VMs
-Create disposable NixOS VMs for project isolation:
+
+Add automatic VM management to any project:
 
 ```bash
-# Start a minimal VM
-limactl start --name=dev lima/templates/minimal.yaml
-limactl shell dev
+# In your project directory
+curl -fsSL https://raw.githubusercontent.com/roshbhatia/sysinit/main/vm.nix > vm.nix
+echo "use nix vm.nix" >> .envrc
+direnv allow
 
-# Stop and delete
-limactl stop dev
-limactl delete dev
+# VM auto-creates and connects on first directory entry
 ```
 
-**Available VM Templates:**
-- `minimal.yaml` - Basic NixOS (2 CPU, 4GB RAM, dev-minimal profile)
-- `dev.yaml` - Full environment (4 CPU, 8GB RAM, dev-full profile)
+**What happens:**
+- VM auto-creates on first `cd` to directory
+- VM auto-starts if stopped
+- Project directory mounted in VM at same path
+- Automatically imports existing `shell.nix` dependencies if present
 
-## Environment Variables Schema
+**Customize VM resources** (edit `vm.nix`):
+```nix
+cpus = 8;           # Default: 4
+memory = "16GiB";   # Default: 8GiB
+ports = [3000];     # Default: [3000 8080 5173 5432]
+```
 
-| Variable | Default | Description |
-|----------|---------|-------------|
-| `SYSINIT_DEBUG` | `false` | Enable debugging for zsh/nu/nvim |
+**Disable auto-entry** (in `.envrc`):
+```bash
+export SYSINIT_NO_AUTO_VM=1
+```
 
-<!-- VALUES_SCHEMA_START -->
-
-## Values Configuration Schema
-
-| Field | Type | Default | Required | Description |
-|-------|------|---------|----------|-------------|
-| `cargo.additionalPackages` | list(string) | [] |  | Additional Rust/Cargo packages |
-| `config.root` | path | - | ✓ | Root path to the configuration flake directory |
-| `darwin.borders.enable` | boolean | true |  | Enable window borders |
-| `darwin.homebrew.additionalPackages.brews` | list(string) | [] |  | Additional Homebrew formulae |
-| `darwin.homebrew.additionalPackages.casks` | list(string) | [] |  | Additional Homebrew casks |
-| `darwin.homebrew.additionalPackages.taps` | list(string) | [] |  | Additional Homebrew taps |
-| `gh.additionalPackages` | list(string) | [] |  | Additional GitHub CLI extensions |
-| `git.email` | string | - | ✓ | Git user email |
-| `git.name` | string | - | ✓ | Git user name |
-| `git.personalEmail` | string? | null |  | Personal email override |
-| `git.personalUsername` | string? | null |  | Personal username override |
-| `git.username` | string | - | ✓ | Git/GitHub username |
-| `git.workEmail` | string? | null |  | Work email override |
-| `git.workUsername` | string? | null |  | Work username override |
-| `go.additionalPackages` | list(string) | [] |  | Additional Go packages |
-| `krew.additionalPackages` | list(string) | [] |  | Additional kubectl krew plugins |
-| `llm.mcp.args` | list(string) | [] |  | MCP server arguments |
-| `llm.mcp.command` | string | - | ✓ | MCP server command |
-| `llm.mcp.description` | string | "" |  | Server description |
-| `llm.mcp.enabled` | boolean | true |  | Enable this server |
-| `llm.mcp.env` | attrsOf str | `{ }` |  | Environment variables for MCP server |
-| `llm.mcp.type` |  | "local" |  | MCP server type |
-| `llm.mcp.url` | string? | null |  | HTTP server URL (if type = http) |
-| `nix.additionalPackages` | list(string) | [] |  | Additional Nix packages |
-| `nix.gaming.enable` | boolean | false |  | Enable gaming configuration (Proton, Lutris, gamescope) |
-| `npm.additionalPackages` | list(string) | [] |  | Additional global npm packages |
-| `pipx.additionalPackages` | list(string) | [] |  | Additional global pipx packages |
-| `tailscale.enable` | boolean | true |  | Enable Tailscale |
-| `theme.appearance` |  | "dark" |  | Appearance mode (light or dark) |
-| `theme.colorscheme` | string | - | ✓ | Theme colorscheme |
-| `theme.font.monospace` | string | "TX-02" |  | Monospace font for terminal and editor |
-| `theme.font.symbols` | string | "Symbols Nerd Font" |  | Fallback font for nerd font glyphs |
-| `theme.transparency.blur` | integer | `70` |  | Background blur amount |
-| `theme.transparency.opacity` | float | `0.8` |  | Transparency opacity level |
-| `theme.variant` | string | - | ✓ | Theme variant |
-| `user.username` | string | "user" |  | Username for the system user |
-| `uvx.additionalPackages` | list(string) | [] |  | Additional global uvx packages |
-| `vet.additionalPackages` | list(string) | [] |  | Additional Vet packages |
-| `yarn.additionalPackages` | list(string) | [] |  | Additional global yarn packages |
-
-<!-- VALUES_SCHEMA_END -->
+**Manual VM controls:**
+```bash
+limactl list                  # Show all VMs
+limactl stop <project>-dev    # Stop VM
+limactl delete <project>-dev  # Delete VM
+```
