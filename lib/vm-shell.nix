@@ -1,6 +1,5 @@
 {
   pkgs,
-  lib,
   ...
 }:
 
@@ -19,21 +18,31 @@ rec {
       cpus ? 4,
       memory ? "8GiB",
       disk ? "8GiB",
-      ports ? null,
+      shareDockerFromHost ? false,
     }:
     let
-      # Use port range by default, or individual ports if specified
+      # Configure port forwarding based on semantic flags
       portForwards =
-        if ports == null then
+        if shareDockerFromHost then
+          # Docker daemon socket forwarding (Unix socket, no ports needed)
+          # Docker Desktop on macOS exposes socket at /var/run/docker.sock
+          ""
+        else
+          # Default: forward all non-privileged ports for development
           ''
             - guestPortRange: [1024, 65535]
               hostPortRange: [1024, 65535]
+          '';
+
+      # Configure mounts based on semantic flags
+      dockerMounts =
+        if shareDockerFromHost then
+          ''
+            - location: "/var/run/docker.sock"
+              writable: true
           ''
         else
-          lib.concatMapStrings (port: ''
-            - guestPort: ${toString port}
-              hostPort: ${toString port}
-          '') ports;
+          "";
     in
     ''
       vmType: "vz"
@@ -56,6 +65,7 @@ rec {
           9p:
             securityModel: "none"
             cache: "mmap"
+      ${dockerMounts}
 
       env:
         PROJECT_NAME: "${projectName}"
@@ -109,8 +119,7 @@ rec {
       cpus ? 4,
       memory ? "8GiB",
       disk ? "8GiB",
-      ports ? null,
-      verbose ? true,
+      shareDockerFromHost ? false,
     }:
     ''
       _vm_name="${vmName}"
@@ -120,7 +129,7 @@ rec {
 
       # Create .lima directory if it doesn't exist
       if [[ ! -d "$_lima_dir" ]]; then
-        ${lib.optionalString verbose ''echo "Creating .lima directory..."''}
+        echo "Creating .lima directory..."
         mkdir -p "$_lima_dir"
 
         # Create .gitignore
@@ -135,7 +144,7 @@ rec {
 
       # Generate Lima config if it doesn't exist
       if [[ ! -f "$_lima_config" ]]; then
-        ${lib.optionalString verbose ''echo "Generating Lima VM configuration..."''}
+        echo "Generating Lima VM configuration..."
         cat > "$_lima_config" <<'EOF'
       ${generateLimaConfig {
         inherit
@@ -145,7 +154,7 @@ rec {
           cpus
           memory
           disk
-          ports
+          shareDockerFromHost
           ;
       }}
       EOF
@@ -156,21 +165,21 @@ rec {
 
       # Check if VM exists
       if ! (${vmExists vmName}); then
-        ${lib.optionalString verbose ''echo "Creating VM: $_vm_name..."''}
+        echo "Creating VM: $_vm_name..."
         ${limactl} start --name="$_vm_name" --tty=false "$_lima_config"
       elif ! (${vmRunning vmName}); then
-        ${lib.optionalString verbose ''echo "Starting VM: $_vm_name..."''}
+        echo "Starting VM: $_vm_name..."
         ${limactl} start "$_vm_name"
       else
-        ${lib.optionalString verbose ''echo "VM already running: $_vm_name"''}
+        echo "VM already running: $_vm_name"
       fi
     '';
 
   # Enter VM
-  enterVM = vmName: _projectName: verbose: ''
+  enterVM = vmName: _projectName: ''
     _vm_name="${vmName}"
 
-    ${lib.optionalString verbose ''echo "Connecting to $_vm_name..."''}
+    echo "Connecting to $_vm_name..."
 
     export SYSINIT_IN_VM=1
 
@@ -184,14 +193,14 @@ rec {
   '';
 
   # Stop VM
-  stopVM = vmName: verbose: ''
-    ${lib.optionalString verbose ''echo "Stopping VM: ${vmName}..."''}
+  stopVM = vmName: ''
+    echo "Stopping VM: ${vmName}..."
     ${limactl} stop "${vmName}"
   '';
 
   # Destroy VM
-  destroyVM = vmName: verbose: ''
-    ${lib.optionalString verbose ''echo "Destroying VM: ${vmName}..."''}
+  destroyVM = vmName: ''
+    echo "Destroying VM: ${vmName}..."
     ${limactl} stop "${vmName}" 2>/dev/null || true
     ${limactl} delete "${vmName}"
   '';
@@ -211,8 +220,7 @@ rec {
       cpus ? 4,
       memory ? "8GiB",
       disk ? "8GiB",
-      ports ? null,
-      verbose ? true,
+      shareDockerFromHost ? false,
     }:
     ''
       # Prevent nested VM entry
@@ -237,13 +245,12 @@ rec {
           cpus
           memory
           disk
-          ports
-          verbose
+          shareDockerFromHost
           ;
       }}
 
       # Auto-enter VM
-      ${enterVM vmName projectName verbose}
+      ${enterVM vmName projectName}
     '';
 
   # VM management packages required by shell
@@ -263,8 +270,7 @@ rec {
       cpus ? 4,
       memory ? "8GiB",
       disk ? "8GiB",
-      ports ? null,
-      verbose ? true,
+      shareDockerFromHost ? false,
     }:
     pkgs.mkShell {
       name = "${projectName}-vm-shell";
@@ -280,8 +286,7 @@ rec {
           cpus
           memory
           disk
-          ports
-          verbose
+          shareDockerFromHost
           ;
       };
     };
