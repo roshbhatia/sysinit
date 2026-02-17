@@ -52,10 +52,47 @@ brew install go-task/tap/go-task
 curl -fsSL https://raw.githubusercontent.com/roshbhatia/sysinit/main/setup/neovim.sh | bash
 ```
 
-## Usage
+## Quick Start
+
+### System Configuration
+```bash
+# Build configuration (test without applying)
+task nix:build
+
+# Apply configuration changes
+task nix:refresh
+
+# Update dependencies
+task nix:update
+```
+
+### Development VMs
+Create disposable NixOS VMs for project isolation:
+
+```bash
+# Start a minimal VM
+limactl start --name=dev lima/templates/minimal.yaml
+limactl shell dev
+
+# Stop and delete
+limactl stop dev
+limactl delete dev
+```
+
+**Available VM Templates:**
+- `minimal.yaml` - Basic NixOS (2 CPU, 4GB RAM, dev-minimal profile)
+- `dev.yaml` - Full environment (4 CPU, 8GB RAM, dev-full profile)
+
+**VM Features:**
+- Apple Virtualization (vz) for performance
+- SSH access with your keys
+- Mounts: `~/.ssh` (ro), `~/projects` (rw)
+- Auto-configured from sysinit profiles
+- Zellij + Neovim ready
+
+### All Available Tasks
 
 ```text
-task: Available tasks for this project:
 * default:                Show all available tasks
 * fmt:                    Format all supported file types
 * sh:chmod:               Make all .sh files executable
