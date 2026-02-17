@@ -1,12 +1,11 @@
 {
   lib,
-  values,
   config,
   ...
 }:
 
 let
-  bordersEnabled = values.darwin.borders.enable;
+  bordersEnabled = config.sysinit.darwin.borders.enable;
 
   colors = config.lib.stylix.colors;
   hexToJanky = hex: "0xff${hex}";

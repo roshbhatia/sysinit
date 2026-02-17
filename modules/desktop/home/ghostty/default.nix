@@ -28,6 +28,11 @@
       window-padding-y = 8;
       # Auto-balance extra padding
       window-padding-balance = true;
+
+      keybind = [
+        "super+h=toggle_visibility"
+        "super+q=quit"
+      ];
     };
   };
 }

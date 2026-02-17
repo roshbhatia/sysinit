@@ -1,9 +1,9 @@
-{ config, values, ... }:
+{ config, ... }:
 
 let
-  additionalTaps = values.darwin.homebrew.additionalPackages.taps;
-  additionalBrews = values.darwin.homebrew.additionalPackages.brews;
-  additionalCasks = values.darwin.homebrew.additionalPackages.casks;
+  additionalTaps = config.sysinit.darwin.homebrew.additionalPackages.taps;
+  additionalBrews = config.sysinit.darwin.homebrew.additionalPackages.brews;
+  additionalCasks = config.sysinit.darwin.homebrew.additionalPackages.casks;
 
   baseTaps = [
     "charmbracelet/tap"

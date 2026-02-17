@@ -1,11 +1,11 @@
 {
   lib,
-  values,
+  config,
   ...
 }:
 
 let
-  tailscaleEnabled = values.darwin.tailscale.enable or true;
+  tailscaleEnabled = config.sysinit.darwin.tailscale.enable;
 in
 {
   services.tailscale.enable = lib.mkIf tailscaleEnabled true;

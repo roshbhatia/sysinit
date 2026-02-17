@@ -109,6 +109,15 @@ in
           {
             config.sysinit.user.username = hostConfig.username;
             config.sysinit.git = hostConfig.sysinit.git;
+            config.sysinit.darwin = {
+              borders.enable = values.darwin.borders.enable or false;
+              tailscale.enable = values.darwin.tailscale.enable or true;
+              homebrew.additionalPackages = {
+                taps = values.darwin.homebrew.additionalPackages.taps or [ ];
+                brews = values.darwin.homebrew.additionalPackages.brews or [ ];
+                casks = values.darwin.homebrew.additionalPackages.casks or [ ];
+              };
+            };
           }
           ../modules/darwin
           (import ../modules/darwin/home-manager.nix {
