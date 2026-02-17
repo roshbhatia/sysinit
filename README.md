@@ -141,4 +141,5 @@ task: Available tasks for this project:
 | `uvx.additionalPackages` | list(string) | [] |  | Additional global uvx packages |
 | `vet.additionalPackages` | list(string) | [] |  | Additional Vet packages |
 | `yarn.additionalPackages` | list(string) | [] |  | Additional global yarn packages |
+
 <!-- VALUES_SCHEMA_END -->

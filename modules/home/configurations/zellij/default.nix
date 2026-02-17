@@ -232,8 +232,6 @@ in
 
            locked {
                bind "Ctrl g" { SwitchToMode "normal"; }
-               bind "Ctrl d" { HalfPageScrollDown; SwitchToMode "normal"; }
-               bind "Ctrl u" { HalfPageScrollUp; SwitchToMode "normal"; }
            }
       }
     '';
