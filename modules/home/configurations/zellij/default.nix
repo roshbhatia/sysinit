@@ -80,10 +80,10 @@ let
             bind "Ctrl g" { SwitchToMode "locked"; }
             bind "Ctrl a" "a" { SwitchToMode "locked"; }
             bind "Ctrl a" "r" { SwitchToMode "resize"; }
-            
+
             // Scrollback and search (matching WezTerm keybindings)
-            bind "Ctrl+Esc" { SwitchToMode "scroll"; }
-            bind "Ctrl+/" { SwitchToMode "search"; }
+            bind "Ctrl Esc" { SwitchToMode "scroll"; }
+            bind "Ctrl /" { SwitchToMode "search"; }
 
             // Pane navigation (vim keys)
             bind "Ctrl h" {
@@ -112,10 +112,10 @@ let
             }
 
             // Pane resize
-            bind "Ctrl+Shift+h" { Resize "Increase left"; }
-            bind "Ctrl+Shift+j" { Resize "Increase down"; }
-            bind "Ctrl+Shift+k" { Resize "Increase up"; }
-            bind "Ctrl+Shift+l" { Resize "Increase right"; }
+            bind "Ctrl Shift h" { Resize "Increase left"; }
+            bind "Ctrl Shift j" { Resize "Increase down"; }
+            bind "Ctrl Shift k" { Resize "Increase up"; }
+            bind "Ctrl Shift l" { Resize "Increase right"; }
 
             // Pane splitting (matching WezTerm)
             bind "Ctrl v" { NewPane "Right"; }
@@ -156,11 +156,11 @@ let
             bind "k" { ScrollUp; }
             bind "h" { PageScrollUp; }
             bind "l" { PageScrollDown; }
-            
+
             // Arrow keys
             bind "Down" { ScrollDown; }
             bind "Up" { ScrollUp; }
-            
+
             // Page movement (matching WezTerm Ctrl+u/d behavior)
             bind "Ctrl d" { HalfPageScrollDown; }
             bind "Ctrl u" { HalfPageScrollUp; }
@@ -170,23 +170,23 @@ let
             bind "PageUp" { PageScrollUp; }
             bind "d" { HalfPageScrollDown; }
             bind "u" { HalfPageScrollUp; }
-            
+
             // Jump to top/bottom
             bind "g" { ScrollToTop; }
             bind "G" { ScrollToBottom; }
             bind "Home" { ScrollToTop; }
             bind "End" { ScrollToBottom; }
-            
+
             // Search
             bind "/" { SwitchToMode "search"; }
             bind "Ctrl /" { SwitchToMode "search"; }
             bind "n" { Search "down"; }
             bind "N" { Search "up"; }
-            
+
             // Copy mode
             bind "v" { Copy; }
             bind "y" { Copy; }
-            
+
             // Exit scroll mode
             bind "Esc" { SwitchToMode "normal"; }
             bind "Ctrl+Esc" { SwitchToMode "normal"; }
@@ -203,7 +203,7 @@ let
             bind "k" { Search "up"; }
             bind "Down" { Search "down"; }
             bind "Up" { Search "up"; }
-            
+
             // Exit search
             bind "Esc" { ScrollToBottom; SwitchToMode "normal"; }
             bind "Enter" { SwitchToMode "scroll"; }
@@ -212,8 +212,6 @@ let
 
         locked {
             bind "Ctrl g" { SwitchToMode "normal"; }
-            bind "Ctrl a" "Esc" { SwitchToMode "normal"; }
-            bind "Ctrl a" "a" { SwitchToMode "normal"; }
         }
     }
   '';
@@ -233,7 +231,7 @@ let
     if [[ $- == *i* && "$SHLVL" -eq 1 ]]; then
       if should_run_zellij && command -v zellij > /dev/null 2>&1; then
         SESSION_NAME="''${ZELLIJ_SESSION:-$(basename "$PWD")}"
-        
+
         if zellij list-sessions 2>/dev/null | grep -q "^$SESSION_NAME"; then
           exec zellij attach "$SESSION_NAME"
         else
