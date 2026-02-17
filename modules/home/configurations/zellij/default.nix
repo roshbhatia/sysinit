@@ -1,4 +1,5 @@
 {
+  config,
   pkgs,
   ...
 }:
@@ -13,6 +14,8 @@ let
     url = "https://github.com/hiasr/vim-zellij-navigator/releases/download/0.3.0/vim-zellij-navigator.wasm";
     sha256 = "13f54hf77bwcqhsbmkvpv07pwn3mblyljx15my66j6kw5zva5rbp";
   };
+
+  inherit (config.lib.stylix) colors;
 in
 {
   programs.zellij = {
@@ -39,18 +42,24 @@ in
 
           pane size=1 borderless=true {
               plugin location="file:${zjstatus}" {
-                format_left  "#[fg=0,bg=10][{session}]  {tabs}"
-                format_right "#[fg=0,bg=10]{datetime}"
-                format_space "#[bg=10]"
+                  format_left  "{mode} {tabs}"
+                  format_right "{session} "
+                  format_space ""
 
-                hide_frame_for_single_pane "false"
+                  hide_frame_for_single_pane "false"
 
-                tab_normal   "{index}:{name}  "
-                tab_active   "{index}:{name}* "
+                  mode_normal        "#[fg=#${colors.base05},bg=#${colors.base01},bold] NORMAL #[fg=#${colors.base05},bg=#${colors.base01}]"
+                  mode_locked        "#[fg=#${colors.base00},bg=#${colors.base08},bold] LOCKED #[fg=#${colors.base05},bg=#${colors.base08}]"
+                  mode_resize        "#[fg=#${colors.base00},bg=#${colors.base0E},bold] RESIZE #[fg=#${colors.base05},bg=#${colors.base0E}]"
+                  mode_pane          "#[fg=#${colors.base00},bg=#${colors.base0B},bold] PANE #[fg=#${colors.base05},bg=#${colors.base0B}]"
+                  mode_tab           "#[fg=#${colors.base00},bg=#${colors.base0A},bold] TAB #[fg=#${colors.base05},bg=#${colors.base0A}]"
+                  mode_scroll        "#[fg=#${colors.base00},bg=#${colors.base0C},bold] SCROLL #[fg=#${colors.base05},bg=#${colors.base0C}]"
+                  mode_enter_search  "#[fg=#${colors.base00},bg=#${colors.base09},bold] SEARCH #[fg=#${colors.base05},bg=#${colors.base09}]"
+                  mode_search        "#[fg=#${colors.base00},bg=#${colors.base09},bold] SEARCH #[fg=#${colors.base05},bg=#${colors.base09}]"
+                  mode_session       "#[fg=#${colors.base00},bg=#${colors.base0D},bold] SESSION #[fg=#${colors.base05},bg=#${colors.base0D}]"
 
-                datetime          " {format} "
-                datetime_format   "%H:%M %d-%b-%y"
-                datetime_timezone "Europe/London"
+                  tab_normal   "{index}:{name} "
+                  tab_active   "#[bold]{index}:{name} "
               }
           }
       }

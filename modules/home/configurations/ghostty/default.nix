@@ -4,14 +4,6 @@
   ...
 }:
 
-let
-  ghosttyCursorShaders = pkgs.fetchFromGitHub {
-    owner = "sahaj-b";
-    repo = "ghostty-cursor-shaders";
-    rev = "4faa83e4b9306750fc8de64b38c6f53c57862db8";
-    sha256 = "sha256-ruhEqXnWRCYdX5mRczpY3rj1DTdxyY3BoN9pdlDOKrE=";
-  };
-in
 {
   stylix.targets.ghostty = {
     enable = true;
@@ -45,12 +37,12 @@ in
       command = "${pkgs.zsh}/bin/zsh -c ${pkgs.zellij}/bin/zellij";
       shell-integration = "none";
 
-      # Cursor trail shader for smooth cursor movement
-      custom-shader = "${ghosttyCursorShaders}/cursor_tail.glsl";
+      # Cursor tail shader - Kitty-like comet trail (subtle, shows direction)
+      custom-shader = ./shaders/cursor_tail.glsl;
       custom-shader-animation = "always";
 
       quick-terminal-position = "center";
-      quick-terminal-size = "90%,80%";
+      quick-terminal-size = "2400,1600";
 
       keybind = [
         "clear"
