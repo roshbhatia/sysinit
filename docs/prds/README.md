@@ -21,6 +21,7 @@ This directory contains Product Requirement Documents (PRDs) for refactoring the
 | [04](./04-ghostty-zellij.md) | Ghostty + Zellij | Not Started | PRD-01, PRD-03 |
 | [05](./05-project-vms.md) | Project VMs | Not Started | PRD-01, PRD-03, PRD-04 |
 | [06](./06-minimal-host.md) | Minimal Host | Not Started | PRD-01, PRD-02, PRD-05 |
+| [07](./07-module-consolidation.md) | Module Consolidation | In Progress | None |
 
 ## Dependency Graph
 
