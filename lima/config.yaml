@@ -19,9 +19,9 @@ mounts:
     writable: true
   - location: "~/orgfiles"
     writable: true
-  - location: "~/.colima/default/docker.sock"
+  - location: "~/.colima"
     writable: true
-  - location: "~/.1password/agent.sock"
+  - location: "~/.1password"
     writable: true
   - location: "/nix"
     writable: true
