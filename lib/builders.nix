@@ -25,7 +25,7 @@
 
   mkUtils = { system, pkgs }: import ../modules/lib { inherit lib pkgs system; };
 
-  mkOverlays = system: import ../overlays.nix { inherit inputs system; };
+  mkOverlays = _system: import ../overlays/default.nix { inherit inputs; };
 
   buildConfiguration =
     {

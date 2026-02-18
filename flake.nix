@@ -103,6 +103,7 @@
           ;
       };
 
+      overlays = import ./overlays/default.nix { inherit inputs; };
       formatter.aarch64-darwin = nixpkgs.legacyPackages.aarch64-darwin.nixfmt;
     };
 }

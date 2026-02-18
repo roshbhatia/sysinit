@@ -7,10 +7,12 @@
 
     # AI/Copilot tools (available everywhere)
     amp-cli
+    claude-code
     crush
     cursor-cli
     github-copilot-cli
     opencode
+    openspec
 
     # Package/Build managers
     cachix
@@ -26,6 +28,7 @@
     fish
 
     # Lua runtime & libraries (for neovim, wezterm, hammerspoon configs)
+    hererocks
     luajit
     lua54Packages.cjson
 
