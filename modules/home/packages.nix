@@ -41,7 +41,6 @@
     # Shell essentials
     gum
     nix-your-shell
-    oh-my-posh
 
     # Terminal utilities
     chafa

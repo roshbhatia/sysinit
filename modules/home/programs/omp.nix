@@ -10,85 +10,87 @@ let
     accent = "#${config.lib.stylix.colors.base0E}"; # Purple (accent tertiary)
     info = "#${config.lib.stylix.colors.base0D}"; # Blue
   };
-
-  themeConfig = {
-    "$schema" = "https://raw.githubusercontent.com/JanDeDobbeleer/oh-my-posh/main/themes/schema.json";
-    palette = {
-      inherit (ompColors) primary;
-      muted = "p:primary";
-      inherit (ompColors) error;
-      inherit (ompColors) accent;
-      inherit (ompColors) info;
-    };
-    blocks = [
-      {
-        alignment = "left";
-        segments = [
-          {
-            foreground = "p:accent";
-            style = "plain";
-            template = "{{ .UserName }}";
-            type = "session";
-          }
-          {
-            foreground = "p:info";
-            style = "plain";
-            template = "@[";
-            type = "session";
-          }
-          {
-            foreground = "p:accent";
-            style = "plain";
-            template = "{{.HostName}}";
-            type = "path";
-          }
-          {
-            foreground = "p:info";
-            style = "plain";
-            template = "] ➜";
-            type = "session";
-          }
-          {
-            foreground = "p:info";
-            properties = {
-              style = "agnoster_short";
-            };
-            style = "plain";
-            template = " {{ .Path }} ";
-            type = "path";
-          }
-          {
-            foreground = "p:info";
-            properties = {
-              branch_icon = "";
-            };
-            style = "plain";
-            template = "<p:accent>git</>({{ .HEAD }}) ";
-            type = "git";
-          }
-          {
-            foreground = "p:accent";
-            style = "plain";
-            template = "󱄅 ({{ .Type }}) ";
-            type = "nix-shell";
-          }
-          {
-            style = "plain";
-            foreground = "p:error";
-            template = " > ";
-            type = "text";
-          }
-        ];
-        type = "prompt";
-      }
-    ];
-    final_space = true;
-    version = 3;
-  };
 in
 {
-  xdg.configFile."oh-my-posh/themes/sysinit.omp.json" = {
-    text = builtins.toJSON themeConfig;
-    force = true;
+  programs.oh-my-posh = {
+    enable = true;
+    enableBashIntegration = true;
+    enableZshIntegration = true;
+    enableNushellIntegration = true;
+
+    settings = {
+      "$schema" = "https://raw.githubusercontent.com/JanDeDobbeleer/oh-my-posh/main/themes/schema.json";
+      palette = {
+        inherit (ompColors) primary;
+        muted = "p:primary";
+        inherit (ompColors) error;
+        inherit (ompColors) accent;
+        inherit (ompColors) info;
+      };
+      blocks = [
+        {
+          alignment = "left";
+          segments = [
+            {
+              foreground = "p:accent";
+              style = "plain";
+              template = "{{ .UserName }}";
+              type = "session";
+            }
+            {
+              foreground = "p:info";
+              style = "plain";
+              template = "@[";
+              type = "session";
+            }
+            {
+              foreground = "p:accent";
+              style = "plain";
+              template = "{{.HostName}}";
+              type = "path";
+            }
+            {
+              foreground = "p:info";
+              style = "plain";
+              template = "] ➜";
+              type = "session";
+            }
+            {
+              foreground = "p:info";
+              properties = {
+                style = "agnoster_short";
+              };
+              style = "plain";
+              template = " {{ .Path }} ";
+              type = "path";
+            }
+            {
+              foreground = "p:info";
+              properties = {
+                branch_icon = "";
+              };
+              style = "plain";
+              template = "<p:accent>git</>({{ .HEAD }}) ";
+              type = "git";
+            }
+            {
+              foreground = "p:accent";
+              style = "plain";
+              template = "󱄅 ({{ .Type }}) ";
+              type = "nix-shell";
+            }
+            {
+              style = "plain";
+              foreground = "p:error";
+              template = " > ";
+              type = "text";
+            }
+          ];
+          type = "prompt";
+        }
+      ];
+      final_space = true;
+      version = 3;
+    };
   };
 }

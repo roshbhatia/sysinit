@@ -108,8 +108,6 @@ in
         alias nu-open = open
         alias open = ^open
       ''}
-
-      oh-my-posh init nu --config ${config.xdg.configHome}/oh-my-posh/themes/sysinit.omp.json
     '';
   };
 
