@@ -15,26 +15,6 @@ let
       email = "your.email@example.com";
       username = "yourgithub";
     };
-
-    theme = {
-      appearance = "dark";
-      colorscheme = "everforest";
-      variant = "dark-soft";
-      font.monospace = "TX-02";
-      transparency = {
-        opacity = 0.8;
-        blur = 70;
-      };
-    };
-
-    darwin = {
-      tailscale.enable = true;
-      homebrew.additionalPackages = {
-        taps = [ ];
-        brews = [ ];
-        casks = [ ];
-      };
-    };
   };
 
   # Merge overrides into defaults
@@ -48,20 +28,35 @@ in
     inherit (common) username;
 
     values = {
-      inherit (common) theme git;
+      inherit (common) git;
       user.username = common.username;
       hostname = "yourhostname";
-      darwin = common.darwin // {
+
+      # Customize theme, transparency, and other settings here
+      theme = {
+        appearance = "dark";
+        colorscheme = "everforest";
+        variant = "dark-soft";
+        font.monospace = "TX-02";
+        transparency = {
+          opacity = 0.8;
+          blur = 70;
+        };
+      };
+
+      # Darwin-specific settings
+      darwin = {
+        tailscale.enable = true;
         homebrew.additionalPackages = {
-          taps = common.darwin.homebrew.additionalPackages.taps or [ ];
-          brews = common.darwin.homebrew.additionalPackages.brews or [ ];
-          casks = (common.darwin.homebrew.additionalPackages.casks or [ ]);
+          taps = [ ];
+          brews = [ ];
+          casks = [ ];
         };
       };
     };
   };
 
-  # yourhostname-vm - NixOS Lima VM (optional)
+  # your-nixos-hostname - NixOS Lima VM (optional)
   # Uncomment to enable Lima VM configuration
   # your-nixos-hostname = {
   #   system = "aarch64-linux";
@@ -70,9 +65,21 @@ in
   #   inherit (common) username;
   #
   #   values = {
-  #     inherit (common) theme git;
+  #     inherit (common) git;
   #     user.username = common.username;
   #     hostname = "your-nixos-hostname";
+  #
+  #     # Customize theme and other settings
+  #     theme = {
+  #       appearance = "dark";
+  #       colorscheme = "everforest";
+  #       variant = "dark-soft";
+  #       font.monospace = "TX-02";
+  #       transparency = {
+  #         opacity = 0.8;
+  #         blur = 70;
+  #       };
+  #     };
   #   };
   # };
 }
