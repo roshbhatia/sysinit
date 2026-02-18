@@ -51,7 +51,6 @@ let
   integrationsCompletions = shellUtils.stripHeaders ./integrations/completions.zsh;
   integrationsExtras = shellUtils.stripHeaders ./integrations/extras.zsh;
   libCache = shellUtils.stripHeaders ./lib/cache.zsh;
-  uiPrompt = shellUtils.stripHeaders ./ui/prompt.zsh;
 in
 {
   programs.zsh = {
@@ -185,10 +184,6 @@ in
         ${integrationsCompletions}
         ${integrationsExtras}
         ${env}
-      '')
-
-      (lib.mkOrder 899 ''
-        ${uiPrompt}
       '')
     ];
   };
