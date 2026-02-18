@@ -7,17 +7,19 @@
   ];
 
   home-manager.users.${config.sysinit.user.username} = {
-    # Additional dev-full packages
+    # Full dev environment (no language runtimes - projects specify via shell.nix)
     home.packages = with pkgs; [
-      nodejs
-      python3
-      rustc
-      cargo
-      go
-      delta
-      yq
+      # Build tools
       gnumake
       cmake
+
+      # Utilities
+      delta
+      yq
+
+      # Docker CLI tools (for use with shareDockerFromHost)
+      docker
+      docker-buildx
       docker-compose
     ];
   };

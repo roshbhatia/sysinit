@@ -16,11 +16,12 @@ rec {
     {
       projectName,
       projectDir,
-      image ? "lima-dev",
+      image ? "lima",
       cpus ? 4,
       memory ? "8GiB",
       disk ? "8GiB",
       shareDockerFromHost ? false,
+      dockerSocketPath ? "",
     }:
     let
       # Configure port forwarding based on semantic flags
@@ -309,7 +310,7 @@ rec {
       vmName ? "${projectName}-dev",
       baseShell ? null,
       extraPackages ? [ ],
-      image ? "lima-dev",
+      image ? "lima",
       cpus ? 4,
       memory ? "8GiB",
       disk ? "8GiB",
