@@ -15,6 +15,13 @@
   # Enable Lima guest services (lima-init, lima-guestagent)
   services.lima.enable = true;
 
+  # Use host's /nix/store as an additional binary cache
+  # The /nix-host mount is configured in lima.yaml
+  nix.settings = {
+    extra-substituters = [ "file:///nix-host/store" ];
+    trusted-substituters = [ "file:///nix-host/store" ];
+  };
+
   # Boot configuration for Lima/QEMU (overrides systemd-boot from system.nix)
   boot = {
     kernelParams = [ "console=tty0" ];

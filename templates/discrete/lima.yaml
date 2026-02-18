@@ -20,6 +20,9 @@ mounts:
     writable: true
   - location: "/tmp/lima"
     writable: true
+  - location: "/nix"
+    mountPoint: "/nix-host"
+    writable: false
 
 ssh:
   loadDotSSHPubKeys: true
