@@ -9,7 +9,7 @@ final: _prev: {
       owner = "abice";
       repo = "go-enum";
       rev = "v${version}";
-      hash = "sha256-rKVMBzFSsPqFjxO0Kp80ccGJ5/3388DGuOoP+v/TMDM=";
+      hash = "sha256-Mt45Qz8l++bvBLKEpbX0m8iTkHDpsZtdYhhHUprQKY8=";
     };
 
     vendorHash = "sha256-D5GIRyflPDMgJD/lwFX3kzXMpNMTqd6g/jL7qdrdBkU=";
