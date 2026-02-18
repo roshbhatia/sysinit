@@ -1,11 +1,8 @@
 # lv426 - Primary macOS workstation
-{ pkgs, config, ... }:
+{ pkgs, ... }:
 
 {
-  # User configuration
-  sysinit.user.username = "rbha18";
-
-  # Homebrew casks
+  # Homebrew casks (host-specific)
   homebrew.casks = [
     "betterdiscord-installer"
     "discord"
@@ -13,19 +10,9 @@
     "steam"
   ];
 
-  # Theme
+  # Theme override (optional - can be removed to use default from common.nix)
   stylix = {
     base16Scheme = "${pkgs.base16-schemes}/share/themes/everforest.yaml";
     polarity = "dark";
-  };
-
-  # Home-manager
-  home-manager.users.${config.sysinit.user.username} = {
-    imports = [
-      # macOS gets language runtimes system-wide
-      ../modules/home/packages/language-runtimes.nix
-    ];
-
-    programs.home-manager.enable = true;
   };
 }

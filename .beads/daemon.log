@@ -2741,3 +2741,13 @@ time=2026-02-18T09:17:54.036-08:00 level=INFO msg="Git HEAD change detected" pat
 time=2026-02-18T09:17:55.039-08:00 level=INFO msg="Import triggered by file change"
 time=2026-02-18T09:17:55.041-08:00 level=INFO msg="Starting auto-import" mode=auto-import
 time=2026-02-18T09:17:55.793-08:00 level=INFO msg="Pull failed" error="git pull failed: exit status 1\nfatal: couldn't find remote ref refactor/module-consolidation\n" backoff=1m0s
+time=2026-02-18T09:23:32.752-08:00 level=INFO msg="File change detected" path=/Users/rbha18/github/personal/roshbhatia/sysinit/.beads/issues.jsonl
+time=2026-02-18T09:23:33.754-08:00 level=INFO msg="Import triggered by file change"
+time=2026-02-18T09:23:33.755-08:00 level=INFO msg="Starting auto-import" mode=auto-import
+time=2026-02-18T09:23:33.800-08:00 level=INFO msg="WARNING: Uncommitted local changes detected" path=/Users/rbha18/github/personal/roshbhatia/sysinit/.beads/issues.jsonl
+time=2026-02-18T09:23:33.800-08:00 level=INFO msg="   Pulling from remote may overwrite local unpushed changes."
+time=2026-02-18T09:23:33.800-08:00 level=INFO msg="   Consider running 'bd sync' to commit and push your changes first."
+time=2026-02-18T09:23:34.473-08:00 level=INFO msg="Pull failed" error="git pull failed: exit status 1\nfatal: couldn't find remote ref refactor/module-consolidation\n" backoff=2m0s
+time=2026-02-18T09:25:10.607-08:00 level=INFO msg="File change detected" path=/Users/rbha18/github/personal/roshbhatia/sysinit/.beads/issues.jsonl
+time=2026-02-18T09:25:11.609-08:00 level=INFO msg="Import triggered by file change"
+time=2026-02-18T09:25:11.610-08:00 level=INFO msg="Skipping: in backoff period" mode=auto-import

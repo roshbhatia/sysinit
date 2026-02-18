@@ -12,7 +12,7 @@
     (modulesPath + "/profiles/qemu-guest.nix")
   ];
 
-  # Enable Lima integration
+  # Lima integration
   services.lima.enable = true;
 
   # Nix configuration
@@ -24,13 +24,13 @@
     trusted-users = [ "@wheel" ];
   };
 
-  # Hostname
+  # Networking
   networking.hostName = "ascalon";
 
   # SSH
   services.openssh.enable = true;
 
-  # Sudo without password
+  # Sudo without password for wheel group
   security.sudo.wheelNeedsPassword = false;
 
   # Boot configuration for Lima/QEMU
@@ -60,21 +60,11 @@
     ];
   };
 
-  # System packages
+  # Minimal system packages (most come from home-manager)
   environment.systemPackages = with pkgs; [
     vim
     git
   ];
-
-  # Home-manager
-  home-manager.users.dev = {
-    imports = [
-      # Ascalon gets language runtimes (same as macOS)
-      ../modules/home/packages/language-runtimes.nix
-    ];
-
-    programs.home-manager.enable = true;
-  };
 
   system.stateVersion = lib.mkForce "25.11";
 }

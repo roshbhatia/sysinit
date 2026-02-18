@@ -5,28 +5,31 @@ common:
   lv426 = {
     system = "aarch64-darwin";
     platform = "darwin";
-    inherit (common) username;
-
+    inherit (common)
+      username
+      git
+      theme
+      darwin
+      ;
     config = ./lv426.nix;
 
-    sysinit = common.sysinit;
-
-    values = common.values // {
-      # lv426-specific overrides (if any)
+    sysinit.git = common.git;
+    values = {
+      inherit (common) theme git darwin;
+      user.username = common.username;
     };
   };
 
   ascalon = {
     system = "aarch64-linux";
     platform = "linux";
-    username = "dev";
-
+    inherit (common) username git theme;
     config = ./ascalon.nix;
 
-    sysinit = common.sysinit;
-
-    values = common.values // {
-      # ascalon-specific overrides (if any)
+    sysinit.git = common.git;
+    values = {
+      inherit (common) theme git;
+      user.username = common.username;
     };
   };
 }

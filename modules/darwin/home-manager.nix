@@ -27,6 +27,9 @@
           ../options/llm.nix
 
           ../home
+
+          # macOS gets language runtimes system-wide
+          ../home/packages/language-runtimes.nix
         ];
       };
   };
