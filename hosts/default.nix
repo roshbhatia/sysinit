@@ -1,3 +1,4 @@
+# Host configurations
 common:
 
 {
@@ -6,11 +7,13 @@ common:
     platform = "darwin";
     inherit (common) username;
 
-    config = ./lv426;
+    config = ./lv426.nix;
 
     sysinit = common.sysinit;
 
-    values = common.values // (import ./lv426/values.nix);
+    values = common.values // {
+      # lv426-specific overrides (if any)
+    };
   };
 
   ascalon = {
@@ -18,10 +21,12 @@ common:
     platform = "linux";
     username = "dev";
 
-    config = ./ascalon;
+    config = ./ascalon.nix;
 
     sysinit = common.sysinit;
 
-    values = common.values // { };
+    values = common.values // {
+      # ascalon-specific overrides (if any)
+    };
   };
 }

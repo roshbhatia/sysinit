@@ -5,8 +5,8 @@
 }:
 
 let
-  themes = import ../../../shared/lib/theme.nix { inherit lib; };
-  themeNames = import ../../../shared/lib/theme/adapters/theme-names.nix { inherit lib; };
+  themes = import ../../../lib/theme.nix { inherit lib; };
+  themeNames = import ../../../lib/theme/adapters/theme-names.nix { inherit lib; };
   themeName = themeNames.getWeztermTheme config.sysinit.theme.colorscheme config.sysinit.theme.variant;
 
   # Create a values-like structure for the theme library functions

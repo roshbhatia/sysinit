@@ -1,0 +1,11 @@
+{
+    "diagnostics.globals": [
+        "vim",
+        "Snacks"
+    ],
+    "diagnostics.disable": [
+        "missing-fields",
+        "incomplete-signature-doc",
+        "unused-local"
+    ]
+}

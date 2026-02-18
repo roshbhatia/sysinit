@@ -3,13 +3,23 @@
 {
   imports = [
     # Shared modules (available at system level)
-    ../shared/lib/modules/user.nix
-    ../shared/lib/modules/darwin.nix
-    ../shared/lib/modules/theme.nix
-    ../home/configurations/git/options.nix
-    # Packages first, then configurations
-    ./packages
-    ./configurations
+    ../options/user.nix
+    ../options/darwin.nix
+    ../options/theme.nix
+    ../home/programs/git/options.nix
+
+    # System configurations
+    ./aerospace.nix
+    ./borders.nix
+    ./desktop.nix
+    ./homebrew.nix
+    ./macos-tools.nix
+    ./ollama.nix
+    ./security.nix
+    ./sketchybar.nix
+    ./stylix.nix
+    ./system.nix
+    ./tailscale.nix
   ];
 
   system.build.applications = pkgs.buildEnv {

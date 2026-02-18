@@ -9,7 +9,7 @@ let
   themeLib = utils.theme;
 
   # macOS Firefox wrapper - /Applications is macOS-specific hardcoded path
-  # This is acceptable here because this entire module is macOS-only (in modules/home/configurations)
+  # This is acceptable here because this entire module is macOS-only (in modules/darwin/home/)
   # For future NixOS support, create a separate module with different wrapper
   firefoxWrapper =
     pkgs.runCommand "firefox-homebrew-wrapper"

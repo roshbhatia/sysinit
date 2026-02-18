@@ -59,7 +59,7 @@
   };
 
   outputs =
-    inputs@{ self, nixpkgs, ... }:
+    inputs@{ nixpkgs, ... }:
     let
       inherit (nixpkgs) lib;
 
@@ -111,39 +111,6 @@
           hostConfigs
           common
           ;
-      };
-
-      templates = {
-        vm-dev = {
-          path = self + /templates/vm-dev;
-          description = "Full development project with automatic Lima VM integration";
-          welcomeText = ''
-            # Development project created!
-
-            ## Setup
-            1. Review shell.nix and customize VM settings
-            2. Run: direnv allow
-            3. The VM will auto-create and you'll be dropped into it
-
-            ## Manual controls
-            - Stop VM: task ascalon:stop
-            - Destroy VM: task ascalon:destroy
-            - Status: task ascalon:status
-
-            ## Disable auto-entry
-            Set SYSINIT_NO_AUTO_VM=1 in .envrc to disable automatic VM entry.
-          '';
-        };
-
-        vm-minimal = {
-          path = self + /templates/vm-minimal;
-          description = "Minimal project with basic Lima VM";
-          welcomeText = ''
-            # Minimal project created!
-
-            Run 'direnv allow' to enable automatic VM management.
-          '';
-        };
       };
 
       formatter.aarch64-darwin = nixpkgs.legacyPackages.aarch64-darwin.nixfmt;

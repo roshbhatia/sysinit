@@ -5,7 +5,7 @@
   ...
 }:
 let
-  shellLib = import ../shared/lib/shell.nix {
+  shellLib = import ../lib/shell.nix {
     inherit lib;
   };
   shellEnv = shellLib.env { };
@@ -18,7 +18,7 @@ let
 in
 {
   imports = [
-    ./configurations
+    ./programs
     ./packages
   ];
 

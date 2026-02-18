@@ -21,40 +21,12 @@
       {
         home.enableNixpkgsReleaseCheck = false;
         imports = [
+          # Shared module options at home-manager level
+          ../options/theme.nix
+          ../options/packages.nix
+          ../options/llm.nix
+
           ../home
-          ./home
-          # Import shared module options
-          ../shared/lib/modules/theme.nix
-          ../shared/lib/modules/packages.nix
-          ../shared/lib/modules/llm.nix
-          # Inline module to set sysinit values from common.nix values
-          {
-            config.sysinit.git = values.git;
-            config.sysinit.theme = {
-              appearance = values.theme.appearance or "dark";
-              colorscheme = values.theme.colorscheme;
-              variant = values.theme.variant;
-              font.monospace = values.theme.font.monospace or "TX-02";
-              transparency =
-                values.theme.transparency or {
-                  opacity = 0.8;
-                  blur = 70;
-                };
-            };
-            # Package manager additional packages
-            config.sysinit.cargo.additionalPackages = values.cargo.additionalPackages or [ ];
-            config.sysinit.gh.additionalPackages = values.gh.additionalPackages or [ ];
-            config.sysinit.go.additionalPackages = values.go.additionalPackages or [ ];
-            config.sysinit.nix.additionalPackages = values.nix.additionalPackages or [ ];
-            config.sysinit.npm.additionalPackages = values.npm.additionalPackages or [ ];
-            config.sysinit.pipx.additionalPackages = values.pipx.additionalPackages or [ ];
-            config.sysinit.uvx.additionalPackages = values.uvx.additionalPackages or [ ];
-            config.sysinit.vet.additionalPackages = values.vet.additionalPackages or [ ];
-            config.sysinit.yarn.additionalPackages = values.yarn.additionalPackages or [ ];
-            # LLM configuration
-            config.sysinit.llm.mcp.additionalServers = values.llm.mcp.additionalServers or { };
-            config.sysinit.llm.copilot = values.llm.copilot or { };
-          }
         ];
       };
   };

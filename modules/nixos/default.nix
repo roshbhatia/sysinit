@@ -4,9 +4,11 @@
 {
   imports = [
     # Shared modules (available at system level)
-    ../shared/lib/modules/user.nix
-    ../shared/lib/modules/theme.nix
-    ../home/configurations/git/options.nix
+    ../options/user.nix
+    ../options/theme.nix
+    ../home/programs/git/options.nix
+
+    # System packages and configurations
     ./configurations
   ];
 }
