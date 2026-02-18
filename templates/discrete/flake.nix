@@ -38,65 +38,9 @@
         inherit lib nixpkgs inputs;
       };
 
+      hostConfigs = import ./hosts { };
       builders = sysinitLib.builders;
       outputBuilders = sysinitLib.outputBuilders;
-
-      # Host-specific values
-      hostValues = {
-        username = "yourusername";
-
-        git = {
-          name = "Your Name";
-          email = "your.email@example.com";
-          username = "yourgithub";
-        };
-
-        theme = {
-          appearance = "dark";
-          colorscheme = "catppuccin";
-          variant = "frappe";
-          font.monospace = "TX-02";
-          transparency = {
-            opacity = 0.8;
-            blur = 70;
-          };
-        };
-
-        darwin = {
-          tailscale.enable = false;
-          homebrew.additionalPackages = {
-            taps = [ ];
-            brews = [ ];
-            casks = [ ];
-          };
-        };
-      };
-
-      # Define host configurations
-      hostConfigs = {
-        # macOS machine
-        yourhostname = {
-          system = "aarch64-darwin";
-          platform = "darwin";
-          username = hostValues.username;
-          values = hostValues // {
-            hostname = "yourhostname";
-            user.username = hostValues.username;
-          };
-        };
-
-        # Lima VM (NixOS) - optional
-        # yourhostname-vm = {
-        #   system = "aarch64-linux";
-        #   platform = "linux";
-        #   isLima = true;
-        #   username = hostValues.username;
-        #   values = hostValues // {
-        #     hostname = "yourhostname-vm";
-        #     user.username = hostValues.username;
-        #   };
-        # };
-      };
 
       # Add host-specific overlays
       mkHostOverlays =
@@ -131,7 +75,10 @@
       };
 
       lib = {
-        inherit builders hostConfigs hostValues;
+        inherit
+          builders
+          hostConfigs
+          ;
       };
     };
 }
