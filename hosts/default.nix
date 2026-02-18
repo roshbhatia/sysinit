@@ -1,35 +1,37 @@
 # Host configurations
-common:
+# Exports a function that takes common config and optional overrides
+# and returns host metadata for the builder
+{
+  common,
+  overrides ? { },
+}:
 
+let
+  # Merge overrides into common config
+  mergedCommon = common // overrides;
+in
 {
   lv426 = {
     system = "aarch64-darwin";
     platform = "darwin";
-    inherit (common)
-      username
-      git
-      theme
-      darwin
-      ;
+    inherit (mergedCommon) username;
     config = ./lv426.nix;
 
-    sysinit.git = common.git;
     values = {
-      inherit (common) theme git darwin;
-      user.username = common.username;
+      inherit (mergedCommon) theme git darwin;
+      user.username = mergedCommon.username;
     };
   };
 
   ascalon = {
     system = "aarch64-linux";
     platform = "linux";
-    inherit (common) username git theme;
+    inherit (mergedCommon) username;
     config = ./ascalon.nix;
 
-    sysinit.git = common.git;
     values = {
-      inherit (common) theme git;
-      user.username = common.username;
+      inherit (mergedCommon) theme git;
+      user.username = mergedCommon.username;
     };
   };
 }

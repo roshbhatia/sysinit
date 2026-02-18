@@ -3,9 +3,9 @@
 with lib;
 
 let
-  themes = import ../theme { inherit lib; };
-  metadata = import ../theme/metadata.nix { inherit lib; };
+  themes = import ../lib/theme.nix { inherit lib; };
   cfg = config.sysinit.theme;
+  metadata = themes.metadata;
 
   allVariants = unique (flatten (map (meta: meta.variants) (attrValues metadata)));
 

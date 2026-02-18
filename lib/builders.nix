@@ -82,7 +82,7 @@
           }
           {
             config.sysinit.user.username = hostConfig.username;
-            config.sysinit.git = hostConfig.sysinit.git;
+            config.sysinit.git = values.git;
             config.sysinit.theme = {
               appearance = values.theme.appearance or "dark";
               colorscheme = values.theme.colorscheme;
@@ -146,7 +146,7 @@
           }
           {
             config.sysinit.user.username = hostConfig.username;
-            config.sysinit.git = hostConfig.sysinit.git;
+            config.sysinit.git = values.git;
             config.sysinit.theme = {
               appearance = values.theme.appearance or "dark";
               colorscheme = values.theme.colorscheme;

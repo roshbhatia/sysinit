@@ -68,7 +68,7 @@
       };
 
       common = sysinitLib.common;
-      hostConfigs = (import ./hosts) common;
+      hostConfigs = import ./hosts { inherit common; };
       builders = sysinitLib.builders;
       outputBuilders = sysinitLib.outputBuilders;
 
