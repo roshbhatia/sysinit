@@ -23,7 +23,6 @@
         imports = [
           # Shared module options at home-manager level
           ../options/theme.nix
-          ../options/packages.nix
           ../options/llm.nix
           ../home/programs/git/options.nix
 

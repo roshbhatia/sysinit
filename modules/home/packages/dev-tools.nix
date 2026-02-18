@@ -2,12 +2,15 @@
 
 {
   home.packages = with pkgs; [
-    # 1Password CLI (socket mounted from macOS to Ascalon)
+    # 1Password CLI (socket mounted from macOS to NixOS VM)
     _1password-cli
 
     # AI/Copilot tools (available everywhere)
+    amp-cli
+    crush
     cursor-cli
     github-copilot-cli
+    opencode
 
     # Package/Build managers
     cachix
@@ -90,6 +93,17 @@
     statix
     textlint
 
+    # Go development tools (previously installed via go install)
+    delve
+    ginkgo
+    gofumpt
+    gotools # includes goimports
+    gotestsum
+    govulncheck
+    mockgen
+    reftools # includes fillstruct, fillswitch, fixplurals
+    richgo
+
     # LSP servers for neovim
     awk-language-server
     bash-language-server
@@ -104,7 +118,6 @@
     nil
     nixd
     pyright
-    regols
     simple-completion-language-server
     taplo
     typescript-language-server
