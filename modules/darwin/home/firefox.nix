@@ -78,6 +78,8 @@ let
   firefoxConfig = themeLib.adapters.firefox.createFirefoxConfig { } themeConfigWithColors { };
 in
 {
+  stylix.targets."nixos-icons".enable = true;
+
   # Disable stylix firefox target to use custom CSS
   stylix.targets.firefox.enable = false;
 

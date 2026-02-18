@@ -6,6 +6,8 @@
 }:
 
 {
+  stylix.targets.fzf.enable = true;
+
   programs.fzf = {
     enable = true;
     enableZshIntegration = false; # zsh vi mode messes with ZLE, so we manually source it
