@@ -19,7 +19,7 @@ in
 {
   imports = [
     ./programs
-    ./packages
+    ./packages.nix
   ];
 
   xdg = {
