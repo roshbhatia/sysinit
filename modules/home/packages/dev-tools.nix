@@ -20,18 +20,6 @@
     # Security
     gnupg
 
-    # Communication (terminal-based)
-    discordo
-    iamb
-
-    # Additional shells
-    fish
-
-    # Lua runtime & libraries (for neovim, wezterm, hammerspoon configs)
-    hererocks
-    luajit
-    lua54Packages.cjson
-
     # Docker CLI (shares socket from macOS Colima)
     docker
     docker-buildx

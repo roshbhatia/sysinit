@@ -2,21 +2,25 @@
 
 {
   home.packages = with pkgs; [
-    # Language runtimes
-    # These are installed system-wide on macOS and persistent VM
-    # Projects can override via shell.nix for specific versions
+    # Language runtimes installed system-wide
+    # Projects can override via shell.nix/flake.nix for specific versions
 
     bun
     go
     nodejs_22
     python311
 
-    # Rust (rustup provides toolchain, including cargo/rustc)
-    # Note: Some tools like cargo-watch require being installed separately
+    # Lua runtime & libraries (for neovim, wezterm, hammerspoon configs)
+    hererocks
+    luajit
+    lua54Packages.cjson
+
+    # Rust toolchain management via rustup
+    # Additional cargo tools
     cargo-watch
     delve
 
-    # Additional language tools
+    # JavaScript/TypeScript tools
     typescript
     yarn
   ];
