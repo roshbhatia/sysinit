@@ -33,33 +33,21 @@
     # Git tools
     delta
     gh
-    gh-dash
     git
     git-crypt
     git-filter-repo
-    lazygit
     libgit2
-    tig
 
     # Shell essentials
-    argc
-    direnv
-    fzf
     gum
     nix-your-shell
     oh-my-posh
-    zoxide
-    zsh
 
     # Terminal utilities
-    asciinema
-    asciinema-agg
     chafa
-    diffnav
     glow
     imagemagick
     mods
-    tlrc
     tokei
   ];
 }

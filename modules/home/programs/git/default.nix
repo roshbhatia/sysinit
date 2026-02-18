@@ -15,8 +15,6 @@ in
 {
   imports = [
     ./options.nix
-    ./config/gh-dash.nix
-    ./config/lazygit.nix
     ./config/gitexcludes.nix
   ];
 
