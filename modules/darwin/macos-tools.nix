@@ -20,4 +20,15 @@
       postgresql_17
     ];
   };
+
+  launchd.user.agents.lima-default = {
+    serviceConfig = {
+      ProgramArguments = [
+        "${pkgs.lima}/bin/limactl"
+        "start"
+        "default"
+      ];
+      RunAtLoad = true;
+    };
+  };
 }
