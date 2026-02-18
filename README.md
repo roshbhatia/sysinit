@@ -25,17 +25,6 @@
 
 This comprises most of my dotfiles, managed (mostly) by `nix`.
 
-## Structure
-
-- `flake.nix` - Flake entry point
-- `hosts/` - Per-host configurations (lv426, lima-dev, lima-minimal)
-- `lib/` - Nix builder functions and utilities
-- `modules/` - Reusable NixOS/Darwin/home-manager modules
-- `profiles/` - Reusable configuration bundles
-- `pkgs/` - Custom package definitions
-- `templates/` - Project templates (VM dev environments)
-- `hack/` - Build and maintenance scripts
-
 ## Quick Start
 
 ### Build and Apply Configuration
@@ -58,6 +47,16 @@ nixfmt **/*.nix
 nix flake check
 ```
 
-### Work Repository
+### Creating a Discrete Host Repository
 
-For work-specific configurations, see the work repo which consumes this flake as an input.
+To create a separate repository that consumes this flake for host-specific configurations:
+
+```bash
+nix flake init -t github:roshbhatia/sysinit#discrete
+```
+
+This creates a minimal flake that:
+- Follows all inputs from sysinit for consistency
+- Provides host-specific values (username, git config, theme, etc.)
+- Can add host-specific modules and overlays
+- Keeps sensitive/work-specific configuration separate from the main sysinit repo
