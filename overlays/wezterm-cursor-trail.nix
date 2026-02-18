@@ -1,6 +1,6 @@
 { ... }:
 
-final: prev:
+_final: prev:
 let
   patch = [
     (prev.fetchpatch {
@@ -15,7 +15,7 @@ in
     patches = (old.patches or [ ]) ++ patch;
   });
 }
-// final.lib.optionalAttrs (prev ? "wezterm-nightly") {
+// prev.lib.optionalAttrs (prev ? "wezterm-nightly") {
   "wezterm-nightly" = prev."wezterm-nightly".overrideAttrs (old: {
     patches = (old.patches or [ ]) ++ patch;
   });
