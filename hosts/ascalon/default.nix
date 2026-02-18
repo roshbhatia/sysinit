@@ -4,7 +4,7 @@
 
 {
   imports = [
-    ../_base/lima.nix
+    ../_base/nixos.nix
   ];
 
   # Persistent VM configuration
