@@ -10,12 +10,11 @@ local function get_basic_config()
       utils.get_nix_binary("zsh"),
       "--login",
     },
-    -- Will only work when connected to the tailnet.
-    -- As such, can safely ignore this when we're on the work machine.
-    -- I'm fine hardcoding the list of systems here for now.
+    -- SSH domains for remote hosts. nostromo is the local Lima VM (lima-default).
+    -- Other hosts require tailnet connection.
     ssh_domains = {
       {
-        name = "ascalon",
+        name = "nostromo",
         remote_address = "lima-default",
         username = utils.get_username(),
         multiplexing = "None",
