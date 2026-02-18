@@ -16,7 +16,7 @@ local function get_basic_config()
     ssh_domains = {
       {
         name = "ascalon",
-        remote_address = "127.0.0.1:62068",
+        remote_address = "lima-default",
         username = utils.get_username(),
         multiplexing = "None",
       },
