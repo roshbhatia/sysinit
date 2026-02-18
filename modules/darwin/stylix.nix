@@ -14,7 +14,6 @@ in
 {
   stylix = {
     enable = true;
-    autoEnable = true;
     enableReleaseChecks = false;
 
     polarity = themeConfig.appearance;

@@ -1,8 +1,6 @@
 { pkgs, ... }:
 
 {
-  stylix.targets.kubecolor.enable = true;
-
   home.file = {
     ".local/bin/k".source = "${pkgs.kubecolor}/bin/kubecolor";
     ".local/bin/kubectl".source = "${pkgs.kubecolor}/bin/kubecolor";
