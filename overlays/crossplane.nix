@@ -1,5 +1,3 @@
-# overlays/crossplane.nix
-# Purpose: pin crossplane-cli to a specific nixpkgs revision.
 { ... }:
 
 final: _prev:

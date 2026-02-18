@@ -1,5 +1,3 @@
-# overlays/kubernetes-zeitgeist.nix
-# Purpose: add kubernetes-zeitgeist tool.
 { ... }:
 
 final: _prev: {

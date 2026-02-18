@@ -1,5 +1,3 @@
-# overlays/claude-code.nix
-# Purpose: expose Claude Code installed outside Nix.
 { ... }:
 
 final: _prev: {

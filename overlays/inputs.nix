@@ -1,5 +1,3 @@
-# overlays/inputs.nix
-# Purpose: expose input-provided packages and overlays.
 {
   inputs,
   ...

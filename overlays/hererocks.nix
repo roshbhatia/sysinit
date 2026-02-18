@@ -1,5 +1,3 @@
-# overlays/hererocks.nix
-# Purpose: provide hererocks python application.
 { ... }:
 
 final: _prev: {

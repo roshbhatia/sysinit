@@ -1,5 +1,3 @@
-# overlays/openspec.nix
-# Purpose: expose OpenSpec CLI installed outside Nix.
 { ... }:
 
 final: _prev: {

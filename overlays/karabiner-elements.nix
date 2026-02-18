@@ -1,5 +1,3 @@
-# overlays/karabiner-elements.nix
-# Purpose: pin karabiner-elements version.
 { ... }:
 
 _final: prev: {
