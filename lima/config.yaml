@@ -24,9 +24,11 @@ ssh:
 containerd:
   system: false
   user: false
-rosetta:
-  enabled: false
-  binfmt: false
+vmOpts:
+  vz:
+    rosetta:
+      enabled: false
+      binfmt: false
 nestedVirtualization: true
 portForwards:
   - guestSocket: /var/run/docker.sock
