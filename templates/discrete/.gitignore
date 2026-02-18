@@ -1,0 +1,29 @@
+# Mac
+.DS_Store
+
+# Nix build outputs
+result
+result-*
+
+# Flake outputs
+.direnv/
+
+# Ignore all dist folders
+**/dist/
+
+# Aider
+.aider.chat.history.md
+.aider.input.history
+.aider.tags.cache.v4/
+
+# Nix
+**/nix-darwin-master/
+**/*.old
+
+# AI Assistants
+.claude/
+.crush/
+CRUSH.md
+.codex/
+.sysinit/
+docs/
