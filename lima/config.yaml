@@ -15,8 +15,6 @@ disk: "100GiB"
 mounts:
   - location: "~"
     writable: false
-  - location: "~/github/work/rbha18_nike/sysinit"
-    writable: true
   - location: "/tmp/lima"
     writable: true
 
