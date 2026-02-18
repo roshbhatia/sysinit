@@ -37,6 +37,15 @@ vmOpts:
 
 nestedVirtualization: true
 
+provision:
+  - mode: system
+    script: |
+      #!/bin/sh
+      # Set hostname on first boot (before NixOS rebuild)
+      if [ "$(hostname)" = "nixos" ]; then
+        hostnamectl set-hostname nostromo
+      fi
+
 portForwards:
   - guestSocket: "/var/run/docker.sock"
     hostSocket: "{{.Home}}/.colima/default/docker.sock"
