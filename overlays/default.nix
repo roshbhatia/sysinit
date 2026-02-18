@@ -4,10 +4,8 @@
 }:
 [
   (import ./inputs.nix { inherit inputs; })
-  (import ./python-accelerate.nix { })
-  (import ./python-aiohttp.nix { })
-  (import ./python-future.nix { })
-  (import ./python-setproctitle.nix { })
+  (import ./python311.nix { })
+  (import ./python313.nix { })
   (import ./crossplane.nix { })
   (import ./kubernetes-zeitgeist.nix { })
   (import ./karabiner-elements.nix { })

@@ -6,13 +6,14 @@ _final: prev: {
       setproctitle = pythonPrev.setproctitle.overridePythonAttrs (_old: {
         doCheck = false;
       });
-    };
-  };
-
-  python311 = prev.python311.override {
-    packageOverrides = _pythonFinal: pythonPrev: {
-      setproctitle = pythonPrev.setproctitle.overridePythonAttrs (_old: {
+      accelerate = pythonPrev.accelerate.overridePythonAttrs (_old: {
         doCheck = false;
+      });
+      aiohttp = pythonPrev.aiohttp.overridePythonAttrs (_old: {
+        doCheck = false;
+      });
+      future = pythonPrev.future.overridePythonAttrs (_old: {
+        disabled = false;
       });
     };
   };
