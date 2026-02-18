@@ -46,7 +46,6 @@
     chafa
     glow
     imagemagick
-    mods
     tokei
 
     # 1Password CLI (socket mounted from macOS to NixOS VM)
@@ -94,7 +93,6 @@
     crossplane-cli
     cue
     devbox
-    open-policy-agent
     terraform-ls
     tflint
     tflint-plugins.tflint-ruleset-aws
