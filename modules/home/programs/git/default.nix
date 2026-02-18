@@ -107,7 +107,7 @@ in
 
     ignores = allIgnorePatterns;
 
-    extraConfig = {
+    settings = {
       advice = {
         addEmptyPathspec = false;
         pushNonFastForward = false;
