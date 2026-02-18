@@ -16,7 +16,7 @@ rec {
     {
       projectName,
       projectDir,
-      image ? "lima",
+      image ? "ascalon",
       cpus ? 4,
       memory ? "8GiB",
       disk ? "8GiB",
@@ -135,7 +135,7 @@ rec {
       DOCKER_SOCKET_PATH=""
       if [[ "${if shareDockerFromHost then "true" else "false"}" == "true" ]]; then
         echo "Detecting Docker socket from active context..."
-        DOCKER_SOCKET_PATH=$(${detectDockerSocket})
+        DOCKER_SOCKET_PATH=$(docker context inspect --format '{{.Endpoints.docker.Host}}' 2>/dev/null | sed 's|unix://||')
         CURRENT_CONTEXT=$(docker context show 2>/dev/null || echo "")
         CACHED_CONTEXT=""
         
@@ -310,7 +310,7 @@ rec {
       vmName ? "${projectName}-dev",
       baseShell ? null,
       extraPackages ? [ ],
-      image ? "lima",
+      image ? "ascalon",
       cpus ? 4,
       memory ? "8GiB",
       disk ? "8GiB",

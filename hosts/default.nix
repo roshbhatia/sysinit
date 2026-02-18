@@ -13,27 +13,15 @@ common:
     values = common.values // (import ./lv426/values.nix);
   };
 
-  lima-dev = {
+  ascalon = {
     system = "aarch64-linux";
     platform = "linux";
     username = "dev";
 
-    config = ./lima-dev;
+    config = ./ascalon;
 
     sysinit = common.sysinit;
 
-    values = common.values // (import ./lima-dev/values.nix);
-  };
-
-  lima-minimal = {
-    system = "aarch64-linux";
-    platform = "linux";
-    username = "dev";
-
-    config = ./lima-minimal;
-
-    sysinit = common.sysinit;
-
-    values = common.values // (import ./lima-minimal/values.nix);
+    values = common.values // { };
   };
 }

@@ -121,9 +121,9 @@
             3. The VM will auto-create and you'll be dropped into it
 
             ## Manual controls
-            - Stop VM: task lima:stop
-            - Destroy VM: task lima:destroy
-            - Status: task lima:status
+            - Stop VM: task ascalon:stop
+            - Destroy VM: task ascalon:destroy
+            - Status: task ascalon:status
 
             ## Disable auto-entry
             Set SYSINIT_NO_AUTO_VM=1 in .envrc to disable automatic VM entry.
