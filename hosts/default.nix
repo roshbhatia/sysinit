@@ -23,11 +23,12 @@ in
     };
   };
 
-  ascalon = {
+  nostromo = {
     system = "aarch64-linux";
     platform = "linux";
+    isLima = true;
     inherit (mergedCommon) username;
-    config = ./ascalon.nix;
+    config = ./nostromo.nix;
 
     values = {
       inherit (mergedCommon) theme git;

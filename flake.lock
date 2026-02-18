@@ -304,24 +304,6 @@
     },
     "flake-parts_3": {
       "inputs": {
-        "nixpkgs-lib": "nixpkgs-lib"
-      },
-      "locked": {
-        "lastModified": 1749398372,
-        "narHash": "sha256-tYBdgS56eXYaWVW3fsnPQ/nFlgWi/Z2Ymhyu21zVM98=",
-        "owner": "hercules-ci",
-        "repo": "flake-parts",
-        "rev": "9305fe4e5c2a6fcf5ba6a3ff155720fbe4076569",
-        "type": "github"
-      },
-      "original": {
-        "owner": "hercules-ci",
-        "repo": "flake-parts",
-        "type": "github"
-      }
-    },
-    "flake-parts_4": {
-      "inputs": {
         "nixpkgs-lib": [
           "neovim-nightly-overlay",
           "nixpkgs"
@@ -341,25 +323,7 @@
         "type": "github"
       }
     },
-    "flake-parts_5": {
-      "inputs": {
-        "nixpkgs-lib": "nixpkgs-lib_2"
-      },
-      "locked": {
-        "lastModified": 1769996383,
-        "narHash": "sha256-AnYjnFWgS49RlqX7LrC4uA+sCCDBj0Ry/WOJ5XWAsa0=",
-        "owner": "hercules-ci",
-        "repo": "flake-parts",
-        "rev": "57928607ea566b5db3ad13af0e57e921e6b12381",
-        "type": "github"
-      },
-      "original": {
-        "owner": "hercules-ci",
-        "repo": "flake-parts",
-        "type": "github"
-      }
-    },
-    "flake-parts_6": {
+    "flake-parts_4": {
       "inputs": {
         "nixpkgs-lib": [
           "nur",
@@ -380,7 +344,7 @@
         "type": "github"
       }
     },
-    "flake-parts_7": {
+    "flake-parts_5": {
       "inputs": {
         "nixpkgs-lib": [
           "stylix",
@@ -519,31 +483,9 @@
         "type": "github"
       }
     },
-    "mangowc": {
-      "inputs": {
-        "flake-parts": "flake-parts_3",
-        "nixpkgs": [
-          "nixpkgs"
-        ],
-        "scenefx": "scenefx"
-      },
-      "locked": {
-        "lastModified": 1770985383,
-        "narHash": "sha256-qOrYm6shFUKXjwCqSuotXRnO1kgSwcwKIr/A/evwDik=",
-        "owner": "DreamMaoMao",
-        "repo": "mangowc",
-        "rev": "0fe87e6286f2a6b899fa8d7683a982f831c983af",
-        "type": "github"
-      },
-      "original": {
-        "owner": "DreamMaoMao",
-        "repo": "mangowc",
-        "type": "github"
-      }
-    },
     "neovim-nightly-overlay": {
       "inputs": {
-        "flake-parts": "flake-parts_4",
+        "flake-parts": "flake-parts_3",
         "neovim-src": "neovim-src",
         "nixpkgs": "nixpkgs_3"
       },
@@ -597,25 +539,6 @@
       "original": {
         "type": "tarball",
         "url": "https://flakehub.com/f/DeterminateSystems/nix-src/%2A"
-      }
-    },
-    "nix-gaming": {
-      "inputs": {
-        "flake-parts": "flake-parts_5",
-        "nixpkgs": "nixpkgs_4"
-      },
-      "locked": {
-        "lastModified": 1770864286,
-        "narHash": "sha256-Rn72AgREDFGwmM48ZkclcbuWTDzaYjF0vRnv8FbgcCE=",
-        "owner": "fufexan",
-        "repo": "nix-gaming",
-        "rev": "3e3d8bd317bfa04c2d27b05630b2b9be77c23297",
-        "type": "github"
-      },
-      "original": {
-        "owner": "fufexan",
-        "repo": "nix-gaming",
-        "type": "github"
       }
     },
     "nix-homebrew": {
@@ -725,36 +648,6 @@
         "type": "github"
       }
     },
-    "nixpkgs-lib": {
-      "locked": {
-        "lastModified": 1748740939,
-        "narHash": "sha256-rQaysilft1aVMwF14xIdGS3sj1yHlI6oKQNBRTF40cc=",
-        "owner": "nix-community",
-        "repo": "nixpkgs.lib",
-        "rev": "656a64127e9d791a334452c6b6606d17539476e2",
-        "type": "github"
-      },
-      "original": {
-        "owner": "nix-community",
-        "repo": "nixpkgs.lib",
-        "type": "github"
-      }
-    },
-    "nixpkgs-lib_2": {
-      "locked": {
-        "lastModified": 1769909678,
-        "narHash": "sha256-cBEymOf4/o3FD5AZnzC3J9hLbiZ+QDT/KDuyHXVJOpM=",
-        "owner": "nix-community",
-        "repo": "nixpkgs.lib",
-        "rev": "72716169fe93074c333e8d0173151350670b824c",
-        "type": "github"
-      },
-      "original": {
-        "owner": "nix-community",
-        "repo": "nixpkgs.lib",
-        "type": "github"
-      }
-    },
     "nixpkgs-regression": {
       "locked": {
         "lastModified": 1643052045,
@@ -803,22 +696,6 @@
     },
     "nixpkgs_4": {
       "locked": {
-        "lastModified": 1770537093,
-        "narHash": "sha256-pF1quXG5wsgtyuPOHcLfYg/ft/QMr8NnX0i6tW2187s=",
-        "owner": "NixOS",
-        "repo": "nixpkgs",
-        "rev": "fef9403a3e4d31b0a23f0bacebbec52c248fbb51",
-        "type": "github"
-      },
-      "original": {
-        "owner": "NixOS",
-        "ref": "nixpkgs-unstable",
-        "repo": "nixpkgs",
-        "type": "github"
-      }
-    },
-    "nixpkgs_5": {
-      "locked": {
         "lastModified": 1770843696,
         "narHash": "sha256-LovWTGDwXhkfCOmbgLVA10bvsi/P8eDDpRudgk68HA8=",
         "owner": "NixOS",
@@ -833,7 +710,7 @@
         "type": "github"
       }
     },
-    "nixpkgs_6": {
+    "nixpkgs_5": {
       "locked": {
         "lastModified": 1770841267,
         "narHash": "sha256-9xejG0KoqsoKEGp2kVbXRlEYtFFcDTHjidiuX8hGO44=",
@@ -851,8 +728,8 @@
     },
     "nur": {
       "inputs": {
-        "flake-parts": "flake-parts_6",
-        "nixpkgs": "nixpkgs_6"
+        "flake-parts": "flake-parts_4",
+        "nixpkgs": "nixpkgs_5"
       },
       "locked": {
         "lastModified": 1770997708,
@@ -922,36 +799,13 @@
         "direnv-instant": "direnv-instant",
         "firefox-addons": "firefox-addons",
         "home-manager": "home-manager",
-        "mangowc": "mangowc",
         "neovim-nightly-overlay": "neovim-nightly-overlay",
-        "nix-gaming": "nix-gaming",
         "nix-homebrew": "nix-homebrew",
         "nixos-lima": "nixos-lima",
-        "nixpkgs": "nixpkgs_5",
+        "nixpkgs": "nixpkgs_4",
         "nur": "nur",
         "onepassword-shell-plugins": "onepassword-shell-plugins",
         "stylix": "stylix"
-      }
-    },
-    "scenefx": {
-      "inputs": {
-        "nixpkgs": [
-          "mangowc",
-          "nixpkgs"
-        ]
-      },
-      "locked": {
-        "lastModified": 1750785057,
-        "narHash": "sha256-tGX6j4W91rcb+glXJo43sjPI9zQvPotonknG1BdihR4=",
-        "owner": "wlrfx",
-        "repo": "scenefx",
-        "rev": "3a6cfb12e4ba97b43326357d14f7b3e40897adfc",
-        "type": "github"
-      },
-      "original": {
-        "owner": "wlrfx",
-        "repo": "scenefx",
-        "type": "github"
       }
     },
     "stylix": {
@@ -961,7 +815,7 @@
         "base16-helix": "base16-helix",
         "base16-vim": "base16-vim",
         "firefox-gnome-theme": "firefox-gnome-theme",
-        "flake-parts": "flake-parts_7",
+        "flake-parts": "flake-parts_5",
         "gnome-shell": "gnome-shell",
         "nixpkgs": [
           "nixpkgs"

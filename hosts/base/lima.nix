@@ -1,5 +1,5 @@
-# Ascalon - Persistent NixOS VM
-# Full NixOS system running in Lima
+# Base Lima NixOS VM configuration
+# Inherit this in host-specific configs
 {
   lib,
   pkgs,
@@ -23,9 +23,6 @@
     ];
     trusted-users = [ "@wheel" ];
   };
-
-  # Networking
-  networking.hostName = "ascalon";
 
   # SSH
   services.openssh.enable = true;

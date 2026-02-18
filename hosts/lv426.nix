@@ -1,18 +1,16 @@
-# lv426 - Primary macOS workstation
-{ pkgs, ... }:
+# lv426 - Primary personal macOS workstation
+{ ... }:
 
 {
-  # Homebrew casks (host-specific)
+  imports = [
+    ./base/darwin.nix
+  ];
+
+  # Host-specific homebrew casks
   homebrew.casks = [
     "betterdiscord-installer"
     "discord"
     "ghostty"
     "steam"
   ];
-
-  # Theme override (optional - can be removed to use default from common.nix)
-  stylix = {
-    base16Scheme = "${pkgs.base16-schemes}/share/themes/everforest.yaml";
-    polarity = "dark";
-  };
 }

@@ -34,13 +34,8 @@
     };
 
     neovim-nightly-overlay.url = "github:nix-community/neovim-nightly-overlay/master";
-    nix-gaming.url = "github:fufexan/nix-gaming";
-    nur.url = "github:nix-community/NUR";
 
-    mangowc = {
-      url = "github:DreamMaoMao/mangowc";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
+    nur.url = "github:nix-community/NUR";
 
     bd = {
       url = "github:steveyegge/beads";

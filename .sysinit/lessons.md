@@ -139,3 +139,66 @@ The `lsp-config.nix` is not truly "shared" if only one module uses it. Inline di
 - Auto-import for home: `modules/darwin/home-manager.nix:24`
 - Builder pattern: `lib/builders.nix`
 - Host configs: `hosts/*/default.nix`
+
+---
+
+# Module Reorganization - Build Fixes (2026-02-18)
+
+## Git Configuration Error
+
+**Problem:** After the initial reorganization, build failed with:
+```
+error: The option `home-manager.users.rshnbhatia.sysinit.git.name' was accessed but has no value defined.
+```
+
+**Root Cause:** Git options were defined in `modules/home/programs/git/options.nix` and imported at the system level (`modules/darwin/default.nix:9`), but not imported in the home-manager context. The git module (`modules/home/programs/git/default.nix`) runs in home-manager context and needs `config.sysinit.git` options to be defined there.
+
+**Fix Applied:**
+1. Import git options in home-manager configurations:
+   - `modules/darwin/home-manager.nix` - Added `../home/programs/git/options.nix` import
+   - `modules/nixos/home-manager.nix` - Added `../home/programs/git/options.nix` import
+
+2. Set git config values in home-manager user configuration:
+   - Added `sysinit.git = values.git;` in both darwin and nixos home-manager configs
+
+**Key Insight:** NixOS module options have different scopes:
+- **System-level options** (darwin/nixos): Set via `config.sysinit.*` in builders
+- **Home-manager options**: Must be imported AND set separately in home-manager user config
+- Modules that run in home-manager context need their options defined at that level
+
+**Files Modified:**
+- `modules/darwin/home-manager.nix` - Import git options, set git config
+- `modules/nixos/home-manager.nix` - Import git options, set git config
+
+**Commit:** `fbd2c62e2` - "fix: import git options and set git config in home-manager context"
+
+## Stale Import Paths
+
+**Problem:** After moving modules, several import paths were still pointing to old locations.
+
+**Fixes Applied:**
+1. `modules/options/theme.nix`:
+   - Changed `import ../theme` → `import ../lib/theme.nix`
+   - Removed duplicate metadata import
+
+2. `modules/darwin/sketchybar.nix`:
+   - Fixed relative path: `../home/sketchybar/helpers/menus` → `./home/sketchybar/helpers/menus`
+
+3. `lib/builders.nix`:
+   - Changed `hostConfig.sysinit.git` → `values.git` (git config now comes from values)
+
+4. `hosts/default.nix`:
+   - Refactored to function accepting `common` and `overrides`
+   - Removed invalid `sysinit.git` keys from metadata
+   - Simplified to only include `username` and `values`
+
+**Commit:** `67a875822` - "fix: update module import paths after reorganization"
+
+## Status: COMPLETE
+
+All builds passing:
+- `task nix:validate` - Passed
+- `task nix:build` - Passed (lv426/macOS)
+- `task nix:build:lv426` - Passed
+
+The module reorganization is complete and working. Ready to test on work repo.

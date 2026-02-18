@@ -68,6 +68,8 @@
             pkgs
             ;
           inherit (hostConfig) system;
+          # Path to sysinit flake for cross-flake imports (e.g., hosts/base/*.nix)
+          sysinit = ../.;
         };
         modules = [
           {
@@ -137,6 +139,8 @@
             pkgs
             ;
           customUtils = utils;
+          # Path to sysinit flake for cross-flake imports (e.g., hosts/base/*.nix)
+          sysinit = ../.;
         };
         modules = [
           {
@@ -163,19 +167,15 @@
           home-manager.nixosModules.home-manager
 
           stylix.nixosModules.stylix
-          inputs.mangowc.nixosModules.mango
           (import ../modules/nixos/home-manager.nix {
             inherit values inputs;
             inherit utils;
           })
           {
             documentation.enable = false;
-            home-manager.sharedModules = [
-              inputs.mangowc.hmModules.mango
-            ];
           }
         ]
-        ++ lib.optional (hostname == "ascalon") inputs.nixos-lima.nixosModules.lima
+        ++ lib.optional (hostConfig.isLima or false) inputs.nixos-lima.nixosModules.lima
         ++ lib.optional (hostConfig ? config) hostConfig.config;
       };
 }

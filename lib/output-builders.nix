@@ -6,13 +6,17 @@
       configs,
       buildConfig,
       extras ? { },
+      extraModules ? [ ],
     }:
     lib.mapAttrs (
       name: cfg:
-      buildConfig {
-        hostConfig = cfg;
-        hostname = name;
-      }
+      let
+        baseConfig = buildConfig {
+          hostConfig = cfg;
+          hostname = name;
+        };
+      in
+      if extraModules == [ ] then baseConfig else baseConfig.extendModules { modules = extraModules; }
     ) configs
     // extras;
 }
