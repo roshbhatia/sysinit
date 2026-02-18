@@ -8,7 +8,6 @@
     }:
     {
       hostConfig,
-      hostname,
       pkgs,
       utils,
       values,
@@ -32,6 +31,7 @@
         }
         {
           config.sysinit.user.username = hostConfig.username;
+          config.sysinit.theme = values.theme;
         }
         ../../modules/nixos
         home-manager.nixosModules.home-manager

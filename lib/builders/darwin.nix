@@ -1,4 +1,4 @@
-{ lib, inputs }:
+{ inputs }:
 
 {
   buildDarwinSystem =
@@ -41,6 +41,7 @@
         }
         {
           config.sysinit.user.username = hostConfig.username;
+          config.sysinit.theme = values.theme;
           config.sysinit.darwin = {
             tailscale.enable = values.darwin.tailscale.enable;
             homebrew.additionalPackages = {
