@@ -24,12 +24,15 @@
           ../options/theme.nix
           ../options/packages.nix
           ../options/llm.nix
+          ../home/programs/git/options.nix
 
           ../home
 
           # NixOS (persistent VM) gets language runtimes like macOS
           ../home/packages/language-runtimes.nix
         ];
+
+        sysinit.git = values.git;
       };
   };
 }

@@ -25,12 +25,15 @@
           ../options/theme.nix
           ../options/packages.nix
           ../options/llm.nix
+          ../home/programs/git/options.nix
 
           ../home
 
           # macOS gets language runtimes system-wide
           ../home/packages/language-runtimes.nix
         ];
+
+        sysinit.git = values.git;
       };
   };
 }
