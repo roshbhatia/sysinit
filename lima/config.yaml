@@ -15,6 +15,16 @@ disk: "100GiB"
 mounts:
   - location: "~"
     writable: false
+  - location: "~/github"
+    writable: true
+  - location: "~/orgfiles"
+    writable: true
+  - location: "~/.colima/default/docker.sock"
+    writable: true
+  - location: "~/.1password/agent.sock"
+    writable: true
+  - location: "/nix"
+    writable: true
   - location: "/tmp/lima"
     writable: true
 

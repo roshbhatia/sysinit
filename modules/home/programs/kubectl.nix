@@ -12,11 +12,6 @@
       kind: Preference
 
       defaults:
-        - command: apply
-          options:
-            - name: server-side
-              default: "true"
-
         - command: delete
           options:
             - name: interactive
