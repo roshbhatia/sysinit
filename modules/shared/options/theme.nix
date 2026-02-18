@@ -3,7 +3,7 @@
 with lib;
 
 let
-  themes = import ../lib/theme.nix { inherit lib; };
+  themes = import ../../lib/theme.nix { inherit lib; };
   cfg = config.sysinit.theme;
   metadata = themes.metadata;
 

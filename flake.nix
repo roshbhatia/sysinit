@@ -21,8 +21,6 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    nix-homebrew.url = "github:zhaofengli-wip/nix-homebrew";
-
     stylix = {
       url = "github:danth/stylix/master";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -74,7 +72,6 @@
           darwin
           home-manager
           stylix
-          nix-homebrew
           onepassword-shell-plugins
           ;
         inherit (builders) mkPkgs mkUtils mkOverlays;

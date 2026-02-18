@@ -32,7 +32,6 @@
       darwin,
       home-manager,
       stylix,
-      nix-homebrew,
       onepassword-shell-plugins,
       mkPkgs,
       mkUtils,
@@ -117,7 +116,6 @@
           })
           home-manager.darwinModules.home-manager
           stylix.darwinModules.stylix
-          nix-homebrew.darwinModules.nix-homebrew
           {
             _module.args.utils = utils;
             home-manager.sharedModules = [

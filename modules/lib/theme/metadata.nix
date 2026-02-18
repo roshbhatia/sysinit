@@ -1,4 +1,6 @@
-{ lib }:
+{
+  ...
+}:
 {
   catppuccin = {
     name = "Catppuccin";

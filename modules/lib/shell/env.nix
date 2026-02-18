@@ -7,4 +7,5 @@ _:
   VISUAL = "nvim";
   EDITOR = "nvim";
   GIT_DISCOVERY_ACROSS_FILESYSTEM = "1";
+  BUILDX_EXPERIMENTAL = "1";
 }

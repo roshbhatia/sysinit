@@ -14,7 +14,6 @@ let
     "osx-cross/avr"
     "sandreas/tap"
     "slp/krunkit"
-    "vet-run/vet"
   ];
 
   baseBrews = [
@@ -29,7 +28,6 @@ let
     "osx-cross/arm/arm-none-eabi-binutils"
     "osx-cross/arm/arm-none-eabi-gcc@8"
     "slp/krunkit/krunkit"
-    "vet-run"
   ];
 
   baseCasks = [
@@ -47,14 +45,6 @@ let
   ];
 in
 {
-  nix-homebrew = {
-    enable = true;
-    enableRosetta = true;
-    user = config.sysinit.user.username;
-    autoMigrate = true;
-    mutableTaps = true;
-  };
-
   homebrew = {
     enable = true;
     onActivation = {

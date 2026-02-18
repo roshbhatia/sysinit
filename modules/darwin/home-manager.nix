@@ -22,8 +22,8 @@
         home.enableNixpkgsReleaseCheck = false;
         imports = [
           # Shared module options at home-manager level
-          ../options/theme.nix
-          ../options/llm.nix
+          ../shared/options/theme.nix
+          ../home/programs/llm/options.nix
           ../home/programs/git/options.nix
 
           ../home

@@ -3,9 +3,9 @@
 {
   imports = [
     # Shared modules (available at system level)
-    ../options/user.nix
-    ../options/darwin.nix
-    ../options/theme.nix
+    ../shared/options/user.nix
+    ../shared/options/theme.nix
+    ./options.nix
     ../home/programs/git/options.nix
 
     # System configurations

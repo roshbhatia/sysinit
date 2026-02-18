@@ -96,10 +96,14 @@
     # Go development tools (previously installed via go install)
     delve
     ginkgo
+    go-enum
     gofumpt
+    gojsonstruct
+    gomvp
     gotools # includes goimports
     gotestsum
     govulncheck
+    json-to-struct
     mockgen
     reftools # includes fillstruct, fillswitch, fixplurals
     richgo

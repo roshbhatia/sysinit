@@ -9,15 +9,9 @@ let
   themeNames = import ./adapters/theme-names.nix { inherit lib; };
 
   catppuccin = import ./palettes/catppuccin.nix { inherit lib; };
-  kanagawa = import ./palettes/kanagawa.nix { inherit lib; };
-  kanso = import ./palettes/kanso.nix { inherit lib; };
-  rosePine = import ./palettes/rose-pine.nix { inherit lib; };
+  rose-pine = import ./palettes/rose-pine.nix { inherit lib; };
   gruvbox = import ./palettes/gruvbox.nix { inherit lib; };
-  solarized = import ./palettes/solarized.nix { inherit lib; };
-  nord = import ./palettes/nord.nix { inherit lib; };
   everforest = import ./palettes/everforest.nix { inherit lib; };
-  blackMetal = import ./palettes/black-metal.nix { inherit lib; };
-  tokyonight = import ./palettes/tokyonight.nix { inherit lib; };
 
   adapterBase = import ./core/adapter-base.nix { inherit lib utils; };
   weztermAdapter = import ./adapters/wezterm.nix { inherit lib utils adapterBase; };
@@ -27,15 +21,9 @@ let
 
   themes = {
     inherit catppuccin;
-    inherit kanagawa;
-    inherit kanso;
-    rose-pine = rosePine;
+    inherit rose-pine;
     inherit gruvbox;
-    inherit solarized;
-    inherit nord;
     inherit everforest;
-    black-metal = blackMetal;
-    inherit tokyonight;
   };
 
   getTheme =
