@@ -16,12 +16,55 @@
     lua54Packages.cjson
 
     # Rust toolchain management via rustup
-    # Additional cargo tools
     cargo-watch
-    delve
 
     # JavaScript/TypeScript tools
     typescript
     yarn
+
+    # Go development tools
+    delve
+    ginkgo
+    go-enum
+    gofumpt
+    gojsonstruct
+    gomvp
+    gotools # includes goimports
+    gotestsum
+    govulncheck
+    json-to-struct
+    mockgen
+    reftools # includes fillstruct, fillswitch, fixplurals
+    richgo
+
+    # LSP servers
+    awk-language-server
+    bash-language-server
+    cuelsp
+    docker-compose-language-service
+    docker-language-server
+    gopls
+    helm-ls
+    jq-lsp
+    lsp-ai
+    lua-language-server
+    nil
+    nixd
+    pyright
+    simple-completion-language-server
+    taplo
+    typescript-language-server
+    vale-ls
+    vscode-langservers-extracted
+    yaml-language-server
+
+    # Formatters & Linters
+    eslint
+    golangci-lint
+    nixfmt
+    shellcheck
+    shfmt
+    stylua
+    yamllint
   ];
 }
