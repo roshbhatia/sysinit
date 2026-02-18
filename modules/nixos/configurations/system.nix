@@ -1,25 +1,34 @@
-# System configuration: boot, locale, hostname, state version
+# System configuration: boot, locale, hostname, nix settings, state version
 {
   lib,
-  hostname ? "nixos",
+  values,
   ...
 }:
 
 {
-  # Boot loader
+  # Nix configuration
+  nix.settings = {
+    experimental-features = [
+      "nix-command"
+      "flakes"
+    ];
+    trusted-users = [ "@wheel" ];
+  };
+
+  # Boot loader (defaults for non-Lima systems, Lima overrides these)
   boot.loader = {
-    efi.canTouchEfiVariables = true;
+    efi.canTouchEfiVariables = lib.mkDefault true;
     timeout = lib.mkDefault 8;
     systemd-boot = {
-      enable = true;
+      enable = lib.mkDefault true;
       configurationLimit = lib.mkDefault 10;
       consoleMode = lib.mkDefault "max";
     };
-    grub.enable = lib.mkForce false;
+    grub.enable = lib.mkDefault false;
   };
 
-  # Hostname
-  networking.hostName = hostname;
+  # Hostname from values
+  networking.hostName = values.hostname;
 
   # Locale
   time.timeZone = "America/Los_Angeles";

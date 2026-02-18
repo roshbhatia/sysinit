@@ -26,8 +26,8 @@ local function get_basic_config()
         username = utils.get_username(),
       },
       {
-        name = "vorgossos",
-        remote_address = "vorgossos",
+        name = "forum",
+        remote_address = "forum",
         username = utils.get_username(),
       },
       {

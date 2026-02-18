@@ -126,8 +126,7 @@
             ];
             documentation.enable = false;
           }
-        ]
-        ++ lib.optional (hostConfig ? config) hostConfig.config;
+        ];
       }
     else
       lib.nixosSystem {
@@ -143,11 +142,6 @@
           sysinit = ../.;
         };
         modules = [
-          {
-            _module.args = {
-              inherit hostname;
-            };
-          }
           {
             config.sysinit.user.username = hostConfig.username;
             config.sysinit.git = values.git;
@@ -175,7 +169,9 @@
             documentation.enable = false;
           }
         ]
-        ++ lib.optional (hostConfig.isLima or false) inputs.nixos-lima.nixosModules.lima
-        ++ lib.optional (hostConfig ? config) hostConfig.config;
+        ++ lib.optionals (hostConfig.isLima or false) [
+          inputs.nixos-lima.nixosModules.lima
+          ../modules/nixos/configurations/lima.nix
+        ];
       };
 }

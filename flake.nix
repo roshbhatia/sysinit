@@ -62,8 +62,7 @@
         inherit lib nixpkgs inputs;
       };
 
-      common = sysinitLib.common;
-      hostConfigs = import ./hosts { inherit common; };
+      hostConfigs = import ./hosts { };
       builders = sysinitLib.builders;
       outputBuilders = sysinitLib.outputBuilders;
 
@@ -104,7 +103,6 @@
         inherit
           builders
           hostConfigs
-          common
           ;
       };
 
