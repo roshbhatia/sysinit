@@ -7,7 +7,7 @@
       enableZshIntegration = true;
       enableNushellIntegration = true;
       nix-direnv.enable = true;
-      package = inputs.direnv-instant.packages.${pkgs.system}.default;
+      package = inputs.direnv-instant.packages.${pkgs.stdenv.hostPlatform.system}.default;
 
       stdlib = ''
         # VM detection and helpers

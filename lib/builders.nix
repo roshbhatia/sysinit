@@ -135,13 +135,17 @@
           inherit
             inputs
             values
-            pkgs
             ;
           customUtils = utils;
           # Path to sysinit flake for cross-flake imports (e.g., hosts/base/*.nix)
           sysinit = ../.;
         };
         modules = [
+          {
+            # Pass pre-configured pkgs to avoid re-evaluation
+            # Note: nixpkgs.config and nixpkgs.overlays are ignored when pkgs is set
+            nixpkgs.pkgs = lib.mkDefault pkgs;
+          }
           {
             config.sysinit.user.username = hostConfig.username;
             config.sysinit.git = values.git;

@@ -11,6 +11,8 @@ in
 {
   programs.ssh = {
     enable = true;
+    # Disable future-deprecated default config; we set our own matchBlocks."*"
+    enableDefaultConfig = false;
     matchBlocks = {
       "*" = {
         addKeysToAgent = "yes";
