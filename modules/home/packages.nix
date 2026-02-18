@@ -138,13 +138,11 @@
     ginkgo
     go-enum
     gofumpt
-    gojsonstruct
     gomvp
     gotools # includes goimports
     gopls
     gotestsum
     govulncheck
-    json-to-struct
     mockgen
     reftools # includes fillstruct, fillswitch, fixplurals
     richgo

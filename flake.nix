@@ -110,7 +110,11 @@
         };
       };
 
-      overlays = import ./overlays/default.nix { inherit inputs; };
+      overlays = {
+        default =
+          final: _prev:
+          (lib.composeManyExtensions (import ./overlays/default.nix { inherit inputs; })) final _prev;
+      };
       formatter.aarch64-darwin = nixpkgs.legacyPackages.aarch64-darwin.nixfmt;
     };
 }

@@ -11,8 +11,6 @@
   (import ./karabiner-elements.nix { })
   (import ./go-enum.nix { })
   (import ./gomvp.nix { })
-  (import ./json-to-struct.nix { })
-  (import ./gojsonstruct.nix { })
   (import ./hererocks.nix { })
   (import ./claude-code.nix { })
   (import ./openspec.nix { })
