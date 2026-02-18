@@ -16,4 +16,5 @@
   (import ./hererocks.nix { })
   (import ./claude-code.nix { })
   (import ./openspec.nix { })
+  (import ./wezterm-cursor-trail.nix { })
 ]
