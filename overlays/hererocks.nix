@@ -10,7 +10,7 @@ final: _prev: {
       owner = "luarocks";
       repo = "hererocks";
       rev = version;
-      hash = "sha256-B3AIQJP06YRGqEJLcbnhPmplRTu2+T7Rl7mlxR2qjXQ=";
+      hash = "sha256-y28MTFncy5oD57jpY6AN+X/58OzY3ae3rSL236rfuL0=";
     };
 
     build-system = [ final.python3Packages.setuptools ];
