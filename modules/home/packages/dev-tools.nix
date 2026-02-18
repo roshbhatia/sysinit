@@ -66,7 +66,6 @@
     checkmake
     codespell
     copilot-language-server
-    deadnix
     diffnav
     go-task
     meld
@@ -81,7 +80,6 @@
     sad
     socat
     sshpass
-    statix
     textlint
   ];
 }
