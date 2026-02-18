@@ -78,6 +78,7 @@ end
 local function get_system_keys()
   return {
     create_smart_keybind(":", "SUPER", act.ActivateCommandPalette),
+    create_smart_keybind("s", "SUPER", act.ShowLauncherArgs({ flags = "FUZZY|DOMAINS" })),
     create_smart_keybind("c", "SUPER", act.CopyTo("Clipboard")),
     create_smart_keybind("h", "SUPER", act.HideApplication),
     create_smart_keybind("k", "SUPER", act.ClearScrollback("ScrollbackAndViewport")),
@@ -114,14 +115,15 @@ local function get_tab_keys()
     create_smart_keybind("o", "CTRL|SHIFT", act.ActivateLastTab),
   }
 
-  -- New tab with CTRL/SUPER
-  for _, binding in
-    ipairs(create_multi_mod_bindings("t", function()
-      return act.SpawnTab("CurrentPaneDomain")
-    end))
-  do
-    table.insert(keys, binding)
-  end
+  -- New tab with CTRL in current domain
+  table.insert(keys, create_smart_keybind("t", "CTRL", act.SpawnTab("CurrentPaneDomain")))
+
+  -- New tab with SUPER (CMD) in current domain
+  table.insert(keys, create_smart_keybind("t", "SUPER", act.SpawnTab("CurrentPaneDomain")))
+
+  -- New tab in Ascalon domain with CTRL+SHIFT+T and CMD+SHIFT+T (SUPER+SHIFT+T)
+  table.insert(keys, create_smart_keybind("t", "CTRL|SHIFT", act.SpawnTab({ DomainName = "ascalon" })))
+  table.insert(keys, create_smart_keybind("t", "SUPER|SHIFT", act.SpawnTab({ DomainName = "ascalon" })))
 
   -- Tab switching: 1-8 go to specific tabs, 9 goes to last tab
   for i = 1, 9 do

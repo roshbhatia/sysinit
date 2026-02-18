@@ -5,7 +5,6 @@
 images:
   - location: "https://github.com/nixos-lima/nixos-lima/releases/download/v0.0.4/nixos-lima-aarch64.qcow2"
     arch: "aarch64"
-    digest: "sha512:..."  # Update with actual digest from release
 
 # CPU & Memory
 cpus: 6
@@ -24,13 +23,16 @@ mounts:
       securityModel: mapped-xattr
       cache: "mmap"
   
-  # Docker socket from Colima
-  - location: "~/.colima/default/docker.sock"
-    writable: true
+  # Docker socket from Colima (mount parent directory, socket is inside)
+  - location: "~/.colima/default"
+    writable: false
   
-  # 1Password agent socket
-  - location: "~/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock"
-    writable: true
+  # 1Password agent socket (if SSH_AUTH_SOCK points to 1Password)
+  - location: "~/Library/Group Containers/2BUA8C4S2C.com.1password/t"
+    writable: false
+    9p:
+      securityModel: none
+      cache: "mmap"
 
 # SSH
 ssh:
@@ -87,9 +89,6 @@ hostResolver:
 # Timezone
 timezone: "America/New_York"
 
-# Auto-start on macOS boot
-autostart: true
-
 # Rosetta (for x86 compatibility if needed)
 rosetta:
   enabled: false  # Disable for now, enable if needed for specific tools
@@ -97,11 +96,3 @@ rosetta:
 # Video display (headless)
 video:
   display: none
-
-# Audio (disabled for headless VM)
-audio:
-  device: none
-
-# Network
-networks:
-  - lima: shared  # Shared network with host

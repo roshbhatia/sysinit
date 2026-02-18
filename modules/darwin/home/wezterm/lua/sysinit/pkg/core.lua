@@ -15,6 +15,12 @@ local function get_basic_config()
     -- I'm fine hardcoding the list of systems here for now.
     ssh_domains = {
       {
+        name = "ascalon",
+        remote_address = "127.0.0.1:62068",
+        username = utils.get_username(),
+        multiplexing = "None",
+      },
+      {
         name = "arrakis",
         remote_address = "arrakis",
         username = utils.get_username(),
