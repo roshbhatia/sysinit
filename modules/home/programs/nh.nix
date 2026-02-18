@@ -1,10 +1,9 @@
-_:
-
+{ config, ... }:
 {
   programs.nh = {
     enable = true;
     clean.enable = true;
     clean.extraArgs = "--keep-since 4d --keep 3";
-    flake = "~/github/personal/roshbhatia/sysinit";
+    flake = "${config.home.homeDirectory}/github/personal/roshbhatia/sysinit";
   };
 }
