@@ -27,29 +27,23 @@ This template creates a minimal flake that consumes `roshbhatia/sysinit` as an i
 To create a NixOS Lima VM for this host:
 
 1. Update `lima.yaml`:
-   - Change the hostname in the provision script (line 42)
    - Update any mount points or resource allocations as needed
 
 2. Update `hosts/default.nix`:
    - Uncomment the NixOS host configuration
-   - Set the hostname to match the one in `lima.yaml`
+   - Set the hostname for your VM
 
 3. Start the Lima VM:
    ```bash
    limactl start --name=default lima.yaml
    ```
 
-4. Set hostname (NixOS doesn't allow runtime changes, so this must be done before first rebuild):
-   ```bash
-   lima -- sudo hostname your-nixos-hostname
-   ```
-
-5. Apply NixOS configuration using nh:
-   ```bash
-   lima -- nix run nixpkgs#nh -- os switch .
-   ```
-
-   Note: If the hostname in step 4 matches your NixOS configuration name in `hosts/default.nix`, nh will auto-detect it. Otherwise, specify explicitly:
+4. Apply NixOS configuration using nh (specify hostname explicitly):
    ```bash
    lima -- nix run nixpkgs#nh -- os switch '.#your-nixos-hostname'
+   ```
+
+   Note: The first rebuild will set the hostname via the NixOS configuration. Subsequent rebuilds can use auto-detection if the hostname matches:
+   ```bash
+   lima -- nix run nixpkgs#nh -- os switch .
    ```
