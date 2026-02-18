@@ -32,6 +32,12 @@
           ../home/packages/language-runtimes.nix
         ];
 
+        # Disable desktop-related stylix targets for headless NixOS
+        stylix.targets = {
+          gnome.enable = false;
+          gtk.enable = false;
+        };
+
         sysinit.git = values.git;
       };
   };

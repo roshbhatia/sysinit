@@ -19,6 +19,12 @@ in
     polarity = themeConfig.appearance;
     base16Scheme = schemePath;
 
+    # Disable desktop-related targets for headless/server systems
+    targets = {
+      gnome.enable = false;
+      gtk.enable = false;
+    };
+
     fonts = {
       monospace.name = themeConfig.font.monospace;
       sansSerif.name = themeConfig.font.monospace;
