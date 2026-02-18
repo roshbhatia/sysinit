@@ -37,14 +37,15 @@ nix run nixpkgs#nh -- darwin switch
 nh darwin build   # Build configuration (test without applying)
 nh darwin switch  # Apply configuration to system
 
-# Update flake inputs
-nix flake update
+# Flake operations
+nix flake update  # Update flake inputs
+nix flake check   # Validate flake
 
 # Format Nix files
 nixfmt **/*.nix
 
-# Validate flake
-nix flake check
+# Cleanup old generations
+nh clean all
 ```
 
 ### Creating a Discrete Host Repository
