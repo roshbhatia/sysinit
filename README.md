@@ -31,7 +31,7 @@ This comprises most of my dotfiles, managed (mostly) by `nix`.
 
 ```bash
 # First install (if nh not yet available)
-nix run nixpkgs#nh -- darwin switch
+nix run nixpkgs#nh -- darwin switch --hostname
 
 nh darwin switch --refresh --commit-lock-file --hostname  # Update sysinit input and commit lock
 
