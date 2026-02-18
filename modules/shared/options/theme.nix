@@ -99,8 +99,4 @@ in
     };
   };
 
-  config = {
-    # Theme configuration is now handled through stylix
-    # Colors are accessed via config.lib.stylix.colors
-  };
 }

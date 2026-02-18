@@ -14,9 +14,6 @@ let
   neovimAdapter = import ./theme/adapters/neovim.nix { inherit lib utils adapterBase; };
   firefoxAdapter = import ./theme/adapters/firefox.nix { inherit lib utils adapterBase; };
 
-  # Convert metadata to old theme format for compatibility
-  themes = mapAttrs (id: meta: { inherit meta; }) metadata;
-
   getTheme =
     themeId:
     if hasAttr themeId metadata then

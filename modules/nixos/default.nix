@@ -1,4 +1,3 @@
-# NixOS configuration entry point
 { ... }:
 
 {

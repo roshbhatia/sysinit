@@ -1,10 +1,4 @@
-{
-  config,
-  lib,
-  utils,
-  values,
-  ...
-}:
+{ config, lib, ... }:
 
 let
   # Use stylix base16 colors directly
