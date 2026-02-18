@@ -108,10 +108,6 @@
           path = ./templates/discrete;
           description = "Template for discrete host repository consuming sysinit";
         };
-        lima = {
-          path = ./lima;
-          description = "Lima config for NixOS VM";
-        };
       };
 
       overlays = import ./overlays/default.nix { inherit inputs; };

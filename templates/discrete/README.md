@@ -26,6 +26,7 @@ This template creates a minimal flake that consumes `roshbhatia/sysinit` as an i
 ```
 .
 ├── flake.nix              # Main flake definition
+├── lima.yaml              # Lima VM configuration (optional)
 ├── modules/
 │   ├── darwin/            # macOS-specific modules
 │   │   └── default.nix
@@ -33,4 +34,18 @@ This template creates a minimal flake that consumes `roshbhatia/sysinit` as an i
 │       └── default.nix
 └── overlays/              # Host-specific package overlays
     └── default.nix
+```
+
+## Lima VM (Optional)
+
+To create a NixOS Lima VM for this host:
+
+```bash
+limactl start --name=default lima.yaml
+```
+
+Edit `flake.nix` to uncomment and configure the NixOS host (e.g., `yourhostname-vm`), then:
+
+```bash
+limactl shell default -- sudo nixos-rebuild boot --flake .#yourhostname-vm
 ```
