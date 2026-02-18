@@ -21,7 +21,6 @@
       {
         imports = [
           ../home
-          ./home
           # Import shared module options
           ../shared/lib/modules/theme.nix
           ../shared/lib/modules/packages.nix

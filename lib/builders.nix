@@ -176,6 +176,7 @@
           }
         ]
         ++ lib.optional (lib.hasPrefix "lima-" hostname) ../modules/system/nixos/vm/lima-base.nix
+        ++ lib.optional (hostname == "ascalon") inputs.nixos-lima.nixosModules.lima
         ++ lib.optional (hostConfig ? config) hostConfig.config;
       };
 }
