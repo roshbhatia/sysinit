@@ -30,6 +30,13 @@
         ];
 
         sysinit.git = values.git;
+        sysinit.theme = {
+          appearance = values.theme.appearance;
+          colorscheme = values.theme.colorscheme;
+          variant = values.theme.variant;
+          font.monospace = values.theme.font.monospace;
+          transparency = values.theme.transparency;
+        };
       };
   };
 }

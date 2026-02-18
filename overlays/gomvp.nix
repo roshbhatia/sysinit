@@ -12,7 +12,7 @@ final: _prev: {
       hash = "sha256-dXjI+nItJCAGKxyC9tX11hxWHCP+NgXtTYtm5+6dqDU=";
     };
 
-    vendorHash = "sha256-OB8pkD7Y/lNJvVxPdPei48JMaAf+bgK1Na8G7bqlLak=";
+    vendorHash = null;
 
     meta = with final.lib; {
       description = "Refactoring tool for moving Go packages";

@@ -12,7 +12,4 @@
     lib.concatStringsSep "\n" nonHeaderLines;
 
   aliases = import ./shell/aliases.nix;
-
-  # Environment variables - no longer requires theme colors
-  env = _args: import ./shell/env.nix { };
 }

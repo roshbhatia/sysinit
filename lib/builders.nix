@@ -83,24 +83,12 @@
           }
           {
             config.sysinit.user.username = hostConfig.username;
-            config.sysinit.git = values.git;
-            config.sysinit.theme = {
-              appearance = values.theme.appearance or "dark";
-              colorscheme = values.theme.colorscheme;
-              variant = values.theme.variant;
-              font.monospace = values.theme.font.monospace or "TX-02";
-              transparency =
-                values.theme.transparency or {
-                  opacity = 0.8;
-                  blur = 70;
-                };
-            };
             config.sysinit.darwin = {
-              tailscale.enable = values.darwin.tailscale.enable or true;
+              tailscale.enable = values.darwin.tailscale.enable;
               homebrew.additionalPackages = {
-                taps = values.darwin.homebrew.additionalPackages.taps or [ ];
-                brews = values.darwin.homebrew.additionalPackages.brews or [ ];
-                casks = values.darwin.homebrew.additionalPackages.casks or [ ];
+                taps = values.darwin.homebrew.additionalPackages.taps;
+                brews = values.darwin.homebrew.additionalPackages.brews;
+                casks = values.darwin.homebrew.additionalPackages.casks;
               };
             };
           }
@@ -146,18 +134,6 @@
           }
           {
             config.sysinit.user.username = hostConfig.username;
-            config.sysinit.git = values.git;
-            config.sysinit.theme = {
-              appearance = values.theme.appearance or "dark";
-              colorscheme = values.theme.colorscheme;
-              variant = values.theme.variant;
-              font.monospace = values.theme.font.monospace or "TX-02";
-              transparency =
-                values.theme.transparency or {
-                  opacity = 0.8;
-                  blur = 70;
-                };
-            };
           }
           ../modules/nixos
           home-manager.nixosModules.home-manager
