@@ -102,6 +102,9 @@ return {
 
       return {
         completion = {
+          keyword = {
+            range = "prefix",
+          },
           accept = {
             auto_brackets = {
               enabled = false,
