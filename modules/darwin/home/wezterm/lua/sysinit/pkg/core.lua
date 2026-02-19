@@ -4,6 +4,13 @@ local utils = require("sysinit.pkg.utils")
 local M = {}
 
 local function get_basic_config()
+  local ssh_domains = wezterm.default_ssh_domains()
+  
+  -- Assume all remote hosts are POSIX shells for proper CWD handling
+  for _, domain in ipairs(ssh_domains) do
+    domain.assume_shell = "Posix"
+  end
+
   return {
     status_update_interval = 100,
     default_prog = {
@@ -12,7 +19,7 @@ local function get_basic_config()
     },
     -- Auto-populate SSH domains from ~/.ssh/config (includes Lima VMs)
     -- Creates both SSH: and SSHMUX: prefixed domains for each host
-    ssh_domains = wezterm.default_ssh_domains(),
+    ssh_domains = ssh_domains,
   }
 end
 
