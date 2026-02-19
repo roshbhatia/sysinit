@@ -80,7 +80,6 @@
     krew
     kube-linter
     kubecolor
-    kubectl
     kubectx
     kubernetes-helm
     kubernetes-zeitgeist
