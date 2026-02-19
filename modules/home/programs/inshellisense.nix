@@ -7,14 +7,14 @@
   programs.nushell.extraEnv = lib.mkAfter ''
     # Initialize inshellisense if available
     if (which is | is-not-empty) {
-      is init nu | save --force $"($nu.config-path)/inshellisense.nu"
+      is init nu | save --force $"($nu.default-config-dir)/inshellisense.nu"
     }
   '';
 
   programs.nushell.extraConfig = lib.mkAfter ''
     # Source inshellisense config if it exists
-    if ($"($nu.config-path)/inshellisense.nu" | path exists) {
-      source $"($nu.config-path)/inshellisense.nu"
+    if ($"($nu.default-config-dir)/inshellisense.nu" | path exists) {
+      source $"($nu.default-config-dir)/inshellisense.nu"
     }
   '';
 

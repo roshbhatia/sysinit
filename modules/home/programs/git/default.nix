@@ -15,7 +15,6 @@ in
 {
   imports = [
     ./options.nix
-    ./gh-switch.nix
   ];
 
   programs.git = {
