@@ -17,7 +17,6 @@
     ./git
     ./htop.nix
     ./hushlogin.nix
-    ./inshellisense.nix
     ./k9s.nix
     ./kubectl.nix
     ./llm
