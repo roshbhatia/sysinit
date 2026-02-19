@@ -34,9 +34,6 @@ in
         quick = true;
         partial = true;
         algorithm = "fuzzy";
-        external = {
-          enable = false;
-        };
       };
       cursor_shape = {
         vi_insert = "line";
@@ -50,10 +47,6 @@ in
       };
     };
 
-    environmentVariables = {
-      CARAPACE_BRIDGES = "zsh";
-    };
-
     extraEnv = ''
       use std/util "path add"
 
@@ -62,6 +55,50 @@ in
 
     extraConfig = ''
       use std/dirs shells-aliases *
+
+      # Fish completer for external completions
+      let fish_completer = {|spans|
+        fish --command $"complete '--do-complete=($spans | str replace --all "'" "\\'" | str join ' ')'"
+        | from tsv --flexible --noheaders --no-infer
+        | rename value description
+        | update value {|row|
+          let value = $row.value
+          let need_quote = ['\' ',' '[' ']' '(' ')' ' ' '\t' "'" '"' "`"] | any {$in in $value}
+          if ($need_quote and ($value | path exists)) {
+            let expanded_path = if ($value starts-with ~) {$value | path expand --no-symlink} else {$value}
+            $'"($expanded_path | str replace --all "\"" "\\\"")"'
+          } else {$value}
+        }
+      }
+
+      let external_completer = {|spans|
+        # Handle aliases
+        let expanded_alias = scope aliases
+        | where name == $spans.0
+        | get -i 0
+        | get -i expansion
+
+        let spans = if $expanded_alias != null {
+          $spans
+          | skip 1
+          | prepend ($expanded_alias | split row ' ' | take 1)
+        } else {
+          $spans
+        }
+
+        $fish_completer | do $in $spans
+      }
+
+      $env.config.completions = {
+        case_sensitive: false
+        quick: true
+        partial: true
+        algorithm: "fuzzy"
+        external: {
+          enable: true
+          completer: $external_completer
+        }
+      }
 
       $env.config.keybindings = [
         {

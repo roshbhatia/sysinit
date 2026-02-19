@@ -7,7 +7,6 @@
     ./_1password.nix
     ./ast-grep.nix
     ./bat.nix
-    ./carapace.nix
     ./direnv.nix
     ./editorconfig.nix
     ./eza.nix
