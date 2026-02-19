@@ -32,7 +32,5 @@ in
         color_scheme = themeName;
       }
     );
-    "wezterm/colors/kanso-ink.lua".source = ./colors/kanso-ink.lua;
-    "wezterm/colors/kanso-mist.lua".source = ./colors/kanso-mist.lua;
   };
 }
