@@ -139,6 +139,12 @@ in
         hooksPath = ".githooks";
       };
 
+      credential = {
+        "https://github.com" = {
+          helper = "!${pkgs.gh}/bin/gh auth git-credential";
+        };
+      };
+
       merge = {
         conflictstyle = "zdiff3";
         tool = "nvim";
