@@ -27,7 +27,7 @@
       modules = [
         {
           _module.args = {
-            inherit utils hostname;
+            inherit hostname;
           };
           # Pass pre-configured pkgs to avoid re-evaluation
           # Note: nixpkgs.config and nixpkgs.overlays are ignored when pkgs is set

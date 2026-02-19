@@ -1,65 +1,27 @@
 { lib, ... }:
 
 with lib;
-{
-  themeType = types.submodule {
+let
+  paletteType = types.attrsOf types.str;
+
+  transparencyType = types.submodule {
     options = {
-      meta = mkOption {
-        type = types.submodule {
-          options = {
-            name = mkOption {
-              type = types.str;
-              description = "Human-readable theme name";
-            };
-
-            id = mkOption {
-              type = types.str;
-              description = "Unique theme identifier";
-            };
-
-            variants = mkOption {
-              type = types.listOf types.str;
-              description = "Available theme variants";
-            };
-
-            supports = mkOption {
-              type = types.listOf (
-                types.enum [
-                  "dark"
-                  "light"
-                ]
-              );
-              description = "Supported appearance modes";
-            };
-
-            author = mkOption {
-              type = types.str;
-              description = "Theme author";
-            };
-
-            homepage = mkOption {
-              type = types.str;
-              description = "Theme homepage URL";
-            };
-          };
-        };
-        description = "Theme metadata";
+      enable = mkOption {
+        type = types.bool;
+        description = "Enable transparency effects";
       };
 
-      palettes = mkOption {
-        type = types.attrsOf paletteType;
-        description = "Color palettes for each variant";
+      opacity = mkOption {
+        type = types.float;
+        description = "Opacity level (0.0 - 1.0)";
       };
 
-      semanticMapping = mkOption {
-        type = types.functionTo semanticColorsType;
-        description = "Function to map palette to semantic colors";
+      blur = mkOption {
+        type = types.int;
+        description = "Blur amount for background";
       };
-
     };
   };
-
-  paletteType = types.attrsOf types.str;
 
   semanticColorsType = types.submodule {
     options = {
@@ -131,25 +93,6 @@ with lib;
     };
   };
 
-  transparencyType = types.submodule {
-    options = {
-      enable = mkOption {
-        type = types.bool;
-        description = "Enable transparency effects";
-      };
-
-      opacity = mkOption {
-        type = types.float;
-        description = "Opacity level (0.0 - 1.0)";
-      };
-
-      blur = mkOption {
-        type = types.int;
-        description = "Blur amount for background";
-      };
-    };
-  };
-
   themeConfigType = types.submodule {
     options = {
       colorscheme = mkOption {
@@ -178,4 +121,69 @@ with lib;
       };
     };
   };
+in
+{
+  themeType = types.submodule {
+    options = {
+      meta = mkOption {
+        type = types.submodule {
+          options = {
+            name = mkOption {
+              type = types.str;
+              description = "Human-readable theme name";
+            };
+
+            id = mkOption {
+              type = types.str;
+              description = "Unique theme identifier";
+            };
+
+            variants = mkOption {
+              type = types.listOf types.str;
+              description = "Available theme variants";
+            };
+
+            supports = mkOption {
+              type = types.listOf (
+                types.enum [
+                  "dark"
+                  "light"
+                ]
+              );
+              description = "Supported appearance modes";
+            };
+
+            author = mkOption {
+              type = types.str;
+              description = "Theme author";
+            };
+
+            homepage = mkOption {
+              type = types.str;
+              description = "Theme homepage URL";
+            };
+          };
+        };
+        description = "Theme metadata";
+      };
+
+      palettes = mkOption {
+        type = types.attrsOf paletteType;
+        description = "Color palettes for each variant";
+      };
+
+      semanticMapping = mkOption {
+        type = types.functionTo semanticColorsType;
+        description = "Function to map palette to semantic colors";
+      };
+
+    };
+  };
+
+  inherit
+    paletteType
+    semanticColorsType
+    transparencyType
+    themeConfigType
+    ;
 }
