@@ -2,11 +2,8 @@
 
 _final: prev:
 let
+  # Try only the local cursor trail patch - upstream PR patch fails to apply
   patch = [
-    (prev.fetchpatch {
-      url = "https://github.com/wezterm/wezterm/pull/7420.patch";
-      hash = "sha256-feDJmnNje3LxJgsJJJmjKQHLBfaLFzTe4ErogrlOXiI=";
-    })
     ./wezterm-cursor-trail.patch
   ];
 in
