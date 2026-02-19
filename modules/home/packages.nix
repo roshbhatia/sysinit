@@ -9,6 +9,7 @@
     gettext
     gnugrep
     gnused
+    httpie
     openssh
     tree
     unzip

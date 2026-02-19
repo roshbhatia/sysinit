@@ -100,91 +100,122 @@ function M.setup(config)
   }
 
   -- Hyperlink rules for clickable URLs and file paths
-  config.hyperlink_rules = wezterm.default_hyperlink_rules()
+  -- Not using default_hyperlink_rules() to avoid making all SHA hashes clickable indiscriminately
+  config.hyperlink_rules = {
+    -- HTTP/HTTPS URLs
+    -- Matches: https://example.com, http://localhost:3000
+    {
+      regex = [[\bhttps?://\S+\b]],
+      format = "$0",
+    },
 
-  -- Standard URL protocols (http, https, git, ssh, etc)
-  -- Matches: https://example.com, ssh://user@host, git://repo, etc
-  table.insert(config.hyperlink_rules, {
-    regex = [[\b\w+://\S+\b]],
-    format = "$0",
-  })
+    -- Git commit SHAs (7-40 hex chars)
+    -- Matches: 9239d87, 9239d87aa56a7d4240968ab7bef39ea8ccfa2641
+    -- Uses git:// scheme to trigger custom handler
+    {
+      regex = [[\b[0-9a-f]{7,40}\b]],
+      format = "git://$0",
+    },
 
-  -- Unix domain socket paths
-  -- Matches: unix:///path/to/socket, unix:/var/run/docker.sock
-  table.insert(config.hyperlink_rules, {
-    regex = [[unix://[/\w\d.\-_]+]],
-    format = "$0",
-  })
+    -- Git protocols
+    -- Matches: git://repo, git@github.com:user/repo
+    {
+      regex = [[\bgit[@:][\w.\-]+[:/][\w.\-/]+]],
+      format = "$0",
+    },
 
-  -- FTP paths
-  -- Matches: ftp://ftp.example.com/path
-  table.insert(config.hyperlink_rules, {
-    regex = [[ftp://[^\s]+]],
-    format = "$0",
-  })
+    -- SSH URLs
+    -- Matches: ssh://user@host
+    {
+      regex = [[\bssh://\S+\b]],
+      format = "$0",
+    },
 
-  -- Absolute file paths (starts with / or ~)
-  -- Matches: /path/to/file, ~/documents/file.txt, /etc/config-*.yaml (optionally quoted)
-  table.insert(config.hyperlink_rules, {
-    regex = [=[["]?([\w\d]{1}[\w\d.\-_*?]+(/[\w\d.\-_*?]+)+)["]?]=],
-    format = "file://$1",
-  })
+    -- Unix domain socket paths
+    -- Matches: unix:///path/to/socket, unix:/var/run/docker.sock
+    {
+      regex = [[unix://[/\w\d.\-_]+]],
+      format = "$0",
+    },
 
-  -- Relative paths (starts with ./ or ../)
-  -- Matches: ./file, ../parent/file, ./something-*.yaml, ../../another/path
-  table.insert(config.hyperlink_rules, {
-    regex = [=[\.\.?/[\w\d.\-_/*?]+]=],
-    format = "file://$0",
-  })
+    -- FTP paths
+    -- Matches: ftp://ftp.example.com/path
+    {
+      regex = [[ftp://[^\s]+]],
+      format = "$0",
+    },
+
+    -- Absolute file paths (starts with / or ~)
+    -- Matches: /path/to/file, ~/documents/file.txt, /etc/config-*.yaml (optionally quoted)
+    {
+      regex = [=[["]?([\w\d]{1}[\w\d.\-_*?]+(/[\w\d.\-_*?]+)+)["]?]=],
+      format = "file://$1",
+    },
+
+    -- Relative paths (starts with ./ or ../)
+    -- Matches: ./file, ../parent/file, ./something-*.yaml, ../../another/path
+    {
+      regex = [=[\.\.?/[\w\d.\-_/*?]+]=],
+      format = "file://$0",
+    },
+  }
 
   -- Handle custom URI schemes
   wezterm.on("open-uri", function(window, pane, uri)
-    -- Handle file:// URLs - open in nvim
+    local function split_pane_right(args)
+      window:perform_action(wezterm.action.SplitPane({ direction = "Right", command = { args = args } }), pane)
+    end
+
+    local function is_nvim_running()
+      local fg = pane:get_foreground_process_name()
+      return fg and fg:find("n?vim$")
+    end
+
+    -- Git commit SHAs: show commit info
+    if uri:find("^git://") then
+      local sha = uri:gsub("^git://", "")
+      if sha:match("^[0-9a-f]+$") and #sha >= 7 and #sha <= 40 then
+        split_pane_right({ "zsh", "-c", string.format("git show %s --stat --pretty=fuller || echo 'Not a valid git commit'", sha) })
+        return false
+      end
+      return true
+    end
+
+    -- File paths: open in nvim
     if uri:find("^file://") then
       local filepath = uri:gsub("^file://", "")
-      local foreground_process = pane:get_foreground_process_name()
 
-      -- If nvim is running, send :e command to open file in existing instance
-      -- This allows flatten.nvim to handle the file opening
-      -- Also reveal in Neotree to show directory context
-      if foreground_process and foreground_process:find("n?vim$") then
-        -- Escape the filepath for use in vim commands
-        local escaped_filepath = filepath:gsub("'", "''")
-
-        -- Open the file and reveal it in Neotree for directory context
-        local cmd = string.format(":e %s | Neotree reveal\r", escaped_filepath)
-        window:perform_action(wezterm.action.SendString(cmd), pane)
+      if is_nvim_running() then
+        local escaped = filepath:gsub("'", "''")
+        window:perform_action(wezterm.action.SendString(string.format(":vsplit %s | Neotree reveal\r", escaped)), pane)
         return false
       end
 
-      -- Otherwise, spawn nvim in the current pane
-      window:perform_action(
-        wezterm.action.SendString(string.format("%s %s\r", utils.get_nix_binary("nvim"), filepath)),
-        pane
-      )
+      local dir = filepath:match("(.*/)")
+      local nvim = utils.get_nix_binary("nvim")
+      if dir then
+        split_pane_right({ "zsh", "-c", string.format("cd '%s' && %s '%s'", dir, nvim, filepath) })
+      else
+        split_pane_right({ nvim, filepath })
+      end
       return false
     end
 
-    -- For other URIs (http, https, etc), handle based on foreground process
-    local foreground_process = pane:get_foreground_process_name()
-
-    -- If nvim is running, spawn a new wezterm instance to open the URI
-    if foreground_process and foreground_process:find("n?vim$") then
-      local escaped_uri = uri:gsub("'", "'\\''")
-      local open_cmd = utils.is_darwin() and "open" or "xdg-open"
-
-      window:perform_action(
-        wezterm.action.SpawnCommandInNewWindow({
-          args = { "sh", "-c", string.format("%s '%s'", open_cmd, escaped_uri) },
-        }),
-        pane
-      )
-
-      return false
+    -- Images: display with chafa
+    local image_exts = { "png", "jpg", "jpeg", "gif", "bmp", "webp", "svg", "ico" }
+    for _, ext in ipairs(image_exts) do
+      if uri:lower():match("%." .. ext .. "$") or uri:lower():match("%." .. ext .. "[?#]") then
+        local escaped = uri:gsub("'", "'\\''")
+        split_pane_right({ "zsh", "-c", string.format("chafa '%s' 2>/dev/null || echo 'Failed to display image'", escaped) })
+        return false
+      end
     end
 
-    -- Otherwise, let default handler handle other schemes (http, https, ftp, unix, etc)
-    return true
+    -- Everything else: open with system handler
+    local escaped = uri:gsub("'", "'\\''")
+    local opener = utils.is_darwin() and "open" or "xdg-open"
+    wezterm.background_child_process({ args = { "zsh", "-c", string.format("%s '%s'", opener, escaped) } })
+    return false
   end)
 end
 
