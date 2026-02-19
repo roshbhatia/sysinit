@@ -26,7 +26,11 @@
           ../home/programs/llm/options.nix
           ../home/programs/git/options.nix
 
+          # Cross-platform home modules
           ../home
+
+          # Darwin-specific home modules
+          ./home
         ];
 
         sysinit.git = values.git;
