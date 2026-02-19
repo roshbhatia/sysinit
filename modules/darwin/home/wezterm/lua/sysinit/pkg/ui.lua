@@ -48,6 +48,19 @@ function M.setup(config)
     fade_out_function = "EaseOut",
     fade_out_duration_ms = 100,
   }
+  config.cursor_trail = {
+    enabled = true,
+    -- Reduced dwell time for quicker response
+    dwell_threshold = 50,
+    -- Increased distance for less frequent but more noticeable trails
+    distance_threshold = 6,
+    -- Shorter duration for snappier animation
+    duration = 200,
+    -- Reduced spread for tighter, smoother trail
+    spread = 1.5,
+    -- Slightly higher opacity for better visibility
+    opacity = 0.7,
+  }
 
   local function locked_indicator()
     if keybindings.locked_mode then
