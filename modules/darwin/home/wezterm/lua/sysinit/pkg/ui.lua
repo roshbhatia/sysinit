@@ -49,7 +49,7 @@ function M.setup(config)
     fade_out_duration_ms = 100,
   }
   config.cursor_trail = {
-    enabled = true,
+    enabled = false,
     dwell_threshold = 80,
     distance_threshold = 6,
     duration = 50,
