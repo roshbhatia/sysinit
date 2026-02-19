@@ -15,6 +15,11 @@
   # Enable Lima guest services (lima-init, lima-guestagent)
   services.lima.enable = true;
 
+  # WezTerm for SSH multiplexing (provides wezterm-mux-server)
+  environment.systemPackages = with pkgs; [
+    wezterm
+  ];
+
   # Use host's /nix/store as an additional binary cache
   # The /nix-host mount is configured in lima.yaml
   nix.settings = {

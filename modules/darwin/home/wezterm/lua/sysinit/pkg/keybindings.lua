@@ -121,10 +121,6 @@ local function get_tab_keys()
   -- New tab with SUPER (CMD) in current domain
   table.insert(keys, create_smart_keybind("t", "SUPER", act.SpawnTab("CurrentPaneDomain")))
 
-  -- New tab in Ascalon domain with CTRL+SHIFT+T and CMD+SHIFT+T (SUPER+SHIFT+T)
-  table.insert(keys, create_smart_keybind("t", "CTRL|SHIFT", act.SpawnTab({ DomainName = "ascalon" })))
-  table.insert(keys, create_smart_keybind("t", "SUPER|SHIFT", act.SpawnTab({ DomainName = "ascalon" })))
-
   -- Tab switching: 1-8 go to specific tabs, 9 goes to last tab
   for i = 1, 9 do
     local tab_action = i == 9 and act.ActivateTab(-1) or act.ActivateTab(i - 1)
