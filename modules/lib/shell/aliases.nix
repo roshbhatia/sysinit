@@ -11,5 +11,5 @@
   tf = "terraform";
   tree = "eza --tree --icons=never";
   v = "nvim";
-  watch = "watch --quiet --color";
+  lt = "eza --tree";
 }
