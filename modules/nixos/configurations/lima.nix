@@ -18,7 +18,10 @@
   # Use host's /nix/store as an additional binary cache
   # The /nix-host mount is configured in lima.yaml
   nix.settings = {
-    experimental-features = "nix-command flakes";
+    experimental-features = [
+      "nix-command"
+      "flakes"
+    ];
     lazy-trees = true;
     extra-substituters = [
       "file:///nix-host/store"
