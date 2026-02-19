@@ -8,6 +8,7 @@
     }:
     {
       hostConfig,
+      hostname,
       pkgs,
       utils,
       values,
@@ -25,6 +26,9 @@
       };
       modules = [
         {
+          _module.args = {
+            inherit utils hostname;
+          };
           # Pass pre-configured pkgs to avoid re-evaluation
           # Note: nixpkgs.config and nixpkgs.overlays are ignored when pkgs is set
           nixpkgs.pkgs = lib.mkDefault pkgs;
