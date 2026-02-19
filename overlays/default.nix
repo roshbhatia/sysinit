@@ -14,6 +14,6 @@
   (import ./hererocks.nix { })
   (import ./claude-code.nix { })
   (import ./openspec.nix { })
-  (import ./wezterm.nix { })
+  # (import ./wezterm.nix { })  # Disabled: patches no longer apply to current wezterm
   (import ./crush.nix { })
 ]
