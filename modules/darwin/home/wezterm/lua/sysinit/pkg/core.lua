@@ -1,3 +1,4 @@
+local wezterm = require("wezterm")
 local utils = require("sysinit.pkg.utils")
 
 local M = {}
@@ -9,6 +10,9 @@ local function get_basic_config()
       utils.get_nix_binary("zsh"),
       "--login",
     },
+    -- Auto-populate SSH domains from ~/.ssh/config (includes Lima VMs)
+    -- Creates both SSH: and SSHMUX: prefixed domains for each host
+    ssh_domains = wezterm.default_ssh_domains(),
   }
 end
 
