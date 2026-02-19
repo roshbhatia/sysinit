@@ -18,8 +18,7 @@ This template creates a minimal flake that consumes `roshbhatia/sysinit` as an i
 
 4. Build and apply:
    ```bash
-   nh darwin build   # Test build
-   nh darwin switch  # Apply configuration
+   nh darwin switch --update .  # Apply configuration
    ```
 
 ## Lima VM (Optional)
