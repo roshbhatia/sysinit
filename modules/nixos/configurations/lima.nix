@@ -27,7 +27,6 @@
       "nix-command"
       "flakes"
     ];
-    lazy-trees = true;
     extra-substituters = [
       "file:///nix-host/store"
       "https://nix-community.cachix.org"
