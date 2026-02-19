@@ -496,7 +496,7 @@ index 350cb8f..8a8892e 100644
              tab_state: RefCell::new(HashMap::new()),
              pane_state: RefCell::new(HashMap::new()),
 diff --git a/wezterm-gui/src/termwindow/render/pane.rs b/wezterm-gui/src/termwindow/render/pane.rs
-index da273cc..92c9ead 100644
+index da273cc..140b14c 100644
 --- a/wezterm-gui/src/termwindow/render/pane.rs
 +++ b/wezterm-gui/src/termwindow/render/pane.rs
 @@ -1,6 +1,7 @@
@@ -542,7 +542,7 @@ index da273cc..92c9ead 100644
 +                            self.dimensions.pixel_width as f32,
 +                            self.dimensions.pixel_height as f32,
 +                        ),
-+                        (left_pixel_x, top_pixel_y),
++                        (left_pixel_x, top_pixel_y + (pos.top as f32 * cell_height)),
 +                        trail_color,
 +                        if pos.is_active {
 +                            None
