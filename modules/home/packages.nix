@@ -42,6 +42,7 @@
     # Shell essentials
     gum
     nix-your-shell
+    grc
 
     # Terminal utilities
     chafa
