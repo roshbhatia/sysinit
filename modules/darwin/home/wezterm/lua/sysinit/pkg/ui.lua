@@ -50,16 +50,11 @@ function M.setup(config)
   }
   config.cursor_trail = {
     enabled = true,
-    -- Reduced dwell time for quicker response
-    dwell_threshold = 50,
-    -- Increased distance for less frequent but more noticeable trails
+    dwell_threshold = 80,
     distance_threshold = 6,
-    -- Shorter duration for snappier animation
-    duration = 200,
-    -- Reduced spread for tighter, smoother trail
+    duration = 50,
     spread = 1.5,
-    -- Slightly higher opacity for better visibility
-    opacity = 0.7,
+    opacity = 0.6,
   }
 
   config.pane_focus_follows_mouse = false
