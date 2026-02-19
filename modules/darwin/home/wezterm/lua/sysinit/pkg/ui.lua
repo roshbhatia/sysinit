@@ -62,6 +62,8 @@ function M.setup(config)
     opacity = 0.7,
   }
 
+  config.pane_focus_follows_mouse = false
+
   local function locked_indicator()
     if keybindings.locked_mode then
       return "  "
