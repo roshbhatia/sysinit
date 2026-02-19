@@ -24,7 +24,7 @@ in
 {
   programs.nushell = {
     enable = true;
-    shellAliases = aliases;
+    shellAliases = mkDefault aliases;
 
     settings = {
       show_banner = false;
