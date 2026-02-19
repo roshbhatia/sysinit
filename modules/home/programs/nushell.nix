@@ -24,11 +24,7 @@ in
 {
   programs.nushell = {
     enable = true;
-    package = pkgs.nushell.override {
-      additionalFeatures = p: p ++ [ "mcp" ];
-    };
-
-    shellAliases = mkForce aliases;
+    shellAliases = aliases;
 
     settings = {
       show_banner = false;
@@ -55,7 +51,7 @@ in
     };
 
     environmentVariables = {
-      CARAPACE_BRIDGES = "fish";
+      CARAPACE_BRIDGES = "zsh";
     };
 
     extraEnv = ''
