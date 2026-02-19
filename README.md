@@ -59,16 +59,26 @@ export NH_SHOW_ACTIVATION_LOGS=1           # Show activation output (useful for 
 # Start Lima VM
 limactl start --name=default lima.yaml
 
-# Build and apply NixOS configuration
-lima -- nh os switch --refresh '#nostromo'
-lima -- nh os test                          # Test without activation
+# Shell into the VM
+lima shell
+
+# From INSIDE the Lima VM, build and apply NixOS configuration
+export NH_FLAKE="path:/Users/rbha18/github/personal/roshbhatia/sysinit"
+nh os switch '.#nixosConfigurations.nostromo'
+
+# Or use the full path inline
+nh os switch 'path:/Users/rbha18/github/personal/roshbhatia/sysinit#nixosConfigurations.nostromo'
 ```
+
+CRITICAL: Do NOT run `nh os switch` from macOS to configure the Lima VM. You must run it from INSIDE the VM.
 
 ### Creating a Discrete Host Repository
 
-To create a separate repository that consumes this flake for host-specific configurations (i.e., my work machine):
+To create a separate repository that consumes this flake for host-specific configurations (i.e., work machine):
 
 ```bash
 nix flake init -t github:roshbhatia/sysinit#discrete
 ```
+
+WARNING: When using discrete repos, NEVER run `nh os switch` from this personal repo to configure hosts defined in the discrete repo. Each discrete repo manages its own hosts independently.
 

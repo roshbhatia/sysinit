@@ -30,15 +30,33 @@ To create a NixOS Lima VM for this host:
 
 2. Update `hosts/default.nix`:
    - Uncomment the NixOS host configuration
-   - Set the hostname for your VM
+   - Set the hostname for your VM (e.g., `your-nixos-hostname`)
 
 3. Start the Lima VM:
    ```bash
    limactl start --name=default lima.yaml
    ```
 
-4. Apply NixOS configuration using nh (specify hostname explicitly):
+4. Shell into the Lima VM:
    ```bash
-   lima -- nix run nixpkgs#nh os switch '.#your-nixos-hostname'
+   lima shell
    ```
+
+5. Update the flake lock to sync with the current sysinit state:
+   ```bash
+   cd /path/to/discrete/repo
+   nix flake lock --update-input sysinit
+   ```
+
+6. Apply NixOS configuration from INSIDE the Lima VM:
+   ```bash
+   # Must use full attribute path: nixosConfigurations.<hostname>
+   nix run nixpkgs#nh -- os switch 'path:/path/to/discrete/repo#nixosConfigurations.your-nixos-hostname'
+   
+   # Or set NH_FLAKE environment variable:
+   export NH_FLAKE="path:/path/to/discrete/repo"
+   nh os switch '.#nixosConfigurations.your-nixos-hostname'
+   ```
+
+CRITICAL: You MUST run the `nh os switch` command from INSIDE the Lima VM, not from macOS. The configuration must be applied from the Linux system itself.
 
