@@ -14,6 +14,7 @@
     direnv-instant = {
       enable = true;
       enableZshIntegration = true;
+      enableNushellIntegration = true;
     };
   };
 }

@@ -35,7 +35,7 @@ in
         partial = true;
         algorithm = "fuzzy";
         external = {
-          enable = true;
+          enable = false;
         };
       };
       cursor_shape = {
