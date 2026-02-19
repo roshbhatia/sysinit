@@ -4,16 +4,6 @@
   lib,
   ...
 }:
-let
-  shellLib = import ../lib/shell.nix {
-    inherit lib;
-  };
-  allAliases = shellLib.aliases // {
-    org = "nvim ~/org/notes";
-    cat = "bat -pp";
-    ll = "eza --icons=always -l -a";
-  };
-in
 {
   imports = [
     ./programs
@@ -54,7 +44,7 @@ in
       NODE_TLS_REJECT_UNAUTHORIZED = 0;
     };
 
-    shellAliases = allAliases;
+    shellAliases = shellLib.aliases;
 
     activation.setBash = lib.hm.dag.entryBefore [ "checkLinkTargets" ] ''
       export PATH="${pkgs.bashInteractive}/bin:$PATH"
