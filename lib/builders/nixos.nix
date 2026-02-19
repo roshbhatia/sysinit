@@ -36,6 +36,7 @@
         {
           config.sysinit.user.username = hostConfig.username;
           config.sysinit.theme = values.theme;
+          config.sysinit.git = values.git;
         }
         ../../modules/nixos
         home-manager.nixosModules.home-manager
