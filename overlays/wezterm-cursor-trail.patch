@@ -1,5 +1,21 @@
+From 53f60e42580f0660d019b90d9761faf3499e2acd Mon Sep 17 00:00:00 2001
+From: Andy Walker <andy@andy.dev>
+Date: Sat, 6 Dec 2025 22:08:39 -0500
+Subject: [PATCH 01/10] initial sketch based off of kitty impl
+
+---
+ config/src/config.rs                       |   9 +
+ config/src/cursor_trail.rs                 |  87 +++++++
+ config/src/lib.rs                          |   2 +
+ wezterm-gui/src/termwindow/cursor_trail.rs | 261 +++++++++++++++++++++
+ wezterm-gui/src/termwindow/mod.rs          |   4 +
+ wezterm-gui/src/termwindow/render/pane.rs  |  50 ++++
+ 6 files changed, 413 insertions(+)
+ create mode 100644 config/src/cursor_trail.rs
+ create mode 100644 wezterm-gui/src/termwindow/cursor_trail.rs
+
 diff --git a/config/src/config.rs b/config/src/config.rs
-index 75afb97..c955242 100644
+index 75afb97a1b3..c9552429411 100644
 --- a/config/src/config.rs
 +++ b/config/src/config.rs
 @@ -3,6 +3,7 @@ use crate::bell::{AudibleBell, EasingFunction, VisualBell};
@@ -13,18 +29,18 @@ index 75afb97..c955242 100644
 @@ -636,6 +637,10 @@ pub struct Config {
      #[dynamic(default = "linear_ease")]
      pub cursor_blink_ease_out: EasingFunction,
- 
+
 +    /// Cursor trail configuration
 +    #[dynamic(default, validate = "validate_cursor_trail")]
 +    pub cursor_trail: CursorTrailConfig,
 +
      #[dynamic(default = "default_anim_fps")]
      pub animation_fps: u8,
- 
+
 @@ -1697,6 +1702,10 @@ fn validate_scrollback_lines(value: &usize) -> Result<(), String> {
      Ok(())
  }
- 
+
 +fn validate_cursor_trail(value: &CursorTrailConfig) -> Result<(), String> {
 +    value.validate()
 +}
@@ -34,10 +50,10 @@ index 75afb97..c955242 100644
  }
 diff --git a/config/src/cursor_trail.rs b/config/src/cursor_trail.rs
 new file mode 100644
-index 0000000..b37ff6d
+index 00000000000..96ff78ddcd8
 --- /dev/null
 +++ b/config/src/cursor_trail.rs
-@@ -0,0 +1,85 @@
+@@ -0,0 +1,87 @@
 +use wezterm_dynamic::{FromDynamic, ToDynamic};
 +
 +/// Configuration for cursor trail effect
@@ -48,11 +64,13 @@ index 0000000..b37ff6d
 +    pub enabled: bool,
 +
 +    /// Cursor trail dwell time in milliseconds.
-+    /// Cursor needs to be stationary for this amount of time before the trail will be drawn.
++    /// The trail animation only follows cursors that have stayed in their position
++    /// for longer than this value. This prevents trails during rapid cursor movements.
 +    #[dynamic(default = "default_dwell_threshold")]
 +    pub dwell_threshold: u64,
 +
 +    /// Animation duration in milliseconds for leading edge corners to reach the cursor.
++    /// Due to exponential easing, corners reach approximately 99.9% of the distance in this time.
 +    #[dynamic(default = "default_duration")]
 +    pub duration: u64,
 +
@@ -66,7 +84,7 @@ index 0000000..b37ff6d
 +    #[dynamic(default = "default_distance_threshold")]
 +    pub distance_threshold: usize,
 +
-+    /// Opacity for cursor trail (0.0 to 1.0)
++    /// Maximum opacity for cursor trail (0.0 to 1.0)
 +    #[dynamic(default = "default_opacity")]
 +    pub opacity: f32,
 +}
@@ -124,7 +142,7 @@ index 0000000..b37ff6d
 +    0.8
 +}
 diff --git a/config/src/lib.rs b/config/src/lib.rs
-index 802059c..dd86c4a 100644
+index 802059c4f7c..dd86c4aba3c 100644
 --- a/config/src/lib.rs
 +++ b/config/src/lib.rs
 @@ -25,6 +25,7 @@ mod bell;
@@ -145,15 +163,15 @@ index 802059c..dd86c4a 100644
  pub use font::*;
 diff --git a/wezterm-gui/src/termwindow/cursor_trail.rs b/wezterm-gui/src/termwindow/cursor_trail.rs
 new file mode 100644
-index 0000000..d715318
+index 00000000000..b7ac176e7b6
 --- /dev/null
 +++ b/wezterm-gui/src/termwindow/cursor_trail.rs
-@@ -0,0 +1,311 @@
+@@ -0,0 +1,261 @@
 +use crate::quad::{
 +    QuadImpl, QuadTrait, TripleLayerQuadAllocator, TripleLayerQuadAllocatorTrait, V_BOT_LEFT,
 +    V_BOT_RIGHT, V_TOP_LEFT, V_TOP_RIGHT,
 +};
-+use config::{CursorTrailConfig, HsbTransform};
++use config::HsbTransform;
 +use mux::renderable::StableCursorPosition;
 +use std::ops::Range;
 +use std::time::Instant;
@@ -164,6 +182,446 @@ index 0000000..d715318
 +/// Distance threshold for considering corners "at cursor"
 +const SETTLED_THRESHOLD: f32 = 0.1;
 +
++/// Manages the cursor trail effect with a deformable quad
++#[derive(Debug)]
++pub struct CursorTrail {
++    /// Four corners of the trail quad: top-left, top-right, bottom-right, bottom-left
++    corners: [(f32, f32); 4],
++
++    /// Trail target bounds (where corners are animating towards)
++    target_left: f32,
++    target_right: f32,
++    target_top: f32,
++    target_bottom: f32,
++
++    /// Current cursor position
++    cursor_pos: Option<StableCursorPosition>,
++
++    /// When the cursor last moved to a new position
++    cursor_last_moved: Instant,
++
++    /// Timestamp of last update
++    updated_at: Instant,
++}
++
++impl CursorTrail {
++    pub fn new() -> Self {
++        let now = Instant::now();
++        Self {
++            corners: [(0.0, 0.0); 4],
++            target_left: 0.0,
++            target_right: 0.0,
++            target_top: 0.0,
++            target_bottom: 0.0,
++            cursor_pos: None,
++            cursor_last_moved: now,
++            updated_at: now,
++        }
++    }
++
++    /// Update the trail state and return true if the quad should be rendered.
++    pub fn update(
++        &mut self,
++        cursor_pos: &StableCursorPosition,
++        min_distance: f32,
++        decay_fast: f32,
++        decay_slow: f32,
++        dwell_time_ms: u64,
++    ) -> bool {
++        let now = Instant::now();
++        let delta_time = now.duration_since(self.updated_at).as_secs_f32();
++        self.updated_at = now;
++
++        let cursor_x = cursor_pos.x as f32;
++        let cursor_y = cursor_pos.y as f32;
++
++        if self
++            .cursor_pos
++            .as_ref()
++            .map_or(true, |last_pos| last_pos != cursor_pos)
++        {
++            self.cursor_last_moved = now;
++            self.cursor_pos = Some(*cursor_pos);
++        }
++
++        let dwell_time = now.duration_since(self.cursor_last_moved).as_millis() as u64;
++        let target_to_cursor_distance =
++            (cursor_x - self.target_left).abs() + (cursor_y - self.target_top).abs();
++
++        if dwell_time >= dwell_time_ms && target_to_cursor_distance > min_distance {
++            self.target_left = cursor_x;
++            self.target_right = cursor_x + 1.0;
++            self.target_top = cursor_y;
++            self.target_bottom = cursor_y + 1.0;
++        }
++
++        if self.target_left == 0.0 && self.target_right == 0.0 {
++            self.target_left = cursor_x;
++            self.target_right = cursor_x + 1.0;
++            self.target_top = cursor_y;
++            self.target_bottom = cursor_y + 1.0;
++            self.corners = [
++                (cursor_x, cursor_y),
++                (cursor_x + 1.0, cursor_y),
++                (cursor_x + 1.0, cursor_y + 1.0),
++                (cursor_x, cursor_y + 1.0),
++            ];
++            return false;
++        }
++
++        if target_to_cursor_distance > 0.0 && target_to_cursor_distance <= min_distance {
++            self.corners = [
++                (cursor_x, cursor_y),
++                (cursor_x + 1.0, cursor_y),
++                (cursor_x + 1.0, cursor_y + 1.0),
++                (cursor_x, cursor_y + 1.0),
++            ];
++            self.target_left = cursor_x;
++            self.target_right = cursor_x + 1.0;
++            self.target_top = cursor_y;
++            self.target_bottom = cursor_y + 1.0;
++            return false;
++        }
++
++        // Animate corners towards target using exponential ease-out
++        let target_x = [
++            self.target_left,
++            self.target_right,
++            self.target_right,
++            self.target_left,
++        ];
++        let target_y = [
++            self.target_top,
++            self.target_top,
++            self.target_bottom,
++            self.target_bottom,
++        ];
++
++        let target_center_x = (self.target_left + self.target_right) * 0.5;
++        let target_center_y = (self.target_top + self.target_bottom) * 0.5;
++        let target_width = self.target_right - self.target_left;
++        let target_height = self.target_bottom - self.target_top;
++        let target_diag_2 = (target_width.powi(2) + target_height.powi(2)).sqrt() * 0.5;
++
++        let mut dx = [0.0_f32; 4];
++        let mut dy = [0.0_f32; 4];
++        let mut dot = [0.0_f32; 4];
++
++        for i in 0..4 {
++            dx[i] = target_x[i] - self.corners[i].0;
++            dy[i] = target_y[i] - self.corners[i].1;
++
++            if dx[i].abs() < 1e-6 && dy[i].abs() < 1e-6 {
++                dx[i] = 0.0;
++                dy[i] = 0.0;
++                dot[i] = 0.0;
++            } else {
++                let norm = (dx[i].powi(2) + dy[i].powi(2)).sqrt();
++                let corner_to_center_x = target_x[i] - target_center_x;
++                let corner_to_center_y = target_y[i] - target_center_y;
++                dot[i] = (dx[i] * corner_to_center_x + dy[i] * corner_to_center_y)
++                    / (target_diag_2 * norm);
++            }
++        }
++
++        let min_dot = dot.iter().cloned().fold(f32::INFINITY, f32::min);
++        let max_dot = dot.iter().cloned().fold(f32::NEG_INFINITY, f32::max);
++
++        for i in 0..4 {
++            if (dx[i] == 0.0 && dy[i] == 0.0) || min_dot.is_infinite() {
++                continue;
++            }
++
++            let decay = if (max_dot - min_dot).abs() < 1e-6 {
++                decay_slow
++            } else {
++                decay_slow + (decay_fast - decay_slow) * (dot[i] - min_dot) / (max_dot - min_dot)
++            };
++
++            let step = 1.0 - 2.0_f32.powf(-10.0 * delta_time / decay);
++            self.corners[i].0 += dx[i] * step;
++            self.corners[i].1 += dy[i] * step;
++        }
++
++        let waiting_for_dwell =
++            target_to_cursor_distance > min_distance && dwell_time < dwell_time_ms;
++        !self.settled(SETTLED_THRESHOLD) || waiting_for_dwell
++    }
++
++    fn settled(&self, threshold: f32) -> bool {
++        for i in 0..4 {
++            let target_x = if i == 1 || i == 2 {
++                self.target_right
++            } else {
++                self.target_left
++            };
++            let target_y = if i >= 2 {
++                self.target_bottom
++            } else {
++                self.target_top
++            };
++            let dx = target_x - self.corners[i].0;
++            let dy = target_y - self.corners[i].1;
++            if dx.abs() > threshold || dy.abs() > threshold {
++                return false;
++            }
++        }
++        true
++    }
++
++    pub fn render(
++        &self,
++        layers: &mut TripleLayerQuadAllocator,
++        cell_width: f32,
++        cell_height: f32,
++        pane_left: usize,
++        stable_range: Range<StableRowIndex>,
++        window_dimensions: (f32, f32), // (width, height)
++        pixel_offset: (f32, f32),      // (left_pixel_x, top_pixel_y)
++        trail_color: LinearRgba,
++        hsv_transform: Option<HsbTransform>,
++        white_space_texture: TextureRect,
++    ) -> anyhow::Result<()> {
++        let (window_width, window_height) = window_dimensions;
++        let (left_pixel_x, top_pixel_y) = pixel_offset;
++
++        // Convert corner positions from cell coordinates to pixel coordinates
++        let px_x = (window_width / -2.0) + left_pixel_x;
++        let px_y = (window_height / -2.0) + top_pixel_y;
++
++        let pixel_corners = [
++            [
++                px_x + (self.corners[0].0 - pane_left as f32) * cell_width,
++                px_y + (self.corners[0].1 - stable_range.start as f32) * cell_height,
++            ],
++            [
++                px_x + (self.corners[1].0 - pane_left as f32) * cell_width,
++                px_y + (self.corners[1].1 - stable_range.start as f32) * cell_height,
++            ],
++            [
++                px_x + (self.corners[3].0 - pane_left as f32) * cell_width,
++                px_y + (self.corners[3].1 - stable_range.start as f32) * cell_height,
++            ],
++            [
++                px_x + (self.corners[2].0 - pane_left as f32) * cell_width,
++                px_y + (self.corners[2].1 - stable_range.start as f32) * cell_height,
++            ],
++        ];
++
++        let mut quad_impl = layers.allocate(0)?;
++
++        match &mut quad_impl {
++            QuadImpl::Vert(quad) => {
++                quad.vert[V_TOP_LEFT].position = pixel_corners[0];
++                quad.vert[V_TOP_RIGHT].position = pixel_corners[1];
++                quad.vert[V_BOT_LEFT].position = pixel_corners[2];
++                quad.vert[V_BOT_RIGHT].position = pixel_corners[3];
++            }
++            QuadImpl::Boxed(_) => {}
++        }
++
++        quad_impl.set_hsv(hsv_transform);
++        quad_impl.set_is_background();
++        quad_impl.set_texture(white_space_texture);
++        quad_impl.set_fg_color(trail_color);
++
++        Ok(())
++    }
++}
+diff --git a/wezterm-gui/src/termwindow/mod.rs b/wezterm-gui/src/termwindow/mod.rs
+index 350cb8fb7ed..8a8892e7c96 100644
+--- a/wezterm-gui/src/termwindow/mod.rs
++++ b/wezterm-gui/src/termwindow/mod.rs
+@@ -78,12 +78,14 @@ mod mouseevent;
+ pub mod palette;
+ pub mod paneselect;
+ mod prevcursor;
++mod cursor_trail;
+ pub mod render;
+ pub mod resize;
+ mod selection;
+ pub mod spawn;
+ pub mod webgpu;
+ use crate::spawn::SpawnWhere;
++use cursor_trail::CursorTrail;
+ use prevcursor::PrevCursorPos;
+
+ const ATLAS_SIZE: usize = 128;
+@@ -401,6 +403,7 @@ pub struct TermWindow {
+     window_drag_position: Option<MouseEvent>,
+     current_mouse_event: Option<MouseEvent>,
+     prev_cursor: PrevCursorPos,
++    cursor_trail: CursorTrail,
+     last_scroll_info: RenderableDimensions,
+
+     tab_state: RefCell<HashMap<TabId, TabState>>,
+@@ -719,6 +722,7 @@ impl TermWindow {
+             current_mouse_event: None,
+             current_modifier_and_leds: Default::default(),
+             prev_cursor: PrevCursorPos::new(),
++            cursor_trail: CursorTrail::new(),
+             last_scroll_info: RenderableDimensions::default(),
+             tab_state: RefCell::new(HashMap::new()),
+             pane_state: RefCell::new(HashMap::new()),
+diff --git a/wezterm-gui/src/termwindow/render/pane.rs b/wezterm-gui/src/termwindow/render/pane.rs
+index da273cc663e..44f643182e2 100644
+--- a/wezterm-gui/src/termwindow/render/pane.rs
++++ b/wezterm-gui/src/termwindow/render/pane.rs
+@@ -569,6 +569,56 @@ impl crate::TermWindow {
+             if let Some(error) = render.error.take() {
+                 return Err(error).context("error while calling with_lines_mut");
+             }
++
++            // Update and render cursor trail (if enabled)
++            // TODO: cleaner to move into cursor_trail.rs?
++            if config.cursor_trail.enabled && pos.is_active {
++                let decay_fast = config.cursor_trail.duration as f32 / 1000.0;
++                let decay_slow =
++                    (config.cursor_trail.duration as f32 * config.cursor_trail.spread) / 1000.0;
++
++                if self.cursor_trail.update(
++                    &pos.pane.get_cursor_position(),
++                    config.cursor_trail.distance_threshold as f32,
++                    decay_fast,
++                    decay_slow,
++                    config.cursor_trail.dwell_threshold,
++                ) {
++                    // Resepect FPS
++                    // TODO: ensure this is the correct method.
++                    let now = std::time::Instant::now();
++                    let frame_interval =
++                        std::time::Duration::from_millis(1000 / config.animation_fps as u64);
++                    self.update_next_frame_time(Some(now + frame_interval));
++
++                    let left_pixel_x =
++                        padding_left + border.left.get() as f32 + (pos.left as f32 * cell_width);
++
++                    let trail_color = cursor_border_color.mul_alpha(config.cursor_trail.opacity);
++
++                    self.cursor_trail
++                        .render(
++                            layers,
++                            cell_width,
++                            cell_height,
++                            pos.left,
++                            stable_range.clone(),
++                            (
++                                self.dimensions.pixel_width as f32,
++                                self.dimensions.pixel_height as f32,
++                            ),
++                            (left_pixel_x, top_pixel_y),
++                            trail_color,
++                            if pos.is_active {
++                                None
++                            } else {
++                                Some(config.inactive_pane_hsb)
++                            },
++                            white_space,
++                        )
++                        .context("render cursor trail")?;
++                }
++            }
+         }
+
+         /*
+
+From 2d01f154d1032763f59fb0a4f019f31969342ebb Mon Sep 17 00:00:00 2001
+From: Andy Walker <andy@andy.dev>
+Date: Sun, 7 Dec 2025 17:18:04 -0500
+Subject: [PATCH 02/10] make trail opacity absolute
+
+- relative might be confusing
+---
+ wezterm-gui/src/termwindow/render/pane.rs | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/wezterm-gui/src/termwindow/render/pane.rs b/wezterm-gui/src/termwindow/render/pane.rs
+index 44f643182e2..0b305cff804 100644
+--- a/wezterm-gui/src/termwindow/render/pane.rs
++++ b/wezterm-gui/src/termwindow/render/pane.rs
+@@ -594,7 +594,9 @@ impl crate::TermWindow {
+                     let left_pixel_x =
+                         padding_left + border.left.get() as f32 + (pos.left as f32 * cell_width);
+
+-                    let trail_color = cursor_border_color.mul_alpha(config.cursor_trail.opacity);
++                    let (r, g, b, _) = cursor_border_color.tuple();
++                    let trail_color =
++                        LinearRgba::with_components(r, g, b, config.cursor_trail.opacity);
+
+                     self.cursor_trail
+                         .render(
+
+From bda2a0878306c2300a6312f7e8606195a2c9d141 Mon Sep 17 00:00:00 2001
+From: Andy Walker <andy@andy.dev>
+Date: Sun, 7 Dec 2025 17:20:40 -0500
+Subject: [PATCH 03/10] Update config docstrings
+
+---
+ config/src/cursor_trail.rs | 6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
+
+diff --git a/config/src/cursor_trail.rs b/config/src/cursor_trail.rs
+index 96ff78ddcd8..b37ff6d2132 100644
+--- a/config/src/cursor_trail.rs
++++ b/config/src/cursor_trail.rs
+@@ -8,13 +8,11 @@ pub struct CursorTrailConfig {
+     pub enabled: bool,
+
+     /// Cursor trail dwell time in milliseconds.
+-    /// The trail animation only follows cursors that have stayed in their position
+-    /// for longer than this value. This prevents trails during rapid cursor movements.
++    /// Cursor needs to be stationary for this amount of time before the trail will be drawn.
+     #[dynamic(default = "default_dwell_threshold")]
+     pub dwell_threshold: u64,
+
+     /// Animation duration in milliseconds for leading edge corners to reach the cursor.
+-    /// Due to exponential easing, corners reach approximately 99.9% of the distance in this time.
+     #[dynamic(default = "default_duration")]
+     pub duration: u64,
+
+@@ -28,7 +26,7 @@ pub struct CursorTrailConfig {
+     #[dynamic(default = "default_distance_threshold")]
+     pub distance_threshold: usize,
+
+-    /// Maximum opacity for cursor trail (0.0 to 1.0)
++    /// Opacity for cursor trail (0.0 to 1.0)
+     #[dynamic(default = "default_opacity")]
+     pub opacity: f32,
+ }
+
+From 32b721bd87b8ef65d8bd1ae15b1d1ce77de52001 Mon Sep 17 00:00:00 2001
+From: Andy Walker <andy@andy.dev>
+Date: Sun, 7 Dec 2025 17:28:04 -0500
+Subject: [PATCH 04/10] refac: types
+
+In general, try to be more idiomatic and cut down on boilerplate.
+
+- CursorTrail.update -> CursorTrail.tick
+- Reduce pane.rs boilerplate and improve tick signature by passing TickContext type instead of a mess of parameters like a chump
+- Replace 2-tuples with Pos for x/y f32 coords
+- TrailQuad and TrailTarget types
+---
+ wezterm-gui/src/termwindow/cursor_trail.rs | 250 +++++++++++++--------
+ wezterm-gui/src/termwindow/render/pane.rs  |  19 +-
+ 2 files changed, 158 insertions(+), 111 deletions(-)
+
+diff --git a/wezterm-gui/src/termwindow/cursor_trail.rs b/wezterm-gui/src/termwindow/cursor_trail.rs
+index b7ac176e7b6..1685348ce80 100644
+--- a/wezterm-gui/src/termwindow/cursor_trail.rs
++++ b/wezterm-gui/src/termwindow/cursor_trail.rs
+@@ -2,7 +2,7 @@ use crate::quad::{
+     QuadImpl, QuadTrait, TripleLayerQuadAllocator, TripleLayerQuadAllocatorTrait, V_BOT_LEFT,
+     V_BOT_RIGHT, V_TOP_LEFT, V_TOP_RIGHT,
+ };
+-use config::HsbTransform;
++use config::{CursorTrailConfig, HsbTransform};
+ use mux::renderable::StableCursorPosition;
+ use std::ops::Range;
+ use std::time::Instant;
+@@ -13,20 +13,104 @@ use window::color::LinearRgba;
+ /// Distance threshold for considering corners "at cursor"
+ const SETTLED_THRESHOLD: f32 = 0.1;
+
 +/// A screen position in f32 coordinates
 +#[derive(Debug, Default, Copy, Clone, PartialEq)]
 +struct Pos {
@@ -200,20 +658,413 @@ index 0000000..d715318
 +    fn at(p: Pos) -> Self {
 +        Self([
 +            Pos { x: p.x, y: p.y },
-+            Pos {
-+                x: p.x + 1.0,
-+                y: p.y,
-+            },
-+            Pos {
-+                x: p.x + 1.0,
-+                y: p.y + 1.0,
-+            },
-+            Pos {
-+                x: p.x,
-+                y: p.y + 1.0,
-+            },
++            Pos { x: p.x + 1.0, y: p.y },
++            Pos { x: p.x + 1.0, y: p.y + 1.0 },
++            Pos { x: p.x, y: p.y + 1.0 },
 +        ])
 +    }
++}
++
++/// The edges to animate a TrailQuad towards
++#[derive(Debug, Default)]
++struct TrailTarget {
++    top: f32,
++    bottom: f32,
++    left: f32,
++    right: f32,
++}
++impl TrailTarget {
++    fn at(p: Pos) -> Self {
++        Self {
++            top: p.y,
++            bottom: p.y + 1.0,
++            left: p.x,
++            right: p.x + 1.0,
++        }
++    }
++}
++
++/// Info needed to update the CursorTrail state
++pub struct TickContext {
++    cursor_pos: Pos,
++    now: Instant,
++    distance_threshold: f32,
++    decay_fast: f32,
++    decay_slow: f32,
++    dwell_treshold: u64,
++}
++
++impl TickContext {
++    pub fn from_cursor(cursor_pos: StableCursorPosition, trail_config: &CursorTrailConfig) -> Self {
++        let float_dur = trail_config.duration as f32;
++        Self {
++            cursor_pos: cursor_pos.into(),
++            now: Instant::now(), // todo secs and such or take reference?
++            distance_threshold: trail_config.distance_threshold as f32,
++            decay_fast: float_dur / 1000.0,
++            decay_slow: (float_dur * trail_config.spread) / 1000.0,
++            dwell_treshold: trail_config.dwell_threshold,
++        }
++    }
++}
++
+ /// Manages the cursor trail effect with a deformable quad
+ #[derive(Debug)]
+ pub struct CursorTrail {
+     /// Four corners of the trail quad: top-left, top-right, bottom-right, bottom-left
+-    corners: [(f32, f32); 4],
++    quad: TrailQuad,
+
+     /// Trail target bounds (where corners are animating towards)
+-    target_left: f32,
+-    target_right: f32,
+-    target_top: f32,
+-    target_bottom: f32,
++    // todo: structify
++    target: TrailTarget,
+
+-    /// Current cursor position
+-    cursor_pos: Option<StableCursorPosition>,
++    /// Last cursor position
++    last_cursor_pos: Pos,
+
+     /// When the cursor last moved to a new position
+     cursor_last_moved: Instant,
+@@ -39,99 +123,66 @@ impl CursorTrail {
+     pub fn new() -> Self {
+         let now = Instant::now();
+         Self {
+-            corners: [(0.0, 0.0); 4],
+-            target_left: 0.0,
+-            target_right: 0.0,
+-            target_top: 0.0,
+-            target_bottom: 0.0,
+-            cursor_pos: None,
++            quad: TrailQuad::default(),
++            target: TrailTarget::default(),
++            last_cursor_pos: Pos::default(),
+             cursor_last_moved: now,
+             updated_at: now,
+         }
+     }
+
+     /// Update the trail state and return true if the quad should be rendered.
+-    pub fn update(
+-        &mut self,
+-        cursor_pos: &StableCursorPosition,
+-        min_distance: f32,
+-        decay_fast: f32,
+-        decay_slow: f32,
+-        dwell_time_ms: u64,
+-    ) -> bool {
+-        let now = Instant::now();
+-        let delta_time = now.duration_since(self.updated_at).as_secs_f32();
+-        self.updated_at = now;
+-
+-        let cursor_x = cursor_pos.x as f32;
+-        let cursor_y = cursor_pos.y as f32;
+-
+-        if self
+-            .cursor_pos
+-            .as_ref()
+-            .map_or(true, |last_pos| last_pos != cursor_pos)
+-        {
+-            self.cursor_last_moved = now;
+-            self.cursor_pos = Some(*cursor_pos);
++    pub fn tick(&mut self, ctx: TickContext) -> bool {
++        let delta_time = ctx.now.duration_since(self.updated_at).as_secs_f32();
++        self.updated_at = ctx.now;
++
++        if self.last_cursor_pos != ctx.cursor_pos {
++            self.cursor_last_moved = ctx.now;
++            self.last_cursor_pos = ctx.cursor_pos;
+         }
+
+-        let dwell_time = now.duration_since(self.cursor_last_moved).as_millis() as u64;
+-        let target_to_cursor_distance =
+-            (cursor_x - self.target_left).abs() + (cursor_y - self.target_top).abs();
++        let dwell_time = ctx.now.duration_since(self.cursor_last_moved).as_millis() as u64;
++        // todo: rename to just cursor_distance
++        let target_to_cursor_distance = (ctx.cursor_pos.x - self.target.left).abs()
++            + (ctx.cursor_pos.y - self.target.top).abs();
+
+-        if dwell_time >= dwell_time_ms && target_to_cursor_distance > min_distance {
+-            self.target_left = cursor_x;
+-            self.target_right = cursor_x + 1.0;
+-            self.target_top = cursor_y;
+-            self.target_bottom = cursor_y + 1.0;
++        if dwell_time >= ctx.dwell_treshold && target_to_cursor_distance > ctx.distance_threshold {
++            self.target = TrailTarget::at(ctx.cursor_pos);
+         }
+
+-        if self.target_left == 0.0 && self.target_right == 0.0 {
+-            self.target_left = cursor_x;
+-            self.target_right = cursor_x + 1.0;
+-            self.target_top = cursor_y;
+-            self.target_bottom = cursor_y + 1.0;
+-            self.corners = [
+-                (cursor_x, cursor_y),
+-                (cursor_x + 1.0, cursor_y),
+-                (cursor_x + 1.0, cursor_y + 1.0),
+-                (cursor_x, cursor_y + 1.0),
+-            ];
++        // first update
++        // TODO: better logic
++        if self.target.left == 0.0 && self.target.right == 0.0 {
++            self.target = TrailTarget::at(ctx.cursor_pos);
++            self.quad = TrailQuad::at(ctx.cursor_pos);
+             return false;
+         }
+
+-        if target_to_cursor_distance > 0.0 && target_to_cursor_distance <= min_distance {
+-            self.corners = [
+-                (cursor_x, cursor_y),
+-                (cursor_x + 1.0, cursor_y),
+-                (cursor_x + 1.0, cursor_y + 1.0),
+-                (cursor_x, cursor_y + 1.0),
+-            ];
+-            self.target_left = cursor_x;
+-            self.target_right = cursor_x + 1.0;
+-            self.target_top = cursor_y;
+-            self.target_bottom = cursor_y + 1.0;
++        if target_to_cursor_distance > 0.0 && target_to_cursor_distance <= ctx.distance_threshold {
++            self.target = TrailTarget::at(ctx.cursor_pos);
++            self.quad = TrailQuad::at(ctx.cursor_pos);
++
+             return false;
+         }
+
+         // Animate corners towards target using exponential ease-out
+         let target_x = [
+-            self.target_left,
+-            self.target_right,
+-            self.target_right,
+-            self.target_left,
++            self.target.left,
++            self.target.right,
++            self.target.right,
++            self.target.left,
+         ];
+         let target_y = [
+-            self.target_top,
+-            self.target_top,
+-            self.target_bottom,
+-            self.target_bottom,
++            self.target.top,
++            self.target.top,
++            self.target.bottom,
++            self.target.bottom,
+         ];
+
+-        let target_center_x = (self.target_left + self.target_right) * 0.5;
+-        let target_center_y = (self.target_top + self.target_bottom) * 0.5;
+-        let target_width = self.target_right - self.target_left;
+-        let target_height = self.target_bottom - self.target_top;
++        let target_center_x = (self.target.left + self.target.right) * 0.5;
++        let target_center_y = (self.target.top + self.target.bottom) * 0.5;
++        let target_width = self.target.right - self.target.left;
++        let target_height = self.target.bottom - self.target.top;
+         let target_diag_2 = (target_width.powi(2) + target_height.powi(2)).sqrt() * 0.5;
+
+         let mut dx = [0.0_f32; 4];
+@@ -139,8 +190,8 @@ impl CursorTrail {
+         let mut dot = [0.0_f32; 4];
+
+         for i in 0..4 {
+-            dx[i] = target_x[i] - self.corners[i].0;
+-            dy[i] = target_y[i] - self.corners[i].1;
++            dx[i] = target_x[i] - self.quad[i].x;
++            dy[i] = target_y[i] - self.quad[i].y;
+
+             if dx[i].abs() < 1e-6 && dy[i].abs() < 1e-6 {
+                 dx[i] = 0.0;
+@@ -164,35 +215,36 @@ impl CursorTrail {
+             }
+
+             let decay = if (max_dot - min_dot).abs() < 1e-6 {
+-                decay_slow
++                ctx.decay_slow
+             } else {
+-                decay_slow + (decay_fast - decay_slow) * (dot[i] - min_dot) / (max_dot - min_dot)
++                ctx.decay_slow
++                    + (ctx.decay_fast - ctx.decay_slow) * (dot[i] - min_dot) / (max_dot - min_dot)
+             };
+
+             let step = 1.0 - 2.0_f32.powf(-10.0 * delta_time / decay);
+-            self.corners[i].0 += dx[i] * step;
+-            self.corners[i].1 += dy[i] * step;
++            self.quad[i].x += dx[i] * step;
++            self.quad[i].y += dy[i] * step;
+         }
+
+         let waiting_for_dwell =
+-            target_to_cursor_distance > min_distance && dwell_time < dwell_time_ms;
++            target_to_cursor_distance > ctx.distance_threshold && dwell_time < ctx.dwell_treshold;
+         !self.settled(SETTLED_THRESHOLD) || waiting_for_dwell
+     }
+
+     fn settled(&self, threshold: f32) -> bool {
+         for i in 0..4 {
+             let target_x = if i == 1 || i == 2 {
+-                self.target_right
++                self.target.right
+             } else {
+-                self.target_left
++                self.target.left
+             };
+             let target_y = if i >= 2 {
+-                self.target_bottom
++                self.target.bottom
+             } else {
+-                self.target_top
++                self.target.top
+             };
+-            let dx = target_x - self.corners[i].0;
+-            let dy = target_y - self.corners[i].1;
++            let dx = target_x - self.quad[i].x;
++            let dy = target_y - self.quad[i].y;
+             if dx.abs() > threshold || dy.abs() > threshold {
+                 return false;
+             }
+@@ -222,20 +274,20 @@ impl CursorTrail {
+
+         let pixel_corners = [
+             [
+-                px_x + (self.corners[0].0 - pane_left as f32) * cell_width,
+-                px_y + (self.corners[0].1 - stable_range.start as f32) * cell_height,
++                px_x + (self.quad[0].x - pane_left as f32) * cell_width,
++                px_y + (self.quad[0].y - stable_range.start as f32) * cell_height,
+             ],
+             [
+-                px_x + (self.corners[1].0 - pane_left as f32) * cell_width,
+-                px_y + (self.corners[1].1 - stable_range.start as f32) * cell_height,
++                px_x + (self.quad[1].x - pane_left as f32) * cell_width,
++                px_y + (self.quad[1].y - stable_range.start as f32) * cell_height,
+             ],
+             [
+-                px_x + (self.corners[3].0 - pane_left as f32) * cell_width,
+-                px_y + (self.corners[3].1 - stable_range.start as f32) * cell_height,
++                px_x + (self.quad[3].x - pane_left as f32) * cell_width,
++                px_y + (self.quad[3].y - stable_range.start as f32) * cell_height,
+             ],
+             [
+-                px_x + (self.corners[2].0 - pane_left as f32) * cell_width,
+-                px_y + (self.corners[2].1 - stable_range.start as f32) * cell_height,
++                px_x + (self.quad[2].x - pane_left as f32) * cell_width,
++                px_y + (self.quad[2].y - stable_range.start as f32) * cell_height,
+             ],
+         ];
+
+diff --git a/wezterm-gui/src/termwindow/render/pane.rs b/wezterm-gui/src/termwindow/render/pane.rs
+index 0b305cff804..c2bfbf70f80 100644
+--- a/wezterm-gui/src/termwindow/render/pane.rs
++++ b/wezterm-gui/src/termwindow/render/pane.rs
+@@ -1,6 +1,7 @@
+ use crate::quad::{HeapQuadAllocator, QuadTrait, TripleLayerQuadAllocator};
+ use crate::selection::SelectionRange;
+ use crate::termwindow::box_model::*;
++use crate::termwindow::cursor_trail::TickContext;
+ use crate::termwindow::render::{
+     same_hyperlink, CursorProperties, LineQuadCacheKey, LineQuadCacheValue, LineToEleShapeCacheKey,
+     RenderScreenLineParams,
+@@ -570,20 +571,14 @@ impl crate::TermWindow {
+                 return Err(error).context("error while calling with_lines_mut");
+             }
+
++            //self.cursor_trail.update2();
++
+             // Update and render cursor trail (if enabled)
+-            // TODO: cleaner to move into cursor_trail.rs?
+             if config.cursor_trail.enabled && pos.is_active {
+-                let decay_fast = config.cursor_trail.duration as f32 / 1000.0;
+-                let decay_slow =
+-                    (config.cursor_trail.duration as f32 * config.cursor_trail.spread) / 1000.0;
+-
+-                if self.cursor_trail.update(
+-                    &pos.pane.get_cursor_position(),
+-                    config.cursor_trail.distance_threshold as f32,
+-                    decay_fast,
+-                    decay_slow,
+-                    config.cursor_trail.dwell_threshold,
+-                ) {
++                if self.cursor_trail.tick(TickContext::from_cursor(
++                    pos.pane.get_cursor_position(),
++                    &config.cursor_trail,
++                )) {
+                     // Resepect FPS
+                     // TODO: ensure this is the correct method.
+                     let now = std::time::Instant::now();
+
+From 9f3da888090352f691e5c5a5bae80c0ef4abf591 Mon Sep 17 00:00:00 2001
+From: Andy Walker <andy@andy.dev>
+Date: Sun, 7 Dec 2025 17:51:47 -0500
+Subject: [PATCH 05/10] chore: remove commented dev code
+
+Update2 was part of the initial stab at what became TickContext in an effort to get the LSP to give me some assistance. Left in by accident.
+---
+ wezterm-gui/src/termwindow/render/pane.rs | 2 --
+ 1 file changed, 2 deletions(-)
+
+diff --git a/wezterm-gui/src/termwindow/render/pane.rs b/wezterm-gui/src/termwindow/render/pane.rs
+index c2bfbf70f80..72f3c3a3195 100644
+--- a/wezterm-gui/src/termwindow/render/pane.rs
++++ b/wezterm-gui/src/termwindow/render/pane.rs
+@@ -571,8 +571,6 @@ impl crate::TermWindow {
+                 return Err(error).context("error while calling with_lines_mut");
+             }
+
+-            //self.cursor_trail.update2();
+-
+             // Update and render cursor trail (if enabled)
+             if config.cursor_trail.enabled && pos.is_active {
+                 if self.cursor_trail.tick(TickContext::from_cursor(
+
+From 7f019d00b5c5152fa7fe96dd9b82c902720efd22 Mon Sep 17 00:00:00 2001
+From: Andy Walker <andy@andy.dev>
+Date: Sun, 7 Dec 2025 19:22:45 -0500
+Subject: [PATCH 06/10] refac:  just use the existing cursor variable
+
+---
+ wezterm-gui/src/termwindow/render/pane.rs | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/wezterm-gui/src/termwindow/render/pane.rs b/wezterm-gui/src/termwindow/render/pane.rs
+index 72f3c3a3195..9aa38163cb5 100644
+--- a/wezterm-gui/src/termwindow/render/pane.rs
++++ b/wezterm-gui/src/termwindow/render/pane.rs
+@@ -573,10 +573,10 @@ impl crate::TermWindow {
+
+             // Update and render cursor trail (if enabled)
+             if config.cursor_trail.enabled && pos.is_active {
+-                if self.cursor_trail.tick(TickContext::from_cursor(
+-                    pos.pane.get_cursor_position(),
+-                    &config.cursor_trail,
+-                )) {
++                if self
++                    .cursor_trail
++                    .tick(TickContext::from_cursor(cursor, &config.cursor_trail))
++                {
+                     // Resepect FPS
+                     // TODO: ensure this is the correct method.
+                     let now = std::time::Instant::now();
+
+From d53e15e9fd5a174d1462288982f21f630e399c47 Mon Sep 17 00:00:00 2001
+From: Andy Walker <andy@andy.dev>
+Date: Sun, 7 Dec 2025 19:32:56 -0500
+Subject: [PATCH 07/10] refac: interpolation to TrailQuad.interp
+
+---
+ wezterm-gui/src/termwindow/cursor_trail.rs | 113 ++++++++++-----------
+ 1 file changed, 52 insertions(+), 61 deletions(-)
+
+diff --git a/wezterm-gui/src/termwindow/cursor_trail.rs b/wezterm-gui/src/termwindow/cursor_trail.rs
+index 1685348ce80..e8d0e5876c1 100644
+--- a/wezterm-gui/src/termwindow/cursor_trail.rs
++++ b/wezterm-gui/src/termwindow/cursor_trail.rs
+@@ -54,6 +54,57 @@ impl TrailQuad {
+             Pos { x: p.x, y: p.y + 1.0 },
+         ])
+     }
 +
 +    fn interp(&mut self, target: &TrailTarget, delta_time: f32, decay_fast: f32, decay_slow: f32) {
 +        let target_x = [target.left, target.right, target.right, target.left];
@@ -265,108 +1116,199 @@ index 0000000..d715318
 +            self.0[i].y += dy[i] * step;
 +        }
 +    }
-+}
-+
-+/// The edges to animate a TrailQuad towards
-+#[derive(Debug, Default)]
-+struct TrailTarget {
-+    top: f32,
-+    bottom: f32,
-+    left: f32,
-+    right: f32,
-+}
-+impl TrailTarget {
-+    fn at(p: Pos) -> Self {
-+        Self {
-+            top: p.y,
-+            bottom: p.y + 1.0,
-+            left: p.x,
-+            right: p.x + 1.0,
-+        }
-+    }
-+}
-+
-+/// Info needed to update the CursorTrail state
-+pub struct TickContext {
-+    cursor_pos: Pos,
-+    now: Instant,
-+    distance_threshold: f32,
-+    decay_fast: f32,
-+    decay_slow: f32,
-+    dwell_treshold: u64,
-+}
-+
-+impl TickContext {
-+    pub fn from_cursor(cursor_pos: StableCursorPosition, trail_config: &CursorTrailConfig) -> Self {
-+        let float_dur = trail_config.duration as f32;
-+        Self {
-+            cursor_pos: cursor_pos.into(),
-+            now: Instant::now(), // todo secs and such or take reference?
-+            distance_threshold: trail_config.distance_threshold as f32,
-+            decay_fast: float_dur / 1000.0,
-+            decay_slow: (float_dur * trail_config.spread) / 1000.0,
-+            dwell_treshold: trail_config.dwell_threshold,
-+        }
-+    }
-+}
-+
-+/// Manages the cursor trail effect with a deformable quad
-+#[derive(Debug)]
-+pub struct CursorTrail {
-+    /// Four corners of the trail quad: top-left, top-right, bottom-right, bottom-left
-+    quad: TrailQuad,
-+
-+    /// Trail target bounds (where corners are animating towards)
-+    // todo: structify
-+    target: TrailTarget,
-+
-+    /// Last cursor position
-+    last_cursor_pos: Pos,
-+
-+    /// When the cursor last moved to a new position
-+    cursor_last_moved: Instant,
-+
-+    /// Timestamp of last update
-+    updated_at: Instant,
-+}
-+
-+impl CursorTrail {
-+    pub fn new() -> Self {
-+        let now = Instant::now();
-+        Self {
-+            quad: TrailQuad::default(),
-+            target: TrailTarget::default(),
-+            last_cursor_pos: Pos::default(),
-+            cursor_last_moved: now,
-+            updated_at: now,
-+        }
-+    }
-+
-+    /// Update the trail state and return true if the quad should be rendered.
-+    pub fn tick(&mut self, ctx: TickContext) -> bool {
-+        let delta_time = ctx.now.duration_since(self.updated_at).as_secs_f32();
-+        self.updated_at = ctx.now;
-+
-+        if self.last_cursor_pos != ctx.cursor_pos {
-+            self.cursor_last_moved = ctx.now;
-+            self.last_cursor_pos = ctx.cursor_pos;
-+        }
-+
-+        if self.target.left == 0.0 && self.target.right == 0.0 {
-+            self.target = TrailTarget::at(ctx.cursor_pos);
-+            self.quad = TrailQuad::at(ctx.cursor_pos);
-+            return false;
-+        }
-+
+ }
+
+ /// The edges to animate a TrailQuad towards
+@@ -161,70 +212,10 @@ impl CursorTrail {
+         if target_to_cursor_distance > 0.0 && target_to_cursor_distance <= ctx.distance_threshold {
+             self.target = TrailTarget::at(ctx.cursor_pos);
+             self.quad = TrailQuad::at(ctx.cursor_pos);
+-
+             return false;
+         }
+
+-        // Animate corners towards target using exponential ease-out
+-        let target_x = [
+-            self.target.left,
+-            self.target.right,
+-            self.target.right,
+-            self.target.left,
+-        ];
+-        let target_y = [
+-            self.target.top,
+-            self.target.top,
+-            self.target.bottom,
+-            self.target.bottom,
+-        ];
+-
+-        let target_center_x = (self.target.left + self.target.right) * 0.5;
+-        let target_center_y = (self.target.top + self.target.bottom) * 0.5;
+-        let target_width = self.target.right - self.target.left;
+-        let target_height = self.target.bottom - self.target.top;
+-        let target_diag_2 = (target_width.powi(2) + target_height.powi(2)).sqrt() * 0.5;
+-
+-        let mut dx = [0.0_f32; 4];
+-        let mut dy = [0.0_f32; 4];
+-        let mut dot = [0.0_f32; 4];
+-
+-        for i in 0..4 {
+-            dx[i] = target_x[i] - self.quad[i].x;
+-            dy[i] = target_y[i] - self.quad[i].y;
+-
+-            if dx[i].abs() < 1e-6 && dy[i].abs() < 1e-6 {
+-                dx[i] = 0.0;
+-                dy[i] = 0.0;
+-                dot[i] = 0.0;
+-            } else {
+-                let norm = (dx[i].powi(2) + dy[i].powi(2)).sqrt();
+-                let corner_to_center_x = target_x[i] - target_center_x;
+-                let corner_to_center_y = target_y[i] - target_center_y;
+-                dot[i] = (dx[i] * corner_to_center_x + dy[i] * corner_to_center_y)
+-                    / (target_diag_2 * norm);
+-            }
+-        }
+-
+-        let min_dot = dot.iter().cloned().fold(f32::INFINITY, f32::min);
+-        let max_dot = dot.iter().cloned().fold(f32::NEG_INFINITY, f32::max);
+-
+-        for i in 0..4 {
+-            if (dx[i] == 0.0 && dy[i] == 0.0) || min_dot.is_infinite() {
+-                continue;
+-            }
+-
+-            let decay = if (max_dot - min_dot).abs() < 1e-6 {
+-                ctx.decay_slow
+-            } else {
+-                ctx.decay_slow
+-                    + (ctx.decay_fast - ctx.decay_slow) * (dot[i] - min_dot) / (max_dot - min_dot)
+-            };
+-
+-            let step = 1.0 - 2.0_f32.powf(-10.0 * delta_time / decay);
+-            self.quad[i].x += dx[i] * step;
+-            self.quad[i].y += dy[i] * step;
+-        }
++        self.quad.interp(&self.target, delta_time, ctx.decay_fast, ctx.decay_slow);
+
+         let waiting_for_dwell =
+             target_to_cursor_distance > ctx.distance_threshold && dwell_time < ctx.dwell_treshold;
+
+From c69b2753ded491e29f1705600812e7d9b3ef1f7c Mon Sep 17 00:00:00 2001
+From: Andy Walker <andy@andy.dev>
+Date: Sun, 7 Dec 2025 19:37:56 -0500
+Subject: [PATCH 08/10] rename target_to_cursor
+
+---
+ wezterm-gui/src/termwindow/cursor_trail.rs | 27 ++++++++++++++--------
+ 1 file changed, 18 insertions(+), 9 deletions(-)
+
+diff --git a/wezterm-gui/src/termwindow/cursor_trail.rs b/wezterm-gui/src/termwindow/cursor_trail.rs
+index e8d0e5876c1..2273aebc754 100644
+--- a/wezterm-gui/src/termwindow/cursor_trail.rs
++++ b/wezterm-gui/src/termwindow/cursor_trail.rs
+@@ -49,9 +49,18 @@ impl TrailQuad {
+     fn at(p: Pos) -> Self {
+         Self([
+             Pos { x: p.x, y: p.y },
+-            Pos { x: p.x + 1.0, y: p.y },
+-            Pos { x: p.x + 1.0, y: p.y + 1.0 },
+-            Pos { x: p.x, y: p.y + 1.0 },
++            Pos {
++                x: p.x + 1.0,
++                y: p.y,
++            },
++            Pos {
++                x: p.x + 1.0,
++                y: p.y + 1.0,
++            },
++            Pos {
++                x: p.x,
++                y: p.y + 1.0,
++            },
+         ])
+     }
+
+@@ -193,11 +202,10 @@ impl CursorTrail {
+         }
+
+         let dwell_time = ctx.now.duration_since(self.cursor_last_moved).as_millis() as u64;
+-        // todo: rename to just cursor_distance
+-        let target_to_cursor_distance = (ctx.cursor_pos.x - self.target.left).abs()
++        let distance_to_cursor = (ctx.cursor_pos.x - self.target.left).abs()
+             + (ctx.cursor_pos.y - self.target.top).abs();
+
+-        if dwell_time >= ctx.dwell_treshold && target_to_cursor_distance > ctx.distance_threshold {
++        if dwell_time >= ctx.dwell_treshold && distance_to_cursor > ctx.distance_threshold {
+             self.target = TrailTarget::at(ctx.cursor_pos);
+         }
+
+@@ -209,16 +217,17 @@ impl CursorTrail {
+             return false;
+         }
+
+-        if target_to_cursor_distance > 0.0 && target_to_cursor_distance <= ctx.distance_threshold {
++        if distance_to_cursor > 0.0 && distance_to_cursor <= ctx.distance_threshold {
+             self.target = TrailTarget::at(ctx.cursor_pos);
+             self.quad = TrailQuad::at(ctx.cursor_pos);
+             return false;
+         }
+
+-        self.quad.interp(&self.target, delta_time, ctx.decay_fast, ctx.decay_slow);
++        self.quad
++            .interp(&self.target, delta_time, ctx.decay_fast, ctx.decay_slow);
+
+         let waiting_for_dwell =
+-            target_to_cursor_distance > ctx.distance_threshold && dwell_time < ctx.dwell_treshold;
++            distance_to_cursor > ctx.distance_threshold && dwell_time < ctx.dwell_treshold;
+         !self.settled(SETTLED_THRESHOLD) || waiting_for_dwell
+     }
+
+
+From b28d7aaa8b71d66e37cb87d90f45c40ce383c2e6 Mon Sep 17 00:00:00 2001
+From: Andy Walker <andy@andy.dev>
+Date: Mon, 8 Dec 2025 01:53:41 -0500
+Subject: [PATCH 09/10] simplify logic
+
+- cursor_trail.rs: reorder tick logic to calculate distance first for early return, then dwell time for final return, eliminating a reduntant return locaion
+- pane.rs: fold tick check into render check clause short circuit first by whether the trail is enabled, then if pane is active, then finally if trall needs rendering
+- pane.rs: use start instead of a new Instant
+---
+ wezterm-gui/src/termwindow/cursor_trail.rs | 24 ++++---
+ wezterm-gui/src/termwindow/render/pane.rs  | 76 +++++++++++-----------
+ 2 files changed, 48 insertions(+), 52 deletions(-)
+
+diff --git a/wezterm-gui/src/termwindow/cursor_trail.rs b/wezterm-gui/src/termwindow/cursor_trail.rs
+index 2273aebc754..d7153183bb2 100644
+--- a/wezterm-gui/src/termwindow/cursor_trail.rs
++++ b/wezterm-gui/src/termwindow/cursor_trail.rs
+@@ -201,34 +201,32 @@ impl CursorTrail {
+             self.last_cursor_pos = ctx.cursor_pos;
+         }
+
+-        let dwell_time = ctx.now.duration_since(self.cursor_last_moved).as_millis() as u64;
+-        let distance_to_cursor = (ctx.cursor_pos.x - self.target.left).abs()
+-            + (ctx.cursor_pos.y - self.target.top).abs();
+-
+-        if dwell_time >= ctx.dwell_treshold && distance_to_cursor > ctx.distance_threshold {
+-            self.target = TrailTarget::at(ctx.cursor_pos);
+-        }
+-
+-        // first update
+-        // TODO: better logic
+         if self.target.left == 0.0 && self.target.right == 0.0 {
+             self.target = TrailTarget::at(ctx.cursor_pos);
+             self.quad = TrailQuad::at(ctx.cursor_pos);
+             return false;
+         }
+
 +        let distance_to_cursor = (ctx.cursor_pos.x - self.target.left).abs()
 +            + (ctx.cursor_pos.y - self.target.top).abs();
 +
-+        if distance_to_cursor > 0.0 && distance_to_cursor <= ctx.distance_threshold {
-+            self.target = TrailTarget::at(ctx.cursor_pos);
-+            self.quad = TrailQuad::at(ctx.cursor_pos);
-+            return false;
-+        }
-+
+         if distance_to_cursor > 0.0 && distance_to_cursor <= ctx.distance_threshold {
+             self.target = TrailTarget::at(ctx.cursor_pos);
+             self.quad = TrailQuad::at(ctx.cursor_pos);
+             return false;
+         }
+
 +        let dwell_time = ctx.now.duration_since(self.cursor_last_moved).as_millis() as u64;
 +        let dwelled = dwell_time >= ctx.dwell_treshold;
 +
@@ -374,150 +1316,68 @@ index 0000000..d715318
 +            self.target = TrailTarget::at(ctx.cursor_pos);
 +        }
 +
-+        self.quad
-+            .interp(&self.target, delta_time, ctx.decay_fast, ctx.decay_slow);
-+
+         self.quad
+             .interp(&self.target, delta_time, ctx.decay_fast, ctx.decay_slow);
+
+-        let waiting_for_dwell =
+-            distance_to_cursor > ctx.distance_threshold && dwell_time < ctx.dwell_treshold;
+-        !self.settled(SETTLED_THRESHOLD) || waiting_for_dwell
 +        !self.settled(SETTLED_THRESHOLD) || !dwelled
-+    }
-+
-+    fn settled(&self, threshold: f32) -> bool {
-+        for i in 0..4 {
-+            let target_x = if i == 1 || i == 2 {
-+                self.target.right
-+            } else {
-+                self.target.left
-+            };
-+            let target_y = if i >= 2 {
-+                self.target.bottom
-+            } else {
-+                self.target.top
-+            };
-+            let dx = target_x - self.quad[i].x;
-+            let dy = target_y - self.quad[i].y;
-+            if dx.abs() > threshold || dy.abs() > threshold {
-+                return false;
-+            }
-+        }
-+        true
-+    }
-+
-+    pub fn render(
-+        &self,
-+        layers: &mut TripleLayerQuadAllocator,
-+        cell_width: f32,
-+        cell_height: f32,
-+        pane_left: usize,
-+        stable_range: Range<StableRowIndex>,
-+        window_dimensions: (f32, f32), // (width, height)
-+        pixel_offset: (f32, f32),      // (left_pixel_x, top_pixel_y)
-+        trail_color: LinearRgba,
-+        hsv_transform: Option<HsbTransform>,
-+        white_space_texture: TextureRect,
-+    ) -> anyhow::Result<()> {
-+        let (window_width, window_height) = window_dimensions;
-+        let (left_pixel_x, top_pixel_y) = pixel_offset;
-+
-+        // Convert corner positions from cell coordinates to pixel coordinates
-+        let px_x = (window_width / -2.0) + left_pixel_x;
-+        let px_y = (window_height / -2.0) + top_pixel_y;
-+
-+        let pixel_corners = [
-+            [
-+                px_x + (self.quad[0].x - pane_left as f32) * cell_width,
-+                px_y + (self.quad[0].y - stable_range.start as f32) * cell_height,
-+            ],
-+            [
-+                px_x + (self.quad[1].x - pane_left as f32) * cell_width,
-+                px_y + (self.quad[1].y - stable_range.start as f32) * cell_height,
-+            ],
-+            [
-+                px_x + (self.quad[3].x - pane_left as f32) * cell_width,
-+                px_y + (self.quad[3].y - stable_range.start as f32) * cell_height,
-+            ],
-+            [
-+                px_x + (self.quad[2].x - pane_left as f32) * cell_width,
-+                px_y + (self.quad[2].y - stable_range.start as f32) * cell_height,
-+            ],
-+        ];
-+
-+        let mut quad_impl = layers.allocate(0)?;
-+
-+        match &mut quad_impl {
-+            QuadImpl::Vert(quad) => {
-+                quad.vert[V_TOP_LEFT].position = pixel_corners[0];
-+                quad.vert[V_TOP_RIGHT].position = pixel_corners[1];
-+                quad.vert[V_BOT_LEFT].position = pixel_corners[2];
-+                quad.vert[V_BOT_RIGHT].position = pixel_corners[3];
-+            }
-+            QuadImpl::Boxed(_) => {}
-+        }
-+
-+        quad_impl.set_hsv(hsv_transform);
-+        quad_impl.set_is_background();
-+        quad_impl.set_texture(white_space_texture);
-+        quad_impl.set_fg_color(trail_color);
-+
-+        Ok(())
-+    }
-+}
-diff --git a/wezterm-gui/src/termwindow/mod.rs b/wezterm-gui/src/termwindow/mod.rs
-index 350cb8f..8a8892e 100644
---- a/wezterm-gui/src/termwindow/mod.rs
-+++ b/wezterm-gui/src/termwindow/mod.rs
-@@ -78,12 +78,14 @@ mod mouseevent;
- pub mod palette;
- pub mod paneselect;
- mod prevcursor;
-+mod cursor_trail;
- pub mod render;
- pub mod resize;
- mod selection;
- pub mod spawn;
- pub mod webgpu;
- use crate::spawn::SpawnWhere;
-+use cursor_trail::CursorTrail;
- use prevcursor::PrevCursorPos;
- 
- const ATLAS_SIZE: usize = 128;
-@@ -401,6 +403,7 @@ pub struct TermWindow {
-     window_drag_position: Option<MouseEvent>,
-     current_mouse_event: Option<MouseEvent>,
-     prev_cursor: PrevCursorPos,
-+    cursor_trail: CursorTrail,
-     last_scroll_info: RenderableDimensions,
- 
-     tab_state: RefCell<HashMap<TabId, TabState>>,
-@@ -719,6 +722,7 @@ impl TermWindow {
-             current_mouse_event: None,
-             current_modifier_and_leds: Default::default(),
-             prev_cursor: PrevCursorPos::new(),
-+            cursor_trail: CursorTrail::new(),
-             last_scroll_info: RenderableDimensions::default(),
-             tab_state: RefCell::new(HashMap::new()),
-             pane_state: RefCell::new(HashMap::new()),
+     }
+
+     fn settled(&self, threshold: f32) -> bool {
 diff --git a/wezterm-gui/src/termwindow/render/pane.rs b/wezterm-gui/src/termwindow/render/pane.rs
-index da273cc..140b14c 100644
+index 9aa38163cb5..92c9eadc793 100644
 --- a/wezterm-gui/src/termwindow/render/pane.rs
 +++ b/wezterm-gui/src/termwindow/render/pane.rs
-@@ -1,6 +1,7 @@
- use crate::quad::{HeapQuadAllocator, QuadTrait, TripleLayerQuadAllocator};
- use crate::selection::SelectionRange;
- use crate::termwindow::box_model::*;
-+use crate::termwindow::cursor_trail::TickContext;
- use crate::termwindow::render::{
-     same_hyperlink, CursorProperties, LineQuadCacheKey, LineQuadCacheValue, LineToEleShapeCacheKey,
-     RenderScreenLineParams,
-@@ -569,6 +570,48 @@ impl crate::TermWindow {
-             if let Some(error) = render.error.take() {
-                 return Err(error).context("error while calling with_lines_mut");
+@@ -572,47 +572,45 @@ impl crate::TermWindow {
              }
-+
-+            // Update and render cursor trail (if enabled)
+
+             // Update and render cursor trail (if enabled)
+-            if config.cursor_trail.enabled && pos.is_active {
+-                if self
 +            if config.cursor_trail.enabled
 +                && pos.is_active
 +                && self
-+                    .cursor_trail
-+                    .tick(TickContext::from_cursor(cursor, &config.cursor_trail))
+                     .cursor_trail
+                     .tick(TickContext::from_cursor(cursor, &config.cursor_trail))
+-                {
+-                    // Resepect FPS
+-                    // TODO: ensure this is the correct method.
+-                    let now = std::time::Instant::now();
+-                    let frame_interval =
+-                        std::time::Duration::from_millis(1000 / config.animation_fps as u64);
+-                    self.update_next_frame_time(Some(now + frame_interval));
+-
+-                    let left_pixel_x =
+-                        padding_left + border.left.get() as f32 + (pos.left as f32 * cell_width);
+-
+-                    let (r, g, b, _) = cursor_border_color.tuple();
+-                    let trail_color =
+-                        LinearRgba::with_components(r, g, b, config.cursor_trail.opacity);
+-
+-                    self.cursor_trail
+-                        .render(
+-                            layers,
+-                            cell_width,
+-                            cell_height,
+-                            pos.left,
+-                            stable_range.clone(),
+-                            (
+-                                self.dimensions.pixel_width as f32,
+-                                self.dimensions.pixel_height as f32,
+-                            ),
+-                            (left_pixel_x, top_pixel_y),
+-                            trail_color,
+-                            if pos.is_active {
+-                                None
+-                            } else {
+-                                Some(config.inactive_pane_hsb)
+-                            },
+-                            white_space,
+-                        )
+-                        .context("render cursor trail")?;
+-                }
 +            {
 +                // Resepect FPS
 +                // TODO: ensure this is the correct method.
@@ -542,7 +1402,7 @@ index da273cc..140b14c 100644
 +                            self.dimensions.pixel_width as f32,
 +                            self.dimensions.pixel_height as f32,
 +                        ),
-+                        (left_pixel_x, top_pixel_y + (pos.top as f32 * cell_height)),
++                        (left_pixel_x, top_pixel_y),
 +                        trail_color,
 +                        if pos.is_active {
 +                            None
@@ -552,7 +1412,200 @@ index da273cc..140b14c 100644
 +                        white_space,
 +                    )
 +                    .context("render cursor trail")?;
-+            }
+             }
          }
- 
-         /*
+
+
+From fe53678ac3e09e1a0a9b361f9833fb500193e462 Mon Sep 17 00:00:00 2001
+From: Andy Walker <andy@andy.dev>
+Date: Mon, 8 Dec 2025 12:57:01 -0500
+Subject: [PATCH 10/10] refac: move rendering to pane.rs
+
+- remove crufty CursorTrail.render and replace with apply_to_quad, which mutates a Vert
+---
+ wezterm-gui/src/termwindow/cursor_trail.rs | 83 ++++++----------------
+ wezterm-gui/src/termwindow/render/pane.rs  | 56 +++++++--------
+ 2 files changed, 51 insertions(+), 88 deletions(-)
+
+diff --git a/wezterm-gui/src/termwindow/cursor_trail.rs b/wezterm-gui/src/termwindow/cursor_trail.rs
+index d7153183bb2..9f7a7addb34 100644
+--- a/wezterm-gui/src/termwindow/cursor_trail.rs
++++ b/wezterm-gui/src/termwindow/cursor_trail.rs
+@@ -1,14 +1,8 @@
+-use crate::quad::{
+-    QuadImpl, QuadTrait, TripleLayerQuadAllocator, TripleLayerQuadAllocatorTrait, V_BOT_LEFT,
+-    V_BOT_RIGHT, V_TOP_LEFT, V_TOP_RIGHT,
+-};
+-use config::{CursorTrailConfig, HsbTransform};
++use crate::quad::{Quad, V_BOT_LEFT, V_BOT_RIGHT, V_TOP_LEFT, V_TOP_RIGHT};
++use config::CursorTrailConfig;
+ use mux::renderable::StableCursorPosition;
+-use std::ops::Range;
+ use std::time::Instant;
+ use wezterm_term::StableRowIndex;
+-use window::bitmaps::TextureRect;
+-use window::color::LinearRgba;
+
+ /// Distance threshold for considering corners "at cursor"
+ const SETTLED_THRESHOLD: f32 = 0.1;
+@@ -250,62 +244,31 @@ impl CursorTrail {
+         true
+     }
+
+-    pub fn render(
++    pub fn apply_to_quad(
+         &self,
+-        layers: &mut TripleLayerQuadAllocator,
++        quad: &mut Quad,
+         cell_width: f32,
+         cell_height: f32,
+         pane_left: usize,
+-        stable_range: Range<StableRowIndex>,
+-        window_dimensions: (f32, f32), // (width, height)
+-        pixel_offset: (f32, f32),      // (left_pixel_x, top_pixel_y)
+-        trail_color: LinearRgba,
+-        hsv_transform: Option<HsbTransform>,
+-        white_space_texture: TextureRect,
+-    ) -> anyhow::Result<()> {
+-        let (window_width, window_height) = window_dimensions;
+-        let (left_pixel_x, top_pixel_y) = pixel_offset;
+-
+-        // Convert corner positions from cell coordinates to pixel coordinates
+-        let px_x = (window_width / -2.0) + left_pixel_x;
+-        let px_y = (window_height / -2.0) + top_pixel_y;
+-
+-        let pixel_corners = [
+-            [
+-                px_x + (self.quad[0].x - pane_left as f32) * cell_width,
+-                px_y + (self.quad[0].y - stable_range.start as f32) * cell_height,
+-            ],
+-            [
+-                px_x + (self.quad[1].x - pane_left as f32) * cell_width,
+-                px_y + (self.quad[1].y - stable_range.start as f32) * cell_height,
+-            ],
+-            [
+-                px_x + (self.quad[3].x - pane_left as f32) * cell_width,
+-                px_y + (self.quad[3].y - stable_range.start as f32) * cell_height,
+-            ],
+-            [
+-                px_x + (self.quad[2].x - pane_left as f32) * cell_width,
+-                px_y + (self.quad[2].y - stable_range.start as f32) * cell_height,
+-            ],
++        pane_top: StableRowIndex,
++        px_x: f32,
++        px_y: f32,
++    ) {
++        quad.vert[V_TOP_LEFT].position = [
++            px_x + (self.quad[0].x - pane_left as f32) * cell_width,
++            px_y + (self.quad[0].y - pane_top as f32) * cell_height,
++        ];
++        quad.vert[V_TOP_RIGHT].position = [
++            px_x + (self.quad[1].x - pane_left as f32) * cell_width,
++            px_y + (self.quad[1].y - pane_top as f32) * cell_height,
++        ];
++        quad.vert[V_BOT_LEFT].position = [
++            px_x + (self.quad[3].x - pane_left as f32) * cell_width,
++            px_y + (self.quad[3].y - pane_top as f32) * cell_height,
++        ];
++        quad.vert[V_BOT_RIGHT].position = [
++            px_x + (self.quad[2].x - pane_left as f32) * cell_width,
++            px_y + (self.quad[2].y - pane_top as f32) * cell_height,
+         ];
+-
+-        let mut quad_impl = layers.allocate(0)?;
+-
+-        match &mut quad_impl {
+-            QuadImpl::Vert(quad) => {
+-                quad.vert[V_TOP_LEFT].position = pixel_corners[0];
+-                quad.vert[V_TOP_RIGHT].position = pixel_corners[1];
+-                quad.vert[V_BOT_LEFT].position = pixel_corners[2];
+-                quad.vert[V_BOT_RIGHT].position = pixel_corners[3];
+-            }
+-            QuadImpl::Boxed(_) => {}
+-        }
+-
+-        quad_impl.set_hsv(hsv_transform);
+-        quad_impl.set_is_background();
+-        quad_impl.set_texture(white_space_texture);
+-        quad_impl.set_fg_color(trail_color);
+-
+-        Ok(())
+     }
+ }
+diff --git a/wezterm-gui/src/termwindow/render/pane.rs b/wezterm-gui/src/termwindow/render/pane.rs
+index 92c9eadc793..c89b44f9c38 100644
+--- a/wezterm-gui/src/termwindow/render/pane.rs
++++ b/wezterm-gui/src/termwindow/render/pane.rs
+@@ -1,4 +1,6 @@
+-use crate::quad::{HeapQuadAllocator, QuadTrait, TripleLayerQuadAllocator};
++use crate::quad::{
++    HeapQuadAllocator, QuadImpl, QuadTrait, TripleLayerQuadAllocator, TripleLayerQuadAllocatorTrait,
++};
+ use crate::selection::SelectionRange;
+ use crate::termwindow::box_model::*;
+ use crate::termwindow::cursor_trail::TickContext;
+@@ -578,39 +580,37 @@ impl crate::TermWindow {
+                     .cursor_trail
+                     .tick(TickContext::from_cursor(cursor, &config.cursor_trail))
+             {
+-                // Resepect FPS
+-                // TODO: ensure this is the correct method.
+-                let frame_interval =
+-                    std::time::Duration::from_millis(1000 / config.animation_fps as u64);
+-                self.update_next_frame_time(Some(start + frame_interval));
++                let mut quad_impl = layers.allocate(0)?;
+
+-                let left_pixel_x =
+-                    padding_left + border.left.get() as f32 + (pos.left as f32 * cell_width);
++                if let QuadImpl::Vert(quad) = &mut quad_impl {
++                    let frame_interval =
++                        std::time::Duration::from_millis(1000 / config.animation_fps as u64);
++                    self.update_next_frame_time(Some(start + frame_interval));
+
+-                let (r, g, b, _) = cursor_border_color.tuple();
+-                let trail_color = LinearRgba::with_components(r, g, b, config.cursor_trail.opacity);
++                    let left_pixel_x =
++                        padding_left + border.left.get() as f32 + (pos.left as f32 * cell_width);
++                    let px_x = (self.dimensions.pixel_width as f32 / -2.0) + left_pixel_x;
++                    let px_y = (self.dimensions.pixel_height as f32 / -2.0) + top_pixel_y;
+
+-                self.cursor_trail
+-                    .render(
+-                        layers,
++                    self.cursor_trail.apply_to_quad(
++                        quad,
+                         cell_width,
+                         cell_height,
+                         pos.left,
+-                        stable_range.clone(),
+-                        (
+-                            self.dimensions.pixel_width as f32,
+-                            self.dimensions.pixel_height as f32,
+-                        ),
+-                        (left_pixel_x, top_pixel_y),
+-                        trail_color,
+-                        if pos.is_active {
+-                            None
+-                        } else {
+-                            Some(config.inactive_pane_hsb)
+-                        },
+-                        white_space,
+-                    )
+-                    .context("render cursor trail")?;
++                        stable_range.start,
++                        px_x,
++                        px_y,
++                    );
++
++                    let (r, g, b, _) = cursor_border_color.tuple();
++                    let trail_color =
++                        LinearRgba::with_components(r, g, b, config.cursor_trail.opacity);
++
++                    quad.set_fg_color(trail_color);
++                    quad.set_hsv(None);
++                    quad.set_texture(white_space);
++                    quad.set_is_background();
++                }
+             }
+         }
+

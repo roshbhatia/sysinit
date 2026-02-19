@@ -33,6 +33,9 @@
           _module.args = {
             inherit utils hostname;
           };
+          # Use pre-configured pkgs with overlays instead of letting nix-darwin instantiate its own
+          # Note: nixpkgs.config and nixpkgs.overlays are ignored when pkgs is set
+          nixpkgs.pkgs = lib.mkDefault pkgs;
         }
         inputs.determinate.darwinModules.default
         {

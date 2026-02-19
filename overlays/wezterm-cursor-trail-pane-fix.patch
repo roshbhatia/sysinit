@@ -1,0 +1,31 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Rosh Bhatia <roshbhatia@gmail.com>
+Date: Tue, 18 Feb 2025 17:00:00 -0800
+Subject: [PATCH] Fix cursor trail Y-position for split panes
+
+Fixes cursor trail rendering in split panes by correctly calculating
+Y-position using top_pixel_y which accounts for pane offset.
+
+Without this fix, cursor trails in horizontally split panes appear
+at incorrect Y coordinates.
+
+Based on fix from: https://github.com/wez/wezterm/pull/6743#issuecomment-2543326027
+---
+ wezterm-gui/src/termwindow/render/pane.rs | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/wezterm-gui/src/termwindow/render/pane.rs b/wezterm-gui/src/termwindow/render/pane.rs
+index c89b44f9c38..1234567890a 100644
+--- a/wezterm-gui/src/termwindow/render/pane.rs
++++ b/wezterm-gui/src/termwindow/render/pane.rs
+@@ -590,7 +590,7 @@ impl crate::TermWindow {
+                     let left_pixel_x =
+                         padding_left + border.left.get() as f32 + (pos.left as f32 * cell_width);
+                     let px_x = (self.dimensions.pixel_width as f32 / -2.0) + left_pixel_x;
+-                    let px_y = (self.dimensions.pixel_height as f32 / -2.0) + top_pixel_y;
++                    let px_y = (self.dimensions.pixel_height as f32 / -2.0) + top_pixel_y + (pos.top as f32 * cell_height);
+ 
+                     self.cursor_trail.apply_to_quad(
+                         quad,
+-- 
+2.47.1
