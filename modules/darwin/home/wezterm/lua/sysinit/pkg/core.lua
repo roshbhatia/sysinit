@@ -4,7 +4,7 @@ local M = {}
 
 local function get_basic_config()
   return {
-    status_update_interval = 200,
+    status_update_interval = 100,
     default_prog = {
       utils.get_nix_binary("zsh"),
       "--login",
