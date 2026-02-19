@@ -55,14 +55,9 @@ in
 {
   programs.zsh = {
     enable = true;
-    dotDir = config.home.homeDirectory;
 
     autocd = true;
-
     enableCompletion = false;
-    historySubstringSearch.enable = false;
-    autosuggestion.enable = false;
-    syntaxHighlighting.enable = false;
 
     history = {
       size = 50000;
