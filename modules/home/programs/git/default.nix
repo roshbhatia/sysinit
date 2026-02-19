@@ -11,90 +11,6 @@ let
   workEmail = if cfg.workEmail != null then cfg.workEmail else cfg.email;
   personalGithubUser = if cfg.personalUsername != null then cfg.personalUsername else cfg.username;
   workGithubUser = if cfg.workUsername != null then cfg.workUsername else cfg.username;
-
-  # Global gitignore patterns
-  macosPatterns = [
-    ".AppleDouble"
-    ".DS_Store"
-    ".DocumentRevisions-V100"
-    ".LSOverride"
-    ".Spotlight-V100"
-    ".TemporaryItems"
-    ".Trashes"
-    ".VolumeIcon.icns"
-    "._*"
-    ".com.apple.timemachine.donotpresent"
-    ".fseventsd"
-  ];
-
-  editorPatterns = [
-    "*.swo"
-    "*.swp"
-    "*~"
-    ".cursor/"
-    ".idea/"
-    ".vscode/"
-    "tags"
-  ];
-
-  backupPatterns = [
-    "*.backup"
-    "*.backup*"
-    "*.bak"
-    "*.bak*"
-  ];
-
-  aiAssistantPatterns = [
-    "**/.agents/"
-    "**/.amp/"
-    "**/.beads/"
-    "**/.claude/"
-    "**/.codex/"
-    "**/.crush/"
-    "**/.cursor/"
-    "**/.cursorrules/"
-    "**/.gemini/"
-    "**/.goose/"
-    "**/.goosehints"
-    "**/.opencode/"
-    "**/AGENTS.md"
-    "**/CLAUDE.md"
-    "**/CRUSH.md"
-    "**/GEMINI.md"
-    "**/openspec/"
-    ".sysinit/"
-  ];
-
-  devEnvPatterns = [
-    ".direnv/"
-    ".envrc"
-    ".gitattributes"
-    "shell.nix"
-  ];
-
-  nodePatterns = [
-    "node_modules/"
-    "npm-debug.log"
-    "yarn-debug.log"
-    "yarn-error.log"
-  ];
-
-  miscPatterns = [
-    "**/*.glossary.yml"
-    "**/sgconfig.yaml"
-    "**/sgconfig.yml"
-    "*.log"
-    "ast-grep/"
-  ];
-
-  allIgnorePatterns =
-    macosPatterns
-    ++ editorPatterns
-    ++ backupPatterns
-    ++ aiAssistantPatterns
-    ++ devEnvPatterns
-    ++ nodePatterns
-    ++ miscPatterns;
 in
 {
   imports = [
@@ -105,7 +21,161 @@ in
     enable = true;
     package = pkgs.git;
 
-    ignores = allIgnorePatterns;
+    ignores = [
+      # macOS
+      ".AppleDB"
+      ".AppleDesktop"
+      ".AppleDouble"
+      ".DS_Store"
+      ".DocumentRevisions-V100"
+      ".LSOverride"
+      ".Spotlight-V100"
+      ".TemporaryItems"
+      ".Trashes"
+      ".VolumeIcon.icns"
+      "._*"
+      ".apdisk"
+      ".com.apple.timemachine.donotpresent"
+      ".fseventsd"
+      "Icon\r"
+      "Network Trash Folder"
+      "Temporary Items"
+      "__MACOSX/"
+      # Linux
+      ".Trash-*"
+      ".directory"
+      ".fuse_hidden*"
+      ".nfs*"
+      "nohup.out"
+      # Windows
+      "$RECYCLE.BIN/"
+      "*:Zone.Identifier"
+      "*.cab"
+      "*.lnk"
+      "*.msi"
+      "*.msix"
+      "*.msm"
+      "*.msp"
+      "*.stackdump"
+      "[Dd]esktop.ini"
+      "Thumbs.db"
+      "Thumbs.db:encryptable"
+      "ehthumbs.db"
+      "ehthumbs_vista.db"
+      # Editors
+      "*.swo"
+      "*.swp"
+      "*.un~"
+      "*~"
+      ".idea/"
+      ".netrwhist"
+      ".vscode/"
+      "Session.vim"
+      "Sessionx.vim"
+      "[._]*.s[a-v][a-z]"
+      "[._]*.sw[a-p]"
+      "[._]s[a-rt-v][a-z]"
+      "[._]ss[a-gi-z]"
+      "tags"
+      "tags.lock"
+      "tags.temp"
+      # Backups
+      "*.backup"
+      "*.backup*"
+      "*.bak"
+      "*.bak*"
+      # AI Assistants
+      "**/.agents/"
+      "**/.amp/"
+      "**/.beads/"
+      "**/.claude/"
+      "**/.codex/"
+      "**/.crush/"
+      "**/.cursor/"
+      "**/.cursorrules/"
+      "**/.gemini/"
+      "**/.goose/"
+      "**/.goosehints"
+      "**/.opencode/"
+      "**/AGENTS.md"
+      "**/CLAUDE.md"
+      "**/CRUSH.md"
+      "**/GEMINI.md"
+      "**/openspec/"
+      ".sysinit/"
+      # Dev environment
+      ".direnv/"
+      ".env"
+      ".env.*.local"
+      ".env.local"
+      ".envrc"
+      ".gitattributes"
+      ".sysinit.nix"
+      # Package managers
+      ".pnp.*"
+      ".yarn-integrity"
+      ".yarn/"
+      "node_modules/"
+      "npm-debug.log*"
+      "pnpm-debug.log*"
+      "yarn-debug.log*"
+      "yarn-error.log*"
+      # Testing & Coverage
+      ".nyc_output"
+      "coverage/"
+      "*.lcov"
+      ".pytest_cache/"
+      ".coverage"
+      "htmlcov/"
+      # Build artifacts
+      "*.o"
+      "*.so"
+      "*.dylib"
+      "*.dll"
+      "*.exe"
+      "*.out"
+      "*.app"
+      "dist/"
+      "build/"
+      "*.egg-info/"
+      "target/"
+      # Python
+      "*.py[cod]"
+      "*$py.class"
+      "*.pyo"
+      "*.pyd"
+      ".Python"
+      "__pycache__/"
+      "pip-log.txt"
+      "pip-delete-this-directory.txt"
+      ".venv"
+      "venv/"
+      "ENV/"
+      "env.bak/"
+      "venv.bak/"
+      # Ruby
+      "*.gem"
+      ".bundle/"
+      "vendor/bundle/"
+      # Java/JVM
+      "*.class"
+      "*.jar"
+      "*.war"
+      "*.ear"
+      # Rust
+      "Cargo.lock"
+      # Go
+      "go.work"
+      # Misc
+      "**/*.glossary.yml"
+      "**/sgconfig.yaml"
+      "**/sgconfig.yml"
+      "*.log"
+      "ast-grep/"
+      ".cache/"
+      "*.tmp"
+      "*.temp"
+    ];
 
     settings = {
       advice = {
@@ -139,10 +209,9 @@ in
         hooksPath = ".githooks";
       };
 
+      # Global credential settings - context-specific helpers in includes
       credential = {
-        "https://github.com" = {
-          helper = "!${pkgs.gh}/bin/gh auth git-credential";
-        };
+        helper = "";
       };
 
       merge = {
@@ -200,6 +269,9 @@ in
           github = {
             user = workGithubUser;
           };
+          credential."https://github.com" = {
+            helper = "!${pkgs.gh}/bin/gh auth git-credential";
+          };
         };
       }
       {
@@ -211,6 +283,9 @@ in
           };
           github = {
             user = personalGithubUser;
+          };
+          credential."https://github.com" = {
+            helper = "!${pkgs.gh}/bin/gh auth git-credential";
           };
         };
       }
@@ -224,6 +299,9 @@ in
           github = {
             user = personalGithubUser;
           };
+          credential."https://github.com" = {
+            helper = "!${pkgs.gh}/bin/gh auth git-credential";
+          };
         };
       }
       {
@@ -235,6 +313,9 @@ in
           };
           github = {
             user = personalGithubUser;
+          };
+          credential."https://github.com" = {
+            helper = "!${pkgs.gh}/bin/gh auth git-credential";
           };
         };
       }
