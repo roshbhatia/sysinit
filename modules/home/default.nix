@@ -9,7 +9,6 @@ let
     inherit lib;
   };
   allAliases = shellLib.aliases // {
-    tree = "eza --tree --icons=never";
     org = "nvim ~/org/notes";
     cat = "bat -pp";
     ll = "eza --icons=always -l -a";

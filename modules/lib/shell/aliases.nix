@@ -7,7 +7,7 @@
   sg = "ast-grep";
   sudo = "sudo -E";
   tf = "terraform";
-  tree = "eza --tree --icons=always";
+  tree = "eza --tree --icons=never";
   v = "nvim";
   watch = "watch --quiet --color";
 }
