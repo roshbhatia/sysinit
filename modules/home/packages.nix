@@ -115,7 +115,6 @@
     diffnav
     go-task
     meld
-    mermaid-cli
     nix-output-monitor
     nix-prefetch
     nix-prefetch-docker
@@ -201,7 +200,6 @@
     jq-lsp
     lsp-ai
     simple-completion-language-server
-    vale-ls
     vscode-langservers-extracted # HTML, CSS, JSON, ESLint
   ];
 }
