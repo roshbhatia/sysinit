@@ -22,6 +22,7 @@
     ./neovim
     ./nh.nix
     ./nix-your-shell.nix
+    ./nix-your-shell-config.nix
     ./nushell.nix
     ./omp.nix
     ./ssh.nix
