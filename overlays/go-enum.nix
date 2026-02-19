@@ -12,7 +12,7 @@ final: _prev: {
       hash = "sha256-Mt45Qz8l++bvBLKEpbX0m8iTkHDpsZtdYhhHUprQKY8=";
     };
 
-    vendorHash = "sha256-D5GIRyflPDMgJD/lwFX3kzXMpNMTqd6g/jL7qdrdBkU=";
+    vendorHash = "sha256-YzIVI+PLZt24s/KjTxifWrvjrIU8jLvkC1lgw4yG6cg=";
 
     meta = with final.lib; {
       description = "An enum generator for Go";
