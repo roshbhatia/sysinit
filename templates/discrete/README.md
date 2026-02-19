@@ -39,10 +39,6 @@ To create a NixOS Lima VM for this host:
 
 4. Apply NixOS configuration using nh (specify hostname explicitly):
    ```bash
-   lima -- nix run nixpkgs#nh -- os switch '.#your-nixos-hostname'
+   lima -- nix run nixpkgs#nh os switch '.#your-nixos-hostname'
    ```
 
-   Note: The first rebuild will set the hostname via the NixOS configuration. Subsequent rebuilds can use auto-detection if the hostname matches:
-   ```bash
-   lima -- nix run nixpkgs#nh -- os switch .
-   ```
