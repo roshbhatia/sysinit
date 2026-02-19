@@ -48,14 +48,12 @@ function M.setup(config)
     fade_out_function = "EaseOut",
     fade_out_duration_ms = 100,
   }
-  config.cursor_trail = {
-    enabled = false,
-    dwell_threshold = 80,
-    distance_threshold = 6,
-    duration = 50,
-    spread = 1.5,
-    opacity = 0.6,
-  }
+
+  config.cursor_trail_enabled = true
+  config.cursor_trail_duration = 0.15 -- Animation duration (seconds)
+  config.cursor_trail_size = 0.5 -- 0.0 = no smear, 1.0 = max smear
+  config.cursor_trail_blur = 1.0 -- Antialiasing blur (pixels)
+  config.cursor_trail_thickness = 0.9 -- Trail thickness (0.0-1.0+)
 
   config.pane_focus_follows_mouse = false
 
