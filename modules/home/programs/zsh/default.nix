@@ -62,8 +62,9 @@ in
     enableCompletion = false;
 
     history = {
-      size = 100000;
-      save = 100000;
+      path = "${config.home.homeDirectory}/.zsh_history";
+      size = 1000000;
+      save = 1000000;
       ignoreDups = true;
       ignoreSpace = true;
       extended = true;

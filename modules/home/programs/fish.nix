@@ -20,10 +20,6 @@ in
 
     plugins = [
       {
-        name = "sponge";
-        src = pkgs.fishPlugins.sponge.src;
-      }
-      {
         name = "done";
         src = pkgs.fishPlugins.done.src;
       }
