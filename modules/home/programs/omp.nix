@@ -14,8 +14,9 @@ in
 {
   programs.oh-my-posh = {
     enable = true;
-    enableZshIntegration = true;
+    enableFishIntegration = true;
     enableNushellIntegration = true;
+    enableZshIntegration = true;
 
     settings = {
       "$schema" = "https://raw.githubusercontent.com/JanDeDobbeleer/oh-my-posh/main/themes/schema.json";

@@ -8,6 +8,7 @@
 {
   programs.fzf = {
     enable = true;
+    enableFishIntegration = true;
     enableZshIntegration = false; # zsh vi mode messes with ZLE, so we manually source it
 
     defaultCommand = "${pkgs.fd}/bin/fd --type f --hidden --follow --exclude .git --exclude node_modules";

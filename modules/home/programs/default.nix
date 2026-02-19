@@ -6,11 +6,13 @@
   imports = [
     ./_1password.nix
     ./ast-grep.nix
+    ./carapace.nix
     ./bat.nix
     ./direnv.nix
     ./editorconfig.nix
     ./eza.nix
     ./fd.nix
+    ./fish.nix
     ./fzf.nix
     ./git
     ./htop.nix

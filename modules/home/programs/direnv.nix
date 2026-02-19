@@ -13,6 +13,7 @@
 
     direnv-instant = {
       enable = true;
+      enableFishIntegration = true;
       enableZshIntegration = true;
     };
   };

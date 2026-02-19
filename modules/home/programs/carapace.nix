@@ -1,12 +1,13 @@
-_:
+{
+  ...
+}:
 
 {
-  stylix.targets.vivid.enable = true;
-
-  programs.vivid = {
+  programs.carapace = {
     enable = true;
 
     enableFishIntegration = true;
+    enableNushIntegration = true;
     enableZshIntegration = true;
   };
 }

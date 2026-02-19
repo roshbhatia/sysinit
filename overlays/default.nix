@@ -14,6 +14,5 @@
   (import ./hererocks.nix { })
   (import ./claude-code.nix { })
   (import ./openspec.nix { })
-  (import ./wezterm.nix { })
   (import ./crush.nix { })
 ]
