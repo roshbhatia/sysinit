@@ -56,12 +56,14 @@ in
   programs.zsh = {
     enable = true;
 
+    dotDir = "${config.xdg.configHome}/zsh";
+
     autocd = true;
     enableCompletion = false;
 
     history = {
-      size = 50000;
-      save = 50000;
+      size = 100000;
+      save = 100000;
       ignoreDups = true;
       ignoreSpace = true;
       extended = true;

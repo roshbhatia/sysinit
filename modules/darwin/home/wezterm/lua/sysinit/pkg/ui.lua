@@ -49,12 +49,6 @@ function M.setup(config)
     fade_out_duration_ms = 100,
   }
 
-  config.cursor_trail_enabled = true
-  config.cursor_trail_duration = 0.15 -- Animation duration (seconds)
-  config.cursor_trail_size = 0.5 -- 0.0 = no smear, 1.0 = max smear
-  config.cursor_trail_blur = 1.0 -- Antialiasing blur (pixels)
-  config.cursor_trail_thickness = 0.9 -- Trail thickness (0.0-1.0+)
-
   config.pane_focus_follows_mouse = false
 
   local function locked_indicator()
@@ -175,7 +169,11 @@ function M.setup(config)
     if uri:find("^git://") then
       local sha = uri:gsub("^git://", "")
       if sha:match("^[0-9a-f]+$") and #sha >= 7 and #sha <= 40 then
-        split_pane_right({ "zsh", "-c", string.format("git show %s --stat --pretty=fuller || echo 'Not a valid git commit'", sha) })
+        split_pane_right({
+          "zsh",
+          "-c",
+          string.format("git show %s --stat --pretty=fuller || echo 'Not a valid git commit'", sha),
+        })
         return false
       end
       return true
@@ -206,7 +204,11 @@ function M.setup(config)
     for _, ext in ipairs(image_exts) do
       if uri:lower():match("%." .. ext .. "$") or uri:lower():match("%." .. ext .. "[?#]") then
         local escaped = uri:gsub("'", "'\\''")
-        split_pane_right({ "zsh", "-c", string.format("chafa '%s' 2>/dev/null || echo 'Failed to display image'", escaped) })
+        split_pane_right({
+          "zsh",
+          "-c",
+          string.format("chafa '%s' 2>/dev/null || echo 'Failed to display image'", escaped),
+        })
         return false
       end
     end
