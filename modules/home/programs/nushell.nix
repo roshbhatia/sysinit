@@ -79,6 +79,26 @@ in
     extraConfig = ''
       use std/dirs shells-aliases *
 
+      # External completer using fish for better completion support
+      let fish_completer = {|spans|
+        fish --command $"complete '--do-complete=($spans | str replace --all "'" "\\'" | str join ' ')'"
+        | from tsv --flexible --noheaders --no-infer
+        | rename value description
+        | update value {|row|
+          let value = $row.value
+          let need_quote = ['\' ',' '[' ']' '(' ')' ' ' '\t' "'" '"' "`"] | any {$in in $value}
+          if ($need_quote and ($value | path exists)) {
+            let expanded_path = if ($value starts-with ~) {$value | path expand --no-symlink} else {$value}
+            $'"($expanded_path | str replace --all "\"" "\\\"")"'
+          } else {$value}
+        }
+      }
+
+      $env.config.completions.external = {
+        enable: true
+        completer: $fish_completer
+      }
+
       # macOS: preserve system open command
       ${optionalString pkgs.stdenv.isDarwin ''
         alias nu-open = open

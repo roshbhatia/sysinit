@@ -6,7 +6,6 @@
   imports = [
     ./_1password.nix
     ./ast-grep.nix
-    ./carapace.nix
     ./bat.nix
     ./direnv.nix
     ./editorconfig.nix
