@@ -29,21 +29,44 @@ in
     settings = {
       show_banner = false;
       edit_mode = "vi";
-      completions = {
-        case_sensitive = false;
-        quick = true;
-        partial = true;
-        algorithm = "fuzzy";
-      };
       cursor_shape = {
         vi_insert = "line";
         vi_normal = "block";
       };
-      history = {
-        max_size = 50000;
-        sync_on_enter = true;
-        file_format = "sqlite";
-        isolation = false;
+      keybindings = [
+        {
+          name = "completion_menu";
+          modifier = "none";
+          keycode = "tab";
+          mode = [
+            "emacs"
+            "vi_normal"
+            "vi_insert"
+          ];
+          event = {
+            until = [
+              {
+                send = "menu";
+                name = "completion_menu";
+              }
+              { send = "menunext"; }
+              { edit = "complete"; }
+            ];
+          };
+        }
+      ];
+      hooks = {
+        env_change = {
+          PWD = lib.hm.nushell.mkNushellInline ''
+            [
+              {||
+                if (which wezterm | is-not-empty) {
+                  try { wezterm set-working-directory } catch { }
+                }
+              }
+            ]
+          '';
+        };
       };
     };
 
@@ -56,42 +79,6 @@ in
     extraConfig = ''
       use std/dirs shells-aliases *
 
-      $env.config.keybindings = [
-        {
-          name: completion_menu
-          modifier: none
-          keycode: tab
-          mode: [emacs vi_normal vi_insert]
-          event: {
-            until: [
-              { send: menu name: completion_menu }
-              { send: menunext }
-              { edit: complete }
-            ]
-          }
-        }
-      ]
-
-      export-env {
-        $env.config = (
-          $env.config?
-          | default {}
-          | upsert hooks { default {} }
-          | upsert hooks.env_change { default {} }
-          | upsert hooks.env_change.PWD { default [] }
-        )
-      }
-
-      if (which wezterm | is-not-empty) {
-        $env.config.hooks.env_change.PWD = (
-          $env.config.hooks.env_change.PWD?
-          | default []
-          | append { ||
-              try { wezterm set-working-directory } catch { }
-            }
-        )
-      }
-
       # macOS: preserve system open command
       ${optionalString pkgs.stdenv.isDarwin ''
         alias nu-open = open
@@ -99,5 +86,4 @@ in
       ''}
     '';
   };
-
 }
