@@ -3,23 +3,7 @@
 {
   home.packages = [ pkgs.inshellisense ];
 
-  # Zsh integration
-  programs.zsh.initExtra = lib.mkAfter ''
-    # Initialize inshellisense if available
-    if command -v is &>/dev/null; then
-      eval "$(is init zsh)"
-    fi
-  '';
-
-  # Fish integration
-  programs.fish.interactiveShellInit = lib.mkAfter ''
-    # Initialize inshellisense if available
-    if command -v is &>/dev/null
-      eval (is init fish)
-    end
-  '';
-
-  # Nushell integration
+  # Nushell integration only
   programs.nushell.extraEnv = lib.mkAfter ''
     # Initialize inshellisense if available
     if (which is | is-not-empty) {
@@ -36,9 +20,6 @@
 
   # Create inshellisense config file
   xdg.configFile."inshellisense/rc.toml".text = ''
-    # Use aliases in bash/zsh
-    useAliases = true
-
     # Use NerdFont icons
     useNerdFont = true
 
