@@ -95,7 +95,6 @@
     devbox
     terraform-ls
     tflint
-    tflint-plugins.tflint-ruleset-aws
     tfsec
     upbound
 
