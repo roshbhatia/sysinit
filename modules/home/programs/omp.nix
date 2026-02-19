@@ -80,9 +80,9 @@ in
               type = "nix-shell";
             }
             {
+              foreground = "p:info";
               style = "plain";
-              foreground = "p:error";
-              template = " > ";
+              template = ''{{ if eq .Env.FISH__BIND_MODE "insert" }}:{{ else if or (eq .Env.FISH__BIND_MODE "default") (eq .Env.FISH__BIND_MODE "visual") }}>{{ end }} '';
               type = "text";
             }
           ];

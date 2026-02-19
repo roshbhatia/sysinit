@@ -54,6 +54,27 @@ in
           end
         '';
       };
+
+      # Re-render prompt on bind mode change for oh-my-posh
+      rerender_on_bind_mode_change = {
+        onVariable = "fish_bind_mode";
+        body = ''
+          if test "$fish_bind_mode" != paste -a "$fish_bind_mode" != "$FISH__BIND_MODE"
+            set -gx FISH__BIND_MODE $fish_bind_mode
+            if type -q omp_repaint_prompt
+              omp_repaint_prompt
+            end
+          end
+        '';
+      };
+
+      # Mask default mode prompt to prevent echoing
+      fish_default_mode_prompt = {
+        description = "Display vi prompt mode";
+        body = ''
+          # This function is masked and does nothing
+        '';
+      };
     };
 
     shellInit = ''
