@@ -4,6 +4,11 @@
   lib,
   ...
 }:
+let
+  shellLib = import ../lib/shell.nix {
+    inherit lib;
+  };
+in
 {
   imports = [
     ./programs
