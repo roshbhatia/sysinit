@@ -3,12 +3,39 @@ local utils = require("sysinit.pkg.utils")
 
 local M = {}
 
-local function get_basic_config()
-  local ssh_domains = wezterm.default_ssh_domains()
+local function get_lima_ssh_port()
+  local home = os.getenv("HOME")
+  local ssh_config_path = home .. "/.lima/default/ssh.config"
+  local file = io.open(ssh_config_path, "r")
   
-  -- Assume all remote hosts are POSIX shells for proper CWD handling
-  for _, domain in ipairs(ssh_domains) do
-    domain.assume_shell = "Posix"
+  if not file then
+    return nil
+  end
+  
+  for line in file:lines() do
+    local port = line:match("^%s*Port%s+(%d+)")
+    if port then
+      file:close()
+      return port
+    end
+  end
+  
+  file:close()
+  return nil
+end
+
+local function get_basic_config()
+  local ssh_domains = {}
+  
+  -- Add Lima VM domain if available
+  local lima_port = get_lima_ssh_port()
+  if lima_port then
+    table.insert(ssh_domains, {
+      name = "lima-default",
+      remote_address = "127.0.0.1:" .. lima_port,
+      username = os.getenv("USER"),
+      assume_shell = "Posix",
+    })
   end
 
   return {
@@ -17,8 +44,6 @@ local function get_basic_config()
       utils.get_nix_binary("zsh"),
       "--login",
     },
-    -- Auto-populate SSH domains from ~/.ssh/config (includes Lima VMs)
-    -- Creates both SSH: and SSHMUX: prefixed domains for each host
     ssh_domains = ssh_domains,
   }
 end
