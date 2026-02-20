@@ -20,8 +20,18 @@
     dconf-editor
   ];
 
-  # Enable dconf service for home-manager
-  services.dconf.enable = true;
+  # Start dconf service for home-manager
+  systemd.user.services.dconf = {
+    description = "dconf database";
+    wantedBy = [ "graphical-session.target" ];
+    after = [ "graphical-session.target" ];
+    serviceConfig = {
+      Type = "dbus";
+      BusName = "ca.desrt.dconf";
+      ExecStart = "${pkgs.dconf}/bin/dconf service";
+      Restart = "on-failure";
+    };
+  };
 
   # Use host's /nix/store as an additional binary cache
   # The /nix-host mount is configured in lima.yaml
