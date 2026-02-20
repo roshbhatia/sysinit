@@ -18,7 +18,11 @@
     wezterm
     dconf
     dconf-editor
+    zsh
   ];
+
+  # Enable zsh for the user
+  programs.zsh.enable = true;
 
   # Start dconf service for home-manager
   systemd.user.services.dconf = {
