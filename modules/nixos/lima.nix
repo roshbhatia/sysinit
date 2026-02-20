@@ -47,8 +47,6 @@
     isNormalUser = true;
     extraGroups = [ "wheel" "nixbld" ];
     shell = pkgs.zsh;
-    home = "/home/${values.user.username}.linux";
-    createHome = true;
   };
 
   users.groups.${values.user.username} = { };
@@ -66,6 +64,17 @@
     lima.enable = true;
     openssh = {
       enable = true;
+      hostKeys = [
+        {
+          path = "/etc/ssh/ssh_host_ed25519_key";
+          type = "ed25519";
+        }
+        {
+          path = "/etc/ssh/ssh_host_rsa_key";
+          type = "rsa";
+          bits = 4096;
+        }
+      ];
       settings = {
         PasswordAuthentication = true;
         PermitRootLogin = "no";
