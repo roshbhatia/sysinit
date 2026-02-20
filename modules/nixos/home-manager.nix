@@ -36,6 +36,9 @@ in
           stylix.homeModules.stylix
         ];
 
+        # Override home-manager's default homeDirectory to use nix-managed home
+        home.homeDirectory = lib.mkForce "/home/${values.user.username}.linux";
+
         sysinit.git = values.git;
         sysinit.theme = {
           appearance = values.theme.appearance;
