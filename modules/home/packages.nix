@@ -2,204 +2,173 @@
 
 {
   home.packages = with pkgs; [
-    # Core utilities
+    # Core Utilities
     coreutils
     curl
+    wget
     findutils
     gettext
     gnugrep
     gnused
-    httpie
-    openssh
+    gnumake
+    pkg-config
+    which
     tree
     unzip
-    watch
-    wget
-    which
     zip
-
-    # Text processing & search
+    watch
+    socat
+    sshpass
+    openssh
+    gnupg
     bat
     eza
     fd
+    ripgrep
     jq
     jqp
-    ripgrep
     yq-go
-
-    # System monitoring
     duf
     htop
+    glow
+    tokei
+    chafa
+    imagemagick
+    _1password-cli
 
-    # Git tools
-    delta
-    gh
+    # Git
     git
+    gh
+    delta
     git-crypt
     git-filter-repo
     libgit2
 
-    # Shell essentials
-    gum
-    nix-your-shell
-    grc
-
-    # Terminal utilities
-    chafa
-    glow
-    imagemagick
-    tokei
-
-    # 1Password CLI (socket mounted from macOS to NixOS VM)
-    _1password-cli
-
-    # AI/Copilot tools
-    amp-cli
-    claude-code
-    crush
-    cursor-cli
-    github-copilot-cli
-    opencode
-    openspec
-
-    # Package/Build managers
+    # Nix
+    nixd
+    nil
+    nixfmt
+    statix
+    deadnix
     cachix
-
-    # Security
-    gnupg
-
-    # Docker CLI (shares socket from macOS Colima)
-    docker
-    docker-buildx
-    docker-color-output
-    docker-compose
-    docker-credential-helpers
-
-    # Kubernetes
-    k9s
-    kind
-    krew
-    kube-linter
-    kubecolor
-    kubectl
-    kubectx
-    kubernetes-helm
-    kubernetes-zeitgeist
-    kustomize
-    stern
-
-    # Infrastructure as Code
-    ansible
-    ansible-lint
-    argocd
-    crossplane-cli
-    cue
-    devbox
-    terraform-ls
-    tflint
-    tfsec
-    upbound
-
-    # Cloud tools
-    awscli2
-
-    # Build tools
-    gnumake
-    pkg-config
-
-    # Code tools
-    ast-grep
-    checkmake
-    codespell
-    copilot-language-server
-    diffnav
-    go-task
-    meld
     nix-output-monitor
+    nix-tree
+    nix-your-shell
     nix-prefetch
     nix-prefetch-docker
     nix-prefetch-git
     nix-prefetch-github
-    nix-tree
-    proselint
-    sad
-    socat
-    sshpass
-    textlint
 
-    # Language version managers
-    rustup # Rust toolchain manager
-    uv # Python version/package manager
-    pipx # Python app installer
+    # Bash
+    bash-language-server
+    shellcheck
+    shfmt
+    gum
+    grc
 
     # Go
     go
-    delve
-    ginkgo
-    go-enum
-    gofumpt
-    gomvp
-    gotools # includes goimports
     gopls
+    delve
+    golangci-lint
+    gofumpt
     gotestsum
     govulncheck
+    ginkgo
+    go-enum
+    gomvp
+    gotools
     mockgen
-    reftools # includes fillstruct, fillswitch, fixplurals
+    reftools
     richgo
-    golangci-lint
 
-    # JavaScript/TypeScript/Node
-    bun
+    # Python
+    python311
+    uv
+    pipx
+    pyright
+
+    # Rust & Zig
+    rustup
+    cargo-watch
+    zig
+
+    # Node & Web
     nodejs_22
+    bun
     typescript
     yarn
     eslint
     typescript-language-server
+    vscode-langservers-extracted
 
-    # Python
-    python311
-    pyright
-
-    # Lua (for neovim, wezterm, hammerspoon configs)
-    hererocks
+    # Lua
     luajit
-    lua54Packages.cjson
+    hererocks
     lua-language-server
     stylua
+    lua54Packages.cjson
 
-    # Rust
-    cargo-watch
-
-    # Nix
-    nil
-    nixd
-    nixfmt
-    statix
-    deadnix
-
-    # Shell/Bash
-    bash-language-server
-    shellcheck
-    shfmt
-
-    # Markup/Config languages
-    taplo # TOML
-    yaml-language-server
-    yamllint
-
-    # DevOps/Infrastructure languages
-    cuelsp
+    # Kubernetes
+    kubectl
+    kubecolor
+    kubectx
+    k9s
+    stern
+    kubernetes-helm
     helm-ls
+    kustomize
+    kind
+    krew
+    kube-linter
+    kubernetes-zeitgeist
 
     # Docker
+    docker
+    docker-compose
+    docker-buildx
+    docker-color-output
     docker-compose-language-service
     docker-language-server
 
-    # General/Multi-language LSP servers
+    # Infrastructure & IaC
+    awscli2
+    argocd
+    crossplane-cli
+    upbound
+    terraform-ls
+    tflint
+    tfsec
+    ansible
+    ansible-lint
+    cue
+    cuelsp
+
+    # AI & Editors
+    claude-code
+    github-copilot-cli
+    copilot-language-server
+    cursor-cli
+    lsp-ai
+    amp-cli
+    crush
+    opencode
+    openspec
+
+    # Config & Misc Dev
+    taplo
+    yaml-language-server
+    yamllint
     awk-language-server
     jq-lsp
-    lsp-ai
     simple-completion-language-server
-    vscode-langservers-extracted # HTML, CSS, JSON, ESLint
+    ast-grep
+    codespell
+    proselint
+    textlint
+    devbox
+    go-task
+    meld
+    sad
   ];
 }
