@@ -78,9 +78,7 @@ in
       inherit (common) theme git;
       user.username = common.username;
       hostname = "nostromo";
-      environment = {
-        LIMA_INSTANCE = "nostromo";
-      };
+      environment = { };
     };
   };
 }
