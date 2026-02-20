@@ -1,5 +1,5 @@
 base:
-- url: https://raw.githubusercontent.com/nixos-lima/nixos-lima/master/nixos.yaml
+  - url: https://raw.githubusercontent.com/nixos-lima/nixos-lima/master/nixos.yaml
 
 portForwards:
   - guestSocket: "/var/run/docker.sock"
@@ -14,3 +14,8 @@ mounts:
   - location: "/nix"
     mountPoint: "/nix-host"
     writable: false
+  # Persistent nix store for the lima VM
+  # This mount survives instance recreation and avoids re-downloading packages
+  - location: "~/.lima/nostromo-nix-store"
+    mountPoint: "/var/lib/nix-persistent"
+    writable: true

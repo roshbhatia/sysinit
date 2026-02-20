@@ -105,5 +105,20 @@
     connect-timeout = 10;
   };
 
+  # Mount persistent nix store location
+  fileSystems."/nix/store" = {
+    device = "/var/lib/nix-persistent/store";
+    fsType = "none";
+    options = [ "bind" ];
+    neededForBoot = true;
+  };
+
+  fileSystems."/nix/var" = {
+    device = "/var/lib/nix-persistent/var";
+    fsType = "none";
+    options = [ "bind" ];
+    neededForBoot = true;
+  };
+
   system.stateVersion = lib.mkForce "25.11";
 }
