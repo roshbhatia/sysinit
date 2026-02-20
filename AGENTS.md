@@ -13,49 +13,29 @@ Nix-flakes configuration for macOS (Apple Silicon) and NixOS. Reproducible syste
 - `profiles/` - Configuration bundles (base, desktop, dev-full, dev-minimal, host-minimal)
 - `pkgs/` - Custom package definitions
 - `templates/` - Flake templates for VM dev environments
-- `hack/` - Build/format/maintenance scripts called by Taskfile
 
 ## Essential Commands
 
 ### Build/Test/Apply
 ```bash
-task nix:build                # Test current system config (default: lv426/macOS)
-task nix:build:lv426          # Build/test macOS config specifically
-task nix:build:all            # Build all system configurations
-task nix:build:work           # Dry-run build for work config (reduced resources)
-task nix:refresh              # Apply current config to system (use with caution)
-task nix:refresh:lv426        # Apply macOS config
-task nix:refresh:work         # Apply work config
+nix flake check               # Validate flake configuration
+nh os build                   # Test current system config (macOS)
+nh os switch                  # Apply current config to system (use with caution)
+nh os build .#nostromo        # Build NixOS configuration
+nh os switch .#nostromo       # Apply NixOS configuration
 ```
 
 ### Format/Lint
 ```bash
-task fmt                      # Format all (Nix, Lua, Shell)
-task fmt:nix                  # Format Nix files only
-task fmt:nix:check            # Check Nix formatting (no changes)
-task fmt:lua                  # Format Lua files only
-task fmt:lua:check            # Check Lua formatting (no changes)
-task fmt:lua:lint             # Run LSP diagnostics on Lua
-task fmt:lua:validate         # Full Lua validation (format + lint)
-task fmt:sh                   # Format shell scripts
-task fmt:sh:check             # Check shell formatting (no changes)
-task fmt:all:check            # Check all formatting without changes
-```
-
-### Validation/Testing
-```bash
-task nix:validate             # Validate flake configuration
-nix flake check               # Direct flake validation
+nix fmt                       # Format all Nix files
+nixfmt *.nix                  # Format specific Nix files
 ```
 
 ### Maintenance
 ```bash
-task nix:update               # Update flake inputs and commit
-task nix:clean                # Cleanup old generations
-task nix:config               # Copy nix configs to /etc/nix/
-task nix:config:user          # Setup user-level nix.conf
-task nix:secrets:init         # Initialize secrets with GitHub token
-task docs:values              # Generate values.nix documentation
+nix flake update              # Update flake inputs
+nix profile history           # View generation history
+nix-collect-garbage -d        # Cleanup old generations
 ```
 
 ## Always-Followed Rules
@@ -63,9 +43,8 @@ task docs:values              # Generate values.nix documentation
 - **No Emojis**: Strictly enforced in all code and documentation
 - **DRY**: Extract repeated patterns to shared utilities
 - **Comments**: Use for complex logic only
-- **Testing**: Run `task nix:build` before commits
-- **Pre-Commit**: `task fmt:all:check` then `task nix:validate` then `task nix:build`
-- **Hostname-based tasks**: When on work machine (hostname: APKR2N5D495296), use `task nix:build:work` and `task nix:refresh:work` instead of lv426 equivalents
+- **Testing**: Run `nix flake check` before commits
+- **Pre-Commit**: `nix fmt` then `nix flake check` then `nh os build`
 
 ## Task & Feature Management
 
