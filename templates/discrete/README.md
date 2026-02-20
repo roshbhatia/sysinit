@@ -1,62 +1,86 @@
-# Discrete Host Configuration Template
+# Discrete Host Configuration
 
-This template creates a minimal flake that consumes `roshbhatia/sysinit` as an input.
+This template creates a minimal flake that consumes `roshbhatia/sysinit` as an input for host-specific configurations.
+
+## Quick Start
+
+### Build and Apply Configuration
+
+```bash
+# First run needs the nix run, then can be omitted
+nix run nixpkgs#nh -- os switch .
+nh os switch .
+```
+
+### Lima NixOS VM (Optional)
+
+```bash
+# Create persistent nix store directory
+mkdir -p ~/.local/share/lima/<hostname>-nix
+
+# Start Lima VM
+limactl create --name=<hostname> lima.yaml
+limactl start <hostname>
+
+# Shell into the VM
+limactl shell <hostname>
+
+# From INSIDE the VM, apply configuration
+# First run needs the nix run, then can be omitted
+nix run nixpkgs#nh -- os switch '.#nixosConfigurations.<hostname>'
+nh os switch '.#nixosConfigurations.<hostname>'
+```
+
+CRITICAL: Do NOT run `nh os switch` from macOS to configure the Lima VM. You must run it from INSIDE the VM.
 
 ## Setup
 
-1. Update `hosts/default.nix`:
-   - Change `yourusername` in the `defaults` section
-   - Update git config (name, email, username)
-   - Customize theme and other values
-   - Update hostname in the host configuration (e.g., `yourhostname`)
+### 1. Update Host Configuration
 
-2. Create host-specific modules:
-   - `modules/darwin/default.nix` for macOS-specific config
-   - `modules/nixos/default.nix` for NixOS-specific config
+Edit `hosts/default.nix`:
+- Change `username` in the `defaults` section
+- Update git config (name, email, username)
+- Customize theme and other values
+- Update hostname in host configurations
 
-3. Add host-specific overlays in `overlays/default.nix`
+### 2. Create Host-Specific Modules
 
-4. Build and apply:
-   ```bash
-   nh darwin switch --update .  # Apply configuration
-   ```
+- `modules/darwin/default.nix` for macOS-specific config
+- `modules/nixos/default.nix` for NixOS-specific config
 
-## Lima VM (Optional)
+### 3. Add Host Overlays
 
-To create a NixOS Lima VM for this host:
+Create `overlays/default.nix` for any package customizations
 
-1. Update `lima.yaml`:
-   - Update any mount points or resource allocations as needed
+### 4. Lima VM Configuration (Optional)
 
-2. Update `hosts/default.nix`:
-   - Uncomment the NixOS host configuration
-   - Set the hostname for your VM (e.g., `your-nixos-hostname`)
+Edit `lima.yaml` to customize resource allocation and mounts
 
-3. Start the Lima VM:
-   ```bash
-   limactl start --name=default lima.yaml
-   ```
+## Environment Variables
 
-4. Shell into the Lima VM:
-   ```bash
-   lima shell
-   ```
+Host-specific environment variables can be set in `hosts/default.nix`:
 
-5. Update the flake lock to sync with the current sysinit state:
-   ```bash
-   cd /path/to/discrete/repo
-   nix flake lock --update-input sysinit
-   ```
+```nix
+values = {
+  inherit (common) theme git;
+  user.username = common.username;
+  hostname = "your-hostname";
+  environment = {
+    # These will be available in zsh/fish and all programs
+    CUSTOM_VAR = "value";
+  };
+};
+```
 
-6. Apply NixOS configuration from INSIDE the Lima VM:
-   ```bash
-   # Must use full attribute path: nixosConfigurations.<hostname>
-   nix run nixpkgs#nh -- os switch 'path:/path/to/discrete/repo#nixosConfigurations.your-nixos-hostname'
-   
-   # Or set NH_FLAKE environment variable:
-   export NH_FLAKE="path:/path/to/discrete/repo"
-   nh os switch '.#nixosConfigurations.your-nixos-hostname'
-   ```
+## Validation
 
-CRITICAL: You MUST run the `nh os switch` command from INSIDE the Lima VM, not from macOS. The configuration must be applied from the Linux system itself.
+```bash
+nix flake check               # Validate flake configuration
+```
 
+## Updating Dependencies
+
+```bash
+nix flake update              # Update all inputs
+nix flake lock --update-input sysinit  # Update just sysinit
+```
