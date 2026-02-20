@@ -51,6 +51,9 @@ in
       inherit (common) theme git;
       user.username = common.username;
       hostname = "lv426";
+      environment = {
+        LIMA_INSTANCE = "nostromo";
+      };
       darwin = common.darwin // {
         homebrew.additionalPackages = {
           taps = common.darwin.homebrew.additionalPackages.taps or [ ];
