@@ -113,7 +113,7 @@
 
   # Use persistent nix store for VM by symlinking directories
   # This allows nix store to survive VM instance recreation
-  system.activationScripts.setupPersistentNix = lib.stringBefore [ "users" ] ''
+  system.activationScripts.setupPersistentNix = lib.mkBefore ''
     mkdir -p /nix-vm/store /nix-vm/var
     
     # Only create symlinks if nix directories don't already exist
