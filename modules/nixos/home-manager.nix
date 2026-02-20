@@ -33,7 +33,7 @@ in
           ../home/programs/git/options.nix
 
           ../home
-          stylix.homeManagerModules.stylix
+          stylix.homeModules.stylix
         ];
 
         sysinit.git = values.git;
