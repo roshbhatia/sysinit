@@ -39,9 +39,9 @@
           transparency = values.theme.transparency;
         };
 
-        # Configure stylix with base16 scheme
+        # Configure stylix with base16 scheme from host values
         stylix = {
-          base16Scheme = "${stylix}/share/stylix/schemes/rose-pine-mute.yaml";
+          base16Scheme = "${stylix}/share/stylix/schemes/${values.theme.colorscheme}-${values.theme.variant}.yaml";
           image = values.theme.image or null;
         };
       };
