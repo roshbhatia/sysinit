@@ -9,6 +9,9 @@ let
   shellLib = import ../lib/shell.nix {
     inherit lib;
   };
+  
+  # For Lima VMs, use the mounted home directory instead of the nix home
+  homePrefix = if (values.isLima or false) then "/home/${values.user.username}" else config.home.homeDirectory;
 in
 {
   imports = [
@@ -18,10 +21,10 @@ in
 
   xdg = {
     enable = true;
-    cacheHome = "${config.home.homeDirectory}/.cache";
-    configHome = "${config.home.homeDirectory}/.config";
-    dataHome = "${config.home.homeDirectory}/.local/share";
-    stateHome = "${config.home.homeDirectory}/.local/state";
+    cacheHome = "${homePrefix}/.cache";
+    configHome = "${homePrefix}/.config";
+    dataHome = "${homePrefix}/.local/share";
+    stateHome = "${homePrefix}/.local/state";
   };
 
   home = {
