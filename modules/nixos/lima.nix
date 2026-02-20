@@ -111,28 +111,5 @@
     connect-timeout = 10;
   };
 
-  # Use persistent nix store for VM by symlinking directories
-  # This allows nix store to survive VM instance recreation
-  system.activationScripts.setupPersistentNix = lib.mkBefore ''
-    mkdir -p /nix-vm/store /nix-vm/var
-    
-    # Only create symlinks if nix directories don't already exist
-    if [ ! -L /nix ]; then
-      mkdir -p /nix
-    fi
-    
-    # Move default nix store to persistent location if it exists
-    if [ -d /nix/store ] && [ ! -L /nix/store ]; then
-      mv /nix/store /nix-vm/store/ 2>/dev/null || true
-    fi
-    if [ -d /nix/var ] && [ ! -L /nix/var ]; then
-      mv /nix/var /nix-vm/var/ 2>/dev/null || true
-    fi
-    
-    # Create symlinks
-    ln -sfn /nix-vm/store /nix/store || true
-    ln -sfn /nix-vm/var /nix/var || true
-  '';
-
   system.stateVersion = lib.mkForce "25.11";
 }
