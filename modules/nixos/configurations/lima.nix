@@ -12,13 +12,16 @@
     (modulesPath + "/profiles/qemu-guest.nix")
   ];
 
-  # Enable Lima guest services (lima-init, lima-guestagent)
-  services.lima.enable = true;
-
   # WezTerm for SSH multiplexing (provides wezterm-mux-server)
+  # dconf for home-manager settings
   environment.systemPackages = with pkgs; [
     wezterm
+    dconf
+    dconf-editor
   ];
+
+  # Enable dconf service for home-manager
+  services.dconf.enable = true;
 
   # Use host's /nix/store as an additional binary cache
   # The /nix-host mount is configured in lima.yaml

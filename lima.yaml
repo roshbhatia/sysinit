@@ -18,8 +18,6 @@ mounts:
     writable: true
   - location: "~/orgfiles"
     writable: true
-  - location: "/tmp/lima"
-    writable: true
   - location: "/nix"
     mountPoint: "/nix-host"
     writable: false
@@ -48,6 +46,3 @@ portForwards:
   #   hostSocket: "{{.Home}}/.1password/agent.sock"
   #   reverse: true
 
-# caCerts:
-#   files:
-#     - examples/hello.crt

@@ -1,4 +1,3 @@
-# Security: SSH, sudo, user account, nix-ld
 {
   pkgs,
   lib,
@@ -31,8 +30,6 @@
       ];
     };
   };
-
-  programs.zsh.enable = true;
 
   users.users.${config.sysinit.user.username} = {
     isNormalUser = true;
