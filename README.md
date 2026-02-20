@@ -31,7 +31,8 @@ This comprises most of my dotfiles, managed (mostly) by `nix`.
 
 ```bash
 # First run needs the nix run, then can be ommited
-nix run nixpkgs#nh -- darwin switch --update .
+nix run nixpkgs#nh -- darwin switch .
+nh -- darwin switch .
 ```
 ### Lima NixOS VM
 
@@ -40,10 +41,11 @@ nix run nixpkgs#nh -- darwin switch --update .
 limactl start --name=$HOSTNAME lima.yaml
 
 # Shell into the VM
-limactl shell $HOSTNAME
+limactl shell 
 
 # First run needs the nix run, then can be ommited
-nix run nixpkgs#nh os switch --update '.#nixosConfigurations.nostromo'
+nix run nixpkgs#nh os switch '.#nixosConfigurations.nostromo'
+nh os switch '.#nixosConfigurations.nostromo'
 ```
 
 CRITICAL: Do NOT run `nh os switch` from macOS to configure the Lima VM. You must run it from INSIDE the VM.
@@ -55,6 +57,4 @@ To create a separate repository that consumes this flake for host-specific confi
 ```bash
 nix flake init -t github:roshbhatia/sysinit#discrete
 ```
-
-WARNING: When using discrete repos, NEVER run `nh os switch` from this personal repo to configure hosts defined in the discrete repo. Each discrete repo manages its own hosts independently.
 
