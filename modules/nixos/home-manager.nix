@@ -36,8 +36,8 @@ in
           stylix.homeModules.stylix
         ];
 
-        # Override home-manager's default homeDirectory to use nix-managed home
-        home.homeDirectory = lib.mkForce "/home/${values.user.username}.linux";
+        # For Lima VMs, use the nix-managed home directory
+        home.homeDirectory = lib.mkIf (values.isLima or false) (lib.mkForce "/home/${values.user.username}.linux");
 
         sysinit.git = values.git;
         sysinit.theme = {
