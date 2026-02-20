@@ -52,6 +52,7 @@
       "nixbld"
     ];
     shell = pkgs.zsh;
+    home = "/home/${values.user.username}.linux";
   };
 
   users.groups.${values.user.username} = { };
