@@ -47,8 +47,6 @@
     isNormalUser = true;
     extraGroups = [ "wheel" "nixbld" ];
     shell = pkgs.zsh;
-    home = "/home/${values.user.username}";
-    createHome = false;
   };
 
   users.groups.${values.user.username} = { };
