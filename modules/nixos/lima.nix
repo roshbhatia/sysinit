@@ -73,6 +73,14 @@
 
   security.sudo.wheelNeedsPassword = false;
 
+  # Link persistent nix store from /nix-vm mount to avoid re-downloading on recreate
+  system.activationScripts.setupPersistentNix = ''
+    mkdir -p /nix-vm/store /nix-vm/var
+    mkdir -p /nix
+    ln -sfn /nix-vm/store /nix/store || true
+    ln -sfn /nix-vm/var /nix/var || true
+  '';
+
   systemd.user.services.dconf = {
     description = "dconf database";
     wantedBy = [ "graphical-session.target" ];
