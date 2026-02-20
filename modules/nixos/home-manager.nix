@@ -1,9 +1,8 @@
 {
-  lib,
   values,
   utils,
   inputs ? { },
-  stylix ? null,
+  stylix,
   ...
 }:
 
@@ -28,8 +27,6 @@
           ../home/programs/git/options.nix
 
           ../home
-        ]
-        ++ lib.optionals (stylix != null) [
           stylix.homeManagerModules.stylix
         ];
 
