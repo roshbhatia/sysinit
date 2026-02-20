@@ -77,6 +77,12 @@
 
   security.sudo.wheelNeedsPassword = false;
 
+  # Auto-login on serial console so no login prompt appears
+  services.getty.autologin = {
+    enable = true;
+    user = values.user.username;
+  };
+
   systemd.user.services.dconf = {
     description = "dconf database";
     wantedBy = [ "graphical-session.target" ];
