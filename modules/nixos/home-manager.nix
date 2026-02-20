@@ -38,7 +38,7 @@ in
 
         # For Lima VMs, explicitly set home to the nix-managed directory
         # (Lima creates /home/rshnbhatia.linux as the actual home, not the mounted /home/rshnbhatia)
-        home.homeDirectory = lib.mkIf (values.isLima or false) "/home/${values.user.username}.linux";
+        home.homeDirectory = lib.mkIf (values.isLima or false) (lib.mkForce "/home/${values.user.username}.linux");
 
         sysinit.git = values.git;
         sysinit.theme = {
