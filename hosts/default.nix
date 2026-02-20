@@ -80,7 +80,6 @@ in
       inherit (common) theme git;
       user.username = common.username;
       hostname = "nostromo";
-      isLima = true;
     };
   };
 }
