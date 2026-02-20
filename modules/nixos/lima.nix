@@ -45,7 +45,7 @@
 
   users.users.${values.user.username} = {
     isNormalUser = true;
-    extraGroups = [ "wheel" ];
+    extraGroups = [ "wheel" "nixbld" ];
     shell = pkgs.zsh;
   };
 
