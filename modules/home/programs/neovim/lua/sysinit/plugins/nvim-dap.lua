@@ -6,70 +6,63 @@ return {
     end,
     keys = {
       {
-        "<leader>ceb",
+        "<leader>rb",
         function()
           require("dap").toggle_breakpoint()
         end,
         desc = "Toggle breakpoint",
       },
       {
-        "<leader>cec",
+        "<leader>rc",
         function()
           require("dap").continue()
         end,
-        desc = "Continue",
+        desc = "Continue/Start",
       },
       {
-        "<leader>cet",
+        "<leader>rt",
         function()
           require("dap").run_to_cursor()
         end,
         desc = "Run to cursor",
       },
       {
-        "<leader>ceB",
+        "<leader>rB",
         function()
           require("dap").clear_breakpoints()
         end,
         desc = "Clear breakpoints",
       },
       {
-        "<leader>cer",
-        function()
-          require("dap").run()
-        end,
-        desc = "Run",
-      },
-      {
-        "<leader>ceR",
+        "<leader>rR",
         function()
           require("dap").repl.toggle()
         end,
         desc = "Toggle REPL",
       },
       {
-        "<leader>ces",
+        "<leader>rs",
         function()
           require("dap").restart()
         end,
         desc = "Restart",
       },
       {
-        "<leader>cex",
+        "<leader>rx",
         function()
           require("dap").terminate()
         end,
         desc = "Terminate",
       },
       {
-        "<leader>cei",
+        "<leader>ri",
         function()
           require("dap").step_into()
         end,
         desc = "Step into",
       },
       {
-        "<leader>ceo",
+        "<leader>ro",
         function()
           require("dap").step_over()
         end,

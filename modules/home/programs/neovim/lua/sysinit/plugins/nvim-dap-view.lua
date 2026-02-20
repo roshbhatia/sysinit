@@ -5,7 +5,7 @@ return {
     keys = function()
       return {
         {
-          "<leader>cee",
+          "<leader>rr",
           function()
             vim.cmd("DapViewToggle")
           end,

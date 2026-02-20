@@ -23,7 +23,6 @@ return {
 
       wk.add({
         { "<leader>c", group = "Code" },
-        { "<leader>ce", group = "Debug" },
         { "<leader>cf", group = "Find" },
         { "<leader>d", group = "Diff" },
         { "<leader>e", group = "Editor" },
@@ -36,6 +35,7 @@ return {
         { "<leader>m", group = "Marks" },
         { "<leader>o", group = "Orgmode" },
         { "<leader>q", group = "Qflist/Loclist" },
+        { "<leader>r", group = "Debug" },
         { "gr", group = "LSP" },
       })
     end,
