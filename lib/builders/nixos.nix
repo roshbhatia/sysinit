@@ -38,9 +38,7 @@
           config.sysinit.theme = values.theme;
           config.sysinit.git = values.git;
         }
-        ../../modules/nixos
         home-manager.nixosModules.home-manager
-
         stylix.nixosModules.stylix
         (import ../../modules/nixos/home-manager.nix {
           inherit lib;
