@@ -9,12 +9,15 @@
     direnv = {
       enable = true;
       nix-direnv.enable = true;
+      enableNushellIntegration = true;
+      # Disable the integration in zsh so we can use direnv-instant
+      enableZshIntegration = false;
     };
 
     direnv-instant = {
       enable = true;
-      enableFishIntegration = true;
       enableZshIntegration = true;
+      settings.mux_delay = 2;
     };
   };
 }
