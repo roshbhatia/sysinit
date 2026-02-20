@@ -14,6 +14,6 @@ mounts:
   - location: "/nix"
     mountPoint: "/nix-host"
     writable: false
-  - location: "~/.lima/nostromo-nix"
+  - location: "~/.local/share/lima/nostromo-nix"
     mountPoint: "/nix-vm"
     writable: true
