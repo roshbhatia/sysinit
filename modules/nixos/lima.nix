@@ -77,9 +77,6 @@
 
   security.sudo.wheelNeedsPassword = false;
 
-  # Disable serial console getty since we access via SSH
-  systemd.services."getty@hvc0".enable = false;
-
   systemd.user.services.dconf = {
     description = "dconf database";
     wantedBy = [ "graphical-session.target" ];
