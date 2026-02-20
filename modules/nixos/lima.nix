@@ -1,0 +1,95 @@
+{
+  lib,
+  pkgs,
+  modulesPath,
+  ...
+}:
+
+{
+  imports = [
+    (modulesPath + "/profiles/qemu-guest.nix")
+  ];
+
+  boot = {
+    kernelPackages = pkgs.linuxPackages_latest;
+    loader.grub = {
+      device = "nodev";
+      efiSupport = true;
+      efiInstallAsRemovable = true;
+    };
+  };
+
+  fileSystems = {
+    "/boot" = {
+      device = lib.mkForce "/dev/vda1";
+      fsType = "vfat";
+    };
+    "/" = {
+      device = "/dev/disk/by-label/nixos";
+      autoResize = true;
+      fsType = "ext4";
+      options = [
+        "noatime"
+        "nodiratime"
+        "discard"
+      ];
+    };
+  };
+
+  environment.systemPackages = with pkgs; [
+    dconf
+    dconf-editor
+    wezterm
+    zsh
+  ];
+
+  programs.zsh.enable = true;
+  programs.home-manager.enable = true;
+
+  services = {
+    lima.enable = true;
+    openssh.enable = true;
+  };
+
+  security.sudo.wheelNeedsPassword = false;
+
+  systemd.user.services.dconf = {
+    description = "dconf database";
+    wantedBy = [ "graphical-session.target" ];
+    after = [ "graphical-session.target" ];
+    serviceConfig = {
+      Type = "dbus";
+      BusName = "ca.desrt.dconf";
+      ExecStart = "${pkgs.dconf}/bin/dconf service";
+      Restart = "on-failure";
+    };
+  };
+
+  nix.settings = {
+    experimental-features = [
+      "nix-command"
+      "flakes"
+    ];
+    extra-substituters = [
+      "file:///nix-host/store"
+      "https://cache.iog.io"
+      "https://devenv.cachix.org"
+      "https://nix-community.cachix.org"
+      "https://numtide.cachix.org"
+    ];
+    trusted-substituters = [
+      "file:///nix-host/store"
+    ];
+    trusted-public-keys = [
+      "devenv.cachix.org-1:w1cLUi8dv3hnoSPGAuibQv+f9TZLr6cv/Hm9XgU50cw="
+      "nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs="
+      "numtide.cachix.org-1:2ps1kLBUWjxIneOy1Ik6cQjb41X0iXVXeHigGmycPPE="
+    ];
+    fallback = true;
+    max-jobs = "auto";
+    cores = 0;
+    connect-timeout = 10;
+  };
+
+  system.stateVersion = lib.mkForce "25.11";
+}

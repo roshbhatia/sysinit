@@ -58,7 +58,7 @@
       ]
       ++ lib.optionals (hostConfig.isLima or false) [
         inputs.nixos-lima.nixosModules.lima
-        ../../modules/nixos/configurations/lima.nix
+        ../../modules/nixos/lima.nix
       ];
     };
 }

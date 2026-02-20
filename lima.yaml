@@ -5,3 +5,12 @@ portForwards:
   - guestSocket: "/var/run/docker.sock"
     hostSocket: "{{.Home}}/.colima/default/docker.sock"
     reverse: true
+
+mounts:
+  - location: "~/github"
+    writable: true
+  - location: "~/orgfiles"
+    writable: true
+  - location: "/nix"
+    mountPoint: "/nix-host"
+    writable: false
