@@ -39,8 +39,11 @@
           transparency = values.theme.transparency;
         };
 
-        # Configure stylix with base16 scheme from host values
-        stylix.base16Scheme = "${stylix}/share/stylix/schemes/${values.theme.colorscheme}-${values.theme.variant}.yaml";
+        # Configure stylix with colorscheme and variant from host values
+        stylix = {
+          colorscheme = values.theme.colorscheme;
+          variant = values.theme.variant;
+        };
       };
   };
 }
