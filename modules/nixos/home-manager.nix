@@ -36,8 +36,9 @@ in
           stylix.homeModules.stylix
         ];
 
-        # For Lima VMs, explicitly set home to mounted directory
-        home.homeDirectory = lib.mkIf (values.isLima or false) "/home/${values.user.username}";
+        # For Lima VMs, explicitly set home to the nix-managed directory
+        # (Lima creates /home/rshnbhatia.linux as the actual home, not the mounted /home/rshnbhatia)
+        home.homeDirectory = lib.mkIf (values.isLima or false) "/home/${values.user.username}.linux";
 
         sysinit.git = values.git;
         sysinit.theme = {
