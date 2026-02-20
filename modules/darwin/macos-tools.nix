@@ -11,13 +11,9 @@
     home.packages = with pkgs; [
       # VM/Docker infrastructure (macOS only)
       colima
-
+      qemu
       # GUI applications
       _1password-gui
-
-      # Databases (macOS only, Ascalon uses containers)
-      postgresql17Packages.pgvector
-      postgresql_17
     ];
   };
 
