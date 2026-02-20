@@ -11,7 +11,6 @@
     ./editorconfig.nix
     ./eza.nix
     ./fd.nix
-    ./fish.nix
     ./fzf.nix
     ./git
     ./htop.nix
