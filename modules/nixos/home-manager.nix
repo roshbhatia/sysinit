@@ -40,10 +40,7 @@
         };
 
         # Configure stylix with base16 scheme from host values
-        stylix = {
-          base16Scheme = "${stylix}/share/stylix/schemes/${values.theme.colorscheme}-${values.theme.variant}.yaml";
-          image = values.theme.image or null;
-        };
+        stylix.base16Scheme = "${stylix}/share/stylix/schemes/${values.theme.colorscheme}-${values.theme.variant}.yaml";
       };
   };
 }
