@@ -43,8 +43,8 @@
 
         stylix.nixosModules.stylix
         (import ../../modules/nixos/home-manager.nix {
-          inherit values inputs;
-          inherit utils;
+          inherit values inputs utils;
+          inherit stylix;
         })
         {
           documentation.enable = false;

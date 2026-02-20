@@ -1,7 +1,9 @@
 {
+  lib,
   values,
   utils,
   inputs ? { },
+  stylix ? null,
   ...
 }:
 
@@ -26,6 +28,9 @@
           ../home/programs/git/options.nix
 
           ../home
+        ]
+        ++ lib.optionals (stylix != null) [
+          stylix.homeManagerModules.stylix
         ];
 
         sysinit.git = values.git;
