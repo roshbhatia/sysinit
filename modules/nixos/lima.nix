@@ -105,16 +105,17 @@
     connect-timeout = 10;
   };
 
-  # Mount persistent nix store location
+  # Bind persistent nix store location (/nix-vm) to actual nix directories
+  # This allows nix store to survive VM instance recreation
   fileSystems."/nix/store" = {
-    device = "/var/lib/nix-persistent/store";
+    device = "/nix-vm/store";
     fsType = "none";
     options = [ "bind" ];
     neededForBoot = true;
   };
 
   fileSystems."/nix/var" = {
-    device = "/var/lib/nix-persistent/var";
+    device = "/nix-vm/var";
     fsType = "none";
     options = [ "bind" ];
     neededForBoot = true;

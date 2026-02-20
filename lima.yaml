@@ -14,8 +14,6 @@ mounts:
   - location: "/nix"
     mountPoint: "/nix-host"
     writable: false
-  # Persistent nix store for the lima VM
-  # This mount survives instance recreation and avoids re-downloading packages
-  - location: "~/.lima/nostromo-nix-store"
-    mountPoint: "/var/lib/nix-persistent"
+  - location: "~/.lima/nostromo-nix"
+    mountPoint: "/nix-vm"
     writable: true
