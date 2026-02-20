@@ -2,6 +2,7 @@
   config,
   pkgs,
   lib,
+  values ? { },
   ...
 }:
 let
@@ -47,7 +48,7 @@ in
       BUILDX_EXPERIMENTAL = "1";
       NODE_NO_WARNINGS = 1;
       NODE_TLS_REJECT_UNAUTHORIZED = 0;
-    };
+    } // (values.environment or { });
 
     shellAliases = shellLib.aliases;
 
