@@ -2,6 +2,7 @@
   config,
   lib,
   pkgs,
+  values ? { },
   ...
 }:
 let
@@ -82,7 +83,7 @@ in
       ZVM_INSERT_MODE_CURSOR = "be";
       ZVM_VI_HIGHLIGHT_BACKGROUND = "#${config.lib.stylix.colors.base05}";
       ZVM_VI_HIGHLIGHT_FOREGROUND = "#${config.lib.stylix.colors.base0D}";
-    };
+    } // (values.environment or { });
 
     plugins = [
       {
@@ -138,6 +139,11 @@ in
     ];
 
     initContent = lib.mkMerge [
+      (lib.mkOrder 100 ''
+        # Source .zshenv for user-specific environment variables
+        [ -f "$HOME/.zshenv" ] && source "$HOME/.zshenv"
+      '')
+
       (lib.mkOrder 200 ''
         ${coreInit}
       '')

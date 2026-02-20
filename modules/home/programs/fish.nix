@@ -2,6 +2,7 @@
   config,
   lib,
   pkgs,
+  values ? { },
   ...
 }:
 
@@ -12,6 +13,8 @@ let
 
   sharedAliases = shell.aliases;
   pathsList = paths_lib.getAllPaths config.home.username config.home.homeDirectory;
+  envVars = values.environment or { };
+  envScript = lib.concatStringsSep "\n" (lib.mapAttrsToList (k: v: "set -gx ${k} ${lib.escapeShellArg v}") envVars);
 in
 {
   programs.fish = {
@@ -53,8 +56,14 @@ in
     };
 
     shellInit = ''
+      # Source .fishenv for user-specific environment variables
+      [ -f "$HOME/.fishenv" ] && source "$HOME/.fishenv"
+
       # Add paths
       ${concatMapStringsSep "\n" (path: "fish_add_path -g ${path}") pathsList}
+
+      # Environment variables from values
+      ${envScript}
     '';
 
     interactiveShellInit = ''
