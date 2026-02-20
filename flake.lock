@@ -769,8 +769,7 @@
         "nixpkgs": "nixpkgs_4",
         "nur": "nur",
         "onepassword-shell-plugins": "onepassword-shell-plugins",
-        "stylix": "stylix",
-        "wezterm": "wezterm"
+        "stylix": "stylix"
       }
     },
     "stylix": {
@@ -968,19 +967,6 @@
         "owner": "numtide",
         "repo": "treefmt-nix",
         "type": "github"
-      }
-    },
-    "wezterm": {
-      "flake": false,
-      "locked": {
-        "lastModified": 1771522242,
-        "narHash": "sha256-fOiPkf/OycqqVEyD1ML9aKM306FNJvPXXN+TcALVe6g=",
-        "path": "/Users/rbha18/github/personal/roshbhatia/wezterm",
-        "type": "path"
-      },
-      "original": {
-        "path": "/Users/rbha18/github/personal/roshbhatia/wezterm",
-        "type": "path"
       }
     }
   },
