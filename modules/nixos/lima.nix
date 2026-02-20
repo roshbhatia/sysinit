@@ -37,6 +37,12 @@
     };
   };
 
+  # Ensure directories exist before binding persistent nix store
+  system.activationScripts.createNixDirs = lib.stringAfter [ "var" ] ''
+    mkdir -p /nix-vm/store /nix-vm/var
+    mkdir -p /nix/store /nix/var
+  '';
+
   users.users.${values.user.username} = {
     isNormalUser = true;
     extraGroups = [ "wheel" ];
@@ -105,21 +111,28 @@
     connect-timeout = 10;
   };
 
-  # Bind persistent nix store location (/nix-vm) to actual nix directories
+  # Use persistent nix store for VM by symlinking directories
   # This allows nix store to survive VM instance recreation
-  fileSystems."/nix/store" = {
-    device = "/nix-vm/store";
-    fsType = "none";
-    options = [ "bind" ];
-    neededForBoot = true;
-  };
-
-  fileSystems."/nix/var" = {
-    device = "/nix-vm/var";
-    fsType = "none";
-    options = [ "bind" ];
-    neededForBoot = true;
-  };
+  system.activationScripts.setupPersistentNix = lib.stringBefore [ "users" ] ''
+    mkdir -p /nix-vm/store /nix-vm/var
+    
+    # Only create symlinks if nix directories don't already exist
+    if [ ! -L /nix ]; then
+      mkdir -p /nix
+    fi
+    
+    # Move default nix store to persistent location if it exists
+    if [ -d /nix/store ] && [ ! -L /nix/store ]; then
+      mv /nix/store /nix-vm/store/ 2>/dev/null || true
+    fi
+    if [ -d /nix/var ] && [ ! -L /nix/var ]; then
+      mv /nix/var /nix-vm/var/ 2>/dev/null || true
+    fi
+    
+    # Create symlinks
+    ln -sfn /nix-vm/store /nix/store || true
+    ln -sfn /nix-vm/var /nix/var || true
+  '';
 
   system.stateVersion = lib.mkForce "25.11";
 }
