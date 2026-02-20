@@ -38,6 +38,12 @@
           font.monospace = values.theme.font.monospace;
           transparency = values.theme.transparency;
         };
+
+        # Configure stylix with base16 scheme
+        stylix = {
+          base16Scheme = "${stylix}/share/stylix/schemes/rose-pine-mute.yaml";
+          image = values.theme.image or null;
+        };
       };
   };
 }
