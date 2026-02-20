@@ -1,10 +1,16 @@
 {
+  lib,
+  pkgs,
   values,
   utils,
   inputs ? { },
   stylix,
   ...
 }:
+
+let
+  themes = import ../lib/theme.nix { inherit lib; };
+in
 
 {
   home-manager = {
@@ -39,11 +45,8 @@
           transparency = values.theme.transparency;
         };
 
-        # Configure stylix with colorscheme and variant from host values
-        stylix = {
-          colorscheme = values.theme.colorscheme;
-          variant = values.theme.variant;
-        };
+        # Configure stylix with base16 scheme from host values
+        stylix.base16Scheme = themes.getBase16SchemePath pkgs values.theme.colorscheme values.theme.variant;
       };
   };
 }

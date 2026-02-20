@@ -44,8 +44,13 @@
         stylix.nixosModules.stylix
         (import ../../modules/nixos/home-manager.nix {
           inherit lib;
-          inherit values inputs utils;
-          inherit stylix;
+          inherit
+            values
+            inputs
+            utils
+            stylix
+            ;
+          inherit pkgs;
         })
         {
           documentation.enable = false;
