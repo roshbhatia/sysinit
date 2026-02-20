@@ -37,10 +37,12 @@
     };
   };
 
-  # Ensure directories exist before binding persistent nix store
-  system.activationScripts.createNixDirs = lib.stringAfter [ "var" ] ''
+  # Setup persistent nix store symlinks early in boot before any services start
+  boot.postBootCommands = ''
     mkdir -p /nix-vm/store /nix-vm/var
-    mkdir -p /nix/store /nix/var
+    mkdir -p /nix
+    ln -sfn /nix-vm/store /nix/store || true
+    ln -sfn /nix-vm/var /nix/var || true
   '';
 
   users.users.${values.user.username} = {
@@ -68,18 +70,11 @@
     openssh = {
       enable = true;
       ports = [ 55555 ]; # Mirrors what should be in the lima.yaml
+      startWhenNeeded = false;
     };
   };
 
   security.sudo.wheelNeedsPassword = false;
-
-  # Link persistent nix store from /nix-vm mount to avoid re-downloading on recreate
-  system.activationScripts.setupPersistentNix = ''
-    mkdir -p /nix-vm/store /nix-vm/var
-    mkdir -p /nix
-    ln -sfn /nix-vm/store /nix/store || true
-    ln -sfn /nix-vm/var /nix/var || true
-  '';
 
   systemd.user.services.dconf = {
     description = "dconf database";
