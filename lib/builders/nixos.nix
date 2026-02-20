@@ -40,6 +40,7 @@
         }
         home-manager.nixosModules.home-manager
         stylix.nixosModules.stylix
+        ../../modules/nixos
         (import ../../modules/nixos/home-manager.nix {
           inherit lib;
           inherit
@@ -56,7 +57,6 @@
       ]
       ++ lib.optionals (hostConfig.isLima or false) [
         inputs.nixos-lima.nixosModules.lima
-        ../../modules/nixos/lima.nix
       ];
     };
 }

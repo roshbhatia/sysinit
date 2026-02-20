@@ -2,6 +2,7 @@
   lib,
   pkgs,
   modulesPath,
+  values,
   ...
 }:
 
@@ -36,6 +37,14 @@
     };
   };
 
+  users.users.${values.user.username} = {
+    isNormalUser = true;
+    extraGroups = [ "wheel" ];
+    shell = pkgs.zsh;
+  };
+
+  users.groups.${values.user.username} = { };
+
   environment.systemPackages = with pkgs; [
     dconf
     dconf-editor
@@ -44,7 +53,6 @@
   ];
 
   programs.zsh.enable = true;
-  programs.home-manager.enable = true;
 
   services = {
     lima.enable = true;
