@@ -35,13 +35,17 @@
         ];
 
         sysinit.git = values.git or { };
-        sysinit.theme = lib.mkIf (values ? theme) {
-          appearance = values.theme.appearance;
-          colorscheme = values.theme.colorscheme;
-          variant = values.theme.variant;
-          font.monospace = values.theme.font.monospace;
-          transparency = values.theme.transparency;
-        };
+        sysinit.theme =
+          if (values ? theme) then
+            {
+              appearance = values.theme.appearance;
+              colorscheme = values.theme.colorscheme;
+              variant = values.theme.variant;
+              font.monospace = values.theme.font.monospace;
+              transparency = values.theme.transparency;
+            }
+          else
+            { };
       };
   };
 }

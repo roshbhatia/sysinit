@@ -40,18 +40,24 @@ in
         home.homeDirectory = lib.mkForce "/home/${values.user.username}.linux";
 
         sysinit.git = values.git or { };
-        sysinit.theme = lib.mkIf (values ? theme) {
-          appearance = values.theme.appearance;
-          colorscheme = values.theme.colorscheme;
-          variant = values.theme.variant;
-          font.monospace = values.theme.font.monospace;
-          transparency = values.theme.transparency;
-        };
+        sysinit.theme =
+          if (values ? theme) then
+            {
+              appearance = values.theme.appearance;
+              colorscheme = values.theme.colorscheme;
+              variant = values.theme.variant;
+              font.monospace = values.theme.font.monospace;
+              transparency = values.theme.transparency;
+            }
+          else
+            { };
 
         # Configure stylix with base16 scheme from host values
-        stylix.base16Scheme = lib.mkIf (values ? theme) (
-          themes.getBase16SchemePath pkgs values.theme.colorscheme values.theme.variant
-        );
+        stylix.base16Scheme =
+          if (values ? theme) then
+            themes.getBase16SchemePath pkgs values.theme.colorscheme values.theme.variant
+          else
+            null;
       };
   };
 }

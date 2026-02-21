@@ -55,6 +55,7 @@
         (import ../../modules/darwin/home-manager.nix {
           inherit (values.user) username;
           inherit
+            lib
             values
             utils
             pkgs
