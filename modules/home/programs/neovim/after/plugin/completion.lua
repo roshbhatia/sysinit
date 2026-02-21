@@ -6,4 +6,6 @@ vim.opt.completeopt = {
   "menuone",
   "fuzzy",
   "preview",
+  "noinsert",
+  "noselect",
 }

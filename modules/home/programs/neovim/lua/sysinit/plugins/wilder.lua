@@ -31,9 +31,7 @@ return {
           },
           wilder.cmdline_pipeline({
             language = "vim",
-            fuzzy = 2,
-            fuzzy_filter = wilder.lua_fzy_filter(),
-            allow_fuzzy_deletion = true,
+            prefix_match = true,
             debounce = 30,
           }),
           wilder.vim_search_pipeline({
