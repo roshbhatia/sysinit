@@ -41,6 +41,10 @@ return {
     init = function()
       vim.o.formatexpr = "v:lua.require'conform'.formatexpr()"
 
+      -- Initialize session variables for format control
+      vim.g.disable_autoformat = false
+      vim.b.disable_autoformat = false
+
       vim.api.nvim_create_user_command("Format", function(args)
         local range = nil
         if args.count ~= -1 then
@@ -53,18 +57,21 @@ return {
         require("conform").format({ async = true, lsp_format = "fallback", range = range })
       end, { range = true, desc = "Format buffer or range" })
 
-      vim.api.nvim_create_user_command("FormatDisable", function(args)
-        if args.bang then
-          vim.b.disable_autoformat = true
-        else
-          vim.g.disable_autoformat = true
-        end
-      end, { desc = "Disable autoformat-on-save", bang = true })
+      vim.api.nvim_create_user_command("FormatDisable", function()
+        vim.g.disable_autoformat = true
+      end, { desc = "Disable autoformat-on-save globally" })
 
       vim.api.nvim_create_user_command("FormatEnable", function()
-        vim.b.disable_autoformat = false
         vim.g.disable_autoformat = false
-      end, { desc = "Re-enable autoformat-on-save" })
+      end, { desc = "Re-enable autoformat-on-save globally" })
+
+      vim.api.nvim_create_user_command("FormatBufDisable", function()
+        vim.b.disable_autoformat = true
+      end, { desc = "Disable autoformat-on-save for buffer" })
+
+      vim.api.nvim_create_user_command("FormatBufEnable", function()
+        vim.b.disable_autoformat = false
+      end, { desc = "Re-enable autoformat-on-save for buffer" })
 
       vim.api.nvim_create_user_command("FormatStatus", function()
         local global = vim.g.disable_autoformat and "disabled" or "enabled"

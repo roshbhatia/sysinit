@@ -7,11 +7,19 @@ return {
       local hl_utils = require("sysinit.utils.highlight")
       local get_fg = hl_utils.get_fg
 
+      -- Helper to show format disabled icon only when relevant
+      local function get_format_status()
+        if vim.g.disable_autoformat or vim.b.disable_autoformat then
+          return "󰉥 "
+        end
+        return ""
+      end
+
       require("staline").setup({
         sections = {
           left = { "mode", "branch", "file_name" },
           mid = {},
-          right = { "lsp", "lsp_name", "file_size", "line_column" },
+          right = { get_format_status, "lsp", "lsp_name", "file_size", "line_column" },
         },
         defaults = {
           inactive_color = get_fg("Normal"),
