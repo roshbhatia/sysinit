@@ -39,8 +39,8 @@ in
         # NixOS systems use the nix-managed home directory
         home.homeDirectory = lib.mkForce "/home/${values.user.username}.linux";
 
-        sysinit.git = values.git;
-        sysinit.theme = {
+        sysinit.git = values.git or { };
+        sysinit.theme = lib.mkIf (values ? theme) {
           appearance = values.theme.appearance;
           colorscheme = values.theme.colorscheme;
           variant = values.theme.variant;
@@ -49,7 +49,9 @@ in
         };
 
         # Configure stylix with base16 scheme from host values
-        stylix.base16Scheme = themes.getBase16SchemePath pkgs values.theme.colorscheme values.theme.variant;
+        stylix.base16Scheme = lib.mkIf (values ? theme) (
+          themes.getBase16SchemePath pkgs values.theme.colorscheme values.theme.variant
+        );
       };
   };
 }

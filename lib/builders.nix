@@ -36,8 +36,8 @@ in
         inherit (hostConfig) system;
         inherit pkgs;
       };
-      # Merge username into values for backward compatibility with bridge code
-      values = hostConfig.values // {
+      values = (hostConfig.values or { }) // {
+        inherit hostname;
         user.username = hostConfig.username;
       };
 

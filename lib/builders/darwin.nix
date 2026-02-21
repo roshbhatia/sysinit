@@ -44,16 +44,13 @@
         }
         {
           config.sysinit.user.username = hostConfig.username;
-          config.sysinit.theme = values.theme;
-          config.sysinit.darwin = {
-            tailscale.enable = values.darwin.tailscale.enable;
-            homebrew.additionalPackages = {
-              taps = values.darwin.homebrew.additionalPackages.taps;
-              brews = values.darwin.homebrew.additionalPackages.brews;
-              casks = values.darwin.homebrew.additionalPackages.casks;
-            };
-          };
         }
+        (lib.optionalAttrs (values ? theme) {
+          config.sysinit.theme = values.theme;
+        })
+        (lib.optionalAttrs (values ? darwin) {
+          config.sysinit.darwin = values.darwin;
+        })
         ../../modules/darwin
         (import ../../modules/darwin/home-manager.nix {
           inherit (values.user) username;

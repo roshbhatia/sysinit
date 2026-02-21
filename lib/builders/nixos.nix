@@ -35,9 +35,13 @@
         }
         {
           config.sysinit.user.username = hostConfig.username;
-          config.sysinit.theme = values.theme;
-          config.sysinit.git = values.git;
         }
+        (lib.optionalAttrs (values ? theme) {
+          config.sysinit.theme = values.theme;
+        })
+        (lib.optionalAttrs (values ? git) {
+          config.sysinit.git = values.git;
+        })
         home-manager.nixosModules.home-manager
         stylix.nixosModules.stylix
         ../../modules/nixos

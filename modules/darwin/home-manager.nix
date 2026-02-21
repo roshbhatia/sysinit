@@ -1,4 +1,5 @@
 {
+  lib,
   values,
   utils,
   inputs ? { },
@@ -33,8 +34,8 @@
           ./home
         ];
 
-        sysinit.git = values.git;
-        sysinit.theme = {
+        sysinit.git = values.git or { };
+        sysinit.theme = lib.mkIf (values ? theme) {
           appearance = values.theme.appearance;
           colorscheme = values.theme.colorscheme;
           variant = values.theme.variant;

@@ -4,7 +4,6 @@
 let
   common = {
     username = "rshnbhatia";
-
     git = {
       name = "Roshan Bhatia";
       email = "rshnbhatia@gmail.com";
@@ -20,8 +19,6 @@ in
 
     values = {
       inherit (common) git;
-      user.username = common.username;
-      hostname = "lv426";
       environment = {
         LIMA_INSTANCE = "nostromo";
       };
@@ -31,14 +28,11 @@ in
   nostromo = {
     system = "aarch64-linux";
     platform = "linux";
-    isLima = true;
+    lima = true;
     inherit (common) username;
 
     values = {
       inherit (common) git;
-      user.username = common.username;
-      hostname = "nostromo";
-      isLima = true;
     };
   };
 }
