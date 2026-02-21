@@ -81,7 +81,7 @@ local function get_system_keys()
     create_smart_keybind("s", "SUPER", act.ShowLauncherArgs({ flags = "FUZZY|DOMAINS" })),
     create_smart_keybind("c", "SUPER", act.CopyTo("Clipboard")),
     create_smart_keybind("h", "SUPER", act.HideApplication),
-    create_smart_keybind("k", "SUPER", act.ClearScrollback("ScrollbackAndViewport")),
+    create_smart_keybind("k", "SUPER", act.ClearScrollback("ScrollbackAndViewport"), { passthrough = EDITORS }),
     create_smart_keybind("m", "SUPER", act.Hide),
     create_smart_keybind("q", "SUPER", act.QuitApplication),
     create_smart_keybind("v", "SUPER", act.PasteFrom("Clipboard")),
