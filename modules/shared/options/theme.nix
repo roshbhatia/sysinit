@@ -23,13 +23,13 @@ in
 
     colorscheme = mkOption {
       type = types.enum (attrNames metadata);
-      default = "everforest";
+      default = "rose-pine";
       description = "The color scheme to use system-wide";
     };
 
     variant = mkOption {
       type = types.enum allVariants;
-      default = "dark-hard";
+      default = "moon";
       description = "The variant of the chosen color scheme";
     };
 
