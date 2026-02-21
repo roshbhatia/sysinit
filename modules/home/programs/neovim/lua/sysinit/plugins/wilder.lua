@@ -31,7 +31,6 @@ return {
           },
           wilder.cmdline_pipeline({
             language = "vim",
-            prefix_match = true,
             debounce = 30,
           }),
           wilder.vim_search_pipeline({
