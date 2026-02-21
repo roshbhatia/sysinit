@@ -15,7 +15,7 @@ return {
         previous_key = "<S-Tab>",
         accept_key = "<CR>",
         reject_key = "<Esc>",
-        accept_completion_auto_select = true,
+        accept_completion_auto_select = false,
       })
 
       wilder.set_option("use_python_remote_plugin", 0)
@@ -33,6 +33,7 @@ return {
             language = "vim",
             fuzzy = 2,
             fuzzy_filter = wilder.lua_fzy_filter(),
+            allow_fuzzy_deletion = true,
             debounce = 30,
           }),
           wilder.vim_search_pipeline({
