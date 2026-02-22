@@ -16,20 +16,12 @@
             "vim-mode" = true;
           };
 
-          communityPlugins = {
-            "obsidian-vimrc-support" = {
-              enable = true;
-            };
-            "obsidian-vimium" = {
-              enable = true;
-            };
-            "obsidian-mermaid" = {
-              enable = true;
-            };
-            "obsidian-code-emitter" = {
-              enable = true;
-            };
-          };
+          communityPlugins = [
+            { name = "obsidian-vimrc-support"; enable = true; }
+            { name = "obsidian-vimium"; enable = true; }
+            { name = "obsidian-mermaid"; enable = true; }
+            { name = "obsidian-code-emitter"; enable = true; }
+          ];
 
           extraFiles = {
             ".obsidian.vimrc" = {
