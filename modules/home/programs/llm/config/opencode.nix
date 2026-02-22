@@ -491,6 +491,7 @@ let
 
     plugin = [
       "@bastiangx/opencode-unmoji"
+      "opencode-gemini-auth@latest"
       "opencode-handoff"
       "opencode-plugin-openspec"
     ];
