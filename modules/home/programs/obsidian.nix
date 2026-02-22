@@ -16,13 +16,6 @@
             "vim-mode" = true;
           };
 
-          communityPlugins = [
-            "obsidian-vimrc-support"
-            "obsidian-vimium"
-            "obsidian-mermaid"
-            "obsidian-code-emitter"
-          ];
-
           extraFiles = {
             ".obsidian.vimrc" = {
               text = ''
