@@ -99,14 +99,18 @@ in
       userContent = firefoxConfig.userContentCSS or "";
 
       extensions.packages = with pkgs.firefox-addons; [
-        ublock-origin
-        reddit-enhancement-suite
-        old-reddit-redirect
-        multi-account-containers
-        vimium
-        sponsorblock
         decentraleyes
+        multi-account-containers
+        multi-split-view
+        old-reddit-redirect
+        reddit-enhancement-suite
+        refined-github-
+        sponsorblock
         tabliss
+        ublock-origin
+        ultimadark
+        vimium
+        web-clipper-obsidian
       ];
 
       settings = {
