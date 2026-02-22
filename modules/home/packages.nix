@@ -133,7 +133,6 @@
 
     # Infrastructure & IaC
     awscli2
-    argocd
     crossplane-cli
     upbound
     terraform-ls
@@ -145,14 +144,15 @@
     cuelsp
 
     # AI & Editors
+    amp-cli
     claude-code
     claude-code-acp
-    github-copilot-cli
+    codex-acp
     copilot-language-server
-    cursor-cli
-    lsp-ai
-    amp-cli
     crush
+    cursor-cli
+    github-copilot-cli
+    lsp-ai
     opencode
     openspec
 
