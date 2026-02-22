@@ -77,10 +77,7 @@ local agents = {
     label = "Gemini",
     icon = " 󰊭 ",
     cmd = "gemini",
-    args = {
-      "--resume",
-      "--auto_edit",
-    },
+    args = {},
   },
   {
     name = "codex",
