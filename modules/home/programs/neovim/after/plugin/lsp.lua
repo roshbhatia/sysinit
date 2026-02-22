@@ -16,10 +16,11 @@ vim.diagnostic.config({
   },
   signs = {
     text = {
-      [vim.diagnostic.severity.ERROR] = "",
-      [vim.diagnostic.severity.HINT] = "", -- Empty on purpose, so it doesn't show in the sign column
-      [vim.diagnostic.severity.INFO] = "", -- Empty on purpose, so it doesn't show in the sign column
-      [vim.diagnostic.severity.WARN] = "",
+      -- All empty on purpose, so it doesn't show in the sign column
+      [vim.diagnostic.severity.ERROR] = "",
+      [vim.diagnostic.severity.HINT] = "",
+      [vim.diagnostic.severity.INFO] = "",
+      [vim.diagnostic.severity.WARN] = "",
     },
     numhl = {
       [vim.diagnostic.severity.ERROR] = "DiagnosticSignError",
