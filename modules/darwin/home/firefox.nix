@@ -101,14 +101,12 @@ in
       extensions.packages = with pkgs.firefox-addons; [
         decentraleyes
         multi-account-containers
-        multi-split-view
         old-reddit-redirect
         reddit-enhancement-suite
-        refined-github-
+        refined-github
         sponsorblock
         tabliss
         ublock-origin
-        ultimadark
         vimium
         web-clipper-obsidian
       ];
