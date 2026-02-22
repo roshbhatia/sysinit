@@ -184,8 +184,8 @@ function M.setup(config)
       local filepath = uri:gsub("^file://", "")
 
       if is_nvim_running() then
-        local escaped = filepath:gsub("'", "''")
-        window:perform_action(wezterm.action.SendString(string.format(":vsplit %s | Neotree reveal\r", escaped)), pane)
+        local escaped = filepath:gsub("'", "'\\''")
+        window:perform_action(wezterm.action.SendString(string.format(":vsplit '%s'\r:Neotree reveal\r", escaped)), pane)
         return false
       end
 
