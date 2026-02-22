@@ -13,6 +13,7 @@
     ./fd.nix
     ./fzf.nix
     ./git
+    ./helix.nix
     ./htop.nix
     ./hushlogin.nix
     ./k9s.nix
