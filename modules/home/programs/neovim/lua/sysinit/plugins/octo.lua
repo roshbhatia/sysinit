@@ -29,14 +29,14 @@ return {
           desc = "Review PR from current branch",
         },
         {
-          "<leader>grs",
+          "<leader>gfs",
           function()
             require("octo.utils").create_base_search_command({ include_current_repo = true })
           end,
           desc = "Search GitHub",
         },
         {
-          "<leader>op",
+          "<leader>gfp",
           "<CMD>Octo pr list<CR>",
           desc = "List GitHub PRs",
         },
