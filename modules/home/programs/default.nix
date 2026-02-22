@@ -23,6 +23,7 @@
     ./nh.nix
     ./nix-your-shell.nix
     ./nushell.nix
+    ./obsidian.nix
     ./omp.nix
     ./ssh.nix
     ./utils

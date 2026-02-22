@@ -81,11 +81,6 @@ return {
             return items
           end,
         },
-        orgmode = {
-          name = "Orgmode",
-          module = "orgmode.org.autocompletion.blink",
-          fallbacks = { "buffer" },
-        },
       }
 
       local sources = {
@@ -95,9 +90,6 @@ return {
         "path",
         "snippets",
         "copilot",
-        per_filetype = {
-          org = { "orgmode" },
-        },
       }
 
       return {

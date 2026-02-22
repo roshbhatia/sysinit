@@ -33,7 +33,6 @@ return {
         { "<leader>gr", group = "Github" },
         { "<leader>j", group = "AI Agents" },
         { "<leader>m", group = "Marks" },
-        { "<leader>o", group = "Orgmode" },
         { "<leader>q", group = "Qflist/Loclist" },
         { "<leader>r", group = "Debug" },
         { "gr", group = "LSP" },
