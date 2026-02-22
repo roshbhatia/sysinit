@@ -52,14 +52,22 @@ function M.setup(opts)
   if not augroup then
     augroup = vim.api.nvim_create_augroup("AIManager", { clear = true })
 
+    -- Proactive pane health check (every 5 seconds)
     vim.api.nvim_create_autocmd("CursorHold", {
       group = augroup,
       callback = function()
-        for _, term_data in pairs(terminals) do
+        for name, term_data in pairs(terminals) do
           if not backend.is_visible(term_data) then
-            -- Clear backend-specific visibility tracking
+            -- Mark terminal as stale but keep metadata for potential recovery
             term_data.pane_id = nil
             term_data.win = nil
+            term_data.stale_since = os.time()
+            if active_terminal == name then
+              active_terminal = nil
+            end
+          elseif term_data.stale_since then
+            -- Terminal recovered; clear stale marker
+            term_data.stale_since = nil
           end
         end
       end,
@@ -79,9 +87,11 @@ end
 function M.open(termname)
   local agent_config = config.terminals[termname]
   if not agent_config then
+    vim.notify(string.format("Terminal config not found: %s", termname), vim.log.levels.ERROR)
     return
   end
 
+  -- Check if terminal exists and is visible
   if terminals[termname] and backend.is_visible(terminals[termname]) then
     M.focus(termname)
     return
@@ -93,10 +103,28 @@ function M.open(termname)
   end
 
   local cwd = vim.fn.getcwd()
-  local term_data = backend.open(termname, agent_config, cwd)
+  
+  -- Attempt to reuse existing metadata if terminal was recently stale
+  local existing_data = terminals[termname]
+  local term_data
+  
+  if existing_data and existing_data.stale_since and (os.time() - existing_data.stale_since) < 30 then
+    -- Terminal is recently stale, try to recover first
+    term_data = backend.open(termname, agent_config, cwd)
+    if term_data then
+      -- Merge recovered metadata
+      term_data.cmd = existing_data.cmd or term_data.cmd
+      terminals[termname] = term_data
+    end
+  else
+    -- Fresh spawn
+    term_data = backend.open(termname, agent_config, cwd)
+    if term_data then
+      terminals[termname] = term_data
+    end
+  end
 
   if term_data then
-    terminals[termname] = term_data
     active_terminal = termname
   end
 end
@@ -348,10 +376,19 @@ function M.ensure_active_and_send(text)
     M.open(active_terminal)
     M.focus(active_terminal)
 
-    vim.fn.system("sleep 0.2")
-    if M.exists(active_terminal) then
-      M.send(active_terminal, text, { submit = true })
+    -- Use adaptive polling instead of fixed sleep
+    local max_retries = 20
+    local retry = 0
+    while retry < max_retries do
+      if M.exists(active_terminal) then
+        M.send(active_terminal, text, { submit = true })
+        return
+      end
+      vim.fn.system("sleep 0.05")
+      retry = retry + 1
     end
+    
+    vim.notify("Terminal failed to become ready within timeout", vim.log.levels.ERROR)
   else
     M.focus(active_terminal)
     M.send(active_terminal, text, { submit = true })

@@ -2,11 +2,20 @@ local M = {}
 
 local config = {}
 local parent_pane_id = nil
+local pane_error_count = {} -- Track spawn errors per pane
 
 -- Get the current WezTerm pane ID
 -- @return number|nil: Pane ID or nil if not in WezTerm
 local function get_current_pane_id()
   return tonumber(vim.env.WEZTERM_PANE)
+end
+
+-- Check if command exists in PATH
+-- @param cmd string: Command to check
+-- @return boolean: True if command exists
+local function command_exists(cmd)
+  local result = vim.fn.system(string.format("command -v %s >/dev/null 2>&1 && echo ok || echo fail", cmd))
+  return vim.trim(result) == "ok"
 end
 
 -- Get information about a specific pane
@@ -109,6 +118,13 @@ function M.open(termname, agent_config, cwd)
     return nil
   end
 
+  -- Validate command exists before attempting to spawn
+  local cmd_name = agent_config.cmd:match("^%S+")
+  if not command_exists(cmd_name) then
+    vim.notify(string.format("AI command not found: %s. Install or check PATH.", cmd_name), vim.log.levels.ERROR)
+    return nil
+  end
+
   -- Build environment setup
   local env_str = ""
   for key, value in pairs(config.env or {}) do
@@ -119,12 +135,13 @@ function M.open(termname, agent_config, cwd)
     env_str = env_str .. string.format("export NVIM_SOCKET_PATH=%s; ", vim.fn.shellescape(vim.env.NVIM_SOCKET_PATH))
   end
 
-  -- Build command with environment variables
-  local full_cmd = env_str .. agent_config.cmd
+  -- Build command with environment variables and error handling
+  -- Wrap in sh -c with error feedback
+  local full_cmd = env_str .. agent_config.cmd .. " || echo 'Agent command failed'"
 
   -- Spawn wezterm pane
   local spawn_cmd = string.format(
-    "wezterm cli split-pane --pane-id %d --right --percent 50 --cwd %s -- sh -c %s 2>/dev/null",
+    "wezterm cli split-pane --pane-id %d --right --percent 50 --cwd %s -- sh -c %s 2>&1",
     parent_pane_id,
     vim.fn.shellescape(cwd),
     vim.fn.shellescape(full_cmd)
@@ -145,14 +162,19 @@ function M.open(termname, agent_config, cwd)
 
   if not wait_for_pane(pane_id, 5) then
     vim.notify("Pane did not appear within timeout", vim.log.levels.ERROR)
+    pane_error_count[pane_id] = (pane_error_count[pane_id] or 0) + 1
     return nil
   end
+
+  -- Reset error count on successful spawn
+  pane_error_count[pane_id] = 0
 
   return {
     pane_id = pane_id,
     cmd = agent_config.cmd,
     cwd = cwd,
     name = termname,
+    created_at = os.time(),
   }
 end
 

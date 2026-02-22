@@ -108,6 +108,9 @@ function M.get_all()
 end
 
 function M.get_by_name(name)
+  if not name or name == "" then
+    return nil
+  end
   for _, agent in ipairs(agents) do
     if agent.name == name and is_executable_available(agent.cmd) then
       agent.full_cmd = build_command_string(agent)
@@ -118,6 +121,9 @@ function M.get_by_name(name)
 end
 
 function M.get_by_key(key)
+  if not key or key == "" then
+    return nil
+  end
   for _, agent in ipairs(agents) do
     if agent.key == key and is_executable_available(agent.cmd) then
       agent.full_cmd = build_command_string(agent)
