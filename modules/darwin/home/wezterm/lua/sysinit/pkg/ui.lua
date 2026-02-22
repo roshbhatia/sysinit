@@ -165,6 +165,25 @@ function M.setup(config)
       return fg and fg:find("n?vim$")
     end
 
+    local function validate_filepath(path)
+      if not path or path == "" then
+        return nil
+      end
+      return path
+    end
+
+    local function escape_nvim_arg(arg)
+      -- Escape for nvim ex-command context (single quotes with embedded quote escaping)
+      return arg:gsub("'", "'\\''")
+    end
+
+    local function send_to_nvim(escaped_path)
+      -- Send commands to running nvim instance via ex-commands
+      -- Neotree reveal will fail silently if plugin not installed; file still opens
+      local cmd = string.format(":vsplit '%s'\r:Neotree reveal\r", escaped_path)
+      window:perform_action(wezterm.action.SendString(cmd), pane)
+    end
+
     -- Git commit SHAs: show commit info
     if uri:find("^git://") then
       local sha = uri:gsub("^git://", "")
@@ -183,12 +202,19 @@ function M.setup(config)
     if uri:find("^file://") then
       local filepath = uri:gsub("^file://", "")
 
+      -- Validate path before processing
+      if not validate_filepath(filepath) then
+        wezterm.log_error("Invalid file path from hyperlink: " .. uri)
+        return true
+      end
+
       if is_nvim_running() then
-        local escaped = filepath:gsub("'", "'\\''")
-        window:perform_action(wezterm.action.SendString(string.format(":vsplit '%s'\r:Neotree reveal\r", escaped)), pane)
+        local escaped = escape_nvim_arg(filepath)
+        send_to_nvim(escaped)
         return false
       end
 
+      -- Spawn nvim in new pane if not running
       local dir = filepath:match("(.*/)")
       local nvim = utils.get_nix_binary("nvim")
       if dir then
