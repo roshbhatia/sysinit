@@ -146,6 +146,7 @@
 
     # AI & Editors
     claude-code
+    claude-code-acp
     github-copilot-cli
     copilot-language-server
     cursor-cli
