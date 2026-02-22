@@ -21,7 +21,7 @@ return {
     keys = function()
       return {
         {
-          "<leader>grr",
+          "<leader>gr",
           "<CMD>Octo review<CR>",
           mode = "n",
           noremap = true,
@@ -33,12 +33,12 @@ return {
           function()
             require("octo.utils").create_base_search_command({ include_current_repo = true })
           end,
-          desc = "Search GitHub",
+          desc = "GitHub query",
         },
         {
           "<leader>gfp",
           "<CMD>Octo pr list<CR>",
-          desc = "List GitHub PRs",
+          desc = "GitHub PRs",
         },
       }
     end,

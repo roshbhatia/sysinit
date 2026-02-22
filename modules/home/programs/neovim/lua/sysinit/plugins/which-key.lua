@@ -30,7 +30,7 @@ return {
         { "<leader>g", group = "Git" },
         { "<leader>gb", group = "Buffer" },
         { "<leader>gh", group = "Hunk" },
-        { "<leader>gr", group = "Github" },
+        { "<leader>gf", group = "Find" },
         { "<leader>j", group = "AI Agents" },
         { "<leader>m", group = "Marks" },
         { "<leader>q", group = "Qflist/Loclist" },

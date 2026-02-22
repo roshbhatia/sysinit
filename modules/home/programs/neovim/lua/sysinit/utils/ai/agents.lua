@@ -42,14 +42,19 @@ local agents = {
     label = "Claude",
     icon = "  ",
     cmd = "claude",
-    args = { "--permission-mode", "plan" },
+    args = {
+      "--permission-mode",
+      "plan",
+    },
   },
   {
     name = "amp",
     label = "Amp",
     icon = " 󰫤 ",
     cmd = "amp",
-    args = { "--ide" },
+    args = {
+      "--ide",
+    },
   },
   {
     name = "cursor",
@@ -63,14 +68,19 @@ local agents = {
     label = "Copilot",
     icon = "  ",
     cmd = "copilot",
-    args = { "--allow-all-paths" },
+    args = {
+      "--allow-all-paths",
+    },
   },
   {
     name = "gemini",
     label = "Gemini",
     icon = " 󰊭 ",
     cmd = "gemini",
-    args = {},
+    args = {
+      "--resume",
+      "--auto_edit",
+    },
   },
   {
     name = "codex",
