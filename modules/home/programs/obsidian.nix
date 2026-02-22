@@ -17,10 +17,10 @@
           };
 
           communityPlugins = [
-            { pkg = "obsidian-vimrc-support"; enable = true; }
-            { pkg = "obsidian-vimium"; enable = true; }
-            { pkg = "obsidian-mermaid"; enable = true; }
-            { pkg = "obsidian-code-emitter"; enable = true; }
+            "obsidian-vimrc-support"
+            "obsidian-vimium"
+            "obsidian-mermaid"
+            "obsidian-code-emitter"
           ];
 
           extraFiles = {
