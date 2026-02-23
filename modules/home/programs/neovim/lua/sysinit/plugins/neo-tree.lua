@@ -48,6 +48,7 @@ return {
       local events = require("neo-tree.events")
 
       require("neo-tree").setup({
+        log_level = vim.log.levels.OFF,
         close_if_last_window = true,
         enable_diagnostics = true,
         enable_modified_markers = false,
