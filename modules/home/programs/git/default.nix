@@ -271,6 +271,7 @@ in
           };
           credential."https://github.com" = {
             helper = "!${pkgs.gh}/bin/gh auth git-credential";
+            username = workGithubUser;
           };
         };
       }
@@ -286,6 +287,7 @@ in
           };
           credential."https://github.com" = {
             helper = "!${pkgs.gh}/bin/gh auth git-credential";
+            username = personalGithubUser;
           };
         };
       }
@@ -301,6 +303,7 @@ in
           };
           credential."https://github.com" = {
             helper = "!${pkgs.gh}/bin/gh auth git-credential";
+            username = personalGithubUser;
           };
         };
       }
@@ -316,6 +319,7 @@ in
           };
           credential."https://github.com" = {
             helper = "!${pkgs.gh}/bin/gh auth git-credential";
+            username = personalGithubUser;
           };
         };
       }
