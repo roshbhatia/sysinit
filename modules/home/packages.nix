@@ -169,6 +169,7 @@
     textlint
     devbox
     go-task
+    markdown-oxide
     meld
     sad
   ];
