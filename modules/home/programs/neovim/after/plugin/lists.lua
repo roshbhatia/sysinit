@@ -83,17 +83,3 @@ Snacks.keymap.set("n", "<leader>qq", toggle_qf, { desc = "Toggle quickfix" })
 Snacks.keymap.set("n", "<leader>ql", toggle_loclist, { desc = "Toggle loclist" })
 Snacks.keymap.set("n", "]q", next_item, { desc = "Next qf/loc item" })
 Snacks.keymap.set("n", "[q", prev_item, { desc = "Prev qf/loc item" })
-
-local augroup = vim.api.nvim_create_augroup("QuickfixConfig", { clear = true })
-
-vim.api.nvim_create_autocmd("FileType", {
-  group = augroup,
-  pattern = "qf",
-  callback = function()
-    vim.opt_local.number = false
-    vim.opt_local.wrap = false
-    vim.opt_local.spell = false
-    vim.opt_local.cursorline = true
-    Snacks.keymap.set("n", "q", "<cmd>close<cr>", { buffer = true, desc = "Close" })
-  end,
-})

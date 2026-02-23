@@ -39,12 +39,6 @@ vim.api.nvim_create_autocmd("User", {
   end,
 })
 
--- Make sure help docs are verticalsplits and activated
-vim.api.nvim_create_autocmd("FileType", {
-  pattern = "help",
-  command = "wincmd L",
-})
-
 vim.api.nvim_create_user_command("Bufonly", function()
   Snacks.bufdelete.other({
     force = true,
