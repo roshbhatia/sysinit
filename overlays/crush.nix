@@ -17,7 +17,9 @@ in
       hash = "sha256-UyK03jnD6A5/NO/evG56dbn8GyDyVSnfFgdxl5toH14=";
     };
 
-    vendorHash = null;
+    # Let Nix handle vendoring - upstream vendor dir is out of sync
+    vendorHash = "sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=";
+    proxyVendor = true;
 
     meta = with final.lib; {
       description = "A shared key-value store for the terminal";
