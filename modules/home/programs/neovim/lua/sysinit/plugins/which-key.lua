@@ -32,8 +32,8 @@ return {
         { "<leader>gh", group = "Hunk" },
         { "<leader>gf", group = "Find" },
         { "<leader>j", group = "AI Agents" },
+        { "<localleader>x", group = "Filetype Specific" },
         { "<leader>m", group = "Marks" },
-        { "<leader>q", group = "Qflist/Loclist" },
         { "<leader>r", group = "Debug" },
         { "gr", group = "LSP" },
       })

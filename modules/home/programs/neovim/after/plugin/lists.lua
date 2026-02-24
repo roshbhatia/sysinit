@@ -29,36 +29,6 @@ local function is_loc_win()
   local wininfo = vim.fn.getwininfo(vim.api.nvim_get_current_win())[1]
   return wininfo and wininfo.loclist == 1
 end
-
-local function toggle_qf()
-  local qf_winid = get_qf_winid()
-  if qf_winid then
-    vim.cmd("cclose")
-    return
-  end
-  local qflist = vim.fn.getqflist()
-  if vim.tbl_isempty(qflist) then
-    vim.notify("Quickfix list is empty", vim.log.levels.INFO)
-    return
-  end
-  vim.cmd(string.format("copen %d", math.min(#qflist, 10)))
-end
-
-local function toggle_loclist()
-  local win = vim.api.nvim_get_current_win()
-  local loc_winid = get_loc_winid(win)
-  if loc_winid then
-    vim.cmd("lclose")
-    return
-  end
-  local loclist = vim.fn.getloclist(win)
-  if vim.tbl_isempty(loclist) then
-    vim.notify("Location list is empty", vim.log.levels.INFO)
-    return
-  end
-  vim.cmd(string.format("lopen %d", math.min(#loclist, 10)))
-end
-
 local function next_item()
   if is_qf_win() or (get_qf_winid() and not get_loc_winid()) then
     vim.cmd("cnext")
@@ -79,7 +49,5 @@ local function prev_item()
   end
 end
 
-Snacks.keymap.set("n", "<leader>qq", toggle_qf, { desc = "Toggle quickfix" })
-Snacks.keymap.set("n", "<leader>ql", toggle_loclist, { desc = "Toggle loclist" })
 Snacks.keymap.set("n", "]q", next_item, { desc = "Next qf/loc item" })
 Snacks.keymap.set("n", "[q", prev_item, { desc = "Prev qf/loc item" })
