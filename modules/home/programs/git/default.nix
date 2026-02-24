@@ -13,8 +13,7 @@ let
   personalGithubUser = if cfg.personalUsername != null then cfg.personalUsername else cfg.username;
   workGithubUser = if cfg.workUsername != null then cfg.workUsername else cfg.username;
 
-  personalCredentialHelper = "!/bin/sh -c 'GH_TOKEN=$(${pkgs.gh}/bin/gh auth token -u ${personalGithubUser}) exec ${pkgs.gh}/bin/gh auth git-credential \"$1\"' -";
-  workCredentialHelper = "!/bin/sh -c 'GH_TOKEN=$(${pkgs.gh}/bin/gh auth token -u ${workGithubUser}) exec ${pkgs.gh}/bin/gh auth git-credential \"$1\"' -";
+  credentialHelper = "!${pkgs.gh}/bin/gh auth git-credential";
 in
 {
   imports = [
@@ -254,6 +253,15 @@ in
       rebase = {
         updateRefs = true;
       };
+
+      credential = {
+        "https://github.com".helper = credentialHelper;
+        "https://gist.github.com".helper = credentialHelper;
+      };
+
+      user = {
+        inherit (cfg) name;
+      };
     };
 
     includes = [
@@ -261,13 +269,8 @@ in
         condition = "gitdir:~/github/work/";
         contents = {
           user = {
-            inherit (cfg) name;
             email = workEmail;
             username = workGithubUser;
-          };
-          credential = {
-            "https://github.com".helper = workCredentialHelper;
-            "https://gist.github.com".helper = workCredentialHelper;
           };
         };
       }
@@ -275,13 +278,8 @@ in
         condition = "gitdir:~/github/personal/";
         contents = {
           user = {
-            inherit (cfg) name;
             email = personalEmail;
             username = personalGithubUser;
-          };
-          credential = {
-            "https://github.com".helper = personalCredentialHelper;
-            "https://gist.github.com".helper = personalCredentialHelper;
           };
         };
       }
@@ -289,13 +287,8 @@ in
         condition = "gitdir:~/orgfiles/";
         contents = {
           user = {
-            inherit (cfg) name;
             email = personalEmail;
             username = personalGithubUser;
-          };
-          credential = {
-            "https://github.com".helper = personalCredentialHelper;
-            "https://gist.github.com".helper = personalCredentialHelper;
           };
         };
       }
@@ -303,13 +296,8 @@ in
         condition = "gitdir:~/.local/share/";
         contents = {
           user = {
-            inherit (cfg) name;
             email = workEmail;
             username = workGithubUser;
-          };
-          credential = {
-            "https://github.com".helper = workCredentialHelper;
-            "https://gist.github.com".helper = workCredentialHelper;
           };
         };
       }
