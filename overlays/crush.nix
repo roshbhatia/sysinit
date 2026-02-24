@@ -1,7 +1,12 @@
 _:
 
-final: _prev: {
-  crush = final.buildGoModule rec {
+final: _prev:
+let
+  # crush 0.44.0 requires Go 1.26+
+  buildGoModule = final.buildGoModule.override { go = final.go_1_26; };
+in
+{
+  crush = buildGoModule rec {
     pname = "crush";
     version = "0.44.0";
 
@@ -13,9 +18,6 @@ final: _prev: {
     };
 
     vendorHash = null;
-
-    # crush 0.44.0 requires Go 1.26+
-    go = final.go_1_26;
 
     meta = with final.lib; {
       description = "A shared key-value store for the terminal";
