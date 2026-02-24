@@ -11,6 +11,14 @@ let
   workEmail = if cfg.workEmail != null then cfg.workEmail else cfg.email;
   personalGithubUser = if cfg.personalUsername != null then cfg.personalUsername else cfg.username;
   workGithubUser = if cfg.workUsername != null then cfg.workUsername else cfg.username;
+  # A small credential helper that prefers an env-supplied GH_TOKEN and
+  # otherwise delegates to the official gh helper. We create it here so
+  # the git module can point to a single, consistent helper path.
+  ghCredHelper = pkgs.writeScriptBin "gh-credential" (
+    pkgs.lib.replaceStrings [ "__GH_PATH__" ] [ "${pkgs.gh}/bin/gh" ] (
+      builtins.readFile ./gh-credential.sh
+    )
+  );
 in
 {
   imports = [
@@ -210,7 +218,7 @@ in
       };
 
       credential."https://github.com" = {
-        helper = "!${pkgs.gh}/bin/gh auth git-credential";
+        helper = "!${ghCredHelper}";
       };
 
       merge = {
@@ -268,9 +276,6 @@ in
           github = {
             user = workGithubUser;
           };
-          credential."https://github.com" = {
-            username = workGithubUser;
-          };
         };
       }
       {
@@ -282,9 +287,6 @@ in
           };
           github = {
             user = personalGithubUser;
-          };
-          credential."https://github.com" = {
-            username = personalGithubUser;
           };
         };
       }
@@ -298,9 +300,6 @@ in
           github = {
             user = personalGithubUser;
           };
-          credential."https://github.com" = {
-            username = personalGithubUser;
-          };
         };
       }
       {
@@ -312,9 +311,6 @@ in
           };
           github = {
             user = personalGithubUser;
-          };
-          credential."https://github.com" = {
-            username = personalGithubUser;
           };
         };
       }
