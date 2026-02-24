@@ -1,10 +1,10 @@
-Snacks.keymap.set("n", "<localleader>x", function()
+Snacks.keymap.set("n", "<localleader>xx", function()
   local file = vim.fn.expand("%:p")
   vim.fn.system(string.format("chmod +x %s", vim.fn.shellescape(file)))
   vim.notify("Made executable: " .. vim.fn.expand("%:t"), vim.log.levels.INFO)
 end, { ft = "sh", desc = "Make executable" })
 
-Snacks.keymap.set("n", "<localleader>r", function()
+Snacks.keymap.set("n", "<localleader>xr", function()
   local file = vim.fn.expand("%:p")
   vim.cmd("split | term " .. vim.fn.shellescape(file))
 end, { ft = "sh", desc = "Run script" })

@@ -41,7 +41,7 @@ end, {
   end,
 })
 
-Snacks.keymap.set("n", "<localleader>s", function()
+Snacks.keymap.set("n", "<localleader>xs", function()
   local yaml_schema = require("sysinit.utils.yaml_schema")
   yaml_schema.show_schema_picker(false)
 end, {
@@ -49,7 +49,7 @@ end, {
   buffer = true,
 })
 
-Snacks.keymap.set("n", "<localleader>cu", function()
+Snacks.keymap.set("n", "<localleader>xu", function()
   local yaml_schema = require("sysinit.utils.yaml_schema")
   yaml_schema.cache_schema_from_url()
 end, {
@@ -57,7 +57,7 @@ end, {
   buffer = true,
 })
 
-Snacks.keymap.set("n", "<localleader>cc", function()
+Snacks.keymap.set("n", "<localleader>xc", function()
   local yaml_schema = require("sysinit.utils.yaml_schema")
   yaml_schema.cache_schema_from_clipboard()
 end, {
@@ -65,7 +65,7 @@ end, {
   buffer = true,
 })
 
-Snacks.keymap.set("n", "<localleader>cf", function()
+Snacks.keymap.set("n", "<localleader>xf", function()
   local yaml_schema = require("sysinit.utils.yaml_schema")
   yaml_schema.cache_schema_from_file()
 end, {

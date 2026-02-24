@@ -1,8 +1,8 @@
 vim.opt_local.commentstring = "{{/* %s */}}"
 
-Snacks.keymap.set("n", "<localleader>v", "i{{ . }}<Esc>", { ft = "gotmpl", desc = "Insert variable" })
-Snacks.keymap.set("n", "<localleader>r", "i{{ range . }}<CR>{{ end }}<Esc>k", { ft = "gotmpl", desc = "Insert range" })
-Snacks.keymap.set("n", "<localleader>i", "i{{ if . }}<CR>{{ end }}<Esc>k", { ft = "gotmpl", desc = "Insert if" })
+Snacks.keymap.set("n", "<localleader>xv", "i{{ . }}<Esc>", { ft = "gotmpl", desc = "Insert variable" })
+Snacks.keymap.set("n", "<localleader>xr", "i{{ range . }}<CR>{{ end }}<Esc>k", { ft = "gotmpl", desc = "Insert range" })
+Snacks.keymap.set("n", "<localleader>xi", "i{{ if . }}<CR>{{ end }}<Esc>k", { ft = "gotmpl", desc = "Insert if" })
 
 local function sprig(name, desc, ...)
   local args = { ... }
