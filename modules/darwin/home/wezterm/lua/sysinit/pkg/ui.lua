@@ -98,39 +98,15 @@ function M.setup(config)
 
   -- Handle custom URI schemes
   wezterm.on("open-uri", function(window, pane, uri)
-    local function split_pane_right(args)
-      window:perform_action(wezterm.action.SplitPane({ direction = "Right", command = { args = args } }), pane)
+    local function spawn_new_window(args)
+      window:perform_action(wezterm.action.SpawnWindow({ args = args }), pane)
     end
 
-    local function is_nvim_running()
-      local fg = pane:get_foreground_process_name()
-      return fg and fg:find("n?vim$")
-    end
-
-    local function validate_filepath(path)
-      if not path or path == "" then
-        return nil
-      end
-      return path
-    end
-
-    local function escape_nvim_arg(arg)
-      -- Escape for nvim ex-command context (single quotes with embedded quote escaping)
-      return arg:gsub("'", "'\\''")
-    end
-
-    local function send_to_nvim(escaped_path)
-      -- Send commands to running nvim instance via ex-commands
-      -- Neotree reveal will fail silently if plugin not installed; file still opens
-      local cmd = string.format(":vsplit '%s'\r:Neotree reveal\r", escaped_path)
-      window:perform_action(wezterm.action.SendString(cmd), pane)
-    end
-
-    -- Git commit SHAs: show commit info
+    -- Git commit SHAs: show commit info in new window
     if uri:find("^git://") then
       local sha = uri:gsub("^git://", "")
       if sha:match("^[0-9a-f]+$") and #sha >= 7 and #sha <= 40 then
-        split_pane_right({
+        spawn_new_window({
           "zsh",
           "-c",
           string.format("git show %s --stat --pretty=fuller || echo 'Not a valid git commit'", sha),
@@ -140,39 +116,32 @@ function M.setup(config)
       return true
     end
 
-    -- File paths: open in nvim
+    -- File paths: open in nvim in new window
     if uri:find("^file://") then
       local filepath = uri:gsub("^file://", "")
 
       -- Validate path before processing
-      if not validate_filepath(filepath) then
+      if not filepath or filepath == "" then
         wezterm.log_error("Invalid file path from hyperlink: " .. uri)
         return true
       end
 
-      if is_nvim_running() then
-        local escaped = escape_nvim_arg(filepath)
-        send_to_nvim(escaped)
-        return false
-      end
-
-      -- Spawn nvim in new pane if not running
-      local dir = filepath:match("(.*/)")
       local nvim = utils.get_nix_binary("nvim")
+      local dir = filepath:match("(.*/)")
       if dir then
-        split_pane_right({ "zsh", "-c", string.format("cd '%s' && %s '%s'", dir, nvim, filepath) })
+        spawn_new_window({ "zsh", "-c", string.format("cd '%s' && %s '%s'", dir, nvim, filepath) })
       else
-        split_pane_right({ nvim, filepath })
+        spawn_new_window({ nvim, filepath })
       end
       return false
     end
 
-    -- Images: display with chafa
+    -- Images: display with chafa in new window
     local image_exts = { "png", "jpg", "jpeg", "gif", "bmp", "webp", "svg", "ico" }
     for _, ext in ipairs(image_exts) do
       if uri:lower():match("%." .. ext .. "$") or uri:lower():match("%." .. ext .. "[?#]") then
         local escaped = uri:gsub("'", "'\\''")
-        split_pane_right({
+        spawn_new_window({
           "zsh",
           "-c",
           string.format("chafa '%s' 2>/dev/null || echo 'Failed to display image'", escaped),
