@@ -209,9 +209,8 @@ in
         hooksPath = ".githooks";
       };
 
-      # Global credential settings - context-specific helpers in includes
-      credential = {
-        helper = "";
+      credential."https://github.com" = {
+        helper = "!${pkgs.gh}/bin/gh auth git-credential";
       };
 
       merge = {
@@ -263,14 +262,13 @@ in
         condition = "gitdir:~/github/work/";
         contents = {
           user = {
-            name = cfg.name;
+            inherit (cfg) name;
             email = workEmail;
           };
           github = {
             user = workGithubUser;
           };
           credential."https://github.com" = {
-            helper = "!${pkgs.gh}/bin/gh auth git-credential";
             username = workGithubUser;
           };
         };
@@ -279,14 +277,13 @@ in
         condition = "gitdir:~/github/personal/";
         contents = {
           user = {
-            name = cfg.name;
+            inherit (cfg) name;
             email = personalEmail;
           };
           github = {
             user = personalGithubUser;
           };
           credential."https://github.com" = {
-            helper = "!${pkgs.gh}/bin/gh auth git-credential";
             username = personalGithubUser;
           };
         };
@@ -295,14 +292,13 @@ in
         condition = "gitdir:~/orgfiles/";
         contents = {
           user = {
-            name = cfg.name;
+            inherit (cfg) name;
             email = personalEmail;
           };
           github = {
             user = personalGithubUser;
           };
           credential."https://github.com" = {
-            helper = "!${pkgs.gh}/bin/gh auth git-credential";
             username = personalGithubUser;
           };
         };
@@ -311,14 +307,13 @@ in
         condition = "gitdir:~/.local/share/";
         contents = {
           user = {
-            name = cfg.name;
+            inherit (cfg) name;
             email = personalEmail;
           };
           github = {
             user = personalGithubUser;
           };
           credential."https://github.com" = {
-            helper = "!${pkgs.gh}/bin/gh auth git-credential";
             username = personalGithubUser;
           };
         };
