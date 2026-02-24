@@ -157,10 +157,9 @@
         alt-j = "focus down";
         alt-k = "focus up";
         alt-l = "focus right";
-        alt-shift-h = "resize width -72";
-        alt-shift-j = "resize height -72";
-        alt-shift-k = "resize height +72";
-        alt-shift-l = "resize width +72";
+
+        alt-shift-j = "resize smart -72";
+        alt-shift-k = "resize smart +72";
 
         alt-1 = "workspace 1";
         alt-2 = "workspace 2";
