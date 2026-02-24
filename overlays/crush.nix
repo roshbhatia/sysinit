@@ -40,7 +40,7 @@ in
 
     installPhase = ''
       runHook preInstall
-      install -Dm755 crush $out/bin/crush
+      install -Dm755 crush_${version}_${info.platform}/crush $out/bin/crush
       runHook postInstall
     '';
 
