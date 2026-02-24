@@ -23,7 +23,6 @@ in
 
   programs.git = {
     enable = true;
-    package = pkgs.git;
 
     ignores = [
       # macOS
