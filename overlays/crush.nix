@@ -1,15 +1,15 @@
-{ ... }:
+_:
 
 final: _prev: {
   crush = final.buildGoModule rec {
     pname = "crush";
-    version = "0.43.1";
+    version = "0.44.0";
 
     src = final.fetchFromGitHub {
       owner = "charmbracelet";
       repo = "crush";
       rev = "v${version}";
-      hash = "sha256-WTu/OGxwAMk90i1tYTdznw9HYoW3pLdE88W8vEqqG4c=";
+      hash = "sha256-UyK03jnD6A5/NO/evG56dbn8GyDyVSnfFgdxl5toH14=";
     };
 
     vendorHash = null;
