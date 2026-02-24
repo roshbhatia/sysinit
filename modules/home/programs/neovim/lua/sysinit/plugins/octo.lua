@@ -6,11 +6,8 @@ return {
       "nvim-tree/nvim-web-devicons",
       "nvim-treesitter/nvim-treesitter",
     },
-    cmd = { "Octo" },
     config = function()
       require("octo").setup({
-        use_local_fs = true,
-        enable_builtin = true,
         default_merge_method = "rebase",
         default_delete_branch = true,
         picker = "snacks",
