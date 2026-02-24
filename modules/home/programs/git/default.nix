@@ -255,6 +255,9 @@ in
       };
 
       credential = {
+        # Override macOS Git's default system helper (osxkeychain). We rely on
+        # host-scoped helpers below (e.g. gh for GitHub/Gist).
+        helper = "";
         "https://github.com".helper = credentialHelper;
         "https://gist.github.com".helper = credentialHelper;
       };
