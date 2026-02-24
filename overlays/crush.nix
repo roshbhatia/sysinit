@@ -14,6 +14,9 @@ final: _prev: {
 
     vendorHash = null;
 
+    # crush 0.44.0 requires Go 1.26+
+    go = final.go_1_26;
+
     meta = with final.lib; {
       description = "A shared key-value store for the terminal";
       homepage = "https://github.com/charmbracelet/crush";
