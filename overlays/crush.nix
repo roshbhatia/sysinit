@@ -8,19 +8,19 @@ let
   platformInfo = {
     "aarch64-darwin" = {
       platform = "Darwin_arm64";
-      hash = "sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=";
+      hash = "sha256-yRN319nsZaG6qdcv0EErqNRhBkvsqg1n/7TQy9K+j04=";
     };
     "x86_64-darwin" = {
       platform = "Darwin_x86_64";
-      hash = "sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=";
+      hash = "sha256-eB/Eg1dZUSrpBHmxWMS1ydydtVsOM8+tRIT3qQk3jeA=";
     };
     "aarch64-linux" = {
       platform = "Linux_arm64";
-      hash = "sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=";
+      hash = "sha256-QGFFjDHTRx5ACowDO6WF4LLioBZfoxV6knJ1Xr20q2Y=";
     };
     "x86_64-linux" = {
       platform = "Linux_x86_64";
-      hash = "sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=";
+      hash = "sha256-APpcMGuz38PMB2Hr+nKNZisu0NqxZNzHoTuXf2NidR8=";
     };
   };
 
