@@ -45,63 +45,6 @@ return {
       vim.g.disable_autoformat = false
       vim.b.disable_autoformat = false
 
-      -- Run statix fix after save for Nix files
-      vim.api.nvim_create_autocmd("BufWritePost", {
-        desc = "Run statix fix after formatting Nix files",
-        pattern = "*.nix",
-        group = vim.api.nvim_create_augroup("StatixFormat", { clear = true }),
-        callback = function(ev)
-          local filename = vim.api.nvim_buf_get_name(ev.buf)
-
-          -- Run statix fix on the saved file
-          local result = vim.fn.system("statix fix " .. vim.fn.shellescape(filename))
-          if vim.v.shell_error ~= 0 then
-            vim.notify("statix fix failed: " .. result, vim.log.levels.WARN)
-            return
-          end
-
-          -- Auto-reload if statix modified the file
-          -- Use a small delay to ensure file is written
-          vim.defer_fn(function()
-            -- Only reload if buffer is still valid and unmodified
-            if vim.api.nvim_buf_is_valid(ev.buf) and not vim.bo[ev.buf].modified then
-              local bufname = vim.api.nvim_buf_get_name(ev.buf)
-              -- Check if current buffer matches the one we're processing
-              if bufname == filename then
-                vim.cmd("checktime")
-              end
-            end
-          end, 100)
-        end,
-      })
-
-      -- Run goimports before gofmt for Go files (via LSP)
-      vim.api.nvim_create_autocmd("BufWritePre", {
-        desc = "Run goimports before formatting Go files",
-        pattern = "*.go",
-        group = vim.api.nvim_create_augroup("GoImportsFormat", { clear = true }),
-        callback = function(ev)
-          local conform_opts = { bufnr = ev.buf, lsp_format = "fallback", timeout_ms = 2000 }
-          local client = vim.lsp.get_clients({ name = "gopls", bufnr = ev.buf })[1]
-
-          if not client then
-            require("conform").format(conform_opts)
-            return
-          end
-
-          local request_result = client:request_sync("workspace/executeCommand", {
-            command = "source.organizeImports",
-            arguments = { vim.api.nvim_buf_get_name(ev.buf) },
-          })
-
-          if request_result and request_result.err then
-            vim.notify(request_result.err.message, vim.log.levels.WARN)
-          end
-
-          require("conform").format(conform_opts)
-        end,
-      })
-
       vim.api.nvim_create_user_command("Format", function(args)
         local range = nil
         if args.count ~= -1 then
