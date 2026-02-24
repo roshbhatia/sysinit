@@ -23,10 +23,12 @@
         outer = {
           left = [
             { monitor."LG HDR 4K" = 400; }
+            { monitor."DELL U3824DW" = 128; }
             16
           ];
           right = [
             { monitor."LG HDR 4K" = 400; }
+            { monitor."DELL U3824DW" = 128; }
             16
           ];
           top = [
