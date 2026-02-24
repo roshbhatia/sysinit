@@ -93,66 +93,8 @@ function M.setup(config)
     bottom = "0cell",
   }
 
-  -- Hyperlink rules for clickable URLs and file paths
-  -- Not using default_hyperlink_rules() to avoid making all SHA hashes clickable indiscriminately
-  config.hyperlink_rules = {
-    -- HTTP/HTTPS URLs
-    -- Matches: https://example.com, http://localhost:3000
-    {
-      regex = [[\bhttps?://\S+\b]],
-      format = "$0",
-    },
-
-    -- Git commit SHAs (7-40 hex chars)
-    -- Matches: 9239d87, 9239d87aa56a7d4240968ab7bef39ea8ccfa2641
-    -- Uses git:// scheme to trigger custom handler
-    {
-      regex = [[\b[0-9a-f]{7,40}\b]],
-      format = "git://$0",
-    },
-
-    -- Git protocols
-    -- Matches: git://repo, git@github.com:user/repo
-    {
-      regex = [[\bgit[@:][\w.\-]+[:/][\w.\-/]+]],
-      format = "$0",
-    },
-
-    -- SSH URLs
-    -- Matches: ssh://user@host
-    {
-      regex = [[\bssh://\S+\b]],
-      format = "$0",
-    },
-
-    -- Unix domain socket paths
-    -- Matches: unix:///path/to/socket, unix:/var/run/docker.sock
-    {
-      regex = [[unix://[/\w\d.\-_]+]],
-      format = "$0",
-    },
-
-    -- FTP paths
-    -- Matches: ftp://ftp.example.com/path
-    {
-      regex = [[ftp://[^\s]+]],
-      format = "$0",
-    },
-
-    -- Absolute file paths (starts with / or ~)
-    -- Matches: /path/to/file, ~/documents/file.txt, /etc/config-*.yaml (optionally quoted)
-    {
-      regex = [=[["]?([\w\d]{1}[\w\d.\-_*?]+(/[\w\d.\-_*?]+)+)["]?]=],
-      format = "file://$1",
-    },
-
-    -- Relative paths (starts with ./ or ../)
-    -- Matches: ./file, ../parent/file, ./something-*.yaml, ../../another/path
-    {
-      regex = [=[\.\.?/[\w\d.\-_/*?]+]=],
-      format = "file://$0",
-    },
-  }
+  -- Use default hyperlink rules (handles http/https, ssh, git, etc.)
+  config.hyperlink_rules = wezterm.default_hyperlink_rules()
 
   -- Handle custom URI schemes
   wezterm.on("open-uri", function(window, pane, uri)
