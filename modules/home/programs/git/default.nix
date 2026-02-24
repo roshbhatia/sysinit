@@ -263,9 +263,11 @@ in
           user = {
             inherit (cfg) name;
             email = workEmail;
+            username = workGithubUser;
           };
-          credential."https://github.com" = {
-            helper = workCredentialHelper;
+          credential = {
+            "https://github.com".helper = workCredentialHelper;
+            "https://gist.github.com".helper = workCredentialHelper;
           };
         };
       }
@@ -275,9 +277,11 @@ in
           user = {
             inherit (cfg) name;
             email = personalEmail;
+            username = personalGithubUser;
           };
-          credential."https://github.com" = {
-            helper = personalCredentialHelper;
+          credential = {
+            "https://github.com".helper = personalCredentialHelper;
+            "https://gist.github.com".helper = personalCredentialHelper;
           };
         };
       }
@@ -287,9 +291,11 @@ in
           user = {
             inherit (cfg) name;
             email = personalEmail;
+            username = personalGithubUser;
           };
-          credential."https://github.com" = {
-            helper = personalCredentialHelper;
+          credential = {
+            "https://github.com".helper = personalCredentialHelper;
+            "https://gist.github.com".helper = personalCredentialHelper;
           };
         };
       }
@@ -299,9 +305,11 @@ in
           user = {
             inherit (cfg) name;
             email = workEmail;
+            username = workGithubUser;
           };
-          credential."https://github.com" = {
-            helper = workCredentialHelper;
+          credential = {
+            "https://github.com".helper = workCredentialHelper;
+            "https://gist.github.com".helper = workCredentialHelper;
           };
         };
       }
