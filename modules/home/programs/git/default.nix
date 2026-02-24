@@ -13,8 +13,8 @@ let
   personalGithubUser = if cfg.personalUsername != null then cfg.personalUsername else cfg.username;
   workGithubUser = if cfg.workUsername != null then cfg.workUsername else cfg.username;
 
-  personalCredentialHelper = "!/bin/sh -c 'GH_TOKEN=$(${pkgs.gh}/bin/gh auth token -u ${personalGithubUser}) ${pkgs.gh}/bin/gh auth git-credential'";
-  workCredentialHelper = "!/bin/sh -c 'GH_TOKEN=$(${pkgs.gh}/bin/gh auth token -u ${workGithubUser}) ${pkgs.gh}/bin/gh auth git-credential'";
+  personalCredentialHelper = "!/bin/sh -c 'GH_TOKEN=$(${pkgs.gh}/bin/gh auth token -u ${personalGithubUser}) exec ${pkgs.gh}/bin/gh auth git-credential \"$1\"' -";
+  workCredentialHelper = "!/bin/sh -c 'GH_TOKEN=$(${pkgs.gh}/bin/gh auth token -u ${workGithubUser}) exec ${pkgs.gh}/bin/gh auth git-credential \"$1\"' -";
 in
 {
   imports = [
