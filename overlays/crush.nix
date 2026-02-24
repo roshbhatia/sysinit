@@ -1,20 +1,24 @@
 { ... }:
 
 final: _prev: {
-  crush = final.writeShellScriptBin "crush" ''
-    set -euo pipefail
+  crush = final.buildGoModule rec {
+    pname = "crush";
+    version = "0.43.1";
 
-    cache_root="''${XDG_CACHE_HOME:-$HOME/.cache}/crush"
-    bin_dir="$cache_root/bin"
+    src = final.fetchFromGitHub {
+      owner = "charmbracelet";
+      repo = "crush";
+      rev = "v${version}";
+      hash = "sha256-WTu/OGxwAMk90i1tYTdznw9HYoW3pLdE88W8vEqqG4c=";
+    };
 
-    export GOBIN="$bin_dir"
-    export GOMODCACHE="$cache_root/gomod"
+    vendorHash = null;
 
-    if [ ! -x "$bin_dir/crush" ]; then
-      mkdir -p "$bin_dir" "$GOMODCACHE"
-      "${final.go}/bin/go" install github.com/charmbracelet/crush@v0.43.1
-    fi
-
-    exec "$bin_dir/crush" "$@"
-  '';
+    meta = with final.lib; {
+      description = "A shared key-value store for the terminal";
+      homepage = "https://github.com/charmbracelet/crush";
+      license = licenses.mit;
+      mainProgram = "crush";
+    };
+  };
 }
