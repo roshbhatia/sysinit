@@ -17,29 +17,29 @@
 
       gaps = {
         inner = {
-          horizontal = 16;
-          vertical = 16;
+          horizontal = 8;
+          vertical = 8;
         };
         outer = {
           left = [
-            { monitor."LG HDR 4K" = 24; }
+            { monitor."LG HDR 4K" = 400; }
             { monitor."DELL U3824DW" = 358; }
             16
           ];
           right = [
-            { monitor."LG HDR 4K" = 24; }
+            { monitor."LG HDR 4K" = 400; }
             { monitor."DELL U3824DW" = 358; }
             16
           ];
           top = [
             { monitor."LG HDR 4K" = 200; }
             { monitor."DELL U3824DW" = 56; }
-            52
+            56
           ];
           bottom = [
             { monitor."LG HDR 4K" = 200; }
-            { monitor."DELL U3824DW" = 16; }
-            6
+            { monitor."DELL U3824DW" = 12; }
+            12
           ];
         };
       };
