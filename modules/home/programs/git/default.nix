@@ -9,16 +9,12 @@ let
 
   personalEmail = if cfg.personalEmail != null then cfg.personalEmail else cfg.email;
   workEmail = if cfg.workEmail != null then cfg.workEmail else cfg.email;
+
   personalGithubUser = if cfg.personalUsername != null then cfg.personalUsername else cfg.username;
   workGithubUser = if cfg.workUsername != null then cfg.workUsername else cfg.username;
-  # A small credential helper that prefers an env-supplied GH_TOKEN and
-  # otherwise delegates to the official gh helper. We create it here so
-  # the git module can point to a single, consistent helper path.
-  ghCredHelper = pkgs.writeScriptBin "gh-credential" (
-    pkgs.lib.replaceStrings [ "__GH_PATH__" ] [ "${pkgs.gh}/bin/gh" ] (
-      builtins.readFile ./gh-credential.sh
-    )
-  );
+
+  personalCredentialHelper = "!/bin/sh GH_TOKEN=''$(${pkgs.gh}/bin/gh auth token -u ${personalGithubUser}) ${pkgs.gh}/bin/gh auth git-credential";
+  workCredentialHelper = "!/bin/sh GH_TOKEN=''$(${pkgs.gh}/bin/gh auth token -u ${workGithubUser}) ${pkgs.gh}/bin/gh auth git-credential";
 in
 {
   imports = [
@@ -217,10 +213,6 @@ in
         hooksPath = ".githooks";
       };
 
-      credential."https://github.com" = {
-        helper = "!${ghCredHelper}";
-      };
-
       merge = {
         conflictstyle = "zdiff3";
         tool = "nvim";
@@ -273,8 +265,8 @@ in
             inherit (cfg) name;
             email = workEmail;
           };
-          github = {
-            user = workGithubUser;
+          credential."https://github.com" = {
+            helper = workCredentialHelper;
           };
         };
       }
@@ -285,8 +277,8 @@ in
             inherit (cfg) name;
             email = personalEmail;
           };
-          github = {
-            user = personalGithubUser;
+          credential."https://github.com" = {
+            helper = personalCredentialHelper;
           };
         };
       }
@@ -297,8 +289,8 @@ in
             inherit (cfg) name;
             email = personalEmail;
           };
-          github = {
-            user = personalGithubUser;
+          credential."https://github.com" = {
+            helper = personalCredentialHelper;
           };
         };
       }
@@ -307,10 +299,10 @@ in
         contents = {
           user = {
             inherit (cfg) name;
-            email = personalEmail;
+            email = workEmail;
           };
-          github = {
-            user = personalGithubUser;
+          credential."https://github.com" = {
+            helper = workCredentialHelper;
           };
         };
       }
