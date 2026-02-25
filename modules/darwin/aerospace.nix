@@ -185,6 +185,7 @@
             "mode main"
           ];
         };
+
         move.binding = {
           alt-esc = [
             "exec-and-forget ${pkgs.sketchybar}/bin/sketchybar --trigger aerospace_mode_changed MODE=MAIN"
