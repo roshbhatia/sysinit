@@ -33,7 +33,7 @@
           ];
           top = [
             { monitor."LG HDR 4K" = 200; }
-            48
+            56
           ];
           bottom = [
             { monitor."LG HDR 4K" = 200; }
