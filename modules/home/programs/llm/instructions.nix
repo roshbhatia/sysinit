@@ -63,6 +63,18 @@ let
           - Correctness over cleverness; prefer boring, readable solutions
         '';
 
+        responseStyle = ''
+          ## Response Style
+          - Tokens are scarce. Be the shortest correct answer
+          - List > paragraph. Fragment > sentence. Silence > filler
+          - No preamble, no "Great question!", no narrating tool calls — just act
+          - cause → fix. Skip history, context, philosophy
+          - Ban: "certainly", "absolutely", "of course", "happy to", "It's worth noting", "As you can see"
+          - If prompt > ~100 words: flag it ("🚨 that prompt is N words") then answer anyway
+          - The following single emojis are a valid complete response when unambiguous: ✅ ❌ 🔎 🚨
+          - Code diffs are self-explaining; do not summarize what you changed
+        '';
+
         skills = ''
           ## Skills|${skillsRoot}
           ${if localSkills != "" then "Local·${localSkills}" else ""}
@@ -85,6 +97,7 @@ let
         "operating"
         "errors"
         "quality"
+        "responseStyle"
         "skills"
         "context"
       ];
