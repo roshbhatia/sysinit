@@ -119,26 +119,3 @@ local servers = {
 }
 
 vim.lsp.enable(servers)
-
--- markdown_oxide: only enable if .obsidian folder exists in workspace root
-local function has_obsidian_workspace()
-  return vim.fn.isdirectory(vim.fn.getcwd() .. "/.obsidian") == 1
-end
-
-if has_obsidian_workspace() then
-  local markdown_oxide_config = require("sysinit.lspconfig.markdown_oxide")
-  local capabilities = vim.tbl_deep_extend(
-    "force",
-    require("blink.cmp").get_lsp_capabilities(),
-    {
-      workspace = {
-        didChangeWatchedFiles = {
-          dynamicRegistration = true,
-        },
-      },
-    }
-  )
-
-  vim.lsp.config("markdown_oxide", vim.tbl_extend("force", markdown_oxide_config, { capabilities = capabilities }))
-  vim.lsp.enable({ "markdown_oxide" })
-end
