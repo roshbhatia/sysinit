@@ -3,40 +3,39 @@
 final: _prev:
 let
   version = "0.55.1";
-
-  src = final.fetchFromGitHub {
-    owner = "badlogic";
-    repo = "pi-mono";
-    rev = "v${version}";
-    hash = "sha256-86+Ef/tJ4XuOWxHFKotZQTXEnwZW7Fc8nqbyLheqlaw=";
-  };
-
-  npmDeps = final.fetchNpmDeps {
-    pname = "pi-coding-agent";
-    inherit version;
-    src = "${src}/packages/coding-agent";
-    prePatch = ''
-      cp ${src}/package-lock.json .
-    '';
-  };
 in
 {
-  pi-coding-agent = final.buildNpmPackage {
+  pi-coding-agent = final.stdenvNoCC.mkDerivation {
     pname = "pi-coding-agent";
-    inherit version src npmDeps;
+    inherit version;
 
-    sourceRoot = "source/packages/coding-agent";
+    src = final.fetchurl {
+      url = "https://registry.npmjs.org/@mariozechner/pi-coding-agent/-/pi-coding-agent-${version}.tgz";
+      hash = "sha256-+gUj3BPFAmxqkeNcYLg1J1iXAjEdWpByqX4Ixyc4NmE=";
+    };
 
-    prePatch = ''
-      cp ../../../package-lock.json .
+    sourceRoot = "package";
+
+    nativeBuildInputs = [
+      final.nodejs
+      final.makeWrapper
+    ];
+
+    buildPhase = ''
+      runHook preBuild
+      ${final.nodejs}/bin/npm install --legacy-peer-deps
+      ${final.nodejs}/bin/npm run build
+      runHook postBuild
     '';
 
-    postInstall = ''
+    installPhase = ''
+      runHook preInstall
+      mkdir -p $out/lib/pi-coding-agent $out/bin
+      cp -r . $out/lib/pi-coding-agent/
       makeWrapper ${final.nodejs}/bin/node $out/bin/pi \
-        --add-flags "$out/lib/node_modules/@mariozechner/pi-coding-agent/dist/cli.js"
+        --add-flags "$out/lib/pi-coding-agent/dist/cli.js"
+      runHook postInstall
     '';
-
-    nativeBuildInputs = [ final.makeWrapper ];
 
     meta = with final.lib; {
       description = "Coding agent CLI with read, bash, edit, write tools and session management";
