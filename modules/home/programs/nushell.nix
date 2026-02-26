@@ -10,21 +10,12 @@ let
   shell = import ../../lib/shell.nix { inherit lib; };
   paths_lib = import ../../lib/paths.nix { inherit config lib; };
 
-  sharedAliases = shell.aliases;
   pathsList = paths_lib.getAllPaths config.home.username config.home.homeDirectory;
-
-  nushellBuiltins = [
-    "find"
-    "watch"
-    "diff"
-    "grep"
-  ];
-  aliases = removeAttrs sharedAliases nushellBuiltins;
 in
 {
   programs.nushell = {
     enable = true;
-    shellAliases = mkDefault aliases;
+    shellAliases = mkDefault shell.commonAliases;
 
     settings = {
       show_banner = false;
