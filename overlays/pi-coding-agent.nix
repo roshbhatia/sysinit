@@ -17,16 +17,10 @@ in
     sourceRoot = "package";
 
     nativeBuildInputs = [
-      final.nodejs
       final.makeWrapper
     ];
 
-    buildPhase = ''
-      runHook preBuild
-      ${final.nodejs}/bin/npm install --legacy-peer-deps
-      ${final.nodejs}/bin/npm run build
-      runHook postBuild
-    '';
+    dontBuild = true;
 
     installPhase = ''
       runHook preInstall
