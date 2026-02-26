@@ -86,6 +86,13 @@ local agents = {
     cmd = "codex",
     args = {},
   },
+  {
+    name = "pi",
+    label = "Pi",
+    icon = "  ",
+    cmd = "pi",
+    args = {},
+  },
 }
 
 table.sort(agents, function(a, b)
