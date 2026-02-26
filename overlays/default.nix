@@ -14,5 +14,6 @@
   (import ./hererocks.nix { })
   (import ./claude-code.nix { })
   (import ./openspec.nix { })
+  (import ./pi-coding-agent.nix { })
   (import ./crush.nix { })
 ]
