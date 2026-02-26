@@ -76,11 +76,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1772067621,
-        "narHash": "sha256-McQ8n18/PtQTX7iPsliKLcIYrJqcbITNZNEbVao1OvQ=",
+        "lastModified": 1772070733,
+        "narHash": "sha256-bngpjxk16IylbaWiNDmrl5KQ5tZl4yahkYkE2+K6JtM=",
         "owner": "steveyegge",
         "repo": "beads",
-        "rev": "5d9788a3e74230848e7361bd6f3ef6d31bb97290",
+        "rev": "a10e9d1a91512584e15d0d7dc052e1bb91423847",
         "type": "github"
       },
       "original": {
