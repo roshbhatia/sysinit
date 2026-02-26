@@ -89,7 +89,6 @@ in
       # AI Assistants
       "**/.agents/"
       "**/.amp/"
-      "**/.beads/"
       "**/.claude/"
       "**/.codex/"
       "**/.crush/"

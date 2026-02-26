@@ -35,11 +35,6 @@
 
     nur.url = "github:nix-community/NUR";
 
-    bd = {
-      url = "github:steveyegge/beads";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-
     direnv-instant = {
       url = "github:Mic92/direnv-instant";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -61,8 +56,8 @@
       };
 
       hostConfigs = import ./hosts { };
-      builders = sysinitLib.builders;
-      outputBuilders = sysinitLib.outputBuilders;
+      inherit (sysinitLib) builders;
+      inherit (sysinitLib) outputBuilders;
 
       darwinConfigs = lib.filterAttrs (_: cfg: cfg.platform == "darwin") hostConfigs;
       nixosConfigs = lib.filterAttrs (_: cfg: cfg.platform == "linux") hostConfigs;

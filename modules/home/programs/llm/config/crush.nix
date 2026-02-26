@@ -44,7 +44,6 @@ let
     permissions = {
       allowed_tools = [
         "view"
-        "beads"
         "openspec"
         "ls"
         "ripgrep"

@@ -78,17 +78,6 @@ let
           ${localSkills}
         '';
 
-        sysinitSpec = ''
-          ## SysinitSpec Workflow
-          - Auto-detect planning: When user describes features (add/implement/create/build/design/support/enable)
-          - Run: openspec create-feature <name> --template standard
-          - Open spec for user review/edit at .openspec/features/<name>/spec.md
-          - After spec approval: Create beads task with --external-ref opencode-todo:<id> link
-          - Bidirectional todo sync: OpenCode todos <-> beads tasks via hooks
-          - Gentle scope reminders based on current task context
-          - Last-write-wins conflict resolution with timestamps
-        '';
-
         context = ''
           ## Context
           - Check .sysinit/lessons.md at session start for prior context

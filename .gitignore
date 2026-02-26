@@ -19,10 +19,3 @@ nix.secrets.conf
 .serena
 !AGENTS.md
 
-
-# bv (beads viewer) local config and caches
-.bv/
-.cupcake/
-
-# Beads task tracking (local state)
-.beads/

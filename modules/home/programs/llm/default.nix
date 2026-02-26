@@ -16,7 +16,6 @@ in
 {
   imports = [
     ./config/amp.nix
-    ./config/beads.nix
     ./config/claude.nix
     ./config/codex.nix
     ./config/copilot-cli.nix

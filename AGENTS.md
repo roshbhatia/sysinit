@@ -47,9 +47,6 @@ nix-collect-garbage -d        # Cleanup old generations
 - **Pre-Commit**: `nix fmt` then `nix flake check` then `nh os build`
 
 ## Task & Feature Management
-
-- **Beads**: Git-backed task tracking via `bd` CLI. Use `bd ready` to see tasks, `bd create` for new ones, `bd close` when done. Always `bd sync && git push` before ending sessions. Use `--json` for machine output. Never use `bd edit` (interactive); use `bd update --title/--notes/--status` instead.
-- **Features**: Start non-trivial features with `plan <name>` to create spec in `openspec/`. Get explicit approval before implementing. Link to beads: `bd create --external-ref openspec:<name>`. 
 - **Context**: Check `.sysinit/lessons.md` at session start for prior learnings (gitignored scratch space).
 
 ## Skills

@@ -8,11 +8,11 @@ let
   llmLib = import ../lib { inherit lib; };
   mcpServers = import ../mcp.nix {
     inherit lib;
-    additionalServers = config.sysinit.llm.mcp.additionalServers;
+    inherit (config.sysinit.llm.mcp) additionalServers;
   };
   skillsLib = import ../skills.nix { inherit pkgs; };
 
-  disabledMcpServers = [ "beads" ];
+  disabledMcpServers = [ ];
 
   defaultInstructions = llmLib.instructions.makeInstructions {
     inherit (skillsLib) localSkillDescriptions;
@@ -464,9 +464,6 @@ let
         "tmux*" = "ask";
         "byobu*" = "ask";
 
-        # Beads (allow - task tracking)
-        "bd*" = "allow";
-
         # OpenSpec (ask)
         "openspec*" = "ask";
 
@@ -503,11 +500,6 @@ let
       text = llmLib.instructions.formatSubagentAsMarkdown { inherit name config; };
     }
   ) (lib.filterAttrs (n: _: n != "formatSubagentAsMarkdown") llmLib.instructions.subagents);
-
-  # Install SysinitSpec plugin for bidirectional beads sync
-  sysinitSpecPlugin = pkgs.writeText "sysinit-spec.ts" (
-    builtins.readFile ./opencode-plugins/sysinit-spec.ts
-  );
 in
 {
   xdg.configFile = lib.mkMerge [
@@ -520,12 +512,6 @@ in
     {
       "opencode/AGENTS.md" = {
         text = defaultInstructions;
-        force = true;
-      };
-    }
-    {
-      "opencode/plugins/sysinit-spec.ts" = {
-        source = sysinitSpecPlugin;
         force = true;
       };
     }
