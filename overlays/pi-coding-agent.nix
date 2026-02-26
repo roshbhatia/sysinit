@@ -17,17 +17,27 @@ in
     sourceRoot = "package";
 
     nativeBuildInputs = [
+      final.nodejs
       final.makeWrapper
     ];
 
-    dontBuild = true;
+    configurePhase = "true";
+    buildPhase = "true";
 
     installPhase = ''
       runHook preInstall
-      mkdir -p $out/lib/pi-coding-agent $out/bin
-      cp -r . $out/lib/pi-coding-agent/
+      
+      mkdir -p $out/lib/node_modules/@mariozechner/pi-coding-agent $out/bin
+      cp -r . $out/lib/node_modules/@mariozechner/pi-coding-agent/
+      
+      # Install dependencies
+      cd $out/lib/node_modules/@mariozechner/pi-coding-agent
+      ${final.nodejs}/bin/npm install --legacy-peer-deps --production
+      
+      # Create wrapper
       makeWrapper ${final.nodejs}/bin/node $out/bin/pi \
-        --add-flags "$out/lib/pi-coding-agent/dist/cli.js"
+        --add-flags "$out/lib/node_modules/@mariozechner/pi-coding-agent/dist/cli.js"
+      
       runHook postInstall
     '';
 
