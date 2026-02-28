@@ -93,7 +93,6 @@ let
         "errors"
         "quality"
         "skills"
-        "sysinitSpec"
         "context"
       ];
     in
