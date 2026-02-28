@@ -241,7 +241,7 @@ install_config() {
 
   log "Copying config"
   mkdir -p "$(dirname "$nvim_config")"
-  cp -r "$temp_repo/modules/home/configurations/neovim" "$nvim_config"
+  cp -r "$temp_repo/modules/home/programs/neovim" "$nvim_config"
 
   rm -rf "$temp_repo"
 
