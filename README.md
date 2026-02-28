@@ -58,3 +58,9 @@ To create a separate repository that consumes this flake for host-specific confi
 nix flake init -t github:roshbhatia/sysinit#discrete
 ```
 
+### Installing Neovim Configuration Only
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/roshbhatia/sysinit/main/setup/neovim.sh | bash
+```
+
