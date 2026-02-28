@@ -7,11 +7,11 @@ local function get_lima_ssh_port()
   local home = os.getenv("HOME")
   local ssh_config_path = home .. "/.lima/default/ssh.config"
   local file = io.open(ssh_config_path, "r")
-  
+
   if not file then
     return nil
   end
-  
+
   for line in file:lines() do
     local port = line:match("^%s*Port%s+(%d+)")
     if port then
@@ -19,14 +19,14 @@ local function get_lima_ssh_port()
       return port
     end
   end
-  
+
   file:close()
   return nil
 end
 
 local function get_basic_config()
   local ssh_domains = {}
-  
+
   -- Add Lima VM domain if available
   local lima_port = get_lima_ssh_port()
   if lima_port then
@@ -37,6 +37,8 @@ local function get_basic_config()
       assume_shell = "Posix",
     })
   end
+
+  table.insert(ssh_domains, wezterm.default_ssh_domains())
 
   return {
     status_update_interval = 100,
