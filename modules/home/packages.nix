@@ -110,18 +110,19 @@
     lua54Packages.cjson
 
     # Kubernetes
-    kubectl
-    kubecolor
-    kubectx
-    k9s
-    stern
-    kubernetes-helm
+    flux9s
     helm-ls
-    kustomize
+    k9s
     kind
     krew
     kube-linter
+    kubecolor
+    kubectl
+    kubectx
+    kubernetes-helm
     kubernetes-zeitgeist
+    kustomize
+    stern
 
     # Docker
     docker
