@@ -5,7 +5,7 @@ with lib;
 let
   themes = import ../../lib/theme.nix { inherit lib; };
   cfg = config.sysinit.theme;
-  metadata = themes.metadata;
+  inherit (themes) metadata;
 
   allVariants = unique (flatten (map (meta: meta.variants) (attrValues metadata)));
 
@@ -23,13 +23,13 @@ in
 
     colorscheme = mkOption {
       type = types.enum (attrNames metadata);
-      default = "everforest";
+      default = "catppuccin";
       description = "The color scheme to use system-wide";
     };
 
     variant = mkOption {
       type = types.enum allVariants;
-      default = "dark-hard";
+      default = "mocha";
       description = "The variant of the chosen color scheme";
     };
 
