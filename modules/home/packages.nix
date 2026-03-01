@@ -110,7 +110,6 @@
     lua54Packages.cjson
 
     # Kubernetes
-    flux9s
     helm-ls
     k9s
     kind
