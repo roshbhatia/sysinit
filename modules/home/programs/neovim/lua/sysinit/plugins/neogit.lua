@@ -60,7 +60,7 @@ return {
     keys = {
       {
         "<leader>gg",
-        "<CMD>Neogit cwd=%:p:h<CR>",
+        "<CMD>Neogit<CR>",
         desc = "Toggle",
         mode = "n",
       },
