@@ -2,7 +2,7 @@
 
 {
   services.aerospace = {
-    enable = false;
+    enable = true;
 
     settings = {
       exec-on-workspace-change = [
