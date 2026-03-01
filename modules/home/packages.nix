@@ -110,6 +110,7 @@
     lua54Packages.cjson
 
     # Kubernetes
+    argocd
     helm-ls
     k9s
     kind
