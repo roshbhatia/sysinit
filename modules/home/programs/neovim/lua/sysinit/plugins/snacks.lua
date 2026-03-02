@@ -140,7 +140,8 @@ return {
                 end,
               },
               { icon = "󱡃 ", key = "i", desc = "New file", action = ":ene | startinsert" },
-              { icon = "󰄚 ", key = "q", desc = "Quit", action = ":qa" },
+              { icon = "󰄚 ", key = "g", desc = "Git", action = ":Neogit" },
+              { icon = " ", key = "q", desc = "Quit", action = ":qa" },
             },
             header = [[
 ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠠⣴⢋⣔⣶⣿⢋⣙⣳⣤⣀⣠⣤⠐⠄⠀⠄⠀⠀⠀⠀⠀⠀⠀⠀⠀
