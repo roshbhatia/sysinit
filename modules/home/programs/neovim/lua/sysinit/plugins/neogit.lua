@@ -60,7 +60,54 @@ return {
     keys = {
       {
         "<leader>gg",
-        "<CMD>Neogit<CR>",
+        function()
+          local cwd = vim.fn.getcwd()
+
+          local handle =
+            io.popen(string.format("find %s -name '.git' -maxdepth 5 -type d 2>/dev/null", vim.fn.shellescape(cwd)))
+          if not handle then
+            require("neogit").open()
+            return
+          end
+
+          local git_dirs = {}
+          for line in handle:lines() do
+            -- strip trailing /.git to get the repo root
+            local root = line:match("^(.+)/%.git$")
+            if root then
+              table.insert(git_dirs, root)
+            end
+          end
+          handle:close()
+
+          local is_root_repo = #git_dirs == 1 and git_dirs[1] == cwd
+
+          if is_root_repo then
+            require("neogit").open()
+          elseif #git_dirs == 0 then
+            require("neogit").open()
+          else
+            local items = {}
+            for _, root in ipairs(git_dirs) do
+              table.insert(items, {
+                text = root,
+                root = root,
+              })
+            end
+
+            Snacks.picker.pick({
+              title = "Select Git Repo",
+              items = items,
+              format = "text",
+              confirm = function(picker, item)
+                picker:close()
+                if item then
+                  require("neogit").open({ cwd = item.root })
+                end
+              end,
+            })
+          end
+        end,
         desc = "Toggle",
         mode = "n",
       },
