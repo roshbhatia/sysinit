@@ -64,7 +64,7 @@ return {
           local cwd = vim.fn.getcwd()
 
           local handle =
-            io.popen(string.format("find %s -name '.git' -maxdepth 5 -type d 2>/dev/null", vim.fn.shellescape(cwd)))
+            io.popen(string.format("fd -H -I -t d -t f --max-depth 5 '^[.]git$' %s 2>/dev/null", vim.fn.shellescape(cwd)))
           if not handle then
             require("neogit").open()
             return
@@ -73,7 +73,7 @@ return {
           local git_dirs = {}
           for line in handle:lines() do
             -- strip trailing /.git to get the repo root
-            local root = line:match("^(.+)/%.git$")
+            local root = line:match("^(.+)/%.git/?$")
             if root then
               table.insert(git_dirs, root)
             end
@@ -87,25 +87,13 @@ return {
           elseif #git_dirs == 0 then
             require("neogit").open()
           else
-            local items = {}
-            for _, root in ipairs(git_dirs) do
-              table.insert(items, {
-                text = root,
-                root = root,
-              })
-            end
-
-            Snacks.picker.pick({
-              title = "Select Git Repo",
-              items = items,
-              format = "text",
-              confirm = function(picker, item)
-                picker:close()
-                if item then
-                  require("neogit").open({ cwd = item.root })
-                end
-              end,
-            })
+            vim.ui.select(git_dirs, {
+              prompt = "Select Git Repo",
+            }, function(choice)
+              if choice then
+                require("neogit").open({ cwd = choice })
+              end
+            end)
           end
         end,
         desc = "Toggle",
