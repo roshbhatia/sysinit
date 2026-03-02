@@ -63,8 +63,9 @@ return {
         function()
           local cwd = vim.fn.getcwd()
 
-          local handle =
-            io.popen(string.format("fd -H -I -t d -t f --max-depth 5 '^[.]git$' %s 2>/dev/null", vim.fn.shellescape(cwd)))
+          local handle = io.popen(
+            string.format("fd -H -I -t d -t f --max-depth 5 '^[.]git$' %s 2>/dev/null", vim.fn.shellescape(cwd))
+          )
           if not handle then
             require("neogit").open()
             return
@@ -89,6 +90,9 @@ return {
           else
             vim.ui.select(git_dirs, {
               prompt = "Select Git Repo",
+              format_item = function(root)
+                return vim.fn.fnamemodify(root, ":~:.")
+              end,
             }, function(choice)
               if choice then
                 require("neogit").open({ cwd = choice })
