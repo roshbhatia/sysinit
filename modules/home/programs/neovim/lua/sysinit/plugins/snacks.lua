@@ -273,10 +273,7 @@ return {
         {
           "<leader>ff",
           function()
-            Snacks.picker.files({
-              follow = true,
-              hidden = true,
-            })
+            Snacks.picker.files()
           end,
           desc = "Files",
         },
