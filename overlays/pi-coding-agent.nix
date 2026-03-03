@@ -10,6 +10,10 @@ final: _prev: {
       hash = "sha256-GnzPe1QJcFhpLZVlREvgRu/zh3GTXxeK/o58DdQ6QiI=";
     };
 
+    postPatch = ''
+      cp ${./pi-coding-agent-package-lock.json} package-lock.json
+    '';
+
     npmDepsHash = "sha256-U2fuywhtsFhBdzzOM/u7Wurd2QhmYc9nJlOgM4lVVTk=";
     dontNpmBuild = true;
 
