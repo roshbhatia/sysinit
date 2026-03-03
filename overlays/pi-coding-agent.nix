@@ -20,9 +20,7 @@ final: _prev: {
     '';
 
     npmDepsHash = "sha256-U2fuywhtsFhBdzzOM/u7Wurd2QhmYc9nJlOgM4lVVTk=";
-    npmWorkspace = "packages/coding-agent";
-    npmFlags = [ "--legacy-peer-deps" ];
-    makeCacheWritable = true;
+    dontNpmBuild = true;
 
     meta = with final.lib; {
       description = "Coding agent CLI with read, bash, edit, write tools and session management";
