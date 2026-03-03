@@ -14,7 +14,7 @@ final: _prev: {
       cp ${./pi-coding-agent-package-lock.json} package-lock.json
     '';
 
-    npmDepsHash = "sha256-U2fuywhtsFhBdzzOM/u7Wurd2QhmYc9nJlOgM4lVVTk=";
+    npmDepsHash = final.fakeHash;
     dontNpmBuild = true;
 
     meta = with final.lib; {
