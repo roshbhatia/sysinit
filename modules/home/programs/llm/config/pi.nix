@@ -21,7 +21,7 @@ let
     "handoff"
     "modal-editor"
     "notify"
-    "rainbow-editor"
+    "questionnaire"
     "session-name"
     "status-line"
     "tools"
