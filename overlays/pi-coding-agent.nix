@@ -10,15 +10,6 @@ final: _prev: {
       hash = "sha256-GnzPe1QJcFhpLZVlREvgRu/zh3GTXxeK/o58DdQ6QiI=";
     };
 
-    postPatch = ''
-      cp ${
-        final.fetchurl {
-          url = "https://raw.githubusercontent.com/badlogic/pi-mono/v0.55.4/package-lock.json";
-          hash = "sha256-GWlzerOgO3xdqnVCOT8dnliyKZ4du1t/hKzQmQVuRWg=";
-        }
-      } package-lock.json
-    '';
-
     npmDepsHash = "sha256-U2fuywhtsFhBdzzOM/u7Wurd2QhmYc9nJlOgM4lVVTk=";
     dontNpmBuild = true;
 
