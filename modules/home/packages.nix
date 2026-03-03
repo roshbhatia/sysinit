@@ -58,6 +58,7 @@
     nix-prefetch-docker
     nix-prefetch-git
     nix-prefetch-github
+    nvfetcher
 
     # Bash
     bash-language-server
@@ -156,7 +157,7 @@
     lsp-ai
     opencode
     openspec
-    pi-coding-agent
+    # pi-coding-agent
 
     # Config & Misc Dev
     taplo
