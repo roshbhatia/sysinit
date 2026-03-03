@@ -156,7 +156,7 @@
     lsp-ai
     opencode
     openspec
-    # pi-coding-agent
+    pi-coding-agent
 
     # Config & Misc Dev
     taplo
