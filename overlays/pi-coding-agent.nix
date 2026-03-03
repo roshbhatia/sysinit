@@ -22,6 +22,7 @@ final: _prev: {
     npmDepsHash = "sha256-U2fuywhtsFhBdzzOM/u7Wurd2QhmYc9nJlOgM4lVVTk=";
     npmFlags = [ "--legacy-peer-deps" ];
     dontNpmBuild = true;
+    makeCacheWriteable = true;
 
     meta = with final.lib; {
       description = "Coding agent CLI with read, bash, edit, write tools and session management";
