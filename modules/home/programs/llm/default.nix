@@ -24,6 +24,7 @@ in
     ./config/gemini.nix
     ./config/goose.nix
     ./config/opencode.nix
+    ./config/pi.nix
   ];
 
   home.file = skillFiles;
