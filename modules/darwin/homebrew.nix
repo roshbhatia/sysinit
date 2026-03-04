@@ -39,7 +39,6 @@ let
     "font-symbols-only-nerd-font"
     "ghostty"
     "hammerspoon"
-    "handy"
     "raycast"
     "slack"
   ];
