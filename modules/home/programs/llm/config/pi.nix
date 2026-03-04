@@ -27,17 +27,16 @@ let
     "tools"
   ];
 
-  extensionFiles = builtins.listToAttrs (
-    map (name: {
-      name = ".pi/agent/extensions/${name}.ts";
-      value = {
+  extensionFiles = lib.listToAttrs (
+    map (
+      name:
+      lib.nameValuePair ".pi/agent/extensions/${name}.ts" {
         source = "${extensionsDir}/${name}.ts";
         force = true;
-      };
-    }) extensions
+      }
+    ) extensions
   );
 
-  # Stylix base16 theme for pi - maps base16 palette to pi's 51 color tokens
   stylixTheme =
     let
       c = config.lib.stylix.colors;
@@ -128,14 +127,12 @@ let
         infoBg = hex "base02";
       };
     };
-
-  themeFile = lib.mkIf (config.stylix.enable or false) {
+in
+{
+  home.file = extensionFiles // {
     ".pi/agent/themes/stylix.json" = {
       text = stylixTheme;
       force = true;
     };
   };
-in
-{
-  home.file = extensionFiles // themeFile;
 }
