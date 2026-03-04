@@ -46,11 +46,11 @@ end
 
 -- Helper: Create multiple bindings for the same key with different modifiers
 local function create_multi_mod_bindings(key, action_fn, mod_list)
-  local bindings = {}
-  for _, mods in ipairs(mod_list or COMMON_MODS) do
-    table.insert(bindings, create_smart_keybind(key, mods, action_fn(mods)))
+  local bindings = {} -- accumulator table for the generated keybind entries
+  for _, mods in ipairs(mod_list or COMMON_MODS) do -- iterate each modifier string, falling back to CTRL + SUPER when mod_list is nil
+    table.insert(bindings, create_smart_keybind(key, mods, action_fn(mods))) -- invoke action_fn with the current modifier to produce the wezterm action, then build and append the smart keybind
   end
-  return bindings
+  return bindings -- return the completed list of bindings to the caller
 end
 
 local function get_pane_keys()
