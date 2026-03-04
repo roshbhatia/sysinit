@@ -136,6 +136,8 @@ let
   ];
 
   installPiPackages = pkgs.writeShellScript "install-pi-packages" ''
+    export PATH="${pkgs.git}/bin:${pkgs.nodejs}/bin:$PATH"
+
     SETTINGS="$HOME/.pi/agent/settings.json"
     PI="${pkgs.pi-coding-agent}/bin/pi"
 
