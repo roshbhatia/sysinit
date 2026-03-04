@@ -27,7 +27,7 @@ end, {
   desc = "Close pane",
 })
 
-if not vim.g.nix_managed then
+if not vim.env.NIX_MANAGED then
   Snacks.keymap.set("n", "<C-h>", "<C-w>h", { desc = "Move to left pane" })
   Snacks.keymap.set("n", "<C-j>", "<C-w>j", { desc = "Move to bottom pane" })
   Snacks.keymap.set("n", "<C-k>", "<C-w>k", { desc = "Move to top pane" })

@@ -25,7 +25,7 @@ in
 
     initLua = ''
       -- Injected by home-manager
-      vim.g.nix_managed = true
+      vim.env.NIX_MANAGED = true
 
       ${builtins.readFile ./init.lua}
     '';

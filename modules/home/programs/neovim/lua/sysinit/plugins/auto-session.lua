@@ -1,7 +1,7 @@
 return {
   "rmagatti/auto-session",
   lazy = false,
-  enabled = vim.g.nix_managed,
+  enabled = vim.env.NIX_MANAGED,
   opts = {
     auto_save = true,
     auto_restore = true,

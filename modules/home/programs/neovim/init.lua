@@ -1,5 +1,5 @@
-if vim.g.nix_managed == nil then
-  vim.g.nix_managed = false
+if vim.env.NIX_MANAGED == nil then
+  vim.env.NIX_MANAGED = false
 end
 
 vim.g.mapleader = " "

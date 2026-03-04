@@ -237,7 +237,7 @@ local THEMES = {
   },
 }
 
-local theme_cfg = vim.g.nix_managed
+local theme_cfg = vim.env.NIX_MANAGED
     and json_loader.load_json_file(json_loader.get_config_path("theme_config.json"), "theme_config")
   or {
     colorscheme = "base16-black-metal",
@@ -250,7 +250,7 @@ local meta = THEMES[theme_cfg.colorscheme]
   }
 
 local function apply_highlights()
-  if vim.g.nix_managed then
+  if vim.env.NIX_MANAGED then
     for _, group in ipairs(TRANSPARENT_GROUPS) do
       vim.api.nvim_set_hl(0, group, { bg = "none" })
     end

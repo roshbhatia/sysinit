@@ -1,7 +1,7 @@
 return {
   {
     "mason-org/mason.nvim",
-    enabled = not vim.g.nix_managed,
+    enabled = not vim.env.NIX_MANAGED,
     opts = {},
   },
 }
