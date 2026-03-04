@@ -5,13 +5,6 @@
 }:
 
 let
-  themeConfig = {
-    inherit (config.sysinit.theme) colorscheme;
-    inherit (config.sysinit.theme) variant;
-    inherit (config.sysinit.theme) appearance;
-    inherit (config.sysinit.theme) transparency;
-  };
-
   nvimConfigRepo = "https://github.com/roshbhatia/sysinit.nvim.git";
   nvimConfigDir = "${config.xdg.configHome}/nvim";
 in
@@ -28,14 +21,16 @@ in
     withRuby = true;
   };
 
-  xdg.configFile = {
-    "nvim/theme_config.json".text = builtins.toJSON themeConfig;
-  };
-
   home.sessionVariables = {
-    NIX_MANAGED = "true";
+    SYSINIT_NVIM_NIX_MANAGED = "true";
+    SYSINIT_NVIM_COLORSCHEME_FAMILY = config.sysinit.theme.colorscheme;
+    SYSINIT_NVIM_COLORSCHEME_VARIANT = config.sysinit.theme.variant;
+    SYSINIT_NVIM_COLORSCHEME_APPEARANCE = config.sysinit.theme.appearance;
+    SYSINIT_NVIM_TRANSPARENCY = toString config.sysinit.theme.transparency;
   };
 
+  # The nvim config changes a lot, and I manage plugins through lazy.nvim
+  # As a result, it's easier to just manage it seperately
   home.activation.setupNeovimConfig = config.lib.dag.entryAfter [ "writeBoundary" ] ''
     export PATH="${pkgs.git}/bin:$PATH"
 
@@ -43,7 +38,7 @@ in
       ${pkgs.git}/bin/git clone ${nvimConfigRepo} ${nvimConfigDir}
     else
       cd ${nvimConfigDir}
-      ${pkgs.git}/bin/git pull origin main
+      ${pkgs.git}/bin/git pull --rebase origin main
     fi
   '';
 }
