@@ -7,7 +7,7 @@ let
   llmLib = import ../lib { inherit lib; };
   mcpServers = import ../mcp.nix {
     inherit lib;
-    additionalServers = config.sysinit.llm.mcp.additionalServers;
+    inherit (config.sysinit.llm.mcp) additionalServers;
   };
 
   copilotConfig = builtins.toJSON {
