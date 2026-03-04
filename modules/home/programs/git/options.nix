@@ -43,13 +43,13 @@
 
     personalSshKeyFile = lib.mkOption {
       type = lib.types.nullOr lib.types.str;
-      default = null;
+      default = "~/.ssh/id_ed25519_personal";
       description = "Path to SSH private key for personal GitHub identity (e.g. ~/.ssh/id_ed25519_personal)";
     };
 
     workSshKeyFile = lib.mkOption {
       type = lib.types.nullOr lib.types.str;
-      default = null;
+      default = "~/.ssh/id_ed25519_work";
       description = "Path to SSH private key for work GitHub identity (e.g. ~/.ssh/id_ed25519_work)";
     };
   };
