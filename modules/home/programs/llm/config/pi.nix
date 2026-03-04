@@ -127,8 +127,31 @@ let
         infoBg = hex "base02";
       };
     };
+  piPackages = [
+    "git:github.com/omaclaren/pi-annotated-reply"
+    "git:github.com/Gurpartap/pi-mermaid"
+    "git:github.com/ttttmr/pi-context"
+    "npm:pi-memory-md"
+    "npm:pi-md-export"
+  ];
+
+  installPiPackages = pkgs.writeShellScript "install-pi-packages" ''
+    SETTINGS="$HOME/.pi/agent/settings.json"
+    PI="${pkgs.pi-coding-agent}/bin/pi"
+
+    for pkg in ${lib.escapeShellArgs piPackages}; do
+      if ! grep -qF "$pkg" "$SETTINGS" 2>/dev/null; then
+        echo "Installing pi package: $pkg"
+        "$PI" install "$pkg" || echo "Warning: failed to install $pkg"
+      fi
+    done
+  '';
 in
 {
+  home.activation.piPackages = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+    $DRY_RUN_CMD ${installPiPackages}
+  '';
+
   home.file = extensionFiles // {
     ".pi/agent/themes/stylix.json" = {
       text = stylixTheme;
