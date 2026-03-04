@@ -157,5 +157,9 @@ in
       text = stylixTheme;
       force = true;
     };
+    ".pi/agent/extensions/nvim.ts" = {
+      source = ../hooks/nvim/pi.ts;
+      force = true;
+    };
   };
 }

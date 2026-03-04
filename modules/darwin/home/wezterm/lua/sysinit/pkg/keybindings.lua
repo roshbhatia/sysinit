@@ -192,9 +192,18 @@ function M.setup(config)
     end),
   })
 
+  -- Enable kitty keyboard protocol for richer key event reporting (mod keys, etc.)
   config.enable_kitty_keyboard = true
+
+  -- Apply the merged keybindings table
   config.keys = keys
+
+  -- Seed key_tables with WezTerm's built-in defaults (copy-mode, search-mode, etc.);
+  -- guard against headless / non-GUI contexts where wezterm.gui is nil
   config.key_tables = wezterm.gui and wezterm.gui.default_key_tables() or {}
+
+  -- Triple-click selects a semantic zone (shell prompt / command output boundary)
+  -- rather than the default line-select behaviour
   config.mouse_bindings = {
     {
       event = { Down = { streak = 3, button = "Left" } },

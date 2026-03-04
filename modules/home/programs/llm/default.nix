@@ -12,6 +12,8 @@ let
   ) skills.allSkills;
 
   skillFiles = claudeSkillFiles;
+
+  nvimShim = pkgs.writeScriptBin "nvim-shim" (builtins.readFile ./hooks/nvim/nvim-shim.sh);
 in
 {
   imports = [
@@ -26,6 +28,8 @@ in
     ./config/opencode.nix
     ./config/pi.nix
   ];
+
+  home.packages = [ nvimShim ];
 
   home.file = skillFiles;
 }
