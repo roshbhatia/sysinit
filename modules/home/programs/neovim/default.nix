@@ -23,10 +23,10 @@ in
 
   home.sessionVariables = {
     SYSINIT_NVIM_NIX_MANAGED = "true";
-    SYSINIT_NVIM_COLORSCHEME_FAMILY = config.sysinit.theme.colorscheme;
-    SYSINIT_NVIM_COLORSCHEME_VARIANT = config.sysinit.theme.variant;
-    SYSINIT_NVIM_COLORSCHEME_APPEARANCE = config.sysinit.theme.appearance;
-    SYSINIT_NVIM_TRANSPARENCY = toString config.sysinit.theme.transparency;
+    SYSINIT_NVIM_COLORSCHEME_FAMILY = builtins.toString config.sysinit.theme.colorscheme;
+    SYSINIT_NVIM_COLORSCHEME_VARIANT = builtins.toString config.sysinit.theme.variant;
+    SYSINIT_NVIM_COLORSCHEME_APPEARANCE = builtins.toString config.sysinit.theme.appearance;
+    SYSINIT_NVIM_TRANSPARENCY = builtins.toJSON config.sysinit.theme.transparency;
   };
 
   # The nvim config changes a lot, and I manage plugins through lazy.nvim

@@ -729,8 +729,7 @@
         "nixpkgs": "nixpkgs_4",
         "nur": "nur",
         "onepassword-shell-plugins": "onepassword-shell-plugins",
-        "stylix": "stylix",
-        "sysinit-nvim": "sysinit-nvim"
+        "stylix": "stylix"
       }
     },
     "stylix": {
@@ -766,18 +765,6 @@
         "ref": "master",
         "repo": "stylix",
         "type": "github"
-      }
-    },
-    "sysinit-nvim": {
-      "flake": false,
-      "locked": {
-        "narHash": "sha256-bcL7fmfyEQ6Wy+/20L16Ui3wZQQVudCLvD/HvEecL3s=",
-        "path": "/Users/rshnbhatia/github/personal/roshbhatia/sysinit.nvim",
-        "type": "path"
-      },
-      "original": {
-        "path": "/Users/rshnbhatia/github/personal/roshbhatia/sysinit.nvim",
-        "type": "path"
       }
     },
     "systems": {
