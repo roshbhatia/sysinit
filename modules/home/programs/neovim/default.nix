@@ -6,12 +6,12 @@
 
 let
   themeConfig = {
-    colorscheme = config.sysinit.theme.colorscheme;
-    variant = config.sysinit.theme.variant;
-    appearance = config.sysinit.theme.appearance;
-    transparency = config.sysinit.theme.transparency;
+    inherit (config.sysinit.theme) colorscheme;
+    inherit (config.sysinit.theme) variant;
+    inherit (config.sysinit.theme) appearance;
+    inherit (config.sysinit.theme) transparency;
   };
-  
+
   nvimConfigRepo = "https://github.com/roshbhatia/sysinit.nvim.git";
   nvimConfigDir = "${config.xdg.configHome}/nvim";
 in
@@ -26,20 +26,19 @@ in
     withNodeJs = true;
     withPython3 = true;
     withRuby = true;
-
-    initLua = ''
-      -- Injected by home-manager
-      vim.env.NIX_MANAGED = true
-    '';
   };
 
   xdg.configFile = {
     "nvim/theme_config.json".text = builtins.toJSON themeConfig;
   };
 
+  home.sessionVariables = {
+    NIX_MANAGED = "true";
+  };
+
   home.activation.setupNeovimConfig = config.lib.dag.entryAfter [ "writeBoundary" ] ''
     export PATH="${pkgs.git}/bin:$PATH"
-    
+
     if [ ! -d "${nvimConfigDir}" ]; then
       ${pkgs.git}/bin/git clone ${nvimConfigRepo} ${nvimConfigDir}
     else
