@@ -8,7 +8,6 @@
   (import ./python313.nix { })
   (import ./crossplane.nix { })
   (import ./kubernetes-zeitgeist.nix { })
-  (import ./karabiner-elements.nix { })
   (import ./go-enum.nix { })
   (import ./gomvp.nix { })
   (import ./hererocks.nix { })

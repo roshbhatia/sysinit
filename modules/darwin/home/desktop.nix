@@ -3,7 +3,6 @@
 {
   imports = [
     ./hammerspoon
-    ./karabiner
     ./sketchybar
   ];
 }
