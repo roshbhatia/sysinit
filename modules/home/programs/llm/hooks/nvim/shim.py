@@ -135,6 +135,40 @@ local raw_path, proposed_content = ...
 local edit_path  = vim.fn.fnameescape(raw_path)
 local short_path = vim.fn.fnamemodify(raw_path, ':~:.')
 
+-- Wrap vim.ui.select so it blocks inside nvim_exec_lua.
+-- vim.wait() runs the event loop while polling, so the fastaction (or any
+-- vim.ui.select provider) callback fires normally and sets the result.
+local function ui_select(items, opts)
+  local result, done = nil, false
+  vim.ui.select(items, opts, function(item)
+    result = item
+    done   = true
+  end)
+  vim.wait(60000, function() return done end, 10)
+  return result
+end
+
+-- Same trick for vim.ui.input.
+local function ui_input(opts)
+  local result, done = nil, false
+  vim.ui.input(opts, function(input)
+    result = input or ''
+    done   = true
+  end)
+  vim.wait(60000, function() return done end, 10)
+  return result or ''
+end
+
+-- Move to next diff hunk without wrapping (wrapscan disabled temporarily so
+-- pcall fails cleanly when there are no more hunks instead of looping forever).
+local function next_hunk()
+  local saved = vim.o.wrapscan
+  vim.o.wrapscan = false
+  local ok = pcall(vim.cmd, 'normal! ]c')
+  vim.o.wrapscan = saved
+  return ok
+end
+
 -- Open / switch to agent tab; left pane = current file on disk
 if vim.g.agent_tab then
   local ok = pcall(vim.cmd, 'tabnext ' .. vim.g.agent_tab)
@@ -190,45 +224,38 @@ end
 vim.api.nvim_set_current_win(left_win)
 vim.cmd('normal! gg')
 
-if not pcall(vim.cmd, 'normal! ]c') then
+if not next_hunk() then
   -- Files are identical; accept immediately
   cleanup()
   local lines = vim.api.nvim_buf_get_lines(left_buf, 0, -1, false)
   return { decision = 'accept', content = table.concat(lines, '\n') }
 end
 
--- Hunk-by-hunk blocking review
+-- Hunk-by-hunk review using vim.ui.select (fastaction if installed) + vim.wait
+local CHOICES = { 'Accept', 'Reject', 'Accept all', 'Reject all' }
 local rejected_notes = {}
 local done = false
 
 while not done do
-  local choice = vim.fn.confirm(
-    'pi › ' .. short_path,
-    '&Accept\n&Reject\nAccept &all\nReject a&ll',
-    1
-  )
+  vim.api.nvim_set_current_win(left_win)
+  local choice = ui_select(CHOICES, { prompt = 'pi › ' .. short_path })
 
-  if choice == 1 then                       -- Accept
-    vim.api.nvim_set_current_win(left_win)
+  if choice == 'Accept' then
     pcall(vim.cmd, 'diffget')
-    if not pcall(vim.cmd, 'normal! ]c') then done = true end
+    if not next_hunk() then done = true end
 
-  elseif choice == 2 then                   -- Reject
-    local note = vim.fn.input('Reason (optional): ')
+  elseif choice == 'Reject' then
+    local note = ui_input({ prompt = 'Reason (optional): ' })
     if note ~= '' then table.insert(rejected_notes, note) end
-    if not pcall(vim.cmd, 'normal! ]c') then done = true end
+    if not next_hunk() then done = true end
 
-  elseif choice == 3 then                   -- Accept all
-    vim.api.nvim_set_current_win(left_win)
+  elseif choice == 'Accept all' then
     pcall(vim.cmd, 'diffget')
-    while pcall(function()
-      vim.cmd('normal! ]c')
-      vim.cmd('diffget')
-    end) do end
+    while next_hunk() do pcall(vim.cmd, 'diffget') end
     done = true
 
-  else                                      -- Reject all (4) or Esc (0)
-    local reason = vim.fn.input('Reason: ')
+  else  -- 'Reject all' or nil (dismissed)
+    local reason = ui_input({ prompt = 'Reason: ' })
     cleanup()
     return {
       decision = 'reject',
