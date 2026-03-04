@@ -135,81 +135,8 @@ local raw_path, proposed_content = ...
 local edit_path  = vim.fn.fnameescape(raw_path)
 local short_path = vim.fn.fnamemodify(raw_path, ':~:.')
 
--- vim.ui.select (fastaction) relies on buffer-local keymaps dispatching
--- normally. Inside nvim_exec_lua, nvim is in RPC-processing mode and keymap
--- dispatch is suspended, so keypresses are swallowed. getcharstr() is a
--- C-level blocking primitive that reads raw terminal input directly and works
--- fine in this context. Build a small float that looks like fastaction.
---
--- items = { { key='a', label='Accept' }, ... }
--- Returns the selected label, or nil if cancelled.
-local function ui_select(prompt, items)
-  local lines = { ' ' .. prompt, '' }
-  local w = #prompt + 4
-  for _, item in ipairs(items) do
-    local line = string.format('  %s  %s', item.key, item.label)
-    table.insert(lines, line)
-    w = math.max(w, #line + 2)
-  end
-
-  local buf = vim.api.nvim_create_buf(false, true)
-  vim.api.nvim_buf_set_lines(buf, 0, -1, false, lines)
-  vim.bo[buf].modifiable = false
-
-  local row = math.floor((vim.o.lines   - #lines) / 2)
-  local col = math.floor((vim.o.columns - w)      / 2)
-  local win = vim.api.nvim_open_win(buf, true, {
-    relative = 'editor', row = row, col = col,
-    width = w, height = #lines, border = 'rounded', style = 'minimal',
-  })
-  vim.wo[win].cursorline = true
-
-  -- Highlight the title line
-  local ns = vim.api.nvim_create_namespace('')
-  vim.api.nvim_buf_add_highlight(buf, ns, 'Title', 0, 0, -1)
-
-  local FIRST  = 3   -- 1-based line number of first choice
-  local cursor = 1
-  vim.api.nvim_win_set_cursor(win, { FIRST, 0 })
-
-  local UP  = vim.api.nvim_replace_termcodes('<Up>',   true, false, true)
-  local DN  = vim.api.nvim_replace_termcodes('<Down>', true, false, true)
-  local CR  = vim.api.nvim_replace_termcodes('<CR>',   true, false, true)
-  local ESC = vim.api.nvim_replace_termcodes('<Esc>',  true, false, true)
-
-  local result, running = nil, true
-  while running do
-    vim.cmd('redraw')
-    local ch = vim.fn.getcharstr()
-    if ch == 'j' or ch == DN then
-      cursor = math.min(cursor + 1, #items)
-      vim.api.nvim_win_set_cursor(win, { FIRST + cursor - 1, 0 })
-    elseif ch == 'k' or ch == UP then
-      cursor = math.max(cursor - 1, 1)
-      vim.api.nvim_win_set_cursor(win, { FIRST + cursor - 1, 0 })
-    elseif ch == CR then
-      result  = items[cursor].label
-      running = false
-    elseif ch == ESC or ch == 'q' then
-      running = false
-    else
-      for _, item in ipairs(items) do
-        if ch == item.key then
-          result  = item.label
-          running = false
-          break
-        end
-      end
-    end
-  end
-
-  vim.api.nvim_win_close(win, true)
-  vim.api.nvim_buf_delete(buf, { force = true })
-  return result
-end
-
--- Move to next diff hunk without wrapping (wrapscan disabled temporarily so
--- pcall fails cleanly when there are no more hunks instead of looping forever).
+-- Move to next diff hunk without wrapping. Disables wrapscan so ]c errors
+-- cleanly at end-of-file; pcall returns false and the loop terminates.
 local function next_hunk()
   local saved = vim.o.wrapscan
   vim.o.wrapscan = false
@@ -280,42 +207,61 @@ if not next_hunk() then
   return { decision = 'accept', content = table.concat(lines, '\n') }
 end
 
--- Hunk-by-hunk review: getcharstr()-based float, fully blocking inside RPC
-local CHOICES = {
-  { key = 'a', label = 'Accept'     },
-  { key = 'r', label = 'Reject'     },
-  { key = 'A', label = 'Accept all' },
-  { key = 'R', label = 'Reject all' },
-}
+-- Hunk-by-hunk review with vim.fn.confirm() — pure C-level blocking,
+-- works correctly inside nvim_exec_lua with no keymap-dispatch issues.
+-- Shortcuts mirror git add -p: y=accept, n=reject, a=all, d=reject-all, e=manual.
 local rejected_notes = {}
-local done = false
+local accepted_any   = false
+local done           = false
 
 while not done do
   vim.api.nvim_set_current_win(left_win)
-  local choice = ui_select('pi › ' .. short_path, CHOICES)
+  local choice = vim.fn.confirm(
+    'pi › ' .. short_path,
+    '&y accept\n&n reject\n&a accept all\n&d reject all\n&e manual',
+    1
+  )
+  -- 1=y  2=n  3=a  4=d  5=e  0=Esc
 
-  if choice == 'Accept' then
+  if choice == 1 then                         -- y: accept hunk
     pcall(vim.cmd, 'diffget')
+    accepted_any = true
     if not next_hunk() then done = true end
 
-  elseif choice == 'Reject' then
+  elseif choice == 2 then                     -- n: reject hunk
     local note = vim.fn.input('Reason (optional): ')
     if note ~= '' then table.insert(rejected_notes, note) end
     if not next_hunk() then done = true end
 
-  elseif choice == 'Accept all' then
+  elseif choice == 3 then                     -- a: accept all remaining
     pcall(vim.cmd, 'diffget')
+    accepted_any = true
     while next_hunk() do pcall(vim.cmd, 'diffget') end
     done = true
 
-  else  -- 'Reject all' or nil (dismissed)
+  elseif choice == 4 or choice == 0 then      -- d/Esc: reject all remaining
     local reason = vim.fn.input('Reason: ')
     cleanup()
     return {
       decision = 'reject',
       reason   = reason ~= '' and reason or 'Rejected',
     }
+
+  else                                        -- e: hand off to user
+    cleanup()
+    return { decision = 'reject', reason = 'Manual resolution' }
   end
+end
+
+cleanup()
+
+-- If every hunk was rejected, return a proper reject so the agent receives
+-- the reason rather than a silent no-op write back to disk.
+if not accepted_any then
+  return {
+    decision = 'reject',
+    reason   = #rejected_notes > 0 and table.concat(rejected_notes, '; ') or 'All hunks rejected',
+  }
 end
 
 cleanup()

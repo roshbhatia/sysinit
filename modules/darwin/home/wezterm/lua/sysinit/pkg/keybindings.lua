@@ -7,15 +7,22 @@ local M = {}
 M.locked_mode = false
 
 -- Constants
+-- Processes that should receive raw key events instead of wezterm actions
 local EDITORS = { "nvim", "vim", "hx" }
+-- Modifier keys used when generating bindings for both terminal and GUI contexts
 local COMMON_MODS = { "CTRL", "SUPER" }
 
--- Create a smart keybind that respects locked mode and passthrough processes
+-- Create a smart keybind that respects locked mode and passthrough processes.
+-- key:              the key to bind
+-- mods:             modifier string (e.g. "CTRL", "SUPER")
+-- wezterm_action:   the action to perform when no override applies
+-- opts.passthrough: list of process names that should receive the raw keystroke
 local function create_smart_keybind(key, mods, wezterm_action, opts)
   return {
     key = key,
     mods = mods,
     action = wezterm.action_callback(function(win, pane)
+      -- In locked mode every keybind is forwarded as-is to the pane
       if M.locked_mode then
         win:perform_action({ SendKey = { key = key, mods = mods } }, pane)
         return
@@ -31,6 +38,7 @@ local function create_smart_keybind(key, mods, wezterm_action, opts)
         end
       end
 
+      -- No overrides matched; execute the intended wezterm action
       win:perform_action(wezterm_action, pane)
     end),
   }

@@ -100,12 +100,24 @@ export default function (pi: ExtensionAPI) {
         }
 
         const finalContent = result.content ?? newContent;
-        return createWriteTool(ctx.cwd).execute(
+        const writeResult = await createWriteTool(ctx.cwd).execute(
           toolCallId,
           { ...params, content: finalContent },
           signal,
           onUpdate,
         );
+        // Surface partial-rejection notes back to the agent so it knows
+        // which hunks were not applied and why.
+        if (result.reason) {
+          return {
+            content: [
+              ...(writeResult as { content: { type: string; text: string }[] }).content,
+              { type: "text", text: `Note: some hunks were rejected — ${result.reason}` },
+            ],
+            details: (writeResult as { details: unknown }).details,
+          };
+        }
+        return writeResult;
       },
     });
 
@@ -151,12 +163,22 @@ export default function (pi: ExtensionAPI) {
         }
 
         const finalContent = result.content ?? newContent;
-        return createWriteTool(ctx.cwd).execute(
+        const writeResult = await createWriteTool(ctx.cwd).execute(
           toolCallId,
           { path: params.path, content: finalContent },
           signal,
           onUpdate,
         );
+        if (result.reason) {
+          return {
+            content: [
+              ...(writeResult as { content: { type: string; text: string }[] }).content,
+              { type: "text", text: `Note: some hunks were rejected — ${result.reason}` },
+            ],
+            details: (writeResult as { details: unknown }).details,
+          };
+        }
+        return writeResult;
       },
     });
   }
