@@ -192,6 +192,7 @@ function M.setup(config)
     end),
   })
 
+  config.enable_kitty_keyboard = true
   config.keys = keys
   config.key_tables = wezterm.gui and wezterm.gui.default_key_tables() or {}
   config.mouse_bindings = {
