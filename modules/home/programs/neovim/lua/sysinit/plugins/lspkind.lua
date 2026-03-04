@@ -1,5 +1,0 @@
-return {
-  {
-    "onsails/lspkind.nvim",
-  },
-}

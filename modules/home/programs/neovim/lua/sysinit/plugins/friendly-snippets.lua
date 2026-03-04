@@ -1,5 +1,0 @@
-return {
-  {
-    "rafamadriz/friendly-snippets",
-  },
-}

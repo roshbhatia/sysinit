@@ -1,5 +1,6 @@
 {
   config,
+  pkgs,
   ...
 }:
 
@@ -10,6 +11,9 @@ let
     appearance = config.sysinit.theme.appearance;
     transparency = config.sysinit.theme.transparency;
   };
+  
+  nvimConfigRepo = "https://github.com/roshbhatia/sysinit.nvim.git";
+  nvimConfigDir = "${config.xdg.configHome}/nvim";
 in
 {
   stylix.targets.neovim.enable = false;
@@ -26,21 +30,21 @@ in
     initLua = ''
       -- Injected by home-manager
       vim.env.NIX_MANAGED = true
-
-      ${builtins.readFile ./init.lua}
     '';
   };
 
-  xdg = {
-    configFile = {
-      "nvim/after/ftplugin".source = ./after/ftplugin;
-      "nvim/after/plugin/".source = ./after/plugin;
-      "nvim/after/snippets/".source = ./after/snippets;
-      "nvim/after/lsp/".source = ./after/lsp;
-      "nvim/lua/sysinit/plugins/".source = ./lua/sysinit/plugins;
-      "nvim/lua/sysinit/utils".source = ./lua/sysinit/utils;
-      "nvim/queries".source = ./queries;
-      "nvim/theme_config.json".text = builtins.toJSON themeConfig;
-    };
+  xdg.configFile = {
+    "nvim/theme_config.json".text = builtins.toJSON themeConfig;
   };
+
+  home.activation.setupNeovimConfig = config.lib.dag.entryAfter [ "writeBoundary" ] ''
+    export PATH="${pkgs.git}/bin:$PATH"
+    
+    if [ ! -d "${nvimConfigDir}" ]; then
+      ${pkgs.git}/bin/git clone ${nvimConfigRepo} ${nvimConfigDir}
+    else
+      cd ${nvimConfigDir}
+      ${pkgs.git}/bin/git pull origin main
+    fi
+  '';
 }
