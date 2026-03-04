@@ -5,7 +5,6 @@
 }:
 
 let
-  nvimConfigRepo = "https://github.com/roshbhatia/sysinit.nvim.git";
   nvimConfigDir = "${config.xdg.configHome}/nvim";
 in
 {
@@ -32,19 +31,8 @@ in
   };
 
   # The nvim config changes a lot, and I manage plugins through lazy.nvim
-  # As a result, it's easier to just manage it seperately
+  # As a result, it's easier to just manage it seperately as a local directory
   home.activation.setupNeovimConfig = config.lib.dag.entryAfter [ "writeBoundary" ] ''
-    export PATH="${pkgs.git}/bin:$PATH"
-
-    if [ ! -d "${nvimConfigDir}" ]; then
-      ${pkgs.git}/bin/git clone ${nvimConfigRepo} ${nvimConfigDir}
-    elif [ -d "${nvimConfigDir}/.git" ]; then
-      cd ${nvimConfigDir}
-      ${pkgs.git}/bin/git pull --rebase origin main
-    else
-      # Directory exists but isn't a git repo, reset it
-      rm -rf ${nvimConfigDir}
-      ${pkgs.git}/bin/git clone ${nvimConfigRepo} ${nvimConfigDir}
-    fi
+    mkdir -p ${nvimConfigDir}
   '';
 }
