@@ -135,14 +135,16 @@ local raw_path, proposed_content = ...
 local edit_path  = vim.fn.fnameescape(raw_path)
 local short_path = vim.fn.fnamemodify(raw_path, ':~:.')
 
--- Move to next diff hunk without wrapping. Disables wrapscan so ]c errors
--- cleanly at end-of-file; pcall returns false and the loop terminates.
+-- next_hunk: cursor-position comparison because :normal! ]c never throws —
+-- pcall would always return true and the loop would spin forever.
 local function next_hunk()
-  local saved = vim.o.wrapscan
+  local saved  = vim.o.wrapscan
   vim.o.wrapscan = false
-  local ok = pcall(vim.cmd, 'normal! ]c')
+  local before = vim.api.nvim_win_get_cursor(0)
+  pcall(vim.cmd, 'normal! ]c')
+  local after  = vim.api.nvim_win_get_cursor(0)
   vim.o.wrapscan = saved
-  return ok
+  return before[1] ~= after[1] or before[2] ~= after[2]
 end
 
 -- Open / switch to agent tab; left pane = current file on disk
@@ -158,8 +160,8 @@ else
 end
 
 local left_win = vim.api.nvim_get_current_win()
-local left_buf  = vim.api.nvim_win_get_buf(left_win)
-local ft        = vim.bo.filetype
+local left_buf = vim.api.nvim_win_get_buf(left_win)
+local ft       = vim.bo.filetype
 
 vim.cmd('diffthis')
 
@@ -178,7 +180,25 @@ local right_win = vim.api.nvim_get_current_win()
 
 vim.g.agent_diff_wins = { left_win, right_win }
 
+-- Defined after left_buf/left_win so the closures capture them correctly.
+
+local review_ns = vim.api.nvim_create_namespace('pi_review')
+local hunk_num  = 0
+
+-- Inline extmark at the first line of the current hunk so the user can
+-- always see which hunk is under review even while the cmdline prompt shows.
+local function mark_hunk()
+  hunk_num = hunk_num + 1
+  vim.api.nvim_buf_clear_namespace(left_buf, review_ns, 0, -1)
+  local row = vim.api.nvim_win_get_cursor(left_win)[1] - 1  -- 0-indexed
+  vim.api.nvim_buf_set_extmark(left_buf, review_ns, row, 0, {
+    virt_text     = { { '▸ ', 'DiagnosticInfo' } },
+    virt_text_pos = 'inline',
+  })
+end
+
 local function cleanup()
+  vim.api.nvim_buf_clear_namespace(left_buf, review_ns, 0, -1)
   local wins = vim.g.agent_diff_wins
   if not wins then return end
   vim.g.agent_diff_wins = nil
@@ -196,50 +216,65 @@ local function cleanup()
   end
 end
 
+-- Idiomatic single-keypress prompt in the cmdline — same pattern as f/t/r/etc.
+local function choose()
+  vim.api.nvim_echo({
+    { 'hunk ' .. hunk_num .. '  ', 'Title'   },
+    { 'y',                         'Keyword' }, { ' accept  ', 'Comment' },
+    { 'n',                         'Keyword' }, { ' reject  ', 'Comment' },
+    { 'a',                         'Keyword' }, { ' all     ', 'Comment' },
+    { 'd',                         'Keyword' }, { ' done    ', 'Comment' },
+    { 'e',                         'Keyword' }, { ' manual',   'Comment' },
+  }, false, {})
+  vim.cmd('redraw')
+  local ch = vim.fn.getcharstr()
+  vim.api.nvim_echo({}, false, {})
+  return ch
+end
+
+local ESC = vim.api.nvim_replace_termcodes('<Esc>', true, false, true)
+
 -- Jump to first hunk from top of file
 vim.api.nvim_set_current_win(left_win)
 vim.cmd('normal! gg')
 
 if not next_hunk() then
-  -- Files are identical; accept immediately
   cleanup()
   local lines = vim.api.nvim_buf_get_lines(left_buf, 0, -1, false)
   return { decision = 'accept', content = table.concat(lines, '\n') }
 end
+mark_hunk()
 
--- Hunk-by-hunk review with vim.fn.confirm() — pure C-level blocking,
--- works correctly inside nvim_exec_lua with no keymap-dispatch issues.
--- Shortcuts mirror git add -p: y=accept, n=reject, a=all, d=reject-all, e=manual.
 local rejected_notes = {}
 local accepted_any   = false
 local done           = false
 
 while not done do
   vim.api.nvim_set_current_win(left_win)
-  local choice = vim.fn.confirm(
-    'pi › ' .. short_path,
-    '&y accept\n&n reject\n&a accept all\n&d reject all\n&e manual',
-    1
-  )
-  -- 1=y  2=n  3=a  4=d  5=e  0=Esc
+  local ch = choose()
 
-  if choice == 1 then                         -- y: accept hunk
+  if ch == 'y' then                           -- accept hunk
     pcall(vim.cmd, 'diffget')
+    vim.cmd('diffupdate')
     accepted_any = true
-    if not next_hunk() then done = true end
+    if next_hunk() then mark_hunk() else done = true end
 
-  elseif choice == 2 then                     -- n: reject hunk
+  elseif ch == 'n' then                       -- reject hunk
     local note = vim.fn.input('Reason (optional): ')
     if note ~= '' then table.insert(rejected_notes, note) end
-    if not next_hunk() then done = true end
+    if next_hunk() then mark_hunk() else done = true end
 
-  elseif choice == 3 then                     -- a: accept all remaining
+  elseif ch == 'a' then                       -- accept all remaining
     pcall(vim.cmd, 'diffget')
+    vim.cmd('diffupdate')
     accepted_any = true
-    while next_hunk() do pcall(vim.cmd, 'diffget') end
+    while next_hunk() do
+      pcall(vim.cmd, 'diffget')
+      vim.cmd('diffupdate')
+    end
     done = true
 
-  elseif choice == 4 or choice == 0 then      -- d/Esc: reject all remaining
+  elseif ch == 'd' or ch == ESC then          -- done / reject all remaining
     local reason = vim.fn.input('Reason: ')
     cleanup()
     return {
@@ -247,24 +282,24 @@ while not done do
       reason   = reason ~= '' and reason or 'Rejected',
     }
 
-  else                                        -- e: hand off to user
+  elseif ch == 'e' then                       -- hand off for manual edit
     cleanup()
     return { decision = 'reject', reason = 'Manual resolution' }
+
   end
+  -- unrecognised keys are ignored and the prompt re-shows
 end
 
 cleanup()
 
--- If every hunk was rejected, return a proper reject so the agent receives
--- the reason rather than a silent no-op write back to disk.
 if not accepted_any then
   return {
     decision = 'reject',
-    reason   = #rejected_notes > 0 and table.concat(rejected_notes, '; ') or 'All hunks rejected',
+    reason   = #rejected_notes > 0
+               and table.concat(rejected_notes, '; ')
+               or  'All hunks rejected',
   }
 end
-
-cleanup()
 
 local lines  = vim.api.nvim_buf_get_lines(left_buf, 0, -1, false)
 local result = { decision = 'accept', content = table.concat(lines, '\n') }
