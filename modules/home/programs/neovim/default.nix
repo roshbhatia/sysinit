@@ -22,7 +22,6 @@ in
   };
 
   home.sessionVariables = {
-    SYSINIT_NVIM_NIX_MANAGED = "true";
     SYSINIT_NVIM_COLORS = builtins.toJSON (
       builtins.toJSON {
         inherit (config.sysinit.theme) appearance;

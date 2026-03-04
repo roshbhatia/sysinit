@@ -303,6 +303,15 @@ in
           };
         };
       }
+      {
+        condition = "gitdir:~/.config/nvim/";
+        contents = {
+          user = {
+            email = personalEmail;
+            username = personalGithubUser;
+          };
+        };
+      }
     ];
   };
 }
