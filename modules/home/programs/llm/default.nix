@@ -13,7 +13,7 @@ let
 
   skillFiles = claudeSkillFiles;
 
-  nvimShim = pkgs.writeScriptBin "nvim-shim" (builtins.readFile ./hooks/nvim/nvim-shim.sh);
+  nvimShim = pkgs.writeScriptBin "shim" (builtins.readFile ./hooks/nvim/shim.py);
 in
 {
   imports = [

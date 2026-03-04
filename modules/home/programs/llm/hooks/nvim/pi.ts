@@ -1,36 +1,24 @@
 import type { ExtensionAPI } from "@mariozechner/pi-coding-agent";
 import { createWriteTool } from "@mariozechner/pi-coding-agent";
-import { readFileSync, unlinkSync, writeFileSync } from "node:fs";
-import { tmpdir } from "node:os";
-import { join, resolve } from "node:path";
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
+import { spawn } from "node:child_process";
 
 // Neovim integration for pi.
 //
-// Requires nvim-shim in PATH (installed via home-manager).
+// Requires `shim` in PATH (installed via home-manager as a uv Python script).
 // Only activates when NVIM_SOCKET_PATH is set — Neovim exports it on startup
 // and terminal panes spawned from within Neovim inherit it automatically.
-// When the var is absent the extension is a complete no-op.
+// When absent the extension is a complete no-op.
 //
-// write / edit tools are overridden to open a vimdiff review in Neovim:
-//   Left pane  = current file on disk
-//   Right pane = proposed content (read-only scratch buffer)
+// write / edit tools are overridden to open a vimdiff review in Neovim before
+// any disk write. The shim speaks msgpack-rpc directly to nvim_exec_lua, which
+// is a blocking RPC call — the hunk review (vim.fn.confirm / vim.fn.input)
+// happens entirely inside that call, and the result comes back as JSON on
+// stdout. No polling, no temp files, no race conditions.
 //
-//   Per-hunk choices via vim.ui.select:
-//     Accept      — apply hunk (diffget), advance
-//     Reject      — skip hunk, optional reason via vim.ui.input, advance
-//     Accept all  — apply remaining hunks
-//     Reject all  — prompt for reason, reject the whole write
-//
-//   On completion nvim-shim writes a result JSON file that carries:
-//     decision     — "accept" | "reject"
-//     content_path — path to file with left-buffer content (accept case)
-//     reason       — rejection / partial-rejection notes (optional)
-//
-//   Accepted: write content_path content to disk (may be partial)
-//   Rejected: return reason to agent, revert buffer
-//
-// read tool calls open the file in the agent tab non-blocking.
-// The agent tab is closed after each turn so your layout stays intact.
+// Per-hunk choices: Accept / Reject (+ optional reason) / Accept all / Reject all
+// Partial acceptance is supported: only accepted hunks reach disk.
 //
 // vim.g globals for statusline integration:
 //   vim.g.pi_active   — set while a pi session is live
@@ -38,71 +26,51 @@ import { join, resolve } from "node:path";
 
 interface NvimPreviewResult {
   decision: "accept" | "reject";
-  content_path?: string;
+  content?: string;
   reason?: string;
 }
 
 export default function (pi: ExtensionAPI) {
   let toolsRegistered = false;
 
-  // Fire-and-forget shim call: short timeout, errors ignored.
+  // Run the shim and await exit. stdin is optional; stdout is returned.
+  function shimRun(args: string[], stdin?: string): Promise<string> {
+    return new Promise((res, rej) => {
+      const child = spawn("shim", args, {
+        stdio: ["pipe", "pipe", "pipe"],
+        env: process.env,
+      });
+      const out: Buffer[] = [];
+      const err: Buffer[] = [];
+      child.stdout.on("data", (d: Buffer) => out.push(d));
+      child.stderr.on("data", (d: Buffer) => err.push(d));
+      if (stdin !== undefined) child.stdin.write(stdin, "utf-8");
+      child.stdin.end();
+      child.on("error", rej);
+      child.on("close", (code) => {
+        if (code !== 0) rej(new Error(Buffer.concat(err).toString().trim() || `shim exited ${code}`));
+        else res(Buffer.concat(out).toString());
+      });
+    });
+  }
+
+  // Fire-and-forget: run a shim command, swallow errors.
   async function shim(...args: string[]): Promise<void> {
-    try {
-      await pi.exec("nvim-shim", args, { timeout: 5000 });
-    } catch {
-      // Neovim may have closed; ignore silently
-    }
+    try { await shimRun(args); } catch { /* nvim may have closed */ }
   }
 
-  function writeTmp(content: string): string {
-    const path = join(
-      tmpdir(),
-      `pi-preview-${Date.now()}-${Math.random().toString(36).slice(2)}`,
-    );
-    writeFileSync(path, content, "utf-8");
-    return path;
-  }
-
-  // Blocking vimdiff preview. Passes a result JSON path to nvim-shim;
-  // nvim-shim writes the user's decision there when done.
+  // Blocking vimdiff review. Proposed content is sent via stdin.
+  // Returns the user's decision plus the final buffer content (may be partial).
   async function preview(
     filePath: string,
-    proposedContent: string,
-  ): Promise<{ accepted: boolean; content?: string; reason?: string }> {
-    const tmp = writeTmp(proposedContent);
-    const resultPath = join(tmpdir(), `pi-result-${Date.now()}.json`);
-
+    content: string,
+  ): Promise<NvimPreviewResult> {
     try {
-      await pi.exec("nvim-shim", ["preview", filePath, tmp, resultPath], {
-        timeout: 130000,
-      });
+      const json = await shimRun(["preview", filePath], content);
+      return JSON.parse(json) as NvimPreviewResult;
     } catch {
-      return { accepted: false, reason: "Preview timed out" };
-    } finally {
-      try { unlinkSync(tmp); } catch {}
+      return { decision: "reject", reason: "Preview failed or timed out" };
     }
-
-    let result: NvimPreviewResult;
-    try {
-      result = JSON.parse(readFileSync(resultPath, "utf-8"));
-      unlinkSync(resultPath);
-    } catch {
-      return { accepted: false, reason: "Failed to read review result" };
-    }
-
-    if (result.decision === "reject") {
-      return { accepted: false, reason: result.reason };
-    }
-
-    let content: string | undefined;
-    if (result.content_path) {
-      try {
-        content = readFileSync(result.content_path, "utf-8");
-        unlinkSync(result.content_path);
-      } catch {}
-    }
-
-    return { accepted: true, content, reason: result.reason };
   }
 
   function registerTools() {
@@ -122,7 +90,7 @@ export default function (pi: ExtensionAPI) {
 
         const result = await preview(filePath, newContent);
 
-        if (!result.accepted) {
+        if (result.decision === "reject") {
           await shim("revert", filePath);
           const reason = result.reason ? `: ${result.reason}` : "";
           return {
@@ -131,12 +99,10 @@ export default function (pi: ExtensionAPI) {
           };
         }
 
-        // Write the final content — may differ from proposed if some hunks were rejected
         const finalContent = result.content ?? newContent;
-        const writeParams = { ...params, content: finalContent };
         return createWriteTool(ctx.cwd).execute(
           toolCallId,
-          writeParams,
+          { ...params, content: finalContent },
           signal,
           onUpdate,
         );
@@ -159,24 +125,15 @@ export default function (pi: ExtensionAPI) {
         try {
           currentContent = readFileSync(filePath, "utf-8");
         } catch {
-          // Unreadable — surface the error through the write tool
-          return createWriteTool(ctx.cwd).execute(
-            toolCallId,
-            { path: params.path, content: newText },
-            signal,
-            onUpdate,
-          );
+          return {
+            content: [{ type: "text", text: `Cannot read ${params.path as string}` }],
+            details: {},
+          };
         }
 
         if (!currentContent.includes(oldText)) {
-          // oldText not found — let agent know immediately, no preview needed
           return {
-            content: [
-              {
-                type: "text",
-                text: `Edit failed: oldText not found in ${params.path as string}`,
-              },
-            ],
+            content: [{ type: "text", text: `Edit failed: oldText not found in ${params.path as string}` }],
             details: {},
           };
         }
@@ -184,7 +141,7 @@ export default function (pi: ExtensionAPI) {
         const newContent = currentContent.replace(oldText, newText);
         const result = await preview(filePath, newContent);
 
-        if (!result.accepted) {
+        if (result.decision === "reject") {
           await shim("revert", filePath);
           const reason = result.reason ? `: ${result.reason}` : "";
           return {
@@ -232,8 +189,6 @@ export default function (pi: ExtensionAPI) {
     await shim("close-tab");
   });
 
-  // --- read: open in agent tab non-blocking ---
-
   pi.on("tool_call", async (event) => {
     if (!process.env.NVIM_SOCKET_PATH) return;
     if (event.toolName === "read") {
@@ -241,8 +196,6 @@ export default function (pi: ExtensionAPI) {
       if (path) await shim("open", path);
     }
   });
-
-  // --- checktime after accepted writes land on disk ---
 
   pi.on("tool_result", async (event) => {
     if (!process.env.NVIM_SOCKET_PATH) return;
