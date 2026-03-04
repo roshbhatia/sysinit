@@ -1,6 +1,6 @@
 {
   config,
-  pkgs,
+  lib,
   ...
 }:
 
@@ -13,11 +13,30 @@ let
   personalGithubUser = if cfg.personalUsername != null then cfg.personalUsername else cfg.username;
   workGithubUser = if cfg.workUsername != null then cfg.workUsername else cfg.username;
 
-  credentialHelper = "!${pkgs.gh}/bin/gh auth git-credential";
+  sshCmd = keyFile: "ssh -i ${keyFile} -o IdentitiesOnly=yes";
 in
 {
   imports = [
     ./options.nix
+  ];
+
+  programs.ssh.matchBlocks = lib.mkMerge [
+    (lib.mkIf (cfg.personalSshKeyFile != null) {
+      "github-personal" = {
+        hostname = "github.com";
+        user = "git";
+        identityFile = cfg.personalSshKeyFile;
+        identitiesOnly = true;
+      };
+    })
+    (lib.mkIf (cfg.workSshKeyFile != null) {
+      "github-work" = {
+        hostname = "github.com";
+        user = "git";
+        identityFile = cfg.workSshKeyFile;
+        identitiesOnly = true;
+      };
+    })
   ];
 
   programs.git = {
@@ -253,13 +272,9 @@ in
         updateRefs = true;
       };
 
-      credential = {
-        # Override macOS Git's default system helper (osxkeychain). We rely on
-        # host-scoped helpers below (e.g. gh for GitHub/Gist).
-        helper = "";
-        "https://github.com".helper = credentialHelper;
-        "https://gist.github.com".helper = credentialHelper;
-      };
+      # Disable macOS osxkeychain default; authentication is handled per-directory
+      # via core.sshCommand in the gitdir-scoped includes below.
+      credential.helper = "";
 
       user = {
         inherit (cfg) name;
@@ -274,6 +289,9 @@ in
             email = workEmail;
             username = workGithubUser;
           };
+        }
+        // lib.optionalAttrs (cfg.workSshKeyFile != null) {
+          core.sshCommand = sshCmd cfg.workSshKeyFile;
         };
       }
       {
@@ -283,6 +301,9 @@ in
             email = personalEmail;
             username = personalGithubUser;
           };
+        }
+        // lib.optionalAttrs (cfg.personalSshKeyFile != null) {
+          core.sshCommand = sshCmd cfg.personalSshKeyFile;
         };
       }
       {
@@ -292,6 +313,9 @@ in
             email = personalEmail;
             username = personalGithubUser;
           };
+        }
+        // lib.optionalAttrs (cfg.personalSshKeyFile != null) {
+          core.sshCommand = sshCmd cfg.personalSshKeyFile;
         };
       }
       {
@@ -301,6 +325,9 @@ in
             email = workEmail;
             username = workGithubUser;
           };
+        }
+        // lib.optionalAttrs (cfg.workSshKeyFile != null) {
+          core.sshCommand = sshCmd cfg.workSshKeyFile;
         };
       }
       {
@@ -310,6 +337,9 @@ in
             email = personalEmail;
             username = personalGithubUser;
           };
+        }
+        // lib.optionalAttrs (cfg.personalSshKeyFile != null) {
+          core.sshCommand = sshCmd cfg.personalSshKeyFile;
         };
       }
     ];

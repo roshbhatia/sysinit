@@ -8,6 +8,8 @@ let
       name = "Roshan Bhatia";
       email = "rshnbhatia@gmail.com";
       username = "roshbhatia";
+      personalSshKeyFile = "~/.ssh/id_ed25519_personal";
+      workSshKeyFile = "~/.ssh/id_ed25519_work";
     };
   };
 in

@@ -40,5 +40,17 @@
       default = null;
       description = "Work username override";
     };
+
+    personalSshKeyFile = lib.mkOption {
+      type = lib.types.nullOr lib.types.str;
+      default = null;
+      description = "Path to SSH private key for personal GitHub identity (e.g. ~/.ssh/id_ed25519_personal)";
+    };
+
+    workSshKeyFile = lib.mkOption {
+      type = lib.types.nullOr lib.types.str;
+      default = null;
+      description = "Path to SSH private key for work GitHub identity (e.g. ~/.ssh/id_ed25519_work)";
+    };
   };
 }
