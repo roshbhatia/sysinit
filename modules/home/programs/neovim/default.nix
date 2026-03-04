@@ -41,7 +41,10 @@ in
       ${pkgs.git}/bin/git clone ${nvimConfigRepo} ${nvimConfigDir}
     elif [ -d "${nvimConfigDir}/.git" ]; then
       cd ${nvimConfigDir}
+      ${pkgs.git}/bin/git add -A
+      ${pkgs.git}/bin/git diff --cached --quiet || ${pkgs.git}/bin/git commit -m "dirty"
       ${pkgs.git}/bin/git pull --rebase origin main
+      ${pkgs.git}/bin/git push origin main
     else
       # Directory exists but isn't a git repo, reset it
       rm -rf ${nvimConfigDir}
