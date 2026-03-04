@@ -23,12 +23,12 @@ in
 
   home.sessionVariables = {
     SYSINIT_NVIM_NIX_MANAGED = "true";
-    SYSINIT_NVIM_COLORS = builtins.toJSON {
+    SYSINIT_NVIM_COLORS = builtins.toJSON (builtins.toJSON {
       inherit (config.sysinit.theme) appearance;
       inherit (config.sysinit.theme) colorscheme;
       inherit (config.sysinit.theme) transparency;
       inherit (config.sysinit.theme) variant;
-    };
+    });
   };
 
   # The nvim config changes a lot, and I manage plugins through lazy.nvim
