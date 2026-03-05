@@ -36,6 +36,7 @@ in
   # As a result, it's easier to just manage it seperately
   home.activation.setupNeovimConfig = config.lib.dag.entryAfter [ "writeBoundary" ] ''
     export PATH="${pkgs.git}/bin:${pkgs.openssh}/bin:$PATH"
+    export GIT_SSH_COMMAND="ssh -i $HOME/.ssh/id_ed25519_personal -o IdentitiesOnly=yes"
 
     if [ ! -d "${nvimConfigDir}" ]; then
       ${pkgs.git}/bin/git clone ${nvimConfigRepo} ${nvimConfigDir}

@@ -137,6 +137,7 @@ let
 
   installPiPackages = pkgs.writeShellScript "install-pi-packages" ''
     export PATH="${pkgs.git}/bin:${pkgs.nodejs}/bin:${pkgs.openssh}/bin:$PATH"
+    export GIT_SSH_COMMAND="ssh -i $HOME/.ssh/id_ed25519_personal -o IdentitiesOnly=yes"
 
     SETTINGS="$HOME/.pi/agent/settings.json"
     PI="${pkgs.pi-coding-agent}/bin/pi"
