@@ -13,6 +13,7 @@ let
     sha256 = "1lj0vrx5yvf71sqai4zqk1idgnrqzcimg4mmlicg7091jsp12qsk";
   };
   extensionsDir = "${piExtensionsSrc}/packages/coding-agent/examples/extensions";
+  agentsDir = ./agents;
 
   extensions = [
     "confirm-destructive"
@@ -34,6 +35,22 @@ let
         force = true;
       }
     ) extensions
+  );
+
+  # User-level agents placed at ~/.pi/agent/agents/{name}.md.
+  # Add .md files to modules/home/programs/llm/config/agents/ to define agents.
+  agentFileNames = builtins.filter (f: lib.hasSuffix ".md" f) (
+    builtins.attrNames (builtins.readDir agentsDir)
+  );
+
+  agentFiles = lib.listToAttrs (
+    map (
+      name:
+      lib.nameValuePair ".pi/agent/agents/${name}" {
+        source = "${agentsDir}/${name}";
+        force = true;
+      }
+    ) agentFileNames
   );
 
   stylixTheme =
@@ -133,6 +150,7 @@ let
     "npm:pi-memory-md"
     "npm:pi-md-export"
     "npm:pi-vim"
+    "npm:pi-subagents"
   ];
 
   installPiPackages = pkgs.writeShellScript "install-pi-packages" ''
@@ -155,10 +173,13 @@ in
     $DRY_RUN_CMD ${installPiPackages}
   '';
 
-  home.file = extensionFiles // {
-    ".pi/agent/themes/stylix.json" = {
-      text = stylixTheme;
-      force = true;
+  home.file =
+    extensionFiles
+    // agentFiles
+    // {
+      ".pi/agent/themes/stylix.json" = {
+        text = stylixTheme;
+        force = true;
+      };
     };
-  };
 }
