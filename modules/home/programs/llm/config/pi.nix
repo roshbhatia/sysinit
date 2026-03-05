@@ -13,7 +13,8 @@ let
     sha256 = "1lj0vrx5yvf71sqai4zqk1idgnrqzcimg4mmlicg7091jsp12qsk";
   };
   extensionsDir = "${piExtensionsSrc}/packages/coding-agent/examples/extensions";
-  agentsDir = ./agents;
+  subagents = import ../../subagents;
+  agentNames = builtins.filter (k: k != "formatSubagentAsMarkdown") (builtins.attrNames subagents);
 
   extensions = [
     "confirm-destructive"
@@ -37,20 +38,19 @@ let
     ) extensions
   );
 
-  # User-level agents placed at ~/.pi/agent/agents/{name}.md.
-  # Add .md files to modules/home/programs/llm/config/agents/ to define agents.
-  agentFileNames = builtins.filter (f: lib.hasSuffix ".md" f) (
-    builtins.attrNames (builtins.readDir agentsDir)
-  );
-
+  # User-level agents generated from modules/home/programs/llm/subagents/*.nix.
+  # Add a new .nix file there and register it in subagents/default.nix to define an agent.
   agentFiles = lib.listToAttrs (
     map (
       name:
-      lib.nameValuePair ".pi/agent/agents/${name}" {
-        source = "${agentsDir}/${name}";
+      lib.nameValuePair ".pi/agent/agents/${name}.md" {
+        text = subagents.formatSubagentAsMarkdown {
+          inherit name;
+          config = subagents.${name};
+        };
         force = true;
       }
-    ) agentFileNames
+    ) agentNames
   );
 
   stylixTheme =

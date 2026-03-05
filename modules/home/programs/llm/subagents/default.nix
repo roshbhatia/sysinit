@@ -5,21 +5,39 @@
   formatSubagentAsMarkdown =
     { name, config }:
     let
-      inherit name;
-
-      toolsLines =
-        if config.tools == null || config.tools == { } then
-          [ ]
+      # tools is an attrset of name -> bool; emit only enabled ones as CSV
+      enabledTools =
+        if config ? tools && config.tools != { } then
+          builtins.filter (k: config.tools.${k}) (builtins.attrNames config.tools)
         else
-          builtins.map (k: "  ${k}: ${if config.tools.${k} then "true" else "false"}") (
-            builtins.attrNames config.tools
-          );
-      toolsSection =
-        if toolsLines == [ ] then "" else "tools:\n" + (builtins.concatStringsSep "\n" toolsLines);
+          [ ];
+      toolsLine =
+        if enabledTools == [ ] then "" else "tools: ${builtins.concatStringsSep ", " enabledTools}";
+
+      frontmatterLines = builtins.filter (s: s != "") (
+        [
+          "name: ${name}"
+          "description: ${config.description or ""}"
+          toolsLine
+        ]
+        ++ (if config ? model then [ "model: ${config.model}" ] else [ ])
+        ++ (if config ? thinking then [ "thinking: ${config.thinking}" ] else [ ])
+        ++ (if config ? extensions then [ "extensions: ${config.extensions}" ] else [ ])
+        ++ (if config ? skill then [ "skill: ${config.skill}" ] else [ ])
+        ++ (if config ? output then [ "output: ${config.output}" ] else [ ])
+        ++ (if config ? defaultReads then [ "defaultReads: ${config.defaultReads}" ] else [ ])
+        ++ (
+          if config ? defaultProgress then
+            [ "defaultProgress: ${if config.defaultProgress then "true" else "false"}" ]
+          else
+            [ ]
+        )
+      );
+      frontmatter = builtins.concatStringsSep "\n" frontmatterLines;
 
       descriptionSection = [ (config.description or "") ];
       useWhenSection =
-        if config.useWhen or null != null then
+        if config ? useWhen && config.useWhen != null then
           [
             "\n## Use When:"
             (builtins.concatStringsSep "\n" (map (item: "- ${item}") config.useWhen))
@@ -27,7 +45,7 @@
         else
           [ ];
       avoidWhenSection =
-        if config.avoidWhen or null != null then
+        if config ? avoidWhen && config.avoidWhen != null then
           [
             "\n## Avoid When:"
             (builtins.concatStringsSep "\n" (map (item: "- ${item}") config.avoidWhen))
@@ -37,15 +55,6 @@
       prompt = builtins.concatStringsSep "\n" (
         builtins.filter (s: s != "") (descriptionSection ++ useWhenSection ++ avoidWhenSection)
       );
-
-      frontmatterLines = [
-        "name: ${name}"
-        "description: ${config.description or ""}"
-        "mode: subagent"
-        "temperature: ${toString (config.temperature or 0.1)}"
-      ]
-      ++ (if toolsSection != "" then [ toolsSection ] else [ ]);
-      frontmatter = builtins.concatStringsSep "\n" frontmatterLines;
     in
     ''
       ---
