@@ -13,7 +13,7 @@ let
     sha256 = "1lj0vrx5yvf71sqai4zqk1idgnrqzcimg4mmlicg7091jsp12qsk";
   };
   extensionsDir = "${piExtensionsSrc}/packages/coding-agent/examples/extensions";
-  subagents = import ../../subagents;
+  subagents = import ../subagents;
   agentNames = builtins.filter (k: k != "formatSubagentAsMarkdown") (builtins.attrNames subagents);
 
   extensions = [
