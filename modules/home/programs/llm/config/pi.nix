@@ -22,7 +22,6 @@ let
     "git-checkpoint"
     "handoff"
     "notify"
-    "questionnaire"
     "session-name"
     "status-line"
     "tools"
