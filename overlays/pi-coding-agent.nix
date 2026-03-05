@@ -2,25 +2,25 @@ _:
 
 final: _prev:
 let
-  version = "0.55.4";
+  version = "0.56.1";
   baseUrl = "https://github.com/badlogic/pi-mono/releases/download/v${version}";
 
   platformInfo = {
     "aarch64-darwin" = {
       asset = "pi-darwin-arm64.tar.gz";
-      hash = "sha256-hU6H6oW7il3TYCR6CC9FdehM54nASHPNnPrbnV3aSm8=";
+      hash = "sha256-//3ibdy5FCIUaD8SsANOe46vw27y9c5O95XK7416+Zc=";
     };
     "x86_64-darwin" = {
       asset = "pi-darwin-x64.tar.gz";
-      hash = "sha256-IO/N38B6TSQq9OIhWKsWP54qnSFb7HfXCpzHqOHO54w=";
+      hash = "sha256-OccKl1cFb9I45Me6GdpCfznbPOxS5JGlchA2aif0gGM=";
     };
     "aarch64-linux" = {
       asset = "pi-linux-arm64.tar.gz";
-      hash = "sha256-XnIU0NfCp2l02/AMUKsf5doTEwr7OpkKm4BQ+eAZ1wE=";
+      hash = "sha256-KqOa9JBnYGty8WsCJQBgx4aEEewv4TJhJs+q/oN34GY=";
     };
     "x86_64-linux" = {
       asset = "pi-linux-x64.tar.gz";
-      hash = "sha256-rQbmI93JgQ9pAxsCXWO/y4BPyY4Meuy5+c4V7KblzvI=";
+      hash = "sha256-MWcUAL4mydyFGsInWeALAWCZsbMzavEL2/Sev1ob8/U=";
     };
   };
 
