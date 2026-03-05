@@ -19,7 +19,6 @@ let
     "dirty-repo-guard"
     "git-checkpoint"
     "handoff"
-    "modal-editor"
     "notify"
     "questionnaire"
     "session-name"
@@ -133,6 +132,7 @@ let
     "git:github.com/ttttmr/pi-context"
     "npm:pi-memory-md"
     "npm:pi-md-export"
+    "npm:pi-vim"
   ];
 
   installPiPackages = pkgs.writeShellScript "install-pi-packages" ''
