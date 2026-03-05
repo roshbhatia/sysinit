@@ -35,7 +35,7 @@ in
   # The nvim config changes a lot, and I manage plugins through lazy.nvim
   # As a result, it's easier to just manage it seperately
   home.activation.setupNeovimConfig = config.lib.dag.entryAfter [ "writeBoundary" ] ''
-    export PATH="${pkgs.git}/bin:$PATH"
+    export PATH="${pkgs.git}/bin:${pkgs.openssh}/bin:$PATH"
 
     if [ ! -d "${nvimConfigDir}" ]; then
       ${pkgs.git}/bin/git clone ${nvimConfigRepo} ${nvimConfigDir}

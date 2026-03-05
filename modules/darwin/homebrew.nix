@@ -49,7 +49,7 @@ in
     onActivation = {
       autoUpdate = true;
       upgrade = true;
-      cleanup = "uninstall";
+      cleanup = null;
     };
     global = {
       brewfile = true;
