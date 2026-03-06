@@ -80,7 +80,7 @@ in
   xdg.configFile = {
     "sketchybar/sketchybarrc" = {
       text = ''
-        #! /opt/homebrew/bin/lua
+        #!${pkgs.lua5_4}/bin/lua
 
         local current_path = os.getenv("PATH") or ""
         local home_dir = os.getenv("HOME")
