@@ -7,8 +7,6 @@ local function get_basic_config()
       remote_address = "vorgossos.stork-eel.ts.net",
       username = "rshnbhatia",
       assume_shell = "Posix",
-
-      default_prog = { "bash" },
     },
     {
       name = "huey",
@@ -16,7 +14,6 @@ local function get_basic_config()
       username = "rosh",
       multiplexing = "None",
       assume_shell = "Posix",
-      default_prog = { "zsh" },
     },
   }
 

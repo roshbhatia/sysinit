@@ -160,6 +160,7 @@
     pi-coding-agent
 
     # Config & Misc Dev
+    devcontainer
     taplo
     yaml-language-server
     yamllint
