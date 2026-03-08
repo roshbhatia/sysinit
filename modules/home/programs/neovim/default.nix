@@ -42,8 +42,11 @@ in
       ${pkgs.git}/bin/git clone ${nvimConfigRepo} ${nvimConfigDir}
     elif [ -d "${nvimConfigDir}/.git" ]; then
       cd ${nvimConfigDir}
+      ${pkgs.git}/bin/git remote set-url origin ${nvimConfigRepo}
+      ${pkgs.git}/bin/git stash --quiet 2>/dev/null || true
       ${pkgs.git}/bin/git fetch origin main
       ${pkgs.git}/bin/git rebase origin/main
+      ${pkgs.git}/bin/git stash pop --quiet 2>/dev/null || true
     else
       # Directory exists but isn't a git repo, reset it
       rm -rf ${nvimConfigDir}
