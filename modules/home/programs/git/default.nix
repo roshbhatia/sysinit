@@ -268,10 +268,6 @@ in
         sslVerify = false;
       };
 
-      "url \"ssh://git@github.com/\"" = {
-        insteadOf = "https://github.com/";
-      };
-
       rebase = {
         updateRefs = true;
       };

@@ -4,7 +4,6 @@
 
 {
   imports = [
-    ./_1password.nix
     ./ast-grep.nix
     ./bat.nix
     ./direnv.nix
