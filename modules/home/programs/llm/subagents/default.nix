@@ -11,15 +11,22 @@
           builtins.filter (k: config.tools.${k}) (builtins.attrNames config.tools)
         else
           [ ];
-      toolsLine =
-        if enabledTools == [ ] then "" else "tools: ${builtins.concatStringsSep ", " enabledTools}";
+      toolsLines =
+        if enabledTools == [ ] then
+          [ ]
+        else
+          [ "tools:" ]
+          ++ map (t: "  ${t}: true") enabledTools
+          ++ map (t: "  ${t}: false") (
+            builtins.filter (k: !config.tools.${k}) (builtins.attrNames config.tools)
+          );
 
       frontmatterLines = builtins.filter (s: s != "") (
         [
           "name: ${name}"
           "description: ${config.description or ""}"
-          toolsLine
         ]
+        ++ toolsLines
         ++ (if config ? model then [ "model: ${config.model}" ] else [ ])
         ++ (if config ? thinking then [ "thinking: ${config.thinking}" ] else [ ])
         ++ (if config ? extensions then [ "extensions: ${config.extensions}" ] else [ ])

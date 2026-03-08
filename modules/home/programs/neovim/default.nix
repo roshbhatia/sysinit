@@ -5,7 +5,7 @@
 }:
 
 let
-  nvimConfigRepo = "https://github.com/roshbhatia/sysinit.nvim.git";
+  nvimConfigRepo = "git@github.com:roshbhatia/sysinit.nvim.git";
   nvimConfigDir = "${config.xdg.configHome}/nvim";
 in
 {
