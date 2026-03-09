@@ -299,8 +299,16 @@ in
             email = personalEmail;
             username = personalGithubUser;
           };
+          url = {
+            "git@github-personal:" = {
+              insteadOf = "git@github.com:";
+            };
+            "ssh://git@github-personal/" = {
+              insteadOf = "ssh://git@github.com/";
+            };
+          };
         }
-        // lib.optionalAttrs hasPersonalKey {
+        // lib.optionalAttrs (!use1Password && hasPersonalKey) {
           core.sshCommand = sshCmd personalKeyPath;
         };
 
@@ -309,8 +317,16 @@ in
             email = workEmail;
             username = workGithubUser;
           };
+          url = {
+            "git@github-work:" = {
+              insteadOf = "git@github.com:";
+            };
+            "ssh://git@github-work/" = {
+              insteadOf = "ssh://git@github.com/";
+            };
+          };
         }
-        // lib.optionalAttrs hasWorkKey {
+        // lib.optionalAttrs (!use1Password && hasWorkKey) {
           core.sshCommand = sshCmd workKeyPath;
         };
       in
