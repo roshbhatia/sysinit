@@ -67,7 +67,6 @@
   programs.zsh.enable = true;
 
   services = {
-    lima.enable = true;
     openssh = {
       enable = true;
       ports = [ 55555 ]; # Mirrors what should be in the lima.yaml

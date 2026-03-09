@@ -52,7 +52,7 @@ let
         IdentityAgent = ''"${agentSocket}"'';
       };
     }
-    // lib.optionalAttrs (!use1Password && keyPath != null) {
+    // lib.optionalAttrs (keyPath != null) {
       identityFile = keyPath;
       identitiesOnly = true;
     };
