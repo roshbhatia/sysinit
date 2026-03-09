@@ -16,7 +16,7 @@ let
   platformInfo = {
     "aarch64-darwin" = {
       asset = "pi-darwin-arm64.tar.gz";
-      hash = "sha256-HqqKiKLE2cZbH4zOegsM4Xj1RRvx5vZQlhnb07Ja83A=";
+      hash = "sha256-T8cLJKI+ODscNW6jdiDhGJ1ohCDfNrSMSbR1eJ9eD44=";
     };
     "x86_64-darwin" = {
       asset = "pi-darwin-x64.tar.gz";
