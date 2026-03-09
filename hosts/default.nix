@@ -1,6 +1,4 @@
-{
-  ...
-}:
+_:
 let
   common = {
     username = "rshnbhatia";
