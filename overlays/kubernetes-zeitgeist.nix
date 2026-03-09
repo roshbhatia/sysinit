@@ -1,16 +1,16 @@
 { ... }:
 
-final: _prev: {
-  kubernetes-zeitgeist = final.buildGoModule rec {
+final: _prev:
+let
+  sources = final.nvfetcherSources.kubernetes-zeitgeist;
+  version = final.lib.removePrefix "v" sources.version;
+in
+{
+  kubernetes-zeitgeist = final.buildGoModule {
     pname = "kubernetes-zeitgeist";
-    version = "0.5.3";
+    inherit version;
 
-    src = final.fetchFromGitHub {
-      owner = "kubernetes-sigs";
-      repo = "zeitgeist";
-      rev = "v${version}";
-      sha256 = "sha256-8vVqX6V0IMJk4GTksWEB88gwpG0Bp/LUI+LOcAQB1Gw=";
-    };
+    inherit (sources) src;
 
     vendorHash = "sha256-E7ntN/BqDzgj9nJ7rKMDq8EBOvbvKQxQRI3/4mvkHQM=";
 

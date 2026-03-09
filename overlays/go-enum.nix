@@ -1,16 +1,16 @@
 { ... }:
 
-final: _prev: {
-  go-enum = final.buildGoModule rec {
+final: _prev:
+let
+  sources = final.nvfetcherSources.go-enum;
+  version = final.lib.removePrefix "v" sources.version;
+in
+{
+  go-enum = final.buildGoModule {
     pname = "go-enum";
-    version = "0.6.0";
+    inherit version;
 
-    src = final.fetchFromGitHub {
-      owner = "abice";
-      repo = "go-enum";
-      rev = "v${version}";
-      hash = "sha256-Mt45Qz8l++bvBLKEpbX0m8iTkHDpsZtdYhhHUprQKY8=";
-    };
+    inherit (sources) src;
 
     vendorHash = "sha256-YzIVI+PLZt24s/KjTxifWrvjrIU8jLvkC1lgw4yG6cg=";
 

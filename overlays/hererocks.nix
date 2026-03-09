@@ -1,21 +1,17 @@
 { ... }:
 
-final: _prev: {
-  hererocks = final.python3Packages.buildPythonApplication rec {
+final: _prev:
+let
+  sources = final.nvfetcherSources.hererocks;
+in
+{
+  hererocks = final.python3Packages.buildPythonApplication {
     pname = "hererocks";
-    version = "0.25.1";
+    inherit (sources) version src;
     pyproject = true;
-
-    src = final.fetchFromGitHub {
-      owner = "luarocks";
-      repo = "hererocks";
-      rev = version;
-      hash = "sha256-y28MTFncy5oD57jpY6AN+X/58OzY3ae3rSL236rfuL0=";
-    };
 
     build-system = [ final.python3Packages.setuptools ];
 
-    # Tests require network access
     doCheck = false;
 
     meta = with final.lib; {

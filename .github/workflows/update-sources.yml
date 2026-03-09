@@ -1,0 +1,55 @@
+name: Update sources
+
+on:
+  schedule:
+    - cron: "0 */6 * * *"
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: DeterminateSystems/nix-installer-action@v17
+
+      - uses: DeterminateSystems/magic-nix-cache-action@v8
+
+      - name: Configure git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Update nvfetcher sources
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NIX_CONFIG: "access-tokens = github.com=${{ secrets.GITHUB_TOKEN }}"
+        run: |
+          nix run nixpkgs#nvfetcher -- -c nvfetcher.toml -o _sources --keep-going
+
+      - name: Update flake inputs
+        env:
+          NIX_CONFIG: "access-tokens = github.com=${{ secrets.GITHUB_TOKEN }}"
+        run: |
+          nix flake update
+
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v7
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          branch: automation/update-sources
+          delete-branch: true
+          title: "chore: update nvfetcher sources and flake inputs"
+          commit-message: "chore: update nvfetcher sources and flake inputs"
+          body: |
+            Automated update:
+            - Regenerated `_sources/generated.nix` via nvfetcher
+            - Updated `flake.lock` via `nix flake update`
+
+            **Manual follow-up may be needed:**
+            - Go `vendorHash` is not auto-updated (build failures indicate a bump is needed)
+          labels: automated,dependencies

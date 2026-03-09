@@ -1,0 +1,206 @@
+{
+    "crush": {
+        "cargoLock": null,
+        "date": null,
+        "extract": null,
+        "name": "crush",
+        "passthru": null,
+        "pinned": false,
+        "src": {
+            "name": null,
+            "sha256": "sha256-GZDKSUUOtMV7zV5uNXFl6geQUkfyWnS6PX7XsZOGvpI=",
+            "type": "url",
+            "url": "https://github.com/charmbracelet/crush/releases/download/v0.47.2/crush_0.47.2_Darwin_arm64.tar.gz"
+        },
+        "version": "0.47.2"
+    },
+    "crush-aarch64-linux": {
+        "cargoLock": null,
+        "date": null,
+        "extract": null,
+        "name": "crush-aarch64-linux",
+        "passthru": null,
+        "pinned": false,
+        "src": {
+            "name": null,
+            "sha256": "sha256-Ke7k1BaTqaj+CRU0V/LcHcpeTbubQtA0Z++W81mb0bY=",
+            "type": "url",
+            "url": "https://github.com/charmbracelet/crush/releases/download/v0.47.2/crush_0.47.2_Linux_arm64.tar.gz"
+        },
+        "version": "0.47.2"
+    },
+    "crush-x86_64-darwin": {
+        "cargoLock": null,
+        "date": null,
+        "extract": null,
+        "name": "crush-x86_64-darwin",
+        "passthru": null,
+        "pinned": false,
+        "src": {
+            "name": null,
+            "sha256": "sha256-59CW6mkiWE9XUE5wRooXc/x8aCSGPvZhXkxP9Jzz5lY=",
+            "type": "url",
+            "url": "https://github.com/charmbracelet/crush/releases/download/v0.47.2/crush_0.47.2_Darwin_x86_64.tar.gz"
+        },
+        "version": "0.47.2"
+    },
+    "crush-x86_64-linux": {
+        "cargoLock": null,
+        "date": null,
+        "extract": null,
+        "name": "crush-x86_64-linux",
+        "passthru": null,
+        "pinned": false,
+        "src": {
+            "name": null,
+            "sha256": "sha256-azUv/6WFQtLla4a/2dlLqFBaCeSgmEZxAtRP3WR1lz4=",
+            "type": "url",
+            "url": "https://github.com/charmbracelet/crush/releases/download/v0.47.2/crush_0.47.2_Linux_x86_64.tar.gz"
+        },
+        "version": "0.47.2"
+    },
+    "go-enum": {
+        "cargoLock": null,
+        "date": null,
+        "extract": null,
+        "name": "go-enum",
+        "passthru": null,
+        "pinned": false,
+        "src": {
+            "deepClone": false,
+            "fetchSubmodules": false,
+            "leaveDotGit": false,
+            "name": null,
+            "owner": "abice",
+            "repo": "go-enum",
+            "rev": "v0.9.2",
+            "sha256": "sha256-VZH7xLEDqU8N7oU3tOWVdTABEQEp2mlh1NtTg22hzco=",
+            "sparseCheckout": [],
+            "type": "github"
+        },
+        "version": "v0.9.2"
+    },
+    "gomvp": {
+        "cargoLock": null,
+        "date": null,
+        "extract": null,
+        "name": "gomvp",
+        "passthru": null,
+        "pinned": false,
+        "src": {
+            "deepClone": false,
+            "fetchSubmodules": false,
+            "leaveDotGit": false,
+            "name": null,
+            "owner": "abenz1267",
+            "repo": "gomvp",
+            "rev": "v0.0.4",
+            "sha256": "sha256-dXjI+nItJCAGKxyC9tX11hxWHCP+NgXtTYtm5+6dqDU=",
+            "sparseCheckout": [],
+            "type": "github"
+        },
+        "version": "v0.0.4"
+    },
+    "hererocks": {
+        "cargoLock": null,
+        "date": null,
+        "extract": null,
+        "name": "hererocks",
+        "passthru": null,
+        "pinned": false,
+        "src": {
+            "deepClone": false,
+            "fetchSubmodules": false,
+            "leaveDotGit": false,
+            "name": null,
+            "owner": "luarocks",
+            "repo": "hererocks",
+            "rev": "0.25.1",
+            "sha256": "sha256-y28MTFncy5oD57jpY6AN+X/58OzY3ae3rSL236rfuL0=",
+            "sparseCheckout": [],
+            "type": "github"
+        },
+        "version": "0.25.1"
+    },
+    "kubernetes-zeitgeist": {
+        "cargoLock": null,
+        "date": null,
+        "extract": null,
+        "name": "kubernetes-zeitgeist",
+        "passthru": null,
+        "pinned": false,
+        "src": {
+            "deepClone": false,
+            "fetchSubmodules": false,
+            "leaveDotGit": false,
+            "name": null,
+            "owner": "kubernetes-sigs",
+            "repo": "zeitgeist",
+            "rev": "v0.5.4",
+            "sha256": "sha256-o9uk8WnoIvG5Ylz6We2QElBrKOq2mUWKu0pqzlKtaXY=",
+            "sparseCheckout": [],
+            "type": "github"
+        },
+        "version": "v0.5.4"
+    },
+    "pi-coding-agent": {
+        "cargoLock": null,
+        "date": null,
+        "extract": null,
+        "name": "pi-coding-agent",
+        "passthru": null,
+        "pinned": false,
+        "src": {
+            "name": null,
+            "sha256": "sha256-T8cLJKI+ODscNW6jdiDhGJ1ohCDfNrSMSbR1eJ9eD44=",
+            "type": "url",
+            "url": "https://github.com/badlogic/pi-mono/releases/download/v0.57.1/pi-darwin-arm64.tar.gz"
+        },
+        "version": "0.57.1"
+    },
+    "pi-coding-agent-aarch64-linux": {
+        "cargoLock": null,
+        "date": null,
+        "extract": null,
+        "name": "pi-coding-agent-aarch64-linux",
+        "passthru": null,
+        "pinned": false,
+        "src": {
+            "name": null,
+            "sha256": "sha256-GrX78MvEEKaM6MOAEGttfW4v6ryg3KJ7jmi3dw6h9K0=",
+            "type": "url",
+            "url": "https://github.com/badlogic/pi-mono/releases/download/v0.57.1/pi-linux-arm64.tar.gz"
+        },
+        "version": "0.57.1"
+    },
+    "pi-coding-agent-x86_64-darwin": {
+        "cargoLock": null,
+        "date": null,
+        "extract": null,
+        "name": "pi-coding-agent-x86_64-darwin",
+        "passthru": null,
+        "pinned": false,
+        "src": {
+            "name": null,
+            "sha256": "sha256-vGdzPOmldi00rmCP62Va53Q08fU1qgimXG3kBFt37HM=",
+            "type": "url",
+            "url": "https://github.com/badlogic/pi-mono/releases/download/v0.57.1/pi-darwin-x64.tar.gz"
+        },
+        "version": "0.57.1"
+    },
+    "pi-coding-agent-x86_64-linux": {
+        "cargoLock": null,
+        "date": null,
+        "extract": null,
+        "name": "pi-coding-agent-x86_64-linux",
+        "passthru": null,
+        "pinned": false,
+        "src": {
+            "name": null,
+            "sha256": "sha256-ghQwKFWi+oPRW0cGvI6L6Rommqy0lhTBSqc/0sKqZac=",
+            "type": "url",
+            "url": "https://github.com/badlogic/pi-mono/releases/download/v0.57.1/pi-linux-x64.tar.gz"
+        },
+        "version": "0.57.1"
+    }
+}

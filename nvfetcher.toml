@@ -1,0 +1,65 @@
+# nvfetcher configuration for automated package source updates
+# Run: nix run github:berberman/nvfetcher -- -c nvfetcher.toml -o _sources
+
+# Go packages (note: vendorHash must still be updated manually)
+# These use v-prefixed tags (e.g. v0.9.2), keep the v in version for fetch.github rev
+[go-enum]
+src.github = "abice/go-enum"
+fetch.github = "abice/go-enum"
+
+[gomvp]
+src.github_tag = "abenz1267/gomvp"
+fetch.github = "abenz1267/gomvp"
+
+[kubernetes-zeitgeist]
+src.github = "kubernetes-sigs/zeitgeist"
+fetch.github = "kubernetes-sigs/zeitgeist"
+
+# Python packages (hererocks uses tags without v prefix)
+[hererocks]
+src.github_tag = "luarocks/hererocks"
+fetch.github = "luarocks/hererocks"
+
+# Binary release packages - crush (one entry per platform asset)
+# Tags are v0.47.2, strip prefix so $ver = 0.47.2 for URL construction
+[crush]
+src.github = "charmbracelet/crush"
+src.prefix = "v"
+fetch.url = "https://github.com/charmbracelet/crush/releases/download/v$ver/crush_$ver_Darwin_arm64.tar.gz"
+
+[crush-x86_64-darwin]
+src.github = "charmbracelet/crush"
+src.prefix = "v"
+fetch.url = "https://github.com/charmbracelet/crush/releases/download/v$ver/crush_$ver_Darwin_x86_64.tar.gz"
+
+[crush-aarch64-linux]
+src.github = "charmbracelet/crush"
+src.prefix = "v"
+fetch.url = "https://github.com/charmbracelet/crush/releases/download/v$ver/crush_$ver_Linux_arm64.tar.gz"
+
+[crush-x86_64-linux]
+src.github = "charmbracelet/crush"
+src.prefix = "v"
+fetch.url = "https://github.com/charmbracelet/crush/releases/download/v$ver/crush_$ver_Linux_x86_64.tar.gz"
+
+# Binary release packages - pi-coding-agent (one entry per platform asset)
+# Tags are v0.57.1, strip prefix so $ver = 0.57.1 for URL construction
+[pi-coding-agent]
+src.github = "badlogic/pi-mono"
+src.prefix = "v"
+fetch.url = "https://github.com/badlogic/pi-mono/releases/download/v$ver/pi-darwin-arm64.tar.gz"
+
+[pi-coding-agent-x86_64-darwin]
+src.github = "badlogic/pi-mono"
+src.prefix = "v"
+fetch.url = "https://github.com/badlogic/pi-mono/releases/download/v$ver/pi-darwin-x64.tar.gz"
+
+[pi-coding-agent-aarch64-linux]
+src.github = "badlogic/pi-mono"
+src.prefix = "v"
+fetch.url = "https://github.com/badlogic/pi-mono/releases/download/v$ver/pi-linux-arm64.tar.gz"
+
+[pi-coding-agent-x86_64-linux]
+src.github = "badlogic/pi-mono"
+src.prefix = "v"
+fetch.url = "https://github.com/badlogic/pi-mono/releases/download/v$ver/pi-linux-x64.tar.gz"

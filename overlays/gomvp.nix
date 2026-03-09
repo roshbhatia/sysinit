@@ -1,16 +1,16 @@
 { ... }:
 
-final: _prev: {
-  gomvp = final.buildGoModule rec {
+final: _prev:
+let
+  sources = final.nvfetcherSources.gomvp;
+  version = final.lib.removePrefix "v" sources.version;
+in
+{
+  gomvp = final.buildGoModule {
     pname = "gomvp";
-    version = "0.0.4";
+    inherit version;
 
-    src = final.fetchFromGitHub {
-      owner = "abenz1267";
-      repo = "gomvp";
-      rev = "v${version}";
-      hash = "sha256-dXjI+nItJCAGKxyC9tX11hxWHCP+NgXtTYtm5+6dqDU=";
-    };
+    inherit (sources) src;
 
     vendorHash = null;
 

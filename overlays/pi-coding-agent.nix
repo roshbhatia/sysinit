@@ -1,50 +1,25 @@
-# Update to latest version:
-#   VERSION=$(curl -s https://api.github.com/repos/badlogic/pi-mono/releases/latest | jq -r .tag_name | sed 's/^v//')
-#   sed -i '' "s/version = \".*\"/version = \"$VERSION\"/" overlays/pi-coding-agent.nix
-#   for pair in "aarch64-darwin:pi-darwin-arm64" "x86_64-darwin:pi-darwin-x64" "aarch64-linux:pi-linux-arm64" "x86_64-linux:pi-linux-x64"; do
-#     plat=${pair%%:*}; asset=${pair#*:}
-#     hash=$(nix-prefetch-url --type sha256 --unpack "https://github.com/badlogic/pi-mono/releases/download/v${VERSION}/${asset}.tar.gz" 2>/dev/null | xargs nix hash convert --hash-algo sha256 --to sri)
-#     sed -i '' "/${plat}/,/hash =/{s|hash = \".*\"|hash = \"${hash}\"|;}" overlays/pi-coding-agent.nix
-#   done
 _:
 
 final: _prev:
 let
-  version = "0.57.1";
-  baseUrl = "https://github.com/badlogic/pi-mono/releases/download/v${version}";
+  sources = final.nvfetcherSources;
+  version = sources.pi-coding-agent.version;
 
   platformInfo = {
-    "aarch64-darwin" = {
-      asset = "pi-darwin-arm64.tar.gz";
-      hash = "sha256-T8cLJKI+ODscNW6jdiDhGJ1ohCDfNrSMSbR1eJ9eD44=";
-    };
-    "x86_64-darwin" = {
-      asset = "pi-darwin-x64.tar.gz";
-      hash = "sha256-y3jRArZ7dqHU19oqhOLIv/Ba8MWl9g8qvmQr2ORlBE8=";
-    };
-    "aarch64-linux" = {
-      asset = "pi-linux-arm64.tar.gz";
-      hash = "sha256-Ibd5dniFkcpV+O2iMCsbZ8JUbihxPnQtgiSvIwZdS6o=";
-    };
-    "x86_64-linux" = {
-      asset = "pi-linux-x64.tar.gz";
-      hash = "sha256-CW2vl/+hxa1HXQQTURQopuAZleIBq6cOZoxGpzvrizY=";
-    };
+    "aarch64-darwin" = sources.pi-coding-agent.src;
+    "x86_64-darwin" = sources.pi-coding-agent-x86_64-darwin.src;
+    "aarch64-linux" = sources.pi-coding-agent-aarch64-linux.src;
+    "x86_64-linux" = sources.pi-coding-agent-x86_64-linux.src;
   };
 
-  info =
+  src =
     platformInfo.${final.stdenv.hostPlatform.system}
       or (throw "pi-coding-agent: Unsupported platform ${final.stdenv.hostPlatform.system}");
 in
 {
   pi-coding-agent = final.stdenv.mkDerivation {
     pname = "pi-coding-agent";
-    inherit version;
-
-    src = final.fetchurl {
-      url = "${baseUrl}/${info.asset}";
-      inherit (info) hash;
-    };
+    inherit version src;
 
     sourceRoot = ".";
 
