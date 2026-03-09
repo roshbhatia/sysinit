@@ -46,13 +46,15 @@ let
     {
       hostname = "github.com";
       user = "git";
-      identityFile = keyPath;
-      identitiesOnly = true;
     }
     // lib.optionalAttrs use1Password {
       extraOptions = {
         IdentityAgent = ''"${agentSocket}"'';
       };
+    }
+    // lib.optionalAttrs (!use1Password && keyPath != null) {
+      identityFile = keyPath;
+      identitiesOnly = true;
     };
 in
 {
@@ -65,12 +67,14 @@ in
         "*" = {
           addKeysToAgent = "yes";
           hashKnownHosts = true;
-          identitiesOnly = true;
         }
         // lib.optionalAttrs use1Password {
           extraOptions = {
             IdentityAgent = ''"${agentSocket}"'';
           };
+        }
+        // lib.optionalAttrs (!use1Password) {
+          identitiesOnly = true;
         };
       }
 

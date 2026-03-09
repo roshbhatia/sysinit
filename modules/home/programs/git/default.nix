@@ -41,7 +41,7 @@ let
   sshCmd =
     keyFile:
     if use1Password then
-      "ssh -i ${keyFile} -o IdentitiesOnly=yes -o 'IdentityAgent=\"${sshCfg.agentSocket}\"'"
+      "ssh -o 'IdentityAgent=\"${sshCfg.agentSocket}\"'"
     else
       "ssh -i ${keyFile} -o IdentitiesOnly=yes";
 in
