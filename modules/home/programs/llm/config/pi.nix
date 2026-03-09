@@ -165,6 +165,8 @@ let
         "$PI" install "$pkg" || echo "Warning: failed to install $pkg"
       fi
     done
+
+    npm install -g pi-acp || echo "Warning: failed to install pi-acp"
   '';
 in
 {
