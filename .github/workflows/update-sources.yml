@@ -37,6 +37,16 @@ jobs:
         run: |
           nix flake update
 
+      - name: Update Go vendorHash values
+        env:
+          NIX_CONFIG: "access-tokens = github.com=${{ secrets.GITHUB_TOKEN }}"
+        run: |
+          ./hack/update-vendor-hash.sh
+
+      - name: Format Nix files
+        run: |
+          nix fmt
+
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v7
         with:
@@ -49,7 +59,5 @@ jobs:
             Automated update:
             - Regenerated `_sources/generated.nix` via nvfetcher
             - Updated `flake.lock` via `nix flake update`
-
-            **Manual follow-up may be needed:**
-            - Go `vendorHash` is not auto-updated (build failures indicate a bump is needed)
+            - Auto-updated Go `vendorHash` values
           labels: automated,dependencies
