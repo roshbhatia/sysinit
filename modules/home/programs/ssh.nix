@@ -21,18 +21,18 @@ let
     sshCfg.workPublicKey != null || sshCfg.workKeyFile != null || gitCfg.workSshKeyFile != null;
 
   personalKeyPath =
-    if use1Password && sshCfg.personalPublicKey != null then
-      "~/.ssh/1p_personal.pub"
-    else if sshCfg.personalKeyFile != null then
+    if sshCfg.personalKeyFile != null then
       sshCfg.personalKeyFile
+    else if use1Password && sshCfg.personalPublicKey != null then
+      "~/.ssh/1p_personal.pub"
     else
       gitCfg.personalSshKeyFile;
 
   workKeyPath =
-    if use1Password && sshCfg.workPublicKey != null then
-      "~/.ssh/1p_work.pub"
-    else if sshCfg.workKeyFile != null then
+    if sshCfg.workKeyFile != null then
       sshCfg.workKeyFile
+    else if use1Password && sshCfg.workPublicKey != null then
+      "~/.ssh/1p_work.pub"
     else
       gitCfg.workSshKeyFile;
 

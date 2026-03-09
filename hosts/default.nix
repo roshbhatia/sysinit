@@ -59,6 +59,7 @@ in
     values = {
       git = mkGit {
         workPublicKey = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIMLPtliVrOLXXcbDdMgHQ6ln2yL/LV6nHR63355yQNeE";
+        personalKeyFile = "~/.ssh/id_ed25519_personal";
       };
       environment = {
         LIMA_INSTANCE = "nostromo";
