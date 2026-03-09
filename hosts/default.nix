@@ -8,9 +8,48 @@ let
       name = "Roshan Bhatia";
       email = "rshnbhatia@gmail.com";
       username = "roshbhatia";
-      personalSshKeyFile = "~/.ssh/id_ed25519_personal";
-      workSshKeyFile = "~/.ssh/id_ed25519_work";
+      personalEmail = "rshnbhatia@gmail.com";
+      personalUsername = "roshbhatia";
+      defaultIdentity = "personal";
+
+      ssh = {
+        use1PasswordAgent = true;
+        personalPublicKey = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIBPaCcHii525hx5Roh8kYyisdIjXVG3t4tkKwhcwUwXS";
+      };
     };
+  };
+
+  mkGit =
+    {
+      workPublicKey ? null,
+      workEmail ? null,
+      workUsername ? null,
+      defaultIdentity ? "personal",
+      use1PasswordAgent ? true,
+      workKeyFile ? null,
+      personalKeyFile ? null,
+    }:
+    common.git
+    // {
+      inherit defaultIdentity;
+    }
+    // (if workEmail != null then { inherit workEmail; } else { })
+    // (if workUsername != null then { inherit workUsername; } else { })
+    // {
+      ssh =
+        common.git.ssh
+        // {
+          inherit use1PasswordAgent;
+        }
+        // (if workPublicKey != null then { inherit workPublicKey; } else { })
+        // (if workKeyFile != null then { inherit workKeyFile; } else { })
+        // (if personalKeyFile != null then { inherit personalKeyFile; } else { });
+    };
+
+  linuxGit = mkGit {
+    use1PasswordAgent = false;
+    personalKeyFile = "~/.ssh/id_ed25519_personal";
+    workKeyFile = "~/.ssh/id_ed25519_work";
   };
 in
 {
@@ -20,7 +59,9 @@ in
     inherit (common) username;
 
     values = {
-      inherit (common) git;
+      git = mkGit {
+        workPublicKey = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIMLPtliVrOLXXcbDdMgHQ6ln2yL/LV6nHR63355yQNeE";
+      };
       environment = {
         LIMA_INSTANCE = "nostromo";
       };
@@ -34,7 +75,7 @@ in
     inherit (common) username;
 
     values = {
-      inherit (common) git;
+      git = linuxGit;
     };
   };
 }

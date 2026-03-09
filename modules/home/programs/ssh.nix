@@ -1,49 +1,109 @@
 {
   config,
   lib,
-  osConfig ? { },
+  pkgs,
   ...
 }:
 
 let
-  hasNixOSSystem = osConfig ? system && osConfig.system ? stateVersion;
-  isLinux = hasNixOSSystem;
+  isDarwin = pkgs.stdenv.isDarwin;
+  isLinux = pkgs.stdenv.isLinux;
   gitCfg = config.sysinit.git;
-  defaultSshKeyFile =
-    gitCfg.personalSshKeyFile or gitCfg.workSshKeyFile or throw
-      "No default SSH key file configured in git config (personalSshKeyFile or workSshKeyFile)";
+  sshCfg = gitCfg.ssh;
+
+  use1Password = sshCfg.use1PasswordAgent && isDarwin;
+
+  hasPersonalKey =
+    sshCfg.personalPublicKey != null
+    || sshCfg.personalKeyFile != null
+    || gitCfg.personalSshKeyFile != null;
+  hasWorkKey =
+    sshCfg.workPublicKey != null || sshCfg.workKeyFile != null || gitCfg.workSshKeyFile != null;
+
+  personalKeyPath =
+    if use1Password && sshCfg.personalPublicKey != null then
+      "~/.ssh/1p_personal.pub"
+    else if sshCfg.personalKeyFile != null then
+      sshCfg.personalKeyFile
+    else
+      gitCfg.personalSshKeyFile;
+
+  workKeyPath =
+    if use1Password && sshCfg.workPublicKey != null then
+      "~/.ssh/1p_work.pub"
+    else if sshCfg.workKeyFile != null then
+      sshCfg.workKeyFile
+    else
+      gitCfg.workSshKeyFile;
+
+  defaultKeyPath = if gitCfg.defaultIdentity == "work" then workKeyPath else personalKeyPath;
+  defaultKeyAvailable = if gitCfg.defaultIdentity == "work" then hasWorkKey else hasPersonalKey;
+
+  agentSocket = sshCfg.agentSocket;
+
+  mkGitHubHost =
+    keyPath:
+    {
+      hostname = "github.com";
+      user = "git";
+      identityFile = keyPath;
+      identitiesOnly = true;
+    }
+    // lib.optionalAttrs use1Password {
+      extraOptions = {
+        IdentityAgent = ''"${agentSocket}"'';
+      };
+    };
 in
 {
   programs.ssh = {
     enable = true;
-    # Disable future-deprecated default config; we set our own matchBlocks."*"
     enableDefaultConfig = false;
+
     matchBlocks = lib.mkMerge [
       {
         "*" = {
           addKeysToAgent = "yes";
           hashKnownHosts = true;
           identitiesOnly = true;
-          identityFile = defaultSshKeyFile;
+        }
+        // lib.optionalAttrs use1Password {
+          extraOptions = {
+            IdentityAgent = ''"${agentSocket}"'';
+          };
         };
       }
-      (lib.mkIf (defaultSshKeyFile != null) {
-        "github.com" = {
-          hostname = "github.com";
-          user = "git";
-          identityFile = defaultSshKeyFile;
-          identitiesOnly = true;
-        };
+
+      (lib.mkIf defaultKeyAvailable {
+        "github.com" = mkGitHubHost defaultKeyPath;
+      })
+
+      (lib.mkIf hasPersonalKey {
+        "github-personal" = mkGitHubHost personalKeyPath;
+      })
+
+      (lib.mkIf hasWorkKey {
+        "github-work" = mkGitHubHost workKeyPath;
       })
     ];
   };
 
-  home.file = lib.optionalAttrs isLinux {
-    ".ssh/authorized_keys" = {
-      text = ''
-        # GitHub (Default) SSH Key - from 1Password
-        ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIGbqXvBhZI87E+Jj1i9L1MqQ71JRPofArCC0iRvZRIMV
-      '';
-    };
-  };
+  home.file = lib.mkMerge [
+    (lib.optionalAttrs (use1Password && sshCfg.personalPublicKey != null) {
+      ".ssh/1p_personal.pub".text = sshCfg.personalPublicKey;
+    })
+
+    (lib.optionalAttrs (use1Password && sshCfg.workPublicKey != null) {
+      ".ssh/1p_work.pub".text = sshCfg.workPublicKey;
+    })
+
+    (lib.optionalAttrs isLinux {
+      ".ssh/authorized_keys" = {
+        text = ''
+          # GitHub (Default) SSH Key - from 1Password
+          ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIGbqXvBhZI87E+Jj1i9L1MqQ71JRPofArCC0iRvZRIMV
+        '';
+      };
+    })
+  ];
 }

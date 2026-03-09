@@ -1,11 +1,17 @@
 {
   config,
   lib,
+  pkgs,
   ...
 }:
 
 let
   cfg = config.sysinit.git;
+  sshCfg = cfg.ssh;
+
+  isDarwin = pkgs.stdenv.isDarwin;
+
+  use1Password = sshCfg.use1PasswordAgent && isDarwin;
 
   personalEmail = if cfg.personalEmail != null then cfg.personalEmail else cfg.email;
   workEmail = if cfg.workEmail != null then cfg.workEmail else cfg.email;
@@ -13,30 +19,35 @@ let
   personalGithubUser = if cfg.personalUsername != null then cfg.personalUsername else cfg.username;
   workGithubUser = if cfg.workUsername != null then cfg.workUsername else cfg.username;
 
-  sshCmd = keyFile: "ssh -i ${keyFile} -o IdentitiesOnly=yes";
+  personalKeyPath =
+    if use1Password && sshCfg.personalPublicKey != null then
+      "~/.ssh/1p_personal.pub"
+    else if sshCfg.personalKeyFile != null then
+      sshCfg.personalKeyFile
+    else
+      cfg.personalSshKeyFile;
+
+  workKeyPath =
+    if use1Password && sshCfg.workPublicKey != null then
+      "~/.ssh/1p_work.pub"
+    else if sshCfg.workKeyFile != null then
+      sshCfg.workKeyFile
+    else
+      cfg.workSshKeyFile;
+
+  hasPersonalKey = personalKeyPath != null;
+  hasWorkKey = workKeyPath != null;
+
+  sshCmd =
+    keyFile:
+    if use1Password then
+      "ssh -i ${keyFile} -o IdentitiesOnly=yes -o 'IdentityAgent=\"${sshCfg.agentSocket}\"'"
+    else
+      "ssh -i ${keyFile} -o IdentitiesOnly=yes";
 in
 {
   imports = [
     ./options.nix
-  ];
-
-  programs.ssh.matchBlocks = lib.mkMerge [
-    (lib.mkIf (cfg.personalSshKeyFile != null) {
-      "github-personal" = {
-        hostname = "github.com";
-        user = "git";
-        identityFile = cfg.personalSshKeyFile;
-        identitiesOnly = true;
-      };
-    })
-    (lib.mkIf (cfg.workSshKeyFile != null) {
-      "github-work" = {
-        hostname = "github.com";
-        user = "git";
-        identityFile = cfg.workSshKeyFile;
-        identitiesOnly = true;
-      };
-    })
   ];
 
   programs.git = {
@@ -281,67 +292,49 @@ in
       };
     };
 
-    includes = [
-      {
-        condition = "gitdir:~/github/work/";
-        contents = {
+    includes =
+      let
+        personalInclude = {
+          user = {
+            email = personalEmail;
+            username = personalGithubUser;
+          };
+        }
+        // lib.optionalAttrs hasPersonalKey {
+          core.sshCommand = sshCmd personalKeyPath;
+        };
+
+        workInclude = {
           user = {
             email = workEmail;
             username = workGithubUser;
           };
         }
-        // lib.optionalAttrs (cfg.workSshKeyFile != null) {
-          core.sshCommand = sshCmd cfg.workSshKeyFile;
+        // lib.optionalAttrs hasWorkKey {
+          core.sshCommand = sshCmd workKeyPath;
         };
-      }
-      {
-        condition = "gitdir:~/github/personal/";
-        contents = {
-          user = {
-            email = personalEmail;
-            username = personalGithubUser;
-          };
+      in
+      [
+        {
+          condition = "gitdir:~/github/work/";
+          contents = workInclude;
         }
-        // lib.optionalAttrs (cfg.personalSshKeyFile != null) {
-          core.sshCommand = sshCmd cfg.personalSshKeyFile;
-        };
-      }
-      {
-        condition = "gitdir:~/orgfiles/";
-        contents = {
-          user = {
-            email = personalEmail;
-            username = personalGithubUser;
-          };
+        {
+          condition = "gitdir:~/github/personal/";
+          contents = personalInclude;
         }
-        // lib.optionalAttrs (cfg.personalSshKeyFile != null) {
-          core.sshCommand = sshCmd cfg.personalSshKeyFile;
-        };
-      }
-      {
-        condition = "gitdir:~/.local/share/";
-        contents = {
-          user = {
-            email = workEmail;
-            username = workGithubUser;
-          };
+        {
+          condition = "gitdir:~/orgfiles/";
+          contents = personalInclude;
         }
-        // lib.optionalAttrs (cfg.workSshKeyFile != null) {
-          core.sshCommand = sshCmd cfg.workSshKeyFile;
-        };
-      }
-      {
-        condition = "gitdir:~/.config/nvim/";
-        contents = {
-          user = {
-            email = personalEmail;
-            username = personalGithubUser;
-          };
+        {
+          condition = "gitdir:~/.local/share/nvim/";
+          contents = personalInclude;
         }
-        // lib.optionalAttrs (cfg.personalSshKeyFile != null) {
-          core.sshCommand = sshCmd cfg.personalSshKeyFile;
-        };
-      }
-    ];
+        {
+          condition = "gitdir:~/.config/nvim/";
+          contents = personalInclude;
+        }
+      ];
   };
 }
