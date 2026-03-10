@@ -142,14 +142,19 @@ let
         infoBg = hex "base02";
       };
     };
+
   piPackages = [
-    "git:github.com/omaclaren/pi-annotated-reply"
+    "@ssweens/pi-compaxxt" # Better compaction
     "git:github.com/Gurpartap/pi-mermaid"
-    "git:github.com/ttttmr/pi-context"
-    "npm:pi-memory-md"
-    "npm:pi-md-export"
-    "npm:pi-vim"
+    "git:github.com/omaclaren/pi-annotated-reply" # Cite sources
+    "git:github.com/ttttmr/pi-context" # Auto inject context
+    "npm:pi-dcp" # Dynamic context pruning
+    "npm:pi-readline-search" # CTRL-r like in my shell
+    "npm:pi-rtk"
     "npm:pi-subagents"
+    "npm:pi-threads" # History search skill?
+    "npm:pi-vim"
+    "npm:pi-webfetch-to-markdown"
   ];
 
   installPiPackages = pkgs.writeShellScript "install-pi-packages" ''
@@ -186,7 +191,7 @@ in
       };
 
     sessionVariables = {
-      PI_SKIP_VERSION_CHECK = "1";
+      PI_SKIP_VERSION_CHECK = "$HOME/.pi";
     };
   };
 }
