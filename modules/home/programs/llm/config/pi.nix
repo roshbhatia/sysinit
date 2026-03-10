@@ -170,17 +170,23 @@ let
   '';
 in
 {
-  home.activation.piPackages = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
-    $DRY_RUN_CMD ${installPiPackages}
-  '';
+  home = {
+    activation.piPackages = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+      $DRY_RUN_CMD ${installPiPackages}
+    '';
 
-  home.file =
-    extensionFiles
-    // agentFiles
-    // {
-      ".pi/agent/themes/stylix.json" = {
-        text = stylixTheme;
-        force = true;
+    file =
+      extensionFiles
+      // agentFiles
+      // {
+        ".pi/agent/themes/stylix.json" = {
+          text = stylixTheme;
+          force = true;
+        };
       };
+
+    sessionVariables = {
+      PI_SKIP_VERSION_CHECK = "1";
     };
+  };
 }
