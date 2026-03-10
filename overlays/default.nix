@@ -16,4 +16,5 @@
   (import ./openspec.nix { })
   (import ./pi-coding-agent.nix { })
   (import ./crush.nix { })
+  (import ./ast-grep.nix { })
 ]

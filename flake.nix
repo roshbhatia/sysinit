@@ -2,44 +2,55 @@
   description = "Personal system configuration";
 
   inputs = {
+    # Main Nix package repository
     nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
 
+    # Nix modules for macOS
     darwin = {
       url = "github:nix-darwin/nix-darwin/master";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    determinate.url = "https://flakehub.com/f/DeterminateSystems/determinate/3";  # Deterministic builds for reproducibility
+    # Determinate Systems' Nix installer and tools
+    determinate.url = "https://flakehub.com/f/DeterminateSystems/determinate/3";
 
+    # User-specific package and dotfile management
     home-manager = {
       url = "github:nix-community/home-manager/master";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    # Browser extensions packaged for Nix
     firefox-addons = {
       url = "github:nix-community/nur-combined?dir=repos/rycee/pkgs/firefox-addons";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    # System-wide consistent styling (fonts, colors, etc)
     stylix = {
       url = "github:danth/stylix/master";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    # Integration for 1Password CLI
     onepassword-shell-plugins = {
       url = "github:1Password/shell-plugins";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    # Bleeding edge Neovim builds
     neovim-nightly-overlay.url = "github:nix-community/neovim-nightly-overlay/master";
 
+    # Community package repository
     nur.url = "github:nix-community/NUR";
 
+    # Faster direnv loading for Nix shells
     direnv-instant = {
       url = "github:Mic92/direnv-instant";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    # NixOS on macOS via Lima
     nixos-lima = {
       url = "github:nixos-lima/nixos-lima";
       inputs.nixpkgs.follows = "nixpkgs";
