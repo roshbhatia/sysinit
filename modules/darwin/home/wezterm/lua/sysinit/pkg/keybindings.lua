@@ -1,6 +1,7 @@
 local wezterm = require("wezterm")
 local act = wezterm.action
 local utils = require("sysinit.pkg.utils")
+local sessions = require("sysinit.pkg.sessions")
 
 local M = {}
 
@@ -86,7 +87,8 @@ end
 local function get_system_keys()
   return {
     create_smart_keybind(":", "SUPER", act.ActivateCommandPalette),
-    create_smart_keybind("s", "SUPER", act.ShowLauncherArgs({ flags = "FUZZY|DOMAINS" })),
+    create_smart_keybind("s", "SUPER", sessions.get_action()),
+    create_smart_keybind("s", "SUPER|SHIFT", act.ShowLauncherArgs({ flags = "FUZZY|DOMAINS" })),
     create_smart_keybind("c", "SUPER", act.CopyTo("Clipboard")),
     create_smart_keybind("h", "SUPER", act.HideApplication),
     create_smart_keybind("k", "SUPER", act.ClearScrollback("ScrollbackAndViewport"), { passthrough = EDITORS }),
