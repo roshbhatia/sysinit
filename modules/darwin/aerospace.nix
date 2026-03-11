@@ -147,7 +147,7 @@
             "mode move"
           ];
 
-          alt-g = [
+          alt-esc = [
             "exec-and-forget ${pkgs.sketchybar}/bin/sketchybar --trigger aerospace_mode_changed MODE=LOCKED"
             "mode locked"
           ];
@@ -176,7 +176,6 @@
           alt-p = "workspace-back-and-forth";
 
           alt-f = "fullscreen";
-          alt-esc = "mode main";
         };
 
         locked.binding = {
