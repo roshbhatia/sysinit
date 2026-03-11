@@ -4,6 +4,7 @@ local keybindings = require("sysinit.pkg.keybindings")
 local utils = require("sysinit.pkg.utils")
 
 local tabline = wezterm.plugin.require("https://github.com/michaelbrusegard/tabline.wez")
+local agent_deck = wezterm.plugin.require("https://github.com/Eric162/wezterm-agent-deck")
 
 local M = {}
 
@@ -85,6 +86,73 @@ function M.setup(config)
     extensions = {},
   })
   tabline.apply_to_config(config)
+
+  agent_deck.apply_to_config(config, {
+    tab_title = { enabled = false },
+    right_status = { enabled = false },
+    notifications = {
+      enabled = true,
+      on_waiting = true,
+      backend = "native",
+    },
+    agents = {
+      goose = {
+        patterns = { "goose", "goosed" },
+        executable_patterns = { "/goose$", "/goosed$" },
+        argv_patterns = { "^goose%s*$" },
+        title_patterns = { "goose" },
+      },
+      amp = {
+        patterns = { "amp" },
+        executable_patterns = { "/amp$" },
+        argv_patterns = { "^amp%s*$" },
+        title_patterns = { "amp" },
+      },
+      copilot = {
+        patterns = { "copilot" },
+        executable_patterns = { "/copilot$", "copilot%-language%-server" },
+        argv_patterns = { "^copilot%s*$" },
+        title_patterns = { "copilot" },
+      },
+      cursor = {
+        patterns = { "cursor%-agent", "cursor" },
+        executable_patterns = { "/cursor%-agent$" },
+        argv_patterns = { "cursor%-agent" },
+        title_patterns = { "cursor" },
+      },
+      crush = {
+        patterns = { "crush" },
+        executable_patterns = { "/crush$" },
+        argv_patterns = { "^crush%s*$" },
+        title_patterns = { "crush" },
+      },
+      pi = {
+        patterns = { "pi" },
+        executable_patterns = { "/pi$" },
+        argv_patterns = { "^pi%s*$" },
+        title_patterns = { "pi" },
+      },
+    },
+  })
+
+  wezterm.on("format-tab-title", function(tab, _, _, _, hover, _)
+    local pane = tab.active_pane
+    local state = agent_deck.get_agent_state(pane.pane_id)
+    local icon = ""
+    if state then
+      icon = agent_deck.get_status_icon(state.status) .. " "
+    end
+    local title = tab.tab_title ~= "" and tab.tab_title or pane.title
+    return icon .. title
+  end)
+
+  wezterm.on("update-status", function(window, pane)
+    for _, tab in ipairs(window:mux_window():tabs()) do
+      for _, p in ipairs(tab:panes()) do
+        agent_deck.update_pane(p)
+      end
+    end
+  end)
 
   config.window_padding = {
     left = "1cell",
