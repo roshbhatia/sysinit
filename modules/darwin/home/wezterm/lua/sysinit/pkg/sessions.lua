@@ -2,9 +2,6 @@ local wezterm = require("wezterm")
 
 local M = {}
 
-local sessionizer = wezterm.plugin.require("https://github.com/mikkasendke/sessionizer.wezterm")
-local zoxide = wezterm.plugin.require("https://github.com/mikkasendke/sessionizer-zoxide.git")
-
 -- Generator: reads ~/.local/state/sesh/sessions/ and returns one entry per session directory.
 -- Gracefully returns an empty table when the directory is absent.
 local function sesh_sessions_generator()
@@ -23,41 +20,46 @@ local function sesh_sessions_generator()
   return entries
 end
 
-local function prefix(kind)
-  return sessionizer.for_each_entry(function(entry)
-    entry.label = kind .. "  " .. entry.label
-  end)
-end
-
-local schema = {
-  -- default workspace
-  {
-    sessionizer.DefaultWorkspace {},
-    processing = prefix("[default]"),
-  },
-  -- active workspaces
-  {
-    sessionizer.AllActiveWorkspaces {},
-    processing = prefix("[active] "),
-  },
-  -- sesh-managed sessions
-  {
-    sesh_sessions_generator,
-    processing = prefix("[sesh]  "),
-  },
-  -- zoxide frecency directories
-  {
-    zoxide.Zoxide {},
-    processing = {
-      sessionizer.for_each_entry(function(entry)
-        entry.label = entry.label:gsub(wezterm.home_dir, "~")
-      end),
-      prefix("[zoxide] "),
-    },
-  },
-}
-
+-- Lazily build and return the sessionizer action so plugin fetches happen on first keypress,
+-- not at module load time (which would break all keybindings if the plugin isn't cached yet).
 function M.get_action()
+  local sessionizer = wezterm.plugin.require("https://github.com/mikkasendke/sessionizer.wezterm")
+  local zoxide = wezterm.plugin.require("https://github.com/mikkasendke/sessionizer-zoxide.git")
+
+  local function prefix(kind)
+    return sessionizer.for_each_entry(function(entry)
+      entry.label = kind .. "  " .. entry.label
+    end)
+  end
+
+  local schema = {
+    -- default workspace
+    {
+      sessionizer.DefaultWorkspace {},
+      processing = prefix("[default]"),
+    },
+    -- active workspaces
+    {
+      sessionizer.AllActiveWorkspaces {},
+      processing = prefix("[active] "),
+    },
+    -- sesh-managed sessions
+    {
+      sesh_sessions_generator,
+      processing = prefix("[sesh]  "),
+    },
+    -- zoxide frecency directories
+    {
+      zoxide.Zoxide {},
+      processing = {
+        sessionizer.for_each_entry(function(entry)
+          entry.label = entry.label:gsub(wezterm.home_dir, "~")
+        end),
+        prefix("[zoxide] "),
+      },
+    },
+  }
+
   return sessionizer.show(schema)
 end
 

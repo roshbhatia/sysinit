@@ -87,8 +87,40 @@ end
 local function get_system_keys()
   return {
     create_smart_keybind(":", "SUPER", act.ActivateCommandPalette),
-    create_smart_keybind("s", "SUPER", sessions.get_action()),
+    -- SUPER+S: session picker (lazy so plugin fetches don't run at startup)
+    {
+      key = "s",
+      mods = "SUPER",
+      action = wezterm.action_callback(function(win, pane)
+        if M.locked_mode then
+          win:perform_action({ SendKey = { key = "s", mods = "SUPER" } }, pane)
+          return
+        end
+        win:perform_action(sessions.get_action(), pane)
+      end),
+    },
     create_smart_keybind("s", "SUPER|SHIFT", act.ShowLauncherArgs({ flags = "FUZZY|DOMAINS" })),
+    -- SUPER+E: open scrollback buffer in $EDITOR in a new tab
+    {
+      key = "e",
+      mods = "SUPER",
+      action = wezterm.action_callback(function(win, pane)
+        if M.locked_mode then
+          win:perform_action({ SendKey = { key = "e", mods = "SUPER" } }, pane)
+          return
+        end
+        local dims = pane:get_dimensions()
+        local lines = pane:get_lines_as_text(dims.scrollback_rows + dims.viewport_rows)
+        local tmp = os.tmpname()
+        local f = io.open(tmp, "w")
+        if f then
+          f:write(lines)
+          f:close()
+        end
+        local editor = os.getenv("EDITOR") or "nvim"
+        win:perform_action(act.SpawnCommandInNewTab({ args = { editor, tmp } }), pane)
+      end),
+    },
     create_smart_keybind("c", "SUPER", act.CopyTo("Clipboard")),
     create_smart_keybind("h", "SUPER", act.HideApplication),
     create_smart_keybind("k", "SUPER", act.ClearScrollback("ScrollbackAndViewport"), { passthrough = EDITORS }),
