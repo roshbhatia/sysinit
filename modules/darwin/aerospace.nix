@@ -147,7 +147,7 @@
             "mode move"
           ];
 
-          alt-esc = [
+          alt-g = [
             "exec-and-forget ${pkgs.sketchybar}/bin/sketchybar --trigger aerospace_mode_changed MODE=LOCKED"
             "mode locked"
           ];
@@ -179,14 +179,14 @@
         };
 
         locked.binding = {
-          alt-esc = [
+          alt-g = [
             "exec-and-forget ${pkgs.sketchybar}/bin/sketchybar --trigger aerospace_mode_changed MODE=MAIN"
             "mode main"
           ];
         };
 
         move.binding = {
-          alt-esc = [
+          esc = [
             "exec-and-forget ${pkgs.sketchybar}/bin/sketchybar --trigger aerospace_mode_changed MODE=MAIN"
             "mode main"
           ];
