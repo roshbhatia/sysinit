@@ -12,7 +12,6 @@ local function get_basic_config()
       name = "huey",
       remote_address = "huey.taila415c.ts.net",
       username = "rosh",
-      multiplexing = "None",
       assume_shell = "Posix",
     },
   }
