@@ -144,7 +144,6 @@ let
     };
 
   piPackages = [
-    "@ssweens/pi-compaxxt" # Better compaction
     "git:github.com/Gurpartap/pi-mermaid"
     "git:github.com/omaclaren/pi-annotated-reply" # Cite sources
     "git:github.com/ttttmr/pi-context" # Auto inject context
