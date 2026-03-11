@@ -1,3 +1,6 @@
+local wezterm = require("wezterm")
+local utils = require("sysinit.pkg.utils")
+
 local M = {}
 
 local function get_basic_config()
@@ -16,8 +19,13 @@ local function get_basic_config()
     },
   }
 
+  local env_data = utils.load_json_file(utils.get_config_path("env.json"))
+
   return {
     ssh_domains = ssh_domains,
+    set_environment_variables = {
+      PATH = env_data.PATH,
+    },
   }
 end
 

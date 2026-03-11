@@ -87,6 +87,8 @@ end
 local function get_system_keys()
   return {
     create_smart_keybind(":", "SUPER", act.ActivateCommandPalette),
+    create_smart_keybind(";", "SUPER", act.ActivateCommandPalette),
+    create_smart_keybind(";", "CTRL", act.ActivateCommandPalette),
     -- SUPER+S: session picker (lazy so plugin fetches don't run at startup)
     {
       key = "s",
@@ -111,14 +113,18 @@ local function get_system_keys()
         end
         local dims = pane:get_dimensions()
         local lines = pane:get_lines_as_text(dims.scrollback_rows + dims.viewport_rows)
-        local tmp = os.tmpname()
+        local tmp = os.tmpname() .. ".txt"
         local f = io.open(tmp, "w")
         if f then
           f:write(lines)
           f:close()
         end
         local editor = os.getenv("EDITOR") or "nvim"
-        win:perform_action(act.SpawnCommandInNewTab({ args = { editor, tmp } }), pane)
+        local shell = os.getenv("SHELL") or "zsh"
+        win:perform_action(
+          act.SpawnCommandInNewTab({ args = { shell, "-c", editor .. " " .. tmp } }),
+          pane
+        )
       end),
     },
     create_smart_keybind("c", "SUPER", act.CopyTo("Clipboard")),

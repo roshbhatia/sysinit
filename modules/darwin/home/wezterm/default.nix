@@ -12,8 +12,10 @@ let
   # Create a values-like structure for the theme library functions
   # This is needed because theme.nix library functions expect values.theme structure
   themeValues = {
-    theme = config.sysinit.theme;
+    inherit (config.sysinit) theme;
   };
+
+  paths = import ../../../modules/lib/paths.nix { inherit lib; };
 in
 {
   # Disable stylix for wezterm - using custom theme integration from shared/lib/theme.nix
@@ -32,5 +34,8 @@ in
         color_scheme = themeName;
       }
     );
+    "wezterm/env.json".text = builtins.toJSON {
+      PATH = paths.getPathString config.home.username config.home.homeDirectory;
+    };
   };
 }
