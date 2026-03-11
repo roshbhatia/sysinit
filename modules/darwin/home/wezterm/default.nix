@@ -15,7 +15,7 @@ let
     inherit (config.sysinit) theme;
   };
 
-  paths = import ../../../modules/lib/paths.nix { inherit lib; };
+  paths = import ../../lib/paths.nix { inherit lib; };
 in
 {
   # Disable stylix for wezterm - using custom theme integration from shared/lib/theme.nix
