@@ -24,7 +24,6 @@ end
 -- not at module load time (which would break all keybindings if the plugin isn't cached yet).
 function M.get_action()
   local sessionizer = wezterm.plugin.require("https://github.com/mikkasendke/sessionizer.wezterm")
-  local zoxide = wezterm.plugin.require("https://github.com/mikkasendke/sessionizer-zoxide.git")
 
   local function prefix(kind)
     return sessionizer.for_each_entry(function(entry)
@@ -35,28 +34,18 @@ function M.get_action()
   local schema = {
     -- default workspace
     {
-      sessionizer.DefaultWorkspace {},
+      sessionizer.DefaultWorkspace({}),
       processing = prefix("[default]"),
     },
     -- active workspaces
     {
-      sessionizer.AllActiveWorkspaces {},
+      sessionizer.AllActiveWorkspaces({}),
       processing = prefix("[active] "),
     },
     -- sesh-managed sessions
     {
       sesh_sessions_generator,
       processing = prefix("[sesh]  "),
-    },
-    -- zoxide frecency directories
-    {
-      zoxide.Zoxide {},
-      processing = {
-        sessionizer.for_each_entry(function(entry)
-          entry.label = entry.label:gsub(wezterm.home_dir, "~")
-        end),
-        prefix("[zoxide] "),
-      },
     },
   }
 
