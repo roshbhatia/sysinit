@@ -190,6 +190,7 @@ in
         ".pi/agent/keybindings.json" = {
           text = builtins.toJSON {
             renameSession = "ctrl+shift+r";
+            externalEditor = "ctrl+e";
           };
           force = true;
         };
