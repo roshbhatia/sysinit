@@ -171,6 +171,15 @@ let
     done
 
     npm install -g pi-acp || echo "Warning: failed to install pi-acp"
+
+    # Merge shellCommandPrefix into settings.json without clobbering other keys (e.g. installed packages)
+    SHELL_PREFIX='shopt -s expand_aliases\neval "$(grep '"'"'^alias '"'"' ~/.zshrc 2>/dev/null)"\neval "$(grep -rh '"'"'^alias '"'"' ~/.config/zsh 2>/dev/null)"'
+    if [ -f "$SETTINGS" ]; then
+      ${pkgs.jq}/bin/jq --arg v "$SHELL_PREFIX" '. + {shellCommandPrefix: $v}' "$SETTINGS" > "$SETTINGS.tmp" && mv "$SETTINGS.tmp" "$SETTINGS"
+    else
+      mkdir -p "$(dirname "$SETTINGS")"
+      ${pkgs.jq}/bin/jq -n --arg v "$SHELL_PREFIX" '{shellCommandPrefix: $v}' > "$SETTINGS"
+    fi
   '';
 in
 {
