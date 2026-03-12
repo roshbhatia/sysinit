@@ -187,6 +187,12 @@ in
           text = stylixTheme;
           force = true;
         };
+        ".pi/agent/keybindings.json" = {
+          text = builtins.toJSON {
+            renameSession = "ctrl+shift+r";
+          };
+          force = true;
+        };
       };
 
     sessionVariables = {
