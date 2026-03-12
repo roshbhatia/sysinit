@@ -241,8 +241,12 @@ in
       };
 
       merge = {
-        conflictstyle = "zdiff3";
+        conflictstyle = "diff3";
         tool = "nvim";
+        mergiraf = {
+          name = "mergiraf";
+          driver = "mergiraf merge --git %O %A %B -s %S -x %X -y %Y -p %P -l %L";
+        };
       };
 
       mergetool = {
@@ -353,4 +357,10 @@ in
         }
       ];
   };
+
+  home.packages = [ pkgs.mergiraf ];
+
+  # Register mergiraf as the global git merge driver for all files.
+  # Uses diff3 conflict style (not zdiff3) as required by mergiraf.
+  home.file.".config/git/attributes".text = "* merge=mergiraf\n";
 }
