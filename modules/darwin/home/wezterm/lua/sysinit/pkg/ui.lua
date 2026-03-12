@@ -89,7 +89,6 @@ function M.setup(config)
   tabline.apply_to_config(config)
 
   smart_ssh.apply_to_config(config, {
-    multiplexing = "None",
     assume_shell = "Posix",
   })
 
