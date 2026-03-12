@@ -76,6 +76,16 @@ in
         // lib.optionalAttrs (!use1Password) {
           identitiesOnly = true;
         };
+
+        "vorgossos" = {
+          hostname = "vorgossos.stork-eel.ts.net";
+          user = "rshnbhatia";
+        };
+
+        "huey" = {
+          hostname = "huey.taila415c.ts.net";
+          user = "rosh";
+        };
       }
 
       (lib.mkIf defaultKeyAvailable {

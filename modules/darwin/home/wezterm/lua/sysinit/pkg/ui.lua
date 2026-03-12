@@ -5,6 +5,7 @@ local utils = require("sysinit.pkg.utils")
 
 local tabline = wezterm.plugin.require("https://github.com/michaelbrusegard/tabline.wez")
 local agent_deck = wezterm.plugin.require("https://github.com/Eric162/wezterm-agent-deck")
+local smart_ssh = wezterm.plugin.require("https://github.com/DavidRR-F/smart_ssh.wezterm")
 
 local M = {}
 
@@ -87,15 +88,28 @@ function M.setup(config)
   })
   tabline.apply_to_config(config)
 
+  smart_ssh.apply_to_config(config, {
+    multiplexing = "None",
+    assume_shell = "Posix",
+  })
+
   agent_deck.apply_to_config(config, {
     tab_title = { enabled = false },
     right_status = { enabled = false },
+    cooldown_ms = 1500,
+    max_lines = 500,
     notifications = {
       enabled = true,
       on_waiting = true,
       backend = "native",
     },
     agents = {
+      claude = {
+        patterns = { "claude", "claude%-code" },
+        executable_patterns = { "@anthropic%-ai/claude%-code", "/claude%-code/", "/claude$" },
+        argv_patterns = { "@anthropic%-ai/claude%-code", "claude%-code", "^claude%s*$" },
+        title_patterns = { "claude code", "claude" },
+      },
       goose = {
         patterns = { "goose", "goosed" },
         executable_patterns = { "/goose$", "/goosed$" },
@@ -126,33 +140,20 @@ function M.setup(config)
         argv_patterns = { "^crush%s*$" },
         title_patterns = { "crush" },
       },
-      pi = {
-        patterns = { "pi" },
-        executable_patterns = { "/pi$" },
-        argv_patterns = { "^pi%s*$" },
-        title_patterns = { "pi" },
+      aider = {
+        patterns = { "aider" },
+        executable_patterns = { "/aider$" },
+        argv_patterns = { "^aider%s*$" },
+        title_patterns = { "aider" },
+      },
+      opencode = {
+        patterns = { "opencode" },
+        executable_patterns = { "opencode%-darwin", "opencode%-linux", "/opencode$" },
+        argv_patterns = { "bunx%s+opencode", "npx%s+opencode", "/opencode$" },
+        title_patterns = { "opencode" },
       },
     },
   })
-
-  wezterm.on("format-tab-title", function(tab, _, _, _, hover, _)
-    local pane = tab.active_pane
-    local state = agent_deck.get_agent_state(pane.pane_id)
-    local icon = ""
-    if state then
-      icon = agent_deck.get_status_icon(state.status) .. " "
-    end
-    local title = tab.tab_title ~= "" and tab.tab_title or pane.title
-    return icon .. title
-  end)
-
-  wezterm.on("update-status", function(window, pane)
-    for _, tab in ipairs(window:mux_window():tabs()) do
-      for _, p in ipairs(tab:panes()) do
-        agent_deck.update_pane(p)
-      end
-    end
-  end)
 
   config.window_padding = {
     left = "1cell",

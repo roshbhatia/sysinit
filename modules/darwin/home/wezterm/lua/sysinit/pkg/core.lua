@@ -4,27 +4,14 @@ local utils = require("sysinit.pkg.utils")
 local M = {}
 
 local function get_basic_config()
-  local ssh_domains = {
-    {
-      name = "vorgossos",
-      remote_address = "vorgossos.stork-eel.ts.net",
-      username = "rshnbhatia",
-      assume_shell = "Posix",
-    },
-    {
-      name = "huey",
-      remote_address = "huey.taila415c.ts.net",
-      username = "rosh",
-      assume_shell = "Posix",
-    },
-  }
-
   local env_data = utils.load_json_file(utils.get_config_path("env.json"))
+  local nix_zsh = utils.get_nix_binary("zsh")
 
   return {
-    ssh_domains = ssh_domains,
+    default_prog = { nix_zsh, "-l" },
     set_environment_variables = {
       PATH = env_data.PATH,
+      SHELL = nix_zsh,
     },
   }
 end

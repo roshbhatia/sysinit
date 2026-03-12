@@ -1,4 +1,5 @@
 local wezterm = require("wezterm")
+local resurrect = wezterm.plugin.require("https://github.com/MLFlexer/resurrect.wezterm")
 
 local M = {}
 
@@ -52,6 +53,17 @@ function M.get_action()
   return sessionizer.show(schema)
 end
 
-function M.setup(_config) end
+function M.setup(_config)
+  resurrect.state_manager.set_max_nlines(500)
+
+  resurrect.state_manager.periodic_save({
+    interval_seconds = 300,
+    save_workspaces = true,
+    save_windows = true,
+    save_tabs = false,
+  })
+
+  wezterm.on("gui-startup", resurrect.state_manager.resurrect_on_gui_startup)
+end
 
 return M

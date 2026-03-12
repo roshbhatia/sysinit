@@ -101,7 +101,19 @@ local function get_system_keys()
         win:perform_action(sessions.get_action(), pane)
       end),
     },
-    create_smart_keybind("s", "SUPER|SHIFT", act.ShowLauncherArgs({ flags = "FUZZY|DOMAINS" })),
+    -- SUPER+SHIFT+S: smart SSH picker
+    {
+      key = "s",
+      mods = "SUPER|SHIFT",
+      action = wezterm.action_callback(function(win, pane)
+        if M.locked_mode then
+          win:perform_action({ SendKey = { key = "s", mods = "SUPER|SHIFT" } }, pane)
+          return
+        end
+        local smart_ssh = wezterm.plugin.require("https://github.com/DavidRR-F/smart_ssh.wezterm")
+        win:perform_action(smart_ssh.tab(), pane)
+      end),
+    },
     -- SUPER+E: open scrollback buffer in $EDITOR in a new tab
     {
       key = "e",
@@ -119,12 +131,14 @@ local function get_system_keys()
           f:write(lines)
           f:close()
         end
-        local editor = os.getenv("EDITOR") or "nvim"
-        local shell = os.getenv("SHELL") or "zsh"
-        win:perform_action(
-          act.SpawnCommandInNewTab({ args = { shell, "-c", editor .. " " .. tmp } }),
-          pane
-        )
+        local editor = os.getenv("EDITOR") or utils.get_nix_binary("nvim")
+        local argv = { editor, tmp }
+        local ok, split = pcall(wezterm.shell_split, editor)
+        if ok and split and #split > 0 then
+          argv = split
+          table.insert(argv, tmp)
+        end
+        win:perform_action(act.SpawnCommandInNewTab({ args = argv }), pane)
       end),
     },
     create_smart_keybind("c", "SUPER", act.CopyTo("Clipboard")),
