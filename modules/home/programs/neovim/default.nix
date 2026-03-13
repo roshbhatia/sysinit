@@ -36,21 +36,23 @@ in
   # As a result, it's easier to just manage it seperately
   home.activation.setupNeovimConfig = config.lib.dag.entryAfter [ "writeBoundary" ] ''
     export PATH="${pkgs.git}/bin:${pkgs.openssh}/bin:$PATH"
-    export GIT_SSH_COMMAND="ssh -i $HOME/.ssh/id_ed25519_personal -o IdentitiesOnly=yes"
+    export GIT_SSH_COMMAND="ssh -i $HOME/.ssh/id_ed25519_personal -o IdentitiesOnly=yes -o StrictHostKeyChecking=no"
 
     if [ ! -d "${nvimConfigDir}" ]; then
-      ${pkgs.git}/bin/git clone ${nvimConfigRepo} ${nvimConfigDir}
+      ${pkgs.git}/bin/git clone ${nvimConfigRepo} ${nvimConfigDir} || echo "Warning: Failed to clone Neovim config"
     elif [ -d "${nvimConfigDir}/.git" ]; then
-      cd ${nvimConfigDir}
-      ${pkgs.git}/bin/git remote set-url origin ${nvimConfigRepo}
-      ${pkgs.git}/bin/git stash --quiet 2>/dev/null || true
-      ${pkgs.git}/bin/git fetch origin main
-      ${pkgs.git}/bin/git rebase origin/main
-      ${pkgs.git}/bin/git stash pop --quiet 2>/dev/null || true
+      (
+        cd ${nvimConfigDir}
+        ${pkgs.git}/bin/git remote set-url origin ${nvimConfigRepo}
+        ${pkgs.git}/bin/git stash --quiet 2>/dev/null || true
+        ${pkgs.git}/bin/git fetch origin main
+        ${pkgs.git}/bin/git rebase origin/main
+        ${pkgs.git}/bin/git stash pop --quiet 2>/dev/null || true
+      ) || echo "Warning: Failed to update Neovim config"
     else
       # Directory exists but isn't a git repo, reset it
       rm -rf ${nvimConfigDir}
-      ${pkgs.git}/bin/git clone ${nvimConfigRepo} ${nvimConfigDir}
+      ${pkgs.git}/bin/git clone ${nvimConfigRepo} ${nvimConfigDir} || echo "Warning: Failed to reset Neovim config"
     fi
   '';
 }
