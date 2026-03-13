@@ -11,7 +11,4 @@
       set -g allow-passthrough on
     '';
   };
-
-  # Stylix handles tmux colors by default when programs.tmux.enable is true
-  stylix.targets.tmux.enable = true;
 }
