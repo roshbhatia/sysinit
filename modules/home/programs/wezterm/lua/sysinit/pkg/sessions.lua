@@ -53,6 +53,36 @@ function M.get_action()
   return sessionizer.show(schema)
 end
 
+function M.get_ssh_picker_action()
+  local hosts = {}
+  -- Enumerate hosts from ~/.ssh/config
+  for _, host in ipairs(wezterm.enumerate_ssh_hosts()) do
+    -- Filter out wildcard entries or other non-host identifiers
+    if not host:match("[*?]") then
+      table.insert(hosts, { label = host, id = host })
+    end
+  end
+
+  return wezterm.action.InputSelector({
+    title = "SSH Connect",
+    choices = hosts,
+    fuzzy = true,
+    action = wezterm.action_callback(function(window, pane, id, label)
+      if id then
+        -- Switch to a workspace named after the host
+        window:perform_action(wezterm.action.SwitchToWorkspace({ name = id }), pane)
+        -- Spawn standard ssh command in a new tab
+        window:perform_action(
+          wezterm.action.SpawnCommandInNewTab({
+            args = { "ssh", id },
+          }),
+          pane
+        )
+      end
+    end),
+  })
+end
+
 function M.setup(_config)
   resurrect.state_manager.set_max_nlines(500)
 

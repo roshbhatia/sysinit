@@ -101,7 +101,7 @@ local function get_system_keys()
         win:perform_action(sessions.get_action(), pane)
       end),
     },
-    -- SUPER+SHIFT+S: smart SSH picker
+    -- SUPER+SHIFT+S: plain SSH picker (version-agnostic)
     {
       key = "s",
       mods = "SUPER|SHIFT",
@@ -110,8 +110,7 @@ local function get_system_keys()
           win:perform_action({ SendKey = { key = "s", mods = "SUPER|SHIFT" } }, pane)
           return
         end
-        local smart_ssh = wezterm.plugin.require("https://github.com/DavidRR-F/smart_ssh.wezterm")
-        win:perform_action(smart_ssh.tab(), pane)
+        win:perform_action(sessions.get_ssh_picker_action(), pane)
       end),
     },
     -- SUPER+E: open scrollback buffer in $EDITOR in a new tab

@@ -94,13 +94,6 @@ function M.setup(config)
     tabline.apply_to_config(config)
   end
 
-  local smart_ssh_ok, smart_ssh = pcall(wezterm.plugin.require, "https://github.com/DavidRR-F/smart_ssh.wezterm")
-  if smart_ssh_ok then
-    smart_ssh.apply_to_config(config, {
-      assume_shell = "Posix",
-    })
-  end
-
   local agent_deck_ok, agent_deck = pcall(wezterm.plugin.require, "https://github.com/Eric162/wezterm-agent-deck")
   if agent_deck_ok then
     agent_deck.apply_to_config(config, {
