@@ -38,8 +38,8 @@ let
   };
 
   wallpaper = pkgs.fetchurl {
-    url = "https://preview.redd.it/58ugyimgkj661.jpg?auto=webp&s=5db2c277e7e8e8fe7389ff64ea1b9c252fca7e01";
-    sha256 = "1v2yn0aan04rqp70ybv1485isgk9jq0gv5r6lqv1hin6y279pf83";
+    url = "https://raw.githubusercontent.com/diinki/linux-retroism/main/wallpapers/copyleft.png";
+    sha256 = "1vjf8dq4dzbym9a5sk29cfbr83mlz5manx6n9hq2jkaniw3yvxax";
   };
 in
 {

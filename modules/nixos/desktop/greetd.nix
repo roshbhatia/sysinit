@@ -35,8 +35,8 @@ in
   services.greetd = {
     enable = true;
     settings.default_session = {
-      # Use mangowc as the default session
-      command = "${pkgs.tuigreet}/bin/tuigreet --time --time-format '%R' --user-menu --remember --theme '${tuigreetTheme}' --cmd mango";
+      # Use mango-wrapped as the default session
+      command = "${pkgs.tuigreet}/bin/tuigreet --time --time-format '%R' --user-menu --remember --theme '${tuigreetTheme}' --cmd mango-wrapped";
       user = "greeter";
     };
   };

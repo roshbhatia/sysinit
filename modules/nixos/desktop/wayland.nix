@@ -1,5 +1,17 @@
-{ pkgs, ... }:
+{ pkgs, inputs, ... }:
 
+let
+  mangoPackage = inputs.mangowc.packages.${pkgs.system}.default;
+
+  mangoWrapper = pkgs.writeShellScriptBin "mango-wrapped" ''
+    set -euo pipefail
+    # Update activation environment for dbus and systemd
+    ${pkgs.dbus}/bin/dbus-update-activation-environment --systemd --all
+    
+    # Start the compositor
+    exec ${mangoPackage}/bin/mango "''${@}"
+  '';
+in
 {
   # Disable X server, enable dbus
   services.xserver.enable = false;
@@ -10,29 +22,9 @@
     XDG_CURRENT_DESKTOP = "mango";
   };
 
-  # XDG portals for Wayland
-  xdg.terminal-exec = {
-    enable = true;
-    package = pkgs.xdg-terminal-exec;
-    settings.default = [ "org.wezfurlong.wezterm.desktop" ];
-  };
-
-  xdg.portal = {
-    enable = true;
-    xdgOpenUsePortal = true;
-    wlr.enable = true;
-    config.common.default = [
-      "wlr"
-      "gtk"
-    ];
-    extraPortals = with pkgs; [
-      xdg-desktop-portal-gtk
-      xdg-desktop-portal-wlr
-    ];
-  };
-
-  # Extra desktop packages
+  # Make the wrapper available system-wide
   environment.systemPackages = with pkgs; [
+    mangoWrapper
     swww # Wallpaper daemon
     waybar # Status bar
     fuzzel # App launcher
