@@ -89,8 +89,8 @@ in
       git = linuxGit;
       theme = {
         colorscheme = "rose-pine";
-        variant = "dawn";
-        appearance = "light";
+        variant = "moon";
+        appearance = "dark";
         font = {
           monospace = "Iosevka Nerd Font";
         };
