@@ -19,8 +19,8 @@ in
     # Use the base16 scheme path from theme metadata
     base16Scheme = themes.getBase16SchemePath pkgs colorscheme variant;
     
-    # Use a dummy local file for now to avoid 404 errors during switch
-    image = pkgs.runCommand "dummy-image.png" { } "touch $out";
+    # Use a valid image from the remote host to avoid ImageMagick errors
+    image = ./. + "/../../home/firefox/brave-icons/brave.png";
 
     fonts = {
       monospace = {
