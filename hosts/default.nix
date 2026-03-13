@@ -92,7 +92,7 @@ in
         variant = "light";
         appearance = "light";
         font = {
-          monospace = "Terminess Nerd Font";
+          monospace = "Fixedsys Excelsior 3.01";
         };
       };
     };

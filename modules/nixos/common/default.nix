@@ -84,6 +84,7 @@
   fonts.packages = with pkgs; [
     terminus_font
     nerd-fonts.terminess-ttf
+    fixedsys-excelsior
   ];
 
   system.stateVersion = lib.mkDefault "25.11";

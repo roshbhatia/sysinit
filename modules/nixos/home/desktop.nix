@@ -61,8 +61,6 @@ in
       ${pkgs.swww}/bin/swww-daemon &
       sleep 1
       ${pkgs.swww}/bin/swww img $HOME/.background-image --transition-type fade --transition-duration 1
-      ${pkgs.waybar}/bin/waybar &
-      ${pkgs.mako}/bin/mako &
     '';
 
     settings = ''
@@ -189,32 +187,30 @@ in
       margin-left = 0;
       margin-right = 0;
 
-      modules-left = [ "custom/logo" "custom/sep" "custom/workspaces" ];
+      modules-left = [ "custom/logo" "custom/sep" "wlr/workspaces" ];
       modules-center = [ ];
       modules-right = [
         "pulseaudio"
-        "custom/sep"
         "network"
-        "custom/sep"
         "cpu"
-        "custom/sep"
         "memory"
-        "custom/sep"
         "clock"
-        "custom/sep"
         "clock#utc"
         "tray"
       ];
 
       "custom/logo" = { format = "  "; tooltip = false; };
       "custom/sep" = { format = "|"; tooltip = false; };
-      "custom/workspaces" = { format = "{name}"; tooltip = false; };
+      "wlr/workspaces" = {
+        format = "{name}";
+        on-click = "activate";
+      };
       clock = { format = "{:%H:%M}"; tooltip-format = "<tt>{calendar}</tt>"; };
       "clock#utc" = { format = "{:%H:%M UTC}"; timezone = "UTC"; tooltip = false; };
-      cpu = { format = "CPU {usage}%"; interval = 2; };
-      memory = { format = "MEM {percentage}%"; interval = 2; };
-      network = { format-wifi = "WiFi"; format-ethernet = "ETH"; format-disconnected = "OFF"; };
-      pulseaudio = { format = "VOL {volume}%"; format-muted = "MUTE"; on-click = "${pkgs.pavucontrol}/bin/pavucontrol"; };
+      cpu = { format = " CPU {usage}% "; interval = 2; };
+      memory = { format = " MEM {percentage}% "; interval = 2; };
+      network = { format-wifi = " WiFi "; format-ethernet = " ETH "; format-disconnected = " OFF "; };
+      pulseaudio = { format = " VOL {volume}% "; format-muted = " MUTE "; on-click = "${pkgs.pavucontrol}/bin/pavucontrol"; };
       tray = { spacing = 8; };
     };
 
@@ -222,16 +218,36 @@ in
       * { font-family: "${values.theme.font.monospace}", monospace; font-size: 13px; min-height: 0; padding: 0; margin: 0; }
       window#waybar { 
         background: #${colors.base00}; 
-        color: #${colors.base05}; 
-        border-bottom: 1px solid #000000;
+        color: #000000; 
+        border-bottom: 2px solid #000000;
       }
-      #custom-logo, #custom-workspaces, #clock, #cpu, #memory, #network, #pulseaudio, #tray { padding: 0 8px; }
-      #custom-logo { color: #000000; font-weight: bold; }
-      #custom-sep { color: #000000; padding: 0 2px; }
+      #custom-logo, #wlr-workspaces, #clock, #cpu, #memory, #network, #pulseaudio, #tray { 
+        padding: 0 6px; 
+        margin: 2px 2px;
+        border: 2px solid;
+        border-top-color: #ffffff;
+        border-left-color: #ffffff;
+        border-right-color: #808080;
+        border-bottom-color: #808080;
+        background: #cccccc;
+      }
+      #custom-logo { color: #000000; font-weight: bold; border: none; background: transparent; }
+      #custom-sep { color: #808080; padding: 0 2px; }
       #clock { font-weight: bold; }
-      #pulseaudio, #network, #cpu, #memory { border-left: 1px solid #999999; }
-      tooltip { background: #${colors.base00}; border: 1px solid #000000; border-radius: 0; }
-      tooltip label { color: #${colors.base05}; padding: 4px; }
+      #wlr-workspaces button {
+        padding: 0 4px;
+        color: #000000;
+      }
+      #wlr-workspaces button.focused {
+        background: #000080;
+        color: #ffffff;
+        border-top-color: #000000;
+        border-left-color: #000000;
+        border-right-color: #ffffff;
+        border-bottom-color: #ffffff;
+      }
+      tooltip { background: #${colors.base00}; border: 2px solid #000000; border-radius: 0; }
+      tooltip label { color: #000000; padding: 4px; }
     '';
   };
 
@@ -250,7 +266,7 @@ in
         layer = "overlay";
       };
       colors = {
-        background = "${colors.base00}ff";
+        background = "ccccccff";
         text = "000000ff";
         prompt = "000080ff";
         input = "000000ff";
@@ -260,7 +276,7 @@ in
         selection-match = "ffffffff";
         border = "000000ff";
       };
-      border = { width = 1; radius = 0; };
+      border = { width = 2; radius = 0; };
     };
   };
 
@@ -269,10 +285,10 @@ in
     enable = true;
     settings = {
       font = "${values.theme.font.monospace} 11";
-      background-color = "#${colors.base00}";
+      background-color = "#cccccc";
       text-color = "#000000";
       border-color = "#000000";
-      border-size = 1;
+      border-size = 2;
       border-radius = 0;
       padding = "15";
       margin = "10";
