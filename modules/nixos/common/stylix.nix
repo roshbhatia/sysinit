@@ -19,10 +19,8 @@ in
     # Use the base16 scheme path from theme metadata
     base16Scheme = themes.getBase16SchemePath pkgs colorscheme variant;
     
-    image = lib.mkDefault (pkgs.fetchurl {
-      url = "https://www.nixos.org/logo/nixos-logo-only-white.png";
-      sha256 = "sha256-SnoLoOnCOInkb9v0Of0rkIsgnInZ7HmviAnPk9v0Olo=";
-    });
+    # Use a dummy local file for now to avoid 404 errors during switch
+    image = pkgs.runCommand "dummy-image.png" { } "touch $out";
 
     fonts = {
       monospace = {
