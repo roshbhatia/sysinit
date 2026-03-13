@@ -3,10 +3,6 @@ local wezterm = require("wezterm")
 local keybindings = require("sysinit.pkg.keybindings")
 local utils = require("sysinit.pkg.utils")
 
-local tabline = wezterm.plugin.require("https://github.com/michaelbrusegard/tabline.wez")
-local agent_deck = wezterm.plugin.require("https://github.com/Eric162/wezterm-agent-deck")
-local smart_ssh = wezterm.plugin.require("https://github.com/DavidRR-F/smart_ssh.wezterm")
-
 local M = {}
 
 function M.setup(config)
@@ -67,99 +63,108 @@ function M.setup(config)
     return "  "
   end
 
-  tabline.setup({
-    options = {
-      theme = config_data.color_scheme,
-      section_separators = {
-        left = "",
-        right = "",
+  local tabline_ok, tabline = pcall(wezterm.plugin.require, "https://github.com/michaelbrusegard/tabline.wez")
+  if tabline_ok then
+    tabline.setup({
+      options = {
+        theme = config_data.color_scheme,
+        section_separators = {
+          left = "",
+          right = "",
+        },
+        component_separators = {
+          left = "",
+          right = "",
+        },
+        tab_separators = {
+          left = "",
+          right = "",
+        },
       },
-      component_separators = {
-        left = "",
-        right = "",
+      sections = {
+        tabline_a = {
+          "mode",
+          locked_indicator,
+        },
+        tabline_x = {},
+        tabline_y = {},
       },
-      tab_separators = {
-        left = "",
-        right = "",
-      },
-    },
-    sections = {
-      tabline_a = {
-        "mode",
-        locked_indicator,
-      },
-      tabline_x = {},
-      tabline_y = {},
-    },
-    extensions = {},
-  })
-  tabline.apply_to_config(config)
+      extensions = {},
+    })
+    tabline.apply_to_config(config)
+  end
 
-  smart_ssh.apply_to_config(config, {
-    assume_shell = "Posix",
-  })
+  local smart_ssh_ok, smart_ssh = pcall(wezterm.plugin.require, "https://github.com/DavidRR-F/smart_ssh.wezterm")
+  if smart_ssh_ok then
+    smart_ssh.apply_to_config(config, {
+      assume_shell = "Posix",
+    })
+  end
 
-  agent_deck.apply_to_config(config, {
-    tab_title = { enabled = false },
-    right_status = { enabled = false },
-    cooldown_ms = 1500,
-    max_lines = 500,
-    notifications = {
-      enabled = true,
-      on_waiting = true,
-      backend = "native",
-    },
-    agents = {
-      claude = {
-        patterns = { "claude", "claude%-code" },
-        executable_patterns = { "@anthropic%-ai/claude%-code", "/claude%-code/", "/claude$" },
-        argv_patterns = { "@anthropic%-ai/claude%-code", "claude%-code", "^claude%s*$" },
-        title_patterns = { "claude code", "claude" },
+  local agent_deck_ok, agent_deck = pcall(wezterm.plugin.require, "https://github.com/Eric162/wezterm-agent-deck")
+  if agent_deck_ok then
+    agent_deck.apply_to_config(config, {
+      tab_title = { enabled = false },
+      right_status = { enabled = false },
+      cooldown_ms = 1500,
+      max_lines = 500,
+      notifications = {
+        enabled = true,
+        on_waiting = true,
+        backend = "native",
       },
-      goose = {
-        patterns = { "goose", "goosed" },
-        executable_patterns = { "/goose$", "/goosed$" },
-        argv_patterns = { "^goose%s*$" },
-        title_patterns = { "goose" },
+      agents = {
+        claude = {
+          patterns = { "claude", "claude%-code" },
+          executable_patterns = { "@anthropic%-ai/claude%-code", "/claude%-code/", "/claude$" },
+          argv_patterns = { "@anthropic%-ai/claude%-code", "claude%-code", "^claude%s*$" },
+          title_patterns = { "claude code", "claude" },
+        },
+        goose = {
+          patterns = { "goose", "goosed" },
+          executable_patterns = { "/goose$", "/goosed$" },
+          argv_patterns = { "^goose%s*$" },
+          title_patterns = { "goose" },
+        },
+        amp = {
+          patterns = { "amp" },
+          executable_patterns = { "/amp$" },
+          argv_patterns = { "^amp%s*$" },
+          title_patterns = { "amp" },
+        },
+        copilot = {
+          patterns = { "copilot" },
+          executable_patterns = { "/copilot$", "copilot%-language%-server" },
+          argv_patterns = { "^copilot%s*$" },
+          title_patterns = { "copilot" },
+        },
+        cursor = {
+          patterns = { "cursor%-agent", "cursor" },
+          executable_patterns = { "/cursor%-agent$" },
+          argv_patterns = { "cursor%-agent" },
+          title_patterns = { "cursor" },
+        },
+        crush = {
+          patterns = { "crush" },
+          executable_patterns = { "/crush$" },
+          argv_patterns = { "^crush%s*$" },
+          title_patterns = { "crush" },
+        },
+        aider = {
+          patterns = { "aider" },
+          executable_patterns = { "/aider$" },
+          argv_patterns = { "^aider%s*$" },
+          title_patterns = { "aider" },
+        },
+        opencode = {
+          patterns = { "opencode" },
+          executable_patterns = { "opencode%-darwin", "opencode%-linux", "/opencode$" },
+          argv_patterns = { "bunx%s+opencode", "npx%s+opencode", "/opencode$" },
+          title_patterns = { "opencode" },
+        },
       },
-      amp = {
-        patterns = { "amp" },
-        executable_patterns = { "/amp$" },
-        argv_patterns = { "^amp%s*$" },
-        title_patterns = { "amp" },
-      },
-      copilot = {
-        patterns = { "copilot" },
-        executable_patterns = { "/copilot$", "copilot%-language%-server" },
-        argv_patterns = { "^copilot%s*$" },
-        title_patterns = { "copilot" },
-      },
-      cursor = {
-        patterns = { "cursor%-agent", "cursor" },
-        executable_patterns = { "/cursor%-agent$" },
-        argv_patterns = { "cursor%-agent" },
-        title_patterns = { "cursor" },
-      },
-      crush = {
-        patterns = { "crush" },
-        executable_patterns = { "/crush$" },
-        argv_patterns = { "^crush%s*$" },
-        title_patterns = { "crush" },
-      },
-      aider = {
-        patterns = { "aider" },
-        executable_patterns = { "/aider$" },
-        argv_patterns = { "^aider%s*$" },
-        title_patterns = { "aider" },
-      },
-      opencode = {
-        patterns = { "opencode" },
-        executable_patterns = { "opencode%-darwin", "opencode%-linux", "/opencode$" },
-        argv_patterns = { "bunx%s+opencode", "npx%s+opencode", "/opencode$" },
-        title_patterns = { "opencode" },
-      },
-    },
-  })
+    })
+  end
 
   config.window_padding = {
     left = "1cell",

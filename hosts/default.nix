@@ -92,7 +92,7 @@ in
         variant = "light";
         appearance = "light";
         font = {
-          monospace = "Terminus (Nerd Font)";
+          monospace = "Terminess Nerd Font";
         };
       };
     };
