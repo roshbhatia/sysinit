@@ -55,29 +55,28 @@ end
 
 function M.get_ssh_picker_action()
   local hosts = {}
-  -- Enumerate hosts from ~/.ssh/config
-  for _, host in ipairs(wezterm.enumerate_ssh_hosts()) do
-    -- Filter out wildcard entries or other non-host identifiers
-    if not host:match("[*?]") then
+
+  for host, _ in pairs(wezterm.enumerate_ssh_hosts()) do
+    local is_wildcard = host:match("[*?]")
+    local is_github = host:lower():match("github")
+
+    if not is_wildcard and not is_github then
       table.insert(hosts, { label = host, id = host })
     end
   end
 
+  table.sort(hosts, function(a, b)
+    return a.label < b.label
+  end)
+
   return wezterm.action.InputSelector({
-    title = "SSH Connect",
+    title = "Select host:",
     choices = hosts,
     fuzzy = true,
     action = wezterm.action_callback(function(window, pane, id, label)
       if id then
-        -- Switch to a workspace named after the host
         window:perform_action(wezterm.action.SwitchToWorkspace({ name = id }), pane)
-        -- Spawn standard ssh command in a new tab
-        window:perform_action(
-          wezterm.action.SpawnCommandInNewTab({
-            args = { "ssh", id },
-          }),
-          pane
-        )
+        window:perform_action(wezterm.action.SpawnTab({ DomainName = "SSH:" .. id }), pane)
       end
     end),
   })
