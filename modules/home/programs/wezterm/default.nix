@@ -38,5 +38,32 @@ in
     "wezterm/env.json".text = builtins.toJSON {
       PATH = paths.getPathString config.home.username config.home.homeDirectory;
     };
+
+    # Explicitly generate the classic-platinum scheme for Wezterm to find
+    "wezterm/colors/classic-platinum-light.lua".text = ''
+      return {
+        foreground = "#000000",
+        background = "#cccccc",
+        cursor_bg = "#000000",
+        cursor_fg = "#cccccc",
+        cursor_border = "#000000",
+        selection_fg = "#ffffff",
+        selection_bg = "#000080",
+        scrollbar_thumb = "#999999",
+        split = "#666666",
+        ansi = {
+          "#000000", "#800000", "#008000", "#808000",
+          "#000080", "#800080", "#008080", "#cccccc"
+        },
+        brights = {
+          "#666666", "#ff0000", "#00ff00", "#ffff00",
+          "#0000ff", "#ff00ff", "#00ffff", "#ffffff"
+        },
+        indexed = {
+          [16] = "#ff8000",
+          [17] = "#804000"
+        }
+      }
+    '';
   };
 }

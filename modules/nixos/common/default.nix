@@ -80,6 +80,12 @@
   # Security
   security.sudo.wheelNeedsPassword = false;
 
+  # Fonts
+  fonts.packages = with pkgs; [
+    terminus_font
+    nerd-fonts.terminess-ttf
+  ];
+
   system.stateVersion = lib.mkDefault "25.11";
 
   # Localisation

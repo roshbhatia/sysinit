@@ -8,6 +8,9 @@ let
     # Update activation environment for dbus and systemd
     ${pkgs.dbus}/bin/dbus-update-activation-environment --systemd --all
     
+    # Signal that the session is up
+    ${pkgs.systemd}/bin/systemctl --user start mango-session.target
+
     # Start the compositor
     exec ${mangoPackage}/bin/mango "''${@}"
   '';

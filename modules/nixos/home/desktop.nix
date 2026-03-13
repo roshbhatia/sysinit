@@ -56,6 +56,8 @@ in
     systemd.enable = true;
 
     autostart_sh = ''
+      # Wait for session target to be fully active
+      sleep 2
       ${pkgs.swww}/bin/swww-daemon &
       sleep 1
       ${pkgs.swww}/bin/swww img $HOME/.background-image --transition-type fade --transition-duration 1
@@ -179,6 +181,8 @@ in
     settings.mainBar = {
       layer = "top";
       position = "top";
+      exclusive = true;
+      passthrough = false;
       height = 28;
       spacing = 0;
       margin-top = 0;

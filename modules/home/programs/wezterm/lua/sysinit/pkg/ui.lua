@@ -32,7 +32,14 @@ function M.setup(config)
   config.cursor_thickness = 1
   config.dpi = 144
   config.font = font
-  config.font_size = 11.0
+  config.font_size = 12.0
+  config.line_height = 1.0
+  config.cell_width = 1.0
+  
+  -- Disable anti-aliasing for sharp retro bitmap feel
+  config.front_end = "WebGpu"
+  config.freetype_load_flags = "NO_HINTING|NO_AUTOHINT"
+  
   config.macos_window_background_blur = utils.is_darwin() and config_data.transparency.blur or 0
   config.max_fps = 240
   config.quick_select_alphabet = "fjdkslaghrueiwoncmv"
