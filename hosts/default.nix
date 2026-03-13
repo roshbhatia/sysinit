@@ -77,4 +77,24 @@ in
       git = linuxGit;
     };
   };
+
+  arrakis = {
+    system = "x86_64-linux";
+    platform = "linux";
+    desktop = true;
+    hardware = ../modules/nixos/hardware/arrakis.nix;
+    inherit (common) username;
+
+    values = {
+      git = linuxGit;
+      theme = {
+        colorscheme = "rose-pine";
+        variant = "dawn";
+        appearance = "light";
+        font = {
+          monospace = "Iosevka Nerd Font";
+        };
+      };
+    };
+  };
 }

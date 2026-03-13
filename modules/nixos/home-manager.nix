@@ -33,31 +33,31 @@ in
           ../home/programs/git/options.nix
 
           ../home
-          stylix.homeModules.stylix
+        ]
+        ++ lib.optional (values.isDesktop) ./home/desktop.nix
+        ++ lib.optionals (values.isDesktop && inputs ? mangowc) [
+          inputs.mangowc.hmModules.mango
         ];
 
         # NixOS systems use the nix-managed home directory
-        home.homeDirectory = lib.mkForce "/home/${values.user.username}.linux";
+        home.homeDirectory =
+          if values.isLima then
+            lib.mkForce "/home/${values.user.username}.linux"
+          else
+            "/home/${values.user.username}";
 
         sysinit.git = values.git or { };
         sysinit.theme =
           if (values ? theme) then
             {
-              appearance = values.theme.appearance;
+              appearance = values.theme.appearance or null;
               colorscheme = values.theme.colorscheme;
               variant = values.theme.variant;
-              font.monospace = values.theme.font.monospace;
-              transparency = values.theme.transparency;
+              font.monospace = values.theme.font.monospace or null;
+              transparency = values.theme.transparency or { };
             }
           else
             { };
-
-        # Configure stylix with base16 scheme from host values
-        stylix.base16Scheme =
-          if (values ? theme) then
-            themes.getBase16SchemePath pkgs values.theme.colorscheme values.theme.variant
-          else
-            null;
       };
   };
 }

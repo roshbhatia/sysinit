@@ -45,36 +45,16 @@
     ln -sfn /nix-vm/var /nix/var || true
   '';
 
-  users.users.${values.user.username} = {
-    isNormalUser = true;
-    extraGroups = [
-      "wheel"
-      "nixbld"
-    ];
-    shell = pkgs.zsh;
-    home = "/home/${values.user.username}.linux";
-  };
-
-  users.groups.${values.user.username} = { };
+  # Lima-specific home directory mapping
+  users.users.${values.user.username}.home = "/home/${values.user.username}.linux";
 
   environment.systemPackages = with pkgs; [
     dconf
     dconf-editor
     wezterm
-    zsh
   ];
 
-  programs.zsh.enable = true;
-
-  services = {
-    openssh = {
-      enable = true;
-      ports = [ 55555 ]; # Mirrors what should be in the lima.yaml
-      startWhenNeeded = false;
-    };
-  };
-
-  security.sudo.wheelNeedsPassword = false;
+  services.openssh.ports = [ 55555 ];
 
   # Auto-login on serial console so no login prompt appears
   services.getty.autologinUser = values.user.username;
@@ -92,29 +72,12 @@
   };
 
   nix.settings = {
-    experimental-features = [
-      "nix-command"
-      "flakes"
-    ];
     extra-substituters = [
       "file:///nix-host/store"
-      "https://cache.iog.io"
-      "https://devenv.cachix.org"
-      "https://nix-community.cachix.org"
-      "https://numtide.cachix.org"
     ];
     trusted-substituters = [
       "file:///nix-host/store"
     ];
-    trusted-public-keys = [
-      "devenv.cachix.org-1:w1cLUi8dv3hnoSPGAuibQv+f9TZLr6cv/Hm9XgU50cw="
-      "nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs="
-      "numtide.cachix.org-1:2ps1kLBUWjxIneOy1Ik6cQjb41X0iXVXeHigGmycPPE="
-    ];
-    fallback = true;
-    max-jobs = "auto";
-    cores = 0;
-    connect-timeout = 10;
   };
 
   system.stateVersion = lib.mkForce "25.11";

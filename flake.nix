@@ -55,6 +55,18 @@
       url = "github:nixos-lima/nixos-lima";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    # Custom window manager for NixOS
+    mangowc = {
+      url = "github:DreamMaoMao/mangowc";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    # NixOS gaming configuration
+    nix-gaming = {
+      url = "github:fufexan/nix-gaming";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs =
@@ -79,6 +91,8 @@
           home-manager
           stylix
           onepassword-shell-plugins
+          mangowc
+          nix-gaming
           ;
         inherit (builders) mkPkgs mkUtils mkOverlays;
       };

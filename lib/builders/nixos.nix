@@ -5,6 +5,8 @@
     {
       home-manager,
       stylix,
+      mangowc ? null,
+      nix-gaming ? null,
     }:
     {
       hostConfig,
@@ -59,8 +61,16 @@
           documentation.enable = false;
         }
       ]
-      ++ lib.optionals (hostConfig.isLima or false) [
+      ++ lib.optionals (hostConfig ? hardware) [ hostConfig.hardware ]
+      ++ lib.optionals (hostConfig.lima or false) [
         inputs.nixos-lima.nixosModules.lima
+      ]
+      ++ lib.optionals (hostConfig.desktop or false && mangowc != null) [
+        mangowc.nixosModules.mango
+      ]
+      ++ lib.optionals (hostConfig.desktop or false && nix-gaming != null) [
+        nix-gaming.nixosModules.pipewireLowLatency
+        nix-gaming.nixosModules.platformOptimizations
       ];
     };
 }

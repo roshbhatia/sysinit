@@ -18,6 +18,8 @@ in
       home-manager,
       stylix,
       onepassword-shell-plugins,
+      mangowc ? null,
+      nix-gaming ? null,
       mkPkgs,
       mkUtils,
       mkOverlays,
@@ -39,6 +41,8 @@ in
       values = (hostConfig.values or { }) // {
         inherit hostname;
         user.username = hostConfig.username;
+        isLima = hostConfig.lima or false;
+        isDesktop = hostConfig.desktop or false;
       };
 
       commonArgs = {
@@ -65,6 +69,8 @@ in
         inherit
           home-manager
           stylix
+          mangowc
+          nix-gaming
           ;
       } commonArgs;
 }
