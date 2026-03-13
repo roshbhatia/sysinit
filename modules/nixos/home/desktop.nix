@@ -64,54 +64,35 @@ in
     '';
 
     settings = ''
-      # Visual Effects
-      blur = 1
-      blur_layer = 1
-      blur_optimized = 1
-      blur_params_num_passes = 2
-      blur_params_radius = 8
-      blur_params_noise = 0.01
-      blur_params_brightness = 1.0
-      blur_params_contrast = 1.0
-      blur_params_saturation = 1.0
+      # Visual Effects (Retro: Disabled for stability and aesthetic)
+      blur = 0
+      blur_layer = 0
+      blur_optimized = 0
+      shadows = 0
+      layer_shadows = 0
 
-      shadows = 1
-      layer_shadows = 1
-      shadow_only_floating = 0
-      shadows_size = 15
-      shadows_blur = 20
-      shadows_position_x = 0
-      shadows_position_y = 5
-      shadowscolor = ${hexToMangoAlpha "#${colors.base00}" "80"}
-
-      border_radius = 10
-      no_radius_when_single = 0
+      border_radius = 0
+      no_radius_when_single = 1
       focused_opacity = 1.0
-      unfocused_opacity = ${toString opacity}
+      unfocused_opacity = 1.0
 
-      borderpx = 2
+      borderpx = 1
       focuscolor = ${hexToMango "#${colors.base0D}"}
       bordercolor = ${hexToMango "#${colors.base01}"}
       rootcolor = ${hexToMango "#${colors.base00}"}
       urgentcolor = ${hexToMango "#${colors.base08}"}
 
-      # Animation
-      animation_type = zoom
-      animation_open_duration = 200
-      animation_close_duration = 150
-      animation_open_initial_scale = 0.9
-      animation_close_initial_scale = 1.0
-      animation_fade_in = 1
-      animation_fade_out = 1
+      # Animation (Disabled for retro feel and NVIDIA stability)
+      animation_type = none
 
-      # Layout
+      # Layout (Retro: Flush windows)
       default_layout = tile
       master_factor = 0.55
       nmasters = 1
-      gappih = 12
-      gappiv = 12
-      gappoh = 16
-      gappov = 16
+      gappih = 0
+      gappiv = 0
+      gappoh = 0
+      gappov = 0
 
       # Input
       repeat_rate = 50
@@ -198,14 +179,14 @@ in
     settings.mainBar = {
       layer = "top";
       position = "top";
-      height = 32;
+      height = 28;
       spacing = 0;
-      margin-top = 8;
-      margin-left = 16;
-      margin-right = 16;
+      margin-top = 0;
+      margin-left = 0;
+      margin-right = 0;
 
-      modules-left = [ "custom/logo" ];
-      modules-center = [ "custom/workspaces" ];
+      modules-left = [ "custom/logo" "custom/sep" "custom/workspaces" ];
+      modules-center = [ ];
       modules-right = [
         "pulseaudio"
         "custom/sep"
@@ -221,9 +202,9 @@ in
         "tray"
       ];
 
-      "custom/logo" = { format = ""; tooltip = false; };
+      "custom/logo" = { format = "  "; tooltip = false; };
       "custom/sep" = { format = "|"; tooltip = false; };
-      "custom/workspaces" = { format = "1  2  C  E  M"; tooltip = false; };
+      "custom/workspaces" = { format = "{name}"; tooltip = false; };
       clock = { format = "{:%H:%M}"; tooltip-format = "<tt>{calendar}</tt>"; };
       "clock#utc" = { format = "{:%H:%M UTC}"; timezone = "UTC"; tooltip = false; };
       cpu = { format = "CPU {usage}%"; interval = 2; };
@@ -234,21 +215,18 @@ in
     };
 
     style = ''
-      * { font-family: "${values.theme.font.monospace}", monospace; font-size: 12px; min-height: 0; padding: 0; margin: 0; }
-      window#waybar { background: #${colors.base00}; color: #${colors.base05}; border-radius: 10px; border: 1px solid #${colors.base01}; }
-      #custom-logo, #custom-workspaces, #clock, #cpu, #memory, #network, #pulseaudio, #tray { padding: 0 10px; }
-      #custom-logo { color: #${colors.base0D}; font-size: 14px; padding-left: 12px; }
-      #custom-sep { color: #${colors.base03}; padding: 0 4px; }
-      #custom-workspaces { color: #${colors.base05}; letter-spacing: 2px; }
-      #clock { color: #${colors.base05}; }
-      #clock.utc { color: #${colors.base03}; }
-      #cpu, #memory { color: #${colors.base03}; }
-      #network { color: #${colors.base0B}; }
-      #network.disconnected { color: #${colors.base08}; }
-      #pulseaudio { color: #${colors.base05}; }
-      #pulseaudio.muted { color: #${colors.base03}; }
-      #tray { padding: 0 8px; padding-right: 12px; }
-      tooltip { background: #${colors.base00}; border: 1px solid #${colors.base0D}; border-radius: 8px; }
+      * { font-family: "${values.theme.font.monospace}", monospace; font-size: 13px; min-height: 0; padding: 0; margin: 0; }
+      window#waybar { 
+        background: #${colors.base00}; 
+        color: #${colors.base05}; 
+        border-bottom: 1px solid #000000;
+      }
+      #custom-logo, #custom-workspaces, #clock, #cpu, #memory, #network, #pulseaudio, #tray { padding: 0 8px; }
+      #custom-logo { color: #000000; font-weight: bold; }
+      #custom-sep { color: #000000; padding: 0 2px; }
+      #clock { font-weight: bold; }
+      #pulseaudio, #network, #cpu, #memory { border-left: 1px solid #999999; }
+      tooltip { background: #${colors.base00}; border: 1px solid #000000; border-radius: 0; }
       tooltip label { color: #${colors.base05}; padding: 4px; }
     '';
   };
@@ -268,17 +246,17 @@ in
         layer = "overlay";
       };
       colors = {
-        background = "${colors.base00}ee";
-        text = "${colors.base05}ff";
-        prompt = "${colors.base0D}ff";
-        input = "${colors.base05}ff";
-        match = "${colors.base0D}ff";
-        selection = "${colors.base01}ff";
-        selection-text = "${colors.base05}ff";
-        selection-match = "${colors.base0D}ff";
-        border = "${colors.base0D}ff";
+        background = "${colors.base00}ff";
+        text = "000000ff";
+        prompt = "000080ff";
+        input = "000000ff";
+        match = "000080ff";
+        selection = "000080ff";
+        selection-text = "ffffffff";
+        selection-match = "ffffffff";
+        border = "000000ff";
       };
-      border = { width = 2; radius = 10; };
+      border = { width = 1; radius = 0; };
     };
   };
 
@@ -288,10 +266,10 @@ in
     settings = {
       font = "${values.theme.font.monospace} 11";
       background-color = "#${colors.base00}";
-      text-color = "#${colors.base05}";
-      border-color = "#${colors.base0D}";
-      border-size = 2;
-      border-radius = 10;
+      text-color = "#000000";
+      border-color = "#000000";
+      border-size = 1;
+      border-radius = 0;
       padding = "15";
       margin = "10";
       width = 350;

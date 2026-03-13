@@ -30,4 +30,8 @@ in
     light-medium = "${customPath}/everforest-light-medium.yaml";
     light-hard = "${customPath}/everforest-light-hard.yaml";
   };
+
+  classic-platinum = {
+    light = "${customPath}/classic-platinum.yaml";
+  };
 }

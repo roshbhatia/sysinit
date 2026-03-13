@@ -84,4 +84,16 @@
     author = "sainnhe";
     homepage = "https://github.com/sainnhe/everforest";
   };
+
+  classic-platinum = {
+    name = "Classic Platinum";
+    id = "classic-platinum";
+    variants = [ "light" ];
+    supports = [ "light" ];
+    appearanceMapping = {
+      light = "light";
+    };
+    author = "90s Retro";
+    homepage = "https://github.com/diinki/linux-retroism";
+  };
 }
