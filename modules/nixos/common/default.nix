@@ -8,6 +8,7 @@
 
 {
   networking.hostName = lib.mkDefault hostname;
+  networking.networkmanager.enable = true;
 
   imports = [
     # Shared module options at system level
