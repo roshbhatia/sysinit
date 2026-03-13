@@ -20,7 +20,7 @@ in
     base16Scheme = themes.getBase16SchemePath pkgs colorscheme variant;
     
     # Use a valid image from the remote host to avoid ImageMagick errors
-    image = ./. + "/../../home/firefox/brave-icons/brave.png";
+    image = ../../darwin/home/firefox/brave-icons/NewTab.svg;
 
     fonts = {
       monospace = {
