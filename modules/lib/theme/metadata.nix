@@ -85,15 +85,22 @@
     homepage = "https://github.com/sainnhe/everforest";
   };
 
-  classic-platinum = {
-    name = "Classic Platinum";
-    id = "classic-platinum";
-    variants = [ "light" ];
-    supports = [ "light" ];
+  windows-95 = {
+    name = "Windows 95";
+    id = "windows-95";
+    variants = [
+      "light"
+      "dark"
+    ];
+    supports = [
+      "light"
+      "dark"
+    ];
     appearanceMapping = {
       light = "light";
+      dark = "dark";
     };
-    author = "90s Retro";
-    homepage = "https://github.com/diinki/linux-retroism";
+    author = "Fergus Collins";
+    homepage = "https://github.com/tinted-theming/base16-schemes";
   };
 }

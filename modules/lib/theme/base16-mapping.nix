@@ -31,7 +31,8 @@ in
     light-hard = "${customPath}/everforest-light-hard.yaml";
   };
 
-  classic-platinum = {
-    light = "${customPath}/classic-platinum.yaml";
+  windows-95 = {
+    light = "${schemesPath}/windows-95-light.yaml";
+    dark = "${schemesPath}/windows-95.yaml";
   };
 }

@@ -23,6 +23,10 @@ let
         light-medium = "Everforest Light (Gogh)";
         light-soft = "Everforest Light Soft (Gogh)";
       };
+      "windows-95" = {
+        light = "Windows 95 Light (base16)";
+        dark = "Windows 95 (base16)";
+      };
     };
   };
   getAppMetadata =

@@ -88,7 +88,7 @@ in
     values = {
       git = linuxGit;
       theme = {
-        colorscheme = "classic-platinum";
+        colorscheme = "windows-95";
         variant = "light";
         appearance = "light";
         font = {
