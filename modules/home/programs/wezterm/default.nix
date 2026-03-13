@@ -33,6 +33,7 @@ in
     "wezterm/config.json".text = themes.toJsonFile (
       themes.makeThemeJsonConfig themeValues {
         color_scheme = themeName;
+        colors = config.lib.stylix.colors;
       }
     );
     "wezterm/env.json".text = builtins.toJSON {
