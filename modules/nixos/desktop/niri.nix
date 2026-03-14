@@ -1,6 +1,8 @@
 { pkgs, inputs, ... }:
 
 let
+  niriPkg = inputs.niri-flake.packages.${pkgs.system}.niri-unstable;
+
   niriWrapped = pkgs.writeShellScriptBin "niri-wrapped" ''
     set -euo pipefail
 
@@ -14,20 +16,15 @@ let
 
     ${pkgs.dbus}/bin/dbus-update-activation-environment --systemd --all || true
 
-    exec ${pkgs.niri}/bin/niri "$@"
+    exec ${niriPkg}/bin/niri "$@"
   '';
 in
 {
-  imports = [
-    inputs.niri-flake.nixosModules.niri
-  ];
-
-  programs.niri = {
-    enable = true;
-  };
-
   services.xserver.enable = false;
   services.dbus.enable = true;
+
+  # Enable xwayland via the niri-flake's xwayland-satellite
+  programs.xwayland.enable = true;
 
   xdg.portal = {
     enable = true;
@@ -39,14 +36,19 @@ in
     XDG_CURRENT_DESKTOP = "niri";
   };
 
-  environment.systemPackages = with pkgs; [
+  environment.systemPackages = [
+    niriPkg
     niriWrapped
-    rofi
-    mako
-    nemo
-    pavucontrol
-    wl-clipboard
-    swaylock
-    latest.firefox-bin
+    inputs.niri-flake.packages.${pkgs.system}.xwayland-satellite-unstable
+    pkgs.rofi
+    pkgs.mako
+    pkgs.nemo
+    pkgs.pavucontrol
+    pkgs.wl-clipboard
+    pkgs.swaylock
+    pkgs.firefox
   ];
+
+  # Allow niri to run as a session
+  security.polkit.enable = true;
 }

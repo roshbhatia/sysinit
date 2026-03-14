@@ -4,7 +4,6 @@
   lib,
   pkgs,
   values,
-  inputs,
   ...
 }:
 
@@ -24,20 +23,13 @@ let
   writeMode = mode: ''spawn "sh" "-c" "echo ${mode} > ${modeFile}"'';
 in
 {
-  imports = [
-    inputs.niri-flake.homeModules.niri
-  ];
-
   stylix.targets = {
     rofi.enable = false;
     mako.enable = false;
   };
 
   # === Niri Window Manager ===
-  programs.niri = {
-    enable = true;
-
-    config = ''
+  xdg.configFile."niri/config.kdl".text = ''
       input {
         keyboard {
           xkb {
@@ -190,7 +182,6 @@ in
         Print { screenshot; }
       }
     '';
-  };
 
   # === Rofi App Launcher (Gruvbox) ===
   xdg.configFile."rofi/config.rasi".text = ''

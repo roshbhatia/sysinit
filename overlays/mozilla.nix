@@ -1,6 +1,5 @@
-{ inputs, ... }:
+{ ... }:
 
-if inputs ? nixpkgs-mozilla then
-  (import inputs.nixpkgs-mozilla)
-else
-  _final: _prev: { }
+# nixpkgs-mozilla overlay is incompatible with modern nixpkgs
+# Use standard pkgs.firefox instead
+_final: _prev: { }
