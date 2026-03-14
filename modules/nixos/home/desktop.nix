@@ -146,7 +146,6 @@ in
     window-rule {
       match app-id=r#"^org\.wezfurlong\.wezterm$"#
       opacity 0.88
-      default-column-width {}
     }
     window-rule {
       match app-id=r#"^org\.wezfurlong\.wezterm$"# is-focused=false
@@ -206,7 +205,7 @@ in
     // ── Key Bindings ──
     binds {
       // Launch
-      Alt+Return hotkey-overlay-title="Terminal" { spawn "${pkgs.wezterm}/bin/wezterm" "connect" "unix" "--workspace" "default"; }
+      Alt+Return hotkey-overlay-title="Terminal" { spawn "${pkgs.wezterm}/bin/wezterm"; }
       Super+Space hotkey-overlay-title="App Launcher" { spawn "${pkgs.rofi}/bin/rofi" "-show" "drun" "-theme" "${config.xdg.configHome}/rofi/config.rasi"; }
 
       // Window management
@@ -536,26 +535,6 @@ in
     automount = true;
     notify = true;
     tray = "never"; # no tray icon, just auto-mount
-  };
-
-  # === Wezterm Mux Server (instant terminal spawning) ===
-  systemd.user.services.wezterm-mux = {
-    Unit = {
-      Description = "WezTerm multiplexer server";
-      PartOf = [ "graphical-session.target" ];
-      After = [ "graphical-session.target" ];
-    };
-
-    Service = {
-      Type = "simple";
-      ExecStart = "${pkgs.wezterm}/bin/wezterm-mux-server --daemonize=false";
-      Restart = "on-failure";
-      RestartSec = 3;
-    };
-
-    Install = {
-      WantedBy = [ "graphical-session.target" ];
-    };
   };
 
   # === Nemo File Manager ===
