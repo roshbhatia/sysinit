@@ -34,7 +34,10 @@ in
 
           ../home
         ]
-        ++ lib.optional (values.isDesktop) ./home/desktop.nix;
+        ++ lib.optionals (values.isDesktop) [
+          ./home/desktop.nix
+          ./home/quickshell.nix
+        ];
 
         # NixOS systems use the nix-managed home directory
         home.homeDirectory =

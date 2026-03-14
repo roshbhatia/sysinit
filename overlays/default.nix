@@ -17,4 +17,6 @@
   (import ./pi-coding-agent.nix { })
   (import ./crush.nix { })
   (import ./ast-grep.nix { })
+  (import ./ioskeleyMono.nix { })
+  (import ./mozilla.nix { inherit inputs; })
 ]

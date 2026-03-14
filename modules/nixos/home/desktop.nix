@@ -1,9 +1,10 @@
-# NixOS desktop home-manager configuration: sway, waybar, rofi, mako, nemo
+# NixOS desktop home-manager configuration: niri, quickshell, rofi, mako, nemo
 {
   config,
   lib,
   pkgs,
   values,
+  inputs,
   ...
 }:
 
@@ -11,220 +12,187 @@ let
   colors = config.lib.stylix.colors;
 
   wallpaper = pkgs.fetchurl {
-    url = "https://raw.githubusercontent.com/diinki/linux-retroism/main/wallpapers/copyleft.png";
-    sha256 = "1vjf8dq4dzbym9a5sk29cfbr83mlz5manx6n9hq2jkaniw3yvxax";
+    url = "https://images2.alphacoders.com/140/1406218.png";
+    sha256 = "0000000000000000000000000000000000000000000000000000";
   };
 
   mod = "Mod1"; # Alt key
+  sup = "Mod4"; # Super key
+
+  modeFile = "$HOME/.cache/niri-mode";
+
+  writeMode = mode: ''spawn "sh" "-c" "echo ${mode} > ${modeFile}"'';
 in
 {
+  imports = [
+    inputs.niri-flake.homeModules.niri
+  ];
+
   stylix.targets = {
-    waybar.enable = false;
     rofi.enable = false;
     mako.enable = false;
-    sway.enable = false;
   };
 
-  # === Sway Window Manager ===
-  wayland.windowManager.sway = {
+  # === Niri Window Manager ===
+  programs.niri = {
     enable = true;
-    wrapperFeatures.gtk = true;
 
-    config = {
-      modifier = mod;
-      terminal = "wezterm";
-      menu = "${pkgs.rofi}/bin/rofi -show drun -theme ~/.config/rofi/config.rasi";
+    config = ''
+      input {
+        keyboard {
+          xkb {
+            layout "us"
+          }
+          repeat-rate 50
+          repeat-delay 300
+        }
 
-      fonts = {
-        names = [ "${values.theme.font.monospace}" ];
-        size = 11.0;
-      };
+        mouse {
+          accel-profile "flat"
+          accel-speed -0.5
+        }
 
-      # Flat retro aesthetic
-      gaps = {
-        inner = 0;
-        outer = 0;
-      };
-      defaultWorkspace = "workspace number 1";
+        touchpad {
+          natural-scroll
+          tap
+          dwt
+        }
+      }
 
-      # Input devices
-      input = {
-        "type:keyboard" = {
-          xkb_layout = "us";
-          repeat_rate = "50";
-          repeat_delay = "300";
-        };
-        "type:pointer" = {
-          accel_profile = "flat";
-          pointer_accel = "-0.5";
-        };
-        "type:touchpad" = {
-          natural_scroll = "enabled";
-          tap = "enabled";
-          dwt = "enabled";
-        };
-      };
+      output "*" {
+        background-color "#1d2021"
+      }
 
-      # Wallpaper
-      output = {
-        "*" = {
-          bg = "$HOME/.background-image fill";
-        };
-      };
+      layout {
+        gaps 13
 
-      # Window appearance
-      window = {
-        border = 1;
-        titlebar = false;
-      };
-      floating = {
-        border = 1;
-        titlebar = false;
-      };
-      colors = {
-        focused = {
-          border = "#${colors.base0D}";
-          background = "#${colors.base0D}";
-          text = "#${colors.base00}";
-          indicator = "#${colors.base0D}";
-          childBorder = "#${colors.base0D}";
-        };
-        unfocused = {
-          border = "#${colors.base01}";
-          background = "#${colors.base01}";
-          text = "#${colors.base05}";
-          indicator = "#${colors.base01}";
-          childBorder = "#${colors.base01}";
-        };
-      };
+        focus-ring {
+          width 2
+          active-color "#83a598"
+          inactive-color "#665c54"
+        }
 
-      # Floating modifier (Super for mouse move/resize)
-      floating.modifier = "Mod4";
+        border {
+          off
+        }
 
-      # Autostart
-      startup = [
-        { command = "dbus-update-activation-environment --systemd --all"; }
-        { command = "systemctl --user import-environment WAYLAND_DISPLAY XDG_CURRENT_DESKTOP"; }
-        { command = "${pkgs.mako}/bin/mako"; }
-        { command = "${pkgs.waybar}/bin/waybar"; }
-        { command = "nm-applet --indicator"; }
-      ];
+        preset-column-widths {
+          proportion 0.33333
+          proportion 0.5
+          proportion 0.66667
+        }
 
-      # Window assignment rules
-      assigns = {
-        "C" = [
-          { class = "^discord$"; }
-          { class = "^Slack$"; }
-          { class = "^ferdium$"; }
-        ];
-        "E" = [
-          { class = "^thunderbird$"; }
-        ];
-        "M" = [
-          { class = "^Spotify$"; }
-          { app_id = "^spotify$"; }
-        ];
-      };
+        default-column-width {
+          proportion 0.5
+        }
+      }
 
-      # Floating rules
-      window.commands = [
-        { command = "floating enable"; criteria = { title = "^Picture-in-Picture$"; }; }
-        { command = "floating enable"; criteria = { class = "^pavucontrol$"; }; }
-        { command = "floating enable"; criteria = { app_id = "^pavucontrol$"; }; }
-        { command = "floating enable"; criteria = { class = "^1Password$"; }; }
-        { command = "floating enable"; criteria = { app_id = "^1password$"; }; }
-        { command = "floating enable"; criteria = { class = "^nemo$"; }; }
-        { command = "floating enable"; criteria = { app_id = "^nemo$"; }; }
-      ];
+      prefer-no-csd
 
-      # === Keybindings (default mode) ===
-      keybindings = lib.mkOptionDefault {
-        # Terminal
-        "${mod}+Return" = "exec wezterm";
+      cursor {
+        hide-when-typing
+        hide-after-inactive-ms 10000
+      }
 
-        # App launcher (Super+Space)
-        "Mod4+space" = "exec ${pkgs.rofi}/bin/rofi -show drun -theme ~/.config/rofi/config.rasi";
+      spawn-at-startup "sh" "-c" "echo MAIN > ${modeFile}"
+      spawn-at-startup "${pkgs.dbus}/bin/dbus-update-activation-environment" "--systemd" "--all"
+      spawn-at-startup "systemctl" "--user" "import-environment" "WAYLAND_DISPLAY" "XDG_CURRENT_DESKTOP"
+      spawn-at-startup "${pkgs.mako}/bin/mako"
+      spawn-at-startup "nm-applet" "--indicator"
 
-        # Kill window (Super+Q)
-        "Mod4+q" = "kill";
+      hotkey-overlay {
+        skip-at-startup
+      }
 
-        # Exit sway (Super+Shift+Q)
-        "Mod4+Shift+q" = "exec swaymsg exit";
+      binds {
+        // Terminal
+        ${mod}+Return { spawn "wezterm"; }
 
-        # Window focus (vim-style)
-        "${mod}+h" = "focus left";
-        "${mod}+j" = "focus down";
-        "${mod}+k" = "focus up";
-        "${mod}+l" = "focus right";
+        // App launcher
+        ${sup}+Space { spawn "${pkgs.rofi}/bin/rofi" "-show" "drun" "-theme" "${config.xdg.configHome}/rofi/config.rasi"; }
 
-        # Resize
-        "${mod}+Shift+j" = "resize shrink height 72 px";
-        "${mod}+Shift+k" = "resize grow height 72 px";
+        // Close window
+        ${sup}+Q { close-window; }
 
-        # Workspaces (named, matching Mac Aerospace)
-        "${mod}+1" = "workspace 1";
-        "${mod}+2" = "workspace 2";
-        "${mod}+c" = "workspace C";
-        "${mod}+e" = "workspace E";
-        "${mod}+m" = "workspace M";
+        // Focus (vim-style)
+        ${mod}+H { focus-column-left; }
+        ${mod}+J { focus-window-down; }
+        ${mod}+K { focus-window-up; }
+        ${mod}+L { focus-column-right; }
 
-        # Move to workspace (with focus follow)
-        "${mod}+Shift+1" = "move container to workspace 1; workspace 1";
-        "${mod}+Shift+2" = "move container to workspace 2; workspace 2";
-        "${mod}+Shift+c" = "move container to workspace C; workspace C";
-        "${mod}+Shift+e" = "move container to workspace E; workspace E";
-        "${mod}+Shift+m" = "move container to workspace M; workspace M";
+        // Resize
+        ${mod}+Shift+J { set-column-width "-10%"; }
+        ${mod}+Shift+K { set-column-width "+10%"; }
 
-        # Workspace cycling
-        "${mod}+Tab" = "workspace next_on_output";
-        "${mod}+Shift+Tab" = "workspace prev_on_output";
+        // Maximize / fullscreen
+        ${mod}+F { maximize-column; }
+        ${mod}+Shift+F { fullscreen-window; }
 
-        # Workspace back-and-forth
-        "${mod}+p" = "workspace back_and_forth";
+        // Center column
+        ${mod}+C { center-column; }
 
-        # Fullscreen
-        "${mod}+f" = "fullscreen toggle";
+        // Consume / expel windows into/from column
+        ${mod}+Comma { consume-window-into-column; }
+        ${mod}+Period { expel-window-from-column; }
 
-        # Float toggle
-        "${mod}+v" = "floating toggle";
+        // Column width presets
+        ${mod}+R { switch-preset-column-width; }
 
-        # Layout toggle (tiles h/v)
-        "${mod}+t" = "layout toggle split";
+        // Float toggle
+        ${mod}+V { toggle-window-floating; }
 
-        # Enter move mode
-        "${mod}+x" = "mode move";
+        // Workspaces
+        ${mod}+1 { focus-workspace 1; }
+        ${mod}+2 { focus-workspace 2; }
+        ${mod}+3 { focus-workspace 3; }
+        ${mod}+4 { focus-workspace 4; }
+        ${mod}+5 { focus-workspace 5; }
+        ${mod}+6 { focus-workspace 6; }
+        ${mod}+7 { focus-workspace 7; }
+        ${mod}+8 { focus-workspace 8; }
+        ${mod}+9 { focus-workspace 9; }
 
-        # Enter locked mode (passthrough)
-        "${mod}+g" = "mode locked";
-      };
+        // Move to workspace
+        ${mod}+Shift+1 { move-column-to-workspace 1; }
+        ${mod}+Shift+2 { move-column-to-workspace 2; }
+        ${mod}+Shift+3 { move-column-to-workspace 3; }
+        ${mod}+Shift+4 { move-column-to-workspace 4; }
+        ${mod}+Shift+5 { move-column-to-workspace 5; }
+        ${mod}+Shift+6 { move-column-to-workspace 6; }
+        ${mod}+Shift+7 { move-column-to-workspace 7; }
+        ${mod}+Shift+8 { move-column-to-workspace 8; }
+        ${mod}+Shift+9 { move-column-to-workspace 9; }
 
-      # === Modes ===
-      modes = {
-        move = {
-          "${mod}+h" = "move left";
-          "${mod}+j" = "move down";
-          "${mod}+k" = "move up";
-          "${mod}+l" = "move right";
-          "Escape" = "mode default";
-        };
-        locked = {
-          "${mod}+g" = "mode default";
-        };
-      };
+        // Workspace cycling
+        ${mod}+Tab { focus-workspace-down; }
+        ${mod}+Shift+Tab { focus-workspace-up; }
 
-      # Bars are managed by waybar, not sway's built-in bar
-      bars = [ ];
-    };
+        // Move columns/windows (replaces sway move mode)
+        ${mod}+Ctrl+H { move-column-left; }
+        ${mod}+Ctrl+J { move-window-down; }
+        ${mod}+Ctrl+K { move-window-up; }
+        ${mod}+Ctrl+L { move-column-right; }
 
-    extraSessionCommands = ''
-      export NIXOS_OZONE_WL=1
-      export GDK_BACKEND=wayland
-      export QT_QPA_PLATFORM=wayland
-      export MOZ_ENABLE_WAYLAND=1
+        // Monitor focus
+        ${mod}+Shift+H { focus-monitor-left; }
+        ${mod}+Shift+L { focus-monitor-right; }
+
+        // Move column to monitor
+        ${mod}+Ctrl+Shift+H { move-column-to-monitor-left; }
+        ${mod}+Ctrl+Shift+L { move-column-to-monitor-right; }
+
+        // Volume keys (work when locked)
+        XF86AudioRaiseVolume allow-when-locked=true { spawn "wpctl" "set-volume" "@DEFAULT_AUDIO_SINK@" "0.05+"; }
+        XF86AudioLowerVolume allow-when-locked=true { spawn "wpctl" "set-volume" "@DEFAULT_AUDIO_SINK@" "0.05-"; }
+        XF86AudioMute allow-when-locked=true { spawn "wpctl" "set-mute" "@DEFAULT_AUDIO_SINK@" "toggle"; }
+
+        // Screenshot
+        Print { screenshot; }
+      }
     '';
   };
 
-  # === Rofi App Launcher ===
+  # === Rofi App Launcher (Gruvbox) ===
   xdg.configFile."rofi/config.rasi".text = ''
     configuration {
       modi: "drun,run,window";
@@ -237,267 +205,120 @@ in
     }
 
     * {
-      bg:          #c0c0c0;
-      bg-light:    #d8d8d8;
-      border-col:  #000000;
-      selected:    #000080;
-      fg:          #000000;
-      fg-light:    #ffffff;
+      bg:          #1d2021e6;
+      bg-solid:    #1d2021;
+      bg-alt:      #282828;
+      fg:          #ebdbb2;
+      fg-dim:      #928374;
+      accent:      #fe8019;
+      accent-alt:  #fabd2f;
+      urgent:      #fb4934;
+      border-col:  #504945;
     }
 
     window {
-      width: 400px;
+      width: 480px;
       border: 2px;
       border-color: @border-col;
       background-color: @bg;
-      border-radius: 0px;
+      border-radius: 6px;
+      padding: 0;
     }
 
     mainbox {
-      background-color: @bg;
-      children: [ inputbar, listview ];
+      background-color: transparent;
+      children: [ inputbar, message, listview ];
+      spacing: 0;
     }
 
     inputbar {
-      background-color: @bg;
+      background-color: @bg-alt;
       children: [ prompt, entry ];
-      padding: 6px;
-      border: 0 0 2px 0;
+      padding: 12px 16px;
+      border: 0 0 1px 0;
       border-color: @border-col;
+      border-radius: 6px 6px 0 0;
     }
 
     prompt {
-      background-color: @selected;
-      text-color: @fg-light;
-      padding: 4px 8px;
-      font: "${values.theme.font.monospace} 12";
+      background-color: @accent;
+      text-color: @bg-solid;
+      padding: 6px 12px;
+      border-radius: 4px;
+      font: "${values.theme.font.monospace} 13";
     }
 
     entry {
-      background-color: @bg-light;
+      background-color: transparent;
       text-color: @fg;
-      padding: 4px 8px;
+      padding: 6px 12px;
       placeholder: "Search...";
-      font: "${values.theme.font.monospace} 12";
-      border: 2px solid;
-      border-color: #808080 #ffffff #ffffff #808080;
+      placeholder-color: @fg-dim;
+      font: "${values.theme.font.monospace} 13";
+    }
+
+    message {
+      background-color: transparent;
+      border: 0;
+      padding: 8px 16px;
+    }
+
+    textbox {
+      text-color: @fg-dim;
+      background-color: transparent;
     }
 
     listview {
-      background-color: @bg;
+      background-color: transparent;
       columns: 1;
-      lines: 8;
-      padding: 4px;
-      spacing: 2px;
+      lines: 10;
+      padding: 8px 0;
+      spacing: 0;
+      fixed-height: true;
     }
 
     element {
-      background-color: @bg;
+      background-color: transparent;
       text-color: @fg;
-      padding: 4px 8px;
-      border-radius: 0px;
+      padding: 10px 16px;
+      border-radius: 0;
     }
 
     element selected {
-      background-color: @selected;
-      text-color: @fg-light;
+      background-color: @accent;
+      text-color: @bg-solid;
+    }
+
+    element urgent {
+      text-color: @urgent;
+    }
+
+    element active {
+      text-color: @accent-alt;
     }
 
     element-icon {
-      size: 20px;
+      size: 22px;
       background-color: inherit;
+      padding: 0 8px 0 0;
     }
 
     element-text {
       background-color: inherit;
       text-color: inherit;
-      font: "${values.theme.font.monospace} 12";
+      font: "${values.theme.font.monospace} 13";
+      vertical-align: 0.5;
     }
   '';
 
-  # === Waybar Status Bar ===
-  programs.waybar = {
-    enable = true;
-    systemd.enable = false;
-
-    settings.mainBar = {
-      layer = "top";
-      position = "top";
-      exclusive = true;
-      passthrough = false;
-      height = 28;
-      spacing = 0;
-      margin-top = 0;
-      margin-left = 0;
-      margin-right = 0;
-
-      modules-left = [
-        "custom/logo"
-        "custom/sep"
-        "sway/workspaces"
-      ];
-      modules-center = [ ];
-      modules-right = [
-        "pulseaudio"
-        "network"
-        "cpu"
-        "memory"
-        "clock"
-        "clock#utc"
-        "tray"
-      ];
-
-      "custom/logo" = {
-        format = " Start";
-        tooltip = false;
-        on-click = "${pkgs.rofi}/bin/rofi -show drun -theme ~/.config/rofi/config.rasi";
-      };
-      "custom/sep" = {
-        format = "|";
-        tooltip = false;
-      };
-      "sway/workspaces" = {
-        disable-scroll = true;
-        all-outputs = true;
-        format = "{name}";
-      };
-      clock = {
-        format = "{:%H:%M}";
-        tooltip-format = "<tt>{calendar}</tt>";
-      };
-      "clock#utc" = {
-        format = "{:%H:%M UTC}";
-        timezone = "UTC";
-        tooltip = false;
-      };
-      cpu = {
-        format = " CPU {usage}% ";
-        interval = 2;
-      };
-      memory = {
-        format = " MEM {percentage}% ";
-        interval = 2;
-      };
-      network = {
-        format-wifi = " WiFi ";
-        format-ethernet = " ETH ";
-        format-disconnected = " OFF ";
-      };
-      pulseaudio = {
-        format = " VOL {volume}% ";
-        format-muted = " MUTE ";
-        on-click = "${pkgs.pavucontrol}/bin/pavucontrol";
-      };
-      tray = {
-        spacing = 8;
-      };
-    };
-
-    style = ''
-      * {
-        font-family: "${values.theme.font.monospace}", monospace;
-        font-size: 13px;
-        min-height: 0;
-        padding: 0;
-        margin: 0;
-      }
-      window#waybar {
-        background: #c0c0c0;
-        color: #000000;
-        border-bottom: 1px solid #808080;
-      }
-
-      /* Raised 3D button style (outset bevel) */
-      #custom-logo {
-        padding: 0 8px;
-        margin: 2px 2px;
-        font-weight: bold;
-        color: #000000;
-        background: #c0c0c0;
-        border: 2px solid;
-        border-top-color: #ffffff;
-        border-left-color: #ffffff;
-        border-right-color: #404040;
-        border-bottom-color: #404040;
-      }
-
-      #custom-sep {
-        color: #808080;
-        padding: 0 2px;
-      }
-
-      /* Workspace buttons: raised 3D */
-      #workspaces button {
-        padding: 0 6px;
-        margin: 2px 1px;
-        color: #000000;
-        background: #c0c0c0;
-        border: 2px solid;
-        border-top-color: #ffffff;
-        border-left-color: #ffffff;
-        border-right-color: #404040;
-        border-bottom-color: #404040;
-        border-radius: 0;
-      }
-
-      /* Active workspace: pressed/sunken 3D (inverted bevel) */
-      #workspaces button.focused {
-        background: #000080;
-        color: #ffffff;
-        border-top-color: #404040;
-        border-left-color: #404040;
-        border-right-color: #ffffff;
-        border-bottom-color: #ffffff;
-      }
-
-      /* Sunken field style for status indicators */
-      #clock, #cpu, #memory, #network, #pulseaudio {
-        padding: 0 6px;
-        margin: 2px 1px;
-        background: #c0c0c0;
-        border: 2px solid;
-        border-top-color: #808080;
-        border-left-color: #808080;
-        border-right-color: #ffffff;
-        border-bottom-color: #ffffff;
-      }
-
-      #clock {
-        font-weight: bold;
-      }
-
-      /* System tray: sunken */
-      #tray {
-        padding: 0 6px;
-        margin: 2px 2px;
-        border: 2px solid;
-        border-top-color: #808080;
-        border-left-color: #808080;
-        border-right-color: #ffffff;
-        border-bottom-color: #ffffff;
-        background: #c0c0c0;
-      }
-
-      tooltip {
-        background: #c0c0c0;
-        border: 2px solid #000000;
-        border-radius: 0;
-      }
-      tooltip label {
-        color: #000000;
-        padding: 4px;
-      }
-    '';
-  };
-
-  # === Mako Notifications ===
+  # === Mako Notifications (Gruvbox) ===
   services.mako = {
     enable = true;
     settings = {
       font = "${values.theme.font.monospace} 11";
-      background-color = "#c0c0c0";
-      text-color = "#000000";
-      border-color = "#000000";
+      background-color = "#1d2021";
+      text-color = "#ebdbb2";
+      border-color = "#504945";
       border-size = 2;
       border-radius = 0;
       padding = "15";

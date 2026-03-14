@@ -27,7 +27,9 @@
     name = "Gruvbox Material";
     id = "gruvbox";
     variants = [
-      "dark"
+      "dark-soft"
+      "dark-medium"
+      "dark-hard"
       "light"
     ];
     supports = [
@@ -36,7 +38,7 @@
     ];
     appearanceMapping = {
       light = "light";
-      dark = "dark";
+      dark = "dark-hard";
     };
     author = "sainnhe";
     homepage = "https://github.com/sainnhe/gruvbox-material";
@@ -85,22 +87,4 @@
     homepage = "https://github.com/sainnhe/everforest";
   };
 
-  windows-95 = {
-    name = "Windows 95";
-    id = "windows-95";
-    variants = [
-      "light"
-      "dark"
-    ];
-    supports = [
-      "light"
-      "dark"
-    ];
-    appearanceMapping = {
-      light = "light";
-      dark = "dark";
-    };
-    author = "Fergus Collins";
-    homepage = "https://github.com/tinted-theming/base16-schemes";
-  };
 }

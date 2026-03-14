@@ -11,7 +11,9 @@ let
     "rose-pine-dawn" = "rose-pine-dawn";
 
     # Gruvbox - variants map to base16 schemes
-    "gruvbox-dark" = "gruvbox-dark-hard";
+    "gruvbox-dark-soft" = "gruvbox-dark-soft";
+    "gruvbox-dark-medium" = "gruvbox-dark-medium";
+    "gruvbox-dark-hard" = "gruvbox-dark-hard";
     "gruvbox-light" = "gruvbox-light-hard";
 
     "nord-default" = "nord";

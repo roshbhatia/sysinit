@@ -37,4 +37,9 @@ in
       };
     };
   };
+
+  fonts.packages = [
+    pkgs.ioskeleyMono
+    pkgs.nerd-fonts.symbols-only
+  ];
 }

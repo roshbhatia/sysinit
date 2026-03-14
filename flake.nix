@@ -61,6 +61,23 @@
       url = "github:fufexan/nix-gaming";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    # Niri scrollable tiling Wayland compositor
+    niri-flake = {
+      url = "github:sodiboo/niri-flake";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    # Quickshell QML-based Wayland shell toolkit
+    quickshell = {
+      url = "git+https://git.outfoxxed.me/outfoxxed/quickshell";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    # Mozilla Firefox overlay
+    nixpkgs-mozilla = {
+      url = "github:mozilla/nixpkgs-mozilla";
+    };
   };
 
   outputs =

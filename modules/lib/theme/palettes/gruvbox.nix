@@ -2,6 +2,68 @@
 
 let
   utils = import ../core/utils.nix { inherit lib; };
+
+  # Shared accent colors across all dark variants
+  darkAccents = {
+    fg0 = "#fdf4c1";
+    fg1 = "#ebdbb2";
+    fg2 = "#d5c4a1";
+    fg3 = "#bdae93";
+    fg4 = "#a89984";
+
+    gray = "#928374";
+
+    red = "#ea6962";
+    green = "#a9b665";
+    yellow = "#d8b356";
+    blue = "#7daea3";
+    purple = "#d3869b";
+    aqua = "#89b482";
+    orange = "#e78a4e";
+
+    neutral_red = "#c14a4a";
+    neutral_green = "#8b9d2f";
+    neutral_yellow = "#b8860b";
+    neutral_blue = "#458588";
+    neutral_purple = "#b16286";
+    neutral_aqua = "#689d6a";
+
+    dark_red = "#421e1e";
+    dark_green = "#2d3319";
+    dark_yellow = "#4e3e1e";
+    dark_blue = "#2d4650";
+    dark_purple = "#4a3650";
+    dark_aqua = "#36473a";
+  };
+
+  mkDarkPalette =
+    { bg0_h, bg0, bg0_s }:
+    utils.validatePalette (
+      rec {
+        inherit bg0_h bg0 bg0_s;
+        bg1 = "#3c3836";
+        bg2 = "#504945";
+        bg3 = "#665c54";
+        bg4 = "#7c6f64";
+
+        base = bg0;
+        bg = bg0;
+        bg_alt = bg0_h;
+        surface = bg1;
+        surface_alt = bg2;
+        text = darkAccents.fg1;
+        subtext1 = darkAccents.fg2;
+        subtext0 = darkAccents.fg3;
+        fg = darkAccents.fg1;
+        fg_alt = darkAccents.fg2;
+        comment = darkAccents.gray;
+        cyan = darkAccents.aqua;
+        teal = darkAccents.aqua;
+        accent = darkAccents.blue;
+        accent_dim = bg1;
+      }
+      // darkAccents
+    );
 in
 
 {
@@ -9,7 +71,9 @@ in
     name = "Gruvbox Material";
     id = "gruvbox";
     variants = [
-      "dark"
+      "dark-soft"
+      "dark-medium"
+      "dark-hard"
       "light"
     ];
     supports = [
@@ -18,69 +82,29 @@ in
     ];
     appearanceMapping = {
       light = "light";
-      dark = "dark";
+      dark = "dark-hard";
     };
     author = "sainnhe";
     homepage = "https://github.com/sainnhe/gruvbox-material";
   };
 
   palettes = {
-    dark = utils.validatePalette rec {
-      # Gruvbox Material Dark (medium contrast)
-      bg0_h = "#202020";
+    dark-soft = mkDarkPalette {
+      bg0_h = "#32302f";
+      bg0 = "#32302f";
+      bg0_s = "#32302f";
+    };
+
+    dark-medium = mkDarkPalette {
+      bg0_h = "#282828";
       bg0 = "#282828";
       bg0_s = "#32302f";
-      bg1 = "#3a3a3a";
-      bg2 = "#45403d";
-      bg3 = "#524f45";
-      bg4 = "#5a5047";
+    };
 
-      fg0 = "#fdf4c1";
-      fg1 = "#ebdbb2";
-      fg2 = "#d5c4a1";
-      fg3 = "#bdae93";
-      fg4 = "#a89984";
-
-      gray = "#928374";
-
-      # Material-inspired colors (warmer, more muted)
-      red = "#ea6962";
-      green = "#a9b665";
-      yellow = "#d8b356";
-      blue = "#7daea3";
-      purple = "#d3869b";
-      aqua = "#89b482";
-      orange = "#e78a4e";
-
-      neutral_red = "#c14a4a";
-      neutral_green = "#8b9d2f";
-      neutral_yellow = "#b8860b";
-      neutral_blue = "#458588";
-      neutral_purple = "#b16286";
-      neutral_aqua = "#689d6a";
-
-      dark_red = "#421e1e";
-      dark_green = "#2d3319";
-      dark_yellow = "#4e3e1e";
-      dark_blue = "#2d4650";
-      dark_purple = "#4a3650";
-      dark_aqua = "#36473a";
-
-      base = bg0;
-      bg = bg0;
-      bg_alt = bg0_h;
-      surface = bg1;
-      surface_alt = bg2;
-      text = fg1;
-      subtext1 = fg2;
-      subtext0 = fg3;
-      fg = fg1;
-      fg_alt = fg2;
-      comment = gray;
-      cyan = aqua;
-      teal = aqua;
-      accent = blue;
-      accent_dim = bg1;
+    dark-hard = mkDarkPalette {
+      bg0_h = "#1d2021";
+      bg0 = "#1d2021";
+      bg0_s = "#32302f";
     };
 
     light = utils.validatePalette rec {
@@ -101,7 +125,6 @@ in
 
       gray = "#8d7c6e";
 
-      # Material-inspired colors for light (warm, slightly desaturated)
       red = "#c14a4a";
       green = "#8b9d2f";
       yellow = "#b8860b";

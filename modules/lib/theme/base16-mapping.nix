@@ -12,7 +12,9 @@ in
   };
 
   gruvbox = {
-    dark = "${schemesPath}/gruvbox-dark-hard.yaml";
+    dark-soft = "${schemesPath}/gruvbox-dark-soft.yaml";
+    dark-medium = "${schemesPath}/gruvbox-dark-medium.yaml";
+    dark-hard = "${schemesPath}/gruvbox-dark-hard.yaml";
     light = "${schemesPath}/gruvbox-light-hard.yaml";
   };
 
@@ -31,8 +33,4 @@ in
     light-hard = "${customPath}/everforest-light-hard.yaml";
   };
 
-  windows-95 = {
-    light = "${schemesPath}/windows-95-light.yaml";
-    dark = "${schemesPath}/windows-95.yaml";
-  };
 }

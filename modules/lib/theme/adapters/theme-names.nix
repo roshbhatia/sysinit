@@ -12,7 +12,9 @@ let
         moon = "Rosé Pine Moon (base16)";
       };
       gruvbox = {
-        dark = "Gruvbox Material (Gogh)";
+        dark-soft = "Gruvbox Material (Gogh)";
+        dark-medium = "Gruvbox Material (Gogh)";
+        dark-hard = "Gruvbox Material (Gogh)";
         light = "Gruvbox light, hard (base16)";
       };
       everforest = {
@@ -22,10 +24,6 @@ let
         light-hard = "Everforest Light Hard (Gogh)";
         light-medium = "Everforest Light (Gogh)";
         light-soft = "Everforest Light Soft (Gogh)";
-      };
-      "windows-95" = {
-        light = "Windows 95 Light (base16)";
-        dark = "Windows 95 (base16)";
       };
     };
   };
