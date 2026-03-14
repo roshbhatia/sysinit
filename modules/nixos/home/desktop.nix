@@ -68,9 +68,7 @@ in
       center-focused-column "on-overflow"
 
       focus-ring {
-        width 2
-        active-color "#83a598"
-        inactive-color "#665c54"
+        off
       }
 
       border {
@@ -85,6 +83,16 @@ in
         color "#00000050"
         inactive-color "#00000030"
       }
+    }
+
+    // Dim unfocused windows to indicate focus (instead of border/ring)
+    window-rule {
+      opacity 1.0
+      draw-border-with-background false
+    }
+    window-rule {
+      match is-focused=false
+      opacity 0.88
 
       preset-column-widths {
         proportion 0.33333
