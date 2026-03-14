@@ -59,6 +59,8 @@ in
 
     // ── Cursor ──
     cursor {
+      xcursor-theme "Bibata-Modern-Classic"
+      xcursor-size 24
       hide-when-typing
       hide-after-inactive-ms 10000
     }
@@ -75,8 +77,8 @@ in
 
       border {
         width 2
-        active-color "#83a598"
-        inactive-color "#3c3836"
+        active-gradient from="#83a598" to="#fe8019" angle=45
+        inactive-color "#3c383600"
       }
 
       shadow {
@@ -131,22 +133,38 @@ in
       clip-to-geometry true
     }
 
-    // Opacity: focused slightly transparent, unfocused more so
+    // ── Opacity ──
+    // Default: slightly transparent focused, more so unfocused
     window-rule {
-      opacity 0.95
+      opacity 0.92
     }
     window-rule {
       match is-focused=false
-      opacity 0.82
+      opacity 0.78
     }
 
-    // WezTerm fix: let it set its own initial width (niri bug workaround)
+    // Terminals: more transparent so wallpaper shows through
     window-rule {
       match app-id=r#"^org\.wezfurlong\.wezterm$"#
+      opacity 0.88
       default-column-width {}
     }
+    window-rule {
+      match app-id=r#"^org\.wezfurlong\.wezterm$"# is-focused=false
+      opacity 0.72
+    }
 
-    // Floating windows
+    // Browsers and media: full opacity
+    window-rule {
+      match app-id="^firefox$"
+      opacity 1.0
+    }
+    window-rule {
+      match app-id="^firefox$" is-focused=false
+      opacity 0.90
+    }
+
+    // ── Floating windows ──
     window-rule {
       match title="^Picture-in-Picture$"
       open-floating true
@@ -451,13 +469,25 @@ in
     '';
   };
 
-  # === GTK / Icon Theme ===
+  # === GTK / Icon / Cursor Theme ===
   gtk = {
     enable = true;
     iconTheme = {
       name = "Papirus-Dark";
       package = pkgs.papirus-icon-theme;
     };
+    cursorTheme = {
+      name = "Bibata-Modern-Classic";
+      package = pkgs.bibata-cursors;
+      size = 24;
+    };
+  };
+
+  home.pointerCursor = {
+    name = "Bibata-Modern-Classic";
+    package = pkgs.bibata-cursors;
+    size = 24;
+    gtk.enable = true;
   };
 
   # === Wallpaper ===

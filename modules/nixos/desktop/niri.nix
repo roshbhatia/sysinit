@@ -51,10 +51,14 @@ in
     pkgs.waybar
     pkgs.firefox
     pkgs.papirus-icon-theme
+    pkgs.bibata-cursors
   ];
 
-  # Icon theme for rofi and GTK apps
-  environment.sessionVariables.XCURSOR_THEME = "Adwaita";
+  # Cursor and icon theme
+  environment.sessionVariables = {
+    XCURSOR_THEME = "Bibata-Modern-Classic";
+    XCURSOR_SIZE = "24";
+  };
 
   # Allow niri to run as a session
   security.polkit.enable = true;

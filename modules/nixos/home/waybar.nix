@@ -44,7 +44,7 @@
       };
 
       "niri/window" = {
-        format = "{title}";
+        format = "{}";
         icon = true;
         icon-size = 16;
         rewrite = {
@@ -56,40 +56,42 @@
 
       clock = {
         format = "{:%I:%M %p}";
-        format-alt = "{:%Y-%m-%d %H:%M UTC}";
+        format-alt = "{:%a %b %d · %H:%M UTC}";
         tooltip-format = "<tt>{calendar}</tt>";
-        timezone = "America/Los_Angeles";
       };
 
       cpu = {
         format = "  {usage}%";
         interval = 5;
+        tooltip = false;
       };
 
       memory = {
         format = "  {percentage}%";
         interval = 5;
+        tooltip = false;
       };
 
       network = {
-        format-wifi = "  {essid}";
-        format-ethernet = "󰈁";
-        format-disconnected = "󰖪";
-        tooltip-format = "{ifname}: {ipaddr}/{cidr}";
+        format-wifi = "  {signalStrength}%";
+        format-ethernet = "󰈁  {ifname}";
+        format-disconnected = "󰖪  off";
+        tooltip-format = "{ifname}: {ipaddr}/{cidr}\n{essid} ({signalStrength}%)";
       };
 
       pulseaudio = {
-        format = "{icon} {volume}%";
-        format-muted = "󰸈 muted";
+        format = "{icon}  {volume}%";
+        format-muted = "󰸈  mute";
         format-icons = {
           default = [ "󰕿" "󰖀" "󰕾" ];
         };
         on-click = "${pkgs.pavucontrol}/bin/pavucontrol";
+        tooltip = false;
       };
 
       tray = {
         spacing = 8;
-        icon-size = 16;
+        icon-size = 14;
       };
     };
 
@@ -100,16 +102,17 @@
         min-height: 0;
       }
 
+      /* ── Bar frame: floating island ── */
       window#waybar {
         background-color: transparent;
         color: #ebdbb2;
       }
 
       window#waybar > box {
-        background-color: #1d2021;
+        background-color: rgba(29, 32, 33, 0.90);
         border-radius: 10px;
-        border: 1px solid #3c383680;
-        padding: 0 4px;
+        border: 1px solid rgba(60, 56, 54, 0.4);
+        padding: 0 6px;
       }
 
       tooltip {
@@ -119,18 +122,24 @@
         color: #ebdbb2;
       }
 
+      tooltip label {
+        color: #ebdbb2;
+        padding: 4px;
+      }
+
       /* ── Workspaces ── */
       #workspaces {
-        padding: 0 4px;
+        padding: 0 2px;
       }
 
       #workspaces button {
         color: #504945;
-        padding: 0 6px;
+        padding: 0 5px;
+        margin: 4px 1px;
         border-radius: 6px;
         background: transparent;
         border: none;
-        transition: all 0.15s ease;
+        transition: all 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
       }
 
       #workspaces button.active {
@@ -139,40 +148,49 @@
 
       #workspaces button.focused {
         color: #fabd2f;
-        background-color: #3c383660;
+        background-color: rgba(60, 56, 54, 0.5);
       }
 
       #workspaces button:hover {
         color: #ebdbb2;
-        background-color: #3c383640;
+        background-color: rgba(60, 56, 54, 0.3);
       }
 
-      /* ── Window Title ── */
+      /* ── Window Title (center) ── */
       #window {
         color: #a89984;
-        padding: 0 12px;
+        padding: 0 14px;
+        font-size: 11px;
       }
 
       window#waybar.empty #window {
         background-color: transparent;
         padding: 0;
+        min-width: 0;
       }
 
-      /* ── Right modules ── */
+      /* ── Right modules: muted by default ── */
       #clock,
       #cpu,
       #memory,
       #network,
       #pulseaudio,
+      #battery,
       #tray {
         padding: 0 8px;
+        margin: 4px 0;
         color: #928374;
+        border-radius: 6px;
+        transition: all 0.2s ease;
       }
 
+      /* Clock stands out */
       #clock {
         color: #ebdbb2;
+        padding: 0 10px;
       }
 
+      /* Each module gets its own gruvbox accent on hover */
       #pulseaudio {
         color: #d3869b;
       }
@@ -189,8 +207,26 @@
         color: #d3869b;
       }
 
+      #battery {
+        color: #b8bb26;
+      }
+
+      #battery.warning {
+        color: #fabd2f;
+      }
+
+      #battery.critical {
+        color: #fb4934;
+        animation: blink 1s steps(2) infinite;
+      }
+
+      @keyframes blink {
+        to { color: #ebdbb2; }
+      }
+
+      /* Tray */
       #tray {
-        padding: 0 4px;
+        padding: 0 6px;
       }
 
       #tray > .passive {
