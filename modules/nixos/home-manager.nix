@@ -34,10 +34,7 @@ in
 
           ../home
         ]
-        ++ lib.optional (values.isDesktop) ./home/desktop.nix
-        ++ lib.optionals (values.isDesktop && inputs ? mangowc) [
-          inputs.mangowc.hmModules.mango
-        ];
+        ++ lib.optional (values.isDesktop) ./home/desktop.nix;
 
         # NixOS systems use the nix-managed home directory
         home.homeDirectory =

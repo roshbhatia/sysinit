@@ -85,6 +85,7 @@
     terminus_font
     nerd-fonts.terminess-ttf
     fixedsys-excelsior
+    maple-mono.NF
   ];
 
   system.stateVersion = lib.mkDefault "25.11";

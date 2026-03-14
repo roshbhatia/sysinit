@@ -89,10 +89,10 @@ in
       git = linuxGit;
       theme = {
         colorscheme = "windows-95";
-        variant = "dark";
-        appearance = "dark";
+        variant = "light";
+        appearance = "light";
         font = {
-          monospace = "Fixedsys Excelsior 3.01";
+          monospace = "DepartureMono Nerd Font";
         };
       };
     };

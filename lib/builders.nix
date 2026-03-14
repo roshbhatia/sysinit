@@ -18,7 +18,6 @@ in
       home-manager,
       stylix,
       onepassword-shell-plugins,
-      mangowc ? null,
       nix-gaming ? null,
       mkPkgs,
       mkUtils,
@@ -69,7 +68,6 @@ in
         inherit
           home-manager
           stylix
-          mangowc
           nix-gaming
           ;
       } commonArgs;

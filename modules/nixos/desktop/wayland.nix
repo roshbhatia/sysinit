@@ -1,38 +1,44 @@
-{ pkgs, inputs, ... }:
+{ pkgs, ... }:
 
 let
-  mangoPackage = inputs.mangowc.packages.${pkgs.system}.default;
-
-  mangoWrapper = pkgs.writeShellScriptBin "mango-wrapped" ''
+  hyprlandWrapped = pkgs.writeShellScriptBin "hyprland-wrapped" ''
     set -euo pipefail
-    # Update activation environment for dbus and systemd
-    ${pkgs.dbus}/bin/dbus-update-activation-environment --systemd --all
-    
-    # Signal that the session is up
-    ${pkgs.systemd}/bin/systemctl --user start mango-session.target
 
-    # Start the compositor
-    exec ${mangoPackage}/bin/mango "''${@}"
+    export WLR_NO_HARDWARE_CURSORS=1
+    export XDG_CURRENT_DESKTOP=Hyprland
+    export XDG_SESSION_TYPE=wayland
+
+    ${pkgs.dbus}/bin/dbus-update-activation-environment --systemd --all || true
+
+    exec ${pkgs.hyprland}/bin/Hyprland "$@"
   '';
 in
 {
-  # Disable X server, enable dbus
   services.xserver.enable = false;
   services.dbus.enable = true;
 
-  environment.sessionVariables = {
-    WLR_NO_HARDWARE_CURSORS = "1";
-    XDG_CURRENT_DESKTOP = "mango";
+  programs.hyprland = {
+    enable = true;
+    xwayland.enable = true;
   };
 
-  # Make the wrapper available system-wide
+  xdg.portal = {
+    enable = true;
+    extraPortals = [ pkgs.xdg-desktop-portal-hyprland ];
+  };
+
+  environment.sessionVariables = {
+    WLR_NO_HARDWARE_CURSORS = "1";
+    XDG_CURRENT_DESKTOP = "Hyprland";
+  };
+
   environment.systemPackages = with pkgs; [
-    mangoWrapper
-    swww # Wallpaper daemon
-    waybar # Status bar
-    fuzzel # App launcher
-    mako # Notification daemon
-    nemo # File manager
-    pavucontrol # Audio control
+    hyprlandWrapped
+    swww
+    waybar
+    rofi
+    mako
+    nemo
+    pavucontrol
   ];
 }
