@@ -1,10 +1,14 @@
 # Waybar status bar for niri
 {
+  config,
   pkgs,
   values,
   ...
 }:
 
+let
+  c = config.lib.stylix.colors;
+in
 {
   programs.waybar = {
     enable = true;
@@ -105,25 +109,25 @@
       /* ── Bar frame: floating island ── */
       window#waybar {
         background-color: transparent;
-        color: #ebdbb2;
+        color: #${c.base06};
       }
 
       window#waybar > box {
-        background-color: rgba(29, 32, 33, 0.90);
+        background-color: rgba(${c.base00-rgb-r}, ${c.base00-rgb-g}, ${c.base00-rgb-b}, 0.90);
         border-radius: 10px;
-        border: 1px solid rgba(60, 56, 54, 0.4);
+        border: 1px solid rgba(${c.base01-rgb-r}, ${c.base01-rgb-g}, ${c.base01-rgb-b}, 0.4);
         padding: 0 6px;
       }
 
       tooltip {
-        background-color: #282828;
-        border: 1px solid #504945;
+        background-color: #${c.base01};
+        border: 1px solid #${c.base02};
         border-radius: 8px;
-        color: #ebdbb2;
+        color: #${c.base06};
       }
 
       tooltip label {
-        color: #ebdbb2;
+        color: #${c.base06};
         padding: 4px;
       }
 
@@ -133,7 +137,7 @@
       }
 
       #workspaces button {
-        color: #504945;
+        color: #${c.base02};
         padding: 0 5px;
         margin: 4px 1px;
         border-radius: 6px;
@@ -143,18 +147,18 @@
       }
 
       #workspaces button.active {
-        color: #fabd2f;
-        background-color: rgba(60, 56, 54, 0.5);
+        color: #${c.base0A};
+        background-color: rgba(${c.base01-rgb-r}, ${c.base01-rgb-g}, ${c.base01-rgb-b}, 0.5);
       }
 
       #workspaces button:hover {
-        color: #ebdbb2;
-        background-color: rgba(60, 56, 54, 0.3);
+        color: #${c.base06};
+        background-color: rgba(${c.base01-rgb-r}, ${c.base01-rgb-g}, ${c.base01-rgb-b}, 0.3);
       }
 
       /* ── Window Title (center) ── */
       #window {
-        color: #a89984;
+        color: #${c.base04};
         padding: 0 14px;
         font-size: 11px;
       }
@@ -165,42 +169,39 @@
         min-width: 0;
       }
 
-      /* ── Right modules: muted by default ── */
+      /* ── Right modules ── */
       #clock,
       #cpu,
       #memory,
       #network,
       #pulseaudio,
-      #battery,
       #tray {
         padding: 0 8px;
         margin: 4px 0;
-        color: #928374;
+        color: #${c.base04};
         border-radius: 6px;
         transition: all 0.2s ease;
       }
 
-      /* Clock stands out */
       #clock {
-        color: #ebdbb2;
+        color: #${c.base06};
         padding: 0 10px;
       }
 
-      /* Each module gets its own gruvbox accent on hover */
       #pulseaudio {
-        color: #d3869b;
+        color: #${c.base0E};
       }
 
       #network {
-        color: #83a598;
+        color: #${c.base0D};
       }
 
       #cpu {
-        color: #8ec07c;
+        color: #${c.base0C};
       }
 
       #memory {
-        color: #d3869b;
+        color: #${c.base0E};
       }
 
       /* Tray */

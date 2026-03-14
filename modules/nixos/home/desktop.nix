@@ -8,7 +8,7 @@
 }:
 
 let
-  colors = config.lib.stylix.colors;
+  c = config.lib.stylix.colors; # base16 palette
 
   wallpaper = pkgs.fetchurl {
     url = "https://images2.alphacoders.com/140/1406218.png";
@@ -77,8 +77,8 @@ in
 
       border {
         width 2
-        active-gradient from="#83a598" to="#fe8019" angle=45
-        inactive-color "#3c383600"
+        active-gradient from="#${c.base0D}" to="#${c.base09}" angle=45
+        inactive-color "#${c.base01}00"
       }
 
       shadow {
@@ -134,7 +134,6 @@ in
     }
 
     // ── Opacity ──
-    // Default: slightly transparent focused, more so unfocused
     window-rule {
       opacity 0.92
     }
@@ -188,7 +187,7 @@ in
     screenshot-path "~/Pictures/Screenshots/Screenshot from %Y-%m-%d %H-%M-%S.png"
 
     overview {
-      backdrop-color "#1d2021"
+      backdrop-color "#${c.base00}"
     }
 
     hotkey-overlay {
@@ -298,7 +297,7 @@ in
     }
   '';
 
-  # === Rofi App Launcher (Gruvbox) ===
+  # === Rofi App Launcher ===
   xdg.configFile."rofi/config.rasi".text = ''
     configuration {
       modi: "drun,run,window";
@@ -332,17 +331,17 @@ in
     }
 
     * {
-      bg:             #1d2021cc;
-      bg-solid:       #1d2021;
-      bg-entry:       #28282800;
-      bg-selected:    #3c383680;
-      fg:             #ebdbb2;
-      fg-dim:         #928374;
-      fg-placeholder: #665c54;
-      accent:         #fe8019;
-      urgent:         #fb4934;
-      green:          #b8bb26;
-      border-col:     #50494580;
+      bg:             #${c.base00}cc;
+      bg-solid:       #${c.base00};
+      bg-entry:       #${c.base01}00;
+      bg-selected:    #${c.base01}80;
+      fg:             #${c.base06};
+      fg-dim:         #${c.base04};
+      fg-placeholder: #${c.base03};
+      accent:         #${c.base09};
+      urgent:         #${c.base08};
+      green:          #${c.base0B};
+      border-col:     #${c.base02}80;
       none:           transparent;
       font:           "${values.theme.font.monospace} 13";
     }
@@ -452,14 +451,14 @@ in
     }
   '';
 
-  # === Mako Notifications (Gruvbox) ===
+  # === Mako Notifications ===
   services.mako = {
     enable = true;
     settings = {
       font = "${values.theme.font.monospace} 11";
-      background-color = "#1d2021";
-      text-color = "#ebdbb2";
-      border-color = "#504945";
+      background-color = "#${c.base00}";
+      text-color = "#${c.base06}";
+      border-color = "#${c.base02}";
       border-size = 2;
       border-radius = 8;
       padding = "15";
@@ -472,10 +471,10 @@ in
 
     extraConfig = ''
       [urgency=low]
-      border-color=#${colors.base03}
+      border-color=#${c.base03}
 
       [urgency=high]
-      border-color=#${colors.base08}
+      border-color=#${c.base08}
       default-timeout=0
     '';
   };
