@@ -30,10 +30,9 @@ Row {
 
     Text {
         text: localTime
-        color: Theme.text
+        color: Theme.textMuted
         font.family: Theme.fontFamily
         font.pixelSize: Theme.fontSize
-        font.bold: true
         anchors.verticalCenter: parent.verticalCenter
     }
 

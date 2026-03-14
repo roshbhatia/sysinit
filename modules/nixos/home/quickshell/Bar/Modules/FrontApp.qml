@@ -53,7 +53,7 @@ Row {
 
     Text {
         text: parent.icon
-        color: Theme.textDim
+        color: Theme.text
         font.family: Theme.iconFont
         font.pixelSize: Theme.iconSize
         anchors.verticalCenter: parent.verticalCenter
@@ -72,7 +72,7 @@ Row {
                 name = name.substring(0, 18) + "…"
             return name
         }
-        color: Theme.textDim
+        color: Theme.text
         font.family: Theme.fontFamily
         font.pixelSize: Theme.fontSize
         anchors.verticalCenter: parent.verticalCenter

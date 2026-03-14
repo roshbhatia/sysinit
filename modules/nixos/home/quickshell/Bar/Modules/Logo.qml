@@ -3,7 +3,7 @@ import qs.Theme
 
 Text {
     text: "\uf1105"
-    color: Theme.blue
+    color: Theme.textMuted
     font.family: Theme.iconFont
     font.pixelSize: Theme.iconSize
     verticalAlignment: Text.AlignVCenter

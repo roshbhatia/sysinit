@@ -23,7 +23,7 @@ Row {
 
     Text {
         text: vol.icon
-        color: vol.muted ? Theme.textMuted : Theme.text
+        color: vol.muted ? Theme.border : Theme.textMuted
         font.family: Theme.iconFont
         font.pixelSize: Theme.iconSize
         anchors.verticalCenter: parent.verticalCenter
@@ -31,7 +31,7 @@ Row {
 
     Text {
         text: vol.pct + "%"
-        color: vol.muted ? Theme.textMuted : Theme.text
+        color: vol.muted ? Theme.border : Theme.textMuted
         font.family: Theme.fontFamily
         font.pixelSize: Theme.fontSize
         anchors.verticalCenter: parent.verticalCenter
