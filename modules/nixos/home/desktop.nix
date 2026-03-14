@@ -83,16 +83,6 @@ in
         color "#00000050"
         inactive-color "#00000030"
       }
-    }
-
-    // Dim unfocused windows to indicate focus (instead of border/ring)
-    window-rule {
-      opacity 1.0
-      draw-border-with-background false
-    }
-    window-rule {
-      match is-focused=false
-      opacity 0.88
 
       preset-column-widths {
         proportion 0.33333
@@ -103,6 +93,16 @@ in
       default-column-width {
         proportion 0.5
       }
+    }
+
+    // Dim unfocused windows to indicate focus (instead of border/ring)
+    window-rule {
+      opacity 1.0
+      draw-border-with-background false
+    }
+    window-rule {
+      match is-focused=false
+      opacity 0.88
     }
 
     prefer-no-csd
