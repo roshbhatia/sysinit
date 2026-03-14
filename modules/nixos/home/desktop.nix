@@ -107,11 +107,11 @@ in
         spring damping-ratio=0.85 stiffness=1000 epsilon=0.0001
       }
       window-open {
-        duration-ms=200
+        duration-ms 200
         curve "ease-out-expo"
       }
       window-close {
-        duration-ms=100
+        duration-ms 100
         curve "ease-out-quad"
       }
       horizontal-view-movement {
@@ -201,6 +201,8 @@ in
     spawn-at-startup "${pkgs.waybar}/bin/waybar"
     spawn-at-startup "${pkgs.mako}/bin/mako"
     spawn-at-startup "nm-applet" "--indicator"
+    spawn-at-startup "${pkgs.polkit_gnome}/libexec/polkit-gnome-authentication-agent-1"
+    spawn-at-startup "${pkgs.wl-clipboard}/bin/wl-paste" "--watch" "${pkgs.cliphist}/bin/cliphist" "store"
 
     // ── Key Bindings ──
     binds {
@@ -280,6 +282,15 @@ in
       Print hotkey-overlay-title="Screenshot" { screenshot; }
       Alt+Print { screenshot-screen; }
       Alt+Shift+Print { screenshot-window; }
+
+      // Log out (back to login screen, like macOS)
+      Super+Ctrl+Q hotkey-overlay-title="Log Out" { quit skip-confirmation=true; }
+
+      // Clipboard history
+      Super+V hotkey-overlay-title="Clipboard History" { spawn "sh" "-c" "${pkgs.cliphist}/bin/cliphist list | ${pkgs.rofi}/bin/rofi -dmenu -theme ${config.xdg.configHome}/rofi/config.rasi | ${pkgs.cliphist}/bin/cliphist decode | ${pkgs.wl-clipboard}/bin/wl-copy"; }
+
+      // Power off monitors
+      Super+Shift+P hotkey-overlay-title="Monitors Off" { power-off-monitors; }
 
       // Overview + cheatsheet
       Super+Tab hotkey-overlay-title="Overview" { toggle-overview; }

@@ -93,6 +93,13 @@
     maple-mono.NF
   ];
 
+  # Console font (TTY + tuigreet)
+  console = {
+    font = "ter-v20n"; # Terminus 20px — clean, readable, matches monospace aesthetic
+    packages = [ pkgs.terminus_font ];
+    earlySetup = true;
+  };
+
   system.stateVersion = lib.mkDefault "25.11";
 
   # Localisation

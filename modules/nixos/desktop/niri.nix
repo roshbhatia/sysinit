@@ -23,7 +23,6 @@ in
   services.xserver.enable = false;
   services.dbus.enable = true;
 
-  # Enable xwayland via the niri-flake's xwayland-satellite
   programs.xwayland.enable = true;
 
   xdg.portal = {
@@ -35,30 +34,58 @@ in
   environment.sessionVariables = {
     WLR_NO_HARDWARE_CURSORS = "1";
     XDG_CURRENT_DESKTOP = "niri";
+    XCURSOR_THEME = "Bibata-Modern-Classic";
+    XCURSOR_SIZE = "24";
   };
 
   environment.systemPackages = [
+    # Compositor
     niriPkg
     niriWrapped
     inputs.niri-flake.packages.${pkgs.system}.xwayland-satellite-unstable
+
+    # Bar + launcher + notifications
+    pkgs.waybar
     pkgs.rofi
     pkgs.mako
-    pkgs.nemo
-    pkgs.pavucontrol
-    pkgs.wl-clipboard
-    pkgs.swaylock
+
+    # Wallpaper
     pkgs.swaybg
-    pkgs.waybar
+
+    # File management
+    pkgs.nemo
+
+    # Browser
     pkgs.firefox
+
+    # Communication
+    pkgs.vesktop # Discord (native Wayland, screen sharing works)
+
+    # Music
+    pkgs.cider # Apple Music client
+
+    # Media viewers
+    pkgs.mpv # Video/audio player
+    pkgs.imv # Image viewer (Wayland-native)
+    (pkgs.zathura.override { plugins = [ pkgs.zathuraPkgs.zathura_pdf_mupdf ]; }) # PDF viewer
+
+    # Audio control
+    pkgs.pavucontrol
+
+    # Clipboard
+    pkgs.wl-clipboard
+    pkgs.cliphist
+
+    # Authentication
+    pkgs.polkit_gnome
+
+    # Theming
     pkgs.papirus-icon-theme
     pkgs.bibata-cursors
   ];
 
-  # Cursor and icon theme
-  environment.sessionVariables = {
-    XCURSOR_THEME = "Bibata-Modern-Classic";
-    XCURSOR_SIZE = "24";
-  };
+  # PAM for swaylock (kept as fallback even though we prefer logout)
+  security.pam.services.swaylock = { };
 
   # Allow niri to run as a session
   security.polkit.enable = true;

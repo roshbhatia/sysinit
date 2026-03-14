@@ -143,10 +143,6 @@
       }
 
       #workspaces button.active {
-        color: #fe8019;
-      }
-
-      #workspaces button.focused {
         color: #fabd2f;
         background-color: rgba(60, 56, 54, 0.5);
       }
@@ -205,23 +201,6 @@
 
       #memory {
         color: #d3869b;
-      }
-
-      #battery {
-        color: #b8bb26;
-      }
-
-      #battery.warning {
-        color: #fabd2f;
-      }
-
-      #battery.critical {
-        color: #fb4934;
-        animation: blink 1s steps(2) infinite;
-      }
-
-      @keyframes blink {
-        to { color: #ebdbb2; }
       }
 
       /* Tray */
