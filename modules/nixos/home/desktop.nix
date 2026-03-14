@@ -1,4 +1,4 @@
-# NixOS desktop home-manager configuration: hyprland, waybar, rofi, mako, nemo
+# NixOS desktop home-manager configuration: sway, waybar, rofi, mako, nemo
 {
   config,
   lib,
@@ -11,170 +11,217 @@ let
   colors = config.lib.stylix.colors;
 
   wallpaper = pkgs.fetchurl {
-    url = "https://images5.alphacoders.com/759/thumb-1920-759307.jpg";
-    sha256 = "0ihk74jv5yrfzqzdsjmiwlsnmdai6gf15pl5hh8nvmvhqndg0x2q";
+    url = "https://raw.githubusercontent.com/diinki/linux-retroism/main/wallpapers/copyleft.png";
+    sha256 = "1vjf8dq4dzbym9a5sk29cfbr83mlz5manx6n9hq2jkaniw3yvxax";
   };
+
+  mod = "Mod1"; # Alt key
 in
 {
   stylix.targets = {
     waybar.enable = false;
     rofi.enable = false;
     mako.enable = false;
-    hyprland.enable = false;
+    sway.enable = false;
   };
 
-  # === Hyprland Window Manager ===
-  wayland.windowManager.hyprland = {
+  # === Sway Window Manager ===
+  wayland.windowManager.sway = {
     enable = true;
-    systemd.enable = true;
+    wrapperFeatures.gtk = true;
 
-    settings = {
-      # Environment
-      env = [
-        "WLR_NO_HARDWARE_CURSORS,1"
-        "XDG_CURRENT_DESKTOP,Hyprland"
-        "XDG_SESSION_TYPE,wayland"
-        "NIXOS_OZONE_WL,1"
-        "GDK_BACKEND,wayland"
-        "QT_QPA_PLATFORM,wayland"
-        "MOZ_ENABLE_WAYLAND,1"
-      ];
+    config = {
+      modifier = mod;
+      terminal = "wezterm";
+      menu = "${pkgs.rofi}/bin/rofi -show drun -theme ~/.config/rofi/config.rasi";
+
+      fonts = {
+        names = [ "${values.theme.font.monospace}" ];
+        size = 11.0;
+      };
+
+      # Flat retro aesthetic
+      gaps = {
+        inner = 0;
+        outer = 0;
+      };
+      defaultWorkspace = "workspace number 1";
+
+      # Input devices
+      input = {
+        "type:keyboard" = {
+          xkb_layout = "us";
+          repeat_rate = "50";
+          repeat_delay = "300";
+        };
+        "type:pointer" = {
+          accel_profile = "flat";
+          pointer_accel = "-0.5";
+        };
+        "type:touchpad" = {
+          natural_scroll = "enabled";
+          tap = "enabled";
+          dwt = "enabled";
+        };
+      };
+
+      # Wallpaper
+      output = {
+        "*" = {
+          bg = "$HOME/.background-image fill";
+        };
+      };
+
+      # Window appearance
+      window = {
+        border = 1;
+        titlebar = false;
+      };
+      floating = {
+        border = 1;
+        titlebar = false;
+      };
+      colors = {
+        focused = {
+          border = "#${colors.base0D}";
+          background = "#${colors.base0D}";
+          text = "#${colors.base00}";
+          indicator = "#${colors.base0D}";
+          childBorder = "#${colors.base0D}";
+        };
+        unfocused = {
+          border = "#${colors.base01}";
+          background = "#${colors.base01}";
+          text = "#${colors.base05}";
+          indicator = "#${colors.base01}";
+          childBorder = "#${colors.base01}";
+        };
+      };
+
+      # Floating modifier (Super for mouse move/resize)
+      floating.modifier = "Mod4";
 
       # Autostart
-      exec-once = [
-        "dbus-update-activation-environment --systemd --all"
-        "systemctl --user import-environment WAYLAND_DISPLAY XDG_CURRENT_DESKTOP"
-        "${pkgs.swww}/bin/swww-daemon"
-        "sleep 1 && ${pkgs.swww}/bin/swww img $HOME/.background-image --transition-type fade --transition-duration 1"
-        "${pkgs.waybar}/bin/waybar"
-        "${pkgs.mako}/bin/mako"
-        "nm-applet --indicator"
+      startup = [
+        { command = "dbus-update-activation-environment --systemd --all"; }
+        { command = "systemctl --user import-environment WAYLAND_DISPLAY XDG_CURRENT_DESKTOP"; }
+        { command = "${pkgs.mako}/bin/mako"; }
+        { command = "${pkgs.waybar}/bin/waybar"; }
+        { command = "nm-applet --indicator"; }
       ];
 
-      # Monitor: auto-detect
-      monitor = [ ",preferred,auto,auto" ];
+      # Window assignment rules
+      assigns = {
+        "C" = [
+          { class = "^discord$"; }
+          { class = "^Slack$"; }
+          { class = "^ferdium$"; }
+        ];
+        "E" = [
+          { class = "^thunderbird$"; }
+        ];
+        "M" = [
+          { class = "^Spotify$"; }
+          { app_id = "^spotify$"; }
+        ];
+      };
 
-      # Input
-      input = {
-        kb_layout = "us";
-        repeat_rate = 50;
-        repeat_delay = 300;
-        follow_mouse = 1;
-        touchpad = {
-          natural_scroll = true;
-          tap-to-click = true;
-          disable_while_typing = true;
+      # Floating rules
+      window.commands = [
+        { command = "floating enable"; criteria = { title = "^Picture-in-Picture$"; }; }
+        { command = "floating enable"; criteria = { class = "^pavucontrol$"; }; }
+        { command = "floating enable"; criteria = { app_id = "^pavucontrol$"; }; }
+        { command = "floating enable"; criteria = { class = "^1Password$"; }; }
+        { command = "floating enable"; criteria = { app_id = "^1password$"; }; }
+        { command = "floating enable"; criteria = { class = "^nemo$"; }; }
+        { command = "floating enable"; criteria = { app_id = "^nemo$"; }; }
+      ];
+
+      # === Keybindings (default mode) ===
+      keybindings = lib.mkOptionDefault {
+        # Terminal
+        "${mod}+Return" = "exec wezterm";
+
+        # App launcher (Super+Space)
+        "Mod4+space" = "exec ${pkgs.rofi}/bin/rofi -show drun -theme ~/.config/rofi/config.rasi";
+
+        # Kill window (Super+Q)
+        "Mod4+q" = "kill";
+
+        # Exit sway (Super+Shift+Q)
+        "Mod4+Shift+q" = "exec swaymsg exit";
+
+        # Window focus (vim-style)
+        "${mod}+h" = "focus left";
+        "${mod}+j" = "focus down";
+        "${mod}+k" = "focus up";
+        "${mod}+l" = "focus right";
+
+        # Resize
+        "${mod}+Shift+j" = "resize shrink height 72 px";
+        "${mod}+Shift+k" = "resize grow height 72 px";
+
+        # Workspaces (named, matching Mac Aerospace)
+        "${mod}+1" = "workspace 1";
+        "${mod}+2" = "workspace 2";
+        "${mod}+c" = "workspace C";
+        "${mod}+e" = "workspace E";
+        "${mod}+m" = "workspace M";
+
+        # Move to workspace (with focus follow)
+        "${mod}+Shift+1" = "move container to workspace 1; workspace 1";
+        "${mod}+Shift+2" = "move container to workspace 2; workspace 2";
+        "${mod}+Shift+c" = "move container to workspace C; workspace C";
+        "${mod}+Shift+e" = "move container to workspace E; workspace E";
+        "${mod}+Shift+m" = "move container to workspace M; workspace M";
+
+        # Workspace cycling
+        "${mod}+Tab" = "workspace next_on_output";
+        "${mod}+Shift+Tab" = "workspace prev_on_output";
+
+        # Workspace back-and-forth
+        "${mod}+p" = "workspace back_and_forth";
+
+        # Fullscreen
+        "${mod}+f" = "fullscreen toggle";
+
+        # Float toggle
+        "${mod}+v" = "floating toggle";
+
+        # Layout toggle (tiles h/v)
+        "${mod}+t" = "layout toggle split";
+
+        # Enter move mode
+        "${mod}+x" = "mode move";
+
+        # Enter locked mode (passthrough)
+        "${mod}+g" = "mode locked";
+      };
+
+      # === Modes ===
+      modes = {
+        move = {
+          "${mod}+h" = "move left";
+          "${mod}+j" = "move down";
+          "${mod}+k" = "move up";
+          "${mod}+l" = "move right";
+          "Escape" = "mode default";
+        };
+        locked = {
+          "${mod}+g" = "mode default";
         };
       };
 
-      # General: retro flat aesthetic
-      general = {
-        layout = "dwindle";
-        gaps_in = 0;
-        gaps_out = 0;
-        border_size = 1;
-        "col.active_border" = "rgb(${colors.base0D})";
-        "col.inactive_border" = "rgb(${colors.base01})";
-        resize_on_border = true;
-      };
-
-      dwindle = {
-        preserve_split = true;
-        force_split = 2;
-      };
-
-      # Decoration: retro (no rounding, no blur, classic shadow)
-      decoration = {
-        rounding = 0;
-
-        blur.enabled = false;
-
-        shadow = {
-          enabled = true;
-          range = 2;
-          render_power = 5;
-          color = "rgba(000000d9)";
-          offset = "2 2";
-        };
-      };
-
-      # Animations: disabled for retro feel
-      animations.enabled = false;
-
-      # Misc
-      misc = {
-        disable_hyprland_logo = true;
-        disable_splash_rendering = true;
-        force_default_wallpaper = 0;
-      };
-
-      # Key Bindings
-      bind = [
-        "SUPER, Q, killactive"
-        "SUPER, SPACE, exec, ${pkgs.rofi}/bin/rofi -show drun -theme ~/.config/rofi/config.rasi"
-        "ALT, Return, exec, wezterm"
-        "ALT, E, exec, nemo"
-        "SUPER SHIFT, Q, exit"
-
-        # Window Focus (vim-style)
-        "ALT, H, movefocus, l"
-        "ALT, J, movefocus, d"
-        "ALT, K, movefocus, u"
-        "ALT, L, movefocus, r"
-
-        # Move Windows
-        "ALT SHIFT, H, movewindow, l"
-        "ALT SHIFT, J, movewindow, d"
-        "ALT SHIFT, K, movewindow, u"
-        "ALT SHIFT, L, movewindow, r"
-
-        # Resize Windows
-        "ALT CTRL, H, resizeactive, -40 0"
-        "ALT CTRL, J, resizeactive, 0 40"
-        "ALT CTRL, K, resizeactive, 0 -40"
-        "ALT CTRL, L, resizeactive, 40 0"
-
-        # Workspaces
-        "ALT, 1, workspace, 1"
-        "ALT, 2, workspace, 2"
-        "ALT, 3, workspace, 3"
-        "ALT, 4, workspace, 4"
-        "ALT, 5, workspace, 5"
-        "ALT, Tab, workspace, e+1"
-        "ALT SHIFT, Tab, workspace, e-1"
-
-        # Move to Workspace
-        "ALT CTRL, 1, movetoworkspace, 1"
-        "ALT CTRL, 2, movetoworkspace, 2"
-        "ALT CTRL, 3, movetoworkspace, 3"
-        "ALT CTRL, 4, movetoworkspace, 4"
-        "ALT CTRL, 5, movetoworkspace, 5"
-
-        # Layout Controls
-        "ALT, F, fullscreen"
-        "ALT, V, togglefloating"
-        "SUPER, Tab, cyclenext"
-      ];
-
-      # Mouse bindings
-      bindm = [
-        "SUPER, mouse:272, movewindow"
-        "SUPER, mouse:273, resizewindow"
-      ];
-
-      # Window Rules
-      windowrulev2 = [
-        "float, title:^(Picture-in-Picture)$"
-        "float, class:^(pavucontrol)$"
-        "float, class:^(1Password)$"
-        "float, class:^(nemo)$"
-        "workspace 3, class:^(discord)$"
-        "workspace 3, class:^(slack)$"
-        "workspace 3, class:^(ferdium)$"
-        "workspace 4, class:^(thunderbird)$"
-        "workspace 5, class:^(spotify)$"
-      ];
+      # Bars are managed by waybar, not sway's built-in bar
+      bars = [ ];
     };
+
+    extraSessionCommands = ''
+      export NIXOS_OZONE_WL=1
+      export GDK_BACKEND=wayland
+      export QT_QPA_PLATFORM=wayland
+      export MOZ_ENABLE_WAYLAND=1
+    '';
   };
 
   # === Rofi App Launcher ===
@@ -190,7 +237,7 @@ in
     }
 
     * {
-      bg:          #cccccc;
+      bg:          #c0c0c0;
       bg-light:    #d8d8d8;
       border-col:  #000000;
       selected:    #000080;
@@ -287,7 +334,7 @@ in
       modules-left = [
         "custom/logo"
         "custom/sep"
-        "hyprland/workspaces"
+        "sway/workspaces"
       ];
       modules-center = [ ];
       modules-right = [
@@ -301,17 +348,18 @@ in
       ];
 
       "custom/logo" = {
-        format = "  ";
+        format = " Start";
         tooltip = false;
+        on-click = "${pkgs.rofi}/bin/rofi -show drun -theme ~/.config/rofi/config.rasi";
       };
       "custom/sep" = {
         format = "|";
         tooltip = false;
       };
-      "hyprland/workspaces" = {
+      "sway/workspaces" = {
+        disable-scroll = true;
+        all-outputs = true;
         format = "{name}";
-        on-click = "activate";
-        sort-by-number = true;
       };
       clock = {
         format = "{:%H:%M}";
@@ -346,39 +394,99 @@ in
     };
 
     style = ''
-      * { font-family: "${values.theme.font.monospace}", monospace; font-size: 13px; min-height: 0; padding: 0; margin: 0; }
-      window#waybar {
-        background: #${colors.base00};
-        color: #000000;
-        border-bottom: 2px solid #000000;
+      * {
+        font-family: "${values.theme.font.monospace}", monospace;
+        font-size: 13px;
+        min-height: 0;
+        padding: 0;
+        margin: 0;
       }
-      #custom-logo, #workspaces, #clock, #cpu, #memory, #network, #pulseaudio, #tray {
-        padding: 0 6px;
+      window#waybar {
+        background: #c0c0c0;
+        color: #000000;
+        border-bottom: 1px solid #808080;
+      }
+
+      /* Raised 3D button style (outset bevel) */
+      #custom-logo {
+        padding: 0 8px;
         margin: 2px 2px;
+        font-weight: bold;
+        color: #000000;
+        background: #c0c0c0;
         border: 2px solid;
         border-top-color: #ffffff;
         border-left-color: #ffffff;
-        border-right-color: #808080;
-        border-bottom-color: #808080;
-        background: #cccccc;
+        border-right-color: #404040;
+        border-bottom-color: #404040;
       }
-      #custom-logo { color: #000000; font-weight: bold; border: none; background: transparent; }
-      #custom-sep { color: #808080; padding: 0 2px; }
-      #clock { font-weight: bold; }
+
+      #custom-sep {
+        color: #808080;
+        padding: 0 2px;
+      }
+
+      /* Workspace buttons: raised 3D */
       #workspaces button {
-        padding: 0 4px;
+        padding: 0 6px;
+        margin: 2px 1px;
         color: #000000;
+        background: #c0c0c0;
+        border: 2px solid;
+        border-top-color: #ffffff;
+        border-left-color: #ffffff;
+        border-right-color: #404040;
+        border-bottom-color: #404040;
+        border-radius: 0;
       }
-      #workspaces button.active {
+
+      /* Active workspace: pressed/sunken 3D (inverted bevel) */
+      #workspaces button.focused {
         background: #000080;
         color: #ffffff;
-        border-top-color: #000000;
-        border-left-color: #000000;
+        border-top-color: #404040;
+        border-left-color: #404040;
         border-right-color: #ffffff;
         border-bottom-color: #ffffff;
       }
-      tooltip { background: #${colors.base00}; border: 2px solid #000000; border-radius: 0; }
-      tooltip label { color: #000000; padding: 4px; }
+
+      /* Sunken field style for status indicators */
+      #clock, #cpu, #memory, #network, #pulseaudio {
+        padding: 0 6px;
+        margin: 2px 1px;
+        background: #c0c0c0;
+        border: 2px solid;
+        border-top-color: #808080;
+        border-left-color: #808080;
+        border-right-color: #ffffff;
+        border-bottom-color: #ffffff;
+      }
+
+      #clock {
+        font-weight: bold;
+      }
+
+      /* System tray: sunken */
+      #tray {
+        padding: 0 6px;
+        margin: 2px 2px;
+        border: 2px solid;
+        border-top-color: #808080;
+        border-left-color: #808080;
+        border-right-color: #ffffff;
+        border-bottom-color: #ffffff;
+        background: #c0c0c0;
+      }
+
+      tooltip {
+        background: #c0c0c0;
+        border: 2px solid #000000;
+        border-radius: 0;
+      }
+      tooltip label {
+        color: #000000;
+        padding: 4px;
+      }
     '';
   };
 
@@ -387,7 +495,7 @@ in
     enable = true;
     settings = {
       font = "${values.theme.font.monospace} 11";
-      background-color = "#cccccc";
+      background-color = "#c0c0c0";
       text-color = "#000000";
       border-color = "#000000";
       border-size = 2;

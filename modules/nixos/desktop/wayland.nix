@@ -1,40 +1,41 @@
 { pkgs, ... }:
 
 let
-  hyprlandWrapped = pkgs.writeShellScriptBin "hyprland-wrapped" ''
+  swayWrapped = pkgs.writeShellScriptBin "sway-wrapped" ''
     set -euo pipefail
 
     export WLR_NO_HARDWARE_CURSORS=1
-    export XDG_CURRENT_DESKTOP=Hyprland
+    export WLR_RENDERER=vulkan
+    export XDG_CURRENT_DESKTOP=sway
     export XDG_SESSION_TYPE=wayland
 
     ${pkgs.dbus}/bin/dbus-update-activation-environment --systemd --all || true
 
-    exec ${pkgs.hyprland}/bin/Hyprland "$@"
+    exec ${pkgs.sway}/bin/sway --unsupported-gpu "$@"
   '';
 in
 {
   services.xserver.enable = false;
   services.dbus.enable = true;
 
-  programs.hyprland = {
+  programs.sway = {
     enable = true;
     xwayland.enable = true;
   };
 
   xdg.portal = {
     enable = true;
-    extraPortals = [ pkgs.xdg-desktop-portal-hyprland ];
+    extraPortals = [ pkgs.xdg-desktop-portal-wlr ];
   };
 
   environment.sessionVariables = {
     WLR_NO_HARDWARE_CURSORS = "1";
-    XDG_CURRENT_DESKTOP = "Hyprland";
+    WLR_RENDERER = "vulkan";
+    XDG_CURRENT_DESKTOP = "sway";
   };
 
   environment.systemPackages = with pkgs; [
-    hyprlandWrapped
-    swww
+    swayWrapped
     waybar
     rofi
     mako
