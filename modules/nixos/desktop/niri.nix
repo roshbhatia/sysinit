@@ -38,6 +38,17 @@ in
     XCURSOR_SIZE = "24";
   };
 
+  # ── 32-bit graphics (required for Steam/Wine) ──
+  hardware.graphics.enable32Bit = true;
+
+  # ── Gaming ──
+  programs.steam = {
+    enable = true;
+    remotePlay.openFirewall = true;
+    dedicatedServer.openFirewall = true;
+  };
+  programs.gamemode.enable = true;
+
   environment.systemPackages = [
     # Compositor
     niriPkg
@@ -59,15 +70,15 @@ in
     pkgs.firefox
 
     # Communication
-    pkgs.vesktop # Discord (native Wayland, screen sharing works)
+    pkgs.vesktop
 
     # Music
-    pkgs.cider # Apple Music client
+    pkgs.cider
 
     # Media viewers
-    pkgs.mpv # Video/audio player
-    pkgs.imv # Image viewer (Wayland-native)
-    (pkgs.zathura.override { plugins = [ pkgs.zathuraPkgs.zathura_pdf_mupdf ]; }) # PDF viewer
+    pkgs.mpv
+    pkgs.imv
+    (pkgs.zathura.override { plugins = [ pkgs.zathuraPkgs.zathura_pdf_mupdf ]; })
 
     # Audio control
     pkgs.pavucontrol
@@ -79,13 +90,14 @@ in
     # Authentication
     pkgs.polkit_gnome
 
+    # Gaming
+    pkgs.lutris
+    pkgs.mangohud
+
     # Theming
     pkgs.papirus-icon-theme
     pkgs.bibata-cursors
   ];
-
-  # PAM for swaylock (kept as fallback even though we prefer logout)
-  security.pam.services.swaylock = { };
 
   # Allow niri to run as a session
   security.polkit.enable = true;

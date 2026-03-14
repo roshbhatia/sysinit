@@ -40,9 +40,17 @@
     max-jobs = "auto";
     cores = 0;
     connect-timeout = 10;
+    auto-optimise-store = true;
   };
 
-  # Standard user settings (without Lima-specific home)
+  # Nix garbage collection — weekly, keep 7 days
+  nix.gc = {
+    automatic = true;
+    dates = "weekly";
+    options = "--delete-older-than 7d";
+  };
+
+  # Standard user settings
   users.users.${values.user.username} = {
     isNormalUser = true;
     extraGroups = [
@@ -50,6 +58,7 @@
       "nixbld"
       "video"
       "audio"
+      "docker"
     ];
     shell = pkgs.zsh;
     openssh.authorizedKeys.keys = [
@@ -67,14 +76,33 @@
     git
     zsh
     vim
+    playerctl # media key support
+    trash-cli # safe rm alternative
+    pciutils # lspci
+    usbutils # lsusb
   ];
 
   programs.zsh.enable = true;
 
-  # Basic SSH settings
+  # SSH — hardened
   services.openssh = {
     enable = true;
     startWhenNeeded = false;
+    settings = {
+      PasswordAuthentication = false;
+      PermitRootLogin = "no";
+      X11Forwarding = false;
+    };
+  };
+
+  # Docker
+  virtualisation.docker = {
+    enable = true;
+    enableOnBoot = true;
+    autoPrune = {
+      enable = true;
+      dates = "weekly";
+    };
   };
 
   # Tailscale VPN
@@ -82,20 +110,36 @@
   networking.firewall.allowedUDPPorts = [ 41641 ]; # Tailscale
   networking.firewall.trustedInterfaces = [ "tailscale0" ];
 
+  # USB auto-mount
+  services.udisks2.enable = true;
+
+  # Firmware updates
+  services.fwupd.enable = true;
+
+  # Swap (zram — compressed in-memory swap)
+  zramSwap = {
+    enable = true;
+    memoryPercent = 50;
+  };
+
   # Security
   security.sudo.wheelNeedsPassword = false;
 
-  # Fonts
+  # Fonts — full coverage
   fonts.packages = with pkgs; [
     terminus_font
     nerd-fonts.terminess-ttf
     fixedsys-excelsior
     maple-mono.NF
+    noto-fonts
+    noto-fonts-cjk-sans
+    noto-fonts-color-emoji
+    liberation_ttf # Microsoft metric-compatible
   ];
 
   # Console font (TTY + tuigreet)
   console = {
-    font = "ter-v20n"; # Terminus 20px — clean, readable, matches monospace aesthetic
+    font = "ter-v20n";
     packages = [ pkgs.terminus_font ];
     earlySetup = true;
   };

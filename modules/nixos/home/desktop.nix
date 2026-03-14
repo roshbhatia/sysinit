@@ -206,7 +206,7 @@ in
     // ── Key Bindings ──
     binds {
       // Launch
-      Alt+Return hotkey-overlay-title="Terminal" { spawn "${pkgs.wezterm}/bin/wezterm"; }
+      Alt+Return hotkey-overlay-title="Terminal" { spawn "${pkgs.wezterm}/bin/wezterm" "connect" "unix" "--workspace" "default"; }
       Super+Space hotkey-overlay-title="App Launcher" { spawn "${pkgs.rofi}/bin/rofi" "-show" "drun" "-theme" "${config.xdg.configHome}/rofi/config.rasi"; }
 
       // Window management
@@ -276,6 +276,10 @@ in
       XF86AudioRaiseVolume allow-when-locked=true { spawn "wpctl" "set-volume" "@DEFAULT_AUDIO_SINK@" "0.05+"; }
       XF86AudioLowerVolume allow-when-locked=true { spawn "wpctl" "set-volume" "@DEFAULT_AUDIO_SINK@" "0.05-"; }
       XF86AudioMute        allow-when-locked=true { spawn "wpctl" "set-mute" "@DEFAULT_AUDIO_SINK@" "toggle"; }
+      XF86AudioPlay  allow-when-locked=true { spawn "${pkgs.playerctl}/bin/playerctl" "play-pause"; }
+      XF86AudioPause allow-when-locked=true { spawn "${pkgs.playerctl}/bin/playerctl" "play-pause"; }
+      XF86AudioNext  allow-when-locked=true { spawn "${pkgs.playerctl}/bin/playerctl" "next"; }
+      XF86AudioPrev  allow-when-locked=true { spawn "${pkgs.playerctl}/bin/playerctl" "previous"; }
 
       // Screenshot
       Print hotkey-overlay-title="Screenshot" { screenshot; }
@@ -504,6 +508,54 @@ in
   home.file.".background-image" = {
     source = wallpaper;
     force = true;
+  };
+
+  # === XDG Default Applications ===
+  xdg.mimeApps = {
+    enable = true;
+    defaultApplications = {
+      "text/html" = "firefox.desktop";
+      "x-scheme-handler/http" = "firefox.desktop";
+      "x-scheme-handler/https" = "firefox.desktop";
+      "application/pdf" = "org.pwmt.zathura.desktop";
+      "image/png" = "imv.desktop";
+      "image/jpeg" = "imv.desktop";
+      "image/gif" = "imv.desktop";
+      "image/webp" = "imv.desktop";
+      "video/mp4" = "mpv.desktop";
+      "video/webm" = "mpv.desktop";
+      "audio/mpeg" = "mpv.desktop";
+      "audio/flac" = "mpv.desktop";
+      "inode/directory" = "nemo.desktop";
+    };
+  };
+
+  # === USB Auto-Mount ===
+  services.udiskie = {
+    enable = true;
+    automount = true;
+    notify = true;
+    tray = "never"; # no tray icon, just auto-mount
+  };
+
+  # === Wezterm Mux Server (instant terminal spawning) ===
+  systemd.user.services.wezterm-mux = {
+    Unit = {
+      Description = "WezTerm multiplexer server";
+      PartOf = [ "graphical-session.target" ];
+      After = [ "graphical-session.target" ];
+    };
+
+    Service = {
+      Type = "simple";
+      ExecStart = "${pkgs.wezterm}/bin/wezterm-mux-server --daemonize=false";
+      Restart = "on-failure";
+      RestartSec = 3;
+    };
+
+    Install = {
+      WantedBy = [ "graphical-session.target" ];
+    };
   };
 
   # === Nemo File Manager ===
