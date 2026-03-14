@@ -14,10 +14,6 @@ let
     url = "https://images2.alphacoders.com/140/1406218.png";
     sha256 = "sha256-2VJu0diUD14psjpZJU+X2U1EPsM4GvZzTNy3bJCOz5Q=";
   };
-
-  modeFile = "~/.cache/niri-mode";
-
-  rofiCmd = "${pkgs.rofi}/bin/rofi -show drun -theme ${config.xdg.configHome}/rofi/config.rasi";
 in
 {
   stylix.targets = {
@@ -27,13 +23,21 @@ in
 
   # === Niri Window Manager ===
   xdg.configFile."niri/config.kdl".text = ''
+    // Environment variables for Wayland apps
+    environment {
+      NIXOS_OZONE_WL "1"
+      GDK_BACKEND "wayland"
+      QT_QPA_PLATFORM "wayland"
+      MOZ_ENABLE_WAYLAND "1"
+    }
+
     input {
       keyboard {
         xkb {
           layout "us"
         }
-        repeat-rate 50
         repeat-delay 300
+        repeat-rate 50
       }
 
       mouse {
@@ -46,10 +50,22 @@ in
         tap
         dwt
       }
+
+      warp-mouse-to-focus
+      focus-follows-mouse
     }
 
+    // Cursor
+    cursor {
+      hide-when-typing
+      hide-after-inactive-ms 10000
+    }
+
+    // Layout
     layout {
       gaps 13
+
+      center-focused-column "on-overflow"
 
       focus-ring {
         width 2
@@ -59,6 +75,15 @@ in
 
       border {
         off
+      }
+
+      shadow {
+        on
+        softness 20
+        spread 3
+        offset x=0 y=3
+        color "#00000050"
+        inactive-color "#00000030"
       }
 
       preset-column-widths {
@@ -74,45 +99,52 @@ in
 
     prefer-no-csd
 
-    cursor {
-      hide-when-typing
-      hide-after-inactive-ms 10000
+    // Screenshots
+    screenshot-path "~/Pictures/Screenshots/Screenshot from %Y-%m-%d %H-%M-%S.png"
+
+    // Overview
+    overview {
+      backdrop-color "#1d2021"
     }
 
-    // Startup commands
-    spawn-at-startup "sh" "-c" "echo MAIN > ${modeFile}"
-    spawn-at-startup "${pkgs.dbus}/bin/dbus-update-activation-environment" "--systemd" "--all"
-    spawn-at-startup "systemctl" "--user" "import-environment" "WAYLAND_DISPLAY" "XDG_CURRENT_DESKTOP"
-    spawn-at-startup "${pkgs.mako}/bin/mako"
-    spawn-at-startup "nm-applet" "--indicator"
-    spawn-at-startup "${pkgs.swaybg}/bin/swaybg" "-i" "${wallpaper}" "-m" "fill"
-    spawn-at-startup "systemctl" "--user" "start" "quickshell"
-
+    // Hotkey overlay
     hotkey-overlay {
       skip-at-startup
     }
 
+    // Startup commands
+    spawn-at-startup "${pkgs.swaybg}/bin/swaybg" "-i" "${wallpaper}" "-m" "fill"
+    spawn-at-startup "${pkgs.mako}/bin/mako"
+    spawn-at-startup "nm-applet" "--indicator"
+    spawn-sh-at-startup "echo MAIN > ~/.cache/niri-mode"
+    spawn-sh-at-startup "systemctl --user start quickshell"
+
+    // Key bindings
     binds {
-      // Terminal
+      // ── Launching ──
       Alt+Return { spawn "wezterm"; }
+      Super+Space { spawn "${pkgs.rofi}/bin/rofi" "-show" "drun" "-theme" "${config.xdg.configHome}/rofi/config.rasi"; }
 
-      // App launcher
-      Super+Space { spawn "sh" "-c" "${rofiCmd}"; }
-
-      // Close window
+      // ── Window management ──
       Super+Q { close-window; }
 
-      // Focus (vim-style)
+      // Focus (vim-style, matching aerospace alt+hjkl)
       Alt+H { focus-column-left; }
       Alt+J { focus-window-down; }
       Alt+K { focus-window-up; }
       Alt+L { focus-column-right; }
 
-      // Resize
+      // Move columns/windows (matching aerospace move mode but always available)
+      Alt+Ctrl+H { move-column-left; }
+      Alt+Ctrl+J { move-window-down; }
+      Alt+Ctrl+K { move-window-up; }
+      Alt+Ctrl+L { move-column-right; }
+
+      // Resize (matching aerospace alt+shift+j/k)
       Alt+Shift+J { set-column-width "-10%"; }
       Alt+Shift+K { set-column-width "+10%"; }
 
-      // Maximize / fullscreen
+      // Maximize / fullscreen (matching aerospace alt+f)
       Alt+F { maximize-column; }
       Alt+Shift+F { fullscreen-window; }
 
@@ -129,7 +161,10 @@ in
       // Float toggle
       Alt+V { toggle-window-floating; }
 
-      // Workspaces
+      // Layout toggle (matching aerospace alt+t tiles, alt+a accordion)
+      Alt+T { toggle-column-tabbed-display; }
+
+      // ── Workspaces (matching aerospace alt+1/2/c/e/m) ──
       Alt+1 { focus-workspace 1; }
       Alt+2 { focus-workspace 2; }
       Alt+3 { focus-workspace 3; }
@@ -140,7 +175,7 @@ in
       Alt+8 { focus-workspace 8; }
       Alt+9 { focus-workspace 9; }
 
-      // Move to workspace
+      // Move to workspace (matching aerospace alt+shift+N)
       Alt+Shift+1 { move-column-to-workspace 1; }
       Alt+Shift+2 { move-column-to-workspace 2; }
       Alt+Shift+3 { move-column-to-workspace 3; }
@@ -151,17 +186,14 @@ in
       Alt+Shift+8 { move-column-to-workspace 8; }
       Alt+Shift+9 { move-column-to-workspace 9; }
 
-      // Workspace cycling
+      // Workspace cycling (matching aerospace alt+tab)
       Alt+Tab { focus-workspace-down; }
       Alt+Shift+Tab { focus-workspace-up; }
 
-      // Move columns/windows
-      Alt+Ctrl+H { move-column-left; }
-      Alt+Ctrl+J { move-window-down; }
-      Alt+Ctrl+K { move-window-up; }
-      Alt+Ctrl+L { move-column-right; }
+      // Workspace back-and-forth (matching aerospace alt+p)
+      Alt+P { focus-workspace-previous; }
 
-      // Monitor focus
+      // ── Monitor focus ──
       Alt+Shift+H { focus-monitor-left; }
       Alt+Shift+L { focus-monitor-right; }
 
@@ -169,13 +201,18 @@ in
       Alt+Ctrl+Shift+H { move-column-to-monitor-left; }
       Alt+Ctrl+Shift+L { move-column-to-monitor-right; }
 
-      // Volume keys (work when locked)
+      // ── Media keys (work when locked) ──
       XF86AudioRaiseVolume allow-when-locked=true { spawn "wpctl" "set-volume" "@DEFAULT_AUDIO_SINK@" "0.05+"; }
       XF86AudioLowerVolume allow-when-locked=true { spawn "wpctl" "set-volume" "@DEFAULT_AUDIO_SINK@" "0.05-"; }
-      XF86AudioMute allow-when-locked=true { spawn "wpctl" "set-mute" "@DEFAULT_AUDIO_SINK@" "toggle"; }
+      XF86AudioMute        allow-when-locked=true { spawn "wpctl" "set-mute" "@DEFAULT_AUDIO_SINK@" "toggle"; }
 
-      // Screenshot
+      // ── Screenshot ──
       Print { screenshot; }
+      Alt+Print { screenshot-screen; }
+      Alt+Shift+Print { screenshot-window; }
+
+      // ── Overview ──
+      Super+Tab { toggle-overview; }
     }
   '';
 
@@ -189,6 +226,19 @@ in
       disable-history: false;
       hide-scrollbar: true;
       sorting-method: "fzf";
+
+      /* Vim-style navigation matching aerospace muscle memory */
+      kb-row-up: "Up,Control+k,Control+p";
+      kb-row-down: "Down,Control+j,Control+n";
+      kb-accept-entry: "Return,KP_Enter";
+      kb-cancel: "Escape,Control+bracketleft";
+      kb-remove-to-eol: "";
+      kb-move-front: "Control+a";
+      kb-move-end: "Control+e";
+      kb-remove-to-sol: "Control+u";
+      kb-remove-word-back: "Control+w,Control+BackSpace";
+      kb-page-prev: "Control+u";
+      kb-page-next: "Control+d";
     }
 
     * {
@@ -200,11 +250,13 @@ in
       accent:      #fe8019;
       accent-alt:  #fabd2f;
       urgent:      #fb4934;
+      green:       #b8bb26;
       border-col:  #504945;
+      transparent: rgba(0, 0, 0, 0);
     }
 
     window {
-      width: 480px;
+      width: 520px;
       border: 2px;
       border-color: @border-col;
       background-color: @bg;
@@ -213,7 +265,7 @@ in
     }
 
     mainbox {
-      background-color: transparent;
+      background-color: @transparent;
       children: [ inputbar, message, listview ];
       spacing: 0;
     }
@@ -221,7 +273,7 @@ in
     inputbar {
       background-color: @bg-alt;
       children: [ prompt, entry ];
-      padding: 12px 16px;
+      padding: 14px 16px;
       border: 0 0 1px 0;
       border-color: @border-col;
       border-radius: 6px 6px 0 0;
@@ -230,64 +282,82 @@ in
     prompt {
       background-color: @accent;
       text-color: @bg-solid;
-      padding: 6px 12px;
+      padding: 6px 14px;
       border-radius: 4px;
       font: "${values.theme.font.monospace} 13";
+      vertical-align: 0.5;
     }
 
     entry {
-      background-color: transparent;
+      background-color: @transparent;
       text-color: @fg;
-      padding: 6px 12px;
+      padding: 6px 14px;
       placeholder: "Search...";
       placeholder-color: @fg-dim;
       font: "${values.theme.font.monospace} 13";
+      cursor: text;
+      cursor-color: @accent;
     }
 
     message {
-      background-color: transparent;
+      background-color: @transparent;
       border: 0;
       padding: 8px 16px;
     }
 
     textbox {
       text-color: @fg-dim;
-      background-color: transparent;
+      background-color: @transparent;
     }
 
     listview {
-      background-color: transparent;
+      background-color: @transparent;
       columns: 1;
-      lines: 10;
+      lines: 12;
       padding: 8px 0;
       spacing: 0;
       fixed-height: true;
     }
 
     element {
-      background-color: transparent;
+      background-color: @transparent;
       text-color: @fg;
-      padding: 10px 16px;
+      padding: 10px 18px;
       border-radius: 0;
     }
 
-    element selected {
+    element selected.normal {
       background-color: @accent;
       text-color: @bg-solid;
     }
 
-    element urgent {
+    element selected.urgent {
+      background-color: @urgent;
+      text-color: @bg-solid;
+    }
+
+    element selected.active {
+      background-color: @green;
+      text-color: @bg-solid;
+    }
+
+    element normal.urgent {
       text-color: @urgent;
     }
 
-    element active {
-      text-color: @accent-alt;
+    element normal.active {
+      text-color: @green;
+    }
+
+    element alternate.normal {
+      background-color: @transparent;
+      text-color: @fg;
     }
 
     element-icon {
-      size: 22px;
+      size: 24px;
       background-color: inherit;
-      padding: 0 8px 0 0;
+      padding: 0 10px 0 0;
     }
 
     element-text {
@@ -295,6 +365,27 @@ in
       text-color: inherit;
       font: "${values.theme.font.monospace} 13";
       vertical-align: 0.5;
+    }
+
+    mode-switcher {
+      background-color: @bg-alt;
+      padding: 6px 8px;
+      border: 1px 0 0 0;
+      border-color: @border-col;
+      spacing: 4px;
+    }
+
+    button {
+      background-color: @transparent;
+      text-color: @fg-dim;
+      padding: 4px 12px;
+      border-radius: 4px;
+      font: "${values.theme.font.monospace} 12";
+    }
+
+    button selected {
+      background-color: @border-col;
+      text-color: @fg;
     }
   '';
 
