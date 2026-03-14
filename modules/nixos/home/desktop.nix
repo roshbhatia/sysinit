@@ -12,7 +12,7 @@ let
 
   wallpaper = pkgs.fetchurl {
     url = "https://images2.alphacoders.com/140/1406218.png";
-    sha256 = "0000000000000000000000000000000000000000000000000000";
+    sha256 = "sha256-2VJu0diUD14psjpZJU+X2U1EPsM4GvZzTNy3bJCOz5Q=";
   };
 
   mod = "Mod1"; # Alt key
