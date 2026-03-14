@@ -48,6 +48,7 @@ in
     pkgs.wl-clipboard
     pkgs.swaylock
     pkgs.swaybg
+    pkgs.waybar
     pkgs.firefox
     pkgs.papirus-icon-theme
   ];

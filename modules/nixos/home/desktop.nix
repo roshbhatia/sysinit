@@ -1,4 +1,4 @@
-# NixOS desktop home-manager configuration: niri, quickshell, rofi, mako, nemo
+# NixOS desktop home-manager configuration: niri, waybar, rofi, mako, nemo
 {
   config,
   lib,
@@ -17,13 +17,14 @@ let
 in
 {
   stylix.targets = {
+    waybar.enable = false;
     rofi.enable = false;
     mako.enable = false;
   };
 
   # === Niri Window Manager ===
   xdg.configFile."niri/config.kdl".text = ''
-    // Environment variables for Wayland apps
+    // ── Environment ──
     environment {
       NIXOS_OZONE_WL "1"
       GDK_BACKEND "wayland"
@@ -31,6 +32,7 @@ in
       MOZ_ENABLE_WAYLAND "1"
     }
 
+    // ── Input ──
     input {
       keyboard {
         xkb {
@@ -55,15 +57,15 @@ in
       focus-follows-mouse
     }
 
-    // Cursor
+    // ── Cursor ──
     cursor {
       hide-when-typing
       hide-after-inactive-ms 10000
     }
 
-    // Layout
+    // ── Layout ──
     layout {
-      gaps 13
+      gaps 10
 
       center-focused-column "on-overflow"
 
@@ -72,16 +74,18 @@ in
       }
 
       border {
-        off
+        width 2
+        active-color "#83a598"
+        inactive-color "#3c3836"
       }
 
       shadow {
         on
-        softness 20
-        spread 3
-        offset x=0 y=3
-        color "#00000050"
-        inactive-color "#00000030"
+        softness 30
+        spread 5
+        offset x=0 y=5
+        color "#00000064"
+        inactive-color "#00000040"
       }
 
       preset-column-widths {
@@ -95,85 +99,129 @@ in
       }
     }
 
-    // All windows slightly transparent, focused windows less so
+    // ── Animations ──
+    animations {
+      workspace-switch {
+        spring damping-ratio=0.85 stiffness=1000 epsilon=0.0001
+      }
+      window-open {
+        duration-ms=200
+        curve "ease-out-expo"
+      }
+      window-close {
+        duration-ms=100
+        curve "ease-out-quad"
+      }
+      horizontal-view-movement {
+        spring damping-ratio=1.0 stiffness=1000 epsilon=0.0001
+      }
+      window-movement {
+        spring damping-ratio=0.85 stiffness=900 epsilon=0.0001
+      }
+      window-resize {
+        spring damping-ratio=1.0 stiffness=1000 epsilon=0.0001
+      }
+    }
+
+    // ── Window Rules ──
+
+    // Rounded corners on all windows
     window-rule {
-      draw-border-with-background false
-      opacity 0.92
+      geometry-corner-radius 10
+      clip-to-geometry true
+    }
+
+    // Opacity: focused slightly transparent, unfocused more so
+    window-rule {
+      opacity 0.95
     }
     window-rule {
       match is-focused=false
-      opacity 0.78
+      opacity 0.82
     }
 
+    // WezTerm fix: let it set its own initial width (niri bug workaround)
+    window-rule {
+      match app-id=r#"^org\.wezfurlong\.wezterm$"#
+      default-column-width {}
+    }
+
+    // Floating windows
+    window-rule {
+      match title="^Picture-in-Picture$"
+      open-floating true
+    }
+    window-rule {
+      match app-id="^pavucontrol$"
+      open-floating true
+    }
+    window-rule {
+      match app-id="^1password$"
+      open-floating true
+    }
+    window-rule {
+      match app-id="^nemo$"
+      open-floating true
+    }
+
+    // ── Misc ──
     prefer-no-csd
 
-    // Screenshots
     screenshot-path "~/Pictures/Screenshots/Screenshot from %Y-%m-%d %H-%M-%S.png"
 
-    // Overview
     overview {
       backdrop-color "#1d2021"
     }
 
-    // Hotkey overlay (Super+? to show)
     hotkey-overlay {
       skip-at-startup
       hide-not-bound
     }
 
-    // Startup commands
+    // ── Startup ──
     spawn-at-startup "${pkgs.swaybg}/bin/swaybg" "-i" "${wallpaper}" "-m" "fill"
+    spawn-at-startup "${pkgs.waybar}/bin/waybar"
     spawn-at-startup "${pkgs.mako}/bin/mako"
     spawn-at-startup "nm-applet" "--indicator"
-    spawn-at-startup "quickshell"
-    spawn-sh-at-startup "echo MAIN > ~/.cache/niri-mode"
 
-    // Key bindings
+    // ── Key Bindings ──
     binds {
-      // ── Launching ──
-      Alt+Return { spawn "${pkgs.wezterm}/bin/wezterm"; }
-      Super+Space { spawn "${pkgs.rofi}/bin/rofi" "-show" "drun" "-theme" "${config.xdg.configHome}/rofi/config.rasi"; }
+      // Launch
+      Alt+Return hotkey-overlay-title="Terminal" { spawn "${pkgs.wezterm}/bin/wezterm"; }
+      Super+Space hotkey-overlay-title="App Launcher" { spawn "${pkgs.rofi}/bin/rofi" "-show" "drun" "-theme" "${config.xdg.configHome}/rofi/config.rasi"; }
 
-      // ── Window management ──
-      Super+Q { close-window; }
+      // Window management
+      Super+Q hotkey-overlay-title="Close Window" { close-window; }
 
-      // Focus (vim-style, matching aerospace alt+hjkl)
-      Alt+H { focus-column-left; }
-      Alt+J { focus-window-down; }
-      Alt+K { focus-window-up; }
-      Alt+L { focus-column-right; }
+      // Focus (vim-style, matching aerospace)
+      Alt+H hotkey-overlay-title="Focus Left" { focus-column-left; }
+      Alt+J hotkey-overlay-title="Focus Down" { focus-window-down; }
+      Alt+K hotkey-overlay-title="Focus Up" { focus-window-up; }
+      Alt+L hotkey-overlay-title="Focus Right" { focus-column-right; }
 
-      // Move columns/windows (matching aerospace move mode but always available)
-      Alt+Ctrl+H { move-column-left; }
-      Alt+Ctrl+J { move-window-down; }
-      Alt+Ctrl+K { move-window-up; }
-      Alt+Ctrl+L { move-column-right; }
+      // Move (matching aerospace move mode)
+      Alt+Ctrl+H hotkey-overlay-title="Move Left" { move-column-left; }
+      Alt+Ctrl+J hotkey-overlay-title="Move Down" { move-window-down; }
+      Alt+Ctrl+K hotkey-overlay-title="Move Up" { move-window-up; }
+      Alt+Ctrl+L hotkey-overlay-title="Move Right" { move-column-right; }
 
-      // Resize (matching aerospace alt+shift+j/k)
-      Alt+Shift+J { set-column-width "-10%"; }
-      Alt+Shift+K { set-column-width "+10%"; }
+      // Resize (matching aerospace)
+      Alt+Shift+J hotkey-overlay-title="Shrink Width" { set-column-width "-10%"; }
+      Alt+Shift+K hotkey-overlay-title="Grow Width" { set-column-width "+10%"; }
 
-      // Maximize / fullscreen (matching aerospace alt+f)
-      Alt+F { maximize-column; }
-      Alt+Shift+F { fullscreen-window; }
+      // Fullscreen / maximize (matching aerospace alt+f)
+      Alt+F hotkey-overlay-title="Maximize" { maximize-column; }
+      Alt+Shift+F hotkey-overlay-title="Fullscreen" { fullscreen-window; }
 
-      // Center column
-      Alt+C { center-column; }
+      // Column operations
+      Alt+C hotkey-overlay-title="Center Column" { center-column; }
+      Alt+Comma hotkey-overlay-title="Consume Into Column" { consume-window-into-column; }
+      Alt+Period hotkey-overlay-title="Expel From Column" { expel-window-from-column; }
+      Alt+R hotkey-overlay-title="Cycle Column Width" { switch-preset-column-width; }
+      Alt+V hotkey-overlay-title="Toggle Float" { toggle-window-floating; }
+      Alt+T hotkey-overlay-title="Toggle Tabbed" { toggle-column-tabbed-display; }
 
-      // Consume / expel windows into/from column
-      Alt+Comma { consume-window-into-column; }
-      Alt+Period { expel-window-from-column; }
-
-      // Column width presets
-      Alt+R { switch-preset-column-width; }
-
-      // Float toggle
-      Alt+V { toggle-window-floating; }
-
-      // Layout toggle (matching aerospace alt+t tiles, alt+a accordion)
-      Alt+T { toggle-column-tabbed-display; }
-
-      // ── Workspaces (matching aerospace alt+1/2/c/e/m) ──
+      // Workspaces (matching aerospace)
       Alt+1 { focus-workspace 1; }
       Alt+2 { focus-workspace 2; }
       Alt+3 { focus-workspace 3; }
@@ -184,7 +232,6 @@ in
       Alt+8 { focus-workspace 8; }
       Alt+9 { focus-workspace 9; }
 
-      // Move to workspace (matching aerospace alt+shift+N)
       Alt+Shift+1 { move-column-to-workspace 1; }
       Alt+Shift+2 { move-column-to-workspace 2; }
       Alt+Shift+3 { move-column-to-workspace 3; }
@@ -195,36 +242,30 @@ in
       Alt+Shift+8 { move-column-to-workspace 8; }
       Alt+Shift+9 { move-column-to-workspace 9; }
 
-      // Workspace cycling (matching aerospace alt+tab)
+      // Workspace navigation (matching aerospace)
       Alt+Tab { focus-workspace-down; }
       Alt+Shift+Tab { focus-workspace-up; }
-
-      // Workspace back-and-forth (matching aerospace alt+p)
       Alt+P { focus-workspace-previous; }
 
-      // ── Monitor focus ──
+      // Monitor
       Alt+Shift+H { focus-monitor-left; }
       Alt+Shift+L { focus-monitor-right; }
-
-      // Move column to monitor
       Alt+Ctrl+Shift+H { move-column-to-monitor-left; }
       Alt+Ctrl+Shift+L { move-column-to-monitor-right; }
 
-      // ── Media keys (work when locked) ──
+      // Media (work when locked)
       XF86AudioRaiseVolume allow-when-locked=true { spawn "wpctl" "set-volume" "@DEFAULT_AUDIO_SINK@" "0.05+"; }
       XF86AudioLowerVolume allow-when-locked=true { spawn "wpctl" "set-volume" "@DEFAULT_AUDIO_SINK@" "0.05-"; }
       XF86AudioMute        allow-when-locked=true { spawn "wpctl" "set-mute" "@DEFAULT_AUDIO_SINK@" "toggle"; }
 
-      // ── Screenshot ──
-      Print { screenshot; }
+      // Screenshot
+      Print hotkey-overlay-title="Screenshot" { screenshot; }
       Alt+Print { screenshot-screen; }
       Alt+Shift+Print { screenshot-window; }
 
-      // ── Overview ──
-      Super+Tab { toggle-overview; }
-
-      // ── Keybinding cheatsheet ──
-      Super+Shift+Slash { show-hotkey-overlay; }
+      // Overview + cheatsheet
+      Super+Tab hotkey-overlay-title="Overview" { toggle-overview; }
+      Super+Shift+Slash hotkey-overlay-title="Keybindings" { show-hotkey-overlay; }
     }
   '';
 
@@ -243,7 +284,6 @@ in
       click-to-exit: true;
       steal-focus: true;
 
-      /* Clear conflicting defaults, then set vim-style navigation */
       kb-clear-line: "";
       kb-remove-to-sol: "";
       kb-remove-to-eol: "";
@@ -271,11 +311,8 @@ in
       fg-dim:         #928374;
       fg-placeholder: #665c54;
       accent:         #fe8019;
-      accent-dim:     #fe801940;
-      yellow:         #fabd2f;
       urgent:         #fb4934;
       green:          #b8bb26;
-      blue:           #83a598;
       border-col:     #50494580;
       none:           transparent;
       font:           "${values.theme.font.monospace} 13";
@@ -313,7 +350,6 @@ in
       text-color:      @accent;
       background-color: @none;
       vertical-align:  0.5;
-      horizontal-align: 0.5;
     }
 
     entry {
@@ -377,7 +413,6 @@ in
       size:            22px;
       background-color: inherit;
       padding:         0;
-      cursor:          pointer;
     }
 
     element-text {
@@ -385,15 +420,6 @@ in
       text-color:      inherit;
       font:            @font;
       vertical-align:  0.5;
-      cursor:          pointer;
-    }
-
-    scrollbar {
-      handle-width:    4px;
-      handle-color:    @border-col;
-      background-color: @none;
-      border-radius:   2px;
-      margin:          0 0 0 4px;
     }
   '';
 
@@ -406,7 +432,7 @@ in
       text-color = "#ebdbb2";
       border-color = "#504945";
       border-size = 2;
-      border-radius = 0;
+      border-radius = 8;
       padding = "15";
       margin = "10";
       width = 350;

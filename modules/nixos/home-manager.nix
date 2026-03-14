@@ -36,7 +36,7 @@ in
         ]
         ++ lib.optionals (values.isDesktop) [
           ./home/desktop.nix
-          ./home/quickshell.nix
+          ./home/waybar.nix
         ];
 
         # NixOS systems use the nix-managed home directory

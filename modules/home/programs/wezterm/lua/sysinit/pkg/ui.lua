@@ -41,7 +41,8 @@ function M.setup(config)
   config.scrollback_lines = 200000
   config.tab_bar_at_bottom = true
   config.window_background_opacity = config_data.transparency.opacity
-  config.window_decorations = utils.is_darwin() and "RESIZE|MACOS_FORCE_ENABLE_SHADOW" or "NONE"
+  config.window_decorations = utils.is_darwin() and "RESIZE|MACOS_FORCE_ENABLE_SHADOW" or "RESIZE"
+  config.tiling_desktop_environments = { "X11 LG Monitor", "Wayland" }
   config.window_frame = {
     font = font,
     font_size = 11.0,
