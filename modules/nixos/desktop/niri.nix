@@ -46,6 +46,7 @@ in
     pkgs.pavucontrol
     pkgs.wl-clipboard
     pkgs.swaylock
+    pkgs.swaybg
     pkgs.firefox
   ];
 

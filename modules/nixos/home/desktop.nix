@@ -15,12 +15,9 @@ let
     sha256 = "sha256-2VJu0diUD14psjpZJU+X2U1EPsM4GvZzTNy3bJCOz5Q=";
   };
 
-  mod = "Mod1"; # Alt key
-  sup = "Mod4"; # Super key
+  modeFile = "~/.cache/niri-mode";
 
-  modeFile = "$HOME/.cache/niri-mode";
-
-  writeMode = mode: ''spawn "sh" "-c" "echo ${mode} > ${modeFile}"'';
+  rofiCmd = "${pkgs.rofi}/bin/rofi -show drun -theme ${config.xdg.configHome}/rofi/config.rasi";
 in
 {
   stylix.targets = {
@@ -30,158 +27,157 @@ in
 
   # === Niri Window Manager ===
   xdg.configFile."niri/config.kdl".text = ''
-      input {
-        keyboard {
-          xkb {
-            layout "us"
-          }
-          repeat-rate 50
-          repeat-delay 300
+    input {
+      keyboard {
+        xkb {
+          layout "us"
         }
-
-        mouse {
-          accel-profile "flat"
-          accel-speed -0.5
-        }
-
-        touchpad {
-          natural-scroll
-          tap
-          dwt
-        }
+        repeat-rate 50
+        repeat-delay 300
       }
 
-      output "*" {
-        background-color "#1d2021"
+      mouse {
+        accel-profile "flat"
+        accel-speed -0.5
       }
 
-      layout {
-        gaps 13
+      touchpad {
+        natural-scroll
+        tap
+        dwt
+      }
+    }
 
-        focus-ring {
-          width 2
-          active-color "#83a598"
-          inactive-color "#665c54"
-        }
+    layout {
+      gaps 13
 
-        border {
-          off
-        }
-
-        preset-column-widths {
-          proportion 0.33333
-          proportion 0.5
-          proportion 0.66667
-        }
-
-        default-column-width {
-          proportion 0.5
-        }
+      focus-ring {
+        width 2
+        active-color "#83a598"
+        inactive-color "#665c54"
       }
 
-      prefer-no-csd
-
-      cursor {
-        hide-when-typing
-        hide-after-inactive-ms 10000
+      border {
+        off
       }
 
-      spawn-at-startup "sh" "-c" "echo MAIN > ${modeFile}"
-      spawn-at-startup "${pkgs.dbus}/bin/dbus-update-activation-environment" "--systemd" "--all"
-      spawn-at-startup "systemctl" "--user" "import-environment" "WAYLAND_DISPLAY" "XDG_CURRENT_DESKTOP"
-      spawn-at-startup "${pkgs.mako}/bin/mako"
-      spawn-at-startup "nm-applet" "--indicator"
-
-      hotkey-overlay {
-        skip-at-startup
+      preset-column-widths {
+        proportion 0.33333
+        proportion 0.5
+        proportion 0.66667
       }
 
-      binds {
-        // Terminal
-        ${mod}+Return { spawn "wezterm"; }
-
-        // App launcher
-        ${sup}+Space { spawn "${pkgs.rofi}/bin/rofi" "-show" "drun" "-theme" "${config.xdg.configHome}/rofi/config.rasi"; }
-
-        // Close window
-        ${sup}+Q { close-window; }
-
-        // Focus (vim-style)
-        ${mod}+H { focus-column-left; }
-        ${mod}+J { focus-window-down; }
-        ${mod}+K { focus-window-up; }
-        ${mod}+L { focus-column-right; }
-
-        // Resize
-        ${mod}+Shift+J { set-column-width "-10%"; }
-        ${mod}+Shift+K { set-column-width "+10%"; }
-
-        // Maximize / fullscreen
-        ${mod}+F { maximize-column; }
-        ${mod}+Shift+F { fullscreen-window; }
-
-        // Center column
-        ${mod}+C { center-column; }
-
-        // Consume / expel windows into/from column
-        ${mod}+Comma { consume-window-into-column; }
-        ${mod}+Period { expel-window-from-column; }
-
-        // Column width presets
-        ${mod}+R { switch-preset-column-width; }
-
-        // Float toggle
-        ${mod}+V { toggle-window-floating; }
-
-        // Workspaces
-        ${mod}+1 { focus-workspace 1; }
-        ${mod}+2 { focus-workspace 2; }
-        ${mod}+3 { focus-workspace 3; }
-        ${mod}+4 { focus-workspace 4; }
-        ${mod}+5 { focus-workspace 5; }
-        ${mod}+6 { focus-workspace 6; }
-        ${mod}+7 { focus-workspace 7; }
-        ${mod}+8 { focus-workspace 8; }
-        ${mod}+9 { focus-workspace 9; }
-
-        // Move to workspace
-        ${mod}+Shift+1 { move-column-to-workspace 1; }
-        ${mod}+Shift+2 { move-column-to-workspace 2; }
-        ${mod}+Shift+3 { move-column-to-workspace 3; }
-        ${mod}+Shift+4 { move-column-to-workspace 4; }
-        ${mod}+Shift+5 { move-column-to-workspace 5; }
-        ${mod}+Shift+6 { move-column-to-workspace 6; }
-        ${mod}+Shift+7 { move-column-to-workspace 7; }
-        ${mod}+Shift+8 { move-column-to-workspace 8; }
-        ${mod}+Shift+9 { move-column-to-workspace 9; }
-
-        // Workspace cycling
-        ${mod}+Tab { focus-workspace-down; }
-        ${mod}+Shift+Tab { focus-workspace-up; }
-
-        // Move columns/windows (replaces sway move mode)
-        ${mod}+Ctrl+H { move-column-left; }
-        ${mod}+Ctrl+J { move-window-down; }
-        ${mod}+Ctrl+K { move-window-up; }
-        ${mod}+Ctrl+L { move-column-right; }
-
-        // Monitor focus
-        ${mod}+Shift+H { focus-monitor-left; }
-        ${mod}+Shift+L { focus-monitor-right; }
-
-        // Move column to monitor
-        ${mod}+Ctrl+Shift+H { move-column-to-monitor-left; }
-        ${mod}+Ctrl+Shift+L { move-column-to-monitor-right; }
-
-        // Volume keys (work when locked)
-        XF86AudioRaiseVolume allow-when-locked=true { spawn "wpctl" "set-volume" "@DEFAULT_AUDIO_SINK@" "0.05+"; }
-        XF86AudioLowerVolume allow-when-locked=true { spawn "wpctl" "set-volume" "@DEFAULT_AUDIO_SINK@" "0.05-"; }
-        XF86AudioMute allow-when-locked=true { spawn "wpctl" "set-mute" "@DEFAULT_AUDIO_SINK@" "toggle"; }
-
-        // Screenshot
-        Print { screenshot; }
+      default-column-width {
+        proportion 0.5
       }
-    '';
+    }
+
+    prefer-no-csd
+
+    cursor {
+      hide-when-typing
+      hide-after-inactive-ms 10000
+    }
+
+    // Startup commands
+    spawn-at-startup "sh" "-c" "echo MAIN > ${modeFile}"
+    spawn-at-startup "${pkgs.dbus}/bin/dbus-update-activation-environment" "--systemd" "--all"
+    spawn-at-startup "systemctl" "--user" "import-environment" "WAYLAND_DISPLAY" "XDG_CURRENT_DESKTOP"
+    spawn-at-startup "${pkgs.mako}/bin/mako"
+    spawn-at-startup "nm-applet" "--indicator"
+    spawn-at-startup "${pkgs.swaybg}/bin/swaybg" "-i" "${wallpaper}" "-m" "fill"
+    spawn-at-startup "systemctl" "--user" "start" "quickshell"
+
+    hotkey-overlay {
+      skip-at-startup
+    }
+
+    binds {
+      // Terminal
+      Alt+Return { spawn "wezterm"; }
+
+      // App launcher
+      Super+Space { spawn "sh" "-c" "${rofiCmd}"; }
+
+      // Close window
+      Super+Q { close-window; }
+
+      // Focus (vim-style)
+      Alt+H { focus-column-left; }
+      Alt+J { focus-window-down; }
+      Alt+K { focus-window-up; }
+      Alt+L { focus-column-right; }
+
+      // Resize
+      Alt+Shift+J { set-column-width "-10%"; }
+      Alt+Shift+K { set-column-width "+10%"; }
+
+      // Maximize / fullscreen
+      Alt+F { maximize-column; }
+      Alt+Shift+F { fullscreen-window; }
+
+      // Center column
+      Alt+C { center-column; }
+
+      // Consume / expel windows into/from column
+      Alt+Comma { consume-window-into-column; }
+      Alt+Period { expel-window-from-column; }
+
+      // Column width presets
+      Alt+R { switch-preset-column-width; }
+
+      // Float toggle
+      Alt+V { toggle-window-floating; }
+
+      // Workspaces
+      Alt+1 { focus-workspace 1; }
+      Alt+2 { focus-workspace 2; }
+      Alt+3 { focus-workspace 3; }
+      Alt+4 { focus-workspace 4; }
+      Alt+5 { focus-workspace 5; }
+      Alt+6 { focus-workspace 6; }
+      Alt+7 { focus-workspace 7; }
+      Alt+8 { focus-workspace 8; }
+      Alt+9 { focus-workspace 9; }
+
+      // Move to workspace
+      Alt+Shift+1 { move-column-to-workspace 1; }
+      Alt+Shift+2 { move-column-to-workspace 2; }
+      Alt+Shift+3 { move-column-to-workspace 3; }
+      Alt+Shift+4 { move-column-to-workspace 4; }
+      Alt+Shift+5 { move-column-to-workspace 5; }
+      Alt+Shift+6 { move-column-to-workspace 6; }
+      Alt+Shift+7 { move-column-to-workspace 7; }
+      Alt+Shift+8 { move-column-to-workspace 8; }
+      Alt+Shift+9 { move-column-to-workspace 9; }
+
+      // Workspace cycling
+      Alt+Tab { focus-workspace-down; }
+      Alt+Shift+Tab { focus-workspace-up; }
+
+      // Move columns/windows
+      Alt+Ctrl+H { move-column-left; }
+      Alt+Ctrl+J { move-window-down; }
+      Alt+Ctrl+K { move-window-up; }
+      Alt+Ctrl+L { move-column-right; }
+
+      // Monitor focus
+      Alt+Shift+H { focus-monitor-left; }
+      Alt+Shift+L { focus-monitor-right; }
+
+      // Move column to monitor
+      Alt+Ctrl+Shift+H { move-column-to-monitor-left; }
+      Alt+Ctrl+Shift+L { move-column-to-monitor-right; }
+
+      // Volume keys (work when locked)
+      XF86AudioRaiseVolume allow-when-locked=true { spawn "wpctl" "set-volume" "@DEFAULT_AUDIO_SINK@" "0.05+"; }
+      XF86AudioLowerVolume allow-when-locked=true { spawn "wpctl" "set-volume" "@DEFAULT_AUDIO_SINK@" "0.05-"; }
+      XF86AudioMute allow-when-locked=true { spawn "wpctl" "set-mute" "@DEFAULT_AUDIO_SINK@" "toggle"; }
+
+      // Screenshot
+      Print { screenshot; }
+    }
+  '';
 
   # === Rofi App Launcher (Gruvbox) ===
   xdg.configFile."rofi/config.rasi".text = ''
