@@ -1,50 +1,51 @@
 import QtQuick
-import QtQuick.Layouts
 import Quickshell
 import Quickshell.Services.UPower
 import qs.Theme
-import qs.Common
 
-RowLayout {
-    id: batteryWidget
-    spacing: 6
+Row {
+    id: bat
+    spacing: 5
+    height: Theme.barHeight
 
     property var battery: UPower.displayDevice
-    property real percentage: battery ? battery.percentage : 0
+    property real pct: battery ? battery.percentage : 0
     property bool charging: battery ? (battery.state === UPowerDeviceState.Charging) : false
-    property bool hasBattery: battery ? battery.isPresent : false
+    property bool present: battery ? battery.isPresent : false
 
-    visible: hasBattery
+    visible: present
 
     property string icon: {
         if (charging) return "\udb80\udc85"
-        if (percentage >= 80) return "\udb80\udc81"
-        if (percentage >= 60) return "\udb80\udc7f"
-        if (percentage >= 40) return "\udb80\udc7d"
-        if (percentage >= 20) return "\udb80\udc7b"
+        if (pct >= 80) return "\udb80\udc81"
+        if (pct >= 60) return "\udb80\udc7f"
+        if (pct >= 40) return "\udb80\udc7d"
+        if (pct >= 20) return "\udb80\udc7b"
         return "\udb80\udc7a"
     }
 
-    property color batteryColor: {
+    property color col: {
         if (charging) return Theme.green
-        if (percentage >= 80) return Theme.green
-        if (percentage >= 60) return Theme.text
-        if (percentage >= 40) return Theme.yellow
-        if (percentage >= 20) return Theme.orange
+        if (pct >= 80) return Theme.green
+        if (pct >= 60) return Theme.text
+        if (pct >= 40) return Theme.yellow
+        if (pct >= 20) return Theme.orange
         return Theme.red
     }
 
     Text {
-        text: batteryWidget.icon
-        color: batteryWidget.batteryColor
+        text: bat.icon
+        color: bat.col
         font.family: Theme.iconFont
         font.pixelSize: Theme.iconSize
-        verticalAlignment: Text.AlignVCenter
+        anchors.verticalCenter: parent.verticalCenter
     }
 
-    DefaultText {
-        text: Math.round(batteryWidget.percentage) + "%"
-        color: batteryWidget.batteryColor
-        verticalAlignment: Text.AlignVCenter
+    Text {
+        text: Math.round(bat.pct) + "%"
+        color: bat.col
+        font.family: Theme.fontFamily
+        font.pixelSize: Theme.fontSize
+        anchors.verticalCenter: parent.verticalCenter
     }
 }

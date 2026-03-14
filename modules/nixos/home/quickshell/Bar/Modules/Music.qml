@@ -1,25 +1,21 @@
 import QtQuick
-import QtQuick.Layouts
 import Quickshell
 import Quickshell.Services.Mpris
 import qs.Theme
-import qs.Common
 
-RowLayout {
+Row {
     id: musicWidget
     spacing: 6
+    height: Theme.barHeight
 
     property var player: {
         var players = Mpris.players
-        if (players && players.values && players.values.length > 0) {
+        if (players && players.values && players.values.length > 0)
             return players.values[0]
-        }
         return null
     }
 
-    property bool hasTrack: player !== null && player.trackTitle !== ""
-
-    visible: hasTrack
+    visible: player !== null && player.trackTitle !== ""
 
     Text {
         text: {
@@ -30,30 +26,28 @@ RowLayout {
         color: Theme.green
         font.family: Theme.iconFont
         font.pixelSize: Theme.iconSize
-        verticalAlignment: Text.AlignVCenter
+        anchors.verticalCenter: parent.verticalCenter
 
         MouseArea {
             anchors.fill: parent
-            onClicked: {
-                if (musicWidget.player) {
-                    musicWidget.player.togglePlaying()
-                }
-            }
+            onClicked: if (musicWidget.player) musicWidget.player.togglePlaying()
         }
     }
 
-    DefaultText {
+    Text {
         text: {
             if (!musicWidget.player) return ""
-            var title = musicWidget.player.trackTitle || ""
-            var artists = musicWidget.player.trackArtists || []
-            var artist = artists.length > 0 ? artists[0] : ""
-            var display = title
-            if (artist !== "") display += " - " + artist
-            if (display.length > 36) display = display.substring(0, 34) + "…"
-            return display
+            var t = musicWidget.player.trackTitle || ""
+            var a = (musicWidget.player.trackArtists || [])
+            var artist = a.length > 0 ? a[0] : ""
+            var s = t
+            if (artist) s += " — " + artist
+            if (s.length > 30) s = s.substring(0, 28) + "…"
+            return s
         }
-        color: Theme.textDim
-        verticalAlignment: Text.AlignVCenter
+        color: Theme.textMuted
+        font.family: Theme.fontFamily
+        font.pixelSize: Theme.fontSize - 1
+        anchors.verticalCenter: parent.verticalCenter
     }
 }

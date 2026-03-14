@@ -1,10 +1,8 @@
 import QtQuick
 import qs.Theme
 
-Text {
-    text: "|"
+Rectangle {
+    width: 1
+    height: Theme.barHeight * 0.4
     color: Theme.border
-    font.family: Theme.fontFamily
-    font.pixelSize: Theme.fontSize
-    verticalAlignment: Text.AlignVCenter
 }

@@ -1,10 +1,9 @@
 import QtQuick
-import QtQuick.Layouts
 import qs.Theme
-import qs.Common
 
-RowLayout {
+Row {
     spacing: 6
+    height: Theme.barHeight
 
     property string localTime: ""
     property string utcTime: ""
@@ -16,7 +15,6 @@ RowLayout {
         triggeredOnStart: true
         onTriggered: {
             var now = new Date()
-            // 12-hour format
             var h = now.getHours()
             var ampm = h >= 12 ? "PM" : "AM"
             h = h % 12
@@ -24,46 +22,34 @@ RowLayout {
             var m = now.getMinutes().toString().padStart(2, '0')
             localTime = h + ":" + m + " " + ampm
 
-            // UTC
             var uh = now.getUTCHours().toString().padStart(2, '0')
             var um = now.getUTCMinutes().toString().padStart(2, '0')
-            utcTime = uh + ":" + um + " UTC"
+            utcTime = uh + ":" + um
         }
     }
 
-    // Local time icon
     Text {
-        text: "\udb80\udc31" // 󰀱
-        color: Theme.text
-        font.family: Theme.iconFont
-        font.pixelSize: Theme.iconSize
-        verticalAlignment: Text.AlignVCenter
-    }
-
-    DefaultText {
         text: localTime
+        color: Theme.text
+        font.family: Theme.fontFamily
+        font.pixelSize: Theme.fontSize
         font.bold: true
-        verticalAlignment: Text.AlignVCenter
+        anchors.verticalCenter: parent.verticalCenter
     }
 
-    DefaultText {
-        text: "•"
-        color: Theme.textMuted
-        verticalAlignment: Text.AlignVCenter
-    }
-
-    // UTC icon
     Text {
-        text: "\udb80\udd9f" // 󰖟
+        text: "·"
         color: Theme.textMuted
-        font.family: Theme.iconFont
-        font.pixelSize: Theme.iconSize
-        verticalAlignment: Text.AlignVCenter
+        font.family: Theme.fontFamily
+        font.pixelSize: Theme.fontSize
+        anchors.verticalCenter: parent.verticalCenter
     }
 
-    DefaultText {
-        text: utcTime
+    Text {
+        text: utcTime + " UTC"
         color: Theme.textMuted
-        verticalAlignment: Text.AlignVCenter
+        font.family: Theme.fontFamily
+        font.pixelSize: Theme.fontSize - 1
+        anchors.verticalCenter: parent.verticalCenter
     }
 }

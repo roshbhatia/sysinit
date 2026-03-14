@@ -1,17 +1,14 @@
 import QtQuick
-import QtQuick.Layouts
 import qs.Theme
-import qs.Common
 import qs.Services
 
-RowLayout {
+Row {
     spacing: 6
     visible: NiriService.focusedWindowAppId !== ""
+    height: Theme.barHeight
 
     property string appId: NiriService.focusedWindowAppId
-    property string appTitle: NiriService.focusedWindowTitle
 
-    // Nerd font icon mapping for common apps
     property var iconMap: ({
         "firefox": "\udb80\ude09",
         "firefox-esr": "\udb80\ude09",
@@ -42,58 +39,42 @@ RowLayout {
         "signal": "\uf086",
         "ferdium": "\uf075",
         "obsidian": "\uf249",
-        "notion": "\uf249",
-        "org.gnome.Settings": "\uf013",
-        "gnome-control-center": "\uf013",
         "pavucontrol": "\udb81\udd53",
-        "nm-applet": "\udb80\udf1e",
         "eog": "\udb80\ude0b",
         "mpv": "\udb80\udcf8",
         "vlc": "\udb80\udcf8",
-        "gimp": "\uf1fc",
-        "inkscape": "\uf1fc",
-        "blender": "\uf1fc",
         "steam": "\uf1b6",
-        "lutris": "\uf11b",
         "1password": "\udb80\udcca",
-        "org.keepassxc.KeePassXC": "\udb80\udcca",
-        "libreoffice-writer": "\udb80\udde9",
-        "libreoffice-calc": "\udb80\udde9",
-        "libreoffice-impress": "\udb80\udde9",
         "evince": "\uf1c1",
-        "zathura": "\uf1c1",
-        "transmission-gtk": "\udb80\udc96",
-        "virt-manager": "\uf108"
+        "zathura": "\uf1c1"
     })
 
     property string icon: iconMap[appId] || "\uf108"
 
     Text {
         text: parent.icon
-        color: Theme.text
+        color: Theme.textDim
         font.family: Theme.iconFont
         font.pixelSize: Theme.iconSize
-        verticalAlignment: Text.AlignVCenter
+        anchors.verticalCenter: parent.verticalCenter
     }
 
-    DefaultText {
+    Text {
         text: {
-            // Show a clean app name
             var name = parent.appId
             if (name.indexOf(".") !== -1) {
                 var parts = name.split(".")
                 name = parts[parts.length - 1]
             }
-            // Capitalize first letter
-            if (name.length > 0) {
+            if (name.length > 0)
                 name = name.charAt(0).toUpperCase() + name.slice(1)
-            }
-            // Truncate
-            if (name.length > 24) {
-                name = name.substring(0, 22) + "…"
-            }
+            if (name.length > 20)
+                name = name.substring(0, 18) + "…"
             return name
         }
-        verticalAlignment: Text.AlignVCenter
+        color: Theme.textDim
+        font.family: Theme.fontFamily
+        font.pixelSize: Theme.fontSize
+        anchors.verticalCenter: parent.verticalCenter
     }
 }

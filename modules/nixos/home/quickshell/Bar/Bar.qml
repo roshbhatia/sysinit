@@ -13,7 +13,6 @@ Scope {
             id: bar
 
             property var modelData
-
             screen: modelData
 
             anchors {
@@ -22,53 +21,40 @@ Scope {
                 right: true
             }
 
-            implicitHeight: 32
+            implicitHeight: Theme.barHeight
             color: Theme.bg
 
-            RowLayout {
+            Item {
                 anchors.fill: parent
-                anchors.leftMargin: 16
-                anchors.rightMargin: 16
-                spacing: 0
+                anchors.leftMargin: Theme.barPadH
+                anchors.rightMargin: Theme.barPadH
 
-                // === LEFT ===
-                RowLayout {
-                    Layout.fillHeight: true
-                    Layout.alignment: Qt.AlignLeft | Qt.AlignVCenter
-                    spacing: 10
+                // Left section
+                Row {
+                    anchors.left: parent.left
+                    anchors.verticalCenter: parent.verticalCenter
+                    spacing: Theme.sectionSpacing
 
                     Logo {}
                     Separator {}
                     FrontApp {}
-
-                    Separator { visible: music.visible }
-                    Music { id: music }
                 }
 
-                // === CENTER SPACER ===
-                Item { Layout.fillWidth: true }
-
-                // === CENTER ===
-                RowLayout {
-                    Layout.fillHeight: true
-                    Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
+                // Center section
+                Row {
+                    anchors.centerIn: parent
                     spacing: 0
 
                     Niri { screen: bar.screen }
                 }
 
-                // === CENTER SPACER ===
-                Item { Layout.fillWidth: true }
-
-                // === RIGHT ===
-                RowLayout {
-                    Layout.fillHeight: true
-                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                    spacing: 10
+                // Right section
+                Row {
+                    anchors.right: parent.right
+                    anchors.verticalCenter: parent.verticalCenter
+                    spacing: Theme.sectionSpacing
 
                     DateTime {}
-                    Separator {}
-                    Battery {}
                     Separator {}
                     Volume {}
                 }

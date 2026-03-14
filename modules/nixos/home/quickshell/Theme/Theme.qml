@@ -26,6 +26,11 @@ QtObject {
     // Fonts
     readonly property string fontFamily: "IoskeleyMono"
     readonly property string iconFont: "Symbols Nerd Font Mono"
-    readonly property int fontSize: 14
-    readonly property int iconSize: 16
+    readonly property int fontSize: 12
+    readonly property int iconSize: 13
+
+    // Bar
+    readonly property int barHeight: 30
+    readonly property int barPadH: 14
+    readonly property int sectionSpacing: 8
 }
