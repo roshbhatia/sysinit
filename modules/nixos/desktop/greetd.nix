@@ -40,6 +40,9 @@ in
     };
   };
 
+  # Suppress kernel/systemd messages on VT1 so they don't corrupt tuigreet
+  boot.kernelParams = [ "quiet" "loglevel=3" "systemd.show_status=auto" "rd.udev.log_level=3" ];
+
   # Unlock Greetd keyring on login
   security.pam.services.greetd.enableGnomeKeyring = true;
 }
