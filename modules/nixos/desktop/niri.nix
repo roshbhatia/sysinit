@@ -49,7 +49,11 @@ in
     pkgs.swaylock
     pkgs.swaybg
     pkgs.firefox
+    pkgs.papirus-icon-theme
   ];
+
+  # Icon theme for rofi and GTK apps
+  environment.sessionVariables.XCURSOR_THEME = "Adwaita";
 
   # Allow niri to run as a session
   security.polkit.enable = true;

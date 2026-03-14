@@ -22,41 +22,39 @@ Scope {
                 right: true
             }
 
-            implicitHeight: 36
+            implicitHeight: 32
             color: Theme.bg
 
             RowLayout {
                 anchors.fill: parent
-                anchors.leftMargin: 12
-                anchors.rightMargin: 12
+                anchors.leftMargin: 16
+                anchors.rightMargin: 16
                 spacing: 0
 
                 // === LEFT ===
                 RowLayout {
-                    Layout.alignment: Qt.AlignLeft
-                    spacing: 12
+                    Layout.fillHeight: true
+                    Layout.alignment: Qt.AlignLeft | Qt.AlignVCenter
+                    spacing: 10
 
                     Logo {}
-
                     Separator {}
-
                     FrontApp {}
 
-                    Separator {
-                        visible: music.visible
-                    }
-
-                    Music {
-                        id: music
-                    }
+                    Separator { visible: music.visible }
+                    Music { id: music }
                 }
 
                 // === CENTER SPACER ===
                 Item { Layout.fillWidth: true }
 
-                // === CENTER (workspace dots) ===
-                Niri {
-                    screen: bar.screen
+                // === CENTER ===
+                RowLayout {
+                    Layout.fillHeight: true
+                    Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
+                    spacing: 0
+
+                    Niri { screen: bar.screen }
                 }
 
                 // === CENTER SPACER ===
@@ -64,17 +62,14 @@ Scope {
 
                 // === RIGHT ===
                 RowLayout {
-                    Layout.alignment: Qt.AlignRight
-                    spacing: 12
+                    Layout.fillHeight: true
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                    spacing: 10
 
                     DateTime {}
-
                     Separator {}
-
                     Battery {}
-
                     Separator {}
-
                     Volume {}
                 }
             }

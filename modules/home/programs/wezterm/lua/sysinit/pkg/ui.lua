@@ -159,11 +159,14 @@ function M.setup(config)
   end
 
   config.window_padding = {
-    left = "1cell",
-    right = "1cell",
-    top = "1cell",
-    bottom = "0cell",
+    left = "0.5cell",
+    right = "0.5cell",
+    top = "0.5cell",
+    bottom = "0.5cell",
   }
+
+  -- Ensure wezterm fills its window on Wayland tiling WMs
+  config.use_resize_increments = false
 
   -- Use default hyperlink rules (handles http/https, ssh, git, etc.)
   config.hyperlink_rules = wezterm.default_hyperlink_rules()

@@ -95,14 +95,14 @@ in
       }
     }
 
-    // Dim unfocused windows to indicate focus (instead of border/ring)
+    // All windows slightly transparent, focused windows less so
     window-rule {
-      opacity 1.0
       draw-border-with-background false
+      opacity 0.92
     }
     window-rule {
       match is-focused=false
-      opacity 0.88
+      opacity 0.78
     }
 
     prefer-no-csd
@@ -115,9 +115,10 @@ in
       backdrop-color "#1d2021"
     }
 
-    // Hotkey overlay
+    // Hotkey overlay (Super+? to show)
     hotkey-overlay {
       skip-at-startup
+      hide-not-bound
     }
 
     // Startup commands
@@ -221,6 +222,9 @@ in
 
       // ── Overview ──
       Super+Tab { toggle-overview; }
+
+      // ── Keybinding cheatsheet ──
+      Super+Shift+Slash { show-hotkey-overlay; }
     }
   '';
 
@@ -229,13 +233,17 @@ in
     configuration {
       modi: "drun,run,window";
       show-icons: true;
+      icon-theme: "Papirus-Dark";
       terminal: "wezterm";
-      drun-display-format: "{icon} {name}";
+      drun-display-format: "{name}";
+      window-format: "{w} {c} {t}";
       disable-history: false;
       hide-scrollbar: true;
       sorting-method: "fzf";
+      click-to-exit: true;
+      steal-focus: true;
 
-      /* Clear conflicting defaults first, then set vim-style navigation */
+      /* Clear conflicting defaults, then set vim-style navigation */
       kb-clear-line: "";
       kb-remove-to-sol: "";
       kb-remove-to-eol: "";
@@ -250,153 +258,142 @@ in
       kb-move-front: "Control+a";
       kb-move-end: "Control+e";
       kb-delete-entry: "Shift+Delete";
+      kb-mode-next: "Control+Tab";
+      kb-mode-previous: "Control+Shift+Tab";
     }
 
     * {
-      bg:          #1d2021e6;
-      bg-solid:    #1d2021;
-      bg-alt:      #282828;
-      fg:          #ebdbb2;
-      fg-dim:      #928374;
-      accent:      #fe8019;
-      accent-alt:  #fabd2f;
-      urgent:      #fb4934;
-      green:       #b8bb26;
-      border-col:  #504945;
-      transparent: rgba(0, 0, 0, 0);
+      bg:             #1d2021cc;
+      bg-solid:       #1d2021;
+      bg-entry:       #28282800;
+      bg-selected:    #3c383680;
+      fg:             #ebdbb2;
+      fg-dim:         #928374;
+      fg-placeholder: #665c54;
+      accent:         #fe8019;
+      accent-dim:     #fe801940;
+      yellow:         #fabd2f;
+      urgent:         #fb4934;
+      green:          #b8bb26;
+      blue:           #83a598;
+      border-col:     #50494580;
+      none:           transparent;
+      font:           "${values.theme.font.monospace} 13";
     }
 
     window {
-      width: 520px;
-      border: 2px;
-      border-color: @border-col;
+      transparency:    "real";
+      width:           560px;
+      border:          1px;
+      border-color:    @border-col;
       background-color: @bg;
-      border-radius: 6px;
-      padding: 0;
+      border-radius:   8px;
+      padding:         0;
+      location:        center;
+      anchor:          center;
     }
 
     mainbox {
-      background-color: @transparent;
-      children: [ inputbar, message, listview ];
-      spacing: 0;
+      background-color: @none;
+      children:        [ inputbar, listview ];
+      spacing:         0;
     }
 
     inputbar {
-      background-color: @bg-alt;
-      children: [ prompt, entry ];
-      padding: 14px 16px;
-      border: 0 0 1px 0;
-      border-color: @border-col;
-      border-radius: 6px 6px 0 0;
+      background-color: @none;
+      children:        [ textbox-prompt, entry ];
+      padding:         16px 20px;
+      spacing:         12px;
     }
 
-    prompt {
-      background-color: @accent;
-      text-color: @bg-solid;
-      padding: 6px 14px;
-      border-radius: 4px;
-      font: "${values.theme.font.monospace} 13";
-      vertical-align: 0.5;
+    textbox-prompt {
+      expand:          false;
+      str:             "";
+      font:            "Symbols Nerd Font Mono 15";
+      text-color:      @accent;
+      background-color: @none;
+      vertical-align:  0.5;
+      horizontal-align: 0.5;
     }
 
     entry {
-      background-color: @transparent;
-      text-color: @fg;
-      padding: 6px 14px;
-      placeholder: "Search...";
-      placeholder-color: @fg-dim;
-      font: "${values.theme.font.monospace} 13";
-      cursor: text;
-      cursor-color: @accent;
-    }
-
-    message {
-      background-color: @transparent;
-      border: 0;
-      padding: 8px 16px;
-    }
-
-    textbox {
-      text-color: @fg-dim;
-      background-color: @transparent;
+      background-color: @bg-entry;
+      text-color:      @fg;
+      padding:         8px 0;
+      placeholder:     "Type to search...";
+      placeholder-color: @fg-placeholder;
+      font:            @font;
+      cursor:          text;
+      cursor-color:    @accent;
     }
 
     listview {
-      background-color: @transparent;
-      columns: 1;
-      lines: 12;
-      padding: 8px 0;
-      spacing: 0;
-      fixed-height: true;
+      background-color: @none;
+      columns:         1;
+      lines:           8;
+      padding:         0 8px 8px 8px;
+      spacing:         2px;
+      fixed-height:    true;
+      cycle:           false;
     }
 
     element {
-      background-color: @transparent;
-      text-color: @fg;
-      padding: 10px 18px;
-      border-radius: 0;
+      background-color: @none;
+      text-color:      @fg;
+      padding:         10px 14px;
+      border-radius:   6px;
+      spacing:         12px;
     }
 
     element selected.normal {
-      background-color: @accent;
-      text-color: @bg-solid;
+      background-color: @bg-selected;
+      text-color:      @fg;
     }
 
     element selected.urgent {
       background-color: @urgent;
-      text-color: @bg-solid;
+      text-color:      @bg-solid;
     }
 
     element selected.active {
-      background-color: @green;
-      text-color: @bg-solid;
+      background-color: @bg-selected;
+      text-color:      @green;
     }
 
     element normal.urgent {
-      text-color: @urgent;
+      text-color:      @urgent;
     }
 
     element normal.active {
-      text-color: @green;
+      text-color:      @green;
     }
 
     element alternate.normal {
-      background-color: @transparent;
-      text-color: @fg;
+      background-color: @none;
+      text-color:      @fg;
     }
 
     element-icon {
-      size: 24px;
+      size:            22px;
       background-color: inherit;
-      padding: 0 10px 0 0;
+      padding:         0;
+      cursor:          pointer;
     }
 
     element-text {
       background-color: inherit;
-      text-color: inherit;
-      font: "${values.theme.font.monospace} 13";
-      vertical-align: 0.5;
+      text-color:      inherit;
+      font:            @font;
+      vertical-align:  0.5;
+      cursor:          pointer;
     }
 
-    mode-switcher {
-      background-color: @bg-alt;
-      padding: 6px 8px;
-      border: 1px 0 0 0;
-      border-color: @border-col;
-      spacing: 4px;
-    }
-
-    button {
-      background-color: @transparent;
-      text-color: @fg-dim;
-      padding: 4px 12px;
-      border-radius: 4px;
-      font: "${values.theme.font.monospace} 12";
-    }
-
-    button selected {
-      background-color: @border-col;
-      text-color: @fg;
+    scrollbar {
+      handle-width:    4px;
+      handle-color:    @border-col;
+      background-color: @none;
+      border-radius:   2px;
+      margin:          0 0 0 4px;
     }
   '';
 
@@ -426,6 +423,15 @@ in
       border-color=#${colors.base08}
       default-timeout=0
     '';
+  };
+
+  # === GTK / Icon Theme ===
+  gtk = {
+    enable = true;
+    iconTheme = {
+      name = "Papirus-Dark";
+      package = pkgs.papirus-icon-theme;
+    };
   };
 
   # === Wallpaper ===
