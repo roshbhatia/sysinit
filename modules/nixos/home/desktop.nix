@@ -127,9 +127,9 @@ in
 
     // ── Window Rules ──
 
-    // Rounded corners on all windows
+    // Squared corners, no rounding
     window-rule {
-      geometry-corner-radius 10
+      geometry-corner-radius 0
       clip-to-geometry true
     }
 
