@@ -227,18 +227,21 @@ in
       hide-scrollbar: true;
       sorting-method: "fzf";
 
-      /* Vim-style navigation matching aerospace muscle memory */
-      kb-row-up: "Up,Control+k,Control+p";
-      kb-row-down: "Down,Control+j,Control+n";
+      /* Clear conflicting defaults first, then set vim-style navigation */
+      kb-clear-line: "";
+      kb-remove-to-sol: "";
+      kb-remove-to-eol: "";
+      kb-remove-char-forward: "Delete";
+      kb-remove-word-back: "Control+BackSpace";
       kb-accept-entry: "Return,KP_Enter";
       kb-cancel: "Escape,Control+bracketleft";
-      kb-remove-to-eol: "";
+      kb-row-up: "Up,Control+k,Control+p";
+      kb-row-down: "Down,Control+j,Control+n";
+      kb-page-prev: "Page_Up,Control+u";
+      kb-page-next: "Page_Down,Control+d";
       kb-move-front: "Control+a";
       kb-move-end: "Control+e";
-      kb-remove-to-sol: "Control+u";
-      kb-remove-word-back: "Control+w,Control+BackSpace";
-      kb-page-prev: "Control+u";
-      kb-page-next: "Control+d";
+      kb-delete-entry: "Shift+Delete";
     }
 
     * {
