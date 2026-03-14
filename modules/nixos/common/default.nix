@@ -77,6 +77,11 @@
     startWhenNeeded = false;
   };
 
+  # Tailscale VPN
+  services.tailscale.enable = true;
+  networking.firewall.allowedUDPPorts = [ 41641 ]; # Tailscale
+  networking.firewall.trustedInterfaces = [ "tailscale0" ];
+
   # Security
   security.sudo.wheelNeedsPassword = false;
 
