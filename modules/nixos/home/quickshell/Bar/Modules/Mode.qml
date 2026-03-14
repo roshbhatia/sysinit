@@ -1,4 +1,5 @@
 import QtQuick
+import Quickshell
 import Quickshell.Io
 import qs.Theme
 import qs.Common
@@ -7,6 +8,7 @@ DefaultText {
     id: modeDisplay
 
     property string mode: "MAIN"
+    property string modePath: Quickshell.env("HOME") + "/.cache/niri-mode"
 
     text: mode
     color: mode === "MOVE" ? Theme.yellow :
@@ -17,12 +19,14 @@ DefaultText {
 
     FileView {
         id: modeFile
-        path: Qt.resolvedUrl("file://" + Quickshell.env("HOME") + "/.cache/niri-mode")
+        path: modeDisplay.modePath
 
         onTextChanged: {
-            var m = text.trim()
-            if (m !== "") {
-                modeDisplay.mode = m
+            if (text) {
+                var m = text.trim()
+                if (m !== "") {
+                    modeDisplay.mode = m
+                }
             }
         }
     }

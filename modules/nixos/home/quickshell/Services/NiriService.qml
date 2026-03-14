@@ -2,9 +2,8 @@ pragma Singleton
 import QtQuick
 import Quickshell
 import Quickshell.Io
-import qs.Common
 
-Item {
+Singleton {
     id: root
 
     // Public state
@@ -17,35 +16,48 @@ Item {
 
     // Actions
     function switchToWorkspace(index) {
-        socket.send(JSON.stringify({"Action": {"FocusWorkspace": {"reference": {"Index": index}}}}))
-    }
-
-    function focusWindow(windowId) {
-        socket.send(JSON.stringify({"Action": {"FocusWindow": {"id": windowId}}}))
+        actionProcess.command = ["niri", "msg", "action", "focus-workspace", index.toString()]
+        actionProcess.running = true
     }
 
     // Internal
     property var _workspaceMap: ({})
     property var _windowMap: ({})
 
-    Socket {
-        id: socket
-        socketPath: Quickshell.env("NIRI_SOCKET") || ""
+    // Connect to niri event stream
+    Process {
+        id: eventStream
+        command: ["niri", "msg", "--json", "event-stream"]
+        running: true
 
-        onMessageReceived: function(message) {
-            try {
-                var event = JSON.parse(message)
-                root._handleEvent(event)
-            } catch (e) {
-                console.warn("NiriService: Failed to parse event:", e)
+        stdout: SplitParser {
+            onRead: data => {
+                try {
+                    var event = JSON.parse(data)
+                    root._handleEvent(event)
+                } catch (e) {
+                    // Skip unparseable lines
+                }
             }
         }
 
-        onConnectedChanged: {
-            if (connected) {
-                socket.send('"EventStream"')
-            }
+        onExited: (code, status) => {
+            // Restart after a delay if it exits
+            restartTimer.start()
         }
+    }
+
+    // Action process for sending commands
+    Process {
+        id: actionProcess
+        running: false
+    }
+
+    Timer {
+        id: restartTimer
+        interval: 2000
+        repeat: false
+        onTriggered: eventStream.running = true
     }
 
     function _handleEvent(event) {
@@ -57,19 +69,22 @@ Item {
                 focusedWorkspaceId = ws.id
                 _updateFocusedIndex()
             }
-            // Update is_active flag
+            // Update workspace states
+            var updated = []
             for (var i = 0; i < allWorkspaces.length; i++) {
-                if (allWorkspaces[i].id === ws.id) {
-                    allWorkspaces[i].is_active = ws.is_active
+                var w = Object.assign({}, allWorkspaces[i])
+                if (w.id === ws.id) {
+                    w.is_active = ws.is_active
                     if (ws.focused) {
-                        allWorkspaces[i].is_focused = true
-                        currentOutput = allWorkspaces[i].output || ""
+                        w.is_focused = true
+                        currentOutput = w.output || ""
                     }
                 } else if (ws.focused) {
-                    allWorkspaces[i].is_focused = false
+                    w.is_focused = false
                 }
+                updated.push(w)
             }
-            allWorkspacesChanged()
+            allWorkspaces = updated
         } else if (event.WorkspaceActiveWindowChanged) {
             var waw = event.WorkspaceActiveWindowChanged
             if (waw.id === focusedWorkspaceId) {
@@ -79,21 +94,21 @@ Item {
         } else if (event.WindowsChanged) {
             _updateWindows(event.WindowsChanged.windows)
         } else if (event.WindowOpenedOrChanged) {
-            var w = event.WindowOpenedOrChanged.window
-            _windowMap[w.id] = w
-            if (w.is_focused) {
-                focusedWindowTitle = w.title || ""
-                focusedWindowAppId = w.app_id || ""
+            var win = event.WindowOpenedOrChanged.window
+            _windowMap[win.id] = win
+            if (win.is_focused) {
+                focusedWindowTitle = win.title || ""
+                focusedWindowAppId = win.app_id || ""
             }
         } else if (event.WindowClosed) {
             delete _windowMap[event.WindowClosed.id]
         } else if (event.WindowFocusChanged) {
             var wfc = event.WindowFocusChanged
             if (wfc.id !== undefined && wfc.id !== null) {
-                var win = _windowMap[wfc.id]
-                if (win) {
-                    focusedWindowTitle = win.title || ""
-                    focusedWindowAppId = win.app_id || ""
+                var focusedWin = _windowMap[wfc.id]
+                if (focusedWin) {
+                    focusedWindowTitle = focusedWin.title || ""
+                    focusedWindowAppId = focusedWin.app_id || ""
                 }
             } else {
                 focusedWindowTitle = ""

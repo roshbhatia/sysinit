@@ -5,75 +5,79 @@ import Quickshell.Wayland
 import qs.Theme
 import qs.Bar.Modules
 
-PanelWindow {
-    id: bar
+Scope {
+    Variants {
+        model: Quickshell.screens
 
-    property var screen
+        PanelWindow {
+            id: bar
 
-    anchors {
-        top: true
-        left: true
-        right: true
-    }
+            property var modelData
 
-    implicitHeight: 36
-    color: Theme.bg
+            screen: modelData
 
-    RowLayout {
-        anchors.fill: parent
-        anchors.leftMargin: 8
-        anchors.rightMargin: 8
-        spacing: 0
-
-        // === LEFT ===
-        RowLayout {
-            Layout.alignment: Qt.AlignLeft
-            spacing: 12
-
-            Logo {}
-
-            Separator {}
-
-            Mode {}
-
-            Separator {}
-
-            FrontApp {}
-
-            Separator {
-                visible: music.visible
+            anchors {
+                top: true
+                left: true
+                right: true
             }
 
-            Music {
-                id: music
+            implicitHeight: 36
+            color: Theme.bg
+
+            RowLayout {
+                anchors.fill: parent
+                anchors.leftMargin: 12
+                anchors.rightMargin: 12
+                spacing: 0
+
+                // === LEFT ===
+                RowLayout {
+                    Layout.alignment: Qt.AlignLeft
+                    spacing: 12
+
+                    Logo {}
+
+                    Separator {}
+
+                    FrontApp {}
+
+                    Separator {
+                        visible: music.visible
+                    }
+
+                    Music {
+                        id: music
+                    }
+                }
+
+                // === CENTER SPACER ===
+                Item { Layout.fillWidth: true }
+
+                // === CENTER (workspace dots) ===
+                Niri {
+                    screen: bar.screen
+                }
+
+                // === CENTER SPACER ===
+                Item { Layout.fillWidth: true }
+
+                // === RIGHT ===
+                RowLayout {
+                    Layout.alignment: Qt.AlignRight
+                    spacing: 12
+
+                    DateTime {}
+
+                    Separator {}
+
+                    Battery {}
+
+                    Separator {}
+
+                    Volume {}
+                }
             }
-        }
-
-        // === CENTER SPACER ===
-        Item { Layout.fillWidth: true }
-
-        // === CENTER (workspace dots) ===
-        Niri {
-            screen: bar.screen
-        }
-
-        // === CENTER SPACER ===
-        Item { Layout.fillWidth: true }
-
-        // === RIGHT ===
-        RowLayout {
-            Layout.alignment: Qt.AlignRight
-            spacing: 12
-
-            DateTime {}
-
-            Separator {}
-
-            Battery {}
-
-            Separator {}
-
-            Volume {}
         }
     }
 }

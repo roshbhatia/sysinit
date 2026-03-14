@@ -116,13 +116,13 @@ in
     spawn-at-startup "${pkgs.swaybg}/bin/swaybg" "-i" "${wallpaper}" "-m" "fill"
     spawn-at-startup "${pkgs.mako}/bin/mako"
     spawn-at-startup "nm-applet" "--indicator"
+    spawn-at-startup "quickshell"
     spawn-sh-at-startup "echo MAIN > ~/.cache/niri-mode"
-    spawn-sh-at-startup "systemctl --user start quickshell"
 
     // Key bindings
     binds {
       // ── Launching ──
-      Alt+Return { spawn "wezterm"; }
+      Alt+Return { spawn "${pkgs.wezterm}/bin/wezterm"; }
       Super+Space { spawn "${pkgs.rofi}/bin/rofi" "-show" "drun" "-theme" "${config.xdg.configHome}/rofi/config.rasi"; }
 
       // ── Window management ──

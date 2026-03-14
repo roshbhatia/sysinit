@@ -1,12 +1,11 @@
 import Quickshell
 import QtQuick
 
-ShellRoot {
-    Variants {
-        model: Quickshell.screens
+import qs.Bar
+import qs.Theme
 
-        Bar.Bar {
-            screen: modelData
-        }
-    }
+Scope {
+    id: root
+
+    Bar {}
 }
