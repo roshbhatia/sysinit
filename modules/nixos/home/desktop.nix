@@ -123,8 +123,9 @@ in
         # App launcher
         "Mod4+space" = "exec ${pkgs.rofi}/bin/rofi -show drun -config ${config.xdg.configHome}/rofi/config.rasi";
 
-        # Kill / exit
+        # Kill / exit (Super+Q and Super+W both close, like macOS)
         "Mod4+q" = "kill";
+        "Mod4+w" = "kill";
         "Mod4+Control+q" = "exec swaymsg exit";
 
         # Focus (vim-style, matching aerospace)
@@ -169,7 +170,8 @@ in
         "${mod}+g" = "mode locked";
 
         # Clipboard history
-        "Mod4+v" = "exec ${pkgs.cliphist}/bin/cliphist list | ${pkgs.rofi}/bin/rofi -dmenu | ${pkgs.cliphist}/bin/cliphist decode | ${pkgs.wl-clipboard}/bin/wl-copy";
+        # Clipboard history (Alt+V so Super+V passes through as paste)
+        "${mod}+Shift+v" = "exec ${pkgs.cliphist}/bin/cliphist list | ${pkgs.rofi}/bin/rofi -dmenu -config ${config.xdg.configHome}/rofi/config.rasi | ${pkgs.cliphist}/bin/cliphist decode | ${pkgs.wl-clipboard}/bin/wl-copy";
 
         # Screenshot (region select)
         "Print" = "exec ${pkgs.grim}/bin/grim -g \"$(${pkgs.slurp}/bin/slurp)\" ~/Pictures/Screenshots/$(date +%Y-%m-%d_%H-%M-%S).png";

@@ -89,7 +89,7 @@ in
       git = linuxGit;
       theme = {
         colorscheme = "gruvbox";
-        variant = "dark-hard";
+        variant = "dark-soft";
         appearance = "dark";
         font = {
           monospace = "CommitMono";
