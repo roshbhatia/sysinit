@@ -40,10 +40,7 @@ function M.setup(config)
   -- rendering quirks (tab bar cutoff, sizing issues, CSD conflicts)
   config.enable_wayland = false
 
-  -- Tab bar: simple retro style at bottom (no window controls)
   config.tab_bar_at_bottom = true
-  config.use_fancy_tab_bar = false
-  config.hide_tab_bar_if_only_one_tab = false -- always show to avoid resize bug #5819
 
   -- Window padding
   config.window_padding = {
@@ -53,14 +50,9 @@ function M.setup(config)
     bottom = "0cell",
   }
 
-  -- Window frame: zero borders on Linux (sway handles borders)
   config.window_frame = {
     font = font,
     font_size = 11.0,
-    border_left_width = 0,
-    border_right_width = 0,
-    border_bottom_height = 0,
-    border_top_height = 0,
   }
 
   config.visual_bell = {
@@ -80,6 +72,8 @@ function M.setup(config)
     -- Linux/Wayland (sway)
     config.front_end = "OpenGL"
     config.window_decorations = "RESIZE"
+    config.use_fancy_tab_bar = false
+    config.hide_tab_bar_if_only_one_tab = false
     config.window_background_opacity = config_data.transparency.opacity
     config.freetype_load_flags = "NO_HINTING|NO_AUTOHINT"
     -- Tell wezterm it's in a tiling WM so it accounts for
