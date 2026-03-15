@@ -29,6 +29,7 @@ in
   wayland.windowManager.sway = {
     enable = true;
     wrapperFeatures.gtk = true;
+    checkConfig = false; # swayfx commands fail sway's config validator
 
     config = {
       modifier = mod;
