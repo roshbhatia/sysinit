@@ -41,6 +41,8 @@ function M.setup(config)
   config.enable_wayland = false
 
   config.tab_bar_at_bottom = true
+  config.use_fancy_tab_bar = false
+  config.hide_tab_bar_if_only_one_tab = false
 
   -- Window padding
   config.window_padding = {
@@ -72,8 +74,6 @@ function M.setup(config)
     -- Linux/Wayland (sway)
     config.front_end = "OpenGL"
     config.window_decorations = "RESIZE"
-    config.use_fancy_tab_bar = false
-    config.hide_tab_bar_if_only_one_tab = false
     config.window_background_opacity = config_data.transparency.opacity
     config.freetype_load_flags = "NO_HINTING|NO_AUTOHINT"
     -- Tell wezterm it's in a tiling WM so it accounts for
