@@ -17,7 +17,7 @@ let
 
     ${pkgs.dbus}/bin/dbus-update-activation-environment --systemd --all || true
 
-    exec ${pkgs.sway}/bin/sway --unsupported-gpu "$@"
+    exec ${pkgs.swayfx}/bin/sway --unsupported-gpu "$@"
   '';
 in
 {
@@ -26,6 +26,7 @@ in
 
   programs.sway = {
     enable = true;
+    package = pkgs.swayfx;
     xwayland.enable = true;
   };
 
@@ -70,6 +71,8 @@ in
 
     # Launcher + notifications
     rofi
+    bemenu # suckless-style pipe launcher (dmenu for wayland)
+    j4-dmenu-desktop # .desktop launcher via bemenu
     mako
 
     # File management

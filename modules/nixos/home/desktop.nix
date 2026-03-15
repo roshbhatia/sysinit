@@ -237,6 +237,17 @@ in
       export MOZ_ENABLE_WAYLAND=1
     '';
 
+    # SwayFX effects
+    extraConfig = ''
+      blur enable
+      blur_passes 2
+      blur_radius 5
+      corner_radius 0
+      shadows enable
+      shadow_blur_radius 20
+      shadow_color #0000007F
+      default_dim_inactive 0.1
+    '';
   };
 
   # === i3status-rust ===
@@ -412,8 +423,8 @@ in
       name = "Papirus-Dark";
       package = pkgs.papirus-icon-theme;
     };
-    gtk3.extraConfig.gtk-application-prefer-dark-theme = 1;
-    gtk4.extraConfig.gtk-application-prefer-dark-theme = 1;
+    gtk3.extraConfig.gtk-application-prefer-dark-theme = 0;
+    gtk4.extraConfig.gtk-application-prefer-dark-theme = 0;
   };
 
   home.pointerCursor = {
@@ -465,7 +476,7 @@ in
 
   dconf.settings = {
     "org/gnome/desktop/interface" = {
-      color-scheme = lib.mkForce "prefer-dark";
+      color-scheme = lib.mkForce "prefer-light";
     };
     "org/cinnamon/desktop/default-applications/terminal".exec = "wezterm";
     "org/nemo/preferences" = {
