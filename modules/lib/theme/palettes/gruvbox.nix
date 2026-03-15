@@ -37,7 +37,11 @@ let
   };
 
   mkDarkPalette =
-    { bg0_h, bg0, bg0_s }:
+    {
+      bg0_h,
+      bg0,
+      bg0_s,
+    }:
     utils.validatePalette (
       rec {
         inherit bg0_h bg0 bg0_s;
@@ -82,7 +86,7 @@ in
     ];
     appearanceMapping = {
       light = "light";
-      dark = "dark-hard";
+      dark = "dark-soft";
     };
     author = "sainnhe";
     homepage = "https://github.com/sainnhe/gruvbox-material";
