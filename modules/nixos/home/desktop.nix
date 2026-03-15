@@ -77,7 +77,7 @@ in
 
       border {
         width 2
-        active-gradient from="#${c.base0D}" to="#${c.base09}" angle=45
+        active-color "#${c.base0D}"
         inactive-color "#${c.base01}00"
       }
 
@@ -134,32 +134,13 @@ in
     }
 
     // ── Opacity ──
+    // Focused: moderate transparency, unfocused: more transparent
     window-rule {
-      opacity 0.92
+      opacity 0.85
     }
     window-rule {
       match is-focused=false
-      opacity 0.78
-    }
-
-    // Terminals: more transparent so wallpaper shows through
-    window-rule {
-      match app-id=r#"^org\.wezfurlong\.wezterm$"#
-      opacity 0.88
-    }
-    window-rule {
-      match app-id=r#"^org\.wezfurlong\.wezterm$"# is-focused=false
-      opacity 0.72
-    }
-
-    // Browsers and media: full opacity
-    window-rule {
-      match app-id="^firefox$"
-      opacity 1.0
-    }
-    window-rule {
-      match app-id="^firefox$" is-focused=false
-      opacity 0.90
+      opacity 0.65
     }
 
     // ── Floating windows ──
@@ -205,7 +186,7 @@ in
     // ── Key Bindings ──
     binds {
       // Launch
-      Alt+Return hotkey-overlay-title="Terminal" { spawn "${pkgs.wezterm}/bin/wezterm"; }
+      Alt+Return hotkey-overlay-title="Terminal" { spawn "${pkgs.wezterm}/bin/wezterm" "start"; }
       Super+Space hotkey-overlay-title="App Launcher" { spawn "${pkgs.rofi}/bin/rofi" "-show" "drun" "-theme" "${config.xdg.configHome}/rofi/config.rasi"; }
 
       // Window management
