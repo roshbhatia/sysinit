@@ -74,7 +74,6 @@ in
 
     # File management
     nemo
-    yazi
 
     # Browser (configured via home-manager firefox module)
 
@@ -91,10 +90,6 @@ in
 
     # Audio control
     pavucontrol
-
-    # Screen lock + idle
-    swaylock
-    swayidle
 
     # Authentication
     polkit_gnome
@@ -118,6 +113,4 @@ in
     polkitPolicyOwners = [ "rshnbhatia" ];
   };
 
-  # Screen lock PAM
-  security.pam.services.swaylock = { };
 }

@@ -29,6 +29,7 @@
     ./utils
     ./vivid.nix
     ./wezterm
+    ./yazi
     ./zoxide.nix
     ./zsh
   ];
