@@ -34,8 +34,8 @@ in
   environment.sessionVariables = {
     WLR_NO_HARDWARE_CURSORS = "1";
     XDG_CURRENT_DESKTOP = "niri";
-    XCURSOR_THEME = "Bibata-Modern-Classic";
-    XCURSOR_SIZE = "24";
+    XCURSOR_THEME = "macOS";
+    XCURSOR_SIZE = "16";
   };
 
   # ── 32-bit graphics (required for Steam/Wine) ──
@@ -96,7 +96,7 @@ in
 
     # Theming
     pkgs.papirus-icon-theme
-    pkgs.bibata-cursors
+    pkgs.apple-cursor
   ];
 
   # Allow niri to run as a session

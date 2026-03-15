@@ -59,8 +59,8 @@ in
 
     // ── Cursor ──
     cursor {
-      xcursor-theme "Bibata-Modern-Classic"
-      xcursor-size 24
+      xcursor-theme "macOS"
+      xcursor-size 16
       hide-when-typing
       hide-after-inactive-ms 10000
     }
@@ -478,9 +478,9 @@ in
   };
 
   home.pointerCursor = {
-    name = "Bibata-Modern-Classic";
-    package = pkgs.bibata-cursors;
-    size = 24;
+    name = "macOS";
+    package = pkgs.apple-cursor;
+    size = 16;
     gtk.enable = true;
   };
 
