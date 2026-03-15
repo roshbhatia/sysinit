@@ -128,10 +128,10 @@ in
 
     // ── Window Rules ──
 
-    // Squared corners, no rounding
+    // Squared corners, no rounding, no clipping
     window-rule {
       geometry-corner-radius 0
-      clip-to-geometry true
+      clip-to-geometry false
     }
 
     // ── Opacity ──
@@ -186,7 +186,7 @@ in
 
     // ── Startup ──
     spawn-at-startup "${pkgs.swaybg}/bin/swaybg" "-i" "${wallpaper}" "-m" "fill"
-    spawn-sh-at-startup "${pkgs.coreutils}/bin/sleep 0.5 && ${pkgs.waybar}/bin/waybar"
+    spawn-at-startup "${pkgs.waybar}/bin/waybar"
     spawn-at-startup "${pkgs.mako}/bin/mako"
     spawn-at-startup "nm-applet" "--indicator"
     spawn-at-startup "${pkgs.polkit_gnome}/libexec/polkit-gnome-authentication-agent-1"
@@ -543,6 +543,12 @@ in
   '';
 
   dconf.settings = {
+    # Tell XDG portal to report dark mode (fixes wezterm appearance warning)
+    "org/gnome/desktop/interface" = {
+      color-scheme = lib.mkForce "prefer-dark";
+      gtk-theme = lib.mkForce "Gruvbox-Dark";
+      icon-theme = lib.mkForce "Papirus-Dark";
+    };
     "org/cinnamon/desktop/default-applications/terminal".exec = "wezterm";
     "org/nemo/preferences" = {
       show-hidden-files = false;
