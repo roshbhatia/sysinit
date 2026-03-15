@@ -67,7 +67,7 @@ in
 
       output = {
         "*" = {
-          bg = lib.mkForce "${wallpaper} fill";
+          bg = lib.mkForce "#${c.base00} solid_color";
         };
       };
 
@@ -89,6 +89,7 @@ in
         { command = "${pkgs.polkit_gnome}/libexec/polkit-gnome-authentication-agent-1"; }
         { command = "${pkgs.wl-clipboard}/bin/wl-paste --watch ${pkgs.cliphist}/bin/cliphist store"; }
         { command = "nm-applet --indicator"; }
+        { command = "sh -c 'if [ -f $HOME/.background-image ]; then swaymsg output \\* bg $HOME/.background-image fill; else swaymsg output \\* bg ${wallpaper} fill; fi'"; }
       ];
 
       assigns = {
@@ -449,10 +450,8 @@ in
   };
 
   # === Wallpaper ===
-  home.file.".background-image" = {
-    source = wallpaper;
-    force = true;
-  };
+  # Default wallpaper is set via sway startup, NOT home.file
+  # (home.file would revert user's set-background choice on every rebuild)
 
   # === XDG Default Applications ===
   xdg.mimeApps = {
