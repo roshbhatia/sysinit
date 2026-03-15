@@ -40,8 +40,12 @@ function M.setup(config)
   config.quick_select_alphabet = "fjdkslaghrueiwoncmv"
   config.scrollback_lines = 200000
   config.tab_bar_at_bottom = true
-  config.window_background_opacity = config_data.transparency.opacity
-  config.window_decorations = utils.is_darwin() and "RESIZE|MACOS_FORCE_ENABLE_SHADOW" or "RESIZE"
+  -- On Linux/Wayland, niri handles window opacity via window-rules.
+  -- Setting wezterm's own opacity would multiply with niri's, making it too transparent.
+  config.window_background_opacity = utils.is_darwin() and config_data.transparency.opacity or 1.0
+  -- NONE on macOS would break things, but on Linux with niri's prefer-no-csd it's correct.
+  -- RESIZE adds a title bar on Linux. NONE gives zero chrome.
+  config.window_decorations = utils.is_darwin() and "RESIZE|MACOS_FORCE_ENABLE_SHADOW" or "NONE"
   config.enable_wayland = true
   config.window_frame = {
     font = font,
