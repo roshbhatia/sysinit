@@ -1,14 +1,15 @@
 let
   commonAliases = {
     cat = "bat -pp";
+    f = "yazi";
     kk = "k9s";
     ll = "eza --icons=always -l -a";
+    lt = "eza --tree";
     org = "nvim ~/org/notes";
     sg = "ast-grep";
     tf = "terraform";
     tree = "eza --tree --icons=never";
     v = "nvim";
-    lt = "eza --tree";
   };
 
   posixAliases = {
