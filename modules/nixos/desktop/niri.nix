@@ -97,6 +97,7 @@ in
     # Theming
     pkgs.papirus-icon-theme
     pkgs.apple-cursor
+    pkgs.gruvbox-gtk-theme
   ];
 
   # Allow niri to run as a session

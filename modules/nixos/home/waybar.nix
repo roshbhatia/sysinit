@@ -25,18 +25,16 @@ in
       reload_style_on_change = true;
 
       modules-left = [
-        "niri/workspaces"
+        "niri/window"
       ];
       modules-center = [
-        "niri/window"
+        "niri/workspaces"
       ];
       modules-right = [
         "pulseaudio"
         "network"
-        "cpu"
-        "memory"
+        "clock#utc"
         "clock"
-        "tray"
       ];
 
       "niri/workspaces" = {
@@ -59,25 +57,18 @@ in
       };
 
       clock = {
-        format = "{:%I:%M %p}";
-        format-alt = "{:%a %b %d · %H:%M UTC}";
+        format = "{:%I:%M %p %Z}";
         tooltip-format = "<tt>{calendar}</tt>";
       };
 
-      cpu = {
-        format = "  {usage}%";
-        interval = 5;
-        tooltip = false;
-      };
-
-      memory = {
-        format = "  {percentage}%";
-        interval = 5;
+      "clock#utc" = {
+        format = "{:%H:%M UTC}";
+        timezone = "UTC";
         tooltip = false;
       };
 
       network = {
-        format-wifi = "  {signalStrength}%";
+        format-wifi = "  {essid}";
         format-ethernet = "󰈁  {ifname}";
         format-disconnected = "󰖪  off";
         tooltip-format = "{ifname}: {ipaddr}/{cidr}\n{essid} ({signalStrength}%)";
@@ -90,12 +81,9 @@ in
           default = [ "󰕿" "󰖀" "󰕾" ];
         };
         on-click = "${pkgs.pavucontrol}/bin/pavucontrol";
+        on-scroll-up = "wpctl set-volume @DEFAULT_AUDIO_SINK@ 2%+";
+        on-scroll-down = "wpctl set-volume @DEFAULT_AUDIO_SINK@ 2%-";
         tooltip = false;
-      };
-
-      tray = {
-        spacing = 8;
-        icon-size = 14;
       };
     };
 
@@ -106,7 +94,7 @@ in
         min-height: 0;
       }
 
-      /* ── Bar frame: floating island ── */
+      /* ── Bar: floating island ── */
       window#waybar {
         background-color: transparent;
         color: #${c.base06};
@@ -114,15 +102,15 @@ in
 
       window#waybar > box {
         background-color: rgba(${c.base00-rgb-r}, ${c.base00-rgb-g}, ${c.base00-rgb-b}, 0.90);
-        border-radius: 10px;
-        border: 1px solid rgba(${c.base01-rgb-r}, ${c.base01-rgb-g}, ${c.base01-rgb-b}, 0.4);
-        padding: 0 6px;
+        border-radius: 8px;
+        border: 1px solid rgba(${c.base01-rgb-r}, ${c.base01-rgb-g}, ${c.base01-rgb-b}, 0.3);
+        padding: 0 8px;
       }
 
       tooltip {
         background-color: #${c.base01};
         border: 1px solid #${c.base02};
-        border-radius: 8px;
+        border-radius: 6px;
         color: #${c.base06};
       }
 
@@ -131,19 +119,32 @@ in
         padding: 4px;
       }
 
-      /* ── Workspaces ── */
+      /* ── Left: window title ── */
+      #window {
+        color: #${c.base06};
+        padding: 0 10px;
+        font-size: 12px;
+      }
+
+      window#waybar.empty #window {
+        background-color: transparent;
+        padding: 0;
+        min-width: 0;
+      }
+
+      /* ── Center: workspaces ── */
       #workspaces {
-        padding: 0 2px;
+        padding: 0 4px;
       }
 
       #workspaces button {
-        color: #${c.base02};
+        color: #${c.base03};
         padding: 0 5px;
         margin: 4px 1px;
         border-radius: 6px;
         background: transparent;
         border: none;
-        transition: all 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        transition: all 0.15s ease;
       }
 
       #workspaces button.active {
@@ -156,36 +157,23 @@ in
         background-color: rgba(${c.base01-rgb-r}, ${c.base01-rgb-g}, ${c.base01-rgb-b}, 0.3);
       }
 
-      /* ── Window Title (center) ── */
-      #window {
-        color: #${c.base04};
-        padding: 0 14px;
-        font-size: 11px;
-      }
-
-      window#waybar.empty #window {
-        background-color: transparent;
-        padding: 0;
-        min-width: 0;
-      }
-
       /* ── Right modules ── */
       #clock,
-      #cpu,
-      #memory,
       #network,
-      #pulseaudio,
-      #tray {
+      #pulseaudio {
         padding: 0 8px;
         margin: 4px 0;
         color: #${c.base04};
-        border-radius: 6px;
-        transition: all 0.2s ease;
+        transition: all 0.15s ease;
       }
 
       #clock {
         color: #${c.base06};
-        padding: 0 10px;
+      }
+
+      #clock.utc {
+        color: #${c.base04};
+        font-size: 11px;
       }
 
       #pulseaudio {
@@ -194,27 +182,6 @@ in
 
       #network {
         color: #${c.base0D};
-      }
-
-      #cpu {
-        color: #${c.base0C};
-      }
-
-      #memory {
-        color: #${c.base0E};
-      }
-
-      /* Tray */
-      #tray {
-        padding: 0 6px;
-      }
-
-      #tray > .passive {
-        -gtk-icon-effect: dim;
-      }
-
-      #tray > .needs-attention {
-        -gtk-icon-effect: highlight;
       }
     '';
   };

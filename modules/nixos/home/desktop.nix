@@ -11,8 +11,8 @@ let
   c = config.lib.stylix.colors; # base16 palette
 
   wallpaper = pkgs.fetchurl {
-    url = "https://images2.alphacoders.com/140/1406218.png";
-    sha256 = "sha256-2VJu0diUD14psjpZJU+X2U1EPsM4GvZzTNy3bJCOz5Q=";
+    url = "https://wallpapercave.com/wp/wp12329549.png";
+    sha256 = "sha256-9R3cDgd1VslCF6mG6jBO64MEdRjCGzWE4m/dAjEixzk=";
   };
 in
 {
@@ -136,11 +136,11 @@ in
 
     // ── Opacity ──
     window-rule {
-      opacity 0.72
+      opacity 0.90
     }
     window-rule {
       match is-focused=false
-      opacity 0.62
+      opacity 0.80
     }
 
     // WezTerm: REQUIRED — wezterm waits for a zero-sized configure event
@@ -472,17 +472,22 @@ in
     '';
   };
 
-  # === GTK / Icon / Cursor Theme ===
+  # === GTK / Icon / Cursor / Theme ===
   gtk = {
     enable = true;
+    theme = {
+      name = lib.mkForce "Gruvbox-Dark";
+      package = lib.mkForce pkgs.gruvbox-gtk-theme;
+    };
     iconTheme = {
       name = "Papirus-Dark";
       package = pkgs.papirus-icon-theme;
     };
-    cursorTheme = {
-      name = "Bibata-Modern-Classic";
-      package = pkgs.bibata-cursors;
-      size = 24;
+    gtk3.extraConfig = {
+      gtk-application-prefer-dark-theme = 1;
+    };
+    gtk4.extraConfig = {
+      gtk-application-prefer-dark-theme = 1;
     };
   };
 
