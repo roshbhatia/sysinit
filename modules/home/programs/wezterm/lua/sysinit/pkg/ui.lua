@@ -31,6 +31,7 @@ function M.setup(config)
   config.line_height = 1.0
   config.cell_width = 1.0
   
+  config.adjust_window_size_when_changing_font_size = false
   config.max_fps = 240
   config.quick_select_alphabet = "fjdkslaghrueiwoncmv"
   config.scrollback_lines = 200000
