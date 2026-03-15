@@ -62,6 +62,12 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    # SwayFX compositor (sway fork with blur, shadows, dim)
+    swayfx = {
+      url = "github:WillPower3309/swayfx";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     # Mozilla Firefox overlay
     nixpkgs-mozilla = {
       url = "github:mozilla/nixpkgs-mozilla";

@@ -237,7 +237,7 @@ in
       export MOZ_ENABLE_WAYLAND=1
     '';
 
-    # SwayFX effects
+    # SwayFX effects (requires swayfx from flake, not nixpkgs)
     extraConfig = ''
       blur enable
       blur_passes 2

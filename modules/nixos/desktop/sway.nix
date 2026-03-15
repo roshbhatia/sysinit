@@ -1,7 +1,14 @@
 # SwayFX compositor + desktop packages
-{ pkgs, ... }:
+{ pkgs, inputs, ... }:
 
 let
+  swayfxPkg = inputs.swayfx.packages.${pkgs.system}.default;
+
+  # Wrap swayfx the same way nixpkgs wraps sway
+  swayfxWrapped = pkgs.sway.override {
+    sway-unwrapped = swayfxPkg;
+  };
+
   swayWrapped = pkgs.writeShellScriptBin "sway-wrapped" ''
     set -euo pipefail
 
@@ -17,7 +24,7 @@ let
 
     ${pkgs.dbus}/bin/dbus-update-activation-environment --systemd --all || true
 
-    exec ${pkgs.swayfx}/bin/sway --unsupported-gpu "$@"
+    exec ${swayfxWrapped}/bin/sway --unsupported-gpu "$@"
   '';
 in
 {
@@ -26,7 +33,7 @@ in
 
   programs.sway = {
     enable = true;
-    package = pkgs.swayfx;
+    package = swayfxWrapped;
     xwayland.enable = true;
   };
 
