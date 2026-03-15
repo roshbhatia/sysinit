@@ -279,6 +279,10 @@ in
         unstage = "reset HEAD --";
       };
 
+      url."git@github.com:" = {
+        insteadOf = "https://github.com/";
+      };
+
       http."https://git.sr.ht" = {
         sslVerify = false;
       };
