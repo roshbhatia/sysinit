@@ -75,7 +75,6 @@ function M.get_ssh_picker_action()
     fuzzy = true,
     action = wezterm.action_callback(function(window, pane, id, label)
       if id then
-        window:perform_action(wezterm.action.SwitchToWorkspace({ name = id }), pane)
         window:perform_action(wezterm.action.SpawnTab({ DomainName = "SSH:" .. id }), pane)
       end
     end),
