@@ -45,22 +45,13 @@ function M.setup(config)
   config.use_fancy_tab_bar = false
   config.hide_tab_bar_if_only_one_tab = false -- always show to avoid resize bug #5819
 
-  -- Window padding: macOS gets nice padding, Linux/sway needs tight fit
-  if utils.is_darwin() then
-    config.window_padding = {
-      left = "1cell",
-      right = "1cell",
-      top = "1cell",
-      bottom = "0cell",
-    }
-  else
-    config.window_padding = {
-      left = 0,
-      right = 0,
-      top = 0,
-      bottom = 0,
-    }
-  end
+  -- Window padding
+  config.window_padding = {
+    left = "1cell",
+    right = "1cell",
+    top = "1cell",
+    bottom = "0cell",
+  }
 
   -- Window frame: zero borders on Linux (sway handles borders)
   config.window_frame = {
