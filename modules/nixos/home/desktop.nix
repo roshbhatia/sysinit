@@ -274,7 +274,6 @@ in
           {
             block = "focused_window";
             format = " $title.str(max_w:40) |";
-            format_alt = " $app_name.str(max_w:40) |";
           }
           {
             block = "sound";
