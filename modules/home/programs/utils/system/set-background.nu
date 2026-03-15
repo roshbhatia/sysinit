@@ -118,13 +118,13 @@ def main [--update] {
 
         print $"(ansi green)[OK](ansi reset) Background image linked to ~/.background-image"
 
-        # Reload sway if running
+        # Set background directly via swaymsg if running
         if "SWAYSOCK" in $env {
             try {
-                swaymsg reload
-                print $"(ansi blue)[INFO](ansi reset) Reloaded sway to apply background"
+                swaymsg $'output * bg ($selected) fill'
+                print $"(ansi blue)[INFO](ansi reset) Applied background in sway"
             } catch {
-                print $"(ansi yellow_bold)[WARN](ansi reset) Could not reload sway"
+                print $"(ansi yellow_bold)[WARN](ansi reset) Could not set sway background"
             }
         } else {
             print $"(ansi blue)[INFO](ansi reset) Sway not detected - background will apply on next start"
