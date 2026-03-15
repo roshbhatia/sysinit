@@ -47,17 +47,17 @@ function M.setup(config)
     left = "0.5cell",
     right = "0.5cell",
     top = "0.5cell",
-    bottom = "0.5cell",
+    bottom = 0,
   }
 
-  -- Window frame: zero borders on all platforms
+  -- Window frame: zero borders
   config.window_frame = {
     font = font,
     font_size = 11.0,
-    border_left_width = "0cell",
-    border_right_width = "0cell",
-    border_bottom_height = "0cell",
-    border_top_height = "0cell",
+    border_left_width = 0,
+    border_right_width = 0,
+    border_bottom_height = 0,
+    border_top_height = 0,
   }
 
   config.visual_bell = {

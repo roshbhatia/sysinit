@@ -17,8 +17,8 @@ let
   };
 in
 {
-  # Let stylix auto-theme sway, mako, and GTK.
-  # We override rofi because we want a custom layout.
+  # Let stylix auto-theme sway colors and mako.
+  # Rofi uses custom layout so we override it.
   stylix.targets = {
     sway.enable = true;
     mako.enable = true;
@@ -47,7 +47,6 @@ in
 
       defaultWorkspace = "workspace number 1";
 
-      # Input devices
       input = {
         "type:keyboard" = {
           xkb_layout = "us";
@@ -65,29 +64,24 @@ in
         };
       };
 
-      # Wallpaper
       output = {
         "*" = {
           bg = lib.mkForce "${wallpaper} fill";
         };
       };
 
-      # Window appearance — squared corners, no titlebar, minimal border
+      # No titlebar, no border — clean and squared
       window = {
-        border = 2;
+        border = 0;
         titlebar = false;
       };
       floating = {
-        border = 2;
+        border = 1;
         titlebar = false;
       };
 
-      # Colors handled by stylix (sway.enable = true)
-
-      # Floating modifier (Super for mouse move/resize)
       floating.modifier = "Mod4";
 
-      # Autostart
       startup = [
         { command = "dbus-update-activation-environment --systemd --all"; }
         { command = "systemctl --user import-environment WAYLAND_DISPLAY XDG_CURRENT_DESKTOP"; }
@@ -96,12 +90,14 @@ in
         { command = "nm-applet --indicator"; }
       ];
 
-      # Window assignment rules
       assigns = {
         "C" = [
           { class = "^discord$"; }
           { class = "^Slack$"; }
           { app_id = "^vesktop$"; }
+        ];
+        "E" = [
+          { class = "^thunderbird$"; }
         ];
         "M" = [
           { class = "^Spotify$"; }
@@ -110,7 +106,6 @@ in
         ];
       };
 
-      # Floating rules
       window.commands = [
         { command = "floating enable"; criteria = { title = "^Picture-in-Picture$"; }; }
         { command = "floating enable"; criteria = { class = "^pavucontrol$"; }; }
@@ -118,26 +113,20 @@ in
         { command = "floating enable"; criteria = { class = "^1Password$"; }; }
         { command = "floating enable"; criteria = { app_id = "^1password$"; }; }
         { command = "floating enable"; criteria = { app_id = "^nemo$"; }; }
-        # Opacity: unfocused windows slightly dimmer
-        { command = "opacity 0.90"; criteria = { class = ".*"; }; }
-        { command = "opacity 0.90"; criteria = { app_id = ".*"; }; }
       ];
 
-      # === Keybindings (matching aerospace) ===
       keybindings = lib.mkOptionDefault {
         # Terminal
         "${mod}+Return" = "exec ${pkgs.wezterm}/bin/wezterm start";
 
-        # App launcher (Super+Space)
+        # App launcher
         "Mod4+space" = "exec ${pkgs.rofi}/bin/rofi -show drun";
 
-        # Kill window (Super+Q)
+        # Kill / exit
         "Mod4+q" = "kill";
-
-        # Exit sway (Super+Ctrl+Q)
         "Mod4+Control+q" = "exec swaymsg exit";
 
-        # Window focus (vim-style)
+        # Focus (vim-style, matching aerospace)
         "${mod}+h" = "focus left";
         "${mod}+j" = "focus down";
         "${mod}+k" = "focus up";
@@ -147,70 +136,52 @@ in
         "${mod}+Shift+j" = "resize shrink height 72 px";
         "${mod}+Shift+k" = "resize grow height 72 px";
 
-        # Workspaces (matching aerospace)
+        # Workspaces (only 1, 2, C, E, M — matching aerospace)
         "${mod}+1" = "workspace 1";
         "${mod}+2" = "workspace 2";
-        "${mod}+3" = "workspace 3";
-        "${mod}+4" = "workspace 4";
-        "${mod}+5" = "workspace 5";
-        "${mod}+6" = "workspace 6";
-        "${mod}+7" = "workspace 7";
-        "${mod}+8" = "workspace 8";
-        "${mod}+9" = "workspace 9";
         "${mod}+c" = "workspace C";
+        "${mod}+e" = "workspace E";
         "${mod}+m" = "workspace M";
 
-        # Move to workspace (with focus follow)
         "${mod}+Shift+1" = "move container to workspace 1; workspace 1";
         "${mod}+Shift+2" = "move container to workspace 2; workspace 2";
-        "${mod}+Shift+3" = "move container to workspace 3; workspace 3";
-        "${mod}+Shift+4" = "move container to workspace 4; workspace 4";
-        "${mod}+Shift+5" = "move container to workspace 5; workspace 5";
-        "${mod}+Shift+6" = "move container to workspace 6; workspace 6";
-        "${mod}+Shift+7" = "move container to workspace 7; workspace 7";
-        "${mod}+Shift+8" = "move container to workspace 8; workspace 8";
-        "${mod}+Shift+9" = "move container to workspace 9; workspace 9";
         "${mod}+Shift+c" = "move container to workspace C; workspace C";
+        "${mod}+Shift+e" = "move container to workspace E; workspace E";
         "${mod}+Shift+m" = "move container to workspace M; workspace M";
 
         # Workspace cycling
         "${mod}+Tab" = "workspace next_on_output";
         "${mod}+Shift+Tab" = "workspace prev_on_output";
-
-        # Workspace back-and-forth
         "${mod}+p" = "workspace back_and_forth";
 
         # Fullscreen
         "${mod}+f" = "fullscreen toggle";
 
-        # Float toggle
+        # Float / layout
         "${mod}+v" = "floating toggle";
-
-        # Layout toggle
         "${mod}+t" = "layout toggle split";
 
-        # Enter move mode
+        # Move mode
         "${mod}+x" = "mode move";
 
         # Clipboard history
         "Mod4+v" = "exec ${pkgs.cliphist}/bin/cliphist list | ${pkgs.rofi}/bin/rofi -dmenu | ${pkgs.cliphist}/bin/cliphist decode | ${pkgs.wl-clipboard}/bin/wl-copy";
 
-        # Screenshot
+        # Screenshot (region select)
         "Print" = "exec ${pkgs.grim}/bin/grim -g \"$(${pkgs.slurp}/bin/slurp)\" ~/Pictures/Screenshots/$(date +%Y-%m-%d_%H-%M-%S).png";
 
-        # Volume (media keys)
+        # Volume
         "XF86AudioRaiseVolume" = "exec wpctl set-volume @DEFAULT_AUDIO_SINK@ 0.05+";
         "XF86AudioLowerVolume" = "exec wpctl set-volume @DEFAULT_AUDIO_SINK@ 0.05-";
         "XF86AudioMute" = "exec wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle";
 
-        # Media playback
+        # Media
         "XF86AudioPlay" = "exec ${pkgs.playerctl}/bin/playerctl play-pause";
         "XF86AudioPause" = "exec ${pkgs.playerctl}/bin/playerctl play-pause";
         "XF86AudioNext" = "exec ${pkgs.playerctl}/bin/playerctl next";
         "XF86AudioPrev" = "exec ${pkgs.playerctl}/bin/playerctl previous";
       };
 
-      # Modes
       modes = {
         move = {
           "${mod}+h" = "move left";
@@ -235,7 +206,7 @@ in
             statusline = "#${c.base05}";
             separator = "#${c.base02}";
             focusedWorkspace = {
-              border = "#${c.base0D}";
+              border = "#${c.base0E}";
               background = "#${c.base01}";
               text = "#${c.base06}";
             };
@@ -264,7 +235,6 @@ in
       export GDK_BACKEND=wayland
       export QT_QPA_PLATFORM=wayland
       export MOZ_ENABLE_WAYLAND=1
-      export __NV_DISABLE_EXPLICIT_SYNC=1
     '';
   };
 
@@ -273,16 +243,16 @@ in
     enable = true;
     bars = {
       top = {
-        theme = "gruvbox-dark";
+        theme = "native";
         icons = "material-nf";
         blocks = [
           {
             block = "focused_window";
-            format = " $title.str(max_w:50) |";
+            format = " $title.str(max_w:48) ";
           }
           {
             block = "sound";
-            format = " $icon $volume |";
+            format = " $icon $volume ";
             click = [
               {
                 button = "left";
@@ -292,13 +262,14 @@ in
           }
           {
             block = "net";
-            format = " $icon {$ssid $signal_strength |} $ip ";
-            missing_format = " 󰖪 down ";
+            format = " $icon $ip ";
+            format_alt = " $icon $ssid $signal_strength ";
+            missing_format = " 󰖪 ";
           }
           {
             block = "time";
             interval = 30;
-            format = " $icon $timestamp.datetime(f:'%I:%M %p %Z') ";
+            format = " $icon $timestamp.datetime(f:'%I:%M %p') ";
           }
           {
             block = "time";
@@ -311,7 +282,7 @@ in
     };
   };
 
-  # === Rofi App Launcher (custom theme) ===
+  # === Rofi App Launcher ===
   xdg.configFile."rofi/config.rasi".text = ''
     configuration {
       modi: "drun,run,window";
@@ -346,7 +317,7 @@ in
       fg:             #${c.base06};
       fg-dim:         #${c.base04};
       fg-placeholder: #${c.base03};
-      accent:         #${c.base09};
+      accent:         #${c.base0E};
       urgent:         #${c.base08};
       green:          #${c.base0B};
       border-col:     #${c.base02}80;
@@ -367,7 +338,6 @@ in
     mainbox {
       background-color: @none;
       children:        [ inputbar, listview ];
-      spacing:         0;
     }
 
     inputbar {
@@ -430,13 +400,9 @@ in
     }
   '';
 
-  # === GTK / Icon / Cursor / Theme ===
+  # === GTK / Icon / Cursor ===
   gtk = {
     enable = true;
-    theme = {
-      name = lib.mkForce "Gruvbox-Dark";
-      package = lib.mkForce pkgs.gruvbox-gtk-theme;
-    };
     iconTheme = {
       name = "Papirus-Dark";
       package = pkgs.papirus-icon-theme;
@@ -468,14 +434,13 @@ in
       "application/pdf" = "org.pwmt.zathura.desktop";
       "image/png" = "imv.desktop";
       "image/jpeg" = "imv.desktop";
-      "image/gif" = "imv.desktop";
       "video/mp4" = "mpv.desktop";
       "audio/mpeg" = "mpv.desktop";
       "inode/directory" = "nemo.desktop";
     };
   };
 
-  # === USB Auto-Mount ===
+  # USB Auto-Mount
   services.udiskie = {
     enable = true;
     automount = true;
@@ -483,7 +448,7 @@ in
     tray = "never";
   };
 
-  # === Nemo File Manager ===
+  # Nemo
   home.file.".local/share/nemo/actions/open-terminal.nemo_action".text = ''
     [Nemo Action]
     Active=true
@@ -496,8 +461,6 @@ in
   dconf.settings = {
     "org/gnome/desktop/interface" = {
       color-scheme = lib.mkForce "prefer-dark";
-      gtk-theme = lib.mkForce "Gruvbox-Dark";
-      icon-theme = lib.mkForce "Papirus-Dark";
     };
     "org/cinnamon/desktop/default-applications/terminal".exec = "wezterm";
     "org/nemo/preferences" = {

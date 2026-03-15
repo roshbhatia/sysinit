@@ -102,7 +102,7 @@ in
     # Theming
     papirus-icon-theme
     apple-cursor
-    gruvbox-gtk-theme
+    rose-pine-gtk-theme
   ];
 
   security.polkit.enable = true;
