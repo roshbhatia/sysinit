@@ -424,8 +424,8 @@ in
       name = "Papirus-Dark";
       package = pkgs.papirus-icon-theme;
     };
-    gtk3.extraConfig.gtk-application-prefer-dark-theme = 0;
-    gtk4.extraConfig.gtk-application-prefer-dark-theme = 0;
+    gtk3.extraConfig.gtk-application-prefer-dark-theme = 1;
+    gtk4.extraConfig.gtk-application-prefer-dark-theme = 1;
   };
 
   home.pointerCursor = {
@@ -477,7 +477,7 @@ in
 
   dconf.settings = {
     "org/gnome/desktop/interface" = {
-      color-scheme = lib.mkForce "prefer-light";
+      color-scheme = lib.mkForce "prefer-dark";
     };
     "org/cinnamon/desktop/default-applications/terminal".exec = "wezterm";
     "org/nemo/preferences" = {
