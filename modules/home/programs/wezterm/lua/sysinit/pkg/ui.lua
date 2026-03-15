@@ -80,6 +80,15 @@ function M.setup(config)
     config.window_background_opacity = 1.0
     config.enable_wayland = true
     config.freetype_load_flags = "NO_HINTING|NO_AUTOHINT"
+    -- Tell wezterm it's in a tiling WM so it accounts for
+    -- window sizing correctly (fixes tab bar cutoff)
+    config.tiling_desktop_environments = {
+      "X11 LG3D",
+      "X11 bspwm",
+      "X11 i3",
+      "X11 dwm",
+      "Wayland",
+    }
   end
 
   local function locked_indicator()
