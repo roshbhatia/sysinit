@@ -74,9 +74,9 @@ in
 
     # File management
     nemo
+    yazi
 
-    # Browser
-    firefox
+    # Browser (configured via home-manager firefox module)
 
     # Communication
     vesktop
@@ -92,6 +92,10 @@ in
     # Audio control
     pavucontrol
 
+    # Screen lock + idle
+    swaylock
+    swayidle
+
     # Authentication
     polkit_gnome
 
@@ -106,4 +110,14 @@ in
   ];
 
   security.polkit.enable = true;
+
+  # 1Password
+  programs._1password.enable = true;
+  programs._1password-gui = {
+    enable = true;
+    polkitPolicyOwners = [ "rshnbhatia" ];
+  };
+
+  # Screen lock PAM
+  security.pam.services.swaylock = { };
 }

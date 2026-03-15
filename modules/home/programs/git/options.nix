@@ -1,4 +1,4 @@
-{ lib, ... }:
+{ lib, pkgs, ... }:
 
 {
   options.sysinit.git = {
@@ -59,7 +59,10 @@
 
       agentSocket = lib.mkOption {
         type = lib.types.str;
-        default = "~/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock";
+        default =
+          if pkgs.stdenv.isDarwin
+          then "~/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock"
+          else "~/.1password/agent.sock";
         description = "Path to 1Password SSH agent socket";
       };
 

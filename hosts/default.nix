@@ -45,7 +45,7 @@ let
     };
 
   linuxGit = mkGit {
-    use1PasswordAgent = false;
+    use1PasswordAgent = true;
     personalKeyFile = "~/.ssh/id_ed25519_personal";
     workKeyFile = "~/.ssh/id_ed25519_work";
   };

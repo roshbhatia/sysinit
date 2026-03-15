@@ -11,7 +11,7 @@ let
   gitCfg = config.sysinit.git;
   sshCfg = gitCfg.ssh;
 
-  use1Password = sshCfg.use1PasswordAgent && isDarwin;
+  use1Password = sshCfg.use1PasswordAgent;
 
   hasPersonalKey =
     sshCfg.personalPublicKey != null

@@ -36,6 +36,7 @@ in
         ]
         ++ lib.optionals (values.isDesktop) [
           ./home/desktop.nix
+          ../home/programs/firefox
         ];
 
         # NixOS systems use the nix-managed home directory

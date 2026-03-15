@@ -88,6 +88,7 @@ in
         { command = "${pkgs.polkit_gnome}/libexec/polkit-gnome-authentication-agent-1"; }
         { command = "${pkgs.wl-clipboard}/bin/wl-paste --watch ${pkgs.cliphist}/bin/cliphist store"; }
         { command = "nm-applet --indicator"; }
+        { command = "${pkgs.swayidle}/bin/swayidle -w timeout 300 '${pkgs.swaylock}/bin/swaylock -f -c ${c.base00}' timeout 600 'swaymsg \"output * dpms off\"' resume 'swaymsg \"output * dpms on\"' before-sleep '${pkgs.swaylock}/bin/swaylock -f -c ${c.base00}'"; }
       ];
 
       assigns = {
@@ -122,9 +123,10 @@ in
         # App launcher
         "Mod4+space" = "exec ${pkgs.rofi}/bin/rofi -show drun -config ${config.xdg.configHome}/rofi/config.rasi";
 
-        # Kill / exit
+        # Kill / exit / lock
         "Mod4+q" = "kill";
         "Mod4+Control+q" = "exec swaymsg exit";
+        "Mod4+l" = "exec ${pkgs.swaylock}/bin/swaylock -f -c ${c.base00}";
 
         # Focus (vim-style, matching aerospace)
         "${mod}+h" = "focus left";
