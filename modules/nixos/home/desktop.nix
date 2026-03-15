@@ -23,7 +23,7 @@ in
     rofi.enable = false; # custom theme in config.rasi
   };
 
-  # === Sway Window Manager ===
+  # Sway Window Manager
   wayland.windowManager.sway = {
     enable = true;
     wrapperFeatures.gtk = true;
@@ -87,7 +87,9 @@ in
         { command = "${pkgs.polkit_gnome}/libexec/polkit-gnome-authentication-agent-1"; }
         { command = "${pkgs.wl-clipboard}/bin/wl-paste --watch ${pkgs.cliphist}/bin/cliphist store"; }
         { command = "nm-applet --indicator"; }
-        { command = "sh -c 'if [ -f $HOME/.background-image ]; then swaymsg output \\* bg $HOME/.background-image fill; else swaymsg output \\* bg ${wallpaper} fill; fi'"; }
+        {
+          command = "sh -c 'if [ -f $HOME/.background-image ]; then swaymsg output \\* bg $HOME/.background-image fill; else swaymsg output \\* bg ${wallpaper} fill; fi'";
+        }
         { command = "${pkgs.workstyle}/bin/workstyle"; }
       ];
 
@@ -108,12 +110,42 @@ in
       };
 
       window.commands = [
-        { command = "floating enable"; criteria = { title = "^Picture-in-Picture$"; }; }
-        { command = "floating enable"; criteria = { class = "^pavucontrol$"; }; }
-        { command = "floating enable"; criteria = { app_id = "^pavucontrol$"; }; }
-        { command = "floating enable"; criteria = { class = "^1Password$"; }; }
-        { command = "floating enable"; criteria = { app_id = "^1password$"; }; }
-        { command = "floating enable"; criteria = { app_id = "^nemo$"; }; }
+        {
+          command = "floating enable";
+          criteria = {
+            title = "^Picture-in-Picture$";
+          };
+        }
+        {
+          command = "floating enable";
+          criteria = {
+            class = "^pavucontrol$";
+          };
+        }
+        {
+          command = "floating enable";
+          criteria = {
+            app_id = "^pavucontrol$";
+          };
+        }
+        {
+          command = "floating enable";
+          criteria = {
+            class = "^1Password$";
+          };
+        }
+        {
+          command = "floating enable";
+          criteria = {
+            app_id = "^1password$";
+          };
+        }
+        {
+          command = "floating enable";
+          criteria = {
+            app_id = "^nemo$";
+          };
+        }
       ];
 
       keybindings = lib.mkOptionDefault {
@@ -121,7 +153,8 @@ in
         "${mod}+Return" = "exec ${pkgs.wezterm}/bin/wezterm start";
 
         # App launcher
-        "Mod4+space" = "exec ${pkgs.rofi}/bin/rofi -show drun -config ${config.xdg.configHome}/rofi/config.rasi";
+        "Mod4+space" =
+          "exec ${pkgs.rofi}/bin/rofi -show drun -config ${config.xdg.configHome}/rofi/config.rasi";
 
         # Kill / exit (Super+Q and Super+W both close, like macOS)
         "Mod4+q" = "kill";
@@ -171,11 +204,14 @@ in
 
         # Clipboard history
         # Window switcher (macOS-style Cmd+Tab)
-        "Mod4+Tab" = "exec ${pkgs.rofi}/bin/rofi -show window -config ${config.xdg.configHome}/rofi/config.rasi";
-        "Mod4+Shift+Tab" = "exec ${pkgs.rofi}/bin/rofi -show window -config ${config.xdg.configHome}/rofi/config.rasi";
+        "Mod4+Tab" =
+          "exec ${pkgs.rofi}/bin/rofi -show window -config ${config.xdg.configHome}/rofi/config.rasi";
+        "Mod4+Shift+Tab" =
+          "exec ${pkgs.rofi}/bin/rofi -show window -config ${config.xdg.configHome}/rofi/config.rasi";
 
         # Clipboard history
-        "${mod}+Shift+v" = "exec ${pkgs.cliphist}/bin/cliphist list | ${pkgs.rofi}/bin/rofi -dmenu -config ${config.xdg.configHome}/rofi/config.rasi | ${pkgs.cliphist}/bin/cliphist decode | ${pkgs.wl-clipboard}/bin/wl-copy";
+        "${mod}+Shift+v" =
+          "exec ${pkgs.cliphist}/bin/cliphist list | ${pkgs.rofi}/bin/rofi -dmenu -config ${config.xdg.configHome}/rofi/config.rasi | ${pkgs.cliphist}/bin/cliphist decode | ${pkgs.wl-clipboard}/bin/wl-copy";
 
         # Screenshots (macOS-style: Super+Shift+3 = screen, Super+Shift+4 = region)
         "Mod4+Shift+3" = "exec ${pkgs.sway-contrib.grimshot}/bin/grimshot --notify savecopy output";
@@ -214,7 +250,10 @@ in
           position = "top";
           statusCommand = "${pkgs.i3status-rust}/bin/i3status-rs ${config.xdg.configHome}/i3status-rust/config-top.toml";
           fonts = {
-            names = [ "${values.theme.font.monospace}" "Symbols Nerd Font Mono" ];
+            names = [
+              "${values.theme.font.monospace}"
+              "Symbols Nerd Font Mono"
+            ];
             size = 11.0;
           };
           colors = {
@@ -266,7 +305,7 @@ in
     '';
   };
 
-  # === i3status-rust ===
+  # i3status-rust
   programs.i3status-rust = {
     enable = true;
     bars = {
@@ -459,44 +498,47 @@ in
   xdg.configFile."workstyle/config.toml".text = ''
     # Map app_id/class to nerd font icons (matching sketchybar)
     [matching]
-    '' + "''" + '' = "󱄅"
-    "firefox" = ""
-    "org.wezfurlong.wezterm" = ""
-    "wezterm" = ""
-    "wezterm-gui" = ""
-    "vesktop" = "󰙯"
-    "discord" = "󰙯"
-    "Discord" = "󰙯"
-    "slack" = "󰒱"
-    "Slack" = "󰒱"
-    "spotify" = "󰓇"
-    "Spotify" = "󰓇"
-    "cider" = ""
-    "nemo" = "󰀶"
-    "thunar" = "󰀶"
-    "pavucontrol" = "󰕾"
-    "1password" = "󰌋"
-    "steam" = "󰊗"
-    "Steam" = "󰊗"
-    "lutris" = "󰊗"
-    "obsidian" = "󰎞"
-    "mpv" = "󰐌"
-    "imv" = "󰋩"
-    "zathura" = "󰈙"
-    "Google-chrome" = "󰊯"
-    "chromium-browser" = "󰊯"
-    "thunderbird" = "󰇰"
-    "Ferdium" = "󰙯"
-    "zoom" = "󰍫"
-    "code" = "󰨞"
-    "Code" = "󰨞"
+  ''
+  + "''"
+  + ''
+    = "󱄅"
+       "firefox" = ""
+       "org.wezfurlong.wezterm" = ""
+       "wezterm" = ""
+       "wezterm-gui" = ""
+       "vesktop" = "󰙯"
+       "discord" = "󰙯"
+       "Discord" = "󰙯"
+       "slack" = "󰒱"
+       "Slack" = "󰒱"
+       "spotify" = "󰓇"
+       "Spotify" = "󰓇"
+       "cider" = ""
+       "nemo" = "󰀶"
+       "thunar" = "󰀶"
+       "pavucontrol" = "󰕾"
+       "1password" = "󰌋"
+       "steam" = "󰊗"
+       "Steam" = "󰊗"
+       "lutris" = "󰊗"
+       "obsidian" = "󰎞"
+       "mpv" = "󰐌"
+       "imv" = "󰋩"
+       "zathura" = "󰈙"
+       "Google-chrome" = "󰊯"
+       "chromium-browser" = "󰊯"
+       "thunderbird" = "󰇰"
+       "Ferdium" = "󰙯"
+       "zoom" = "󰍫"
+       "code" = "󰨞"
+       "Code" = "󰨞"
   '';
 
-  # === Wallpaper ===
+  # Wallpaper
   # Default wallpaper is set via sway startup, NOT home.file
   # (home.file would revert user's set-background choice on every rebuild)
 
-  # === XDG Default Applications ===
+  # XDG Default Applications
   xdg.mimeApps = {
     enable = true;
     defaultApplications = {
