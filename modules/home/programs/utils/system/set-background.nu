@@ -1,7 +1,5 @@
 #!/usr/bin/env nu
 
-use std
-
 def main [--update] {
     # Check required commands
     let required_commands = ["fzf" "chafa" "gh" "fd"]
@@ -14,8 +12,10 @@ def main [--update] {
     }
 
     # Determine OS
-    let os = if $nu.os-info.name == "macos" { "macos" } else if $nu.os-info.name == "linux" { "linux" } else {
-        print $"(ansi red_bold)[ERROR](ansi reset) Unsupported OS: ($nu.os-info.name)"
+    let os = $nu.os-info.name
+
+    if $os not-in ["macos" "linux"] {
+        print $"(ansi red_bold)[ERROR](ansi reset) Unsupported OS: ($os)"
         exit 1
     }
 
@@ -27,29 +27,26 @@ def main [--update] {
     if not ($wallpapers_dir | path exists) {
         print $"(ansi blue)[INFO](ansi reset) Cloning wallpapers repository to ($wallpapers_dir)"
         mkdir ($wallpapers_dir | path dirname)
-        if (gh repo clone $wallpapers_repo $wallpapers_dir err> /dev/null | complete).exit_code != 0 {
+        let result = do { gh repo clone $wallpapers_repo $wallpapers_dir } | complete
+        if $result.exit_code != 0 {
             print $"(ansi red_bold)[ERROR](ansi reset) Failed to clone wallpapers repository"
             exit 1
         }
-    } else {
-        if $update {
-            print $"(ansi blue)[INFO](ansi reset) Updating wallpapers repository"
-            let fetch = (cd $wallpapers_dir; git fetch --quiet err> /dev/null | complete)
-            let pull = (cd $wallpapers_dir; git pull --quiet err> /dev/null | complete)
+    } else if $update {
+        print $"(ansi blue)[INFO](ansi reset) Updating wallpapers repository"
+        let fetch = do { cd $wallpapers_dir; git fetch --quiet } | complete
+        let pull = do { cd $wallpapers_dir; git pull --quiet } | complete
 
-            if $fetch.exit_code != 0 {
-                print $"(ansi yellow_bold)[WARN](ansi reset) Could not fetch updates - continuing with local version"
-            } else if $pull.exit_code != 0 {
-                print $"(ansi yellow_bold)[WARN](ansi reset) Could not pull updates - continuing with local version"
-            }
+        if $fetch.exit_code != 0 {
+            print $"(ansi yellow_bold)[WARN](ansi reset) Could not fetch updates - continuing with local version"
+        } else if $pull.exit_code != 0 {
+            print $"(ansi yellow_bold)[WARN](ansi reset) Could not pull updates - continuing with local version"
         }
     }
 
     # Find image files
     print $"(ansi blue)[INFO](ansi reset) Scanning for wallpapers..."
-    let images = (
-        fd --type f --extension jpg --extension jpeg --extension png --extension webp . $wallpapers_dir
-    )
+    let images = do { fd --type f --extension jpg --extension jpeg --extension png --extension webp . $wallpapers_dir } | complete | get stdout | str trim | lines
 
     let images = if ($images | is-empty) {
         print $"(ansi blue)[INFO](ansi reset) No images in wallpapers repo, checking system locations..."
@@ -69,14 +66,13 @@ def main [--update] {
 
         let found_images = $fallback_dirs
             | where {|dir| $dir | path exists}
-            | each {|dir| fd --type f --extension jpg --extension jpeg --extension png --extension webp . $dir}
+            | each {|dir| do { fd --type f --extension jpg --extension jpeg --extension png --extension webp . $dir } | complete | get stdout | str trim | lines }
             | flatten
             | sort
             | uniq
 
         if ($found_images | is-empty) {
             print $"(ansi red_bold)[ERROR](ansi reset) No images found in any location"
-            print $"(ansi blue)[INFO](ansi reset) Try adding some images to ~/Pictures or ensure the wallpapers repo is accessible"
             exit 1
         }
 
@@ -85,62 +81,55 @@ def main [--update] {
         $images
     }
 
-    print $"(ansi green)[SUCCESS](ansi reset) Found wallpapers"
+    print $"(ansi green)[OK](ansi reset) Found ($images | length) wallpapers"
 
     # FZF preview with chafa
-    let selected = (
-        $images | fzf --preview "chafa --size 80x24 --colors 256 {}" --preview-window "right:50%" --height 50%
-    )
+    let selected = $images | str join "\n" | fzf --preview "chafa --size 80x24 --colors 256 {}" --preview-window "right:50%" --height 50% | str trim
 
     if ($selected | is-empty) {
         print $"(ansi blue)[INFO](ansi reset) No wallpaper selected"
         exit 0
     }
 
-    print $"(ansi blue)[INFO](ansi reset) Setting background to: (($selected | path basename))"
+    print $"(ansi blue)[INFO](ansi reset) Setting background to: ($selected | path basename)"
 
     if $os == "macos" {
-        if (which osascript | is-empty) {
-            print $"(ansi red_bold)[ERROR](ansi reset) osascript not available"
-            exit 1
-        }
-
-        let result = (osascript -e $"tell application \"System Events\" to set picture of every desktop to \"($selected)\"" err> /dev/null | complete)
+        let result = do { osascript -e $"tell application \"System Events\" to set picture of every desktop to \"($selected)\"" } | complete
 
         if $result.exit_code != 0 {
-            print $"(ansi yellow_bold)[WARN](ansi reset) osascript failed - may need accessibility permissions"
+            print $"(ansi yellow_bold)[WARN](ansi reset) osascript failed - trying database update"
 
             let db_path = $env.HOME | path join "Library" "Application Support" "Dock" "desktoppicture.db"
             if ($db_path | path exists) {
-                sqlite3 $db_path $"UPDATE pictures SET path = '($selected)';" err> /dev/null | ignore
-                killall Dock err> /dev/null | ignore
-                print $"(ansi green)[SUCCESS](ansi reset) Background set via database update"
+                do { sqlite3 $db_path $"UPDATE pictures SET path = '($selected)';" } | complete | ignore
+                do { killall Dock } | complete | ignore
+                print $"(ansi green)[OK](ansi reset) Background set via database update"
             } else {
-                print $"(ansi red_bold)[ERROR](ansi reset) Could not set background - try System Preferences manually"
+                print $"(ansi red_bold)[ERROR](ansi reset) Could not set background"
                 exit 1
             }
         } else {
-            print $"(ansi green)[SUCCESS](ansi reset) Background set on macOS"
+            print $"(ansi green)[OK](ansi reset) Background set on macOS"
         }
     } else if $os == "linux" {
         mkdir ($env.HOME | path join ".config" "background")
         cp $selected ($env.HOME | path join ".config" "background" "current")
         ln -sf ($env.HOME | path join ".config" "background" "current") ($env.HOME | path join ".background-image")
 
-        print $"(ansi green)[SUCCESS](ansi reset) Background image set to: ($env.HOME)/.background-image"
+        print $"(ansi green)[OK](ansi reset) Background image linked to ~/.background-image"
 
-        # Try to reload background in Sway if running
-        if (($env | any { |it| $it.name == "SWAYSOCK" }) == true) {
+        # Reload sway if running
+        if "SWAYSOCK" in $env {
             try {
                 swaymsg reload
-                print $"(ansi blue)[INFO](ansi reset) Reloaded Sway config to apply background"
+                print $"(ansi blue)[INFO](ansi reset) Reloaded sway to apply background"
             } catch {
-                print $"(ansi yellow_bold)[WARN](ansi reset) Could not reload Sway - background will update on next Sway restart"
+                print $"(ansi yellow_bold)[WARN](ansi reset) Could not reload sway"
             }
         } else {
-            print $"(ansi blue)[INFO](ansi reset) Sway not detected - background will apply when Sway starts"
+            print $"(ansi blue)[INFO](ansi reset) Sway not detected - background will apply on next start"
         }
     }
 
-    print $"(ansi green)[SUCCESS](ansi reset) Done!"
+    print $"(ansi green)[OK](ansi reset) Done!"
 }

@@ -66,7 +66,7 @@ in
 
       output = {
         "*" = {
-          bg = lib.mkForce "${wallpaper} fill";
+          bg = lib.mkForce "$HOME/.background-image fill";
         };
       };
 
