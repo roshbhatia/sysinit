@@ -183,6 +183,7 @@ in
     }
 
     // ── Startup ──
+    spawn-at-startup "${pkgs.wezterm}/bin/wezterm-mux-server" "--daemonize"
     spawn-at-startup "${pkgs.swaybg}/bin/swaybg" "-i" "${wallpaper}" "-m" "fill"
     spawn-at-startup "${pkgs.waybar}/bin/waybar"
     spawn-at-startup "${pkgs.mako}/bin/mako"
@@ -193,7 +194,7 @@ in
     // ── Key Bindings ──
     binds {
       // Launch
-      Alt+Return hotkey-overlay-title="Terminal" { spawn "${pkgs.wezterm}/bin/wezterm" "start"; }
+      Alt+Return hotkey-overlay-title="Terminal" { spawn "${pkgs.wezterm}/bin/wezterm" "connect" "unix"; }
       Super+Space hotkey-overlay-title="App Launcher" { spawn "${pkgs.rofi}/bin/rofi" "-show" "drun" "-theme" "${config.xdg.configHome}/rofi/config.rasi"; }
 
       // Window management
