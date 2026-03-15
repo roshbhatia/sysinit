@@ -18,19 +18,19 @@ in
       layer = "top";
       position = "top";
       height = 34;
-      margin-top = 6;
-      margin-left = 8;
-      margin-right = 8;
+      "margin-top" = 6;
+      "margin-left" = 8;
+      "margin-right" = 8;
       spacing = 0;
       reload_style_on_change = true;
 
-      modules-left = [
+      "modules-left" = [
         "niri/window"
       ];
-      modules-center = [
+      "modules-center" = [
         "niri/workspaces"
       ];
-      modules-right = [
+      "modules-right" = [
         "pulseaudio"
         "network"
         "clock#utc"
@@ -39,7 +39,7 @@ in
 
       "niri/workspaces" = {
         format = "{icon}";
-        format-icons = {
+        "format-icons" = {
           active = "●";
           default = "○";
         };
@@ -48,7 +48,7 @@ in
       "niri/window" = {
         format = "{}";
         icon = true;
-        icon-size = 16;
+        "icon-size" = 16;
         rewrite = {
           "(.*) — Mozilla Firefox" = "$1";
           "(.*) - wezterm" = "$1";
@@ -58,7 +58,7 @@ in
 
       clock = {
         format = "{:%I:%M %p %Z}";
-        tooltip-format = "<tt>{calendar}</tt>";
+        "tooltip-format" = "<tt>{calendar}</tt>";
       };
 
       "clock#utc" = {
@@ -68,21 +68,21 @@ in
       };
 
       network = {
-        format-wifi = "  {essid}";
-        format-ethernet = "󰈁  {ifname}";
-        format-disconnected = "󰖪  off";
-        tooltip-format = "{ifname}: {ipaddr}/{cidr}\n{essid} ({signalStrength}%)";
+        "format-wifi" = "  {essid}";
+        "format-ethernet" = "󰈁  {ifname}";
+        "format-disconnected" = "󰖪  off";
+        "tooltip-format" = "{ifname}: {ipaddr}/{cidr}\n{essid} ({signalStrength}%)";
       };
 
       pulseaudio = {
         format = "{icon}  {volume}%";
-        format-muted = "󰸈  mute";
-        format-icons = {
+        "format-muted" = "󰸈  mute";
+        "format-icons" = {
           default = [ "󰕿" "󰖀" "󰕾" ];
         };
-        on-click = "${pkgs.pavucontrol}/bin/pavucontrol";
-        on-scroll-up = "wpctl set-volume @DEFAULT_AUDIO_SINK@ 2%+";
-        on-scroll-down = "wpctl set-volume @DEFAULT_AUDIO_SINK@ 2%-";
+        "on-click" = "${pkgs.pavucontrol}/bin/pavucontrol";
+        "on-scroll-up" = "wpctl set-volume @DEFAULT_AUDIO_SINK@ 2%+";
+        "on-scroll-down" = "wpctl set-volume @DEFAULT_AUDIO_SINK@ 2%-";
         tooltip = false;
       };
     };

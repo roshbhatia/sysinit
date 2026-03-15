@@ -46,7 +46,7 @@ function M.setup(config)
   else
     -- Linux/Wayland (niri): compositor handles opacity via window-rules
     config.front_end = "OpenGL" -- WebGpu broken on NVIDIA+Wayland (#7017)
-    config.window_decorations = "NONE" -- niri prefer-no-csd handles decorations
+    config.window_decorations = "RESIZE" -- must keep RESIZE per wezterm docs
     config.window_background_opacity = 1.0 -- niri window-rule handles this
     config.enable_wayland = true
     config.freetype_load_flags = "NO_HINTING|NO_AUTOHINT"

@@ -77,9 +77,7 @@ in
       }
 
       border {
-        width 2
-        active-color "#${c.base0D}"
-        inactive-color "#${c.base01}00"
+        off
       }
 
       shadow {
