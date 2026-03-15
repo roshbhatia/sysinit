@@ -134,13 +134,12 @@ in
     }
 
     // ── Opacity ──
-    // Focused: moderate transparency, unfocused: more transparent
     window-rule {
-      opacity 0.85
+      opacity 0.72
     }
     window-rule {
       match is-focused=false
-      opacity 0.65
+      opacity 0.62
     }
 
     // ── Floating windows ──
@@ -177,6 +176,7 @@ in
 
     // ── Startup ──
     spawn-at-startup "${pkgs.swaybg}/bin/swaybg" "-i" "${wallpaper}" "-m" "fill"
+    spawn-sh-at-startup "sleep 0.5 && ${pkgs.waybar}/bin/waybar"
     spawn-at-startup "${pkgs.mako}/bin/mako"
     spawn-at-startup "nm-applet" "--indicator"
     spawn-at-startup "${pkgs.polkit_gnome}/libexec/polkit-gnome-authentication-agent-1"

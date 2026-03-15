@@ -41,10 +41,8 @@ function M.setup(config)
   config.scrollback_lines = 200000
   config.tab_bar_at_bottom = true
   config.window_background_opacity = config_data.transparency.opacity
-  config.window_decorations = utils.is_darwin() and "RESIZE|MACOS_FORCE_ENABLE_SHADOW" or "INTEGRATED_BUTTONS|RESIZE"
+  config.window_decorations = utils.is_darwin() and "RESIZE|MACOS_FORCE_ENABLE_SHADOW" or "RESIZE"
   config.enable_wayland = true
-  config.integrated_title_button_style = "Gnome"
-  config.integrated_title_buttons = {}
   config.window_frame = {
     font = font,
     font_size = 11.0,
