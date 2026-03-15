@@ -105,6 +105,16 @@
     };
   };
 
+  # mDNS / network discovery (Sunshine auto-discovery, .local hostnames)
+  services.avahi = {
+    enable = true;
+    nssmdns4 = true;
+    publish = {
+      enable = true;
+      addresses = true;
+    };
+  };
+
   # Tailscale VPN
   services.tailscale.enable = true;
   networking.firewall.allowedUDPPorts = [ 41641 ]; # Tailscale
