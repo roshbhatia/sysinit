@@ -36,7 +36,9 @@ function M.setup(config)
   config.adjust_window_size_when_changing_font_size = false
   config.use_resize_increments = false
   config.pane_focus_follows_mouse = false
-  config.enable_wayland = not utils.is_darwin()
+  -- Run wezterm via XWayland on Linux — native Wayland has too many
+  -- rendering quirks (tab bar cutoff, sizing issues, CSD conflicts)
+  config.enable_wayland = false
 
   -- Tab bar: simple retro style at bottom (no window controls)
   config.tab_bar_at_bottom = true
