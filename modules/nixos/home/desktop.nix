@@ -239,8 +239,13 @@ in
 
     # SwayFX visual effects
     extraConfig = ''
-      default_dim_inactive 0.15
       corner_radius 0
+      blur enable
+      blur_passes 2
+      blur_radius 5
+      shadows enable
+      shadow_blur_radius 20
+      shadow_color #0000007F
     '';
   };
 
