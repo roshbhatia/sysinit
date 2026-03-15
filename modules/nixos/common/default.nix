@@ -59,6 +59,7 @@
       "video"
       "audio"
       "docker"
+      "libvirtd"
     ];
     shell = pkgs.zsh;
     openssh.authorizedKeys.keys = [
@@ -94,6 +95,10 @@
       X11Forwarding = false;
     };
   };
+
+  # Libvirt (KVM virtual machines)
+  virtualisation.libvirtd.enable = true;
+  programs.virt-manager.enable = true;
 
   # Docker
   virtualisation.docker = {
