@@ -42,7 +42,7 @@ in
 
       gaps = {
         inner = 16;
-        outer = 8;
+        outer = 48;
       };
 
       defaultWorkspace = "workspace number 1";
