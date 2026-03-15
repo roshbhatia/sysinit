@@ -17,12 +17,10 @@ let
   };
 in
 {
-  # Let stylix auto-theme sway colors and mako.
-  # Rofi uses custom layout so we override it.
+  # Stylix autoEnable handles sway, mako, i3status-rust, gtk, etc.
+  # Only disable targets where we have custom configs.
   stylix.targets = {
-    sway.enable = true;
-    mako.enable = true;
-    rofi.enable = false;
+    rofi.enable = false; # custom theme in config.rasi
   };
 
   # === Sway Window Manager ===
@@ -90,6 +88,7 @@ in
         { command = "${pkgs.wl-clipboard}/bin/wl-paste --watch ${pkgs.cliphist}/bin/cliphist store"; }
         { command = "nm-applet --indicator"; }
         { command = "sh -c 'if [ -f $HOME/.background-image ]; then swaymsg output \\* bg $HOME/.background-image fill; else swaymsg output \\* bg ${wallpaper} fill; fi'"; }
+        { command = "${pkgs.workstyle}/bin/workstyle"; }
       ];
 
       assigns = {
@@ -171,11 +170,18 @@ in
         "${mod}+g" = "mode locked";
 
         # Clipboard history
-        # Clipboard history (Alt+V so Super+V passes through as paste)
+        # Window switcher (macOS-style Cmd+Tab)
+        "Mod4+Tab" = "exec ${pkgs.rofi}/bin/rofi -show window -config ${config.xdg.configHome}/rofi/config.rasi";
+        "Mod4+Shift+Tab" = "exec ${pkgs.rofi}/bin/rofi -show window -config ${config.xdg.configHome}/rofi/config.rasi";
+
+        # Clipboard history
         "${mod}+Shift+v" = "exec ${pkgs.cliphist}/bin/cliphist list | ${pkgs.rofi}/bin/rofi -dmenu -config ${config.xdg.configHome}/rofi/config.rasi | ${pkgs.cliphist}/bin/cliphist decode | ${pkgs.wl-clipboard}/bin/wl-copy";
 
-        # Screenshot (region select)
-        "Print" = "exec ${pkgs.grim}/bin/grim -g \"$(${pkgs.slurp}/bin/slurp)\" ~/Pictures/Screenshots/$(date +%Y-%m-%d_%H-%M-%S).png";
+        # Screenshots (macOS-style: Super+Shift+3 = screen, Super+Shift+4 = region)
+        "Mod4+Shift+3" = "exec ${pkgs.sway-contrib.grimshot}/bin/grimshot --notify savecopy output";
+        "Mod4+Shift+4" = "exec ${pkgs.sway-contrib.grimshot}/bin/grimshot --notify savecopy area";
+        "Mod4+Shift+5" = "exec ${pkgs.sway-contrib.grimshot}/bin/grimshot --notify savecopy window";
+        "Print" = "exec ${pkgs.sway-contrib.grimshot}/bin/grimshot --notify savecopy area";
 
         # Volume
         "XF86AudioRaiseVolume" = "exec wpctl set-volume @DEFAULT_AUDIO_SINK@ 0.05+";
@@ -448,6 +454,29 @@ in
     size = 16;
     gtk.enable = true;
   };
+
+  # === Workstyle (dynamic workspace icons) ===
+  xdg.configFile."workstyle/config.toml".text = ''
+    # Map app_id/class to icons
+    [matching]
+    "" = "" # fallback
+    "firefox" = ""
+    "org.wezfurlong.wezterm" = ""
+    "wezterm" = ""
+    "vesktop" = "󰙯"
+    "discord" = "󰙯"
+    "slack" = "󰒱"
+    "spotify" = "󰓇"
+    "cider" = ""
+    "nemo" = "󰉋"
+    "pavucontrol" = "󰕾"
+    "1password" = "󰌋"
+    "steam" = ""
+    "obsidian" = "󰎞"
+    "mpv" = "󰐌"
+    "imv" = "󰋩"
+    "zathura" = "󰈙"
+  '';
 
   # === Wallpaper ===
   # Default wallpaper is set via sway startup, NOT home.file

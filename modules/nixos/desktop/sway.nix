@@ -70,17 +70,20 @@ in
     swaybg
     grim
     slurp
+    sway-contrib.grimshot # screenshot helper (grimshot)
     wl-clipboard
     cliphist
 
     # Bar
     i3status-rust
 
-    # Launcher + notifications
+    # Launcher + notifications + utilities
     rofi
-    bemenu # suckless-style pipe launcher (dmenu for wayland)
-    j4-dmenu-desktop # .desktop launcher via bemenu
+    bemenu
+    j4-dmenu-desktop
     mako
+    wlr-which-key # which-key popup for keybind discovery
+    workstyle # dynamic workspace icons based on running apps
 
     # File management
     nemo
