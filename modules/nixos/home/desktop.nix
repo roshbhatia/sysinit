@@ -237,16 +237,6 @@ in
       export MOZ_ENABLE_WAYLAND=1
     '';
 
-    # SwayFX visual effects
-    extraConfig = ''
-      corner_radius 0
-      blur enable
-      blur_passes 2
-      blur_radius 5
-      shadows enable
-      shadow_blur_radius 20
-      shadow_color #0000007F
-    '';
   };
 
   # === i3status-rust ===

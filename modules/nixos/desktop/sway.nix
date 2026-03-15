@@ -17,7 +17,7 @@ let
 
     ${pkgs.dbus}/bin/dbus-update-activation-environment --systemd --all || true
 
-    exec ${pkgs.swayfx}/bin/sway --unsupported-gpu "$@"
+    exec ${pkgs.sway}/bin/sway --unsupported-gpu "$@"
   '';
 in
 {
@@ -26,7 +26,6 @@ in
 
   programs.sway = {
     enable = true;
-    package = pkgs.swayfx;
     xwayland.enable = true;
   };
 
@@ -59,7 +58,6 @@ in
   programs.gamemode.enable = true;
 
   environment.systemPackages = with pkgs; [
-    swayfx
     swayWrapped
     swaybg
     grim
