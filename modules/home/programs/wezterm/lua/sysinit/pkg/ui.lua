@@ -36,6 +36,7 @@ function M.setup(config)
   config.quick_select_alphabet = "fjdkslaghrueiwoncmv"
   config.scrollback_lines = 200000
   config.tab_bar_at_bottom = true
+  config.use_fancy_tab_bar = false
 
   if utils.is_darwin() then
     -- macOS: compositor handles blur, wezterm handles opacity
