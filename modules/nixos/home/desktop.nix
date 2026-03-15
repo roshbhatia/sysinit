@@ -280,6 +280,11 @@ in
               background = "#${c.base08}";
               text = "#${c.base00}";
             };
+            bindingMode = {
+              border = "#${c.base0A}";
+              background = "#${c.base0A}";
+              text = "#${c.base00}";
+            };
           };
         }
       ];
