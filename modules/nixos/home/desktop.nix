@@ -457,25 +457,39 @@ in
 
   # === Workstyle (dynamic workspace icons) ===
   xdg.configFile."workstyle/config.toml".text = ''
-    # Map app_id/class to icons
+    # Map app_id/class to nerd font icons (matching sketchybar)
     [matching]
-    "" = "" # fallback
+    '' + "''" + '' = "󱄅"
     "firefox" = ""
     "org.wezfurlong.wezterm" = ""
     "wezterm" = ""
+    "wezterm-gui" = ""
     "vesktop" = "󰙯"
     "discord" = "󰙯"
+    "Discord" = "󰙯"
     "slack" = "󰒱"
+    "Slack" = "󰒱"
     "spotify" = "󰓇"
+    "Spotify" = "󰓇"
     "cider" = ""
-    "nemo" = "󰉋"
+    "nemo" = "󰀶"
+    "thunar" = "󰀶"
     "pavucontrol" = "󰕾"
     "1password" = "󰌋"
-    "steam" = ""
+    "steam" = "󰊗"
+    "Steam" = "󰊗"
+    "lutris" = "󰊗"
     "obsidian" = "󰎞"
     "mpv" = "󰐌"
     "imv" = "󰋩"
     "zathura" = "󰈙"
+    "Google-chrome" = "󰊯"
+    "chromium-browser" = "󰊯"
+    "thunderbird" = "󰇰"
+    "Ferdium" = "󰙯"
+    "zoom" = "󰍫"
+    "code" = "󰨞"
+    "Code" = "󰨞"
   '';
 
   # === Wallpaper ===
