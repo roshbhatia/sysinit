@@ -123,4 +123,10 @@ in
     polkitPolicyOwners = [ "rshnbhatia" ];
   };
 
+  # Sunshine remote desktop (low-latency streaming via Moonlight client)
+  services.sunshine = {
+    enable = true;
+    openFirewall = true;
+    capSysAdmin = true;
+  };
 }
