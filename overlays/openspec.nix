@@ -36,6 +36,7 @@ in
 
     nativeBuildInputs = [
       final.nodejs
+      final.pnpm
       final.pnpmConfigHook
       final.makeWrapper
     ];
