@@ -17,12 +17,6 @@ let
   };
 in
 {
-  # Stylix autoEnable handles sway, mako, i3status-rust, gtk, etc.
-  # Only disable targets where we have custom configs.
-  stylix.targets = {
-    rofi.enable = false; # custom theme in config.rasi
-  };
-
   # Sway Window Manager
   wayland.windowManager.sway = {
     enable = true;
@@ -32,7 +26,7 @@ in
     config = {
       modifier = mod;
       terminal = "${pkgs.wezterm}/bin/wezterm start";
-      menu = "${pkgs.rofi}/bin/rofi -show drun -config ${config.xdg.configHome}/rofi/config.rasi";
+      menu = "${pkgs.rofi}/bin/rofi -show drun";
 
       fonts = {
         names = lib.mkForce [ "${values.theme.font.monospace}" ];
@@ -153,8 +147,7 @@ in
         "${mod}+Return" = "exec ${pkgs.wezterm}/bin/wezterm start";
 
         # App launcher
-        "Mod4+space" =
-          "exec ${pkgs.rofi}/bin/rofi -show drun -config ${config.xdg.configHome}/rofi/config.rasi";
+        "Mod4+space" = "exec ${pkgs.rofi}/bin/rofi -show drun";
 
         # Kill / exit (Super+Q and Super+W both close, like macOS)
         "Mod4+q" = "kill";
@@ -358,128 +351,6 @@ in
       };
     };
   };
-
-  # === Rofi App Launcher ===
-  xdg.configFile."rofi/config.rasi".text = ''
-    configuration {
-      modi: "drun,run,window";
-      show-icons: true;
-      icon-theme: "Papirus-Dark";
-      terminal: "wezterm";
-      drun-display-format: "{name}";
-      disable-history: false;
-      hide-scrollbar: true;
-      sorting-method: "fzf";
-      click-to-exit: true;
-
-      kb-clear-line: "";
-      kb-remove-to-sol: "";
-      kb-remove-to-eol: "";
-      kb-remove-char-forward: "Delete";
-      kb-remove-word-back: "Control+BackSpace";
-      kb-accept-entry: "Return,KP_Enter";
-      kb-cancel: "Escape,Control+bracketleft";
-      kb-row-up: "Up,Control+k,Control+p";
-      kb-row-down: "Down,Control+j,Control+n";
-      kb-page-prev: "Page_Up,Control+u";
-      kb-page-next: "Page_Down,Control+d";
-      kb-move-front: "Control+a";
-      kb-move-end: "Control+e";
-    }
-
-    * {
-      font: "${values.theme.font.monospace} 13";
-    }
-
-    window {
-      width:           520px;
-      border:          2px solid;
-      border-color:    #${c.base02};
-      background-color: #${c.base00};
-      padding:         0;
-      location:        center;
-      anchor:          center;
-    }
-
-    mainbox {
-      background-color: transparent;
-      children:        [ inputbar, listview ];
-      spacing:         0;
-    }
-
-    inputbar {
-      background-color: #${c.base01};
-      children:        [ prompt, entry ];
-      padding:         12px 16px;
-      spacing:         8px;
-    }
-
-    prompt {
-      background-color: transparent;
-      text-color:      #${c.base0E};
-      font:            "Symbols Nerd Font Mono 14";
-      vertical-align:  0.5;
-    }
-
-    entry {
-      background-color: transparent;
-      text-color:      #${c.base06};
-      padding:         4px 0;
-      placeholder:     "Search...";
-      placeholder-color: #${c.base03};
-    }
-
-    listview {
-      background-color: transparent;
-      columns:         1;
-      lines:           10;
-      padding:         4px 0;
-      spacing:         0;
-      fixed-height:    true;
-      cycle:           false;
-    }
-
-    element {
-      background-color: transparent;
-      text-color:      #${c.base05};
-      padding:         8px 16px;
-      spacing:         10px;
-    }
-
-    element selected.normal {
-      background-color: #${c.base02};
-      text-color:      #${c.base06};
-    }
-
-    element selected.urgent {
-      background-color: #${c.base08};
-      text-color:      #${c.base00};
-    }
-
-    element selected.active {
-      background-color: #${c.base02};
-      text-color:      #${c.base0B};
-    }
-
-    element normal.urgent {
-      text-color:      #${c.base08};
-    }
-
-    element normal.active {
-      text-color:      #${c.base0B};
-    }
-
-    element-icon {
-      size:            20px;
-      background-color: inherit;
-    }
-
-    element-text {
-      background-color: inherit;
-      text-color:      inherit;
-      vertical-align:  0.5;
-    }
-  '';
 
   # === GTK / Icon / Cursor ===
   gtk = {
