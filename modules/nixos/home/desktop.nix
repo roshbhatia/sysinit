@@ -186,7 +186,7 @@ in
 
     // ── Startup ──
     spawn-at-startup "${pkgs.swaybg}/bin/swaybg" "-i" "${wallpaper}" "-m" "fill"
-    spawn-sh-at-startup "sleep 0.5 && ${pkgs.waybar}/bin/waybar"
+    spawn-sh-at-startup "${pkgs.coreutils}/bin/sleep 0.5 && ${pkgs.waybar}/bin/waybar"
     spawn-at-startup "${pkgs.mako}/bin/mako"
     spawn-at-startup "nm-applet" "--indicator"
     spawn-at-startup "${pkgs.polkit_gnome}/libexec/polkit-gnome-authentication-agent-1"
