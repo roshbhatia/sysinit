@@ -92,7 +92,7 @@ in
         variant = "dark-hard";
         appearance = "dark";
         font = {
-          monospace = "Terminess Nerd Font";
+          monospace = "CommitMono";
         };
       };
     };

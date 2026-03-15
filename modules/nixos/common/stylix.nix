@@ -40,6 +40,7 @@ in
 
   fonts.packages = [
     pkgs.ioskeleyMono
+    pkgs.commitMono
     pkgs.nerd-fonts.symbols-only
   ];
 }

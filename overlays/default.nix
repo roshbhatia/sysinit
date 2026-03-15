@@ -18,5 +18,6 @@
   (import ./crush.nix { })
   (import ./ast-grep.nix { })
   (import ./ioskeleyMono.nix { })
+  (import ./commitMono.nix { })
   (import ./mozilla.nix { inherit inputs; })
 ]

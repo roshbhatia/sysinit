@@ -239,15 +239,7 @@ in
 
     # SwayFX visual effects
     extraConfig = ''
-      # Dim unfocused windows
       default_dim_inactive 0.15
-
-      # Shadows
-      shadows enable
-      shadow_blur_radius 20
-      shadow_color #00000064
-
-      # Corner radius (0 = squared)
       corner_radius 0
     '';
   };
