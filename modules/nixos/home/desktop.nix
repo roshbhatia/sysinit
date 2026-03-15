@@ -197,14 +197,12 @@ in
 
         # Clipboard history
         # Window switcher (macOS-style Cmd+Tab)
-        "Mod4+Tab" =
-          "exec ${pkgs.rofi}/bin/rofi -show window -config ${config.xdg.configHome}/rofi/config.rasi";
-        "Mod4+Shift+Tab" =
-          "exec ${pkgs.rofi}/bin/rofi -show window -config ${config.xdg.configHome}/rofi/config.rasi";
+        "Mod4+Tab" = "exec ${pkgs.rofi}/bin/rofi -show window";
+        "Mod4+Shift+Tab" = "exec ${pkgs.rofi}/bin/rofi -show window";
 
         # Clipboard history
         "${mod}+Shift+v" =
-          "exec ${pkgs.cliphist}/bin/cliphist list | ${pkgs.rofi}/bin/rofi -dmenu -config ${config.xdg.configHome}/rofi/config.rasi | ${pkgs.cliphist}/bin/cliphist decode | ${pkgs.wl-clipboard}/bin/wl-copy";
+          "exec ${pkgs.cliphist}/bin/cliphist list | ${pkgs.rofi}/bin/rofi -dmenu | ${pkgs.cliphist}/bin/cliphist decode | ${pkgs.wl-clipboard}/bin/wl-copy";
 
         # Screenshots (macOS-style: Super+Shift+3 = screen, Super+Shift+4 = region)
         "Mod4+Shift+3" = "exec ${pkgs.sway-contrib.grimshot}/bin/grimshot --notify savecopy output";
@@ -410,10 +408,6 @@ in
        "Code" = "󰨞"
   '';
 
-  # Wallpaper
-  # Default wallpaper is set via sway startup, NOT home.file
-  # (home.file would revert user's set-background choice on every rebuild)
-
   # XDG Default Applications
   xdg.mimeApps = {
     enable = true;
@@ -443,7 +437,7 @@ in
     [Nemo Action]
     Active=true
     Name=Open Terminal Here
-    Exec=wezterm start -e bash -c "cd %f && bash"
+    Exec=wezterm start -e zsh -c "cd %f && zsh"
     Selection=Any
     Extensions=any;
   '';
