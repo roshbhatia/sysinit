@@ -120,13 +120,16 @@ function M.setup(config)
     tabline.apply_to_config(config)
   end
 
-  -- Set window padding AFTER tabline.apply_to_config, which zeroes all padding
-  config.window_padding = {
-    left = "1cell",
-    right = "1cell",
-    top = "1cell",
-    bottom = "0cell",
-  }
+  -- Post-process window padding for macOS
+  if utils.is_darwin() then
+    -- Set window padding AFTER tabline.apply_to_config, which zeroes all padding
+    config.window_padding = {
+      left = "1cell",
+      right = "1cell",
+      top = "1cell",
+      bottom = "0cell",
+    }
+  end
 
   local agent_deck_ok, agent_deck = pcall(wezterm.plugin.require, "https://github.com/Eric162/wezterm-agent-deck")
   if not agent_deck_ok then
