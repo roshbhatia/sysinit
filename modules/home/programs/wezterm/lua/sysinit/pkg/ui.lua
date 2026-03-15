@@ -41,13 +41,6 @@ function M.setup(config)
   config.use_fancy_tab_bar = false
   config.hide_tab_bar_if_only_one_tab = false
 
-  config.window_padding = {
-    left = "1cell",
-    right = "1cell",
-    top = "1cell",
-    bottom = "0cell",
-  }
-
   config.window_frame = {
     font = font,
     font_size = 11.0,
@@ -126,6 +119,14 @@ function M.setup(config)
     })
     tabline.apply_to_config(config)
   end
+
+  -- Set window padding AFTER tabline.apply_to_config, which zeroes all padding
+  config.window_padding = {
+    left = "1cell",
+    right = "1cell",
+    top = "1cell",
+    bottom = "0cell",
+  }
 
   local agent_deck_ok, agent_deck = pcall(wezterm.plugin.require, "https://github.com/Eric162/wezterm-agent-deck")
   if not agent_deck_ok then
