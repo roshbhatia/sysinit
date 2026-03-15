@@ -74,17 +74,12 @@ function M.setup(config)
     config.window_background_opacity = config_data.transparency.opacity
     config.macos_window_background_blur = config_data.transparency.blur
   else
-    -- Linux/Wayland (niri)
+    -- Linux/Wayland (sway)
     config.front_end = "OpenGL"
     config.window_decorations = "RESIZE"
     config.window_background_opacity = 1.0
     config.enable_wayland = true
     config.freetype_load_flags = "NO_HINTING|NO_AUTOHINT"
-
-    -- Unix domain for instant spawning via `wezterm start`
-    config.unix_domains = {
-      { name = "unix" },
-    }
   end
 
   local function locked_indicator()

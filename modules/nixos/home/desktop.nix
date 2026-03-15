@@ -1,4 +1,4 @@
-# NixOS desktop home-manager configuration: niri, waybar, rofi, mako, nemo
+# NixOS desktop home-manager: sway, swaybar + i3status-rust, rofi, mako, nemo
 {
   config,
   lib,
@@ -8,7 +8,8 @@
 }:
 
 let
-  c = config.lib.stylix.colors; # base16 palette
+  c = config.lib.stylix.colors;
+  mod = "Mod1"; # Alt key
 
   wallpaper = pkgs.fetchurl {
     url = "https://wallpapercave.com/wp/wp12329549.png";
@@ -16,282 +17,301 @@ let
   };
 in
 {
+  # Let stylix auto-theme sway, mako, and GTK.
+  # We override rofi because we want a custom layout.
   stylix.targets = {
-    waybar.enable = false;
+    sway.enable = true;
+    mako.enable = true;
     rofi.enable = false;
-    mako.enable = false;
   };
 
-  # === Niri Window Manager ===
-  xdg.configFile."niri/config.kdl".text = ''
-    // ── Environment ──
-    environment {
-      NIXOS_OZONE_WL "1"
-      GDK_BACKEND "wayland"
-      QT_QPA_PLATFORM "wayland"
-      MOZ_ENABLE_WAYLAND "1"
-      __NV_DISABLE_EXPLICIT_SYNC "1"
-    }
+  # === Sway Window Manager ===
+  wayland.windowManager.sway = {
+    enable = true;
+    wrapperFeatures.gtk = true;
 
-    // ── Input ──
-    input {
-      keyboard {
-        xkb {
-          layout "us"
+    config = {
+      modifier = mod;
+      terminal = "${pkgs.wezterm}/bin/wezterm start";
+      menu = "${pkgs.rofi}/bin/rofi -show drun";
+
+      fonts = {
+        names = lib.mkForce [ "${values.theme.font.monospace}" ];
+        size = lib.mkForce 11.0;
+      };
+
+      gaps = {
+        inner = 8;
+        outer = 0;
+      };
+
+      defaultWorkspace = "workspace number 1";
+
+      # Input devices
+      input = {
+        "type:keyboard" = {
+          xkb_layout = "us";
+          repeat_rate = "50";
+          repeat_delay = "300";
+        };
+        "type:pointer" = {
+          accel_profile = "flat";
+          pointer_accel = "-0.5";
+        };
+        "type:touchpad" = {
+          natural_scroll = "enabled";
+          tap = "enabled";
+          dwt = "enabled";
+        };
+      };
+
+      # Wallpaper
+      output = {
+        "*" = {
+          bg = lib.mkForce "${wallpaper} fill";
+        };
+      };
+
+      # Window appearance — squared corners, no titlebar, minimal border
+      window = {
+        border = 2;
+        titlebar = false;
+      };
+      floating = {
+        border = 2;
+        titlebar = false;
+      };
+
+      # Colors handled by stylix (sway.enable = true)
+
+      # Floating modifier (Super for mouse move/resize)
+      floating.modifier = "Mod4";
+
+      # Autostart
+      startup = [
+        { command = "dbus-update-activation-environment --systemd --all"; }
+        { command = "systemctl --user import-environment WAYLAND_DISPLAY XDG_CURRENT_DESKTOP"; }
+        { command = "${pkgs.polkit_gnome}/libexec/polkit-gnome-authentication-agent-1"; }
+        { command = "${pkgs.wl-clipboard}/bin/wl-paste --watch ${pkgs.cliphist}/bin/cliphist store"; }
+        { command = "nm-applet --indicator"; }
+      ];
+
+      # Window assignment rules
+      assigns = {
+        "C" = [
+          { class = "^discord$"; }
+          { class = "^Slack$"; }
+          { app_id = "^vesktop$"; }
+        ];
+        "M" = [
+          { class = "^Spotify$"; }
+          { app_id = "^spotify$"; }
+          { app_id = "^cider$"; }
+        ];
+      };
+
+      # Floating rules
+      window.commands = [
+        { command = "floating enable"; criteria = { title = "^Picture-in-Picture$"; }; }
+        { command = "floating enable"; criteria = { class = "^pavucontrol$"; }; }
+        { command = "floating enable"; criteria = { app_id = "^pavucontrol$"; }; }
+        { command = "floating enable"; criteria = { class = "^1Password$"; }; }
+        { command = "floating enable"; criteria = { app_id = "^1password$"; }; }
+        { command = "floating enable"; criteria = { app_id = "^nemo$"; }; }
+        # Opacity: unfocused windows slightly dimmer
+        { command = "opacity 0.90"; criteria = { class = ".*"; }; }
+        { command = "opacity 0.90"; criteria = { app_id = ".*"; }; }
+      ];
+
+      # === Keybindings (matching aerospace) ===
+      keybindings = lib.mkOptionDefault {
+        # Terminal
+        "${mod}+Return" = "exec ${pkgs.wezterm}/bin/wezterm start";
+
+        # App launcher (Super+Space)
+        "Mod4+space" = "exec ${pkgs.rofi}/bin/rofi -show drun";
+
+        # Kill window (Super+Q)
+        "Mod4+q" = "kill";
+
+        # Exit sway (Super+Ctrl+Q)
+        "Mod4+Control+q" = "exec swaymsg exit";
+
+        # Window focus (vim-style)
+        "${mod}+h" = "focus left";
+        "${mod}+j" = "focus down";
+        "${mod}+k" = "focus up";
+        "${mod}+l" = "focus right";
+
+        # Resize
+        "${mod}+Shift+j" = "resize shrink height 72 px";
+        "${mod}+Shift+k" = "resize grow height 72 px";
+
+        # Workspaces (matching aerospace)
+        "${mod}+1" = "workspace 1";
+        "${mod}+2" = "workspace 2";
+        "${mod}+3" = "workspace 3";
+        "${mod}+4" = "workspace 4";
+        "${mod}+5" = "workspace 5";
+        "${mod}+6" = "workspace 6";
+        "${mod}+7" = "workspace 7";
+        "${mod}+8" = "workspace 8";
+        "${mod}+9" = "workspace 9";
+        "${mod}+c" = "workspace C";
+        "${mod}+m" = "workspace M";
+
+        # Move to workspace (with focus follow)
+        "${mod}+Shift+1" = "move container to workspace 1; workspace 1";
+        "${mod}+Shift+2" = "move container to workspace 2; workspace 2";
+        "${mod}+Shift+3" = "move container to workspace 3; workspace 3";
+        "${mod}+Shift+4" = "move container to workspace 4; workspace 4";
+        "${mod}+Shift+5" = "move container to workspace 5; workspace 5";
+        "${mod}+Shift+6" = "move container to workspace 6; workspace 6";
+        "${mod}+Shift+7" = "move container to workspace 7; workspace 7";
+        "${mod}+Shift+8" = "move container to workspace 8; workspace 8";
+        "${mod}+Shift+9" = "move container to workspace 9; workspace 9";
+        "${mod}+Shift+c" = "move container to workspace C; workspace C";
+        "${mod}+Shift+m" = "move container to workspace M; workspace M";
+
+        # Workspace cycling
+        "${mod}+Tab" = "workspace next_on_output";
+        "${mod}+Shift+Tab" = "workspace prev_on_output";
+
+        # Workspace back-and-forth
+        "${mod}+p" = "workspace back_and_forth";
+
+        # Fullscreen
+        "${mod}+f" = "fullscreen toggle";
+
+        # Float toggle
+        "${mod}+v" = "floating toggle";
+
+        # Layout toggle
+        "${mod}+t" = "layout toggle split";
+
+        # Enter move mode
+        "${mod}+x" = "mode move";
+
+        # Clipboard history
+        "Mod4+v" = "exec ${pkgs.cliphist}/bin/cliphist list | ${pkgs.rofi}/bin/rofi -dmenu | ${pkgs.cliphist}/bin/cliphist decode | ${pkgs.wl-clipboard}/bin/wl-copy";
+
+        # Screenshot
+        "Print" = "exec ${pkgs.grim}/bin/grim -g \"$(${pkgs.slurp}/bin/slurp)\" ~/Pictures/Screenshots/$(date +%Y-%m-%d_%H-%M-%S).png";
+
+        # Volume (media keys)
+        "XF86AudioRaiseVolume" = "exec wpctl set-volume @DEFAULT_AUDIO_SINK@ 0.05+";
+        "XF86AudioLowerVolume" = "exec wpctl set-volume @DEFAULT_AUDIO_SINK@ 0.05-";
+        "XF86AudioMute" = "exec wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle";
+
+        # Media playback
+        "XF86AudioPlay" = "exec ${pkgs.playerctl}/bin/playerctl play-pause";
+        "XF86AudioPause" = "exec ${pkgs.playerctl}/bin/playerctl play-pause";
+        "XF86AudioNext" = "exec ${pkgs.playerctl}/bin/playerctl next";
+        "XF86AudioPrev" = "exec ${pkgs.playerctl}/bin/playerctl previous";
+      };
+
+      # Modes
+      modes = {
+        move = {
+          "${mod}+h" = "move left";
+          "${mod}+j" = "move down";
+          "${mod}+k" = "move up";
+          "${mod}+l" = "move right";
+          "Escape" = "mode default";
+        };
+      };
+
+      # Swaybar + i3status-rust
+      bars = [
+        {
+          position = "top";
+          statusCommand = "${pkgs.i3status-rust}/bin/i3status-rs ${config.xdg.configHome}/i3status-rust/config-top.toml";
+          fonts = {
+            names = [ "${values.theme.font.monospace}" "Symbols Nerd Font Mono" ];
+            size = 11.0;
+          };
+          colors = {
+            background = "#${c.base00}";
+            statusline = "#${c.base05}";
+            separator = "#${c.base02}";
+            focusedWorkspace = {
+              border = "#${c.base0D}";
+              background = "#${c.base01}";
+              text = "#${c.base06}";
+            };
+            activeWorkspace = {
+              border = "#${c.base02}";
+              background = "#${c.base01}";
+              text = "#${c.base05}";
+            };
+            inactiveWorkspace = {
+              border = "#${c.base00}";
+              background = "#${c.base00}";
+              text = "#${c.base03}";
+            };
+            urgentWorkspace = {
+              border = "#${c.base08}";
+              background = "#${c.base08}";
+              text = "#${c.base00}";
+            };
+          };
         }
-        repeat-delay 300
-        repeat-rate 50
-      }
+      ];
+    };
 
-      mouse {
-        accel-profile "flat"
-        accel-speed -0.5
-      }
+    extraSessionCommands = ''
+      export NIXOS_OZONE_WL=1
+      export GDK_BACKEND=wayland
+      export QT_QPA_PLATFORM=wayland
+      export MOZ_ENABLE_WAYLAND=1
+      export __NV_DISABLE_EXPLICIT_SYNC=1
+    '';
+  };
 
-      touchpad {
-        natural-scroll
-        tap
-        dwt
-      }
+  # === i3status-rust ===
+  programs.i3status-rust = {
+    enable = true;
+    bars = {
+      top = {
+        theme = "gruvbox-dark";
+        icons = "material-nf";
+        blocks = [
+          {
+            block = "focused_window";
+            format = " $title.str(max_w:50) |";
+          }
+          {
+            block = "sound";
+            format = " $icon $volume |";
+            click = [
+              {
+                button = "left";
+                cmd = "${pkgs.pavucontrol}/bin/pavucontrol";
+              }
+            ];
+          }
+          {
+            block = "net";
+            format = " $icon {$ssid $signal_strength |} $ip ";
+            missing_format = " 󰖪 down ";
+          }
+          {
+            block = "time";
+            interval = 30;
+            format = " $icon $timestamp.datetime(f:'%I:%M %p %Z') ";
+          }
+          {
+            block = "time";
+            interval = 60;
+            format = " $timestamp.datetime(f:'%H:%M UTC') ";
+            timezone = "UTC";
+          }
+        ];
+      };
+    };
+  };
 
-      warp-mouse-to-focus
-      focus-follows-mouse
-    }
-
-    // ── Cursor ──
-    cursor {
-      xcursor-theme "macOS"
-      xcursor-size 16
-      hide-when-typing
-      hide-after-inactive-ms 10000
-    }
-
-    // ── Layout ──
-    layout {
-      gaps 10
-
-      center-focused-column "on-overflow"
-
-      focus-ring {
-        off
-      }
-
-      border {
-        off
-      }
-
-      shadow {
-        on
-        softness 30
-        spread 5
-        offset x=0 y=5
-        color "#00000064"
-        inactive-color "#00000040"
-      }
-
-      preset-column-widths {
-        proportion 0.33333
-        proportion 0.5
-        proportion 0.66667
-      }
-
-      default-column-width {
-        proportion 0.5
-      }
-    }
-
-    // ── Animations ──
-    animations {
-      workspace-switch {
-        spring damping-ratio=0.85 stiffness=1000 epsilon=0.0001
-      }
-      window-open {
-        duration-ms 200
-        curve "ease-out-expo"
-      }
-      window-close {
-        duration-ms 100
-        curve "ease-out-quad"
-      }
-      horizontal-view-movement {
-        spring damping-ratio=1.0 stiffness=1000 epsilon=0.0001
-      }
-      window-movement {
-        spring damping-ratio=0.85 stiffness=900 epsilon=0.0001
-      }
-      window-resize {
-        spring damping-ratio=1.0 stiffness=1000 epsilon=0.0001
-      }
-    }
-
-    // ── Window Rules ──
-
-    // Squared corners, no rounding, no clipping
-    window-rule {
-      geometry-corner-radius 0
-      clip-to-geometry false
-    }
-
-    // ── Opacity ──
-    window-rule {
-      opacity 0.90
-    }
-    window-rule {
-      match is-focused=false
-      opacity 0.80
-    }
-
-    // WezTerm: REQUIRED — wezterm waits for a zero-sized configure event
-    // from the compositor. Without this rule, wezterm hangs with a blank
-    // window because niri sends a fixed size instead of letting wezterm
-    // pick its own. See: https://github.com/niri-wm/niri/wiki/Application:-WezTerm
-    window-rule {
-      match app-id=r#"^org\.wezfurlong\.wezterm$"#
-      default-column-width {}
-    }
-
-    // ── Floating windows ──
-    window-rule {
-      match title="^Picture-in-Picture$"
-      open-floating true
-    }
-    window-rule {
-      match app-id="^pavucontrol$"
-      open-floating true
-    }
-    window-rule {
-      match app-id="^1password$"
-      open-floating true
-    }
-    window-rule {
-      match app-id="^nemo$"
-      open-floating true
-    }
-
-    // ── Misc ──
-    // prefer-no-csd disabled: causes wezterm sizing bugs on niri
-    // (wrong size in tiled state, cannot resize — niri wiki Bug #2)
-
-    screenshot-path "~/Pictures/Screenshots/Screenshot from %Y-%m-%d %H-%M-%S.png"
-
-    overview {
-      backdrop-color "#${c.base00}"
-    }
-
-    hotkey-overlay {
-      skip-at-startup
-      hide-not-bound
-    }
-
-    // ── Startup ──
-    // Start wezterm GUI once (it auto-starts the mux server via unix_domains)
-    spawn-at-startup "${pkgs.wezterm}/bin/wezterm" "start"
-    spawn-at-startup "${pkgs.swaybg}/bin/swaybg" "-i" "${wallpaper}" "-m" "fill"
-    spawn-at-startup "${pkgs.waybar}/bin/waybar"
-    spawn-at-startup "${pkgs.mako}/bin/mako"
-    spawn-at-startup "nm-applet" "--indicator"
-    spawn-at-startup "${pkgs.polkit_gnome}/libexec/polkit-gnome-authentication-agent-1"
-    spawn-at-startup "${pkgs.wl-clipboard}/bin/wl-paste" "--watch" "${pkgs.cliphist}/bin/cliphist" "store"
-
-    // ── Key Bindings ──
-    binds {
-      // Launch
-      Alt+Return hotkey-overlay-title="Terminal" { spawn "${pkgs.wezterm}/bin/wezterm" "cli" "spawn" "--new-window"; }
-      Super+Space hotkey-overlay-title="App Launcher" { spawn "${pkgs.rofi}/bin/rofi" "-show" "drun" "-theme" "${config.xdg.configHome}/rofi/config.rasi"; }
-
-      // Window management
-      Super+Q hotkey-overlay-title="Close Window" { close-window; }
-
-      // Focus (vim-style, matching aerospace)
-      Alt+H hotkey-overlay-title="Focus Left" { focus-column-left; }
-      Alt+J hotkey-overlay-title="Focus Down" { focus-window-down; }
-      Alt+K hotkey-overlay-title="Focus Up" { focus-window-up; }
-      Alt+L hotkey-overlay-title="Focus Right" { focus-column-right; }
-
-      // Move (matching aerospace move mode)
-      Alt+Ctrl+H hotkey-overlay-title="Move Left" { move-column-left; }
-      Alt+Ctrl+J hotkey-overlay-title="Move Down" { move-window-down; }
-      Alt+Ctrl+K hotkey-overlay-title="Move Up" { move-window-up; }
-      Alt+Ctrl+L hotkey-overlay-title="Move Right" { move-column-right; }
-
-      // Resize (matching aerospace)
-      Alt+Shift+J hotkey-overlay-title="Shrink Width" { set-column-width "-10%"; }
-      Alt+Shift+K hotkey-overlay-title="Grow Width" { set-column-width "+10%"; }
-
-      // Fullscreen / maximize (matching aerospace alt+f)
-      Alt+F hotkey-overlay-title="Maximize" { maximize-column; }
-      Alt+Shift+F hotkey-overlay-title="Fullscreen" { fullscreen-window; }
-
-      // Column operations
-      Alt+C hotkey-overlay-title="Center Column" { center-column; }
-      Alt+Comma hotkey-overlay-title="Consume Into Column" { consume-window-into-column; }
-      Alt+Period hotkey-overlay-title="Expel From Column" { expel-window-from-column; }
-      Alt+R hotkey-overlay-title="Cycle Column Width" { switch-preset-column-width; }
-      Alt+V hotkey-overlay-title="Toggle Float" { toggle-window-floating; }
-      Alt+T hotkey-overlay-title="Toggle Tabbed" { toggle-column-tabbed-display; }
-
-      // Workspaces (matching aerospace)
-      Alt+1 { focus-workspace 1; }
-      Alt+2 { focus-workspace 2; }
-      Alt+3 { focus-workspace 3; }
-      Alt+4 { focus-workspace 4; }
-      Alt+5 { focus-workspace 5; }
-      Alt+6 { focus-workspace 6; }
-      Alt+7 { focus-workspace 7; }
-      Alt+8 { focus-workspace 8; }
-      Alt+9 { focus-workspace 9; }
-
-      Alt+Shift+1 { move-column-to-workspace 1; }
-      Alt+Shift+2 { move-column-to-workspace 2; }
-      Alt+Shift+3 { move-column-to-workspace 3; }
-      Alt+Shift+4 { move-column-to-workspace 4; }
-      Alt+Shift+5 { move-column-to-workspace 5; }
-      Alt+Shift+6 { move-column-to-workspace 6; }
-      Alt+Shift+7 { move-column-to-workspace 7; }
-      Alt+Shift+8 { move-column-to-workspace 8; }
-      Alt+Shift+9 { move-column-to-workspace 9; }
-
-      // Workspace navigation (matching aerospace)
-      Alt+Tab { focus-workspace-down; }
-      Alt+Shift+Tab { focus-workspace-up; }
-      Alt+P { focus-workspace-previous; }
-
-      // Monitor
-      Alt+Shift+H { focus-monitor-left; }
-      Alt+Shift+L { focus-monitor-right; }
-      Alt+Ctrl+Shift+H { move-column-to-monitor-left; }
-      Alt+Ctrl+Shift+L { move-column-to-monitor-right; }
-
-      // Media (work when locked)
-      XF86AudioRaiseVolume allow-when-locked=true { spawn "wpctl" "set-volume" "@DEFAULT_AUDIO_SINK@" "0.05+"; }
-      XF86AudioLowerVolume allow-when-locked=true { spawn "wpctl" "set-volume" "@DEFAULT_AUDIO_SINK@" "0.05-"; }
-      XF86AudioMute        allow-when-locked=true { spawn "wpctl" "set-mute" "@DEFAULT_AUDIO_SINK@" "toggle"; }
-      XF86AudioPlay  allow-when-locked=true { spawn "${pkgs.playerctl}/bin/playerctl" "play-pause"; }
-      XF86AudioPause allow-when-locked=true { spawn "${pkgs.playerctl}/bin/playerctl" "play-pause"; }
-      XF86AudioNext  allow-when-locked=true { spawn "${pkgs.playerctl}/bin/playerctl" "next"; }
-      XF86AudioPrev  allow-when-locked=true { spawn "${pkgs.playerctl}/bin/playerctl" "previous"; }
-
-      // Screenshot
-      Print hotkey-overlay-title="Screenshot" { screenshot; }
-      Alt+Print { screenshot-screen; }
-      Alt+Shift+Print { screenshot-window; }
-
-      // Log out (back to login screen, like macOS)
-      Super+Ctrl+Q hotkey-overlay-title="Log Out" { quit skip-confirmation=true; }
-
-      // Clipboard history
-      Super+V hotkey-overlay-title="Clipboard History" { spawn "sh" "-c" "${pkgs.cliphist}/bin/cliphist list | ${pkgs.rofi}/bin/rofi -dmenu -theme ${config.xdg.configHome}/rofi/config.rasi | ${pkgs.cliphist}/bin/cliphist decode | ${pkgs.wl-clipboard}/bin/wl-copy"; }
-
-      // Power off monitors
-      Super+Shift+P hotkey-overlay-title="Monitors Off" { power-off-monitors; }
-
-      // Overview + cheatsheet
-      Super+Tab hotkey-overlay-title="Overview" { toggle-overview; }
-      Super+Shift+Slash hotkey-overlay-title="Keybindings" { show-hotkey-overlay; }
-    }
-  '';
-
-  # === Rofi App Launcher ===
+  # === Rofi App Launcher (custom theme) ===
   xdg.configFile."rofi/config.rasi".text = ''
     configuration {
       modi: "drun,run,window";
@@ -299,12 +319,10 @@ in
       icon-theme: "Papirus-Dark";
       terminal: "wezterm";
       drun-display-format: "{name}";
-      window-format: "{w} {c} {t}";
       disable-history: false;
       hide-scrollbar: true;
       sorting-method: "fzf";
       click-to-exit: true;
-      steal-focus: true;
 
       kb-clear-line: "";
       kb-remove-to-sol: "";
@@ -319,15 +337,11 @@ in
       kb-page-next: "Page_Down,Control+d";
       kb-move-front: "Control+a";
       kb-move-end: "Control+e";
-      kb-delete-entry: "Shift+Delete";
-      kb-mode-next: "Control+Tab";
-      kb-mode-previous: "Control+Shift+Tab";
     }
 
     * {
       bg:             #${c.base00}cc;
       bg-solid:       #${c.base00};
-      bg-entry:       #${c.base01}00;
       bg-selected:    #${c.base01}80;
       fg:             #${c.base06};
       fg-dim:         #${c.base04};
@@ -341,12 +355,10 @@ in
     }
 
     window {
-      transparency:    "real";
       width:           560px;
       border:          1px;
       border-color:    @border-col;
       background-color: @bg;
-      border-radius:   8px;
       padding:         0;
       location:        center;
       anchor:          center;
@@ -375,14 +387,12 @@ in
     }
 
     entry {
-      background-color: @bg-entry;
+      background-color: @none;
       text-color:      @fg;
       padding:         8px 0;
       placeholder:     "Type to search...";
       placeholder-color: @fg-placeholder;
       font:            @font;
-      cursor:          text;
-      cursor-color:    @accent;
     }
 
     listview {
@@ -399,7 +409,6 @@ in
       background-color: @none;
       text-color:      @fg;
       padding:         10px 14px;
-      border-radius:   6px;
       spacing:         12px;
     }
 
@@ -408,33 +417,9 @@ in
       text-color:      @fg;
     }
 
-    element selected.urgent {
-      background-color: @urgent;
-      text-color:      @bg-solid;
-    }
-
-    element selected.active {
-      background-color: @bg-selected;
-      text-color:      @green;
-    }
-
-    element normal.urgent {
-      text-color:      @urgent;
-    }
-
-    element normal.active {
-      text-color:      @green;
-    }
-
-    element alternate.normal {
-      background-color: @none;
-      text-color:      @fg;
-    }
-
     element-icon {
       size:            22px;
       background-color: inherit;
-      padding:         0;
     }
 
     element-text {
@@ -444,34 +429,6 @@ in
       vertical-align:  0.5;
     }
   '';
-
-  # === Mako Notifications ===
-  services.mako = {
-    enable = true;
-    settings = {
-      font = "${values.theme.font.monospace} 11";
-      background-color = "#${c.base00}";
-      text-color = "#${c.base06}";
-      border-color = "#${c.base02}";
-      border-size = 2;
-      border-radius = 8;
-      padding = "15";
-      margin = "10";
-      width = 350;
-      height = 100;
-      default-timeout = 5000;
-      layer = "overlay";
-    };
-
-    extraConfig = ''
-      [urgency=low]
-      border-color=#${c.base03}
-
-      [urgency=high]
-      border-color=#${c.base08}
-      default-timeout=0
-    '';
-  };
 
   # === GTK / Icon / Cursor / Theme ===
   gtk = {
@@ -484,12 +441,8 @@ in
       name = "Papirus-Dark";
       package = pkgs.papirus-icon-theme;
     };
-    gtk3.extraConfig = {
-      gtk-application-prefer-dark-theme = 1;
-    };
-    gtk4.extraConfig = {
-      gtk-application-prefer-dark-theme = 1;
-    };
+    gtk3.extraConfig.gtk-application-prefer-dark-theme = 1;
+    gtk4.extraConfig.gtk-application-prefer-dark-theme = 1;
   };
 
   home.pointerCursor = {
@@ -516,11 +469,8 @@ in
       "image/png" = "imv.desktop";
       "image/jpeg" = "imv.desktop";
       "image/gif" = "imv.desktop";
-      "image/webp" = "imv.desktop";
       "video/mp4" = "mpv.desktop";
-      "video/webm" = "mpv.desktop";
       "audio/mpeg" = "mpv.desktop";
-      "audio/flac" = "mpv.desktop";
       "inode/directory" = "nemo.desktop";
     };
   };
@@ -530,7 +480,7 @@ in
     enable = true;
     automount = true;
     notify = true;
-    tray = "never"; # no tray icon, just auto-mount
+    tray = "never";
   };
 
   # === Nemo File Manager ===
@@ -538,13 +488,12 @@ in
     [Nemo Action]
     Active=true
     Name=Open Terminal Here
-    Exec=wezterm -e bash -c "cd %f && bash"
+    Exec=wezterm start -e bash -c "cd %f && bash"
     Selection=Any
     Extensions=any;
   '';
 
   dconf.settings = {
-    # Tell XDG portal to report dark mode (fixes wezterm appearance warning)
     "org/gnome/desktop/interface" = {
       color-scheme = lib.mkForce "prefer-dark";
       gtk-theme = lib.mkForce "Gruvbox-Dark";
@@ -556,10 +505,6 @@ in
       show-advanced-permissions = true;
       date-format = "informal";
       default-folder-viewer = "icon-view";
-    };
-    "org/nemo/window-state" = {
-      geometry = "1200x800+50+50";
-      sidebar-width = 200;
     };
   };
 }

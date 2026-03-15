@@ -4,6 +4,6 @@
   imports = [
     ./audio.nix
     ./greetd.nix
-    ./niri.nix
+    ./sway.nix
   ];
 }
