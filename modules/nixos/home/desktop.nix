@@ -162,8 +162,11 @@ in
         "${mod}+v" = "floating toggle";
         "${mod}+t" = "layout toggle split";
 
-        # Move mode
+        # Move mode (like aerospace)
         "${mod}+x" = "mode move";
+
+        # Locked mode (passthrough, like aerospace)
+        "${mod}+g" = "mode locked";
 
         # Clipboard history
         "Mod4+v" = "exec ${pkgs.cliphist}/bin/cliphist list | ${pkgs.rofi}/bin/rofi -dmenu | ${pkgs.cliphist}/bin/cliphist decode | ${pkgs.wl-clipboard}/bin/wl-copy";
@@ -190,6 +193,9 @@ in
           "${mod}+k" = "move up";
           "${mod}+l" = "move right";
           "Escape" = "mode default";
+        };
+        locked = {
+          "${mod}+g" = "mode default";
         };
       };
 
@@ -260,12 +266,19 @@ in
         icons = "material-nf";
         blocks = [
           {
+            block = "custom";
+            command = "echo '󱄅'";
+            interval = "once";
+            format = " $text ";
+          }
+          {
             block = "focused_window";
-            format = " $title.str(max_w:48) ";
+            format = " $title.str(max_w:40) |";
+            format_alt = " $app_name.str(max_w:40) |";
           }
           {
             block = "sound";
-            format = " $icon $volume ";
+            format = " $icon $volume |";
             click = [
               {
                 button = "left";
@@ -275,14 +288,13 @@ in
           }
           {
             block = "net";
-            format = " $icon $ip ";
-            format_alt = " $icon $ssid $signal_strength ";
-            missing_format = " 󰖪 ";
+            format = " $icon $ip |";
+            missing_format = " 󰈂 |";
           }
           {
             block = "time";
             interval = 30;
-            format = " $icon $timestamp.datetime(f:'%I:%M %p') ";
+            format = " $timestamp.datetime(f:'%I:%M %p') · ";
           }
           {
             block = "time";
