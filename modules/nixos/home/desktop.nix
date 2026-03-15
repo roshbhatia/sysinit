@@ -41,8 +41,8 @@ in
       };
 
       gaps = {
-        inner = 8;
-        outer = 0;
+        inner = 16;
+        outer = 8;
       };
 
       defaultWorkspace = "workspace number 1";
