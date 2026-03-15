@@ -33,7 +33,7 @@ in
     config = {
       modifier = mod;
       terminal = "${pkgs.wezterm}/bin/wezterm start";
-      menu = "${pkgs.rofi}/bin/rofi -show drun";
+      menu = "${pkgs.rofi}/bin/rofi -show drun -config ${config.xdg.configHome}/rofi/config.rasi";
 
       fonts = {
         names = lib.mkForce [ "${values.theme.font.monospace}" ];
@@ -120,7 +120,7 @@ in
         "${mod}+Return" = "exec ${pkgs.wezterm}/bin/wezterm start";
 
         # App launcher
-        "Mod4+space" = "exec ${pkgs.rofi}/bin/rofi -show drun";
+        "Mod4+space" = "exec ${pkgs.rofi}/bin/rofi -show drun -config ${config.xdg.configHome}/rofi/config.rasi";
 
         # Kill / exit
         "Mod4+q" = "kill";

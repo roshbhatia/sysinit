@@ -36,6 +36,7 @@ function M.setup(config)
   config.adjust_window_size_when_changing_font_size = false
   config.use_resize_increments = false
   config.pane_focus_follows_mouse = false
+  config.enable_wayland = not utils.is_darwin()
 
   -- Tab bar: simple retro style at bottom (no window controls)
   config.tab_bar_at_bottom = true
@@ -78,7 +79,6 @@ function M.setup(config)
     config.front_end = "OpenGL"
     config.window_decorations = "RESIZE"
     config.window_background_opacity = 1.0
-    config.enable_wayland = true
     config.freetype_load_flags = "NO_HINTING|NO_AUTOHINT"
     -- Tell wezterm it's in a tiling WM so it accounts for
     -- window sizing correctly (fixes tab bar cutoff)
