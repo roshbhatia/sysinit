@@ -236,6 +236,20 @@ in
       export QT_QPA_PLATFORM=wayland
       export MOZ_ENABLE_WAYLAND=1
     '';
+
+    # SwayFX visual effects
+    extraConfig = ''
+      # Dim unfocused windows
+      default_dim_inactive 0.15
+
+      # Shadows
+      shadows enable
+      shadow_blur_radius 20
+      shadow_color #00000064
+
+      # Corner radius (0 = squared)
+      corner_radius 0
+    '';
   };
 
   # === i3status-rust ===
@@ -311,91 +325,95 @@ in
     }
 
     * {
-      bg:             #${c.base00}cc;
-      bg-solid:       #${c.base00};
-      bg-selected:    #${c.base01}80;
-      fg:             #${c.base06};
-      fg-dim:         #${c.base04};
-      fg-placeholder: #${c.base03};
-      accent:         #${c.base0E};
-      urgent:         #${c.base08};
-      green:          #${c.base0B};
-      border-col:     #${c.base02}80;
-      none:           transparent;
-      font:           "${values.theme.font.monospace} 13";
+      font: "${values.theme.font.monospace} 13";
     }
 
     window {
-      width:           560px;
-      border:          1px;
-      border-color:    @border-col;
-      background-color: @bg;
+      width:           520px;
+      border:          2px solid;
+      border-color:    #${c.base02};
+      background-color: #${c.base00};
       padding:         0;
       location:        center;
       anchor:          center;
     }
 
     mainbox {
-      background-color: @none;
+      background-color: transparent;
       children:        [ inputbar, listview ];
+      spacing:         0;
     }
 
     inputbar {
-      background-color: @none;
-      children:        [ textbox-prompt, entry ];
-      padding:         16px 20px;
-      spacing:         12px;
+      background-color: #${c.base01};
+      children:        [ prompt, entry ];
+      padding:         12px 16px;
+      spacing:         8px;
     }
 
-    textbox-prompt {
-      expand:          false;
-      str:             "";
-      font:            "Symbols Nerd Font Mono 15";
-      text-color:      @accent;
-      background-color: @none;
+    prompt {
+      background-color: transparent;
+      text-color:      #${c.base0E};
+      font:            "Symbols Nerd Font Mono 14";
       vertical-align:  0.5;
     }
 
     entry {
-      background-color: @none;
-      text-color:      @fg;
-      padding:         8px 0;
-      placeholder:     "Type to search...";
-      placeholder-color: @fg-placeholder;
-      font:            @font;
+      background-color: transparent;
+      text-color:      #${c.base06};
+      padding:         4px 0;
+      placeholder:     "Search...";
+      placeholder-color: #${c.base03};
     }
 
     listview {
-      background-color: @none;
+      background-color: transparent;
       columns:         1;
-      lines:           8;
-      padding:         0 8px 8px 8px;
-      spacing:         2px;
+      lines:           10;
+      padding:         4px 0;
+      spacing:         0;
       fixed-height:    true;
       cycle:           false;
     }
 
     element {
-      background-color: @none;
-      text-color:      @fg;
-      padding:         10px 14px;
-      spacing:         12px;
+      background-color: transparent;
+      text-color:      #${c.base05};
+      padding:         8px 16px;
+      spacing:         10px;
     }
 
     element selected.normal {
-      background-color: @bg-selected;
-      text-color:      @fg;
+      background-color: #${c.base02};
+      text-color:      #${c.base06};
+    }
+
+    element selected.urgent {
+      background-color: #${c.base08};
+      text-color:      #${c.base00};
+    }
+
+    element selected.active {
+      background-color: #${c.base02};
+      text-color:      #${c.base0B};
+    }
+
+    element normal.urgent {
+      text-color:      #${c.base08};
+    }
+
+    element normal.active {
+      text-color:      #${c.base0B};
     }
 
     element-icon {
-      size:            22px;
+      size:            20px;
       background-color: inherit;
     }
 
     element-text {
       background-color: inherit;
       text-color:      inherit;
-      font:            @font;
       vertical-align:  0.5;
     }
   '';
