@@ -158,6 +158,32 @@
     opencode
     openspec
     pi-coding-agent
+    tree-sitter
+    tree-sitter-grammars.tree-sitter-ada
+    tree-sitter-grammars.tree-sitter-c
+    tree-sitter-grammars.tree-sitter-cel
+    tree-sitter-grammars.tree-sitter-d
+    tree-sitter-grammars.tree-sitter-elm
+    tree-sitter-grammars.tree-sitter-gn
+    tree-sitter-grammars.tree-sitter-go
+    tree-sitter-grammars.tree-sitter-gpr
+    tree-sitter-grammars.tree-sitter-hcl
+    tree-sitter-grammars.tree-sitter-jq
+    tree-sitter-grammars.tree-sitter-ld
+    tree-sitter-grammars.tree-sitter-lua
+    tree-sitter-grammars.tree-sitter-nim
+    tree-sitter-grammars.tree-sitter-nix
+    tree-sitter-grammars.tree-sitter-nu
+    tree-sitter-grammars.tree-sitter-pem
+    tree-sitter-grammars.tree-sitter-po
+    tree-sitter-grammars.tree-sitter-ql
+    tree-sitter-grammars.tree-sitter-r
+    tree-sitter-grammars.tree-sitter-ron
+    tree-sitter-grammars.tree-sitter-tcl
+    tree-sitter-grammars.tree-sitter-v
+    tree-sitter-grammars.tree-sitter-vue
+    tree-sitter-grammars.tree-sitter-wat
+    tree-sitter-grammars.tree-sitter-xtc
 
     # Config & Misc Dev
     devcontainer
