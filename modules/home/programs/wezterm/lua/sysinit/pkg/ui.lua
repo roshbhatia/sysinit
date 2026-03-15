@@ -23,7 +23,7 @@ function M.setup(config)
 
   -- Core settings
   config.font = font
-  config.font_size = 12.0
+  config.font_size = 11.0
   config.line_height = 1.0
   config.cell_width = 1.0
   config.color_scheme = config_data.color_scheme
@@ -36,20 +36,16 @@ function M.setup(config)
   config.adjust_window_size_when_changing_font_size = false
   config.use_resize_increments = false
   config.pane_focus_follows_mouse = false
-  -- Run wezterm via XWayland on Linux — native Wayland has too many
-  -- rendering quirks (tab bar cutoff, sizing issues, CSD conflicts)
-  config.enable_wayland = false
 
   config.tab_bar_at_bottom = true
   config.use_fancy_tab_bar = false
   config.hide_tab_bar_if_only_one_tab = false
 
-  -- Window padding
   config.window_padding = {
-    left = "2cell",
-    right = "2cell",
-    top = "1.5cell",
-    bottom = "0.5cell",
+    left = "1cell",
+    right = "1cell",
+    top = "1cell",
+    bottom = "0cell",
   }
 
   config.window_frame = {
@@ -64,17 +60,20 @@ function M.setup(config)
     fade_out_duration_ms = 100,
   }
 
+  config.window_background_opacity = config_data.transparency.opacity
+
   if utils.is_darwin() then
     -- macOS: compositor handles blur, wezterm handles opacity
     config.front_end = "WebGpu"
     config.window_decorations = "RESIZE|MACOS_FORCE_ENABLE_SHADOW"
-    config.window_background_opacity = config_data.transparency.opacity
     config.macos_window_background_blur = config_data.transparency.blur
   else
     -- Linux/Wayland (sway)
+    -- Run wezterm via XWayland on Linux — native Wayland has too many
+    -- rendering quirks (tab bar cutoff, sizing issues, CSD conflicts)
+    config.enable_wayland = false
     config.front_end = "OpenGL"
     config.window_decorations = "RESIZE"
-    config.window_background_opacity = config_data.transparency.opacity
     config.freetype_load_flags = "NO_HINTING|NO_AUTOHINT"
     -- Tell wezterm it's in a tiling WM so it accounts for
     -- window sizing correctly (fixes tab bar cutoff)
@@ -89,9 +88,9 @@ function M.setup(config)
 
   local function locked_indicator()
     if keybindings.locked_mode then
-      return "  "
+      return "  "
     end
-    return "  "
+    return "  "
   end
 
   local tabline_ok, tabline = pcall(wezterm.plugin.require, "https://github.com/michaelbrusegard/tabline.wez")
