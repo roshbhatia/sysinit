@@ -21,22 +21,51 @@ function M.setup(config)
     config_data.font.symbols,
   })
 
-  config.adjust_window_size_when_changing_font_size = not utils.is_darwin()
-  config.animation_fps = 240
-  config.color_scheme = config_data.color_scheme
-  config.cursor_blink_rate = 320
-  config.cursor_thickness = 1
+  -- Core settings
   config.font = font
   config.font_size = 12.0
   config.line_height = 1.0
   config.cell_width = 1.0
-  
-  config.adjust_window_size_when_changing_font_size = false
+  config.color_scheme = config_data.color_scheme
+  config.animation_fps = 240
   config.max_fps = 240
-  config.quick_select_alphabet = "fjdkslaghrueiwoncmv"
+  config.cursor_blink_rate = 320
+  config.cursor_thickness = 1
   config.scrollback_lines = 200000
+  config.quick_select_alphabet = "fjdkslaghrueiwoncmv"
+  config.adjust_window_size_when_changing_font_size = false
+  config.use_resize_increments = false
+  config.pane_focus_follows_mouse = false
+
+  -- Tab bar: simple retro style at bottom (no window controls)
   config.tab_bar_at_bottom = true
   config.use_fancy_tab_bar = false
+  config.hide_tab_bar_if_only_one_tab = false -- always show to avoid resize bug #5819
+
+  -- Window padding
+  config.window_padding = {
+    left = "0.5cell",
+    right = "0.5cell",
+    top = "0.5cell",
+    bottom = "0.5cell",
+  }
+
+  -- Window frame: zero borders on all platforms
+  config.window_frame = {
+    font = font,
+    font_size = 11.0,
+    border_left_width = "0cell",
+    border_right_width = "0cell",
+    border_bottom_height = "0cell",
+    border_top_height = "0cell",
+  }
+
+  config.visual_bell = {
+    fade_in_function = "EaseIn",
+    fade_in_duration_ms = 70,
+    fade_out_function = "EaseOut",
+    fade_out_duration_ms = 100,
+  }
 
   if utils.is_darwin() then
     -- macOS: compositor handles blur, wezterm handles opacity
@@ -45,36 +74,29 @@ function M.setup(config)
     config.window_background_opacity = config_data.transparency.opacity
     config.macos_window_background_blur = config_data.transparency.blur
   else
-    -- Linux/Wayland (niri): compositor handles opacity via window-rules
-    config.front_end = "OpenGL" -- WebGpu broken on NVIDIA+Wayland (#7017)
-    config.window_decorations = "RESIZE" -- must keep RESIZE per wezterm docs
-    config.window_background_opacity = 1.0 -- niri window-rule handles this
+    -- Linux/Wayland (niri)
+    config.front_end = "OpenGL"
+    config.window_decorations = "RESIZE"
+    config.window_background_opacity = 1.0
     config.enable_wayland = true
     config.freetype_load_flags = "NO_HINTING|NO_AUTOHINT"
-  end
-  config.window_frame = {
-    font = font,
-    font_size = 11.0,
-  }
-  config.visual_bell = {
-    fade_in_function = "EaseIn",
-    fade_in_duration_ms = 70,
-    fade_out_function = "EaseOut",
-    fade_out_duration_ms = 100,
-  }
 
-  config.pane_focus_follows_mouse = false
+    -- Unix domain for instant spawning via `wezterm start`
+    config.unix_domains = {
+      { name = "unix" },
+    }
+  end
 
   local function locked_indicator()
     if keybindings.locked_mode then
-      return "  "
+      return "  "
     end
-    return "  "
+    return "  "
   end
 
   local tabline_ok, tabline = pcall(wezterm.plugin.require, "https://github.com/michaelbrusegard/tabline.wez")
   if not tabline_ok then
-    wezterm.log_warn("Failed to load tabline.wez plugin: " .. tostring(tabline))
+    wezterm.log_warn("Failed to load tabline.wez: " .. tostring(tabline))
   end
   if tabline_ok then
     tabline.setup({
@@ -108,7 +130,7 @@ function M.setup(config)
 
   local agent_deck_ok, agent_deck = pcall(wezterm.plugin.require, "https://github.com/Eric162/wezterm-agent-deck")
   if not agent_deck_ok then
-    wezterm.log_warn("Failed to load agent-deck plugin: " .. tostring(agent_deck))
+    wezterm.log_warn("Failed to load agent-deck: " .. tostring(agent_deck))
   end
   if agent_deck_ok then
     agent_deck.apply_to_config(config, {
@@ -174,17 +196,6 @@ function M.setup(config)
     })
   end
 
-  config.window_padding = {
-    left = "0.5cell",
-    right = "0.5cell",
-    top = "0.5cell",
-    bottom = "0.5cell",
-  }
-
-  -- Ensure wezterm fills its window on Wayland tiling WMs
-  config.use_resize_increments = false
-
-  -- Use default hyperlink rules (handles http/https, ssh, git, etc.)
   config.hyperlink_rules = wezterm.default_hyperlink_rules()
 end
 

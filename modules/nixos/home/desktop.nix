@@ -169,7 +169,8 @@ in
     }
 
     // ── Misc ──
-    prefer-no-csd
+    // prefer-no-csd disabled: causes wezterm sizing bugs on niri
+    // (wrong size in tiled state, cannot resize — niri wiki Bug #2)
 
     screenshot-path "~/Pictures/Screenshots/Screenshot from %Y-%m-%d %H-%M-%S.png"
 
@@ -183,7 +184,8 @@ in
     }
 
     // ── Startup ──
-    spawn-at-startup "${pkgs.wezterm}/bin/wezterm-mux-server" "--daemonize"
+    // Start wezterm GUI once (it auto-starts the mux server via unix_domains)
+    spawn-at-startup "${pkgs.wezterm}/bin/wezterm" "start"
     spawn-at-startup "${pkgs.swaybg}/bin/swaybg" "-i" "${wallpaper}" "-m" "fill"
     spawn-at-startup "${pkgs.waybar}/bin/waybar"
     spawn-at-startup "${pkgs.mako}/bin/mako"
@@ -194,7 +196,7 @@ in
     // ── Key Bindings ──
     binds {
       // Launch
-      Alt+Return hotkey-overlay-title="Terminal" { spawn "${pkgs.wezterm}/bin/wezterm" "connect" "unix"; }
+      Alt+Return hotkey-overlay-title="Terminal" { spawn "${pkgs.wezterm}/bin/wezterm" "cli" "spawn" "--new-window"; }
       Super+Space hotkey-overlay-title="App Launcher" { spawn "${pkgs.rofi}/bin/rofi" "-show" "drun" "-theme" "${config.xdg.configHome}/rofi/config.rasi"; }
 
       // Window management

@@ -144,7 +144,6 @@ in
         border-radius: 6px;
         background: transparent;
         border: none;
-        transition: all 0.15s ease;
       }
 
       #workspaces button.active {
@@ -164,7 +163,6 @@ in
         padding: 0 8px;
         margin: 4px 0;
         color: #${c.base04};
-        transition: all 0.15s ease;
       }
 
       #clock {
