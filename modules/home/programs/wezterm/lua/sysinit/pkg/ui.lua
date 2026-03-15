@@ -89,7 +89,7 @@ function M.setup(config)
     -- Linux/Wayland (sway)
     config.front_end = "OpenGL"
     config.window_decorations = "RESIZE"
-    config.window_background_opacity = 0.85
+    config.window_background_opacity = config_data.transparency.opacity
     config.freetype_load_flags = "NO_HINTING|NO_AUTOHINT"
     -- Tell wezterm it's in a tiling WM so it accounts for
     -- window sizing correctly (fixes tab bar cutoff)
