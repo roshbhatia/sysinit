@@ -31,8 +31,8 @@ function M.setup(config)
   config.line_height = 1.0
   config.cell_width = 1.0
   
-  -- Disable anti-aliasing for sharp retro bitmap feel
-  config.front_end = "WebGpu"
+  -- OpenGL is more stable than WebGpu on NVIDIA+Wayland (wezterm #7017)
+  config.front_end = "OpenGL"
   config.freetype_load_flags = "NO_HINTING|NO_AUTOHINT"
   
   config.macos_window_background_blur = utils.is_darwin() and config_data.transparency.blur or 0

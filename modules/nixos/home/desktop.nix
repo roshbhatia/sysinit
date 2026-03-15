@@ -30,6 +30,7 @@ in
       GDK_BACKEND "wayland"
       QT_QPA_PLATFORM "wayland"
       MOZ_ENABLE_WAYLAND "1"
+      __NV_DISABLE_EXPLICIT_SYNC "1"
     }
 
     // ── Input ──
@@ -140,6 +141,15 @@ in
     window-rule {
       match is-focused=false
       opacity 0.62
+    }
+
+    // WezTerm: REQUIRED — wezterm waits for a zero-sized configure event
+    // from the compositor. Without this rule, wezterm hangs with a blank
+    // window because niri sends a fixed size instead of letting wezterm
+    // pick its own. See: https://github.com/niri-wm/niri/wiki/Application:-WezTerm
+    window-rule {
+      match app-id=r#"^org\.wezfurlong\.wezterm$"#
+      default-column-width {}
     }
 
     // ── Floating windows ──
