@@ -71,6 +71,9 @@ function M.setup(config)
   end
 
   local tabline_ok, tabline = pcall(wezterm.plugin.require, "https://github.com/michaelbrusegard/tabline.wez")
+  if not tabline_ok then
+    wezterm.log_warn("Failed to load tabline.wez plugin: " .. tostring(tabline))
+  end
   if tabline_ok then
     tabline.setup({
       options = {
@@ -102,6 +105,9 @@ function M.setup(config)
   end
 
   local agent_deck_ok, agent_deck = pcall(wezterm.plugin.require, "https://github.com/Eric162/wezterm-agent-deck")
+  if not agent_deck_ok then
+    wezterm.log_warn("Failed to load agent-deck plugin: " .. tostring(agent_deck))
+  end
   if agent_deck_ok then
     agent_deck.apply_to_config(config, {
       tab_title = { enabled = false },

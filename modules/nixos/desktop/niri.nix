@@ -6,6 +6,9 @@ let
   niriWrapped = pkgs.writeShellScriptBin "niri-wrapped" ''
     set -euo pipefail
 
+    # Ensure system binaries (git, etc.) are in PATH for spawned processes
+    export PATH="/run/current-system/sw/bin:$HOME/.nix-profile/bin:$PATH"
+
     export WLR_NO_HARDWARE_CURSORS=1
     export XDG_CURRENT_DESKTOP=niri
     export XDG_SESSION_TYPE=wayland
