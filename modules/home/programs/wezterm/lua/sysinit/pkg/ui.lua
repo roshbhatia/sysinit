@@ -31,22 +31,25 @@ function M.setup(config)
   config.line_height = 1.0
   config.cell_width = 1.0
   
-  -- OpenGL is more stable than WebGpu on NVIDIA+Wayland (wezterm #7017)
-  config.front_end = "OpenGL"
-  config.freetype_load_flags = "NO_HINTING|NO_AUTOHINT"
-  
-  config.macos_window_background_blur = utils.is_darwin() and config_data.transparency.blur or 0
   config.max_fps = 240
   config.quick_select_alphabet = "fjdkslaghrueiwoncmv"
   config.scrollback_lines = 200000
   config.tab_bar_at_bottom = true
-  -- On Linux/Wayland, niri handles window opacity via window-rules.
-  -- Setting wezterm's own opacity would multiply with niri's, making it too transparent.
-  config.window_background_opacity = utils.is_darwin() and config_data.transparency.opacity or 1.0
-  -- NONE on macOS would break things, but on Linux with niri's prefer-no-csd it's correct.
-  -- RESIZE adds a title bar on Linux. NONE gives zero chrome.
-  config.window_decorations = utils.is_darwin() and "RESIZE|MACOS_FORCE_ENABLE_SHADOW" or "NONE"
-  config.enable_wayland = true
+
+  if utils.is_darwin() then
+    -- macOS: compositor handles blur, wezterm handles opacity
+    config.front_end = "WebGpu"
+    config.window_decorations = "RESIZE|MACOS_FORCE_ENABLE_SHADOW"
+    config.window_background_opacity = config_data.transparency.opacity
+    config.macos_window_background_blur = config_data.transparency.blur
+  else
+    -- Linux/Wayland (niri): compositor handles opacity via window-rules
+    config.front_end = "OpenGL" -- WebGpu broken on NVIDIA+Wayland (#7017)
+    config.window_decorations = "NONE" -- niri prefer-no-csd handles decorations
+    config.window_background_opacity = 1.0 -- niri window-rule handles this
+    config.enable_wayland = true
+    config.freetype_load_flags = "NO_HINTING|NO_AUTOHINT"
+  end
   config.window_frame = {
     font = font,
     font_size = 11.0,
