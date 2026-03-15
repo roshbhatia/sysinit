@@ -12,7 +12,7 @@ in
 {
   programs.waybar = {
     enable = true;
-    systemd.enable = false; # launched by niri spawn-at-startup
+    systemd.enable = true;
 
     settings.mainBar = {
       layer = "top";
