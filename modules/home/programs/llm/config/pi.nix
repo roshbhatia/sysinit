@@ -310,20 +310,18 @@ let
   updatePiSettings = pkgs.writeShellScript "update-pi-settings" ''
     SETTINGS="$HOME/.pi/agent/settings.json"
     PACKAGES=$(cat ${piPackagesJson})
-    SHELL_PREFIX='shopt -s expand_aliases\neval "$(grep '"'"'^alias '"'"' ~/.zshrc 2>/dev/null)"\neval "$(grep -rh '"'"'^alias '"'"' ~/.config/zsh 2>/dev/null)"'
 
     if [ -f "$SETTINGS" ]; then
       ${pkgs.jq}/bin/jq \
         --argjson pkgs "$PACKAGES" \
-        --arg prefix "$SHELL_PREFIX" \
-        '. + {packages: $pkgs, shellCommandPrefix: $prefix}' \
+        '. + {packages: $pkgs}' \
         "$SETTINGS" > "$SETTINGS.tmp" && mv "$SETTINGS.tmp" "$SETTINGS"
     else
       mkdir -p "$(dirname "$SETTINGS")"
       ${pkgs.jq}/bin/jq -n \
         --argjson pkgs "$PACKAGES" \
         --arg prefix "$SHELL_PREFIX" \
-        '{packages: $pkgs, shellCommandPrefix: $prefix}' > "$SETTINGS"
+        '{packages: $pkgs}' > "$SETTINGS"
     fi
   '';
 in
