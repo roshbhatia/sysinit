@@ -157,8 +157,10 @@
           alt-k = "focus up";
           alt-l = "focus right";
 
-          alt-shift-j = "resize smart -72";
-          alt-shift-k = "resize smart +72";
+          alt-r = [
+            "exec-and-forget ${pkgs.sketchybar}/bin/sketchybar --trigger aerospace_mode_changed MODE=RESIZE"
+            "mode resize"
+          ];
 
           alt-1 = "workspace 1";
           alt-2 = "workspace 2";
@@ -183,6 +185,18 @@
             "exec-and-forget ${pkgs.sketchybar}/bin/sketchybar --trigger aerospace_mode_changed MODE=MAIN"
             "mode main"
           ];
+        };
+
+        resize.binding = {
+          esc = [
+            "exec-and-forget ${pkgs.sketchybar}/bin/sketchybar --trigger aerospace_mode_changed MODE=MAIN"
+            "mode main"
+          ];
+
+          alt-h = "resize smart -72";
+          alt-j = "resize smart -72";
+          alt-k = "resize smart +72";
+          alt-l = "resize smart +72";
         };
 
         move.binding = {

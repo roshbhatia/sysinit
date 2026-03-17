@@ -77,6 +77,12 @@ in
     # Bar
     i3status-rust
 
+    # Key simulation (macOS-like Super+key bindings)
+    wtype
+
+    # Color picker
+    hyprpicker
+
     # Launcher + notifications + utilities
     rofi
     bemenu

@@ -11,6 +11,35 @@ let
   c = config.lib.stylix.colors;
   mod = "Mod1"; # Alt key
 
+  # 1Password quick access via rofi — search items, pick field, copy to clipboard
+  rofi1password = pkgs.writeShellScript "rofi-1password" ''
+    set -euo pipefail
+
+    # List items from 1Password
+    ITEM=$(${pkgs._1password-cli}/bin/op item list --format=json 2>/dev/null \
+      | ${pkgs.jq}/bin/jq -r '.[] | "\(.title) [\(.category)]"' \
+      | ${pkgs.rofi}/bin/rofi -dmenu -p "1Password" -i)
+
+    [ -z "$ITEM" ] && exit 0
+
+    # Extract the title (strip the category suffix)
+    TITLE=$(echo "$ITEM" | ${pkgs.gnused}/bin/sed 's/ \[.*\]$//')
+
+    # Choose which field to copy
+    FIELD=$(printf "password\nusername\notp" | ${pkgs.rofi}/bin/rofi -dmenu -p "Copy field")
+
+    [ -z "$FIELD" ] && exit 0
+
+    # Get the field value and copy to clipboard
+    if [ "$FIELD" = "otp" ]; then
+      ${pkgs._1password-cli}/bin/op item get "$TITLE" --otp 2>/dev/null | ${pkgs.wl-clipboard}/bin/wl-copy
+    else
+      ${pkgs._1password-cli}/bin/op item get "$TITLE" --fields "$FIELD" 2>/dev/null | ${pkgs.wl-clipboard}/bin/wl-copy
+    fi
+
+    ${pkgs.libnotify}/bin/notify-send "1Password" "Copied $FIELD for $TITLE"
+  '';
+
   wallpaper = pkgs.fetchurl {
     url = "https://wallpapercave.com/wp/wp12329549.png";
     sha256 = "sha256-9R3cDgd1VslCF6mG6jBO64MEdRjCGzWE4m/dAjEixzk=";
@@ -149,10 +178,27 @@ in
         # App launcher
         "Mod4+space" = "exec ${pkgs.rofi}/bin/rofi -show drun";
 
-        # Kill / exit (Super+Q and Super+W both close, like macOS)
+        # 1Password quick access (like macOS Cmd+Shift+Space for 1Password)
+        "Mod4+Shift+space" = "exec ${rofi1password}";
+
+        # Kill / exit
         "Mod4+q" = "kill";
-        "Mod4+w" = "kill";
         "Mod4+Control+q" = "exec swaymsg exit";
+
+        # macOS-like Super+key → Ctrl+key via wtype
+        "Mod4+c" = "exec ${pkgs.wtype}/bin/wtype -M ctrl -P c -m ctrl";
+        "Mod4+v" = "exec ${pkgs.wtype}/bin/wtype -M ctrl -P v -m ctrl";
+        "Mod4+x" = "exec ${pkgs.wtype}/bin/wtype -M ctrl -P x -m ctrl";
+        "Mod4+a" = "exec ${pkgs.wtype}/bin/wtype -M ctrl -P a -m ctrl";
+        "Mod4+z" = "exec ${pkgs.wtype}/bin/wtype -M ctrl -P z -m ctrl";
+        "Mod4+Shift+z" = "exec ${pkgs.wtype}/bin/wtype -M ctrl -M shift -P z -m shift -m ctrl";
+        "Mod4+w" = "exec ${pkgs.wtype}/bin/wtype -M ctrl -P w -m ctrl";
+        "Mod4+n" = "exec ${pkgs.wtype}/bin/wtype -M ctrl -P n -m ctrl";
+        "Mod4+f" = "exec ${pkgs.wtype}/bin/wtype -M ctrl -P f -m ctrl";
+
+        # Minimize (move to scratchpad)
+        "Mod4+h" = "move scratchpad";
+        "Mod4+m" = "move scratchpad";
 
         # Focus (vim-style, matching aerospace)
         "${mod}+h" = "focus left";
@@ -160,9 +206,8 @@ in
         "${mod}+k" = "focus up";
         "${mod}+l" = "focus right";
 
-        # Resize
-        "${mod}+Shift+j" = "resize shrink height 72 px";
-        "${mod}+Shift+k" = "resize grow height 72 px";
+        # Resize mode
+        "${mod}+r" = "mode resize";
 
         # Workspaces (only 1, 2, C, E, M — matching aerospace)
         "${mod}+1" = "workspace 1";
@@ -204,6 +249,9 @@ in
         "${mod}+Shift+v" =
           "exec ${pkgs.cliphist}/bin/cliphist list | ${pkgs.rofi}/bin/rofi -dmenu | ${pkgs.cliphist}/bin/cliphist decode | ${pkgs.wl-clipboard}/bin/wl-copy";
 
+        # Color picker
+        "Mod4+Shift+c" = "exec ${pkgs.hyprpicker}/bin/hyprpicker -a";
+
         # Screenshots (macOS-style: Super+Shift+3 = screen, Super+Shift+4 = region)
         "Mod4+Shift+3" = "exec ${pkgs.sway-contrib.grimshot}/bin/grimshot --notify savecopy output";
         "Mod4+Shift+4" = "exec ${pkgs.sway-contrib.grimshot}/bin/grimshot --notify savecopy area";
@@ -229,6 +277,18 @@ in
           "${mod}+k" = "move up";
           "${mod}+l" = "move right";
           "Escape" = "mode default";
+        };
+        resize = {
+          "h" = "resize shrink width 10 px";
+          "j" = "resize grow height 10 px";
+          "k" = "resize shrink height 10 px";
+          "l" = "resize grow width 10 px";
+          "Shift+h" = "resize shrink width 72 px";
+          "Shift+j" = "resize grow height 72 px";
+          "Shift+k" = "resize shrink height 72 px";
+          "Shift+l" = "resize grow width 72 px";
+          "Escape" = "mode default";
+          "Return" = "mode default";
         };
         locked = {
           "${mod}+g" = "mode default";
@@ -310,12 +370,6 @@ in
         icons = "material-nf";
         blocks = [
           {
-            block = "custom";
-            command = "echo '󱄅'";
-            interval = "once";
-            format = " $text ";
-          }
-          {
             block = "focused_window";
             format = " $title.str(max_w:40) |";
           }
@@ -330,20 +384,9 @@ in
             ];
           }
           {
-            block = "net";
-            format = " $icon $ip |";
-            missing_format = " 󰈂 |";
-          }
-          {
             block = "time";
             interval = 30;
-            format = " $timestamp.datetime(f:'%I:%M %p') · ";
-          }
-          {
-            block = "time";
-            interval = 60;
-            format = " $timestamp.datetime(f:'%H:%M UTC') ";
-            timezone = "UTC";
+            format = " $timestamp.datetime(f:'%I:%M %p') ";
           }
         ];
       };
