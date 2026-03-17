@@ -16,7 +16,6 @@ let
   adapterBase = import ./core/adapter-base.nix { inherit lib utils; };
   weztermAdapter = import ./adapters/wezterm.nix { inherit lib utils adapterBase; };
   neovimAdapter = import ./adapters/neovim.nix { inherit lib utils adapterBase; };
-  firefoxAdapter = import ./adapters/firefox.nix { inherit lib utils adapterBase; };
   base16Schemes = import ./adapters/base16-schemes.nix { inherit lib; };
 
   themes = {
@@ -112,8 +111,6 @@ let
           weztermAdapter.createWeztermConfig theme validatedConfig overrides
         else if app == "neovim" then
           neovimAdapter.createNeovimConfig theme validatedConfig overrides
-        else if app == "firefox" then
-          firefoxAdapter.createFirefoxConfig theme validatedConfig overrides
         else
           {
             theme = getAppTheme app validatedConfig.colorscheme validatedConfig.variant;
@@ -151,8 +148,6 @@ let
       weztermAdapter.generateWeztermJSON theme validatedConfig
     else if app == "neovim" then
       neovimAdapter.generateNeovimJSON theme validatedConfig
-    else if app == "firefox" then
-      firefoxAdapter.generateFirefoxJSON theme validatedConfig
     else
       {
         inherit (validatedConfig) colorscheme;
@@ -336,7 +331,6 @@ in
   adapters = {
     wezterm = weztermAdapter;
     neovim = neovimAdapter;
-    firefox = firefoxAdapter;
   };
 
   inherit base16Schemes;

@@ -88,7 +88,7 @@ in
     # File management
     nemo
 
-    # Browser (configured via home-manager firefox module)
+    # Browser (configured via home-manager qutebrowser module)
 
     # Communication
     vesktop

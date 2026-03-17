@@ -19,8 +19,8 @@ in
     # Use the base16 scheme path from theme metadata
     base16Scheme = themes.getBase16SchemePath pkgs colorscheme variant;
     
-    # Use a valid image from the remote host to avoid ImageMagick errors
-    image = ../../darwin/home/firefox/brave-icons/NewTab.svg;
+    # Minimal placeholder image for Stylix (required field)
+    image = "${pkgs.nixos-icons}/share/icons/hicolor/scalable/apps/nix-snowflake.svg";
 
     fonts = {
       monospace = {

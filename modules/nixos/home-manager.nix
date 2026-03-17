@@ -36,7 +36,7 @@ in
         ]
         ++ lib.optionals (values.isDesktop) [
           ./home/desktop.nix
-          ../home/programs/firefox
+          ../home/programs/qutebrowser
         ];
 
         # NixOS systems use the nix-managed home directory
