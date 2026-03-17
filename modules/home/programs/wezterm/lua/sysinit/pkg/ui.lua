@@ -62,10 +62,8 @@ function M.setup(config)
     config.macos_window_background_blur = config_data.transparency.blur
   else
     -- Linux/Wayland (sway)
-    -- Run wezterm via XWayland on Linux — native Wayland has too many
-    -- rendering quirks (tab bar cutoff, sizing issues, CSD conflicts)
-    config.enable_wayland = false
-    config.front_end = "OpenGL"
+    config.enable_wayland = true
+    config.front_end = "WebGpu"
     config.window_decorations = "RESIZE"
     config.freetype_load_flags = "NO_HINTING|NO_AUTOHINT"
     -- Tell wezterm it's in a tiling WM so it accounts for
