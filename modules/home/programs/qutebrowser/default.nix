@@ -46,7 +46,7 @@ in
       url.default_page = "https://www.google.com";
       url.start_pages = [ "https://www.google.com" ];
 
-      # Tab behavior (Firefox-like)
+      # Tab behavior
       tabs.position = "top";
       tabs.show = "multiple";
       tabs.last_close = "default-page";
@@ -59,7 +59,7 @@ in
       tabs.mousewheel_switching = false;
       tabs.select_on_remove = "last-used";
 
-      # Window title (Firefox-like)
+      # Window title
       window.title_format = "{perc}{current_title}{title_sep}qutebrowser";
 
       # Completion
@@ -73,7 +73,7 @@ in
       scrolling.smooth = true;
       scrolling.bar = "when-searching";
 
-      # Downloads (Firefox-like)
+      # Downloads
       downloads.position = "bottom";
       downloads.remove_finished = 5000;
       downloads.location.prompt = true;
@@ -85,7 +85,7 @@ in
       input.insert_mode.auto_load = true;
       input.links_included_in_focus_chain = true;
 
-      # Auto-save session (like Firefox restore)
+      # Auto-save session
       auto_save.session = true;
 
       # Zoom
@@ -110,39 +110,9 @@ in
 
     keyBindings = {
       normal = {
-        # Firefox-like keybindings
-        "<Ctrl-t>" = "open -t";
-        "<Ctrl-w>" = "tab-close";
-        "<Ctrl-Shift-t>" = "undo";
-        "<Ctrl-Tab>" = "tab-next";
-        "<Ctrl-Shift-Tab>" = "tab-prev";
-        "<Ctrl-l>" = "set-cmd-text :open {url:pretty}";
-        "<Ctrl-r>" = "reload";
-        "<Ctrl-Shift-r>" = "reload -f";
-        "<Ctrl-f>" = "set-cmd-text /";
-        "<Ctrl-d>" = "bookmark-add";
-        "<Ctrl-Shift-b>" = "config-cycle statusbar.show always never";
-        "<Ctrl-j>" = "download-open";
-        "<Alt-Left>" = "back";
-        "<Alt-Right>" = "forward";
-        "<Ctrl-plus>" = "zoom-in";
-        "<Ctrl-minus>" = "zoom-out";
-        "<Ctrl-0>" = "zoom";
-
-        # 1Password fill
+        # Leader bindings
         ",p" = "spawn --userscript qute-1pass";
-        # View in mpv
         ",m" = "spawn --userscript view_in_mpv";
-      };
-      insert = {
-        # Allow Ctrl-a/c/v/x in input fields (Firefox-like)
-        "<Ctrl-a>" = "fake-key <Ctrl-a>";
-        "<Ctrl-v>" = "fake-key <Ctrl-v>";
-        "<Ctrl-c>" = "fake-key <Ctrl-c>";
-        "<Ctrl-x>" = "fake-key <Ctrl-x>";
-        "<Ctrl-z>" = "fake-key <Ctrl-z>";
-        # Escape insert mode
-        "<Escape>" = "mode-leave";
       };
     };
 
