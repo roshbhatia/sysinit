@@ -106,13 +106,26 @@ in
       np = "https://search.nixos.org/packages?type=packages&query={}";
       no = "https://search.nixos.org/options?channel=unstable&from=0&size=50&sort=relevance&type=packages&query={}";
       gh = "https://github.com/search?q={}";
+      # Direct GitHub navigation: "gr org/repo" or "gr org"
+      gr = "https://github.com/{}";
     };
 
     keyBindings = {
       normal = {
-        # Leader bindings
+        # Tabs
+        ",t" = "open -t https://www.google.com";
+        # GitHub navigation (prompts for org/repo)
+        ",g" = "set-cmd-text -s :open -t https://github.com/";
+        ",G" = "set-cmd-text -s :open https://github.com/";
+        # Userscripts
         ",p" = "spawn --userscript qute-1pass";
         ",m" = "spawn --userscript view_in_mpv";
+        # Utilities
+        ",y" = "yank";
+        ",Y" = "yank selection";
+        ",b" = "set-cmd-text -s :bookmark-load -t";
+        ",h" = "set-cmd-text -s :history";
+        ",d" = "download";
       };
     };
 
