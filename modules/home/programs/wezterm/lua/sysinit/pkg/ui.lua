@@ -90,7 +90,7 @@ function M.setup(config)
     return "  "
   end
 
-  local tabline_ok, tabline = plugin_loader.load("tabline", "https://github.com/michaelbrusegard/tabline.wez")
+  local tabline_ok, tabline = plugin_loader.load("tabline")
   if not tabline_ok then
     wezterm.log_warn("Failed to load tabline.wez: " .. tostring(tabline))
   end
@@ -144,7 +144,7 @@ function M.setup(config)
     }
   end
 
-  local agent_deck_ok, agent_deck = plugin_loader.load("agent-deck", "https://github.com/Eric162/wezterm-agent-deck")
+  local agent_deck_ok, agent_deck = plugin_loader.load("agent-deck")
   if not agent_deck_ok then
     wezterm.log_warn("Failed to load agent-deck: " .. tostring(agent_deck))
   end

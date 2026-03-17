@@ -20,7 +20,7 @@ local function sesh_sessions_generator()
 end
 
 function M.get_action()
-  local sess_ok, sessionizer = plugin_loader.load("sessionizer", "https://github.com/mikkasendke/sessionizer.wezterm")
+  local sess_ok, sessionizer = plugin_loader.load("sessionizer")
   if not sess_ok then
     wezterm.log_warn("Failed to load sessionizer: " .. tostring(sessionizer))
     return wezterm.action.Nop
@@ -79,7 +79,7 @@ function M.get_ssh_picker_action()
 end
 
 function M.setup(_config)
-  local ok, resurrect = plugin_loader.load("resurrect", "https://github.com/MLFlexer/resurrect.wezterm")
+  local ok, resurrect = plugin_loader.load("resurrect")
   if not ok then
     wezterm.log_warn("Failed to load resurrect.wezterm: " .. tostring(resurrect))
     return
