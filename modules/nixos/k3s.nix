@@ -1,9 +1,8 @@
-{
-  pkgs,
-  ...
-}:
+# K3s single-node cluster with NVIDIA GPU passthrough
+{ config, lib, pkgs, ... }:
 
 {
+  # K3s server
   services.k3s = {
     enable = true;
     role = "server";
@@ -15,12 +14,15 @@
     ];
   };
 
+  # NVIDIA container toolkit for GPU passthrough
   hardware.nvidia-container-toolkit.enable = true;
 
+  # Ensure k3s can use the nvidia runtime
   environment.systemPackages = with pkgs; [
     kubectl
     k3s
   ];
 
+  # Open k3s API server port
   networking.firewall.allowedTCPPorts = [ 6443 ];
 }

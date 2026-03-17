@@ -1,9 +1,4 @@
-{
-  config,
-  pkgs,
-  lib,
-  ...
-}:
+{ config, pkgs, lib, ... }:
 
 let
   colorToTuigreetTheme =
@@ -23,6 +18,7 @@ let
     in
     colorMap.${cleanHex} or cleanHex;
 
+  # Use stylix base16 colors directly
   tuigreetTheme =
     "text=${colorToTuigreetTheme "#${config.lib.stylix.colors.base05}"};"
     + "container=${colorToTuigreetTheme "#${config.lib.stylix.colors.base00}"};"
@@ -35,6 +31,7 @@ let
     + "greet=${colorToTuigreetTheme "#${config.lib.stylix.colors.base05}"}";
 in
 {
+  # Login manager (greetd + tuigreet)
   services.greetd = {
     enable = true;
     settings.default_session = {
@@ -43,12 +40,9 @@ in
     };
   };
 
-  boot.kernelParams = [
-    "quiet"
-    "loglevel=3"
-    "systemd.show_status=auto"
-    "rd.udev.log_level=3"
-  ];
+  # Suppress kernel/systemd messages on VT1 so they don't corrupt tuigreet
+  boot.kernelParams = [ "quiet" "loglevel=3" "systemd.show_status=auto" "rd.udev.log_level=3" ];
 
+  # Unlock Greetd keyring on login
   security.pam.services.greetd.enableGnomeKeyring = true;
 }
