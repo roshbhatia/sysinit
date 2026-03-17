@@ -19,7 +19,11 @@ local function sesh_sessions_generator()
 end
 
 function M.get_action()
-  local sessionizer = wezterm.plugin.require("https://github.com/mikkasendke/sessionizer.wezterm")
+  local sess_ok, sessionizer = pcall(wezterm.plugin.require, "https://github.com/mikkasendke/sessionizer.wezterm")
+  if not sess_ok then
+    wezterm.log_warn("Failed to load sessionizer: " .. tostring(sessionizer))
+    return wezterm.action.Nop
+  end
 
   local function prefix(kind)
     return sessionizer.for_each_entry(function(entry)

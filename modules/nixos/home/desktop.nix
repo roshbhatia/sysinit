@@ -15,10 +15,16 @@ let
   rofi1password = pkgs.writeShellScript "rofi-1password" ''
     set -euo pipefail
 
+    # Check if signed in
+    if ! ${pkgs._1password-cli}/bin/op account list &>/dev/null; then
+      ${pkgs.libnotify}/bin/notify-send "1Password" "Not signed in. Run: op signin" --urgency=critical
+      exit 1
+    fi
+
     # List items from 1Password
     ITEM=$(${pkgs._1password-cli}/bin/op item list --format=json 2>/dev/null \
       | ${pkgs.jq}/bin/jq -r '.[] | "\(.title) [\(.category)]"' \
-      | ${pkgs.rofi}/bin/rofi -dmenu -p "1Password" -i)
+      | ${pkgs.rofi}/bin/rofi -dmenu -p "  1Password" -i) || exit 0
 
     [ -z "$ITEM" ] && exit 0
 
@@ -26,18 +32,23 @@ let
     TITLE=$(echo "$ITEM" | ${pkgs.gnused}/bin/sed 's/ \[.*\]$//')
 
     # Choose which field to copy
-    FIELD=$(printf "password\nusername\notp" | ${pkgs.rofi}/bin/rofi -dmenu -p "Copy field")
+    FIELD=$(printf "password\nusername\notp" | ${pkgs.rofi}/bin/rofi -dmenu -p "Copy field") || exit 0
 
     [ -z "$FIELD" ] && exit 0
 
     # Get the field value and copy to clipboard
     if [ "$FIELD" = "otp" ]; then
-      ${pkgs._1password-cli}/bin/op item get "$TITLE" --otp 2>/dev/null | ${pkgs.wl-clipboard}/bin/wl-copy
+      VALUE=$(${pkgs._1password-cli}/bin/op item get "$TITLE" --otp 2>/dev/null)
     else
-      ${pkgs._1password-cli}/bin/op item get "$TITLE" --fields "$FIELD" 2>/dev/null | ${pkgs.wl-clipboard}/bin/wl-copy
+      VALUE=$(${pkgs._1password-cli}/bin/op item get "$TITLE" --fields "$FIELD" 2>/dev/null)
     fi
 
-    ${pkgs.libnotify}/bin/notify-send "1Password" "Copied $FIELD for $TITLE"
+    if [ -n "$VALUE" ]; then
+      echo -n "$VALUE" | ${pkgs.wl-clipboard}/bin/wl-copy
+      ${pkgs.libnotify}/bin/notify-send "1Password" "Copied $FIELD for $TITLE"
+    else
+      ${pkgs.libnotify}/bin/notify-send "1Password" "No $FIELD found for $TITLE" --urgency=critical
+    fi
   '';
 
   wallpaper = pkgs.fetchurl {
@@ -185,17 +196,7 @@ in
         "Mod4+q" = "kill";
         "Mod4+Control+q" = "exec swaymsg exit";
 
-        # macOS-like Super+key → Ctrl+key via wtype
-        # sleep 0.05 lets the Super key release before wtype sends the keystroke
-        "Mod4+c" = "exec sleep 0.05 && ${pkgs.wtype}/bin/wtype -M ctrl -P c -m ctrl";
-        "Mod4+v" = "exec sleep 0.05 && ${pkgs.wtype}/bin/wtype -M ctrl -P v -m ctrl";
-        "Mod4+x" = "exec sleep 0.05 && ${pkgs.wtype}/bin/wtype -M ctrl -P x -m ctrl";
-        "Mod4+a" = "exec sleep 0.05 && ${pkgs.wtype}/bin/wtype -M ctrl -P a -m ctrl";
-        "Mod4+z" = "exec sleep 0.05 && ${pkgs.wtype}/bin/wtype -M ctrl -P z -m ctrl";
-        "Mod4+Shift+z" = "exec sleep 0.05 && ${pkgs.wtype}/bin/wtype -M ctrl -M shift -P z -m shift -m ctrl";
-        "Mod4+w" = "exec sleep 0.05 && ${pkgs.wtype}/bin/wtype -M ctrl -P w -m ctrl";
-        "Mod4+n" = "exec sleep 0.05 && ${pkgs.wtype}/bin/wtype -M ctrl -P n -m ctrl";
-        "Mod4+f" = "exec sleep 0.05 && ${pkgs.wtype}/bin/wtype -M ctrl -P f -m ctrl";
+        # macOS-like bindings are in extraConfig with --release flag
 
         # Minimize (move to scratchpad)
         "Mod4+h" = "move scratchpad";
@@ -359,6 +360,17 @@ in
       shadow_blur_radius 20
       shadow_color #0000007F
       default_dim_inactive 0.1
+
+      # macOS-like Super+key → Ctrl+key via wtype (--release waits for key release)
+      bindsym --release Mod4+c exec ${pkgs.wtype}/bin/wtype -M ctrl -P c -m ctrl
+      bindsym --release Mod4+v exec ${pkgs.wtype}/bin/wtype -M ctrl -P v -m ctrl
+      bindsym --release Mod4+x exec ${pkgs.wtype}/bin/wtype -M ctrl -P x -m ctrl
+      bindsym --release Mod4+a exec ${pkgs.wtype}/bin/wtype -M ctrl -P a -m ctrl
+      bindsym --release Mod4+z exec ${pkgs.wtype}/bin/wtype -M ctrl -P z -m ctrl
+      bindsym --release Mod4+Shift+z exec ${pkgs.wtype}/bin/wtype -M ctrl -M shift -P z -m shift -m ctrl
+      bindsym --release Mod4+w exec ${pkgs.wtype}/bin/wtype -M ctrl -P w -m ctrl
+      bindsym --release Mod4+n exec ${pkgs.wtype}/bin/wtype -M ctrl -P n -m ctrl
+      bindsym --release Mod4+f exec ${pkgs.wtype}/bin/wtype -M ctrl -P f -m ctrl
     '';
   };
 
