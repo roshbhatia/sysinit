@@ -91,7 +91,7 @@ in
         base16Scheme = "kanagawa";
         appearance = "dark";
         font = {
-          monospace = "Hack Nerd Font Mono";
+          monospace = "FiraCode Nerd Font";
         };
       };
     };
