@@ -40,9 +40,6 @@ in
         "https://pgl.yoyo.org/adservers/serverlist.php?hostformat=hosts&showintro=0&mimetype=plaintext"
       ];
 
-      # DRM support (Widevine) — NixOS only
-      content.widevine = isLinux;
-
       # Tab behavior
       tabs.position = "top";
       tabs.show = "multiple";
