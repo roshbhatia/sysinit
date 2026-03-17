@@ -28,6 +28,7 @@ let
     "osx-cross/arm/arm-none-eabi-binutils"
     "osx-cross/arm/arm-none-eabi-gcc@8"
     "slp/krunkit/krunkit"
+    "switchaudio-osx"
   ];
 
   baseCasks = [

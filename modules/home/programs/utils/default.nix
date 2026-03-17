@@ -12,6 +12,11 @@ _:
       executable = true;
     };
 
+    ".local/bin/audio-switcher" = {
+      source = ./system/audio-switcher.nu;
+      executable = true;
+    };
+
     ".local/bin/connect" = {
       source = ./dev/connect.nu;
       executable = true;

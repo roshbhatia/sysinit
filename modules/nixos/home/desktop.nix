@@ -250,7 +250,7 @@ in
 
           # Color picker — click a pixel, hex color copied to clipboard
           "Mod4+Shift+c" =
-            "exec ${pkgs.grim}/bin/grim -g \"$(${pkgs.slurp}/bin/slurp -p)\" -t ppm - | ${pkgs.imagemagick}/bin/convert - -format '%[hex:p{0,0}]' info:- | ${pkgs.wl-clipboard}/bin/wl-copy";
+            "exec ${pkgs.hyprpicker}/bin/hyprpicker -a -n && ${pkgs.libnotify}/bin/notify-send \"Color Picker\" \"Hex code copied to clipboard\" -i color-management";
 
           # Screenshots (macOS-style: Super+Shift+3 = screen, Super+Shift+4 = region)
           "Mod4+Shift+3" = "exec ${pkgs.sway-contrib.grimshot}/bin/grimshot --notify savecopy output";
@@ -262,6 +262,7 @@ in
           "XF86AudioRaiseVolume" = "exec wpctl set-volume @DEFAULT_AUDIO_SINK@ 0.05+";
           "XF86AudioLowerVolume" = "exec wpctl set-volume @DEFAULT_AUDIO_SINK@ 0.05-";
           "XF86AudioMute" = "exec wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle";
+          "Mod4+a" = "exec audio-switcher";
 
           # Media
           "XF86AudioPlay" = "exec ${pkgs.playerctl}/bin/playerctl play-pause";
@@ -373,6 +374,13 @@ in
             disable-scroll = true;
             all-outputs = true;
             format = "{name}";
+            persistent-workspaces = {
+              "1" = [ ];
+              "2" = [ ];
+              "C" = [ ];
+              "E" = [ ];
+              "M" = [ ];
+            };
           };
 
           clock = {
@@ -407,7 +415,9 @@ in
                 "󰕾"
               ];
             };
-            on-click = "${pkgs.pavucontrol}/bin/pavucontrol";
+            on-click = "audio-switcher";
+            on-click-right = "${pkgs.pavucontrol}/bin/pavucontrol";
+            on-click-middle = "wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle";
             scroll-step = 5;
           };
         }

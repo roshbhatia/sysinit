@@ -168,6 +168,7 @@
 
     # Media
     mpv
+    (if pkgs.stdenv.isLinux then hyprpicker else null)
 
     # Config & Misc Dev
     devcontainer

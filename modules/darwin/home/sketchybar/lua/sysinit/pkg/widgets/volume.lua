@@ -113,6 +113,10 @@ function M.setup()
   volume_slider:subscribe("mouse.entered", show_volume_slider)
   volume_slider:subscribe("mouse.exited", hide_volume_slider)
 
+  volume_icon:subscribe("mouse.clicked", function(env)
+    sbar.exec("audio-switcher")
+  end)
+
   volume_icon:subscribe("mouse.scrolled", function(env)
     local direction = env.SCROLL_DIRECTION
     if direction == "up" then
