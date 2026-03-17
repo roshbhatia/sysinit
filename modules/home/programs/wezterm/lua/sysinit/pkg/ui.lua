@@ -62,7 +62,7 @@ function M.setup(config)
     config.macos_window_background_blur = config_data.transparency.blur
   else
     -- Linux/Wayland (sway)
-    config.enable_wayland = true
+    config.enable_wayland = false
     config.front_end = "WebGpu"
     config.window_decorations = "RESIZE"
     config.freetype_load_flags = "NO_HINTING|NO_AUTOHINT"
