@@ -25,6 +25,8 @@ in
       content.webrtc_ip_handling_policy = "default-public-interface-only";
       content.canvas_reading = true;
       content.geolocation = "ask";
+      content.notifications.enabled = "ask";
+      content.pdfjs = true;
 
       # Ad blocking
       content.blocking.enabled = true;
@@ -40,24 +42,58 @@ in
         "https://pgl.yoyo.org/adservers/serverlist.php?hostformat=hosts&showintro=0&mimetype=plaintext"
       ];
 
-      # Tab behavior
+      # Start/new tab pages
+      url.default_page = "https://www.google.com";
+      url.start_pages = [ "https://www.google.com" ];
+
+      # Tab behavior (Firefox-like)
       tabs.position = "top";
       tabs.show = "multiple";
       tabs.last_close = "default-page";
+      tabs.new_position.related = "next";
+      tabs.new_position.unrelated = "last";
+      tabs.background = true;
+      tabs.title.format = "{audio}{current_title}";
+      tabs.favicons.show = "always";
+      tabs.close_mouse_button = "middle";
+      tabs.mousewheel_switching = false;
+      tabs.select_on_remove = "last-used";
+
+      # Window title (Firefox-like)
+      window.title_format = "{perc}{current_title}{title_sep}qutebrowser";
 
       # Completion
       completion.shrink = true;
+      completion.use_best_match = false;
 
-      # Downloads
+      # Statusbar
+      statusbar.show = "always";
+
+      # Scrollbar
+      scrolling.smooth = true;
+      scrolling.bar = "when-searching";
+
+      # Downloads (Firefox-like)
       downloads.position = "bottom";
       downloads.remove_finished = 5000;
+      downloads.location.prompt = true;
 
-      # Scrolling
-      scrolling.smooth = true;
+      # Hints
+      hints.chars = "asdfghjkl";
 
-      # URL handling
-      url.default_page = "about:blank";
-      url.start_pages = [ "about:blank" ];
+      # Input
+      input.insert_mode.auto_load = true;
+      input.links_included_in_focus_chain = true;
+
+      # Auto-save session (like Firefox restore)
+      auto_save.session = true;
+
+      # Zoom
+      zoom.default = "100%";
+
+      # Content settings
+      content.autoplay = false;
+      content.javascript.clipboard = "access";
     } // lib.optionalAttrs isLinux {
       qt.args = [
         "widevine-path=${widevinePath}"
@@ -74,10 +110,39 @@ in
 
     keyBindings = {
       normal = {
+        # Firefox-like keybindings
+        "<Ctrl-t>" = "open -t";
+        "<Ctrl-w>" = "tab-close";
+        "<Ctrl-Shift-t>" = "undo";
+        "<Ctrl-Tab>" = "tab-next";
+        "<Ctrl-Shift-Tab>" = "tab-prev";
+        "<Ctrl-l>" = "set-cmd-text :open {url:pretty}";
+        "<Ctrl-r>" = "reload";
+        "<Ctrl-Shift-r>" = "reload -f";
+        "<Ctrl-f>" = "set-cmd-text /";
+        "<Ctrl-d>" = "bookmark-add";
+        "<Ctrl-Shift-b>" = "config-cycle statusbar.show always never";
+        "<Ctrl-j>" = "download-open";
+        "<Alt-Left>" = "back";
+        "<Alt-Right>" = "forward";
+        "<Ctrl-plus>" = "zoom-in";
+        "<Ctrl-minus>" = "zoom-out";
+        "<Ctrl-0>" = "zoom";
+
         # 1Password fill
         ",p" = "spawn --userscript qute-1pass";
-        # View in mpv (built-in userscript, also handles SponsorBlock if mpv has the plugin)
+        # View in mpv
         ",m" = "spawn --userscript view_in_mpv";
+      };
+      insert = {
+        # Allow Ctrl-a/c/v/x in input fields (Firefox-like)
+        "<Ctrl-a>" = "fake-key <Ctrl-a>";
+        "<Ctrl-v>" = "fake-key <Ctrl-v>";
+        "<Ctrl-c>" = "fake-key <Ctrl-c>";
+        "<Ctrl-x>" = "fake-key <Ctrl-x>";
+        "<Ctrl-z>" = "fake-key <Ctrl-z>";
+        # Escape insert mode
+        "<Escape>" = "mode-leave";
       };
     };
 
