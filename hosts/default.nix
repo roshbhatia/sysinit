@@ -88,7 +88,7 @@ in
     values = {
       git = linuxGit;
       theme = {
-        base16Scheme = "kanagawa-dragon";
+        base16Scheme = "kanagawa";
         appearance = "dark";
         font = {
           monospace = "Hack Nerd Font Mono";

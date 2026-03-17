@@ -98,7 +98,7 @@ in
         output = {
           "*" = {
             bg = lib.mkForce "#${c.base00} solid_color";
-            scale = "1.5";
+            scale = "1.2";
           };
         };
 
