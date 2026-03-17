@@ -87,7 +87,6 @@ in
     j4-dmenu-desktop
     mako
     wlr-which-key
-    workstyle
 
     # File management
     nemo

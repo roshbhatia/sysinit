@@ -124,7 +124,6 @@ in
           {
             command = "sh -c 'if [ -f ${config.home.homeDirectory}/.background-image ]; then swaymsg output \\* bg ${config.home.homeDirectory}/.background-image fill; else swaymsg output \\* bg ${wallpaper} fill; fi'";
           }
-          { command = "${pkgs.workstyle}/bin/workstyle"; }
         ];
 
         assigns = {
@@ -319,6 +318,7 @@ in
         blur_passes 2
         blur_radius 5
         corner_radius 0
+      smart_corner_radius off
         shadows enable
         shadow_blur_radius 20
         shadow_color #0000007F
@@ -429,48 +429,56 @@ in
       style = ''
         * {
           font-family: "${config.sysinit.theme.font.monospace}", "Symbols Nerd Font Mono";
-          font-size: 12px;
+          font-size: 13px;
+          font-weight: 500;
           min-height: 0;
           border: none;
           border-radius: 0;
+          padding: 0;
+          margin: 0;
         }
 
         window#waybar {
-          background-color: #${c.base00};
+          background-color: alpha(#${c.base00}, 0.85);
           color: #${c.base05};
         }
 
-        /* Left: logo */
-        #custom-logo {
-          padding: 0 10px;
-          color: #${c.base0D};
+        tooltip {
+          background-color: #${c.base01};
+          color: #${c.base05};
+          border: 1px solid #${c.base02};
+          border-radius: 0;
         }
 
-        /* Left: mode indicator */
+        #custom-logo {
+          padding: 0 12px;
+          color: #${c.base0D};
+          font-size: 15px;
+        }
+
         #mode {
-          padding: 0 8px;
+          padding: 0 10px;
           color: #${c.base00};
           background-color: #${c.base0A};
           font-weight: bold;
         }
 
-        /* Left: focused window */
         #window {
-          padding: 0 8px;
+          padding: 0 10px;
           color: #${c.base04};
+          font-style: italic;
         }
 
-        /* Center: workspaces */
         #workspaces button {
-          padding: 0 6px;
-          color: #${c.base04};
+          padding: 0 8px;
+          color: #${c.base03};
           background: transparent;
         }
 
         #workspaces button.focused {
           color: #${c.base05};
           font-weight: bold;
-          background-color: #${c.base02};
+          border-bottom: 2px solid #${c.base0D};
         }
 
         #workspaces button.urgent {
@@ -478,44 +486,21 @@ in
           background-color: #${c.base08};
         }
 
-        /* Right: clock */
-        #clock {
+        #workspaces button:hover {
+          color: #${c.base05};
+          background: alpha(#${c.base02}, 0.5);
+        }
+
+        #clock, #battery, #pulseaudio {
           padding: 0 10px;
           color: #${c.base05};
+          border-left: 1px solid alpha(#${c.base02}, 0.5);
         }
 
-        /* Right: battery */
-        #battery {
-          padding: 0 8px;
-          color: #${c.base05};
-        }
-
-        #battery.warning {
-          color: #${c.base0A};
-        }
-
-        #battery.critical {
-          color: #${c.base08};
-        }
-
-        #battery.charging {
-          color: #${c.base0B};
-        }
-
-        /* Right: volume */
-        #pulseaudio {
-          padding: 0 8px;
-          color: #${c.base05};
-        }
-
-        #pulseaudio.muted {
-          color: #${c.base03};
-        }
-
-        /* Separators between right modules */
-        #clock, #battery, #pulseaudio {
-          border-left: 1px solid #${c.base02};
-        }
+        #battery.warning { color: #${c.base0A}; }
+        #battery.critical { color: #${c.base08}; }
+        #battery.charging { color: #${c.base0B}; }
+        #pulseaudio.muted { color: #${c.base03}; }
       '';
     };
     rofi = {
