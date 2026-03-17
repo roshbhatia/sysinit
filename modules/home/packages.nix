@@ -182,6 +182,5 @@
     markdown-oxide
     meld
     sad
-    vial
   ];
 }
