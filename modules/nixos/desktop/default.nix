@@ -4,7 +4,7 @@
   imports = [
     ./audio.nix
     ./greetd.nix
-    ./kanata.nix
+    ./keyd.nix
     ./sway.nix
   ];
 }

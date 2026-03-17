@@ -1,6 +1,5 @@
 -- Plugin loader: loads wezterm plugins from Nix store paths or falls back to runtime fetch.
--- Nix store paths aren't git repos, so we can't use wezterm.plugin.require with file://.
--- Instead, we add the plugin's directory to package.path and dofile its init.lua.
+-- Nix pre-fetches plugins as git repos so wezterm.plugin.require("file://...") works.
 local wezterm = require("wezterm")
 local utils = require("sysinit.pkg.utils")
 
@@ -12,14 +11,7 @@ local plugins_config = config_data and config_data.plugins or {}
 function M.load(name, fallback_url)
   local nix_path = plugins_config[name]
   if nix_path then
-    -- Add plugin dirs to package.path permanently so lazy requires work during setup()
-    package.path = nix_path .. "/plugin/?.lua;"
-      .. nix_path .. "/plugin/?/init.lua;"
-      .. nix_path .. "/?.lua;"
-      .. nix_path .. "/?/init.lua;"
-      .. package.path
-
-    local ok, result = pcall(dofile, nix_path .. "/plugin/init.lua")
+    local ok, result = pcall(wezterm.plugin.require, "file://" .. nix_path)
     if ok then
       return true, result
     else
@@ -27,7 +19,7 @@ function M.load(name, fallback_url)
     end
   end
 
-  -- Fall back to runtime git clone
+  -- Fall back to runtime git clone (works on macOS)
   return pcall(wezterm.plugin.require, fallback_url)
 end
 

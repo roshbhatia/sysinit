@@ -10,27 +10,41 @@ let
   themeConfig = config.sysinit.theme;
   c = config.lib.stylix.colors;
 
-  # Pre-fetch wezterm plugins so they don't need runtime git clones
+  # Pre-fetch wezterm plugins and wrap them as git repos
+  # (wezterm.plugin.require needs a git repo even for file:// URLs)
+  mkWeztermPlugin = { owner, repo, rev, hash }:
+    pkgs.runCommand "wezterm-plugin-${repo}" {
+      src = pkgs.fetchFromGitHub { inherit owner repo rev hash; };
+      nativeBuildInputs = [ pkgs.git ];
+    } ''
+      cp -r $src $out
+      chmod -R u+w $out
+      cd $out
+      git init
+      git add .
+      git commit -m "init" --allow-empty
+    '';
+
   weztermPlugins = {
-    tabline = pkgs.fetchFromGitHub {
+    tabline = mkWeztermPlugin {
       owner = "michaelbrusegard";
       repo = "tabline.wez";
       rev = "main";
       hash = "sha256-G5sFPIJ2SDLKjeiuauJfzu3JgvViwoe9RLhYAScaHbs=";
     };
-    agent-deck = pkgs.fetchFromGitHub {
+    agent-deck = mkWeztermPlugin {
       owner = "Eric162";
       repo = "wezterm-agent-deck";
       rev = "main";
       hash = "sha256-nb5eCStxsgLBgZSNZjOBMYLNbv0haxXM+6609FywnwE=";
     };
-    sessionizer = pkgs.fetchFromGitHub {
+    sessionizer = mkWeztermPlugin {
       owner = "mikkasendke";
       repo = "sessionizer.wezterm";
       rev = "main";
       hash = "sha256-A+4fGRfPKwOoSEH3MYHz3x5eMOCqPRpfYRCrIIHxZHM=";
     };
-    resurrect = pkgs.fetchFromGitHub {
+    resurrect = mkWeztermPlugin {
       owner = "MLFlexer";
       repo = "resurrect.wezterm";
       rev = "main";
