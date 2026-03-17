@@ -129,11 +129,21 @@ in
       };
     };
 
-    # Old reddit redirect via URL rewriting
     extraConfig = ''
       import re
       from qutebrowser.api import interceptor
 
+      # Spoof Chrome user agent on Google domains so sign-in works
+      c.content.headers.user_agent = "Mozilla/5.0 ({os_info}) AppleWebKit/{webkit_version} (KHTML, like Gecko) {qt_key}/{qt_version} {upstream_browser_key}/{upstream_browser_version} Safari/{webkit_version}"
+
+      config.set("content.headers.user_agent",
+          "Mozilla/5.0 ({os_info}) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36",
+          "*.google.com")
+      config.set("content.headers.user_agent",
+          "Mozilla/5.0 ({os_info}) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36",
+          "*.google.com/*")
+
+      # Old reddit redirect
       def reddit_redirect(info: interceptor.Request):
           url = info.request_url
           if url.host() == "www.reddit.com" or url.host() == "reddit.com":
