@@ -15,4 +15,6 @@ final: _prev: {
   };
 
   neovim-unwrapped = inputs.neovim-nightly-overlay.packages.${final.system}.default;
+
+  cupcake-cli = inputs.cupcake.packages.${final.system}.cupcake-cli;
 }

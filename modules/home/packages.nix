@@ -157,6 +157,11 @@
     lsp-ai
     opencode
     openspec
+
+    # Policy & Governance
+    cupcake-cli
+    open-policy-agent
+    regols
     pi-coding-agent
     tree-sitter
 

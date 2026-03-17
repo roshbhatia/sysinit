@@ -72,6 +72,12 @@
     nixpkgs-mozilla = {
       url = "github:mozilla/nixpkgs-mozilla";
     };
+
+    # Policy enforcement for AI coding agents
+    cupcake = {
+      url = "github:eqtylab/cupcake";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs =
