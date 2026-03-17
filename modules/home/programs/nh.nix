@@ -5,6 +5,6 @@
   programs.nh = {
     enable = true;
     clean.enable = false;
-    flake = "/home/rshnbhatia/github/personal/roshbhatia/sysinit";
+    flake = "${config.home.homeDirectory}/github/personal/roshbhatia/sysinit";
   };
 }
