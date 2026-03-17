@@ -91,7 +91,7 @@ in
         base16Scheme = "gruvbox-dark-soft";
         appearance = "dark";
         font = {
-          monospace = "Monoid Nerd Font";
+          monospace = "MonaspiceKr Nerd Font";
         };
       };
     };
