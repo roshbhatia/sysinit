@@ -91,7 +91,7 @@ in
         base16Scheme = "black-metal-bathory";
         appearance = "dark";
         font = {
-          monospace = "ShareTechMono Nerd Font";
+          monospace = "FiraCode Nerd Font";
         };
       };
     };

@@ -36,6 +36,6 @@ in
     pkgs.ioskeleyMono
     pkgs.commitMono
     pkgs.nerd-fonts.symbols-only
-    pkgs.nerd-fonts.shure-tech-mono
+    pkgs.nerd-fonts.fira-code
   ];
 }
