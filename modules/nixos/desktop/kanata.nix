@@ -8,6 +8,14 @@
   boot.kernelModules = [ "uinput" ];
   hardware.uinput.enable = true;
 
+  # Udev rule for uinput device access
+  services.udev.extraRules = ''
+    KERNEL=="uinput", MODE="0660", GROUP="uinput", OPTIONS+="static_node=uinput"
+  '';
+
+  # Ensure uinput group exists and kanata service can access it
+  users.groups.uinput = { };
+
   services.kanata = {
     enable = true;
     keyboards.default = {
