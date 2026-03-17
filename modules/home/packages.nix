@@ -165,6 +165,9 @@
     pi-coding-agent
     tree-sitter
 
+    # Media
+    mpv
+
     # Config & Misc Dev
     devcontainer
     taplo
