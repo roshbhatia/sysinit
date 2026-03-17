@@ -14,11 +14,6 @@ let
   # Widevine CDM path for DRM content (NixOS only)
   widevinePath = if isLinux then "${pkgs.widevine-cdm}/share/google/chrome/WidevineCdm" else null;
 
-  # SponsorBlock userscript fetched from GitHub
-  sponsorblockScript = pkgs.fetchurl {
-    url = "https://raw.githubusercontent.com/afreakk/greasemonkey-userscripts/refs/heads/master/user_scripts/qute-sponsorblock";
-    sha256 = "sha256-e4gRFFfOMnUVfSVBHAVXzOEBQBSQxGCF0OENiSME0AQ=";
-  };
 in
 {
   programs.qutebrowser = {
@@ -84,8 +79,8 @@ in
       normal = {
         # 1Password fill
         ",p" = "spawn --userscript qute-1pass";
-        # SponsorBlock
-        ",s" = "spawn --userscript qute-sponsorblock";
+        # View in mpv (built-in userscript, also handles SponsorBlock if mpv has the plugin)
+        ",m" = "spawn --userscript view_in_mpv";
       };
     };
 
@@ -104,9 +99,4 @@ in
     '';
   };
 
-  # Install SponsorBlock userscript
-  home.file.".local/share/qutebrowser/userscripts/qute-sponsorblock" = {
-    source = sponsorblockScript;
-    executable = true;
-  };
 }
