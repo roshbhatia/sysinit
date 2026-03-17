@@ -2,6 +2,7 @@ local wezterm = require("wezterm")
 
 local keybindings = require("sysinit.pkg.keybindings")
 local utils = require("sysinit.pkg.utils")
+local plugin_loader = require("sysinit.pkg.plugin_loader")
 
 local M = {}
 
@@ -89,10 +90,7 @@ function M.setup(config)
     return "  "
   end
 
-  local plugin_url = (config_data.plugins and config_data.plugins.tabline)
-    and ("file://" .. config_data.plugins.tabline)
-    or "https://github.com/michaelbrusegard/tabline.wez"
-  local tabline_ok, tabline = pcall(wezterm.plugin.require, plugin_url)
+  local tabline_ok, tabline = plugin_loader.load("tabline", "https://github.com/michaelbrusegard/tabline.wez")
   if not tabline_ok then
     wezterm.log_warn("Failed to load tabline.wez: " .. tostring(tabline))
   end
@@ -146,10 +144,7 @@ function M.setup(config)
     }
   end
 
-  local agent_deck_url = (config_data.plugins and config_data.plugins["agent-deck"])
-    and ("file://" .. config_data.plugins["agent-deck"])
-    or "https://github.com/Eric162/wezterm-agent-deck"
-  local agent_deck_ok, agent_deck = pcall(wezterm.plugin.require, agent_deck_url)
+  local agent_deck_ok, agent_deck = plugin_loader.load("agent-deck", "https://github.com/Eric162/wezterm-agent-deck")
   if not agent_deck_ok then
     wezterm.log_warn("Failed to load agent-deck: " .. tostring(agent_deck))
   end

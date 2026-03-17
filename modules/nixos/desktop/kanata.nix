@@ -4,6 +4,10 @@
 { ... }:
 
 {
+  # Required for kanata to create virtual input devices
+  boot.kernelModules = [ "uinput" ];
+  hardware.uinput.enable = true;
+
   services.kanata = {
     enable = true;
     keyboards.default = {

@@ -1,17 +1,7 @@
 local wezterm = require("wezterm")
-local utils = require("sysinit.pkg.utils")
+local plugin_loader = require("sysinit.pkg.plugin_loader")
 
 local M = {}
-
--- Load plugin paths from config.json (pre-fetched by Nix)
-local config_data = utils.load_json_file(utils.get_config_path("config.json"))
-
-local function get_plugin_url(name, fallback)
-  if config_data and config_data.plugins and config_data.plugins[name] then
-    return "file://" .. config_data.plugins[name]
-  end
-  return fallback
-end
 
 local function sesh_sessions_generator()
   local sessions_dir = wezterm.home_dir .. "/.local/state/sesh/sessions"
@@ -30,8 +20,7 @@ local function sesh_sessions_generator()
 end
 
 function M.get_action()
-  local sess_ok, sessionizer = pcall(wezterm.plugin.require,
-    get_plugin_url("sessionizer", "https://github.com/mikkasendke/sessionizer.wezterm"))
+  local sess_ok, sessionizer = plugin_loader.load("sessionizer", "https://github.com/mikkasendke/sessionizer.wezterm")
   if not sess_ok then
     wezterm.log_warn("Failed to load sessionizer: " .. tostring(sessionizer))
     return wezterm.action.Nop
@@ -90,8 +79,7 @@ function M.get_ssh_picker_action()
 end
 
 function M.setup(_config)
-  local ok, resurrect = pcall(wezterm.plugin.require,
-    get_plugin_url("resurrect", "https://github.com/MLFlexer/resurrect.wezterm"))
+  local ok, resurrect = plugin_loader.load("resurrect", "https://github.com/MLFlexer/resurrect.wezterm")
   if not ok then
     wezterm.log_warn("Failed to load resurrect.wezterm: " .. tostring(resurrect))
     return

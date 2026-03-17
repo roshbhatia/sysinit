@@ -122,7 +122,7 @@ in
         { command = "${pkgs.wl-clipboard}/bin/wl-paste --watch ${pkgs.cliphist}/bin/cliphist store"; }
         { command = "nm-applet --indicator"; }
         {
-          command = "sh -c 'if [ -f $HOME/.background-image ]; then swaymsg output \\* bg $HOME/.background-image fill; else swaymsg output \\* bg ${wallpaper} fill; fi'";
+          command = "sh -c 'if [ -f ${config.home.homeDirectory}/.background-image ]; then swaymsg output \\* bg ${config.home.homeDirectory}/.background-image fill; else swaymsg output \\* bg ${wallpaper} fill; fi'";
         }
         { command = "${pkgs.workstyle}/bin/workstyle"; }
       ];
@@ -406,6 +406,12 @@ in
   programs.rofi = {
     enable = true;
     terminal = "${pkgs.wezterm}/bin/wezterm start";
+  };
+
+  # macOS-like clipboard aliases
+  home.shellAliases = {
+    pbcopy = "wl-copy";
+    pbpaste = "wl-paste";
   };
 
   # === GTK / Icon / Cursor ===
