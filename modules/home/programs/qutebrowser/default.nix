@@ -14,6 +14,13 @@ let
   # Widevine CDM path for DRM content (NixOS only)
   widevinePath = if isLinux then "${pkgs.widevine-cdm}/share/google/chrome/WidevineCdm" else null;
 
+  # Greasemonkey: Auto Skip YouTube Ads (from greasyfork)
+  youtubeAdSkip = pkgs.fetchurl {
+    url = "https://update.greasyfork.org/scripts/553239/Auto%20Skip%20YouTube%20Ads.user.js";
+    name = "youtube-ad-skip.user.js";
+    hash = "sha256-yp8TLfp6+DtykdR8yUIEWi8w71wzm1Mnp2tQmL7505Y=";
+  };
+
   # Fetch built-in userscripts from qutebrowser source (not included in Nix package)
   qutebrowserSrc = pkgs.fetchFromGitHub {
     owner = "qutebrowser";
@@ -125,7 +132,7 @@ in
     # Command aliases
     aliases = {
       "r" = "spawn --userscript readability";
-      "mpv" = "spawn --userscript view_in_mpv";
+      "mpv" = "spawn mpv {url}";
       "ua" = "spawn --userscript ${chromeUaSpoof}";
       "q" = "close";
       "qa" = "quit";
@@ -143,6 +150,11 @@ in
       np = "https://search.nixos.org/packages";
     };
 
+    # Greasemonkey userscripts (injected into pages)
+    greasemonkey = [
+      youtubeAdSkip
+    ];
+
     searchEngines = {
       DEFAULT = "https://www.google.com/search?q={}";
       np = "https://search.nixos.org/packages?type=packages&query={}";
@@ -154,24 +166,41 @@ in
 
     keyBindings = {
       normal = {
-        # Tabs
-        ",t" = "open -t https://www.google.com";
-        # GitHub navigation (prompts for org/repo)
-        ",g" = "set-cmd-text -s :open -t https://github.com/";
-        ",G" = "set-cmd-text -s :open https://github.com/";
-        # Userscripts
-        ",p" = "spawn --userscript qute-1pass";
-        ",m" = "spawn --userscript view_in_mpv";
-        ",r" = "spawn --userscript readability";
-        # Spoof Chrome UA for current site (fixes broken sites)
-        ",u" = "spawn --userscript ${chromeUaSpoof}";
-        # Utilities
-        ",y" = "yank";
-        ",Y" = "yank selection";
-        ",b" = "set-cmd-text -s :bookmark-load -t";
-        ",B" = "bookmark-add";
-        ",h" = "set-cmd-text -s :history";
-        ",d" = "download";
+        # ,f — Find (matches nvim ,f group)
+        ",ff" = "set-cmd-text /";
+        ",fb" = "set-cmd-text -s :bookmark-load -t";
+        ",fh" = "set-cmd-text -s :history";
+        ",fq" = "set-cmd-text -s :quickmark-load -t";
+
+        # ,g — Git/GitHub (matches nvim ,g group)
+        ",gg" = "set-cmd-text -s :open -t https://github.com/";
+        ",gG" = "set-cmd-text -s :open https://github.com/";
+
+        # ,e — Editor/browser settings (matches nvim ,e group)
+        ",et" = "open -t https://www.google.com";
+        ",eu" = "spawn --userscript ${chromeUaSpoof}";
+        ",er" = "spawn --userscript readability";
+        ",ed" = "download";
+
+        # ,c — Credentials/auth (browser equivalent of nvim ,c code)
+        ",cp" = "spawn --userscript qute-1pass";
+
+        # ,m — Media (browser equivalent of nvim ,m marks)
+        ",mm" = "spawn mpv {url}";
+        ",mM" = "hint links spawn mpv {hint-url}";
+
+        # ,d — Direct actions (matches nvim ,d diff — browser: bookmarks/save)
+        ",da" = "bookmark-add";
+        ",dq" = "quickmark-save";
+
+        # ,q — Quit (matches nvim ,q group)
+        ",qq" = "close";
+        ",qa" = "quit";
+
+        # ,y — Yank
+        ",yy" = "yank";
+        ",ys" = "yank selection";
+        ",yt" = "yank title";
       };
     };
 
