@@ -20,6 +20,12 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    # Browser extensions packaged for Nix
+    firefox-addons = {
+      url = "github:nix-community/nur-combined?dir=repos/rycee/pkgs/firefox-addons";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     # System-wide consistent styling (fonts, colors, etc)
     stylix = {
       url = "github:danth/stylix/master";
@@ -60,6 +66,11 @@
     swayfx = {
       url = "github:WillPower3309/swayfx";
       inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    # Mozilla Firefox overlay
+    nixpkgs-mozilla = {
+      url = "github:mozilla/nixpkgs-mozilla";
     };
 
     # Policy enforcement for AI coding agents

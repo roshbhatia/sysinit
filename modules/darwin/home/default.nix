@@ -1,6 +1,6 @@
 {
   imports = [
     ./desktop.nix
-    ../../home/programs/qutebrowser
+    ./firefox.nix
   ];
 }

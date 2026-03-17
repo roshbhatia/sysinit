@@ -206,6 +206,28 @@
         "type": "github"
       }
     },
+    "firefox-addons": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "dir": "repos/rycee/pkgs/firefox-addons",
+        "lastModified": 1773672706,
+        "narHash": "sha256-JKYr9CUZq1ACpPmWNUCYkP6NCnjbAizLWMmHOGn0Mk8=",
+        "owner": "nix-community",
+        "repo": "nur-combined",
+        "rev": "2d4b017f2e1b840c315da1ca668b95673bc8fd41",
+        "type": "github"
+      },
+      "original": {
+        "dir": "repos/rycee/pkgs/firefox-addons",
+        "owner": "nix-community",
+        "repo": "nur-combined",
+        "type": "github"
+      }
+    },
     "firefox-gnome-theme": {
       "flake": false,
       "locked": {
@@ -745,6 +767,21 @@
         "type": "github"
       }
     },
+    "nixpkgs-mozilla": {
+      "locked": {
+        "lastModified": 1762256096,
+        "narHash": "sha256-Hzj/d8eRpfRfjHSRX6gGRf0jSg2zIJMXl6S5opuKsHc=",
+        "owner": "mozilla",
+        "repo": "nixpkgs-mozilla",
+        "rev": "80c058cf774c198fb838fc3549806b232dd3e320",
+        "type": "github"
+      },
+      "original": {
+        "owner": "mozilla",
+        "repo": "nixpkgs-mozilla",
+        "type": "github"
+      }
+    },
     "nixpkgs-regression": {
       "locked": {
         "lastModified": 1643052045,
@@ -894,11 +931,13 @@
         "darwin": "darwin",
         "determinate": "determinate",
         "direnv-instant": "direnv-instant",
+        "firefox-addons": "firefox-addons",
         "home-manager": "home-manager",
         "neovim-nightly-overlay": "neovim-nightly-overlay",
         "nix-gaming": "nix-gaming",
         "nixos-lima": "nixos-lima",
         "nixpkgs": "nixpkgs_4",
+        "nixpkgs-mozilla": "nixpkgs-mozilla",
         "nur": "nur",
         "onepassword-shell-plugins": "onepassword-shell-plugins",
         "stylix": "stylix",

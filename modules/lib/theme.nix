@@ -12,6 +12,8 @@ let
   adapterBase = import ./theme/core/adapter-base.nix { inherit lib utils; };
   weztermAdapter = import ./theme/adapters/wezterm.nix { inherit lib utils adapterBase; };
   neovimAdapter = import ./theme/adapters/neovim.nix { inherit lib utils adapterBase; };
+  firefoxAdapter = import ./theme/adapters/firefox.nix { inherit lib utils adapterBase; };
+
   getTheme =
     themeId:
     if hasAttr themeId metadata then
@@ -236,5 +238,6 @@ in
   adapters = {
     wezterm = weztermAdapter;
     neovim = neovimAdapter;
+    firefox = firefoxAdapter;
   };
 }
