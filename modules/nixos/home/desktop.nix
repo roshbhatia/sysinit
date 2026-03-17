@@ -196,7 +196,7 @@ in
         "Mod4+q" = "kill";
         "Mod4+Control+q" = "exec swaymsg exit";
 
-        # macOS-like bindings are in extraConfig with --release flag
+        # macOS-like Super+key → Ctrl+key handled by kanata at evdev level
 
         # Minimize (move to scratchpad)
         "Mod4+h" = "move scratchpad";
@@ -360,17 +360,6 @@ in
       shadow_blur_radius 20
       shadow_color #0000007F
       default_dim_inactive 0.1
-
-      # macOS-like Super+key → Ctrl+key via wtype (--release waits for key release)
-      bindsym --release Mod4+c exec ${pkgs.wtype}/bin/wtype -M ctrl -P c -m ctrl
-      bindsym --release Mod4+v exec ${pkgs.wtype}/bin/wtype -M ctrl -P v -m ctrl
-      bindsym --release Mod4+x exec ${pkgs.wtype}/bin/wtype -M ctrl -P x -m ctrl
-      bindsym --release Mod4+a exec ${pkgs.wtype}/bin/wtype -M ctrl -P a -m ctrl
-      bindsym --release Mod4+z exec ${pkgs.wtype}/bin/wtype -M ctrl -P z -m ctrl
-      bindsym --release Mod4+Shift+z exec ${pkgs.wtype}/bin/wtype -M ctrl -M shift -P z -m shift -m ctrl
-      bindsym --release Mod4+w exec ${pkgs.wtype}/bin/wtype -M ctrl -P w -m ctrl
-      bindsym --release Mod4+n exec ${pkgs.wtype}/bin/wtype -M ctrl -P n -m ctrl
-      bindsym --release Mod4+f exec ${pkgs.wtype}/bin/wtype -M ctrl -P f -m ctrl
     '';
   };
 

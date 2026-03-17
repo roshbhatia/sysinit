@@ -77,9 +77,6 @@ in
     # Bar
     i3status-rust
 
-    # Key simulation (macOS-like Super+key bindings)
-    wtype
-
     # Launcher + notifications + utilities
     rofi
     bemenu
