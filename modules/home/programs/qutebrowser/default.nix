@@ -14,6 +14,14 @@ let
   # Widevine CDM path for DRM content (NixOS only)
   widevinePath = if isLinux then "${pkgs.widevine-cdm}/share/google/chrome/WidevineCdm" else null;
 
+  # Fetch built-in userscripts from qutebrowser source (not included in Nix package)
+  qutebrowserSrc = pkgs.fetchFromGitHub {
+    owner = "qutebrowser";
+    repo = "qutebrowser";
+    rev = "v3.6.3";
+    hash = "sha256-2SqX5DIFVPxvZ/8gzSN1b3/DR2XavRFhDblDCNBDNqY=";
+  };
+
   # Userscript: spoof Chrome UA for the current domain, then reload
   chromeUaSpoof = pkgs.writeShellScript "qute-chrome-ua" ''
     DOMAIN=$(echo "$QUTE_URL" | ${pkgs.coreutils}/bin/cut -d/ -f3)
@@ -175,6 +183,22 @@ in
 
       interceptor.register(reddit_redirect)
     '';
+  };
+
+  # Place built-in userscripts that aren't included in the Nix package
+  home.file = {
+    ".local/share/qutebrowser/userscripts/qute-1pass" = {
+      source = "${qutebrowserSrc}/misc/userscripts/qute-1pass";
+      executable = true;
+    };
+    ".local/share/qutebrowser/userscripts/readability" = {
+      source = "${qutebrowserSrc}/misc/userscripts/readability";
+      executable = true;
+    };
+    ".local/share/qutebrowser/userscripts/view_in_mpv" = {
+      source = "${qutebrowserSrc}/misc/userscripts/view_in_mpv";
+      executable = true;
+    };
   };
 
 }
