@@ -9,8 +9,8 @@ let
   themeConfig = config.sysinit.theme;
 in
 {
-  # Stylix injects colors via programs.wezterm.extraConfig
-  # Our extraConfig runs after Stylix's, loading custom modules
+  # Stylix injects colors before our extraConfig runs.
+  # We dofile() our custom wezterm.lua which sets up all modules.
 
   programs.wezterm = {
     enable = true;
@@ -18,26 +18,13 @@ in
     enableBashIntegration = true;
 
     extraConfig = ''
-      -- Bootstrap package path for custom modules
       local home_dir = os.getenv("HOME") or (os.getenv("USER") and "/Users/" .. os.getenv("USER"))
-      package.path = package.path
-        .. ";"
-        .. home_dir
-        .. "/.config/wezterm/lua/?.lua"
-        .. ";"
-        .. home_dir
-        .. "/.config/wezterm/lua/?/init.lua"
-
-      require("sysinit.pkg.core").setup(config)
-      require("sysinit.pkg.sessions").setup(config)
-      require("sysinit.pkg.keybindings").setup(config)
-      require("sysinit.pkg.ui").setup(config)
-
-      return config
+      return dofile(home_dir .. "/.config/wezterm/sysinit.lua")
     '';
   };
 
   xdg.configFile = {
+    "wezterm/sysinit.lua".source = ./wezterm.lua;
     "wezterm/lua".source = ./lua;
     "wezterm/config.json".text = builtins.toJSON {
       font = {
