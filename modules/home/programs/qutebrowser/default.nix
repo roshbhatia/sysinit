@@ -14,6 +14,15 @@ let
   # Widevine CDM path for DRM content (NixOS only)
   widevinePath = if isLinux then "${pkgs.widevine-cdm}/share/google/chrome/WidevineCdm" else null;
 
+  # Userscript: spoof Chrome UA for the current domain, then reload
+  chromeUaSpoof = pkgs.writeShellScript "qute-chrome-ua" ''
+    DOMAIN=$(echo "$QUTE_URL" | ${pkgs.coreutils}/bin/cut -d/ -f3)
+    CHROME_UA="Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36"
+    echo "set -u *://*.$DOMAIN/* content.headers.user_agent '$CHROME_UA'" > "$QUTE_FIFO"
+    echo "message-info 'Spoofed Chrome UA for $DOMAIN'" >> "$QUTE_FIFO"
+    echo "reload" >> "$QUTE_FIFO"
+  '';
+
 in
 {
   programs.qutebrowser = {
@@ -42,9 +51,10 @@ in
         "https://pgl.yoyo.org/adservers/serverlist.php?hostformat=hosts&showintro=0&mimetype=plaintext"
       ];
 
-      # Start/new tab pages
+      # URL handling — dns-only means "localhost:8080" goes to localhost, not a search
       url.default_page = "https://www.google.com";
       url.start_pages = [ "https://www.google.com" ];
+      url.auto_search = "naive";
 
       # Tab behavior
       tabs.position = "top";
@@ -120,10 +130,14 @@ in
         # Userscripts
         ",p" = "spawn --userscript qute-1pass";
         ",m" = "spawn --userscript view_in_mpv";
+        ",r" = "spawn --userscript readability";
+        # Spoof Chrome UA for current site (fixes broken sites)
+        ",u" = "spawn --userscript ${chromeUaSpoof}";
         # Utilities
         ",y" = "yank";
         ",Y" = "yank selection";
         ",b" = "set-cmd-text -s :bookmark-load -t";
+        ",B" = "bookmark-add";
         ",h" = "set-cmd-text -s :history";
         ",d" = "download";
       };
