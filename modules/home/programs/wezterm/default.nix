@@ -15,25 +15,25 @@ let
     tabline = pkgs.fetchgit {
       url = "https://github.com/michaelbrusegard/tabline.wez";
       rev = "5e148f08f134e317bbfe75b26f8a23b0102cb621";
-      hash = "sha256-G5sFPIJ2SDLKjeiuauJfzu3JgvViwoe9RLhYAScaHbs=";
+      hash = "sha256-XxQJP+O6XL2z93QhDDaytDJXA3KY8QXHrxZ9y1nul2Q=";
       leaveDotGit = true;
     };
     agent-deck = pkgs.fetchgit {
       url = "https://github.com/Eric162/wezterm-agent-deck";
       rev = "bd5a57e7806032998e6cae56ade67b72a08b7868";
-      hash = "sha256-nb5eCStxsgLBgZSNZjOBMYLNbv0haxXM+6609FywnwE=";
+      hash = "sha256-pWQkJ9b4efroajimysOQmK/DPC6nH2sZM9poEr9ROgQ=";
       leaveDotGit = true;
     };
     sessionizer = pkgs.fetchgit {
       url = "https://github.com/mikkasendke/sessionizer.wezterm";
       rev = "694f355150325bdb13ef78588ae5514f8aa22124";
-      hash = "sha256-A+4fGRfPKwOoSEH3MYHz3x5eMOCqPRpfYRCrIIHxZHM=";
+      hash = "sha256-6eUCvn+dHoXP1SvLzJQmMywiRdBEFpQI2nLCode70Zk=";
       leaveDotGit = true;
     };
     resurrect = pkgs.fetchgit {
       url = "https://github.com/MLFlexer/resurrect.wezterm";
       rev = "47ce553e07bb2c183d10487c56c406454aa50f36";
-      hash = "sha256-j7BIvJV7brkqWTtdWE/v9FnXRuHH0+934MTDCFNLEdY=";
+      hash = "sha256-+Ps9dlT+PRKjXO1gGQsrwgYLlU7jl16lcCWfc12nDPI=";
       leaveDotGit = true;
     };
   };
