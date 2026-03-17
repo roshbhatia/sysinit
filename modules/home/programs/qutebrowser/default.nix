@@ -119,6 +119,30 @@ in
       ];
     };
 
+    # Allow :set changes in qutebrowser to persist (merged with Nix config)
+    loadAutoconfig = true;
+
+    # Command aliases
+    aliases = {
+      "r" = "spawn --userscript readability";
+      "mpv" = "spawn --userscript view_in_mpv";
+      "ua" = "spawn --userscript ${chromeUaSpoof}";
+      "q" = "close";
+      "qa" = "quit";
+      "w" = "session-save";
+      "wq" = "quit --save";
+    };
+
+    # Quickmarks — instant access via `o` then type the name
+    quickmarks = {
+      gh = "https://github.com";
+      yt = "https://www.youtube.com";
+      rd = "https://old.reddit.com";
+      gm = "https://mail.google.com";
+      gd = "https://drive.google.com";
+      np = "https://search.nixos.org/packages";
+    };
+
     searchEngines = {
       DEFAULT = "https://www.google.com/search?q={}";
       np = "https://search.nixos.org/packages?type=packages&query={}";
