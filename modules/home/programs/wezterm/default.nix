@@ -106,16 +106,38 @@ in
           new_tab_hover = { bg_color = "#${c.base02}"; fg_color = "#${c.base05}"; };
         };
       };
-      # Pre-fetched plugin paths (avoids runtime git clones)
+      # Plugin paths — copied to ~/.local/share/wezterm/plugins/ by activation script
       plugins = {
-        tabline = "${weztermPlugins.tabline}";
-        agent-deck = "${weztermPlugins.agent-deck}";
-        sessionizer = "${weztermPlugins.sessionizer}";
-        resurrect = "${weztermPlugins.resurrect}";
+        tabline = "${config.home.homeDirectory}/.local/share/wezterm/plugins/tabline.wez";
+        agent-deck = "${config.home.homeDirectory}/.local/share/wezterm/plugins/wezterm-agent-deck";
+        sessionizer = "${config.home.homeDirectory}/.local/share/wezterm/plugins/sessionizer.wezterm";
+        resurrect = "${config.home.homeDirectory}/.local/share/wezterm/plugins/resurrect.wezterm";
       };
     };
     "wezterm/env.json".text = builtins.toJSON {
       PATH = paths.getPathString config.home.username config.home.homeDirectory;
     };
   };
+
+  # Copy plugins from Nix store to user-writable directory
+  # (wezterm.plugin.require needs write access to the git repo)
+  home.activation.weztermPlugins = config.lib.dag.entryAfter [ "writeBoundary" ] ''
+    PLUGIN_DIR="${config.home.homeDirectory}/.local/share/wezterm/plugins"
+    mkdir -p "$PLUGIN_DIR"
+
+    copy_plugin() {
+      local src="$1"
+      local dest="$2"
+      if [ -d "$dest" ]; then
+        rm -rf "$dest"
+      fi
+      cp -rL "$src" "$dest"
+      chmod -R u+w "$dest"
+    }
+
+    copy_plugin "${weztermPlugins.tabline}" "$PLUGIN_DIR/tabline.wez"
+    copy_plugin "${weztermPlugins.agent-deck}" "$PLUGIN_DIR/wezterm-agent-deck"
+    copy_plugin "${weztermPlugins.sessionizer}" "$PLUGIN_DIR/sessionizer.wezterm"
+    copy_plugin "${weztermPlugins.resurrect}" "$PLUGIN_DIR/resurrect.wezterm"
+  '';
 }
