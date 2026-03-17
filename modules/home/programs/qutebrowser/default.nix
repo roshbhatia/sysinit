@@ -130,18 +130,27 @@ in
     };
 
     extraConfig = ''
-      import re
       from qutebrowser.api import interceptor
 
-      # Spoof Chrome user agent on Google domains so sign-in works
-      c.content.headers.user_agent = "Mozilla/5.0 ({os_info}) AppleWebKit/{webkit_version} (KHTML, like Gecko) {qt_key}/{qt_version} {upstream_browser_key}/{upstream_browser_version} Safari/{webkit_version}"
+      # Built-in site_specific_quirks handles: Google, WhatsApp, Slack, Google Docs, Discord
+      # Below are additional UA overrides for sites not covered by built-in quirks
 
-      config.set("content.headers.user_agent",
-          "Mozilla/5.0 ({os_info}) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36",
-          "*.google.com")
-      config.set("content.headers.user_agent",
-          "Mozilla/5.0 ({os_info}) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36",
-          "*.google.com/*")
+      chrome_ua = "Mozilla/5.0 ({os_info}) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36"
+
+      for pattern in [
+          "https://*.netflix.com/*",
+          "https://*.hulu.com/*",
+          "https://*.disneyplus.com/*",
+          "https://*.dropout.tv/*",
+          "https://*.hbomax.com/*",
+          "https://*.max.com/*",
+          "https://*.dell.com/*",
+          "https://*.ups.com/*",
+      ]:
+          config.set("content.headers.user_agent", chrome_ua, pattern)
+
+      # Reduce fingerprint surface
+      c.content.headers.accept_language = "en-US,en;q=0.5"
 
       # Old reddit redirect
       def reddit_redirect(info: interceptor.Request):
