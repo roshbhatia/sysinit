@@ -58,7 +58,7 @@ in
       menu = "${pkgs.rofi}/bin/rofi -show drun";
 
       fonts = {
-        names = lib.mkForce [ "${values.theme.font.monospace}" ];
+        names = lib.mkForce [ "${config.sysinit.theme.font.monospace}" ];
         size = lib.mkForce 11.0;
       };
 
@@ -249,8 +249,8 @@ in
         "${mod}+Shift+v" =
           "exec ${pkgs.cliphist}/bin/cliphist list | ${pkgs.rofi}/bin/rofi -dmenu | ${pkgs.cliphist}/bin/cliphist decode | ${pkgs.wl-clipboard}/bin/wl-copy";
 
-        # Color picker
-        "Mod4+Shift+c" = "exec ${pkgs.hyprpicker}/bin/hyprpicker -a";
+        # Color picker — click a pixel, hex color copied to clipboard
+        "Mod4+Shift+c" = "exec ${pkgs.grim}/bin/grim -g \"$(${pkgs.slurp}/bin/slurp -p)\" -t ppm - | ${pkgs.imagemagick}/bin/convert - -format '%[hex:p{0,0}]' info:- | ${pkgs.wl-clipboard}/bin/wl-copy";
 
         # Screenshots (macOS-style: Super+Shift+3 = screen, Super+Shift+4 = region)
         "Mod4+Shift+3" = "exec ${pkgs.sway-contrib.grimshot}/bin/grimshot --notify savecopy output";
@@ -302,7 +302,7 @@ in
           statusCommand = "${pkgs.i3status-rust}/bin/i3status-rs ${config.xdg.configHome}/i3status-rust/config-top.toml";
           fonts = {
             names = [
-              "${values.theme.font.monospace}"
+              "${config.sysinit.theme.font.monospace}"
               "Symbols Nerd Font Mono"
             ];
             size = 11.0;
@@ -386,11 +386,23 @@ in
           {
             block = "time";
             interval = 30;
-            format = " $timestamp.datetime(f:'%I:%M %p') ";
+            format = " $timestamp.datetime(f:'%I:%M %p') · ";
+          }
+          {
+            block = "time";
+            interval = 60;
+            format = " $timestamp.datetime(f:'%H:%M UTC') ";
+            timezone = "UTC";
           }
         ];
       };
     };
+  };
+
+  # === Rofi (Stylix auto-themes when enabled via home-manager) ===
+  programs.rofi = {
+    enable = true;
+    terminal = "${pkgs.wezterm}/bin/wezterm start";
   };
 
   # === GTK / Icon / Cursor ===

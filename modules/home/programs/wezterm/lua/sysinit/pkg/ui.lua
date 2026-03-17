@@ -93,7 +93,6 @@ function M.setup(config)
   if tabline_ok then
     tabline.setup({
       options = {
-        -- theme colors inherited from Stylix via wezterm config
         section_separators = {
           left = "",
           right = "",
@@ -118,6 +117,16 @@ function M.setup(config)
       extensions = {},
     })
     tabline.apply_to_config(config)
+  end
+
+  -- Fallback: if tabline plugin didn't load, use native right_status for locked indicator
+  if not tabline_ok then
+    wezterm.on("update-right-status", function(window, _pane)
+      local mode_text = locked_indicator()
+      window:set_right_status(wezterm.format({
+        { Text = mode_text },
+      }))
+    end)
   end
 
   -- Post-process window padding for macOS
