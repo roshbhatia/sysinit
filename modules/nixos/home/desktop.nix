@@ -253,7 +253,8 @@ in
           "exec ${pkgs.cliphist}/bin/cliphist list | ${pkgs.rofi}/bin/rofi -dmenu | ${pkgs.cliphist}/bin/cliphist decode | ${pkgs.wl-clipboard}/bin/wl-copy";
 
         # Color picker — click a pixel, hex color copied to clipboard
-        "Mod4+Shift+c" = "exec ${pkgs.grim}/bin/grim -g \"$(${pkgs.slurp}/bin/slurp -p)\" -t ppm - | ${pkgs.imagemagick}/bin/convert - -format '%[hex:p{0,0}]' info:- | ${pkgs.wl-clipboard}/bin/wl-copy";
+        "Mod4+Shift+c" =
+          "exec ${pkgs.grim}/bin/grim -g \"$(${pkgs.slurp}/bin/slurp -p)\" -t ppm - | ${pkgs.imagemagick}/bin/convert - -format '%[hex:p{0,0}]' info:- | ${pkgs.wl-clipboard}/bin/wl-copy";
 
         # Screenshots (macOS-style: Super+Shift+3 = screen, Super+Shift+4 = region)
         "Mod4+Shift+3" = "exec ${pkgs.sway-contrib.grimshot}/bin/grimshot --notify savecopy output";
@@ -318,7 +319,7 @@ in
       blur enable
       blur_passes 2
       blur_radius 5
-      corner_radius 8
+      corner_radius 0
       shadows enable
       shadow_blur_radius 20
       shadow_color #0000007F
@@ -337,65 +338,85 @@ in
     enable = true;
     systemd.enable = true;
 
-    settings = [{
-      layer = "top";
-      position = "top";
-      height = 32;
-      spacing = 0;
+    settings = [
+      {
+        layer = "top";
+        position = "top";
+        height = 32;
+        spacing = 0;
 
-      # Left: logo, mode, front app (matches sketchybar left side)
-      modules-left = [ "custom/logo" "sway/mode" "sway/window" ];
-      # Center: workspaces (matches sketchybar center)
-      modules-center = [ "sway/workspaces" ];
-      # Right: clock, battery, volume (matches sketchybar right side)
-      modules-right = [ "clock" "battery" "pulseaudio" ];
+        # Left: logo, mode, front app (matches sketchybar left side)
+        modules-left = [
+          "custom/logo"
+          "sway/mode"
+          "sway/window"
+        ];
+        # Center: workspaces (matches sketchybar center)
+        modules-center = [ "sway/workspaces" ];
+        # Right: clock, battery, volume (matches sketchybar right side)
+        modules-right = [
+          "clock"
+          "battery"
+          "pulseaudio"
+        ];
 
-      "custom/logo" = {
-        format = "󱄅";
-        tooltip = false;
-      };
-
-      "sway/mode" = {
-        format = "{}";
-      };
-
-      "sway/window" = {
-        max-length = 40;
-        tooltip = false;
-      };
-
-      "sway/workspaces" = {
-        disable-scroll = true;
-        all-outputs = true;
-        format = "{name}";
-      };
-
-      clock = {
-        format = "  {:%I:%M %p %Z}";
-        format-alt = "󰖟  {:%H:%M UTC}";
-        tooltip-format = "{:%A, %B %d, %Y}";
-      };
-
-      battery = {
-        format = "{icon}  {capacity}%";
-        format-charging = "󰂅  {capacity}%";
-        format-icons = [ "󰁺" "󰁻" "󰁽" "󰁿" "󰂁" ];
-        states = {
-          warning = 30;
-          critical = 15;
+        "custom/logo" = {
+          format = "󱄅";
+          tooltip = false;
         };
-      };
 
-      pulseaudio = {
-        format = "{icon}  {volume}%";
-        format-muted = "󰝟  muted";
-        format-icons = {
-          default = [ "󰕿" "󰖀" "󰕾" ];
+        "sway/mode" = {
+          format = "{}";
         };
-        on-click = "${pkgs.pavucontrol}/bin/pavucontrol";
-        scroll-step = 5;
-      };
-    }];
+
+        "sway/window" = {
+          max-length = 40;
+          tooltip = false;
+        };
+
+        "sway/workspaces" = {
+          disable-scroll = true;
+          all-outputs = true;
+          format = "{name}";
+        };
+
+        clock = {
+          format = "  {:%I:%M %p %Z}";
+          format-alt = "󰖟  {:%H:%M UTC}";
+          tooltip-format = "{:%A, %B %d, %Y}";
+        };
+
+        battery = {
+          format = "{icon}  {capacity}%";
+          format-charging = "󰂅  {capacity}%";
+          format-icons = [
+            "󰁺"
+            "󰁻"
+            "󰁽"
+            "󰁿"
+            "󰂁"
+          ];
+          states = {
+            warning = 30;
+            critical = 15;
+          };
+        };
+
+        pulseaudio = {
+          format = "{icon}  {volume}%";
+          format-muted = "󰝟  muted";
+          format-icons = {
+            default = [
+              "󰕿"
+              "󰖀"
+              "󰕾"
+            ];
+          };
+          on-click = "${pkgs.pavucontrol}/bin/pavucontrol";
+          scroll-step = 5;
+        };
+      }
+    ];
 
     style = ''
       * {
