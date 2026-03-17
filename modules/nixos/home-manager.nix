@@ -17,6 +17,8 @@
 
     users.${values.user.username} =
       {
+        pkgs,
+        config,
         ...
       }:
       {
@@ -33,6 +35,17 @@
           ./home/desktop.nix
           ../home/programs/firefox
         ];
+
+        stylix = {
+          enable = true;
+          autoEnable = true;
+          image = lib.mkDefault (pkgs.fetchurl {
+            url = "https://wallpapercave.com/wp/wp12329549.png";
+            sha256 = "sha256-9R3cDgd1VslCF6mG6jBO64MEdRjCGzWE4m/dAjEixzk=";
+          });
+          base16Scheme = lib.mkDefault "${pkgs.base16-schemes}/share/themes/${config.sysinit.theme.base16Scheme}.yaml";
+          polarity = config.sysinit.theme.appearance;
+        };
 
         # NixOS systems use the nix-managed home directory
         home.homeDirectory =
