@@ -10,8 +10,7 @@ let
 
   # Pass base16 colors and theme metadata to sketchybar Lua config
   sketchybarConfig = {
-    colorscheme = themeConfig.colorscheme;
-    variant = themeConfig.variant;
+    base16Scheme = themeConfig.base16Scheme;
     appearance = themeConfig.appearance;
     transparency = themeConfig.transparency;
     base16 = {

@@ -6,34 +6,28 @@
 }:
 
 let
-  themes = import ../../lib/theme.nix { inherit lib; };
-  # Get the colorscheme and variant from sysinit options
-  colorscheme = config.sysinit.theme.colorscheme;
-  variant = config.sysinit.theme.variant;
+  themeConfig = config.sysinit.theme;
 in
 {
   stylix = {
     enable = true;
     autoEnable = true;
-    
-    # Use the base16 scheme path from theme metadata
-    base16Scheme = themes.getBase16SchemePath pkgs colorscheme variant;
-    
-    # Use a valid image from the remote host to avoid ImageMagick errors
-    image = ../../darwin/home/firefox/brave-icons/NewTab.svg;
+
+    polarity = themeConfig.appearance;
+    base16Scheme = "${pkgs.base16-schemes}/share/themes/${themeConfig.base16Scheme}.yaml";
+
+    # Minimal placeholder image for Stylix (required field)
+    image = "${pkgs.nixos-icons}/share/icons/hicolor/scalable/apps/nix-snowflake.svg";
 
     fonts = {
       monospace = {
-        package = pkgs.maple-mono.NF;
-        name = "Maple Mono NF";
+        name = themeConfig.font.monospace;
       };
       sansSerif = {
-        package = pkgs.dejavu_fonts;
-        name = "DejaVu Sans";
+        name = themeConfig.font.monospace;
       };
       serif = {
-        package = pkgs.dejavu_fonts;
-        name = "DejaVu Serif";
+        name = themeConfig.font.monospace;
       };
     };
   };
@@ -42,5 +36,6 @@ in
     pkgs.ioskeleyMono
     pkgs.commitMono
     pkgs.nerd-fonts.symbols-only
+    pkgs.nerd-fonts.shure-tech-mono
   ];
 }

@@ -8,10 +8,6 @@
   ...
 }:
 
-let
-  themes = import ../lib/theme.nix { inherit lib; };
-in
-
 {
   home-manager = {
     useGlobalPkgs = true;
@@ -50,10 +46,9 @@ in
         sysinit.theme =
           if (values ? theme) then
             {
-              appearance = values.theme.appearance or null;
-              colorscheme = values.theme.colorscheme;
-              variant = values.theme.variant;
-              font.monospace = values.theme.font.monospace or null;
+              base16Scheme = values.theme.base16Scheme or "catppuccin-mocha";
+              appearance = values.theme.appearance or "dark";
+              font.monospace = values.theme.font.monospace or "TX-02";
               transparency = values.theme.transparency or { };
             }
           else

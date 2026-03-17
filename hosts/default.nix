@@ -88,11 +88,10 @@ in
     values = {
       git = linuxGit;
       theme = {
-        colorscheme = "gruvbox";
-        variant = "dark-soft";
+        base16Scheme = "black-metal-bathory";
         appearance = "dark";
         font = {
-          monospace = "CommitMono";
+          monospace = "ShareTechMono Nerd Font";
         };
       };
     };

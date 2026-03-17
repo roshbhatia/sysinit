@@ -1,36 +1,25 @@
-{ lib, config, ... }:
+# Theme options — simplified to use base16 scheme names directly.
+# Any scheme from pkgs.base16-schemes works (e.g., "catppuccin-mocha",
+# "gruvbox-dark-soft", "black-metal-bathory", "rose-pine-moon").
+{ lib, ... }:
 
 with lib;
 
-let
-  themes = import ../../lib/theme.nix { inherit lib; };
-  cfg = config.sysinit.theme;
-  inherit (themes) metadata;
-
-  allVariants = unique (flatten (map (meta: meta.variants) (attrValues metadata)));
-
-in
 {
   options.sysinit.theme = {
+    base16Scheme = mkOption {
+      type = types.str;
+      default = "catppuccin-mocha";
+      description = "Base16 scheme name from pkgs.base16-schemes (e.g., 'black-metal-bathory', 'gruvbox-dark-soft')";
+    };
+
     appearance = mkOption {
       type = types.enum [
         "light"
         "dark"
       ];
       default = "dark";
-      description = "Appearance mode (light or dark)";
-    };
-
-    colorscheme = mkOption {
-      type = types.enum (attrNames metadata);
-      default = "catppuccin";
-      description = "The color scheme to use system-wide";
-    };
-
-    variant = mkOption {
-      type = types.enum allVariants;
-      default = "mocha";
-      description = "The variant of the chosen color scheme";
+      description = "Appearance mode (light or dark) — sets Stylix polarity";
     };
 
     font = {

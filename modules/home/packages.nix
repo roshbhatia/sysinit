@@ -4,6 +4,7 @@
   home.packages = with pkgs; [
     # Core Utilities
     coreutils
+    fastfetch
     curl
     wget
     findutils

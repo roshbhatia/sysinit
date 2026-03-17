@@ -6,10 +6,7 @@
 }:
 
 let
-  themeLib = import ../lib/theme.nix { inherit lib; };
   themeConfig = config.sysinit.theme;
-
-  schemePath = themeLib.getBase16SchemePath pkgs themeConfig.colorscheme themeConfig.variant;
 in
 {
   stylix = {
@@ -17,18 +14,12 @@ in
     enableReleaseChecks = false;
 
     polarity = themeConfig.appearance;
-    base16Scheme = schemePath;
+    base16Scheme = "${pkgs.base16-schemes}/share/themes/${themeConfig.base16Scheme}.yaml";
 
     fonts = {
       monospace.name = themeConfig.font.monospace;
-      sansSerif = {
-        name = "DejaVu Sans";
-        package = pkgs.dejavu_fonts;
-      };
-      serif = {
-        name = "DejaVu Serif";
-        package = pkgs.dejavu_fonts;
-      };
+      sansSerif.name = themeConfig.font.monospace;
+      serif.name = themeConfig.font.monospace;
       sizes = {
         terminal = 11;
         applications = 11;

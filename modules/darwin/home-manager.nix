@@ -38,11 +38,10 @@
         sysinit.theme =
           if (values ? theme) then
             {
-              appearance = values.theme.appearance;
-              colorscheme = values.theme.colorscheme;
-              variant = values.theme.variant;
-              font.monospace = values.theme.font.monospace;
-              transparency = values.theme.transparency;
+              base16Scheme = values.theme.base16Scheme or "catppuccin-mocha";
+              appearance = values.theme.appearance or "dark";
+              font.monospace = values.theme.font.monospace or "TX-02";
+              transparency = values.theme.transparency or { };
             }
           else
             { };
