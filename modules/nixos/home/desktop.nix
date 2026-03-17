@@ -186,15 +186,16 @@ in
         "Mod4+Control+q" = "exec swaymsg exit";
 
         # macOS-like Super+key → Ctrl+key via wtype
-        "Mod4+c" = "exec ${pkgs.wtype}/bin/wtype -M ctrl -P c -m ctrl";
-        "Mod4+v" = "exec ${pkgs.wtype}/bin/wtype -M ctrl -P v -m ctrl";
-        "Mod4+x" = "exec ${pkgs.wtype}/bin/wtype -M ctrl -P x -m ctrl";
-        "Mod4+a" = "exec ${pkgs.wtype}/bin/wtype -M ctrl -P a -m ctrl";
-        "Mod4+z" = "exec ${pkgs.wtype}/bin/wtype -M ctrl -P z -m ctrl";
-        "Mod4+Shift+z" = "exec ${pkgs.wtype}/bin/wtype -M ctrl -M shift -P z -m shift -m ctrl";
-        "Mod4+w" = "exec ${pkgs.wtype}/bin/wtype -M ctrl -P w -m ctrl";
-        "Mod4+n" = "exec ${pkgs.wtype}/bin/wtype -M ctrl -P n -m ctrl";
-        "Mod4+f" = "exec ${pkgs.wtype}/bin/wtype -M ctrl -P f -m ctrl";
+        # sleep 0.05 lets the Super key release before wtype sends the keystroke
+        "Mod4+c" = "exec sleep 0.05 && ${pkgs.wtype}/bin/wtype -M ctrl -P c -m ctrl";
+        "Mod4+v" = "exec sleep 0.05 && ${pkgs.wtype}/bin/wtype -M ctrl -P v -m ctrl";
+        "Mod4+x" = "exec sleep 0.05 && ${pkgs.wtype}/bin/wtype -M ctrl -P x -m ctrl";
+        "Mod4+a" = "exec sleep 0.05 && ${pkgs.wtype}/bin/wtype -M ctrl -P a -m ctrl";
+        "Mod4+z" = "exec sleep 0.05 && ${pkgs.wtype}/bin/wtype -M ctrl -P z -m ctrl";
+        "Mod4+Shift+z" = "exec sleep 0.05 && ${pkgs.wtype}/bin/wtype -M ctrl -M shift -P z -m shift -m ctrl";
+        "Mod4+w" = "exec sleep 0.05 && ${pkgs.wtype}/bin/wtype -M ctrl -P w -m ctrl";
+        "Mod4+n" = "exec sleep 0.05 && ${pkgs.wtype}/bin/wtype -M ctrl -P n -m ctrl";
+        "Mod4+f" = "exec sleep 0.05 && ${pkgs.wtype}/bin/wtype -M ctrl -P f -m ctrl";
 
         # Minimize (move to scratchpad)
         "Mod4+h" = "move scratchpad";
