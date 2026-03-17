@@ -60,9 +60,10 @@
       agentSocket = lib.mkOption {
         type = lib.types.str;
         default =
-          if pkgs.stdenv.isDarwin
-          then "~/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock"
-          else "~/.1password/agent.sock";
+          if pkgs.stdenv.isDarwin then
+            "~/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock"
+          else
+            "~/.1password/agent.sock";
         description = "Path to 1Password SSH agent socket";
       };
 
@@ -90,20 +91,6 @@
         default = null;
         description = "Path to SSH key file for work identity (fallback if not using 1Password)";
       };
-    };
-
-    # Deprecated - use ssh.personalKeyFile instead
-    personalSshKeyFile = lib.mkOption {
-      type = lib.types.nullOr lib.types.str;
-      default = null;
-      description = "DEPRECATED: Use ssh.personalKeyFile instead";
-    };
-
-    # Deprecated - use ssh.workKeyFile instead
-    workSshKeyFile = lib.mkOption {
-      type = lib.types.nullOr lib.types.str;
-      default = null;
-      description = "DEPRECATED: Use ssh.workKeyFile instead";
     };
   };
 }

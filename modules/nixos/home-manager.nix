@@ -1,10 +1,8 @@
 {
   lib,
-  pkgs,
   values,
   utils,
   inputs ? { },
-  stylix,
   ...
 }:
 
@@ -30,7 +28,7 @@
 
           ../home
         ]
-        ++ lib.optionals (values.isDesktop) [
+        ++ lib.optionals values.isDesktop [
           ./home/desktop.nix
           ../home/programs/firefox
         ];
@@ -42,17 +40,19 @@
           else
             "/home/${values.user.username}";
 
-        sysinit.git = values.git or { };
-        sysinit.theme =
-          if (values ? theme) then
-            {
-              base16Scheme = values.theme.base16Scheme or "catppuccin-mocha";
-              appearance = values.theme.appearance or "dark";
-              font.monospace = values.theme.font.monospace or "TX-02";
-              transparency = values.theme.transparency or { };
-            }
-          else
-            { };
+        sysinit = {
+          git = values.git or { };
+          theme =
+            if (values ? theme) then
+              {
+                base16Scheme = values.theme.base16Scheme or "catppuccin-mocha";
+                appearance = values.theme.appearance or "dark";
+                font.monospace = values.theme.font.monospace or "TX-02";
+                transparency = values.theme.transparency or { };
+              }
+            else
+              { };
+        };
       };
   };
 }

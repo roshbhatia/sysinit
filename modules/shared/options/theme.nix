@@ -1,6 +1,3 @@
-# Theme options — simplified to use base16 scheme names directly.
-# Any scheme from pkgs.base16-schemes works (e.g., "catppuccin-mocha",
-# "gruvbox-dark-soft", "black-metal-bathory", "rose-pine-moon").
 { lib, ... }:
 
 with lib;

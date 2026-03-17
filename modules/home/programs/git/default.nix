@@ -9,7 +9,7 @@ let
   cfg = config.sysinit.git;
   sshCfg = cfg.ssh;
 
-  isDarwin = pkgs.stdenv.isDarwin;
+  inherit (pkgs.stdenv) isDarwin;
 
   use1Password = sshCfg.use1PasswordAgent && isDarwin;
 

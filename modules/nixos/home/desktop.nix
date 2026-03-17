@@ -1,9 +1,7 @@
-# NixOS desktop home-manager: sway, swaybar + i3status-rust, rofi, mako, nemo
 {
   config,
   lib,
   pkgs,
-  values,
   ...
 }:
 
@@ -57,563 +55,482 @@ let
   };
 in
 {
-  # Sway Window Manager
-  wayland.windowManager.sway = {
-    enable = true;
-    wrapperFeatures.gtk = true;
-    checkConfig = false; # swayfx commands fail sway's config validator
+  wayland = {
+    windowManager.sway = {
+      enable = true;
+      wrapperFeatures.gtk = true;
+      checkConfig = false;
 
-    config = {
-      modifier = mod;
-      terminal = "${pkgs.wezterm}/bin/wezterm start";
-      menu = "${pkgs.rofi}/bin/rofi -show drun";
+      config = {
+        modifier = mod;
+        terminal = "${pkgs.wezterm}/bin/wezterm start";
+        menu = "${pkgs.rofi}/bin/rofi -show drun";
 
-      fonts = {
-        names = lib.mkForce [ "${config.sysinit.theme.font.monospace}" ];
-        size = lib.mkForce 11.0;
-      };
-
-      gaps = {
-        inner = 16;
-        outer = 48;
-      };
-
-      defaultWorkspace = "workspace number 1";
-
-      input = {
-        "type:keyboard" = {
-          xkb_layout = "us";
-          repeat_rate = "50";
-          repeat_delay = "300";
+        fonts = {
+          names = lib.mkForce [ "${config.sysinit.theme.font.monospace}" ];
+          size = lib.mkForce 11.0;
         };
-        "type:pointer" = {
-          accel_profile = "flat";
-          pointer_accel = "-0.5";
+
+        gaps = {
+          inner = 16;
+          outer = 48;
         };
-        "type:touchpad" = {
-          natural_scroll = "enabled";
-          tap = "enabled";
-          dwt = "enabled";
+
+        defaultWorkspace = "workspace number 1";
+
+        input = {
+          "type:keyboard" = {
+            xkb_layout = "us";
+            repeat_rate = "50";
+            repeat_delay = "300";
+          };
+          "type:pointer" = {
+            accel_profile = "flat";
+            pointer_accel = "-0.5";
+          };
+          "type:touchpad" = {
+            natural_scroll = "enabled";
+            tap = "enabled";
+            dwt = "enabled";
+          };
         };
-      };
 
-      output = {
-        "*" = {
-          bg = lib.mkForce "#${c.base00} solid_color";
+        output = {
+          "*" = {
+            bg = lib.mkForce "#${c.base00} solid_color";
+          };
         };
-      };
 
-      # No titlebar, no border — clean and squared
-      window = {
-        border = 0;
-        titlebar = false;
-      };
-      floating = {
-        border = 1;
-        titlebar = false;
-      };
+        window = {
+          border = 0;
+          titlebar = false;
+        };
+        floating = {
+          border = 1;
+          titlebar = false;
+        };
 
-      floating.modifier = "Mod4";
+        floating.modifier = "Mod4";
 
-      startup = [
-        { command = "dbus-update-activation-environment --systemd --all"; }
-        { command = "systemctl --user import-environment WAYLAND_DISPLAY XDG_CURRENT_DESKTOP"; }
-        { command = "${pkgs.polkit_gnome}/libexec/polkit-gnome-authentication-agent-1"; }
-        { command = "${pkgs.wl-clipboard}/bin/wl-paste --watch ${pkgs.cliphist}/bin/cliphist store"; }
-        { command = "nm-applet --indicator"; }
-        {
-          command = "sh -c 'if [ -f ${config.home.homeDirectory}/.background-image ]; then swaymsg output \\* bg ${config.home.homeDirectory}/.background-image fill; else swaymsg output \\* bg ${wallpaper} fill; fi'";
-        }
-        { command = "${pkgs.workstyle}/bin/workstyle"; }
-      ];
-
-      assigns = {
-        "C" = [
-          { class = "^discord$"; }
-          { class = "^Slack$"; }
-          { app_id = "^vesktop$"; }
+        startup = [
+          { command = "dbus-update-activation-environment --systemd --all"; }
+          { command = "systemctl --user import-environment WAYLAND_DISPLAY XDG_CURRENT_DESKTOP"; }
+          { command = "${pkgs.polkit_gnome}/libexec/polkit-gnome-authentication-agent-1"; }
+          { command = "${pkgs.wl-clipboard}/bin/wl-paste --watch ${pkgs.cliphist}/bin/cliphist store"; }
+          { command = "nm-applet --indicator"; }
+          {
+            command = "sh -c 'if [ -f ${config.home.homeDirectory}/.background-image ]; then swaymsg output \\* bg ${config.home.homeDirectory}/.background-image fill; else swaymsg output \\* bg ${wallpaper} fill; fi'";
+          }
+          { command = "${pkgs.workstyle}/bin/workstyle"; }
         ];
-        "E" = [
-          { class = "^thunderbird$"; }
+
+        assigns = {
+          "C" = [
+            { class = "^discord$"; }
+            { class = "^Slack$"; }
+            { app_id = "^vesktop$"; }
+          ];
+          "E" = [
+            { class = "^thunderbird$"; }
+          ];
+          "M" = [
+            { class = "^Spotify$"; }
+            { app_id = "^spotify$"; }
+            { app_id = "^cider$"; }
+          ];
+        };
+
+        window.commands = [
+          {
+            command = "floating enable";
+            criteria = {
+              title = "^Picture-in-Picture$";
+            };
+          }
+          {
+            command = "floating enable";
+            criteria = {
+              class = "^pavucontrol$";
+            };
+          }
+          {
+            command = "floating enable";
+            criteria = {
+              app_id = "^pavucontrol$";
+            };
+          }
+          {
+            command = "floating enable";
+            criteria = {
+              class = "^1Password$";
+            };
+          }
+          {
+            command = "floating enable";
+            criteria = {
+              app_id = "^1password$";
+            };
+          }
+          {
+            command = "floating enable";
+            criteria = {
+              app_id = "^nemo$";
+            };
+          }
         ];
-        "M" = [
-          { class = "^Spotify$"; }
-          { app_id = "^spotify$"; }
-          { app_id = "^cider$"; }
-        ];
+
+        keybindings = lib.mkForce {
+          # Terminal
+          "${mod}+Return" = "exec ${pkgs.wezterm}/bin/wezterm start";
+
+          # App launcher
+          "Mod4+space" = "exec ${pkgs.rofi}/bin/rofi -show drun";
+
+          # 1Password quick access (like macOS Cmd+Shift+Space for 1Password)
+          "Mod4+Shift+space" = "exec ${rofi1password}";
+
+          # Kill / exit
+          "Mod4+q" = "kill";
+          "Mod4+Control+q" = "exec swaymsg exit";
+
+          # macOS-like Super+key → Ctrl+key handled by kanata at evdev level
+
+          # Minimize (move to scratchpad)
+          "Mod4+h" = "move scratchpad";
+          "Mod4+m" = "move scratchpad";
+
+          # Focus (vim-style, matching aerospace)
+          "${mod}+h" = "focus left";
+          "${mod}+j" = "focus down";
+          "${mod}+k" = "focus up";
+          "${mod}+l" = "focus right";
+
+          # Resize mode
+          "${mod}+r" = "mode resize";
+
+          # Workspaces (only 1, 2, C, E, M — matching aerospace)
+          "${mod}+1" = "workspace 1";
+          "${mod}+2" = "workspace 2";
+          "${mod}+c" = "workspace C";
+          "${mod}+e" = "workspace E";
+          "${mod}+m" = "workspace M";
+
+          "${mod}+Shift+1" = "move container to workspace 1; workspace 1";
+          "${mod}+Shift+2" = "move container to workspace 2; workspace 2";
+          "${mod}+Shift+c" = "move container to workspace C; workspace C";
+          "${mod}+Shift+e" = "move container to workspace E; workspace E";
+          "${mod}+Shift+m" = "move container to workspace M; workspace M";
+
+          # Workspace cycling
+          "${mod}+Tab" = "workspace next_on_output";
+          "${mod}+Shift+Tab" = "workspace prev_on_output";
+          "${mod}+p" = "workspace back_and_forth";
+
+          # Fullscreen
+          "${mod}+f" = "fullscreen toggle";
+
+          # Float / layout
+          "${mod}+v" = "floating toggle";
+          "${mod}+t" = "layout toggle split";
+
+          # Move mode (like aerospace)
+          "${mod}+x" = "mode move";
+
+          # Locked mode (passthrough, like aerospace)
+          "${mod}+g" = "mode locked";
+
+          # Clipboard history
+          # Window switcher (macOS-style Cmd+Tab)
+          "Mod4+Tab" = "exec ${pkgs.rofi}/bin/rofi -show window";
+          "Mod4+Shift+Tab" = "exec ${pkgs.rofi}/bin/rofi -show window";
+
+          # Clipboard history
+          "${mod}+Shift+v" =
+            "exec ${pkgs.cliphist}/bin/cliphist list | ${pkgs.rofi}/bin/rofi -dmenu | ${pkgs.cliphist}/bin/cliphist decode | ${pkgs.wl-clipboard}/bin/wl-copy";
+
+          # Color picker — click a pixel, hex color copied to clipboard
+          "Mod4+Shift+c" =
+            "exec ${pkgs.grim}/bin/grim -g \"$(${pkgs.slurp}/bin/slurp -p)\" -t ppm - | ${pkgs.imagemagick}/bin/convert - -format '%[hex:p{0,0}]' info:- | ${pkgs.wl-clipboard}/bin/wl-copy";
+
+          # Screenshots (macOS-style: Super+Shift+3 = screen, Super+Shift+4 = region)
+          "Mod4+Shift+3" = "exec ${pkgs.sway-contrib.grimshot}/bin/grimshot --notify savecopy output";
+          "Mod4+Shift+4" = "exec ${pkgs.sway-contrib.grimshot}/bin/grimshot --notify savecopy area";
+          "Mod4+Shift+5" = "exec ${pkgs.sway-contrib.grimshot}/bin/grimshot --notify savecopy window";
+          "Print" = "exec ${pkgs.sway-contrib.grimshot}/bin/grimshot --notify savecopy area";
+
+          # Volume
+          "XF86AudioRaiseVolume" = "exec wpctl set-volume @DEFAULT_AUDIO_SINK@ 0.05+";
+          "XF86AudioLowerVolume" = "exec wpctl set-volume @DEFAULT_AUDIO_SINK@ 0.05-";
+          "XF86AudioMute" = "exec wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle";
+
+          # Media
+          "XF86AudioPlay" = "exec ${pkgs.playerctl}/bin/playerctl play-pause";
+          "XF86AudioPause" = "exec ${pkgs.playerctl}/bin/playerctl play-pause";
+          "XF86AudioNext" = "exec ${pkgs.playerctl}/bin/playerctl next";
+          "XF86AudioPrev" = "exec ${pkgs.playerctl}/bin/playerctl previous";
+        };
+
+        modes = {
+          move = {
+            "${mod}+h" = "move left";
+            "${mod}+j" = "move down";
+            "${mod}+k" = "move up";
+            "${mod}+l" = "move right";
+            "Escape" = "mode default";
+          };
+          resize = {
+            "h" = "resize shrink width 10 px";
+            "j" = "resize grow height 10 px";
+            "k" = "resize shrink height 10 px";
+            "l" = "resize grow width 10 px";
+            "Shift+h" = "resize shrink width 72 px";
+            "Shift+j" = "resize grow height 72 px";
+            "Shift+k" = "resize shrink height 72 px";
+            "Shift+l" = "resize grow width 72 px";
+            "Escape" = "mode default";
+            "Return" = "mode default";
+          };
+          locked = {
+            "${mod}+g" = "mode default";
+          };
+        };
+
+        bars = [ ];
       };
 
-      window.commands = [
-        {
-          command = "floating enable";
-          criteria = {
-            title = "^Picture-in-Picture$";
-          };
-        }
-        {
-          command = "floating enable";
-          criteria = {
-            class = "^pavucontrol$";
-          };
-        }
-        {
-          command = "floating enable";
-          criteria = {
-            app_id = "^pavucontrol$";
-          };
-        }
-        {
-          command = "floating enable";
-          criteria = {
-            class = "^1Password$";
-          };
-        }
-        {
-          command = "floating enable";
-          criteria = {
-            app_id = "^1password$";
-          };
-        }
-        {
-          command = "floating enable";
-          criteria = {
-            app_id = "^nemo$";
-          };
-        }
-      ];
+      extraSessionCommands = ''
+        export NIXOS_OZONE_WL=1
+        export GDK_BACKEND=wayland
+        export QT_QPA_PLATFORM=wayland
+        export MOZ_ENABLE_WAYLAND=1
+      '';
 
-      # Override ALL keybindings (don't inherit defaults which add workspace 3-10)
-      keybindings = lib.mkForce {
-        # Terminal
-        "${mod}+Return" = "exec ${pkgs.wezterm}/bin/wezterm start";
+      # SwayFX effects (requires swayfx from flake, not nixpkgs)
+      extraConfig = ''
+        # Animations (swayfx — snappy resize/move)
+        animation_duration_ms 150
 
-        # App launcher
-        "Mod4+space" = "exec ${pkgs.rofi}/bin/rofi -show drun";
+        # Visual effects
+        blur enable
+        blur_passes 2
+        blur_radius 5
+        corner_radius 0
+        shadows enable
+        shadow_blur_radius 20
+        shadow_color #0000007F
+        default_dim_inactive 0.1
 
-        # 1Password quick access (like macOS Cmd+Shift+Space for 1Password)
-        "Mod4+Shift+space" = "exec ${rofi1password}";
-
-        # Kill / exit
-        "Mod4+q" = "kill";
-        "Mod4+Control+q" = "exec swaymsg exit";
-
-        # macOS-like Super+key → Ctrl+key handled by kanata at evdev level
-
-        # Minimize (move to scratchpad)
-        "Mod4+h" = "move scratchpad";
-        "Mod4+m" = "move scratchpad";
-
-        # Focus (vim-style, matching aerospace)
-        "${mod}+h" = "focus left";
-        "${mod}+j" = "focus down";
-        "${mod}+k" = "focus up";
-        "${mod}+l" = "focus right";
-
-        # Resize mode
-        "${mod}+r" = "mode resize";
-
-        # Workspaces (only 1, 2, C, E, M — matching aerospace)
-        "${mod}+1" = "workspace 1";
-        "${mod}+2" = "workspace 2";
-        "${mod}+c" = "workspace C";
-        "${mod}+e" = "workspace E";
-        "${mod}+m" = "workspace M";
-
-        "${mod}+Shift+1" = "move container to workspace 1; workspace 1";
-        "${mod}+Shift+2" = "move container to workspace 2; workspace 2";
-        "${mod}+Shift+c" = "move container to workspace C; workspace C";
-        "${mod}+Shift+e" = "move container to workspace E; workspace E";
-        "${mod}+Shift+m" = "move container to workspace M; workspace M";
-
-        # Workspace cycling
-        "${mod}+Tab" = "workspace next_on_output";
-        "${mod}+Shift+Tab" = "workspace prev_on_output";
-        "${mod}+p" = "workspace back_and_forth";
-
-        # Fullscreen
-        "${mod}+f" = "fullscreen toggle";
-
-        # Float / layout
-        "${mod}+v" = "floating toggle";
-        "${mod}+t" = "layout toggle split";
-
-        # Move mode (like aerospace)
-        "${mod}+x" = "mode move";
-
-        # Locked mode (passthrough, like aerospace)
-        "${mod}+g" = "mode locked";
-
-        # Clipboard history
-        # Window switcher (macOS-style Cmd+Tab)
-        "Mod4+Tab" = "exec ${pkgs.rofi}/bin/rofi -show window";
-        "Mod4+Shift+Tab" = "exec ${pkgs.rofi}/bin/rofi -show window";
-
-        # Clipboard history
-        "${mod}+Shift+v" =
-          "exec ${pkgs.cliphist}/bin/cliphist list | ${pkgs.rofi}/bin/rofi -dmenu | ${pkgs.cliphist}/bin/cliphist decode | ${pkgs.wl-clipboard}/bin/wl-copy";
-
-        # Color picker — click a pixel, hex color copied to clipboard
-        "Mod4+Shift+c" =
-          "exec ${pkgs.grim}/bin/grim -g \"$(${pkgs.slurp}/bin/slurp -p)\" -t ppm - | ${pkgs.imagemagick}/bin/convert - -format '%[hex:p{0,0}]' info:- | ${pkgs.wl-clipboard}/bin/wl-copy";
-
-        # Screenshots (macOS-style: Super+Shift+3 = screen, Super+Shift+4 = region)
-        "Mod4+Shift+3" = "exec ${pkgs.sway-contrib.grimshot}/bin/grimshot --notify savecopy output";
-        "Mod4+Shift+4" = "exec ${pkgs.sway-contrib.grimshot}/bin/grimshot --notify savecopy area";
-        "Mod4+Shift+5" = "exec ${pkgs.sway-contrib.grimshot}/bin/grimshot --notify savecopy window";
-        "Print" = "exec ${pkgs.sway-contrib.grimshot}/bin/grimshot --notify savecopy area";
-
-        # Volume
-        "XF86AudioRaiseVolume" = "exec wpctl set-volume @DEFAULT_AUDIO_SINK@ 0.05+";
-        "XF86AudioLowerVolume" = "exec wpctl set-volume @DEFAULT_AUDIO_SINK@ 0.05-";
-        "XF86AudioMute" = "exec wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle";
-
-        # Media
-        "XF86AudioPlay" = "exec ${pkgs.playerctl}/bin/playerctl play-pause";
-        "XF86AudioPause" = "exec ${pkgs.playerctl}/bin/playerctl play-pause";
-        "XF86AudioNext" = "exec ${pkgs.playerctl}/bin/playerctl next";
-        "XF86AudioPrev" = "exec ${pkgs.playerctl}/bin/playerctl previous";
-      };
-
-      modes = {
-        move = {
-          "${mod}+h" = "move left";
-          "${mod}+j" = "move down";
-          "${mod}+k" = "move up";
-          "${mod}+l" = "move right";
-          "Escape" = "mode default";
-        };
-        resize = {
-          "h" = "resize shrink width 10 px";
-          "j" = "resize grow height 10 px";
-          "k" = "resize shrink height 10 px";
-          "l" = "resize grow width 10 px";
-          "Shift+h" = "resize shrink width 72 px";
-          "Shift+j" = "resize grow height 72 px";
-          "Shift+k" = "resize shrink height 72 px";
-          "Shift+l" = "resize grow width 72 px";
-          "Escape" = "mode default";
-          "Return" = "mode default";
-        };
-        locked = {
-          "${mod}+g" = "mode default";
-        };
-      };
-
-      # Disable sway's built-in bar — using waybar instead
-      bars = [ ];
+        # Apply blur to waybar
+        layer_effects "waybar" blur enable; shadows enable
+      '';
     };
-
-    extraSessionCommands = ''
-      export NIXOS_OZONE_WL=1
-      export GDK_BACKEND=wayland
-      export QT_QPA_PLATFORM=wayland
-      export MOZ_ENABLE_WAYLAND=1
-    '';
-
-    # SwayFX effects (requires swayfx from flake, not nixpkgs)
-    extraConfig = ''
-      # Animations (swayfx — snappy resize/move)
-      animation_duration_ms 150
-
-      # Visual effects
-      blur enable
-      blur_passes 2
-      blur_radius 5
-      corner_radius 0
-      shadows enable
-      shadow_blur_radius 20
-      shadow_color #0000007F
-      default_dim_inactive 0.1
-
-      # Apply blur to waybar
-      layer_effects "waybar" blur enable; shadows enable
-    '';
   };
 
-  # Disable Stylix's waybar CSS — we provide our own
   stylix.targets.waybar.addCss = false;
 
-  # Waybar — matches sketchybar layout
-  programs.waybar = {
-    enable = true;
-    systemd.enable = true;
+  programs = {
+    waybar = {
+      enable = true;
+      systemd.enable = true;
 
-    settings = [
-      {
-        layer = "top";
-        position = "top";
-        height = 32;
-        spacing = 0;
+      settings = [
+        {
+          layer = "top";
+          position = "top";
+          height = 32;
+          spacing = 0;
 
-        # Left: logo, mode, front app (matches sketchybar left side)
-        modules-left = [
-          "custom/logo"
-          "sway/mode"
-          "sway/window"
-        ];
-        # Center: workspaces (matches sketchybar center)
-        modules-center = [ "sway/workspaces" ];
-        # Right: clock, battery, volume (matches sketchybar right side)
-        modules-right = [
-          "clock"
-          "battery"
-          "pulseaudio"
-        ];
-
-        "custom/logo" = {
-          format = "󱄅";
-          tooltip = false;
-        };
-
-        "sway/mode" = {
-          format = "{}";
-        };
-
-        "sway/window" = {
-          max-length = 40;
-          tooltip = false;
-        };
-
-        "sway/workspaces" = {
-          disable-scroll = true;
-          all-outputs = true;
-          format = "{name}";
-        };
-
-        clock = {
-          format = "  {:%I:%M %p %Z}";
-          format-alt = "󰖟  {:%H:%M UTC}";
-          tooltip-format = "{:%A, %B %d, %Y}";
-        };
-
-        battery = {
-          format = "{icon}  {capacity}%";
-          format-charging = "󰂅  {capacity}%";
-          format-icons = [
-            "󰁺"
-            "󰁻"
-            "󰁽"
-            "󰁿"
-            "󰂁"
+          # Left: logo, mode, front app (matches sketchybar left side)
+          modules-left = [
+            "custom/logo"
+            "sway/mode"
+            "sway/window"
           ];
-          states = {
-            warning = 30;
-            critical = 15;
-          };
-        };
+          # Center: workspaces (matches sketchybar center)
+          modules-center = [ "sway/workspaces" ];
+          # Right: clock, battery, volume (matches sketchybar right side)
+          modules-right = [
+            "clock"
+            "battery"
+            "pulseaudio"
+          ];
 
-        pulseaudio = {
-          format = "{icon}  {volume}%";
-          format-muted = "󰝟  muted";
-          format-icons = {
-            default = [
-              "󰕿"
-              "󰖀"
-              "󰕾"
+          "custom/logo" = {
+            format = "󱄅";
+            tooltip = false;
+          };
+
+          "sway/mode" = {
+            format = "{}";
+          };
+
+          "sway/window" = {
+            max-length = 40;
+            tooltip = false;
+          };
+
+          "sway/workspaces" = {
+            disable-scroll = true;
+            all-outputs = true;
+            format = "{name}";
+          };
+
+          clock = {
+            format = "  {:%I:%M %p %Z}";
+            format-alt = "󰖟  {:%H:%M UTC}";
+            tooltip-format = "{:%A, %B %d, %Y}";
+          };
+
+          battery = {
+            format = "{icon}  {capacity}%";
+            format-charging = "󰂅  {capacity}%";
+            format-icons = [
+              "󰁺"
+              "󰁻"
+              "󰁽"
+              "󰁿"
+              "󰂁"
             ];
+            states = {
+              warning = 30;
+              critical = 15;
+            };
           };
-          on-click = "${pkgs.pavucontrol}/bin/pavucontrol";
-          scroll-step = 5;
-        };
-      }
-    ];
 
-    style = ''
-      * {
-        font-family: "${config.sysinit.theme.font.monospace}", "Symbols Nerd Font Mono";
-        font-size: 12px;
-        min-height: 0;
-        border: none;
-        border-radius: 0;
-      }
+          pulseaudio = {
+            format = "{icon}  {volume}%";
+            format-muted = "󰝟  muted";
+            format-icons = {
+              default = [
+                "󰕿"
+                "󰖀"
+                "󰕾"
+              ];
+            };
+            on-click = "${pkgs.pavucontrol}/bin/pavucontrol";
+            scroll-step = 5;
+          };
+        }
+      ];
 
-      window#waybar {
-        background-color: #${c.base00};
-        color: #${c.base05};
-      }
+      style = ''
+        * {
+          font-family: "${config.sysinit.theme.font.monospace}", "Symbols Nerd Font Mono";
+          font-size: 12px;
+          min-height: 0;
+          border: none;
+          border-radius: 0;
+        }
 
-      /* Left: logo */
-      #custom-logo {
-        padding: 0 10px;
-        color: #${c.base0D};
-      }
+        window#waybar {
+          background-color: #${c.base00};
+          color: #${c.base05};
+        }
 
-      /* Left: mode indicator */
-      #mode {
-        padding: 0 8px;
-        color: #${c.base00};
-        background-color: #${c.base0A};
-        font-weight: bold;
-      }
+        /* Left: logo */
+        #custom-logo {
+          padding: 0 10px;
+          color: #${c.base0D};
+        }
 
-      /* Left: focused window */
-      #window {
-        padding: 0 8px;
-        color: #${c.base04};
-      }
+        /* Left: mode indicator */
+        #mode {
+          padding: 0 8px;
+          color: #${c.base00};
+          background-color: #${c.base0A};
+          font-weight: bold;
+        }
 
-      /* Center: workspaces */
-      #workspaces button {
-        padding: 0 6px;
-        color: #${c.base04};
-        background: transparent;
-      }
+        /* Left: focused window */
+        #window {
+          padding: 0 8px;
+          color: #${c.base04};
+        }
 
-      #workspaces button.focused {
-        color: #${c.base05};
-        font-weight: bold;
-        background-color: #${c.base02};
-      }
+        /* Center: workspaces */
+        #workspaces button {
+          padding: 0 6px;
+          color: #${c.base04};
+          background: transparent;
+        }
 
-      #workspaces button.urgent {
-        color: #${c.base00};
-        background-color: #${c.base08};
-      }
+        #workspaces button.focused {
+          color: #${c.base05};
+          font-weight: bold;
+          background-color: #${c.base02};
+        }
 
-      /* Right: clock */
-      #clock {
-        padding: 0 10px;
-        color: #${c.base05};
-      }
+        #workspaces button.urgent {
+          color: #${c.base00};
+          background-color: #${c.base08};
+        }
 
-      /* Right: battery */
-      #battery {
-        padding: 0 8px;
-        color: #${c.base05};
-      }
+        /* Right: clock */
+        #clock {
+          padding: 0 10px;
+          color: #${c.base05};
+        }
 
-      #battery.warning {
-        color: #${c.base0A};
-      }
+        /* Right: battery */
+        #battery {
+          padding: 0 8px;
+          color: #${c.base05};
+        }
 
-      #battery.critical {
-        color: #${c.base08};
-      }
+        #battery.warning {
+          color: #${c.base0A};
+        }
 
-      #battery.charging {
-        color: #${c.base0B};
-      }
+        #battery.critical {
+          color: #${c.base08};
+        }
 
-      /* Right: volume */
-      #pulseaudio {
-        padding: 0 8px;
-        color: #${c.base05};
-      }
+        #battery.charging {
+          color: #${c.base0B};
+        }
 
-      #pulseaudio.muted {
-        color: #${c.base03};
-      }
+        /* Right: volume */
+        #pulseaudio {
+          padding: 0 8px;
+          color: #${c.base05};
+        }
 
-      /* Separators between right modules */
-      #clock, #battery, #pulseaudio {
-        border-left: 1px solid #${c.base02};
-      }
+        #pulseaudio.muted {
+          color: #${c.base03};
+        }
+
+        /* Separators between right modules */
+        #clock, #battery, #pulseaudio {
+          border-left: 1px solid #${c.base02};
+        }
+      '';
+    };
+    rofi = {
+      enable = true;
+      terminal = "${pkgs.wezterm}/bin/wezterm start";
+    };
+  };
+
+  home = {
+    shellAliases = {
+      pbcopy = "wl-copy";
+      pbpaste = "wl-paste";
+    };
+    pointerCursor = {
+      name = "macOS";
+      package = pkgs.apple-cursor;
+      size = 16;
+      gtk.enable = true;
+    };
+    file.".local/share/nemo/actions/open-terminal.nemo_action".text = ''
+      [Nemo Action]
+      Active=true
+      Name=Open Terminal Here
+      Exec=wezterm start -e zsh -c "cd %f && zsh"
+      Selection=Any
+      Extensions=any;
     '';
   };
-
-  # === Rofi (Stylix auto-themes when enabled via home-manager) ===
-  programs.rofi = {
-    enable = true;
-    terminal = "${pkgs.wezterm}/bin/wezterm start";
-  };
-
-  # macOS-like clipboard aliases
-  home.shellAliases = {
-    pbcopy = "wl-copy";
-    pbpaste = "wl-paste";
-  };
-
-  # === GTK / Icon / Cursor ===
-  gtk = {
-    enable = true;
-    iconTheme = {
-      name = "Papirus-Dark";
-      package = pkgs.papirus-icon-theme;
-    };
-    gtk3.extraConfig.gtk-application-prefer-dark-theme = 1;
-    gtk4.extraConfig.gtk-application-prefer-dark-theme = 1;
-  };
-
-  home.pointerCursor = {
-    name = "macOS";
-    package = pkgs.apple-cursor;
-    size = 16;
-    gtk.enable = true;
-  };
-
-  # === Workstyle (dynamic workspace icons) ===
-  xdg.configFile."workstyle/config.toml".text = ''
-    # Map app_id/class to nerd font icons (matching sketchybar)
-    [matching]
-  ''
-  + "''"
-  + ''
-    = "󱄅"
-       "firefox" = ""
-       "org.wezfurlong.wezterm" = ""
-       "wezterm" = ""
-       "wezterm-gui" = ""
-       "vesktop" = "󰙯"
-       "discord" = "󰙯"
-       "Discord" = "󰙯"
-       "slack" = "󰒱"
-       "Slack" = "󰒱"
-       "spotify" = "󰓇"
-       "Spotify" = "󰓇"
-       "cider" = ""
-       "nemo" = "󰀶"
-       "thunar" = "󰀶"
-       "pavucontrol" = "󰕾"
-       "1password" = "󰌋"
-       "steam" = "󰊗"
-       "Steam" = "󰊗"
-       "lutris" = "󰊗"
-       "obsidian" = "󰎞"
-       "mpv" = "󰐌"
-       "imv" = "󰋩"
-       "zathura" = "󰈙"
-       "Google-chrome" = "󰊯"
-       "chromium-browser" = "󰊯"
-       "thunderbird" = "󰇰"
-       "Ferdium" = "󰙯"
-       "zoom" = "󰍫"
-       "code" = "󰨞"
-       "Code" = "󰨞"
-  '';
-
-  # XDG Default Applications
-  xdg.mimeApps = {
-    enable = true;
-    defaultApplications = {
-      "text/html" = "firefox.desktop";
-      "x-scheme-handler/http" = "firefox.desktop";
-      "x-scheme-handler/https" = "firefox.desktop";
-      "application/pdf" = "org.pwmt.zathura.desktop";
-      "image/png" = "imv.desktop";
-      "image/jpeg" = "imv.desktop";
-      "video/mp4" = "mpv.desktop";
-      "audio/mpeg" = "mpv.desktop";
-      "inode/directory" = "nemo.desktop";
-    };
-  };
-
-  # USB Auto-Mount
-  services.udiskie = {
-    enable = true;
-    automount = true;
-    notify = true;
-    tray = "never";
-  };
-
-  # Nemo
-  home.file.".local/share/nemo/actions/open-terminal.nemo_action".text = ''
-    [Nemo Action]
-    Active=true
-    Name=Open Terminal Here
-    Exec=wezterm start -e zsh -c "cd %f && zsh"
-    Selection=Any
-    Extensions=any;
-  '';
 
   dconf.settings = {
     "org/gnome/desktop/interface" = {

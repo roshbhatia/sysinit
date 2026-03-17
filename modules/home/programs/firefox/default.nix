@@ -1,20 +1,6 @@
-# Shared Firefox configuration — extensions, policies, search engines, theming
-# Imported on both Darwin and NixOS. Platform-specific package/wrapper
-# is set by the caller (darwin sets homebrew wrapper, NixOS uses pkgs.firefox).
-#
-# Colors use config.lib.stylix.colors (base16) directly per Stylix styling guide:
-#   base00 = background        base08 = red/error
-#   base01 = lighter bg        base09 = orange
-#   base02 = selection bg      base0A = yellow/warning
-#   base03 = comments/muted    base0B = green/success
-#   base04 = dark foreground   base0C = cyan
-#   base05 = foreground        base0D = blue/accent
-#   base06 = light foreground  base0E = purple
-#   base07 = lightest fg       base0F = brown
 {
   pkgs,
   config,
-  lib,
   ...
 }:
 
@@ -491,8 +477,14 @@ in
               {
                 template = "https://search.nixos.org/packages";
                 params = [
-                  { name = "type"; value = "packages"; }
-                  { name = "query"; value = "{searchTerms}"; }
+                  {
+                    name = "type";
+                    value = "packages";
+                  }
+                  {
+                    name = "query";
+                    value = "{searchTerms}";
+                  }
                 ];
               }
             ];
@@ -505,12 +497,30 @@ in
               {
                 template = "https://search.nixos.org/options";
                 params = [
-                  { name = "channel"; value = "unstable"; }
-                  { name = "from"; value = "0"; }
-                  { name = "size"; value = "50"; }
-                  { name = "sort"; value = "relevance"; }
-                  { name = "type"; value = "packages"; }
-                  { name = "query"; value = "{searchTerms}"; }
+                  {
+                    name = "channel";
+                    value = "unstable";
+                  }
+                  {
+                    name = "from";
+                    value = "0";
+                  }
+                  {
+                    name = "size";
+                    value = "50";
+                  }
+                  {
+                    name = "sort";
+                    value = "relevance";
+                  }
+                  {
+                    name = "type";
+                    value = "packages";
+                  }
+                  {
+                    name = "query";
+                    value = "{searchTerms}";
+                  }
                 ];
               }
             ];
@@ -523,7 +533,10 @@ in
               {
                 template = "https://github.com/search";
                 params = [
-                  { name = "q"; value = "{searchTerms}"; }
+                  {
+                    name = "q";
+                    value = "{searchTerms}";
+                  }
                 ];
               }
             ];
