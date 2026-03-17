@@ -298,50 +298,8 @@ in
         };
       };
 
-      # Swaybar + i3status-rust
-      bars = [
-        {
-          position = "top";
-          statusCommand = "${pkgs.i3status-rust}/bin/i3status-rs ${config.xdg.configHome}/i3status-rust/config-top.toml";
-          fonts = {
-            names = [
-              "${config.sysinit.theme.font.monospace}"
-              "Symbols Nerd Font Mono"
-            ];
-            size = 11.0;
-          };
-          colors = {
-            background = "#${c.base00}";
-            statusline = "#${c.base05}";
-            separator = "#${c.base02}";
-            focusedWorkspace = {
-              border = "#${c.base0E}";
-              background = "#${c.base01}";
-              text = "#${c.base06}";
-            };
-            activeWorkspace = {
-              border = "#${c.base02}";
-              background = "#${c.base01}";
-              text = "#${c.base05}";
-            };
-            inactiveWorkspace = {
-              border = "#${c.base00}";
-              background = "#${c.base00}";
-              text = "#${c.base03}";
-            };
-            urgentWorkspace = {
-              border = "#${c.base08}";
-              background = "#${c.base08}";
-              text = "#${c.base00}";
-            };
-            bindingMode = {
-              border = "#${c.base0A}";
-              background = "#${c.base0A}";
-              text = "#${c.base00}";
-            };
-          };
-        }
-      ];
+      # Disable sway's built-in bar — using waybar instead
+      bars = [ ];
     };
 
     extraSessionCommands = ''
@@ -353,53 +311,183 @@ in
 
     # SwayFX effects (requires swayfx from flake, not nixpkgs)
     extraConfig = ''
+      # Animations (swayfx — snappy resize/move)
+      animation_duration_ms 150
+
+      # Visual effects
       blur enable
       blur_passes 2
       blur_radius 5
-      corner_radius 0
+      corner_radius 8
       shadows enable
       shadow_blur_radius 20
       shadow_color #0000007F
       default_dim_inactive 0.1
+
+      # Apply blur to waybar
+      layer_effects "waybar" blur enable; shadows enable
     '';
   };
 
-  # i3status-rust
-  programs.i3status-rust = {
+  # Disable Stylix's waybar CSS — we provide our own
+  stylix.targets.waybar.addCss = false;
+
+  # Waybar — matches sketchybar layout
+  programs.waybar = {
     enable = true;
-    bars = {
-      top = {
-        theme = "native";
-        icons = "material-nf";
-        blocks = [
-          {
-            block = "focused_window";
-            format = " $title.str(max_w:40) |";
-          }
-          {
-            block = "sound";
-            format = " $icon $volume |";
-            click = [
-              {
-                button = "left";
-                cmd = "${pkgs.pavucontrol}/bin/pavucontrol";
-              }
-            ];
-          }
-          {
-            block = "time";
-            interval = 30;
-            format = " $timestamp.datetime(f:'%I:%M %p') · ";
-          }
-          {
-            block = "time";
-            interval = 60;
-            format = " $timestamp.datetime(f:'%H:%M UTC') ";
-            timezone = "UTC";
-          }
-        ];
+    systemd.enable = true;
+
+    settings = [{
+      layer = "top";
+      position = "top";
+      height = 32;
+      spacing = 0;
+
+      # Left: logo, mode, front app (matches sketchybar left side)
+      modules-left = [ "custom/logo" "sway/mode" "sway/window" ];
+      # Center: workspaces (matches sketchybar center)
+      modules-center = [ "sway/workspaces" ];
+      # Right: clock, battery, volume (matches sketchybar right side)
+      modules-right = [ "clock" "battery" "pulseaudio" ];
+
+      "custom/logo" = {
+        format = "󱄅";
+        tooltip = false;
       };
-    };
+
+      "sway/mode" = {
+        format = "{}";
+      };
+
+      "sway/window" = {
+        max-length = 40;
+        tooltip = false;
+      };
+
+      "sway/workspaces" = {
+        disable-scroll = true;
+        all-outputs = true;
+        format = "{name}";
+      };
+
+      clock = {
+        format = "  {:%I:%M %p %Z}";
+        format-alt = "󰖟  {:%H:%M UTC}";
+        tooltip-format = "{:%A, %B %d, %Y}";
+      };
+
+      battery = {
+        format = "{icon}  {capacity}%";
+        format-charging = "󰂅  {capacity}%";
+        format-icons = [ "󰁺" "󰁻" "󰁽" "󰁿" "󰂁" ];
+        states = {
+          warning = 30;
+          critical = 15;
+        };
+      };
+
+      pulseaudio = {
+        format = "{icon}  {volume}%";
+        format-muted = "󰝟  muted";
+        format-icons = {
+          default = [ "󰕿" "󰖀" "󰕾" ];
+        };
+        on-click = "${pkgs.pavucontrol}/bin/pavucontrol";
+        scroll-step = 5;
+      };
+    }];
+
+    style = ''
+      * {
+        font-family: "${config.sysinit.theme.font.monospace}", "Symbols Nerd Font Mono";
+        font-size: 12px;
+        min-height: 0;
+        border: none;
+        border-radius: 0;
+      }
+
+      window#waybar {
+        background-color: #${c.base00};
+        color: #${c.base05};
+      }
+
+      /* Left: logo */
+      #custom-logo {
+        padding: 0 10px;
+        color: #${c.base0D};
+      }
+
+      /* Left: mode indicator */
+      #mode {
+        padding: 0 8px;
+        color: #${c.base00};
+        background-color: #${c.base0A};
+        font-weight: bold;
+      }
+
+      /* Left: focused window */
+      #window {
+        padding: 0 8px;
+        color: #${c.base04};
+      }
+
+      /* Center: workspaces */
+      #workspaces button {
+        padding: 0 6px;
+        color: #${c.base04};
+        background: transparent;
+      }
+
+      #workspaces button.focused {
+        color: #${c.base05};
+        font-weight: bold;
+        background-color: #${c.base02};
+      }
+
+      #workspaces button.urgent {
+        color: #${c.base00};
+        background-color: #${c.base08};
+      }
+
+      /* Right: clock */
+      #clock {
+        padding: 0 10px;
+        color: #${c.base05};
+      }
+
+      /* Right: battery */
+      #battery {
+        padding: 0 8px;
+        color: #${c.base05};
+      }
+
+      #battery.warning {
+        color: #${c.base0A};
+      }
+
+      #battery.critical {
+        color: #${c.base08};
+      }
+
+      #battery.charging {
+        color: #${c.base0B};
+      }
+
+      /* Right: volume */
+      #pulseaudio {
+        padding: 0 8px;
+        color: #${c.base05};
+      }
+
+      #pulseaudio.muted {
+        color: #${c.base03};
+      }
+
+      /* Separators between right modules */
+      #clock, #battery, #pulseaudio {
+        border-left: 1px solid #${c.base02};
+      }
+    '';
   };
 
   # === Rofi (Stylix auto-themes when enabled via home-manager) ===

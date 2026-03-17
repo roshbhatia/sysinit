@@ -74,9 +74,6 @@ in
     wl-clipboard
     cliphist
 
-    # Bar
-    i3status-rust
-
     # Launcher + notifications + utilities
     rofi
     bemenu
