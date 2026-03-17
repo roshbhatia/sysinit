@@ -63,7 +63,7 @@ in
 
       config = {
         modifier = mod;
-        terminal = "${pkgs.wezterm}/bin/wezterm start";
+        terminal = "${pkgs.wezterm}/bin/wezterm start --always-new-process";
         menu = "${pkgs.rofi}/bin/rofi -show drun";
 
         fonts = {
@@ -183,7 +183,7 @@ in
 
         keybindings = lib.mkForce {
           # Terminal
-          "${mod}+Return" = "exec ${pkgs.wezterm}/bin/wezterm start";
+          "${mod}+Return" = "exec ${pkgs.wezterm}/bin/wezterm start --always-new-process";
 
           # App launcher
           "Mod4+space" = "exec ${pkgs.rofi}/bin/rofi -show drun";
@@ -505,7 +505,7 @@ in
     };
     rofi = {
       enable = true;
-      terminal = "${pkgs.wezterm}/bin/wezterm start";
+      terminal = "${pkgs.wezterm}/bin/wezterm start --always-new-process";
     };
   };
 
