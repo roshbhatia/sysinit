@@ -128,16 +128,20 @@ in
     copy_plugin() {
       local src="$1"
       local dest="$2"
+      local url="$3"
       if [ -d "$dest" ]; then
         rm -rf "$dest"
       fi
       cp -rL "$src" "$dest"
       chmod -R u+w "$dest"
+      # wezterm.plugin.require needs a git remote
+      ${pkgs.git}/bin/git -C "$dest" remote add origin "$url" 2>/dev/null || \
+        ${pkgs.git}/bin/git -C "$dest" remote set-url origin "$url" 2>/dev/null || true
     }
 
-    copy_plugin "${weztermPlugins.tabline}" "$PLUGIN_DIR/tabline.wez"
-    copy_plugin "${weztermPlugins.agent-deck}" "$PLUGIN_DIR/wezterm-agent-deck"
-    copy_plugin "${weztermPlugins.sessionizer}" "$PLUGIN_DIR/sessionizer.wezterm"
-    copy_plugin "${weztermPlugins.resurrect}" "$PLUGIN_DIR/resurrect.wezterm"
+    copy_plugin "${weztermPlugins.tabline}" "$PLUGIN_DIR/tabline.wez" "https://github.com/michaelbrusegard/tabline.wez"
+    copy_plugin "${weztermPlugins.agent-deck}" "$PLUGIN_DIR/wezterm-agent-deck" "https://github.com/Eric162/wezterm-agent-deck"
+    copy_plugin "${weztermPlugins.sessionizer}" "$PLUGIN_DIR/sessionizer.wezterm" "https://github.com/mikkasendke/sessionizer.wezterm"
+    copy_plugin "${weztermPlugins.resurrect}" "$PLUGIN_DIR/resurrect.wezterm" "https://github.com/MLFlexer/resurrect.wezterm"
   '';
 }
