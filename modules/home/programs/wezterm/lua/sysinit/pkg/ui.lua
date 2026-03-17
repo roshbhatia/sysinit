@@ -26,7 +26,7 @@ function M.setup(config)
   config.font_size = 11.0
   config.line_height = 1.0
   config.cell_width = 1.0
-  config.color_scheme = config_data.color_scheme
+  -- color_scheme is set by Stylix via home-manager
   config.animation_fps = 240
   config.max_fps = 240
   config.cursor_blink_rate = 320
@@ -93,7 +93,7 @@ function M.setup(config)
   if tabline_ok then
     tabline.setup({
       options = {
-        theme = config_data.color_scheme,
+        -- theme colors inherited from Stylix via wezterm config
         section_separators = {
           left = "",
           right = "",

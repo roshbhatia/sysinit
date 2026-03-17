@@ -1,65 +1,443 @@
 # Shared Firefox configuration — extensions, policies, search engines, theming
 # Imported on both Darwin and NixOS. Platform-specific package/wrapper
 # is set by the caller (darwin sets homebrew wrapper, NixOS uses pkgs.firefox).
+#
+# Colors use config.lib.stylix.colors (base16) directly per Stylix styling guide:
+#   base00 = background        base08 = red/error
+#   base01 = lighter bg        base09 = orange
+#   base02 = selection bg      base0A = yellow/warning
+#   base03 = comments/muted    base0B = green/success
+#   base04 = dark foreground   base0C = cyan
+#   base05 = foreground        base0D = blue/accent
+#   base06 = light foreground  base0E = purple
+#   base07 = lightest fg       base0F = brown
 {
   pkgs,
   config,
   lib,
-  utils,
   ...
 }:
 
 let
-  colors = config.lib.stylix.colors;
+  c = config.lib.stylix.colors;
+  themeConfig = config.sysinit.theme;
+  monospaceFont = themeConfig.font.monospace;
+  opacity = toString themeConfig.transparency.opacity;
+  blur = toString themeConfig.transparency.blur;
 
-  themeLib = utils.theme;
+  userChromeCSS = ''
+    /* ========== BASE16 THEME VARIABLES (from Stylix) ========== */
+    :root {
+      --bg: #${c.base00};
+      --bg-alt: #${c.base01};
+      --bg-sel: #${c.base02};
+      --fg-muted: #${c.base03};
+      --fg-dim: #${c.base04};
+      --fg: #${c.base05};
+      --fg-bright: #${c.base06};
+      --accent: #${c.base0D};
+      --accent-alt: #${c.base0E};
+      --error: #${c.base08};
+      --warning: #${c.base0A};
+      --success: #${c.base0B};
+      --info: #${c.base0D};
 
-  semanticColors = {
-    background = {
-      primary = "#${colors.base00}";
-      secondary = "#${colors.base01}";
-      tertiary = "#${colors.base02}";
-      overlay = "#${colors.base01}";
-    };
-    foreground = {
-      primary = "#${colors.base05}";
-      secondary = "#${colors.base04}";
-      muted = "#${colors.base03}";
-      subtle = "#${colors.base03}";
-    };
-    accent = {
-      primary = "#${colors.base0D}";
-      secondary = "#${colors.base0C}";
-      tertiary = "#${colors.base0E}";
-      dim = "#${colors.base02}";
-    };
-    semantic = {
-      error = "#${colors.base08}";
-      warning = "#${colors.base0A}";
-      success = "#${colors.base0B}";
-      info = "#${colors.base0D}";
-    };
-    syntax = {
-      keyword = "#${colors.base0E}";
-      string = "#${colors.base0B}";
-      number = "#${colors.base09}";
-      comment = "#${colors.base03}";
-      function = "#${colors.base0D}";
-      variable = "#${colors.base08}";
-      type = "#${colors.base0A}";
-      operator = "#${colors.base05}";
-      constant = "#${colors.base09}";
-      builtin = "#${colors.base0C}";
-    };
-  };
+      --opacity: ${opacity};
+      --blur-amount: ${blur}px;
+      --tab-border-radius: 6px !important;
+    }
 
-  themeConfigWithColors = config.sysinit.theme // {
-    inherit semanticColors;
-  };
+    /* ========== TYPOGRAPHY ========== */
+    * {
+      font-family: "${monospaceFont}", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+    }
 
-  firefoxConfig = themeLib.adapters.firefox.createFirefoxConfig { } themeConfigWithColors { };
+    /* ========== TOOLBAR ========== */
+    #navigator-toolbox {
+      background-color: var(--bg) !important;
+      border: 0px !important;
+    }
 
-  isDarwin = pkgs.stdenv.isDarwin;
+    #navigator-toolbox::after {
+      display: none !important;
+    }
+
+    :root {
+      --toolbox-border-bottom-color: transparent !important;
+    }
+
+    toolbar .toolbarbutton-1 {
+      -moz-appearance: none !important;
+      appearance: none !important;
+      margin: -1px;
+      padding: 4px var(--toolbarbutton-outer-padding) 0 !important;
+      -moz-box-pack: center;
+    }
+
+    #nav-bar .toolbarbutton-1 {
+      padding-top: 6px !important;
+    }
+
+    toolbar .toolbarbutton-1,
+    toolbar .toolbarbutton-text {
+      color: var(--fg) !important;
+    }
+
+    toolbar .toolbarbutton-1:hover {
+      background-color: var(--bg-sel) !important;
+      color: var(--fg) !important;
+    }
+
+    toolbar .toolbarbutton-1[open],
+    toolbar .toolbarbutton-1[checked],
+    toolbar .toolbarbutton-1:active {
+      background-color: var(--accent) !important;
+      color: var(--bg) !important;
+    }
+
+    toolbar .toolbarbutton-1:focus-visible {
+      outline: 2px solid var(--accent) !important;
+      outline-offset: 1px !important;
+    }
+
+    /* ========== WINDOW CONTROLS ========== */
+    .titlebar-buttonbox-container { display: none !important; }
+    .titlebar-placeholder[type="pre-tabs"] { display: none !important; }
+    .titlebar-spacer { display: none; }
+
+    /* ========== TABS ========== */
+    .tabbrowser-tab::before,
+    .tabbrowser-tab::after {
+      border-left: none !important;
+    }
+
+    .tab-background:not([selected=true]),
+    .tab-background[selected="true"],
+    #titlebar-buttonbox,
+    #TabsToolbar,
+    #PersonalToolbar,
+    #urlbar,
+    #urlbar-container,
+    #nav-bar {
+      background: var(--bg) !important;
+    }
+
+    #urlbar-background {
+      background: var(--bg-alt) !important;
+    }
+
+    .tab-label {
+      -moz-box-flex: 1 !important;
+      text-align: center !important;
+      font-size: 10px !important;
+      color: var(--fg-dim) !important;
+      transition: color 150ms ease !important;
+    }
+
+    .tabbrowser-tab:not([selected]) .tab-label {
+      color: var(--fg-dim) !important;
+    }
+
+    .tabbrowser-tab:not([selected]):hover .tab-label {
+      color: var(--fg) !important;
+    }
+
+    #TabsToolbar .tabbrowser-tab[selected] .tab-label {
+      color: var(--fg) !important;
+      font-weight: bold !important;
+      font-size: 10px !important;
+    }
+
+    .tabbrowser-tab[selected] {
+      background-color: var(--bg-alt) !important;
+      border-bottom: 2px solid var(--accent) !important;
+    }
+
+    .tabbrowser-tab:not([pinned]):not(:hover) .tab-close-button {
+      visibility: collapse !important;
+    }
+
+    .tabbrowser-tab:not([pinned]):hover .tab-close-button {
+      visibility: visible !important;
+      display: block !important;
+    }
+
+    /* ========== SCROLLBAR ========== */
+    scrollbar {
+      -moz-appearance: none !important;
+      background: transparent !important;
+      width: 0px !important;
+    }
+
+    * {
+      scrollbar-width: thin !important;
+      scrollbar-color: var(--fg-dim) transparent !important;
+    }
+
+    /* ========== URL BAR ========== */
+    #urlbar-container {
+      min-width: 600px !important;
+      flex: 1 !important;
+      padding-top: 6px !important;
+      margin-top: 2px !important;
+    }
+
+    #urlbar {
+      background: transparent !important;
+      border: none !important;
+      box-shadow: none !important;
+    }
+
+    #urlbar-background {
+      background: var(--bg-alt) !important;
+      border: 1px solid var(--bg-sel) !important;
+      border-radius: 4px !important;
+      transition: border-color 150ms ease !important;
+    }
+
+    #urlbar:focus-within > #urlbar-background {
+      border-color: var(--accent) !important;
+      box-shadow: 0 0 0 2px var(--bg) !important;
+    }
+
+    :root {
+      --lwt-toolbar-field-background-color: var(--bg-alt) !important;
+      --lwt-toolbar-field-border-color: var(--bg-sel) !important;
+      --toolbar-bgcolor: var(--bg) !important;
+      --toolbar-field-background-color: var(--bg-alt) !important;
+      --toolbar-field-focus-background-color: var(--bg-alt) !important;
+      --toolbar-field-focus-border-color: var(--accent) !important;
+    }
+
+    #page-action-buttons { display: none !important; }
+
+    #urlbar .urlbar-input,
+    #urlbar .urlbar-input-box input {
+      color: var(--fg) !important;
+      caret-color: var(--accent) !important;
+    }
+
+    #urlbar .urlbar-input::selection {
+      background-color: var(--accent) !important;
+      color: var(--bg) !important;
+    }
+
+    #urlbar-results { background-color: var(--bg-alt) !important; }
+
+    .urlbarView-row {
+      background-color: var(--bg-alt) !important;
+      color: var(--fg) !important;
+    }
+
+    .urlbarView-row:hover,
+    .urlbarView-row[selected] {
+      background-color: var(--bg-sel) !important;
+      color: var(--fg) !important;
+    }
+
+    .urlbarView-title,
+    .urlbarView-action { color: var(--fg) !important; }
+    .urlbarView-url { color: var(--fg-dim) !important; }
+
+    .urlbar-input-box > .urlbar-input::placeholder { opacity: 0 !important; }
+
+    /* ========== HIDE CLUTTER ========== */
+    #identity-box.extensionPage #identity-icon-labels,
+    #identity-box.extensionPage #identity-icon-label {
+      visibility: collapse !important;
+    }
+    #tracking-protection-icon-container { visibility: collapse !important; }
+    #identity-icon { visibility: visible !important; }
+    #home-button, #reload-button { display: none !important; }
+    #alltabs-button { display: none !important; }
+    #identity-permission-box,
+    #star-button-box,
+    #identity-icon-box,
+    #picture-in-picture-button,
+    #reader-mode-button,
+    #translations-button { display: none !important; }
+    #urlbar .search-one-offs { display: none !important; }
+
+    .bookmark-item > .toolbarbutton-icon { display: none !important; }
+
+    /* ========== FIND BAR ========== */
+    #findbar {
+      background-color: var(--bg-alt) !important;
+      color: var(--fg) !important;
+      border-color: var(--bg-sel) !important;
+    }
+
+    #findbar-textbox, #findbar input {
+      background-color: var(--bg) !important;
+      color: var(--fg) !important;
+      border-color: var(--bg-sel) !important;
+    }
+
+    #findbar button:hover { background-color: var(--bg-sel) !important; }
+    #findbar .found { background-color: var(--success) !important; color: var(--bg) !important; }
+    #findbar .notfound { background-color: var(--error) !important; color: var(--bg) !important; }
+
+    /* ========== CONTEXT MENUS ========== */
+    menupopup,
+    #main-menubar > menu > menupopup,
+    #context-navigation {
+      color: var(--fg) !important;
+      padding: 2px !important;
+      background-color: var(--bg-alt) !important;
+      border-color: var(--fg-dim) !important;
+      border-radius: 4px !important;
+    }
+
+    menulist, menuitem, menu {
+      min-height: 1.8em !important;
+      color: var(--fg) !important;
+      -moz-appearance: none !important;
+    }
+
+    menu:hover, menu[_moz-menuactive], menuitem:hover, menuitem[_moz-menuactive] {
+      background-color: var(--bg-sel) !important;
+      color: var(--fg) !important;
+    }
+
+    menu[disabled="true"], menuitem[disabled="true"] {
+      color: var(--fg-dim) !important;
+      opacity: 0.6 !important;
+    }
+
+    /* ========== NOTIFICATIONS ========== */
+    .notification, .infobar {
+      background-color: var(--bg-alt) !important;
+      color: var(--fg) !important;
+    }
+
+    /* ========== TOOLTIPS ========== */
+    tooltip {
+      -moz-appearance: none !important;
+      color: var(--fg) !important;
+      background-color: var(--bg-alt) !important;
+      padding: 6px !important;
+      border-radius: 4px !important;
+      box-shadow: none !important;
+    }
+
+    /* ========== CONTENT AREA ========== */
+    .browserContainer { background-color: var(--bg) !important; }
+
+    /* ========== ONE-LINE LAYOUT ========== */
+    #PanelUI-button {
+      -moz-box-ordinal-group: 0 !important;
+      order: -2 !important;
+      margin: 2px !important;
+    }
+
+    :root {
+      --NavbarWidth: 50;
+      --TabsHeight: 36;
+      --TabsBorder: 8;
+      --NavbarHeightSmall: calc(var(--TabsHeight) + var(--TabsBorder));
+    }
+
+    @media screen and (min-width:1325px) {
+      :root #nav-bar {
+        margin-top: calc(var(--TabsHeight) * -1px - var(--TabsBorder) * 1px)!important;
+        height: calc(var(--TabsHeight) * 1px + var(--TabsBorder) * 1px);
+      }
+      #TabsToolbar { margin-left: calc(1325px / 100 * var(--NavbarWidth)) !important; }
+      #nav-bar { margin-right: calc(100vw - calc(1325px / 100 * var(--NavbarWidth))) !important; }
+      #urlbar-container { min-width: 0px !important; flex: auto !important; }
+      toolbarspring { display: none !important; }
+    }
+
+    @media screen and (min-width:950px) and (max-width:1324px) {
+      :root #nav-bar {
+        margin-top: calc(var(--TabsHeight) * -1px - var(--TabsBorder) * 1px) !important;
+        height: calc(var(--TabsHeight) * 1px + var(--TabsBorder) * 1px);
+      }
+      #TabsToolbar { margin-left: calc(var(--NavbarWidth) * 1vw) !important; }
+      #nav-bar { margin-right: calc(100vw - calc(var(--NavbarWidth) * 1vw)) !important; }
+      #urlbar-container { min-width: 0px !important; flex: auto !important; }
+      toolbarspring { display: none !important; }
+    }
+
+    @media screen and (max-width:949px) {
+      :root #nav-bar { padding: 0 5px !important; height: calc(var(--NavbarHeightSmall) * 1px) !important; }
+      toolbarspring { display: none !important; }
+
+      #nav-bar, #PersonalToolbar {
+        background-color: var(--bg) !important;
+        background-image: none !important;
+        box-shadow: none !important;
+      }
+
+      #nav-bar { margin-left: 3px; }
+
+      .tab-background, .tab-stack { min-height: calc(var(--TabsHeight) * 1px) !important; }
+
+      #urlbar-background { border: none !important; outline: none !important; }
+
+      #urlbar:not(:hover):not([breakout][breakout-extend]) > #urlbar-background {
+        box-shadow: none !important;
+        background: var(--bg-alt) !important;
+      }
+
+      #navigator-toolbox { border: none !important; }
+
+      #navigator-toolbox-background:-moz-window-inactive { filter: contrast(90%); }
+
+      #fullscreen-warning {
+        border: 1px solid var(--bg-sel) !important;
+        background: var(--bg-alt) !important;
+        color: var(--fg) !important;
+      }
+
+      .tabbrowser-tab:not(:hover) .tab-close-button { opacity: 0%; transition: 0.3s !important; display: -moz-box !important; }
+      .tab-close-button[selected]:not(:hover) { opacity: 45%; transition: 0.3s !important; }
+      .tabbrowser-tab:hover .tab-close-button { opacity: 50%; transition: 0.3s !important; background: none !important; cursor: pointer; display: -moz-box !important; }
+      .tab-close-button:hover { opacity: 100% !important; transition: 0.3s !important; background: none !important; cursor: pointer; }
+    }
+  '';
+
+  userContentCSS = ''
+    :root {
+      --bg: #${c.base00};
+      --bg-alt: #${c.base01};
+      --fg: #${c.base05};
+      --fg-dim: #${c.base04};
+      --accent: #${c.base0D};
+      --border: #${c.base02};
+    }
+
+    @-moz-document url-prefix(about:home), url-prefix(about:newtab) {
+      * { font-family: "${monospaceFont}", -apple-system, BlinkMacSystemFont, sans-serif !important; }
+      body { background: var(--bg) !important; color: var(--fg) !important; }
+
+      .search-handoff-button {
+        background: var(--bg-alt) !important;
+        border: 1px solid var(--border) !important;
+        color: var(--fg) !important;
+        border-radius: 4px !important;
+      }
+      .search-handoff-button:hover { background: var(--border) !important; }
+
+      .top-site-outer {
+        background: var(--bg-alt) !important;
+        border: 1px solid var(--border) !important;
+        border-radius: 4px !important;
+      }
+      .top-site-outer:hover { background: var(--border) !important; }
+    }
+
+    @-moz-document url-prefix("moz-extension://") {
+      body { background-color: var(--bg) !important; color: var(--fg) !important; }
+      input, select, button {
+        background-color: var(--bg-alt) !important;
+        color: var(--fg) !important;
+        border: 1px solid var(--border) !important;
+      }
+      button:hover { background-color: var(--border) !important; }
+    }
+  '';
+
 in
 {
   stylix.targets.firefox.enable = false;
@@ -67,17 +445,13 @@ in
   programs.firefox = {
     enable = true;
 
-    # Package is set platform-specifically:
-    # - Darwin: homebrew wrapper (set in modules/darwin/home/firefox.nix)
-    # - NixOS: pkgs.firefox (default, no override needed here)
-
     profiles.default = {
       id = 0;
       isDefault = true;
       name = "default";
 
-      userChrome = firefoxConfig.userChromeCSS or "";
-      userContent = firefoxConfig.userContentCSS or "";
+      userChrome = userChromeCSS;
+      userContent = userContentCSS;
 
       extensions.packages = with pkgs.firefox-addons; [
         decentraleyes

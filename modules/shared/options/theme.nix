@@ -67,36 +67,6 @@ in
         description = "Background blur amount";
       };
     };
-
-    presets = mkOption {
-      type = types.listOf types.str;
-      default = [ ];
-      description = "Theme presets to apply";
-    };
-
-    overrides = mkOption {
-      type = types.attrs;
-      default = { };
-      description = "Color overrides";
-    };
-
-    appThemes = mkOption {
-      type = types.attrs;
-      readOnly = true;
-      default = {
-        neovim = themes.getAppTheme "neovim" cfg.colorscheme cfg.variant;
-        wezterm = themes.getAppTheme "wezterm" cfg.colorscheme cfg.variant;
-        sketchybar = themes.getAppTheme "sketchybar" cfg.colorscheme cfg.variant;
-      };
-      description = "App-specific theme names";
-    };
-
-    meta = mkOption {
-      type = types.attrs;
-      readOnly = true;
-      default = metadata.${cfg.colorscheme} or { };
-      description = "Theme metadata";
-    };
   };
 
 }
