@@ -88,8 +88,8 @@ in
     values = {
       git = linuxGit;
       theme = {
-        base16Scheme = "rose-pine-dawn";
-        appearance = "light";
+        base16Scheme = "rose-pine";
+        appearance = "dark";
         font = {
           monospace = "Input";
         };
