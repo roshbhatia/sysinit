@@ -182,7 +182,8 @@ in
         }
       ];
 
-      keybindings = lib.mkOptionDefault {
+      # Override ALL keybindings (don't inherit defaults which add workspace 3-10)
+      keybindings = lib.mkForce {
         # Terminal
         "${mod}+Return" = "exec ${pkgs.wezterm}/bin/wezterm start";
 

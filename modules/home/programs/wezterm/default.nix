@@ -9,10 +9,37 @@ let
   paths = import ../../../lib/paths.nix { inherit lib; };
   themeConfig = config.sysinit.theme;
   c = config.lib.stylix.colors;
+
+  # Pre-fetch wezterm plugins so they don't need runtime git clones
+  weztermPlugins = {
+    tabline = pkgs.fetchFromGitHub {
+      owner = "michaelbrusegard";
+      repo = "tabline.wez";
+      rev = "main";
+      hash = "sha256-G5sFPIJ2SDLKjeiuauJfzu3JgvViwoe9RLhYAScaHbs=";
+    };
+    agent-deck = pkgs.fetchFromGitHub {
+      owner = "Eric162";
+      repo = "wezterm-agent-deck";
+      rev = "main";
+      hash = "sha256-nb5eCStxsgLBgZSNZjOBMYLNbv0haxXM+6609FywnwE=";
+    };
+    sessionizer = pkgs.fetchFromGitHub {
+      owner = "mikkasendke";
+      repo = "sessionizer.wezterm";
+      rev = "main";
+      hash = "sha256-A+4fGRfPKwOoSEH3MYHz3x5eMOCqPRpfYRCrIIHxZHM=";
+    };
+    resurrect = pkgs.fetchFromGitHub {
+      owner = "MLFlexer";
+      repo = "resurrect.wezterm";
+      rev = "main";
+      hash = "sha256-j7BIvJV7brkqWTtdWE/v9FnXRuHH0+934MTDCFNLEdY=";
+    };
+  };
 in
 {
   # Disable Stylix's wezterm target — we manage colors via config.json
-  # because our extraConfig + custom Lua modules conflict with Stylix's injection
   stylix.targets.wezterm.enable = false;
 
   programs.wezterm = {
@@ -54,7 +81,6 @@ in
         opacity = themeConfig.transparency.opacity;
         blur = themeConfig.transparency.blur;
       };
-      # Base16 colors from Stylix — applied as custom color scheme in ui.lua
       colors = {
         foreground = "#${c.base05}";
         background = "#${c.base00}";
@@ -79,6 +105,13 @@ in
           new_tab = { bg_color = "#${c.base01}"; fg_color = "#${c.base04}"; };
           new_tab_hover = { bg_color = "#${c.base02}"; fg_color = "#${c.base05}"; };
         };
+      };
+      # Pre-fetched plugin paths (avoids runtime git clones)
+      plugins = {
+        tabline = "${weztermPlugins.tabline}";
+        agent-deck = "${weztermPlugins.agent-deck}";
+        sessionizer = "${weztermPlugins.sessionizer}";
+        resurrect = "${weztermPlugins.resurrect}";
       };
     };
     "wezterm/env.json".text = builtins.toJSON {

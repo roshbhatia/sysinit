@@ -89,7 +89,10 @@ function M.setup(config)
     return "  "
   end
 
-  local tabline_ok, tabline = pcall(wezterm.plugin.require, "https://github.com/michaelbrusegard/tabline.wez")
+  local plugin_url = (config_data.plugins and config_data.plugins.tabline)
+    and ("file://" .. config_data.plugins.tabline)
+    or "https://github.com/michaelbrusegard/tabline.wez"
+  local tabline_ok, tabline = pcall(wezterm.plugin.require, plugin_url)
   if not tabline_ok then
     wezterm.log_warn("Failed to load tabline.wez: " .. tostring(tabline))
   end
@@ -143,7 +146,10 @@ function M.setup(config)
     }
   end
 
-  local agent_deck_ok, agent_deck = pcall(wezterm.plugin.require, "https://github.com/Eric162/wezterm-agent-deck")
+  local agent_deck_url = (config_data.plugins and config_data.plugins["agent-deck"])
+    and ("file://" .. config_data.plugins["agent-deck"])
+    or "https://github.com/Eric162/wezterm-agent-deck"
+  local agent_deck_ok, agent_deck = pcall(wezterm.plugin.require, agent_deck_url)
   if not agent_deck_ok then
     wezterm.log_warn("Failed to load agent-deck: " .. tostring(agent_deck))
   end
