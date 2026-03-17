@@ -10,31 +10,31 @@ let
   themeConfig = config.sysinit.theme;
   c = config.lib.stylix.colors;
 
-  # Pre-fetch wezterm plugins via git clone (preserves .git for wezterm.plugin.require)
+  # Pre-fetch wezterm plugins — loaded via plain Lua dofile(), no git needed
   weztermPlugins = {
-    tabline = pkgs.fetchgit {
-      url = "https://github.com/michaelbrusegard/tabline.wez";
+    tabline = pkgs.fetchFromGitHub {
+      owner = "michaelbrusegard";
+      repo = "tabline.wez";
       rev = "5e148f08f134e317bbfe75b26f8a23b0102cb621";
-      hash = "sha256-XxQJP+O6XL2z93QhDDaytDJXA3KY8QXHrxZ9y1nul2Q=";
-      leaveDotGit = true;
+      hash = "sha256-G5sFPIJ2SDLKjeiuauJfzu3JgvViwoe9RLhYAScaHbs=";
     };
-    agent-deck = pkgs.fetchgit {
-      url = "https://github.com/Eric162/wezterm-agent-deck";
+    agent-deck = pkgs.fetchFromGitHub {
+      owner = "Eric162";
+      repo = "wezterm-agent-deck";
       rev = "bd5a57e7806032998e6cae56ade67b72a08b7868";
-      hash = "sha256-pWQkJ9b4efroajimysOQmK/DPC6nH2sZM9poEr9ROgQ=";
-      leaveDotGit = true;
+      hash = "sha256-nb5eCStxsgLBgZSNZjOBMYLNbv0haxXM+6609FywnwE=";
     };
-    sessionizer = pkgs.fetchgit {
-      url = "https://github.com/mikkasendke/sessionizer.wezterm";
+    sessionizer = pkgs.fetchFromGitHub {
+      owner = "mikkasendke";
+      repo = "sessionizer.wezterm";
       rev = "694f355150325bdb13ef78588ae5514f8aa22124";
-      hash = "sha256-6eUCvn+dHoXP1SvLzJQmMywiRdBEFpQI2nLCode70Zk=";
-      leaveDotGit = true;
+      hash = "sha256-A+4fGRfPKwOoSEH3MYHz3x5eMOCqPRpfYRCrIIHxZHM=";
     };
-    resurrect = pkgs.fetchgit {
-      url = "https://github.com/MLFlexer/resurrect.wezterm";
+    resurrect = pkgs.fetchFromGitHub {
+      owner = "MLFlexer";
+      repo = "resurrect.wezterm";
       rev = "47ce553e07bb2c183d10487c56c406454aa50f36";
-      hash = "sha256-+Ps9dlT+PRKjXO1gGQsrwgYLlU7jl16lcCWfc12nDPI=";
-      leaveDotGit = true;
+      hash = "sha256-j7BIvJV7brkqWTtdWE/v9FnXRuHH0+934MTDCFNLEdY=";
     };
   };
 in
@@ -106,12 +106,12 @@ in
           new_tab_hover = { bg_color = "#${c.base02}"; fg_color = "#${c.base05}"; };
         };
       };
-      # Plugin paths — copied to ~/.local/share/wezterm/plugins/ by activation script
+      # Plugin Nix store paths — loaded via dofile() in plugin_loader.lua
       plugins = {
-        tabline = "${config.home.homeDirectory}/.local/share/wezterm/plugins/tabline.wez";
-        agent-deck = "${config.home.homeDirectory}/.local/share/wezterm/plugins/wezterm-agent-deck";
-        sessionizer = "${config.home.homeDirectory}/.local/share/wezterm/plugins/sessionizer.wezterm";
-        resurrect = "${config.home.homeDirectory}/.local/share/wezterm/plugins/resurrect.wezterm";
+        tabline = "${weztermPlugins.tabline}";
+        agent-deck = "${weztermPlugins.agent-deck}";
+        sessionizer = "${weztermPlugins.sessionizer}";
+        resurrect = "${weztermPlugins.resurrect}";
       };
     };
     "wezterm/env.json".text = builtins.toJSON {
@@ -119,29 +119,4 @@ in
     };
   };
 
-  # Copy plugins from Nix store to user-writable directory
-  # (wezterm.plugin.require needs write access to the git repo)
-  home.activation.weztermPlugins = config.lib.dag.entryAfter [ "writeBoundary" ] ''
-    PLUGIN_DIR="${config.home.homeDirectory}/.local/share/wezterm/plugins"
-    mkdir -p "$PLUGIN_DIR"
-
-    copy_plugin() {
-      local src="$1"
-      local dest="$2"
-      local url="$3"
-      if [ -d "$dest" ]; then
-        rm -rf "$dest"
-      fi
-      cp -rL "$src" "$dest"
-      chmod -R u+w "$dest"
-      # wezterm.plugin.require needs a git remote
-      ${pkgs.git}/bin/git -C "$dest" remote add origin "$url" 2>/dev/null || \
-        ${pkgs.git}/bin/git -C "$dest" remote set-url origin "$url" 2>/dev/null || true
-    }
-
-    copy_plugin "${weztermPlugins.tabline}" "$PLUGIN_DIR/tabline.wez" "https://github.com/michaelbrusegard/tabline.wez"
-    copy_plugin "${weztermPlugins.agent-deck}" "$PLUGIN_DIR/wezterm-agent-deck" "https://github.com/Eric162/wezterm-agent-deck"
-    copy_plugin "${weztermPlugins.sessionizer}" "$PLUGIN_DIR/sessionizer.wezterm" "https://github.com/mikkasendke/sessionizer.wezterm"
-    copy_plugin "${weztermPlugins.resurrect}" "$PLUGIN_DIR/resurrect.wezterm" "https://github.com/MLFlexer/resurrect.wezterm"
-  '';
 }
