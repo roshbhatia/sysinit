@@ -2,6 +2,7 @@
   lib,
   pkgs,
   hostname,
+  values,
   ...
 }:
 
@@ -39,4 +40,18 @@
 
   time.timeZone = lib.mkDefault "America/Los_Angeles";
   i18n.defaultLocale = "en_US.UTF-8";
+
+  users.users.${values.user.username} = {
+    isNormalUser = true;
+    extraGroups = [
+      "wheel"
+      "networkmanager"
+      "docker"
+      "libvirtd"
+      "video"
+      "audio"
+    ];
+    group = values.user.username;
+  };
+  users.groups.${values.user.username} = { };
 }

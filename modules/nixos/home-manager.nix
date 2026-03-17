@@ -27,18 +27,19 @@
           ../home/programs/git/options.nix
 
           ../home
+          inputs.stylix.homeManagerModules.stylix
         ]
-        ++ lib.optionals values.isDesktop [
+        ++ lib.optionals (values.desktop or false) [
           ./home/desktop.nix
           ../home/programs/firefox
         ];
 
         # NixOS systems use the nix-managed home directory
         home.homeDirectory =
-          if values.isLima then
+          if (values.lima or false) then
             lib.mkForce "/home/${values.user.username}.linux"
           else
-            "/home/${values.user.username}";
+            lib.mkForce "/home/${values.user.username}";
 
         sysinit = {
           git = values.git or { };

@@ -1,4 +1,4 @@
-{ pkgs, ... }:
+{ pkgs, lib, ... }:
 
 {
   home.packages = with pkgs; [
@@ -168,7 +168,6 @@
 
     # Media
     mpv
-    (if pkgs.stdenv.isLinux then hyprpicker else null)
 
     # Config & Misc Dev
     devcontainer
@@ -187,5 +186,5 @@
     markdown-oxide
     meld
     sad
-  ];
+  ] ++ (lib.optionals pkgs.stdenv.isLinux [ hyprpicker ]);
 }

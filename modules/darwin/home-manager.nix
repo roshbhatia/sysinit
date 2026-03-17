@@ -32,6 +32,7 @@
 
           # Darwin-specific home modules
           ./home
+          inputs.stylix.homeManagerModules.stylix
         ];
 
         sysinit.git = values.git or { };
