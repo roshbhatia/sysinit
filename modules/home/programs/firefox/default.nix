@@ -342,23 +342,23 @@ let
     " Tridactyl configuration — qutebrowser-like Firefox
 
     " Theme
-    colors everforest
+    colors stylix
 
     " New tab page
-    set newtab https://www.google.com
+    set newtab https://www.duckduckgo.com
 
     " Smooth scrolling
     set smoothscroll true
 
     " Search engines (mirror Firefox search config)
-    set searchengine google
+    set searchengine duckduckgo
     set searchurls.np https://search.nixos.org/packages?type=packages&query=%s
     set searchurls.no https://search.nixos.org/options?channel=unstable&query=%s
     set searchurls.gh https://github.com/search?q=%s
 
     " Tab navigation (neovim: J/K for tabnext/tabprev)
-    bind J tabnext
-    bind K tabprev
+    bind <Space>tn tabnext
+    bind <Space>tp tabprev
 
     " Scrolling (neovim: <C-d>/<C-u> style, mapped to d/u)
     bind d scrollpage 0.5
@@ -373,22 +373,18 @@ let
     bind <Space>qq qall
 
     " Find (mirroring neovim <leader>f*)
-    bind <Space>ff fillcmdline open
-    bind <Space>fg fillcmdline open search
-    bind <Space>fb fillcmdline tab
-    bind <Space>fr fillcmdline open
+    bind <Space>o fillcmdline open
+    bind <Space>s fillcmdline open search
+    bind <Space>t fillcmdline tab
 
-    " Splits (neovim: <leader>v/<leader>s for vsplit/hsplit)
+    " Splits (neovim: <leader>v for vsplit)
     bind <Space>v winopen
-    bind <Space>s winopen
 
     " Disable on sites that need full keyboard
     blacklistadd mail.google.com
   '';
 
   tridactylThemeCSS = ''
-    /* Tridactyl Everforest Theme — generated from Stylix Base16 */
-
     :root .TridactylOwnNamespace {
       --tridactyl-font-family: "${monospaceFont}", monospace;
       --tridactyl-font-family-mono: "${monospaceFont}", monospace;
@@ -446,9 +442,6 @@ in
       userContent = userContentCSS;
 
       extensions.packages = with pkgs.firefox-addons; [
-        darkreader
-        decentraleyes
-        multi-account-containers
         old-reddit-redirect
         reddit-enhancement-suite
         refined-github
@@ -472,7 +465,7 @@ in
         "browser.newtabpage.activity-stream.showTopSites" = false;
         "browser.newtabpage.activity-stream.feeds.topsites" = false;
         "browser.newtabpage.activity-stream.feeds.section.topstories" = false;
-        "browser.startup.homepage" = "https://www.google.com";
+        "browser.startup.homepage" = "https://www.duckduckgo.com";
         "extensions.autoDisableScopes" = 0;
         "extensions.enabledScopes" = 15;
         "browser.uiCustomization.state" = builtins.toJSON {
@@ -488,7 +481,6 @@ in
               "new-tab-button"
             ];
             "unified-extensions-area" = [
-              "addon_darkreader_org-browser-action"
               "uBlock0_raymondhill_net-browser-action"
               "tridactyl_vim_cmcaine_co_uk-browser-action"
               "jid1-BoFifL9Vbdl2zQ_jetpack-browser-action"
@@ -511,7 +503,11 @@ in
             "_4cfbf13b-f27f-4f03-91dc-2aa17644029a_-browser-action"
             "developer-button"
           ];
-          dirtyAreaCache = [ "nav-bar" "TabsToolbar" "unified-extensions-area" ];
+          dirtyAreaCache = [
+            "nav-bar"
+            "TabsToolbar"
+            "unified-extensions-area"
+          ];
           currentVersion = 20;
           newElementCount = 0;
         };
@@ -519,7 +515,7 @@ in
 
       search = {
         force = true;
-        default = "google";
+        default = "duckduckgo";
         engines = {
           "Nix Packages" = {
             urls = [
@@ -666,6 +662,6 @@ in
 
   xdg.configFile = {
     "tridactyl/tridactylrc".text = tridactylRC;
-    "tridactyl/themes/everforest.css".text = tridactylThemeCSS;
+    "tridactyl/themes/stylix.css".text = tridactylThemeCSS;
   };
 }
