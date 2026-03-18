@@ -368,16 +368,12 @@ let
     bind <Space>w tabclose
     bind <Space>qq qall
 
-    " Find (mirroring neovim <leader>f*)
-    bind <Space>o fillcmdline open
-    bind <Space>s fillcmdline open search
+    bind <Space>ff fillcmdline open
+    bind <Space>fs fillcmdline open search
     bind <Space>t fillcmdline tab
 
     " Splits (neovim: <leader>v for vsplit)
     bind <Space>v winopen
-
-    " Disable on sites that need full keyboard
-    blacklistadd mail.google.com
   '';
 
   tridactylThemeCSS = ''
