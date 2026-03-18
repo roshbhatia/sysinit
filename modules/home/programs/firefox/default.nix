@@ -356,9 +356,31 @@ let
     set searchurls.no https://search.nixos.org/options?channel=unstable&query=%s
     set searchurls.gh https://github.com/search?q=%s
 
-    " Qutebrowser-style tab navigation
+    " Tab navigation (neovim: J/K for tabnext/tabprev)
     bind J tabnext
     bind K tabprev
+
+    " Scrolling (neovim: <C-d>/<C-u> style, mapped to d/u)
+    bind d scrollpage 0.5
+    bind u scrollpage -0.5
+
+    " Close tab (neovim: <leader>w closes pane, <C-w> also common)
+    bind <C-w> tabclose
+
+    " Space-leader bindings (mirroring neovim <Space> leader)
+    bind <Space><Space> fillcmdline_notrail
+    bind <Space>w tabclose
+    bind <Space>qq qall
+
+    " Find (mirroring neovim <leader>f*)
+    bind <Space>ff fillcmdline open
+    bind <Space>fg fillcmdline open search
+    bind <Space>fb fillcmdline tab
+    bind <Space>fr fillcmdline open
+
+    " Splits (neovim: <leader>v/<leader>s for vsplit/hsplit)
+    bind <Space>v winopen
+    bind <Space>s winopen
 
     " Disable on sites that need full keyboard
     blacklistadd mail.google.com
