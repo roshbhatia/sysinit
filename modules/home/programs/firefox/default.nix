@@ -312,21 +312,27 @@ let
     .browserContainer { background-color: var(--bg) !important; }
 
     /* ========== NAVBAR AUTO-HIDE ========== */
+    :root {
+      --uc-navbar-transform: -40px;
+    }
+
     #nav-bar {
       min-height: 0 !important;
-      max-height: 0 !important;
-      overflow: hidden !important;
+      margin-bottom: 0 !important;
+      z-index: 2 !important;
+      margin-top: var(--uc-navbar-transform) !important;
       opacity: 0 !important;
-      transition: max-height 150ms ease var(--uc-autohide-navbar-delay),
+      pointer-events: none !important;
+      transition: margin-top 150ms ease-out var(--uc-autohide-navbar-delay),
                   opacity 150ms ease var(--uc-autohide-navbar-delay) !important;
     }
 
     #navigator-toolbox:hover > #nav-bar,
     #nav-bar:focus-within,
     #navigator-toolbox:has([open]) > #nav-bar {
-      max-height: 40px !important;
-      overflow: visible !important;
+      margin-top: 0 !important;
       opacity: 1 !important;
+      pointer-events: auto !important;
       transition-delay: 0ms !important;
     }
   '';
