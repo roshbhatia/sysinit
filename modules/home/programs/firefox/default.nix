@@ -10,8 +10,6 @@ let
   monospaceFont = themeConfig.font.monospace;
   opacity = toString themeConfig.transparency.opacity;
   blur = toString themeConfig.transparency.blur;
-  newtabPath = "${config.xdg.configHome}/tridactyl/newtab.html";
-
   userChromeCSS = ''
     /* ========== BASE16 THEME VARIABLES (from Stylix) ========== */
     :root {
@@ -310,9 +308,38 @@ let
     /* ========== CONTENT AREA ========== */
     .browserContainer { background-color: var(--bg) !important; }
 
-    /* ========== HIDE NAVBAR (qutebrowser style) ========== */
-    #nav-bar {
+    /* ========== NAVBAR MERGED INTO TAB BAR (qutebrowser style) ========== */
+    /* Hide URL bar — navigate via Tridactyl */
+    #urlbar-container {
       display: none !important;
+    }
+
+    /* Hide nav-bar spacers */
+    #nav-bar toolbarspring {
+      display: none !important;
+    }
+
+    /* Collapse nav-bar into the tab bar row */
+    #nav-bar {
+      margin-top: calc(-1 * var(--tab-min-height, 33px) - 8px) !important;
+      min-height: 0 !important;
+      height: calc(var(--tab-min-height, 33px) + 8px) !important;
+      background: transparent !important;
+      border: none !important;
+      box-shadow: none !important;
+      padding: 0 4px !important;
+    }
+
+    /* Push nav-bar buttons to the right */
+    #nav-bar-customization-target {
+      display: flex !important;
+      justify-content: flex-end !important;
+      align-items: center !important;
+    }
+
+    /* Leave space in tab bar for buttons */
+    #TabsToolbar {
+      margin-right: 80px !important;
     }
   '';
 
@@ -348,7 +375,7 @@ let
     colors everforest
 
     " New tab page
-    set newtab file://${newtabPath}
+    set newtab https://www.google.com
 
     " Smooth scrolling
     set smoothscroll true
@@ -410,97 +437,6 @@ let
     }
   '';
 
-  newtabHTML = ''
-    <!DOCTYPE html>
-    <html lang="en">
-    <head>
-      <meta charset="utf-8">
-      <title>New Tab</title>
-      <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-          background: #${c.base00};
-          color: #${c.base05};
-          font-family: "${monospaceFont}", monospace;
-          height: 100vh;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          text-align: center;
-          padding: 2rem;
-        }
-        #quote {
-          max-width: 700px;
-          font-size: 1.2rem;
-          line-height: 1.8;
-        }
-        #quote .time {
-          font-weight: bold;
-          color: #${c.base0D};
-        }
-        #meta {
-          margin-top: 1.5rem;
-          color: #${c.base04};
-          font-size: 0.9rem;
-          font-style: italic;
-        }
-        #fallback {
-          font-size: 3rem;
-          color: #${c.base04};
-          font-weight: 300;
-        }
-      </style>
-    </head>
-    <body>
-      <div id="container">
-        <div id="quote"></div>
-        <div id="meta"></div>
-        <div id="fallback"></div>
-      </div>
-      <script>
-        var currentMinute = null;
-
-        function pad(n) {
-          return n < 10 ? "0" + n : "" + n;
-        }
-
-        function fetchQuote() {
-          var now = new Date();
-          var hh = pad(now.getHours());
-          var mm = pad(now.getMinutes());
-          var key = hh + ":" + mm;
-
-          if (key === currentMinute) return;
-          currentMinute = key;
-
-          var url = "https://raw.githubusercontent.com/lbngoc/literature-clock/master/docs/times/" + hh + ":" + mm + ".json";
-
-          fetch(url)
-            .then(function(r) { return r.json(); })
-            .then(function(quotes) {
-              var q = quotes[Math.floor(Math.random() * quotes.length)];
-              document.getElementById("quote").innerHTML =
-                (q.quote_first || "") +
-                '<span class="time">' + (q.quote_time_case || "") + "</span>" +
-                (q.quote_last || "");
-              document.getElementById("meta").textContent =
-                "— " + (q.author || "Unknown") + ", " + (q.title || "Unknown");
-              document.getElementById("fallback").textContent = "";
-            })
-            .catch(function() {
-              document.getElementById("quote").innerHTML = "";
-              document.getElementById("meta").textContent = "";
-              document.getElementById("fallback").textContent = hh + ":" + mm;
-            });
-        }
-
-        fetchQuote();
-        setInterval(fetchQuote, 1000);
-      </script>
-    </body>
-    </html>
-  '';
-
 in
 {
   stylix.targets.firefox.enable = false;
@@ -544,7 +480,7 @@ in
         "browser.newtabpage.activity-stream.showTopSites" = false;
         "browser.newtabpage.activity-stream.feeds.topsites" = false;
         "browser.newtabpage.activity-stream.feeds.section.topstories" = false;
-        "browser.startup.homepage" = "file://${newtabPath}";
+        "browser.startup.homepage" = "https://www.google.com";
         "extensions.autoDisableScopes" = 0;
         "extensions.enabledScopes" = 15;
       };
@@ -694,6 +630,5 @@ in
   xdg.configFile = {
     "tridactyl/tridactylrc".text = tridactylRC;
     "tridactyl/themes/everforest.css".text = tridactylThemeCSS;
-    "tridactyl/newtab.html".text = newtabHTML;
   };
 }
