@@ -23,7 +23,7 @@ in
 {
   # Import the shared firefox config (extensions, policies, search, theming)
   imports = [
-    ../../home/programs/firefox
+    ../../home/programs/firefox.nix
   ];
 
   # Override package with macOS homebrew wrapper
