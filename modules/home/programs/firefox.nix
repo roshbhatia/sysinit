@@ -322,9 +322,6 @@ let
       --border: #${c.base02};
     }
 
-    @-moz-document url-prefix(about:home), url-prefix(about:newtab) {
-      body { background: var(--bg) !important; color: var(--fg) !important; }
-    }
 
     @-moz-document url-prefix("moz-extension://") {
       body { background-color: var(--bg) !important; color: var(--fg) !important; }
@@ -456,15 +453,9 @@ in
         "browser.theme.content-theme" = 2;
         "browser.theme.toolbar-theme" = 2;
         "layout.css.prefers-color-scheme.content-override" = 0;
-        "browser.newtabpage.activity-stream.enabled" = false;
         "browser.search.suggest.enabled" = false;
         "browser.urlbar.suggest.searches" = false;
         "browser.urlbar.showSearchSuggestionsFirst" = false;
-        "browser.newtabpage.activity-stream.showSearch" = false;
-        "browser.newtabpage.activity-stream.showTopSites" = false;
-        "browser.newtabpage.activity-stream.feeds.topsites" = false;
-        "browser.newtabpage.activity-stream.feeds.section.topstories" = false;
-        "browser.startup.homepage" = "https://www.duckduckgo.com";
         "extensions.autoDisableScopes" = 0;
         "extensions.enabledScopes" = 15;
         "browser.uiCustomization.state" = builtins.toJSON {
@@ -605,9 +596,15 @@ in
       DisableAccounts = true;
       DisableFirefoxScreenshots = true;
       DontCheckDefaultBrowser = true;
+      NewTabURL = "https://duckduckgo.com";
+      HomepageURL = "https://duckduckgo.com";
       DisplayBookmarksToolbar = "never";
       DisplayMenuBar = "default-off";
       SearchBar = "unified";
+      SearchEngines = {
+        Default = "DuckDuckGo";
+        PreventInstalls = true;
+      };
       ExtensionSettings = {
         "tridactyl.vim@cmcaine.co.uk" = {
           installation_mode = "force_installed";
