@@ -32,7 +32,6 @@ let
       --opacity: ${opacity};
       --blur-amount: ${blur}px;
       --tab-border-radius: 6px !important;
-      --uc-autohide-navbar-delay: 600ms;
     }
 
     /* ========== TYPOGRAPHY ========== */
@@ -311,29 +310,9 @@ let
     /* ========== CONTENT AREA ========== */
     .browserContainer { background-color: var(--bg) !important; }
 
-    /* ========== NAVBAR AUTO-HIDE ========== */
-    :root {
-      --uc-navbar-transform: -40px;
-    }
-
+    /* ========== HIDE NAVBAR (qutebrowser style) ========== */
     #nav-bar {
-      min-height: 0 !important;
-      margin-bottom: 0 !important;
-      z-index: 2 !important;
-      margin-top: var(--uc-navbar-transform) !important;
-      opacity: 0 !important;
-      pointer-events: none !important;
-      transition: margin-top 150ms ease-out var(--uc-autohide-navbar-delay),
-                  opacity 150ms ease var(--uc-autohide-navbar-delay) !important;
-    }
-
-    #navigator-toolbox:hover > #nav-bar,
-    #nav-bar:focus-within,
-    #navigator-toolbox:has([open]) > #nav-bar {
-      margin-top: 0 !important;
-      opacity: 1 !important;
-      pointer-events: auto !important;
-      transition-delay: 0ms !important;
+      display: none !important;
     }
   '';
 
