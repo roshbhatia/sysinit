@@ -308,39 +308,9 @@ let
     /* ========== CONTENT AREA ========== */
     .browserContainer { background-color: var(--bg) !important; }
 
-    /* ========== NAVBAR MERGED INTO TAB BAR (qutebrowser style) ========== */
-    /* Hide URL bar — navigate via Tridactyl */
-    #urlbar-container {
-      display: none !important;
-    }
-
-    /* Hide nav-bar spacers */
-    #nav-bar toolbarspring {
-      display: none !important;
-    }
-
-    /* Collapse nav-bar into the tab bar row */
-    #nav-bar {
-      margin-top: calc(-1 * var(--tab-min-height, 33px) - 8px) !important;
-      min-height: 0 !important;
-      height: calc(var(--tab-min-height, 33px) + 8px) !important;
-      background: transparent !important;
-      border: none !important;
-      box-shadow: none !important;
-      padding: 0 4px !important;
-    }
-
-    /* Push nav-bar buttons to the right */
-    #nav-bar-customization-target {
-      display: flex !important;
-      justify-content: flex-end !important;
-      align-items: center !important;
-    }
-
-    /* Leave space in tab bar for buttons */
-    #TabsToolbar {
-      margin-right: 80px !important;
-    }
+    /* ========== MINIMAL NAVBAR (qutebrowser style) ========== */
+    #urlbar-container { display: none !important; }
+    #nav-bar toolbarspring { display: none !important; }
   '';
 
   userContentCSS = ''
