@@ -34,7 +34,6 @@
 
           # Darwin-specific home modules
           ./home
-          inputs.stylix.homeManagerModules.stylix
         ];
 
         stylix = {

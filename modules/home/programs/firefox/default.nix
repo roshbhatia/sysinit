@@ -10,6 +10,7 @@ let
   monospaceFont = themeConfig.font.monospace;
   opacity = toString themeConfig.transparency.opacity;
   blur = toString themeConfig.transparency.blur;
+  newtabPath = "${config.xdg.configHome}/tridactyl/newtab.html";
 
   userChromeCSS = ''
     /* ========== BASE16 THEME VARIABLES (from Stylix) ========== */
@@ -31,6 +32,7 @@ let
       --opacity: ${opacity};
       --blur-amount: ${blur}px;
       --tab-border-radius: 6px !important;
+      --uc-autohide-navbar-delay: 600ms;
     }
 
     /* ========== TYPOGRAPHY ========== */
@@ -309,77 +311,23 @@ let
     /* ========== CONTENT AREA ========== */
     .browserContainer { background-color: var(--bg) !important; }
 
-    /* ========== ONE-LINE LAYOUT ========== */
-    #PanelUI-button {
-      -moz-box-ordinal-group: 0 !important;
-      order: -2 !important;
-      margin: 2px !important;
+    /* ========== NAVBAR AUTO-HIDE ========== */
+    #nav-bar {
+      min-height: 0 !important;
+      max-height: 0 !important;
+      overflow: hidden !important;
+      opacity: 0 !important;
+      transition: max-height 150ms ease var(--uc-autohide-navbar-delay),
+                  opacity 150ms ease var(--uc-autohide-navbar-delay) !important;
     }
 
-    :root {
-      --NavbarWidth: 50;
-      --TabsHeight: 36;
-      --TabsBorder: 8;
-      --NavbarHeightSmall: calc(var(--TabsHeight) + var(--TabsBorder));
-    }
-
-    @media screen and (min-width:1325px) {
-      :root #nav-bar {
-        margin-top: calc(var(--TabsHeight) * -1px - var(--TabsBorder) * 1px)!important;
-        height: calc(var(--TabsHeight) * 1px + var(--TabsBorder) * 1px);
-      }
-      #TabsToolbar { margin-left: calc(1325px / 100 * var(--NavbarWidth)) !important; }
-      #nav-bar { margin-right: calc(100vw - calc(1325px / 100 * var(--NavbarWidth))) !important; }
-      #urlbar-container { min-width: 0px !important; flex: auto !important; }
-      toolbarspring { display: none !important; }
-    }
-
-    @media screen and (min-width:950px) and (max-width:1324px) {
-      :root #nav-bar {
-        margin-top: calc(var(--TabsHeight) * -1px - var(--TabsBorder) * 1px) !important;
-        height: calc(var(--TabsHeight) * 1px + var(--TabsBorder) * 1px);
-      }
-      #TabsToolbar { margin-left: calc(var(--NavbarWidth) * 1vw) !important; }
-      #nav-bar { margin-right: calc(100vw - calc(var(--NavbarWidth) * 1vw)) !important; }
-      #urlbar-container { min-width: 0px !important; flex: auto !important; }
-      toolbarspring { display: none !important; }
-    }
-
-    @media screen and (max-width:949px) {
-      :root #nav-bar { padding: 0 5px !important; height: calc(var(--NavbarHeightSmall) * 1px) !important; }
-      toolbarspring { display: none !important; }
-
-      #nav-bar, #PersonalToolbar {
-        background-color: var(--bg) !important;
-        background-image: none !important;
-        box-shadow: none !important;
-      }
-
-      #nav-bar { margin-left: 3px; }
-
-      .tab-background, .tab-stack { min-height: calc(var(--TabsHeight) * 1px) !important; }
-
-      #urlbar-background { border: none !important; outline: none !important; }
-
-      #urlbar:not(:hover):not([breakout][breakout-extend]) > #urlbar-background {
-        box-shadow: none !important;
-        background: var(--bg-alt) !important;
-      }
-
-      #navigator-toolbox { border: none !important; }
-
-      #navigator-toolbox-background:-moz-window-inactive { filter: contrast(90%); }
-
-      #fullscreen-warning {
-        border: 1px solid var(--bg-sel) !important;
-        background: var(--bg-alt) !important;
-        color: var(--fg) !important;
-      }
-
-      .tabbrowser-tab:not(:hover) .tab-close-button { opacity: 0%; transition: 0.3s !important; display: -moz-box !important; }
-      .tab-close-button[selected]:not(:hover) { opacity: 45%; transition: 0.3s !important; }
-      .tabbrowser-tab:hover .tab-close-button { opacity: 50%; transition: 0.3s !important; background: none !important; cursor: pointer; display: -moz-box !important; }
-      .tab-close-button:hover { opacity: 100% !important; transition: 0.3s !important; background: none !important; cursor: pointer; }
+    #navigator-toolbox:hover > #nav-bar,
+    #nav-bar:focus-within,
+    #navigator-toolbox:has([open]) > #nav-bar {
+      max-height: 40px !important;
+      overflow: visible !important;
+      opacity: 1 !important;
+      transition-delay: 0ms !important;
     }
   '';
 
@@ -394,23 +342,7 @@ let
     }
 
     @-moz-document url-prefix(about:home), url-prefix(about:newtab) {
-      * { font-family: "${monospaceFont}", -apple-system, BlinkMacSystemFont, sans-serif !important; }
       body { background: var(--bg) !important; color: var(--fg) !important; }
-
-      .search-handoff-button {
-        background: var(--bg-alt) !important;
-        border: 1px solid var(--border) !important;
-        color: var(--fg) !important;
-        border-radius: 4px !important;
-      }
-      .search-handoff-button:hover { background: var(--border) !important; }
-
-      .top-site-outer {
-        background: var(--bg-alt) !important;
-        border: 1px solid var(--border) !important;
-        border-radius: 4px !important;
-      }
-      .top-site-outer:hover { background: var(--border) !important; }
     }
 
     @-moz-document url-prefix("moz-extension://") {
@@ -424,12 +356,173 @@ let
     }
   '';
 
+  tridactylRC = ''
+    " Tridactyl configuration — qutebrowser-like Firefox
+
+    " Theme
+    colors everforest
+
+    " New tab page
+    set newtab file://${newtabPath}
+
+    " Smooth scrolling
+    set smoothscroll true
+
+    " Search engines (mirror Firefox search config)
+    set searchengine google
+    set searchurls.np https://search.nixos.org/packages?type=packages&query=%s
+    set searchurls.no https://search.nixos.org/options?channel=unstable&query=%s
+    set searchurls.gh https://github.com/search?q=%s
+
+    " Qutebrowser-style tab navigation
+    bind J tabnext
+    bind K tabprev
+
+    " Disable on sites that need full keyboard
+    blacklistadd mail.google.com
+  '';
+
+  tridactylThemeCSS = ''
+    /* Tridactyl Everforest Theme — generated from Stylix Base16 */
+
+    :root .TridactylOwnNamespace {
+      --tridactyl-font-family: "${monospaceFont}", monospace;
+      --tridactyl-font-family-mono: "${monospaceFont}", monospace;
+      --tridactyl-font-size: 12px;
+      --tridactyl-small-font-size: 10px;
+
+      /* Command line */
+      --tridactyl-cmdl-bg: #${c.base01};
+      --tridactyl-cmdl-fg: #${c.base05};
+
+      /* General */
+      --tridactyl-bg: #${c.base00};
+      --tridactyl-fg: #${c.base05};
+      --tridactyl-url-bg: transparent;
+      --tridactyl-url-fg: #${c.base0D};
+      --tridactyl-highlight-box-bg: #${c.base01};
+      --tridactyl-highlight-box-fg: #${c.base05};
+      --tridactyl-of-fg: #${c.base04};
+
+      /* Completions */
+      --tridactyl-cmplt-bg: #${c.base00};
+      --tridactyl-cmplt-fg: #${c.base05};
+      --tridactyl-cmplt-border-top: 1px solid #${c.base02};
+      --tridactyl-header-first-bg: #${c.base02};
+      --tridactyl-header-bg: #${c.base02};
+      --tridactyl-header-fg: #${c.base05};
+      --tridactyl-header-border-bottom: 1px solid #${c.base01};
+      --tridactyl-option-focused-bg: #${c.base0D};
+      --tridactyl-option-focused-fg: #${c.base00};
+
+      /* Hints */
+      --tridactyl-hintspan-font-family: "${monospaceFont}", monospace;
+      --tridactyl-hintspan-font-size: 11px;
+      --tridactyl-hintspan-font-weight: bold;
+      --tridactyl-hintspan-fg: #${c.base00};
+      --tridactyl-hintspan-bg: #${c.base0A};
+      --tridactyl-hintspan-border: 1px solid #${c.base03};
+    }
+  '';
+
+  newtabHTML = ''
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+      <meta charset="utf-8">
+      <title>New Tab</title>
+      <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+          background: #${c.base00};
+          color: #${c.base05};
+          font-family: "${monospaceFont}", monospace;
+          height: 100vh;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          text-align: center;
+          padding: 2rem;
+        }
+        #quote {
+          max-width: 700px;
+          font-size: 1.2rem;
+          line-height: 1.8;
+        }
+        #quote .time {
+          font-weight: bold;
+          color: #${c.base0D};
+        }
+        #meta {
+          margin-top: 1.5rem;
+          color: #${c.base04};
+          font-size: 0.9rem;
+          font-style: italic;
+        }
+        #fallback {
+          font-size: 3rem;
+          color: #${c.base04};
+          font-weight: 300;
+        }
+      </style>
+    </head>
+    <body>
+      <div id="container">
+        <div id="quote"></div>
+        <div id="meta"></div>
+        <div id="fallback"></div>
+      </div>
+      <script>
+        var currentMinute = null;
+
+        function pad(n) {
+          return n < 10 ? "0" + n : "" + n;
+        }
+
+        function fetchQuote() {
+          var now = new Date();
+          var hh = pad(now.getHours());
+          var mm = pad(now.getMinutes());
+          var key = hh + ":" + mm;
+
+          if (key === currentMinute) return;
+          currentMinute = key;
+
+          var url = "https://raw.githubusercontent.com/lbngoc/literature-clock/master/docs/times/" + hh + ":" + mm + ".json";
+
+          fetch(url)
+            .then(function(r) { return r.json(); })
+            .then(function(quotes) {
+              var q = quotes[Math.floor(Math.random() * quotes.length)];
+              document.getElementById("quote").innerHTML =
+                (q.quote_first || "") +
+                '<span class="time">' + (q.quote_time_case || "") + "</span>" +
+                (q.quote_last || "");
+              document.getElementById("meta").textContent =
+                "— " + (q.author || "Unknown") + ", " + (q.title || "Unknown");
+              document.getElementById("fallback").textContent = "";
+            })
+            .catch(function() {
+              document.getElementById("quote").innerHTML = "";
+              document.getElementById("meta").textContent = "";
+              document.getElementById("fallback").textContent = hh + ":" + mm;
+            });
+        }
+
+        fetchQuote();
+        setInterval(fetchQuote, 1000);
+      </script>
+    </body>
+    </html>
+  '';
+
 in
 {
   stylix.targets.firefox.enable = false;
 
   programs.firefox = {
     enable = true;
+    nativeMessagingHosts = [ pkgs.tridactyl-native ];
 
     profiles.default = {
       id = 0;
@@ -440,15 +533,15 @@ in
       userContent = userContentCSS;
 
       extensions.packages = with pkgs.firefox-addons; [
+        darkreader
         decentraleyes
         multi-account-containers
         old-reddit-redirect
         reddit-enhancement-suite
         refined-github
         sponsorblock
-        tabliss
+        tridactyl
         ublock-origin
-        vimium
         web-clipper-obsidian
       ];
 
@@ -466,6 +559,9 @@ in
         "browser.newtabpage.activity-stream.showTopSites" = false;
         "browser.newtabpage.activity-stream.feeds.topsites" = false;
         "browser.newtabpage.activity-stream.feeds.section.topstories" = false;
+        "browser.startup.homepage" = "file://${newtabPath}";
+        "extensions.autoDisableScopes" = 0;
+        "extensions.enabledScopes" = 15;
       };
 
       search = {
@@ -565,6 +661,54 @@ in
       DisplayBookmarksToolbar = "never";
       DisplayMenuBar = "default-off";
       SearchBar = "unified";
+      ExtensionSettings = {
+        "tridactyl.vim@cmcaine.co.uk" = {
+          installation_mode = "force_installed";
+          install_url = "https://addons.mozilla.org/firefox/downloads/latest/tridactyl-vim/latest.xpi";
+        };
+        "addon@darkreader.org" = {
+          installation_mode = "force_installed";
+          install_url = "https://addons.mozilla.org/firefox/downloads/latest/darkreader/latest.xpi";
+        };
+        "jid1-BoFifL9Vbdl2zQ@jetpack" = {
+          installation_mode = "force_installed";
+          install_url = "https://addons.mozilla.org/firefox/downloads/latest/decentraleyes/latest.xpi";
+        };
+        "@testpilot-containers" = {
+          installation_mode = "force_installed";
+          install_url = "https://addons.mozilla.org/firefox/downloads/latest/multi-account-containers/latest.xpi";
+        };
+        "{9063c2e9-e07c-4c2c-9646-cfe7ca8d0498}" = {
+          installation_mode = "force_installed";
+          install_url = "https://addons.mozilla.org/firefox/downloads/latest/old-reddit-redirect/latest.xpi";
+        };
+        "jid1-xUfzOsOFlzSOXg@jetpack" = {
+          installation_mode = "force_installed";
+          install_url = "https://addons.mozilla.org/firefox/downloads/latest/reddit-enhancement-suite/latest.xpi";
+        };
+        "{a4c4eda4-fb84-4a84-b4a1-f7c1cbf2a1ad}" = {
+          installation_mode = "force_installed";
+          install_url = "https://addons.mozilla.org/firefox/downloads/latest/refined-github-/latest.xpi";
+        };
+        "sponsorBlocker@ajay.app" = {
+          installation_mode = "force_installed";
+          install_url = "https://addons.mozilla.org/firefox/downloads/latest/sponsorblock/latest.xpi";
+        };
+        "uBlock0@raymondhill.net" = {
+          installation_mode = "force_installed";
+          install_url = "https://addons.mozilla.org/firefox/downloads/latest/ublock-origin/latest.xpi";
+        };
+        "{4cfbf13b-f27f-4f03-91dc-2aa17644029a}" = {
+          installation_mode = "force_installed";
+          install_url = "https://addons.mozilla.org/firefox/downloads/latest/obsidian-web-clipper/latest.xpi";
+        };
+      };
     };
+  };
+
+  xdg.configFile = {
+    "tridactyl/tridactylrc".text = tridactylRC;
+    "tridactyl/themes/everforest.css".text = tridactylThemeCSS;
+    "tridactyl/newtab.html".text = newtabHTML;
   };
 }
