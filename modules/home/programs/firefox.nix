@@ -10,6 +10,20 @@ let
   monospaceFont = themeConfig.font.monospace;
   opacity = toString themeConfig.transparency.opacity;
   blur = toString themeConfig.transparency.blur;
+  newtabHTML = ''
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="utf-8">
+      <title>New Tab</title>
+      <style>
+        html, body { margin: 0; padding: 0; background: #${c.base00}; }
+      </style>
+      <script>window.location.replace("https://duckduckgo.com");</script>
+    </head>
+    <body></body>
+    </html>
+  '';
   userChromeCSS = ''
     /* ========== BASE16 THEME VARIABLES (from Stylix) ========== */
     :root {
@@ -592,8 +606,8 @@ in
       DisableAccounts = true;
       DisableFirefoxScreenshots = true;
       DontCheckDefaultBrowser = true;
-      NewTabURL = "https://duckduckgo.com";
-      HomepageURL = "https://duckduckgo.com";
+      NewTabURL = "file://${config.home.homeDirectory}/.local/share/firefox/newtab.html";
+      HomepageURL = "file://${config.home.homeDirectory}/.local/share/firefox/newtab.html";
       DisplayBookmarksToolbar = "never";
       DisplayMenuBar = "default-off";
       SearchBar = "unified";
@@ -655,4 +669,6 @@ in
     "tridactyl/tridactylrc".text = tridactylRC;
     "tridactyl/themes/stylix.css".text = tridactylThemeCSS;
   };
+
+  home.file.".local/share/firefox/newtab.html".text = newtabHTML;
 }
