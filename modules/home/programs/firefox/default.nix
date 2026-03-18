@@ -100,7 +100,6 @@ let
     .tab-background[selected="true"],
     #titlebar-buttonbox,
     #TabsToolbar,
-    #PersonalToolbar,
     #urlbar,
     #urlbar-container,
     #nav-bar {
@@ -490,7 +489,6 @@ in
             ];
             "widget-overflow-fixed-list" = [ ];
             "toolbar-menubar" = [ "menubar-items" ];
-            "PersonalToolbar" = [ "personal-bookmarks" ];
           };
           seen = [
             "_d634138d-c276-4fc8-924b-40a0ea21d284_-browser-action"
@@ -603,8 +601,8 @@ in
         Fingerprinting = true;
       };
       DisablePocket = true;
-      DisableFirefoxAccounts = false;
-      DisableAccounts = false;
+      DisableFirefoxAccounts = true;
+      DisableAccounts = true;
       DisableFirefoxScreenshots = true;
       DontCheckDefaultBrowser = true;
       DisplayBookmarksToolbar = "never";
