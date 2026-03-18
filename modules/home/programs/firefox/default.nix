@@ -483,6 +483,46 @@ in
         "browser.startup.homepage" = "https://www.google.com";
         "extensions.autoDisableScopes" = 0;
         "extensions.enabledScopes" = 15;
+        "browser.uiCustomization.state" = builtins.toJSON {
+          placements = {
+            "nav-bar" = [
+              "urlbar-container"
+              "_d634138d-c276-4fc8-924b-40a0ea21d284_-browser-action"
+              "library-button"
+              "unified-extensions-button"
+            ];
+            "TabsToolbar" = [
+              "tabbrowser-tabs"
+              "new-tab-button"
+            ];
+            "unified-extensions-area" = [
+              "addon_darkreader_org-browser-action"
+              "uBlock0_raymondhill_net-browser-action"
+              "tridactyl_vim_cmcaine_co_uk-browser-action"
+              "jid1-BoFifL9Vbdl2zQ_jetpack-browser-action"
+              "_testpilot-containers-browser-action"
+              "sponsorBlocker_ajay_app-browser-action"
+              "_4cfbf13b-f27f-4f03-91dc-2aa17644029a_-browser-action"
+            ];
+            "widget-overflow-fixed-list" = [ ];
+            "toolbar-menubar" = [ "menubar-items" ];
+            "PersonalToolbar" = [ "personal-bookmarks" ];
+          };
+          seen = [
+            "_d634138d-c276-4fc8-924b-40a0ea21d284_-browser-action"
+            "addon_darkreader_org-browser-action"
+            "uBlock0_raymondhill_net-browser-action"
+            "tridactyl_vim_cmcaine_co_uk-browser-action"
+            "jid1-BoFifL9Vbdl2zQ_jetpack-browser-action"
+            "_testpilot-containers-browser-action"
+            "sponsorBlocker_ajay_app-browser-action"
+            "_4cfbf13b-f27f-4f03-91dc-2aa17644029a_-browser-action"
+            "developer-button"
+          ];
+          dirtyAreaCache = [ "nav-bar" "TabsToolbar" "unified-extensions-area" ];
+          currentVersion = 20;
+          newElementCount = 0;
+        };
       };
 
       search = {
@@ -622,6 +662,11 @@ in
         "{4cfbf13b-f27f-4f03-91dc-2aa17644029a}" = {
           installation_mode = "force_installed";
           install_url = "https://addons.mozilla.org/firefox/downloads/latest/obsidian-web-clipper/latest.xpi";
+        };
+        "{d634138d-c276-4fc8-924b-40a0ea21d284}" = {
+          installation_mode = "force_installed";
+          install_url = "https://addons.mozilla.org/firefox/downloads/latest/1password-x-password-manager/latest.xpi";
+          default_area = "navbar";
         };
       };
     };
