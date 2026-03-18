@@ -282,14 +282,10 @@ in
             "Escape" = "mode default";
           };
           resize = {
-            "h" = "resize shrink width 10 px";
-            "j" = "resize grow height 10 px";
-            "k" = "resize shrink height 10 px";
-            "l" = "resize grow width 10 px";
-            "Shift+h" = "resize shrink width 72 px";
-            "Shift+j" = "resize grow height 72 px";
-            "Shift+k" = "resize shrink height 72 px";
-            "Shift+l" = "resize grow width 72 px";
+            "${mod}+h" = "resize shrink width 72 px";
+            "${mod}+j" = "resize grow height 72 px";
+            "${mod}+k" = "resize shrink height 72 px";
+            "${mod}+l" = "resize grow width 72 px";
             "Escape" = "mode default";
             "Return" = "mode default";
           };
