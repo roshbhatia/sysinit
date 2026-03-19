@@ -83,7 +83,7 @@ in
         }
 
         let result = (
-          do { timeout 3sec ${carapaceBin} $spans.0 nushell ...$spans }
+          do { timeout 3 ${carapaceBin} $spans.0 nushell ...$spans }
           | complete
         )
 

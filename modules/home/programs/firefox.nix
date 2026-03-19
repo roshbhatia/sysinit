@@ -166,62 +166,29 @@ let
       scrollbar-color: var(--fg-dim) transparent !important;
     }
 
-    /* ========== URL BAR (qutebrowser-style bottom overlay) ========== */
+    /* ========== URL BAR ========== */
     #urlbar-container {
-      flex: 0 0 0 !important;
-      min-width: 0 !important;
-      width: 0 !important;
-      margin: 0 !important;
-      padding: 0 !important;
-      overflow: visible !important;
+      min-width: 600px !important;
+      flex: 1 !important;
+      padding-top: 6px !important;
+      margin-top: 2px !important;
     }
 
     #urlbar {
-      --qb-width: min(820px, calc(100vw - 24px));
-      --qb-height: 26px;
-
-      position: fixed !important;
-      left: 50% !important;
-      bottom: 8px !important;
-      transform: translateX(-50%) translateY(6px) !important;
-
-      width: var(--qb-width) !important;
-      min-height: var(--qb-height) !important;
-
-      opacity: 0 !important;
-      pointer-events: none !important;
-      z-index: 2147483647 !important;
-
       background: transparent !important;
       border: none !important;
       box-shadow: none !important;
-      transition: opacity 120ms ease, transform 120ms ease !important;
-    }
-
-    #urlbar:focus-within,
-    #urlbar[open],
-    #urlbar[breakout][breakout-extend] {
-      opacity: 1 !important;
-      pointer-events: auto !important;
-      transform: translateX(-50%) translateY(0) !important;
     }
 
     #urlbar-background {
       background: var(--bg-alt) !important;
       border: 1px solid var(--bg-sel) !important;
-      border-radius: 2px !important;
-      box-shadow: none !important;
+      border-radius: 4px !important;
+      transition: border-color 150ms ease !important;
     }
 
-    #urlbar:focus-within > #urlbar-background,
-    #urlbar[open] > #urlbar-background,
-    #urlbar[breakout][breakout-extend] > #urlbar-background {
+    #urlbar:focus-within > #urlbar-background {
       border-color: var(--accent) !important;
-    }
-
-    #urlbar-input-container {
-      min-height: var(--qb-height) !important;
-      padding-block: 0 !important;
     }
 
     #page-action-buttons { display: none !important; }
@@ -239,12 +206,7 @@ let
 
     .urlbar-input-box > .urlbar-input::placeholder { opacity: 0 !important; }
 
-    #urlbar-results,
-    .urlbarView {
-      background-color: var(--bg-alt) !important;
-      border: 1px solid var(--bg-sel) !important;
-      border-radius: 2px !important;
-    }
+    #urlbar-results { background-color: var(--bg-alt) !important; }
 
     .urlbarView-row {
       background-color: var(--bg-alt) !important;
