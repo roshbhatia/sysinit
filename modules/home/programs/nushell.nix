@@ -11,6 +11,7 @@ let
   paths_lib = import ../../lib/paths.nix { inherit config lib; };
 
   pathsList = paths_lib.getAllPaths config.home.username config.home.homeDirectory;
+  carapaceBin = "${pkgs.carapace}/bin/carapace";
 in
 {
   programs.nushell = {
@@ -65,10 +66,35 @@ in
       use std/util "path add"
 
       ${concatMapStringsSep "\n" (path: "path add \"${path}\"") pathsList}
+
+      $env.CARAPACE_LENIENT = "1"
     '';
 
     extraConfig = ''
       use std/dirs shells-aliases *
+
+      let carapace_completer = {|spans: list<string>|
+        if $spans.0 == "nu" { return null }
+
+        let spans = if $spans.0 in ["k", "kubecolor"] {
+          $spans | skip 1 | prepend "kubectl"
+        } else {
+          $spans
+        }
+
+        let result = (
+          do { timeout 3sec ${carapaceBin} $spans.0 nushell ...$spans }
+          | complete
+        )
+
+        if $result.exit_code != 0 { return null }
+
+        try { $result.stdout | from json } catch { null }
+      }
+
+      $env.config.completions.external.enable = true
+      $env.config.completions.external.max_results = 100
+      $env.config.completions.external.completer = $carapace_completer
 
       # macOS: preserve system open command
       ${optionalString pkgs.stdenv.isDarwin ''
