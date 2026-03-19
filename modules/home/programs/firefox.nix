@@ -19,7 +19,7 @@ let
       <style>
         html, body { margin: 0; padding: 0; background: #${c.base00}; }
       </style>
-      <script>window.location.replace("https://duckduckgo.com");</script>
+      <script>window.location.replace("https://www.google.com");</script>
     </head>
     <body></body>
     </html>
@@ -337,16 +337,23 @@ let
     colors stylix
 
     " New tab page
-    set newtab https://www.duckduckgo.com
+    set newtab https://www.google.com
 
     " Smooth scrolling
     set smoothscroll true
 
     " Search engines (mirror Firefox search config)
-    set searchengine duckduckgo
+    set searchengine google
     set searchurls.np https://search.nixos.org/packages?type=packages&query=%s
     set searchurls.no https://search.nixos.org/options?channel=unstable&query=%s
     set searchurls.gh https://github.com/search?q=%s
+
+    " Auto-focus Google search bar on page load
+    autocmd DocLoad ^https://www.google.com/$ js document.querySelector('textarea[name=q]')?.focus()
+
+    " Ctrl+G to toggle ignore mode (enter/exit passthrough)
+    bind <C-g> mode ignore
+    bind --mode=ignore <C-g> mode normal
 
     " Tab navigation (neovim: J/K for tabnext/tabprev)
     bind <Space>tn tabnext
@@ -453,10 +460,11 @@ in
         "browser.uiCustomization.state" = builtins.toJSON {
           placements = {
             "nav-bar" = [
+              "back-button"
+              "forward-button"
               "urlbar-container"
               "_d634138d-c276-4fc8-924b-40a0ea21d284_-browser-action"
-              "library-button"
-              "unified-extensions-button"
+              "PanelUI-button"
             ];
             "TabsToolbar" = [
               "tabbrowser-tabs"
@@ -496,7 +504,7 @@ in
 
       search = {
         force = true;
-        default = "duckduckgo";
+        default = "google";
         engines = {
           "Nix Packages" = {
             urls = [
@@ -594,7 +602,7 @@ in
       DisplayMenuBar = "default-off";
       SearchBar = "unified";
       SearchEngines = {
-        Default = "DuckDuckGo";
+        Default = "Google";
         PreventInstalls = true;
       };
       ExtensionSettings = {
