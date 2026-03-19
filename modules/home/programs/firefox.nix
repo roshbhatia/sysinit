@@ -114,14 +114,8 @@ let
     .tab-background[selected="true"],
     #titlebar-buttonbox,
     #TabsToolbar,
-    #urlbar,
-    #urlbar-container,
     #nav-bar {
       background: var(--bg) !important;
-    }
-
-    #urlbar-background {
-      background: var(--bg-alt) !important;
     }
 
     .tab-label {
@@ -172,39 +166,62 @@ let
       scrollbar-color: var(--fg-dim) transparent !important;
     }
 
-    /* ========== URL BAR ========== */
+    /* ========== URL BAR (qutebrowser-style bottom overlay) ========== */
     #urlbar-container {
-      min-width: 600px !important;
-      flex: 1 !important;
-      padding-top: 6px !important;
-      margin-top: 2px !important;
+      flex: 0 0 0 !important;
+      min-width: 0 !important;
+      width: 0 !important;
+      margin: 0 !important;
+      padding: 0 !important;
+      overflow: visible !important;
     }
 
     #urlbar {
+      --qb-width: min(820px, calc(100vw - 24px));
+      --qb-height: 26px;
+
+      position: fixed !important;
+      left: 50% !important;
+      bottom: 8px !important;
+      transform: translateX(-50%) translateY(6px) !important;
+
+      width: var(--qb-width) !important;
+      min-height: var(--qb-height) !important;
+
+      opacity: 0 !important;
+      pointer-events: none !important;
+      z-index: 2147483647 !important;
+
       background: transparent !important;
       border: none !important;
       box-shadow: none !important;
+      transition: opacity 120ms ease, transform 120ms ease !important;
+    }
+
+    #urlbar:focus-within,
+    #urlbar[open],
+    #urlbar[breakout][breakout-extend] {
+      opacity: 1 !important;
+      pointer-events: auto !important;
+      transform: translateX(-50%) translateY(0) !important;
     }
 
     #urlbar-background {
       background: var(--bg-alt) !important;
       border: 1px solid var(--bg-sel) !important;
-      border-radius: 4px !important;
-      transition: border-color 150ms ease !important;
+      border-radius: 2px !important;
+      box-shadow: none !important;
     }
 
-    #urlbar:focus-within > #urlbar-background {
+    #urlbar:focus-within > #urlbar-background,
+    #urlbar[open] > #urlbar-background,
+    #urlbar[breakout][breakout-extend] > #urlbar-background {
       border-color: var(--accent) !important;
-      box-shadow: 0 0 0 2px var(--bg) !important;
     }
 
-    :root {
-      --lwt-toolbar-field-background-color: var(--bg-alt) !important;
-      --lwt-toolbar-field-border-color: var(--bg-sel) !important;
-      --toolbar-bgcolor: var(--bg) !important;
-      --toolbar-field-background-color: var(--bg-alt) !important;
-      --toolbar-field-focus-background-color: var(--bg-alt) !important;
-      --toolbar-field-focus-border-color: var(--accent) !important;
+    #urlbar-input-container {
+      min-height: var(--qb-height) !important;
+      padding-block: 0 !important;
     }
 
     #page-action-buttons { display: none !important; }
@@ -220,7 +237,14 @@ let
       color: var(--bg) !important;
     }
 
-    #urlbar-results { background-color: var(--bg-alt) !important; }
+    .urlbar-input-box > .urlbar-input::placeholder { opacity: 0 !important; }
+
+    #urlbar-results,
+    .urlbarView {
+      background-color: var(--bg-alt) !important;
+      border: 1px solid var(--bg-sel) !important;
+      border-radius: 2px !important;
+    }
 
     .urlbarView-row {
       background-color: var(--bg-alt) !important;
@@ -236,8 +260,6 @@ let
     .urlbarView-title,
     .urlbarView-action { color: var(--fg) !important; }
     .urlbarView-url { color: var(--fg-dim) !important; }
-
-    .urlbar-input-box > .urlbar-input::placeholder { opacity: 0 !important; }
 
     /* ========== HIDE CLUTTER ========== */
     #identity-box.extensionPage #identity-icon-labels,
@@ -321,8 +343,6 @@ let
     /* ========== CONTENT AREA ========== */
     .browserContainer { background-color: var(--bg) !important; }
 
-    /* ========== MINIMAL NAVBAR (qutebrowser style) ========== */
-    #urlbar-container { display: none !important; }
     #nav-bar toolbarspring { display: none !important; }
   '';
 
