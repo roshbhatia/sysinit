@@ -91,7 +91,7 @@ in
         base16Scheme = "black-metal";
         appearance = "dark";
         font = {
-          monospace = "Departure Mono";
+          monospace = "FiraCode Nerd Font";
         };
       };
     };
