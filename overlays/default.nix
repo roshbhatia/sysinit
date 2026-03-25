@@ -22,5 +22,6 @@
   (import ./commitMono.nix { })
   (import ./wumpusMono.nix { })
   (import ./direnv.nix { })
+  (import ./ginkgo.nix { })
   (import ./mozilla.nix { inherit inputs; })
 ]
