@@ -90,61 +90,7 @@ function M.setup(config)
     return "  "
   end
 
-  local tabline_ok, tabline = plugin_loader.load("tabline")
-  if not tabline_ok then
-    wezterm.log_warn("Failed to load tabline.wez: " .. tostring(tabline))
-  end
-  if tabline_ok then
-    tabline.setup({
-      options = {
-        theme = config.colors,
-        section_separators = {
-          left = "",
-          right = "",
-        },
-        component_separators = {
-          left = "",
-          right = "",
-        },
-        tab_separators = {
-          left = "",
-          right = "",
-        },
-      },
-      sections = {
-        tabline_a = {
-          "mode",
-          locked_indicator,
-        },
-        tabline_x = {},
-        tabline_y = {},
-      },
-      extensions = {},
-    })
-    tabline.apply_to_config(config)
-  end
-
-  -- Fallback: if tabline plugin didn't load, use native right_status for locked indicator
-  if not tabline_ok then
-    wezterm.on("update-right-status", function(window, _pane)
-      local mode_text = locked_indicator()
-      window:set_right_status(wezterm.format({
-        { Text = mode_text },
-      }))
-    end)
-  end
-
-  -- Post-process window padding for macOS
-  if utils.is_darwin() then
-    -- Set window padding AFTER tabline.apply_to_config, which zeroes all padding
-    config.window_padding = {
-      left = "1cell",
-      right = "1cell",
-      top = "1cell",
-      bottom = "0cell",
-    }
-  end
-
+  -- Load agent-deck before tabline so its API is available in tabline sections
   local agent_deck_ok, agent_deck = plugin_loader.load("agent-deck")
   if not agent_deck_ok then
     wezterm.log_warn("Failed to load agent-deck: " .. tostring(agent_deck))
@@ -211,6 +157,86 @@ function M.setup(config)
         },
       },
     })
+  end
+
+  local function agent_status()
+    if not agent_deck_ok then
+      return ""
+    end
+    local counts = agent_deck.count_agents_by_status()
+    local cfg = agent_deck.get_config()
+    local parts = {}
+    if counts.working and counts.working > 0 then
+      table.insert(parts, { Foreground = { Color = cfg.colors.working } })
+      table.insert(parts, { Text = agent_deck.get_status_icon("working") .. " " .. counts.working .. " " })
+    end
+    if counts.waiting and counts.waiting > 0 then
+      table.insert(parts, { Foreground = { Color = cfg.colors.waiting } })
+      table.insert(parts, { Text = agent_deck.get_status_icon("waiting") .. " " .. counts.waiting .. " " })
+    end
+    if counts.idle and counts.idle > 0 then
+      table.insert(parts, { Foreground = { Color = cfg.colors.idle } })
+      table.insert(parts, { Text = agent_deck.get_status_icon("idle") .. " " .. counts.idle })
+    end
+    if #parts == 0 then
+      return ""
+    end
+    return wezterm.format(parts)
+  end
+
+  local tabline_ok, tabline = plugin_loader.load("tabline")
+  if not tabline_ok then
+    wezterm.log_warn("Failed to load tabline.wez: " .. tostring(tabline))
+  end
+  if tabline_ok then
+    tabline.setup({
+      options = {
+        theme = config.colors,
+        section_separators = {
+          left = "",
+          right = "",
+        },
+        component_separators = {
+          left = "",
+          right = "",
+        },
+        tab_separators = {
+          left = "",
+          right = "",
+        },
+      },
+      sections = {
+        tabline_a = {
+          "mode",
+          locked_indicator,
+        },
+        tabline_x = {},
+        tabline_y = { agent_status },
+      },
+      extensions = {},
+    })
+    tabline.apply_to_config(config)
+  end
+
+  -- Fallback: if tabline plugin didn't load, use native right_status for locked indicator
+  if not tabline_ok then
+    wezterm.on("update-right-status", function(window, _pane)
+      local mode_text = locked_indicator()
+      window:set_right_status(wezterm.format({
+        { Text = mode_text },
+      }))
+    end)
+  end
+
+  -- Post-process window padding for macOS
+  if utils.is_darwin() then
+    -- Set window padding AFTER tabline.apply_to_config, which zeroes all padding
+    config.window_padding = {
+      left = "1cell",
+      right = "1cell",
+      top = "1cell",
+      bottom = "0cell",
+    }
   end
 
   config.hyperlink_rules = wezterm.default_hyperlink_rules()
