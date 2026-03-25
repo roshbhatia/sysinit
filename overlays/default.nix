@@ -23,5 +23,6 @@
   (import ./wumpusMono.nix { })
   (import ./direnv.nix { })
   (import ./ginkgo.nix { })
+  (import ./goose-cli.nix { })
   (import ./mozilla.nix { inherit inputs; })
 ]

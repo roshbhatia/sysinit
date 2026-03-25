@@ -167,16 +167,13 @@ function M.setup(config)
     local cfg = agent_deck.get_config()
     local parts = {}
     if counts.working and counts.working > 0 then
-      table.insert(parts, { Foreground = { Color = cfg.colors.working } })
-      table.insert(parts, { Text = agent_deck.get_status_icon("working") .. " " .. counts.working .. " " })
+      table.insert(parts, { Text = " " .. agent_deck.get_status_icon("working") .. " " .. counts.working .. " " })
     end
     if counts.waiting and counts.waiting > 0 then
-      table.insert(parts, { Foreground = { Color = cfg.colors.waiting } })
-      table.insert(parts, { Text = agent_deck.get_status_icon("waiting") .. " " .. counts.waiting .. " " })
+      table.insert(parts, { Text = " " .. agent_deck.get_status_icon("waiting") .. " " .. counts.waiting .. " " })
     end
     if counts.idle and counts.idle > 0 then
-      table.insert(parts, { Foreground = { Color = cfg.colors.idle } })
-      table.insert(parts, { Text = agent_deck.get_status_icon("idle") .. " " .. counts.idle })
+      table.insert(parts, { Text = " " .. agent_deck.get_status_icon("idle") .. " " .. counts.idle .. " " })
     end
     if #parts == 0 then
       return ""
