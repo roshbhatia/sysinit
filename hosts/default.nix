@@ -91,7 +91,7 @@ in
         base16Scheme = "everforest-dark-soft";
         appearance = "dark";
         font = {
-          monospace = "FiraCode Nerd Font";
+          monospace = "WumpusMono Nerd Font Mono";
         };
       };
     };

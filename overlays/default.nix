@@ -20,5 +20,7 @@
   (import ./opa.nix { })
   (import ./ioskeleyMono.nix { })
   (import ./commitMono.nix { })
+  (import ./wumpusMono.nix { })
+  (import ./direnv.nix { })
   (import ./mozilla.nix { inherit inputs; })
 ]
