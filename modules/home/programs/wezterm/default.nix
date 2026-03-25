@@ -62,6 +62,7 @@ in
         .. "/.config/wezterm/lua/?/init.lua"
 
       require("sysinit.pkg.core").setup(config)
+      require("sysinit.pkg.events").setup(config)
       require("sysinit.pkg.sessions").setup(config)
       require("sysinit.pkg.keybindings").setup(config)
       require("sysinit.pkg.ui").setup(config)

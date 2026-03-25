@@ -189,6 +189,37 @@ in
         ${integrationsExtras}
         ${env}
       '')
+
+      (lib.mkOrder 700 ''
+        # WezTerm user-var helpers: clipboard and notifications over SSH
+        # Uses iTerm2-style SetUserVar escape sequences, which WezTerm
+        # forwards transparently even through nested SSH / tmux sessions.
+        function wezcopy() {
+          local data
+          if [[ -t 0 ]]; then
+            data="$*"
+          else
+            data="$(cat)"
+          fi
+          printf "\033]1337;SetUserVar=%s=%s\007" wez_copy "$(printf '%s' "$data" | base64 | tr -d '\n')"
+        }
+
+        function weznot() {
+          printf "\033]1337;SetUserVar=%s=%s\007" wez_not "$(printf '%s' "$1" | base64 | tr -d '\n')"
+        }
+
+        function wezmon() {
+          local cmd="$*"
+          eval "$cmd"
+          local rc=$?
+          if (( rc == 0 )); then
+            weznot "'$cmd' completed successfully"
+          else
+            weznot "'$cmd' failed (exit $rc)"
+          fi
+          return $rc
+        }
+      '')
     ];
   };
 }
