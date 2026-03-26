@@ -42,7 +42,14 @@ let
   '';
 in
 {
-  services.sketchybar.enable = true;
+  services.sketchybar = {
+    enable = true;
+    extraPackages = [
+      pkgs.sbarlua
+      pkgs.lua54Packages.cjson
+      menus
+    ];
+  };
 
   launchd.user.agents.sketchybar-monitor-reload = {
     serviceConfig = {
@@ -65,10 +72,4 @@ in
       }:/usr/bin:/bin";
     };
   };
-
-  environment.systemPackages = [
-    pkgs.sbarlua
-    pkgs.lua54Packages.cjson
-    menus
-  ];
 }
