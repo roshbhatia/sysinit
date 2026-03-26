@@ -46,7 +46,7 @@ in
     enable = true;
     extraPackages = [
       pkgs.sbarlua
-      pkgs.lua54Packages.cjson
+      pkgs.lua55Packages.cjson
       menus
     ];
   };

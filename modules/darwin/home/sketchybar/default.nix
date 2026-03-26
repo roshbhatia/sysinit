@@ -41,7 +41,7 @@ in
   xdg.configFile = {
     "sketchybar/sketchybarrc" = {
       text = ''
-        #!${pkgs.lua5_4}/bin/lua
+        #!${pkgs.lua5_5}/bin/lua
 
         local current_path = os.getenv("PATH") or ""
         local home_dir = os.getenv("HOME")
@@ -50,8 +50,8 @@ in
           home_dir = "/Users/" .. username
         end
 
-        package.cpath = package.cpath .. ";${pkgs.sbarlua}/lib/lua/5.4/?.so"
-        package.cpath = package.cpath .. ";${pkgs.lua54Packages.cjson}/lib/lua/5.4/?.so"
+        package.cpath = package.cpath .. ";${pkgs.sbarlua}/lib/lua/5.5/?.so"
+        package.cpath = package.cpath .. ";${pkgs.lua55Packages.cjson}/lib/lua/5.5/?.so"
 
         package.path = package.path
           .. ";"
