@@ -13,6 +13,7 @@ let
     base16Scheme = themeConfig.base16Scheme;
     appearance = themeConfig.appearance;
     transparency = themeConfig.transparency;
+    aerospace_bin = "${pkgs.aerospace}/bin/aerospace";
     base16 = {
       base00 = "#${c.base00}";
       base01 = "#${c.base01}";

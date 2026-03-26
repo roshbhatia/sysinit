@@ -15,28 +15,33 @@ local function has_notch(width, height)
 end
 
 local function get_displays()
-  local handle = io.popen("sketchybar --query displays")
+  local handle = io.popen("system_profiler SPDisplaysDataType -json 2>/dev/null")
   if not handle then
     return {}
   end
   local result = handle:read("*a")
   handle:close()
 
-  local ok, displays_data = pcall(cjson.decode, result)
-  if not ok then
+  local ok, data = pcall(cjson.decode, result)
+  if not ok or not data.SPDisplaysDataType then
     return {}
   end
 
   local displays = {}
-  for _, display in ipairs(displays_data) do
-    local frame = display.frame
-    local notch = has_notch(frame.w, frame.h)
-    table.insert(displays, {
-      id = display.DirectDisplayID,
-      notch = notch,
-      width = frame.w,
-      height = frame.h,
-    })
+  for _, gpu in ipairs(data.SPDisplaysDataType) do
+    if gpu.spdisplays_ndrvs then
+      for _, d in ipairs(gpu.spdisplays_ndrvs) do
+        local w, h = (d._spdisplays_resolution or ""):match("(%d+)%s*x%s*(%d+)")
+        w, h = tonumber(w), tonumber(h)
+        if w and h then
+          table.insert(displays, {
+            notch = has_notch(w, h),
+            width = w,
+            height = h,
+          })
+        end
+      end
+    end
   end
   return displays
 end
