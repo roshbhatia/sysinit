@@ -42,10 +42,7 @@ let
   '';
 in
 {
-  services.sketchybar = {
-    package = pkgs.sketchybar;
-    enable = true;
-  };
+  services.sketchybar.enable = true;
 
   launchd.user.agents.sketchybar-monitor-reload = {
     serviceConfig = {
