@@ -86,6 +86,7 @@ end
 
 local function get_system_keys()
   return {
+    create_smart_keybind("r", "SUPER", act.ReloadConfiguration),
     create_smart_keybind(":", "SUPER", act.ActivateCommandPalette),
     create_smart_keybind(";", "SUPER", act.ActivateCommandPalette),
     create_smart_keybind(";", "CTRL", act.ActivateCommandPalette),
@@ -188,6 +189,24 @@ local function get_tab_keys()
   table.insert(keys, create_smart_keybind("t", "CTRL|SHIFT", act.ShowTabNavigator))
   table.insert(keys, create_smart_keybind("t", "SUPER|SHIFT", act.ShowTabNavigator))
 
+  -- Rename current tab
+  table.insert(keys, create_smart_keybind("r", "CTRL|SHIFT", act.PromptInputLine({
+    description = "Rename tab:",
+    action = wezterm.action_callback(function(win, _, line)
+      if line then win:active_tab():set_title(line) end
+    end),
+  })))
+  table.insert(keys, create_smart_keybind("r", "SUPER|SHIFT", act.PromptInputLine({
+    description = "Rename tab:",
+    action = wezterm.action_callback(function(win, _, line)
+      if line then win:active_tab():set_title(line) end
+    end),
+  })))
+
+  -- Reorder tabs
+  table.insert(keys, create_smart_keybind(",", "CTRL|SHIFT", act.MoveTabRelative(-1)))
+  table.insert(keys, create_smart_keybind(".", "CTRL|SHIFT", act.MoveTabRelative(1)))
+
   -- Tab switching: 1-8 go to specific tabs, 9 goes to last tab
   for i = 1, 9 do
     local tab_action = i == 9 and act.ActivateTab(-1) or act.ActivateTab(i - 1)
@@ -222,6 +241,8 @@ local function get_scroll_keys()
   return {
     create_smart_keybind("u", "CTRL", { ScrollByLine = -40 }, { passthrough = EDITORS }),
     create_smart_keybind("d", "CTRL", { ScrollByLine = 40 }, { passthrough = EDITORS }),
+    create_smart_keybind("u", "CTRL|SHIFT", act.ScrollToTop, { passthrough = EDITORS }),
+    create_smart_keybind("d", "CTRL|SHIFT", act.ScrollToBottom, { passthrough = EDITORS }),
   }
 end
 
