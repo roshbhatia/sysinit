@@ -1,0 +1,16 @@
+--- a/plugin/init.lua
++++ b/plugin/init.lua
+@@ -487,11 +487,12 @@ local function detect_status(pane, agent_type, config)
+     for line in last_lines:gmatch('[^\n]+') do
+         local trimmed = line:match('^%s*(.-)%s*$') or ''
+
+-        -- Check for ">" prompt (Claude/OpenCode prompt starts with >)
+-        if trimmed == '>' or trimmed:match('^>%s') then
++        -- Check for bare ">" idle prompt.
++        -- Only match the lone ">" character; do NOT match "> text" lines because
++        -- Claude Code prefixes tool-output lines with "> " (e.g. "> Running bash: …"),
++        -- which would otherwise cause the working state to be mis-reported as idle.
++        if trimmed == '>' then
+             return 'idle'
+         end
+

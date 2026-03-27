@@ -18,11 +18,17 @@ let
       rev = "5e148f08f134e317bbfe75b26f8a23b0102cb621";
       hash = "sha256-G5sFPIJ2SDLKjeiuauJfzu3JgvViwoe9RLhYAScaHbs=";
     };
-    agent-deck = pkgs.fetchFromGitHub {
-      owner = "Eric162";
-      repo = "wezterm-agent-deck";
-      rev = "bd5a57e7806032998e6cae56ade67b72a08b7868";
-      hash = "sha256-nb5eCStxsgLBgZSNZjOBMYLNbv0haxXM+6609FywnwE=";
+    agent-deck = pkgs.applyPatches {
+      src = pkgs.fetchFromGitHub {
+        owner = "Eric162";
+        repo = "wezterm-agent-deck";
+        rev = "bd5a57e7806032998e6cae56ade67b72a08b7868";
+        hash = "sha256-nb5eCStxsgLBgZSNZjOBMYLNbv0haxXM+6609FywnwE=";
+      };
+      # Fix: "> text" lines are Claude Code tool-output prefixes, not idle prompts.
+      # The upstream check `trimmed:match('^>%s')` fired on lines like
+      # "> Running bash: git status" and returned 'idle' while the agent was working.
+      patches = [ ./patches/agent-deck-idle-detection.patch ];
     };
     sessionizer = pkgs.fetchFromGitHub {
       owner = "mikkasendke";
