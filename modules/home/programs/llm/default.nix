@@ -1,6 +1,7 @@
 {
   lib,
   pkgs,
+  config,
   ...
 }:
 let
@@ -15,6 +16,7 @@ let
 in
 {
   imports = [
+    ./config/aider.nix
     ./config/amp.nix
     ./config/claude.nix
     ./config/codex.nix
@@ -28,4 +30,9 @@ in
   ];
 
   home.file = skillFiles;
+
+  programs.mcp = {
+    enable = true;
+    servers = config.sysinit.llm.mcp.additionalServers;
+  };
 }
