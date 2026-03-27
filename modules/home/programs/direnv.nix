@@ -17,7 +17,7 @@
     direnv-instant = {
       enable = true;
       enableZshIntegration = true;
-      settings.mux_delay = 2;
+      settings.mux_delay = 5;
     };
   };
 }
