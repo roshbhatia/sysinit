@@ -3,8 +3,8 @@ local plugin_loader = require("sysinit.pkg.plugin_loader")
 
 local M = {}
 
-local function sesh_sessions_generator()
-  local sessions_dir = wezterm.home_dir .. "/.local/state/sesh/sessions"
+local function sy_sessions_generator()
+  local sessions_dir = wezterm.home_dir .. "/.local/state/seshy/sessions"
   local entries = {}
   local ok, paths = pcall(wezterm.read_dir, sessions_dir)
   if not ok then
@@ -13,7 +13,25 @@ local function sesh_sessions_generator()
   for _, path in ipairs(paths) do
     local name = path:match("([^/]+)$")
     if name then
-      table.insert(entries, { label = name, id = path })
+      local ok2, stdout, _ = pcall(wezterm.run_child_process, { "sy", "path", name })
+      local id = (ok2 and stdout) and stdout:gsub("%s+$", "") or path
+      table.insert(entries, { label = name, id = id })
+    end
+  end
+  return entries
+end
+
+local function zoxide_generator()
+  local entries = {}
+  local ok, stdout, _ = pcall(wezterm.run_child_process, { "zoxide", "query", "-l" })
+  if not ok or not stdout then
+    return entries
+  end
+  for line in stdout:gmatch("[^\n]+") do
+    local dir = line:gsub("^%s+", ""):gsub("%s+$", "")
+    if dir ~= "" then
+      local label = dir:gsub(wezterm.home_dir, "~")
+      table.insert(entries, { label = label, id = dir })
     end
   end
   return entries
@@ -42,8 +60,12 @@ function M.get_action()
       processing = prefix("[active] "),
     },
     {
-      sesh_sessions_generator,
-      processing = prefix("[sesh]  "),
+      sy_sessions_generator,
+      processing = prefix("[sy]    "),
+    },
+    {
+      zoxide_generator,
+      processing = prefix("[dir]   "),
     },
   }
 
