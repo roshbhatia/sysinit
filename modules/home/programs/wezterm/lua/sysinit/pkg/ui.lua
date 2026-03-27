@@ -157,23 +157,50 @@ function M.setup(config)
         },
       },
     })
+
+    -- Prune stale agent-deck state for closed panes (fixes count-never-decrements bug).
+    -- agent-deck's own update-status handler only visits panes that currently exist;
+    -- when a pane is closed its entry stays in state.agent_states forever and the count
+    -- never decrements. get_all_agent_states() returns the live table by reference so
+    -- we can mutate it. This handler runs after agent-deck's (registered first above).
+    wezterm.on("update-status", function(window, _pane)
+      local all_states = agent_deck.get_all_agent_states()
+      local active_ids = {}
+      for _, tab in ipairs(window:mux_window():tabs()) do
+        for _, p in ipairs(tab:panes()) do
+          active_ids[p:pane_id()] = true
+        end
+      end
+      for pane_id in pairs(all_states) do
+        if not active_ids[pane_id] then
+          all_states[pane_id] = nil
+        end
+      end
+    end)
   end
+
+  -- Status labels so the icons are readable:
+  --   ● N working  = agent actively processing (running a tool, generating)
+  --   ◔ N waiting  = agent needs your input (permission prompt, y/n)
+  --   ○ N idle     = agent at prompt, ready for next message
+  local agent_status_labels = {
+    working = "working",
+    waiting = "waiting",
+    idle    = "idle",
+  }
 
   local function agent_status()
     if not agent_deck_ok then
       return ""
     end
     local counts = agent_deck.count_agents_by_status()
-    local cfg = agent_deck.get_config()
     local parts = {}
-    if counts.working and counts.working > 0 then
-      table.insert(parts, { Text = " " .. agent_deck.get_status_icon("working") .. " " .. counts.working .. " " })
-    end
-    if counts.waiting and counts.waiting > 0 then
-      table.insert(parts, { Text = " " .. agent_deck.get_status_icon("waiting") .. " " .. counts.waiting .. " " })
-    end
-    if counts.idle and counts.idle > 0 then
-      table.insert(parts, { Text = " " .. agent_deck.get_status_icon("idle") .. " " .. counts.idle .. " " })
+    for _, s in ipairs({ "working", "waiting", "idle" }) do
+      if counts[s] and counts[s] > 0 then
+        table.insert(parts, {
+          Text = " " .. agent_deck.get_status_icon(s) .. " " .. counts[s] .. " " .. agent_status_labels[s] .. " ",
+        })
+      end
     end
     if #parts == 0 then
       return ""
