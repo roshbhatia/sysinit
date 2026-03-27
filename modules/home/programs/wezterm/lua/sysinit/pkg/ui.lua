@@ -33,6 +33,7 @@ function M.setup(config)
     config.colors = config_data.colors
   end
 
+  config.status_update_interval = 150
   config.animation_fps = 240
   config.max_fps = 240
   config.cursor_blink_rate = 320
@@ -99,7 +100,7 @@ function M.setup(config)
     agent_deck.apply_to_config(config, {
       tab_title = { enabled = false },
       right_status = { enabled = false },
-      cooldown_ms = 1500,
+      cooldown_ms = 150,
       max_lines = 500,
       notifications = {
         enabled = true,
