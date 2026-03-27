@@ -264,7 +264,69 @@ function M.setup(config)
     }
   end
 
-  config.hyperlink_rules = wezterm.default_hyperlink_rules()
+  -- Smart tab titles: show basename(cwd) and foreground process.
+  -- Falls back to WezTerm default when cwd is unavailable.
+  -- User-set titles (non-numeric) are respected and not overwritten.
+  local SHELLS = { zsh = true, bash = true, fish = true, sh = true }
+  wezterm.on("format-tab-title", function(tab, _tabs, _panes, _config, _hover, _max_width)
+    local title = tab:get_title()
+    -- If the user has manually renamed the tab (title isn't just a number), keep it
+    if title and title ~= "" and not title:match("^%d+$") then
+      return title
+    end
+
+    local pane = tab:active_pane()
+    local cwd_uri = pane:get_current_working_dir()
+    if not cwd_uri then
+      return title
+    end
+
+    local cwd = cwd_uri.file_path or tostring(cwd_uri)
+    local dir = cwd:match("([^/]+)/?$") or cwd
+
+    -- Collapse $HOME to ~
+    local home = os.getenv("HOME") or ""
+    if home ~= "" and cwd:sub(1, #home) == home then
+      dir = "~" .. cwd:sub(#home + 1):match("([^/]*)/?$") or "~"
+      if dir == "~" then dir = "~" end
+    end
+
+    local proc = pane:get_foreground_process_name()
+    if proc then
+      proc = proc:match("([^/]+)$")
+    end
+
+    if proc and not SHELLS[proc] then
+      return dir .. " (" .. proc .. ")"
+    end
+    return dir
+  end)
+
+  -- Hyperlink rules: start with defaults, then add custom patterns
+  local hyperlink_rules = wezterm.default_hyperlink_rules()
+
+  -- Nix store paths as file:// links
+  table.insert(hyperlink_rules, {
+    regex = [[(/nix/store/[a-z0-9]{32}[a-zA-Z0-9._+%-][^\s]*)]],
+    format = "file://$1",
+  })
+
+  -- owner/repo#NNN → GitHub issue URL
+  table.insert(hyperlink_rules, {
+    regex = [[([a-zA-Z0-9_.-]+/[a-zA-Z0-9_.-]+)#([0-9]+)]],
+    format = "https://github.com/$1/issues/$2",
+  })
+
+  config.hyperlink_rules = hyperlink_rules
+
+  -- Extended quick-select patterns
+  config.quick_select_patterns = {
+    "/nix/store/[a-z0-9]{32}[a-zA-Z0-9._+%-][^\\s]*",
+    "[0-9a-f]{40}",
+    "(?<![0-9a-f])[0-9a-f]{7}(?![0-9a-f])",
+    "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}",
+    "/[^\\s]+",
+  }
 end
 
 return M
