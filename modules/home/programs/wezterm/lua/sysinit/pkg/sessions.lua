@@ -13,8 +13,8 @@ local function sy_sessions_generator()
   for _, path in ipairs(paths) do
     local name = path:match("([^/]+)$")
     if name then
-      local ok2, stdout, _ = pcall(wezterm.run_child_process, { "sy", "path", name })
-      local id = (ok2 and stdout) and stdout:gsub("%s+$", "") or path
+      local success, stdout, _ = wezterm.run_child_process({ "sy", "path", name })
+      local id = (success and stdout) and stdout:gsub("%s+$", "") or path
       table.insert(entries, { label = name, id = id })
     end
   end
@@ -23,8 +23,8 @@ end
 
 local function zoxide_generator()
   local entries = {}
-  local ok, stdout, _ = pcall(wezterm.run_child_process, { "zoxide", "query", "-l" })
-  if not ok or not stdout then
+  local success, stdout, _ = wezterm.run_child_process({ "zoxide", "query", "-l" })
+  if not success or not stdout then
     return entries
   end
   for line in stdout:gmatch("[^\n]+") do
