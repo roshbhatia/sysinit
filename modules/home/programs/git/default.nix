@@ -40,10 +40,10 @@ let
 
   sshCmd =
     keyFile:
-    if use1Password then
-      "ssh -o 'IdentityAgent=\"${sshCfg.agentSocket}\"'"
-    else
-      "ssh -i ${keyFile} -o IdentitiesOnly=yes";
+    "ssh"
+    + lib.optionalString use1Password " -o 'IdentityAgent=\"${sshCfg.agentSocket}\"'"
+    + lib.optionalString (keyFile != null) " -i ${keyFile}"
+    + lib.optionalString (keyFile != null) " -o IdentitiesOnly=yes";
 in
 {
   imports = [
@@ -238,6 +238,12 @@ in
         compression = 9;
         preloadIndex = true;
         hooksPath = ".githooks";
+        # Global fallback so bare `git clone` (no gitdir → includes not active)
+        # still authenticates.  Directory-scoped includes below override this
+        # with the correct key for personal vs work paths.
+      }
+      // lib.optionalAttrs (use1Password || hasPersonalKey) {
+        sshCommand = sshCmd personalKeyPath;
       };
 
       merge = {
@@ -316,7 +322,7 @@ in
             };
           };
         }
-        // lib.optionalAttrs (!use1Password && hasPersonalKey) {
+        // lib.optionalAttrs (use1Password || hasPersonalKey) {
           core.sshCommand = sshCmd personalKeyPath;
         };
 
@@ -334,7 +340,7 @@ in
             };
           };
         }
-        // lib.optionalAttrs (!use1Password && hasWorkKey) {
+        // lib.optionalAttrs (use1Password || hasWorkKey) {
           core.sshCommand = sshCmd workKeyPath;
         };
       in
