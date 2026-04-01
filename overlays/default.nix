@@ -23,6 +23,7 @@
   (import ./wumpusMono.nix { })
   (import ./direnv.nix { })
   (import ./ginkgo.nix { })
+  (import ./claude-code.nix { })
   (import ./goose-cli.nix { })
   (import ./mozilla.nix { inherit inputs; })
 ]

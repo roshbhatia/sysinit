@@ -252,22 +252,22 @@ let
   piPkgInterview = fetchNpmPkg {
     name = "pi-interview";
     version = "0.6.0";
-    hash = "sha256-1XEgyI1WbSqAzP4aOm6dB8C3AvEDF6nRQboE4jadLxg=";
+    hash = "sha256-2kIaXuS4JobGnRIIrcW0hZAjwWOTnFARNAiEHPJnXu0=";
   };
   piPkgLibrarian = fetchNpmPkg {
     name = "pi-librarian";
     version = "1.3.3";
-    hash = "sha256-O/H9aj8KgxRie3LPVagWkyllhTOpR63xSFnXU3f9Qok=";
+    hash = "sha256-iQzkY2w0xOUU9Teooj4llegOYlbehkGzGbDxRl773PE=";
   };
   piPkgAskUser = fetchNpmPkg {
     name = "pi-ask-user";
     version = "0.5.1";
-    hash = "sha256-XrOnawgkySt2SaTpoiA6z+0MQxyk060qo972rHKsGnk=";
+    hash = "sha256-x3g4W8Eu7S/GAuseNbUfH8KoNkGuBXujAOZiOM2X5wo=";
   };
   piPkgPowerlineFooter = fetchNpmPkg {
     name = "pi-powerline-footer";
     version = "0.4.8";
-    hash = "sha256-SBWUg8Rz0L8Fc3pHzhTMHvuVAK35ki+CmdfDf868IN8=";
+    hash = "sha256-Pa9i7daUUXUV0FQkEjSybYRsKdZydtHVWcI8JVWT1QM=";
   };
 
   # npm packages with runtime deps - lock files stored in ./locks/
@@ -309,7 +309,7 @@ let
   piPkgMcpAdapter = buildNpmPkg {
     name = "pi-mcp-adapter";
     version = "2.2.1";
-    hash = "sha256-8HOOMxHGcnm4XXqVCG7vEC+NCgD+7NAVBtJKpKGQrKs=";
+    hash = "sha256-hRTTDUp6XXsLZmO/a8a9hLeGN3jFlyc1lmFbIymNJ/k=";
     npmDepsHash = "sha256-HDm5F0zAyYgZS0BDcKfkJVEuBk9k0BU/qpQNCmmgEas=";
     lockFile = ./locks/pi-mcp-adapter.lock.json;
   };
@@ -323,7 +323,7 @@ let
     src = fetchNpmPkg {
       name = "pi-acp";
       version = "0.0.24";
-      hash = "sha256-7ZFscb5u8dVLSk0bbrfD1H50TPJgLS1mIA9X8sbY79U=";
+      hash = "sha256-aWx3NEn8h8u5WvwNfWBoJ5+vXfcoibxE+qZ08blh/Ps=";
     };
     postPatch = ''
       cp ${./locks/pi-acp.lock.json} package-lock.json
