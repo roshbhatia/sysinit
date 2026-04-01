@@ -228,11 +228,6 @@ let
   };
 
   # npm packages - source only (no runtime deps beyond pi's bundled ones)
-  piPkgVim = fetchNpmPkg {
-    name = "pi-vim";
-    version = "0.1.8";
-    hash = "sha256-CYkELMs7mbTAthmijkPir/jIg/3Cl6jmkKfk6RhV3iE=";
-  };
   piPkgSubagents = fetchNpmPkg {
     name = "pi-subagents";
     version = "0.11.2";
@@ -254,6 +249,27 @@ let
     hash = "sha256-MF++ANxMplxx0qydKoozrnNTFtb4HQ/0s923cGrsPyM=";
   };
 
+  piPkgInterview = fetchNpmPkg {
+    name = "pi-interview";
+    version = "0.6.0";
+    hash = "sha256-1XEgyI1WbSqAzP4aOm6dB8C3AvEDF6nRQboE4jadLxg=";
+  };
+  piPkgLibrarian = fetchNpmPkg {
+    name = "pi-librarian";
+    version = "1.3.3";
+    hash = "sha256-O/H9aj8KgxRie3LPVagWkyllhTOpR63xSFnXU3f9Qok=";
+  };
+  piPkgAskUser = fetchNpmPkg {
+    name = "pi-ask-user";
+    version = "0.5.1";
+    hash = "sha256-XrOnawgkySt2SaTpoiA6z+0MQxyk060qo972rHKsGnk=";
+  };
+  piPkgPowerlineFooter = fetchNpmPkg {
+    name = "pi-powerline-footer";
+    version = "0.4.8";
+    hash = "sha256-SBWUg8Rz0L8Fc3pHzhTMHvuVAK35ki+CmdfDf868IN8=";
+  };
+
   # npm packages with runtime deps - lock files stored in ./locks/
   piPkgDcp = buildNpmPkg {
     name = "pi-dcp";
@@ -270,21 +286,49 @@ let
     lockFile = ./locks/pi-webfetch-to-markdown.lock.json;
   };
 
+  # @heyhuynhgiabuu/pi-pretty: scoped package, URL filename differs from package name
+  piPkgPretty = pkgs.buildNpmPackage {
+    pname = "pi-pretty";
+    version = "0.2.0";
+    src = pkgs.fetchurl {
+      url = "https://registry.npmjs.org/@heyhuynhgiabuu/pi-pretty/-/pi-pretty-0.2.0.tgz";
+      hash = "sha256-aCP8UxKr5qJgNh8DsoKgA/SB0G4uBjS7tGu/9jpcQuw=";
+    };
+    postPatch = ''
+      cp ${./locks/pi-pretty.lock.json} package-lock.json
+    '';
+    npmDepsHash = "sha256-ZF62fyZJqAPzrK9mZUpMMntj581lM5tqvhXxtZq2hZ4=";
+    npmFlags = "--ignore-scripts";
+    dontNpmBuild = true;
+    installPhase = ''
+      runHook preInstall
+      cp -r . $out
+      runHook postInstall
+    '';
+  };
+  piPkgMcpAdapter = buildNpmPkg {
+    name = "pi-mcp-adapter";
+    version = "2.2.1";
+    hash = "sha256-8HOOMxHGcnm4XXqVCG7vEC+NCgD+7NAVBtJKpKGQrKs=";
+    npmDepsHash = "sha256-HDm5F0zAyYgZS0BDcKfkJVEuBk9k0BU/qpQNCmmgEas=";
+    lockFile = ./locks/pi-mcp-adapter.lock.json;
+  };
+
   # pi-acp is a standalone CLI tool (not a pi package) - exposed via home.packages.
   # dist/ is pre-compiled in the npm tarball; --ignore-scripts prevents npm ci
   # from triggering the prepare lifecycle hook (which would try to run tsup).
   piAcp = pkgs.buildNpmPackage {
     pname = "pi-acp";
-    version = "0.0.22";
+    version = "0.0.24";
     src = fetchNpmPkg {
       name = "pi-acp";
-      version = "0.0.22";
-      hash = "sha256-2Sa0mUUzBtt4ehnb78uHx4p5COf89ZZ8tilQ06z7BJM=";
+      version = "0.0.24";
+      hash = "sha256-7ZFscb5u8dVLSk0bbrfD1H50TPJgLS1mIA9X8sbY79U=";
     };
     postPatch = ''
       cp ${./locks/pi-acp.lock.json} package-lock.json
     '';
-    npmDepsHash = "sha256-D7u7+MeA92PChDC9UC4es/bUJvaaRHBMldqcj2wiO6U=";
+    npmDepsHash = "sha256-srVXvo6BHFEWqchW9P7py27FUj817nPGZ5e3bxF3N3k=";
     npmFlags = "--ignore-scripts";
     dontNpmBuild = true;
   };
@@ -297,13 +341,18 @@ let
       "${piPkgAnnotatedReply}"
       "${piPkgContext}"
       "${piPkgMermaid}"
-      "${piPkgVim}"
       "${piPkgSubagents}"
       "${piPkgReadlineSearch}"
       "${piPkgRtk}"
       "${piPkgThreads}"
       "${piPkgDcp}"
       "${piPkgWebfetch}"
+      "${piPkgInterview}"
+      "${piPkgLibrarian}"
+      "${piPkgAskUser}"
+      "${piPkgPowerlineFooter}"
+      "${piPkgPretty}"
+      "${piPkgMcpAdapter}"
     ]
   );
 
