@@ -84,34 +84,34 @@
   };
   pi-coding-agent = {
     pname = "pi-coding-agent";
-    version = "0.57.1";
+    version = "0.62.0";
     src = fetchurl {
-      url = "https://github.com/badlogic/pi-mono/releases/download/v0.57.1/pi-darwin-arm64.tar.gz";
-      sha256 = "sha256-T8cLJKI+ODscNW6jdiDhGJ1ohCDfNrSMSbR1eJ9eD44=";
+      url = "https://github.com/badlogic/pi-mono/releases/download/v0.62.0/pi-darwin-arm64.tar.gz";
+      sha256 = "sha256-b1VWNmXDidJ9RvBxiztaJ8o2flLLNeICs9IMqYdZ0sc=";
     };
   };
   pi-coding-agent-aarch64-linux = {
     pname = "pi-coding-agent-aarch64-linux";
-    version = "0.57.1";
+    version = "0.62.0";
     src = fetchurl {
-      url = "https://github.com/badlogic/pi-mono/releases/download/v0.57.1/pi-linux-arm64.tar.gz";
-      sha256 = "sha256-GrX78MvEEKaM6MOAEGttfW4v6ryg3KJ7jmi3dw6h9K0=";
+      url = "https://github.com/badlogic/pi-mono/releases/download/v0.62.0/pi-linux-arm64.tar.gz";
+      sha256 = "sha256-Uah6SvLLEJUO/gr2EeO0FjHIlC5EL+Pz1o35QSGIafs=";
     };
   };
   pi-coding-agent-x86_64-darwin = {
     pname = "pi-coding-agent-x86_64-darwin";
-    version = "0.57.1";
+    version = "0.62.0";
     src = fetchurl {
-      url = "https://github.com/badlogic/pi-mono/releases/download/v0.57.1/pi-darwin-x64.tar.gz";
-      sha256 = "sha256-vGdzPOmldi00rmCP62Va53Q08fU1qgimXG3kBFt37HM=";
+      url = "https://github.com/badlogic/pi-mono/releases/download/v0.62.0/pi-darwin-x64.tar.gz";
+      sha256 = "sha256-GVCma/SKTALvyr810upS4Xz9cAH9rSRWaiS66qNaKQI=";
     };
   };
   pi-coding-agent-x86_64-linux = {
     pname = "pi-coding-agent-x86_64-linux";
-    version = "0.57.1";
+    version = "0.62.0";
     src = fetchurl {
-      url = "https://github.com/badlogic/pi-mono/releases/download/v0.57.1/pi-linux-x64.tar.gz";
-      sha256 = "sha256-ghQwKFWi+oPRW0cGvI6L6Rommqy0lhTBSqc/0sKqZac=";
+      url = "https://github.com/badlogic/pi-mono/releases/download/v0.62.0/pi-linux-x64.tar.gz";
+      sha256 = "sha256-RyGGRuBjapwR3IcCdE/naWoTIuJ1X7Y/3g1oVldHkIs=";
     };
   };
 }
