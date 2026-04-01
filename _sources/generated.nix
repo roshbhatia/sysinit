@@ -87,7 +87,7 @@
     version = "0.62.0";
     src = fetchurl {
       url = "https://github.com/badlogic/pi-mono/releases/download/v0.62.0/pi-darwin-arm64.tar.gz";
-      sha256 = "sha256-b1VWNmXDidJ9RvBxiztaJ8o2flLLNeICs9IMqYdZ0sc=";
+      sha256 = "sha256-huHgxl32qC/1u8VUCVJybYYSS49upFjGRAx7pWWF6gU=";
     };
   };
   pi-coding-agent-aarch64-linux = {

@@ -75,7 +75,7 @@
       "repo": "go-enum",
       "rev": "v0.9.2",
       "sha256": "sha256-VZH7xLEDqU8N7oU3tOWVdTABEQEp2mlh1NtTg22hzco=",
-      "sparseCheckout": [],
+      "sparseCheckout": [ ],
       "type": "github"
     },
     "version": "v0.9.2"
@@ -96,7 +96,7 @@
       "repo": "gomvp",
       "rev": "v0.0.4",
       "sha256": "sha256-dXjI+nItJCAGKxyC9tX11hxWHCP+NgXtTYtm5+6dqDU=",
-      "sparseCheckout": [],
+      "sparseCheckout": [ ],
       "type": "github"
     },
     "version": "v0.0.4"
@@ -117,7 +117,7 @@
       "repo": "hererocks",
       "rev": "0.25.1",
       "sha256": "sha256-y28MTFncy5oD57jpY6AN+X/58OzY3ae3rSL236rfuL0=",
-      "sparseCheckout": [],
+      "sparseCheckout": [ ],
       "type": "github"
     },
     "version": "0.25.1"
@@ -138,7 +138,7 @@
       "repo": "zeitgeist",
       "rev": "v0.5.4",
       "sha256": "sha256-o9uk8WnoIvG5Ylz6We2QElBrKOq2mUWKu0pqzlKtaXY=",
-      "sparseCheckout": [],
+      "sparseCheckout": [ ],
       "type": "github"
     },
     "version": "v0.5.4"
