@@ -13,6 +13,7 @@
   (import ./gomvp.nix { })
   (import ./hererocks.nix { })
   (import ./openspec.nix { })
+  (import ./deno.nix { })
   (import ./pi-coding-agent.nix { })
   (import ./crush.nix { })
   (import ./ast-grep.nix { })
