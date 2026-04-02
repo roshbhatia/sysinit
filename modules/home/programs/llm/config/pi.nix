@@ -382,19 +382,23 @@ in
       $DRY_RUN_CMD ${updatePiSettings}
     '';
 
+    activation.piKeybindings = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+      KEYBINDINGS="$HOME/.pi/agent/keybindings.json"
+      $DRY_RUN_CMD mkdir -p "$(dirname "$KEYBINDINGS")"
+      $DRY_RUN_CMD rm -f "$KEYBINDINGS"
+      $DRY_RUN_CMD cp ${pkgs.writeText "pi-keybindings.json" (builtins.toJSON {
+        renameSession = "ctrl+shift+r";
+        externalEditor = "ctrl+e";
+      })} "$KEYBINDINGS"
+      $DRY_RUN_CMD chmod 644 "$KEYBINDINGS"
+    '';
+
     file =
       extensionFiles
       // agentFiles
       // {
         ".pi/agent/themes/stylix.json" = {
           text = stylixTheme;
-          force = true;
-        };
-        ".pi/agent/keybindings.json" = {
-          text = builtins.toJSON {
-            renameSession = "ctrl+shift+r";
-            externalEditor = "ctrl+e";
-          };
           force = true;
         };
       };
