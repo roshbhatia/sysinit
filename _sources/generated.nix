@@ -111,7 +111,7 @@
     version = "0.62.0";
     src = fetchurl {
       url = "https://github.com/badlogic/pi-mono/releases/download/v0.62.0/pi-linux-x64.tar.gz";
-      sha256 = "sha256-RyGGRuBjapwR3IcCdE/naWoTIuJ1X7Y/3g1oVldHkIs=";
+      sha256 = "sha256-69RXsX1XJ5Q3GvK3ZOXyyYGbAbIfkdx38Mx5O/AUfig=";
     };
   };
 }
