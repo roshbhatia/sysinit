@@ -2,7 +2,7 @@
 # Updates version, fetchzip src hash, package-lock.json, and fetchNpmDeps hash for
 # the claude-code overlay when a new npm release is detected.
 #
-# Requires: curl, jq, nix (with nix-prefetch-url), tar
+# Requires: curl, jq, nix (with nix-prefetch-url), npm, tar
 # Usage: ./hack/update-claude-code.sh
 
 set -euo pipefail
@@ -27,9 +27,13 @@ echo "  Computing src hash..."
 RAW_HASH=$(nix-prefetch-url --type sha256 --unpack "${TGZ_URL}" 2>/dev/null)
 SRC_HASH=$(nix hash convert --hash-algo sha256 --from nix32 --to sri "${RAW_HASH}")
 
-# Extract package-lock.json from the tgz
-echo "  Extracting package-lock.json..."
-curl -sL "${TGZ_URL}" | tar -xzO package/package-lock.json > "${LOCK_FILE}"
+# Generate package-lock.json by extracting the package and running npm
+echo "  Generating package-lock.json..."
+WORKDIR=$(mktemp -d)
+trap 'rm -rf "${WORKDIR}"' EXIT
+curl -sL "${TGZ_URL}" | tar -xz -C "${WORKDIR}"
+( cd "${WORKDIR}/package" && npm install --package-lock-only --ignore-scripts --quiet 2>/dev/null )
+cp "${WORKDIR}/package/package-lock.json" "${LOCK_FILE}"
 
 # Compute fetchNpmDeps hash
 echo "  Computing npm deps hash..."
