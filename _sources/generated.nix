@@ -6,6 +6,14 @@
   dockerTools,
 }:
 {
+  commitMono = {
+    pname = "commitMono";
+    version = "1.143";
+    src = fetchurl {
+      url = "https://github.com/eigilnikolajsen/commit-mono/releases/download/v1.143/CommitMono-1.143.zip";
+      sha256 = "sha256-99Hyanx1VIAKmW929dcGvwZIuTbKKma1vE1G46LEntA=";
+    };
+  };
   crush = {
     pname = "crush";
     version = "0.47.2";
@@ -36,6 +44,14 @@
     src = fetchurl {
       url = "https://github.com/charmbracelet/crush/releases/download/v0.47.2/crush_0.47.2_Linux_x86_64.tar.gz";
       sha256 = "sha256-azUv/6WFQtLla4a/2dlLqFBaCeSgmEZxAtRP3WR1lz4=";
+    };
+  };
+  ioskeleyMono = {
+    pname = "ioskeleyMono";
+    version = "2025.10.09-6";
+    src = fetchurl {
+      url = "https://github.com/ahatem/IoskeleyMono/releases/download/2025.10.09-6/IoskeleyMono-TTF-Hinted.zip";
+      sha256 = "sha256-yEZ29P2tJ4NaLbefu6yKGjPvp4HTnX4AXjMpd3idvpM=";
     };
   };
   go-enum = {

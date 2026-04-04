@@ -1,14 +1,13 @@
 { }:
 
-final: _prev: {
-  ioskeleyMono = final.stdenvNoCC.mkDerivation rec {
+final: _prev:
+let
+  inherit (final.nvfetcherSources.ioskeleyMono) version src;
+in
+{
+  ioskeleyMono = final.stdenvNoCC.mkDerivation {
     pname = "ioskeleyMono";
-    version = "2025.10.09-6";
-
-    src = final.fetchurl {
-      url = "https://github.com/ahatem/IoskeleyMono/releases/download/${version}/IoskeleyMono-TTF-Hinted.zip";
-      sha256 = "sha256-yEZ29P2tJ4NaLbefu6yKGjPvp4HTnX4AXjMpd3idvpM=";
-    };
+    inherit version src;
 
     nativeBuildInputs = [ final.unzip ];
 

@@ -1,4 +1,19 @@
 {
+  "commitMono": {
+    "cargoLock": null,
+    "date": null,
+    "extract": null,
+    "name": "commitMono",
+    "passthru": null,
+    "pinned": false,
+    "src": {
+      "name": null,
+      "sha256": "sha256-99Hyanx1VIAKmW929dcGvwZIuTbKKma1vE1G46LEntA=",
+      "type": "url",
+      "url": "https://github.com/eigilnikolajsen/commit-mono/releases/download/v1.143/CommitMono-1.143.zip"
+    },
+    "version": "1.143"
+  },
   "crush": {
     "cargoLock": null,
     "date": null,
@@ -58,6 +73,21 @@
       "url": "https://github.com/charmbracelet/crush/releases/download/v0.47.2/crush_0.47.2_Linux_x86_64.tar.gz"
     },
     "version": "0.47.2"
+  },
+  "ioskeleyMono": {
+    "cargoLock": null,
+    "date": null,
+    "extract": null,
+    "name": "ioskeleyMono",
+    "passthru": null,
+    "pinned": false,
+    "src": {
+      "name": null,
+      "sha256": "sha256-yEZ29P2tJ4NaLbefu6yKGjPvp4HTnX4AXjMpd3idvpM=",
+      "type": "url",
+      "url": "https://github.com/ahatem/IoskeleyMono/releases/download/2025.10.09-6/IoskeleyMono-TTF-Hinted.zip"
+    },
+    "version": "2025.10.09-6"
   },
   "go-enum": {
     "cargoLock": null,

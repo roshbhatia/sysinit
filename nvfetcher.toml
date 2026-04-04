@@ -20,6 +20,16 @@ fetch.github = "kubernetes-sigs/zeitgeist"
 src.github_tag = "luarocks/hererocks"
 fetch.github = "luarocks/hererocks"
 
+# Font packages
+[commitMono]
+src.github = "eigilnikolajsen/commit-mono"
+src.prefix = "v"
+fetch.url = "https://github.com/eigilnikolajsen/commit-mono/releases/download/v$ver/CommitMono-$ver.zip"
+
+[ioskeleyMono]
+src.github_tag = "ahatem/IoskeleyMono"
+fetch.url = "https://github.com/ahatem/IoskeleyMono/releases/download/$ver/IoskeleyMono-TTF-Hinted.zip"
+
 # Binary release packages - crush (one entry per platform asset)
 # Tags are v0.47.2, strip prefix so $ver = 0.47.2 for URL construction
 [crush]
