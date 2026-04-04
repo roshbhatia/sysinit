@@ -43,9 +43,13 @@ jobs:
         run: |
           ./hack/update-vendor-hash.sh
 
-      - name: Format Nix files
+      - name: Update claude-code
         run: |
-          nix fmt
+          ./hack/update-claude-code.sh
+
+      - name: Update openspec
+        run: |
+          ./hack/update-openspec.sh
 
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v7
