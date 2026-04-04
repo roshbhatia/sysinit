@@ -21,11 +21,18 @@ let
     "dirty-repo-guard"
     "git-checkpoint"
     "handoff"
+    "input-transform"
     "interactive-shell"
+    "mac-system-theme"
+    "minimal-mode"
+    "model-status"
     "notify"
+    "preset"
+    "reload-runtime"
     "session-name"
     "status-line"
     "tools"
+    "trigger-compact"
   ];
 
   extensionFiles = lib.listToAttrs (
@@ -200,11 +207,10 @@ let
     hash = "sha256-BiwaJB1XrWsAuYXVrRTtpYZdIRD24KPxCfroAXiA02c=";
   };
 
-  piPkgContext = pkgs.fetchFromGitHub {
-    owner = "ttttmr";
-    repo = "pi-context";
-    rev = "7fd8752d05d98e4e38a7d0bc22de51d72d99f398";
-    hash = "sha256-cbcXUSzZfAXupQ1fzsise4OXFwH1N2VAIA3jdDyLJ/U=";
+  piPkgContext = fetchNpmPkg {
+    name = "pi-context";
+    version = "1.1.2";
+    hash = "sha256-HahjPDBBUQgHqI9EUo7tSap1YyyOKCsatQReEcDopOE=";
   };
 
   # Git package with runtime npm deps - package-lock.json is in the repo
@@ -306,6 +312,22 @@ let
       runHook postInstall
     '';
   };
+  # @sysid/pi-vim: scoped package, URL filename differs from package name
+  piPkgVim = pkgs.fetchzip {
+    url = "https://registry.npmjs.org/@sysid/pi-vim/-/pi-vim-1.0.3.tgz";
+    hash = "sha256-BBzWX9URnxL7Wsr4Pb3n9kMIPOl/dHJfjjIsJ/5Zc5s=";
+  };
+  piPkgToolDisplay = fetchNpmPkg {
+    name = "pi-tool-display";
+    version = "0.3.1";
+    hash = "sha256-R1CQ1pHPDaGIootPxiFmIUGumYr5ElKyNYjqj6rhgmY=";
+  };
+  piPkgSubdirContext = fetchNpmPkg {
+    name = "pi-subdir-context";
+    version = "1.1.2";
+    hash = "sha256-hl/t2RIMbQDK5H8UKvX9qMinefnMuboVbL6R91sWV4Q=";
+  };
+
   piPkgMcpAdapter = buildNpmPkg {
     name = "pi-mcp-adapter";
     version = "2.2.1";
@@ -313,6 +335,33 @@ let
     npmDepsHash = "sha256-HDm5F0zAyYgZS0BDcKfkJVEuBk9k0BU/qpQNCmmgEas=";
     lockFile = ./locks/pi-mcp-adapter.lock.json;
   };
+
+  # @psg2/pi-costs: standalone CLI that analyses session JSONL logs for cost/token
+  # summaries. Pre-compiled to dist/cli.js (bun target) — no npm deps, wraps with bun.
+  piCosts = pkgs.stdenvNoCC.mkDerivation {
+    pname = "pi-costs";
+    version = "1.0.1";
+    src = pkgs.fetchzip {
+      url = "https://registry.npmjs.org/@psg2/pi-costs/-/pi-costs-1.0.1.tgz";
+      hash = "sha256-J66+LmY5fJ+SAhzaDanQTPLftA0Az94cRTc4agI7PoI=";
+    };
+    nativeBuildInputs = [ pkgs.makeWrapper ];
+    installPhase = ''
+      runHook preInstall
+      mkdir -p $out/lib/pi-costs $out/bin
+      cp -r . $out/lib/pi-costs/
+      makeWrapper ${pkgs.bun}/bin/bun $out/bin/pi-costs \
+        --add-flags "$out/lib/pi-costs/dist/cli.js"
+      runHook postInstall
+    '';
+  };
+
+  # nvim-pi: fast external editor wrapper — opens nvim without plugins.
+  # Pi's externalEditor spawns $VISUAL/$EDITOR; nvim-pi overrides that with
+  # --clean so lazy.nvim plugins don't load, eliminating the startup lag.
+  nvimPi = pkgs.writeShellScriptBin "nvim-pi" ''
+    exec ${pkgs.neovim}/bin/nvim --clean -c "set ft=markdown" "$@"
+  '';
 
   # pi-acp is a standalone CLI tool (not a pi package) - exposed via home.packages.
   # dist/ is pre-compiled in the npm tarball; --ignore-scripts prevents npm ci
@@ -353,6 +402,9 @@ let
       "${piPkgPowerlineFooter}"
       "${piPkgPretty}"
       "${piPkgMcpAdapter}"
+      "${piPkgVim}"
+      "${piPkgToolDisplay}"
+      "${piPkgSubdirContext}"
     ]
   );
 
@@ -376,7 +428,11 @@ let
 in
 {
   home = {
-    packages = [ piAcp ];
+    packages = [
+      piAcp
+      piCosts
+      nvimPi
+    ];
 
     activation.piSettings = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
       $DRY_RUN_CMD ${updatePiSettings}
@@ -405,6 +461,11 @@ in
 
     sessionVariables = {
       PI_SKIP_VERSION_CHECK = "$HOME/.pi";
+      # nvim-pi is a --clean nvim wrapper; setting VISUAL to it means pi's
+      # externalEditor (Ctrl+E) opens a fast, plugin-free nvim session.
+      # Other tools that respect VISUAL will also use it, which is fine since
+      # nvim-pi behaves like nvim for editing purposes.
+      VISUAL = "${nvimPi}/bin/nvim-pi";
     };
   };
 }
