@@ -148,7 +148,6 @@
 
     # AI & Editors
     amp-cli
-    claude-code
     codex-acp
     copilot-language-server
     crush

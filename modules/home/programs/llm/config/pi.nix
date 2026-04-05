@@ -24,7 +24,6 @@ let
     "input-transform"
     "interactive-shell"
     "mac-system-theme"
-    "minimal-mode"
     "model-status"
     "notify"
     "preset"
@@ -272,8 +271,8 @@ let
   };
   piPkgPowerlineFooter = fetchNpmPkg {
     name = "pi-powerline-footer";
-    version = "0.4.8";
-    hash = "sha256-Pa9i7daUUXUV0FQkEjSybYRsKdZydtHVWcI8JVWT1QM=";
+    version = "0.4.9";
+    hash = "sha256-gcSxB3e2FOoX+O6toHu3c+xLvruBLhqMLt5w9SLzu4g=";
   };
 
   # npm packages with runtime deps - lock files stored in ./locks/
@@ -292,18 +291,25 @@ let
     lockFile = ./locks/pi-webfetch-to-markdown.lock.json;
   };
 
-  # @heyhuynhgiabuu/pi-pretty: scoped package, URL filename differs from package name
-  piPkgPretty = pkgs.buildNpmPackage {
-    pname = "pi-pretty";
-    version = "0.2.0";
+  piPkgToolDisplay = fetchNpmPkg {
+    name = "pi-tool-display";
+    version = "0.3.1";
+    hash = "sha256-R1CQ1pHPDaGIootPxiFmIUGumYr5ElKyNYjqj6rhgmY=";
+  };
+
+  # @heyhuynhgiabuu/pi-diff: scoped package, Shiki-powered syntax-highlighted diffs
+  # with side-by-side split view for edit and unified view for write.
+  piPkgDiff = pkgs.buildNpmPackage {
+    pname = "pi-diff";
+    version = "0.2.1";
     src = pkgs.fetchurl {
-      url = "https://registry.npmjs.org/@heyhuynhgiabuu/pi-pretty/-/pi-pretty-0.2.0.tgz";
-      hash = "sha256-aCP8UxKr5qJgNh8DsoKgA/SB0G4uBjS7tGu/9jpcQuw=";
+      url = "https://registry.npmjs.org/@heyhuynhgiabuu/pi-diff/-/pi-diff-0.2.1.tgz";
+      hash = "sha256-euTSPo5oGyBeC2U/H/BBK1WjfkoL8uzOb+UYg2Cpw3o=";
     };
     postPatch = ''
-      cp ${./locks/pi-pretty.lock.json} package-lock.json
+      cp ${./locks/pi-diff.lock.json} package-lock.json
     '';
-    npmDepsHash = "sha256-ZF62fyZJqAPzrK9mZUpMMntj581lM5tqvhXxtZq2hZ4=";
+    npmDepsHash = "sha256-im9oOkyKqm6qK1ngssaq+KCffy/wKgjkWGWyPXbE1Xo=";
     npmFlags = "--ignore-scripts";
     dontNpmBuild = true;
     installPhase = ''
@@ -312,16 +318,7 @@ let
       runHook postInstall
     '';
   };
-  # @sysid/pi-vim: scoped package, URL filename differs from package name
-  piPkgVim = pkgs.fetchzip {
-    url = "https://registry.npmjs.org/@sysid/pi-vim/-/pi-vim-1.0.3.tgz";
-    hash = "sha256-BBzWX9URnxL7Wsr4Pb3n9kMIPOl/dHJfjjIsJ/5Zc5s=";
-  };
-  piPkgToolDisplay = fetchNpmPkg {
-    name = "pi-tool-display";
-    version = "0.3.1";
-    hash = "sha256-R1CQ1pHPDaGIootPxiFmIUGumYr5ElKyNYjqj6rhgmY=";
-  };
+
   piPkgSubdirContext = fetchNpmPkg {
     name = "pi-subdir-context";
     version = "1.1.2";
@@ -400,10 +397,9 @@ let
       "${piPkgLibrarian}"
       "${piPkgAskUser}"
       "${piPkgPowerlineFooter}"
-      "${piPkgPretty}"
-      "${piPkgMcpAdapter}"
-      "${piPkgVim}"
       "${piPkgToolDisplay}"
+      "${piPkgDiff}"
+      "${piPkgMcpAdapter}"
       "${piPkgSubdirContext}"
     ]
   );
@@ -415,14 +411,13 @@ let
     if [ -f "$SETTINGS" ]; then
       ${pkgs.jq}/bin/jq \
         --argjson pkgs "$PACKAGES" \
-        '. + {packages: $pkgs}' \
+        '. + {packages: $pkgs, powerline: "compact", quietStartup: true, showLastPrompt: true}' \
         "$SETTINGS" > "$SETTINGS.tmp" && mv "$SETTINGS.tmp" "$SETTINGS"
     else
       mkdir -p "$(dirname "$SETTINGS")"
       ${pkgs.jq}/bin/jq -n \
         --argjson pkgs "$PACKAGES" \
-        --arg prefix "$SHELL_PREFIX" \
-        '{packages: $pkgs}' > "$SETTINGS"
+        '{packages: $pkgs, powerline: "compact", quietStartup: true, showLastPrompt: true}' > "$SETTINGS"
     fi
   '';
 in
@@ -444,7 +439,7 @@ in
       $DRY_RUN_CMD rm -f "$KEYBINDINGS"
       $DRY_RUN_CMD cp ${pkgs.writeText "pi-keybindings.json" (builtins.toJSON {
         renameSession = "ctrl+shift+r";
-        externalEditor = "ctrl+e";
+        externalEditor = null;
       })} "$KEYBINDINGS"
       $DRY_RUN_CMD chmod 644 "$KEYBINDINGS"
     '';
@@ -457,15 +452,25 @@ in
           text = stylixTheme;
           force = true;
         };
+        # Disable write/edit overrides in pi-tool-display so pi-diff owns them.
+        ".pi/agent/extensions/pi-tool-display/config.json" = {
+          text = builtins.toJSON {
+            registerToolOverrides = {
+              read = true;
+              grep = true;
+              find = true;
+              ls = true;
+              bash = true;
+              edit = false;
+              write = false;
+            };
+          };
+          force = true;
+        };
       };
 
     sessionVariables = {
       PI_SKIP_VERSION_CHECK = "$HOME/.pi";
-      # nvim-pi is a --clean nvim wrapper; setting VISUAL to it means pi's
-      # externalEditor (Ctrl+E) opens a fast, plugin-free nvim session.
-      # Other tools that respect VISUAL will also use it, which is fine since
-      # nvim-pi behaves like nvim for editing purposes.
-      VISUAL = "${nvimPi}/bin/nvim-pi";
     };
   };
 }

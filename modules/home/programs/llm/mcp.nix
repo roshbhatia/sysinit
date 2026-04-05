@@ -9,9 +9,6 @@ let
   defaultServers = { };
 
   permissions = {
-  };
-
-  permissions = {
     git = [
       "git status"
       "git log*"

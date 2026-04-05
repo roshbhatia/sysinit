@@ -1,4 +1,5 @@
 {
+  code-reviewer = import ./code-reviewer.nix;
   librarian = import ./librarian.nix;
   oracle = import ./oracle.nix;
 
