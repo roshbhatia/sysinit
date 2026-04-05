@@ -23,7 +23,9 @@
   (import ./wumpusMono.nix { })
   (import ./direnv.nix { })
   (import ./ginkgo.nix { })
+  (import ./amp-cli.nix { })
   (import ./claude-code.nix { })
   (import ./goose-cli.nix { })
+  (import ./sheets.nix { })
   (import ./mozilla.nix { inherit inputs; })
 ]

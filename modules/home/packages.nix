@@ -164,8 +164,9 @@
     pi-coding-agent
     tree-sitter
 
-    # Media
+    # Media & TUI
     mpv
+    sheets
 
     # Config & Misc Dev
     devcontainer
