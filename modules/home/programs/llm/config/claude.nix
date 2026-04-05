@@ -42,6 +42,66 @@ in
               }
             ];
           }
+          {
+            hooks = [
+              {
+                type = "command";
+                command = "neph integration hook claude";
+              }
+            ];
+          }
+        ];
+        SessionEnd = [
+          {
+            hooks = [
+              {
+                type = "command";
+                command = "neph integration hook claude";
+              }
+            ];
+          }
+        ];
+        UserPromptSubmit = [
+          {
+            hooks = [
+              {
+                type = "command";
+                command = "neph integration hook claude";
+              }
+            ];
+          }
+        ];
+        Stop = [
+          {
+            hooks = [
+              {
+                type = "command";
+                command = "neph integration hook claude";
+              }
+            ];
+          }
+        ];
+        PreToolUse = [
+          {
+            matcher = "Edit|Write|MultiEdit";
+            hooks = [
+              {
+                type = "command";
+                command = "neph integration hook claude";
+              }
+            ];
+          }
+        ];
+        PostToolUse = [
+          {
+            matcher = "Edit|Write|MultiEdit";
+            hooks = [
+              {
+                type = "command";
+                command = "neph integration hook claude";
+              }
+            ];
+          }
         ];
       };
     };
