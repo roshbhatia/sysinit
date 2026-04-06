@@ -379,45 +379,46 @@ let
     dontNpmBuild = true;
   };
 
-  # JSON file written to the Nix store containing the local-path package list.
-  # The activation script reads this and merges it into settings.json so that
-  # pi discovers the store-local packages on startup without any network access.
-  piPackagesJson = pkgs.writeText "pi-packages.json" (
-    builtins.toJSON [
-      "${piPkgAnnotatedReply}"
-      "${piPkgContext}"
-      "${piPkgMermaid}"
-      "${piPkgSubagents}"
-      "${piPkgReadlineSearch}"
-      "${piPkgRtk}"
-      "${piPkgThreads}"
-      "${piPkgDcp}"
-      "${piPkgWebfetch}"
-      "${piPkgInterview}"
-      "${piPkgLibrarian}"
-      "${piPkgAskUser}"
-      "${piPkgPowerlineFooter}"
-      "${piPkgToolDisplay}"
-      "${piPkgDiff}"
-      "${piPkgMcpAdapter}"
-      "${piPkgSubdirContext}"
-    ]
+  # All Nix-managed settings in one store file.  Merged into settings.json at
+  # activation time so that keys written by pi at runtime are preserved.
+  piSettingsBase = pkgs.writeText "pi-settings-base.json" (
+    builtins.toJSON {
+      packages = [
+        "${piPkgAnnotatedReply}"
+        "${piPkgContext}"
+        "${piPkgMermaid}"
+        "${piPkgSubagents}"
+        "${piPkgReadlineSearch}"
+        "${piPkgRtk}"
+        "${piPkgThreads}"
+        "${piPkgDcp}"
+        "${piPkgWebfetch}"
+        "${piPkgInterview}"
+        "${piPkgLibrarian}"
+        "${piPkgAskUser}"
+        "${piPkgPowerlineFooter}"
+        "${piPkgToolDisplay}"
+        "${piPkgDiff}"
+        "${piPkgMcpAdapter}"
+        "${piPkgSubdirContext}"
+      ];
+      powerline = "minimal";
+      quietStartup = true;
+      showLastPrompt = true;
+    }
   );
 
+  # Merge piSettingsBase into settings.json, keeping keys written by pi at
+  # runtime (e.g. session data).  Right-hand side wins on conflict so our
+  # Nix-managed values always take effect.
   updatePiSettings = pkgs.writeShellScript "update-pi-settings" ''
-    SETTINGS="$HOME/.pi/agent/settings.json"
-    PACKAGES=$(cat ${piPackagesJson})
-
-    if [ -f "$SETTINGS" ]; then
-      ${pkgs.jq}/bin/jq \
-        --argjson pkgs "$PACKAGES" \
-        '. + {packages: $pkgs, powerline: "compact", quietStartup: true, showLastPrompt: true}' \
-        "$SETTINGS" > "$SETTINGS.tmp" && mv "$SETTINGS.tmp" "$SETTINGS"
+    settings="$HOME/.pi/agent/settings.json"
+    mkdir -p "$(dirname "$settings")"
+    if [ -f "$settings" ]; then
+      ${pkgs.jq}/bin/jq -s '.[0] * .[1]' "$settings" ${piSettingsBase} \
+        > "$settings.tmp" && mv "$settings.tmp" "$settings"
     else
-      mkdir -p "$(dirname "$SETTINGS")"
-      ${pkgs.jq}/bin/jq -n \
-        --argjson pkgs "$PACKAGES" \
-        '{packages: $pkgs, powerline: "compact", quietStartup: true, showLastPrompt: true}' > "$SETTINGS"
+      cp ${piSettingsBase} "$settings"
     fi
   '';
 in
@@ -437,10 +438,14 @@ in
       KEYBINDINGS="$HOME/.pi/agent/keybindings.json"
       $DRY_RUN_CMD mkdir -p "$(dirname "$KEYBINDINGS")"
       $DRY_RUN_CMD rm -f "$KEYBINDINGS"
-      $DRY_RUN_CMD cp ${pkgs.writeText "pi-keybindings.json" (builtins.toJSON {
-        renameSession = "ctrl+shift+r";
-        externalEditor = null;
-      })} "$KEYBINDINGS"
+      $DRY_RUN_CMD cp ${
+        pkgs.writeText "pi-keybindings.json" (
+          builtins.toJSON {
+            renameSession = "ctrl+shift+r";
+            externalEditor = null;
+          }
+        )
+      } "$KEYBINDINGS"
       $DRY_RUN_CMD chmod 644 "$KEYBINDINGS"
     '';
 

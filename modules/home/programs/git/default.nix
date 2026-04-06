@@ -285,10 +285,6 @@ in
         unstage = "reset HEAD --";
       };
 
-      url."git@github.com:" = {
-        insteadOf = "https://github.com/";
-      };
-
       http."https://git.sr.ht" = {
         sslVerify = false;
       };
@@ -314,6 +310,9 @@ in
             username = personalGithubUser;
           };
           url = {
+            "git@github.com:" = {
+              insteadOf = "https://github.com/";
+            };
             "git@github-personal:" = {
               insteadOf = "git@github.com:";
             };
@@ -332,6 +331,9 @@ in
             username = workGithubUser;
           };
           url = {
+            "git@github.com:" = {
+              insteadOf = "https://github.com/";
+            };
             "git@github-work:" = {
               insteadOf = "git@github.com:";
             };
@@ -342,6 +344,16 @@ in
         }
         // lib.optionalAttrs (use1Password || hasWorkKey) {
           core.sshCommand = sshCmd workKeyPath;
+        };
+
+        nvimInclude = {
+          user = {
+            email = personalEmail;
+            username = personalGithubUser;
+          };
+        }
+        // lib.optionalAttrs (use1Password || hasPersonalKey) {
+          core.sshCommand = sshCmd personalKeyPath;
         };
       in
       [
@@ -359,11 +371,11 @@ in
         }
         {
           condition = "gitdir:~/.local/share/nvim/";
-          contents = personalInclude;
+          contents = nvimInclude;
         }
         {
           condition = "gitdir:~/.config/nvim/";
-          contents = personalInclude;
+          contents = nvimInclude;
         }
       ];
   };
