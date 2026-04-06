@@ -44,7 +44,8 @@ let
   mkGitHubHost =
     keyPath:
     {
-      hostname = "github.com";
+      hostname = "ssh.github.com";
+      port = 443;
       user = "git";
     }
     // lib.optionalAttrs use1Password {
