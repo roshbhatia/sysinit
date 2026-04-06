@@ -59,6 +59,8 @@ let
           - Design boundaries around stable interfaces
           - No `any` or type suppressions unless explicitly permitted
           - No new dependencies if existing stack suffices
+          - When dependencies are required, prefer project-provided `nix-shell` or `nix develop`
+          - Use ad-hoc/global installers only if no project nix shell/dev shell exists
           - Sanitize all user inputs
           - Correctness over cleverness; prefer boring, readable solutions
         '';

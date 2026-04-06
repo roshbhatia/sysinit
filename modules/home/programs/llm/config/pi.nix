@@ -198,140 +198,139 @@ let
       '';
     };
 
-  # Git packages - source only (no runtime npm deps)
-  piPkgAnnotatedReply = pkgs.fetchFromGitHub {
-    owner = "omaclaren";
-    repo = "pi-annotated-reply";
-    rev = "a230173eec2f3375671eb306b8749662b0ac9122";
-    hash = "sha256-BiwaJB1XrWsAuYXVrRTtpYZdIRD24KPxCfroAXiA02c=";
-  };
-
-  piPkgContext = fetchNpmPkg {
-    name = "pi-context";
-    version = "1.1.2";
-    hash = "sha256-HahjPDBBUQgHqI9EUo7tSap1YyyOKCsatQReEcDopOE=";
-  };
-
-  # Git package with runtime npm deps - package-lock.json is in the repo
-  piPkgMermaid = pkgs.buildNpmPackage {
-    pname = "pi-mermaid";
-    version = "0.3.0";
-    src = pkgs.fetchFromGitHub {
-      owner = "Gurpartap";
-      repo = "pi-mermaid";
-      rev = "34cab3ae794422d43707f129120a73ea39f51742";
-      hash = "sha256-tXFYBlFjXUR4TF6k0FWC9T6kxWjlF/kAEt/Q9/nUCJY=";
+  mkFetchedNpmPackage =
+    name: version: hash:
+    fetchNpmPkg {
+      inherit name version hash;
     };
-    npmDepsHash = "sha256-rHFkSF+v9MeXXfq8x7Vl9al7EmLgGrC1AMH+WVyxviA=";
-    npmFlags = "--ignore-scripts";
-    dontNpmBuild = true;
-    installPhase = ''
-      runHook preInstall
-      cp -r . $out
-      runHook postInstall
-    '';
-  };
 
-  # npm packages - source only (no runtime deps beyond pi's bundled ones)
-  piPkgSubagents = fetchNpmPkg {
-    name = "pi-subagents";
-    version = "0.11.2";
-    hash = "sha256-IpZ1sILJP5zWIQ63C+vR7L4CeWdBu8dfkm+k2p+kzRI=";
-  };
-  piPkgReadlineSearch = fetchNpmPkg {
-    name = "pi-readline-search";
-    version = "0.1.0";
-    hash = "sha256-HxomHcIceZX68M0f0ZcRJSiqDzqCI0p+wcyq8CVL514=";
-  };
-  piPkgRtk = fetchNpmPkg {
-    name = "pi-rtk";
-    version = "0.1.4";
-    hash = "sha256-2UaCeGo5IadpVywZHzh3D1RQ7L+CGjGg+aMWlJUxW14=";
-  };
-  piPkgThreads = fetchNpmPkg {
-    name = "pi-threads";
-    version = "0.2.1";
-    hash = "sha256-MF++ANxMplxx0qydKoozrnNTFtb4HQ/0s923cGrsPyM=";
-  };
-
-  piPkgInterview = fetchNpmPkg {
-    name = "pi-interview";
-    version = "0.6.0";
-    hash = "sha256-2kIaXuS4JobGnRIIrcW0hZAjwWOTnFARNAiEHPJnXu0=";
-  };
-  piPkgLibrarian = fetchNpmPkg {
-    name = "pi-librarian";
-    version = "1.3.3";
-    hash = "sha256-iQzkY2w0xOUU9Teooj4llegOYlbehkGzGbDxRl773PE=";
-  };
-  piPkgAskUser = fetchNpmPkg {
-    name = "pi-ask-user";
-    version = "0.5.1";
-    hash = "sha256-x3g4W8Eu7S/GAuseNbUfH8KoNkGuBXujAOZiOM2X5wo=";
-  };
-  piPkgPowerlineFooter = fetchNpmPkg {
-    name = "pi-powerline-footer";
-    version = "0.4.9";
-    hash = "sha256-gcSxB3e2FOoX+O6toHu3c+xLvruBLhqMLt5w9SLzu4g=";
-  };
-
-  # npm packages with runtime deps - lock files stored in ./locks/
-  piPkgDcp = buildNpmPkg {
-    name = "pi-dcp";
-    version = "0.2.0";
-    hash = "sha256-mQ+F/0EoH8WKvY4Nq5vPnOhQWHNBTd7PmVDHmEfOfOQ=";
-    npmDepsHash = "sha256-YyuGS17egfLwhqOwfYUKV7YY6Je9lS60HRUzBBBtoS8=";
-    lockFile = ./locks/pi-dcp.lock.json;
-  };
-  piPkgWebfetch = buildNpmPkg {
-    name = "pi-webfetch-to-markdown";
-    version = "1.0.1";
-    hash = "sha256-48W7utsKPZky3W5Xe9bB9g9Wp9lcQVWteZwsEYtmQ7k=";
-    npmDepsHash = "sha256-vjBFvarCqnv80YoWck0MnAXScWe4l8xP/qSBZ6kmWJY=";
-    lockFile = ./locks/pi-webfetch-to-markdown.lock.json;
-  };
-
-  piPkgToolDisplay = fetchNpmPkg {
-    name = "pi-tool-display";
-    version = "0.3.1";
-    hash = "sha256-R1CQ1pHPDaGIootPxiFmIUGumYr5ElKyNYjqj6rhgmY=";
-  };
-
-  # @heyhuynhgiabuu/pi-diff: scoped package, Shiki-powered syntax-highlighted diffs
-  # with side-by-side split view for edit and unified view for write.
-  piPkgDiff = pkgs.buildNpmPackage {
-    pname = "pi-diff";
-    version = "0.2.1";
-    src = pkgs.fetchurl {
-      url = "https://registry.npmjs.org/@heyhuynhgiabuu/pi-diff/-/pi-diff-0.2.1.tgz";
-      hash = "sha256-euTSPo5oGyBeC2U/H/BBK1WjfkoL8uzOb+UYg2Cpw3o=";
+  mkBuiltNpmPackage =
+    name: version: hash: npmDepsHash: lockFile:
+    buildNpmPkg {
+      inherit
+        name
+        version
+        hash
+        npmDepsHash
+        lockFile
+        ;
     };
-    postPatch = ''
-      cp ${./locks/pi-diff.lock.json} package-lock.json
-    '';
-    npmDepsHash = "sha256-im9oOkyKqm6qK1ngssaq+KCffy/wKgjkWGWyPXbE1Xo=";
-    npmFlags = "--ignore-scripts";
-    dontNpmBuild = true;
-    installPhase = ''
-      runHook preInstall
-      cp -r . $out
-      runHook postInstall
-    '';
+
+  piPackages = rec {
+    # Git packages - source only (no runtime npm deps)
+    annotatedReply = pkgs.fetchFromGitHub {
+      owner = "omaclaren";
+      repo = "pi-annotated-reply";
+      rev = "a230173eec2f3375671eb306b8749662b0ac9122";
+      hash = "sha256-BiwaJB1XrWsAuYXVrRTtpYZdIRD24KPxCfroAXiA02c=";
+    };
+
+    # Git package with runtime npm deps - package-lock.json is in the repo
+    mermaid = pkgs.buildNpmPackage {
+      pname = "pi-mermaid";
+      version = "0.3.0";
+      src = pkgs.fetchFromGitHub {
+        owner = "Gurpartap";
+        repo = "pi-mermaid";
+        rev = "34cab3ae794422d43707f129120a73ea39f51742";
+        hash = "sha256-tXFYBlFjXUR4TF6k0FWC9T6kxWjlF/kAEt/Q9/nUCJY=";
+      };
+      npmDepsHash = "sha256-rHFkSF+v9MeXXfq8x7Vl9al7EmLgGrC1AMH+WVyxviA=";
+      npmFlags = "--ignore-scripts";
+      dontNpmBuild = true;
+      installPhase = ''
+        runHook preInstall
+        cp -r . $out
+        runHook postInstall
+      '';
+    };
+
+    # npm packages - source only (no runtime deps beyond pi's bundled ones)
+    context =
+      mkFetchedNpmPackage "pi-context" "1.1.2"
+        "sha256-HahjPDBBUQgHqI9EUo7tSap1YyyOKCsatQReEcDopOE=";
+    subagents =
+      mkFetchedNpmPackage "pi-subagents" "0.11.2"
+        "sha256-IpZ1sILJP5zWIQ63C+vR7L4CeWdBu8dfkm+k2p+kzRI=";
+    readlineSearch =
+      mkFetchedNpmPackage "pi-readline-search" "0.1.0"
+        "sha256-HxomHcIceZX68M0f0ZcRJSiqDzqCI0p+wcyq8CVL514=";
+    rtk = mkFetchedNpmPackage "pi-rtk" "0.1.4" "sha256-2UaCeGo5IadpVywZHzh3D1RQ7L+CGjGg+aMWlJUxW14=";
+    threads =
+      mkFetchedNpmPackage "pi-threads" "0.2.1"
+        "sha256-MF++ANxMplxx0qydKoozrnNTFtb4HQ/0s923cGrsPyM=";
+    interview =
+      mkFetchedNpmPackage "pi-interview" "0.6.0"
+        "sha256-2kIaXuS4JobGnRIIrcW0hZAjwWOTnFARNAiEHPJnXu0=";
+    librarian =
+      mkFetchedNpmPackage "pi-librarian" "1.3.3"
+        "sha256-iQzkY2w0xOUU9Teooj4llegOYlbehkGzGbDxRl773PE=";
+    askUser =
+      mkFetchedNpmPackage "pi-ask-user" "0.5.1"
+        "sha256-x3g4W8Eu7S/GAuseNbUfH8KoNkGuBXujAOZiOM2X5wo=";
+    toolDisplay =
+      mkFetchedNpmPackage "pi-tool-display" "0.3.1"
+        "sha256-R1CQ1pHPDaGIootPxiFmIUGumYr5ElKyNYjqj6rhgmY=";
+    subdirContext =
+      mkFetchedNpmPackage "pi-subdir-context" "1.1.2"
+        "sha256-hl/t2RIMbQDK5H8UKvX9qMinefnMuboVbL6R91sWV4Q=";
+
+    # npm packages with runtime deps - lock files stored in ./locks/
+    dcp =
+      mkBuiltNpmPackage "pi-dcp" "0.2.0" "sha256-mQ+F/0EoH8WKvY4Nq5vPnOhQWHNBTd7PmVDHmEfOfOQ="
+        "sha256-YyuGS17egfLwhqOwfYUKV7YY6Je9lS60HRUzBBBtoS8="
+        ./locks/pi-dcp.lock.json;
+    webfetch =
+      mkBuiltNpmPackage "pi-webfetch-to-markdown" "1.0.1"
+        "sha256-48W7utsKPZky3W5Xe9bB9g9Wp9lcQVWteZwsEYtmQ7k="
+        "sha256-vjBFvarCqnv80YoWck0MnAXScWe4l8xP/qSBZ6kmWJY="
+        ./locks/pi-webfetch-to-markdown.lock.json;
+    mcpAdapter =
+      mkBuiltNpmPackage "pi-mcp-adapter" "2.2.1" "sha256-hRTTDUp6XXsLZmO/a8a9hLeGN3jFlyc1lmFbIymNJ/k="
+        "sha256-HDm5F0zAyYgZS0BDcKfkJVEuBk9k0BU/qpQNCmmgEas="
+        ./locks/pi-mcp-adapter.lock.json;
+
+    # @heyhuynhgiabuu/pi-diff: scoped package, Shiki-powered syntax-highlighted
+    # diffs with side-by-side split view for edit and unified view for write.
+    diff = pkgs.buildNpmPackage {
+      pname = "pi-diff";
+      version = "0.2.1";
+      src = pkgs.fetchurl {
+        url = "https://registry.npmjs.org/@heyhuynhgiabuu/pi-diff/-/pi-diff-0.2.1.tgz";
+        hash = "sha256-euTSPo5oGyBeC2U/H/BBK1WjfkoL8uzOb+UYg2Cpw3o=";
+      };
+      postPatch = ''
+        cp ${./locks/pi-diff.lock.json} package-lock.json
+      '';
+      npmDepsHash = "sha256-im9oOkyKqm6qK1ngssaq+KCffy/wKgjkWGWyPXbE1Xo=";
+      npmFlags = "--ignore-scripts";
+      dontNpmBuild = true;
+      installPhase = ''
+        runHook preInstall
+        cp -r . $out
+        runHook postInstall
+      '';
+    };
   };
 
-  piPkgSubdirContext = fetchNpmPkg {
-    name = "pi-subdir-context";
-    version = "1.1.2";
-    hash = "sha256-hl/t2RIMbQDK5H8UKvX9qMinefnMuboVbL6R91sWV4Q=";
-  };
-
-  piPkgMcpAdapter = buildNpmPkg {
-    name = "pi-mcp-adapter";
-    version = "2.2.1";
-    hash = "sha256-hRTTDUp6XXsLZmO/a8a9hLeGN3jFlyc1lmFbIymNJ/k=";
-    npmDepsHash = "sha256-HDm5F0zAyYgZS0BDcKfkJVEuBk9k0BU/qpQNCmmgEas=";
-    lockFile = ./locks/pi-mcp-adapter.lock.json;
-  };
+  piPackagePaths = with piPackages; [
+    "${annotatedReply}"
+    "${context}"
+    "${mermaid}"
+    "${subagents}"
+    "${readlineSearch}"
+    "${rtk}"
+    "${threads}"
+    "${dcp}"
+    "${webfetch}"
+    "${interview}"
+    "${librarian}"
+    "${askUser}"
+    "${toolDisplay}"
+    "${diff}"
+    "${mcpAdapter}"
+    "${subdirContext}"
+  ];
 
   # @psg2/pi-costs: standalone CLI that analyses session JSONL logs for cost/token
   # summaries. Pre-compiled to dist/cli.js (bun target) — no npm deps, wraps with bun.
@@ -379,32 +378,20 @@ let
     dontNpmBuild = true;
   };
 
-  # All Nix-managed settings in one store file.  Merged into settings.json at
-  # activation time so that keys written by pi at runtime are preserved.
-  piSettingsBase = pkgs.writeText "pi-settings-base.json" (
+  piManagedSettings = {
+    packages = piPackagePaths;
+    quietStartup = true;
+    showLastPrompt = true;
+  };
+
+  # All Nix-managed settings in one store file. Merged into settings.json at
+  # activation time so keys written by pi at runtime are preserved.
+  piSettingsBase = pkgs.writeText "pi-settings-base.json" (builtins.toJSON piManagedSettings);
+
+  piKeybindings = pkgs.writeText "pi-keybindings.json" (
     builtins.toJSON {
-      packages = [
-        "${piPkgAnnotatedReply}"
-        "${piPkgContext}"
-        "${piPkgMermaid}"
-        "${piPkgSubagents}"
-        "${piPkgReadlineSearch}"
-        "${piPkgRtk}"
-        "${piPkgThreads}"
-        "${piPkgDcp}"
-        "${piPkgWebfetch}"
-        "${piPkgInterview}"
-        "${piPkgLibrarian}"
-        "${piPkgAskUser}"
-        "${piPkgPowerlineFooter}"
-        "${piPkgToolDisplay}"
-        "${piPkgDiff}"
-        "${piPkgMcpAdapter}"
-        "${piPkgSubdirContext}"
-      ];
-      powerline = "minimal";
-      quietStartup = true;
-      showLastPrompt = true;
+      renameSession = "ctrl+shift+r";
+      externalEditor = null;
     }
   );
 
@@ -412,14 +399,22 @@ let
   # runtime (e.g. session data).  Right-hand side wins on conflict so our
   # Nix-managed values always take effect.
   updatePiSettings = pkgs.writeShellScript "update-pi-settings" ''
+    set -euo pipefail
+
     settings="$HOME/.pi/agent/settings.json"
-    mkdir -p "$(dirname "$settings")"
+    settings_dir="$(dirname "$settings")"
+    mkdir -p "$settings_dir"
+
+    merged_settings="$(mktemp "${settings}.tmp.XXXXXX")"
+    trap 'rm -f "$merged_settings"' EXIT
+
     if [ -f "$settings" ]; then
-      ${pkgs.jq}/bin/jq -s '.[0] * .[1]' "$settings" ${piSettingsBase} \
-        > "$settings.tmp" && mv "$settings.tmp" "$settings"
+      ${pkgs.jq}/bin/jq -s '.[0] * .[1]' "$settings" ${piSettingsBase} > "$merged_settings"
     else
-      cp ${piSettingsBase} "$settings"
+      cp ${piSettingsBase} "$merged_settings"
     fi
+
+    mv "$merged_settings" "$settings"
   '';
 in
 {
@@ -438,14 +433,7 @@ in
       KEYBINDINGS="$HOME/.pi/agent/keybindings.json"
       $DRY_RUN_CMD mkdir -p "$(dirname "$KEYBINDINGS")"
       $DRY_RUN_CMD rm -f "$KEYBINDINGS"
-      $DRY_RUN_CMD cp ${
-        pkgs.writeText "pi-keybindings.json" (
-          builtins.toJSON {
-            renameSession = "ctrl+shift+r";
-            externalEditor = null;
-          }
-        )
-      } "$KEYBINDINGS"
+      $DRY_RUN_CMD cp ${piKeybindings} "$KEYBINDINGS"
       $DRY_RUN_CMD chmod 644 "$KEYBINDINGS"
     '';
 

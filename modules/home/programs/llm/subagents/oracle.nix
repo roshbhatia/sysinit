@@ -1,5 +1,5 @@
 {
-  description = "Expert technical advisor with deep reasoning for architecture decisions, code analysis, and engineering guidance.";
+  description = "Expert technical advisor with deep reasoning for architecture decisions, code analysis, and engineering guidance. When dependency-install strategy is part of guidance, prefer project-provided nix-shell/nix develop environments over ad-hoc global installs.";
   temperature = 0.1;
 
   useWhen = [

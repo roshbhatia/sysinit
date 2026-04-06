@@ -1,5 +1,6 @@
 {
   code-reviewer = import ./code-reviewer.nix;
+  implementor = import ./implementor.nix;
   librarian = import ./librarian.nix;
   oracle = import ./oracle.nix;
 
@@ -60,8 +61,15 @@
           ]
         else
           [ ];
+      dependencySetupSection = [
+        "\n## Dependency Setup:"
+        "- When dependencies are required, prefer a project-provided nix shell first (`nix-shell` or `nix develop`)."
+        "- Use ad-hoc or global installers only when no project nix shell/dev shell exists."
+      ];
       prompt = builtins.concatStringsSep "\n" (
-        builtins.filter (s: s != "") (descriptionSection ++ useWhenSection ++ avoidWhenSection)
+        builtins.filter (s: s != "") (
+          descriptionSection ++ useWhenSection ++ avoidWhenSection ++ dependencySetupSection
+        )
       );
     in
     ''

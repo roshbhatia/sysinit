@@ -1,5 +1,5 @@
 {
-  description = "Code review agent that checks changes against project conventions, flags issues with file:line references, and reports CRITICAL/WARNING/GOOD findings.";
+  description = "Code review agent that checks changes against project conventions, flags issues with file:line references, and reports CRITICAL/WARNING/GOOD findings. If validation setup requires dependencies, prefer project-provided nix-shell/nix develop environments over global installs.";
   temperature = 0.1;
 
   useWhen = [
