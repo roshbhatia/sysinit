@@ -25,7 +25,7 @@ let
     else if sshCfg.personalKeyFile != null then
       sshCfg.personalKeyFile
     else
-      cfg.personalSshKeyFile;
+      null;
 
   workKeyPath =
     if use1Password && sshCfg.workPublicKey != null then
@@ -33,7 +33,7 @@ let
     else if sshCfg.workKeyFile != null then
       sshCfg.workKeyFile
     else
-      cfg.workSshKeyFile;
+      null;
 
   hasPersonalKey = personalKeyPath != null;
   hasWorkKey = workKeyPath != null;
@@ -285,16 +285,13 @@ in
         unstage = "reset HEAD --";
       };
 
-      http."https://git.sr.ht" = {
-        sslVerify = false;
-      };
-
       rebase = {
         updateRefs = true;
       };
 
-      # Disable macOS osxkeychain default; authentication is handled per-directory
-      # via core.sshCommand in the gitdir-scoped includes below.
+      # Clear global credential helper so per-host gh credential entries take
+      # precedence (set by programs.gh.gitCredentialHelper). SSH auth for
+      # gitdir-scoped repos is handled via core.sshCommand in the includes below.
       credential.helper = "";
 
       user = {

@@ -429,18 +429,14 @@ in
       $DRY_RUN_CMD ${updatePiSettings}
     '';
 
-    activation.piKeybindings = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
-      KEYBINDINGS="$HOME/.pi/agent/keybindings.json"
-      $DRY_RUN_CMD mkdir -p "$(dirname "$KEYBINDINGS")"
-      $DRY_RUN_CMD rm -f "$KEYBINDINGS"
-      $DRY_RUN_CMD cp ${piKeybindings} "$KEYBINDINGS"
-      $DRY_RUN_CMD chmod 644 "$KEYBINDINGS"
-    '';
-
     file =
       extensionFiles
       // agentFiles
       // {
+        ".pi/agent/keybindings.json" = {
+          source = piKeybindings;
+          force = true;
+        };
         ".pi/agent/themes/stylix.json" = {
           text = stylixTheme;
           force = true;

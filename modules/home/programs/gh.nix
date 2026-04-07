@@ -4,7 +4,7 @@ _:
   programs.gh = {
     enable = true;
 
-    gitCredentialHelper.enable = false;
+    gitCredentialHelper.enable = true;
 
     settings = {
       git_protocol = "https";
