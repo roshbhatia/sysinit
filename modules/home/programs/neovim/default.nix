@@ -36,8 +36,10 @@ in
       (
         cd ${nvimConfigDir}
         ${pkgs.git}/bin/git remote set-url origin ${nvimConfigRepo}
+        ${pkgs.git}/bin/git stash --quiet 2>/dev/null || true
         ${pkgs.git}/bin/git fetch origin main
         ${pkgs.git}/bin/git rebase origin/main
+        ${pkgs.git}/bin/git stash pop --quiet 2>/dev/null || true
       ) || echo "Warning: Failed to update Neovim config"
     else
       rm -rf ${nvimConfigDir}
