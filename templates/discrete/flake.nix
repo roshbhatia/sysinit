@@ -12,7 +12,6 @@
     direnv-instant.follows = "sysinit/direnv-instant";
     firefox-addons.follows = "sysinit/firefox-addons";
     home-manager.follows = "sysinit/home-manager";
-    neovim-nightly-overlay.follows = "sysinit/neovim-nightly-overlay";
     nixpkgs.follows = "sysinit/nixpkgs";
     nixos-lima.follows = "sysinit/nixos-lima";
     nur.follows = "sysinit/nur";
