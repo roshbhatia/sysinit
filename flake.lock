@@ -584,11 +584,11 @@
         "nixpkgs": "nixpkgs_3"
       },
       "locked": {
-        "lastModified": 1775436822,
-        "narHash": "sha256-NCFOUNyf5o33NtoDC1/uNYh8QlKyHEYri9FO/dG43Vs=",
+        "lastModified": 1775523323,
+        "narHash": "sha256-9X8Rphc07ddSiMKC2TG3j0KS2wjRhHXo9UMacHKvN94=",
         "owner": "roshbhatia",
         "repo": "neph.nvim",
-        "rev": "102f08b7ad7326e5b3c21702372dcc224f69b279",
+        "rev": "c1c7d620938e1c2e331bd93e63a07aa9172e02d1",
         "type": "github"
       },
       "original": {
