@@ -317,7 +317,7 @@ let
     "${annotatedReply}"
     "${context}"
     "${mermaid}"
-    "${subagents}"
+    "${piPackages.subagents}"
     "${readlineSearch}"
     "${rtk}"
     "${threads}"
@@ -405,7 +405,7 @@ let
     settings_dir="$(dirname "$settings")"
     mkdir -p "$settings_dir"
 
-    merged_settings="$(mktemp "${settings}.tmp.XXXXXX")"
+    merged_settings="$(mktemp "''${settings}.tmp.XXXXXX")"
     trap 'rm -f "$merged_settings"' EXIT
 
     if [ -f "$settings" ]; then

@@ -38,9 +38,6 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    # Bleeding edge Neovim builds
-    neovim-nightly-overlay.url = "github:nix-community/neovim-nightly-overlay/master";
-
     # Community package repository
     nur.url = "github:nix-community/NUR";
 
