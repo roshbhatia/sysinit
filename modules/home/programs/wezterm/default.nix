@@ -123,6 +123,7 @@ in
     };
     "wezterm/env.json".text = builtins.toJSON {
       PATH = paths.getPathString config.home.username config.home.homeDirectory;
+      TERMINFO_DIRS = "${pkgs.wezterm-terminfo}/share/terminfo";
     };
   };
 

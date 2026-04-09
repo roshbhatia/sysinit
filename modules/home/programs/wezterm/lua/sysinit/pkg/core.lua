@@ -12,6 +12,8 @@ local function get_basic_config()
     set_environment_variables = {
       PATH = env_data.PATH,
       SHELL = nix_zsh,
+      TERM = "wezterm",
+      TERMINFO_DIRS = env_data.TERMINFO_DIRS,
     },
   }
 end
