@@ -1,5 +1,10 @@
 # K3s single-node cluster with NVIDIA GPU passthrough
-{ config, lib, pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 
 {
   # K3s server
