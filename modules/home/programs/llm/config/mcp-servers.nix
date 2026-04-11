@@ -2,10 +2,11 @@
 {
   sysinit.llm.mcp.additionalServers = {
     ast-grep = {
-      command = "npx";
+      command = "uvx";
       args = [
-        "-y"
-        "@ast-grep/mcp"
+        "--from"
+        "git+https://github.com/ast-grep/ast-grep-mcp"
+        "ast-grep-server"
       ];
       description = "AST-based structural code search and analysis";
     };

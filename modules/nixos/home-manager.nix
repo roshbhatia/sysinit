@@ -1,10 +1,8 @@
 {
   lib,
-  pkgs,
   values,
   utils,
   inputs ? { },
-  stylix,
   ...
 }:
 
