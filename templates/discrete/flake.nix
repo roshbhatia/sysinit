@@ -38,8 +38,8 @@
       };
 
       hostConfigs = import ./hosts { };
-      builders = sysinitLib.builders;
-      outputBuilders = sysinitLib.outputBuilders;
+      inherit (sysinitLib) builders;
+      inherit (sysinitLib) outputBuilders;
 
       # Add host-specific overlays
       mkHostOverlays =

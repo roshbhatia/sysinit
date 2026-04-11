@@ -1,4 +1,4 @@
-{ ... }:
+_:
 
 _final: prev: {
   ast-grep = prev.ast-grep.overrideAttrs (oldAttrs: {

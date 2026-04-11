@@ -81,12 +81,12 @@ in
     "wezterm/lua".source = ./lua;
     "wezterm/config.json".text = builtins.toJSON {
       font = {
-        monospace = themeConfig.font.monospace;
-        symbols = themeConfig.font.symbols;
+        inherit (themeConfig.font) monospace;
+        inherit (themeConfig.font) symbols;
       };
       transparency = {
-        opacity = themeConfig.transparency.opacity;
-        blur = themeConfig.transparency.blur;
+        inherit (themeConfig.transparency) opacity;
+        inherit (themeConfig.transparency) blur;
       };
       colors = {
         foreground = "#${c.base05}";

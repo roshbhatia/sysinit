@@ -43,7 +43,5 @@ in
     };
   };
 
-  home.packages = with pkgs; [
-    goose-cli
-  ];
+  home.packages = [ pkgs.goose-cli ];
 }

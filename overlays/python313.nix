@@ -1,4 +1,4 @@
-{ ... }:
+_:
 
 _final: prev: {
   python313 = prev.python313.override {

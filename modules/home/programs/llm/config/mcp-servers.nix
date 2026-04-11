@@ -1,4 +1,4 @@
-{ ... }:
+_:
 {
   sysinit.llm.mcp.additionalServers = {
     ast-grep = {

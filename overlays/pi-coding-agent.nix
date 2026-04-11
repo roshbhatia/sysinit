@@ -3,7 +3,7 @@ _:
 final: _prev:
 let
   sources = final.nvfetcherSources;
-  version = sources.pi-coding-agent.version;
+  inherit (sources.pi-coding-agent) version;
 
   platformInfo = {
     "aarch64-darwin" = sources.pi-coding-agent.src;

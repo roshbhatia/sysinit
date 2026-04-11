@@ -5,7 +5,7 @@
 }:
 
 let
-  colors = config.lib.stylix.colors;
+  inherit (config.lib.stylix) colors;
   hexToJanky = hex: "0xff${hex}";
 in
 {

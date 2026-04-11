@@ -79,7 +79,5 @@ in
     };
   };
 
-  home.packages = with pkgs; [
-    crush
-  ];
+  home.packages = [ pkgs.crush ];
 }

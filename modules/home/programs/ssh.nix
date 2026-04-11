@@ -6,8 +6,7 @@
 }:
 
 let
-  isDarwin = pkgs.stdenv.isDarwin;
-  isLinux = pkgs.stdenv.isLinux;
+  inherit (pkgs.stdenv) isLinux;
   gitCfg = config.sysinit.git;
   sshCfg = gitCfg.ssh;
 
@@ -39,7 +38,7 @@ let
   defaultKeyPath = if gitCfg.defaultIdentity == "work" then workKeyPath else personalKeyPath;
   defaultKeyAvailable = if gitCfg.defaultIdentity == "work" then hasWorkKey else hasPersonalKey;
 
-  agentSocket = sshCfg.agentSocket;
+  inherit (sshCfg) agentSocket;
 
   mkGitHubHost =
     keyPath:

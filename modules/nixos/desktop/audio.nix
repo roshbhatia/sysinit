@@ -47,15 +47,17 @@ _:
     };
   };
 
-  # Disable PulseAudio (using PipeWire)
-  services.pulseaudio.enable = false;
-
   # Real-time scheduling
   security.rtkit.enable = true;
 
   # Bluetooth
   hardware.bluetooth.enable = true;
-  services.blueman.enable = true;
+
+  services = {
+    # Disable PulseAudio (using PipeWire)
+    pulseaudio.enable = false;
+    blueman.enable = true;
+  };
 
   users.groups.audio = { };
 }

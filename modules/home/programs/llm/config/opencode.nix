@@ -518,7 +518,5 @@ in
     subagentFiles
   ];
 
-  home.packages = with pkgs; [
-    opencode
-  ];
+  home.packages = [ pkgs.opencode ];
 }

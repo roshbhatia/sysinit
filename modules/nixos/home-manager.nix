@@ -28,7 +28,7 @@
 
           ../home
         ]
-        ++ lib.optionals (values.isDesktop) [
+        ++ lib.optionals values.isDesktop [
           ./home/desktop.nix
           ../home/programs/firefox.nix
         ];

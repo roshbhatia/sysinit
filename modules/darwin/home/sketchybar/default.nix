@@ -10,9 +10,9 @@ let
 
   # Pass base16 colors and theme metadata to sketchybar Lua config
   sketchybarConfig = {
-    base16Scheme = themeConfig.base16Scheme;
-    appearance = themeConfig.appearance;
-    transparency = themeConfig.transparency;
+    inherit (themeConfig) base16Scheme;
+    inherit (themeConfig) appearance;
+    inherit (themeConfig) transparency;
     aerospace_bin = "${pkgs.aerospace}/bin/aerospace";
     base16 = {
       base00 = "#${c.base00}";
@@ -33,8 +33,8 @@ let
       base0F = "#${c.base0F}";
     };
     font = {
-      monospace = themeConfig.font.monospace;
-      symbols = themeConfig.font.symbols;
+      inherit (themeConfig.font) monospace;
+      inherit (themeConfig.font) symbols;
     };
   };
 in

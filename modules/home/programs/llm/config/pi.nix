@@ -216,7 +216,7 @@ let
         ;
     };
 
-  piPackages = rec {
+  piPackages = {
     # Git packages - source only (no runtime npm deps)
     annotatedReply = pkgs.fetchFromGitHub {
       owner = "omaclaren";

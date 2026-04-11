@@ -1,4 +1,4 @@
-{ }:
+_:
 
 final: prev: {
   goose-cli = prev.goose-cli.overrideAttrs (_old: {

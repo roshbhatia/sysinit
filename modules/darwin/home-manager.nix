@@ -1,5 +1,4 @@
 {
-  lib,
   values,
   utils,
   inputs ? { },
@@ -17,8 +16,6 @@
 
     users.${values.user.username} =
       {
-        pkgs,
-        config,
         ...
       }:
       {

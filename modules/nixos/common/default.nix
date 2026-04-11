@@ -7,8 +7,14 @@
 }:
 
 {
-  networking.hostName = lib.mkDefault hostname;
-  networking.networkmanager.enable = true;
+  networking = {
+    hostName = lib.mkDefault hostname;
+    networkmanager.enable = true;
+
+    # Tailscale VPN
+    firewall.allowedUDPPorts = [ 41641 ];
+    firewall.trustedInterfaces = [ "tailscale0" ];
+  };
 
   imports = [
     # Shared module options at system level
@@ -85,16 +91,17 @@
 
   programs.zsh.enable = true;
 
-  # SSH — hardened
-  services.openssh = {
-    enable = true;
-    startWhenNeeded = false;
-    settings = {
-      PasswordAuthentication = false;
-      PermitRootLogin = "no";
-      X11Forwarding = false;
+  services = {
+    # SSH — hardened
+    openssh = {
+      enable = true;
+      startWhenNeeded = false;
+      settings = {
+        PasswordAuthentication = false;
+        PermitRootLogin = "no";
+        X11Forwarding = false;
+      };
     };
-  };
 
   # Libvirt (KVM virtual machines)
   virtualisation.libvirtd.enable = true;
@@ -110,26 +117,25 @@
     };
   };
 
-  # mDNS / network discovery (Sunshine auto-discovery, .local hostnames)
-  services.avahi = {
-    enable = true;
-    nssmdns4 = true;
-    publish = {
+    # mDNS / network discovery (Sunshine auto-discovery, .local hostnames)
+    avahi = {
       enable = true;
-      addresses = true;
+      nssmdns4 = true;
+      publish = {
+        enable = true;
+        addresses = true;
+      };
     };
+
+    # Tailscale VPN
+    tailscale.enable = true;
+
+    # USB auto-mount
+    udisks2.enable = true;
+
+    # Firmware updates
+    fwupd.enable = true;
   };
-
-  # Tailscale VPN
-  services.tailscale.enable = true;
-  networking.firewall.allowedUDPPorts = [ 41641 ]; # Tailscale
-  networking.firewall.trustedInterfaces = [ "tailscale0" ];
-
-  # USB auto-mount
-  services.udisks2.enable = true;
-
-  # Firmware updates
-  services.fwupd.enable = true;
 
   # Swap (zram — compressed in-memory swap)
   zramSwap = {

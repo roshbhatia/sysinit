@@ -35,13 +35,39 @@ let
   '';
 in
 {
-  services.xserver.enable = false;
-  services.dbus.enable = true;
+  services = {
+    xserver.enable = false;
+    dbus.enable = true;
 
-  programs.sway = {
-    enable = true;
-    package = swayfxWrapped;
-    xwayland.enable = true;
+    # Sunshine remote desktop
+    sunshine = {
+      enable = true;
+      openFirewall = true;
+      capSysAdmin = true;
+    };
+  };
+
+  programs = {
+    sway = {
+      enable = true;
+      package = swayfxWrapped;
+      xwayland.enable = true;
+    };
+
+    # Gaming
+    steam = {
+      enable = true;
+      remotePlay.openFirewall = true;
+      dedicatedServer.openFirewall = true;
+    };
+    gamemode.enable = true;
+
+    # 1Password
+    _1password.enable = true;
+    _1password-gui = {
+      enable = true;
+      polkitPolicyOwners = [ "rshnbhatia" ];
+    };
   };
 
   xdg.portal = {
@@ -64,13 +90,7 @@ in
   # 32-bit graphics (required for Steam/Wine)
   hardware.graphics.enable32Bit = true;
 
-  # Gaming
-  programs.steam = {
-    enable = true;
-    remotePlay.openFirewall = true;
-    dedicatedServer.openFirewall = true;
-  };
-  programs.gamemode.enable = true;
+  security.polkit.enable = true;
 
   environment.systemPackages = with pkgs; [
     swayWrapped
@@ -117,20 +137,4 @@ in
     apple-cursor
     gruvbox-gtk-theme
   ];
-
-  security.polkit.enable = true;
-
-  # 1Password
-  programs._1password.enable = true;
-  programs._1password-gui = {
-    enable = true;
-    polkitPolicyOwners = [ "rshnbhatia" ];
-  };
-
-  # Sunshine remote desktop
-  services.sunshine = {
-    enable = true;
-    openFirewall = true;
-    capSysAdmin = true;
-  };
 }

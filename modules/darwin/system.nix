@@ -7,7 +7,27 @@
 
 {
   # Disable nix-darwin's nix module - using Determinate Nix Installer which manages the Nix daemon
-  nix.enable = false;
+  nix = {
+    enable = false;
+    buildMachines = [
+      {
+        hostName = "arrakis";
+        system = "x86_64-linux";
+        supportedFeatures = [
+          "nixos-test"
+          "benchmark"
+          "big-parallel"
+          "kvm"
+        ];
+        maxJobs = 8;
+        speedFactor = 2;
+        protocol = "ssh-ng";
+        sshUser = "rshnbhatia";
+        sshKey = "/Users/rshnbhatia/.ssh/id_ed25519";
+      }
+    ];
+    settings.builders-use-substitutes = true;
+  };
 
   determinateNix.customSettings = {
     experimental-features = "nix-command flakes";
@@ -18,26 +38,6 @@
     cores = 0;
     connect-timeout = 10;
   };
-
-  nix.buildMachines = [
-    {
-      hostName = "arrakis";
-      system = "x86_64-linux";
-      supportedFeatures = [
-        "nixos-test"
-        "benchmark"
-        "big-parallel"
-        "kvm"
-      ];
-      maxJobs = 8;
-      speedFactor = 2;
-      protocol = "ssh-ng";
-      sshUser = "rshnbhatia";
-      sshKey = "/Users/rshnbhatia/.ssh/id_ed25519";
-    }
-  ];
-
-  nix.settings.builders-use-substitutes = true;
 
   networking.hostName = hostname;
 

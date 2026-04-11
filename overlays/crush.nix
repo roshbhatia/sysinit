@@ -3,24 +3,24 @@ _:
 final: _prev:
 let
   sources = final.nvfetcherSources;
-  version = sources.crush.version;
+  inherit (sources.crush) version;
 
   platformInfo = {
     "aarch64-darwin" = {
       platform = "Darwin_arm64";
-      src = sources.crush.src;
+      inherit (sources.crush) src;
     };
     "x86_64-darwin" = {
       platform = "Darwin_x86_64";
-      src = sources.crush-x86_64-darwin.src;
+      inherit (sources.crush-x86_64-darwin) src;
     };
     "aarch64-linux" = {
       platform = "Linux_arm64";
-      src = sources.crush-aarch64-linux.src;
+      inherit (sources.crush-aarch64-linux) src;
     };
     "x86_64-linux" = {
       platform = "Linux_x86_64";
-      src = sources.crush-x86_64-linux.src;
+      inherit (sources.crush-x86_64-linux) src;
     };
   };
 

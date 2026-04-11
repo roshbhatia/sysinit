@@ -1,7 +1,7 @@
 { lib, ... }:
-
-with lib;
-
+let
+  inherit (lib) mkOption types;
+in
 {
   options.sysinit.theme = {
     base16Scheme = mkOption {

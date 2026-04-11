@@ -1,4 +1,4 @@
-{ }:
+_:
 
 final: prev: {
   direnv = prev.direnv.overrideAttrs (_old: {
