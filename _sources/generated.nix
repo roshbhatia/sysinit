@@ -16,42 +16,34 @@
   };
   crush = {
     pname = "crush";
-    version = "0.47.2";
+    version = "0.57.0";
     src = fetchurl {
-      url = "https://github.com/charmbracelet/crush/releases/download/v0.47.2/crush_0.47.2_Darwin_arm64.tar.gz";
-      sha256 = "sha256-GZDKSUUOtMV7zV5uNXFl6geQUkfyWnS6PX7XsZOGvpI=";
+      url = "https://github.com/charmbracelet/crush/releases/download/v0.57.0/crush_0.57.0_Darwin_arm64.tar.gz";
+      sha256 = "sha256-Tw5UNT8NqwsSlbpBBAoboyimTnfG2D0F81Jt6vIkslM=";
     };
   };
   crush-aarch64-linux = {
     pname = "crush-aarch64-linux";
-    version = "0.47.2";
+    version = "0.57.0";
     src = fetchurl {
-      url = "https://github.com/charmbracelet/crush/releases/download/v0.47.2/crush_0.47.2_Linux_arm64.tar.gz";
-      sha256 = "sha256-Ke7k1BaTqaj+CRU0V/LcHcpeTbubQtA0Z++W81mb0bY=";
+      url = "https://github.com/charmbracelet/crush/releases/download/v0.57.0/crush_0.57.0_Linux_arm64.tar.gz";
+      sha256 = "sha256-2tmyMzbHALx6JLv1DSw/ZV6ue02S1N9HlX6H4uzOOko=";
     };
   };
   crush-x86_64-darwin = {
     pname = "crush-x86_64-darwin";
-    version = "0.47.2";
+    version = "0.57.0";
     src = fetchurl {
-      url = "https://github.com/charmbracelet/crush/releases/download/v0.47.2/crush_0.47.2_Darwin_x86_64.tar.gz";
-      sha256 = "sha256-59CW6mkiWE9XUE5wRooXc/x8aCSGPvZhXkxP9Jzz5lY=";
+      url = "https://github.com/charmbracelet/crush/releases/download/v0.57.0/crush_0.57.0_Darwin_x86_64.tar.gz";
+      sha256 = "sha256-e/hz+sx7ZOSqBGWTMPCMm9mKAXrXAOkezzSzc9bZsMg=";
     };
   };
   crush-x86_64-linux = {
     pname = "crush-x86_64-linux";
-    version = "0.47.2";
+    version = "0.57.0";
     src = fetchurl {
-      url = "https://github.com/charmbracelet/crush/releases/download/v0.47.2/crush_0.47.2_Linux_x86_64.tar.gz";
-      sha256 = "sha256-azUv/6WFQtLla4a/2dlLqFBaCeSgmEZxAtRP3WR1lz4=";
-    };
-  };
-  ioskeleyMono = {
-    pname = "ioskeleyMono";
-    version = "2025.10.09-6";
-    src = fetchurl {
-      url = "https://github.com/ahatem/IoskeleyMono/releases/download/2025.10.09-6/IoskeleyMono-TTF-Hinted.zip";
-      sha256 = "sha256-yEZ29P2tJ4NaLbefu6yKGjPvp4HTnX4AXjMpd3idvpM=";
+      url = "https://github.com/charmbracelet/crush/releases/download/v0.57.0/crush_0.57.0_Linux_x86_64.tar.gz";
+      sha256 = "sha256-A6jgDBOPkWdV3CEMdavcsIDxEthLNEWh266WedmarWs=";
     };
   };
   go-enum = {
@@ -87,47 +79,55 @@
       sha256 = "sha256-y28MTFncy5oD57jpY6AN+X/58OzY3ae3rSL236rfuL0=";
     };
   };
+  ioskeleyMono = {
+    pname = "ioskeleyMono";
+    version = "2026.03.19-7";
+    src = fetchurl {
+      url = "https://github.com/ahatem/IoskeleyMono/releases/download/2026.03.19-7/IoskeleyMono-TTF-Hinted.zip";
+      sha256 = "sha256-641PVxt0MVXQentV5oWObBpu2P0e3qtfpWmbdOuNUtI=";
+    };
+  };
   kubernetes-zeitgeist = {
     pname = "kubernetes-zeitgeist";
-    version = "v0.5.4";
+    version = "v0.7.0";
     src = fetchFromGitHub {
       owner = "kubernetes-sigs";
       repo = "zeitgeist";
-      rev = "v0.5.4";
+      rev = "v0.7.0";
       fetchSubmodules = false;
-      sha256 = "sha256-o9uk8WnoIvG5Ylz6We2QElBrKOq2mUWKu0pqzlKtaXY=";
+      sha256 = "sha256-tzR9hOMfnEa4p1ssktTISO6cAwlSxEGfvzJeLyM2qYo=";
     };
   };
   pi-coding-agent = {
     pname = "pi-coding-agent";
-    version = "0.62.0";
+    version = "0.67.1";
     src = fetchurl {
-      url = "https://github.com/badlogic/pi-mono/releases/download/v0.62.0/pi-darwin-arm64.tar.gz";
-      sha256 = "sha256-huHgxl32qC/1u8VUCVJybYYSS49upFjGRAx7pWWF6gU=";
+      url = "https://github.com/badlogic/pi-mono/releases/download/v0.67.1/pi-darwin-arm64.tar.gz";
+      sha256 = "sha256-FBKz0zAXiYH71+jMoeazTwM3tLJWF9cTQpHHMo7+Usc=";
     };
   };
   pi-coding-agent-aarch64-linux = {
     pname = "pi-coding-agent-aarch64-linux";
-    version = "0.62.0";
+    version = "0.67.1";
     src = fetchurl {
-      url = "https://github.com/badlogic/pi-mono/releases/download/v0.62.0/pi-linux-arm64.tar.gz";
-      sha256 = "sha256-Uah6SvLLEJUO/gr2EeO0FjHIlC5EL+Pz1o35QSGIafs=";
+      url = "https://github.com/badlogic/pi-mono/releases/download/v0.67.1/pi-linux-arm64.tar.gz";
+      sha256 = "sha256-stZZuXRQGqeYZcip0VCh9MMHvVaZtGjfuk6E81qpLtE=";
     };
   };
   pi-coding-agent-x86_64-darwin = {
     pname = "pi-coding-agent-x86_64-darwin";
-    version = "0.62.0";
+    version = "0.67.1";
     src = fetchurl {
-      url = "https://github.com/badlogic/pi-mono/releases/download/v0.62.0/pi-darwin-x64.tar.gz";
-      sha256 = "sha256-GVCma/SKTALvyr810upS4Xz9cAH9rSRWaiS66qNaKQI=";
+      url = "https://github.com/badlogic/pi-mono/releases/download/v0.67.1/pi-darwin-x64.tar.gz";
+      sha256 = "sha256-U6uatoct8awvd8ubLO62b/JFr1Gm62WQMwFpHHbmHt8=";
     };
   };
   pi-coding-agent-x86_64-linux = {
     pname = "pi-coding-agent-x86_64-linux";
-    version = "0.62.0";
+    version = "0.67.1";
     src = fetchurl {
-      url = "https://github.com/badlogic/pi-mono/releases/download/v0.62.0/pi-linux-x64.tar.gz";
-      sha256 = "sha256-69RXsX1XJ5Q3GvK3ZOXyyYGbAbIfkdx38Mx5O/AUfig=";
+      url = "https://github.com/badlogic/pi-mono/releases/download/v0.67.1/pi-linux-x64.tar.gz";
+      sha256 = "sha256-Idcf2CLy/AADMNvaF+qqxQdXDOjkXRnqwVTcHLmW7sg=";
     };
   };
 }

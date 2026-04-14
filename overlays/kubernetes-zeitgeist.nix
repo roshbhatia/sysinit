@@ -12,7 +12,7 @@ in
 
     inherit (sources) src;
 
-    vendorHash = "sha256-vYcDMGVRcrjYzVWmkGy3k9CPd2NtY8d2UKLdlGFb++Y=";
+    vendorHash = "sha256-6U34FSqtOW+pf2u1Busd5LOGiK3SmbL4rkCzmIJPB7Q=";
 
     subPackages = [ "." ];
 
