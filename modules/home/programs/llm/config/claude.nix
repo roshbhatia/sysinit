@@ -14,7 +14,7 @@ let
   };
 
   claudeHookScript = ''
-    #!/bin/bash
+    #!/usr/bin/env bash
     echo "=== AGENTS.md Files Found ==="
     find "$CLAUDE_PROJECT_DIR" -name "AGENTS.md" -type f | while read -r file; do
         echo "--- File: $file ---"
