@@ -53,8 +53,10 @@ in
       llmLib.instructions.formatSubagentAsMarkdown { inherit name; config = agentConfig; }
     ) subagents;
 
-    hooks = {
-      append_agentsmd_context = claudeHookScript;
-    };
+  };
+
+  home.file.".claude/hooks/append_agentsmd_context" = {
+    text = claudeHookScript;
+    executable = true;
   };
 }
