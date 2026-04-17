@@ -28,4 +28,5 @@
   (import ./goose-cli.nix { })
   (import ./sheets.nix { })
   (import ./mozilla.nix { inherit inputs; })
+  (import ./nushell.nix { })
 ]

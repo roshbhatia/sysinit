@@ -80,7 +80,7 @@
       ginkgo
       go-enum
       gomvp
-      gotools
+      (lib.lowPrio gotools)
       mockgen
       reftools
       richgo
