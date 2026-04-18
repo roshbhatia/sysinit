@@ -75,11 +75,6 @@
       url = "github:eqtylab/cupcake";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-
-    # Neovim AI coding assistant integration
-    neph-nvim = {
-      url = "github:roshbhatia/neph.nvim";
-    };
   };
 
   outputs =
