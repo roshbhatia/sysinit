@@ -142,6 +142,7 @@ in
       ".envrc"
       ".gitattributes"
       ".sysinit.nix"
+      ".neoconf.json"
       # Package managers
       ".pnp.*"
       ".yarn-integrity"
