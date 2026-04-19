@@ -165,7 +165,7 @@
     earlySetup = true;
   };
 
-  system.stateVersion = lib.mkDefault "25.11";
+  system.stateVersion = lib.mkDefault "26.05";
 
   # Localisation
   time.timeZone = lib.mkDefault "America/Los_Angeles";

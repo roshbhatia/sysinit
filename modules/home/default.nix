@@ -25,7 +25,7 @@ in
   };
 
   home = {
-    stateVersion = "23.11";
+    stateVersion = "26.05";
 
     sessionVariables = {
       # XDG Base Directory

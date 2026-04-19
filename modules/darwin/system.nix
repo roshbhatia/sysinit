@@ -65,6 +65,6 @@
   system = {
     defaults.LaunchServices.LSQuarantine = false;
     primaryUser = config.sysinit.user.username;
-    stateVersion = 4;
+    stateVersion = 6;
   };
 }
