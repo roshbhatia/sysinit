@@ -41,12 +41,6 @@
     # Community package repository
     nur.url = "github:nix-community/NUR";
 
-    # Faster direnv loading for Nix shells
-    direnv-instant = {
-      url = "github:Mic92/direnv-instant";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-
     # NixOS on macOS via Lima
     nixos-lima = {
       url = "github:nixos-lima/nixos-lima";

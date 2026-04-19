@@ -9,7 +9,6 @@
     # Follow all inputs from sysinit for consistency
     darwin.follows = "sysinit/darwin";
     determinate.follows = "sysinit/determinate";
-    direnv-instant.follows = "sysinit/direnv-instant";
     firefox-addons.follows = "sysinit/firefox-addons";
     home-manager.follows = "sysinit/home-manager";
     nixpkgs.follows = "sysinit/nixpkgs";

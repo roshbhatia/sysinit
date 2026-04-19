@@ -20,6 +20,7 @@
     ./llm
     ./neovim
     ./nh.nix
+    ./nix.nix
     ./nix-your-shell.nix
     ./nushell.nix
     ./obsidian.nix
