@@ -19,6 +19,7 @@
     ./kubectl.nix
     ./llm
     ./neovim
+    ./sysinit-agents.nix
     ./nh.nix
     ./nix.nix
     ./nix-your-shell.nix
