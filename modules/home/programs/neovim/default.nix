@@ -1,6 +1,8 @@
-_:
+{ ... }:
 
 {
+  imports = [ ./sysinit-nvim.nix ];
+
   stylix.targets.neovim.enable = false;
 
   programs.neovim = {
