@@ -20,6 +20,6 @@ in
     else
       $DRY_RUN_CMD ${pkgs.git}/bin/git -C "$AGENTS_DIR" pull --ff-only --quiet
     fi
-    $DRY_RUN_CMD bash "$AGENTS_DIR/install.sh" --quiet
+    $DRY_RUN_CMD bash "$AGENTS_DIR/install.sh" --quiet --skip-tools
   '';
 }
