@@ -12,10 +12,8 @@ in
   ];
 
   # Clone/update sysinit.agents then run install.sh on every switch.
-  # This is the same pattern as the old nvim git-clone activation.
-  # On Nix systems the binary deps above are guaranteed present.
-  # On non-Nix systems the install.sh scripts/deps.sh check handles it.
   home.activation.sysinit-agents = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+    export PATH="${pkgs.git}/bin:${pkgs.nodejs_22}/bin:${pkgs.jq}/bin:$PATH"
     AGENTS_DIR="${agentsDir}"
     if [ ! -d "$AGENTS_DIR/.git" ]; then
       $DRY_RUN_CMD ${pkgs.git}/bin/git clone "${agentsRepo}" "$AGENTS_DIR"

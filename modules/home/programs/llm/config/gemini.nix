@@ -1,40 +1,5 @@
+{ pkgs, ... }:
 {
-  lib,
-  pkgs,
-  config,
-  ...
-}:
-let
-  llmLib = import ../lib { inherit lib; };
-  mcpServers = import ../mcp.nix {
-    inherit lib;
-    inherit (config.sysinit.llm.mcp) additionalServers;
-  };
-  skillsLib = import ../skills.nix { inherit pkgs; };
-
-  defaultInstructions = llmLib.instructions.makeInstructions {
-    inherit (skillsLib) localSkillDescriptions;
-    skillsRoot = "~/.claude/skills";
-  };
-
-  geminiSettingsToml = ''
-    # MCP Servers
-    [mcpServers]
-    ${llmLib.mcp.formatForGemini mcpServers.servers}
-  '';
-
-in
-{
-  xdg.configFile = {
-    "gemini/settings.toml" = {
-      text = geminiSettingsToml;
-      force = true;
-    };
-    "gemini/GEMINI.md" = {
-      text = defaultInstructions;
-      force = true;
-    };
-  };
-
+  # Config managed by sysinit.agents; binary only here.
   home.packages = [ pkgs.gemini-cli ];
 }
