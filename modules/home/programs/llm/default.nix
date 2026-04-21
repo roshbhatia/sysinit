@@ -1,4 +1,19 @@
-{ config, ... }:
+{
+  lib,
+  pkgs,
+  config,
+  ...
+}:
+let
+  skills = import ./skills.nix { inherit pkgs; };
+
+  # Claude Code standard path - most tools can read from here
+  claudeSkillFiles = lib.mapAttrs' (
+    name: path: lib.nameValuePair ".claude/skills/${name}/SKILL.md" { source = path; }
+  ) skills.allSkills;
+
+  skillFiles = claudeSkillFiles;
+in
 {
   imports = [
     ./config/aider.nix
@@ -14,6 +29,8 @@
     ./config/opencode.nix
     ./config/pi.nix
   ];
+
+  home.file = skillFiles;
 
   programs.mcp = {
     enable = true;
