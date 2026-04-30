@@ -66,7 +66,7 @@ in
       darwin = {
         aerospace.outerGaps = {
           top = 60;
-          bottom = 24;
+          bottom = 14;
         };
       };
       theme = {

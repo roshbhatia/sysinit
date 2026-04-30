@@ -22,7 +22,7 @@ return {
       regular = { family = icon_font, style = "Regular", size = icon_size },
     },
     separators = {
-      bold = { family = monospace_font, style = "Bold", size = font_size + 7.0 },
+      bold = { family = monospace_font, style = "Regular", size = font_size + 7.0 },
     },
   },
 

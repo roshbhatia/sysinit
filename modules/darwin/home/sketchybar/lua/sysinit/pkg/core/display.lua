@@ -4,7 +4,7 @@ local M = {}
 -- y_offset: distance from top of screen (below notch) in points
 local DISPLAY_PROFILES = {
   { w = 2056, h = 1329, y_offset = 52 },
-  { w = 1800, h = 1169, y_offset = 14 },
+  { w = 1800, h = 1169, y_offset = 52 },
 }
 
 local function get_profile(width, height)
