@@ -7,43 +7,6 @@
 
 let
   cfg = config.sysinit.git;
-  sshCfg = cfg.ssh;
-
-  inherit (pkgs.stdenv) isDarwin;
-
-  use1Password = sshCfg.use1PasswordAgent && isDarwin;
-
-  personalEmail = if cfg.personalEmail != null then cfg.personalEmail else cfg.email;
-  workEmail = if cfg.workEmail != null then cfg.workEmail else cfg.email;
-
-  personalGithubUser = if cfg.personalUsername != null then cfg.personalUsername else cfg.username;
-  workGithubUser = if cfg.workUsername != null then cfg.workUsername else cfg.username;
-
-  personalKeyPath =
-    if use1Password && sshCfg.personalPublicKey != null then
-      "~/.ssh/1p_personal.pub"
-    else if sshCfg.personalKeyFile != null then
-      sshCfg.personalKeyFile
-    else
-      null;
-
-  workKeyPath =
-    if use1Password && sshCfg.workPublicKey != null then
-      "~/.ssh/1p_work.pub"
-    else if sshCfg.workKeyFile != null then
-      sshCfg.workKeyFile
-    else
-      null;
-
-  hasPersonalKey = personalKeyPath != null;
-  hasWorkKey = workKeyPath != null;
-
-  sshCmd =
-    keyFile:
-    "ssh"
-    + lib.optionalString use1Password " -o 'IdentityAgent=\"${sshCfg.agentSocket}\"'"
-    + lib.optionalString (keyFile != null) " -i ${keyFile}"
-    + lib.optionalString (keyFile != null) " -o IdentitiesOnly=yes";
 in
 {
   imports = [
@@ -239,12 +202,6 @@ in
         compression = 9;
         preloadIndex = true;
         hooksPath = ".githooks";
-        # Global fallback so bare `git clone` (no gitdir → includes not active)
-        # still authenticates.  Directory-scoped includes below override this
-        # with the correct key for personal vs work paths.
-      }
-      // lib.optionalAttrs (use1Password || hasPersonalKey) {
-        sshCommand = sshCmd personalKeyPath;
       };
 
       merge = {
@@ -290,97 +247,13 @@ in
         updateRefs = true;
       };
 
-      # Clear global credential helper so per-host gh credential entries take
-      # precedence (set by programs.gh.gitCredentialHelper). SSH auth for
-      # gitdir-scoped repos is handled via core.sshCommand in the includes below.
-      credential.helper = "";
-
       user = {
-        inherit (cfg) name;
+        inherit (cfg) name email username;
       };
     };
-
-    includes =
-      let
-        personalInclude = {
-          user = {
-            email = personalEmail;
-            username = personalGithubUser;
-          };
-          url = {
-            "git@github.com:" = {
-              insteadOf = "https://github.com/";
-            };
-            "git@github-personal:" = {
-              insteadOf = "git@github.com:";
-            };
-            "ssh://git@github-personal/" = {
-              insteadOf = "ssh://git@github.com/";
-            };
-          };
-        }
-        // lib.optionalAttrs (use1Password || hasPersonalKey) {
-          core.sshCommand = sshCmd personalKeyPath;
-        };
-
-        workInclude = {
-          user = {
-            email = workEmail;
-            username = workGithubUser;
-          };
-          url = {
-            "git@github.com:" = {
-              insteadOf = "https://github.com/";
-            };
-            "git@github-work:" = {
-              insteadOf = "git@github.com:";
-            };
-            "ssh://git@github-work/" = {
-              insteadOf = "ssh://git@github.com/";
-            };
-          };
-        }
-        // lib.optionalAttrs (use1Password || hasWorkKey) {
-          core.sshCommand = sshCmd workKeyPath;
-        };
-
-        nvimInclude = {
-          user = {
-            email = personalEmail;
-            username = personalGithubUser;
-          };
-        }
-        // lib.optionalAttrs (use1Password || hasPersonalKey) {
-          core.sshCommand = sshCmd personalKeyPath;
-        };
-      in
-      [
-        {
-          condition = "gitdir:~/github/work/";
-          contents = workInclude;
-        }
-        {
-          condition = "gitdir:~/github/personal/";
-          contents = personalInclude;
-        }
-        {
-          condition = "gitdir:~/orgfiles/";
-          contents = personalInclude;
-        }
-        {
-          condition = "gitdir:~/.local/share/nvim/";
-          contents = nvimInclude;
-        }
-        {
-          condition = "gitdir:~/.config/nvim/";
-          contents = nvimInclude;
-        }
-      ];
   };
 
   home.packages = [ pkgs.mergiraf ];
 
-  # Register mergiraf as the global git merge driver for all files.
-  # Uses diff3 conflict style (not zdiff3) as required by mergiraf.
   home.file.".config/git/attributes".text = "* merge=mergiraf\n";
 }

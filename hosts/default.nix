@@ -6,48 +6,10 @@ let
       name = "Roshan Bhatia";
       email = "rshnbhatia@gmail.com";
       username = "roshbhatia";
-      personalEmail = "rshnbhatia@gmail.com";
-      personalUsername = "roshbhatia";
-      defaultIdentity = "personal";
-
       ssh = {
         use1PasswordAgent = true;
-        personalPublicKey = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIBPaCcHii525hx5Roh8kYyisdIjXVG3t4tkKwhcwUwXS";
       };
     };
-  };
-
-  mkGit =
-    {
-      workPublicKey ? null,
-      workEmail ? null,
-      workUsername ? null,
-      defaultIdentity ? "personal",
-      use1PasswordAgent ? true,
-      workKeyFile ? null,
-      personalKeyFile ? null,
-    }:
-    common.git
-    // {
-      inherit defaultIdentity;
-    }
-    // (if workEmail != null then { inherit workEmail; } else { })
-    // (if workUsername != null then { inherit workUsername; } else { })
-    // {
-      ssh =
-        common.git.ssh
-        // {
-          inherit use1PasswordAgent;
-        }
-        // (if workPublicKey != null then { inherit workPublicKey; } else { })
-        // (if workKeyFile != null then { inherit workKeyFile; } else { })
-        // (if personalKeyFile != null then { inherit personalKeyFile; } else { });
-    };
-
-  linuxGit = mkGit {
-    use1PasswordAgent = true;
-    personalKeyFile = "~/.ssh/id_ed25519_personal";
-    workKeyFile = "~/.ssh/id_ed25519_work";
   };
 in
 {
@@ -57,9 +19,7 @@ in
     inherit (common) username;
 
     values = {
-      git = mkGit {
-        workPublicKey = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIMLPtliVrOLXXcbDdMgHQ6ln2yL/LV6nHR63355yQNeE";
-      };
+      inherit (common) git;
       environment = {
         LIMA_INSTANCE = "nostromo";
       };
@@ -73,7 +33,7 @@ in
     inherit (common) username;
 
     values = {
-      git = linuxGit;
+      inherit (common) git;
     };
   };
 
@@ -85,9 +45,26 @@ in
     inherit (common) username;
 
     values = {
-      git = linuxGit;
+      inherit (common) git;
       theme = {
         base16Scheme = "everforest-dark-soft";
+        appearance = "dark";
+        font = {
+          monospace = "WumpusMono Nerd Font Mono";
+        };
+      };
+    };
+  };
+
+  hyperion = {
+    system = "aarch64-darwin";
+    platform = "darwin";
+    username = "roshan";
+
+    values = {
+      inherit (common) git;
+      theme = {
+        base16Scheme = "rose-pine-moon";
         appearance = "dark";
         font = {
           monospace = "WumpusMono Nerd Font Mono";
