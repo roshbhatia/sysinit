@@ -39,4 +39,9 @@ in
       popups = themeConfig.transparency.opacity;
     };
   };
+
+  fonts.packages = [
+    pkgs.nerd-fonts.symbols-only
+    pkgs.wumpusMono
+  ];
 }
