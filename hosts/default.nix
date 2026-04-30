@@ -70,8 +70,6 @@ in
         };
       };
       theme = {
-        base16Scheme = "rose-pine-moon";
-        appearance = "dark";
         font = {
           monospace = "WumpusMono Nerd Font Mono";
           icons = "WumpusMono Nerd Font Mono";
