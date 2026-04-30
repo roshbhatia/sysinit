@@ -68,6 +68,7 @@ in
         appearance = "dark";
         font = {
           monospace = "WumpusMono Nerd Font Mono";
+          size = 10.0;
         };
       };
     };

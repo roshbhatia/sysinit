@@ -35,6 +35,7 @@ let
     font = {
       inherit (themeConfig.font) monospace;
       inherit (themeConfig.font) symbols;
+      inherit (themeConfig.font) size;
     };
   };
 in

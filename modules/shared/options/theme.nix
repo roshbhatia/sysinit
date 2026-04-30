@@ -26,6 +26,12 @@ in
         description = "Monospace font for terminal and editor";
       };
 
+      size = mkOption {
+        type = types.float;
+        default = 11.0;
+        description = "Base font size for UI elements (sketchybar etc); tune per-font as metrics vary";
+      };
+
       symbols = mkOption {
         type = types.str;
         default = "Symbols Nerd Font";
