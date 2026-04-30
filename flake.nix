@@ -69,6 +69,12 @@
       url = "github:eqtylab/cupcake";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    # Latest Claude Code CLI binaries
+    nix-claude-code = {
+      url = "github:ryoppippi/nix-claude-code";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs =

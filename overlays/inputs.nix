@@ -5,6 +5,7 @@
 
 final: _prev: {
   firefox-addons = inputs.firefox-addons.packages.${final.system};
+  claude-code = inputs.nix-claude-code.packages.${final.system}.default;
   nur = {
     repos = {
       rycee = {
