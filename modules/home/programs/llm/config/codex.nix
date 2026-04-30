@@ -16,6 +16,6 @@ in
   programs.codex = {
     enable = true;
     enableMcpIntegration = true;
-    custom-instructions = defaultInstructions;
+    context = defaultInstructions;
   };
 }

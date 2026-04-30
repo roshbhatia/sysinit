@@ -46,7 +46,7 @@ in
       };
     };
 
-    memory.text = defaultInstructions;
+    context = defaultInstructions;
 
     agents = lib.mapAttrs (
       name: agentConfig:
