@@ -22,7 +22,7 @@ local function update_mode(mode)
     mode_item:set({
       label = {
         string = mode_label,
-        font = settings.fonts.text.bold,
+        font = settings.fonts.text.regular,
         color = mode_color,
       },
       drawing = true,
@@ -38,7 +38,7 @@ function M.setup()
     icon = { drawing = false },
     label = {
       string = "MAIN",
-      font = settings.fonts.text.bold,
+      font = settings.fonts.text.regular,
       color = colors.foreground_primary,
     },
     background = { drawing = false },

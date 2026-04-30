@@ -2,10 +2,16 @@ local config = require("sysinit.pkg.config")
 
 local monospace_font = config.font.monospace
 local font_size = config.font.size or 11.0
-local bar_y_offset = config.font.barYOffset or 0
+local icon_font = config.font.icons or "Symbols Nerd Font Mono"
+-- When the icon font matches the text font the glyphs share the same em-square;
+-- no size bump needed. For a separate symbols font bump slightly so glyphs fill the bar.
+local icon_size = (icon_font == monospace_font) and font_size or (font_size + 2.0)
+local icon_y_offset = config.font.iconYOffset or 0
+local label_y_offset = config.font.labelYOffset or 0
 
 return {
-  bar_y_offset = bar_y_offset,
+  icon_y_offset = icon_y_offset,
+  label_y_offset = label_y_offset,
 
   fonts = {
     text = {
@@ -13,7 +19,7 @@ return {
       bold = { family = monospace_font, style = "Bold", size = font_size },
     },
     icons = {
-      regular = { family = "Symbols Nerd Font Mono", style = "Regular", size = font_size + 2.0 },
+      regular = { family = icon_font, style = "Regular", size = icon_size },
     },
     separators = {
       bold = { family = monospace_font, style = "Bold", size = font_size + 7.0 },

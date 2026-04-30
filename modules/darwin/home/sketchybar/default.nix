@@ -36,7 +36,9 @@ let
       inherit (themeConfig.font) monospace;
       inherit (themeConfig.font) symbols;
       inherit (themeConfig.font) size;
-      inherit (themeConfig.font) barYOffset;
+      inherit (themeConfig.font) icons;
+      inherit (themeConfig.font) iconYOffset;
+      inherit (themeConfig.font) labelYOffset;
     };
   };
 in
