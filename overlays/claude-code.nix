@@ -13,8 +13,6 @@ in
     inherit version src;
     postPatch = ''
       cp ${./claude-code-package-lock.json} package-lock.json
-      substituteInPlace cli.js \
-            --replace-fail '#!/bin/sh' '#!/usr/bin/env sh'
     '';
     npmDeps = prev.fetchNpmDeps {
       name = "claude-code-${version}-npm-deps";
