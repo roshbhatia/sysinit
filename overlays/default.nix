@@ -24,6 +24,7 @@
   (import ./direnv.nix { })
   (import ./ginkgo.nix { })
   (import ./amp-cli.nix { })
+  (import ./kvazaar.nix { })
   (import ./goose-cli.nix { })
   (import ./sheets.nix { })
   (import ./mozilla.nix { inherit inputs; })
