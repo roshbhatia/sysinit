@@ -63,12 +63,19 @@ in
 
     values = {
       inherit (common) git;
+      darwin = {
+        aerospace.outerGaps = {
+          top = 60;
+          bottom = 24;
+        };
+      };
       theme = {
         base16Scheme = "rose-pine-moon";
         appearance = "dark";
         font = {
           monospace = "WumpusMono Nerd Font Mono";
           size = 10.0;
+          barYOffset = -1;
         };
       };
     };

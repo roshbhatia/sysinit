@@ -32,6 +32,12 @@ in
         description = "Base font size for UI elements (sketchybar etc); tune per-font as metrics vary";
       };
 
+      barYOffset = mkOption {
+        type = types.int;
+        default = 0;
+        description = "Vertical offset applied to icons and labels in sketchybar; tune when font metrics cause misalignment";
+      };
+
       symbols = mkOption {
         type = types.str;
         default = "Symbols Nerd Font";

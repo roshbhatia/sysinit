@@ -5,6 +5,21 @@ let
 in
 {
   options.sysinit.darwin = {
+    aerospace = {
+      outerGaps = {
+        top = mkOption {
+          type = types.int;
+          default = 56;
+          description = "Outer top gap in points (should clear sketchybar + notch)";
+        };
+        bottom = mkOption {
+          type = types.int;
+          default = 8;
+          description = "Outer bottom gap in points";
+        };
+      };
+    };
+
     tailscale = {
       enable = mkOption {
         type = types.bool;

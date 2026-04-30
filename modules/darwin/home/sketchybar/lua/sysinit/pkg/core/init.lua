@@ -26,12 +26,14 @@ function M.setup()
       color = colors.foreground_primary,
       padding_left = settings.spacing.paddings,
       padding_right = settings.spacing.paddings,
+      y_offset = settings.bar_y_offset,
     },
     label = {
       font = settings.fonts.text.regular,
       color = colors.foreground_primary,
       padding_left = settings.spacing.paddings,
       padding_right = settings.spacing.paddings,
+      y_offset = settings.bar_y_offset,
     },
     background = {
       height = 26,
