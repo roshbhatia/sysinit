@@ -3,6 +3,7 @@ local M = {}
 
 local DISPLAY_WITH_NOTCH_DIMENSIONS = {
   { w = 2056, h = 1329 },
+  { w = 1800, h = 1169 },
 }
 
 local function has_notch(width, height)
