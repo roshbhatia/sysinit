@@ -1,18 +1,19 @@
 local cjson = require("cjson")
 local M = {}
 
-local DISPLAY_WITH_NOTCH_DIMENSIONS = {
-  { w = 2056, h = 1329 },
-  { w = 1800, h = 1169 },
+-- y_offset: distance from top of screen (below notch) in points
+local DISPLAY_PROFILES = {
+  { w = 2056, h = 1329, y_offset = 52 },
+  { w = 1800, h = 1169, y_offset = 14 },
 }
 
-local function has_notch(width, height)
-  for _, dim in ipairs(DISPLAY_WITH_NOTCH_DIMENSIONS) do
-    if width == dim.w and height == dim.h then
-      return true
+local function get_profile(width, height)
+  for _, p in ipairs(DISPLAY_PROFILES) do
+    if width == p.w and height == p.h then
+      return p
     end
   end
-  return false
+  return nil
 end
 
 local function get_displays()
@@ -35,11 +36,7 @@ local function get_displays()
         local w, h = (d._spdisplays_resolution or ""):match("(%d+)%s*x%s*(%d+)")
         w, h = tonumber(w), tonumber(h)
         if w and h then
-          table.insert(displays, {
-            notch = has_notch(w, h),
-            width = w,
-            height = h,
-          })
+          table.insert(displays, { width = w, height = h })
         end
       end
     end
@@ -50,8 +47,9 @@ end
 function M.get_y_offset()
   local displays = get_displays()
   for _, d in ipairs(displays) do
-    if d.notch then
-      return 52
+    local profile = get_profile(d.width, d.height)
+    if profile then
+      return profile.y_offset
     end
   end
   return 8
