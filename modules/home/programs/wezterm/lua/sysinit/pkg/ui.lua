@@ -12,10 +12,6 @@ function M.setup(config)
     {
       family = config_data.font.monospace,
       harfbuzz_features = {
-        "calt",
-        "liga",
-        "ss01",
-        "ss02",
         "zero",
       },
     },
@@ -187,7 +183,7 @@ function M.setup(config)
   local agent_status_labels = {
     working = "working",
     waiting = "waiting",
-    idle    = "idle",
+    idle = "idle",
   }
 
   local function agent_status()
@@ -288,7 +284,9 @@ function M.setup(config)
     local home = os.getenv("HOME") or ""
     if home ~= "" and cwd:sub(1, #home) == home then
       dir = "~" .. cwd:sub(#home + 1):match("([^/]*)/?$") or "~"
-      if dir == "~" then dir = "~" end
+      if dir == "~" then
+        dir = "~"
+      end
     end
 
     local proc = pane:get_foreground_process_name()
