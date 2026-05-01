@@ -1,5 +1,8 @@
-_:
+{ config, ... }:
 
+let
+  font = config.sysinit.theme.font.monospace;
+in
 {
   programs.obsidian = {
     enable = true;
@@ -12,6 +15,13 @@ _:
         settings = {
           app = {
             "vim-mode" = true;
+          };
+
+          appearance = {
+            baseFontSize = 11;
+            interfaceFontFamily = font;
+            monospaceFontFamily = font;
+            enabledCssSnippets = [ "Stylix Config" ];
           };
 
           extraFiles = {

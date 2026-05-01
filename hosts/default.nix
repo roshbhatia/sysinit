@@ -71,13 +71,8 @@ in
       };
       theme = {
         font = {
-          monospace = "WumpusMono Nerd Font Mono";
-          icons = "WumpusMono Nerd Font Mono";
+          monospace = "TX-02";
           size = 10.0;
-          iconYOffset = 0;
-          iconSize = 9.5;
-          labelYOffset = -1;
-          separatorYOffset = 0;
         };
       };
     };
