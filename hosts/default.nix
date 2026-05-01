@@ -75,7 +75,7 @@ in
           icons = "WumpusMono Nerd Font Mono";
           size = 10.0;
           iconYOffset = 0;
-          iconSize = 8.0;
+          iconSize = 9.5;
           labelYOffset = -1;
           separatorYOffset = 0;
         };
