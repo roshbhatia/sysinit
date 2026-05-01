@@ -52,8 +52,16 @@
     dconf
   ];
 
-  # Headless VM — disable display-dependent stylix targets
+  # Headless VM — disable display/GTK-dependent features
   stylix.targets.gtk.enable = lib.mkForce false;
+
+  # virt-manager (GTK3) and libvirtd are not useful inside a Lima VM;
+  # disabling removes the libadwaita/GTK dependency chain from the closure
+  programs.virt-manager.enable = lib.mkForce false;
+  virtualisation.libvirtd.enable = lib.mkForce false;
+
+  # Docker socket is forwarded from the host (colima); no daemon needed inside
+  virtualisation.docker.enable = lib.mkForce false;
 
   services.openssh.ports = [ 55555 ];
 
