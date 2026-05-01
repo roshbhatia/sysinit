@@ -1,7 +1,7 @@
 { config, ... }:
 
 let
-  font = config.sysinit.theme.font.monospace;
+  interfaceFont = config.sysinit.theme.font.monospace;
 in
 {
   programs.obsidian = {
@@ -10,7 +10,7 @@ in
     vaults = {
       MainVault = {
         enable = true;
-        target = "orgfiles"; # Relative to home directory
+        target = "orgfiles";
 
         settings = {
           app = {
@@ -19,23 +19,42 @@ in
 
           appearance = {
             baseFontSize = 11;
-            interfaceFontFamily = font;
-            monospaceFontFamily = font;
+            interfaceFontFamily = interfaceFont;
+            monospaceFontFamily = "IBM Plex Mono";
+            textFontFamily = "Bookerly";
             enabledCssSnippets = [ "Stylix Config" ];
           };
 
           extraFiles = {
             ".obsidian.vimrc" = {
               text = ''
-                set autoindent " Copy indent from current line when starting a new line
-                set hlsearch " Highlight all matches
-                set ignorecase " Ignore case in search patterns
-                set incsearch " Highlight matches as you type
-                set linebreak " Wrap lines at word boundaries
-                set number " Show line numbers
-                set relativenumber " Show relative line numbers
-                set smartcase " Override 'ignorecase' if search pattern contains capital letters
-                set smartindent " Smarter autoindenting
+                " Options
+                set autoindent
+                set hlsearch
+                set ignorecase
+                set incsearch
+                set linebreak
+                set number
+                set relativenumber
+                set smartcase
+                set smartindent
+
+                " Leader key matches neovim
+                let mapleader = " "
+
+                " Scroll with J/K like Ctrl-D/U
+                noremap J 5j
+                noremap K 5k
+
+                " H/L to line start/end
+                noremap H ^
+                noremap L $
+
+                " Clear search highlight on Escape (matches neovim)
+                nmap <Esc> :nohl
+
+                " Yank to end of line (matches Y in neovim)
+                nmap Y y$
               '';
             };
           };
