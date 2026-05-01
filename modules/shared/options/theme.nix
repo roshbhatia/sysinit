@@ -56,6 +56,12 @@ in
         description = "Vertical offset for separator glyphs in sketchybar; independent of iconYOffset since large separator fonts have different baselines";
       };
 
+      iconSize = mkOption {
+        type = types.float;
+        default = 0.0;
+        description = "Icon glyph font size override (0 = auto-derive from font.size; NerdFont glyphs often sit high in the em-square so reducing this centers them)";
+      };
+
       symbols = mkOption {
         type = types.str;
         default = "Symbols Nerd Font";

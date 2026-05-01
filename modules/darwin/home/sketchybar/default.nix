@@ -40,6 +40,7 @@ let
       inherit (themeConfig.font) iconYOffset;
       inherit (themeConfig.font) labelYOffset;
       inherit (themeConfig.font) separatorYOffset;
+      inherit (themeConfig.font) iconSize;
     };
   };
 in

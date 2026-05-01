@@ -5,7 +5,9 @@ local font_size = config.font.size or 11.0
 local icon_font = config.font.icons or "Symbols Nerd Font Mono"
 -- When the icon font matches the text font the glyphs share the same em-square;
 -- no size bump needed. For a separate symbols font bump slightly so glyphs fill the bar.
-local icon_size = (icon_font == monospace_font) and font_size or (font_size + 2.0)
+local configured_icon_size = config.font.iconSize
+local icon_size = (configured_icon_size and configured_icon_size > 0) and configured_icon_size
+  or ((icon_font == monospace_font) and font_size or (font_size + 2.0))
 local icon_y_offset = config.font.iconYOffset or 0
 local label_y_offset = config.font.labelYOffset or 0
 local separator_y_offset = config.font.separatorYOffset or 0
