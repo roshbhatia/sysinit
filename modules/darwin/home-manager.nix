@@ -36,12 +36,9 @@
         sysinit.git = values.git or { };
         sysinit.theme =
           if (values ? theme) then
-            {
-              base16Scheme = values.theme.base16Scheme or "catppuccin-mocha";
-              appearance = values.theme.appearance or "dark";
-              # Pass full font attrset; strip readOnly `symbols` to avoid option conflict
-              font = builtins.removeAttrs (values.theme.font or { monospace = "TX-02"; }) [ "symbols" ];
-              transparency = values.theme.transparency or { };
+            values.theme // {
+              # Strip readOnly `symbols` — it's derived in the module, not user-settable
+              font = builtins.removeAttrs (values.theme.font or { }) [ "symbols" ];
             }
           else
             { };
