@@ -39,7 +39,8 @@
             {
               base16Scheme = values.theme.base16Scheme or "catppuccin-mocha";
               appearance = values.theme.appearance or "dark";
-              font.monospace = values.theme.font.monospace or "TX-02";
+              # Pass full font attrset; strip readOnly `symbols` to avoid option conflict
+              font = builtins.removeAttrs (values.theme.font or { monospace = "TX-02"; }) [ "symbols" ];
               transparency = values.theme.transparency or { };
             }
           else
