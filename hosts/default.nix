@@ -68,6 +68,10 @@ in
           top = 60;
           bottom = 14;
         };
+        lima.instanceName = "farcaster";
+      };
+      environment = {
+        LIMA_INSTANCE = "farcaster";
       };
       theme = {
         font = {
@@ -75,6 +79,17 @@ in
           size = 10.0;
         };
       };
+    };
+  };
+
+  farcaster = {
+    system = "aarch64-linux";
+    platform = "linux";
+    lima = true;
+    username = "roshan";
+
+    values = {
+      inherit (common) git;
     };
   };
 }

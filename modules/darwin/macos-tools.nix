@@ -1,4 +1,4 @@
-{ pkgs, config, ... }:
+{ pkgs, config, lib, ... }:
 
 {
   # macOS system-level packages (not home-manager)
@@ -17,14 +17,27 @@
     ];
   };
 
-  launchd.user.agents.lima-default = {
-    serviceConfig = {
-      ProgramArguments = [
-        "${pkgs.lima}/bin/limactl"
-        "start"
-        "default"
-      ];
-      RunAtLoad = true;
+  launchd.user.agents = {
+    lima-default = {
+      serviceConfig = {
+        ProgramArguments = [
+          "${pkgs.lima}/bin/limactl"
+          "start"
+          "default"
+        ];
+        RunAtLoad = true;
+      };
+    };
+  } // lib.optionalAttrs (config.sysinit.darwin.lima.instanceName != "") {
+    "lima-${config.sysinit.darwin.lima.instanceName}" = {
+      serviceConfig = {
+        ProgramArguments = [
+          "${pkgs.lima}/bin/limactl"
+          "start"
+          config.sysinit.darwin.lima.instanceName
+        ];
+        RunAtLoad = true;
+      };
     };
   };
 }

@@ -103,20 +103,6 @@
       };
     };
 
-  # Libvirt (KVM virtual machines)
-  virtualisation.libvirtd.enable = true;
-  programs.virt-manager.enable = true;
-
-  # Docker
-  virtualisation.docker = {
-    enable = true;
-    enableOnBoot = true;
-    autoPrune = {
-      enable = true;
-      dates = "weekly";
-    };
-  };
-
     # mDNS / network discovery (Sunshine auto-discovery, .local hostnames)
     avahi = {
       enable = true;
@@ -135,6 +121,20 @@
 
     # Firmware updates
     fwupd.enable = true;
+  };
+
+  # Libvirt (KVM virtual machines)
+  virtualisation.libvirtd.enable = true;
+  programs.virt-manager.enable = true;
+
+  # Docker
+  virtualisation.docker = {
+    enable = true;
+    enableOnBoot = true;
+    autoPrune = {
+      enable = true;
+      dates = "weekly";
+    };
   };
 
   # Swap (zram — compressed in-memory swap)

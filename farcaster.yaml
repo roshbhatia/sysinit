@@ -1,0 +1,19 @@
+base:
+  - url: https://raw.githubusercontent.com/nixos-lima/nixos-lima/master/nixos.yaml
+
+portForwards:
+  - guestSocket: "/var/run/docker.sock"
+    hostSocket: "{{.Home}}/.colima/default/docker.sock"
+    reverse: true
+
+mounts:
+  - location: "~/github"
+    writable: true
+  - location: "~/orgfiles"
+    writable: true
+  - location: "/nix"
+    mountPoint: "/nix-host"
+    writable: false
+  - location: "~/.local/share/lima/farcaster-nix"
+    mountPoint: "/nix-vm"
+    writable: true

@@ -20,6 +20,14 @@ in
       };
     };
 
+    lima = {
+      instanceName = mkOption {
+        type = types.str;
+        default = "";
+        description = "Name of the Lima NixOS VM instance to auto-start on login (empty = disabled)";
+      };
+    };
+
     tailscale = {
       enable = mkOption {
         type = types.bool;
