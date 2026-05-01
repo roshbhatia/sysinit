@@ -50,9 +50,10 @@
 
   environment.systemPackages = with pkgs; [
     dconf
-    dconf-editor
-    wezterm
   ];
+
+  # Headless VM — disable display-dependent stylix targets
+  stylix.targets.gtk.enable = lib.mkForce false;
 
   services.openssh.ports = [ 55555 ];
 
