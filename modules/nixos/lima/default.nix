@@ -52,8 +52,10 @@
     dconf
   ];
 
-  # Headless VM — disable display/GTK-dependent features
-  stylix.targets.gtk.enable = lib.mkForce false;
+  # Headless VM — disable auto-theming entirely; autoEnable would detect any
+  # GTK package in the closure and pull in gjs → libadwaita (which fails tests
+  # without a display server)
+  stylix.autoEnable = lib.mkForce false;
 
   # virt-manager (GTK3) and libvirtd are not useful inside a Lima VM;
   # disabling removes the libadwaita/GTK dependency chain from the closure
