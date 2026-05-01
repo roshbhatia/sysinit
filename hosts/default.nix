@@ -20,6 +20,7 @@ in
 
     values = {
       inherit (common) git;
+      personal = true;
       environment = {
         LIMA_INSTANCE = "nostromo";
       };
@@ -34,6 +35,7 @@ in
 
     values = {
       inherit (common) git;
+      personal = true;
     };
   };
 
@@ -46,6 +48,7 @@ in
 
     values = {
       inherit (common) git;
+      personal = true;
       theme = {
         base16Scheme = "everforest-dark-soft";
         appearance = "dark";
@@ -90,6 +93,7 @@ in
 
     values = {
       inherit (common) git;
+      personal = true;
     };
   };
 }

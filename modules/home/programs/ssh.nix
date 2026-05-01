@@ -1,21 +1,26 @@
 {
   config,
   lib,
-  pkgs,
+  values,
   ...
 }:
 
 let
-  inherit (pkgs.stdenv) isLinux;
   sshCfg = config.sysinit.git.ssh;
 
   use1Password = sshCfg.use1PasswordAgent;
   inherit (sshCfg) agentSocket;
+
+  isPersonal = values.personal or false;
+  limaInstance = values.environment.LIMA_INSTANCE or "";
 in
 {
   programs.ssh = {
     enable = true;
     enableDefaultConfig = false;
+
+    # Include lima-generated SSH config when a Lima instance is configured
+    includes = lib.optional (limaInstance != "") "~/.lima/${limaInstance}/ssh.config";
 
     matchBlocks = {
       "*" = {
@@ -30,9 +35,14 @@ in
       // lib.optionalAttrs (!use1Password) {
         identitiesOnly = true;
       };
-
+    } // lib.optionalAttrs isPersonal {
       "vorgossos" = {
         hostname = "vorgossos.stork-eel.ts.net";
+        user = "rshnbhatia";
+      };
+
+      "arrakis" = {
+        hostname = "arrakis.stork-eel.ts.net";
         user = "rshnbhatia";
       };
 
@@ -40,15 +50,6 @@ in
         hostname = "huey.taila415c.ts.net";
         user = "rosh";
       };
-    };
-  };
-
-  home.file = lib.optionalAttrs isLinux {
-    ".ssh/authorized_keys" = {
-      text = ''
-        # GitHub SSH Key - from 1Password
-        ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIGbqXvBhZI87E+Jj1i9L1MqQ71JRPofArCC0iRvZRIMV
-      '';
     };
   };
 }

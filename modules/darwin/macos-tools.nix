@@ -18,14 +18,15 @@
   };
 
   launchd.user.agents = {
-    lima-default = {
+    colima = {
       serviceConfig = {
         ProgramArguments = [
-          "${pkgs.lima}/bin/limactl"
+          "${pkgs.colima}/bin/colima"
           "start"
-          "default"
         ];
         RunAtLoad = true;
+        StandardOutPath = "/tmp/colima.log";
+        StandardErrorPath = "/tmp/colima.error.log";
       };
     };
   } // lib.optionalAttrs (config.sysinit.darwin.lima.instanceName != "") {
