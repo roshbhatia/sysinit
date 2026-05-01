@@ -74,7 +74,7 @@ in
           monospace = "WumpusMono Nerd Font Mono";
           icons = "WumpusMono Nerd Font Mono";
           size = 10.0;
-          iconYOffset = 0;
+          iconYOffset = -1;
           labelYOffset = -1;
         };
       };
