@@ -65,6 +65,10 @@ function M.setup()
     click_script = "open /System/Library/PreferencePanes/Battery.prefPane",
   })
 
+  battery:subscribe("routine", function()
+    get_battery_info()
+  end)
+
   battery:subscribe("system_woke", function()
     get_battery_info()
   end)

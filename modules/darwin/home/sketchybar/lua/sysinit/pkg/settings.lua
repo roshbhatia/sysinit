@@ -8,10 +8,12 @@ local icon_font = config.font.icons or "Symbols Nerd Font Mono"
 local icon_size = (icon_font == monospace_font) and font_size or (font_size + 2.0)
 local icon_y_offset = config.font.iconYOffset or 0
 local label_y_offset = config.font.labelYOffset or 0
+local separator_y_offset = config.font.separatorYOffset or 0
 
 return {
   icon_y_offset = icon_y_offset,
   label_y_offset = label_y_offset,
+  separator_y_offset = separator_y_offset,
 
   fonts = {
     text = {

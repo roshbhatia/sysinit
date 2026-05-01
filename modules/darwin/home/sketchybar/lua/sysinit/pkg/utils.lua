@@ -19,6 +19,7 @@ function M.separator(name, position, opts)
       string = "|",
       font = settings.fonts.separators.bold,
       color = opts.color or colors.foreground_primary,
+      y_offset = settings.separator_y_offset,
     },
     background = { drawing = false },
     label = { drawing = false },

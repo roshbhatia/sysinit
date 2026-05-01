@@ -50,6 +50,12 @@ in
         description = "Vertical offset for label text in sketchybar (positive = up in sketchybar coords)";
       };
 
+      separatorYOffset = mkOption {
+        type = types.int;
+        default = 0;
+        description = "Vertical offset for separator glyphs in sketchybar; independent of iconYOffset since large separator fonts have different baselines";
+      };
+
       symbols = mkOption {
         type = types.str;
         default = "Symbols Nerd Font";

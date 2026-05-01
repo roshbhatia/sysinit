@@ -39,6 +39,7 @@ let
       inherit (themeConfig.font) icons;
       inherit (themeConfig.font) iconYOffset;
       inherit (themeConfig.font) labelYOffset;
+      inherit (themeConfig.font) separatorYOffset;
     };
   };
 in

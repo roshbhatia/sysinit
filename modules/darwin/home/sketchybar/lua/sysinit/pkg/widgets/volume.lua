@@ -88,7 +88,7 @@ end
 
 local function show_volume_slider()
   if hide_timer then
-    sbar.exec("pkill -f 'sleep 0.3'")
+    sbar.exec("pkill -f 'sleep 0.5'")
     hide_timer = nil
   end
   volume_group_active = true
