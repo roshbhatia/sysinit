@@ -12,6 +12,10 @@ function M.setup(config)
     {
       family = config_data.font.monospace,
       harfbuzz_features = {
+        "calt",
+        "liga",
+        "ss01",
+        "ss02",
         "zero",
       },
     },
