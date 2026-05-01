@@ -51,6 +51,10 @@ jobs:
         run: |
           ./hack/update-openspec.sh
 
+      - name: Update amp-cli
+        run: |
+          ./hack/update-amp-cli.sh
+
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v7
         with:

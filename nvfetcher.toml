@@ -73,3 +73,25 @@ fetch.url = "https://github.com/badlogic/pi-mono/releases/download/v$ver/pi-linu
 src.github = "badlogic/pi-mono"
 src.prefix = "v"
 fetch.url = "https://github.com/badlogic/pi-mono/releases/download/v$ver/pi-linux-x64.tar.gz"
+
+# Binary release packages - goose-cli (block/goose)
+# Tags are v1.33.1, strip prefix so $ver = 1.33.1 for URL construction
+[goose-cli-bin]
+src.github = "block/goose"
+src.prefix = "v"
+fetch.url = "https://github.com/block/goose/releases/download/v$ver/goose-aarch64-apple-darwin.tar.gz"
+
+[goose-cli-bin-x86_64-darwin]
+src.github = "block/goose"
+src.prefix = "v"
+fetch.url = "https://github.com/block/goose/releases/download/v$ver/goose-x86_64-apple-darwin.tar.gz"
+
+[goose-cli-bin-aarch64-linux]
+src.github = "block/goose"
+src.prefix = "v"
+fetch.url = "https://github.com/block/goose/releases/download/v$ver/goose-aarch64-unknown-linux-gnu.tar.gz"
+
+[goose-cli-bin-x86_64-linux]
+src.github = "block/goose"
+src.prefix = "v"
+fetch.url = "https://github.com/block/goose/releases/download/v$ver/goose-x86_64-unknown-linux-gnu.tar.gz"
