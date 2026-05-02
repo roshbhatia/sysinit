@@ -72,6 +72,10 @@ in
           bottom = 14;
         };
         lima.instanceName = "farcaster";
+        colima = {
+          cpu = 4;
+          memory = 6;
+        };
       };
       environment = {
         LIMA_INSTANCE = "farcaster";

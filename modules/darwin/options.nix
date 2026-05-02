@@ -28,6 +28,29 @@ in
       };
     };
 
+    colima = {
+      cpu = mkOption {
+        type = types.int;
+        default = 2;
+        description = "Number of CPUs to allocate to the Colima VM";
+      };
+      memory = mkOption {
+        type = types.int;
+        default = 4;
+        description = "Memory in GiB to allocate to the Colima VM";
+      };
+      disk = mkOption {
+        type = types.int;
+        default = 100;
+        description = "Container data disk size in GiB";
+      };
+      forwardAgent = mkOption {
+        type = types.bool;
+        default = true;
+        description = "Forward the host SSH agent into the Colima VM";
+      };
+    };
+
     tailscale = {
       enable = mkOption {
         type = types.bool;
