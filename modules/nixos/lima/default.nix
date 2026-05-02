@@ -65,6 +65,19 @@
   # Docker socket is forwarded from the host (colima); no daemon needed inside
   virtualisation.docker.enable = lib.mkForce false;
 
+  # Headless build VM — disable test suites for packages with timing-sensitive
+  # or display-dependent tests that fail under load (django serializer perf test
+  # failed at 5.5x factor vs 2x threshold after 21h of parallel builds)
+  nixpkgs.overlays = [
+    (_: prev: {
+      python313 = prev.python313.override {
+        packageOverrides = _: pyPrev: {
+          django = pyPrev.django.overridePythonAttrs (_: { doCheck = false; });
+        };
+      };
+    })
+  ];
+
   services.openssh.ports = [ 55555 ];
 
   # Auto-login on serial console so no login prompt appears
