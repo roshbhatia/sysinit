@@ -74,7 +74,7 @@ in
         lima.instanceName = "farcaster";
         colima = {
           cpu = 4;
-          memory = 6;
+          memory = 8;
         };
       };
       environment = {

@@ -1,7 +1,7 @@
 base:
   - url: https://raw.githubusercontent.com/nixos-lima/nixos-lima/master/nixos.yaml
 
-memory: "12GiB"
+memory: "16GiB"
 cpus: 4
 
 ssh:
