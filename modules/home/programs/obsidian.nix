@@ -238,9 +238,11 @@ in
             };
           }
           // builtins.listToAttrs (
-            builtins.map (name: {
+            map (name: {
               name = ".obsidian/snippets/${name}.css";
-              value = { text = snippets.${name}; };
+              value = {
+                text = snippets.${name};
+              };
             }) (builtins.attrNames snippets)
           );
         };
