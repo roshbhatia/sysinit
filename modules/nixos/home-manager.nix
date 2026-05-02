@@ -31,6 +31,7 @@
         ++ lib.optionals values.isDesktop [
           ./home/desktop.nix
           ../home/programs/firefox.nix
+          ../home/programs/obsidian.nix
         ];
 
         # NixOS systems use the nix-managed home directory
