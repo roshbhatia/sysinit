@@ -78,8 +78,6 @@
     })
   ];
 
-  services.openssh.ports = [ 55555 ];
-
   # Auto-login on serial console so no login prompt appears
   services.getty.autologinUser = values.user.username;
 
