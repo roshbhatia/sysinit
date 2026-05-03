@@ -35,6 +35,19 @@ in
       // lib.optionalAttrs (!use1Password) {
         identitiesOnly = true;
       };
+    } // lib.optionalAttrs (limaInstance != "") {
+      # wezterm.enumerate_ssh_hosts() doesn't follow Include directives, so we
+      # add an explicit block that WezTerm can discover. ProxyCommand delegates
+      # to the Lima-generated config which holds the current dynamic port.
+      "lima-${limaInstance}" = {
+        user = values.user.username;
+        proxyCommand = "ssh -F %d/.lima/${limaInstance}/ssh.config lima-${limaInstance} -W 127.0.0.1:22";
+        extraOptions = {
+          StrictHostKeyChecking = "no";
+          UserKnownHostsFile = "/dev/null";
+          NoHostAuthenticationForLocalhost = "yes";
+        };
+      };
     } // lib.optionalAttrs isPersonal {
       "vorgossos" = {
         hostname = "vorgossos.stork-eel.ts.net";
