@@ -95,7 +95,7 @@ in
         LIMA_INSTANCE = "farcaster";
       };
       theme = {
-        base16Scheme = "gruvbox-dark-pale";
+        base16Scheme = "rose-pine";
         font = {
           monospace = "TX-02";
           size = 10.0;
@@ -114,7 +114,7 @@ in
       inherit (common) git;
       personal = true;
       theme = {
-        base16Scheme = "gruvbox-dark-pale";
+        base16Scheme = "rose-pine";
         font = {
           monospace = "TX-02";
           size = 10.0;
