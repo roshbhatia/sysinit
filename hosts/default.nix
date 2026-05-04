@@ -76,6 +76,12 @@ in
           cpu = 4;
           memory = 8;
         };
+        homebrew = {
+          additionalPackages = {
+            taps = [ "pinginc/lrl" ];
+            casks = [ "pinginc/lrl/lrl" ];
+          };
+        };
       };
       environment = {
         LIMA_INSTANCE = "farcaster";
