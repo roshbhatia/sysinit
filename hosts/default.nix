@@ -67,10 +67,6 @@ in
     values = {
       inherit (common) git;
       darwin = {
-        aerospace.outerGaps = {
-          top = 60;
-          bottom = 14;
-        };
         lima.instanceName = "farcaster";
         colima = {
           cpu = 4;
@@ -78,8 +74,20 @@ in
         };
         homebrew = {
           additionalPackages = {
-            taps = [ "pinginc/lrl" ];
-            casks = [ "pinginc/lrl/lrl" ];
+            taps = [
+              "bastionzero/tap"
+              "pinginc/lrl"
+              "spacelift-io/spacelift"
+            ];
+            brews = [
+              "awscli"
+              "bastionzero/tap/zli"
+            ];
+            casks = [
+              "sdm"
+              "spacelift-io/spacelift/spacectl"
+              "pinginc/lrl/lrl"
+            ];
           };
         };
       };

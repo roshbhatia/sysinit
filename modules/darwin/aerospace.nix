@@ -1,8 +1,5 @@
-{ pkgs, config, ... }:
+{ pkgs, ... }:
 
-let
-  gaps = config.sysinit.darwin.aerospace.outerGaps;
-in
 {
   services.aerospace = {
     enable = true;
@@ -36,11 +33,11 @@ in
           ];
           top = [
             { monitor."LG HDR 4K" = 200; }
-            gaps.top
+            56
           ];
           bottom = [
             { monitor."LG HDR 4K" = 200; }
-            gaps.bottom
+            8
           ];
         };
       };
