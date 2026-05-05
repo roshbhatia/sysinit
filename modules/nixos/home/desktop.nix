@@ -138,7 +138,6 @@ in
           "M" = [
             { class = "^Spotify$"; }
             { app_id = "^spotify$"; }
-            { app_id = "^cider$"; }
           ];
         };
 
@@ -306,22 +305,22 @@ in
 
       # SwayFX effects (requires swayfx from flake, not nixpkgs)
       extraConfig = ''
-        # Animations (swayfx — snappy resize/move)
-        animation_duration_ms 150
+          # Animations (swayfx — snappy resize/move)
+          animation_duration_ms 150
 
-        # Visual effects
-        blur enable
-        blur_passes 2
-        blur_radius 5
-        corner_radius 0
-      smart_corner_radius off
-        shadows enable
-        shadow_blur_radius 20
-        shadow_color #0000007F
-        default_dim_inactive 0.1
+          # Visual effects
+          blur enable
+          blur_passes 2
+          blur_radius 5
+          corner_radius 0
+        smart_corner_radius off
+          shadows enable
+          shadow_blur_radius 20
+          shadow_color #0000007F
+          default_dim_inactive 0.1
 
-        # Apply blur to waybar
-        layer_effects "waybar" blur enable; shadows enable
+          # Apply blur to waybar
+          layer_effects "waybar" blur enable; shadows enable
       '';
     };
   };

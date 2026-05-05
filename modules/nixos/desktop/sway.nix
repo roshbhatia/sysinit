@@ -114,9 +114,6 @@ in
     # Communication
     vesktop
 
-    # Music
-    cider
-
     # Media viewers
     mpv
     imv
