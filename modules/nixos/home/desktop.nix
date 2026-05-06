@@ -278,18 +278,17 @@ in
             "${mod}+j" = "move down";
             "${mod}+k" = "move up";
             "${mod}+l" = "move right";
-            "Escape" = "mode default";
+            "${mod}+Escape" = "mode default";
           };
           resize = {
             "${mod}+h" = "resize shrink width 72 px";
             "${mod}+j" = "resize grow height 72 px";
             "${mod}+k" = "resize shrink height 72 px";
             "${mod}+l" = "resize grow width 72 px";
-            "Escape" = "mode default";
-            "Return" = "mode default";
+            "${mod}+Escape" = "mode default";
           };
           locked = {
-            "${mod}+g" = "mode default";
+            "${mod}+Escape" = "mode default";
           };
         };
 
