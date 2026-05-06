@@ -19,7 +19,7 @@ let
     username = "roshan";
     values = {
       inherit git;
-      theme.base16Scheme = "rose-pine-moon";
+      theme.base16Scheme = "nord";
     };
   };
 
