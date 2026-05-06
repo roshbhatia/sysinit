@@ -15,11 +15,6 @@ let
     };
   };
 
-  # Handmade base16 scheme — derived from cdmill/neomodern.nvim's "roseprime"
-  # palette (https://github.com/cdmill/neomodern.nvim/raw/main/extras/, by
-  # Casey Miller). Stylix accepts an attrset directly via mkSchemeAttrs.
-  # Slot mapping uses ANSI bright colors for syntax (08–0E) and regular
-  # warm tones for orange (09) / deprecated (0F).
   roseprime = {
     scheme = "Roseprime";
     author = "Casey Miller (palette via cdmill/neomodern.nvim)";
