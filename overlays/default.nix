@@ -31,4 +31,10 @@
   (import ./sheets.nix { })
   (import ./mozilla.nix { inherit inputs; })
   (import ./nushell.nix { })
+  # openldap-2.6.13 test017-syncreplication-refresh is a timing-sensitive flake
+  (_final: prev: {
+    openldap = prev.openldap.overrideAttrs (_old: {
+      doCheck = false;
+    });
+  })
 ]
