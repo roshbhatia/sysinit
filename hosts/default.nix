@@ -19,6 +19,7 @@ let
     username = "roshan";
     values = {
       inherit git;
+      theme.base16Scheme = "gruvbox-dark-hard";
     };
   };
 
