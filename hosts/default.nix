@@ -96,7 +96,7 @@ in
       };
       theme = {
         font = {
-          monospace = "CommitMono";
+          monospace = "WumpusMono Nerd Font Mono";
           size = 10.0;
         };
       };
@@ -113,7 +113,7 @@ in
       inherit (common) git;
       theme = {
         font = {
-          monospace = "CommitMono";
+          monospace = "WumpusMono Nerd Font Mono";
         };
       };
     };

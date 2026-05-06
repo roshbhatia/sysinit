@@ -11,13 +11,7 @@ function M.setup(config)
   local font = wezterm.font_with_fallback({
     {
       family = config_data.font.monospace,
-      harfbuzz_features = {
-        "calt",
-        "liga",
-        "ss01",
-        "ss02",
-        "zero",
-      },
+      harfbuzz_features = { "liga" },
     },
     config_data.font.symbols,
   })

@@ -47,8 +47,12 @@ let
     }
 
     /* ========== TYPOGRAPHY ========== */
+    /* font-variant-ligatures: none — WumpusMono packs programming ligatures
+       into the standard `liga` feature, so URLs/tab titles render `=>`, `!=`,
+       `fi` etc. as ligatures unless we opt out at the chrome level. */
     * {
       font-family: "${monospaceFont}", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+      font-variant-ligatures: none !important;
     }
 
     /* ========== TOOLBAR ========== */
@@ -417,6 +421,16 @@ let
       --tridactyl-hintspan-fg: #${c.base00};
       --tridactyl-hintspan-bg: #${c.base0A};
       --tridactyl-hintspan-border: 1px solid #${c.base03};
+    }
+
+    /* Ligatures off for tridactyl overlays — hint labels and command-line text
+       must render letter-by-letter; WumpusMono ships programming ligatures
+       under `liga` (no separate calt/dlig). */
+    .TridactylOwnNamespace,
+    .TridactylOwnNamespace *,
+    .TridactylHintHost,
+    .TridactylHintHost * {
+      font-variant-ligatures: none !important;
     }
   '';
 
