@@ -95,9 +95,9 @@ in
         LIMA_INSTANCE = "farcaster";
       };
       theme = {
+        base16Scheme = "rose-pine";
         font = {
-          monospace = "TX-02";
-          size = 10.0;
+          monospace = "WumpusMono Nerd Font Mono";
         };
       };
     };
@@ -111,11 +111,10 @@ in
 
     values = {
       inherit (common) git;
-      personal = true;
       theme = {
+        base16Scheme = "rose-pine";
         font = {
-          monospace = "TX-02";
-          size = 10.0;
+          monospace = "WumpusMono Nerd Font Mono";
         };
       };
     };
