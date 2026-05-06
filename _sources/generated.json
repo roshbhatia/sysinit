@@ -1,19 +1,4 @@
 {
-    "commitMono": {
-        "cargoLock": null,
-        "date": null,
-        "extract": null,
-        "name": "commitMono",
-        "passthru": null,
-        "pinned": false,
-        "src": {
-            "name": null,
-            "sha256": "sha256-99Hyanx1VIAKmW929dcGvwZIuTbKKma1vE1G46LEntA=",
-            "type": "url",
-            "url": "https://github.com/eigilnikolajsen/commit-mono/releases/download/v1.143/CommitMono-1.143.zip"
-        },
-        "version": "1.143"
-    },
     "crush": {
         "cargoLock": null,
         "date": null,
@@ -23,11 +8,11 @@
         "pinned": false,
         "src": {
             "name": null,
-            "sha256": "sha256-Tve2TSRknwE/MSLu+JtnVjmt/9moaRUY3a2y76lwpkA=",
+            "sha256": "sha256-CUkhnKUM4A+ZfCm8DWpSJxApHo8piA7ON8cHwnUCz3g=",
             "type": "url",
-            "url": "https://github.com/charmbracelet/crush/releases/download/v0.59.0/crush_0.59.0_Darwin_arm64.tar.gz"
+            "url": "https://github.com/charmbracelet/crush/releases/download/v0.65.3/crush_0.65.3_Darwin_arm64.tar.gz"
         },
-        "version": "0.59.0"
+        "version": "0.65.3"
     },
     "crush-aarch64-linux": {
         "cargoLock": null,
@@ -38,11 +23,11 @@
         "pinned": false,
         "src": {
             "name": null,
-            "sha256": "sha256-04AnofYLDVtk/FcennCqRtG9wq9B1n+xQlzeyqmQHx8=",
+            "sha256": "sha256-+lvehiQrL8RQAtRYlpPRheRSDXj0LoRJ8C6ZHaXT+G4=",
             "type": "url",
-            "url": "https://github.com/charmbracelet/crush/releases/download/v0.59.0/crush_0.59.0_Linux_arm64.tar.gz"
+            "url": "https://github.com/charmbracelet/crush/releases/download/v0.65.3/crush_0.65.3_Linux_arm64.tar.gz"
         },
-        "version": "0.59.0"
+        "version": "0.65.3"
     },
     "crush-x86_64-darwin": {
         "cargoLock": null,
@@ -53,11 +38,11 @@
         "pinned": false,
         "src": {
             "name": null,
-            "sha256": "sha256-cLlo4H2ukrlUesnHCTsucwQrVquGCeMHQOO7+RgZmKQ=",
+            "sha256": "sha256-GoheSICj31x8dpXk4AWYk3QBIKv2ZwXdwjs9lPAIgVk=",
             "type": "url",
-            "url": "https://github.com/charmbracelet/crush/releases/download/v0.59.0/crush_0.59.0_Darwin_x86_64.tar.gz"
+            "url": "https://github.com/charmbracelet/crush/releases/download/v0.65.3/crush_0.65.3_Darwin_x86_64.tar.gz"
         },
-        "version": "0.59.0"
+        "version": "0.65.3"
     },
     "crush-x86_64-linux": {
         "cargoLock": null,
@@ -68,11 +53,11 @@
         "pinned": false,
         "src": {
             "name": null,
-            "sha256": "sha256-dDnKdlDpB6eG/KV6fon1pA7jyTvewIPslTWhO9kogsE=",
+            "sha256": "sha256-7yivvlhJhaAr1nu4Plhr+kRI3LIvY192RJnsHC30N+E=",
             "type": "url",
-            "url": "https://github.com/charmbracelet/crush/releases/download/v0.59.0/crush_0.59.0_Linux_x86_64.tar.gz"
+            "url": "https://github.com/charmbracelet/crush/releases/download/v0.65.3/crush_0.65.3_Linux_x86_64.tar.gz"
         },
-        "version": "0.59.0"
+        "version": "0.65.3"
     },
     "go-enum": {
         "cargoLock": null,
@@ -115,6 +100,66 @@
             "type": "github"
         },
         "version": "v0.0.4"
+    },
+    "goose-cli-bin": {
+        "cargoLock": null,
+        "date": null,
+        "extract": null,
+        "name": "goose-cli-bin",
+        "passthru": null,
+        "pinned": false,
+        "src": {
+            "name": null,
+            "sha256": "sha256-b7qYraYTPxk27fTC8Gt2BYWasV66/BiCMuDAF6V1pg4=",
+            "type": "url",
+            "url": "https://github.com/block/goose/releases/download/v1.33.1/goose-aarch64-apple-darwin.tar.gz"
+        },
+        "version": "1.33.1"
+    },
+    "goose-cli-bin-aarch64-linux": {
+        "cargoLock": null,
+        "date": null,
+        "extract": null,
+        "name": "goose-cli-bin-aarch64-linux",
+        "passthru": null,
+        "pinned": false,
+        "src": {
+            "name": null,
+            "sha256": "sha256-bRNCf5mAS5rU2WhPnF6fTHgeg7HaSHIybqcJjRSenNI=",
+            "type": "url",
+            "url": "https://github.com/block/goose/releases/download/v1.33.1/goose-aarch64-unknown-linux-gnu.tar.gz"
+        },
+        "version": "1.33.1"
+    },
+    "goose-cli-bin-x86_64-darwin": {
+        "cargoLock": null,
+        "date": null,
+        "extract": null,
+        "name": "goose-cli-bin-x86_64-darwin",
+        "passthru": null,
+        "pinned": false,
+        "src": {
+            "name": null,
+            "sha256": "sha256-zV0DkPrzRV/1ftZO3DaHgtUsg27PImYWw5GcF9Z4PJU=",
+            "type": "url",
+            "url": "https://github.com/block/goose/releases/download/v1.33.1/goose-x86_64-apple-darwin.tar.gz"
+        },
+        "version": "1.33.1"
+    },
+    "goose-cli-bin-x86_64-linux": {
+        "cargoLock": null,
+        "date": null,
+        "extract": null,
+        "name": "goose-cli-bin-x86_64-linux",
+        "passthru": null,
+        "pinned": false,
+        "src": {
+            "name": null,
+            "sha256": "sha256-Q3oy4r0wTmVEA2vsEXQ2cS94R/ct2+RtbCxACeD/zKg=",
+            "type": "url",
+            "url": "https://github.com/block/goose/releases/download/v1.33.1/goose-x86_64-unknown-linux-gnu.tar.gz"
+        },
+        "version": "1.33.1"
     },
     "hererocks": {
         "cargoLock": null,
@@ -182,11 +227,11 @@
         "pinned": false,
         "src": {
             "name": null,
-            "sha256": "sha256-iZqJGfhY+CerTZ2vDh3jSpoZ/uTLarQI9Kt8o65BVXI=",
+            "sha256": "sha256-GwzD+T3Ov1a65tNITAVxGE7lMlT8QdpRsWCud3gNLTA=",
             "type": "url",
-            "url": "https://github.com/badlogic/pi-mono/releases/download/v0.67.6/pi-darwin-arm64.tar.gz"
+            "url": "https://github.com/badlogic/pi-mono/releases/download/v0.73.0/pi-darwin-arm64.tar.gz"
         },
-        "version": "0.67.6"
+        "version": "0.73.0"
     },
     "pi-coding-agent-aarch64-linux": {
         "cargoLock": null,
@@ -197,11 +242,11 @@
         "pinned": false,
         "src": {
             "name": null,
-            "sha256": "sha256-0k8CjesqDGz8onM22SJjhKropo9lW6fwlclICkTjCg0=",
+            "sha256": "sha256-ZtByN8xo4l9THwr6h0lVLdoD4r6vR6SQvZEBh0YDuHs=",
             "type": "url",
-            "url": "https://github.com/badlogic/pi-mono/releases/download/v0.67.6/pi-linux-arm64.tar.gz"
+            "url": "https://github.com/badlogic/pi-mono/releases/download/v0.73.0/pi-linux-arm64.tar.gz"
         },
-        "version": "0.67.6"
+        "version": "0.73.0"
     },
     "pi-coding-agent-x86_64-darwin": {
         "cargoLock": null,
@@ -212,11 +257,11 @@
         "pinned": false,
         "src": {
             "name": null,
-            "sha256": "sha256-Tilzc727eH9AkuvUm/oKTTQFLkzc/FaeAFRox9fiQ8U=",
+            "sha256": "sha256-sJqme4uNjFCJnjB7yUE+19IUdP7nLmDPn3+ldlWZ+38=",
             "type": "url",
-            "url": "https://github.com/badlogic/pi-mono/releases/download/v0.67.6/pi-darwin-x64.tar.gz"
+            "url": "https://github.com/badlogic/pi-mono/releases/download/v0.73.0/pi-darwin-x64.tar.gz"
         },
-        "version": "0.67.6"
+        "version": "0.73.0"
     },
     "pi-coding-agent-x86_64-linux": {
         "cargoLock": null,
@@ -227,10 +272,10 @@
         "pinned": false,
         "src": {
             "name": null,
-            "sha256": "sha256-O6913m49P/N4VS8zTMRrbagy3xY1Wn4HqYM0J3RxBHs=",
+            "sha256": "sha256-Xul6xqpe1yWN7MQWr967771b+eLNXIFBl71L8eTyX58=",
             "type": "url",
-            "url": "https://github.com/badlogic/pi-mono/releases/download/v0.67.6/pi-linux-x64.tar.gz"
+            "url": "https://github.com/badlogic/pi-mono/releases/download/v0.73.0/pi-linux-x64.tar.gz"
         },
-        "version": "0.67.6"
+        "version": "0.73.0"
     }
 }

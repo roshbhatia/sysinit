@@ -1,7 +1,8 @@
 local config = require("sysinit.pkg.config")
+local display = require("sysinit.pkg.core.display")
 
 local monospace_font = config.font.monospace
-local font_size = config.font.size or 11.0
+local font_size = display.get_font_size(config.font.size or 11.0)
 local icon_font = config.font.icons or "Symbols Nerd Font Mono"
 -- When the icon font matches the text font the glyphs share the same em-square;
 -- no size bump needed. For a separate symbols font bump slightly so glyphs fill the bar.

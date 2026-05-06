@@ -7,6 +7,13 @@ local DISPLAY_PROFILES = {
   { w = 1800, h = 1169, y_offset = 8 },
 }
 
+-- Per-display overrides keyed by monitor name as reported by
+-- system_profiler's `_name` field. External 4K panels make small
+-- bar fonts unreadable, so bump font size when one is connected.
+local NAME_PROFILES = {
+  ["LG HDR 4K"] = { font_size = 16 },
+}
+
 local function get_profile(width, height)
   for _, p in ipairs(DISPLAY_PROFILES) do
     if width == p.w and height == p.h then
@@ -36,7 +43,7 @@ local function get_displays()
         local w, h = (d._spdisplays_resolution or ""):match("(%d+)%s*x%s*(%d+)")
         w, h = tonumber(w), tonumber(h)
         if w and h then
-          table.insert(displays, { width = w, height = h })
+          table.insert(displays, { width = w, height = h, name = d._name or "" })
         end
       end
     end
@@ -53,6 +60,17 @@ function M.get_y_offset()
     end
   end
   return 8
+end
+
+function M.get_font_size(default)
+  local displays = get_displays()
+  for _, d in ipairs(displays) do
+    local profile = NAME_PROFILES[d.name]
+    if profile and profile.font_size then
+      return profile.font_size
+    end
+  end
+  return default
 end
 
 return M

@@ -96,7 +96,7 @@ in
       };
       theme = {
         font = {
-          monospace = "Anomaly Mono";
+          monospace = "Ioskeley Mono";
           size = 10.0;
         };
       };
@@ -113,7 +113,7 @@ in
       inherit (common) git;
       theme = {
         font = {
-          monospace = "Anomaly Mono";
+          monospace = "Ioskeley Mono";
         };
       };
     };

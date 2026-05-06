@@ -21,11 +21,6 @@ src.github_tag = "luarocks/hererocks"
 fetch.github = "luarocks/hererocks"
 
 # Font packages
-[commitMono]
-src.github = "eigilnikolajsen/commit-mono"
-src.prefix = "v"
-fetch.url = "https://github.com/eigilnikolajsen/commit-mono/releases/download/v$ver/CommitMono-$ver.zip"
-
 [ioskeleyMono]
 src.github_tag = "ahatem/IoskeleyMono"
 fetch.url = "https://github.com/ahatem/IoskeleyMono/releases/download/$ver/IoskeleyMono-TTF-Hinted.zip"
