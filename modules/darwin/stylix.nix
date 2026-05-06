@@ -43,6 +43,7 @@ in
   fonts.packages = [
     pkgs.nerd-fonts.symbols-only
     pkgs.wumpusMono
+    pkgs.anomalyMono
     pkgs.ibm-plex
     pkgs.bookerly
   ];

@@ -21,6 +21,7 @@
   (import ./ioskeleyMono.nix { })
   (import ./commitMono.nix { })
   (import ./wumpusMono.nix { })
+  (import ./anomalyMono.nix { })
   (import ./bookerly.nix { })
   (import ./direnv.nix { })
   (import ./ginkgo.nix { })
