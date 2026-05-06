@@ -97,7 +97,7 @@ in
       theme = {
         font = {
           monospace = "Ioskeley Mono";
-          size = 10.0;
+          size = 8.0;
         };
       };
     };

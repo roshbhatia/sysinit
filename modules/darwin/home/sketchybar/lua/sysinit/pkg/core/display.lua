@@ -11,7 +11,7 @@ local DISPLAY_PROFILES = {
 -- system_profiler's `_name` field. External 4K panels make small
 -- bar fonts unreadable, so bump font size when one is connected.
 local NAME_PROFILES = {
-  ["LG HDR 4K"] = { font_size = 16 },
+  ["LG HDR 4K"] = { font_size = 14 },
 }
 
 local function get_profile(width, height)

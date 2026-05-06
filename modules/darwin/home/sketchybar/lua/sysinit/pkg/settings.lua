@@ -27,7 +27,9 @@ return {
       regular = { family = icon_font, style = "Regular", size = icon_size },
     },
     separators = {
-      bold = { family = monospace_font, style = "Regular", size = font_size + 7.0 },
+      -- Same size as text — older `+7.0` overhang clipped to nothing on
+      -- fonts with tall ascenders (e.g. Iosevka-derived).
+      bold = { family = monospace_font, style = "Regular", size = font_size },
     },
   },
 
