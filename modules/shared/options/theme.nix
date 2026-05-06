@@ -5,9 +5,15 @@ in
 {
   options.sysinit.theme = {
     base16Scheme = mkOption {
-      type = types.str;
+      type = types.either types.str (types.attrsOf types.str);
       default = "catppuccin-mocha";
-      description = "Base16 scheme name from pkgs.base16-schemes (e.g., 'black-metal-bathory', 'gruvbox-dark-soft')";
+      description = ''
+        Base16 scheme. Accepts either:
+        - a string: name of a scheme in `pkgs.base16-schemes` (e.g. "gruvbox-dark-hard")
+        - an attrset: handmade scheme with `base00`..`base0F` keys (hex without `#`)
+          plus optional `scheme`/`author` metadata, fed straight to stylix's
+          `mkSchemeAttrs`.
+      '';
     };
 
     appearance = mkOption {

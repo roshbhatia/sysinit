@@ -6,6 +6,13 @@
 
 let
   themeConfig = config.sysinit.theme;
+  # String → resolve to a yaml in pkgs.base16-schemes; attrset → pass directly
+  # to stylix's mkSchemeAttrs.
+  base16Scheme =
+    if builtins.isString themeConfig.base16Scheme then
+      "${pkgs.base16-schemes}/share/themes/${themeConfig.base16Scheme}.yaml"
+    else
+      themeConfig.base16Scheme;
 in
 {
   stylix = {
@@ -13,7 +20,7 @@ in
     autoEnable = true;
 
     polarity = themeConfig.appearance;
-    base16Scheme = "${pkgs.base16-schemes}/share/themes/${themeConfig.base16Scheme}.yaml";
+    inherit base16Scheme;
 
     image = "${pkgs.nixos-icons}/share/icons/hicolor/scalable/apps/nix-snowflake.svg";
 

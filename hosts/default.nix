@@ -15,11 +15,37 @@ let
     };
   };
 
+  # Handmade base16 scheme — derived from cdmill/neomodern.nvim's "roseprime"
+  # palette (https://github.com/cdmill/neomodern.nvim/raw/main/extras/, by
+  # Casey Miller). Stylix accepts an attrset directly via mkSchemeAttrs.
+  # Slot mapping uses ANSI bright colors for syntax (08–0E) and regular
+  # warm tones for orange (09) / deprecated (0F).
+  roseprime = {
+    scheme = "Roseprime";
+    author = "Casey Miller (palette via cdmill/neomodern.nvim)";
+    base00 = "141517"; # default bg
+    base01 = "1C1D1F"; # status bars / lighter bg (ansi 0)
+    base02 = "27282A"; # selection bg
+    base03 = "666068"; # comments / invisibles (ansi 8 bright black)
+    base04 = "766D76"; # dim foreground (ansi 7 white)
+    base05 = "C4B6C5"; # default foreground
+    base06 = "D4C6D5"; # light foreground
+    base07 = "E4D6E5"; # lightest
+    base08 = "C4959C"; # vars / diff-deleted (ansi 9 bright red)
+    base09 = "A18877"; # integers / constants — orange (ansi 3 yellow)
+    base0A = "C9AA95"; # classes / search (ansi 11 bright yellow)
+    base0B = "9BBDB8"; # strings (ansi 10 bright green)
+    base0C = "5F86B0"; # support / regex (ansi 14 bright cyan)
+    base0D = "96AFF2"; # functions (ansi 12 bright blue)
+    base0E = "A6A4EB"; # keywords (ansi 13 bright magenta)
+    base0F = "9D777D"; # deprecated / embedded (ansi 1 red)
+  };
+
   work = {
     username = "roshan";
     values = {
       inherit git;
-      theme.base16Scheme = "gruvbox-dark-hard";
+      theme.base16Scheme = roseprime;
     };
   };
 
