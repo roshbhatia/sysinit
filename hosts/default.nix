@@ -1,110 +1,92 @@
 _:
 let
-  common = {
+  git = {
+    name = "Roshan Bhatia";
+    email = "rshnbhatia@gmail.com";
+    username = "roshbhatia";
+    ssh.use1PasswordAgent = true;
+  };
+
+  personal = {
     username = "rshnbhatia";
-    git = {
-      name = "Roshan Bhatia";
-      email = "rshnbhatia@gmail.com";
-      username = "roshbhatia";
-      ssh = {
-        use1PasswordAgent = true;
-      };
+    values = {
+      inherit git;
+      personal = true;
     };
   };
-in
-{
-  lv426 = {
+
+  work = {
+    username = "roshan";
+    values = {
+      inherit git;
+      theme.base16Scheme = "rose-pine-moon";
+    };
+  };
+
+  darwinHost = identity: limaPartner: extraValues: {
     system = "aarch64-darwin";
     platform = "darwin";
-    inherit (common) username;
-
-    values = {
-      inherit (common) git;
-      personal = true;
-      environment = {
-        LIMA_INSTANCE = "nostromo";
-      };
-    };
+    inherit (identity) username;
+    values =
+      identity.values
+      // {
+        environment.LIMA_INSTANCE = limaPartner;
+      }
+      // extraValues;
   };
 
-  nostromo = {
+  limaHost = identity: {
     system = "aarch64-linux";
     platform = "linux";
     lima = true;
-    inherit (common) username;
-
-    values = {
-      inherit (common) git;
-      personal = true;
-    };
+    inherit (identity) username;
+    inherit (identity) values;
   };
+in
+{
+  lv426 = darwinHost personal "nostromo" { };
+
+  nostromo = limaHost personal;
 
   arrakis = {
     system = "x86_64-linux";
     platform = "linux";
     desktop = true;
     hardware = ../modules/nixos/hardware/arrakis.nix;
-    inherit (common) username;
-
-    values = {
-      inherit (common) git;
-      personal = true;
+    inherit (personal) username;
+    values = personal.values // {
       theme = {
         base16Scheme = "everforest-dark-soft";
-        appearance = "dark";
-        font = {
-          monospace = "WumpusMono Nerd Font Mono";
-        };
+        font.monospace = "WumpusMono Nerd Font Mono";
       };
     };
   };
 
-  hyperion = {
-    system = "aarch64-darwin";
-    platform = "darwin";
-    username = "roshan";
-
-    values = {
-      inherit (common) git;
-      darwin = {
-        lima.instanceName = "farcaster";
-        colima = {
-          cpu = 4;
-          memory = 8;
-        };
-        homebrew = {
-          additionalPackages = {
-            taps = [
-              "bastionzero/tap"
-              "pinginc/lrl"
-              "spacelift-io/spacelift"
-            ];
-            brews = [
-              "awscli"
-              "bastionzero/tap/zli"
-            ];
-            casks = [
-              "sdm"
-              "spacelift-io/spacelift/spacectl"
-              "pinginc/lrl/lrl"
-            ];
-          };
-        };
+  hyperion = darwinHost work "farcaster" {
+    darwin = {
+      lima.instanceName = "farcaster";
+      colima = {
+        cpu = 4;
+        memory = 8;
       };
-      environment = {
-        LIMA_INSTANCE = "farcaster";
+      homebrew.additionalPackages = {
+        taps = [
+          "bastionzero/tap"
+          "pinginc/lrl"
+          "spacelift-io/spacelift"
+        ];
+        brews = [
+          "awscli"
+          "bastionzero/tap/zli"
+        ];
+        casks = [
+          "sdm"
+          "spacelift-io/spacelift/spacectl"
+          "pinginc/lrl/lrl"
+        ];
       };
     };
   };
 
-  farcaster = {
-    system = "aarch64-linux";
-    platform = "linux";
-    lima = true;
-    username = "roshan";
-
-    values = {
-      inherit (common) git;
-    };
-  };
+  farcaster = limaHost work;
 }
