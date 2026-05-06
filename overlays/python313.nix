@@ -12,6 +12,9 @@ _final: prev: {
       aiohttp = pythonPrev.aiohttp.overridePythonAttrs (_old: {
         doCheck = false;
       });
+      django = pythonPrev.django.overridePythonAttrs (_old: {
+        doCheck = false;
+      });
       future = pythonPrev.future.overridePythonAttrs (_old: {
         disabled = false;
       });
