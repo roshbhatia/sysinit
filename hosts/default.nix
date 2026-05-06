@@ -94,12 +94,6 @@ in
       environment = {
         LIMA_INSTANCE = "farcaster";
       };
-      theme = {
-        font = {
-          monospace = "Ioskeley Mono";
-          size = 8.0;
-        };
-      };
     };
   };
 
@@ -111,11 +105,6 @@ in
 
     values = {
       inherit (common) git;
-      theme = {
-        font = {
-          monospace = "Ioskeley Mono";
-        };
-      };
     };
   };
 }
