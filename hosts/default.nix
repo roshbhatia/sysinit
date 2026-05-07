@@ -15,7 +15,7 @@ let
     };
   };
 
-  roseprime = {
+  rosefine = {
     scheme = "rosefine";
     author = "Roshan Bhatia";
     base00 = "1A0F14"; # default bg — dark grey-plum, leaning plum
@@ -40,7 +40,8 @@ let
     username = "roshan";
     values = {
       inherit git;
-      theme.base16Scheme = roseprime;
+
+      theme.base16Scheme = "everforest-dark-soft";
     };
   };
 
@@ -77,7 +78,7 @@ in
     inherit (personal) username;
     values = personal.values // {
       theme = {
-        base16Scheme = "everforest-dark-soft";
+        base16Scheme = rosefine;
         font.monospace = "WumpusMono Nerd Font Mono";
       };
     };
