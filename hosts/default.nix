@@ -21,19 +21,19 @@ let
     base00 = "3D242F"; # default bg — dark grey-plum, leaning plum
     base01 = "23202E"; # status bars / lighter bg (ansi 0)
     base02 = "2E2A3C"; # selection bg
-    base03 = "5C5872"; # comments / invisibles (ansi 8 bright black)
-    base04 = "847F96"; # dim foreground (ansi 7 white)
-    base05 = "C0BCD0"; # default foreground
+    base03 = "9692AB"; # comments / invisibles (ansi 8 bright black) — 4.69:1
+    base04 = "A8A5B5"; # dim foreground (ansi 7 white) — 5.84:1
+    base05 = "C0BCD0"; # default foreground — 7.61:1
     base06 = "D0CCDF"; # light foreground
     base07 = "E1DDEC"; # lightest
-    base08 = "C58594"; # vars / love — dusty pink-red (ansi 9 bright red)
-    base09 = "C49B7A"; # integers / constants — muted gold (ansi 3 yellow)
-    base0A = "D5C497"; # classes / search — soft rose-yellow (ansi 11 bright yellow)
-    base0B = "8FB5A8"; # strings — foam-pine green (ansi 10 bright green)
-    base0C = "7895B0"; # support / regex — desaturated pine (ansi 14 bright cyan)
-    base0D = "94A8D0"; # functions — soft foam-blue (ansi 12 bright blue)
-    base0E = "B0A0CC"; # keywords — desaturated iris (ansi 13 bright magenta)
-    base0F = "9C7080"; # deprecated / embedded — dark dusty rose (ansi 1 red)
+    base08 = "D19DA9"; # vars / love — dusty pink-red (ansi 9 bright red) — 6.10:1
+    base09 = "C49B7A"; # integers / constants — muted gold (ansi 3 yellow) — 5.57:1
+    base0A = "D5C497"; # classes / search — soft rose-yellow (ansi 11 bright yellow) — 8.16:1
+    base0B = "8FB5A8"; # strings — foam-pine green (ansi 10 bright green) — 6.26:1
+    base0C = "97ADC2"; # support / regex — desaturated pine (ansi 14 bright cyan) — 6.08:1
+    base0D = "94A8D0"; # functions — soft foam-blue (ansi 12 bright blue) — 5.88:1
+    base0E = "B0A0CC"; # keywords — desaturated iris (ansi 13 bright magenta) — 5.86:1
+    base0F = "B4939F"; # deprecated / embedded — dusty rose (ansi 1 red) — 5.10:1
   };
 
   work = {
