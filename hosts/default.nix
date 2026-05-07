@@ -41,7 +41,7 @@ let
     values = {
       inherit git;
 
-      theme.base16Scheme = "everforest-dark-soft";
+      theme.base16Scheme = rosefine;
     };
   };
 
@@ -78,7 +78,7 @@ in
     inherit (personal) username;
     values = personal.values // {
       theme = {
-        base16Scheme = rosefine;
+        base16Scheme = "everforest-dark-soft";
         font.monospace = "WumpusMono Nerd Font Mono";
       };
     };
