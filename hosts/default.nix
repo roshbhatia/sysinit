@@ -18,22 +18,22 @@ let
   roseprime = {
     scheme = "rosefine";
     author = "Roshan Bhatia";
-    base00 = "362129"; # default bg
-    base01 = "1C1D1F"; # status bars / lighter bg (ansi 0)
-    base02 = "27282A"; # selection bg
-    base03 = "666068"; # comments / invisibles (ansi 8 bright black)
-    base04 = "766D76"; # dim foreground (ansi 7 white)
+    base00 = "2E1B22"; # default bg — wine, pulled back
+    base01 = "1F1418"; # status bars / lighter bg (ansi 0)
+    base02 = "33222A"; # selection bg
+    base03 = "6E5862"; # comments / invisibles (ansi 8 bright black)
+    base04 = "80707A"; # dim foreground (ansi 7 white)
     base05 = "C4B6C5"; # default foreground
     base06 = "D4C6D5"; # light foreground
     base07 = "E4D6E5"; # lightest
-    base08 = "C4959C"; # vars / diff-deleted (ansi 9 bright red)
-    base09 = "A18877"; # integers / constants — orange (ansi 3 yellow)
-    base0A = "C9AA95"; # classes / search (ansi 11 bright yellow)
-    base0B = "9BBDB8"; # strings (ansi 10 bright green)
-    base0C = "5F86B0"; # support / regex (ansi 14 bright cyan)
-    base0D = "96AFF2"; # functions (ansi 12 bright blue)
-    base0E = "A6A4EB"; # keywords (ansi 13 bright magenta)
-    base0F = "9D777D"; # deprecated / embedded (ansi 1 red)
+    base08 = "D29DA4"; # vars / diff-deleted (ansi 9 bright red)
+    base09 = "B5917A"; # integers / constants — orange (ansi 3 yellow)
+    base0A = "D2AE99"; # classes / search (ansi 11 bright yellow)
+    base0B = "A5C2BD"; # strings (ansi 10 bright green)
+    base0C = "6E91B8"; # support / regex (ansi 14 bright cyan)
+    base0D = "9EB6F2"; # functions (ansi 12 bright blue)
+    base0E = "AEA9ED"; # keywords (ansi 13 bright magenta)
+    base0F = "AB7E84"; # deprecated / embedded (ansi 1 red)
   };
 
   work = {
