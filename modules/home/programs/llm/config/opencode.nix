@@ -346,7 +346,7 @@ let
         "alejandra*" = "ask";
         "nixfmt*" = "ask";
         "nixpkgs-fmt*" = "ask";
-        "terraform fmt*" = "ask";
+        "tofu fmt*" = "ask";
         "packer fmt*" = "ask";
 
         # Linters/checkers (allow - read only)
@@ -367,7 +367,7 @@ let
         "jsonlint*" = "allow";
         "yamllint*" = "allow";
         "ansible-lint*" = "allow";
-        "terraform validate*" = "allow";
+        "tofu validate*" = "allow";
         "tflint*" = "allow";
         "tfsec*" = "allow";
         "helm lint*" = "allow";

@@ -7,7 +7,7 @@ let
     lt = "eza --tree";
     org = "nvim ~/org/notes";
     sg = "ast-grep";
-    tf = "terraform";
+    tf = "tofu";
     tree = "eza --tree --icons=never";
     v = "nvim";
   };

@@ -139,7 +139,7 @@
       awscli2
       crossplane-cli
       upbound
-      terraform-ls
+      tofu-ls
       tflint
       tfsec
       ansible

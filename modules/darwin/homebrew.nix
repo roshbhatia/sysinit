@@ -7,7 +7,6 @@ let
 
   baseTaps = [
     "charmbracelet/tap"
-    "hashicorp/tap"
     "jakehilborn/jakehilborn"
     "noahgorstein/tap"
     "osx-cross/arm"
@@ -20,7 +19,6 @@ let
     "bashdb"
     "bcrypt"
     "ctags"
-    "hashicorp/tap/terraform"
     "libgit2@1.8"
     "luarocks"
     "lunchy"
