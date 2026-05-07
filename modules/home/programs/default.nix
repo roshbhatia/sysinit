@@ -17,6 +17,7 @@
     ./hushlogin.nix
     ./k9s.nix
     ./kubectl.nix
+    ./mise.nix
     ./llm
     ./neovim
     ./nh.nix
