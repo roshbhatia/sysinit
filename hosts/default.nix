@@ -16,9 +16,9 @@ let
   };
 
   roseprime = {
-    scheme = "Roseprime";
-    author = "Casey Miller (palette via cdmill/neomodern.nvim)";
-    base00 = "141517"; # default bg
+    scheme = "rosefine";
+    author = "Roshan Bhatia";
+    base00 = "362129"; # default bg
     base01 = "1C1D1F"; # status bars / lighter bg (ansi 0)
     base02 = "27282A"; # selection bg
     base03 = "666068"; # comments / invisibles (ansi 8 bright black)
