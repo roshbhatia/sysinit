@@ -18,7 +18,7 @@ let
   roseprime = {
     scheme = "rosefine";
     author = "Roshan Bhatia";
-    base00 = "1A0f14"; # default bg — dark grey-plum, leaning plum
+    base00 = "1A0F14"; # default bg — dark grey-plum, leaning plum
     base01 = "23202E"; # status bars / lighter bg (ansi 0)
     base02 = "2E2A3C"; # selection bg
     base03 = "9692AB"; # comments / invisibles (ansi 8 bright black) — 4.69:1
