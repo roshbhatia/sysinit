@@ -1,9 +1,4 @@
 ''
-  ---
-  name: shell-scripting
-  description: Use when writing or modifying shell scripts, particularly in the hack/ directory, Taskfile commands, or any bash automation
-  ---
-
   # Shell Scripting
 
   ## Overview
