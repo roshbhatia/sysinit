@@ -6,13 +6,18 @@
 }:
 let
   skills = import ./skills.nix { inherit pkgs; };
+  commands = import ./commands.nix { inherit pkgs; };
 
   # Claude Code standard path - most tools can read from here
   claudeSkillFiles = lib.mapAttrs' (
     name: path: lib.nameValuePair ".claude/skills/${name}/SKILL.md" { source = path; }
   ) skills.allSkills;
 
-  skillFiles = claudeSkillFiles;
+  claudeCommandFiles = lib.mapAttrs' (
+    name: path: lib.nameValuePair ".claude/commands/opsx/${name}.md" { source = path; }
+  ) commands.renderedOpsx;
+
+  skillFiles = claudeSkillFiles // claudeCommandFiles;
 in
 {
   imports = [
