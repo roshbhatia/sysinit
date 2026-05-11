@@ -1,3 +1,5 @@
+{ pkgs, lib }:
+
 {
   shell-scripting = {
     description = "Use when writing or modifying shell scripts, particularly in the hack/ directory, Taskfile commands, or any bash automation in this repository.";
@@ -30,7 +32,7 @@
 
   find-skills = {
     description = "Discovers and installs agent skills from the open skills ecosystem at skills.sh. Use when the user asks 'how do I do X', 'is there a skill for X', wants to extend agent capabilities, or wants to install something via npx skills.";
-    content = import ./find-skills.nix;
+    content = import ./find-skills.nix { inherit pkgs lib; };
     allowed-tools = "Bash(npx:*) WebFetch";
   };
 

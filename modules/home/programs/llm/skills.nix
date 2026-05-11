@@ -5,7 +5,7 @@
 }:
 
 let
-  registry = import ./skills;
+  registry = import ./skills { inherit pkgs lib; };
 
   requiredSkills = [
     "shell-scripting"
