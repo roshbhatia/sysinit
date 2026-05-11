@@ -1,0 +1,9 @@
+schema: rosh-spec-driven
+
+# Project context shown to AI when creating artifacts.
+context: |
+  Nix-flakes config for macOS (Apple Silicon) and NixOS via nix-darwin + home-manager.
+  Single-user dotfiles; the user is the only contributor.
+  Toolchain: nix, openspec 1.3.0, claude-code, codex, gemini.
+  Conventions: conventional commits (title-only, no body), no emojis in code,
+  scripts in hack/ use `set -euo pipefail` and shfmt -i 2 -ci -sr -s.

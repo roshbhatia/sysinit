@@ -16,7 +16,11 @@ nix.secrets.conf
 
 # AI Tooling
 .claude/
-openspec/
 .serena
 !AGENTS.md
+
+# openspec/ is gitignored globally (in ~/.config/git/ignore) so foreign
+# projects don't accidentally commit scratch artifacts. In sysinit itself
+# we own the schema fork and historical changes, so they should be tracked.
+!openspec/
 
