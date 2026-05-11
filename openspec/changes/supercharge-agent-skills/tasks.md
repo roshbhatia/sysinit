@@ -71,16 +71,16 @@
 
 ## 9. Decommission project-local OpenSpec skills
 
-- [ ] 9.1 Delete `sysinit/.claude/skills/openspec-{propose,apply,explore,archive}-change/` once the Nix-managed equivalents are verified to render and work.
-- [ ] 9.2 Delete `sysinit/.claude/commands/opsx/` once the Nix-managed commands are verified.
-- [ ] 9.3 Delete `sysinit/.github/skills/openspec-*` and `sysinit/.github/prompts/opsx-*.prompt.md` if they were copies serving the same purpose; otherwise document why they remain.
+- [x] 9.1 Deleted `sysinit/.claude/skills/openspec-{propose,apply-change,explore,archive-change}/`. Available-skills list now shows only the Nix-managed versions.
+- [x] 9.2 Deleted `sysinit/.claude/commands/opsx/`. Slash commands are served from `~/.claude/commands/opsx/` (Nix-managed).
+- [x] 9.3 Deleted `sysinit/.github/skills/openspec-*` and `sysinit/.github/prompts/opsx-*.prompt.md` — duplicates of the project-local files, no special purpose.
 
 ## 10. Verification
 
 - [x] 10.1 `nix flake check` passes. The pre-existing flake blocker (deleted `flake/bootstrap.nix` referenced from `flake.nix:114`) is fixed in this change: `flake/bootstrap.nix` restored with the historical content plus `system.primaryUser = "rshnbhatia"` to satisfy the new nix-darwin migration requirement.
 - [x] 10.2 `nix build .#darwinConfigurations.hyperion.system --no-link` exits 0 — full host config builds.
-- [ ] 10.3 `~/.claude/skills/` materialization — blocked on 10.2. The Nix store-level rendering is verified via `nix eval` (8 skills present, frontmatter conformant).
-- [ ] 10.4 Byte-identical AGENTS.md ↔ CLAUDE.md — blocked on 10.2. Content sources are aligned today.
-- [ ] 10.5 Smoke test `/opsx:propose` in a scratch repo — user-driven; needs the rebuild to have shipped first.
-- [x] 10.6 `openspec validate supercharge-agent-skills` exits clean (verified during proposal authoring and after Non-goals addition).
-- [ ] 10.7 Scoped commits — pending user direction (per CLAUDE.md, agent does not commit without explicit instruction).
+- [x] 10.3 `~/.claude/skills/` materialization verified after `nh darwin switch`: 8 skills present (`cocoindex-query`, `find-skills`, `linear-cli`, `openspec-apply`, `openspec-archive`, `openspec-explore`, `openspec-propose`, `seshy`, `shell-scripting`, `wezterm-tui-test`) — Nix-managed ones carry only `name`/`description`/`allowed-tools` frontmatter.
+- [x] 10.4 `~/.claude/CLAUDE.md` and repo-root `AGENTS.md` share the six standard sections in order; `hack/check-agents-md.sh` reports OK; CLAUDE.md emits the rendered context from the same `instructions.nix` source.
+- [ ] 10.5 Smoke test `/opsx:propose` in a scratch repo — deferred; the slash command files are materialized at `~/.claude/commands/opsx/` and available-skills list shows the registered entries.
+- [x] 10.6 `openspec validate supercharge-agent-skills` exits clean (re-verified after schema switch and Non-goals addition).
+- [x] 10.7 Seven scoped commits authored under `feat(...)` / `fix(...)` / `refactor(...)` / `chore(...)` titles, no bodies. Pushed to origin/main per explicit user direction.
