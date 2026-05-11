@@ -40,7 +40,6 @@ let
     username = "roshan";
     values = {
       inherit git;
-      theme.base16Scheme = "everforest-dark-soft";
     };
   };
 
