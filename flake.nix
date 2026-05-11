@@ -123,11 +123,15 @@
 
       packages.aarch64-darwin =
         let
-          pkgs = nixpkgs.legacyPackages.aarch64-darwin;
+          pkgs = import nixpkgs {
+            system = "aarch64-darwin";
+            overlays = [ (lib.composeManyExtensions (import ./overlays/default.nix { inherit inputs; })) ];
+          };
           skillsLib = import ./modules/home/programs/llm/skills.nix { inherit pkgs; };
           llmLib = import ./modules/home/programs/llm/lib/instructions.nix;
           rendered = llmLib.makeInstructions {
             inherit (skillsLib) localSkillDescriptions;
+            openspecVersion = pkgs.openspec.version;
             skillsRoot = "~/.claude/skills";
           };
           agentsMdBody = ''

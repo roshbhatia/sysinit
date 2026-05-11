@@ -16,6 +16,7 @@ let
 
   defaultInstructions = llmLib.instructions.makeInstructions {
     inherit (skillsLib) localSkillDescriptions;
+    openspecVersion = pkgs.openspec.version;
     skillsRoot = "~/.config/opencode/skills";
   };
 

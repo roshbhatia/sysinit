@@ -21,8 +21,8 @@ let
   makeInstructions =
     {
       localSkillDescriptions,
+      openspecVersion,
       skillsRoot ? "~/.claude/skills",
-      openspecVersion ? "1.3.0",
     }:
     let
       skillsList = formatSkillsBlock localSkillDescriptions;

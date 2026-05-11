@@ -10,6 +10,7 @@ let
 
   defaultInstructions = llmLib.instructions.makeInstructions {
     inherit (skillsLib) localSkillDescriptions;
+    openspecVersion = pkgs.openspec.version;
     skillsRoot = "~/.claude/skills";
   };
 
@@ -50,7 +51,10 @@ in
 
     agents = lib.mapAttrs (
       name: agentConfig:
-      llmLib.instructions.formatSubagentAsMarkdown { inherit name; config = agentConfig; }
+      llmLib.instructions.formatSubagentAsMarkdown {
+        inherit name;
+        config = agentConfig;
+      }
     ) subagents;
 
   };

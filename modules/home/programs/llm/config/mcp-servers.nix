@@ -1,5 +1,4 @@
-_:
-{
+_: {
   sysinit.llm.mcp.additionalServers = {
     ast-grep = {
       command = "uvx";
