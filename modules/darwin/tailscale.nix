@@ -1,12 +1,5 @@
-{
-  lib,
-  config,
-  ...
-}:
+_:
 
-let
-  tailscaleEnabled = config.sysinit.darwin.tailscale.enable;
-in
 {
-  services.tailscale.enable = lib.mkIf tailscaleEnabled true;
+  services.tailscale.enable = true;
 }

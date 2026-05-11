@@ -11,7 +11,6 @@ let
   use1Password = sshCfg.use1PasswordAgent;
   inherit (sshCfg) agentSocket;
 
-  isPersonal = values.personal or false;
   limaInstance = values.environment.LIMA_INSTANCE or "";
 in
 {
@@ -39,7 +38,7 @@ in
       # wezterm.enumerate_ssh_hosts() doesn't follow Include directives, so we
       # add an explicit block that WezTerm can discover. ProxyCommand delegates
       # to the Lima-generated config which holds the current dynamic port.
-      "lima-${limaInstance}" = {
+      ${limaInstance} = {
         user = values.user.username;
         proxyCommand = "ssh -F %d/.lima/${limaInstance}/ssh.config lima-${limaInstance} -W 127.0.0.1:22";
         extraOptions = {
@@ -48,7 +47,7 @@ in
           NoHostAuthenticationForLocalhost = "yes";
         };
       };
-    } // lib.optionalAttrs isPersonal {
+    } // {
       "vorgossos" = {
         hostname = "vorgossos.stork-eel.ts.net";
         user = "rshnbhatia";

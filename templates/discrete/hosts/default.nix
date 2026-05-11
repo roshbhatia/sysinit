@@ -46,7 +46,6 @@ in
 
       # Darwin-specific settings
       darwin = {
-        tailscale.enable = true;
         homebrew.additionalPackages = {
           taps = [ ];
           brews = [ ];

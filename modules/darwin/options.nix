@@ -36,14 +36,6 @@ in
       };
     };
 
-    tailscale = {
-      enable = mkOption {
-        type = types.bool;
-        default = true;
-        description = "Enable Tailscale VPN";
-      };
-    };
-
     homebrew = {
       additionalPackages = {
         taps = mkOption {

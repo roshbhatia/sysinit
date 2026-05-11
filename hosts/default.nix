@@ -11,7 +11,6 @@ let
     username = "rshnbhatia";
     values = {
       inherit git;
-      personal = true;
     };
   };
 
