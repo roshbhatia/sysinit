@@ -159,15 +159,20 @@ let
 
   # Helper: fetch an npm package tarball from the registry and extract it.
   # npm tarballs have a top-level "package/" dir; fetchzip strips it so
-  # the derivation root contains package.json directly.
+  # the derivation root contains package.json directly. Scoped packages
+  # use `@scope/basename` for the URL path but only `basename` in the
+  # tarball filename, so we split before joining.
   fetchNpmPkg =
     {
       name,
       version,
       hash,
     }:
+    let
+      basename = lib.last (lib.splitString "/" name);
+    in
     pkgs.fetchzip {
-      url = "https://registry.npmjs.org/${name}/-/${name}-${version}.tgz";
+      url = "https://registry.npmjs.org/${name}/-/${basename}-${version}.tgz";
       inherit hash;
     };
 
@@ -290,6 +295,37 @@ let
         "sha256-OSuEzxoOC2lPXUZRNqNhLTNRLkWFwQloFklW5hMvRyE="
         ./locks/pi-mcp-adapter.lock.json;
 
+    # Phase B additions (zero-dep extensions) — load order positions are
+    # set via piPackagePaths array order below.
+
+    # pi-btw: /btw spawns a parallel sub-session with tools inherited from
+    # the parent. Use for tangents that shouldn't break the main flow.
+    btw = mkFetchedNpmPackage "pi-btw" "0.4.0" "sha256-8iAnayDUtK/BGl0ldJ9klOpItdCyV8qniSO+pXGslNo=";
+
+    # @samfp/pi-memory: persistent cross-session memory of corrections,
+    # preferences, and patterns. Complements .sysinit/lessons.md.
+    samfpMemory =
+      mkFetchedNpmPackage "@samfp/pi-memory" "1.3.2"
+        "sha256-64n/mbjuVogsLYrIYi/XSjh3EwzOaiqYH16N3/LBJ/M=";
+
+    # @benvargas/pi-openai-fast: /fast toggle for OpenAI priority service
+    # tier on supported GPT-5.4 models. Inert when Anthropic is active.
+    openaiFast =
+      mkFetchedNpmPackage "@benvargas/pi-openai-fast" "1.0.2"
+        "sha256-cUY9RGofE+zMlB1qcgkM55KJhEiVHnan9bWSXtvpQ4E=";
+
+    # @benvargas/pi-openai-verbosity: per-model OpenAI Codex text-verbosity
+    # overrides. Pairs with openaiFast. Inert when Anthropic is active.
+    openaiVerbosity =
+      mkFetchedNpmPackage "@benvargas/pi-openai-verbosity" "1.0.0"
+        "sha256-FXjeNW4UVe5PwNjjr2pL6DrLcYkdNtr7yP4jTzQvyPw=";
+
+    # @juicesharp/rpiv-advisor: second-opinion reviewer the model can
+    # request from a stronger model before acting. Spec-driven gate fit.
+    rpivAdvisor =
+      mkFetchedNpmPackage "@juicesharp/rpiv-advisor" "1.5.0"
+        "sha256-21vwJsX9+bbsyf/0FyrJM1lkUOoRvJKMCXUagl61Eqg=";
+
     # @heyhuynhgiabuu/pi-diff: scoped package, Shiki-powered syntax-highlighted
     # diffs with side-by-side split view for edit and unified view for write.
     diff = pkgs.buildNpmPackage {
@@ -313,23 +349,38 @@ let
     };
   };
 
+  # Load order matters (per design D3):
+  # 1. Provider routing — openaiFast + openaiVerbosity (inert for non-OpenAI)
+  # 2. Orchestration — pi-subagents
+  # 3. Memory + advisor — samfpMemory, rpivAdvisor
+  # 4. UI / workflow — btw
+  # 5. Tool providers — toolDisplay, diff, dcp, webfetch, mcpAdapter
+  # 6. Content utilities — context, subdirContext, annotatedReply, mermaid,
+  #                        readlineSearch, rtk, threads, interview, librarian,
+  #                        askUser
+  # (Permission gate will sit at position 1 once Phase C lands.)
   piPackagePaths = with piPackages; [
-    "${annotatedReply}"
-    "${context}"
-    "${mermaid}"
+    "${openaiFast}"
+    "${openaiVerbosity}"
     "${piPackages.subagents}"
+    "${samfpMemory}"
+    "${rpivAdvisor}"
+    "${btw}"
+    "${toolDisplay}"
+    "${diff}"
+    "${dcp}"
+    "${webfetch}"
+    "${mcpAdapter}"
+    "${context}"
+    "${subdirContext}"
+    "${annotatedReply}"
+    "${mermaid}"
     "${readlineSearch}"
     "${rtk}"
     "${threads}"
-    "${dcp}"
-    "${webfetch}"
     "${interview}"
     "${librarian}"
     "${askUser}"
-    "${toolDisplay}"
-    "${diff}"
-    "${mcpAdapter}"
-    "${subdirContext}"
   ];
 
   # @psg2/pi-costs: standalone CLI that analyses session JSONL logs for cost/token
