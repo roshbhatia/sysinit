@@ -5,12 +5,12 @@
   ...
 }:
 let
-  piExtensionsRev = "85d06052fbee06c87533931febcf68a81f2b0c7a";
+  piExtensionsRev = "2b895e20cd5b65bb02ef58026f3eb981fd7d27ae";
   piExtensionsSrc = pkgs.fetchFromGitHub {
-    owner = "badlogic";
-    repo = "pi-mono";
+    owner = "earendil-works";
+    repo = "pi";
     rev = piExtensionsRev;
-    sha256 = "1lj0vrx5yvf71sqai4zqk1idgnrqzcimg4mmlicg7091jsp12qsk";
+    sha256 = "0lkxghxxfvrjmbr6b9wgma5ch3zzz9nmhypj0ib7fww0gnvzpl8d";
   };
   extensionsDir = "${piExtensionsSrc}/packages/coding-agent/examples/extensions";
   subagents = import ../subagents;
@@ -66,7 +66,7 @@ let
     in
     builtins.toJSON {
       "$schema" =
-        "https://raw.githubusercontent.com/badlogic/pi-mono/main/packages/coding-agent/src/modes/interactive/theme/theme-schema.json";
+        "https://raw.githubusercontent.com/earendil-works/pi/main/packages/coding-agent/src/modes/interactive/theme/theme-schema.json";
       name = "stylix";
       vars = {
         primary = hex "base0D";
@@ -247,11 +247,11 @@ let
 
     # npm packages - source only (no runtime deps beyond pi's bundled ones)
     context =
-      mkFetchedNpmPackage "pi-context" "1.1.2"
-        "sha256-HahjPDBBUQgHqI9EUo7tSap1YyyOKCsatQReEcDopOE=";
+      mkFetchedNpmPackage "pi-context" "1.1.4"
+        "sha256-pdRI1D2KIOJVV164DKpzXAQneOOEypB2GXqFzGRvasc=";
     subagents =
-      mkFetchedNpmPackage "pi-subagents" "0.11.2"
-        "sha256-IpZ1sILJP5zWIQ63C+vR7L4CeWdBu8dfkm+k2p+kzRI=";
+      mkFetchedNpmPackage "pi-subagents" "0.24.2"
+        "sha256-cRcUl0gNmk4gqStqNffT6FQOozjAMuETe3OeNaQMXfA=";
     readlineSearch =
       mkFetchedNpmPackage "pi-readline-search" "0.1.0"
         "sha256-HxomHcIceZX68M0f0ZcRJSiqDzqCI0p+wcyq8CVL514=";
@@ -260,20 +260,20 @@ let
       mkFetchedNpmPackage "pi-threads" "0.2.1"
         "sha256-MF++ANxMplxx0qydKoozrnNTFtb4HQ/0s923cGrsPyM=";
     interview =
-      mkFetchedNpmPackage "pi-interview" "0.6.0"
-        "sha256-2kIaXuS4JobGnRIIrcW0hZAjwWOTnFARNAiEHPJnXu0=";
+      mkFetchedNpmPackage "pi-interview" "0.8.7"
+        "sha256-d7ZwYDc+FIOx9qRp+6hObjsha459exdjcRWo+iyJ0d0=";
     librarian =
-      mkFetchedNpmPackage "pi-librarian" "1.3.3"
-        "sha256-iQzkY2w0xOUU9Teooj4llegOYlbehkGzGbDxRl773PE=";
+      mkFetchedNpmPackage "pi-librarian" "1.3.7"
+        "sha256-Obn+DyQD1WCptZO5t0YgUOdpGULNYfPxUA7NeGT7GfQ=";
     askUser =
-      mkFetchedNpmPackage "pi-ask-user" "0.5.1"
-        "sha256-x3g4W8Eu7S/GAuseNbUfH8KoNkGuBXujAOZiOM2X5wo=";
+      mkFetchedNpmPackage "pi-ask-user" "0.11.0"
+        "sha256-R1TN2GWrwv3UhlAC0Ym1nMZABi/IrLxtD6EYxbDEfm8=";
     toolDisplay =
-      mkFetchedNpmPackage "pi-tool-display" "0.3.1"
-        "sha256-R1CQ1pHPDaGIootPxiFmIUGumYr5ElKyNYjqj6rhgmY=";
+      mkFetchedNpmPackage "pi-tool-display" "0.3.6"
+        "sha256-6ykaEl8IlwH667YQ+CBO/I/0rTDlIues4fYZDKJg2JE=";
     subdirContext =
-      mkFetchedNpmPackage "pi-subdir-context" "1.1.2"
-        "sha256-hl/t2RIMbQDK5H8UKvX9qMinefnMuboVbL6R91sWV4Q=";
+      mkFetchedNpmPackage "pi-subdir-context" "1.1.7"
+        "sha256-nPHuANl4j5Ank2ccLUQFLxRIxTPJCLF3G73NpU8xHnI=";
 
     # npm packages with runtime deps - lock files stored in ./locks/
     dcp =
@@ -286,23 +286,23 @@ let
         "sha256-vjBFvarCqnv80YoWck0MnAXScWe4l8xP/qSBZ6kmWJY="
         ./locks/pi-webfetch-to-markdown.lock.json;
     mcpAdapter =
-      mkBuiltNpmPackage "pi-mcp-adapter" "2.2.1" "sha256-hRTTDUp6XXsLZmO/a8a9hLeGN3jFlyc1lmFbIymNJ/k="
-        "sha256-HDm5F0zAyYgZS0BDcKfkJVEuBk9k0BU/qpQNCmmgEas="
+      mkBuiltNpmPackage "pi-mcp-adapter" "2.6.0" "sha256-PvG5zESCiVHC69zPyVhZ0fqQhTaJZFHEOAFEnMSIiak="
+        "sha256-OSuEzxoOC2lPXUZRNqNhLTNRLkWFwQloFklW5hMvRyE="
         ./locks/pi-mcp-adapter.lock.json;
 
     # @heyhuynhgiabuu/pi-diff: scoped package, Shiki-powered syntax-highlighted
     # diffs with side-by-side split view for edit and unified view for write.
     diff = pkgs.buildNpmPackage {
       pname = "pi-diff";
-      version = "0.2.1";
+      version = "0.3.0";
       src = pkgs.fetchurl {
-        url = "https://registry.npmjs.org/@heyhuynhgiabuu/pi-diff/-/pi-diff-0.2.1.tgz";
-        hash = "sha256-euTSPo5oGyBeC2U/H/BBK1WjfkoL8uzOb+UYg2Cpw3o=";
+        url = "https://registry.npmjs.org/@heyhuynhgiabuu/pi-diff/-/pi-diff-0.3.0.tgz";
+        hash = "sha256-lQ9V8DvaHCj7hG9q+SJwy7M9hDCOPXRfWTqBh9kjS9A=";
       };
       postPatch = ''
         cp ${./locks/pi-diff.lock.json} package-lock.json
       '';
-      npmDepsHash = "sha256-im9oOkyKqm6qK1ngssaq+KCffy/wKgjkWGWyPXbE1Xo=";
+      npmDepsHash = "sha256-DPZfPc5njMabDdo5UwX7UoWvHPwC261LhT8BsAm7U00=";
       npmFlags = "--ignore-scripts";
       dontNpmBuild = true;
       installPhase = ''
@@ -364,16 +364,16 @@ let
   # from triggering the prepare lifecycle hook (which would try to run tsup).
   piAcp = pkgs.buildNpmPackage {
     pname = "pi-acp";
-    version = "0.0.24";
+    version = "0.0.26";
     src = fetchNpmPkg {
       name = "pi-acp";
-      version = "0.0.24";
-      hash = "sha256-aWx3NEn8h8u5WvwNfWBoJ5+vXfcoibxE+qZ08blh/Ps=";
+      version = "0.0.26";
+      hash = "sha256-37n4i+JY8I63xdXIL+BCFPohWYgugeW4ASB06y/+tjI=";
     };
     postPatch = ''
       cp ${./locks/pi-acp.lock.json} package-lock.json
     '';
-    npmDepsHash = "sha256-srVXvo6BHFEWqchW9P7py27FUj817nPGZ5e3bxF3N3k=";
+    npmDepsHash = "sha256-IChKY574YL+/YeJben7ZrIsa0Y3ZPWDPDhEVNMwGDr4=";
     npmFlags = "--ignore-scripts";
     dontNpmBuild = true;
   };
