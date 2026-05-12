@@ -46,6 +46,15 @@ let
     ) extensions
   );
 
+  # Custom local extensions authored in this repo and installed under the
+  # same ~/.pi/agent/extensions/ root as the vendored upstream ones.
+  customExtensionFiles = {
+    ".pi/agent/extensions/openspec-status.ts" = {
+      source = ./extensions/openspec-status.ts;
+      force = true;
+    };
+  };
+
   # User-level agents generated from modules/home/programs/llm/subagents/*.nix.
   # Add a new .nix file there and register it in subagents/default.nix to define an agent.
   agentFiles = lib.listToAttrs (
@@ -552,6 +561,7 @@ in
 
     file =
       extensionFiles
+      // customExtensionFiles
       // agentFiles
       // {
         ".pi/agent/keybindings.json" = {
