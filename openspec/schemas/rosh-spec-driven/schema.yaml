@@ -18,6 +18,27 @@ artifacts:
         - **Modified Capabilities**: List existing capabilities whose REQUIREMENTS are changing. Only include if spec-level behavior changes (not just implementation details). Each needs a delta spec file. Check `openspec/specs/` for existing spec names. Leave empty if no requirement changes.
       - **Impact**: Affected code, APIs, dependencies, or systems.
 
+      **rosh-spec-driven rules** (apply before writing the proposal):
+
+      1. **Reuse existing patterns.** Before drafting "What Changes", survey the repo for prior
+         implementations of similar capabilities. Reference the closest existing module/file by
+         path in the proposal and explicitly note what is being reused vs. introduced. If no
+         existing pattern fits, state that explicitly. Inventing parallel infrastructure when an
+         established pattern would work is a default-reject.
+      2. **Plan for progressive rollout.** Every change MUST be shaped so it can land
+         incrementally. Scope the proposal so each capability can be reviewed, built, and
+         verified independently. Avoid all-or-nothing changes that flip many surfaces at once.
+         If the change is genuinely atomic (cannot be split), say so in `Impact` and explain why.
+      3. **Flag impactful actions up front.** In `Impact`, enumerate every action that mutates
+         shared state, is hard to reverse, or requires user confirmation: `nh os switch`,
+         `openspec archive`, `git push`, network writes, schema migrations, system config
+         changes, vendored-content updates, removal of public surfaces. These become explicit
+         human-verification checkpoints in `tasks.md`.
+      4. **Note the gating signal.** If the change has a natural feature flag, kill switch,
+         config toggle, or staged-rollout sequence, name it in `Impact` so design.md can build
+         on it. For dotfiles work this is typically `nh os build` (verify) before
+         `nh os switch` (apply).
+
       IMPORTANT: The Capabilities section is critical. It creates the contract between
       proposal and specs phases. Research existing specs before filling this in.
       Each capability listed here will need a corresponding spec file.
@@ -102,11 +123,12 @@ artifacts:
       - Ambiguity that benefits from technical decisions before coding
 
       Sections:
-      - **Context**: Background, current state, constraints, stakeholders
+      - **Context**: Background, current state, constraints, stakeholders. **rosh-spec-driven rule**: name the existing patterns/files being extended or paralleled. Cite paths. If introducing a new pattern, justify why the closest existing one was insufficient.
       - **Goals / Non-Goals**: What this design achieves and explicitly excludes
       - **Decisions**: Key technical choices with rationale (why X over Y?). **rosh-spec-driven rule**: Each entry under Decisions MUST list at least one alternative considered and the explicit reason it was rejected. A decision without recorded alternatives is not a decision; it's an assumption.
-      - **Risks / Trade-offs**: Known limitations, things that could go wrong. Format: [Risk] → Mitigation
-      - **Migration Plan**: Steps to deploy, rollback strategy (if applicable)
+      - **Rollout & Gating**: **rosh-spec-driven rule**: REQUIRED section. Describe the sequenced rollout — which slice ships first, what gate must pass before the next slice (build green, manual smoke test, user confirmation, etc.), and where the kill switch is if something goes wrong. For dotfiles work, the default gate sequence is: edit → `nix flake check` → `nh os build` (no system change) → user spot-check → `nh os switch`. Deviations from this sequence MUST be called out. Name any feature flag, config toggle, or capability gate that scopes the rollout.
+      - **Risks / Trade-offs**: Known limitations, things that could go wrong. Format: [Risk] → Mitigation. Risks that map to human-verification checkpoints in `tasks.md` MUST be flagged here.
+      - **Migration Plan**: Steps to deploy, rollback strategy (if applicable). **rosh-spec-driven rule**: Every step that mutates shared state, is hard to reverse, or requires elevated permissions MUST be preceded by a verification step and followed by a confirmation step. Single-line "run X" entries for impactful actions are insufficient.
       - **Open Questions**: Outstanding decisions or unknowns to resolve
 
       Focus on architecture and approach, not line-by-line implementation.
@@ -132,22 +154,42 @@ artifacts:
       - Tasks should be small enough to complete in one session
       - Order tasks by dependency (what must be done first?)
       - **rosh-spec-driven rule**: When the change spans more than one capability, group tasks under explicit phase headings (`## 1. Phase name`, `## 2. Phase name`, ...). Each phase MUST correspond to a coherent vertical slice that could in principle be reviewed or shipped independently.
+      - **rosh-spec-driven rule — human verification before impactful actions**: Any task that performs an action with non-trivial blast radius MUST be preceded by a verification task and followed by a confirmation task. Impactful actions include (non-exhaustive):
+        - `nh os switch` / `nh darwin switch` (mutates the live system)
+        - `git push`, especially to `main` or any shared branch
+        - `openspec archive` (irreversibly moves a change out of the active set)
+        - Schema fork or migration steps
+        - Removal/deletion of files outside the working scratch space
+        - Network writes (POST/PUT/DELETE to external services)
+        - Updates to vendored upstream content (fetcher hash bumps, etc.)
+        - `nix fmt` / formatter sweeps that touch many files at once
+      - For each such task, the structure MUST be:
+        - `- [ ] X.N Verify: <preconditions, e.g., nix flake check passes, nh os build succeeds, diff reviewed>`
+        - `- [ ] X.N+1 Apply: <impactful action>`
+        - `- [ ] X.N+2 Confirm: <postconditions, e.g., expected files exist, user spot-checks, drift script reports OK>`
+      - **rosh-spec-driven rule — reuse first**: For each task that introduces a new module/file, the description SHOULD reference the existing pattern it follows (cite a file path) or explicitly note this is a new pattern (with justification carried from design.md).
 
       Example:
       ```
       ## 1. Setup
 
-      - [ ] 1.1 Create new module structure
+      - [ ] 1.1 Create new module structure (follows `modules/home/programs/llm/skills/` layout)
       - [ ] 1.2 Add dependencies to package.json
 
       ## 2. Core Implementation
 
       - [ ] 2.1 Implement data export function
       - [ ] 2.2 Add CSV formatting utilities
+
+      ## 3. Rollout
+
+      - [ ] 3.1 Verify: `nix flake check` + `nh os build` green; review `git diff`
+      - [ ] 3.2 Apply: `nh os switch`
+      - [ ] 3.3 Confirm: exported file appears at expected path; user spot-checks
       ```
 
       Reference specs for what needs to be built, design for how to build it.
-      Each task should be verifiable - you know when it's done.
+      Each task should be verifiable — you know when it's done.
     requires:
       - specs
       - design
