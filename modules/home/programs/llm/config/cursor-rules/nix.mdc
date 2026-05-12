@@ -1,0 +1,30 @@
+---
+description: Nix-specific style and module-layout rules.
+globs:
+  - "**/*.nix"
+---
+
+# Nix conventions
+
+## Formatting
+
+- Run `nix fmt` (uses `nixfmt-rfc-style`) before committing any `.nix` file.
+- Two-space indent, trailing commas on multi-line attrsets.
+
+## Module layout
+
+- Each module is `{ lib, pkgs, config, ... }:` taking exactly the args it uses. Bring in `pkgs` and `config` only when needed.
+- Shared LLM-harness imports go through `lib/harness-kit.nix`: `let kit = llmLib.harnessKit.mkKit { inherit lib pkgs config; }; in ...`. Do not `import ../lib/instructions.nix`, `../mcp.nix`, or `../skills.nix` directly from a `config/<harness>.nix` file — the kit re-exports them.
+- Bash allowlists for agent harnesses consume `lib/allowlist.nix`'s canonical `tierA` / `tierB` patterns via the harness-specific `formatFor<X>`. Inline pattern lists in `config/<harness>.nix` are an anti-pattern.
+
+## Patterns to reuse
+
+- For vendoring per-harness assets (extensions, recipes, rules), follow the `geminiExtensions` attrset pattern in `gemini.nix` or the `recipes` attrset pattern in `goose.nix`: declare a Nix attrset, render files via `home.file` or `xdg.configFile` with a small `mkEntry` helper.
+- For npm-package vendoring, follow the `fetchNpmPkg` / `buildNpmPkg` helpers in `pi.nix`: version + SRI hash + (for buildNpmPackage) a per-package lockfile under `config/locks/`.
+- For openspec drift detection, follow the `hack/update-pi.sh` / `hack/sync-openspec-skills.sh` / `hack/check-agents-md.sh` shape: bash, `set -euo pipefail`, exits non-zero on drift, never auto-modifies.
+
+## Prohibitions
+
+- No `lib.unsafeDiscardStringContext` or other escape-hatch helpers without explicit permission.
+- No `with pkgs;` at module top level — use explicit `pkgs.<name>` references.
+- No `mkForce` / `mkOverride` without a comment explaining why.

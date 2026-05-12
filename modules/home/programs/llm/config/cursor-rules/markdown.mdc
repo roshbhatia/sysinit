@@ -1,0 +1,43 @@
+---
+description: Rules for editing AGENTS.md, CLAUDE.md, GEMINI.md, and other agent-facing context files.
+globs:
+  - "**/AGENTS.md"
+  - "**/CLAUDE.md"
+  - "**/GEMINI.md"
+  - "**/.cursorrules"
+---
+
+# Agent-context-file conventions (May 2026 standard)
+
+These files are loaded by AI coding agents at session start. The May 2026 best practice (from the [agents.md standard](https://agents.md/)) cap is ≤200 lines per file with these sections in order: `Stack`, `Commands`, `Conventions`, `Skills`, `Prohibitions`, `Context`.
+
+## What to include
+
+- **Stack**: pinned versions of the toolchain (e.g., `openspec 1.3.0`, `nixfmt-rfc-style`, `nodejs <version>`).
+- **Commands**: fenced bash blocks with exact flags. Commands without flags get a one-line note.
+- **Conventions**: positive guidance (small commits, conventional titles, single-concern).
+- **Skills**: auto-generated from the skill registry; do not hand-maintain.
+- **Prohibitions**: explicit bullets — never push to main, never use `--no-verify`, etc.
+- **Context**: pointers to scratch space (`.sysinit/`), openspec state, global gitignore.
+
+## What to exclude
+
+- **Architectural overviews** ("Repository Structure", "Repository Layout", etc.). The ETH Zurich evaluation showed they cost ~19% inference overhead without measurable accuracy gain. Drop them.
+- **Linter-enforced rules**. If a formatter or linter catches it, the rule doesn't need to be in the context file.
+- **Generic language guidance** (e.g., "write good code"). Agents already have priors.
+- **Filesystem dumps** (`ls -la modules/` output, full directory trees). Use globs / find from the agent side.
+
+## File-generation contract
+
+`AGENTS.md` at the repo root and the per-agent context files (`~/.claude/CLAUDE.md`, `~/.config/gemini/GEMINI.md`, etc.) MUST be generated from `modules/home/programs/llm/lib/instructions.nix`. The repo-root file is checked in; the per-agent files are written by home-manager activation.
+
+Drift is caught by `hack/check-agents-md.sh` which diffs the committed `AGENTS.md` against the `nix build .#agentsMd` output.
+
+## Editing checklist
+
+- [ ] Total file ≤200 lines.
+- [ ] Six top-level `##` headings in canonical order.
+- [ ] No architectural-overview section.
+- [ ] `Commands` lists exact invocations with flags.
+- [ ] `Prohibitions` lists every "Never X" explicitly.
+- [ ] If editing `instructions.nix`, regenerate `AGENTS.md` via `cp $(nix build .#packages.aarch64-darwin.agentsMd --no-link --print-out-paths) AGENTS.md` and confirm `./hack/check-agents-md.sh` passes.
