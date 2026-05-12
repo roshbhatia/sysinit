@@ -6,24 +6,13 @@
 }:
 let
   llmLib = import ../lib { inherit lib; };
-  mcpServers = import ../mcp.nix {
-    inherit lib;
-    inherit (config.sysinit.llm.mcp) additionalServers;
-  };
-  skillsLib = import ../skills.nix { inherit pkgs; };
-
-  defaultInstructions = llmLib.instructions.makeInstructions {
-    inherit (skillsLib) localSkillDescriptions;
-    openspecVersion = pkgs.openspec.version;
-    skillsRoot = "~/.claude/skills";
-  };
+  kit = llmLib.harnessKit.mkKit { inherit lib pkgs config; };
 
   geminiSettingsToml = ''
     # MCP Servers
     [mcpServers]
-    ${llmLib.mcp.formatForGemini mcpServers.servers}
+    ${llmLib.mcp.formatForGemini kit.mcpServers.servers}
   '';
-
 in
 {
   xdg.configFile = {
@@ -32,7 +21,7 @@ in
       force = true;
     };
     "gemini/GEMINI.md" = {
-      text = defaultInstructions;
+      text = kit.mkInstructions "~/.claude/skills";
       force = true;
     };
   };

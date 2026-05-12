@@ -1,22 +1,17 @@
 {
   lib,
   pkgs,
+  config,
   ...
 }:
 let
   llmLib = import ../lib { inherit lib; };
-  skillsLib = import ../skills.nix { inherit pkgs; };
-
-  defaultInstructions = llmLib.instructions.makeInstructions {
-    inherit (skillsLib) localSkillDescriptions;
-    openspecVersion = pkgs.openspec.version;
-    skillsRoot = "~/.claude/skills";
-  };
+  kit = llmLib.harnessKit.mkKit { inherit lib pkgs config; };
 in
 {
   programs.codex = {
     enable = true;
     enableMcpIntegration = true;
-    context = defaultInstructions;
+    context = kit.mkInstructions "~/.claude/skills";
   };
 }

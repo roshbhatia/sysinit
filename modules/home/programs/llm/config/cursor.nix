@@ -1,19 +1,17 @@
 {
   lib,
+  pkgs,
   config,
   ...
 }:
 let
   llmLib = import ../lib { inherit lib; };
-  mcpServers = import ../mcp.nix {
-    inherit lib;
-    inherit (config.sysinit.llm.mcp) additionalServers;
-  };
+  kit = llmLib.harnessKit.mkKit { inherit lib pkgs config; };
 
   cursorConfig = builtins.toJSON {
     version = 1;
     permissions = {
-      allow = llmLib.mcp.formatPermissionsForCursor mcpServers.allPermissions;
+      allow = llmLib.mcp.formatPermissionsForCursor kit.mcpServers.allPermissions;
       deny = [ ];
     };
     editor = {
@@ -23,7 +21,6 @@ let
       useHttp1ForAgent = true;
     };
   };
-
 in
 {
   home.file = {

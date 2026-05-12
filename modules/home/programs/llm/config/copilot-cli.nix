@@ -1,14 +1,12 @@
 {
   lib,
+  pkgs,
   config,
   ...
 }:
 let
   llmLib = import ../lib { inherit lib; };
-  mcpServers = import ../mcp.nix {
-    inherit lib;
-    inherit (config.sysinit.llm.mcp) additionalServers;
-  };
+  kit = llmLib.harnessKit.mkKit { inherit lib pkgs config; };
 
   copilotConfig = builtins.toJSON {
     banner = "never";
@@ -16,7 +14,7 @@ let
     screen_reader = false;
     theme = "auto";
     trusted_folders = [ ];
-    mcpServers = llmLib.mcp.formatForCopilot mcpServers.servers;
+    mcpServers = llmLib.mcp.formatForCopilot kit.mcpServers.servers;
   };
 in
 {
