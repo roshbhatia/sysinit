@@ -16,8 +16,10 @@ let
   subagents = import ../subagents;
   agentNames = builtins.filter (k: k != "formatSubagentAsMarkdown") (builtins.attrNames subagents);
 
+  # confirm-destructive intentionally NOT in this list — replaced by
+  # @gotgenes/pi-permission-system (finer-grained bash-AST-aware gate).
+  # Assertion below enforces that the two are not both active.
   extensions = [
-    "confirm-destructive"
     "dirty-repo-guard"
     "git-checkpoint"
     "handoff"
@@ -326,6 +328,50 @@ let
       mkFetchedNpmPackage "@juicesharp/rpiv-advisor" "1.5.0"
         "sha256-21vwJsX9+bbsyf/0FyrJM1lkUOoRvJKMCXUagl61Eqg=";
 
+    # Phase C additions (heavier packages with runtime npm deps).
+
+    # taskplane: parallel task orchestration with checkpoint discipline.
+    # Maps onto openspec apply phases for multi-step changes.
+    taskplane =
+      mkBuiltNpmPackage "taskplane" "0.30.0" "sha256-J2dGslYCL39fPbvvCFVnRI07lEBHy5d4h+ZZHPlNIrM="
+        "sha256-rbCUAJ0HBgnTIxjWhzBhver9lGdDDOngCin7W3Z6tm4="
+        ./locks/taskplane.lock.json;
+
+    # @plannotator/pi-extension: interactive plan review with inline
+    # annotations. Pairs with openspec-propose review point.
+    plannotator =
+      mkBuiltNpmPackage "@plannotator/pi-extension" "0.19.14"
+        "sha256-kyiItKnuYMxp43+5wlC6BUDftp+mTxXG7PB3aEq9Qbg="
+        "sha256-oiiZsd1UG1nIa7xhnOcUKpyr2J2qWbghXildxE036Ok="
+        ./locks/plannotator.lock.json;
+
+    # @gotgenes/pi-permission-system: bash-AST-aware permission enforcement.
+    # Replaces vendored confirm-destructive extension. MUST load first so
+    # it wraps all subsequent tool calls (see piPackagePaths order below).
+    piPermissionSystem =
+      mkBuiltNpmPackage "@gotgenes/pi-permission-system" "5.14.1"
+        "sha256-/qNC6erD+Rl12JpLlFwe2N2PgaekpfMHHprnKozN1rk="
+        "sha256-Dvu/wuGdwjBQsJCU0N8oI+a1EysJpHFkwLwUpgjJfso="
+        ./locks/pi-permission-system.lock.json;
+
+    # @benvargas/pi-claude-code-use: patches Anthropic OAuth so pi can
+    # piggyback on a Claude Code subscription session. Inert when not
+    # using Anthropic provider.
+    piClaudeCodeUse =
+      mkBuiltNpmPackage "@benvargas/pi-claude-code-use" "1.0.1"
+        "sha256-remGlC3uuDoSq18TgOy344fj9lEecTr0cjMZ2FlYRag="
+        "sha256-NbhgVngG5y29BvVE5lcp+xImiOXi0m1kH5I6d9JuNq0="
+        ./locks/pi-claude-code-use.lock.json;
+
+    # @firstpick/pi-extension-reverse-last: session-aware undo for write/
+    # edit tool calls (/reverse-last). Complements git-checkpoint at the
+    # in-session granularity.
+    piReverseLast =
+      mkBuiltNpmPackage "@firstpick/pi-extension-reverse-last" "0.1.4"
+        "sha256-+NtvjE1W8roNwgR55hzzcJWM4xhSqtk9mKDEWCoEUUE="
+        "sha256-k0e9qvB9tvt6qstrYnoH7tyOoB5qRwStzE+cBdRm7CQ="
+        ./locks/pi-reverse-last.lock.json;
+
     # @heyhuynhgiabuu/pi-diff: scoped package, Shiki-powered syntax-highlighted
     # diffs with side-by-side split view for edit and unified view for write.
     diff = pkgs.buildNpmPackage {
@@ -360,17 +406,29 @@ let
   #                        askUser
   # (Permission gate will sit at position 1 once Phase C lands.)
   piPackagePaths = with piPackages; [
+    # 1. Permission gate — MUST load first to wrap all tool calls below.
+    "${piPermissionSystem}"
+    # 2. Provider routing (inert when target provider not active).
+    "${piClaudeCodeUse}"
     "${openaiFast}"
     "${openaiVerbosity}"
+    # 3. Orchestration.
     "${piPackages.subagents}"
+    "${taskplane}"
+    # 4. Memory + advisor.
     "${samfpMemory}"
     "${rpivAdvisor}"
+    # 5. UI / workflow.
+    "${plannotator}"
     "${btw}"
+    "${piReverseLast}"
+    # 6. Tool providers.
     "${toolDisplay}"
     "${diff}"
     "${dcp}"
     "${webfetch}"
     "${mcpAdapter}"
+    # 7. Content utilities.
     "${context}"
     "${subdirContext}"
     "${annotatedReply}"
@@ -382,6 +440,18 @@ let
     "${librarian}"
     "${askUser}"
   ];
+
+  # Build-time assertion: permission-system and confirm-destructive must
+  # not both be active. The check works at module evaluation time.
+  _gateConflictCheck =
+    let
+      hasPermSystem = builtins.any (p: lib.hasInfix "permission-system" (toString p)) piPackagePaths;
+      hasConfirmDestructive = builtins.elem "confirm-destructive" extensions;
+    in
+    if hasPermSystem && hasConfirmDestructive then
+      throw "pi.nix: @gotgenes/pi-permission-system and confirm-destructive cannot both be active. Remove one."
+    else
+      true;
 
   # @psg2/pi-costs: standalone CLI that analyses session JSONL logs for cost/token
   # summaries. Pre-compiled to dist/cli.js (bun target) — no npm deps, wraps with bun.
