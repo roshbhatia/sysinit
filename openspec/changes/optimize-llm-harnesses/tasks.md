@@ -34,15 +34,19 @@
 - [ ] 4.5 **Apply**: commit `feat(cursor): add MDC rule files alongside legacy .cursorrules`, push, `nh darwin switch`.
 - [ ] 4.6 **Confirm**: wezterm pane `cursor-agent --help`; `ls ~/.cursor/rules/` shows the three files; quickly read each file's frontmatter to verify the keys are right.
 
-## 5. Slice 5 — opencode-allowlist-globs
+## 5. Slice 5 — opencode-allowlist-globs (DEFERRED)
 
-- [ ] 5.1 In `lib/allowlist.nix`, extend `formatForOpencode` to emit glob-compacted keys: `git:*`, `gh:*`, `nix:*`, plus the existing fine-grained entries where compaction would over-broaden (e.g., file ops where `rm*` must stay `ask`).
-- [ ] 5.2 Define a helper `inferGlobs tier` that groups patterns by command prefix and emits one `<prefix>:*` per group when all members are `allow`. Patterns that conflict (a tier-A entry and a tier-B entry under the same prefix) emit per-pattern entries.
-- [ ] 5.3 In `config/opencode.nix`, replace the inline ~80-entry `permission.bash` allow set with `kit.llmLib.allowlist.formatForOpencode (kit.llmLib.allowlist.tierA ++ kit.llmLib.allowlist.tierB)`. Keep the inline `ask`/`deny` rules (they're policy, not auto-allow).
-- [ ] 5.4 Write a small "matcher equivalence" check: list the commands that the OLD opencode allowlist would auto-allow vs the NEW one. The NEW list MUST be a superset of the OLD list at the `allow` axis, AND the OLD `ask` rules MUST still classify their targets as `ask` (since they're inline-preserved).
-- [ ] 5.5 **Verify**: `nix flake check`; `nh os build`; the matcher-equivalence check passes; the rendered `~/.config/opencode/opencode.json` `permission.bash` has ≤ 25 entries (target: ~75% reduction).
-- [ ] 5.6 **Apply**: commit `feat(opencode): compact bash allowlist via glob patterns`, push, `nh darwin switch`.
-- [ ] 5.7 **Confirm**: wezterm pane `opencode --version`; inspect `~/.config/opencode/opencode.json` `permission.bash` to confirm the slim shape.
+**Slice paused after audit of the existing opencode config.** Opencode's permission shape interleaves `allow` and `ask` rules per-pattern: `git status*=allow`, `git diff*=allow`, …, but `git commit*=ask`, `git push*=ask`, `git reset*=ask`. Same for `nix flake check*=allow` vs `nix build*=ask`, and many other tool families. The proposal's "compact to `git:*=allow`" plan would silently override the user-curated `git commit*=ask` etc., effectively expanding auto-allow to dangerous commands.
+
+The proposal's own success criterion — "the rendered file's auto-allow surface MUST be a superset of the pre-compaction surface, AND `ask` rules MUST still classify their targets as `ask`" — cannot be honored with broad-prefix globs given opencode's matcher precedence (less-specific globs override more-specific ones in JSON attrset key order, which is the matcher's natural model).
+
+Two paths forward, neither in scope of this slice:
+1. **Canonical-source-only**: have opencode consume `kit.llmLib.allowlist.formatForOpencode tierA` for the *allow* axis, but keep its curated *ask* rules inline. Net effect: source-of-truth shift, no file-size reduction. Tracked as a separate future change.
+2. **Opencode-matcher-aware compaction**: extend `formatForOpencode` to emit a structured ask/allow combination that respects opencode's precedence rules. Requires reading opencode's source to confirm matcher behavior. Bigger investment than the slice budget.
+
+Leaving opencode's current allowlist intact. Moving to Slice 6.
+
+- [-] 5.1–5.7 Deferred. See above.
 
 ## 6. Slice 6 — codex-reasoning-effort
 
