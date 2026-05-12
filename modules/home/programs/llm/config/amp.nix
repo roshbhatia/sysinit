@@ -1,20 +1,21 @@
 {
   lib,
+  pkgs,
   config,
   ...
 }:
 let
   llmLib = import ../lib { inherit lib; };
-  mcpServers = import ../mcp.nix {
-    inherit lib;
-    inherit (config.sysinit.llm.mcp) additionalServers;
-  };
+  kit = llmLib.harnessKit.mkKit { inherit lib pkgs config; };
 
   ampConfig = builtins.toJSON {
     "amp.experimental.planMode" = true;
     "amp.git.commit.ampThread.enabled" = false;
     "amp.git.commit.coauthor.enabled" = false;
-    "amp.mcpServers" = llmLib.mcp.formatForAmp mcpServers.servers;
+    "amp.mcpServers" = llmLib.mcp.formatForAmp kit.mcpServers.servers;
+    # amp uses glob-on-cmd matching; the canonical allowlist (Tier A) uses
+    # exact + trailing-`*` prefix patterns with different semantics. Keep
+    # amp's explicit permissions inline until a glob-aware formatter exists.
     "amp.permissions" = [
       {
         tool = "Bash";

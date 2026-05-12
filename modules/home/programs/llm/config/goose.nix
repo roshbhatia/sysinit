@@ -1,15 +1,12 @@
 {
   lib,
-  config,
   pkgs,
+  config,
   ...
 }:
 let
   llmLib = import ../lib { inherit lib; };
-  mcpServers = import ../mcp.nix {
-    inherit lib;
-    inherit (config.sysinit.llm.mcp) additionalServers;
-  };
+  kit = llmLib.harnessKit.mkKit { inherit lib pkgs config; };
 
   gooseConfig = builtins.toJSON {
     EDIT_MODE = "vi";
@@ -18,10 +15,13 @@ let
     GOOSE_MODE = "smart_approve";
     GOOSE_TOOLSHIM = true;
 
-    extensions = llmLib.mcp.formatForGoose mcpServers.servers;
-    shell = llmLib.mcp.formatPermissionsForGoose mcpServers.allPermissions;
+    extensions = llmLib.mcp.formatForGoose kit.mcpServers.servers;
+    # goose's existing shell allowlist is sourced from mcp.nix's categorized
+    # permissions (git/github/docker/k8s/nix/utilities/crossplane). Migrating
+    # to the canonical Tier A would change the semantic surface; deferred to
+    # a future revisit. The kit migration above unifies imports only.
+    shell = llmLib.mcp.formatPermissionsForGoose kit.mcpServers.allPermissions;
   };
-
 in
 {
   home.sessionVariables = {

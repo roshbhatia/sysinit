@@ -6,17 +6,7 @@
 }:
 let
   llmLib = import ../lib { inherit lib; };
-  mcpServers = import ../mcp.nix {
-    inherit lib;
-    inherit (config.sysinit.llm.mcp) additionalServers;
-  };
-  skillsLib = import ../skills.nix { inherit pkgs; };
-
-  defaultInstructions = llmLib.instructions.makeInstructions {
-    inherit (skillsLib) localSkillDescriptions;
-    openspecVersion = pkgs.openspec.version;
-    skillsRoot = "~/.config/crush/skills";
-  };
+  kit = llmLib.harnessKit.mkKit { inherit lib pkgs config; };
 
   formatMcpForCrush =
     servers:
@@ -37,11 +27,13 @@ let
 
   crushSettings = {
     "$schema" = "https://charm.land/crush.json";
-    mcp = formatMcpForCrush mcpServers.servers;
+    mcp = formatMcpForCrush kit.mcpServers.servers;
     tools = {
       ls = { };
       grep = { };
     };
+    # crush's `allowed_tools` are tool-class names (not bash patterns), so the
+    # canonical Tier A allowlist doesn't apply directly here.
     permissions = {
       allowed_tools = [
         "view"
@@ -75,7 +67,7 @@ in
       force = true;
     };
     "crush/AGENTS.md" = {
-      text = defaultInstructions;
+      text = kit.mkInstructions "~/.config/crush/skills";
       force = true;
     };
   };
