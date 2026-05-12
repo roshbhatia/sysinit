@@ -1,11 +1,11 @@
 ## 1. Slice 1 — gemini-extensions
 
-- [ ] 1.1 Inspect Gemini CLI's extension docs (`gemini --help`, `gemini extensions --help` if available, or `~/.gemini/` directory layout) to confirm the documented extension manifest shape (`gemini-extension.json` schema) and whether startup hooks are supported.
-- [ ] 1.2 Create `modules/home/programs/llm/config/gemini/extensions/openspec-awareness/` with the manifest + prompt content. Manifest: `{ name = "openspec-awareness"; version = "1.0.0"; description = "Surfaces the active openspec change in conversation context."; mcpServers = {}; }`. Prompt content: a markdown file documenting that the model SHOULD read `openspec list --json` output when openspec context is relevant.
-- [ ] 1.3 In `config/gemini.nix`, declare a `geminiExtensions` attrset listing the vendored extensions. Generate `home.file.".gemini/extensions/<name>/<file>"` entries from it (pi.nix pattern).
-- [ ] 1.4 **Verify**: `nix flake check`; `nh os build`; rendered `~/.gemini/extensions/openspec-awareness/gemini-extension.json` and the prompt file appear in the build output.
-- [ ] 1.5 **Apply**: commit `feat(gemini): vendor extensions directory and ship openspec-awareness`, push, `nh darwin switch`.
-- [ ] 1.6 **Confirm**: wezterm pane `gemini --version` and `gemini --help`; confirm extension subdirectory exists under `~/.gemini/extensions/`.
+- [x] 1.1 Confirmed Gemini CLI extension shape via `gemini extensions --help` + a template scaffold (`gemini extensions new /tmp/probe`). Minimum manifest is `{ name, version }`; richer manifest supports `contextFileName`, `mcpServers`, `description`. Used `contextFileName: "CONTEXT.md"` for in-context prompt content (no startup hooks needed — Gemini auto-loads context files declared in the manifest).
+- [x] 1.2 Created `modules/home/programs/llm/config/gemini-extensions/openspec-awareness/{gemini-extension.json,CONTEXT.md}`. Manifest declares name + version + description + contextFileName. CONTEXT.md documents the openspec CLI surface and the rosh-spec-driven workflow.
+- [x] 1.3 In `config/gemini.nix`, added a `geminiExtensions` attrset mapping `<name> = ./gemini-extensions/<name>` and a `mkExtensionFiles` helper that reads each extension directory and emits `home.file.".gemini/extensions/<name>/<file>"` entries for every file inside.
+- [x] 1.4 **Verify**: `nix build` green; rendered files appear in home-manager output.
+- [x] 1.5 **Apply**: committed `feat(gemini): vendor extensions directory and ship openspec-awareness`, pushed, `nh darwin switch`.
+- [x] 1.6 **Confirm**: `script -q /dev/null gemini extensions list` reports `✓ openspec-awareness (1.0.0)` with the CONTEXT.md path. `gemini extensions validate ~/.gemini/extensions/openspec-awareness` succeeds.
 
 ## 2. Slice 2 — aider-architect-mode
 
