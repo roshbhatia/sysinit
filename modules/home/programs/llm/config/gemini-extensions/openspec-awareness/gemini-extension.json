@@ -1,0 +1,7 @@
+{
+  "name": "openspec-awareness",
+  "version": "1.0.0",
+  "description": "Surfaces the active OpenSpec change in conversation context so Gemini knows what spec-driven work is in flight.",
+  "contextFileName": "CONTEXT.md",
+  "mcpServers": {}
+}
