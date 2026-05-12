@@ -6,19 +6,11 @@
 }:
 let
   llmLib = import ../lib { inherit lib; };
-  mcpServers = import ../mcp.nix {
-    inherit lib;
-    inherit (config.sysinit.llm.mcp) additionalServers;
-  };
-  skillsLib = import ../skills.nix { inherit pkgs; };
+  kit = llmLib.harnessKit.mkKit { inherit lib pkgs config; };
 
   disabledMcpServers = [ ];
 
-  defaultInstructions = llmLib.instructions.makeInstructions {
-    inherit (skillsLib) localSkillDescriptions;
-    openspecVersion = pkgs.openspec.version;
-    skillsRoot = "~/.config/opencode/skills";
-  };
+  defaultInstructions = kit.mkInstructions "~/.config/opencode/skills";
 
   opencodeConfig = {
     "$schema" = "https://opencode.ai/config.json";
@@ -32,7 +24,7 @@ let
       };
     };
 
-    mcp = llmLib.mcp.formatForOpencode disabledMcpServers mcpServers.servers;
+    mcp = llmLib.mcp.formatForOpencode disabledMcpServers kit.mcpServers.servers;
 
     instructions = [
       "**/.cursorrules"
