@@ -22,6 +22,7 @@ nix fmt                  # format all Nix files
 task fmt:sh              # format hack/ shell scripts
 task fmt:sh:check        # verify shell formatting only
 task openspec:sync       # detect drift in openspec skills + forked schema
+./hack/update-pi.sh      # report pi package drift
 openspec list --json     # list active OpenSpec changes
 openspec status --change "<name>" --json
 openspec instructions <artifact> --change "<name>" --json
