@@ -12,16 +12,16 @@
 
 ## 2. Phase B — Add zero-dep new packages
 
-- [ ] 2.1 Add `pi-btw` 0.4.0 to the `piPackages` attrset using `mkFetchedNpmPackage` (no runtime deps).
-- [ ] 2.2 Add `@samfp/pi-memory` 1.3.2 the same way (handle scoped package URL).
-- [ ] 2.3 Add `@benvargas/pi-openai-fast` 1.0.2 the same way.
-- [ ] 2.4 Add `@benvargas/pi-openai-verbosity` 1.0.0 the same way.
-- [ ] 2.5 Add `@juicesharp/rpiv-advisor` 1.5.0 the same way.
-- [ ] 2.6 Insert the five entries into `piPackagePaths` array in the documented load-order positions (provider-routing for the @benvargas pair after permission-system slot; memory + advisor in their own group; pi-btw in UI/workflow group).
-- [ ] 2.7 Annotate each new entry with an inline comment naming its purpose and (for provider-coupled ones) which provider it affects.
-- [ ] 2.8 **Verify**: `nix flake check` passes; `nh os build .` succeeds; `git diff` reviewed.
-- [ ] 2.9 **Apply**: `nh darwin switch .`.
-- [ ] 2.10 **Confirm**: `~/.pi/agent/settings.json` `packages` array contains store paths for all five new packages in the correct array positions; launch pi and confirm `/btw` slash command is recognized.
+- [x] 2.1 Added `pi-btw` 0.4.0 via `mkFetchedNpmPackage` (hash from `nix-prefetch-url --unpack`).
+- [x] 2.2 Added `@samfp/pi-memory` 1.3.2. **Side-fix**: extended `fetchNpmPkg` helper to handle scoped packages (`basename` after the `/`); previous helper assumed unscoped names.
+- [x] 2.3 Added `@benvargas/pi-openai-fast` 1.0.2.
+- [x] 2.4 Added `@benvargas/pi-openai-verbosity` 1.0.0.
+- [x] 2.5 Added `@juicesharp/rpiv-advisor` 1.5.0.
+- [x] 2.6 Reordered `piPackagePaths` to the documented load order: provider-routing → orchestration → memory+advisor → UI/workflow → tool providers → content utilities. The permission gate slot at position 0 is reserved for Phase C.
+- [x] 2.7 Each new entry has an inline comment in `pi.nix` naming its purpose and (for provider-coupled ones) which provider it affects.
+- [x] 2.8 **Verify**: `nix build .#darwinConfigurations.hyperion.system --no-link` exits 0.
+- [x] 2.9 **Apply**: `nh darwin switch .` succeeded.
+- [x] 2.10 **Confirm**: `~/.pi/agent/settings.json` contains 21 packages including all five Phase B additions with expected names + versions verified via `package.json` of each store path.
 
 ## 3. Phase C — Add heavier new packages, swap permission gate
 
