@@ -2,8 +2,52 @@
   # Writing Roshan-style PR descriptions
 
   Distilled from real hand-authored PR bodies. The user's PR-body
-  conventions diverge from GitHub's default template in important ways
-  — follow these even when a repo's PR template suggests otherwise.
+  conventions diverge from GitHub's default in important ways.
+
+  ## ALWAYS check for a repo PR template first
+
+  Before drafting anything, check for an existing template:
+
+  ```bash
+  # Repo's PR template lives at one of these canonical paths:
+  ls .github/pull_request_template.md \
+     .github/PULL_REQUEST_TEMPLATE.md \
+     .github/PULL_REQUEST_TEMPLATE/ \
+     docs/pull_request_template.md \
+     PULL_REQUEST_TEMPLATE.md 2>/dev/null
+  ```
+
+  **If a template exists, USE IT VERBATIM as the base.** Do not invent
+  additional sections, do not append a Test plan if the template
+  doesn't have one, do not add a Risks section if the template doesn't
+  ask for one. Fill in the sections the template defines; leave its
+  structure alone.
+
+  **If no template exists**, follow the structure below
+  (Linear URL → ## Summary → ## Risks or ## Test plan, depending on
+  PR type).
+
+  ## How to create the PR
+
+  Use `gh pr create --web` from the CLI. This opens the GitHub web
+  editor pre-filled with your body and title, so the user can review,
+  add labels/reviewers/assignees, and submit themselves.
+
+  ```bash
+  gh pr create --web \\
+    --title "<conv-commit-style title>" \\
+    --body "<body content>"
+  ```
+
+  **NEVER use any of these flags by default:**
+  - `--draft` — let the user choose draft vs ready
+  - `--fill` / `--fill-first` — auto-fills from commits, bypasses
+    the curated body
+  - `--reviewer` / `--assignee` / `--label` — let the user pick
+  - Submitting without `--web` — the user wants the web review step
+
+  The user's standing rule: prepare the PR but leave the actual
+  submission decision (draft vs ready, reviewers, labels) to them.
 
   ## Top-line: issue URL on its own line
 
