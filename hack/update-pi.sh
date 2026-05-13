@@ -39,13 +39,14 @@ declare -a TRACKED=(
   "pi-mcp-adapter"
   "pi-acp"
   "pi-btw"
-  "@samfp/pi-memory"
   "@benvargas/pi-openai-fast"
   "@benvargas/pi-openai-verbosity"
   "@juicesharp/rpiv-advisor"
   "taskplane"
   "@plannotator/pi-extension"
-  "@gotgenes/pi-permission-system"
+  # @gotgenes/pi-permission-system and @samfp/pi-memory dropped 2026-05-12
+  # because their runtime depends on node:sqlite (Node 22+ built-in) which
+  # bun (pi's runtime) does not provide. Re-add to TRACKED when reinstating.
   "@benvargas/pi-claude-code-use"
   "@firstpick/pi-extension-reverse-last"
   "@heyhuynhgiabuu/pi-diff"
