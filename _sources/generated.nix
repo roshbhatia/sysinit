@@ -8,34 +8,34 @@
 {
   crush = {
     pname = "crush";
-    version = "0.65.3";
+    version = "0.67.0";
     src = fetchurl {
-      url = "https://github.com/charmbracelet/crush/releases/download/v0.65.3/crush_0.65.3_Darwin_arm64.tar.gz";
-      sha256 = "sha256-CUkhnKUM4A+ZfCm8DWpSJxApHo8piA7ON8cHwnUCz3g=";
+      url = "https://github.com/charmbracelet/crush/releases/download/v0.67.0/crush_0.67.0_Darwin_arm64.tar.gz";
+      sha256 = "sha256-dooBOOA33hEUu0BFqzLn+BULRzH3eOvvqcB3polW7hw=";
     };
   };
   crush-aarch64-linux = {
     pname = "crush-aarch64-linux";
-    version = "0.65.3";
+    version = "0.67.0";
     src = fetchurl {
-      url = "https://github.com/charmbracelet/crush/releases/download/v0.65.3/crush_0.65.3_Linux_arm64.tar.gz";
-      sha256 = "sha256-+lvehiQrL8RQAtRYlpPRheRSDXj0LoRJ8C6ZHaXT+G4=";
+      url = "https://github.com/charmbracelet/crush/releases/download/v0.67.0/crush_0.67.0_Linux_arm64.tar.gz";
+      sha256 = "sha256-dIgqZ0VOlV2DnrI0MgA5tVTJZRPPRFvhTNYJOmr2AfU=";
     };
   };
   crush-x86_64-darwin = {
     pname = "crush-x86_64-darwin";
-    version = "0.65.3";
+    version = "0.67.0";
     src = fetchurl {
-      url = "https://github.com/charmbracelet/crush/releases/download/v0.65.3/crush_0.65.3_Darwin_x86_64.tar.gz";
-      sha256 = "sha256-GoheSICj31x8dpXk4AWYk3QBIKv2ZwXdwjs9lPAIgVk=";
+      url = "https://github.com/charmbracelet/crush/releases/download/v0.67.0/crush_0.67.0_Darwin_x86_64.tar.gz";
+      sha256 = "sha256-2jaaT/H5mUmmM4e/rBoUpSdTu40EiRfmRJ5xsTxP1Ok=";
     };
   };
   crush-x86_64-linux = {
     pname = "crush-x86_64-linux";
-    version = "0.65.3";
+    version = "0.67.0";
     src = fetchurl {
-      url = "https://github.com/charmbracelet/crush/releases/download/v0.65.3/crush_0.65.3_Linux_x86_64.tar.gz";
-      sha256 = "sha256-7yivvlhJhaAr1nu4Plhr+kRI3LIvY192RJnsHC30N+E=";
+      url = "https://github.com/charmbracelet/crush/releases/download/v0.67.0/crush_0.67.0_Linux_x86_64.tar.gz";
+      sha256 = "sha256-8hLDb4hfRlYto7WRtmBtHFUE6phseWxW6TAzaqPRrZQ=";
     };
   };
   go-enum = {
@@ -62,34 +62,34 @@
   };
   goose-cli-bin = {
     pname = "goose-cli-bin";
-    version = "1.33.1";
+    version = "1.34.0";
     src = fetchurl {
-      url = "https://github.com/block/goose/releases/download/v1.33.1/goose-aarch64-apple-darwin.tar.gz";
-      sha256 = "sha256-b7qYraYTPxk27fTC8Gt2BYWasV66/BiCMuDAF6V1pg4=";
+      url = "https://github.com/block/goose/releases/download/v1.34.0/goose-aarch64-apple-darwin.tar.gz";
+      sha256 = "sha256-gPZua1G5P+vPpboFClEUnTH4WAkTfEJ43vQ5vhFKvVk=";
     };
   };
   goose-cli-bin-aarch64-linux = {
     pname = "goose-cli-bin-aarch64-linux";
-    version = "1.33.1";
+    version = "1.34.0";
     src = fetchurl {
-      url = "https://github.com/block/goose/releases/download/v1.33.1/goose-aarch64-unknown-linux-gnu.tar.gz";
-      sha256 = "sha256-bRNCf5mAS5rU2WhPnF6fTHgeg7HaSHIybqcJjRSenNI=";
+      url = "https://github.com/block/goose/releases/download/v1.34.0/goose-aarch64-unknown-linux-gnu.tar.gz";
+      sha256 = "sha256-evbXoH2jRQV8plpLsVSxnQndXatPhzazT0VgCTOzjgc=";
     };
   };
   goose-cli-bin-x86_64-darwin = {
     pname = "goose-cli-bin-x86_64-darwin";
-    version = "1.33.1";
+    version = "1.34.0";
     src = fetchurl {
-      url = "https://github.com/block/goose/releases/download/v1.33.1/goose-x86_64-apple-darwin.tar.gz";
-      sha256 = "sha256-zV0DkPrzRV/1ftZO3DaHgtUsg27PImYWw5GcF9Z4PJU=";
+      url = "https://github.com/block/goose/releases/download/v1.34.0/goose-x86_64-apple-darwin.tar.gz";
+      sha256 = "sha256-VuBU3OtVq6QfCdjPXJkjDDwrv9XxUWXja/HXeOh427g=";
     };
   };
   goose-cli-bin-x86_64-linux = {
     pname = "goose-cli-bin-x86_64-linux";
-    version = "1.33.1";
+    version = "1.34.0";
     src = fetchurl {
-      url = "https://github.com/block/goose/releases/download/v1.33.1/goose-x86_64-unknown-linux-gnu.tar.gz";
-      sha256 = "sha256-Q3oy4r0wTmVEA2vsEXQ2cS94R/ct2+RtbCxACeD/zKg=";
+      url = "https://github.com/block/goose/releases/download/v1.34.0/goose-x86_64-unknown-linux-gnu.tar.gz";
+      sha256 = "sha256-jQv2+aXVoABxpXpv08iONgUYEzie98S2mhQFlV+vSiE=";
     };
   };
   hererocks = {
