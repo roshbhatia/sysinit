@@ -23,6 +23,42 @@ let
     shell = llmLib.mcp.formatPermissionsForGoose kit.mcpServers.allPermissions;
   };
 
+  # Goose's runtime wants to mutate this file (e.g., when the user
+  # answers the first-run telemetry prompt). xdg.configFile would symlink
+  # it from the read-only nix store, and goose then fails with
+  # "Too many symlink levels (or a cycle)" while trying to rewrite.
+  # We materialize a writable copy via home.activation instead, mirroring
+  # the updatePiSettings pattern from pi.nix.
+  gooseConfigBase = pkgs.writeText "goose-config-base.json" gooseConfig;
+
+  updateGooseConfig = pkgs.writeShellScript "update-goose-config" ''
+    set -euo pipefail
+
+    target="$HOME/.config/goose/config.yaml"
+    target_dir="$(dirname "$target")"
+    mkdir -p "$target_dir"
+
+    # If the existing file is a symlink (left over from the old
+    # xdg.configFile setup), replace it outright. Otherwise merge any
+    # keys goose has added at runtime (telemetry, etc.) with our
+    # nix-managed base.
+    if [ -L "$target" ]; then
+      rm -f "$target"
+    fi
+
+    merged="$(mktemp "''${target}.tmp.XXXXXX")"
+    trap 'rm -f "$merged"' EXIT
+
+    if [ -f "$target" ]; then
+      ${pkgs.jq}/bin/jq -s '.[0] * .[1]' "$target" ${gooseConfigBase} > "$merged"
+    else
+      cp ${gooseConfigBase} "$merged"
+    fi
+
+    mv "$merged" "$target"
+    chmod u+w "$target"
+  '';
+
   # Goose recipes shipped here mirror the four canonical openspec workflow
   # phases. Each recipe's `prompt` is sourced from the same Nix string the
   # corresponding Claude skill uses — single source of truth.
@@ -73,13 +109,12 @@ in
     GOOSE_RECIPE_PATH = "${config.home.homeDirectory}/.config/goose/recipes";
   };
 
-  xdg.configFile = {
-    "goose/config.yaml" = {
-      text = gooseConfig;
-      force = true;
-    };
-  }
-  // lib.mapAttrs' (
+  home.activation.gooseConfig = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+    $DRY_RUN_CMD ${updateGooseConfig}
+  '';
+
+  # Recipes are read-only, so symlinks from the nix store are fine.
+  xdg.configFile = lib.mapAttrs' (
     name: file:
     lib.nameValuePair "goose/recipes/${name}.yaml" {
       source = file;
