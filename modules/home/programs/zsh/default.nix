@@ -83,7 +83,8 @@ in
       ZVM_INSERT_MODE_CURSOR = "be";
       ZVM_VI_HIGHLIGHT_BACKGROUND = "#${config.lib.stylix.colors.base05}";
       ZVM_VI_HIGHLIGHT_FOREGROUND = "#${config.lib.stylix.colors.base0D}";
-    } // (values.environment or { });
+    }
+    // (values.environment or { });
 
     plugins = [
       {
@@ -160,6 +161,11 @@ in
         mkdir -p ${config.xdg.cacheHome}/zsh
         autoload -Uz compinit
         compinit -C -d "${config.xdg.cacheHome}/zsh/zcompdump/.zcompdump"
+
+        # Include dotfiles in tab completion (fzf-tab inherits from zsh's
+        # underlying completion). Without globdots, `cd <tab>` and similar
+        # only show non-hidden entries; with it, dotfiles appear too.
+        setopt globdots
 
         zstyle ':completion:*' use-cache on
         zstyle ':completion:*' cache-path "${config.xdg.cacheHome}/zsh/zcompcache"
