@@ -16,10 +16,14 @@ let
   subagents = import ../subagents;
   agentNames = builtins.filter (k: k != "formatSubagentAsMarkdown") (builtins.attrNames subagents);
 
-  # confirm-destructive intentionally NOT in this list — replaced by
-  # @gotgenes/pi-permission-system (finer-grained bash-AST-aware gate).
-  # Assertion below enforces that the two are not both active.
+  # confirm-destructive is the active permission gate. Originally we tried
+  # @gotgenes/pi-permission-system but that package's tree-sitter-bash code
+  # path requires `node:sqlite` which bun (pi's runtime) does not provide.
+  # Permission-system is therefore disabled until either upstream drops the
+  # node:sqlite dep or pi gains it. See openspec/changes/archive/
+  # 2026-05-12-refresh-pi-stack/ for context.
   extensions = [
+    "confirm-destructive"
     "dirty-repo-guard"
     "git-checkpoint"
     "handoff"
@@ -313,11 +317,13 @@ let
     # the parent. Use for tangents that shouldn't break the main flow.
     btw = mkFetchedNpmPackage "pi-btw" "0.4.0" "sha256-8iAnayDUtK/BGl0ldJ9klOpItdCyV8qniSO+pXGslNo=";
 
-    # @samfp/pi-memory: persistent cross-session memory of corrections,
-    # preferences, and patterns. Complements .sysinit/lessons.md.
-    samfpMemory =
-      mkFetchedNpmPackage "@samfp/pi-memory" "1.3.2"
-        "sha256-64n/mbjuVogsLYrIYi/XSjh3EwzOaiqYH16N3/LBJ/M=";
+    # @samfp/pi-memory: REMOVED 2026-05-12. The package's persistent store
+    # uses `node:sqlite`, a Node.js 22+ built-in module that bun (pi's
+    # runtime) does not provide. Re-enable once upstream switches to bun's
+    # built-in sqlite (bun:sqlite) or drops the sqlite dep entirely.
+    # samfpMemory =
+    #   mkFetchedNpmPackage "@samfp/pi-memory" "1.3.2"
+    #     "sha256-64n/mbjuVogsLYrIYi/XSjh3EwzOaiqYH16N3/LBJ/M=";
 
     # @benvargas/pi-openai-fast: /fast toggle for OpenAI priority service
     # tier on supported GPT-5.4 models. Inert when Anthropic is active.
@@ -353,15 +359,6 @@ let
         "sha256-kyiItKnuYMxp43+5wlC6BUDftp+mTxXG7PB3aEq9Qbg="
         "sha256-oiiZsd1UG1nIa7xhnOcUKpyr2J2qWbghXildxE036Ok="
         ./locks/plannotator.lock.json;
-
-    # @gotgenes/pi-permission-system: bash-AST-aware permission enforcement.
-    # Replaces vendored confirm-destructive extension. MUST load first so
-    # it wraps all subsequent tool calls (see piPackagePaths order below).
-    piPermissionSystem =
-      mkBuiltNpmPackage "@gotgenes/pi-permission-system" "5.14.1"
-        "sha256-/qNC6erD+Rl12JpLlFwe2N2PgaekpfMHHprnKozN1rk="
-        "sha256-Dvu/wuGdwjBQsJCU0N8oI+a1EysJpHFkwLwUpgjJfso="
-        ./locks/pi-permission-system.lock.json;
 
     # @benvargas/pi-claude-code-use: patches Anthropic OAuth so pi can
     # piggyback on a Claude Code subscription session. Inert when not
@@ -415,8 +412,10 @@ let
   #                        askUser
   # (Permission gate will sit at position 1 once Phase C lands.)
   piPackagePaths = with piPackages; [
-    # 1. Permission gate — MUST load first to wrap all tool calls below.
-    "${piPermissionSystem}"
+    # 1. Permission gate is the vendored confirm-destructive.ts extension
+    #    (not in the package list — see `extensions` array above). The
+    #    @gotgenes/pi-permission-system package was removed because its
+    #    runtime depends on node:sqlite which bun does not provide.
     # 2. Provider routing (inert when target provider not active).
     "${piClaudeCodeUse}"
     "${openaiFast}"
@@ -425,7 +424,6 @@ let
     "${piPackages.subagents}"
     "${taskplane}"
     # 4. Memory + advisor.
-    "${samfpMemory}"
     "${rpivAdvisor}"
     # 5. UI / workflow.
     "${plannotator}"
@@ -450,17 +448,10 @@ let
     "${askUser}"
   ];
 
-  # Build-time assertion: permission-system and confirm-destructive must
-  # not both be active. The check works at module evaluation time.
-  _gateConflictCheck =
-    let
-      hasPermSystem = builtins.any (p: lib.hasInfix "permission-system" (toString p)) piPackagePaths;
-      hasConfirmDestructive = builtins.elem "confirm-destructive" extensions;
-    in
-    if hasPermSystem && hasConfirmDestructive then
-      throw "pi.nix: @gotgenes/pi-permission-system and confirm-destructive cannot both be active. Remove one."
-    else
-      true;
+  # The old _gateConflictCheck (permission-system XOR confirm-destructive)
+  # was removed when @gotgenes/pi-permission-system was dropped above
+  # (node:sqlite incompatibility with bun). confirm-destructive is the
+  # only active gate.
 
   # @psg2/pi-costs: standalone CLI that analyses session JSONL logs for cost/token
   # summaries. Pre-compiled to dist/cli.js (bun target) — no npm deps, wraps with bun.
