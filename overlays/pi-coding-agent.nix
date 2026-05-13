@@ -33,7 +33,7 @@ in
 
     meta = with final.lib; {
       description = "Coding agent CLI with read, bash, edit, write tools and session management";
-      homepage = "https://github.com/badlogic/pi-mono";
+      homepage = "https://github.com/earendil-works/pi";
       license = licenses.mit;
       mainProgram = "pi";
     };

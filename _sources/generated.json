@@ -227,11 +227,11 @@
         "pinned": false,
         "src": {
             "name": null,
-            "sha256": "sha256-GwzD+T3Ov1a65tNITAVxGE7lMlT8QdpRsWCud3gNLTA=",
+            "sha256": "sha256-MGMXmCPGqYVjQxIkDFcBUCQxb3/mZh7dQfFMd9ixXhA=",
             "type": "url",
-            "url": "https://github.com/badlogic/pi-mono/releases/download/v0.73.0/pi-darwin-arm64.tar.gz"
+            "url": "https://github.com/earendil-works/pi/releases/download/v0.74.0/pi-darwin-arm64.tar.gz"
         },
-        "version": "0.73.0"
+        "version": "0.74.0"
     },
     "pi-coding-agent-aarch64-linux": {
         "cargoLock": null,
@@ -242,11 +242,11 @@
         "pinned": false,
         "src": {
             "name": null,
-            "sha256": "sha256-ZtByN8xo4l9THwr6h0lVLdoD4r6vR6SQvZEBh0YDuHs=",
+            "sha256": "sha256-JhqpEoeMqYPJA9nEoECDEN2GN7WDCFZR2bXdtwyd9XI=",
             "type": "url",
-            "url": "https://github.com/badlogic/pi-mono/releases/download/v0.73.0/pi-linux-arm64.tar.gz"
+            "url": "https://github.com/earendil-works/pi/releases/download/v0.74.0/pi-linux-arm64.tar.gz"
         },
-        "version": "0.73.0"
+        "version": "0.74.0"
     },
     "pi-coding-agent-x86_64-darwin": {
         "cargoLock": null,
@@ -257,11 +257,11 @@
         "pinned": false,
         "src": {
             "name": null,
-            "sha256": "sha256-sJqme4uNjFCJnjB7yUE+19IUdP7nLmDPn3+ldlWZ+38=",
+            "sha256": "sha256-+mXJjyxlHsL4n7Goo9ybmHlHvJsQI2Gi8XiGKrrMdWA=",
             "type": "url",
-            "url": "https://github.com/badlogic/pi-mono/releases/download/v0.73.0/pi-darwin-x64.tar.gz"
+            "url": "https://github.com/earendil-works/pi/releases/download/v0.74.0/pi-darwin-x64.tar.gz"
         },
-        "version": "0.73.0"
+        "version": "0.74.0"
     },
     "pi-coding-agent-x86_64-linux": {
         "cargoLock": null,
@@ -272,10 +272,10 @@
         "pinned": false,
         "src": {
             "name": null,
-            "sha256": "sha256-Xul6xqpe1yWN7MQWr967771b+eLNXIFBl71L8eTyX58=",
+            "sha256": "sha256-1nZXow1JyfrKgIaNKkvbpN/KwEcCiT9FptFLJJNF640=",
             "type": "url",
-            "url": "https://github.com/badlogic/pi-mono/releases/download/v0.73.0/pi-linux-x64.tar.gz"
+            "url": "https://github.com/earendil-works/pi/releases/download/v0.74.0/pi-linux-x64.tar.gz"
         },
-        "version": "0.73.0"
+        "version": "0.74.0"
     }
 }

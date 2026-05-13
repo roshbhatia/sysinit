@@ -48,26 +48,28 @@ src.prefix = "v"
 fetch.url = "https://github.com/charmbracelet/crush/releases/download/v$ver/crush_$ver_Linux_x86_64.tar.gz"
 
 # Binary release packages - pi-coding-agent (one entry per platform asset)
-# Tags are v0.57.1, strip prefix so $ver = 0.57.1 for URL construction
+# Tags are v0.74.0+; the project moved from badlogic/pi-mono to earendil-works/pi
+# in early May 2026. Newer releases also rename the npm scope from
+# @mariozechner to @earendil-works, which matters for extension peer-deps.
 [pi-coding-agent]
-src.github = "badlogic/pi-mono"
+src.github = "earendil-works/pi"
 src.prefix = "v"
-fetch.url = "https://github.com/badlogic/pi-mono/releases/download/v$ver/pi-darwin-arm64.tar.gz"
+fetch.url = "https://github.com/earendil-works/pi/releases/download/v$ver/pi-darwin-arm64.tar.gz"
 
 [pi-coding-agent-x86_64-darwin]
-src.github = "badlogic/pi-mono"
+src.github = "earendil-works/pi"
 src.prefix = "v"
-fetch.url = "https://github.com/badlogic/pi-mono/releases/download/v$ver/pi-darwin-x64.tar.gz"
+fetch.url = "https://github.com/earendil-works/pi/releases/download/v$ver/pi-darwin-x64.tar.gz"
 
 [pi-coding-agent-aarch64-linux]
-src.github = "badlogic/pi-mono"
+src.github = "earendil-works/pi"
 src.prefix = "v"
-fetch.url = "https://github.com/badlogic/pi-mono/releases/download/v$ver/pi-linux-arm64.tar.gz"
+fetch.url = "https://github.com/earendil-works/pi/releases/download/v$ver/pi-linux-arm64.tar.gz"
 
 [pi-coding-agent-x86_64-linux]
-src.github = "badlogic/pi-mono"
+src.github = "earendil-works/pi"
 src.prefix = "v"
-fetch.url = "https://github.com/badlogic/pi-mono/releases/download/v$ver/pi-linux-x64.tar.gz"
+fetch.url = "https://github.com/earendil-works/pi/releases/download/v$ver/pi-linux-x64.tar.gz"
 
 # Binary release packages - goose-cli (block/goose)
 # Tags are v1.33.1, strip prefix so $ver = 1.33.1 for URL construction
