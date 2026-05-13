@@ -4,6 +4,59 @@
   Distilled from real hand-authored PR bodies. The user's PR-body
   conventions diverge from GitHub's default in important ways.
 
+  ## ALWAYS read the repo's contribution docs first
+
+  Before drafting anything, sweep the repo for contribution guidance
+  and honor it. **Repo-specific rules override this skill's defaults.**
+
+  ```bash
+  # Contribution guides
+  ls CONTRIBUTING.md CONTRIBUTING.rst CONTRIBUTING \
+     .github/CONTRIBUTING.md \
+     docs/CONTRIBUTING.md docs/contributing.md \
+     2>/dev/null
+
+  # Code-of-conduct (affects tone, not structure)
+  ls CODE_OF_CONDUCT.md .github/CODE_OF_CONDUCT.md 2>/dev/null
+
+  # Codeowners — who must review
+  ls .github/CODEOWNERS docs/CODEOWNERS CODEOWNERS 2>/dev/null
+
+  # DCO / sign-off requirements
+  ls DCO .github/DCO 2>/dev/null
+  grep -l "Signed-off-by\\|DCO" CONTRIBUTING.md .github/* 2>/dev/null
+
+  # CI workflows — what checks must pass
+  ls .github/workflows/ 2>/dev/null
+  ```
+
+  Things to extract before drafting:
+
+  - **Commit format**: some repos require `Signed-off-by:` trailers, a
+    specific issue-link syntax (`Refs #NN`, `Fixes JIRA-123`), or
+    prohibit certain types. If `CONTRIBUTING.md` defines a commit
+    format, use it instead of the conv-commit default for *that repo's*
+    PRs.
+  - **Branch naming**: some repos require `feature/*`, `fix/*`,
+    `<username>/<topic>`, etc. Check before pushing.
+  - **PR description requirements**: some repos require linking an
+    issue (and reject PRs without one), or require a "How to test"
+    section regardless of PR type.
+  - **Test / CI expectations**: which checks gate merge, whether docs
+    or CHANGELOG updates are required.
+  - **CODEOWNERS**: who will be auto-requested as a reviewer. Affects
+    whether the user needs to ping someone manually.
+  - **License / DCO**: if `Signed-off-by: <name> <email>` is required
+    on every commit, the agent MUST add `--signoff` to `git commit`
+    invocations for that repo. Override the user's standing
+    "title-only, no body" rule for this case — the sign-off trailer
+    is mandatory.
+
+  When a repo's `CONTRIBUTING.md` defines a structure that conflicts
+  with this skill's `## Summary` / `## Risks` / `## Test plan` layout,
+  **the repo wins**. Roshan's house style is for repos he owns; he
+  follows upstream conventions when contributing elsewhere.
+
   ## ALWAYS check for a repo PR template first
 
   Before drafting anything, check for an existing template:

@@ -4,6 +4,33 @@
   Distilled from issues the user has opened across multiple projects
   (his own + upstream OSS).
 
+  ## First, read the repo's contribution docs
+
+  Many projects have explicit rules for issue filing. Check before drafting:
+
+  ```bash
+  ls CONTRIBUTING.md .github/CONTRIBUTING.md \
+     .github/ISSUE_TEMPLATE/ \
+     SUPPORT.md .github/SUPPORT.md 2>/dev/null
+  ```
+
+  Things to extract:
+
+  - **Where to ask vs. file**: some repos route questions to Discussions,
+    Discord, or a forum, and only accept bug reports / feature requests
+    in Issues. Honor it.
+  - **Issue templates**: `.github/ISSUE_TEMPLATE/*.md` defines the
+    canonical shapes (bug, feature, etc.). Use the matching template
+    verbatim. GitHub will auto-select it via the `?template=` URL
+    param if you `gh issue create --web`.
+  - **Reproduction requirements**: many projects require minimal repros,
+    version info, OS info. Some have explicit "do not file without X"
+    rules.
+  - **Duplicate-search expectation**: most repos expect you to search
+    open + closed issues first. Cite the search you did in the body.
+
+  When the repo provides no guidance, fall back to the structure below.
+
   ## Title
 
   Lowercase sentence fragment describing the desired state or the bug

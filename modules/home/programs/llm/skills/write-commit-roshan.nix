@@ -5,6 +5,34 @@
   git history. Mandatory rules (already in AGENTS.md, repeated here for
   the trigger context):
 
+  ## First, check the repo's contribution rules
+
+  This skill's conventions are the default. **The repo always overrides.**
+  Before committing in a repo you don't own, sweep for:
+
+  ```bash
+  ls CONTRIBUTING.md .github/CONTRIBUTING.md DCO 2>/dev/null
+  grep -l "Signed-off-by\\|DCO\\|commit format" \
+    CONTRIBUTING.md .github/CONTRIBUTING.md 2>/dev/null
+  ```
+
+  Common overrides:
+
+  - **DCO / Signed-off-by required**: add `--signoff` to `git commit`.
+    The `Signed-off-by: <name> <email>` trailer goes in the commit body,
+    which overrides this skill's "title-only, no body" rule.
+  - **Different commit format**: if the repo requires a non-conventional
+    format (e.g., `[component] message` or `JIRA-123: message`), use it.
+  - **Issue-link syntax**: some repos require `Refs #NN`, `Fixes #NN`,
+    or `Closes JIRA-XXX` in the commit. Honor it.
+  - **Co-author conventions**: some repos require / forbid
+    `Co-authored-by:` lines.
+
+  When the user is committing in their own repos (`roshbhatia/*`,
+  `ross-corp/*`, `pinginc/*` per his usage), follow this skill's
+  defaults below. When committing upstream, the repo's `CONTRIBUTING.md`
+  is the authority.
+
   ## Required shape
 
   ```
