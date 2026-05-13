@@ -39,8 +39,8 @@ let
     mkdir -p "$target_dir"
 
     # If the existing file is a symlink (left over from the old
-    # xdg.configFile setup), replace it outright. Otherwise merge any
-    # keys goose has added at runtime (telemetry, etc.) with our
+    # xdg.configFile setup), replace it outright. Otherwise deep-merge
+    # any keys goose has added at runtime (telemetry, etc.) with our
     # nix-managed base.
     if [ -L "$target" ]; then
       rm -f "$target"
@@ -50,7 +50,13 @@ let
     trap 'rm -f "$merged"' EXIT
 
     if [ -f "$target" ]; then
-      ${pkgs.jq}/bin/jq -s '.[0] * .[1]' "$target" ${gooseConfigBase} > "$merged"
+      # yq (mikefarah/yq) handles both JSON and YAML input. eval-all reads
+      # every doc and ireduce merges them; the later doc (our nix base)
+      # wins on conflict for canonical fields, while goose's runtime
+      # additions (e.g. telemetry consent) are preserved from the first.
+      ${pkgs.yq-go}/bin/yq eval-all \
+        '. as $item ireduce ({}; . * $item)' \
+        "$target" ${gooseConfigBase} > "$merged"
     else
       cp ${gooseConfigBase} "$merged"
     fi
