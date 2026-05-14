@@ -31,15 +31,6 @@ without forcing per-harness configuration drift.
 - Add `.cocoindex_code/` to the global gitignore in
   `modules/home/programs/git/default.nix` alongside the existing AI
   assistant entries.
-- On work hosts only (`hyperion`, `farcaster` — `username = "roshan"` in
-  `hosts/default.nix`), add a `home.activation` step that registers the
-  `pinginc/ai-tooling` Claude Code marketplace and installs the
-  `Laurel@Laurel` plugin. The marketplace and plugin install commands
-  (`claude plugin marketplace add`, `claude plugin install`) are guarded
-  by lookups against `~/.claude/plugins/known_marketplaces.json` and
-  `~/.claude/plugins/installed_plugins.json` so re-activation is a no-op.
-  Auto-update is a TUI-only toggle and remains a one-time manual user
-  action documented in tasks.md.
 
 ### Non-goals
 
@@ -54,11 +45,8 @@ without forcing per-harness configuration drift.
   their existing role for structural and literal-string queries.
 - No project-level overrides. Embeddings, storage path, and MCP wiring are
   uniform across all hosts.
-- No automation of the Claude Code marketplace auto-update toggle. The
-  setting lives only in the Claude TUI and is captured as a one-time
-  user task, not a declarative Nix state.
-- No personal-host install of the Laurel plugin or `pinginc/ai-tooling`
-  marketplace. They land only on work hosts (`hyperion`, `farcaster`).
+- No Claude Code plugin or marketplace management. Plugin install is
+  user-driven via the TUI (`/plugin`) and out of scope here.
 
 ## Capabilities
 
@@ -68,12 +56,6 @@ without forcing per-harness configuration drift.
   server entry exists in the canonical `mcp-servers.nix`, that it is
   distributed to every harness via harness-kit, and that its `search` tool
   is allowlisted for read-only invocation.
-- `work-host-claude-plugins`: declares the contract that work hosts
-  (those whose `username` resolves to `roshan` in `hosts/default.nix`)
-  register the `pinginc/ai-tooling` Claude Code marketplace and install
-  the `Laurel@Laurel` plugin via a host-gated `home.activation` step that
-  is idempotent across re-activations. Personal hosts SHALL NOT receive
-  either the marketplace registration or the plugin install.
 
 ### Modified Capabilities
 
@@ -95,10 +77,6 @@ without forcing per-harness configuration drift.
   - `modules/home/programs/git/default.nix` (additive)
   - New activation script under `modules/home/programs/llm/` for the pipx
     install (additive)
-  - New host-gated activation entry under
-    `modules/home/programs/llm/config/claude.nix` (or a new sibling module)
-    for the Laurel marketplace + plugin install (additive, behind a
-    `lib.mkIf (config.home.username == "roshan")` guard)
 - **Dependencies**: `pipx` (already in the closure via Python tooling) and
   Python 3.11+. The pipx-managed environment is the only place where the
   `cocoindex-code` Python package lives; the nix store never gains PyTorch.

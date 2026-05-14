@@ -29,27 +29,14 @@
 - [ ] 4.3 Apply: `nh os switch` on hyperion.
 - [ ] 4.4 Confirm: run a known semantic query in one harness (e.g., "where do we format MCP servers for goose?") and verify cocoindex is called before any `rg` fallback in the tool-use trace.
 
-## 5. Slice 5 — work-host Laurel plugin install (hyperion, farcaster)
+## 5. Slice 5 — multi-host cocoindex rollout
 
-- [ ] 5.1 Add `pkgs.jq` to `home.packages` in the LLM module if not already present (the activation script parses Claude plugin state JSON).
-- [ ] 5.2 Add a host-gated `home.activation.installLaurelPlugin` entry under the existing claude-code config module (gated by `lib.mkIf (config.home.username == "roshan")`). The script: 1) verifies `claude` is on PATH; 2) checks `~/.claude/plugins/known_marketplaces.json` for a `Laurel` entry and runs `claude plugin marketplace add pinginc/ai-tooling` only if absent; 3) checks `~/.claude/plugins/installed_plugins.json` for a `Laurel@Laurel` entry and runs `claude plugin install Laurel@Laurel` only if absent; 4) prints a one-line notice that auto-update must be enabled manually in the TUI.
-- [ ] 5.3 Verify: `nix flake check` passes; `nh os build` succeeds; review the rendered activation script for the host-gated guard and the idempotency checks.
-- [ ] 5.4 Apply: `nh os switch` (or `nh darwin switch`) on hyperion.
-- [ ] 5.5 Confirm: `claude plugin list` shows `Laurel@Laurel` installed; `~/.claude/plugins/known_marketplaces.json` has the `Laurel` entry; `~/.claude/plugins/installed_plugins.json` has the plugin entry.
-- [ ] 5.6 One-time manual step: in the Claude TUI run `/plugin`, navigate to Marketplaces → Laurel, select "Enable auto-update".
-- [ ] 5.7 Verify before rolling to farcaster: re-running `nh os switch` on hyperion is a no-op (no `claude plugin marketplace add` or `claude plugin install` re-invocations in the activation log).
-- [ ] 5.8 Apply: `nh os switch` on farcaster after explicit user authorization.
-- [ ] 5.9 Confirm on farcaster: same checks as 5.5; user enables auto-update in the TUI on farcaster as well.
-- [ ] 5.10 Verify personal-host behavior: spot-check that `nh os switch` on a personal host (lv426 or arrakis) does NOT register the marketplace or install the plugin (the `lib.mkIf` guard skips the activation entry).
+- [ ] 5.1 Verify (per host): user reviews the consolidated diff covering Slices 1–4 and confirms readiness for each target host.
+- [ ] 5.2 Apply: `nh os switch` on each remaining host one at a time (lv426, then arrakis if applicable, then any others).
+- [ ] 5.3 Confirm (per host): `ccc --help` returns; one semantic query in one harness on that host returns chunks (or cleanly falls back to `rg` for a literal probe).
 
-## 6. Slice 6 — multi-host cocoindex rollout
+## 6. Wrap-up
 
-- [ ] 6.1 Verify (per host): user reviews the consolidated diff covering Slices 1–4 and confirms readiness for each target host.
-- [ ] 6.2 Apply: `nh os switch` on each remaining host one at a time (lv426, then arrakis if applicable, then any others).
-- [ ] 6.3 Confirm (per host): `ccc --version` returns; one semantic query in one harness on that host returns chunks (or cleanly falls back to `rg` for a literal probe).
-
-## 7. Wrap-up
-
-- [ ] 7.1 Verify: every scenario in each `specs/*/spec.md` of this change is satisfied by the live system (manual walkthrough).
-- [ ] 7.2 Apply: `openspec archive cocoindex-first-class` (only after user explicit authorization).
-- [ ] 7.3 Confirm: `openspec list` no longer shows `cocoindex-first-class` as active; the deltas are merged into the project's authoritative specs.
+- [ ] 6.1 Verify: every scenario in each `specs/*/spec.md` of this change is satisfied by the live system (manual walkthrough).
+- [ ] 6.2 Apply: `openspec archive cocoindex-first-class` (only after user explicit authorization).
+- [ ] 6.3 Confirm: `openspec list` no longer shows `cocoindex-first-class` as active; the deltas are merged into the project's authoritative specs.

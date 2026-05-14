@@ -122,32 +122,7 @@ the same way `nh os switch` is off the allowlist.
   incidental. Can be promoted to Tier B in a future change if friction
   warrants it.
 
-**5. Work-host plugin install via host-gated activation step.**
-
-The `pinginc/ai-tooling` marketplace and `Laurel@Laurel` plugin are only
-relevant on work hosts. The cleanest gate is `lib.mkIf (config.home.username
-== "roshan")` around a `home.activation` entry, mirroring how `hosts/default.nix`
-already discriminates work vs personal identities. The activation script
-parses `~/.claude/plugins/known_marketplaces.json` and
-`~/.claude/plugins/installed_plugins.json` with `jq` and runs the CLI
-sub-commands only when the entries are missing.
-
-*Alternatives considered:*
-
-- **Always-on activation that bails inside the script when not on a work
-  host**: rejected because the gate decision belongs at the module level
-  (where it is visible to anyone reading the config) rather than buried in
-  a runtime guard inside an imperative script.
-- **Declarative writes of `known_marketplaces.json` / `installed_plugins.json`
-  via home-manager file rules**: rejected because the JSON schema is
-  Claude-Code-internal and may change between releases; relying on the
-  CLI is more durable.
-- **Per-host attribute (`workHost = true`) plumbed through `hosts/default.nix`**:
-  cleaner long-term but out of scope for this change. The username check is
-  pragmatic; if more work-host divergence accumulates, the broader rework
-  earns its own change.
-
-**6. `refresh_index=True` is the skill's recommended bootstrap path.**
+**5. `refresh_index=True` is the skill's recommended bootstrap path.**
 
 The agent's skill instructions say "on the first call in a project, pass
 `refresh_index=True` to bootstrap the index lazily." This avoids a separate
@@ -193,16 +168,7 @@ explicitly tells agents to prefer cocoindex. This is the behavior change.
 - Gate: `nh os switch`; user runs a known semantic query in one harness
   and confirms cocoindex was consulted (visible via tool-use trace).
 
-**Slice 5 — work-host Laurel marketplace + plugin.** Host-gated
-activation entry registers the `pinginc/ai-tooling` marketplace and
-installs `Laurel@Laurel` on hyperion/farcaster only.
-
-- Gate: `nh os build` succeeds; user runs `nh os switch` on hyperion;
-  user confirms `claude plugin list` shows `Laurel@Laurel` installed;
-  user manually enables auto-update in the Claude TUI before any
-  rollout to farcaster.
-
-**Slice 6 — verification across remaining hosts.** Apply on all hosts;
+**Slice 5 — verification across remaining hosts.** Apply on all hosts;
 spot-check at least one query per host.
 
 - Gate: user explicitly confirms before declaring the change ready to
