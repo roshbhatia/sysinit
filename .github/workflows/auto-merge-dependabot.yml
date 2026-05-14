@@ -1,0 +1,30 @@
+name: Auto-merge Dependabot PRs
+
+on:
+  pull_request_target:
+    types: [opened, reopened, synchronize]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  auto-merge:
+    if: github.actor == 'dependabot[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      # Squash + delete branch — no branch protection or required checks
+      # gate this repo, so plain `gh pr merge` is sufficient. If checks
+      # are added later, swap `--squash` for `--auto --squash` so the
+      # merge waits for them.
+      - name: Merge Dependabot PR
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          pr="${{ github.event.pull_request.number }}"
+          echo "Merging Dependabot PR #${pr}"
+          sleep 5
+          gh pr merge "${pr}" \
+            --repo "${{ github.repository }}" \
+            --squash \
+            --delete-branch

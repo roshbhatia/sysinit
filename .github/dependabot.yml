@@ -1,0 +1,29 @@
+version: 2
+
+updates:
+  # Nix flake inputs (flake.lock).
+  # See https://github.blog/changelog/2026-04-07-dependabot-version-updates-now-support-the-nix-ecosystem/
+  - package-ecosystem: "nix"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    open-pull-requests-limit: 5
+    labels:
+      - "dependencies"
+      - "automated"
+    commit-message:
+      prefix: "chore(deps)"
+
+  # GitHub Actions versions in workflow files.
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    open-pull-requests-limit: 5
+    labels:
+      - "dependencies"
+      - "automated"
+    commit-message:
+      prefix: "chore(ci)"
