@@ -75,10 +75,14 @@ jobs:
       # checks, so there's nothing for `gh pr merge --auto` to wait on —
       # just squash and delete the branch. Squash keeps the linear history
       # the user prefers on main.
+      #
+      # If the PR touches a workflow file, GITHUB_TOKEN can't merge it —
+      # that requires the `workflow` PAT scope. WORKFLOWS_PAT (when set)
+      # has the needed scope.
       - name: Merge automation PR
         if: steps.cpr.outputs.pull-request-operation != ''
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.WORKFLOWS_PAT || secrets.GITHUB_TOKEN }}
         run: |
           pr="${{ steps.cpr.outputs.pull-request-number }}"
           if [ -z "${pr}" ]; then

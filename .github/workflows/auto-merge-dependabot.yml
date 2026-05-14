@@ -17,9 +17,18 @@ jobs:
       # gate this repo, so plain `gh pr merge` is sufficient. If checks
       # are added later, swap `--squash` for `--auto --squash` so the
       # merge waits for them.
+      #
+      # PRs that modify workflow files require the `workflow` PAT scope —
+      # GITHUB_TOKEN alone can't merge those. If WORKFLOWS_PAT is set
+      # (a PAT with `repo` + `workflow` scopes), use it; otherwise fall
+      # back to GITHUB_TOKEN and accept that workflow-bump PRs need to be
+      # merged manually.
+      #
+      # To create the PAT: gh auth refresh -s workflow then store via
+      #   gh secret set WORKFLOWS_PAT --repo roshbhatia/sysinit
       - name: Merge Dependabot PR
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.WORKFLOWS_PAT || secrets.GITHUB_TOKEN }}
         run: |
           pr="${{ github.event.pull_request.number }}"
           echo "Merging Dependabot PR #${pr}"
