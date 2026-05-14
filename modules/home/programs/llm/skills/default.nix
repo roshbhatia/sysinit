@@ -43,7 +43,7 @@
   };
 
   cocoindex-query = {
-    description = "Queries the cocoindex MCP semantic-search server for project source code by meaning rather than exact string. Use when the user asks about code intent across many files, the answer requires semantic understanding, or `grep`/`rg` would miss the target. Falls back to `rg` if the MCP endpoint is not available.";
+    description = "Primary semantic code-search mechanism. Wired into every harness as the `cocoindex` MCP server with local embeddings. Prefer it for intent / 'how is X done' queries; use `rg`/`grep` only for literal-string matches. Bootstraps a project index on first call via `refresh_index=True`; falls back to `rg` on any failure.";
     content = import ./cocoindex-query.nix;
     allowed-tools = "Bash(rg:*) Bash(grep:*) Read";
   };
