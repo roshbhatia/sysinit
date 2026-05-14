@@ -56,6 +56,7 @@ jobs:
           ./hack/update-amp-cli.sh
 
       - name: Create Pull Request
+        id: cpr
         uses: peter-evans/create-pull-request@v7
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
@@ -69,3 +70,22 @@ jobs:
             - Updated `flake.lock` via `nix flake update`
             - Auto-updated Go `vendorHash` values
           labels: automated,dependencies
+
+      # Merge the automation PR directly. No branch protection, no required
+      # checks, so there's nothing for `gh pr merge --auto` to wait on —
+      # just squash and delete the branch. Squash keeps the linear history
+      # the user prefers on main.
+      - name: Merge automation PR
+        if: steps.cpr.outputs.pull-request-operation != ''
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          pr="${{ steps.cpr.outputs.pull-request-number }}"
+          if [ -z "${pr}" ]; then
+            echo "No PR number from create-pull-request step; nothing to merge."
+            exit 0
+          fi
+          echo "Merging PR #${pr} (operation: ${{ steps.cpr.outputs.pull-request-operation }})"
+          # Brief settle for GitHub to compute mergeability after the push.
+          sleep 5
+          gh pr merge "${pr}" --squash --delete-branch
