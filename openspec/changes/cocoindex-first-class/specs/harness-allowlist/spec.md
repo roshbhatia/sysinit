@@ -17,8 +17,8 @@ added to `tierB` as part of this change.
 - **WHEN** the contents of `allowlist.tierA` are inspected after migration
 - **THEN** it contains at minimum the 149 patterns previously embedded
   inline in `config/claude.nix` as `tierAReadOnlyBash`
-- **AND** it additionally contains `ccc search`, `ccc search *`, and
-  `ccc status`
+- **AND** it additionally contains `ccc search`, `ccc search *`,
+  `ccc status`, and `ccc doctor` (all read-only)
 
 #### Scenario: tierB is non-empty and reversible-only
 

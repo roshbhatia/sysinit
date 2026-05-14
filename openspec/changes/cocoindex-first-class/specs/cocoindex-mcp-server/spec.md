@@ -13,9 +13,8 @@ package is already installed.
 
 - **WHEN** a user runs `nh os switch` on a host where `cocoindex-code` has
   never been installed
-- **THEN** `pipx list` reports `cocoindex-code` is installed with the
-  `full` extra
-- **AND** `ccc --version` returns successfully in any fresh shell
+- **THEN** `pipx list --short` lists `cocoindex-code` as installed
+- **AND** `ccc --help` returns successfully in any fresh shell
 
 #### Scenario: Re-activation is a no-op when the package is current
 

@@ -69,7 +69,8 @@ let
     "ccc search *"
     "ccc status"
     "ccc status *"
-    "ccc --version"
+    "ccc doctor"
+    "ccc doctor *"
     "ccc --help"
 
     # nix read-only
