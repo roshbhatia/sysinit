@@ -64,6 +64,14 @@ let
     "openspec --version"
     "openspec --help"
 
+    # cocoindex-code read-only
+    "ccc search"
+    "ccc search *"
+    "ccc status"
+    "ccc status *"
+    "ccc --version"
+    "ccc --help"
+
     # nix read-only
     "nix eval *"
     "nix flake check"

@@ -83,6 +83,7 @@ in
       "**/.agents/"
       "**/.amp/"
       "**/.claude/"
+      "**/.cocoindex_code/"
       "**/.codex/"
       "**/.crush/"
       "**/.cursor/"
