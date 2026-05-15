@@ -212,14 +212,14 @@ is just the first-time enablement.
 **Step 3 — apply Slice 2 (activation install).** Edit, then:
 
 - `nh os build`.
-- User runs `nh os switch` on hyperion (work mac, fastest iteration loop).
+- User runs `nh os switch` on demiurge (work mac, fastest iteration loop).
 - User confirms `ccc --version` returns the expected version.
 - User authorizes rolling to other hosts.
 
 **Step 4 — apply Slice 3 (MCP server entry).** Edit, then:
 
 - `nh os build`.
-- `nh os switch` on hyperion.
+- `nh os switch` on demiurge.
 - User opens at least three harnesses and confirms `cocoindex:search` is
   visible in each tool list.
 - User authorizes Slice 4.
@@ -227,7 +227,7 @@ is just the first-time enablement.
 **Step 5 — apply Slice 4 (skill rewrite).** Edit, then:
 
 - `nh os build`.
-- `nh os switch` on hyperion.
+- `nh os switch` on demiurge.
 - User runs a known semantic query in one harness; confirms cocoindex was
   consulted before any `rg` fallback.
 

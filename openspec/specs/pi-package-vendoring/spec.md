@@ -8,7 +8,7 @@ Every pi extension and pi CLI tool consumed by this dotfiles repo MUST be declar
 
 #### Scenario: New package added to the registry
 - **WHEN** a new pi package entry is added to `pi.nix` with version, hash, and (if deps) lock + npmDepsHash
-- **THEN** `nix build .#darwinConfigurations.hyperion.system --no-link` succeeds and the package appears as a Nix store path
+- **THEN** `nix build .#darwinConfigurations.demiurge.system --no-link` succeeds and the package appears as a Nix store path
 - **AND** the resulting `~/.pi/agent/settings.json` `packages` array contains the store path
 
 #### Scenario: Hash drift on upstream content

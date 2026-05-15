@@ -42,16 +42,11 @@ let
     };
   };
 
-  darwinHost = identity: limaPartner: extraValues: {
+  darwinHost = identity: extraValues: {
     system = "aarch64-darwin";
     platform = "darwin";
     inherit (identity) username;
-    values =
-      identity.values
-      // {
-        environment.LIMA_INSTANCE = limaPartner;
-      }
-      // extraValues;
+    values = identity.values // extraValues;
   };
 
   limaHost = identity: {
@@ -63,7 +58,9 @@ let
   };
 in
 {
-  lv426 = darwinHost personal "nostromo" { };
+  lv426 = darwinHost personal {
+    environment.LIMA_INSTANCE = "nostromo";
+  };
 
   nostromo = limaHost personal;
 
@@ -81,7 +78,7 @@ in
     };
   };
 
-  hyperion = darwinHost work {
+  demiurge = darwinHost work {
     darwin = {
       homebrew.additionalPackages = {
         taps = [
