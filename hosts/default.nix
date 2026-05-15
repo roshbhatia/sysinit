@@ -81,7 +81,7 @@ in
     };
   };
 
-  hyperion = darwinHost work "farcaster" {
+  hyperion = darwinHost work {
     darwin = {
       homebrew.additionalPackages = {
         taps = [
