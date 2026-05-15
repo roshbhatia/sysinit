@@ -57,7 +57,6 @@ Skills live at `~/.claude/skills/<name>/SKILL.md`, generated from `modules/home/
 - `write-commit-roshan` · Writes git commit messages in Roshan's distilled style: conventional-commit shape, lowercase subject, no body, no period, semicolon-joined two-clause subjects when needed
 - `write-issue-roshan` · Writes GitHub issue bodies and titles in Roshan's distilled style: lowercase fragment titles, follows upstream issue templates verbatim when present, use-case-first for feature requests, deterministic reproductions for bugs
 - `write-pr-body-roshan` · Writes GitHub PR descriptions in Roshan's distilled style: issue URL on top, `## Summary` with full causal bullets, `## Risks` or `## Test plan` depending on PR type, no template defaults
-- `write-pr-review-roshan` · Writes PR review comments in Roshan's distilled style: 1-3 sentences, verdict-first, em-dash for elaboration, colon for diagnosis, no hedging
 
 ## Prohibitions
 

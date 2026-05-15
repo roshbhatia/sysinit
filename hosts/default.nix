@@ -83,11 +83,6 @@ in
 
   hyperion = darwinHost work "farcaster" {
     darwin = {
-      lima.instanceName = "farcaster";
-      colima = {
-        cpu = 4;
-        memory = 8;
-      };
       homebrew.additionalPackages = {
         taps = [
           "bastionzero/tap"
@@ -106,6 +101,4 @@ in
       };
     };
   };
-
-  farcaster = limaHost work;
 }

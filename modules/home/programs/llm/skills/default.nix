@@ -53,11 +53,6 @@
     content = import ./write-commit-roshan.nix;
   };
 
-  write-pr-review-roshan = {
-    description = "Writes PR review comments in Roshan's distilled style: 1-3 sentences, verdict-first, em-dash for elaboration, colon for diagnosis, no hedging. Use when commenting on a PR, leaving a code review, replying to a review thread, or when the user says 'reply on the PR' / 'leave a comment' / 'review this'.";
-    content = import ./write-pr-review-roshan.nix;
-  };
-
   write-pr-body-roshan = {
     description = "Writes GitHub PR descriptions in Roshan's distilled style: issue URL on top, `## Summary` with full causal bullets, `## Risks` or `## Test plan` depending on PR type, no template defaults. Use when drafting a `gh pr create` body, opening a PR, or when the user says 'PR body' / 'pull request description'.";
     content = import ./write-pr-body-roshan.nix;
