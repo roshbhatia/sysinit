@@ -8,11 +8,11 @@
         "pinned": false,
         "src": {
             "name": null,
-            "sha256": "sha256-b68DOmD3q2oSe6WLTnoFA0nDS4Kfp3x2LXZ8//T2iJA=",
+            "sha256": "sha256-WcD54MkI/uLSCYIeUE0UV2hwJOfkGWJ4VMRDAzuTUgc=",
             "type": "url",
-            "url": "https://github.com/charmbracelet/crush/releases/download/v0.68.0/crush_0.68.0_Darwin_arm64.tar.gz"
+            "url": "https://github.com/charmbracelet/crush/releases/download/v0.69.0/crush_0.69.0_Darwin_arm64.tar.gz"
         },
-        "version": "0.68.0"
+        "version": "0.69.0"
     },
     "crush-aarch64-linux": {
         "cargoLock": null,
@@ -23,11 +23,11 @@
         "pinned": false,
         "src": {
             "name": null,
-            "sha256": "sha256-l8U3rBZ883vae9zsQsunTzQX6KrKVjiQs090xnjWF2A=",
+            "sha256": "sha256-kfA48GLF/qgEwswDgvMXIsepSeTmu/MOGhBHmQtppFE=",
             "type": "url",
-            "url": "https://github.com/charmbracelet/crush/releases/download/v0.68.0/crush_0.68.0_Linux_arm64.tar.gz"
+            "url": "https://github.com/charmbracelet/crush/releases/download/v0.69.0/crush_0.69.0_Linux_arm64.tar.gz"
         },
-        "version": "0.68.0"
+        "version": "0.69.0"
     },
     "crush-x86_64-darwin": {
         "cargoLock": null,
@@ -38,11 +38,11 @@
         "pinned": false,
         "src": {
             "name": null,
-            "sha256": "sha256-GBbgjWp9ofpzV11SUOqJBcc4aoQeqyZFJztWqL8hly8=",
+            "sha256": "sha256-zIVPP07DEBfdgVKsPpqp2FuizrbcCzP2Un5dQ5sveUs=",
             "type": "url",
-            "url": "https://github.com/charmbracelet/crush/releases/download/v0.68.0/crush_0.68.0_Darwin_x86_64.tar.gz"
+            "url": "https://github.com/charmbracelet/crush/releases/download/v0.69.0/crush_0.69.0_Darwin_x86_64.tar.gz"
         },
-        "version": "0.68.0"
+        "version": "0.69.0"
     },
     "crush-x86_64-linux": {
         "cargoLock": null,
@@ -53,11 +53,11 @@
         "pinned": false,
         "src": {
             "name": null,
-            "sha256": "sha256-mgJgrvg26nwXu5nCr8UFzMz4F9s0XVq4hzJ0qeFdMIY=",
+            "sha256": "sha256-UMkgz+ZeAIsBrw3KwE1mpl+GKUqoqFV7Re5Gn1Zq4YA=",
             "type": "url",
-            "url": "https://github.com/charmbracelet/crush/releases/download/v0.68.0/crush_0.68.0_Linux_x86_64.tar.gz"
+            "url": "https://github.com/charmbracelet/crush/releases/download/v0.69.0/crush_0.69.0_Linux_x86_64.tar.gz"
         },
-        "version": "0.68.0"
+        "version": "0.69.0"
     },
     "go-enum": {
         "cargoLock": null,
@@ -110,11 +110,11 @@
         "pinned": false,
         "src": {
             "name": null,
-            "sha256": "sha256-gPZua1G5P+vPpboFClEUnTH4WAkTfEJ43vQ5vhFKvVk=",
+            "sha256": "sha256-LfGIoXwP5TjbqTb8LrbtsUgC3lhnevFJp3VIFYxNPGc=",
             "type": "url",
-            "url": "https://github.com/block/goose/releases/download/v1.34.0/goose-aarch64-apple-darwin.tar.gz"
+            "url": "https://github.com/block/goose/releases/download/v1.34.1/goose-aarch64-apple-darwin.tar.gz"
         },
-        "version": "1.34.0"
+        "version": "1.34.1"
     },
     "goose-cli-bin-aarch64-linux": {
         "cargoLock": null,
@@ -125,11 +125,11 @@
         "pinned": false,
         "src": {
             "name": null,
-            "sha256": "sha256-evbXoH2jRQV8plpLsVSxnQndXatPhzazT0VgCTOzjgc=",
+            "sha256": "sha256-NZ3knzMxJ6vPzX3r6GlJrwOqDBvWeMhtHNHOd9v4t8A=",
             "type": "url",
-            "url": "https://github.com/block/goose/releases/download/v1.34.0/goose-aarch64-unknown-linux-gnu.tar.gz"
+            "url": "https://github.com/block/goose/releases/download/v1.34.1/goose-aarch64-unknown-linux-gnu.tar.gz"
         },
-        "version": "1.34.0"
+        "version": "1.34.1"
     },
     "goose-cli-bin-x86_64-darwin": {
         "cargoLock": null,
@@ -140,11 +140,11 @@
         "pinned": false,
         "src": {
             "name": null,
-            "sha256": "sha256-VuBU3OtVq6QfCdjPXJkjDDwrv9XxUWXja/HXeOh427g=",
+            "sha256": "sha256-JUSgYw5RtwHQkyIgl8JXKbftsMwxn6XySRrp113gKOI=",
             "type": "url",
-            "url": "https://github.com/block/goose/releases/download/v1.34.0/goose-x86_64-apple-darwin.tar.gz"
+            "url": "https://github.com/block/goose/releases/download/v1.34.1/goose-x86_64-apple-darwin.tar.gz"
         },
-        "version": "1.34.0"
+        "version": "1.34.1"
     },
     "goose-cli-bin-x86_64-linux": {
         "cargoLock": null,
@@ -155,11 +155,11 @@
         "pinned": false,
         "src": {
             "name": null,
-            "sha256": "sha256-jQv2+aXVoABxpXpv08iONgUYEzie98S2mhQFlV+vSiE=",
+            "sha256": "sha256-MQiGkPFoDWU8fDUNruc9ZD14svcdcX//BMu6wlhqkkA=",
             "type": "url",
-            "url": "https://github.com/block/goose/releases/download/v1.34.0/goose-x86_64-unknown-linux-gnu.tar.gz"
+            "url": "https://github.com/block/goose/releases/download/v1.34.1/goose-x86_64-unknown-linux-gnu.tar.gz"
         },
-        "version": "1.34.0"
+        "version": "1.34.1"
     },
     "hererocks": {
         "cargoLock": null,
