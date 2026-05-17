@@ -109,7 +109,7 @@ function render(
 	}
 	const tag = theme.fg("accent", "openspec");
 	const sep = theme.fg("dim", ": ");
-	const nameText = theme.fg("primary", state.name);
+	const nameText = theme.fg("text", state.name);
 	if (state.progress) {
 		const progressText = theme.fg("dim", ` · ${state.progress}`);
 		return tag + sep + nameText + progressText;
