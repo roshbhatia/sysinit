@@ -189,6 +189,10 @@ in
         defaultBranch = "main";
       };
 
+      pull = {
+        rebase = true;
+      };
+
       push = {
         autoSetupRemote = true;
         followTags = true;
