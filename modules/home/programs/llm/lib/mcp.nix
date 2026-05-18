@@ -151,6 +151,28 @@ with lib;
       inherit (server) args;
     }) servers;
 
+  # Format MCP servers for Hermes — emitted under `mcp_servers:` in
+  # ~/.hermes/config.yaml. Stdio servers carry `command` + `args`; HTTP
+  # servers carry `url` (+ optional headers/timeout). Hermes auto-detects
+  # transport based on which key is present.
+  formatForHermes =
+    servers:
+    builtins.mapAttrs (
+      _name: server:
+      if (server.type or "local") == "http" then
+        {
+          inherit (server) url;
+        }
+        // optionalAttrs (server.headers or null != null) { inherit (server) headers; }
+        // optionalAttrs (server.timeout or null != null) { inherit (server) timeout; }
+      else
+        {
+          inherit (server) command;
+          inherit (server) args;
+        }
+        // optionalAttrs (server.env or { } != { }) { inherit (server) env; }
+    ) servers;
+
   # Format permissions for Cursor
   formatPermissionsForCursor = allPermissions: map (cmd: "Shell(${cmd})") allPermissions;
 

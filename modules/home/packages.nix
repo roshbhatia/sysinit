@@ -156,7 +156,6 @@
       crush
       cursor-cli
       github-copilot-cli
-      hermes-agent
       lsp-ai
       opencode
       openspec

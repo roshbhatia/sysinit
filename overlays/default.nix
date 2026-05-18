@@ -18,7 +18,7 @@
   (import ./crush.nix { })
   (import ./ast-grep.nix { })
   (import ./cocoindex-code.nix { })
-  (import ./hermes-agent.nix { })
+  (import ./hermes-agent.nix { inherit inputs; })
   (import ./opa.nix { })
   (import ./ioskeleyMono.nix { })
   (import ./wumpusMono.nix { })
