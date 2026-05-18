@@ -17,6 +17,8 @@
   (import ./pi-coding-agent.nix { })
   (import ./crush.nix { })
   (import ./ast-grep.nix { })
+  (import ./cocoindex-code.nix { })
+  (import ./hermes-agent.nix { })
   (import ./opa.nix { })
   (import ./ioskeleyMono.nix { })
   (import ./wumpusMono.nix { })

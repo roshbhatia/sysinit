@@ -24,7 +24,6 @@ in
     ./config/aider.nix
     ./config/amp.nix
     ./config/claude.nix
-    ./config/cocoindex.nix
     ./config/codex.nix
     ./config/copilot-cli.nix
     ./config/crush.nix

@@ -150,11 +150,13 @@
       # AI & Editors
       amp-cli
       claude-agent-acp
+      cocoindex-code
       codex-acp
       copilot-language-server
       crush
       cursor-cli
       github-copilot-cli
+      hermes-agent
       lsp-ai
       opencode
       openspec
