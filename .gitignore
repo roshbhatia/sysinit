@@ -18,6 +18,7 @@ nix.secrets.conf
 .claude/
 .serena
 !AGENTS.md
+.pi/
 
 # openspec/ is gitignored globally (in ~/.config/git/ignore) so foreign
 # projects don't accidentally commit scratch artifacts. In sysinit itself
