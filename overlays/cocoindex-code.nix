@@ -89,20 +89,29 @@ let
       hatch-vcs
     ];
 
-    dependencies =
-      [ cocoindex ]
-      ++ (with python.pkgs; [
-        einops
-        mcp
-        msgspec
-        numpy
-        pathspec
-        pydantic
-        pyyaml
-        questionary
-        sqlite-vec
-        typer
-      ]);
+    # einops 0.8.1 in nixpkgs satisfies cocoindex-code's runtime use despite
+    # the upstream >=0.8.2 pin; sqlite-vec ships with `0.0.0` in its wheel
+    # METADATA so the >=0.1.0 check trips even though nixpkgs builds 0.1.6.
+    pythonRelaxDeps = [
+      "einops"
+      "sqlite-vec"
+    ];
+
+    dependencies = [
+      cocoindex
+    ]
+    ++ (with python.pkgs; [
+      einops
+      mcp
+      msgspec
+      numpy
+      pathspec
+      pydantic
+      pyyaml
+      questionary
+      sqlite-vec
+      typer
+    ]);
 
     pythonImportsCheck = [ "cocoindex_code" ];
 
