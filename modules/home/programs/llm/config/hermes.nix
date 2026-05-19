@@ -8,23 +8,55 @@ let
   llmLib = import ../lib { inherit lib; };
   kit = llmLib.harnessKit.mkKit { inherit lib pkgs config; };
 
-  # Coding-focused toolset surface. Deliberately narrower than `hermes-acp`
-  # (which adds browser, vision, code_execution) or `hermes-cli` (which adds
-  # clarify, messaging, TTS, cronjob). Matches the tool surface of
-  # claude-code so behavior stays predictable across harnesses. The "cli"
-  # platform key drives both `hermes chat` (REPL) and `hermes --tui` since
-  # the TUI runs through cmd_chat with platform=cli.
   codingToolsets = [
     "terminal"
     "file"
     "skills"
-    "todo"
     "memory"
     "delegation"
     "web"
   ];
 
   codingSystemPrompt = kit.mkInstructions "~/.claude/skills";
+
+  stylixSkin =
+    let
+      c = config.lib.stylix.colors;
+      hex = name: "#${c.${name}}";
+    in
+    {
+      name = "stylix";
+      description = "Mirrors the active stylix base16 palette";
+      colors = {
+        banner_border = hex "base0D";
+        banner_title = hex "base0E";
+        banner_accent = hex "base0C";
+        banner_dim = hex "base03";
+        banner_text = hex "base05";
+
+        ui_accent = hex "base0D";
+        ui_label = hex "base04";
+        ui_ok = hex "base0B";
+        ui_error = hex "base08";
+        ui_warn = hex "base0A";
+
+        prompt = hex "base0D";
+        input_rule = hex "base02";
+        response_border = hex "base02";
+
+        session_label = hex "base04";
+        session_border = hex "base02";
+
+        status_bar_bg = hex "base01";
+        voice_status_bg = hex "base01";
+        selection_bg = hex "base02";
+
+        completion_menu_bg = hex "base01";
+        completion_menu_current_bg = hex "base02";
+        completion_menu_meta_bg = hex "base01";
+        completion_menu_meta_current_bg = hex "base02";
+      };
+    };
 
   # Nix-managed base. `model.*`, `custom_providers`, `tools_config`,
   # `provider_routing`, and `onboarding.seen` are intentionally absent —
@@ -51,14 +83,13 @@ let
       streaming = true;
       show_reasoning = false;
       persistent_output = true;
+      skin = "stylix";
     };
 
     delegation = {
       max_iterations = 45;
     };
 
-    # `hermes --tui` auto-resumes the most recent session by default. Off
-    # so cold starts always begin from a clean slate.
     tui_auto_resume_recent = false;
 
     mcp_servers = llmLib.mcp.formatForHermes kit.mcpServers.servers;
@@ -66,11 +97,6 @@ let
 
   hermesConfigBase = pkgs.writeText "hermes-config-base.yaml" (builtins.toJSON hermesBase);
 
-  # Mirrors the deep-merge pattern from goose.nix. The existing user
-  # config goes on the LEFT and our nix-managed base on the RIGHT, so the
-  # nix values win on overlap. Keys we don't set (model.*, custom_providers,
-  # tools_config, etc.) flow through untouched from the user file, so the
-  # `hermes model` / `hermes tools` mutations survive reactivation.
   updateHermesConfig = pkgs.writeShellScript "update-hermes-config" ''
     set -euo pipefail
 
@@ -98,16 +124,22 @@ let
   '';
 in
 {
-  home.packages = [ pkgs.hermes-agent ];
+  home = {
+    packages = [ pkgs.hermes-agent ];
 
-  # `hermes chat` checks HERMES_TUI=1 and routes to the Ink/React TUI.
-  # Other subcommands (oneshot, cron, dashboard, mcp, ...) ignore this and
-  # run their normal flow, so setting it globally is safe.
-  home.sessionVariables = {
-    HERMES_TUI = "1";
+    sessionVariables = {
+      HERMES_TUI = "1";
+    };
+
+    activation.hermesConfig = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+      $DRY_RUN_CMD ${updateHermesConfig}
+    '';
+
+    file = kit.skillsLib.installHermesSkillsTo ".hermes/skills" // {
+      ".hermes/skins/stylix.yaml" = {
+        text = builtins.toJSON stylixSkin;
+        force = true;
+      };
+    };
   };
-
-  home.activation.hermesConfig = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
-    $DRY_RUN_CMD ${updateHermesConfig}
-  '';
 }

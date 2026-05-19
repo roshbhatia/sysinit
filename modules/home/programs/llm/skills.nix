@@ -183,11 +183,78 @@ let
   allSkills = localSkills;
 
   installSkillsTo = _basePath: builtins.mapAttrs (_name: path: { source = path; }) allSkills;
+
+  # ──────────────────────────────────────────────────────────────────────
+  # Hermes variant: same content, hermes-compatible frontmatter, and one
+  # skill per directory at <category>/<name>/SKILL.md per
+  # https://hermes-agent.nousresearch.com/docs/guides/work-with-skills
+  # ──────────────────────────────────────────────────────────────────────
+
+  # Group skills under coarse categories so the hub's category UI surfaces
+  # them sensibly. Derived from name prefix; default bucket is `tools`.
+  hermesCategoryOf =
+    name:
+    if lib.hasPrefix "openspec-" name then
+      "openspec"
+    else if lib.hasPrefix "write-" name then
+      "writing"
+    else
+      "tools";
+
+  renderHermesSkill =
+    name: skill:
+    let
+      _ck = validateRegistryKeys name skill;
+      _nk = validateName name;
+      _dk = validateDescription name skill.description;
+      _bk = validateBody name skill.content;
+
+      category = hermesCategoryOf name;
+
+      frontmatter = ''
+        ---
+        name: ${name}
+        description: ${skill.description}
+        version: 1.0.0
+        metadata:
+          hermes:
+            category: ${category}
+        ---
+
+      '';
+
+      forced = builtins.deepSeq [
+        _ck
+        _nk
+        _dk
+        _bk
+        _requiredCheck
+      ] (frontmatter + skill.content);
+    in
+    forced;
+
+  hermesSkills = builtins.mapAttrs (
+    name: skill: pkgs.writeText "hermes-skill-${name}-SKILL.md" (renderHermesSkill name skill)
+  ) registry;
+
+  installHermesSkillsTo =
+    basePath:
+    builtins.listToAttrs (
+      map (name: {
+        name = "${basePath}/${hermesCategoryOf name}/${name}/SKILL.md";
+        value = {
+          source = hermesSkills.${name};
+          force = true;
+        };
+      }) (builtins.attrNames registry)
+    );
 in
 {
   inherit
     allSkills
     localSkillDescriptions
     installSkillsTo
+    hermesSkills
+    installHermesSkillsTo
     ;
 }
