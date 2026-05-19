@@ -21,46 +21,42 @@ in
     # Include lima-generated SSH config when a Lima instance is configured
     includes = lib.optional (limaInstance != "") "~/.lima/${limaInstance}/ssh.config";
 
-    matchBlocks = {
+    settings = {
       "*" = {
-        addKeysToAgent = "yes";
-        hashKnownHosts = true;
+        AddKeysToAgent = "yes";
+        HashKnownHosts = true;
       }
       // lib.optionalAttrs use1Password {
-        extraOptions = {
-          IdentityAgent = ''"${agentSocket}"'';
-        };
+        IdentityAgent = ''"${agentSocket}"'';
       }
       // lib.optionalAttrs (!use1Password) {
-        identitiesOnly = true;
+        IdentitiesOnly = true;
       };
     } // lib.optionalAttrs (limaInstance != "") {
       # wezterm.enumerate_ssh_hosts() doesn't follow Include directives, so we
       # add an explicit block that WezTerm can discover. ProxyCommand delegates
       # to the Lima-generated config which holds the current dynamic port.
       ${limaInstance} = {
-        user = values.user.username;
-        proxyCommand = "ssh -F %d/.lima/${limaInstance}/ssh.config lima-${limaInstance} -W 127.0.0.1:22";
-        extraOptions = {
-          StrictHostKeyChecking = "no";
-          UserKnownHostsFile = "/dev/null";
-          NoHostAuthenticationForLocalhost = "yes";
-        };
+        User = values.user.username;
+        ProxyCommand = "ssh -F %d/.lima/${limaInstance}/ssh.config lima-${limaInstance} -W 127.0.0.1:22";
+        StrictHostKeyChecking = "no";
+        UserKnownHostsFile = "/dev/null";
+        NoHostAuthenticationForLocalhost = "yes";
       };
     } // {
       "vorgossos" = {
-        hostname = "vorgossos.stork-eel.ts.net";
-        user = "rshnbhatia";
+        HostName = "vorgossos.stork-eel.ts.net";
+        User = "rshnbhatia";
       };
 
       "arrakis" = {
-        hostname = "arrakis.stork-eel.ts.net";
-        user = "rshnbhatia";
+        HostName = "arrakis.stork-eel.ts.net";
+        User = "rshnbhatia";
       };
 
       "huey" = {
-        hostname = "huey.taila415c.ts.net";
-        user = "rosh";
+        HostName = "huey.taila415c.ts.net";
+        User = "rosh";
       };
     };
   };
