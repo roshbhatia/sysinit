@@ -58,10 +58,6 @@ let
       };
     };
 
-  # Nix-managed base. `model.*`, `custom_providers`, `tools_config`,
-  # `provider_routing`, and `onboarding.seen` are intentionally absent —
-  # hermes mutates those at runtime (via `hermes model`, `hermes setup`,
-  # `hermes tools`) and the activation script below preserves them.
   hermesBase = {
     platform_toolsets = {
       cli = codingToolsets;
