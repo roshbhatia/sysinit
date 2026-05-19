@@ -82,12 +82,14 @@ in
     darwin = {
       homebrew.additionalPackages = {
         taps = [
+          "auth0/auth0-cli"
           "bastionzero/tap"
           "pinginc/lrl"
           "signadot/tap"
           "spacelift-io/spacelift"
         ];
         brews = [
+          "auth0"
           "awscli"
           "bastionzero/tap/zli"
           "signadot/tap/signadot-cli"
