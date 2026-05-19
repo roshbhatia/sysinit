@@ -9,6 +9,7 @@
     ./direnv.nix
     ./editorconfig.nix
     ./eza.nix
+    ./fastfetch.nix
     ./fd.nix
     ./fzf.nix
     ./git
