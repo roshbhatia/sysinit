@@ -6,7 +6,7 @@
 }:
 
 let
-  swayfxPkg = inputs.swayfx.packages.${pkgs.system}.default;
+  swayfxPkg = inputs.swayfx.packages.${pkgs.stdenv.hostPlatform.system}.default;
 
   # Wrap swayfx the same way nixpkgs wraps sway
   swayfxWrapped = pkgs.sway.override {

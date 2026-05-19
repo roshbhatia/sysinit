@@ -5,6 +5,7 @@
 {
   imports = [
     ./ast-grep.nix
+    ./bash.nix
     ./bat.nix
     ./direnv.nix
     ./editorconfig.nix
