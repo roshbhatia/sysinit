@@ -54,9 +54,9 @@ Skills live at `~/.claude/skills/<name>/SKILL.md`, generated from `modules/home/
 - `openspec-propose` · Drafts a new OpenSpec change with proposal, design, specs, and tasks in one pass
 - `seshy` · Operates the seshy multi-repo tmux session manager via its non-interactive `sy` subcommands
 - `shell-scripting` · Use when writing or modifying shell scripts, particularly in the hack/ directory, Taskfile commands, or any bash automation in this repository
-- `write-commit-roshan` · Writes git commit messages in Roshan's distilled style: conventional-commit shape, lowercase subject, no body, no period, semicolon-joined two-clause subjects when needed
-- `write-issue-roshan` · Writes GitHub issue bodies and titles in Roshan's distilled style: lowercase fragment titles, follows upstream issue templates verbatim when present, use-case-first for feature requests, deterministic reproductions for bugs
-- `write-pr-body-roshan` · Writes GitHub PR descriptions in Roshan's distilled style: issue URL on top, `## Summary` with full causal bullets, `## Risks` or `## Test plan` depending on PR type, no template defaults
+- `opinionated-code-comments` · Opinionated style for inline source-code comments. Default to no comment. Add a comment only when the WHY is non-obvious. No multi-paragraph docstrings. One short line max
+- `opinionated-commit` · Writes git commit messages in a terse, conventional-commit-shaped style. Lowercase preferred but not absolute, title-only by default, no body, no period. Supports the historical `<type>: <TICKET-ID>: <subject>` variant when a tracker ticket is in scope
+- `opinionated-pr` · Writes GitHub PR descriptions in a terse, opinionated style. Delegates body shape to the repo PR template when one exists; falls back to `## Summary` plus an optional ad-hoc validating-changes block. Never mutates an existing checklist
 
 ## Prohibitions
 

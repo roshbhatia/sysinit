@@ -48,18 +48,18 @@
     allowed-tools = "Bash(rg:*) Bash(grep:*) Read";
   };
 
-  write-commit-roshan = {
-    description = "Writes git commit messages in Roshan's distilled style: conventional-commit shape, lowercase subject, no body, no period, semicolon-joined two-clause subjects when needed. Use when drafting a commit message for this user, or when the user says 'commit this' / 'propose a commit message' / 'write commit'.";
-    content = import ./write-commit-roshan.nix;
+  opinionated-commit = {
+    description = "Writes git commit messages in a terse, conventional-commit-shaped style. Lowercase preferred but not absolute, title-only by default, no body, no period. Supports the historical `<type>: <TICKET-ID>: <subject>` variant when a tracker ticket is in scope. Use when drafting a commit message or when the user says 'commit this' / 'propose a commit message' / 'write commit'.";
+    content = import ./opinionated-commit.nix;
   };
 
-  write-pr-body-roshan = {
-    description = "Writes GitHub PR descriptions in Roshan's distilled style: issue URL on top, `## Summary` with full causal bullets, `## Risks` or `## Test plan` depending on PR type, no template defaults. Use when drafting a `gh pr create` body, opening a PR, or when the user says 'PR body' / 'pull request description'.";
-    content = import ./write-pr-body-roshan.nix;
+  opinionated-pr = {
+    description = "Writes GitHub PR descriptions in a terse, opinionated style. Delegates body shape to the repo PR template when one exists; falls back to `## Summary` plus an optional ad-hoc validating-changes block. Never mutates an existing checklist. Use when drafting a `gh pr create` body, opening a PR, or when the user says 'PR body' / 'pull request description'.";
+    content = import ./opinionated-pr.nix;
   };
 
-  write-issue-roshan = {
-    description = "Writes GitHub issue bodies and titles in Roshan's distilled style: lowercase fragment titles, follows upstream issue templates verbatim when present, use-case-first for feature requests, deterministic reproductions for bugs. Use when opening a GitHub issue, drafting `gh issue create` body, or when the user says 'file an issue' / 'open a bug' / 'issue body'.";
-    content = import ./write-issue-roshan.nix;
+  opinionated-code-comments = {
+    description = "Opinionated style for inline source-code comments. Default to no comment. Add a comment only when the WHY is non-obvious: a hidden constraint, a subtle invariant, a workaround for a specific bug, or behavior that would surprise a reader. No multi-paragraph docstrings. One short line max. Use when editing source files, when asked 'should I comment this', or whenever the agent considers adding a comment to code.";
+    content = import ./opinionated-code-comments.nix;
   };
 }
