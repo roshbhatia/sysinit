@@ -199,9 +199,11 @@ local function get_tab_keys()
   -- New tab with SUPER (CMD) in current domain
   table.insert(keys, create_smart_keybind("t", "SUPER", act.SpawnTab("CurrentPaneDomain")))
 
-  -- Fuzzy tab switcher (CTRL|SHIFT+t and SUPER|SHIFT+t)
+  -- Fuzzy tab switcher on CTRL|SHIFT+t
   table.insert(keys, create_smart_keybind("t", "CTRL|SHIFT", act.ShowTabNavigator))
-  table.insert(keys, create_smart_keybind("t", "SUPER|SHIFT", act.ShowTabNavigator))
+
+  -- SUPER|SHIFT+t: always spawn a new tab in the local domain (bypass SSH/remote)
+  table.insert(keys, create_smart_keybind("t", "SUPER|SHIFT", act.SpawnTab({ DomainName = "local" })))
 
   -- Rename current tab
   table.insert(
@@ -257,6 +259,12 @@ end
 local function get_window_keys()
   return {
     create_smart_keybind("n", "SUPER", act.SpawnWindow),
+    -- SUPER|SHIFT+n: spawn a new window in the local domain (SpawnWindow uses DefaultDomain)
+    create_smart_keybind(
+      "n",
+      "SUPER|SHIFT",
+      act.SpawnCommandInNewWindow({ domain = { DomainName = "local" } })
+    ),
   }
 end
 
