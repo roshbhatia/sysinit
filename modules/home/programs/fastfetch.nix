@@ -303,29 +303,4 @@ in
       force = true;
     };
   };
-
-  programs.zsh.initContent = lib.mkOrder 800 ''
-    if [[ -o interactive && -t 1 && -z "$FASTFETCH_SHOWN" ]]; then
-      export FASTFETCH_SHOWN=1
-      command -v fastfetch >/dev/null 2>&1 && fastfetch
-    fi
-  '';
-
-  programs.bash.initExtra = ''
-    case $- in *i*)
-      if [[ -t 1 && -z "$FASTFETCH_SHOWN" ]]; then
-        export FASTFETCH_SHOWN=1
-        command -v fastfetch >/dev/null 2>&1 && fastfetch
-      fi
-      ;;
-    esac
-  '';
-
-  programs.nushell.extraConfig = ''
-
-    if $nu.is-interactive and (($env.FASTFETCH_SHOWN? | default "") == "") and (which fastfetch | is-not-empty) {
-      $env.FASTFETCH_SHOWN = "1"
-      ^fastfetch
-    }
-  '';
 }
