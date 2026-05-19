@@ -231,8 +231,8 @@ function M.setup(config)
         },
         tabline_b = { "domain" },
         tabline_x = {},
-        tabline_y = {},
-        tabline_z = { agent_status },
+        tabline_y = { agent_status },
+        tabline_z = { "hostname" },
       },
       extensions = {},
     })
