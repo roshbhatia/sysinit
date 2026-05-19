@@ -84,11 +84,13 @@ in
         taps = [
           "bastionzero/tap"
           "pinginc/lrl"
+          "signadot/tap"
           "spacelift-io/spacelift"
         ];
         brews = [
           "awscli"
           "bastionzero/tap/zli"
+          "signadot/tap/signadot-cli"
         ];
         casks = [
           "sdm"
