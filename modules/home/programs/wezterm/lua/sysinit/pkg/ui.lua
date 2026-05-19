@@ -229,8 +229,10 @@ function M.setup(config)
           "mode",
           locked_indicator,
         },
+        tabline_b = { "domain" },
         tabline_x = {},
-        tabline_y = { agent_status },
+        tabline_y = {},
+        tabline_z = { agent_status },
       },
       extensions = {},
     })

@@ -69,7 +69,6 @@ in
 
       require("sysinit.pkg.core").setup(config)
       require("sysinit.pkg.events").setup(config)
-      require("sysinit.pkg.sessions").setup(config)
       require("sysinit.pkg.keybindings").setup(config)
       require("sysinit.pkg.ui").setup(config)
 
@@ -97,20 +96,47 @@ in
         selection_bg = "#${c.base02}";
         selection_fg = "#${c.base05}";
         ansi = [
-          "#${c.base00}" "#${c.base08}" "#${c.base0B}" "#${c.base0A}"
-          "#${c.base0D}" "#${c.base0E}" "#${c.base0C}" "#${c.base05}"
+          "#${c.base00}"
+          "#${c.base08}"
+          "#${c.base0B}"
+          "#${c.base0A}"
+          "#${c.base0D}"
+          "#${c.base0E}"
+          "#${c.base0C}"
+          "#${c.base05}"
         ];
         brights = [
-          "#${c.base03}" "#${c.base08}" "#${c.base0B}" "#${c.base0A}"
-          "#${c.base0D}" "#${c.base0E}" "#${c.base0C}" "#${c.base07}"
+          "#${c.base03}"
+          "#${c.base08}"
+          "#${c.base0B}"
+          "#${c.base0A}"
+          "#${c.base0D}"
+          "#${c.base0E}"
+          "#${c.base0C}"
+          "#${c.base07}"
         ];
         tab_bar = {
           background = "#${c.base01}";
-          active_tab = { bg_color = "#${c.base02}"; fg_color = "#${c.base05}"; };
-          inactive_tab = { bg_color = "#${c.base01}"; fg_color = "#${c.base04}"; };
-          inactive_tab_hover = { bg_color = "#${c.base02}"; fg_color = "#${c.base05}"; };
-          new_tab = { bg_color = "#${c.base01}"; fg_color = "#${c.base04}"; };
-          new_tab_hover = { bg_color = "#${c.base02}"; fg_color = "#${c.base05}"; };
+          active_tab = {
+            bg_color = "#${c.base02}";
+            fg_color = "#${c.base05}";
+          };
+          inactive_tab = {
+            bg_color = "#${c.base01}";
+            fg_color = "#${c.base04}";
+          };
+          inactive_tab_hover = {
+            bg_color = "#${c.base02}";
+            fg_color = "#${c.base05}";
+          };
+          new_tab = {
+            bg_color = "#${c.base01}";
+            fg_color = "#${c.base04}";
+          };
+          new_tab_hover = {
+            bg_color = "#${c.base02}";
+            fg_color = "#${c.base05}";
+          };
         };
       };
       # Plugin Nix store paths — loaded via dofile() in plugin_loader.lua

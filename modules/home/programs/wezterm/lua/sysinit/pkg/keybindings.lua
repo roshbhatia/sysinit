@@ -1,7 +1,6 @@
 local wezterm = require("wezterm")
 local act = wezterm.action
 local utils = require("sysinit.pkg.utils")
-local sessions = require("sysinit.pkg.sessions")
 
 local M = {}
 
@@ -84,13 +83,40 @@ local function get_pane_keys()
   return keys
 end
 
+local function get_ssh_picker()
+  local hosts = {}
+
+  for host, _ in pairs(wezterm.enumerate_ssh_hosts()) do
+    local is_wildcard = host:match("[*?]")
+    local is_github = host:lower():match("github")
+
+    if not is_wildcard and not is_github then
+      table.insert(hosts, { label = host, id = host })
+    end
+  end
+
+  table.sort(hosts, function(a, b)
+    return a.label < b.label
+  end)
+
+  return wezterm.action.InputSelector({
+    title = "Select host:",
+    choices = hosts,
+    fuzzy = true,
+    action = wezterm.action_callback(function(window, pane, id, label)
+      if id then
+        window:perform_action(wezterm.action.SpawnTab({ DomainName = "SSH:" .. id }), pane)
+      end
+    end),
+  })
+end
+
 local function get_system_keys()
   return {
     create_smart_keybind("r", "SUPER", act.ReloadConfiguration),
     create_smart_keybind(":", "SUPER", act.ActivateCommandPalette),
     create_smart_keybind(";", "SUPER", act.ActivateCommandPalette),
     create_smart_keybind(";", "CTRL", act.ActivateCommandPalette),
-    -- SUPER+S: session picker (lazy so plugin fetches don't run at startup)
     {
       key = "s",
       mods = "SUPER",
@@ -99,19 +125,7 @@ local function get_system_keys()
           win:perform_action({ SendKey = { key = "s", mods = "SUPER" } }, pane)
           return
         end
-        win:perform_action(sessions.get_action(), pane)
-      end),
-    },
-    -- SUPER+SHIFT+S: plain SSH picker (version-agnostic)
-    {
-      key = "s",
-      mods = "SUPER|SHIFT",
-      action = wezterm.action_callback(function(win, pane)
-        if M.locked_mode then
-          win:perform_action({ SendKey = { key = "s", mods = "SUPER|SHIFT" } }, pane)
-          return
-        end
-        win:perform_action(sessions.get_ssh_picker_action(), pane)
+        win:perform_action(get_ssh_picker(), pane)
       end),
     },
     -- SUPER+E: open scrollback buffer in $EDITOR in a new tab
@@ -190,18 +204,36 @@ local function get_tab_keys()
   table.insert(keys, create_smart_keybind("t", "SUPER|SHIFT", act.ShowTabNavigator))
 
   -- Rename current tab
-  table.insert(keys, create_smart_keybind("r", "CTRL|SHIFT", act.PromptInputLine({
-    description = "Rename tab:",
-    action = wezterm.action_callback(function(win, _, line)
-      if line then win:active_tab():set_title(line) end
-    end),
-  })))
-  table.insert(keys, create_smart_keybind("r", "SUPER|SHIFT", act.PromptInputLine({
-    description = "Rename tab:",
-    action = wezterm.action_callback(function(win, _, line)
-      if line then win:active_tab():set_title(line) end
-    end),
-  })))
+  table.insert(
+    keys,
+    create_smart_keybind(
+      "r",
+      "CTRL|SHIFT",
+      act.PromptInputLine({
+        description = "Rename tab:",
+        action = wezterm.action_callback(function(win, _, line)
+          if line then
+            win:active_tab():set_title(line)
+          end
+        end),
+      })
+    )
+  )
+  table.insert(
+    keys,
+    create_smart_keybind(
+      "r",
+      "SUPER|SHIFT",
+      act.PromptInputLine({
+        description = "Rename tab:",
+        action = wezterm.action_callback(function(win, _, line)
+          if line then
+            win:active_tab():set_title(line)
+          end
+        end),
+      })
+    )
+  )
 
   -- Reorder tabs
   table.insert(keys, create_smart_keybind(",", "CTRL|SHIFT", act.MoveTabRelative(-1)))
