@@ -8,7 +8,7 @@ local function get_basic_config()
   local nix_zsh = utils.get_nix_binary("zsh")
 
   return {
-    default_prog = { nix_zsh, "-l" },
+    default_prog = { nix_zsh },
     set_environment_variables = {
       PATH = env_data.PATH,
       SHELL = nix_zsh,
