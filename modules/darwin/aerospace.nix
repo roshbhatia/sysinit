@@ -45,19 +45,19 @@
       on-window-detected = [
         {
           "if" = {
-            app-id = "org.ferdium.ferdium-app";
+            app-id = "com.hnc.Discord";
           };
           run = "move-node-to-workspace C";
         }
         {
           "if" = {
-            app-id = "com.facebook.archon.developerID";
+            app-id = "notion.mail.id";
           };
-          run = "move-node-to-workspace C";
+          run = "move-node-to-workspace E";
         }
         {
           "if" = {
-            app-id = "com.microsoft.Outlook";
+            app-id = "com.cron.electron";
           };
           run = "move-node-to-workspace E";
         }
@@ -125,6 +125,78 @@
         {
           "if" = {
             app-id = "com.apple.FaceTime";
+          };
+          run = [ "layout floating" ];
+        }
+        {
+          "if" = {
+            app-id = "com.apple.calculator";
+          };
+          run = [ "layout floating" ];
+        }
+        {
+          "if" = {
+            app-id = "com.apple.ActivityMonitor";
+          };
+          run = [ "layout floating" ];
+        }
+        {
+          "if" = {
+            app-id = "com.apple.DiskUtility";
+          };
+          run = [ "layout floating" ];
+        }
+        {
+          "if" = {
+            app-id = "com.apple.FontBook";
+          };
+          run = [ "layout floating" ];
+        }
+        {
+          "if" = {
+            app-id = "com.apple.Console";
+          };
+          run = [ "layout floating" ];
+        }
+        {
+          "if" = {
+            app-id = "com.apple.Stickies";
+          };
+          run = [ "layout floating" ];
+        }
+        {
+          "if" = {
+            app-id = "com.apple.archiveutility";
+          };
+          run = [ "layout floating" ];
+        }
+        {
+          "if" = {
+            app-id = "com.apple.ScreenSharing";
+          };
+          run = [ "layout floating" ];
+        }
+        {
+          "if" = {
+            app-id = "com.apple.Image_Capture";
+          };
+          run = [ "layout floating" ];
+        }
+        {
+          "if" = {
+            app-id = "com.apple.audio.AudioMIDISetup";
+          };
+          run = [ "layout floating" ];
+        }
+        {
+          "if" = {
+            app-id = "com.okta.mobile";
+          };
+          run = [ "layout floating" ];
+        }
+        {
+          "if" = {
+            app-id = "org.hammerspoon.Hammerspoon";
           };
           run = [ "layout floating" ];
         }
