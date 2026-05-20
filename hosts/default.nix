@@ -40,7 +40,7 @@ let
     values = {
       inherit git;
       theme = {
-        base16Scheme = "gruvbox-dark-medium";
+        base16Scheme = "brush-trees-dark";
       };
     };
   };
