@@ -1,4 +1,4 @@
-{ config, ... }:
+{ pkgs, ... }:
 {
   sysinit.llm.mcp.additionalServers = {
     ast-grep = {
@@ -12,9 +12,7 @@
     };
 
     cocoindex = {
-      # Absolute path: pipx installs to ~/.local/bin, which is not always
-      # on PATH for MCP subprocesses spawned by GUI-launched harnesses.
-      command = "${config.home.homeDirectory}/.local/bin/ccc";
+      command = "${pkgs.ccc}/bin/ccc";
       args = [ "mcp" ];
       description = "Semantic code search over a project-local index (cocoindex-code, local embeddings)";
     };
