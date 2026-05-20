@@ -135,34 +135,34 @@
   };
   pi-coding-agent = {
     pname = "pi-coding-agent";
-    version = "0.75.3";
+    version = "0.75.4";
     src = fetchurl {
-      url = "https://github.com/earendil-works/pi/releases/download/v0.75.3/pi-darwin-arm64.tar.gz";
-      sha256 = "sha256-LRZmjWJoBepz1DCxeLIvU0EVLHwTVExG+J1oBY4Lv4E=";
+      url = "https://github.com/earendil-works/pi/releases/download/v0.75.4/pi-darwin-arm64.tar.gz";
+      sha256 = "sha256-NlgJIGV++hkrXIpq06NNdTHHtUUJMaRZJz51uxV6oJ0=";
     };
   };
   pi-coding-agent-aarch64-linux = {
     pname = "pi-coding-agent-aarch64-linux";
-    version = "0.75.3";
+    version = "0.75.4";
     src = fetchurl {
-      url = "https://github.com/earendil-works/pi/releases/download/v0.75.3/pi-linux-arm64.tar.gz";
-      sha256 = "sha256-NBOJtZrUpUomgRTE4rTmXgFPl6WB/RTqciwgsziX7s0=";
+      url = "https://github.com/earendil-works/pi/releases/download/v0.75.4/pi-linux-arm64.tar.gz";
+      sha256 = "sha256-cl06ZU+eCCL8U3LifOgXsil4TDyW7q7AXenKqiv5/0s=";
     };
   };
   pi-coding-agent-x86_64-darwin = {
     pname = "pi-coding-agent-x86_64-darwin";
-    version = "0.75.3";
+    version = "0.75.4";
     src = fetchurl {
-      url = "https://github.com/earendil-works/pi/releases/download/v0.75.3/pi-darwin-x64.tar.gz";
-      sha256 = "sha256-JDLPC2qYTT+20Cm1/WUIYqQszpIbJb1bbRfOmvzD5po=";
+      url = "https://github.com/earendil-works/pi/releases/download/v0.75.4/pi-darwin-x64.tar.gz";
+      sha256 = "sha256-TQiqriFC/ZURKZIgZsywzOPbfTfDImjqUwq+cjrzbF4=";
     };
   };
   pi-coding-agent-x86_64-linux = {
     pname = "pi-coding-agent-x86_64-linux";
-    version = "0.75.3";
+    version = "0.75.4";
     src = fetchurl {
-      url = "https://github.com/earendil-works/pi/releases/download/v0.75.3/pi-linux-x64.tar.gz";
-      sha256 = "sha256-hu9I21upinhKzx284b1tX9W2vuPuLvRJ4IEagtG6eMM=";
+      url = "https://github.com/earendil-works/pi/releases/download/v0.75.4/pi-linux-x64.tar.gz";
+      sha256 = "sha256-69nC5croJ3mi3p5/NMe+bkU+9LC2JjQNAtrLCfKfdjk=";
     };
   };
 }
