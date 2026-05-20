@@ -40,7 +40,7 @@ let
     values = {
       inherit git;
       theme = {
-        base16Scheme = "brushtrees-dark";
+        base16Scheme = "cattpuccin-macchiato";
       };
     };
   };
