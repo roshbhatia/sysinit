@@ -12,7 +12,7 @@
     };
 
     cocoindex = {
-      command = "${pkgs.ccc}/bin/ccc";
+      command = "${pkgs.cocoindex-code}/bin/ccc";
       args = [ "mcp" ];
       description = "Semantic code search over a project-local index (cocoindex-code, local embeddings)";
     };
