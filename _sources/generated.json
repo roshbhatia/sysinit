@@ -248,11 +248,11 @@
         "pinned": false,
         "src": {
             "name": null,
-            "sha256": "sha256-LRZmjWJoBepz1DCxeLIvU0EVLHwTVExG+J1oBY4Lv4E=",
+            "sha256": "sha256-NlgJIGV++hkrXIpq06NNdTHHtUUJMaRZJz51uxV6oJ0=",
             "type": "url",
-            "url": "https://github.com/earendil-works/pi/releases/download/v0.75.3/pi-darwin-arm64.tar.gz"
+            "url": "https://github.com/earendil-works/pi/releases/download/v0.75.4/pi-darwin-arm64.tar.gz"
         },
-        "version": "0.75.3"
+        "version": "0.75.4"
     },
     "pi-coding-agent-aarch64-linux": {
         "cargoLock": null,
@@ -263,11 +263,11 @@
         "pinned": false,
         "src": {
             "name": null,
-            "sha256": "sha256-NBOJtZrUpUomgRTE4rTmXgFPl6WB/RTqciwgsziX7s0=",
+            "sha256": "sha256-cl06ZU+eCCL8U3LifOgXsil4TDyW7q7AXenKqiv5/0s=",
             "type": "url",
-            "url": "https://github.com/earendil-works/pi/releases/download/v0.75.3/pi-linux-arm64.tar.gz"
+            "url": "https://github.com/earendil-works/pi/releases/download/v0.75.4/pi-linux-arm64.tar.gz"
         },
-        "version": "0.75.3"
+        "version": "0.75.4"
     },
     "pi-coding-agent-x86_64-darwin": {
         "cargoLock": null,
@@ -278,11 +278,11 @@
         "pinned": false,
         "src": {
             "name": null,
-            "sha256": "sha256-JDLPC2qYTT+20Cm1/WUIYqQszpIbJb1bbRfOmvzD5po=",
+            "sha256": "sha256-TQiqriFC/ZURKZIgZsywzOPbfTfDImjqUwq+cjrzbF4=",
             "type": "url",
-            "url": "https://github.com/earendil-works/pi/releases/download/v0.75.3/pi-darwin-x64.tar.gz"
+            "url": "https://github.com/earendil-works/pi/releases/download/v0.75.4/pi-darwin-x64.tar.gz"
         },
-        "version": "0.75.3"
+        "version": "0.75.4"
     },
     "pi-coding-agent-x86_64-linux": {
         "cargoLock": null,
@@ -293,10 +293,10 @@
         "pinned": false,
         "src": {
             "name": null,
-            "sha256": "sha256-hu9I21upinhKzx284b1tX9W2vuPuLvRJ4IEagtG6eMM=",
+            "sha256": "sha256-69nC5croJ3mi3p5/NMe+bkU+9LC2JjQNAtrLCfKfdjk=",
             "type": "url",
-            "url": "https://github.com/earendil-works/pi/releases/download/v0.75.3/pi-linux-x64.tar.gz"
+            "url": "https://github.com/earendil-works/pi/releases/download/v0.75.4/pi-linux-x64.tar.gz"
         },
-        "version": "0.75.3"
+        "version": "0.75.4"
     }
 }
