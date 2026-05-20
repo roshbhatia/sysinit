@@ -115,7 +115,9 @@ with lib;
         }
     ) servers;
 
-  # Format MCP servers for Goose
+  # Format MCP servers for Goose. Field-name footgun: goose uses `uri` (not
+  # `url`) and `type = "streamable_http"` for modern MCP per the 2025-03-26
+  # spec; `sse` is legacy and only used when a server advertises only `/sse`.
   formatForGoose =
     let
       capitalizeFirst =
@@ -125,31 +127,59 @@ with lib;
           rest = builtins.substring 1 (-1) str;
         in
         (toUpper firstChar) + rest;
+      gooseName =
+        _name: capitalizeFirst (builtins.substring 0 1 _name) + builtins.substring 1 (-1) _name;
     in
     mcp:
-    builtins.mapAttrs (_name: server: {
-      inherit (server) args;
-      bundled = null;
-      cmd = server.command;
-      description = server.description or "";
-      enabled = server.enabled or true;
-      env_keys = [ ];
-      envs = server.env or { };
-      name =
-        capitalizeFirst (builtins.substring 0 1 _name)
-        + builtins.substring 1 (builtins.stringLength _name) _name;
-      timeout = 300;
-      type = "stdio";
-    }) mcp;
+    builtins.mapAttrs (
+      _name: server:
+      if (server.type or "local") == "http" then
+        {
+          bundled = null;
+          description = server.description or "";
+          enabled = server.enabled or true;
+          headers = server.headers or { };
+          name = gooseName _name;
+          timeout = 300;
+          type = "streamable_http";
+          uri = server.url;
+        }
+      else
+        {
+          inherit (server) args;
+          bundled = null;
+          cmd = server.command;
+          description = server.description or "";
+          enabled = server.enabled or true;
+          env_keys = [ ];
+          envs = server.env or { };
+          name = gooseName _name;
+          timeout = 300;
+          type = "stdio";
+        }
+    ) mcp;
 
-  # Format MCP servers for Copilot CLI
+  # Format MCP servers for Copilot CLI. Copilot requires explicit `type` and
+  # an explicit `tools` allowlist for http servers (omitting it suppresses
+  # tool exposure); `["*"]` opts in to all tools.
   formatForCopilot =
     servers:
-    builtins.mapAttrs (_name: server: {
-      type = "stdio";
-      inherit (server) command;
-      inherit (server) args;
-    }) servers;
+    builtins.mapAttrs (
+      _name: server:
+      if (server.type or "local") == "http" then
+        {
+          type = "http";
+          inherit (server) url;
+          headers = server.headers or { };
+          tools = [ "*" ];
+        }
+      else
+        {
+          type = "stdio";
+          inherit (server) command;
+          inherit (server) args;
+        }
+    ) servers;
 
   # Format MCP servers for Hermes — emitted under `mcp_servers:` in
   # ~/.hermes/config.yaml. Stdio servers carry `command` + `args`; HTTP

@@ -81,7 +81,7 @@ in
     };
   };
 
-  demiurge = darwinHost work {
+  demiurge = (darwinHost work {
     darwin = {
       homebrew.additionalPackages = {
         taps = [
@@ -104,5 +104,7 @@ in
         ];
       };
     };
+  }) // {
+    work = true;
   };
 }

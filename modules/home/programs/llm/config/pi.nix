@@ -13,8 +13,6 @@ let
     sha256 = "0lkxghxxfvrjmbr6b9wgma5ch3zzz9nmhypj0ib7fww0gnvzpl8d";
   };
   extensionsDir = "${piExtensionsSrc}/packages/coding-agent/examples/extensions";
-  subagents = import ../subagents;
-  agentNames = builtins.filter (k: k != "formatSubagentAsMarkdown") (builtins.attrNames subagents);
 
   # confirm-destructive intentionally not in this list — replaced by
   # @gotgenes/pi-permission-system below (bash-AST-aware gate). The two
@@ -54,21 +52,6 @@ let
       force = true;
     };
   };
-
-  # User-level agents generated from modules/home/programs/llm/subagents/*.nix.
-  # Add a new .nix file there and register it in subagents/default.nix to define an agent.
-  agentFiles = lib.listToAttrs (
-    map (
-      name:
-      lib.nameValuePair ".pi/agent/agents/${name}.md" {
-        text = subagents.formatSubagentAsMarkdown {
-          inherit name;
-          config = subagents.${name};
-        };
-        force = true;
-      }
-    ) agentNames
-  );
 
   stylixTheme =
     let
@@ -564,7 +547,6 @@ in
     file =
       extensionFiles
       // customExtensionFiles
-      // agentFiles
       // {
         ".pi/agent/keybindings.json" = {
           source = piKeybindings;

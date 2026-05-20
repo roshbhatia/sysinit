@@ -18,6 +18,26 @@ let
   ) commands.renderedOpsx;
 
   skillFiles = claudeSkillFiles // claudeCommandFiles;
+
+  # programs.mcp serializes `servers` straight to JSON, so strip option
+  # defaults that don't belong on the wire (null command for http servers,
+  # null url for stdio servers, the synthetic `type = "local"`, empty
+  # headers).
+  pruneServer =
+    server:
+    let
+      isHttp = server.type == "http";
+      stripped = removeAttrs server [ "type" ];
+      filtered = lib.filterAttrs (
+        name: value:
+        value != null
+        && !(name == "headers" && value == { })
+        && !(name == "args" && value == [ ])
+      ) stripped;
+    in
+    if isHttp then filtered // { type = "http"; } else filtered;
+
+  mcpServers = lib.mapAttrs (_: pruneServer) config.sysinit.llm.mcp.additionalServers;
 in
 {
   imports = [
@@ -40,6 +60,6 @@ in
 
   programs.mcp = {
     enable = true;
-    servers = config.sysinit.llm.mcp.additionalServers;
+    servers = mcpServers;
   };
 }
