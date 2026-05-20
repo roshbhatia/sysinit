@@ -75,6 +75,7 @@ let
           - If prompt > ~100 words: flag it ("🚨 that prompt is N words") then answer anyway
           - The following single emojis are a valid complete response when unambiguous: ✅ ❌ 🔎 🚨
           - Code diffs are self-explaining; do not summarize what you changed
+          - Diagrams (through the skill or another mechanism) are encouraged when they reduce ambiguity, especially for multi-step plans or complex code changes
         '';
 
         skills = ''
