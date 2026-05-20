@@ -62,4 +62,10 @@
     description = "Opinionated style for inline source-code comments. Default to no comment. Add a comment only when the WHY is non-obvious: a hidden constraint, a subtle invariant, a workaround for a specific bug, or behavior that would surprise a reader. No multi-paragraph docstrings. One short line max. Use when editing source files, when asked 'should I comment this', or whenever the agent considers adding a comment to code.";
     content = import ./opinionated-code-comments.nix;
   };
+
+  diagramming = {
+    description = "Renders diagrams as ASCII via mermaid-ascii so they live inline in markdown — openspec proposals, design notes, exploration scratch, chat replies. Source-of-truth is Mermaid; the rendered ASCII gets pasted alongside. Use when a diagram clarifies more than prose: capability flow, state transitions, sequence-of-calls, option trees, dependency graphs, decision points, architecture sketches in /opsx artifacts or chat.";
+    content = import ./diagramming.nix;
+    allowed-tools = "Bash(mermaid-ascii:*) Read Write Edit";
+  };
 }

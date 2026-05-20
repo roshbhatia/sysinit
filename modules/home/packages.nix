@@ -177,6 +177,7 @@
       jq-lsp
       markdown-oxide
       meld
+      mermaid-ascii
       proselint
       sad
       sheets

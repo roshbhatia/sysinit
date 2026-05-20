@@ -11,6 +11,10 @@ fetch.github = "abice/go-enum"
 src.github_tag = "abenz1267/gomvp"
 fetch.github = "abenz1267/gomvp"
 
+[mermaid-ascii]
+src.github_tag = "AlexanderGrooff/mermaid-ascii"
+fetch.github = "AlexanderGrooff/mermaid-ascii"
+
 [kubernetes-zeitgeist]
 src.github = "kubernetes-sigs/zeitgeist"
 fetch.github = "kubernetes-sigs/zeitgeist"

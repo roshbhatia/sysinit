@@ -122,6 +122,17 @@
       sha256 = "sha256-tzR9hOMfnEa4p1ssktTISO6cAwlSxEGfvzJeLyM2qYo=";
     };
   };
+  mermaid-ascii = {
+    pname = "mermaid-ascii";
+    version = "1.2.0";
+    src = fetchFromGitHub {
+      owner = "AlexanderGrooff";
+      repo = "mermaid-ascii";
+      rev = "1.2.0";
+      fetchSubmodules = false;
+      sha256 = "sha256-PbYqYy0jHQb+qvkp+lp/Wlde50dhdg7Ri2eNExXeoQ4=";
+    };
+  };
   pi-coding-agent = {
     pname = "pi-coding-agent";
     version = "0.75.3";

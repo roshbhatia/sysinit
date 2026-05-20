@@ -11,6 +11,7 @@
   (import ./kubernetes-zeitgeist.nix { })
   (import ./go-enum.nix { })
   (import ./gomvp.nix { })
+  (import ./mermaid-ascii.nix { })
   (import ./hererocks.nix { })
   (import ./openspec.nix { })
   (import ./deno.nix { })
