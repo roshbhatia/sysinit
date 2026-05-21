@@ -34,6 +34,9 @@ in
         allow = llmLib.allowlist.formatForClaude llmLib.allowlist.tierA;
       };
 
+      editorMode = "vim";
+      tui = "fullscreen";
+
       hooks = {
         SessionStart = [
           {
@@ -58,7 +61,6 @@ in
         config = agentConfig;
       }
     ) subagents;
-
   };
 
   home.file.".claude/hooks/append_agentsmd_context" = {
