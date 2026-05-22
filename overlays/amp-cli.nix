@@ -2,10 +2,10 @@ _:
 
 final: prev:
 let
-  version = "0.0.1779426990-g24af9a";
+  version = "0.0.1779453684-ga69698";
   src = prev.fetchzip {
     url = "https://registry.npmjs.org/@sourcegraph/amp/-/amp-${version}.tgz";
-    hash = "sha256-thxOEGZZyk1/ocowalPAhzt23ogGzE3r/KjMzvv2DOw="; # autoupdate:src-hash
+    hash = "sha256-E8YsM3QfDpANsxFhZIG0qdC2rwaqq3VnFOgqt6vaWCk="; # autoupdate:src-hash
   };
 in
 {
@@ -56,7 +56,7 @@ in
         }
         EOF
       '';
-      hash = "sha256-CutJH88h6VpN7pqvFPa2a83k3HRHwEw20nxRRrkq0OM="; # autoupdate:npm-deps-hash
+      hash = "sha256-Muftlsqo9EhkKjE7b7GZjjHggFvN0cJASz+OMhIC52Y="; # autoupdate:npm-deps-hash
     };
   });
 }
