@@ -62,34 +62,34 @@
   };
   goose-cli-bin = {
     pname = "goose-cli-bin";
-    version = "1.34.1";
+    version = "1.35.0";
     src = fetchurl {
-      url = "https://github.com/block/goose/releases/download/v1.34.1/goose-aarch64-apple-darwin.tar.gz";
-      sha256 = "sha256-LfGIoXwP5TjbqTb8LrbtsUgC3lhnevFJp3VIFYxNPGc=";
+      url = "https://github.com/block/goose/releases/download/v1.35.0/goose-aarch64-apple-darwin.tar.gz";
+      sha256 = "sha256-ifoRPt55Lm5NW3Pj6dQ5Haucw4E5XNmNAgKcmG3dEmA=";
     };
   };
   goose-cli-bin-aarch64-linux = {
     pname = "goose-cli-bin-aarch64-linux";
-    version = "1.34.1";
+    version = "1.35.0";
     src = fetchurl {
-      url = "https://github.com/block/goose/releases/download/v1.34.1/goose-aarch64-unknown-linux-gnu.tar.gz";
-      sha256 = "sha256-NZ3knzMxJ6vPzX3r6GlJrwOqDBvWeMhtHNHOd9v4t8A=";
+      url = "https://github.com/block/goose/releases/download/v1.35.0/goose-aarch64-unknown-linux-gnu.tar.gz";
+      sha256 = "sha256-GaCN4gQo1Kh5ObbxBxjtc9ZOh4uW2V8Yzt3JEQs8y8c=";
     };
   };
   goose-cli-bin-x86_64-darwin = {
     pname = "goose-cli-bin-x86_64-darwin";
-    version = "1.34.1";
+    version = "1.35.0";
     src = fetchurl {
-      url = "https://github.com/block/goose/releases/download/v1.34.1/goose-x86_64-apple-darwin.tar.gz";
-      sha256 = "sha256-JUSgYw5RtwHQkyIgl8JXKbftsMwxn6XySRrp113gKOI=";
+      url = "https://github.com/block/goose/releases/download/v1.35.0/goose-x86_64-apple-darwin.tar.gz";
+      sha256 = "sha256-MVwxvy/nRVs/airjseEqBXS11g/PYjF/88oWcpugEr0=";
     };
   };
   goose-cli-bin-x86_64-linux = {
     pname = "goose-cli-bin-x86_64-linux";
-    version = "1.34.1";
+    version = "1.35.0";
     src = fetchurl {
-      url = "https://github.com/block/goose/releases/download/v1.34.1/goose-x86_64-unknown-linux-gnu.tar.gz";
-      sha256 = "sha256-MQiGkPFoDWU8fDUNruc9ZD14svcdcX//BMu6wlhqkkA=";
+      url = "https://github.com/block/goose/releases/download/v1.35.0/goose-x86_64-unknown-linux-gnu.tar.gz";
+      sha256 = "sha256-sz9PaPC8qomPQreuVfe/eQM16VbsDsM0LF77ZsVXpAU=";
     };
   };
   hererocks = {
@@ -135,34 +135,34 @@
   };
   pi-coding-agent = {
     pname = "pi-coding-agent";
-    version = "0.75.4";
+    version = "0.74.2";
     src = fetchurl {
-      url = "https://github.com/earendil-works/pi/releases/download/v0.75.4/pi-darwin-arm64.tar.gz";
-      sha256 = "sha256-NlgJIGV++hkrXIpq06NNdTHHtUUJMaRZJz51uxV6oJ0=";
+      url = "https://github.com/earendil-works/pi/releases/download/v0.74.2/pi-darwin-arm64.tar.gz";
+      sha256 = "sha256-KhQ5s1NAI6cwN2FfVRboTlsgB7Si6gYufI834Xd7asc=";
     };
   };
   pi-coding-agent-aarch64-linux = {
     pname = "pi-coding-agent-aarch64-linux";
-    version = "0.75.4";
+    version = "0.74.2";
     src = fetchurl {
-      url = "https://github.com/earendil-works/pi/releases/download/v0.75.4/pi-linux-arm64.tar.gz";
-      sha256 = "sha256-cl06ZU+eCCL8U3LifOgXsil4TDyW7q7AXenKqiv5/0s=";
+      url = "https://github.com/earendil-works/pi/releases/download/v0.74.2/pi-linux-arm64.tar.gz";
+      sha256 = "sha256-nAR897Mg2ZfrYg5OTIGG/4InaioHq9csy+FjrBN9j2E=";
     };
   };
   pi-coding-agent-x86_64-darwin = {
     pname = "pi-coding-agent-x86_64-darwin";
-    version = "0.75.4";
+    version = "0.74.2";
     src = fetchurl {
-      url = "https://github.com/earendil-works/pi/releases/download/v0.75.4/pi-darwin-x64.tar.gz";
-      sha256 = "sha256-TQiqriFC/ZURKZIgZsywzOPbfTfDImjqUwq+cjrzbF4=";
+      url = "https://github.com/earendil-works/pi/releases/download/v0.74.2/pi-darwin-x64.tar.gz";
+      sha256 = "sha256-ipMH9Ta3kg/5SXVIlAE3a8pmLEz88JVyxeF7N0W9TN0=";
     };
   };
   pi-coding-agent-x86_64-linux = {
     pname = "pi-coding-agent-x86_64-linux";
-    version = "0.75.4";
+    version = "0.74.2";
     src = fetchurl {
-      url = "https://github.com/earendil-works/pi/releases/download/v0.75.4/pi-linux-x64.tar.gz";
-      sha256 = "sha256-69nC5croJ3mi3p5/NMe+bkU+9LC2JjQNAtrLCfKfdjk=";
+      url = "https://github.com/earendil-works/pi/releases/download/v0.74.2/pi-linux-x64.tar.gz";
+      sha256 = "sha256-cnz6hNpO8MXoindN725DZK2RSn/y/pjRCt6yJwo9U3U=";
     };
   };
 }
