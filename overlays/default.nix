@@ -39,4 +39,13 @@
       doCheck = false;
     });
   })
+  # pipx-1.8.0 tests assert no space before @ in package specifiers but the
+  # current packaging produces "name @ url" (PEP 440 canonical form)
+  (_final: prev: {
+    python313Packages = prev.python313Packages // {
+      pipx = prev.python313Packages.pipx.overrideAttrs (_old: {
+        doCheck = false;
+      });
+    };
+  })
 ]
