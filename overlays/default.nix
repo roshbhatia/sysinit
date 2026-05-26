@@ -27,7 +27,6 @@
   (import ./direnv.nix { })
   (import ./ginkgo.nix { })
   (import ./codex-acp.nix { })
-  (import ./amp-cli.nix { })
   (import ./kvazaar.nix { })
   (import ./goose-cli.nix { })
   (import ./sheets.nix { })

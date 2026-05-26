@@ -51,10 +51,6 @@ jobs:
         run: |
           ./hack/update-openspec.sh
 
-      - name: Update amp-cli
-        run: |
-          ./hack/update-amp-cli.sh
-
       - name: Create Pull Request
         id: cpr
         uses: peter-evans/create-pull-request@v8
