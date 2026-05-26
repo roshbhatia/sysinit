@@ -5,6 +5,49 @@ let
 in
 {
   options.sysinit.llm = {
+    claudeCode = {
+      marketplaces = mkOption {
+        type = types.attrsOf types.str;
+        default = { };
+        description = ''
+          Claude Code marketplaces, keyed by the marketplace name used in
+          the CLI (e.g. `Laurel` in `/plugin install <plugin>@Laurel`).
+
+          Values are filesystem paths to marketplace directories:
+          - Absolute paths (starting with `/`) pass through verbatim.
+          - Relative paths are resolved against `home.homeDirectory`.
+
+          Paths are forwarded as strings — never Nix path literals — so the
+          referenced directory is not copied into the Nix store. Use this
+          to declare marketplaces backed by private clones without leaking
+          remote refs into the public configuration.
+
+          The home-manager module writes a directory-source entry, so
+          pulling updates from the upstream remote is the operator's
+          responsibility (e.g. periodic `git pull` in the clone). The CLI
+          will not auto-refresh a directory-source marketplace.
+        '';
+        example = lib.literalExpression ''
+          {
+            Laurel = "code/work/ai-tooling";
+          }
+        '';
+      };
+
+      plugins = mkOption {
+        type = types.listOf types.str;
+        default = [ ];
+        description = ''
+          Claude Code plugin directories, passed to the CLI as
+          `--plugin-dir <path>`. Each entry uses the same
+          absolute/relative resolution rules as `marketplaces`.
+        '';
+        example = lib.literalExpression ''
+          [ "code/work/ai-tooling/Laurel" ]
+        '';
+      };
+    };
+
     mcp = {
       additionalServers = mkOption {
         type = types.attrsOf (

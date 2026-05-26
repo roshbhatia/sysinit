@@ -81,30 +81,44 @@ in
     };
   };
 
-  demiurge = (darwinHost work {
-    darwin = {
-      homebrew.additionalPackages = {
-        taps = [
-          "auth0/auth0-cli"
-          "bastionzero/tap"
-          "pinginc/lrl"
-          "signadot/tap"
-          "spacelift-io/spacelift"
-        ];
-        brews = [
-          "auth0"
-          "awscli"
-          "bastionzero/tap/zli"
-          "signadot/tap/signadot-cli"
-        ];
-        casks = [
-          "sdm"
-          "spacelift-io/spacelift/spacectl"
-          "pinginc/lrl/lrl"
+  demiurge =
+    (darwinHost work {
+      darwin = {
+        homebrew.additionalPackages = {
+          taps = [
+            "auth0/auth0-cli"
+            "bastionzero/tap"
+            "pinginc/lrl"
+            "signadot/tap"
+            "spacelift-io/spacelift"
+          ];
+          brews = [
+            "auth0"
+            "awscli"
+            "bastionzero/tap/zli"
+            "signadot/tap/signadot-cli"
+          ];
+          casks = [
+            "sdm"
+            "spacelift-io/spacelift/spacectl"
+            "pinginc/lrl/lrl"
+          ];
+        };
+      };
+      # Path values are strings, not Nix path literals, so the local
+      # clone is never copied into the Nix store. Maintain the clone
+      # manually (`git pull` to refresh); directory-source marketplaces
+      # are not auto-refreshed by the CLI.
+      llm.claudeCode = {
+        marketplaces = {
+          # Laurel = "code/work/<dirname>";
+        };
+        plugins = [
+          # "code/work/<dirname>/Laurel"
         ];
       };
+    })
+    // {
+      work = true;
     };
-  }) // {
-    work = true;
-  };
 }

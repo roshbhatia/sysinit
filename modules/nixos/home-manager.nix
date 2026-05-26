@@ -42,6 +42,7 @@
             "/home/${values.user.username}";
 
         sysinit.git = values.git or { };
+        sysinit.llm = values.llm or { };
         sysinit.theme =
           if (values ? theme) then
             {

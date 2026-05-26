@@ -23,11 +23,19 @@ let
   subagents = lib.filterAttrs (
     n: _: n != "formatSubagentAsMarkdown"
   ) kit.llmLib.instructions.subagents;
+
+  ccCfg = config.sysinit.llm.claudeCode;
+  # Resolve relative paths against $HOME so the upstream module always
+  # receives an absolute string (its `path` type rejects relatives).
+  resolvePath = p: if lib.hasPrefix "/" p then p else "${config.home.homeDirectory}/${p}";
 in
 {
   programs.claude-code = {
     enable = true;
     enableMcpIntegration = true;
+
+    marketplaces = lib.mapAttrs (_: resolvePath) ccCfg.marketplaces;
+    plugins = map resolvePath ccCfg.plugins;
 
     settings = {
       permissions = {
