@@ -41,12 +41,15 @@
   })
   # pipx-1.8.0 tests assert no space before @ in package specifiers but the
   # current packaging produces "name @ url" (PEP 440 canonical form).
-  # Override at the top level with dontCheck — doCheck=false doesn't disable
-  # pytestCheckHook, and python313Packages // { ... } doesn't reach pipx's
-  # actual fixed-point package set.
+  # Skip the affected tests — dontCheck doesn't stop pytestCheckHook in this
+  # nixpkgs revision (it registers via preDistPhases, not checkPhase), so
+  # disabledTests is the working knob.
   (_final: prev: {
-    pipx = prev.pipx.overrideAttrs (_old: {
-      dontCheck = true;
+    pipx = prev.pipx.overrideAttrs (old: {
+      disabledTests = (old.disabledTests or [ ]) ++ [
+        "test_fix_package_name"
+        "test_parse_specifier_for_metadata"
+      ];
     });
   })
   # _1password-gui 8.12.21: 1Password re-uploaded the aarch64 zip with new bytes
