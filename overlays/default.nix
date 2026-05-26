@@ -40,12 +40,24 @@
     });
   })
   # pipx-1.8.0 tests assert no space before @ in package specifiers but the
-  # current packaging produces "name @ url" (PEP 440 canonical form)
+  # current packaging produces "name @ url" (PEP 440 canonical form).
+  # Override at the top level with dontCheck — doCheck=false doesn't disable
+  # pytestCheckHook, and python313Packages // { ... } doesn't reach pipx's
+  # actual fixed-point package set.
   (_final: prev: {
-    python313Packages = prev.python313Packages // {
-      pipx = prev.python313Packages.pipx.overrideAttrs (_old: {
-        doCheck = false;
-      });
-    };
+    pipx = prev.pipx.overrideAttrs (_old: {
+      dontCheck = true;
+    });
+  })
+  # _1password-gui 8.12.21: 1Password re-uploaded the aarch64 zip with new bytes
+  # on 2026-05-26 without bumping the version, so nixpkgs' pinned hash no longer
+  # matches. Override src with the current upstream hash until nixpkgs catches up.
+  (_final: prev: {
+    _1password-gui = prev._1password-gui.overrideAttrs (old: {
+      src = prev.fetchurl {
+        url = "https://downloads.1password.com/mac/1Password-${old.version}-aarch64.zip";
+        hash = "sha256-WrWbGzBK65tVNl9Dc3OnJURiPpfbNLOYUJcVT0ETaAs=";
+      };
+    });
   })
 ]
