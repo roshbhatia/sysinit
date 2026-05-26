@@ -51,6 +51,17 @@
       ];
     });
   })
+  # fsspec test_expiry is a timing-sensitive flake — it asserts cache time
+  # equality across a sleep, which races on loaded build machines.
+  (_final: prev: {
+    python313 = prev.python313.override {
+      packageOverrides = _pyfinal: pyprev: {
+        fsspec = pyprev.fsspec.overrideAttrs (old: {
+          disabledTests = (old.disabledTests or [ ]) ++ [ "test_expiry" ];
+        });
+      };
+    };
+  })
   # _1password-gui 8.12.21: 1Password re-uploaded the aarch64 zip with new bytes
   # on 2026-05-26 without bumping the version, so nixpkgs' pinned hash no longer
   # matches. Override src with the current upstream hash until nixpkgs catches up.
