@@ -136,16 +136,17 @@
       docker-language-server
 
       # Infrastructure & IaC
-      awscli2
-      crossplane-cli
-      upbound
-      tofu-ls
-      tflint
-      tfsec
       ansible
       ansible-lint
+      awscli2
+      crossplane-cli
       cue
       cuelsp
+      opentofu
+      tflint
+      tfsec
+      tofu-ls
+      upbound
 
       # AI & Editors
       amp-cli
