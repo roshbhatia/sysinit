@@ -8,11 +8,11 @@
         "pinned": false,
         "src": {
             "name": null,
-            "sha256": "sha256-6KCqVwxbvo8xtEQHm1WNy6Y9LZD8DUIB8SSLKoQWkBc=",
+            "sha256": "sha256-8bT0PfRMk7c9KOIj5090e2yHjLsXWlv8PsAR31mcyYI=",
             "type": "url",
-            "url": "https://github.com/charmbracelet/crush/releases/download/v0.73.0/crush_0.73.0_Darwin_arm64.tar.gz"
+            "url": "https://github.com/charmbracelet/crush/releases/download/v0.74.0/crush_0.74.0_Darwin_arm64.tar.gz"
         },
-        "version": "0.73.0"
+        "version": "0.74.0"
     },
     "crush-aarch64-linux": {
         "cargoLock": null,
@@ -23,11 +23,11 @@
         "pinned": false,
         "src": {
             "name": null,
-            "sha256": "sha256-gTFL4oivhvSE6wMrK5Aqx+6Qm5YB6DdNMBbai39hu+8=",
+            "sha256": "sha256-z7Hta3lrvAIuHLPNC7tfYsPqlJF2axgyTB4gQnUfJtE=",
             "type": "url",
-            "url": "https://github.com/charmbracelet/crush/releases/download/v0.73.0/crush_0.73.0_Linux_arm64.tar.gz"
+            "url": "https://github.com/charmbracelet/crush/releases/download/v0.74.0/crush_0.74.0_Linux_arm64.tar.gz"
         },
-        "version": "0.73.0"
+        "version": "0.74.0"
     },
     "crush-x86_64-darwin": {
         "cargoLock": null,
@@ -38,11 +38,11 @@
         "pinned": false,
         "src": {
             "name": null,
-            "sha256": "sha256-1mh2HvvfUt7ze+lMVcse8fPgcsDBVGpyOi/2IFDEWRk=",
+            "sha256": "sha256-J9zj5Zbd6JeAM12Ujyb0HFgQq5M0YCy9pdNReepcUkk=",
             "type": "url",
-            "url": "https://github.com/charmbracelet/crush/releases/download/v0.73.0/crush_0.73.0_Darwin_x86_64.tar.gz"
+            "url": "https://github.com/charmbracelet/crush/releases/download/v0.74.0/crush_0.74.0_Darwin_x86_64.tar.gz"
         },
-        "version": "0.73.0"
+        "version": "0.74.0"
     },
     "crush-x86_64-linux": {
         "cargoLock": null,
@@ -53,11 +53,11 @@
         "pinned": false,
         "src": {
             "name": null,
-            "sha256": "sha256-BmZ3WPOkgN9JLGibfHOr+ZB9xzR/8Jt0JHmmTFEX/TE=",
+            "sha256": "sha256-ilfFz57s3YgMIHiIh/IyeYk+tXQqeJRbCWsEN+Z64XI=",
             "type": "url",
-            "url": "https://github.com/charmbracelet/crush/releases/download/v0.73.0/crush_0.73.0_Linux_x86_64.tar.gz"
+            "url": "https://github.com/charmbracelet/crush/releases/download/v0.74.0/crush_0.74.0_Linux_x86_64.tar.gz"
         },
-        "version": "0.73.0"
+        "version": "0.74.0"
     },
     "go-enum": {
         "cargoLock": null,
@@ -248,11 +248,11 @@
         "pinned": false,
         "src": {
             "name": null,
-            "sha256": "sha256-byG7DGNSdWjYB9euLbaIb/fSdSRnNnUQDGhP/Jlq/OU=",
+            "sha256": "sha256-BZF64fvEchD9JhQwqSRqN+nGDXwIUoKY9er3t74Ky0w=",
             "type": "url",
-            "url": "https://github.com/earendil-works/pi/releases/download/v0.76.0/pi-darwin-arm64.tar.gz"
+            "url": "https://github.com/earendil-works/pi/releases/download/v0.77.0/pi-darwin-arm64.tar.gz"
         },
-        "version": "0.76.0"
+        "version": "0.77.0"
     },
     "pi-coding-agent-aarch64-linux": {
         "cargoLock": null,
@@ -263,11 +263,11 @@
         "pinned": false,
         "src": {
             "name": null,
-            "sha256": "sha256-wd4RVHKFWspMoa/pusR4fgA6zhFCjOSKi2zrfBoQNrU=",
+            "sha256": "sha256-2NFF2JqV1JGTaTMrMAmVFHPar6U4x7b/odyuEGvw4+k=",
             "type": "url",
-            "url": "https://github.com/earendil-works/pi/releases/download/v0.76.0/pi-linux-arm64.tar.gz"
+            "url": "https://github.com/earendil-works/pi/releases/download/v0.77.0/pi-linux-arm64.tar.gz"
         },
-        "version": "0.76.0"
+        "version": "0.77.0"
     },
     "pi-coding-agent-x86_64-darwin": {
         "cargoLock": null,
@@ -278,11 +278,11 @@
         "pinned": false,
         "src": {
             "name": null,
-            "sha256": "sha256-DuDEsWRg9l/7wawFiXM+lj0EhuM4MbvWnEOJpKdOy/A=",
+            "sha256": "sha256-d6rbR6pMUwR4mtR5SkQROk9iNeZpgHipFYj896WK2Ao=",
             "type": "url",
-            "url": "https://github.com/earendil-works/pi/releases/download/v0.76.0/pi-darwin-x64.tar.gz"
+            "url": "https://github.com/earendil-works/pi/releases/download/v0.77.0/pi-darwin-x64.tar.gz"
         },
-        "version": "0.76.0"
+        "version": "0.77.0"
     },
     "pi-coding-agent-x86_64-linux": {
         "cargoLock": null,
@@ -293,10 +293,10 @@
         "pinned": false,
         "src": {
             "name": null,
-            "sha256": "sha256-uO2LkF/78NSN1RtdpHWKj8cEsliAjwJT4hBL7HtSJRo=",
+            "sha256": "sha256-51AxzavGkLQ/TRNP2qak1pMDjRoTss+nBcTHBt/vgcU=",
             "type": "url",
-            "url": "https://github.com/earendil-works/pi/releases/download/v0.76.0/pi-linux-x64.tar.gz"
+            "url": "https://github.com/earendil-works/pi/releases/download/v0.77.0/pi-linux-x64.tar.gz"
         },
-        "version": "0.76.0"
+        "version": "0.77.0"
     }
 }
