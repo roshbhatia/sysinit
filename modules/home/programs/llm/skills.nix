@@ -48,6 +48,9 @@ let
     "allowed-tools"
     "whenToUse"
     "skip"
+    "model"
+    "effort"
+    "disable-model-invocation"
   ];
 
   validateRegistryKeys =
@@ -156,6 +159,9 @@ let
       ]
       ++ lib.optional (skill ? "allowed-tools") "allowed-tools: ${skill."allowed-tools"}"
       ++ lib.optional (skill ? whenToUse) "when_to_use: ${skill.whenToUse}"
+      ++ lib.optional (skill ? model) "model: ${skill.model}"
+      ++ lib.optional (skill ? effort) "effort: ${skill.effort}"
+      ++ lib.optional (skill ? "disable-model-invocation") "disable-model-invocation: true"
       ++ [
         "---"
         ""

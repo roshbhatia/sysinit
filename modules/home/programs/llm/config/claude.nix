@@ -12,12 +12,15 @@ let
 
   claudeHookScript = ''
     #!/usr/bin/env bash
-    echo "=== AGENTS.md Files Found ==="
-    find "$CLAUDE_PROJECT_DIR" -name "AGENTS.md" -type f | while read -r file; do
-        echo "--- File: $file ---"
-        cat "$file"
-        echo ""
-    done
+    set -euo pipefail
+    content=""
+    while IFS= read -r file; do
+      content+="=== ''${file} ===
+    $(cat "$file")
+
+    "
+    done < <(find "''${CLAUDE_PROJECT_DIR:-.}" -name "AGENTS.md" -type f 2>/dev/null | sort)
+    [[ -n "$content" ]] && printf '%s' "$content" | jq -Rs '{"additionalContext": .}'
   '';
 
   subagents = lib.filterAttrs (
@@ -44,6 +47,9 @@ in
 
       editorMode = "vim";
       tui = "fullscreen";
+      autoCompactWindow = 145000;
+      autoMemoryEnabled = true;
+      autoDreamEnabled = true;
 
       hooks = {
         SessionStart = [
@@ -53,6 +59,42 @@ in
               {
                 type = "command";
                 command = "${config.home.homeDirectory}/.claude/hooks/append_agentsmd_context";
+              }
+            ];
+          }
+        ];
+        Stop = [
+          {
+            matcher = "";
+            hooks = [
+              {
+                type = "command";
+                command = "claude-notifications handle-hook Stop";
+                async = true;
+              }
+            ];
+          }
+        ];
+        SubagentStop = [
+          {
+            matcher = "";
+            hooks = [
+              {
+                type = "command";
+                command = "claude-notifications handle-hook SubagentStop";
+                async = true;
+              }
+            ];
+          }
+        ];
+        PreToolUse = [
+          {
+            matcher = "";
+            hooks = [
+              {
+                type = "command";
+                command = "claude-notifications handle-hook PreToolUse";
+                async = true;
               }
             ];
           }
@@ -71,8 +113,19 @@ in
     ) subagents;
   };
 
-  home.file.".claude/hooks/append_agentsmd_context" = {
-    text = claudeHookScript;
-    executable = true;
+  home = {
+    packages = [ pkgs.claude-notifications-go ];
+
+    file.".claude/hooks/append_agentsmd_context" = {
+      text = claudeHookScript;
+      executable = true;
+    };
+
+    file.".claude/claude-notifications-go/config.json".text = builtins.toJSON {
+      notifyOnSubagentStop = true;
+      notifyOnTextResponse = true;
+      respectJudgeMode = false;
+      suppressFilters = [ ];
+    };
   };
 }
