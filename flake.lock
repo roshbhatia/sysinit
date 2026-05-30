@@ -192,6 +192,11 @@
       },
       "locked": {
         "dir": "repos/rycee/pkgs/firefox-addons",
+        "lastModified": 1780107400,
+        "narHash": "sha256-rkMQnneeDiud3A5C41tc9DAPT097Dp01FU/Pav5Fwmg=",
+        "owner": "nix-community",
+        "repo": "nur-combined",
+        "rev": "5f3774c91cb4be20b5e1be2bf26102ba54528060",
         "type": "github"
       },
       "original": {
@@ -524,25 +529,11 @@
         "uv2nix": "uv2nix_2"
       },
       "locked": {
-<<<<<<< HEAD
-        "lastModified": 1780100678,
-        "narHash": "sha256-MsyAkYHwCUTpl8Ajs+tTzfzTRUVTeLGU2gDqGwjfZtA=",
-||||||| parent of 6cc34baf3 (wip)
-        "lastModified": 1780014652,
-        "narHash": "sha256-IBdvdYtLCdkGRZK12iWPZWJDHb9ItNkWy98csGYOLXg=",
-=======
-        "lastModified": 1780021032,
-        "narHash": "sha256-aqSC0MX4nLuQducLc+VDd24MhhXGQSc9xPqz9phIaKk=",
->>>>>>> 6cc34baf3 (wip)
+        "lastModified": 1780107785,
+        "narHash": "sha256-LKUf58Q68E8wT1hVNvjZkv52tw6IGMp0VrBZazdbLmo=",
         "owner": "NousResearch",
         "repo": "hermes-agent",
-<<<<<<< HEAD
-        "rev": "54aa4db1de76a7c4bb02c8a7f7411727384b8fea",
-||||||| parent of 6cc34baf3 (wip)
-        "rev": "1b1e30510a5d441f02a49c20db627142e9fa0a6d",
-=======
-        "rev": "a618789dbabf396a00fb061a491f54e12f536a45",
->>>>>>> 6cc34baf3 (wip)
+        "rev": "fb0ab27649bac911bec4330d29cf4376d75a2552",
         "type": "github"
       },
       "original": {
@@ -600,11 +591,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1780087439,
-        "narHash": "sha256-sR9/VDRqBLoZy+CGuHf8knH41mIMadYuygTdby8Bm0E=",
+        "lastModified": 1780104815,
+        "narHash": "sha256-X5M1m9hJlOLjDuznBiZXh0BE6WSU8lDpaD46xAbKx78=",
         "owner": "ryoppippi",
         "repo": "nix-claude-code",
-        "rev": "1780557bc6d1529e9c75755f526f2a2d1b3ccbb0",
+        "rev": "5027ee880413e63fb947a84b5483d04e9e7d4969",
         "type": "github"
       },
       "original": {
@@ -860,25 +851,11 @@
         "nixpkgs": "nixpkgs_4"
       },
       "locked": {
-<<<<<<< HEAD
-        "lastModified": 1780100950,
-        "narHash": "sha256-KdAEH/xZLx8XCdlRCdZSYM12q8gwPGEDTYMctuuq69E=",
-||||||| parent of 6cc34baf3 (wip)
-        "lastModified": 1780014288,
-        "narHash": "sha256-li99ElnQW64sHDEK27YGpJG6uy3Jgy2PI0z5L5SUr+0=",
-=======
-        "lastModified": 1780023261,
-        "narHash": "sha256-AjwfuujCHK2JEv6GS62BNtpyFnJd7m5SY824C4kgRC0=",
->>>>>>> 6cc34baf3 (wip)
+        "lastModified": 1780107261,
+        "narHash": "sha256-ZjgiuOutUyr83oCTLdFyZPlACSKvbG+ZmzFhzbyOGFc=",
         "owner": "nix-community",
         "repo": "NUR",
-<<<<<<< HEAD
-        "rev": "016af25d1099bba8a5743e4d5961085dade01cc7",
-||||||| parent of 6cc34baf3 (wip)
-        "rev": "51e34526927d69a41bde3b501f9bd749c968e5e1",
-=======
-        "rev": "d7f413b14aeacb19f743e6b20dcaa6e7b7454e6c",
->>>>>>> 6cc34baf3 (wip)
+        "rev": "e19737ffe033e1ac4f2fd7cb330f29f694422311",
         "type": "github"
       },
       "original": {
