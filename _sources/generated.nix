@@ -8,34 +8,34 @@
 {
   crush = {
     pname = "crush";
-    version = "0.74.0";
+    version = "0.74.1";
     src = fetchurl {
-      url = "https://github.com/charmbracelet/crush/releases/download/v0.74.0/crush_0.74.0_Darwin_arm64.tar.gz";
-      sha256 = "sha256-8bT0PfRMk7c9KOIj5090e2yHjLsXWlv8PsAR31mcyYI=";
+      url = "https://github.com/charmbracelet/crush/releases/download/v0.74.1/crush_0.74.1_Darwin_arm64.tar.gz";
+      sha256 = "sha256-0lcYKMOzC6gkAqmBANWVpe5BfoShQ3vmqILNOQMzfKU=";
     };
   };
   crush-aarch64-linux = {
     pname = "crush-aarch64-linux";
-    version = "0.74.0";
+    version = "0.74.1";
     src = fetchurl {
-      url = "https://github.com/charmbracelet/crush/releases/download/v0.74.0/crush_0.74.0_Linux_arm64.tar.gz";
-      sha256 = "sha256-z7Hta3lrvAIuHLPNC7tfYsPqlJF2axgyTB4gQnUfJtE=";
+      url = "https://github.com/charmbracelet/crush/releases/download/v0.74.1/crush_0.74.1_Linux_arm64.tar.gz";
+      sha256 = "sha256-IepPRMn9YfbzmbqkDxXNvmPfpBa77pjNyUHiRMwETb0=";
     };
   };
   crush-x86_64-darwin = {
     pname = "crush-x86_64-darwin";
-    version = "0.74.0";
+    version = "0.74.1";
     src = fetchurl {
-      url = "https://github.com/charmbracelet/crush/releases/download/v0.74.0/crush_0.74.0_Darwin_x86_64.tar.gz";
-      sha256 = "sha256-J9zj5Zbd6JeAM12Ujyb0HFgQq5M0YCy9pdNReepcUkk=";
+      url = "https://github.com/charmbracelet/crush/releases/download/v0.74.1/crush_0.74.1_Darwin_x86_64.tar.gz";
+      sha256 = "sha256-OmFrNJhnqfMPNHVlJnV6yhtWUQdC6V15PKUDaH+EQjc=";
     };
   };
   crush-x86_64-linux = {
     pname = "crush-x86_64-linux";
-    version = "0.74.0";
+    version = "0.74.1";
     src = fetchurl {
-      url = "https://github.com/charmbracelet/crush/releases/download/v0.74.0/crush_0.74.0_Linux_x86_64.tar.gz";
-      sha256 = "sha256-ilfFz57s3YgMIHiIh/IyeYk+tXQqeJRbCWsEN+Z64XI=";
+      url = "https://github.com/charmbracelet/crush/releases/download/v0.74.1/crush_0.74.1_Linux_x86_64.tar.gz";
+      sha256 = "sha256-imxX2CQhbEjqKseYvcaYKA7Yf/k0vhPda9Xghb9DJPE=";
     };
   };
   go-enum = {
@@ -135,34 +135,34 @@
   };
   pi-coding-agent = {
     pname = "pi-coding-agent";
-    version = "0.77.0";
+    version = "0.78.0";
     src = fetchurl {
-      url = "https://github.com/earendil-works/pi/releases/download/v0.77.0/pi-darwin-arm64.tar.gz";
-      sha256 = "sha256-BZF64fvEchD9JhQwqSRqN+nGDXwIUoKY9er3t74Ky0w=";
+      url = "https://github.com/earendil-works/pi/releases/download/v0.78.0/pi-darwin-arm64.tar.gz";
+      sha256 = "sha256-aOu+T1ahNqHHus4zk+ykrQqh/Z8lO3l/03AFi9Of4HA=";
     };
   };
   pi-coding-agent-aarch64-linux = {
     pname = "pi-coding-agent-aarch64-linux";
-    version = "0.77.0";
+    version = "0.78.0";
     src = fetchurl {
-      url = "https://github.com/earendil-works/pi/releases/download/v0.77.0/pi-linux-arm64.tar.gz";
-      sha256 = "sha256-2NFF2JqV1JGTaTMrMAmVFHPar6U4x7b/odyuEGvw4+k=";
+      url = "https://github.com/earendil-works/pi/releases/download/v0.78.0/pi-linux-arm64.tar.gz";
+      sha256 = "sha256-SRVRc2gkc3INnez03uy+11T66Ekl7wA8C2aqwx1fkAU=";
     };
   };
   pi-coding-agent-x86_64-darwin = {
     pname = "pi-coding-agent-x86_64-darwin";
-    version = "0.77.0";
+    version = "0.78.0";
     src = fetchurl {
-      url = "https://github.com/earendil-works/pi/releases/download/v0.77.0/pi-darwin-x64.tar.gz";
-      sha256 = "sha256-d6rbR6pMUwR4mtR5SkQROk9iNeZpgHipFYj896WK2Ao=";
+      url = "https://github.com/earendil-works/pi/releases/download/v0.78.0/pi-darwin-x64.tar.gz";
+      sha256 = "sha256-ZgdLJxJgBoGZ9Hc4oXI5fx4LWjM0aX3SrOo1u9NHCxw=";
     };
   };
   pi-coding-agent-x86_64-linux = {
     pname = "pi-coding-agent-x86_64-linux";
-    version = "0.77.0";
+    version = "0.78.0";
     src = fetchurl {
-      url = "https://github.com/earendil-works/pi/releases/download/v0.77.0/pi-linux-x64.tar.gz";
-      sha256 = "sha256-51AxzavGkLQ/TRNP2qak1pMDjRoTss+nBcTHBt/vgcU=";
+      url = "https://github.com/earendil-works/pi/releases/download/v0.78.0/pi-linux-x64.tar.gz";
+      sha256 = "sha256-isAzQ9HhIoEG6BchV/Mta4goKeRrNP6vV38XGl8Th8w=";
     };
   };
 }
