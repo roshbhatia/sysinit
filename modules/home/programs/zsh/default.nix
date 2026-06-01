@@ -197,6 +197,16 @@ in
       '')
 
       (lib.mkOrder 700 ''
+        function sd() {
+          if [[ $# -gt 0 ]]; then
+            cd "$(sy --greedy "$1")"
+          else
+            local session
+            session=$(sy list 2>/dev/null | awk 'NR>1 {print $1}' | fzf --height 40% --reverse --prompt "session> ")
+            [[ -n "$session" ]] && cd "$(sy --greedy "$session")"
+          fi
+        }
+
         # WezTerm user-var helpers: clipboard and notifications over SSH
         # Uses iTerm2-style SetUserVar escape sequences, which WezTerm
         # forwards transparently even through nested SSH / tmux sessions.
