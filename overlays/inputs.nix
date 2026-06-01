@@ -16,4 +16,5 @@ final: _prev: {
   };
 
   inherit (inputs.cupcake.packages.${final.stdenv.hostPlatform.system}) cupcake-cli;
+  inherit (inputs.gws.packages.${final.stdenv.hostPlatform.system}) gws;
 }

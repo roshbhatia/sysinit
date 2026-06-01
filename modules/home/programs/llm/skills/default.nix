@@ -84,4 +84,12 @@
     content = import ./diagramming.nix;
     allowed-tools = "Bash(mermaid-ascii:*) Read Write Edit";
   };
+
+  gws = {
+    description = "Interact with Google Workspace (Drive, Gmail, Calendar, Sheets, Docs) via the `gws` CLI. Use when the user wants to read or write Google Workspace data from the terminal or in an agent workflow.";
+    content = import ./gws.nix;
+    allowed-tools = "Bash(gws:*) Bash(jq:*)";
+    model = "haiku";
+    effort = "low";
+  };
 }

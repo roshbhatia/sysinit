@@ -84,6 +84,14 @@
       url = "github:NousResearch/hermes-agent";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    # Google Workspace CLI — unified CLI for Drive, Gmail, Calendar, Sheets,
+    # Docs and more. Dynamic API discovery; structured JSON output; built for
+    # both human operators and AI agents.
+    gws = {
+      url = "github:googleworkspace/cli";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs =

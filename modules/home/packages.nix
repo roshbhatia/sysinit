@@ -168,6 +168,9 @@
       pi-coding-agent
       tree-sitter
 
+      # Google Workspace
+      gws
+
       # Config & Misc Dev
       ast-grep
       awk-language-server
