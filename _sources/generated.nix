@@ -8,34 +8,34 @@
 {
   crush = {
     pname = "crush";
-    version = "0.74.1";
+    version = "0.75.0";
     src = fetchurl {
-      url = "https://github.com/charmbracelet/crush/releases/download/v0.74.1/crush_0.74.1_Darwin_arm64.tar.gz";
-      sha256 = "sha256-0lcYKMOzC6gkAqmBANWVpe5BfoShQ3vmqILNOQMzfKU=";
+      url = "https://github.com/charmbracelet/crush/releases/download/v0.75.0/crush_0.75.0_Darwin_arm64.tar.gz";
+      sha256 = "sha256-tpp8K+qvVdHUVJzgdq9V8OQTDx45V8kciPt4Tj0OI84=";
     };
   };
   crush-aarch64-linux = {
     pname = "crush-aarch64-linux";
-    version = "0.74.1";
+    version = "0.75.0";
     src = fetchurl {
-      url = "https://github.com/charmbracelet/crush/releases/download/v0.74.1/crush_0.74.1_Linux_arm64.tar.gz";
-      sha256 = "sha256-IepPRMn9YfbzmbqkDxXNvmPfpBa77pjNyUHiRMwETb0=";
+      url = "https://github.com/charmbracelet/crush/releases/download/v0.75.0/crush_0.75.0_Linux_arm64.tar.gz";
+      sha256 = "sha256-YBcF1mRbeL63eM6+ohwHaoW8IduMvgsHEbuW67yhM7U=";
     };
   };
   crush-x86_64-darwin = {
     pname = "crush-x86_64-darwin";
-    version = "0.74.1";
+    version = "0.75.0";
     src = fetchurl {
-      url = "https://github.com/charmbracelet/crush/releases/download/v0.74.1/crush_0.74.1_Darwin_x86_64.tar.gz";
-      sha256 = "sha256-OmFrNJhnqfMPNHVlJnV6yhtWUQdC6V15PKUDaH+EQjc=";
+      url = "https://github.com/charmbracelet/crush/releases/download/v0.75.0/crush_0.75.0_Darwin_x86_64.tar.gz";
+      sha256 = "sha256-Fwxb42iUrv7so2ZoaoSxnvS35/WUlTfwAl51+dU5S2I=";
     };
   };
   crush-x86_64-linux = {
     pname = "crush-x86_64-linux";
-    version = "0.74.1";
+    version = "0.75.0";
     src = fetchurl {
-      url = "https://github.com/charmbracelet/crush/releases/download/v0.74.1/crush_0.74.1_Linux_x86_64.tar.gz";
-      sha256 = "sha256-imxX2CQhbEjqKseYvcaYKA7Yf/k0vhPda9Xghb9DJPE=";
+      url = "https://github.com/charmbracelet/crush/releases/download/v0.75.0/crush_0.75.0_Linux_x86_64.tar.gz";
+      sha256 = "sha256-/iMYDClMdh0tG8Nu+uWoEQli9dZnpOXTyBErgIzPu6A=";
     };
   };
   go-enum = {
