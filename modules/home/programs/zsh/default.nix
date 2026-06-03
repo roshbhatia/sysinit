@@ -197,18 +197,55 @@ in
       '')
 
       (lib.mkOrder 700 ''
+        # seshy helpers — the multi-repo tmux session manager binary is `sy`
+        _seshy_debug() {
+          [[ -n $SYSINIT_DEBUG ]] && echo "[SESHY] $*" >&2
+        }
+
+        _seshy_err() {
+          echo "seshy: $*" >&2
+        }
+
+        # Print session names, one per line (drops the `sy list` header row)
+        _seshy_names() {
+          if ! command -v sy > /dev/null 2>&1; then
+            _seshy_err "sy not found on PATH"
+            return 1
+          fi
+          sy list 2> /dev/null | awk 'NR > 1 { print $1 }'
+        }
+
+        # s <name>: jump to the greedily-matched session
         function s() {
-          local session
-          session=$(sy list 2>/dev/null | awk 'NR>1 {print $1}' | fzf --height 40% --reverse --prompt "session> ")
-          [[ -n "$session" ]] && cd "$(sy --greedy "$session")"
+          if (( $# == 0 )); then
+            _seshy_err "usage: s <session>"
+            return 1
+          fi
+
+          local target
+          if ! target=$(sy --greedy "$1" 2> /dev/null) || [[ -z $target ]]; then
+            _seshy_err "no session matches \"$1\""
+            return 1
+          fi
+
+          _seshy_debug "resolved \"$1\" -> $target"
+          cd "$target" || return
         }
 
+        # sl: list session names
         function sl() {
-          seshy list | awk '{print $1}' | tail -n +2
+          _seshy_names
         }
 
+        # si: fuzzy-pick a session and jump to it
         function si() {
-          cd "$(sy --greedy "$1")"
+          local session
+          session=$(_seshy_names | fzf --height 40% --reverse --prompt "session> ") || return
+          if [[ -z $session ]]; then
+            _seshy_debug "no session selected"
+            return 0
+          fi
+          s "$session"
         }
 
         # WezTerm user-var helpers: clipboard and notifications over SSH
