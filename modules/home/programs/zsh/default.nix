@@ -197,14 +197,18 @@ in
       '')
 
       (lib.mkOrder 700 ''
-        function sd() {
-          if [[ $# -gt 0 ]]; then
-            cd "$(sy --greedy "$1")"
-          else
-            local session
-            session=$(sy list 2>/dev/null | awk 'NR>1 {print $1}' | fzf --height 40% --reverse --prompt "session> ")
-            [[ -n "$session" ]] && cd "$(sy --greedy "$session")"
-          fi
+        function s() {
+          local session
+          session=$(sy list 2>/dev/null | awk 'NR>1 {print $1}' | fzf --height 40% --reverse --prompt "session> ")
+          [[ -n "$session" ]] && cd "$(sy --greedy "$session")"
+        }
+
+        function sl() {
+          seshy list | awk '{print $1}' | tail -n +2
+        }
+
+        function si() {
+          cd "$(sy --greedy "$1")"
         }
 
         # WezTerm user-var helpers: clipboard and notifications over SSH
