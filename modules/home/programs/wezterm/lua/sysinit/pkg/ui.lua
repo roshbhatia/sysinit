@@ -103,10 +103,10 @@ function M.setup(config)
       },
       agents = {
         claude = {
-          patterns = { "claude", "claude%-code" },
+          patterns = { ".claude%-wrapped", "claude", "claude%-code" },
           executable_patterns = { "@anthropic%-ai/claude%-code", "/claude%-code/", "/claude$" },
           argv_patterns = { "@anthropic%-ai/claude%-code", "claude%-code", "^claude%s*$" },
-          title_patterns = { "claude code", "claude" },
+          title_patterns = { "claude code", "claude", ".claude%-wrapped" },
         },
         goose = {
           patterns = { "goose", "goosed" },
