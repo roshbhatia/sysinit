@@ -53,7 +53,7 @@
   code-search = {
     description = "Routing guide for searching code: when to reach for builtin `rg`/`grep`/Glob (literal strings, known symbols, exact paths), `ast-grep`/`sg` (structural, AST-shaped patterns and refactor-grade matches), or `gh search` (repo-wide / org-wide / not-locally-cloned). Prefer ast-grep over plain grep for anything structural; prefer builtin grep for literal text.";
     content = import ./code-search.nix;
-    allowed-tools = "Bash(rg:*) Bash(grep:*) Bash(ast-grep:*) Bash(sg:*) Bash(gh search:*) Read Glob";
+    allowed-tools = "Bash(rg:*) Bash(grep:*) Bash(ast-grep:*) Bash(sg:*) Bash(gh:*) Read Glob";
     model = "haiku";
     effort = "low";
   };
