@@ -192,11 +192,11 @@
       },
       "locked": {
         "dir": "repos/rycee/pkgs/firefox-addons",
-        "lastModified": 1780472133,
-        "narHash": "sha256-OaIe2L7AqMpxrpJobdhYCM3e0HL1D61WKe+qOrjf6rQ=",
+        "lastModified": 1780476339,
+        "narHash": "sha256-BhhnWaUdrRT7vpT1KKbnY4yZeohjEhUsZWluh3gWdKE=",
         "owner": "nix-community",
         "repo": "nur-combined",
-        "rev": "89adc718255a76ce4939b628e6b02b9e854ad81d",
+        "rev": "acd079a679fbfddc5f335e24f2ed31ebe77b190b",
         "type": "github"
       },
       "original": {
