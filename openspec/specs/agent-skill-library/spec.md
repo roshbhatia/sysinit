@@ -16,7 +16,7 @@ The skill registry at `modules/home/programs/llm/skills/default.nix` SHALL be th
 - **THEN** no corresponding `SKILL.md` is generated and the skill is not advertised to agents
 
 ### Requirement: Required global skills are installed by default
-The registry MUST include, at minimum, the following skill names installed for every user of this dotfiles repo: `shell-scripting`, `openspec-propose`, `openspec-apply`, `openspec-explore`, `openspec-archive`, `find-skills`, `seshy`, `cocoindex-query`.
+The registry MUST include, at minimum, the following skill names installed for every user of this dotfiles repo: `shell-scripting`, `openspec-propose`, `openspec-apply`, `openspec-explore`, `openspec-archive`, `find-skills`, `seshy`, `code-search`.
 
 #### Scenario: Fresh install includes baseline skills
 - **WHEN** a user runs `nh os switch` on a freshly cloned sysinit checkout

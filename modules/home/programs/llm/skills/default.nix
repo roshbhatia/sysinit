@@ -50,10 +50,10 @@
     effort = "low";
   };
 
-  cocoindex-query = {
-    description = "Primary semantic code-search mechanism. Wired into every harness as the `cocoindex` MCP server with local embeddings. Prefer it for intent / 'how is X done' queries; use `rg`/`grep` only for literal-string matches. Bootstraps a project index on first call via `refresh_index=True`; falls back to `rg` on any failure.";
-    content = import ./cocoindex-query.nix;
-    allowed-tools = "Bash(rg:*) Bash(grep:*) Read";
+  code-search = {
+    description = "Routing guide for searching code: when to reach for builtin `rg`/`grep`/Glob (literal strings, known symbols, exact paths), `ast-grep`/`sg` (structural, AST-shaped patterns and refactor-grade matches), or `gh search` (repo-wide / org-wide / not-locally-cloned). Prefer ast-grep over plain grep for anything structural; prefer builtin grep for literal text.";
+    content = import ./code-search.nix;
+    allowed-tools = "Bash(rg:*) Bash(grep:*) Bash(ast-grep:*) Bash(sg:*) Bash(gh search:*) Read Glob";
     model = "haiku";
     effort = "low";
   };

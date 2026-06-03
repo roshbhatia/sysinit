@@ -15,7 +15,7 @@ let
     "openspec-archive"
     "find-skills"
     "seshy"
-    "cocoindex-query"
+    "code-search"
   ];
 
   disallowedFields = [

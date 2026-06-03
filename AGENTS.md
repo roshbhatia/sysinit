@@ -46,7 +46,7 @@ openspec schema validate rosh-spec-driven
 
 Skills live at `~/.claude/skills/<name>/SKILL.md`, generated from `modules/home/programs/llm/skills/default.nix`.
 
-- `cocoindex-query` · Queries the cocoindex MCP semantic-search server for project source code by meaning rather than exact string
+- `code-search` · Routes code-search queries to the right tool: builtin `rg`/`grep`/Glob for literal text, `ast-grep`/`sg` for structural AST patterns, `gh search` for repo/org-wide search
 - `find-skills` · Discovers and installs agent skills from the open skills ecosystem at skills
 - `openspec-apply` · Implements the tasks defined in an existing OpenSpec change
 - `openspec-archive` · Archives a completed OpenSpec change and merges its delta specs into the project's authoritative specs

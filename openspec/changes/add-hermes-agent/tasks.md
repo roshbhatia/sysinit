@@ -1,7 +1,7 @@
 ## 1. Slice 1 — overlay + packages.nix entry
 
-- [x] 1.1 Create `overlays/hermes-agent.nix` following `overlays/cocoindex-code.nix` as the architectural precedent: hand-pinned `fetchurl` from PyPI sdist (`hermes-agent==0.14.0`, sha256 captured inline), `buildPythonApplication` with `pyproject = true`, no optional extras, `wrapProgram` (via `symlinkJoin` + `makeWrapper`) that prepends `final.claude-code`, `final.codex-acp`, `final.opencode`, `final.github-copilot-cli`, `final.gh`, and `final.gemini-cli` onto `PATH`. (Note: `gemini-cli` is the actual derivation name — original task referenced `final.gemini` in error.)
-- [x] 1.2 Register the overlay in `overlays/default.nix` adjacent to the `cocoindex-code.nix` import (follows the existing single-import-per-line pattern).
+- [x] 1.1 Create `overlays/hermes-agent.nix` following the established slim Python-CLI overlay pattern as the architectural precedent: hand-pinned `fetchurl` from PyPI sdist (`hermes-agent==0.14.0`, sha256 captured inline), `buildPythonApplication` with `pyproject = true`, no optional extras, `wrapProgram` (via `symlinkJoin` + `makeWrapper`) that prepends `final.claude-code`, `final.codex-acp`, `final.opencode`, `final.github-copilot-cli`, `final.gh`, and `final.gemini-cli` onto `PATH`. (Note: `gemini-cli` is the actual derivation name — original task referenced `final.gemini` in error.)
+- [x] 1.2 Register the overlay in `overlays/default.nix` alongside the existing overlay imports (follows the existing single-import-per-line pattern).
 - [x] 1.3 Add `hermes-agent` to the "AI & Editors" cluster in `modules/home/packages.nix` (follows the existing alphabetized grouping in that block).
 - [ ] 1.4 Verify: `nix flake check` passes; `nh os build` succeeds; `git diff` reviewed; inspect rendered closure for `hermes-agent-0.14.0` store path; verify wrapped binary script contains the expected `PATH` prefix entries.
 - [ ] 1.5 Apply: `nh os switch` on demiurge.

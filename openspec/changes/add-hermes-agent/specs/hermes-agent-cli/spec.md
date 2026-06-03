@@ -68,7 +68,7 @@ The overlay SHALL NOT bake any provider API key, OAuth credential, or auth token
 - **AND** the overlay does NOT pre-flight or short-circuit the failure during build or activation
 
 ### Requirement: No MCP coupling
-The overlay SHALL NOT register hermes as an MCP server in `modules/home/programs/llm/config/mcp-servers.nix`, and SHALL NOT add MCP servers from this repo (cocoindex, ast-grep, playwright) into hermes's own tool registry. Hermes SHALL operate as a peer agent harness, not a child of Claude Code or any other tool that consumes the repo's MCP server registry.
+The overlay SHALL NOT register hermes as an MCP server in `modules/home/programs/llm/config/mcp-servers.nix`, and SHALL NOT add MCP servers from this repo (ast-grep, playwright) into hermes's own tool registry. Hermes SHALL operate as a peer agent harness, not a child of Claude Code or any other tool that consumes the repo's MCP server registry.
 
 #### Scenario: MCP server registry is untouched
 - **WHEN** the rendered `mcp-servers.nix` config is generated post-activation
@@ -78,7 +78,7 @@ The overlay SHALL NOT register hermes as an MCP server in `modules/home/programs
 #### Scenario: Hermes's own tool registry is unmodified by the overlay
 - **WHEN** the user inspects hermes's tool list via `hermes tools` after activation
 - **THEN** only the bundled hermes tools and any user-configured external tools are present
-- **AND** no `cocoindex:search`, `ast-grep:*`, or `playwright:*` entries are injected by the overlay
+- **AND** no `ast-grep:*` or `playwright:*` entries are injected by the overlay
 
 ### Requirement: Runtime prerequisites are explicit
 The capability SHALL document, at the spec level, which runtime actions the user must perform that the overlay cannot enforce. These include: (a) running `hermes setup` once per machine to initialize `~/.hermes/`; (b) running `copilot login` once per machine before using the `copilot-acp` provider; (c) setting provider API key env vars in the user's shell or `~/.hermes/.env`; (d) completing interactive OAuth flows via `hermes model` for OAuth-based providers (Anthropic OAuth, Gemini OAuth, MiniMax OAuth, etc.).

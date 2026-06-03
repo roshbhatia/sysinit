@@ -64,14 +64,13 @@ let
     "openspec --version"
     "openspec --help"
 
-    # cocoindex-code read-only
-    "ccc search"
-    "ccc search *"
-    "ccc status"
-    "ccc status *"
-    "ccc doctor"
-    "ccc doctor *"
-    "ccc --help"
+    # ast-grep structural search (read-only)
+    "ast-grep run *"
+    "ast-grep scan *"
+    "ast-grep --help"
+    "sg run *"
+    "sg scan *"
+    "sg --help"
 
     # nix read-only
     "nix eval *"
@@ -152,6 +151,11 @@ let
     "gh issue view *"
     "gh repo view"
     "gh repo view *"
+    "gh search code *"
+    "gh search repos *"
+    "gh search issues *"
+    "gh search prs *"
+    "gh search commits *"
     "gh release list"
     "gh release list *"
     "gh release view *"

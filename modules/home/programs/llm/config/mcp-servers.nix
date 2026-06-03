@@ -1,6 +1,5 @@
 {
   lib,
-  pkgs,
   values,
   ...
 }:
@@ -14,12 +13,6 @@
         "ast-grep-server"
       ];
       description = "AST-based structural code search and analysis";
-    };
-
-    cocoindex = {
-      command = "${pkgs.cocoindex-code}/bin/ccc";
-      args = [ "mcp" ];
-      description = "Semantic code search over a project-local index (cocoindex-code, local embeddings)";
     };
 
     playwright = {

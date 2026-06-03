@@ -2,11 +2,11 @@
 
 This change extends two patterns already established in the repo:
 
-- **Slim Python-CLI overlay** at `overlays/cocoindex-code.nix`: pure-Python
-  `buildPythonApplication` from a PyPI sdist, hand-pinned with `fetchurl` +
-  `sha256`, optional extras deliberately omitted, runtime configuration left
-  to the user. `cocoindex-code`'s `ccc init` flow is the direct precedent
-  for `hermes setup` here.
+- **Slim Python-CLI overlay**: pure-Python `buildPythonApplication` from a
+  PyPI sdist, hand-pinned with `fetchurl` + `sha256`, optional extras
+  deliberately omitted, runtime configuration left to the user. The
+  setup-after-install flow — config written to a user-managed directory
+  rather than Nix — is the direct precedent for `hermes setup` here.
 - **`wrapProgram` for binary discovery** is used throughout nixpkgs derivations
   for tools that shell out to other binaries (the closest in-repo analogue
   is `overlays/openspec.nix`'s `makeWrapper` invocation). The hermes overlay
@@ -44,8 +44,8 @@ Constraints in scope:
   `copilot` binary.
 - Zero coupling to external services in the build closure: no API keys
   baked in, no provider state in `/etc/`, no daemon registration.
-- Closure size comparable to `cocoindex-code` (small Python wrapper + core
-  deps; no torch, no Chromium, no node_modules).
+- Small closure (small Python wrapper + core deps; no torch, no Chromium,
+  no node_modules).
 
 **Non-Goals:**
 
@@ -120,8 +120,9 @@ subagent binary the bundled skills depend on.
 
 **3. Hand-pinned `fetchurl` (not nvfetcher) for the source tarball.**
 
-`cocoindex-code.nix` is hand-pinned with `fetchurl` + literal `sha256`.
-Mirroring that pattern keeps the two slim overlays homogeneous and avoids
+The repo's other slim Python-CLI overlays are hand-pinned with `fetchurl` +
+literal `sha256`. Mirroring that pattern keeps the slim overlays homogeneous
+and avoids
 introducing a `nvfetcher.toml` entry for a single sdist URL that PyPI
 serves at a deterministic path. Bump procedure documented inline (curl
 PyPI JSON, copy URL + sha256).
@@ -131,15 +132,15 @@ PyPI JSON, copy URL + sha256).
 - **`fetchPypi` with version + hash**: rejected because PyPI's pythonhosted
   paths embed a per-file hash prefix that `fetchPypi` resolves dynamically.
   This adds an evaluation-time round-trip and is no easier to bump than a
-  literal URL. The cocoindex precedent uses `fetchurl`.
+  literal URL. The established slim-overlay precedent uses `fetchurl`.
 - **`src.pypi` via nvfetcher**: rejected because the autoupdate machinery
   isn't worth the ceremony for a single Python package. If hermes evolves
   to multi-platform wheels later, revisit.
 
 **4. Add `**/.hermes/` to global gitignore.**
 
-Symmetric with the existing `**/.cocoindex_code/` entry at
-`modules/home/programs/git/default.nix:86`. Defensive: if a user ever runs
+Symmetric with the existing AI-assistant ignore entries at
+`modules/home/programs/git/default.nix`. Defensive: if a user ever runs
 `hermes setup` from inside a repo checkout, `~/.hermes/` won't be at risk
 of being staged, but any tool that creates a `.hermes/` cache subdirectory
 near the repo would be caught. Cheap to add; matches the existing pattern
@@ -149,8 +150,8 @@ for AI assistants.
 
 - **Skip the gitignore entry**: rejected because the global gitignore
   already lists every AI assistant's dotdir (`.claude/`, `.codex/`,
-  `.gemini/`, `.cursor/`, `.crush/`, `.goose/`, `.opencode/`,
-  `.cocoindex_code/`). Omitting hermes breaks the pattern.
+  `.gemini/`, `.cursor/`, `.crush/`, `.goose/`, `.opencode/`). Omitting
+  hermes breaks the pattern.
 
 ## Rollout & Gating
 
@@ -204,7 +205,7 @@ sequence and does not block archive.
 | `~/.hermes/auth.json` contains OAuth credentials. If the user runs `hermes setup` from inside a repo checkout and the directory ends up tracked, credentials leak. | Slice 4 adds `**/.hermes/` to the global gitignore. Defense in depth — the realistic case is `hermes setup` runs from `$HOME`, not a repo, but the ignore costs nothing and matches the existing AI-assistant ignore block. |
 | The pinned `[anthropic]` extra (`anthropic==0.86.0`) is a very old SDK; if the user later wants the SDK-based code path (currently unexercised), they get stale tooling. | Out of scope for this change. If upstream makes the SDK extra mandatory for a provider the user uses, file a follow-up change to opt into the extra and accept the old SDK pin, or upstream a relaxation. |
 | First `nh os switch` after this change adds hermes to the user's profile; on slow networks the PyPI fetch is non-trivial (~5–10 MB sdist + transitive Python deps that may need to build). | Standard build behavior; not unique to hermes. The user runs `nh os build` first (no profile change) to confirm the closure resolves before `nh os switch`. Maps to a human-verification step in tasks.md. |
-| Hermes's interactive `hermes setup` prompts cannot be automated declaratively. User-driven, one-time-per-machine. | Acknowledged. Slice 3 of the rollout is explicitly the user running `hermes setup` manually and confirming. Same shape as `ccc init` for cocoindex. |
+| Hermes's interactive `hermes setup` prompts cannot be automated declaratively. User-driven, one-time-per-machine. | Acknowledged. Slice 3 of the rollout is explicitly the user running `hermes setup` manually and confirming. Same shape as other interactive one-time setup flows. |
 
 ## Migration Plan
 
@@ -268,5 +269,5 @@ clean — hermes is not load-bearing for any other tool in the repo.
   later wants to script against the hermes Python API, switch to
   `buildPythonPackage` + a wrapped binary in `passthru`. Not a goal now.
 - **Pinning strategy when Nous bumps the version**? Manual bump via PyPI
-  JSON lookup, mirror of the cocoindex-code procedure. Document inline in
-  the overlay header comment.
+  JSON lookup, mirror of the standard slim-overlay procedure. Document
+  inline in the overlay header comment.

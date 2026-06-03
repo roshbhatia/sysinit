@@ -11,21 +11,21 @@ imperative installs.
 ## What Changes
 
 - New overlay at `overlays/hermes-agent.nix` packaging `hermes-agent` 0.14.0
-  from PyPI as a slim `buildPythonApplication`. Follows the slim-overlay
-  pattern just established by `overlays/cocoindex-code.nix` (zero optional
-  extras; user enables providers at runtime).
+  from PyPI as a slim `buildPythonApplication`. Follows the established
+  slim Python-CLI overlay pattern (zero optional extras; user enables
+  providers at runtime).
 - `wrapProgram` the `hermes` binary so its `PATH` is prepended with
   `claude-code`, `codex` (via `codex-acp`), `opencode`, `github-copilot-cli`
   (provides `copilot`), `gh`, and `gemini`. This is a build-time guarantee
   that bundled autonomous-AI-agent skills and Copilot ACP find their
   subagent binaries even if the user later trims `modules/home/packages.nix`.
-- Register the new overlay in `overlays/default.nix` adjacent to
-  `cocoindex-code.nix`.
+- Register the new overlay in `overlays/default.nix` alongside the existing
+  overlay imports.
 - Add `hermes-agent` to the "AI & Editors" cluster in
   `modules/home/packages.nix`.
 - Add `**/.hermes/` to the global gitignore at
   `modules/home/programs/git/default.nix` (symmetric with the existing
-  `**/.cocoindex_code/` entry; protects accidentally-committed OAuth tokens
+  AI-assistant ignore entries; protects accidentally-committed OAuth tokens
   in `~/.hermes/auth.json` if a user ever runs `hermes setup` inside a repo
   checkout).
 
@@ -34,7 +34,8 @@ imperative installs.
 - **No declarative `~/.hermes/` config.** `config.yaml`, `auth.json`, `.env`,
   and `auth/*` are per-machine, user-mutable state. Managing them in Nix
   would clobber `hermes config set` / `hermes model` runtime mutations on
-  every `nh os switch`. Matches the `ccc init` precedent for cocoindex.
+  every `nh os switch`. Leaves runtime config user-managed rather than
+  Nix-clobbered.
 - **No Python extras.** `hermes-agent` ships `anthropic`, `exa`, `firecrawl`,
   `fal`, `edge-tts`, `modal`, `daytona`, `parallel-web`, and `aws` (boto3)
   as optional extras. Every provider the user cares about works *without*
@@ -44,7 +45,7 @@ imperative installs.
   WhatsApp/Telegram/Discord/Slack bridges. Out of scope; the user can add
   per-host if they want them.
 - **No MCP coupling.** Hermes is a peer to Claude Code, not a child. No
-  cocoindex/ast-grep/playwright wired into hermes; no hermes-as-MCP-server
+  ast-grep/playwright wired into hermes; no hermes-as-MCP-server
   for the Claude Code harness.
 - **No API-key plumbing in Nix.** `ANTHROPIC_API_KEY`, `GOOGLE_API_KEY`,
   `COPILOT_GITHUB_TOKEN`, `OPENROUTER_API_KEY`, etc. live in the user's
@@ -73,15 +74,15 @@ None. The change adds a new capability without altering existing ones.
   - `modules/home/programs/git/default.nix` (one-line addition to AI
     assistants ignore block)
 - **Dependencies**: PyPI source tarball for `hermes-agent==0.14.0`
-  (hand-pinned with `fetchurl` + sha256; same pattern as `cocoindex-code`).
+  (hand-pinned with `fetchurl` + sha256; the standard slim-overlay pattern).
   Transitive Python dependencies resolved against `nixpkgs-unstable`'s
   `python3Packages`. The pyproject pins core deps to exact versions; if the
   current nixpkgs revision carries newer versions of `openai`, `httpx`,
   `pydantic`, `pyyaml`, `tenacity`, etc., the overlay accepts that
   divergence rather than vendoring older pins (rationale captured in
   design.md).
-- **Pattern reuse**: This change deliberately mirrors
-  `overlays/cocoindex-code.nix` for the overlay shape and the
+- **Pattern reuse**: This change deliberately mirrors the established
+  slim Python-CLI overlay pattern for the overlay shape and the
   unmanaged-runtime-config decision. No new infrastructure introduced.
 - **Impactful actions requiring human verification**:
   - `nh os switch` on demiurge after the overlay lands — first time hermes
