@@ -6,36 +6,6 @@
     content = import ./shell-scripting.nix;
   };
 
-  openspec-propose = {
-    description = "Drafts a new OpenSpec change with proposal, design, specs, and tasks in one pass. Use when the user mentions OpenSpec, says 'propose a change', wants to scope new work, asks to capture a plan before implementation, or invokes /opsx:propose.";
-    content = import ./openspec-propose.nix;
-    allowed-tools = "Bash(openspec:*) Read Write Edit";
-    model = "opus";
-    effort = "max";
-  };
-
-  openspec-apply = {
-    description = "Implements the tasks defined in an existing OpenSpec change. Use when the user wants to start, continue, or resume implementation of a proposed change, work through tasks.md, or invokes /opsx:apply.";
-    content = import ./openspec-apply.nix;
-    allowed-tools = "Bash(openspec:*) Read Write Edit";
-    model = "opus";
-    effort = "high";
-  };
-
-  openspec-explore = {
-    description = "Enters a thinking-partner mode for exploring ideas, investigating problems, and clarifying requirements before committing to a change. Use when the user wants to brainstorm, compare approaches, or reason about an unfamiliar problem space, or invokes /opsx:explore.";
-    content = import ./openspec-explore.nix;
-    allowed-tools = "Bash(openspec:*) Bash(rg:*) Bash(git:*) Read";
-    effort = "max";
-  };
-
-  openspec-archive = {
-    description = "Archives a completed OpenSpec change and merges its delta specs into the project's authoritative specs. Use when the user is finished implementing a change, says 'archive this', or invokes /opsx:archive.";
-    content = import ./openspec-archive.nix;
-    allowed-tools = "Bash(openspec:*) Read";
-    effort = "low";
-  };
-
   find-skills = {
     description = "Discovers and installs agent skills from the open skills ecosystem at skills.sh. Use when the user asks 'how do I do X', 'is there a skill for X', wants to extend agent capabilities, or wants to install something via npx skills.";
     content = import ./find-skills.nix { inherit pkgs lib; };

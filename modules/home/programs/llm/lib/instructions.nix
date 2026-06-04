@@ -48,12 +48,8 @@ let
           nix fmt                  # format all Nix files
           task fmt:sh              # format hack/ shell scripts
           task fmt:sh:check        # verify shell formatting only
-          task openspec:sync       # detect drift in openspec skills + forked schema
+          task openspec:sync       # detect drift in the forked openspec schema
           ./hack/update-pi.sh      # report pi package drift
-          openspec list --json     # list active OpenSpec changes
-          openspec status --change "<name>" --json
-          openspec instructions <artifact> --change "<name>" --json
-          openspec validate "<name>"
           openspec schema validate rosh-spec-driven
           ```
         '';
@@ -66,7 +62,7 @@ let
           - Read context files (`AGENTS.md`, `openspec/`, `.sysinit/lessons.md`) before authoring
           - Modify existing files; avoid creating new ones unless required
           - Skills are the source of truth for domain rules; consult them via `${skillsRoot}/`
-          - For OpenSpec work: schema is `rosh-spec-driven`; see `openspec/schemas/rosh-spec-driven/CHANGES.md`
+          - Use openspec if available (`openspec init` scaffolds its skills/commands per-project); the forked schema is `rosh-spec-driven` (see `openspec/schemas/rosh-spec-driven/CHANGES.md`)
           - On unexpected errors: stop, preserve evidence, fix root cause (no `--no-verify`)
           - Use `nix-shell` / `nix develop` for dependencies; avoid global installers
           - Prefer subagents (Explore, librarian, oracle) for parallel exploration; merge before coding
@@ -98,7 +94,7 @@ let
 
           - `.sysinit/` is gitignored scratch space for lessons and PRD notes; check `.sysinit/lessons.md` at session start
           - OpenSpec artifacts live at `openspec/changes/<name>/`; the active schema is `rosh-spec-driven`
-          - User-level `~/.config/git/ignore` already excludes `**/.claude/`, `**/.agents/`, `**/openspec/` — do not duplicate in per-project `.gitignore`
+          - User-level `~/.config/git/ignore` already excludes `**/.claude/`, `**/.agents/` — do not duplicate in per-project `.gitignore`
         '';
       };
 

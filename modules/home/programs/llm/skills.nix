@@ -9,10 +9,6 @@ let
 
   requiredSkills = [
     "shell-scripting"
-    "openspec-propose"
-    "openspec-apply"
-    "openspec-explore"
-    "openspec-archive"
     "find-skills"
     "seshy"
     "code-search"
@@ -198,14 +194,7 @@ let
 
   # Group skills under coarse categories so the hub's category UI surfaces
   # them sensibly. Derived from name prefix; default bucket is `tools`.
-  hermesCategoryOf =
-    name:
-    if lib.hasPrefix "openspec-" name then
-      "openspec"
-    else if lib.hasPrefix "write-" name then
-      "writing"
-    else
-      "tools";
+  hermesCategoryOf = name: if lib.hasPrefix "write-" name then "writing" else "tools";
 
   renderHermesSkill =
     name: skill:

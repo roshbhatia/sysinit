@@ -94,7 +94,6 @@ in
       "**/CLAUDE.md"
       "**/CRUSH.md"
       "**/GEMINI.md"
-      "**/openspec/"
       ".sysinit/"
       # Dev environment
       ".direnv/"

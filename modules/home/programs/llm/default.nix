@@ -6,18 +6,11 @@
 }:
 let
   skills = import ./skills.nix { inherit pkgs; };
-  commands = import ./commands.nix { inherit pkgs; };
 
   # Claude Code standard path - most tools can read from here
-  claudeSkillFiles = lib.mapAttrs' (
+  skillFiles = lib.mapAttrs' (
     name: path: lib.nameValuePair ".claude/skills/${name}/SKILL.md" { source = path; }
   ) skills.allSkills;
-
-  claudeCommandFiles = lib.mapAttrs' (
-    name: path: lib.nameValuePair ".claude/commands/opsx/${name}.md" { source = path; }
-  ) commands.renderedOpsx;
-
-  skillFiles = claudeSkillFiles // claudeCommandFiles;
 
   # programs.mcp serializes `servers` straight to JSON, so strip option
   # defaults that don't belong on the wire (null command for http servers,
@@ -30,9 +23,7 @@ let
       stripped = removeAttrs server [ "type" ];
       filtered = lib.filterAttrs (
         name: value:
-        value != null
-        && !(name == "headers" && value == { })
-        && !(name == "args" && value == [ ])
+        value != null && !(name == "headers" && value == { }) && !(name == "args" && value == [ ])
       ) stripped;
     in
     if isHttp then filtered // { type = "http"; } else filtered;

@@ -65,41 +65,6 @@ let
     chmod u+w "$target"
   '';
 
-  # Goose recipes shipped here mirror the four canonical openspec workflow
-  # phases. Each recipe's `prompt` is sourced from the same Nix string the
-  # corresponding Claude skill uses — single source of truth.
-  recipes = {
-    openspec-propose = {
-      description = "Propose a new OpenSpec change with proposal, design, specs, and tasks artifacts.";
-      body = import ../skills/openspec-propose.nix;
-    };
-    openspec-apply = {
-      description = "Implement the tasks defined in an existing OpenSpec change.";
-      body = import ../skills/openspec-apply.nix;
-    };
-    openspec-explore = {
-      description = "Enter explore mode — a thinking-partner stance for clarifying requirements before committing to a change.";
-      body = import ../skills/openspec-explore.nix;
-    };
-    openspec-archive = {
-      description = "Archive a completed OpenSpec change and merge its delta specs into the project's authoritative specs.";
-      body = import ../skills/openspec-archive.nix;
-    };
-  };
-
-  mkRecipe =
-    name: r:
-    let
-      title = "OpenSpec: " + lib.removePrefix "openspec-" name;
-    in
-    builtins.toJSON {
-      version = "1.0.0";
-      inherit title;
-      inherit (r) description;
-      prompt = r.body;
-    };
-
-  recipeFiles = builtins.mapAttrs (name: r: pkgs.writeText "${name}.yaml" (mkRecipe name r)) recipes;
 in
 {
   home.sessionVariables = {
@@ -118,15 +83,6 @@ in
   home.activation.gooseConfig = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
     $DRY_RUN_CMD ${updateGooseConfig}
   '';
-
-  # Recipes are read-only, so symlinks from the nix store are fine.
-  xdg.configFile = lib.mapAttrs' (
-    name: file:
-    lib.nameValuePair "goose/recipes/${name}.yaml" {
-      source = file;
-      force = true;
-    }
-  ) recipeFiles;
 
   home.packages = [ pkgs.goose-cli ];
 }
