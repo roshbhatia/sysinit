@@ -20,6 +20,7 @@ local app_icons = {
   ["Claude"] = "",
   ["Discord"] = "󰙯",
   ["Electron"] = "",
+  ["FaceTime"] = "",
   ["Ferdium"] = "󰙯",
   ["Finder"] = "󰀶",
   ["Firefox"] = "",
