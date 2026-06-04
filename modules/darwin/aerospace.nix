@@ -245,6 +245,7 @@
           alt-p = "workspace-back-and-forth";
 
           alt-f = "fullscreen";
+          alt-shift-f = "fullscreen --no-outer-gaps";
         };
 
         locked.binding = {
