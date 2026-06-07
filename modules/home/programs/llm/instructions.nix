@@ -30,6 +30,7 @@ let
           ## Core
           - SHOULD NOT git commit/push unless directed; MAY stage/add and propose commit messages
           - NEVER push to main
+          - ALWAYS use industry-standard terms for concepts, projects, etc. NEVER make up your own -- i.e. "Phase" would be good, "Rung" would be bad.
         '';
 
         git = ''
