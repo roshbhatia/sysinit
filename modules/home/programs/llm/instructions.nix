@@ -28,8 +28,7 @@ let
 
         core = ''
           ## Core
-          - SHOULD NOT git commit/push unless directed; MAY stage/add and propose commit messages
-          - NEVER push to main
+          - See Git for commit/push policy by repo ownership
           - ALWAYS use industry-standard terms for concepts, projects, etc. NEVER make up your own -- i.e. "Phase" would be good, "Rung" would be bad.
         '';
 
@@ -38,6 +37,9 @@ let
           - Small, scoped commits as work proceeds
           - Human-readable titles only, no body, conventional commit form
           - Do not mix formatting-only with behavioral changes
+          - MAY commit and push freely in roshbhatia- and ross-corp-owned repos
+          - In work repos, MAY commit and push when on a session or feature branch
+          - NEVER push to main
         '';
 
         operating = ''
@@ -64,6 +66,9 @@ let
           - Use ad-hoc/global installers only if no project nix shell/dev shell exists
           - Sanitize all user inputs
           - Correctness over cleverness; prefer boring, readable solutions
+          - Self-documenting, idiomatic code first — write what a human would write
+          - Comment only when intent is not clear from the code; default to no comment
+          - NEVER use delimiter comments (lines of `=`, repeated `-`, or banner separators)
         '';
 
         responseStyle = ''
