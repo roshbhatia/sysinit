@@ -5,15 +5,15 @@ TBD - created by archiving change rewrite-opinionated-writing-skills. Update Pur
 ## Requirements
 ### Requirement: Three opinionated writing skills exist and are registered
 
-The skill registry at `modules/home/programs/llm/skills/default.nix` MUST contain entries for the three slugs `opinionated-commit`, `opinionated-pr`, and `opinionated-code-comments`. Each entry MUST map to a sibling `.nix` file of the same slug whose `content` import returns the SKILL.md body as a string. The registry MUST NOT contain entries for any of the legacy slugs `write-commit-roshan`, `write-pr-body-roshan`, or `write-issue-roshan`.
+The skill registry at `modules/home/programs/llm/skills/default.nix` MUST contain entries for the three slugs `writing-commit-message`, `writing-pr-description`, and `writing-code-comments`. Each entry MUST map to a sibling `.nix` file of the same slug whose `content` import returns the SKILL.md body as a string. The registry MUST NOT contain entries for any of the legacy slugs `write-commit-roshan`, `write-pr-body-roshan`, or `write-issue-roshan`.
 
 #### Scenario: All three opinionated slugs are installed after a switch
 - WHEN the user runs `nh os switch` against a tree containing this change
-- THEN `~/.claude/skills/opinionated-commit/SKILL.md`, `~/.claude/skills/opinionated-pr/SKILL.md`, and `~/.claude/skills/opinionated-code-comments/SKILL.md` exist as symlinks into the nix store
+- THEN `~/.claude/skills/writing-commit-message/SKILL.md`, `~/.claude/skills/writing-pr-description/SKILL.md`, and `~/.claude/skills/writing-code-comments/SKILL.md` exist as symlinks into the nix store
 - AND `~/.claude/skills/write-commit-roshan/SKILL.md`, `~/.claude/skills/write-pr-body-roshan/SKILL.md`, and `~/.claude/skills/write-issue-roshan/SKILL.md` do NOT exist
 
 #### Scenario: A new entry without the matching sibling file fails build
-- WHEN `default.nix` references `opinionated-commit` via `import ./opinionated-commit.nix` but the sibling `opinionated-commit.nix` is absent or empty
+- WHEN `default.nix` references `writing-commit-message` via `import ./writing-commit-message.nix` but the sibling `writing-commit-message.nix` is absent or empty
 - THEN `nix flake check` fails at evaluation time with a missing-file or empty-string error before any system mutation occurs
 
 ### Requirement: Skill bodies use no proper-noun anchor
@@ -30,10 +30,10 @@ The body and description of each of the three skills MUST be free of personal-na
 
 ### Requirement: Commit-subject rules reflect corpus-observed shape
 
-The `opinionated-commit` skill body MUST state that the conventional-commit type prefix (`feat`, `fix`, `chore`, `refactor`, `docs`, `test`, `perf`, `build`, `ci`, `revert`) is preferred but NOT required for every subject; that lowercase is preferred but not absolute; and that the historical `<type>: <TICKET-ID>: <subject>` form (with `TICKET-ID` matching `[A-Z]{2,}[0-9]*-[0-9]+`) is a recognized variant when a tracker ID exists for the work. The body MUST NOT recommend semicolon-joined two-clause subjects, MUST NOT recommend em-dash elaboration in subjects, and MUST NOT state that subjects are universally lowercase.
+The `writing-commit-message` skill body MUST state that the conventional-commit type prefix (`feat`, `fix`, `chore`, `refactor`, `docs`, `test`, `perf`, `build`, `ci`, `revert`) is preferred but NOT required for every subject; that lowercase is preferred but not absolute; and that the historical `<type>: <TICKET-ID>: <subject>` form (with `TICKET-ID` matching `[A-Z]{2,}[0-9]*-[0-9]+`) is a recognized variant when a tracker ID exists for the work. The body MUST NOT recommend semicolon-joined two-clause subjects, MUST NOT recommend em-dash elaboration in subjects, and MUST NOT state that subjects are universally lowercase.
 
 #### Scenario: Conv-commit prefix recommendation is non-absolute
-- WHEN an agent reads the `opinionated-commit` skill body
+- WHEN an agent reads the `writing-commit-message` skill body
 - THEN it sees the conv-commit prefix described as the dominant shape but is told that bare-ticket-ID titles and unprefixed subjects are also acceptable and observed in historical work
 
 #### Scenario: Banned subject patterns are listed
@@ -47,7 +47,7 @@ The `opinionated-commit` skill body MUST state that the conventional-commit type
 
 ### Requirement: PR-body skill delegates to the repo template
 
-The `opinionated-pr` skill body MUST instruct the agent to detect a repo PR template (`.github/pull_request_template.md` and the other canonical paths) and, when one exists, to fill the template verbatim WITHOUT appending new sections and WITHOUT adding new items to any existing verification or task checklist. Only the existing `- [ ]` items in the template MAY be checked or left unchecked. When no template exists, the skill MUST prescribe a fallback structure consisting of `## Summary` (bulleted, one sentence per bullet) plus an optional `## Validating Changes (ad-hoc, if logic is not covered by automated tests)` section. The skill MUST NOT prescribe `## Risks` or `## Test plan` as the no-template fallback structure.
+The `writing-pr-description` skill body MUST instruct the agent to detect a repo PR template (`.github/pull_request_template.md` and the other canonical paths) and, when one exists, to fill the template verbatim WITHOUT appending new sections and WITHOUT adding new items to any existing verification or task checklist. Only the existing `- [ ]` items in the template MAY be checked or left unchecked. When no template exists, the skill MUST prescribe a fallback structure consisting of `## Summary` (bulleted, one sentence per bullet) plus an optional `## Validating Changes (ad-hoc, if logic is not covered by automated tests)` section. The skill MUST NOT prescribe `## Risks` or `## Test plan` as the no-template fallback structure.
 
 #### Scenario: Repo PR template exists and is filled verbatim
 - WHEN the agent drafts a PR body for a repo whose `.github/pull_request_template.md` defines `## Summary`, `## Checklist` with three `- [ ]` items, and nothing else
@@ -67,7 +67,7 @@ The `opinionated-pr` skill body MUST instruct the agent to detect a repo PR temp
 
 ### Requirement: PR-opening flow uses gh pr create --web and never auto-submits
 
-The `opinionated-pr` skill body MUST instruct the agent to use `gh pr create --web` when opening a PR. The skill MUST forbid the use of `--draft`, `--fill`, `--fill-first`, `--reviewer`, `--assignee`, and `--label` as default flags. The skill MUST forbid submitting the PR (draft or ready) without `--web` unless the user has explicitly directed otherwise in the same conversation.
+The `writing-pr-description` skill body MUST instruct the agent to use `gh pr create --web` when opening a PR. The skill MUST forbid the use of `--draft`, `--fill`, `--fill-first`, `--reviewer`, `--assignee`, and `--label` as default flags. The skill MUST forbid submitting the PR (draft or ready) without `--web` unless the user has explicitly directed otherwise in the same conversation.
 
 #### Scenario: PR open uses --web
 - WHEN the agent runs `gh pr create` on behalf of the user
@@ -79,7 +79,7 @@ The `opinionated-pr` skill body MUST instruct the agent to use `gh pr create --w
 
 ### Requirement: Source-code-comment skill codifies default-no-comments
 
-The `opinionated-code-comments` skill body MUST state that the default behavior is to write no comment unless the WHY is non-obvious (a hidden constraint, subtle invariant, workaround for a specific bug, or behavior that would surprise a reader). The skill MUST forbid comments that explain WHAT the code does when the identifier already does that, MUST forbid comments that reference the current task or commit, and MUST forbid multi-paragraph docstrings and multi-line comment blocks. Inline comments, when written, are at most one short line. The skill MUST cross-reference the existing `CLAUDE.md` guidance to avoid drift.
+The `writing-code-comments` skill body MUST state that the default behavior is to write no comment unless the WHY is non-obvious (a hidden constraint, subtle invariant, workaround for a specific bug, or behavior that would surprise a reader). The skill MUST forbid comments that explain WHAT the code does when the identifier already does that, MUST forbid comments that reference the current task or commit, and MUST forbid multi-paragraph docstrings and multi-line comment blocks. Inline comments, when written, are at most one short line. The skill MUST cross-reference the existing `CLAUDE.md` guidance to avoid drift.
 
 #### Scenario: Default is no comment
 - WHEN the agent edits a function whose name clearly describes its behavior
@@ -127,10 +127,10 @@ Each skill body MUST retain a top-section instruction to check for and honor rep
 
 ### Requirement: Historical ticket-ID pattern is documented but flagged
 
-The `opinionated-commit` skill body MUST include a section describing the historical `<type>: <TICKET-ID>: <subject>` form using `TICKET-ID` shaped as `[A-Z]{2,}[0-9]*-[0-9]+`. The section MUST be labeled as historical or pre-2024 and MUST state that current work without an active Linear/JIRA tracker does NOT need to carry a ticket prefix. The section MUST use a generic placeholder (e.g. `PROJECT-NNN`) in any documented form-shape examples; concrete Laurel-era project codes (`OWL`, `TO`, `TLS`, `TBP3`, `TBP11`, `PLAT`, `PRS`) MAY appear only in clearly-labeled historical exemplars, not in form-shape recommendations.
+The `writing-commit-message` skill body MUST include a section describing the historical `<type>: <TICKET-ID>: <subject>` form using `TICKET-ID` shaped as `[A-Z]{2,}[0-9]*-[0-9]+`. The section MUST be labeled as historical or pre-2024 and MUST state that current work without an active Linear/JIRA tracker does NOT need to carry a ticket prefix. The section MUST use a generic placeholder (e.g. `PROJECT-NNN`) in any documented form-shape examples; concrete Laurel-era project codes (`OWL`, `TO`, `TLS`, `TBP3`, `TBP11`, `PLAT`, `PRS`) MAY appear only in clearly-labeled historical exemplars, not in form-shape recommendations.
 
 #### Scenario: Pattern is documented and flagged historical
-- WHEN an agent reads the ticket-ID section of `opinionated-commit`
+- WHEN an agent reads the ticket-ID section of `writing-commit-message`
 - THEN it sees the pattern described with a `PROJECT-NNN` placeholder shape and an explicit "historical, not required for current work" qualifier
 
 #### Scenario: Agent over-applies the pattern

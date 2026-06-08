@@ -8,10 +8,10 @@ let
   registry = import ./skills { inherit pkgs lib; };
 
   requiredSkills = [
-    "shell-scripting"
-    "find-skills"
-    "seshy"
-    "code-search"
+    "shell-script-authoring"
+    "skills-ecosystem-discovery"
+    "feature-based-session-manager"
+    "search-code-routing"
   ];
 
   disallowedFields = [
@@ -193,8 +193,9 @@ let
   # ──────────────────────────────────────────────────────────────────────
 
   # Group skills under coarse categories so the hub's category UI surfaces
-  # them sensibly. Derived from name prefix; default bucket is `tools`.
-  hermesCategoryOf = name: if lib.hasPrefix "write-" name then "writing" else "tools";
+  # them sensibly. The <category>-<subcategory>-<description> naming
+  # convention means the first segment is the category.
+  hermesCategoryOf = name: builtins.head (lib.splitString "-" name);
 
   renderHermesSkill =
     name: skill:

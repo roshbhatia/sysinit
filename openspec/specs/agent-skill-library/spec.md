@@ -16,7 +16,7 @@ The skill registry at `modules/home/programs/llm/skills/default.nix` SHALL be th
 - **THEN** no corresponding `SKILL.md` is generated and the skill is not advertised to agents
 
 ### Requirement: Required global skills are installed by default
-The registry MUST include, at minimum, the following skill names installed for every user of this dotfiles repo: `shell-scripting`, `openspec-propose`, `openspec-apply`, `openspec-explore`, `openspec-archive`, `find-skills`, `seshy`, `code-search`.
+The registry MUST include, at minimum, the following skill names installed for every user of this dotfiles repo: `shell-script-authoring`, `openspec-propose`, `openspec-apply`, `openspec-explore`, `openspec-archive`, `skills-ecosystem-discovery`, `feature-based-session-manager`, `search-code-routing`.
 
 #### Scenario: Fresh install includes baseline skills
 - **WHEN** a user runs `nh os switch` on a freshly cloned sysinit checkout
@@ -40,9 +40,9 @@ For every agent module enabled in `modules/home/programs/llm/config/` (claude, c
 ### Requirement: External skills are vendored reproducibly
 Skills sourced from third-party repositories (`anthropics/skills`, `vercel-labs/skills`, etc.) MUST be vendored via Nix fetchers (`pkgs.fetchurl`, `pkgs.fetchFromGitHub`) with content-addressed hashes pinned in the repo. Symlinks into untracked directories such as `~/.agents/skills/` SHALL NOT be the source of truth for any required skill.
 
-#### Scenario: find-skills is reproducible
+#### Scenario: skills-ecosystem-discovery is reproducible
 - **WHEN** the build is run on a machine that has no pre-existing `~/.agents/` directory
-- **THEN** the `find-skills` SKILL.md is still produced from the vendored upstream copy
+- **THEN** the `skills-ecosystem-discovery` SKILL.md is still produced from the vendored upstream copy
 
 #### Scenario: Hash drift is caught
 - **WHEN** the upstream tarball for a vendored skill changes content

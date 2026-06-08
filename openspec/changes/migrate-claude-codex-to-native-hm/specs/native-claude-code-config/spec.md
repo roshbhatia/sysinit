@@ -38,7 +38,7 @@ The system SHALL configure `programs.claude-code.skillsDir` to point to the exis
 
 #### Scenario: Shell-scripting skill is present
 - **WHEN** home-manager builds the configuration
-- **THEN** `~/.claude/skills/shell-scripting/SKILL.md` exists
+- **THEN** `~/.claude/skills/shell-script-authoring/SKILL.md` exists
 
 ### Requirement: MCP integration enabled
 The system SHALL set `programs.claude-code.enableMcpIntegration = true` so that `programs.mcp.servers` are consumed automatically.

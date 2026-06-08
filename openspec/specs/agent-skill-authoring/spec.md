@@ -55,6 +55,6 @@ When a skill declares `allowed-tools` in its registry entry, the value MUST be a
 The compact skill index emitted by `instructions.nix` MUST list each globally-installed skill exactly once as `<name>·<description-first-sentence>`, in a single section labelled `## Skills|<skillsRoot>`. The same content SHALL be emitted for every agent that has a context file (CLAUDE.md, AGENTS.md, GEMINI.md, codex `instructions.md`).
 
 #### Scenario: Skill appears in CLAUDE.md
-- **WHEN** the registry contains a skill named `seshy`
-- **THEN** the generated `~/.claude/CLAUDE.md` contains a line in the `## Skills|~/.claude/skills` section starting with `seshy·`
+- **WHEN** the registry contains a skill named `feature-based-session-manager`
+- **THEN** the generated `~/.claude/CLAUDE.md` contains a line in the `## Skills|~/.claude/skills` section starting with `feature-based-session-manager·`
 

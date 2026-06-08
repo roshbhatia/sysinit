@@ -65,7 +65,7 @@ The `append_agentsmd_context.sh` hook is currently in `xdg.dataFile`. The native
 
 ### 5. Skills via `programs.claude-code.skillsDir`
 
-The existing `skills/` directory (with `shell-scripting.nix` etc.) can be pointed to directly via `skillsDir`. This avoids reformatting skill content.
+The existing `skills/` directory (with `shell-script-authoring.nix` etc.) can be pointed to directly via `skillsDir`. This avoids reformatting skill content.
 
 **Decision:** Use `skillsDir` pointing to the existing skills directory.
 

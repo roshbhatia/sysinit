@@ -15,12 +15,12 @@ let
     if lib.hasPrefix "---\n" full then
       lib.substring 4 (builtins.stringLength full) full
     else
-      throw "find-skills: upstream SKILL.md does not start with '---'";
+      throw "skills-ecosystem-discovery: upstream SKILL.md does not start with '---'";
 
   parts = builtins.split "\n---\n" withoutLead;
   stripped =
     if builtins.length parts < 3 then
-      throw "find-skills: upstream SKILL.md missing closing '---' frontmatter delimiter"
+      throw "skills-ecosystem-discovery: upstream SKILL.md missing closing '---' frontmatter delimiter"
     else
       # builtins.split returns [pre, [groups], post]. Take element 2 (post).
       builtins.elemAt parts 2;

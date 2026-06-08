@@ -197,7 +197,7 @@ in
       '')
 
       (lib.mkOrder 700 ''
-        # seshy helpers — the multi-repo tmux session manager binary is `sy`
+        # seshy helpers — the multi-repo, git-worktree session manager binary is `sy`
         _seshy_debug() {
           [[ -n $SYSINIT_DEBUG ]] && echo "[SESHY] $*" >&2
         }

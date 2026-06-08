@@ -36,7 +36,7 @@
 - [x] 5.4 Confirm `~/.claude/agents/oracle.md` and `~/.claude/agents/librarian.md` exist (plural path)
 - [x] 5.5 Confirm `~/.claude/agent/` (singular) does NOT exist
 - [x] 5.6 Confirm `~/.claude/hooks/append_agentsmd_context` is present and executable
-- [x] 5.7 Confirm `~/.claude/skills/shell-scripting/SKILL.md` exists
+- [x] 5.7 Confirm `~/.claude/skills/shell-script-authoring/SKILL.md` exists
 - [x] 5.8 Confirm codex config file exists at the version-appropriate path and contains MCP server entries
 - [x] 5.9 Confirm codex AGENTS.md exists with instructions content
 - [x] 5.10 Confirm gemini/goose/amp/etc. configs are unchanged (spot-check one)

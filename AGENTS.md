@@ -46,17 +46,20 @@ openspec schema validate rosh-spec-driven
 
 Skills live at `~/.claude/skills/<name>/SKILL.md`, generated from `modules/home/programs/llm/skills/default.nix`.
 
-- `code-search` · Routes code-search queries to the right tool: builtin `rg`/`grep`/Glob for literal text, `ast-grep`/`sg` for structural AST patterns, `gh search` for repo/org-wide search
-- `find-skills` · Discovers and installs agent skills from the open skills ecosystem at skills
+- `search-code-routing` · Routes code-search queries to the right tool: builtin `rg`/`grep`/Glob for literal text, `ast-grep`/`sg` for structural AST patterns, `gh search` for repo/org-wide search
+- `skills-ecosystem-discovery` · Discovers and installs agent skills from the open skills ecosystem at skills.sh
 - `openspec-apply` · Implements the tasks defined in an existing OpenSpec change
 - `openspec-archive` · Archives a completed OpenSpec change and merges its delta specs into the project's authoritative specs
 - `openspec-explore` · Enters a thinking-partner mode for exploring ideas, investigating problems, and clarifying requirements before committing to a change
 - `openspec-propose` · Drafts a new OpenSpec change with proposal, design, specs, and tasks in one pass
-- `seshy` · Operates the seshy multi-repo tmux session manager via its non-interactive `sy` subcommands
-- `shell-scripting` · Use when writing or modifying shell scripts, particularly in the hack/ directory, Taskfile commands, or any bash automation in this repository
-- `opinionated-code-comments` · Opinionated style for inline source-code comments. Default to no comment. Add a comment only when the WHY is non-obvious. No multi-paragraph docstrings. One short line max
-- `opinionated-commit` · Writes git commit messages in a terse, conventional-commit-shaped style. Lowercase preferred but not absolute, title-only by default, no body, no period. Supports the historical `<type>: <TICKET-ID>: <subject>` variant when a tracker ticket is in scope
-- `opinionated-pr` · Writes GitHub PR descriptions in a terse, opinionated style. Delegates body shape to the repo PR template when one exists; falls back to `## Summary` plus an optional ad-hoc validating-changes block. Never mutates an existing checklist
+- `feature-based-session-manager` · Operates the seshy multi-repo, feature-based session manager (git-worktree based, not tmux) via its non-interactive `sy` subcommands
+- `shell-script-authoring` · Use when writing or modifying shell scripts, particularly in the hack/ directory, Taskfile commands, or any bash automation in this repository
+- `writing-code-comments` · Opinionated style for inline source-code comments. Default to no comment. Add a comment only when the WHY is non-obvious. No multi-paragraph docstrings. One short line max
+- `writing-commit-message` · Writes git commit messages in a terse, conventional-commit-shaped style. Lowercase preferred but not absolute, title-only by default, no body, no period. Supports the historical `<type>: <TICKET-ID>: <subject>` variant when a tracker ticket is in scope
+- `writing-pr-description` · Writes GitHub PR descriptions in a terse, opinionated style. Delegates body shape to the repo PR template when one exists; falls back to `## Summary` plus an optional ad-hoc validating-changes block. Never mutates an existing checklist
+- `writing-doc-design` · Structures a technical design doc (Summary, Goals/Non-Goals, Proposal, Design Details, Validation, Drawbacks, Alternatives); skeleton sourced from the Kubernetes KEP template, de-Kubernetes'd and tuned to Roshan's voice
+- `writing-doc-rfc` · Structures a request-for-comments (Summary, Motivation, Guide-/Reference-level explanation, Drawbacks, Rationale and alternatives, Prior art, Unresolved questions); skeleton sourced from the Rust RFC template, de-Rust'd and tuned to Roshan's voice
+- `diagram-mermaid-render` · Renders Mermaid diagrams: ASCII inline via `mermaid-ascii` by default, image export via the Kroki API when fidelity is required; per-type syntax distilled from the Agents365 mermaid-skill
 
 ## Prohibitions
 
