@@ -10,22 +10,6 @@ let
 
   defaultInstructions = kit.mkInstructions "~/.claude/skills";
 
-  claudeHookScript = ''
-    #!/usr/bin/env bash
-    set -euo pipefail
-    content=""
-    while IFS= read -r file; do
-      content+="=== ''${file} ===
-    $(cat "$file")
-
-    "
-    done < <(find "''${CLAUDE_PROJECT_DIR:-.}" -name "AGENTS.md" -type f 2>/dev/null | sort)
-    if [[ -n "$content" ]]; then
-      printf '%s' "$content" | jq -Rs '{"additionalContext": .}'
-    fi
-    exit 0
-  '';
-
   subagents = lib.filterAttrs (
     n: _: n != "formatSubagentAsMarkdown"
   ) kit.llmLib.instructions.subagents;
@@ -55,17 +39,6 @@ in
       autoDreamEnabled = true;
 
       hooks = {
-        SessionStart = [
-          {
-            matcher = "startup";
-            hooks = [
-              {
-                type = "command";
-                command = "${config.home.homeDirectory}/.claude/hooks/append_agentsmd_context";
-              }
-            ];
-          }
-        ];
         Stop = [
           {
             matcher = "";
@@ -118,11 +91,6 @@ in
 
   home = {
     packages = [ pkgs.claude-notifications-go ];
-
-    file.".claude/hooks/append_agentsmd_context" = {
-      text = claudeHookScript;
-      executable = true;
-    };
 
     file.".claude/claude-notifications-go/config.json".text = builtins.toJSON {
       notifyOnSubagentStop = true;
