@@ -20,7 +20,10 @@ let
 
     "
     done < <(find "''${CLAUDE_PROJECT_DIR:-.}" -name "AGENTS.md" -type f 2>/dev/null | sort)
-    [[ -n "$content" ]] && printf '%s' "$content" | jq -Rs '{"additionalContext": .}'
+    if [[ -n "$content" ]]; then
+      printf '%s' "$content" | jq -Rs '{"additionalContext": .}'
+    fi
+    exit 0
   '';
 
   subagents = lib.filterAttrs (
