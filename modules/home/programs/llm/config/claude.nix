@@ -10,6 +10,8 @@ let
 
   defaultInstructions = kit.mkInstructions "~/.claude/skills";
 
+  statuslineScript = pkgs.writeShellScript "claude-statusline" (builtins.readFile ./statusline.sh);
+
   subagents = lib.filterAttrs (
     n: _: n != "formatSubagentAsMarkdown"
   ) kit.llmLib.instructions.subagents;
@@ -30,12 +32,26 @@ in
     settings = {
       permissions = {
         allow = llmLib.allowlist.formatForClaude llmLib.allowlist.tierA;
+        # Reversible local writes (formatters, `git add`, `nix build`): force a
+        # confirmation prompt rather than auto-allowing or hard-denying.
+        ask = llmLib.allowlist.formatForClaude llmLib.allowlist.tierB;
       };
 
       editorMode = "vim";
+
+      # Use our explicit Co-Authored-By trailer (per global CLAUDE.md) instead
+      # of the built-in one, so commits don't carry two attribution lines.
+      includeCoAuthoredBy = false;
+
+      statusLine = {
+        type = "command";
+        command = "${statuslineScript}";
+      };
+
+      # Not in the public settings reference as of 2.1.x; kept as known-good
+      # internal keys — verify via /config after major upgrades.
       tui = "fullscreen";
       autoCompactWindow = 145000;
-      autoMemoryEnabled = true;
       autoDreamEnabled = true;
 
       hooks = {
