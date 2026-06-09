@@ -39,7 +39,8 @@ let
           - Do not mix formatting-only with behavioral changes
           - MAY commit and push freely in roshbhatia- and ross-corp-owned repos
           - In work repos, MAY commit and push when on a session or feature branch
-          - NEVER push to main
+          - NEVER push to main unless you're inside a repo where the convention is to push to main -- i.e., toy projects, personal configurations, etc.
+          - AWLAYS look at prior merged PRs to get an understanding of commit conventions. If there is none, you may fall back to conventional commits, but you should see if there's a convention around where the ticket number, issue number, etc. should be placed.
         '';
 
         operating = ''
