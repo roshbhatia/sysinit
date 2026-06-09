@@ -369,9 +369,9 @@ function M.setup(config)
   }
 
   -- workspace-manager: seshy session picker + layout persistence across restarts.
-  -- We feed its switcher from `sy list` and expose it through the command palette
-  -- (via augment-command-palette) rather than its own keybindings, so the user's
-  -- existing bindings are untouched.
+  -- We feed its switcher from `sy list`, bind it to SUPER+s (see below), and also
+  -- surface it in the command palette. We do NOT use the plugin's own
+  -- apply_to_config keybindings (they'd shadow vim's CTRL+[).
   local wm_ok, wm = plugin_loader.load("workspace-manager")
   if not wm_ok then
     wezterm.log_warn("Failed to load workspace-manager.wezterm: " .. tostring(wm))
@@ -380,13 +380,32 @@ function M.setup(config)
     local home = os.getenv("HOME") or ""
     local seshy_dir = home .. "/.local/state/seshy/sessions"
 
+    -- wezterm.run_child_process runs under the GUI process's own environment,
+    -- whose PATH (when launched from Finder/Dock on macOS) omits ~/.local/bin
+    -- where `sy` lives — so a bare "sy" silently fails and the switcher shows
+    -- no sessions. Resolve an absolute path from the PATH the config knows
+    -- about (env.json), falling back to the conventional install dir.
+    local sy_bin = home .. "/.local/bin/sy"
+    do
+      local env = utils.load_json_file(utils.get_config_path("env.json"))
+      for dir in (env and env.PATH or ""):gmatch("[^:]+") do
+        local candidate = dir .. "/sy"
+        local fh = io.open(candidate, "r")
+        if fh then
+          fh:close()
+          sy_bin = candidate
+          break
+        end
+      end
+    end
+
     -- Replace the default choice provider: list seshy sessions instead of
     -- scanning a projects dir. `sy list` prints a header row then one row per
     -- session; column 1 is the session name.
     wm.get_choices = function()
       local choices = {}
       local ok, stdout = pcall(function()
-        local success, out = wezterm.run_child_process({ "sy", "list" })
+        local success, out = wezterm.run_child_process({ sy_bin, "list" })
         if not success then
           error("sy list failed")
         end
@@ -427,7 +446,23 @@ function M.setup(config)
       table.remove(config.keys)
     end
 
-    -- Expose the switcher through the command palette (reachable via the
+    -- SUPER+s opens the switcher. Bound here (not keybindings.lua) because it
+    -- needs this configured wm instance; mirrors the locked-mode passthrough the
+    -- other smart keybinds use. ssh moved to SUPER+SHIFT+s.
+    config.keys = config.keys or {}
+    table.insert(config.keys, {
+      key = "s",
+      mods = "SUPER",
+      action = wezterm.action_callback(function(win, pane)
+        if keybindings.locked_mode then
+          win:perform_action({ SendKey = { key = "s", mods = "SUPER" } }, pane)
+          return
+        end
+        win:perform_action(wm.workspace_switcher(), pane)
+      end),
+    })
+
+    -- Also expose the switcher through the command palette (reachable via the
     -- existing SUPER+: / SUPER+; / CTRL+; palette bindings).
     wezterm.on("augment-command-palette", function(_window, _pane)
       return {

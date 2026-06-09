@@ -118,12 +118,14 @@ local function get_system_keys()
     create_smart_keybind(":", "SUPER", act.ActivateCommandPalette),
     create_smart_keybind(";", "SUPER", act.ActivateCommandPalette),
     create_smart_keybind(";", "CTRL", act.ActivateCommandPalette),
+    -- SUPER+SHIFT+s: ssh host picker. SUPER+s is reserved for the workspace /
+    -- seshy switcher, bound in ui.lua where the configured plugin instance lives.
     {
       key = "s",
-      mods = "SUPER",
+      mods = "SUPER|SHIFT",
       action = wezterm.action_callback(function(win, pane)
         if M.locked_mode then
-          win:perform_action({ SendKey = { key = "s", mods = "SUPER" } }, pane)
+          win:perform_action({ SendKey = { key = "s", mods = "SUPER|SHIFT" } }, pane)
           return
         end
         win:perform_action(get_ssh_picker(), pane)
