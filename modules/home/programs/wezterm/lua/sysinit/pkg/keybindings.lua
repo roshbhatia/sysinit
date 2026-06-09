@@ -59,6 +59,7 @@ local function get_pane_keys()
     create_smart_keybind("s", "CTRL", act.SplitVertical({ domain = "CurrentPaneDomain" })),
     create_smart_keybind("v", "CTRL", act.SplitHorizontal({ domain = "CurrentPaneDomain" })),
     create_smart_keybind("m", "CTRL", act.TogglePaneZoomState),
+    create_smart_keybind("n", "CTRL", act.RotatePanes("Clockwise")),
   }
 
   -- Navigation and resize for h, j, k, l
@@ -260,11 +261,7 @@ local function get_window_keys()
   return {
     create_smart_keybind("n", "SUPER", act.SpawnWindow),
     -- SUPER|SHIFT+n: spawn a new window in the local domain (SpawnWindow uses DefaultDomain)
-    create_smart_keybind(
-      "n",
-      "SUPER|SHIFT",
-      act.SpawnCommandInNewWindow({ domain = { DomainName = "local" } })
-    ),
+    create_smart_keybind("n", "SUPER|SHIFT", act.SpawnCommandInNewWindow({ domain = { DomainName = "local" } })),
   }
 end
 
