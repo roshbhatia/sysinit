@@ -30,17 +30,33 @@ let
       # "> Running bash: git status" and returned 'idle' while the agent was working.
       patches = [ ./patches/agent-deck-idle-detection.patch ];
     };
-    sessionizer = pkgs.fetchFromGitHub {
-      owner = "mikkasendke";
-      repo = "sessionizer.wezterm";
-      rev = "694f355150325bdb13ef78588ae5514f8aa22124";
-      hash = "sha256-A+4fGRfPKwOoSEH3MYHz3x5eMOCqPRpfYRCrIIHxZHM=";
+    # sravioli UI toolkit — loaded in dependency order (warp first): ribbon and
+    # sigil's deps.lua does `require("warp.api")`, which resolves once warp's
+    # plugin/ dir is on package.path (added by plugin_loader.load("warp")).
+    warp = pkgs.fetchFromGitHub {
+      owner = "sravioli";
+      repo = "warp.wz";
+      rev = "ccc6816fff3174bd826ab1a7154fb8469a8e4cdd";
+      hash = "sha256-GRYSLrZXmGSJqXqfAvolBwsu+o1AYEBSUYBVGlLkLqg=";
     };
-    resurrect = pkgs.fetchFromGitHub {
-      owner = "MLFlexer";
-      repo = "resurrect.wezterm";
-      rev = "47ce553e07bb2c183d10487c56c406454aa50f36";
-      hash = "sha256-j7BIvJV7brkqWTtdWE/v9FnXRuHH0+934MTDCFNLEdY=";
+    ribbon = pkgs.fetchFromGitHub {
+      owner = "sravioli";
+      repo = "ribbon.wz";
+      rev = "e2735090f8e5e2815429c86f1816260523b86494";
+      hash = "sha256-nfSHZnAkd/CNk8GFm6QoBZ36zPhcR5le70geNRpk7J0=";
+    };
+    sigil = pkgs.fetchFromGitHub {
+      owner = "sravioli";
+      repo = "sigil.wz";
+      rev = "1e58c730dcbf8bfdcd32cdada3484a1d673e0464";
+      hash = "sha256-tEspBNdQqGif5DQV8JAzVQRdW0Hl6ykdSMmx+BqNj90=";
+    };
+    # Seshy session picker + workspace-layout persistence across restarts.
+    workspace-manager = pkgs.fetchFromGitHub {
+      owner = "ryanmsnyder";
+      repo = "workspace-manager.wezterm";
+      rev = "2aa02b17b3555035e329a479e6f981027d611b15";
+      hash = "sha256-p+J/ilHkrauaviMNH6zEeFpAXLKAistSrJpRNCftqoI=";
     };
   };
 in
@@ -143,8 +159,10 @@ in
       plugins = {
         tabline = "${weztermPlugins.tabline}";
         agent-deck = "${weztermPlugins.agent-deck}";
-        sessionizer = "${weztermPlugins.sessionizer}";
-        resurrect = "${weztermPlugins.resurrect}";
+        warp = "${weztermPlugins.warp}";
+        ribbon = "${weztermPlugins.ribbon}";
+        sigil = "${weztermPlugins.sigil}";
+        workspace-manager = "${weztermPlugins.workspace-manager}";
       };
     };
     "wezterm/env.json".text = builtins.toJSON {

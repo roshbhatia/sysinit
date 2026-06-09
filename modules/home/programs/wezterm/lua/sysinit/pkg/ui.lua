@@ -103,8 +103,11 @@ function M.setup(config)
       },
       agents = {
         claude = {
+          -- Claude Code 2.x ships as a Bun-compiled Mach-O binary whose
+          -- kernel-visible name is `.claude-wrapped`; the broad "claude"
+          -- substring matches the install path .../claude-X.Y.Z/bin/.claude-wrapped.
           patterns = { ".claude%-wrapped", "claude", "claude%-code" },
-          executable_patterns = { "@anthropic%-ai/claude%-code", "/claude%-code/", "/claude$" },
+          executable_patterns = { "@anthropic%-ai/claude%-code", "/claude%-code/", "/claude$", "claude" },
           argv_patterns = { "@anthropic%-ai/claude%-code", "claude%-code", "^claude%s*$" },
           title_patterns = { "claude code", "claude", ".claude%-wrapped" },
         },
@@ -260,9 +263,37 @@ function M.setup(config)
     }
   end
 
-  -- Smart tab titles: show basename(cwd) and foreground process.
-  -- Falls back to WezTerm default when cwd is unavailable.
-  -- User-set titles (non-numeric) are respected and not overwritten.
+  -- sravioli UI toolkit: warp (stdlib) must load first so ribbon/sigil's
+  -- deps.lua `require("warp.api")` resolves off package.path. These bypass
+  -- wezterm.plugin.require entirely (see plugin_loader).
+  plugin_loader.load("warp")
+  local ribbon_ok, ribbon = plugin_loader.load("ribbon")
+  if not ribbon_ok then
+    wezterm.log_warn("Failed to load ribbon.wz: " .. tostring(ribbon))
+  end
+  local sigil_ok, sigil = plugin_loader.load("sigil")
+  if not sigil_ok then
+    wezterm.log_warn("Failed to load sigil.wz: " .. tostring(sigil))
+  end
+  if sigil_ok then
+    sigil.setup({
+      -- Claude Code's foreground process basename is `.claude-wrapped` (a Bun
+      -- Mach-O binary); register it (and aliases) so tabs show a clean glyph
+      -- instead of the raw wrapper name.
+      overrides = {
+        claude = {
+          name = "Claude",
+          icon = wezterm.nerdfonts.md_robot or wezterm.nerdfonts.fa_robot or "",
+          color = "#D97757",
+          aliases = { ".claude-wrapped", "claude-code", "claude-wrapped" },
+        },
+      },
+    })
+  end
+
+  -- Smart tab titles: foreground-process icon (via sigil) + basename(cwd).
+  -- User-set titles (non-numeric) are respected and not overwritten; falls
+  -- back to plain "dir (proc)" text when sigil/ribbon are unavailable.
   local SHELLS = { zsh = true, bash = true, fish = true, sh = true }
   wezterm.on("format-tab-title", function(tab, _tabs, _panes, _config, _hover, _max_width)
     local title = tab:get_title()
@@ -294,7 +325,18 @@ function M.setup(config)
       proc = proc:match("([^/]+)$")
     end
 
+    -- Non-shell foreground process: prefix a sigil process icon when one is
+    -- known (reset=true so the icon's color doesn't bleed into the dir text).
     if proc and not SHELLS[proc] then
+      if sigil_ok and ribbon_ok then
+        local icon_items = sigil.items(proc, { padding = "right", fallback = false, reset = true })
+        if icon_items and #icon_items > 0 then
+          local r = ribbon.new("tab")
+          r:append_items(icon_items)
+          r:append(nil, nil, dir)
+          return r:items()
+        end
+      end
       return dir .. " (" .. proc .. ")"
     end
     return dir
@@ -325,6 +367,81 @@ function M.setup(config)
     "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}",
     "/[^\\s]+",
   }
+
+  -- workspace-manager: seshy session picker + layout persistence across restarts.
+  -- We feed its switcher from `sy list` and expose it through the command palette
+  -- (via augment-command-palette) rather than its own keybindings, so the user's
+  -- existing bindings are untouched.
+  local wm_ok, wm = plugin_loader.load("workspace-manager")
+  if not wm_ok then
+    wezterm.log_warn("Failed to load workspace-manager.wezterm: " .. tostring(wm))
+  end
+  if wm_ok then
+    local home = os.getenv("HOME") or ""
+    local seshy_dir = home .. "/.local/state/seshy/sessions"
+
+    -- Replace the default choice provider: list seshy sessions instead of
+    -- scanning a projects dir. `sy list` prints a header row then one row per
+    -- session; column 1 is the session name.
+    wm.get_choices = function()
+      local choices = {}
+      local ok, stdout = pcall(function()
+        local success, out = wezterm.run_child_process({ "sy", "list" })
+        if not success then
+          error("sy list failed")
+        end
+        return out
+      end)
+      if not ok or not stdout then
+        return choices
+      end
+      local first = true
+      for _, line in ipairs(wezterm.split_by_newlines(stdout)) do
+        if first then
+          first = false
+        elseif line ~= "" then
+          local name = line:match("^(%S+)")
+          if name then
+            table.insert(choices, {
+              name = name,
+              path = seshy_dir .. "/" .. name,
+              label = name,
+            })
+          end
+        end
+      end
+      return choices
+    end
+
+    wm.session_enabled = true
+    wm.session_restore_on_startup = true
+    wm.session_state_dir = home .. "/.local/state/wezterm/workspace_state"
+    wm.workspace_switcher_sort = "recency"
+
+    -- apply_to_config appends keybindings; capture the count first so we can
+    -- strip what it injects (we don't want it touching the user's bindings,
+    -- and CTRL+[ = ESC in particular would shadow vim).
+    local key_count = config.keys and #config.keys or 0
+    wm.apply_to_config(config)
+    while config.keys and #config.keys > key_count do
+      table.remove(config.keys)
+    end
+
+    -- Expose the switcher through the command palette (reachable via the
+    -- existing SUPER+: / SUPER+; / CTRL+; palette bindings).
+    wezterm.on("augment-command-palette", function(_window, _pane)
+      return {
+        {
+          brief = "Switch seshy session / workspace",
+          action = wm.workspace_switcher(),
+        },
+        {
+          brief = "Switch to previous workspace",
+          action = wm.switch_to_previous_workspace(),
+        },
+      }
+    end)
+  end
 end
 
 return M
