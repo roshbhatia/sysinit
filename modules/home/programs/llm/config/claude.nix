@@ -12,6 +12,10 @@ let
 
   statuslineScript = pkgs.writeShellScript "claude-statusline" (builtins.readFile ./statusline.sh);
 
+  # SessionEnd hook: appends a dumb pointer line per session to the cross-session
+  # worklog. Summaries are filled in later by the `worklog` skill, not here.
+  worklogScript = pkgs.writeShellScript "claude-worklog" (builtins.readFile ./worklog.sh);
+
   subagents = lib.filterAttrs (
     n: _: n != "formatSubagentAsMarkdown"
   ) kit.llmLib.instructions.subagents;
@@ -55,6 +59,18 @@ in
       autoDreamEnabled = true;
 
       hooks = {
+        SessionEnd = [
+          {
+            matcher = "";
+            hooks = [
+              {
+                type = "command";
+                command = "${worklogScript}";
+                async = true;
+              }
+            ];
+          }
+        ];
         Stop = [
           {
             matcher = "";

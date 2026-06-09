@@ -59,6 +59,12 @@
     content = import ./writing-doc-rfc.nix;
   };
 
+  worklog = {
+    description = "Generates a cross-session work report — 'what did we accomplish today' — from the append-only worklog.jsonl written by the SessionEnd hook. Drains un-summarized session entries by reading their transcripts, caches the summaries back, composes a per-day/per-repo digest, and optionally maps branches and commits to Linear/Notion/Slack outcomes. Use when the user asks what they worked on or accomplished across recent Claude Code sessions, or wants a daily or weekly progress report spanning repos.";
+    content = import ./worklog.nix;
+    allowed-tools = "Read Write Edit Bash(jq:*) Bash(git:*) Agent";
+  };
+
   diagram-mermaid-render = {
     description = "Renders Mermaid diagrams so they live where they are read: ASCII inline via `mermaid-ascii` for markdown, openspec artifacts, and chat; PNG/SVG export via the Kroki API only when visual fidelity is required. Per-diagram-type syntax guidance is sourced from the Agents365 mermaid-skill. Use when a diagram clarifies more than prose: capability flow, state transitions, sequence-of-calls, option trees, dependency graphs, decision points, architecture sketches.";
     content = import ./diagram-mermaid-render.nix;
