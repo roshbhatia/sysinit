@@ -290,7 +290,9 @@ function M.setup(config)
       overrides = {
         claude = {
           name = "Claude",
-          icon = wezterm.nerdfonts.md_robot or wezterm.nerdfonts.fa_robot or "",
+          -- Claude's brand sparkle (U+2733), in the brand orange. Marks every
+          -- Claude Code tab consistently instead of the raw OSC spinner glyph.
+          icon = "✳",
           color = "#D97757",
           aliases = { ".claude-wrapped", "claude-code", "claude-wrapped" },
         },
@@ -302,14 +304,88 @@ function M.setup(config)
   -- User-set titles (non-numeric) are respected and not overwritten; falls
   -- back to plain "dir (proc)" text when sigil/ribbon are unavailable.
   local SHELLS = { zsh = true, bash = true, fish = true, sh = true }
+
+  -- Claude Code panes get special handling: Claude emits an OSC-2 title that's
+  -- a full-sentence task summary ("Create service SLI dashboard") with a
+  -- leading spinner glyph. Its format isn't steerable (no setting honors
+  -- CLAUDE.md), so we shorten it best-effort into a terse hyphenated slug and
+  -- brand it with the sparkle. Stopwords are weak filler; abbreviations keep
+  -- common long nouns terse. Examples:
+  --   "Create service SLI dashboard"        -> sli-dashboard
+  --   "Revamp Azure reference architecture" -> revamp-azure-arch
+  --   "Optimize nix config"                 -> optimize-nix-config
+  local SLUG_STOP = {
+    a = true, an = true, the = true, to = true, of = true, on = true,
+    ["in"] = true, ["for"] = true, ["and"] = true, with = true, into = true,
+    from = true, at = true, via = true, using = true, new = true,
+    create = true, set = true, up = true, service = true, reference = true,
+  }
+  local SLUG_ABBR = {
+    architecture = "arch", configuration = "config", environment = "env",
+    repository = "repo", database = "db", kubernetes = "k8s", documentation = "docs",
+  }
+  local function slugify_title(title)
+    -- Drop leading non-word glyphs (Claude's spinner ·/✳/*) then lowercase.
+    local s = title:gsub("^[^%w]+", ""):lower()
+    local words = {}
+    for w in s:gmatch("[%w]+") do
+      if not SLUG_STOP[w] then
+        words[#words + 1] = SLUG_ABBR[w] or w
+      end
+    end
+    -- If the title was all filler, fall back to its first few raw words.
+    if #words == 0 then
+      for w in s:gmatch("[%w]+") do
+        words[#words + 1] = w
+        if #words >= 3 then
+          break
+        end
+      end
+    end
+    local capped = {}
+    for i = 1, math.min(#words, 4) do
+      capped[i] = words[i]
+    end
+    return table.concat(capped, "-")
+  end
+
   wezterm.on("format-tab-title", function(tab, _tabs, _panes, _config, _hover, _max_width)
     local title = tab:get_title()
-    -- If the user has manually renamed the tab (title isn't just a number), keep it
+    local pane = tab:active_pane()
+    local proc = pane:get_foreground_process_name()
+    if proc then
+      proc = proc:match("([^/]+)$")
+    end
+
+    -- Claude Code pane: slugify Claude's auto-title and brand with the sparkle.
+    if proc and proc:lower():find("claude", 1, true) then
+      local label
+      if title and title ~= "" and not title:match("^%d+$") then
+        label = slugify_title(title)
+      end
+      if not label or label == "" then
+        -- No usable title yet (just launched): fall back to cwd basename.
+        local cwd_uri = pane:get_current_working_dir()
+        local cwd = cwd_uri and (cwd_uri.file_path or tostring(cwd_uri)) or ""
+        label = cwd:match("([^/]+)/?$") or "claude"
+      end
+      if sigil_ok and ribbon_ok then
+        local icon_items = sigil.items(proc, { padding = "right", fallback = false, reset = true })
+        if icon_items and #icon_items > 0 then
+          local r = ribbon.new("tab")
+          r:append_items(icon_items)
+          r:append(nil, nil, label)
+          return r:items()
+        end
+      end
+      return "✳ " .. label
+    end
+
+    -- Non-Claude: if the user (or program) set a non-numeric title, keep it.
     if title and title ~= "" and not title:match("^%d+$") then
       return title
     end
 
-    local pane = tab:active_pane()
     local cwd_uri = pane:get_current_working_dir()
     if not cwd_uri then
       return title
@@ -325,11 +401,6 @@ function M.setup(config)
       if dir == "~" then
         dir = "~"
       end
-    end
-
-    local proc = pane:get_foreground_process_name()
-    if proc then
-      proc = proc:match("([^/]+)$")
     end
 
     -- Non-shell foreground process: prefix a sigil process icon when one is
