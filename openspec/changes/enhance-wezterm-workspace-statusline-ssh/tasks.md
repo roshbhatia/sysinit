@@ -19,7 +19,8 @@
 ## 2. Statusline (`pkg/ui.lua`)
 
 - [x] 2.1 Add the built-in `workspace` component to the `tabline.setup` sections
-  as `tabline_x = { "workspace" }`; leave the other left sections untouched.
+  in the left status right of the domain (`tabline_b = { "domain", "workspace" }`,
+  `tabline_x = {}`); leave the other sections untouched.
 - [x] 2.2 Remove the right-edge hostname: set `tabline_z = {}` (was
   `{ "hostname" }`). Confirm overwrite-merge leaves
   `mode`/`locked_indicator`/`domain`/`agent_status` intact and `tabs_enabled=false`
@@ -34,14 +35,23 @@
   `act.ShowLauncherArgs{ flags = "FUZZY|DOMAINS" }` if the plugin fails to load.
   Preserve the `SUPER+SHIFT+s` binding and its locked-mode passthrough.
 - [x] 3.3 Build `config.ssh_domains` from `enumerate_ssh_hosts()` shaped to
-  smart_ssh's formatter (`name = "ssh:"..host`, `multiplexing="None"`,
+  smart_ssh's formatter (`name = "ssh:"..host`, `multiplexing="WezTerm"`,
   `assume_shell="Posix"`), skipping the synthetic `%.host` wildcard entries.
 - [x] 3.4 Attach `ssh_option` (identityagent = `$SSH_AUTH_SOCK`, identityfile =
   first existing default key) to each domain so libssh authenticates with the
   agent / key instead of prompting for a password.
 - [x] 3.5 Coverage-merge `~/.ssh/known_hosts` (skip hashed `|1|…` and malformed
-  lines, unwrap `[host]:port`), deduped against the enumerated set, as additional
-  `ssh:<host>` domains.
+  lines, unwrap `[host]:port`), deduped against the enumerated set *and* against
+  the resolved `HostName` of each enumerated alias (so a Tailscale FQDN collapses
+  into its short alias), as additional `ssh:<host>` domains.
+
+## 3b. Startup workspace (`pkg/ui.lua`)
+
+- [x] 3b.1 Set `config.default_workspace = "default"` so fresh windows (launch,
+  relaunch, `CMD+N`) open in `default`.
+- [x] 3b.2 Set `wm.session_restore_on_startup = false` so the plugin registers no
+  `gui-startup` restore handler; keep `session_enabled = true` so sessions still
+  save and still restore when switched into via the switcher.
 
 ## 4. Appearance picker (`pkg/ui.lua` + `default.nix`)
 
@@ -69,10 +79,14 @@
 - [ ] 5.3 `nh darwin switch`.
 - [ ] 5.4 [HUMAN] `SUPER+s` lists `default` pinned at the top; selecting it from
   inside a seshy session returns to the default workspace.
-- [ ] 5.5 [HUMAN] The tabline shows the active workspace name in `tabline_x` and
-  no longer shows the hostname on the right edge.
+- [ ] 5.5 [HUMAN] The tabline shows the active workspace name immediately right of
+  the domain in the left status and no longer shows the hostname on the right edge.
 - [ ] 5.6 [HUMAN] `SUPER+SHIFT+s` opens smart_ssh's "Choose Host" picker, lists
-  SSH hosts (including a `known_hosts`-only host), and connecting to a
-  key-configured host no longer prompts for a password.
+  SSH hosts (including a `known_hosts`-only host) with no FQDN/alias duplicates,
+  connecting to a key-configured host no longer prompts for a password, and the
+  connection opens in a new tab as a reattachable mux domain.
+- [ ] 5.8 [HUMAN] After a full quit (`CMD+Q`) and relaunch, WezTerm opens in the
+  `default` workspace rather than restoring the last session; switching into a
+  saved session still restores its panes.
 - [ ] 5.7 [HUMAN] `SUPER+SHIFT+l` opens the appearance dispatcher; picking
   "Colorscheme" then a scheme applies it live.

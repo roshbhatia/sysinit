@@ -3,9 +3,10 @@
 ### Requirement: Statusline shows the active workspace
 
 The tabline statusline SHALL render the active workspace name — as reported by
-`wezterm.mux.get_active_workspace()` — in a dedicated right-side section
-(`tabline_x`), without displacing the existing `mode`/`locked`/`domain`/
-`agent_status` sections.
+`wezterm.mux.get_active_workspace()` — in the left status immediately right of
+the `domain` section (`tabline_b = { "domain", "workspace" }`), so the
+connection context and active session read left-to-right, without displacing the
+existing `mode`/`locked`/`agent_status` sections.
 
 #### Scenario: Seshy session name is shown
 

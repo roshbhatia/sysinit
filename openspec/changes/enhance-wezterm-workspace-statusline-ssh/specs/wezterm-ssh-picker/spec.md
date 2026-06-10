@@ -24,7 +24,7 @@ load, the picker SHALL fall back to WezTerm's native fuzzy launcher
 
 The configuration SHALL seed `config.ssh_domains` from `enumerate_ssh_hosts()`,
 shaping each domain to match smart_ssh's formatter — name `ssh:<host>`,
-`multiplexing = "None"`, `assume_shell = "Posix"` — and SHALL attach an
+`multiplexing = "WezTerm"`, `assume_shell = "Posix"` — and SHALL attach an
 `ssh_option` table (`identityagent = $SSH_AUTH_SOCK` when set, and
 `identityfile` = the first existing default key among `id_ed25519`, `id_ecdsa`,
 `id_rsa`) so WezTerm's libssh transport authenticates with the agent / key.
@@ -42,6 +42,14 @@ shaping each domain to match smart_ssh's formatter — name `ssh:<host>`,
 - **THEN** the domain is named `ssh:build01` and smart_ssh's formatter renders it
   as the bare host `build01` in the selector
 
+#### Scenario: Selecting a host opens a reattachable tab
+
+- **WHEN** the user selects a host from the picker
+- **THEN** smart_ssh's `SpawnCommandInNewTab` opens the connection in a new tab
+  against the `multiplexing = "WezTerm"` domain, so the remote session is a
+  reattachable mux domain (the remote runs `wezterm-mux-server`) rather than a
+  single-shot exec
+
 #### Scenario: No identity available (negative)
 
 - **WHEN** neither `$SSH_AUTH_SOCK` is set nor any default identity file exists
@@ -54,7 +62,10 @@ The SSH-domain set SHALL be augmented beyond `enumerate_ssh_hosts()` by parsing
 `~/.ssh/known_hosts` (skipping hashed `|1|…` and malformed lines, unwrapping
 `[host]:port` tokens) and appending the parseable hosts as additional
 `ssh:<host>` domains, deduped against the enumerated set, so wildcard-derived and
-previously-connected hosts appear in the picker.
+previously-connected hosts appear in the picker. Deduplication SHALL also skip
+any known_hosts entry whose name equals the resolved `HostName` of an enumerated
+alias, so a Tailscale FQDN (e.g. `arrakis.stork-eel.ts.net`) does not appear as a
+duplicate of its short `Host` alias (e.g. `arrakis`).
 
 #### Scenario: Known-hosts-only host appears
 
@@ -74,3 +85,11 @@ previously-connected hosts appear in the picker.
   added from `enumerate_ssh_hosts()`
 - **THEN** it is not added a second time and no glob pseudo-host appears in the
   picker
+
+#### Scenario: FQDN that resolves to an alias is not duplicated (negative)
+
+- **WHEN** `~/.ssh/known_hosts` contains a FQDN (e.g. `arrakis.stork-eel.ts.net`)
+  that equals the resolved `HostName` of an enumerated `Host` alias (e.g.
+  `arrakis`)
+- **THEN** the picker lists only the short alias `ssh:arrakis` and does not add a
+  separate `ssh:arrakis.stork-eel.ts.net` entry

@@ -28,8 +28,9 @@ knows.
 
 The workspace and statusline gaps need no new plugin: the default-workspace entry
 is a one-line addition to the existing `get_choices` override, the statusline
-indicator is the `tabline.wez` built-in `workspace` component dropped into the
-empty `tabline_x`, and the hostname removal is `tabline_z = {}`. The SSH gap is
+indicator is the `tabline.wez` built-in `workspace` component appended to the
+left-status `domain` section (`tabline_b`), and the hostname removal is
+`tabline_z = {}`. The SSH gap is
 closed by vendoring `DavidRR-F/smart_ssh.wezterm` for its fuzzy "Choose Host"
 picker, building the `ssh_domains` it draws from (with an `ssh_option` agent/key
 config so connections authenticate without a password), and coverage-merging
@@ -45,14 +46,22 @@ config so connections authenticate without a password), and coverage-merging
   `SwitchToWorkspace{name="default"}` (create-if-absent), giving a reliable path
   home from any seshy session. Reuses the existing override — no new keybinding,
   no plugin change.
+- **Always start in `default`.** Set `config.default_workspace = "default"` and
+  flip `wm.session_restore_on_startup = false`, so every fresh window (launch,
+  relaunch after quit, `CMD+N`) opens in `default` instead of the plugin's
+  `gui-startup` handler auto-restoring the most-recently-used session. Sessions
+  still save and still restore when switched into via the switcher.
 
 ### Statusline workspace indicator (`pkg/ui.lua`)
 
-- **Add the built-in `workspace` component to `tabline_x`.** Set
-  `tabline_x = { "workspace" }` in the existing `tabline.setup` call. The
-  component renders `wezterm.mux.get_active_workspace()` (the active seshy
-  session name, or `default`) in the one empty right-side section. Reuses
-  `tabline.wez`; no custom component required.
+- **Append the built-in `workspace` component to `tabline_b`.** Set
+  `tabline_b = { "domain", "workspace" }` (and `tabline_x = {}`) in the existing
+  `tabline.setup` call. The component renders `wezterm.mux.get_active_workspace()`
+  (the active seshy session name, or `default`) in the left status immediately
+  right of the domain, so connection context and session read left-to-right.
+  Reuses `tabline.wez`; no custom component required. (WezTerm has no native
+  option to right-align the tab strip itself — tabs always follow the left
+  status — so the tabs remain left-aligned.)
 - **Remove the `hostname` component from the right edge.** Set
   `tabline_z = {}` (previously `{ "hostname" }`). The `domain` section in
   `tabline_b` already conveys the connection context (local vs. an `ssh:<host>`
@@ -68,16 +77,18 @@ config so connections authenticate without a password), and coverage-merging
   fails to load.
 - **Build the `ssh_domains` the picker draws from, with key auth.** Seed
   `config.ssh_domains` from `enumerate_ssh_hosts()`, shaping each domain to match
-  smart_ssh's formatter — name `ssh:<host>`, `multiplexing="None"`,
+  smart_ssh's formatter — name `ssh:<host>`, `multiplexing="WezTerm"`,
   `assume_shell="Posix"` — and attach an `ssh_option` table
   (`identityagent=$SSH_AUTH_SOCK`, `identityfile=<first existing default key>`)
   so the libssh transport authenticates with the agent / key instead of
   prompting for a password.
 - **Coverage merge for hosts `enumerate_ssh_hosts` misses.** Parse
   `~/.ssh/known_hosts` (skip hashed `|1|…` and malformed lines, unwrap
-  `[host]:port`), dedupe against the enumerated set, and append the parseable
-  hosts as additional `ssh:<host>` domains so wildcard-derived and
-  previously-connected hosts still appear in the picker.
+  `[host]:port`), dedupe against the enumerated set *and* against the resolved
+  `HostName` of each enumerated alias (so a Tailscale FQDN collapses into its
+  short alias rather than appearing twice), and append the parseable hosts as
+  additional `ssh:<host>` domains so wildcard-derived and previously-connected
+  hosts still appear in the picker.
 
 ### Appearance picker (`pkg/ui.lua` + vendored sravioli `lantern.wz`)
 
@@ -97,12 +108,13 @@ config so connections authenticate without a password), and coverage-merging
 
 - No change to the seshy session-manager itself, its branch scheme, or how
   `sy list` enumerates sessions.
-- No change to workspace *session persistence* (`session_enabled`,
-  `session_restore_on_startup`) beyond surfacing `default` in the switcher.
+- No change to *what* workspace session state is saved (`session_enabled` stays
+  on). Startup behavior does change: auto-restore is disabled so fresh windows
+  open in `default` (see "Always start in `default`" above).
 - No change to the `tabline` theme, separators, or the other sections
   (`mode`/`locked`/`domain`/`agent_status`).
-- No `SSHMUX:` multiplexer domains. smart_ssh's model is single-shot exec
-  domains (`multiplexing="None"`); reattach-after-disconnect is out of scope.
+- No native right-alignment of the tab strip — WezTerm renders tabs immediately
+  after the left status with no option to right-bind them; out of scope.
 - No patch to smart_ssh itself — it is used as-is; only the `ssh_domains` it
   reads are configured by this repo. lantern's `deps.lua` *is* patched (to
   resolve its sravioli deps through `plugin_loader` instead of
@@ -136,15 +148,18 @@ config so connections authenticate without a password), and coverage-merging
   routes lantern's `deps.lua` through `plugin_loader.load` instead of
   `wezterm.plugin.require`.
 - `modules/home/programs/wezterm/lua/sysinit/pkg/ui.lua` — `get_choices`
-  override (pinned `default`); `tabline.setup` sections (`tabline_x`/`tabline_z`);
-  lantern load + `setup`/`rekindle` + the `SUPER+SHIFT+l` dispatcher; hardened
-  workspace-manager keybinding strip (by `(key, mods)` identity).
+  override (pinned `default`); `config.default_workspace = "default"` +
+  `session_restore_on_startup = false`; `tabline.setup` sections
+  (`tabline_b`/`tabline_x`/`tabline_z`); lantern load + `setup`/`rekindle` + the
+  `SUPER+SHIFT+l` dispatcher; hardened workspace-manager keybinding strip (by
+  `(key, mods)` identity).
 - `modules/home/programs/wezterm/lua/sysinit/pkg/keybindings.lua` —
   `get_ssh_picker` returns `smart_ssh.tab()`; `build_ssh_domains` +
   `ssh_key_options` + `known_hosts` coverage merge; smart_ssh loaded in `M.setup`.
 - **Progressive rollout.** The capabilities are independent and land in any
-  order: the switcher `default` entry, the `tabline_x`/`tabline_z` changes, the
-  SSH picker, and the appearance picker each build, verify, and ship on their own.
+  order: the switcher `default` entry, the startup-in-`default` change, the
+  `tabline_b`/`tabline_x`/`tabline_z` changes, the SSH picker, and the appearance
+  picker each build, verify, and ship on their own.
 - **Gating signal.** `nh darwin build` (this repo uses `nh darwin`, not `nh os`)
   must pass before `nh darwin switch`. Flakes only see git-tracked files, so
   changed Lua and the new patch must be `git add`ed before building.
@@ -152,9 +167,12 @@ config so connections authenticate without a password), and coverage-merging
   - After switch: `SUPER+s` lists `default` pinned at the top and selecting it
     returns to the default workspace.
   - After switch: the tabline shows the active workspace name (seshy session, or
-    `default`) in `tabline_x` and no longer shows the hostname on the right edge.
+    `default`) right of the domain in the left status and no longer shows the
+    hostname on the right edge.
+  - After quit (`CMD+Q`) + relaunch: WezTerm opens in the `default` workspace
+    rather than restoring the last session.
   - After switch: `SUPER+SHIFT+s` opens smart_ssh's "Choose Host" picker, lists
-    SSH hosts (including a `known_hosts`-only host), and connecting to a
-    key-configured host no longer prompts for a password.
+    SSH hosts (including a `known_hosts`-only host) with no FQDN/alias duplicates,
+    and connecting to a key-configured host no longer prompts for a password.
   - After switch: `SUPER+SHIFT+l` opens the appearance dispatcher; picking
     "Colorscheme" then a scheme applies it live.

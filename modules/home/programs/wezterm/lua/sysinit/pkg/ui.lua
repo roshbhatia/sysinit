@@ -42,6 +42,12 @@ function M.setup(config)
   config.use_fancy_tab_bar = false
   config.hide_tab_bar_if_only_one_tab = false
 
+  -- Every fresh window (launch, relaunch after quit, CMD+N) starts in the
+  -- "default" workspace instead of inheriting the last-used session. Paired
+  -- with wm.session_restore_on_startup = false so nothing overrides this on
+  -- startup.
+  config.default_workspace = "default"
+
   config.window_frame = {
     font = font,
     font_size = 11.0,
@@ -239,13 +245,15 @@ function M.setup(config)
           "mode",
           locked_indicator,
         },
-        tabline_b = { "domain" },
         -- Active workspace name (our seshy session, or "default" at the home
-        -- base). tabline's built-in `workspace` component renders
-        -- wezterm.mux.get_active_workspace(); it fills the right side alongside
-        -- the agent-status indicator. The hostname component is intentionally
-        -- omitted (the domain section already shows the connection context).
-        tabline_x = { "workspace" },
+        -- base) sits in the left status immediately right of the domain, so
+        -- the connection context and session read left-to-right. tabline's
+        -- built-in `workspace` component renders
+        -- wezterm.mux.get_active_workspace(). The hostname component is
+        -- intentionally omitted (the domain section already shows the
+        -- connection context).
+        tabline_b = { "domain", "workspace" },
+        tabline_x = {},
         tabline_y = { agent_status },
         tabline_z = {},
       },
@@ -609,7 +617,13 @@ function M.setup(config)
     end
 
     wm.session_enabled = true
-    wm.session_restore_on_startup = true
+    -- Always launch (and relaunch after quit) into the "default" workspace
+    -- rather than auto-restoring the most-recently-used session. With this
+    -- false the plugin registers no gui-startup restore handler, so WezTerm's
+    -- own startup honors config.default_workspace ("default") below. Sessions
+    -- still save (session_enabled) and still restore when switched into via the
+    -- switcher; only the startup auto-restore is suppressed.
+    wm.session_restore_on_startup = false
     wm.session_state_dir = home .. "/.local/state/wezterm/workspace_state"
     wm.workspace_switcher_sort = "recency"
 

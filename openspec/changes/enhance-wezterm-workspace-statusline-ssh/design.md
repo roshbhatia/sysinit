@@ -32,9 +32,9 @@ both more usable (smart_ssh's fuzzy "Choose Host" selector) and passwordless
 (agent / key auth via `ssh_option`) while covering hosts `enumerate_ssh_hosts`
 cannot see; add a runtime appearance picker (lantern) on a single key.
 
-**Non-Goals.** No seshy changes; no session-persistence behavior change; no
-`SSHMUX:` / reattachable domains (smart_ssh's model is single-shot exec); no
-auto-mux of every host.
+**Non-Goals.** No seshy changes; no change to *what* session state is saved.
+Startup behavior does change: fresh windows always open in `default` instead of
+auto-restoring the last session (see Decision 5).
 
 ## Decisions
 
@@ -58,24 +58,30 @@ the top regardless of `recency` sort applied to the dynamic entries. If `sy`
 fails, `choices` already contains the `default` entry, satisfying the graceful
 degrade requirement.
 
-### 2. Statusline — built-in `workspace` component into `tabline_x`
+### 2. Statusline — built-in `workspace` component appended to `tabline_b`
 
 `tabline.wez` ships a `workspace` window-component whose `update` returns
 `string.match(wezterm.mux.get_active_workspace(), "[^/\\]+$")` — it renders the
-active workspace, including the literal `default`. Drop it into the empty
-right-side section:
+active workspace, including the literal `default`. Place it in the left status
+immediately right of the `domain` section so the connection context and active
+session read left-to-right:
 
 ```lua
-tabline_x = { "workspace" },
+tabline_b = { "domain", "workspace" },
+tabline_x = {},
 ```
 
 `tabline.setup` merges per-section by overwrite, so naming only the sections we
-change (`tabline_x`, `tabline_z`) leaves the others intact. The redundant
-right-edge hostname is dropped at the same time (`tabline_z = {}`): the
-connection context is already carried by the `domain` section (`tabline_b`), so
-the hostname only duplicated it. Because the workspace indicator is a
-status-section component and `tabs_enabled=false` keeps the custom
+change leaves the others intact. The redundant right-edge hostname is dropped at
+the same time (`tabline_z = {}`): the connection context is already carried by
+the `domain` section, so the hostname only duplicated it. Because the workspace
+indicator is a status-section component and `tabs_enabled=false` keeps the custom
 `format-tab-title` handler authoritative for tab labels, the two do not interact.
+
+(WezTerm renders the tab strip immediately after the left status in both the
+fancy and retro tab bars, with the only flexible space sitting between the tabs
+and the right status — there is no native option to right-align the tabs
+themselves, so they remain left-aligned after this left-status block.)
 
 ### 3. SSH picker — smart_ssh selector + key-auth domains + coverage merge
 
@@ -93,9 +99,11 @@ its `apply_to_config`:
 2. **Domain naming.** smart_ssh's formatter does `string.lower(name:sub(5))`,
    so domains MUST be named `ssh:<host>` (the `ssh:` prefix is exactly 4 chars)
    to render the bare host. Each domain is
-   `{ name = "ssh:"..host, remote_address = host, multiplexing = "None",
-   assume_shell = "Posix" }`. `multiplexing = "None"` (single-shot exec) because
-   we do not assume remote `wezterm` — hence no `SSHMUX:` reattachable variant.
+   `{ name = "ssh:"..host, remote_address = host, multiplexing = "WezTerm",
+   assume_shell = "Posix" }`. `multiplexing = "WezTerm"` makes each connection a
+   reattachable mux domain (WezTerm bootstraps `wezterm-mux-server` on the
+   remote): the user's tailnet boxes run wezterm, and the user prefers this — the
+   picker opens the host in a new tab and the session survives reattach.
 3. **Key auth.** WezTerm's libssh transport did not honor `~/.ssh/config`, so
    connections prompted for a password. Each domain gets an `ssh_option` table
    (lowercased libssh keys): `identityagent = $SSH_AUTH_SOCK` when set, and
@@ -107,7 +115,11 @@ its `apply_to_config`:
    never reads `known_hosts` (wezterm#5553, #5755). Augment it by parsing
    `~/.ssh/known_hosts`: skip hashed (`|1|…`) and malformed lines, unwrap
    `[host]:port` tokens, skip empties/globs, and dedupe by host name against the
-   enumerated set before appending as additional `ssh:<host>` domains.
+   enumerated set before appending as additional `ssh:<host>` domains. The dedup
+   set also includes the resolved `HostName` of each enumerated alias (read from
+   `enumerate_ssh_hosts()`'s `cfg.hostname`), so a Tailscale FQDN such as
+   `arrakis.stork-eel.ts.net` present in `known_hosts` is collapsed into its
+   short `Host` alias `arrakis` rather than appearing as a duplicate entry.
 
 ### 4. Appearance picker — lantern on a single dispatcher key
 
@@ -137,16 +149,37 @@ which collide with this config's copy (`CTRL+SHIFT+c`) and pane-select
 passthrough as the other smart bindings. If lantern fails to load, the failure
 is logged and the binding is simply not registered.
 
+### 5. Startup workspace — always land in `default`
+
+By default `workspace-manager` with `session_restore_on_startup = true`
+registers a `gui-startup` handler that respawns the *most-recently-used* saved
+workspace (`state.get_most_recent_saved_workspace()` →
+`mux.spawn_window{ workspace = … }`), so launching the app dropped the user into
+their last session rather than `default`. The user wants every fresh window
+(launch, relaunch after quit, `CMD+N`) to start in `default`. Fix:
+
+```lua
+config.default_workspace = "default"
+wm.session_restore_on_startup = false
+```
+
+With `session_restore_on_startup = false` the plugin registers no `gui-startup`
+restore handler, so WezTerm's own startup honors `config.default_workspace`.
+`session_enabled` stays `true`, so sessions are still saved on the periodic timer
+and still restored when switched into via the switcher — only the *startup
+auto-restore* is suppressed.
+
 ## Risks / Trade-offs
 
 - **known_hosts noise.** known_hosts can hold many stale/one-off hosts; the
   picker could get long. Mitigation: it is fuzzy-filtered, and the parse skips
   hashed lines (which are unusable as display names anyway). If noise is a
   problem, gate the merge behind a small allowlist later — out of scope here.
-- **No reattach.** smart_ssh's model is single-shot exec (`multiplexing =
-  "None"`); closing the tab ends the connection. Users wanting persistence
-  should use a remote multiplexer (tmux/zellij) — documenting rather than adding
-  `SSHMUX:` keeps the picker's domain list uniform.
+- **Mux requires remote wezterm.** `multiplexing = "WezTerm"` reattachable
+  domains require `wezterm-mux-server` on the remote (WezTerm bootstraps it).
+  This holds for the user's tailnet boxes; a host without wezterm would fail to
+  spin up the mux server. Acceptable given the known fleet — a future per-host
+  opt-out could fall back to `multiplexing = "None"` if needed.
 - **Vendored-plugin drift.** Three pinned upstreams (smart_ssh, lantern, its
   deps) plus a lantern patch now ride the config; the patch and the
   `__lantern_plugin_dir` fix are coupled to lantern's internals and can break on
