@@ -169,6 +169,32 @@ restore handler, so WezTerm's own startup honors `config.default_workspace`.
 and still restored when switched into via the switcher — only the *startup
 auto-restore* is suppressed.
 
+### 6. Tab titles — prompt-owned label + a simplified precedence chain
+
+The previous `format-tab-title` had two defects the user hit: (a) shell panes
+showed the bare process name `zsh` or, when `current_working_dir` was nil, an
+empty string (the handler `return explicit` where `explicit == ""`); and (b) a
+Claude-specific branch rewrote Claude's OSC task-summary into a hyphenated slug
+(`SLUG_STOP`/`SLUG_ABBR`/`slugify_title`), which the user no longer wants.
+
+Two coordinated changes:
+
+1. **Prompt owns the shell title.** oh-my-posh gets
+   `console_title_template = "{{ .Folder }}"`, so each prompt emits an OSC-2
+   title carrying the current folder. WezTerm exposes it as `pane.title`. This
+   gives shell panes a real title instead of leaving WezTerm to default
+   `pane.title` to the foreground process name.
+2. **One precedence chain, never empty.** The handler resolves the label as
+   explicit `tab:set_title()` → OSC-2 `pane.title` (skipped when empty, numeric,
+   or a bare shell name in `SHELLS`) → cwd basename (`$HOME` → `~`) → process
+   name → `"shell"`, then prefixes a sigil process icon (`fallback = false`, so
+   unknown procs render the label alone). The Claude branch and the slug tables
+   are deleted: a program that sets its own OSC title (Claude, editors) now
+   shows it verbatim, satisfying "rely on the titles that were already
+   overwriting." The `SHELLS` guard is what stops the OSC default `zsh` from
+   leaking through — when `pane.title` is the bare shell name we fall to the cwd
+   folder instead.
+
 ## Risks / Trade-offs
 
 - **known_hosts noise.** known_hosts can hold many stale/one-off hosts; the

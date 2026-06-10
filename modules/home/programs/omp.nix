@@ -20,6 +20,10 @@ in
 
     settings = {
       "$schema" = "https://raw.githubusercontent.com/JanDeDobbeleer/oh-my-posh/main/themes/schema.json";
+      # Emit an OSC-2 title carrying just the current folder so the terminal
+      # (WezTerm) has a meaningful per-prompt title to show instead of "zsh"
+      # or an empty string. WezTerm's format-tab-title reads this as pane.title.
+      console_title_template = "{{ .Folder }}";
       palette = {
         inherit (ompColors) primary;
         muted = "p:primary";

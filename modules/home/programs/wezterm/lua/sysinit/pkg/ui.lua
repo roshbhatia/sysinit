@@ -382,76 +382,12 @@ function M.setup(config)
     })
   end
 
-  -- Smart tab titles: foreground-process icon (via sigil) + basename(cwd).
-  -- User-set titles (non-numeric) are respected and not overwritten; falls
-  -- back to plain "dir (proc)" text when sigil/ribbon are unavailable.
-  local SHELLS = { zsh = true, bash = true, fish = true, sh = true }
-
-  -- Claude Code panes get special handling: Claude emits an OSC-2 title that's
-  -- a full-sentence task summary ("Create service SLI dashboard") with a
-  -- leading spinner glyph. Its format isn't steerable (no setting honors
-  -- CLAUDE.md), so we shorten it best-effort into a terse hyphenated slug and
-  -- brand it with the sparkle. Stopwords are weak filler; abbreviations keep
-  -- common long nouns terse. Examples:
-  --   "Create service SLI dashboard"        -> sli-dashboard
-  --   "Revamp Azure reference architecture" -> revamp-azure-arch
-  --   "Optimize nix config"                 -> optimize-nix-config
-  local SLUG_STOP = {
-    a = true,
-    an = true,
-    the = true,
-    to = true,
-    of = true,
-    on = true,
-    ["in"] = true,
-    ["for"] = true,
-    ["and"] = true,
-    with = true,
-    into = true,
-    from = true,
-    at = true,
-    via = true,
-    using = true,
-    new = true,
-    create = true,
-    set = true,
-    up = true,
-    service = true,
-    reference = true,
-  }
-  local SLUG_ABBR = {
-    architecture = "arch",
-    configuration = "config",
-    environment = "env",
-    repository = "repo",
-    database = "db",
-    kubernetes = "k8s",
-    documentation = "docs",
-  }
-  local function slugify_title(title)
-    -- Drop leading non-word glyphs (Claude's spinner ·/✳/*) then lowercase.
-    local s = title:gsub("^[^%w]+", ""):lower()
-    local words = {}
-    for w in s:gmatch("[%w]+") do
-      if not SLUG_STOP[w] then
-        words[#words + 1] = SLUG_ABBR[w] or w
-      end
-    end
-    -- If the title was all filler, fall back to its first few raw words.
-    if #words == 0 then
-      for w in s:gmatch("[%w]+") do
-        words[#words + 1] = w
-        if #words >= 3 then
-          break
-        end
-      end
-    end
-    local capped = {}
-    for i = 1, math.min(#words, 4) do
-      capped[i] = words[i]
-    end
-    return table.concat(capped, "-")
-  end
+  -- Smart tab titles: a sigil process icon + a meaningful label, never empty
+  -- and never the bare word "zsh". Label precedence is OSC-2 title (oh-my-posh
+  -- emits the folder for shells; TUIs like Claude emit their own summary) ->
+  -- cwd basename -> process name. No app-specific slugging: programs that set
+  -- an OSC title own their label verbatim.
+  local SHELLS = { zsh = true, bash = true, fish = true, sh = true, ["-zsh"] = true }
 
   wezterm.on("format-tab-title", function(tab, _tabs, _panes, _config, _hover, _max_width)
     -- format-tab-title hands us TabInformation/PaneInformation structs (fields),
@@ -459,75 +395,53 @@ function M.setup(config)
     -- the handler, dropping WezTerm back to its default tab text.
     local pane = tab.active_pane
     local explicit = tab.tab_title -- set via tab:set_title(), else ""
-    local osc = pane and pane.title -- the pane's OSC-2 title (Claude's summary)
+    local osc = pane and pane.title -- the pane's OSC-2 title
     local proc = pane and pane.foreground_process_name
     if proc then
       proc = proc:match("([^/]+)$")
     end
 
-    -- Claude Code pane: slugify Claude's OSC task-summary title (NOT the tab
-    -- title, which Claude never sets) and brand with the sparkle.
-    if proc and proc:lower():find("claude", 1, true) then
-      local source = (explicit and explicit ~= "") and explicit or osc
-      local label
-      if source and source ~= "" and not source:match("^%d+$") then
-        label = slugify_title(source)
-      end
-      if not label or label == "" then
-        -- No usable title yet (just launched): fall back to cwd basename.
-        local cwd_uri = pane and pane.current_working_dir
-        local cwd = cwd_uri and (cwd_uri.file_path or tostring(cwd_uri)) or ""
-        label = cwd:match("([^/]+)/?$") or "claude"
-      end
-      if sigil_ok and ribbon_ok then
-        local icon_items = sigil.items(proc, { padding = "right", fallback = false, reset = true })
-        if icon_items and #icon_items > 0 then
-          local r = ribbon.new("tab")
-          r:append_items(icon_items)
-          r:append(nil, nil, label)
-          return r:items()
-        end
-      end
-      return "✳ " .. label
-    end
-
-    -- Non-Claude: if the user (or program) set a non-numeric tab title, keep it.
+    -- A user- (or program-) set, non-numeric tab title always wins.
     if explicit and explicit ~= "" and not explicit:match("^%d+$") then
       return explicit
     end
 
+    -- cwd basename, collapsing $HOME to ~.
+    local dir
     local cwd_uri = pane and pane.current_working_dir
-    if not cwd_uri then
-      return explicit
-    end
-
-    local cwd = cwd_uri.file_path or tostring(cwd_uri)
-    local dir = cwd:match("([^/]+)/?$") or cwd
-
-    -- Collapse $HOME to ~
-    local home = os.getenv("HOME") or ""
-    if home ~= "" and cwd:sub(1, #home) == home then
-      dir = "~" .. cwd:sub(#home + 1):match("([^/]*)/?$") or "~"
-      if dir == "~" then
+    if cwd_uri then
+      local cwd = cwd_uri.file_path or tostring(cwd_uri)
+      local home = os.getenv("HOME") or ""
+      if home ~= "" and cwd == home then
         dir = "~"
+      else
+        dir = cwd:match("([^/]+)/?$") or cwd
       end
     end
 
-    -- Non-shell foreground process: prefix a sigil process icon when one is
-    -- known (reset=true so the icon's color doesn't bleed into the dir text).
-    if proc and not SHELLS[proc] then
-      if sigil_ok and ribbon_ok then
-        local icon_items = sigil.items(proc, { padding = "right", fallback = false, reset = true })
-        if icon_items and #icon_items > 0 then
-          local r = ribbon.new("tab")
-          r:append_items(icon_items)
-          r:append(nil, nil, dir)
-          return r:items()
-        end
-      end
-      return dir .. " (" .. proc .. ")"
+    -- Pick the label. Prefer the OSC-2 title when it carries real info, but
+    -- WezTerm defaults pane.title to the bare process name ("zsh") when nothing
+    -- sets an OSC title -- skip that and fall back to the cwd folder so a shell
+    -- pane shows its directory rather than the word "zsh".
+    local label
+    if osc and osc ~= "" and not osc:match("^%d+$") and not SHELLS[osc:lower()] then
+      label = osc
     end
-    return dir
+    label = label or dir or proc or "shell"
+
+    -- Prefix a sigil process icon when one is known (reset=true so the icon's
+    -- color doesn't bleed into the label). Unknown procs (fallback=false)
+    -- render the label alone.
+    if proc and sigil_ok and ribbon_ok then
+      local icon_items = sigil.items(proc, { padding = "right", fallback = false, reset = true })
+      if icon_items and #icon_items > 0 then
+        local r = ribbon.new("tab")
+        r:append_items(icon_items)
+        r:append(nil, nil, label)
+        return r:items()
+      end
+    end
+    return label
   end)
 
   -- Hyperlink rules: start with defaults, then add custom patterns

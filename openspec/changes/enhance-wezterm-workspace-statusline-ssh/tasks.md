@@ -70,6 +70,17 @@
   appearance categories that performs the chosen `lantern.light.<x>()` action;
   include the locked-mode passthrough.
 
+## 4b. Tab titles (`pkg/ui.lua` + `programs/omp.nix`)
+
+- [x] 4b.1 Add `console_title_template = "{{ .Folder }}"` to the oh-my-posh
+  `settings` in `modules/home/programs/omp.nix` so the prompt emits a
+  folder-based OSC-2 title.
+- [x] 4b.2 Rewrite `format-tab-title`: delete the Claude `SLUG_STOP`/`SLUG_ABBR`/
+  `slugify_title` branch; resolve the label by precedence (explicit title → OSC-2
+  title skipping bare shell names → cwd basename with `$HOME`→`~` → process name
+  → `shell`) so it is never empty and never bare `zsh`; keep the sigil icon
+  prefix with `fallback = false`.
+
 ## 5. Validate and roll out (human-verification checkpoints)
 
 - [x] 5.1 `git add` the changed Lua, `default.nix`, and the new patch (flakes only
@@ -90,3 +101,6 @@
   saved session still restores its panes.
 - [ ] 5.7 [HUMAN] `SUPER+SHIFT+l` opens the appearance dispatcher; picking
   "Colorscheme" then a scheme applies it live.
+- [ ] 5.9 [HUMAN] In a zsh pane, the tab shows the current folder name (with a
+  shell icon) and updates on `cd`; it never reads `zsh` or shows an empty title.
+  A Claude Code tab shows Claude's own title verbatim (no hyphenated slug).

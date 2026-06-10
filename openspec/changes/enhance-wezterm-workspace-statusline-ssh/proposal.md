@@ -90,6 +90,21 @@ config so connections authenticate without a password), and coverage-merging
   additional `ssh:<host>` domains so wildcard-derived and previously-connected
   hosts still appear in the picker.
 
+### Tab titles (`pkg/ui.lua` + `programs/omp.nix`)
+
+- **Make the prompt own the shell tab label.** Add
+  `console_title_template = "{{ .Folder }}"` to oh-my-posh so each zsh prompt
+  emits an OSC-2 title carrying the current folder; WezTerm reads it as
+  `pane.title`. Without this, shell panes had no OSC title and the handler fell
+  through to the bare process name (`zsh`) or an empty string.
+- **Simplify `format-tab-title` to a precedence chain that is never empty.**
+  Replace the per-app slugging (the Claude-specific `SLUG_STOP`/`SLUG_ABBR`/
+  `slugify_title` branch that rewrote Claude's OSC summary into a hyphenated
+  slug) with a single label precedence: explicit `tab:set_title()` → OSC-2
+  title (skipping a bare shell name like `zsh`) → cwd basename (`$HOME` → `~`) →
+  process name → `shell`. A sigil process icon is prefixed when known. Programs
+  that set their own OSC title (Claude, editors) now show it verbatim.
+
 ### Appearance picker (`pkg/ui.lua` + vendored sravioli `lantern.wz`)
 
 - **Vendor `lantern.wz` as a runtime appearance picker.** Pin `sravioli/lantern.wz`
@@ -133,6 +148,9 @@ config so connections authenticate without a password), and coverage-merging
   "Choose Host" selector, `ssh_domains` generation with `ssh_option` key auth,
   and the `known_hosts` coverage merge.
 - `wezterm-appearance-picker`: the `SUPER+SHIFT+l` lantern appearance dispatcher.
+- `wezterm-tab-title`: the simplified `format-tab-title` precedence chain (never
+  empty, never bare `zsh`, no per-app slugging) plus the oh-my-posh
+  `console_title_template` that feeds it the folder name.
 
 ### Modified Capabilities
 
@@ -140,6 +158,8 @@ config so connections authenticate without a password), and coverage-merging
 
 ## Impact
 
+- `modules/home/programs/omp.nix` — add `console_title_template = "{{ .Folder }}"`
+  so the prompt emits a folder-based OSC-2 title.
 - `modules/home/programs/wezterm/default.nix` — pin `smart_ssh.wezterm`,
   `lantern.wz`, `log.wz`, `memo.wz` via `fetchFromGitHub`; expose their store
   paths in `config.json`'s `plugins` map. lantern is wrapped in `applyPatches`
@@ -151,8 +171,9 @@ config so connections authenticate without a password), and coverage-merging
   override (pinned `default`); `config.default_workspace = "default"` +
   `session_restore_on_startup = false`; `tabline.setup` sections
   (`tabline_b`/`tabline_x`/`tabline_z`); lantern load + `setup`/`rekindle` + the
-  `SUPER+SHIFT+l` dispatcher; hardened workspace-manager keybinding strip (by
-  `(key, mods)` identity).
+  `SUPER+SHIFT+l` dispatcher; the simplified `format-tab-title` handler
+  (precedence chain, no per-app slugging); hardened workspace-manager keybinding
+  strip (by `(key, mods)` identity).
 - `modules/home/programs/wezterm/lua/sysinit/pkg/keybindings.lua` —
   `get_ssh_picker` returns `smart_ssh.tab()`; `build_ssh_domains` +
   `ssh_key_options` + `known_hosts` coverage merge; smart_ssh loaded in `M.setup`.
