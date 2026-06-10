@@ -9,26 +9,43 @@
 
   A `SessionEnd` hook appends one JSON line per session to
   `~/Documents/worklog.jsonl` (override: `$CLAUDE_WORKLOG_FILE`). The hook is
-  dumb — it records pointers and cheap facts, never a summary. Each line:
+  dumb — it records pointers and cheap facts, never a summary. It skips
+  `resume` (a session start, not a completion) and bare directories with no
+  prompt, so every line carries real work. Each line:
 
   ```json
   {
     "ts": "2026-06-09T21:04:11Z",      // session end, UTC ISO-8601
     "session_id": "abc123",
-    "repo": "sysinit",                  // basename of git toplevel, else cwd
+    "kind": "repo",                     // repo | seshy-session | dir
+    "session_name": "",                 // seshy session name (seshy-session only)
+    "repo": "sysinit",                  // single-repo: basename of git toplevel
+    "repos": [],                        // seshy-session: one obj per nested repo
     "cwd": "/Users/roshan/github/...",
-    "branch": "rb/ENG-1234-tabs",       // bridge to a tracker ticket
-    "head": "c04e5e0e9",                // short HEAD sha at session end
-    "diffstat": "3 files changed, ...", // working-tree delta; ranking signal
+    "branch": "rb/ENG-1234-tabs",       // single-repo: bridge to a tracker ticket
+    "head": "c04e5e0e9",                // single-repo: short HEAD sha
+    "diffstat": "3 files changed, ...", // single-repo: working-tree delta
     "first_prompt": "fix wezterm tab…", // cheap title, first user turn
     "transcript_path": "/Users/.../<uuid>.jsonl",
-    "end_reason": "prompt_input_exit",  // clear | logout | resume | …
+    "end_reason": "prompt_input_exit",  // clear | logout | prompt_input_exit | …
     "summary": null                     // YOU fill this — see Drain
   }
   ```
 
-  `summary` is pre-seeded `null`. The transcript at `transcript_path` is the
-  source of truth for what actually happened; the log line is just the index.
+  `kind` selects where the git context lives:
+
+  - **`repo`** — `cwd` was a single git worktree; read `repo`/`branch`/`head`/
+    `diffstat` at the top level.
+  - **`seshy-session`** — `cwd` was a [[feature-based-session-manager]] session
+    root, which spans many repos. Identity is `session_name`; per-repo context
+    is in `repos[]` (each `{repo, branch, head, diffstat}`). Top-level
+    `repo`/`branch`/`head` are empty — use `repos[]`.
+  - **`dir`** — neither; only `repo` (the cwd basename) is set.
+
+  Lines written before this schema lack `kind`/`repos` — treat a missing `kind`
+  as `repo`. `summary` is pre-seeded `null`. The transcript at `transcript_path`
+  is the source of truth for what actually happened; the log line is just the
+  index.
 
   ## Modes
 
@@ -59,11 +76,15 @@
   "what was done" plus the concrete artifacts (files touched, commits, tickets).
 
   - Read `transcript_path` (JSONL, one turn per line). It is the real record —
-    prefer it over `first_prompt`. If the file is **missing** (transcripts get
-    pruned), degrade gracefully: synthesize from `first_prompt` + `diffstat` +
-    `repo`/`branch`, and prefix the summary with `~` to mark it as inferred.
+    prefer it over `first_prompt`. If the path is empty or the file is
+    **missing**, try to recover it by `session_id` first —
+    `~/.claude/projects/*/<session_id>.jsonl` (Glob) — before degrading. Only
+    when no transcript exists anywhere, synthesize from `first_prompt` +
+    `diffstat` + repo/branch and prefix the summary with `~` (inferred).
   - For commits, run `git -C "$cwd" log --oneline "$head"..HEAD` (or around the
-    session window) when the repo still exists.
+    session window) when the repo still exists. For a `seshy-session`, iterate
+    `repos[]` and run the log per nested repo under
+    `~/.local/state/seshy/sessions/<session_name>/<repo>`.
   - **Many entries → fan out.** Spawn one subagent per session via the Agent
     tool (they are independent); have each return its summary. Keep summaries
     factual and terse — no marketing, no padding.
@@ -82,8 +103,11 @@
 
   ### 3. Compose
 
-  Emit markdown grouped **by date, then repo**, newest first. Within a repo,
-  order by signal (`diffstat` magnitude, commit count). Keep it skimmable:
+  Emit markdown grouped **by date, then unit of work**, newest first. The unit
+  is the `repo` for `kind: repo`/`dir`, and the `session_name` for
+  `kind: seshy-session` (a seshy session is one heading spanning its `repos[]`,
+  not one heading per repo). Within a unit, order by signal (`diffstat`
+  magnitude, commit count). Keep it skimmable:
 
   ```markdown
   ## 2026-06-09
@@ -92,6 +116,10 @@
   - Slugified Claude tab titles in wezterm and branded with a sparkle;
     disabled tabline rendering so sigil titles show. (3 commits, c04e5e0)
   - Added a session-aware statusline and a cross-session worklog hook.
+
+  ### no-jared-dependencies (session · go-common, oncallbot)
+  - Wired the on-call escalation path through go-common and verified it from
+    oncallbot. (go-common: 2 commits; oncallbot: 4 files)
 
   ### laurel-api
   - ~Investigated the auth refresh races (inferred: transcript pruned).

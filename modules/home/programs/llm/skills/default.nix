@@ -62,7 +62,7 @@
   worklog = {
     description = "Generates a cross-session work report — 'what did we accomplish today' — from the append-only worklog.jsonl written by the SessionEnd hook. Drains un-summarized session entries by reading their transcripts, caches the summaries back, composes a per-day/per-repo digest, and optionally maps branches and commits to Linear/Notion/Slack outcomes. Use when the user asks what they worked on or accomplished across recent Claude Code sessions, or wants a daily or weekly progress report spanning repos.";
     content = import ./worklog.nix;
-    allowed-tools = "Read Write Edit Bash(jq:*) Bash(git:*) Agent";
+    allowed-tools = "Read Write Edit Glob Bash(jq:*) Bash(git:*) Agent";
   };
 
   diagram-mermaid-render = {

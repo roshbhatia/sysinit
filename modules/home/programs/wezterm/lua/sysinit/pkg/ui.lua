@@ -350,22 +350,28 @@ function M.setup(config)
   end
 
   wezterm.on("format-tab-title", function(tab, _tabs, _panes, _config, _hover, _max_width)
-    local title = tab:get_title()
-    local pane = tab:active_pane()
-    local proc = pane:get_foreground_process_name()
+    -- format-tab-title hands us TabInformation/PaneInformation structs (fields),
+    -- NOT MuxTab/Pane objects (methods). Calling methods here throws and aborts
+    -- the handler, dropping WezTerm back to its default tab text.
+    local pane = tab.active_pane
+    local explicit = tab.tab_title -- set via tab:set_title(), else ""
+    local osc = pane and pane.title -- the pane's OSC-2 title (Claude's summary)
+    local proc = pane and pane.foreground_process_name
     if proc then
       proc = proc:match("([^/]+)$")
     end
 
-    -- Claude Code pane: slugify Claude's auto-title and brand with the sparkle.
+    -- Claude Code pane: slugify Claude's OSC task-summary title (NOT the tab
+    -- title, which Claude never sets) and brand with the sparkle.
     if proc and proc:lower():find("claude", 1, true) then
+      local source = (explicit and explicit ~= "") and explicit or osc
       local label
-      if title and title ~= "" and not title:match("^%d+$") then
-        label = slugify_title(title)
+      if source and source ~= "" and not source:match("^%d+$") then
+        label = slugify_title(source)
       end
       if not label or label == "" then
         -- No usable title yet (just launched): fall back to cwd basename.
-        local cwd_uri = pane:get_current_working_dir()
+        local cwd_uri = pane and pane.current_working_dir
         local cwd = cwd_uri and (cwd_uri.file_path or tostring(cwd_uri)) or ""
         label = cwd:match("([^/]+)/?$") or "claude"
       end
@@ -381,14 +387,14 @@ function M.setup(config)
       return "✳ " .. label
     end
 
-    -- Non-Claude: if the user (or program) set a non-numeric title, keep it.
-    if title and title ~= "" and not title:match("^%d+$") then
-      return title
+    -- Non-Claude: if the user (or program) set a non-numeric tab title, keep it.
+    if explicit and explicit ~= "" and not explicit:match("^%d+$") then
+      return explicit
     end
 
-    local cwd_uri = pane:get_current_working_dir()
+    local cwd_uri = pane and pane.current_working_dir
     if not cwd_uri then
-      return title
+      return explicit
     end
 
     local cwd = cwd_uri.file_path or tostring(cwd_uri)
