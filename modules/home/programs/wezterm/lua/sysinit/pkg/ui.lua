@@ -220,12 +220,6 @@ function M.setup(config)
     tabline.setup({
       options = {
         theme = config.colors,
-        -- tabline owns the status bar only. Tab titles are rendered by our own
-        -- format-tab-title handler below (sigil process-icon + cwd basename),
-        -- which tabline's component model can't reproduce (its function
-        -- components stringify, dropping the per-process color). Disabling tab
-        -- rendering here makes tabline's format-tab-title handler return nil so
-        -- WezTerm falls through to ours, regardless of registration order.
         tabs_enabled = false,
         section_separators = {
           left = "",
@@ -245,17 +239,13 @@ function M.setup(config)
           "mode",
           locked_indicator,
         },
-        -- Active workspace name (our seshy session, or "default" at the home
-        -- base) sits in the left status immediately right of the domain, so
-        -- the connection context and session read left-to-right. tabline's
-        -- built-in `workspace` component renders
-        -- wezterm.mux.get_active_workspace(). The hostname component is
-        -- intentionally omitted (the domain section already shows the
-        -- connection context).
         tabline_b = {},
         tabline_x = {},
         tabline_y = { agent_status },
-        tabline_z = { "domain", "workspace" },
+        tabline_z = {
+          "workspace",
+          "domain",
+        },
       },
       extensions = {},
     })
