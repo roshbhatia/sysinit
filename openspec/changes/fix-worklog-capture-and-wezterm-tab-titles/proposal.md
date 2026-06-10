@@ -35,22 +35,33 @@ object." Fixing them together keeps the one fix per wrong-source-object.
 - **Filter non-terminal ends.** Skip `end_reason: "resume"` (and any future
   continuation reason) — only record sessions that actually ended.
 - **Source identity correctly.** Detect when `cwd` is under
-  `~/.local/state/seshy/sessions/<name>`; treat the **session name** as the
-  identity and enumerate the immediate child directories that are git worktrees,
-  capturing per-repo `repo`/`branch`/`head`/`shortstat`. When `cwd` is itself a
-  git worktree, keep today's single-repo capture. Otherwise record a bare dir.
+  `~/.local/state/seshy/sessions/<name>` — including the common case where `cwd`
+  is a *nested repo* inside the session, not the session root. Treat the
+  **session name** as identity and enumerate every nested git child into
+  `repos[]`. When `cwd` is itself a plain git worktree, emit a one-element
+  `repos[]`. Otherwise record a bare dir.
+- **Capture the committed-work signal, not the working tree.** The old
+  `git diff --shortstat` reads only the unstaged working tree, which is empty
+  once work is committed to a feature branch — the cause of the empty
+  `diffstat`. Per repo, capture `commits` (count ahead of the origin default
+  branch) and `diffstat` (branch-vs-base, three-dot), plus `dirty` for any
+  uncommitted remainder.
+- **Repos are always a list, with links.** Drop the scalar
+  `repo`/`branch`/`head`/`diffstat`; every entry carries a uniform `repos[]`
+  (one element for a plain repo, N for a seshy session). Each entry has `name`,
+  `branch`, `head`, `url` (normalized origin remote → `<repo>/tree/<branch>`
+  web link), `commits`, `diffstat`, `dirty`.
 - **Resolve the transcript robustly.** Prefer the stdin `transcript_path` only
   when the file exists; otherwise resolve by globbing
   `~/.claude/projects/*/<session_id>.jsonl`. Record the resolved path (or empty).
-- **Zero-signal guard.** Do not append when there is no `first_prompt`, no git
-  context, and `cwd` is not a recognized session/repo — nothing worth indexing.
-- **Schema additions.** Add `kind` (`seshy-session` | `repo` | `dir`),
-  `session_name` (seshy only), and a `repos[]` array (per-repo objects) so the
-  skill can render multi-repo sessions. Single-repo entries keep `repo`/
-  `branch`/`head`/`diffstat`.
-- **Skill update.** Teach `worklog` skill to read `kind`/`repos[]`, resolve a
-  missing transcript by `session_id` glob, and group seshy sessions by
-  `session_name` (work spanning repos) rather than by a single repo.
+- **Zero-signal guard.** Do not append when `repos[]` is empty and there is no
+  `first_prompt` — nothing worth indexing.
+- **Schema.** `kind` (`seshy-session` | `repo` | `dir`), `session_name` (seshy
+  only), and the uniform `repos[]`.
+- **Skill update.** Teach `worklog` skill to read the uniform `repos[]`
+  (`name`/`url`/`commits`/`diffstat`/`dirty`), synthesize a one-element list
+  from legacy scalar-`repo` lines, resolve a missing transcript by `session_id`
+  glob, and group seshy sessions by `session_name` (work spanning repos).
 
 ### WezTerm tab titles (`pkg/ui.lua`)
 

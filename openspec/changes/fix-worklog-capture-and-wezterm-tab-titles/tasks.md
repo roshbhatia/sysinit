@@ -4,25 +4,27 @@
 - [x] 1.2 Add seshy detection: if `cwd` is under
   `$HOME/.local/state/seshy/sessions/<name>`, set `kind=seshy-session` and
   `session_name=<name>`.
-- [x] 1.3 For a seshy session, enumerate immediate child dirs that are git
-  worktrees and build `repos[]` (`repo`/`branch`/`head`/`diffstat` each).
-- [x] 1.4 Keep single-repo capture when `cwd` is itself a git worktree
-  (`kind=repo`); otherwise `kind=dir`.
-- [x] 1.5 Resolve transcript: use stdin path only if it exists on disk, else
+- [x] 1.3 For a seshy session (root OR nested-repo cwd), enumerate every nested
+  git child and build a uniform `repos[]`.
+- [x] 1.4 Plain git `cwd` → one-element `repos[]` (`kind=repo`); otherwise
+  `kind=dir` with empty `repos[]`. No scalar `repo`/`branch`/`head` fields.
+- [x] 1.5 Per-repo signal: `commits` (ahead of origin default branch),
+  `diffstat` (branch-vs-base), `dirty` (working tree), and `url`
+  (normalized origin remote → `/tree/<branch>`).
+- [x] 1.6 Resolve transcript: use stdin path only if it exists on disk, else
   glob `~/.claude/projects/*/<session_id>.jsonl`, else empty.
-- [x] 1.6 Add zero-signal guard: no append when no `first_prompt`, no git
-  context, and `kind=dir`.
-- [x] 1.7 Emit the extended JSON line (`kind`, `session_name`, `repos[]`)
-  alongside the existing single-repo fields; preserve the lock-free append.
+- [x] 1.7 Zero-signal guard: no append when `repos[]` empty and no
+  `first_prompt`. Emit `kind`/`session_name`/`repos[]`; preserve lock-free append.
 
 ## 2. Worklog skill (`skills/worklog.nix`)
 
-- [x] 2.1 Update the data-source schema block to document
-  `kind`/`session_name`/`repos[]` and the session-id transcript resolution.
+- [x] 2.1 Update the data-source schema block: uniform `repos[]`
+  (`name`/`url`/`commits`/`diffstat`/`dirty`), legacy scalar-`repo` synthesis,
+  and the session-id transcript resolution.
 - [x] 2.2 Drain step: resolve a missing `transcript_path` via the
   `session_id` glob before falling back to inferred (`~`) summaries.
 - [x] 2.3 Compose step: group `seshy-session` entries by `session_name`
-  spanning their repos; treat lines without `kind` as single-repo.
+  spanning their repos; order by `commits`/`diffstat`; link repo names to `url`.
 
 ## 3. WezTerm tab titles (`pkg/ui.lua`)
 

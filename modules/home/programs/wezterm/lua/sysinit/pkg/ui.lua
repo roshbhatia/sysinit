@@ -240,7 +240,11 @@ function M.setup(config)
           locked_indicator,
         },
         tabline_b = { "domain" },
-        tabline_x = {},
+        -- Active workspace name (our seshy session, or "default" at the home
+        -- base). tabline's built-in `workspace` component renders
+        -- wezterm.mux.get_active_workspace(); this is the one empty right-side
+        -- slot, so it groups with the agent/hostname status indicators.
+        tabline_x = { "workspace" },
         tabline_y = { agent_status },
         tabline_z = { "hostname" },
       },
@@ -486,8 +490,16 @@ function M.setup(config)
     -- Replace the default choice provider: list seshy sessions instead of
     -- scanning a projects dir. `sy list` prints a header row then one row per
     -- session; column 1 is the session name.
+    --
+    -- The list always leads with a pinned "default" entry — the home-base
+    -- workspace WezTerm starts in. Selecting it does SwitchToWorkspace{name=
+    -- "default"} (create-if-absent), the one switcher path back from any seshy
+    -- session. It's seeded first so it survives an empty/header-only `sy list`
+    -- or a missing/erroring `sy` binary (the early return still carries it).
     wm.get_choices = function()
-      local choices = {}
+      local choices = {
+        { name = "default", path = home, label = "default" },
+      }
       local ok, stdout = pcall(function()
         local success, out = wezterm.run_child_process({ sy_bin, "list" })
         if not success then

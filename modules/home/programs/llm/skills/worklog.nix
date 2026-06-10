@@ -19,12 +19,18 @@
     "session_id": "abc123",
     "kind": "repo",                     // repo | seshy-session | dir
     "session_name": "",                 // seshy session name (seshy-session only)
-    "repo": "sysinit",                  // single-repo: basename of git toplevel
-    "repos": [],                        // seshy-session: one obj per nested repo
+    "repos": [                          // ALWAYS a list — git context lives here
+      {
+        "name": "lrl-aws",
+        "branch": "dev/roshan/inf-1786/lrl-aws",
+        "head": "a0a29123",
+        "url": "https://github.com/pinginc/lrl-aws/tree/dev/roshan/inf-1786/lrl-aws",
+        "commits": 7,                   // ahead of base branch — the "did work" signal
+        "diffstat": "10 files changed, 110 insertions(+), 74 deletions(-)", // branch-vs-base
+        "dirty": ""                     // uncommitted working-tree delta, if any
+      }
+    ],
     "cwd": "/Users/roshan/github/...",
-    "branch": "rb/ENG-1234-tabs",       // single-repo: bridge to a tracker ticket
-    "head": "c04e5e0e9",                // single-repo: short HEAD sha
-    "diffstat": "3 files changed, ...", // single-repo: working-tree delta
     "first_prompt": "fix wezterm tab…", // cheap title, first user turn
     "transcript_path": "/Users/.../<uuid>.jsonl",
     "end_reason": "prompt_input_exit",  // clear | logout | prompt_input_exit | …
@@ -32,20 +38,26 @@
   }
   ```
 
-  `kind` selects where the git context lives:
+  Git context **always** lives in `repos[]` — there is no scalar `repo`/`branch`/
+  `head`. `kind` only selects how to group:
 
-  - **`repo`** — `cwd` was a single git worktree; read `repo`/`branch`/`head`/
-    `diffstat` at the top level.
-  - **`seshy-session`** — `cwd` was a [[feature-based-session-manager]] session
-    root, which spans many repos. Identity is `session_name`; per-repo context
-    is in `repos[]` (each `{repo, branch, head, diffstat}`). Top-level
-    `repo`/`branch`/`head` are empty — use `repos[]`.
-  - **`dir`** — neither; only `repo` (the cwd basename) is set.
+  - **`repo`** — `cwd` was a single git worktree; `repos[]` has exactly one entry.
+  - **`seshy-session`** — `cwd` was under a [[feature-based-session-manager]]
+    session, which spans many repos. Identity is `session_name`; `repos[]` holds
+    one entry per nested git child of the session.
+  - **`dir`** — neither a repo nor a seshy session; `repos[]` is empty (the line
+    only survives the hook's zero-signal guard because it had a `first_prompt`).
 
-  Lines written before this schema lack `kind`/`repos` — treat a missing `kind`
-  as `repo`. `summary` is pre-seeded `null`. The transcript at `transcript_path`
-  is the source of truth for what actually happened; the log line is just the
-  index.
+  Per-repo, `commits` (ahead of the base branch) + `diffstat` (branch-vs-base)
+  are the real "how much happened" signal — committed work the old working-tree
+  diff missed; `dirty` is any uncommitted remainder. `url` is the branch-tree
+  web link.
+
+  Lines written before this schema have a scalar `"repo"`/`"branch"`/`"head"`/
+  `"diffstat"` and no `repos[]` — synthesize a single-element `repos[]` from
+  them and treat a missing `kind` as `repo`. `summary` is pre-seeded `null`. The
+  transcript at `transcript_path` is the source of truth for what actually
+  happened; the log line is just the index.
 
   ## Modes
 
@@ -81,10 +93,11 @@
     `~/.claude/projects/*/<session_id>.jsonl` (Glob) — before degrading. Only
     when no transcript exists anywhere, synthesize from `first_prompt` +
     `diffstat` + repo/branch and prefix the summary with `~` (inferred).
-  - For commits, run `git -C "$cwd" log --oneline "$head"..HEAD` (or around the
-    session window) when the repo still exists. For a `seshy-session`, iterate
-    `repos[]` and run the log per nested repo under
-    `~/.local/state/seshy/sessions/<session_name>/<repo>`.
+  - For commits, iterate `repos[]`: each entry's `commits`/`diffstat` already
+    quantify the branch-vs-base work, and `head`/`branch`/`url` locate it. To
+    list them, run `git -C "$dir" log --oneline` against the repo dir — `$cwd`
+    for `kind: repo`, or `~/.local/state/seshy/sessions/<session_name>/<name>`
+    per entry for a `seshy-session`.
   - **Many entries → fan out.** Spawn one subagent per session via the Agent
     tool (they are independent); have each return its summary. Keep summaries
     factual and terse — no marketing, no padding.
@@ -104,10 +117,10 @@
   ### 3. Compose
 
   Emit markdown grouped **by date, then unit of work**, newest first. The unit
-  is the `repo` for `kind: repo`/`dir`, and the `session_name` for
-  `kind: seshy-session` (a seshy session is one heading spanning its `repos[]`,
-  not one heading per repo). Within a unit, order by signal (`diffstat`
-  magnitude, commit count). Keep it skimmable:
+  is the single `repos[0].name` for `kind: repo`, and the `session_name` for
+  `kind: seshy-session` (one heading spanning its `repos[]`, not one per repo).
+  Within a unit, order repos by signal (`commits`, then `diffstat` magnitude);
+  link repo names to their `url` when present. Keep it skimmable:
 
   ```markdown
   ## 2026-06-09
@@ -117,9 +130,10 @@
     disabled tabline rendering so sigil titles show. (3 commits, c04e5e0)
   - Added a session-aware statusline and a cross-session worklog hook.
 
-  ### no-jared-dependencies (session · go-common, oncallbot)
-  - Wired the on-call escalation path through go-common and verified it from
-    oncallbot. (go-common: 2 commits; oncallbot: 4 files)
+  ### inf-1785 (session · lrl-aws, infra, cdk8s-platform-definitions)
+  - Reworked the AWS landing-zone modules and threaded the change into infra.
+    ([lrl-aws](…/tree/dev/roshan/inf-1786/lrl-aws): 7 commits, +110/-74;
+    infra: 5 commits)
 
   ### laurel-api
   - ~Investigated the auth refresh races (inferred: transcript pruned).

@@ -84,32 +84,79 @@ local function get_pane_keys()
   return keys
 end
 
-local function get_ssh_picker()
+-- Parse ~/.ssh/known_hosts into bare host names usable as an SSH: exec domain.
+-- Lines look like `host1,host2,[host3]:2222 ssh-ed25519 AAAA... comment`; we
+-- take only the comma-separated host field, dropping hashed entries (`|1|...`,
+-- unreadable as names), comments/CA markers (`#`/`@...`), and wildcards. The
+-- bracketed `[host]:port` form is unwrapped to the bare host.
+local function read_known_hosts_hosts()
   local hosts = {}
+  local seen = {}
+  local file = io.open(utils.get_home_dir() .. "/.ssh/known_hosts", "r")
+  if not file then
+    return hosts
+  end
 
-  for host, _ in pairs(wezterm.enumerate_ssh_hosts()) do
-    local is_wildcard = host:match("[*?]")
-    local is_github = host:lower():match("github")
-
-    if not is_wildcard and not is_github then
-      table.insert(hosts, { label = host, id = host })
+  for line in file:lines() do
+    if line ~= "" and not line:match("^%s*#") and not line:match("^|1|") and not line:match("^@") then
+      local first = line:match("^(%S+)")
+      if first then
+        for token in first:gmatch("[^,]+") do
+          local host = token:match("^%[([^%]]+)%]") or token
+          if host ~= "" and not host:match("[*?]") and not seen[host] then
+            seen[host] = true
+            table.insert(hosts, host)
+          end
+        end
+      end
     end
   end
 
-  table.sort(hosts, function(a, b)
-    return a.label < b.label
-  end)
+  file:close()
+  return hosts
+end
 
-  return wezterm.action.InputSelector({
-    title = "Select host:",
-    choices = hosts,
-    fuzzy = true,
-    action = wezterm.action_callback(function(window, pane, id, label)
-      if id then
-        window:perform_action(wezterm.action.SpawnTab({ DomainName = "SSH:" .. id }), pane)
-      end
-    end),
-  })
+-- Assemble the SSH domain set the launcher draws from. Start with WezTerm's
+-- generated domains (one SSH: exec + one SSHMUX: multiplexer per host
+-- enumerate_ssh_hosts finds in ~/.ssh/config), force a Posix shell assumption
+-- for cwd awareness, then coverage-merge known_hosts entries that
+-- enumerate_ssh_hosts misses (wildcard-only Host blocks, hosts only ever
+-- connected to) as SSH: exec domains. enumerate_ssh_hosts never reads
+-- known_hosts and drops wildcard/Match blocks (wezterm#5553, #5755).
+local function build_ssh_domains()
+  local domains = wezterm.default_ssh_domains()
+  local seen_hosts = {}
+
+  for _, dom in ipairs(domains) do
+    dom.assume_shell = "Posix"
+    -- default_ssh_domains names each domain "SSH:<host>" / "SSHMUX:<host>";
+    -- record the bare host so the merge below does not re-add it.
+    local host = dom.name:match("^SSH[^:]*:(.+)$")
+    if host then
+      seen_hosts[host] = true
+    end
+  end
+
+  for _, host in ipairs(read_known_hosts_hosts()) do
+    if not seen_hosts[host] then
+      seen_hosts[host] = true
+      table.insert(domains, {
+        name = "SSH:" .. host,
+        remote_address = host,
+        multiplexing = "None", -- exec domain: do not assume remote wezterm
+        assume_shell = "Posix",
+      })
+    end
+  end
+
+  return domains
+end
+
+-- SSH picker: WezTerm's native fuzzy launcher over the configured ssh_domains
+-- (seeded in M.setup from build_ssh_domains). FUZZY alone opens an empty
+-- launcher (wezterm#2377); the DOMAINS content flag is what populates it.
+local function get_ssh_picker()
+  return act.ShowLauncherArgs({ flags = "FUZZY|DOMAINS" })
 end
 
 local function get_system_keys()
@@ -321,6 +368,9 @@ function M.setup(config)
       M.locked_mode = not M.locked_mode
     end),
   })
+
+  -- Seed the SSH domain set the SUPER+SHIFT+s fuzzy launcher draws from.
+  config.ssh_domains = build_ssh_domains()
 
   -- Enable kitty keyboard protocol for richer key event reporting (mod keys, etc.)
   config.enable_kitty_keyboard = true

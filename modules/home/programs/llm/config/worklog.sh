@@ -5,12 +5,12 @@
 # Best-effort by design: no `set -e`, every field is guarded so one failure
 # (not a git repo, no transcript, no jq) never aborts the append.
 #
-# Identity is sourced from the right object. A seshy session root
-# (~/.local/state/seshy/sessions/<name>) is NOT a git repo — it holds one
-# nested worktree per repo — so we detect it, key on the session name, and
-# enumerate the nested repos into `repos[]`. A plain git cwd keeps single-repo
-# capture; anything else is a bare dir (and is dropped unless it carries a
-# first prompt).
+# Identity lives in `repos[]` — always a list, never a scalar. A plain git cwd
+# yields one entry; a seshy session (~/.local/state/seshy/sessions/<name>, whose
+# root is NOT a repo but holds one nested worktree per repo) yields one entry
+# per nested git child. Each entry carries the branch-tree URL plus the real
+# "did work" signal: commits ahead of the base branch and the branch-vs-base
+# diffstat — NOT the working-tree diff, which is empty once work is committed.
 #
 # Append-only and lock-free: a single small `printf >> file` is one O_APPEND
 # write(), which the kernel serializes per-inode — safe when several sessions
@@ -40,35 +40,82 @@ is_git() {
   git -C "$1" rev-parse --is-inside-work-tree > /dev/null 2>&1
 }
 
+# Normalize a git remote URL to a browseable https web URL.
+#   git@github.com:org/repo.git    -> https://github.com/org/repo
+#   ssh://git@github.com/org/repo  -> https://github.com/org/repo
+#   https://github.com/org/repo.git-> https://github.com/org/repo
+normalize_remote() {
+  u=$1
+  u=${u%.git}
+  case "$u" in
+    git@*)
+      host=${u#git@}
+      host=${host%%:*}
+      path=${u#*:}
+      printf 'https://%s/%s' "$host" "$path"
+      ;;
+    ssh://*)
+      rest=${u#ssh://}
+      rest=${rest#*@}
+      printf 'https://%s' "$rest"
+      ;;
+    *)
+      printf '%s' "$u"
+      ;;
+  esac
+}
+
 # Print a JSON object describing the git worktree at $1, or nothing on failure.
+# Captures branch-tree URL and the committed-work signal (commits ahead of the
+# base branch + branch-vs-base diffstat), plus any uncommitted working-tree
+# delta as `dirty`.
 git_repo_obj() {
   d=$1
-  r=$(basename "$(git -C "$d" rev-parse --show-toplevel 2> /dev/null)")
-  b=$(git -C "$d" branch --show-current 2> /dev/null)
-  h=$(git -C "$d" rev-parse --short HEAD 2> /dev/null)
-  ds=$(git -C "$d" diff --shortstat 2> /dev/null)
-  [ -n "$r" ] || return 0
+  name=$(basename "$(git -C "$d" rev-parse --show-toplevel 2> /dev/null)")
+  [ -n "$name" ] || return 0
+  branch=$(git -C "$d" branch --show-current 2> /dev/null)
+  head=$(git -C "$d" rev-parse --short HEAD 2> /dev/null)
+  dirty=$(git -C "$d" diff --shortstat 2> /dev/null | sed 's/^ *//')
+
+  remote_raw=$(git -C "$d" remote get-url origin 2> /dev/null)
+  [ -n "$remote_raw" ] || remote_raw=$(git -C "$d" remote get-url "$(git -C "$d" remote 2> /dev/null | head -1)" 2> /dev/null)
+  url=""
+  if [ -n "$remote_raw" ]; then
+    url=$(normalize_remote "$remote_raw")
+    [ -n "$branch" ] && url="$url/tree/$branch"
+  fi
+
+  # Base branch (origin's default). When the current branch differs, the real
+  # work signal is what this branch adds on top of it.
+  base=$(git -C "$d" symbolic-ref refs/remotes/origin/HEAD 2> /dev/null | sed 's#.*/##')
+  commits=0
+  diffstat=""
+  if [ -n "$base" ] && [ -n "$branch" ] && [ "$branch" != "$base" ]; then
+    commits=$(git -C "$d" rev-list --count "origin/$base..HEAD" 2> /dev/null)
+    [ -n "$commits" ] || commits=0
+    diffstat=$(git -C "$d" diff --shortstat "origin/$base...HEAD" 2> /dev/null | sed 's/^ *//')
+  fi
+
   jq -nc \
-    --arg repo "$r" \
-    --arg branch "$b" \
-    --arg head "$h" \
-    --arg diffstat "$ds" \
-    '{ repo: $repo, branch: $branch, head: $head, diffstat: $diffstat }'
+    --arg name "$name" \
+    --arg branch "$branch" \
+    --arg head "$head" \
+    --arg url "$url" \
+    --argjson commits "${commits:-0}" \
+    --arg diffstat "$diffstat" \
+    --arg dirty "$dirty" \
+    '{ name: $name, branch: $branch, head: $head, url: $url, commits: $commits, diffstat: $diffstat, dirty: $dirty }'
 }
 
 kind=""
 session_name=""
-repo=""
-branch=""
-head=""
-diffstat=""
 repos_json="[]"
 
 seshy_root="$HOME/.local/state/seshy/sessions"
 case "$cwd/" in
   "$seshy_root"/*)
-    # cwd is somewhere under a seshy session (the root itself or a nested repo).
-    # The unit of work is the session, which spans every nested repo.
+    # cwd is under a seshy session (the root itself or a nested repo). The unit
+    # of work is the session, which spans every nested git child.
     kind="seshy-session"
     rest=${cwd#"$seshy_root"/}
     session_name=${rest%%/*}
@@ -86,15 +133,10 @@ case "$cwd/" in
   *)
     if [ -n "$cwd" ] && is_git "$cwd"; then
       kind="repo"
-      repo=$(basename "$(git -C "$cwd" rev-parse --show-toplevel 2> /dev/null)")
-      branch=$(git -C "$cwd" branch --show-current 2> /dev/null)
-      head=$(git -C "$cwd" rev-parse --short HEAD 2> /dev/null)
-      # Cumulative working-tree delta — a cheap "how much happened" signal for
-      # the rollup to rank by; not session-scoped.
-      diffstat=$(git -C "$cwd" diff --shortstat 2> /dev/null)
+      obj=$(git_repo_obj "$cwd")
+      [ -n "$obj" ] && repos_json=$(printf '%s' "$obj" | jq -sc '.')
     else
       kind="dir"
-      repo=$(basename "${cwd:-unknown}")
     fi
     ;;
 esac
@@ -124,9 +166,8 @@ if [ -n "$resolved_transcript" ] && [ -f "$resolved_transcript" ]; then
   ' "$resolved_transcript" 2> /dev/null | grep -v '^[[:space:]]*$' | head -1 | tr '\n' ' ' | cut -c1-200)
 fi
 
-# Zero-signal guard: a bare directory with no first prompt carries no work
-# worth indexing.
-if [ "$kind" = "dir" ] && [ -z "$first_prompt" ]; then
+# Zero-signal guard: no repos and no first prompt means nothing worth indexing.
+if [ "$repos_json" = "[]" ] && [ -z "$first_prompt" ]; then
   exit 0
 fi
 
@@ -135,11 +176,7 @@ line=$(jq -nc \
   --arg session_id "$session_id" \
   --arg kind "$kind" \
   --arg session_name "$session_name" \
-  --arg repo "$repo" \
   --arg cwd "$cwd" \
-  --arg branch "$branch" \
-  --arg head "$head" \
-  --arg diffstat "$diffstat" \
   --arg first_prompt "$first_prompt" \
   --arg transcript "$resolved_transcript" \
   --arg reason "$reason" \
@@ -149,12 +186,8 @@ line=$(jq -nc \
     session_id: $session_id,
     kind: $kind,
     session_name: $session_name,
-    repo: $repo,
     repos: $repos,
     cwd: $cwd,
-    branch: $branch,
-    head: $head,
-    diffstat: $diffstat,
     first_prompt: $first_prompt,
     transcript_path: $transcript,
     end_reason: $reason,
