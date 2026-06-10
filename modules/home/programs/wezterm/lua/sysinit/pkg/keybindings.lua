@@ -147,24 +147,35 @@ end
 
 -- Assemble the SSH domain set smart_ssh's picker draws from (it reads the mux
 -- domains whose name starts with "ssh"). We mirror smart_ssh's own domain shape
--- — lowercase "ssh:<host>", multiplexing "None", Posix shell — so its formatter
--- (name:sub(5)) renders the bare host, then attach ssh_option for key auth and
--- coverage-merge ~/.ssh/known_hosts hosts that enumerate_ssh_hosts misses
--- (wildcard-only Host blocks, hosts only ever connected to; wezterm#5553).
+-- — lowercase "ssh:<host>", Posix shell — so its formatter (name:sub(5)) renders
+-- the bare host, attach ssh_option for key auth, and coverage-merge
+-- ~/.ssh/known_hosts hosts that enumerate_ssh_hosts misses (wildcard-only Host
+-- blocks, hosts only ever connected to; wezterm#5553).
+--
+-- multiplexing = "WezTerm": persistent/reattachable mux domains (require remote
+-- wezterm-mux-server). These are the hosts we control (our tailnet), so the mux
+-- bootstrap is available; selecting one still opens a new tab via smart_ssh.
+--
+-- Merge: ~/.ssh/config aliases its Host entries to tailnet FQDNs (e.g. arrakis
+-- -> arrakis.stork-eel.ts.net). enumerate returns the aliases AND their resolved
+-- hostname, so we record every resolved hostname and skip the known_hosts FQDN
+-- that maps back to an alias already added — collapsing the duplicate.
 local function build_ssh_domains()
   local key_options = ssh_key_options()
   local domains = {}
-  local seen = {}
+  local seen = {} -- host part of ssh:<host> ids already emitted
+  local resolved_hostnames = {} -- HostName values behind enumerated aliases
 
   local function add(host)
-    if host == "" or host:match("[*?]") or seen[host] then
+    host = host:lower()
+    if host == "" or host:match("[*?]") or seen[host] or resolved_hostnames[host] then
       return
     end
     seen[host] = true
     table.insert(domains, {
       name = "ssh:" .. host,
       remote_address = host,
-      multiplexing = "None", -- exec domain: do not assume remote wezterm
+      multiplexing = "WezTerm",
       assume_shell = "Posix",
       ssh_option = key_options,
     })
@@ -172,9 +183,12 @@ local function build_ssh_domains()
 
   local ok, hosts = pcall(wezterm.enumerate_ssh_hosts)
   if ok and hosts then
-    for host in pairs(hosts) do
+    for host, cfg in pairs(hosts) do
       -- smart_ssh skips the synthetic "*.host" wildcard entries enumerate emits.
       if not host:match("%.host") then
+        if type(cfg) == "table" and cfg.hostname then
+          resolved_hostnames[cfg.hostname:lower()] = true
+        end
         add(host)
       end
     end
