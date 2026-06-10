@@ -236,8 +236,8 @@ function M.setup(config)
           right = "",
         },
         tab_separators = {
-          left = "",
-          right = "",
+          left = "|",
+          right = "|",
         },
       },
       sections = {
@@ -252,10 +252,10 @@ function M.setup(config)
         -- wezterm.mux.get_active_workspace(). The hostname component is
         -- intentionally omitted (the domain section already shows the
         -- connection context).
-        tabline_b = { "domain", "workspace" },
+        tabline_b = {},
         tabline_x = {},
         tabline_y = { agent_status },
-        tabline_z = {},
+        tabline_z = { "domain", "workspace" },
       },
       extensions = {},
     })
@@ -407,14 +407,36 @@ function M.setup(config)
   --   "Revamp Azure reference architecture" -> revamp-azure-arch
   --   "Optimize nix config"                 -> optimize-nix-config
   local SLUG_STOP = {
-    a = true, an = true, the = true, to = true, of = true, on = true,
-    ["in"] = true, ["for"] = true, ["and"] = true, with = true, into = true,
-    from = true, at = true, via = true, using = true, new = true,
-    create = true, set = true, up = true, service = true, reference = true,
+    a = true,
+    an = true,
+    the = true,
+    to = true,
+    of = true,
+    on = true,
+    ["in"] = true,
+    ["for"] = true,
+    ["and"] = true,
+    with = true,
+    into = true,
+    from = true,
+    at = true,
+    via = true,
+    using = true,
+    new = true,
+    create = true,
+    set = true,
+    up = true,
+    service = true,
+    reference = true,
   }
   local SLUG_ABBR = {
-    architecture = "arch", configuration = "config", environment = "env",
-    repository = "repo", database = "db", kubernetes = "k8s", documentation = "docs",
+    architecture = "arch",
+    configuration = "config",
+    environment = "env",
+    repository = "repo",
+    database = "db",
+    kubernetes = "k8s",
+    documentation = "docs",
   }
   local function slugify_title(title)
     -- Drop leading non-word glyphs (Claude's spinner ·/✳/*) then lowercase.
