@@ -1,0 +1,39 @@
+diff --git a/plugin/lantern/deps.lua b/plugin/lantern/deps.lua
+index 9dcb613..2ab16ae 100644
+--- a/plugin/lantern/deps.lua
++++ b/plugin/lantern/deps.lua
+@@ -1,21 +1,26 @@
+ ---@module "lantern.deps"
+ 
+-local wezterm = require "wezterm"
++-- Resolve sravioli deps through sysinit's plugin_loader instead of
++-- wezterm.plugin.require: this config vendors plugins from the Nix store and
++-- loads them via plain dofile() (libgit2 lacks SSH on NixOS), so the upstream
++-- git-clone path always fails. loader.load(name) returns the same module table
++-- wezterm.plugin.require would have, keyed by the name in wezterm/config.json.
++local loader = require "sysinit.pkg.plugin_loader"
+ 
+ local M = {}
+ 
+-local function require_plugin(url)
+-  local ok, plugin = pcall(wezterm.plugin.require, url)
++local function require_plugin(name)
++  local ok, plugin = loader.load(name)
+   if ok and plugin then
+     return plugin
+   end
+ 
+-  error(("[lantern] unable to load dependency %s: %s"):format(url, tostring(plugin)))
++  error(("[lantern] unable to load dependency %s: %s"):format(name, tostring(plugin)))
+ end
+ 
+-M.log = require_plugin "https://github.com/sravioli/log.wz"
+-M.memo = require_plugin "https://github.com/sravioli/memo.wz"
+-M.ribbon = require_plugin "https://github.com/sravioli/ribbon.wz"
+-M.warp = require_plugin "https://github.com/sravioli/warp.wz"
++M.log = require_plugin "log"
++M.memo = require_plugin "memo"
++M.ribbon = require_plugin "ribbon"
++M.warp = require_plugin "warp"
+ 
+ return M

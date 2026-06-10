@@ -51,6 +51,39 @@ let
       rev = "1e58c730dcbf8bfdcd32cdada3484a1d673e0464";
       hash = "sha256-tEspBNdQqGif5DQV8JAzVQRdW0Hl6ykdSMmx+BqNj90=";
     };
+    # log/memo are leaf libraries (logging, cache+state) pulled in by lantern.
+    log = pkgs.fetchFromGitHub {
+      owner = "sravioli";
+      repo = "log.wz";
+      rev = "43dc5e48b8962e4636c22be3d67ef3a8b8eca795";
+      hash = "sha256-+EvwhQIQTe9QqC7qEG1OnEkCfPux+E5UH6xBEocTk4M=";
+    };
+    memo = pkgs.fetchFromGitHub {
+      owner = "sravioli";
+      repo = "memo.wz";
+      rev = "f5cdebca623809f7e61563a48b1679c81d32b148";
+      hash = "sha256-SnI3n2oi0txKVK+v55aA4TVx0rcmli+okWUdzuy6SGU=";
+    };
+    # lantern: appearance picker (colorschemes/fonts/GPU/opacity). Its deps.lua
+    # resolves log/memo/ribbon/warp via wezterm.plugin.require (git clone), which
+    # always fails under our Nix-store dofile loading; patch it to resolve them
+    # through sysinit.pkg.plugin_loader instead.
+    lantern = pkgs.applyPatches {
+      src = pkgs.fetchFromGitHub {
+        owner = "sravioli";
+        repo = "lantern.wz";
+        rev = "cfe4acb1b04b81a16410a66283477d68c98a3375";
+        hash = "sha256-ncxG9quSnpueWPZhEMC4DS63/9m3ayLX6s7g9VoMMIg=";
+      };
+      patches = [ ./patches/lantern-deps-loader.patch ];
+    };
+    # Fuzzy SSH host picker (InputSelector over configured ssh_domains).
+    smart-ssh = pkgs.fetchFromGitHub {
+      owner = "DavidRR-F";
+      repo = "smart_ssh.wezterm";
+      rev = "8ad528e73d627b68c3625d5d4827a31a21e320d0";
+      hash = "sha256-2dh27ioUdFUfeaM5bzyMJFSy3LQ07fliY2pKi/B8CCA=";
+    };
     # Seshy session picker + workspace-layout persistence across restarts.
     workspace-manager = pkgs.fetchFromGitHub {
       owner = "ryanmsnyder";
@@ -162,6 +195,10 @@ in
         warp = "${weztermPlugins.warp}";
         ribbon = "${weztermPlugins.ribbon}";
         sigil = "${weztermPlugins.sigil}";
+        log = "${weztermPlugins.log}";
+        memo = "${weztermPlugins.memo}";
+        lantern = "${weztermPlugins.lantern}";
+        smart-ssh = "${weztermPlugins.smart-ssh}";
         workspace-manager = "${weztermPlugins.workspace-manager}";
       };
     };

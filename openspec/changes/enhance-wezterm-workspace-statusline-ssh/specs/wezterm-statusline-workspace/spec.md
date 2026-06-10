@@ -5,7 +5,7 @@
 The tabline statusline SHALL render the active workspace name — as reported by
 `wezterm.mux.get_active_workspace()` — in a dedicated right-side section
 (`tabline_x`), without displacing the existing `mode`/`locked`/`domain`/
-`agent_status`/`hostname` sections.
+`agent_status` sections.
 
 #### Scenario: Seshy session name is shown
 
@@ -23,3 +23,20 @@ The tabline statusline SHALL render the active workspace name — as reported by
   custom `format-tab-title` handler active
 - **THEN** the custom per-tab titles still render and the workspace section does
   not overwrite or suppress them
+
+### Requirement: Statusline omits the right-edge hostname
+
+The tabline statusline SHALL NOT render the `hostname` component on the right
+edge (`tabline_z = {}`). The connection context already appears in the `domain`
+section (`tabline_b`), so the hostname is redundant.
+
+#### Scenario: Hostname is absent from the right edge
+
+- **WHEN** the statusline renders in any workspace, local or over SSH
+- **THEN** no hostname is shown in the `tabline_z` section
+
+#### Scenario: Domain context is still visible (negative)
+
+- **WHEN** the active pane is connected to an `ssh:<host>` domain
+- **THEN** the connection context is still conveyed by the `domain` section
+  rather than being lost with the removed hostname

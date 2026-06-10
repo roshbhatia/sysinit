@@ -1,10 +1,15 @@
 local wezterm = require("wezterm")
 local act = wezterm.action
 local utils = require("sysinit.pkg.utils")
+local plugin_loader = require("sysinit.pkg.plugin_loader")
 
 local M = {}
 
 M.locked_mode = false
+
+-- smart_ssh.wezterm module, loaded in M.setup. Its M.tab() returns an
+-- InputSelector "Choose Host" action over the configured ssh_domains.
+local smart_ssh = nil
 
 -- Constants
 -- Processes that should receive raw key events instead of wezterm actions
@@ -116,46 +121,79 @@ local function read_known_hosts_hosts()
   return hosts
 end
 
--- Assemble the SSH domain set the launcher draws from. Start with WezTerm's
--- generated domains (one SSH: exec + one SSHMUX: multiplexer per host
--- enumerate_ssh_hosts finds in ~/.ssh/config), force a Posix shell assumption
--- for cwd awareness, then coverage-merge known_hosts entries that
--- enumerate_ssh_hosts misses (wildcard-only Host blocks, hosts only ever
--- connected to) as SSH: exec domains. enumerate_ssh_hosts never reads
--- known_hosts and drops wildcard/Match blocks (wezterm#5553, #5755).
-local function build_ssh_domains()
-  local domains = wezterm.default_ssh_domains()
-  local seen_hosts = {}
+-- libssh ssh_options that let WezTerm's built-in SSH client authenticate with a
+-- key instead of prompting for a password. WezTerm's libssh transport does not
+-- read ~/.ssh/config reliably, so we hand it the ssh-agent socket and the first
+-- existing default identity file explicitly. Empty when neither is present (a
+-- bare {} is harmless on a domain).
+local function ssh_key_options()
+  local opts = {}
+  local agent = os.getenv("SSH_AUTH_SOCK")
+  if agent and agent ~= "" then
+    opts.identityagent = agent
+  end
+  local home = utils.get_home_dir()
+  for _, name in ipairs({ "id_ed25519", "id_ecdsa", "id_rsa" }) do
+    local path = home .. "/.ssh/" .. name
+    local fh = io.open(path, "r")
+    if fh then
+      fh:close()
+      opts.identityfile = path
+      break
+    end
+  end
+  return opts
+end
 
-  for _, dom in ipairs(domains) do
-    dom.assume_shell = "Posix"
-    -- default_ssh_domains names each domain "SSH:<host>" / "SSHMUX:<host>";
-    -- record the bare host so the merge below does not re-add it.
-    local host = dom.name:match("^SSH[^:]*:(.+)$")
-    if host then
-      seen_hosts[host] = true
+-- Assemble the SSH domain set smart_ssh's picker draws from (it reads the mux
+-- domains whose name starts with "ssh"). We mirror smart_ssh's own domain shape
+-- — lowercase "ssh:<host>", multiplexing "None", Posix shell — so its formatter
+-- (name:sub(5)) renders the bare host, then attach ssh_option for key auth and
+-- coverage-merge ~/.ssh/known_hosts hosts that enumerate_ssh_hosts misses
+-- (wildcard-only Host blocks, hosts only ever connected to; wezterm#5553).
+local function build_ssh_domains()
+  local key_options = ssh_key_options()
+  local domains = {}
+  local seen = {}
+
+  local function add(host)
+    if host == "" or host:match("[*?]") or seen[host] then
+      return
+    end
+    seen[host] = true
+    table.insert(domains, {
+      name = "ssh:" .. host,
+      remote_address = host,
+      multiplexing = "None", -- exec domain: do not assume remote wezterm
+      assume_shell = "Posix",
+      ssh_option = key_options,
+    })
+  end
+
+  local ok, hosts = pcall(wezterm.enumerate_ssh_hosts)
+  if ok and hosts then
+    for host in pairs(hosts) do
+      -- smart_ssh skips the synthetic "*.host" wildcard entries enumerate emits.
+      if not host:match("%.host") then
+        add(host)
+      end
     end
   end
 
   for _, host in ipairs(read_known_hosts_hosts()) do
-    if not seen_hosts[host] then
-      seen_hosts[host] = true
-      table.insert(domains, {
-        name = "SSH:" .. host,
-        remote_address = host,
-        multiplexing = "None", -- exec domain: do not assume remote wezterm
-        assume_shell = "Posix",
-      })
-    end
+    add(host)
   end
 
   return domains
 end
 
--- SSH picker: WezTerm's native fuzzy launcher over the configured ssh_domains
--- (seeded in M.setup from build_ssh_domains). FUZZY alone opens an empty
--- launcher (wezterm#2377); the DOMAINS content flag is what populates it.
+-- SSH picker: smart_ssh.wezterm's fuzzy "Choose Host" InputSelector over the
+-- configured ssh_domains (seeded in M.setup from build_ssh_domains). Falls back
+-- to WezTerm's native fuzzy launcher if smart_ssh failed to load.
 local function get_ssh_picker()
+  if smart_ssh then
+    return smart_ssh.tab()
+  end
   return act.ShowLauncherArgs({ flags = "FUZZY|DOMAINS" })
 end
 
@@ -369,7 +407,16 @@ function M.setup(config)
     end),
   })
 
-  -- Seed the SSH domain set the SUPER+SHIFT+s fuzzy launcher draws from.
+  -- Load smart_ssh.wezterm: powers the SUPER+SHIFT+s fuzzy host picker
+  -- (get_ssh_picker). Its picker reads the configured ssh_domains below.
+  local smart_ssh_ok, smart_ssh_mod = plugin_loader.load("smart-ssh")
+  if smart_ssh_ok then
+    smart_ssh = smart_ssh_mod
+  else
+    wezterm.log_warn("Failed to load smart_ssh.wezterm: " .. tostring(smart_ssh_mod))
+  end
+
+  -- Seed the SSH domain set the SUPER+SHIFT+s picker draws from.
   config.ssh_domains = build_ssh_domains()
 
   -- Enable kitty keyboard protocol for richer key event reporting (mod keys, etc.)

@@ -242,11 +242,12 @@ function M.setup(config)
         tabline_b = { "domain" },
         -- Active workspace name (our seshy session, or "default" at the home
         -- base). tabline's built-in `workspace` component renders
-        -- wezterm.mux.get_active_workspace(); this is the one empty right-side
-        -- slot, so it groups with the agent/hostname status indicators.
+        -- wezterm.mux.get_active_workspace(); it fills the right side alongside
+        -- the agent-status indicator. The hostname component is intentionally
+        -- omitted (the domain section already shows the connection context).
         tabline_x = { "workspace" },
         tabline_y = { agent_status },
-        tabline_z = { "hostname" },
+        tabline_z = {},
       },
       extensions = {},
     })
@@ -301,6 +302,85 @@ function M.setup(config)
           aliases = { ".claude-wrapped", "claude-code", "claude-wrapped" },
         },
       },
+    })
+  end
+
+  -- lantern: runtime appearance picker (colorschemes, fonts, GPU, opacity, …).
+  -- Its bundled "flames" (the choice sets) live at <plugin_dir>/plugin/lantern/
+  -- flames; lantern.meta locates that dir from either a plugin url containing
+  -- "lantern.wz" OR wezterm.GLOBAL.__lantern_plugin_dir. Our Nix-store paths
+  -- (/nix/store/HASH-source) carry neither, so we seed the global explicitly
+  -- BEFORE loading — otherwise register_builtins() (run at api.lua load) wires
+  -- the colorscheme/font/gpu wicks with no choices. Its deps.lua (log/memo/
+  -- ribbon/warp) is patched to resolve through plugin_loader instead of
+  -- wezterm.plugin.require (see patches/lantern-deps-loader.patch).
+  wezterm.GLOBAL = wezterm.GLOBAL or {}
+  wezterm.GLOBAL.__lantern_plugin_dir = config_data.plugins and config_data.plugins.lantern
+  local lantern_ok, lantern = plugin_loader.load("lantern")
+  if not lantern_ok then
+    wezterm.log_warn("Failed to load lantern.wz: " .. tostring(lantern))
+  end
+  if lantern_ok then
+    lantern.setup({
+      log = { enabled = false },
+      -- Baseline the picker's "reset" font size to ours so it round-trips.
+      default_font = { font_size = config.font_size },
+      color = { opacity = config_data.transparency.opacity },
+    })
+    -- Restore the appearance the user picked in a previous session.
+    lantern.rekindle(config)
+
+    -- One entry point (SUPER+SHIFT+l) instead of the upstream CTRL+SHIFT+c/f/…
+    -- bindings, which collide with our copy (CTRL+SHIFT+c) and pane-select
+    -- (CTRL+SHIFT+f). Picking a category opens that wick's own selector —
+    -- lantern.light.<x>() returns a ready WezTerm action.
+    local lantern_categories = {
+      { id = "colorscheme", label = "Colorscheme", fn = lantern.light.colorscheme },
+      { id = "font", label = "Font", fn = lantern.light.font },
+      { id = "font_size", label = "Font size", fn = lantern.light.font_size },
+      { id = "font_leading", label = "Font leading", fn = lantern.light.font_leading },
+      { id = "font_ligatures", label = "Font ligatures", fn = lantern.light.font_ligatures },
+      { id = "gpu", label = "GPU / front end", fn = lantern.light.gpu },
+      { id = "window_opacity", label = "Window opacity", fn = lantern.light.window_opacity },
+      { id = "window_padding", label = "Window padding", fn = lantern.light.window_padding },
+      { id = "inactive_pane_opacity", label = "Inactive pane opacity", fn = lantern.light.inactive_pane_opacity },
+      { id = "cursor_style", label = "Cursor style", fn = lantern.light.cursor_style },
+      { id = "tab_bar_style", label = "Tab bar style", fn = lantern.light.tab_bar_style },
+    }
+
+    config.keys = config.keys or {}
+    table.insert(config.keys, {
+      key = "l",
+      mods = "SUPER|SHIFT",
+      action = wezterm.action_callback(function(win, pane)
+        if keybindings.locked_mode then
+          win:perform_action({ SendKey = { key = "l", mods = "SUPER|SHIFT" } }, pane)
+          return
+        end
+        local choices = {}
+        for _, cat in ipairs(lantern_categories) do
+          choices[#choices + 1] = { id = cat.id, label = cat.label }
+        end
+        win:perform_action(
+          wezterm.action.InputSelector({
+            title = "Appearance",
+            fuzzy = true,
+            choices = choices,
+            action = wezterm.action_callback(function(inner_win, inner_pane, id, _label)
+              if not id then
+                return
+              end
+              for _, cat in ipairs(lantern_categories) do
+                if cat.id == id then
+                  inner_win:perform_action(cat.fn(), inner_pane)
+                  return
+                end
+              end
+            end),
+          }),
+          pane
+        )
+      end),
     })
   end
 
@@ -533,13 +613,30 @@ function M.setup(config)
     wm.session_state_dir = home .. "/.local/state/wezterm/workspace_state"
     wm.workspace_switcher_sort = "recency"
 
-    -- apply_to_config appends keybindings; capture the count first so we can
-    -- strip what it injects (we don't want it touching the user's bindings,
-    -- and CTRL+[ = ESC in particular would shadow vim).
-    local key_count = config.keys and #config.keys or 0
+    -- apply_to_config appends its own leader bindings and an in-switcher
+    -- key_table (config.key_tables.workspace_switcher_actions). We keep the
+    -- key_table — it drives the switcher's own UI — but strip the four
+    -- user-facing leader bindings it injects: we open the switcher from SUPER+s
+    -- below, and CTRL+[ (= ESC) in particular would shadow vim. Remove by
+    -- (key, mods) identity so the override is explicit and immune to any
+    -- change in the plugin's append order. None of these combos are bound by
+    -- our own keybindings.lua, so this only removes the plugin's.
     wm.apply_to_config(config)
-    while config.keys and #config.keys > key_count do
-      table.remove(config.keys)
+    local wm_injected_keys = {
+      { key = "s", mods = "LEADER" },
+      { key = "S", mods = "LEADER" },
+      { key = "]", mods = "CTRL" },
+      { key = "[", mods = "CTRL" },
+    }
+    if config.keys then
+      for _, injected in ipairs(wm_injected_keys) do
+        for i = #config.keys, 1, -1 do
+          local k = config.keys[i]
+          if k.key == injected.key and k.mods == injected.mods then
+            table.remove(config.keys, i)
+          end
+        end
+      end
     end
 
     -- SUPER+s opens the switcher. Bound here (not keybindings.lua) because it
