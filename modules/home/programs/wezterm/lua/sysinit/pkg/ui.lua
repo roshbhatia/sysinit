@@ -230,8 +230,8 @@ function M.setup(config)
           right = "",
         },
         tab_separators = {
-          left = "|",
-          right = "|",
+          left = " |",
+          right = "| ",
         },
       },
       sections = {
