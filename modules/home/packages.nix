@@ -183,6 +183,7 @@
       sheets
       simple-completion-language-server
       taplo
+      terminal-notifier
       textlint
       yaml-language-server
       yamllint
