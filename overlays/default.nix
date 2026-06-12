@@ -62,6 +62,14 @@
       };
     };
   })
+  # kubernetes-helm-4.2.0: preCheck on Darwin tries to substituteInPlace
+  # cmd/helm/dependency_build_test.go which doesn't exist in the 4.2.0 source tree.
+  # Skip tests until nixpkgs fixes the Darwin sandbox workaround.
+  (_final: prev: {
+    kubernetes-helm = prev.kubernetes-helm.overrideAttrs (_old: {
+      doCheck = false;
+    });
+  })
   # _1password-gui 8.12.22: 1Password re-uploaded the aarch64 zip with new bytes
   # without bumping the version, so nixpkgs' pinned hash no longer matches.
   # Override src with the current upstream hash until nixpkgs catches up.
