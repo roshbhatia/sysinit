@@ -16,7 +16,13 @@
 
 final: _prev:
 let
-  base = inputs.hermes-agent.packages.${final.stdenv.hostPlatform.system}.default;
+  # Default upstream build omits provider-specific SDKs to shrink the closure;
+  # opt into the `anthropic` extra so the native Anthropic provider works
+  # (without it, /model -> anthropic errors even though the Nous OpenAI-compat
+  # path runs fine).
+  base = inputs.hermes-agent.packages.${final.stdenv.hostPlatform.system}.default.override {
+    extraDependencyGroups = [ "anthropic" ];
+  };
 
   subagentBins = [
     "${final.claude-code}/bin"
