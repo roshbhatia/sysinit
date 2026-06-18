@@ -1,9 +1,8 @@
+{ ... }:
 {
-  lib,
-  values,
-  ...
-}:
-{
+  # incident.io is intentionally absent: the company `laurel-eng` Claude Code
+  # plugin already ships an `incidentio` MCP server, so declaring our own here
+  # would double-connect. Let the auto-updating plugin own it.
   sysinit.llm.mcp.additionalServers = {
     ast-grep = {
       command = "uvx";
@@ -22,13 +21,6 @@
         "@playwright/mcp@latest"
       ];
       description = "Browser automation and end-to-end testing via Playwright";
-    };
-  }
-  // lib.optionalAttrs (values.isWork or false) {
-    incident-io = {
-      type = "http";
-      url = "https://mcp.incident.io/mcp";
-      description = "incident.io remote MCP (work) — incidents, follow-ups, post-mortems";
     };
   };
 }

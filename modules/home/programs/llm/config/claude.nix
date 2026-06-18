@@ -34,6 +34,10 @@ in
     plugins = map resolvePath ccCfg.plugins;
 
     settings = {
+      # The company `laurel-eng` tooling installs an enterprise
+      # managed-settings.json (model + OTEL telemetry) that sits ABOVE this
+      # user settings.json in precedence. Deliberately leave `model` and the
+      # OTEL `env` keys unset here so the two layers never silently fight.
       permissions = {
         allow = llmLib.allowlist.formatForClaude llmLib.allowlist.tierA;
         # Reversible local writes (formatters, `git add`, `nix build`): force a
