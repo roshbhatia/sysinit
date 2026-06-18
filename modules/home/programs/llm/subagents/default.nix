@@ -61,6 +61,7 @@
           ]
         else
           [ ];
+      bodySection = if config ? body && config.body != null then [ ("\n" + config.body) ] else [ ];
       dependencySetupSection = [
         "\n## Dependency Setup:"
         "- When dependencies are required, prefer a project-provided nix shell first (`nix-shell` or `nix develop`)."
@@ -68,7 +69,7 @@
       ];
       prompt = builtins.concatStringsSep "\n" (
         builtins.filter (s: s != "") (
-          descriptionSection ++ useWhenSection ++ avoidWhenSection ++ dependencySetupSection
+          descriptionSection ++ useWhenSection ++ avoidWhenSection ++ bodySection ++ dependencySetupSection
         )
       );
     in

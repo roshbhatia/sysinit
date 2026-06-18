@@ -17,6 +17,35 @@
     "External library research questions (use librarian)"
   ];
 
+  body = ''
+    ## Operating contract
+
+    Make small, idiomatic changes and validate each one before moving on. Ground
+    every decision in real code and real command output, not assumption.
+
+    1. Read the surrounding code first; match its conventions, naming, and idiom.
+    2. Make the smallest change that satisfies the acceptance criteria.
+    3. Validate immediately — build, test, or run the relevant command — and read
+       the output before the next edit.
+    4. Report done only after validation passes. If it fails, report the failure
+       with the output; do not claim success.
+
+    ## Work shape — good vs bad
+
+    ```
+    # good — small change, validated, grounded in output
+    Edited `flake.nix:31` to bump the pin, ran `nix flake check` -> passed,
+    then `nh os build` -> EXIT 0. Done.
+
+    # bad — large unvalidated change, success asserted without evidence
+    Rewrote the module and a few related files; it should build fine now.
+    ```
+
+    Prefer entering a project-provided `nix-shell` / `nix develop` over global
+    installs. Never bypass hooks (`--no-verify` and similar are forbidden). On an
+    unexpected error, stop and fix the root cause rather than working around it.
+  '';
+
   tools = {
     bash = true;
     edit = true;
