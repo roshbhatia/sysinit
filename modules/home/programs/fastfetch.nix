@@ -2,6 +2,7 @@
   config,
   pkgs,
   lib,
+  values ? null,
   osConfig ? null,
   ...
 }:
@@ -24,15 +25,19 @@ let
   cSeparator = sgr "base03";
   cLogo = sgr "base0D";
 
+  # Prefer the flake-provided hostname: `networking.hostName` is unset on
+  # MDM-managed hosts, so it is not a reliable key for the art lookup.
   hostName =
-    if osConfig != null then
+    if values != null && values ? hostname then
+      values.hostname
+    else if osConfig != null then
       osConfig.networking.hostName or "unknown"
     else
       config.networking.hostName or "unknown";
 
   artByHost = {
     lv426 = "rosh";
-    demiurge = "laurel";
+    Roshan-Bhatia-MacBook-Pro = "laurel";
     arrakis = "nix";
     nostromo = "nix";
   };

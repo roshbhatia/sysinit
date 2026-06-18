@@ -81,7 +81,9 @@ in
     };
   };
 
-  demiurge =
+  # Hostname is MDM-managed on this machine; the attr name must match the
+  # enforced hostname so `nh darwin switch` resolves the config by hostname.
+  Roshan-Bhatia-MacBook-Pro =
     (darwinHost work {
       darwin = {
         homebrew.additionalPackages = {

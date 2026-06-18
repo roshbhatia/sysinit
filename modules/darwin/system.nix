@@ -1,7 +1,9 @@
 {
   config,
+  lib,
   pkgs,
   hostname,
+  values,
   ...
 }:
 
@@ -33,14 +35,20 @@
     experimental-features = "nix-command flakes";
     extra-substituters = "https://nix-community.cachix.org https://cache.iog.io https://numtide.cachix.org https://devenv.cachix.org";
     extra-trusted-public-keys = "nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs= numtide.cachix.org-1:2ps1kLBUWjxIneOy1Ik6cQjb41X0iXVXeHigGmycPPE= devenv.cachix.org-1:w1cLUi8dv3hnoSPGAuibQv+f9TZLr6cv/Hm9XgU50cw=";
-    trusted-users = [ "root" config.sysinit.user.username ];
+    trusted-users = [
+      "root"
+      config.sysinit.user.username
+    ];
     fallback = true;
     max-jobs = "auto";
     cores = 0;
     connect-timeout = 10;
   };
 
-  networking.hostName = hostname;
+  # On work machines the hostname is MDM-managed; nix-darwin's activation runs
+  # `scutil --set` unconditionally, which fights (and fails against) the profile.
+  # Leave it unset there and let MDM own it; personal hosts still self-manage.
+  networking.hostName = lib.mkIf (!(values.isWork or false)) hostname;
 
   users.users.${config.sysinit.user.username}.home = "/Users/${config.sysinit.user.username}";
 
