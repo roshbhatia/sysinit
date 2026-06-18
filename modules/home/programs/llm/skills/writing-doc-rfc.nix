@@ -11,14 +11,16 @@
   (the compiler, the language, Rust teams, the rust-lang issue tracker) and tuned
   to Roshan's working voice.
 
-  ## When to use
+  ## Decision routing
 
-  - The open question is *whether* and *which*, not just *how*. The doc goes to a
-    cross-team audience and asks them to weigh in.
-  - Reach for `writing-doc-design` instead when direction is already agreed and
-    the doc only needs to describe *how* it will be built.
-  - The two share a core (Summary, Motivation, Drawbacks, alternatives). The RFC
-    adds: a teaching pass, prior art, open questions, and future possibilities.
+  ```
+  Open question is *whether* / *which*, cross-team audience?  -> RFC (this skill)
+  Direction agreed, only *how* remains?                        -> writing-doc-design instead
+  Where does it land?                                           -> see Step 0
+  ```
+
+  The two share a core (Summary, Motivation, Drawbacks, alternatives). The RFC adds
+  a teaching pass, prior art, open questions, and future possibilities.
 
   ## Step 0 — pick the destination
 
@@ -32,22 +34,31 @@
   Name local files `.sysinit/rfc-<slug>.md`. State the destination to the user
   before creating anything outward-facing.
 
-  ## Voice (self-contained)
+  ## Voice — good vs bad
 
   Restated so the skill stands alone; `writing-tone` is the fuller reference.
 
-  - **Open with scope.** What this proposes and, explicitly, what it does not.
-    The Future-possibilities section carries the deliberate out-list.
+  ```
+  # good — teaches the idea concretely, frames the open question as a decision contract
+  A user types `/share` and the doc uploads; the link is copied to the clipboard.
+  Unresolved — auth model for private docs. Owner: @rosh · By: review · Done when: threat model signed off.
+
+  # bad — abstract, hedged, no owner on the open question
+  We could maybe add some kind of sharing, and there might be some auth concerns to think about.
+  ```
+
+  - **Open with scope.** What this proposes and, explicitly, what it does not (the
+    Future-possibilities section carries the deliberate out-list).
   - **Pair every claim with how it is validated, and its inverse.** Especially in
     Reference-level explanation, where the design has to actually hold up.
-  - **Anticipate the reader and pre-answer them.** Drawbacks and Unresolved
-    questions are where you do this in the open rather than waiting for review.
-  - **Decisions are contracts.** When the RFC asks reviewers to settle something,
-    frame it as `Owner:` / `By:` / `Done when:` in Unresolved questions.
+  - **Anticipate the reader and pre-answer them** in Drawbacks and Unresolved
+    questions, rather than waiting for review.
+  - **Decisions are contracts.** Frame each ask as `Owner:` / `By:` / `Done when:`
+    in Unresolved questions.
   - **Prose mechanics.** Terse, declarative. Backtick identifiers. Cite numbers.
     Lead with the finding. Cut hedges and preamble.
-  - **Avoid:** aphorisms, named rhetorical devices, em-dashes for drama,
-    marketing adjectives, throat-clearing, emojis.
+  - **Avoid:** aphorisms, named rhetorical devices, em-dashes for drama, marketing
+    adjectives, throat-clearing, emojis.
 
   ## The skeleton
 

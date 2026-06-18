@@ -6,30 +6,39 @@
 
   ## Mental model
 
-  A **session** is a named workspace that groups one or more repositories for a
-  unit of work (a feature, a task, an investigation). For each repo in the
-  session, seshy creates a **git worktree** checked out to a generated branch.
+  A **session** is a named workspace grouping one or more repositories for a unit
+  of work. For each repo, seshy creates a **git worktree** on a generated branch.
 
-  - Branch name follows a template, default `sy/{{.Session}}/{{.Repo}}`
-    (configurable; vars: `{{.Session}}`, `{{.Repo}}`, `{{.User}}`).
-  - Worktrees for a session live under `sessionsDir`, default
-    `~/.local/state/seshy/sessions`.
-  - Repos are chosen from zoxide history (interactive) or passed as arguments.
+  - Branch name follows a template, default `sy/{{.Session}}/{{.Repo}}` (vars:
+    `{{.Session}}`, `{{.Repo}}`, `{{.User}}`).
+  - Worktrees live under `sessionsDir`, default `~/.local/state/seshy/sessions`.
+  - Repos come from zoxide history (interactive) or are passed as arguments.
 
-  So a session is a coherent multi-repo, multi-worktree checkout you switch into
-  as a whole — not a terminal multiplexer layout. There is no tmux involved.
+  A session is a coherent multi-repo, multi-worktree checkout you switch into as a
+  whole — not a terminal multiplexer layout. No tmux involved.
 
-  ## When to use
+  ## Decision routing
 
-  - The user names a "session" tied to a unit of work ("open the sysinit
-    session", "switch me to my auth-refactor session").
-  - The user wants to group several repos under one name, each on its own branch,
-    to work a feature across repos.
-  - The user asks to list, locate, inspect, or tear down a named session, or to
-    add/remove a repo from one.
+  ```
+  Have the repo paths?                          -> pass them explicitly to `sy new`/`sy add` (non-interactive)
+  Need a session's path / contents?              -> `sy path <name>` / `sy status <name>`
+  About to run bare `sy` with no args?           -> do not — it launches an interactive picker and hangs
+  About to `sy delete` / `sy remove`?            -> confirm with the user first (discards worktrees)
+  ```
 
-  Do **not** invoke the bare `sy` command (no arguments) — it launches an
-  interactive picker and will hang any non-interactive context.
+  ## Invocation — good vs bad
+
+  ```bash
+  # good — explicit args stay non-interactive and safe for agent use
+  sy new auth-refactor ~/github/work/api ~/github/work/web
+  cd "$(sy path auth-refactor)"
+  sy add auth-refactor ~/github/work/shared
+  sy status auth-refactor
+
+  # bad
+  sy                       # no args -> interactive picker -> hangs any non-interactive context
+  sy new auth-refactor     # no repo args -> falls into the picker
+  ```
 
   ## Agent-facing subcommands
 
@@ -50,9 +59,6 @@
   | `sy config edit`                 | Open the config file in `$EDITOR`                       |
   | `sy init <shell>`                | Print shell-integration code (for `eval` in rc files)   |
 
-  Passing explicit `[repos...]` to `new`/`add` avoids the interactive picker —
-  prefer that form in agent contexts.
-
   ## Configuration
 
   Config lives at `~/.config/seshy/config.yaml` (or under `$XDG_CONFIG_HOME`):
@@ -62,43 +68,14 @@
   sessionsDir: "~/.local/state/seshy/sessions"
   ```
 
-  The agent SHALL NOT edit this file unprompted; it is owned by the user. Use
-  `sy config` to read effective values rather than parsing the file.
-
-  ## Typical agent flows
-
-  **Create a multi-repo session non-interactively, then enter it:**
-
-  ```bash
-  sy new auth-refactor ~/github/work/api ~/github/work/web
-  cd "$(sy path auth-refactor)"
-  ```
-
-  **Inspect what a session contains:**
-
-  ```bash
-  sy status auth-refactor
-  ```
-
-  **Add another repo to an existing session:**
-
-  ```bash
-  sy add auth-refactor ~/github/work/shared
-  ```
-
-  **Tear down when work is merged (ask first):**
-
-  ```bash
-  sy delete auth-refactor
-  ```
+  Read effective values with `sy config`; do not parse or edit the file. It is
+  owned by the user — do not modify it without explicit instruction.
 
   ## Guardrails
 
-  - Do not invoke bare `sy` in non-interactive contexts — it starts a picker.
+  - Never invoke bare `sy` in a non-interactive context — it starts a picker.
   - Pass explicit repo paths to `new`/`add` to stay non-interactive.
-  - Confirm with the user before `sy delete` / `sy remove` — these clean up
-    worktrees and may discard unmerged work on the session branches.
-  - Do not edit `~/.config/seshy/config.yaml` without explicit instruction.
-  - Distinguish "seshy" (the project name, used in conversation) from "sy" (the
-    binary name, used in commands).
+  - Confirm before `sy delete` / `sy remove` — they clean up worktrees and may
+    discard unmerged work on the session branches.
+  - Distinguish "seshy" (project name, conversation) from "sy" (binary, commands).
 ''

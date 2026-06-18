@@ -11,12 +11,14 @@
   skew, production-readiness questionnaire, feature gates) and tuned to Roshan's
   working voice.
 
-  ## When to use
+  ## Decision routing
 
-  - The direction is set and the open question is *how*, not *whether*.
-  - Reach for `writing-doc-rfc` instead when the doc exists to *solicit a
-    decision* — broad audience, open questions, prior art, comment resolution.
-  - Skip both for a change small enough that the PR description carries it.
+  ```
+  Open question is *how*, not *whether*?          -> design doc (this skill)
+  Open question is *whether* / *which*?            -> writing-doc-rfc instead
+  Change small enough the PR description carries?   -> skip both
+  Where does it land?                               -> see Step 0
+  ```
 
   ## Step 0 — pick the destination
 
@@ -32,29 +34,34 @@
   Name local files `.sysinit/design-<slug>.md`. State the destination to the user
   before creating anything outward-facing (a Notion page is outward-facing).
 
-  ## Voice (self-contained)
+  ## Voice — good vs bad
 
-  This skill restates the voice rules it depends on so it works standalone. For
-  any other prose, the `writing-tone` skill is the fuller reference.
+  This skill restates the voice rules it depends on so it works standalone. For any
+  other prose, the `writing-tone` skill is the fuller reference.
 
-  - **Open with scope.** State what is in and what is out. Name the out-of-scope
-    items explicitly — silent omission reads as oversight; an explicit out-list
-    reads as a decision. This is the Goals / Non-Goals sections below.
-  - **Pair every claim with how it is validated, and its inverse where one
-    exists.** "X holds, confirmed in <where>." Acceptance criteria are contracts:
-    a condition plus the observable that proves it — "Done when <observable>",
-    not "should work."
-  - **Anticipate the reader and pre-answer them.** Name the likely objection
-    before the reviewer raises it, then answer it. This shortens the review round.
-  - **Decisions are contracts, not discussion.** Frame each decision ask as
-    `Owner:` / `By:` / `Done when:`, and close with a one-line restatement of what
-    must happen — not a rhetorical flourish.
-  - **Prose mechanics.** Terse and declarative. Cut hedges. Backtick every
-    identifier, flag, and config key. Numbers carry weight — cite the count, not
-    "many." Lead with the finding, not preamble.
+  ```
+  # good — leads with the finding, claim paired with how it is validated
+  The cache cuts cold-start p99 from 1.8s to 320ms, confirmed in the load test (k=500).
+
+  # bad — throat-clearing, unvalidated marketing claim
+  This document describes a robust, seamless caching layer that should improve performance.
+  ```
+
+  - **Open with scope.** Name in- and out-of-scope items explicitly — silent
+    omission reads as oversight, an explicit out-list reads as a decision (the
+    Goals / Non-Goals sections).
+  - **Pair every claim with how it is validated, and its inverse where one exists.**
+    Acceptance criteria are contracts: a condition plus the observable that proves
+    it — "Done when <observable>", not "should work."
+  - **Anticipate the reader and pre-answer them.** Name the likely objection before
+    the reviewer raises it. This shortens the review round.
+  - **Decisions are contracts.** Frame each ask as `Owner:` / `By:` / `Done when:`,
+    and close with a one-line restatement of what must happen.
+  - **Prose mechanics.** Terse, declarative. Cut hedges. Backtick every identifier,
+    flag, config key. Cite the count, not "many." Lead with the finding.
   - **Avoid:** aphorisms, named rhetorical devices ("the irony is", "the
-    asymmetry:"), em-dashes for drama, marketing adjectives ("robust",
-    "seamless"), throat-clearing ("This document describes..."), emojis.
+    asymmetry:"), em-dashes for drama, marketing adjectives ("robust", "seamless"),
+    throat-clearing ("This document describes..."), emojis.
 
   ## The skeleton
 
