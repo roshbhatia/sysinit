@@ -18,6 +18,7 @@
   (import ./pi-coding-agent.nix { })
   (import ./crush.nix { })
   (import ./ast-grep.nix { })
+  (import ./contextive.nix { })
   (import ./hermes-agent.nix { inherit inputs; })
   (import ./opa.nix { })
   (import ./ioskeleyMono.nix { })

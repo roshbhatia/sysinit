@@ -171,6 +171,7 @@
       ast-grep
       awk-language-server
       codespell
+      contextive
       devbox
       devcontainer
       go-task
