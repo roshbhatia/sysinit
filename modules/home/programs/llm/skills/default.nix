@@ -59,6 +59,13 @@
     content = import ./writing-doc-rfc.nix;
   };
 
+  writing-tone = {
+    description = "Rewrites prose into Roshan's authentic working voice — scope-bounded, contract-shaped, anticipatory, terse, enforcement-oriented. Use when drafting or revising any longer-form writing in Roshan's name (audit docs, proposals, design notes, work breakdowns, RFCs, status posts, review comments) and the goal is for it to read as if he wrote it. Not for code comments (use writing-code-comments), commits (writing-commit-message), or PR bodies (writing-pr-description).";
+    content = import ./writing-tone.nix;
+    model = "haiku";
+    effort = "low";
+  };
+
   worklog = {
     description = "Generates a cross-session work report — 'what did we accomplish today' — from the append-only worklog.jsonl written by the SessionEnd hook. Drains un-summarized session entries by reading their transcripts, caches the summaries back, composes a per-day/per-repo digest, and optionally maps branches and commits to Linear/Notion/Slack outcomes. Use when the user asks what they worked on or accomplished across recent Claude Code sessions, or wants a daily or weekly progress report spanning repos.";
     content = import ./worklog.nix;
