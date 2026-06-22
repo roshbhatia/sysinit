@@ -30,7 +30,6 @@
   (import ./kvazaar.nix { })
   (import ./goose-cli.nix { })
   (import ./sheets.nix { })
-  (import ./claude-notifications.nix { })
   (import ./mozilla.nix { inherit inputs; })
   (import ./nushell.nix { })
   # openldap-2.6.13 test017-syncreplication-refresh is a timing-sensitive flake

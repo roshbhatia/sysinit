@@ -7,6 +7,8 @@
 let
   llmLib = import ../lib { inherit lib; };
   kit = llmLib.harnessKit.mkKit { inherit lib pkgs config; };
+
+  notify = import ./notify.nix { inherit pkgs lib; };
 in
 {
   programs.codex = {
@@ -27,6 +29,32 @@ in
           reasoning_effort = "high";
           model_reasoning_summary = "detailed";
         };
+      };
+
+      # Lifecycle notifications via the shared agent-notify script. Codex exposes
+      # no idle event, so the deterministic set is: PermissionRequest (waiting on
+      # your approval) and Stop (turn finished). Serializes to [[hooks.<Event>]].
+      hooks = {
+        PermissionRequest = [
+          {
+            hooks = [
+              {
+                type = "command";
+                command = "${notify.exe} codex approval";
+              }
+            ];
+          }
+        ];
+        Stop = [
+          {
+            hooks = [
+              {
+                type = "command";
+                command = "${notify.exe} codex done";
+              }
+            ];
+          }
+        ];
       };
     };
   };

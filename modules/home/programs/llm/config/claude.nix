@@ -8,6 +8,8 @@ let
   llmLib = import ../lib { inherit lib; };
   kit = llmLib.harnessKit.mkKit { inherit lib pkgs config; };
 
+  notify = import ./notify.nix { inherit pkgs lib; };
+
   defaultInstructions = kit.mkInstructions "~/.claude/skills";
 
   statuslineScript = pkgs.writeShellScript "claude-statusline" (builtins.readFile ./statusline.sh);
@@ -75,37 +77,29 @@ in
             ];
           }
         ];
+        # Permission prompts and idle waits: agent-notify reads the event JSON on
+        # stdin and refines the generic "attention" into approval/idle from the
+        # notification message itself.
+        Notification = [
+          {
+            matcher = "";
+            hooks = [
+              {
+                type = "command";
+                command = "${notify.exe} claude attention";
+                async = true;
+              }
+            ];
+          }
+        ];
+        # Turn finished — your move.
         Stop = [
           {
             matcher = "";
             hooks = [
               {
                 type = "command";
-                command = "claude-notifications handle-hook Stop";
-                async = true;
-              }
-            ];
-          }
-        ];
-        SubagentStop = [
-          {
-            matcher = "";
-            hooks = [
-              {
-                type = "command";
-                command = "claude-notifications handle-hook SubagentStop";
-                async = true;
-              }
-            ];
-          }
-        ];
-        PreToolUse = [
-          {
-            matcher = "";
-            hooks = [
-              {
-                type = "command";
-                command = "claude-notifications handle-hook PreToolUse";
+                command = "${notify.exe} claude done";
                 async = true;
               }
             ];
@@ -123,16 +117,5 @@ in
         config = agentConfig;
       }
     ) subagents;
-  };
-
-  home = {
-    packages = [ pkgs.claude-notifications-go ];
-
-    file.".claude/claude-notifications-go/config.json".text = builtins.toJSON {
-      notifyOnSubagentStop = true;
-      notifyOnTextResponse = true;
-      respectJudgeMode = false;
-      suppressFilters = [ ];
-    };
   };
 }

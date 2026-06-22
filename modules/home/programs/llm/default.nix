@@ -29,6 +29,11 @@ let
     if isHttp then filtered // { type = "http"; } else filtered;
 
   mcpServers = lib.mapAttrs (_: pruneServer) config.sysinit.llm.mcp.additionalServers;
+
+  # Agent-agnostic desktop notifier. The script + per-agent icons are installed
+  # once here (multiple harness configs reference notify.exe in their hooks, but
+  # only one place may own the home.file/home.packages entries).
+  notify = import ./config/notify.nix { inherit pkgs lib; };
 in
 {
   imports = [
@@ -47,7 +52,9 @@ in
     ./config/pi.nix
   ];
 
-  home.file = skillFiles;
+  home.file = skillFiles // notify.iconFiles;
+
+  home.packages = [ notify.script ];
 
   programs.mcp = {
     enable = true;
