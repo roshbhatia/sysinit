@@ -15,8 +15,23 @@ let
   statuslineScript = pkgs.writeShellScript "claude-statusline" (builtins.readFile ./statusline.sh);
 
   # SessionEnd hook: appends a dumb pointer line per session to the cross-session
-  # worklog. Summaries are filled in later by the `worklog` skill, not here.
-  worklogScript = pkgs.writeShellScript "claude-worklog" (builtins.readFile ./worklog.sh);
+  # worklog (schema v2). Summaries are filled in later by the `worklog` skill,
+  # not here. The hook is a PEP-723 Python script run via uv — pinned to the Nix
+  # python3 with downloads forbidden, so it stays offline and reproducible (it has
+  # no third-party deps; uv is just the runner the user standardizes on).
+  worklogScript = pkgs.writeShellApplication {
+    name = "claude-worklog";
+    runtimeInputs = [
+      pkgs.uv
+      pkgs.python3
+      pkgs.git
+    ];
+    text = ''
+      export UV_PYTHON=${pkgs.python3}/bin/python3
+      export UV_PYTHON_DOWNLOADS=never
+      exec uv run --script ${./worklog.py}
+    '';
+  };
 
   subagents = lib.filterAttrs (
     n: _: n != "formatSubagentAsMarkdown"
@@ -71,7 +86,7 @@ in
             hooks = [
               {
                 type = "command";
-                command = "${worklogScript}";
+                command = "${lib.getExe worklogScript}";
                 async = true;
               }
             ];
@@ -86,7 +101,7 @@ in
             hooks = [
               {
                 type = "command";
-                command = "${notify.exe} claude attention";
+                command = "${notify.exe} claude attention ${notify.focusExe}";
                 async = true;
               }
             ];
@@ -99,7 +114,7 @@ in
             hooks = [
               {
                 type = "command";
-                command = "${notify.exe} claude done";
+                command = "${notify.exe} claude done ${notify.focusExe}";
                 async = true;
               }
             ];

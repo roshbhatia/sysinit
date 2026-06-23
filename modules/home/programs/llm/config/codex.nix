@@ -40,7 +40,7 @@ in
             hooks = [
               {
                 type = "command";
-                command = "${notify.exe} codex approval";
+                command = "${notify.exe} codex approval ${notify.focusExe}";
               }
             ];
           }
@@ -50,7 +50,7 @@ in
             hooks = [
               {
                 type = "command";
-                command = "${notify.exe} codex done";
+                command = "${notify.exe} codex done ${notify.focusExe}";
               }
             ];
           }

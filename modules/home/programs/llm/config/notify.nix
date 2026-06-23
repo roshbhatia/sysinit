@@ -57,18 +57,33 @@ let
       pkgs.git
       pkgs.coreutils
       pkgs.terminal-notifier
+      pkgs.wezterm
     ];
     # Best-effort notifier: no errexit/nounset/pipefail — it must never abort the
     # agent. shellcheck still runs for validation.
     bashOptions = [ ];
     text = builtins.readFile ./agent-notify.sh;
   };
+
+  # Notification click handler: raises the wezterm pane the agent runs in. Runs in
+  # a bare NotificationCenter env, so wezterm/jq must come from runtimeInputs, not
+  # an inherited PATH.
+  focusScript = pkgs.writeShellApplication {
+    name = "agent-focus";
+    runtimeInputs = [
+      pkgs.wezterm
+      pkgs.jq
+    ];
+    bashOptions = [ ];
+    text = builtins.readFile ./agent-focus.sh;
+  };
 in
 {
-  inherit icons script;
+  inherit icons script focusScript;
 
-  # Absolute path used inside harness hook commands.
+  # Absolute paths used inside harness hook commands.
   exe = lib.getExe script;
+  focusExe = lib.getExe focusScript;
 
   # home.file entries installing every icon (plus the fallback) to the shared
   # location the script reads from. Wired once in default.nix to avoid collisions.

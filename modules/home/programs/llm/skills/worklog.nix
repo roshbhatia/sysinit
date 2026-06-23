@@ -17,30 +17,42 @@
 
   ## Data source
 
-  A `SessionEnd` hook appends one JSON line per session to
-  `~/Documents/worklog.jsonl` (override: `$CLAUDE_WORKLOG_FILE`). The hook is dumb —
-  it records pointers and cheap facts, never a summary. It skips `resume` and bare
-  directories with no prompt, so every line carries real work. Each line:
+  A `SessionEnd` hook (a PEP-723 Python script, `config/worklog.py`, run via uv)
+  appends one JSON line per session to `~/Documents/worklog.jsonl` (override:
+  `$CLAUDE_WORKLOG_FILE`). The hook is dumb — it records pointers and cheap facts,
+  never a summary. It skips `resume` and bare directories with no prompt, so every
+  line carries real work. A **schema v2** line:
 
   ```json
   {
-    "ts": "2026-06-09T21:04:11Z",
+    "v": 2,
+    "ts": "2026-06-09T21:47:03Z",
+    "ts_start": "2026-06-09T21:04:11.512Z",
+    "duration_min": 42,
     "session_id": "abc123",
     "kind": "repo",
     "session_name": "",
+    "model": "claude-opus-4-8",
+    "user_turns": 7,
     "repos": [
       {
         "name": "lrl-aws",
         "branch": "dev/roshan/inf-1786/lrl-aws",
         "head": "a0a29123",
+        "base": "main",
         "url": "https://github.com/pinginc/lrl-aws/tree/dev/roshan/inf-1786/lrl-aws",
-        "commits": 7,
+        "commits_ahead": 7,
+        "commits": [{ "sha": "a0a2912", "subject": "feat: landing-zone modules" }],
+        "files": [{ "status": "M", "path": "modules/network/main.tf" }],
+        "insertions": 110,
+        "deletions": 74,
         "diffstat": "10 files changed, 110 insertions(+), 74 deletions(-)",
         "dirty": ""
       }
     ],
     "cwd": "/Users/roshan/github/...",
     "first_prompt": "fix wezterm tab…",
+    "last_prompt": "ship it and open the PR",
     "transcript_path": "/Users/.../<uuid>.jsonl",
     "end_reason": "prompt_input_exit",
     "summary": null
@@ -56,11 +68,27 @@
     entry per nested git child.
   - **`dir`** — neither; `repos[]` is empty (survived only because it had a `first_prompt`).
 
-  Per-repo, `commits` (ahead of base) + `diffstat` (branch-vs-base) are the real
-  "how much happened" signal; `dirty` is uncommitted remainder; `url` is the
-  branch-tree link. Pre-schema lines have scalar `repo`/`branch`/`head` and no
-  `repos[]` — synthesize a single-element `repos[]` and treat missing `kind` as
-  `repo`. The transcript is the source of truth; the log line is just the index.
+  **Session signal** (v2): `duration_min`, `user_turns`, and `model` size the
+  effort; `first_prompt`/`last_prompt` bracket the intent (where it started, where
+  it ended). **Per-repo signal**: `commits[]` (subjects, ≤30, newest-first) and
+  `files[]` (name-status, ≤50) are *what changed in words*; `commits_ahead` +
+  `insertions`/`deletions` + `diffstat` are *how much*, measured against `base`
+  (`origin/<base>` for a feature branch, `origin/<branch>` when on the base branch,
+  so work committed straight to main still registers). `dirty` is the uncommitted
+  remainder; `url` is the branch-tree link. The raw diff is **not** stored — read
+  the transcript or follow `url` when you need it.
+
+  **Normalize older lines before composing** — the log spans schema generations:
+
+  - **v2** — has `"v": 2` and the fields above. Use directly.
+  - **v1** — no `v`, but has `repos[]` with a scalar integer `commits` and only
+    `diffstat` (no `commits[]`/`files[]`/`insertions`/`deletions`/`base`). Read
+    `commits` as `commits_ahead`; treat the rich arrays as absent.
+  - **v0** — no `v` and no `repos[]`; carries scalar `repo`/`branch`/`head`.
+    Synthesize a single-element `repos[]` from them and treat missing `kind` as
+    `repo`.
+
+  The transcript is the source of truth; the log line is just the index.
 
   ## Procedure
 
@@ -79,8 +107,9 @@
   done" plus concrete artifacts (files, commits, tickets). Read `transcript_path`
   (JSONL) — prefer it over `first_prompt`. If the path is empty or missing, recover
   by `session_id` via `~/.claude/projects/*/<session_id>.jsonl` (Glob) before
-  degrading. Only when no transcript exists anywhere, synthesize from
-  `first_prompt` + `diffstat` + repo/branch and prefix the summary with `~`. For
+  degrading. Only when no transcript exists anywhere, synthesize from the line
+  itself — `first_prompt`/`last_prompt` for intent, `commits[]`/`files[]` (or
+  `diffstat` on older lines) for the change — and prefix the summary with `~`. For
   many entries, fan out one subagent per session via the Agent tool.
 
   Write summaries back so re-runs are cheap. **Rewrite atomically — never edit lines
@@ -100,7 +129,8 @@
   Markdown grouped **by date, then unit of work**, newest first. The unit is
   `repos[0].name` for `kind: repo`, and `session_name` for `kind: seshy-session`
   (one heading spanning its `repos[]`, not one per repo). Within a unit, order
-  repos by signal (`commits`, then `diffstat` magnitude); link repo names to `url`.
+  repos by signal (`commits_ahead`, then `insertions` + `deletions`); link repo
+  names to `url`.
 
   ```markdown
   ## 2026-06-09
