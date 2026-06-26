@@ -443,13 +443,40 @@ function M.setup(config)
   -- guard against headless / non-GUI contexts where wezterm.gui is nil
   config.key_tables = wezterm.gui and wezterm.gui.default_key_tables() or {}
 
+  -- Plain (NONE-modifier) drags are intentionally forwarded to mouse-capturing
+  -- TUIs (e.g. Claude Code fullscreen) so their own click-to-expand / URL click /
+  -- wheel scroll keep working. SHIFT+drag is the select-to-copy gesture: it
+  -- bypasses in-app mouse reporting and copies to the system clipboard. SHIFT is
+  -- already WezTerm's default bypass modifier; set it explicitly to document intent.
+  config.bypass_mouse_reporting_modifiers = "SHIFT"
+
   -- Triple-click selects a semantic zone (shell prompt / command output boundary)
-  -- rather than the default line-select behaviour
+  -- rather than the default line-select behaviour. mouse_bindings merges with
+  -- WezTerm's defaults rather than replacing them.
   config.mouse_bindings = {
     {
       event = { Down = { streak = 3, button = "Left" } },
       action = act.SelectTextAtMouseCursor("SemanticZone"),
       mods = "NONE",
+    },
+    -- SHIFT+drag select-to-copy under app mouse reporting. Bind Down/Drag/Up
+    -- together to avoid WezTerm's documented "Up-only" double-fire gotcha, and
+    -- complete to ClipboardAndPrimarySelection so the selection lands on the
+    -- macOS system clipboard (the default left-release only fills PrimarySelection).
+    {
+      event = { Down = { streak = 1, button = "Left" } },
+      mods = "SHIFT",
+      action = act.SelectTextAtMouseCursor("Cell"),
+    },
+    {
+      event = { Drag = { streak = 1, button = "Left" } },
+      mods = "SHIFT",
+      action = act.ExtendSelectionToMouseCursor("Cell"),
+    },
+    {
+      event = { Up = { streak = 1, button = "Left" } },
+      mods = "SHIFT",
+      action = act.CompleteSelection("ClipboardAndPrimarySelection"),
     },
   }
 end
