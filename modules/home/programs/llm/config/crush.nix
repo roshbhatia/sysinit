@@ -28,6 +28,16 @@ let
   crushSettings = {
     "$schema" = "https://charm.land/crush.json";
     mcp = formatMcpForCrush kit.mcpServers.servers;
+    # Two-tier split: leave the strong reasoner as the default `large` model and
+    # set a Haiku-class helper for cheap summarization/title work. Mirrors
+    # aider.nix's architect + editor-model split. `anthropic` is a built-in
+    # provider in Crush's catalog, so no explicit providers block is needed.
+    models = {
+      small = {
+        model = "claude-haiku-4-5";
+        provider = "anthropic";
+      };
+    };
     tools = {
       ls = { };
       grep = { };
@@ -66,8 +76,11 @@ in
       text = crushConfig;
       force = true;
     };
+    # Skills install only to ~/.claude/skills (per default.nix); Crush reads that
+    # tree natively. Point instructions at the populated root, not a phantom
+    # per-tool dir that holds no SKILL.md files.
     "crush/AGENTS.md" = {
-      text = kit.mkInstructions "~/.config/crush/skills";
+      text = kit.mkInstructions "~/.claude/skills";
       force = true;
     };
   };

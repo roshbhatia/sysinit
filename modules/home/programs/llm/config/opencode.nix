@@ -10,13 +10,21 @@ let
 
   disabledMcpServers = [ ];
 
-  defaultInstructions = kit.mkInstructions "~/.config/opencode/skills";
+  # Skills install only to ~/.claude/skills (per default.nix); opencode reads
+  # that tree natively. Point instructions at the populated root, not a phantom
+  # per-tool dir that holds no SKILL.md files.
+  defaultInstructions = kit.mkInstructions "~/.claude/skills";
 
   opencodeConfig = {
     "$schema" = "https://opencode.ai/config.json";
     autoupdate = false;
     share = "disabled";
     theme = "system";
+
+    # Two-tier split: the strong reasoner stays the default; a Haiku-class helper
+    # handles cheap summarization/title work. Mirrors aider.nix's architect +
+    # editor-model split.
+    small_model = "anthropic/claude-haiku-4-5";
 
     tui = {
       scroll_acceleration = {
@@ -484,6 +492,17 @@ let
       "opencode-gemini-auth@latest"
       "opencode-handoff"
       "opencode-plugin-openspec"
+
+      # Drive a ChatGPT Plus/Pro subscription against GPT-5.x / Codex models —
+      # the OpenAI counterpart to opencode-gemini-auth above.
+      "opencode-openai-codex-auth@latest"
+      # PTY tools (pty_spawn/write/read/list/kill) for interactive and
+      # long-running processes (dev servers, watch modes) plain bash can't drive.
+      "opencode-pty"
+      # Redact secrets before requests leave for the provider; restore after.
+      "opencode-vibeguard"
+      # Re-align markdown tables in model output (experimental.text.complete).
+      "@franlol/opencode-md-table-formatter@latest"
     ];
   };
 

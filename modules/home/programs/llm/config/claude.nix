@@ -33,6 +33,19 @@ let
     '';
   };
 
+  # PreToolUse(Bash) guard: the mechanical floor under the global CLAUDE.md
+  # prohibitions (no force-push, no --no-verify/--no-gpg-sign, no reset --hard,
+  # no clean -f, no branch -D). `auto` permission mode is deliberately NOT used —
+  # its built-in block list also blocks push-to-main, which this repo permits.
+  # Best-effort / fail-open: bashOptions cleared so a non-zero grep never becomes
+  # a hook abort (Claude treats exit 2 as a block).
+  bashGuardScript = pkgs.writeShellApplication {
+    name = "claude-bash-guard";
+    runtimeInputs = [ pkgs.jq ];
+    bashOptions = [ ];
+    text = builtins.readFile ./claude-bash-guard.sh;
+  };
+
   subagents = lib.filterAttrs (
     n: _: n != "formatSubagentAsMarkdown"
   ) kit.llmLib.instructions.subagents;
@@ -55,6 +68,12 @@ in
       # managed-settings.json (model + OTEL telemetry) that sits ABOVE this
       # user settings.json in precedence. Deliberately leave `model` and the
       # OTEL `env` keys unset here so the two layers never silently fight.
+      # CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS is user-scoped and not set by the
+      # company layer, so it coexists without clobbering managed OTEL env.
+      env = {
+        CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS = "1";
+      };
+
       permissions = {
         allow = llmLib.allowlist.formatForClaude llmLib.allowlist.tierA;
         # Reversible local writes (formatters, `git add`, `nix build`): force a
@@ -73,13 +92,29 @@ in
         command = "${statuslineScript}";
       };
 
-      # Not in the public settings reference as of 2.1.x; kept as known-good
-      # internal keys — verify via /config after major upgrades.
+      # `tui` is not in the public settings reference as of 2.1.x; kept as a
+      # known-good internal key — verify via /config after major upgrades.
       tui = "fullscreen";
-      autoCompactWindow = 145000;
-      autoDreamEnabled = true;
+
+      # Documented control (Boolean, default true, min v2.1.119). Set explicitly
+      # for intent. `autoCompactWindow` (undocumented; no tunable threshold
+      # exists) and `autoDreamEnabled` (absent from docs) were removed.
+      autoCompactEnabled = true;
 
       hooks = {
+        # Mechanical deny for irreversible / hook-bypassing bash commands. Not
+        # async — a deny must resolve before the tool runs.
+        PreToolUse = [
+          {
+            matcher = "Bash";
+            hooks = [
+              {
+                type = "command";
+                command = "${lib.getExe bashGuardScript}";
+              }
+            ];
+          }
+        ];
         SessionEnd = [
           {
             matcher = "";

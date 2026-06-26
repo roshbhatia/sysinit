@@ -19,6 +19,8 @@
           pkg:
           builtins.elem (nixpkgs.lib.getName pkg) [
             "_1password-gui"
+            # Antigravity CLI (`agy`) — the Gemini-family harness in llm/.
+            "antigravity-cli"
           ];
       };
     };

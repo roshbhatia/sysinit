@@ -74,30 +74,6 @@ with lib;
       ) servers
     );
 
-  # Format MCP servers for Gemini CLI (TOML format)
-  formatForGemini =
-    servers:
-    concatStringsSep "\n" (
-      mapAttrsToList (
-        name: server:
-        if (server.type or "local") == "http" then
-          ''
-            [mcpServers."${name}"]
-            type = "http"
-            url = "${server.url}"
-            description = "${server.description or ""}"
-          ''
-        else
-          ''
-            [mcpServers."${name}"]
-            command = "${server.command}"
-            args = [${concatMapStringsSep ", " (arg: ''"${arg}"'') (server.args or [ ])}]
-            description = "${server.description or ""}"
-            ${optionalString (server.env or { } != { }) "env = ${builtins.toJSON server.env}"}
-          ''
-      ) servers
-    );
-
   # Format MCP servers for Amp
   formatForAmp =
     servers:
@@ -127,8 +103,7 @@ with lib;
           rest = builtins.substring 1 (-1) str;
         in
         (toUpper firstChar) + rest;
-      gooseName =
-        _name: capitalizeFirst (builtins.substring 0 1 _name) + builtins.substring 1 (-1) _name;
+      gooseName = _name: capitalizeFirst (builtins.substring 0 1 _name) + builtins.substring 1 (-1) _name;
     in
     mcp:
     builtins.mapAttrs (
