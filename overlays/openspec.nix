@@ -2,11 +2,11 @@ _:
 
 final: _prev:
 let
-  version = "1.4.1";
+  version = "1.5.0";
 
   pnpmLock = final.fetchurl {
     url = "https://raw.githubusercontent.com/Fission-AI/OpenSpec/v${version}/pnpm-lock.yaml";
-    hash = "sha256-tJjmuIPnVWLr8SphXpU9kCuDwbQQVmyWp4WgNbFSAu8="; # autoupdate:pnpm-lock-hash
+    hash = "sha256-P7NIBR4092b5KRPhElNN54C4pQ5g9VsQFBZcQ42v50s="; # autoupdate:pnpm-lock-hash
   };
 
   pnpmDeps = final.fetchPnpmDeps {
@@ -14,12 +14,12 @@ let
     inherit version;
     src = final.fetchurl {
       url = "https://registry.npmjs.org/@fission-ai/openspec/-/openspec-${version}.tgz";
-      hash = "sha256-wDm2F6lhSZ9JRmeRhCYZGJmY7d3IsFz+2yLDIUKgx3o="; # autoupdate:src-hash
+      hash = "sha256-ngw8G4jtPo3p6XaRYQTKTzzIsXre1KYdjSVZXFixuOI="; # autoupdate:src-hash
     };
     sourceRoot = "package";
     prePatch = "cp ${pnpmLock} pnpm-lock.yaml";
     fetcherVersion = 3;
-    hash = "sha256-rD/vLLJ39T8iF3mFdfcHkzU6Nw45nnFfHc6Px5NPCks="; # autoupdate:pnpm-deps-hash
+    hash = "sha256-vkADAZ5NokxJjSiaYUuKr0DYmp3L/KT9lnfha1RfTLA="; # autoupdate:pnpm-deps-hash
   };
 in
 {
@@ -29,7 +29,7 @@ in
 
     src = final.fetchurl {
       url = "https://registry.npmjs.org/@fission-ai/openspec/-/openspec-${version}.tgz";
-      hash = "sha256-wDm2F6lhSZ9JRmeRhCYZGJmY7d3IsFz+2yLDIUKgx3o="; # autoupdate:src-hash
+      hash = "sha256-ngw8G4jtPo3p6XaRYQTKTzzIsXre1KYdjSVZXFixuOI="; # autoupdate:src-hash
     };
 
     sourceRoot = "package";
