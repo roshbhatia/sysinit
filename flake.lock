@@ -819,11 +819,11 @@
         "nixpkgs": "nixpkgs_4"
       },
       "locked": {
-        "lastModified": 1782757240,
-        "narHash": "sha256-3mSv0Ki+BfPdg/joDADkkCGuNP0P9VrjrWygUEGwLYw=",
+        "lastModified": 1782767065,
+        "narHash": "sha256-rFqbVxex0/XeKxIfT1PWS5zuzRmmZYO/owi8pHmWIAY=",
         "owner": "nix-community",
         "repo": "NUR",
-        "rev": "276894e299983bbe818217c45d3e1eb8f5cf2baa",
+        "rev": "3a749057b5a5db5a05303619bb360352c7664343",
         "type": "github"
       },
       "original": {
