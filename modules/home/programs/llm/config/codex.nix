@@ -20,17 +20,19 @@ in
     # the `spec` profile uses `high` + visible reasoning summaries for
     # openspec-heavy work.
     # Invoke with `codex --profile spec` (or `-p spec`).
-    settings = {
-      profiles = {
-        default = {
-          reasoning_effort = "low";
-        };
-        spec = {
-          reasoning_effort = "high";
-          model_reasoning_summary = "detailed";
-        };
+    # Codex 0.134.0+ reads profiles from CODEX_HOME/<name>.config.toml, so these
+    # live under `programs.codex.profiles` (not `settings.profiles`, removed).
+    profiles = {
+      default = {
+        reasoning_effort = "low";
       };
+      spec = {
+        reasoning_effort = "high";
+        model_reasoning_summary = "detailed";
+      };
+    };
 
+    settings = {
       # Lifecycle notifications via the shared agent-notify script. Codex exposes
       # no idle event, so the deterministic set is: PermissionRequest (waiting on
       # your approval) and Stop (turn finished). Serializes to [[hooks.<Event>]].
