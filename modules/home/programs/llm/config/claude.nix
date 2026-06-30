@@ -64,6 +64,13 @@ in
     plugins = map resolvePath ccCfg.plugins;
 
     settings = {
+      # Persistently enable marketplace plugins (e.g. `laurel-eng@Laurel`)
+      # without `--plugin-dir`. Gated on non-empty so personal hosts emit no
+      # `enabledPlugins` key at all (byte-identical settings.json).
+      enabledPlugins = lib.mkIf (ccCfg.enabledPlugins != [ ]) (
+        lib.genAttrs ccCfg.enabledPlugins (_: true)
+      );
+
       # The company `laurel-eng` tooling installs an enterprise
       # managed-settings.json (model + OTEL telemetry) that sits ABOVE this
       # user settings.json in precedence. Deliberately leave `model` and the

@@ -70,14 +70,14 @@
       doCheck = false;
     });
   })
-  # _1password-gui 8.12.22: 1Password re-uploaded the aarch64 zip with new bytes
+  # _1password-gui 8.12.24: 1Password re-uploaded the aarch64 zip with new bytes
   # without bumping the version, so nixpkgs' pinned hash no longer matches.
   # Override src with the current upstream hash until nixpkgs catches up.
   (_final: prev: {
     _1password-gui = prev._1password-gui.overrideAttrs (old: {
       src = prev.fetchurl {
         url = "https://downloads.1password.com/mac/1Password-${old.version}-aarch64.zip";
-        hash = "sha256-Rbac0JcB2kbH6EfEGkuKwhaIW0Bgkhyw7olSjqe1euE=";
+        hash = "sha256-6mCv+YbIXqp57t/E/3Xv+lsWDjlUmoOHQS/hh+ma0WY=";
       };
     });
   })

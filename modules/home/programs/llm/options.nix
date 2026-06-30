@@ -46,6 +46,31 @@ in
           [ "code/work/ai-tooling/Laurel" ]
         '';
       };
+
+      enabledPlugins = mkOption {
+        type = types.listOf types.str;
+        default = [ ];
+        description = ''
+          Claude Code marketplace plugins to enable persistently, written
+          to `enabledPlugins` in the user `settings.json` so they load in
+          every repository with no per-invocation flags.
+
+          Each entry is a `<plugin>@<marketplace>` key, where the
+          marketplace name matches a key declared in `marketplaces`
+          (e.g. `laurel-eng@Laurel`).
+
+          This is distinct from `plugins`: it does NOT use `--plugin-dir`
+          (the local-dev override hatch). Use this for marketplace-backed
+          plugins that should be globally enabled; use `plugins` only to
+          point the CLI at an unpackaged local plugin directory.
+
+          When empty, no `enabledPlugins` key is written, leaving
+          `settings.json` identical to its prior form.
+        '';
+        example = lib.literalExpression ''
+          [ "laurel-eng@Laurel" ]
+        '';
+      };
     };
 
     mcp = {

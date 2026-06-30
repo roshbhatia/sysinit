@@ -113,10 +113,10 @@ in
       # are not auto-refreshed by the CLI.
       llm.claudeCode = {
         marketplaces = {
-          # Laurel = "code/work/<dirname>";
+          Laurel = "github/work/pinginc/ai-tooling";
         };
-        plugins = [
-          # "code/work/<dirname>/Laurel"
+        enabledPlugins = [
+          "laurel-eng@Laurel"
         ];
       };
     })
