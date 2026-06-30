@@ -65,6 +65,19 @@ let
     text = builtins.readFile ./agent-notify.sh;
   };
 
+  # Per-pane lifecycle-state emitter (see agent-state.sh). Writes an OSC 1337
+  # SetUserVar to the agent's wezterm pane so the statusline/switcher can show
+  # which session is blocked and why. Best-effort, like the notifier.
+  stateScript = pkgs.writeShellApplication {
+    name = "agent-state";
+    runtimeInputs = [
+      pkgs.jq
+      pkgs.coreutils
+    ];
+    bashOptions = [ ];
+    text = builtins.readFile ./agent-state.sh;
+  };
+
   # Notification click handler: raises the wezterm pane the agent runs in. Runs in
   # a bare NotificationCenter env, so wezterm/jq must come from runtimeInputs, not
   # an inherited PATH.
@@ -79,10 +92,11 @@ let
   };
 in
 {
-  inherit icons script focusScript;
+  inherit icons script stateScript focusScript;
 
   # Absolute paths used inside harness hook commands.
   exe = lib.getExe script;
+  stateExe = lib.getExe stateScript;
   focusExe = lib.getExe focusScript;
 
   # home.file entries installing every icon (plus the fallback) to the shared

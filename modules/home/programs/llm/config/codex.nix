@@ -42,6 +42,10 @@ in
                 type = "command";
                 command = "${notify.exe} codex approval ${notify.focusExe}";
               }
+              {
+                type = "command";
+                command = "${notify.stateExe} codex waiting message";
+              }
             ];
           }
         ];
@@ -51,6 +55,10 @@ in
               {
                 type = "command";
                 command = "${notify.exe} codex done ${notify.focusExe}";
+              }
+              {
+                type = "command";
+                command = "${notify.stateExe} codex done \"your move\"";
               }
             ];
           }

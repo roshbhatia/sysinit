@@ -109,8 +109,23 @@ in
       autoCompactEnabled = true;
 
       hooks = {
+        # New turn starting — stamp working before any tool runs.
+        UserPromptSubmit = [
+          {
+            matcher = "";
+            hooks = [
+              {
+                type = "command";
+                command = "${notify.stateExe} claude working thinking";
+                async = true;
+              }
+            ];
+          }
+        ];
         # Mechanical deny for irreversible / hook-bypassing bash commands. Not
-        # async — a deny must resolve before the tool runs.
+        # async — a deny must resolve before the tool runs. A second catch-all
+        # entry stamps per-pane working state with the tool + its input as the
+        # reason (async, best-effort — never gates the tool).
         PreToolUse = [
           {
             matcher = "Bash";
@@ -118,6 +133,30 @@ in
               {
                 type = "command";
                 command = "${lib.getExe bashGuardScript}";
+              }
+            ];
+          }
+          {
+            matcher = "";
+            hooks = [
+              {
+                type = "command";
+                command = "${notify.stateExe} claude working tool";
+                async = true;
+              }
+            ];
+          }
+        ];
+        # Tool returned — still working (back to thinking) until the next tool
+        # or the turn ends.
+        PostToolUse = [
+          {
+            matcher = "";
+            hooks = [
+              {
+                type = "command";
+                command = "${notify.stateExe} claude working thinking";
+                async = true;
               }
             ];
           }
@@ -146,6 +185,11 @@ in
                 command = "${notify.exe} claude attention ${notify.focusExe}";
                 async = true;
               }
+              {
+                type = "command";
+                command = "${notify.stateExe} claude waiting message";
+                async = true;
+              }
             ];
           }
         ];
@@ -157,6 +201,11 @@ in
               {
                 type = "command";
                 command = "${notify.exe} claude done ${notify.focusExe}";
+                async = true;
+              }
+              {
+                type = "command";
+                command = "${notify.stateExe} claude done \"your move\"";
                 async = true;
               }
             ];

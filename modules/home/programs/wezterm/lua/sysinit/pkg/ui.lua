@@ -183,33 +183,134 @@ function M.setup(config)
     end)
   end
 
-  -- Status labels so the icons are readable:
-  --   ● N working  = agent actively processing (running a tool, generating)
-  --   ◔ N waiting  = agent needs your input (permission prompt, y/n)
-  --   ○ N idle     = agent at prompt, ready for next message
-  local agent_status_labels = {
-    working = "working",
-    waiting = "waiting",
-    idle = "idle",
+  -- Per-status icon + urgency rank, shared by the statusline and the session
+  -- switcher. Worst-wins ordering: waiting (you must act) > done (your move) >
+  -- working > idle. `done` is not an agent-deck status, so we carry our own
+  -- icon table rather than relying on agent_deck.get_status_icon for it.
+  local agent_state_icons = {
+    waiting = "◔",
+    done = "✔",
+    working = "●",
+    idle = "○",
+  }
+  local agent_state_rank = {
+    waiting = 4,
+    done = 3,
+    working = 2,
+    idle = 1,
   }
 
-  local function agent_status()
-    if not agent_deck_ok then
+  local function format_age(secs)
+    if not secs or secs < 0 then
       return ""
     end
-    local counts = agent_deck.count_agents_by_status()
-    local parts = {}
-    for _, s in ipairs({ "working", "waiting", "idle" }) do
-      if counts[s] and counts[s] > 0 then
-        table.insert(parts, {
-          Text = " " .. agent_deck.get_status_icon(s) .. " " .. counts[s] .. " " .. agent_status_labels[s] .. " ",
-        })
+    if secs < 60 then
+      return string.format("%ds", secs)
+    elseif secs < 3600 then
+      return string.format("%dm", math.floor(secs / 60))
+    end
+    return string.format("%dh", math.floor(secs / 3600))
+  end
+
+  -- Roll per-pane agent state up to one state per seshy session (= workspace).
+  -- For each live pane: prefer the `agent_state` user-var emitted by the agent
+  -- lifecycle hooks (status|reason|since|agent); fall back to agent-deck's
+  -- scraped status for panes that set none (hookless agents). Reduce a
+  -- session's panes worst-wins, carrying the reason + transition time of the
+  -- winning pane (oldest `since` breaks ties so age reflects the longest wait).
+  -- Pure in-memory walk of live panes — safe to call on every update-status
+  -- tick. Returns { [workspace] = { status, reason, since, rank } }.
+  local function agent_session_states()
+    local sessions = {}
+    local deck_states = agent_deck_ok and agent_deck.get_all_agent_states() or {}
+
+    local ok = pcall(function()
+      for _, win in ipairs(wezterm.mux.all_windows()) do
+        local workspace = win:get_workspace()
+        for _, tab in ipairs(win:tabs()) do
+          for _, p in ipairs(tab:panes()) do
+            local status, reason, since
+            local uv = p:get_user_vars()
+            local raw = uv and uv.agent_state
+            if raw and raw ~= "" then
+              local s, r, ts = raw:match("^([^|]*)|([^|]*)|([^|]*)|")
+              if s and agent_state_rank[s] then
+                status, reason, since = s, r, tonumber(ts)
+              end
+            end
+            if not status then
+              local deck = deck_states[p:pane_id()]
+              if deck and agent_state_rank[deck.status] then
+                status = deck.status -- working | waiting | idle; no reason/age
+              end
+            end
+            if status then
+              local rank = agent_state_rank[status]
+              local cur = sessions[workspace]
+              -- Higher rank wins; on a tie the older `since` (smaller number)
+              -- wins so age reflects the longest-running pane. A pane with a
+              -- real `since` beats one without (nil sorts last).
+              local replace = false
+              if not cur or rank > cur.rank then
+                replace = true
+              elseif rank == cur.rank then
+                local a, b = since, cur.since
+                if a and (not b or a < b) then
+                  replace = true
+                end
+              end
+              if replace then
+                sessions[workspace] = {
+                  status = status,
+                  reason = reason or "",
+                  since = since,
+                  rank = rank,
+                }
+              end
+            end
+          end
+        end
+      end
+    end)
+    if not ok then
+      return {}
+    end
+    return sessions
+  end
+
+  -- Pick the single most action-needing session: highest rank, then largest age
+  -- (oldest `since`). Returns name, state, age-seconds — or nil when no session
+  -- has agent state.
+  local function worst_agent_session()
+    local sessions = agent_session_states()
+    local now = os.time()
+    local best_name, best
+    for name, st in pairs(sessions) do
+      if not best or st.rank > best.rank or (st.rank == best.rank and (st.since or now) < (best.since or now)) then
+        best_name, best = name, st
       end
     end
-    if #parts == 0 then
+    if not best then
+      return nil
+    end
+    local age = best.since and (now - best.since) or nil
+    return best_name, best, age
+  end
+
+  -- Statusline component: name the worst blocked session and its age instead of
+  -- an aggregate count. Renders empty when nothing is in an agent state.
+  local function agent_status()
+    local name, st, age = worst_agent_session()
+    if not name then
       return ""
     end
-    return wezterm.format(parts)
+    local icon = agent_state_icons[st.status] or "●"
+    local age_str = format_age(age)
+    local text = " " .. icon .. " " .. name
+    if age_str ~= "" then
+      text = text .. " " .. age_str
+    end
+    return wezterm.format({ { Text = text .. " " } })
   end
 
   local tabline_ok, tabline = plugin_loader.load("tabline")
@@ -511,9 +612,16 @@ function M.setup(config)
     -- session. It's seeded first so it survives an empty/header-only `sy list`
     -- or a missing/erroring `sy` binary (the early return still carries it).
     wm.get_choices = function()
-      local choices = {
-        { name = "default", path = home, label = "default" },
-      }
+      -- Roll up live agent state once and decorate each session row with its
+      -- state icon, reason, and age, sorted so the longest-blocked session is
+      -- on top. Sourced from the same helper the statusline reads, so the two
+      -- surfaces always agree on which session is worst.
+      local sessions = agent_session_states()
+      local now = os.time()
+
+      local default_choice = { name = "default", path = home, label = "default" }
+      local rows = {}
+
       local ok, stdout = pcall(function()
         local success, out = wezterm.run_child_process({ sy_bin, "list" })
         if not success then
@@ -521,23 +629,55 @@ function M.setup(config)
         end
         return out
       end)
-      if not ok or not stdout then
-        return choices
-      end
-      local first = true
-      for _, line in ipairs(wezterm.split_by_newlines(stdout)) do
-        if first then
-          first = false
-        elseif line ~= "" then
-          local name = line:match("^(%S+)")
-          if name then
-            table.insert(choices, {
-              name = name,
-              path = seshy_dir .. "/" .. name,
-              label = name,
-            })
+      if ok and stdout then
+        local first = true
+        for _, line in ipairs(wezterm.split_by_newlines(stdout)) do
+          if first then
+            first = false
+          elseif line ~= "" then
+            local name = line:match("^(%S+)")
+            if name then
+              local st = sessions[name]
+              local label = name
+              if st then
+                local icon = agent_state_icons[st.status] or "●"
+                label = icon .. " " .. name
+                local age = st.since and format_age(now - st.since) or ""
+                if st.reason ~= "" then
+                  label = label .. " — " .. st.reason
+                end
+                if age ~= "" then
+                  label = label .. " (" .. age .. ")"
+                end
+              end
+              table.insert(rows, {
+                name = name,
+                path = seshy_dir .. "/" .. name,
+                label = label,
+                -- sort keys (stripped from the choice the plugin sees)
+                _rank = st and st.rank or 0,
+                _since = st and st.since or nil,
+              })
+            end
           end
         end
+      end
+
+      -- Urgency sort: higher rank first, then older `since` (longer wait), then
+      -- name for stability. Stateless sessions (rank 0) fall to the bottom.
+      table.sort(rows, function(a, b)
+        if a._rank ~= b._rank then
+          return a._rank > b._rank
+        end
+        if a._rank > 0 and a._since ~= b._since then
+          return (a._since or now) < (b._since or now)
+        end
+        return a.name < b.name
+      end)
+
+      local choices = { default_choice }
+      for _, row in ipairs(rows) do
+        table.insert(choices, { name = row.name, path = row.path, label = row.label })
       end
       return choices
     end
