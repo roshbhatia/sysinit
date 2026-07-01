@@ -124,45 +124,45 @@
   };
   mermaid-ascii = {
     pname = "mermaid-ascii";
-    version = "1.2.0";
+    version = "1.3.0";
     src = fetchFromGitHub {
       owner = "AlexanderGrooff";
       repo = "mermaid-ascii";
-      rev = "1.2.0";
+      rev = "1.3.0";
       fetchSubmodules = false;
-      sha256 = "sha256-PbYqYy0jHQb+qvkp+lp/Wlde50dhdg7Ri2eNExXeoQ4=";
+      sha256 = "sha256-lACyrxum1YjIXfoajO7YQdz+pZtQZdZhMqOaa82tsPs=";
     };
   };
   pi-coding-agent = {
     pname = "pi-coding-agent";
-    version = "0.80.2";
+    version = "0.80.3";
     src = fetchurl {
-      url = "https://github.com/earendil-works/pi/releases/download/v0.80.2/pi-darwin-arm64.tar.gz";
-      sha256 = "sha256-x9Elu969hj+nbZInRFi6DrQF5c3jnbNNsfSfdn7Z8d0=";
+      url = "https://github.com/earendil-works/pi/releases/download/v0.80.3/pi-darwin-arm64.tar.gz";
+      sha256 = "sha256-ByeJ9fVXEZi9LYVvGsS7yYDuzOHQLn0Kz4luI4fj7o8=";
     };
   };
   pi-coding-agent-aarch64-linux = {
     pname = "pi-coding-agent-aarch64-linux";
-    version = "0.80.2";
+    version = "0.80.3";
     src = fetchurl {
-      url = "https://github.com/earendil-works/pi/releases/download/v0.80.2/pi-linux-arm64.tar.gz";
-      sha256 = "sha256-Bxns9QpCyuefTG8NSmLgjo1EIXiMzQUNCKW781yI7fY=";
+      url = "https://github.com/earendil-works/pi/releases/download/v0.80.3/pi-linux-arm64.tar.gz";
+      sha256 = "sha256-xUSrKglTqb2jWMq5vDKLHvaJLUqCTYaTiAl35LI8YWg=";
     };
   };
   pi-coding-agent-x86_64-darwin = {
     pname = "pi-coding-agent-x86_64-darwin";
-    version = "0.80.2";
+    version = "0.80.3";
     src = fetchurl {
-      url = "https://github.com/earendil-works/pi/releases/download/v0.80.2/pi-darwin-x64.tar.gz";
-      sha256 = "sha256-1La2Kgw0wPLkyxbub9TwCGuGrXDgSI/T2qkjEhbYTis=";
+      url = "https://github.com/earendil-works/pi/releases/download/v0.80.3/pi-darwin-x64.tar.gz";
+      sha256 = "sha256-weAHvWjPN3nwlHb5wG3l/JOgBzPUrjSjapYYAVb/Hn8=";
     };
   };
   pi-coding-agent-x86_64-linux = {
     pname = "pi-coding-agent-x86_64-linux";
-    version = "0.80.2";
+    version = "0.80.3";
     src = fetchurl {
-      url = "https://github.com/earendil-works/pi/releases/download/v0.80.2/pi-linux-x64.tar.gz";
-      sha256 = "sha256-Lmh3K76qzXNIh1EJgZOHU4lja4BYkQBgmimSHe1xyYQ=";
+      url = "https://github.com/earendil-works/pi/releases/download/v0.80.3/pi-linux-x64.tar.gz";
+      sha256 = "sha256-50o0rCUFVWFkFE2OOaZNbVJ28JIWba2RQxntwwxIq+4=";
     };
   };
 }
