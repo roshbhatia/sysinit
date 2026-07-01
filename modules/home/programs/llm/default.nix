@@ -46,7 +46,6 @@ in
     ./config/cursor.nix
     ./config/gemini.nix
     ./config/goose.nix
-    ./config/hermes.nix
     ./config/mcp-servers.nix
     ./config/opencode.nix
     ./config/pi.nix

@@ -75,15 +75,6 @@
       url = "github:ryoppippi/nix-claude-code";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-
-    # Hermes Agent — upstream flake bundles the Ink/React TUI, Python venv,
-    # anthropic SDK, and skills/plugins/web assets. Tracks main; bump via
-    # `nix flake update hermes-agent`. Reproducibility is anchored by the
-    # flake.lock revision, not a release tag.
-    hermes-agent = {
-      url = "github:NousResearch/hermes-agent";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
   };
 
   outputs =
