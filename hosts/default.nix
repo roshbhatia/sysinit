@@ -107,18 +107,6 @@ in
           ];
         };
       };
-      # Path values are strings, not Nix path literals, so the local
-      # clone is never copied into the Nix store. Maintain the clone
-      # manually (`git pull` to refresh); directory-source marketplaces
-      # are not auto-refreshed by the CLI.
-      llm.claudeCode = {
-        marketplaces = {
-          Laurel = "github/work/pinginc/ai-tooling";
-        };
-        enabledPlugins = [
-          "laurel-eng@Laurel"
-        ];
-      };
     })
     // {
       work = true;
