@@ -24,5 +24,14 @@ _: {
       url = "https://knowledge-mcp.global.api.aws";
       description = "AWS documentation and service knowledge";
     };
+
+    # Shared Markdown-backed memory store accessible by every harness.
+    # Backing directory defaults to ~/Documents/basic-memory/; all agents
+    # read and write the same files, giving cross-harness persistent context.
+    basic-memory = {
+      command = "uvx";
+      args = [ "basic-memory" "mcp" ];
+      description = "Shared cross-harness memory — Markdown note store readable by all agents";
+    };
   };
 }

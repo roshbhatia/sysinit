@@ -120,6 +120,10 @@ in
       ".pytest_cache/"
       ".coverage"
       "htmlcov/"
+      # Playwright
+      "playwright-report/"
+      "playwright/.cache/"
+      "blob-report/"
       # Build artifacts
       "*.o"
       "*.so"

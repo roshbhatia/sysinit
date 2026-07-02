@@ -36,6 +36,7 @@ let
           - Agent tooling: claude-code, codex, gemini, cursor, aider — all configured from `modules/home/programs/llm/`
           - Shell: zsh; scripts in `hack/` are bash with `set -euo pipefail`, formatted by `shfmt -i 2 -ci -sr -s`
           - Formatter: `nixfmt-rfc-style` via `nix fmt`
+          - Session manager: seshy (`sy`) for multi-repo feature work via git worktrees; sessions at `~/.local/state/seshy/sessions/`
         '';
 
         commands = ''
@@ -43,14 +44,18 @@ let
 
           ```bash
           nix flake check          # validate flake (run before commits)
-          nh os build              # build current host config (no system change)
-          nh os switch             # apply config to system (use deliberately)
+          nh darwin build          # build current host config (no system change)
+          nh darwin switch         # apply config to system (use deliberately)
           nix fmt                  # format all Nix files
           task fmt:sh              # format hack/ shell scripts
           task fmt:sh:check        # verify shell formatting only
           task openspec:sync       # detect drift in the forked openspec schema
           ./hack/update-pi.sh      # report pi package drift
           openspec schema validate rosh-spec-driven
+          sy list                  # list active seshy sessions
+          sy new <name> [repos...] # create session with worktrees (explicit repos = non-interactive)
+          sy status <name>         # inspect session repos and branches
+          sy path <name>           # print session directory (for cd / script use)
           ```
         '';
 
@@ -66,6 +71,8 @@ let
           - On unexpected errors: stop, preserve evidence, fix root cause (no `--no-verify`)
           - Use `nix-shell` / `nix develop` for dependencies; avoid global installers
           - Prefer subagents (Explore, librarian, oracle) for parallel exploration; merge before coding
+          - For multi-repo feature work, start a seshy session: `sy new <name> [repos...]`; never run bare `sy` (opens interactive picker)
+          - openspec and seshy are first-class: check for active openspec changes (`openspec/changes/`) and seshy sessions (`sy list`) before scoping new work
         '';
 
         skills = ''
@@ -95,6 +102,8 @@ let
           - `.sysinit/` is gitignored scratch space for lessons and PRD notes; check `.sysinit/lessons.md` at session start
           - OpenSpec artifacts live at `openspec/changes/<name>/`; the active schema is `rosh-spec-driven`
           - User-level `~/.config/git/ignore` already excludes `**/.claude/`, `**/.agents/` — do not duplicate in per-project `.gitignore`
+          - Seshy sessions live at `~/.local/state/seshy/sessions/`; run `sy list` to discover active sessions before starting new feature work
+          - Cross-harness memory: `basic-memory` MCP is available to all agents — use it for notes and context that must survive across harness boundaries
         '';
       };
 

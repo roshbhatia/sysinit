@@ -493,6 +493,10 @@ let
       "@bastiangx/opencode-unmoji"
       "opencode-gemini-auth@latest"
       "opencode-handoff"
+      # Bridge OpenCode to Claude Code's native auto-memory files
+      # (~/.claude/projects/*/memory/). Reads and writes the same Markdown
+      # store Claude Code uses, so memory created in one is visible in both.
+      "opencode-claude-memory"
       "opencode-plugin-openspec"
 
       # Drive a ChatGPT Plus/Pro subscription against GPT-5.x / Codex models —
