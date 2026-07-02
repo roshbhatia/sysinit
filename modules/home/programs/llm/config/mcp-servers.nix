@@ -1,5 +1,4 @@
-{ ... }:
-{
+_: {
   # incident.io is intentionally absent: the company `laurel-eng` Claude Code
   # plugin already ships an `incidentio` MCP server, so declaring our own here
   # would double-connect. Let the auto-updating plugin own it.

@@ -1,0 +1,31 @@
+- generic [ref=e3]:
+  - generic [ref=e6]:
+    - generic:
+      - generic:
+        - navigation "Sidebar":
+          - generic:
+            - generic:
+              - link "Home":
+                - /url: /new
+                - img "Claude"
+          - generic:
+            - link:
+              - /url: /new
+              - generic:
+                - generic:
+                  - generic:
+                    - generic: 
+          - generic:
+            - link:
+              - /url: /recents
+              - generic:
+                - generic: 
+            - link:
+              - /url: /projects
+              - generic:
+                - generic: 
+    - main [ref=e7]:
+      - generic [ref=e8]:
+        - status
+  - region "Notifications (F8)":
+    - list
