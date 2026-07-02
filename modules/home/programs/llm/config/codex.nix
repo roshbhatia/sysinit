@@ -33,6 +33,10 @@ in
     };
 
     settings = {
+      # Opt in to the experimental Streamable HTTP MCP client (v0.44.0+). Without
+      # this, URL-based MCP entries in the TOML config are silently ignored.
+      experimental_use_rmcp_client = true;
+
       # Lifecycle notifications via the shared agent-notify script. Codex exposes
       # no idle event, so the deterministic set is: PermissionRequest (waiting on
       # your approval) and Stop (turn finished). Serializes to [[hooks.<Event>]].
