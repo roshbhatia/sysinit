@@ -156,6 +156,24 @@ with lib;
         }
     ) servers;
 
+  # Format MCP servers for Crush
+  formatForCrush =
+    servers:
+    builtins.mapAttrs (
+      _name: server:
+      if (server.type or "local") == "http" then
+        {
+          type = "http";
+          inherit (server) url;
+        }
+      else
+        {
+          type = "stdio";
+          inherit (server) command;
+          args = server.args or [ ];
+        }
+    ) servers;
+
   # Format permissions for Cursor
   formatPermissionsForCursor = allPermissions: map (cmd: "Shell(${cmd})") allPermissions;
 

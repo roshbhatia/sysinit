@@ -8,26 +8,9 @@ let
   llmLib = import ../lib { inherit lib; };
   kit = llmLib.harnessKit.mkKit { inherit lib pkgs config; };
 
-  formatMcpForCrush =
-    servers:
-    builtins.mapAttrs (
-      _name: server:
-      if (server.type or "local") == "http" then
-        {
-          type = "http";
-          inherit (server) url;
-        }
-      else
-        {
-          type = "stdio";
-          inherit (server) command;
-          args = server.args or [ ];
-        }
-    ) servers;
-
   crushSettings = {
     "$schema" = "https://charm.land/crush.json";
-    mcp = formatMcpForCrush kit.mcpServers.servers;
+    mcp = llmLib.mcp.formatForCrush kit.mcpServers.servers;
     # Two-tier split: leave the strong reasoner as the default `large` model and
     # set a Haiku-class helper for cheap summarization/title work. Mirrors
     # aider.nix's architect + editor-model split. `anthropic` is a built-in

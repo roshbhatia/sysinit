@@ -71,12 +71,6 @@ in
         lib.genAttrs ccCfg.enabledPlugins (_: true)
       );
 
-      # The company `laurel-eng` tooling installs an enterprise
-      # managed-settings.json (model + OTEL telemetry) that sits ABOVE this
-      # user settings.json in precedence. Deliberately leave `model` and the
-      # OTEL `env` keys unset here so the two layers never silently fight.
-      # CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS is user-scoped and not set by the
-      # company layer, so it coexists without clobbering managed OTEL env.
       env = {
         CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS = "1";
       };
