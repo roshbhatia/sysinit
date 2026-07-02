@@ -110,11 +110,11 @@
         "pinned": false,
         "src": {
             "name": null,
-            "sha256": "sha256-JH659gP0PFwctVj+PhbEZp+AJUUT+9zwKib/yZZygwc=",
+            "sha256": "sha256-F5IlbYlHv9N4oXSddqId+eHPW9YTydxV7eoz7DefPPQ=",
             "type": "url",
-            "url": "https://github.com/block/goose/releases/download/v1.39.0/goose-aarch64-apple-darwin.tar.gz"
+            "url": "https://github.com/block/goose/releases/download/v1.40.0/goose-aarch64-apple-darwin.tar.gz"
         },
-        "version": "1.39.0"
+        "version": "1.40.0"
     },
     "goose-cli-bin-aarch64-linux": {
         "cargoLock": null,
@@ -125,11 +125,11 @@
         "pinned": false,
         "src": {
             "name": null,
-            "sha256": "sha256-dGEOEVcD70Yko2L4q3+wO0WLwMaN1hj7CJX4ZPoV6jg=",
+            "sha256": "sha256-xL1CInmb61rRJN3oC0WFdOF3NM+wVO21BZGlqcJPrNA=",
             "type": "url",
-            "url": "https://github.com/block/goose/releases/download/v1.39.0/goose-aarch64-unknown-linux-gnu.tar.gz"
+            "url": "https://github.com/block/goose/releases/download/v1.40.0/goose-aarch64-unknown-linux-gnu.tar.gz"
         },
-        "version": "1.39.0"
+        "version": "1.40.0"
     },
     "goose-cli-bin-x86_64-darwin": {
         "cargoLock": null,
@@ -140,11 +140,11 @@
         "pinned": false,
         "src": {
             "name": null,
-            "sha256": "sha256-gYILbaYXFyE5p6UzCTCudNXyBSM2EClnnhet7ncRpNU=",
+            "sha256": "sha256-ZG1W0kZ4qSwlpqCeXQ1Y/XRSV4bJMPtDCmcB1IIpxJg=",
             "type": "url",
-            "url": "https://github.com/block/goose/releases/download/v1.39.0/goose-x86_64-apple-darwin.tar.gz"
+            "url": "https://github.com/block/goose/releases/download/v1.40.0/goose-x86_64-apple-darwin.tar.gz"
         },
-        "version": "1.39.0"
+        "version": "1.40.0"
     },
     "goose-cli-bin-x86_64-linux": {
         "cargoLock": null,
@@ -155,11 +155,11 @@
         "pinned": false,
         "src": {
             "name": null,
-            "sha256": "sha256-9K0IZ0MNNCDqYLw7s2po9vVmnAYM5t6VL+mifYp+B2c=",
+            "sha256": "sha256-6aDb3L5Mde9PpM/Kl+UH9TyGuuGaPgx25oB+qqBKBbg=",
             "type": "url",
-            "url": "https://github.com/block/goose/releases/download/v1.39.0/goose-x86_64-unknown-linux-gnu.tar.gz"
+            "url": "https://github.com/block/goose/releases/download/v1.40.0/goose-x86_64-unknown-linux-gnu.tar.gz"
         },
-        "version": "1.39.0"
+        "version": "1.40.0"
     },
     "hererocks": {
         "cargoLock": null,
