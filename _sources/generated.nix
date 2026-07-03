@@ -62,34 +62,34 @@
   };
   goose-cli-bin = {
     pname = "goose-cli-bin";
-    version = "1.40.0";
+    version = "1.41.0";
     src = fetchurl {
-      url = "https://github.com/block/goose/releases/download/v1.40.0/goose-aarch64-apple-darwin.tar.gz";
-      sha256 = "sha256-F5IlbYlHv9N4oXSddqId+eHPW9YTydxV7eoz7DefPPQ=";
+      url = "https://github.com/block/goose/releases/download/v1.41.0/goose-aarch64-apple-darwin.tar.gz";
+      sha256 = "sha256-GRCYR64rx/4sEkpP0G8C8pGEd7uxxNyQumIJYUJ3pnw=";
     };
   };
   goose-cli-bin-aarch64-linux = {
     pname = "goose-cli-bin-aarch64-linux";
-    version = "1.40.0";
+    version = "1.41.0";
     src = fetchurl {
-      url = "https://github.com/block/goose/releases/download/v1.40.0/goose-aarch64-unknown-linux-gnu.tar.gz";
-      sha256 = "sha256-xL1CInmb61rRJN3oC0WFdOF3NM+wVO21BZGlqcJPrNA=";
+      url = "https://github.com/block/goose/releases/download/v1.41.0/goose-aarch64-unknown-linux-gnu.tar.gz";
+      sha256 = "sha256-Cyy2rH3SeViX6q9hkGjaI2hp4RKIWEEhVeA8q7uUNI4=";
     };
   };
   goose-cli-bin-x86_64-darwin = {
     pname = "goose-cli-bin-x86_64-darwin";
-    version = "1.40.0";
+    version = "1.41.0";
     src = fetchurl {
-      url = "https://github.com/block/goose/releases/download/v1.40.0/goose-x86_64-apple-darwin.tar.gz";
-      sha256 = "sha256-ZG1W0kZ4qSwlpqCeXQ1Y/XRSV4bJMPtDCmcB1IIpxJg=";
+      url = "https://github.com/block/goose/releases/download/v1.41.0/goose-x86_64-apple-darwin.tar.gz";
+      sha256 = "sha256-cDmeDq/gQV0ei5qHb/MZBOW3ktbpqpWNBGJWTKb6ENo=";
     };
   };
   goose-cli-bin-x86_64-linux = {
     pname = "goose-cli-bin-x86_64-linux";
-    version = "1.40.0";
+    version = "1.41.0";
     src = fetchurl {
-      url = "https://github.com/block/goose/releases/download/v1.40.0/goose-x86_64-unknown-linux-gnu.tar.gz";
-      sha256 = "sha256-6aDb3L5Mde9PpM/Kl+UH9TyGuuGaPgx25oB+qqBKBbg=";
+      url = "https://github.com/block/goose/releases/download/v1.41.0/goose-x86_64-unknown-linux-gnu.tar.gz";
+      sha256 = "sha256-zY54RVc01ozEOrxtrOqOOK4AFg/BJFzpWcNVj9YYmKU=";
     };
   };
   hererocks = {
