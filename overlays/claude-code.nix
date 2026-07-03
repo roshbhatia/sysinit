@@ -2,10 +2,10 @@ _:
 
 final: prev:
 let
-  version = "2.1.198";
+  version = "2.1.199";
   src = prev.fetchzip {
     url = "https://registry.npmjs.org/@anthropic-ai/claude-code/-/claude-code-${version}.tgz";
-    hash = "sha256-+TIYgAUlkDlMXlZ5tT3w8c1hHz2pfXdM552mJoD6cRM="; # autoupdate:src-hash
+    hash = "sha256-Zp2OPNJyX7QJmGdh/mhfKq5s9Jncq6/184g988jma1A="; # autoupdate:src-hash
   };
 in
 {
@@ -20,7 +20,7 @@ in
       postPatch = ''
         cp ${./claude-code-package-lock.json} package-lock.json
       '';
-      hash = "sha256-9KG6/wov5tpkBn4Af0BXXiQooog/cu3om5/bLEDiT+c="; # autoupdate:npm-deps-hash
+      hash = "sha256-4yTKcmseKyIkspsTVlRvvREKIsq11ANX9uGiaXPFiy4="; # autoupdate:npm-deps-hash
     };
   });
 }
