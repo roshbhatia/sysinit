@@ -656,20 +656,10 @@ function M.setup(config)
       return ""
     end
     local icon = agent_state_icons[best.status] or "●"
-    local age_str = format_age(best.since and (now - best.since) or nil)
     local text = " " .. icon
-    -- Omit session name when it matches the current workspace: tabline_z "workspace"
-    -- already shows it. Only prepend the name when attention is on a different session.
-    local ok, cur_ws = pcall(function() return wezterm.mux.get_active_workspace() end)
-    if not ok or cur_ws ~= best_name then
-      text = text .. " " .. best_name
-    end
-    if age_str ~= "" then
-      text = text .. " " .. age_str
-    end
-    -- Total actionable-session count; omitted when this is the only one.
+    -- Multiple sessions needing attention: append count so the signal scales.
     if count > 1 then
-      text = text .. " (" .. count .. ")"
+      text = text .. " " .. count
     end
     return wezterm.format({ { Text = text .. " " } })
   end
