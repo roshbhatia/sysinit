@@ -51,6 +51,8 @@ json() {
   printf '%s' "$input" | jq -r "$1 // empty" 2> /dev/null
 }
 
+since=$(date +%s 2> /dev/null) || since=0
+
 # --- resolve the human reason ---
 case "$reason_src" in
   submit)
@@ -97,8 +99,6 @@ reason=$(
 [ -n "$reason" ] || reason="$status"
 # Bound to ~60 chars; the surfaces truncate further to fit.
 reason=${reason:0:60}
-
-since=$(date +%s 2> /dev/null) || since=0
 
 # value = base64("<status>|<reason>|<since>|<agent>"). WezTerm requires the
 # SetUserVar value to be base64; it decodes it before delivering to Lua.

@@ -79,6 +79,13 @@ in
                 type = "command";
                 command = "${profileBin}/agent-state codex waiting message";
               }
+              # Write the turn-start timestamp so the subsequent Stop done-notification
+              # is gated on 60 s elapsed (same threshold Claude uses via UserPromptSubmit).
+              {
+                type = "command";
+                command = "${profileBin}/agent-state codex working submit";
+                async = true;
+              }
             ];
           }
         ];

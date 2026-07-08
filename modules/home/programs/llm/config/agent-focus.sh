@@ -16,6 +16,29 @@ pane=${1:-}
 session=${2:-}
 
 wz=$(command -v wezterm 2> /dev/null || true)
+notifier=$(command -v terminal-notifier 2> /dev/null || true)
+
+# Dismiss the originating toast immediately so it doesn't linger until its timeout.
+# Reconstruct the group from the pane's state file: same agent-notify:$agent:$context
+# pattern that agent-notify.sh uses. Best-effort — silent on any failure.
+if [ -n "$notifier" ] && [ -n "$pane" ]; then
+  state_file="${XDG_STATE_HOME:-$HOME/.local/state}/agents/panes/$pane.json"
+  if [ -f "$state_file" ]; then
+    _agent=$(jq -r '.agent // empty' "$state_file" 2>/dev/null || true)
+    _session=$(jq -r '.session // empty' "$state_file" 2>/dev/null || true)
+    _repo=$(jq -r '.repo // empty' "$state_file" 2>/dev/null || true)
+    if [ -n "$_session" ] && [ -n "$_repo" ] && [ "$_session" != "$_repo" ]; then
+      _context="$_session · $_repo"
+    elif [ -n "$_session" ]; then
+      _context="$_session"
+    elif [ -n "$_repo" ]; then
+      _context="$_repo"
+    fi
+    if [ -n "$_agent" ] && [ -n "$_context" ]; then
+      "$notifier" -remove "agent-notify:$_agent:$_context" > /dev/null 2>&1 || true
+    fi
+  fi
+fi
 
 raise_app() {
   # Bring the wezterm window forward even when no specific pane was activated.

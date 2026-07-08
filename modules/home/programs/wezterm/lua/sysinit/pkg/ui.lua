@@ -607,36 +607,6 @@ function M.setup(config)
     return wezterm.format({ { Text = text .. " " } })
   end
 
-  -- Per-tab attention indicator. tabline calls this for every tab with the
-  -- format-tab-title `TabInformation`; its `active_pane.user_vars` carry the same
-  -- `agent_state` the rollup reads. Returns a state icon (+ agent label) prefix,
-  -- or "" so the retained default index/cwd/process components render the plain
-  -- title when a tab holds no agent (or a malformed user-var). Since it emits a
-  -- bare string, the icon inherits the tab's fg color — the glyph alone conveys
-  -- the state (◔ waiting / ✔ done / ● working / ○ idle).
-  local function tab_agent_indicator(tab)
-    local ok, out = pcall(function()
-      local p = tab and tab.active_pane
-      local uv = p and p.user_vars
-      local raw = uv and uv.agent_state
-      if not raw or raw == "" then
-        return ""
-      end
-      local s, _r, _ts, a = raw:match("^([^|]*)|([^|]*)|([^|]*)|(.*)$")
-      if not s or not agent_state_icons[s] then
-        return ""
-      end
-      if a and a ~= "" then
-        return agent_state_icons[s] .. " " .. a .. " "
-      end
-      return agent_state_icons[s] .. " "
-    end)
-    if not ok then
-      return ""
-    end
-    return out or ""
-  end
-
   local tabline_ok, tabline = plugin_loader.load("tabline")
   if not tabline_ok then
     wezterm.log_warn("Failed to load tabline.wez: " .. tostring(tabline))
@@ -671,22 +641,6 @@ function M.setup(config)
         tabline_y = { agent_status },
         tabline_z = {
           "workspace",
-        },
-        -- Prepend the agent indicator to tabline's default tab layout so the
-        -- state icon leads, and the stock index/cwd/process still show the tab's
-        -- short repo/cwd. Defaults mirrored from tabline's config.lua.
-        tab_active = {
-          tab_agent_indicator,
-          "index",
-          { "parent", padding = 0 },
-          "/",
-          { "cwd", padding = { left = 0, right = 1 } },
-          { "zoomed", padding = 0 },
-        },
-        tab_inactive = {
-          tab_agent_indicator,
-          "index",
-          { "process", padding = { left = 0, right = 1 } },
         },
       },
       extensions = {},
@@ -948,6 +902,19 @@ function M.setup(config)
     end
 
     local r = ribbon.new("tab")
+
+    -- Agent-state prefix: read the pane's user_var (plain table on PaneInformation,
+    -- already base64-decoded by WezTerm). Only non-idle states surface — idle adds
+    -- noise to every unattended pane.
+    local AGENT_ICONS = { working = "⟳", waiting = "◔", done = "✔" }
+    pcall(function()
+      local uv = pane and pane.user_vars
+      local raw = uv and uv.agent_state
+      if not raw or raw == "" then return end
+      local s = raw:match("^([^|]*)|")
+      local icon = s and AGENT_ICONS[s]
+      if icon then r:append(nil, nil, icon .. " ") end
+    end)
 
     -- Zoom indicator: active pane is filling the window.
     if pane and pane.is_zoomed then
@@ -1498,9 +1465,9 @@ function M.setup(config)
           return
         end
       end
-      local title = "Sessions"
+      local title = "Sessions  [^b blocked · ^g agents · ^d dormant · ^a all]"
       if filter and filter ~= "all" then
-        title = title .. "  ·  " .. filter
+        title = "Sessions  [" .. filter .. "]"
       end
       tree_state.pending_filter = nil
       win:perform_action(
