@@ -77,4 +77,10 @@
     content = import ./diagram-mermaid-render.nix;
     allowed-tools = "Bash(mermaid-ascii:*) Bash(curl:*) Read Write Edit";
   };
+
+  specutil = {
+    description = "Uses specutil (on PATH) to visualize and plan OpenSpec changes. Run before planning multi-change work to see the cross-change DAG, surface blockers, and preview Linear/Notion sync operations without network I/O. Use when the user asks about openspec change status, wants to see a dependency graph, explore or plan spec-driven work, render a change as RFC/design/tickets, or preview sync to Linear/Notion.";
+    content = import ./specutil.nix;
+    allowed-tools = "Bash(specutil:*) Bash(mermaid-ascii:*)";
+  };
 }
