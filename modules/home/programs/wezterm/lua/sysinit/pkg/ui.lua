@@ -1342,6 +1342,8 @@ function M.setup(config)
         if not ws.dormant then live_sorted[#live_sorted + 1] = ws end
       end
       table.sort(live_sorted, function(a, b)
+        if a.name == "default" then return false end
+        if b.name == "default" then return true end
         return (a.last_active or 0) > (b.last_active or 0)
       end)
 
@@ -1476,7 +1478,7 @@ function M.setup(config)
     -- the picker runs in fuzzy mode (selection only via Enter); label-jump mode
     -- would let a bare-letter select bypass the pop. Filter keys use CTRL so they
     -- never collide with fuzzy typing.
-    local tree_state = { pending_filter = nil }
+    local tree_state = { pending_filter = nil, choices = {}, cursor = 0 }
     local function tree_filter_key(key, filter)
       return {
         key = key,
@@ -1520,6 +1522,61 @@ function M.setup(config)
     config.key_tables.session_tree_actions = {
       tree_close_key("Enter"),
       tree_close_key("Escape"),
+      -- vim navigation: j/k move cursor; J/K jump between session (ws:) rows
+      {
+        key = "j",
+        mods = "NONE",
+        action = wezterm.action_callback(function(win, pane)
+          if tree_state.cursor < #tree_state.choices - 1 then
+            tree_state.cursor = tree_state.cursor + 1
+          end
+          win:perform_action(wezterm.action.SendKey({ key = "DownArrow" }), pane)
+        end),
+      },
+      {
+        key = "k",
+        mods = "NONE",
+        action = wezterm.action_callback(function(win, pane)
+          if tree_state.cursor > 0 then
+            tree_state.cursor = tree_state.cursor - 1
+          end
+          win:perform_action(wezterm.action.SendKey({ key = "UpArrow" }), pane)
+        end),
+      },
+      {
+        key = "J",
+        mods = "SHIFT",
+        action = wezterm.action_callback(function(win, pane)
+          local cs, cur = tree_state.choices, tree_state.cursor
+          for i = cur + 2, #cs do
+            if cs[i] and cs[i]:match("^ws:") then
+              local delta = i - (cur + 1)
+              tree_state.cursor = i - 1
+              for _ = 1, delta do
+                win:perform_action(wezterm.action.SendKey({ key = "DownArrow" }), pane)
+              end
+              return
+            end
+          end
+        end),
+      },
+      {
+        key = "K",
+        mods = "SHIFT",
+        action = wezterm.action_callback(function(win, pane)
+          local cs, cur = tree_state.choices, tree_state.cursor
+          for i = cur, 1, -1 do
+            if cs[i] and cs[i]:match("^ws:") then
+              local delta = (cur + 1) - i
+              tree_state.cursor = i - 1
+              for _ = 1, delta do
+                win:perform_action(wezterm.action.SendKey({ key = "UpArrow" }), pane)
+              end
+              return
+            end
+          end
+        end),
+      },
       tree_filter_key("a", "all"),
       tree_filter_key("b", "blocked"),
       tree_filter_key("g", "agents"),
@@ -1535,7 +1592,7 @@ function M.setup(config)
     -- key reopens scoped. An empty filtered view falls back to the full tree so
     -- the picker never opens blank.
     local function open_session_tree(win, pane, filter)
-      filter = filter or "sessions"
+      filter = filter or "all"
       local tree = session_tree(sy_bin)
       -- Resolve palette once per open so all rows in this invocation share
       -- the same colors even if the picker is open across a scheme switch.
@@ -1551,10 +1608,13 @@ function M.setup(config)
           return
         end
       end
-      local title = "Sessions  [^a all · ^b blocked · ^g agents · ^d dormant · ^]/[ cycle]"
-      if filter ~= "sessions" then
-        title = "Sessions  [" .. filter .. "  |  ^s sessions · ^]/[ cycle]"
+      local title = "Sessions  [^s sessions · ^b blocked · ^g agents · ^d dormant · ^]/[ cycle]"
+      if filter ~= "all" then
+        title = "Sessions  [" .. filter .. "  |  ^a all · ^]/[ cycle]"
       end
+      tree_state.choices = {}
+      tree_state.cursor = 0
+      for i, ch in ipairs(choices) do tree_state.choices[i] = ch.id end
       tree_state.pending_filter = nil
       win:perform_action(
         wezterm.action.ActivateKeyTable({ name = "session_tree_actions", one_shot = false }),
@@ -1565,7 +1625,7 @@ function M.setup(config)
           title = title,
           choices = choices,
           fuzzy = true,
-          fuzzy_description = "  type name or #  ^a all  ^b blocked  ^g agents  ^d dormant  ^s sessions  ^]/[ cycle: ",
+          fuzzy_description = "  j/k nav  J/K session  ^s sessions  ^b blocked  ^g agents  ^d dormant  ^a all  ^]/[ cycle: ",
           action = wezterm.action_callback(function(inner_win, inner_pane, id, _label)
             local pf = tree_state.pending_filter
             tree_state.pending_filter = nil
