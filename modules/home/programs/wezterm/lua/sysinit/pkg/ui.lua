@@ -242,6 +242,30 @@ function M.setup(config)
     return repo or ""
   end
 
+  -- Extract a pane's agent state from the two sources, worst-source-wins: prefer
+  -- the `agent_state` user-var (status|reason|since|agent) emitted by the
+  -- lifecycle hooks, else agent-deck's scraped status for hookless agents.
+  -- Returns status, reason, since, agent (all nil when the pane has no agent).
+  local function pane_agent_state(p, deck_states)
+    local status, reason, since, agent
+    local uv = p:get_user_vars()
+    local raw = uv and uv.agent_state
+    if raw and raw ~= "" then
+      local s, r, ts, a = raw:match("^([^|]*)|([^|]*)|([^|]*)|(.*)$")
+      if s and agent_state_rank[s] then
+        status, reason, since, agent = s, r, tonumber(ts), a
+      end
+    end
+    if not status then
+      local deck = deck_states[p:pane_id()]
+      if deck and agent_state_rank[deck.status] then
+        status = deck.status -- working | waiting | idle; no reason/age
+        agent = deck.agent
+      end
+    end
+    return status, reason, since, agent
+  end
+
   -- Roll per-pane agent state up to one state per seshy session (= workspace),
   -- AND return the per-pane records visited on the same single walk. For each
   -- live pane: prefer the `agent_state` user-var emitted by the agent lifecycle
@@ -267,22 +291,7 @@ function M.setup(config)
         for _, tab in ipairs(win:tabs()) do
           local tab_id = tab:tab_id()
           for _, p in ipairs(tab:panes()) do
-            local status, reason, since, agent
-            local uv = p:get_user_vars()
-            local raw = uv and uv.agent_state
-            if raw and raw ~= "" then
-              local s, r, ts, a = raw:match("^([^|]*)|([^|]*)|([^|]*)|(.*)$")
-              if s and agent_state_rank[s] then
-                status, reason, since, agent = s, r, tonumber(ts), a
-              end
-            end
-            if not status then
-              local deck = deck_states[p:pane_id()]
-              if deck and agent_state_rank[deck.status] then
-                status = deck.status -- working | waiting | idle; no reason/age
-                agent = deck.agent
-              end
-            end
+            local status, reason, since, agent = pane_agent_state(p, deck_states)
             if status then
               local rank = agent_state_rank[status]
               -- Per-pane record — same walk, in-memory only. Enough to activate
@@ -376,6 +385,176 @@ function M.setup(config)
     if rec.workspace and rec.workspace ~= "" and rec.workspace ~= win:active_workspace() then
       win:perform_action(wezterm.action.SwitchToWorkspace({ name = rec.workspace }), gui_pane)
     end
+  end
+
+  -- Best-effort short label for a pane: the agent name when it is an agent pane,
+  -- else the basename of its foreground process, else its title. Used as the
+  -- leaf segment of the `session/tab/agent` filter path. "" on any failure.
+  local function pane_proc(p, agent)
+    if agent and agent ~= "" then
+      return agent
+    end
+    local ok, name = pcall(function()
+      local proc = p:get_foreground_process_name()
+      if proc and proc ~= "" then
+        return (proc:gsub("/+$", "")):match("([^/]+)$") or ""
+      end
+      return p:get_title() or ""
+    end)
+    if not ok then
+      return ""
+    end
+    return name or ""
+  end
+
+  -- Best-effort tab segment: the tab's title, else the active pane's process,
+  -- else the 1-based index. Never errors.
+  local function tab_label(tab, index, active_pane)
+    local ok, title = pcall(function()
+      return tab:get_title() or ""
+    end)
+    if ok and title and title ~= "" then
+      return title
+    end
+    if active_pane then
+      local proc = pane_proc(active_pane, nil)
+      if proc ~= "" then
+        return proc
+      end
+    end
+    return "tab " .. tostring(index)
+  end
+
+  -- Names of seshy sessions from `sy list` (header row skipped, first column).
+  -- Best-effort: {} when sy_bin is nil/empty or the shell-out fails. Mirrors the
+  -- switcher's own `sy list` parse (ui.lua wm block).
+  local function seshy_session_names(sy_bin)
+    if not sy_bin or sy_bin == "" then
+      return {}
+    end
+    local names = {}
+    local ok, out = pcall(function()
+      local success, stdout = wezterm.run_child_process({ sy_bin, "list" })
+      if not success then
+        error("sy list failed")
+      end
+      return stdout
+    end)
+    if not ok or not out then
+      return {}
+    end
+    local first = true
+    for _, line in ipairs(wezterm.split_by_newlines(out)) do
+      if first then
+        first = false
+      elseif line ~= "" then
+        local name = line:match("^(%S+)")
+        if name then
+          names[#names + 1] = name
+        end
+      end
+    end
+    return names
+  end
+
+  -- Build the full session tree in ONE mux walk: workspace -> tab -> pane, every
+  -- live pane included (not just agent panes), each decorated with its agent
+  -- state where present. Also returns the flat "attention" list (rank >=
+  -- working) urgency-ordered, and folds in dormant seshy sessions (present in
+  -- `sy list` but not live) as leaf workspace entries. Pure in-memory plus one
+  -- optional `sy list` shell-out; every mux call is pcall-guarded so a
+  -- since-closed pane degrades one node, never the walk.
+  -- Returns { workspaces = <ordered array of workspace nodes>, attention = <recs> }.
+  -- workspace node = { name, dormant, rank, since, status, tabs = { tab node } }
+  -- tab node       = { tab_id, index, title, panes = { pane rec } }
+  -- pane rec       = { pane_id, window_id, tab_id, workspace, tab_title, repo,
+  --                    title, agent, status, reason, since, rank }
+  local function session_tree(sy_bin)
+    local deck_states = agent_deck_ok and agent_deck.get_all_agent_states() or {}
+    local workspaces = {}
+    local ws_index = {}
+    local attention = {}
+    local live_names = {}
+
+    pcall(function()
+      for _, win in ipairs(wezterm.mux.all_windows()) do
+        local workspace = win:get_workspace()
+        local window_id = win:window_id()
+        local ws = ws_index[workspace]
+        if not ws then
+          ws = { name = workspace, dormant = false, rank = 0, since = nil, status = nil, tabs = {} }
+          ws_index[workspace] = ws
+          live_names[workspace] = true
+          workspaces[#workspaces + 1] = ws
+        end
+        for ti, tab in ipairs(win:tabs()) do
+          local infos = tab:panes_with_info()
+          local active_pane
+          for _, info in ipairs(infos) do
+            if info.is_active then
+              active_pane = info.pane
+            end
+          end
+          local resolved_active = active_pane or (infos[1] and infos[1].pane)
+          local tnode = {
+            tab_id = tab:tab_id(),
+            index = ti,
+            title = tab_label(tab, ti, resolved_active),
+            -- A tab jump is "activate this tab's active pane" — carry its id so
+            -- the switcher reuses activate_agent_pane for tabs too.
+            active_pane_id = resolved_active and resolved_active:pane_id() or nil,
+            panes = {},
+          }
+          for _, info in ipairs(infos) do
+            local p = info.pane
+            local status, reason, since, agent = pane_agent_state(p, deck_states)
+            local rank = status and agent_state_rank[status] or 0
+            local rec = {
+              pane_id = p:pane_id(),
+              window_id = window_id,
+              tab_id = tnode.tab_id,
+              workspace = workspace,
+              tab_title = tnode.title,
+              repo = pane_repo(p),
+              title = pane_proc(p, agent),
+              agent = agent or "",
+              status = status,
+              reason = reason or "",
+              since = since,
+              rank = rank,
+            }
+            tnode.panes[#tnode.panes + 1] = rec
+            if rank >= agent_state_rank.working then
+              attention[#attention + 1] = rec
+              if rank > ws.rank or (rank == ws.rank and since and (not ws.since or since < ws.since)) then
+                ws.rank, ws.since, ws.status = rank, since, status
+              end
+            end
+          end
+          ws.tabs[#ws.tabs + 1] = tnode
+        end
+      end
+    end)
+
+    -- Dormant seshy sessions: present in `sy list` but not a live workspace.
+    for _, name in ipairs(seshy_session_names(sy_bin)) do
+      if not ws_index[name] then
+        local ws = { name = name, dormant = true, rank = 0, since = nil, status = nil, tabs = {} }
+        ws_index[name] = ws
+        workspaces[#workspaces + 1] = ws
+      end
+    end
+
+    -- Attention list urgency-ordered: rank desc, then oldest `since` first.
+    local now = os.time()
+    table.sort(attention, function(a, b)
+      if a.rank ~= b.rank then
+        return a.rank > b.rank
+      end
+      return (a.since or now) < (b.since or now)
+    end)
+
+    return { workspaces = workspaces, attention = attention }
   end
 
   -- Statusline component: name the single worst blocked session and its age,
@@ -887,6 +1066,169 @@ function M.setup(config)
       return choices
     end
 
+    -- Build InputSelector choices from the session tree: a top "needs attention"
+    -- zone (actionable panes, urgency-ordered) then the workspace -> tab -> pane
+    -- tree as indented box-drawing rows. Each choice id encodes kind + target
+    -- (`hdr:`/`attn:`/`ws:`/`tab:`/`pane:`) so the dispatch is level-aware, and
+    -- `by_id` maps id -> the record needed to act. Slice 3 adds the filter path
+    -- tokens and the jump alphabet; here rows are human-readable and dispatchable.
+    -- Sanitize one path segment to a no-whitespace, no-separator token so a
+    -- `session/tab/agent` query matches as a fuzzy subsequence.
+    local function sanitize_seg(s)
+      return (tostring(s or ""):gsub("[%s/·|]+", "-"):gsub("^%-+", ""):gsub("%-+$", ""))
+    end
+
+    -- The matchable suffix appended (dimly, off to the right) to a row so
+    -- filtering "plays nicely": a `session/tab/agent` slash-path plus quick-filter
+    -- tokens (status word, repo). Contiguous ASCII so subsequence matching is
+    -- predictable. Every leaf carries its FULL ancestor path so a filter on an
+    -- ancestor name keeps the leaf after non-matching parent rows drop out.
+    local function match_suffix(ws, tab_title, proc, status, repo)
+      local segs = {}
+      for _, s in ipairs({ ws, tab_title, proc }) do
+        local t = sanitize_seg(s)
+        if t ~= "" then
+          segs[#segs + 1] = t
+        end
+      end
+      local tokens = {}
+      if status and status ~= "" then
+        tokens[#tokens + 1] = status
+      end
+      if repo and repo ~= "" then
+        tokens[#tokens + 1] = sanitize_seg(repo)
+      end
+      local out = "   " .. table.concat(segs, "/")
+      if #tokens > 0 then
+        out = out .. "  " .. table.concat(tokens, " ")
+      end
+      return out
+    end
+
+    local function session_tree_choices(tree, by_id)
+      local choices = {}
+      local now = os.time()
+      local function add(id, label, rec)
+        by_id[id] = rec or true
+        choices[#choices + 1] = { id = id, label = label }
+      end
+
+      -- Needs-attention zone: the actionable panes, urgency-ordered, each prefixed
+      -- with ⚠ (no separate header row so no jump label is wasted on a no-op).
+      for _, rec in ipairs(tree.attention) do
+        local icon = agent_state_icons[rec.status] or "●"
+        local parts = { rec.workspace }
+        if rec.tab_title ~= "" then
+          parts[#parts + 1] = rec.tab_title
+        end
+        if rec.title ~= "" then
+          parts[#parts + 1] = rec.title
+        end
+        local label = "⚠ " .. icon .. " " .. table.concat(parts, " · ")
+        if rec.reason ~= "" then
+          label = label .. " — " .. rec.reason
+        end
+        local age = rec.since and format_age(now - rec.since) or ""
+        if age ~= "" then
+          label = label .. " (" .. age .. ")"
+        end
+        label = label .. match_suffix(rec.workspace, rec.tab_title, rec.title, rec.status, rec.repo)
+        add("attn:" .. rec.pane_id, label, rec)
+      end
+
+      for _, ws in ipairs(tree.workspaces) do
+        local wsicon = (ws.status and agent_state_icons[ws.status]) or (ws.dormant and "○") or "●"
+        local wslabel = wsicon .. " " .. ws.name
+        if ws.dormant then
+          wslabel = wslabel .. "  (dormant)"
+        end
+        wslabel = wslabel .. match_suffix(ws.name, nil, nil, ws.status, nil)
+        add("ws:" .. ws.name, wslabel, { workspace = ws.name, dormant = ws.dormant })
+        for ti, tnode in ipairs(ws.tabs) do
+          local tlast = ti == #ws.tabs
+          local tbranch = tlast and "  └─ " or "  ├─ "
+          local tlabel = tbranch .. tnode.index .. "  " .. tnode.title
+          tlabel = tlabel .. match_suffix(ws.name, tnode.title, nil, nil, nil)
+          add("tab:" .. tnode.tab_id, tlabel, { pane_id = tnode.active_pane_id, workspace = ws.name })
+          for pi, rec in ipairs(tnode.panes) do
+            local pbranch = (tlast and "     " or "  │  ") .. (pi == #tnode.panes and "└─ " or "├─ ")
+            local seg
+            if rec.status then
+              seg = (agent_state_icons[rec.status] or "●") .. " " .. (rec.title ~= "" and rec.title or "pane")
+              if rec.reason ~= "" then
+                seg = seg .. " — " .. rec.reason
+              end
+            else
+              seg = "  " .. (rec.title ~= "" and rec.title or "pane")
+            end
+            local plabel = pbranch .. seg .. match_suffix(rec.workspace, rec.tab_title, rec.title, rec.status, rec.repo)
+            add("pane:" .. rec.pane_id, plabel, rec)
+          end
+        end
+      end
+
+      return choices
+    end
+
+    -- Level-aware activation for a selected tree node. pane/attn/tab all resolve
+    -- to activating an exact pane (a tab carries its active pane id), reusing
+    -- activate_agent_pane. A live workspace switches; a dormant seshy session
+    -- switches with its session dir as cwd (D7: the plugin exposes no public
+    -- switch-with-restore, so pane-layout restore is intentionally not performed
+    -- here). Header rows and since-closed targets no-op.
+    local function session_tree_dispatch(win, pane, id, by_id)
+      if not id then
+        return
+      end
+      local rec = by_id[id]
+      if type(rec) ~= "table" then
+        return
+      end
+      local kind = id:match("^([^:]+):")
+      if kind == "ws" and rec.dormant then
+        win:perform_action(
+          wezterm.action.SwitchToWorkspace({
+            name = rec.workspace,
+            spawn = { cwd = seshy_dir .. "/" .. rec.workspace },
+          }),
+          pane
+        )
+      elseif kind == "ws" then
+        win:perform_action(wezterm.action.SwitchToWorkspace({ name = rec.workspace }), pane)
+      else
+        activate_agent_pane(win, pane, rec)
+      end
+    end
+
+    -- Open the all-in-one session tree picker. Opens in label-jump mode
+    -- (`fuzzy = false`): each row shows a home-row-first quick-select label
+    -- (leap/flash-style), needs-attention + live panes first so they get the
+    -- easiest keys. `/` switches to fuzzy filtering against the embedded
+    -- `session/tab/agent` path + tokens (WezTerm's toggle key, not configurable).
+    -- Alphabet omits j/k (the widget reserves them for up/down movement).
+    local session_tree_alphabet = "asdfghlqwertyuiopzxcvbnm"
+    local function open_session_tree(win, pane)
+      local tree = session_tree(sy_bin)
+      local by_id = {}
+      local choices = session_tree_choices(tree, by_id)
+      if #choices == 0 then
+        return
+      end
+      win:perform_action(
+        wezterm.action.InputSelector({
+          title = "Session tree",
+          choices = choices,
+          fuzzy = false,
+          alphabet = session_tree_alphabet,
+          fuzzy_description = "jump to session · tab · pane: ",
+          action = wezterm.action_callback(function(inner_win, inner_pane, id, _label)
+            session_tree_dispatch(inner_win, inner_pane, id, by_id)
+          end),
+        }),
+        pane
+      )
+    end
+
     wm.session_enabled = true
     -- Always launch (and relaunch after quit) into the "default" workspace
     -- rather than auto-restoring the most-recently-used session. With this
@@ -924,9 +1266,12 @@ function M.setup(config)
       end
     end
 
-    -- SUPER+s opens the switcher. Bound here (not keybindings.lua) because it
-    -- needs this configured wm instance; mirrors the locked-mode passthrough the
-    -- other smart keybinds use. ssh moved to SUPER+SHIFT+s.
+    -- SUPER+s opens the all-in-one session tree (workspace → tab → pane → agent
+    -- state; label-jump default, `/` to filter by `session/tab/agent`). Bound
+    -- here (not keybindings.lua) because it needs this configured wm instance and
+    -- the tree helpers in scope; mirrors the locked-mode passthrough the other
+    -- smart keybinds use. ssh is SUPER+SHIFT+s (keybindings.lua). The plain
+    -- workspace switcher stays reachable via the command palette below.
     config.keys = config.keys or {}
     table.insert(config.keys, {
       key = "s",
@@ -936,14 +1281,20 @@ function M.setup(config)
           win:perform_action({ SendKey = { key = "s", mods = "SUPER" } }, pane)
           return
         end
-        win:perform_action(wm.workspace_switcher(), pane)
+        open_session_tree(win, pane)
       end),
     })
 
-    -- Also expose the switcher through the command palette (reachable via the
-    -- existing SUPER+: / SUPER+; / CTRL+; palette bindings).
+    -- Command palette (reachable via SUPER+: / SUPER+; / CTRL+;): the tree, the
+    -- plain workspace switcher, and previous-workspace.
     wezterm.on("augment-command-palette", function(_window, _pane)
       return {
+        {
+          brief = "Session tree",
+          action = wezterm.action_callback(function(win, pane)
+            open_session_tree(win, pane)
+          end),
+        },
         {
           brief = "Switch seshy session / workspace",
           action = wm.workspace_switcher(),
@@ -956,9 +1307,11 @@ function M.setup(config)
     end)
   end
 
-  -- Agent jump + picker. Bound here (not keybindings.lua) because they need the
-  -- rollup helpers in scope, mirroring the SUPER+s switcher above; both honor the
-  -- locked-mode passthrough. `CTRL+g` (locked-mode toggle) is unaffected.
+  -- Agent express jump. Bound here (not keybindings.lua) because it needs the
+  -- rollup helpers in scope, mirroring the SUPER+s switcher above; honors the
+  -- locked-mode passthrough. `CTRL+g` (locked-mode toggle) is unaffected. The
+  -- former SUPER+SHIFT+g blocked-pane picker is retired — the SUPER+s session
+  -- tree (needs-attention zone + pane nodes) subsumes it.
   config.keys = config.keys or {}
 
   -- SUPER+g: jump straight to the single worst blocked pane across all
@@ -972,77 +1325,6 @@ function M.setup(config)
         return
       end
       activate_agent_pane(win, pane, worst_agent_pane())
-    end),
-  })
-
-  -- SUPER+SHIFT+g: pick from every blocked pane (session · repo · agent · reason
-  -- · age), urgency-ordered. Selecting one jumps to it; a since-closed pane
-  -- no-ops on activation.
-  table.insert(config.keys, {
-    key = "g",
-    mods = "SUPER|SHIFT",
-    action = wezterm.action_callback(function(win, pane)
-      if keybindings.locked_mode then
-        win:perform_action({ SendKey = { key = "g", mods = "SUPER|SHIFT" } }, pane)
-        return
-      end
-      local _, panes = agent_session_states()
-      local now = os.time()
-      local list = {}
-      for _, rec in ipairs(panes) do
-        if rec.rank >= agent_state_rank.working then
-          list[#list + 1] = rec
-        end
-      end
-      if #list == 0 then
-        return
-      end
-      table.sort(list, function(a, b)
-        if a.rank ~= b.rank then
-          return a.rank > b.rank
-        end
-        return (a.since or now) < (b.since or now)
-      end)
-
-      local by_id = {}
-      local choices = {}
-      for _, rec in ipairs(list) do
-        by_id[tostring(rec.pane_id)] = rec
-        local icon = agent_state_icons[rec.status] or "●"
-        local parts = {}
-        if rec.workspace ~= "" then
-          parts[#parts + 1] = rec.workspace
-        end
-        if rec.repo ~= "" then
-          parts[#parts + 1] = rec.repo
-        end
-        if rec.agent ~= "" then
-          parts[#parts + 1] = rec.agent
-        end
-        local label = icon .. " " .. table.concat(parts, " · ")
-        if rec.reason ~= "" then
-          label = label .. " — " .. rec.reason
-        end
-        local age = rec.since and format_age(now - rec.since) or ""
-        if age ~= "" then
-          label = label .. " (" .. age .. ")"
-        end
-        choices[#choices + 1] = { id = tostring(rec.pane_id), label = label }
-      end
-
-      win:perform_action(
-        wezterm.action.InputSelector({
-          title = "Jump to blocked agent",
-          choices = choices,
-          action = wezterm.action_callback(function(inner_win, inner_pane, id, _label)
-            if not id then
-              return
-            end
-            activate_agent_pane(inner_win, inner_pane, by_id[id])
-          end),
-        }),
-        pane
-      )
     end),
   })
 end
