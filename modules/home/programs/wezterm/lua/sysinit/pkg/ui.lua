@@ -263,29 +263,26 @@ function M.setup(config)
     }
   end
 
-  -- Smart display path: replaces noisy parent dirs with short env-var-style tokens.
-  --   ~/.local/state/seshy/sessions/<s>[/rest] → $SESHY[/rest]  (session prefix stripped; rest = repo[/sub])
-  --   ~/github/<tier>/<org>/<repo>[/sub]        → $REPOS/<repo>[/sub]
-  --   ~[/rest]                                  → ~[/rest]
+  -- Smart display path: strips noisy parent dirs, returns just the meaningful part.
+  --   ~/github/<tier>/<org>/<repo>[/sub]            → <repo>[/sub]
+  --   ~/.local/state/seshy/sessions/<s>/<rest>      → <rest>  (rest = repo[/sub] after session/)
+  --   ~/.local/state/seshy/sessions/<s>  (root)     → ""  (session name already in workspace row)
+  --   ~[/rest]                                       → ~[/rest]
   local function smart_path(full_cwd)
     if not full_cwd or full_cwd == "" then return "" end
     local home = os.getenv("HOME") or ""
-    -- Seshy: strip up through <session>/ and prefix with $SESHY
+    -- Seshy: strip sessions/<session>/, show remaining repo[/subpath]
     local seshy_base = home .. "/.local/state/seshy/sessions"
     if full_cwd == seshy_base or full_cwd:sub(1, #seshy_base + 1) == seshy_base .. "/" then
-      local after = full_cwd:sub(#seshy_base + 2)  -- everything after "sessions/"
-      -- strip just the session name (one segment), show remainder
-      local rest = after:match("^[^/]+/(.+)$")
-      if rest and rest ~= "" then return "$SESHY/" .. rest end
-      return "$SESHY"  -- at session root or exactly the sessions dir
+      local after = full_cwd:sub(#seshy_base + 2)  -- "<session>[/rest]"
+      local rest = after:match("^[^/]+/(.+)$")      -- strip session name
+      return rest or ""                              -- "" when at session root
     end
-    -- GitHub: ~/github/<tier>/<org>/<repo>[/sub] → $REPOS/<repo>[/sub]
+    -- GitHub: ~/github/<tier>/<org>/<repo>[/sub] → <repo>[/sub]
     local gh_base = home .. "/github/"
     if full_cwd:sub(1, #gh_base) == gh_base then
       local rest = full_cwd:sub(#gh_base + 1)           -- "<tier>/<org>/<repo>[/sub]"
-      local repo_sub = rest:match("^[^/]+/[^/]+/(.+)$") -- strip <tier>/<org>/
-      if repo_sub then return "$REPOS/" .. repo_sub end
-      return "$REPOS"
+      return rest:match("^[^/]+/[^/]+/(.+)$") or rest   -- strip <tier>/<org>/
     end
     -- Home-relative fallback
     if full_cwd == home then return "~" end
@@ -1426,34 +1423,19 @@ function M.setup(config)
           for ti, tnode in ipairs(ws.tabs) do
             local tlast = ti == #ws.tabs
             local tbranch = tlast and "  └─ " or "  ├─ "
-            -- tab row: chrome + tab icon + smart label + active-pane context (path, branch)
-            local active_rec
-            for _, pr in ipairs(tnode.panes) do
-              if pr.pane_id == tnode.active_pane_id then active_rec = pr; break end
-            end
+            -- tab row: chrome + tab icon + <badge>  proc
             local tab_r = ribbon.new("tab", true)
             tab_r:append(nil, colors.chrome, tbranch)
             tab_r:append(nil, colors.ws_live, tree_icons.tab .. " ")
-            tab_r:append(nil, colors.name, tnode.title)
-            -- inline active-pane context: smart path when in a subdirectory, git branch
-            if active_rec then
-              local dp = smart_path(active_rec.cwd)
-              if dp ~= "" and dp ~= active_rec.repo then
-                tab_r:append(nil, colors.dir_ic, "  " .. tree_icons.folder .. " ")
-                tab_r:append(nil, colors.name, dp)
-              end
-              if active_rec.branch then
-                tab_r:append(nil, colors.age, "  " .. tree_icons.branch .. " " .. active_rec.branch)
-                if active_rec.dirty then tab_r:append(nil, colors.working, "*") end
-              end
-            end
             if tnode.active_pane_id then
               local bc = pane_badge_color(tnode.active_pane_id, colors)
               if bc then
-                tab_r:append(nil, colors.chrome, "  ")
+                tab_r:append(nil, colors.chrome, "<")
                 tab_r:append(nil, bc, pane_badge(tnode.active_pane_id))
+                tab_r:append(nil, colors.chrome, ">  ")
               end
             end
+            tab_r:append(nil, colors.name, tnode.title)
             add("tab:" .. tnode.tab_id, tab_r:format(), { pane_id = tnode.active_pane_id, workspace = ws.name })
 
             for pi, rec in ipairs(tnode.panes) do

@@ -142,20 +142,6 @@ in
             ];
           }
         ];
-        # Tool returned — still working (back to thinking) until the next tool
-        # or the turn ends.
-        PostToolUse = [
-          {
-            matcher = "";
-            hooks = [
-              {
-                type = "command";
-                command = "${profileBin}/agent-state claude working thinking";
-                async = true;
-              }
-            ];
-          }
-        ];
         SessionEnd = [
           {
             matcher = "";
@@ -175,9 +161,9 @@ in
             ];
           }
         ];
-        # Permission prompts and idle waits: agent-notify reads the event JSON on
-        # stdin and refines the generic "attention" into approval/idle from the
-        # notification message itself.
+        # Informational notifications (dangerouslySkipPermissions skips all approvals
+        # so Notification never fires for tool consent). Only fire the desktop alert;
+        # do NOT set waiting state — the agent is still working, not blocked.
         Notification = [
           {
             matcher = "";
@@ -185,11 +171,6 @@ in
               {
                 type = "command";
                 command = "${profileBin}/agent-prompt claude attention ${profileBin}/agent-focus";
-                async = true;
-              }
-              {
-                type = "command";
-                command = "${profileBin}/agent-state claude waiting message";
                 async = true;
               }
             ];
