@@ -263,29 +263,29 @@ function M.setup(config)
     }
   end
 
-  -- Smart display path: strips noisy prefixes so only meaningful segments show.
-  -- ~/github/<tier>/<org>/<repo>[/sub] → <repo>[/sub]
-  -- seshy worktree ~/.local/state/seshy/sessions/<s>/<org>/<repo>[/sub] → <repo>[/sub]
-  -- ~/anything → ~/anything
+  -- Smart display path: replaces noisy parent dirs with short env-var-style tokens.
+  --   ~/.local/state/seshy/sessions/<s>[/rest] → $SESHY[/rest]  (session prefix stripped; rest = repo[/sub])
+  --   ~/github/<tier>/<org>/<repo>[/sub]        → $REPOS/<repo>[/sub]
+  --   ~[/rest]                                  → ~[/rest]
   local function smart_path(full_cwd)
     if not full_cwd or full_cwd == "" then return "" end
     local home = os.getenv("HOME") or ""
-    -- Seshy worktree: strip up to and including <session>/<org>/
-    local seshy_base = home .. "/.local/state/seshy/sessions/"
-    if full_cwd:sub(1, #seshy_base) == seshy_base then
-      local rest = full_cwd:sub(#seshy_base + 1)  -- "<session>/<org>/<repo>[/sub]"
-      local repo_sub = rest:match("^[^/]+/[^/]+/(.+)$")  -- strip <session>/<org>/
-      if repo_sub then return repo_sub end
-      local repo_only = rest:match("^[^/]+/[^/]+/([^/]+)$")
-      if repo_only then return repo_only end
+    -- Seshy: strip up through <session>/ and prefix with $SESHY
+    local seshy_base = home .. "/.local/state/seshy/sessions"
+    if full_cwd == seshy_base or full_cwd:sub(1, #seshy_base + 1) == seshy_base .. "/" then
+      local after = full_cwd:sub(#seshy_base + 2)  -- everything after "sessions/"
+      -- strip just the session name (one segment), show remainder
+      local rest = after:match("^[^/]+/(.+)$")
+      if rest and rest ~= "" then return "$SESHY/" .. rest end
+      return "$SESHY"  -- at session root or exactly the sessions dir
     end
-    -- GitHub: ~/github/<tier>/<org>/<repo>[/sub] → <repo>[/sub]
+    -- GitHub: ~/github/<tier>/<org>/<repo>[/sub] → $REPOS/<repo>[/sub]
     local gh_base = home .. "/github/"
     if full_cwd:sub(1, #gh_base) == gh_base then
-      local rest = full_cwd:sub(#gh_base + 1)  -- "<tier>/<org>/<repo>[/sub]"
-      local repo_sub = rest:match("^[^/]+/[^/]+/(.+)$")  -- strip <tier>/<org>/
-      if repo_sub then return repo_sub end
-      return rest
+      local rest = full_cwd:sub(#gh_base + 1)           -- "<tier>/<org>/<repo>[/sub]"
+      local repo_sub = rest:match("^[^/]+/[^/]+/(.+)$") -- strip <tier>/<org>/
+      if repo_sub then return "$REPOS/" .. repo_sub end
+      return "$REPOS"
     end
     -- Home-relative fallback
     if full_cwd == home then return "~" end
@@ -1275,10 +1275,12 @@ function M.setup(config)
       local crumb = rec.workspace
       if rec.tab_title ~= "" then crumb = crumb .. " · " .. rec.tab_title end
       r:append(nil, colors.name, crumb, "Bold")
-      -- dir (cwd basename), if different from tab_title
-      if rec.repo ~= "" and rec.repo ~= rec.tab_title then
+      -- path: smart path, shown when it adds context beyond what breadcrumb already has
+      local attn_dp = smart_path(rec.cwd)
+      if attn_dp == "" then attn_dp = rec.repo end
+      if attn_dp ~= "" and attn_dp ~= rec.tab_title then
         r:append(nil, colors.dir_ic, "  " .. tree_icons.folder .. " ")
-        r:append(nil, colors.name, rec.repo)
+        r:append(nil, colors.name, attn_dp)
       end
       -- proc icon via sigil, then proc name
       if rec.title ~= "" then
@@ -1452,32 +1454,34 @@ function M.setup(config)
                 tab_r:append(nil, bc, pane_badge(tnode.active_pane_id))
               end
             end
-            tab_r:append(nil, colors.ghost, match_suffix(ws.name, nil, nil, nil, nil), "Italic")
             add("tab:" .. tnode.tab_id, tab_r:format(), { pane_id = tnode.active_pane_id, workspace = ws.name })
 
             for pi, rec in ipairs(tnode.panes) do
               local pbranch = (tlast and "     " or "  │  ")
                 .. (pi == #tnode.panes and "└─ " or "├─ ")
-              -- pane row: info priority = dir (smart path) → proc → git → agent state
+              -- pane row: proc → path → branch → status+age → badge
               local pane_r = ribbon.new("pane", true)
               pane_r:append(nil, colors.chrome, pbranch)
-              -- dir: smart path (repo/subdir context, not raw basename)
-              local pane_dp = smart_path(rec.cwd)
-              if pane_dp == "" then pane_dp = rec.repo end
-              if pane_dp ~= "" then
-                pane_r:append(nil, colors.dir_ic, tree_icons.folder .. " ")
-                pane_r:append(nil, colors.name, pane_dp)
-              end
-              -- proc: sigil icon + name (skip if same as tab label to avoid repetition)
+              -- proc: sigil icon + name
               local proc = rec.title ~= "" and rec.title or nil
               if proc then
                 if sigil_ok then
                   local proc_items = sigil.items(proc, { fallback = true, padding = "left", reset = true })
                   pane_r:append_items(proc_items)
-                else
-                  pane_r:append(nil, nil, "  ")
                 end
                 pane_r:append(nil, colors.name, " " .. proc)
+              end
+              -- path: smart path with env-var prefix ($SESHY/$REPOS/~)
+              local pane_dp = smart_path(rec.cwd)
+              if pane_dp == "" then pane_dp = rec.repo end
+              if pane_dp ~= "" then
+                pane_r:append(nil, colors.dir_ic, "  " .. tree_icons.folder .. " ")
+                pane_r:append(nil, colors.name, pane_dp)
+              end
+              -- branch + dirty (agent-active panes only, from state file)
+              if rec.branch then
+                pane_r:append(nil, colors.age, "  " .. tree_icons.branch .. " " .. rec.branch)
+                if rec.dirty then pane_r:append(nil, colors.working, "*") end
               end
               -- agent state: status icon + label + meaningful reason + age
               if rec.status then
@@ -1495,22 +1499,14 @@ function M.setup(config)
                   if p_show_reason then parts[#parts + 1] = rec.reason end
                   pane_r:append(nil, colors.reason, " " .. table.concat(parts, " · "))
                 end
-                if age ~= "" then
-                  pane_r:append(nil, colors.age, " " .. age)
-                end
+                if age ~= "" then pane_r:append(nil, colors.age, " " .. age) end
               end
-              -- git: branch + dirty flag (only for agent-active panes with state files)
-              if rec.branch then
-                pane_r:append(nil, colors.age, "  " .. tree_icons.branch .. " " .. rec.branch)
-                if rec.dirty then pane_r:append(nil, colors.working, "*") end
-              end
-              -- pane badge: colored pet name — cross-referenceable with tab title
+              -- badge
               local bc = pane_badge_color(rec.pane_id, colors)
               if bc then
                 pane_r:append(nil, colors.chrome, "  ")
                 pane_r:append(nil, bc, pane_badge(rec.pane_id))
               end
-              pane_r:append(nil, colors.ghost, match_suffix(rec.workspace, rec.tab_title, nil, nil, nil), "Italic")
               add("pane:" .. rec.pane_id, pane_r:format(), rec)
             end
           end
