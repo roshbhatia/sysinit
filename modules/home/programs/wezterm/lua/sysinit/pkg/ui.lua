@@ -772,7 +772,35 @@ function M.setup(config)
       age      = b[1] or a[8] or "#565f89",                     -- dim — timestamps
       chrome   = b[1] or a[1] or "#3b4261",                     -- very dim — tree lines
       ghost    = pal.background or "#16161e",                    -- near-bg — invisible match suffix
+      brights  = b,                                              -- raw array for badge color slots
     }
+  end
+
+  -- Deterministic pane identity: hash pane_id → adjective-noun name and a
+  -- brights palette slot (1-8). Same id yields the same name+color on every
+  -- surface that renders it (tab title, session tree, statusline), so panes
+  -- are cross-referenceable by color and name without counting positions.
+  local BADGE_ADJ  = { "amber", "coral", "dusty", "ember", "frost", "gilded", "hazy", "ivory" }
+  local BADGE_NOUN = { "bear",  "crane", "deer",  "elk",   "fox",   "hawk",   "koi",  "lynx"  }
+
+  local function pane_badge(pane_id)
+    local idx = pane_id % 64
+    return BADGE_ADJ[math.floor(idx / 8) + 1] .. "-" .. BADGE_NOUN[(idx % 8) + 1]
+  end
+
+  -- Return the brights color for a pane (uses slot 1-8, wraps via %).
+  -- `brights` is the raw array from tree_colors(); `cfg_colors` is
+  -- config.colors from a format-tab-title context (no win available there).
+  local function pane_badge_color(pane_id, brights_or_cfg)
+    local slot = (pane_id % 8) + 1
+    if type(brights_or_cfg) == "table" then
+      -- tree_colors().brights or cfg.colors.brights
+      local b = brights_or_cfg.brights or brights_or_cfg
+      if type(b) == "table" then
+        return b[slot]
+      end
+    end
+    return nil
   end
 
   -- lantern: runtime appearance picker (colorschemes, fonts, GPU, opacity, …).
@@ -854,26 +882,23 @@ function M.setup(config)
     })
   end
 
-  -- Smart tab titles: a sigil process icon + a meaningful label, never empty
-  -- and never the bare word "zsh". Label precedence is OSC-2 title (oh-my-posh
-  -- emits the folder for shells; TUIs like Claude emit their own summary) ->
-  -- cwd basename -> process name. No app-specific slugging: programs that set
-  -- an OSC title own their label verbatim.
+  -- Smart tab titles using ribbon + sigil. Info priority: dir > proc > OSC title.
+  -- Badge (colored pet name) appended at the end so panes are cross-referenceable
+  -- with the session tree without counting positions.
+  -- Zoom indicator prepended when the active pane is zoomed.
   local SHELLS = { zsh = true, bash = true, fish = true, sh = true, ["-zsh"] = true }
 
-  wezterm.on("format-tab-title", function(tab, _tabs, _panes, _config, _hover, _max_width)
+  wezterm.on("format-tab-title", function(tab, _tabs, _panes, cfg, _hover, _max_width)
     -- format-tab-title hands us TabInformation/PaneInformation structs (fields),
     -- NOT MuxTab/Pane objects (methods). Calling methods here throws and aborts
     -- the handler, dropping WezTerm back to its default tab text.
     local pane = tab.active_pane
     local explicit = tab.tab_title -- set via tab:set_title(), else ""
-    local osc = pane and pane.title -- the pane's OSC-2 title
+    local osc = pane and pane.title
     local proc = pane and pane.foreground_process_name
-    if proc then
-      proc = proc:match("([^/]+)$")
-    end
+    if proc then proc = proc:match("([^/]+)$") end
 
-    -- A user- (or program-) set, non-numeric tab title always wins.
+    -- A user- (or program-) set, non-numeric tab title always wins (no badge).
     if explicit and explicit ~= "" and not explicit:match("^%d+$") then
       return explicit
     end
@@ -891,29 +916,48 @@ function M.setup(config)
       end
     end
 
-    -- Pick the label. Prefer the OSC-2 title when it carries real info, but
-    -- WezTerm defaults pane.title to the bare process name ("zsh") when nothing
-    -- sets an OSC title -- skip that and fall back to the cwd folder so a shell
-    -- pane shows its directory rather than the word "zsh".
+    -- Primary label. Dir is preferred for shells (they set no useful OSC title);
+    -- TUIs (nvim, claude, htop…) set their own OSC-2 title which wins over dir.
     local label
     if osc and osc ~= "" and not osc:match("^%d+$") and not SHELLS[osc:lower()] then
       label = osc
     end
     label = label or dir or proc or "shell"
 
-    -- Prefix a sigil process icon when one is known (reset=true so the icon's
-    -- color doesn't bleed into the label). Unknown procs (fallback=false)
-    -- render the label alone.
-    if proc and sigil_ok and ribbon_ok then
+    if not (sigil_ok and ribbon_ok) then
+      return label
+    end
+
+    local r = ribbon.new("tab")
+
+    -- Zoom indicator: active pane is filling the window.
+    if pane and pane.is_zoomed then
+      r:append(nil, nil, nf.md_dock_window and (nf.md_dock_window .. " ") or "⊞ ")
+    end
+
+    -- Process icon via sigil (fallback=false: skip unknown procs, no mystery glyph).
+    if proc then
       local icon_items = sigil.items(proc, { padding = "right", fallback = false, reset = true })
       if icon_items and #icon_items > 0 then
-        local r = ribbon.new("tab")
         r:append_items(icon_items)
-        r:append(nil, nil, label)
-        return r:items()
       end
     end
-    return label
+
+    -- Main label (dir / OSC title).
+    r:append(nil, nil, label)
+
+    -- Active-pane badge: colored pet name for cross-referencing with session tree.
+    if pane and pane.pane_id then
+      local pid = pane.pane_id
+      local brights = cfg and cfg.colors and cfg.colors.brights or {}
+      local bc = brights[(pid % 8) + 1]
+      if bc then
+        r:append(nil, "#3b4261", "  ")
+        r:append(nil, bc, pane_badge(pid))
+      end
+    end
+
+    return r:items()
   end)
 
   -- Hyperlink rules: start with defaults, then add custom patterns
@@ -1187,6 +1231,12 @@ function M.setup(config)
       if age ~= "" then
         r:append(nil, colors.age, " (" .. age .. ")")
       end
+      -- pane badge: colored pet name for cross-referencing
+      local bc = pane_badge_color(rec.pane_id, colors)
+      if bc then
+        r:append(nil, colors.chrome, "  ")
+        r:append(nil, bc, pane_badge(rec.pane_id))
+      end
       -- ghost suffix for fuzzy search
       r:append(nil, colors.ghost, match_suffix(rec.workspace, rec.tab_title, rec.title, rec.status, rec.repo))
       return r:format()
@@ -1268,11 +1318,18 @@ function M.setup(config)
           for ti, tnode in ipairs(ws.tabs) do
             local tlast = ti == #ws.tabs
             local tbranch = tlast and "  └─ " or "  ├─ "
-            -- tab row: tree chrome + tab icon + smart label (dir/OSC title)
+            -- tab row: tree chrome + tab icon + smart label + active-pane badge
             local tab_r = ribbon.new("tab", true)
             tab_r:append(nil, colors.chrome, tbranch)
             tab_r:append(nil, colors.ws_live, tree_icons.tab .. " ")
             tab_r:append(nil, colors.name, tnode.title)
+            if tnode.active_pane_id then
+              local bc = pane_badge_color(tnode.active_pane_id, colors)
+              if bc then
+                tab_r:append(nil, colors.chrome, "  ")
+                tab_r:append(nil, bc, pane_badge(tnode.active_pane_id))
+              end
+            end
             tab_r:append(nil, colors.ghost, match_suffix(ws.name, tnode.title, nil, nil, nil))
             add("tab:" .. tnode.tab_id, tab_r:format(), { pane_id = tnode.active_pane_id, workspace = ws.name })
 
@@ -1312,6 +1369,12 @@ function M.setup(config)
                 if age ~= "" then
                   pane_r:append(nil, colors.age, " (" .. age .. ")")
                 end
+              end
+              -- pane badge: colored pet name — cross-referenceable with tab title
+              local bc = pane_badge_color(rec.pane_id, colors)
+              if bc then
+                pane_r:append(nil, colors.chrome, "  ")
+                pane_r:append(nil, bc, pane_badge(rec.pane_id))
               end
               pane_r:append(nil, colors.ghost, match_suffix(rec.workspace, rec.tab_title, rec.title, rec.status, rec.repo))
               add("pane:" .. rec.pane_id, pane_r:format(), rec)
