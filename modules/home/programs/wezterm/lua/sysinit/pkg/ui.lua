@@ -271,12 +271,11 @@ function M.setup(config)
   local function smart_path(full_cwd)
     if not full_cwd or full_cwd == "" then return "" end
     local home = os.getenv("HOME") or ""
-    -- Seshy: ~/.local/state/seshy/sessions/<session>[/rest] → {sy}[/rest]
+    -- Seshy: ~/.local/state/seshy/sessions/<session>[/rest] → {sy}/<session>[/rest]
     local seshy_base = home .. "/.local/state/seshy/sessions"
     if full_cwd == seshy_base or full_cwd:sub(1, #seshy_base + 1) == seshy_base .. "/" then
       local after = full_cwd:sub(#seshy_base + 2)  -- "<session>[/rest]"
-      local rest = after:match("^[^/]+/(.+)$")      -- strip session name
-      return rest and ("{sy}/" .. rest) or "{sy}"
+      return after ~= "" and ("{sy}/" .. after) or "{sy}"
     end
     -- GitHub: ~/github/<tier>/<org>/<repo>[/sub] → {gh}/<repo>[/sub]
     local gh_base = home .. "/github/"
@@ -1426,18 +1425,11 @@ function M.setup(config)
           for ti, tnode in ipairs(ws.tabs) do
             local tlast = ti == #ws.tabs
             local tbranch = tlast and "  └─ " or "  ├─ "
-            -- tab row: chrome + tab icon + <badge>  proc
+            -- tab row: chrome + tab icon + index  |  title
             local tab_r = ribbon.new("tab")
             tab_r:append(nil, colors.chrome, tbranch)
             tab_r:append(nil, colors.ws_live, tree_icons.tab .. " ")
-            if tnode.active_pane_id then
-              local bc = pane_badge_color(tnode.active_pane_id, colors)
-              if bc then
-                tab_r:append(nil, colors.chrome, "<")
-                tab_r:append(nil, bc, pane_badge(tnode.active_pane_id))
-                tab_r:append(nil, colors.chrome, ">")
-              end
-            end
+            tab_r:append(nil, colors.chrome, tostring(ti))
             tab_r:append(nil, colors.chrome, "  |  ")
             tab_r:append(nil, colors.name, tnode.title)
             add("tab:" .. tnode.tab_id, tab_r:format(), { pane_id = tnode.active_pane_id, workspace = ws.name })
