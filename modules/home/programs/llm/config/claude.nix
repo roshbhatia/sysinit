@@ -8,7 +8,7 @@ let
   llmLib = import ../lib { inherit lib; };
   kit = llmLib.harnessKit.mkKit { inherit lib pkgs config; };
 
-  notify = import ./notify.nix { inherit pkgs lib config; };
+  notify = import ./notify.nix { inherit pkgs lib; };
 
   defaultInstructions = kit.mkInstructions "~/.claude/skills";
 

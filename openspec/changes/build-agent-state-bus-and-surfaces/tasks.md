@@ -118,20 +118,21 @@
   --sound/--group/--app-icon/--content-image/--timeout/--json`), NOT the classic
   `-appIcon`. (The interactive Accept/Deny run is the human's live step, 7.3.)
 - [x] 6.3 Added `agent-prompt.sh` (concatenated with the shared identity resolver +
-  a baked `RELAY_ENABLED`/`NOTIFY_EXE` preamble in `notify.nix` as `promptScript`,
+  a baked `NOTIFY_EXE` preamble in `notify.nix` as `promptScript`,
   exported `promptExe`). For genuine approval events it launches `alerter` detached
   with `Accept,Deny` actions, per-harness `--app-icon`/`--content-image`, per-agent
   `--group`, `session · repo` `--subtitle`, `--sound Funk`, `--timeout 300`; the
-  hook backgrounds+disowns the waiter and returns immediately. Any miss (relay off,
-  no alerter, non-approval reason, no keymap, no pane) degrades to the exact plain
+  hook backgrounds+disowns the waiter and returns immediately. Any miss
+  (no alerter, non-approval reason, no keymap, no pane) degrades to the exact plain
   `agent-notify` toast (click-to-focus preserved) via `NOTIFY_EXE`.
 - [x] 6.4 The detached waiter reads alerter's stdout and relays via `wezterm cli
   send-text --no-paste --pane-id`: `Accept`→approve keys, `Deny`→reject keys;
   `@TIMEOUT`/`@CLOSED`/`@CONTENTCLICKED`/empty are no-ops. Per-agent keymap
   (best-effort, tunable): claude approve=`\r`/reject=`\033`, codex approve=`y`/
-  reject=`n`; an agent with no keymap never takes the actionable path. Whole relay
-  gated behind `sysinit.llm.notifications.actionableRelay` (new option, default
-  false — the kill switch, baked into the script at build time).
+  reject=`n`; an agent with no keymap never takes the actionable path. The relay
+  is always on: the initial `sysinit.llm.notifications.actionableRelay` kill-switch
+  option was removed per user direction (post-rollout) so approvals go actionable
+  by default — no toggle, no `RELAY_ENABLED` bake.
 - [x] 6.5 Wired `promptExe` into `claude.nix` Notification (`claude attention`) and
   `codex.nix` PermissionRequest (`codex approval`); threaded `config` into
   `notify.nix` at all three import sites (default/claude/codex). All existing
@@ -156,8 +157,8 @@
   `env -u XDG_CONFIG_HOME brew trust slp/krunkit && … --formula slp/krunkit/virglrenderer`.
   Post-switch: live `~/.claude/settings.json` now carries the new hook set
   (`Notification` → `agent-prompt claude attention …`), and `alerter-26.5`
-  (Mach-O arm64) is on the wrapper PATH. `RELAY_ENABLED=0` baked in (kill switch
-  off by default).
+  (Mach-O arm64) is on the wrapper PATH. (The kill-switch option was later
+  removed at user direction — the relay is now always on; see 6.4.)
 - [ ] 7.3 Confirm (human, live): state files under
   `~/.local/state/agents/panes/`; `SUPER+g`/`SUPER+SHIFT+g` jump; per-tab icons;
   richer switcher/statusline; with the relay toggle on, Accept approves and Deny

@@ -10,14 +10,8 @@
 {
   pkgs,
   lib,
-  config,
 }:
 let
-  # Kill switch for the actionable permission relay (agent-prompt). Baked into
-  # the prompt script so flipping the option and rebuilding is the only way to
-  # arm/disarm the keystroke relay — no runtime env dependency.
-  relayEnabled = config.sysinit.llm.notifications.actionableRelay;
-
   icon =
     name: url: hash:
     pkgs.fetchurl {
@@ -112,11 +106,10 @@ let
     ]
     ++ lib.optionals pkgs.stdenv.isDarwin [ pkgs.alerter ];
     bashOptions = [ ];
-    # Preamble bakes the kill switch and the fallback notifier path; then the
-    # shared identity resolver; then the script body — one combined unit so
-    # shellcheck validates it whole.
+    # Preamble bakes the fallback notifier path; then the shared identity
+    # resolver; then the script body — one combined unit so shellcheck validates
+    # it whole.
     text = ''
-      RELAY_ENABLED=${if relayEnabled then "1" else "0"}
       NOTIFY_EXE=${lib.getExe script}
     ''
     + "\n"

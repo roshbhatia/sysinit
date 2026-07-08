@@ -14,13 +14,12 @@
 #                click-to-focus is preserved when the actionable path is skipped.
 #
 # Baked in by notify.nix at build time (see the preamble prepended there):
-#   RELAY_ENABLED   "1" when sysinit.llm.notifications.actionableRelay is on
 #   NOTIFY_EXE      absolute path to agent-notify (the fallback path)
 #
 # Best-effort by contract: never blocks or fails the agent. No strict mode,
 # every external call guarded, always exits 0. When the actionable path does not
-# apply — relay disabled, no alerter, non-approval event, or an agent with no
-# keymap — it degrades to the exact plain-notifier behavior it replaced.
+# apply — no alerter, non-approval event, or an agent with no keymap — it
+# degrades to the exact plain-notifier behavior it replaced.
 
 agent=${1:-agent}
 reason=${2:-attention}
@@ -82,13 +81,11 @@ pane=${WEZTERM_PANE:-}
 alerter=$(command -v alerter 2> /dev/null || true)
 
 # Gates for the actionable path — any miss falls back to click-to-focus only:
-#   - relay toggle on (the kill switch)
 #   - alerter present (macOS-only, optional)
 #   - a real approval event (never nag Accept/Deny for idle/done)
 #   - a known relay keymap for this agent
 #   - a pane to relay into
-if [ "${RELAY_ENABLED:-0}" != "1" ] ||
-  [ -z "$alerter" ] ||
+if [ -z "$alerter" ] ||
   [ "$eff_reason" != "approval" ] ||
   [ -z "$approve_keys" ] ||
   [ -z "$pane" ]; then
