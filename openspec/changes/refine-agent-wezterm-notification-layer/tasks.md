@@ -66,6 +66,24 @@
 - [ ] 8.3 Confirm (human, live): open `SUPER+s`; hint line appears in title bar.
   `Ctrl+B/G/D/A` filter correctly; each filtered view shows which filter is active.
 
+## 10. Session tree UX improvements (capability: session-tree-switcher)
+
+- [x] 10.1 Badge color in `format-tab-title` updated to use `pane_badge_color(pid, cfg.colors)`
+  instead of inline brights-slot arithmetic — consistent with the session tree.
+- [x] 10.2 `ws.last_active` tracking: each workspace now records the max `since` across its panes.
+- [x] 10.3 Recency sort: live workspaces in the "all" and new "sessions" views are sorted
+  by `last_active` descending (most recently active session first).
+- [x] 10.4 `sessions` filter (`Ctrl+S`): new workspace-only view — one row per live session
+  with name + agent status icon + age since last activity. Quick overview without tab/pane noise.
+- [x] 10.5 `Ctrl+]` / `Ctrl+[` inside the picker: cycle workspaces without entering the tree.
+  Closes the picker and switches `SwitchWorkspaceRelative(±1)` after a 50 ms delay.
+- [x] 10.6 `SUPER+]` / `SUPER+[` standalone bindings: workspace cycle without opening the picker,
+  mirroring nvim buffer-cycle convention. Both are locked-mode passthrough aware.
+- [x] 10.7 Updated title hint and `fuzzy_description` to include `^s sessions` and `^]/[ cycle`.
+- [x] 10.8 Build green. Applied: `nh darwin switch`.
+- [ ] 10.9 Confirm (human, live): open `SUPER+s`; verify recency order, `Ctrl+S` sessions view,
+  `Ctrl+]/[` workspace cycle, `SUPER+]/[` direct cycle, and improved color legibility.
+
 ## 9. Commit and push
 
 - [x] 9.1 `nix fmt` clean (build passed with no fmt errors).

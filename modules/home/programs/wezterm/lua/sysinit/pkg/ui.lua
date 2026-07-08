@@ -491,7 +491,7 @@ function M.setup(config)
         local window_id = win:window_id()
         local ws = ws_index[workspace]
         if not ws then
-          ws = { name = workspace, dormant = false, rank = 0, since = nil, status = nil, tabs = {} }
+          ws = { name = workspace, dormant = false, rank = 0, since = nil, last_active = nil, status = nil, tabs = {} }
           ws_index[workspace] = ws
           live_names[workspace] = true
           workspaces[#workspaces + 1] = ws
@@ -533,6 +533,9 @@ function M.setup(config)
               rank = rank,
             }
             tnode.panes[#tnode.panes + 1] = rec
+            if since and (not ws.last_active or since > ws.last_active) then
+              ws.last_active = since
+            end
             if rank >= agent_state_rank.working then
               attention[#attention + 1] = rec
               if rank > ws.rank or (rank == ws.rank and since and (not ws.since or since < ws.since)) then
@@ -722,18 +725,20 @@ function M.setup(config)
     local a, b = pal.ansi or {}, pal.brights or {}
     return {
       ws_live  = b[7] or b[8] or pal.foreground or "#c0caf5",   -- bright cyan/white — live session
-      ws_dorm  = a[8] or pal.foreground or "#a9b1d6",           -- ansi-white (mid-gray) — dormant, readable but clearly dimmer than live
-      dir_ic   = b[5] or a[5] or "#7aa2f7",                     -- bright blue — folder icon
-      waiting  = b[2] or a[2] or "#f7768e",                     -- (bright) red — needs input
-      done     = b[3] or a[3] or "#9ece6a",                     -- (bright) green — finished
-      working  = b[4] or a[4] or "#e0af68",                     -- (bright) yellow — running
-      idle     = a[8] or "#a9b1d6",                             -- ansi-white (mid-gray) — idle, readable but subdued
+      ws_dorm  = a[8] or pal.foreground or "#a9b1d6",           -- ansi-white (mid-gray) — dormant
+      dir_ic   = a[5] or "#7aa2f7",                             -- ansi blue — folder icon (softer than bright)
+      waiting  = b[2] or a[2] or "#f7768e",                     -- bright red — needs input (status signal: keep vivid)
+      done     = b[3] or a[3] or "#9ece6a",                     -- bright green — finished (status signal: keep vivid)
+      working  = b[4] or a[4] or "#e0af68",                     -- bright yellow — running (status signal: keep vivid)
+      idle     = a[8] or "#a9b1d6",                             -- ansi-white (mid-gray) — idle
       name     = pal.foreground or "#c0caf5",
-      reason   = b[6] or a[6] or "#bb9af7",                     -- (bright) magenta — reason text
-      age      = a[8] or "#a9b1d6",                             -- ansi-white (mid-gray) — timestamps, readable but secondary
-      chrome   = b[1] or a[1] or "#3b4261",                     -- bright-black — intentionally barely-visible tree lines
+      reason   = a[6] or "#bb9af7",                             -- ansi magenta — muted; reason is secondary info
+      age      = a[8] or "#a9b1d6",                             -- ansi-white (mid-gray) — timestamps
+      chrome   = b[1] or "#414868",                             -- bright-black — intentionally dim tree lines
+      badge_bg = pal.cursor_bg or b[1] or "#414868",            -- subtle chip background for pane badges
       ghost    = pal.background or "#16161e",                    -- near-bg — invisible match suffix
-      brights  = b,                                              -- raw array for badge color slots
+      ansi     = a,                                              -- raw ansi array for badge color slots
+      brights  = b,
     }
   end
 
@@ -760,18 +765,19 @@ function M.setup(config)
     return BADGE_ADJ[(h % #BADGE_ADJ) + 1] .. "-" .. BADGE_NOUN[((h >> 4) % #BADGE_NOUN) + 1]
   end
 
-  -- Return the brights color for a pane. Uses slots 2-8 (skips slot 1 =
-  -- bright-black which is near-invisible on dark backgrounds). `brights_or_cfg`
-  -- is either tree_colors() (has a .brights field) or cfg.colors from a
-  -- format-tab-title context where no win is available.
-  local function pane_badge_color(pane_id, brights_or_cfg)
+  -- Return the ansi palette color for a pane badge. Uses ansi slots 2-7
+  -- (6 distinct, muted hues: red/green/yellow/blue/magenta/cyan — skips 1=black
+  -- and 8=white). Ansi colors are softer than brights, reducing visual noise.
+  -- `colors` is tree_colors() result (has .ansi) or cfg.colors from format-tab-title.
+  local function pane_badge_color(pane_id, colors)
     local h = pane_id * 2654435761
-    local slot = (h % 7) + 2  -- slots 2..8, never bright-black (1)
-    if type(brights_or_cfg) == "table" then
-      local b = brights_or_cfg.brights or brights_or_cfg
-      if type(b) == "table" then
-        return b[slot]
-      end
+    local slot = (h % 6) + 2  -- ansi slots 2..7
+    if type(colors) == "table" then
+      local a = colors.ansi or (colors.colors and colors.colors.ansi)
+      if type(a) == "table" and a[slot] then return a[slot] end
+      -- fallback: brights (no ansi in this context, e.g. format-tab-title)
+      local b = colors.brights or colors
+      if type(b) == "table" then return b[((h % 7) + 2)] end
     end
     return nil
   end
@@ -932,11 +938,10 @@ function M.setup(config)
     -- Main label (dir / OSC title).
     r:append(nil, nil, label)
 
-    -- Active-pane badge: colored pet name for cross-referencing with session tree.
+    -- Active-pane badge: muted chip for cross-referencing with session tree.
     if pane and pane.pane_id then
       local pid = pane.pane_id
-      local brights = cfg and cfg.colors and cfg.colors.brights or {}
-      local bc = brights[(pid % 7) + 2]  -- slots 2..8, never bright-black (1)
+      local bc = pane_badge_color(pid, cfg and cfg.colors or {})
       if bc then
         r:append(nil, "#3b4261", "  ")
         r:append(nil, bc, pane_badge(pid))
@@ -1279,13 +1284,53 @@ function M.setup(config)
         return choices
       end
 
-      -- "all" view: urgency-ordered attention zone, then the live workspace tree.
-      -- Dormant sessions are intentionally omitted here; use ^d to see them.
+      -- "sessions" view: workspace-only rows sorted by recency (no tab/pane expansion).
+      -- Quick overview of all live sessions at a glance.
+      if filter == "sessions" then
+        local live = {}
+        for _, ws in ipairs(tree.workspaces) do
+          if not ws.dormant then live[#live + 1] = ws end
+        end
+        table.sort(live, function(a, b)
+          return (a.last_active or 0) > (b.last_active or 0)
+        end)
+        for _, ws in ipairs(live) do
+          local sc = ws.status == "waiting" and colors.waiting
+            or ws.status == "done"    and colors.done
+            or ws.status == "working" and colors.working
+            or nil
+          local r = ribbon.new("ws", true)
+          r:append(nil, sc or colors.ws_live, tree_icons.session .. " ")
+          r:append(nil, colors.name, ws.name, "Bold")
+          if ws.status then
+            r:append(nil, sc or colors.working, "  " .. (agent_state_icons[ws.status] or "●"))
+          end
+          local age = ws.last_active and format_age(now - ws.last_active) or ""
+          if age ~= "" then
+            r:append(nil, colors.age, "  " .. age)
+          end
+          r:append(nil, colors.ghost, match_suffix(ws.name, nil, nil, ws.status, nil))
+          add("ws:" .. ws.name, r:format(), { workspace = ws.name, dormant = false })
+        end
+        return choices
+      end
+
+      -- "all" view: urgency-ordered attention zone, then the live workspace tree
+      -- sorted by recency (most recently active first). Dormant sessions are
+      -- intentionally omitted here; use ^d to see them.
       for _, rec in ipairs(tree.attention) do
         add("attn:" .. rec.pane_id, attn_row(rec, now, colors), rec)
       end
 
+      local live_sorted = {}
       for _, ws in ipairs(tree.workspaces) do
+        if not ws.dormant then live_sorted[#live_sorted + 1] = ws end
+      end
+      table.sort(live_sorted, function(a, b)
+        return (a.last_active or 0) > (b.last_active or 0)
+      end)
+
+      for _, ws in ipairs(live_sorted) do
         if not ws.dormant then
           -- workspace row: icon + name + rollup status icon (if any)
           local sc = ws.status == "waiting" and colors.waiting
@@ -1434,6 +1479,23 @@ function M.setup(config)
         end),
       }
     end
+    -- Ctrl+] / Ctrl+[ cycle workspaces without leaving the picker explicitly:
+    -- close the picker (Escape), pop the key table, then switch workspace after
+    -- a tiny delay so WezTerm processes the close before the switch.
+    local function tree_cycle_key(key, delta)
+      return {
+        key = key,
+        mods = "CTRL",
+        action = wezterm.action_callback(function(win, pane)
+          tree_state.pending_filter = nil
+          win:perform_action(wezterm.action.PopKeyTable, pane)
+          win:perform_action(wezterm.action.SendKey({ key = "Escape" }), pane)
+          wezterm.time.call_after(0.05, function()
+            win:perform_action(wezterm.action.SwitchWorkspaceRelative(delta), pane)
+          end)
+        end),
+      }
+    end
     config.key_tables = config.key_tables or {}
     config.key_tables.session_tree_actions = {
       tree_close_key("Enter"),
@@ -1442,6 +1504,9 @@ function M.setup(config)
       tree_filter_key("b", "blocked"),
       tree_filter_key("g", "agents"),
       tree_filter_key("d", "dormant"),
+      tree_filter_key("s", "sessions"),
+      tree_cycle_key("]", 1),
+      tree_cycle_key("[", -1),
     }
 
     -- Open the all-in-one session tree picker in fuzzy mode (needs-attention zone
@@ -1465,9 +1530,9 @@ function M.setup(config)
           return
         end
       end
-      local title = "Sessions  [^b blocked · ^g agents · ^d dormant · ^a all]"
+      local title = "Sessions  [^s sessions · ^b blocked · ^g agents · ^d dormant · ^a all · ^]/[ cycle]"
       if filter and filter ~= "all" then
-        title = "Sessions  [" .. filter .. "]"
+        title = "Sessions  [" .. filter .. "  |  ^]/[ cycle]"
       end
       tree_state.pending_filter = nil
       win:perform_action(
@@ -1479,7 +1544,7 @@ function M.setup(config)
           title = title,
           choices = choices,
           fuzzy = true,
-          fuzzy_description = "  ^a all  ^b blocked  ^g agents  ^d dormant: ",
+          fuzzy_description = "  ^s sessions  ^a all  ^b blocked  ^g agents  ^d dormant  ^]/[ cycle: ",
           action = wezterm.action_callback(function(inner_win, inner_pane, id, _label)
             local pf = tree_state.pending_filter
             tree_state.pending_filter = nil
@@ -1549,6 +1614,30 @@ function M.setup(config)
           return
         end
         open_session_tree(win, pane)
+      end),
+    })
+    -- SUPER+] / SUPER+[ cycle workspaces (next/prev) without opening the tree,
+    -- mirroring nvim's buffer-cycle convention.
+    table.insert(config.keys, {
+      key = "]",
+      mods = "SUPER",
+      action = wezterm.action_callback(function(win, pane)
+        if keybindings.locked_mode then
+          win:perform_action({ SendKey = { key = "]", mods = "SUPER" } }, pane)
+          return
+        end
+        win:perform_action(wezterm.action.SwitchWorkspaceRelative(1), pane)
+      end),
+    })
+    table.insert(config.keys, {
+      key = "[",
+      mods = "SUPER",
+      action = wezterm.action_callback(function(win, pane)
+        if keybindings.locked_mode then
+          win:perform_action({ SendKey = { key = "[", mods = "SUPER" } }, pane)
+          return
+        end
+        win:perform_action(wezterm.action.SwitchWorkspaceRelative(-1), pane)
       end),
     })
 
