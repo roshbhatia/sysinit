@@ -39,15 +39,25 @@ json() {
 cwd=$(json '.cwd')
 [ -n "$cwd" ] || cwd=$PWD
 msg=$(json '.message')
+notif_type=$(json '.notification_type')
 
-# Refine a generic "attention" (Claude/Gemini Notification) into approval/idle
-# from the human string, mirroring agent-notify so the two agree on when an
-# event is really a permission prompt.
+# Classify "attention" using notification_type first, message-text as fallback.
+# Mirrors agent-notify's classification exactly so the two scripts always agree.
 eff_reason=$reason
-if [ "$eff_reason" = "attention" ] && [ -n "$msg" ]; then
-  case "$msg" in
-    *[Pp]ermission* | *[Aa]pprov* | *[Cc]onfirm*) eff_reason="approval" ;;
-    *idle* | *[Ww]aiting*) eff_reason="idle" ;;
+if [ "$eff_reason" = "attention" ]; then
+  case "$notif_type" in
+    permission_prompt | agent_needs_input) eff_reason="approval" ;;
+    idle_prompt) eff_reason="idle" ;;
+    agent_completed) eff_reason="done" ;;
+    auth_success | elicitation_complete | elicitation_response)
+      plain_notify; exit 0 ;;
+    "")
+      case "$msg" in
+        *[Pp]ermission* | *[Aa]pprov* | *[Cc]onfirm*) eff_reason="approval" ;;
+        *idle* | *[Ww]aiting* | *[Ii]nput*) eff_reason="idle" ;;
+      esac
+      ;;
+    *) plain_notify; exit 0 ;;
   esac
 fi
 
@@ -139,7 +149,7 @@ wz=$(command -v wezterm 2> /dev/null || true)
       --actions "Accept,Deny" \
       --app-icon "$icon" \
       --content-image "$icon" \
-      --sound "Funk" \
+      --sound "Blow" \
       --group "$group" \
       --timeout 300 \
       2> /dev/null

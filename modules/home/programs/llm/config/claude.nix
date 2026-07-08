@@ -101,14 +101,15 @@ in
       autoCompactEnabled = true;
 
       hooks = {
-        # New turn starting — stamp working before any tool runs.
+        # New turn starting — stamp working and record the turn-start timestamp
+        # (agent-notify reads it to gate done-notifications on elapsed time).
         UserPromptSubmit = [
           {
             matcher = "";
             hooks = [
               {
                 type = "command";
-                command = "${profileBin}/agent-state claude working thinking";
+                command = "${profileBin}/agent-state claude working submit";
                 async = true;
               }
             ];

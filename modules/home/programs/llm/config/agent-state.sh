@@ -36,7 +36,7 @@ state_file="$state_dir/$WEZTERM_PANE.json"
 # orphaned files by intersecting with live pane ids, so nothing depends on this
 # running. Codex has no SessionEnd hook; its files are reclaimed by that pruning.
 if [ "$status" = "exit" ]; then
-  rm -f "$state_file" 2> /dev/null || true
+  rm -f "$state_file" "$state_dir/$WEZTERM_PANE.start" 2> /dev/null || true
   exit 0
 fi
 
@@ -53,6 +53,15 @@ json() {
 
 # --- resolve the human reason ---
 case "$reason_src" in
+  submit)
+    # UserPromptSubmit: new user turn beginning. Display "thinking" and record
+    # the turn-start timestamp so agent-notify can gate done-notifications on
+    # elapsed time (avoids pinging for quick 1-second replies).
+    reason="thinking"
+    if mkdir -p "$state_dir" 2>/dev/null; then
+      printf '%s' "$since" > "$state_dir/$WEZTERM_PANE.start" 2>/dev/null || true
+    fi
+    ;;
   tool)
     tool=$(json '.tool_name')
     # The most telling field varies by tool; take the first that exists.

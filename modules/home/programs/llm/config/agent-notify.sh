@@ -36,6 +36,7 @@ json() {
 cwd=$(json '.cwd')
 [ -n "$cwd" ] || cwd=$PWD
 msg=$(json '.message')
+notif_type=$(json '.notification_type')
 
 # --- session identity: which seshy session AND which repo ---
 # The agent runs inside a wezterm pane whose `workspace` is the seshy session name
@@ -74,34 +75,80 @@ esac
 icon="$icons/$agent.png"
 [ -f "$icon" ] || icon="$icons/agent.png"
 
-# Generic "attention" payloads (Claude/Gemini Notification) carry a human string
-# that tells us whether it is really a permission prompt or an idle nudge.
-if [ "$reason" = "attention" ] && [ -n "$msg" ]; then
-  case "$msg" in
-    *[Pp]ermission* | *[Aa]pprov* | *[Cc]onfirm*) reason="approval" ;;
-    *idle* | *[Ww]aiting*) reason="idle" ;;
+# Classify "attention" events using notification_type first (precise), then
+# falling back to message-text parsing. Suppress non-actionable types entirely
+# so auth confirmations and elicitation bookkeeping never surface as toasts.
+if [ "$reason" = "attention" ]; then
+  case "$notif_type" in
+    permission_prompt | agent_needs_input) reason="approval" ;;
+    idle_prompt) reason="idle" ;;
+    agent_completed) reason="done" ;;
+    auth_success | elicitation_complete | elicitation_response) exit 0 ;;
+    "")
+      # No notification_type (older Claude / other harnesses): parse message.
+      case "$msg" in
+        *[Pp]ermission* | *[Aa]pprov* | *[Cc]onfirm*) reason="approval" ;;
+        *idle* | *[Ww]aiting* | *[Ii]nput*) reason="idle" ;;
+        *) exit 0 ;;  # Unclassified — suppress rather than spam
+      esac
+      ;;
+    *) exit 0 ;;  # Unknown notification_type — suppress
   esac
+fi
+
+# Gate done-notifications on a minimum elapsed time so quick replies don't
+# ping. The .start file is written by agent-state when UserPromptSubmit fires
+# (reason_src=submit). If the file is absent (Codex, other agents), notify
+# unconditionally since we have no timing signal.
+if [ "$reason" = "done" ] && [ -n "${WEZTERM_PANE:-}" ]; then
+  start_file="${XDG_STATE_HOME:-$HOME/.local/state}/agents/panes/$WEZTERM_PANE.start"
+  if [ -f "$start_file" ]; then
+    start=$(cat "$start_file" 2>/dev/null) || start=0
+    now=$(date +%s 2>/dev/null) || now=0
+    elapsed=$((now - start))
+    [ "$elapsed" -lt 60 ] && exit 0
+  fi
+fi
+
+# Deduplicate idle notifications: only fire once per 5-minute window per agent
+# so a stuck or repeatedly idle agent doesn't flood the notification centre.
+if [ "$reason" = "idle" ]; then
+  notif_dir="${XDG_STATE_HOME:-$HOME/.local/state}/agents/notif"
+  mkdir -p "$notif_dir" 2>/dev/null || true
+  dedup_file="$notif_dir/${agent}_idle"
+  if [ -f "$dedup_file" ]; then
+    last=$(cat "$dedup_file" 2>/dev/null) || last=0
+    now=$(date +%s 2>/dev/null) || now=0
+    elapsed=$((now - last))
+    [ "$elapsed" -lt 300 ] && exit 0
+  fi
+  printf '%s' "$(date +%s 2>/dev/null || printf '0')" > "$dedup_file" 2>/dev/null || true
 fi
 
 # --- reason -> wording + sound (sounds are names under /System/Library/Sounds) ---
 # `what` is the category for the title; the message body below carries the
 # specifics (which tool, what choice) so the human knows WHY before switching.
+notif_timeout=""
 case "$reason" in
   approval)
     what="needs your approval"
-    sound="Funk"
+    sound="Blow"      # distinctive whoosh — action required, but not jarring
+    # approval: no auto-dismiss; the human must act
     ;;
   idle)
     what="is waiting for you"
-    sound="Tink"
+    sound="Pop"       # brief, minimal — gentle nudge
+    notif_timeout=120 # auto-dismiss after 2 min; stale idle is noise
     ;;
   done)
     what="finished its turn"
-    sound="Hero"
+    sound="Ping"      # clean single tone — satisfying completion signal
+    notif_timeout=30  # auto-dismiss after 30 s; done is informational
     ;;
   *)
     what="needs your attention"
-    sound="Glass"
+    sound="Pop"
+    notif_timeout=60
     ;;
 esac
 
@@ -129,6 +176,7 @@ args=(
   -sound "$sound"
   -group "$group"
 )
+[ -n "$notif_timeout" ] && args+=(-timeout "$notif_timeout")
 [ -n "$exec_cmd" ] && args+=(-execute "$exec_cmd")
 
 "$notifier" "${args[@]}" > /dev/null 2>&1 || true
