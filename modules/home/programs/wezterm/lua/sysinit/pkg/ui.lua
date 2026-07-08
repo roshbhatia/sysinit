@@ -271,23 +271,24 @@ function M.setup(config)
   local function smart_path(full_cwd)
     if not full_cwd or full_cwd == "" then return "" end
     local home = os.getenv("HOME") or ""
-    -- Seshy: strip sessions/<session>/, show remaining repo[/subpath]
+    -- Seshy: ~/.local/state/seshy/sessions/<session>[/rest] → {sy}[/rest]
     local seshy_base = home .. "/.local/state/seshy/sessions"
     if full_cwd == seshy_base or full_cwd:sub(1, #seshy_base + 1) == seshy_base .. "/" then
       local after = full_cwd:sub(#seshy_base + 2)  -- "<session>[/rest]"
       local rest = after:match("^[^/]+/(.+)$")      -- strip session name
-      return rest or ""                              -- "" when at session root
+      return rest and ("{sy}/" .. rest) or "{sy}"
     end
-    -- GitHub: ~/github/<tier>/<org>/<repo>[/sub] → <repo>[/sub]
+    -- GitHub: ~/github/<tier>/<org>/<repo>[/sub] → {gh}/<repo>[/sub]
     local gh_base = home .. "/github/"
     if full_cwd:sub(1, #gh_base) == gh_base then
-      local rest = full_cwd:sub(#gh_base + 1)           -- "<tier>/<org>/<repo>[/sub]"
-      return rest:match("^[^/]+/[^/]+/(.+)$") or rest   -- strip <tier>/<org>/
+      local rest = full_cwd:sub(#gh_base + 1)             -- "<tier>/<org>/<repo>[/sub]"
+      local short = rest:match("^[^/]+/[^/]+/(.+)$") or rest
+      return "{gh}/" .. short
     end
     -- Home-relative fallback
-    if full_cwd == home then return "~" end
+    if full_cwd == home then return "{home}" end
     if full_cwd:sub(1, #home + 1) == home .. "/" then
-      return "~/" .. full_cwd:sub(#home + 2)
+      return "{home}/" .. full_cwd:sub(#home + 2)
     end
     return full_cwd
   end
@@ -1259,7 +1260,7 @@ function M.setup(config)
       local is_urgent = rec.rank and rec.rank >= agent_state_rank.working
       local age = rec.since and format_age(now - rec.since) or ""
 
-      local r = ribbon.new("attn", true)
+      local r = ribbon.new("attn")
       -- warning prefix (only when actionable)
       if is_urgent then
         r:append(nil, colors.waiting, tree_icons.attn .. " ")
@@ -1351,7 +1352,7 @@ function M.setup(config)
       if filter == "dormant" then
         for _, ws in ipairs(tree.workspaces) do
           if ws.dormant then
-            local r = ribbon.new("dormant", true)
+            local r = ribbon.new("dormant")
             r:append(nil, colors.ws_dorm, tree_icons.dormant .. " " .. ws.name)
             add("ws:" .. ws.name, r:format(), { workspace = ws.name, dormant = true })
           end
@@ -1375,7 +1376,7 @@ function M.setup(config)
             or ws.status == "working" and colors.working
             or nil
           local qs = i <= 9 and tostring(i) or string.char(96 + i - 9)
-          local r = ribbon.new("ws", true)
+          local r = ribbon.new("ws")
           r:append(nil, colors.chrome, qs .. "  ")
           r:append(nil, sc or colors.ws_live, tree_icons.session .. " ")
           r:append(nil, colors.name, ws.name, "Bold")
@@ -1408,7 +1409,7 @@ function M.setup(config)
             or ws.status == "done"    and colors.done
             or ws.status == "working" and colors.working
             or nil
-          local ws_r = ribbon.new("ws", true)
+          local ws_r = ribbon.new("ws")
           ws_r:append(nil, sc or colors.ws_live, tree_icons.session .. " ")
           ws_r:append(nil, colors.name, ws.name, "Bold")
           if ws.status then
@@ -1424,7 +1425,7 @@ function M.setup(config)
             local tlast = ti == #ws.tabs
             local tbranch = tlast and "  └─ " or "  ├─ "
             -- tab row: chrome + tab icon + <badge>  proc
-            local tab_r = ribbon.new("tab", true)
+            local tab_r = ribbon.new("tab")
             tab_r:append(nil, colors.chrome, tbranch)
             tab_r:append(nil, colors.ws_live, tree_icons.tab .. " ")
             if tnode.active_pane_id then
@@ -1442,7 +1443,7 @@ function M.setup(config)
               local pbranch = (tlast and "     " or "  │  ")
                 .. (pi == #tnode.panes and "└─ " or "├─ ")
               -- pane row: proc → path → branch → status+age → badge
-              local pane_r = ribbon.new("pane", true)
+              local pane_r = ribbon.new("pane")
               pane_r:append(nil, colors.chrome, pbranch)
               -- proc: sigil icon + name
               local proc = rec.title ~= "" and rec.title or nil
@@ -1453,17 +1454,19 @@ function M.setup(config)
                 end
                 pane_r:append(nil, colors.name, " " .. proc)
               end
-              -- path: smart path with env-var prefix ($SESHY/$REPOS/~)
+              -- path: smart path with placeholder prefix ({gh}/{sy}/{home})
               local pane_dp = smart_path(rec.cwd)
               if pane_dp == "" then pane_dp = rec.repo end
               if pane_dp ~= "" then
-                pane_r:append(nil, colors.dir_ic, "  " .. tree_icons.folder .. " ")
+                pane_r:append(nil, colors.chrome, "  |  ")
+                pane_r:append(nil, colors.dir_ic, tree_icons.folder .. " ")
                 pane_r:append(nil, colors.name, pane_dp)
               end
               -- branch + dirty (agent-active panes only, from state file)
               if rec.branch then
-                pane_r:append(nil, colors.age, "  " .. tree_icons.branch .. " " .. rec.branch)
-                if rec.dirty then pane_r:append(nil, colors.working, "*") end
+                pane_r:append(nil, colors.chrome, "  |  ")
+                pane_r:append(nil, colors.age, tree_icons.branch .. " " .. rec.branch)
+                if rec.dirty then pane_r:append(nil, colors.working, " *") end
               end
               -- agent state: status icon + label + meaningful reason + age
               if rec.status then
@@ -1474,7 +1477,8 @@ function M.setup(config)
                 local age = rec.since and format_age(now - rec.since) or ""
                 local p_lbl = agent_state_labels[rec.status] or ""
                 local p_show_reason = rec.reason ~= "" and not SUPPRESSED_REASONS[rec.reason]
-                pane_r:append(nil, asc, "  " .. (agent_state_icons[rec.status] or "●"))
+                pane_r:append(nil, colors.chrome, "  |  ")
+                pane_r:append(nil, asc, agent_state_icons[rec.status] or "●")
                 if p_lbl ~= "" or p_show_reason then
                   local parts = {}
                   if p_lbl ~= "" then parts[#parts + 1] = p_lbl end
@@ -1486,7 +1490,7 @@ function M.setup(config)
               -- badge
               local bc = pane_badge_color(rec.pane_id, colors)
               if bc then
-                pane_r:append(nil, colors.chrome, "  ")
+                pane_r:append(nil, colors.chrome, "  |  ")
                 pane_r:append(nil, bc, pane_badge(rec.pane_id))
               end
               add("pane:" .. rec.pane_id, pane_r:format(), rec)
