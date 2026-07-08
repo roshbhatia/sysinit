@@ -70,7 +70,7 @@ in
     enable = true;
     enableMcpIntegration = true;
     context = kit.mkInstructions "~/.claude/skills";
-    plugins = [ ./codex-plugins/openspec ];
+    plugins = [ ];
 
     # Per-profile reasoning_effort. Default is `low` for fast iteration;
     # the `spec` profile uses `high` + visible reasoning summaries for
