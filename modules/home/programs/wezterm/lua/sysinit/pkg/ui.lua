@@ -187,17 +187,18 @@ function M.setup(config)
   -- switcher. Worst-wins ordering: waiting (you must act) > done (your move) >
   -- working > idle. `done` is not an agent-deck status, so we carry our own
   -- icon table rather than relying on agent_deck.get_status_icon for it.
+  local nf = wezterm.nerdfonts or {}
   local agent_state_icons = {
-    waiting = "◔",
-    done = "✔",
-    working = "●",
-    idle = "○",
+    waiting = nf.md_clock_alert or "⏱",
+    done    = nf.md_check_circle or "✔",
+    working = nf.md_loading or "⟳",
+    idle    = nf.cod_circle_small_filled or "○",
   }
   local agent_state_rank = {
     waiting = 4,
-    done = 3,
+    done    = 3,
     working = 2,
-    idle = 1,
+    idle    = 1,
   }
 
   local function format_age(secs)
@@ -737,6 +738,43 @@ function M.setup(config)
     })
   end
 
+  -- Session tree icons: prefer sigil.symbol() for named structural icons so they
+  -- stay consistent with the rest of the UI toolkit, fall back to nerdfonts
+  -- directly. Agent-state icons live near agent_state_icons (above).
+  local tree_icons = {
+    session = (sigil_ok and sigil.symbol("Workspace")) or nf.cod_briefcase or "",
+    dormant = nf.md_sleep or "󰒲",
+    tab     = nf.md_tab or "󰓩",
+    folder  = (sigil_ok and sigil.symbol("Folder")) or nf.md_folder or "",
+    attn    = nf.md_alert or "󰀪",
+  }
+
+  -- Build the session tree color palette from the active window's resolved
+  -- palette so it tracks colorscheme changes (lantern). Falls back to
+  -- config_data.colors (set at startup) when the palette isn't available yet.
+  -- ANSI indices (1-based Lua): 1=black 2=red 3=green 4=yellow 5=blue 6=magenta 7=cyan 8=white
+  local function tree_colors(win)
+    local ok, pal = pcall(function()
+      return win:effective_config().resolved_palette
+    end)
+    pal = (ok and pal) or (config_data and config_data.colors) or {}
+    local a, b = pal.ansi or {}, pal.brights or {}
+    return {
+      ws_live  = b[7] or b[8] or pal.foreground or "#c0caf5",   -- bright cyan/white — live session
+      ws_dorm  = b[1] or "#414868",                              -- bright-black — dormant
+      dir_ic   = b[5] or a[5] or "#7aa2f7",                     -- bright blue — folder icon
+      waiting  = b[2] or a[2] or "#f7768e",                     -- (bright) red — needs input
+      done     = b[3] or a[3] or "#9ece6a",                     -- (bright) green — finished
+      working  = b[4] or a[4] or "#e0af68",                     -- (bright) yellow — running
+      idle     = b[1] or a[8] or "#565f89",                     -- dim — idle
+      name     = pal.foreground or "#c0caf5",
+      reason   = b[6] or a[6] or "#bb9af7",                     -- (bright) magenta — reason text
+      age      = b[1] or a[8] or "#565f89",                     -- dim — timestamps
+      chrome   = b[1] or a[1] or "#3b4261",                     -- very dim — tree lines
+      ghost    = pal.background or "#16161e",                    -- near-bg — invisible match suffix
+    }
+  end
+
   -- lantern: runtime appearance picker (colorschemes, fonts, GPU, opacity, …).
   -- Its bundled "flames" (the choice sets) live at <plugin_dir>/plugin/lantern/
   -- flames; lantern.meta locates that dir from either a plugin url containing
@@ -1105,35 +1143,61 @@ function M.setup(config)
       return out
     end
 
-    -- One flat agent-pane row: `⚠ <icon> workspace · tab · proc — reason (age)`
-    -- (⚠ only when actionable, rank >= working) plus the match suffix. Reused by
-    -- the needs-attention zone and the blocked/agents quick filters.
-    local function attn_row(rec, now)
+    -- One attention-zone row. Info order: workspace · tab · dir  proc  status reason (age).
+    -- Uses ribbon for color + sigil for process icon. `colors` comes from tree_colors(win).
+    local function attn_row(rec, now, colors)
+      local sc = rec.status == "waiting" and colors.waiting
+        or rec.status == "done"    and colors.done
+        or rec.status == "working" and colors.working
+        or colors.idle
       local icon = agent_state_icons[rec.status] or "●"
-      local parts = { rec.workspace }
-      if rec.tab_title ~= "" then
-        parts[#parts + 1] = rec.tab_title
-      end
-      if rec.title ~= "" then
-        parts[#parts + 1] = rec.title
-      end
-      local prefix = (rec.rank and rec.rank >= agent_state_rank.working) and "⚠ " or "  "
-      local label = prefix .. icon .. " " .. table.concat(parts, " · ")
-      if rec.reason ~= "" then
-        label = label .. " — " .. rec.reason
-      end
+      local is_urgent = rec.rank and rec.rank >= agent_state_rank.working
       local age = rec.since and format_age(now - rec.since) or ""
-      if age ~= "" then
-        label = label .. " (" .. age .. ")"
+
+      local r = ribbon.new("attn", true)
+      -- warning prefix (only when actionable)
+      if is_urgent then
+        r:append(nil, colors.waiting, tree_icons.attn .. " ")
+      else
+        r:append(nil, nil, "  ")
       end
-      return label .. match_suffix(rec.workspace, rec.tab_title, rec.title, rec.status, rec.repo)
+      -- agent status icon
+      r:append(nil, sc, icon .. " ")
+      -- breadcrumb: workspace · dir  proc  (omit empty parts)
+      local crumb = rec.workspace
+      if rec.tab_title ~= "" then crumb = crumb .. " · " .. rec.tab_title end
+      r:append(nil, colors.name, crumb, "Bold")
+      -- dir (cwd basename), if different from tab_title
+      if rec.repo ~= "" and rec.repo ~= rec.tab_title then
+        r:append(nil, colors.dir_ic, "  " .. tree_icons.folder .. " ")
+        r:append(nil, colors.name, rec.repo)
+      end
+      -- proc icon via sigil, then proc name
+      if rec.title ~= "" then
+        if sigil_ok then
+          local proc_items = sigil.items(rec.title, { fallback = true, padding = "left", reset = true })
+          r:append_items(proc_items)
+        end
+        r:append(nil, colors.name, " " .. rec.title)
+      end
+      -- reason and age
+      if rec.reason ~= "" then
+        r:append(nil, colors.reason, "  " .. rec.reason)
+      end
+      if age ~= "" then
+        r:append(nil, colors.age, " (" .. age .. ")")
+      end
+      -- ghost suffix for fuzzy search
+      r:append(nil, colors.ghost, match_suffix(rec.workspace, rec.tab_title, rec.title, rec.status, rec.repo))
+      return r:format()
     end
 
-    -- Build InputSelector choices from the tree. `filter` scopes the view (driven
-    -- by the in-picker Ctrl keys): nil/"all" = needs-attention zone + full tree;
-    -- "blocked" = flat actionable panes; "agents" = flat all-agent panes;
-    -- "dormant" = dormant seshy sessions only.
-    local function session_tree_choices(tree, by_id, filter)
+    -- Build InputSelector choices from the tree.
+    -- `filter`: nil/"all" = attention zone + live tree (dormant hidden);
+    --           "blocked" = flat urgent panes; "agents" = flat all agent panes;
+    --           "dormant" = dormant seshy sessions only.
+    -- `colors` comes from tree_colors(win) — pass it in from open_session_tree.
+    local function session_tree_choices(tree, by_id, filter, colors)
       local choices = {}
       local now = os.time()
       local function add(id, label, rec)
@@ -1142,80 +1206,116 @@ function M.setup(config)
       end
       filter = filter or "all"
 
+      -- flat filtered views (blocked / agents): just attention-zone rows
       if filter == "blocked" or filter == "agents" then
         local list = {}
         if filter == "blocked" then
-          for _, rec in ipairs(tree.attention) do
-            list[#list + 1] = rec
-          end
+          for _, rec in ipairs(tree.attention) do list[#list + 1] = rec end
         else
           for _, ws in ipairs(tree.workspaces) do
             for _, tnode in ipairs(ws.tabs) do
               for _, rec in ipairs(tnode.panes) do
-                if rec.status then
-                  list[#list + 1] = rec
-                end
+                if rec.status then list[#list + 1] = rec end
               end
             end
           end
           table.sort(list, function(a, b)
-            if a.rank ~= b.rank then
-              return a.rank > b.rank
-            end
+            if a.rank ~= b.rank then return a.rank > b.rank end
             return (a.since or now) < (b.since or now)
           end)
         end
         for _, rec in ipairs(list) do
-          add("pane:" .. rec.pane_id, attn_row(rec, now), rec)
+          add("pane:" .. rec.pane_id, attn_row(rec, now, colors), rec)
         end
         return choices
       end
 
+      -- dormant-only view: show seshy sessions that have no live mux workspace
       if filter == "dormant" then
         for _, ws in ipairs(tree.workspaces) do
           if ws.dormant then
-            add(
-              "ws:" .. ws.name,
-              "○ " .. ws.name .. match_suffix(ws.name, nil, nil, nil, nil),
-              { workspace = ws.name, dormant = true }
-            )
+            local r = ribbon.new("dormant", true)
+            r:append(nil, colors.ws_dorm, tree_icons.dormant .. " " .. ws.name)
+            r:append(nil, colors.ghost, match_suffix(ws.name, nil, nil, nil, nil))
+            add("ws:" .. ws.name, r:format(), { workspace = ws.name, dormant = true })
           end
         end
         return choices
       end
 
-      -- filter == "all": needs-attention zone (⚠, urgency-ordered) then full tree.
+      -- "all" view: urgency-ordered attention zone, then the live workspace tree.
+      -- Dormant sessions are intentionally omitted here; use ^d to see them.
       for _, rec in ipairs(tree.attention) do
-        add("attn:" .. rec.pane_id, attn_row(rec, now), rec)
+        add("attn:" .. rec.pane_id, attn_row(rec, now, colors), rec)
       end
 
       for _, ws in ipairs(tree.workspaces) do
-        local wsicon = (ws.status and agent_state_icons[ws.status]) or (ws.dormant and "○") or "●"
-        local wslabel = wsicon .. " " .. ws.name
-        if ws.dormant then
-          wslabel = wslabel .. "  (dormant)"
-        end
-        wslabel = wslabel .. match_suffix(ws.name, nil, nil, ws.status, nil)
-        add("ws:" .. ws.name, wslabel, { workspace = ws.name, dormant = ws.dormant })
-        for ti, tnode in ipairs(ws.tabs) do
-          local tlast = ti == #ws.tabs
-          local tbranch = tlast and "  └─ " or "  ├─ "
-          local tlabel = tbranch .. tnode.index .. "  " .. tnode.title
-          tlabel = tlabel .. match_suffix(ws.name, tnode.title, nil, nil, nil)
-          add("tab:" .. tnode.tab_id, tlabel, { pane_id = tnode.active_pane_id, workspace = ws.name })
-          for pi, rec in ipairs(tnode.panes) do
-            local pbranch = (tlast and "     " or "  │  ") .. (pi == #tnode.panes and "└─ " or "├─ ")
-            local seg
-            if rec.status then
-              seg = (agent_state_icons[rec.status] or "●") .. " " .. (rec.title ~= "" and rec.title or "pane")
-              if rec.reason ~= "" then
-                seg = seg .. " — " .. rec.reason
+        if not ws.dormant then
+          -- workspace row: icon + name + rollup status icon (if any)
+          local sc = ws.status == "waiting" and colors.waiting
+            or ws.status == "done"    and colors.done
+            or ws.status == "working" and colors.working
+            or nil
+          local ws_r = ribbon.new("ws", true)
+          ws_r:append(nil, sc or colors.ws_live, tree_icons.session .. " ")
+          ws_r:append(nil, colors.name, ws.name, "Bold")
+          if ws.status then
+            ws_r:append(nil, sc or colors.working, "  " .. (agent_state_icons[ws.status] or "●"))
+          end
+          ws_r:append(nil, colors.ghost, match_suffix(ws.name, nil, nil, ws.status, nil))
+          add("ws:" .. ws.name, ws_r:format(), { workspace = ws.name, dormant = false })
+
+          for ti, tnode in ipairs(ws.tabs) do
+            local tlast = ti == #ws.tabs
+            local tbranch = tlast and "  └─ " or "  ├─ "
+            -- tab row: tree chrome + tab icon + smart label (dir/OSC title)
+            local tab_r = ribbon.new("tab", true)
+            tab_r:append(nil, colors.chrome, tbranch)
+            tab_r:append(nil, colors.ws_live, tree_icons.tab .. " ")
+            tab_r:append(nil, colors.name, tnode.title)
+            tab_r:append(nil, colors.ghost, match_suffix(ws.name, tnode.title, nil, nil, nil))
+            add("tab:" .. tnode.tab_id, tab_r:format(), { pane_id = tnode.active_pane_id, workspace = ws.name })
+
+            for pi, rec in ipairs(tnode.panes) do
+              local pbranch = (tlast and "     " or "  │  ")
+                .. (pi == #tnode.panes and "└─ " or "├─ ")
+              -- pane row: info priority = dir → proc (with sigil icon) → agent state
+              local pane_r = ribbon.new("pane", true)
+              pane_r:append(nil, colors.chrome, pbranch)
+              -- dir (cwd basename)
+              if rec.repo ~= "" then
+                pane_r:append(nil, colors.dir_ic, tree_icons.folder .. " ")
+                pane_r:append(nil, colors.name, rec.repo)
               end
-            else
-              seg = "  " .. (rec.title ~= "" and rec.title or "pane")
+              -- proc: sigil icon + name (skip if same as tab label to avoid repetition)
+              local proc = rec.title ~= "" and rec.title or nil
+              if proc then
+                if sigil_ok then
+                  local proc_items = sigil.items(proc, { fallback = true, padding = "left", reset = true })
+                  pane_r:append_items(proc_items)
+                else
+                  pane_r:append(nil, nil, "  ")
+                end
+                pane_r:append(nil, colors.name, " " .. proc)
+              end
+              -- agent state: status icon + reason + age
+              if rec.status then
+                local asc = rec.status == "waiting" and colors.waiting
+                  or rec.status == "done"    and colors.done
+                  or rec.status == "working" and colors.working
+                  or colors.idle
+                local age = rec.since and format_age(now - rec.since) or ""
+                pane_r:append(nil, asc, "  " .. (agent_state_icons[rec.status] or "●"))
+                if rec.reason ~= "" then
+                  pane_r:append(nil, colors.reason, " " .. rec.reason)
+                end
+                if age ~= "" then
+                  pane_r:append(nil, colors.age, " (" .. age .. ")")
+                end
+              end
+              pane_r:append(nil, colors.ghost, match_suffix(rec.workspace, rec.tab_title, rec.title, rec.status, rec.repo))
+              add("pane:" .. rec.pane_id, pane_r:format(), rec)
             end
-            local plabel = pbranch .. seg .. match_suffix(rec.workspace, rec.tab_title, rec.title, rec.status, rec.repo)
-            add("pane:" .. rec.pane_id, plabel, rec)
           end
         end
       end
@@ -1302,18 +1402,21 @@ function M.setup(config)
     -- the picker never opens blank.
     local function open_session_tree(win, pane, filter)
       local tree = session_tree(sy_bin)
+      -- Resolve palette once per open so all rows in this invocation share
+      -- the same colors even if the picker is open across a scheme switch.
+      local colors = tree_colors(win)
       local by_id = {}
-      local choices = session_tree_choices(tree, by_id, filter)
+      local choices = session_tree_choices(tree, by_id, filter, colors)
       if #choices == 0 then
         if filter then
           filter, by_id = nil, {}
-          choices = session_tree_choices(tree, by_id, nil)
+          choices = session_tree_choices(tree, by_id, nil, colors)
         end
         if #choices == 0 then
           return
         end
       end
-      local title = "Session tree"
+      local title = "Sessions"
       if filter and filter ~= "all" then
         title = title .. "  ·  " .. filter
       end
@@ -1327,7 +1430,7 @@ function M.setup(config)
           title = title,
           choices = choices,
           fuzzy = true,
-          fuzzy_description = "filter session/tab/pane  ·  ^a all  ^b blocked  ^g agents  ^d dormant: ",
+          fuzzy_description = "  ^a all  ^b blocked  ^g agents  ^d dormant: ",
           action = wezterm.action_callback(function(inner_win, inner_pane, id, _label)
             local pf = tree_state.pending_filter
             tree_state.pending_filter = nil
