@@ -276,9 +276,11 @@ let
 
   # MCP tool patterns for Claude Code's permissions.allow list.  Claude Code
   # accepts bare "mcp__<server>__<tool>" strings (no Bash() wrapper) alongside
-  # the Bash()-wrapped entries.  Wildcards use the same glob semantics as Bash
-  # patterns.  Keep in sync with mcp-servers.nix — add a row whenever a new
-  # server is declared there.
+  # the Bash()-wrapped entries.  Glob is valid only in the tool position after a
+  # LITERAL server prefix — "mcp__<server>__*" is valid; "mcp__*__*" is not.
+  # Keep in sync with mcp-servers.nix (for plugin/static servers) and with the
+  # claude.ai marketplace integrations list (add a row when a new server is
+  # connected via the web UI).
   tierMcp = [
     # structural code search — read-only, zero blast radius
     "mcp__ast-grep__*"
@@ -290,10 +292,54 @@ let
     "mcp__codex-mcp__*"
     # Playwright browser automation — user has opted in
     "mcp__playwright__*"
-    # claude.ai marketplace integrations (Linear, Slack, Notion, etc.)
-    "mcp__claude_ai_*__*"
-    # home-manager plugin MCP servers (ast-grep, basic-memory, playwright, codex)
-    "mcp__plugin_claude-code-home-manager_*__*"
+
+    # home-manager plugin MCP servers (declared in mcp-servers.nix)
+    "mcp__plugin_claude-code-home-manager_ast-grep__*"
+    "mcp__plugin_claude-code-home-manager_aws-knowledge-mcp-server__*"
+    "mcp__plugin_claude-code-home-manager_basic-memory__*"
+    "mcp__plugin_claude-code-home-manager_codex-mcp__*"
+    "mcp__plugin_claude-code-home-manager_playwright__*"
+
+    # claude.ai marketplace integrations — one entry per connected server.
+    # Add a row here when connecting a new server via claude.ai/settings/integrations.
+    "mcp__claude_ai_AWS_Marketplace__*"
+    "mcp__claude_ai_Airtable__*"
+    "mcp__claude_ai_Ashby__*"
+    "mcp__claude_ai_Canva__*"
+    "mcp__claude_ai_Clay__*"
+    "mcp__claude_ai_Dust__*"
+    "mcp__claude_ai_Fathom__*"
+    "mcp__claude_ai_Figma__*"
+    "mcp__claude_ai_Gmail__*"
+    "mcp__claude_ai_Google_Ads__*"
+    "mcp__claude_ai_Google_Calendar__*"
+    "mcp__claude_ai_Google_Drive__*"
+    "mcp__claude_ai_Granola__*"
+    "mcp__claude_ai_Hex__*"
+    "mcp__claude_ai_HubSpot__*"
+    "mcp__claude_ai_Intercom__*"
+    "mcp__claude_ai_Ironclad_Contracts__*"
+    "mcp__claude_ai_LaunchDarkly__*"
+    "mcp__claude_ai_Linear__*"
+    "mcp__claude_ai_Lusha__*"
+    "mcp__claude_ai_Meta_Ads__*"
+    "mcp__claude_ai_Microsoft_365__*"
+    "mcp__claude_ai_Notion__*"
+    "mcp__claude_ai_Outreach__*"
+    "mcp__claude_ai_Postman__*"
+    "mcp__claude_ai_Risotto__*"
+    "mcp__claude_ai_Salesforce_-_ADMIN_Metadata__*"
+    "mcp__claude_ai_Salesforce_ADMIN_write_delete__*"
+    "mcp__claude_ai_Salesforce_Read_Only__*"
+    "mcp__claude_ai_Sentry__*"
+    "mcp__claude_ai_Slack__*"
+    "mcp__claude_ai_Superhuman_Mail__*"
+    "mcp__claude_ai_Vercel__*"
+    "mcp__claude_ai_Zapier__*"
+    "mcp__claude_ai_Zoom_for_Claude__*"
+    "mcp__claude_ai_incident_io__*"
+    "mcp__claude_ai_laurel-ask__*"
+    "mcp__claude_ai_mkt1__*"
   ];
 in
 {
