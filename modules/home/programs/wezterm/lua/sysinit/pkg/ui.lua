@@ -226,28 +226,73 @@ function M.setup(config)
   -- versions, and yields "" on any failure. Branch and dirty are NOT derivable
   -- in-memory — the per-pane state-file bus carries those for out-of-WezTerm
   -- consumers; the render-path rollup deliberately stays shell-out-free.
+  -- Returns (basename, fullpath). Both are "" on failure.
   local function pane_repo(p)
-    local ok, repo = pcall(function()
-      local cwd = p:get_current_working_dir()
-      if not cwd then
-        return ""
-      end
+    local ok, repo, cwd = pcall(function()
+      local url = p:get_current_working_dir()
+      if not url then return "", "" end
       local path
-      if type(cwd) == "string" then
-        path = (cwd:gsub("^file://[^/]*", ""))
+      if type(url) == "string" then
+        path = url:gsub("^file://[^/]*", "")
       else
-        path = cwd.file_path
+        path = url.file_path
       end
-      if not path or path == "" then
-        return ""
-      end
-      path = (path:gsub("/+$", ""))
-      return path:match("([^/]+)$") or ""
+      if not path or path == "" then return "", "" end
+      path = path:gsub("/+$", "")
+      return path:match("([^/]+)$") or "", path
     end)
-    if not ok then
-      return ""
+    if not ok then return "", "" end
+    return repo or "", cwd or ""
+  end
+
+  -- Read per-pane agent state JSON (written by agent-state hook) for git metadata.
+  -- Returns { branch, dirty } or nil when no state file exists for this pane.
+  -- Only agent-active panes have state files; normal shell panes return nil.
+  local function read_pane_git(pane_id)
+    local home = os.getenv("HOME") or ""
+    local path = home .. "/.local/state/agents/panes/" .. tostring(pane_id) .. ".json"
+    local f = io.open(path, "r")
+    if not f then return nil end
+    local content = f:read("*a")
+    f:close()
+    local ok, data = pcall(wezterm.json_parse, content)
+    if not ok or type(data) ~= "table" then return nil end
+    return {
+      branch = type(data.branch) == "string" and data.branch ~= "" and data.branch or nil,
+      dirty  = data.dirty == true,
+    }
+  end
+
+  -- Smart display path: strips noisy prefixes so only meaningful segments show.
+  -- ~/github/<tier>/<org>/<repo>[/sub] → <repo>[/sub]
+  -- seshy worktree ~/.local/state/seshy/sessions/<s>/<org>/<repo>[/sub] → <repo>[/sub]
+  -- ~/anything → ~/anything
+  local function smart_path(full_cwd)
+    if not full_cwd or full_cwd == "" then return "" end
+    local home = os.getenv("HOME") or ""
+    -- Seshy worktree: strip up to and including <session>/<org>/
+    local seshy_base = home .. "/.local/state/seshy/sessions/"
+    if full_cwd:sub(1, #seshy_base) == seshy_base then
+      local rest = full_cwd:sub(#seshy_base + 1)  -- "<session>/<org>/<repo>[/sub]"
+      local repo_sub = rest:match("^[^/]+/[^/]+/(.+)$")  -- strip <session>/<org>/
+      if repo_sub then return repo_sub end
+      local repo_only = rest:match("^[^/]+/[^/]+/([^/]+)$")
+      if repo_only then return repo_only end
     end
-    return repo or ""
+    -- GitHub: ~/github/<tier>/<org>/<repo>[/sub] → <repo>[/sub]
+    local gh_base = home .. "/github/"
+    if full_cwd:sub(1, #gh_base) == gh_base then
+      local rest = full_cwd:sub(#gh_base + 1)  -- "<tier>/<org>/<repo>[/sub]"
+      local repo_sub = rest:match("^[^/]+/[^/]+/(.+)$")  -- strip <tier>/<org>/
+      if repo_sub then return repo_sub end
+      return rest
+    end
+    -- Home-relative fallback
+    if full_cwd == home then return "~" end
+    if full_cwd:sub(1, #home + 1) == home .. "/" then
+      return "~/" .. full_cwd:sub(#home + 2)
+    end
+    return full_cwd
   end
 
   -- Extract a pane's agent state from the two sources, worst-source-wins: prefer
@@ -309,7 +354,7 @@ function M.setup(config)
                 window_id = window_id,
                 tab_id = tab_id,
                 workspace = workspace,
-                repo = pane_repo(p),
+                repo = (function() local r, _ = pane_repo(p); return r end)(),
                 branch = "", -- not in-memory; the state-file bus carries it
                 agent = agent or "",
                 status = status,
@@ -525,13 +570,19 @@ function M.setup(config)
             local p = info.pane
             local status, reason, since, agent = pane_agent_state(p, deck_states)
             local rank = status and agent_state_rank[status] or 0
+            local pid = p:pane_id()
+            local repo, cwd = pane_repo(p)
+            local git = read_pane_git(pid)
             local rec = {
-              pane_id = p:pane_id(),
+              pane_id = pid,
               window_id = window_id,
               tab_id = tnode.tab_id,
               workspace = workspace,
               tab_title = tnode.title,
-              repo = pane_repo(p),
+              repo = repo,
+              cwd = cwd,
+              branch = git and git.branch or nil,
+              dirty = git and git.dirty or false,
               title = pane_proc(p, agent),
               agent = agent or "",
               status = status,
@@ -606,7 +657,13 @@ function M.setup(config)
     end
     local icon = agent_state_icons[best.status] or "●"
     local age_str = format_age(best.since and (now - best.since) or nil)
-    local text = " " .. icon .. " " .. best_name
+    local text = " " .. icon
+    -- Omit session name when it matches the current workspace: tabline_z "workspace"
+    -- already shows it. Only prepend the name when attention is on a different session.
+    local ok, cur_ws = pcall(function() return wezterm.mux.get_active_workspace() end)
+    if not ok or cur_ws ~= best_name then
+      text = text .. " " .. best_name
+    end
     if age_str ~= "" then
       text = text .. " " .. age_str
     end
@@ -724,6 +781,7 @@ function M.setup(config)
     tab     = nf.md_tab or "󰓩",
     folder  = (sigil_ok and sigil.symbol("Folder")) or nf.md_folder or "",
     attn    = nf.md_alert or "󰀪",
+    branch  = nf.cod_git_branch or "⎇",
   }
 
   -- Build the session tree color palette from the active window's resolved
@@ -1344,16 +1402,8 @@ function M.setup(config)
         return choices
       end
 
-      -- "all" view: urgency-ordered attention zone (non-default workspaces only),
-      -- then the live workspace tree. "default" panes are intentionally excluded
-      -- from the flat attention zone — they appear nested in the tree at the
-      -- bottom where they belong, not as un-nested rows above the sessions.
-      for _, rec in ipairs(tree.attention) do
-        if rec.workspace ~= "default" then
-          add("attn:" .. rec.pane_id, attn_row(rec, now, colors), rec)
-        end
-      end
-
+      -- "all" view: pure workspace tree, recency-sorted. Status is shown inline on
+      -- each pane/workspace row — no separate attention zone so nothing is doubled.
       local live_sorted = {}
       for _, ws in ipairs(tree.workspaces) do
         if not ws.dormant then live_sorted[#live_sorted + 1] = ws end
@@ -1384,11 +1434,27 @@ function M.setup(config)
           for ti, tnode in ipairs(ws.tabs) do
             local tlast = ti == #ws.tabs
             local tbranch = tlast and "  └─ " or "  ├─ "
-            -- tab row: tree chrome + tab icon + smart label + active-pane badge
+            -- tab row: chrome + tab icon + smart label + active-pane context (path, branch)
+            local active_rec
+            for _, pr in ipairs(tnode.panes) do
+              if pr.pane_id == tnode.active_pane_id then active_rec = pr; break end
+            end
             local tab_r = ribbon.new("tab", true)
             tab_r:append(nil, colors.chrome, tbranch)
             tab_r:append(nil, colors.ws_live, tree_icons.tab .. " ")
             tab_r:append(nil, colors.name, tnode.title)
+            -- inline active-pane context: smart path when in a subdirectory, git branch
+            if active_rec then
+              local dp = smart_path(active_rec.cwd)
+              if dp ~= "" and dp ~= active_rec.repo then
+                tab_r:append(nil, colors.dir_ic, "  " .. tree_icons.folder .. " ")
+                tab_r:append(nil, colors.name, dp)
+              end
+              if active_rec.branch then
+                tab_r:append(nil, colors.age, "  " .. tree_icons.branch .. " " .. active_rec.branch)
+                if active_rec.dirty then tab_r:append(nil, colors.working, "*") end
+              end
+            end
             if tnode.active_pane_id then
               local bc = pane_badge_color(tnode.active_pane_id, colors)
               if bc then
@@ -1402,13 +1468,15 @@ function M.setup(config)
             for pi, rec in ipairs(tnode.panes) do
               local pbranch = (tlast and "     " or "  │  ")
                 .. (pi == #tnode.panes and "└─ " or "├─ ")
-              -- pane row: info priority = dir → proc (with sigil icon) → agent state
+              -- pane row: info priority = dir (smart path) → proc → git → agent state
               local pane_r = ribbon.new("pane", true)
               pane_r:append(nil, colors.chrome, pbranch)
-              -- dir (cwd basename)
-              if rec.repo ~= "" then
+              -- dir: smart path (repo/subdir context, not raw basename)
+              local pane_dp = smart_path(rec.cwd)
+              if pane_dp == "" then pane_dp = rec.repo end
+              if pane_dp ~= "" then
                 pane_r:append(nil, colors.dir_ic, tree_icons.folder .. " ")
-                pane_r:append(nil, colors.name, rec.repo)
+                pane_r:append(nil, colors.name, pane_dp)
               end
               -- proc: sigil icon + name (skip if same as tab label to avoid repetition)
               local proc = rec.title ~= "" and rec.title or nil
@@ -1440,6 +1508,11 @@ function M.setup(config)
                 if age ~= "" then
                   pane_r:append(nil, colors.age, " " .. age)
                 end
+              end
+              -- git: branch + dirty flag (only for agent-active panes with state files)
+              if rec.branch then
+                pane_r:append(nil, colors.age, "  " .. tree_icons.branch .. " " .. rec.branch)
+                if rec.dirty then pane_r:append(nil, colors.working, "*") end
               end
               -- pane badge: colored pet name — cross-referenceable with tab title
               local bc = pane_badge_color(rec.pane_id, colors)
