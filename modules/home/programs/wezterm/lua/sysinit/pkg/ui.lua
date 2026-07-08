@@ -200,6 +200,13 @@ function M.setup(config)
     working = 2,
     idle    = 1,
   }
+  local agent_state_labels = {
+    waiting = "Needs Input",
+    done    = "Idle",
+    working = "Working",
+    idle    = "",
+  }
+  local SUPPRESSED_REASONS = { ["your move"] = true, ["submit"] = true, ["message"] = true }
 
   local function format_age(secs)
     if not secs or secs < 0 then
@@ -1106,11 +1113,16 @@ function M.setup(config)
                   end
                 end
                 local age = st.since and format_age(now - st.since) or ""
-                if st.reason ~= "" then
-                  label = label .. " — " .. st.reason
+                local lbl = agent_state_labels[st.status] or ""
+                local show_reason = st.reason ~= "" and not SUPPRESSED_REASONS[st.reason]
+                if lbl ~= "" or show_reason then
+                  local parts = {}
+                  if lbl ~= "" then parts[#parts + 1] = lbl end
+                  if show_reason then parts[#parts + 1] = st.reason end
+                  label = label .. " — " .. table.concat(parts, " · ")
                 end
                 if age ~= "" then
-                  label = label .. " (" .. age .. ")"
+                  label = label .. "  " .. age
                 end
               end
               table.insert(rows, {
@@ -1228,12 +1240,17 @@ function M.setup(config)
         end
         r:append(nil, colors.name, " " .. rec.title)
       end
-      -- reason and age
-      if rec.reason ~= "" then
-        r:append(nil, colors.reason, "  " .. rec.reason)
+      -- status label + meaningful reason (suppress generic agent prompts) + age
+      local lbl = agent_state_labels[rec.status] or ""
+      local show_reason = rec.reason ~= "" and not SUPPRESSED_REASONS[rec.reason]
+      if lbl ~= "" or show_reason then
+        local parts = {}
+        if lbl ~= "" then parts[#parts + 1] = lbl end
+        if show_reason then parts[#parts + 1] = rec.reason end
+        r:append(nil, colors.reason, "  " .. table.concat(parts, " · "))
       end
       if age ~= "" then
-        r:append(nil, colors.age, " (" .. age .. ")")
+        r:append(nil, colors.age, "  " .. age)
       end
       -- pane badge: colored pet name for cross-referencing
       local bc = pane_badge_color(rec.pane_id, colors)
@@ -1359,7 +1376,11 @@ function M.setup(config)
           ws_r:append(nil, sc or colors.ws_live, tree_icons.session .. " ")
           ws_r:append(nil, colors.name, ws.name, "Bold")
           if ws.status then
+            local ws_lbl = agent_state_labels[ws.status] or ""
             ws_r:append(nil, sc or colors.working, "  " .. (agent_state_icons[ws.status] or "●"))
+            if ws_lbl ~= "" then
+              ws_r:append(nil, colors.reason, "  " .. ws_lbl)
+            end
           end
           ws_r:append(nil, colors.ghost, match_suffix(ws.name, nil, nil, ws.status, nil), "Italic")
           add("ws:" .. ws.name, ws_r:format(), { workspace = ws.name, dormant = false })
@@ -1404,19 +1425,24 @@ function M.setup(config)
                 end
                 pane_r:append(nil, colors.name, " " .. proc)
               end
-              -- agent state: status icon + reason + age
+              -- agent state: status icon + label + meaningful reason + age
               if rec.status then
                 local asc = rec.status == "waiting" and colors.waiting
                   or rec.status == "done"    and colors.done
                   or rec.status == "working" and colors.working
                   or colors.idle
                 local age = rec.since and format_age(now - rec.since) or ""
+                local p_lbl = agent_state_labels[rec.status] or ""
+                local p_show_reason = rec.reason ~= "" and not SUPPRESSED_REASONS[rec.reason]
                 pane_r:append(nil, asc, "  " .. (agent_state_icons[rec.status] or "●"))
-                if rec.reason ~= "" then
-                  pane_r:append(nil, colors.reason, " " .. rec.reason)
+                if p_lbl ~= "" or p_show_reason then
+                  local parts = {}
+                  if p_lbl ~= "" then parts[#parts + 1] = p_lbl end
+                  if p_show_reason then parts[#parts + 1] = rec.reason end
+                  pane_r:append(nil, colors.reason, " " .. table.concat(parts, " · "))
                 end
                 if age ~= "" then
-                  pane_r:append(nil, colors.age, " (" .. age .. ")")
+                  pane_r:append(nil, colors.age, " " .. age)
                 end
               end
               -- pane badge: colored pet name — cross-referenceable with tab title
@@ -1580,7 +1606,7 @@ function M.setup(config)
       },
       tree_filter_key("a", "all"),
       tree_filter_key("b", "blocked"),
-      tree_filter_key("g", "agents"),
+      tree_filter_key("w", "agents"),
       tree_filter_key("d", "dormant"),
       tree_filter_key("s", "sessions"),
       tree_cycle_key("]", 1),
@@ -1609,7 +1635,7 @@ function M.setup(config)
           return
         end
       end
-      local title = "Sessions  [^s sessions · ^b blocked · ^g agents · ^d dormant · ^]/[ cycle]"
+      local title = "Sessions  [^s sessions · ^b blocked · ^w working · ^d dormant · ^]/[ cycle]"
       if filter ~= "all" then
         title = "Sessions  [" .. filter .. "  |  ^a all · ^]/[ cycle]"
       end
@@ -1626,7 +1652,7 @@ function M.setup(config)
           title = title,
           choices = choices,
           fuzzy = true,
-          fuzzy_description = "  j/k nav  J/K session  ^s sessions  ^b blocked  ^g agents  ^d dormant  ^a all  ^]/[ cycle: ",
+          fuzzy_description = "  j/k nav  J/K session  ^s sessions  ^b blocked  ^w working  ^d dormant  ^a all  ^]/[ cycle: ",
           action = wezterm.action_callback(function(inner_win, inner_pane, id, _label)
             local pf = tree_state.pending_filter
             tree_state.pending_filter = nil
