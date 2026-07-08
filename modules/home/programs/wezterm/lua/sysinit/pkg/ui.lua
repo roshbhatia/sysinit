@@ -446,24 +446,25 @@ function M.setup(config)
     return (raw:gsub("^%.", ""):gsub("%-wrapped$", ""))
   end
 
-  -- Best-effort short label for a pane: the agent name when it is an agent pane,
-  -- else the basename of its foreground process, else its title. Used as the
-  -- leaf segment of the `session/tab/agent` filter path. "" on any failure.
+  -- Best-effort short label for a pane: foreground process first (always current),
+  -- then stored agent name (may be stale), then OSC title, then "". Preferring
+  -- the live process avoids showing a previous agent's name after switching tools.
   local function pane_proc(p, agent)
-    if agent and agent ~= "" then
-      return agent
-    end
-    local ok, name = pcall(function()
+    local ok, proc_name = pcall(function()
       local proc = p:get_foreground_process_name()
       if proc and proc ~= "" then
         return normalize_proc((proc:gsub("/+$", "")):match("([^/]+)$") or "")
       end
-      return normalize_proc(p:get_title() or "")
+      return nil
     end)
-    if not ok then
-      return ""
+    if ok and proc_name and proc_name ~= "" then
+      return proc_name
     end
-    return name or ""
+    if agent and agent ~= "" then
+      return agent
+    end
+    local ok2, title = pcall(function() return normalize_proc(p:get_title() or "") end)
+    return (ok2 and title) or ""
   end
 
   -- Best-effort tab segment: the tab's title, else the active pane's process,
@@ -1414,9 +1415,10 @@ function M.setup(config)
           ws_r:append(nil, colors.name, ws.name, "Bold")
           if ws.status then
             local ws_lbl = agent_state_labels[ws.status] or ""
-            ws_r:append(nil, sc or colors.working, "  " .. (agent_state_icons[ws.status] or "●"))
+            ws_r:append(nil, colors.chrome, "  |  ")
+            ws_r:append(nil, sc or colors.working, agent_state_icons[ws.status] or "●")
             if ws_lbl ~= "" then
-              ws_r:append(nil, colors.reason, "  " .. ws_lbl)
+              ws_r:append(nil, colors.reason, " " .. ws_lbl)
             end
           end
           add("ws:" .. ws.name, ws_r:format(), { workspace = ws.name, dormant = false })
@@ -1433,21 +1435,30 @@ function M.setup(config)
               if bc then
                 tab_r:append(nil, colors.chrome, "<")
                 tab_r:append(nil, bc, pane_badge(tnode.active_pane_id))
-                tab_r:append(nil, colors.chrome, ">  ")
+                tab_r:append(nil, colors.chrome, ">")
               end
             end
+            tab_r:append(nil, colors.chrome, "  |  ")
             tab_r:append(nil, colors.name, tnode.title)
             add("tab:" .. tnode.tab_id, tab_r:format(), { pane_id = tnode.active_pane_id, workspace = ws.name })
 
             for pi, rec in ipairs(tnode.panes) do
               local pbranch = (tlast and "     " or "  │  ")
                 .. (pi == #tnode.panes and "└─ " or "├─ ")
-              -- pane row: proc → path → branch → status+age → badge
+              -- pane row: <badge> | proc | path | branch | status+age
               local pane_r = ribbon.new("pane")
               pane_r:append(nil, colors.chrome, pbranch)
+              -- badge first: colored pet name for quick cross-referencing
+              local bc = pane_badge_color(rec.pane_id, colors)
+              if bc then
+                pane_r:append(nil, colors.chrome, "<")
+                pane_r:append(nil, bc, pane_badge(rec.pane_id))
+                pane_r:append(nil, colors.chrome, ">")
+              end
               -- proc: sigil icon + name
               local proc = rec.title ~= "" and rec.title or nil
               if proc then
+                pane_r:append(nil, colors.chrome, "  |  ")
                 if sigil_ok then
                   local proc_items = sigil.items(proc, { fallback = true, padding = "left", reset = true })
                   pane_r:append_items(proc_items)
@@ -1486,12 +1497,6 @@ function M.setup(config)
                   pane_r:append(nil, colors.reason, " " .. table.concat(parts, " · "))
                 end
                 if age ~= "" then pane_r:append(nil, colors.age, " " .. age) end
-              end
-              -- badge
-              local bc = pane_badge_color(rec.pane_id, colors)
-              if bc then
-                pane_r:append(nil, colors.chrome, "  |  ")
-                pane_r:append(nil, bc, pane_badge(rec.pane_id))
               end
               add("pane:" .. rec.pane_id, pane_r:format(), rec)
             end
