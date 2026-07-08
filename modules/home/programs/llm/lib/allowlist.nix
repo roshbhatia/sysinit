@@ -252,8 +252,8 @@ let
   # For "<cmd>" (exact, no args) we emit "<cmd>*" because opencode's
   # glob matching is prefix-based — exact-only enforcement would require
   # an opencode-specific syntax we don't emit here.
-  formatForOpencode =
-    tier:
+  formatForOpencodeWithAction =
+    action: tier:
     let
       toKey =
         cmd:
@@ -262,7 +262,9 @@ let
         else
           cmd + "*";
     in
-    lib.listToAttrs (builtins.map (cmd: lib.nameValuePair (toKey cmd) "allow") tier);
+    lib.listToAttrs (builtins.map (cmd: lib.nameValuePair (toKey cmd) action) tier);
+
+  formatForOpencode = formatForOpencodeWithAction "allow";
 in
 {
   inherit
@@ -273,6 +275,7 @@ in
     formatForCrush
     formatForAmp
     formatForGoose
+    formatForOpencodeWithAction
     formatForOpencode
     ;
 }
