@@ -147,14 +147,27 @@
   `openspec validate build-agent-state-bus-and-surfaces` passes; `git diff`
   reviewed. New/changed files staged with `git add -N` so the flake sees them
   (untracked files are invisible to flake eval); nothing committed.
-- [ ] 7.2 Apply (impactful): `nh darwin switch` (mutates the live system).
+- [x] 7.2 Apply (impactful): `nh darwin switch` (mutates the live system).
+  Applied — system generation flipped to `system-1029` (`/run/current-system`
+  → `cih4s6gbw8qq…`). One-time unblock: newer Homebrew's `HOMEBREW_REQUIRE_TAP_TRUST`
+  refused the `slp/krunkit` tap's `virglrenderer` formula; the activation context
+  runs `brew` WITHOUT `XDG_CONFIG_HOME`, so trust had to be written to
+  `~/.homebrew/trust.json` (not `~/.config/homebrew/trust.json`) via
+  `env -u XDG_CONFIG_HOME brew trust slp/krunkit && … --formula slp/krunkit/virglrenderer`.
+  Post-switch: live `~/.claude/settings.json` now carries the new hook set
+  (`Notification` → `agent-prompt claude attention …`), and `alerter-26.5`
+  (Mach-O arm64) is on the wrapper PATH. `RELAY_ENABLED=0` baked in (kill switch
+  off by default).
 - [ ] 7.3 Confirm (human, live): state files under
   `~/.local/state/agents/panes/`; `SUPER+g`/`SUPER+SHIFT+g` jump; per-tab icons;
   richer switcher/statusline; with the relay toggle on, Accept approves and Deny
   rejects in the target pane; toggle off restores click-to-focus only. Use the
   named kill switches for any slice that misbehaves.
-- [ ] 7.4 Apply (impactful, on explicit user direction only): commit
-  (conventional, title-only) and `git push` to `main`.
+- [x] 7.4 Apply (impactful, on explicit user direction only): commit
+  (conventional, title-only) and `git push` to `main`. Done — two title-only
+  conventional commits (`chore(openspec): archive surface-agent-session-state`,
+  `feat(agents): cross-surface agent state bus and wezterm surfaces`), rebased
+  onto `origin/main`, pushed (remote `9c04cce69`).
 - [ ] 7.5 Confirm: ping the user that it is applied; note any deferred
   fast-follows (throwaway-tab weighting / `done` decay; neovim consumer in
   `sysinit.nvim`).
