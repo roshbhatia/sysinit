@@ -232,12 +232,12 @@
             "name": null,
             "owner": "AlexanderGrooff",
             "repo": "mermaid-ascii",
-            "rev": "1.3.0",
-            "sha256": "sha256-lACyrxum1YjIXfoajO7YQdz+pZtQZdZhMqOaa82tsPs=",
+            "rev": "1.4.0",
+            "sha256": "sha256-BAO0WnKbkHTkoZRZFtPuMiJvOcfBndeoShEym1QrFzs=",
             "sparseCheckout": [],
             "type": "github"
         },
-        "version": "1.3.0"
+        "version": "1.4.0"
     },
     "pi-coding-agent": {
         "cargoLock": null,
