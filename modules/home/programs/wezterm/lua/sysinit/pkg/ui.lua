@@ -1307,12 +1307,14 @@ function M.setup(config)
         table.sort(live, function(a, b)
           return (a.last_active or 0) > (b.last_active or 0)
         end)
-        for _, ws in ipairs(live) do
+        for i, ws in ipairs(live) do
           local sc = ws.status == "waiting" and colors.waiting
             or ws.status == "done"    and colors.done
             or ws.status == "working" and colors.working
             or nil
+          local qs = i <= 9 and tostring(i) or string.char(96 + i - 9)
           local r = ribbon.new("ws", true)
+          r:append(nil, colors.chrome, qs .. "  ")
           r:append(nil, sc or colors.ws_live, tree_icons.session .. " ")
           r:append(nil, colors.name, ws.name, "Bold")
           if ws.status then
@@ -1533,6 +1535,7 @@ function M.setup(config)
     -- key reopens scoped. An empty filtered view falls back to the full tree so
     -- the picker never opens blank.
     local function open_session_tree(win, pane, filter)
+      filter = filter or "sessions"
       local tree = session_tree(sy_bin)
       -- Resolve palette once per open so all rows in this invocation share
       -- the same colors even if the picker is open across a scheme switch.
@@ -1540,17 +1543,17 @@ function M.setup(config)
       local by_id = {}
       local choices = session_tree_choices(tree, by_id, filter, colors)
       if #choices == 0 then
-        if filter then
-          filter, by_id = nil, {}
-          choices = session_tree_choices(tree, by_id, nil, colors)
+        if filter and filter ~= "all" then
+          filter, by_id = "all", {}
+          choices = session_tree_choices(tree, by_id, "all", colors)
         end
         if #choices == 0 then
           return
         end
       end
-      local title = "Sessions  [^s sessions · ^b blocked · ^g agents · ^d dormant · ^a all · ^]/[ cycle]"
-      if filter and filter ~= "all" then
-        title = "Sessions  [" .. filter .. "  |  ^]/[ cycle]"
+      local title = "Sessions  [^a all · ^b blocked · ^g agents · ^d dormant · ^]/[ cycle]"
+      if filter ~= "sessions" then
+        title = "Sessions  [" .. filter .. "  |  ^s sessions · ^]/[ cycle]"
       end
       tree_state.pending_filter = nil
       win:perform_action(
@@ -1562,13 +1565,13 @@ function M.setup(config)
           title = title,
           choices = choices,
           fuzzy = true,
-          fuzzy_description = "  ^s sessions  ^a all  ^b blocked  ^g agents  ^d dormant  ^]/[ cycle: ",
+          fuzzy_description = "  type name or #  ^a all  ^b blocked  ^g agents  ^d dormant  ^s sessions  ^]/[ cycle: ",
           action = wezterm.action_callback(function(inner_win, inner_pane, id, _label)
             local pf = tree_state.pending_filter
             tree_state.pending_filter = nil
             if pf then
               wezterm.time.call_after(0.05, function()
-                open_session_tree(inner_win, inner_pane, pf == "all" and nil or pf)
+                open_session_tree(inner_win, inner_pane, pf)
               end)
               return
             end
