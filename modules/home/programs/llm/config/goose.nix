@@ -16,7 +16,7 @@ let
       EDIT_MODE = "vi";
       GOOSE_CLI_MIN_PRIORITY = 0.2;
       GOOSE_CLI_THEME = "ansi";
-      GOOSE_MODE = "smart_approve";
+      GOOSE_MODE = "auto";
       GOOSE_TOOLSHIM = true;
 
       extensions = llmLib.mcp.formatForGoose kit.mcpServers.servers;

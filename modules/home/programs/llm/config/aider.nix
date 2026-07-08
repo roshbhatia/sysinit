@@ -33,10 +33,13 @@ in
       # Drop an `# AI!` comment in any file to trigger aider without a prompt.
       watch-files = true;
 
+      # Auto-accept all confirmations (equivalent to --yes).
+      yes = true;
+
       # Architect/editor split: a stronger model plans, a cheaper model edits.
       # See https://aider.chat/docs/usage/modes.html#architect-mode-and-the-editor-model
       architect = true;
-      auto-accept-architect = false;
+      auto-accept-architect = true;
       model = "anthropic/claude-sonnet-4-5";
       editor-model = "anthropic/claude-haiku-4-5";
 

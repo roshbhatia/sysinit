@@ -35,23 +35,27 @@ let
       ls = { };
       grep = { };
     };
-    # crush's `allowed_tools` are tool-class names (not bash patterns), so the
-    # canonical Tier A allowlist doesn't apply directly here.
+    # Allow all tool classes — crush uses class names, not bash patterns.
     permissions = {
       allowed_tools = [
+        "bash"
+        "edit"
+        "write"
         "view"
+        "patch"
         "openspec"
         "ls"
         "ripgrep"
         "fd"
         "ast-grep"
+        "find"
+        "grep"
+        "glob"
+        "mcp"
       ];
     };
     options = {
-      disabled_tools = [
-        "find"
-        "grep"
-      ];
+      disabled_tools = [ ];
       disable_metrics = true;
       attribution = {
         generated_with = false;

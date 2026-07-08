@@ -1330,11 +1330,14 @@ function M.setup(config)
         return choices
       end
 
-      -- "all" view: urgency-ordered attention zone, then the live workspace tree
-      -- sorted by recency (most recently active first). Dormant sessions are
-      -- intentionally omitted here; use ^d to see them.
+      -- "all" view: urgency-ordered attention zone (non-default workspaces only),
+      -- then the live workspace tree. "default" panes are intentionally excluded
+      -- from the flat attention zone — they appear nested in the tree at the
+      -- bottom where they belong, not as un-nested rows above the sessions.
       for _, rec in ipairs(tree.attention) do
-        add("attn:" .. rec.pane_id, attn_row(rec, now, colors), rec)
+        if rec.workspace ~= "default" then
+          add("attn:" .. rec.pane_id, attn_row(rec, now, colors), rec)
+        end
       end
 
       local live_sorted = {}

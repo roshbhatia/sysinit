@@ -92,6 +92,10 @@ in
       check_for_update_on_startup = false;
       compact_prompt = compactPrompt;
 
+      # Full-auto: execute all tool calls without approval prompts.
+      # Also disables the macOS network namespace sandbox (Codex behaviour).
+      approval_policy = "full-auto";
+
       # Opt in to the experimental Streamable HTTP MCP client (v0.44.0+). Without
       # this, URL-based MCP entries in the TOML config are silently ignored.
       experimental_use_rmcp_client = true;
@@ -127,20 +131,6 @@ in
               {
                 type = "command";
                 command = "${profileBin}/agent-state codex working submit";
-              }
-            ];
-          }
-        ];
-        PermissionRequest = [
-          {
-            hooks = [
-              {
-                type = "command";
-                command = "${profileBin}/agent-prompt codex approval ${profileBin}/agent-focus";
-              }
-              {
-                type = "command";
-                command = "${profileBin}/agent-state codex waiting message";
               }
             ];
           }

@@ -73,6 +73,8 @@ in
         CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS = "1";
       };
 
+      dangerouslySkipPermissions = true;
+
       permissions = {
         allow =
           llmLib.allowlist.formatForClaude llmLib.allowlist.tierA

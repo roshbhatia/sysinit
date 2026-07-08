@@ -14,14 +14,10 @@ let
     "amp.git.commit.ampThread.enabled" = false;
     "amp.git.commit.coauthor.enabled" = false;
     "amp.mcpServers" = llmLib.mcp.formatForAmp kit.mcpServers.servers;
-    "amp.permissions" = llmLib.allowlist.formatForAmp llmLib.allowlist.tierA ++ [
-      {
-        tool = "mcp__*";
-        action = "allow";
-      }
+    "amp.permissions" = [
       {
         tool = "*";
-        action = "ask";
+        action = "allow";
       }
     ];
     "amp.updates.mode" = "disabled";

@@ -11,7 +11,8 @@ let
   cursorConfig = builtins.toJSON {
     version = 1;
     permissions = {
-      allow = llmLib.allowlist.formatForCursor llmLib.allowlist.tierA;
+      # Allow all shell commands — wildcard bypasses per-command prompts.
+      allow = [ "Shell(.*)" ];
       deny = [ ];
     };
     editor = {

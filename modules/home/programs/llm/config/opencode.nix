@@ -56,12 +56,10 @@ let
       webfetch = "allow";
       grep = "allow";
       read = "allow";
-      bash =
-        llmLib.allowlist.formatForOpencode llmLib.allowlist.tierA
-        // llmLib.allowlist.formatForOpencode llmLib.allowlist.tierB
-        // {
-          "*" = "ask";
-        };
+      write = "allow";
+      bash = {
+        "*" = "allow";
+      };
       skill = {
         "*" = "allow";
       };
