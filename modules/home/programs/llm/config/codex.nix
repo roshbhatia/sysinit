@@ -9,8 +9,32 @@ let
   kit = llmLib.harnessKit.mkKit { inherit lib pkgs config; };
 
   profileBin = "${config.home.profileDirectory}/bin";
+
+  # Codex tries to write directory trust entries into ~/.codex/config.toml, but
+  # the HM module places a read-only nix-store symlink there. Replace every
+  # managed TOML symlink with a writable copy so codex can persist state between
+  # rebuilds. HM re-seeds the symlinks on each activation; this script runs after
+  # and overwrites them with mutable copies — trust entries survive until the next
+  # `nh darwin switch`.
+  makeWritable = pkgs.writeShellScript "codex-make-configs-writable" ''
+    set -euo pipefail
+    codex_home="$HOME/.codex"
+    for f in config.toml default.config.toml spec.config.toml; do
+      target="$codex_home/$f"
+      if [ -L "$target" ]; then
+        src="$(readlink "$target")"
+        rm -f "$target"
+        cp "$src" "$target"
+        chmod u+w "$target"
+      fi
+    done
+  '';
 in
 {
+  home.activation.codexWritableConfigs = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+    $DRY_RUN_CMD ${makeWritable}
+  '';
+
   programs.codex = {
     enable = true;
     enableMcpIntegration = true;

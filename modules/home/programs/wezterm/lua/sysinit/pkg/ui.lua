@@ -649,8 +649,8 @@ function M.setup(config)
           right = "",
         },
         tab_separators = {
-          left = " |",
-          right = "| ",
+          left = " ",
+          right = " ",
         },
       },
       sections = {
@@ -663,7 +663,6 @@ function M.setup(config)
         tabline_y = { agent_status },
         tabline_z = {
           "workspace",
-          "domain",
         },
         -- Prepend the agent indicator to tabline's default tab layout so the
         -- state icon leads, and the stock index/cwd/process still show the tab's
@@ -788,19 +787,27 @@ function M.setup(config)
     return BADGE_ADJ[math.floor(idx / 8) + 1] .. "-" .. BADGE_NOUN[(idx % 8) + 1]
   end
 
-  -- Return the brights color for a pane (uses slot 1-8, wraps via %).
-  -- `brights` is the raw array from tree_colors(); `cfg_colors` is
-  -- config.colors from a format-tab-title context (no win available there).
+  -- Return the brights color for a pane. Uses slots 2-8 (skips slot 1 =
+  -- bright-black which is near-invisible on dark backgrounds). `brights_or_cfg`
+  -- is either tree_colors() (has a .brights field) or cfg.colors from a
+  -- format-tab-title context where no win is available.
   local function pane_badge_color(pane_id, brights_or_cfg)
-    local slot = (pane_id % 8) + 1
+    local slot = (pane_id % 7) + 2  -- slots 2..8, never bright-black (1)
     if type(brights_or_cfg) == "table" then
-      -- tree_colors().brights or cfg.colors.brights
       local b = brights_or_cfg.brights or brights_or_cfg
       if type(b) == "table" then
         return b[slot]
       end
     end
     return nil
+  end
+
+  -- Normalize process names for display. Strips the `.` prefix and `-wrapped`
+  -- suffix that Nix wrapping adds (e.g. `.claude-wrapped` → `claude`,
+  -- `.code-wrapped` → `code`). Also collapses any remaining double-dash.
+  local function normalize_proc(raw)
+    if not raw or raw == "" then return raw end
+    return (raw:gsub("^%.", ""):gsub("%-wrapped$", ""))
   end
 
   -- lantern: runtime appearance picker (colorschemes, fonts, GPU, opacity, …).
@@ -896,7 +903,7 @@ function M.setup(config)
     local explicit = tab.tab_title -- set via tab:set_title(), else ""
     local osc = pane and pane.title
     local proc = pane and pane.foreground_process_name
-    if proc then proc = proc:match("([^/]+)$") end
+    if proc then proc = normalize_proc(proc:match("([^/]+)$") or proc) end
 
     -- A user- (or program-) set, non-numeric tab title always wins (no badge).
     if explicit and explicit ~= "" and not explicit:match("^%d+$") then
@@ -950,7 +957,7 @@ function M.setup(config)
     if pane and pane.pane_id then
       local pid = pane.pane_id
       local brights = cfg and cfg.colors and cfg.colors.brights or {}
-      local bc = brights[(pid % 8) + 1]
+      local bc = brights[(pid % 7) + 2]  -- slots 2..8, never bright-black (1)
       if bc then
         r:append(nil, "#3b4261", "  ")
         r:append(nil, bc, pane_badge(pid))
