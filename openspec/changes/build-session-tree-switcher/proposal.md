@@ -30,17 +30,19 @@ path-style filter (`sysinit/tests/codex`) collapses straight to the pane you wan
   `codex` / `waiting` narrows the flat list to that subtree / pane / class. This is the
   contract that makes filtering "play nicely" — without the embedded path, filtering to a
   leaf's ancestor names fails because a child row does not contain them.
-- **NEW** `session-tree-jump`: the in-picker interaction model, taken from neovim idioms —
-  a leap/flash-style label-jump mode where each node gets a short (two-letter when needed)
-  label you type to jump directly, and a telescope/fzf-style fuzzy-filter mode. The exact
-  mechanics (WezTerm `InputSelector`'s native `alphabet` label-select + fuzzy toggle vs.
-  any custom key handling such as `ctrl+f`) are pinned in design.md against verified
-  InputSelector capabilities — the design must not promise interactions the built-in
-  selector cannot host.
+- **NEW** `session-tree-jump`: the in-picker interaction model, taken from neovim idioms.
+  Ships as a telescope/fzf-style **fuzzy picker** (type to filter the embedded path/tokens,
+  Enter to jump) with **in-picker quick-filter Ctrl keys** — `Ctrl+B` blocked, `Ctrl+G`
+  agents, `Ctrl+D` dormant, `Ctrl+A` all — implemented via a key table activated before the
+  selector (Enter/Escape included so it never leaks). A leap/flash-style two-letter label
+  jump was evaluated but rejected: it is mutually exclusive with the quick-filter keys (bare
+  label selection bypasses the key-table pop). See design.md for the verified InputSelector
+  constraints behind this.
 - **MODIFIED** `agent-aware-switcher`: the `SUPER+s` binding is repointed from the plain
-  workspace switcher to the tree switcher. `SUPER+SHIFT+g` (blocked-pane picker) is
-  **removed** — subsumed by the tree. `SUPER+g` (zero-UI express to the worst pane) and
-  `SUPER+SHIFT+s` (smart_ssh "Choose Host" picker, `keybindings.lua:223`) are unchanged.
+  workspace switcher to the tree switcher. Both `SUPER+SHIFT+g` (blocked-pane picker) and
+  `SUPER+g` (express jump) are **removed** — agent navigation is now entirely `SUPER+s`
+  (the tree's needs-attention zone + `Ctrl+B` blocked filter subsume the express jump).
+  `SUPER+SHIFT+s` (smart_ssh "Choose Host" picker, `keybindings.lua:223`) is unchanged.
 
 ### Non-goals
 

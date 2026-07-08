@@ -1105,35 +1105,88 @@ function M.setup(config)
       return out
     end
 
-    local function session_tree_choices(tree, by_id)
+    -- One flat agent-pane row: `⚠ <icon> workspace · tab · proc — reason (age)`
+    -- (⚠ only when actionable, rank >= working) plus the match suffix. Reused by
+    -- the needs-attention zone and the blocked/agents quick filters.
+    local function attn_row(rec, now)
+      local icon = agent_state_icons[rec.status] or "●"
+      local parts = { rec.workspace }
+      if rec.tab_title ~= "" then
+        parts[#parts + 1] = rec.tab_title
+      end
+      if rec.title ~= "" then
+        parts[#parts + 1] = rec.title
+      end
+      local prefix = (rec.rank and rec.rank >= agent_state_rank.working) and "⚠ " or "  "
+      local label = prefix .. icon .. " " .. table.concat(parts, " · ")
+      if rec.reason ~= "" then
+        label = label .. " — " .. rec.reason
+      end
+      local age = rec.since and format_age(now - rec.since) or ""
+      if age ~= "" then
+        label = label .. " (" .. age .. ")"
+      end
+      return label .. match_suffix(rec.workspace, rec.tab_title, rec.title, rec.status, rec.repo)
+    end
+
+    -- Build InputSelector choices from the tree. `filter` scopes the view (driven
+    -- by the in-picker Ctrl keys): nil/"all" = needs-attention zone + full tree;
+    -- "blocked" = flat actionable panes; "agents" = flat all-agent panes;
+    -- "dormant" = dormant seshy sessions only.
+    local function session_tree_choices(tree, by_id, filter)
       local choices = {}
       local now = os.time()
       local function add(id, label, rec)
         by_id[id] = rec or true
         choices[#choices + 1] = { id = id, label = label }
       end
+      filter = filter or "all"
 
-      -- Needs-attention zone: the actionable panes, urgency-ordered, each prefixed
-      -- with ⚠ (no separate header row so no jump label is wasted on a no-op).
+      if filter == "blocked" or filter == "agents" then
+        local list = {}
+        if filter == "blocked" then
+          for _, rec in ipairs(tree.attention) do
+            list[#list + 1] = rec
+          end
+        else
+          for _, ws in ipairs(tree.workspaces) do
+            for _, tnode in ipairs(ws.tabs) do
+              for _, rec in ipairs(tnode.panes) do
+                if rec.status then
+                  list[#list + 1] = rec
+                end
+              end
+            end
+          end
+          table.sort(list, function(a, b)
+            if a.rank ~= b.rank then
+              return a.rank > b.rank
+            end
+            return (a.since or now) < (b.since or now)
+          end)
+        end
+        for _, rec in ipairs(list) do
+          add("pane:" .. rec.pane_id, attn_row(rec, now), rec)
+        end
+        return choices
+      end
+
+      if filter == "dormant" then
+        for _, ws in ipairs(tree.workspaces) do
+          if ws.dormant then
+            add(
+              "ws:" .. ws.name,
+              "○ " .. ws.name .. match_suffix(ws.name, nil, nil, nil, nil),
+              { workspace = ws.name, dormant = true }
+            )
+          end
+        end
+        return choices
+      end
+
+      -- filter == "all": needs-attention zone (⚠, urgency-ordered) then full tree.
       for _, rec in ipairs(tree.attention) do
-        local icon = agent_state_icons[rec.status] or "●"
-        local parts = { rec.workspace }
-        if rec.tab_title ~= "" then
-          parts[#parts + 1] = rec.tab_title
-        end
-        if rec.title ~= "" then
-          parts[#parts + 1] = rec.title
-        end
-        local label = "⚠ " .. icon .. " " .. table.concat(parts, " · ")
-        if rec.reason ~= "" then
-          label = label .. " — " .. rec.reason
-        end
-        local age = rec.since and format_age(now - rec.since) or ""
-        if age ~= "" then
-          label = label .. " (" .. age .. ")"
-        end
-        label = label .. match_suffix(rec.workspace, rec.tab_title, rec.title, rec.status, rec.repo)
-        add("attn:" .. rec.pane_id, label, rec)
+        add("attn:" .. rec.pane_id, attn_row(rec, now), rec)
       end
 
       for _, ws in ipairs(tree.workspaces) do
@@ -1200,28 +1253,90 @@ function M.setup(config)
       end
     end
 
-    -- Open the all-in-one session tree picker. Opens in label-jump mode
-    -- (`fuzzy = false`): each row shows a home-row-first quick-select label
-    -- (leap/flash-style), needs-attention + live panes first so they get the
-    -- easiest keys. `/` switches to fuzzy filtering against the embedded
-    -- `session/tab/agent` path + tokens (WezTerm's toggle key, not configurable).
-    -- Alphabet omits j/k (the widget reserves them for up/down movement).
-    local session_tree_alphabet = "asdfghlqwertyuiopzxcvbnm"
-    local function open_session_tree(win, pane)
+    -- Quick-filter keys inside the picker. WezTerm's InputSelector hosts no
+    -- custom keys directly, but a key table activated *before* the selector is
+    -- (the workspace-manager trick): each entry sets a pending filter, pops the
+    -- table, and sends Enter to close the selector; the callback then reopens the
+    -- tree scoped to that filter. Enter/Escape are included so the table is ALWAYS
+    -- popped on close — otherwise it would leak into normal typing. This is why
+    -- the picker runs in fuzzy mode (selection only via Enter); label-jump mode
+    -- would let a bare-letter select bypass the pop. Filter keys use CTRL so they
+    -- never collide with fuzzy typing.
+    local tree_state = { pending_filter = nil }
+    local function tree_filter_key(key, filter)
+      return {
+        key = key,
+        mods = "CTRL",
+        action = wezterm.action_callback(function(win, pane)
+          tree_state.pending_filter = filter
+          win:perform_action(wezterm.action.PopKeyTable, pane)
+          win:perform_action(wezterm.action.SendKey({ key = "Enter" }), pane)
+        end),
+      }
+    end
+    local function tree_close_key(key)
+      return {
+        key = key,
+        mods = "NONE",
+        action = wezterm.action_callback(function(win, pane)
+          tree_state.pending_filter = nil
+          win:perform_action(wezterm.action.PopKeyTable, pane)
+          win:perform_action(wezterm.action.SendKey({ key = key }), pane)
+        end),
+      }
+    end
+    config.key_tables = config.key_tables or {}
+    config.key_tables.session_tree_actions = {
+      tree_close_key("Enter"),
+      tree_close_key("Escape"),
+      tree_filter_key("a", "all"),
+      tree_filter_key("b", "blocked"),
+      tree_filter_key("g", "agents"),
+      tree_filter_key("d", "dormant"),
+    }
+
+    -- Open the all-in-one session tree picker in fuzzy mode (needs-attention zone
+    -- on top, then the tree). Type to filter by the embedded `session/tab/agent`
+    -- path + tokens; Ctrl+A/B/G/D scope the view; Enter jumps. Recursive: a filter
+    -- key reopens scoped. An empty filtered view falls back to the full tree so
+    -- the picker never opens blank.
+    local function open_session_tree(win, pane, filter)
       local tree = session_tree(sy_bin)
       local by_id = {}
-      local choices = session_tree_choices(tree, by_id)
+      local choices = session_tree_choices(tree, by_id, filter)
       if #choices == 0 then
-        return
+        if filter then
+          filter, by_id = nil, {}
+          choices = session_tree_choices(tree, by_id, nil)
+        end
+        if #choices == 0 then
+          return
+        end
       end
+      local title = "Session tree"
+      if filter and filter ~= "all" then
+        title = title .. "  ·  " .. filter
+      end
+      tree_state.pending_filter = nil
+      win:perform_action(
+        wezterm.action.ActivateKeyTable({ name = "session_tree_actions", one_shot = false }),
+        pane
+      )
       win:perform_action(
         wezterm.action.InputSelector({
-          title = "Session tree",
+          title = title,
           choices = choices,
-          fuzzy = false,
-          alphabet = session_tree_alphabet,
-          fuzzy_description = "jump to session · tab · pane: ",
+          fuzzy = true,
+          fuzzy_description = "filter session/tab/pane  ·  ^a all  ^b blocked  ^g agents  ^d dormant: ",
           action = wezterm.action_callback(function(inner_win, inner_pane, id, _label)
+            local pf = tree_state.pending_filter
+            tree_state.pending_filter = nil
+            if pf then
+              wezterm.time.call_after(0.05, function()
+                open_session_tree(inner_win, inner_pane, pf == "all" and nil or pf)
+              end)
+              return
+            end
             session_tree_dispatch(inner_win, inner_pane, id, by_id)
           end),
         }),
@@ -1307,26 +1422,10 @@ function M.setup(config)
     end)
   end
 
-  -- Agent express jump. Bound here (not keybindings.lua) because it needs the
-  -- rollup helpers in scope, mirroring the SUPER+s switcher above; honors the
-  -- locked-mode passthrough. `CTRL+g` (locked-mode toggle) is unaffected. The
-  -- former SUPER+SHIFT+g blocked-pane picker is retired — the SUPER+s session
-  -- tree (needs-attention zone + pane nodes) subsumes it.
-  config.keys = config.keys or {}
-
-  -- SUPER+g: jump straight to the single worst blocked pane across all
-  -- workspaces (throwaway sibling tabs included). No-op when nothing is blocked.
-  table.insert(config.keys, {
-    key = "g",
-    mods = "SUPER",
-    action = wezterm.action_callback(function(win, pane)
-      if keybindings.locked_mode then
-        win:perform_action({ SendKey = { key = "g", mods = "SUPER" } }, pane)
-        return
-      end
-      activate_agent_pane(win, pane, worst_agent_pane())
-    end),
-  })
+  -- Agent navigation is now entirely SUPER+s (the session tree). The former
+  -- SUPER+g express jump and SUPER+SHIFT+g blocked-pane picker are retired — the
+  -- tree's needs-attention zone (worst on top) and pane nodes subsume both.
+  -- `CTRL+g` (locked-mode toggle) is unaffected.
 end
 
 return M

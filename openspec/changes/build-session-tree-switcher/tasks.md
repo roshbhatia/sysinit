@@ -79,6 +79,27 @@
   opens a picker; `SUPER+g` and `SUPER+SHIFT+s` behave exactly as before. Kill switch = revert
   the ui.lua binding block.
 - [x] 4.5 Applied (user-directed): committed (conventional, title-only) and pushed to `main`.
-- [ ] 4.6 Confirm: ping the user that it is applied; note deferred fast-follows (neovim-side
+- [x] 4.6 Confirm: pinged the user (applied at closure `pa37bny4`). Fast-follows: neovim-side
   tree in `sysinit.nvim`; smooth dormant layout-restore if the plugin later exposes a public
-  switch-with-restore; confirm multi-char jump labels beyond 35 nodes to relax D9).
+  switch-with-restore. The multi-char-jump-label question is moot (slice 5 replaced label-jump
+  with fuzzy + filter keys per user direction).
+
+## 5. In-picker quick-filter keys + single-key nav (user-directed, post-rollout)
+
+- [x] 5.1 Reworked the interaction per user direction: picker now opens in FUZZY mode with
+  in-picker Ctrl quick-filter keys via a `session_tree_actions` key table activated before the
+  `InputSelector` (the ryanmsnyder/workspace-manager trick, confirmed at plugin `actions.lua`
+  `ActivateKeyTable{one_shot=false}` + synthetic-Enter). Keys: `Ctrl+B` blocked, `Ctrl+G`
+  agents, `Ctrl+D` dormant, `Ctrl+A` all. Enter/Escape are in the table (pop + forward) so it
+  never leaks; even a leaked table self-heals on the next Enter/Escape. `session_tree_choices`
+  gained a `filter` arg (+ extracted `attn_row`); empty filtered views fall back to the full
+  tree. Label-jump/`alphabet` removed (mutually exclusive with the key table).
+- [x] 5.2 Removed `SUPER+g` entirely per user direction — agent nav is now solely `SUPER+s`
+  (`SUPER+SHIFT+g` was already retired in slice 4). `worst_agent_pane` is now unused but
+  retained (harmless).
+- [x] 5.3 Verified: `nh darwin build` green (`+3.59 KiB`, closure `d6vigml8`).
+- [x] 5.4 Applied: `nh darwin switch` — `current-system` = `d6vigml8`.
+- [ ] 5.5 Confirm (human, live): `SUPER+s` opens in filter mode; typing narrows;
+  `Ctrl+B/G/D/A` re-scope; Enter jumps; after closing, normal typing is unaffected (no
+  key-table leak). `SUPER+g` is gone.
+- [x] 5.6 Applied (user-directed): committed (title-only) and pushed to `main`.
