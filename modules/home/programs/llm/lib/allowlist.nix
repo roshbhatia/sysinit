@@ -284,9 +284,8 @@ let
     "mcp__ast-grep__*"
     # AWS service docs — remote read-only
     "mcp__aws-knowledge-mcp-server__*"
-    # cross-harness memory store (basic-memory / hipocampo)
+    # cross-harness memory store
     "mcp__basic-memory__*"
-    "mcp__hipocampo__*"
     # Codex-as-subagent — intentional delegation, user-initiated
     "mcp__codex-mcp__*"
     # Playwright browser automation — user has opted in
