@@ -174,14 +174,4 @@ with lib;
         }
     ) servers;
 
-  # Format permissions for Cursor
-  formatPermissionsForCursor = allPermissions: map (cmd: "Shell(${cmd})") allPermissions;
-
-  # Format permissions for Goose shell
-  formatPermissionsForGoose = allPermissions: {
-    shell = {
-      allow = map (cmd: builtins.replaceStrings [ "*" ] [ ".*" ] cmd) allPermissions;
-      deny = [ ];
-    };
-  };
 }

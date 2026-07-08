@@ -11,7 +11,7 @@ let
   cursorConfig = builtins.toJSON {
     version = 1;
     permissions = {
-      allow = llmLib.mcp.formatPermissionsForCursor kit.mcpServers.allPermissions;
+      allow = llmLib.allowlist.formatForCursor llmLib.allowlist.tierA;
       deny = [ ];
     };
     editor = {

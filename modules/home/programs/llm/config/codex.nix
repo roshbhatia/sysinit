@@ -8,7 +8,6 @@ let
   llmLib = import ../lib { inherit lib; };
   kit = llmLib.harnessKit.mkKit { inherit lib pkgs config; };
 
-  notify = import ./notify.nix { inherit pkgs lib; };
   profileBin = "${config.home.profileDirectory}/bin";
 in
 {

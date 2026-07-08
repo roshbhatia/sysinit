@@ -8,6 +8,8 @@ let
   llmLib = import ../lib { inherit lib; };
   kit = llmLib.harnessKit.mkKit { inherit lib pkgs config; };
 
+  defaultInstructions = kit.mkInstructions "~/.claude/skills";
+
   ampConfig = builtins.toJSON {
     "amp.experimental.planMode" = true;
     "amp.git.commit.ampThread.enabled" = false;
@@ -27,6 +29,15 @@ let
 in
 {
   xdg.configFile = {
-    "amp/settings.json".text = ampConfig;
+    "amp/settings.json" = {
+      text = ampConfig;
+      force = true;
+    };
+    # Amp reads AGENTS.md from project roots; this global file is available for
+    # manual inclusion via amp.rules in workspace settings if desired.
+    "amp/AGENTS.md" = {
+      text = defaultInstructions;
+      force = true;
+    };
   };
 }

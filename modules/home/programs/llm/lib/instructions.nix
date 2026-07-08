@@ -136,4 +136,7 @@ in
   inherit makeInstructions;
   inherit subagents;
   inherit (subagents) formatSubagentAsMarkdown;
+  # subagentDefs: the subagent attrset without the formatter, so callers can
+  # iterate over agent definitions without the filterAttrs workaround.
+  subagentDefs = builtins.removeAttrs subagents [ "formatSubagentAsMarkdown" ];
 }

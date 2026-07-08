@@ -19,6 +19,9 @@ let
 in
 {
   xdg.configFile = {
-    "github-copilot/cli/config.json".text = copilotConfig;
+    "github-copilot/cli/config.json" = {
+      text = copilotConfig;
+      force = true;
+    };
   };
 }

@@ -8,7 +8,6 @@ let
   llmLib = import ../lib { inherit lib; };
   kit = llmLib.harnessKit.mkKit { inherit lib pkgs config; };
 
-  notify = import ./notify.nix { inherit pkgs lib; };
   profileBin = "${config.home.profileDirectory}/bin";
 
   defaultInstructions = kit.mkInstructions "~/.claude/skills";
@@ -47,9 +46,7 @@ let
     text = builtins.readFile ./claude-bash-guard.sh;
   };
 
-  subagents = lib.filterAttrs (
-    n: _: n != "formatSubagentAsMarkdown"
-  ) kit.llmLib.instructions.subagents;
+  subagents = kit.llmLib.instructions.subagentDefs;
 
   ccCfg = config.sysinit.llm.claudeCode;
   # Resolve relative paths against $HOME so the upstream module always

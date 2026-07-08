@@ -223,10 +223,6 @@ let
   # Cursor CLI: permissions.allow expects a list of "Shell(<cmd>)" strings.
   formatForCursor = tier: builtins.map (cmd: "Shell(${cmd})") tier;
 
-  # Crush: permissions.allowed_tools is a flat string list. Patterns are
-  # passed through verbatim — crush matches by prefix.
-  formatForCrush = tier: tier;
-
   # Amp: amp.permissions is a list of {tool, matches, action} triples.
   # Bash patterns become {tool="Bash", matches={cmd=<pattern>}, action="allow"}.
   formatForAmp =
@@ -272,7 +268,6 @@ in
     tierB
     formatForClaude
     formatForCursor
-    formatForCrush
     formatForAmp
     formatForGoose
     formatForOpencodeWithAction

@@ -80,7 +80,7 @@ let
 
     plugin = [
       "@bastiangx/opencode-unmoji"
-      "opencode-gemini-auth@latest"
+      "opencode-gemini-auth"
       "opencode-handoff"
       # Bridge OpenCode to Claude Code's native auto-memory files
       # (~/.claude/projects/*/memory/). Reads and writes the same Markdown
@@ -90,32 +90,62 @@ let
 
       # Drive a ChatGPT Plus/Pro subscription against GPT-5.x / Codex models —
       # the OpenAI counterpart to opencode-gemini-auth above.
-      "opencode-openai-codex-auth@latest"
+      "opencode-openai-codex-auth"
       # PTY tools (pty_spawn/write/read/list/kill) for interactive and
       # long-running processes (dev servers, watch modes) plain bash can't drive.
       "opencode-pty"
       # Redact secrets before requests leave for the provider; restore after.
       "opencode-vibeguard"
       # Re-align markdown tables in model output (experimental.text.complete).
-      "@franlol/opencode-md-table-formatter@latest"
+      "@franlol/opencode-md-table-formatter"
     ];
   };
 
   subagentFiles = lib.mapAttrs' (
-    name: config:
+    name: agentConfig:
     lib.nameValuePair "opencode/agent/${name}.md" {
-      text = llmLib.instructions.formatSubagentAsMarkdown { inherit name config; };
-    }
-  ) (lib.filterAttrs (n: _: n != "formatSubagentAsMarkdown") llmLib.instructions.subagents);
-in
-{
-  xdg.configFile = lib.mkMerge [
-    {
-      "opencode/opencode.json" = {
-        text = builtins.toJSON opencodeConfig;
-        force = true;
+      text = llmLib.instructions.formatSubagentAsMarkdown {
+        inherit name;
+        config = agentConfig;
       };
     }
+  ) llmLib.instructions.subagentDefs;
+
+  # opencode.json must be a mutable file (not a Nix-store symlink) so OpenCode
+  # can write plugin installation state back on first startup.  Deep-merge on
+  # every activation: Nix wins for all declared keys; runtime-written keys not
+  # in the Nix config (e.g., accepted telemetry prompts) are preserved from the
+  # existing file.  Plugin arrays are replaced wholesale — Nix is authoritative
+  # on which plugins are declared.
+  opencodeConfigFile = pkgs.writeText "opencode-base.json" (builtins.toJSON opencodeConfig);
+
+  updateOpencodeConfig = pkgs.writeShellScript "update-opencode-config" ''
+    set -euo pipefail
+    target="$HOME/.config/opencode/opencode.json"
+    mkdir -p "$(dirname "$target")"
+
+    if [ -L "$target" ]; then
+      rm -f "$target"
+    fi
+
+    tmp="$(mktemp "$target.tmp.XXXXXX")"
+    trap 'rm -f "$tmp"' EXIT
+
+    if [ -f "$target" ]; then
+      ${pkgs.jq}/bin/jq -s '.[0] * .[1]' "$target" ${opencodeConfigFile} > "$tmp"
+    else
+      cp ${opencodeConfigFile} "$tmp"
+    fi
+    mv "$tmp" "$target"
+    chmod u+w "$target"
+  '';
+in
+{
+  home.activation.opencodeConfig = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+    $DRY_RUN_CMD ${updateOpencodeConfig}
+  '';
+
+  xdg.configFile = lib.mkMerge [
     {
       "opencode/AGENTS.md" = {
         text = defaultInstructions;
