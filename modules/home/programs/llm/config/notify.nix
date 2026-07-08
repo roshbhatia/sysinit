@@ -7,8 +7,17 @@
 # Icons are SVGs pulled from upstream brand sources, pinned by hash, and rasterised
 # to 256px PNGs on a white tile so a mono-colour glyph stays legible in both light
 # and dark notification chrome. They install to ~/.local/share/agent-notify/icons.
-{ pkgs, lib }:
+{
+  pkgs,
+  lib,
+  config,
+}:
 let
+  # Kill switch for the actionable permission relay (agent-prompt). Baked into
+  # the prompt script so flipping the option and rebuilding is the only way to
+  # arm/disarm the keystroke relay — no runtime env dependency.
+  relayEnabled = config.sysinit.llm.notifications.actionableRelay;
+
   icon =
     name: url: hash:
     pkgs.fetchurl {
@@ -38,6 +47,11 @@ let
 
   names = builtins.attrNames svgs;
 
+  # Shared session/repo/pane identity resolution, prepended into both scripts at
+  # build time so agent-notify and agent-state can never disagree (no runtime
+  # source path to resolve, and shellcheck validates the combined script).
+  identity = builtins.readFile ./agent-identity.sh;
+
   icons = pkgs.runCommand "agent-notify-icons" { nativeBuildInputs = [ pkgs.librsvg ]; } (
     "mkdir -p $out\n"
     + lib.concatStringsSep "\n" (
@@ -62,7 +76,7 @@ let
     # Best-effort notifier: no errexit/nounset/pipefail — it must never abort the
     # agent. shellcheck still runs for validation.
     bashOptions = [ ];
-    text = builtins.readFile ./agent-notify.sh;
+    text = identity + "\n" + builtins.readFile ./agent-notify.sh;
   };
 
   # Per-pane lifecycle-state emitter (see agent-state.sh). Writes an OSC 1337
@@ -70,12 +84,45 @@ let
   # which session is blocked and why. Best-effort, like the notifier.
   stateScript = pkgs.writeShellApplication {
     name = "agent-state";
+    # git + wezterm are needed by the shared identity resolver for the state-file
+    # transport (repo/branch/dirty derivation, workspace lookup); jq builds the
+    # JSON payload with correct escaping.
     runtimeInputs = [
       pkgs.jq
+      pkgs.git
       pkgs.coreutils
+      pkgs.wezterm
     ];
     bashOptions = [ ];
-    text = builtins.readFile ./agent-state.sh;
+    text = identity + "\n" + builtins.readFile ./agent-state.sh;
+  };
+
+  # Actionable permission notifier (see agent-prompt.sh). For genuine approval
+  # events it shows an `alerter` Accept/Deny notification and relays the choice
+  # back into the agent pane; otherwise it degrades to the plain agent-notify
+  # toast. alerter is darwin-only + optional, so it is added to PATH only on
+  # darwin — elsewhere `command -v alerter` misses and the fallback fires.
+  promptScript = pkgs.writeShellApplication {
+    name = "agent-prompt";
+    runtimeInputs = [
+      pkgs.jq
+      pkgs.git
+      pkgs.coreutils
+      pkgs.wezterm
+    ]
+    ++ lib.optionals pkgs.stdenv.isDarwin [ pkgs.alerter ];
+    bashOptions = [ ];
+    # Preamble bakes the kill switch and the fallback notifier path; then the
+    # shared identity resolver; then the script body — one combined unit so
+    # shellcheck validates it whole.
+    text = ''
+      RELAY_ENABLED=${if relayEnabled then "1" else "0"}
+      NOTIFY_EXE=${lib.getExe script}
+    ''
+    + "\n"
+    + identity
+    + "\n"
+    + builtins.readFile ./agent-prompt.sh;
   };
 
   # Notification click handler: raises the wezterm pane the agent runs in. Runs in
@@ -92,11 +139,18 @@ let
   };
 in
 {
-  inherit icons script stateScript focusScript;
+  inherit
+    icons
+    script
+    stateScript
+    promptScript
+    focusScript
+    ;
 
   # Absolute paths used inside harness hook commands.
   exe = lib.getExe script;
   stateExe = lib.getExe stateScript;
+  promptExe = lib.getExe promptScript;
   focusExe = lib.getExe focusScript;
 
   # home.file entries installing every icon (plus the fallback) to the shared

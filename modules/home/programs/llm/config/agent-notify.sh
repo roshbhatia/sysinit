@@ -40,33 +40,14 @@ msg=$(json '.message')
 # --- session identity: which seshy session AND which repo ---
 # The agent runs inside a wezterm pane whose `workspace` is the seshy session name
 # (WEZTERM_PANE is inherited into the hook). That is the reliable session signal —
-# more so than cwd, which may have wandered out of the session tree. Fall back to
-# the cwd-under-seshy-root parse, then to the workspace name, then to nothing.
+# more so than cwd, which may have wandered out of the session tree. The shared
+# resolver (agent-identity.sh, concatenated in at build time) does the
+# workspace lookup, seshy-cwd fallback, and git derivation once, so this script
+# and agent-state agree on the answer.
 pane=${WEZTERM_PANE:-}
-wz=$(command -v wezterm 2> /dev/null || true)
-workspace=""
-if [ -n "$pane" ] && [ -n "$wz" ]; then
-  workspace=$("$wz" cli list --format json 2> /dev/null |
-    jq -r --arg p "$pane" '.[] | select((.pane_id | tostring) == $p) | .workspace' 2> /dev/null |
-    head -1)
-fi
-
-seshy_root="$HOME/.local/state/seshy/sessions"
-session=""
-case "$cwd/" in
-  "$seshy_root"/*)
-    rest=${cwd#"$seshy_root"/}
-    session=${rest%%/*}
-    ;;
-esac
-# wezterm's unnamed default workspace is not a session — ignore it.
-if [ -z "$session" ] && [ -n "$workspace" ] && [ "$workspace" != "default" ]; then
-  session=$workspace
-fi
-
-repo=""
-repo_root=$(git -C "$cwd" rev-parse --show-toplevel 2> /dev/null)
-[ -n "$repo_root" ] && repo=$(basename "$repo_root")
+agent_identity "$cwd" "$pane"
+session=$AI_SESSION
+repo=$AI_REPO
 
 # context names both axes when they differ ("session · repo"), else whichever we
 # have, else the bare directory.

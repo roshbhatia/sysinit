@@ -33,7 +33,7 @@ let
   # Agent-agnostic desktop notifier. The script + per-agent icons are installed
   # once here (multiple harness configs reference notify.exe in their hooks, but
   # only one place may own the home.file/home.packages entries).
-  notify = import ./config/notify.nix { inherit pkgs lib; };
+  notify = import ./config/notify.nix { inherit pkgs lib config; };
 in
 {
   imports = [

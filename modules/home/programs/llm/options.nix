@@ -73,6 +73,29 @@ in
       };
     };
 
+    notifications = {
+      actionableRelay = mkOption {
+        type = types.bool;
+        default = false;
+        description = ''
+          Kill switch for the actionable permission-notification relay.
+
+          When true, permission/approval events use `alerter` (in place of
+          `terminal-notifier`) to show a blocking notification with Accept/Deny
+          buttons, and a detached waiter relays the choice back into the exact
+          agent pane via `wezterm cli send-text` using per-agent approve/reject
+          keystrokes. When false (the default), those events fall back to the
+          plain click-to-focus `terminal-notifier` toast and NO keystrokes are
+          ever injected into any pane.
+
+          Off by default because the relay types into a live agent TUI, which is
+          inherently fragile (each harness's prompt UI differs). Flip to true to
+          opt in; disabling it restores click-to-focus-only behavior with no
+          rebuild caveats beyond the switch itself.
+        '';
+      };
+    };
+
     mcp = {
       additionalServers = mkOption {
         type = types.attrsOf (

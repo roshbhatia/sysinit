@@ -28,6 +28,7 @@
   (import ./codex-acp.nix { })
   (import ./kvazaar.nix { })
   (import ./goose-cli.nix { })
+  (import ./alerter.nix { })
   (import ./sheets.nix { })
   (import ./mozilla.nix { inherit inputs; })
   (import ./nushell.nix { })

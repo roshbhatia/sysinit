@@ -8,7 +8,7 @@ let
   llmLib = import ../lib { inherit lib; };
   kit = llmLib.harnessKit.mkKit { inherit lib pkgs config; };
 
-  notify = import ./notify.nix { inherit pkgs lib; };
+  notify = import ./notify.nix { inherit pkgs lib config; };
 
   defaultInstructions = kit.mkInstructions "~/.claude/skills";
 
@@ -164,6 +164,13 @@ in
                 command = "${lib.getExe worklogScript}";
                 async = true;
               }
+              # Terminal transition: drop this pane's cross-surface bus entry.
+              # Best-effort — readers also prune orphaned files by liveness.
+              {
+                type = "command";
+                command = "${notify.stateExe} claude exit";
+                async = true;
+              }
             ];
           }
         ];
@@ -176,7 +183,7 @@ in
             hooks = [
               {
                 type = "command";
-                command = "${notify.exe} claude attention ${notify.focusExe}";
+                command = "${notify.promptExe} claude attention ${notify.focusExe}";
                 async = true;
               }
               {

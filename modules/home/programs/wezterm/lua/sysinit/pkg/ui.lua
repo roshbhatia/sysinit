@@ -212,44 +212,98 @@ function M.setup(config)
     return string.format("%dh", math.floor(secs / 3600))
   end
 
-  -- Roll per-pane agent state up to one state per seshy session (= workspace).
-  -- For each live pane: prefer the `agent_state` user-var emitted by the agent
-  -- lifecycle hooks (status|reason|since|agent); fall back to agent-deck's
-  -- scraped status for panes that set none (hookless agents). Reduce a
-  -- session's panes worst-wins, carrying the reason + transition time of the
-  -- winning pane (oldest `since` breaks ties so age reflects the longest wait).
+  -- Best-effort repo name for a pane: the basename of its current working dir.
+  -- Uses only the in-memory mux cwd (no shell-out), tolerates both the Url-object
+  -- and the raw `file://host/path` string forms wezterm has returned across
+  -- versions, and yields "" on any failure. Branch and dirty are NOT derivable
+  -- in-memory — the per-pane state-file bus carries those for out-of-WezTerm
+  -- consumers; the render-path rollup deliberately stays shell-out-free.
+  local function pane_repo(p)
+    local ok, repo = pcall(function()
+      local cwd = p:get_current_working_dir()
+      if not cwd then
+        return ""
+      end
+      local path
+      if type(cwd) == "string" then
+        path = (cwd:gsub("^file://[^/]*", ""))
+      else
+        path = cwd.file_path
+      end
+      if not path or path == "" then
+        return ""
+      end
+      path = (path:gsub("/+$", ""))
+      return path:match("([^/]+)$") or ""
+    end)
+    if not ok then
+      return ""
+    end
+    return repo or ""
+  end
+
+  -- Roll per-pane agent state up to one state per seshy session (= workspace),
+  -- AND return the per-pane records visited on the same single walk. For each
+  -- live pane: prefer the `agent_state` user-var emitted by the agent lifecycle
+  -- hooks (status|reason|since|agent); fall back to agent-deck's scraped status
+  -- for panes that set none (hookless agents). Reduce a session's panes
+  -- worst-wins, carrying the reason + transition time of the winning pane (oldest
+  -- `since` breaks ties so age reflects the longest wait).
   -- Pure in-memory walk of live panes — safe to call on every update-status
-  -- tick. Returns { [workspace] = { status, reason, since, rank } }.
+  -- tick. Returns two values:
+  --   sessions = { [workspace] = { status, reason, since, rank } }
+  --   panes    = array of { pane_id, window_id, tab_id, workspace, repo, branch,
+  --                          agent, status, reason, since, rank } for every pane
+  --              currently holding agent state (branch always "" on this path).
   local function agent_session_states()
     local sessions = {}
+    local panes = {}
     local deck_states = agent_deck_ok and agent_deck.get_all_agent_states() or {}
 
     local ok = pcall(function()
       for _, win in ipairs(wezterm.mux.all_windows()) do
         local workspace = win:get_workspace()
+        local window_id = win:window_id()
         for _, tab in ipairs(win:tabs()) do
+          local tab_id = tab:tab_id()
           for _, p in ipairs(tab:panes()) do
-            local status, reason, since
+            local status, reason, since, agent
             local uv = p:get_user_vars()
             local raw = uv and uv.agent_state
             if raw and raw ~= "" then
-              local s, r, ts = raw:match("^([^|]*)|([^|]*)|([^|]*)|")
+              local s, r, ts, a = raw:match("^([^|]*)|([^|]*)|([^|]*)|(.*)$")
               if s and agent_state_rank[s] then
-                status, reason, since = s, r, tonumber(ts)
+                status, reason, since, agent = s, r, tonumber(ts), a
               end
             end
             if not status then
               local deck = deck_states[p:pane_id()]
               if deck and agent_state_rank[deck.status] then
                 status = deck.status -- working | waiting | idle; no reason/age
+                agent = deck.agent
               end
             end
             if status then
               local rank = agent_state_rank[status]
+              -- Per-pane record — same walk, in-memory only. Enough to activate
+              -- the exact pane later (window/tab/pane id + workspace).
+              panes[#panes + 1] = {
+                pane_id = p:pane_id(),
+                window_id = window_id,
+                tab_id = tab_id,
+                workspace = workspace,
+                repo = pane_repo(p),
+                branch = "", -- not in-memory; the state-file bus carries it
+                agent = agent or "",
+                status = status,
+                reason = reason or "",
+                since = since,
+                rank = rank,
+              }
+              -- Session rollup. Higher rank wins; on a tie the older `since`
+              -- (smaller number) wins so age reflects the longest-running pane.
+              -- A pane with a real `since` beats one without (nil sorts last).
               local cur = sessions[workspace]
-              -- Higher rank wins; on a tie the older `since` (smaller number)
-              -- wins so age reflects the longest-running pane. A pane with a
-              -- real `since` beats one without (nil sorts last).
               local replace = false
               if not cur or rank > cur.rank then
                 replace = true
@@ -273,44 +327,126 @@ function M.setup(config)
       end
     end)
     if not ok then
-      return {}
+      return {}, {}
     end
-    return sessions
+    return sessions, panes
   end
 
-  -- Pick the single most action-needing session: highest rank, then largest age
-  -- (oldest `since`). Returns name, state, age-seconds — or nil when no session
-  -- has agent state.
-  local function worst_agent_session()
+  -- Pick the single most action-needing PANE across every workspace: highest
+  -- rank, then oldest `since` (longest wait). Idle panes are held to be
+  -- non-actionable, so only `working`/`done`/`waiting` panes are candidates.
+  -- Returns the per-pane record (pane_id + window_id + tab_id + workspace — all a
+  -- caller needs to activate the exact pane) or nil when nothing is actionable.
+  local function worst_agent_pane()
+    local _, panes = agent_session_states()
+    local now = os.time()
+    local best
+    for _, rec in ipairs(panes) do
+      if rec.rank >= agent_state_rank.working then
+        if
+          not best
+          or rec.rank > best.rank
+          or (rec.rank == best.rank and (rec.since or now) < (best.since or now))
+        then
+          best = rec
+        end
+      end
+    end
+    return best
+  end
+
+  -- Activate the exact pane a rollup record points at. Pane/tab ids are global,
+  -- so the mux calls front the right tab + pane even in a background workspace;
+  -- SwitchToWorkspace then brings that window forward when it differs from the
+  -- current one. Best-effort — a since-closed pane resolves to nil and no-ops.
+  local function activate_agent_pane(win, gui_pane, rec)
+    if not rec then
+      return
+    end
+    pcall(function()
+      local mp = wezterm.mux.get_pane(rec.pane_id)
+      if mp then
+        local tab = mp:tab()
+        if tab then
+          tab:activate()
+        end
+        mp:activate()
+      end
+    end)
+    if rec.workspace and rec.workspace ~= "" and rec.workspace ~= win:active_workspace() then
+      win:perform_action(wezterm.action.SwitchToWorkspace({ name = rec.workspace }), gui_pane)
+    end
+  end
+
+  -- Statusline component: name the single worst blocked session and its age,
+  -- then append how many sessions hold actionable state in total so the user
+  -- sees both which is worst and how many others are demanding attention. A
+  -- single mux walk (the shared rollup) feeds both the worst pick and the count.
+  --
+  -- "Actionable" is rank >= working (waiting/done/working); idle is excluded.
+  -- When nothing is actionable the component renders nothing (no worst, no `0`
+  -- count) — idle-only state is not worth statusline space. When exactly one
+  -- session is actionable the count suffix is omitted as redundant.
+  local function agent_status()
     local sessions = agent_session_states()
     local now = os.time()
-    local best_name, best
+    local best_name, best, count = nil, nil, 0
     for name, st in pairs(sessions) do
-      if not best or st.rank > best.rank or (st.rank == best.rank and (st.since or now) < (best.since or now)) then
-        best_name, best = name, st
+      if st.rank >= agent_state_rank.working then
+        count = count + 1
+        if
+          not best
+          or st.rank > best.rank
+          or (st.rank == best.rank and (st.since or now) < (best.since or now))
+        then
+          best_name, best = name, st
+        end
       end
     end
     if not best then
-      return nil
-    end
-    local age = best.since and (now - best.since) or nil
-    return best_name, best, age
-  end
-
-  -- Statusline component: name the worst blocked session and its age instead of
-  -- an aggregate count. Renders empty when nothing is in an agent state.
-  local function agent_status()
-    local name, st, age = worst_agent_session()
-    if not name then
       return ""
     end
-    local icon = agent_state_icons[st.status] or "●"
-    local age_str = format_age(age)
-    local text = " " .. icon .. " " .. name
+    local icon = agent_state_icons[best.status] or "●"
+    local age_str = format_age(best.since and (now - best.since) or nil)
+    local text = " " .. icon .. " " .. best_name
     if age_str ~= "" then
       text = text .. " " .. age_str
     end
+    -- Total actionable-session count; omitted when this is the only one.
+    if count > 1 then
+      text = text .. " (" .. count .. ")"
+    end
     return wezterm.format({ { Text = text .. " " } })
+  end
+
+  -- Per-tab attention indicator. tabline calls this for every tab with the
+  -- format-tab-title `TabInformation`; its `active_pane.user_vars` carry the same
+  -- `agent_state` the rollup reads. Returns a state icon (+ agent label) prefix,
+  -- or "" so the retained default index/cwd/process components render the plain
+  -- title when a tab holds no agent (or a malformed user-var). Since it emits a
+  -- bare string, the icon inherits the tab's fg color — the glyph alone conveys
+  -- the state (◔ waiting / ✔ done / ● working / ○ idle).
+  local function tab_agent_indicator(tab)
+    local ok, out = pcall(function()
+      local p = tab and tab.active_pane
+      local uv = p and p.user_vars
+      local raw = uv and uv.agent_state
+      if not raw or raw == "" then
+        return ""
+      end
+      local s, _r, _ts, a = raw:match("^([^|]*)|([^|]*)|([^|]*)|(.*)$")
+      if not s or not agent_state_icons[s] then
+        return ""
+      end
+      if a and a ~= "" then
+        return agent_state_icons[s] .. " " .. a .. " "
+      end
+      return agent_state_icons[s] .. " "
+    end)
+    if not ok then
+      return ""
+    end
+    return out or ""
   end
 
   local tabline_ok, tabline = plugin_loader.load("tabline")
@@ -321,7 +457,9 @@ function M.setup(config)
     tabline.setup({
       options = {
         theme = config.colors,
-        tabs_enabled = false,
+        -- Enabled so each tab title can carry its own agent-state icon (native
+        -- click-to-switch is the only clickable per-tab affordance WezTerm has).
+        tabs_enabled = true,
         section_separators = {
           left = "",
           right = "",
@@ -346,6 +484,22 @@ function M.setup(config)
         tabline_z = {
           "workspace",
           "domain",
+        },
+        -- Prepend the agent indicator to tabline's default tab layout so the
+        -- state icon leads, and the stock index/cwd/process still show the tab's
+        -- short repo/cwd. Defaults mirrored from tabline's config.lua.
+        tab_active = {
+          tab_agent_indicator,
+          "index",
+          { "parent", padding = 0 },
+          "/",
+          { "cwd", padding = { left = 0, right = 1 } },
+          { "zoomed", padding = 0 },
+        },
+        tab_inactive = {
+          tab_agent_indicator,
+          "index",
+          { "process", padding = { left = 0, right = 1 } },
         },
       },
       extensions = {},
@@ -616,8 +770,36 @@ function M.setup(config)
       -- state icon, reason, and age, sorted so the longest-blocked session is
       -- on top. Sourced from the same helper the statusline reads, so the two
       -- surfaces always agree on which session is worst.
-      local sessions = agent_session_states()
+      local sessions, panes = agent_session_states()
       local now = os.time()
+
+      -- Aggregate the per-pane view into per-session (== per-workspace) detail:
+      -- repo (in-memory cwd basename; branch/dirty aren't derivable here and the
+      -- state-file bus carries them for out-of-WezTerm consumers), total agent
+      -- pane count, blocked (rank >= working) count, and the worst pane's agent.
+      -- Keyed by workspace, which seshy makes equal to the session name.
+      local agg = {}
+      for _, rec in ipairs(panes) do
+        local a = agg[rec.workspace]
+        if not a then
+          a = { count = 0, blocked = 0, repo = "", agent = "", worst_rank = 0, worst_status = nil }
+          agg[rec.workspace] = a
+        end
+        a.count = a.count + 1
+        if a.repo == "" and rec.repo ~= "" then
+          a.repo = rec.repo
+        end
+        if rec.rank >= agent_state_rank.working then
+          a.blocked = a.blocked + 1
+        end
+        if rec.rank > a.worst_rank then
+          a.worst_rank = rec.rank
+          a.worst_status = rec.status
+          if rec.agent ~= "" then
+            a.agent = rec.agent
+          end
+        end
+      end
 
       local default_choice = { name = "default", path = home, label = "default" }
       local rows = {}
@@ -642,6 +824,29 @@ function M.setup(config)
               if st then
                 local icon = agent_state_icons[st.status] or "●"
                 label = icon .. " " .. name
+                -- repo · pane-count[ · blocked◔] · agent, between name and reason.
+                -- Fields absent in the in-memory rollup (branch, dirty) are simply
+                -- omitted — the row degrades to whatever is known.
+                local a = agg[name]
+                if a then
+                  local meta = {}
+                  if a.repo ~= "" then
+                    meta[#meta + 1] = a.repo
+                  end
+                  if a.count > 0 then
+                    local counts = tostring(a.count)
+                    if a.blocked > 0 then
+                      counts = counts .. " · " .. a.blocked .. (agent_state_icons[a.worst_status] or "")
+                    end
+                    meta[#meta + 1] = counts
+                  end
+                  if a.agent ~= "" then
+                    meta[#meta + 1] = a.agent
+                  end
+                  if #meta > 0 then
+                    label = label .. "  " .. table.concat(meta, " · ")
+                  end
+                end
                 local age = st.since and format_age(now - st.since) or ""
                 if st.reason ~= "" then
                   label = label .. " — " .. st.reason
@@ -750,6 +955,96 @@ function M.setup(config)
       }
     end)
   end
+
+  -- Agent jump + picker. Bound here (not keybindings.lua) because they need the
+  -- rollup helpers in scope, mirroring the SUPER+s switcher above; both honor the
+  -- locked-mode passthrough. `CTRL+g` (locked-mode toggle) is unaffected.
+  config.keys = config.keys or {}
+
+  -- SUPER+g: jump straight to the single worst blocked pane across all
+  -- workspaces (throwaway sibling tabs included). No-op when nothing is blocked.
+  table.insert(config.keys, {
+    key = "g",
+    mods = "SUPER",
+    action = wezterm.action_callback(function(win, pane)
+      if keybindings.locked_mode then
+        win:perform_action({ SendKey = { key = "g", mods = "SUPER" } }, pane)
+        return
+      end
+      activate_agent_pane(win, pane, worst_agent_pane())
+    end),
+  })
+
+  -- SUPER+SHIFT+g: pick from every blocked pane (session · repo · agent · reason
+  -- · age), urgency-ordered. Selecting one jumps to it; a since-closed pane
+  -- no-ops on activation.
+  table.insert(config.keys, {
+    key = "g",
+    mods = "SUPER|SHIFT",
+    action = wezterm.action_callback(function(win, pane)
+      if keybindings.locked_mode then
+        win:perform_action({ SendKey = { key = "g", mods = "SUPER|SHIFT" } }, pane)
+        return
+      end
+      local _, panes = agent_session_states()
+      local now = os.time()
+      local list = {}
+      for _, rec in ipairs(panes) do
+        if rec.rank >= agent_state_rank.working then
+          list[#list + 1] = rec
+        end
+      end
+      if #list == 0 then
+        return
+      end
+      table.sort(list, function(a, b)
+        if a.rank ~= b.rank then
+          return a.rank > b.rank
+        end
+        return (a.since or now) < (b.since or now)
+      end)
+
+      local by_id = {}
+      local choices = {}
+      for _, rec in ipairs(list) do
+        by_id[tostring(rec.pane_id)] = rec
+        local icon = agent_state_icons[rec.status] or "●"
+        local parts = {}
+        if rec.workspace ~= "" then
+          parts[#parts + 1] = rec.workspace
+        end
+        if rec.repo ~= "" then
+          parts[#parts + 1] = rec.repo
+        end
+        if rec.agent ~= "" then
+          parts[#parts + 1] = rec.agent
+        end
+        local label = icon .. " " .. table.concat(parts, " · ")
+        if rec.reason ~= "" then
+          label = label .. " — " .. rec.reason
+        end
+        local age = rec.since and format_age(now - rec.since) or ""
+        if age ~= "" then
+          label = label .. " (" .. age .. ")"
+        end
+        choices[#choices + 1] = { id = tostring(rec.pane_id), label = label }
+      end
+
+      win:perform_action(
+        wezterm.action.InputSelector({
+          title = "Jump to blocked agent",
+          choices = choices,
+          action = wezterm.action_callback(function(inner_win, inner_pane, id, _label)
+            if not id then
+              return
+            end
+            activate_agent_pane(inner_win, inner_pane, by_id[id])
+          end),
+        }),
+        pane
+      )
+    end),
+  })
 end
 
 return M

@@ -27,6 +27,19 @@ reason_src=${3:-}
 # The user-var only matters inside a WezTerm pane; bail quietly otherwise.
 [ -n "${WEZTERM_PANE:-}" ] || exit 0
 
+# Where the cross-surface state file lives (the bus other surfaces subscribe to).
+state_dir="${XDG_STATE_HOME:-$HOME/.local/state}/agents/panes"
+state_file="$state_dir/$WEZTERM_PANE.json"
+
+# `exit` is the terminal signal (wired to Claude's SessionEnd hook): the pane's
+# agent is gone, so drop its bus entry. Best-effort only — readers already prune
+# orphaned files by intersecting with live pane ids, so nothing depends on this
+# running. Codex has no SessionEnd hook; its files are reclaimed by that pruning.
+if [ "$status" = "exit" ]; then
+  rm -f "$state_file" 2> /dev/null || true
+  exit 0
+fi
+
 input=""
 if [ ! -t 0 ]; then
   input=$(cat 2> /dev/null)
@@ -88,5 +101,49 @@ b64=$(printf '%s' "$payload" | base64 2> /dev/null | tr -d '\n') || exit 0
 # harness captures) is the pane WezTerm is reading. If there is no tty this is a
 # silent no-op.
 printf '\033]1337;SetUserVar=agent_state=%s\007' "$b64" > /dev/tty 2> /dev/null || true
+
+# --- second transport: the per-pane JSON state file (cross-surface bus) ---
+# Unlike the OSC user-var (readable only inside WezTerm Lua), this file is the
+# documented public contract for out-of-WezTerm consumers (neovim, seshy, neph).
+# Independent of the OSC emit above: either transport may fail without aborting
+# the other, and we still exit 0. Written atomically (temp + rename) so a reader
+# never observes a partial file.
+if mkdir -p "$state_dir" 2> /dev/null; then
+  # Resolve the enriched identity for this pane (shared with agent-notify).
+  agent_identity "$PWD" "$WEZTERM_PANE"
+
+  # `pane` and `since` are JSON numbers; guard so a non-numeric value can't emit
+  # invalid JSON. AI_DIRTY is already the literal "true"/"false".
+  case "$WEZTERM_PANE" in
+    '' | *[!0-9]*) pane_json="\"$WEZTERM_PANE\"" ;;
+    *) pane_json="$WEZTERM_PANE" ;;
+  esac
+  case "$since" in
+    '' | *[!0-9]*) since_json=0 ;;
+    *) since_json="$since" ;;
+  esac
+
+  tmp_file="$state_file.$$.tmp"
+  # jq builds every value with correct JSON escaping (quotes/backslashes/newlines
+  # in reason can't corrupt the file). On any failure, remove the temp file so no
+  # partial write survives; the previous state file is left untouched.
+  if jq -cn \
+    --argjson pane "$pane_json" \
+    --arg session "$AI_SESSION" \
+    --arg repo "$AI_REPO" \
+    --arg branch "$AI_BRANCH" \
+    --argjson dirty "$AI_DIRTY" \
+    --arg worktree "$AI_WORKTREE" \
+    --arg agent "$agent" \
+    --arg status "$status" \
+    --arg reason "$reason" \
+    --argjson since "$since_json" \
+    '{pane:$pane,session:$session,repo:$repo,branch:$branch,dirty:$dirty,worktree:$worktree,agent:$agent,status:$status,reason:$reason,since:$since}' \
+    > "$tmp_file" 2> /dev/null; then
+    mv -f "$tmp_file" "$state_file" 2> /dev/null || rm -f "$tmp_file" 2> /dev/null || true
+  else
+    rm -f "$tmp_file" 2> /dev/null || true
+  fi
+fi
 
 exit 0
