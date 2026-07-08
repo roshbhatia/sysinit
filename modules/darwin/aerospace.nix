@@ -5,6 +5,15 @@
     enable = true;
 
     settings = {
+      config-version = 2;
+      persistent-workspaces = [
+        "1"
+        "2"
+        "C"
+        "E"
+        "M"
+      ];
+
       exec-on-workspace-change = [
         "/bin/bash"
         "-c"
