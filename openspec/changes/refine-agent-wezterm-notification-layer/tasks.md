@@ -26,13 +26,17 @@
 
 ## 4. Codex session-start tracking (capability: agent-notification-system)
 
-- [x] 4.1 Added `agent-state codex working submit` (async) as third hook in codex.nix
-  `PermissionRequest` — writes `.start` timestamp file so Stop done-notification
-  is gated on 60s elapsed time.
+- [x] 4.1 Moved `agent-state codex working submit` to Codex's documented
+  `UserPromptSubmit` hook. `PermissionRequest` now only represents approval/waiting
+  state. Follow-up: removed the unsupported Codex `async` TOML key after 0.142.5
+  warned that async hooks are not supported.
 - [x] 4.2 Also fixed a bug in `agent-state.sh`: the `submit` case referenced `$since`
   before it was computed — moved `since=$(date +%s)` to before the case block.
 - [x] 4.3 Verified: build green. Applied: `nh darwin switch`.
-- [ ] 4.4 Confirm (human, live): quick Codex reply (< 60s from PermissionRequest to
+- [x] 4.4 Added Codex activation cleanup to move legacy `~/.codex/hooks.json` to
+  `hooks.json.disabled*`, preserving the file while ensuring Codex loads hooks
+  only from the Nix-managed TOML layer.
+- [ ] 4.5 Confirm (human, live): quick Codex reply (< 60s from UserPromptSubmit to
   Stop) → no done notification; longer task (> 60s) → done notification fires.
 
 ## 5. Amp lifecycle hooks (capability: amp-lifecycle-hooks)
@@ -56,6 +60,27 @@
   `$schema, autoupdate, formatter, instructions, keybinds, mcp, permission, plugin,
   provider, share, small_model, theme, tui`). The binary is compiled Go. Resolve by
   checking OpenCode changelog or GitHub issues for a hooks API; re-enable if found.
+
+## 11. Harness documentation audit and global workflow support
+
+- [x] 11.1 Codex: switched to Codex-specific TOML hooks only, quarantined legacy
+  `~/.codex/hooks.json`, removed unsupported `async`, added `UserPromptSubmit`, disabled
+  startup update checks, and added explicit compaction rules.
+- [x] 11.2 Codex: added a managed OpenSpec workflow plugin and registered an `explore`
+  agent role so Codex can use explicit planning/exploration without per-repo init.
+- [x] 11.3 Shared skills/subagents: added global `openspec-workflow` guidance and a
+  generated `explore` subagent definition.
+- [x] 11.4 Copilot CLI: moved config to `~/.copilot/config.json`, moved MCP servers to
+  `~/.copilot/mcp-config.json`, and changed local MCP entries to `type = "local"`.
+- [x] 11.5 Cursor Agent: added `~/.cursor/mcp.json`.
+- [x] 11.6 Antigravity: switched remote MCP entries from Claude-shaped `url` to
+  agy-shaped `serverUrl`.
+- [x] 11.7 OpenCode: removed stale AWS remote-MCP disablement now that current config
+  accepts URL-based remote MCP entries.
+- [x] 11.8 Amp: removed undocumented experimental plan-mode setting, disabled self
+  updates, and corrected the global AGENTS comment.
+- [x] 11.9 Crush: added `global_context_paths` so the managed global instructions file is
+  actually loaded.
 
 ## 8. Session tree shortcut hints (capability: session-tree-switcher)
 
@@ -81,7 +106,12 @@
   mirroring nvim buffer-cycle convention. Both are locked-mode passthrough aware.
 - [x] 10.7 Updated title hint and `fuzzy_description` to include `^s sessions` and `^]/[ cycle`.
 - [x] 10.8 Build green. Applied: `nh darwin switch`.
-- [ ] 10.9 Confirm (human, live): open `SUPER+s`; verify recency order, `Ctrl+S` sessions view,
+- [x] 10.9 Made the fuzzy-search suffix visible and muted (`[session/tab  tokens]`)
+  instead of background-colored, so selected rows do not render unreadable
+  black/right-edge text.
+- [x] 10.10 Added a Codex sigil alias for `.codex-wrapped` / `codex-wrapped` so
+  Codex tabs resolve through the same clean process-label path as Claude.
+- [ ] 10.11 Confirm (human, live): open `SUPER+s`; verify recency order, `Ctrl+S` sessions view,
   `Ctrl+]/[` workspace cycle, `SUPER+]/[` direct cycle, and improved color legibility.
 
 ## 9. Commit and push

@@ -8,9 +8,9 @@ let
   llmLib = import ../lib { inherit lib; };
   kit = llmLib.harnessKit.mkKit { inherit lib pkgs config; };
 
-  # aws-knowledge-mcp-server speaks Streamable HTTP; OpenCode's type: "remote"
-  # only speaks SSE (upstream issue #8058). Re-enable when that ships.
-  disabledMcpServers = [ "aws-knowledge-mcp-server" ];
+  # Keep this list for confirmed per-harness incompatibilities only. Current
+  # OpenCode config accepts URL-based remote MCP entries.
+  disabledMcpServers = [ ];
 
   # Skills install only to ~/.claude/skills (per default.nix); opencode reads
   # that tree natively. Point instructions at the populated root, not a phantom

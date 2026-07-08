@@ -20,14 +20,18 @@ The changes are surgical addendums to each, not redesigns.
 - Surface agent working/waiting/done state in the tab bar via our live
   `format-tab-title` handler (not the dead tabline handler).
 - Dismiss the terminal-notifier toast the instant the user clicks to navigate.
-- Extend first-class lifecycle hook coverage to Amp, agy, and OpenCode (matching
-  Claude's fidelity: state bus + done notification).
-- Gate Codex done-notifications on elapsed time (the same 60-second threshold Claude
-  uses) by writing a `.start` file from `PermissionRequest`.
+- Audit non-Claude harness lifecycle hooks and keep only documented, harness-specific
+  hook config.
+- Fix Codex hook errors by using one hook representation, removing unsupported `async`,
+  and wiring `UserPromptSubmit` instead of overloading `PermissionRequest`.
+- Fix per-harness MCP/config paths and field names for Copilot, Cursor, Antigravity,
+  OpenCode, Amp, and Crush.
+- Make OpenSpec workflow globally available through managed skills and a Codex plugin.
 - Make session tree shortcut filter keys discoverable without external documentation.
 
 **Non-Goals:**
-- No new harness instrumentation beyond the four (Amp, agy, OpenCode, Codex tweak).
+- No guessed harness instrumentation for Amp, agy, or OpenCode until stable hook
+  surfaces are documented.
 - No overhaul of sound/timing model: Blow/Pop/Ping and the 60s gate are settled.
 - No session-tree data-model or workspace walk changes.
 - No MCP server additions.
@@ -56,34 +60,31 @@ we fall through silently. Alternative rejected: passing the group as a CLI argum
 `agent-focus.sh` is called by terminal-notifier's `-execute` flag; the invocation string
 is baked at notification-issue time and would need to be encoded there, adding coupling.
 
-**D4 — Amp hooks use `amp.hooks` in `settings.json` via `ampConfig` in `amp.nix`.**
-Amp 1.x supports `AgentEnd`, `ToolCallStart`, and `UserMessageSent` hook keys. These
-are already inside the `builtins.toJSON` block; adding them is a plain Nix attribute
-merge. Alternative rejected: a shell-wrapper around the `amp` binary — fragile, requires
-PATH wrangling, and Amp's hook surface already exists.
+**D4 — Do not wire guessed hooks for Amp, agy, or OpenCode.**
+The docs/binaries checked during the audit do not expose stable lifecycle hook keys for
+these harnesses. Adding guessed keys would either be ignored or produce startup warnings.
+Alternative rejected: porting Claude hook names into each config file — that was the
+source of the Codex errors and is not a valid cross-harness abstraction.
 
-**D5 — agy lifecycle hooks use the `onStop` / `onToolStart` / `onUserMessage` config keys.**
-Antigravity CLI's config format (JSON) supports these hooks natively. The agy Nix
-module (`gemini.nix`) produces its config JSON the same way `amp.nix` does — via
-`builtins.toJSON`. Alternative rejected: a wrapper script — same objection as D4.
+**D5 — Codex hooks use the Codex event model, not the Claude one.**
+Codex documents `UserPromptSubmit`, `PermissionRequest`, and `Stop`. The turn-start
+state belongs on `UserPromptSubmit`; `PermissionRequest` should only represent approval
+or waiting state. Codex 0.142.x warns that async hooks are unsupported, so Codex hook
+entries deliberately omit `async`. Alternative rejected: keeping both TOML hooks and
+`~/.codex/hooks.json` — Codex loads both and warns about duplicate hook layers.
 
-**D6 — OpenCode lifecycle hooks use `hooks.session.end` / `hooks.tool.before` in
-`opencode.json`.**
-OpenCode's hook surface (`hooks.session.start`, `hooks.session.end`, `hooks.tool.before`)
-is already documented upstream. The `opencode.nix` config is written via the
-`updateOpencodeConfig` jq-merge activation script, which deep-merges Nix-declared keys
-into the mutable file. Hooks are a new top-level key; no existing runtime-written keys
-conflict. Alternative rejected: using the `opencode-handoff` plugin for lifecycle events
-— the plugin is for cross-harness handoff, not notification, and it has no hook surface.
+**D6 — MCP formatters are per harness.**
+Copilot CLI expects `~/.copilot/mcp-config.json` and local servers with `type = "local"`;
+Cursor Agent expects `~/.cursor/mcp.json`; Antigravity remote servers use `serverUrl`;
+OpenCode accepts URL-based remote entries; Crush needs `global_context_paths` to point at
+the managed instructions file. Alternative rejected: reusing `formatForClaude` and
+assuming unknown fields are harmless.
 
-**D7 — Codex `PermissionRequest` hook writes the `.start` file via a second hook entry.**
-Codex fires `PermissionRequest` for every tool-approval prompt. The first interaction
-is a reliable proxy for "the user has submitted something" — close enough to set the
-elapsed-time baseline. The hook already fires `agent-prompt` and `agent-state waiting`;
-a third command (`agent-state codex working submit`) uses the existing `submit`
-`reason_src` branch which writes the `.start` file as a side effect. Alternative
-rejected: adding a Codex-specific `UserPromptSubmit` equivalent — Codex has no such
-hook event; `PermissionRequest` is the best available signal.
+**D7 — OpenSpec workflow is global configuration.**
+The repo already installs `openspec` and `specutil`; the workflow guidance should live in
+managed global skills and a Codex plugin. `openspec init` remains a project artifact
+initializer, not a prerequisite for agent commands or skills. Alternative rejected:
+depending on `.claude/commands/opsx/*` generated inside each repo.
 
 **D8 — Session tree title suffix carries the shortcut hints as a single string literal.**
 The `open_session_tree` call passes `title` to `InputSelector`. Appending a bracketed
@@ -101,10 +102,10 @@ Each item is independently buildable; they share no cross-dependencies.
    that working/waiting panes show an icon prefix.
 3. **Notification dismiss**: build green; `nh darwin switch` + trigger an agent
    notification, click it, confirm the toast disappears immediately.
-4. **Amp/agy/OpenCode hooks**: build green; `nh darwin switch` + start a task in each
-   harness, confirm the state bus updates and a done notification fires.
-5. **Codex session-start**: build green; `nh darwin switch` + run a quick Codex reply,
-   confirm no done notification fires; run a long reply (>60 s), confirm one fires.
+4. **Harness config audit**: build green; inspect generated JSON/TOML paths for Copilot,
+   Cursor, Antigravity, OpenCode, Amp, Crush, and Codex.
+5. **Codex hooks**: build green; `nh darwin switch` + confirm Codex starts without hook
+   layer, unsupported async, or hook exit warnings.
 6. **Session tree hints**: build green; `nh darwin switch` + open `SUPER+s`, confirm
    the hint line appears in the picker title.
 
@@ -114,30 +115,23 @@ Each item is independently buildable; they share no cross-dependencies.
   `PaneInformation` table passes user vars as a plain table. If a future WezTerm
   version changes this (unlikely), the `pcall` guard degrades to no icon rather than
   crashing the tab title. Human-confirmed at the `nh darwin switch` checkpoint.
-- **Amp hook keys**: Amp's hook surface is documented but not versioned. If key names
-  change, the hooks silently do nothing (Amp ignores unknown keys). Mitigation: check
-  `amp --version` at any Amp upgrade and re-verify hook names.
-- **agy config path and hook keys**: agy (`pkgs.antigravity-cli`) may not yet have
-  a Nix home-manager module or a stable config path. If the config location differs from
-  `~/.config/agy/config.json`, the hook wiring has no effect. This is an Open Question.
-- **OpenCode `hooks.session.end` timing**: OpenCode fires `session.end` on exit, which
-  may or may not be reliable if the user force-quits or the session crashes. The
-  best-effort contract (`agent-notify.sh` exits 0 on any failure) applies here.
+- **Docs can drift again**: harness config surfaces are moving quickly. Mitigation:
+  keep each formatter named for the harness and re-audit that file against docs when a
+  harness is upgraded.
+- **Codex plugin support may evolve**: the local OpenSpec plugin is intentionally small
+  and contains only a skill. If plugin packaging changes, global shared skills still
+  provide OpenSpec guidance to the other harnesses.
 
 ## Migration Plan
 
-1. Land all non-impactful items (dead tabline cleanup, Codex `.start` file, session tree
+1. Land all non-impactful items (dead tabline cleanup, Codex hook cleanup, session tree
    hints) with `nh darwin build` green, then a single `nh darwin switch`.
-2. Land agent-state tab prefix, notification dismiss, and harness hooks — all additive;
-   reverse by removing the additions. Single `nh darwin switch` for the combined set.
+2. Land agent-state tab prefix, notification dismiss, and harness config/MCP fixes — all
+   additive; reverse by removing the additions. Single `nh darwin switch` for the combined set.
 3. Verify each item live per the Rollout & Gating checkpoints above.
 4. Commit (title-only, conventional) and push to `main`.
 
 ## Open Questions
 
-- **agy config location**: Does `pkgs.antigravity-cli` write its config to
-  `~/.config/agy/config.json` or another path? Resolve by inspecting the package or
-  running `agy --help` / checking `$XDG_CONFIG_HOME` behavior before wiring the hooks.
-- **Amp `UserMessageSent` hook availability**: The `UserMessageSent` event may not be
-  present in the current Amp release. Resolve by checking `amp` changelog or attempting
-  a config write and watching for startup warnings.
+- **Amp/agy/OpenCode lifecycle hooks**: Leave unwired until a stable documented hook
+  surface exists. Revisit during the next harness upgrade audit.

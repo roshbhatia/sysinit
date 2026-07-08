@@ -698,6 +698,12 @@ function M.setup(config)
           color = "#D97757",
           aliases = { ".claude-wrapped", "claude-code", "claude-wrapped" },
         },
+        codex = {
+          name = "Codex",
+          icon = nf.md_robot or "C",
+          color = "#10A37F",
+          aliases = { ".codex-wrapped", "codex-wrapped", "codex" },
+        },
       },
     })
   end
@@ -736,7 +742,7 @@ function M.setup(config)
       age      = a[8] or "#a9b1d6",                             -- ansi-white (mid-gray) — timestamps
       chrome   = b[1] or "#414868",                             -- bright-black — intentionally dim tree lines
       badge_bg = pal.cursor_bg or b[1] or "#414868",            -- subtle chip background for pane badges
-      ghost    = pal.background or "#16161e",                    -- near-bg — invisible match suffix
+      ghost    = a[8] or pal.foreground or "#a9b1d6",            -- muted bracketed match suffix
       ansi     = a,                                              -- raw ansi array for badge color slots
       brights  = b,
     }
@@ -1171,11 +1177,18 @@ function M.setup(config)
       if repo and repo ~= "" then
         tokens[#tokens + 1] = sanitize_seg(repo)
       end
-      local out = "   " .. table.concat(segs, "/")
-      if #tokens > 0 then
-        out = out .. "  " .. table.concat(tokens, " ")
+      local suffix = {}
+      local path = table.concat(segs, "/")
+      if path ~= "" then
+        suffix[#suffix + 1] = path
       end
-      return out
+      if #tokens > 0 then
+        suffix[#suffix + 1] = table.concat(tokens, " ")
+      end
+      if #suffix == 0 then
+        return ""
+      end
+      return "  [" .. table.concat(suffix, "  ") .. "]"
     end
 
     -- One attention-zone row. Info order: workspace · tab · dir  proc  status reason (age).
@@ -1228,8 +1241,8 @@ function M.setup(config)
         r:append(nil, colors.chrome, "  ")
         r:append(nil, bc, pane_badge(rec.pane_id))
       end
-      -- ghost suffix for fuzzy search
-      r:append(nil, colors.ghost, match_suffix(rec.workspace, rec.tab_title, rec.title, rec.status, rec.repo))
+      -- Muted suffix for fuzzy search; visible so selection highlighting stays readable.
+      r:append(nil, colors.ghost, match_suffix(rec.workspace, rec.tab_title, rec.title, rec.status, rec.repo), "Italic")
       return r:format()
     end
 
@@ -1277,7 +1290,7 @@ function M.setup(config)
           if ws.dormant then
             local r = ribbon.new("dormant", true)
             r:append(nil, colors.ws_dorm, tree_icons.dormant .. " " .. ws.name)
-            r:append(nil, colors.ghost, match_suffix(ws.name, nil, nil, nil, nil))
+            r:append(nil, colors.ghost, match_suffix(ws.name, nil, nil, nil, nil), "Italic")
             add("ws:" .. ws.name, r:format(), { workspace = ws.name, dormant = true })
           end
         end
@@ -1309,7 +1322,7 @@ function M.setup(config)
           if age ~= "" then
             r:append(nil, colors.age, "  " .. age)
           end
-          r:append(nil, colors.ghost, match_suffix(ws.name, nil, nil, ws.status, nil))
+          r:append(nil, colors.ghost, match_suffix(ws.name, nil, nil, ws.status, nil), "Italic")
           add("ws:" .. ws.name, r:format(), { workspace = ws.name, dormant = false })
         end
         return choices
@@ -1343,7 +1356,7 @@ function M.setup(config)
           if ws.status then
             ws_r:append(nil, sc or colors.working, "  " .. (agent_state_icons[ws.status] or "●"))
           end
-          ws_r:append(nil, colors.ghost, match_suffix(ws.name, nil, nil, ws.status, nil))
+          ws_r:append(nil, colors.ghost, match_suffix(ws.name, nil, nil, ws.status, nil), "Italic")
           add("ws:" .. ws.name, ws_r:format(), { workspace = ws.name, dormant = false })
 
           for ti, tnode in ipairs(ws.tabs) do
@@ -1361,7 +1374,7 @@ function M.setup(config)
                 tab_r:append(nil, bc, pane_badge(tnode.active_pane_id))
               end
             end
-            tab_r:append(nil, colors.ghost, match_suffix(ws.name, tnode.title, nil, nil, nil))
+            tab_r:append(nil, colors.ghost, match_suffix(ws.name, tnode.title, nil, nil, nil), "Italic")
             add("tab:" .. tnode.tab_id, tab_r:format(), { pane_id = tnode.active_pane_id, workspace = ws.name })
 
             for pi, rec in ipairs(tnode.panes) do
@@ -1407,7 +1420,12 @@ function M.setup(config)
                 pane_r:append(nil, colors.chrome, "  ")
                 pane_r:append(nil, bc, pane_badge(rec.pane_id))
               end
-              pane_r:append(nil, colors.ghost, match_suffix(rec.workspace, rec.tab_title, rec.title, rec.status, rec.repo))
+              pane_r:append(
+                nil,
+                colors.ghost,
+                match_suffix(rec.workspace, rec.tab_title, rec.title, rec.status, rec.repo),
+                "Italic"
+              )
               add("pane:" .. rec.pane_id, pane_r:format(), rec)
             end
           end

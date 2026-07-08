@@ -16,16 +16,14 @@ identified during live use but deferred from earlier changes:
   to the right pane on click, but the triggering notification stays visible until its
   timeout elapses. One `terminal-notifier -remove` call at the top of the script closes it
   immediately.
-- **Amp, Gemini (agy), OpenCode have no lifecycle hooks.** These harnesses emit no
-  `agent_state` user-vars, write no state files, and send no notifications. The `agent-deck`
-  scraper provides rough fallback detection, but there is no reason/age metadata and no
-  desktop notification when Amp or OpenCode finishes a long task. All three have lifecycle
-  hook surfaces that are not yet wired.
-- **Codex done notifications fire unconditionally.** Codex has no `UserPromptSubmit`
-  equivalent, so the `.start` timestamp file is never written and every Stop fires a
-  notification regardless of how long the session ran. Writing the `.start` file from
-  Codex's `PermissionRequest` hook (a reliable signal that the user is in an active
-  session) gates short Codex responses the same way Claude's are.
+- **Harness hook assumptions drifted.** Amp, Antigravity, and OpenCode do not currently
+  document lifecycle hook surfaces comparable to Claude/Codex, so previous hook plans
+  would have created ignored or warning-producing config. Codex does document
+  `UserPromptSubmit`, but its hook surface differs from Claude and does not support
+  `async` entries in 0.142.x.
+- **Harness MCP/config shapes drifted.** Copilot CLI, Cursor Agent, Antigravity, OpenCode,
+  Amp, and Crush each expect different config paths or MCP field names. A Claude-shaped
+  formatter was leaking into harnesses that need their own representation.
 - **Session tree keyboard shortcuts are not discoverable.** The picker has `^d` / `^b` /
   `^a` filter bindings but no visible hint. A static footer line in the picker title makes
   these discoverable without any documentation.
@@ -69,36 +67,27 @@ pattern as the originating notification using the pane's state-file metadata.
 When the state file is absent or `terminal-notifier` is not available the script
 falls through to the existing activation logic unchanged.
 
-### Amp lifecycle hooks
+### Harness hook audit
 
-Wire `agent-state` and `agent-notify` into Amp's lifecycle events in
-`modules/home/programs/llm/config/amp.nix`. Amp exposes hook events via
-`amp.hooks` in `settings.json`:
-- `AgentEnd` → `agent-notify amp done` + `agent-state amp done "your move"`
-- `ToolCallStart` → `agent-state amp working tool` (async)
-- `UserMessageSent` → `agent-state amp working submit` (writes `.start` file, async)
+Keep Claude and Codex hooks separate. Claude retains its documented JSON settings shape,
+including `async` where the hook is best-effort. Codex uses TOML inline hooks only,
+quarantines the legacy `~/.codex/hooks.json` layer, removes unsupported `async`, and uses
+`UserPromptSubmit` for turn-start state instead of misusing `PermissionRequest`.
 
-### agy (Antigravity) lifecycle hooks
+Amp, Antigravity, and OpenCode stay unwired until their current documentation or binaries
+expose stable lifecycle hooks. The config comments and tasks should say "blocked/no
+documented hook surface" instead of encoding guessed key names.
 
-Wire `agent-state` and `agent-notify` into agy's hook surface in `gemini.nix` (which
-targets `pkgs.antigravity-cli`). agy exposes `hooks` in its config JSON: `onStop`,
-`onToolStart`, `onUserMessage`. Mirror the Claude pattern: submit → working/submit,
-tool start → working/tool, stop → done + notify.
+### Harness config/MCP audit
 
-### OpenCode lifecycle hooks
-
-Wire `agent-state` and `agent-notify` into OpenCode's `$run` lifecycle hooks in
-`opencode.nix`. OpenCode's `opencode.json` supports `hooks.session.start`,
-`hooks.session.end`, and `hooks.tool.before`. Wire: session start → working/submit,
-tool before → working/tool (async), session end → done/notify.
-
-### Codex session-start tracking
-
-In `codex.nix`, add a second hook command to the existing `PermissionRequest` entry:
-`agent-state codex working submit`. Since Codex's first user interaction triggers a
-`PermissionRequest` (the directory-trust prompt, or the first real tool approval), this
-writes the `.start` file and gates the subsequent `Stop` done-notification on elapsed
-time — the same 60-second threshold Claude uses.
+Make formatter output explicit per harness:
+- Copilot CLI: `~/.copilot/config.json` plus `~/.copilot/mcp-config.json`; local MCP
+  entries use `type = "local"`.
+- Cursor Agent: `~/.cursor/mcp.json`.
+- Antigravity: remote MCP entries use `serverUrl`.
+- OpenCode: remote MCP is URL-capable; do not disable AWS based on stale SSE-only notes.
+- Amp: remove undocumented experimental plan mode and disable self-updates in settings.
+- Crush: point `global_context_paths` at the Nix-managed global instructions file.
 
 ### Session tree shortcut hints
 
@@ -111,12 +100,10 @@ filter keys are visible as soon as the picker opens without any external documen
 
 ### New Capabilities
 
-- `amp-lifecycle-hooks`: Amp writes per-pane agent-state and fires desktop notifications
-  on turn completion, matching the fidelity of the Claude harness.
-- `agy-lifecycle-hooks`: agy (Antigravity CLI) writes per-pane agent-state and fires
-  desktop notifications on turn completion.
-- `opencode-lifecycle-hooks`: OpenCode writes per-pane agent-state and fires desktop
-  notifications on turn completion.
+- `harness-config-audit`: per-harness config paths and MCP field names are generated
+  from documented shapes instead of sharing Claude-shaped assumptions.
+- `global-openspec-workflow`: OpenSpec workflow guidance is installed globally through
+  managed skills and a Codex plugin, without relying on per-project `openspec init`.
 
 ### Modified Capabilities
 
@@ -124,5 +111,5 @@ filter keys are visible as soon as the picker opens without any external documen
   working / done) injected by the `format-tab-title` handler; shortcut hints appear in the
   picker title bar.
 - `agent-notification-system`: notification click now dismisses the triggering toast
-  immediately; Codex done-notifications are gated on the 60-second elapsed-time threshold
-  via a `.start` file written at `PermissionRequest`.
+  immediately; Codex hook state transitions use Codex's documented event names and one
+  hook representation.

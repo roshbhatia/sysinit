@@ -10,17 +10,25 @@ let
 
   copilotConfig = builtins.toJSON {
     banner = "never";
-    render_markdown = true;
-    screen_reader = false;
+    renderMarkdown = true;
+    screenReader = false;
     theme = "auto";
     trusted_folders = [ ];
+    autoUpdate = false;
+  };
+
+  copilotMcpConfig = builtins.toJSON {
     mcpServers = llmLib.mcp.formatForCopilot kit.mcpServers.servers;
   };
 in
 {
-  xdg.configFile = {
-    "github-copilot/cli/config.json" = {
+  home.file = {
+    ".copilot/config.json" = {
       text = copilotConfig;
+      force = true;
+    };
+    ".copilot/mcp-config.json" = {
+      text = copilotMcpConfig;
       force = true;
     };
   };

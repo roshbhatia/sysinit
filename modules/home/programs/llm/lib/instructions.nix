@@ -72,10 +72,10 @@ let
           - Read context files (`AGENTS.md`, `openspec/`, `.sysinit/lessons.md`) before authoring
           - Modify existing files; avoid creating new ones unless required
           - Skills are the source of truth for domain rules; consult them via `${skillsRoot}/`
-          - Use openspec if available (`openspec init` scaffolds its skills/commands per-project); the forked schema is `rosh-spec-driven` (see `openspec/schemas/rosh-spec-driven/CHANGES.md`)
+          - Use the globally managed OpenSpec CLI/skills when OpenSpec is relevant; run `openspec init` only to create project artifacts, not to install workflow support
           - On unexpected errors: stop, preserve evidence, fix root cause (no `--no-verify`)
           - Use `nix-shell` / `nix develop` for dependencies; avoid global installers
-          - Prefer subagents (Explore, librarian, oracle) for parallel exploration; merge before coding
+          - Use Explore as the explicit planning subagent for discovery/scoping work; prefer librarian for external docs/code and oracle for deep architecture review
           - For multi-repo feature work, start a seshy session: `sy new <name> [repos...]`; never run bare `sy` (opens interactive picker)
           - openspec and seshy are first-class: check for active openspec changes (`openspec/changes/`) and seshy sessions (`sy list`) before scoping new work
         '';

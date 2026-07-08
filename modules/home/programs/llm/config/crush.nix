@@ -58,6 +58,11 @@ let
         trailer_style = "none";
       };
       initialize_as = "AGENTS.md";
+      global_context_paths = [
+        "~/.config/crush/AGENTS.md"
+        "~/.config/crush/CRUSH.md"
+        "~/.config/AGENTS.md"
+      ];
     };
   };
 

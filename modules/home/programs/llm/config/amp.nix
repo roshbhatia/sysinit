@@ -11,7 +11,6 @@ let
   defaultInstructions = kit.mkInstructions "~/.claude/skills";
 
   ampConfig = builtins.toJSON {
-    "amp.experimental.planMode" = true;
     "amp.git.commit.ampThread.enabled" = false;
     "amp.git.commit.coauthor.enabled" = false;
     "amp.mcpServers" = llmLib.mcp.formatForAmp kit.mcpServers.servers;
@@ -25,6 +24,7 @@ let
         action = "ask";
       }
     ];
+    "amp.updates.mode" = "disabled";
   };
 in
 {
@@ -33,8 +33,7 @@ in
       text = ampConfig;
       force = true;
     };
-    # Amp reads AGENTS.md from project roots; this global file is available for
-    # manual inclusion via amp.rules in workspace settings if desired.
+    # Amp reads AGENTS.md from project roots and global config paths.
     "amp/AGENTS.md" = {
       text = defaultInstructions;
       force = true;

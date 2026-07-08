@@ -1,5 +1,6 @@
 {
   code-reviewer = import ./code-reviewer.nix;
+  explore = import ./explore.nix;
   implementor = import ./implementor.nix;
   librarian = import ./librarian.nix;
   oracle = import ./oracle.nix;

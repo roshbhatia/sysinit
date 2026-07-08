@@ -91,6 +91,45 @@ with lib;
         }
     ) servers;
 
+  # Format MCP servers for Cursor Agent. Cursor reads ~/.cursor/mcp.json and
+  # accepts the common local `{ command, args, env }` and remote `{ url }` shapes.
+  formatForCursor =
+    servers:
+    builtins.mapAttrs (
+      _name: server:
+      if (server.type or "local") == "http" then
+        {
+          inherit (server) url;
+        }
+        // optionalAttrs (server.headers or { } != { }) { inherit (server) headers; }
+      else
+        {
+          inherit (server) command;
+          args = server.args or [ ];
+        }
+        // optionalAttrs (server.env or { } != { }) { env = server.env; }
+    ) servers;
+
+  # Format MCP servers for Antigravity (`agy`). Local servers use the usual
+  # command/args/env shape; remote servers use `serverUrl`, not `url`.
+  formatForAntigravity =
+    servers:
+    builtins.mapAttrs (
+      _name: server:
+      if (server.type or "local") == "http" then
+        {
+          type = "http";
+          serverUrl = server.url;
+        }
+        // optionalAttrs (server.headers or { } != { }) { inherit (server) headers; }
+      else
+        {
+          inherit (server) command;
+          args = server.args or [ ];
+        }
+        // optionalAttrs (server.env or { } != { }) { env = server.env; }
+    ) servers;
+
   # Format MCP servers for Goose. Field-name footgun: goose uses `uri` (not
   # `url`) and `type = "streamable_http"` for modern MCP per the 2025-03-26
   # spec; `sse` is legacy and only used when a server advertises only `/sse`.
@@ -150,9 +189,11 @@ with lib;
         }
       else
         {
-          type = "stdio";
+          type = "local";
           inherit (server) command;
-          inherit (server) args;
+          args = server.args or [ ];
+          env = server.env or { };
+          tools = [ "*" ];
         }
     ) servers;
 

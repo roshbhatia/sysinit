@@ -17,11 +17,10 @@ let
   #   - plugins: ~/.gemini/config/plugins/<name>/    + import_manifest.json registry
   # agy reads AGENTS.md natively, so the per-tool GEMINI.md write is dropped.
 
-  # agy's MCP file is standard Claude-shape JSON; formatForClaude already emits
-  # the per-server entries ({command,args,env} / {type:"http",url}). agy ignores
-  # the extra description/enabled keys (Go json drops unknown fields).
+  # agy's MCP file uses `serverUrl` for remote servers. Do not reuse the Claude
+  # formatter here; Claude-shape `{ type: "http", url: ... }` fails for agy.
   mcpConfigJson = builtins.toJSON {
-    mcpServers = llmLib.mcp.formatForClaude kit.mcpServers.servers;
+    mcpServers = llmLib.mcp.formatForAntigravity kit.mcpServers.servers;
   };
 
   # The openspec-awareness extension re-homes as an agy plugin. agy requires the

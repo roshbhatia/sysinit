@@ -22,6 +22,10 @@ let
     };
   };
 
+  cursorMcpConfig = builtins.toJSON {
+    mcpServers = llmLib.mcp.formatForCursor kit.mcpServers.servers;
+  };
+
   # Cursor MDC rule files installed at ~/.cursor/rules/<name>.mdc.
   # Each MDC has frontmatter declaring either `alwaysApply: true` OR `globs:`,
   # never both. Assertion below enforces this.
@@ -56,6 +60,10 @@ in
   home.file = {
     ".cursor/cli-config.json" = {
       text = cursorConfig;
+      force = true;
+    };
+    ".cursor/mcp.json" = {
+      text = cursorMcpConfig;
       force = true;
     };
   }
