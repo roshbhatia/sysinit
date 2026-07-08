@@ -24,8 +24,8 @@ let
     theme = "system";
 
     # Two-tier split: the strong reasoner stays the default; a Haiku-class helper
-    # handles cheap summarization/title work. Mirrors aider.nix's architect +
-    # editor-model split.
+    # handles cheap summarization/title work. Can be overridden to a local Ollama
+    # model at startup with --model ollama/qwen2.5-coder:7b.
     small_model = "anthropic/claude-haiku-4-5";
 
     tui = {
@@ -58,7 +58,7 @@ let
       read = "allow";
       bash =
         llmLib.allowlist.formatForOpencode llmLib.allowlist.tierA
-        // llmLib.allowlist.formatForOpencodeWithAction "ask" llmLib.allowlist.tierB
+        // llmLib.allowlist.formatForOpencode llmLib.allowlist.tierB
         // {
           "*" = "ask";
         };
@@ -99,6 +99,36 @@ let
       # Re-align markdown tables in model output (experimental.text.complete).
       "@franlol/opencode-md-table-formatter"
     ];
+
+    # Ollama local inference provider. Models must be pulled separately:
+    #   ollama pull qwen2.5-coder:14b   # main coding model (~8 GB)
+    #   ollama pull qwen2.5-coder:7b    # fast/cheap tasks (~4.5 GB)
+    # Switch to a local model with: opencode --model ollama/qwen2.5-coder:14b
+    provider = {
+      ollama = {
+        npm = "@ai-sdk/openai-compatible";
+        name = "Ollama (local)";
+        options = {
+          baseURL = "http://localhost:11434/v1";
+        };
+        models = {
+          "qwen2.5-coder:14b" = {
+            name = "Qwen2.5-Coder 14B";
+            limit = {
+              context = 32768;
+              output = 8192;
+            };
+          };
+          "qwen2.5-coder:7b" = {
+            name = "Qwen2.5-Coder 7B";
+            limit = {
+              context = 32768;
+              output = 4096;
+            };
+          };
+        };
+      };
+    };
   };
 
   subagentFiles = lib.mapAttrs' (

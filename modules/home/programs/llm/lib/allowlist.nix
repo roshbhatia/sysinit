@@ -194,6 +194,18 @@ let
     # diff
     "diff *"
     "cmp *"
+
+    # specutil — OpenSpec change visualization, planning, rendering (read-only)
+    "specutil graph"
+    "specutil graph *"
+    "specutil render *"
+    "specutil plan *"
+    "specutil diff *"
+    "specutil tui"
+    "specutil serve"
+    "specutil serve *"
+    "specutil --help"
+    "specutil --version"
   ];
 
   # Reversible local writes. Each entry mutates the working tree or the
@@ -261,11 +273,35 @@ let
     lib.listToAttrs (builtins.map (cmd: lib.nameValuePair (toKey cmd) action) tier);
 
   formatForOpencode = formatForOpencodeWithAction "allow";
+
+  # MCP tool patterns for Claude Code's permissions.allow list.  Claude Code
+  # accepts bare "mcp__<server>__<tool>" strings (no Bash() wrapper) alongside
+  # the Bash()-wrapped entries.  Wildcards use the same glob semantics as Bash
+  # patterns.  Keep in sync with mcp-servers.nix — add a row whenever a new
+  # server is declared there.
+  tierMcp = [
+    # structural code search — read-only, zero blast radius
+    "mcp__ast-grep__*"
+    # AWS service docs — remote read-only
+    "mcp__aws-knowledge-mcp-server__*"
+    # cross-harness memory store (basic-memory / hipocampo)
+    "mcp__basic-memory__*"
+    "mcp__hipocampo__*"
+    # Codex-as-subagent — intentional delegation, user-initiated
+    "mcp__codex-mcp__*"
+    # Playwright browser automation — user has opted in
+    "mcp__playwright__*"
+    # claude.ai marketplace integrations (Linear, Slack, Notion, etc.)
+    "mcp__claude_ai_*__*"
+    # home-manager plugin MCP servers (ast-grep, basic-memory, playwright, codex)
+    "mcp__plugin_claude-code-home-manager_*__*"
+  ];
 in
 {
   inherit
     tierA
     tierB
+    tierMcp
     formatForClaude
     formatForCursor
     formatForAmp

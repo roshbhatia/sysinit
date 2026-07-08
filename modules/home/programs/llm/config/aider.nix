@@ -26,6 +26,12 @@ in
       cache-prompts = true;
       dirty-commits = false;
       show-model-warnings = false;
+      vim = true;
+      notifications = true;
+      # Honor pre-commit hooks (gpg signing, formatters) on aider commits.
+      git-commit-verify = true;
+      # Drop an `# AI!` comment in any file to trigger aider without a prompt.
+      watch-files = true;
 
       # Architect/editor split: a stronger model plans, a cheaper model edits.
       # See https://aider.chat/docs/usage/modes.html#architect-mode-and-the-editor-model
@@ -33,6 +39,13 @@ in
       auto-accept-architect = false;
       model = "anthropic/claude-sonnet-4-5";
       editor-model = "anthropic/claude-haiku-4-5";
+
+      # Ollama local inference endpoint. Switch models with:
+      #   aider --model ollama_chat/qwen2.5-coder:14b
+      # No openai-api-key needed; Ollama ignores the value but aider requires
+      # a non-empty string when openai-api-base is set.
+      openai-api-base = "http://localhost:11434/v1";
+      openai-api-key = "ollama";
 
       # Always-loaded convention file mirroring AGENTS.md.
       read = "${config.home.homeDirectory}/${conventionsPath}";

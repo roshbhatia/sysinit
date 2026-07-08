@@ -21,6 +21,16 @@ let
         provider = "anthropic";
       };
     };
+    # Ollama local provider — discovers all pulled models automatically.
+    # Switch with Ctrl+L → select "ollama" provider.
+    providers = {
+      ollama = {
+        name = "Ollama (local)";
+        base_url = "http://localhost:11434/v1/";
+        type = "ollama";
+        discover_models = true;
+      };
+    };
     tools = {
       ls = { };
       grep = { };

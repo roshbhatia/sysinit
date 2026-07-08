@@ -79,6 +79,9 @@ in
       "COPILOT.md"
     ];
     GOOSE_RECIPE_PATH = "${config.home.homeDirectory}/.config/goose/recipes";
+    # Local Ollama endpoint. Switch provider at runtime with:
+    #   GOOSE_PROVIDER=ollama GOOSE_MODEL=qwen2.5-coder:14b goose
+    OLLAMA_HOST = "http://localhost:11434";
   };
 
   home.activation.gooseConfig = lib.hm.dag.entryAfter [ "writeBoundary" ] ''

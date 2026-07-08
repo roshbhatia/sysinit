@@ -74,10 +74,10 @@ in
       };
 
       permissions = {
-        allow = llmLib.allowlist.formatForClaude llmLib.allowlist.tierA;
-        # Reversible local writes (formatters, `git add`, `nix build`): force a
-        # confirmation prompt rather than auto-allowing or hard-denying.
-        ask = llmLib.allowlist.formatForClaude llmLib.allowlist.tierB;
+        allow =
+          llmLib.allowlist.formatForClaude llmLib.allowlist.tierA
+          ++ llmLib.allowlist.formatForClaude llmLib.allowlist.tierB
+          ++ llmLib.allowlist.tierMcp;
       };
 
       editorMode = "vim";
