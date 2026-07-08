@@ -9,6 +9,7 @@ let
   kit = llmLib.harnessKit.mkKit { inherit lib pkgs config; };
 
   notify = import ./notify.nix { inherit pkgs lib; };
+  profileBin = "${config.home.profileDirectory}/bin";
 in
 {
   programs.codex = {
@@ -40,17 +41,20 @@ in
       # Lifecycle notifications via the shared agent-notify script. Codex exposes
       # no idle event, so the deterministic set is: PermissionRequest (waiting on
       # your approval) and Stop (turn finished). Serializes to [[hooks.<Event>]].
+      # Hook commands intentionally use stable Home Manager profile paths instead
+      # of derivation-specific /nix/store paths so Codex's hook-trust cache
+      # survives rebuilds.
       hooks = {
         PermissionRequest = [
           {
             hooks = [
               {
                 type = "command";
-                command = "${notify.promptExe} codex approval ${notify.focusExe}";
+                command = "${profileBin}/agent-prompt codex approval ${profileBin}/agent-focus";
               }
               {
                 type = "command";
-                command = "${notify.stateExe} codex waiting message";
+                command = "${profileBin}/agent-state codex waiting message";
               }
             ];
           }
@@ -60,11 +64,11 @@ in
             hooks = [
               {
                 type = "command";
-                command = "${notify.exe} codex done ${notify.focusExe}";
+                command = "${profileBin}/agent-notify codex done ${profileBin}/agent-focus";
               }
               {
                 type = "command";
-                command = "${notify.stateExe} codex done \"your move\"";
+                command = "${profileBin}/agent-state codex done \"your move\"";
               }
             ];
           }

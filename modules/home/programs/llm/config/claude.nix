@@ -9,6 +9,7 @@ let
   kit = llmLib.harnessKit.mkKit { inherit lib pkgs config; };
 
   notify = import ./notify.nix { inherit pkgs lib; };
+  profileBin = "${config.home.profileDirectory}/bin";
 
   defaultInstructions = kit.mkInstructions "~/.claude/skills";
 
@@ -110,7 +111,7 @@ in
             hooks = [
               {
                 type = "command";
-                command = "${notify.stateExe} claude working thinking";
+                command = "${profileBin}/agent-state claude working thinking";
                 async = true;
               }
             ];
@@ -135,7 +136,7 @@ in
             hooks = [
               {
                 type = "command";
-                command = "${notify.stateExe} claude working tool";
+                command = "${profileBin}/agent-state claude working tool";
                 async = true;
               }
             ];
@@ -149,7 +150,7 @@ in
             hooks = [
               {
                 type = "command";
-                command = "${notify.stateExe} claude working thinking";
+                command = "${profileBin}/agent-state claude working thinking";
                 async = true;
               }
             ];
@@ -168,7 +169,7 @@ in
               # Best-effort — readers also prune orphaned files by liveness.
               {
                 type = "command";
-                command = "${notify.stateExe} claude exit";
+                command = "${profileBin}/agent-state claude exit";
                 async = true;
               }
             ];
@@ -183,12 +184,12 @@ in
             hooks = [
               {
                 type = "command";
-                command = "${notify.promptExe} claude attention ${notify.focusExe}";
+                command = "${profileBin}/agent-prompt claude attention ${profileBin}/agent-focus";
                 async = true;
               }
               {
                 type = "command";
-                command = "${notify.stateExe} claude waiting message";
+                command = "${profileBin}/agent-state claude waiting message";
                 async = true;
               }
             ];
@@ -201,12 +202,12 @@ in
             hooks = [
               {
                 type = "command";
-                command = "${notify.exe} claude done ${notify.focusExe}";
+                command = "${profileBin}/agent-notify claude done ${profileBin}/agent-focus";
                 async = true;
               }
               {
                 type = "command";
-                command = "${notify.stateExe} claude done \"your move\"";
+                command = "${profileBin}/agent-state claude done \"your move\"";
                 async = true;
               }
             ];

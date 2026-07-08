@@ -53,7 +53,12 @@ in
 
   home.file = skillFiles // notify.iconFiles;
 
-  home.packages = [ notify.script ];
+  home.packages = [
+    notify.script
+    notify.stateScript
+    notify.promptScript
+    notify.focusScript
+  ];
 
   programs.mcp = {
     enable = true;
