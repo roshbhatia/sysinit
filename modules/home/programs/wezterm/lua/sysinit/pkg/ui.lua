@@ -388,6 +388,14 @@ function M.setup(config)
     end
   end
 
+  -- Normalize process names for display. Strips the `.` prefix and `-wrapped`
+  -- suffix that Nix wrapping adds (e.g. `.claude-wrapped` → `claude`,
+  -- `.code-wrapped` → `code`).
+  local function normalize_proc(raw)
+    if not raw or raw == "" then return raw end
+    return (raw:gsub("^%.", ""):gsub("%-wrapped$", ""))
+  end
+
   -- Best-effort short label for a pane: the agent name when it is an agent pane,
   -- else the basename of its foreground process, else its title. Used as the
   -- leaf segment of the `session/tab/agent` filter path. "" on any failure.
@@ -398,9 +406,9 @@ function M.setup(config)
     local ok, name = pcall(function()
       local proc = p:get_foreground_process_name()
       if proc and proc ~= "" then
-        return (proc:gsub("/+$", "")):match("([^/]+)$") or ""
+        return normalize_proc((proc:gsub("/+$", "")):match("([^/]+)$") or "")
       end
-      return p:get_title() or ""
+      return normalize_proc(p:get_title() or "")
     end)
     if not ok then
       return ""
@@ -776,15 +784,26 @@ function M.setup(config)
   end
 
   -- Deterministic pane identity: hash pane_id → adjective-noun name and a
-  -- brights palette slot (1-8). Same id yields the same name+color on every
-  -- surface that renders it (tab title, session tree, statusline), so panes
-  -- are cross-referenceable by color and name without counting positions.
-  local BADGE_ADJ  = { "amber", "coral", "dusty", "ember", "frost", "gilded", "hazy", "ivory" }
-  local BADGE_NOUN = { "bear",  "crane", "deer",  "elk",   "fox",   "hawk",   "koi",  "lynx"  }
+  -- brights palette slot. Same id yields the same name+color on every surface
+  -- (tab title, session tree, statusline), so panes are cross-referenceable.
+  -- Knuth multiplicative hash (×golden-ratio constant) spreads sequential IDs
+  -- across the full name space — plain modulo clusters low IDs on "amber".
+  local BADGE_ADJ = {
+    "amber",  "azure",   "burnt",   "cobalt",
+    "crimson","dusty",   "ember",   "gilded",
+    "hazy",   "indigo",  "jade",    "lunar",
+    "mossy",  "neon",    "russet",  "zephyr",
+  }
+  local BADGE_NOUN = {
+    "bear",   "crane",   "dragon",  "elk",
+    "fox",    "gryphon", "hawk",    "kraken",
+    "lynx",   "owl",     "phoenix", "raven",
+    "sphinx", "stag",    "wolf",    "wyvern",
+  }
 
   local function pane_badge(pane_id)
-    local idx = pane_id % 64
-    return BADGE_ADJ[math.floor(idx / 8) + 1] .. "-" .. BADGE_NOUN[(idx % 8) + 1]
+    local h = pane_id * 2654435761  -- Knuth multiplicative hash
+    return BADGE_ADJ[(h % #BADGE_ADJ) + 1] .. "-" .. BADGE_NOUN[((h >> 4) % #BADGE_NOUN) + 1]
   end
 
   -- Return the brights color for a pane. Uses slots 2-8 (skips slot 1 =
@@ -792,7 +811,8 @@ function M.setup(config)
   -- is either tree_colors() (has a .brights field) or cfg.colors from a
   -- format-tab-title context where no win is available.
   local function pane_badge_color(pane_id, brights_or_cfg)
-    local slot = (pane_id % 7) + 2  -- slots 2..8, never bright-black (1)
+    local h = pane_id * 2654435761
+    local slot = (h % 7) + 2  -- slots 2..8, never bright-black (1)
     if type(brights_or_cfg) == "table" then
       local b = brights_or_cfg.brights or brights_or_cfg
       if type(b) == "table" then
@@ -800,14 +820,6 @@ function M.setup(config)
       end
     end
     return nil
-  end
-
-  -- Normalize process names for display. Strips the `.` prefix and `-wrapped`
-  -- suffix that Nix wrapping adds (e.g. `.claude-wrapped` → `claude`,
-  -- `.code-wrapped` → `code`). Also collapses any remaining double-dash.
-  local function normalize_proc(raw)
-    if not raw or raw == "" then return raw end
-    return (raw:gsub("^%.", ""):gsub("%-wrapped$", ""))
   end
 
   -- lantern: runtime appearance picker (colorschemes, fonts, GPU, opacity, …).
@@ -900,13 +912,13 @@ function M.setup(config)
     -- NOT MuxTab/Pane objects (methods). Calling methods here throws and aborts
     -- the handler, dropping WezTerm back to its default tab text.
     local pane = tab.active_pane
-    local explicit = tab.tab_title -- set via tab:set_title(), else ""
-    local osc = pane and pane.title
+    local explicit = normalize_proc(tab.tab_title or "")
+    local osc = normalize_proc(pane and pane.title or "")
     local proc = pane and pane.foreground_process_name
     if proc then proc = normalize_proc(proc:match("([^/]+)$") or proc) end
 
     -- A user- (or program-) set, non-numeric tab title always wins (no badge).
-    if explicit and explicit ~= "" and not explicit:match("^%d+$") then
+    if explicit ~= "" and not explicit:match("^%d+$") then
       return explicit
     end
 
