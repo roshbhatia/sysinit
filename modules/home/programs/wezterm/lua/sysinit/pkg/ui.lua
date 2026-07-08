@@ -1345,8 +1345,6 @@ function M.setup(config)
         if not ws.dormant then live_sorted[#live_sorted + 1] = ws end
       end
       table.sort(live_sorted, function(a, b)
-        if a.name == "default" then return false end
-        if b.name == "default" then return true end
         return (a.last_active or 0) > (b.last_active or 0)
       end)
 
