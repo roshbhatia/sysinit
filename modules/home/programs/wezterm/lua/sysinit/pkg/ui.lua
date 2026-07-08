@@ -760,16 +760,16 @@ function M.setup(config)
     local a, b = pal.ansi or {}, pal.brights or {}
     return {
       ws_live  = b[7] or b[8] or pal.foreground or "#c0caf5",   -- bright cyan/white — live session
-      ws_dorm  = b[1] or "#414868",                              -- bright-black — dormant
+      ws_dorm  = a[8] or pal.foreground or "#a9b1d6",           -- ansi-white (mid-gray) — dormant, readable but clearly dimmer than live
       dir_ic   = b[5] or a[5] or "#7aa2f7",                     -- bright blue — folder icon
       waiting  = b[2] or a[2] or "#f7768e",                     -- (bright) red — needs input
       done     = b[3] or a[3] or "#9ece6a",                     -- (bright) green — finished
       working  = b[4] or a[4] or "#e0af68",                     -- (bright) yellow — running
-      idle     = b[1] or a[8] or "#565f89",                     -- dim — idle
+      idle     = a[8] or "#a9b1d6",                             -- ansi-white (mid-gray) — idle, readable but subdued
       name     = pal.foreground or "#c0caf5",
       reason   = b[6] or a[6] or "#bb9af7",                     -- (bright) magenta — reason text
-      age      = b[1] or a[8] or "#565f89",                     -- dim — timestamps
-      chrome   = b[1] or a[1] or "#3b4261",                     -- very dim — tree lines
+      age      = a[8] or "#a9b1d6",                             -- ansi-white (mid-gray) — timestamps, readable but secondary
+      chrome   = b[1] or a[1] or "#3b4261",                     -- bright-black — intentionally barely-visible tree lines
       ghost    = pal.background or "#16161e",                    -- near-bg — invisible match suffix
       brights  = b,                                              -- raw array for badge color slots
     }
