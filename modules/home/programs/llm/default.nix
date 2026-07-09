@@ -1,6 +1,7 @@
 {
   lib,
   pkgs,
+  inputs,
   config,
   ...
 }:
@@ -11,6 +12,12 @@ let
   skillFiles = lib.mapAttrs' (
     name: path: lib.nameValuePair ".claude/skills/${name}/SKILL.md" { source = path; }
   ) skills.allSkills;
+
+  # Skills shipped by specutil itself; pulled straight from the flake source
+  # so they stay in sync whenever the lock is bumped (nix flake update specutil).
+  specutilSkillFiles = lib.mapAttrs' (
+    name: path: lib.nameValuePair ".claude/skills/${name}/SKILL.md" { source = path; }
+  ) inputs.specutil.lib.skills;
 
   # programs.mcp serializes `servers` straight to JSON, so strip option
   # defaults that don't belong on the wire (null command for http servers,
@@ -51,7 +58,7 @@ in
     ./config/pi.nix
   ];
 
-  home.file = skillFiles // notify.iconFiles;
+  home.file = skillFiles // specutilSkillFiles // notify.iconFiles;
 
   home.packages = [
     notify.script

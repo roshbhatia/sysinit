@@ -206,6 +206,9 @@ let
     "specutil serve *"
     "specutil --help"
     "specutil --version"
+
+    # specutil lock — writes the identity→externalId mapping after Linear/Notion syncs
+    "specutil lock *"
   ];
 
   # Reversible local writes. Each entry mutates the working tree or the

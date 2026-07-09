@@ -75,6 +75,12 @@
       url = "github:ryoppippi/nix-claude-code";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    # OpenSpec change projection CLI (graph, render, plan, sync)
+    specutil = {
+      url = "github:roshbhatia/specutil";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs =
