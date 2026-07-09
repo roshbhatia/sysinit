@@ -1444,10 +1444,10 @@ function M.setup(config)
             or nil
           local ws_r = ribbon.new("ws")
           ws_r:append(nil, sc or colors.ws_live, tree_icons.session .. " ")
-          ws_r:append(nil, colors.name, ws.name, "Bold")
+          ws_r:append(nil, colors.name, ws.name, "Bold Underline")
           if ws.status then
             local ws_lbl = agent_state_labels[ws.status] or ""
-            ws_r:append(nil, colors.chrome, "  |  ")
+            ws_r:append(nil, colors.chrome, "  ")
             ws_r:append(nil, sc or colors.working, agent_state_icons[ws.status] or "●")
             if ws_lbl ~= "" then
               ws_r:append(nil, colors.reason, " " .. ws_lbl)
@@ -1458,19 +1458,19 @@ function M.setup(config)
           for ti, tnode in ipairs(ws.tabs) do
             local tlast = ti == #ws.tabs
             local tbranch = tlast and "  └─ " or "  ├─ "
-            -- tab row: chrome + tab icon + [index]  |  title
+            -- tab row: chrome + tab icon + [index]  title
             local tab_r = ribbon.new("tab")
             tab_r:append(nil, colors.chrome, tbranch)
             tab_r:append(nil, colors.ws_live, tree_icons.tab)
             tab_r:append(nil, colors.chrome, " [" .. tostring(ti) .. "]")
-            tab_r:append(nil, colors.chrome, "  |  ")
+            tab_r:append(nil, colors.chrome, "  ")
             tab_r:append(nil, colors.name, tnode.title)
             add("tab:" .. tnode.tab_id, tab_r:format(), { pane_id = tnode.active_pane_id, workspace = ws.name })
 
             for pi, rec in ipairs(tnode.panes) do
               local pbranch = (tlast and "     " or "  │  ")
                 .. (pi == #tnode.panes and "└─ " or "├─ ")
-              -- pane row: <badge> | path | branch | proc | state
+              -- pane row: <badge>  path  branch  proc  state
               local pane_r = ribbon.new("pane")
               pane_r:append(nil, colors.chrome, pbranch)
               -- badge: colored character name for cross-referencing
@@ -1484,20 +1484,20 @@ function M.setup(config)
               local pane_dp = smart_path(rec.cwd)
               if pane_dp == "" then pane_dp = rec.repo end
               if pane_dp ~= "" then
-                pane_r:append(nil, colors.chrome, "  |  ")
+                pane_r:append(nil, colors.chrome, "  ")
                 pane_r:append(nil, colors.dir_ic, tree_icons.folder .. " ")
                 pane_r:append(nil, colors.name, pane_dp)
               end
               -- branch + dirty (agent-active panes only, from state file)
               if rec.branch then
-                pane_r:append(nil, colors.chrome, "  |  ")
+                pane_r:append(nil, colors.chrome, "  ")
                 pane_r:append(nil, colors.age, tree_icons.branch .. " " .. rec.branch)
                 if rec.dirty then pane_r:append(nil, colors.working, " *") end
               end
               -- proc: sigil icon + name
               local proc = rec.title ~= "" and rec.title or nil
               if proc then
-                pane_r:append(nil, colors.chrome, "  |  ")
+                pane_r:append(nil, colors.chrome, "  ")
                 if sigil_ok then
                   local proc_items = sigil.items(proc, { fallback = true, padding = "left", reset = true })
                   pane_r:append_items(proc_items)
@@ -1512,7 +1512,7 @@ function M.setup(config)
                   or colors.idle
                 local p_lbl = agent_state_labels[rec.status] or ""
                 local p_show_reason = rec.reason ~= "" and not SUPPRESSED_REASONS[rec.reason]
-                pane_r:append(nil, colors.chrome, "  |  ")
+                pane_r:append(nil, colors.chrome, "  ")
                 pane_r:append(nil, asc, agent_state_icons[rec.status] or "●")
                 if p_lbl ~= "" or p_show_reason then
                   local parts = {}
@@ -1618,25 +1618,47 @@ function M.setup(config)
     config.key_tables.session_tree_actions = {
       tree_close_key("Enter"),
       tree_close_key("Escape"),
-      -- vim navigation: j/k move cursor; J/K jump between session (ws:) rows
+      -- vim navigation: j/k jump between structural rows (ws:/tab:), skipping pane detail
+      -- rows; fall back to +/-1 when only pane rows remain (e.g. in blocked/agents views).
+      -- J/K jump between session (ws:) rows only.
       {
         key = "j",
         mods = "NONE",
         action = wezterm.action_callback(function(win, pane)
-          if tree_state.cursor < #tree_state.choices - 1 then
-            tree_state.cursor = tree_state.cursor + 1
+          local cs, cur = tree_state.choices, tree_state.cursor
+          if cur >= #cs - 1 then return end
+          local target = cur + 1
+          for i = cur + 2, #cs do
+            if not cs[i]:match("^pane:") then
+              target = i - 1
+              break
+            end
           end
-          win:perform_action(wezterm.action.SendKey({ key = "DownArrow" }), pane)
+          local steps = target - cur
+          tree_state.cursor = target
+          for _ = 1, steps do
+            win:perform_action(wezterm.action.SendKey({ key = "DownArrow" }), pane)
+          end
         end),
       },
       {
         key = "k",
         mods = "NONE",
         action = wezterm.action_callback(function(win, pane)
-          if tree_state.cursor > 0 then
-            tree_state.cursor = tree_state.cursor - 1
+          local cs, cur = tree_state.choices, tree_state.cursor
+          if cur <= 0 then return end
+          local target = cur - 1
+          for i = cur, 1, -1 do
+            if not cs[i]:match("^pane:") then
+              target = i - 1
+              break
+            end
           end
-          win:perform_action(wezterm.action.SendKey({ key = "UpArrow" }), pane)
+          local steps = cur - target
+          tree_state.cursor = target
+          for _ = 1, steps do
+            win:perform_action(wezterm.action.SendKey({ key = "UpArrow" }), pane)
+          end
         end),
       },
       {
