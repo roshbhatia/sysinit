@@ -192,11 +192,11 @@
       },
       "locked": {
         "dir": "repos/rycee/pkgs/firefox-addons",
-        "lastModified": 1783612453,
-        "narHash": "sha256-ssH5n096Q4+dr0DKS6h9tEm+UanxPL1+HEnEXuOZH8g=",
+        "lastModified": 1783623871,
+        "narHash": "sha256-eozKhrE/T225bjLoOxYO7CRIC+2Y81ufsaKjFWhEJP4=",
         "owner": "nix-community",
         "repo": "nur-combined",
-        "rev": "0b0e8c3b8cc6b921eaf8ff70809e5502b9762ecc",
+        "rev": "77a5b749835b783b4acced889900e173fa5d5566",
         "type": "github"
       },
       "original": {
@@ -483,11 +483,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1783550008,
-        "narHash": "sha256-qbbZUk9IG9dLNwCPwdPBs6I5clxwugRpP+1YU+GPK20=",
+        "lastModified": 1783618078,
+        "narHash": "sha256-F43DGcBoIO8xOZFAfodg3jy0VghB9NGdb6xbTYAIx1A=",
         "owner": "nix-community",
         "repo": "home-manager",
-        "rev": "f4d01c1d87c7c2ec909549165d5a8338f1bd3315",
+        "rev": "144f4e36d0186195037da9fce80a727108978070",
         "type": "github"
       },
       "original": {
@@ -525,11 +525,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1783542369,
-        "narHash": "sha256-53qE/pUVN95Ya3h0EcRGqa/t0hijQNzhKn7mvo7g/aQ=",
+        "lastModified": 1783621977,
+        "narHash": "sha256-JSoP1wz7rdNtl9w8nCywOUpZuPD9rDOLbeam5OvuwkE=",
         "owner": "ryoppippi",
         "repo": "nix-claude-code",
-        "rev": "51bc104b2426a31e151081595a628fe88b9afa1e",
+        "rev": "48088b5a1438cee7857d9fdfaee18d59a13b2db4",
         "type": "github"
       },
       "original": {
@@ -747,11 +747,11 @@
         "nixpkgs": "nixpkgs_4"
       },
       "locked": {
-        "lastModified": 1783612296,
-        "narHash": "sha256-5PsHsPsTxOSSoTowAbYehw2oaTz9pYwwg4S2H7Ur0Ic=",
+        "lastModified": 1783623710,
+        "narHash": "sha256-M9lny3ysISDg0G3u9gSweuR7C4yL2GGDYh0pF6meIbQ=",
         "owner": "nix-community",
         "repo": "NUR",
-        "rev": "e688353339c84191445b9f1cbcb4a5f98707e7af",
+        "rev": "40d6f1e7ade455aa0e9d8b03e93422d23a730241",
         "type": "github"
       },
       "original": {
@@ -880,11 +880,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1783616709,
-        "narHash": "sha256-/sF4e72NbZT5VCwyYHCJo9j8FFXmixWO2V8dQ6sFvFw=",
+        "lastModified": 1783619079,
+        "narHash": "sha256-5xduH5kaAJ4Ohu9xw3JN2zxSj/LHEXzGW5xZ9MokOjs=",
         "owner": "roshbhatia",
         "repo": "specutil",
-        "rev": "63485bad266035f5eef12405f049bdb1b05f7c60",
+        "rev": "5dc20f27768c7f54d6dd5106702aff33b4e471a7",
         "type": "github"
       },
       "original": {
