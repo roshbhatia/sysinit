@@ -8,45 +8,45 @@
 {
   crush = {
     pname = "crush";
-    version = "0.82.0";
+    version = "0.83.0";
     src = fetchurl {
-      url = "https://github.com/charmbracelet/crush/releases/download/v0.82.0/crush_0.82.0_Darwin_arm64.tar.gz";
-      sha256 = "sha256-PcefjZbHkmgpI+5sI/dU/90Gwys5rMzxPDlaCfwWR44=";
+      url = "https://github.com/charmbracelet/crush/releases/download/v0.83.0/crush_0.83.0_Darwin_arm64.tar.gz";
+      sha256 = "sha256-w+EZoiA39lGjSv6d4r6XuaWRrcVJM9PB2ywq9v3L9us=";
     };
   };
   crush-aarch64-linux = {
     pname = "crush-aarch64-linux";
-    version = "0.82.0";
+    version = "0.83.0";
     src = fetchurl {
-      url = "https://github.com/charmbracelet/crush/releases/download/v0.82.0/crush_0.82.0_Linux_arm64.tar.gz";
-      sha256 = "sha256-eqi9FBgU1bUHIkruSqGa3JUMamwcCWpPeYkteAec9zo=";
+      url = "https://github.com/charmbracelet/crush/releases/download/v0.83.0/crush_0.83.0_Linux_arm64.tar.gz";
+      sha256 = "sha256-l+L7TeTUea8Ly9OaDg1ZcbBddZlwyZrNhIbeprZUIn8=";
     };
   };
   crush-x86_64-darwin = {
     pname = "crush-x86_64-darwin";
-    version = "0.82.0";
+    version = "0.83.0";
     src = fetchurl {
-      url = "https://github.com/charmbracelet/crush/releases/download/v0.82.0/crush_0.82.0_Darwin_x86_64.tar.gz";
-      sha256 = "sha256-Ya/mzF7iCUucWUDGIxbZdkJeH1oZ3Ci4TvyPclRbUXU=";
+      url = "https://github.com/charmbracelet/crush/releases/download/v0.83.0/crush_0.83.0_Darwin_x86_64.tar.gz";
+      sha256 = "sha256-O+mWleXkbFICiCj3UIwn3a0tcVV2y5EWUFKWoKKxciA=";
     };
   };
   crush-x86_64-linux = {
     pname = "crush-x86_64-linux";
-    version = "0.82.0";
+    version = "0.83.0";
     src = fetchurl {
-      url = "https://github.com/charmbracelet/crush/releases/download/v0.82.0/crush_0.82.0_Linux_x86_64.tar.gz";
-      sha256 = "sha256-PQhv10eM9x2Ro/g5l6FuZ/J/ogYvN3t8/4tZX+chZ3U=";
+      url = "https://github.com/charmbracelet/crush/releases/download/v0.83.0/crush_0.83.0_Linux_x86_64.tar.gz";
+      sha256 = "sha256-PCfXdwlNkL5dOhLZXJMN1hqX8soXc+tSXacu1VKnlsY=";
     };
   };
   go-enum = {
     pname = "go-enum";
-    version = "v0.9.2";
+    version = "v0.9.3";
     src = fetchFromGitHub {
       owner = "abice";
       repo = "go-enum";
-      rev = "v0.9.2";
+      rev = "v0.9.3";
       fetchSubmodules = false;
-      sha256 = "sha256-VZH7xLEDqU8N7oU3tOWVdTABEQEp2mlh1NtTg22hzco=";
+      sha256 = "sha256-TmoiH1/G3yQmvpDb5+rkX20c41a59pAsVexVbjWtmfI=";
     };
   };
   gomvp = {
