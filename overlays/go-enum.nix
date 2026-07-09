@@ -12,7 +12,7 @@ in
 
     inherit (sources) src;
 
-    vendorHash = "sha256-bqJ+KBUsJzTNqeshq3eXFImW/JYL7zmCEwcy2xQHJeE=";
+    vendorHash = "sha256-hGfwb0GZCxc3EQWvxs7/fNVEVGGQE2I0B+MMaH7ecPM=";
 
     meta = with final.lib; {
       description = "An enum generator for Go";
