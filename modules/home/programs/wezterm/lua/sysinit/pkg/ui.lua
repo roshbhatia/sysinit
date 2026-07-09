@@ -820,8 +820,7 @@ function M.setup(config)
   local BADGE_NAMES = {
     -- Dune (Herbert)
     "muadib",   "stilgar",  "chani",    "gurney",   "feyd",     "irulan",
-    "alia",     "thufir",   "fremen",   "mentat",   "kwisatz",  "hayt",
-    "korba",    "scytale",
+    "alia",     "thufir",   "mentat",   "kwisatz",  "hayt",     "korba",    "scytale",
     -- Hyperion (Simmons)
     "shrike",   "kassad",   "silenus",  "brawne",   "aenea",    "raul",
     "consul",   "ummon",    "moneta",   "sol",      "endymion", "templar",
@@ -837,6 +836,20 @@ function M.setup(config)
     -- Empire of Silence (Ruocchio)
     "hadrian",  "valka",    "pallino",  "lorian",   "bassander",
     "vorgossos","gibson",   "siran",    "elara",    "kharn",
+    -- First Law (Abercrombie)
+    "logen",    "glokta",   "jezal",    "bayaz",    "ferro",    "dogman",
+    "shivers",  "monza",    "cosca",    "friendly", "temple",   "caul",     "chella",
+    -- Kingkiller Chronicle (Rothfuss)
+    "kvothe",   "denna",    "bast",     "auri",     "elodin",   "kilvin",
+    "simmon",   "wilem",    "devi",     "tempi",    "felurian", "ambrose",
+    -- Neuromancer (Gibson)
+    "case",     "molly",    "wintermute","armitage", "riviera",  "maelcum",  "flatline",
+    -- Red Rising (Brown)
+    "darrow",   "sevro",    "mustang",  "cassius",  "roque",    "victra",   "lysander",
+    -- Book of the New Sun (Wolfe)
+    "severian", "thecla",   "dorcas",   "agia",     "baldanders","typhon",  "jonas",
+    -- Broken Empire (Lawrence)
+    "jorg",     "makin",    "rike",     "sageous",  "miana",    "coddin",   "jalan",    "snorri",
   }
 
   local function pane_badge(pane_id)
