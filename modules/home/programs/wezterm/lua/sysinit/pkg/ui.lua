@@ -697,6 +697,18 @@ function M.setup(config)
         tabline_z = {
           "workspace",
         },
+        -- Use cwd for both active and inactive tabs so that Nix-wrapped process
+        -- names (e.g. .claude-wrapped) never appear in the tab bar.
+        tab_active = {
+          "index",
+          { "parent", padding = 0 },
+          "/",
+          { "cwd", padding = { left = 0, right = 1 } },
+        },
+        tab_inactive = {
+          "index",
+          { "cwd", padding = { left = 0, right = 1 } },
+        },
       },
       extensions = {},
     })
@@ -801,27 +813,35 @@ function M.setup(config)
     }
   end
 
-  -- Deterministic pane identity: hash pane_id → adjective-noun name and a
-  -- brights palette slot. Same id yields the same name+color on every surface
-  -- (tab title, session tree, statusline), so panes are cross-referenceable.
-  -- Knuth multiplicative hash (×golden-ratio constant) spreads sequential IDs
-  -- across the full name space — plain modulo clusters low IDs on "amber".
-  local BADGE_ADJ = {
-    "amber",  "azure",   "burnt",   "cobalt",
-    "crimson","dusty",   "ember",   "gilded",
-    "hazy",   "indigo",  "jade",    "lunar",
-    "mossy",  "neon",    "russet",  "zephyr",
-  }
-  local BADGE_NOUN = {
-    "bear",   "crane",   "dragon",  "elk",
-    "fox",    "gryphon", "hawk",    "kraken",
-    "lynx",   "owl",     "phoenix", "raven",
-    "sphinx", "stag",    "wolf",    "wyvern",
+  -- Deterministic pane identity: hash pane_id → character name from sci-fi/fantasy.
+  -- Same id yields the same name+color on every surface (tab title, session tree,
+  -- statusline) so panes are cross-referenceable. Knuth multiplicative hash spreads
+  -- sequential IDs across the full name space — plain modulo clusters low IDs.
+  local BADGE_NAMES = {
+    -- Dune (Herbert)
+    "muadib",   "stilgar",  "chani",    "gurney",   "feyd",     "irulan",
+    "alia",     "thufir",   "fremen",   "mentat",   "kwisatz",  "hayt",
+    "korba",    "scytale",
+    -- Hyperion (Simmons)
+    "shrike",   "kassad",   "silenus",  "brawne",   "aenea",    "raul",
+    "consul",   "ummon",    "moneta",   "sol",      "endymion", "templar",
+    -- Lord of the Rings (Tolkien)
+    "aragorn",  "gandalf",  "samwise",  "legolas",  "gimli",    "boromir",
+    "faramir",  "eowyn",    "galadriel","elrond",   "saruman",  "theoden",
+    "frodo",    "merry",    "pippin",   "glorfindel","haldir",
+    -- Stormlight / Mistborn (Sanderson)
+    "kaladin",  "dalinar",  "szeth",    "jasnah",   "shallan",  "adolin",
+    "wit",      "vin",      "elend",    "kelsier",  "sazed",    "spook",
+    "breeze",   "marsh",    "nightblood","hoid",    "vasher",   "renarin",
+    "lift",     "taravangian","navani",
+    -- Empire of Silence (Ruocchio)
+    "hadrian",  "valka",    "pallino",  "lorian",   "bassander",
+    "vorgossos","gibson",   "siran",    "elara",    "kharn",
   }
 
   local function pane_badge(pane_id)
     local h = pane_id * 2654435761  -- Knuth multiplicative hash
-    return BADGE_ADJ[(h % #BADGE_ADJ) + 1] .. "-" .. BADGE_NOUN[((h >> 4) % #BADGE_NOUN) + 1]
+    return BADGE_NAMES[(h % #BADGE_NAMES) + 1]
   end
 
   -- Return the ansi palette color for a pane badge. Uses ansi slots 2-7
@@ -1425,11 +1445,11 @@ function M.setup(config)
           for ti, tnode in ipairs(ws.tabs) do
             local tlast = ti == #ws.tabs
             local tbranch = tlast and "  └─ " or "  ├─ "
-            -- tab row: chrome + tab icon + index  |  title
+            -- tab row: chrome + tab icon + [index]  |  title
             local tab_r = ribbon.new("tab")
             tab_r:append(nil, colors.chrome, tbranch)
-            tab_r:append(nil, colors.ws_live, tree_icons.tab .. " ")
-            tab_r:append(nil, colors.chrome, tostring(ti))
+            tab_r:append(nil, colors.ws_live, tree_icons.tab)
+            tab_r:append(nil, colors.chrome, " [" .. tostring(ti) .. "]")
             tab_r:append(nil, colors.chrome, "  |  ")
             tab_r:append(nil, colors.name, tnode.title)
             add("tab:" .. tnode.tab_id, tab_r:format(), { pane_id = tnode.active_pane_id, workspace = ws.name })
@@ -1437,25 +1457,15 @@ function M.setup(config)
             for pi, rec in ipairs(tnode.panes) do
               local pbranch = (tlast and "     " or "  │  ")
                 .. (pi == #tnode.panes and "└─ " or "├─ ")
-              -- pane row: <badge> | proc | path | branch | status+age
+              -- pane row: <badge> | path | branch | proc | state
               local pane_r = ribbon.new("pane")
               pane_r:append(nil, colors.chrome, pbranch)
-              -- badge first: colored pet name for quick cross-referencing
+              -- badge: colored character name for cross-referencing
               local bc = pane_badge_color(rec.pane_id, colors)
               if bc then
                 pane_r:append(nil, colors.chrome, "<")
                 pane_r:append(nil, bc, pane_badge(rec.pane_id))
                 pane_r:append(nil, colors.chrome, ">")
-              end
-              -- proc: sigil icon + name
-              local proc = rec.title ~= "" and rec.title or nil
-              if proc then
-                pane_r:append(nil, colors.chrome, "  |  ")
-                if sigil_ok then
-                  local proc_items = sigil.items(proc, { fallback = true, padding = "left", reset = true })
-                  pane_r:append_items(proc_items)
-                end
-                pane_r:append(nil, colors.name, " " .. proc)
               end
               -- path: smart path with placeholder prefix ({gh}/{sy}/{home})
               local pane_dp = smart_path(rec.cwd)
@@ -1471,13 +1481,22 @@ function M.setup(config)
                 pane_r:append(nil, colors.age, tree_icons.branch .. " " .. rec.branch)
                 if rec.dirty then pane_r:append(nil, colors.working, " *") end
               end
-              -- agent state: status icon + label + meaningful reason + age
+              -- proc: sigil icon + name
+              local proc = rec.title ~= "" and rec.title or nil
+              if proc then
+                pane_r:append(nil, colors.chrome, "  |  ")
+                if sigil_ok then
+                  local proc_items = sigil.items(proc, { fallback = true, padding = "left", reset = true })
+                  pane_r:append_items(proc_items)
+                end
+                pane_r:append(nil, colors.name, " " .. proc)
+              end
+              -- agent state: status icon + label + meaningful reason; age only when active
               if rec.status then
                 local asc = rec.status == "waiting" and colors.waiting
                   or rec.status == "done"    and colors.done
                   or rec.status == "working" and colors.working
                   or colors.idle
-                local age = rec.since and format_age(now - rec.since) or ""
                 local p_lbl = agent_state_labels[rec.status] or ""
                 local p_show_reason = rec.reason ~= "" and not SUPPRESSED_REASONS[rec.reason]
                 pane_r:append(nil, colors.chrome, "  |  ")
@@ -1488,7 +1507,11 @@ function M.setup(config)
                   if p_show_reason then parts[#parts + 1] = rec.reason end
                   pane_r:append(nil, colors.reason, " " .. table.concat(parts, " · "))
                 end
-                if age ~= "" then pane_r:append(nil, colors.age, " " .. age) end
+                -- age only for non-idle states; idle age is noise
+                if rec.status ~= "done" then
+                  local age = rec.since and format_age(now - rec.since) or ""
+                  if age ~= "" then pane_r:append(nil, colors.age, " " .. age) end
+                end
               end
               add("pane:" .. rec.pane_id, pane_r:format(), rec)
             end
