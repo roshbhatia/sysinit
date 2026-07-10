@@ -850,6 +850,33 @@ function M.setup(config)
     "severian", "thecla",   "dorcas",   "agia",     "baldanders","typhon",  "jonas",
     -- Broken Empire (Lawrence)
     "jorg",     "makin",    "rike",     "sageous",  "miana",    "coddin",   "jalan",    "snorri",
+    -- Goblin Emperor (Addison)
+    "maia",     "csevet",   "cala",     "beshelar", "setheris",
+    -- Necroscope (Lumley)
+    "keogh",    "dragosani","zek",      "nathan",
+    -- Covenant of Steel (Ryan)
+    "alwyn",    "evadine",  "deckin",   "tiler",
+    -- Raven's Shadow / Blood Song (Ryan)
+    "vaelin",   "reva",     "nortah",   "caenis",   "barkus",
+    -- Will of the Many (Islington)
+    "vis",      "emissa",   "callidus", "acqua",    "ulciscor",
+    -- Inheritance Cycle (Paolini)
+    "eragon",   "saphira",  "arya",     "murtagh",  "brom",     "nasuada",  "roran",    "oromis",   "galbatorix",
+    -- Blacktongue Thief / Daughters' War (Buehlman)
+    "kinch",    "galva",    "norrigal",
+    -- Between Two Fires (Buehlman)
+    "thomas",
+    -- Alien
+    "ripley",   "newt",     "bishop",   "hicks",    "ash",      "hudson",   "vasquez",  "dallas",   "lambert",  "burke",
+    -- Predator
+    "dutch",    "mac",      "blain",    "harrigan", "dillon",
+    -- Blade Runner
+    "deckard",  "rachael",  "roy",      "pris",     "gaff",     "joi",      "luv",
+    -- Metal Gear Solid
+    "snake",    "otacon",   "meryl",    "liquid",   "ocelot",   "raiden",   "solidus",  "vamp",     "mantis",   "wolf",
+    "quiet",    "paz",      "skull",
+    -- Resident Evil
+    "leon",     "claire",   "jill",     "wesker",   "ada",      "barry",    "chris",    "ethan",    "heisenberg","dimitrescu",
   }
 
   local function pane_badge(pane_id)
