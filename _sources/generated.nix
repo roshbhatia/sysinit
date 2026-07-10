@@ -8,45 +8,45 @@
 {
   crush = {
     pname = "crush";
-    version = "0.83.0";
+    version = "0.84.0";
     src = fetchurl {
-      url = "https://github.com/charmbracelet/crush/releases/download/v0.83.0/crush_0.83.0_Darwin_arm64.tar.gz";
-      sha256 = "sha256-w+EZoiA39lGjSv6d4r6XuaWRrcVJM9PB2ywq9v3L9us=";
+      url = "https://github.com/charmbracelet/crush/releases/download/v0.84.0/crush_0.84.0_Darwin_arm64.tar.gz";
+      sha256 = "sha256-qxex/xOEf81lESqd6SJ20LFGTtHzwxbWJ9+swQPmBuQ=";
     };
   };
   crush-aarch64-linux = {
     pname = "crush-aarch64-linux";
-    version = "0.83.0";
+    version = "0.84.0";
     src = fetchurl {
-      url = "https://github.com/charmbracelet/crush/releases/download/v0.83.0/crush_0.83.0_Linux_arm64.tar.gz";
-      sha256 = "sha256-l+L7TeTUea8Ly9OaDg1ZcbBddZlwyZrNhIbeprZUIn8=";
+      url = "https://github.com/charmbracelet/crush/releases/download/v0.84.0/crush_0.84.0_Linux_arm64.tar.gz";
+      sha256 = "sha256-thcD+Y8WM0uqp3ShJMwjmn6XB/msXrPB3yh55pXB1CE=";
     };
   };
   crush-x86_64-darwin = {
     pname = "crush-x86_64-darwin";
-    version = "0.83.0";
+    version = "0.84.0";
     src = fetchurl {
-      url = "https://github.com/charmbracelet/crush/releases/download/v0.83.0/crush_0.83.0_Darwin_x86_64.tar.gz";
-      sha256 = "sha256-O+mWleXkbFICiCj3UIwn3a0tcVV2y5EWUFKWoKKxciA=";
+      url = "https://github.com/charmbracelet/crush/releases/download/v0.84.0/crush_0.84.0_Darwin_x86_64.tar.gz";
+      sha256 = "sha256-bAQ1CRcatRlRiWncPmNfukg4sQ/nFMF0TnYqz2RusZY=";
     };
   };
   crush-x86_64-linux = {
     pname = "crush-x86_64-linux";
-    version = "0.83.0";
+    version = "0.84.0";
     src = fetchurl {
-      url = "https://github.com/charmbracelet/crush/releases/download/v0.83.0/crush_0.83.0_Linux_x86_64.tar.gz";
-      sha256 = "sha256-PCfXdwlNkL5dOhLZXJMN1hqX8soXc+tSXacu1VKnlsY=";
+      url = "https://github.com/charmbracelet/crush/releases/download/v0.84.0/crush_0.84.0_Linux_x86_64.tar.gz";
+      sha256 = "sha256-FebV+svMtgrYSRfGuzSKOkeflwPFGKYi4n75OIWkDGY=";
     };
   };
   go-enum = {
     pname = "go-enum";
-    version = "v0.9.3";
+    version = "v0.9.4";
     src = fetchFromGitHub {
       owner = "abice";
       repo = "go-enum";
-      rev = "v0.9.3";
+      rev = "v0.9.4";
       fetchSubmodules = false;
-      sha256 = "sha256-TmoiH1/G3yQmvpDb5+rkX20c41a59pAsVexVbjWtmfI=";
+      sha256 = "sha256-fFMTnbQ6RUGxvANHveB1YrXlppgUVTJIRB4v1sV3GH8=";
     };
   };
   gomvp = {
@@ -135,34 +135,34 @@
   };
   pi-coding-agent = {
     pname = "pi-coding-agent";
-    version = "0.80.5";
+    version = "0.80.6";
     src = fetchurl {
-      url = "https://github.com/earendil-works/pi/releases/download/v0.80.5/pi-darwin-arm64.tar.gz";
-      sha256 = "sha256-v2HGScRzUVpfC2j7x32kDaHmTQBmJc6i2SbvPPEdPvE=";
+      url = "https://github.com/earendil-works/pi/releases/download/v0.80.6/pi-darwin-arm64.tar.gz";
+      sha256 = "sha256-+c1+0g5Q4jTW8fJjSy43LtBz3DEHA4H5db220ai90ck=";
     };
   };
   pi-coding-agent-aarch64-linux = {
     pname = "pi-coding-agent-aarch64-linux";
-    version = "0.80.5";
+    version = "0.80.6";
     src = fetchurl {
-      url = "https://github.com/earendil-works/pi/releases/download/v0.80.5/pi-linux-arm64.tar.gz";
-      sha256 = "sha256-58Zv6Mo2mfKs6UHCUxhdfvAAiXu1CobIs1DfPHuI7A0=";
+      url = "https://github.com/earendil-works/pi/releases/download/v0.80.6/pi-linux-arm64.tar.gz";
+      sha256 = "sha256-O4MVxyBnB5Ig+6KS3nGxE8Dgu6FnDaPgoLzK6A7gAFA=";
     };
   };
   pi-coding-agent-x86_64-darwin = {
     pname = "pi-coding-agent-x86_64-darwin";
-    version = "0.80.5";
+    version = "0.80.6";
     src = fetchurl {
-      url = "https://github.com/earendil-works/pi/releases/download/v0.80.5/pi-darwin-x64.tar.gz";
-      sha256 = "sha256-2jgziaWiYrmOx2rHcwdvJq1nBudQTBx8y2T1oUMBL/o=";
+      url = "https://github.com/earendil-works/pi/releases/download/v0.80.6/pi-darwin-x64.tar.gz";
+      sha256 = "sha256-SdWgfsfzT/407HbjNW0cKnsvE1VM98eXTUfPf4eOYD8=";
     };
   };
   pi-coding-agent-x86_64-linux = {
     pname = "pi-coding-agent-x86_64-linux";
-    version = "0.80.5";
+    version = "0.80.6";
     src = fetchurl {
-      url = "https://github.com/earendil-works/pi/releases/download/v0.80.5/pi-linux-x64.tar.gz";
-      sha256 = "sha256-8Q0eJDqO42X+rIqO/TJXSJs74aZvAwNDnnFbBGNsUAQ=";
+      url = "https://github.com/earendil-works/pi/releases/download/v0.80.6/pi-linux-x64.tar.gz";
+      sha256 = "sha256-98ODs9vzNrlxdCSe9Auu2G4pVBavd6gf9SiKwXy3GDk=";
     };
   };
 }
