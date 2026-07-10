@@ -2,7 +2,7 @@ _:
 
 final: _prev:
 let
-  version = "1.5.0";
+  version = "1.6.0";
 
   # Node 24's libuv double-closes a guarded fd from a worker thread during
   # process teardown on macOS, so pnpm (which uses worker threads to link its
@@ -23,7 +23,7 @@ let
     pnpm = pnpm22;
     src = final.fetchurl {
       url = "https://registry.npmjs.org/@fission-ai/openspec/-/openspec-${version}.tgz";
-      hash = "sha256-ngw8G4jtPo3p6XaRYQTKTzzIsXre1KYdjSVZXFixuOI="; # autoupdate:src-hash
+      hash = "sha256-qAR3dn6Ypi6VZGStCaRLKMrMT8v94jdl97S6WY7hOFk="; # autoupdate:src-hash
     };
     sourceRoot = "package";
     prePatch = "cp ${pnpmLock} pnpm-lock.yaml";
@@ -38,7 +38,7 @@ in
 
     src = final.fetchurl {
       url = "https://registry.npmjs.org/@fission-ai/openspec/-/openspec-${version}.tgz";
-      hash = "sha256-ngw8G4jtPo3p6XaRYQTKTzzIsXre1KYdjSVZXFixuOI="; # autoupdate:src-hash
+      hash = "sha256-qAR3dn6Ypi6VZGStCaRLKMrMT8v94jdl97S6WY7hOFk="; # autoupdate:src-hash
     };
 
     sourceRoot = "package";
