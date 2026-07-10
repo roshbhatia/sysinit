@@ -208,6 +208,24 @@ function M.setup(config)
   }
   local SUPPRESSED_REASONS = { ["your move"] = true, ["submit"] = true, ["message"] = true }
 
+  local function status_color(status, colors)
+    if status == "waiting" then return colors.waiting
+    elseif status == "done" then return colors.done
+    elseif status == "working" then return colors.working
+    end
+    return nil
+  end
+
+  local function format_status_label(status, reason)
+    local lbl = agent_state_labels[status] or ""
+    local show_reason = reason and reason ~= "" and not SUPPRESSED_REASONS[reason]
+    if lbl == "" and not show_reason then return "" end
+    local parts = {}
+    if lbl ~= "" then parts[#parts + 1] = lbl end
+    if show_reason then parts[#parts + 1] = reason end
+    return table.concat(parts, " · ")
+  end
+
   local function format_age(secs)
     if not secs or secs < 0 then
       return ""
@@ -896,7 +914,7 @@ function M.setup(config)
       if type(a) == "table" and a[slot] then return a[slot] end
       -- fallback: brights (no ansi in this context, e.g. format-tab-title)
       local b = colors.brights or colors
-      if type(b) == "table" then return b[((h % 7) + 2)] end
+      if type(b) == "table" then return b[(h % 6) + 2] end
     end
     return nil
   end
@@ -1031,13 +1049,12 @@ function M.setup(config)
     -- Agent-state prefix: read the pane's user_var (plain table on PaneInformation,
     -- already base64-decoded by WezTerm). Only non-idle states surface — idle adds
     -- noise to every unattended pane.
-    local AGENT_ICONS = { working = "⟳", waiting = "◔", done = "✔" }
     pcall(function()
       local uv = pane and pane.user_vars
       local raw = uv and uv.agent_state
       if not raw or raw == "" then return end
       local s = raw:match("^([^|]*)|")
-      local icon = s and AGENT_ICONS[s]
+      local icon = s and s ~= "idle" and agent_state_icons[s]
       if icon then r:append(nil, nil, icon .. " ") end
     end)
 
@@ -1175,53 +1192,30 @@ function M.setup(config)
       local default_choice = { name = "default", path = home, label = "default" }
       local rows = {}
 
-      local ok, stdout = pcall(function()
-        local success, out = wezterm.run_child_process({ sy_bin, "list" })
-        if not success then
-          error("sy list failed")
-        end
-        return out
-      end)
-      if ok and stdout then
-        local first = true
-        for _, line in ipairs(wezterm.split_by_newlines(stdout)) do
-          if first then
-            first = false
-          elseif line ~= "" then
-            local name = line:match("^(%S+)")
-            if name then
-              local st = sessions[name]
-              local label = name
-              if st then
-                local icon = agent_state_icons[st.status] or "●"
-                label = icon .. " " .. name
-                local a = agg[name]
-                if a then
-                  if a.repo ~= "" then label = label .. "  at " .. a.repo end
-                  if a.agent ~= "" then label = label .. "  in " .. a.agent end
-                end
-                local age = st.since and format_age(now - st.since) or ""
-                local lbl = agent_state_labels[st.status] or ""
-                local show_reason = st.reason ~= "" and not SUPPRESSED_REASONS[st.reason]
-                if lbl ~= "" or show_reason then
-                  local parts = {}
-                  if lbl ~= "" then parts[#parts + 1] = lbl end
-                  if show_reason then parts[#parts + 1] = st.reason end
-                  label = label .. "  — " .. table.concat(parts, " · ")
-                end
-                if age ~= "" then label = label .. "  " .. age end
-              end
-              table.insert(rows, {
-                name = name,
-                path = seshy_dir .. "/" .. name,
-                label = label,
-                -- sort keys (stripped from the choice the plugin sees)
-                _rank = st and st.rank or 0,
-                _since = st and st.since or nil,
-              })
-            end
+      for _, name in ipairs(seshy_session_names(sy_bin)) do
+        local st = sessions[name]
+        local label = name
+        if st then
+          local icon = agent_state_icons[st.status] or "●"
+          label = icon .. " " .. name
+          local a = agg[name]
+          if a then
+            if a.repo ~= "" then label = label .. "  at " .. a.repo end
+            if a.agent ~= "" then label = label .. "  in " .. a.agent end
           end
+          local age = st.since and format_age(now - st.since) or ""
+          local fmt = format_status_label(st.status, st.reason)
+          if fmt ~= "" then label = label .. "  — " .. fmt end
+          if age ~= "" then label = label .. "  " .. age end
         end
+        table.insert(rows, {
+          name = name,
+          path = seshy_dir .. "/" .. name,
+          label = label,
+          -- sort keys (stripped from the choice the plugin sees)
+          _rank = st and st.rank or 0,
+          _since = st and st.since or nil,
+        })
       end
 
       -- Urgency sort: higher rank first, then older `since` (longer wait), then
@@ -1292,10 +1286,7 @@ function M.setup(config)
     -- One attention-zone row. Info order: workspace · tab · dir  proc  status reason (age).
     -- Uses ribbon for color + sigil for process icon. `colors` comes from tree_colors(win).
     local function attn_row(rec, now, colors)
-      local sc = rec.status == "waiting" and colors.waiting
-        or rec.status == "done"    and colors.done
-        or rec.status == "working" and colors.working
-        or colors.idle
+      local sc = status_color(rec.status, colors) or colors.idle
       local icon = agent_state_icons[rec.status] or "●"
       local is_urgent = rec.rank and rec.rank >= agent_state_rank.working
       local age = rec.since and format_age(now - rec.since) or ""
@@ -1339,14 +1330,8 @@ function M.setup(config)
         r:append(nil, colors.name, rec.title)
       end
       -- status label + meaningful reason (suppress generic agent prompts) + age
-      local lbl = agent_state_labels[rec.status] or ""
-      local show_reason = rec.reason ~= "" and not SUPPRESSED_REASONS[rec.reason]
-      if lbl ~= "" or show_reason then
-        local parts = {}
-        if lbl ~= "" then parts[#parts + 1] = lbl end
-        if show_reason then parts[#parts + 1] = rec.reason end
-        r:append(nil, colors.reason, "  " .. table.concat(parts, " · "))
-      end
+      local fmt = format_status_label(rec.status, rec.reason)
+      if fmt ~= "" then r:append(nil, colors.reason, "  " .. fmt) end
       if age ~= "" then
         r:append(nil, colors.age, "  " .. age)
       end
@@ -1421,10 +1406,7 @@ function M.setup(config)
           return (a.last_active or 0) > (b.last_active or 0)
         end)
         for i, ws in ipairs(live) do
-          local sc = ws.status == "waiting" and colors.waiting
-            or ws.status == "done"    and colors.done
-            or ws.status == "working" and colors.working
-            or nil
+          local sc = status_color(ws.status, colors)
           local qs = i <= 9 and tostring(i) or string.char(96 + i - 9)
           local r = ribbon.new("ws")
           r:append(nil, colors.chrome, qs .. "  ")
@@ -1453,12 +1435,8 @@ function M.setup(config)
       end)
 
       for _, ws in ipairs(live_sorted) do
-        if not ws.dormant then
           -- workspace row: icon + name + rollup status icon (if any)
-          local sc = ws.status == "waiting" and colors.waiting
-            or ws.status == "done"    and colors.done
-            or ws.status == "working" and colors.working
-            or nil
+          local sc = status_color(ws.status, colors)
           local ws_r = ribbon.new("ws")
           ws_r:append(nil, sc or colors.ws_live, tree_icons.session .. " ")
           ws_r:append(nil, colors.name, ws.name, "Bold Underline")
@@ -1525,19 +1503,12 @@ function M.setup(config)
               end
               -- agent state: status icon + label + meaningful reason; age only when active
               if rec.status then
-                local asc = rec.status == "waiting" and colors.waiting
-                  or rec.status == "done"    and colors.done
-                  or rec.status == "working" and colors.working
-                  or colors.idle
-                local p_lbl = agent_state_labels[rec.status] or ""
-                local p_show_reason = rec.reason ~= "" and not SUPPRESSED_REASONS[rec.reason]
+                local asc = status_color(rec.status, colors) or colors.idle
+                local p_fmt = format_status_label(rec.status, rec.reason)
                 pane_r:append(nil, colors.chrome, "  ")
                 pane_r:append(nil, asc, agent_state_icons[rec.status] or "●")
-                if p_lbl ~= "" or p_show_reason then
-                  local parts = {}
-                  if p_lbl ~= "" then parts[#parts + 1] = p_lbl end
-                  if p_show_reason then parts[#parts + 1] = rec.reason end
-                  pane_r:append(nil, colors.reason, " " .. table.concat(parts, " · "))
+                if p_fmt ~= "" then
+                  pane_r:append(nil, colors.reason, " " .. p_fmt)
                 end
                 -- age only for non-idle states; idle age is noise
                 if rec.status ~= "done" then
@@ -1548,7 +1519,6 @@ function M.setup(config)
               add("pane:" .. rec.pane_id, pane_r:format(), rec)
             end
           end
-        end
       end
 
       return choices

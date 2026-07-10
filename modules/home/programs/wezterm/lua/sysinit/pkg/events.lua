@@ -2,7 +2,7 @@ local wezterm = require("wezterm")
 
 local M = {}
 
-function M.setup(_config)
+function M.setup(config)
   wezterm.on("user-var-changed", function(window, pane, name, value)
     if name == "wez_copy" then
       window:copy_to_clipboard(value, "Clipboard")

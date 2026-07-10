@@ -1,23 +1,12 @@
+local wezterm = require("wezterm")
 local M = {}
 
 function M.is_linux()
-  local handle = io.popen("uname -s 2>/dev/null")
-  if not handle then
-    return false
-  end
-  local result = handle:read("*a")
-  handle:close()
-  return result:match("Linux") ~= nil
+  return wezterm.target_triple:find("linux") ~= nil
 end
 
 function M.is_darwin()
-  local handle = io.popen("uname -s 2>/dev/null")
-  if not handle then
-    return false
-  end
-  local result = handle:read("*a")
-  handle:close()
-  return result:match("Darwin") ~= nil
+  return wezterm.target_triple:find("darwin") ~= nil
 end
 
 -- Get current username with empty string fallback
@@ -62,7 +51,6 @@ function M.load_json_file(filepath)
   local content = file:read("*all")
   file:close()
 
-  local wezterm = require("wezterm")
   local success, data = pcall(wezterm.json_parse, content)
 
   if not success then
