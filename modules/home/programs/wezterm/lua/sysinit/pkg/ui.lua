@@ -1168,28 +1168,10 @@ function M.setup(config)
               if st then
                 local icon = agent_state_icons[st.status] or "●"
                 label = icon .. " " .. name
-                -- repo · pane-count[ · blocked◔] · agent, between name and reason.
-                -- Fields absent in the in-memory rollup (branch, dirty) are simply
-                -- omitted — the row degrades to whatever is known.
                 local a = agg[name]
                 if a then
-                  local meta = {}
-                  if a.repo ~= "" then
-                    meta[#meta + 1] = a.repo
-                  end
-                  if a.count > 0 then
-                    local counts = tostring(a.count)
-                    if a.blocked > 0 then
-                      counts = counts .. " · " .. a.blocked .. (agent_state_icons[a.worst_status] or "")
-                    end
-                    meta[#meta + 1] = counts
-                  end
-                  if a.agent ~= "" then
-                    meta[#meta + 1] = a.agent
-                  end
-                  if #meta > 0 then
-                    label = label .. "  " .. table.concat(meta, " · ")
-                  end
+                  if a.repo ~= "" then label = label .. "  at " .. a.repo end
+                  if a.agent ~= "" then label = label .. "  in " .. a.agent end
                 end
                 local age = st.since and format_age(now - st.since) or ""
                 local lbl = agent_state_labels[st.status] or ""
@@ -1198,11 +1180,9 @@ function M.setup(config)
                   local parts = {}
                   if lbl ~= "" then parts[#parts + 1] = lbl end
                   if show_reason then parts[#parts + 1] = st.reason end
-                  label = label .. " — " .. table.concat(parts, " · ")
+                  label = label .. "  — " .. table.concat(parts, " · ")
                 end
-                if age ~= "" then
-                  label = label .. "  " .. age
-                end
+                if age ~= "" then label = label .. "  " .. age end
               end
               table.insert(rows, {
                 name = name,
@@ -1306,20 +1286,30 @@ function M.setup(config)
       local crumb = rec.workspace
       if rec.tab_title ~= "" then crumb = crumb .. " · " .. rec.tab_title end
       r:append(nil, colors.name, crumb, "Bold")
-      -- path: smart path, shown when it adds context beyond what breadcrumb already has
+      -- "at <path>": location context beyond what the breadcrumb already has
       local attn_dp = smart_path(rec.cwd)
       if attn_dp == "" then attn_dp = rec.repo end
       if attn_dp ~= "" and attn_dp ~= rec.tab_title then
-        r:append(nil, colors.dir_ic, "  " .. tree_icons.folder .. " ")
+        r:append(nil, colors.chrome, "  ")
+        r:append(nil, colors.age, "at ")
         r:append(nil, colors.name, attn_dp)
       end
-      -- proc icon via sigil, then proc name
+      -- "on <branch>" for agent-active panes (state file carries it)
+      if rec.branch then
+        r:append(nil, colors.chrome, "  ")
+        r:append(nil, colors.age, "on ")
+        r:append(nil, colors.age, rec.branch)
+        if rec.dirty then r:append(nil, colors.working, " *") end
+      end
+      -- "in <proc>": process icon via sigil + proc name
       if rec.title ~= "" then
+        r:append(nil, colors.chrome, "  ")
+        r:append(nil, colors.age, "in ")
         if sigil_ok then
-          local proc_items = sigil.items(rec.title, { fallback = true, padding = "left", reset = true })
+          local proc_items = sigil.items(rec.title, { fallback = true, padding = "right", reset = true })
           r:append_items(proc_items)
         end
-        r:append(nil, colors.name, " " .. rec.title)
+        r:append(nil, colors.name, rec.title)
       end
       -- status label + meaningful reason (suppress generic agent prompts) + age
       local lbl = agent_state_labels[rec.status] or ""
@@ -1480,29 +1470,31 @@ function M.setup(config)
                 pane_r:append(nil, bc, pane_badge(rec.pane_id))
                 pane_r:append(nil, colors.chrome, ">")
               end
-              -- path: smart path with placeholder prefix ({gh}/{sy}/{home})
+              -- "at <path>": smart path with placeholder prefix ({gh}/{sy}/{home})
               local pane_dp = smart_path(rec.cwd)
               if pane_dp == "" then pane_dp = rec.repo end
               if pane_dp ~= "" then
                 pane_r:append(nil, colors.chrome, "  ")
-                pane_r:append(nil, colors.dir_ic, tree_icons.folder .. " ")
+                pane_r:append(nil, colors.age, "at ")
                 pane_r:append(nil, colors.name, pane_dp)
               end
-              -- branch + dirty (agent-active panes only, from state file)
+              -- "on <branch>" (agent-active panes only, from state file)
               if rec.branch then
                 pane_r:append(nil, colors.chrome, "  ")
-                pane_r:append(nil, colors.age, tree_icons.branch .. " " .. rec.branch)
+                pane_r:append(nil, colors.age, "on ")
+                pane_r:append(nil, colors.age, rec.branch)
                 if rec.dirty then pane_r:append(nil, colors.working, " *") end
               end
-              -- proc: sigil icon + name
+              -- "in <proc>": sigil icon + name
               local proc = rec.title ~= "" and rec.title or nil
               if proc then
                 pane_r:append(nil, colors.chrome, "  ")
+                pane_r:append(nil, colors.age, "in ")
                 if sigil_ok then
-                  local proc_items = sigil.items(proc, { fallback = true, padding = "left", reset = true })
+                  local proc_items = sigil.items(proc, { fallback = true, padding = "right", reset = true })
                   pane_r:append_items(proc_items)
                 end
-                pane_r:append(nil, colors.name, " " .. proc)
+                pane_r:append(nil, colors.name, proc)
               end
               -- agent state: status icon + label + meaningful reason; age only when active
               if rec.status then
@@ -1574,13 +1566,14 @@ function M.setup(config)
     -- the picker runs in fuzzy mode (selection only via Enter); label-jump mode
     -- would let a bare-letter select bypass the pop. Filter keys use CTRL so they
     -- never collide with fuzzy typing.
-    local tree_state = { pending_filter = nil, choices = {}, cursor = 0 }
+    local tree_state = { pending_filter = nil, choices = {}, cursor = 0, key_table_active = false }
     local function tree_filter_key(key, filter)
       return {
         key = key,
         mods = "CTRL",
         action = wezterm.action_callback(function(win, pane)
           tree_state.pending_filter = filter
+          tree_state.key_table_active = false
           win:perform_action(wezterm.action.PopKeyTable, pane)
           win:perform_action(wezterm.action.SendKey({ key = "Enter" }), pane)
         end),
@@ -1592,6 +1585,7 @@ function M.setup(config)
         mods = "NONE",
         action = wezterm.action_callback(function(win, pane)
           tree_state.pending_filter = nil
+          tree_state.key_table_active = false
           win:perform_action(wezterm.action.PopKeyTable, pane)
           win:perform_action(wezterm.action.SendKey({ key = key }), pane)
         end),
@@ -1606,6 +1600,7 @@ function M.setup(config)
         mods = "CTRL",
         action = wezterm.action_callback(function(win, pane)
           tree_state.pending_filter = nil
+          tree_state.key_table_active = false
           win:perform_action(wezterm.action.PopKeyTable, pane)
           win:perform_action(wezterm.action.SendKey({ key = "Escape" }), pane)
           wezterm.time.call_after(0.05, function()
@@ -1734,6 +1729,7 @@ function M.setup(config)
       tree_state.cursor = 0
       for i, ch in ipairs(choices) do tree_state.choices[i] = ch.id end
       tree_state.pending_filter = nil
+      tree_state.key_table_active = true
       win:perform_action(
         wezterm.action.ActivateKeyTable({ name = "session_tree_actions", one_shot = false }),
         pane
@@ -1745,6 +1741,12 @@ function M.setup(config)
           fuzzy = true,
           fuzzy_description = "  j/k nav  J/K session  ^s sessions  ^b blocked  ^w working  ^d dormant  ^a all  ^]/[ cycle: ",
           action = wezterm.action_callback(function(inner_win, inner_pane, id, _label)
+            -- Guard: pop the key table if it wasn't already cleared by a close/filter/cycle
+            -- key handler — e.g. picker was dismissed by clicking outside the window.
+            if tree_state.key_table_active then
+              tree_state.key_table_active = false
+              inner_win:perform_action(wezterm.action.PopKeyTable, inner_pane)
+            end
             local pf = tree_state.pending_filter
             tree_state.pending_filter = nil
             if pf then
