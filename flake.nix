@@ -81,6 +81,7 @@
       url = "github:roshbhatia/specutil";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
   };
 
   outputs =

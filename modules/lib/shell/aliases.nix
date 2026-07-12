@@ -5,6 +5,9 @@ let
     kk = "k9s";
     ll = "eza --icons=always -l -a";
     lt = "eza --tree";
+    # nh darwin switch with --impure so builtins.pathExists resolves local extras paths
+    nhs = "nh darwin switch -- --impure";
+    nhb = "nh darwin build -- --impure";
     org = "nvim ~/org/notes";
     sg = "ast-grep";
     tf = "tofu";
