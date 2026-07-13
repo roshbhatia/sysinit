@@ -83,13 +83,17 @@
     });
   })
   # cctools-binutils-darwin-1010.6 ld crashes with Trace/BPT trap: 5 (SIGTRAP,
-  # exit 133) on Darwin 25.x (macOS 26 Tahoe). sketchybar's makefile arm64 target
-  # appends -target arm64-apple-macos11 to CFLAGS which triggers the crash.
-  # Remove the line — cc-wrapper already sets the correct deployment target.
-  (_final: prev: {
-    sketchybar = prev.sketchybar.overrideAttrs (_old: {
+  # exit 133) on Darwin 25.x (macOS 26 Tahoe). The crash is intrinsic to the
+  # cctools ld binary — not flag-specific. Patch the Makefile to remove the
+  # arm64 deployment-target flag (cc-wrapper handles it) and inject -fuse-ld=
+  # pointing at ld64.lld (LLVM's Mach-O linker) so clang bypasses cctools ld
+  # entirely at link time.
+  (final: prev: {
+    sketchybar = prev.sketchybar.overrideAttrs (old: {
+      nativeBuildInputs = (old.nativeBuildInputs or [ ]) ++ [ final.llvmPackages_latest.lld ];
       postPatch = ''
         sed -i '/CFLAGS+=-target arm64-apple-macos11/d' makefile
+        sed -i 's|^CFLAGS   = |CFLAGS   = -fuse-ld=${final.llvmPackages_latest.lld}/bin/ld64.lld |' makefile
       '';
     });
   })
