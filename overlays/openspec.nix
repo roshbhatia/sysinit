@@ -27,8 +27,8 @@ let
     };
     sourceRoot = "package";
     prePatch = "cp ${pnpmLock} pnpm-lock.yaml";
-    fetcherVersion = 3;
-    hash = "sha256-vkADAZ5NokxJjSiaYUuKr0DYmp3L/KT9lnfha1RfTLA="; # autoupdate:pnpm-deps-hash
+    fetcherVersion = 4;
+    hash = "sha256-dSZs+yWyLDbY8k5lizLa8W/ZAOWzgi88ysnyZiA7yTA="; # autoupdate:pnpm-deps-hash
   };
 in
 {
