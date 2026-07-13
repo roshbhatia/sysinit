@@ -8,34 +8,34 @@
 {
   crush = {
     pname = "crush";
-    version = "0.84.0";
+    version = "0.84.1";
     src = fetchurl {
-      url = "https://github.com/charmbracelet/crush/releases/download/v0.84.0/crush_0.84.0_Darwin_arm64.tar.gz";
-      sha256 = "sha256-qxex/xOEf81lESqd6SJ20LFGTtHzwxbWJ9+swQPmBuQ=";
+      url = "https://github.com/charmbracelet/crush/releases/download/v0.84.1/crush_0.84.1_Darwin_arm64.tar.gz";
+      sha256 = "sha256-Zm/YLdGNF1t+p6eszokcjpzVM8nrxqGQxx8M48MuNGQ=";
     };
   };
   crush-aarch64-linux = {
     pname = "crush-aarch64-linux";
-    version = "0.84.0";
+    version = "0.84.1";
     src = fetchurl {
-      url = "https://github.com/charmbracelet/crush/releases/download/v0.84.0/crush_0.84.0_Linux_arm64.tar.gz";
-      sha256 = "sha256-thcD+Y8WM0uqp3ShJMwjmn6XB/msXrPB3yh55pXB1CE=";
+      url = "https://github.com/charmbracelet/crush/releases/download/v0.84.1/crush_0.84.1_Linux_arm64.tar.gz";
+      sha256 = "sha256-6nxFxn1V5fUkF7kkH38BeZQ1sMON3c7P2x7X8S9Imm4=";
     };
   };
   crush-x86_64-darwin = {
     pname = "crush-x86_64-darwin";
-    version = "0.84.0";
+    version = "0.84.1";
     src = fetchurl {
-      url = "https://github.com/charmbracelet/crush/releases/download/v0.84.0/crush_0.84.0_Darwin_x86_64.tar.gz";
-      sha256 = "sha256-bAQ1CRcatRlRiWncPmNfukg4sQ/nFMF0TnYqz2RusZY=";
+      url = "https://github.com/charmbracelet/crush/releases/download/v0.84.1/crush_0.84.1_Darwin_x86_64.tar.gz";
+      sha256 = "sha256-tZNuliYZvNAYk+YMqtmaMP4O0UrRoVwxo+/haVpLDcE=";
     };
   };
   crush-x86_64-linux = {
     pname = "crush-x86_64-linux";
-    version = "0.84.0";
+    version = "0.84.1";
     src = fetchurl {
-      url = "https://github.com/charmbracelet/crush/releases/download/v0.84.0/crush_0.84.0_Linux_x86_64.tar.gz";
-      sha256 = "sha256-FebV+svMtgrYSRfGuzSKOkeflwPFGKYi4n75OIWkDGY=";
+      url = "https://github.com/charmbracelet/crush/releases/download/v0.84.1/crush_0.84.1_Linux_x86_64.tar.gz";
+      sha256 = "sha256-FHVEkKZJodTQE1WPuBDKiWRX88ZTSk1Z5wcJ9zKCrXY=";
     };
   };
   go-enum = {
@@ -120,6 +120,38 @@
       rev = "v0.7.0";
       fetchSubmodules = false;
       sha256 = "sha256-tzR9hOMfnEa4p1ssktTISO6cAwlSxEGfvzJeLyM2qYo=";
+    };
+  };
+  localias = {
+    pname = "localias";
+    version = "3.0.0+commit.43c3619";
+    src = fetchurl {
+      url = "https://github.com/peterldowns/localias/releases/download/v3.0.0+commit.43c3619/localias-darwin-arm64";
+      sha256 = "sha256-LuWuaLhkobY5om7AQrVZB2Su7zU26yaBI2lG6089JhQ=";
+    };
+  };
+  localias-aarch64-linux = {
+    pname = "localias-aarch64-linux";
+    version = "3.0.0+commit.43c3619";
+    src = fetchurl {
+      url = "https://github.com/peterldowns/localias/releases/download/v3.0.0+commit.43c3619/localias-linux-arm64";
+      sha256 = "sha256-Rkxc+Vue2Psr/Tuu2LVVVNIZHSDj/ZrFySPHSC9HXQg=";
+    };
+  };
+  localias-x86_64-darwin = {
+    pname = "localias-x86_64-darwin";
+    version = "3.0.0+commit.43c3619";
+    src = fetchurl {
+      url = "https://github.com/peterldowns/localias/releases/download/v3.0.0+commit.43c3619/localias-darwin-amd64";
+      sha256 = "sha256-2hXMpHlEfVRmVpuRpnnp/izbl7K+WjwJyRLr51zg3hc=";
+    };
+  };
+  localias-x86_64-linux = {
+    pname = "localias-x86_64-linux";
+    version = "3.0.0+commit.43c3619";
+    src = fetchurl {
+      url = "https://github.com/peterldowns/localias/releases/download/v3.0.0+commit.43c3619/localias-linux-amd64";
+      sha256 = "sha256-5+iuOmzysde2N7bYcephW2ZQkJbzXtj0zCw3CoEhk6o=";
     };
   };
   mermaid-ascii = {

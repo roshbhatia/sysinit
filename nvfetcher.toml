@@ -75,6 +75,28 @@ src.github = "earendil-works/pi"
 src.prefix = "v"
 fetch.url = "https://github.com/earendil-works/pi/releases/download/v$ver/pi-linux-x64.tar.gz"
 
+# Binary release packages - localias (peterldowns/localias)
+# Tags are v3.0.0+commit.XXXXXXX; strip v prefix so $ver = 3.0.0+commit.XXXXXXX
+[localias]
+src.github = "peterldowns/localias"
+src.prefix = "v"
+fetch.url = "https://github.com/peterldowns/localias/releases/download/v$ver/localias-darwin-arm64"
+
+[localias-x86_64-darwin]
+src.github = "peterldowns/localias"
+src.prefix = "v"
+fetch.url = "https://github.com/peterldowns/localias/releases/download/v$ver/localias-darwin-amd64"
+
+[localias-aarch64-linux]
+src.github = "peterldowns/localias"
+src.prefix = "v"
+fetch.url = "https://github.com/peterldowns/localias/releases/download/v$ver/localias-linux-arm64"
+
+[localias-x86_64-linux]
+src.github = "peterldowns/localias"
+src.prefix = "v"
+fetch.url = "https://github.com/peterldowns/localias/releases/download/v$ver/localias-linux-amd64"
+
 # Binary release packages - goose-cli (block/goose)
 # Tags are v1.33.1, strip prefix so $ver = 1.33.1 for URL construction
 [goose-cli-bin]

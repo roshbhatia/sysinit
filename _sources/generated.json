@@ -8,11 +8,11 @@
         "pinned": false,
         "src": {
             "name": null,
-            "sha256": "sha256-qxex/xOEf81lESqd6SJ20LFGTtHzwxbWJ9+swQPmBuQ=",
+            "sha256": "sha256-Zm/YLdGNF1t+p6eszokcjpzVM8nrxqGQxx8M48MuNGQ=",
             "type": "url",
-            "url": "https://github.com/charmbracelet/crush/releases/download/v0.84.0/crush_0.84.0_Darwin_arm64.tar.gz"
+            "url": "https://github.com/charmbracelet/crush/releases/download/v0.84.1/crush_0.84.1_Darwin_arm64.tar.gz"
         },
-        "version": "0.84.0"
+        "version": "0.84.1"
     },
     "crush-aarch64-linux": {
         "cargoLock": null,
@@ -23,11 +23,11 @@
         "pinned": false,
         "src": {
             "name": null,
-            "sha256": "sha256-thcD+Y8WM0uqp3ShJMwjmn6XB/msXrPB3yh55pXB1CE=",
+            "sha256": "sha256-6nxFxn1V5fUkF7kkH38BeZQ1sMON3c7P2x7X8S9Imm4=",
             "type": "url",
-            "url": "https://github.com/charmbracelet/crush/releases/download/v0.84.0/crush_0.84.0_Linux_arm64.tar.gz"
+            "url": "https://github.com/charmbracelet/crush/releases/download/v0.84.1/crush_0.84.1_Linux_arm64.tar.gz"
         },
-        "version": "0.84.0"
+        "version": "0.84.1"
     },
     "crush-x86_64-darwin": {
         "cargoLock": null,
@@ -38,11 +38,11 @@
         "pinned": false,
         "src": {
             "name": null,
-            "sha256": "sha256-bAQ1CRcatRlRiWncPmNfukg4sQ/nFMF0TnYqz2RusZY=",
+            "sha256": "sha256-tZNuliYZvNAYk+YMqtmaMP4O0UrRoVwxo+/haVpLDcE=",
             "type": "url",
-            "url": "https://github.com/charmbracelet/crush/releases/download/v0.84.0/crush_0.84.0_Darwin_x86_64.tar.gz"
+            "url": "https://github.com/charmbracelet/crush/releases/download/v0.84.1/crush_0.84.1_Darwin_x86_64.tar.gz"
         },
-        "version": "0.84.0"
+        "version": "0.84.1"
     },
     "crush-x86_64-linux": {
         "cargoLock": null,
@@ -53,11 +53,11 @@
         "pinned": false,
         "src": {
             "name": null,
-            "sha256": "sha256-FebV+svMtgrYSRfGuzSKOkeflwPFGKYi4n75OIWkDGY=",
+            "sha256": "sha256-FHVEkKZJodTQE1WPuBDKiWRX88ZTSk1Z5wcJ9zKCrXY=",
             "type": "url",
-            "url": "https://github.com/charmbracelet/crush/releases/download/v0.84.0/crush_0.84.0_Linux_x86_64.tar.gz"
+            "url": "https://github.com/charmbracelet/crush/releases/download/v0.84.1/crush_0.84.1_Linux_x86_64.tar.gz"
         },
-        "version": "0.84.0"
+        "version": "0.84.1"
     },
     "go-enum": {
         "cargoLock": null,
@@ -217,6 +217,66 @@
             "type": "github"
         },
         "version": "v0.7.0"
+    },
+    "localias": {
+        "cargoLock": null,
+        "date": null,
+        "extract": null,
+        "name": "localias",
+        "passthru": null,
+        "pinned": false,
+        "src": {
+            "name": null,
+            "sha256": "sha256-LuWuaLhkobY5om7AQrVZB2Su7zU26yaBI2lG6089JhQ=",
+            "type": "url",
+            "url": "https://github.com/peterldowns/localias/releases/download/v3.0.0+commit.43c3619/localias-darwin-arm64"
+        },
+        "version": "3.0.0+commit.43c3619"
+    },
+    "localias-aarch64-linux": {
+        "cargoLock": null,
+        "date": null,
+        "extract": null,
+        "name": "localias-aarch64-linux",
+        "passthru": null,
+        "pinned": false,
+        "src": {
+            "name": null,
+            "sha256": "sha256-Rkxc+Vue2Psr/Tuu2LVVVNIZHSDj/ZrFySPHSC9HXQg=",
+            "type": "url",
+            "url": "https://github.com/peterldowns/localias/releases/download/v3.0.0+commit.43c3619/localias-linux-arm64"
+        },
+        "version": "3.0.0+commit.43c3619"
+    },
+    "localias-x86_64-darwin": {
+        "cargoLock": null,
+        "date": null,
+        "extract": null,
+        "name": "localias-x86_64-darwin",
+        "passthru": null,
+        "pinned": false,
+        "src": {
+            "name": null,
+            "sha256": "sha256-2hXMpHlEfVRmVpuRpnnp/izbl7K+WjwJyRLr51zg3hc=",
+            "type": "url",
+            "url": "https://github.com/peterldowns/localias/releases/download/v3.0.0+commit.43c3619/localias-darwin-amd64"
+        },
+        "version": "3.0.0+commit.43c3619"
+    },
+    "localias-x86_64-linux": {
+        "cargoLock": null,
+        "date": null,
+        "extract": null,
+        "name": "localias-x86_64-linux",
+        "passthru": null,
+        "pinned": false,
+        "src": {
+            "name": null,
+            "sha256": "sha256-5+iuOmzysde2N7bYcephW2ZQkJbzXtj0zCw3CoEhk6o=",
+            "type": "url",
+            "url": "https://github.com/peterldowns/localias/releases/download/v3.0.0+commit.43c3619/localias-linux-amd64"
+        },
+        "version": "3.0.0+commit.43c3619"
     },
     "mermaid-ascii": {
         "cargoLock": null,

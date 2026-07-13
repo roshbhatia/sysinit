@@ -176,6 +176,7 @@
       devcontainer
       go-task
       jq-lsp
+      localias
       markdown-oxide
       meld
       mermaid-ascii
