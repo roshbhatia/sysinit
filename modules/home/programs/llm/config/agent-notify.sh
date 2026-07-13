@@ -19,8 +19,8 @@ agent=${1:-agent}
 reason=${2:-attention}
 focus_exe=${3:-}
 
-# terminal-notifier is macOS-only; on anything else this is a silent no-op.
-notifier=$(command -v terminal-notifier 2> /dev/null) || exit 0
+# alerter is macOS-only; on anything else this is a silent no-op.
+notifier=$(command -v alerter 2> /dev/null) || exit 0
 
 input=""
 if [ ! -t 0 ]; then

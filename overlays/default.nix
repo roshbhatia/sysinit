@@ -82,4 +82,51 @@
       };
     });
   })
+  # cctools-binutils-darwin-1010.6 ld crashes with Trace/BPT trap: 5 (SIGTRAP,
+  # exit 133) on Darwin 25.x (macOS 26 Tahoe). sketchybar's makefile arm64 target
+  # appends -target arm64-apple-macos11 to CFLAGS which triggers the crash.
+  # Remove the line — cc-wrapper already sets the correct deployment target.
+  (_final: prev: {
+    sketchybar = prev.sketchybar.overrideAttrs (_old: {
+      postPatch = ''
+        sed -i '/CFLAGS+=-target arm64-apple-macos11/d' makefile
+      '';
+    });
+  })
+  # Same cctools crash: lima's CGO code links against Virtualization.framework on
+  # Darwin 25.x (macOS 26 Tahoe). Use the official GitHub binary release until
+  # nixpkgs ships a cctools version that handles the Tahoe linker constraints.
+  (final: prev: {
+    lima =
+      let
+        version = "2.1.4";
+      in
+      prev.stdenvNoCC.mkDerivation {
+        pname = "lima";
+        inherit version;
+
+        src = prev.fetchzip {
+          url = "https://github.com/lima-vm/lima/releases/download/v${version}/lima-${version}-Darwin-arm64.tar.gz";
+          hash = "sha256-VLWiw0cvme0+wDd8f1C67hBe5d1jtwo9t6kWyJckjhI=";
+          stripRoot = false;
+        };
+
+        dontFixup = true;
+
+        installPhase = ''
+          runHook preInstall
+          mkdir -p $out
+          cp -r bin libexec share $out/
+          runHook postInstall
+        '';
+
+        meta = prev.lima.meta // {
+          platforms = [ "aarch64-darwin" ];
+        };
+      };
+
+    # lima-full is lima with additional guest agents included; the binary
+    # release already ships all guest agents, so both point to the same drv.
+    lima-full = final.lima;
+  })
 ]

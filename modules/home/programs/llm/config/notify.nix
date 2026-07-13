@@ -64,7 +64,7 @@ let
       pkgs.jq
       pkgs.git
       pkgs.coreutils
-      pkgs.terminal-notifier
+      pkgs.alerter
       pkgs.wezterm
     ];
     # Best-effort notifier: no errexit/nounset/pipefail — it must never abort the

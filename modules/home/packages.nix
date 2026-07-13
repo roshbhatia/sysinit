@@ -185,7 +185,7 @@
       sheets
       simple-completion-language-server
       taplo
-      terminal-notifier
+      alerter
       textlint
       yaml-language-server
       yamllint
