@@ -97,6 +97,19 @@
       '';
     });
   })
+  # Same cctools crash for Rust packages: cargo invokes cc (clang-wrapper) as
+  # the linker driver, which calls cctools ld. Pass -fuse-ld= via RUSTFLAGS so
+  # clang routes through ld64.lld (LLVM's Mach-O linker) at the link step.
+  (final: prev: {
+    cargo-watch = prev.cargo-watch.overrideAttrs (old: {
+      nativeBuildInputs = (old.nativeBuildInputs or [ ]) ++ [ final.llvmPackages_latest.lld ];
+      RUSTFLAGS = "${old.RUSTFLAGS or ""} -C link-arg=-fuse-ld=${final.llvmPackages_latest.lld}/bin/ld64.lld";
+    });
+    mise = prev.mise.overrideAttrs (old: {
+      nativeBuildInputs = (old.nativeBuildInputs or [ ]) ++ [ final.llvmPackages_latest.lld ];
+      RUSTFLAGS = "${old.RUSTFLAGS or ""} -C link-arg=-fuse-ld=${final.llvmPackages_latest.lld}/bin/ld64.lld";
+    });
+  })
   # Same cctools crash: lima's CGO code links against Virtualization.framework on
   # Darwin 25.x (macOS 26 Tahoe). Use the official GitHub binary release until
   # nixpkgs ships a cctools version that handles the Tahoe linker constraints.
