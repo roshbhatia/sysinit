@@ -1554,16 +1554,16 @@ function M.setup(config)
       end
     end
 
-    -- Quick-filter keys inside the picker. WezTerm's InputSelector hosts no
+    -- Navigation/filter keys inside the picker. WezTerm's InputSelector hosts no
     -- custom keys directly, but a key table activated *before* the selector is
     -- (the workspace-manager trick): each entry sets a pending filter, pops the
     -- table, and sends Enter to close the selector; the callback then reopens the
     -- tree scoped to that filter. Enter/Escape are included so the table is ALWAYS
-    -- popped on close — otherwise it would leak into normal typing. This is why
-    -- the picker runs in fuzzy mode (selection only via Enter); label-jump mode
-    -- would let a bare-letter select bypass the pop. Filter keys use CTRL so they
-    -- never collide with fuzzy typing.
-    local tree_state = { pending_filter = nil, choices = {}, cursor = 0, key_table_active = false }
+    -- popped on close — otherwise it would leak into normal typing. The picker
+    -- runs in non-fuzzy mode by default; ^i reopens in fuzzy/search mode where
+    -- typing filters; Esc in search mode returns to non-fuzzy. Filter keys use
+    -- CTRL so they never collide with any label-jump shortcuts.
+    local tree_state = { pending_filter = nil, pending_search_mode = nil, search_mode = false, current_filter = "all", choices = {}, cursor = 0, key_table_active = false }
     local function tree_filter_key(key, filter)
       return {
         key = key,
@@ -1609,7 +1609,24 @@ function M.setup(config)
     config.key_tables = config.key_tables or {}
     config.key_tables.session_tree_actions = {
       tree_close_key("Enter"),
-      tree_close_key("Escape"),
+      {
+        key = "Escape",
+        mods = "NONE",
+        action = wezterm.action_callback(function(win, pane)
+          if tree_state.search_mode then
+            -- Exit search mode: reopen in non-fuzzy mode without navigating.
+            tree_state.pending_search_mode = false
+            tree_state.key_table_active = false
+            win:perform_action(wezterm.action.PopKeyTable, pane)
+            win:perform_action(wezterm.action.SendKey({ key = "Enter" }), pane)
+          else
+            tree_state.pending_filter = nil
+            tree_state.key_table_active = false
+            win:perform_action(wezterm.action.PopKeyTable, pane)
+            win:perform_action(wezterm.action.SendKey({ key = "Escape" }), pane)
+          end
+        end),
+      },
       -- vim navigation: j/k jump between structural rows (ws:/tab:), skipping pane detail
       -- rows; fall back to +/-1 when only pane rows remain (e.g. in blocked/agents views).
       -- J/K jump between session (ws:) rows only.
@@ -1687,22 +1704,32 @@ function M.setup(config)
           end
         end),
       },
-      tree_filter_key("a", "all"),
       tree_filter_key("b", "blocked"),
       tree_filter_key("w", "agents"),
       tree_filter_key("d", "dormant"),
       tree_filter_key("s", "sessions"),
       tree_cycle_key("]", 1),
       tree_cycle_key("[", -1),
+      {
+        key = "i",
+        mods = "CTRL",
+        action = wezterm.action_callback(function(win, pane)
+          tree_state.pending_search_mode = not tree_state.search_mode
+          tree_state.key_table_active = false
+          win:perform_action(wezterm.action.PopKeyTable, pane)
+          win:perform_action(wezterm.action.SendKey({ key = "Enter" }), pane)
+        end),
+      },
     }
 
-    -- Open the all-in-one session tree picker in fuzzy mode (needs-attention zone
-    -- on top, then the tree). Type to filter by the embedded `session/tab/agent`
-    -- path + tokens; Ctrl+A/B/G/D scope the view; Enter jumps. Recursive: a filter
-    -- key reopens scoped. An empty filtered view falls back to the full tree so
-    -- the picker never opens blank.
-    local function open_session_tree(win, pane, filter)
+    -- Open the all-in-one session tree picker. By default navigation is arrow/j/k
+    -- only (fuzzy=false); ^i enters search mode (fuzzy=true) so typing filters.
+    -- ^b/w/d/s scope the view; Esc in search mode exits search, Esc otherwise closes.
+    -- Recursive: a filter or search-toggle key reopens scoped.
+    local function open_session_tree(win, pane, filter, search_mode)
       filter = filter or "all"
+      tree_state.current_filter = filter
+      tree_state.search_mode = search_mode or false
       local tree = session_tree(sy_bin)
       -- Resolve palette once per open so all rows in this invocation share
       -- the same colors even if the picker is open across a scheme switch.
@@ -1718,9 +1745,13 @@ function M.setup(config)
           return
         end
       end
-      local title = "Sessions  [^s sessions · ^b blocked · ^w working · ^d dormant · ^]/[ cycle]"
-      if filter ~= "all" then
-        title = "Sessions  [" .. filter .. "  |  ^a all · ^]/[ cycle]"
+      local title
+      if tree_state.search_mode then
+        title = "Sessions  [search  Esc exit · ^s · ^b · ^w · ^d scope · ^]/[ cycle]"
+      elseif filter ~= "all" then
+        title = "Sessions  [" .. filter .. "  |  ^i search · ^]/[ cycle]"
+      else
+        title = "Sessions  [^s sessions · ^b blocked · ^w working · ^d dormant · ^]/[ cycle · ^i search]"
       end
       tree_state.choices = {}
       tree_state.cursor = 0
@@ -1735,8 +1766,8 @@ function M.setup(config)
         wezterm.action.InputSelector({
           title = title,
           choices = choices,
-          fuzzy = true,
-          fuzzy_description = "  j/k nav  J/K session  ^s sessions  ^b blocked  ^w working  ^d dormant  ^a all  ^]/[ cycle: ",
+          fuzzy = tree_state.search_mode,
+          fuzzy_description = "  Esc exit-search  j/k nav  J/K session  ^s · ^b · ^w · ^d scope  ^]/[ cycle: ",
           action = wezterm.action_callback(function(inner_win, inner_pane, id, _label)
             -- Guard: pop the key table if it wasn't already cleared by a close/filter/cycle
             -- key handler — e.g. picker was dismissed by clicking outside the window.
@@ -1744,11 +1775,21 @@ function M.setup(config)
               tree_state.key_table_active = false
               inner_win:perform_action(wezterm.action.PopKeyTable, inner_pane)
             end
+            -- Pending search-mode toggle (^i or Esc-in-search) takes priority: reopen
+            -- with new fuzzy state without dispatching the highlighted selection.
+            local psm = tree_state.pending_search_mode
+            tree_state.pending_search_mode = nil
+            if psm ~= nil then
+              wezterm.time.call_after(0.05, function()
+                open_session_tree(inner_win, inner_pane, tree_state.current_filter, psm)
+              end)
+              return
+            end
             local pf = tree_state.pending_filter
             tree_state.pending_filter = nil
             if pf then
               wezterm.time.call_after(0.05, function()
-                open_session_tree(inner_win, inner_pane, pf)
+                open_session_tree(inner_win, inner_pane, pf, tree_state.search_mode)
               end)
               return
             end
