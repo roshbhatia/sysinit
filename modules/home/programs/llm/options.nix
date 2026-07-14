@@ -106,6 +106,21 @@ in
                 default = { };
                 description = "Headers to send with each request (http servers only).";
               };
+              env = mkOption {
+                type = types.attrsOf types.str;
+                default = { };
+                description = "Environment variables for local stdio servers.";
+              };
+              enabled = mkOption {
+                type = types.bool;
+                default = true;
+                description = "Whether the server should be enabled in harnesses that support per-server toggles.";
+              };
+              timeout = mkOption {
+                type = types.nullOr types.int;
+                default = null;
+                description = "Optional server timeout in seconds for harnesses that support it.";
+              };
               description = mkOption {
                 type = types.str;
                 default = "";
