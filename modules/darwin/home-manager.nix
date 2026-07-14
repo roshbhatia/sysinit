@@ -40,7 +40,8 @@ in
 
           # Darwin-specific home modules
           ./home
-        ] ++ extraHomeModules;
+        ]
+        ++ extraHomeModules;
 
         sysinit.git = values.git or { };
         sysinit.llm = values.llm or { };

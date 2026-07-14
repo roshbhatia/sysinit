@@ -40,7 +40,11 @@
     "/mnt/lima-cidata" = lib.mkForce {
       device = "/dev/disk/by-label/cidata";
       fsType = "iso9660";
-      options = [ "ro" "relatime" "mode=0755" ];
+      options = [
+        "ro"
+        "relatime"
+        "mode=0755"
+      ];
     };
   };
 
@@ -49,7 +53,10 @@
   # use the guestagent binary from cidata (no nixpkgs package needed).
   systemd.services.lima-guestagent = lib.mkForce {
     description = "Lima guest agent";
-    after = [ "network.target" "mnt-lima\\x2dcidata.mount" ];
+    after = [
+      "network.target"
+      "mnt-lima\\x2dcidata.mount"
+    ];
     requires = [ "mnt-lima\\x2dcidata.mount" ];
     wantedBy = [ "multi-user.target" ];
     restartIfChanged = false;
@@ -154,7 +161,9 @@
     (_: prev: {
       python313 = prev.python313.override {
         packageOverrides = _: pyPrev: {
-          django = pyPrev.django.overridePythonAttrs (_: { doCheck = false; });
+          django = pyPrev.django.overridePythonAttrs (_: {
+            doCheck = false;
+          });
         };
       };
     })

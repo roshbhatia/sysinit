@@ -1,4 +1,9 @@
-{ pkgs, config, lib, ... }:
+{
+  pkgs,
+  config,
+  lib,
+  ...
+}:
 
 {
   # macOS system-level packages (not home-manager)
@@ -29,7 +34,8 @@
         StandardErrorPath = "/tmp/colima.error.log";
       };
     };
-  } // lib.optionalAttrs (config.sysinit.darwin.lima.instanceName != "") {
+  }
+  // lib.optionalAttrs (config.sysinit.darwin.lima.instanceName != "") {
     "lima-${config.sysinit.darwin.lima.instanceName}" = {
       serviceConfig = {
         ProgramArguments = [

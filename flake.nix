@@ -174,11 +174,33 @@
           final: _prev:
           (lib.composeManyExtensions (import ./overlays/default.nix { inherit inputs; })) final _prev;
       };
-      formatter = lib.genAttrs [
-        "aarch64-darwin"
-        "x86_64-darwin"
-        "x86_64-linux"
-        "aarch64-linux"
-      ] (system: nixpkgs.legacyPackages.${system}.nixfmt);
+      formatter =
+        lib.genAttrs
+          [
+            "aarch64-darwin"
+            "x86_64-darwin"
+            "x86_64-linux"
+            "aarch64-linux"
+          ]
+          (
+            system:
+            let
+              pkgs = nixpkgs.legacyPackages.${system};
+            in
+            pkgs.writeShellApplication {
+              name = "sysinit-nixfmt";
+              runtimeInputs = [
+                pkgs.fd
+                pkgs.nixfmt
+              ];
+              text = ''
+                if [ "$#" -gt 0 ]; then
+                  exec nixfmt "$@"
+                fi
+
+                exec fd --extension nix --type file --exec-batch nixfmt
+              '';
+            }
+          );
     };
 }

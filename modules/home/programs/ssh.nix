@@ -32,7 +32,8 @@ in
       // lib.optionalAttrs (!use1Password) {
         IdentitiesOnly = true;
       };
-    } // lib.optionalAttrs (limaInstance != "") {
+    }
+    // lib.optionalAttrs (limaInstance != "") {
       # wezterm.enumerate_ssh_hosts() doesn't follow Include directives, so we
       # add an explicit block that WezTerm can discover. ProxyCommand delegates
       # to the Lima-generated config which holds the current dynamic port.
@@ -43,7 +44,8 @@ in
         UserKnownHostsFile = "/dev/null";
         NoHostAuthenticationForLocalhost = "yes";
       };
-    } // {
+    }
+    // {
       "vorgossos" = {
         HostName = "vorgossos.stork-eel.ts.net";
         User = "rshnbhatia";
