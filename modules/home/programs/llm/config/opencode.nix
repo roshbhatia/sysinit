@@ -8,14 +8,21 @@ let
   llmLib = import ../lib { inherit lib; };
   kit = llmLib.harnessKit.mkKit { inherit lib pkgs config; };
 
-  # Keep this list for confirmed per-harness incompatibilities only. Current
-  # OpenCode config accepts URL-based remote MCP entries.
-  disabledMcpServers = [ ];
+  # Keep this list for confirmed per-harness incompatibilities only.
+  disabledMcpServers = [ "slack" ];
 
   # Skills install only to ~/.claude/skills (per default.nix); opencode reads
   # that tree natively. Point instructions at the populated root, not a phantom
   # per-tool dir that holds no SKILL.md files.
-  defaultInstructions = kit.mkInstructions "~/.claude/skills";
+  defaultInstructions = kit.mkInstructions "~/.claude/skills" + ''
+
+    ## OpenCode-specific Slack access
+
+    OpenCode's MCP client does not support Slack's dynamic auth flow. If you
+    need Slack context or need to send a Slack message, ask Claude Code to do
+    it with `claude -p '<your Slack task>'` because Claude has Slack MCP
+    access configured.
+  '';
 
   opencodeConfig = {
     "$schema" = "https://opencode.ai/config.json";
