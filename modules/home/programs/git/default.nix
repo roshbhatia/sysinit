@@ -121,6 +121,7 @@ in
       ".coverage"
       "htmlcov/"
       # Playwright
+      ".playwright-mcp/"
       "playwright-report/"
       "playwright/.cache/"
       "blob-report/"

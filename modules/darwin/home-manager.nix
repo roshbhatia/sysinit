@@ -1,18 +1,9 @@
 {
-  lib,
   values,
   utils,
   inputs ? { },
   ...
 }:
-
-let
-  # Optional companion repo — imported when the checkout exists on this machine.
-  # builtins.pathExists returns false (not an error) in pure eval, so this guard
-  # is safe on all machines; it evaluates correctly when built with --impure.
-  extrasPath = /Users/roshan/github/personal/roshbhatia/sysinit.laurel/modules/home;
-  extraHomeModules = lib.optionals (builtins.pathExists extrasPath) [ extrasPath ];
-in
 
 {
   home-manager = {
@@ -40,8 +31,7 @@ in
 
           # Darwin-specific home modules
           ./home
-        ]
-        ++ extraHomeModules;
+        ];
 
         sysinit.git = values.git or { };
         sysinit.llm = values.llm or { };
