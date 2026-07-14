@@ -167,7 +167,7 @@ let
     trap 'rm -f "$tmp"' EXIT
 
     if [ -f "$target" ]; then
-      ${pkgs.jq}/bin/jq -s '.[0] * .[1]' "$target" ${opencodeConfigFile} > "$tmp"
+      ${pkgs.jq}/bin/jq -s '.[1] as $managed | .[0] * $managed | .mcp = $managed.mcp' "$target" ${opencodeConfigFile} > "$tmp"
     else
       cp ${opencodeConfigFile} "$tmp"
     fi
