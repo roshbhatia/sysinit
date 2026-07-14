@@ -62,34 +62,34 @@
   };
   goose-cli-bin = {
     pname = "goose-cli-bin";
-    version = "1.42.0";
+    version = "1.43.0";
     src = fetchurl {
-      url = "https://github.com/block/goose/releases/download/v1.42.0/goose-aarch64-apple-darwin.tar.gz";
-      sha256 = "sha256-TVZj/FRwTCORgxAwAJS3ZNgqrGFkmkfw145UmgLw0eY=";
+      url = "https://github.com/block/goose/releases/download/v1.43.0/goose-aarch64-apple-darwin.tar.gz";
+      sha256 = "sha256-YZvmqN5CPnEimma/WVWN0zYl2Df51q3A6uKgfx6+n+Y=";
     };
   };
   goose-cli-bin-aarch64-linux = {
     pname = "goose-cli-bin-aarch64-linux";
-    version = "1.42.0";
+    version = "1.43.0";
     src = fetchurl {
-      url = "https://github.com/block/goose/releases/download/v1.42.0/goose-aarch64-unknown-linux-gnu.tar.gz";
-      sha256 = "sha256-Ag7vs8HsCd5fE36QPjzs7cDLWYk4xYsdHPBnB1aH0g0=";
+      url = "https://github.com/block/goose/releases/download/v1.43.0/goose-aarch64-unknown-linux-gnu.tar.gz";
+      sha256 = "sha256-4KrL2o+Bd8I+XIGZ0Qf68Re0AEHsoP+CIHzHiIwERHk=";
     };
   };
   goose-cli-bin-x86_64-darwin = {
     pname = "goose-cli-bin-x86_64-darwin";
-    version = "1.42.0";
+    version = "1.43.0";
     src = fetchurl {
-      url = "https://github.com/block/goose/releases/download/v1.42.0/goose-x86_64-apple-darwin.tar.gz";
-      sha256 = "sha256-b/+W/BXay8KfTB0t5jwtufXcIAr0JJPl2HT4LUOUyS8=";
+      url = "https://github.com/block/goose/releases/download/v1.43.0/goose-x86_64-apple-darwin.tar.gz";
+      sha256 = "sha256-ViECwCGkzov/kI4OMFiktT4SlQxcq66Ej2R7TRDbFYs=";
     };
   };
   goose-cli-bin-x86_64-linux = {
     pname = "goose-cli-bin-x86_64-linux";
-    version = "1.42.0";
+    version = "1.43.0";
     src = fetchurl {
-      url = "https://github.com/block/goose/releases/download/v1.42.0/goose-x86_64-unknown-linux-gnu.tar.gz";
-      sha256 = "sha256-ixrJ7JA2DMRelu7ZDd0QnRliV2LrScjfLnH2NFOSCCc=";
+      url = "https://github.com/block/goose/releases/download/v1.43.0/goose-x86_64-unknown-linux-gnu.tar.gz";
+      sha256 = "sha256-qalvVZqLXyCxFZe3jkqluwubKXluxPgIykZqP1ml7CA=";
     };
   };
   hererocks = {
