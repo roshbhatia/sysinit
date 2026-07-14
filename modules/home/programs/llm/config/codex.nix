@@ -92,9 +92,9 @@ in
       check_for_update_on_startup = false;
       compact_prompt = compactPrompt;
 
-      # Full-auto: execute all tool calls without approval prompts.
-      # Also disables the macOS network namespace sandbox (Codex behaviour).
-      approval_policy = "full-auto";
+      # Execute tool calls without approval prompts. Codex 0.144.x renamed the
+      # old `full-auto` policy to `never`.
+      approval_policy = "never";
 
       # Opt in to the experimental Streamable HTTP MCP client (v0.44.0+). Without
       # this, URL-based MCP entries in the TOML config are silently ignored.

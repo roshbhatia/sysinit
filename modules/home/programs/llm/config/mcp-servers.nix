@@ -1,4 +1,22 @@
-_: {
+{ lib, pkgs, ... }:
+let
+  basicMemoryMcp = pkgs.writeShellScript "basic-memory-mcp" ''
+    set -euo pipefail
+
+    export PATH="${
+      lib.makeBinPath [
+        pkgs.cargo
+        pkgs.rustc
+        pkgs.uv
+      ]
+    }:$PATH"
+    export UV_PYTHON="${pkgs.python313}/bin/python3"
+    export UV_PYTHON_DOWNLOADS=never
+
+    exec ${pkgs.uv}/bin/uvx basic-memory mcp "$@"
+  '';
+in
+{
   sysinit.llm.mcp.additionalServers = {
     ast-grep = {
       command = "uvx";
@@ -39,8 +57,7 @@ _: {
     # Backing directory defaults to ~/Documents/basic-memory/; all agents
     # read and write the same files, giving cross-harness persistent context.
     basic-memory = {
-      command = "uvx";
-      args = [ "basic-memory" "mcp" ];
+      command = "${basicMemoryMcp}";
       description = "Shared cross-harness memory — Markdown note store readable by all agents";
     };
   };
