@@ -66,6 +66,12 @@ in
     $DRY_RUN_CMD ${prepareRuntime}
   '';
 
+  home.file = {
+    ".codex/config.toml".force = true;
+    ".codex/default.config.toml".force = true;
+    ".codex/spec.config.toml".force = true;
+  };
+
   programs.codex = {
     enable = true;
     enableMcpIntegration = true;
