@@ -1562,7 +1562,7 @@ function M.setup(config)
     -- popped on close — otherwise it would leak into normal typing. The picker
     -- runs in fuzzy mode so typing filters; filter keys use CTRL so they never
     -- collide with fuzzy typing.
-    local tree_state = { pending_filter = nil, current_filter = "all", choices = {}, cursor = 0, key_table_active = false }
+    local tree_state = { pending_filter = nil, pending_action = nil, current_filter = "all", choices = {}, cursor = 0, key_table_active = false }
     local function tree_close_key(key)
       return {
         key = key,
@@ -1684,6 +1684,16 @@ function M.setup(config)
           win:perform_action(wezterm.action.SendKey({ key = "Enter" }), pane)
         end),
       },
+      {
+        key = "x",
+        mods = "CTRL",
+        action = wezterm.action_callback(function(win, pane)
+          tree_state.pending_action = "delete"
+          tree_state.key_table_active = false
+          win:perform_action(wezterm.action.PopKeyTable, pane)
+          win:perform_action(wezterm.action.SendKey({ key = "Enter" }), pane)
+        end),
+      },
       tree_cycle_key("]", 1),
       tree_cycle_key("[", -1),
     }
@@ -1711,9 +1721,9 @@ function M.setup(config)
       end
       local title
       if filter == "dormant" then
-        title = "Sessions  [dormant · ^d all · ^]/[ cycle]"
+        title = "Sessions  [dormant · ^d all · ^x delete · ^]/[ cycle]"
       else
-        title = "Sessions  [^d dormant · ^]/[ cycle]"
+        title = "Sessions  [^d dormant · ^x delete · ^]/[ cycle]"
       end
       tree_state.choices = {}
       tree_state.cursor = 0
@@ -1729,7 +1739,7 @@ function M.setup(config)
           title = title,
           choices = choices,
           fuzzy = true,
-          fuzzy_description = "  j/k nav  J/K session  ^d dormant  ^]/[ cycle: ",
+          fuzzy_description = "  j/k nav  J/K session  ^d dormant  ^x delete  ^]/[ cycle: ",
           action = wezterm.action_callback(function(inner_win, inner_pane, id, _label)
             -- Guard: pop the key table if it wasn't already cleared by a close/filter/cycle
             -- key handler — e.g. picker was dismissed by clicking outside the window.
@@ -1737,8 +1747,21 @@ function M.setup(config)
               tree_state.key_table_active = false
               inner_win:perform_action(wezterm.action.PopKeyTable, inner_pane)
             end
+            local pa = tree_state.pending_action
+            tree_state.pending_action = nil
             local pf = tree_state.pending_filter
             tree_state.pending_filter = nil
+            if pa == "delete" and id then
+              local kind = id:match("^([^:]+):")
+              local name = id:match("^[^:]+:(.+)$")
+              if kind == "ws" and name and name ~= "default" then
+                wezterm.run_child_process({ sy_bin, "delete", "--force", name })
+              end
+              wezterm.time.call_after(0.05, function()
+                open_session_tree(inner_win, inner_pane, tree_state.current_filter)
+              end)
+              return
+            end
             if pf then
               wezterm.time.call_after(0.05, function()
                 open_session_tree(inner_win, inner_pane, pf)
