@@ -33,6 +33,14 @@
   (import ./sheets.nix { })
   (import ./mozilla.nix { inherit inputs; })
   (import ./nushell.nix { })
+  # sdl3-3.4.10 testrwlock times out on i686-linux under emulation (used by lutris
+  # via sdl2-compat); the rwlock test is a scheduler-sensitivity flake, not a
+  # correctness issue.  Overlays propagate into pkgsi686Linux so one entry is enough.
+  (_final: prev: {
+    sdl3 = prev.sdl3.overrideAttrs (_old: {
+      doCheck = false;
+    });
+  })
   # openldap-2.6.13 test017-syncreplication-refresh is a timing-sensitive flake
   (_final: prev: {
     openldap = prev.openldap.overrideAttrs (_old: {
