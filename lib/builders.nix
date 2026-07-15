@@ -42,7 +42,6 @@ in
         user.username = hostConfig.username;
         isLima = hostConfig.lima or false;
         isDesktop = hostConfig.desktop or false;
-        isWork = hostConfig.work or false;
       };
 
       commonArgs = {

@@ -1,9 +1,7 @@
 {
   config,
-  lib,
   pkgs,
   hostname,
-  values,
   ...
 }:
 
@@ -45,10 +43,7 @@
     connect-timeout = 10;
   };
 
-  # On work machines the hostname is MDM-managed; nix-darwin's activation runs
-  # `scutil --set` unconditionally, which fights (and fails against) the profile.
-  # Leave it unset there and let MDM own it; personal hosts still self-manage.
-  networking.hostName = lib.mkIf (!(values.isWork or false)) hostname;
+  networking.hostName = hostname;
 
   users.users.${config.sysinit.user.username}.home = "/Users/${config.sysinit.user.username}";
 
