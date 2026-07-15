@@ -137,7 +137,10 @@
           RUSTFLAGS = "${old.RUSTFLAGS or ""} -C link-arg=-fuse-ld=${final.llvmPackages_latest.lld}/bin/ld64.lld";
         })
       else
-        prev.mise;
+        # Pull mise from a pristine nixpkgs so its closure hash matches
+        # cache.nixos.org; repo overlays perturb prev.mise's deps and force an
+        # uncached source build of the same version.
+        (import inputs.nixpkgs { inherit (final.stdenv.hostPlatform) system; }).mise;
   })
   # Same cctools crash: lima's CGO code links against Virtualization.framework on
   # Darwin 25.x (macOS 26 Tahoe). Use the official GitHub binary release until
