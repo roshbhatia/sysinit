@@ -8,8 +8,7 @@ faster, actively maintained, native macOS sensor support, and structured
 JSONC config — modeled on
 [dededecline/dotfiles/fastfetch](https://github.com/dededecline/dotfiles/tree/main/fastfetch),
 but declared through the home-manager `programs.fastfetch` module rather than
-imperative `xdg.configFile` writes. The work-host (`demiurge`) gets its own
-art slot named `laurel`, seeded with dede's `hera` logo.
+imperative `xdg.configFile` writes.
 
 ## What Changes
 
@@ -25,8 +24,6 @@ art slot named `laurel`, seeded with dede's `hera` logo.
 - Restore the five reusable macchina art files under
   `modules/home/programs/fastfetch/art/{rosh,rosh-color,nix,mgs,vagabond,varre}.txt`
   (recovered verbatim from `aef318858^`).
-- Add a new `laurel.txt` art file under the same dir, contents identical to
-  dede's `logo_hera.txt`.
 - Module installs all art files into `${xdg.configHome}/fastfetch/art/` via
   `xdg.configFile`, then materializes the active selection at
   `${xdg.configHome}/fastfetch/logo.txt` (the path the home-manager-managed
@@ -36,7 +33,6 @@ art slot named `laurel`, seeded with dede's `hera` logo.
   position between `./eza.nix` and `./fd.nix`).
 - Hostname → default art mapping:
   - `lv426` (personal darwin) → `rosh`
-  - `demiurge` (work darwin) → `laurel`
   - `arrakis` (personal nixos) → `nix`
   - `nostromo` (lima nixos) → `nix`
   - any other host falls back to `rosh`
@@ -57,8 +53,7 @@ art slot named `laurel`, seeded with dede's `hera` logo.
   stylix-via-`config.lib.stylix` is the only theming path; no new theme
   abstraction is introduced.
 - **No vendoring of upstream fastfetch logos.** Only the six restored
-  macchina arts plus `laurel.txt` (which equals dede's `hera`, attributed
-  in the file header) ship in-repo.
+  macchina arts ship in-repo.
 - **No `programs.fastfetch.settings` per-host divergence beyond the art
   pointer.** The module body is identical across hosts; only
   `xdg.configFile."fastfetch/logo.txt".source` varies.
@@ -71,7 +66,7 @@ art slot named `laurel`, seeded with dede's `hera` logo.
   home-manager `programs.fastfetch` module; its `settings` are Nix-derived
   (not hand-written JSONC) and consume stylix base16 colors; the active
   art file is selected by hostname against a fixed map; the six restored
-  macchina arts plus `laurel` ship in-repo under
+  macchina arts ship in-repo under
   `modules/home/programs/fastfetch/art/`; Darwin and Linux hosts get
   platform-appropriate `Software` modules.
 
@@ -83,7 +78,7 @@ art slot named `laurel`, seeded with dede's `hera` logo.
 
 - **Affected files**:
   - new: `modules/home/programs/fastfetch.nix`
-  - new dir: `modules/home/programs/fastfetch/art/` with seven `.txt` files
+  - new dir: `modules/home/programs/fastfetch/art/` with six `.txt` files
   - edit: `modules/home/programs/default.nix` (one `imports` line)
 - **Pattern reuse**: directly mirrors the `helix.nix` / `fzf.nix` shape —
   `{ config, pkgs, lib, ... }: { programs.<tool> = { enable = true;
@@ -92,7 +87,7 @@ art slot named `laurel`, seeded with dede's `hera` logo.
   `osConfig.networking.hostName` (Darwin) / `config.networking.hostName`
   (NixOS) the same way `modules/home/programs/ssh.nix` already does.
 - **Impactful actions requiring human verification**:
-  - `nh os switch` on each active host (`lv426`, `demiurge`, `arrakis`) to
+  - `nh os switch` on each active host (`lv426`, `arrakis`) to
     confirm the right art renders and stylix colors land. `nh os build`
     catches type errors but cannot validate the rendered output.
 - **Gating signal**: standard `nh os build` (validate closure) →

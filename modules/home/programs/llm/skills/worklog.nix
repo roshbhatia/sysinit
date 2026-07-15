@@ -36,21 +36,21 @@
     "user_turns": 7,
     "repos": [
       {
-        "name": "lrl-aws",
-        "branch": "dev/roshan/inf-1786/lrl-aws",
+        "name": "sysinit",
+        "branch": "dev/rshnbhatia/wezterm-tabs/sysinit",
         "head": "a0a29123",
         "base": "main",
-        "url": "https://github.com/pinginc/lrl-aws/tree/dev/roshan/inf-1786/lrl-aws",
+        "url": "https://github.com/roshbhatia/sysinit/tree/dev/rshnbhatia/wezterm-tabs/sysinit",
         "commits_ahead": 7,
-        "commits": [{ "sha": "a0a2912", "subject": "feat: landing-zone modules" }],
-        "files": [{ "status": "M", "path": "modules/network/main.tf" }],
+        "commits": [{ "sha": "a0a2912", "subject": "feat: slugify wezterm tab titles" }],
+        "files": [{ "status": "M", "path": "modules/home/programs/wezterm/lua/sysinit/pkg/ui.lua" }],
         "insertions": 110,
         "deletions": 74,
         "diffstat": "10 files changed, 110 insertions(+), 74 deletions(-)",
         "dirty": ""
       }
     ],
-    "cwd": "/Users/roshan/github/...",
+    "cwd": "/Users/rshnbhatia/github/...",
     "first_prompt": "fix wezterm tab…",
     "last_prompt": "ship it and open the PR",
     "transcript_path": "/Users/.../<uuid>.jsonl",
@@ -138,12 +138,12 @@
   ### sysinit
   - Slugified Claude tab titles in wezterm and branded with a sparkle. (3 commits, c04e5e0)
 
-  ### inf-1785 (session · lrl-aws, infra, cdk8s-platform-definitions)
-  - Reworked the AWS landing-zone modules.
-    ([lrl-aws](…/tree/dev/roshan/inf-1786/lrl-aws): 7 commits, +110/-74; infra: 5 commits)
+  ### wezterm-tabs (session · sysinit, neph.nvim)
+  - Reworked the wezterm tab-title rendering.
+    ([sysinit](…/tree/dev/rshnbhatia/wezterm-tabs/sysinit): 7 commits, +110/-74; neph.nvim: 5 commits)
 
-  ### laurel-api
-  - ~Investigated the auth refresh races (inferred: transcript pruned).
+  ### finances
+  - ~Investigated the transaction sync races (inferred: transcript pruned).
   ```
 
   Mark inferred entries with `~`. End with a one-line tally (N sessions across M

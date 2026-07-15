@@ -85,7 +85,7 @@ None. The change adds a new capability without altering existing ones.
   slim Python-CLI overlay pattern for the overlay shape and the
   unmanaged-runtime-config decision. No new infrastructure introduced.
 - **Impactful actions requiring human verification**:
-  - `nh os switch` on demiurge after the overlay lands — first time hermes
+  - `nh os switch` on arrakis after the overlay lands — first time hermes
     appears in the user's profile. The user must run `hermes setup`
     manually afterwards (interactive; can't be automated by the spec).
   - First-time provider authentication (`hermes model` for OAuth flows;

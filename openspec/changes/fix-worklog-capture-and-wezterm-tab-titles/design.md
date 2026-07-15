@@ -7,7 +7,7 @@ value it wants.
 - Worklog: `config/worklog.sh` runs `git -C "$cwd"` against a `seshy` session
   root. Sessions live at `~/.local/state/seshy/sessions/<name>/`; the root is
   not a git repo — it contains one nested worktree per repo on branch
-  `dev/roshan/<session>/<repo>`. So all git fields are empty and `repo` falls
+  `dev/rshnbhatia/<session>/<repo>`. So all git fields are empty and `repo` falls
   back to the session name. The hook also fires on `end_reason: "resume"` and
   trusts a stdin `transcript_path` that, on resume, names a uuid with no file.
 - WezTerm: `format-tab-title` receives a `TabInformation` struct (verified

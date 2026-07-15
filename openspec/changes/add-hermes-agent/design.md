@@ -161,7 +161,7 @@ slice is independently revertible via `git revert`.
 
 **Slice 1 — Overlay + packages.nix entry.** Land the new overlay and
 register it. After this slice, `which hermes` resolves to a Nix store
-path on demiurge.
+path on arrakis.
 
 - Gate: `nix flake check` passes; `nh os build` succeeds; user
   inspects the rendered closure for `hermes-agent-0.14.0`.
@@ -178,7 +178,7 @@ its subagent.
 **Slice 3 — Runtime env-var matrix documented.** Capture which provider
 needs which env var in design.md (already done — see Risks below for the
 matrix), and surface a one-time `hermes setup` instruction in the user's
-own notes (not in this repo's docs). User runs `hermes setup` on demiurge
+own notes (not in this repo's docs). User runs `hermes setup` on arrakis
 and authenticates one provider end-to-end.
 
 - Gate: `hermes` successfully completes a model-response round-trip with
@@ -191,7 +191,7 @@ assistants block at `modules/home/programs/git/default.nix:84-99`.
   after `nh os switch`.
 
 **Wrap-up — Archive.** Only after slices 1–4 are all confirmed on
-demiurge, archive `add-hermes-agent` via the openspec-archive skill.
+arrakis, archive `add-hermes-agent` via the openspec-archive skill.
 Multi-host rollout (lv426 if applicable) follows the user's normal
 sequence and does not block archive.
 
@@ -210,7 +210,7 @@ sequence and does not block archive.
 ## Migration Plan
 
 There's no existing hermes deployment to migrate from — this is greenfield
-addition. The "migration" is just the first-time enablement on demiurge.
+addition. The "migration" is just the first-time enablement on arrakis.
 
 **Step 1 — verify clean baseline.** Before any edits:
 
@@ -223,7 +223,7 @@ addition. The "migration" is just the first-time enablement on demiurge.
 - `nix flake check`.
 - `nh os build` (no system change yet).
 - User reviews `git diff` of the three touched files.
-- `nh os switch` on demiurge.
+- `nh os switch` on arrakis.
 - Verify: `which hermes` returns a `/nix/store/...` path;
   `hermes --version` returns `0.14.0`.
 
@@ -239,7 +239,7 @@ verification only:
 
 **Step 4 — apply Slice 3 (runtime env-var setup).** No edits; user action:
 
-- User runs `hermes setup` on demiurge (interactive).
+- User runs `hermes setup` on arrakis (interactive).
 - User configures one provider end-to-end (default expectation:
   Anthropic OAuth via `hermes model` → "Anthropic").
 - User confirms a successful model round-trip (any prompt → response).
@@ -248,11 +248,11 @@ verification only:
 **Step 5 — apply Slice 4 (gitignore entry).** Edit, then:
 
 - `nix flake check`.
-- `nh os switch` on demiurge.
+- `nh os switch` on arrakis.
 - `cat ~/.config/git/ignore | grep '.hermes'` confirms the new pattern.
 
 **Step 6 — archive.** Only after all prior slices are confirmed on
-demiurge. Run `openspec archive add-hermes-agent` (requires explicit user
+arrakis. Run `openspec archive add-hermes-agent` (requires explicit user
 authorization per repo policy).
 
 **Rollback:** any individual slice can be reverted with `git revert

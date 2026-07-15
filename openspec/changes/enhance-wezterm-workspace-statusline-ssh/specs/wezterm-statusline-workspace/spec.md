@@ -10,8 +10,8 @@ existing `mode`/`locked`/`agent_status` sections.
 
 #### Scenario: Seshy session name is shown
 
-- **WHEN** the active workspace is a seshy session (e.g. `inf-1785`)
-- **THEN** the tabline renders `inf-1785` in its workspace section
+- **WHEN** the active workspace is a seshy session (e.g. `wezterm-tabs`)
+- **THEN** the tabline renders `wezterm-tabs` in its workspace section
 
 #### Scenario: Default workspace is shown verbatim
 

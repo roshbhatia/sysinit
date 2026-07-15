@@ -36,12 +36,6 @@ other five are monochrome and recolor via `logo.color.1`. They will be
 renamed from `.ascii` to `.txt` to match dede's convention and to make
 the file purpose obvious from extension.
 
-`laurel.txt` is byte-identical to
-[`logo_hera.txt`](https://github.com/dededecline/dotfiles/blob/main/fastfetch/logo_hera.txt)
-with a one-line `# attribution: dededecline/dotfiles logo_hera` comment
-prepended (fastfetch ignores leading lines starting with `#` in
-`type = "file"` mode — verified against the upstream JSON-schema).
-
 ## Goals / Non-Goals
 
 **Goals:**
@@ -65,8 +59,8 @@ prepended (fastfetch ignores leading lines starting with `#` in
   closure contains a single `fastfetch/logo.txt` symlink per host pointing
   at the correct art.
 - Both darwin and nixos hosts build green and render correctly.
-- All seven art files (`rosh`, `rosh-color`, `nix`, `mgs`, `vagabond`,
-  `varre`, `laurel`) live in `${xdg.configHome}/fastfetch/art/` so the
+- All six art files (`rosh`, `rosh-color`, `nix`, `mgs`, `vagabond`,
+  `varre`) live in `${xdg.configHome}/fastfetch/art/` so the
   user can re-point `logo.txt` at any of them manually without rebuilding.
 
 **Non-Goals:**
@@ -78,7 +72,7 @@ prepended (fastfetch ignores leading lines starting with `#` in
   *{?}`, etc.) stay as-is.
 - No support for a `fastfetch.art` Nix option that picks art by name. The
   hostname map is the only selector. If the user wants per-host overrides
-  beyond `lv426 / demiurge / arrakis / nostromo`, they edit the map.
+  beyond `lv426 / arrakis / nostromo`, they edit the map.
 
 ## Decisions
 
@@ -137,7 +131,6 @@ hostName =
     or "unknown";
 artName = {
   lv426 = "rosh";
-  demiurge = "laurel";
   arrakis = "nix";
   nostromo = "nix";
 }.${hostName} or "rosh";
@@ -150,10 +143,11 @@ home-manager-standalone), defaulting to `rosh`.
 
 - **Read a per-host `values.fetchArt` attribute set in
   `hosts/default.nix`.** Rejected: every host would need a new field for
-  a four-line lookup table. The proposal's Non-goals already declare
-  per-host configurability beyond the four-entry map out of scope.
-- **Use `pkgs.system` instead of hostname.** Rejected: `lv426` and
-  `demiurge` are both `aarch64-darwin`; system alone cannot disambiguate.
+  a three-line lookup table. The proposal's Non-goals already declare
+  per-host configurability beyond the three-entry map out of scope.
+- **Use `pkgs.system` instead of hostname.** Rejected: hosts can share a
+  `system` (art is a per-host choice, not per-architecture), so `system`
+  alone cannot disambiguate.
 
 **4. Ship art files as a sibling directory, not inline strings.**
 
@@ -170,7 +164,7 @@ aef318858^:...`, and avoids string-quoting hazards.
   comfort zone; round-trip through Nix-string-escaping is risky.
 - **Fetch from upstream URLs at build time.** Rejected: introduces a
   network dependency, dede's repo could move, and macchina art was
-  authored locally — no upstream URL exists for five of the seven files.
+  authored locally — no upstream URL exists for any of the six files.
 
 **5. Platform-conditional `Software` cluster module list.**
 
@@ -264,7 +258,7 @@ out drops the entire module from the closure.
    modules/`). Confirm `aef318858^` is reachable (`git rev-parse
    aef318858^`). Both must succeed before proceeding.
 2. **Slice 1 — module + art files (local-only, no rebuild).** Land
-   `modules/home/programs/fastfetch.nix`, the seven art files, and the
+   `modules/home/programs/fastfetch.nix`, the six art files, and the
    import line. Run `nix flake check` and `nh os build`. Confirm closure
    builds and the rendered store path contains the expected files. **No
    `nh os switch` yet.** If `nh os build` fails, `git reset HEAD~`,
@@ -274,8 +268,8 @@ out drops the entire module from the closure.
    wherever the user is). Run `fastfetch`. Verify (a) the correct art
    shows, (b) cluster colors look right, (c) no error from the
    `defaults read` or brew commands. Confirm before continuing.
-4. **Slice 3 — verify the other active hosts.** SSH into `demiurge` and
-   `arrakis` (separately), pull the change, `nh os switch`, run
+4. **Slice 3 — verify the other active hosts.** SSH into `arrakis`,
+   pull the change, `nh os switch`, run
    `fastfetch`, confirm. `nostromo` is the lima VM; if the user runs it,
    verify there too. Each host is an independent verification
    checkpoint; if any one fails, fix before declaring the change

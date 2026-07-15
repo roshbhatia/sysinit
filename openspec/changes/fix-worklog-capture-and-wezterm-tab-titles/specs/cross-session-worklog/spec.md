@@ -28,10 +28,10 @@ one-element `repos[]`. Otherwise it SHALL set `kind = "dir"` with an empty
 
 #### Scenario: Seshy session enumerates nested repos
 - **WHEN** a session ends with `cwd` =
-  `~/.local/state/seshy/sessions/inf-1785/lrl-aws` (a nested repo inside the
+  `~/.local/state/seshy/sessions/wezterm-tabs/sysinit` (a nested repo inside the
   session)
-- **THEN** the line has `kind: "seshy-session"`, `session_name: "inf-1785"`, and
-  a `repos[]` entry per nested git child of `inf-1785` with its `name`,
+- **THEN** the line has `kind: "seshy-session"`, `session_name: "wezterm-tabs"`, and
+  a `repos[]` entry per nested git child of `wezterm-tabs` with its `name`,
   `branch`, and `head`
 
 #### Scenario: Plain repo yields a one-element list

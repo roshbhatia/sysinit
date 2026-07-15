@@ -119,12 +119,12 @@
 
   ```
   # good — one sentence per bullet, identifiers backticked, causal `so`/`as`/`because`
-  - Removes the `incident-io` MCP server as it collides with the company plugin.
-  - Gates `networking.hostName` on `!isWork` so MDM can own the work host's name.
+  - Removes the `aws-knowledge` MCP server as it is no longer used.
+  - Defaults structural search to `ast-grep` so agents stop approximating code shapes with regex.
 
   # bad
   - This PR adds a bunch of changes — it removes the server and also...   <- preamble + em-dash + multi-clause
-  - **Hostname**: gated on isWork                                          <- bolded list row
+  - **Search**: now uses ast-grep                                         <- bolded list row
   ```
 
   The shortest acceptable bullet for a self-evident PR is `See title.`. For a PR

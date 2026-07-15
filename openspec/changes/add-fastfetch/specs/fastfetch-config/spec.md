@@ -13,7 +13,7 @@ JSON SHALL come from home-manager's `settings`-to-JSON conversion.
 
 #### Scenario: binary is on PATH after activation
 - **WHEN** `nh os switch` completes on any active host (`lv426`,
-  `demiurge`, `arrakis`, `nostromo`)
+  `arrakis`, `nostromo`)
 - **THEN** `which fastfetch` returns a `/nix/store/...-fastfetch-*/bin/fastfetch` path
 - **AND** `fastfetch --version` reports a non-empty version string
 
@@ -106,14 +106,12 @@ separator SGR.
 
 ### Requirement: art files ship in-repo and resolve by hostname
 
-The module SHALL ship seven ASCII art files under
+The module SHALL ship six ASCII art files under
 `modules/home/programs/fastfetch/art/`:
-`rosh.txt`, `rosh-color.txt`, `nix.txt`, `mgs.txt`, `vagabond.txt`,
-`varre.txt`, and `laurel.txt`. The first six SHALL be byte-identical to
+`rosh.txt`, `rosh-color.txt`, `nix.txt`, `mgs.txt`, `vagabond.txt`, and
+`varre.txt`. All six SHALL be byte-identical to
 their counterparts in `aef318858^:modules/home/configurations/macchina/themes/`
-(renamed from `.ascii` to `.txt`). `laurel.txt` SHALL contain the bytes
-of `dededecline/dotfiles/fastfetch/logo_hera.txt` with a single leading
-`#` comment line attributing the source. All seven SHALL be deployed to
+(renamed from `.ascii` to `.txt`). All six SHALL be deployed to
 `${xdg.configHome}/fastfetch/art/` via `xdg.configFile`. The active art
 SHALL be materialized at `${xdg.configHome}/fastfetch/logo.txt` (a
 symlink or `xdg.configFile.source = ./art/<chosen>.txt`), and the
@@ -123,7 +121,6 @@ stable path.
 Hostname → default art mapping:
 
 - `lv426` → `rosh`
-- `demiurge` → `laurel`
 - `arrakis` → `nix`
 - `nostromo` → `nix`
 - any other hostname → `rosh`
@@ -137,30 +134,21 @@ plain attrset; adding a host requires editing this attrset.
   to the contents of `rosh.txt`
 - **AND** running `fastfetch` displays the rosh art
 
-#### Scenario: demiurge gets the laurel art
-- **WHEN** `nh os switch` completes on `demiurge`
-- **THEN** `~/.config/fastfetch/logo.txt` resolves to the contents of
-  `laurel.txt`
-- **AND** `head -1 ~/.config/fastfetch/logo.txt` returns the attribution
-  comment line
-- **AND** `fastfetch` renders the hera/laurel logo with `base0D`-tinted
-  color
-
-#### Scenario: all seven art files are available for manual switching
+#### Scenario: all six art files are available for manual switching
 - **WHEN** the user inspects `~/.config/fastfetch/art/`
 - **THEN** the directory contains all of `rosh.txt`, `rosh-color.txt`,
-  `nix.txt`, `mgs.txt`, `vagabond.txt`, `varre.txt`, `laurel.txt`
+  `nix.txt`, `mgs.txt`, `vagabond.txt`, `varre.txt`
 - **AND** the user can manually rebuild with a different mapping entry
   to switch the active art without editing fastfetch upstream
 
 #### Scenario: unknown host falls back to rosh
-- **WHEN** `nh os switch` runs on a host whose name is not in the four-
+- **WHEN** `nh os switch` runs on a host whose name is not in the three-
   entry map (e.g. a future `borealis` host)
 - **THEN** `logo.txt` resolves to `rosh.txt`
 - **AND** the build does not fail or warn — the fallback is intentional
 
 #### Scenario: missing art file fails the build
-- **WHEN** the hostname map references an art name (e.g. `"laurel"`)
+- **WHEN** the hostname map references an art name (e.g. `"hera"`)
   whose `art/<name>.txt` file is missing from the repo
 - **THEN** `nh os build` fails with a `path does not exist` error citing
   the missing `.txt`
@@ -180,7 +168,7 @@ the module SHALL shell out to `nix-store -q --requisites
 included only on Darwin.
 
 #### Scenario: Darwin renders brew-style package counts
-- **WHEN** the user runs `fastfetch` on `lv426` or `demiurge`
+- **WHEN** the user runs `fastfetch` on `lv426`
 - **THEN** the `Packages` line shows three integer counts followed by
   ` (brew), N (brew-cask), N (mas)`
 - **AND** none of the counts are an error message or empty string

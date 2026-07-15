@@ -31,9 +31,9 @@
 
     ```
     # good — severity, exact location, why it matters, concrete fix
-    CRITICAL `modules/darwin/system.nix:88` — networking.hostName is set
-    unconditionally; on the work host MDM owns the name, so this fights the MDM
-    rename every activation. Gate it on `!isWork`.
+    CRITICAL `modules/darwin/system.nix:58` — `environment.variables.PATH` uses
+    `mkForce`, so PATH entries added by other modules are silently dropped;
+    append with `lib.mkAfter` instead of forcing.
 
     # bad — vague, no location, no actionable fix
     WARNING: some of the networking config looks a bit risky, might want to
