@@ -37,12 +37,6 @@ in
       description = "Browser automation and end-to-end testing via Playwright";
     };
 
-    aws-knowledge-mcp-server = {
-      type = "http";
-      url = "https://knowledge-mcp.global.api.aws";
-      description = "AWS documentation and service knowledge";
-    };
-
     # Shared Markdown-backed memory store accessible by every harness.
     # Backing directory defaults to ~/Documents/basic-memory/; all agents
     # read and write the same files, giving cross-harness persistent context.

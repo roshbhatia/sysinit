@@ -47,28 +47,13 @@ let
   };
 
   subagents = kit.llmLib.instructions.subagentDefs;
-
-  ccCfg = config.sysinit.llm.claudeCode;
-  # Resolve relative paths against $HOME so the upstream module always
-  # receives an absolute string (its `path` type rejects relatives).
-  resolvePath = p: if lib.hasPrefix "/" p then p else "${config.home.homeDirectory}/${p}";
 in
 {
   programs.claude-code = {
     enable = true;
     enableMcpIntegration = true;
 
-    marketplaces = lib.mapAttrs (_: resolvePath) ccCfg.marketplaces;
-    plugins = map resolvePath ccCfg.plugins;
-
     settings = {
-      # Persistently enable marketplace plugins (e.g. `laurel-eng@Laurel`)
-      # without `--plugin-dir`. Gated on non-empty so personal hosts emit no
-      # `enabledPlugins` key at all (byte-identical settings.json).
-      enabledPlugins = lib.mkIf (ccCfg.enabledPlugins != [ ]) (
-        lib.genAttrs ccCfg.enabledPlugins (_: true)
-      );
-
       env = {
         CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS = "1";
       };
