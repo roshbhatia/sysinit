@@ -103,27 +103,41 @@
   # arm64 deployment-target flag (cc-wrapper handles it) and inject -fuse-ld=
   # pointing at ld64.lld (LLVM's Mach-O linker) so clang bypasses cctools ld
   # entirely at link time.
+  # Darwin-only: ld64.lld is the Mach-O linker and does not exist on Linux.
   (final: prev: {
-    sketchybar = prev.sketchybar.overrideAttrs (old: {
-      nativeBuildInputs = (old.nativeBuildInputs or [ ]) ++ [ final.llvmPackages_latest.lld ];
-      postPatch = ''
-        sed -i '/CFLAGS+=-target arm64-apple-macos11/d' makefile
-        sed -i 's|^CFLAGS   = |CFLAGS   = -fuse-ld=${final.llvmPackages_latest.lld}/bin/ld64.lld |' makefile
-      '';
-    });
+    sketchybar =
+      if prev.stdenv.isDarwin then
+        prev.sketchybar.overrideAttrs (old: {
+          nativeBuildInputs = (old.nativeBuildInputs or [ ]) ++ [ final.llvmPackages_latest.lld ];
+          postPatch = ''
+            sed -i '/CFLAGS+=-target arm64-apple-macos11/d' makefile
+            sed -i 's|^CFLAGS   = |CFLAGS   = -fuse-ld=${final.llvmPackages_latest.lld}/bin/ld64.lld |' makefile
+          '';
+        })
+      else
+        prev.sketchybar;
   })
   # Same cctools crash for Rust packages: cargo invokes cc (clang-wrapper) as
   # the linker driver, which calls cctools ld. Pass -fuse-ld= via RUSTFLAGS so
   # clang routes through ld64.lld (LLVM's Mach-O linker) at the link step.
+  # Darwin-only: ld64.lld is the Mach-O linker; gcc on Linux rejects the flag.
   (final: prev: {
-    cargo-watch = prev.cargo-watch.overrideAttrs (old: {
-      nativeBuildInputs = (old.nativeBuildInputs or [ ]) ++ [ final.llvmPackages_latest.lld ];
-      RUSTFLAGS = "${old.RUSTFLAGS or ""} -C link-arg=-fuse-ld=${final.llvmPackages_latest.lld}/bin/ld64.lld";
-    });
-    mise = prev.mise.overrideAttrs (old: {
-      nativeBuildInputs = (old.nativeBuildInputs or [ ]) ++ [ final.llvmPackages_latest.lld ];
-      RUSTFLAGS = "${old.RUSTFLAGS or ""} -C link-arg=-fuse-ld=${final.llvmPackages_latest.lld}/bin/ld64.lld";
-    });
+    cargo-watch =
+      if prev.stdenv.isDarwin then
+        prev.cargo-watch.overrideAttrs (old: {
+          nativeBuildInputs = (old.nativeBuildInputs or [ ]) ++ [ final.llvmPackages_latest.lld ];
+          RUSTFLAGS = "${old.RUSTFLAGS or ""} -C link-arg=-fuse-ld=${final.llvmPackages_latest.lld}/bin/ld64.lld";
+        })
+      else
+        prev.cargo-watch;
+    mise =
+      if prev.stdenv.isDarwin then
+        prev.mise.overrideAttrs (old: {
+          nativeBuildInputs = (old.nativeBuildInputs or [ ]) ++ [ final.llvmPackages_latest.lld ];
+          RUSTFLAGS = "${old.RUSTFLAGS or ""} -C link-arg=-fuse-ld=${final.llvmPackages_latest.lld}/bin/ld64.lld";
+        })
+      else
+        prev.mise;
   })
   # Same cctools crash: lima's CGO code links against Virtualization.framework on
   # Darwin 25.x (macOS 26 Tahoe). Use the official GitHub binary release until
