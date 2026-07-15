@@ -35,16 +35,6 @@ let
     base0F = "B4939F"; # deprecated / embedded — dusty rose (ansi 1 red) — 5.10:1
   };
 
-  work = {
-    username = "roshan";
-    values = {
-      inherit git;
-      theme = {
-        base16Scheme = "catppuccin-macchiato";
-      };
-    };
-  };
-
   darwinHost = identity: extraValues: {
     system = "aarch64-darwin";
     platform = "darwin";
@@ -80,35 +70,4 @@ in
       };
     };
   };
-
-  # Hostname is MDM-managed on this machine; the attr name must match the
-  # enforced hostname so `nh darwin switch` resolves the config by hostname.
-  Roshan-Bhatia-MacBook-Pro =
-    (darwinHost work {
-      darwin = {
-        homebrew.additionalPackages = {
-          taps = [
-            "auth0/auth0-cli"
-            "bastionzero/tap"
-            "pinginc/lrl"
-            "signadot/tap"
-            "spacelift-io/spacelift"
-          ];
-          brews = [
-            "auth0"
-            "awscli"
-            "bastionzero/tap/zli"
-            "signadot/tap/signadot-cli"
-          ];
-          casks = [
-            "sdm"
-            "spacelift-io/spacelift/spacectl"
-            "pinginc/lrl/lrl"
-          ];
-        };
-      };
-    })
-    // {
-      work = true;
-    };
 }

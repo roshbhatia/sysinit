@@ -37,7 +37,6 @@ let
 
   artByHost = {
     lv426 = "rosh";
-    Roshan-Bhatia-MacBook-Pro = "laurel";
     arrakis = "nix";
     nostromo = "nix";
   };
@@ -50,7 +49,6 @@ let
     mgs = ./fastfetch/art/mgs.txt;
     vagabond = ./fastfetch/art/vagabond.txt;
     varre = ./fastfetch/art/varre.txt;
-    laurel = ./fastfetch/art/laurel.txt;
   };
 
   hardwareModules = [
