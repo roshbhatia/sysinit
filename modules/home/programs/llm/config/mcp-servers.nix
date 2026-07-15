@@ -43,16 +43,6 @@ in
       description = "AWS documentation and service knowledge";
     };
 
-    # Codex CLI running in MCP server mode (v0.117+). Lets Claude Code and
-    # other MCP clients delegate tasks to Codex as a sub-agent tool call.
-    # Codex will also see this entry in its own MCP config; that's intentional —
-    # it enables Codex-spawns-Codex parallelism.
-    codex-mcp = {
-      command = "codex";
-      args = [ "mcp-server" ];
-      description = "Codex CLI as MCP server — delegate coding tasks to Codex from any agent";
-    };
-
     # Shared Markdown-backed memory store accessible by every harness.
     # Backing directory defaults to ~/Documents/basic-memory/; all agents
     # read and write the same files, giving cross-harness persistent context.

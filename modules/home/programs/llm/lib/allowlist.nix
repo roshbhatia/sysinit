@@ -291,8 +291,6 @@ let
     "mcp__aws-knowledge-mcp-server__*"
     # cross-harness memory store
     "mcp__basic-memory__*"
-    # Codex-as-subagent — intentional delegation, user-initiated
-    "mcp__codex-mcp__*"
     # Playwright browser automation — user has opted in
     "mcp__playwright__*"
 
@@ -300,7 +298,6 @@ let
     "mcp__plugin_claude-code-home-manager_ast-grep__*"
     "mcp__plugin_claude-code-home-manager_aws-knowledge-mcp-server__*"
     "mcp__plugin_claude-code-home-manager_basic-memory__*"
-    "mcp__plugin_claude-code-home-manager_codex-mcp__*"
     "mcp__plugin_claude-code-home-manager_playwright__*"
 
     # claude.ai marketplace integrations — one entry per connected server.
