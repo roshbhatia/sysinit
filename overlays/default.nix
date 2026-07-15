@@ -82,13 +82,20 @@
   # 1Password sometimes re-uploads the aarch64 zip with new bytes
   # without bumping the version, so nixpkgs' pinned hash no longer matches.
   # Override src with the current upstream hash until nixpkgs catches up.
+  # Guard to Darwin: the Linux derivation uses a tar.gz and must not receive
+  # the macOS zip URL (Linux stdenv cannot unpack .zip without unzip in
+  # nativeBuildInputs, and the URL itself is wrong for Linux).
   (_final: prev: {
-    _1password-gui = prev._1password-gui.overrideAttrs (old: {
-      src = prev.fetchurl {
-        url = "https://downloads.1password.com/mac/1Password-${old.version}-aarch64.zip";
-        hash = "sha256-bZD8LCLTGXRpNF/FqoSHvI69pquAcQGa1mdagWypgDU=";
-      };
-    });
+    _1password-gui =
+      if prev.stdenv.isDarwin then
+        prev._1password-gui.overrideAttrs (old: {
+          src = prev.fetchurl {
+            url = "https://downloads.1password.com/mac/1Password-${old.version}-aarch64.zip";
+            hash = "sha256-bZD8LCLTGXRpNF/FqoSHvI69pquAcQGa1mdagWypgDU=";
+          };
+        })
+      else
+        prev._1password-gui;
   })
   # cctools-binutils-darwin-1010.6 ld crashes with Trace/BPT trap: 5 (SIGTRAP,
   # exit 133) on Darwin 25.x (macOS 26 Tahoe). The crash is intrinsic to the
