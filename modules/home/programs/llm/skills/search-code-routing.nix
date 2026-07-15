@@ -50,6 +50,22 @@
   `ast-grep`) for ad-hoc text output, and the **ast-grep MCP server** when you want
   structured tool output instead of parsing CLI text.
 
+  ### Authoring a non-trivial pattern or rule — iterate, don't guess
+
+  A pattern that misses is worse than no pattern: it reads as "no matches" when the
+  syntax was just wrong. For anything past a one-liner, drive the ast-grep MCP loop
+  instead of hand-writing YAML blind:
+
+  1. **Dump the AST** of a representative snippet (`dump_syntax_tree`) so you match
+     real node kinds, not guessed ones.
+  2. **Decompose** the query into the smallest sub-patterns that must hold.
+  3. **Compose** them with relational (`inside`, `has`, `follows`) / composite
+     (`all`, `any`, `not`) rules rather than one over-specified pattern.
+  4. **Test** each candidate against a known-good and known-bad snippet
+     (`test_match_code_rule`) before running it across the tree.
+  5. **Revise** off the AST output when a match is empty or over-broad — a miss is a
+     wrong node kind or a missing metavariable, not "the code isn't there."
+
   ## 3. gh search — repo-wide / org-wide / not-cloned
 
   When the answer is not in the working tree. Searches GitHub's index, so it reaches
