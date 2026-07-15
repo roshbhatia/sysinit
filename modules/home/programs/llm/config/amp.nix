@@ -14,12 +14,17 @@ let
     "amp.git.commit.ampThread.enabled" = false;
     "amp.git.commit.coauthor.enabled" = false;
     "amp.mcpServers" = llmLib.mcp.formatForAmp kit.mcpServers.servers;
-    "amp.permissions" = [
-      {
-        tool = "*";
-        action = "allow";
-      }
-    ];
+    "amp.permissions" =
+      builtins.map (tool: {
+        inherit tool;
+        action = "ask";
+      }) llmLib.allowlist.slackSendTools
+      ++ [
+        {
+          tool = "*";
+          action = "allow";
+        }
+      ];
     "amp.updates.mode" = "disabled";
   };
 in

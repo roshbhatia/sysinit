@@ -277,6 +277,15 @@ let
 
   formatForOpencode = formatForOpencodeWithAction "allow";
 
+  # Slack MCP tools that send messages — require explicit approval in every
+  # harness that supports a per-tool ask/confirm mechanism.  Shared here so
+  # all harness configs reference the same list instead of duplicating strings.
+  slackSendTools = [
+    "mcp__claude_ai_Slack__slack_send_message"
+    "mcp__claude_ai_Slack__slack_send_message_draft"
+    "mcp__claude_ai_Slack__slack_schedule_message"
+  ];
+
   # MCP tool patterns for Claude Code's permissions.allow list.  Claude Code
   # accepts bare "mcp__<server>__<tool>" strings (no Bash() wrapper) alongside
   # the Bash()-wrapped entries.  Glob is valid only in the tool position after a
@@ -301,6 +310,7 @@ in
     tierA
     tierB
     tierMcp
+    slackSendTools
     formatForClaude
     formatForCursor
     formatForAmp

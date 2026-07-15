@@ -61,11 +61,7 @@ in
       dangerouslySkipPermissions = true;
 
       permissions = {
-        ask = [
-          "mcp__claude_ai_Slack__slack_send_message"
-          "mcp__claude_ai_Slack__slack_send_message_draft"
-          "mcp__claude_ai_Slack__slack_schedule_message"
-        ];
+        ask = llmLib.allowlist.slackSendTools;
         allow =
           llmLib.allowlist.formatForClaude llmLib.allowlist.tierA
           ++ llmLib.allowlist.formatForClaude llmLib.allowlist.tierB
