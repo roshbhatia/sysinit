@@ -178,6 +178,12 @@ in
               app_id = "^nemo$";
             };
           }
+          {
+            command = "fullscreen enable";
+            criteria = {
+              app_id = "^gamescope$";
+            };
+          }
         ];
 
         keybindings = lib.mkForce {
