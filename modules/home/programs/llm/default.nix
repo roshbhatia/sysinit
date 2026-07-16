@@ -13,6 +13,16 @@ let
     name: path: lib.nameValuePair ".claude/skills/${name}/SKILL.md" { source = path; }
   ) skills.allSkills;
 
+  # Helper scripts shipped beside a skill's SKILL.md; executable so the skill
+  # can invoke them by path.
+  skillScriptFiles = lib.mapAttrs' (
+    relPath: src:
+    lib.nameValuePair ".claude/skills/${relPath}" {
+      source = src;
+      executable = true;
+    }
+  ) skills.skillExtraFiles;
+
   # Skills shipped by specutil itself; pulled straight from the flake source
   # so they stay in sync whenever the lock is bumped (nix flake update specutil).
   specutilSkillFiles = lib.mapAttrs' (
@@ -58,7 +68,7 @@ in
     ./config/pi.nix
   ];
 
-  home.file = skillFiles // specutilSkillFiles // notify.iconFiles;
+  home.file = skillFiles // skillScriptFiles // specutilSkillFiles // notify.iconFiles;
 
   home.packages = [
     notify.script

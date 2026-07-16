@@ -63,9 +63,9 @@
   `head`. `kind` only selects grouping:
 
   - **`repo`** — `cwd` was a single git worktree; `repos[]` has one entry.
-  - **`seshy-session`** — `cwd` was under a [[feature-based-session-manager]]
-    session spanning many repos. Identity is `session_name`; `repos[]` holds one
-    entry per nested git child.
+  - **`seshy-session`** — `cwd` was under a seshy session (see the
+    `feature-based-session-manager` skill) spanning many repos. Identity is
+    `session_name`; `repos[]` holds one entry per nested git child.
   - **`dir`** — neither; `repos[]` is empty (survived only because it had a `first_prompt`).
 
   **Session signal** (v2): `duration_min`, `user_turns`, and `model` size the
@@ -78,47 +78,48 @@
   remainder; `url` is the branch-tree link. The raw diff is **not** stored — read
   the transcript or follow `url` when you need it.
 
-  **Normalize older lines before composing** — the log spans schema generations:
-
-  - **v2** — has `"v": 2` and the fields above. Use directly.
-  - **v1** — no `v`, but has `repos[]` with a scalar integer `commits` and only
-    `diffstat` (no `commits[]`/`files[]`/`insertions`/`deletions`/`base`). Read
-    `commits` as `commits_ahead`; treat the rich arrays as absent.
-  - **v0** — no `v` and no `repos[]`; carries scalar `repo`/`branch`/`head`.
-    Synthesize a single-element `repos[]` from them and treat missing `kind` as
-    `repo`.
+  The log spans schema generations (v0/v1/v2), but the query script below
+  normalizes every line to the v2 shape — older lines simply lack the rich
+  arrays (`commits[]`/`files[]`/`insertions`/`deletions`/`base`). Never read or
+  write `worklog.jsonl` with hand-rolled `jq`; all I/O goes through the script.
 
   The transcript is the source of truth; the log line is just the index.
 
   ## Procedure
 
+  All worklog I/O runs through the deterministic helper shipped with this skill:
+
+  ```bash
+  Q=~/.claude/skills/worklog/scripts/worklog-query.sh
+  ```
+
   ### 1. Read and filter
 
   ```bash
-  jq -c 'select(.ts >= "2026-06-09")' ~/Documents/worklog.jsonl
+  bash "$Q" list --since 2026-06-09 [--until TS] [--repo NAME]     # normalized entries, newest first
+  bash "$Q" pending --since 2026-06-09                             # the subset still needing a summary
   ```
 
-  Parse defensively — skip malformed lines. Dedup by `session_id`, keeping the
-  latest `ts`. If the window is empty, say so and stop.
+  The script skips malformed lines, dedups by `session_id` (latest `ts` wins),
+  and normalizes old schema generations. If the window is empty, say so and stop.
 
   ### 2. Drain — generate summaries, cache them back
 
-  For each selected entry where `summary` is null, produce a 1–3 sentence "what was
-  done" plus concrete artifacts (files, commits, tickets). Read `transcript_path`
-  (JSONL) — prefer it over `first_prompt`. If the path is empty or missing, recover
-  by `session_id` via `~/.claude/projects/*/<session_id>.jsonl` (Glob) before
-  degrading. Only when no transcript exists anywhere, synthesize from the line
-  itself — `first_prompt`/`last_prompt` for intent, `commits[]`/`files[]` (or
-  `diffstat` on older lines) for the change — and prefix the summary with `~`. For
-  many entries, fan out one subagent per session via the Agent tool.
+  For each `pending` entry, produce a 1–3 sentence "what was done" plus concrete
+  artifacts (files, commits, tickets). Read `transcript_path` (JSONL) — prefer it
+  over `first_prompt`. If the path is empty or missing, recover by `session_id`
+  via `~/.claude/projects/*/<session_id>.jsonl` (Glob) before degrading. Only
+  when no transcript exists anywhere, synthesize from the line itself —
+  `first_prompt`/`last_prompt` for intent, `commits[]`/`files[]` (or `diffstat`
+  on older lines) for the change — and prefix the summary with `~`. For many
+  entries, fan out one subagent per session via the Agent tool.
 
-  Write summaries back so re-runs are cheap. **Rewrite atomically — never edit lines
-  in place:**
+  Cache summaries back through the script — it fills only null summaries and
+  rewrites via temp-file + atomic `mv`:
 
   ```bash
-  # good — merge into a temp file, then atomic swap (a swap-window session loses only its own append)
-  jq -c '...apply summaries by session_id...' ~/Documents/worklog.jsonl \
-    > ~/Documents/worklog.jsonl.tmp && mv ~/Documents/worklog.jsonl.tmp ~/Documents/worklog.jsonl
+  # good — write {"<session_id>": "<summary>", ...} to a temp file, then:
+  bash "$Q" apply /tmp/summaries.json
 
   # bad — in-place edit can corrupt the file or drop a concurrent append
   sed -i 's/"summary":null/"summary":"..."/' ~/Documents/worklog.jsonl
@@ -167,7 +168,8 @@
 
   ## Guardrails
 
-  - Read-mostly. The only write is caching summaries back via temp-file `mv`.
+  - Read-mostly. The only write is caching summaries back via `worklog-query.sh apply`.
+  - Never read or write `worklog.jsonl` directly — the query script is the only I/O path.
   - Never delete or reorder existing log entries.
   - Never block on a missing transcript or absent MCP — degrade and note it.
   - Never fabricate accomplishments, commits, or ticket links.

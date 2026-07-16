@@ -67,6 +67,7 @@ let
         conventions = ''
           ## Conventions
 
+          - Normative keywords (MUST/SHOULD/MAY) here and in skills follow RFC 2119 (https://datatracker.ietf.org/doc/html/rfc2119); "never"/"always" rules are MUST-level
           - Conventional commits, title-only, no body
           - One concern per commit; no formatting-only mixed with behavioral changes
           - Read context files (`AGENTS.md`, `openspec/`, `.sysinit/lessons.md`) before authoring

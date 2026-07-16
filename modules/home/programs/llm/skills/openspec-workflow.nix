@@ -35,8 +35,9 @@
   openspec instructions <artifact> --change "<name>" --json
   openspec validate "<name>"
   openspec schema validate rosh-spec-driven
-  specutil graph --as mermaid
-  specutil render --as rfc|design|tickets --change <name>
-  specutil plan --target linear|notion --change <name>
   ```
+
+  For DAG visualization, rendering a change as RFC/design/tickets, and
+  Linear/Notion sync planning, load the `specutil` skill — its commands are not
+  restated here.
 ''

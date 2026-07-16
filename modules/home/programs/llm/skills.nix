@@ -47,7 +47,19 @@ let
     "model"
     "effort"
     "disable-model-invocation"
+    "files"
   ];
+
+  # Injected once per generated SKILL.md so every skill carries the RFC 2119
+  # reference without each source file restating the boilerplate.
+  normativePreamble = ''
+    > The key words MUST, MUST NOT, REQUIRED, SHALL, SHALL NOT, SHOULD, SHOULD
+    > NOT, RECOMMENDED, MAY, and OPTIONAL in this skill are to be interpreted as
+    > described in [RFC 2119](https://datatracker.ietf.org/doc/html/rfc2119).
+    > Rules phrased as "never" are MUST NOT; "always" are MUST; "prefer" /
+    > "default to" are SHOULD.
+
+  '';
 
   validateRegistryKeys =
     name: skill:
@@ -172,7 +184,7 @@ let
         _bk
         _ak
         _requiredCheck
-      ] (frontmatter + skill.content);
+      ] (frontmatter + normativePreamble + skill.content);
     in
     forced;
 
@@ -184,12 +196,20 @@ let
 
   allSkills = localSkills;
 
+  # Extra files a skill ships beside its SKILL.md (deterministic helper
+  # scripts), flattened to "<skill>/<relpath>" -> source for home.file mapping.
+  skillExtraFiles = lib.foldlAttrs (
+    acc: name: skill:
+    acc // (lib.mapAttrs' (rel: src: lib.nameValuePair "${name}/${rel}" src) (skill.files or { }))
+  ) { } registry;
+
   installSkillsTo = _basePath: builtins.mapAttrs (_name: path: { source = path; }) allSkills;
 in
 {
   inherit
     allSkills
     localSkillDescriptions
+    skillExtraFiles
     installSkillsTo
     ;
 }

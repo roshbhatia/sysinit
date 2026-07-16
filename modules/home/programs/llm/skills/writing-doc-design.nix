@@ -1,3 +1,6 @@
+let
+  common = import ./writing-doc-common.nix;
+in
 ''
   # Writing a design doc
 
@@ -20,25 +23,8 @@
   Where does it land?                               -> see Step 0
   ```
 
-  ## Step 0 — pick the destination
-
-  Decide where the doc lands before writing a line:
-
-  ```
-  if the Notion MCP is connected AND usable AND this is a work task
-    -> create the page in the private/personal portion of the Notion workspace
-  elif the project is roshbhatia / ross-corp, OR Notion is unavailable
-    -> write a markdown file under .sysinit/  (gitignored scratch space)
-  ```
-
-  Name local files `.sysinit/design-<slug>.md`. State the destination to the user
-  before creating anything outward-facing (a Notion page is outward-facing).
-
-  ## Voice — good vs bad
-
-  This skill restates the voice rules it depends on so it works standalone. For any
-  other prose, the `writing-tone` skill is the fuller reference.
-
+  ${common.destination "design"}
+  ${common.voice}
   ```
   # good — leads with the finding, claim paired with how it is validated
   The cache cuts cold-start p99 from 1.8s to 320ms, confirmed in the load test (k=500).
@@ -46,22 +32,6 @@
   # bad — throat-clearing, unvalidated marketing claim
   This document describes a robust, seamless caching layer that should improve performance.
   ```
-
-  - **Open with scope.** Name in- and out-of-scope items explicitly — silent
-    omission reads as oversight, an explicit out-list reads as a decision (the
-    Goals / Non-Goals sections).
-  - **Pair every claim with how it is validated, and its inverse where one exists.**
-    Acceptance criteria are contracts: a condition plus the observable that proves
-    it — "Done when <observable>", not "should work."
-  - **Anticipate the reader and pre-answer them.** Name the likely objection before
-    the reviewer raises it. This shortens the review round.
-  - **Decisions are contracts.** Frame each ask as `Owner:` / `By:` / `Done when:`,
-    and close with a one-line restatement of what must happen.
-  - **Prose mechanics.** Terse, declarative. Cut hedges. Backtick every identifier,
-    flag, config key. Cite the count, not "many." Lead with the finding.
-  - **Avoid:** aphorisms, named rhetorical devices ("the irony is", "the
-    asymmetry:"), em-dashes for drama, marketing adjectives ("robust", "seamless"),
-    throat-clearing ("This document describes..."), emojis.
 
   ## The skeleton
 

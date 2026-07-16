@@ -1,3 +1,6 @@
+let
+  common = import ./writing-doc-common.nix;
+in
 ''
   # Writing a request-for-comments (RFC)
 
@@ -22,22 +25,8 @@
   The two share a core (Summary, Motivation, Drawbacks, alternatives). The RFC adds
   a teaching pass, prior art, open questions, and future possibilities.
 
-  ## Step 0 — pick the destination
-
-  ```
-  if the Notion MCP is connected AND usable AND this is a work task
-    -> create the page in the private/personal portion of the Notion workspace
-  elif the project is roshbhatia / ross-corp, OR Notion is unavailable
-    -> write a markdown file under .sysinit/  (gitignored scratch space)
-  ```
-
-  Name local files `.sysinit/rfc-<slug>.md`. State the destination to the user
-  before creating anything outward-facing.
-
-  ## Voice — good vs bad
-
-  Restated so the skill stands alone; `writing-tone` is the fuller reference.
-
+  ${common.destination "rfc"}
+  ${common.voice}
   ```
   # good — teaches the idea concretely, frames the open question as a decision contract
   A user types `/share` and the doc uploads; the link is copied to the clipboard.
@@ -47,18 +36,9 @@
   We could maybe add some kind of sharing, and there might be some auth concerns to think about.
   ```
 
-  - **Open with scope.** What this proposes and, explicitly, what it does not (the
-    Future-possibilities section carries the deliberate out-list).
-  - **Pair every claim with how it is validated, and its inverse.** Especially in
-    Reference-level explanation, where the design has to actually hold up.
-  - **Anticipate the reader and pre-answer them** in Drawbacks and Unresolved
-    questions, rather than waiting for review.
-  - **Decisions are contracts.** Frame each ask as `Owner:` / `By:` / `Done when:`
-    in Unresolved questions.
-  - **Prose mechanics.** Terse, declarative. Backtick identifiers. Cite numbers.
-    Lead with the finding. Cut hedges and preamble.
-  - **Avoid:** aphorisms, named rhetorical devices, em-dashes for drama, marketing
-    adjectives, throat-clearing, emojis.
+  RFC-specific bindings: the out-list lives in Future possibilities; validation
+  pairing matters most in Reference-level explanation; pre-answer the reader in
+  Drawbacks and Unresolved questions; decision contracts go in Unresolved questions.
 
   ## The skeleton
 

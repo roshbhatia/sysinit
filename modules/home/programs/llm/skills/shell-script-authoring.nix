@@ -11,7 +11,7 @@
   ```
   New script under hack/?       -> start from the boilerplate below, chmod +x, wire into Taskfile
   Editing an existing script?   -> apply rules only to lines you touch; keep its existing shape
-  Need logging?                 -> source the logging library; do not echo (see Logging)
+  Need output?                  -> diagnostics to stderr, data to stdout (see Output streams)
   Before reporting done?        -> run the validate loop until it passes (see Validate)
   ```
 
@@ -60,18 +60,19 @@
   Declare and assign on separate lines when the value comes from a command — a
   combined `local x="$(cmd)"` swallows the command's exit status.
 
-  ## Log through the library, not `echo` — echo bypasses level control and formatting
+  ## Output streams — diagnostics to stderr, data to stdout
 
   ```bash
   # good
-  source "{{.LOGLIB_PATH}}"
-  log_info "starting operation"
-  log_warn "unexpected state, continuing"
-  log_error "operation failed"
+  echo "ERROR: ''${config} not found" >&2   # errors and progress go to stderr
+  echo "''${resolved_version}"              # stdout carries only the script's output
 
   # bad
-  echo "starting operation"        # no level, no consistent format, no stderr routing
+  echo "starting operation"                # progress on stdout pollutes $(...) captures downstream
   ```
+
+  A script whose stdout is consumed (`$(...)`, pipes, Taskfile deps) must keep
+  stdout pure data; prefix errors with `ERROR:` so failures grep out of CI logs.
 
   ## Clean up with a trap — manual cleanup is skipped on error exit
 
