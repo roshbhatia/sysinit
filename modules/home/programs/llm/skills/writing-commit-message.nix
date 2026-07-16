@@ -74,16 +74,22 @@
   lose meaning. Domain abbreviations (sqlite, MCP, OAuth, npm, TUI, CLI) need no
   expansion. The `!` after the type marks a breaking change (`feat(auth)!:`).
 
-  ## Historical variant: ticket-id prefix inside the subject
+  ## Ticket-id prefix inside the subject (standard when a ticket applies)
 
-  In the grounding corpus, 83% of subjects carried a tracker ticket ID:
+  This is the **default** whenever a tracker ticket is in scope — it mirrors the
+  global PR-title convention `<type>(<scope>): <TICKET>: <description>`, so a
+  squash-merge title stays consistent. In the grounding corpus, 83% of subjects
+  carried a tracker ticket ID:
 
   ```
-  <type>: <PROJECT-NNN>: <subject>      # PROJECT-NNN matches [A-Z]{2,}[0-9]*-[0-9]+
+  <type>(<scope>): <PROJECT-NNN>: <subject>   # PROJECT-NNN matches [A-Z]{2,}[0-9]*-[0-9]+
   ```
 
+  The ticket goes **after the scope, before the subject** — never as a trailing
+  `(TICKET)` suffix. Omit it only for genuinely ad-hoc chores with no ticket.
+
   ```
-  # good — only when a real ticket is in active scope
+  # good — the standard form when a ticket is in scope
   fix: OWL-1381: make healthcheck failure threshold configurable
   feat(auth)!: OWL-1326: use new permissions token key
   TO-291: fixup monitor type for activity/batch alert and elevated 5xx

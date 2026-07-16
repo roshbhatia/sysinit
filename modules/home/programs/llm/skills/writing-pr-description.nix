@@ -18,6 +18,16 @@
   Creating the PR?                          -> gh pr create --web; never auto-submit
   ```
 
+  ## PR title (global convention)
+
+  Every PR title is `<type>(<scope>): <TICKET>: <description>`:
+
+  - `<type>(<scope>)` — conventional-commit prefix (`feat(repos)`, `fix(prd)`, `chore(ci)`).
+  - `<TICKET>` — the Linear ticket, placed **after the scope, before the description** (`INF-2291`). Required for any ticketed work; multiple tickets join with `/` (`INF-2291/INF-2493`). Only genuinely ad-hoc chores with no ticket may omit it.
+  - `<description>` — terse, imperative, no trailing period.
+
+  Example: `feat(repos): INF-2291: fra fan-out wave 1 — deps floor`. The ticket lives in this middle slot — never as a trailing `(TICKET)` suffix or an ` — TICKET` tail.
+
   ## First, read the repo's contribution docs
 
   Repo-specific rules override these defaults. Sweep before drafting:
