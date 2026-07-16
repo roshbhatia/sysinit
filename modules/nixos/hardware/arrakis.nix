@@ -1,5 +1,5 @@
 # Hardware configuration for arrakis (physical x86_64 desktop)
-{ config, modulesPath, pkgs, ... }:
+{ config, modulesPath, ... }:
 
 {
   imports = [ (modulesPath + "/installer/scan/not-detected.nix") ];
@@ -65,7 +65,7 @@
   nixpkgs.overlays = [
     (final: prev: {
       sunshine = prev.sunshine.overrideAttrs (old: {
-        nativeBuildInputs = (old.nativeBuildInputs or [ ]) ++ [ pkgs.patchelf ];
+        nativeBuildInputs = (old.nativeBuildInputs or [ ]) ++ [ prev.patchelf ];
         postFixup =
           (old.postFixup or "")
           + ''
