@@ -2,6 +2,7 @@
 {
   pkgs,
   inputs,
+  config,
   ...
 }:
 
@@ -35,6 +36,10 @@ let
   '';
 in
 {
+  hardware.uinput.enable = true;
+
+  users.users.${config.sysinit.user.username}.extraGroups = [ "uinput" "input" ];
+
   services = {
     xserver.enable = false;
     dbus.enable = true;
