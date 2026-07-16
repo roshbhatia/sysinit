@@ -141,6 +141,20 @@
         # cache.nixos.org; repo overlays perturb prev.mise's deps and force an
         # uncached source build of the same version.
         (import inputs.nixpkgs { inherit (final.stdenv.hostPlatform) system; }).mise;
+    # electron's ffmpeg pulls the gaming-patched SDL, perturbing its closure into
+    # a multi-hour chromium source build (obsidian depends on it). electron does
+    # not need those patches, so pin it to pristine nixpkgs on Linux for a cache
+    # hit; Darwin keeps prev to avoid an uncached darwin rebuild.
+    electron_41 =
+      if prev.stdenv.isDarwin then
+        prev.electron_41
+      else
+        (import inputs.nixpkgs { inherit (final.stdenv.hostPlatform) system; }).electron_41;
+    electron =
+      if prev.stdenv.isDarwin then
+        prev.electron
+      else
+        (import inputs.nixpkgs { inherit (final.stdenv.hostPlatform) system; }).electron;
   })
   # Same cctools crash: lima's CGO code links against Virtualization.framework on
   # Darwin 25.x (macOS 26 Tahoe). Use the official GitHub binary release until
