@@ -38,10 +38,6 @@ in
 {
   hardware.uinput.enable = true;
 
-  # NVENC requires libnvidia-encode + libcuda from the OpenGL driver path.
-  # Without capSysAdmin the binary isn't AT_SECURE, so LD_LIBRARY_PATH works.
-  systemd.user.services.sunshine.environment.LD_LIBRARY_PATH = "/run/opengl-driver/lib";
-
   users.users.${config.sysinit.user.username} = {
     extraGroups = [ "uinput" "input" ];
     linger = true;
@@ -51,11 +47,14 @@ in
     xserver.enable = false;
     dbus.enable = true;
 
-    # Sunshine remote desktop — capSysAdmin not needed with Wayland (wlgrab)
+    # capSysAdmin=true grants CAP_SYS_ADMIN for KMS framebuffer capture.
+    # AT_SECURE mode (triggered by file capabilities) blocks LD_LIBRARY_PATH,
+    # so NVENC libs are provided via RPATH patched in the nixpkgs overlay in
+    # arrakis.nix instead.
     sunshine = {
       enable = true;
       openFirewall = true;
-      capSysAdmin = false;
+      capSysAdmin = true;
     };
   };
 

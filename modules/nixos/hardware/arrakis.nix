@@ -1,5 +1,5 @@
 # Hardware configuration for arrakis (physical x86_64 desktop)
-{ config, modulesPath, ... }:
+{ config, modulesPath, pkgs, ... }:
 
 {
   imports = [ (modulesPath + "/installer/scan/not-detected.nix") ];
@@ -58,4 +58,20 @@
 
   # Hostname
   networking.hostName = "arrakis";
+
+  # Sunshine KMS capture needs CAP_SYS_ADMIN (capSysAdmin=true in sway.nix),
+  # which triggers AT_SECURE and blocks LD_LIBRARY_PATH. Patch /run/opengl-driver/lib
+  # into the RPATH so libnvidia-encode and libcuda are found at runtime.
+  nixpkgs.overlays = [
+    (final: prev: {
+      sunshine = prev.sunshine.overrideAttrs (old: {
+        nativeBuildInputs = (old.nativeBuildInputs or [ ]) ++ [ pkgs.patchelf ];
+        postFixup =
+          (old.postFixup or "")
+          + ''
+            patchelf --add-rpath /run/opengl-driver/lib $out/bin/sunshine
+          '';
+      });
+    })
+  ];
 }
