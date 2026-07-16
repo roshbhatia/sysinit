@@ -35,11 +35,15 @@
   (import ./nushell.nix { })
   # sdl3-3.4.10 testrwlock times out on i686-linux under emulation (used by lutris
   # via sdl2-compat); the rwlock test is a scheduler-sensitivity flake, not a
-  # correctness issue.  Overlays propagate into pkgsi686Linux so one entry is enough.
+  # correctness issue. Guard to i686: overriding sdl3 on x86_64 perturbs its hash
+  # and cascades an uncached rebuild through sdl2-compat -> ffmpeg -> the whole
+  # media stack (mpv, firefox, steam, lutris, qemu, ...).
   (_final: prev: {
-    sdl3 = prev.sdl3.overrideAttrs (_old: {
-      doCheck = false;
-    });
+    sdl3 =
+      if prev.stdenv.hostPlatform.system == "i686-linux" then
+        prev.sdl3.overrideAttrs (_old: { doCheck = false; })
+      else
+        prev.sdl3;
   })
   # openldap-2.6.13 test017-syncreplication-refresh is a timing-sensitive flake
   (_final: prev: {
