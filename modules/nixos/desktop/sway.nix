@@ -38,7 +38,10 @@ in
 {
   hardware.uinput.enable = true;
 
-  users.users.${config.sysinit.user.username}.extraGroups = [ "uinput" "input" ];
+  users.users.${config.sysinit.user.username} = {
+    extraGroups = [ "uinput" "input" ];
+    linger = true;
+  };
 
   services = {
     xserver.enable = false;
