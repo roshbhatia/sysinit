@@ -5,18 +5,16 @@
 [
   # Sunshine runs with CAP_SYS_ADMIN (capSysAdmin=true) for KMS framebuffer
   # capture on arrakis. CAP_SYS_ADMIN triggers AT_SECURE which blocks
-  # LD_LIBRARY_PATH, so patch /run/opengl-driver/lib into the RPATH so
-  # libnvidia-encode and libcuda resolve at runtime. No-op on other platforms.
+  # LD_LIBRARY_PATH, so /run/opengl-driver/lib must be in the RUNPATH for
+  # libnvidia-encode and libcuda to resolve at runtime. sunshine uses
+  # autoPatchelfHook, whose post-fixup pass rewrites the RUNPATH after
+  # postFixup runs — appendRunpaths is its knob for extra entries; a plain
+  # patchelf --add-rpath in postFixup gets silently clobbered.
   (_final: prev: {
     sunshine =
       if prev.stdenv.hostPlatform.isLinux then
         prev.sunshine.overrideAttrs (old: {
-          nativeBuildInputs = (old.nativeBuildInputs or [ ]) ++ [ prev.patchelf ];
-          postFixup =
-            (old.postFixup or "")
-            + ''
-              patchelf --add-rpath /run/opengl-driver/lib $out/bin/sunshine
-            '';
+          appendRunpaths = (old.appendRunpaths or [ ]) ++ [ "/run/opengl-driver/lib" ];
         })
       else
         prev.sunshine;
@@ -59,7 +57,9 @@
   (_final: prev: {
     sdl3 =
       if prev.stdenv.hostPlatform.system == "i686-linux" then
-        prev.sdl3.overrideAttrs (_old: { doCheck = false; })
+        prev.sdl3.overrideAttrs (_old: {
+          doCheck = false;
+        })
       else
         prev.sdl3;
   })
