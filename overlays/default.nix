@@ -3,6 +3,24 @@
   ...
 }:
 [
+  # Sunshine runs with CAP_SYS_ADMIN (capSysAdmin=true) for KMS framebuffer
+  # capture on arrakis. CAP_SYS_ADMIN triggers AT_SECURE which blocks
+  # LD_LIBRARY_PATH, so patch /run/opengl-driver/lib into the RPATH so
+  # libnvidia-encode and libcuda resolve at runtime. No-op on other platforms.
+  (_final: prev: {
+    sunshine =
+      if prev.stdenv.hostPlatform.isLinux then
+        prev.sunshine.overrideAttrs (old: {
+          nativeBuildInputs = (old.nativeBuildInputs or [ ]) ++ [ prev.patchelf ];
+          postFixup =
+            (old.postFixup or "")
+            + ''
+              patchelf --add-rpath /run/opengl-driver/lib $out/bin/sunshine
+            '';
+        })
+      else
+        prev.sunshine;
+  })
   (import ./nvfetcher-sources.nix { })
   (import ./inputs.nix { inherit inputs; })
   (import ./python311.nix { })
