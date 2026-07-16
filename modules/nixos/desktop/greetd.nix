@@ -37,11 +37,19 @@ let
 in
 {
   # Login manager (greetd + tuigreet)
+  # initial_session autologins rshnbhatia to sway on boot so Sunshine has a
+  # Wayland compositor to capture; tuigreet handles subsequent logins.
   services.greetd = {
     enable = true;
-    settings.default_session = {
-      command = "${pkgs.tuigreet}/bin/tuigreet --time --time-format '%R' --user-menu --remember --theme '${tuigreetTheme}' --cmd sway-wrapped";
-      user = "greeter";
+    settings = {
+      default_session = {
+        command = "${pkgs.tuigreet}/bin/tuigreet --time --time-format '%R' --user-menu --remember --theme '${tuigreetTheme}' --cmd sway-wrapped";
+        user = "greeter";
+      };
+      initial_session = {
+        command = "sway-wrapped";
+        user = config.sysinit.user.username;
+      };
     };
   };
 
