@@ -1439,7 +1439,7 @@ function M.setup(config)
           local sc = status_color(ws.status, colors)
           local ws_r = ribbon.new("ws")
           ws_r:append(nil, sc or colors.ws_live, tree_icons.session .. " ")
-          ws_r:append(nil, colors.name, ws.name, "Bold Underline")
+          ws_r:append(nil, colors.name, ws.name, { "Bold", "Single" })
           if ws.status then
             local ws_lbl = agent_state_labels[ws.status] or ""
             ws_r:append(nil, colors.chrome, "  ")
@@ -1698,10 +1698,56 @@ function M.setup(config)
       tree_cycle_key("[", -1),
     }
 
+    -- ^x close: resolve the highlighted row to its containing workspace and
+    -- close that live session (kill its panes through the CLI — the Lua mux
+    -- API exposes no workspace close). Any row kind works — ws/tab/pane recs
+    -- all carry .workspace — so close acts on the session the cursor is inside,
+    -- not only its header row. The seshy session on disk is untouched: a
+    -- closed session simply shows as dormant afterwards. The active workspace
+    -- is refused — closing the panes under the user's feet. Returns a notice
+    -- for the reopened picker's title: toasts need a code-signed binary on
+    -- macOS, so the title is the only reliable feedback channel.
+    local function close_session_target(win, id, by_id)
+      local rec = by_id[id]
+      if type(rec) ~= "table" or not rec.workspace then
+        return "not a session row"
+      end
+      local name = rec.workspace
+      if rec.dormant then
+        return "already dormant: " .. name
+      end
+      local ok_active, active = pcall(function()
+        return win:active_workspace()
+      end)
+      if ok_active and active == name then
+        return "cannot close active session"
+      end
+      local wezterm_bin = (wezterm.executable_dir or "") .. "/wezterm"
+      local ok, stdout = wezterm.run_child_process({ wezterm_bin, "cli", "list", "--format=json" })
+      if not ok then
+        wezterm.log_error("wezterm cli list failed; workspace " .. name .. " left open")
+        return "close failed: " .. name
+      end
+      local killed = 0
+      for _, p in ipairs(wezterm.json_parse(stdout) or {}) do
+        if p.workspace == name then
+          local kill_ok = wezterm.run_child_process({ wezterm_bin, "cli", "kill-pane", "--pane-id=" .. tostring(p.pane_id) })
+          if kill_ok then
+            killed = killed + 1
+          end
+        end
+      end
+      if killed == 0 then
+        return "no panes found: " .. name
+      end
+      return "closed " .. name
+    end
+
     -- Open the all-in-one session tree picker in fuzzy mode (type to filter,
     -- j/k/J/K to navigate). ^d toggles dormant view; Esc closes.
-    -- Recursive: ^d reopens in the toggled filter.
-    local function open_session_tree(win, pane, filter)
+    -- Recursive: ^d reopens in the toggled filter; `notice` is transient
+    -- feedback from the previous action, shown in the title.
+    local function open_session_tree(win, pane, filter, notice)
       filter = filter or "all"
       tree_state.current_filter = filter
       local tree = session_tree(sy_bin)
@@ -1721,9 +1767,12 @@ function M.setup(config)
       end
       local title
       if filter == "dormant" then
-        title = "Sessions  [dormant · ^d all · ^x delete · ^]/[ cycle]"
+        title = "Sessions  [dormant · ^d all · ^x close · ^]/[ cycle]"
       else
-        title = "Sessions  [^d dormant · ^x delete · ^]/[ cycle]"
+        title = "Sessions  [^d dormant · ^x close · ^]/[ cycle]"
+      end
+      if notice then
+        title = title .. "  · " .. notice
       end
       tree_state.choices = {}
       tree_state.cursor = 0
@@ -1739,7 +1788,7 @@ function M.setup(config)
           title = title,
           choices = choices,
           fuzzy = true,
-          fuzzy_description = "  j/k nav  J/K session  ^d dormant  ^x delete  ^]/[ cycle: ",
+          fuzzy_description = "  j/k nav  J/K session  ^d dormant  ^x close  ^]/[ cycle: ",
           action = wezterm.action_callback(function(inner_win, inner_pane, id, _label)
             -- Guard: pop the key table if it wasn't already cleared by a close/filter/cycle
             -- key handler — e.g. picker was dismissed by clicking outside the window.
@@ -1752,13 +1801,9 @@ function M.setup(config)
             local pf = tree_state.pending_filter
             tree_state.pending_filter = nil
             if pa == "delete" and id then
-              local kind = id:match("^([^:]+):")
-              local name = id:match("^[^:]+:(.+)$")
-              if kind == "ws" and name and name ~= "default" then
-                wezterm.run_child_process({ sy_bin, "delete", "--force", name })
-              end
-              wezterm.time.call_after(0.05, function()
-                open_session_tree(inner_win, inner_pane, tree_state.current_filter)
+              local notice = close_session_target(inner_win, id, by_id)
+              wezterm.time.call_after(0.15, function()
+                open_session_tree(inner_win, inner_pane, tree_state.current_filter, notice)
               end)
               return
             end
