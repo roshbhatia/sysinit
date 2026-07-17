@@ -20,7 +20,7 @@ let
   # Re-assert fullscreen after launch: the for_window rule fires at window
   # creation, but another window can steal fullscreen during slow startups.
   fullscreenLoop = ''
-    SOCK=$(ls /run/user/1000/sway-ipc.*.sock 2>/dev/null | head -1)
+    SOCK=$(find /run/user/1000 -maxdepth 1 -name "sway-ipc.*.sock" 2>/dev/null | head -1)
     if [ -n "$SOCK" ]; then
       for _ in 1 2 3; do
         sleep 5
@@ -38,7 +38,7 @@ let
       # Match DP-1 (arrakis 4K display) to the incoming stream resolution;
       # Sunshine exports SUNSHINE_CLIENT_WIDTH/HEIGHT to prep-cmds.
       # "restore" returns to native 4K.
-      SOCK=$(ls /run/user/1000/sway-ipc.*.sock 2>/dev/null | head -1)
+      SOCK=$(find /run/user/1000 -maxdepth 1 -name "sway-ipc.*.sock" 2>/dev/null | head -1)
       [ -n "$SOCK" ] || exit 0
       if [ "''${1:-set}" = "restore" ]; then
         MODE="3840x2160@59.997Hz"
