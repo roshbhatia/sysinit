@@ -15,9 +15,16 @@
   (_final: prev: {
     sunshine =
       if prev.stdenv.hostPlatform.isLinux then
-        (prev.sunshine.override { cudaSupport = true; }).overrideAttrs (old: {
-          appendRunpaths = (old.appendRunpaths or [ ]) ++ [ "/run/opengl-driver/lib" ];
-        })
+        (prev.sunshine.override {
+          cudaSupport = true;
+          # cuda_compat is a Jetson-only shim with no x86_64 src; the repo-wide
+          # allowUnsupportedSystem=true defeats its availability gate and pulls
+          # it into the cudart hook chain, so drop it from the scope.
+          cudaPackages = prev.cudaPackages.overrideScope (_: _: { cuda_compat = null; });
+        }).overrideAttrs
+          (old: {
+            appendRunpaths = (old.appendRunpaths or [ ]) ++ [ "/run/opengl-driver/lib" ];
+          })
       else
         prev.sunshine;
   })
