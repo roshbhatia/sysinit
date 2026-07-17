@@ -10,10 +10,12 @@
   # autoPatchelfHook, whose post-fixup pass rewrites the RUNPATH after
   # postFixup runs — appendRunpaths is its knob for extra entries; a plain
   # patchelf --add-rpath in postFixup gets silently clobbered.
+  # cudaSupport enables the zero-copy pipeline: KMS capture -> CUDA import ->
+  # NVENC, no GPU->RAM->GPU round-trip per frame.
   (_final: prev: {
     sunshine =
       if prev.stdenv.hostPlatform.isLinux then
-        prev.sunshine.overrideAttrs (old: {
+        (prev.sunshine.override { cudaSupport = true; }).overrideAttrs (old: {
           appendRunpaths = (old.appendRunpaths or [ ]) ++ [ "/run/opengl-driver/lib" ];
         })
       else
