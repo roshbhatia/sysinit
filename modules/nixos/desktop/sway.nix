@@ -140,6 +140,7 @@ in
     lutris
     mangohud
     gamescope
+    heroic
 
     # Theming
     papirus-icon-theme
