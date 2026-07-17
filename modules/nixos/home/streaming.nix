@@ -126,7 +126,16 @@ let
         /*) EXEPATH=$EXE ;;
         *) EXEPATH=$WINEPREFIX/$EXE ;;
       esac
-      ${dropCaps} ${gamescopeCmd} umu-run "$EXEPATH" >> "$LOG" 2>&1 &
+      # Some games relaunch themselves (launcher double-fork), which makes
+      # umu-run return while the real game process lives on — and gamescope
+      # exits with its primary child. Poll for surviving processes matching
+      # the exe name to keep gamescope alive for the game's real lifetime.
+      ${dropCaps} ${gamescopeCmd} bash -c '
+        umu-run "$1"
+        base=$(basename "$1")
+        sleep 5
+        while pgrep -f "$base" > /dev/null; do sleep 3; done
+      ' _ "$EXEPATH" >> "$LOG" 2>&1 &
       GPID=$!
       ${fullscreenLoop}
       wait $GPID
