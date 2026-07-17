@@ -141,6 +141,7 @@ in
     mangohud
     gamescope
     heroic
+    umu-launcher
 
     # Theming
     papirus-icon-theme
