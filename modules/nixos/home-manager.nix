@@ -30,6 +30,7 @@
         ]
         ++ lib.optionals values.isDesktop [
           ./home/desktop.nix
+          ./home/streaming.nix
           ../home/programs/firefox.nix
           ../home/programs/obsidian.nix
         ];
