@@ -109,8 +109,10 @@ let
     name = "steam-run-wineapp";
     runtimeInputs = [ pkgs.util-linux ];
     text = ''
-      # Launch a Windows app (Ubisoft Connect, EA app) in its umu prefix.
-      # Usage: steam-run-wineapp <prefix-name> <exe-path-in-prefix>
+      # Launch a Windows app or game in an umu prefix.
+      # Usage: steam-run-wineapp <prefix-name> <exe-path>
+      # The exe path is prefix-relative unless absolute (games like GOG
+      # installs live outside their prefix).
       PREFIX_NAME=$1
       EXE=$2
       LOG=/tmp/steam-run-wineapp.log
@@ -120,7 +122,11 @@ let
       export WINEPREFIX="$HOME/Games/prefixes/$PREFIX_NAME"
       export GAMEID="umu-$PREFIX_NAME"
       export PROTONPATH=GE-Proton
-      ${dropCaps} ${gamescopeCmd} umu-run "$WINEPREFIX/$EXE" >> "$LOG" 2>&1 &
+      case "$EXE" in
+        /*) EXEPATH=$EXE ;;
+        *) EXEPATH=$WINEPREFIX/$EXE ;;
+      esac
+      ${dropCaps} ${gamescopeCmd} umu-run "$EXEPATH" >> "$LOG" 2>&1 &
       GPID=$!
       ${fullscreenLoop}
       wait $GPID
@@ -153,7 +159,6 @@ let
     STEAMAPPS = HOME / ".local/share/Steam/steamapps"
     LIBCACHE = HOME / ".local/share/Steam/appcache/librarycache"
     HEROIC = HOME / ".config/heroic"
-    PREFIXES = HOME / "Games/prefixes"
     COVERS = HOME / ".config/sunshine/covers"
     APPS_JSON = HOME / ".config/sunshine/apps.json"
 
@@ -258,36 +263,23 @@ let
         return out
 
 
-    def wine_apps():
+    def extra_apps():
+        """User-curated entries (EA/Ubisoft games, one-offs) merged verbatim.
+
+        ~/.config/sunshine/extra-apps.json: {"apps": [{name, cmd, image-path?}]}
+        Entries get the standard prep-cmds unless they carry their own.
+        """
+        path = APPS_JSON.parent / "extra-apps.json"
+        if not path.exists():
+            return []
         out = []
-        apps = [
-            (
-                "Ubisoft Connect",
-                "ubisoft-connect",
-                "drive_c/Program Files (x86)/Ubisoft/Ubisoft Game Launcher/UbisoftConnect.exe",
-            ),
-            (
-                "EA App",
-                "ea-app",
-                # EA installs under a versioned dir; EALauncher handles self-update.
-                "drive_c/Program Files/Electronic Arts/EA Desktop/*/EA Desktop/EALauncher.exe",
-            ),
-        ]
-        for name, prefix, pattern in apps:
-            matches = sorted((PREFIXES / prefix).glob(pattern))
-            if matches:
-                rel = matches[-1].relative_to(PREFIXES / prefix)
-                out.append(
-                    {
-                        "name": name,
-                        "cmd": "steam-run-wineapp " + prefix + " '" + str(rel) + "'",
-                        "prep-cmd": [RES_PREP, KILL_PREP_WINE],
-                    }
-                )
+        for entry in json.loads(path.read_text()).get("apps", []):
+            entry.setdefault("prep-cmd", [RES_PREP, KILL_PREP_WINE])
+            out.append(entry)
         return out
 
 
-    games = steam_games() + heroic_games() + wine_apps()
+    games = steam_games() + heroic_games() + extra_apps()
 
     user = getpass.getuser()
     apps = {
