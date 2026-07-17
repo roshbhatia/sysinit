@@ -130,6 +130,7 @@ let
       # umu-run return while the real game process lives on — and gamescope
       # exits with its primary child. Poll for surviving processes matching
       # the exe name to keep gamescope alive for the game's real lifetime.
+      # shellcheck disable=SC2016
       ${dropCaps} ${gamescopeCmd} bash -c '
         umu-run "$1"
         base=$(basename "$1")
