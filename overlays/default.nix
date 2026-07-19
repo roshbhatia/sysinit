@@ -122,7 +122,7 @@
         prev._1password-gui.overrideAttrs (old: {
           src = prev.fetchurl {
             url = "https://downloads.1password.com/mac/1Password-${old.version}-aarch64.zip";
-            hash = "sha256-bZD8LCLTGXRpNF/FqoSHvI69pquAcQGa1mdagWypgDU=";
+            hash = "sha256-utESL4dUIe/jD9gu3YIF+HWnGUlWr54tSI1Jtrruxsc=";
           };
         })
       else
