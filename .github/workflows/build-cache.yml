@@ -37,6 +37,17 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
+      # ubuntu runners ship with ~14GB free on /; building the whole custom
+      # bundle from source overflows the Nix store. Reclaim the preinstalled
+      # toolchains we don't use (~25GB) before building.
+      - name: Free disk space
+        if: runner.os == 'Linux'
+        run: |
+          sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc \
+            /opt/hostedtoolcache/CodeQL /usr/local/share/boost /usr/local/.ghcup \
+            "$AGENT_TOOLSDIRECTORY" || true
+          df -h /
+
       - uses: DeterminateSystems/nix-installer-action@v22
 
       # Gate the push on the secret so the job still builds (green) before the
