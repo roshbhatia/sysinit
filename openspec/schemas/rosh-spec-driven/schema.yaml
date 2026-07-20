@@ -129,6 +129,7 @@ artifacts:
       - **Rollout & Gating**: **rosh-spec-driven rule**: REQUIRED section. Describe the sequenced rollout — which slice ships first, what gate must pass before the next slice (build green, manual smoke test, user confirmation, etc.), and where the kill switch is if something goes wrong. For dotfiles work, the default gate sequence is: edit → `nix flake check` → `nh os build` (no system change) → user spot-check → `nh os switch`. Deviations from this sequence MUST be called out. Name any feature flag, config toggle, or capability gate that scopes the rollout.
       - **Risks / Trade-offs**: Known limitations, things that could go wrong. Format: [Risk] → Mitigation. Risks that map to human-verification checkpoints in `tasks.md` MUST be flagged here.
       - **Migration Plan**: Steps to deploy, rollback strategy (if applicable). **rosh-spec-driven rule**: Every step that mutates shared state, is hard to reverse, or requires elevated permissions MUST be preceded by a verification step and followed by a confirmation step. Single-line "run X" entries for impactful actions are insufficient.
+      - **Adversarial Review**: **rosh-spec-driven rule**: REQUIRED section. State the rubric the plan is reviewed against (the spec scenarios incl. negative ones, the `Decisions`, the `Rollout & Gating` gates, and the proposal `Non-goals`) and that each slice is cleared by the adversarial-review loop before it is marked done: independent critics attempt to break the plan with a concrete failing scenario naming a violated rubric item, the author revises against surviving objections, and the loop repeats until no objection survives or K=4 rounds. Name the executor per the `adversarial-review` skill — in-process teammate critics under Claude Code, subagents elsewhere. This section names the methodology; the per-slice checkmarks live in `tasks.md`. Do not re-derive the methodology here; cite the skill.
       - **Open Questions**: Outstanding decisions or unknowns to resolve
 
       Focus on architecture and approach, not line-by-line implementation.
@@ -168,6 +169,7 @@ artifacts:
         - `- [ ] X.N+1 Apply: <impactful action>`
         - `- [ ] X.N+2 Confirm: <postconditions, e.g., expected files exist, user spot-checks, drift script reports OK>`
       - **rosh-spec-driven rule — reuse first**: For each task that introduces a new module/file, the description SHOULD reference the existing pattern it follows (cite a file path) or explicitly note this is a new pattern (with justification carried from design.md).
+      - **rosh-spec-driven rule — adversarial-review gate per slice**: Each vertical slice (numbered phase) MUST end with an adversarial-review checkbox before its impactful-action/rollout tasks. The checkbox invokes the `adversarial-review` skill: independent critics attempt to break the slice against the rubric (spec scenarios, design decisions, rollout gates, non-goals) with a concrete failing scenario; the author revises against surviving objections; the loop repeats until no objection survives or K=4 rounds. It is a real gate, not a formality — a slice is not done until the review returns no surviving objection (or its open objections are recorded). Under Claude Code the critics are in-process teammates; elsewhere they are subagents (the skill decides). This checkbox is the loop-iteration ideal the plan converges to; it complements, and does not replace, the human-verification gate for impactful actions.
 
       Example:
       ```
@@ -180,6 +182,7 @@ artifacts:
 
       - [ ] 2.1 Implement data export function
       - [ ] 2.2 Add CSV formatting utilities
+      - [ ] 2.3 Adversarial review (`adversarial-review` skill): critics attempt to break the export slice against its spec scenarios; revise until no surviving objection or K=4 rounds
 
       ## 3. Rollout
 

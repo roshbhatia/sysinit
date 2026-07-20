@@ -75,6 +75,15 @@
     };
   };
 
+  adversarial-review = {
+    description = "Runs an adversarial review loop where independent critics try to break an artifact (plan, spec, design, or code) and the author revises against surviving objections until none remain or a round cap is hit. Grounded in Self-Refine, Constitutional AI, and Multiagent Debate. In Claude Code it spawns in-process teammate critics; in other harnesses it uses subagents. Use at the rosh-spec-driven review gate, before marking a tasks.md slice done, or when asked to red-team or 'try to break' a plan, spec, or design.";
+    content = import ./adversarial-review.nix;
+    allowed-tools = "Agent Read Grep Glob Bash(printenv:*) Bash(env:*) Bash(openspec:*)";
+    files = {
+      "references/adversarial-review-methodology.md" = ./references/adversarial-review-methodology.md;
+    };
+  };
+
   diagram-mermaid-render = {
     description = "Renders Mermaid diagrams so they live where they are read: ASCII inline via `mermaid-ascii` for markdown, openspec artifacts, and chat; PNG/SVG export via the Kroki API only when visual fidelity is required. Per-diagram-type syntax guidance is sourced from the Agents365 mermaid-skill. Use when a diagram clarifies more than prose: capability flow, state transitions, sequence-of-calls, option trees, dependency graphs, decision points, architecture sketches.";
     content = import ./diagram-mermaid-render.nix;

@@ -122,6 +122,11 @@ in
         DISABLE_AUTOUPDATER = "1";
       };
 
+      # Adversarial-review critics run as in-process teammates (AGENT_TEAMS above);
+      # pin the mode so review never falls back to tmux/iTerm split panes. See the
+      # `adversarial-review` skill.
+      teammateMode = "in-process";
+
       dangerouslySkipPermissions = true;
 
       # `ask` is intentionally absent: dangerouslySkipPermissions bypasses it, so
