@@ -34,6 +34,7 @@
       htop
       glow
       tokei
+      scc
       chafa
       imagemagick
       _1password-cli
