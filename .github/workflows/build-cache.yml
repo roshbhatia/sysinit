@@ -62,7 +62,7 @@ jobs:
             echo "::notice::CACHIX_AUTH_TOKEN not set — building without pushing."
           fi
 
-      - uses: cachix/cachix-action@v15
+      - uses: cachix/cachix-action@v17
         if: steps.cachix.outputs.enabled == 'true'
         with:
           name: roshbhatia
