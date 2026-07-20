@@ -14,11 +14,15 @@ let
     "amp.git.commit.ampThread.enabled" = false;
     "amp.git.commit.coauthor.enabled" = false;
     "amp.mcpServers" = llmLib.mcp.formatForAmp kit.mcpServers.servers;
+    # Order matters (first match wins): Slack sends ask, destructive commands
+    # reject, everything else allows. The reject entries are the shared
+    # destructive-deny globs; `reject` is Amp's documented block action.
     "amp.permissions" =
       builtins.map (tool: {
         inherit tool;
         action = "ask";
       }) llmLib.allowlist.slackSendTools
+      ++ llmLib.allowlist.formatDestructiveForAmp llmLib.allowlist.destructiveDenyGlobs
       ++ [
         {
           tool = "*";

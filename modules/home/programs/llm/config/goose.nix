@@ -11,17 +11,30 @@ let
   # `formatForGoose` returns `{ shell = { allow = [...]; deny = []; } }` which
   # must be merged at the top level with `//` — assigning it to a `shell` key
   # would produce double nesting (`shell.shell.allow`) that goose would ignore.
+  # tierA allow-list, plus the shared destructive-command patterns as
+  # `shell.deny` regexes (goose matches shell.deny as regex). formatForGoose
+  # emits `deny = []`; override it here so goose blocks the same forms as the
+  # other harnesses.
+  gooseShell = llmLib.allowlist.formatForGoose llmLib.allowlist.tierA;
+  gooseShellWithDeny = {
+    shell = gooseShell.shell // {
+      deny = llmLib.allowlist.formatDestructiveForGoose llmLib.allowlist.destructiveDenyRegexes;
+    };
+  };
+
   gooseConfig = builtins.toJSON (
     {
       EDIT_MODE = "vi";
       GOOSE_CLI_MIN_PRIORITY = 0.2;
       GOOSE_CLI_THEME = "ansi";
-      GOOSE_MODE = "auto";
+      # Risk-assessed approval instead of blanket auto: goose prompts on
+      # higher-risk actions, auto-runs the rest.
+      GOOSE_MODE = "smart_approve";
       GOOSE_TOOLSHIM = true;
 
       extensions = llmLib.mcp.formatForGoose kit.mcpServers.servers;
     }
-    // (llmLib.allowlist.formatForGoose llmLib.allowlist.tierA)
+    // gooseShellWithDeny
   );
 
   # Goose's runtime wants to mutate this file (e.g., when the user

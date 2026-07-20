@@ -64,11 +64,23 @@ let
       grep = "allow";
       read = "allow";
       write = "allow";
+      # Catch-all allow, with the shared destructive-command globs denied. More
+      # specific keys override "*". Prefix-matched (leakier than the Claude/Codex
+      # regex guards), so this is defense-in-depth, not the primary gate.
       bash = {
         "*" = "allow";
-      };
+      }
+      // (llmLib.allowlist.formatDestructiveForOpencode llmLib.allowlist.destructiveDenyGlobs);
       skill = {
         "*" = "allow";
+      };
+    };
+
+    # Live nix diagnostics via nixd (full store path — no PATH dependency).
+    lsp = {
+      nixd = {
+        command = [ "${pkgs.nixd}/bin/nixd" ];
+        extensions = [ ".nix" ];
       };
     };
 

@@ -31,6 +31,14 @@ let
         discover_models = true;
       };
     };
+    # Live nix diagnostics via nixd (full store path — no PATH dependency).
+    lsp = {
+      nix = {
+        command = "${pkgs.nixd}/bin/nixd";
+        filetypes = [ ".nix" ];
+        root_markers = [ "flake.nix" ];
+      };
+    };
     tools = {
       ls = { };
       grep = { };

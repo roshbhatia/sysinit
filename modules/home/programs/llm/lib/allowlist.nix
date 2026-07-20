@@ -231,6 +231,43 @@ let
     "mkdir -p *"
   ];
 
+  # Destructive / irreversible / hook-bypassing command patterns that MUST be
+  # denied in every harness (the mechanical floor under the global CLAUDE.md
+  # prohibitions). Two representations of the same intent:
+  #   destructiveDenyRegexes — ERE, for regex-matching harnesses (Goose
+  #     shell.deny) and as the canonical reference for the guard scripts. These
+  #     mirror the patterns already inlined in claude-bash-guard.sh so all
+  #     harnesses block the same forms.
+  #   destructiveDenyGlobs — prefix globs, for permission systems that match
+  #     command prefixes (opencode permission.bash keys, Amp matches.cmd).
+  #     Prefix matching is leakier than regex (a flag after positional args can
+  #     slip past), so these harnesses are defense-in-depth behind the robust
+  #     script/regex guards; several orderings are listed to widen coverage.
+  destructiveDenyRegexes = [
+    "git[[:space:]]+push\\b.*(--force|-f([[:space:]]|$))"
+    "(--no-verify|--no-gpg-sign)\\b"
+    "git[[:space:]]+reset\\b.*--hard\\b"
+    "git[[:space:]]+clean\\b.*-[a-zA-Z]*f"
+    "git[[:space:]]+branch\\b.*-D\\b"
+    "git[[:space:]]+branch\\b.*--delete.*--force\\b"
+  ];
+
+  destructiveDenyGlobs = [
+    "git push --force*"
+    "git push * --force*"
+    "git push -f*"
+    "git push * -f*"
+    "git reset --hard*"
+    "git reset * --hard*"
+    "git clean -f*"
+    "git clean -d*"
+    "git clean * -f*"
+    "git branch -D*"
+    "git branch * -D*"
+    "git * --no-verify*"
+    "git * --no-gpg-sign*"
+  ];
+
   # Claude Code: settings.permissions.allow expects a list of "Bash(<pattern>)"
   # strings (plus other tool-class wrappers we don't emit here).
   formatForClaude = tier: builtins.map (cmd: "Bash(${cmd})") tier;
@@ -277,6 +314,26 @@ let
 
   formatForOpencode = formatForOpencodeWithAction "allow";
 
+  # Destructive-deny formatters. Each takes a pattern list and maps it into the
+  # harness's native deny shape.
+  #   Goose  — shell.deny is regex; pass destructiveDenyRegexes through.
+  #   opencode — permission.bash map keyed by glob → "deny".
+  #   Amp    — amp.permissions triples with action "reject" (verify the reject
+  #            action name against Amp's schema at apply; current allow/ask are
+  #            confirmed, reject is the documented block action).
+  formatDestructiveForGoose = patterns: patterns;
+  formatDestructiveForOpencode =
+    patterns: lib.listToAttrs (builtins.map (cmd: lib.nameValuePair cmd "deny") patterns);
+  formatDestructiveForAmp =
+    patterns:
+    builtins.map (cmd: {
+      tool = "Bash";
+      matches = {
+        inherit cmd;
+      };
+      action = "reject";
+    }) patterns;
+
   # Slack MCP tools that send messages — require explicit approval in every
   # harness that supports a per-tool ask/confirm mechanism.  Shared here so
   # all harness configs reference the same list instead of duplicating strings.
@@ -311,11 +368,16 @@ in
     tierB
     tierMcp
     slackSendTools
+    destructiveDenyRegexes
+    destructiveDenyGlobs
     formatForClaude
     formatForCursor
     formatForAmp
     formatForGoose
     formatForOpencodeWithAction
     formatForOpencode
+    formatDestructiveForGoose
+    formatDestructiveForOpencode
+    formatDestructiveForAmp
     ;
 }
