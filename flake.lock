@@ -855,11 +855,11 @@
         "nixpkgs": "nixpkgs_5"
       },
       "locked": {
-        "lastModified": 1784575558,
-        "narHash": "sha256-qbNtMoLY22Hm1jxcQSq0ewVHcmdvy3r2gPvmCa5hFGI=",
+        "lastModified": 1784580725,
+        "narHash": "sha256-VKVGSoiHvFh8XyUL8NCAFekXhgPoG0HuqDp2oiMSZGQ=",
         "owner": "nix-community",
         "repo": "NUR",
-        "rev": "a94fcc9bf7fde9623900c4232f189f10618e938e",
+        "rev": "dc6d6c8a22cbf43b50051afc27fe12a27294a4ae",
         "type": "github"
       },
       "original": {
