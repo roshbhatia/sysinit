@@ -72,44 +72,11 @@
       else
         prev.sdl3;
   })
-  # openldap-2.6.13 test017-syncreplication-refresh is a timing-sensitive flake
-  (_final: prev: {
-    openldap = prev.openldap.overrideAttrs (_old: {
-      doCheck = false;
-    });
-  })
-  # pipx-1.8.0 tests assert no space before @ in package specifiers but the
-  # current packaging produces "name @ url" (PEP 440 canonical form).
-  # Skip the affected tests — dontCheck doesn't stop pytestCheckHook in this
-  # nixpkgs revision (it registers via preDistPhases, not checkPhase), so
-  # disabledTests is the working knob.
-  (_final: prev: {
-    pipx = prev.pipx.overrideAttrs (old: {
-      disabledTests = (old.disabledTests or [ ]) ++ [
-        "test_fix_package_name"
-        "test_parse_specifier_for_metadata"
-      ];
-    });
-  })
-  # fsspec test_expiry is a timing-sensitive flake — it asserts cache time
-  # equality across a sleep, which races on loaded build machines.
-  (_final: prev: {
-    python313 = prev.python313.override {
-      packageOverrides = _pyfinal: pyprev: {
-        fsspec = pyprev.fsspec.overrideAttrs (old: {
-          disabledTests = (old.disabledTests or [ ]) ++ [ "test_expiry" ];
-        });
-      };
-    };
-  })
-  # kubernetes-helm-4.2.0: preCheck on Darwin tries to substituteInPlace
-  # cmd/helm/dependency_build_test.go which doesn't exist in the 4.2.0 source tree.
-  # Skip tests until nixpkgs fixes the Darwin sandbox workaround.
-  (_final: prev: {
-    kubernetes-helm = prev.kubernetes-helm.overrideAttrs (_old: {
-      doCheck = false;
-    });
-  })
+  # NOTE: openldap / pipx / python313.fsspec / kubernetes-helm test-disabling
+  # overrides were removed — nixpkgs now caches all four for aarch64-darwin and
+  # x86_64-linux at the pinned rev, so the overrides only defeated the cache and
+  # forced local source builds. Re-add (platform-guarded) if a future rev
+  # reintroduces a from-source build that trips the flaky test.
   # 1Password sometimes re-uploads the aarch64 zip with new bytes
   # without bumping the version, so nixpkgs' pinned hash no longer matches.
   # Override src with the current upstream hash until nixpkgs catches up.
@@ -128,26 +95,10 @@
       else
         prev._1password-gui;
   })
-  # cctools-binutils-darwin-1010.6 ld crashes with Trace/BPT trap: 5 (SIGTRAP,
-  # exit 133) on Darwin 25.x (macOS 26 Tahoe). The crash is intrinsic to the
-  # cctools ld binary — not flag-specific. Patch the Makefile to remove the
-  # arm64 deployment-target flag (cc-wrapper handles it) and inject -fuse-ld=
-  # pointing at ld64.lld (LLVM's Mach-O linker) so clang bypasses cctools ld
-  # entirely at link time.
-  # Darwin-only: ld64.lld is the Mach-O linker and does not exist on Linux.
-  (final: prev: {
-    sketchybar =
-      if prev.stdenv.isDarwin then
-        prev.sketchybar.overrideAttrs (old: {
-          nativeBuildInputs = (old.nativeBuildInputs or [ ]) ++ [ final.llvmPackages_latest.lld ];
-          postPatch = ''
-            sed -i '/CFLAGS+=-target arm64-apple-macos11/d' makefile
-            sed -i 's|^CFLAGS   = |CFLAGS   = -fuse-ld=${final.llvmPackages_latest.lld}/bin/ld64.lld |' makefile
-          '';
-        })
-      else
-        prev.sketchybar;
-  })
+  # NOTE: sketchybar's Tahoe cctools-ld override was removed — the crash is
+  # build-time only, and nixpkgs' aarch64-darwin build (produced on Hydra's
+  # older macOS) is cached and runs fine on Tahoe. Fetching it avoids both the
+  # local build and the crash.
   # Same cctools crash for Rust packages: cargo invokes cc (clang-wrapper) as
   # the linker driver, which calls cctools ld. Pass -fuse-ld= via RUSTFLAGS so
   # clang routes through ld64.lld (LLVM's Mach-O linker) at the link step.
@@ -161,17 +112,11 @@
         })
       else
         prev.cargo-watch;
-    mise =
-      if prev.stdenv.isDarwin then
-        prev.mise.overrideAttrs (old: {
-          nativeBuildInputs = (old.nativeBuildInputs or [ ]) ++ [ final.llvmPackages_latest.lld ];
-          RUSTFLAGS = "${old.RUSTFLAGS or ""} -C link-arg=-fuse-ld=${final.llvmPackages_latest.lld}/bin/ld64.lld";
-        })
-      else
-        # Pull mise from a pristine nixpkgs so its closure hash matches
-        # cache.nixos.org; repo overlays perturb prev.mise's deps and force an
-        # uncached source build of the same version.
-        (import inputs.nixpkgs { inherit (final.stdenv.hostPlatform) system; }).mise;
+    # Pull mise from a pristine nixpkgs so its closure hash matches
+    # cache.nixos.org on both platforms: repo overlays perturb prev.mise's deps
+    # on Linux, and the darwin Tahoe ld-fix is obsolete now that nixpkgs' cached
+    # aarch64-darwin build works on Tahoe.
+    mise = (import inputs.nixpkgs { inherit (final.stdenv.hostPlatform) system; }).mise;
     # electron's ffmpeg pulls the gaming-patched SDL, perturbing its closure into
     # a multi-hour chromium source build (obsidian depends on it). electron does
     # not need those patches, so pin it to pristine nixpkgs on Linux for a cache
@@ -187,40 +132,7 @@
       else
         (import inputs.nixpkgs { inherit (final.stdenv.hostPlatform) system; }).electron;
   })
-  # Same cctools crash: lima's CGO code links against Virtualization.framework on
-  # Darwin 25.x (macOS 26 Tahoe). Use the official GitHub binary release until
-  # nixpkgs ships a cctools version that handles the Tahoe linker constraints.
-  (final: prev: {
-    lima =
-      let
-        version = "2.1.4";
-      in
-      prev.stdenvNoCC.mkDerivation {
-        pname = "lima";
-        inherit version;
-
-        src = prev.fetchzip {
-          url = "https://github.com/lima-vm/lima/releases/download/v${version}/lima-${version}-Darwin-arm64.tar.gz";
-          hash = "sha256-VLWiw0cvme0+wDd8f1C67hBe5d1jtwo9t6kWyJckjhI=";
-          stripRoot = false;
-        };
-
-        dontFixup = true;
-
-        installPhase = ''
-          runHook preInstall
-          mkdir -p $out
-          cp -r bin libexec share $out/
-          runHook postInstall
-        '';
-
-        meta = prev.lima.meta // {
-          platforms = [ "aarch64-darwin" ];
-        };
-      };
-
-    # lima-full is lima with additional guest agents included; the binary
-    # release already ships all guest agents, so both point to the same drv.
-    lima-full = final.lima;
-  })
+  # NOTE: lima's Tahoe GitHub-binary-release override was removed — nixpkgs'
+  # aarch64-darwin lima (same version, 2.1.4) is now cached and built on Hydra
+  # past the cctools/Tahoe constraint, so the pristine build is a cache hit.
 ]
