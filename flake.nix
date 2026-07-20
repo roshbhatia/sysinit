@@ -183,13 +183,10 @@
             "bookerly"
             "hunk"
           ];
-          # Notable CLIs that come from flake inputs rather than the overlays.
-          inputPkgsFor =
-            system:
-            builtins.filter (p: p != null) [
-              (inputs.specutil.packages.${system}.default or null)
-              (inputs.cupcake.packages.${system}.default or null)
-            ];
+          # Only overlay-defined packages go in the bundle. Flake-input CLIs
+          # (specutil, cupcake, …) have their own flakes/caches and their own
+          # build fragility (e.g. specutil's stale go-modules vendorHash), so
+          # caching them here just couples this job to upstream breakage.
           cacheBundleFor =
             system:
             let
@@ -197,8 +194,7 @@
             in
             pkgs.symlinkJoin {
               name = "sysinit-cache-bundle-${system}";
-              paths =
-                builtins.filter (p: p != null) (map (n: pkgs.${n} or null) cacheAttrs) ++ inputPkgsFor system;
+              paths = builtins.filter (p: p != null) (map (n: pkgs.${n} or null) cacheAttrs);
             };
           agentsMd =
             let

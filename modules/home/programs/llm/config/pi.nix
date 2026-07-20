@@ -31,7 +31,6 @@ let
     "session-name"
     "status-line"
     "tools"
-    "trigger-compact"
   ];
 
   extensionFiles = lib.listToAttrs (
@@ -49,6 +48,11 @@ let
   customExtensionFiles = {
     ".pi/agent/extensions/openspec-status.ts" = {
       source = ./extensions/openspec-status.ts;
+      force = true;
+    };
+    ".pi/agent/extensions/openspec-sidebar" = {
+      source = ./extensions/openspec-sidebar;
+      recursive = true;
       force = true;
     };
   };
@@ -332,18 +336,12 @@ let
       mkFetchedNpmPackage "@narumitw/pi-retry" "0.22.0"
         "sha256-TwMvcJLe4ldgRw8k6/bsQpJbkePKYww20CqZVQfvsAc=";
 
-    # @monotykamary/pi-vcc: deterministic, LLM-free session compaction. Config in
-    # ~/.pi/agent/pi-vcc-config.json sets overrideDefaultCompaction; the
-    # trigger-compact extension still fires the trigger.
+    # @monotykamary/pi-vcc: deterministic, LLM-free session compaction. It
+    # intercepts Pi's native threshold compaction; do not also load Pi's
+    # trigger-compact extension, which can attempt an invalid second compact.
     piVcc =
       mkFetchedNpmPackage "@monotykamary/pi-vcc" "0.8.1"
         "sha256-hsk/cwirBtfYK77aMoCoFncYhMsCff+HyBnpZD0GJKU=";
-
-    # pi-sidebar-tui: OpenCode-style sidebar (session metrics, todos, async
-    # subagents, MCP servers, git status). Zero deps; peer pi-tui.
-    piSidebarTui =
-      mkFetchedNpmPackage "pi-sidebar-tui" "1.3.1"
-        "sha256-WiKgy0fxj4UVt+9ATh4Vp5ZrKs3ud7zozpoZ4EKFZFU=";
 
     # @samfp/pi-memory stays out: needs node:sqlite which bun lacks. Every
     # other pi-* memory package on npm at audit time still imports from
@@ -444,7 +442,7 @@ let
   # 2. Compaction — piVcc (deterministic, LLM-free)
   # 3. Orchestration — pi-subagents
   # 4. Memory + advisor — rpivAdvisor
-  # 5. UI / workflow — btw, piSidebarTui
+  # 5. UI / workflow — btw, local OpenSpec sidebar
   # 6. Tool providers — toolDisplay, diff, dcp, webAccess, mcpAdapter, rtkOptimizer
   # 6. Content utilities — context, subdirContext, annotatedReply, mermaid,
   #                        readlineSearch, rtk, threads, interview, librarian,
@@ -469,7 +467,6 @@ let
     "${plannotator}"
     "${btw}"
     "${piReverseLast}"
-    "${piSidebarTui}"
     # 6. Tool providers.
     "${toolDisplay}"
     "${diff}"
@@ -608,8 +605,7 @@ in
           source = piKeybindings;
           force = true;
         };
-        # pi-vcc: take over compaction deterministically. trigger-compact still
-        # fires the trigger; pi-vcc performs the (LLM-free) compaction.
+        # pi-vcc: take over Pi's native compaction path deterministically.
         ".pi/agent/pi-vcc-config.json" = {
           text = builtins.toJSON {
             overrideDefaultCompaction = true;
