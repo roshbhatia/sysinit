@@ -46,6 +46,67 @@ let
     text = builtins.readFile ./claude-bash-guard.sh;
   };
 
+  # PreToolUse guard for the Slack send tools. `dangerouslySkipPermissions`
+  # bypasses `permissions.ask`, so the old ask-tier gate was inert — a hook is
+  # the only mechanism that still runs under skip. This denies the three
+  # slack_send_* MCP tools and tells the agent to have the human send. Fail-open
+  # (bashOptions cleared) so an extraction miss never becomes a hook abort. The
+  # deny set is the Nix-managed slackSendTools list, kept in sync with the
+  # matcher below.
+  slackGuardScript = pkgs.writeShellApplication {
+    name = "claude-slack-guard";
+    runtimeInputs = [ pkgs.jq ];
+    bashOptions = [ ];
+    text = ''
+      input="$(cat)"
+      tool="$(printf '%s' "$input" | jq -r '.tool_name // empty' 2>/dev/null)"
+      case "$tool" in
+        ${lib.concatStringsSep " | " (map (t: "\"${t}\"") llmLib.allowlist.slackSendTools)})
+          jq -n '{
+            hookSpecificOutput: {
+              hookEventName: "PreToolUse",
+              permissionDecision: "deny",
+              permissionDecisionReason: "Slack sends are gated: ask the human to send this message. dangerouslySkipPermissions makes the ask-tier inert, so this is enforced mechanically."
+            }
+          }'
+          ;;
+      esac
+      exit 0
+    '';
+  };
+
+  slackToolMatcher = lib.concatStringsSep "|" llmLib.allowlist.slackSendTools;
+
+  # STE output style: encodes the shared Communication rules as a first-class
+  # system-prompt layer instead of relying only on the context-file text.
+  steOutputStyle = ''
+    ---
+    name: sysinit-ste
+    description: Simplified Technical English, ADHD-shaped output
+    ---
+
+    Write all output in Simplified Technical English (ASD-STE100).
+
+    - Use one instruction per sentence. Keep procedure sentences to 20 words or
+      fewer and descriptive sentences to 25 or fewer. Keep paragraphs to 6
+      sentences or fewer.
+    - Use active voice and simple present, past, future, or imperative verbs.
+      Avoid gerund chains and stacked auxiliaries.
+    - One word, one meaning: pick a single term for a concept and reuse it. Do
+      not vary the term for style.
+    - Use only terms established in this repo, its skills, or the standard
+      vocabulary of the tool at hand. Do not invent metaphors, idioms, or coined
+      phrases.
+    - Shape output so a reader with ADHD can act on it: lead with the action or
+      answer; number multi-step work; end with the next concrete action; restate
+      the current state each turn; give concrete size or time estimates; make
+      completed work visible; state errors matter-of-factly; cap lists at 5 items.
+    - No preamble, recap, or pleasantries.
+    - Break these rules only when the user asks you to explain or walk through, you
+      must confirm a destructive action, you name the wrong assumption in a debug
+      spiral, or the request has real ambiguity.
+  '';
+
   subagents = kit.llmLib.instructions.subagentDefs;
 in
 {
@@ -56,17 +117,36 @@ in
     settings = {
       env = {
         CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS = "1";
+        # Nix owns updates for every harness in this repo; disable the in-place
+        # auto-updater so it never fights the flake pin.
+        DISABLE_AUTOUPDATER = "1";
       };
 
       dangerouslySkipPermissions = true;
 
+      # `ask` is intentionally absent: dangerouslySkipPermissions bypasses it, so
+      # the Slack send gate lives in the slackGuardScript PreToolUse hook below.
+      # The `allow` tiers are kept as intent documentation (inert under skip,
+      # load-bearing if skip is ever dropped).
       permissions = {
-        ask = llmLib.allowlist.slackSendTools;
         allow =
           llmLib.allowlist.formatForClaude llmLib.allowlist.tierA
           ++ llmLib.allowlist.formatForClaude llmLib.allowlist.tierB
           ++ llmLib.allowlist.tierMcp;
       };
+
+      # Snapshot files before Write/Edit so /rewind can restore them.
+      fileCheckpointingEnabled = true;
+      # Persist reasoning effort for spec-driven work instead of per session.
+      effortLevel = "high";
+      # Auto-failover when the primary model is overloaded.
+      fallbackModel = [ "claude-sonnet-5" ];
+      # Extended thinking on by default.
+      alwaysThinkingEnabled = true;
+      # Cross-session auto-memory (MEMORY.md) — set explicitly for intent.
+      autoMemoryEnabled = true;
+      # STE output style shipped via home.file below.
+      outputStyle = "sysinit-ste";
 
       editorMode = "vim";
 
@@ -114,6 +194,18 @@ in
               {
                 type = "command";
                 command = "${lib.getExe bashGuardScript}";
+              }
+            ];
+          }
+          # Mechanical Slack send gate (replaces the inert permissions.ask under
+          # dangerouslySkipPermissions). Matcher targets exactly the three
+          # slack_send_* tools; the script re-checks tool_name and denies.
+          {
+            matcher = slackToolMatcher;
+            hooks = [
+              {
+                type = "command";
+                command = "${lib.getExe slackGuardScript}";
               }
             ];
           }
@@ -192,5 +284,12 @@ in
         config = agentConfig;
       }
     ) subagents;
+  };
+
+  # Custom output style selected via settings.outputStyle above. Claude Code
+  # reads styles from ~/.claude/output-styles/<name>.md.
+  home.file.".claude/output-styles/sysinit-ste.md" = {
+    text = steOutputStyle;
+    force = true;
   };
 }

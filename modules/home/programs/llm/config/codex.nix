@@ -10,6 +10,18 @@ let
 
   profileBin = "${config.home.profileDirectory}/bin";
 
+  # Codex's PreToolUse hook contract is identical to Claude's (same
+  # `tool_input.command` payload, same `permissionDecision: "deny"` output), so
+  # the shared bash guard runs verbatim here. Denies force-push, --no-verify /
+  # --no-gpg-sign, reset --hard, clean -f, branch -D. Fail-open: a non-Bash tool
+  # or extraction miss exits 0 and the command proceeds.
+  bashGuardScript = pkgs.writeShellApplication {
+    name = "codex-bash-guard";
+    runtimeInputs = [ pkgs.jq ];
+    bashOptions = [ ];
+    text = builtins.readFile ./claude-bash-guard.sh;
+  };
+
   compactPrompt = ''
     Compact this Codex session for continuation. Preserve only context needed to keep working correctly.
 
@@ -106,6 +118,11 @@ in
       # this, URL-based MCP entries in the TOML config are silently ignored.
       experimental_use_rmcp_client = true;
 
+      # Give Codex the built-in web-search tool (parity with Claude/pi web access).
+      tools = {
+        web_search = true;
+      };
+
       features = {
         hooks = true;
         multi_agent = true;
@@ -131,6 +148,19 @@ in
       # of derivation-specific /nix/store paths so Codex's hook-trust cache
       # survives rebuilds.
       hooks = {
+        # Mechanical destructive-command guard (parity with Claude). The script
+        # self-filters on `.tool_input.command`, so no matcher is needed; Codex
+        # does not support async hooks.
+        PreToolUse = [
+          {
+            hooks = [
+              {
+                type = "command";
+                command = "${lib.getExe bashGuardScript}";
+              }
+            ];
+          }
+        ];
         UserPromptSubmit = [
           {
             hooks = [

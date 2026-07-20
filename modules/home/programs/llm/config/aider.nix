@@ -30,6 +30,11 @@ in
       notifications = true;
       # Honor pre-commit hooks (gpg signing, formatters) on aider commits.
       git-commit-verify = true;
+
+      # Match the no-co-author posture of every other harness: aider defaults
+      # both of these to true, which would stamp commits against repo policy.
+      attribute-co-authored-by = false;
+      attribute-author = false;
       # Drop an `# AI!` comment in any file to trigger aider without a prompt.
       watch-files = true;
 

@@ -254,7 +254,12 @@ let
     readlineSearch =
       mkFetchedNpmPackage "pi-readline-search" "0.1.0"
         "sha256-HxomHcIceZX68M0f0ZcRJSiqDzqCI0p+wcyq8CVL514=";
-    rtk = mkFetchedNpmPackage "pi-rtk" "0.1.4" "sha256-2UaCeGo5IadpVywZHzh3D1RQ7L+CGjGg+aMWlJUxW14=";
+    # pi-rtk-optimizer: mature successor to pi-rtk. Delegates command rewriting
+    # to the `rtk` CLI (pkgs.rtk 0.43.0, added to home.packages — confirmed to
+    # provide `rtk rewrite`) and compacts tool output. Peer deps only.
+    rtkOptimizer =
+      mkFetchedNpmPackage "pi-rtk-optimizer" "0.9.0"
+        "sha256-qlwpcoJe1mvuFVXfujLYryy+CfLX4rE5yZYlN+Gx+lY=";
     threads =
       mkFetchedNpmPackage "pi-threads" "0.2.1"
         "sha256-MF++ANxMplxx0qydKoozrnNTFtb4HQ/0s923cGrsPyM=";
@@ -279,11 +284,35 @@ let
       mkBuiltNpmPackage "pi-dcp" "0.2.0" "sha256-mQ+F/0EoH8WKvY4Nq5vPnOhQWHNBTd7PmVDHmEfOfOQ="
         "sha256-YyuGS17egfLwhqOwfYUKV7YY6Je9lS60HRUzBBBtoS8="
         ./locks/pi-dcp.lock.json;
-    webfetch =
-      mkBuiltNpmPackage "pi-webfetch-to-markdown" "1.0.1"
-        "sha256-48W7utsKPZky3W5Xe9bB9g9Wp9lcQVWteZwsEYtmQ7k="
-        "sha256-vjBFvarCqnv80YoWck0MnAXScWe4l8xP/qSBZ6kmWJY="
-        ./locks/pi-webfetch-to-markdown.lock.json;
+    # pi-web-access: web search + content fetch (URL/PDF/GitHub/YouTube).
+    # Replaces pi-webfetch-to-markdown and adds web search — a capability gap in
+    # pi vs Claude/Codex. Keep pi-librarian; disable the bundled librarian skill
+    # via ~/.pi/web-search.json if it collides. Inline (not mkBuiltNpmPackage)
+    # because its @earendil-works/* peers are pi-runtime-provided: the lock omits
+    # them and `npm ci` needs `--legacy-peer-deps` so it does not resolve them.
+    webAccess = pkgs.buildNpmPackage {
+      pname = "pi-web-access";
+      version = "0.13.0";
+      src = fetchNpmPkg {
+        name = "pi-web-access";
+        version = "0.13.0";
+        hash = "sha256-6d/cX9OYHIxZ81fJgEu4L7DzMF/o63AL2/n/3zHs0DU=";
+      };
+      postPatch = ''
+        cp ${./locks/pi-web-access.lock.json} package-lock.json
+      '';
+      npmDepsHash = "sha256-8onTvv7nUrTXMGvwkMkPEYc+mtpxolzF6Z9EuuB9pbs=";
+      npmFlags = [
+        "--ignore-scripts"
+        "--legacy-peer-deps"
+      ];
+      dontNpmBuild = true;
+      installPhase = ''
+        runHook preInstall
+        cp -r . $out
+        runHook postInstall
+      '';
+    };
     mcpAdapter =
       mkBuiltNpmPackage "pi-mcp-adapter" "2.6.0" "sha256-PvG5zESCiVHC69zPyVhZ0fqQhTaJZFHEOAFEnMSIiak="
         "sha256-OSuEzxoOC2lPXUZRNqNhLTNRLkWFwQloFklW5hMvRyE="
@@ -295,6 +324,26 @@ let
     # pi-btw: /btw spawns a parallel sub-session with tools inherited from
     # the parent. Use for tangents that shouldn't break the main flow.
     btw = mkFetchedNpmPackage "pi-btw" "0.4.0" "sha256-8iAnayDUtK/BGl0ldJ9klOpItdCyV8qniSO+pXGslNo=";
+
+    # @narumitw/pi-retry: classifies transient provider failures (Codex backend
+    # errors, websocket limits, stalled streams) so pi's native retry recovers.
+    # Zero deps; complements (does not replace) pi's built-in retry.
+    piRetry =
+      mkFetchedNpmPackage "@narumitw/pi-retry" "0.22.0"
+        "sha256-TwMvcJLe4ldgRw8k6/bsQpJbkePKYww20CqZVQfvsAc=";
+
+    # @monotykamary/pi-vcc: deterministic, LLM-free session compaction. Config in
+    # ~/.pi/agent/pi-vcc-config.json sets overrideDefaultCompaction; the
+    # trigger-compact extension still fires the trigger.
+    piVcc =
+      mkFetchedNpmPackage "@monotykamary/pi-vcc" "0.8.1"
+        "sha256-hsk/cwirBtfYK77aMoCoFncYhMsCff+HyBnpZD0GJKU=";
+
+    # pi-sidebar-tui: OpenCode-style sidebar (session metrics, todos, async
+    # subagents, MCP servers, git status). Zero deps; peer pi-tui.
+    piSidebarTui =
+      mkFetchedNpmPackage "pi-sidebar-tui" "1.3.1"
+        "sha256-WiKgy0fxj4UVt+9ATh4Vp5ZrKs3ud7zozpoZ4EKFZFU=";
 
     # @samfp/pi-memory stays out: needs node:sqlite which bun lacks. Every
     # other pi-* memory package on npm at audit time still imports from
@@ -391,11 +440,12 @@ let
   };
 
   # Load order matters (per design D3):
-  # 1. Provider routing — openaiFast + openaiVerbosity (inert for non-OpenAI)
-  # 2. Orchestration — pi-subagents
-  # 3. Memory + advisor — samfpMemory, rpivAdvisor
-  # 4. UI / workflow — btw
-  # 5. Tool providers — toolDisplay, diff, dcp, webfetch, mcpAdapter
+  # 1. Provider routing — openaiFast + openaiVerbosity + piRetry (inert for non-OpenAI)
+  # 2. Compaction — piVcc (deterministic, LLM-free)
+  # 3. Orchestration — pi-subagents
+  # 4. Memory + advisor — rpivAdvisor
+  # 5. UI / workflow — btw, piSidebarTui
+  # 6. Tool providers — toolDisplay, diff, dcp, webAccess, mcpAdapter, rtkOptimizer
   # 6. Content utilities — context, subdirContext, annotatedReply, mermaid,
   #                        readlineSearch, rtk, threads, interview, librarian,
   #                        askUser
@@ -407,6 +457,9 @@ let
     "${piClaudeCodeUse}"
     "${openaiFast}"
     "${openaiVerbosity}"
+    "${piRetry}"
+    # 2b. Compaction — load early so the session_before_compact hook registers.
+    "${piVcc}"
     # 3. Orchestration.
     "${piPackages.subagents}"
     "${taskplane}"
@@ -416,11 +469,12 @@ let
     "${plannotator}"
     "${btw}"
     "${piReverseLast}"
+    "${piSidebarTui}"
     # 6. Tool providers.
     "${toolDisplay}"
     "${diff}"
     "${dcp}"
-    "${webfetch}"
+    "${webAccess}"
     "${mcpAdapter}"
     # 7. Content utilities.
     "${context}"
@@ -428,7 +482,7 @@ let
     "${annotatedReply}"
     "${mermaid}"
     "${readlineSearch}"
-    "${rtk}"
+    "${rtkOptimizer}"
     "${threads}"
     "${interview}"
     "${librarian}"
@@ -538,6 +592,8 @@ in
       piAcp
       piCosts
       nvimPi
+      # `rtk rewrite` backend for pi-rtk-optimizer (and reusable by other hooks).
+      pkgs.rtk
     ];
 
     activation.piSettings = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
@@ -550,6 +606,14 @@ in
       // {
         ".pi/agent/keybindings.json" = {
           source = piKeybindings;
+          force = true;
+        };
+        # pi-vcc: take over compaction deterministically. trigger-compact still
+        # fires the trigger; pi-vcc performs the (LLM-free) compaction.
+        ".pi/agent/pi-vcc-config.json" = {
+          text = builtins.toJSON {
+            overrideDefaultCompaction = true;
+          };
           force = true;
         };
         ".pi/agent/themes/stylix.json" = {
