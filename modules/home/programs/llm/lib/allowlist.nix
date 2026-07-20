@@ -209,6 +209,13 @@ let
 
     # specutil lock — writes the identity→externalId mapping after Linear/Notion syncs
     "specutil lock *"
+
+    # hunk — git diff pager; agent live-session review (read-only, UI-only)
+    "hunk skill path"
+    "hunk session list"
+    "hunk session *"
+    "hunk --help"
+    "hunk --version"
   ];
 
   # Reversible local writes. Each entry mutates the working tree or the
