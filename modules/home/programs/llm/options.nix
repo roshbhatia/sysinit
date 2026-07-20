@@ -6,6 +6,18 @@ in
 {
   options.sysinit.llm = {
     mcp = {
+      slackAllowedSendChannels = mkOption {
+        type = types.listOf types.str;
+        default = [ ];
+        description = ''
+          Slack channel or DM IDs to which the Slack send tools
+          (slack_send_message, slack_send_message_draft) are allowed
+          without approval. slack_schedule_message is always blocked.
+          Set to the channel_ids used by approved skills; all other
+          destinations remain blocked by the PreToolUse guard.
+        '';
+      };
+
       disabledBuiltinServers = mkOption {
         type = types.listOf types.str;
         default = [ ];

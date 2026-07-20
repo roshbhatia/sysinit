@@ -47,33 +47,63 @@ let
   };
 
   # PreToolUse guard for the Slack send tools. `dangerouslySkipPermissions`
-  # bypasses `permissions.ask`, so the old ask-tier gate was inert — a hook is
-  # the only mechanism that still runs under skip. This denies the three
-  # slack_send_* MCP tools and tells the agent to have the human send. Fail-open
-  # (bashOptions cleared) so an extraction miss never becomes a hook abort. The
-  # deny set is the Nix-managed slackSendTools list, kept in sync with the
-  # matcher below.
-  slackGuardScript = pkgs.writeShellApplication {
-    name = "claude-slack-guard";
-    runtimeInputs = [ pkgs.jq ];
-    bashOptions = [ ];
-    text = ''
-      input="$(cat)"
-      tool="$(printf '%s' "$input" | jq -r '.tool_name // empty' 2>/dev/null)"
-      case "$tool" in
-        ${lib.concatStringsSep " | " (map (t: "\"${t}\"") llmLib.allowlist.slackSendTools)})
-          jq -n '{
-            hookSpecificOutput: {
-              hookEventName: "PreToolUse",
-              permissionDecision: "deny",
-              permissionDecisionReason: "Slack sends are gated: ask the human to send this message. dangerouslySkipPermissions makes the ask-tier inert, so this is enforced mechanically."
-            }
-          }'
-          ;;
-      esac
-      exit 0
-    '';
-  };
+  # bypasses `permissions.ask`, so the hook is the only gate still active.
+  # slack_send_message and slack_send_message_draft are allowed when the
+  # destination channel_id is in sysinit.llm.mcp.slackAllowedSendChannels
+  # (set by skill-aware consumers such as sysinit.laurel). All other destinations
+  # and all slack_schedule_message calls are denied. Fail-open (bashOptions
+  # cleared) so an extraction miss never becomes a hook abort.
+  slackGuardScript =
+    let
+      # Generates: "id1"|"id2"|... for a shell case pattern.
+      mkChanPat = channels: lib.concatStringsSep "|" (map (c: "\"${c}\"") channels);
+      # Send tools that support per-channel gating (exclude schedule).
+      sendNowTools = lib.filter (t: !(lib.hasSuffix "schedule_message" t)) llmLib.allowlist.slackSendTools;
+      scheduleTools = lib.filter (lib.hasSuffix "schedule_message") llmLib.allowlist.slackSendTools;
+      # Inline case arm that allows approved channels; empty when no channels set.
+      allowedChanBlock =
+        if slackAllowedChannels != [ ] then
+          ''
+            case "$_channel" in
+              ${mkChanPat slackAllowedChannels})
+                exit 0
+                ;;
+            esac
+          ''
+        else
+          "";
+    in
+    pkgs.writeShellApplication {
+      name = "claude-slack-guard";
+      runtimeInputs = [ pkgs.jq ];
+      bashOptions = [ ];
+      text = ''
+        input="$(cat)"
+        tool="$(printf '%s' "$input" | jq -r '.tool_name // empty' 2>/dev/null)"
+        case "$tool" in
+          ${lib.concatStringsSep " | " (map (t: "\"${t}\"") sendNowTools)})
+            _channel="$(printf '%s' "$input" | jq -r '.tool_input.channel_id // empty' 2>/dev/null)"
+            ${allowedChanBlock}jq -n '{
+              hookSpecificOutput: {
+                hookEventName: "PreToolUse",
+                permissionDecision: "deny",
+                permissionDecisionReason: "Slack sends are gated to skill-approved channels. This destination is not in the allow-list."
+              }
+            }'
+            ;;
+          ${lib.concatStringsSep " | " (map (t: "\"${t}\"") scheduleTools)})
+            jq -n '{
+              hookSpecificOutput: {
+                hookEventName: "PreToolUse",
+                permissionDecision: "deny",
+                permissionDecisionReason: "Scheduled Slack sends are always blocked."
+              }
+            }'
+            ;;
+        esac
+        exit 0
+      '';
+    };
 
   slackToolMatcher = lib.concatStringsSep "|" llmLib.allowlist.slackSendTools;
 
@@ -110,6 +140,7 @@ let
   subagents = kit.llmLib.instructions.subagentDefs;
 
   disabledBuiltinServers = config.sysinit.llm.mcp.disabledBuiltinServers;
+  slackAllowedChannels = config.sysinit.llm.mcp.slackAllowedSendChannels;
 in
 {
   programs.claude-code = {
@@ -209,9 +240,9 @@ in
               }
             ];
           }
-          # Mechanical Slack send gate (replaces the inert permissions.ask under
-          # dangerouslySkipPermissions). Matcher targets exactly the three
-          # slack_send_* tools; the script re-checks tool_name and denies.
+          # Channel-gated Slack send guard. Allows slack_send_message and
+          # slack_send_message_draft to skill-approved channel_ids; denies
+          # all other destinations and all slack_schedule_message calls.
           {
             matcher = slackToolMatcher;
             hooks = [
