@@ -108,6 +108,8 @@ let
   '';
 
   subagents = kit.llmLib.instructions.subagentDefs;
+
+  disabledBuiltinServers = config.sysinit.llm.mcp.disabledBuiltinServers;
 in
 {
   programs.claude-code = {
@@ -172,6 +174,11 @@ in
       # for intent. `autoCompactWindow` (undocumented; no tunable threshold
       # exists) and `autoDreamEnabled` (absent from docs) were removed.
       autoCompactEnabled = true;
+
+      # Suppress "N servers need authentication" for unused claude.ai integrations.
+      # The home.activation below writes the same list to ~/.claude.json, which is
+      # the authoritative location per github.com/anthropics/claude-code/issues/66737.
+      disabledMcpServers = disabledBuiltinServers;
 
       hooks = {
         # New turn starting — stamp working and record the turn-start timestamp
@@ -297,4 +304,24 @@ in
     text = steOutputStyle;
     force = true;
   };
+
+  # Patch ~/.claude.json to set disabledMcpServers — the authoritative location
+  # per github.com/anthropics/claude-code/issues/66737. settings.json above is
+  # a secondary path; jq merge here preserves all existing Claude Code state.
+  home.activation.disableClaudeAiMcpServers =
+    lib.hm.dag.entryAfter [ "writeBoundary" ] (
+      lib.optionalString (disabledBuiltinServers != [ ]) ''
+        if [ -f "$HOME/.claude.json" ]; then
+          _tmpfile=$(mktemp)
+          if ${pkgs.jq}/bin/jq \
+            --argjson servers ${lib.escapeShellArg (builtins.toJSON disabledBuiltinServers)} \
+            '.disabledMcpServers = $servers' \
+            "$HOME/.claude.json" > "$_tmpfile"; then
+            mv "$_tmpfile" "$HOME/.claude.json"
+          else
+            rm -f "$_tmpfile"
+          fi
+        fi
+      ''
+    );
 }

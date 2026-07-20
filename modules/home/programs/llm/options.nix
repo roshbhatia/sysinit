@@ -6,6 +6,17 @@ in
 {
   options.sysinit.llm = {
     mcp = {
+      disabledBuiltinServers = mkOption {
+        type = types.listOf types.str;
+        default = [ ];
+        description = ''
+          claude.ai built-in MCP server names to disable globally.
+          Suppresses the "N servers need authentication" startup warning
+          for integrations the user never uses.
+          Names must match exactly (e.g. "claude.ai Airtable").
+        '';
+      };
+
       additionalServers = mkOption {
         type = types.attrsOf (
           types.submodule {
