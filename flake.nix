@@ -82,6 +82,15 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    # Terminal-first git diff pager. Do not make nixpkgs follow ours: hunk's
+    # bun2nix/flake-parts build enumerates perSystem.x86_64-darwin, which
+    # nixpkgs-unstable (26.11) dropped. Pin the same rev hunk's own lock uses,
+    # which still supports x86_64-darwin, so the build matches upstream.
+    hunk = {
+      url = "github:modem-dev/hunk";
+      inputs.nixpkgs.url = "github:NixOS/nixpkgs/549bd84d6279f9852cae6225e372cc67fb91a4c1";
+    };
+
   };
 
   outputs =
