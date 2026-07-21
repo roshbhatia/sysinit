@@ -42,5 +42,15 @@
           openspecVersion = pkgs.openspec.version;
           inherit skillsRoot;
         };
+
+      # Like mkInstructions but appends outputStyleRules at the recency
+      # position. Use for harnesses that have no native output-style layer.
+      mkInstructionsWithStyle =
+        skillsRoot:
+        llmLib.instructions.makeInstructionsWithStyle {
+          inherit (skillsLib) localSkillDescriptions;
+          openspecVersion = pkgs.openspec.version;
+          inherit skillsRoot;
+        };
     };
 }

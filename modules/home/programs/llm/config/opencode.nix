@@ -14,15 +14,19 @@ let
   # Skills install only to ~/.claude/skills (per default.nix); opencode reads
   # that tree natively. Point instructions at the populated root, not a phantom
   # per-tool dir that holds no SKILL.md files.
-  defaultInstructions = kit.mkInstructions "~/.claude/skills" + ''
+  defaultInstructions =
+    kit.mkInstructions "~/.claude/skills"
+    + ''
 
-    ## OpenCode-specific Slack access
+      ## OpenCode-specific Slack access
 
-    OpenCode's MCP client does not support Slack's dynamic auth flow. If you
-    need Slack context or need to send a Slack message, ask Claude Code to do
-    it with `claude -p '<your Slack task>'` because Claude has Slack MCP
-    access configured.
-  '';
+      OpenCode's MCP client does not support Slack's dynamic auth flow. If you
+      need Slack context or need to send a Slack message, ask Claude Code to do
+      it with `claude -p '<your Slack task>'` because Claude has Slack MCP
+      access configured.
+    ''
+    + "\n## Output Style\n\n"
+    + kit.llmLib.instructions.outputStyleRules;
 
   opencodeConfig = {
     "$schema" = "https://opencode.ai/config.json";

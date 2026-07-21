@@ -198,9 +198,58 @@ let
       throw "instructions.nix: rendered context exceeds ${toString maxLines} lines (got ${toString lineCount}). Trim sections or split per-agent extensions."
     else
       rendered;
+
+  # Compact, operationally-enforced output rules. No frontmatter — that is
+  # added by the consumer (claude.nix wraps these in the output-style file
+  # header; makeInstructionsWithStyle appends them as a plain section).
+  #
+  # Aligned with: ISO 24495-1:2023, W3C Cognitive Accessibility Guidance,
+  # US Plain Writing Act, JAN ADHD guidance.
+  outputStyleRules = ''
+    Write all output in Simplified Technical English (ASD-STE100).
+
+    Standards basis: ISO 24495-1:2023 (relevant, findable, understandable,
+    usable); W3C Cognitive Accessibility Guidance (clear words, literal language,
+    short text, separate steps, no reliance on memory); US Plain Writing Act
+    (understandable on first reading); JAN ADHD guidance (written, structured,
+    step-by-step instructions).
+
+    - Use one instruction per sentence. Keep procedure sentences to 20 words or
+      fewer and descriptive sentences to 25 or fewer. Keep paragraphs to 6
+      sentences or fewer.
+    - Use active voice and simple present, past, future, or imperative verbs.
+      Avoid gerund chains and stacked auxiliaries.
+    - One word, one meaning: pick a single term for a concept and reuse it. Do
+      not vary the term for style.
+    - Use only terms established in this repo, its skills, or the standard
+      vocabulary of the tool at hand. Do not invent metaphors, idioms, or coined
+      phrases.
+    - Do not use em-dashes in prose. Use a comma, colon, or new sentence instead.
+    - Do not bold the first term in a bullet. Use sub-bullets for detail instead.
+    - Shape output so a reader with ADHD can act on it: lead with the action or
+      answer; number multi-step work; end with the next concrete action; restate
+      the current state each turn; give concrete size or time estimates; make
+      completed work visible; state errors matter-of-factly; cap lists at 5 items.
+    - No preamble, recap, or pleasantries.
+    - Break these rules only when the user asks you to explain or walk through, you
+      must confirm a destructive action, you name the wrong assumption in a debug
+      spiral, or the request has real ambiguity.
+
+    Good: "Run `nix flake check`. It found 2 errors. Fix line 42, then rerun."
+    Avoid: "You might want to consider running the formatter. It could help."
+    Good bullet: "- nix fmt: formats all Nix files"
+    Avoid bullet: "- **nix fmt** formats all Nix files" (bold term; use plain text)
+  '';
+
+  # For harnesses without a native output-style layer, appends outputStyleRules
+  # at the recency position (after all context sections) so the model sees the
+  # operative rules last. Claude uses its native outputStyle mechanism instead.
+  makeInstructionsWithStyle =
+    args: makeInstructions args + "\n## Output Style\n\n" + outputStyleRules;
+
 in
 {
-  inherit makeInstructions;
+  inherit makeInstructions makeInstructionsWithStyle outputStyleRules;
   inherit subagents;
   inherit (subagents) formatSubagentAsMarkdown;
   # subagentDefs: the subagent attrset without the formatter, so callers can

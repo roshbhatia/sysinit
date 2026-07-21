@@ -61,7 +61,7 @@ in
   };
 
   home.file.${conventionsPath} = {
-    text = kit.mkInstructions "~/.claude/skills";
+    text = kit.mkInstructionsWithStyle "~/.claude/skills";
     force = true;
   };
 }

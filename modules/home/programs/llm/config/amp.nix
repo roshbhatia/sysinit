@@ -8,8 +8,6 @@ let
   llmLib = import ../lib { inherit lib; };
   kit = llmLib.harnessKit.mkKit { inherit lib pkgs config; };
 
-  defaultInstructions = kit.mkInstructions "~/.claude/skills";
-
   ampConfig = builtins.toJSON {
     "amp.git.commit.ampThread.enabled" = false;
     "amp.git.commit.coauthor.enabled" = false;
@@ -40,7 +38,7 @@ in
     };
     # Amp reads AGENTS.md from project roots and global config paths.
     "amp/AGENTS.md" = {
-      text = defaultInstructions;
+      text = kit.mkInstructionsWithStyle "~/.claude/skills";
       force = true;
     };
   };
