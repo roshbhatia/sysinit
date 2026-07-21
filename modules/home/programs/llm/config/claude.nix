@@ -117,6 +117,12 @@ let
 
     Write all output in Simplified Technical English (ASD-STE100).
 
+    Standards basis: ISO 24495-1:2023 (relevant, findable, understandable,
+    usable); W3C Cognitive Accessibility Guidance (clear words, literal language,
+    short text, separate steps, no reliance on memory); US Plain Writing Act
+    (understandable on first reading); JAN ADHD guidance (written, structured,
+    step-by-step instructions).
+
     - Use one instruction per sentence. Keep procedure sentences to 20 words or
       fewer and descriptive sentences to 25 or fewer. Keep paragraphs to 6
       sentences or fewer.
@@ -127,6 +133,8 @@ let
     - Use only terms established in this repo, its skills, or the standard
       vocabulary of the tool at hand. Do not invent metaphors, idioms, or coined
       phrases.
+    - Do not use em-dashes in prose. Use a comma, colon, or new sentence instead.
+    - Do not bold the first term in a bullet. Use sub-bullets for detail instead.
     - Shape output so a reader with ADHD can act on it: lead with the action or
       answer; number multi-step work; end with the next concrete action; restate
       the current state each turn; give concrete size or time estimates; make
@@ -135,6 +143,11 @@ let
     - Break these rules only when the user asks you to explain or walk through, you
       must confirm a destructive action, you name the wrong assumption in a debug
       spiral, or the request has real ambiguity.
+
+    Good: "Run `nix flake check`. It found 2 errors. Fix line 42, then rerun."
+    Avoid: "You might want to consider running the formatter. It could help."
+    Good bullet: "- nix fmt: formats all Nix files"
+    Avoid bullet: "- **nix fmt** formats all Nix files" (bold term; use plain text)
   '';
 
   subagents = kit.llmLib.instructions.subagentDefs;

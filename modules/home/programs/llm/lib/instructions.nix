@@ -62,7 +62,7 @@ let
 
           - nix-darwin + home-manager + nix flakes (Apple Silicon, NixOS)
           - openspec ${openspecVersion} via `overlays/openspec.nix` (custom schema: `rosh-spec-driven`)
-          - Agent tooling: claude-code, codex, gemini, cursor, aider — all configured from `modules/home/programs/llm/`
+          - Agent tooling: claude-code, codex, gemini, cursor, aider (all configured from `modules/home/programs/llm/`)
           - Shell: zsh; scripts in `hack/` are bash with `set -euo pipefail`, formatted by `shfmt -i 2 -ci -sr -s`
           - Formatter: `nixfmt-rfc-style` via `nix fmt`
           - Session manager: seshy (`sy`) for multi-repo feature work via git worktrees; sessions at `~/.local/state/seshy/sessions/`
@@ -105,7 +105,7 @@ let
           - Use the globally managed OpenSpec CLI/skills when OpenSpec is relevant; run `openspec init` only to create project artifacts, not to install workflow support
           - On unexpected errors: stop, preserve evidence, fix root cause (no `--no-verify`)
           - Use `nix-shell` / `nix develop` for dependencies; avoid global installers
-          - Default to `ast-grep`/`sg` (or the ast-grep MCP) for any structural code search; reserve `grep`/`rg` for literal text — see the `search-code-routing` skill
+          - Default to `ast-grep`/`sg` (or the ast-grep MCP) for any structural code search; reserve `grep`/`rg` for literal text. See the `search-code-routing` skill.
           - Use Explore as the explicit planning subagent for discovery/scoping work; prefer librarian for external docs/code and oracle for deep architecture review
           - For multi-repo feature work, start a seshy session: `sy new <name> [repos...]`; never run bare `sy` (opens interactive picker)
           - openspec and seshy are first-class: check for active openspec changes (`openspec/changes/`) and seshy sessions (`sy list`) before scoping new work
@@ -116,9 +116,13 @@ let
 
           Governs how you write output: chat replies, PR bodies, review comments, docs. Code comments and commits keep their own skills (`writing-code-comments`, `writing-commit-message`). For longer prose in Roshan's name, also apply `writing-tone`.
 
+          Standards basis: ISO 24495-1:2023 (relevant, findable, understandable, usable); W3C Cognitive Accessibility Guidance (clear words, literal language, short text, separate steps, no reliance on memory); US Plain Writing Act (understandable on first reading); JAN ADHD guidance (written, structured, step-by-step instructions).
+
           - Write in Simplified Technical English (ASD-STE100, https://www.asd-ste100.org/). You MUST: use one instruction per sentence; keep procedure sentences to 20 words or fewer and descriptive sentences to 25 or fewer; keep paragraphs to 6 sentences or fewer; use active voice; use simple present, past, future, or imperative verbs; avoid gerund chains and stacked auxiliaries.
           - One word, one meaning: pick a single term for a concept and reuse it. You MUST NOT vary the term for style.
           - Use only terms already established in this repo, its skills, or the standard vocabulary of the tool at hand (Nix, git, k8s, the shell). You MUST NOT invent metaphors, idioms, or coined phrases. Banned examples of made-up or off-convention terms: "belt-and-suspenders", "rung", "north star", "load-bearing", "table stakes". If a term does not appear in this repo or the tool's own docs, do not use it.
+          - Do not use em-dashes in prose. Use a comma, colon, or new sentence instead.
+          - Do not bold the first term in a bullet. Use sub-bullets for detail instead.
           - Shape output so a reader with ADHD can act on it:
             - Lead with the action or answer, not preamble or context.
             - Number multi-step work; each step is one bounded action.
@@ -129,6 +133,11 @@ let
             - Cap lists at 5 items; rank or split longer lists.
             - No preamble, recap, or pleasantries.
           - Break these rules only when: the user asks you to "explain" or "walk through", you must confirm a destructive action, you are naming the wrong assumption in a debug spiral, or the request has real ambiguity.
+
+          Good: "Run `nix flake check`. It found 2 errors. Fix line 42, then rerun."
+          Avoid: "You might want to consider running the formatter. It could potentially help with linting."
+          Good bullet: "- nix fmt: formats all Nix files" or "- nix fmt" with a sub-bullet for detail.
+          Avoid bullet: "- **nix fmt** formats all Nix files" (bold term diminishes clarity; use plain text).
         '';
 
         skills = ''
@@ -156,9 +165,9 @@ let
 
           - `.sysinit/` is gitignored scratch space for lessons and PRD notes; check `.sysinit/lessons.md` at session start
           - OpenSpec artifacts live at `openspec/changes/<name>/`; the active schema is `rosh-spec-driven`
-          - User-level `~/.config/git/ignore` already excludes `**/.claude/`, `**/.agents/` — do not duplicate in per-project `.gitignore`
+          - User-level `~/.config/git/ignore` already excludes `**/.claude/`, `**/.agents/`; do not duplicate in per-project `.gitignore`
           - Seshy sessions live at `~/.local/state/seshy/sessions/`; run `sy list` to discover active sessions before starting new feature work
-          - Cross-harness memory: `basic-memory` MCP is available to all agents — use it for notes and context that must survive across harness boundaries
+          - Cross-harness memory: `basic-memory` MCP is available to all agents; use it for notes and context that must survive across harness boundaries
           - specutil is on PATH: use `specutil graph --as mermaid` to show the cross-change dependency DAG before planning, `specutil tui` for the lifecycle kanban, and `specutil serve` to open the HTML visualization
           - When exploring or planning work that touches openspec changes, always call `specutil graph` first to understand the current DAG
         '';
