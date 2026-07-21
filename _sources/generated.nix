@@ -167,34 +167,34 @@
   };
   pi-coding-agent = {
     pname = "pi-coding-agent";
-    version = "0.80.10";
+    version = "0.81.0";
     src = fetchurl {
-      url = "https://github.com/earendil-works/pi/releases/download/v0.80.10/pi-darwin-arm64.tar.gz";
-      sha256 = "sha256-RAbtInxIby48Fs8U95PcOtRrXQG/aRNaJCTP+lipo0s=";
+      url = "https://github.com/earendil-works/pi/releases/download/v0.81.0/pi-darwin-arm64.tar.gz";
+      sha256 = "sha256-f/ijEVoZKftlbXXHcSyHHkdodvUZRPq3zZIDylofCN4=";
     };
   };
   pi-coding-agent-aarch64-linux = {
     pname = "pi-coding-agent-aarch64-linux";
-    version = "0.80.10";
+    version = "0.81.0";
     src = fetchurl {
-      url = "https://github.com/earendil-works/pi/releases/download/v0.80.10/pi-linux-arm64.tar.gz";
-      sha256 = "sha256-3+Q0AGPf4nQG+mSqyZ2QRyb6wHkZfEV5uegVUXXQUnI=";
+      url = "https://github.com/earendil-works/pi/releases/download/v0.81.0/pi-linux-arm64.tar.gz";
+      sha256 = "sha256-RTi56n+J4dhnfBapAaSVGezb5V9dwCKHAiIqXcKB/OM=";
     };
   };
   pi-coding-agent-x86_64-darwin = {
     pname = "pi-coding-agent-x86_64-darwin";
-    version = "0.80.10";
+    version = "0.81.0";
     src = fetchurl {
-      url = "https://github.com/earendil-works/pi/releases/download/v0.80.10/pi-darwin-x64.tar.gz";
-      sha256 = "sha256-iSs/OFrmd5KZwHol2SgBg4l/z3Vfcib2s2xw0mjzIb4=";
+      url = "https://github.com/earendil-works/pi/releases/download/v0.81.0/pi-darwin-x64.tar.gz";
+      sha256 = "sha256-WX+YLK2AuFShs/sQtJpQtxVrsCmz9XDpfrPn64QFohs=";
     };
   };
   pi-coding-agent-x86_64-linux = {
     pname = "pi-coding-agent-x86_64-linux";
-    version = "0.80.10";
+    version = "0.81.0";
     src = fetchurl {
-      url = "https://github.com/earendil-works/pi/releases/download/v0.80.10/pi-linux-x64.tar.gz";
-      sha256 = "sha256-q2YE9sPz0FB4Pnq7vdH3m3dbIPOWmDPOlyF0BoXQHhM=";
+      url = "https://github.com/earendil-works/pi/releases/download/v0.81.0/pi-linux-x64.tar.gz";
+      sha256 = "sha256-zo4BenIEikDKPAiDSp/u13g1AkYGOmsLmkRYoco61zo=";
     };
   };
 }
