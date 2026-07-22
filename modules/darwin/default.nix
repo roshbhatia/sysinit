@@ -10,6 +10,7 @@
 
     # System configurations
     ./aerospace.nix
+    ./clamshell.nix
     ./borders.nix
     ./desktop.nix
     ./homebrew.nix
