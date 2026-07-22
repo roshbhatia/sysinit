@@ -2,29 +2,29 @@
 
 {
   # Prevent lid-close sleep when the Apple Thunderbolt Display is connected.
-  # system_profiler reports it as "Thunderbolt Display"; caffeinate -s holds
-  # a system-sleep assertion that is only active on AC power.
-  launchd.user.agents.clamshell-thunderbolt = {
+  # caffeinate -s only blocks sleep on AC power, so this daemon runs as root
+  # and calls pmset -a disablesleep 1/0 instead — works on battery too.
+  launchd.daemons.clamshell-thunderbolt = {
     serviceConfig = {
       ProgramArguments = [
         "/bin/sh"
         "-c"
         ''
-          CAFPID=""
+          CONNECTED=""
           is_connected() {
             /usr/sbin/system_profiler SPDisplaysDataType 2>/dev/null \
               | /usr/bin/grep -q "Thunderbolt Display"
           }
           while true; do
             if is_connected; then
-              if [ -z "$CAFPID" ]; then
-                /usr/bin/caffeinate -s &
-                CAFPID=$!
+              if [ -z "$CONNECTED" ]; then
+                /usr/bin/pmset -a disablesleep 1
+                CONNECTED=1
               fi
             else
-              if [ -n "$CAFPID" ]; then
-                kill "$CAFPID" 2>/dev/null
-                CAFPID=""
+              if [ -n "$CONNECTED" ]; then
+                /usr/bin/pmset -a disablesleep 0
+                CONNECTED=""
               fi
             fi
             sleep 15
@@ -33,8 +33,8 @@
       ];
       RunAtLoad = true;
       KeepAlive = true;
-      StandardOutPath = "/tmp/clamshell-thunderbolt.log";
-      StandardErrorPath = "/tmp/clamshell-thunderbolt.error.log";
+      StandardOutPath = "/var/log/clamshell-thunderbolt.log";
+      StandardErrorPath = "/var/log/clamshell-thunderbolt.error.log";
     };
   };
 }
