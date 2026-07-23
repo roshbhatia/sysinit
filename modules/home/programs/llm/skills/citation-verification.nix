@@ -50,9 +50,11 @@
     without `--no-verify`. Re-run `citelock recheck` when back online to catch a
     dead link or a retraction that appeared after capture.
 
-  ## Optional discovery aid
+  ## Finding a source to cite
 
-  `citation-intelligence` (run locally) MAY help rank candidate sources while
-  authoring. It fans a query across live LLM engines and its output varies run
-  to run, so it MUST NOT be part of the gate — it is an authoring aid only.
+  To find a source for an assumption, use the harness's own web search and fetch
+  (WebSearch / WebFetch) — no dedicated tool, MCP, or API key is needed. Once you
+  have a candidate URL, `citelock capture` pins and verifies it. Verification is
+  entirely keyless: lychee, the Crossref REST API, and monolith all work without
+  credentials. There is no LLM-engine dependency in this loop.
 ''
