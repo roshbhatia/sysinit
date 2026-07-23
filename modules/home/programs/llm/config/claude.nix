@@ -58,7 +58,9 @@ let
       # Generates: "id1"|"id2"|... for a shell case pattern.
       mkChanPat = channels: lib.concatStringsSep "|" (map (c: "\"${c}\"") channels);
       # Send tools that support per-channel gating (exclude schedule).
-      sendNowTools = lib.filter (t: !(lib.hasSuffix "schedule_message" t)) llmLib.allowlist.slackSendTools;
+      sendNowTools = lib.filter (
+        t: !(lib.hasSuffix "schedule_message" t)
+      ) llmLib.allowlist.slackSendTools;
       scheduleTools = lib.filter (lib.hasSuffix "schedule_message") llmLib.allowlist.slackSendTools;
       # Inline case arm that allows approved channels; empty when no channels set.
       allowedChanBlock =
@@ -133,6 +135,7 @@ in
     settings = {
       env = {
         CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS = "1";
+        CLAUDE_CODE_SHELL = lib.getExe pkgs.zsh;
         # Nix owns updates for every harness in this repo; disable the in-place
         # auto-updater so it never fights the flake pin.
         DISABLE_AUTOUPDATER = "1";
@@ -144,6 +147,10 @@ in
       teammateMode = "in-process";
 
       dangerouslySkipPermissions = true;
+
+      sandbox = {
+        enabled = false;
+      };
 
       # `ask` is intentionally absent: dangerouslySkipPermissions bypasses it, so
       # the Slack send gate lives in the slackGuardScript PreToolUse hook below.
@@ -322,20 +329,19 @@ in
   # Patch ~/.claude.json to set disabledMcpServers — the authoritative location
   # per github.com/anthropics/claude-code/issues/66737. settings.json above is
   # a secondary path; jq merge here preserves all existing Claude Code state.
-  home.activation.disableClaudeAiMcpServers =
-    lib.hm.dag.entryAfter [ "writeBoundary" ] (
-      lib.optionalString (disabledBuiltinServers != [ ]) ''
-        if [ -f "$HOME/.claude.json" ]; then
-          _tmpfile=$(mktemp)
-          if ${pkgs.jq}/bin/jq \
-            --argjson servers ${lib.escapeShellArg (builtins.toJSON disabledBuiltinServers)} \
-            '.disabledMcpServers = $servers' \
-            "$HOME/.claude.json" > "$_tmpfile"; then
-            mv "$_tmpfile" "$HOME/.claude.json"
-          else
-            rm -f "$_tmpfile"
-          fi
+  home.activation.disableClaudeAiMcpServers = lib.hm.dag.entryAfter [ "writeBoundary" ] (
+    lib.optionalString (disabledBuiltinServers != [ ]) ''
+      if [ -f "$HOME/.claude.json" ]; then
+        _tmpfile=$(mktemp)
+        if ${pkgs.jq}/bin/jq \
+          --argjson servers ${lib.escapeShellArg (builtins.toJSON disabledBuiltinServers)} \
+          '.disabledMcpServers = $servers' \
+          "$HOME/.claude.json" > "$_tmpfile"; then
+          mv "$_tmpfile" "$HOME/.claude.json"
+        else
+          rm -f "$_tmpfile"
         fi
-      ''
-    );
+      fi
+    ''
+  );
 }

@@ -126,6 +126,13 @@ in
       # old `full-auto` policy to `never`.
       approval_policy = "never";
 
+      sandbox_mode = "danger-full-access";
+
+      shell_environment_policy = {
+        experimental_use_profile = true;
+        set.SHELL = lib.getExe pkgs.zsh;
+      };
+
       # Opt in to the experimental Streamable HTTP MCP client (v0.44.0+). Without
       # this, URL-based MCP entries in the TOML config are silently ignored.
       experimental_use_rmcp_client = true;

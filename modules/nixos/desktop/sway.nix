@@ -39,7 +39,10 @@ in
   hardware.uinput.enable = true;
 
   users.users.${config.sysinit.user.username} = {
-    extraGroups = [ "uinput" "input" ];
+    extraGroups = [
+      "uinput"
+      "input"
+    ];
     linger = true;
   };
 
