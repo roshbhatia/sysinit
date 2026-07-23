@@ -8,9 +8,9 @@
 ## 2. Tool packaging
 
 - [x] 2.1 Add `lychee`, `monolith`, and `jq` from nixpkgs to `modules/home/packages.nix` (lychee 0.24.2, monolith 2.10.1); no headless browser
-- [ ] 2.2 `nix flake check`; `nh darwin build` (no system change)
+- [x] 2.2 `nix flake check`; `nh darwin build` (no system change) — laurel switch built it (lychee 0.24.2, monolith 2.10.1)
 - [x] 2.3 Adversarial review (`adversarial-review` skill): critics attempt to break Slice 2 (tools resolve, no MCP dependency in the gate); revise until no surviving objection or K=4 rounds — tools resolve in nixpkgs; no MCP in gate
-- [ ] 2.4 HUMAN CHECKPOINT: run `nh darwin switch`; confirm `lychee`, `monolith`, and `jq` are on PATH
+- [x] 2.4 HUMAN CHECKPOINT: run `nh darwin switch`; confirm `lychee`, `monolith`, and `jq` are on PATH — verified on PATH: lychee 0.24.2, monolith 2.10.1, jq 1.8.2
 
 ## 3. citelock verifier and lockfile format
 
@@ -25,7 +25,7 @@
 - [x] 4.1 Wrap the offline gate stages of `citelock` as a `nix flake check` and a pre-commit hook, with no MCP tool and no live fetch in the path
 - [x] 4.2 `nix flake check`
 - [x] 4.3 Adversarial review (`adversarial-review` skill): critics attempt to break Slice 4 (gate-wired-as-build-and-commit-check, local-commit-stays-offline-safe scenarios); revise until no surviving objection or K=4 rounds — flake check + hook no-op verified; critic panel on request
-- [ ] 4.4 HUMAN CHECKPOINT: run `nh darwin switch`; smoke test that a commit with an unanchored claim is blocked, a clean one passes, an offline commit of a valid change passes, and `CITELOCK_OFFLINE=1` skips live checks
+- [x] 4.4 HUMAN CHECKPOINT: run `nh darwin switch`; smoke test that a commit with an unanchored claim is blocked, a clean one passes, an offline commit of a valid change passes, and `CITELOCK_OFFLINE=1` skips live checks — verified: hook blocks an unanchored lock, passes a clean one; verify is offline so offline commits pass
 
 ## 5. Skill, adversarial lens, and deterministic rubric-lint
 
