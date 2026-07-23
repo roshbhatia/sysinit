@@ -60,6 +60,27 @@ upstream drift.
 - Inserts a `### Non-goals` block under `## What Changes` so agents see the
   expected structure when scaffolding the file.
 
+## Package-level divergence (not a schema-file change)
+
+`overlays/openspec.nix` patches the built openspec `dist/` so `rosh-spec-driven`
+is the machine-wide default schema (`default-rosh-spec-driven-schema` change).
+This is a package patch, not a schema-template edit, so `hack/sync-openspec-schema.sh`
+(which diffs only the schema template files) does not and cannot see it. The
+patched default is instead guarded by `checks.<system>.openspec-default-schema`,
+a hermetic behavioral flake check.
+
+Patched sites (openspec 1.6.0), all `'spec-driven'` → `'rosh-spec-driven'`, via
+`substituteInPlace ... --replace-fail` so a missed site fails the build:
+- `dist/core/openspec-root.js` — `DEFAULT_OPENSPEC_SCHEMA`
+- `dist/core/init.js` — `DEFAULT_SCHEMA`
+- `dist/commands/workflow/shared.js` — `DEFAULT_SCHEMA`
+- `dist/utils/change-utils.js` — `DEFAULT_SCHEMA`
+- `dist/core/planning-home.js` — `REPO_DEFAULT_SCHEMA`
+- `dist/core/root-selection.js` — inline `defaultSchema:` (read by `openspec new change`)
+
+On a version bump, re-check these site names; `--replace-fail` fails the build on
+a rename/removal, and the flake check fails on a newly added or moved site.
+
 ## Pending sync notes
 
 - Initial fork taken from openspec 1.3.0 (`/nix/store/lwijn4py7cknh9zbvvx6icbap5gfl9ab-openspec-1.3.0/lib/openspec/schemas/spec-driven`).

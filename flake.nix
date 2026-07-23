@@ -119,6 +119,25 @@
           ;
         inherit (builders) mkPkgs mkUtils mkOverlays;
       };
+
+      # Systems the cache bundle and checks are built for.
+      cacheSystems = [
+        "aarch64-darwin"
+        "x86_64-linux"
+        "aarch64-linux"
+      ];
+      # nixpkgs with this repo's overlays applied, per system. Shared by the
+      # packages and checks outputs.
+      pkgsFor =
+        system:
+        import nixpkgs {
+          inherit system;
+          config = {
+            allowUnfree = true;
+            allowUnsupportedSystem = true;
+          };
+          overlays = [ (lib.composeManyExtensions (import ./overlays/default.nix { inherit inputs; })) ];
+        };
     in
     {
       darwinConfigurations = outputBuilders.mkConfigurations {
@@ -139,21 +158,6 @@
 
       packages =
         let
-          cacheSystems = [
-            "aarch64-darwin"
-            "x86_64-linux"
-            "aarch64-linux"
-          ];
-          pkgsFor =
-            system:
-            import nixpkgs {
-              inherit system;
-              config = {
-                allowUnfree = true;
-                allowUnsupportedSystem = true;
-              };
-              overlays = [ (lib.composeManyExtensions (import ./overlays/default.nix { inherit inputs; })) ];
-            };
           # Custom / version-overridden packages that cache.nixos.org never
           # serves. A generous list is safe: the CI cachix post-build-hook only
           # uploads paths it actually builds, so already-cached entries cost
@@ -225,6 +229,50 @@
           {
             aarch64-darwin.agentsMd = agentsMd;
           };
+
+      checks = lib.genAttrs cacheSystems (
+        system:
+        let
+          pkgs = pkgsFor system;
+        in
+        {
+          # Behavioral guard for the machine-wide default (Lever 2). Assert a
+          # bare `openspec new change` writes `schema: rosh-spec-driven`. This
+          # catches a newly added or moved default-schema site that the
+          # overlay's `--replace-fail` patch is blind to. Hermetic: HOME and
+          # XDG_DATA_HOME in the build tmp, the schema copied into the tmp XDG
+          # dir, no network (telemetry is disabled and swallowed).
+          openspec-default-schema =
+            pkgs.runCommand "openspec-default-schema-check"
+              {
+                nativeBuildInputs = [ pkgs.openspec ];
+              }
+              ''
+                export HOME="$TMPDIR/home"
+                export XDG_DATA_HOME="$TMPDIR/xdg"
+                export OPENSPEC_TELEMETRY=0
+                export CI=true
+                mkdir -p "$XDG_DATA_HOME/openspec/schemas"
+                cp -r ${./openspec/schemas/rosh-spec-driven} "$XDG_DATA_HOME/openspec/schemas/rosh-spec-driven"
+                chmod -R u+w "$XDG_DATA_HOME/openspec/schemas/rosh-spec-driven"
+                mkdir -p "$TMPDIR/proj"
+                cd "$TMPDIR/proj"
+                openspec new change probe > /dev/null 2>&1 || true
+                cfg="$(find . -name config.yaml -path '*openspec*' | head -n1)"
+                if [ -z "$cfg" ]; then
+                  echo "FAIL: bare 'openspec new change' wrote no openspec config.yaml" >&2
+                  exit 1
+                fi
+                if grep -q "schema: rosh-spec-driven" "$cfg"; then
+                  echo "OK: bare 'openspec new change' defaults to rosh-spec-driven" | tee "$out"
+                else
+                  echo "FAIL: default schema is not rosh-spec-driven. Wrote:" >&2
+                  cat "$cfg" >&2
+                  exit 1
+                fi
+              '';
+        }
+      );
 
       lib = {
         inherit

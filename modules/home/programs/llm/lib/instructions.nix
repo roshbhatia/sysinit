@@ -165,6 +165,7 @@ let
 
           - `.sysinit/` is gitignored scratch space for lessons and PRD notes; check `.sysinit/lessons.md` at session start
           - OpenSpec artifacts live at `openspec/changes/<name>/`; the active schema is `rosh-spec-driven`
+          - `rosh-spec-driven` is the machine-wide default: it is installed to `~/.local/share/openspec/schemas/` and the openspec CLI default is patched (`overlays/openspec.nix`), so bare `openspec init` picks it everywhere. In a repo shared with others, pin `schema: spec-driven` (or `openspec init --schema spec-driven`), because the fork is not distributed and a teammate without it gets a "schema not found" error
           - User-level `~/.config/git/ignore` already excludes `**/.claude/`, `**/.agents/`; do not duplicate in per-project `.gitignore`
           - Seshy sessions live at `~/.local/state/seshy/sessions/`; run `sy list` to discover active sessions before starting new feature work
           - Cross-harness memory: `basic-memory` MCP is available to all agents; use it for notes and context that must survive across harness boundaries

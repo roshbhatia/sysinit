@@ -54,6 +54,30 @@ in
 
     prePatch = "cp ${pnpmLock} pnpm-lock.yaml";
 
+    # Make rosh-spec-driven the machine-wide default. openspec has no config
+    # key for a default schema; the default is hardcoded across six sites in
+    # the prebuilt dist/. Patch every site, not just the named constants:
+    # `openspec new change` reads `root.defaultSchema` from the inline
+    # object-literal in root-selection.js, which is not a named constant.
+    # --replace-fail makes a missed site (upstream rename on a version bump)
+    # fail the build loudly instead of silently reverting to spec-driven.
+    # A newly *added* controlling site is caught by the behavioral flake check
+    # (checks.<system>.openspec-default-schema), not here.
+    postPatch = ''
+      substituteInPlace dist/core/openspec-root.js \
+        --replace-fail "DEFAULT_OPENSPEC_SCHEMA = 'spec-driven'" "DEFAULT_OPENSPEC_SCHEMA = 'rosh-spec-driven'"
+      substituteInPlace dist/core/init.js \
+        --replace-fail "DEFAULT_SCHEMA = 'spec-driven'" "DEFAULT_SCHEMA = 'rosh-spec-driven'"
+      substituteInPlace dist/commands/workflow/shared.js \
+        --replace-fail "DEFAULT_SCHEMA = 'spec-driven'" "DEFAULT_SCHEMA = 'rosh-spec-driven'"
+      substituteInPlace dist/utils/change-utils.js \
+        --replace-fail "DEFAULT_SCHEMA = 'spec-driven'" "DEFAULT_SCHEMA = 'rosh-spec-driven'"
+      substituteInPlace dist/core/planning-home.js \
+        --replace-fail "REPO_DEFAULT_SCHEMA = 'spec-driven'" "REPO_DEFAULT_SCHEMA = 'rosh-spec-driven'"
+      substituteInPlace dist/core/root-selection.js \
+        --replace-fail "defaultSchema: 'spec-driven'" "defaultSchema: 'rosh-spec-driven'"
+    '';
+
     buildPhase = ''
       runHook preBuild
       pnpm install --frozen-lockfile --prod
