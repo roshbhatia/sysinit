@@ -34,6 +34,19 @@
   Detect the harness with a shell check, e.g.
   `printenv CLAUDECODE CLAUDE_CODE_CHILD_SESSION CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS`.
 
+  ## Deterministic rubric-lint first (`specreview`)
+
+  Before spawning critics, run the deterministic half: `./hack/specreview.sh
+  <change-dir>`. It checks only stated facts — every requirement has a
+  declared-negative scenario (`- **POLARITY** negative`), design has the
+  required sections, each `- Decision:` has an `- Alternative rejected:` marker,
+  every slice has an adversarial-review step, `Non-goals` is present. This part
+  is a pure function of the artifacts and is reproducible. The LLM refutation
+  below is stabilized (pinned artifact snapshot, fixed rubric, fixed N and lens
+  set, temperature 0, structured verdict, majority vote) but NOT
+  bit-deterministic: two runs converge but are not identical. Do not claim
+  otherwise. Fix every `specreview` violation before the critic loop.
+
   ## The loop (summary — reference has the sourced detail)
 
   1. **Bind the rubric.** For an OpenSpec change, the rubric is the spec
@@ -41,7 +54,10 @@
      `Decisions` and `Rollout & Gating`, and the proposal `Non-goals`. A critic
      MUST cite the specific rubric item it believes is violated.
   2. **Spawn N=3 independent critics**, authorship hidden, one lens each (rotate
-     across rounds: correctness, security, ops/rollback, cost, data-migration).
+     across rounds: correctness, security, ops/rollback, cost, data-migration,
+     citation). The `citation` lens adjudicates whether a pinned quote supports
+     its claim (SUPPORTS / CONTRADICTS / UNRELATED over the snapshot); it MAY run
+     only after the `citelock` offline gate (Tier 0) is green for the change.
      Each critic contract: "Produce a concrete scenario in which this artifact
      fails. Name the violated rubric item. If you cannot, reply `NO SURVIVING
      OBJECTION`."

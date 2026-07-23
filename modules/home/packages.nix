@@ -30,6 +30,10 @@
       jq
       jqp
       yq-go
+      # citelock (citation verification): lychee for link liveness, monolith for
+      # single-file HTML capture. jq (above) feeds the Crossref REST query.
+      lychee
+      monolith
       duf
       htop
       glow

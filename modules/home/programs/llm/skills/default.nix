@@ -84,6 +84,12 @@
     };
   };
 
+  citation-verification = {
+    description = "Verify external-factual claims (pricing, availability, external API behavior, cited papers) deterministically with `citelock`: pin each claim into a citations.lock against a tool-captured snapshot, so the offline gate is a pure function and `citelock capture` fails closed on a quote a live source does not state. Use when authoring a rosh-spec-driven change with external-factual claims; the schema makes an unanchored claim a default-reject.";
+    content = import ./citation-verification.nix;
+    allowed-tools = "Bash(./hack/citelock.sh:*) Bash(citelock:*) Read";
+  };
+
   diagram-mermaid-render = {
     description = "Renders Mermaid diagrams so they live where they are read: ASCII inline via `mermaid-ascii` for markdown, openspec artifacts, and chat; PNG/SVG export via the Kroki API only when visual fidelity is required. Per-diagram-type syntax guidance is sourced from the Agents365 mermaid-skill. Use when a diagram clarifies more than prose: capability flow, state transitions, sequence-of-calls, option trees, dependency graphs, decision points, architecture sketches.";
     content = import ./diagram-mermaid-render.nix;

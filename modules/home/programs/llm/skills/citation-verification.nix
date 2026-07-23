@@ -1,0 +1,58 @@
+''
+  Verify external-factual claims deterministically with `citelock`
+  (`hack/citelock.sh`). Pin each claim into a `citations.lock` and check it
+  against a tool-captured snapshot, so "is this source real and does it say
+  this" becomes an exit code, not a review opinion.
+
+  ## When to use
+
+  - Authoring a rosh-spec-driven change that asserts external-factual claims:
+    pricing, availability, external API behavior, or a cited paper. The schema
+    makes an unanchored external-factual claim a default-reject.
+  - NOT for a bare version identifier a sha256 or lockfile pin already provides
+    (nvfetcher `_sources`, `flake.lock`, `vendorHash`). Prose asserting a fact
+    about that version's behavior or history IS in scope.
+
+  ## The two tiers
+
+  Tier 0, offline gate (`citelock verify <change-dir>`): a pure function of
+  (artifact + `citations.lock`) — format lint, capture-provenance, quote-anchor
+  (`grep -F`), snapshot sha256, freshness. No network, no MCP tool. This is what
+  the pre-commit hook and the `citelock` flake check run. It is deterministic;
+  it only REPRODUCES the verdict capture recorded.
+
+  Tier 1, capture (`citelock capture <url> --id <id> --quote <text> --class
+  <class> [--doi <doi>]`): the truth-check. It fetches the URL live and FAILS
+  CLOSED unless the verbatim quote is a literal substring of the fetched bytes,
+  then writes the snapshot plus a provenance sidecar and runs the live-web
+  checks (`lychee` liveness, Crossref DOI existence and retraction). This is
+  where an agent hallucination — a real URL that does not state the claim — is
+  caught, because the quote is checked against bytes the author did not write.
+
+  ## Authoring loop
+
+  1. Write the claim with a verbatim quote you can point to in the source.
+  2. Run `citelock capture` for it. If capture fails closed, either the quote is
+     wrong (fix it) or the page is client-side-rendered (see below).
+  3. Repeat per claim; commit `citations.lock` and the `citations/` snapshots.
+  4. `citelock verify` runs offline at commit and build time.
+
+  ## Rules that keep it honest
+
+  - Client-side-rendered SPA pages (some cloud pricing pages) are out of scope:
+    capture does not run JS, so the quote will not anchor. Cite a stable or
+    archived URL (a Wayback snapshot) or the underlying JSON API instead.
+  - The offline gate cannot tell a genuine capture from a hand-forged provenance
+    sidecar; a determined author who bypasses `citelock capture` is out of the
+    threat model. The gate defends against agent hallucination and accidental
+    paraphrase, not a hostile author. State this; do not overclaim.
+  - `CITELOCK_OFFLINE=1` skips the live checks so a commit succeeds offline
+    without `--no-verify`. Re-run `citelock recheck` when back online to catch a
+    dead link or a retraction that appeared after capture.
+
+  ## Optional discovery aid
+
+  `citation-intelligence` (run locally) MAY help rank candidate sources while
+  authoring. It fans a query across live LLM engines and its output varies run
+  to run, so it MUST NOT be part of the gate — it is an authoring aid only.
+''

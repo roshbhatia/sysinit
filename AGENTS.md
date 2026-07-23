@@ -84,6 +84,7 @@ Avoid bullet: "- **nix fmt** formats all Nix files" (bold term diminishes clarit
 Skills live at `~/.claude/skills/<name>/SKILL.md`, generated from `modules/home/programs/llm/skills/default.nix`.
 
 - `adversarial-review` · Runs an adversarial review loop where independent critics try to break an artifact (plan, spec, design, or code) and the author revises against surviving objections until none remain or a round cap is hit
+- `citation-verification` · Verify external-factual claims (pricing, availability, external API behavior, cited papers) deterministically with `citelock`: pin each claim into a citations
 - `diagram-mermaid-render` · Renders Mermaid diagrams so they live where they are read: ASCII inline via `mermaid-ascii` for markdown, openspec artifacts, and chat; PNG/SVG export via the Kroki API only when visual fidelity is required
 - `feature-based-session-manager` · Operates the seshy multi-repo, feature-based session manager via its non-interactive `sy` subcommands
 - `openspec-workflow` · Uses the global OpenSpec workflow for spec-driven repositories without relying on per-project openspec init scaffolding

@@ -271,6 +271,37 @@
                   exit 1
                 fi
               '';
+
+          # Offline citation gate: run citelock's offline stages over every
+          # openspec change that ships a citations.lock. Pure function of the
+          # tree (no network, no MCP); the same gate the pre-commit hook runs.
+          # A change with no citations.lock is a no-op.
+          citelock =
+            pkgs.runCommand "citelock-check"
+              {
+                nativeBuildInputs = [
+                  pkgs.jq
+                  pkgs.bash
+                ];
+              }
+              ''
+                changes=${./openspec/changes}
+                found=0
+                fail=0
+                while IFS= read -r lock; do
+                  [ -z "$lock" ] && continue
+                  found=1
+                  dir="$(dirname "$lock")"
+                  if ! bash ${./hack/citelock.sh} verify "$dir"; then
+                    fail=1
+                  fi
+                done < <(find "$changes" -name citations.lock 2> /dev/null)
+                if [ "$fail" -ne 0 ]; then
+                  echo "FAIL: citelock offline gate failed" >&2
+                  exit 1
+                fi
+                echo "OK: citelock offline gate ($([ "$found" -eq 1 ] && echo 'all locks pass' || echo 'no locks present'))" | tee "$out"
+              '';
         }
       );
 

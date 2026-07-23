@@ -81,6 +81,27 @@ Patched sites (openspec 1.6.0), all `'spec-driven'` → `'rosh-spec-driven'`, vi
 On a version bump, re-check these site names; `--replace-fail` fails the build on
 a rename/removal, and the flake check fails on a newly added or moved site.
 
+## add-citation-verification divergences
+
+### schema.yaml — `artifacts[id=proposal].instruction`
+- Adds rosh-spec-driven rule 5: external-factual claims require a passing
+  `citations.lock` with anchored records; an unanchored claim is a default-reject.
+  Bare version identifiers pinned by sha256/lockfile are excluded; prose about a
+  version's behavior is not.
+
+### schema.yaml — `artifacts[id=specs].instruction`
+- Adds a rule requiring each scenario to declare polarity on a body line
+  (`- **POLARITY** positive|negative`), keeping the canonical `#### Scenario:`
+  heading so openspec's archive parser does not drop it. `specreview` reads the
+  declared marker instead of inferring polarity from prose.
+
+### schema.yaml — `artifacts[id=design].instruction`
+- Requires each Decisions entry's rejected alternative to be on a line beginning
+  `- Alternative rejected:` so `specreview` can read it.
+
+### templates/spec.md
+- Adds a `- **POLARITY**` line to the scenario skeleton.
+
 ## Pending sync notes
 
 - Initial fork taken from openspec 1.3.0 (`/nix/store/lwijn4py7cknh9zbvvx6icbap5gfl9ab-openspec-1.3.0/lib/openspec/schemas/spec-driven`).
