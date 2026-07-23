@@ -11,9 +11,9 @@
 - [x] 2.1 Add a `postPatch` to `overlays/openspec.nix` that rewrites all six default-schema sites in the built `dist/` (`openspec-root.js` `DEFAULT_OPENSPEC_SCHEMA`, `init.js` `DEFAULT_SCHEMA`, `commands/workflow/shared.js` `DEFAULT_SCHEMA`, `utils/change-utils.js` `DEFAULT_SCHEMA`, `planning-home.js` `REPO_DEFAULT_SCHEMA`, and the inline `defaultSchema: 'spec-driven'` in `root-selection.js`); use `substituteInPlace ... --replace-fail` (or a match-count guard) so a missed site fails the build
 - [x] 2.2 Add a hermetic behavioral test as a `nix flake check` (not an `installCheckPhase`, to keep the openspec derivation cache clean): `HOME`/`XDG_DATA_HOME` in tmp, copy the in-repo schema into the tmp XDG dir, `openspec new change probe` with no network, assert the written `config.yaml` names `rosh-spec-driven` (catches a new or moved default site that `--replace-fail` misses)
 - [x] 2.3 Record the patch in `openspec/schemas/rosh-spec-driven/CHANGES.md` with the upstream files it overrides
-- [ ] 2.4 `nix flake check`; `nh darwin build` (no system change)
+- [x] 2.4 `nix flake check`; `nh darwin build` (no system change)
 - [x] 2.5 Adversarial review (`adversarial-review` skill): critics attempt to break Slice 2 against its spec scenarios (fresh-init-picks-the-fork, patched-default-with-no-resolvable-schema, removed-known-site-fails-the-build, new-controlling-site-caught-by-the-behavioral-test); revise until no surviving objection or K=4 rounds — done in the 4-round loop (rounds 1-2 drove the all-six-sites + fail-loud fixes; round 3 build-sandbox critic empirically confirmed the hermetic check runs)
-- [ ] 2.6 HUMAN CHECKPOINT: run `nh darwin switch`, then in an empty temp dir run `openspec new change probe`, confirm `schema: rosh-spec-driven` in its config, then delete the probe
+- [x] 2.6 HUMAN CHECKPOINT: run `nh darwin switch`, then in an empty temp dir run `openspec new change probe`, confirm `schema: rosh-spec-driven` in its config, then delete the probe
 
 ## 3. Sync script and docs
 
@@ -24,5 +24,5 @@
 
 ## 4. Rollout
 
-- [ ] 4.1 Confirm the gate sequence in `design.md` (Rollout & Gating) was followed for every slice
-- [ ] 4.2 Kill switch verified: reverting the overlay `postPatch` restores the upstream default without touching Lever 1
+- [x] 4.1 Confirm the gate sequence in `design.md` (Rollout & Gating) was followed for every slice
+- [x] 4.2 Kill switch verified: reverting the overlay `postPatch` restores the upstream default without touching Lever 1
