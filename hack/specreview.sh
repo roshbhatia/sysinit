@@ -58,26 +58,32 @@ if [[ -f ${design} ]]; then
   for section in "## Decisions" "## Rollout & Gating" "## Adversarial Review"; do
     grep -Fq -- "$section" "$design" || violation "design.md missing required section: ${section}"
   done
-  # Count Decision bullets and rejected-alternative markers; every decision
-  # needs at least one rejected alternative.
-  dec=$(grep -c -- '^- Decision:' "$design" || true)
-  alt=$(grep -c -- '^  - Alternative rejected:' "$design" || true)
-  if [[ ${dec} -gt 0 && ${alt} -lt ${dec} ]]; then
-    violation "design.md has ${dec} '- Decision:' entries but only ${alt} '- Alternative rejected:' markers"
+  # Per-block: every `- Decision:` needs at least one following
+  # `- Alternative rejected:` before the next decision. Counting in aggregate is
+  # wrong (two alternatives under one decision would cover a bare one elsewhere).
+  if ! awk '
+    /^- Decision:/ { if (d && !a) bad = 1; d = 1; a = 0; next }
+    /^  - Alternative rejected:/ { if (d) a = 1 }
+    END { if (d && !a) bad = 1; exit bad ? 1 : 0 }
+  ' "$design"; then
+    violation "design.md has a '- Decision:' with no following '- Alternative rejected:' marker"
   fi
 fi
 
-# --- tasks.md: each slice has an adversarial-review checkbox -----------------
+# --- tasks.md: each non-Rollout slice has an adversarial-review checkbox -----
 tasks="${dir}/tasks.md"
 if [[ -f ${tasks} ]]; then
-  while IFS= read -r slice; do
-    [[ -z ${slice} ]] && continue
-  done < <(grep -E '^## [0-9]+\.' "$tasks" || true)
-  # Rollout is allowed to lack a critic step; every other slice needs one.
-  total_slices=$(grep -Ec '^## [0-9]+\.' "$tasks" || true)
-  review_lines=$(grep -Eic 'adversarial review' "$tasks" || true)
-  if [[ ${total_slices} -gt 1 && ${review_lines} -lt $((total_slices - 1)) ]]; then
-    violation "tasks.md has ${total_slices} slices but only ${review_lines} adversarial-review steps"
+  # Per-slice: the review step must be a checkbox line inside the slice, not a
+  # heading (a slice titled "Adversarial review …" must not self-satisfy).
+  if ! awk '
+    /^## [0-9]+\./ {
+      if (inslice && !isrollout && !hasreview) bad = 1
+      inslice = 1; hasreview = 0; isrollout = ($0 ~ /[Rr]ollout/); next
+    }
+    /^- \[[ x]\].*[Aa]dversarial [Rr]eview/ { if (inslice) hasreview = 1 }
+    END { if (inslice && !isrollout && !hasreview) bad = 1; exit bad ? 1 : 0 }
+  ' "$tasks"; then
+    violation "a non-Rollout tasks.md slice has no adversarial-review checkbox"
   fi
 fi
 
