@@ -55,6 +55,16 @@ require_tool() {
   command -v "$1" > /dev/null 2>&1 || die "required tool not on PATH: $1"
 }
 
+# Literal whole-file substring test that keeps embedded newlines literal, so a
+# multiline quote must appear in full. grep -F matches line-by-line (OR
+# semantics), which would let a multiline quote pass if any single line-fragment
+# appeared; awk index() over the whole buffer does not. Quote is passed via env,
+# never -v, to avoid awk backslash mangling.
+anchor_contains() {
+  # $1 = file; quote read from $CITELOCK_Q
+  awk 'BEGIN { q = ENVIRON["CITELOCK_Q"] } { b = b $0 ORS } END { exit index(b, q) ? 0 : 1 }' "$1"
+}
+
 sha256_of() {
   # Portable sha256 of a file, hex only.
   if command -v sha256sum > /dev/null 2>&1; then
@@ -73,12 +83,19 @@ assert_safe_url() {
     *) die "refusing non-https source (scheme allowlist): $url" ;;
   esac
   host="${url#https://}"
-  host="${host%%/*}"
-  host="${host%%:*}"
+  host="${host%%/*}" # strip path
+  host="${host##*@}" # strip userinfo (user:pass@) before matching
+  host="${host%%:*}" # strip port
   case "$host" in
-    localhost | 127.* | 0.* | 169.254.* | 10.* | 192.168.*) die "refusing link-local/loopback/RFC-1918 host: $host" ;;
-    172.1[6-9].* | 172.2[0-9].* | 172.3[0-1].*) die "refusing RFC-1918 host: $host" ;;
     "") die "could not parse host from URL: $url" ;;
+    localhost | localhost. | *.localhost) die "refusing loopback host: $host" ;;
+    \[*) die "refusing IPv6-literal host: $host" ;;
+    metadata.google.internal | *.internal) die "refusing internal/metadata host: $host" ;;
+    127.* | 0.* | 169.254.* | 10.* | 192.168.*) die "refusing loopback/link-local/RFC-1918 host: $host" ;;
+    172.1[6-9].* | 172.2[0-9].* | 172.3[0-1].*) die "refusing RFC-1918 host: $host" ;;
+    0x* | *.0x*) die "refusing hex-IP host: $host" ;;
+    *[!0-9.]*) : ;;                                               # has a non-numeric char -> DNS name, allowed
+    *) die "refusing numeric-IP host (cite a DNS name): $host" ;; # all digits/dots: dotted or decimal IP
   esac
 }
 
@@ -151,8 +168,8 @@ verify() {
       continue
     fi
 
-    # 4. quote-anchor (literal substring, offline)
-    if ! grep -Fq -- "$quote" "$snap_file"; then
+    # 4. quote-anchor (literal whole-file substring, offline; multiline-safe)
+    if ! CITELOCK_Q="$quote" anchor_contains "$snap_file"; then
       log "[$id] unanchored: verbatim quote not found in snapshot"
       failed=1
       continue
@@ -269,12 +286,15 @@ capture() {
   fi
   if [[ ! -s ${tmp} ]]; then
     require_tool curl
-    curl -fsSL --max-time 30 -o "$tmp" -- "$url" || die "capture: fetch failed for ${url}"
+    # No -L: do not follow redirects, so a redirect to an internal host cannot
+    # bypass assert_safe_url. A redirecting source fails closed; cite the final
+    # stable URL instead.
+    curl -fsS --max-redirs 0 --max-time 30 -o "$tmp" -- "$url" || die "capture: fetch failed (or redirected) for ${url}"
   fi
   status=200
 
-  # Fail closed: the quote must be present in the fetched bytes.
-  if ! grep -Fq -- "$quote" "$tmp"; then
+  # Fail closed: the full verbatim quote must be present in the fetched bytes.
+  if ! CITELOCK_Q="$quote" anchor_contains "$tmp"; then
     rm -f "$tmp"
     die "capture: quote does not anchor in fetched content for ${id}. If this is a client-rendered page, cite a stable/archived URL or the underlying JSON API."
   fi
