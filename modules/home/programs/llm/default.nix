@@ -54,6 +54,7 @@ let
 in
 {
   imports = [
+    ./openspec-schema.nix
     ./config/aider.nix
     ./config/amp.nix
     ./config/claude.nix
