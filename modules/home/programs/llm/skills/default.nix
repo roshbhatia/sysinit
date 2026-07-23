@@ -87,7 +87,7 @@
   citation-verification = {
     description = "Verify external-factual claims (pricing, availability, external API behavior, cited papers) deterministically with `citelock`: pin each claim into a citations.lock against a tool-captured snapshot, so the offline gate is a pure function and `citelock capture` fails closed on a quote a live source does not state. Use when authoring a rosh-spec-driven change with external-factual claims; the schema makes an unanchored claim a default-reject.";
     content = import ./citation-verification.nix;
-    allowed-tools = "Bash(./hack/citelock.sh:*) Bash(citelock:*) Read";
+    allowed-tools = "Bash(citelock:*) Read";
   };
 
   diagram-mermaid-render = {
