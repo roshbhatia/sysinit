@@ -1,6 +1,6 @@
 ''
   Verify external-factual claims deterministically with `citelock`
-  (`hack/citelock.sh`). Pin each claim into a `citations.lock` and check it
+  (the `citelock` command). Pin each claim into a `citations.lock` and check it
   against a tool-captured snapshot, so "is this source real and does it say
   this" becomes an exit code, not a review opinion.
 

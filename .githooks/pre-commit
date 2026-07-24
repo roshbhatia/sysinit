@@ -7,15 +7,9 @@
 set -euo pipefail
 
 repo_root="$(git rev-parse --show-toplevel)"
-# Prefer the PATH command (available in any repo/seshy session); fall back to
-# the in-repo script when present. If neither exists, do nothing.
-if command -v citelock > /dev/null 2>&1; then
-  citelock="citelock"
-elif [[ -x "${repo_root}/hack/citelock.sh" ]]; then
-  citelock="${repo_root}/hack/citelock.sh"
-else
-  exit 0
-fi
+# citelock is a nix-installed PATH command (see citation-tools). If it is not on
+# PATH, do nothing rather than guess a repo-local script.
+command -v citelock > /dev/null 2>&1 || exit 0
 
 # Verify every change dir that ships a citations.lock (cheap; verify no-ops when
 # a dir has none). Covers active changes and archived ones.
@@ -23,7 +17,7 @@ status=0
 while IFS= read -r lock; do
   [[ -z ${lock} ]] && continue
   dir="$(dirname "$lock")"
-  if ! "$citelock" verify "$dir"; then
+  if ! citelock verify "$dir"; then
     status=1
   fi
 done < <(find "${repo_root}/openspec/changes" -name citations.lock 2> /dev/null)

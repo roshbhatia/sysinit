@@ -15,7 +15,7 @@
 #   - tasks.md: every `## <n>.` slice has an adversarial-review checkbox line.
 #   - proposal.md: a `### Non-goals` block is present.
 #
-# Usage: ./hack/specreview.sh <change-dir>
+# Usage (installed on PATH via citation-tools): specreview <change-dir>
 # Exit non-zero (with named violations) on any rubric failure.
 
 set -euo pipefail

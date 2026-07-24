@@ -36,8 +36,8 @@
 
   ## Deterministic rubric-lint first (`specreview`)
 
-  Before spawning critics, run the deterministic half: `./hack/specreview.sh
-  <change-dir>`. It checks only stated facts — every requirement has a
+  Before spawning critics, run the deterministic half: `specreview
+  <change-dir>` (installed on PATH). It checks only stated facts — every requirement has a
   declared-negative scenario (`- **POLARITY** negative`), design has the
   required sections, each `- Decision:` has an `- Alternative rejected:` marker,
   every slice has an adversarial-review step, `Non-goals` is present. This part

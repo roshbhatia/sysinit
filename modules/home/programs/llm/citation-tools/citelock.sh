@@ -22,10 +22,10 @@
 # honesty boundary (a hand-forged provenance sidecar is out of the threat
 # model; the gate defends against agent hallucination, not a hostile author).
 #
-# Usage:
-#   ./hack/citelock.sh verify  [lockdir]
-#   ./hack/citelock.sh capture <url> --id <id> --quote <text> --class <class> [--doi <doi>] [--lockdir <dir>]
-#   ./hack/citelock.sh recheck [lockdir]
+# Usage (installed on PATH via citation-tools):
+#   citelock verify  [lockdir]
+#   citelock capture <url> --id <id> --quote <text> --class <class> [--doi <doi>] [--lockdir <dir>]
+#   citelock recheck [lockdir]
 #
 # CITELOCK_OFFLINE=1 forces the offline path everywhere (skips live checks with
 # a warning) so a commit succeeds with no network and without `--no-verify`.

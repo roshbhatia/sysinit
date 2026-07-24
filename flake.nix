@@ -292,7 +292,7 @@
                   [ -z "$lock" ] && continue
                   found=1
                   dir="$(dirname "$lock")"
-                  if ! bash ${./hack/citelock.sh} verify "$dir"; then
+                  if ! bash ${./modules/home/programs/llm/citation-tools/citelock.sh} verify "$dir"; then
                     fail=1
                   fi
                 done < <(find "$changes" -name citations.lock 2> /dev/null)
