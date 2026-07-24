@@ -28,6 +28,7 @@
     ./nix-your-shell.nix
     ./nushell.nix
     ./omp.nix
+    ./seshy
     ./ssh.nix
     ./tmux.nix
     ./utils

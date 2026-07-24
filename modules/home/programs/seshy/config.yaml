@@ -1,0 +1,14 @@
+# Branch naming template. Variables: {{.Session}}, {{.Repo}}, {{.User}}
+branchFormat: "dev/{{.User}}/{{.Session}}/{{.Repo}}"
+
+# Sessions storage directory
+sessionsDir: "~/.local/state/seshy/sessions"
+
+# Lifecycle hooks. Rendered as Go templates, run via `sh -c`, cwd = session dir.
+# Init OpenSpec once at the session root. Idempotent: skips if already inited.
+# `openspec init` defaults to the machine-wide rosh-spec-driven schema, so new
+# sessions inherit our openspec config automatically.
+hooks:
+  postCreate:
+    - '[ -d openspec ] || openspec init --tools all'
+    - 'command -v specutil >/dev/null 2>&1 && [ -d openspec/changes ] && specutil graph --as mermaid | mermaid-ascii || true'
