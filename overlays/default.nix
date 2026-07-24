@@ -67,11 +67,26 @@
       else
         prev.sdl3;
   })
-  # NOTE: openldap / pipx / python313.fsspec / kubernetes-helm test-disabling
-  # overrides were removed — nixpkgs now caches all four for aarch64-darwin and
-  # x86_64-linux at the pinned rev, so the overrides only defeated the cache and
-  # forced local source builds. Re-add (platform-guarded) if a future rev
-  # reintroduces a from-source build that trips the flaky test.
+  # NOTE: openldap / python313.fsspec / kubernetes-helm test-disabling overrides
+  # were removed — nixpkgs now caches those for aarch64-darwin and x86_64-linux
+  # at the pinned rev, so the overrides only defeated the cache and forced local
+  # source builds. Re-add (platform-guarded) if a future rev reintroduces a
+  # from-source build that trips the flaky test.
+  #
+  # pipx: re-added per the note above. At the current rev python3.14-pipx builds
+  # from source on Darwin and its test_inject.py suite trips (14 errors),
+  # blocking the whole system build. Disable its check phase across python
+  # package sets on Darwin (it is already uncached here, so this defeats no
+  # cache). Drop this when nixpkgs caches pipx for aarch64-darwin again.
+  (_final: prev:
+    prev.lib.optionalAttrs prev.stdenv.hostPlatform.isDarwin {
+      pythonPackagesExtensions = (prev.pythonPackagesExtensions or [ ]) ++ [
+        (_pyfinal: pyprev: {
+          pipx = pyprev.pipx.overrideAttrs (_: { doCheck = false; });
+        })
+      ];
+    }
+  )
   # 1Password sometimes re-uploads the aarch64 zip with new bytes
   # without bumping the version, so nixpkgs' pinned hash no longer matches.
   # Override src with the current upstream hash until nixpkgs catches up.
