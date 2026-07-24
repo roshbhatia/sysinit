@@ -55,6 +55,7 @@ in
 {
   imports = [
     ./openspec-schema.nix
+    ./citation-tools.nix
     ./config/aider.nix
     ./config/amp.nix
     ./config/claude.nix

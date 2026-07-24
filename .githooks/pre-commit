@@ -7,8 +7,15 @@
 set -euo pipefail
 
 repo_root="$(git rev-parse --show-toplevel)"
-citelock="${repo_root}/hack/citelock.sh"
-[[ -x ${citelock} ]] || exit 0
+# Prefer the PATH command (available in any repo/seshy session); fall back to
+# the in-repo script when present. If neither exists, do nothing.
+if command -v citelock > /dev/null 2>&1; then
+  citelock="citelock"
+elif [[ -x "${repo_root}/hack/citelock.sh" ]]; then
+  citelock="${repo_root}/hack/citelock.sh"
+else
+  exit 0
+fi
 
 # Verify every change dir that ships a citations.lock (cheap; verify no-ops when
 # a dir has none). Covers active changes and archived ones.
