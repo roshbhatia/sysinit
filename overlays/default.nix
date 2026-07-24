@@ -74,17 +74,17 @@
   # from-source build that trips the flaky test.
   #
   # pipx: re-added per the note above. At the current rev python3.14-pipx builds
-  # from source on Darwin and its test_inject.py suite trips (14 errors),
-  # blocking the whole system build. Disable its check phase across python
-  # package sets on Darwin (it is already uncached here, so this defeats no
-  # cache). Drop this when nixpkgs caches pipx for aarch64-darwin again.
+  # from source on Darwin (pipx is in home.packages) and its tests/test_inject.py
+  # suite trips (14 errors) — those tests actually pip-inject packages and need
+  # network, so they cannot pass in the build sandbox. Skip just that file via
+  # overridePythonAttrs (overrideAttrs does not reach a toPythonApplication's
+  # pytest check); the other 165 tests still run. It is already uncached here, so
+  # this defeats no cache. Drop when nixpkgs caches pipx for aarch64-darwin again.
   (_final: prev:
     prev.lib.optionalAttrs prev.stdenv.hostPlatform.isDarwin {
-      pythonPackagesExtensions = (prev.pythonPackagesExtensions or [ ]) ++ [
-        (_pyfinal: pyprev: {
-          pipx = pyprev.pipx.overrideAttrs (_: { doCheck = false; });
-        })
-      ];
+      pipx = prev.pipx.overridePythonAttrs (o: {
+        disabledTestPaths = (o.disabledTestPaths or [ ]) ++ [ "tests/test_inject.py" ];
+      });
     }
   )
   # 1Password sometimes re-uploads the aarch64 zip with new bytes
