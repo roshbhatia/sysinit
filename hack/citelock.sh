@@ -318,10 +318,10 @@ capture() {
   tmp_lock="$(mktemp)"
   jq --arg id "$id" --arg source "$url" --arg doi "$doi" --arg accessed "$accessed" \
     --arg class "$class" --arg quote "$quote" --arg snap "$snap_rel" --arg sha "$sha" \
-    '.records |= (map(select(.id != $id)) + [{
-       id:$id, source:$source, doi:($doi|select(.!="")), accessed:$accessed,
+    '.records |= (map(select(.id != $id)) + [({
+       id:$id, source:$source, accessed:$accessed,
        claim_class:$class, quote:$quote, snapshot:$snap, sha256:$sha
-     }])' "$lock" > "$tmp_lock"
+     } + (if $doi != "" then {doi:$doi} else {} end))])' "$lock" > "$tmp_lock"
   mv "$tmp_lock" "$lock"
   log "captured [$id] -> ${snap_rel} (sha ${sha:0:12})"
 }
