@@ -166,6 +166,7 @@
           cacheAttrs = [
             "openspec"
             "localias"
+            "pplx"
             "mermaid-ascii"
             "pi-coding-agent"
             "crush"

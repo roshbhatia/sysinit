@@ -107,4 +107,10 @@
     content = import ./openspec-workflow.nix;
     allowed-tools = "Bash(openspec:*) Bash(specutil:*) Read Glob";
   };
+
+  pplx-cli = {
+    description = "Uses the Perplexity CLI (`pplx`) for general external web research: live web search and page-content fetch returning structured JSON. Auth-conditional: use pplx only when authenticated (`PERPLEXITY_API_KEY` set or a `pplx auth login` credentials file), otherwise fall back to the built-in WebSearch/WebFetch. Never send internal, private, or in-repo content to pplx. Use when doing external/public web research, not for internal docs or private data.";
+    content = import ./pplx-cli.nix;
+    allowed-tools = "Bash(pplx:*)";
+  };
 }

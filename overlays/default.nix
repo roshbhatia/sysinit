@@ -49,6 +49,7 @@
   (import ./codex-acp.nix)
   (import ./kvazaar.nix)
   (import ./localias.nix)
+  (import ./pplx.nix)
   (import ./alerter.nix)
   (import ./sheets.nix)
   # sdl3-3.4.10 testrwlock times out on i686-linux under emulation (used by lutris

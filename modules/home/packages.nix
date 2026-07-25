@@ -185,6 +185,7 @@
       markdown-oxide
       meld
       mermaid-ascii
+      pplx
       proselint
       sad
       sheets

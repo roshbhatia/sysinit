@@ -53,8 +53,13 @@
   ## Finding a source to cite
 
   To find a source for an assumption, use the harness's own web search and fetch
-  (WebSearch / WebFetch) — no dedicated tool, MCP, or API key is needed. Once you
+  (WebSearch / WebFetch): no dedicated tool, MCP, or API key is needed. Once you
   have a candidate URL, `citelock capture` pins and verifies it. Verification is
   entirely keyless: lychee, the Crossref REST API, and monolith all work without
   credentials. There is no LLM-engine dependency in this loop.
+
+  When `pplx` is authenticated (see the `pplx-cli` skill), you MAY use
+  `pplx search web` to find candidate sources and `pplx content fetch` as the
+  snapshot fetcher for `citelock capture`. The quote-anchor semantics are
+  unchanged. When `pplx` is not authenticated, use WebSearch / WebFetch as above.
 ''

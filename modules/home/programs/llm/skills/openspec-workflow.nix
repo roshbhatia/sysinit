@@ -38,6 +38,10 @@
   ```
 
   For DAG visualization, rendering a change as RFC/design/tickets, and
-  Linear/Notion sync planning, load the `specutil` skill — its commands are not
+  Linear/Notion sync planning, load the `specutil` skill; its commands are not
   restated here.
+
+  For general external web research during a change (not internal or in-repo
+  content), prefer the `pplx` CLI when it is authenticated, and fall back to the
+  built-in WebSearch otherwise. See the `pplx-cli` skill for the routing rule.
 ''
