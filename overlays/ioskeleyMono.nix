@@ -1,5 +1,3 @@
-_:
-
 final: _prev:
 let
   inherit (final.nvfetcherSources.ioskeleyMono) version src;

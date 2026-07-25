@@ -1,5 +1,3 @@
-_:
-
 final: _prev:
 let
   version = "1.6.0";

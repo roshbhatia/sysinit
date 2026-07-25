@@ -1,5 +1,3 @@
-_:
-
 final: _prev:
 let
   sources = final.nvfetcherSources;

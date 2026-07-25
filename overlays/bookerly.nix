@@ -1,5 +1,3 @@
-_:
-
 final: _prev: {
   bookerly = final.stdenvNoCC.mkDerivation {
     pname = "bookerly";

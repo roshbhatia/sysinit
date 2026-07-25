@@ -1,5 +1,3 @@
-_:
-
 final: _prev: {
   sheets = final.buildGoModule {
     pname = "sheets";

@@ -1,5 +1,3 @@
-_:
-
 _final: prev: {
   # open-policy-agent's darwin build is not on cache.nixos.org and its check
   # phase fails in the sandbox, so skip tests there. On Linux the pristine build

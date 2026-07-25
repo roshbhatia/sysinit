@@ -28,30 +28,29 @@
       else
         prev.sunshine;
   })
-  (import ./nvfetcher-sources.nix { })
+  (import ./nvfetcher-sources.nix)
   (import ./inputs.nix { inherit inputs; })
-  (import ./python311.nix { })
-  (import ./python313.nix { })
-  (import ./kubernetes-zeitgeist.nix { })
-  (import ./go-enum.nix { })
-  (import ./gomvp.nix { })
-  (import ./mermaid-ascii.nix { })
-  (import ./hererocks.nix { })
-  (import ./openspec.nix { })
-  (import ./pi-coding-agent.nix { })
-  (import ./crush.nix { })
-  (import ./contextive.nix { })
-  (import ./opa.nix { })
-  (import ./ioskeleyMono.nix { })
-  (import ./wumpusMono.nix { })
-  (import ./bookerly.nix { })
-  (import ./direnv.nix { })
-  (import ./codex-acp.nix { })
-  (import ./kvazaar.nix { })
-  (import ./localias.nix { })
-  (import ./alerter.nix { })
-  (import ./sheets.nix { })
-  (import ./mozilla.nix { inherit inputs; })
+  (import ./python311.nix)
+  (import ./python313.nix)
+  (import ./kubernetes-zeitgeist.nix)
+  (import ./go-enum.nix)
+  (import ./gomvp.nix)
+  (import ./mermaid-ascii.nix)
+  (import ./hererocks.nix)
+  (import ./openspec.nix)
+  (import ./pi-coding-agent.nix)
+  (import ./crush.nix)
+  (import ./contextive.nix)
+  (import ./opa.nix)
+  (import ./ioskeleyMono.nix)
+  (import ./wumpusMono.nix)
+  (import ./bookerly.nix)
+  (import ./direnv.nix)
+  (import ./codex-acp.nix)
+  (import ./kvazaar.nix)
+  (import ./localias.nix)
+  (import ./alerter.nix)
+  (import ./sheets.nix)
   # sdl3-3.4.10 testrwlock times out on i686-linux under emulation (used by lutris
   # via sdl2-compat); the rwlock test is a scheduler-sensitivity flake, not a
   # correctness issue. Guard to i686: overriding sdl3 on x86_64 perturbs its hash
@@ -79,14 +78,17 @@
   # overridePythonAttrs (overrideAttrs does not reach a toPythonApplication's
   # pytest check); the other 165 tests still run. It is already uncached here, so
   # this defeats no cache. Drop when nixpkgs caches pipx for aarch64-darwin again.
-  (_final: prev:
+  (
+    _final: prev:
     prev.lib.optionalAttrs prev.stdenv.hostPlatform.isDarwin {
       pipx = prev.pipx.overridePythonAttrs (o: {
         disabledTestPaths = (o.disabledTestPaths or [ ]) ++ [ "tests/test_inject.py" ];
       });
       # rtk 0.43.0 (a from-source rust build, not in any cache for aarch64-darwin)
       # trips its checkPhase, which also blocks its dependents. Skip its tests.
-      rtk = prev.rtk.overrideAttrs (_: { doCheck = false; });
+      rtk = prev.rtk.overrideAttrs (_: {
+        doCheck = false;
+      });
     }
   )
   # 1Password sometimes re-uploads the aarch64 zip with new bytes

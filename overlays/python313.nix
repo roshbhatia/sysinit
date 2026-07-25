@@ -1,5 +1,3 @@
-_:
-
 _final: prev: {
   # NOTE: setproctitle / accelerate / aiohttp / django test-disabling overrides
   # were removed — nixpkgs caches all four for both platforms at the pinned rev,

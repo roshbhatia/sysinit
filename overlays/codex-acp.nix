@@ -2,8 +2,6 @@
 # codex-core's js_repl/mod.rs has include_str!("../../../../../node-version.txt")
 # but in the Cargo vendor tree the file sits one level closer, so the path needs
 # four `..` segments instead of five.
-_:
-
 final: prev: {
   codex-acp = prev.codex-acp.overrideAttrs (old: {
     postPatch = (old.postPatch or "") + ''

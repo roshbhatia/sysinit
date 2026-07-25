@@ -1,5 +1,3 @@
-_:
-
 final: prev: {
   # CTest suites OOM-killed on aarch64-darwin in nixpkgs-unstable. Guard to
   # Darwin: on Linux these override the cached kvazaar/chromaprint, which

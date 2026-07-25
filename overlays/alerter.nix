@@ -1,5 +1,3 @@
-_:
-
 final: _prev: {
   # alerter — terminal-notifier's actionable cousin: shows a macOS notification
   # with Accept/Deny buttons and prints the chosen action to stdout, so a hook

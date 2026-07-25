@@ -1,5 +1,3 @@
-_:
-
 _final: prev: {
   python311 = prev.python311.override {
     packageOverrides = _pythonFinal: pythonPrev: {

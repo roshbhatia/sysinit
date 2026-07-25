@@ -1,5 +1,3 @@
-_:
-
 final: _prev: {
   wumpusMono = final.stdenvNoCC.mkDerivation {
     pname = "wumpusMono";
