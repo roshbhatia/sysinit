@@ -24,10 +24,10 @@
   critic never elicits and never runs the gate.
 
   Otherwise (a top-level review), the LLM critic loop is owner-gated; the
-  deterministic `specreview` lint below is NOT. Before spawning any critics:
+  deterministic `specutil check` lint below is NOT. Before spawning any critics:
 
-  1. Run `specreview <change-dir>` first regardless (it is cheap and pure). Fix
-     every violation before offering the loop.
+  1. Run `specutil check <change-dir>` first regardless (it is cheap and pure).
+     Fix every violation before offering the loop.
   2. Then elicit the owner's decision on the critic loop. In an interactive
      harness use the approve/deny prompt (AskUserQuestion under Claude Code);
      the DEFAULT is to run. Frame it per slice, e.g. "Run the adversarial critic
@@ -40,8 +40,8 @@
   5. Non-interactive / unattended runs (cron, CI, no TTY): default to running
      the loop; there is no owner to elicit, so the gate falls back to on.
 
-  A waiver waives ONLY the critic loop. `specreview` must still pass, and the
-  human-verification gates for impactful actions still apply.
+  A waiver waives ONLY the critic loop. `specutil check` must still pass, and
+  the human-verification gates for impactful actions still apply.
 
   ## Pick the execution path (harness-aware)
 
@@ -61,18 +61,20 @@
   Detect the harness with a shell check, e.g.
   `printenv CLAUDECODE CLAUDE_CODE_CHILD_SESSION CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS`.
 
-  ## Deterministic rubric-lint first (`specreview`)
+  ## Deterministic rubric-lint first (`specutil check`)
 
-  Before spawning critics, run the deterministic half: `specreview
-  <change-dir>` (installed on PATH). It checks only stated facts — every requirement has a
-  declared-negative scenario (`- **POLARITY** negative`), design has the
-  required sections, each `- Decision:` has an `- Alternative rejected:` marker,
-  every slice has an adversarial-review step, `Non-goals` is present. This part
-  is a pure function of the artifacts and is reproducible. The LLM refutation
-  below is stabilized (pinned artifact snapshot, fixed rubric, fixed N and lens
-  set, temperature 0, structured verdict, majority vote) but NOT
+  Before spawning critics, run the deterministic half: `specutil check
+  <change-dir>` (installed on PATH). It checks only stated facts: every
+  requirement has a declared-negative scenario (`- **POLARITY** negative`),
+  design has the required sections, each `- Decision:` has an
+  `- Alternative rejected:` marker, every slice declares a shape and carries an
+  adversarial-review step, every `deps:` reference resolves, and `Non-goals` is
+  present. Run `specutil check --list-rules` to see the resolved rubric. This
+  part is a pure function of the artifacts and is reproducible. The LLM
+  refutation below is stabilized (pinned artifact snapshot, fixed rubric, fixed
+  N and lens set, temperature 0, structured verdict, majority vote) but NOT
   bit-deterministic: two runs converge but are not identical. Do not claim
-  otherwise. Fix every `specreview` violation before the critic loop.
+  otherwise. Fix every violation before the critic loop.
 
   ## The loop (summary — reference has the sourced detail)
 
