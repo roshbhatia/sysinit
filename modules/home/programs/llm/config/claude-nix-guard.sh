@@ -46,7 +46,7 @@ fi
 
 case "$resolved" in
   /nix/store/*)
-    deny "$(printf '%s resolves to %s, which is Nix-managed and read-only. Edit the Nix source that generates it (under modules/), then run `nh darwin switch`. Editing the store path directly is discarded on the next switch.' "$path" "$resolved")"
+    deny "$(printf '%s resolves to %s, which is Nix-managed and read-only. Edit the Nix source that generates it (under modules/), then run: nh darwin switch. Editing the store path directly is discarded on the next switch.' "$path" "$resolved")"
     ;;
 esac
 
