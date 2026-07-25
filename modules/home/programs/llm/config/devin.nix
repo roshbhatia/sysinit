@@ -8,6 +8,41 @@ let
   llmLib = import ../lib { inherit lib; };
   kit = llmLib.harnessKit.mkKit { inherit lib pkgs config; };
 
+  # Reuses the shared destructive-command guard, translated to devin's exit-code
+  # blocking contract. bashOptions cleared for the same reason as the Claude
+  # guard: a non-zero grep must not turn into an unintended block.
+  bashGuardScript = pkgs.writeShellApplication {
+    name = "claude-bash-guard";
+    runtimeInputs = [ pkgs.jq ];
+    bashOptions = [ ];
+    text = builtins.readFile ./claude-bash-guard.sh;
+  };
+
+  devinGuardScript = pkgs.writeShellApplication {
+    name = "devin-guard";
+    runtimeInputs = [
+      pkgs.jq
+      bashGuardScript
+    ];
+    bashOptions = [ ];
+    text = builtins.readFile ./devin-guard.sh;
+  };
+
+  # devin's matcher is the tool name; its shell tool is `exec`, not `Bash`.
+  devinHooks = builtins.toJSON {
+    PreToolUse = [
+      {
+        matcher = "exec";
+        hooks = [
+          {
+            type = "command";
+            command = "${lib.getExe devinGuardScript}";
+          }
+        ];
+      }
+    ];
+  };
+
   # devin reads JSON-with-comments from ~/.config/devin/config.json. Only
   # settings that differ from the shipped defaults are written here; defaults
   # are left to the CLI so this file does not drift as they change.
@@ -54,7 +89,12 @@ in
     # devin has no documented global-instructions path of its own, so the shared
     # context lands as AGENTS.md, which it reads from the project root.
     "devin/AGENTS.md" = {
-      text = kit.mkInstructionsWithStyle "~/.claude/skills";
+      text = kit.mkInstructionsWithStyle "~/.config/devin/skills";
+      force = true;
+    };
+
+    "devin/hooks.v1.json" = {
+      text = devinHooks;
       force = true;
     };
   };

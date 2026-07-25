@@ -65,6 +65,26 @@ let
     name: path: lib.nameValuePair ".config/amp/skills/${name}/SKILL.md" { source = path; }
   ) inputs.specutil.lib.skills;
 
+  # devin reads ~/.config/devin/skills/ but was receiving nothing. It gets the
+  # Amp render rather than the Claude one: that render carries only frontmatter
+  # keys in the common subset (no `model`/`effort`), which is the safe choice
+  # for a loader whose validation strictness is not documented.
+  devinSkillFiles = lib.mapAttrs' (
+    name: path: lib.nameValuePair ".config/devin/skills/${name}/SKILL.md" { source = path; }
+  ) skills.ampSkills;
+
+  devinSkillScriptFiles = lib.mapAttrs' (
+    relPath: src:
+    lib.nameValuePair ".config/devin/skills/${relPath}" {
+      source = src;
+      executable = true;
+    }
+  ) skills.skillExtraFiles;
+
+  devinSpecutilSkillFiles = lib.mapAttrs' (
+    name: path: lib.nameValuePair ".config/devin/skills/${name}/SKILL.md" { source = path; }
+  ) inputs.specutil.lib.skills;
+
   # programs.mcp serializes `servers` straight to JSON, so strip option
   # defaults that don't belong on the wire (null command for http servers,
   # null url for stdio servers, the synthetic `type = "local"`, empty
@@ -115,6 +135,10 @@ in
     // ampSkillScriptFiles
     // ampSpecutilSkillFiles
     // (vendoredSkillFilesFor ".config/amp/skills")
+    // devinSkillFiles
+    // devinSkillScriptFiles
+    // devinSpecutilSkillFiles
+    // (vendoredSkillFilesFor ".config/devin/skills")
     // notify.iconFiles;
 
   home.packages = [
