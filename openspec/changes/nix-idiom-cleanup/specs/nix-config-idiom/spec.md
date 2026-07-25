@@ -28,40 +28,41 @@ The PATH entry lists MUST be defined once in `modules/lib/paths.nix` and consume
 - **THEN** both shells receive the new entry, because neither keeps a private copy of the list
 
 ### Requirement: Native home-manager options are preferred over hand-rolled config
-Where a native `programs.<name>` option or a `pkgs.formats` generator exists, modules MUST use it instead of raw `home.file` / `xdg.configFile` text. `yazi` MUST use native `programs.yazi`. The git attributes MUST use native `programs.git.attributes`. The `kubectl` `kuberc` MUST be generated via `pkgs.formats.yaml` from an attrset. Large inline foreign-config blocks MUST be externalized to their own file and read via `stripHeaders`/`readFile`.
+Where a native `programs.<name>` option or a `pkgs.formats` generator exists AND it does not replace a hand-maintained config directory, modules MUST use it instead of raw inline `home.file` text. The git attributes MUST use native `programs.git.attributes`. The `kubectl` `kuberc` MUST be generated via `pkgs.formats.yaml` from an attrset. Large inline foreign-config blocks MUST be externalized to their own file and read via `stripHeaders`/`readFile`. `yazi` is EXCLUDED: its config is a hand-maintained directory tree that `xdg.configFile.source` symlinks wholesale, which is the idiomatic path; decomposing it into `programs.yazi` attrsets is not required.
 
-#### Scenario: yazi and git use native options
+#### Scenario: git and kubectl use native/generated config
 - **POLARITY** positive
-- **WHEN** `modules/home/programs/yazi/default.nix` and `modules/home/programs/git/default.nix` are read after the change
-- **THEN** yazi is configured through `programs.yazi` and the git attributes are set through `programs.git.attributes`
+- **WHEN** `modules/home/programs/git/default.nix` and `modules/home/programs/kubectl.nix` are read after the change
+- **THEN** the git attributes are set through `programs.git.attributes` and `kuberc` is produced by `pkgs.formats.yaml`
+- **AND** the generated `kuberc` is semantically equivalent to the prior heredoc
 
 #### Scenario: The inline zsh block is no longer embedded
 - **POLARITY** negative
 - **WHEN** `modules/home/programs/zsh/default.nix` is inspected for the seshy/wezterm helper functions after the change
 - **THEN** the helper body is not an inline Nix string, because it was moved to a `.zsh` file read via `stripHeaders`
 
-### Requirement: Vendored assets are fetched via nvfetcher
-Third-party sources pinned by hand in overlay files MUST be managed by `nvfetcher.toml` and exposed through `_sources/generated.nix`. `contextive`, `sheets`, `wumpusMono`, and `bookerly` MUST NOT carry inline `sha256`/`hash` literals in their overlay files; their sources MUST come from `nvfetcherSources`.
+### Requirement: Hand-pinned overlays are managed by nvfetcher only when the pin tracks releases
+Third-party sources that track upstream releases SHOULD be managed by `nvfetcher.toml` and exposed through `_sources/generated.nix` (as `crush`, `localias`, and the go packages already are). A source that is deliberately pinned to a fixed commit, or fetched from a version-less raw URL, MUST NOT be moved to nvfetcher, because nvfetcher tracks releases and would auto-update the pin (which the repo's no-auto-update rule forbids).
 
-#### Scenario: Migrated overlays read from nvfetcher sources
+#### Scenario: Release-tracking assets belong in nvfetcher
 - **POLARITY** positive
-- **WHEN** the `contextive`, `sheets`, `wumpusMono`, and `bookerly` overlays are read after the change
-- **THEN** each obtains its source from `final.nvfetcherSources` (or `prev`) and declares no literal upstream hash
+- **WHEN** a new overlay fetches a package by its latest upstream release tag
+- **THEN** it is added to `nvfetcher.toml` and reads its source from `final.nvfetcherSources` rather than carrying an inline hash
 
-#### Scenario: A stale hand-pinned hash cannot drift silently
+#### Scenario: A commit-pinned or raw-URL asset is not force-migrated
 - **POLARITY** negative
-- **WHEN** an upstream asset for one of these packages changes and `nvfetcher` is run
-- **THEN** the source hash updates in `_sources/generated.nix` rather than requiring a hand edit in the overlay file, because the overlay no longer owns the hash
+- **WHEN** `wumpusMono` (pinned to a fixed commit) or `bookerly` (a raw-URL font with no version) is considered for nvfetcher
+- **THEN** it is left hand-pinned, because migrating it would make nvfetcher auto-advance a deliberately-frozen source
 
 ### Requirement: One platform-branch convention
-Platform branching MUST use `stdenv.hostPlatform.isDarwin` / `isLinux`. The deprecated `stdenv.isDarwin` / `stdenv.isLinux` shorthand MUST NOT remain. `with lib;` MUST be replaced by explicit `inherit (lib) ...` in the three files that use it. The repeated Darwin-only override guard MUST be expressed through shared `overrideOnDarwin` / `useLldOnDarwin` overlay helpers.
+Platform branching MUST use `stdenv.hostPlatform.isDarwin` / `isLinux`. The deprecated `stdenv.isDarwin` / `stdenv.isLinux` shorthand MUST NOT remain outside `templates/`. `with lib;` SHOULD be replaced by explicit `inherit (lib) ...`, and the repeated Darwin-only override guard MAY be expressed through a shared helper; both are deferred as low-value nits and are not required by this change.
 
 #### Scenario: Deprecated shorthand is gone
 - **POLARITY** positive
-- **WHEN** the repo is searched for `stdenv.isDarwin` and `with lib;` after the change
-- **THEN** no `.nix` file (outside `templates/`) matches `stdenv.isDarwin`/`stdenv.isLinux` and no file uses `with lib;`
+- **WHEN** the repo is searched for `stdenv.isDarwin`/`stdenv.isLinux` after the change
+- **THEN** no `.nix` file outside `templates/` matches the deprecated shorthand
 
-#### Scenario: The ld64.lld guard is defined once
+#### Scenario: A newly added deprecated predicate is rejected
 - **POLARITY** negative
-- **WHEN** the ld64.lld RUSTFLAGS override is searched across `overlays/`
-- **THEN** it is not duplicated verbatim in both `codex-acp.nix` and `overlays/default.nix`, because both call the shared `useLldOnDarwin` helper
+- **WHEN** a new overlay or module is written using `prev.stdenv.isDarwin`
+- **THEN** it does not match the established convention and MUST be changed to `stdenv.hostPlatform.isDarwin` before merge

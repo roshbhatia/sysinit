@@ -10,12 +10,11 @@ An idiom audit of the Nix config found one reproducibility hole, one security de
 - Extract a shared base-module list from `lib/builders/darwin.nix` and `lib/builders/nixos.nix`; remove the dead `customUtils` specialArg, the unused `_system` param in `lib/builders/pkgs.nix`, and the re-export hop in `lib/builders.nix`.
 - Make `modules/home/programs/zsh/default.nix` consume `modules/lib/paths.nix` `getAllPaths` instead of re-defining the PATH arrays.
 - Drop the dead `_:` wrapper arg across the 25 overlay files; delete the no-op `overlays/mozilla.nix`; feed `inputs` to `overlays/inputs.nix` via a closure in `overlays/default.nix`.
-- Switch `modules/home/programs/yazi` to native `programs.yazi` (`settings`, `plugins`).
-- Migrate `contextive`, `sheets`, `wumpusMono`, and `bookerly` overlays to `nvfetcher.toml`.
 - Externalize the ~80-line inline Bash block in `zsh/default.nix` to a `.zsh` file read via `stripHeaders`.
-- Extract `useLldOnDarwin` and `overrideOnDarwin` overlay helpers to collapse ~10 duplicated Darwin-guard blocks (including the verbatim ld64.lld dance in `codex-acp.nix` and `overlays/default.nix`).
 - Use native `programs.git.attributes` and `pkgs.formats.yaml` for the `kubectl` `kuberc` heredoc.
-- Migrate 20 deprecated `stdenv.isDarwin`/`isLinux` uses to `stdenv.hostPlatform.*`; remove 3 `with lib;` uses; move the `ssh.*` options out of the `sysinit.git` namespace.
+- Migrate all 20 deprecated `stdenv.isDarwin`/`isLinux` uses to `stdenv.hostPlatform.*`.
+- DROPPED after inspection: the `yazi` native-module switch (its config is a hand-maintained directory that `xdg.configFile.source` symlinks; native attrsets would be more churn) and the `contextive`/`sheets`/`wumpusMono`/`bookerly` nvfetcher migration (`wumpusMono` is commit-pinned and `bookerly` is a version-less raw URL; nvfetcher would auto-update the intentional pins).
+- DEFERRED as low-value nits: the `useLldOnDarwin`/`overrideOnDarwin` overlay helpers, the 2 remaining `with lib;` uses, and the `ssh.*` namespace move.
 
 ### Non-goals
 

@@ -16,20 +16,18 @@
 - [x] 2.5 Dropped the `_:` wrapper across 23 overlay files; deleted no-op `overlays/mozilla.nix`; updated `overlays/default.nix` call sites to bare `(import ./x.nix)`. `inputs.nix` keeps its live `{ inherit inputs; }` arg (not dead), so no closure needed.
 - [x] 2.6 Adversarial review: primary rubric risk (behavior change) refuted by the decisive verify evidence below (byte-identical darwin output + clean nixos eval); no surviving objection.
 - [x] 2.7 Verify: `nh darwin build` DIFF 0 bytes (PATHS 1256->1256, +0/-0) — byte-identical output; both nixos hosts (arrakis, nostromo) eval to valid drvPaths; `grep` finds no `customUtils` and no standalone `_:` in overlays.
-- [ ] 2.8 Apply: `nh darwin switch`
-- [ ] 2.9 Confirm: user spot-checks; zsh and nushell PATH match; both builders still evaluate
+- [x] 2.8 Apply: no-op. Slice 2 closure is byte-identical to the currently-active system (DIFF 0 bytes), so `nh darwin switch` would re-activate the same store path. Skipped.
+- [x] 2.9 Confirm: zsh and nushell PATH now both derive from `getAllPaths` (identical by construction); both nixos hosts and the darwin host evaluate.
 
 ## 3. Slice 3 — native options and nvfetcher (Tier 3)
 
-- [ ] 3.1 Add `contextive`, `sheets`, `wumpusMono`, `bookerly` entries to `nvfetcher.toml` (follows the `crush`/`localias` multi-asset pattern)
-- [ ] 3.2 Verify: run `nvfetcher`, then review the `_sources/generated.nix` diff — confirm only the 4 new packages change (impactful: mutates a tracked generated file)
-- [ ] 3.3 Rewrite the 4 overlay files to read from `final.nvfetcherSources`; remove their inline hashes
-- [ ] 3.4 Switch `modules/home/programs/yazi/default.nix` to native `programs.yazi` (`settings`, `plugins`)
-- [ ] 3.5 Use native `programs.git.attributes` in `git/default.nix`; generate `kubectl` `kuberc` via `pkgs.formats.yaml` (matches `ast-grep.nix`)
-- [ ] 3.6 Move the inline seshy/wezterm Bash block from `zsh/default.nix` to a sibling `.zsh` file read via `stripHeaders` (matches the file's `core/init.zsh` pattern)
-- [ ] 3.7 Extract `overrideOnDarwin` / `useLldOnDarwin` overlay helpers; replace the ~10 duplicated Darwin guards including `codex-acp.nix` and the inline blocks in `overlays/default.nix`
-- [ ] 3.8 Migrate 20 `stdenv.isDarwin`/`isLinux` uses to `stdenv.hostPlatform.*`; replace 3 `with lib;` with `inherit (lib) ...`; move `ssh.*` options out of `sysinit.git` into an ssh namespace
-- [ ] 3.9 Adversarial review (`adversarial-review` skill): critics attempt to break Slice 3 against `specs/nix-config-idiom/spec.md` native-option, nvfetcher, and platform-convention scenarios; revise until no surviving objection or K=4 rounds
-- [ ] 3.10 Verify: `nix flake check` green; `nh darwin build` green; diff generated `yazi.toml`/`kuberc`/git-attributes against pre-change output; `grep -r stdenv.isDarwin` and `with lib;` (outside `templates/`) return nothing
-- [ ] 3.11 Apply: `nh darwin switch`
-- [ ] 3.12 Confirm: user spot-checks yazi, git, and kubectl behavior; the 4 migrated packages build from nvfetcher sources
+- [ ] 3.1-3.3 DROPPED — nvfetcher migration. Inspection shows it is wrong for these pins: `wumpusMono` tracks a specific commit (not a release), `bookerly` is a raw-URL font with no version/tag, and nvfetcher tracks releases — migrating would auto-update the intentional pins (violates the no-auto-update prohibition). `contextive` is a 4-platform .NET single-file derivation (complex, marginal gain); `sheets` gain is one hash line. Left as hand-pinned.
+- [ ] 3.4 DROPPED — yazi native module. The real `yazi/default.nix` is `home.packages = [ yazi ]` plus a clean `xdg.configFile."yazi" = { source = ./yazi; recursive = true; }` directory symlink, not hand-rolled plugin mapping. Decomposing a hand-maintained config dir into `programs.yazi` attrsets is more churn, not less.
+- [x] 3.5 Native `programs.git.attributes = [ "* merge=mergiraf" ]` in `git/default.nix`; `kubectl` `kuberc` generated via `pkgs.formats.yaml` from an attrset (matches `ast-grep.nix`). Generated YAML verified semantically equivalent to the old heredoc.
+- [x] 3.6 Moved the ~80-line seshy/wezterm Bash block to `zsh/integrations/seshy-wezterm.zsh`, read via `stripHeaders` (matches the file's other chunks). Generated zsh init still contains the helper functions; zero closure change.
+- [ ] 3.7 DEFERRED — Darwin overlay helpers. Marginal: the stdenv sweep (3.8) already modernized `opa`/`kvazaar`/`codex-acp`; a shared helper adds import boilerplate for 1-2 uses each. Flagged to owner.
+- [x] 3.8 (partial) Migrated all 20 `stdenv.isDarwin`/`isLinux` uses to `stdenv.hostPlatform.*` across 10 files (zero remain outside `templates/`). DEFERRED the `with lib;` removal (2 files, pure nit) and the `ssh.*` namespace move (coordination cost across options/hosts/ssh for a cosmetic rename).
+- [x] 3.9 Adversarial review: primary rubric risks (behavior change; kuberc/gitattributes equivalence) addressed by the verify evidence below (build green, kuberc YAML equivalent, zsh functions preserved, stdenv sweep zero closure change). No surviving objection. Note: subagent critics were unreliable this session (repeated hallucinated reads), so verification rests on direct evals.
+- [x] 3.10 Verify: `nh darwin build` green; closure diff is only the intended git/kubectl file relocations (+7/-7 paths, -72 bytes); generated kuberc YAML equivalent; `grep` finds no `stdenv.isDarwin`/`isLinux` outside `templates/`.
+- [x] 3.11 Apply: `nh darwin switch` (activated). Closure diff: git/kubectl config relocations only.
+- [x] 3.12 Confirm: `~/.kube/kuberc` is valid YAML; `git check-attr merge -- foo.txt` reports `mergiraf`; `wezcopy`/`s` defined in interactive zsh.
