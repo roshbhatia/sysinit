@@ -268,5 +268,5 @@ in
 
   home.packages = [ pkgs.mergiraf ];
 
-  home.file.".config/git/attributes".text = "* merge=mergiraf\n";
+  programs.git.attributes = [ "* merge=mergiraf" ];
 }
