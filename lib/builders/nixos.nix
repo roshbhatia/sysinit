@@ -21,7 +21,6 @@
           inputs
           values
           ;
-        customUtils = utils;
         # Path to sysinit flake for cross-flake imports (e.g., hosts/base/*.nix)
         sysinit = ../..;
       };
