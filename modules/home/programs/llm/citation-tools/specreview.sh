@@ -93,6 +93,79 @@ if [[ -f ${proposal} ]]; then
   grep -Fq -- "### Non-goals" "$proposal" || violation "proposal.md missing a '### Non-goals' block"
 fi
 
+# The phase-shape and writing-standard rules are newer than some changes, so
+# grandfather anything under changes/archive/ (never retroactively fail it).
+is_archived=0
+[[ ${dir} == *"/archive/"* ]] && is_archived=1
+
+# --- tasks.md: phase shapes (non-Rollout slice declares a shape; loop has ----
+# STOP + MAX-ITERS; graph deps ids resolve to a sibling subtask). -------------
+if [[ -f ${tasks} && ${is_archived} -eq 0 ]]; then
+  awk '
+    function flush() {
+      if (inslice && !isrollout) {
+        if (shape == "") print "slice " snum " has no - **SHAPE** marker"
+        else if (shape == "loop") {
+          if (!hasstop) print "loop slice " snum " has no - **STOP** marker"
+          if (!hasmax)  print "loop slice " snum " has no - **MAX-ITERS** marker"
+        } else if (shape == "graph") {
+          for (i = 1; i <= ndeps; i++)
+            if (!(depref[i] in ids)) print "graph slice " snum " has a dangling dependency: " depref[i]
+        }
+      }
+    }
+    /^## [0-9]+\./ {
+      flush()
+      inslice = 1; snum = $2; isrollout = ($0 ~ /[Rr]ollout/)
+      shape = ""; hasstop = 0; hasmax = 0; ndeps = 0; delete ids; next
+    }
+    /^- \*\*SHAPE\*\*[ ]+loop/  { shape = "loop" }
+    /^- \*\*SHAPE\*\*[ ]+graph/ { shape = "graph" }
+    /^- \*\*STOP\*\*/           { hasstop = 1 }
+    /^- \*\*MAX-ITERS\*\*/      { hasmax = 1 }
+    /^- \[[ x]\][ ]+[0-9]+\.[0-9]+/ {
+      line = $0; sub(/^- \[[ x]\][ ]+/, "", line)
+      split(line, a, /[ ]+/); ids[a[1]] = 1
+      if (match(line, /deps:`?[ ]+/)) {
+        rest = substr(line, RSTART + RLENGTH); split(rest, d, /[ ,`]+/)
+        for (k in d) if (d[k] ~ /^[0-9]+\.[0-9]+$/) { ndeps++; depref[ndeps] = d[k] }
+      }
+    }
+    END { flush() }
+  ' "$tasks" > /tmp/.specreview_shape 2> /dev/null || true
+  if [[ -s /tmp/.specreview_shape ]]; then
+    while IFS= read -r m; do violation "$m"; done < /tmp/.specreview_shape
+  fi
+  rm -f /tmp/.specreview_shape
+fi
+
+# --- writing standard (STE): no em-dash; no disallowed bolded bullet lead ----
+if [[ ${is_archived} -eq 0 ]]; then
+  {
+    printf '%s\n' "${dir}/proposal.md" "${dir}/design.md" "${dir}/tasks.md"
+    find "${dir}/specs" -name '*.md' 2> /dev/null
+  } | while IFS= read -r art; do
+    [[ -f ${art} ]] || continue
+    # Both violation kinds are printed to stdout here and reported via
+    # violation() below, so the reason survives (an in-loop violation() call
+    # would have its stderr swallowed by the redirect).
+    if LC_ALL=C grep -q $'\xe2\x80\x94' "$art"; then
+      echo "em-dash in ${art}"
+    fi
+    awk '
+      /^[ ]*- \*\*[A-Za-z]/ {
+        m = $0; sub(/^[ ]*- \*\*/, "", m); sub(/\*\*.*/, "", m)
+        allowed = " WHEN THEN AND POLARITY SHAPE STOP MAX-ITERS BREAKING "
+        if (index(allowed, " " m " ") == 0) print "bolded bullet lead " FILENAME ": **" m "**"
+      }
+    ' "$art"
+  done > /tmp/.specreview_ste 2> /dev/null || true
+  if [[ -s /tmp/.specreview_ste ]]; then
+    while IFS= read -r m; do violation "${m}"; done < /tmp/.specreview_ste
+  fi
+  rm -f /tmp/.specreview_ste
+fi
+
 if [[ ${fail} -ne 0 ]]; then
   echo "specreview: rubric-lint failed for ${dir}" >&2
   exit 1
