@@ -8,11 +8,11 @@
         "pinned": false,
         "src": {
             "name": null,
-            "sha256": "sha256-JQ1kdcy2Jf3pkkAg1zDxzmSDgLW55lDRv40zAtcMvV8=",
+            "sha256": "sha256-wxve8pINaueWXv/muGlD0HZjWLkcP1U7ZyhYwPpStds=",
             "type": "url",
-            "url": "https://github.com/charmbracelet/crush/releases/download/v0.86.0/crush_0.86.0_Darwin_arm64.tar.gz"
+            "url": "https://github.com/charmbracelet/crush/releases/download/v0.87.0/crush_0.87.0_Darwin_arm64.tar.gz"
         },
-        "version": "0.86.0"
+        "version": "0.87.0"
     },
     "crush-aarch64-linux": {
         "cargoLock": null,
@@ -23,11 +23,11 @@
         "pinned": false,
         "src": {
             "name": null,
-            "sha256": "sha256-Vi8HXhUBmQow8gefaao/KONI/mkoffj7/P/EENwiyBo=",
+            "sha256": "sha256-XOXlQSy6YF5KRf/x7JeLeziUHJuS3MFIkvcNwWN4C6M=",
             "type": "url",
-            "url": "https://github.com/charmbracelet/crush/releases/download/v0.86.0/crush_0.86.0_Linux_arm64.tar.gz"
+            "url": "https://github.com/charmbracelet/crush/releases/download/v0.87.0/crush_0.87.0_Linux_arm64.tar.gz"
         },
-        "version": "0.86.0"
+        "version": "0.87.0"
     },
     "crush-x86_64-darwin": {
         "cargoLock": null,
@@ -38,11 +38,11 @@
         "pinned": false,
         "src": {
             "name": null,
-            "sha256": "sha256-VmHyLP83C90MGtS6xDtV1MtdzSoKvJ+sUBAcS+DVXlg=",
+            "sha256": "sha256-0yvKyE2ObionBYVGUWErZDE7qdp2wET/khTbKy+i67o=",
             "type": "url",
-            "url": "https://github.com/charmbracelet/crush/releases/download/v0.86.0/crush_0.86.0_Darwin_x86_64.tar.gz"
+            "url": "https://github.com/charmbracelet/crush/releases/download/v0.87.0/crush_0.87.0_Darwin_x86_64.tar.gz"
         },
-        "version": "0.86.0"
+        "version": "0.87.0"
     },
     "crush-x86_64-linux": {
         "cargoLock": null,
@@ -53,11 +53,11 @@
         "pinned": false,
         "src": {
             "name": null,
-            "sha256": "sha256-9txPcUhG6boEWX5fT93sFfYnABAkXDM8DAyJIyxHQR4=",
+            "sha256": "sha256-0DPHl0TA+AS25kXHGWLcefkdvw6oa2TB9cmXV/r59j0=",
             "type": "url",
-            "url": "https://github.com/charmbracelet/crush/releases/download/v0.86.0/crush_0.86.0_Linux_x86_64.tar.gz"
+            "url": "https://github.com/charmbracelet/crush/releases/download/v0.87.0/crush_0.87.0_Linux_x86_64.tar.gz"
         },
-        "version": "0.86.0"
+        "version": "0.87.0"
     },
     "go-enum": {
         "cargoLock": null,
