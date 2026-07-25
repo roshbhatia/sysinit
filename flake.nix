@@ -82,6 +82,15 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    # Upstream ast-grep agent skills (the `ast-grep` rule-authoring guide and
+    # the `ast-grep-outline` structural-map guide). Vendored as a pinned source
+    # rather than copied into skills/, so `nix flake update` is the only way
+    # the content moves and drift is visible in flake.lock.
+    ast-grep-skills = {
+      url = "github:ast-grep/agent-skill";
+      flake = false;
+    };
+
     # Terminal-first git diff pager. Do not make nixpkgs follow ours: hunk's
     # bun2nix/flake-parts build enumerates perSystem.x86_64-darwin, which
     # nixpkgs-unstable (26.11) dropped. Pin the same rev hunk's own lock uses,

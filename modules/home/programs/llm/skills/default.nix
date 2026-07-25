@@ -21,7 +21,7 @@
   };
 
   search-code-routing = {
-    description = "Routing guide for searching code: when to reach for builtin `rg`/`grep`/Glob (literal strings, known symbols, exact paths), `ast-grep`/`sg` (structural, AST-shaped patterns and refactor-grade matches), or `gh search` (repo-wide / org-wide / not-locally-cloned). Prefer ast-grep over plain grep for anything structural; prefer builtin grep for literal text.";
+    description = "Decides which code-search tool a query needs, in preference order: `ast-grep outline` to map structure before reading, `ast-grep`/`sg` for code shapes, `rg`/`grep`/Glob only for literal text, `gh search` for repos not cloned locally. Use when starting a search and the right tool is not obvious. Dispatches to the `ast-grep-outline` and `ast-grep` skills for how to run those two.";
     content = import ./search-code-routing.nix;
     allowed-tools = "Bash(rg:*) Bash(grep:*) Bash(ast-grep:*) Bash(sg:*) Bash(gh:*) Read Glob";
     model = "haiku";

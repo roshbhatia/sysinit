@@ -29,6 +29,23 @@ let
     name: path: lib.nameValuePair ".claude/skills/${name}/SKILL.md" { source = path; }
   ) inputs.specutil.lib.skills;
 
+  # Upstream ast-grep skills, vendored from the pinned `ast-grep-skills` input.
+  # Installed verbatim: these are the tool author's own guides, so restating
+  # them in skills/ would be the drift this repo's sync rules exist to prevent.
+  # The directory name is the skill name, and upstream's outline skill declares
+  # `name: ast-grep-outline`, so its directory must match that, not "outline".
+  astGrepSkillRoot = "${inputs.ast-grep-skills}/ast-grep/skills";
+  astGrepSkillFiles = {
+    "ast-grep/SKILL.md" = "${astGrepSkillRoot}/ast-grep/SKILL.md";
+    "ast-grep/references/rule_reference.md" =
+      "${astGrepSkillRoot}/ast-grep/references/rule_reference.md";
+    "ast-grep-outline/SKILL.md" = "${astGrepSkillRoot}/outline/SKILL.md";
+  };
+
+  vendoredSkillFilesFor =
+    root:
+    lib.mapAttrs' (rel: src: lib.nameValuePair "${root}/${rel}" { source = src; }) astGrepSkillFiles;
+
   # Amp validates skill frontmatter against a fixed allowlist and errors on any
   # key outside it, so it gets its own render rather than reading the Claude
   # tree. config/amp.nix turns off Amp's .claude/skills auto-load to match.
@@ -93,9 +110,11 @@ in
     skillFiles
     // skillScriptFiles
     // specutilSkillFiles
+    // (vendoredSkillFilesFor ".claude/skills")
     // ampSkillFiles
     // ampSkillScriptFiles
     // ampSpecutilSkillFiles
+    // (vendoredSkillFilesFor ".config/amp/skills")
     // notify.iconFiles;
 
   home.packages = [

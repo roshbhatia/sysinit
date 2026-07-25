@@ -1,18 +1,33 @@
 ''
   # Code Search
 
-  Three ways to search code on this machine, and they are **not** interchangeable.
+  Four ways to search code on this machine, and they are **not** interchangeable.
   Picking the right one per query is the whole skill. The default reflex of
-  reaching for `grep` is often wrong: prefer `ast-grep` for anything structural and
-  `gh search` for anything spanning repos you have not cloned.
+  reaching for `grep` is usually wrong here: ast-grep is the preferred tool for
+  finding code, and `rg` is the fallback for literal text.
+
+  This skill routes. It does not teach ast-grep. Two upstream skills own that
+  depth, and you should load them rather than guess at syntax:
+
+  - `ast-grep-outline` — how to read a structural map of files and directories
+  - `ast-grep` — how to write ast-grep rules and patterns
 
   ## Decision routing
 
   ```
-  Literal string, exact identifier, file path, or "every occurrence"?  -> builtin: rg / grep / Glob / Read
-  A code SHAPE — call pattern, signature, construct, refactor-grade?    -> ast-grep (sg) or the ast-grep MCP
-  Across repos — org-wide, not cloned locally, prior art on GitHub?     -> gh search (code / repos / issues / prs / commits)
+  Orienting in unfamiliar code, or about to read a file "to see what's in it"?
+      -> ast-grep outline   (load the `ast-grep-outline` skill)
+  A code SHAPE — call pattern, signature, construct, refactor-grade?
+      -> ast-grep (sg) or the ast-grep MCP   (load the `ast-grep` skill for rules)
+  Literal string, exact identifier, file path, or "every occurrence"?
+      -> builtin: rg / grep / Glob / Read
+  Across repos — org-wide, not cloned locally, prior art on GitHub?
+      -> gh search (code / repos / issues / prs / commits)
   ```
+
+  Order matters. Outline before reading a whole file, because it costs a fraction
+  of the context and usually answers the question. ast-grep before `rg`, because a
+  shape query written as a regex silently misses wrapped lines and hits comments.
 
   ## 1. Builtin — `rg` / `grep` / `Glob` / `Read`
 

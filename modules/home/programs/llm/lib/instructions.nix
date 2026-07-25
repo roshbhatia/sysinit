@@ -103,7 +103,7 @@ let
           - Use the globally managed OpenSpec CLI/skills when OpenSpec is relevant; run `openspec init` only to create project artifacts, not to install workflow support
           - On unexpected errors: stop, preserve evidence, fix root cause (no `--no-verify`)
           - Use `nix-shell` / `nix develop` for dependencies; avoid global installers
-          - Default to `ast-grep`/`sg` (or the ast-grep MCP) for any structural code search; reserve `grep`/`rg` for literal text. See the `search-code-routing` skill.
+          - Finding code: `ast-grep outline` to map a file or directory before reading it, `ast-grep`/`sg` (or the ast-grep MCP) for any structural search, `grep`/`rg` only for literal text. Skills: `ast-grep-outline`, `ast-grep`, `search-code-routing`.
           - Use Explore as the explicit planning subagent for discovery/scoping work; prefer librarian for external docs/code and oracle for deep architecture review
           - For multi-repo feature work, start a seshy session: `sy new <name> [repos...]`; never run bare `sy` (opens interactive picker)
           - openspec and seshy are first-class: check for active openspec changes (`openspec/changes/`) and seshy sessions (`sy list`) before scoping new work

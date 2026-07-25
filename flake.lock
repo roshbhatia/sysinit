@@ -1,5 +1,21 @@
 {
   "nodes": {
+    "ast-grep-skills": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1783087819,
+        "narHash": "sha256-awochSE2OupbsmaGx0xc7wHf0ovVMSdtHv4gZAGWOus=",
+        "owner": "ast-grep",
+        "repo": "agent-skill",
+        "rev": "c2a9bc154f4ffe08b25d28d5e852dfac8c0d0d8a",
+        "type": "github"
+      },
+      "original": {
+        "owner": "ast-grep",
+        "repo": "agent-skill",
+        "type": "github"
+      }
+    },
     "base16": {
       "inputs": {
         "fromYaml": "fromYaml"
@@ -918,6 +934,7 @@
     },
     "root": {
       "inputs": {
+        "ast-grep-skills": "ast-grep-skills",
         "cupcake": "cupcake",
         "darwin": "darwin",
         "determinate": "determinate",
