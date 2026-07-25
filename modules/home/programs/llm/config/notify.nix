@@ -34,9 +34,6 @@ let
     cursor =
       icon "cursor" "https://cdn.simpleicons.org/cursor/000000"
         "sha256-aMiOMXoD/vt9jtaLn+hu8zwKACdl+mv8hM3EPXu59P4=";
-    aider =
-      icon "aider" "https://aider.chat/assets/logo.svg"
-        "sha256-wgEroKMUHvFi9rxvTMjLSrGURNugQIyXX1jO7aTtebE=";
   };
 
   names = builtins.attrNames svgs;

@@ -5,7 +5,7 @@
 # turn (your move). Wired into each harness's lifecycle hooks; see notify.nix.
 #
 # Usage: agent-notify <agent> <reason> [focus-exe]
-#   <agent>      claude | codex | gemini | cursor | aider   (selects the icon/label)
+#   <agent>      claude | codex | gemini | cursor | amp   (selects the icon/label)
 #   <reason>     approval | idle | done | attention         (selects sound/wording)
 #   [focus-exe]  path to agent-focus; when set, the notification is clickable and
 #                routes back to the exact wezterm pane this agent runs in.
@@ -69,7 +69,6 @@ case "$agent" in
   codex) label="Codex" ;;
   gemini) label="Gemini" ;;
   cursor) label="Cursor" ;;
-  aider) label="Aider" ;;
   *) label="$agent" ;;
 esac
 icon="$icons/$agent.png"

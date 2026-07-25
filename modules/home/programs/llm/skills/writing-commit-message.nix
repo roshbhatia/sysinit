@@ -46,7 +46,7 @@
     when the change fits no single type (observed in the corpus).
   - `scope` is optional: the affected module, lowercase, kebab-case if multi-word.
     In-this-config scopes: `pi`, `llm`, `claude`, `gemini`, `goose`, `codex`,
-    `cursor`, `aider`, `opencode`, `openspec`, `hack`, `flake`.
+    `cursor`, `amp`, `opencode`, `openspec`, `hack`, `flake`.
   - `subject` is an imperative sentence fragment. No trailing period. No body by default.
   - Lowercase is preferred (~80% of the corpus). Capitalize only when an identifier
     or proper noun opens the subject; do not force lowercase onto one.

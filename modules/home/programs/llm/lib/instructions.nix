@@ -62,7 +62,7 @@ let
 
           - nix-darwin + home-manager + nix flakes (Apple Silicon, NixOS)
           - openspec ${openspecVersion} via `overlays/openspec.nix` (custom schema: `rosh-spec-driven`)
-          - Agent tooling: claude-code, codex, gemini, cursor, aider (all configured from `modules/home/programs/llm/`)
+          - Agent tooling: claude-code, codex, gemini, cursor, opencode, amp (all configured from `modules/home/programs/llm/`)
           - Shell: zsh; scripts in `hack/` are bash with `set -euo pipefail`, formatted by `shfmt -i 2 -ci -sr -s`
           - Formatter: `nixfmt-rfc-style` via `nix fmt`
           - Session manager: seshy (`sy`) for multi-repo feature work via git worktrees; sessions at `~/.local/state/seshy/sessions/`

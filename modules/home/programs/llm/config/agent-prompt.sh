@@ -124,7 +124,6 @@ case "$agent" in
   codex) label="Codex" ;;
   gemini) label="Gemini" ;;
   cursor) label="Cursor" ;;
-  aider) label="Aider" ;;
   *) label="$agent" ;;
 esac
 icon="$icons/$agent.png"

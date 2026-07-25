@@ -147,12 +147,6 @@ function M.setup(config)
           argv_patterns = { "^crush%s*$" },
           title_patterns = { "crush" },
         },
-        aider = {
-          patterns = { "aider" },
-          executable_patterns = { "/aider$" },
-          argv_patterns = { "^aider%s*$" },
-          title_patterns = { "aider" },
-        },
         opencode = {
           patterns = { "opencode" },
           executable_patterns = { "opencode%-darwin", "opencode%-linux", "/opencode$" },

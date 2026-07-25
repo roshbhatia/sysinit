@@ -3,18 +3,6 @@
 ## Purpose
 TBD - created by archiving change refine-harness-configs-and-refresh-pi. Update Purpose after archive.
 ## Requirements
-### Requirement: aider suppresses commit authorship attribution
-
-The aider config MUST set `attribute-co-authored-by = false` and
-`attribute-author = false`, so aider commits match the no-co-author posture of
-every other harness in this repo.
-
-#### Scenario: aider commit carries no co-author trailer
-
-- **WHEN** aider creates a commit
-- **THEN** the commit message has no `Co-authored-by` trailer
-- **AND** the git author is the user, not aider
-
 ### Requirement: opencode formatter uses the current top-level form
 
 The opencode top-level `formatter` key is the current documented method for

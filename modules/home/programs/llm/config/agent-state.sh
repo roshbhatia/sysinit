@@ -8,7 +8,7 @@
 # stale state to prune.
 #
 # Usage: agent-state <agent> <status> [reason-source]
-#   <agent>         claude | codex | gemini | cursor | aider   (free-form label)
+#   <agent>         claude | codex | gemini | cursor | amp   (free-form label)
 #   <status>        working | waiting | done | idle
 #   [reason-source] how to derive the human reason string:
 #                     tool     -> build from .tool_name + .tool_input (PreToolUse)
