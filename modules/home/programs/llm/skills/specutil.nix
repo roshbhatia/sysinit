@@ -5,7 +5,8 @@
   ## When to use
 
   - Before planning multi-change work: run `specutil graph --as mermaid` to see the cross-change DAG and discover blockers.
-  - During an explore session: run `specutil tui` (kanban lifecycle view) or `specutil serve` (HTML DAG, opens browser).
+  - During an explore session: run `specutil web` to open the work graph (levels, readiness, critical path) in a browser.
+  - Before marking a slice done: run `specutil check <change-dir>` as the deterministic rubric gate.
   - Before syncing to Linear or Notion: run `specutil plan --target <linear|notion>` to preview creates/updates/orphans; then run `specutil lock set` after each sync to record the mapping.
   - To render a change as an RFC, design doc, or ticket list: `specutil render --as rfc|design|tickets --change <name>`.
 
@@ -18,9 +19,13 @@
   specutil graph --as detail                # verbose per-node breakdown
   specutil graph --suggest                  # surface recommended next changes
 
-  specutil tui                              # interactive kanban in the terminal
-  specutil serve                            # HTML visualization, auto-opens browser
-  specutil serve -o -                       # HTML to stdout (pipe/redirect)
+  specutil web                              # HTML work graph, auto-opens browser
+  specutil web -o -                         # HTML to stdout (pipe/redirect)
+
+  specutil check                            # rubric-lint every change (exit 1 on violation)
+  specutil check <change-dir>               # rubric-lint one change
+  specutil check --as json                  # machine-readable findings
+  specutil check --list-rules               # the built-in rule set
 
   specutil render --as rfc     --change NAME
   specutil render --as design  --change NAME

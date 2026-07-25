@@ -86,8 +86,8 @@ let
           sy status <name>         # inspect session repos and branches
           sy path <name>           # print session directory (for cd / script use)
           specutil graph --as mermaid  # cross-change dependency DAG
-          specutil tui             # interactive spec lifecycle kanban
-          specutil serve           # HTML DAG visualization (opens browser)
+          specutil check           # rubric-lint a change (deterministic gate)
+          specutil web             # HTML work-graph visualization (opens browser)
           specutil render --as rfc|design|tickets --change <name>
           specutil plan --target linear|notion --change <name>
           ```
@@ -169,7 +169,7 @@ let
           - User-level `~/.config/git/ignore` already excludes `**/.claude/`, `**/.agents/`; do not duplicate in per-project `.gitignore`
           - Seshy sessions live at `~/.local/state/seshy/sessions/`; run `sy list` to discover active sessions before starting new feature work
           - Cross-harness memory: `basic-memory` MCP is available to all agents; use it for notes and context that must survive across harness boundaries
-          - specutil is on PATH: use `specutil graph --as mermaid` to show the cross-change dependency DAG before planning, `specutil tui` for the lifecycle kanban, and `specutil serve` to open the HTML visualization
+          - specutil is on PATH: use `specutil graph --as mermaid` to show the cross-change dependency DAG before planning, `specutil check` as the deterministic rubric gate, and `specutil web` to open the HTML work graph
           - When exploring or planning work that touches openspec changes, always call `specutil graph` first to understand the current DAG
         '';
       };

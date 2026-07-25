@@ -201,9 +201,10 @@ let
     "specutil render *"
     "specutil plan *"
     "specutil diff *"
-    "specutil tui"
-    "specutil serve"
-    "specutil serve *"
+    "specutil check"
+    "specutil check *"
+    "specutil web"
+    "specutil web *"
     "specutil --help"
     "specutil --version"
 
