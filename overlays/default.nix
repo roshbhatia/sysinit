@@ -32,7 +32,6 @@
   (import ./inputs.nix { inherit inputs; })
   (import ./python311.nix { })
   (import ./python313.nix { })
-  (import ./crossplane.nix { })
   (import ./kubernetes-zeitgeist.nix { })
   (import ./go-enum.nix { })
   (import ./gomvp.nix { })

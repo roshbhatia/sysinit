@@ -175,7 +175,6 @@
             "go-enum"
             "gomvp"
             "kubernetes-zeitgeist"
-            "crossplane"
             "open-policy-agent"
             "direnv"
             "hererocks"
