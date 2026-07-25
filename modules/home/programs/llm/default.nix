@@ -29,6 +29,25 @@ let
     name: path: lib.nameValuePair ".claude/skills/${name}/SKILL.md" { source = path; }
   ) inputs.specutil.lib.skills;
 
+  # Amp validates skill frontmatter against a fixed allowlist and errors on any
+  # key outside it, so it gets its own render rather than reading the Claude
+  # tree. config/amp.nix turns off Amp's .claude/skills auto-load to match.
+  ampSkillFiles = lib.mapAttrs' (
+    name: path: lib.nameValuePair ".config/amp/skills/${name}/SKILL.md" { source = path; }
+  ) skills.ampSkills;
+
+  ampSkillScriptFiles = lib.mapAttrs' (
+    relPath: src:
+    lib.nameValuePair ".config/amp/skills/${relPath}" {
+      source = src;
+      executable = true;
+    }
+  ) skills.skillExtraFiles;
+
+  ampSpecutilSkillFiles = lib.mapAttrs' (
+    name: path: lib.nameValuePair ".config/amp/skills/${name}/SKILL.md" { source = path; }
+  ) inputs.specutil.lib.skills;
+
   # programs.mcp serializes `servers` straight to JSON, so strip option
   # defaults that don't belong on the wire (null command for http servers,
   # null url for stdio servers, the synthetic `type = "local"`, empty
@@ -56,7 +75,6 @@ in
   imports = [
     ./openspec-schema.nix
     ./citation-tools
-    ./config/aider.nix
     ./config/amp.nix
     ./config/claude.nix
     ./config/codex.nix
@@ -70,7 +88,14 @@ in
     ./config/pi.nix
   ];
 
-  home.file = skillFiles // skillScriptFiles // specutilSkillFiles // notify.iconFiles;
+  home.file =
+    skillFiles
+    // skillScriptFiles
+    // specutilSkillFiles
+    // ampSkillFiles
+    // ampSkillScriptFiles
+    // ampSpecutilSkillFiles
+    // notify.iconFiles;
 
   home.packages = [
     notify.script

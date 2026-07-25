@@ -44,15 +44,19 @@
     review that names the one real issue beats a long list of style opinions.
   '';
 
+  # bash and skill are granted because the body depends on both: "review only
+  # changed lines" needs `git diff`, and "against project conventions (the
+  # skills)" needs the skill loader. Every write tool stays off, which is what
+  # makes the agent read-only.
   tools = {
-    bash = false;
+    bash = true;
     edit = false;
     glob = true;
     grep = true;
     list = true;
     patch = false;
     read = true;
-    skill = false;
+    skill = true;
     webfetch = false;
     write = false;
   };

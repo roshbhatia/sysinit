@@ -28,6 +28,10 @@ let
         }
       ];
     "amp.updates.mode" = "disabled";
+    # Amp rejects any skill frontmatter key outside its own allowlist (`effort`
+    # is not in it), so it reads the Amp-specific tree written by
+    # programs/llm/default.nix instead of ~/.claude/skills.
+    "amp.skills.disableClaudeCodeSkills" = true;
   };
 in
 {
@@ -38,7 +42,7 @@ in
     };
     # Amp reads AGENTS.md from project roots and global config paths.
     "amp/AGENTS.md" = {
-      text = kit.mkInstructionsWithStyle "~/.claude/skills";
+      text = kit.mkInstructionsWithStyle "~/.config/amp/skills";
       force = true;
     };
   };

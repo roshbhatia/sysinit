@@ -315,6 +315,7 @@ in
       kit.llmLib.instructions.formatSubagentAsMarkdown {
         inherit name;
         config = agentConfig;
+        harness = "claude";
       }
     ) subagents;
   };

@@ -51,13 +51,12 @@ let
   ];
 
   # Injected once per generated SKILL.md so every skill carries the RFC 2119
-  # reference without each source file restating the boilerplate.
+  # reference without each source file restating the boilerplate. Kept to one
+  # line: the full keyword gloss lives in the global instructions, and repeating
+  # it in 17 skill bodies cost ~5KB of context for a convention the reader
+  # already has.
   normativePreamble = ''
-    > The key words MUST, MUST NOT, REQUIRED, SHALL, SHALL NOT, SHOULD, SHOULD
-    > NOT, RECOMMENDED, MAY, and OPTIONAL in this skill are to be interpreted as
-    > described in [RFC 2119](https://datatracker.ietf.org/doc/html/rfc2119).
-    > Rules phrased as "never" are MUST NOT; "always" are MUST; "prefer" /
-    > "default to" are SHOULD.
+    > Normative keywords follow [RFC 2119](https://datatracker.ietf.org/doc/html/rfc2119); "never" is MUST NOT, "always" is MUST, "prefer" is SHOULD.
 
   '';
 
@@ -151,8 +150,13 @@ let
     else
       true;
 
+  # Amp auto-loads the same SKILL.md tree and validates frontmatter against a
+  # fixed allowlist, so a key Claude Code understands is a load error there.
+  # `effort` is not in Amp's allowlist. `model` is, but only as a full model ID,
+  # and Claude Code's short aliases are not valid there; Amp therefore renders
+  # without either key and falls back to its session model.
   renderSkill =
-    name: skill:
+    harness: name: skill:
     let
       _ck = validateRegistryKeys name skill;
       _nk = validateName name;
@@ -167,8 +171,8 @@ let
       ]
       ++ lib.optional (skill ? "allowed-tools") "allowed-tools: ${skill."allowed-tools"}"
       ++ lib.optional (skill ? whenToUse) "when_to_use: ${skill.whenToUse}"
-      ++ lib.optional (skill ? model) "model: ${skill.model}"
-      ++ lib.optional (skill ? effort) "effort: ${skill.effort}"
+      ++ lib.optional (skill ? model && harness == "claude") "model: ${skill.model}"
+      ++ lib.optional (skill ? effort && harness == "claude") "effort: ${skill.effort}"
       ++ lib.optional (skill ? "disable-model-invocation") "disable-model-invocation: true"
       ++ [
         "---"
@@ -188,9 +192,14 @@ let
     in
     forced;
 
-  localSkills = builtins.mapAttrs (
-    name: skill: pkgs.writeText "skill-${name}-SKILL.md" (renderSkill name skill)
-  ) registry;
+  renderSkillsFor =
+    harness:
+    builtins.mapAttrs (
+      name: skill: pkgs.writeText "skill-${harness}-${name}-SKILL.md" (renderSkill harness name skill)
+    ) registry;
+
+  localSkills = renderSkillsFor "claude";
+  ampSkills = renderSkillsFor "amp";
 
   localSkillDescriptions = builtins.mapAttrs (_name: skill: skill.description) registry;
 
@@ -208,6 +217,7 @@ in
 {
   inherit
     allSkills
+    ampSkills
     localSkillDescriptions
     skillExtraFiles
     installSkillsTo
