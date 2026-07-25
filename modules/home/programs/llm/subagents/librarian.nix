@@ -45,6 +45,10 @@
     find an authoritative source" is more useful than a confident guess.
   '';
 
+  # Bounded, read-only role: pinned to the mid tier rather than inheriting
+  # whatever the caller happens to be running (which may be the frontier model).
+  model = "sonnet";
+
   tools = {
     bash = false;
     edit = false;

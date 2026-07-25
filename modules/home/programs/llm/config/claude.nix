@@ -46,6 +46,16 @@ let
     text = builtins.readFile ./claude-bash-guard.sh;
   };
 
+  # Same contract as the bash guard, applied to file-writing tools: denies edits
+  # whose target resolves into /nix/store, so a Nix-managed dotfile sends the
+  # agent to the generating module instead of a read-only store path.
+  nixGuardScript = pkgs.writeShellApplication {
+    name = "claude-nix-guard";
+    runtimeInputs = [ pkgs.jq ];
+    bashOptions = [ ];
+    text = builtins.readFile ./claude-nix-guard.sh;
+  };
+
   # PreToolUse guard for the Slack send tools. `dangerouslySkipPermissions`
   # bypasses `permissions.ask`, so the hook is the only gate still active.
   # slack_send_message and slack_send_message_draft are allowed when the
@@ -227,6 +237,15 @@ in
               {
                 type = "command";
                 command = "${lib.getExe bashGuardScript}";
+              }
+            ];
+          }
+          {
+            matcher = "Edit|Write|NotebookEdit";
+            hooks = [
+              {
+                type = "command";
+                command = "${lib.getExe nixGuardScript}";
               }
             ];
           }

@@ -44,6 +44,10 @@
     review that names the one real issue beats a long list of style opinions.
   '';
 
+  # Bounded, read-only role: pinned to the mid tier rather than inheriting
+  # whatever the caller happens to be running (which may be the frontier model).
+  model = "sonnet";
+
   # bash and skill are granted because the body depends on both: "review only
   # changed lines" needs `git diff`, and "against project conventions (the
   # skills)" needs the skill loader. Every write tool stays off, which is what

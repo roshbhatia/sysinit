@@ -329,6 +329,19 @@ let
   #   Amp    — amp.permissions triples with action "reject" (verify the reject
   #            action name against Amp's schema at apply; current allow/ask are
   #            confirmed, reject is the documented block action).
+  #   Cursor — permissions.deny takes the same "Shell(<pattern>)" shape as
+  #            allow. Without this the cursor config denies nothing at all.
+  #   Devin  — permissions.deny takes "Exec(<prefix>)" for shell and
+  #            "Read(<glob>)" for files. Devin matches Exec by command prefix,
+  #            not by glob, so a trailing " *" is stripped rather than kept.
+  formatDestructiveForCursor = patterns: builtins.map (cmd: "Shell(${cmd})") patterns;
+
+  stripTrailingGlob =
+    cmd: if lib.hasSuffix " *" cmd then lib.substring 0 (lib.stringLength cmd - 2) cmd else cmd;
+
+  formatForDevin = tier: builtins.map (cmd: "Exec(${stripTrailingGlob cmd})") tier;
+  formatDestructiveForDevin = patterns: builtins.map (cmd: "Exec(${stripTrailingGlob cmd})") patterns;
+
   formatDestructiveForGoose = patterns: patterns;
   formatDestructiveForOpencode =
     patterns: lib.listToAttrs (builtins.map (cmd: lib.nameValuePair cmd "deny") patterns);
@@ -384,8 +397,11 @@ in
     formatForGoose
     formatForOpencodeWithAction
     formatForOpencode
+    formatForDevin
     formatDestructiveForGoose
     formatDestructiveForOpencode
     formatDestructiveForAmp
+    formatDestructiveForCursor
+    formatDestructiveForDevin
     ;
 }

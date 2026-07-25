@@ -11,9 +11,12 @@ let
   cursorConfig = builtins.toJSON {
     version = 1;
     permissions = {
-      # Allow all shell commands — wildcard bypasses per-command prompts.
+      # Allow all shell commands — wildcard bypasses per-command prompts. The
+      # deny list is what makes that safe: it carries the same destructive-command
+      # globs every other harness denies, so `git reset --hard` and friends are
+      # blocked here too rather than sailing through the wildcard.
       allow = [ "Shell(.*)" ];
-      deny = [ ];
+      deny = llmLib.allowlist.formatDestructiveForCursor llmLib.allowlist.destructiveDenyGlobs;
     };
     editor = {
       vimMode = true;

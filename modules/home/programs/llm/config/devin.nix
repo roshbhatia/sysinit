@@ -27,6 +27,15 @@ let
       windsurf = false;
     };
 
+    # devin checks deny before ask before allow, so the destructive globs win
+    # over the tier allowances regardless of ordering. Its rule syntax is
+    # `Exec(<command prefix>)`, matched by prefix rather than by glob.
+    permissions = {
+      allow = llmLib.allowlist.formatForDevin (llmLib.allowlist.tierA ++ llmLib.allowlist.tierB);
+      deny = llmLib.allowlist.formatDestructiveForDevin llmLib.allowlist.destructiveDenyGlobs;
+      ask = [ ];
+    };
+
     # devin's stdio entry shape is `{ command, args, env }` and its remote shape
     # is a bare `{ url }`, which is exactly what formatForCursor emits. Do not
     # swap in the Claude formatter: it adds `type`, `description`, and `enabled`
