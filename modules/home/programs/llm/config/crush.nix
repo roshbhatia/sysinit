@@ -11,11 +11,15 @@ let
   crushSettings = {
     "$schema" = "https://charm.land/crush.json";
     mcp = llmLib.mcp.formatForCrush kit.mcpServers.servers;
-    # Two-tier split: leave the strong reasoner as the default `large` model and
-    # set a Haiku-class helper for cheap summarization/title work. Mirrors
-    # aider.nix's architect + editor-model split. `anthropic` is a built-in
-    # provider in Crush's catalog, so no explicit providers block is needed.
+    # Two-tier split: Sonnet 5 is the mid-tier reasoner (near-Opus on coding and
+    # agentic work at lower cost), with a Haiku-class helper for cheap
+    # summarization/title work. `anthropic` is a built-in provider in Crush's
+    # catalog, so no explicit providers block is needed.
     models = {
+      large = {
+        model = "claude-sonnet-5";
+        provider = "anthropic";
+      };
       small = {
         model = "claude-haiku-4-5";
         provider = "anthropic";

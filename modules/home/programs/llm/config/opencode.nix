@@ -34,10 +34,12 @@ let
     share = "disabled";
     theme = "system";
 
-    # Two-tier split: the strong reasoner stays the default; a Haiku-class helper
-    # handles cheap summarization/title work. Can be overridden to a local Ollama
-    # model at startup with --model ollama/qwen2.5-coder:7b.
-    small_model = "anthropic/claude-haiku-4-5";
+    # Two-tier split on the Codex models the ChatGPT subscription already pays
+    # for: gpt-5.5 is OpenAI's recommended Codex default, gpt-5.4-mini handles
+    # cheap summarization/title work. Can be overridden to a local Ollama model
+    # at startup with --model ollama/qwen2.5-coder:7b.
+    model = "openai/gpt-5.5";
+    small_model = "openai/gpt-5.4-mini";
 
     tui = {
       scroll_acceleration = {
@@ -126,6 +128,35 @@ let
     #   ollama pull qwen2.5-coder:7b    # fast/cheap tasks (~4.5 GB)
     # Switch to a local model with: opencode --model ollama/qwen2.5-coder:14b
     provider = {
+      # ChatGPT-subscription Codex models, reached through the
+      # opencode-openai-codex-auth plugin declared above. The plugin's own
+      # presets still name gpt-5.1/gpt-5.2 Codex variants, which OpenAI removed
+      # from the ChatGPT sign-in path on 2026-04-14, so the models are declared
+      # here instead of relying on the shipped list.
+      openai = {
+        options = {
+          reasoningEffort = "medium";
+          reasoningSummary = "auto";
+          textVerbosity = "medium";
+          include = [ "reasoning.encrypted_content" ];
+          store = false;
+        };
+        models = {
+          "gpt-5.5" = {
+            name = "GPT-5.5 (ChatGPT)";
+          };
+          "gpt-5.3-codex" = {
+            name = "GPT-5.3 Codex (ChatGPT)";
+          };
+          "gpt-5.4-mini" = {
+            name = "GPT-5.4 Mini (ChatGPT)";
+            options = {
+              reasoningEffort = "low";
+            };
+          };
+        };
+      };
+
       ollama = {
         npm = "@ai-sdk/openai-compatible";
         name = "Ollama (local)";
@@ -158,6 +189,7 @@ let
       text = llmLib.instructions.formatSubagentAsMarkdown {
         inherit name;
         config = agentConfig;
+        harness = "opencode";
       };
     }
   ) llmLib.instructions.subagentDefs;
