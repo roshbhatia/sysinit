@@ -30,22 +30,20 @@
 let
   subagents = import ../subagents;
 
+  # Names only, not descriptions. Every harness that can load a skill also
+  # surfaces that skill's own description from its skills tree, so repeating the
+  # descriptions here cost ~2.2KB of every session's context to say the same
+  # thing twice. Harnesses with no skill loader at all (codex, copilot) could
+  # never act on the descriptions anyway.
   formatSkillsBlock =
     skills:
     let
-      firstSentence =
-        s:
-        let
-          parts = builtins.split "\\." s;
-          chunks = builtins.filter builtins.isString parts;
-          first = if chunks == [ ] then s else builtins.head chunks;
-        in
-        first;
-      entries = builtins.attrValues (
-        builtins.mapAttrs (name: desc: "- `${name}` · ${firstSentence desc}") skills
-      );
+      names = builtins.attrNames skills;
     in
-    if entries == [ ] then "(no skills registered)" else builtins.concatStringsSep "\n" entries;
+    if names == [ ] then
+      "(no skills registered)"
+    else
+      "Available: " + builtins.concatStringsSep ", " (map (n: "`${n}`") names);
 
   makeInstructions =
     {
@@ -143,7 +141,7 @@ let
         skills = ''
           ## Skills
 
-          Skills live at `${skillsRoot}/<name>/SKILL.md`, generated from `modules/home/programs/llm/skills/default.nix`.
+          Skills live at `${skillsRoot}/<name>/SKILL.md`, generated from `modules/home/programs/llm/skills/default.nix`. Read a skill's own file for what it does and when it applies.
 
           ${skillsList}
         '';
