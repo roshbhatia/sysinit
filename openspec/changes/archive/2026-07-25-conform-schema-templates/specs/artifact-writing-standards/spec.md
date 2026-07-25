@@ -1,8 +1,5 @@
-# artifact-writing-standards Specification
+## MODIFIED Requirements
 
-## Purpose
-Require every rosh-spec-driven artifact to follow the CLAUDE.md Simplified Technical English standard, enforced mechanically by `specutil check`.
-## Requirements
 ### Requirement: Artifacts follow the CLAUDE.md communication standard
 Every rosh-spec-driven artifact (proposal, specs, design, tasks) MUST be written in Simplified Technical English per the Communication section of `~/.claude/CLAUDE.md`: one instruction per sentence, active voice, one term per concept, and no em-dashes in prose. The `schema.yaml` artifact instructions MUST state this rule, and `specutil check` MUST enforce the mechanical parts it can check deterministically.
 
@@ -25,17 +22,3 @@ Every rosh-spec-driven artifact (proposal, specs, design, tasks) MUST be written
 - **POLARITY** negative
 - **WHEN** a template is edited to open a bullet with a disallowed bolded term
 - **THEN** the `schema-templates-conform` flake check fails, because a scaffolded change would inherit the violation
-
-### Requirement: Structured format markers are exempt from the bold-lead check
-The openspec scenario keywords (`**WHEN**`, `**THEN**`, `**AND**`) and the rosh-spec-driven markers (`**POLARITY**`, `**SHAPE**`, `**STOP**`, `**MAX-ITERS**`, `**BREAKING**`) are bolded by format, not prose emphasis. `specutil check` MUST NOT flag them as bolded-first-term bullet violations; it MUST flag only a prose bullet that leads with an arbitrary bolded term.
-
-#### Scenario: A scenario keyword is not flagged
-- **POLARITY** positive
-- **WHEN** a bullet is `- **WHEN** the owner approves`
-- **THEN** `specutil check` does not flag it, because `WHEN` is an allowed format keyword
-
-#### Scenario: A prose bold lead is rejected
-- **POLARITY** negative
-- **WHEN** a prose bullet leads with an arbitrary bolded term such as `- **Note** this is important`
-- **THEN** `specutil check` fails with "bolded bullet lead", because the standard forbids bolding the first term of a bullet
-

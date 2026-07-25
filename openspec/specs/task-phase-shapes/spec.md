@@ -16,6 +16,16 @@ Each non-Rollout `## <n>.` slice in `tasks.md` MUST declare a shape marker: `- *
 - **WHEN** a non-Rollout `## <n>.` slice has no `- **SHAPE**` marker
 - **THEN** `specutil check` fails with "slice without a declared shape"
 
+#### Scenario: The tasks template models a conforming slice
+- **POLARITY** positive
+- **WHEN** a change is scaffolded verbatim from the rosh-spec-driven tasks template
+- **THEN** every non-Rollout slice already declares a shape and carries an adversarial-review checkbox, so the scaffold passes without edits
+
+#### Scenario: A template slice missing its shape is rejected
+- **POLARITY** negative
+- **WHEN** the tasks template is edited to drop a slice's shape marker
+- **THEN** the `schema-templates-conform` flake check fails, because a scaffolded change would start out non-conforming
+
 ### Requirement: Loop phases declare gather, act, verify, a stop condition, and a cap
 A `loop` slice models the gather-context → act → verify cycle. It MUST declare a stop-condition marker (`- **STOP** <condition>`) and a max-iteration cap (`- **MAX-ITERS** <n>`). One iteration is the valid degenerate case. `specutil check` MUST reject a loop slice missing either marker.
 
