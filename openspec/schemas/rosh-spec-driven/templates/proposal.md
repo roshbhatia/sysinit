@@ -26,4 +26,19 @@
 
 ## Impact
 
-<!-- Affected code, APIs, dependencies, systems -->
+<!-- Affected code, APIs, dependencies, systems. Use plain labels and
+     sub-bullets; the writing standard forbids opening a bullet with a bolded
+     term, and `specutil check` enforces it. -->
+
+Modified code:
+- `<path>`
+
+Dependencies: <!-- new or changed dependencies, or "none" -->
+
+Impactful and irreversible actions:
+<!-- rosh-spec-driven rule: enumerate every action that mutates shared state, is
+     hard to reverse, or needs owner confirmation. Each becomes a verify/apply/
+     confirm triad in tasks.md. Write "none" if there are none. -->
+
+Gating signal: <!-- the feature flag, config toggle, or build-then-switch
+                    sequence that scopes the rollout -->
