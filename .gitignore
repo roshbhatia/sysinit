@@ -2,6 +2,7 @@
 result
 result-*
 **/dist/
+switch.err
 
 # Flake outputs
 .direnv/
