@@ -5,6 +5,14 @@ installed `openspec` CLI. Every divergence below cites the upstream file
 or section being overridden. Run `hack/sync-openspec-schema.sh` to detect
 upstream drift.
 
+- The deterministic rubric-lint is now `specutil check`, not the `specreview`
+  shell script. The rubric is unchanged: the same nine rules, read from the same
+  declared markers. specutil parses the artifacts once and applies the rules
+  from its own representation, so the format has one parser instead of two. The
+  rules ship as the `rosh-spec-driven` preset, which a repository adopts by
+  naming that schema in `openspec/config.yaml`. Verdict parity was confirmed by
+  running both tools over every archived change. (`replace-specreview-with-specutil-check`.)
+
 ## Active divergences
 
 ### schema.yaml — `name`, `description`

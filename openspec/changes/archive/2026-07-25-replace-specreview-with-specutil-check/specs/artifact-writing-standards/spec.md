@@ -1,8 +1,5 @@
-# artifact-writing-standards Specification
+## MODIFIED Requirements
 
-## Purpose
-Require every rosh-spec-driven artifact to follow the CLAUDE.md Simplified Technical English standard, enforced mechanically by `specutil check`.
-## Requirements
 ### Requirement: Artifacts follow the CLAUDE.md communication standard
 Every rosh-spec-driven artifact (proposal, specs, design, tasks) MUST be written in Simplified Technical English per the Communication section of `~/.claude/CLAUDE.md`: one instruction per sentence, active voice, one term per concept, and no em-dashes in prose. The `schema.yaml` artifact instructions MUST state this rule, and `specutil check` MUST enforce the mechanical parts it can check deterministically.
 
@@ -28,4 +25,3 @@ The openspec scenario keywords (`**WHEN**`, `**THEN**`, `**AND**`) and the rosh-
 - **POLARITY** negative
 - **WHEN** a prose bullet leads with an arbitrary bolded term such as `- **Note** this is important`
 - **THEN** `specutil check` fails with "bolded bullet lead", because the standard forbids bolding the first term of a bullet
-

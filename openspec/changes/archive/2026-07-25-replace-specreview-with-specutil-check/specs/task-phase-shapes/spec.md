@@ -1,8 +1,5 @@
-# task-phase-shapes Specification
+## MODIFIED Requirements
 
-## Purpose
-Give a plan phase a first-class loop or graph shape with validated markers, and render a declared shape as ASCII when the plan is presented.
-## Requirements
 ### Requirement: Every non-Rollout plan phase declares a shape
 Each non-Rollout `## <n>.` slice in `tasks.md` MUST declare a shape marker: `- **SHAPE** loop` or `- **SHAPE** graph`. `specutil check` MUST reject a non-Rollout slice that declares no shape. A `## <n>. Rollout` slice is exempt, matching how `specutil check` already exempts Rollout slices from the adversarial-review-checkbox check. This mirrors the declared-marker convention (`- **POLARITY**`), so the check reads a stated fact rather than inferring from prose.
 
@@ -54,4 +51,3 @@ When an agent presents a plan or a shaped slice to the owner, it MUST render the
 - **POLARITY** negative
 - **WHEN** the agent presents a slice that declares a shape
 - **THEN** it does not show only prose: the ASCII diagram accompanies the description, because the owner asked to see the shape
-
