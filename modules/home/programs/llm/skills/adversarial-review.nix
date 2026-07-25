@@ -16,6 +16,33 @@
     instance or a different model (see the reference: unaided self-correction
     degrades quality).
 
+  ## Owner gate (elicit before spawning critics)
+
+  FIRST, the recursion guard takes precedence: if `$CLAUDE_CODE_CHILD_SESSION`
+  is set you are already a critic, SKIP this entire owner gate and go straight
+  to "Pick the execution path" path 1 (produce your objection and return). A
+  critic never elicits and never runs the gate.
+
+  Otherwise (a top-level review), the LLM critic loop is owner-gated; the
+  deterministic `specreview` lint below is NOT. Before spawning any critics:
+
+  1. Run `specreview <change-dir>` first regardless (it is cheap and pure). Fix
+     every violation before offering the loop.
+  2. Then elicit the owner's decision on the critic loop. In an interactive
+     harness use the approve/deny prompt (AskUserQuestion under Claude Code);
+     the DEFAULT is to run. Frame it per slice, e.g. "Run the adversarial critic
+     loop for this slice? (default: yes)".
+  3. On approve, run the loop as specified below.
+  4. On deny, SKIP the critic loop and record the decision in the slice's
+     review checkbox as `Adversarial review: waived by owner`. Do not leave the
+     checkbox unmarked (indistinguishable from a forgotten one) and do not
+     silently check it without the waiver note.
+  5. Non-interactive / unattended runs (cron, CI, no TTY): default to running
+     the loop; there is no owner to elicit, so the gate falls back to on.
+
+  A waiver waives ONLY the critic loop. `specreview` must still pass, and the
+  human-verification gates for impactful actions still apply.
+
   ## Pick the execution path (harness-aware)
 
   Check the environment in this order and take the first match:

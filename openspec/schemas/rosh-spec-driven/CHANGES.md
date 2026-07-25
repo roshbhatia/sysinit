@@ -43,6 +43,11 @@ upstream drift.
 - Adds a `rosh-spec-driven rule` to the `Migration Plan` bullet: every step
   that mutates shared state or requires elevated permissions MUST be
   surrounded by verification and confirmation steps.
+- Adds a REQUIRED `Adversarial Review` section naming the review rubric.
+  Split into two halves: the deterministic `specreview` lint is MANDATORY,
+  and the LLM critic loop is default-on but OWNER-GATED (the owner may waive
+  the loop for a small slice, recorded as a waiver). Cites the
+  `adversarial-review` skill for the methodology.
 
 ### schema.yaml — `artifacts[id=tasks].instruction`
 - Adds a `rosh-spec-driven rule` bullet requiring multi-capability changes
@@ -55,6 +60,24 @@ upstream drift.
   cite the existing pattern it follows (path) or justify introducing a new one.
 - Extends the example to show a `## 3. Rollout` phase with a verify/apply/confirm
   task triplet for `nh os switch`.
+- Adds the per-slice adversarial-review gate rule. The checkbox is required,
+  but the LLM critic loop it invokes is default-on and OWNER-GATED: the
+  `adversarial-review` skill elicits approve/deny, and a deny records
+  `Adversarial review: waived by owner`. The mandatory `specreview` lint is
+  not gated. (`spec-driven-workflow-upgrades` change.)
+- Adds the phase-shape rule. Each non-Rollout slice declares `- **SHAPE**
+  loop|graph`; a `loop` also declares `- **STOP**` and `- **MAX-ITERS**`; a
+  `graph` subtask may carry a trailing `` `deps:` `` whose ids resolve to
+  sibling subtasks. `specreview` enforces the markers. (`spec-driven-workflow-upgrades`.)
+- Adds the artifact-writing-standard rule: every artifact is written in
+  Simplified Technical English per the `~/.claude/CLAUDE.md` Communication
+  section. `specreview` fails on em-dashes and disallowed bolded bullet leads.
+  (`spec-driven-workflow-upgrades`.)
+
+### templates/tasks.md
+- Replaces the two placeholder task groups with a `loop`-shaped and a
+  `graph`-shaped example carrying the `- **SHAPE**` / `- **STOP**` /
+  `- **MAX-ITERS**` / `` `deps:` `` markers. (`spec-driven-workflow-upgrades`.)
 
 ### templates/proposal.md
 - Inserts a `### Non-goals` block under `## What Changes` so agents see the
