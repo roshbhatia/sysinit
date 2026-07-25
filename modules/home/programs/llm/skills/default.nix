@@ -50,24 +50,24 @@
   };
 
   writing-doc-design = {
-    description = "Structures a technical design doc: Summary, Goals/Non-Goals, Proposal, Design Details, Validation, Drawbacks, Alternatives, Implementation History. Section skeleton sourced from the Kubernetes KEP template, stripped of Kubernetes specifics and tuned to Roshan's working voice. Use when drafting or reviewing a design doc or technical proposal. Stores to the private Notion workspace for work tasks when the Notion MCP is available, else to a local markdown file under `.sysinit/`.";
+    description = "Structures a technical design doc from the Kubernetes KEP skeleton: Summary, Goals/Non-Goals, Proposal, Design Details, Validation, Drawbacks, Alternatives. Use when drafting or reviewing a design doc or technical proposal.";
     content = import ./writing-doc-design.nix;
   };
 
   writing-doc-rfc = {
-    description = "Structures a request-for-comments (RFC): Summary, Motivation, Guide-level explanation, Reference-level explanation, Drawbacks, Rationale and alternatives, Prior art, Unresolved questions, Future possibilities. Section skeleton sourced from the Rust RFC template, stripped of Rust specifics and tuned to Roshan's working voice. Use when drafting or reviewing an RFC that solicits a decision. Stores to the private Notion workspace for work tasks when the Notion MCP is available, else to a local markdown file under `.sysinit/`.";
+    description = "Structures a request-for-comments from the Rust RFC skeleton: Motivation, Guide-level and Reference-level explanation, Drawbacks, Alternatives, Prior art. Use when drafting or reviewing an RFC that solicits a decision.";
     content = import ./writing-doc-rfc.nix;
   };
 
   writing-tone = {
-    description = "Rewrites prose into Roshan's authentic working voice — scope-bounded, contract-shaped, anticipatory, terse, enforcement-oriented. Use when drafting or revising any longer-form writing in Roshan's name (audit docs, proposals, design notes, work breakdowns, RFCs, status posts, review comments) and the goal is for it to read as if he wrote it. Not for code comments (use writing-code-comments), commits (writing-commit-message), or PR bodies (writing-pr-description).";
+    description = "Rewrites longer-form prose into Roshan's working voice: scope-bounded, contract-shaped, terse. Use for audit docs, proposals, design notes, RFCs, status posts, and review comments written in his name.";
     content = import ./writing-tone.nix;
     model = "haiku";
     effort = "low";
   };
 
   worklog = {
-    description = "Generates a cross-session work report — 'what did we accomplish today' — from the append-only worklog.jsonl written by the SessionEnd hook. Drains un-summarized session entries by reading their transcripts, caches the summaries back, composes a per-day/per-repo digest, and optionally maps branches and commits to Linear/Notion/Slack outcomes. Use when the user asks what they worked on or accomplished across recent Claude Code sessions, or wants a daily or weekly progress report spanning repos.";
+    description = "Generates a cross-session work report from worklog.jsonl, digested per day and per repo. Use when the user asks what they worked on or accomplished recently, or wants a daily or weekly progress report spanning repos.";
     content = import ./worklog.nix;
     allowed-tools = "Read Write Edit Glob Bash(bash:*) Bash(jq:*) Bash(git:*) Agent";
     files = {
@@ -76,7 +76,7 @@
   };
 
   adversarial-review = {
-    description = "Runs an adversarial review loop where independent critics try to break an artifact (plan, spec, design, or code) and the author revises against surviving objections until none remain or a round cap is hit. Grounded in Self-Refine, Constitutional AI, and Multiagent Debate. In Claude Code it spawns in-process teammate critics; in other harnesses it uses subagents. Use at the rosh-spec-driven review gate, before marking a tasks.md slice done, or when asked to red-team or 'try to break' a plan, spec, or design.";
+    description = "Runs an adversarial review loop: independent critics try to break an artifact and the author revises against surviving objections. Use at the rosh-spec-driven review gate, before marking a tasks.md slice done, or when asked to red-team a plan, spec, or design.";
     content = import ./adversarial-review.nix;
     allowed-tools = "Agent Read Grep Glob Bash(printenv:*) Bash(env:*) Bash(openspec:*)";
     files = {
