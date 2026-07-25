@@ -7,44 +7,9 @@
 }:
 let
   shellUtils = import ../../../lib/shell.nix { inherit lib; };
+  paths_lib = import ../../../lib/paths.nix { inherit config lib; };
 
-  systemPaths = {
-    nix = [
-      "/nix/var/nix/profiles/default/bin"
-      "/etc/profiles/per-user/${config.home.username}/bin"
-      "/run/wrappers/bin"
-      "/run/current-system/sw/bin"
-    ];
-    system = [
-      "/opt/homebrew/bin"
-      "/opt/homebrew/opt/libgit2@1.8/bin"
-      "/opt/homebrew/sbin"
-      "/usr/bin"
-      "/usr/local/opt/cython/bin"
-      "/usr/sbin"
-    ];
-    user = [
-      "${config.home.homeDirectory}/.cargo/bin"
-      "${config.home.homeDirectory}/.krew/bin"
-      "${config.home.homeDirectory}/.local/bin"
-      "${config.home.homeDirectory}/.npm-global/bin"
-      "${config.home.homeDirectory}/.npm-global/bin/yarn"
-      "${config.home.homeDirectory}/.rvm/bin"
-      "${config.home.homeDirectory}/.uv/bin"
-      "${config.home.homeDirectory}/.yarn/bin"
-      "${config.home.homeDirectory}/.yarn/global/node_modules/.bin"
-      "${config.home.homeDirectory}/bin"
-      "${config.home.homeDirectory}/go/bin"
-    ];
-    xdg = [
-      "${config.home.homeDirectory}/.config/.cargo/bin"
-      "${config.home.homeDirectory}/.config/yarn/global/node_modules/.bin"
-      "${config.home.homeDirectory}/.config/zsh/bin"
-      "${config.home.homeDirectory}/.local/share/.npm-packages/bin"
-    ];
-  };
-
-  pathsList = systemPaths.nix ++ systemPaths.system ++ systemPaths.user ++ systemPaths.xdg;
+  pathsList = paths_lib.getAllPaths config.home.username config.home.homeDirectory;
 
   coreInit = shellUtils.stripHeaders ./core/init.zsh;
   corePath = shellUtils.stripHeaders ./core/path.zsh;
