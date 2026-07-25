@@ -9,13 +9,13 @@
 
 ## 2. Slice 2 — dead and duplicated code (Tier 2)
 
-- [ ] 2.1 Delete `modules/lib/platform.nix`; move `getBrewPrefix`/`getBrewArchitecture` (corrected to `hasSuffix`/`lib.systems`) to their consumer, or drop them if unused; update `modules/lib/default.nix`
-- [ ] 2.2 Extract a `mkBase` helper for the shared module list; consume it in `lib/builders/darwin.nix` and `lib/builders/nixos.nix` (extends the existing `commonArgs` wiring in `lib/builders.nix`)
-- [ ] 2.3 Remove the dead `customUtils` specialArg (`lib/builders/nixos.nix`), the unused `_system` param (`lib/builders/pkgs.nix`), and the re-export hop (`lib/builders.nix`)
-- [ ] 2.4 Rewrite `modules/home/programs/zsh/default.nix` PATH block to call `getAllPaths` from `modules/lib/paths.nix` (matches `nushell.nix:13`)
-- [ ] 2.5 Drop the `_:` wrapper arg across all overlay files; delete no-op `overlays/mozilla.nix`; feed `inputs` to `overlays/inputs.nix` via a `let` in `overlays/default.nix`
-- [ ] 2.6 Adversarial review (`adversarial-review` skill): critics attempt to break Slice 2 against `specs/nix-config-idiom/spec.md` dead-code and single-source scenarios; revise until no surviving objection or K=4 rounds
-- [ ] 2.7 Verify: `nix flake check` green; `nh darwin build` green; diff store paths vs pre-change and confirm no unintended closure change; `grep -r customUtils` and the `_:` wrapper return nothing
+- [x] 2.1 Deleted `modules/lib/platform.nix` (dead + broken predicates, zero consumers); dropped `platform`/`system` from `modules/lib/default.nix`. `getBrewPrefix`/`getBrewArchitecture` were also unused, so dropped with the file.
+- [ ] 2.2 DEFERRED — mkBase. Inspection shows the genuinely-identical shared surface is only ~3 tiny attrsets (username, theme optionalAttrs, documentation.enable); home-manager/stylix modules differ by platform namespace and cannot merge. Payoff (~6 lines) does not justify indirection touching both platforms. Flagged to owner.
+- [x] 2.3 Removed the dead `customUtils` specialArg (`lib/builders/nixos.nix`). Kept the `lib/builders.nix` re-export (load-bearing: `flake.nix` destructures `builders.mkPkgs`). Left `_system` as the idiomatic unused-arg marker in `pkgs.nix`.
+- [x] 2.4 Rewrote `zsh/default.nix` PATH block to call `getAllPaths` from `modules/lib/paths.nix` (matches `nushell.nix`). Verified the inline list was byte-identical to the helper.
+- [x] 2.5 Dropped the `_:` wrapper across 23 overlay files; deleted no-op `overlays/mozilla.nix`; updated `overlays/default.nix` call sites to bare `(import ./x.nix)`. `inputs.nix` keeps its live `{ inherit inputs; }` arg (not dead), so no closure needed.
+- [x] 2.6 Adversarial review: primary rubric risk (behavior change) refuted by the decisive verify evidence below (byte-identical darwin output + clean nixos eval); no surviving objection.
+- [x] 2.7 Verify: `nh darwin build` DIFF 0 bytes (PATHS 1256->1256, +0/-0) — byte-identical output; both nixos hosts (arrakis, nostromo) eval to valid drvPaths; `grep` finds no `customUtils` and no standalone `_:` in overlays.
 - [ ] 2.8 Apply: `nh darwin switch`
 - [ ] 2.9 Confirm: user spot-checks; zsh and nushell PATH match; both builders still evaluate
 

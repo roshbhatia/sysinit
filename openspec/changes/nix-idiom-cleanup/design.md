@@ -37,9 +37,10 @@ No new architectural pattern is introduced. Every edit moves a straggler onto an
   - Rationale: the OS predicates are broken (`hasPrefix "darwin"` is false for `aarch64-darwin`) and have zero live consumers, so the file is dead weight.
   - Alternative rejected: fix the predicates in place and keep the file. Rejected because nothing imports it; keeping it preserves unused surface that will drift again.
 
-- Decision: Extract one `mkBase { ... }` helper returning the shared module list, consumed by both builders.
-  - Rationale: `darwin.nix` and `nixos.nix` repeat the pkgs/username/theme/stylix/home-manager/documentation wiring verbatim.
-  - Alternative rejected: adopt flake-parts to supply the plumbing. Rejected per the proposal Non-goals; a local helper removes the duplication without a framework migration.
+- Decision: DEFERRED at implementation. Do not extract `mkBase`.
+  - Rationale: inspection during apply showed the genuinely-identical shared surface is only ~3 tiny attrsets (`sysinit.user.username`, the `values ? theme` optionalAttrs, `documentation.enable = false`). The home-manager and stylix module references differ by platform namespace (`darwinModules` vs `nixosModules`) and cannot merge. The saving is ~6 lines against added indirection that touches every host on both platforms.
+  - Alternative rejected: extract the 3 shared attrsets anyway. Rejected because the payoff does not justify a shared abstraction across two platforms for a change whose Non-goal is "no framework, keep it simple". Left to the owner to pick up later if desired.
+  - Alternative rejected: adopt flake-parts to supply the plumbing. Rejected per the proposal Non-goals.
 
 - Decision: Drop the `_:` overlay wrapper; pass `inputs` to `overlays/inputs.nix` via a `let` closure in `overlays/default.nix`, which already receives `inputs`.
   - Rationale: 24 of 25 overlays ignore the first arg; only `inputs.nix` needs `inputs`.
