@@ -32,8 +32,10 @@ let
   baseCasks = [
     "1password"
     "1password-cli"
+    # Devin CLI ships only as a cask or a curl installer; there is no nixpkgs
+    # package, and the curl installer is the path this repo refuses.
+    "devin-cli"
     "firefox"
-    "font-sf-mono-nerd-font-ligaturized"
     "font-sf-mono-nerd-font-ligaturized"
     "font-symbols-only-nerd-font"
     "hammerspoon"
