@@ -97,7 +97,7 @@ in
       $env.config.completions.external.completer = $carapace_completer
 
       # macOS: preserve system open command
-      ${optionalString pkgs.stdenv.isDarwin ''
+      ${optionalString pkgs.stdenv.hostPlatform.isDarwin ''
         alias nu-open = open
         alias open = ^open
       ''}

@@ -99,7 +99,7 @@
   # nativeBuildInputs, and the URL itself is wrong for Linux).
   (_final: prev: {
     _1password-gui =
-      if prev.stdenv.isDarwin then
+      if prev.stdenv.hostPlatform.isDarwin then
         prev._1password-gui.overrideAttrs (old: {
           src = prev.fetchurl {
             url = "https://downloads.1password.com/mac/1Password-${old.version}-aarch64.zip";
@@ -119,7 +119,7 @@
   # Darwin-only: ld64.lld is the Mach-O linker; gcc on Linux rejects the flag.
   (final: prev: {
     cargo-watch =
-      if prev.stdenv.isDarwin then
+      if prev.stdenv.hostPlatform.isDarwin then
         prev.cargo-watch.overrideAttrs (old: {
           nativeBuildInputs = (old.nativeBuildInputs or [ ]) ++ [ final.llvmPackages_latest.lld ];
           RUSTFLAGS = "${old.RUSTFLAGS or ""} -C link-arg=-fuse-ld=${final.llvmPackages_latest.lld}/bin/ld64.lld";
@@ -136,12 +136,12 @@
     # not need those patches, so pin it to pristine nixpkgs on Linux for a cache
     # hit; Darwin keeps prev to avoid an uncached darwin rebuild.
     electron_41 =
-      if prev.stdenv.isDarwin then
+      if prev.stdenv.hostPlatform.isDarwin then
         prev.electron_41
       else
         (import inputs.nixpkgs { inherit (final.stdenv.hostPlatform) system; }).electron_41;
     electron =
-      if prev.stdenv.isDarwin then
+      if prev.stdenv.hostPlatform.isDarwin then
         prev.electron
       else
         (import inputs.nixpkgs { inherit (final.stdenv.hostPlatform) system; }).electron;

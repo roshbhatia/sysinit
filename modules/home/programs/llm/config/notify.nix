@@ -104,7 +104,7 @@ let
       pkgs.coreutils
       pkgs.wezterm
     ]
-    ++ lib.optionals pkgs.stdenv.isDarwin [ pkgs.alerter ];
+    ++ lib.optionals pkgs.stdenv.hostPlatform.isDarwin [ pkgs.alerter ];
     bashOptions = [ ];
     # Preamble bakes the fallback notifier path; then the shared identity
     # resolver; then the script body — one combined unit so shellcheck validates

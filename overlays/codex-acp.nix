@@ -12,9 +12,9 @@ final: prev: {
     # Guard to Darwin: ld64.lld is Mach-O only; gcc on Linux rejects the flag.
     nativeBuildInputs =
       (old.nativeBuildInputs or [ ])
-      ++ (if prev.stdenv.isDarwin then [ final.llvmPackages_latest.lld ] else [ ]);
+      ++ (if prev.stdenv.hostPlatform.isDarwin then [ final.llvmPackages_latest.lld ] else [ ]);
     RUSTFLAGS =
-      if prev.stdenv.isDarwin then
+      if prev.stdenv.hostPlatform.isDarwin then
         "${old.RUSTFLAGS or ""} -C link-arg=-fuse-ld=${final.llvmPackages_latest.lld}/bin/ld64.lld"
       else
         (old.RUSTFLAGS or "");

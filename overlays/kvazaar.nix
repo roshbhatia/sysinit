@@ -4,14 +4,14 @@ final: prev: {
   # perturbs ffmpeg's closure and forces uncached source builds of everything
   # downstream (electron, webkitgtk, obsidian, lutris).
   kvazaar =
-    if prev.stdenv.isDarwin then
+    if prev.stdenv.hostPlatform.isDarwin then
       prev.kvazaar.overrideAttrs (_: {
         doCheck = false;
       })
     else
       prev.kvazaar;
   chromaprint =
-    if prev.stdenv.isDarwin then
+    if prev.stdenv.hostPlatform.isDarwin then
       prev.chromaprint.overrideAttrs (_: {
         doCheck = false;
       })

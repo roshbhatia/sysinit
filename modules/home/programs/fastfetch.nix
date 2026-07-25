@@ -138,7 +138,7 @@ let
       format = "{#1;${cSoftware}}󰏗 Software{#}";
     }
   ]
-  ++ lib.optionals pkgs.stdenv.isDarwin [
+  ++ lib.optionals pkgs.stdenv.hostPlatform.isDarwin [
     {
       type = "command";
       key = "├ Packages";
@@ -146,7 +146,7 @@ let
       text = darwinPackagesText;
     }
   ]
-  ++ lib.optionals pkgs.stdenv.isLinux [
+  ++ lib.optionals pkgs.stdenv.hostPlatform.isLinux [
     {
       type = "command";
       key = "├ Packages";
@@ -166,7 +166,7 @@ let
       keyColor = cSoftware;
     }
   ]
-  ++ lib.optionals pkgs.stdenv.isDarwin [
+  ++ lib.optionals pkgs.stdenv.hostPlatform.isDarwin [
     {
       type = "command";
       key = "└ WM      ";
@@ -174,7 +174,7 @@ let
       text = darwinWmText;
     }
   ]
-  ++ lib.optionals pkgs.stdenv.isLinux [
+  ++ lib.optionals pkgs.stdenv.hostPlatform.isLinux [
     {
       type = "command";
       key = "└ WM      ";
@@ -189,7 +189,7 @@ let
       format = "{#1;${cTheme}}󰏘 Theme{#}";
     }
   ]
-  ++ lib.optionals pkgs.stdenv.isDarwin [
+  ++ lib.optionals pkgs.stdenv.hostPlatform.isDarwin [
     {
       type = "command";
       key = "├ OS     ";

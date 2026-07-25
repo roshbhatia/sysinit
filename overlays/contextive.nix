@@ -37,14 +37,14 @@ in
     nativeBuildInputs = [
       final.unzip
     ]
-    ++ final.lib.optionals final.stdenv.isLinux [ final.autoPatchelfHook ];
+    ++ final.lib.optionals final.stdenv.hostPlatform.isLinux [ final.autoPatchelfHook ];
 
     # .NET single-file bundle: managed assemblies are appended to the apphost.
     # Stripping rewrites the Mach-O and truncates that trailer, which makes the
     # runtime fail with "possible file corruption" on launch.
     dontStrip = true;
 
-    buildInputs = final.lib.optionals final.stdenv.isLinux [
+    buildInputs = final.lib.optionals final.stdenv.hostPlatform.isLinux [
       final.stdenv.cc.cc.lib
       final.icu
       final.openssl

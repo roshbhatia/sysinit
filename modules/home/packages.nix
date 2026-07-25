@@ -195,5 +195,5 @@
       yaml-language-server
       yamllint
     ]
-    ++ (lib.optionals pkgs.stdenv.isLinux [ hyprpicker ]);
+    ++ (lib.optionals pkgs.stdenv.hostPlatform.isLinux [ hyprpicker ]);
 }
