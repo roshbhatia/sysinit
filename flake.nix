@@ -272,6 +272,38 @@
                 fi
               '';
 
+          # The schema's templates must be a conforming starting point. A change
+          # scaffolded verbatim from them has to pass the schema's own rubric,
+          # otherwise an author who fills in the template still trips the gate
+          # and has to reverse-engineer the rule from a failure. This caught the
+          # design template missing `Rollout & Gating` and `Adversarial Review`,
+          # the tasks template missing its per-slice review checkbox, and the
+          # spec template modelling no negative scenario.
+          schema-templates-conform =
+            pkgs.runCommand "schema-templates-conform-check"
+              {
+                nativeBuildInputs = [ pkgs.specutil ];
+              }
+              ''
+                tmpl=${./openspec/schemas/rosh-spec-driven/templates}
+                root="$TMPDIR/proj"
+                change="$root/openspec/changes/probe"
+                mkdir -p "$change/specs/probe-cap"
+                echo "schema: rosh-spec-driven" > "$root/openspec/config.yaml"
+                cp "$tmpl/proposal.md" "$change/proposal.md"
+                cp "$tmpl/design.md"   "$change/design.md"
+                cp "$tmpl/tasks.md"    "$change/tasks.md"
+                cp "$tmpl/spec.md"     "$change/specs/probe-cap/spec.md"
+
+                if specutil check "$change"; then
+                  echo "OK: a change scaffolded from the templates passes the rubric" | tee "$out"
+                else
+                  echo "FAIL: the schema templates do not satisfy the schema's own rubric." >&2
+                  echo "Fix the templates so a scaffolded change starts out conforming." >&2
+                  exit 1
+                fi
+              '';
+
           # Offline citation gate: run citelock's offline stages over every
           # openspec change that ships a citations.lock. Pure function of the
           # tree (no network, no MCP); the same gate the pre-commit hook runs.
