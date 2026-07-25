@@ -81,6 +81,7 @@ in
     ./config/copilot-cli.nix
     ./config/crush.nix
     ./config/cursor.nix
+    ./config/devin.nix
     ./config/gemini.nix
     ./config/goose.nix
     ./config/mcp-servers.nix
