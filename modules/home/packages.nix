@@ -164,6 +164,7 @@
       lsp-ai
       opencode
       openspec
+      specutil
 
       # Policy & Governance
       cupcake-cli
