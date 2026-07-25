@@ -1,5 +1,4 @@
-_:
-{
+_: {
   # Nix-manage seshy's user config (previously hand-written) so Roshan-specific
   # session setup survives a fresh machine. Kept separate from the seshy project
   # itself. The postCreate hook runs `openspec init`, which defaults to the
