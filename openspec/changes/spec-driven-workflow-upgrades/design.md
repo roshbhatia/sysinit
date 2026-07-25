@@ -47,6 +47,11 @@ Three surfaces of the rosh-spec-driven workflow change here, all already establi
   - Rationale: the machine is currently unauthenticated, so WebSearch must stay the zero-config default; the check is a runtime gate the agent performs.
   - Alternative rejected: always prefer pplx. Rejected because it would break research on an unauthenticated machine (the current state).
 
+- Decision: Enforce only the mechanical parts of the writing standard in `specreview` (em-dashes, disallowed bolded bullet leads); state the full standard in prose.
+  - Rationale: em-dash and bold-lead checks are deterministic string patterns that fit `specreview`'s stated-fact philosophy. Sentence-length and one-term-per-concept need judgment and belong in the human/critic review, not a bash lint.
+  - Alternative rejected: enforce sentence-length caps in `specreview`. Rejected because a reliable sentence tokenizer in bash is fragile and would produce false positives on code, paths, and lists.
+  - Alternative rejected: leave the standard as prose guidance only. Rejected because a mechanical check catches the two most common violations at zero judgment cost, as the em-dash slip in this change's own tasks.md showed.
+
 ## Rollout & Gating
 
 Three independently shippable slices, each ending green at `nix flake check` + `nh darwin build`, then a spot-check, then `nh darwin switch`.

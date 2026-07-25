@@ -8,6 +8,7 @@ The rosh-spec-driven workflow currently mandates an adversarial review on every 
 - Formalize plan phase shapes in the schema. A `tasks.md` phase declares one of two shapes: a `loop` (gather → act → verify, with an explicit stop condition and max-iteration cap; one iteration is the degenerate case) or a `graph` (subtasks with `deps:` edges, orchestrator-worker fan-out). `templates/tasks.md`, the `schema.yaml` tasks instruction, and `specreview.sh` are extended to define and validate the shapes.
 - Add the Perplexity CLI (`pplx`) via a new `overlays/pplx.nix` (per-platform binary from the `perplexityai/perplexity-cli` v0.2.2 release, matching the `localias`/`crush` fetch pattern) and a new `pplx-cli` skill adapted from the upstream SKILL.md.
 - Add an auth-conditional web-research rule: skills check `pplx auth` / `PERPLEXITY_API_KEY` at runtime. When authed, general external research uses `pplx search web` / `pplx content fetch`. When not authed, it falls back to the built-in WebSearch. pplx is never used for internal, private, or in-repo-docs research.
+- Require every rosh-spec-driven artifact to follow the Communication writing standard from `~/.claude/CLAUDE.md` (Simplified Technical English, ASD-STE100). The `schema.yaml` artifact instructions state the rule, and `specreview.sh` enforces the mechanical parts it can check deterministically (no em-dashes; no bolded first term in a bullet outside the allowed scenario and marker keywords).
 
 ### Non-goals
 
@@ -23,6 +24,7 @@ The rosh-spec-driven workflow currently mandates an adversarial review on every 
 - `adversarial-review-gating`: the adversarial-review gate is default-on but owner-gated; the skill elicits approve/deny at slice entry, and a deny is recorded rather than silently skipped.
 - `task-phase-shapes`: a plan phase declares a `loop` or `graph` shape with the required fields (loop: gather/act/verify steps, stop condition, max-iteration cap; graph: subtasks with `deps:` edges), enforced by `specreview.sh`.
 - `pplx-web-research`: the `pplx` CLI is installed via overlay, exposed through a `pplx-cli` skill, and external web research is routed to pplx when authed and to WebSearch otherwise, never to pplx for internal/private content.
+- `artifact-writing-standards`: every rosh-spec-driven artifact follows the CLAUDE.md Communication standard (Simplified Technical English); `specreview.sh` rejects the mechanical violations it can check (em-dashes, disallowed bolded bullet leads).
 
 ### Modified Capabilities
 <!-- none: these are new capabilities; the schema and skills are implementation surfaces, not existing openspec/specs/ capabilities -->
@@ -30,7 +32,7 @@ The rosh-spec-driven workflow currently mandates an adversarial review on every 
 ## Impact
 
 - Affected code: `openspec/schemas/rosh-spec-driven/schema.yaml`, `openspec/schemas/rosh-spec-driven/templates/tasks.md`, `openspec/schemas/rosh-spec-driven/CHANGES.md`, `modules/home/programs/llm/skills/adversarial-review.nix`, `modules/home/programs/llm/citation-tools/specreview.sh`, a new `overlays/pplx.nix` + its entry in `overlays/default.nix` and the `cacheAttrs` list, a new `modules/home/programs/llm/skills/pplx-cli.nix` + registration in `skills/default.nix`, and the web-research routing text in the openspec-workflow / citation-verification skills.
-- Progressive rollout: three independently reviewable slices — (1) adversarial-review gating, (2) task-phase-shapes, (3) pplx tooling + routing. Each ends green at `nix flake check` + `nh darwin build`, and each skill/schema edit is verifiable by `openspec schema validate rosh-spec-driven` and `task openspec:sync`.
+- Progressive rollout: four independently reviewable slices: (1) adversarial-review gating, (2) task-phase-shapes, (3) pplx tooling and routing, (4) artifact-writing-standards. Each ends green at `nix flake check` plus `nh darwin build`, and each schema or skill edit is verifiable by `openspec schema validate rosh-spec-driven`.
 - Impactful actions requiring human checkpoints: `nh darwin switch` per slice; regenerating `AGENTS.md` / skill outputs; fetching the pplx release binary hashes (vendored-content add); `git push` to `main`. The pplx binary is a new external dependency and its per-platform hashes must be pinned.
 - Gating signal: `nh darwin build` (verify) before `nh darwin switch` (apply). The pplx routing has a natural runtime gate: the `pplx auth` / `PERPLEXITY_API_KEY` check, which defaults the behavior to WebSearch when unauthenticated (the current state on this machine).
-- External-factual claims: the design references Anthropic's agent-design patterns (Building Effective Agents; the Agent SDK gather/act/verify loop). Those claims MUST be anchored via `citations.lock` + `citelock` per the schema's rule 5 before the design is finalized.
+- External-factual claims: the design names Anthropic's agent-design patterns (evaluator-optimizer, orchestrator-workers) as industry-standard shapes without asserting quantified or version-specific claims about the papers, so no `citations.lock` is required for this change.
