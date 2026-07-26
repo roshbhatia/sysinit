@@ -609,9 +609,14 @@ function M.setup(config)
   -- lives in wezterm.GLOBAL so it survives a config reload; GLOBAL does not track
   -- nested mutation, so it is read, rebuilt, and written back whole.
   --
-  -- "default" is the home-base workspace, not a seshy session. It holds slot 0
-  -- permanently and never competes for 1..9.
+  -- "default" is the home-base workspace, not a seshy session. It permanently
+  -- holds the first slot and never competes with the rest.
+  --
+  -- Numbering starts at 1, matching the tab keys (SUPER+1..9) rather than a
+  -- 0-based array. That costs one addressable session: default takes 1 and seshy
+  -- sessions get 2..9, so eight are reachable by key instead of nine.
   local DEFAULT_WORKSPACE = "default"
+  local DEFAULT_SLOT = 1
   local MAX_SLOT = 9
 
   local function compute_session_slots()
@@ -633,9 +638,17 @@ function M.setup(config)
     end
 
     -- Carry forward every slot whose session is still around. The rest free up.
+    -- DEFAULT_SLOT is reserved before the walk so no seshy session can hold it,
+    -- and a duplicate in a stale GLOBAL map loses rather than colliding.
     local slots, taken = {}, {}
+    taken[DEFAULT_SLOT] = true
     for name, slot in pairs(prev) do
-      if present[name] and name ~= DEFAULT_WORKSPACE and type(slot) == "number" then
+      if
+        present[name]
+        and name ~= DEFAULT_WORKSPACE
+        and type(slot) == "number"
+        and not taken[slot]
+      then
         slots[name] = slot
         taken[slot] = true
       end
@@ -655,8 +668,8 @@ function M.setup(config)
       while probe <= MAX_SLOT and taken[probe] do
         probe = probe + 1
       end
-      -- Past nine: the session still appears in the picker, just with no chip
-      -- number and no jump key.
+      -- Past the last slot: the session still appears in the picker, just with
+      -- no chip number and no jump key.
       if probe > MAX_SLOT then
         break
       end
@@ -665,9 +678,8 @@ function M.setup(config)
     end
 
     -- "default" is always reachable — SwitchToWorkspace creates it on demand —
-    -- so it holds slot 0 whether or not it currently exists in the mux. Set last
-    -- so it can never be displaced by the 1..9 assignment above.
-    slots[DEFAULT_WORKSPACE] = 0
+    -- so it holds its slot whether or not it currently exists in the mux.
+    slots[DEFAULT_WORKSPACE] = DEFAULT_SLOT
 
     -- Only write when something actually moved. This runs on every status tick.
     local changed = false
@@ -932,7 +944,7 @@ function M.setup(config)
   end
 
   -- Tab-bar session chips: one `<slot> <glyph> <name>` chip per known session,
-  -- ordered by slot so the strip never moves under you. Slot 0 is the "default"
+  -- ordered by slot so the strip never moves under you. Slot 1 is the "default"
   -- home-base workspace, so the chip you are standing in is always on the strip.
   --
   -- The glyph carries agent state (waiting / done / working / idle), so a blocked
@@ -977,14 +989,31 @@ function M.setup(config)
       if #label > CHIP_NAME_MAX then
         label = label:sub(1, CHIP_NAME_MAX - 1) .. "…"
       end
-      -- Number and name both carry "where am I": bright and bold on the active
-      -- session, dim everywhere else. The glyph between them independently
-      -- carries state, so the active chip still shows its own agent status.
-      local fg = is_active and colors.name or colors.chrome
-      items[#items + 1] = { Attribute = { Intensity = is_active and "Bold" or "Normal" } }
+      -- Two independent signals, carried by two independent attributes so they
+      -- can never mask each other:
+      --   underline  = the session you are standing in
+      --   colour+bold = the session that is waiting on YOU
+      -- Colouring the whole chip (not just the one-cell glyph) is the point: a
+      -- blocked session three chips away has to be legible without reading a
+      -- glyph. "Needs attention" is done or waiting — the agent has stopped and
+      -- the move is yours. `working` is informational, so it tints only the
+      -- glyph and leaves the chip dim.
+      local rank = status and agent_state_rank[status] or 0
+      local needs_attention = rank >= agent_state_rank.done
+      local sc = status_color(status, colors) or colors.idle
+      local fg
+      if needs_attention then
+        fg = sc
+      elseif is_active then
+        fg = colors.name
+      else
+        fg = colors.chrome
+      end
+      items[#items + 1] = { Attribute = { Underline = is_active and "Single" or "None" } }
+      items[#items + 1] = { Attribute = { Intensity = (is_active or needs_attention) and "Bold" or "Normal" } }
       items[#items + 1] = { Foreground = { Color = fg } }
       items[#items + 1] = { Text = "  " .. tostring(entry.slot) .. " " }
-      items[#items + 1] = { Foreground = { Color = status_color(status, colors) or colors.idle } }
+      items[#items + 1] = { Foreground = { Color = sc } }
       items[#items + 1] = { Text = status and (agent_state_icons[status] or "●") or "·" }
       items[#items + 1] = { Foreground = { Color = fg } }
       items[#items + 1] = { Text = " " .. label }
@@ -993,25 +1022,21 @@ function M.setup(config)
     return wezterm.format(items)
   end
 
-  -- SUPER+SHIFT+<n> jumps straight to the session holding slot <n>. 0 is the
-  -- "default" home-base workspace.
+  -- SUPER+SHIFT+<n> jumps straight to the session holding slot <n>, the same
+  -- number the chip shows. Slot 1 is the "default" home-base workspace.
   --
   -- `phys:` binds the physical key position. WezTerm's key_map_preference
   -- defaults to "Mapped", where SHIFT+1 produces "!", so a plain
   -- { key = "1", mods = "SUPER|SHIFT" } never matches. The mapped alternative
   -- ({ key = "!", mods = "SUPER" }) would break on any non-US layout.
   config.keys = config.keys or {}
-  for slot = 0, MAX_SLOT do
+  for slot = DEFAULT_SLOT, MAX_SLOT do
     table.insert(config.keys, {
       key = "phys:" .. tostring(slot),
       mods = "SUPER|SHIFT",
       action = wezterm.action_callback(function(win, pane)
         if keybindings.locked_mode then
           win:perform_action({ SendKey = { key = tostring(slot), mods = "SUPER|SHIFT" } }, pane)
-          return
-        end
-        if slot == 0 then
-          win:perform_action(wezterm.action.SwitchToWorkspace({ name = DEFAULT_WORKSPACE }), pane)
           return
         end
         local target
@@ -1024,6 +1049,11 @@ function M.setup(config)
         -- Unassigned slot: no session holds this number. Do nothing rather than
         -- guess at a neighbour.
         if not target then
+          return
+        end
+        -- "default" is not a seshy session, so it has no session dir to spawn in.
+        if target == DEFAULT_WORKSPACE then
+          win:perform_action(wezterm.action.SwitchToWorkspace({ name = target }), pane)
           return
         end
         local live = false
@@ -1894,9 +1924,9 @@ function M.setup(config)
     -- (the workspace-manager trick): each entry sets a pending filter, pops the
     -- table, and sends Enter to close the selector; the callback then reopens the
     -- tree scoped to that filter. Enter/Escape are included so the table is ALWAYS
-    -- popped on close — otherwise it would leak into normal typing. The picker
-    -- runs in fuzzy mode so typing filters; filter keys use CTRL so they never
-    -- collide with fuzzy typing.
+    -- popped on close — otherwise it would leak into normal typing. Every entry
+    -- is CTRL-modified: bare letters belong to InputSelector's own alphabet jump
+    -- in default mode, and to the filter text once `/` puts it in fuzzy mode.
     local tree_state = { pending_filter = nil, pending_action = nil, current_filter = "all", key_table_active = false }
     local function tree_close_key(key)
       return {
@@ -1910,48 +1940,18 @@ function M.setup(config)
         end),
       }
     end
-    -- Ctrl+] / Ctrl+[ cycle workspaces without leaving the picker explicitly:
-    -- close the picker (Escape), pop the key table, then switch workspace after
-    -- a tiny delay so WezTerm processes the close before the switch.
-    local function tree_cycle_key(key, delta)
-      return {
-        key = key,
-        mods = "CTRL",
-        action = wezterm.action_callback(function(win, pane)
-          tree_state.pending_filter = nil
-          tree_state.key_table_active = false
-          win:perform_action(wezterm.action.PopKeyTable, pane)
-          win:perform_action(wezterm.action.SendKey({ key = "Escape" }), pane)
-          wezterm.time.call_after(0.05, function()
-            win:perform_action(wezterm.action.SwitchWorkspaceRelative(delta), pane)
-          end)
-        end),
-      }
-    end
     config.key_tables = config.key_tables or {}
     config.key_tables.session_tree_actions = {
       tree_close_key("Enter"),
       tree_close_key("Escape"),
-      -- Navigation is CTRL-modified, never a bare letter. This key table is active
-      -- WHILE the fuzzy InputSelector is open, so a bare `j` binding either eats
-      -- that letter before the filter sees it or never fires at all — both leave
-      -- you unable to type a session name containing it. CTRL+j / CTRL+k is the
-      -- fzf convention and hands the whole alphabet back to the filter.
+      -- Navigation is NOT bound here. InputSelector ships its own: Up/Down,
+      -- Ctrl+N/Ctrl+P, Ctrl+J/Ctrl+K, and bare j/k whenever the overlay is not
+      -- in fuzzy mode (its default `alphabet` omits j and k precisely so they
+      -- can move). Binding them again only risked shadowing the real thing.
       --
-      -- One row per press. The structural jump this replaces ("skip pane rows",
-      -- J/K for session rows) tracked a cursor against the UNFILTERED choice list,
-      -- so it moved to the wrong row as soon as the user typed anything. A single
-      -- step is correct under every filter state.
-      {
-        key = "j",
-        mods = "CTRL",
-        action = wezterm.action.SendKey({ key = "DownArrow" }),
-      },
-      {
-        key = "k",
-        mods = "CTRL",
-        action = wezterm.action.SendKey({ key = "UpArrow" }),
-      },
+      -- The `^]`/`^[` workspace cycle is gone too: Ctrl+[ IS Escape at the
+      -- terminal level, so that binding could never fire without also cancelling
+      -- the picker. SUPER+] / SUPER+[ already cycle workspaces from outside.
       {
         key = "d",
         mods = "CTRL",
@@ -1972,8 +1972,6 @@ function M.setup(config)
           win:perform_action(wezterm.action.SendKey({ key = "Enter" }), pane)
         end),
       },
-      tree_cycle_key("]", 1),
-      tree_cycle_key("[", -1),
     }
 
     -- ^x close: resolve the highlighted row to its containing workspace and
@@ -2045,9 +2043,9 @@ function M.setup(config)
       end
       local title
       if filter == "dormant" then
-        title = "Sessions  [dormant · ^d all · ^x close · ^]/^[ cycle]"
+        title = "Sessions  [dormant · ^d all · ^x close]"
       else
-        title = "Sessions  [^d dormant · ^x close · ^]/^[ cycle]"
+        title = "Sessions  [^d dormant · ^x close]"
       end
       if notice then
         title = title .. "  · " .. notice
@@ -2062,8 +2060,14 @@ function M.setup(config)
         wezterm.action.InputSelector({
           title = title,
           choices = choices,
-          fuzzy = true,
-          fuzzy_description = "  ^j/^k nav  ^d dormant  ^x close  ^]/^[ cycle: ",
+          -- Default (non-fuzzy) mode, deliberately. Starting in fuzzy mode sent
+          -- every keystroke to the filter, which is why j/k did not navigate:
+          -- they were filter text. In default mode InputSelector gives j/k and
+          -- Ctrl+N/Ctrl+P for movement, 1-9 and its `alphabet` letters for
+          -- direct row jumps, and `/` to enter fuzzy filtering when you want it.
+          fuzzy = false,
+          description = "  j/k nav  1-9 jump  / filter  ^d dormant  ^x close  Esc quit",
+          fuzzy_description = "  filter (Esc to leave):  ",
           action = wezterm.action_callback(function(inner_win, inner_pane, id, _label)
             -- Guard: pop the key table if it wasn't already cleared by a close/filter/cycle
             -- key handler — e.g. picker was dismissed by clicking outside the window.
