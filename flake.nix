@@ -288,10 +288,19 @@
           # design template missing `Rollout & Gating` and `Adversarial Review`,
           # the tasks template missing its per-slice review checkbox, and the
           # spec template modelling no negative scenario.
+          #
+          # Rules that gate an author or reviewer ACTION rather than template
+          # content are exempt: a change that was scaffolded one second ago
+          # cannot satisfy them by construction, and pre-baking a satisfying
+          # artifact into the templates would only defeat the rule. Every other
+          # error still fails the gate, so a real template regression is caught.
           schema-templates-conform =
             pkgs.runCommand "schema-templates-conform-check"
               {
-                nativeBuildInputs = [ pkgs.specutil ];
+                nativeBuildInputs = [
+                  pkgs.specutil
+                  pkgs.jq
+                ];
               }
               ''
                 tmpl=${./openspec/schemas/rosh-spec-driven/templates}
@@ -304,10 +313,29 @@
                 cp "$tmpl/tasks.md"    "$change/tasks.md"
                 cp "$tmpl/spec.md"     "$change/specs/probe-cap/spec.md"
 
-                if specutil check "$change"; then
+                # review-decision-current: wants a recorded human verdict in
+                # specutil.review.yaml. A fresh scaffold has no reviewer yet.
+                exempt='["review-decision-current"]'
+
+                # `specutil check` exits 1 on any error finding, so read the
+                # findings rather than the exit code. A non-JSON body means the
+                # tool itself broke, which must still fail loudly.
+                specutil check "$change" --as json > "$TMPDIR/findings.json" || true
+                if ! jq -e . "$TMPDIR/findings.json" > /dev/null 2>&1; then
+                  echo "FAIL: specutil check produced no parseable JSON:" >&2
+                  cat "$TMPDIR/findings.json" >&2
+                  exit 1
+                fi
+
+                blocking=$(jq --argjson exempt "$exempt" \
+                  '[.findings[] | select(.severity == "error") | select(.rule as $r | $exempt | index($r) | not)]' \
+                  "$TMPDIR/findings.json")
+
+                if [ "$(jq 'length' <<< "$blocking")" -eq 0 ]; then
                   echo "OK: a change scaffolded from the templates passes the rubric" | tee "$out"
                 else
                   echo "FAIL: the schema templates do not satisfy the schema's own rubric." >&2
+                  jq -r '.[] | "  \(.rule)  \(.file): \(.msg)"' <<< "$blocking" >&2
                   echo "Fix the templates so a scaffolded change starts out conforming." >&2
                   exit 1
                 fi
