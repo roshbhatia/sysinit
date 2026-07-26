@@ -161,13 +161,28 @@ function M.setup(config)
     -- when a pane is closed its entry stays in state.agent_states forever and the count
     -- never decrements. get_all_agent_states() returns the live table by reference so
     -- we can mutate it. This handler runs after agent-deck's (registered first above).
-    wezterm.on("update-status", function(window, _pane)
+    --
+    -- Liveness MUST be computed over every mux window, not the one this handler was
+    -- called for. update-status fires per GUI window, and each seshy session is its
+    -- own workspace in its own window — scoping to `window` marked every pane in every
+    -- other workspace as dead and wiped its state on each tick, so hookless agents
+    -- outside the focused window never held a status.
+    wezterm.on("update-status", function(_window, _pane)
       local all_states = agent_deck.get_all_agent_states()
       local active_ids = {}
-      for _, tab in ipairs(window:mux_window():tabs()) do
-        for _, p in ipairs(tab:panes()) do
-          active_ids[p:pane_id()] = true
+      local ok = pcall(function()
+        for _, win in ipairs(wezterm.mux.all_windows()) do
+          for _, tab in ipairs(win:tabs()) do
+            for _, p in ipairs(tab:panes()) do
+              active_ids[p:pane_id()] = true
+            end
+          end
         end
+      end)
+      -- A partial walk would under-report liveness and prune live panes; skip
+      -- this tick instead and let the next one do the pruning.
+      if not ok then
+        return
       end
       for pane_id in pairs(all_states) do
         if not active_ids[pane_id] then
@@ -194,9 +209,12 @@ function M.setup(config)
     working = 2,
     idle    = 1,
   }
+  -- `done` means the agent finished its turn and the move is yours. It used to
+  -- render as "Idle", which read as "nothing happened here" — the opposite of
+  -- the signal. `idle` renders nothing at all: an unattended pane is not news.
   local agent_state_labels = {
     waiting = "Needs Input",
-    done    = "Idle",
+    done    = "Done",
     working = "Working",
     idle    = "",
   }
@@ -341,7 +359,7 @@ function M.setup(config)
   --   panes    = array of { pane_id, window_id, tab_id, workspace, repo, branch,
   --                          agent, status, reason, since, rank } for every pane
   --              currently holding agent state (branch always "" on this path).
-  local function agent_session_states()
+  local function compute_agent_session_states()
     local sessions = {}
     local panes = {}
     local deck_states = agent_deck_ok and agent_deck.get_all_agent_states() or {}
@@ -403,27 +421,19 @@ function M.setup(config)
     return sessions, panes
   end
 
-  -- Pick the single most action-needing PANE across every workspace: highest
-  -- rank, then oldest `since` (longest wait). Idle panes are held to be
-  -- non-actionable, so only `working`/`done`/`waiting` panes are candidates.
-  -- Returns the per-pane record (pane_id + window_id + tab_id + workspace — all a
-  -- caller needs to activate the exact pane) or nil when nothing is actionable.
-  local function worst_agent_pane()
-    local _, panes = agent_session_states()
+  -- The rollup feeds the statusline, which tabline re-renders on every
+  -- update-status tick (status_update_interval = 150 ms) for every window. A
+  -- full mux walk at that rate is wasted work: the state only changes on hook
+  -- events, and every surface that reads it renders whole seconds. One-second
+  -- cache — os.time() has second granularity, so the compare IS the TTL.
+  local rollup_cache = { at = -1, sessions = {}, panes = {} }
+  local function agent_session_states()
     local now = os.time()
-    local best
-    for _, rec in ipairs(panes) do
-      if rec.rank >= agent_state_rank.working then
-        if
-          not best
-          or rec.rank > best.rank
-          or (rec.rank == best.rank and (rec.since or now) < (best.since or now))
-        then
-          best = rec
-        end
-      end
+    if now ~= rollup_cache.at then
+      local sessions, panes = compute_agent_session_states()
+      rollup_cache = { at = now, sessions = sessions, panes = panes }
     end
-    return best
+    return rollup_cache.sessions, rollup_cache.panes
   end
 
   -- Activate the exact pane a rollup record points at. Pane/tab ids are global,
@@ -528,6 +538,48 @@ function M.setup(config)
     return names
   end
 
+  -- Workspace recency. The session tree sorts live sessions most-recent-first,
+  -- but WezTerm exposes no per-workspace last-used timestamp in Lua, so we keep
+  -- our own: stamp the focused window's workspace on each status tick. Without
+  -- it, recency was derived purely from agent `since` values, which sorted every
+  -- workspace holding no agent to the bottom — including the shell session you
+  -- were in a second ago. wezterm.GLOBAL survives config reloads; it does not
+  -- track nested mutation, so the table is read, updated, and written back whole.
+  local touch_throttle = {}
+  local function touch_workspace(name)
+    if not name or name == "" then
+      return
+    end
+    local now = os.time()
+    -- Sorting is coarse; a 5 s resolution keeps the write off the render path.
+    if touch_throttle[name] and now - touch_throttle[name] < 5 then
+      return
+    end
+    touch_throttle[name] = now
+    local t = wezterm.GLOBAL.workspace_last_active or {}
+    t[name] = now
+    wezterm.GLOBAL.workspace_last_active = t
+  end
+
+  local function workspace_last_active(name)
+    local t = wezterm.GLOBAL.workspace_last_active
+    return type(t) == "table" and t[name] or nil
+  end
+
+  wezterm.on("update-status", function(window, _pane)
+    -- Prefer the focused window so a background workspace does not keep
+    -- refreshing its own recency. is_focused() postdates some WezTerm builds;
+    -- if the call is unavailable, stamp anyway rather than degrade to silence.
+    local ok, focused = pcall(function()
+      return window:is_focused()
+    end)
+    if (not ok) or focused then
+      pcall(function()
+        touch_workspace(window:active_workspace())
+      end)
+    end
+  end)
+
   -- Build the full session tree in ONE mux walk: workspace -> tab -> pane, every
   -- live pane included (not just agent panes), each decorated with its agent
   -- state where present. Also returns the flat "attention" list (rank >=
@@ -553,7 +605,17 @@ function M.setup(config)
         local window_id = win:window_id()
         local ws = ws_index[workspace]
         if not ws then
-          ws = { name = workspace, dormant = false, rank = 0, since = nil, last_active = nil, status = nil, tabs = {} }
+          ws = {
+            name = workspace,
+            dormant = false,
+            rank = 0,
+            since = nil,
+            -- Seeded from our own recency stamp; agent `since` values below only
+            -- ever raise it, so a session with no agent still sorts by real use.
+            last_active = workspace_last_active(workspace),
+            status = nil,
+            tabs = {},
+          }
           ws_index[workspace] = ws
           live_names[workspace] = true
           workspaces[#workspaces + 1] = ws
@@ -1187,29 +1249,33 @@ function M.setup(config)
       local rows = {}
 
       for _, name in ipairs(seshy_session_names(sy_bin)) do
-        local st = sessions[name]
-        local label = name
-        if st then
-          local icon = agent_state_icons[st.status] or "●"
-          label = icon .. " " .. name
-          local a = agg[name]
-          if a then
-            if a.repo ~= "" then label = label .. "  at " .. a.repo end
-            if a.agent ~= "" then label = label .. "  in " .. a.agent end
+        -- A seshy session actually named "default" would render twice: once as
+        -- the pinned home-base row above, once here. Keep the pinned one.
+        if name ~= "default" then
+          local st = sessions[name]
+          local label = name
+          if st then
+            local icon = agent_state_icons[st.status] or "●"
+            label = icon .. " " .. name
+            local a = agg[name]
+            if a then
+              if a.repo ~= "" then label = label .. "  at " .. a.repo end
+              if a.agent ~= "" then label = label .. "  in " .. a.agent end
+            end
+            local age = st.since and format_age(now - st.since) or ""
+            local fmt = format_status_label(st.status, st.reason)
+            if fmt ~= "" then label = label .. "  — " .. fmt end
+            if age ~= "" then label = label .. "  " .. age end
           end
-          local age = st.since and format_age(now - st.since) or ""
-          local fmt = format_status_label(st.status, st.reason)
-          if fmt ~= "" then label = label .. "  — " .. fmt end
-          if age ~= "" then label = label .. "  " .. age end
+          table.insert(rows, {
+            name = name,
+            path = seshy_dir .. "/" .. name,
+            label = label,
+            -- sort keys (stripped from the choice the plugin sees)
+            _rank = st and st.rank or 0,
+            _since = st and st.since or nil,
+          })
         end
-        table.insert(rows, {
-          name = name,
-          path = seshy_dir .. "/" .. name,
-          label = label,
-          -- sort keys (stripped from the choice the plugin sees)
-          _rank = st and st.rank or 0,
-          _since = st and st.since or nil,
-        })
       end
 
       -- Urgency sort: higher rank first, then older `since` (longer wait), then
@@ -1556,7 +1622,7 @@ function M.setup(config)
     -- popped on close — otherwise it would leak into normal typing. The picker
     -- runs in fuzzy mode so typing filters; filter keys use CTRL so they never
     -- collide with fuzzy typing.
-    local tree_state = { pending_filter = nil, pending_action = nil, current_filter = "all", choices = {}, cursor = 0, key_table_active = false }
+    local tree_state = { pending_filter = nil, pending_action = nil, current_filter = "all", key_table_active = false }
     local function tree_close_key(key)
       return {
         key = key,
@@ -1591,82 +1657,25 @@ function M.setup(config)
     config.key_tables.session_tree_actions = {
       tree_close_key("Enter"),
       tree_close_key("Escape"),
-      -- vim navigation: j/k jump between structural rows (ws:/tab:), skipping pane detail
-      -- rows; fall back to +/-1 when only pane rows remain (e.g. in blocked/agents views).
-      -- J/K jump between session (ws:) rows only.
+      -- Navigation is CTRL-modified, never a bare letter. This key table is active
+      -- WHILE the fuzzy InputSelector is open, so a bare `j` binding either eats
+      -- that letter before the filter sees it or never fires at all — both leave
+      -- you unable to type a session name containing it. CTRL+j / CTRL+k is the
+      -- fzf convention and hands the whole alphabet back to the filter.
+      --
+      -- One row per press. The structural jump this replaces ("skip pane rows",
+      -- J/K for session rows) tracked a cursor against the UNFILTERED choice list,
+      -- so it moved to the wrong row as soon as the user typed anything. A single
+      -- step is correct under every filter state.
       {
         key = "j",
-        mods = "NONE",
-        action = wezterm.action_callback(function(win, pane)
-          local cs, cur = tree_state.choices, tree_state.cursor
-          if cur >= #cs - 1 then return end
-          local target = cur + 1
-          for i = cur + 2, #cs do
-            if not cs[i]:match("^pane:") then
-              target = i - 1
-              break
-            end
-          end
-          local steps = target - cur
-          tree_state.cursor = target
-          for _ = 1, steps do
-            win:perform_action(wezterm.action.SendKey({ key = "DownArrow" }), pane)
-          end
-        end),
+        mods = "CTRL",
+        action = wezterm.action.SendKey({ key = "DownArrow" }),
       },
       {
         key = "k",
-        mods = "NONE",
-        action = wezterm.action_callback(function(win, pane)
-          local cs, cur = tree_state.choices, tree_state.cursor
-          if cur <= 0 then return end
-          local target = cur - 1
-          for i = cur, 1, -1 do
-            if not cs[i]:match("^pane:") then
-              target = i - 1
-              break
-            end
-          end
-          local steps = cur - target
-          tree_state.cursor = target
-          for _ = 1, steps do
-            win:perform_action(wezterm.action.SendKey({ key = "UpArrow" }), pane)
-          end
-        end),
-      },
-      {
-        key = "J",
-        mods = "SHIFT",
-        action = wezterm.action_callback(function(win, pane)
-          local cs, cur = tree_state.choices, tree_state.cursor
-          for i = cur + 2, #cs do
-            if cs[i] and cs[i]:match("^ws:") then
-              local delta = i - (cur + 1)
-              tree_state.cursor = i - 1
-              for _ = 1, delta do
-                win:perform_action(wezterm.action.SendKey({ key = "DownArrow" }), pane)
-              end
-              return
-            end
-          end
-        end),
-      },
-      {
-        key = "K",
-        mods = "SHIFT",
-        action = wezterm.action_callback(function(win, pane)
-          local cs, cur = tree_state.choices, tree_state.cursor
-          for i = cur, 1, -1 do
-            if cs[i] and cs[i]:match("^ws:") then
-              local delta = (cur + 1) - i
-              tree_state.cursor = i - 1
-              for _ = 1, delta do
-                win:perform_action(wezterm.action.SendKey({ key = "UpArrow" }), pane)
-              end
-              return
-            end
-          end
-        end),
+        mods = "CTRL",
+        action = wezterm.action.SendKey({ key = "UpArrow" }),
       },
       {
         key = "d",
@@ -1738,7 +1747,7 @@ function M.setup(config)
     end
 
     -- Open the all-in-one session tree picker in fuzzy mode (type to filter,
-    -- j/k/J/K to navigate). ^d toggles dormant view; Esc closes.
+    -- ^j/^k to navigate). ^d toggles dormant view; Esc closes.
     -- Recursive: ^d reopens in the toggled filter; `notice` is transient
     -- feedback from the previous action, shown in the title.
     local function open_session_tree(win, pane, filter, notice)
@@ -1761,16 +1770,13 @@ function M.setup(config)
       end
       local title
       if filter == "dormant" then
-        title = "Sessions  [dormant · ^d all · ^x close · ^]/[ cycle]"
+        title = "Sessions  [dormant · ^d all · ^x close · ^]/^[ cycle]"
       else
-        title = "Sessions  [^d dormant · ^x close · ^]/[ cycle]"
+        title = "Sessions  [^d dormant · ^x close · ^]/^[ cycle]"
       end
       if notice then
         title = title .. "  · " .. notice
       end
-      tree_state.choices = {}
-      tree_state.cursor = 0
-      for i, ch in ipairs(choices) do tree_state.choices[i] = ch.id end
       tree_state.pending_filter = nil
       tree_state.key_table_active = true
       win:perform_action(
@@ -1782,7 +1788,7 @@ function M.setup(config)
           title = title,
           choices = choices,
           fuzzy = true,
-          fuzzy_description = "  j/k nav  J/K session  ^d dormant  ^x close  ^]/[ cycle: ",
+          fuzzy_description = "  ^j/^k nav  ^d dormant  ^x close  ^]/^[ cycle: ",
           action = wezterm.action_callback(function(inner_win, inner_pane, id, _label)
             -- Guard: pop the key table if it wasn't already cleared by a close/filter/cycle
             -- key handler — e.g. picker was dismissed by clicking outside the window.

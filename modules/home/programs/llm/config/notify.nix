@@ -120,10 +120,13 @@ let
   # an inherited PATH.
   focusScript = pkgs.writeShellApplication {
     name = "agent-focus";
+    # alerter dismisses the originating toast (`--remove <group>`); darwin-only,
+    # so the script's `command -v alerter` gate covers every other platform.
     runtimeInputs = [
       pkgs.wezterm
       pkgs.jq
-    ];
+    ]
+    ++ lib.optionals pkgs.stdenv.hostPlatform.isDarwin [ pkgs.alerter ];
     bashOptions = [ ];
     text = builtins.readFile ./agent-focus.sh;
   };

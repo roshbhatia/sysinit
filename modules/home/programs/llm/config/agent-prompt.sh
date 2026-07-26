@@ -41,6 +41,14 @@ cwd=$(json '.cwd')
 msg=$(json '.message')
 notif_type=$(json '.notification_type')
 
+# The fallback: reproduce agent-notify's plain clickable toast with the ORIGINAL
+# reason so it runs its own classification. Used whenever the actionable path
+# does not apply. Defined before the classification block below, which calls it.
+plain_notify() {
+  [ -n "$NOTIFY_EXE" ] || return 0
+  printf '%s' "$input" | "$NOTIFY_EXE" "$agent" "$reason" "$focus_exe" 2> /dev/null || true
+}
+
 # Classify "attention" using notification_type first, message-text as fallback.
 # Mirrors agent-notify's classification exactly so the two scripts always agree.
 eff_reason=$reason
@@ -78,14 +86,6 @@ case "$agent" in
     reject_keys="n"
     ;;
 esac
-
-# The fallback: reproduce agent-notify's plain clickable toast with the ORIGINAL
-# reason so it runs its own classification. Used whenever the actionable path
-# does not apply.
-plain_notify() {
-  [ -n "$NOTIFY_EXE" ] || return 0
-  printf '%s' "$input" | "$NOTIFY_EXE" "$agent" "$reason" "$focus_exe" 2> /dev/null || true
-}
 
 pane=${WEZTERM_PANE:-}
 alerter=$(command -v alerter 2> /dev/null || true)

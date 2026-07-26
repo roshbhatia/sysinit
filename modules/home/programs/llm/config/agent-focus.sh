@@ -1,6 +1,6 @@
 # agent-focus: notification click handler — raise the wezterm pane an agent runs in.
 #
-# Invoked by terminal-notifier's -execute when the human clicks an agent-notify
+# Invoked by agent-notify's detached waiter when the human clicks an agent-notify
 # notification (see agent-notify.sh). Runs in a bare NotificationCenter context
 # (no shell rc, minimal env), so it depends only on its own runtimeInputs.
 #
@@ -16,7 +16,7 @@ pane=${1:-}
 session=${2:-}
 
 wz=$(command -v wezterm 2> /dev/null || true)
-notifier=$(command -v terminal-notifier 2> /dev/null || true)
+notifier=$(command -v alerter 2> /dev/null || true)
 
 # Dismiss the originating toast immediately so it doesn't linger until its timeout.
 # Reconstruct the group from the pane's state file: same agent-notify:$agent:$context
@@ -35,7 +35,7 @@ if [ -n "$notifier" ] && [ -n "$pane" ]; then
       _context="$_repo"
     fi
     if [ -n "$_agent" ] && [ -n "$_context" ]; then
-      "$notifier" -remove "agent-notify:$_agent:$_context" > /dev/null 2>&1 || true
+      "$notifier" --remove "agent-notify:$_agent:$_context" > /dev/null 2>&1 || true
     fi
   fi
 fi

@@ -1,4 +1,4 @@
-# agent-notify: agent-agnostic terminal-notifier hook.
+# agent-notify: agent-agnostic desktop-notification hook (alerter backend).
 #
 # Fires one macOS notification (sound + per-agent app icon) when a coding agent
 # needs the human: it is waiting for approval, has gone idle, or just finished a
@@ -127,12 +127,14 @@ fi
 # --- reason -> wording + sound (sounds are names under /System/Library/Sounds) ---
 # `what` is the category for the title; the message body below carries the
 # specifics (which tool, what choice) so the human knows WHY before switching.
-notif_timeout=""
+# Every branch sets a timeout: alerter blocks its (backgrounded) waiter for the
+# whole duration, so an unbounded 0 would leak one process per notification.
+notif_timeout=60
 case "$reason" in
   approval)
     what="needs your approval"
     sound="Blow"      # distinctive whoosh — action required, but not jarring
-    # approval: no auto-dismiss; the human must act
+    notif_timeout=600 # the human must act, but bound the waiter at 10 min
     ;;
   idle)
     what="is waiting for you"
@@ -159,25 +161,31 @@ body=${msg:-$what}
 # One notification slot per agent+context so repeats replace instead of stacking.
 group="agent-notify:$agent:$context"
 
-# Clickable focus: route the click back to this agent's wezterm pane. -execute
-# runs via /bin/sh, so quote the args. Pass the session as a fallback key for
-# when the pane id has since gone stale.
-exec_cmd=""
-if [ -n "$focus_exe" ]; then
-  exec_cmd=$(printf '%s %q %q' "$focus_exe" "$pane" "$session")
-fi
-
 args=(
-  -title "$title"
-  -subtitle "$context"
-  -message "$body"
-  -appIcon "$icon"
-  -sound "$sound"
-  -group "$group"
+  --title "$title"
+  --subtitle "$context"
+  --message "$body"
+  --app-icon "$icon"
+  --sound "$sound"
+  --group "$group"
+  --timeout "$notif_timeout"
 )
-[ -n "$notif_timeout" ] && args+=(-timeout "$notif_timeout")
-[ -n "$exec_cmd" ] && args+=(-execute "$exec_cmd")
 
-"$notifier" "${args[@]}" > /dev/null 2>&1 || true
+# alerter blocks until the human acts or the timeout fires, then prints the
+# outcome (@CONTENTCLICKED / @ACTIONCLICKED / @CLOSED / @TIMEOUT) on stdout. It
+# has no --execute flag, so click-to-focus is a detached waiter we run ourselves:
+# background the call and route a content click back to the agent's pane. Same
+# shape as agent-prompt's relay. The hook returns now; the waiter outlives it.
+(
+  outcome=$("$notifier" "${args[@]}" 2> /dev/null) || outcome=""
+  if [ -n "$focus_exe" ]; then
+    case "$outcome" in
+      @CONTENTCLICKED | @ACTIONCLICKED)
+        "$focus_exe" "$pane" "$session" > /dev/null 2>&1 || true
+        ;;
+    esac
+  fi
+) < /dev/null > /dev/null 2>&1 &
+disown 2> /dev/null || true
 
 exit 0
