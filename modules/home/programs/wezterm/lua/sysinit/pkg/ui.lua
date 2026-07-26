@@ -664,6 +664,11 @@ function M.setup(config)
       taken[probe] = true
     end
 
+    -- "default" is always reachable — SwitchToWorkspace creates it on demand —
+    -- so it holds slot 0 whether or not it currently exists in the mux. Set last
+    -- so it can never be displaced by the 1..9 assignment above.
+    slots[DEFAULT_WORKSPACE] = 0
+
     -- Only write when something actually moved. This runs on every status tick.
     local changed = false
     for name, slot in pairs(slots) do
@@ -926,20 +931,23 @@ function M.setup(config)
     return wezterm.format({ { Text = text .. " " } })
   end
 
-  -- Tab-bar session chips: one `<slot><glyph>` chip per known seshy session,
-  -- ordered by slot so the strip never moves under you. Numbers only, no names.
-  -- A name per chip costs roughly twelve cells, which pushes the native tab strip
-  -- off a laptop row once you hold more than a few sessions; the name of the
-  -- session you are IN is already the last thing on the bar (tabline_z), and
-  -- SUPER+s still opens the full tree with names, repos, and branches.
+  -- Tab-bar session chips: one `<slot> <glyph> <name>` chip per known session,
+  -- ordered by slot so the strip never moves under you. Slot 0 is the "default"
+  -- home-base workspace, so the chip you are standing in is always on the strip.
   --
   -- The glyph carries agent state (waiting / done / working / idle), so a blocked
   -- background session is visible without opening anything. A session with no
-  -- agent at all shows a bare dot. Renders nothing below two sessions: a single
-  -- chip is not information.
+  -- agent at all shows a bare dot. Renders nothing below two chips: "default"
+  -- alone is not information.
+  --
+  -- Names are truncated so the strip cannot grow without bound. Nine sessions
+  -- with long names would otherwise run into the native tab strip; the full names,
+  -- repos, and branches live in the SUPER+s tree.
   --
   -- Signature is tabline's: a function component is called with the window and
   -- must return a string, so the colored run is pre-rendered with wezterm.format.
+  local CHIP_NAME_MAX = 16
+
   local function session_chips(window)
     local slots = session_slots()
     local ordered = {}
@@ -965,14 +973,21 @@ function M.setup(config)
       local st = sessions[entry.name]
       local status = st and st.status or nil
       local is_active = entry.name == active
-      -- The slot number carries "where am I": bright and bold on the active
-      -- session, dim everywhere else. The glyph independently carries state, so
-      -- the active chip still shows its own agent status.
+      local label = entry.name
+      if #label > CHIP_NAME_MAX then
+        label = label:sub(1, CHIP_NAME_MAX - 1) .. "…"
+      end
+      -- Number and name both carry "where am I": bright and bold on the active
+      -- session, dim everywhere else. The glyph between them independently
+      -- carries state, so the active chip still shows its own agent status.
+      local fg = is_active and colors.name or colors.chrome
       items[#items + 1] = { Attribute = { Intensity = is_active and "Bold" or "Normal" } }
-      items[#items + 1] = { Foreground = { Color = is_active and colors.name or colors.chrome } }
-      items[#items + 1] = { Text = " " .. tostring(entry.slot) }
+      items[#items + 1] = { Foreground = { Color = fg } }
+      items[#items + 1] = { Text = "  " .. tostring(entry.slot) .. " " }
       items[#items + 1] = { Foreground = { Color = status_color(status, colors) or colors.idle } }
       items[#items + 1] = { Text = status and (agent_state_icons[status] or "●") or "·" }
+      items[#items + 1] = { Foreground = { Color = fg } }
+      items[#items + 1] = { Text = " " .. label }
     end
     items[#items + 1] = { Text = " " }
     return wezterm.format(items)
@@ -1063,16 +1078,23 @@ function M.setup(config)
           locked_indicator,
         },
         tabline_b = {},
-        -- Session chips sit immediately left of the native tab strip, so the row
-        -- reads outer scope to inner scope: which session, then which tab in it.
-        -- "ResetAttributes" is tabline's own guard: it re-emits the section's
-        -- colors after our formatted run so nothing bleeds past the section.
-        tabline_c = { session_chips, "ResetAttributes" },
-        tabline_x = {},
-        tabline_y = { agent_status },
-        tabline_z = {
-          "workspace",
-        },
+        tabline_c = {},
+        -- The whole right-hand group lives in `x`, with `y` and `z` empty. That
+        -- is deliberate, not laziness: tabline emits a section separator between
+        -- every pair of non-empty sections, and both agent_status and the old
+        -- `workspace` cap render "" or duplicate text most of the time — which
+        -- left a bare powerline wedge floating at the right edge. One section
+        -- means zero separators, so the chips end flush against the edge.
+        --
+        -- `workspace` is gone outright: the active chip already names the session
+        -- you are in, three cells to the left of where the cap used to sit.
+        --
+        -- agent_status leads so the chips stay rightmost. "ResetAttributes" is
+        -- tabline's own guard — it re-emits the section's colors after our
+        -- formatted run so nothing bleeds past it.
+        tabline_x = { agent_status, session_chips, "ResetAttributes" },
+        tabline_y = {},
+        tabline_z = {},
         -- Use cwd for both active and inactive tabs so that Nix-wrapped process
         -- names (e.g. .claude-wrapped) never appear in the tab bar.
         tab_active = {
