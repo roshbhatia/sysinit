@@ -507,11 +507,12 @@ function M.setup(config)
   end
 
   -- Names of seshy sessions from `sy list` (header row skipped, first column).
-  -- Best-effort: {} when sy_bin is nil/empty or the shell-out fails. Mirrors the
-  -- switcher's own `sy list` parse (ui.lua wm block).
+  -- Returns (names, ok). `ok` is false when the shell-out failed, which callers
+  -- must distinguish from a genuinely empty list: an empty list is authoritative
+  -- ("no sessions"), a failure is not.
   local function seshy_session_names(sy_bin)
     if not sy_bin or sy_bin == "" then
-      return {}
+      return {}, false
     end
     local names = {}
     local ok, out = pcall(function()
@@ -522,7 +523,7 @@ function M.setup(config)
       return stdout
     end)
     if not ok or not out then
-      return {}
+      return {}, false
     end
     local first = true
     for _, line in ipairs(wezterm.split_by_newlines(out)) do
@@ -535,7 +536,166 @@ function M.setup(config)
         end
       end
     end
+    return names, true
+  end
+
+  -- `sy` is resolved to an absolute path from env.json: wezterm.run_child_process
+  -- runs under the GUI process's own environment, whose PATH (when launched from
+  -- Finder or the Dock on macOS) omits ~/.local/bin, so a bare "sy" silently fails
+  -- and every seshy surface shows no sessions. Hoisted here rather than living in
+  -- the workspace-manager block below, because the tab-bar session chips need it
+  -- too and they are wired before that block runs.
+  local home = os.getenv("HOME") or ""
+  local seshy_dir = home .. "/.local/state/seshy/sessions"
+  local sy_bin = home .. "/.local/bin/sy"
+  do
+    local env = utils.load_json_file(utils.get_config_path("env.json"))
+    for dir in (env and env.PATH or ""):gmatch("[^:]+") do
+      local candidate = dir .. "/sy"
+      local fh = io.open(candidate, "r")
+      if fh then
+        fh:close()
+        sy_bin = candidate
+        break
+      end
+    end
+  end
+
+  -- The tab-bar chips need the session list on every status tick and `sy list` is
+  -- a shell-out, so cache it for 5 s. On a failed shell-out keep the previous
+  -- answer: reporting zero sessions would release every slot and renumber the
+  -- jump keys under the user's fingers.
+  local seshy_cache = { at = -1, names = {} }
+  local function seshy_names_cached()
+    local now = os.time()
+    if now - seshy_cache.at >= 5 then
+      local names, ok = seshy_session_names(sy_bin)
+      if ok then
+        seshy_cache = { at = now, names = names }
+      else
+        seshy_cache.at = now
+      end
+    end
+    return seshy_cache.names
+  end
+
+  -- Every session name we know about: live mux workspaces first, then dormant
+  -- seshy sessions that currently have no live workspace.
+  local function known_session_names()
+    local seen, names = {}, {}
+    local function add(n)
+      if n and n ~= "" and not seen[n] then
+        seen[n] = true
+        names[#names + 1] = n
+      end
+    end
+    pcall(function()
+      for _, win in ipairs(wezterm.mux.all_windows()) do
+        add(win:get_workspace())
+      end
+    end)
+    for _, n in ipairs(seshy_names_cached()) do
+      add(n)
+    end
     return names
+  end
+
+  -- Stable session slots, backing both the SUPER+SHIFT+<n> jump keys and the
+  -- tab-bar chips. Every display surface here sorts by urgency or recency, and
+  -- both reorder constantly, so the slot cannot come from the sort: SUPER+SHIFT+3
+  -- must reach the same session every time. A slot is claimed on first sight
+  -- (lowest free of 1..9), held for the session's whole lifetime, and released
+  -- only once the name is gone from BOTH the live mux and `sy list`. The map
+  -- lives in wezterm.GLOBAL so it survives a config reload; GLOBAL does not track
+  -- nested mutation, so it is read, rebuilt, and written back whole.
+  --
+  -- "default" is the home-base workspace, not a seshy session. It holds slot 0
+  -- permanently and never competes for 1..9.
+  local DEFAULT_WORKSPACE = "default"
+  local MAX_SLOT = 9
+
+  local function compute_session_slots()
+    local prev = wezterm.GLOBAL.workspace_slots
+    if type(prev) ~= "table" then
+      prev = {}
+    end
+
+    local names = known_session_names()
+    -- Both the mux walk and `sy list` came up empty. That is a lookup failure,
+    -- not a world with no sessions; rebuilding from it would drop every slot.
+    if #names == 0 then
+      return prev
+    end
+
+    local present = {}
+    for _, n in ipairs(names) do
+      present[n] = true
+    end
+
+    -- Carry forward every slot whose session is still around. The rest free up.
+    local slots, taken = {}, {}
+    for name, slot in pairs(prev) do
+      if present[name] and name ~= DEFAULT_WORKSPACE and type(slot) == "number" then
+        slots[name] = slot
+        taken[slot] = true
+      end
+    end
+
+    -- Claim the lowest free slot for anything newly seen, in name order so a
+    -- batch of new sessions numbers deterministically rather than by mux order.
+    local fresh = {}
+    for _, n in ipairs(names) do
+      if n ~= DEFAULT_WORKSPACE and not slots[n] then
+        fresh[#fresh + 1] = n
+      end
+    end
+    table.sort(fresh)
+    local probe = 1
+    for _, name in ipairs(fresh) do
+      while probe <= MAX_SLOT and taken[probe] do
+        probe = probe + 1
+      end
+      -- Past nine: the session still appears in the picker, just with no chip
+      -- number and no jump key.
+      if probe > MAX_SLOT then
+        break
+      end
+      slots[name] = probe
+      taken[probe] = true
+    end
+
+    -- Only write when something actually moved. This runs on every status tick.
+    local changed = false
+    for name, slot in pairs(slots) do
+      if prev[name] ~= slot then
+        changed = true
+        break
+      end
+    end
+    if not changed then
+      for name in pairs(prev) do
+        if slots[name] == nil then
+          changed = true
+          break
+        end
+      end
+    end
+    if changed then
+      wezterm.GLOBAL.workspace_slots = slots
+    end
+    return slots
+  end
+
+  -- The chip strip asks for slots on every status tick, once per window. Cache
+  -- for a second, same as the agent rollup: a session cannot appear and need a
+  -- number in less time than that.
+  local slots_cache = { at = -1, slots = {} }
+  local function session_slots()
+    local now = os.time()
+    if now ~= slots_cache.at then
+      slots_cache = { at = now, slots = compute_session_slots() }
+    end
+    return slots_cache.slots
   end
 
   -- Workspace recency. The session tree sorts live sessions most-recent-first,
@@ -592,7 +752,7 @@ function M.setup(config)
   -- tab node       = { tab_id, index, title, panes = { pane rec } }
   -- pane rec       = { pane_id, window_id, tab_id, workspace, tab_title, repo,
   --                    title, agent, status, reason, since, rank }
-  local function session_tree(sy_bin)
+  local function session_tree()
     local deck_states = agent_deck_ok and agent_deck.get_all_agent_states() or {}
     local workspaces = {}
     local ws_index = {}
@@ -699,6 +859,36 @@ function M.setup(config)
     return { workspaces = workspaces, attention = attention }
   end
 
+  -- Shared palette for every agent-state surface (session chips, session tree),
+  -- read from the active window's resolved palette so it tracks colorscheme
+  -- changes (lantern). Falls back to config_data.colors (set at startup) when the
+  -- palette isn't available yet.
+  -- ANSI indices (1-based Lua): 1=black 2=red 3=green 4=yellow 5=blue 6=magenta 7=cyan 8=white
+  local function tree_colors(win)
+    local ok, pal = pcall(function()
+      return win:effective_config().resolved_palette
+    end)
+    pal = (ok and pal) or (config_data and config_data.colors) or {}
+    local a, b = pal.ansi or {}, pal.brights or {}
+    return {
+      ws_live  = b[7] or b[8] or pal.foreground or "#c0caf5",   -- bright cyan/white — live session
+      ws_dorm  = a[8] or pal.foreground or "#a9b1d6",           -- ansi-white (mid-gray) — dormant
+      dir_ic   = a[5] or "#7aa2f7",                             -- ansi blue — folder icon (softer than bright)
+      waiting  = b[2] or a[2] or "#f7768e",                     -- bright red — needs input (status signal: keep vivid)
+      done     = b[3] or a[3] or "#9ece6a",                     -- bright green — finished (status signal: keep vivid)
+      working  = b[4] or a[4] or "#e0af68",                     -- bright yellow — running (status signal: keep vivid)
+      idle     = a[8] or "#a9b1d6",                             -- ansi-white (mid-gray) — idle
+      name     = pal.foreground or "#c0caf5",
+      reason   = a[6] or "#bb9af7",                             -- ansi magenta — muted; reason is secondary info
+      age      = a[8] or "#a9b1d6",                             -- ansi-white (mid-gray) — timestamps
+      chrome   = b[1] or "#414868",                             -- bright-black — intentionally dim tree lines
+      badge_bg = pal.cursor_bg or b[1] or "#414868",            -- subtle chip background for pane badges
+      ghost    = a[8] or pal.foreground or "#a9b1d6",            -- muted bracketed match suffix
+      ansi     = a,                                              -- raw ansi array for badge color slots
+      brights  = b,
+    }
+  end
+
   -- Statusline component: name the single worst blocked session and its age,
   -- then append how many sessions hold actionable state in total so the user
   -- sees both which is worst and how many others are demanding attention. A
@@ -736,6 +926,113 @@ function M.setup(config)
     return wezterm.format({ { Text = text .. " " } })
   end
 
+  -- Tab-bar session chips: one `<slot><glyph>` chip per known seshy session,
+  -- ordered by slot so the strip never moves under you. Numbers only, no names.
+  -- A name per chip costs roughly twelve cells, which pushes the native tab strip
+  -- off a laptop row once you hold more than a few sessions; the name of the
+  -- session you are IN is already the last thing on the bar (tabline_z), and
+  -- SUPER+s still opens the full tree with names, repos, and branches.
+  --
+  -- The glyph carries agent state (waiting / done / working / idle), so a blocked
+  -- background session is visible without opening anything. A session with no
+  -- agent at all shows a bare dot. Renders nothing below two sessions: a single
+  -- chip is not information.
+  --
+  -- Signature is tabline's: a function component is called with the window and
+  -- must return a string, so the colored run is pre-rendered with wezterm.format.
+  local function session_chips(window)
+    local slots = session_slots()
+    local ordered = {}
+    for name, slot in pairs(slots) do
+      ordered[#ordered + 1] = { name = name, slot = slot }
+    end
+    if #ordered < 2 then
+      return ""
+    end
+    table.sort(ordered, function(a, b)
+      return a.slot < b.slot
+    end)
+
+    local sessions = agent_session_states()
+    local active = ""
+    pcall(function()
+      active = window:active_workspace()
+    end)
+    local colors = tree_colors(window)
+
+    local items = {}
+    for _, entry in ipairs(ordered) do
+      local st = sessions[entry.name]
+      local status = st and st.status or nil
+      local is_active = entry.name == active
+      -- The slot number carries "where am I": bright and bold on the active
+      -- session, dim everywhere else. The glyph independently carries state, so
+      -- the active chip still shows its own agent status.
+      items[#items + 1] = { Attribute = { Intensity = is_active and "Bold" or "Normal" } }
+      items[#items + 1] = { Foreground = { Color = is_active and colors.name or colors.chrome } }
+      items[#items + 1] = { Text = " " .. tostring(entry.slot) }
+      items[#items + 1] = { Foreground = { Color = status_color(status, colors) or colors.idle } }
+      items[#items + 1] = { Text = status and (agent_state_icons[status] or "●") or "·" }
+    end
+    items[#items + 1] = { Text = " " }
+    return wezterm.format(items)
+  end
+
+  -- SUPER+SHIFT+<n> jumps straight to the session holding slot <n>. 0 is the
+  -- "default" home-base workspace.
+  --
+  -- `phys:` binds the physical key position. WezTerm's key_map_preference
+  -- defaults to "Mapped", where SHIFT+1 produces "!", so a plain
+  -- { key = "1", mods = "SUPER|SHIFT" } never matches. The mapped alternative
+  -- ({ key = "!", mods = "SUPER" }) would break on any non-US layout.
+  config.keys = config.keys or {}
+  for slot = 0, MAX_SLOT do
+    table.insert(config.keys, {
+      key = "phys:" .. tostring(slot),
+      mods = "SUPER|SHIFT",
+      action = wezterm.action_callback(function(win, pane)
+        if keybindings.locked_mode then
+          win:perform_action({ SendKey = { key = tostring(slot), mods = "SUPER|SHIFT" } }, pane)
+          return
+        end
+        if slot == 0 then
+          win:perform_action(wezterm.action.SwitchToWorkspace({ name = DEFAULT_WORKSPACE }), pane)
+          return
+        end
+        local target
+        for name, s in pairs(session_slots()) do
+          if s == slot then
+            target = name
+            break
+          end
+        end
+        -- Unassigned slot: no session holds this number. Do nothing rather than
+        -- guess at a neighbour.
+        if not target then
+          return
+        end
+        local live = false
+        pcall(function()
+          for _, w in ipairs(wezterm.mux.all_windows()) do
+            if w:get_workspace() == target then
+              live = true
+            end
+          end
+        end)
+        if live then
+          win:perform_action(wezterm.action.SwitchToWorkspace({ name = target }), pane)
+        else
+          -- Dormant: no live workspace yet, so root the first pane at the seshy
+          -- session dir. Mirrors what the session tree does for a dormant row.
+          win:perform_action(
+            wezterm.action.SwitchToWorkspace({ name = target, spawn = { cwd = seshy_dir .. "/" .. target } }),
+            pane
+          )
+        end
+      end),
+    })
+  end
+
   local tabline_ok, tabline = plugin_loader.load("tabline")
   if not tabline_ok then
     wezterm.log_warn("Failed to load tabline.wez: " .. tostring(tabline))
@@ -766,6 +1063,11 @@ function M.setup(config)
           locked_indicator,
         },
         tabline_b = {},
+        -- Session chips sit immediately left of the native tab strip, so the row
+        -- reads outer scope to inner scope: which session, then which tab in it.
+        -- "ResetAttributes" is tabline's own guard: it re-emits the section's
+        -- colors after our formatted run so nothing bleeds past the section.
+        tabline_c = { session_chips, "ResetAttributes" },
         tabline_x = {},
         tabline_y = { agent_status },
         tabline_z = {
@@ -857,35 +1159,6 @@ function M.setup(config)
     attn    = nf.md_alert or "󰀪",
     branch  = nf.cod_git_branch or "⎇",
   }
-
-  -- Build the session tree color palette from the active window's resolved
-  -- palette so it tracks colorscheme changes (lantern). Falls back to
-  -- config_data.colors (set at startup) when the palette isn't available yet.
-  -- ANSI indices (1-based Lua): 1=black 2=red 3=green 4=yellow 5=blue 6=magenta 7=cyan 8=white
-  local function tree_colors(win)
-    local ok, pal = pcall(function()
-      return win:effective_config().resolved_palette
-    end)
-    pal = (ok and pal) or (config_data and config_data.colors) or {}
-    local a, b = pal.ansi or {}, pal.brights or {}
-    return {
-      ws_live  = b[7] or b[8] or pal.foreground or "#c0caf5",   -- bright cyan/white — live session
-      ws_dorm  = a[8] or pal.foreground or "#a9b1d6",           -- ansi-white (mid-gray) — dormant
-      dir_ic   = a[5] or "#7aa2f7",                             -- ansi blue — folder icon (softer than bright)
-      waiting  = b[2] or a[2] or "#f7768e",                     -- bright red — needs input (status signal: keep vivid)
-      done     = b[3] or a[3] or "#9ece6a",                     -- bright green — finished (status signal: keep vivid)
-      working  = b[4] or a[4] or "#e0af68",                     -- bright yellow — running (status signal: keep vivid)
-      idle     = a[8] or "#a9b1d6",                             -- ansi-white (mid-gray) — idle
-      name     = pal.foreground or "#c0caf5",
-      reason   = a[6] or "#bb9af7",                             -- ansi magenta — muted; reason is secondary info
-      age      = a[8] or "#a9b1d6",                             -- ansi-white (mid-gray) — timestamps
-      chrome   = b[1] or "#414868",                             -- bright-black — intentionally dim tree lines
-      badge_bg = pal.cursor_bg or b[1] or "#414868",            -- subtle chip background for pane badges
-      ghost    = a[8] or pal.foreground or "#a9b1d6",            -- muted bracketed match suffix
-      ansi     = a,                                              -- raw ansi array for badge color slots
-      brights  = b,
-    }
-  end
 
   -- Deterministic pane identity: hash pane_id → character name from sci-fi/fantasy.
   -- Same id yields the same name+color on every surface (tab title, session tree,
@@ -1080,7 +1353,6 @@ function M.setup(config)
     local cwd_uri = pane and pane.current_working_dir
     if cwd_uri then
       local cwd = cwd_uri.file_path or tostring(cwd_uri)
-      local home = os.getenv("HOME") or ""
       if home ~= "" and cwd == home then
         dir = "~"
       else
@@ -1178,27 +1450,8 @@ function M.setup(config)
     wezterm.log_warn("Failed to load workspace-manager.wezterm: " .. tostring(wm))
   end
   if wm_ok then
-    local home = os.getenv("HOME") or ""
-    local seshy_dir = home .. "/.local/state/seshy/sessions"
-
-    -- wezterm.run_child_process runs under the GUI process's own environment,
-    -- whose PATH (when launched from Finder/Dock on macOS) omits ~/.local/bin
-    -- where `sy` lives — so a bare "sy" silently fails and the switcher shows
-    -- no sessions. Resolve an absolute path from the PATH the config knows
-    -- about (env.json), falling back to the conventional install dir.
-    local sy_bin = home .. "/.local/bin/sy"
-    do
-      local env = utils.load_json_file(utils.get_config_path("env.json"))
-      for dir in (env and env.PATH or ""):gmatch("[^:]+") do
-        local candidate = dir .. "/sy"
-        local fh = io.open(candidate, "r")
-        if fh then
-          fh:close()
-          sy_bin = candidate
-          break
-        end
-      end
-    end
+    -- `home`, `seshy_dir`, and `sy_bin` are resolved once near seshy_session_names
+    -- above; the session chips need them before this block runs.
 
     -- Replace the default choice provider: list seshy sessions instead of
     -- scanning a projects dir. `sy list` prints a header row then one row per
@@ -1753,7 +2006,7 @@ function M.setup(config)
     local function open_session_tree(win, pane, filter, notice)
       filter = filter or "all"
       tree_state.current_filter = filter
-      local tree = session_tree(sy_bin)
+      local tree = session_tree()
       -- Resolve palette once per open so all rows in this invocation share
       -- the same colors even if the picker is open across a scheme switch.
       local colors = tree_colors(win)
