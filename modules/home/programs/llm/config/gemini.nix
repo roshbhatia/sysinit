@@ -8,6 +8,44 @@ let
   llmLib = import ../lib { inherit lib; };
   kit = llmLib.harnessKit.mkKit { inherit lib pkgs config; };
 
+  # agy reads hooks from ~/.agents/hooks.json with the same payload keys as
+  # Claude (`tool_name`, `tool_input`). It carries no `permissionDecision`
+  # string, so it blocks by exit code like devin does — which is why the devin
+  # wrapper is reused verbatim rather than the Claude guard.
+  bashGuardScript = pkgs.writeShellApplication {
+    name = "claude-bash-guard";
+    runtimeInputs = [ pkgs.jq ];
+    bashOptions = [ ];
+    text = builtins.readFile ./claude-bash-guard.sh;
+  };
+
+  exitCodeGuardScript = pkgs.writeShellApplication {
+    name = "devin-guard";
+    runtimeInputs = [
+      pkgs.jq
+      bashGuardScript
+    ];
+    bashOptions = [ ];
+    text = builtins.readFile ./devin-guard.sh;
+  };
+
+  # The matcher is a regex over the tool name. agy's shell tool is `run_command`;
+  # `bash` and `shell` are listed too so a rename upstream does not silently
+  # disable the guard. A matcher that hits nothing simply never fires.
+  agyHooks = builtins.toJSON {
+    PreToolUse = [
+      {
+        matcher = "run_command|bash|shell";
+        hooks = [
+          {
+            type = "command";
+            command = "${lib.getExe exitCodeGuardScript}";
+          }
+        ];
+      }
+    ];
+  };
+
   # Antigravity CLI (`agy`) is the successor to the retired Gemini CLI. It is a
   # Go binary that still roots its data under ~/.gemini, but the config surface
   # moved off Gemini's TOML onto JSON. The shapes below were confirmed against
@@ -63,6 +101,13 @@ in
     # populated ~/.claude/skills root (same as the other harnesses).
     ".agents/AGENTS.md" = {
       text = kit.mkInstructionsWithStyle "~/.claude/skills";
+      force = true;
+    };
+
+    # Mechanical destructive-command guard, matching the coverage claude, codex,
+    # and devin already have.
+    ".agents/hooks.json" = {
+      text = agyHooks;
       force = true;
     };
 

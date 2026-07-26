@@ -17,6 +17,7 @@
   ```
   Orienting in unfamiliar code, or about to read a file "to see what's in it"?
       -> ast-grep outline   (load the `ast-grep-outline` skill)
+         but see the language note below — it is silent on Nix and Lua
   A code SHAPE — call pattern, signature, construct, refactor-grade?
       -> ast-grep (sg) or the ast-grep MCP   (load the `ast-grep` skill for rules)
   Literal string, exact identifier, file path, or "every occurrence"?
@@ -28,6 +29,17 @@
   Order matters. Outline before reading a whole file, because it costs a fraction
   of the context and usually answers the question. ast-grep before `rg`, because a
   shape query written as a regex silently misses wrapped lines and hits comments.
+
+  ## Language note — outline is narrower than ast-grep
+
+  `ast-grep outline` covers the mainstream languages (TypeScript, JavaScript,
+  Python, Go, Rust, and similar). It prints `nothing found` for **Nix** and
+  **Lua**, which is most of `sysinit` and all of `sysinit.nvim`.
+
+  `ast-grep` pattern search *does* parse Nix and Lua. So in this repo's Nix and in
+  sysinit.nvim's Lua, skip step one and go straight to `ast-grep run -p ... -l nix`
+  (or `-l lua`). A `nothing found` from outline on those files means the language
+  is unsupported, not that the file is empty — do not conclude anything from it.
 
   ## 1. Builtin — `rg` / `grep` / `Glob` / `Read`
 

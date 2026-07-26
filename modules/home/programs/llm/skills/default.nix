@@ -21,7 +21,7 @@
   };
 
   search-code-routing = {
-    description = "Decides which code-search tool a query needs, in preference order: `ast-grep outline` to map structure before reading, `ast-grep`/`sg` for code shapes, `rg`/`grep`/Glob only for literal text, `gh search` for repos not cloned locally. Use when starting a search and the right tool is not obvious. Dispatches to the `ast-grep-outline` and `ast-grep` skills for how to run those two.";
+    description = "Decides which code-search tool a query needs, in preference order: `ast-grep outline` to map structure before reading (mainstream languages only, silent on Nix and Lua), `ast-grep`/`sg` for code shapes in any language, `rg`/`grep`/Glob only for literal text, `gh search` for repos not cloned locally. Use when starting a search and the right tool is not obvious. Dispatches to the `ast-grep-outline` and `ast-grep` skills.";
     content = import ./search-code-routing.nix;
     allowed-tools = "Bash(rg:*) Bash(grep:*) Bash(ast-grep:*) Bash(sg:*) Bash(gh:*) Read Glob";
     model = "haiku";
