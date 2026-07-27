@@ -7,6 +7,7 @@
     ./ast-grep.nix
     ./bash.nix
     ./bat.nix
+    ./bottom.nix
     ./direnv.nix
     ./editorconfig.nix
     ./eza.nix
