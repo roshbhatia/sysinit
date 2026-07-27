@@ -436,27 +436,103 @@ function M.setup(config)
     return rollup_cache.sessions, rollup_cache.panes
   end
 
-  -- Activate the exact pane a rollup record points at. Pane/tab ids are global,
-  -- so the mux calls front the right tab + pane even in a background workspace;
-  -- SwitchToWorkspace then brings that window forward when it differs from the
-  -- current one. Best-effort — a since-closed pane resolves to nil and no-ops.
-  local function activate_agent_pane(win, gui_pane, rec)
-    if not rec then
+  -- The GUI window currently displaying `workspace`, or nil when no window shows
+  -- it. A background workspace still owns a mux window, so mux presence alone
+  -- does not answer "is this on screen".
+  local function gui_window_for_workspace(workspace)
+    if not workspace or workspace == "" then
+      return nil
+    end
+    local windows = {}
+    pcall(function()
+      windows = wezterm.mux.all_windows()
+    end)
+    for _, w in ipairs(windows) do
+      local ok_ws, ws = pcall(function()
+        return w:get_workspace()
+      end)
+      if ok_ws and ws == workspace then
+        -- Guarded per window, not once around the whole loop: several mux
+        -- windows can share a workspace and only one of them is on screen, so a
+        -- throw on an unattached window must not end the scan before it reaches
+        -- the attached one.
+        local ok_gui, gui = pcall(function()
+          return w:gui_window()
+        end)
+        if ok_gui and gui then
+          return gui
+        end
+      end
+    end
+    return nil
+  end
+
+  -- Go to a session, correctly with more than one GUI window open. Each GUI
+  -- window carries its own workspace, so the target may already be on screen in
+  -- a different window: focus that window instead of retargeting this one, which
+  -- would put two windows on the same workspace and abandon the one the user was
+  -- reading. SwitchToWorkspace is the fallback for a workspace with no window.
+  -- `spawn_cwd` (optional) roots the first pane when the workspace is created.
+  local function switch_to_workspace(win, pane, name, spawn_cwd)
+    if not name or name == "" then
       return
     end
+    local ok_active, active = pcall(function()
+      return win:active_workspace()
+    end)
+    if ok_active and active == name then
+      return
+    end
+    local gui = gui_window_for_workspace(name)
+    if gui then
+      pcall(function()
+        gui:focus()
+      end)
+      return
+    end
+    local act = spawn_cwd and wezterm.action.SwitchToWorkspace({ name = name, spawn = { cwd = spawn_cwd } })
+      or wezterm.action.SwitchToWorkspace({ name = name })
+    win:perform_action(act, pane)
+  end
+
+  -- Activate the exact pane a rollup record points at. Pane/tab ids are global,
+  -- so the mux calls front the right tab + pane even in a background workspace.
+  -- Focus then follows the pane's own GUI window when it has one: activating a
+  -- mux tab does not move focus between GUI windows, so without this the picker
+  -- silently re-targeted a pane in a window the user could not see.
+  -- Best-effort — a since-closed pane resolves to nil and no-ops.
+  local function activate_agent_pane(win, gui_pane, rec)
+    if not rec or not rec.pane_id then
+      return
+    end
+    local mux_win
     pcall(function()
       local mp = wezterm.mux.get_pane(rec.pane_id)
-      if mp then
-        local tab = mp:tab()
-        if tab then
-          tab:activate()
-        end
-        mp:activate()
+      if not mp then
+        return
       end
+      local tab = mp:tab()
+      if tab then
+        tab:activate()
+        mux_win = tab:window()
+      end
+      mp:activate()
     end)
-    if rec.workspace and rec.workspace ~= "" and rec.workspace ~= win:active_workspace() then
-      win:perform_action(wezterm.action.SwitchToWorkspace({ name = rec.workspace }), gui_pane)
+    -- Separate pcall: resolving the GUI window must not be able to skip the
+    -- pane activation above.
+    local gui
+    if mux_win then
+      pcall(function()
+        gui = mux_win:gui_window()
+      end)
     end
+    if gui then
+      pcall(function()
+        gui:focus()
+      end)
+      return
+    end
+    switch_to_workspace(win, gui_pane, rec.workspace)
   end
 
   -- Normalize process names for display. Strips the `.` prefix and `-wrapped`
@@ -561,10 +637,10 @@ function M.setup(config)
     end
   end
 
-  -- The tab-bar chips need the session list on every status tick and `sy list` is
-  -- a shell-out, so cache it for 5 s. On a failed shell-out keep the previous
-  -- answer: reporting zero sessions would release every slot and renumber the
-  -- jump keys under the user's fingers.
+  -- `sy list` is a shell-out and the session tree calls it on every open, so
+  -- cache it for 5 s. On a failed shell-out keep the previous answer: reporting
+  -- zero sessions would empty the dormant view rather than admit the lookup
+  -- failed.
   local seshy_cache = { at = -1, names = {} }
   local function seshy_names_cached()
     local now = os.time()
@@ -579,42 +655,50 @@ function M.setup(config)
     return seshy_cache.names
   end
 
-  -- Every session name we know about: live mux workspaces first, then dormant
-  -- seshy sessions that currently have no live workspace.
-  local function known_session_names()
+  -- Active session names: every workspace that currently has a live mux window,
+  -- deduplicated. Two mux windows can share one workspace, so the dedup matters
+  -- once more than one window is open.
+  --
+  -- Dormant seshy sessions (present in `sy list`, no live workspace) are
+  -- deliberately excluded. The chip strip and the CTRL+SHIFT+<n> keys address
+  -- only what is running; dormant sessions are reached from the SUPER+s tree,
+  -- which lists them under ^d.
+  local function active_session_names()
     local seen, names = {}, {}
-    local function add(n)
-      if n and n ~= "" and not seen[n] then
-        seen[n] = true
-        names[#names + 1] = n
-      end
-    end
     pcall(function()
       for _, win in ipairs(wezterm.mux.all_windows()) do
-        add(win:get_workspace())
+        local n = win:get_workspace()
+        if n and n ~= "" and not seen[n] then
+          seen[n] = true
+          names[#names + 1] = n
+        end
       end
     end)
-    for _, n in ipairs(seshy_names_cached()) do
-      add(n)
-    end
     return names
   end
 
   -- Stable session slots, backing both the CTRL+SHIFT+<n> jump keys and the
   -- tab-bar chips. Every display surface here sorts by urgency or recency, and
-  -- both reorder constantly, so the slot cannot come from the sort: SUPER+SHIFT+3
+  -- both reorder constantly, so the slot cannot come from the sort: CTRL+SHIFT+3
   -- must reach the same session every time. A slot is claimed on first sight
-  -- (lowest free of 1..9), held for the session's whole lifetime, and released
-  -- only once the name is gone from BOTH the live mux and `sy list`. The map
-  -- lives in wezterm.GLOBAL so it survives a config reload; GLOBAL does not track
-  -- nested mutation, so it is read, rebuilt, and written back whole.
+  -- (lowest free of 1..9), held for as long as the workspace stays live, and
+  -- released once it is gone. The map lives in wezterm.GLOBAL so it survives a
+  -- config reload; GLOBAL does not track nested mutation, so it is read,
+  -- rebuilt, and written back whole.
+  --
+  -- Slots cover ACTIVE sessions only — one number per live workspace. Dormant
+  -- seshy sessions get no slot and no chip: numbering them made the strip a list
+  -- of everything `sy list` had ever created, most of it not running, and pushed
+  -- live sessions past slot 9. Dormant sessions are reached from the SUPER+s
+  -- tree (^d), which needs no number.
   --
   -- "default" is the home-base workspace, not a seshy session. It permanently
-  -- holds the first slot and never competes with the rest.
+  -- holds the first slot and never competes with the rest, so it is always on
+  -- the strip even when it is the only session running.
   --
   -- Numbering starts at 1, matching the tab keys (SUPER+1..9) rather than a
-  -- 0-based array. That costs one addressable session: default takes 1 and seshy
-  -- sessions get 2..9, so eight are reachable by key instead of nine.
+  -- 0-based array. That costs one addressable session: default takes 1 and the
+  -- rest get 2..9, so eight are reachable by key instead of nine.
   local DEFAULT_WORKSPACE = "default"
   local DEFAULT_SLOT = 1
   local MAX_SLOT = 9
@@ -625,9 +709,10 @@ function M.setup(config)
       prev = {}
     end
 
-    local names = known_session_names()
-    -- Both the mux walk and `sy list` came up empty. That is a lookup failure,
-    -- not a world with no sessions; rebuilding from it would drop every slot.
+    local names = active_session_names()
+    -- The mux walk came up empty. That is a lookup failure, not a world with no
+    -- sessions — a running GUI always has at least the window being rendered —
+    -- so rebuilding from it would drop every slot.
     if #names == 0 then
       return prev
     end
@@ -856,7 +941,9 @@ function M.setup(config)
     end)
 
     -- Dormant seshy sessions: present in `sy list` but not a live workspace.
-    for _, name in ipairs(seshy_session_names(sy_bin)) do
+    -- Cached: the ^d / ^x round trips reopen the tree several times a second,
+    -- and `sy list` is a shell-out on each open.
+    for _, name in ipairs(seshy_names_cached()) do
       if not ws_index[name] then
         local ws = { name = name, dormant = true, rank = 0, since = nil, status = nil, tabs = {} }
         ws_index[name] = ws
@@ -943,14 +1030,19 @@ function M.setup(config)
     return wezterm.format({ { Text = text .. " " } })
   end
 
-  -- Tab-bar session chips: one `<slot> <glyph> <name>` chip per known session,
+  -- Tab-bar session chips: one `<slot> <glyph> <name>` chip per ACTIVE session,
   -- ordered by slot so the strip never moves under you. Slot 1 is the "default"
   -- home-base workspace, so the chip you are standing in is always on the strip.
   --
+  -- The strip is the live-session list, not the seshy inventory: a name appears
+  -- here only while it has a live workspace. It always renders, "default" alone
+  -- included — the strip is where the user reads which session they are in, so
+  -- suppressing it at one chip made the answer disappear exactly when the layout
+  -- was simplest.
+  --
   -- The glyph carries agent state (waiting / done / working / idle), so a blocked
   -- background session is visible without opening anything. A session with no
-  -- agent at all shows a bare dot. Renders nothing below two chips: "default"
-  -- alone is not information.
+  -- agent at all shows a bare dot.
   --
   -- Names are truncated so the strip cannot grow without bound. Nine sessions
   -- with long names would otherwise run into the native tab strip; the full names,
@@ -966,7 +1058,7 @@ function M.setup(config)
     for name, slot in pairs(slots) do
       ordered[#ordered + 1] = { name = name, slot = slot }
     end
-    if #ordered < 2 then
+    if #ordered == 0 then
       return ""
     end
     table.sort(ordered, function(a, b)
@@ -1056,11 +1148,6 @@ function M.setup(config)
         if not target then
           return
         end
-        -- "default" is not a seshy session, so it has no session dir to spawn in.
-        if target == DEFAULT_WORKSPACE then
-          win:perform_action(wezterm.action.SwitchToWorkspace({ name = target }), pane)
-          return
-        end
         local live = false
         pcall(function()
           for _, w in ipairs(wezterm.mux.all_windows()) do
@@ -1069,16 +1156,15 @@ function M.setup(config)
             end
           end
         end)
-        if live then
-          win:perform_action(wezterm.action.SwitchToWorkspace({ name = target }), pane)
-        else
-          -- Dormant: no live workspace yet, so root the first pane at the seshy
-          -- session dir. Mirrors what the session tree does for a dormant row.
-          win:perform_action(
-            wezterm.action.SwitchToWorkspace({ name = target, spawn = { cwd = seshy_dir .. "/" .. target } }),
-            pane
-          )
+        -- Slots only cover live workspaces, so the dormant branch is a race: the
+        -- session died between the cached slot map and this keypress. Root the
+        -- first pane at the seshy session dir, as the session tree does for a
+        -- dormant row. "default" is not a seshy session and has no such dir.
+        local spawn_cwd = nil
+        if not live and target ~= DEFAULT_WORKSPACE then
+          spawn_cwd = seshy_dir .. "/" .. target
         end
+        switch_to_workspace(win, pane, target, spawn_cwd)
       end),
     })
   end
@@ -1910,15 +1996,9 @@ function M.setup(config)
       end
       local kind = id:match("^([^:]+):")
       if kind == "ws" and rec.dormant then
-        win:perform_action(
-          wezterm.action.SwitchToWorkspace({
-            name = rec.workspace,
-            spawn = { cwd = seshy_dir .. "/" .. rec.workspace },
-          }),
-          pane
-        )
+        switch_to_workspace(win, pane, rec.workspace, seshy_dir .. "/" .. rec.workspace)
       elseif kind == "ws" then
-        win:perform_action(wezterm.action.SwitchToWorkspace({ name = rec.workspace }), pane)
+        switch_to_workspace(win, pane, rec.workspace)
       else
         activate_agent_pane(win, pane, rec)
       end
@@ -1984,11 +2064,11 @@ function M.setup(config)
     -- API exposes no workspace close). Any row kind works — ws/tab/pane recs
     -- all carry .workspace — so close acts on the session the cursor is inside,
     -- not only its header row. The seshy session on disk is untouched: a
-    -- closed session simply shows as dormant afterwards. The active workspace
-    -- is refused — closing the panes under the user's feet. Returns a notice
-    -- for the reopened picker's title: toasts need a code-signed binary on
-    -- macOS, so the title is the only reliable feedback channel.
-    local function close_session_target(win, id, by_id)
+    -- closed session simply shows as dormant afterwards. A session displayed in
+    -- any window is refused — closing the panes under the user's feet. Returns a
+    -- notice for the reopened picker's title: toasts need a code-signed binary
+    -- on macOS, so the title is the only reliable feedback channel.
+    local function close_session_target(id, by_id)
       local rec = by_id[id]
       if type(rec) ~= "table" or not rec.workspace then
         return "not a session row"
@@ -1997,11 +2077,11 @@ function M.setup(config)
       if rec.dormant then
         return "already dormant: " .. name
       end
-      local ok_active, active = pcall(function()
-        return win:active_workspace()
-      end)
-      if ok_active and active == name then
-        return "cannot close active session"
+      -- Refuse any session that is on screen, not only this window's own. With
+      -- more than one GUI window the target may be displayed elsewhere, and
+      -- killing its panes would close that window under the user.
+      if gui_window_for_workspace(name) then
+        return "cannot close a visible session"
       end
       local wezterm_bin = (wezterm.executable_dir or "") .. "/wezterm"
       local ok, stdout = wezterm.run_child_process({ wezterm_bin, "cli", "list", "--format=json" })
@@ -2085,7 +2165,7 @@ function M.setup(config)
             local pf = tree_state.pending_filter
             tree_state.pending_filter = nil
             if pa == "delete" and id then
-              local notice = close_session_target(inner_win, id, by_id)
+              local notice = close_session_target(id, by_id)
               wezterm.time.call_after(0.15, function()
                 open_session_tree(inner_win, inner_pane, tree_state.current_filter, notice)
               end)
