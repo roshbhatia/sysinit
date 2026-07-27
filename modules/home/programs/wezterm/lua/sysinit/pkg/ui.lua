@@ -600,7 +600,7 @@ function M.setup(config)
     return names
   end
 
-  -- Stable session slots, backing both the SUPER+SHIFT+<n> jump keys and the
+  -- Stable session slots, backing both the CTRL+SHIFT+<n> jump keys and the
   -- tab-bar chips. Every display surface here sorts by urgency or recency, and
   -- both reorder constantly, so the slot cannot come from the sort: SUPER+SHIFT+3
   -- must reach the same session every time. A slot is claimed on first sight
@@ -1022,21 +1022,26 @@ function M.setup(config)
     return wezterm.format(items)
   end
 
-  -- SUPER+SHIFT+<n> jumps straight to the session holding slot <n>, the same
+  -- CTRL+SHIFT+<n> jumps straight to the session holding slot <n>, the same
   -- number the chip shows. Slot 1 is the "default" home-base workspace.
+  --
+  -- CTRL, not SUPER: macOS reserves CMD+SHIFT+3/4/5 for screenshots and never
+  -- delivers them to the application, so three of the nine slots would have been
+  -- silently unreachable. CTRL+SHIFT+<digit> is unbound elsewhere in this config
+  -- (the plain digits are tab switching under CTRL and SUPER, without SHIFT).
   --
   -- `phys:` binds the physical key position. WezTerm's key_map_preference
   -- defaults to "Mapped", where SHIFT+1 produces "!", so a plain
-  -- { key = "1", mods = "SUPER|SHIFT" } never matches. The mapped alternative
-  -- ({ key = "!", mods = "SUPER" }) would break on any non-US layout.
+  -- { key = "1", mods = "CTRL|SHIFT" } never matches. The mapped alternative
+  -- ({ key = "!", mods = "CTRL" }) would break on any non-US layout.
   config.keys = config.keys or {}
   for slot = DEFAULT_SLOT, MAX_SLOT do
     table.insert(config.keys, {
       key = "phys:" .. tostring(slot),
-      mods = "SUPER|SHIFT",
+      mods = "CTRL|SHIFT",
       action = wezterm.action_callback(function(win, pane)
         if keybindings.locked_mode then
-          win:perform_action({ SendKey = { key = tostring(slot), mods = "SUPER|SHIFT" } }, pane)
+          win:perform_action({ SendKey = { key = tostring(slot), mods = "CTRL|SHIFT" } }, pane)
           return
         end
         local target
