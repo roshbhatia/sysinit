@@ -88,7 +88,10 @@ in
     enable = true;
     enableMcpIntegration = true;
     context =
-      kit.mkInstructions "~/.claude/skills"
+      kit.mkInstructions {
+        harness = "codex";
+        skillsRoot = "~/.claude/skills";
+      }
       + ''
 
         ## Codex-specific Slack access

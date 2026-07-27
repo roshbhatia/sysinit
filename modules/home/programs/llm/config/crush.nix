@@ -94,7 +94,10 @@ in
     # tree natively. Point instructions at the populated root, not a phantom
     # per-tool dir that holds no SKILL.md files.
     "crush/AGENTS.md" = {
-      text = kit.mkInstructionsWithStyle "~/.claude/skills";
+      text = kit.mkInstructionsWithStyle {
+        harness = "crush";
+        skillsRoot = "~/.claude/skills";
+      };
       force = true;
     };
   };

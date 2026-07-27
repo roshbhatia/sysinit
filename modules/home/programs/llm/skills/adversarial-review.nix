@@ -48,14 +48,14 @@
   Check the environment in this order and take the first match:
 
   1. **Already a critic** — `$CLAUDE_CODE_CHILD_SESSION` is set. You are a
-     teammate or subagent spawned for review. Do NOT spawn more critics
-     (recursion guard). Produce your own objection and return.
-  2. **Claude Code with Agent Teams** — `$CLAUDECODE` is set AND
+     {{agent}} spawned for review. Do NOT spawn more critics (recursion guard).
+     Produce your own objection and return.
+  2. **In-process {{agents}}** — `$CLAUDECODE` is set AND
      `$CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS` is `1`. Spawn N=3 in-process
-     teammates as adversarial critics, one per lens.
-  3. **Any harness with subagents** — a Task/Agent subagent mechanism exists.
-     Spawn N=3 critic subagents (fresh context each).
-  4. **No sub-agent capability** — run N=3 sequential critique passes, each in a
+     {{agents}} as adversarial critics, one per lens.
+  3. **Any harness with {{agents}}** — a Task/Agent mechanism exists. Spawn N=3
+     critic {{agents}} (fresh context each).
+  4. **No {{agent}} capability** — run N=3 sequential critique passes, each in a
      fresh reasoning context with authorship hidden.
 
   Detect the harness with a shell check, e.g.

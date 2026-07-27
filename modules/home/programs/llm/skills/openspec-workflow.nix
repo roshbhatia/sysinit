@@ -16,7 +16,7 @@
 
   ## Explore
 
-  Use the Explore planning subagent for discovery and planning work. Explore is read-only by default: it can inspect code, map options, and surface tradeoffs, but it should not implement application code.
+  Use the Explore planning {{agent}} for discovery and planning work. Explore is read-only by default: it can inspect code, map options, and surface tradeoffs, but it should not implement application code.
 
   When there is no active change, explore freely and offer to create a proposal once the problem is clear. Do not run `openspec init` just to make commands or skills available; this sysinit configuration provides the global OpenSpec workflow. Use `openspec init` only when the user wants to initialize OpenSpec artifacts in a repository that does not already have them.
 

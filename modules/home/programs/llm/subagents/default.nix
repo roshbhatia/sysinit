@@ -1,3 +1,7 @@
+{ lib }:
+let
+  vocab = import ../lib/vocab.nix { inherit lib; };
+in
 {
   code-reviewer = import ./code-reviewer.nix;
   implementor = import ./implementor.nix;
@@ -136,7 +140,7 @@
         )
       );
     in
-    ''
+    vocab.applyVocab harness ''
       ---
       ${frontmatter}
       ---

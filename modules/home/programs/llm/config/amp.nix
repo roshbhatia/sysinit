@@ -42,7 +42,10 @@ in
     };
     # Amp reads AGENTS.md from project roots and global config paths.
     "amp/AGENTS.md" = {
-      text = kit.mkInstructionsWithStyle "~/.config/amp/skills";
+      text = kit.mkInstructionsWithStyle {
+        harness = "amp";
+        skillsRoot = "~/.config/amp/skills";
+      };
       force = true;
     };
   };

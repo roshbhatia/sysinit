@@ -87,8 +87,8 @@ require survival; (f) bound with fixed K and an explicit stop rule.
   rollout step that mutates shared state with no verification gate, or a non-goal
   the plan silently crosses.
 - **Where it runs.** The `tasks.md` review-loop gate per slice and the design
-  `Adversarial Review` section reference this skill; the skill decides teammate
-  vs subagent execution.
+  `Adversarial Review` section reference this skill; the skill decides in-process
+  vs spawned execution.
 
 ## Citation index
 

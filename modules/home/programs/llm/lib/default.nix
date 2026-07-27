@@ -1,7 +1,8 @@
 { lib }:
 {
   mcp = import ./mcp.nix { inherit lib; };
-  instructions = import ./instructions.nix;
+  vocab = import ./vocab.nix { inherit lib; };
+  instructions = import ./instructions.nix { inherit lib; };
   harnessKit = import ./harness-kit.nix;
   allowlist = import ./allowlist.nix { inherit lib; };
 }

@@ -89,7 +89,10 @@ in
     # devin has no documented global-instructions path of its own, so the shared
     # context lands as AGENTS.md, which it reads from the project root.
     "devin/AGENTS.md" = {
-      text = kit.mkInstructionsWithStyle "~/.config/devin/skills";
+      text = kit.mkInstructionsWithStyle {
+        harness = "devin";
+        skillsRoot = "~/.config/devin/skills";
+      };
       force = true;
     };
 

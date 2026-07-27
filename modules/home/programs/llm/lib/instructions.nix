@@ -1,7 +1,7 @@
 # Instruction-writing principles for this file. The rendered text becomes each
-# harness's context file (CLAUDE.md / AGENTS.md), so its shape changes model
-# behavior, not only its content. Every rule below cites a published result.
-# Keep new sections consistent with these principles.
+# harness's global context file (~/.claude/CLAUDE.md, ~/.config/*/AGENTS.md), so
+# its shape changes model behavior, not only its content. Keep new sections
+# consistent with these principles.
 #
 # 1. Short, and ordered by stakes. Models attend most to the start and end of a
 #    context and lose information held in the middle. So the maxLines cap is
@@ -24,17 +24,35 @@
 #
 # 4. One term per concept; no conflicting rules. Fragmented or ambiguous
 #    wording lowers instruction-following, so this file reuses one name per
-#    concept and removes duplicate rules.
+#    concept (see vocab.nix for the per-harness names) and removes duplicate
+#    rules.
 #    Schulhoff et al., "The Prompt Report: A Systematic Survey of Prompting
 #    Techniques," 2024 (arXiv:2406.06608).
+#
+# 5. Global means cross-repo. This file is loaded in every repository, so it
+#    carries only rules that hold everywhere. Facts about one repository belong
+#    in that repository's AGENTS.md, and a domain's rules belong in that
+#    domain's skill. Loading either one globally spends context in every
+#    session that does not need it.
+#    Anthropic, "The New Rules of Context Engineering for Claude 5-Generation
+#    Models," 2026 (progressive disclosure; single source).
+#
+# 6. State a fact once, in the layer that owns it. A rule repeated across the
+#    context file, a skill, and a tool description does not reinforce itself; it
+#    creates three places to drift. Writing rules live in the output style, tool
+#    routing lives in the tool's skill, and {{agent}} selection lives in the
+#    {{agent}} definition.
+#    Same source as principle 5 (repetition -> single source).
+{ lib }:
 let
-  subagents = import ../subagents;
+  subagents = import ../subagents { inherit lib; };
+  vocab = import ./vocab.nix { inherit lib; };
 
-  # Names only, not descriptions. Every harness that can load a skill also
-  # surfaces that skill's own description from its skills tree, so repeating the
-  # descriptions here cost ~2.2KB of every session's context to say the same
-  # thing twice. Harnesses with no skill loader at all (codex, copilot) could
-  # never act on the descriptions anyway.
+  # Names only, and only for harnesses that cannot load a skill. Every harness
+  # with a skill loader already surfaces each skill's own description from its
+  # skills tree, so listing them here says the same thing twice. Codex and
+  # copilot have no loader, but their Read tool still reaches the tree, so they
+  # get the names as a pointer.
   formatSkillsBlock =
     skills:
     let
@@ -45,103 +63,40 @@ let
     else
       "Available: " + builtins.concatStringsSep ", " (map (n: "`${n}`") names);
 
+  harnessesWithoutSkillLoader = [
+    "codex"
+    "copilot"
+  ];
+
   makeInstructions =
     {
+      harness,
       localSkillDescriptions,
-      openspecVersion,
       skillsRoot ? "~/.claude/skills",
     }:
     let
       skillsList = formatSkillsBlock localSkillDescriptions;
 
       sections = {
-        stack = ''
-          ## Stack
-
-          - nix-darwin + home-manager + nix flakes (Apple Silicon, NixOS)
-          - openspec ${openspecVersion} via `overlays/openspec.nix` (custom schema: `rosh-spec-driven`)
-          - Agent tooling: claude-code, codex, gemini, cursor, opencode, amp (all configured from `modules/home/programs/llm/`)
-          - Shell: zsh; scripts in `hack/` are bash with `set -euo pipefail`, formatted by `shfmt -i 2 -ci -sr -s`
-          - Formatter: `nixfmt-rfc-style` via `nix fmt`
-          - Session manager: seshy (`sy`) for multi-repo feature work via git worktrees; sessions at `~/.local/state/seshy/sessions/`
-        '';
-
-        commands = ''
-          ## Commands
-
-          ```bash
-          nix flake check          # validate flake (run before commits)
-          nh darwin build          # build current host config (no system change)
-          nh darwin switch         # apply config to system (use deliberately)
-          nix fmt                  # format all Nix files
-          task fmt:sh              # format hack/ shell scripts
-          task fmt:sh:check        # verify shell formatting only
-          task openspec:sync       # detect drift in the forked openspec schema
-          ./hack/update-pi.sh      # report pi package drift
-          openspec schema validate rosh-spec-driven
-          sy list                  # list active seshy sessions
-          sy new <name> [repos...] # create session with worktrees (explicit repos = non-interactive)
-          sy status <name>         # inspect session repos and branches
-          sy path <name>           # print session directory (for cd / script use)
-          specutil graph --as mermaid  # cross-change dependency DAG
-          specutil check           # rubric-lint a change (deterministic gate)
-          specutil web             # HTML work-graph visualization (opens browser)
-          specutil render --as rfc|design|tickets --change <name>
-          specutil plan --target linear|notion --change <name>
-          ```
-        '';
-
         conventions = ''
           ## Conventions
 
           - Normative keywords (MUST/SHOULD/MAY) here and in skills follow RFC 2119 (https://datatracker.ietf.org/doc/html/rfc2119); "never"/"always" rules are MUST-level
-          - Conventional commits, title-only, no body
-          - One concern per commit; no formatting-only mixed with behavioral changes
-          - Read context files (`AGENTS.md`, `openspec/`, `.sysinit/lessons.md`) before authoring
-          - Edit existing files; create a new file only when no existing file can hold the change
-          - Skills are the source of truth for domain rules; consult them via `${skillsRoot}/`
-          - Use the globally managed OpenSpec CLI/skills when OpenSpec is relevant; run `openspec init` only to create project artifacts, not to install workflow support
-          - On unexpected errors: stop, preserve evidence, fix root cause (no `--no-verify`)
-          - Use `nix-shell` / `nix develop` for dependencies; avoid global installers
-          - Finding code: `ast-grep outline` to map a file or directory before reading it (mainstream languages; it is silent on Nix and Lua, so skip it there), `ast-grep`/`sg` (or the ast-grep MCP) for structural search in any language including Nix and Lua, `grep`/`rg` only for literal text. Skills: `ast-grep-outline`, `ast-grep`, `search-code-routing`.
-          - Use Explore as the explicit planning subagent for discovery/scoping work; prefer librarian for external docs/code and oracle for deep architecture review
-          - For multi-repo feature work, start a seshy session: `sy new <name> [repos...]`; never run bare `sy` (opens interactive picker)
-          - openspec and seshy are first-class: check for active openspec changes (`openspec/changes/`) and seshy sessions (`sy list`) before scoping new work
-        '';
-
-        communication = ''
-          ## Communication
-
-          Governs how you write output: chat replies, PR bodies, review comments, docs. Code comments and commits keep their own skills (`writing-code-comments`, `writing-commit-message`). For longer prose in Roshan's name, also apply `writing-tone`.
-
-          Standards basis: ISO 24495-1:2023 (relevant, findable, understandable, usable); W3C Cognitive Accessibility Guidance (clear words, literal language, short text, separate steps, no reliance on memory); US Plain Writing Act (understandable on first reading); JAN ADHD guidance (written, structured, step-by-step instructions).
-
-          - Write in Simplified Technical English (ASD-STE100, https://www.asd-ste100.org/). You MUST: use one instruction per sentence; keep procedure sentences to 20 words or fewer and descriptive sentences to 25 or fewer; keep paragraphs to 6 sentences or fewer; use active voice; use simple present, past, future, or imperative verbs; avoid gerund chains and stacked auxiliaries.
-          - One word, one meaning: pick a single term for a concept and reuse it. You MUST NOT vary the term for style.
-          - Use only terms already established in this repo, its skills, or the standard vocabulary of the tool at hand (Nix, git, k8s, the shell). You MUST NOT invent metaphors, idioms, or coined phrases. Banned examples of made-up or off-convention terms: "belt-and-suspenders", "rung", "north star", "load-bearing", "table stakes". If a term does not appear in this repo or the tool's own docs, do not use it.
-          - Do not use em-dashes in prose. Use a comma, colon, or new sentence instead.
-          - Do not bold the first term in a bullet. Use sub-bullets for detail instead.
-          - Shape output so a reader with ADHD can act on it:
-            - Lead with the action or answer, not preamble or context.
-            - Number multi-step work; each step is one bounded action.
-            - End with the next concrete action.
-            - Restate the current state each turn; the reader does not hold context between messages.
-            - Give concrete size or time estimates, not vague ones.
-            - Make completed work visible; state errors matter-of-factly (cause, then fix).
-            - Cap lists at 5 items; rank or split longer lists.
-            - No preamble, recap, or pleasantries.
-          - Break these rules only when: the user asks you to "explain" or "walk through", you must confirm a destructive action, you are naming the wrong assumption in a debug spiral, or the request has real ambiguity.
-
-          Good: "Run `nix flake check`. It found 2 errors. Fix line 42, then rerun."
-          Avoid: "You might want to consider running the formatter. It could potentially help with linting."
-          Good bullet: "- nix fmt: formats all Nix files" or "- nix fmt" with a sub-bullet for detail.
-          Avoid bullet: "- **nix fmt** formats all Nix files" (bold term diminishes clarity; use plain text).
+          - Read the repository's own context before authoring: `AGENTS.md`, `openspec/`, `.sysinit/lessons.md`
+          - Write code that reads like the code around it: match its comment density, naming, and idiom
+          - Edit an existing file; create a new file only when no existing file can hold the change
+          - Conventional commits, title-only, no body; one concern per commit, and no formatting-only change mixed with a behavioral one
+          - Get dependencies from `nix-shell` or `nix develop`, not from a global installer
+          - On an unexpected error: stop, preserve the evidence, fix the root cause
+          - Skills hold the domain rules and the tool routing; load the skill from `${skillsRoot}/` instead of working from memory
+          - Pick a {{agent}} by reading its own definition; the definitions carry the use-when and avoid-when rules
+          - openspec and seshy are machine-wide: check `openspec/changes/` and `sy list` before you scope new work
         '';
 
         skills = ''
           ## Skills
 
-          Skills live at `${skillsRoot}/<name>/SKILL.md`, generated from `modules/home/programs/llm/skills/default.nix`. Read a skill's own file for what it does and when it applies.
+          Skills live at `${skillsRoot}/<name>/SKILL.md`. This harness has no skill loader, so read a skill's file directly when its name matches the task.
 
           ${skillsList}
         '';
@@ -157,32 +112,19 @@ let
           - Never edit hand-managed configuration when a Nix-managed equivalent exists; edit the Nix source that generates it instead
           - Never auto-update vendored upstream content; let the sync scripts surface drift instead
         '';
-
-        context = ''
-          ## Context
-
-          - `.sysinit/` is gitignored scratch space for lessons and PRD notes; check `.sysinit/lessons.md` at session start
-          - OpenSpec artifacts live at `openspec/changes/<name>/`; the active schema is `rosh-spec-driven`
-          - `rosh-spec-driven` is the machine-wide default: it is installed to `~/.local/share/openspec/schemas/` and the openspec CLI default is patched (`overlays/openspec.nix`), so bare `openspec init` picks it everywhere. In a repo shared with others, pin `schema: spec-driven` (or `openspec init --schema spec-driven`), because the fork is not distributed and a teammate without it gets a "schema not found" error
-          - User-level `~/.config/git/ignore` already excludes `**/.claude/`, `**/.agents/`; do not duplicate in per-project `.gitignore`
-          - Seshy sessions live at `~/.local/state/seshy/sessions/`; run `sy list` to discover active sessions before starting new feature work
-          - Cross-harness memory: `basic-memory` MCP is available to all agents; use it for notes and context that must survive across harness boundaries
-          - specutil is on PATH: use `specutil graph --as mermaid` to show the cross-change dependency DAG before planning, `specutil check` as the deterministic rubric gate, and `specutil web` to open the HTML work graph
-          - When exploring or planning work that touches openspec changes, always call `specutil graph` first to understand the current DAG
-        '';
       };
 
       order = [
-        "stack"
-        "commands"
         "conventions"
-        "communication"
-        "skills"
-        "context"
+      ]
+      ++ lib.optional (builtins.elem harness harnessesWithoutSkillLoader) "skills"
+      ++ [
         "prohibitions"
       ];
 
-      rendered = builtins.concatStringsSep "\n" (map (key: sections.${key}) order);
+      rendered = vocab.applyVocab harness (
+        builtins.concatStringsSep "\n" (map (key: sections.${key}) order)
+      );
 
       lineCount =
         let
@@ -191,19 +133,26 @@ let
         in
         builtins.length stringParts;
 
-      maxLines = 200;
+      # Sized to the cross-repo rules plus headroom for one more section. A
+      # breach means a repository fact or a domain rule leaked in; move it to
+      # that repository's AGENTS.md or to the owning skill instead of raising
+      # the cap.
+      maxLines = 45;
     in
     if lineCount > maxLines then
-      throw "instructions.nix: rendered context exceeds ${toString maxLines} lines (got ${toString lineCount}). Trim sections or split per-agent extensions."
+      throw "instructions.nix: rendered context exceeds ${toString maxLines} lines (got ${toString lineCount}). Move repo-specific facts to that repo's AGENTS.md and domain rules to the owning skill."
     else
       rendered;
 
-  # Compact, operationally-enforced output rules. No frontmatter — that is
-  # added by the consumer (claude.nix wraps these in the output-style file
-  # header; makeInstructionsWithStyle appends them as a plain section).
+  # Compact, operationally-enforced output rules. Sole source for how the model
+  # writes: no context section restates them. No frontmatter — that is added by
+  # the consumer (claude.nix wraps these in the output-style file header;
+  # makeInstructionsWithStyle appends them as a plain section).
   #
-  # Aligned with: ISO 24495-1:2023, W3C Cognitive Accessibility Guidance,
-  # US Plain Writing Act, JAN ADHD guidance.
+  # These caps are accessibility requirements (ISO 24495-1:2023, W3C Cognitive
+  # Accessibility Guidance, US Plain Writing Act, JAN ADHD guidance), not
+  # guardrails against model error, so they stay stated as exact numbers rather
+  # than as judgment calls.
   outputStyleRules = ''
     Write all output in Simplified Technical English (ASD-STE100).
 
@@ -212,6 +161,11 @@ let
     short text, separate steps, no reliance on memory); US Plain Writing Act
     (understandable on first reading); JAN ADHD guidance (written, structured,
     step-by-step instructions).
+
+    Scope: chat replies, PR bodies, review comments, and docs. Code comments and
+    commit messages follow the `writing-code-comments` and
+    `writing-commit-message` skills. Longer prose in Roshan's name also follows
+    `writing-tone`.
 
     - Use one instruction per sentence. Keep procedure sentences to 20 words or
       fewer and descriptive sentences to 25 or fewer. Keep paragraphs to 6

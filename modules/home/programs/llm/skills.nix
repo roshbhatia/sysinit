@@ -6,6 +6,7 @@
 
 let
   registry = import ./skills { inherit pkgs lib; };
+  vocab = import ./lib/vocab.nix { inherit lib; };
 
   requiredSkills = [
     "shell-script-authoring"
@@ -181,6 +182,9 @@ let
 
       frontmatter = builtins.concatStringsSep "\n" frontmatterLines + "\n";
 
+      # applyVocab runs over the whole rendered file, frontmatter included, so a
+      # description that names a spawned helper agent uses the same word the
+      # harness's own tools use. See lib/vocab.nix.
       forced = builtins.deepSeq [
         _ck
         _nk
@@ -188,7 +192,7 @@ let
         _bk
         _ak
         _requiredCheck
-      ] (frontmatter + normativePreamble + skill.content);
+      ] (vocab.applyVocab harness (frontmatter + normativePreamble + skill.content));
     in
     forced;
 

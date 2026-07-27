@@ -103,7 +103,7 @@
   };
 
   openspec-workflow = {
-    description = "Uses the global OpenSpec workflow for spec-driven repositories without relying on per-project openspec init scaffolding. Use when a task mentions OpenSpec, proposals, designs, specs, tasks, or named changes, and prefer the Explore planning subagent for discovery before implementation.";
+    description = "Uses the global OpenSpec workflow for spec-driven repositories without relying on per-project openspec init scaffolding. Use when a task mentions OpenSpec, proposals, designs, specs, tasks, or named changes, and prefer the Explore planning {{agent}} for discovery before implementation.";
     content = import ./openspec-workflow.nix;
     allowed-tools = "Bash(openspec:*) Bash(specutil:*) Read Glob";
   };

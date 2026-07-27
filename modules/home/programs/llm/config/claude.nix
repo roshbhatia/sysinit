@@ -10,7 +10,10 @@ let
 
   profileBin = "${config.home.profileDirectory}/bin";
 
-  defaultInstructions = kit.mkInstructions "~/.claude/skills";
+  defaultInstructions = kit.mkInstructions {
+    harness = "claude";
+    skillsRoot = "~/.claude/skills";
+  };
 
   statuslineScript = pkgs.writeShellScript "claude-statusline" (builtins.readFile ./statusline.sh);
 

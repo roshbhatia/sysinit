@@ -10,7 +10,7 @@
   ```
   How did the user phrase the window?   today (default) | date/range | repo filter | outcomes
   Entry's `summary` is null?            -> drain it (read the transcript, generate, cache back)
-  Many entries to drain?                -> fan out one subagent per session
+  Many entries to drain?                -> fan out one {{agent}} per session
   Transcript missing?                   -> recover by session_id, else infer and prefix summary with `~`
   Window empty?                         -> say so plainly and stop; do not invent activity
   ```
@@ -112,7 +112,7 @@
   when no transcript exists anywhere, synthesize from the line itself —
   `first_prompt`/`last_prompt` for intent, `commits[]`/`files[]` (or `diffstat`
   on older lines) for the change — and prefix the summary with `~`. For many
-  entries, fan out one subagent per session via the Agent tool.
+  entries, fan out one {{agent}} per session via the Agent tool.
 
   Cache summaries back through the script — it fills only null summaries and
   rewrites via temp-file + atomic `mv`:

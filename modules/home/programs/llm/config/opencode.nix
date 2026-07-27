@@ -15,7 +15,10 @@ let
   # that tree natively. Point instructions at the populated root, not a phantom
   # per-tool dir that holds no SKILL.md files.
   defaultInstructions =
-    kit.mkInstructions "~/.claude/skills"
+    kit.mkInstructions {
+      harness = "opencode";
+      skillsRoot = "~/.claude/skills";
+    }
     + ''
 
       ## OpenCode-specific Slack access

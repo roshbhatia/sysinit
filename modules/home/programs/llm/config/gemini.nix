@@ -100,7 +100,10 @@ in
     # the content the retired GEMINI.md carried. Skill references point at the
     # populated ~/.claude/skills root (same as the other harnesses).
     ".agents/AGENTS.md" = {
-      text = kit.mkInstructionsWithStyle "~/.claude/skills";
+      text = kit.mkInstructionsWithStyle {
+        harness = "gemini";
+        skillsRoot = "~/.claude/skills";
+      };
       force = true;
     };
 
