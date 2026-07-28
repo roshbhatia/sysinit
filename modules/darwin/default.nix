@@ -14,6 +14,7 @@
     ./borders.nix
     ./desktop.nix
     ./homebrew.nix
+    ./keybindings.nix
     ./macos-tools.nix
     ./ollama.nix
     ./security.nix

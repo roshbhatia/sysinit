@@ -47,6 +47,10 @@ subcommands: `feature-based-session-manager`, `openspec-workflow`, `specutil`.
   not found" error.
 - Editing a generated dotfile fails: a PreToolUse hook denies writes that
   resolve into `/nix/store`. Edit the Nix source instead.
+- `modules/darwin/keybindings.nix` must hold the complete AppleSymbolicHotKeys
+  dict, because `defaults write` replaces the whole dict. Read the machine with
+  `defaults read com.apple.symbolichotkeys` before you edit that set. A
+  downstream flake needs `lib.mkForce` to change an ID the base set defines.
 - A spawned helper agent is named per harness: Claude Code says "teammate",
   every other harness says "subagent". Author source text with the `{{agent}}`
   placeholder and let `modules/home/programs/llm/lib/vocab.nix` render it.

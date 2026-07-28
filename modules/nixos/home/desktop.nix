@@ -233,6 +233,11 @@ in
           "${mod}+Shift+Tab" = "workspace prev_on_output";
           "${mod}+p" = "workspace back_and_forth";
 
+          # Space switching, matching AppleSymbolicHotKeys 80 and 82 in
+          # modules/darwin/keybindings.nix
+          "Control+Shift+Left" = "workspace prev_on_output";
+          "Control+Shift+Right" = "workspace next_on_output";
+
           # Fullscreen
           "${mod}+f" = "fullscreen toggle";
 
