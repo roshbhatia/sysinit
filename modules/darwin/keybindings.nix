@@ -128,9 +128,149 @@ let
   hotkeyPrefs = {
     "com.apple.symbolichotkeys".AppleSymbolicHotKeys = lib.mapAttrs renderHotkey cfg.symbolicHotkeys;
   };
+
+  # A chord is compared as "<mods in fixed order>+<key>". macOS sets the fn bit
+  # on arrows and function keys and no other layer encodes it, so fn is left out
+  # or an arrow hotkey would never match a hand-written "ctrl+shift+left".
+  modNames = [
+    {
+      bit = 1048576;
+      name = "cmd";
+    }
+    {
+      bit = 262144;
+      name = "ctrl";
+    }
+    {
+      bit = 524288;
+      name = "alt";
+    }
+    {
+      bit = 131072;
+      name = "shift";
+    }
+  ];
+
+  keyNames = {
+    "2" = "d";
+    "3" = "f";
+    "8" = "c";
+    "12" = "q";
+    "15" = "r";
+    "18" = "1";
+    "36" = "enter";
+    "44" = "slash";
+    "46" = "m";
+    "48" = "tab";
+    "49" = "space";
+    "50" = "grave";
+    "53" = "escape";
+    "96" = "f5";
+    "97" = "f6";
+    "98" = "f7";
+    "99" = "f3";
+    "100" = "f8";
+    "103" = "f11";
+    "107" = "f14";
+    "113" = "f15";
+    "118" = "f4";
+    "120" = "f2";
+    "123" = "left";
+    "124" = "right";
+    "125" = "down";
+    "126" = "up";
+  };
+
+  # aerospace spells the same keys differently; fold both onto one vocabulary.
+  keyAliases = {
+    esc = "escape";
+    "/" = "slash";
+    "`" = "grave";
+  };
+  canonicalKey = k: keyAliases.${k} or k;
+
+  mkChord = mods: key: lib.concatStringsSep "+" ((map (m: m.name) mods) ++ [ (canonicalKey key) ]);
+
+  chordOfHotkey =
+    keys:
+    let
+      code = builtins.elemAt keys 1;
+      bits = builtins.elemAt keys 2;
+      present = lib.filter (m: lib.bitAnd bits m.bit != 0) modNames;
+    in
+    mkChord present (keyNames.${toString code} or "kc${toString code}");
+
+  # aerospace binding names look like "alt-shift-1"; the last token is the key.
+  chordOfBindingName =
+    name:
+    let
+      parts = lib.splitString "-" name;
+      given = lib.init parts;
+      present = lib.filter (m: lib.elem m.name given) modNames;
+    in
+    mkChord present (lib.last parts);
+
+  enabledHotkeys = lib.mapAttrsToList (id: hk: {
+    inherit id;
+    chord = chordOfHotkey hk.keys;
+  }) (lib.filterAttrs (_: hk: hk.enable && hk.keys != null) cfg.symbolicHotkeys);
+
+  sharedChords = lib.filterAttrs (_: es: builtins.length es > 1) (
+    lib.groupBy (e: e.chord) enabledHotkeys
+  );
+
+  reservedHits = lib.filter (e: cfg.reservedChords ? ${e.chord}) enabledHotkeys;
+
+  aerospaceModes = lib.attrByPath [ "services" "aerospace" "settings" "mode" ] { } config;
+  aerospaceChords = lib.unique (
+    lib.concatMap (m: map chordOfBindingName (builtins.attrNames (m.binding or { }))) (
+      builtins.attrValues aerospaceModes
+    )
+  );
+  aerospaceHits = lib.filter (
+    c: (cfg.reservedChords ? ${c}) || lib.any (e: e.chord == c) enabledHotkeys
+  ) aerospaceChords;
+
+  describe = es: lib.concatMapStringsSep ", " (e: "${e.chord} (ID ${e.id})") es;
 in
 {
   sysinit.darwin.keybindings.symbolicHotkeys = baseSymbolicHotkeys;
+
+  # Global chords held by layers that live outside Nix-readable config: raycast's
+  # own store, an Electron settings file, and hammerspoon lua.
+  sysinit.darwin.keybindings.reservedChords = {
+    "cmd+space" = "raycast";
+    "cmd+tab" = "hammerspoon window switcher";
+    "cmd+shift+tab" = "hammerspoon window switcher";
+    "cmd+]" = "hammerspoon vim-mode";
+    "cmd+enter" = "claude desktop quick entry";
+    "cmd+shift+enter" = "claude desktop quick entry dictation";
+    "cmd+alt+enter" = "goose desktop quick launcher";
+  };
+
+  # Nothing detects a chord fight at runtime: whichever layer registers first
+  # wins and the other silently never fires, which is how hammerspoon's cmd+]
+  # swallowed WezTerm's workspace cycle. Catch it at eval instead.
+  assertions = [
+    {
+      assertion = sharedChords == { };
+      message = "sysinit.darwin.keybindings: two enabled symbolic hotkeys claim one chord: ${
+        lib.concatStringsSep "; " (
+          lib.mapAttrsToList (
+            chord: es: "${chord} <- IDs ${lib.concatMapStringsSep "/" (e: e.id) es}"
+          ) sharedChords
+        )
+      }";
+    }
+    {
+      assertion = reservedHits == [ ];
+      message = "sysinit.darwin.keybindings: enabled symbolic hotkey collides with a reserved chord: ${describe reservedHits}";
+    }
+    {
+      assertion = aerospaceHits == [ ];
+      message = "sysinit.darwin.keybindings: aerospace binding collides with a reserved chord or an enabled symbolic hotkey: ${lib.concatStringsSep ", " aerospaceHits}";
+    }
+  ];
 
   system.defaults.CustomUserPreferences = lib.recursiveUpdate appShortcutPrefs hotkeyPrefs;
 
