@@ -2036,7 +2036,7 @@ function M.setup(config)
       --
       -- The `^]`/`^[` workspace cycle is gone too: Ctrl+[ IS Escape at the
       -- terminal level, so that binding could never fire without also cancelling
-      -- the picker. SUPER+] / SUPER+[ already cycle workspaces from outside.
+      -- the picker. Cycle workspaces from the tree or the command palette.
       {
         key = "d",
         mods = "CTRL",
@@ -2239,33 +2239,13 @@ function M.setup(config)
         open_session_tree(win, pane)
       end),
     })
-    -- SUPER+] / SUPER+[ cycle workspaces (next/prev) without opening the tree,
-    -- mirroring nvim's buffer-cycle convention.
-    table.insert(config.keys, {
-      key = "]",
-      mods = "SUPER",
-      action = wezterm.action_callback(function(win, pane)
-        if keybindings.locked_mode then
-          win:perform_action({ SendKey = { key = "]", mods = "SUPER" } }, pane)
-          return
-        end
-        win:perform_action(wezterm.action.SwitchWorkspaceRelative(1), pane)
-      end),
-    })
-    table.insert(config.keys, {
-      key = "[",
-      mods = "SUPER",
-      action = wezterm.action_callback(function(win, pane)
-        if keybindings.locked_mode then
-          win:perform_action({ SendKey = { key = "[", mods = "SUPER" } }, pane)
-          return
-        end
-        win:perform_action(wezterm.action.SwitchWorkspaceRelative(-1), pane)
-      end),
-    })
+    -- No SUPER+] / SUPER+[ workspace cycle: hammerspoon's vim-mode owns cmd+]
+    -- as a global hs.hotkey, which wins over the focused app, so SUPER+] could
+    -- never reach WezTerm. Cycle from the SUPER+s tree or the command palette.
 
     -- Command palette (reachable via SUPER+: / SUPER+; / CTRL+;): the tree, the
-    -- plain workspace switcher, and previous-workspace.
+    -- plain workspace switcher, previous-workspace, and the next/prev cycle that
+    -- used to be SUPER+] / SUPER+[.
     wezterm.on("augment-command-palette", function(_window, _pane)
       return {
         {
@@ -2281,6 +2261,14 @@ function M.setup(config)
         {
           brief = "Switch to previous workspace",
           action = wm.switch_to_previous_workspace(),
+        },
+        {
+          brief = "Next workspace",
+          action = wezterm.action.SwitchWorkspaceRelative(1),
+        },
+        {
+          brief = "Previous workspace",
+          action = wezterm.action.SwitchWorkspaceRelative(-1),
         },
       }
     end)
