@@ -32,6 +32,7 @@ let
   baseCasks = [
     "1password"
     "1password-cli"
+    "block-goose"
     "firefox"
     "font-sf-mono-nerd-font-ligaturized"
     "font-symbols-only-nerd-font"
