@@ -112,6 +112,7 @@ in
   imports = [
     ./openspec-schema.nix
     ./citation-tools
+    ./config/acp.nix
     ./config/amp.nix
     ./config/claude.nix
     ./config/codex.nix

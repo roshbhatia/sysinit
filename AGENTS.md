@@ -14,6 +14,8 @@ not restate any of those here.
   `rosh-spec-driven` schema is the CLI default
 - Harness configs all generate from `modules/home/programs/llm/`: claude-code,
   codex, gemini, cursor, opencode, amp, crush, devin, pi
+- ACP adapter commands live in one registry, `lib/acp.nix`, rendered to
+  `~/.config/acp/agents.json`. No ACP client is installed yet.
 - `hack/` scripts are bash with `set -euo pipefail`, formatted by
   `shfmt -i 2 -ci -sr -s`
 - Nix formatter is `nixfmt-rfc-style`
