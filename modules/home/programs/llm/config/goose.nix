@@ -79,6 +79,47 @@ let
     chmod u+w "$target"
   '';
 
+  # Goose Desktop keeps its own shortcuts in Electron userData, not XDG, and
+  # ships defaults of cmd+alt+G (focus) and cmd+alt+shift+G (quick launcher).
+  # quickLauncher is the counterpart to Claude Desktop's cmd+enter quick entry,
+  # so it gets cmd+alt+enter: the same Enter key, one modifier along, and clear
+  # of aerospace's bare alt+enter. The chord is registered in
+  # modules/darwin/keybindings.nix so the conflict assertion knows it is taken.
+  #
+  # Key names read from the 1.44.0 app bundle, not a documented API, so an
+  # upgrade could rename them. Goose fills the rest of keyboardShortcuts from
+  # its own defaults, so writing this one key is enough.
+  gooseDesktopSettingsBase = pkgs.writeText "goose-desktop-settings-base.json" (
+    builtins.toJSON {
+      keyboardShortcuts.quickLauncher = "CommandOrControl+Alt+Enter";
+    }
+  );
+
+  # Goose Desktop rewrites settings.json whenever a setting changes, so this
+  # merges at activation like config.yaml above rather than symlinking.
+  updateGooseDesktopSettings = pkgs.writeShellScript "update-goose-desktop-settings" ''
+    set -euo pipefail
+
+    target="$HOME/Library/Application Support/Goose/settings.json"
+    mkdir -p "$(dirname "$target")"
+
+    if [ -L "$target" ]; then
+      rm -f "$target"
+    fi
+
+    merged="$(mktemp "''${target}.tmp.XXXXXX")"
+    trap 'rm -f "$merged"' EXIT
+
+    if [ -f "$target" ]; then
+      ${pkgs.jq}/bin/jq -s '.[0] * .[1]' "$target" ${gooseDesktopSettingsBase} > "$merged"
+    else
+      cp ${gooseDesktopSettingsBase} "$merged"
+    fi
+
+    mv "$merged" "$target"
+    chmod u+w "$target"
+  '';
+
 in
 {
   home.sessionVariables = {
@@ -100,6 +141,12 @@ in
   home.activation.gooseConfig = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
     $DRY_RUN_CMD ${updateGooseConfig}
   '';
+
+  home.activation.gooseDesktopSettings = lib.mkIf pkgs.stdenv.isDarwin (
+    lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+      $DRY_RUN_CMD ${updateGooseDesktopSettings}
+    ''
+  );
 
   home.packages = [ pkgs.goose-cli ];
 }
