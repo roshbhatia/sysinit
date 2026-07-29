@@ -484,9 +484,21 @@
                   fi
                 done < <(find "$src" -name '*.zsh' | sort)
 
+                # A single aggregate guard is vacuous once the scan root holds
+                # more than the subtree you care about: deleting the whole zsh
+                # module still leaves other files and the check passes. Assert
+                # each subtree contributes, so a move fails loudly.
+                require_nonempty() {
+                  if [ "$(find "$1" -name "$2" | wc -l)" -eq 0 ]; then
+                    echo "FAIL: $1 contributed no $2 files." >&2
+                    echo "It moved or was renamed, and this check stopped covering it." >&2
+                    fail=1
+                  fi
+                }
+                require_nonempty "$src/home/programs/zsh" '*.zsh'
+
                 if [ "$found" -eq 0 ]; then
-                  echo "FAIL: no .zsh fragments found under the zsh module." >&2
-                  echo "The module moved and this check silently stopped covering it." >&2
+                  echo "FAIL: no .zsh fragments found under modules/." >&2
                   exit 1
                 fi
                 if [ "$fail" -ne 0 ]; then
@@ -506,8 +518,8 @@
           # errors with file and line and never runs the chunk.
           #
           # Lua 5.4 is the dialect WezTerm embeds. Same zero-file guard as above.
-          wezterm-lua-parses =
-            pkgs.runCommand "wezterm-lua-parse-check"
+          lua-parses =
+            pkgs.runCommand "lua-parse-check"
               {
                 nativeBuildInputs = [ pkgs.lua5_4 ];
               }
@@ -524,16 +536,30 @@
                   fi
                 done < <(find "$src" -name '*.lua' | sort)
 
+                # Same reasoning as the zsh check: `found -eq 0` never fires once
+                # the scan root spans several Lua homes. Verified: deleting
+                # wezterm/lua left 22 files and the check still passed while
+                # reporting success. Each home must contribute.
+                require_nonempty() {
+                  if [ "$(find "$1" -name '*.lua' | wc -l)" -eq 0 ]; then
+                    echo "FAIL: $1 contributed no .lua files." >&2
+                    echo "It moved or was renamed, and this check stopped covering it." >&2
+                    fail=1
+                  fi
+                }
+                require_nonempty "$src/home/programs/wezterm/lua"
+                require_nonempty "$src/darwin/home/hammerspoon"
+                require_nonempty "$src/darwin/home/sketchybar/lua"
+
                 if [ "$found" -eq 0 ]; then
                   echo "FAIL: no .lua files found under modules/." >&2
-                  echo "The module moved and this check silently stopped covering it." >&2
                   exit 1
                 fi
                 if [ "$fail" -ne 0 ]; then
                   echo "Fix the module; a parse error drops WezTerm to its defaults." >&2
                   exit 1
                 fi
-                echo "OK: $found wezterm lua files parse" | tee "$out"
+                echo "OK: $found lua files parse" | tee "$out"
               '';
 
           # shellcheck gate for the authored shell scripts.
@@ -571,8 +597,16 @@
                   case "$f" in
                     *.sh) ;;
                     *)
-                      head -n1 "$f" 2> /dev/null \
-                        | grep -qE '^#!.*[/ ](bash|sh)$' || continue
+                      # Not `$`-anchored: `#!/usr/bin/env bash -e` and
+                      # `#!/bin/bash --posix` are exactly how a script escapes a
+                      # `$`-anchored pattern. zsh is excluded explicitly, since
+                      # those files belong to the zsh parse check.
+                      shebang="$(head -n1 "$f" 2> /dev/null)"
+                      case "$shebang" in
+                        *zsh*) continue ;;
+                      esac
+                      printf '%s' "$shebang" \
+                        | grep -qE '^#!.*[/ ](ba)?sh([[:space:]]|$)' || continue
                       ;;
                   esac
                   found=$((found + 1))
@@ -581,9 +615,22 @@
                   fi
                 done < <(find "$src" -type f ! -path '*/.git/*' | sort)
 
+                # Per-subtree, for the reason given in the zsh and lua checks: a
+                # whole-source `found -eq 0` guard never fires. Verified: deleting
+                # modules/ left 6 files and the check still passed.
+                require_nonempty() {
+                  if [ "$(find "$1" -type f \( -name '*.sh' -o -name 'pre-commit' \) | wc -l)" -eq 0 ]; then
+                    echo "FAIL: $1 contributed no shell scripts." >&2
+                    echo "It moved or was renamed, and this check stopped covering it." >&2
+                    fail=1
+                  fi
+                }
+                require_nonempty "$src/modules/home/programs/llm/config"
+                require_nonempty "$src/hack"
+                require_nonempty "$src/.githooks"
+
                 if [ "$found" -eq 0 ]; then
                   echo "FAIL: no shell scripts found in the flake source." >&2
-                  echo "The scan root moved and this check silently stopped covering it." >&2
                   exit 1
                 fi
                 if [ "$fail" -ne 0 ]; then
