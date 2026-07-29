@@ -19,7 +19,7 @@ fi
 for pkg in "${packages[@]}"; do
   overlay_file="${OVERLAY_DIR}/${pkg}.nix"
 
-  if [[ ! -f "${overlay_file}" ]]; then
+  if [[ ! -f ${overlay_file} ]]; then
     echo "SKIP: ${overlay_file} not found"
     continue
   fi
@@ -67,7 +67,7 @@ for pkg in "${packages[@]}"; do
   # nix outputs: specified: sha256-FAKE got:    sha256-REAL
   correct_hash=$(echo "${build_output}" | grep -o 'got: *sha256-[A-Za-z0-9+/]*=*' | head -1 | sed 's/got: *//' || true)
 
-  if [[ -z "${correct_hash}" ]]; then
+  if [[ -z ${correct_hash} ]]; then
     echo "ERROR: Could not parse vendorHash for ${pkg} from build output:"
     echo "${build_output}" | tail -30
     mv "${overlay_file}.bak" "${overlay_file}"

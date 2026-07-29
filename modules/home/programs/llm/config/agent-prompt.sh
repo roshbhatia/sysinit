@@ -58,14 +58,19 @@ if [ "$eff_reason" = "attention" ]; then
     idle_prompt) eff_reason="idle" ;;
     agent_completed) eff_reason="done" ;;
     auth_success | elicitation_complete | elicitation_response)
-      plain_notify; exit 0 ;;
+      plain_notify
+      exit 0
+      ;;
     "")
       case "$msg" in
         *[Pp]ermission* | *[Aa]pprov* | *[Cc]onfirm*) eff_reason="approval" ;;
         *idle* | *[Ww]aiting* | *[Ii]nput*) eff_reason="idle" ;;
       esac
       ;;
-    *) plain_notify; exit 0 ;;
+    *)
+      plain_notify
+      exit 0
+      ;;
   esac
 fi
 

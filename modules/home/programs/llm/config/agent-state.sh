@@ -60,8 +60,8 @@ case "$reason_src" in
     # the turn-start timestamp so agent-notify can gate done-notifications on
     # elapsed time (avoids pinging for quick 1-second replies).
     reason="thinking"
-    if mkdir -p "$state_dir" 2>/dev/null; then
-      printf '%s' "$since" > "$state_dir/$WEZTERM_PANE.start" 2>/dev/null || true
+    if mkdir -p "$state_dir" 2> /dev/null; then
+      printf '%s' "$since" > "$state_dir/$WEZTERM_PANE.start" 2> /dev/null || true
     fi
     ;;
   tool)

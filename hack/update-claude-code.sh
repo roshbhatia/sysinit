@@ -13,7 +13,7 @@ LOCK_FILE="overlays/claude-code-package-lock.json"
 CURRENT=$(grep -oP '(?<=version = ")[^"]+' "${OVERLAY_FILE}" | head -1)
 LATEST=$(curl -sf "https://registry.npmjs.org/@anthropic-ai/claude-code/latest" | jq -r '.version')
 
-if [[ "${LATEST}" == "${CURRENT}" ]]; then
+if [[ ${LATEST} == "${CURRENT}" ]]; then
   echo "OK: claude-code already at ${CURRENT}"
   exit 0
 fi
@@ -24,7 +24,7 @@ TGZ_URL="https://registry.npmjs.org/@anthropic-ai/claude-code/-/claude-code-${LA
 
 # Compute fetchzip hash (hash of unpacked content)
 echo "  Computing src hash..."
-RAW_HASH=$(nix-prefetch-url --type sha256 --unpack "${TGZ_URL}" 2>/dev/null)
+RAW_HASH=$(nix-prefetch-url --type sha256 --unpack "${TGZ_URL}" 2> /dev/null)
 SRC_HASH=$(nix hash convert --hash-algo sha256 --from nix32 --to sri "${RAW_HASH}")
 
 # Generate package-lock.json by extracting the package and running npm
@@ -32,12 +32,12 @@ echo "  Generating package-lock.json..."
 WORKDIR=$(mktemp -d)
 trap 'rm -rf "${WORKDIR}"' EXIT
 curl -sL "${TGZ_URL}" | tar -xz -C "${WORKDIR}"
-( cd "${WORKDIR}/package" && npm install --package-lock-only --ignore-scripts --quiet 2>/dev/null )
+(cd "${WORKDIR}/package" && npm install --package-lock-only --ignore-scripts --quiet 2> /dev/null)
 cp "${WORKDIR}/package/package-lock.json" "${LOCK_FILE}"
 
 # Compute fetchNpmDeps hash
 echo "  Computing npm deps hash..."
-NPM_DEPS_HASH=$(nix run nixpkgs#prefetch-npm-deps -- "${LOCK_FILE}" 2>/dev/null)
+NPM_DEPS_HASH=$(nix run nixpkgs#prefetch-npm-deps -- "${LOCK_FILE}" 2> /dev/null)
 
 # Update overlay
 cp "${OVERLAY_FILE}" "${OVERLAY_FILE}.bak"

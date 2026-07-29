@@ -88,10 +88,10 @@ if [ "$reason" = "attention" ]; then
       case "$msg" in
         *[Pp]ermission* | *[Aa]pprov* | *[Cc]onfirm*) reason="approval" ;;
         *idle* | *[Ww]aiting* | *[Ii]nput*) reason="idle" ;;
-        *) exit 0 ;;  # Unclassified — suppress rather than spam
+        *) exit 0 ;; # Unclassified — suppress rather than spam
       esac
       ;;
-    *) exit 0 ;;  # Unknown notification_type — suppress
+    *) exit 0 ;; # Unknown notification_type — suppress
   esac
 fi
 
@@ -102,8 +102,8 @@ fi
 if [ "$reason" = "done" ] && [ -n "${WEZTERM_PANE:-}" ]; then
   start_file="${XDG_STATE_HOME:-$HOME/.local/state}/agents/panes/$WEZTERM_PANE.start"
   if [ -f "$start_file" ]; then
-    start=$(cat "$start_file" 2>/dev/null) || start=0
-    now=$(date +%s 2>/dev/null) || now=0
+    start=$(cat "$start_file" 2> /dev/null) || start=0
+    now=$(date +%s 2> /dev/null) || now=0
     elapsed=$((now - start))
     [ "$elapsed" -lt 60 ] && exit 0
   fi
@@ -113,15 +113,15 @@ fi
 # so a stuck or repeatedly idle agent doesn't flood the notification centre.
 if [ "$reason" = "idle" ]; then
   notif_dir="${XDG_STATE_HOME:-$HOME/.local/state}/agents/notif"
-  mkdir -p "$notif_dir" 2>/dev/null || true
+  mkdir -p "$notif_dir" 2> /dev/null || true
   dedup_file="$notif_dir/${agent}_idle"
   if [ -f "$dedup_file" ]; then
-    last=$(cat "$dedup_file" 2>/dev/null) || last=0
-    now=$(date +%s 2>/dev/null) || now=0
+    last=$(cat "$dedup_file" 2> /dev/null) || last=0
+    now=$(date +%s 2> /dev/null) || now=0
     elapsed=$((now - last))
     [ "$elapsed" -lt 300 ] && exit 0
   fi
-  printf '%s' "$(date +%s 2>/dev/null || printf '0')" > "$dedup_file" 2>/dev/null || true
+  printf '%s' "$(date +%s 2> /dev/null || printf '0')" > "$dedup_file" 2> /dev/null || true
 fi
 
 # --- reason -> wording + sound (sounds are names under /System/Library/Sounds) ---
@@ -143,8 +143,8 @@ case "$reason" in
     ;;
   done)
     what="finished its turn"
-    sound="Ping"      # clean single tone — satisfying completion signal
-    notif_timeout=30  # auto-dismiss after 30 s; done is informational
+    sound="Ping"     # clean single tone — satisfying completion signal
+    notif_timeout=30 # auto-dismiss after 30 s; done is informational
     ;;
   *)
     what="needs your attention"

@@ -14,7 +14,7 @@
 
 input="$(cat)"
 
-path="$(printf '%s' "$input" | jq -r '.tool_input.file_path // .tool_input.notebook_path // empty' 2>/dev/null)"
+path="$(printf '%s' "$input" | jq -r '.tool_input.file_path // .tool_input.notebook_path // empty' 2> /dev/null)"
 
 # Nothing to inspect -> let the normal tiers handle it.
 if [ -z "$path" ]; then
@@ -35,9 +35,9 @@ deny() {
 # Resolve symlinks. A missing file is fine (a Write creating a new file), so
 # fall back to resolving the parent directory, which catches writes *into* a
 # store-linked directory.
-resolved="$(readlink -f "$path" 2>/dev/null)"
+resolved="$(readlink -f "$path" 2> /dev/null)"
 if [ -z "$resolved" ]; then
-  resolved="$(readlink -f "$(dirname "$path")" 2>/dev/null)"
+  resolved="$(readlink -f "$(dirname "$path")" 2> /dev/null)"
 fi
 
 if [ -z "$resolved" ]; then

@@ -10,7 +10,7 @@
 
 input="$(cat)"
 
-command="$(printf '%s' "$input" | jq -r '.tool_input.command // empty' 2>/dev/null)"
+command="$(printf '%s' "$input" | jq -r '.tool_input.command // empty' 2> /dev/null)"
 
 # Nothing to inspect -> let the normal tiers handle it.
 if [ -z "$command" ]; then

@@ -24,9 +24,9 @@ notifier=$(command -v alerter 2> /dev/null || true)
 if [ -n "$notifier" ] && [ -n "$pane" ]; then
   state_file="${XDG_STATE_HOME:-$HOME/.local/state}/agents/panes/$pane.json"
   if [ -f "$state_file" ]; then
-    _agent=$(jq -r '.agent // empty' "$state_file" 2>/dev/null || true)
-    _session=$(jq -r '.session // empty' "$state_file" 2>/dev/null || true)
-    _repo=$(jq -r '.repo // empty' "$state_file" 2>/dev/null || true)
+    _agent=$(jq -r '.agent // empty' "$state_file" 2> /dev/null || true)
+    _session=$(jq -r '.session // empty' "$state_file" 2> /dev/null || true)
+    _repo=$(jq -r '.repo // empty' "$state_file" 2> /dev/null || true)
     if [ -n "$_session" ] && [ -n "$_repo" ] && [ "$_session" != "$_repo" ]; then
       _context="$_session · $_repo"
     elif [ -n "$_session" ]; then
