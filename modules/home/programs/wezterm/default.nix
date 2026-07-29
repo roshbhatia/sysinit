@@ -102,11 +102,10 @@ in
     enableZshIntegration = true;
     enableBashIntegration = true;
 
+    # Only the package.path lines stay inline, because they are what make
+    # sysinit.pkg.* resolvable. Everything else lives in bootstrap.lua so the
+    # parse check covers it.
     extraConfig = ''
-      if wezterm.config_builder then
-        config = wezterm.config_builder()
-      end
-
       local home_dir = os.getenv("HOME") or (os.getenv("USER") and "/Users/" .. os.getenv("USER"))
       package.path = package.path
         .. ";"
@@ -116,12 +115,7 @@ in
         .. home_dir
         .. "/.config/wezterm/lua/?/init.lua"
 
-      require("sysinit.pkg.core").setup(config)
-      require("sysinit.pkg.events").setup(config)
-      require("sysinit.pkg.keybindings").setup(config)
-      require("sysinit.pkg.ui").setup(config)
-
-      return config
+      return require("sysinit.pkg.bootstrap").build()
     '';
   };
 

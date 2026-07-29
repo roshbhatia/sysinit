@@ -13,6 +13,9 @@ let
 
   coreInit = shellUtils.stripHeaders ./core/init.zsh;
   corePath = shellUtils.stripHeaders ./core/path.zsh;
+  coreCompinit = shellUtils.stripHeaders ./core/compinit.zsh;
+  coreZshenv = shellUtils.stripHeaders ./core/zshenv.zsh;
+  corePathApply = shellUtils.stripHeaders ./core/path-apply.zsh;
   env = shellUtils.stripHeaders ./system/env.zsh;
   integrationsCompletions = shellUtils.stripHeaders ./integrations/completions.zsh;
   integrationsExtras = shellUtils.stripHeaders ./integrations/extras.zsh;
@@ -107,53 +110,33 @@ in
 
     initContent = lib.mkMerge [
       (lib.mkOrder 100 ''
-        # Source .zshenv for user-specific environment variables
-        [ -f "$HOME/.zshenv" ] && source "$HOME/.zshenv"
+        ${coreZshenv}
       '')
 
       (lib.mkOrder 200 ''
         ${coreInit}
       '')
 
-      (lib.mkOrder 300 "${corePath}\n\n# Add configured paths\npath.add.bulk \\\n  ${
-        lib.concatStringsSep " \\\n          " (map (path: "\"${path}\"") pathsList)
-      }\n")
+      # Only the array literal is generated. The loop that consumes it lives in
+      # core/path-apply.zsh so the parse check covers it.
+      (lib.mkOrder 300 ''
+        ${corePath}
+
+        SYSINIT_PATHS=(
+          ${lib.concatStringsSep "\n          " (map (path: "\"${path}\"") pathsList)}
+        )
+        ${corePathApply}
+      '')
 
       (lib.mkOrder 400 ''
         ${libCache}
       '')
 
+      # Only the Nix-derived cache path stays inline. Everything else lives in
+      # core/compinit.zsh so the parse check covers it.
       (lib.mkOrder 500 ''
-        mkdir -p ${config.xdg.cacheHome}/zsh
-        autoload -Uz compinit
-        compinit -C -d "${config.xdg.cacheHome}/zsh/zcompdump/.zcompdump"
-
-        # Include dotfiles in tab completion (fzf-tab inherits from zsh's
-        # underlying completion). Without globdots, `cd <tab>` and similar
-        # only show non-hidden entries; with it, dotfiles appear too.
-        setopt globdots
-
-        zstyle ':completion:*' use-cache on
-        zstyle ':completion:*' cache-path "${config.xdg.cacheHome}/zsh/zcompcache"
-        zstyle ':completion:*' list-colors ''${(s.:.)LS_COLORS}
-        zstyle ':completion:*' matcher-list 'm:{a-zA-Z}={A-Za-z}' 'r:|[._-]=* r:|=*' 'l:|=* r:|=*'
-        zstyle ':completion:*' menu no
-
-        zstyle ':completion:*' group-name '''
-        zstyle ':completion:*:descriptions' format '[%d]'
-        zstyle ':completion:*:git-checkout:*' sort false
-
-        zstyle ':fzf-tab:*' use-fzf-default-opts yes
-        zstyle ':fzf-tab:*' fzf-pad 4
-        zstyle ':fzf-tab:*' single-group color header
-        zstyle ':fzf-tab:*' show-group full
-        zstyle ':fzf-tab:*' fzf-flags --gutter=" " --preview-window=right:50%:wrap
-        zstyle ':fzf-tab:*' query-string ""
-        zstyle ':fzf-tab:*' continuous-trigger "/"
-        zstyle ':fzf-tab:*' fzf-bindings "tab:down" "btab:up" "enter:accept"
-
-        zstyle ':fzf-tab:complete:(bat|cat|cd|chafa|eza|ls|nvim|v|vi|vim):*' \
-          fzf-preview 'fzf-preview "''${realpath:-$word}"'
+        ZSH_CACHE_DIR="${config.xdg.cacheHome}/zsh"
+        ${coreCompinit}
       '')
 
       (lib.mkOrder 600 ''
