@@ -39,7 +39,9 @@ while [ -n "$osroot" ] && [ "$osroot" != "/" ]; do
 done
 changes_dir="$osroot/openspec/changes"
 if [ -n "$osroot" ] && [ -d "$changes_dir" ]; then
+  # shellcheck disable=SC2010 # mtime order is the point; a glob cannot sort by it
   active=$(ls -1t "$changes_dir" 2> /dev/null | grep -v '^archive$' | head -1)
+  # shellcheck disable=SC2010 # same
   count=$(ls -1t "$changes_dir" 2> /dev/null | grep -vc '^archive$')
   if [ -n "$active" ]; then
     if [ "${count:-1}" -gt 1 ]; then

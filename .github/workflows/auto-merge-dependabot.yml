@@ -13,10 +13,18 @@ jobs:
     if: github.actor == 'dependabot[bot]'
     runs-on: ubuntu-latest
     steps:
-      # Squash + delete branch — no branch protection or required checks
-      # gate this repo, so plain `gh pr merge` is sufficient. If checks
-      # are added later, swap `--squash` for `--auto --squash` so the
-      # merge waits for them.
+      # Squash + delete branch, queued behind the required checks.
+      #
+      # This used to be a plain `gh pr merge --squash` after `sleep 5`, from
+      # when no checks gated the repo. The `check` workflow now does, and a
+      # 5-second merge would land a flake.lock bump before that workflow had
+      # even started — the dependency bumps most likely to break the build were
+      # the ones least gated. `--auto` queues the merge until every required
+      # check passes.
+      #
+      # `--auto` needs two repo settings: auto-merge allowed, and the `verify`
+      # job required on main. Without them the command errors rather than
+      # merging early, which fails safe.
       #
       # PRs that modify workflow files require the `workflow` PAT scope —
       # GITHUB_TOKEN alone can't merge those. If WORKFLOWS_PAT is set
@@ -31,9 +39,9 @@ jobs:
           GH_TOKEN: ${{ secrets.WORKFLOWS_PAT || secrets.GITHUB_TOKEN }}
         run: |
           pr="${{ github.event.pull_request.number }}"
-          echo "Merging Dependabot PR #${pr}"
-          sleep 5
+          echo "Queuing Dependabot PR #${pr} for auto-merge"
           gh pr merge "${pr}" \
             --repo "${{ github.repository }}" \
+            --auto \
             --squash \
             --delete-branch

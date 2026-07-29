@@ -346,6 +346,145 @@
                 fi
                 echo "OK: citelock offline gate ($([ "$found" -eq 1 ] && echo 'all locks pass' || echo 'no locks present'))" | tee "$out"
               '';
+
+          # Parse gate for the zsh fragments `modules/home/programs/zsh/default.nix`
+          # interpolates into `programs.zsh.initContent`. Nothing else reads them
+          # before they reach a live shell, so a syntax error ships green and then
+          # breaks every new shell at once.
+          #
+          # The file set comes from the directory, not a list, so a fragment added
+          # to the module is covered without editing this check. A file set of zero
+          # is a failure: otherwise moving or renaming the directory makes the check
+          # pass vacuously.
+          #
+          # `zsh -n` parses without executing, so a fragment that references a
+          # function defined in another fragment still checks out.
+          zsh-fragments-parse =
+            pkgs.runCommand "zsh-fragments-parse-check"
+              {
+                nativeBuildInputs = [ pkgs.zsh ];
+              }
+              ''
+                src=${./modules}
+                found=0
+                fail=0
+                while IFS= read -r f; do
+                  [ -z "$f" ] && continue
+                  found=$((found + 1))
+                  if ! zsh -n "$f"; then
+                    echo "FAIL: $f does not parse" >&2
+                    fail=1
+                  fi
+                done < <(find "$src" -name '*.zsh' | sort)
+
+                if [ "$found" -eq 0 ]; then
+                  echo "FAIL: no .zsh fragments found under the zsh module." >&2
+                  echo "The module moved and this check silently stopped covering it." >&2
+                  exit 1
+                fi
+                if [ "$fail" -ne 0 ]; then
+                  echo "Fix the fragment; it is interpolated into every interactive shell." >&2
+                  exit 1
+                fi
+                echo "OK: $found zsh fragments parse" | tee "$out"
+              '';
+
+          # Parse gate for the WezTerm Lua modules. `default.nix` calls their
+          # `setup` functions from `extraConfig`, so a syntax error anywhere aborts
+          # the whole configuration and the terminal comes up on its built-in
+          # defaults, losing `default_prog`, `PATH`, and every keybinding.
+          #
+          # Parse only, never load: every module opens with `require("wezterm")`,
+          # which resolves only inside the WezTerm host. `luac -p` reports syntax
+          # errors with file and line and never runs the chunk.
+          #
+          # Lua 5.4 is the dialect WezTerm embeds. Same zero-file guard as above.
+          wezterm-lua-parses =
+            pkgs.runCommand "wezterm-lua-parse-check"
+              {
+                nativeBuildInputs = [ pkgs.lua5_4 ];
+              }
+              ''
+                src=${./modules}
+                found=0
+                fail=0
+                while IFS= read -r f; do
+                  [ -z "$f" ] && continue
+                  found=$((found + 1))
+                  if ! luac -p "$f"; then
+                    echo "FAIL: $f does not parse" >&2
+                    fail=1
+                  fi
+                done < <(find "$src" -name '*.lua' | sort)
+
+                if [ "$found" -eq 0 ]; then
+                  echo "FAIL: no .lua files found under modules/." >&2
+                  echo "The module moved and this check silently stopped covering it." >&2
+                  exit 1
+                fi
+                if [ "$fail" -ne 0 ]; then
+                  echo "Fix the module; a parse error drops WezTerm to its defaults." >&2
+                  exit 1
+                fi
+                echo "OK: $found wezterm lua files parse" | tee "$out"
+              '';
+
+          # shellcheck gate for the authored shell scripts.
+          #
+          # `pkgs.writeShellApplication` already runs shellcheck on what it wraps,
+          # but that only covers a script someone remembered to wrap. `statusline.sh`
+          # goes through `pkgs.writeShellScript`, which does not, and `hack/` scripts
+          # go through no derivation at all. Checking both directories wholesale
+          # means a script cannot escape analysis by not being wrapped.
+          #
+          # `-s bash` is explicit because most `llm/config` scripts are fragments
+          # concatenated into a wrapper and carry no shebang of their own.
+          #
+          # The scan covers the whole flake source rather than a list of
+          # directories. A directory list is itself the escape hatch: an earlier
+          # revision scanned only `llm/config` and `hack/`, which silently missed
+          # `citation-tools/citelock.sh`, `skills/scripts/worklog-query.sh`, and
+          # `.githooks/pre-commit`.
+          #
+          # Selection is by shebang as well as extension, so an extensionless
+          # script such as `.githooks/pre-commit` cannot escape by not being named
+          # `*.sh`. zsh shebangs are excluded: those files are zsh, not bash, and
+          # belong to the zsh parse check instead.
+          shell-scripts-shellcheck =
+            pkgs.runCommand "shell-scripts-shellcheck-check"
+              {
+                nativeBuildInputs = [ pkgs.shellcheck ];
+              }
+              ''
+                src=${./.}
+                found=0
+                fail=0
+                while IFS= read -r f; do
+                  [ -z "$f" ] && continue
+                  case "$f" in
+                    *.sh) ;;
+                    *)
+                      head -n1 "$f" 2> /dev/null \
+                        | grep -qE '^#!.*[/ ](bash|sh)$' || continue
+                      ;;
+                  esac
+                  found=$((found + 1))
+                  if ! shellcheck -s bash "$f"; then
+                    fail=1
+                  fi
+                done < <(find "$src" -type f ! -path '*/.git/*' | sort)
+
+                if [ "$found" -eq 0 ]; then
+                  echo "FAIL: no shell scripts found in the flake source." >&2
+                  echo "The scan root moved and this check silently stopped covering it." >&2
+                  exit 1
+                fi
+                if [ "$fail" -ne 0 ]; then
+                  echo "Fix the finding, or add a targeted 'shellcheck disable' with a reason." >&2
+                  exit 1
+                fi
+                echo "OK: $found shell scripts pass shellcheck" | tee "$out"
+              '';
         }
       );
 
@@ -355,6 +494,31 @@
           hostConfigs
           ;
       };
+
+      # `nh`, `shfmt`, `shellcheck`, and `lua` are the tools AGENTS.md's Commands
+      # section and the checks depend on. They were previously assumed present on
+      # the machine, which made `nh darwin build` unrunnable from a clean checkout
+      # (nh only reaches PATH after a switch; README.md bootstraps it via
+      # `nix run nixpkgs#nh`). This shell makes the documented commands true.
+      devShells = lib.genAttrs cacheSystems (
+        system:
+        let
+          pkgs = pkgsFor system;
+        in
+        {
+          default = pkgs.mkShellNoCC {
+            name = "sysinit-dev";
+            packages = [
+              pkgs.nh
+              pkgs.shfmt
+              pkgs.shellcheck
+              pkgs.lua5_4
+              pkgs.jq
+              pkgs.fd
+            ];
+          };
+        }
+      );
 
       templates = {
         discrete = {
@@ -382,17 +546,58 @@
               pkgs = nixpkgs.legacyPackages.${system};
             in
             pkgs.writeShellApplication {
-              name = "sysinit-nixfmt";
+              name = "sysinit-fmt";
               runtimeInputs = [
                 pkgs.fd
                 pkgs.nixfmt
+                pkgs.shfmt
               ];
+              # Formats Nix and shell. Shell was previously documented in
+              # AGENTS.md as `task fmt:sh`, which no Taskfile ever provided.
+              # Folding it in here means one command covers the repo and the tool
+              # comes from the flake rather than from whatever is on PATH.
+              #
+              # `--check` replaces the documented-but-absent `task fmt:sh:check`:
+              # it reports drift and exits non-zero without writing, so CI or a
+              # hook can verify formatting.
+              #
+              # Scope is `.sh` only. The `.zsh` fragments under the zsh module are
+              # zsh, not bash, and shfmt would mangle zsh-specific syntax.
               text = ''
-                if [ "$#" -gt 0 ]; then
-                  exec nixfmt "$@"
+                shfmt_flags=(-i 2 -ci -sr -s)
+
+                if [ "''${1:-}" = "--check" ]; then
+                  drift=0
+                  if ! fd --extension nix --type file --exec-batch nixfmt --check; then
+                    drift=1
+                  fi
+                  # `shfmt -l` exits non-zero when it lists a file. Without the
+                  # `|| true` the errexit that writeShellApplication sets kills
+                  # the script inside this substitution, and --check reports
+                  # nothing while still exiting 1.
+                  unformatted="$(fd --extension sh --type file \
+                    --exec-batch shfmt "''${shfmt_flags[@]}" -l || true)"
+                  if [ -n "$unformatted" ]; then
+                    echo "shfmt drift:" >&2
+                    echo "$unformatted" >&2
+                    drift=1
+                  fi
+                  [ "$drift" -eq 0 ] && echo "OK: formatting is clean"
+                  exit "$drift"
                 fi
 
-                exec fd --extension nix --type file --exec-batch nixfmt
+                if [ "$#" -gt 0 ]; then
+                  for target in "$@"; do
+                    case "$target" in
+                      *.sh) shfmt "''${shfmt_flags[@]}" -w "$target" ;;
+                      *) nixfmt "$target" ;;
+                    esac
+                  done
+                  exit 0
+                fi
+
+                fd --extension nix --type file --exec-batch nixfmt
+                fd --extension sh --type file --exec-batch shfmt "''${shfmt_flags[@]}" -w
               '';
             }
           );

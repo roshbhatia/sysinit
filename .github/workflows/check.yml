@@ -1,0 +1,71 @@
+name: Check
+
+# Runs `nix flake check` and builds the daily-driver host configuration.
+#
+# Deliberately has NO path filter. `build-cache` filters on flake.lock, flake.nix,
+# overlays, _sources, and nvfetcher.toml, which means a change under modules/ was
+# never built by CI at all. That is exactly the gap this job closes, so filtering
+# here would reproduce it.
+#
+# One job, two steps rather than two jobs: the host build reuses the store the
+# check step already populated, so the substitutions are paid once.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch: {}
+
+concurrency:
+  group: check-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    # macos-latest is aarch64-darwin, the platform the daily-driver host targets.
+    # `nix flake check` builds only the current system's checks, so running on
+    # Darwin covers the checks as the owner experiences them.
+    runs-on: macos-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: DeterminateSystems/nix-installer-action@v22
+
+      # Same gate as build-cache: a pull request from a fork has no secret, so
+      # read from the cache without pushing rather than failing the job.
+      - name: Detect Cachix token
+        id: cachix
+        run: |
+          if [ -n "${{ secrets.CACHIX_AUTH_TOKEN }}" ]; then
+            echo "enabled=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "enabled=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::CACHIX_AUTH_TOKEN not set — reading cache without pushing."
+          fi
+
+      - uses: cachix/cachix-action@v17
+        if: steps.cachix.outputs.enabled == 'true'
+        with:
+          name: roshbhatia
+          authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
+
+      - name: nix flake check
+        env:
+          NIX_CONFIG: "access-tokens = github.com=${{ secrets.GITHUB_TOKEN }}"
+        run: nix flake check --print-build-logs
+
+      # Evaluation-time assertions (the cross-layer keybinding chord check, the
+      # home-manager module assertions) do not fire under `nix flake check`,
+      # which reports the host configuration as "build skipped".
+      #
+      # Evaluate rather than build. The lv426 system closure is 17.9 GiB and a
+      # macos-latest runner has roughly 14 GB free, so `nix build` of it fails on
+      # disk before it can fail on anything useful. Forcing `.drvPath` evaluates
+      # the whole module tree, which is what fires the assertions, and takes about
+      # 10 seconds while materialising nothing. Verified by injecting a failing
+      # assertion: the eval aborts with its message.
+      - name: Evaluate host configuration (lv426)
+        env:
+          NIX_CONFIG: "access-tokens = github.com=${{ secrets.GITHUB_TOKEN }}"
+        run: nix eval --raw ".#darwinConfigurations.lv426.system.drvPath"

@@ -23,15 +23,24 @@ not restate any of those here.
 ## Commands
 
 ```bash
-nix flake check          # validate flake (run before commits)
-nh darwin build          # build current host config (no system change)
-nh darwin switch         # apply config to system (use deliberately)
-nix fmt                  # format all Nix files
-task fmt:sh              # format hack/ shell scripts
-task fmt:sh:check        # verify shell formatting only
-task openspec:sync       # detect drift in the forked openspec schema
-./hack/update-pi.sh      # report pi package drift
+nix develop                     # dev shell: nh, shfmt, shellcheck, lua, jq, fd
+nix flake check                 # validate flake (run before commits)
+nix fmt                         # format all Nix and .sh files
+nix fmt -- --check              # verify formatting, no writes
+nh darwin build                 # build current host config (no system change)
+nh darwin switch                # apply config to system (use deliberately)
+./hack/sync-openspec-schema.sh  # detect drift in the forked openspec schema
+./hack/update-pi.sh             # report pi package drift
 ```
+
+`nh` reaches PATH only after a switch, so run it from `nix develop` on a clean
+checkout. `README.md` bootstraps the first switch with `nix run nixpkgs#nh`.
+
+`nix flake check` gates the OpenSpec schema, the citation locks, and the parse
+of every authored fragment: zsh under the zsh module, Lua under the WezTerm
+module, and shellcheck over `hack/` and the LLM config scripts. CI runs it on
+every push to `main` and every pull request, plus a build of the `lv426` host so
+the evaluation-time assertions fire.
 
 `sy`, `openspec`, and `specutil` are machine-wide. Their own skills carry the
 subcommands: `feature-based-session-manager`, `openspec-workflow`, `specutil`.
