@@ -43,12 +43,12 @@
 - **STOP** an injected error in `ui.lua` degrades only `ui`, is reported visibly, and leaves the shell, environment, and keybindings intact
 - **MAX-ITERS** 3
 
-- [ ] 3.1 Gather: inject a deliberate runtime error into `ui.lua` on the current configuration, start WezTerm, and record the observed behavior in `design.md`; the current fallback is an assumption, not a recorded fact
-- [ ] 3.2 Act: restructure `extraConfig` in `modules/home/programs/wezterm/default.nix` so `core.setup` runs first and unguarded, and `events`, `keybindings`, and `ui` each run under `pcall`
-- [ ] 3.3 Act: add the failure report; name the module and carry the Lua error text; write to the WezTerm error log and to one channel the owner sees without opening that log
-- [ ] 3.4 Verify: reproduce the injected error and confirm the shell, `PATH`, and key table survive and the failure is reported
-- [ ] 3.5 Verify: confirm a failure in the reporting channel itself does not prevent the configuration from returning
-- [ ] 3.6 Act: remove the injected error
+- [x] 3.1 Gather: inject a deliberate runtime error into `ui.lua` on the current configuration, start WezTerm, and record the observed behavior in `design.md`; the current fallback is an assumption, not a recorded fact
+- [x] 3.2 Act: restructure `extraConfig` in `modules/home/programs/wezterm/default.nix` so `core.setup` runs first and unguarded, and `events`, `keybindings`, and `ui` each run under `pcall`
+- [x] 3.3 Act: add the failure report; name the module and carry the Lua error text; write to the WezTerm error log and to one channel the owner sees without opening that log
+- [x] 3.4 Verify: reproduce the injected error and confirm the shell, `PATH`, and key table survive and the failure is reported
+- [x] 3.5 Verify: confirm a failure in the reporting channel itself does not prevent the configuration from returning
+- [x] 3.6 Act: remove the injected error
 - [ ] 3.7 Adversarial review (`adversarial-review` skill): critics attempt to break this slice against its spec scenarios, the design decisions, and the rollout gates
 - [ ] 3.8 Verify: `nix flake check` and `nh darwin build` green; review `git diff`
 - [ ] 3.9 Apply: `nh darwin switch`

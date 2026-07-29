@@ -96,6 +96,24 @@ Non-Goals:
     committed artifact that drifts exactly like the guard patterns already
     have.
 
+Measured fallback behaviour (task 3.1, previously an assumption):
+
+A copy of the generated config tree was loaded through a real `wezterm` binary
+with `--config-file`, with `error()` injected at the top of `ui.setup`.
+
+| Config | key-table lines | `action_callback` bindings |
+|---|---|---|
+| working | 230 | 96 |
+| `ui.lua` raises at runtime | 274 | 0 |
+| not valid Lua at all | 274 | 0 |
+
+The last two outputs are byte-identical. A runtime error anywhere in the module
+chain therefore discards the entire config table and WezTerm falls back to its
+built-in defaults. All 96 custom bindings go. `core.setup` writes into that same
+discarded table, so `default_prog`, `PATH`, `SHELL`, and `TERM` go with them: a
+`ui.lua` typo costs the owner their Nix zsh and their whole environment. The
+assumption in the proposal is confirmed, and the cost is larger than stated.
+
 - Decision: keep `core.setup` outside the `pcall`. It sets `default_prog`,
   `PATH`, and `SHELL`. Catching a failure there would produce a terminal that
   starts the wrong shell with the wrong environment, which is worse than a
