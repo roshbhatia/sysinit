@@ -16,9 +16,13 @@ on:
   pull_request:
   workflow_dispatch: {}
 
+# Cancel superseded PR runs, never main runs. On a pull request only the tip
+# matters, so cancelling saves runner time. On main every commit is a candidate
+# for `git bisect` and for the required-check history, and cancelling means a
+# run of pushes leaves most commits unverified.
 concurrency:
   group: check-${{ github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 # Read-only. This job runs PR-authored Nix (`runCommand` bodies evaluate and
 # build), so it must not carry a writable token.
