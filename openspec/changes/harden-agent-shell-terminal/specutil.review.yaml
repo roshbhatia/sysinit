@@ -1,8 +1,8 @@
 version: 1
 change: harden-agent-shell-terminal
 decision: approved
-change_hash: 40332b7900543ca3
-base_commit: 885580051ade6bf604826d84593af7a8f8bc7d43
+change_hash: 366d3ec6b3224956
+base_commit: 75c6f3346a5a68c9b89eb081af68fdacd9ed99fb
 items:
     0c834d5f632214b7:
         hash: 623e759a4ce74918

@@ -69,7 +69,8 @@ Non-Goals:
   are the intended design.
 - Widening or narrowing the deny set.
 - Replacing regex command matching with a parsed shell grammar.
-- Adding branch protection or required status checks.
+- Gating any branch other than `main`, or requiring any check other than the
+  new `verify` job.
 - Restructuring `ui.lua`.
 - Managing the shell escape hatches. The doctor reports them and stops there.
 - Auditing third-party WezTerm plugins.
@@ -132,6 +133,46 @@ Non-Goals:
   with no path filter.
   - Alternative rejected: filter by path the way `build-cache` does. The gap
     this change closes is exactly the `modules/` path that filter skips.
+
+- Decision: CI evaluates the host configuration rather than building it. Forcing
+  `.drvPath` evaluates the whole module tree, which is what fires the
+  assertions, in about 10 seconds while materialising nothing. Verified by
+  injecting a failing assertion: the eval aborts with its message.
+  - Alternative rejected: `nix build` of `darwinConfigurations.lv426.system`.
+    Measured at 17.9 GiB closure against roughly 14 GB free on a `macos-latest`
+    runner, so it fails on disk before it can fail on anything useful.
+
+- Decision: keep the authored shell and Lua in files, not in Nix string
+  literals. The parse checks glob by extension, so a fragment inlined into a Nix
+  string is invisible to them. `zsh/default.nix` kept about 30 lines of zsh and
+  `wezterm/default.nix` about 20 lines of Lua inline; both moved out to
+  `core/compinit.zsh` and `sysinit/pkg/bootstrap.lua`. Coverage then holds by
+  construction rather than by a rule someone has to remember.
+  - Alternative rejected: teach the checks to evaluate the assembled
+    `initContent` and `extraConfig` and parse the result. It reaches into
+    home-manager evaluation from inside a check derivation, and it leaves the
+    inline code as the only shell in the repo that no file check covers.
+
+- Decision: the shellcheck check scans the whole flake source and selects by
+  shebang as well as by extension.
+  - Alternative rejected: scan a list of directories. The list is itself the
+    escape hatch. The first revision scanned `llm/config` and `hack/`, and
+    silently missed `citation-tools/citelock.sh`,
+    `skills/scripts/worklog-query.sh`, and the extensionless
+    `.githooks/pre-commit`.
+
+- Decision: switch the Dependabot auto-merge to `--auto --squash` and require
+  the `verify` job on `main`.
+  - Alternative rejected: leave the auto-merge alone and record the bypass as a
+    known limitation. It leaves the gate inert for exactly the changes that most
+    need it, and `--auto` fails safe: without the repo settings the command
+    errors rather than merging early.
+
+- Decision: add `devShells.default` carrying `nh`, `shfmt`, `shellcheck`, `lua`,
+  `jq`, and `fd`.
+  - Alternative rejected: reword the requirement to exempt machine-wide tools.
+    It would make the requirement true by weakening it, and `nh darwin build`
+    would still not run on a fresh checkout.
 
 ## Rollout & Gating
 

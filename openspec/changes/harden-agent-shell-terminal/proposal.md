@@ -52,7 +52,12 @@ Reused patterns:
 - Widening the deny set. The patterns in `lib/allowlist.nix` stay as they are.
 - Replacing regex command matching with a shell parser. The guard stays
   best-effort and fail-open.
-- Adding branch protection or required status checks on the repository.
+- Gating anything other than `main`. Branch protection and the required status
+  check are in scope, but only to make the Dependabot auto-merge wait. An
+  adversarial review showed the gate is worthless without them: the existing
+  automation merges with `--squash` about five seconds after a pull request
+  opens, so the dependency bumps most likely to break the build were the least
+  gated. The owner relaxed this non-goal after that finding.
 - Rewriting `ui.lua`. Containment wraps it; it does not restructure it.
 - Managing `~/.zshenv`, `~/.zshsecrets`, or `$XDG_CONFIG_HOME/zsh/extras/`.
   They stay unmanaged escape hatches. `sysinit doctor` only reports them.
