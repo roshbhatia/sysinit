@@ -12,11 +12,9 @@ let
   # Claude (`tool_name`, `tool_input`). It carries no `permissionDecision`
   # string, so it blocks by exit code like devin does — which is why the devin
   # wrapper is reused verbatim rather than the Claude guard.
-  bashGuardScript = pkgs.writeShellApplication {
-    name = "claude-bash-guard";
-    runtimeInputs = [ pkgs.jq ];
-    bashOptions = [ ];
-    text = builtins.readFile ./claude-bash-guard.sh;
+  bashGuardScript = llmLib.guards.mkBashGuard {
+    inherit pkgs;
+    name = "gemini-bash-guard";
   };
 
   exitCodeGuardScript = pkgs.writeShellApplication {

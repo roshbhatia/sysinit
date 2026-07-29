@@ -251,14 +251,42 @@ let
   #     Prefix matching is leakier than regex (a flag after positional args can
   #     slip past), so these harnesses are defense-in-depth behind the robust
   #     script/regex guards; several orderings are listed to widen coverage.
-  destructiveDenyRegexes = [
-    "git[[:space:]]+push\\b.*(--force|-f([[:space:]]|$))"
-    "(--no-verify|--no-gpg-sign)\\b"
-    "git[[:space:]]+reset\\b.*--hard\\b"
-    "git[[:space:]]+clean\\b.*-[a-zA-Z]*f"
-    "git[[:space:]]+branch\\b.*-D\\b"
-    "git[[:space:]]+branch\\b.*--delete.*--force\\b"
+  # Each rule pairs the pattern with the refusal the agent sees. The guard
+  # scripts generate their pattern table from this list, so a pattern cannot
+  # exist in a script and not here, or differ in form between the two. Before
+  # this was shared, five of the six had already drifted.
+  #
+  # `-f` is anchored on leading whitespace so it cannot match the tail of a
+  # branch name. Without the anchor, `git push origin feature-f` is denied.
+  # `--force` needs no anchor and also covers `--force-with-lease`.
+  destructiveDenyRules = [
+    {
+      regex = "git[[:space:]]+push\\b.*([[:space:]]-f([[:space:]]|$)|--force)";
+      reason = "Force-pushing is prohibited (global CLAUDE.md: no force-push).";
+    }
+    {
+      regex = "(--no-verify|--no-gpg-sign)\\b";
+      reason = "Hook-bypass flags are prohibited (global CLAUDE.md: no --no-verify / --no-gpg-sign).";
+    }
+    {
+      regex = "git[[:space:]]+reset\\b.*--hard\\b";
+      reason = "git reset --hard is prohibited without explicit instruction (global CLAUDE.md).";
+    }
+    {
+      regex = "git[[:space:]]+clean\\b.*-[a-zA-Z]*f";
+      reason = "git clean -f is prohibited without explicit instruction (global CLAUDE.md).";
+    }
+    {
+      regex = "git[[:space:]]+branch\\b.*-D\\b";
+      reason = "git branch -D (force-delete) is prohibited without explicit instruction (global CLAUDE.md).";
+    }
+    {
+      regex = "git[[:space:]]+branch\\b.*--delete.*--force\\b";
+      reason = "git branch --delete --force is prohibited without explicit instruction (global CLAUDE.md).";
+    }
   ];
+
+  destructiveDenyRegexes = builtins.map (r: r.regex) destructiveDenyRules;
 
   destructiveDenyGlobs = [
     "git push --force*"
@@ -389,6 +417,7 @@ in
     tierB
     tierMcp
     slackSendTools
+    destructiveDenyRules
     destructiveDenyRegexes
     destructiveDenyGlobs
     formatForClaude

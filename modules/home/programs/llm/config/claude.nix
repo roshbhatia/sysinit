@@ -42,11 +42,9 @@ let
   # its built-in block list also blocks push-to-main, which this repo permits.
   # Best-effort / fail-open: bashOptions cleared so a non-zero grep never becomes
   # a hook abort (Claude treats exit 2 as a block).
-  bashGuardScript = pkgs.writeShellApplication {
+  bashGuardScript = llmLib.guards.mkBashGuard {
+    inherit pkgs;
     name = "claude-bash-guard";
-    runtimeInputs = [ pkgs.jq ];
-    bashOptions = [ ];
-    text = builtins.readFile ./claude-bash-guard.sh;
   };
 
   # Same contract as the bash guard, applied to file-writing tools: denies edits

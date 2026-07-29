@@ -6,4 +6,5 @@
   instructions = import ./instructions.nix { inherit lib; };
   harnessKit = import ./harness-kit.nix;
   allowlist = import ./allowlist.nix { inherit lib; };
+  guards = import ./guards.nix { inherit lib; };
 }

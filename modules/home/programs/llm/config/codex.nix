@@ -15,11 +15,9 @@ let
   # the shared bash guard runs verbatim here. Denies force-push, --no-verify /
   # --no-gpg-sign, reset --hard, clean -f, branch -D. Fail-open: a non-Bash tool
   # or extraction miss exits 0 and the command proceeds.
-  bashGuardScript = pkgs.writeShellApplication {
+  bashGuardScript = llmLib.guards.mkBashGuard {
+    inherit pkgs;
     name = "codex-bash-guard";
-    runtimeInputs = [ pkgs.jq ];
-    bashOptions = [ ];
-    text = builtins.readFile ./claude-bash-guard.sh;
   };
 
   compactPrompt = ''

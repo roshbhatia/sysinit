@@ -7,6 +7,16 @@
 # Best-effort and fail-open: any extraction failure passes through (exit 0)
 # rather than blocking. No errexit/pipefail — a non-zero grep must not turn into
 # a hook abort (Claude treats exit 2 as a block).
+#
+# The DENY_REGEXES / DENY_REASONS tables are NOT defined here. `lib/guards.nix`
+# generates them from `lib/allowlist.nix` and prepends them. Adding a pattern to
+# this file would recreate the drift that made the script and the shared list
+# disagree on five of six patterns.
+#
+# Matching is conservative and deliberately leaky at the edges. Plain `git push`
+# and `git push origin main` do NOT match, because this repo permits pushing to
+# main. `git -C <path> reset --hard` also does not match, because the patterns
+# anchor the subcommand directly after `git`. This is a floor, not a sandbox.
 
 input="$(cat)"
 
@@ -28,34 +38,19 @@ deny() {
   exit 0
 }
 
-# Each pattern targets an unambiguous destructive / hook-bypassing form. Plain
-# `git push` and `git push origin main` intentionally do NOT match -> push to
-# main stays allowed (this repo permits it). Matching is conservative; the
-# conversational tiers remain the catch-all for everything else.
-# `--force` also covers `--force-with-lease`. The `-f` branch requires the flag
-# to stand alone (surrounded by whitespace/EOL) so it never matches `--foo`.
-if printf '%s' "$command" | grep -Eq 'git[[:space:]]+push\b.*([[:space:]]-f([[:space:]]|$)|--force)'; then
-  deny "Force-pushing is prohibited (global CLAUDE.md: no force-push)."
+# A missing or empty table means the generation broke. Fail open, consistent with
+# the rest of the script: a guard that cannot read its own rules must not block
+# the agent, and the fixtures check catches the breakage at build time.
+if [ "${#DENY_REGEXES[@]}" -eq 0 ]; then
+  exit 0
 fi
 
-if printf '%s' "$command" | grep -Eq '(--no-verify|--no-gpg-sign)\b'; then
-  deny "Hook-bypass flags are prohibited (global CLAUDE.md: no --no-verify / --no-gpg-sign)."
-fi
-
-if printf '%s' "$command" | grep -Eq 'git[[:space:]]+reset[[:space:]].*--hard\b'; then
-  deny "git reset --hard is prohibited without explicit instruction (global CLAUDE.md)."
-fi
-
-if printf '%s' "$command" | grep -Eq 'git[[:space:]]+clean[[:space:]].*-[a-zA-Z]*f'; then
-  deny "git clean -f is prohibited without explicit instruction (global CLAUDE.md)."
-fi
-
-if printf '%s' "$command" | grep -Eq 'git[[:space:]]+branch[[:space:]].*-D\b'; then
-  deny "git branch -D (force-delete) is prohibited without explicit instruction (global CLAUDE.md)."
-fi
-
-if printf '%s' "$command" | grep -Eq 'git[[:space:]]+branch[[:space:]].*--delete[[:space:]].*--force\b'; then
-  deny "git branch --delete --force is prohibited without explicit instruction (global CLAUDE.md)."
-fi
+i=0
+while [ "$i" -lt "${#DENY_REGEXES[@]}" ]; do
+  if printf '%s' "$command" | grep -Eq "${DENY_REGEXES[$i]}"; then
+    deny "${DENY_REASONS[$i]}"
+  fi
+  i=$((i + 1))
+done
 
 exit 0
