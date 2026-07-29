@@ -88,7 +88,7 @@
 
   ## Formatting — `shfmt`, settings are fixed
 
-  Run `task fmt:sh` (writes) or `task fmt:sh:check` (verifies). The settings are
+  Run `nix fmt` (writes) or `nix fmt -- --check` (verifies). The settings are
   `shfmt -i 2 -ci -sr -s`: 2-space indent, indented case bodies, redirect operators
   followed by a space, simplified. Do not pass other flags. All `.sh` files must be
   executable (`chmod +x`).
@@ -104,9 +104,10 @@
 
   ## Validate before done — loop until clean
 
-  1. `task fmt:sh` — format.
-  2. `task fmt:sh:check` — verify formatting.
-  3. Run the script (or its `task` entry) and confirm it behaves.
-  4. Only report done once the check passes. Do not hand back unformatted or
+  1. `nix fmt` — format.
+  2. `nix fmt -- --check` — verify formatting.
+  3. `nix flake check` — shellcheck runs over every script in the flake source.
+  4. Run the script and confirm it behaves.
+  5. Only report done once the check passes. Do not hand back unformatted or
      unrun scripts.
 ''

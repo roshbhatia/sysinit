@@ -99,8 +99,8 @@
       add them to `home.packages` in `modules/home/programs/llm/default.nix`. This
       follows the existing `agent-state` and `agent-notify` packaging, not a new
       pattern. `deps:` 1.1, 1.2
-- [ ] 1.22 Format both scripts with `task fmt:sh`, then confirm with
-      `task fmt:sh:check`. `deps:` 1.21
+- [ ] 1.22 Format both scripts with `nix fmt`, then confirm with
+      `nix fmt -- --check`. `deps:` 1.21
 - [ ] 1.23 Adversarial review (`adversarial-review` skill): critics attempt to break
       this slice against its spec scenarios, the design decisions, and the rollout
       gates. Press hardest on whether any `agent-run` failure mode can block a
