@@ -4,18 +4,18 @@
 - **STOP** every new check passes on the clean tree and fails on an injected defect, and the CI job reports on a pull request
 - **MAX-ITERS** 5
 
-- [ ] 1.1 Gather: list every zsh fragment `modules/home/programs/zsh/default.nix` interpolates, every `.lua` file under `modules/home/programs/wezterm/lua/`, and every `.sh` under `modules/home/programs/llm/config/` that no `writeShellApplication` wraps
-- [ ] 1.2 Act: add `checks.zsh-fragments-parse` running `zsh -n` (follows the hermetic `runCommand` shape at `flake.nix:229`); derive the file set from the directory, not a hand-written list
-- [ ] 1.3 Act: add `checks.wezterm-lua-parses` running a Lua front end in parse-only mode over `lua/**`
-- [ ] 1.4 Act: add `checks.llm-scripts-shellcheck` covering the unwrapped `.sh` files found in 1.1
-- [ ] 1.5 Act: extend `modules/lib/shell.nix` if the fragment list needs a shared accessor so the module and the check read one source
-- [ ] 1.6 Verify: run `nix flake check`; inject one syntax defect per check and confirm each fails and names the file; remove the defects
-- [ ] 1.7 Act: add `.github/workflows/check.yml` running `nix flake check` and one host build on push to `main` and on `pull_request`, with no path filter
-- [ ] 1.8 Act: reconcile `AGENTS.md` Commands with reality; either add the Taskfile or `devShells` that provide `task fmt:sh` and `task fmt:sh:check`, or remove those lines
-- [ ] 1.9 Verify: confirm every command in the `AGENTS.md` Commands section runs from a clean checkout
-- [ ] 1.10 Adversarial review (`adversarial-review` skill): critics attempt to break this slice against its spec scenarios, the design decisions, and the rollout gates
-- [ ] 1.11 Verify: `nix flake check` and `nh darwin build` green; review `git diff`
-- [ ] 1.12 Apply: commit and push the checks and the workflow file
+- [x] 1.1 Gather: list every zsh fragment `modules/home/programs/zsh/default.nix` interpolates, every `.lua` file under `modules/home/programs/wezterm/lua/`, and every `.sh` under `modules/home/programs/llm/config/` that no `writeShellApplication` wraps
+- [x] 1.2 Act: add `checks.zsh-fragments-parse` running `zsh -n` (follows the hermetic `runCommand` shape at `flake.nix:229`); derive the file set from the directory, not a hand-written list
+- [x] 1.3 Act: add `checks.wezterm-lua-parses` running a Lua front end in parse-only mode over `lua/**`
+- [x] 1.4 Act: add `checks.llm-scripts-shellcheck` covering the unwrapped `.sh` files found in 1.1
+- [x] 1.5 Act: extend `modules/lib/shell.nix` if the fragment list needs a shared accessor so the module and the check read one source
+- [x] 1.6 Verify: run `nix flake check`; inject one syntax defect per check and confirm each fails and names the file; remove the defects
+- [x] 1.7 Act: add `.github/workflows/check.yml` running `nix flake check` and one host build on push to `main` and on `pull_request`, with no path filter
+- [x] 1.8 Act: reconcile `AGENTS.md` Commands with reality; either add the Taskfile or `devShells` that provide `task fmt:sh` and `task fmt:sh:check`, or remove those lines
+- [x] 1.9 Verify: confirm every command in the `AGENTS.md` Commands section runs from a clean checkout
+- [x] 1.10 Adversarial review (`adversarial-review` skill): critics attempt to break this slice against its spec scenarios, the design decisions, and the rollout gates
+- [x] 1.11 Verify: `nix flake check` and `nh darwin build` green; review `git diff`
+- [x] 1.12 Apply: commit and push the checks and the workflow file
 - [ ] 1.13 Confirm: the workflow runs on the next pull request and its result is visible; if the Dependabot automation cannot merge a workflow change, the owner merges it manually
 
 ## 2. Guard fixtures and pattern reconciliation
@@ -24,14 +24,14 @@
 - **STOP** the fixture table passes against the inlined patterns and still passes after the script consumes `destructiveDenyRegexes`
 - **MAX-ITERS** 4
 
-- [ ] 2.1 Gather: record the effective pattern set of `claude-bash-guard.sh` beside `llmLib.allowlist.destructiveDenyRegexes`; name each of the differences (four are known)
-- [ ] 2.2 Act: write the fixture table pairing a command string with an expected decision; include the permitted forms `git push` and `git push origin main`, and a malformed-JSON fixture asserting fail-open
-- [ ] 2.3 Act: add `checks.destructive-guard-fixtures` running the guard scripts against the table (follows `flake.nix:229`)
-- [ ] 2.4 Verify: the fixture check passes against the current inlined patterns; record any fixture that only passes for one of the two pattern sets
-- [ ] 2.5 Act: decide each drifted pattern's reconciled form and record the decision in `design.md`; the stricter form wins unless the looser one is shown to be intentional
-- [ ] 2.6 Act: generate the guard script's pattern list from `destructiveDenyRegexes` at build time (follows the interpolation at `claude.nix:95`); remove the inlined regexes
-- [ ] 2.7 Act: apply the same generation to `codex-bash-guard`, which reads the same script file
-- [ ] 2.8 Verify: the fixture check still passes; no permitted form regressed to denied
+- [x] 2.1 Gather: record the effective pattern set of `claude-bash-guard.sh` beside `llmLib.allowlist.destructiveDenyRegexes`; name each of the differences (four are known)
+- [x] 2.2 Act: write the fixture table pairing a command string with an expected decision; include the permitted forms `git push` and `git push origin main`, and a malformed-JSON fixture asserting fail-open
+- [x] 2.3 Act: add `checks.destructive-guard-fixtures` running the guard scripts against the table (follows `flake.nix:229`)
+- [x] 2.4 Verify: the fixture check passes against the current inlined patterns; record any fixture that only passes for one of the two pattern sets
+- [x] 2.5 Act: decide each drifted pattern's reconciled form and record the decision in `design.md`; the stricter form wins unless the looser one is shown to be intentional
+- [x] 2.6 Act: generate the guard script's pattern list from `destructiveDenyRegexes` at build time (follows the interpolation at `claude.nix:95`); remove the inlined regexes
+- [x] 2.7 Act: apply the same generation to `codex-bash-guard`, which reads the same script file
+- [x] 2.8 Verify: the fixture check still passes; no permitted form regressed to denied
 - [ ] 2.9 Adversarial review (`adversarial-review` skill): critics attempt to break this slice against its spec scenarios, the design decisions, and the rollout gates. Review this slice hardest: it rewrites the only mechanical floor under the agent's Bash tool while `dangerouslySkipPermissions` is on
 - [ ] 2.10 Verify: `nix flake check` and `nh darwin build` green; review `git diff` of the generated guard script text
 - [ ] 2.11 Apply: `nh darwin switch`

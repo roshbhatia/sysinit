@@ -111,6 +111,26 @@ Non-Goals:
     file at runtime. It adds a read and a parse to a hot fail-open path, and a
     missing file would silently disable the guard.
 
+- Decision: reconcile the five drifted guard patterns toward the guard's `-f`
+  form and the shared list's `\b` forms. The guard anchored `-f` on leading
+  whitespace and its comment recorded that as deliberate, so the looser form is
+  the intentional one: without the anchor, `git push origin feature-f` is denied.
+  The four `\b` versus `[[:space:]]` differences went the other way, to the
+  shared list's `\b`, which matches marginally more with no false positive found.
+  A fixture locks each direction, including `git push origin feature-f` as an
+  allowed form.
+  - Alternative rejected: apply "stricter always wins" mechanically. It would
+    have adopted the unanchored `-f` and started denying legitimate pushes to any
+    branch whose name ends in `-f`.
+
+- Decision: generate the guard's pattern table from `destructiveDenyRules` via
+  `lib/guards.nix`, and have the fixtures exercise the assembled script rather
+  than the source file. Once the patterns arrive by preamble, the bare file
+  denies nothing, so testing it would prove nothing.
+  - Alternative rejected: keep testing `claude-bash-guard.sh` directly. That is
+    the same mistake as parsing fragment files while the real content lives
+    somewhere else, which is what the first round of review caught.
+
 - Decision: give the state file an integer version field and validate the
   emitter's output against a JSON schema in a check.
   - Alternative rejected: document the shape in the spec only. That is what
