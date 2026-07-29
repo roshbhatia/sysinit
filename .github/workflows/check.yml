@@ -20,6 +20,16 @@ concurrency:
   group: check-${{ github.ref }}
   cancel-in-progress: true
 
+# Read-only. This job runs PR-authored Nix (`runCommand` bodies evaluate and
+# build), so it must not carry a writable token.
+#
+# Caveat worth knowing: a fork PR can rewrite this file into an empty job still
+# named `verify` and satisfy the required status check. The required check alone
+# does not make a fork PR safe to merge; read the diff. Dependabot is unaffected,
+# because its branches live in this repo, not a fork.
+permissions:
+  contents: read
+
 jobs:
   verify:
     # macos-latest is aarch64-darwin, the platform the daily-driver host targets.
