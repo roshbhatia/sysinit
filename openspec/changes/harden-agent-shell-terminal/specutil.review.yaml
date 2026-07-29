@@ -1,12 +1,12 @@
 version: 1
 change: harden-agent-shell-terminal
 decision: approved
-change_hash: 366d3ec6b3224956
-base_commit: 75c6f3346a5a68c9b89eb081af68fdacd9ed99fb
+change_hash: 45644501aee57e58
+base_commit: 0840ef7775465784fe1944eee8dfcefe52c6bacf
 items:
-    0c834d5f632214b7:
-        hash: 623e759a4ce74918
-        text: Read the rendered list in `keybindings.lua` and pair each chord with its action; fall back to the current inline table when the key is absent
+    1c58c6ea4b2ed82f:
+        hash: 359764493cf7ced6
+        text: 'Measure the real collision surface before building anything: canonicalize WezTerm''s chords and compare against reserved chords, enabled symbolic hotkeys, and aerospace'
     1ce67b2a6aeff65a:
         hash: 0b403a39cc6067c2
         text: 'Act: add `.github/workflows/check.yml` running `nix flake check` and one host build on push to `main` and on `pull_request`, with no path filter'
@@ -22,18 +22,12 @@ items:
     2dd49f6a4aab8fbc:
         hash: 5794b248ede802d6
         text: 'Apply: `openspec archive harden-agent-shell-terminal`'
-    3cef8eed31fd23e0:
-        hash: 4d6080ede6e9bcdb
-        text: Extract the chord half of every binding in `keybindings.lua` into a Nix declaration; keep the action half in Lua
     3eb4e7965e97ad2a:
         hash: 0866ed2ce395e271
         text: Add the `sysinit doctor` command skeleton with a probe registry and a non-zero exit when any probe reports drift (follows `modules/home/programs/llm/config/notify.nix:77`)
     4a25ec6ed9b78491:
         hash: 1a7424989b295b7e
         text: 'Confirm: the workflow runs on the next pull request and its result is visible; if the Dependabot automation cannot merge a workflow change, the owner merges it manually'
-    4d450c5e01b341be:
-        hash: 0232e3fd67b9c621
-        text: Add a duplicate-chord assertion so two declarations of one chord fail evaluation
     4e2bc006e2afd3b0:
         hash: 3f3d229b16df0678
         text: 'Apply: `git push` to `main`'
@@ -43,6 +37,9 @@ items:
     5fe16525134774f4:
         hash: 46ab33d5f2c32a64
         text: 'Gather: inject a deliberate runtime error into `ui.lua` on the current configuration, start WezTerm, and record the observed behavior in `design.md`; the current fallback is an assumption, not a recorded fact'
+    6c9047ee572ffd17:
+        hash: 01709145d574df37
+        text: Assert no duplicate chord across the seven binding groups
     6f3dffdf92533559:
         hash: da6b246a0466599e
         text: 'Apply: `nh darwin switch`'
@@ -61,15 +58,18 @@ items:
     9d6bdc3afb2c94d1:
         hash: da6b246a0466599e
         text: 'Apply: `nh darwin switch`'
-    011d9eaca50c27d6:
-        hash: 94a4d617d5f4f415
-        text: 'Verify: inject a collision with a reserved chord and confirm evaluation fails and names both layers; inject a duplicate and confirm the same; remove both'
+    09ea65917d0301a7:
+        hash: 0bab3971d25e92e1
+        text: Move the chord vocabulary and data into `modules/darwin/lib/chords.nix` so the assertion and the check canonicalize identically
     15fbcce30015c79b:
         hash: 44f8340fd87d5eca
         text: 'Add the generation probe: compare the running system generation against the built configuration'
     29ec301c44eb0d93:
         hash: 57e69989b6b11f87
         text: 'Apply: commit and push the checks and the workflow file'
+    30a34e318ee9e0c4:
+        hash: da8ee24efb3621cd
+        text: 'Verify: inject a duplicate, an unaccepted overlap, and an ALT chord; confirm each fails and names the chord; revert'
     39db0ba081f0bd47:
         hash: df72acaa5b2dbb7f
         text: 'Verify: `nix flake check` and `nh darwin build` green; review `git diff` of the generated guard script text'
@@ -82,6 +82,9 @@ items:
     60a679870c241b91:
         hash: 3250a5a3cc1bff57
         text: Add `checks.agent-state-schema` running the emitter against a fake tty for each reason source (`submit`, `tool`, `message`, literal) and validating the output (follows `flake.nix:229`)
+    73d731053632912f:
+        hash: c7e914ed37216fcd
+        text: Add `checks.wezterm-chord-collisions` comparing extracted chords against the other layers
     77a87c6232e7ff82:
         hash: da6b246a0466599e
         text: 'Apply: `nh darwin switch`'
@@ -124,6 +127,9 @@ items:
     18163e662286c378:
         hash: 894f3bc86a844190
         text: 'Act: add `checks.zsh-fragments-parse` running `zsh -n` (follows the hermetic `runCommand` shape at `flake.nix:229`); derive the file set from the directory, not a hand-written list'
+    082769e74662134e:
+        hash: 70c115cba654c944
+        text: 'Verify: confirm the system derivation hash is unchanged by the refactor, proving no binding moved'
     210830dfd3d6893e:
         hash: 69ad3333ff43c0e7
         text: Add the version field to `agent-state.sh`; keep the emitter agent-agnostic, non-blocking, and always exit zero
@@ -133,12 +139,12 @@ items:
     0238043eaa37c217:
         hash: df786ba1c69e59f9
         text: 'Act: remove the injected error'
-    573590dec8944f7e:
-        hash: a0f429c6b83dd7ef
-        text: 'Verify: migrate group by group and spot-check each group''s keys after its move; this is the human-verification checkpoint for the migration risk in `design.md`'
     01357686ac5be1c0:
         hash: abe69008cc3a9444
         text: 'Adversarial review (`adversarial-review` skill): critics attempt to break this slice against its spec scenarios, the design decisions, and the rollout gates'
+    6997214ff956aa63:
+        hash: 7bf42f7e5cb96cbe
+        text: Assert no WezTerm ALT chord, making aerospace collisions impossible by construction
     7181830ff3812185:
         hash: ffd42868aa99bd13
         text: 'Verify: rename a field in the emitter without touching the schema and confirm the check fails and names the field; revert'
@@ -169,9 +175,6 @@ items:
     b8afffb8040a3237:
         hash: 0d3407f234b39cfc
         text: 'Act: generate the guard script''s pattern list from `destructiveDenyRegexes` at build time (follows the interpolation at `claude.nix:95`); remove the inlined regexes'
-    b15c205c4edc8a42:
-        hash: e4402a0ca2bb4df9
-        text: Add the WezTerm layer to the collision assertion beside the symbolic hotkey, aerospace, and reserved-chord layers
     b26bddd6e5814ed4:
         hash: ae13bd9a14555bcc
         text: 'Confirm: the statusline and the WezTerm session switcher both still render agent state for a live pane; a killed pane''s entry is collected'
@@ -202,21 +205,18 @@ items:
     e9bfab7f63136ce9:
         hash: 4a430a1cf6fc8198
         text: 'Act: add the failure report; name the module and carry the Lua error text; write to the WezTerm error log and to one channel the owner sees without opening that log'
-    e78641fb1f6507a7:
-        hash: 08372f39be5005be
-        text: Extend `mkChord`, `keyAliases`, and `canonicalKey` in `modules/darwin/keybindings.nix` to canonicalize the WezTerm spelling (`SUPER|SHIFT`, `UpArrow`); fail loudly on an unmapped key name
     ecd3766099e31406:
         hash: 4b205d9c981da29f
         text: 'Verify: reproduce the injected error and confirm the shell, `PATH`, and key table survive and the failure is reported'
+    edf53aef2df197c4:
+        hash: 0f543f68ede7ab83
+        text: 'Add `chordcheck/stub.lua` and `chordcheck/extract.lua`: load `keybindings.lua` headlessly and print canonical chords'
     ef7c121ab024dc69:
         hash: 13bdb1f80e5d87c8
         text: Implement stale-entry collection in one place; it must remove nothing when the live pane set cannot be determined
     ef32795ba5d53c6a:
         hash: ab422ec2dab5c4a7
         text: 'Verify: the fixture check passes against the current inlined patterns; record any fixture that only passes for one of the two pattern sets'
-    f0b797ea46bcaf6d:
-        hash: 16875fa6166515d7
-        text: Render the declaration into `wezterm/config.json` beside the existing `plugins` key (follows `modules/home/programs/wezterm/default.nix:130`)
     f3a9829b269db1ba:
         hash: "0e93721050618380"
         text: 'Confirm: the six capabilities appear under `openspec/specs/`; `openspec list` no longer shows the change as active'

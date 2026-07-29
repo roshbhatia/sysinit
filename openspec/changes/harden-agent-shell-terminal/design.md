@@ -86,15 +86,38 @@ Non-Goals:
     GUI-capable host, is not hermetic, and would make the check platform-bound
     when the checks already run for three systems.
 
-- Decision: declare the chord half of each WezTerm binding in Nix and keep the
-  action half in Lua. A WezTerm action is a closure over
-  `wezterm.action_callback` and cannot round-trip through JSON. Splitting at
-  the chord boundary gives the assertion what it needs without moving behavior.
-  - Alternative rejected: emit a chord manifest from Lua at build time and
-    assert over that. It keeps Lua authoritative but requires running Lua
-    during evaluation, which Nix cannot do, so the manifest would have to be a
-    committed artifact that drifts exactly like the guard patterns already
-    have.
+- Decision: extract the WezTerm chords by loading `keybindings.lua` under a
+  stubbed `wezterm` inside a check, and compare them there. Nix cannot run Lua
+  at evaluation time, but a check can, so the chords never have to be mirrored
+  into Nix at all.
+  - Alternative rejected: declare the chord half of each binding in Nix and have
+    Lua read it back, as originally planned. Measurement killed it. Other layers
+    own only 10 chords in total (7 reserved, 3 enabled symbolic hotkeys), and
+    WezTerm uses ALT in 0 of its 86 chords while aerospace uses ALT in all 26,
+    so the two cannot collide. Restructuring 7 binding groups and ~90 entries to
+    protect a 10-chord surface risks a transcription error in keys used daily,
+    and it recreates the mirror-drift problem this change exists to remove.
+  - Alternative rejected: commit a generated chord manifest for Nix to read.
+    That is the hand-maintained mirror again, just generated once.
+  - Cost accepted: the collision now fails at `nix flake check` rather than at
+    `nh darwin build`. Both run before a switch and CI runs the former.
+
+- Decision: prevent aerospace collisions by invariant rather than comparison.
+  The check asserts WezTerm binds no ALT chord; aerospace binds only ALT chords.
+  - Alternative rejected: enumerate aerospace's bindings and compare. They live
+    in module config that a check cannot import without evaluating a host
+    configuration, and the invariant is both cheaper and stronger: it fails the
+    moment WezTerm reaches into aerospace's space, not only on an exact clash.
+
+- Decision: record `cmd+m` as an accepted overlap rather than resolving it.
+  Symbolic hotkey ID 233 is enabled as `cmd+m` and WezTerm binds `SUPER+m` to
+  `Hide`. ID 233 carries no label and sits among IDs captured from the machine's
+  own defaults, so it is most likely a preserved macOS default. The overlap is
+  recorded in the check with its reason and stays visible.
+  - Alternative rejected: disable hotkey 233, or move WezTerm's `Hide` binding.
+    Both change live behaviour to resolve an overlap whose actual effect is
+    unknown, which is a worse trade than documenting it until ID 233 is
+    identified.
 
 Measured fallback behaviour (task 3.1, previously an assumption):
 

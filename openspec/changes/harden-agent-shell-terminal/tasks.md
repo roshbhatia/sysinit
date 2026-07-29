@@ -58,14 +58,14 @@
 
 - **SHAPE** graph
 
-- [ ] 4.1 Extract the chord half of every binding in `keybindings.lua` into a Nix declaration; keep the action half in Lua `deps:` none
-- [ ] 4.2 Render the declaration into `wezterm/config.json` beside the existing `plugins` key (follows `modules/home/programs/wezterm/default.nix:130`) `deps:` 4.1
-- [ ] 4.3 Read the rendered list in `keybindings.lua` and pair each chord with its action; fall back to the current inline table when the key is absent `deps:` 4.2
-- [ ] 4.4 Extend `mkChord`, `keyAliases`, and `canonicalKey` in `modules/darwin/keybindings.nix` to canonicalize the WezTerm spelling (`SUPER|SHIFT`, `UpArrow`); fail loudly on an unmapped key name `deps:` 4.1
-- [ ] 4.5 Add the WezTerm layer to the collision assertion beside the symbolic hotkey, aerospace, and reserved-chord layers `deps:` 4.4
-- [ ] 4.6 Add a duplicate-chord assertion so two declarations of one chord fail evaluation `deps:` 4.1
-- [ ] 4.7 Verify: inject a collision with a reserved chord and confirm evaluation fails and names both layers; inject a duplicate and confirm the same; remove both `deps:` 4.5, 4.6
-- [ ] 4.8 Verify: migrate group by group and spot-check each group's keys after its move; this is the human-verification checkpoint for the migration risk in `design.md` `deps:` 4.3
+- [x] 4.1 Measure the real collision surface before building anything: canonicalize WezTerm's chords and compare against reserved chords, enabled symbolic hotkeys, and aerospace `deps:` none
+- [x] 4.2 Move the chord vocabulary and data into `modules/darwin/lib/chords.nix` so the assertion and the check canonicalize identically `deps:` none
+- [x] 4.3 Add `chordcheck/stub.lua` and `chordcheck/extract.lua`: load `keybindings.lua` headlessly and print canonical chords `deps:` 4.2
+- [x] 4.4 Add `checks.wezterm-chord-collisions` comparing extracted chords against the other layers `deps:` 4.3
+- [x] 4.5 Assert no WezTerm ALT chord, making aerospace collisions impossible by construction `deps:` 4.4
+- [x] 4.6 Assert no duplicate chord across the seven binding groups `deps:` 4.4
+- [x] 4.7 Verify: inject a duplicate, an unaccepted overlap, and an ALT chord; confirm each fails and names the chord; revert `deps:` 4.5, 4.6
+- [x] 4.8 Verify: confirm the system derivation hash is unchanged by the refactor, proving no binding moved `deps:` 4.2
 - [ ] 4.9 Adversarial review (`adversarial-review` skill): critics attempt to break this slice against its spec scenarios, the design decisions, and the rollout gates `deps:` 4.7, 4.8
 - [ ] 4.10 Verify: `nix flake check` and `nh darwin build` green; review `git diff` `deps:` 4.9
 - [ ] 4.11 Apply: `nh darwin switch` `deps:` 4.10
