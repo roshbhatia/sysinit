@@ -55,7 +55,9 @@ jobs:
         id: cpr
         uses: peter-evans/create-pull-request@v8
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          # PAT when available: a PR opened by GITHUB_TOKEN does not trigger
+          # `on: pull_request`, so the required `verify` check would never run.
+          token: ${{ secrets.WORKFLOWS_PAT || secrets.GITHUB_TOKEN }}
           branch: automation/update-sources
           delete-branch: true
           title: "chore: update nvfetcher sources and flake inputs"
@@ -67,14 +69,20 @@ jobs:
             - Auto-updated Go `vendorHash` values
           labels: automated,dependencies
 
-      # Merge the automation PR directly. No branch protection, no required
-      # checks, so there's nothing for `gh pr merge --auto` to wait on —
-      # just squash and delete the branch. Squash keeps the linear history
-      # the user prefers on main.
+      # Queue the automation PR behind the required checks.
       #
-      # If the PR touches a workflow file, GITHUB_TOKEN can't merge it —
-      # that requires the `workflow` PAT scope. WORKFLOWS_PAT (when set)
-      # has the needed scope.
+      # This used to squash-merge after `sleep 5`, with a comment asserting "No
+      # branch protection, no required checks, so there's nothing for
+      # `gh pr merge --auto` to wait on". That is no longer true: main requires
+      # the `verify` context. This is the higher-volume automation path (every 6
+      # hours, bumping flake.lock and _sources), so leaving it on a 5-second
+      # merge would bypass the gate far more often than the Dependabot path does.
+      #
+      # A PR opened with GITHUB_TOKEN does not trigger `on: pull_request`
+      # workflows, so `verify` would never report and `--auto` would queue
+      # forever. The PR is therefore created with WORKFLOWS_PAT when it is
+      # available. Without that secret the PR still opens and simply waits for a
+      # human, which is the safe direction: nothing merges unverified.
       - name: Merge automation PR
         if: steps.cpr.outputs.pull-request-operation != ''
         env:
@@ -85,7 +93,10 @@ jobs:
             echo "No PR number from create-pull-request step; nothing to merge."
             exit 0
           fi
-          echo "Merging PR #${pr} (operation: ${{ steps.cpr.outputs.pull-request-operation }})"
-          # Brief settle for GitHub to compute mergeability after the push.
-          sleep 5
-          gh pr merge "${pr}" --squash --delete-branch
+          if [ -z "${{ secrets.WORKFLOWS_PAT }}" ]; then
+            echo "::notice::WORKFLOWS_PAT unset, so the PR was opened by GITHUB_TOKEN"
+            echo "::notice::and the check workflow will not run on it. Leaving PR #${pr} open."
+            exit 0
+          fi
+          echo "Queuing PR #${pr} for auto-merge (operation: ${{ steps.cpr.outputs.pull-request-operation }})"
+          gh pr merge "${pr}" --auto --squash --delete-branch

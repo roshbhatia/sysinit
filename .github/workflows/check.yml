@@ -64,6 +64,15 @@ jobs:
           name: roshbhatia
           authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
 
+      # `nix fmt -- --check` is not reachable from `nix flake check`, so without
+      # this step the formatter's check mode existed and was documented while
+      # drift still shipped green. The `--` is mandatory: `nix fmt --check`
+      # errors before the formatter runs.
+      - name: nix fmt -- --check
+        env:
+          NIX_CONFIG: "access-tokens = github.com=${{ secrets.GITHUB_TOKEN }}"
+        run: nix fmt -- --check
+
       - name: nix flake check
         env:
           NIX_CONFIG: "access-tokens = github.com=${{ secrets.GITHUB_TOKEN }}"
