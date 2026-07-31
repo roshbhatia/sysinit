@@ -1,0 +1,151 @@
+version: 1
+change: unify-agent-notification-layer
+decision: approved
+note: 'adversarial review: 4 rounds, 36 objections raised and revised against, 0 open'
+change_hash: fb90fd553b78afce
+base_commit: a3ffc9ed815ed4b45b8cf0f7f8f6c43791c4ed9d
+items:
+    1b82cca1801d569a:
+        hash: 4d6c07ec02b04020
+        text: Set `notifications.enabled = false` in the agent-deck block of `ui.lua`, keeping every scraping option unchanged
+    1e5a0286c85a6360:
+        hash: 1e498247eb57bc77
+        text: Add six icon fetches to `notify.nix` for opencode, pi, amp, crush, goose, and copilot (follows the pinned-hash block at `notify.nix:24`)
+    5c62d11c0d8069b5:
+        hash: 937c06a98a5e0085
+        text: Move OpenCode to bridged and add `attention.notifications = false` to the TUI config attribute set created by `modernize-opencode-and-pi-config` slice 1, both in the same commit as 3.6, and only when 3.6 produced a working plugin
+    5eb47631a576461e:
+        hash: 9d403ca4e8b983e9
+        text: Wire the click handler to `agent-focus`
+    6ac6b0d333d572ab:
+        hash: ccdb36347af484c9
+        text: Author `config/extensions/sysinit-notify.ts` for pi, wiring `session_start`, `tool_call`, `agent_settled`, and `session_shutdown` to `agent-state` and `agent-notify` (follows `config/extensions/openspec-status.ts`)
+    6e2e0b34f4c37dcf:
+        hash: 55315b926a6616f6
+        text: 'Verify: `nix flake check` and `nh darwin build` are green; inject a harness missing from all three sets and confirm the build fails'
+    7db1087e1c878d9d:
+        hash: 338c1b1fec492a17
+        text: Key the idle dedup file on `<pane-id>_<reason>` in `agent-notify.sh`, falling back to `<agent>_<context>_<reason>` when the pane id is empty
+    8eff0f3905b9fa1f:
+        hash: 2b4da7132707e6c8
+        text: 'Verify: `openspec validate unify-agent-notification-layer` passes and `specutil check` reports no finding'
+    9cae6f5676aa8ad5:
+        hash: 9a991289309e7e62
+        text: Rebuild the group from the pane id alone in `agent-focus.sh` and delete the state-file identity read used only for the group
+    9e406252371f4413:
+        hash: 37efba697c43c1a4
+        text: Add a build assertion that fails when a configured harness is in neither the bridged, deferred, nor no-surface set (follows the `validateMdc` assertion at `config/cursor.nix:43`, which is consumed at `config/cursor.nix:58`; do not follow `pi.nix:491`, which is a `let` binding the module body never references and therefore never fires)
+    009d3074e7fb4615:
+        hash: 0769872d97275e49
+        text: 'Confirm: the owner approves the staged diff before any commit'
+    17e2f5ae92cead3a:
+        hash: 6c7426797ec79705
+        text: Add a build assertion that a producer may be turned off only when the same harness is bridged, keying on the bridge artifact itself (the `customExtensionFiles` entry for pi, the plugin path for OpenCode) rather than on the coverage-set label, so editing the label alone cannot defeat the guard
+    26f11102d892ea2f:
+        hash: 9fb569a170364543
+        text: 'Verify: `nix flake check` and `nh darwin build` are green; review `git diff`'
+    30ae706730df7e71:
+        hash: 469f7abf4e62f681
+        text: 'Verify: `harden-agent-shell-terminal` has landed its state-file version field and its collection step; without collection the widget shows a permanent badge for a killed pane, because only Claude writes an exit event and the widget may not call the WezTerm CLI to check liveness'
+    59d8440a62717692:
+        hash: 7fac38c66d55bb1a
+        text: 'Confirm: one toast per claude wait; the statusline still names a scraped opencode pane; pi and OpenCode still notify through their own producers, which this slice deliberately leaves on'
+    69b9da8301e1303c:
+        hash: 941d2420435d25c5
+        text: Add a check derivation scanning the agent-deck block in `ui.lua`, the `extensions` list in `pi.nix`, and the OpenCode TUI attribute set for a re-enabled producer; fail with the producer name and name `agent-notify` as the owner. Without this, reverting `ui.lua` to `notifications.enabled = true` passes every other check
+    88d08c455e99e74a:
+        hash: 558c3432e08b50e7
+        text: Add a `nix flake check` derivation asserting the producer group string and the handler removal string are equal (follows the hermetic `pkgs.runCommand` checks at `flake.nix:229`)
+    309e673af643ee99:
+        hash: ead048565bb7266c
+        text: 'Verify: `nix fmt -- --check` is clean and `git diff` is reviewed'
+    724e0cf3494c8843:
+        hash: dcfa65b305f11b10
+        text: Implement worst-wins ordering matching `ui.lua`; skip a file that does not parse, that declares a version the widget does not understand, or that declares no version at all
+    77979ada5f594822:
+        hash: 04a868b323c12f37
+        text: Move pi from deferred to bridged in the coverage set, and remove `notify` from the vendored extension list in `pi.nix`, both in the same commit as 3.4, so pi is never left with no producer
+    095584d231340a1e:
+        hash: 044e1f5a081751c9
+        text: Register the widget in the sketchybar bar configuration
+    96385c3ceb69f352:
+        hash: 4cc54e2eefd7e644
+        text: Install the pi extension through `customExtensionFiles` in `pi.nix`
+    712727f254e1be9a:
+        hash: 7230d65aa8ef2a98
+        text: 'Adversarial review (`adversarial-review` skill): critics attempt to break this slice against its spec scenarios; revise until no surviving objection or K=4 rounds'
+    765674a4d0743b77:
+        hash: 9685cffd8028f43f
+        text: Replace the notification group with `agent:<pane-id>` in `agent-notify.sh` and `agent-prompt.sh`, falling back to the existing `agent-notify:<agent>:<context>` form when `WEZTERM_PANE` is empty; ssh does not forward it and the notifier still runs (follows the existing group construction at `agent-notify.sh:162`)
+    53431847e6c9d4c6:
+        hash: 1e94066eb07ccd5b
+        text: Replace the `agent.png` fallback with a distinct generic glyph and extend the label table in `agent-notify.sh` and `agent-prompt.sh`
+    039547408701133d:
+        hash: 9f14c91ec01611d8
+        text: Author the OpenCode plugin, or leave OpenCode deferred when 3.1 finds no usable event
+    a1adb2293e35d16c:
+        hash: 02b81cb15898380d
+        text: Confirm both bridges swallow every error and never fail a turn
+    a689bd3bc52dc8e0:
+        hash: 9b32a31ea9519825
+        text: Record cursor and copilot as no-surface with the reason
+    a829523060f68ad0:
+        hash: 7230d65aa8ef2a98
+        text: 'Adversarial review (`adversarial-review` skill): critics attempt to break this slice against its spec scenarios; revise until no surviving objection or K=4 rounds'
+    aac8f0193aaf7ecb:
+        hash: f2d33905fa503b07
+        text: Route `@CONTENTCLICKED` and `@ACTIONCLICKED` on the approval waiter in `agent-prompt.sh` to `agent-focus`, keeping the Accept and Deny relay
+    ab337fa1b1667b7d:
+        hash: 2c49c1448e79cc00
+        text: 'Verify: `nix flake check` and `nh darwin build` are green'
+    afa23f1ce95db2c5:
+        hash: ab6283d97926227f
+        text: 'Confirm: the bar restarts; the widget is empty with no agent running and names the session when one pane waits'
+    afcf5bdfa71292d4:
+        hash: da6b246a0466599e
+        text: 'Apply: `nh darwin switch`'
+    b0bbada751bcba50:
+        hash: da6b246a0466599e
+        text: 'Apply: `nh darwin switch`'
+    b560d46f1ff5eaf5:
+        hash: 88a8071f6b3a4870
+        text: 'Spike: confirm the OpenCode 1.18.4 plugin event names for session idle and permission request against the installed build; record the result in `design.md` Open Questions'
+    bb70b5e1df7c6418:
+        hash: 2c49c1448e79cc00
+        text: 'Verify: `nix flake check` and `nh darwin build` are green'
+    be27f40559fe0380:
+        hash: da6b246a0466599e
+        text: 'Apply: `nh darwin switch`'
+    c1ec81bdf8e3b538:
+        hash: 64ee44eca76bb615
+        text: 'Apply: stage the change and propose a commit message per the `writing-commit-message` skill'
+    c4f776fd436f3e45:
+        hash: 265580ac92fa7fd6
+        text: Confirm the bridge binds `agent_settled` and not `agent_end`, and that a retried or auto-compacted run raises no done toast
+    c8f55da8e6a12a47:
+        hash: 7230d65aa8ef2a98
+        text: 'Adversarial review (`adversarial-review` skill): critics attempt to break this slice against its spec scenarios; revise until no surviving objection or K=4 rounds'
+    c167c6c377975f51:
+        hash: a534a12a94c9909e
+        text: Build the coverage set in `notify.nix` naming all eleven configured harnesses, each as bridged, deferred, or no-surface
+    cf57a1cc967e6375:
+        hash: 4f5b53b4ae679ab6
+        text: 'Confirm: one pi turn and one OpenCode turn each raise one toast and write one state file; kill the notifier binary and confirm neither session breaks'
+    d6c6a87f14211a1c:
+        hash: fc3ac738763f10af
+        text: Record pi and opencode as deferred, naming slice 3 as the change that wires them; both keep their own producer through this slice
+    d7b55bf15fa692b1:
+        hash: f90ba0b9a11e0507
+        text: 'Confirm: an approval toast dismisses on click; two idle panes of one harness both notify; a pi toast carries the pi icon'
+    d878c5603fc707c9:
+        hash: 7230d65aa8ef2a98
+        text: 'Adversarial review (`adversarial-review` skill): critics attempt to break this slice against its spec scenarios; revise until no surviving objection or K=4 rounds'
+    e650d6525a37def4:
+        hash: 54d62155d6e57f5e
+        text: Author `widgets/agents.lua` reading `$XDG_STATE_HOME/agents/panes/*.json` (follows `widgets/front_app.lua`)
+    f1fa329d45d67375:
+        hash: 61512889dd4a1259
+        text: Record gemini, devin, amp, crush, and goose as deferred, naming the hook or scraping surface each exposes and the change that will wire it; gemini and devin already render PreToolUse hooks, so "no surface" is false for them
+    f1955e41360db480:
+        hash: da6b246a0466599e
+        text: 'Apply: `nh darwin switch`'
