@@ -6,6 +6,7 @@
 }:
 let
   llmLib = import ../lib { inherit lib; };
+  piKeys = import ./pi-settings-keys.nix;
   kit = llmLib.harnessKit.mkKit { inherit lib pkgs config; };
 
   # Extension TypeScript comes from the installed pi package, which ships its own
@@ -652,21 +653,14 @@ let
   # `showLastPrompt` shipped in this repository AND in the pi-extension-config
   # spec without anyone noticing, and `powerline` was written by pi's own
   # /settings screen.
-  piRetiredSettings = [
-    "showLastPrompt"
-    "powerline"
-  ];
+  inherit (piKeys) retired;
+  piRetiredSettings = retired;
 
   # Keys this module once declared and has since handed back to the owner. They
   # are NOT retired: retiring would delete the owner's runtime choice on every
   # activation. They are listed so the handback is a recorded decision rather
   # than an edit someone has to reconstruct from git history.
-  piOwnerPreferenceKeys = [
-    "defaultProvider"
-    "defaultModel"
-    "defaultThinkingLevel"
-    "hideThinkingBlock"
-  ];
+  piOwnerPreferenceKeys = piKeys.ownerPreference;
 
   # A key cannot be both declared and handed back.
   piPreferenceOverlap = lib.intersectLists piDeclaredKeys piOwnerPreferenceKeys;
@@ -685,6 +679,19 @@ let
   assertThemeSelected =
     if (piManagedSettings.theme or "") != "stylix" then
       throw "pi.nix: the stylix theme is generated and installed but `piManagedSettings.theme` does not select it."
+    else
+      true;
+
+  # The rendered settings must match the declared list exactly, in both
+  # directions. Otherwise the flake check verifies a list that is not what the
+  # module actually writes.
+  keysNotDeclared = lib.subtractLists piKeys.declared piDeclaredKeys;
+  keysNotRendered = lib.subtractLists piDeclaredKeys piKeys.declared;
+  assertKeysMatchManifest =
+    if keysNotDeclared != [ ] then
+      throw "pi.nix: ${lib.concatStringsSep ", " keysNotDeclared} is written to settings.json but missing from pi-settings-keys.nix, so nothing verifies it against the installed binary."
+    else if keysNotRendered != [ ] then
+      throw "pi.nix: ${lib.concatStringsSep ", " keysNotRendered} is listed in pi-settings-keys.nix but not written to settings.json. Remove the stale entry."
     else
       true;
 
@@ -755,6 +762,7 @@ in
         assert assertPiKeysDisjoint;
         assert assertThemeSelected;
         assert assertPreferencesUndeclared;
+        assert assertKeysMatchManifest;
         extensionFiles
       )
       // customExtensionFiles

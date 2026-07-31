@@ -622,17 +622,7 @@
                 fail=0
 
                 # Declared keys must be present.
-                for k in ${
-                  lib.concatStringsSep " " [
-                    "packages"
-                    "quietStartup"
-                    "theme"
-                    "enableInstallTelemetry"
-                    "shellCommandPrefix"
-                    "externalEditor"
-                    "skills"
-                  ]
-                }; do
+                for k in ${lib.concatStringsSep " " (import ./modules/home/programs/llm/config/pi-settings-keys.nix).declared}; do
                   if ! rg -qa "$k" "$bin"; then
                     echo "FAIL: pi.nix declares '$k' but the installed pi build does not know it" >&2
                     fail=1
@@ -641,12 +631,7 @@
 
                 # Retired keys must stay absent, so a future edit cannot quietly
                 # reintroduce one that the binary never reads.
-                for k in ${
-                  lib.concatStringsSep " " [
-                    "showLastPrompt"
-                    "powerline"
-                  ]
-                }; do
+                for k in ${lib.concatStringsSep " " (import ./modules/home/programs/llm/config/pi-settings-keys.nix).retired}; do
                   if rg -qa "$k" "$bin"; then
                     echo "FAIL: '$k' is retired but now exists in the pi build; re-evaluate it" >&2
                     fail=1
