@@ -47,6 +47,73 @@ let
         "sha256-DTSwqoKcIwlOr84UR0gdVvQd3mXXeRISItzylJQ90kU=";
   };
 
+  # Notification coverage for every harness this repository configures. Each
+  # name sits in exactly one of three states, and a configured harness in none
+  # of them fails the build below.
+  #
+  #   bridged     reaches agent-notify through the surface it exposes
+  #   deferred    exposes a surface, wiring not done, reason names what and when
+  #   noSurface   exposes no hook, extension, or plugin mechanism at all
+  #
+  # The distinction between deferred and noSurface is load-bearing. gemini and
+  # devin each render a PreToolUse hook file today (gemini.nix:33, devin.nix:30),
+  # so calling them surfaceless would be false. cursor and copilot expose no hook
+  # mechanism: neither `cursor-agent --help` nor `copilot --help` names one, and
+  # a string scan of the installed copilot bundle finds none.
+  # Reaches agent-notify from its own lifecycle hooks. This path carries a
+  # reason string, so its toasts name the tool and its input.
+  hookBridged = [
+    "claude"
+    "codex"
+  ];
+
+  # Reaches agent-notify from the agent-deck scrape bridge in ui.lua. agent-deck
+  # detects these by process, argv, and title pattern, and the bridge forwards
+  # the transition. This path carries a status but no reason, so its toasts are
+  # less specific than the hook path. A pane that emits its own agent_state is
+  # skipped by the bridge, so a hook-bridged harness is never announced twice.
+  scrapeBridged = [
+    "amp"
+    "copilot"
+    "crush"
+    "cursor"
+    "devin"
+    "gemini"
+    "goose"
+    "opencode"
+    "pi"
+  ];
+
+  # Every harness config imported by default.nix. Compared against the coverage
+  # set below, so adding a harness without classifying it fails the build rather
+  # than silently shipping a harness nothing notifies for.
+  configuredHarnesses = [
+    "amp"
+    "claude"
+    "codex"
+    "copilot"
+    "crush"
+    "cursor"
+    "devin"
+    "gemini"
+    "goose"
+    "opencode"
+    "pi"
+  ];
+
+  covered = hookBridged ++ scrapeBridged;
+
+  uncovered = lib.subtractLists covered configuredHarnesses;
+  stale = lib.subtractLists configuredHarnesses covered;
+
+  assertCoverageTotal =
+    if uncovered != [ ] then
+      throw "notify.nix: ${lib.concatStringsSep ", " uncovered} configured but reaches no notifier. Add each to hookBridged or scrapeBridged."
+    else if stale != [ ] then
+      throw "notify.nix: ${lib.concatStringsSep ", " stale} named as covered but not configured. Remove the stale entry."
+    else
+      "";
+
   # Harnesses with no correct brand asset. They render the generic glyph, which
   # is visually distinct from every entry in `svgs` above, so an unrecognized
   # agent is never mistaken for a recognized one.
@@ -100,6 +167,7 @@ let
 
   icons = pkgs.runCommand "agent-notify-icons" { nativeBuildInputs = [ pkgs.librsvg ]; } (
     assertGenericDisjoint
+    + assertCoverageTotal
     + "mkdir -p $out\n"
     + lib.concatStringsSep "\n" (
       lib.mapAttrsToList (

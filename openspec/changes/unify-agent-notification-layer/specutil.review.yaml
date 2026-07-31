@@ -1,9 +1,9 @@
 version: 1
 change: unify-agent-notification-layer
 decision: approved
-note: adversarial review complete; terminal state recorded in tasks.md
-change_hash: 0883dc5791894452
-base_commit: 09942a5c90d6ca6e96a54aa3413cb3239a05313b
+note: phases 1 and 2 applied
+change_hash: 671a6d8849030a69
+base_commit: db92ea3c64824fbb1287fd506158217cbf4e280a
 items:
     1b82cca1801d569a:
         hash: 4d6c07ec02b04020
@@ -35,21 +35,24 @@ items:
     9cae6f5676aa8ad5:
         hash: 9a991289309e7e62
         text: Rebuild the group from the pane id alone in `agent-focus.sh` and delete the state-file identity read used only for the group
-    9e406252371f4413:
-        hash: 37efba697c43c1a4
-        text: Add a build assertion that fails when a configured harness is in neither the bridged, deferred, nor no-surface set (follows the `validateMdc` assertion at `config/cursor.nix:43`, which is consumed at `config/cursor.nix:58`; do not follow `pi.nix:491`, which is a `let` binding the module body never references and therefore never fires)
     009d3074e7fb4615:
         hash: 0769872d97275e49
         text: 'Confirm: the owner approves the staged diff before any commit'
     17e2f5ae92cead3a:
         hash: 6c7426797ec79705
         text: Add a build assertion that a producer may be turned off only when the same harness is bridged, keying on the bridge artifact itself (the `customExtensionFiles` entry for pi, the plugin path for OpenCode) rather than on the coverage-set label, so editing the label alone cannot defeat the guard
+    26f371943d96637c:
+        hash: 62f96315eda85ad9
+        text: Add a build assertion that fails when a configured harness reaches no notifier, and when a covered name is not configured. Forced from the `icons` derivation, following `config/cursor.nix:43`, consumed at `config/cursor.nix:58`. Both directions negative-tested
     27d6c99d650d416f:
         hash: df739965d751d929
         text: 'Add icon fetches to `notify.nix` for opencode, pi, and copilot (follows the pinned-hash block at `notify.nix:24`). amp, crush, goose, and devin are listed as intentionally generic instead: simpleicons has no crush or goose entry, and its "AMP" icon sources from amp.dev, which is Google Accelerated Mobile Pages, not Sourcegraph Amp'
     30ae706730df7e71:
         hash: 469f7abf4e62f681
         text: 'Verify: `harden-agent-shell-terminal` has landed its state-file version field and its collection step; without collection the widget shows a permanent badge for a killed pane, because only Claude writes an exit event and the widget may not call the WezTerm CLI to check liveness'
+    33d8225aa54d74d4:
+        hash: d66c81c6ebea8d4a
+        text: Add agent-deck detection patterns for gemini, devin, and pi, and bridge every agent-deck transition into `agent-notify`, skipping panes that emit their own `agent_state` so a hook-bridged harness is never announced twice
     40a8fdf53d4da914:
         hash: c1389bff72961541
         text: 'Adversarial review (`adversarial-review` skill): critics attempt to break this phase against its spec scenarios; revise until no surviving objection or K=4 rounds'
@@ -59,15 +62,15 @@ items:
     68c6302e85057ca0:
         hash: 356aebe6bc03ce2e
         text: Move OpenCode to bridged and add `attention.notifications = false` to the TUI config attribute set created by `modernize-opencode-and-pi-config` phase 1, both in the same commit as 3.6, and only when 3.6 produced a working plugin
-    69b9da8301e1303c:
-        hash: 941d2420435d25c5
-        text: Add a check derivation scanning the agent-deck block in `ui.lua`, the `extensions` list in `pi.nix`, and the OpenCode TUI attribute set for a re-enabled producer; fail with the producer name and name `agent-notify` as the owner. Without this, reverting `ui.lua` to `notifications.enabled = true` passes every other check
     309e673af643ee99:
         hash: ead048565bb7266c
         text: 'Verify: `nix fmt -- --check` is clean and `git diff` is reviewed'
     724e0cf3494c8843:
         hash: dcfa65b305f11b10
         text: Implement worst-wins ordering matching `ui.lua`; skip a file that does not parse, that declares a version the widget does not understand, or that declares no version at all
+    967c2db4f0f82f8b:
+        hash: edab2732b6b5c9de
+        text: Build the coverage set in `notify.nix` naming all eleven configured harnesses as hook-bridged or scrape-bridged. Reasons are comments, not Nix string values; the data is only which set a harness is in
     77979ada5f594822:
         hash: 04a868b323c12f37
         text: Move pi from deferred to bridged in the coverage set, and remove `notify` from the vendored extension list in `pi.nix`, both in the same commit as 3.4, so pi is never left with no producer
@@ -80,6 +83,9 @@ items:
     765674a4d0743b77:
         hash: 9685cffd8028f43f
         text: Replace the notification group with `agent:<pane-id>` in `agent-notify.sh` and `agent-prompt.sh`, falling back to the existing `agent-notify:<agent>:<context>` form when `WEZTERM_PANE` is empty; ssh does not forward it and the notifier still runs (follows the existing group construction at `agent-notify.sh:162`)
+    052419782b80e4b8:
+        hash: 0d3f08d6bcee623c
+        text: 'Superseded by 2.4: pi and opencode are scrape-bridged now. Phase 3 still replaces the scrape path with their richer native surfaces'
     53431847e6c9d4c6:
         hash: 1e94066eb07ccd5b
         text: Replace the `agent.png` fallback with a distinct generic glyph and extend the label table in `agent-notify.sh` and `agent-prompt.sh`
@@ -92,9 +98,9 @@ items:
     a1adb2293e35d16c:
         hash: 02b81cb15898380d
         text: Confirm both bridges swallow every error and never fail a turn
-    a689bd3bc52dc8e0:
-        hash: 9b32a31ea9519825
-        text: Record cursor and copilot as no-surface with the reason
+    a5d360abda5904c9:
+        hash: 564e0ad0f46dc2c7
+        text: 'Superseded: no harness is uncovered. cursor and copilot reach `agent-notify` through the agent-deck scrape bridge'
     aac8f0193aaf7ecb:
         hash: f2d33905fa503b07
         text: Route `@CONTENTCLICKED` and `@ACTIONCLICKED` on the approval waiter in `agent-prompt.sh` to `agent-focus`, keeping the Accept and Deny relay
@@ -128,21 +134,15 @@ items:
     c5dd66bf316cd7c2:
         hash: a19cd0c5981d10b9
         text: 'Adversarial review (`adversarial-review` skill): terminal state `CLEAN`, 0 open, within the K=2 cap for a one-phase review. Round 1 (spec-conformance lens): 6 surviving, all fixed. The phase did not meet its own STOP condition; 3 of 4 defects had no regression check. Round 2 (implementation lens): 4 raised, 3 already closed by round 1''s revisions, 1 new and fixed (the paneless dedup key used a lossy `tr` substitution, so `my session` and `my_session` shared a suppression key). Round 2 re-check: no surviving objection. The one objection the critic re-raised was a stale read: it ran `git diff HEAD`, which is empty for a fix that is committed rather than staged. Trend 6, 1, 0.'
-    c167c6c377975f51:
-        hash: a534a12a94c9909e
-        text: Build the coverage set in `notify.nix` naming all eleven configured harnesses, each as bridged, deferred, or no-surface
     cf57a1cc967e6375:
         hash: 4f5b53b4ae679ab6
         text: 'Confirm: one pi turn and one OpenCode turn each raise one toast and write one state file; kill the notifier binary and confirm neither session breaks'
+    e1a1863d4b9cc38d:
+        hash: 6b71f93b55d2dd9d
+        text: 'Extend `notify-defect-regressions` with three assertions: the agent-deck toast stays off, the bridge forwards into `agent-notify`, and the bridge skips hook-bridged panes. All three negative-tested'
     e650d6525a37def4:
         hash: 54d62155d6e57f5e
         text: Author `widgets/agents.lua` reading `$XDG_STATE_HOME/agents/panes/*.json` (follows `widgets/front_app.lua`)
-    ebc0f779d6fc1dd7:
-        hash: f67a77f2026f3442
-        text: Record pi and opencode as deferred, naming phase 3 as the change that wires them; both keep their own producer through this phase
-    f1fa329d45d67375:
-        hash: 61512889dd4a1259
-        text: Record gemini, devin, amp, crush, and goose as deferred, naming the hook or scraping surface each exposes and the change that will wire it; gemini and devin already render PreToolUse hooks, so "no surface" is false for them
     f1955e41360db480:
         hash: da6b246a0466599e
         text: 'Apply: `nh darwin switch`'

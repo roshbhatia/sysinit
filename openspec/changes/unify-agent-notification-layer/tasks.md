@@ -50,28 +50,26 @@
 ## 2. Coverage set and agent-deck
 
 - **SHAPE** graph
-- [ ] 2.1 Set `notifications.enabled = false` in the agent-deck block of
+- [x] 2.1 Set `notifications.enabled = false` in the agent-deck block of
       `ui.lua`, keeping every scraping option unchanged `deps: none`
-- [ ] 2.2 Build the coverage set in `notify.nix` naming all eleven configured
-      harnesses, each as bridged, deferred, or no-surface `deps: none`
-- [ ] 2.3 Record cursor and copilot as no-surface with the reason `deps: 2.2`
-- [ ] 2.4 Record gemini, devin, amp, crush, and goose as deferred, naming the
-      hook or scraping surface each exposes and the change that will wire it;
-      gemini and devin already render PreToolUse hooks, so "no surface" is
-      false for them `deps: 2.2`
-- [ ] 2.5 Record pi and opencode as deferred, naming phase 3 as the change that
-      wires them; both keep their own producer through this phase `deps: 2.2`
-- [ ] 2.6 Add a build assertion that fails when a configured harness is in
-      neither the bridged, deferred, nor no-surface set (follows the
-      `validateMdc` assertion at `config/cursor.nix:43`, which is consumed at
-      `config/cursor.nix:58`; do not follow `pi.nix:491`, which is a `let`
-      binding the module body never references and therefore never fires)
-      `deps: 2.3,2.4,2.5`
-- [ ] 2.7 Add a check derivation scanning the agent-deck block in `ui.lua`, the
-      `extensions` list in `pi.nix`, and the OpenCode TUI attribute set for a
-      re-enabled producer; fail with the producer name and name `agent-notify`
-      as the owner. Without this, reverting `ui.lua` to
-      `notifications.enabled = true` passes every other check `deps: 2.1`
+- [x] 2.2 Build the coverage set in `notify.nix` naming all eleven configured
+      harnesses as hook-bridged or scrape-bridged. Reasons are comments, not
+      Nix string values; the data is only which set a harness is in `deps: none`
+- [x] 2.3 Superseded: no harness is uncovered. cursor and copilot reach
+      `agent-notify` through the agent-deck scrape bridge `deps: 2.2`
+- [x] 2.4 Add agent-deck detection patterns for gemini, devin, and pi, and
+      bridge every agent-deck transition into `agent-notify`, skipping panes
+      that emit their own `agent_state` so a hook-bridged harness is never
+      announced twice `deps: 2.2`
+- [x] 2.5 Superseded by 2.4: pi and opencode are scrape-bridged now. Phase 3
+      still replaces the scrape path with their richer native surfaces `deps: 2.2`
+- [x] 2.6 Add a build assertion that fails when a configured harness reaches no
+      notifier, and when a covered name is not configured. Forced from the
+      `icons` derivation, following `config/cursor.nix:43`, consumed at
+      `config/cursor.nix:58`. Both directions negative-tested `deps: 2.3,2.4,2.5`
+- [x] 2.7 Extend `notify-defect-regressions` with three assertions: the
+      agent-deck toast stays off, the bridge forwards into `agent-notify`, and
+      the bridge skips hook-bridged panes. All three negative-tested `deps: 2.1`
 - [ ] 2.8 Adversarial review (`adversarial-review` skill): critics attempt to
       break this phase against its spec scenarios; revise until no surviving
       objection or K=4 rounds

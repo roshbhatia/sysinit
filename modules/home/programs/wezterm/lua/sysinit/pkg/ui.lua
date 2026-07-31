@@ -102,9 +102,15 @@ function M.setup(config)
       right_status = { enabled = false },
       cooldown_ms = 150,
       max_lines = 500,
+      -- agent-deck's own toast is off, but its scraping is not: the bridge below
+      -- forwards its transitions into agent-notify, so agent-notify stays the
+      -- only producer while every scraped harness still gets announced.
+      --
+      -- Its native backend cannot carry a session, a repo, or an icon, so
+      -- keeping it on would mean two toast styles for one event.
       notifications = {
-        enabled = true,
-        on_waiting = true,
+        enabled = false,
+        on_waiting = false,
         backend = "native",
       },
       agents = {
@@ -153,8 +159,69 @@ function M.setup(config)
           argv_patterns = { "bunx%s+opencode", "npx%s+opencode", "/opencode$" },
           title_patterns = { "opencode" },
         },
+        -- Added so the scrape bridge below covers them. gemini and devin render
+        -- PreToolUse hooks but expose no notification event, and pi's extension
+        -- bridge is not written yet, so scraping is their only path today.
+        gemini = {
+          patterns = { "antigravity", "agy", "gemini" },
+          executable_patterns = { "/agy$", "antigravity%-cli" },
+          argv_patterns = { "^agy%s*$" },
+          title_patterns = { "antigravity", "gemini" },
+        },
+        devin = {
+          patterns = { "devin" },
+          executable_patterns = { "/devin$" },
+          argv_patterns = { "^devin%s*$" },
+          title_patterns = { "devin" },
+        },
+        pi = {
+          patterns = { "^pi$", "/pi$" },
+          executable_patterns = { "/pi$", "pi%-coding%-agent" },
+          argv_patterns = { "^pi%s*$" },
+          title_patterns = { "^pi$" },
+        },
       },
     })
+
+    -- Bridge: forward an agent-deck transition into agent-notify, so one
+    -- producer announces every harness whether or not it has lifecycle hooks.
+    --
+    -- Skips any pane that emits its own `agent_state` user-var. Those panes are
+    -- hook-bridged and agent-notify already ran for them with a real reason
+    -- string; forwarding the scrape too would announce the same event twice,
+    -- which is the defect this whole change exists to remove.
+    local notified = {}
+    wezterm.on("update-status", function()
+      local ok, deck_states = pcall(agent_deck.get_all_agent_states)
+      if not ok or type(deck_states) ~= "table" then return end
+      for _, win in ipairs(wezterm.mux.all_windows()) do
+        for _, tab in ipairs(win:tabs()) do
+          for _, p in ipairs(tab:panes()) do
+            local id = p:pane_id()
+            local deck = deck_states[id]
+            if deck and (deck.status == "waiting" or deck.status == "done") then
+              -- Hook-bridged panes own their own notification.
+              local uv = p:get_user_vars()
+              if not (uv and uv.agent_state and uv.agent_state ~= "") then
+                -- One notification per (pane, status) transition, not per tick.
+                if notified[id] ~= deck.status then
+                  notified[id] = deck.status
+                  local reason = deck.status == "waiting" and "idle" or "done"
+                  wezterm.background_child_process({
+                    os.getenv("HOME") .. "/.nix-profile/bin/agent-notify",
+                    deck.agent or "agent",
+                    reason,
+                    os.getenv("HOME") .. "/.nix-profile/bin/agent-focus",
+                  })
+                end
+              end
+            elseif deck == nil or deck.status == "working" then
+              notified[id] = nil
+            end
+          end
+        end
+      end
+    end)
 
     -- Prune stale agent-deck state for closed panes (fixes count-never-decrements bug).
     -- agent-deck's own update-status handler only visits panes that currently exist;

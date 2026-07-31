@@ -674,8 +674,25 @@
                   note "agent.png is byte-identical to claude.png; every unrecognized agent renders as Claude"
                 fi
 
+                # --- defect 5: agent-notify is the only toast producer --------
+                # The agent-deck flag is a Lua literal, so nothing else reads it.
+                # Reverting it to true silently restores the double-announce.
+                ui=${./modules/home/programs/wezterm/lua/sysinit/pkg/ui.lua}
+                rg -qU 'notifications = \{\s*\n\s*enabled = false' "$ui" ||
+                  note "agent-deck notifications are re-enabled in ui.lua; agent-notify is meant to be the only producer"
+
+                # The scrape bridge must forward into agent-notify, and must
+                # skip a pane that already emits its own state. Without the skip
+                # a hook-bridged harness is announced twice.
+                rg -q 'agent-notify' "$ui" ||
+                  note "ui.lua does not forward agent-deck transitions into agent-notify"
+                # Anchor on the guard itself. A bare 'uv.agent_state' also
+                # matches two unrelated readers further down the file.
+                rg -q 'if not \(uv and uv.agent_state' "$ui" ||
+                  note "the scrape bridge does not skip hook-bridged panes; claude will double-notify"
+
                 [ "$fail" -eq 0 ] || exit 1
-                echo "OK: four notification defects each have a failing-on-revert assertion" | tee "$out"
+                echo "OK: five notification defects each have a failing-on-revert assertion" | tee "$out"
               '';
 
           zsh-fragments-parse =
