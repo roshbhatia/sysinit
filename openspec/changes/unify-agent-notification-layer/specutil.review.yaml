@@ -1,9 +1,9 @@
 version: 1
 change: unify-agent-notification-layer
 decision: approved
-note: slice 1 applied and verified on the live system
-change_hash: 4948ae0bfc5b9292
-base_commit: 60329a85dbba79aedfdfe26b5dddaa270c1a32d9
+note: 'slice 1: 2 rounds, terminal state CLEAN, 0 open'
+change_hash: b4f693658c9bf376
+base_commit: 1810ae9bf2216432f9fa68044c0a0b2c0914306d
 items:
     1b82cca1801d569a:
         hash: 4d6c07ec02b04020
@@ -80,6 +80,9 @@ items:
     53431847e6c9d4c6:
         hash: 1e94066eb07ccd5b
         text: Replace the `agent.png` fallback with a distinct generic glyph and extend the label table in `agent-notify.sh` and `agent-prompt.sh`
+    77054129ae8a46c0:
+        hash: 44b40f3821e8952e
+        text: 'Adversarial review (`adversarial-review` skill): terminal state `CLEAN`, 0 open, within the K=2 cap for a one-slice review. Round 1 (spec-conformance lens): 6 surviving, all fixed. The slice did not meet its own STOP condition; 3 of 4 defects had no regression check. Round 2 (implementation lens): 4 raised, 3 already closed by round 1''s revisions, 1 new and fixed (the paneless dedup key used a lossy `tr` substitution, so `my session` and `my_session` shared a suppression key). Round 2 re-check: no surviving objection. The one objection the critic re-raised was a stale read: it ran `git diff HEAD`, which is empty for a fix that is committed rather than staged. Trend 6, 1, 0.'
     039547408701133d:
         hash: 9f14c91ec01611d8
         text: Author the OpenCode plugin, or leave OpenCode deferred when 3.1 finds no usable event
@@ -140,9 +143,6 @@ items:
     e650d6525a37def4:
         hash: 54d62155d6e57f5e
         text: Author `widgets/agents.lua` reading `$XDG_STATE_HOME/agents/panes/*.json` (follows `widgets/front_app.lua`)
-    ebb4469b2f337572:
-        hash: 3342626d17fbf3e6
-        text: 'Adversarial review (`adversarial-review` skill): terminal state `CAPPED` at K=2, the scaled cap for a one-slice review, with 0 open. Round 1 (spec-conformance lens): 6 surviving, all fixed. The slice did not meet its own STOP condition; 3 of 4 defects had no regression check. Round 2 (implementation lens): 4 raised, 3 already closed by round 1''s revisions, 1 new and fixed (the paneless dedup key used a lossy `tr` substitution, so `my session` and `my_session` shared a suppression key). Trend 6 to 1, declining. No round returned clean; the cap stopped it.'
     f1fa329d45d67375:
         hash: 61512889dd4a1259
         text: Record gemini, devin, amp, crush, and goose as deferred, naming the hook or scraping surface each exposes and the change that will wire it; gemini and devin already render PreToolUse hooks, so "no surface" is false for them

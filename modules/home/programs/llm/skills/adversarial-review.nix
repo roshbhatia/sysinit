@@ -72,6 +72,28 @@
   `printenv` prints nothing for an unset name rather than a blank line, so read
   each name separately when the distinction matters.
 
+  ## Tell the critic exactly which tree to read (MUST)
+
+  A critic that reads the wrong revision produces confident false positives. The
+  common trap is `git diff HEAD`: it is empty once the author commits, so a
+  critic re-checking after a commit sees no change and reports the original
+  defect as unfixed. Observed in this repository: a critic re-raised a
+  character-substitution bug that had already been fixed and committed, citing
+  "`git diff HEAD` shows no edit to this line".
+
+  Every critic prompt MUST name the revision under review in one of these
+  forms, and MUST tell the critic to read file contents rather than a diff when
+  it needs current state:
+
+  - working tree, uncommitted: "the work is STAGED; read `git diff --cached`"
+  - working tree, committed: "the work is in commits `<base>..<head>`; read
+    `git diff <base>..<head>`, and read the file itself for current state"
+  - a re-check after revisions: "read the files directly; do NOT use
+    `git diff HEAD`, the fixes are committed"
+
+  When a critic reports a defect as unfixed, the author MUST verify against the
+  file before acting. Re-fixing an already-fixed defect is how a loop churns.
+
   ## Critics are read-only (MUST)
 
   A critic MUST NOT modify the working tree. Spawn every critic with a read-only

@@ -28,13 +28,15 @@
       `agent_group` rather than grepping for the call, because a call that
       passes an empty pane reproduces the defect with the call still present
 - [x] 1.8 Adversarial review (`adversarial-review` skill): terminal state
-      `CAPPED` at K=2, the scaled cap for a one-slice review, with 0 open.
+      `CLEAN`, 0 open, within the K=2 cap for a one-slice review.
       Round 1 (spec-conformance lens): 6 surviving, all fixed. The slice did not
       meet its own STOP condition; 3 of 4 defects had no regression check.
       Round 2 (implementation lens): 4 raised, 3 already closed by round 1's
       revisions, 1 new and fixed (the paneless dedup key used a lossy `tr`
       substitution, so `my session` and `my_session` shared a suppression key).
-      Trend 6 to 1, declining. No round returned clean; the cap stopped it.
+      Round 2 re-check: no surviving objection. The one objection the critic
+      re-raised was a stale read: it ran `git diff HEAD`, which is empty for a
+      fix that is committed rather than staged. Trend 6, 1, 0.
 - [x] 1.9 Verify: `nix flake check` green (16 checks), host build green,
       `nix fmt -- --check` clean, all four defect assertions negative-tested
 - [x] 1.10 Apply: `nh darwin switch`
