@@ -163,7 +163,31 @@
 - [ ] 4.9 Confirm: the bar restarts; the widget is empty with no agent running
       and names the session when one pane waits
 
-## 5. Rollout
+## 5. Toast body names the review path
+
+- **SHAPE** loop
+- **STOP** a done toast names the repository, the branch, the dirty marker, and
+  the elapsed time, and degrades to the harness message when the state file is
+  missing
+- **MAX-ITERS** 2
+
+- [x] 5.1 Read the per-pane state file in `agent-notify.sh` and append
+      repo, branch, a dirty marker, and elapsed time to the body (follows the
+      state-file read already in `agent-focus.sh`)
+- [x] 5.2 Split the fields on `\u0001`, not on tab. Tab is an IFS whitespace
+      character, so bash collapses runs of them and an empty field shifts every
+      later value left; a repo with no branch read the timestamp as its branch
+- [x] 5.3 Extend `notify-defect-regressions` with two assertions covering the
+      state-file read and the separator, both negative-tested
+- [x] 5.4 Adversarial review: deferred to the change-level review; this phase is
+      one file and its two failure modes each have a failing-on-revert check
+- [x] 5.5 Verify: `nix flake check` green, shellcheck clean on the combined
+      script, field split confirmed across four state-file shapes
+- [x] 5.6 Apply: `nh darwin switch`
+- [ ] 5.7 Confirm: a real done toast reads
+      `your move — <repo> · <branch> ✱ — <age>`
+
+## 6. Rollout
 
 - [ ] 5.1 Verify: `openspec validate unify-agent-notification-layer` passes and
       `specutil check` reports no finding

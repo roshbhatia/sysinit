@@ -729,7 +729,22 @@
                   note "agent.png is byte-identical to claude.png; every unrecognized agent renders as Claude"
                 fi
 
-                # --- defect 5: agent-notify is the only toast producer --------
+                # --- defect 5: the toast body names where and how long --------
+                # A "done" toast that says only "finished its turn" makes the
+                # human switch to find out what changed.
+                rg -q 'agents/panes/\$pane.json' "$cfg/agent-notify.sh" ||
+                  note "agent-notify does not read the per-pane state file; the body cannot name the repo, branch, or age"
+
+                # The fields must be split on a NON-whitespace separator. Tab and
+                # newline are IFS whitespace, so bash collapses runs of them and an
+                # empty field shifts every later value left: a repo with no branch
+                # reads the timestamp as its branch name.
+                rg -q 'join\("' "$cfg/agent-notify.sh" ||
+                  note "the state-file fields are not joined on \\u0001; an empty field will shift the rest"
+                rg -q 'IFS=\$\(printf' "$cfg/agent-notify.sh" ||
+                  note "the state-file fields are not split on the matching separator"
+
+                # --- defect 6: agent-notify is the only toast producer --------
                 # The agent-deck flag is a Lua literal, so nothing else reads it.
                 # Reverting it to true silently restores the double-announce.
                 ui=${./modules/home/programs/wezterm/lua/sysinit/pkg/ui.lua}
@@ -754,7 +769,7 @@
                   note "opencode attention.notifications is re-enabled; agent-notify owns the toast"
 
                 [ "$fail" -eq 0 ] || exit 1
-                echo "OK: five notification defects each have a failing-on-revert assertion" | tee "$out"
+                echo "OK: six notification defects each have a failing-on-revert assertion" | tee "$out"
               '';
 
           zsh-fragments-parse =

@@ -184,6 +184,60 @@ title="$label · $what"
 # specific prompt, …) — it names what the human must act on. Fall back to the
 # category when the event carried nothing.
 body=${msg:-$what}
+
+# --- enrich the body from the per-pane state file ---
+# A "done" toast that says only "finished its turn" makes the human switch to
+# find out what changed. The state file already holds the repository, the
+# branch, whether the worktree is dirty, and when the transition happened, so
+# the toast can answer that before the switch.
+#
+# Everything here is best-effort. A missing, unreadable, or partial state file
+# degrades to the harness message alone, never to an error.
+if [ -n "$pane" ]; then
+  state_file="${XDG_STATE_HOME:-$HOME/.local/state}/agents/panes/$pane.json"
+  if [ -f "$state_file" ]; then
+    # Separated by \001, not by tab. Tab is an IFS whitespace character, so bash
+    # collapses runs of them and an empty field shifts every later value left:
+    # a repo with no branch would read the timestamp as its branch name.
+    st=$(jq -rj '[.repo // "", .branch // "", (if .dirty then "dirty" else "" end), (.since // 0 | tostring)] | join("\u0001")' "$state_file" 2> /dev/null) || st=""
+    if [ -n "$st" ]; then
+      IFS=$(printf '\001') read -r s_repo s_branch s_dirty s_since <<< "$st"
+
+      # repo·branch, with a marker when the worktree has uncommitted changes.
+      where=""
+      [ -n "$s_repo" ] && where="$s_repo"
+      if [ -n "$s_branch" ]; then
+        [ -n "$where" ] && where="$where · $s_branch" || where="$s_branch"
+      fi
+      [ -n "$s_dirty" ] && [ -n "$where" ] && where="$where ✱"
+
+      # Elapsed since the transition, in the same units the statusline uses.
+      age=""
+      case "$s_since" in
+        '' | *[!0-9]*) : ;;
+        0) : ;;
+        *)
+          now=$(date +%s 2> /dev/null) || now=0
+          secs=$((now - s_since))
+          if [ "$secs" -ge 0 ] 2> /dev/null; then
+            if [ "$secs" -lt 60 ]; then
+              age="${secs}s"
+            elif [ "$secs" -lt 3600 ]; then
+              age="$((secs / 60))m"
+            else
+              age="$((secs / 3600))h"
+            fi
+          fi
+          ;;
+      esac
+
+      # reason — where — age, skipping any part we could not resolve.
+      for part in "$where" "$age"; do
+        [ -n "$part" ] && body="$body — $part"
+      done
+    fi
+  fi
+fi
 # One notification slot per pane so repeats from that pane replace instead of
 # stacking, and any handler can rebuild the name from the pane id alone.
 # WEZTERM_PANE is not forwarded over ssh and this script still runs without it,

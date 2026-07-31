@@ -1,9 +1,9 @@
 version: 1
 change: unify-agent-notification-layer
 decision: approved
-note: phase 3 reviewed and reworked
-change_hash: f123aca889f30ced
-base_commit: 2a58a7b9c1d0828490a3f40ef01d0c0def76ac87
+note: phase 5 body enrichment applied
+change_hash: 19c5a7b55524a371
+base_commit: a465b87b71874a641999211ae2c5de116f7e8432
 items:
     00bde2a78e456b8b:
         hash: ff1a6eb6f71b9ea5
@@ -11,6 +11,9 @@ items:
     1b82cca1801d569a:
         hash: 4d6c07ec02b04020
         text: Set `notifications.enabled = false` in the agent-deck block of `ui.lua`, keeping every scraping option unchanged
+    1ba4c74e0a98fa2f:
+        hash: da6b246a0466599e
+        text: 'Apply: `nh darwin switch`'
     2abe2dadac60837c:
         hash: 6db6a7933f98115b
         text: Add a `nix flake check` derivation covering all four defects, each assertion failing when its fix is reverted (follows the hermetic `pkgs.runCommand` checks at `flake.nix:229`). The group assertion executes `agent_group` rather than grepping for the call, because a call that passes an empty pane reproduces the defect with the call still present
@@ -41,6 +44,9 @@ items:
     9cae6f5676aa8ad5:
         hash: 9a991289309e7e62
         text: Rebuild the group from the pane id alone in `agent-focus.sh` and delete the state-file identity read used only for the group
+    9e3b86a5afdbb578:
+        hash: 9280166305bfadb4
+        text: Split the fields on `\u0001`, not on tab. Tab is an IFS whitespace character, so bash collapses runs of them and an empty field shifts every later value left; a repo with no branch read the timestamp as its branch
     009d3074e7fb4615:
         hash: 0769872d97275e49
         text: 'Confirm: the owner approves the staged diff before any commit'
@@ -77,6 +83,12 @@ items:
     967c2db4f0f82f8b:
         hash: edab2732b6b5c9de
         text: Build the coverage set in `notify.nix` naming all eleven configured harnesses as hook-bridged or scrape-bridged. Reasons are comments, not Nix string values; the data is only which set a harness is in
+    7033fe4e7f78f9ff:
+        hash: 817b3e169187361f
+        text: Extend `notify-defect-regressions` with two assertions covering the state-file read and the separator, both negative-tested
+    52998b7441d8733a:
+        hash: adf1c389b05b4dea
+        text: Read the per-pane state file in `agent-notify.sh` and append repo, branch, a dirty marker, and elapsed time to the body (follows the state-file read already in `agent-focus.sh`)
     77979ada5f594822:
         hash: 04a868b323c12f37
         text: Move pi from deferred to bridged in the coverage set, and remove `notify` from the vendored extension list in `pi.nix`, both in the same commit as 3.4, so pi is never left with no producer
@@ -119,6 +131,9 @@ items:
     b0bbada751bcba50:
         hash: da6b246a0466599e
         text: 'Apply: `nh darwin switch`'
+    b06eff8e76af6944:
+        hash: 20499b310e048d92
+        text: 'Confirm: a real done toast reads `your move — <repo> · <branch> ✱ — <age>`'
     bb70b5e1df7c6418:
         hash: 2c49c1448e79cc00
         text: 'Verify: `nix flake check` and `nh darwin build` are green'
@@ -134,6 +149,12 @@ items:
     c5dd66bf316cd7c2:
         hash: a19cd0c5981d10b9
         text: 'Adversarial review (`adversarial-review` skill): terminal state `CLEAN`, 0 open, within the K=2 cap for a one-phase review. Round 1 (spec-conformance lens): 6 surviving, all fixed. The phase did not meet its own STOP condition; 3 of 4 defects had no regression check. Round 2 (implementation lens): 4 raised, 3 already closed by round 1''s revisions, 1 new and fixed (the paneless dedup key used a lossy `tr` substitution, so `my session` and `my_session` shared a suppression key). Round 2 re-check: no surviving objection. The one objection the critic re-raised was a stale read: it ran `git diff HEAD`, which is empty for a fix that is committed rather than staged. Trend 6, 1, 0.'
+    c980fea8e96fd826:
+        hash: 748517946d0f8d92
+        text: 'Verify: `nix flake check` green, shellcheck clean on the combined script, field split confirmed across four state-file shapes'
+    c984bd896321fb21:
+        hash: a17dda0585237cbf
+        text: 'Adversarial review: deferred to the change-level review; this phase is one file and its two failure modes each have a failing-on-revert check'
     e1a1863d4b9cc38d:
         hash: 6b71f93b55d2dd9d
         text: 'Extend `notify-defect-regressions` with three assertions: the agent-deck toast stays off, the bridge forwards into `agent-notify`, and the bridge skips hook-bridged panes. All three negative-tested'
