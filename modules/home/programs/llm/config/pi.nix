@@ -562,11 +562,68 @@ let
     dontNpmBuild = true;
   };
 
+  # Keys this repository has an opinion about. Anything absent here is left to
+  # pi's own runtime, which is how `lastChangelogVersion` and the session
+  # bookkeeping survive an activation.
+  #
+  # `defaultProvider` and `defaultModel` are deliberately NOT declared. They are
+  # owner preference and this change's Non-goals exclude deciding them.
   piManagedSettings = {
     packages = piPackagePaths;
     quietStartup = true;
-    showLastPrompt = true;
+
+    # The generated stylix theme, written to ~/.pi/agent/themes/stylix.json
+    # below. Generating a theme and never selecting it left pi on "dark".
+    theme = "stylix";
+
+    defaultThinkingLevel = "medium";
+    hideThinkingBlock = false;
+
+    # Nix owns every harness update in this repository, so the install ping is
+    # off. This does not disable pi's version check; PI_SKIP_VERSION_CHECK does.
+    enableInstallTelemetry = false;
+
+    # Real newlines. The runtime-written value carried a literal backslash-n,
+    # so the whole prefix was one unparseable line and no alias ever loaded.
+    shellCommandPrefix = ''
+      shopt -s expand_aliases
+      eval "$(grep '^alias ' ~/.zshrc 2>/dev/null)"
+      eval "$(grep -rh '^alias ' ~/.config/zsh 2>/dev/null)"
+    '';
   };
+
+  # Keys this module used to declare, or that pi's own settings screen wrote,
+  # which the installed build does not recognize. The activation merge is a deep
+  # merge, so undeclaring one leaves it on disk forever; only an explicit delete
+  # removes it.
+  #
+  # Both were verified absent from the installed binary by a string scan:
+  # `showLastPrompt` shipped in this repository AND in the pi-extension-config
+  # spec without anyone noticing, and `powerline` was written by pi's own
+  # /settings screen.
+  piRetiredSettings = [
+    "showLastPrompt"
+    "powerline"
+  ];
+
+  # Every declared key must exist in the build that reads it. A key absent from
+  # the binary is dead configuration that reads as a working setting.
+  piDeclaredKeys = builtins.attrNames piManagedSettings;
+
+  # A generated theme nobody selects is a file pi never reads. This module built
+  # and installed the stylix theme for months while pi ran on "dark".
+  assertThemeSelected =
+    if (piManagedSettings.theme or "") != "stylix" then
+      throw "pi.nix: the stylix theme is generated and installed but `piManagedSettings.theme` does not select it."
+    else
+      true;
+
+  piKeyOverlap = lib.intersectLists piDeclaredKeys piRetiredSettings;
+  assertPiKeysDisjoint =
+    if piKeyOverlap != [ ] then
+      throw "pi.nix: ${lib.concatStringsSep ", " piKeyOverlap} is both declared and retired; activation would delete it and then merge it back on every switch."
+    else
+      true;
 
   # All Nix-managed settings in one store file. Merged into settings.json at
   # activation time so keys written by pi at runtime are preserved.
@@ -590,10 +647,17 @@ let
     mkdir -p "$settings_dir"
 
     merged_settings="$(mktemp "''${settings}.tmp.XXXXXX")"
-    trap 'rm -f "$merged_settings"' EXIT
+    trap 'rm -f "$merged_settings" "$merged_settings.stripped"' EXIT
 
     if [ -f "$settings" ]; then
-      ${pkgs.jq}/bin/jq -s '.[0] * .[1]' "$settings" ${piSettingsBase} > "$merged_settings"
+      # Delete the retired keys BEFORE merging. A deep merge preserves whatever
+      # is already on disk, so dropping a key from the Nix side alone is a no-op
+      # against the running harness.
+      ${pkgs.jq}/bin/jq 'del(${
+        lib.concatMapStringsSep ", " (k: ''."${k}"'') piRetiredSettings
+      })' "$settings" > "$merged_settings.stripped"
+      ${pkgs.jq}/bin/jq -s '.[0] * .[1]' "$merged_settings.stripped" ${piSettingsBase} > "$merged_settings"
+      rm -f "$merged_settings.stripped"
     else
       cp ${piSettingsBase} "$merged_settings"
     fi
@@ -618,6 +682,8 @@ in
     file =
       (
         assert assertPiBridgeInstalled;
+        assert assertPiKeysDisjoint;
+        assert assertThemeSelected;
         extensionFiles
       )
       // customExtensionFiles

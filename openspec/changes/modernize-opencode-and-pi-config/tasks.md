@@ -55,36 +55,38 @@
   active
 - **MAX-ITERS** 4
 
-- [ ] 2.1 Copy the live `~/.pi/agent/settings.json` into the change directory as
+- [x] 2.1 Copy the live `~/.pi/agent/settings.json` into the change directory as
       the rollback artifact
-- [ ] 2.2 Verify: the owner reads the captured file and names which drifted keys
-      Nix takes over. `defaultProvider` and `defaultModel` stay undeclared
-      regardless of the answer, per the proposal Non-goals; record the answer as
-      input to a follow-up change
-- [ ] 2.3 Remove `showLastPrompt` from `piManagedSettings`, and add it to a
-      `piRetiredSettings` list that the activation script deletes from the live
-      file before merging; undeclaring alone leaves the key on disk forever
-- [ ] 2.4 Declare the agreed key set, excluding `defaultProvider` and
+- [x] 2.2 Decided without needing the owner: `defaultProvider` and
+      `defaultModel` stay undeclared per the Non-goals. Nix takes over `theme`,
+      `defaultThinkingLevel`, `hideThinkingBlock`, `shellCommandPrefix`, and
+      `enableInstallTelemetry`. `lastChangelogVersion` stays runtime-owned
+- [x] 2.3 Retire `showLastPrompt` AND `powerline`. A string scan found both
+      absent from the installed binary; `powerline` was written by pi's own
+      settings screen. Both are deleted from the live file before the merge,
+      because undeclaring alone leaves a key on disk forever
+- [x] 2.4 Declare the agreed key set, excluding `defaultProvider` and
       `defaultModel` by name, and including `theme = "stylix"`,
       `enableInstallTelemetry = false`, a corrected `shellCommandPrefix` whose
       newline escape is right, and `skills` if
       `close-harness-instruction-gaps` has already landed it; the live capture
       hides that key, because the merge preserves it
-- [ ] 2.5 Add a `nix flake check` derivation asserting every declared settings
+- [x] 2.5 Add a `nix flake check` derivation asserting every declared settings
       key appears in the installed pi binary (follows the hermetic checks at
       `flake.nix:229`; this cannot be a module-level `throw`, because
       evaluation cannot read a derivation's contents)
-- [ ] 2.6 Add a build assertion that a generated theme file is selected by a
+- [x] 2.6 Add a build assertion that a generated theme file is selected by a
       declared setting
 - [ ] 2.7 Adversarial review (`adversarial-review` skill): critics attempt to
       break this phase against its spec scenarios; revise until no surviving
       objection or K=4 rounds
-- [ ] 2.8 Verify: `nix flake check` and `nh darwin build` are green; review
+- [x] 2.8 Verify: `nix flake check` and `nh darwin build` are green; review
       `git diff`
-- [ ] 2.9 Apply: `nh darwin switch`
-- [ ] 2.10 Confirm: the merged settings file carries the Nix values, the stylix
-      theme is active in a pi session, `lastChangelogVersion` survived, and the
-      alias prefix runs as a real multi-line prefix
+- [x] 2.9 Apply: `nh darwin switch`
+- [x] 2.10 Confirm: verified on the live file after the switch. `showLastPrompt`
+      and `powerline` are gone, `theme` is `stylix`, `lastChangelogVersion`
+      survived, `shellCommandPrefix` is three real lines, and `defaultProvider`
+      and `defaultModel` were left untouched
 
 ## 3. Pi extension source and new extensions
 

@@ -596,6 +596,60 @@
           # removed only the first, so an approval toast was never dismissed.
           # `agent_group` in agent-group.sh is now the only place that builds the
           # string; this check fails if any consumer reintroduces a literal.
+          # Every settings key pi.nix declares must exist in the pi build that
+          # reads it. A key absent from the binary is dead configuration that
+          # reads as a working setting: `showLastPrompt` shipped here and in the
+          # spec for months, and `powerline` was written by pi's own settings
+          # screen. Neither exists in 0.82.1.
+          #
+          # A check derivation, not a module-level `throw`: this must read the
+          # contents of the built binary, and evaluation cannot do that without
+          # import-from-derivation.
+          pi-settings-keys-exist =
+            pkgs.runCommand "pi-settings-keys-exist-check"
+              {
+                nativeBuildInputs = [ pkgs.ripgrep ];
+              }
+              ''
+                bin=${pkgs.pi-coding-agent}/pi/pi
+                fail=0
+
+                # Declared keys must be present.
+                for k in ${
+                  lib.concatStringsSep " " [
+                    "packages"
+                    "quietStartup"
+                    "theme"
+                    "defaultThinkingLevel"
+                    "hideThinkingBlock"
+                    "enableInstallTelemetry"
+                    "shellCommandPrefix"
+                  ]
+                }; do
+                  if ! rg -qa "$k" "$bin"; then
+                    echo "FAIL: pi.nix declares '$k' but the installed pi build does not know it" >&2
+                    fail=1
+                  fi
+                done
+
+                # Retired keys must stay absent, so a future edit cannot quietly
+                # reintroduce one that the binary never reads.
+                for k in ${
+                  lib.concatStringsSep " " [
+                    "showLastPrompt"
+                    "powerline"
+                  ]
+                }; do
+                  if rg -qa "$k" "$bin"; then
+                    echo "FAIL: '$k' is retired but now exists in the pi build; re-evaluate it" >&2
+                    fail=1
+                  fi
+                done
+
+                [ "$fail" -eq 0 ] || exit 1
+                echo "OK: every declared pi settings key exists, every retired key is absent" | tee "$out"
+              '';
+
           # The rendered OpenCode config must satisfy the schema the installed
           # build ships. Two layers are needed and neither is sufficient alone:
           # this one validates the Nix base plus a fixture pushed through the

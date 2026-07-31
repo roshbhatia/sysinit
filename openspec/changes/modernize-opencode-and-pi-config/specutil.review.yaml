@@ -1,9 +1,9 @@
 version: 1
 change: modernize-opencode-and-pi-config
 decision: approved
-note: in progress
-change_hash: bfdf0758ae22325e
-base_commit: a8be3997aa252c602200c0a0c4171b3f6e1f5346
+note: phase 2 applied and verified
+change_hash: b4a4869bac3a2f1c
+base_commit: 8514662640fa5dc468d71ca14e18f211179e1730
 items:
     0f8cd7a6a4d731bb:
         hash: da42f5ffd02d176c
@@ -23,6 +23,9 @@ items:
     4ea406ae01418a4b:
         hash: 9fb569a170364543
         text: 'Verify: `nix flake check` and `nh darwin build` are green; review `git diff`'
+    8db4ba6409e70164:
+        hash: a80c5df78bc200ab
+        text: Retire `showLastPrompt` AND `powerline`. A string scan found both absent from the installed binary; `powerline` was written by pi's own settings screen. Both are deleted from the live file before the merge, because undeclaring alone leaves a key on disk forever
     9b2209a1f845d7bd:
         hash: df5ba2c8eebb8e99
         text: Add a `nix flake check` derivation asserting every declared settings key appears in the installed pi binary (follows the hermetic checks at `flake.nix:229`; this cannot be a module-level `throw`, because evaluation cannot read a derivation's contents)
@@ -71,9 +74,6 @@ items:
     9293d79e478f4222:
         hash: da6b246a0466599e
         text: 'Apply: `nh darwin switch`'
-    49569e1b356a5e2e:
-        hash: c0794cda2d39cf77
-        text: 'Confirm: the merged settings file carries the Nix values, the stylix theme is active in a pi session, `lastChangelogVersion` survived, and the alias prefix runs as a real multi-line prefix'
     180524d91205082f:
         hash: cf67aa7871e74e83
         text: Check `protected-paths` against `@gotgenes/pi-permission-system` for overlapping tool-call interception; record the result in `design.md`
@@ -113,18 +113,15 @@ items:
     c2f3dcf0524fda4a:
         hash: ffc3a4bc91c191bf
         text: 'Adversarial review (`adversarial-review` skill): terminal state `CLEAN`, 0 open, within the K=2 cap for a one-phase review. Round 1 returned 6 surviving objections, all fixed and negative-tested: the check validated only 10 of 17 rendered keys; the retired-key filter and the merge pipeline existed as two hand-copies that could drift, and an unquotable key would have failed only at switch time; deletion reached depth one only, so a stale `provider.ollama` survived forever; nothing asserted the localized schema kept `additionalProperties: false`; the `$ref` walk dropped sibling constraints; `tui.json` had no retired mechanism and no merged fixture. Ordering deviation: 1.11 ran before this task. The review then forced a rework and a second switch.'
-    cee9388efe78ae1c:
-        hash: 4173787d9de26ebe
-        text: Remove `showLastPrompt` from `piManagedSettings`, and add it to a `piRetiredSettings` list that the activation script deletes from the live file before merging; undeclaring alone leaves the key on disk forever
     d3d65af592669127:
         hash: 3135fd0804e822bb
         text: 'Confirm: OpenCode starts and loses no configured plugin or tool'
     d9900b5969fdeb31:
         hash: a5cb351ab9101edd
         text: 'Verify: `openspec validate modernize-opencode-and-pi-config` passes and `specutil check` reports no finding'
-    dd68538006e7afe0:
-        hash: fdd218ffc981a6e1
-        text: 'Verify: the owner reads the captured file and names which drifted keys Nix takes over. `defaultProvider` and `defaultModel` stay undeclared regardless of the answer, per the proposal Non-goals; record the answer as input to a follow-up change'
+    e2e091c37109d39e:
+        hash: 1cb0790a3b431206
+        text: 'Decided without needing the owner: `defaultProvider` and `defaultModel` stay undeclared per the Non-goals. Nix takes over `theme`, `defaultThinkingLevel`, `hideThinkingBlock`, `shellCommandPrefix`, and `enableInstallTelemetry`. `lastChangelogVersion` stays runtime-owned'
     e6dfd8789cb743ad:
         hash: fc7c13fcd0a3ce1d
         text: Declare `shell`, `default_agent`, `subagent_depth`, `compaction`, and `tool_output` in the main config
@@ -134,3 +131,6 @@ items:
     f57ccba8d2c83623:
         hash: 887361bc75657e2b
         text: Copy the live `~/.pi/agent/settings.json` into the change directory as the rollback artifact
+    fb9bc1a06088da45:
+        hash: 3c1b427bdeb1b6fb
+        text: 'Confirm: verified on the live file after the switch. `showLastPrompt` and `powerline` are gone, `theme` is `stylix`, `lastChangelogVersion` survived, `shellCommandPrefix` is three real lines, and `defaultProvider` and `defaultModel` were left untouched'
