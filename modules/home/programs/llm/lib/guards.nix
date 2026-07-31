@@ -5,8 +5,7 @@ let
   # Bash single-quote escaping: end the quote, insert an escaped quote, reopen.
   sq = s: "'" + builtins.replaceStrings [ "'" ] [ "'\\''" ] s + "'";
 
-  # The pattern table the guard body loops over. Generated so a pattern cannot
-  # live in the script and not in lib/allowlist.nix.
+  # Generated so a pattern cannot live in the script but not in allowlist.nix.
   preamble = ''
     # GENERATED from llmLib.allowlist.destructiveDenyRules. Do not add a pattern
     # to this table or to the script body; add it to lib/allowlist.nix and every
@@ -20,10 +19,8 @@ let
   '';
 in
 {
-  # One definition for every harness that runs the script guard, and for the
-  # `destructive-guard-fixtures` check. The check must exercise the assembled
-  # script, not the bare source file: once the patterns arrive by preamble, the
-  # bare file denies nothing and testing it would prove nothing.
+  # The `destructive-guard-fixtures` check must exercise the ASSEMBLED script:
+  # patterns arrive via the preamble, so the bare source file denies nothing.
   mkBashGuard =
     { pkgs, name }:
     pkgs.writeShellApplication {
