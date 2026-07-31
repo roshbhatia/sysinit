@@ -139,13 +139,23 @@ that would launch it. It is currently unreachable either way.
 
 `~/.config/opencode/plugins/` and `~/.config/opencode/tools/` hold untracked
 files. An earlier draft of this design claimed OpenCode does not read those
-directory names. That was wrong, and a probe plugin settled it: OpenCode loads
-from BOTH `~/.config/opencode/plugin/` and `~/.config/opencode/plugins/`.
+directory names. That was wrong on both counts:
 
-So the directories are live and only their contents are stale, for example a
-file named `sysinit-spec.ts.backup`, which cannot load because of its
-extension. The cleanup therefore removes files, never the directories, and only
-after the owner confirms each one.
+- A probe plugin confirmed OpenCode loads from BOTH
+  `~/.config/opencode/plugin/` and `~/.config/opencode/plugins/`.
+- The installed binary names `.opencode/tools/` as the custom-tool directory.
+
+So both directories are live. Only their contents are in question, and they
+divide into two cases that need different handling:
+
+- `plugins/sysinit-spec.ts.backup` cannot load at all, because of its
+  extension. It is inert.
+- `tools/plan.sh` and `tools/plan.ts` DO load, so they are a working custom
+  tool that Nix does not manage. Deleting them would remove a capability; the
+  real question is whether to bring them under Nix or drop them.
+
+The cleanup therefore removes files, never directories, copies each into this
+change directory first, and asks the owner per file rather than assuming.
 
 - Alternative rejected: delete them during activation. Rejected because the
   repository's own rules forbid destructive action on files outside the

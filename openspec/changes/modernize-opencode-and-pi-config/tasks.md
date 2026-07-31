@@ -123,13 +123,16 @@
 ## 4. Stale directory cleanup
 
 - **SHAPE** graph
-- [ ] 4.1 List the contents of `~/.config/opencode/plugins/` and
+- [x] 4.1 List the contents of `~/.config/opencode/plugins/` and
       `~/.config/opencode/tools/` for the owner. Both are live plugin paths, so
       the cleanup removes files only, never the directories `deps: none`
 - [ ] 4.2 Adversarial review (`adversarial-review` skill): critics attempt to
       break this phase against its spec scenarios; revise until no surviving
       objection or K=4 rounds `deps: 4.1`
-- [ ] 4.3 Verify: the owner confirms each listed file is disposable `deps: 4.2`
+- [ ] 4.3 Verify: the owner confirms each file. `plugins/sysinit-spec.ts.backup`
+      is inert and safe to drop. `tools/plan.sh` and `tools/plan.ts` DO load as a
+      custom tool, so the question is whether to bring them under Nix or drop
+      them; all three are copied into `captured-opencode/` `deps: 4.2`
 - [ ] 4.4 Apply: copy the listed files into the change directory, then remove
       them `deps: 4.3`
 - [ ] 4.5 Confirm: OpenCode starts and loses no configured plugin or tool

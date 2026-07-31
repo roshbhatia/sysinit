@@ -1,9 +1,9 @@
 version: 1
 change: modernize-opencode-and-pi-config
 decision: approved
-note: phase 3 applied and verified
-change_hash: 693883ae3d814f60
-base_commit: 0d5dc4e47005c3dfc7a2a0cf11b1030b49dc46cc
+note: phase 4 blocked on an owner decision about two live custom-tool files
+change_hash: c18dca5a95b7ce53
+base_commit: 7eb9a0529b49efe07afc6c2ead8d8459c0ddcd04
 items:
     0f8cd7a6a4d731bb:
         hash: da42f5ffd02d176c
@@ -35,9 +35,6 @@ items:
     9d437ff1f9bfca64:
         hash: 15bb32775eb7359f
         text: Add a build assertion that every named extension exists in the package
-    9e03cc1cb5cec9ec:
-        hash: 3086dc6879ba061d
-        text: 'Verify: the owner confirms each listed file is disposable'
     009d3074e7fb4615:
         hash: 0769872d97275e49
         text: 'Confirm: the owner approves the staged diff before any commit'
@@ -125,6 +122,9 @@ items:
     e6dfd8789cb743ad:
         hash: fc7c13fcd0a3ce1d
         text: Declare `shell`, `default_agent`, `subagent_depth`, `compaction`, and `tool_output` in the main config
+    e33cbaca91191715:
+        hash: e18a7d143ac525cf
+        text: 'Verify: the owner confirms each file. `plugins/sysinit-spec.ts.backup` is inert and safe to drop. `tools/plan.sh` and `tools/plan.ts` DO load as a custom tool, so the question is whether to bring them under Nix or drop them; all three are copied into `captured-opencode/`'
     ed145c653a4d5a37:
         hash: 3cb16b9bc2a9a6d3
         text: 'Verify: `nix flake check`, `nh darwin build`, and `./hack/update-pi.sh` all behave as expected'
