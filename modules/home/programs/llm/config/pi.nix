@@ -593,10 +593,25 @@ let
   # pi's own runtime, which is how `lastChangelogVersion` and the session
   # bookkeeping survive an activation.
   #
-  # `defaultProvider`, `defaultModel`, and `defaultThinkingLevel` are
-  # deliberately NOT declared. All three are owner preference and the change's
-  # Non-goals exclude deciding them. Declaring one would revert the owner's
-  # choice on every activation, because Nix wins for a declared key.
+  # Declared here ONLY when the value is repository policy or is derived from
+  # something Nix owns. Anything the owner may reasonably change mid-session
+  # stays out, because Nix wins for a declared key and would revert it on the
+  # next activation.
+  #
+  # Deliberately NOT declared, all runtime preference:
+  #   defaultProvider, defaultModel  which model answers
+  #   defaultThinkingLevel           how hard it thinks
+  #   hideThinkingBlock              whether thinking is shown
+  #   powerline, and pi's own /settings output generally
+  #
+  # Declared, because each is policy or Nix-derived:
+  #   packages               extension load order, which this module defines
+  #   quietStartup           display policy for this machine
+  #   theme                  generated from stylix; selecting it is the point
+  #   enableInstallTelemetry Nix owns updates, so the ping is off
+  #   shellCommandPrefix     derived from the zsh config this repo owns
+  #   skills                 points at the Nix-managed skills tree
+  #   externalEditor         points at a Nix-built binary
   piManagedSettings = {
     packages = piPackagePaths;
     quietStartup = true;
@@ -610,15 +625,11 @@ let
     # pi advertised a skills root in its context that it could not load from.
     skills = [ "~/.claude/skills" ];
 
-    defaultThinkingLevel = "medium";
-
     # nvim-pi is a --clean nvim wrapper, so Ctrl+G opens instantly instead of
     # waiting on lazy.nvim. It was built and installed for months while this
     # setting was undeclared and the keybinding was unbound, which made the
     # binary unreachable by either route.
     externalEditor = "${lib.getExe nvimPi}";
-    hideThinkingBlock = false;
-
     # Nix owns every harness update in this repository, so the install ping is
     # off. This does not disable pi's version check; PI_SKIP_VERSION_CHECK does.
     enableInstallTelemetry = false;
@@ -645,6 +656,25 @@ let
     "showLastPrompt"
     "powerline"
   ];
+
+  # Keys this module once declared and has since handed back to the owner. They
+  # are NOT retired: retiring would delete the owner's runtime choice on every
+  # activation. They are listed so the handback is a recorded decision rather
+  # than an edit someone has to reconstruct from git history.
+  piOwnerPreferenceKeys = [
+    "defaultProvider"
+    "defaultModel"
+    "defaultThinkingLevel"
+    "hideThinkingBlock"
+  ];
+
+  # A key cannot be both declared and handed back.
+  piPreferenceOverlap = lib.intersectLists piDeclaredKeys piOwnerPreferenceKeys;
+  assertPreferencesUndeclared =
+    if piPreferenceOverlap != [ ] then
+      throw "pi.nix: ${lib.concatStringsSep ", " piPreferenceOverlap} is declared but listed as owner preference. Declaring it reverts the owner's runtime choice on every activation."
+    else
+      true;
 
   # Every declared key must exist in the build that reads it. A key absent from
   # the binary is dead configuration that reads as a working setting.
@@ -724,6 +754,7 @@ in
         assert assertPiBridgeInstalled;
         assert assertPiKeysDisjoint;
         assert assertThemeSelected;
+        assert assertPreferencesUndeclared;
         extensionFiles
       )
       // customExtensionFiles

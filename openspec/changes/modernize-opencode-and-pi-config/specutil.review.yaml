@@ -1,9 +1,9 @@
 version: 1
 change: modernize-opencode-and-pi-config
 decision: approved
-note: review round applied
-change_hash: c18dca5a95b7ce53
-base_commit: 6722e69d4b1b14bd4b83c8110f68462f67f693e1
+note: runtime-preference boundary and tool decision recorded
+change_hash: a0547fe779ba3407
+base_commit: 951894f343c7ae6fea21462e73373b89d0c78121
 items:
     0f8cd7a6a4d731bb:
         hash: da42f5ffd02d176c
@@ -32,6 +32,9 @@ items:
     9b2209a1f845d7bd:
         hash: df5ba2c8eebb8e99
         text: Add a `nix flake check` derivation asserting every declared settings key appears in the installed pi binary (follows the hermetic checks at `flake.nix:229`; this cannot be a module-level `throw`, because evaluation cannot read a derivation's contents)
+    9bd5b5038510a79d:
+        hash: 0239b520198f2c7c
+        text: 'Decided, per D7: none of the three is adopted. `plugins/sysinit-spec.ts.backup` cannot load at all. `tools/plan.{sh,ts}` resolves its script from a project-relative path that does not exist for a globally-installed tool, duplicates the openspec skills, and depends on `beads` from outside Nix. All three are preserved in `captured-opencode/`'
     9d437ff1f9bfca64:
         hash: 15bb32775eb7359f
         text: Add a build assertion that every named extension exists in the package
@@ -122,9 +125,6 @@ items:
     e6dfd8789cb743ad:
         hash: fc7c13fcd0a3ce1d
         text: Declare `shell`, `default_agent`, `subagent_depth`, `compaction`, and `tool_output` in the main config
-    e33cbaca91191715:
-        hash: e18a7d143ac525cf
-        text: 'Verify: the owner confirms each file. `plugins/sysinit-spec.ts.backup` is inert and safe to drop. `tools/plan.sh` and `tools/plan.ts` DO load as a custom tool, so the question is whether to bring them under Nix or drop them; all three are copied into `captured-opencode/`'
     ed145c653a4d5a37:
         hash: 3cb16b9bc2a9a6d3
         text: 'Verify: `nix flake check`, `nh darwin build`, and `./hack/update-pi.sh` all behave as expected'

@@ -79,7 +79,17 @@ moves both together and a key move is caught by the bump itself.
   validate against that. Rejected because the copy would need its own drift
   check, which is the problem the check exists to solve, one layer up.
 
-### D2. Pi settings are declared exhaustively, and declared keys win
+### D2. Pi settings are declared selectively, and declared keys win
+
+An earlier draft said "exhaustively". That was wrong, and the difference
+matters: because a declared key wins on every activation, declaring one the
+owner changes at runtime silently reverts their choice the next time anything
+triggers a switch.
+
+The line is now stated: declare a key only when its value is repository policy
+or is derived from something Nix owns. Model, provider, thinking level, and
+thinking-block visibility are none of those, so they are handed back and an
+assertion fails the build if one is declared again.
 
 Today the merge is `jq -s '.[0] * .[1]'`, so the Nix base already wins for the
 keys it declares. The defect is that it declares three keys, one of which is
@@ -134,6 +144,27 @@ that would launch it. It is currently unreachable either way.
 - Alternative rejected: leave it installed and undecided. Rejected because an
   unreachable binary in the profile reads as a working feature to the next
   reader, which is the same failure mode as the dead settings key.
+
+### D7. The unmanaged OpenCode `plan` tool is dropped, not adopted
+
+`~/.config/opencode/tools/plan.{sh,ts}` is a custom tool that creates an
+OpenSpec PRD. It is not brought under Nix, for three reasons found by reading
+it:
+
+- It is broken as installed. `plan.ts` resolves its script as
+  `join(worktree, ".opencode", "tools", "plan.sh")`, a project-relative path,
+  while the file only exists in the global config. It fails in every repository
+  that does not carry its own copy.
+- It duplicates a layer this repository already has. The `openspec-propose`,
+  `openspec-workflow`, and `specutil` skills cover the same ground and are
+  maintained.
+- It depends on `beads`, which reaches PATH from `~/.npm-global/bin`, outside
+  Nix. Adopting the tool would mean adopting that dependency too.
+
+- Alternative rejected: bring it under Nix at
+  `config/tools/` and install it to the OpenCode tool directory. Rejected
+  because that would Nix-manage a broken path resolution and a second planning
+  path, which is more work to maintain than the capability is worth.
 
 ### D6. Stale runtime directories are listed for the owner, not deleted silently
 

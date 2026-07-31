@@ -129,13 +129,15 @@
 - [ ] 4.2 Adversarial review (`adversarial-review` skill): critics attempt to
       break this phase against its spec scenarios; revise until no surviving
       objection or K=4 rounds `deps: 4.1`
-- [ ] 4.3 Verify: the owner confirms each file. `plugins/sysinit-spec.ts.backup`
-      is inert and safe to drop. `tools/plan.sh` and `tools/plan.ts` DO load as a
-      custom tool, so the question is whether to bring them under Nix or drop
-      them; all three are copied into `captured-opencode/` `deps: 4.2`
-- [ ] 4.4 Apply: copy the listed files into the change directory, then remove
+- [x] 4.3 Decided, per D7: none of the three is adopted.
+      `plugins/sysinit-spec.ts.backup` cannot load at all.
+      `tools/plan.{sh,ts}` resolves its script from a project-relative path that
+      does not exist for a globally-installed tool, duplicates the openspec
+      skills, and depends on `beads` from outside Nix. All three are preserved
+      in `captured-opencode/` `deps: 4.2`
+- [x] 4.4 Apply: copy the listed files into the change directory, then remove
       them `deps: 4.3`
-- [ ] 4.5 Confirm: OpenCode starts and loses no configured plugin or tool
+- [x] 4.5 Confirm: OpenCode starts and loses no configured plugin or tool
       `deps: 4.4`
 
 ## 5. Rollout

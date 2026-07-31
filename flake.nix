@@ -620,11 +620,10 @@
                     "packages"
                     "quietStartup"
                     "theme"
-                    "defaultThinkingLevel"
-                    "hideThinkingBlock"
                     "enableInstallTelemetry"
                     "shellCommandPrefix"
                     "externalEditor"
+                    "skills"
                   ]
                 }; do
                   if ! rg -qa "$k" "$bin"; then
