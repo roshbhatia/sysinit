@@ -27,9 +27,18 @@
       wrote at runtime
 - [x] 1.8 Declare `shell`, `default_agent`, `subagent_depth`, `compaction`, and
       `tool_output` in the main config
-- [ ] 1.9 Adversarial review (`adversarial-review` skill): critics attempt to
-      break this phase against its spec scenarios; revise until no surviving
-      objection or K=4 rounds
+- [x] 1.9 Adversarial review (`adversarial-review` skill): terminal state
+      `CLEAN`, 0 open, within the K=2 cap for a one-phase review. Round 1
+      returned 6 surviving objections, all fixed and negative-tested:
+      the check validated only 10 of 17 rendered keys; the retired-key filter
+      and the merge pipeline existed as two hand-copies that could drift, and
+      an unquotable key would have failed only at switch time; deletion reached
+      depth one only, so a stale `provider.ollama` survived forever; nothing
+      asserted the localized schema kept `additionalProperties: false`; the
+      `$ref` walk dropped sibling constraints; `tui.json` had no retired
+      mechanism and no merged fixture.
+      Ordering deviation: 1.11 ran before this task. The review then forced a
+      rework and a second switch.
 - [x] 1.10 Verify: `nix flake check` and `nh darwin build` are green; review
       `git diff`
 - [x] 1.11 Apply: `nh darwin switch`

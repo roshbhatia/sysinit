@@ -14,20 +14,83 @@
 # the main file is rejected. See `retiredMainKeys` in `opencode.nix` for the
 # deletion that removes them from a live file.
 { pkgs, lib }:
+let
+  llmLib = import ../lib { inherit lib; };
+
+  # Keys this module used to declare in the main file and no longer does. A deep
+  # merge preserves whatever is already on disk, so undeclaring a key is a no-op
+  # against the running harness unless it is deleted first.
+  #
+  # Each name is quoted in the rendered jq program, so a key like `$schema` or
+  # `tool-output` cannot produce a syntax error that only surfaces at switch time.
+  retiredMain = [
+    "theme"
+    "keybinds"
+    "tui"
+  ];
+
+  retiredTui = [ ];
+
+  # Blocks this repository owns outright. A deep merge would leave a stale entry
+  # behind at any depth, for example a `provider.ollama` that Nix stopped
+  # declaring, so these are replaced wholesale rather than merged. A top-level
+  # `del` list cannot express that: it only reaches depth one.
+  authoritative = [
+    "mcp"
+    "provider"
+    "permission"
+    "lsp"
+    "formatter"
+    "plugin"
+    "instructions"
+  ];
+
+  # One jq program, rendered once and used by both the activation script and the
+  # flake check. Two hand-copies of this pipeline agreed today and would drift on
+  # the next edit, which is the defect this attribute exists to prevent.
+  #
+  # mergeProgram <retired-key-list> -> a jq program reading [live, managed].
+  mergeProgram =
+    retired:
+    let
+      dels = lib.concatMapStringsSep " | " (k: ''del(."${k}")'') retired;
+      strip = if retired == [ ] then "." else dels;
+      repl = lib.concatMapStringsSep "\n        | " (
+        k: ''if ($managed|has("${k}")) then ."${k}" = $managed."${k}" else . end''
+      ) authoritative;
+    in
+    ''
+      .[1] as $managed
+            | (.[0] | ${strip})
+            | (. * $managed)
+            | ${repl}'';
+in
 {
+  inherit
+    retiredMain
+    retiredTui
+    authoritative
+    mergeProgram
+    ;
+
   # OpenCode's config schema carries an absolute `$ref` to
   # https://models.dev/model-schema.json. A hermetic build has no network and no
   # writable HOME, so any validator that follows it fails with an unretrievable
   # reference rather than a schema violation.
   #
-  # Replace every absolute http(s) `$ref` with an empty schema, which accepts
-  # anything. Internal `#/$defs/...` references are untouched, so every rule
-  # this repository actually cares about still applies: `additionalProperties:
-  # false` on Config is what catches a key in the wrong file.
+  # Delete only the absolute `$ref` and keep every sibling keyword, so a node
+  # that also declares `type` or `enum` still constrains. Blanking the node to
+  # `{}` would silently drop those; the models.dev node carries `type` today.
+  # Internal `#/$defs/...` references are untouched.
   #
-  # The trade is explicit: model identifiers are not validated against
-  # models.dev. That check belongs to OpenCode at runtime, not to a build that
-  # must stay offline.
+  # The trade is explicit and narrow: a model identifier is not checked against
+  # the models.dev catalogue. That belongs to OpenCode at runtime, not to a
+  # build that must stay offline.
+  #
+  # The derivation then asserts the rule every negative scenario in this
+  # capability depends on. Without it, an upstream move of `Config` behind an
+  # absolute `$ref` would empty the node and make both validators accept
+  # anything, turning every scenario green while enforcing nothing.
   schemas = pkgs.runCommand "opencode-schemas-local" { nativeBuildInputs = [ pkgs.jq ]; } ''
     mkdir -p "$out"
     for f in config tui; do
@@ -38,6 +101,11 @@
             end
           )' "${pkgs.opencode}/share/opencode/$f.json" > "$out/$f.json"
     done
+
+    jq -e '.["$defs"].Config.additionalProperties == false' "$out/config.json" > /dev/null \
+      || { echo "opencode schema localization lost Config.additionalProperties" >&2; exit 1; }
+    jq -e '.additionalProperties == false' "$out/tui.json" > /dev/null \
+      || { echo "opencode schema localization lost the tui additionalProperties" >&2; exit 1; }
   '';
 
   # Everything OpenCode reads from `~/.config/opencode/opencode.json` except the
@@ -77,6 +145,135 @@
     tool_output = {
       max_lines = 1000;
       max_bytes = 51200;
+    };
+
+    instructions = [
+      "**/.cursorrules"
+      "**/AGENTS.md"
+      "**/CLAUDE.md"
+      "**/CONSTITUTION.md"
+      "**/CONTRIBUTING.md"
+      "**/COPILOT.md"
+      "**/docs/guidelines.md"
+      ".cursor/rules"
+      ".sysinit/lessons.md"
+    ];
+
+    permission = {
+      webfetch = "allow";
+      grep = "allow";
+      read = "allow";
+      write = "allow";
+      # Catch-all allow, with the shared destructive-command globs denied. More
+      # specific keys override "*". Prefix-matched (leakier than the Claude/Codex
+      # regex guards), so this is defense-in-depth, not the primary gate.
+      bash = {
+        "*" = "allow";
+      }
+      // (llmLib.allowlist.formatDestructiveForOpencode llmLib.allowlist.destructiveDenyGlobs);
+      skill = {
+        "*" = "allow";
+      };
+    };
+
+    # Live nix diagnostics via nixd (full store path — no PATH dependency).
+    lsp = {
+      nixd = {
+        command = [ "${pkgs.nixd}/bin/nixd" ];
+        extensions = [ ".nix" ];
+      };
+    };
+
+    formatter = {
+      deadnix = {
+        command = [
+          "${pkgs.deadnix}/bin/deadnix"
+          "--edit"
+          "$FILE"
+        ];
+        extensions = [ ".nix" ];
+      };
+    };
+
+    plugin = [
+      "@bastiangx/opencode-unmoji"
+      "opencode-gemini-auth"
+      "opencode-handoff"
+      # Bridge OpenCode to Claude Code's native auto-memory files
+      # (~/.claude/projects/*/memory/). Reads and writes the same Markdown
+      # store Claude Code uses, so memory created in one is visible in both.
+      "opencode-claude-memory"
+      "opencode-plugin-openspec"
+
+      # Drive a ChatGPT Plus/Pro subscription against GPT-5.x / Codex models —
+      # the OpenAI counterpart to opencode-gemini-auth above.
+      "opencode-openai-codex-auth"
+      # PTY tools (pty_spawn/write/read/list/kill) for interactive and
+      # long-running processes (dev servers, watch modes) plain bash can't drive.
+      "opencode-pty"
+      # Redact secrets before requests leave for the provider; restore after.
+      "opencode-vibeguard"
+      # Re-align markdown tables in model output (experimental.text.complete).
+      "@franlol/opencode-md-table-formatter"
+    ];
+
+    # Ollama local inference provider. Models must be pulled separately:
+    #   ollama pull qwen2.5-coder:14b   # main coding model (~8 GB)
+    #   ollama pull qwen2.5-coder:7b    # fast/cheap tasks (~4.5 GB)
+    # Switch to a local model with: opencode --model ollama/qwen2.5-coder:14b
+    provider = {
+      # ChatGPT-subscription Codex models, reached through the
+      # opencode-openai-codex-auth plugin declared above. The plugin's own
+      # presets still name gpt-5.1/gpt-5.2 Codex variants, which OpenAI removed
+      # from the ChatGPT sign-in path on 2026-04-14, so the models are declared
+      # here instead of relying on the shipped list.
+      openai = {
+        options = {
+          reasoningEffort = "medium";
+          reasoningSummary = "auto";
+          textVerbosity = "medium";
+          include = [ "reasoning.encrypted_content" ];
+          store = false;
+        };
+        models = {
+          "gpt-5.5" = {
+            name = "GPT-5.5 (ChatGPT)";
+          };
+          "gpt-5.3-codex" = {
+            name = "GPT-5.3 Codex (ChatGPT)";
+          };
+          "gpt-5.4-mini" = {
+            name = "GPT-5.4 Mini (ChatGPT)";
+            options = {
+              reasoningEffort = "low";
+            };
+          };
+        };
+      };
+
+      ollama = {
+        npm = "@ai-sdk/openai-compatible";
+        name = "Ollama (local)";
+        options = {
+          baseURL = "http://localhost:11434/v1";
+        };
+        models = {
+          "qwen2.5-coder:14b" = {
+            name = "Qwen2.5-Coder 14B";
+            limit = {
+              context = 32768;
+              output = 8192;
+            };
+          };
+          "qwen2.5-coder:7b" = {
+            name = "Qwen2.5-Coder 7B";
+            limit = {
+              context = 32768;
+              output = 4096;
+            };
+          };
+        };
+      };
     };
   };
 

@@ -1,9 +1,9 @@
 version: 1
 change: modernize-opencode-and-pi-config
 decision: approved
-note: phase 1 implemented and applied
-change_hash: d1929af4e1e3fa8c
-base_commit: 9efa8460e5b622b8c5a1d605925dfdcfe5437802
+note: phase 1 reviewed and reworked; terminal state CLEAN
+change_hash: b7f3d46d9091da7d
+base_commit: a058365f75a6cbd5979f4e8982b7e74d170c0ae0
 items:
     0f8cd7a6a4d731bb:
         hash: da42f5ffd02d176c
@@ -17,9 +17,6 @@ items:
     2ef836be866dfa76:
         hash: 3117b86500f01253
         text: Write the TUI config to `~/.config/opencode/tui.json` using the same merge-into-a-writable-file activation pattern as `opencode.nix:208`; this writer is the one `unify-agent-notification-layer` depends on for `attention.notifications`
-    3ee47abf12f57cd8:
-        hash: c1389bff72961541
-        text: 'Adversarial review (`adversarial-review` skill): critics attempt to break this phase against its spec scenarios; revise until no surviving objection or K=4 rounds'
     4a901c71652891ab:
         hash: b534611ee0de34a6
         text: Update `hack/update-pi.sh` so it no longer reports on a revision that no longer exists
@@ -110,6 +107,9 @@ items:
     c1ec81bdf8e3b538:
         hash: 64ee44eca76bb615
         text: 'Apply: stage the change and propose a commit message per the `writing-commit-message` skill'
+    c2f3dcf0524fda4a:
+        hash: ffc3a4bc91c191bf
+        text: 'Adversarial review (`adversarial-review` skill): terminal state `CLEAN`, 0 open, within the K=2 cap for a one-phase review. Round 1 returned 6 surviving objections, all fixed and negative-tested: the check validated only 10 of 17 rendered keys; the retired-key filter and the merge pipeline existed as two hand-copies that could drift, and an unquotable key would have failed only at switch time; deletion reached depth one only, so a stale `provider.ollama` survived forever; nothing asserted the localized schema kept `additionalProperties: false`; the `$ref` walk dropped sibling constraints; `tui.json` had no retired mechanism and no merged fixture. Ordering deviation: 1.11 ran before this task. The review then forced a rework and a second switch.'
     c2ff39ee164b0fac:
         hash: b5cf636aa681e257
         text: List the contents of `~/.config/opencode/plugins/` and `~/.config/opencode/tools/` for the owner

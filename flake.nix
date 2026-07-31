@@ -603,6 +603,16 @@
           # validates the real merged file. A check derivation is hermetic and
           # cannot read $HOME, so it can never see what OpenCode actually reads.
           opencode-config-schema =
+            let
+              render = import ./modules/home/programs/llm/config/opencode-render.nix {
+                inherit pkgs lib;
+              };
+              # The check must validate what activation writes, so it renders the
+              # same attrset the module writes. `mcp` is the only host-dependent
+              # block; an empty object stands in for it.
+              mainJson = pkgs.writeText "opencode-base.json" (builtins.toJSON (render.main // { mcp = { }; }));
+              tuiJson = pkgs.writeText "opencode-tui.json" (builtins.toJSON render.tui);
+            in
             pkgs.runCommand "opencode-config-schema-check"
               {
                 nativeBuildInputs = [
@@ -611,34 +621,34 @@
                 ];
               }
               ''
-                schemas=${
-                  (import ./modules/home/programs/llm/config/opencode-render.nix { inherit pkgs lib; }).schemas
-                }
-                cfg=${
-                  pkgs.writeText "opencode-base.json" (
-                    builtins.toJSON
-                      (import ./modules/home/programs/llm/config/opencode-render.nix { inherit pkgs lib; }).main
-                  )
-                }
-                tui=${
-                  pkgs.writeText "opencode-tui.json" (
-                    builtins.toJSON
-                      (import ./modules/home/programs/llm/config/opencode-render.nix { inherit pkgs lib; }).tui
-                  )
-                }
+                schemas=${render.schemas}
 
-                check-jsonschema --schemafile "$schemas/config.json" "$cfg"
-                check-jsonschema --schemafile "$schemas/tui.json" "$tui"
+                check-jsonschema --schemafile "$schemas/config.json" ${mainJson}
+                check-jsonschema --schemafile "$schemas/tui.json" ${tuiJson}
 
-                # A live file carrying the retired keys must come out clean once
-                # the activation filter runs. This is the case the base-only
-                # validation misses.
-                jq -n '{theme:"dark",keybinds:{leader:"ctrl+b"},tui:{scroll_acceleration:{enabled:false}},autoupdate:true}' > fixture.json
-                jq 'del(.theme, .keybinds, .tui)' fixture.json > stripped.json
-                jq -s '.[1] as $m | (.[0] * $m) | if ($m|has("mcp")) then .mcp = $m.mcp else . end' stripped.json "$cfg" > merged.json
-                check-jsonschema --schemafile "$schemas/config.json" merged.json
+                # A live file carrying retired keys and a stale nested entry must
+                # come out clean once the SAME merge program activation uses runs.
+                # Base-only validation cannot see either case.
+                jq -n '{
+                  theme:"dark",
+                  keybinds:{leader:"ctrl+b"},
+                  tui:{scroll_acceleration:{enabled:false}},
+                  autoupdate:true,
+                  provider:{ghost:{name:"removed upstream"}}
+                }' > live-main.json
+                jq -s ${lib.escapeShellArg (render.mergeProgram render.retiredMain)} live-main.json ${mainJson} > merged-main.json
+                check-jsonschema --schemafile "$schemas/config.json" merged-main.json
 
-                echo "OK: opencode base, tui, and merged fixture all validate" | tee "$out"
+                jq -e 'has("theme") or has("keybinds") or has("tui") | not' merged-main.json > /dev/null \
+                  || { echo "FAIL: a retired key survived the merge" >&2; exit 1; }
+                jq -e '.provider | has("ghost") | not' merged-main.json > /dev/null \
+                  || { echo "FAIL: a stale nested provider entry survived the merge" >&2; exit 1; }
+
+                jq -n '{theme:"dark"}' > live-tui.json
+                jq -s ${lib.escapeShellArg (render.mergeProgram render.retiredTui)} live-tui.json ${tuiJson} > merged-tui.json
+                check-jsonschema --schemafile "$schemas/tui.json" merged-tui.json
+
+                echo "OK: opencode base, tui, and both merged fixtures validate" | tee "$out"
               '';
 
           # Covers all four defects the phase fixes, not the group alone. Each
