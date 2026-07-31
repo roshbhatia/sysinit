@@ -593,8 +593,10 @@ let
   # pi's own runtime, which is how `lastChangelogVersion` and the session
   # bookkeeping survive an activation.
   #
-  # `defaultProvider` and `defaultModel` are deliberately NOT declared. They are
-  # owner preference and this change's Non-goals exclude deciding them.
+  # `defaultProvider`, `defaultModel`, and `defaultThinkingLevel` are
+  # deliberately NOT declared. All three are owner preference and the change's
+  # Non-goals exclude deciding them. Declaring one would revert the owner's
+  # choice on every activation, because Nix wins for a declared key.
   piManagedSettings = {
     packages = piPackagePaths;
     quietStartup = true;

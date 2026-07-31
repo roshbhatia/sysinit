@@ -1,9 +1,9 @@
 version: 1
 change: agent-session-review-path
 decision: approved
-note: verified in real wezterm panes
-change_hash: 606ce7861f186532
-base_commit: ea5387f2609ef4b5a263f6c5ff68320e211f183b
+note: review round applied
+change_hash: c40e7f7d3b21fce4
+base_commit: 6722e69d4b1b14bd4b83c8110f68462f67f693e1
 items:
     0bd8c92c94aba443:
         hash: b3a33103634add62

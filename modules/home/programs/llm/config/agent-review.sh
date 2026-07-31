@@ -64,16 +64,23 @@ for repo_dir in "$root"/*/; do
     upstream="no"
   fi
 
+  # Blocking conditions only. A branch with no upstream is NOT one: seshy
+  # creates every session branch without one, so treating it as unfinished
+  # would refuse the most common delete on this machine and train the owner to
+  # reach for --force, which is the habit this gate exists to prevent.
   problems=""
   [ "$dirty" -gt 0 ] && problems="$problems ${dirty} uncommitted"
   [ "$upstream" = "yes" ] && [ "$ahead" -gt 0 ] && problems="$problems ${ahead} unpushed"
-  [ "$upstream" = "no" ] && problems="$problems no upstream"
+
+  # Informational, printed either way so the owner still sees it.
+  note=""
+  [ "$upstream" = "no" ] && note=" (no upstream)"
 
   if [ -n "$problems" ]; then
     unfinished=1
-    printf '  %-24s %-28s%s\n' "$repo" "$branch" "$problems"
+    printf '  %-24s %-28s%s%s\n' "$repo" "$branch" "$problems" "$note"
   else
-    printf '  %-24s %-28s clean\n' "$repo" "$branch"
+    printf '  %-24s %-28s clean%s\n' "$repo" "$branch" "$note"
   fi
 done
 

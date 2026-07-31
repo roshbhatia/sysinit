@@ -87,9 +87,12 @@ let
 
   coveredHarnesses = builtins.attrNames harnessCoverage;
 
+  # Copilot is NOT here: its bundle carries `loadSkill` and `skills.load`, and
+  # its own help names `~/.copilot/skills/` as a personal skills root. An
+  # earlier draft listed it, which both mislabelled the harness and spent
+  # context on a Skills section it does not need.
   harnessesWithoutSkillLoader = [
     "codex"
-    "copilot"
   ];
 
   makeInstructions =

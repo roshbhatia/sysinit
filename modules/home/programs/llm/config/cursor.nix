@@ -82,9 +82,16 @@ let
   # Restating one creates a second place to drift, which is exactly how
   # always.mdc came to claim openspec 1.3.0 and a prohibition this repository
   # does not hold.
+  # Each entry is a fact the generator renders or a structure it defines. An
+  # authored rule restating one creates a second place to drift, which is how
+  # always.mdc came to claim openspec 1.3.0, and how markdown.mdc came to
+  # instruct the model to add back sections the renderer does not produce.
   generatedFacts = [
     "never push"
     "openspec 1."
+    "200 lines"
+    "## Stack"
+    "## Commands"
   ];
 
   authoredBodies = lib.concatStringsSep "\n" (

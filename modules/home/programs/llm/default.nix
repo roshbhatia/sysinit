@@ -124,6 +124,39 @@ let
 
   mcpServers = lib.mapAttrs (_: pruneServer) config.sysinit.llm.mcp.additionalServers;
 
+  # Every harness config this module imports, by name. Compared against
+  # `harnessCoverage` below, because the renderer's own throw only fires for a
+  # harness that CALLS the renderer: one that ships a config and no context
+  # would pass silently, which is the exact gap the coverage set exists to
+  # close. `acp` and `mcp-servers` are not harnesses and are excluded.
+  harnessConfigNames = [
+    "amp"
+    "claude"
+    "codex"
+    "copilot"
+    "crush"
+    "cursor"
+    "devin"
+    "gemini"
+    "goose"
+    "opencode"
+    "pi"
+  ];
+
+  llmLibForCoverage = import ./lib { inherit lib; };
+  declaredHarnesses = builtins.attrNames llmLibForCoverage.instructions.harnessCoverage;
+
+  undeclaredHarnesses = lib.subtractLists declaredHarnesses harnessConfigNames;
+  phantomHarnesses = lib.subtractLists harnessConfigNames declaredHarnesses;
+
+  assertHarnessCoverage =
+    if undeclaredHarnesses != [ ] then
+      throw "llm/default.nix: ${lib.concatStringsSep ", " undeclaredHarnesses} has a harness config but no harnessCoverage entry. Declare its confirmed context path in lib/instructions.nix."
+    else if phantomHarnesses != [ ] then
+      throw "llm/default.nix: ${lib.concatStringsSep ", " phantomHarnesses} is declared in harnessCoverage but has no harness config. Remove the stale entry."
+    else
+      true;
+
   # Agent-agnostic desktop notifier. The script + per-agent icons are installed
   # once here (multiple harness configs reference notify.exe in their hooks, but
   # only one place may own the home.file/home.packages entries).
@@ -149,6 +182,7 @@ in
   ];
 
   home.file =
+    assert assertHarnessCoverage;
     skillFiles
     // skillScriptFiles
     // specutilSkillFiles
@@ -173,6 +207,7 @@ in
     notify.promptScript
     notify.focusScript
     notify.reviewScript
+    notify.syGate
   ];
 
   programs.mcp = {

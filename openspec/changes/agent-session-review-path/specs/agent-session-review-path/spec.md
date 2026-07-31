@@ -42,6 +42,18 @@ is on the path of an interactive command.
 - **THEN** the report does not count its commits as unpushed
 - **AND** it says the branch has no upstream rather than reporting a number it
   cannot compute
+- **AND** the missing upstream does NOT make the session unfinished, because
+  seshy creates every session branch without one and blocking on it would
+  refuse the most common delete on this machine
+
+#### Scenario: A gate that cannot report still reaches its decision
+
+- **POLARITY** negative
+- **WHEN** the report exits non-zero under a shell with `errexit` set
+- **THEN** the gate still prints its refusal, still honors `--force`, and still
+  reaches its exit path
+- **AND** it does not abort mid-script, which would look like a held gate while
+  actually being a crash
 
 #### Scenario: A working agent blocks the report
 
@@ -75,8 +87,14 @@ a non-zero exit logs a warning and the deletion proceeds anyway, with or without
 capability assumed the hook could veto. A hook that prints "refusing" and then
 does not refuse is worse than no hook.
 
-The gate SHALL therefore be a shell wrapper that runs the report and returns
-non-zero before invoking the binary.
+The gate SHALL therefore be an executable named `sy`, installed ahead of the
+seshy binary on PATH, that runs the report and returns non-zero before invoking
+the real binary.
+
+It MUST NOT be an interactive-shell function. A `.zshrc` function is read only
+by interactive shells, so `zsh -c`, every script, every cron entry, and every
+coding agent's shell tool would bypass it. Agents are the callers this
+capability exists for, and they are exactly the ones with no `.zshrc`.
 
 The gate SHALL be overridable. `sy delete --force` is the documented escape and
 MUST still delete.

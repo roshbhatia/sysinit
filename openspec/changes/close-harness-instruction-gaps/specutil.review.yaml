@@ -1,9 +1,9 @@
 version: 1
 change: close-harness-instruction-gaps
 decision: approved
-note: phases 1-3 implemented and applied
+note: review round applied
 change_hash: 93271df7791016f8
-base_commit: 81f638ce3fdb5c33e22017182a80787cf830b334
+base_commit: 6722e69d4b1b14bd4b83c8110f68462f67f693e1
 items:
     1d0ef0a7f1e2bfad:
         hash: da6b246a0466599e

@@ -1,9 +1,9 @@
 version: 1
 change: modernize-opencode-and-pi-config
 decision: approved
-note: phase 4 blocked on an owner decision about two live custom-tool files
+note: review round applied
 change_hash: c18dca5a95b7ce53
-base_commit: 7eb9a0529b49efe07afc6c2ead8d8459c0ddcd04
+base_commit: 6722e69d4b1b14bd4b83c8110f68462f67f693e1
 items:
     0f8cd7a6a4d731bb:
         hash: da42f5ffd02d176c

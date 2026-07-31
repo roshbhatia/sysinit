@@ -9,16 +9,12 @@ globs:
 
 # Agent-context-file conventions (May 2026 standard)
 
-These files are loaded by AI coding agents at session start. The May 2026 best practice (from the [agents.md standard](https://agents.md/)) cap is ≤200 lines per file with these sections in order: `Stack`, `Commands`, `Conventions`, `Skills`, `Prohibitions`, `Context`.
 
 ## What to include
 
-- **Stack**: pinned versions of the toolchain, read from the flake rather than restated here.
-- **Commands**: fenced bash blocks with exact flags. Commands without flags get a one-line note.
 - **Conventions**: positive guidance (small commits, conventional titles, single-concern).
 - **Skills**: auto-generated from the skill registry; do not hand-maintain.
 - **Prohibitions**: explicit bullets, one per line. The cross-repository set is generated into `always.mdc`; do not restate it here.
-- **Context**: pointers to scratch space (`.sysinit/`), openspec state, global gitignore.
 
 ## What to exclude
 
@@ -31,13 +27,9 @@ These files are loaded by AI coding agents at session start. The May 2026 best p
 
 `AGENTS.md` at the repo root and the per-agent context files (`~/.claude/CLAUDE.md`, `~/.config/gemini/GEMINI.md`, etc.) MUST be generated from `modules/home/programs/llm/lib/instructions.nix`. The repo-root file is checked in; the per-agent files are written by home-manager activation.
 
-Drift is caught by `hack/check-agents-md.sh` which diffs the committed `AGENTS.md` against the `nix build .#agentsMd` output.
 
 ## Editing checklist
 
-- [ ] Total file ≤200 lines.
-- [ ] Six top-level `##` headings in canonical order.
 - [ ] No architectural-overview section.
 - [ ] `Commands` lists exact invocations with flags.
 - [ ] `Prohibitions` lists every "Never X" explicitly.
-- [ ] If editing `instructions.nix`, regenerate `AGENTS.md` via `cp $(nix build .#packages.aarch64-darwin.agentsMd --no-link --print-out-paths) AGENTS.md` and confirm `./hack/check-agents-md.sh` passes.

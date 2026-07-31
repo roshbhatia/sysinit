@@ -280,6 +280,16 @@ let
     text = builtins.readFile ./agent-review.sh;
   };
 
+  # `sy delete` gate (see sy-gate.sh). Shipped as an executable named `sy` so it
+  # shadows seshy on PATH for EVERY caller, not just interactive shells. The
+  # earlier zsh-function version was bypassed by `zsh -c`, by scripts, and by
+  # every coding agent's shell tool.
+  syGate = pkgs.writeShellApplication {
+    name = "sy";
+    runtimeInputs = [ pkgs.coreutils ];
+    text = builtins.readFile ./sy-gate.sh;
+  };
+
   # Notification click handler: raises the wezterm pane the agent runs in. Runs in
   # a bare NotificationCenter env, so wezterm/jq must come from runtimeInputs, not
   # an inherited PATH.
@@ -307,6 +317,7 @@ in
     promptScript
     focusScript
     reviewScript
+    syGate
     ;
 
   # Absolute paths used inside harness hook commands.
