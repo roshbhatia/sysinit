@@ -1,22 +1,16 @@
 version: 1
 change: close-harness-instruction-gaps
 decision: approved
-note: 'adversarial review: 4 rounds, 36 objections raised and revised against, 0 open'
-change_hash: e2acbe924ee1305b
-base_commit: a3ffc9ed815ed4b45b8cf0f7f8f6c43791c4ed9d
+note: adversarial review complete; terminal state recorded in tasks.md
+change_hash: 0d81fb7af106ea63
+base_commit: 09942a5c90d6ca6e96a54aa3413cb3239a05313b
 items:
-    0fbb9147c8dfc643:
-        hash: 7230d65aa8ef2a98
-        text: 'Adversarial review (`adversarial-review` skill): critics attempt to break this slice against its spec scenarios; revise until no surviving objection or K=4 rounds'
     1d0ef0a7f1e2bfad:
         hash: da6b246a0466599e
         text: 'Apply: `nh darwin switch`'
     2c456ac2595d9300:
         hash: 853aa3fd86baa66c
         text: 'Verify: `openspec validate close-harness-instruction-gaps` passes and `specutil check` reports no finding'
-    2cc83cd5ee9b921c:
-        hash: 0620f067156291fb
-        text: 'Confirm: no rendered dotfile changed in this slice'
     5a788b29818db2e1:
         hash: 259f012e0e0f808a
         text: Move cursor, goose, and pi from known-missing to covered in the coverage set
@@ -29,21 +23,18 @@ items:
     9ae187ae16552022:
         hash: cbba03b670b4083f
         text: Cover copilot, or leave it exempt with the spike result as the reason
-    9c22c47537e36258:
-        hash: 7230d65aa8ef2a98
-        text: 'Adversarial review (`adversarial-review` skill): critics attempt to break this slice against its spec scenarios; revise until no surviving objection or K=4 rounds'
     009d3074e7fb4615:
         hash: 0769872d97275e49
         text: 'Confirm: the owner approves the staged diff before any commit'
+    13cd98b7131407ab:
+        hash: ea46df01db5c49e4
+        text: 'Confirm: no rendered dotfile changed in this phase'
     21b3b6f299eeeb74:
         hash: da6b246a0466599e
         text: 'Apply: `nh darwin switch`'
     29b3b2206e27ed21:
         hash: 840f15d344a45cfa
         text: Scope the advertised-root assertion to the coverage set so it does not fire on gemini or codex, which this change does not touch
-    45a98e1f2d0e9fa3:
-        hash: 7230d65aa8ef2a98
-        text: 'Adversarial review (`adversarial-review` skill): critics attempt to break this slice against its spec scenarios; revise until no surviving objection or K=4 rounds'
     56cdad3d364f90dc:
         hash: b97c9f130da8652b
         text: 'Spike: determine whether the installed copilot build reads a global instruction file; record the answer in `design.md` Open Questions'
@@ -71,6 +62,12 @@ items:
     4261fbf25ed46c7d:
         hash: 54d17a39d4ee338c
         text: Add a `harnessCoverage` attribute set to `lib/instructions.nix` mapping each configured harness to a context path or an exemption reason
+    9259a54c40a7147d:
+        hash: c1389bff72961541
+        text: 'Adversarial review (`adversarial-review` skill): critics attempt to break this phase against its spec scenarios; revise until no surviving objection or K=4 rounds'
+    0631681f6afe0f53:
+        hash: c1389bff72961541
+        text: 'Adversarial review (`adversarial-review` skill): critics attempt to break this phase against its spec scenarios; revise until no surviving objection or K=4 rounds'
     a9ee44250fbef9c3:
         hash: a9cc77f502090bf9
         text: Write the goose global hints file from `kit.mkInstructionsWithStyle` in `config/goose.nix`
@@ -95,6 +92,9 @@ items:
     d105d2e977c88b39:
         hash: da6b246a0466599e
         text: 'Apply: `nh darwin switch`'
+    dc17a060a21a2654:
+        hash: c1389bff72961541
+        text: 'Adversarial review (`adversarial-review` skill): critics attempt to break this phase against its spec scenarios; revise until no surviving objection or K=4 rounds'
     f51a9e4e8e662c8d:
         hash: 8b1678640010d658
         text: Declare cursor, goose, copilot, and pi as known-missing with the reason

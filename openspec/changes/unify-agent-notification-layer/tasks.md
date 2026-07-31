@@ -28,8 +28,8 @@
       `agent_group` rather than grepping for the call, because a call that
       passes an empty pane reproduces the defect with the call still present
 - [x] 1.8 Adversarial review (`adversarial-review` skill): terminal state
-      `CLEAN`, 0 open, within the K=2 cap for a one-slice review.
-      Round 1 (spec-conformance lens): 6 surviving, all fixed. The slice did not
+      `CLEAN`, 0 open, within the K=2 cap for a one-phase review.
+      Round 1 (spec-conformance lens): 6 surviving, all fixed. The phase did not
       meet its own STOP condition; 3 of 4 defects had no regression check.
       Round 2 (implementation lens): 4 raised, 3 already closed by round 1's
       revisions, 1 new and fixed (the paneless dedup key used a lossy `tr`
@@ -59,8 +59,8 @@
       hook or scraping surface each exposes and the change that will wire it;
       gemini and devin already render PreToolUse hooks, so "no surface" is
       false for them `deps: 2.2`
-- [ ] 2.5 Record pi and opencode as deferred, naming slice 3 as the change that
-      wires them; both keep their own producer through this slice `deps: 2.2`
+- [ ] 2.5 Record pi and opencode as deferred, naming phase 3 as the change that
+      wires them; both keep their own producer through this phase `deps: 2.2`
 - [ ] 2.6 Add a build assertion that fails when a configured harness is in
       neither the bridged, deferred, nor no-surface set (follows the
       `validateMdc` assertion at `config/cursor.nix:43`, which is consumed at
@@ -73,14 +73,14 @@
       as the owner. Without this, reverting `ui.lua` to
       `notifications.enabled = true` passes every other check `deps: 2.1`
 - [ ] 2.8 Adversarial review (`adversarial-review` skill): critics attempt to
-      break this slice against its spec scenarios; revise until no surviving
+      break this phase against its spec scenarios; revise until no surviving
       objection or K=4 rounds
 - [ ] 2.9 Verify: `nix flake check` and `nh darwin build` are green; inject a
       harness missing from all three sets and confirm the build fails
 - [ ] 2.10 Apply: `nh darwin switch`
 - [ ] 2.11 Confirm: one toast per claude wait; the statusline still names a
       scraped opencode pane; pi and OpenCode still notify through their own
-      producers, which this slice deliberately leaves on
+      producers, which this phase deliberately leaves on
 
 ## 3. Pi and OpenCode bridges
 
@@ -106,7 +106,7 @@
       no usable event
 - [ ] 3.7 Move OpenCode to bridged and add `attention.notifications = false` to
       the TUI config attribute set created by
-      `modernize-opencode-and-pi-config` slice 1, both in the same commit as
+      `modernize-opencode-and-pi-config` phase 1, both in the same commit as
       3.6, and only when 3.6 produced a working plugin
 - [ ] 3.8 Add a build assertion that a producer may be turned off only when the
       same harness is bridged, keying on the bridge artifact itself (the
@@ -115,7 +115,7 @@
       the guard
 - [ ] 3.9 Confirm both bridges swallow every error and never fail a turn
 - [ ] 3.10 Adversarial review (`adversarial-review` skill): critics attempt to
-      break this slice against its spec scenarios; revise until no surviving
+      break this phase against its spec scenarios; revise until no surviving
       objection or K=4 rounds
 - [ ] 3.11 Verify: `nix flake check` and `nh darwin build` are green
 - [ ] 3.12 Apply: `nh darwin switch`
@@ -142,7 +142,7 @@
 - [ ] 4.4 Wire the click handler to `agent-focus`
 - [ ] 4.5 Register the widget in the sketchybar bar configuration
 - [ ] 4.6 Adversarial review (`adversarial-review` skill): critics attempt to
-      break this slice against its spec scenarios; revise until no surviving
+      break this phase against its spec scenarios; revise until no surviving
       objection or K=4 rounds
 - [ ] 4.7 Verify: `nix flake check` and `nh darwin build` are green
 - [ ] 4.8 Apply: `nh darwin switch`

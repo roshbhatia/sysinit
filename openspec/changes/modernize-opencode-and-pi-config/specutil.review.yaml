@@ -1,9 +1,9 @@
 version: 1
 change: modernize-opencode-and-pi-config
 decision: approved
-note: 'adversarial review: 4 rounds, 36 objections raised and revised against, 0 open'
-change_hash: cb04ce771c96cdc0
-base_commit: a3ffc9ed815ed4b45b8cf0f7f8f6c43791c4ed9d
+note: adversarial review complete; terminal state recorded in tasks.md
+change_hash: 1cfd734d67733ccb
+base_commit: 09942a5c90d6ca6e96a54aa3413cb3239a05313b
 items:
     0f8cd7a6a4d731bb:
         hash: da42f5ffd02d176c
@@ -20,6 +20,9 @@ items:
     02f931ea5e91e3f1:
         hash: 193b41dbea3c3647
         text: 'Confirm: start OpenCode a second time and check that no new `opencode.json.tui-migration.bak` appears; the first start could still migrate a key left by an earlier generation'
+    3ee47abf12f57cd8:
+        hash: c1389bff72961541
+        text: 'Adversarial review (`adversarial-review` skill): critics attempt to break this phase against its spec scenarios; revise until no surviving objection or K=4 rounds'
     4a901c71652891ab:
         hash: b534611ee0de34a6
         text: Update `hack/update-pi.sh` so it no longer reports on a revision that no longer exists
@@ -50,9 +53,6 @@ items:
     45e9eabffe740837:
         hash: da6b246a0466599e
         text: 'Apply: `nh darwin switch`'
-    71c4f9d1b8016ac3:
-        hash: 7230d65aa8ef2a98
-        text: 'Adversarial review (`adversarial-review` skill): critics attempt to break this slice against its spec scenarios; revise until no surviving objection or K=4 rounds'
     309e673af643ee99:
         hash: ead048565bb7266c
         text: 'Verify: `nix fmt -- --check` is clean and `git diff` is reviewed'
@@ -65,6 +65,9 @@ items:
     2308cb5dbd6a75f6:
         hash: 9fb569a170364543
         text: 'Verify: `nix flake check` and `nh darwin build` are green; review `git diff`'
+    3095fe2be90bb962:
+        hash: c1389bff72961541
+        text: 'Adversarial review (`adversarial-review` skill): critics attempt to break this phase against its spec scenarios; revise until no surviving objection or K=4 rounds'
     5240c1c5941945f2:
         hash: 698cddf2917fb257
         text: 'Confirm: pi starts with no extension load error; `/plan` toggles; protected paths are blocked; the external editor opens or is gone'
@@ -83,21 +86,21 @@ items:
     909382035b732e45:
         hash: 6c1b682c82775cdc
         text: Declare the agreed key set, excluding `defaultProvider` and `defaultModel` by name, and including `theme = "stylix"`, `enableInstallTelemetry = false`, a corrected `shellCommandPrefix` whose newline escape is right, and `skills` if `close-harness-instruction-gaps` has already landed it; the live capture hides that key, because the merge preserves it
+    a02c360dfdf80e0a:
+        hash: c1389bff72961541
+        text: 'Adversarial review (`adversarial-review` skill): critics attempt to break this phase against its spec scenarios; revise until no surviving objection or K=4 rounds'
     a5f935c7b79f5565:
         hash: 9d2bf2924ab7748e
         text: Add a build assertion that a generated theme file is selected by a declared setting
-    a6d373c3ca8b2178:
-        hash: 7230d65aa8ef2a98
-        text: 'Adversarial review (`adversarial-review` skill): critics attempt to break this slice against its spec scenarios; revise until no surviving objection or K=4 rounds'
     ac7736c424fd0e32:
         hash: af5f932ceb692179
         text: Vendor `protected-paths`, `plan-mode`, and `modal-editor`, dropping any that 3.3 shows to conflict
     b959ad93e33805fb:
         hash: 91ddf6ea87c9cdb5
         text: Move `theme`, `keybinds`, and `tui.scroll_acceleration` out of the main config attribute set into a TUI config attribute set
-    bdf5bdbe275804fe:
-        hash: 7230d65aa8ef2a98
-        text: 'Adversarial review (`adversarial-review` skill): critics attempt to break this slice against its spec scenarios; revise until no surviving objection or K=4 rounds'
+    bdb1b11e930d8cbd:
+        hash: c1389bff72961541
+        text: 'Adversarial review (`adversarial-review` skill): critics attempt to break this phase against its spec scenarios; revise until no surviving objection or K=4 rounds'
     bebe61c26c49b872:
         hash: 56c9bbe994a5c328
         text: Add an activation-time validation of the real merged file that fails `nh darwin switch`; the build-time layer alone cannot see a key OpenCode wrote at runtime
@@ -131,6 +134,3 @@ items:
     f57ccba8d2c83623:
         hash: 887361bc75657e2b
         text: Copy the live `~/.pi/agent/settings.json` into the change directory as the rollback artifact
-    feb85bd2664d85f3:
-        hash: 7230d65aa8ef2a98
-        text: 'Adversarial review (`adversarial-review` skill): critics attempt to break this slice against its spec scenarios; revise until no surviving objection or K=4 rounds'

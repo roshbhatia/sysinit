@@ -95,7 +95,7 @@ binary is not sufficient.
   with a reason
 
 The roster names only the two harnesses whose paths are confirmed. Goose and
-copilot are allowed to end as exempt, because their slices permit that outcome.
+copilot are allowed to end as exempt, because their phases permit that outcome.
 Naming them here would make the scenario false on a run in which every task
 completed as designed.
 

@@ -8,7 +8,7 @@
 
   ## When to run
 
-  - At the rosh-spec-driven review gate: before a `tasks.md` slice is marked
+  - At the rosh-spec-driven review gate: before a `tasks.md` phase is marked
     done, and to satisfy the design `Adversarial Review` section.
   - When asked to "adversarially review", "try to break this plan", or "red-team
     this design".
@@ -39,10 +39,10 @@
      Fix every violation before offering the loop.
   2. Then elicit the owner's decision on the critic loop. In an interactive
      harness use the approve/deny prompt (AskUserQuestion under Claude Code);
-     the DEFAULT is to run. Frame it per slice, e.g. "Run the adversarial critic
-     loop for this slice? (default: yes)".
+     the DEFAULT is to run. Frame it per phase, e.g. "Run the adversarial critic
+     loop for this phase? (default: yes)".
   3. On approve, run the loop as specified below.
-  4. On deny, SKIP the critic loop and record the decision in the slice's
+  4. On deny, SKIP the critic loop and record the decision in the phase's
      review checkbox as `Adversarial review: waived by owner`. Do not leave the
      checkbox unmarked (indistinguishable from a forgotten one) and do not
      silently check it without the waiver note.
@@ -103,7 +103,7 @@
   whether a check fires will inject a defect to find out.
 
   This is not hypothetical. A `general-purpose` critic reviewing a parse-check
-  slice injected syntax errors into two zsh files to see whether the check
+  phase injected syntax errors into two zsh files to see whether the check
   caught them, left them in the tree, and they were committed under an unrelated
   message.
 
@@ -121,7 +121,7 @@
   <change-dir>` (installed on PATH). It checks only stated facts: every
   requirement has a declared-negative scenario (`- **POLARITY** negative`),
   design has the required sections, each `- Decision:` has an
-  `- Alternative rejected:` marker, every slice declares a shape and carries an
+  `- Alternative rejected:` marker, every phase declares a shape and carries an
   adversarial-review step, every `deps:` reference resolves, and `Non-goals` is
   present. Run `specutil check --list-rules` to see the resolved rubric. This
   part is a pure function of the artifacts and is reproducible. The LLM
@@ -237,7 +237,7 @@
   3. Report terminal state `HALTED`, the round reached, and every open
      objection with its failing scenario, so the owner is choosing with the
      list in front of them.
-  4. Record the halt in the slice's review checkbox as
+  4. Record the halt in the phase's review checkbox as
      `Adversarial review: halted by owner at round <n>, <m> open`.
 
   A halt is not a waiver and not a pass. `specutil check` still runs, and the
@@ -264,7 +264,7 @@
 
   | Under review | K |
   |---|---|
-  | One file, or one slice of one capability | 2 |
+  | One file, or one phase of one capability | 2 |
   | One change, one capability | 4 |
   | One change spanning capabilities, or any change that mutates the live system | 6 |
 

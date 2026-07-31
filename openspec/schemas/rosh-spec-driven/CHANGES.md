@@ -43,7 +43,7 @@ upstream drift.
 - Adds a `rosh-spec-driven rule` to the `Context` bullet: name existing
   patterns/files being extended, cite paths; justify any new pattern.
 - Adds a new REQUIRED `Rollout & Gating` section between `Decisions` and
-  `Risks`: rollout sequence, per-slice gate, kill switch, feature flags or
+  `Risks`: rollout sequence, per-phase gate, kill switch, feature flags or
   config toggles. Default gate sequence for dotfiles work is
   `nix flake check → nh os build → user spot-check → nh os switch`.
 - Adds a `rosh-spec-driven rule` to the `Risks` bullet: risks that map to
@@ -54,12 +54,12 @@ upstream drift.
 - Adds a REQUIRED `Adversarial Review` section naming the review rubric.
   Split into two halves: the deterministic `specreview` lint is MANDATORY,
   and the LLM critic loop is default-on but OWNER-GATED (the owner may waive
-  the loop for a small slice, recorded as a waiver). Cites the
+  the loop for a small phase, recorded as a waiver). Cites the
   `adversarial-review` skill for the methodology.
 
 ### schema.yaml — `artifacts[id=tasks].instruction`
 - Adds a `rosh-spec-driven rule` bullet requiring multi-capability changes
-  to group tasks under phase headings, each phase a coherent vertical slice.
+  to group tasks under phase headings, each phase independently reviewable.
 - Adds a `rosh-spec-driven rule` requiring impactful actions (`nh os switch`,
   `git push`, `openspec archive`, schema migrations, file deletions outside
   scratch, network writes, vendored-content updates, broad formatter sweeps)
@@ -68,12 +68,12 @@ upstream drift.
   cite the existing pattern it follows (path) or justify introducing a new one.
 - Extends the example to show a `## 3. Rollout` phase with a verify/apply/confirm
   task triplet for `nh os switch`.
-- Adds the per-slice adversarial-review gate rule. The checkbox is required,
+- Adds the per-phase adversarial-review gate rule. The checkbox is required,
   but the LLM critic loop it invokes is default-on and OWNER-GATED: the
   `adversarial-review` skill elicits approve/deny, and a deny records
   `Adversarial review: waived by owner`. The mandatory `specreview` lint is
   not gated. (`spec-driven-workflow-upgrades` change.)
-- Adds the phase-shape rule. Each non-Rollout slice declares `- **SHAPE**
+- Adds the phase-shape rule. Each non-Rollout phase declares `- **SHAPE**
   loop|graph`; a `loop` also declares `- **STOP**` and `- **MAX-ITERS**`; a
   `graph` subtask may carry a trailing `` `deps:` `` whose ids resolve to
   sibling subtasks. `specreview` enforces the markers. (`spec-driven-workflow-upgrades`.)
@@ -81,13 +81,13 @@ upstream drift.
   Simplified Technical English per the `~/.claude/CLAUDE.md` Communication
   section. `specreview` fails on em-dashes and disallowed bolded bullet leads.
   (`spec-driven-workflow-upgrades`.)
-- Adds the explicit-shape rule: model a slice as a `loop` or a `graph` rather
+- Adds the explicit-shape rule: model a phase as a `loop` or a `graph` rather
   than as prose. When an agent drives the iteration itself, drive it with the
   `loop` skill (`/loop` with no interval) and stop it the moment the declared
   `STOP` condition holds. A named terminal state is checkable; "until it looks
   done" is not.
 - Replaces the flat `K=4` adversarial-review round cap with a cap scaled to
-  blast radius (2 for one slice, 4 for one capability, 6 for a cross-capability
+  blast radius (2 for one phase, 4 for one capability, 6 for a cross-capability
   or live-system change), plus early stops on non-convergence and on
   fix-induced churn. A cap hit is reported as open objections, never as a pass.
   The flat cap came from Self-Refine's max-4-iterations, which measures a

@@ -132,18 +132,18 @@ state file already carries repo, branch, dirty, and `since`. Reading it is one
   the resolver already paid that cost when the state file was written, and a
   second call doubles the hook's latency for no new information.
 
-### D6. The sketchybar widget is a separate slice and may be dropped
+### D6. The sketchybar widget is a separate phase and may be dropped
 
 It is the only part of this change that touches the Darwin module tree. It is
 sequenced last so the notification work can ship without it.
 
-- Alternative rejected: fold the widget into the routing slice. Rejected
+- Alternative rejected: fold the widget into the routing phase. Rejected
   because it would make the whole change depend on a sketchybar restart, which
   is a wider blast radius than the notification work needs.
 
 ## Rollout & Gating
 
-Four slices. Slices 1 and 2 are independently switchable. Slices 3 and 4 carry
+Four phases. Phases 1 and 2 are independently switchable. Phases 3 and 4 carry
 ordering constraints that an earlier draft of this design got wrong.
 
 1. Defect fixes in the shell scripts. Group key, dedup key, approval click,
@@ -151,12 +151,12 @@ ordering constraints that an earlier draft of this design got wrong.
    `nh darwin build`, then the owner raises one toast per fixed path.
 2. Coverage set and agent-deck. Turn off agent-deck notifications only, and
    record all eleven harnesses as bridged, deferred, or no-surface. Pi's and
-   OpenCode's own producers stay on through this slice. Gate: the owner
+   OpenCode's own producers stay on through this phase. Gate: the owner
    confirms no duplicate toast for a claude wait, no missing statusline status
    for a scraped pane, and a build failure when a harness is in no set.
 3. Pi and OpenCode bridges, each shipping in the same commit that turns off
    that harness's own producer. Requires
-   `modernize-opencode-and-pi-config` slice 1, which creates the TUI config
+   `modernize-opencode-and-pi-config` phase 1, which creates the TUI config
    writer that `attention.notifications` needs. Gate: the owner starts one pi
    session and one OpenCode session and confirms a toast and a state file for
    each.
@@ -168,7 +168,7 @@ ordering constraints that an earlier draft of this design got wrong.
 The default sequence is edit, `nix flake check`, `nh darwin build`, owner
 spot-check, `nh darwin switch`. No deviation.
 
-Kill switch: slices 1, 2, and 4 revert with their commit. Slice 3 reverts by
+Kill switch: phases 1, 2, and 4 revert with their commit. Phase 3 reverts by
 restoring the harness's own producer in the same commit that removes the
 bridge, because reverting only the bridge would leave that harness with no
 producer at all.
@@ -178,21 +178,21 @@ producer at all.
 - Pi extension API drift breaks the bridge on a pi upgrade. Mitigation: the
   bridge uses four documented events and swallows every error, so a rename
   degrades to no notification rather than a crashed session. Flagged as a
-  human-verification checkpoint after slice 3.
+  human-verification checkpoint after phase 3.
 - OpenCode plugin API is less documented than its config schema. Mitigation:
-  slice 3 begins with a spike that confirms the event names against the
+  phase 3 begins with a spike that confirms the event names against the
   installed 1.18.4 build before the plugin is written. If the events do not
-  exist, OpenCode is recorded as uncovered and the slice ships pi only.
+  exist, OpenCode is recorded as uncovered and the phase ships pi only.
 - Turning off agent-deck notifications silences seven harnesses that have no
   bridge: gemini, cursor, devin, copilot, amp, crush, and goose. Mitigation:
   each is recorded in the coverage set, and the statusline still shows the
   scraped status for those agent-deck covers. Gemini and devin are deferred,
   not surfaceless: both already render a `PreToolUse` hook file, so wiring them
   is future work rather than an impossibility. Flagged for owner confirmation
-  in slice 2.
+  in phase 2.
 - Turning off pi's and OpenCode's own producers before their bridges land would
-  silence them with no replacement, for as long as slice 3 takes. Mitigation:
-  those two edits moved out of slice 2 and into slice 3, where each ships in
+  silence them with no replacement, for as long as phase 3 takes. Mitigation:
+  those two edits moved out of phase 2 and into phase 3, where each ships in
   the same commit as its bridge. A build assertion enforces the pairing.
 - Icon fetches add three pinned network sources. Mitigation: the existing four
   already use this pattern and a hash drift fails the build loudly. Three of the
@@ -206,32 +206,32 @@ producer at all.
 ## Migration Plan
 
 1. Verify: `nix flake check` passes on the current tree before any edit.
-2. Apply slice 1, build, and switch. Confirm: an approval toast is dismissible
+2. Apply phase 1, build, and switch. Confirm: an approval toast is dismissible
    and two idle panes both notify.
 3. Verify: `git diff` shows only the three boolean flips and the pi extension
-   list. Apply slice 2 and switch. Confirm: one toast per wait, and the
+   list. Apply phase 2 and switch. Confirm: one toast per wait, and the
    statusline still names a scraped pane.
-4. Verify: the OpenCode event-name spike succeeded. Apply slice 3 and switch.
+4. Verify: the OpenCode event-name spike succeeded. Apply phase 3 and switch.
    Confirm: a pi turn and an OpenCode turn each produce one toast and one state
    file.
-5. Verify: the widget renders in a scratch bar config. Apply slice 4 and
+5. Verify: the widget renders in a scratch bar config. Apply phase 4 and
    switch. Confirm: the bar restarts and the widget is empty when idle.
 
-Rollback: revert the slice's commit and switch. No slice writes persistent
+Rollback: revert the phase's commit and switch. No phase writes persistent
 state outside `$XDG_STATE_HOME/agents/`, which is regenerated on the next
 transition.
 
 ## Adversarial Review
 
 Rubric: the spec scenarios in this change including every negative one, the
-Decisions above, the Rollout & Gating slice gates, and the proposal Non-goals.
+Decisions above, the Rollout & Gating phase gates, and the proposal Non-goals.
 
-The deterministic half is mandatory. `specutil check` runs on every slice.
+The deterministic half is mandatory. `specutil check` runs on every phase.
 
 The critic half is default-on and owner-gated. The `adversarial-review` skill
-elicits approve or deny; the owner may waive it for a small slice, recorded as
+elicits approve or deny; the owner may waive it for a small phase, recorded as
 `Adversarial review: waived by owner`. When run, independent critics attempt to
-break the slice with a concrete failing scenario that names a violated rubric
+break the phase with a concrete failing scenario that names a violated rubric
 item. The author revises against surviving objections. The loop repeats until
 no objection survives or K=4 rounds. Under Claude Code the critics are
 in-process teammates. See the `adversarial-review` skill for the methodology.
@@ -240,7 +240,7 @@ in-process teammates. See the `adversarial-review` skill for the methodology.
 
 - Does OpenCode 1.18.4 expose a plugin event for session idle and for a
   permission request? The config schema is documented; the plugin event list is
-  not. Slice 3 opens with a spike that answers this.
+  not. Phase 3 opens with a spike that answers this.
 - Should gemini and devin get a bridge, or stay on scraping only? Both render a
   `PreToolUse` hook file today, so both are recorded as deferred. The owner
   decides whether to wire them.

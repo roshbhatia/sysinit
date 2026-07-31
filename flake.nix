@@ -264,7 +264,7 @@
           # otherwise an author who fills in the template still trips the gate
           # and has to reverse-engineer the rule from a failure. This caught the
           # design template missing `Rollout & Gating` and `Adversarial Review`,
-          # the tasks template missing its per-slice review checkbox, and the
+          # the tasks template missing its per-phase review checkbox, and the
           # spec template modelling no negative scenario.
           #
           # Rules that gate an author or reviewer ACTION rather than template
@@ -596,7 +596,7 @@
           # removed only the first, so an approval toast was never dismissed.
           # `agent_group` in agent-group.sh is now the only place that builds the
           # string; this check fails if any consumer reintroduces a literal.
-          # Covers all four defects the slice fixes, not the group alone. Each
+          # Covers all four defects the phase fixes, not the group alone. Each
           # assertion below fails if its fix is reverted; a grep for the fix's
           # presence would not, because a caller can keep the call and still
           # pass the wrong argument.

@@ -56,5 +56,5 @@ For every harness migrated to use the kit, the rendered output file under `home.
 
 #### Scenario: Accidental semantic shift
 - **WHEN** a contributor changes the order of operations in a harness's let-block such that the rendered output differs (e.g., reorders an attrset, changes a string)
-- **THEN** the byte-identity diff check at the verify gate fails and the slice is rolled back before apply
+- **THEN** the byte-identity diff check at the verify gate fails and the phase is rolled back before apply
 

@@ -42,7 +42,7 @@ is hit, or it stops early on non-convergence or churn. Each step below names its
 
 - **STOP** when a full round yields `NO SURVIVING OBJECTION` from all N critics.
   Generalizes Self-Refine's stop indicator (arXiv:2303.17651) to N critics.
-- **ROUND CAP** scaled to blast radius: K=2 for one file or one slice, K=4 for a
+- **ROUND CAP** scaled to blast radius: K=2 for one file or one phase, K=4 for a
   single-capability change, K=6 for a cross-capability change or one that mutates
   the live system.
 
@@ -123,7 +123,7 @@ require survival; (f) bound with a blast-radius-scaled K, early stops on churn, 
   cannot satisfy, a decision whose rejected alternative was actually better, a
   rollout step that mutates shared state with no verification gate, or a non-goal
   the plan silently crosses.
-- **Where it runs.** The `tasks.md` review-loop gate per slice and the design
+- **Where it runs.** The `tasks.md` review-loop gate per phase and the design
   `Adversarial Review` section reference this skill; the skill decides in-process
   vs spawned execution.
 

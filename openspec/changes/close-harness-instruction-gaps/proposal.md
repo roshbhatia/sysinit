@@ -65,7 +65,7 @@ Modified code:
 - `modules/home/programs/llm/config/cursor-rules/always.mdc`
 
 Dependencies:
-- Depends on `modernize-opencode-and-pi-config` slice 2 for the pi retired-key
+- Depends on `modernize-opencode-and-pi-config` phase 2 for the pi retired-key
   mechanism. Pi's `skills` array reaches disk through a deep merge that never
   removes a key, so rolling this change back needs that mechanism. Land it
   first, or accept that pi's skills setting cannot be rolled back.

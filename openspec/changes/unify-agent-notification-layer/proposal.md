@@ -80,10 +80,10 @@ New code:
 Dependencies:
 - Depends on `harden-agent-shell-terminal` for the versioned state-file schema
   and for stale-entry collection. This change reads the bus and must not
-  redefine its shape. Slice 4 cannot ship before collection exists, because the
+  redefine its shape. Phase 4 cannot ship before collection exists, because the
   menu bar widget may not check pane liveness and so cannot prune a dead pane's
   entry itself.
-- Slice 3 depends on `modernize-opencode-and-pi-config` slice 1, which creates
+- Phase 3 depends on `modernize-opencode-and-pi-config` phase 1, which creates
   the OpenCode TUI config writer. `attention.notifications` is a TUI key and
   `opencode.nix` has no TUI writer today. Building a second one here would race
   the first on the same file.
@@ -99,7 +99,7 @@ Impactful and irreversible actions:
 
 Gating signal:
 - `nix flake check`, then `nh darwin build`, then an owner smoke test of one
-  toast per harness, then `nh darwin switch`. Each slice is independently
+  toast per harness, then `nh darwin switch`. Each phase is independently
   switchable. The kill switch for the bridges is removing the pi extension file
   and the opencode plugin entry, which restores today's behavior for those two
   harnesses without touching the other nine.

@@ -22,7 +22,7 @@ Non-Goals:
 
 ## Rollout & Gating
 
-<!-- rosh-spec-driven rule: REQUIRED section. Which slice ships first, what gate
+<!-- rosh-spec-driven rule: REQUIRED section. Which phase ships first, what gate
      must pass before the next one, and where the kill switch is. The default
      gate sequence for this repo is: edit, `nix flake check`, `nh darwin build`,
      owner spot-check, `nh darwin switch`. Call out any deviation. -->

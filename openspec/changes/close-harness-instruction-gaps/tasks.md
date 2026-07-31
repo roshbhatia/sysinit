@@ -16,12 +16,12 @@
       assertion at `config/cursor.nix:43`, consumed at `config/cursor.nix:58`)
       `deps: 1.3,1.4`
 - [ ] 1.6 Adversarial review (`adversarial-review` skill): critics attempt to
-      break this slice against its spec scenarios; revise until no surviving
+      break this phase against its spec scenarios; revise until no surviving
       objection or K=4 rounds
 - [ ] 1.7 Verify: `nix flake check` and `nh darwin build` are green; removing a
       harness from the set fails the build with that harness named
 - [ ] 1.8 Apply: `nh darwin switch`
-- [ ] 1.9 Confirm: no rendered dotfile changed in this slice
+- [ ] 1.9 Confirm: no rendered dotfile changed in this phase
 
 ## 2. Pi and goose context, and pi skills
 
@@ -43,7 +43,7 @@
 - [ ] 2.5 Move cursor, goose, and pi from known-missing to covered in the
       coverage set
 - [ ] 2.6 Adversarial review (`adversarial-review` skill): critics attempt to
-      break this slice against its spec scenarios; revise until no surviving
+      break this phase against its spec scenarios; revise until no surviving
       objection or K=4 rounds
 - [ ] 2.7 Verify: `nix flake check` and `nh darwin build` are green; review
       `git diff`
@@ -76,7 +76,7 @@
       instruction file; record the answer in `design.md` Open Questions
 - [ ] 3.7 Cover copilot, or leave it exempt with the spike result as the reason
 - [ ] 3.8 Adversarial review (`adversarial-review` skill): critics attempt to
-      break this slice against its spec scenarios; revise until no surviving
+      break this phase against its spec scenarios; revise until no surviving
       objection or K=4 rounds
 - [ ] 3.9 Verify: `nix flake check` and `nh darwin build` are green; the owner
       reads the rendered `always.mdc`

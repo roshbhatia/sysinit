@@ -89,7 +89,7 @@ Gating signal:
 - `nix flake check`, then `nh darwin build`, then a schema validation of the
   rendered config, then `nh darwin switch`. Each harness lands on its own.
 - The kill switch for pi's settings ownership is three steps, in this order:
-  revert the slice's commit, run `nh darwin switch`, then restore the captured
-  settings file that the slice's first task wrote to the change directory.
+  revert the phase's commit, run `nh darwin switch`, then restore the captured
+  settings file that the phase's first task wrote to the change directory.
   Restoring the file alone does not work. The activation merge runs on every
   switch, so the next unrelated switch re-imposes every declared key.

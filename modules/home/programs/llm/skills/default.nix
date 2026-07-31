@@ -76,7 +76,7 @@
   };
 
   adversarial-review = {
-    description = "Runs an adversarial review loop: independent critics try to break an artifact and the author revises against surviving objections. Use at the rosh-spec-driven review gate, before marking a tasks.md slice done, or when asked to red-team a plan, spec, or design.";
+    description = "Runs an adversarial review loop: independent critics try to break an artifact and the author revises against surviving objections. Use at the rosh-spec-driven review gate, before marking a tasks.md phase done, or when asked to red-team a plan, spec, or design.";
     content = import ./adversarial-review.nix;
     allowed-tools = "Agent Read Grep Glob Bash(printenv:*) Bash(env:*) Bash(openspec:*)";
     files = {

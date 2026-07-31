@@ -114,7 +114,7 @@ The overlay patch MUST fail the build if any known target site does not match (f
 #### Scenario: Undocumented patch caught
 
 - **WHEN** the overlay patches the default but `CHANGES.md` does not record it
-- **THEN** the review gate for this change treats the omission as incomplete and the slice is not marked done
+- **THEN** the review gate for this change treats the omission as incomplete and the phase is not marked done
 
 ### Requirement: The schema requires a citations.lock for external-factual claims
 
@@ -130,7 +130,7 @@ The determination of whether a change "has external-factual claims" is a review-
 #### Scenario: Unanchored claim blocks the review gate
 - **POLARITY** negative
 - **WHEN** a change asserts an external-factual claim with no matching passing record in `citations.lock`
-- **THEN** the review gate treats the change as default-reject and the slice is not marked done
+- **THEN** the review gate treats the change as default-reject and the phase is not marked done
 
 #### Scenario: Change with no external claims is not blocked
 - **POLARITY** positive

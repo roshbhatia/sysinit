@@ -6,7 +6,7 @@
 
   - Before planning multi-change work: run `specutil graph --as mermaid` to see the cross-change DAG and discover blockers.
   - During an explore session: run `specutil web` to open the work graph (levels, readiness, critical path) in a browser.
-  - Before marking a slice done: run `specutil check <change-dir>` as the deterministic rubric gate.
+  - Before marking a phase done: run `specutil check <change-dir>` as the deterministic rubric gate.
   - Before syncing to Linear or Notion: run `specutil plan --target <linear|notion>` to preview creates/updates/orphans; then run `specutil lock set` after each sync to record the mapping.
   - To render a change as an RFC, design doc, or ticket list: `specutil render --as rfc|design|tickets --change <name>`.
 

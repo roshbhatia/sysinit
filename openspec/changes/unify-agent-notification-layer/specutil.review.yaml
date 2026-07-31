@@ -1,9 +1,9 @@
 version: 1
 change: unify-agent-notification-layer
 decision: approved
-note: 'slice 1: 2 rounds, terminal state CLEAN, 0 open'
-change_hash: b4f693658c9bf376
-base_commit: 1810ae9bf2216432f9fa68044c0a0b2c0914306d
+note: adversarial review complete; terminal state recorded in tasks.md
+change_hash: 0883dc5791894452
+base_commit: 09942a5c90d6ca6e96a54aa3413cb3239a05313b
 items:
     1b82cca1801d569a:
         hash: 4d6c07ec02b04020
@@ -14,9 +14,9 @@ items:
     2e2c0b18a7ad4275:
         hash: e772fb73fbd07d79
         text: 'Verify: `nix flake check` green (16 checks), host build green, `nix fmt -- --check` clean, all four defect assertions negative-tested'
-    5c62d11c0d8069b5:
-        hash: 937c06a98a5e0085
-        text: Move OpenCode to bridged and add `attention.notifications = false` to the TUI config attribute set created by `modernize-opencode-and-pi-config` slice 1, both in the same commit as 3.6, and only when 3.6 produced a working plugin
+    4d285206b9de9ce0:
+        hash: c1389bff72961541
+        text: 'Adversarial review (`adversarial-review` skill): critics attempt to break this phase against its spec scenarios; revise until no surviving objection or K=4 rounds'
     5eb47631a576461e:
         hash: 9d403ca4e8b983e9
         text: Wire the click handler to `agent-focus`
@@ -50,12 +50,15 @@ items:
     30ae706730df7e71:
         hash: 469f7abf4e62f681
         text: 'Verify: `harden-agent-shell-terminal` has landed its state-file version field and its collection step; without collection the widget shows a permanent badge for a killed pane, because only Claude writes an exit event and the widget may not call the WezTerm CLI to check liveness'
-    59d8440a62717692:
-        hash: 7fac38c66d55bb1a
-        text: 'Confirm: one toast per claude wait; the statusline still names a scraped opencode pane; pi and OpenCode still notify through their own producers, which this slice deliberately leaves on'
+    40a8fdf53d4da914:
+        hash: c1389bff72961541
+        text: 'Adversarial review (`adversarial-review` skill): critics attempt to break this phase against its spec scenarios; revise until no surviving objection or K=4 rounds'
     67e6db6fa306a803:
         hash: 4097285c6c2286d2
         text: 'Confirm: an approval toast dismisses on click; two idle panes of one harness both notify; a pi toast carries the pi icon and an amp toast carries the generic glyph. The paneless case is already confirmed on the live system: two sessions with no `WEZTERM_PANE` produced the distinct dedup keys `ctx4120745486_idle` and `ctx4143571985_idle`. The remaining items need a human to click a notification.'
+    68c6302e85057ca0:
+        hash: 356aebe6bc03ce2e
+        text: Move OpenCode to bridged and add `attention.notifications = false` to the TUI config attribute set created by `modernize-opencode-and-pi-config` phase 1, both in the same commit as 3.6, and only when 3.6 produced a working plugin
     69b9da8301e1303c:
         hash: 941d2420435d25c5
         text: Add a check derivation scanning the agent-deck block in `ui.lua`, the `extensions` list in `pi.nix`, and the OpenCode TUI attribute set for a re-enabled producer; fail with the producer name and name `agent-notify` as the owner. Without this, reverting `ui.lua` to `notifications.enabled = true` passes every other check
@@ -80,9 +83,9 @@ items:
     53431847e6c9d4c6:
         hash: 1e94066eb07ccd5b
         text: Replace the `agent.png` fallback with a distinct generic glyph and extend the label table in `agent-notify.sh` and `agent-prompt.sh`
-    77054129ae8a46c0:
-        hash: 44b40f3821e8952e
-        text: 'Adversarial review (`adversarial-review` skill): terminal state `CLEAN`, 0 open, within the K=2 cap for a one-slice review. Round 1 (spec-conformance lens): 6 surviving, all fixed. The slice did not meet its own STOP condition; 3 of 4 defects had no regression check. Round 2 (implementation lens): 4 raised, 3 already closed by round 1''s revisions, 1 new and fixed (the paneless dedup key used a lossy `tr` substitution, so `my session` and `my_session` shared a suppression key). Round 2 re-check: no surviving objection. The one objection the critic re-raised was a stale read: it ran `git diff HEAD`, which is empty for a fix that is committed rather than staged. Trend 6, 1, 0.'
+    75049075f8d31aa2:
+        hash: c1389bff72961541
+        text: 'Adversarial review (`adversarial-review` skill): critics attempt to break this phase against its spec scenarios; revise until no surviving objection or K=4 rounds'
     039547408701133d:
         hash: 9f14c91ec01611d8
         text: Author the OpenCode plugin, or leave OpenCode deferred when 3.1 finds no usable event
@@ -92,9 +95,6 @@ items:
     a689bd3bc52dc8e0:
         hash: 9b32a31ea9519825
         text: Record cursor and copilot as no-surface with the reason
-    a829523060f68ad0:
-        hash: 7230d65aa8ef2a98
-        text: 'Adversarial review (`adversarial-review` skill): critics attempt to break this slice against its spec scenarios; revise until no surviving objection or K=4 rounds'
     aac8f0193aaf7ecb:
         hash: f2d33905fa503b07
         text: Route `@CONTENTCLICKED` and `@ACTIONCLICKED` on the approval waiter in `agent-prompt.sh` to `agent-focus`, keeping the Accept and Deny relay
@@ -125,27 +125,27 @@ items:
     c4f776fd436f3e45:
         hash: 265580ac92fa7fd6
         text: Confirm the bridge binds `agent_settled` and not `agent_end`, and that a retried or auto-compacted run raises no done toast
-    c8f55da8e6a12a47:
-        hash: 7230d65aa8ef2a98
-        text: 'Adversarial review (`adversarial-review` skill): critics attempt to break this slice against its spec scenarios; revise until no surviving objection or K=4 rounds'
+    c5dd66bf316cd7c2:
+        hash: a19cd0c5981d10b9
+        text: 'Adversarial review (`adversarial-review` skill): terminal state `CLEAN`, 0 open, within the K=2 cap for a one-phase review. Round 1 (spec-conformance lens): 6 surviving, all fixed. The phase did not meet its own STOP condition; 3 of 4 defects had no regression check. Round 2 (implementation lens): 4 raised, 3 already closed by round 1''s revisions, 1 new and fixed (the paneless dedup key used a lossy `tr` substitution, so `my session` and `my_session` shared a suppression key). Round 2 re-check: no surviving objection. The one objection the critic re-raised was a stale read: it ran `git diff HEAD`, which is empty for a fix that is committed rather than staged. Trend 6, 1, 0.'
     c167c6c377975f51:
         hash: a534a12a94c9909e
         text: Build the coverage set in `notify.nix` naming all eleven configured harnesses, each as bridged, deferred, or no-surface
     cf57a1cc967e6375:
         hash: 4f5b53b4ae679ab6
         text: 'Confirm: one pi turn and one OpenCode turn each raise one toast and write one state file; kill the notifier binary and confirm neither session breaks'
-    d6c6a87f14211a1c:
-        hash: fc3ac738763f10af
-        text: Record pi and opencode as deferred, naming slice 3 as the change that wires them; both keep their own producer through this slice
-    d878c5603fc707c9:
-        hash: 7230d65aa8ef2a98
-        text: 'Adversarial review (`adversarial-review` skill): critics attempt to break this slice against its spec scenarios; revise until no surviving objection or K=4 rounds'
     e650d6525a37def4:
         hash: 54d62155d6e57f5e
         text: Author `widgets/agents.lua` reading `$XDG_STATE_HOME/agents/panes/*.json` (follows `widgets/front_app.lua`)
+    ebc0f779d6fc1dd7:
+        hash: f67a77f2026f3442
+        text: Record pi and opencode as deferred, naming phase 3 as the change that wires them; both keep their own producer through this phase
     f1fa329d45d67375:
         hash: 61512889dd4a1259
         text: Record gemini, devin, amp, crush, and goose as deferred, naming the hook or scraping surface each exposes and the change that will wire it; gemini and devin already render PreToolUse hooks, so "no surface" is false for them
     f1955e41360db480:
         hash: da6b246a0466599e
         text: 'Apply: `nh darwin switch`'
+    fe3783c10ec0972b:
+        hash: ef57220067c7efe9
+        text: 'Confirm: one toast per claude wait; the statusline still names a scraped opencode pane; pi and OpenCode still notify through their own producers, which this phase deliberately leaves on'

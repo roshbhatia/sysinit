@@ -102,10 +102,10 @@ another harness's tree. So pi reads the Claude tree directly.
 
 ## Rollout & Gating
 
-Three slices.
+Three phases.
 
 1. The coverage set and its assertion, with every currently covered harness
-   declared and the four gaps declared as known-missing. This slice changes no
+   declared and the four gaps declared as known-missing. This phase changes no
    rendered file. Gate: `nix flake check` and `nh darwin build` are green, and
    the assertion fires when a harness is removed from the set.
 2. Pi and goose context files, plus pi's skills array. Both paths are
@@ -140,46 +140,46 @@ blocks an unrelated build.
   requirement this change did not set out to touch. Mitigation: the correction
   is confined to the one requirement the new coverage requirement would
   contradict, and it states the previous text and why it changed. Flagged for
-  owner confirmation in slice 1.
+  owner confirmation in phase 1.
 - Cursor's always rule loses hand-written repository facts when its body is
   generated. Mitigation: capture the deleted text before the edit and move any
   fact worth keeping into the repository's own `AGENTS.md`, which is where a
   repository fact belongs. Flagged as a human-verification checkpoint in
-  slice 3.
+  phase 3.
 - Pi may warn on skill frontmatter keys the Claude render emits. Mitigation:
-  pi's bundled docs state it warns and stays lenient. Slice 2 confirms this on
-  a live session before the slice is marked done.
+  pi's bundled docs state it warns and stays lenient. Phase 2 confirms this on
+  a live session before the phase is marked done.
 - Goose's global hints path is inferred from the filename in the binary and the
   configured config directory, not from a literal path in the binary.
-  Mitigation: slice 2 confirms the load on a live goose session before the
-  slice is marked done, and goose is declared exempt if it does not load.
+  Mitigation: phase 2 confirms the load on a live goose session before the
+  phase is marked done, and goose is declared exempt if it does not load.
 
 ## Migration Plan
 
 1. Verify: `nix flake check` passes before any edit.
-2. Apply slice 1. Confirm: removing a harness from the coverage set fails the
+2. Apply phase 1. Confirm: removing a harness from the coverage set fails the
    build with that harness named.
-3. Verify: `nh darwin build` is green. Apply slice 2 and switch. Confirm: a pi
+3. Verify: `nh darwin build` is green. Apply phase 2 and switch. Confirm: a pi
    session loads the context and lists the registry skills; a goose session
    loads the hints.
 4. Verify: the deleted body of `always.mdc` is captured and any surviving fact
-   is placed in the repository `AGENTS.md`. Apply slice 3 and switch. Confirm:
+   is placed in the repository `AGENTS.md`. Apply phase 3 and switch. Confirm:
    the owner reads the rendered rule file and finds no restated fact.
 
-Rollback: revert the slice's commit and switch. No slice writes state outside
+Rollback: revert the phase's commit and switch. No phase writes state outside
 the generated dotfiles, which are replaced on the next activation.
 
 ## Adversarial Review
 
 Rubric: the spec scenarios in this change including every negative one, the
-Decisions above, the Rollout & Gating slice gates, and the proposal Non-goals.
+Decisions above, the Rollout & Gating phase gates, and the proposal Non-goals.
 
-The deterministic half is mandatory. `specutil check` runs on every slice.
+The deterministic half is mandatory. `specutil check` runs on every phase.
 
 The critic half is default-on and owner-gated. The `adversarial-review` skill
-elicits approve or deny; the owner may waive it for a small slice, recorded as
+elicits approve or deny; the owner may waive it for a small phase, recorded as
 `Adversarial review: waived by owner`. When run, independent critics attempt to
-break the slice with a concrete failing scenario that names a violated rubric
+break the phase with a concrete failing scenario that names a violated rubric
 item. The author revises against surviving objections. The loop repeats until
 no objection survives or K=4 rounds. Under Claude Code the critics are
 in-process teammates. See the `adversarial-review` skill for the methodology.
@@ -190,7 +190,7 @@ in-process teammates. See the `adversarial-review` skill for the methodology.
   section list, the line cap, and the Stack section are corrected, because the
   new coverage requirement contradicts them. The `nix build .#agents-md` target
   still describes code that does not exist and needs its own change.
-- Does copilot read a global instruction file at all? The spike in slice 3
+- Does copilot read a global instruction file at all? The spike in phase 3
   answers this. If it does not, copilot stays exempt.
 - Should the repository's own `AGENTS.md` absorb the cursor facts that are
-  worth keeping, or should they be deleted? The owner decides in slice 3.
+  worth keeping, or should they be deleted? The owner decides in phase 3.

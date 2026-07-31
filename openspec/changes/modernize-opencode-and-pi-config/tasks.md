@@ -28,7 +28,7 @@
 - [ ] 1.8 Declare `shell`, `default_agent`, `subagent_depth`, `compaction`, and
       `tool_output` in the main config
 - [ ] 1.9 Adversarial review (`adversarial-review` skill): critics attempt to
-      break this slice against its spec scenarios; revise until no surviving
+      break this phase against its spec scenarios; revise until no surviving
       objection or K=4 rounds
 - [ ] 1.10 Verify: `nix flake check` and `nh darwin build` are green; review
       `git diff`
@@ -69,7 +69,7 @@
 - [ ] 2.6 Add a build assertion that a generated theme file is selected by a
       declared setting
 - [ ] 2.7 Adversarial review (`adversarial-review` skill): critics attempt to
-      break this slice against its spec scenarios; revise until no surviving
+      break this phase against its spec scenarios; revise until no surviving
       objection or K=4 rounds
 - [ ] 2.8 Verify: `nix flake check` and `nh darwin build` are green; review
       `git diff`
@@ -99,7 +99,7 @@
 - [ ] 3.7 Update `hack/update-pi.sh` so it no longer reports on a revision that
       no longer exists
 - [ ] 3.8 Adversarial review (`adversarial-review` skill): critics attempt to
-      break this slice against its spec scenarios; revise until no surviving
+      break this phase against its spec scenarios; revise until no surviving
       objection or K=4 rounds
 - [ ] 3.9 Verify: `nix flake check`, `nh darwin build`, and
       `./hack/update-pi.sh` all behave as expected
@@ -113,7 +113,7 @@
 - [ ] 4.1 List the contents of `~/.config/opencode/plugins/` and
       `~/.config/opencode/tools/` for the owner `deps: none`
 - [ ] 4.2 Adversarial review (`adversarial-review` skill): critics attempt to
-      break this slice against its spec scenarios; revise until no surviving
+      break this phase against its spec scenarios; revise until no surviving
       objection or K=4 rounds `deps: 4.1`
 - [ ] 4.3 Verify: the owner confirms each listed file is disposable `deps: 4.2`
 - [ ] 4.4 Apply: copy the listed files into the change directory, then remove
