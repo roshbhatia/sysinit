@@ -132,18 +132,145 @@
      revises; a critic never both blesses and rewrites unaided.
   5. **Repeat.**
 
+  ## The loop is a state machine; run it as one
+
+  Do not run this as an implicit "repeat until it feels done". The loop has
+  named states, one transition per condition, and six terminal states. Declare
+  which state you are in at each step, and name the terminal state you reached.
+
+  ```
+                  ┌──────────┐
+                  │   LINT   │  specutil check (mandatory, deterministic)
+                  └────┬─────┘
+                fail ← │ → pass
+                  ┌────┴─────┐
+        REVISE ←──┤   GATE   │  owner approve/deny (default: approve)
+                  └────┬─────┘
+                 deny ←│→ approve
+                       │        └──────────────→ [WAIVED]
+                  ┌────▼─────┐
+             ┌───▶│  ROUND   │  spawn N critics, one lens each
+             │    └────┬─────┘
+             │         │ count surviving objections
+             │    ┌────┴──────────────────────────────┐
+             │    │ count == 0            → [CLEAN]   │
+             │    │ owner says stop       → [HALTED]  │
+             │    │ round == K            → [CAPPED]  │
+             │    │ no decline in 2 rounds→ [STALLED] │
+             │    │ all fix-induced       → [CHURNING]│
+             │    │ otherwise             → REVISE    │
+             │    └────┬──────────────────────────────┘
+             │    ┌────▼─────┐
+             └────┤  REVISE  │  author fixes surviving objections only
+                  └──────────┘
+  ```
+
+  Terminal states: `CLEAN` is the only success. `WAIVED` is an owner decision
+  made before the loop starts. `HALTED` is an owner decision made during it.
+  `CAPPED`, `STALLED`, and `CHURNING` all hand back with open objections and
+  MUST be reported as such, never as a pass.
+
+  ### Elicit at every round boundary, do not wait to be stopped
+
+  The owner should never have to interrupt to end the loop. At the end of every
+  round that does not reach a terminal state, ASK whether to continue before
+  spawning the next round. Use the interactive prompt (AskUserQuestion under
+  Claude Code). Do not start round N+1 silently.
+
+  The question MUST carry the decision inputs, because "continue?" with no data
+  is not a question the owner can answer:
+
+  - the round just finished and the cap for this blast radius
+  - the surviving-objection count for every round so far, as a trend
+  - a one-line summary of each objection fixed this round
+  - whether anything remains open
+
+  Offer three options, with the recommendation first:
+
+  1. Continue to round N+1. Recommend this while the count is still declining
+     and the cap is not reached.
+  2. Halt and go to the gate. Recommend this when the count is flat or rising,
+     when the round produced only fix-induced regressions, or when the
+     remaining objections are cosmetic.
+  3. Halt and drop the open objections, recording them as accepted.
+
+  Recommend option 2 explicitly when a stop-early condition is close, rather
+  than burning the round and reporting it afterward. The owner's time is the
+  scarce resource, not the round budget.
+
+  ### Escape hatch: the owner may halt the loop at any point
+
+  The owner can stop the loop mid-flight and go straight to the gate. Honor it
+  immediately, at the next transition, without starting another round and
+  without finishing an in-flight revision that no objection requires.
+
+  Recognize any of: "stop the review", "skip the rest", "go to the gate",
+  "ship it", "enough rounds", or an explicit `HALT`.
+
+  On halt:
+
+  1. Stop spawning critics. Do not start round N+1.
+  2. Apply nothing further. Objections already surfaced but not yet fixed stay
+     open; do not silently drop them.
+  3. Report terminal state `HALTED`, the round reached, and every open
+     objection with its failing scenario, so the owner is choosing with the
+     list in front of them.
+  4. Record the halt in the slice's review checkbox as
+     `Adversarial review: halted by owner at round <n>, <m> open`.
+
+  A halt is not a waiver and not a pass. `specutil check` still runs, and the
+  human-verification gate for impactful actions still applies.
+
+  ### Drive the iteration with `/loop` when it is available
+
+  When the `loop` skill is available, drive ROUND→REVISE→ROUND with `/loop` and
+  no interval, so the model self-paces one iteration per round and the loop's
+  own stop call is explicit. End it with the loop's stop control the moment a
+  terminal state is reached. Without `/loop`, run the transitions inline, but
+  still announce the state each round.
+
   ## Stop
 
-  - STOP when a full round returns `NO SURVIVING OBJECTION` from all N critics.
-  - HARD CAP at K=4 rounds; report unresolved objections if the cap is hit.
+  - STOP on success when a full round returns `NO SURVIVING OBJECTION` from all
+    N critics. This is the only clean terminal state.
   - An objection "survives" a round if a majority of critics uphold it on
     re-examination.
 
+  ### Round cap, scaled to blast radius
+
+  The cap is not a constant. Size it to what is under review, then stop:
+
+  | Under review | K |
+  |---|---|
+  | One file, or one slice of one capability | 2 |
+  | One change, one capability | 4 |
+  | One change spanning capabilities, or any change that mutates the live system | 6 |
+
+  ### Stop early on thrash
+
+  More rounds only help while the loop is converging. Track the surviving-
+  objection count per round and stop before K when either holds:
+
+  - The count fails to decline across two consecutive rounds. The loop is not
+    converging and another round is unlikely to change that.
+  - Every surviving objection in a round was caused by the previous round's own
+    fixes. Fix-induced regressions mean the artifact is churning, not
+    improving.
+
+  Both are hand-back conditions, not failures. Report the trend and let the
+  owner decide whether to continue, re-scope, or accept the open objections.
+
   ## Output
 
-  Report, in order: the rubric bound, each round's surviving objections (with
-  their failing scenarios), the revisions applied, and the terminal state
-  (`no surviving objection` or `hit K=4 with N open objections`). Do not pad a
-  clean result with invented objections — a critic that finds nothing MUST say
-  so.
+  Report, in order: the rubric bound, the surviving-objection count per round,
+  each round's surviving objections with their failing scenarios, the revisions
+  applied, and the terminal state. The terminal state is one of `no surviving
+  objection`, `waived by owner`, `halted by owner at round <n> with <m> open`,
+  `hit K=<n> with <m> open objections`, `stopped on non-convergence after <n>
+  rounds`, or `stopped on fix-induced churn after <n> rounds`.
+
+  Do not pad a clean result with invented objections — a critic that finds
+  nothing MUST say so. Do not report a cap hit as if it were a clean pass: an
+  artifact that never reached a clean round has known-unreviewed state, and the
+  report MUST say so plainly.
 ''

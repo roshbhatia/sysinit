@@ -7,8 +7,9 @@ operating procedure; read this file for the WHY and the exact loop.
 ## The loop
 
 A generator proposes an artifact; independent adversaries try to break it; the
-generator revises against surviving objections; repeat until no objection
-survives or a hard round cap is hit. Each step below names its source.
+generator revises against surviving objections; repeat until the loop reaches a
+terminal state: no objection survives, the owner halts it, the scaled round cap
+is hit, or it stops early on non-convergence or churn. Each step below names its source.
 
 1. **Propose.** The generator produces the artifact (plan, spec, design, code).
    Source: Self-Refine (Madaan et al., 2023, arXiv:2303.17651).
@@ -41,12 +42,48 @@ survives or a hard round cap is hit. Each step below names its source.
 
 - **STOP** when a full round yields `NO SURVIVING OBJECTION` from all N critics.
   Generalizes Self-Refine's stop indicator (arXiv:2303.17651) to N critics.
-- **HARD CAP** at K=4 rounds. From Self-Refine's max-4-iterations
-  (arXiv:2303.17651).
+- **ROUND CAP** scaled to blast radius: K=2 for one file or one slice, K=4 for a
+  single-capability change, K=6 for a cross-capability change or one that mutates
+  the live system.
+
+  Earlier versions of this skill used a flat K=4 and cited Self-Refine's
+  max-4-iterations (arXiv:2303.17651) as the source. That citation was an
+  over-extension and is withdrawn. Self-Refine measures a *single-model*
+  generate→feedback→refine loop on bounded tasks such as sentiment reversal and
+  code optimization. This skill runs *N independent adversaries* against a
+  multi-file design artifact. The two regimes have no reason to share an
+  iteration budget, and the paper does not claim one. Treat the scaled cap as an
+  engineering choice, not a paper result.
+
+  Observed counter-evidence, sysinit, 2026-07: a three-change review produced
+  surviving-objection counts of 6, 16, 6, and 8 across four rounds. The count
+  never declined monotonically, and round 3 consisted entirely of defects
+  introduced by round 2's fixes. A flat K=4 stopped that loop mid-flight with no
+  clean round, which is the failure this scaling exists to make visible.
+- **STOP EARLY on non-convergence.** Stop before K when the surviving-objection
+  count fails to decline across two consecutive rounds, or when every surviving
+  objection in a round was caused by the previous round's fixes. Both indicate
+  churn rather than progress. These are hand-back conditions: report the trend
+  and let the owner decide. No paper backs these thresholds; they are engineering
+  choices motivated by the observation above.
 - **Objection survival tie-break.** Inside a round, an objection "survives" if a
   majority of critics uphold it on re-examination. Majority voting is a common
   extension of Multiagent Debate, NOT Du et al.'s stated organic-convergence
   mechanism — treat it as an engineering choice, not a paper result.
+- **ELICIT AT EVERY ROUND BOUNDARY.** Ask whether to continue before spawning
+  the next round, and carry the decision inputs into the question: the round
+  reached, the cap, the per-round objection trend, and what remains open. The
+  owner should not have to interrupt to end a loop. Recommend halting when the
+  count is flat or rising, or when a round produced only fix-induced
+  regressions, rather than spending the round and reporting it afterward.
+- **OWNER HALT.** The owner may stop the loop at any transition and go straight
+  to the gate. Honor it at the next transition, apply nothing further, and
+  report the open objections rather than dropping them. A halt is a decision
+  made with the objection list visible, which is different from a waiver made
+  before the loop ran and different from a cap hit, which nobody chose.
+- **A cap hit is not a pass.** An artifact that never reached a clean round
+  carries known-unreviewed state. The report MUST name the terminal state
+  explicitly rather than presenting a cap hit as completion.
 
 ## Failure modes and required mitigations
 
@@ -74,7 +111,7 @@ mandatory for this skill.
 
 Consolidated: (a) separate/independent critic; (b) hide authorship; (c) prompt
 for refutation + a concrete failing scenario; (d) rotate lenses; (e) N critics,
-require survival; (f) bound with fixed K and an explicit stop rule.
+require survival; (f) bound with a blast-radius-scaled K, early stops on churn, and an owner halt.
 
 ## Mapping to rosh-spec-driven OpenSpec artifacts
 
@@ -94,7 +131,7 @@ require survival; (f) bound with fixed K and an explicit stop rule.
 
 | Short name | arXiv | Role in the loop |
 |---|---|---|
-| Self-Refine | 2303.17651 | base propose→critique→revise loop; K=4 stop |
+| Self-Refine | 2303.17651 | base propose→critique→revise loop; stop-indicator idea. Its max-4-iterations does NOT justify this skill's round cap; see Stop criterion. |
 | Constitutional AI | 2212.08073 | rubric anchoring; critique→revise; lens rotation |
 | Multiagent Debate | 2305.14325 | N independent critics |
 | Chain-of-Verification | 2309.11495 | isolated verification questions |

@@ -81,6 +81,19 @@ upstream drift.
   Simplified Technical English per the `~/.claude/CLAUDE.md` Communication
   section. `specreview` fails on em-dashes and disallowed bolded bullet leads.
   (`spec-driven-workflow-upgrades`.)
+- Adds the explicit-shape rule: model a slice as a `loop` or a `graph` rather
+  than as prose. When an agent drives the iteration itself, drive it with the
+  `loop` skill (`/loop` with no interval) and stop it the moment the declared
+  `STOP` condition holds. A named terminal state is checkable; "until it looks
+  done" is not.
+- Replaces the flat `K=4` adversarial-review round cap with a cap scaled to
+  blast radius (2 for one slice, 4 for one capability, 6 for a cross-capability
+  or live-system change), plus early stops on non-convergence and on
+  fix-induced churn. A cap hit is reported as open objections, never as a pass.
+  The flat cap came from Self-Refine's max-4-iterations, which measures a
+  single-model refinement loop, not an N-critic adversarial loop over a
+  multi-file artifact. See the `adversarial-review` skill's methodology
+  reference for the withdrawal and the observed counter-evidence.
 
 ### templates/tasks.md
 - Replaces the two placeholder task groups with a `loop`-shaped and a
