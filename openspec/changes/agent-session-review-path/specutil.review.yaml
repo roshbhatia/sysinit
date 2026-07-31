@@ -1,9 +1,9 @@
 version: 1
 change: agent-session-review-path
 decision: approved
-note: phases 1 and 2 implemented and applied
-change_hash: d6a926b5417574db
-base_commit: a8be3997aa252c602200c0a0c4171b3f6e1f5346
+note: verified in real wezterm panes
+change_hash: 606ce7861f186532
+base_commit: ea5387f2609ef4b5a263f6c5ff68320e211f183b
 items:
     0bd8c92c94aba443:
         hash: b3a33103634add62
@@ -26,9 +26,6 @@ items:
     31e56d731f13b1c1:
         hash: 00d2b710bfa27807
         text: 'Verify: `nix flake check` and `nh darwin build` are green; review the diff'
-    38b3589f95d1daf9:
-        hash: a78a6aafc9aa4875
-        text: Add the `preDelete` entry to `seshy/config.yaml` calling the report
     85eecfad4ec2e7fc:
         hash: b9610909e3d7a278
         text: Treat a branch with no upstream as "no upstream", never as zero unpushed commits
@@ -38,27 +35,30 @@ items:
     357e572fb71942b8:
         hash: 05e0637f876484a8
         text: 'Spike result: seshy passes hook environment variables, confirmed by a string scan of the installed binary: `SESHY_EVENT`, `SESHY_SESSION`, `SESHY_SESSION_PATH`, `SESHY_REPOS`, `SESHY_REPO_COUNT`'
-    5078faf98aa3bc6f:
-        hash: c98f541a22d2d436
-        text: 'Confirm: `agent-review` on a real seshy session agrees with `git status` in each repository. No session exists right now, so this needs the owner''s next `sy new`'
+    5913c9ef2b81ea0e:
+        hash: b57e823e77a4095a
+        text: 'Gate `sy delete` in the zsh `sy` wrapper, not in seshy''s `preDelete` hook. Testing showed seshy runs that hook advisorily: a non-zero exit logs a warning and deletes anyway, with or without `--force`'
     14948b562788ef91:
         hash: a5459619025ff509
         text: Add a `nix flake check` derivation covering the ready, dirty, unpushed, no-upstream, and stale-pane cases against fixture repositories
+    51496f1b0e47ec6c:
+        hash: f9435438089a905c
+        text: 'Confirm: verified against a real `sy new` session. The report named the branch `dev/rshnbhatia/review-probe/sysinit` and `no upstream`, which matched `git status` and `rev-parse` exactly'
     78199c7e5c30b1ff:
         hash: edfe3957fb993d03
         text: 'Adversarial review (`adversarial-review` skill): critics attempt to break this phase against its spec scenarios; revise until the loop reaches a terminal state'
     abf56866ee2e8446:
         hash: edfe3957fb993d03
         text: 'Adversarial review (`adversarial-review` skill): critics attempt to break this phase against its spec scenarios; revise until the loop reaches a terminal state'
+    b294f7740875cb42:
+        hash: 8695b17fb0f0ae1d
+        text: 'Confirm: all four paths verified in real WezTerm panes. Unfinished refuses and the session survives; `--force` deletes; a clean, pushed session reports ready and deletes; a bad path exits 2 and is permissive'
     c1ec81bdf8e3b538:
         hash: 64ee44eca76bb615
         text: 'Apply: stage the change and propose a commit message per the `writing-commit-message` skill'
     d9996223e67e2ca2:
         hash: 09d64c515c48462f
         text: 'Verify: `nix flake check` and `nh darwin build` are green; the report was exercised against fixture repositories covering clean, dirty, unpushed, no-upstream, bad-path, and all-clean, with the right exit code in every case'
-    ec175a9ee76401db:
-        hash: 86f75b8dc74246f7
-        text: 'Confirm: an unfinished session refuses, `--force` still deletes, and a finished session deletes with no extra prompt'
     ef1b5f757ad9610d:
         hash: f499b43944df2b57
         text: 'Verify: `openspec validate agent-session-review-path` passes and `specutil check` reports no finding'

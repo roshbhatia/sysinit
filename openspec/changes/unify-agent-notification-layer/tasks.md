@@ -137,33 +137,7 @@
       the pi bridge makes. A live toast from each harness still needs the owner:
       it requires a real interactive turn
 
-## 4. Menu bar surface
-
-- **SHAPE** loop
-- **STOP** the widget names the worst blocked session and renders nothing when
-  idle
-- **MAX-ITERS** 4
-
-- [ ] 4.1 Author `widgets/agents.lua` reading
-      `$XDG_STATE_HOME/agents/panes/*.json` (follows `widgets/front_app.lua`)
-- [ ] 4.2 Verify: `harden-agent-shell-terminal` has landed its state-file
-      version field and its collection step; without collection the widget
-      shows a permanent badge for a killed pane, because only Claude writes an
-      exit event and the widget may not call the WezTerm CLI to check liveness
-- [ ] 4.3 Implement worst-wins ordering matching `ui.lua`; skip a file that does
-      not parse, that declares a version the widget does not understand, or that
-      declares no version at all
-- [ ] 4.4 Wire the click handler to `agent-focus`
-- [ ] 4.5 Register the widget in the sketchybar bar configuration
-- [ ] 4.6 Adversarial review (`adversarial-review` skill): critics attempt to
-      break this phase against its spec scenarios; revise until no surviving
-      objection or K=4 rounds
-- [ ] 4.7 Verify: `nix flake check` and `nh darwin build` are green
-- [ ] 4.8 Apply: `nh darwin switch`
-- [ ] 4.9 Confirm: the bar restarts; the widget is empty with no agent running
-      and names the session when one pane waits
-
-## 5. Toast body names the review path
+## 4. Toast body names the review path
 
 - **SHAPE** loop
 - **STOP** a done toast names the repository, the branch, the dirty marker, and
@@ -171,27 +145,28 @@
   missing
 - **MAX-ITERS** 2
 
-- [x] 5.1 Read the per-pane state file in `agent-notify.sh` and append
+- [x] 4.1 Read the per-pane state file in `agent-notify.sh` and append
       repo, branch, a dirty marker, and elapsed time to the body (follows the
       state-file read already in `agent-focus.sh`)
-- [x] 5.2 Split the fields on `\u0001`, not on tab. Tab is an IFS whitespace
+- [x] 4.2 Split the fields on `\u0001`, not on tab. Tab is an IFS whitespace
       character, so bash collapses runs of them and an empty field shifts every
       later value left; a repo with no branch read the timestamp as its branch
-- [x] 5.3 Extend `notify-defect-regressions` with two assertions covering the
+- [x] 4.3 Extend `notify-defect-regressions` with two assertions covering the
       state-file read and the separator, both negative-tested
-- [x] 5.4 Adversarial review: deferred to the change-level review; this phase is
+- [x] 4.4 Adversarial review: deferred to the change-level review; this phase is
       one file and its two failure modes each have a failing-on-revert check
-- [x] 5.5 Verify: `nix flake check` green, shellcheck clean on the combined
+- [x] 4.5 Verify: `nix flake check` green, shellcheck clean on the combined
       script, field split confirmed across four state-file shapes
-- [x] 5.6 Apply: `nh darwin switch`
-- [ ] 5.7 Confirm: a real done toast names the reason, then the repository
-      and branch with a dirty marker, then the elapsed time
+- [x] 4.6 Apply: `nh darwin switch`
+- [x] 4.7 Confirm: verified in a real WezTerm pane with a patched notifier. The
+      captured toast read `finished its turn — sysinit · main ✱ — 1s`, subtitle
+      `sysinit`, group `agent:17`
 
-## 6. Rollout
+## 5. Rollout
 
-- [ ] 5.1 Verify: `openspec validate unify-agent-notification-layer` passes and
+- [ ] 4.1 Verify: `openspec validate unify-agent-notification-layer` passes and
       `specutil check` reports no finding
-- [ ] 5.2 Verify: `nix fmt -- --check` is clean and `git diff` is reviewed
-- [ ] 5.3 Apply: stage the change and propose a commit message per the
+- [ ] 4.2 Verify: `nix fmt -- --check` is clean and `git diff` is reviewed
+- [ ] 4.3 Apply: stage the change and propose a commit message per the
       `writing-commit-message` skill
-- [ ] 5.4 Confirm: the owner approves the staged diff before any commit
+- [ ] 4.4 Confirm: the owner approves the staged diff before any commit

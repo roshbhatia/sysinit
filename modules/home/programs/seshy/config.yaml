@@ -13,24 +13,12 @@ hooks:
     - '[ -d openspec ] || openspec init --tools all'
     - 'command -v specutil >/dev/null 2>&1 && [ -d openspec/changes ] && specutil graph --as mermaid | mermaid-ascii || true'
 
-  # Refuse to delete a session that still holds unfinished work. `agent-review`
-  # reports git state per repo plus any live agent pane, and exits 1 when
-  # something is unfinished. It never writes: what happens to the work is the
-  # owner's call, and `sy delete --force` is the documented escape.
+  # No preDelete entry. seshy runs preDelete advisorily: a non-zero exit logs a
+  # warning and the deletion proceeds anyway, with or without --force. Verified
+  # against seshy 4.0.0. A hook here would print a "refusing" message and then
+  # not refuse, which is worse than saying nothing.
   #
-  # Exit 2 means the check itself could not run. That is treated as permissive
-  # on purpose: a readiness check that fails must never make a session
-  # undeletable.
-  preDelete:
-    - |
-      if command -v agent-review > /dev/null 2>&1; then
-        agent-review
-        rc=$?
-        if [ "$rc" -eq 1 ]; then
-          echo ""
-          echo "sy: refusing to delete an unfinished session. Use 'sy delete --force' to delete anyway."
-          exit 1
-        fi
-        [ "$rc" -eq 2 ] && echo "sy: readiness check could not run; continuing."
-      fi
-      exit 0
+  # The gate is the `sy` shell wrapper in
+  # modules/home/programs/zsh/integrations/seshy-wezterm.zsh, which runs
+  # agent-review and returns non-zero before ever calling the binary.
+  preDelete: []

@@ -15,8 +15,9 @@ them, so `sy delete` can drop a session that still holds uncommitted work.
 - Add `agent-review`, a command that reports one session's readiness: per
   repository, the uncommitted file count, the unpushed commit count, and the
   branch; plus any pane still holding a non-idle agent state.
-- Wire it into seshy's `preDelete` hook so `sy delete` refuses a session that is
-  not ready, and names what is unfinished. `sy delete --force` still deletes.
+- Gate `sy delete` on it with a shell wrapper, so a session that is not ready is
+  refused and what is unfinished is named. `sy delete --force` still deletes.
+  Not seshy's `preDelete` hook: that hook is advisory and cannot veto.
 - Surface the same readiness in the notification body's review path, so a done
   toast and the archive gate agree on what "finished" means.
 
@@ -47,8 +48,8 @@ them, so `sy delete` can drop a session that still holds uncommitted work.
 ## Impact
 
 Modified code:
+- `modules/home/programs/zsh/integrations/seshy-wezterm.zsh`
 - `modules/home/programs/seshy/config.yaml`
-- `modules/home/programs/seshy/default.nix`
 
 New code:
 - `modules/home/programs/llm/config/agent-review.sh`

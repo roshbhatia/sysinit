@@ -1,9 +1,9 @@
 version: 1
 change: unify-agent-notification-layer
 decision: approved
-note: in progress
-change_hash: 57a69a07218a7a2b
-base_commit: a8be3997aa252c602200c0a0c4171b3f6e1f5346
+note: verified in real wezterm panes
+change_hash: 40532a4e1ebfc1ee
+base_commit: ea5387f2609ef4b5a263f6c5ff68320e211f183b
 items:
     00bde2a78e456b8b:
         hash: ff1a6eb6f71b9ea5
@@ -23,9 +23,6 @@ items:
     04f502b695fda523:
         hash: 6e2a53e32aec2550
         text: 'Adversarial review (`adversarial-review` skill): round 1 returned 6 surviving objections, all fixed. `detached: true` called setsid(), which severs the controlling terminal, so agent-state''s OSC never landed and the scrape bridge would have announced every bridged harness twice; pi''s `tool_call` payload is `event.input`, not `event.args`, so every reason string was empty; no check caught pi''s `notify` or opencode''s `attention` coming back; the bridge guard proved the source file existed rather than the install entry; pi and opencode stayed registered with agent-deck under a comment saying their bridges did not exist. Open: whether `session.idle` fires per child session, which would raise one toast per subagent. Needs a live OpenCode turn using the task tool.'
-    5eb47631a576461e:
-        hash: 9d403ca4e8b983e9
-        text: Wire the click handler to `agent-focus`
     05f146743a0e14f7:
         hash: 951f1fbf9ca0457e
         text: 'Confirm: `agent-state pi done "your move"` writes a correct state file with the right agent, status, and repo, which is the exact call shape the pi bridge makes. A live toast from each harness still needs the owner: it requires a real interactive turn'
@@ -59,9 +56,6 @@ items:
     27d6c99d650d416f:
         hash: df739965d751d929
         text: 'Add icon fetches to `notify.nix` for opencode, pi, and copilot (follows the pinned-hash block at `notify.nix:24`). amp, crush, goose, and devin are listed as intentionally generic instead: simpleicons has no crush or goose entry, and its "AMP" icon sources from amp.dev, which is Google Accelerated Mobile Pages, not Sourcegraph Amp'
-    30ae706730df7e71:
-        hash: 469f7abf4e62f681
-        text: 'Verify: `harden-agent-shell-terminal` has landed its state-file version field and its collection step; without collection the widget shows a permanent badge for a killed pane, because only Claude writes an exit event and the widget may not call the WezTerm CLI to check liveness'
     33d8225aa54d74d4:
         hash: d66c81c6ebea8d4a
         text: Add agent-deck detection patterns for gemini, devin, and pi, and bridge every agent-deck transition into `agent-notify`, skipping panes that emit their own `agent_state` so a hook-bridged harness is never announced twice
@@ -74,12 +68,12 @@ items:
     68c6302e85057ca0:
         hash: 356aebe6bc03ce2e
         text: Move OpenCode to bridged and add `attention.notifications = false` to the TUI config attribute set created by `modernize-opencode-and-pi-config` phase 1, both in the same commit as 3.6, and only when 3.6 produced a working plugin
+    85ee49a13ab26bf9:
+        hash: e0a3e05fbd3a0c00
+        text: 'Confirm: verified in a real WezTerm pane with a patched notifier. The captured toast read `finished its turn — sysinit · main ✱ — 1s`, subtitle `sysinit`, group `agent:17`'
     309e673af643ee99:
         hash: ead048565bb7266c
         text: 'Verify: `nix fmt -- --check` is clean and `git diff` is reviewed'
-    724e0cf3494c8843:
-        hash: dcfa65b305f11b10
-        text: Implement worst-wins ordering matching `ui.lua`; skip a file that does not parse, that declares a version the widget does not understand, or that declares no version at all
     967c2db4f0f82f8b:
         hash: edab2732b6b5c9de
         text: Build the coverage set in `notify.nix` naming all eleven configured harnesses as hook-bridged or scrape-bridged. Reasons are comments, not Nix string values; the data is only which set a harness is in
@@ -92,9 +86,6 @@ items:
     77979ada5f594822:
         hash: 04a868b323c12f37
         text: Move pi from deferred to bridged in the coverage set, and remove `notify` from the vendored extension list in `pi.nix`, both in the same commit as 3.4, so pi is never left with no producer
-    095584d231340a1e:
-        hash: 044e1f5a081751c9
-        text: Register the widget in the sketchybar bar configuration
     96385c3ceb69f352:
         hash: 4cc54e2eefd7e644
         text: Install the pi extension through `customExtensionFiles` in `pi.nix`
@@ -107,9 +98,6 @@ items:
     53431847e6c9d4c6:
         hash: 1e94066eb07ccd5b
         text: Replace the `agent.png` fallback with a distinct generic glyph and extend the label table in `agent-notify.sh` and `agent-prompt.sh`
-    75049075f8d31aa2:
-        hash: c1389bff72961541
-        text: 'Adversarial review (`adversarial-review` skill): critics attempt to break this phase against its spec scenarios; revise until no surviving objection or K=4 rounds'
     039547408701133d:
         hash: 9f14c91ec01611d8
         text: Author the OpenCode plugin, or leave OpenCode deferred when 3.1 finds no usable event
@@ -122,18 +110,12 @@ items:
     ab337fa1b1667b7d:
         hash: 2c49c1448e79cc00
         text: 'Verify: `nix flake check` and `nh darwin build` are green'
-    afa23f1ce95db2c5:
-        hash: ab6283d97926227f
-        text: 'Confirm: the bar restarts; the widget is empty with no agent running and names the session when one pane waits'
     afcf5bdfa71292d4:
         hash: da6b246a0466599e
         text: 'Apply: `nh darwin switch`'
     b0bbada751bcba50:
         hash: da6b246a0466599e
         text: 'Apply: `nh darwin switch`'
-    bb70b5e1df7c6418:
-        hash: 2c49c1448e79cc00
-        text: 'Verify: `nix flake check` and `nh darwin build` are green'
     be27f40559fe0380:
         hash: da6b246a0466599e
         text: 'Apply: `nh darwin switch`'
@@ -155,18 +137,9 @@ items:
     e1a1863d4b9cc38d:
         hash: 6b71f93b55d2dd9d
         text: 'Extend `notify-defect-regressions` with three assertions: the agent-deck toast stays off, the bridge forwards into `agent-notify`, and the bridge skips hook-bridged panes. All three negative-tested'
-    e8a88fb5ceced81f:
-        hash: 2a9ef2b0c3b8ed6b
-        text: 'Confirm: a real done toast names the reason, then the repository and branch with a dirty marker, then the elapsed time'
     e35bbbd1bf388919:
         hash: ec1460e5ec5c3c9b
         text: 'Confirm both bridges swallow every error and never fail a turn: `opencode models` exits 0 with the plugin loaded; pi exits 0 in 6.4s with extensions on versus 1.7s with `--no-extensions`, so the bridge adds load time but does not hold the process open. Every spawn is detached, unref''d, and wrapped, so a missing binary degrades to no notification'
-    e650d6525a37def4:
-        hash: 54d62155d6e57f5e
-        text: Author `widgets/agents.lua` reading `$XDG_STATE_HOME/agents/panes/*.json` (follows `widgets/front_app.lua`)
-    f1955e41360db480:
-        hash: da6b246a0466599e
-        text: 'Apply: `nh darwin switch`'
     fe3783c10ec0972b:
         hash: ef57220067c7efe9
         text: 'Confirm: one toast per claude wait; the statusline still names a scraped opencode pane; pi and OpenCode still notify through their own producers, which this phase deliberately leaves on'

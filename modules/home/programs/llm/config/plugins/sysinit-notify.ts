@@ -48,8 +48,16 @@ function spawnQuiet(exe: string, args: string[], input?: string): void {
 }
 
 export const SysinitNotify = async () => ({
-	event: async ({ event }: { event?: { type?: string } }) => {
+	event: async ({
+		event,
+	}: { event?: { type?: string; properties?: { parentID?: string } } }) => {
 		try {
+			// A child session is a subagent, not the human's turn. A probe run
+			// confirmed the payload carries `parentID`, absent on the root
+			// session. Announcing a child would pull the human to a pane that is
+			// still working, once per subagent.
+			if (event?.properties?.parentID) return;
+
 			switch (event?.type) {
 				// The run finished and OpenCode is waiting on the human.
 				case "session.idle":

@@ -66,8 +66,17 @@ is on the path of an interactive command.
 
 ### Requirement: Deleting a session is gated on its readiness
 
-`sy delete` SHALL run the readiness report before removing a session, through
-seshy's `preDelete` hook, and SHALL refuse when the report exits non-zero.
+`sy delete` SHALL run the readiness report before removing a session and SHALL
+refuse when the report exits non-zero.
+
+The gate MUST NOT be seshy's `preDelete` hook. seshy runs that hook advisorily:
+a non-zero exit logs a warning and the deletion proceeds anyway, with or without
+`--force`. This was verified against seshy 4.0.0, after an earlier draft of this
+capability assumed the hook could veto. A hook that prints "refusing" and then
+does not refuse is worse than no hook.
+
+The gate SHALL therefore be a shell wrapper that runs the report and returns
+non-zero before invoking the binary.
 
 The gate SHALL be overridable. `sy delete --force` is the documented escape and
 MUST still delete.

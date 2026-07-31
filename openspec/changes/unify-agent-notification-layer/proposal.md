@@ -28,8 +28,6 @@ Four defects are live today, not merely missing features.
   harnesses render as Claude.
 - Carry repo, branch, dirty, and elapsed time into the toast body. The state
   file already holds all four.
-- Add a sketchybar surface over the same state bus so a blocked agent is
-  visible when WezTerm is not focused.
 
 ### Non-goals
 
@@ -48,8 +46,6 @@ Four defects are live today, not merely missing features.
 
 - `agent-notification-routing`: one producer, one reason vocabulary, per-pane
   dedup, per-harness icons, and an actionable approval path.
-- `agent-menu-bar-surface`: a sketchybar widget that reads the per-pane state
-  bus and names the worst blocked session.
 
 ### Modified Capabilities
 
@@ -75,14 +71,10 @@ Modified code:
 New code:
 - `modules/home/programs/llm/config/extensions/sysinit-notify.ts` (pi)
 - `modules/home/programs/llm/config/plugins/sysinit-notify.ts` (opencode)
-- `modules/darwin/home/sketchybar/lua/sysinit/pkg/widgets/agents.lua`
 
 Dependencies:
-- Depends on `harden-agent-shell-terminal` for the versioned state-file schema
-  and for stale-entry collection. This change reads the bus and must not
-  redefine its shape. Phase 4 cannot ship before collection exists, because the
-  menu bar widget may not check pane liveness and so cannot prune a dead pane's
-  entry itself.
+- Depends on `harden-agent-shell-terminal` for the versioned state-file schema.
+  This change reads the bus and must not redefine its shape.
 - Phase 3 depends on `modernize-opencode-and-pi-config` phase 1, which creates
   the OpenCode TUI config writer. `attention.notifications` is a TUI key and
   `opencode.nix` has no TUI writer today. Building a second one here would race
@@ -95,7 +87,6 @@ Impactful and irreversible actions:
 - `nh darwin switch` applies the notification change to the live machine.
 - Removing pi's `notify.ts` from the vendored extension list changes pi's
   runtime behavior on the next pi start.
-- The sketchybar widget restarts the bar on activation.
 
 Gating signal:
 - `nix flake check`, then `nh darwin build`, then an owner smoke test of one

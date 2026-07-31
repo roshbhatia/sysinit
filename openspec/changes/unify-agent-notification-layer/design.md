@@ -26,8 +26,6 @@ Patterns being reused:
   fetches and for any new script.
 - `modules/home/programs/llm/config/extensions/openspec-status.ts` is the
   existing pattern for a repository-authored pi extension.
-- `modules/darwin/home/sketchybar/lua/sysinit/pkg/widgets/front_app.lua` is
-  the pattern for the new sketchybar widget.
 - `agent-focus.sh:24` already reads the per-pane state file to rebuild a
   notification group. The body-enrichment work extends that read rather than
   adding a second reader.
@@ -132,14 +130,15 @@ state file already carries repo, branch, dirty, and `since`. Reading it is one
   the resolver already paid that cost when the state file was written, and a
   second call doubles the hook's latency for no new information.
 
-### D6. The sketchybar widget is a separate phase and may be dropped
+### D6. No menu bar surface
 
-It is the only part of this change that touches the Darwin module tree. It is
-sequenced last so the notification work can ship without it.
+An earlier draft added a sketchybar widget over the same bus. Dropped at the
+owner's direction: the statusline and the switcher already answer "which session
+needs me", and a third surface would need its own liveness rule, its own stale
+pruning, and a bar restart on every activation.
 
-- Alternative rejected: fold the widget into the routing phase. Rejected
-  because it would make the whole change depend on a sketchybar restart, which
-  is a wider blast radius than the notification work needs.
+- Alternative rejected: ship the widget behind a toggle. Rejected because an
+  unused surface still carries its pruning bug and its restart cost.
 
 ## Rollout & Gating
 
@@ -160,10 +159,8 @@ ordering constraints that an earlier draft of this design got wrong.
    writer that `attention.notifications` needs. Gate: the owner starts one pi
    session and one OpenCode session and confirms a toast and a state file for
    each.
-4. Sketchybar widget. Requires stale-entry collection from
-   `harden-agent-shell-terminal`. Gate: the bar restarts cleanly, the widget
-   renders nothing when no agent is blocked, and a killed blocked pane stops
-   being named.
+4. Toast body names the review path. Gate: a real toast in a WezTerm pane names
+   the repository, the branch, the dirty marker, and the elapsed time.
 
 The default sequence is edit, `nix flake check`, `nh darwin build`, owner
 spot-check, `nh darwin switch`. No deviation.

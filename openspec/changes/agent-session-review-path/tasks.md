@@ -27,26 +27,29 @@
       unpushed, no-upstream, bad-path, and all-clean, with the right exit code
       in every case
 - [x] 1.9 Apply: `nh darwin switch`
-- [ ] 1.10 Confirm: `agent-review` on a real seshy session agrees with
-      `git status` in each repository. No session exists right now, so this
-      needs the owner's next `sy new`
+- [x] 1.10 Confirm: verified against a real `sy new` session. The report named
+      the branch `dev/rshnbhatia/review-probe/sysinit` and `no upstream`, which
+      matched `git status` and `rev-parse` exactly
 
 ## 2. The archive gate
 
 - **SHAPE** graph
-- [x] 2.1 Add the `preDelete` entry to `seshy/config.yaml` calling the report
-      `deps: none`
+- [x] 2.1 Gate `sy delete` in the zsh `sy` wrapper, not in seshy's `preDelete`
+      hook. Testing showed seshy runs that hook advisorily: a non-zero exit logs
+      a warning and deletes anyway, with or without `--force` `deps: none`
 - [x] 2.2 Make the gate permissive when the report cannot run, so a session can
       never become undeletable `deps: 2.1`
 - [x] 2.3 Name `--force` in the refusal message itself `deps: 2.1`
-- [ ] 2.4 Adversarial review (`adversarial-review` skill): critics attempt to
+- [x] 2.4 Adversarial review (`adversarial-review` skill): critics attempt to
       break this phase against its spec scenarios; revise until the loop reaches
       a terminal state `deps: 2.2,2.3`
-- [ ] 2.5 Verify: `nix flake check` and `nh darwin build` are green; review the
+- [x] 2.5 Verify: `nix flake check` and `nh darwin build` are green; review the
       diff `deps: 2.4`
 - [x] 2.6 Apply: `nh darwin switch` `deps: 2.5`
-- [ ] 2.7 Confirm: an unfinished session refuses, `--force` still deletes, and a
-      finished session deletes with no extra prompt `deps: 2.6`
+- [x] 2.7 Confirm: all four paths verified in real WezTerm panes. Unfinished
+      refuses and the session survives; `--force` deletes; a clean, pushed
+      session reports ready and deletes; a bad path exits 2 and is permissive
+      `deps: 2.6`
 
 ## 3. Rollout
 
