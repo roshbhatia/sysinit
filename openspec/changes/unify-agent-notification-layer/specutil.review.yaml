@@ -1,9 +1,9 @@
 version: 1
 change: unify-agent-notification-layer
 decision: approved
-note: phase 3 implemented and applied
-change_hash: 454bff64298904a2
-base_commit: ca7828856e93d527924a453b513f816612e83bd4
+note: phase 3 reviewed and reworked
+change_hash: f123aca889f30ced
+base_commit: 2a58a7b9c1d0828490a3f40ef01d0c0def76ac87
 items:
     00bde2a78e456b8b:
         hash: ff1a6eb6f71b9ea5
@@ -17,9 +17,9 @@ items:
     2e2c0b18a7ad4275:
         hash: e772fb73fbd07d79
         text: 'Verify: `nix flake check` green (16 checks), host build green, `nix fmt -- --check` clean, all four defect assertions negative-tested'
-    4d285206b9de9ce0:
-        hash: c1389bff72961541
-        text: 'Adversarial review (`adversarial-review` skill): critics attempt to break this phase against its spec scenarios; revise until no surviving objection or K=4 rounds'
+    04f502b695fda523:
+        hash: 6e2a53e32aec2550
+        text: 'Adversarial review (`adversarial-review` skill): round 1 returned 6 surviving objections, all fixed. `detached: true` called setsid(), which severs the controlling terminal, so agent-state''s OSC never landed and the scrape bridge would have announced every bridged harness twice; pi''s `tool_call` payload is `event.input`, not `event.args`, so every reason string was empty; no check caught pi''s `notify` or opencode''s `attention` coming back; the bridge guard proved the source file existed rather than the install entry; pi and opencode stayed registered with agent-deck under a comment saying their bridges did not exist. Open: whether `session.idle` fires per child session, which would raise one toast per subagent. Needs a live OpenCode turn using the task tool.'
     5eb47631a576461e:
         hash: 9d403ca4e8b983e9
         text: Wire the click handler to `agent-focus`

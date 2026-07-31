@@ -153,15 +153,14 @@ function M.setup(config)
           argv_patterns = { "^crush%s*$" },
           title_patterns = { "crush" },
         },
-        opencode = {
-          patterns = { "opencode" },
-          executable_patterns = { "opencode%-darwin", "opencode%-linux", "/opencode$" },
-          argv_patterns = { "bunx%s+opencode", "npx%s+opencode", "/opencode$" },
-          title_patterns = { "opencode" },
-        },
-        -- Added so the scrape bridge below covers them. gemini and devin render
-        -- PreToolUse hooks but expose no notification event, and pi's extension
-        -- bridge is not written yet, so scraping is their only path today.
+        -- Added so the scrape bridge below covers them. Both render PreToolUse
+        -- hook files but expose no notification event, so scraping is their
+        -- only path to agent-notify today.
+        --
+        -- pi and opencode are deliberately absent: each has a native bridge
+        -- (config/extensions/ and config/plugins/sysinit-notify.ts) that calls
+        -- agent-notify with a real reason string. Registering them here too
+        -- would give the scrape bridge a second, poorer path to the same event.
         gemini = {
           patterns = { "antigravity", "agy", "gemini" },
           executable_patterns = { "/agy$", "antigravity%-cli" },
@@ -173,12 +172,6 @@ function M.setup(config)
           executable_patterns = { "/devin$" },
           argv_patterns = { "^devin%s*$" },
           title_patterns = { "devin" },
-        },
-        pi = {
-          patterns = { "^pi$", "/pi$" },
-          executable_patterns = { "/pi$", "pi%-coding%-agent" },
-          argv_patterns = { "^pi%s*$" },
-          title_patterns = { "^pi$" },
         },
       },
     })

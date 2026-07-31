@@ -746,6 +746,13 @@
                 rg -q 'if not \(uv and uv.agent_state' "$ui" ||
                   note "the scrape bridge does not skip hook-bridged panes; claude will double-notify"
 
+                # The two producers phase 3 retired. Each is a plain literal in a
+                # Nix file, so nothing else would notice it coming back.
+                rg -q '^\s*"notify"$' "$cfg/pi.nix" &&
+                  note "pi vendors the upstream notify extension again; agent-notify owns the toast"
+                rg -qU 'attention = \{\s*\n\s*notifications = false' "$cfg/opencode-render.nix" ||
+                  note "opencode attention.notifications is re-enabled; agent-notify owns the toast"
+
                 [ "$fail" -eq 0 ] || exit 1
                 echo "OK: five notification defects each have a failing-on-revert assertion" | tee "$out"
               '';

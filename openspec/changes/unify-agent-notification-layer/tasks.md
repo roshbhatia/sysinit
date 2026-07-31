@@ -119,9 +119,17 @@
       extensions on versus 1.7s with `--no-extensions`, so the bridge adds load
       time but does not hold the process open. Every spawn is detached, unref'd,
       and wrapped, so a missing binary degrades to no notification
-- [ ] 3.10 Adversarial review (`adversarial-review` skill): critics attempt to
-      break this phase against its spec scenarios; revise until no surviving
-      objection or K=4 rounds
+- [x] 3.10 Adversarial review (`adversarial-review` skill): round 1 returned 6
+      surviving objections, all fixed. `detached: true` called setsid(), which
+      severs the controlling terminal, so agent-state's OSC never landed and the
+      scrape bridge would have announced every bridged harness twice; pi's
+      `tool_call` payload is `event.input`, not `event.args`, so every reason
+      string was empty; no check caught pi's `notify` or opencode's `attention`
+      coming back; the bridge guard proved the source file existed rather than
+      the install entry; pi and opencode stayed registered with agent-deck under
+      a comment saying their bridges did not exist.
+      Open: whether `session.idle` fires per child session, which would raise one
+      toast per subagent. Needs a live OpenCode turn using the task tool.
 - [x] 3.11 Verify: `nix flake check` and `nh darwin build` are green
 - [x] 3.12 Apply: `nh darwin switch`
 - [x] 3.13 Confirm: `agent-state pi done "your move"` writes a correct state

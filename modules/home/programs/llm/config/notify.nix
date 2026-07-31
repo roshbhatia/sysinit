@@ -108,8 +108,12 @@ let
     opencode = ./plugins/sysinit-notify.ts;
   };
 
+  # A zero-byte file passes `pathExists` and loads as a module with no handlers,
+  # which is indistinguishable from having no bridge at all.
+  bridgePresent = p: builtins.pathExists p && builtins.stringLength (builtins.readFile p) > 0;
+
   missingBridges = lib.filter (
-    h: (bridgeArtifacts ? ${h}) && !(builtins.pathExists bridgeArtifacts.${h})
+    h: (bridgeArtifacts ? ${h}) && !(bridgePresent bridgeArtifacts.${h})
   ) hookBridged;
 
   assertBridgesExist =

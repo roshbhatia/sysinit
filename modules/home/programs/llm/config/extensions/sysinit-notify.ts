@@ -28,14 +28,20 @@ const HOME = process.env.HOME ?? "";
 const BIN = `${HOME}/.nix-profile/bin`;
 
 /**
- * Spawn a helper and forget it. Detached with stdio ignored so a slow or hung
- * notifier cannot hold pi's event loop, and every throw is swallowed.
+ * Spawn a helper and forget it. stdio is ignored and the child is unref'd, so a
+ * slow notifier cannot hold pi's event loop, and every throw is swallowed.
  */
 function spawnQuiet(exe: string, args: string[], input?: string): void {
 	try {
 		const { spawn } = require("node:child_process");
+		// No `detached`. On POSIX that calls setsid(), which makes the child a
+		// session leader with NO controlling terminal, so agent-state's
+		// `> /dev/tty` OSC write fails and the pane's agent_state user-var is
+		// never set. The WezTerm scrape bridge skips a pane only when that
+		// user-var is present, so a detached spawn would make every bridged
+		// harness announce twice. `unref()` alone already releases the parent
+		// event loop, which is all this needs.
 		const child = spawn(`${BIN}/${exe}`, args, {
-			detached: true,
 			stdio: input === undefined ? "ignore" : ["pipe", "ignore", "ignore"],
 		});
 		child.on("error", () => {});
@@ -62,9 +68,13 @@ export default function (pi: ExtensionAPI) {
 	// The tool name and its most telling input become the reason string the
 	// statusline shows, matching what Claude's PreToolUse hook emits.
 	pi.on("tool_call", async (event: any) => {
-		const name = event?.toolName ?? event?.tool?.name ?? "";
-		const args = event?.args ?? event?.arguments ?? {};
-		const detail = args.command ?? args.file_path ?? args.path ?? args.pattern ?? "";
+		const name = event?.toolName ?? "";
+		// `event.input` is the tool_call payload. `event.args` belongs to
+		// tool_execution_start/update, and `event.arguments` does not exist;
+		// reading either leaves the reason string empty and the toast generic.
+		const args = event?.input ?? {};
+		const detail =
+			args.command ?? args.file_path ?? args.path ?? args.description ?? args.pattern ?? "";
 		const reason = name && detail ? `${name}: ${detail}` : name || "working";
 		state("working", reason);
 	});

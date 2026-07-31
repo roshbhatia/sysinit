@@ -26,8 +26,14 @@ const BIN = `${HOME}/.nix-profile/bin`;
 function spawnQuiet(exe: string, args: string[], input?: string): void {
 	try {
 		const { spawn } = require("node:child_process");
+		// No `detached`. On POSIX that calls setsid(), which makes the child a
+		// session leader with NO controlling terminal, so agent-state's
+		// `> /dev/tty` OSC write fails and the pane's agent_state user-var is
+		// never set. The WezTerm scrape bridge skips a pane only when that
+		// user-var is present, so a detached spawn would make every bridged
+		// harness announce twice. `unref()` alone already releases the parent
+		// event loop, which is all this needs.
 		const child = spawn(`${BIN}/${exe}`, args, {
-			detached: true,
 			stdio: input === undefined ? "ignore" : ["pipe", "ignore", "ignore"],
 		});
 		child.on("error", () => {});

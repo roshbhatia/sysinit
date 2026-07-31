@@ -42,6 +42,18 @@ let
     ) extensions
   );
 
+  # The bridge's install path. `notify.nix` lists pi as bridged and pi's own
+  # `notify` producer is gone from `extensions` above, so an install entry that
+  # disappears leaves pi with no notifier at all. The source file existing is
+  # not enough: the entry below is what reaches $HOME.
+  piBridgePath = ".pi/agent/extensions/sysinit-notify.ts";
+
+  assertPiBridgeInstalled =
+    if !(customExtensionFiles ? ${piBridgePath}) then
+      throw "pi.nix: ${piBridgePath} is not installed, but notify.nix lists pi as bridged and its own notify extension is retired. Pi would have no notifier."
+    else
+      true;
+
   # Custom local extensions authored in this repo and installed under the
   # same ~/.pi/agent/extensions/ root as the vendored upstream ones.
   customExtensionFiles = {
@@ -604,7 +616,10 @@ in
     '';
 
     file =
-      extensionFiles
+      (
+        assert assertPiBridgeInstalled;
+        extensionFiles
+      )
       // customExtensionFiles
       // {
         ".pi/agent/keybindings.json" = {
