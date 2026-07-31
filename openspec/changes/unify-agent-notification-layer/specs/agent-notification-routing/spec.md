@@ -193,6 +193,15 @@ pane that raised it. Suppression MUST NOT be keyed on the harness name alone.
   suppression window
 - **THEN** both panes raise a notification
 
+#### Scenario: Two similar contexts do not share a suppression key
+
+- **POLARITY** negative
+- **WHEN** two paneless sessions carry contexts that differ only in characters
+  a filename cannot hold, such as `my session` and `my_session`
+- **THEN** they receive different suppression keys and both notify
+- **AND** the key is derived by hashing the context, not by substituting its
+  unsafe characters, because substitution is lossy
+
 #### Scenario: One pane repeating is still suppressed
 
 - **POLARITY** negative
@@ -220,9 +229,24 @@ is listed in `notify.nix` as intentionally generic.
 #### Scenario: A configured harness renders its own glyph
 
 - **POLARITY** positive
-- **WHEN** a notification is raised for opencode, pi, amp, crush, goose, or
-  copilot
+- **WHEN** a notification is raised for opencode, pi, or copilot
 - **THEN** the notification carries that harness's icon
+
+#### Scenario: A harness on the generic list renders the generic glyph
+
+- **POLARITY** positive
+- **WHEN** a notification is raised for a harness named in the
+  intentionally-generic list
+- **THEN** the notification carries the generic glyph, not a harness glyph
+
+#### Scenario: A harness cannot be both generic and glyphed
+
+- **POLARITY** negative
+- **WHEN** a harness appears in both the icon set and the
+  intentionally-generic list
+- **THEN** the build fails and names the harness
+- **AND** the list is consumed by that assertion, so it cannot decay into a
+  comment that records nothing
 
 #### Scenario: The fallback is not a harness glyph
 

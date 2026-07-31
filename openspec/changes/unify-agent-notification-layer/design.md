@@ -194,8 +194,12 @@ producer at all.
   silence them with no replacement, for as long as slice 3 takes. Mitigation:
   those two edits moved out of slice 2 and into slice 3, where each ships in
   the same commit as its bridge. A build assertion enforces the pairing.
-- Icon fetches add six pinned network sources. Mitigation: the existing four
-  already use this pattern and a hash drift fails the build loudly.
+- Icon fetches add three pinned network sources. Mitigation: the existing four
+  already use this pattern and a hash drift fails the build loudly. Three of the
+  seven uncovered harnesses get no glyph: simpleicons has no crush or goose
+  entry, and its "AMP" icon sources from amp.dev, which is Google Accelerated
+  Mobile Pages, not Sourcegraph Amp. Those three are recorded in an
+  intentionally-generic list that a build assertion consumes.
 - The sketchybar widget polls the state directory. Mitigation: it reads only
   local files and spawns no process, per its spec.
 

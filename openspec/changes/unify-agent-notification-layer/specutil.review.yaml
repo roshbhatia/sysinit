@@ -1,16 +1,19 @@
 version: 1
 change: unify-agent-notification-layer
 decision: approved
-note: 'adversarial review: 4 rounds, 36 objections raised and revised against, 0 open'
-change_hash: fb90fd553b78afce
-base_commit: a3ffc9ed815ed4b45b8cf0f7f8f6c43791c4ed9d
+note: 'slice 1 adversarial review: 2 rounds, 10 objections raised, 10 fixed, terminal state CAPPED at K=2 with 0 open'
+change_hash: e178fa31b40c9cb1
+base_commit: f92a03668ec3bfc667657768095b73158319ee8d
 items:
     1b82cca1801d569a:
         hash: 4d6c07ec02b04020
         text: Set `notifications.enabled = false` in the agent-deck block of `ui.lua`, keeping every scraping option unchanged
-    1e5a0286c85a6360:
-        hash: 1e498247eb57bc77
-        text: Add six icon fetches to `notify.nix` for opencode, pi, amp, crush, goose, and copilot (follows the pinned-hash block at `notify.nix:24`)
+    2abe2dadac60837c:
+        hash: 6db6a7933f98115b
+        text: Add a `nix flake check` derivation covering all four defects, each assertion failing when its fix is reverted (follows the hermetic `pkgs.runCommand` checks at `flake.nix:229`). The group assertion executes `agent_group` rather than grepping for the call, because a call that passes an empty pane reproduces the defect with the call still present
+    2e2c0b18a7ad4275:
+        hash: e772fb73fbd07d79
+        text: 'Verify: `nix flake check` green (16 checks), host build green, `nix fmt -- --check` clean, all four defect assertions negative-tested'
     5c62d11c0d8069b5:
         hash: 937c06a98a5e0085
         text: Move OpenCode to bridged and add `attention.notifications = false` to the TUI config attribute set created by `modernize-opencode-and-pi-config` slice 1, both in the same commit as 3.6, and only when 3.6 produced a working plugin
@@ -41,9 +44,9 @@ items:
     17e2f5ae92cead3a:
         hash: 6c7426797ec79705
         text: Add a build assertion that a producer may be turned off only when the same harness is bridged, keying on the bridge artifact itself (the `customExtensionFiles` entry for pi, the plugin path for OpenCode) rather than on the coverage-set label, so editing the label alone cannot defeat the guard
-    26f11102d892ea2f:
-        hash: 9fb569a170364543
-        text: 'Verify: `nix flake check` and `nh darwin build` are green; review `git diff`'
+    27d6c99d650d416f:
+        hash: df739965d751d929
+        text: 'Add icon fetches to `notify.nix` for opencode, pi, and copilot (follows the pinned-hash block at `notify.nix:24`). amp, crush, goose, and devin are listed as intentionally generic instead: simpleicons has no crush or goose entry, and its "AMP" icon sources from amp.dev, which is Google Accelerated Mobile Pages, not Sourcegraph Amp'
     30ae706730df7e71:
         hash: 469f7abf4e62f681
         text: 'Verify: `harden-agent-shell-terminal` has landed its state-file version field and its collection step; without collection the widget shows a permanent badge for a killed pane, because only Claude writes an exit event and the widget may not call the WezTerm CLI to check liveness'
@@ -53,9 +56,6 @@ items:
     69b9da8301e1303c:
         hash: 941d2420435d25c5
         text: Add a check derivation scanning the agent-deck block in `ui.lua`, the `extensions` list in `pi.nix`, and the OpenCode TUI attribute set for a re-enabled producer; fail with the producer name and name `agent-notify` as the owner. Without this, reverting `ui.lua` to `notifications.enabled = true` passes every other check
-    88d08c455e99e74a:
-        hash: 558c3432e08b50e7
-        text: Add a `nix flake check` derivation asserting the producer group string and the handler removal string are equal (follows the hermetic `pkgs.runCommand` checks at `flake.nix:229`)
     309e673af643ee99:
         hash: ead048565bb7266c
         text: 'Verify: `nix fmt -- --check` is clean and `git diff` is reviewed'
@@ -71,9 +71,6 @@ items:
     96385c3ceb69f352:
         hash: 4cc54e2eefd7e644
         text: Install the pi extension through `customExtensionFiles` in `pi.nix`
-    712727f254e1be9a:
-        hash: 7230d65aa8ef2a98
-        text: 'Adversarial review (`adversarial-review` skill): critics attempt to break this slice against its spec scenarios; revise until no surviving objection or K=4 rounds'
     765674a4d0743b77:
         hash: 9685cffd8028f43f
         text: Replace the notification group with `agent:<pane-id>` in `agent-notify.sh` and `agent-prompt.sh`, falling back to the existing `agent-notify:<agent>:<context>` form when `WEZTERM_PANE` is empty; ssh does not forward it and the notifier still runs (follows the existing group construction at `agent-notify.sh:162`)
@@ -86,6 +83,9 @@ items:
     a1adb2293e35d16c:
         hash: 02b81cb15898380d
         text: Confirm both bridges swallow every error and never fail a turn
+    a08c3633e3efe0b1:
+        hash: 6b47f19f720d4164
+        text: 'Confirm: an approval toast dismisses on click; two idle panes of one harness both notify; two ssh sessions with no `WEZTERM_PANE` both notify; a pi toast carries the pi icon and an amp toast carries the generic glyph'
     a689bd3bc52dc8e0:
         hash: 9b32a31ea9519825
         text: Record cursor and copilot as no-surface with the reason
@@ -134,15 +134,15 @@ items:
     d6c6a87f14211a1c:
         hash: fc3ac738763f10af
         text: Record pi and opencode as deferred, naming slice 3 as the change that wires them; both keep their own producer through this slice
-    d7b55bf15fa692b1:
-        hash: f90ba0b9a11e0507
-        text: 'Confirm: an approval toast dismisses on click; two idle panes of one harness both notify; a pi toast carries the pi icon'
     d878c5603fc707c9:
         hash: 7230d65aa8ef2a98
         text: 'Adversarial review (`adversarial-review` skill): critics attempt to break this slice against its spec scenarios; revise until no surviving objection or K=4 rounds'
     e650d6525a37def4:
         hash: 54d62155d6e57f5e
         text: Author `widgets/agents.lua` reading `$XDG_STATE_HOME/agents/panes/*.json` (follows `widgets/front_app.lua`)
+    ebb4469b2f337572:
+        hash: 3342626d17fbf3e6
+        text: 'Adversarial review (`adversarial-review` skill): terminal state `CAPPED` at K=2, the scaled cap for a one-slice review, with 0 open. Round 1 (spec-conformance lens): 6 surviving, all fixed. The slice did not meet its own STOP condition; 3 of 4 defects had no regression check. Round 2 (implementation lens): 4 raised, 3 already closed by round 1''s revisions, 1 new and fixed (the paneless dedup key used a lossy `tr` substitution, so `my session` and `my_session` shared a suppression key). Trend 6 to 1, declining. No round returned clean; the cap stopped it.'
     f1fa329d45d67375:
         hash: 61512889dd4a1259
         text: Record gemini, devin, amp, crush, and goose as deferred, naming the hook or scraping surface each exposes and the change that will wire it; gemini and devin already render PreToolUse hooks, so "no surface" is false for them

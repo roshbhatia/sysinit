@@ -4,32 +4,43 @@
 - **STOP** every defect has a fix and a check that fails without the fix
 - **MAX-ITERS** 4
 
-- [ ] 1.1 Replace the notification group with `agent:<pane-id>` in
+- [x] 1.1 Replace the notification group with `agent:<pane-id>` in
       `agent-notify.sh` and `agent-prompt.sh`, falling back to the existing
       `agent-notify:<agent>:<context>` form when `WEZTERM_PANE` is empty; ssh
       does not forward it and the notifier still runs (follows the existing
       group construction at `agent-notify.sh:162`)
-- [ ] 1.2 Rebuild the group from the pane id alone in `agent-focus.sh` and
+- [x] 1.2 Rebuild the group from the pane id alone in `agent-focus.sh` and
       delete the state-file identity read used only for the group
-- [ ] 1.3 Key the idle dedup file on `<pane-id>_<reason>` in `agent-notify.sh`,
+- [x] 1.3 Key the idle dedup file on `<pane-id>_<reason>` in `agent-notify.sh`,
       falling back to `<agent>_<context>_<reason>` when the pane id is empty
-- [ ] 1.4 Route `@CONTENTCLICKED` and `@ACTIONCLICKED` on the approval waiter in
+- [x] 1.4 Route `@CONTENTCLICKED` and `@ACTIONCLICKED` on the approval waiter in
       `agent-prompt.sh` to `agent-focus`, keeping the Accept and Deny relay
-- [ ] 1.5 Add six icon fetches to `notify.nix` for opencode, pi, amp, crush,
-      goose, and copilot (follows the pinned-hash block at `notify.nix:24`)
-- [ ] 1.6 Replace the `agent.png` fallback with a distinct generic glyph and
+- [x] 1.5 Add icon fetches to `notify.nix` for opencode, pi, and copilot
+      (follows the pinned-hash block at `notify.nix:24`). amp, crush, goose, and
+      devin are listed as intentionally generic instead: simpleicons has no
+      crush or goose entry, and its "AMP" icon sources from amp.dev, which is
+      Google Accelerated Mobile Pages, not Sourcegraph Amp
+- [x] 1.6 Replace the `agent.png` fallback with a distinct generic glyph and
       extend the label table in `agent-notify.sh` and `agent-prompt.sh`
-- [ ] 1.7 Add a `nix flake check` derivation asserting the producer group string
-      and the handler removal string are equal (follows the hermetic
-      `pkgs.runCommand` checks at `flake.nix:229`)
-- [ ] 1.8 Adversarial review (`adversarial-review` skill): critics attempt to
-      break this slice against its spec scenarios; revise until no surviving
-      objection or K=4 rounds
-- [ ] 1.9 Verify: `nix flake check` and `nh darwin build` are green; review
-      `git diff`
+- [x] 1.7 Add a `nix flake check` derivation covering all four defects, each
+      assertion failing when its fix is reverted (follows the hermetic
+      `pkgs.runCommand` checks at `flake.nix:229`). The group assertion executes
+      `agent_group` rather than grepping for the call, because a call that
+      passes an empty pane reproduces the defect with the call still present
+- [x] 1.8 Adversarial review (`adversarial-review` skill): terminal state
+      `CAPPED` at K=2, the scaled cap for a one-slice review, with 0 open.
+      Round 1 (spec-conformance lens): 6 surviving, all fixed. The slice did not
+      meet its own STOP condition; 3 of 4 defects had no regression check.
+      Round 2 (implementation lens): 4 raised, 3 already closed by round 1's
+      revisions, 1 new and fixed (the paneless dedup key used a lossy `tr`
+      substitution, so `my session` and `my_session` shared a suppression key).
+      Trend 6 to 1, declining. No round returned clean; the cap stopped it.
+- [x] 1.9 Verify: `nix flake check` green (16 checks), host build green,
+      `nix fmt -- --check` clean, all four defect assertions negative-tested
 - [ ] 1.10 Apply: `nh darwin switch`
 - [ ] 1.11 Confirm: an approval toast dismisses on click; two idle panes of one
-      harness both notify; a pi toast carries the pi icon
+      harness both notify; two ssh sessions with no `WEZTERM_PANE` both notify;
+      a pi toast carries the pi icon and an amp toast carries the generic glyph
 
 ## 2. Coverage set and agent-deck
 

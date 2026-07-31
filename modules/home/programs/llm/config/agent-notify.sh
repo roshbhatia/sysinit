@@ -69,8 +69,17 @@ case "$agent" in
   codex) label="Codex" ;;
   gemini) label="Gemini" ;;
   cursor) label="Cursor" ;;
+  opencode) label="OpenCode" ;;
+  pi) label="Pi" ;;
+  copilot) label="Copilot" ;;
+  amp) label="Amp" ;;
+  crush) label="Crush" ;;
+  goose) label="Goose" ;;
+  devin) label="Devin" ;;
   *) label="$agent" ;;
 esac
+# agent.png is the generic glyph, distinct from every harness icon, so an
+# unrecognized agent is never rendered as a recognized one.
 icon="$icons/$agent.png"
 [ -f "$icon" ] || icon="$icons/agent.png"
 
@@ -114,7 +123,24 @@ fi
 if [ "$reason" = "idle" ]; then
   notif_dir="${XDG_STATE_HOME:-$HOME/.local/state}/agents/notif"
   mkdir -p "$notif_dir" 2> /dev/null || true
-  dedup_file="$notif_dir/${agent}_idle"
+  # Keyed on the pane, not the agent: two panes running one harness must both
+  # notify. Falls back to agent+context when no pane id is available (ssh).
+  #
+  # The fallback hashes the pair rather than substituting unsafe characters.
+  # `tr -c 'A-Za-z0-9._-' '_'` is lossy: "my session" and "my_session" both
+  # collapse to "my_session", and the "·" this script uses as the context
+  # separator is multi-byte, so it becomes two underscores and collides with a
+  # literal "__". Two distinct sessions would then share one dedup file and the
+  # second would be wrongly suppressed, which is the defect this key exists to
+  # prevent.
+  if [ -n "$pane" ]; then
+    dedup_key="${pane}_idle"
+  else
+    ctx_hash=$(printf '%s' "$agent|$context" | cksum 2> /dev/null | cut -d' ' -f1) || ctx_hash=""
+    [ -n "$ctx_hash" ] || ctx_hash=0
+    dedup_key="ctx${ctx_hash}_idle"
+  fi
+  dedup_file="$notif_dir/$dedup_key"
   if [ -f "$dedup_file" ]; then
     last=$(cat "$dedup_file" 2> /dev/null) || last=0
     now=$(date +%s 2> /dev/null) || now=0
@@ -158,8 +184,12 @@ title="$label · $what"
 # specific prompt, …) — it names what the human must act on. Fall back to the
 # category when the event carried nothing.
 body=${msg:-$what}
-# One notification slot per agent+context so repeats replace instead of stacking.
-group="agent-notify:$agent:$context"
+# One notification slot per pane so repeats from that pane replace instead of
+# stacking, and any handler can rebuild the name from the pane id alone.
+# WEZTERM_PANE is not forwarded over ssh and this script still runs without it,
+# so a paneless caller falls back to the agent+context pair. Keying an empty
+# pane id would collapse every paneless session onto one slot.
+group=$(agent_group "$agent" "$context" "$pane")
 
 args=(
   --title "$title"

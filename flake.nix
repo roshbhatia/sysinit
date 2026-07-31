@@ -218,6 +218,9 @@
         system:
         let
           pkgs = pkgsFor system;
+          # The rendered notification icons, so a check can assert the generic
+          # fallback is not a copy of a harness glyph.
+          notifyIcons = (import ./modules/home/programs/llm/config/notify.nix { inherit pkgs lib; }).icons;
         in
         {
           # Behavioral guard for the machine-wide default (Lever 2). Assert a
@@ -587,6 +590,94 @@
           #
           # `zsh -n` parses without executing, so a fragment that references a
           # function defined in another fragment still checks out.
+          # The notification group name must have exactly one definition. It
+          # previously had three: agent-notify wrote `agent-notify:<agent>:<ctx>`,
+          # agent-prompt wrote `agent-prompt:<agent>:<ctx>`, and agent-focus
+          # removed only the first, so an approval toast was never dismissed.
+          # `agent_group` in agent-group.sh is now the only place that builds the
+          # string; this check fails if any consumer reintroduces a literal.
+          # Covers all four defects the slice fixes, not the group alone. Each
+          # assertion below fails if its fix is reverted; a grep for the fix's
+          # presence would not, because a caller can keep the call and still
+          # pass the wrong argument.
+          notify-defect-regressions =
+            pkgs.runCommand "notify-defect-regressions-check"
+              {
+                nativeBuildInputs = [
+                  pkgs.ripgrep
+                  pkgs.bash
+                ];
+              }
+              ''
+                cfg=${./modules/home/programs/llm/config}
+                icons=${notifyIcons}
+                fail=0
+                note() {
+                  echo "FAIL: $1" >&2
+                  fail=1
+                }
+
+                # --- defect 1: one definition of the group string -------------
+                # Execute the helper rather than grepping for its name. A call
+                # that passes an empty pane produces the fallback form while
+                # agent-focus removes the pane form, which is the original
+                # defect with the call still present.
+                # shellcheck disable=SC1091
+                . "$cfg/agent-group.sh"
+
+                paned="$(agent_group claude ctx 42)"
+                [ "$paned" = "agent:42" ] || note "agent_group with a pane returned '$paned', expected 'agent:42'"
+
+                # Two paneless sessions must not collapse onto one slot.
+                a="$(agent_group claude repo-a "")"
+                b="$(agent_group claude repo-b "")"
+                [ "$a" != "$b" ] || note "paneless sessions share the group '$a'; the ssh fallback is gone"
+
+                # Every consumer must pass the pane in position 3. Passing "" is
+                # the bypass a presence-grep cannot see.
+                for s in agent-notify agent-prompt; do
+                  if ! rg -q 'agent_group "\$agent" "\$context" "\$pane"' "$cfg/$s.sh"; then
+                    note "$s.sh does not pass \$pane as agent_group's third argument"
+                  fi
+                done
+                rg -q 'agent_group "" "" "\$pane"' "$cfg/agent-focus.sh" ||
+                  note "agent-focus.sh does not rebuild the group from \$pane"
+
+                # No second definition may reappear outside the helper.
+                stray="$(
+                  rg -l -e 'agent-notify:\$' -e 'agent-prompt:\$' -e '"agent:\$' \
+                    "$cfg" 2> /dev/null | rg -v 'agent-group\.sh' || true
+                )"
+                [ -z "$stray" ] || note "group literal outside agent-group.sh: $stray"
+
+                # --- defect 2: idle dedup is scoped to the pane ---------------
+                rg -q 'dedup_key="\$\{pane\}_idle"' "$cfg/agent-notify.sh" ||
+                  note "idle dedup is not keyed on the pane; two panes of one harness will collapse"
+
+                # The paneless fallback must hash, not character-substitute. A
+                # `tr -c` substitution collapses "my session" and "my_session"
+                # onto one key, and the multi-byte "·" separator onto another.
+                rg -q 'cksum' "$cfg/agent-notify.sh" ||
+                  note "the paneless dedup fallback does not hash the context; distinct sessions will collide"
+                # Match the assignment, not the comment that explains why the
+                # substitution was wrong. An unanchored grep for `tr -c` here
+                # fired on this file's own rationale.
+                rg -q 'dedup_key=.*tr -c' "$cfg/agent-notify.sh" &&
+                  note "the paneless dedup fallback character-substitutes the context; that is lossy and collides"
+
+                # --- defect 3: an approval toast is clickable -----------------
+                rg -q '@CONTENTCLICKED \| @ACTIONCLICKED\)' "$cfg/agent-prompt.sh" ||
+                  note "agent-prompt.sh does not route a click outcome to agent-focus"
+
+                # --- defect 4: the fallback glyph is not a harness glyph ------
+                if cmp -s "$icons/agent.png" "$icons/claude.png"; then
+                  note "agent.png is byte-identical to claude.png; every unrecognized agent renders as Claude"
+                fi
+
+                [ "$fail" -eq 0 ] || exit 1
+                echo "OK: four notification defects each have a failing-on-revert assertion" | tee "$out"
+              '';
+
           zsh-fragments-parse =
             pkgs.runCommand "zsh-fragments-parse-check"
               {

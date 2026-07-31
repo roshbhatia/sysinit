@@ -87,8 +87,9 @@ Dependencies:
   the OpenCode TUI config writer. `attention.notifications` is a TUI key and
   `opencode.nix` has no TUI writer today. Building a second one here would race
   the first on the same file.
-- Six new icon sources fetched by `pkgs.fetchurl` with pinned hashes, following
-  the existing `notify.nix` icon block.
+- Three new icon sources fetched by `pkgs.fetchurl` with pinned hashes,
+  following the existing `notify.nix` icon block. amp, crush, goose, and devin
+  get the generic glyph instead: no correct brand asset exists for them.
 
 Impactful and irreversible actions:
 - `nh darwin switch` applies the notification change to the live machine.

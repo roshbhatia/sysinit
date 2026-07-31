@@ -34,25 +34,83 @@ let
     cursor =
       icon "cursor" "https://cdn.simpleicons.org/cursor/000000"
         "sha256-aMiOMXoD/vt9jtaLn+hu8zwKACdl+mv8hM3EPXu59P4=";
+    opencode =
+      icon "opencode" "https://cdn.simpleicons.org/opencode/000000"
+        "sha256-xlr+/bHrZ74ZpQ9xXQp6LBlVjb8Mvcl0/rNn4FXNX1g=";
+    # simpleicons "Pi" sources from https://pi.dev/favicon.svg, which is the
+    # coding agent's own vendor domain, not Pi Network. Verified before use.
+    pi =
+      icon "pi" "https://cdn.simpleicons.org/pi/000000"
+        "sha256-0462udrr6XCPzGCuF9Ue7bnx5lZhyVytXC4eJzt3vyE=";
+    copilot =
+      icon "copilot" "https://cdn.simpleicons.org/githubcopilot/000000"
+        "sha256-DTSwqoKcIwlOr84UR0gdVvQd3mXXeRISItzylJQ90kU=";
   };
 
+  # Harnesses with no correct brand asset. They render the generic glyph, which
+  # is visually distinct from every entry in `svgs` above, so an unrecognized
+  # agent is never mistaken for a recognized one.
+  #
+  # amp is listed here deliberately: simpleicons ships an "AMP" icon, but its
+  # source is https://amp.dev, which is Google's Accelerated Mobile Pages, not
+  # Sourcegraph Amp. Shipping it would put a wrong brand on the toast.
+  # crush and goose have no simpleicons entry at all.
+  intentionallyGeneric = [
+    "amp"
+    "crush"
+    "goose"
+    "devin"
+  ];
+
+  # Authored here rather than fetched: the fallback must not resemble any
+  # harness glyph, and no upstream asset guarantees that. A dashed ring with a
+  # centre dot reads as "an agent we do not recognize" at 256px.
+  genericSvg = pkgs.writeText "agent-icon-generic.svg" ''
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
+      <circle cx="12" cy="12" r="9" fill="none" stroke="#6E7781" stroke-width="2"
+              stroke-dasharray="3 2.5" stroke-linecap="round"/>
+      <circle cx="12" cy="12" r="3" fill="#6E7781"/>
+    </svg>
+  '';
+
   names = builtins.attrNames svgs;
+
+  # `intentionallyGeneric` must stay a mechanism, not a comment. A name in both
+  # lists means someone added a real glyph and forgot to drop the generic
+  # record, so the file would claim a harness is generic while shipping its
+  # icon. Forced from `icons` below, because an unreferenced `let` binding is
+  # dropped silently and never fires (the defect this repo already carries at
+  # config/pi.nix:491).
+  genericConflicts = lib.intersectLists names intentionallyGeneric;
+  assertGenericDisjoint =
+    if genericConflicts != [ ] then
+      throw "notify.nix: ${lib.concatStringsSep ", " genericConflicts} appear in both `svgs` and `intentionallyGeneric`; a harness cannot be both."
+    else
+      "";
 
   # Shared session/repo/pane identity resolution, prepended into both scripts at
   # build time so agent-notify and agent-state can never disagree (no runtime
   # source path to resolve, and shellcheck validates the combined script).
   identity = builtins.readFile ./agent-identity.sh;
 
+  # The notification group name, shared by both producers and by the click
+  # handler (see agent-group.sh). Kept separate from `identity` because
+  # agent-focus needs the group function and none of the identity resolution.
+  group = builtins.readFile ./agent-group.sh;
+
   icons = pkgs.runCommand "agent-notify-icons" { nativeBuildInputs = [ pkgs.librsvg ]; } (
-    "mkdir -p $out\n"
+    assertGenericDisjoint
+    + "mkdir -p $out\n"
     + lib.concatStringsSep "\n" (
       lib.mapAttrsToList (
         name: src:
         "rsvg-convert --width 256 --height 256 --keep-aspect-ratio --background-color '#FFFFFF' '${src}' --output \"$out/${name}.png\""
       ) svgs
     )
-    # Generic fallback icon for any agent without a dedicated glyph.
-    + "\ncp \"$out/claude.png\" \"$out/agent.png\"\n"
+    # Generic fallback for any agent without a dedicated glyph. Rendered from
+    # the authored SVG above, NOT copied from claude.png as it once was: a copy
+    # made every unrecognized agent render as Claude.
+    + "\nrsvg-convert --width 256 --height 256 --keep-aspect-ratio --background-color '#FFFFFF' '${genericSvg}' --output \"$out/agent.png\"\n"
   );
 
   script = pkgs.writeShellApplication {
@@ -67,7 +125,7 @@ let
     # Best-effort notifier: no errexit/nounset/pipefail — it must never abort the
     # agent. shellcheck still runs for validation.
     bashOptions = [ ];
-    text = identity + "\n" + builtins.readFile ./agent-notify.sh;
+    text = group + "\n" + identity + "\n" + builtins.readFile ./agent-notify.sh;
   };
 
   # Per-pane lifecycle-state emitter (see agent-state.sh). Writes an OSC 1337
@@ -110,6 +168,8 @@ let
       NOTIFY_EXE=${lib.getExe script}
     ''
     + "\n"
+    + group
+    + "\n"
     + identity
     + "\n"
     + builtins.readFile ./agent-prompt.sh;
@@ -128,7 +188,10 @@ let
     ]
     ++ lib.optionals pkgs.stdenv.hostPlatform.isDarwin [ pkgs.alerter ];
     bashOptions = [ ];
-    text = builtins.readFile ./agent-focus.sh;
+    # The group helper is prepended so agent-focus rebuilds the notification
+    # group with the same `agent_group` the producers used. A second copy of
+    # that string is what let the dismiss silently miss.
+    text = group + "\n" + builtins.readFile ./agent-focus.sh;
   };
 in
 {

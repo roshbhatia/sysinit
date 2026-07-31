@@ -129,6 +129,13 @@ case "$agent" in
   codex) label="Codex" ;;
   gemini) label="Gemini" ;;
   cursor) label="Cursor" ;;
+  opencode) label="OpenCode" ;;
+  pi) label="Pi" ;;
+  copilot) label="Copilot" ;;
+  amp) label="Amp" ;;
+  crush) label="Crush" ;;
+  goose) label="Goose" ;;
+  devin) label="Devin" ;;
   *) label="$agent" ;;
 esac
 icon="$icons/$agent.png"
@@ -136,8 +143,10 @@ icon="$icons/$agent.png"
 
 title="$label · needs your approval"
 body=${msg:-needs your approval}
-# One slot per agent+context so a repeat prompt replaces the pending one.
-group="agent-prompt:$agent:$context"
+# Same slot as agent-notify uses for this pane, so a repeat prompt replaces the
+# pending one AND agent-focus can dismiss it. The two scripts previously wrote
+# different prefixes, so an approval toast was never dismissed.
+group=$(agent_group "$agent" "$context" "$pane")
 
 wz=$(command -v wezterm 2> /dev/null || true)
 
@@ -159,12 +168,21 @@ wz=$(command -v wezterm 2> /dev/null || true)
       2> /dev/null
   ) || action=""
 
-  # Relay only on an explicit button. alerter prints "@TIMEOUT"/"@CLOSED"/
-  # "@CONTENTCLICKED" (or empty) for the non-decision outcomes — all no-ops.
+  # Relay only on an explicit button. A body click is not a decision, so it
+  # routes to agent-focus instead: the human wants to see the prompt, not
+  # answer it blind. alerter prints "@TIMEOUT"/"@CLOSED" for the rest.
   keys=""
   case "$action" in
     Accept) keys=$approve_keys ;;
     Deny) keys=$reject_keys ;;
+    @CONTENTCLICKED | @ACTIONCLICKED)
+      # Both are "the human engaged but did not pick Accept or Deny". Route to
+      # the pane so they can answer the prompt in place. agent-notify.sh treats
+      # the same pair identically; the two producers must not disagree.
+      if [ -n "$focus_exe" ]; then
+        "$focus_exe" "$pane" "$session" > /dev/null 2>&1 || true
+      fi
+      ;;
   esac
 
   if [ -n "$keys" ] && [ -n "$wz" ]; then
