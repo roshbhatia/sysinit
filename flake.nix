@@ -624,6 +624,7 @@
                     "hideThinkingBlock"
                     "enableInstallTelemetry"
                     "shellCommandPrefix"
+                    "externalEditor"
                   ]
                 }; do
                   if ! rg -qa "$k" "$bin"; then

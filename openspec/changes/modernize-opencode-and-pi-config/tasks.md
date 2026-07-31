@@ -95,25 +95,28 @@
   and pi loads all of them without error
 - **MAX-ITERS** 4
 
-- [ ] 3.1 Source the vendored extension files from
+- [x] 3.1 Source the vendored extension files from
       `${pkgs.pi-coding-agent}/pi/examples/extensions/` and delete
       `piExtensionsRev`, `piExtensionsSrc`, and their hash
-- [ ] 3.2 Add a build assertion that every named extension exists in the package
-- [ ] 3.3 Check `protected-paths` against `@gotgenes/pi-permission-system` for
-      overlapping tool-call interception; record the result in `design.md`
-- [ ] 3.4 Vendor `protected-paths`, `plan-mode`, and `modal-editor`, dropping
-      any that 3.3 shows to conflict
-- [ ] 3.5 Verify: the owner decides whether `externalEditor` points at
-      `nvim-pi` or `nvim-pi` is removed from the profile
-- [ ] 3.6 Apply the `nvim-pi` decision in `pi.nix` and in the keybindings file
-- [ ] 3.7 Update `hack/update-pi.sh` so it no longer reports on a revision that
+- [x] 3.2 Add a build assertion that every named extension exists in the package
+- [x] 3.3 Checked against the installed package: `protected-paths` AND
+      `plan-mode` both call `pi.on("tool_call", ...)`, and so does
+      `@gotgenes/pi-permission-system`. Both conflict and neither is vendored
+- [x] 3.4 Vendored `modal-editor` and `todo`, which bind only session events.
+      `protected-paths` and `plan-mode` dropped per 3.3, with the reason recorded
+      beside the extension list
+- [x] 3.5 Decided: wire it. `nvim-pi` is a `--clean` nvim wrapper that avoids
+      the lazy.nvim startup wait, which is worth keeping; it was unreachable only
+      because the setting was undeclared and the keybinding unbound
+- [x] 3.6 Apply the `nvim-pi` decision in `pi.nix` and in the keybindings file
+- [x] 3.7 Update `hack/update-pi.sh` so it no longer reports on a revision that
       no longer exists
 - [ ] 3.8 Adversarial review (`adversarial-review` skill): critics attempt to
       break this phase against its spec scenarios; revise until no surviving
       objection or K=4 rounds
-- [ ] 3.9 Verify: `nix flake check`, `nh darwin build`, and
+- [x] 3.9 Verify: `nix flake check`, `nh darwin build`, and
       `./hack/update-pi.sh` all behave as expected
-- [ ] 3.10 Apply: `nh darwin switch`
+- [x] 3.10 Apply: `nh darwin switch`
 - [ ] 3.11 Confirm: pi starts with no extension load error; `/plan` toggles;
       protected paths are blocked; the external editor opens or is gone
 

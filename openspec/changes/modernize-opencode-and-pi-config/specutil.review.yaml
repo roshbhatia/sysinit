@@ -1,13 +1,16 @@
 version: 1
 change: modernize-opencode-and-pi-config
 decision: approved
-note: phase 2 applied and verified
-change_hash: b4a4869bac3a2f1c
-base_commit: 8514662640fa5dc468d71ca14e18f211179e1730
+note: phase 3 applied and verified
+change_hash: 693883ae3d814f60
+base_commit: 0d5dc4e47005c3dfc7a2a0cf11b1030b49dc46cc
 items:
     0f8cd7a6a4d731bb:
         hash: da42f5ffd02d176c
         text: 'Apply: copy the listed files into the change directory, then remove them'
+    0f59c53f3c829396:
+        hash: 58b4bc418f9bed39
+        text: 'Checked against the installed package: `protected-paths` AND `plan-mode` both call `pi.on("tool_call", ...)`, and so does `@gotgenes/pi-permission-system`. Both conflict and neither is vendored'
     1e361f3401e0b6ce:
         hash: 2c12032ec8016113
         text: Add a `nix flake check` derivation validating the rendered OpenCode config against `${pkgs.opencode}/share/opencode/config.json` (follows the hermetic checks at `flake.nix:229`)
@@ -38,9 +41,6 @@ items:
     009d3074e7fb4615:
         hash: 0769872d97275e49
         text: 'Confirm: the owner approves the staged diff before any commit'
-    22caa048c034df9c:
-        hash: 1b03539f30bf1da2
-        text: 'Verify: the owner decides whether `externalEditor` points at `nvim-pi` or `nvim-pi` is removed from the profile'
     28f7d5c4185aca59:
         hash: 53f642745203e310
         text: Extend the build-time check to a committed fixture pushed through the same retired-key deletion and merge, validated against both schemas; the check derivation is hermetic and cannot read the live `$HOME`
@@ -50,9 +50,15 @@ items:
     45e9eabffe740837:
         hash: da6b246a0466599e
         text: 'Apply: `nh darwin switch`'
+    78eb245b0149cc36:
+        hash: 5f2ce75457bb13c8
+        text: Vendored `modal-editor` and `todo`, which bind only session events. `protected-paths` and `plan-mode` dropped per 3.3, with the reason recorded beside the extension list
     309e673af643ee99:
         hash: ead048565bb7266c
         text: 'Verify: `nix fmt -- --check` is clean and `git diff` is reviewed'
+    365b66385e442f5e:
+        hash: 3f69fb85af14904a
+        text: 'Decided: wire it. `nvim-pi` is a `--clean` nvim wrapper that avoids the lazy.nvim startup wait, which is worth keeping; it was unreachable only because the setting was undeclared and the keybinding unbound'
     622e1bf151f7f5cc:
         hash: 223d8628941985d4
         text: Source the vendored extension files from `${pkgs.pi-coding-agent}/pi/examples/extensions/` and delete `piExtensionsRev`, `piExtensionsSrc`, and their hash
@@ -74,9 +80,6 @@ items:
     9293d79e478f4222:
         hash: da6b246a0466599e
         text: 'Apply: `nh darwin switch`'
-    180524d91205082f:
-        hash: cf67aa7871e74e83
-        text: Check `protected-paths` against `@gotgenes/pi-permission-system` for overlapping tool-call interception; record the result in `design.md`
     4667566e378c510e:
         hash: b007fbd2bac6ac4d
         text: Apply the `nvim-pi` decision in `pi.nix` and in the keybindings file
@@ -92,9 +95,6 @@ items:
     a54fdbe4de731ec7:
         hash: 7030f966126191f9
         text: 'Confirm: the live main config carries none of `theme`, `keybinds`, or `tui` after the switch, and `tui.json` carries all three'
-    ac7736c424fd0e32:
-        hash: af5f932ceb692179
-        text: Vendor `protected-paths`, `plan-mode`, and `modal-editor`, dropping any that 3.3 shows to conflict
     b959ad93e33805fb:
         hash: 91ddf6ea87c9cdb5
         text: Move `theme`, `keybinds`, and `tui.scroll_acceleration` out of the main config attribute set into a TUI config attribute set

@@ -5,14 +5,13 @@
   ...
 }:
 let
-  piExtensionsRev = "2b895e20cd5b65bb02ef58026f3eb981fd7d27ae";
-  piExtensionsSrc = pkgs.fetchFromGitHub {
-    owner = "earendil-works";
-    repo = "pi";
-    rev = piExtensionsRev;
-    sha256 = "0lkxghxxfvrjmbr6b9wgma5ch3zzz9nmhypj0ib7fww0gnvzpl8d";
-  };
-  extensionsDir = "${piExtensionsSrc}/packages/coding-agent/examples/extensions";
+  # Extension TypeScript comes from the installed pi package, which ships its own
+  # `examples/extensions` tree. It used to come from a separately pinned
+  # fetchFromGitHub, and that pin drifted to 0.74.0 while the binary ran 0.82.1:
+  # an extension written against one extension API and loaded by another fails at
+  # load time, not at build time. One source removes that class of defect, and a
+  # version bump now moves the binary and its extensions together.
+  extensionsDir = "${pkgs.pi-coding-agent}/pi/examples/extensions";
 
   # confirm-destructive intentionally not in this list — replaced by
   # @gotgenes/pi-permission-system below (bash-AST-aware gate). The two
@@ -30,7 +29,32 @@ let
     "session-name"
     "status-line"
     "tools"
+
+    # Vim-style modal editing in the prompt, matching claude's editorMode,
+    # goose's EDIT_MODE, and cursor's vimMode. Binds `session_start` only.
+    "modal-editor"
+    # A todo tool plus /todos, the pi counterpart to Claude's TodoWrite. Binds
+    # `session_start` and `session_tree` only.
+    "todo"
   ];
+
+  # Deliberately NOT vendored, both for the same reason `confirm-destructive` is
+  # excluded above: each binds `tool_call`, and so does
+  # @gotgenes/pi-permission-system, which owns tool-call interception here. Two
+  # handlers on that event cannot both gate without conflict.
+  #
+  #   protected-paths  blocks writes to .env, .git/, node_modules/
+  #   plan-mode        read-only exploration with /plan
+  #
+  # Verified against the installed package, not assumed: both call
+  # `pi.on("tool_call", ...)`.
+
+  missingExtensions = lib.filter (n: !builtins.pathExists "${extensionsDir}/${n}.ts") extensions;
+  assertExtensionsExist =
+    if missingExtensions != [ ] then
+      throw "pi.nix: ${lib.concatStringsSep ", " missingExtensions} named in `extensions` but absent from the installed pi package. A version bump may have renamed or removed it."
+    else
+      true;
 
   extensionFiles = lib.listToAttrs (
     map (
@@ -577,6 +601,12 @@ let
     theme = "stylix";
 
     defaultThinkingLevel = "medium";
+
+    # nvim-pi is a --clean nvim wrapper, so Ctrl+G opens instantly instead of
+    # waiting on lazy.nvim. It was built and installed for months while this
+    # setting was undeclared and the keybinding was unbound, which made the
+    # binary unreachable by either route.
+    externalEditor = "${lib.getExe nvimPi}";
     hideThinkingBlock = false;
 
     # Nix owns every harness update in this repository, so the install ping is
@@ -632,7 +662,6 @@ let
   piKeybindings = pkgs.writeText "pi-keybindings.json" (
     builtins.toJSON {
       renameSession = "ctrl+shift+r";
-      externalEditor = null;
     }
   );
 
@@ -681,6 +710,7 @@ in
 
     file =
       (
+        assert assertExtensionsExist;
         assert assertPiBridgeInstalled;
         assert assertPiKeysDisjoint;
         assert assertThemeSelected;
