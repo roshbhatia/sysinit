@@ -1,0 +1,70 @@
+version: 1
+change: agent-session-review-path
+decision: approved
+note: phases 1 and 2 implemented and applied
+change_hash: d6a926b5417574db
+base_commit: a8be3997aa252c602200c0a0c4171b3f6e1f5346
+items:
+    0bd8c92c94aba443:
+        hash: b3a33103634add62
+        text: Add the agent-state check, intersecting state files with the live pane set and skipping the input entirely when that set is unknown
+    2b60b04574ac572d:
+        hash: da6b246a0466599e
+        text: 'Apply: `nh darwin switch`'
+    2eb93689be692837:
+        hash: 84d837b443663de7
+        text: Make the gate permissive when the report cannot run, so a session can never become undeletable
+    8a4c3315df64e5b6:
+        hash: de252e711c7700a8
+        text: Name `--force` in the refusal message itself
+    9e92ebda5649a71e:
+        hash: 71ca7309d97bb854
+        text: Author `config/agent-review.sh` reporting per repository the branch, the uncommitted file count, and the unpushed commit count (follows the state-file read in `config/agent-focus.sh`)
+    009d3074e7fb4615:
+        hash: 0769872d97275e49
+        text: 'Confirm: the owner approves the staged diff before any commit'
+    31e56d731f13b1c1:
+        hash: 00d2b710bfa27807
+        text: 'Verify: `nix flake check` and `nh darwin build` are green; review the diff'
+    38b3589f95d1daf9:
+        hash: a78a6aafc9aa4875
+        text: Add the `preDelete` entry to `seshy/config.yaml` calling the report
+    85eecfad4ec2e7fc:
+        hash: b9610909e3d7a278
+        text: Treat a branch with no upstream as "no upstream", never as zero unpushed commits
+    309e673af643ee99:
+        hash: ead048565bb7266c
+        text: 'Verify: `nix fmt -- --check` is clean and `git diff` is reviewed'
+    357e572fb71942b8:
+        hash: 05e0637f876484a8
+        text: 'Spike result: seshy passes hook environment variables, confirmed by a string scan of the installed binary: `SESHY_EVENT`, `SESHY_SESSION`, `SESHY_SESSION_PATH`, `SESHY_REPOS`, `SESHY_REPO_COUNT`'
+    5078faf98aa3bc6f:
+        hash: c98f541a22d2d436
+        text: 'Confirm: `agent-review` on a real seshy session agrees with `git status` in each repository. No session exists right now, so this needs the owner''s next `sy new`'
+    14948b562788ef91:
+        hash: a5459619025ff509
+        text: Add a `nix flake check` derivation covering the ready, dirty, unpushed, no-upstream, and stale-pane cases against fixture repositories
+    78199c7e5c30b1ff:
+        hash: edfe3957fb993d03
+        text: 'Adversarial review (`adversarial-review` skill): critics attempt to break this phase against its spec scenarios; revise until the loop reaches a terminal state'
+    abf56866ee2e8446:
+        hash: edfe3957fb993d03
+        text: 'Adversarial review (`adversarial-review` skill): critics attempt to break this phase against its spec scenarios; revise until the loop reaches a terminal state'
+    c1ec81bdf8e3b538:
+        hash: 64ee44eca76bb615
+        text: 'Apply: stage the change and propose a commit message per the `writing-commit-message` skill'
+    d9996223e67e2ca2:
+        hash: 09d64c515c48462f
+        text: 'Verify: `nix flake check` and `nh darwin build` are green; the report was exercised against fixture repositories covering clean, dirty, unpushed, no-upstream, bad-path, and all-clean, with the right exit code in every case'
+    ec175a9ee76401db:
+        hash: 86f75b8dc74246f7
+        text: 'Confirm: an unfinished session refuses, `--force` still deletes, and a finished session deletes with no extra prompt'
+    ef1b5f757ad9610d:
+        hash: f499b43944df2b57
+        text: 'Verify: `openspec validate agent-session-review-path` passes and `specutil check` reports no finding'
+    f00f50e82a6a1237:
+        hash: da6b246a0466599e
+        text: 'Apply: `nh darwin switch`'
+    f031d18c8f472677:
+        hash: 70c4e3be475e609b
+        text: Build it through `notify.nix` so it shares the identity resolver, and install it on PATH

@@ -147,6 +147,7 @@ in
     notify.stateScript
     notify.promptScript
     notify.focusScript
+    notify.reviewScript
   ];
 
   programs.mcp = {

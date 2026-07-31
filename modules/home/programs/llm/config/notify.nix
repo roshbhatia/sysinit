@@ -263,6 +263,23 @@ let
     + builtins.readFile ./agent-prompt.sh;
   };
 
+  # Session readiness report (see agent-review.sh). Answers "is this session
+  # finished?" from git state and the per-pane bus, and gates seshy's preDelete
+  # hook. Read-only by contract: it never commits, pushes, or merges.
+  reviewScript = pkgs.writeShellApplication {
+    name = "agent-review";
+    runtimeInputs = [
+      pkgs.git
+      pkgs.jq
+      pkgs.coreutils
+      pkgs.gnugrep
+      pkgs.wezterm
+    ];
+    # Not best-effort like the notifier: this one's exit code is the gate, so it
+    # keeps strict mode and returns a meaningful status.
+    text = builtins.readFile ./agent-review.sh;
+  };
+
   # Notification click handler: raises the wezterm pane the agent runs in. Runs in
   # a bare NotificationCenter env, so wezterm/jq must come from runtimeInputs, not
   # an inherited PATH.
@@ -289,6 +306,7 @@ in
     stateScript
     promptScript
     focusScript
+    reviewScript
     ;
 
   # Absolute paths used inside harness hook commands.
@@ -296,6 +314,7 @@ in
   stateExe = lib.getExe stateScript;
   promptExe = lib.getExe promptScript;
   focusExe = lib.getExe focusScript;
+  reviewExe = lib.getExe reviewScript;
 
   # home.file entries installing every icon (plus the fallback) to the shared
   # location the script reads from. Wired once in default.nix to avoid collisions.

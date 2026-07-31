@@ -1,9 +1,9 @@
 version: 1
 change: close-harness-instruction-gaps
 decision: approved
-note: adversarial review complete; terminal state recorded in tasks.md
+note: in progress
 change_hash: 0d81fb7af106ea63
-base_commit: 09942a5c90d6ca6e96a54aa3413cb3239a05313b
+base_commit: a8be3997aa252c602200c0a0c4171b3f6e1f5346
 items:
     1d0ef0a7f1e2bfad:
         hash: da6b246a0466599e

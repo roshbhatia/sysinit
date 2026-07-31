@@ -184,8 +184,8 @@
 - [x] 5.5 Verify: `nix flake check` green, shellcheck clean on the combined
       script, field split confirmed across four state-file shapes
 - [x] 5.6 Apply: `nh darwin switch`
-- [ ] 5.7 Confirm: a real done toast reads
-      `your move — <repo> · <branch> ✱ — <age>`
+- [ ] 5.7 Confirm: a real done toast names the reason, then the repository
+      and branch with a dirty marker, then the elapsed time
 
 ## 6. Rollout
 

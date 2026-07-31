@@ -12,3 +12,25 @@ hooks:
   postCreate:
     - '[ -d openspec ] || openspec init --tools all'
     - 'command -v specutil >/dev/null 2>&1 && [ -d openspec/changes ] && specutil graph --as mermaid | mermaid-ascii || true'
+
+  # Refuse to delete a session that still holds unfinished work. `agent-review`
+  # reports git state per repo plus any live agent pane, and exits 1 when
+  # something is unfinished. It never writes: what happens to the work is the
+  # owner's call, and `sy delete --force` is the documented escape.
+  #
+  # Exit 2 means the check itself could not run. That is treated as permissive
+  # on purpose: a readiness check that fails must never make a session
+  # undeletable.
+  preDelete:
+    - |
+      if command -v agent-review > /dev/null 2>&1; then
+        agent-review
+        rc=$?
+        if [ "$rc" -eq 1 ]; then
+          echo ""
+          echo "sy: refusing to delete an unfinished session. Use 'sy delete --force' to delete anyway."
+          exit 1
+        fi
+        [ "$rc" -eq 2 ] && echo "sy: readiness check could not run; continuing."
+      fi
+      exit 0

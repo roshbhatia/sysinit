@@ -1,9 +1,9 @@
 version: 1
 change: unify-agent-notification-layer
 decision: approved
-note: phase 5 body enrichment applied
-change_hash: 19c5a7b55524a371
-base_commit: a465b87b71874a641999211ae2c5de116f7e8432
+note: in progress
+change_hash: 57a69a07218a7a2b
+base_commit: a8be3997aa252c602200c0a0c4171b3f6e1f5346
 items:
     00bde2a78e456b8b:
         hash: ff1a6eb6f71b9ea5
@@ -131,9 +131,6 @@ items:
     b0bbada751bcba50:
         hash: da6b246a0466599e
         text: 'Apply: `nh darwin switch`'
-    b06eff8e76af6944:
-        hash: 20499b310e048d92
-        text: 'Confirm: a real done toast reads `your move — <repo> · <branch> ✱ — <age>`'
     bb70b5e1df7c6418:
         hash: 2c49c1448e79cc00
         text: 'Verify: `nix flake check` and `nh darwin build` are green'
@@ -158,6 +155,9 @@ items:
     e1a1863d4b9cc38d:
         hash: 6b71f93b55d2dd9d
         text: 'Extend `notify-defect-regressions` with three assertions: the agent-deck toast stays off, the bridge forwards into `agent-notify`, and the bridge skips hook-bridged panes. All three negative-tested'
+    e8a88fb5ceced81f:
+        hash: 2a9ef2b0c3b8ed6b
+        text: 'Confirm: a real done toast names the reason, then the repository and branch with a dirty marker, then the elapsed time'
     e35bbbd1bf388919:
         hash: ec1460e5ec5c3c9b
         text: 'Confirm both bridges swallow every error and never fail a turn: `opencode models` exits 0 with the plugin loaded; pi exits 0 in 6.4s with extensions on versus 1.7s with `--no-extensions`, so the bridge adds load time but does not hold the process open. Every spawn is detached, unref''d, and wrapped, so a missing binary degrades to no notification'
