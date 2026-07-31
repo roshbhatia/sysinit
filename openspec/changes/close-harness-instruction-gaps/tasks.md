@@ -1,27 +1,27 @@
 ## 1. Coverage declaration
 
 - **SHAPE** graph
-- [ ] 1.1 Verify: the owner confirms the corrected section list and 45-line cap
+- [x] 1.1 Verify: the owner confirms the corrected section list and 45-line cap
       in the `agent-context-files` delta match the renderer at
       `lib/instructions.nix:96-140`
-- [ ] 1.2 Add a `harnessCoverage` attribute set to `lib/instructions.nix`
+- [x] 1.2 Add a `harnessCoverage` attribute set to `lib/instructions.nix`
       mapping each configured harness to a context path or an exemption reason
       `deps: none`
-- [ ] 1.3 Declare the seven already-covered harnesses with their current paths
+- [x] 1.3 Declare the seven already-covered harnesses with their current paths
       `deps: 1.2`
 - [ ] 1.4 Declare cursor, goose, copilot, and pi as known-missing with the
       reason `deps: 1.2`
-- [ ] 1.5 Add a build-time `throw` comparing the coverage set against the
+- [x] 1.5 Add a build-time `throw` comparing the coverage set against the
       harness config imports in `default.nix` (follows the `validateMdc`
       assertion at `config/cursor.nix:43`, consumed at `config/cursor.nix:58`)
       `deps: 1.3,1.4`
 - [ ] 1.6 Adversarial review (`adversarial-review` skill): critics attempt to
       break this phase against its spec scenarios; revise until no surviving
       objection or K=4 rounds
-- [ ] 1.7 Verify: `nix flake check` and `nh darwin build` are green; removing a
+- [x] 1.7 Verify: `nix flake check` and `nh darwin build` are green; removing a
       harness from the set fails the build with that harness named
-- [ ] 1.8 Apply: `nh darwin switch`
-- [ ] 1.9 Confirm: no rendered dotfile changed in this phase
+- [x] 1.8 Apply: `nh darwin switch`
+- [x] 1.9 Confirm: no rendered dotfile changed in this phase
 
 ## 2. Pi and goose context, and pi skills
 
@@ -30,25 +30,25 @@
   and a live goose session loads the hints
 - **MAX-ITERS** 4
 
-- [ ] 2.1 Write `~/.pi/agent/AGENTS.md` from `kit.mkInstructionsWithStyle`
+- [x] 2.1 Write `~/.pi/agent/AGENTS.md` from `kit.mkInstructionsWithStyle`
       in `config/pi.nix` (follows `config/devin.nix:89`)
-- [ ] 2.2 Add `skills = [ "~/.claude/skills" ]` to `piManagedSettings`. Do NOT
+- [x] 2.2 Add `skills = [ "~/.claude/skills" ]` to `piManagedSettings`. Do NOT
       also add it to the retired-key list; a key in both sets is deleted and
       re-merged on every activation. The rollback step that retires it is
       recorded in the design kill switch and applied only when rolling back
-- [ ] 2.3 Scope the advertised-root assertion to the coverage set so it does
+- [x] 2.3 Scope the advertised-root assertion to the coverage set so it does
       not fire on gemini or codex, which this change does not touch
-- [ ] 2.4 Write the goose global hints file from `kit.mkInstructionsWithStyle`
+- [x] 2.4 Write the goose global hints file from `kit.mkInstructionsWithStyle`
       in `config/goose.nix`
-- [ ] 2.5 Move cursor, goose, and pi from known-missing to covered in the
+- [x] 2.5 Move cursor, goose, and pi from known-missing to covered in the
       coverage set
 - [ ] 2.6 Adversarial review (`adversarial-review` skill): critics attempt to
       break this phase against its spec scenarios; revise until no surviving
       objection or K=4 rounds
-- [ ] 2.7 Verify: `nix flake check` and `nh darwin build` are green; review
+- [x] 2.7 Verify: `nix flake check` and `nh darwin build` are green; review
       `git diff`
-- [ ] 2.8 Apply: `nh darwin switch`
-- [ ] 2.9 Confirm: a pi session shows the conventions in context and lists
+- [x] 2.8 Apply: `nh darwin switch`
+- [x] 2.9 Confirm: a pi session shows the conventions in context and lists
       registry skills as `/skill:<name>`; a goose session loads the hints; roll
       back the goose entry and mark goose exempt if it does not
 
@@ -59,18 +59,18 @@
   either covered or exempt with a reason
 - **MAX-ITERS** 4
 
-- [ ] 3.1 Capture the current hand-written body of
+- [x] 3.1 Capture the current hand-written body of
       `config/cursor-rules/always.mdc` into the change directory before editing
 - [ ] 3.2 Verify: the owner reviews the captured text and names which facts move
       to the repository `AGENTS.md` and which are deleted
-- [ ] 3.3 Generate the `always.mdc` body from `instructions.nix`, keeping the
+- [x] 3.3 Generate the `always.mdc` body from `instructions.nix`, keeping the
       authored frontmatter and leaving `nix.mdc` and `markdown.mdc` unchanged
-- [ ] 3.4 Strip the restated facts from `markdown.mdc` and `nix.mdc` before
+- [x] 3.4 Strip the restated facts from `markdown.mdc` and `nix.mdc` before
       adding the assertion. `markdown.mdc:12` restates the 200-line cap and the
       six-section order, `markdown.mdc:16` names `openspec 1.3.0`,
       `markdown.mdc:20` restates the prohibitions, and `nix.mdc:26` carries its
       own Prohibitions section. The assertion fails the build on all four
-- [ ] 3.5 Add the duplicate-fact assertion that fails when an authored rule file
+- [x] 3.5 Add the duplicate-fact assertion that fails when an authored rule file
       restates a generated prohibition or a pinned version
 - [ ] 3.6 Spike: determine whether the installed copilot build reads a global
       instruction file; record the answer in `design.md` Open Questions
@@ -78,10 +78,10 @@
 - [ ] 3.8 Adversarial review (`adversarial-review` skill): critics attempt to
       break this phase against its spec scenarios; revise until no surviving
       objection or K=4 rounds
-- [ ] 3.9 Verify: `nix flake check` and `nh darwin build` are green; the owner
+- [x] 3.9 Verify: `nix flake check` and `nh darwin build` are green; the owner
       reads the rendered `always.mdc`
-- [ ] 3.10 Apply: `nh darwin switch`
-- [ ] 3.11 Confirm: `always.mdc` states no fact that `instructions.nix` already
+- [x] 3.10 Apply: `nh darwin switch`
+- [x] 3.11 Confirm: `always.mdc` states no fact that `instructions.nix` already
       states, and carries no pinned version at all; the generator renders none,
       and a pinned version is a repository fact that belongs in the
       repository's own `AGENTS.md`

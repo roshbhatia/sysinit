@@ -63,6 +63,30 @@ let
     else
       "Available: " + builtins.concatStringsSep ", " (map (n: "`${n}`") names);
 
+  # Where each configured harness reads its global context, or why it does not
+  # get one. Every harness config imported by `default.nix` must appear here, so
+  # adding a harness without deciding this fails the build rather than shipping
+  # an agent that never sees the conventions or the prohibitions.
+  #
+  # A path is only declared once it has been confirmed against the installed
+  # build. A guessed path produces a file nothing reads, which looks like
+  # coverage and is not.
+  harnessCoverage = {
+    claude = "~/.claude/CLAUDE.md";
+    codex = "codex `context`";
+    gemini = "~/.agents/AGENTS.md";
+    opencode = "~/.config/opencode/AGENTS.md";
+    amp = "~/.config/amp/AGENTS.md";
+    crush = "~/.config/crush/AGENTS.md";
+    devin = "~/.config/devin/AGENTS.md";
+    pi = "~/.pi/agent/AGENTS.md";
+    goose = "~/.config/goose/.goosehints";
+    cursor = "~/.cursor/rules/always.mdc";
+    copilot = "~/.copilot/copilot-instructions.md";
+  };
+
+  coveredHarnesses = builtins.attrNames harnessCoverage;
+
   harnessesWithoutSkillLoader = [
     "codex"
     "copilot"
@@ -139,7 +163,9 @@ let
       # the cap.
       maxLines = 45;
     in
-    if lineCount > maxLines then
+    if !(harnessCoverage ? ${harness}) then
+      throw "instructions.nix: harness '${harness}' renders context but is not declared in harnessCoverage. Add its confirmed global path, or null with the reason it is exempt."
+    else if lineCount > maxLines then
       throw "instructions.nix: rendered context exceeds ${toString maxLines} lines (got ${toString lineCount}). Move repo-specific facts to that repo's AGENTS.md and domain rules to the owning skill."
     else
       rendered;
@@ -203,6 +229,7 @@ let
 in
 {
   inherit makeInstructions makeInstructionsWithStyle outputStyleRules;
+  inherit harnessCoverage coveredHarnesses;
   inherit subagents;
   inherit (subagents) formatSubagentAsMarkdown;
   # subagentDefs: the subagent attrset without the formatter, so callers can

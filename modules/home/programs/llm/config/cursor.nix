@@ -30,11 +30,30 @@ let
     mcpServers = llmLib.mcp.formatForCursor kit.mcpServers.servers;
   };
 
+  # The always-applied rule is GENERATED. Its body was authored prose that
+  # summarized the shared context and then drifted from it: it stated
+  # `openspec 1.3.0` against a 1.6.0 overlay, and carried "never push to main",
+  # which this repository does not hold. Only the frontmatter stays authored,
+  # because that is a Cursor loader concern and not a rule.
+  alwaysMdc = pkgs.writeText "cursor-always.mdc" ''
+    ---
+    description: Repo-wide conventions and prohibitions, generated from instructions.nix.
+    alwaysApply: true
+    ---
+
+    ${kit.mkInstructionsWithStyle {
+      harness = "cursor";
+      skillsRoot = "~/.claude/skills";
+    }}
+  '';
+
   # Cursor MDC rule files installed at ~/.cursor/rules/<name>.mdc.
   # Each MDC has frontmatter declaring either `alwaysApply: true` OR `globs:`,
   # never both. Assertion below enforces this.
+  #
+  # nix.mdc and markdown.mdc stay authored: they carry glob-scoped domain rules
+  # that the cross-repository context deliberately excludes.
   cursorRules = {
-    always = ./cursor-rules/always.mdc;
     nix = ./cursor-rules/nix.mdc;
     markdown = ./cursor-rules/markdown.mdc;
   };
@@ -59,9 +78,35 @@ let
       force = true;
     }
   ) cursorRules;
+  # No authored rule file may restate a fact the generator already renders.
+  # Restating one creates a second place to drift, which is exactly how
+  # always.mdc came to claim openspec 1.3.0 and a prohibition this repository
+  # does not hold.
+  generatedFacts = [
+    "never push"
+    "openspec 1."
+  ];
+
+  authoredBodies = lib.concatStringsSep "\n" (
+    lib.mapAttrsToList (_: path: builtins.readFile path) cursorRules
+  );
+
+  duplicatedFacts = lib.filter (
+    f: lib.hasInfix (lib.toLower f) (lib.toLower authoredBodies)
+  ) generatedFacts;
+
+  assertNoDuplicatedFacts =
+    if duplicatedFacts != [ ] then
+      throw "cursor.nix: an authored rule file restates ${lib.concatStringsSep ", " duplicatedFacts}, which instructions.nix already renders. Remove it from the rule file."
+    else
+      true;
 in
 {
   home.file = {
+    ".cursor/rules/always.mdc" = {
+      source = alwaysMdc;
+      force = true;
+    };
     ".cursor/cli-config.json" = {
       text = cursorConfig;
       force = true;
@@ -71,5 +116,8 @@ in
       force = true;
     };
   }
-  // ruleFiles;
+  // (
+    assert assertNoDuplicatedFacts;
+    ruleFiles
+  );
 }

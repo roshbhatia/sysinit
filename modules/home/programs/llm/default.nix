@@ -85,6 +85,27 @@ let
     name: path: lib.nameValuePair ".config/devin/skills/${name}/SKILL.md" { source = path; }
   ) inputs.specutil.lib.skills;
 
+  # copilot reads personal skills from ~/.copilot/skills/ (its app bundle names
+  # that path, and ~/.agents/skills/, as the personal roots). It gets the Amp
+  # render for the same reason devin does: that render carries only frontmatter
+  # keys in the common subset, which is the safe choice for a loader whose
+  # validation strictness is not documented.
+  copilotSkillFiles = lib.mapAttrs' (
+    name: path: lib.nameValuePair ".copilot/skills/${name}/SKILL.md" { source = path; }
+  ) skills.ampSkills;
+
+  copilotSkillScriptFiles = lib.mapAttrs' (
+    relPath: src:
+    lib.nameValuePair ".copilot/skills/${relPath}" {
+      source = src;
+      executable = true;
+    }
+  ) skills.skillExtraFiles;
+
+  copilotSpecutilSkillFiles = lib.mapAttrs' (
+    name: path: lib.nameValuePair ".copilot/skills/${name}/SKILL.md" { source = path; }
+  ) inputs.specutil.lib.skills;
+
   # programs.mcp serializes `servers` straight to JSON, so strip option
   # defaults that don't belong on the wire (null command for http servers,
   # null url for stdio servers, the synthetic `type = "local"`, empty
@@ -140,6 +161,10 @@ in
     // devinSkillScriptFiles
     // devinSpecutilSkillFiles
     // (vendoredSkillFilesFor ".config/devin/skills")
+    // copilotSkillFiles
+    // copilotSkillScriptFiles
+    // copilotSpecutilSkillFiles
+    // (vendoredSkillFilesFor ".copilot/skills")
     // notify.iconFiles;
 
   home.packages = [

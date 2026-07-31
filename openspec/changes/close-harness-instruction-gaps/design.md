@@ -65,8 +65,15 @@ so the set is compared against that import list and a mismatch throws.
 Pi's path is confirmed: its bundled `docs/usage.md` names
 `~/.pi/agent/AGENTS.md`. Goose's filename is confirmed: `.goosehints` appears
 in the installed `goose-cli` binary and `CONTEXT_FILE_NAMES` is already set.
-Copilot's path is not confirmed: neither `copilot --help` nor a string scan of
-the installed binary names a global instruction file.
+Copilot's path IS confirmed, contrary to an earlier draft of this design. The
+first scan read the wrapper binary at `bin/copilot`; the strings live in the JS
+bundle under `lib/github-copilot-cli/`. That bundle names
+`$HOME/.copilot/copilot-instructions.md` and
+`$HOME/.copilot/instructions/**/*.instructions.md` as user-level instruction
+sources, and `~/.copilot/skills/` as a personal skills root.
+
+The lesson generalises: scan the artifact that holds the logic, not the wrapper
+that launches it.
 
 An unconfirmed harness is declared exempt with the reason, not pointed at a
 guessed path. A guessed path produces a file nothing reads, which looks like

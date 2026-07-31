@@ -122,6 +122,17 @@ let
 
 in
 {
+  # Goose reads `.goosehints` (the name is in the installed binary and is
+  # already in CONTEXT_FILE_NAMES below). Nothing wrote a global one, so goose
+  # ran without the shared conventions or the prohibitions.
+  xdg.configFile."goose/.goosehints" = {
+    text = kit.mkInstructionsWithStyle {
+      harness = "goose";
+      skillsRoot = "~/.claude/skills";
+    };
+    force = true;
+  };
+
   home.sessionVariables = {
     CONTEXT_FILE_NAMES = builtins.toJSON [
       "AGENTS.md"

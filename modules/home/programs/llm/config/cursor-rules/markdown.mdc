@@ -13,11 +13,11 @@ These files are loaded by AI coding agents at session start. The May 2026 best p
 
 ## What to include
 
-- **Stack**: pinned versions of the toolchain (e.g., `openspec 1.3.0`, `nixfmt-rfc-style`, `nodejs <version>`).
+- **Stack**: pinned versions of the toolchain, read from the flake rather than restated here.
 - **Commands**: fenced bash blocks with exact flags. Commands without flags get a one-line note.
 - **Conventions**: positive guidance (small commits, conventional titles, single-concern).
 - **Skills**: auto-generated from the skill registry; do not hand-maintain.
-- **Prohibitions**: explicit bullets — never push to main, never use `--no-verify`, etc.
+- **Prohibitions**: explicit bullets, one per line. The cross-repository set is generated into `always.mdc`; do not restate it here.
 - **Context**: pointers to scratch space (`.sysinit/`), openspec state, global gitignore.
 
 ## What to exclude

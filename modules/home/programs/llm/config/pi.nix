@@ -5,6 +5,9 @@
   ...
 }:
 let
+  llmLib = import ../lib { inherit lib; };
+  kit = llmLib.harnessKit.mkKit { inherit lib pkgs config; };
+
   # Extension TypeScript comes from the installed pi package, which ships its own
   # `examples/extensions` tree. It used to come from a separately pinned
   # fetchFromGitHub, and that pin drifted to 0.74.0 while the binary ran 0.82.1:
@@ -600,6 +603,11 @@ let
     # below. Generating a theme and never selecting it left pi on "dark".
     theme = "stylix";
 
+    # Pi implements the Agent Skills standard and its own docs/skills.md gives
+    # this exact array as the way to reuse another harness's tree. Without it,
+    # pi advertised a skills root in its context that it could not load from.
+    skills = [ "~/.claude/skills" ];
+
     defaultThinkingLevel = "medium";
 
     # nvim-pi is a --clean nvim wrapper, so Ctrl+G opens instantly instead of
@@ -726,6 +734,16 @@ in
         ".pi/agent/pi-vcc-config.json" = {
           text = builtins.toJSON {
             overrideDefaultCompaction = true;
+          };
+          force = true;
+        };
+        # Pi reads a global context file here, per its bundled docs/usage.md.
+        # Nothing wrote it, so pi ran without the shared conventions, the
+        # prohibitions, or the output style that every other harness gets.
+        ".pi/agent/AGENTS.md" = {
+          text = kit.mkInstructionsWithStyle {
+            harness = "pi";
+            skillsRoot = "~/.claude/skills";
           };
           force = true;
         };
