@@ -1,33 +1,8 @@
 /**
- * sysinit-notify: bridge OpenCode's event bus onto the shared agent notifier.
+ * Bridges OpenCode's event bus onto the shared agent notifier.
  *
- * OpenCode 1.18 carries its own `attention` block in `tui.json` that can raise a
- * toast and play a sound. That was one of four independent notification
- * producers in this configuration, and it cannot name the seshy session or the
- * repository. This replaces it by calling the same `agent-state` and
- * `agent-notify` executables every other harness uses.
- *
- * OpenCode 1.18 removed `experimental.hook`, so a shell hook is not available
- * and a plugin is the only surface. A probe plugin confirmed the load path:
- * OpenCode loads `.ts` files from BOTH `~/.config/opencode/plugin/` and
- * `~/.config/opencode/plugins/`, and its own onboarding text names
- * `.opencode/plugins/` for event hooks with OS notifications as the use case.
- *
- * The turn-end signal is `session.status` carrying `status.type === "idle"`,
- * NOT a `session.idle` event. An earlier version of this bridge bound
- * `session.idle` and `session.error` and was therefore dead: a probe capturing
- * every event across four runs and 59 events saw neither type. The vocabulary a
- * plugin actually receives is `session.created`, `session.updated`,
- * `session.status`, `session.diff`, `message.updated`, `message.part.updated`,
- * and a few registry events. OpenCode's own code waits on
- * `session.status` with `status.type === "idle"`; the status union is
- * busy, idle, retry, error, and waiting.
- *
- * The bridge only spawns. Classification, suppression, identity, icons, and
- * sounds stay in the shell scripts, so there is one copy of that logic.
- *
- * Best-effort by contract: every spawn is wrapped and every failure swallowed.
- * A notifier problem must never fail an OpenCode session.
+ * Only spawns; classification, suppression, identity, icons, and sounds live in
+ * the shell scripts so there is one copy of that logic.
  */
 
 const HOME = process.env.HOME ?? "";
@@ -43,6 +18,8 @@ function spawnQuiet(exe: string, args: string[], input?: string): void {
 		// user-var is present, so a detached spawn would make every bridged
 		// harness announce twice. `unref()` alone already releases the parent
 		// event loop, which is all this needs.
+		// no `detached`: setsid() severs the controlling terminal, so
+		// agent-state's `> /dev/tty` OSC never lands and the pane looks hookless
 		const child = spawn(`${BIN}/${exe}`, args, {
 			stdio: input === undefined ? "ignore" : ["pipe", "ignore", "ignore"],
 		});
@@ -53,13 +30,12 @@ function spawnQuiet(exe: string, args: string[], input?: string): void {
 		}
 		child.unref();
 	} catch {
-		// Degrade to no notification, never to a failed session.
+		// degrade to no notification, never to a failed session
 	}
 }
 
-// The root session is the first one created. A subagent runs in its own child
-// session that publishes on the same bus, so announcing every idle would pull
-// the human to a pane that is still working, once per subagent.
+// a subagent runs in its own child session on the same bus, so only the root's
+// transitions are the human's turn
 let rootSession: string | undefined;
 
 export const SysinitNotify = async () => ({
@@ -79,29 +55,28 @@ export const SysinitNotify = async () => ({
 				return;
 			}
 
+			// turn end is `session.status` with type "idle"; there is no
+			// `session.idle` event delivered to plugins
 			if (event?.type !== "session.status") return;
-			// Only the root session's transitions are the human's turn.
 			if (!sid || sid !== rootSession) return;
 
 			switch (event?.properties?.status?.type) {
-				// The run finished and OpenCode is waiting on the human.
 				case "idle":
 					spawnQuiet("agent-state", ["opencode", "done", "your move"]);
 					spawnQuiet("agent-notify", ["opencode", "done", `${BIN}/agent-focus`], "{}");
 					break;
 
-				// The run stopped on an error, which also needs the human.
 				case "error":
 					spawnQuiet("agent-state", ["opencode", "waiting", "session error"]);
 					spawnQuiet("agent-notify", ["opencode", "approval", `${BIN}/agent-focus`], "{}");
 					break;
 
-				// busy, retry, and waiting are mid-run; the statusline covers them.
+				// busy, retry, waiting are mid-run
 				default:
 					break;
 			}
 		} catch {
-			// An unexpected event shape must not propagate into OpenCode.
+			// an unexpected event shape must not propagate into OpenCode
 		}
 	},
 });

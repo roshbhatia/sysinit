@@ -2,15 +2,6 @@
 #
 # Invoked by agent-notify's detached waiter when the human clicks an agent-notify
 # notification (see agent-notify.sh). Runs in a bare NotificationCenter context
-# (no shell rc, minimal env), so it depends only on its own runtimeInputs.
-#
-# Usage: agent-focus <pane-id> [session]
-#   <pane-id>  the WEZTERM_PANE the agent had when it notified (may be empty/stale)
-#   [session]  the seshy session / wezterm workspace name — fallback when the pane
-#              id no longer resolves (pane closed, agent moved)
-#
-# Best-effort: try the exact pane, then any pane in the session, then just bring
-# wezterm to the front. Always exits 0 — a click should never surface an error.
 
 pane=${1:-}
 session=${2:-}
@@ -22,7 +13,6 @@ notifier=$(command -v alerter 2> /dev/null || true)
 # The group is `agent:<pane-id>`, which both producers write, so it rebuilds from
 # the pane id alone. The previous version read the pane's state file to rebuild an
 # agent+context name, which could not match the prefix agent-prompt wrote, so an
-# approval toast was never dismissed. Best-effort — silent on any failure.
 if [ -n "$notifier" ] && [ -n "$pane" ]; then
   "$notifier" --remove "$(agent_group "" "" "$pane")" > /dev/null 2>&1 || true
 fi

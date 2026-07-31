@@ -1,25 +1,8 @@
 /**
- * sysinit-notify: bridge pi's lifecycle onto the shared agent notifier.
+ * Bridges pi's lifecycle onto the shared agent notifier.
  *
- * Pi shipped its own `notify` extension, which wrote an OSC 777 sequence. That
- * was one of four independent notification producers in this configuration, and
- * it carried no session, no repository, and no icon. This replaces it by calling
- * the same `agent-state` and `agent-notify` executables every hooked harness
- * uses, so one producer announces every agent.
- *
- * The bridge deliberately does nothing but spawn. Classification, suppression,
- * identity resolution, icons, and sounds all live in the shell scripts. A second
- * copy of that logic here is the exact drift this consolidation removes.
- *
- * Event choice matters. `agent_settled`, not `agent_end`, marks the done
- * transition: pi's own docs state that `agent_end` fires while pi may still
- * auto-retry, auto-compact, or run a queued follow-up, and direct a status
- * integration to `agent_settled`. Wiring `agent_end` would raise a premature
- * done toast, which is the defect this work exists to remove.
- *
- * Best-effort by contract, matching the shell scripts: every spawn is wrapped,
- * every failure is swallowed, and no handler ever rejects. A notifier problem
- * must never fail a pi turn.
+ * Only spawns; classification, suppression, identity, icons, and sounds live in
+ * the shell scripts so there is one copy of that logic.
  */
 
 import type { ExtensionAPI } from "@earendil-works/pi-coding-agent";
@@ -27,10 +10,7 @@ import type { ExtensionAPI } from "@earendil-works/pi-coding-agent";
 const HOME = process.env.HOME ?? "";
 const BIN = `${HOME}/.nix-profile/bin`;
 
-/**
- * Spawn a helper and forget it. stdio is ignored and the child is unref'd, so a
- * slow notifier cannot hold pi's event loop, and every throw is swallowed.
- */
+// Best-effort: a notifier failure must never fail a pi turn.
 function spawnQuiet(exe: string, args: string[], input?: string): void {
 	try {
 		const { spawn } = require("node:child_process");
@@ -51,8 +31,7 @@ function spawnQuiet(exe: string, args: string[], input?: string): void {
 		}
 		child.unref();
 	} catch {
-		// A missing binary, a spawn failure, or a runtime without child_process
-		// all degrade to no notification. Never to a failed turn.
+		// degrade to no notification, never to a failed turn
 	}
 }
 
@@ -65,13 +44,9 @@ export default function (pi: ExtensionAPI) {
 		state("working", "session start");
 	});
 
-	// The tool name and its most telling input become the reason string the
-	// statusline shows, matching what Claude's PreToolUse hook emits.
 	pi.on("tool_call", async (event: any) => {
 		const name = event?.toolName ?? "";
-		// `event.input` is the tool_call payload. `event.args` belongs to
-		// tool_execution_start/update, and `event.arguments` does not exist;
-		// reading either leaves the reason string empty and the toast generic.
+		// `event.input`, not `event.args`: the latter belongs to tool_execution_*
 		const args = event?.input ?? {};
 		const detail =
 			args.command ?? args.file_path ?? args.path ?? args.description ?? args.pattern ?? "";
@@ -79,13 +54,12 @@ export default function (pi: ExtensionAPI) {
 		state("working", reason);
 	});
 
-	// Settled, not ended: pi will not continue on its own from here.
+	// `agent_settled`, not `agent_end`: pi may still auto-retry or compact
 	pi.on("agent_settled", async () => {
 		state("done", "your move");
 		spawnQuiet("agent-notify", ["pi", "done", `${BIN}/agent-focus`], "{}");
 	});
 
-	// Terminal transition: drop this pane's entry from the cross-surface bus.
 	pi.on("session_shutdown", async () => {
 		state("exit");
 	});

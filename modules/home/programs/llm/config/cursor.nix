@@ -34,7 +34,6 @@ let
   # summarized the shared context and then drifted from it: it stated
   # `openspec 1.3.0` against a 1.6.0 overlay, and carried "never push to main",
   # which this repository does not hold. Only the frontmatter stays authored,
-  # because that is a Cursor loader concern and not a rule.
   alwaysMdc = pkgs.writeText "cursor-always.mdc" ''
     ---
     description: Repo-wide conventions and prohibitions, generated from instructions.nix.
@@ -51,8 +50,6 @@ let
   # Each MDC has frontmatter declaring either `alwaysApply: true` OR `globs:`,
   # never both. Assertion below enforces this.
   #
-  # nix.mdc and markdown.mdc stay authored: they carry glob-scoped domain rules
-  # that the cross-repository context deliberately excludes.
   cursorRules = {
     nix = ./cursor-rules/nix.mdc;
     markdown = ./cursor-rules/markdown.mdc;
@@ -82,10 +79,6 @@ let
   # Restating one creates a second place to drift, which is exactly how
   # always.mdc came to claim openspec 1.3.0 and a prohibition this repository
   # does not hold.
-  # Each entry is a fact the generator renders or a structure it defines. An
-  # authored rule restating one creates a second place to drift, which is how
-  # always.mdc came to claim openspec 1.3.0, and how markdown.mdc came to
-  # instruct the model to add back sections the renderer does not produce.
   generatedFacts = [
     "never push"
     "openspec 1."

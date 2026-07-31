@@ -2,47 +2,6 @@
 # harness's global context file (~/.claude/CLAUDE.md, ~/.config/*/AGENTS.md), so
 # its shape changes model behavior, not only its content. Keep new sections
 # consistent with these principles.
-#
-# 1. Short, and ordered by stakes. Models attend most to the start and end of a
-#    context and lose information held in the middle. So the maxLines cap is
-#    deliberate, and the highest-stakes section (Prohibitions) renders last to
-#    take the recency position.
-#    Liu et al., "Lost in the Middle: How Language Models Use Long Contexts,"
-#    TACL 2024 (arXiv:2307.03172).
-#
-# 2. Checkable, not vague. Instruction-following is measured on verifiable
-#    instructions with exact counts and exact tokens. So rules state numbers
-#    and named conditions, not "prefer" or "as needed."
-#    Zhou et al., "Instruction-Following Evaluation for Large Language Models,"
-#    2023 (arXiv:2311.07911).
-#
-# 3. State the positive action. Models reason poorly under negation, so each
-#    "Never X" prohibition also names the action to take instead when one
-#    exists, and Conventions use positive imperatives.
-#    Truong et al., "Language Models Are Not Naysayers: An Analysis of Language
-#    Models on Negation Benchmarks," *SEM 2023 (arXiv:2306.08189).
-#
-# 4. One term per concept; no conflicting rules. Fragmented or ambiguous
-#    wording lowers instruction-following, so this file reuses one name per
-#    concept (see vocab.nix for the per-harness names) and removes duplicate
-#    rules.
-#    Schulhoff et al., "The Prompt Report: A Systematic Survey of Prompting
-#    Techniques," 2024 (arXiv:2406.06608).
-#
-# 5. Global means cross-repo. This file is loaded in every repository, so it
-#    carries only rules that hold everywhere. Facts about one repository belong
-#    in that repository's AGENTS.md, and a domain's rules belong in that
-#    domain's skill. Loading either one globally spends context in every
-#    session that does not need it.
-#    Anthropic, "The New Rules of Context Engineering for Claude 5-Generation
-#    Models," 2026 (progressive disclosure; single source).
-#
-# 6. State a fact once, in the layer that owns it. A rule repeated across the
-#    context file, a skill, and a tool description does not reinforce itself; it
-#    creates three places to drift. Writing rules live in the output style, tool
-#    routing lives in the tool's skill, and {{agent}} selection lives in the
-#    {{agent}} definition.
-#    Same source as principle 5 (repetition -> single source).
 { lib }:
 let
   subagents = import ../subagents { inherit lib; };
@@ -52,7 +11,6 @@ let
   # with a skill loader already surfaces each skill's own description from its
   # skills tree, so listing them here says the same thing twice. Codex and
   # copilot have no loader, but their Read tool still reaches the tree, so they
-  # get the names as a pointer.
   formatSkillsBlock =
     skills:
     let
@@ -67,10 +25,6 @@ let
   # get one. Every harness config imported by `default.nix` must appear here, so
   # adding a harness without deciding this fails the build rather than shipping
   # an agent that never sees the conventions or the prohibitions.
-  #
-  # A path is only declared once it has been confirmed against the installed
-  # build. A guessed path produces a file nothing reads, which looks like
-  # coverage and is not.
   harnessCoverage = {
     claude = "~/.claude/CLAUDE.md";
     codex = "codex `context`";
@@ -177,11 +131,6 @@ let
   # writes: no context section restates them. No frontmatter — that is added by
   # the consumer (claude.nix wraps these in the output-style file header;
   # makeInstructionsWithStyle appends them as a plain section).
-  #
-  # These caps are accessibility requirements (ISO 24495-1:2023, W3C Cognitive
-  # Accessibility Guidance, US Plain Writing Act, JAN ADHD guidance), not
-  # guardrails against model error, so they stay stated as exact numbers rather
-  # than as judgment calls.
   outputStyleRules = ''
     Write all output in Simplified Technical English (ASD-STE100).
 

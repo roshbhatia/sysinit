@@ -2,17 +2,6 @@
 # Detect drift between the forked rosh-spec-driven OpenSpec schema and the
 # upstream spec-driven schema shipped with the installed openspec CLI.
 #
-# Reports per-file diffs and exits non-zero when drift is detected. Does NOT
-# auto-merge. Reconcile divergences manually and record them in
-# openspec/schemas/rosh-spec-driven/CHANGES.md.
-#
-# Scope: this script compares only the schema TEMPLATE files. It does not and
-# cannot see the package-level default-schema patch in overlays/openspec.nix
-# (that patch lives in the built dist/, not in the schema dir). The patched
-# default is guarded separately by the hermetic flake check
-# checks.<system>.openspec-default-schema. See CHANGES.md.
-#
-# Usage: ./hack/sync-openspec-schema.sh
 
 set -euo pipefail
 

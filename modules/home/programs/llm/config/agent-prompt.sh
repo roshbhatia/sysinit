@@ -2,24 +2,6 @@
 #
 # The escalation of agent-notify for permission/approval events: instead of a
 # fire-and-forget toast, it shows an `alerter` notification carrying Accept/Deny
-# buttons, then a detached waiter relays the human's choice back into the exact
-# wezterm pane the agent runs in (Accept -> approve keystroke, Deny -> reject).
-# The hook returns immediately; the waiter lives on in the background until the
-# human acts or the notification times out.
-#
-# Usage: agent-prompt <agent> <reason> [focus-exe]
-#   <agent>      claude | codex | …   (selects icon/label AND the relay keymap)
-#   <reason>     approval | attention | …  (only genuine approvals go actionable)
-#   [focus-exe]  agent-focus path, forwarded to the plain-notifier fallback so
-#                click-to-focus is preserved when the actionable path is skipped.
-#
-# Baked in by notify.nix at build time (see the preamble prepended there):
-#   NOTIFY_EXE      absolute path to agent-notify (the fallback path)
-#
-# Best-effort by contract: never blocks or fails the agent. No strict mode,
-# every external call guarded, always exits 0. When the actionable path does not
-# apply — no alerter, non-approval event, or an agent with no keymap — it
-# degrades to the exact plain-notifier behavior it replaced.
 
 agent=${1:-agent}
 reason=${2:-attention}
@@ -78,7 +60,6 @@ fi
 # assume each harness's default permission prompt (Claude highlights "Yes", so
 # Enter approves and Esc cancels; Codex takes y/n shortcuts). An agent absent
 # from this map has no relay and is routed to the plain notifier instead — the
-# relay never guesses keys it does not know.
 approve_keys=""
 reject_keys=""
 case "$agent" in
@@ -99,7 +80,6 @@ alerter=$(command -v alerter 2> /dev/null || true)
 #   - alerter present (macOS-only, optional)
 #   - a real approval event (never nag Accept/Deny for idle/done)
 #   - a known relay keymap for this agent
-#   - a pane to relay into
 if [ -z "$alerter" ] ||
   [ "$eff_reason" != "approval" ] ||
   [ -z "$approve_keys" ] ||

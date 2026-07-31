@@ -7,11 +7,6 @@
   # capture on arrakis. CAP_SYS_ADMIN triggers AT_SECURE which blocks
   # LD_LIBRARY_PATH, so /run/opengl-driver/lib must be in the RUNPATH for
   # libnvidia-encode and libcuda to resolve at runtime. sunshine uses
-  # autoPatchelfHook, whose post-fixup pass rewrites the RUNPATH after
-  # postFixup runs — appendRunpaths is its knob for extra entries; a plain
-  # patchelf --add-rpath in postFixup gets silently clobbered.
-  # cudaSupport enables the zero-copy pipeline: KMS capture -> CUDA import ->
-  # NVENC, no GPU->RAM->GPU round-trip per frame.
   (_final: prev: {
     sunshine =
       if prev.stdenv.hostPlatform.isLinux then
@@ -56,7 +51,6 @@
   # via sdl2-compat); the rwlock test is a scheduler-sensitivity flake, not a
   # correctness issue. Guard to i686: overriding sdl3 on x86_64 perturbs its hash
   # and cascades an uncached rebuild through sdl2-compat -> ffmpeg -> the whole
-  # media stack (mpv, firefox, steam, lutris, qemu, ...).
   (_final: prev: {
     sdl3 =
       if prev.stdenv.hostPlatform.system == "i686-linux" then
@@ -70,15 +64,6 @@
   # were removed — nixpkgs now caches those for aarch64-darwin and x86_64-linux
   # at the pinned rev, so the overrides only defeated the cache and forced local
   # source builds. Re-add (platform-guarded) if a future rev reintroduces a
-  # from-source build that trips the flaky test.
-  #
-  # pipx: re-added per the note above. At the current rev python3.14-pipx builds
-  # from source on Darwin (pipx is in home.packages) and its tests/test_inject.py
-  # suite trips (14 errors) — those tests actually pip-inject packages and need
-  # network, so they cannot pass in the build sandbox. Skip just that file via
-  # overridePythonAttrs (overrideAttrs does not reach a toPythonApplication's
-  # pytest check); the other 165 tests still run. It is already uncached here, so
-  # this defeats no cache. Drop when nixpkgs caches pipx for aarch64-darwin again.
   (
     _final: prev:
     prev.lib.optionalAttrs prev.stdenv.hostPlatform.isDarwin {
@@ -96,8 +81,6 @@
   # without bumping the version, so nixpkgs' pinned hash no longer matches.
   # Override src with the current upstream hash until nixpkgs catches up.
   # Guard to Darwin: the Linux derivation uses a tar.gz and must not receive
-  # the macOS zip URL (Linux stdenv cannot unpack .zip without unzip in
-  # nativeBuildInputs, and the URL itself is wrong for Linux).
   (_final: prev: {
     _1password-gui =
       if prev.stdenv.hostPlatform.isDarwin then
@@ -114,10 +97,6 @@
   # build-time only, and nixpkgs' aarch64-darwin build (produced on Hydra's
   # older macOS) is cached and runs fine on Tahoe. Fetching it avoids both the
   # local build and the crash.
-  # Same cctools crash for Rust packages: cargo invokes cc (clang-wrapper) as
-  # the linker driver, which calls cctools ld. Pass -fuse-ld= via RUSTFLAGS so
-  # clang routes through ld64.lld (LLVM's Mach-O linker) at the link step.
-  # Darwin-only: ld64.lld is the Mach-O linker; gcc on Linux rejects the flag.
   (final: prev: {
     cargo-watch =
       if prev.stdenv.hostPlatform.isDarwin then

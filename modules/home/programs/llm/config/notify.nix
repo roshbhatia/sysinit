@@ -1,12 +1,6 @@
 # Agent-agnostic desktop notifier shared by every harness's lifecycle hooks.
-#
-# Builds two things and exposes them for the per-harness configs to wire in:
-#   - icons : per-agent app icons, fetched (not vendored) and rendered to PNG
-#   - exe   : absolute path to the `agent-notify` script (see agent-notify.sh)
-#
-# Icons are SVGs pulled from upstream brand sources, pinned by hash, and rasterised
-# to 256px PNGs on a white tile so a mono-colour glyph stays legible in both light
-# and dark notification chrome. They install to ~/.local/share/agent-notify/icons.
+# Icons rasterise to 256px on a white tile so a mono-colour glyph stays legible
+# in both light and dark notification chrome.
 {
   pkgs,
   lib,
@@ -19,8 +13,6 @@ let
       name = "agent-icon-${name}.svg";
     };
 
-  # url + pinned sha256 per source. Hashes drift only if upstream changes the
-  # asset, in which case the build fails loudly rather than shipping a stale icon.
   svgs = {
     claude =
       icon "claude" "https://cdn.simpleicons.org/claude/D97757"
@@ -37,8 +29,7 @@ let
     opencode =
       icon "opencode" "https://cdn.simpleicons.org/opencode/000000"
         "sha256-xlr+/bHrZ74ZpQ9xXQp6LBlVjb8Mvcl0/rNn4FXNX1g=";
-    # simpleicons "Pi" sources from https://pi.dev/favicon.svg, which is the
-    # coding agent's own vendor domain, not Pi Network. Verified before use.
+    # simpleicons "Pi" sources from pi.dev, so it is the agent, not Pi Network
     pi =
       icon "pi" "https://cdn.simpleicons.org/pi/000000"
         "sha256-0462udrr6XCPzGCuF9Ue7bnx5lZhyVytXC4eJzt3vyE=";
@@ -47,29 +38,17 @@ let
         "sha256-DTSwqoKcIwlOr84UR0gdVvQd3mXXeRISItzylJQ90kU=";
   };
 
-  # Notification coverage for every harness this repository configures. Each
-  # name sits in exactly one list, and a configured harness in neither fails the
-  # build below. agent-notify is the only producer either path reaches.
-  #
-  # Reaches agent-notify directly, carrying a reason string, so its toasts name
-  # the tool and its input. Either from the harness's own lifecycle hooks, or
-  # from a repository-authored bridge where the harness has no hooks.
+  # Reaches agent-notify directly, carrying a reason string. Via the harness's
+  # own hooks, or via a bridge in config/{extensions,plugins}/sysinit-notify.ts.
   hookBridged = [
     "claude"
     "codex"
-    # Reached through repository-authored bridges rather than hooks, but on the
-    # same footing: both call agent-notify directly and carry a reason string.
-    # pi uses an extension, opencode a plugin; see config/extensions/ and
-    # config/plugins/sysinit-notify.ts.
     "pi"
     "opencode"
   ];
 
-  # Reaches agent-notify from the agent-deck scrape bridge in ui.lua. agent-deck
-  # detects these by process, argv, and title pattern, and the bridge forwards
-  # the transition. This path carries a status but no reason, so its toasts are
-  # less specific than the hook path. A pane that emits its own agent_state is
-  # skipped by the bridge, so a hook-bridged harness is never announced twice.
+  # Reaches agent-notify via the agent-deck scrape bridge in ui.lua. Carries a
+  # status but no reason, so its toasts are less specific.
   scrapeBridged = [
     "amp"
     "copilot"
@@ -80,9 +59,6 @@ let
     "goose"
   ];
 
-  # Every harness config imported by default.nix. Compared against the coverage
-  # set below, so adding a harness without classifying it fails the build rather
-  # than silently shipping a harness nothing notifies for.
   configuredHarnesses = [
     "amp"
     "claude"
@@ -99,17 +75,14 @@ let
 
   covered = hookBridged ++ scrapeBridged;
 
-  # Turning a harness's own producer off is only safe once its bridge exists.
-  # Key on the bridge FILE, not on the coverage label: the label lives in this
-  # same file, so a contributor removing a bridge would edit both and the guard
-  # would agree with them.
+  # keyed on the bridge file, not the label: the label lives here too, so a
+  # contributor removing a bridge would edit both and the guard would agree
   bridgeArtifacts = {
     pi = ./extensions/sysinit-notify.ts;
     opencode = ./plugins/sysinit-notify.ts;
   };
 
-  # A zero-byte file passes `pathExists` and loads as a module with no handlers,
-  # which is indistinguishable from having no bridge at all.
+  # a zero-byte file passes `pathExists` but loads no handlers
   bridgePresent = p: builtins.pathExists p && builtins.stringLength (builtins.readFile p) > 0;
 
   missingBridges = lib.filter (
@@ -133,14 +106,9 @@ let
     else
       "";
 
-  # Harnesses with no correct brand asset. They render the generic glyph, which
-  # is visually distinct from every entry in `svgs` above, so an unrecognized
-  # agent is never mistaken for a recognized one.
-  #
-  # amp is listed here deliberately: simpleicons ships an "AMP" icon, but its
-  # source is https://amp.dev, which is Google's Accelerated Mobile Pages, not
-  # Sourcegraph Amp. Shipping it would put a wrong brand on the toast.
-  # crush and goose have no simpleicons entry at all.
+  # No correct brand asset, so they render the generic glyph. simpleicons "AMP"
+  # is Google Accelerated Mobile Pages, not Sourcegraph Amp; crush and goose
+  # have no entry at all.
   intentionallyGeneric = [
     "amp"
     "crush"
@@ -148,9 +116,7 @@ let
     "devin"
   ];
 
-  # Authored here rather than fetched: the fallback must not resemble any
-  # harness glyph, and no upstream asset guarantees that. A dashed ring with a
-  # centre dot reads as "an agent we do not recognize" at 256px.
+  # authored, not fetched: the fallback must not resemble any harness glyph
   genericSvg = pkgs.writeText "agent-icon-generic.svg" ''
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
       <circle cx="12" cy="12" r="9" fill="none" stroke="#6E7781" stroke-width="2"
@@ -161,12 +127,7 @@ let
 
   names = builtins.attrNames svgs;
 
-  # `intentionallyGeneric` must stay a mechanism, not a comment. A name in both
-  # lists means someone added a real glyph and forgot to drop the generic
-  # record, so the file would claim a harness is generic while shipping its
-  # icon. Forced from `icons` below, because an unreferenced `let` binding is
-  # dropped silently and never fires (the defect this repo already carries at
-  # config/pi.nix:491).
+  # forced from `icons` below: an unreferenced `let` binding is dropped silently
   genericConflicts = lib.intersectLists names intentionallyGeneric;
   assertGenericDisjoint =
     if genericConflicts != [ ] then
@@ -174,14 +135,10 @@ let
     else
       "";
 
-  # Shared session/repo/pane identity resolution, prepended into both scripts at
-  # build time so agent-notify and agent-state can never disagree (no runtime
-  # source path to resolve, and shellcheck validates the combined script).
+  # prepended into both scripts at build time so they cannot disagree
   identity = builtins.readFile ./agent-identity.sh;
 
-  # The notification group name, shared by both producers and by the click
-  # handler (see agent-group.sh). Kept separate from `identity` because
-  # agent-focus needs the group function and none of the identity resolution.
+  # kept separate from `identity`: agent-focus needs the group and nothing else
   group = builtins.readFile ./agent-group.sh;
 
   icons = pkgs.runCommand "agent-notify-icons" { nativeBuildInputs = [ pkgs.librsvg ]; } (
@@ -195,9 +152,6 @@ let
         "rsvg-convert --width 256 --height 256 --keep-aspect-ratio --background-color '#FFFFFF' '${src}' --output \"$out/${name}.png\""
       ) svgs
     )
-    # Generic fallback for any agent without a dedicated glyph. Rendered from
-    # the authored SVG above, NOT copied from claude.png as it once was: a copy
-    # made every unrecognized agent render as Claude.
     + "\nrsvg-convert --width 256 --height 256 --keep-aspect-ratio --background-color '#FFFFFF' '${genericSvg}' --output \"$out/agent.png\"\n"
   );
 
@@ -210,8 +164,7 @@ let
       pkgs.alerter
       pkgs.wezterm
     ];
-    # Best-effort notifier: no errexit/nounset/pipefail — it must never abort the
-    # agent. shellcheck still runs for validation.
+    # best-effort: no errexit, it must never abort the agent
     bashOptions = [ ];
     text = group + "\n" + identity + "\n" + builtins.readFile ./agent-notify.sh;
   };
@@ -221,9 +174,6 @@ let
   # which session is blocked and why. Best-effort, like the notifier.
   stateScript = pkgs.writeShellApplication {
     name = "agent-state";
-    # git + wezterm are needed by the shared identity resolver for the state-file
-    # transport (repo/branch/dirty derivation, workspace lookup); jq builds the
-    # JSON payload with correct escaping.
     runtimeInputs = [
       pkgs.jq
       pkgs.git
@@ -234,11 +184,9 @@ let
     text = identity + "\n" + builtins.readFile ./agent-state.sh;
   };
 
-  # Actionable permission notifier (see agent-prompt.sh). For genuine approval
-  # events it shows an `alerter` Accept/Deny notification and relays the choice
-  # back into the agent pane; otherwise it degrades to the plain agent-notify
-  # toast. alerter is darwin-only + optional, so it is added to PATH only on
-  # darwin — elsewhere `command -v alerter` misses and the fallback fires.
+  # Approval notifier: alerter Accept/Deny relayed back into the agent pane.
+  # alerter is darwin-only, so elsewhere `command -v` misses and the plain
+  # notifier fires instead.
   promptScript = pkgs.writeShellApplication {
     name = "agent-prompt";
     runtimeInputs = [
@@ -249,9 +197,6 @@ let
     ]
     ++ lib.optionals pkgs.stdenv.hostPlatform.isDarwin [ pkgs.alerter ];
     bashOptions = [ ];
-    # Preamble bakes the fallback notifier path; then the shared identity
-    # resolver; then the script body — one combined unit so shellcheck validates
-    # it whole.
     text = ''
       NOTIFY_EXE=${lib.getExe script}
     ''
@@ -263,9 +208,7 @@ let
     + builtins.readFile ./agent-prompt.sh;
   };
 
-  # Session readiness report (see agent-review.sh). Answers "is this session
-  # finished?" from git state and the per-pane bus, and gates seshy's preDelete
-  # hook. Read-only by contract: it never commits, pushes, or merges.
+  # Session readiness report (see agent-review.sh). Read-only by contract.
   reviewScript = pkgs.writeShellApplication {
     name = "agent-review";
     runtimeInputs = [
@@ -275,15 +218,11 @@ let
       pkgs.gnugrep
       pkgs.wezterm
     ];
-    # Not best-effort like the notifier: this one's exit code is the gate, so it
-    # keeps strict mode and returns a meaningful status.
+    # unlike the notifier, its exit code is the gate, so strict mode stays on
     text = builtins.readFile ./agent-review.sh;
   };
 
-  # `sy delete` gate (see sy-gate.sh). Shipped as an executable named `sy` so it
-  # shadows seshy on PATH for EVERY caller, not just interactive shells. The
-  # earlier zsh-function version was bypassed by `zsh -c`, by scripts, and by
-  # every coding agent's shell tool.
+  # `sy delete` gate (see sy-gate.sh), named `sy` so it shadows seshy on PATH.
   syGate = pkgs.writeShellApplication {
     name = "sy";
     runtimeInputs = [ pkgs.coreutils ];
@@ -294,22 +233,16 @@ let
     + builtins.readFile ./sy-gate.sh;
   };
 
-  # Notification click handler: raises the wezterm pane the agent runs in. Runs in
-  # a bare NotificationCenter env, so wezterm/jq must come from runtimeInputs, not
-  # an inherited PATH.
+  # Click handler. Runs in a bare NotificationCenter env, so every binary must
+  # come from runtimeInputs rather than an inherited PATH.
   focusScript = pkgs.writeShellApplication {
     name = "agent-focus";
-    # alerter dismisses the originating toast (`--remove <group>`); darwin-only,
-    # so the script's `command -v alerter` gate covers every other platform.
     runtimeInputs = [
       pkgs.wezterm
       pkgs.jq
     ]
     ++ lib.optionals pkgs.stdenv.hostPlatform.isDarwin [ pkgs.alerter ];
     bashOptions = [ ];
-    # The group helper is prepended so agent-focus rebuilds the notification
-    # group with the same `agent_group` the producers used. A second copy of
-    # that string is what let the dismiss silently miss.
     text = group + "\n" + builtins.readFile ./agent-focus.sh;
   };
 in
@@ -331,8 +264,7 @@ in
   focusExe = lib.getExe focusScript;
   reviewExe = lib.getExe reviewScript;
 
-  # home.file entries installing every icon (plus the fallback) to the shared
-  # location the script reads from. Wired once in default.nix to avoid collisions.
+  # wired once in default.nix to avoid a home.file collision
   iconFiles = lib.listToAttrs (
     map (
       name:

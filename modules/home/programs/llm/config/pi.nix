@@ -10,11 +10,9 @@ let
   kit = llmLib.harnessKit.mkKit { inherit lib pkgs config; };
 
   # Extension TypeScript comes from the installed pi package, which ships its own
-  # `examples/extensions` tree. It used to come from a separately pinned
   # fetchFromGitHub, and that pin drifted to 0.74.0 while the binary ran 0.82.1:
   # an extension written against one extension API and loaded by another fails at
   # load time, not at build time. One source removes that class of defect, and a
-  # version bump now moves the binary and its extensions together.
   extensionsDir = "${pkgs.pi-coding-agent}/pi/examples/extensions";
 
   # confirm-destructive intentionally not in this list — replaced by
@@ -46,12 +44,6 @@ let
   # excluded above: each binds `tool_call`, and so does
   # @gotgenes/pi-permission-system, which owns tool-call interception here. Two
   # handlers on that event cannot both gate without conflict.
-  #
-  #   protected-paths  blocks writes to .env, .git/, node_modules/
-  #   plan-mode        read-only exploration with /plan
-  #
-  # Verified against the installed package, not assumed: both call
-  # `pi.on("tool_call", ...)`.
 
   missingExtensions = lib.filter (n: !builtins.pathExists "${extensionsDir}/${n}.ts") extensions;
   assertExtensionsExist =
@@ -198,14 +190,11 @@ let
   # Pi packages - pre-fetched into the Nix store as local paths.
   # Pi loads them via local path entries in settings.json, so no runtime network
   # access is needed.  Each package is either a plain source fetch (no runtime
-  # npm deps) or a buildNpmPackage derivation (runtime deps needed at load time).
-  # ---------------------------------------------------------------------------
 
   # Helper: fetch an npm package tarball from the registry and extract it.
   # npm tarballs have a top-level "package/" dir; fetchzip strips it so
   # the derivation root contains package.json directly. Scoped packages
   # use `@scope/basename` for the URL path but only `basename` in the
-  # tarball filename, so we split before joining.
   fetchNpmPkg =
     {
       name,
@@ -338,8 +327,6 @@ let
     # Replaces pi-webfetch-to-markdown and adds web search — a capability gap in
     # pi vs Claude/Codex. Keep pi-librarian; disable the bundled librarian skill
     # via ~/.pi/web-search.json if it collides. Inline (not mkBuiltNpmPackage)
-    # because its @earendil-works/* peers are pi-runtime-provided: the lock omits
-    # them and `npm ci` needs `--legacy-peer-deps` so it does not resolve them.
     webAccess = pkgs.buildNpmPackage {
       pname = "pi-web-access";
       version = "0.13.0";
@@ -393,9 +380,6 @@ let
     # other pi-* memory package on npm at audit time still imports from
     # @mariozechner/* (pre-rename), so they break against pi 0.74's
     # @earendil-works/* runtime without a source patch the user has
-    # explicitly declined. Skip memory entirely for now; .sysinit/lessons.md
-    # and Claude Code's auto-memory cover the cross-session persistence
-    # use case.
 
     # @gotgenes/pi-permission-system 5.14.1: bash-AST-aware permission gate.
     # Imports @earendil-works/* (post-rename) so works with pi 0.74. The
@@ -487,13 +471,6 @@ let
   # 1. Provider routing — openaiFast + openaiVerbosity + piRetry (inert for non-OpenAI)
   # 2. Compaction — piVcc (deterministic, LLM-free)
   # 3. Orchestration — pi-subagents
-  # 4. Memory + advisor — rpivAdvisor
-  # 5. UI / workflow — btw, local OpenSpec sidebar
-  # 6. Tool providers — toolDisplay, diff, dcp, webAccess, mcpAdapter, rtkOptimizer
-  # 6. Content utilities — context, subdirContext, annotatedReply, mermaid,
-  #                        readlineSearch, rtk, threads, interview, librarian,
-  #                        askUser
-  # (Permission gate will sit at position 1 once Phase C lands.)
   piPackagePaths = with piPackages; [
     # 1. Permission gate — MUST load first to wrap all tool calls below.
     "${piPermissionSystem}"
@@ -594,25 +571,6 @@ let
   # pi's own runtime, which is how `lastChangelogVersion` and the session
   # bookkeeping survive an activation.
   #
-  # Declared here ONLY when the value is repository policy or is derived from
-  # something Nix owns. Anything the owner may reasonably change mid-session
-  # stays out, because Nix wins for a declared key and would revert it on the
-  # next activation.
-  #
-  # Deliberately NOT declared, all runtime preference:
-  #   defaultProvider, defaultModel  which model answers
-  #   defaultThinkingLevel           how hard it thinks
-  #   hideThinkingBlock              whether thinking is shown
-  #   powerline, and pi's own /settings output generally
-  #
-  # Declared, because each is policy or Nix-derived:
-  #   packages               extension load order, which this module defines
-  #   quietStartup           display policy for this machine
-  #   theme                  generated from stylix; selecting it is the point
-  #   enableInstallTelemetry Nix owns updates, so the ping is off
-  #   shellCommandPrefix     derived from the zsh config this repo owns
-  #   skills                 points at the Nix-managed skills tree
-  #   externalEditor         points at a Nix-built binary
   piManagedSettings = {
     packages = piPackagePaths;
     quietStartup = true;
@@ -627,7 +585,6 @@ let
     skills = [ "~/.claude/skills" ];
 
     # nvim-pi is a --clean nvim wrapper, so Ctrl+G opens instantly instead of
-    # waiting on lazy.nvim. It was built and installed for months while this
     # setting was undeclared and the keybinding was unbound, which made the
     # binary unreachable by either route.
     externalEditor = "${lib.getExe nvimPi}";
@@ -644,15 +601,10 @@ let
     '';
   };
 
-  # Keys this module used to declare, or that pi's own settings screen wrote,
   # which the installed build does not recognize. The activation merge is a deep
   # merge, so undeclaring one leaves it on disk forever; only an explicit delete
   # removes it.
   #
-  # Both were verified absent from the installed binary by a string scan:
-  # `showLastPrompt` shipped in this repository AND in the pi-extension-config
-  # spec without anyone noticing, and `powerline` was written by pi's own
-  # /settings screen.
   inherit (piKeys) retired;
   piRetiredSettings = retired;
 
@@ -675,7 +627,6 @@ let
   piDeclaredKeys = builtins.attrNames piManagedSettings;
 
   # A generated theme nobody selects is a file pi never reads. This module built
-  # and installed the stylix theme for months while pi ran on "dark".
   assertThemeSelected =
     if (piManagedSettings.theme or "") != "stylix" then
       throw "pi.nix: the stylix theme is generated and installed but `piManagedSettings.theme` does not select it."

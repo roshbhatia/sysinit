@@ -58,11 +58,6 @@ let
   # can write plugin installation state back on first startup.  Deep-merge on
   # every activation. Nix wins for every declared key, and the blocks named in
   # `render.authoritative` are replaced wholesale rather than deep-merged, so a
-  # stale nested entry cannot survive.
-  #
-  # A runtime-written key the Nix config does not declare is preserved ONLY if
-  # the shipped schema accepts it. `additionalProperties: false` on Config means
-  # an unknown key now fails the validation below rather than riding along.
   opencodeConfigFile = pkgs.writeText "opencode-base.json" (builtins.toJSON opencodeConfig);
 
   # OpenCode 1.18 moved the terminal-interface settings into their own file and

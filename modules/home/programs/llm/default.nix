@@ -33,7 +33,6 @@ let
   # Installed verbatim: these are the tool author's own guides, so restating
   # them in skills/ would be the drift this repo's sync rules exist to prevent.
   # The directory name is the skill name, and upstream's outline skill declares
-  # `name: ast-grep-outline`, so its directory must match that, not "outline".
   astGrepSkillRoot = "${inputs.ast-grep-skills}/ast-grep/skills";
   astGrepSkillFiles = {
     "ast-grep/SKILL.md" = "${astGrepSkillRoot}/ast-grep/SKILL.md";
@@ -89,7 +88,6 @@ let
   # that path, and ~/.agents/skills/, as the personal roots). It gets the Amp
   # render for the same reason devin does: that render carries only frontmatter
   # keys in the common subset, which is the safe choice for a loader whose
-  # validation strictness is not documented.
   copilotSkillFiles = lib.mapAttrs' (
     name: path: lib.nameValuePair ".copilot/skills/${name}/SKILL.md" { source = path; }
   ) skills.ampSkills;
@@ -128,7 +126,6 @@ let
   # `harnessCoverage` below, because the renderer's own throw only fires for a
   # harness that CALLS the renderer: one that ships a config and no context
   # would pass silently, which is the exact gap the coverage set exists to
-  # close. `acp` and `mcp-servers` are not harnesses and are excluded.
   harnessConfigNames = [
     "amp"
     "claude"

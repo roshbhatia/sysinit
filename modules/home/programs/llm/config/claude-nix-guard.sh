@@ -2,15 +2,6 @@
 # target resolves into the Nix store, which is the enforceable half of the
 # global CLAUDE.md rule "never edit hand-managed configuration when a
 # Nix-managed equivalent exists".
-#
-# Most Nix-managed dotfiles are symlinks into /nix/store. Editing one either
-# fails on a read-only store or, worse, silently edits a shared store path that
-# the next `nh darwin switch` overwrites. Either way the edit is wrong and the
-# fix is to edit the Nix source that generates the file.
-#
-# Best-effort and fail-open: any extraction failure passes through (exit 0)
-# rather than blocking. No errexit/pipefail — a non-zero grep must not turn into
-# a hook abort (Claude treats exit 2 as a block).
 
 input="$(cat)"
 

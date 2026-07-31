@@ -1,19 +1,7 @@
-# agent-notify: agent-agnostic desktop-notification hook (alerter backend).
-#
-# Fires one macOS notification (sound + per-agent app icon) when a coding agent
-# needs the human: it is waiting for approval, has gone idle, or just finished a
-# turn (your move). Wired into each harness's lifecycle hooks; see notify.nix.
+# Desktop notification when an agent needs the human (alerter backend).
 #
 # Usage: agent-notify <agent> <reason> [focus-exe]
-#   <agent>      claude | codex | gemini | cursor | amp   (selects the icon/label)
-#   <reason>     approval | idle | done | attention         (selects sound/wording)
-#   [focus-exe]  path to agent-focus; when set, the notification is clickable and
-#                routes back to the exact wezterm pane this agent runs in.
-# The hook event JSON is read from stdin; every field is treated as optional so
-# the script also works when invoked by hand or by a harness that sends nothing.
-#
-# Best-effort by contract: it must never block or fail the agent. No strict
-# mode, every external call is guarded, and it always exits 0.
+#   <reason>  approval | idle | done | attention
 
 agent=${1:-agent}
 reason=${2:-attention}
@@ -38,20 +26,13 @@ cwd=$(json '.cwd')
 msg=$(json '.message')
 notif_type=$(json '.notification_type')
 
-# --- session identity: which seshy session AND which repo ---
-# The agent runs inside a wezterm pane whose `workspace` is the seshy session name
-# (WEZTERM_PANE is inherited into the hook). That is the reliable session signal —
-# more so than cwd, which may have wandered out of the session tree. The shared
-# resolver (agent-identity.sh, concatenated in at build time) does the
-# workspace lookup, seshy-cwd fallback, and git derivation once, so this script
-# and agent-state agree on the answer.
+# The pane's wezterm workspace is the seshy session name, which is more reliable
+# than cwd as cwd may have wandered out of the session tree.
 pane=${WEZTERM_PANE:-}
 agent_identity "$cwd" "$pane"
 session=$AI_SESSION
 repo=$AI_REPO
 
-# context names both axes when they differ ("session · repo"), else whichever we
-# have, else the bare directory.
 if [ -n "$session" ] && [ -n "$repo" ] && [ "$session" != "$repo" ]; then
   context="$session · $repo"
 elif [ -n "$session" ]; then
@@ -78,14 +59,11 @@ case "$agent" in
   devin) label="Devin" ;;
   *) label="$agent" ;;
 esac
-# agent.png is the generic glyph, distinct from every harness icon, so an
-# unrecognized agent is never rendered as a recognized one.
 icon="$icons/$agent.png"
 [ -f "$icon" ] || icon="$icons/agent.png"
 
-# Classify "attention" events using notification_type first (precise), then
-# falling back to message-text parsing. Suppress non-actionable types entirely
-# so auth confirmations and elicitation bookkeeping never surface as toasts.
+# notification_type first, message text as fallback. Unclassified is suppressed
+# rather than shown, so auth and elicitation bookkeeping never surface.
 if [ "$reason" = "attention" ]; then
   case "$notif_type" in
     permission_prompt | agent_needs_input) reason="approval" ;;
@@ -104,10 +82,8 @@ if [ "$reason" = "attention" ]; then
   esac
 fi
 
-# Gate done-notifications on a minimum elapsed time so quick replies don't
-# ping. The .start file is written by agent-state when UserPromptSubmit fires
-# (reason_src=submit). If the file is absent (Codex, other agents), notify
-# unconditionally since we have no timing signal.
+# Quick replies should not ping. No .start file means no timing signal, so
+# notify unconditionally.
 if [ "$reason" = "done" ] && [ -n "${WEZTERM_PANE:-}" ]; then
   start_file="${XDG_STATE_HOME:-$HOME/.local/state}/agents/panes/$WEZTERM_PANE.start"
   if [ -f "$start_file" ]; then
@@ -118,21 +94,12 @@ if [ "$reason" = "done" ] && [ -n "${WEZTERM_PANE:-}" ]; then
   fi
 fi
 
-# Deduplicate idle notifications: only fire once per 5-minute window per agent
-# so a stuck or repeatedly idle agent doesn't flood the notification centre.
 if [ "$reason" = "idle" ]; then
   notif_dir="${XDG_STATE_HOME:-$HOME/.local/state}/agents/notif"
   mkdir -p "$notif_dir" 2> /dev/null || true
-  # Keyed on the pane, not the agent: two panes running one harness must both
-  # notify. Falls back to agent+context when no pane id is available (ssh).
-  #
-  # The fallback hashes the pair rather than substituting unsafe characters.
-  # `tr -c 'A-Za-z0-9._-' '_'` is lossy: "my session" and "my_session" both
-  # collapse to "my_session", and the "·" this script uses as the context
-  # separator is multi-byte, so it becomes two underscores and collides with a
-  # literal "__". Two distinct sessions would then share one dedup file and the
-  # second would be wrongly suppressed, which is the defect this key exists to
-  # prevent.
+  # Keyed on the pane so two panes of one harness both notify. The paneless
+  # fallback hashes: `tr -c` is lossy, collapsing "my session" and "my_session"
+  # onto one key.
   if [ -n "$pane" ]; then
     dedup_key="${pane}_idle"
   else
@@ -150,11 +117,8 @@ if [ "$reason" = "idle" ]; then
   printf '%s' "$(date +%s 2> /dev/null || printf '0')" > "$dedup_file" 2> /dev/null || true
 fi
 
-# --- reason -> wording + sound (sounds are names under /System/Library/Sounds) ---
-# `what` is the category for the title; the message body below carries the
-# specifics (which tool, what choice) so the human knows WHY before switching.
-# Every branch sets a timeout: alerter blocks its (backgrounded) waiter for the
-# whole duration, so an unbounded 0 would leak one process per notification.
+# Sounds are names under /System/Library/Sounds. Every branch sets a timeout:
+# alerter blocks its backgrounded waiter, so 0 would leak a process per toast.
 notif_timeout=60
 case "$reason" in
   approval)
@@ -185,25 +149,17 @@ title="$label · $what"
 # category when the event carried nothing.
 body=${msg:-$what}
 
-# --- enrich the body from the per-pane state file ---
-# A "done" toast that says only "finished its turn" makes the human switch to
-# find out what changed. The state file already holds the repository, the
-# branch, whether the worktree is dirty, and when the transition happened, so
-# the toast can answer that before the switch.
-#
-# Everything here is best-effort. A missing, unreadable, or partial state file
-# degrades to the harness message alone, never to an error.
+# Name the review path in the body, so the human knows what changed before
+# switching. Degrades to the harness message alone if the state file is unusable.
 if [ -n "$pane" ]; then
   state_file="${XDG_STATE_HOME:-$HOME/.local/state}/agents/panes/$pane.json"
   if [ -f "$state_file" ]; then
-    # Separated by \001, not by tab. Tab is an IFS whitespace character, so bash
-    # collapses runs of them and an empty field shifts every later value left:
-    # a repo with no branch would read the timestamp as its branch name.
+    # \001, not tab: tab is IFS whitespace, so bash collapses runs of it and an
+    # empty field shifts every later value left
     st=$(jq -rj '[.repo // "", .branch // "", (if .dirty then "dirty" else "" end), (.since // 0 | tostring)] | join("\u0001")' "$state_file" 2> /dev/null) || st=""
     if [ -n "$st" ]; then
       IFS=$(printf '\001') read -r s_repo s_branch s_dirty s_since <<< "$st"
 
-      # repo·branch, with a marker when the worktree has uncommitted changes.
       where=""
       [ -n "$s_repo" ] && where="$s_repo"
       if [ -n "$s_branch" ]; then
@@ -211,7 +167,6 @@ if [ -n "$pane" ]; then
       fi
       [ -n "$s_dirty" ] && [ -n "$where" ] && where="$where ✱"
 
-      # Elapsed since the transition, in the same units the statusline uses.
       age=""
       case "$s_since" in
         '' | *[!0-9]*) : ;;
@@ -231,18 +186,12 @@ if [ -n "$pane" ]; then
           ;;
       esac
 
-      # reason — where — age, skipping any part we could not resolve.
       for part in "$where" "$age"; do
         [ -n "$part" ] && body="$body — $part"
       done
     fi
   fi
 fi
-# One notification slot per pane so repeats from that pane replace instead of
-# stacking, and any handler can rebuild the name from the pane id alone.
-# WEZTERM_PANE is not forwarded over ssh and this script still runs without it,
-# so a paneless caller falls back to the agent+context pair. Keying an empty
-# pane id would collapse every paneless session onto one slot.
 group=$(agent_group "$agent" "$context" "$pane")
 
 args=(
@@ -255,11 +204,8 @@ args=(
   --timeout "$notif_timeout"
 )
 
-# alerter blocks until the human acts or the timeout fires, then prints the
-# outcome (@CONTENTCLICKED / @ACTIONCLICKED / @CLOSED / @TIMEOUT) on stdout. It
-# has no --execute flag, so click-to-focus is a detached waiter we run ourselves:
-# background the call and route a content click back to the agent's pane. Same
-# shape as agent-prompt's relay. The hook returns now; the waiter outlives it.
+# alerter blocks until the human acts and has no --execute flag, so
+# click-to-focus is a backgrounded waiter that outlives this hook.
 (
   outcome=$("$notifier" "${args[@]}" 2> /dev/null) || outcome=""
   if [ -n "$focus_exe" ]; then

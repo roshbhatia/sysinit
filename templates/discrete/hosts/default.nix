@@ -59,26 +59,4 @@ in
   # Uncomment to enable Lima VM configuration
   # your-nixos-hostname = {
   #   system = "aarch64-linux";
-  #   platform = "linux";
-  #   isLima = true;
-  #   inherit (common) username;
-  #
-  #   values = {
-  #     inherit (common) git;
-  #     user.username = common.username;
-  #     hostname = "your-nixos-hostname";
-  #
-  #     # Customize theme and other settings
-  #     theme = {
-  #       appearance = "dark";
-  #       colorscheme = "everforest";
-  #       variant = "dark-soft";
-  #       font.monospace = "TX-02";
-  #       transparency = {
-  #         opacity = 0.8;
-  #         blur = 70;
-  #       };
-  #     };
-  #   };
-  # };
 }

@@ -2,27 +2,14 @@
 #
 # `config/opencode.nix` merges the host-dependent parts (MCP servers, which need
 # `config.sysinit.llm.mcp`) onto `main` and writes both files. The flake check
-# `opencode-config-schema` imports this same attrset and validates it against
-# the schemas the installed OpenCode derivation ships.
-#
-# Two consumers, one definition: a check that validated its own copy of the
-# config would pass while the file OpenCode reads drifted away from it.
-#
-# The split between the two files is not cosmetic. OpenCode 1.18 moved the
-# terminal-interface settings out of `opencode.json` into `tui.json` and set
-# `additionalProperties: false` on the Config definition, so a TUI key left in
-# the main file is rejected. See `retiredMainKeys` in `opencode.nix` for the
-# deletion that removes them from a live file.
 { pkgs, lib }:
 let
   llmLib = import ../lib { inherit lib; };
 
-  # Keys this module used to declare in the main file and no longer does. A deep
   # merge preserves whatever is already on disk, so undeclaring a key is a no-op
   # against the running harness unless it is deleted first.
   #
   # Each name is quoted in the rendered jq program, so a key like `$schema` or
-  # `tool-output` cannot produce a syntax error that only surfaces at switch time.
   retiredMain = [
     "theme"
     "keybinds"
@@ -49,7 +36,6 @@ let
   # flake check. Two hand-copies of this pipeline agreed today and would drift on
   # the next edit, which is the defect this attribute exists to prevent.
   #
-  # mergeProgram <retired-key-list> -> a jq program reading [live, managed].
   mergeProgram =
     retired:
     let
@@ -77,20 +63,6 @@ in
   # https://models.dev/model-schema.json. A hermetic build has no network and no
   # writable HOME, so any validator that follows it fails with an unretrievable
   # reference rather than a schema violation.
-  #
-  # Delete only the absolute `$ref` and keep every sibling keyword, so a node
-  # that also declares `type` or `enum` still constrains. Blanking the node to
-  # `{}` would silently drop those; the models.dev node carries `type` today.
-  # Internal `#/$defs/...` references are untouched.
-  #
-  # The trade is explicit and narrow: a model identifier is not checked against
-  # the models.dev catalogue. That belongs to OpenCode at runtime, not to a
-  # build that must stay offline.
-  #
-  # The derivation then asserts the rule every negative scenario in this
-  # capability depends on. Without it, an upstream move of `Config` behind an
-  # absolute `$ref` would empty the node and make both validators accept
-  # anything, turning every scenario green while enforcing nothing.
   schemas = pkgs.runCommand "opencode-schemas-local" { nativeBuildInputs = [ pkgs.jq ]; } ''
     mkdir -p "$out"
     for f in config tui; do
@@ -226,7 +198,6 @@ in
       # opencode-openai-codex-auth plugin declared above. The plugin's own
       # presets still name gpt-5.1/gpt-5.2 Codex variants, which OpenAI removed
       # from the ChatGPT sign-in path on 2026-04-14, so the models are declared
-      # here instead of relying on the shipped list.
       openai = {
         options = {
           reasoningEffort = "medium";

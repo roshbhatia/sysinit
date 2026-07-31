@@ -178,7 +178,6 @@
           # serves. A generous list is safe: the CI cachix post-build-hook only
           # uploads paths it actually builds, so already-cached entries cost
           # nothing. Keep heavy from-source overrides (cuda sunshine, the
-          # desktop/media stack) OUT — those are intentionally uncached.
           cacheAttrs = [
             "openspec"
             "localias"
@@ -234,8 +233,6 @@
           # bare `openspec new change` writes `schema: rosh-spec-driven`. This
           # catches a newly added or moved default-schema site that the
           # overlay's `--replace-fail` patch is blind to. Hermetic: HOME and
-          # XDG_DATA_HOME in the build tmp, the schema copied into the tmp XDG
-          # dir, no network (telemetry is disabled and swallowed).
           openspec-default-schema =
             pkgs.runCommand "openspec-default-schema-check"
               {
@@ -270,15 +267,6 @@
           # scaffolded verbatim from them has to pass the schema's own rubric,
           # otherwise an author who fills in the template still trips the gate
           # and has to reverse-engineer the rule from a failure. This caught the
-          # design template missing `Rollout & Gating` and `Adversarial Review`,
-          # the tasks template missing its per-phase review checkbox, and the
-          # spec template modelling no negative scenario.
-          #
-          # Rules that gate an author or reviewer ACTION rather than template
-          # content are exempt: a change that was scaffolded one second ago
-          # cannot satisfy them by construction, and pre-baking a satisfying
-          # artifact into the templates would only defeat the rule. Every other
-          # error still fails the gate, so a real template regression is caught.
           schema-templates-conform =
             pkgs.runCommand "schema-templates-conform-check"
               {
@@ -361,18 +349,6 @@
           #
           # `modules/darwin/keybindings.nix` already asserts across symbolic
           # hotkeys, aerospace, and the reserved chords. WezTerm was the layer it
-          # could not see, and WezTerm is where the original bug landed:
-          # hammerspoon's cmd+] silently swallowed a workspace binding.
-          #
-          # The chords are read out of keybindings.lua by loading it under a
-          # stubbed `wezterm` (see chordcheck/), not mirrored into Nix by hand. A
-          # hand-mirrored list drifts, which is the same defect that let the guard
-          # patterns and lib/allowlist.nix disagree on five of six patterns.
-          #
-          # Aerospace is handled by invariant rather than by enumeration: every
-          # aerospace binding uses ALT and no WezTerm binding does, so the check
-          # asserts WezTerm claims no ALT chord at all. That makes an aerospace
-          # collision impossible by construction instead of by comparison.
           wezterm-chord-collisions =
             let
               chordsLib = import ./modules/darwin/lib/chords.nix { inherit lib; };
@@ -397,12 +373,6 @@
               # reason; an empty reason is not an entry.
               #
               # cmd+m: symbolic hotkey ID 233 (enabled, cmd+m) versus WezTerm's
-              # SUPER+m -> Hide. ID 233 carries no label in the source dict and
-              # sits among IDs captured from the machine's own defaults, so it is
-              # very likely a preserved macOS default rather than a deliberate
-              # choice. Disabling an unidentified system hotkey, or moving a
-              # cmd+m that behaves conventionally, both risk more than the
-              # overlap does. Revisit once ID 233 is identified.
               acceptedOverlaps = [ "cmd+m" ];
             in
             pkgs.runCommand "wezterm-chord-collision-check"
@@ -482,16 +452,6 @@
           #
           # The guard is the only mechanical floor under the agent's Bash tool
           # while `dangerouslySkipPermissions` is on, and until this check existed
-          # nothing verified it. It asserts both directions, because a guard that
-          # denies everything is as broken as one that denies nothing:
-          #
-          #   denied[]  — every prohibited form must produce a deny decision
-          #   allowed[] — every permitted form must produce none
-          #
-          # `git push origin feature-f` is in allowed[] on purpose. An unanchored
-          # `-f` pattern denies it, which is why the shared regex anchors the flag
-          # on leading whitespace. Plain `git push origin main` is likewise
-          # allowed: this repo permits pushing to main.
           destructive-guard-fixtures =
             pkgs.runCommand "destructive-guard-fixtures-check"
               {
@@ -589,29 +549,6 @@
           # interpolates into `programs.zsh.initContent`. Nothing else reads them
           # before they reach a live shell, so a syntax error ships green and then
           # breaks every new shell at once.
-          #
-          # The file set comes from the directory, not a list, so a fragment added
-          # to the module is covered without editing this check. A file set of zero
-          # is a failure: otherwise moving or renaming the directory makes the check
-          # pass vacuously.
-          #
-          # `zsh -n` parses without executing, so a fragment that references a
-          # function defined in another fragment still checks out.
-          # The notification group name must have exactly one definition. It
-          # previously had three: agent-notify wrote `agent-notify:<agent>:<ctx>`,
-          # agent-prompt wrote `agent-prompt:<agent>:<ctx>`, and agent-focus
-          # removed only the first, so an approval toast was never dismissed.
-          # `agent_group` in agent-group.sh is now the only place that builds the
-          # string; this check fails if any consumer reintroduces a literal.
-          # Every settings key pi.nix declares must exist in the pi build that
-          # reads it. A key absent from the binary is dead configuration that
-          # reads as a working setting: `showLastPrompt` shipped here and in the
-          # spec for months, and `powerline` was written by pi's own settings
-          # screen. Neither exists in 0.82.1.
-          #
-          # A check derivation, not a module-level `throw`: this must read the
-          # contents of the built binary, and evaluation cannot do that without
-          # import-from-derivation.
           pi-settings-keys-exist =
             pkgs.runCommand "pi-settings-keys-exist-check"
               {
@@ -646,8 +583,6 @@
           # build ships. Two layers are needed and neither is sufficient alone:
           # this one validates the Nix base plus a fixture pushed through the
           # same retired-key delete and merge, and the activation script
-          # validates the real merged file. A check derivation is hermetic and
-          # cannot read $HOME, so it can never see what OpenCode actually reads.
           opencode-config-schema =
             let
               render = import ./modules/home/programs/llm/config/opencode-render.nix {
@@ -722,8 +657,6 @@
                 # Execute the helper rather than grepping for its name. A call
                 # that passes an empty pane produces the fallback form while
                 # agent-focus removes the pane form, which is the original
-                # defect with the call still present.
-                # shellcheck disable=SC1091
                 . "$cfg/agent-group.sh"
 
                 paned="$(agent_group claude ctx 42)"
@@ -806,7 +739,6 @@
                 # matches two unrelated readers further down the file.
                 # The OpenCode bridge must bind the event OpenCode actually
                 # publishes. `session.idle` does not exist in the plugin event
-                # vocabulary; a probe across 59 events never saw it.
                 rg -q 'session\.status' "$cfg/plugins/sysinit-notify.ts" ||
                   note "the opencode bridge does not bind session.status; session.idle is not a plugin event"
                 rg -q '"session\.idle"' "$cfg/plugins/sysinit-notify.ts" &&
@@ -872,12 +804,6 @@
           # `setup` functions from `extraConfig`, so a syntax error anywhere aborts
           # the whole configuration and the terminal comes up on its built-in
           # defaults, losing `default_prog`, `PATH`, and every keybinding.
-          #
-          # Parse only, never load: every module opens with `require("wezterm")`,
-          # which resolves only inside the WezTerm host. `luac -p` reports syntax
-          # errors with file and line and never runs the chunk.
-          #
-          # Lua 5.4 is the dialect WezTerm embeds. Same zero-file guard as above.
           lua-parses =
             pkgs.runCommand "lua-parse-check"
               {
@@ -926,23 +852,6 @@
           #
           # `pkgs.writeShellApplication` already runs shellcheck on what it wraps,
           # but that only covers a script someone remembered to wrap. `statusline.sh`
-          # goes through `pkgs.writeShellScript`, which does not, and `hack/` scripts
-          # go through no derivation at all. Checking both directories wholesale
-          # means a script cannot escape analysis by not being wrapped.
-          #
-          # `-s bash` is explicit because most `llm/config` scripts are fragments
-          # concatenated into a wrapper and carry no shebang of their own.
-          #
-          # The scan covers the whole flake source rather than a list of
-          # directories. A directory list is itself the escape hatch: an earlier
-          # revision scanned only `llm/config` and `hack/`, which silently missed
-          # `citation-tools/citelock.sh`, `skills/scripts/worklog-query.sh`, and
-          # `.githooks/pre-commit`.
-          #
-          # Selection is by shebang as well as extension, so an extensionless
-          # script such as `.githooks/pre-commit` cannot escape by not being named
-          # `*.sh`. zsh shebangs are excluded: those files are zsh, not bash, and
-          # belong to the zsh parse check instead.
           shell-scripts-shellcheck =
             pkgs.runCommand "shell-scripts-shellcheck-check"
               {
@@ -1013,7 +922,6 @@
       # section and the checks depend on. They were previously assumed present on
       # the machine, which made `nh darwin build` unrunnable from a clean checkout
       # (nh only reaches PATH after a switch; README.md bootstraps it via
-      # `nix run nixpkgs#nh`). This shell makes the documented commands true.
       devShells = lib.genAttrs cacheSystems (
         system:
         let
@@ -1070,13 +978,6 @@
               # AGENTS.md as `task fmt:sh`, which no Taskfile ever provided.
               # Folding it in here means one command covers the repo and the tool
               # comes from the flake rather than from whatever is on PATH.
-              #
-              # `--check` replaces the documented-but-absent `task fmt:sh:check`:
-              # it reports drift and exits non-zero without writing, so CI or a
-              # hook can verify formatting.
-              #
-              # Scope is `.sh` only. The `.zsh` fragments under the zsh module are
-              # zsh, not bash, and shfmt would mangle zsh-specific syntax.
               text = ''
                 shfmt_flags=(-i 2 -ci -sr -s)
 

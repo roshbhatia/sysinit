@@ -1,20 +1,9 @@
-# agent-identity: shared session / repo / pane identity resolution.
+# Shared session/repo/pane identity, concatenated into agent-notify and
+# agent-state at build time so the two cannot disagree.
 #
-# Concatenated at build time (see notify.nix) into BOTH agent-notify and
-# agent-state so the two can never disagree about which session or repo a pane
-# belongs to. Defines functions only — sourcing it has no side effects.
-#
-# `agent_identity <cwd> <pane>` populates these globals (all best-effort, all
-# empty/false on failure, never a non-zero exit that could abort the caller):
-#   AI_WORKSPACE  wezterm workspace for the pane (may be empty or "default")
-#   AI_SESSION    resolved seshy session name (empty when none)
-#   AI_REPO       basename of the git toplevel (empty outside a repo)
-#   AI_BRANCH     current git branch (empty outside a repo / when detached)
-#   AI_DIRTY      "true" when the worktree has uncommitted changes, else "false"
-#   AI_WORKTREE   absolute git worktree root (empty outside a repo)
+# `agent_identity <cwd> <pane>` sets AI_WORKSPACE, AI_SESSION, AI_REPO,
+# AI_BRANCH, AI_DIRTY, AI_WORKTREE. All best-effort, empty on failure.
 
-# wezterm workspace for a pane id, via `wezterm cli list`. Empty on any failure
-# (no wezterm, no pane, no match). Mirrors the lookup agent-notify used inline.
 ai_workspace() {
   ai_pane=$1
   [ -n "$ai_pane" ] || return 0
@@ -25,13 +14,9 @@ ai_workspace() {
     head -1
 }
 
-# Resolve the session/repo/git identity for a pane. Session prefers the
-# cwd-under-seshy-root parse (reliable even when the pane's workspace is the
-# unnamed default), then falls back to the wezterm workspace name.
+# Session prefers the cwd-under-seshy-root parse, which is reliable even when the
+# pane's workspace is the unnamed default.
 #
-# The AI_* globals are the resolver's public output; each caller consumes a
-# different subset (agent-notify uses session/repo; agent-state uses all), so the
-# static-analysis "appears unused" warning is expected — used-externally case.
 # shellcheck disable=SC2034
 agent_identity() {
   ai_cwd=${1:-$PWD}
@@ -52,8 +37,6 @@ agent_identity() {
     AI_SESSION=$AI_WORKSPACE
   fi
 
-  # git-derived fields; all empty/false outside a repo. Each call is guarded so a
-  # non-repo cwd (or missing git) degrades silently.
   AI_REPO=""
   AI_BRANCH=""
   AI_DIRTY="false"

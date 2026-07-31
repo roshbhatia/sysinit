@@ -2,23 +2,6 @@
 #
 # Publishes the calling agent's current state to its WezTerm pane as an OSC 1337
 # SetUserVar named `agent_state`, so the statusline and seshy session switcher
-# can show WHICH session is blocked and WHY without switching into each pane.
-# The companion `agent-notify` still fires the desktop toast; this only writes
-# the user-var. WezTerm discards user-vars when the pane closes, so there is no
-# stale state to prune.
-#
-# Usage: agent-state <agent> <status> [reason-source]
-#   <agent>         claude | codex | gemini | cursor | amp   (free-form label)
-#   <status>        working | waiting | done | idle
-#   [reason-source] how to derive the human reason string:
-#                     tool     -> build from .tool_name + .tool_input (PreToolUse)
-#                     message  -> use the event's .message            (Notification)
-#                     <other>  -> the literal text itself             ("your move")
-# The hook event JSON is read from stdin; every field is optional.
-#
-# Best-effort by contract: it must never block or fail the agent. No strict
-# mode, every external call is guarded, and it always exits 0. With no
-# controlling tty (no WezTerm pane) it writes nothing.
 
 agent=${1:-agent}
 status=${2:-working}
@@ -115,8 +98,6 @@ printf '\033]1337;SetUserVar=agent_state=%s\007' "$b64" > /dev/tty 2> /dev/null 
 # Unlike the OSC user-var (readable only inside WezTerm Lua), this file is the
 # documented public contract for out-of-WezTerm consumers (neovim, seshy, neph).
 # Independent of the OSC emit above: either transport may fail without aborting
-# the other, and we still exit 0. Written atomically (temp + rename) so a reader
-# never observes a partial file.
 if mkdir -p "$state_dir" 2> /dev/null; then
   # Resolve the enriched identity for this pane (shared with agent-notify).
   agent_identity "$PWD" "$WEZTERM_PANE"
