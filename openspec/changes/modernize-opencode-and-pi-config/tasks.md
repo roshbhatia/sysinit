@@ -119,7 +119,8 @@
 
 - **SHAPE** graph
 - [ ] 4.1 List the contents of `~/.config/opencode/plugins/` and
-      `~/.config/opencode/tools/` for the owner `deps: none`
+      `~/.config/opencode/tools/` for the owner. Both are live plugin paths, so
+      the cleanup removes files only, never the directories `deps: none`
 - [ ] 4.2 Adversarial review (`adversarial-review` skill): critics attempt to
       break this phase against its spec scenarios; revise until no surviving
       objection or K=4 rounds `deps: 4.1`

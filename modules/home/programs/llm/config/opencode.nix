@@ -126,6 +126,10 @@ in
 
   xdg.configFile = lib.mkMerge [
     {
+      "opencode/plugin/sysinit-notify.ts" = {
+        source = ./plugins/sysinit-notify.ts;
+        force = true;
+      };
       "opencode/AGENTS.md" = {
         text = defaultInstructions;
         force = true;

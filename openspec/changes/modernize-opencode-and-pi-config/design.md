@@ -138,8 +138,14 @@ that would launch it. It is currently unreachable either way.
 ### D6. Stale runtime directories are listed for the owner, not deleted silently
 
 `~/.config/opencode/plugins/` and `~/.config/opencode/tools/` hold untracked
-files under names OpenCode does not read. They are listed for the owner and
-removed only after confirmation.
+files. An earlier draft of this design claimed OpenCode does not read those
+directory names. That was wrong, and a probe plugin settled it: OpenCode loads
+from BOTH `~/.config/opencode/plugin/` and `~/.config/opencode/plugins/`.
+
+So the directories are live and only their contents are stale, for example a
+file named `sysinit-spec.ts.backup`, which cannot load because of its
+extension. The cleanup therefore removes files, never the directories, and only
+after the owner confirms each one.
 
 - Alternative rejected: delete them during activation. Rejected because the
   repository's own rules forbid destructive action on files outside the

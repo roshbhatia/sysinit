@@ -287,5 +287,14 @@ in
     scroll_acceleration = {
       enabled = true;
     };
+
+    # OpenCode's own toast is off; the plugin at
+    # `config/plugins/sysinit-notify.ts` forwards session.idle and
+    # session.error into agent-notify instead, so one producer announces every
+    # harness. The sound stays on: it is a local cue, not a second toast.
+    attention = {
+      notifications = false;
+      sound = true;
+    };
   };
 }

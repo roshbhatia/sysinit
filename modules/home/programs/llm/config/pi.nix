@@ -25,7 +25,6 @@ let
     "interactive-shell"
     "mac-system-theme"
     "model-status"
-    "notify"
     "preset"
     "reload-runtime"
     "session-name"
@@ -46,6 +45,13 @@ let
   # Custom local extensions authored in this repo and installed under the
   # same ~/.pi/agent/extensions/ root as the vendored upstream ones.
   customExtensionFiles = {
+    # Bridges pi onto the shared notifier. Replaces the upstream `notify`
+    # extension, which is dropped from the vendored list above in the same
+    # edit so pi is never left with no producer.
+    ".pi/agent/extensions/sysinit-notify.ts" = {
+      source = ./extensions/sysinit-notify.ts;
+      force = true;
+    };
     ".pi/agent/extensions/openspec-status.ts" = {
       source = ./extensions/openspec-status.ts;
       force = true;

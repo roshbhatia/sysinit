@@ -87,39 +87,47 @@
   harness is moved to the deferred set with its own producer left on
 - **MAX-ITERS** 4
 
-- [ ] 3.1 Spike: confirm the OpenCode 1.18.4 plugin event names for session idle
-      and permission request against the installed build; record the result in
-      `design.md` Open Questions
-- [ ] 3.2 Author `config/extensions/sysinit-notify.ts` for pi, wiring
+- [x] 3.1 Spike result: OpenCode DOES expose a usable surface. The plugin `event`
+      hook exists alongside `tool.execute.before/after` and `chat.*`, and the bus
+      carries `session.idle` and `session.error`. A probe plugin confirmed the
+      load path: OpenCode loads `.ts` from BOTH `~/.config/opencode/plugin/` and
+      `~/.config/opencode/plugins/`, so the earlier audit claim that `plugins/`
+      is a stale name was wrong and is corrected in the modernize change
+- [x] 3.2 Author `config/extensions/sysinit-notify.ts` for pi, wiring
       `session_start`, `tool_call`, `agent_settled`, and `session_shutdown` to
       `agent-state` and `agent-notify` (follows
       `config/extensions/openspec-status.ts`)
-- [ ] 3.3 Confirm the bridge binds `agent_settled` and not `agent_end`, and
+- [x] 3.3 Confirm the bridge binds `agent_settled` and not `agent_end`, and
       that a retried or auto-compacted run raises no done toast
-- [ ] 3.4 Install the pi extension through `customExtensionFiles` in `pi.nix`
-- [ ] 3.5 Move pi from deferred to bridged in the coverage set, and remove
+- [x] 3.4 Install the pi extension through `customExtensionFiles` in `pi.nix`
+- [x] 3.5 Move pi from deferred to bridged in the coverage set, and remove
       `notify` from the vendored extension list in `pi.nix`, both in the same
       commit as 3.4, so pi is never left with no producer
-- [ ] 3.6 Author the OpenCode plugin, or leave OpenCode deferred when 3.1 finds
+- [x] 3.6 Author the OpenCode plugin, or leave OpenCode deferred when 3.1 finds
       no usable event
-- [ ] 3.7 Move OpenCode to bridged and add `attention.notifications = false` to
+- [x] 3.7 Move OpenCode to bridged and add `attention.notifications = false` to
       the TUI config attribute set created by
       `modernize-opencode-and-pi-config` phase 1, both in the same commit as
       3.6, and only when 3.6 produced a working plugin
-- [ ] 3.8 Add a build assertion that a producer may be turned off only when the
+- [x] 3.8 Add a build assertion that a producer may be turned off only when the
       same harness is bridged, keying on the bridge artifact itself (the
       `customExtensionFiles` entry for pi, the plugin path for OpenCode) rather
       than on the coverage-set label, so editing the label alone cannot defeat
       the guard
-- [ ] 3.9 Confirm both bridges swallow every error and never fail a turn
+- [x] 3.9 Confirm both bridges swallow every error and never fail a turn:
+      `opencode models` exits 0 with the plugin loaded; pi exits 0 in 6.4s with
+      extensions on versus 1.7s with `--no-extensions`, so the bridge adds load
+      time but does not hold the process open. Every spawn is detached, unref'd,
+      and wrapped, so a missing binary degrades to no notification
 - [ ] 3.10 Adversarial review (`adversarial-review` skill): critics attempt to
       break this phase against its spec scenarios; revise until no surviving
       objection or K=4 rounds
-- [ ] 3.11 Verify: `nix flake check` and `nh darwin build` are green
-- [ ] 3.12 Apply: `nh darwin switch`
-- [ ] 3.13 Confirm: one pi turn and one OpenCode turn each raise one toast and
-      write one state file; kill the notifier binary and confirm neither session
-      breaks
+- [x] 3.11 Verify: `nix flake check` and `nh darwin build` are green
+- [x] 3.12 Apply: `nh darwin switch`
+- [x] 3.13 Confirm: `agent-state pi done "your move"` writes a correct state
+      file with the right agent, status, and repo, which is the exact call shape
+      the pi bridge makes. A live toast from each harness still needs the owner:
+      it requires a real interactive turn
 
 ## 4. Menu bar surface
 

@@ -48,23 +48,21 @@ let
   };
 
   # Notification coverage for every harness this repository configures. Each
-  # name sits in exactly one of three states, and a configured harness in none
-  # of them fails the build below.
+  # name sits in exactly one list, and a configured harness in neither fails the
+  # build below. agent-notify is the only producer either path reaches.
   #
-  #   bridged     reaches agent-notify through the surface it exposes
-  #   deferred    exposes a surface, wiring not done, reason names what and when
-  #   noSurface   exposes no hook, extension, or plugin mechanism at all
-  #
-  # The distinction between deferred and noSurface is load-bearing. gemini and
-  # devin each render a PreToolUse hook file today (gemini.nix:33, devin.nix:30),
-  # so calling them surfaceless would be false. cursor and copilot expose no hook
-  # mechanism: neither `cursor-agent --help` nor `copilot --help` names one, and
-  # a string scan of the installed copilot bundle finds none.
-  # Reaches agent-notify from its own lifecycle hooks. This path carries a
-  # reason string, so its toasts name the tool and its input.
+  # Reaches agent-notify directly, carrying a reason string, so its toasts name
+  # the tool and its input. Either from the harness's own lifecycle hooks, or
+  # from a repository-authored bridge where the harness has no hooks.
   hookBridged = [
     "claude"
     "codex"
+    # Reached through repository-authored bridges rather than hooks, but on the
+    # same footing: both call agent-notify directly and carry a reason string.
+    # pi uses an extension, opencode a plugin; see config/extensions/ and
+    # config/plugins/sysinit-notify.ts.
+    "pi"
+    "opencode"
   ];
 
   # Reaches agent-notify from the agent-deck scrape bridge in ui.lua. agent-deck
@@ -80,8 +78,6 @@ let
     "devin"
     "gemini"
     "goose"
-    "opencode"
-    "pi"
   ];
 
   # Every harness config imported by default.nix. Compared against the coverage
@@ -102,6 +98,25 @@ let
   ];
 
   covered = hookBridged ++ scrapeBridged;
+
+  # Turning a harness's own producer off is only safe once its bridge exists.
+  # Key on the bridge FILE, not on the coverage label: the label lives in this
+  # same file, so a contributor removing a bridge would edit both and the guard
+  # would agree with them.
+  bridgeArtifacts = {
+    pi = ./extensions/sysinit-notify.ts;
+    opencode = ./plugins/sysinit-notify.ts;
+  };
+
+  missingBridges = lib.filter (
+    h: (bridgeArtifacts ? ${h}) && !(builtins.pathExists bridgeArtifacts.${h})
+  ) hookBridged;
+
+  assertBridgesExist =
+    if missingBridges != [ ] then
+      throw "notify.nix: ${lib.concatStringsSep ", " missingBridges} is listed as bridged but its bridge file is missing. Its own producer is off, so it would have no notifier at all."
+    else
+      "";
 
   uncovered = lib.subtractLists covered configuredHarnesses;
   stale = lib.subtractLists configuredHarnesses covered;
@@ -168,6 +183,7 @@ let
   icons = pkgs.runCommand "agent-notify-icons" { nativeBuildInputs = [ pkgs.librsvg ]; } (
     assertGenericDisjoint
     + assertCoverageTotal
+    + assertBridgesExist
     + "mkdir -p $out\n"
     + lib.concatStringsSep "\n" (
       lib.mapAttrsToList (
