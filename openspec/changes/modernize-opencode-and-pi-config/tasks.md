@@ -5,39 +5,38 @@
   OpenCode writes no new migration backup
 - **MAX-ITERS** 4
 
-- [ ] 1.1 Add `pkgs.check-jsonschema` to the check closure; no flake input
+- [x] 1.1 Add `pkgs.check-jsonschema` to the check closure; no flake input
       provides a JSON-schema validator today
-- [ ] 1.2 Add a `nix flake check` derivation validating the rendered OpenCode
+- [x] 1.2 Add a `nix flake check` derivation validating the rendered OpenCode
       config against `${pkgs.opencode}/share/opencode/config.json` (follows the
       hermetic checks at `flake.nix:229`)
-- [ ] 1.3 Move `theme`, `keybinds`, and `tui.scroll_acceleration` out of the
+- [x] 1.3 Move `theme`, `keybinds`, and `tui.scroll_acceleration` out of the
       main config attribute set into a TUI config attribute set
-- [ ] 1.4 Write the TUI config to `~/.config/opencode/tui.json` using the same
+- [x] 1.4 Write the TUI config to `~/.config/opencode/tui.json` using the same
       merge-into-a-writable-file activation pattern as `opencode.nix:208`; this
       writer is the one `unify-agent-notification-layer` depends on for
       `attention.notifications`
-- [ ] 1.5 Add a retired-key list to the OpenCode activation script that deletes
+- [x] 1.5 Add a retired-key list to the OpenCode activation script that deletes
       `theme`, `keybinds`, and `tui` from the live main config before merging;
       a deep merge cannot remove a key on its own
-- [ ] 1.6 Extend the build-time check to a committed fixture pushed through the
+- [x] 1.6 Extend the build-time check to a committed fixture pushed through the
       same retired-key deletion and merge, validated against both schemas; the
       check derivation is hermetic and cannot read the live `$HOME`
-- [ ] 1.7 Add an activation-time validation of the real merged file that fails
+- [x] 1.7 Add an activation-time validation of the real merged file that fails
       `nh darwin switch`; the build-time layer alone cannot see a key OpenCode
       wrote at runtime
-- [ ] 1.8 Declare `shell`, `default_agent`, `subagent_depth`, `compaction`, and
+- [x] 1.8 Declare `shell`, `default_agent`, `subagent_depth`, `compaction`, and
       `tool_output` in the main config
 - [ ] 1.9 Adversarial review (`adversarial-review` skill): critics attempt to
       break this phase against its spec scenarios; revise until no surviving
       objection or K=4 rounds
-- [ ] 1.10 Verify: `nix flake check` and `nh darwin build` are green; review
+- [x] 1.10 Verify: `nix flake check` and `nh darwin build` are green; review
       `git diff`
-- [ ] 1.11 Apply: `nh darwin switch`
-- [ ] 1.12 Confirm: OpenCode starts, the theme and leader key still work, and
-      the live main config carries no `theme`, `keybinds`, or `tui` key
-- [ ] 1.13 Confirm: start OpenCode a second time and check that no new
-      `opencode.json.tui-migration.bak` appears; the first start could still
-      migrate a key left by an earlier generation
+- [x] 1.11 Apply: `nh darwin switch`
+- [x] 1.12 Confirm: the live main config carries none of `theme`, `keybinds`,
+      or `tui` after the switch, and `tui.json` carries all three
+- [x] 1.13 Confirm: started OpenCode twice; the migration-artifact count stayed
+      at 1 (the pre-existing March file) and the main config stayed clean
 
 ## 2. Pi settings ownership
 

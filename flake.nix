@@ -596,6 +596,51 @@
           # removed only the first, so an approval toast was never dismissed.
           # `agent_group` in agent-group.sh is now the only place that builds the
           # string; this check fails if any consumer reintroduces a literal.
+          # The rendered OpenCode config must satisfy the schema the installed
+          # build ships. Two layers are needed and neither is sufficient alone:
+          # this one validates the Nix base plus a fixture pushed through the
+          # same retired-key delete and merge, and the activation script
+          # validates the real merged file. A check derivation is hermetic and
+          # cannot read $HOME, so it can never see what OpenCode actually reads.
+          opencode-config-schema =
+            pkgs.runCommand "opencode-config-schema-check"
+              {
+                nativeBuildInputs = [
+                  pkgs.check-jsonschema
+                  pkgs.jq
+                ];
+              }
+              ''
+                schemas=${
+                  (import ./modules/home/programs/llm/config/opencode-render.nix { inherit pkgs lib; }).schemas
+                }
+                cfg=${
+                  pkgs.writeText "opencode-base.json" (
+                    builtins.toJSON
+                      (import ./modules/home/programs/llm/config/opencode-render.nix { inherit pkgs lib; }).main
+                  )
+                }
+                tui=${
+                  pkgs.writeText "opencode-tui.json" (
+                    builtins.toJSON
+                      (import ./modules/home/programs/llm/config/opencode-render.nix { inherit pkgs lib; }).tui
+                  )
+                }
+
+                check-jsonschema --schemafile "$schemas/config.json" "$cfg"
+                check-jsonschema --schemafile "$schemas/tui.json" "$tui"
+
+                # A live file carrying the retired keys must come out clean once
+                # the activation filter runs. This is the case the base-only
+                # validation misses.
+                jq -n '{theme:"dark",keybinds:{leader:"ctrl+b"},tui:{scroll_acceleration:{enabled:false}},autoupdate:true}' > fixture.json
+                jq 'del(.theme, .keybinds, .tui)' fixture.json > stripped.json
+                jq -s '.[1] as $m | (.[0] * $m) | if ($m|has("mcp")) then .mcp = $m.mcp else . end' stripped.json "$cfg" > merged.json
+                check-jsonschema --schemafile "$schemas/config.json" merged.json
+
+                echo "OK: opencode base, tui, and merged fixture all validate" | tee "$out"
+              '';
+
           # Covers all four defects the phase fixes, not the group alone. Each
           # assertion below fails if its fix is reverted; a grep for the fix's
           # presence would not, because a caller can keep the call and still

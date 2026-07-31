@@ -11,6 +11,11 @@ let
   # Keep this list for confirmed per-harness incompatibilities only.
   disabledMcpServers = [ "slack" ];
 
+  # The schemas ship inside the installed derivation, so a version bump moves
+  # the binary and its schema together and a key move fails validation on the
+  # bump itself. Do not vendor a copy: it would need its own drift check.
+  schemaDir = "${render.schemas}";
+
   # Skills install only to ~/.claude/skills (per default.nix); opencode reads
   # that tree natively. Point instructions at the populated root, not a phantom
   # per-tool dir that holds no SKILL.md files.
@@ -31,25 +36,9 @@ let
     + "\n## Output Style\n\n"
     + kit.llmLib.instructions.outputStyleRules;
 
-  opencodeConfig = {
-    "$schema" = "https://opencode.ai/config.json";
-    autoupdate = false;
-    share = "disabled";
-    theme = "system";
+  render = import ./opencode-render.nix { inherit pkgs lib; };
 
-    # Two-tier split on the Codex models the ChatGPT subscription already pays
-    # for: gpt-5.5 is OpenAI's recommended Codex default, gpt-5.4-mini handles
-    # cheap summarization/title work. Can be overridden to a local Ollama model
-    # at startup with --model ollama/qwen2.5-coder:7b.
-    model = "openai/gpt-5.5";
-    small_model = "openai/gpt-5.4-mini";
-
-    tui = {
-      scroll_acceleration = {
-        enabled = true;
-      };
-    };
-
+  opencodeConfig = render.main // {
     mcp = llmLib.mcp.formatForOpencode disabledMcpServers kit.mcpServers.servers;
 
     instructions = [
@@ -63,10 +52,6 @@ let
       ".cursor/rules"
       ".sysinit/lessons.md"
     ];
-
-    keybinds = {
-      leader = "ctrl+a";
-    };
 
     permission = {
       webfetch = "allow";
@@ -205,25 +190,72 @@ let
   # on which plugins are declared.
   opencodeConfigFile = pkgs.writeText "opencode-base.json" (builtins.toJSON opencodeConfig);
 
+  # OpenCode 1.18 moved the terminal-interface settings into their own file and
+  # made opencode.json reject unknown keys (`additionalProperties: false` on the
+  # Config definition). Writing them into the main file made OpenCode migrate
+  # them out on every start and leave a .tui-migration.bak behind each time.
+  opencodeTuiFile = pkgs.writeText "opencode-tui-base.json" (builtins.toJSON render.tui);
+
+  # Keys this module used to declare and no longer does. The activation merge is
+  # a deep merge, so undeclaring a key leaves it on disk forever; only an
+  # explicit delete removes it. Every entry here is a key OpenCode would reject
+  # or re-migrate if it stayed in the main file.
+  retiredMainKeys = [
+    "theme"
+    "keybinds"
+    "tui"
+  ];
+
+  retiredMainFilter = lib.concatMapStringsSep ", " (k: ".${k}") retiredMainKeys;
+
   updateOpencodeConfig = pkgs.writeShellScript "update-opencode-config" ''
     set -euo pipefail
     target="$HOME/.config/opencode/opencode.json"
+    tui="$HOME/.config/opencode/tui.json"
     mkdir -p "$(dirname "$target")"
 
-    if [ -L "$target" ]; then
-      rm -f "$target"
-    fi
+    for f in "$target" "$tui"; do
+      if [ -L "$f" ]; then
+        rm -f "$f"
+      fi
+    done
 
     tmp="$(mktemp "$target.tmp.XXXXXX")"
-    trap 'rm -f "$tmp"' EXIT
+    tui_tmp="$(mktemp "$tui.tmp.XXXXXX")"
+    trap 'rm -f "$tmp" "$tui_tmp"' EXIT
 
     if [ -f "$target" ]; then
-      ${pkgs.jq}/bin/jq -s '.[1] as $managed | .[0] * $managed | .mcp = $managed.mcp' "$target" ${opencodeConfigFile} > "$tmp"
+      # Delete the retired keys BEFORE merging. A deep merge preserves any key
+      # present in the live file, so dropping them from the Nix side alone is a
+      # no-op against the running harness.
+      ${pkgs.jq}/bin/jq 'del(${retiredMainFilter})' "$target" > "$tmp.stripped"
+      ${pkgs.jq}/bin/jq -s '.[1] as $managed | (.[0] * $managed) | if ($managed|has("mcp")) then .mcp = $managed.mcp else . end' "$tmp.stripped" ${opencodeConfigFile} > "$tmp"
+      rm -f "$tmp.stripped"
     else
       cp ${opencodeConfigFile} "$tmp"
     fi
+
+    if [ -f "$tui" ]; then
+      ${pkgs.jq}/bin/jq -s '.[0] * .[1]' "$tui" ${opencodeTuiFile} > "$tui_tmp"
+    else
+      cp ${opencodeTuiFile} "$tui_tmp"
+    fi
+
+    # Validate what OpenCode will actually read, not just the Nix base. A build
+    # check cannot see this file: it is hermetic and this path is in $HOME.
+    for pair in "$tmp:${schemaDir}/config.json" "$tui_tmp:${schemaDir}/tui.json"; do
+      f="''${pair%%:*}"
+      s="''${pair##*:}"
+      if ! ${pkgs.check-jsonschema}/bin/check-jsonschema --schemafile "$s" "$f" > /dev/null 2>&1; then
+        echo "opencode: merged config failed schema validation against $s" >&2
+        ${pkgs.check-jsonschema}/bin/check-jsonschema --schemafile "$s" "$f" >&2 || true
+        exit 1
+      fi
+    done
+
     mv "$tmp" "$target"
-    chmod u+w "$target"
+    mv "$tui_tmp" "$tui"
+    chmod u+w "$target" "$tui"
   '';
 in
 {

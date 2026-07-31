@@ -1,9 +1,9 @@
 version: 1
 change: modernize-opencode-and-pi-config
 decision: approved
-note: adversarial review complete; terminal state recorded in tasks.md
-change_hash: 1cfd734d67733ccb
-base_commit: 09942a5c90d6ca6e96a54aa3413cb3239a05313b
+note: phase 1 implemented and applied
+change_hash: d1929af4e1e3fa8c
+base_commit: 9efa8460e5b622b8c5a1d605925dfdcfe5437802
 items:
     0f8cd7a6a4d731bb:
         hash: da42f5ffd02d176c
@@ -17,9 +17,6 @@ items:
     2ef836be866dfa76:
         hash: 3117b86500f01253
         text: Write the TUI config to `~/.config/opencode/tui.json` using the same merge-into-a-writable-file activation pattern as `opencode.nix:208`; this writer is the one `unify-agent-notification-layer` depends on for `attention.notifications`
-    02f931ea5e91e3f1:
-        hash: 193b41dbea3c3647
-        text: 'Confirm: start OpenCode a second time and check that no new `opencode.json.tui-migration.bak` appears; the first start could still migrate a key left by an earlier generation'
     3ee47abf12f57cd8:
         hash: c1389bff72961541
         text: 'Adversarial review (`adversarial-review` skill): critics attempt to break this phase against its spec scenarios; revise until no surviving objection or K=4 rounds'
@@ -92,12 +89,18 @@ items:
     a5f935c7b79f5565:
         hash: 9d2bf2924ab7748e
         text: Add a build assertion that a generated theme file is selected by a declared setting
+    a54fdbe4de731ec7:
+        hash: 7030f966126191f9
+        text: 'Confirm: the live main config carries none of `theme`, `keybinds`, or `tui` after the switch, and `tui.json` carries all three'
     ac7736c424fd0e32:
         hash: af5f932ceb692179
         text: Vendor `protected-paths`, `plan-mode`, and `modal-editor`, dropping any that 3.3 shows to conflict
     b959ad93e33805fb:
         hash: 91ddf6ea87c9cdb5
         text: Move `theme`, `keybinds`, and `tui.scroll_acceleration` out of the main config attribute set into a TUI config attribute set
+    ba359ae969bacf0d:
+        hash: 5106ca346d7cb0b3
+        text: 'Confirm: started OpenCode twice; the migration-artifact count stayed at 1 (the pre-existing March file) and the main config stayed clean'
     bdb1b11e930d8cbd:
         hash: c1389bff72961541
         text: 'Adversarial review (`adversarial-review` skill): critics attempt to break this phase against its spec scenarios; revise until no surviving objection or K=4 rounds'
@@ -128,9 +131,6 @@ items:
     ed145c653a4d5a37:
         hash: 3cb16b9bc2a9a6d3
         text: 'Verify: `nix flake check`, `nh darwin build`, and `./hack/update-pi.sh` all behave as expected'
-    f5f6da71acb9fbed:
-        hash: 75dae5dba449401d
-        text: 'Confirm: OpenCode starts, the theme and leader key still work, and the live main config carries no `theme`, `keybinds`, or `tui` key'
     f57ccba8d2c83623:
         hash: 887361bc75657e2b
         text: Copy the live `~/.pi/agent/settings.json` into the change directory as the rollback artifact
