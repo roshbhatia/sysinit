@@ -37,10 +37,13 @@
       Trend 6 to 1, declining. No round returned clean; the cap stopped it.
 - [x] 1.9 Verify: `nix flake check` green (16 checks), host build green,
       `nix fmt -- --check` clean, all four defect assertions negative-tested
-- [ ] 1.10 Apply: `nh darwin switch`
+- [x] 1.10 Apply: `nh darwin switch`
 - [ ] 1.11 Confirm: an approval toast dismisses on click; two idle panes of one
-      harness both notify; two ssh sessions with no `WEZTERM_PANE` both notify;
-      a pi toast carries the pi icon and an amp toast carries the generic glyph
+      harness both notify; a pi toast carries the pi icon and an amp toast
+      carries the generic glyph. The paneless case is already confirmed on the
+      live system: two sessions with no `WEZTERM_PANE` produced the distinct
+      dedup keys `ctx4120745486_idle` and `ctx4143571985_idle`. The remaining
+      items need a human to click a notification.
 
 ## 2. Coverage set and agent-deck
 
