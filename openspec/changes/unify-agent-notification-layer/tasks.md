@@ -128,8 +128,18 @@
       coming back; the bridge guard proved the source file existed rather than
       the install entry; pi and opencode stayed registered with agent-deck under
       a comment saying their bridges did not exist.
-      Open: whether `session.idle` fires per child session, which would raise one
-      toast per subagent. Needs a live OpenCode turn using the task tool.
+      Resolved, and it found a worse defect than the one it asked about. A probe
+      capturing EVERY plugin event across four runs and 59 events never saw
+      `session.idle` or `session.error` at all, so the original bridge was dead
+      code. The real turn-end signal is `session.status` carrying
+      `status.type === "idle"`; OpenCode's own code waits on exactly that, and
+      the status union is busy, idle, retry, error, waiting. The bridge is
+      rebound accordingly, with a check that fails if `session.idle` returns.
+      The child-session question is handled by tracking the first
+      `session.created` id as the root and ignoring every other session.
+      Still unobserved end to end: no OpenCode turn completed in testing.
+      `opencode run` exits before publishing an idle status, and three TUI turns
+      stayed busy indefinitely on the available models.
 - [x] 3.11 Verify: `nix flake check` and `nh darwin build` are green
 - [x] 3.12 Apply: `nh darwin switch`
 - [x] 3.13 Confirm: `agent-state pi done "your move"` writes a correct state

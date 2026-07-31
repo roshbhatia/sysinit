@@ -13,6 +13,16 @@
  * `~/.config/opencode/plugins/`, and its own onboarding text names
  * `.opencode/plugins/` for event hooks with OS notifications as the use case.
  *
+ * The turn-end signal is `session.status` carrying `status.type === "idle"`,
+ * NOT a `session.idle` event. An earlier version of this bridge bound
+ * `session.idle` and `session.error` and was therefore dead: a probe capturing
+ * every event across four runs and 59 events saw neither type. The vocabulary a
+ * plugin actually receives is `session.created`, `session.updated`,
+ * `session.status`, `session.diff`, `message.updated`, `message.part.updated`,
+ * and a few registry events. OpenCode's own code waits on
+ * `session.status` with `status.type === "idle"`; the status union is
+ * busy, idle, retry, error, and waiting.
+ *
  * The bridge only spawns. Classification, suppression, identity, icons, and
  * sounds stay in the shell scripts, so there is one copy of that logic.
  *
@@ -47,30 +57,46 @@ function spawnQuiet(exe: string, args: string[], input?: string): void {
 	}
 }
 
+// The root session is the first one created. A subagent runs in its own child
+// session that publishes on the same bus, so announcing every idle would pull
+// the human to a pane that is still working, once per subagent.
+let rootSession: string | undefined;
+
 export const SysinitNotify = async () => ({
 	event: async ({
 		event,
-	}: { event?: { type?: string; properties?: { parentID?: string } } }) => {
+	}: {
+		event?: {
+			type?: string;
+			properties?: { sessionID?: string; status?: { type?: string } };
+		};
+	}) => {
 		try {
-			// A child session is a subagent, not the human's turn. A probe run
-			// confirmed the payload carries `parentID`, absent on the root
-			// session. Announcing a child would pull the human to a pane that is
-			// still working, once per subagent.
-			if (event?.properties?.parentID) return;
+			const sid = event?.properties?.sessionID;
 
-			switch (event?.type) {
+			if (event?.type === "session.created") {
+				rootSession ??= sid;
+				return;
+			}
+
+			if (event?.type !== "session.status") return;
+			// Only the root session's transitions are the human's turn.
+			if (!sid || sid !== rootSession) return;
+
+			switch (event?.properties?.status?.type) {
 				// The run finished and OpenCode is waiting on the human.
-				case "session.idle":
+				case "idle":
 					spawnQuiet("agent-state", ["opencode", "done", "your move"]);
 					spawnQuiet("agent-notify", ["opencode", "done", `${BIN}/agent-focus`], "{}");
 					break;
 
 				// The run stopped on an error, which also needs the human.
-				case "session.error":
+				case "error":
 					spawnQuiet("agent-state", ["opencode", "waiting", "session error"]);
 					spawnQuiet("agent-notify", ["opencode", "approval", `${BIN}/agent-focus`], "{}");
 					break;
 
+				// busy, retry, and waiting are mid-run; the statusline covers them.
 				default:
 					break;
 			}

@@ -813,6 +813,14 @@
                   note "ui.lua does not forward agent-deck transitions into agent-notify"
                 # Anchor on the guard itself. A bare 'uv.agent_state' also
                 # matches two unrelated readers further down the file.
+                # The OpenCode bridge must bind the event OpenCode actually
+                # publishes. `session.idle` does not exist in the plugin event
+                # vocabulary; a probe across 59 events never saw it.
+                rg -q 'session\.status' "$cfg/plugins/sysinit-notify.ts" ||
+                  note "the opencode bridge does not bind session.status; session.idle is not a plugin event"
+                rg -q '"session\.idle"' "$cfg/plugins/sysinit-notify.ts" &&
+                  note "the opencode bridge binds session.idle, which the plugin hook never receives"
+
                 rg -q 'if not \(uv and uv.agent_state' "$ui" ||
                   note "the scrape bridge does not skip hook-bridged panes; claude will double-notify"
 

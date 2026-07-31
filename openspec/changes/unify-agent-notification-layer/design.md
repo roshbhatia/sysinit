@@ -235,9 +235,16 @@ in-process teammates. See the `adversarial-review` skill for the methodology.
 
 ## Open Questions
 
-- Does OpenCode 1.18.4 expose a plugin event for session idle and for a
-  permission request? The config schema is documented; the plugin event list is
-  not. Phase 3 opens with a spike that answers this.
+- Answered, and the first answer was wrong. `session.idle` exists in the
+  binary's internal event-bus definitions but is NOT delivered to a plugin's
+  `event` hook: a probe capturing every event across four runs and 59 events
+  never saw it. The vocabulary a plugin receives is `session.created`,
+  `session.updated`, `session.status`, `session.diff`, `message.updated`,
+  `message.part.updated`, and a few registry events. Turn end is
+  `session.status` with `status.type === "idle"`.
+  The lesson: a string in a binary proves the symbol exists, not that the
+  extension surface delivers it. Only a probe that captures everything can
+  tell the difference.
 - Should gemini and devin get a bridge, or stay on scraping only? Both render a
   `PreToolUse` hook file today, so both are recorded as deferred. The owner
   decides whether to wire them.

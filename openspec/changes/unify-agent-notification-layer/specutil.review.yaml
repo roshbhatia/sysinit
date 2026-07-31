@@ -1,9 +1,9 @@
 version: 1
 change: unify-agent-notification-layer
 decision: approved
-note: verified in real wezterm panes
-change_hash: 40532a4e1ebfc1ee
-base_commit: ea5387f2609ef4b5a263f6c5ff68320e211f183b
+note: opencode bridge rebound to the real event
+change_hash: 94717328cecb8f86
+base_commit: 8896b2df95675b4987fefec868c4fc06a855a2bd
 items:
     00bde2a78e456b8b:
         hash: ff1a6eb6f71b9ea5
@@ -20,9 +20,6 @@ items:
     2e2c0b18a7ad4275:
         hash: e772fb73fbd07d79
         text: 'Verify: `nix flake check` green (16 checks), host build green, `nix fmt -- --check` clean, all four defect assertions negative-tested'
-    04f502b695fda523:
-        hash: 6e2a53e32aec2550
-        text: 'Adversarial review (`adversarial-review` skill): round 1 returned 6 surviving objections, all fixed. `detached: true` called setsid(), which severs the controlling terminal, so agent-state''s OSC never landed and the scrape bridge would have announced every bridged harness twice; pi''s `tool_call` payload is `event.input`, not `event.args`, so every reason string was empty; no check caught pi''s `notify` or opencode''s `attention` coming back; the bridge guard proved the source file existed rather than the install entry; pi and opencode stayed registered with agent-deck under a comment saying their bridges did not exist. Open: whether `session.idle` fires per child session, which would raise one toast per subagent. Needs a live OpenCode turn using the task tool.'
     05f146743a0e14f7:
         hash: 951f1fbf9ca0457e
         text: 'Confirm: `agent-state pi done "your move"` writes a correct state file with the right agent, status, and repo, which is the exact call shape the pi bridge makes. A live toast from each harness still needs the owner: it requires a real interactive turn'
@@ -134,6 +131,9 @@ items:
     c984bd896321fb21:
         hash: a17dda0585237cbf
         text: 'Adversarial review: deferred to the change-level review; this phase is one file and its two failure modes each have a failing-on-revert check'
+    ca75b9196d7cb34c:
+        hash: b596104b8359fe0e
+        text: 'Adversarial review (`adversarial-review` skill): round 1 returned 6 surviving objections, all fixed. `detached: true` called setsid(), which severs the controlling terminal, so agent-state''s OSC never landed and the scrape bridge would have announced every bridged harness twice; pi''s `tool_call` payload is `event.input`, not `event.args`, so every reason string was empty; no check caught pi''s `notify` or opencode''s `attention` coming back; the bridge guard proved the source file existed rather than the install entry; pi and opencode stayed registered with agent-deck under a comment saying their bridges did not exist. Resolved, and it found a worse defect than the one it asked about. A probe capturing EVERY plugin event across four runs and 59 events never saw `session.idle` or `session.error` at all, so the original bridge was dead code. The real turn-end signal is `session.status` carrying `status.type === "idle"`; OpenCode''s own code waits on exactly that, and the status union is busy, idle, retry, error, waiting. The bridge is rebound accordingly, with a check that fails if `session.idle` returns. The child-session question is handled by tracking the first `session.created` id as the root and ignoring every other session. Still unobserved end to end: no OpenCode turn completed in testing. `opencode run` exits before publishing an idle status, and three TUI turns stayed busy indefinitely on the available models.'
     e1a1863d4b9cc38d:
         hash: 6b71f93b55d2dd9d
         text: 'Extend `notify-defect-regressions` with three assertions: the agent-deck toast stays off, the bridge forwards into `agent-notify`, and the bridge skips hook-bridged panes. All three negative-tested'
