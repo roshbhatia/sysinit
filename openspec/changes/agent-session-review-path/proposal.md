@@ -55,6 +55,8 @@ New code:
 - `modules/home/programs/llm/config/agent-review.sh`
 
 Dependencies:
+- `seshy` becomes a flake input, so `pkgs.seshy` provides the binary the gate
+  wraps. It stays out of `home.packages`, because the gate owns the name `sy`.
 - Reads the per-pane state bus that `harden-agent-shell-terminal` is versioning.
   The report MUST tolerate a file with no version field, because that change has
   not landed.

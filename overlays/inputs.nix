@@ -23,4 +23,10 @@ final: _prev: {
   # deterministic rubric-lint the rosh-spec-driven schema and the
   # adversarial-review skill both require on PATH.
   specutil = inputs.specutil.packages.${final.stdenv.hostPlatform.system}.default;
+
+  # The session manager behind `sy`. NOT added to home.packages directly: the
+  # readiness gate in modules/home/programs/llm/config/notify.nix is what
+  # installs a binary named `sy`, and it execs this store path. Installing both
+  # would collide on bin/sy in one profile.
+  seshy = inputs.seshy.packages.${final.stdenv.hostPlatform.system}.default;
 }

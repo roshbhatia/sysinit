@@ -287,7 +287,11 @@ let
   syGate = pkgs.writeShellApplication {
     name = "sy";
     runtimeInputs = [ pkgs.coreutils ];
-    text = builtins.readFile ./sy-gate.sh;
+    text = ''
+      SY_REAL=${lib.getExe' pkgs.seshy "sy"}
+    ''
+    + "\n"
+    + builtins.readFile ./sy-gate.sh;
   };
 
   # Notification click handler: raises the wezterm pane the agent runs in. Runs in

@@ -9,46 +9,19 @@
 # Every subcommand except delete/rm/remove is passed straight through, so this
 # stays a gate and not a reimplementation of seshy.
 #
-# Find the real seshy binary. This gate is installed as `sy` and shadows it on
-# PATH, so it must skip ITSELF rather than skip a directory.
+# SY_REAL is baked in at build time as the absolute store path of the seshy
+# binary (see notify.nix). Earlier versions scanned PATH and tried to skip
+# themselves, which was fragile in both directions: it assumed seshy was never
+# in the Nix store, and it depended on resolving its own path correctly.
 #
-# Do not filter on /nix/store: seshy is not Nix-managed today, but the day it
-# is, a store filter would make this gate unable to find it at all. Comparing
-# resolved paths against our own works either way.
-self_path=$(command -v -- "$0" 2> /dev/null || printf '%s' "$0")
-case "$self_path" in
-  /*) ;;
-  *) self_path="$PWD/$self_path" ;;
-esac
-
-sy_real() {
-  if [ -n "${SY_REAL:-}" ] && [ -x "$SY_REAL" ]; then
-    printf '%s' "$SY_REAL"
-    return 0
-  fi
-  _ifs=$IFS
-  IFS=:
-  for _d in $PATH; do
-    [ -x "$_d/sy" ] || continue
-    # Skip this script, however it is reached (symlink, profile, store path).
-    if [ "$_d/sy" -ef "$self_path" ] 2> /dev/null; then
-      continue
-    fi
-    case "$_d/sy" in
-      "$self_path") continue ;;
-    esac
-    IFS=$_ifs
-    printf '%s' "$_d/sy"
-    return 0
-  done
-  IFS=$_ifs
-  return 1
-}
-
-SY_REAL=$(sy_real) || {
-  printf 'sy: cannot find the seshy binary; only this gate is on PATH\n' >&2
+# seshy is now a flake input, so the path is known at build time. It is also why
+# seshy is deliberately NOT in home.packages: this gate is the only thing that
+# installs a binary named `sy`, and two packages providing bin/sy would collide
+# in one profile.
+if [ ! -x "$SY_REAL" ]; then
+  printf 'sy: the seshy binary is missing at %s\n' "$SY_REAL" >&2
   exit 127
-}
+fi
 
 sub=${1:-}
 

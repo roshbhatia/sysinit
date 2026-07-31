@@ -133,6 +133,23 @@ skill. The round cap is K=4 for this single-capability change, and the loop also
 stops early on non-convergence or fix-induced churn. A cap hit is reported as
 open objections, never as a pass.
 
+### D5. seshy is a flake input, so the gate execs a known store path
+
+seshy now ships a flake, so `pkgs.seshy` exists and the gate bakes its absolute
+store path at build time. Two earlier resolution strategies are gone: scanning
+PATH while excluding `/nix/store`, which would have broken the moment seshy
+became Nix-managed, and scanning while skipping itself, which depended on
+resolving its own path correctly.
+
+seshy is deliberately NOT in `home.packages`. The gate is the only thing that
+installs a binary named `sy`, and two packages providing `bin/sy` would collide
+in one profile.
+
+- Alternative rejected: install seshy normally and give the gate a different
+  name, such as `sy-guarded`, with a shell alias. Rejected because an alias is
+  not read by `zsh -c`, by scripts, or by an agent's shell tool, which is the
+  exact bypass that moved this gate out of `.zshrc` in the first place.
+
 ## Open Questions
 
 - Answered in phase 1. seshy passes the hook environment variables, confirmed

@@ -1,9 +1,9 @@
 version: 1
 change: agent-session-review-path
 decision: approved
-note: runtime-preference boundary and tool decision recorded
-change_hash: c40e7f7d3b21fce4
-base_commit: 951894f343c7ae6fea21462e73373b89d0c78121
+note: seshy wired in as a flake input
+change_hash: 62f12547d4e08403
+base_commit: 9b7f510f25c18903b31ff7c577ed64c63a30e402
 items:
     0bd8c92c94aba443:
         hash: b3a33103634add62

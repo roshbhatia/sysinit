@@ -82,6 +82,13 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    # Multi-repo, git-worktree session manager. Provides `sy`, which the shell
+    # integration and the `sy delete` readiness gate both wrap.
+    seshy = {
+      url = "github:roshbhatia/seshy";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     # Upstream ast-grep agent skills (the `ast-grep` rule-authoring guide and
     # the `ast-grep-outline` structural-map guide). Vendored as a pinned source
     # rather than copied into skills/, so `nix flake update` is the only way
