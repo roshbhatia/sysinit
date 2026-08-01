@@ -18,9 +18,15 @@ let
 in
 {
   sysinit.llm.mcp.additionalServers = {
+    # Upstream declares `mcp[cli]>=1.6.0` with no upper bound, but imports
+    # `mcp.server.fastmcp`, which the SDK dropped in 2.0.0. Without the pin uv
+    # resolves 2.x and the server dies on import. Drop `--with` once upstream
+    # moves off the removed module.
     ast-grep = {
       command = "uvx";
       args = [
+        "--with"
+        "mcp<2"
         "--from"
         "git+https://github.com/ast-grep/ast-grep-mcp"
         "ast-grep-server"
