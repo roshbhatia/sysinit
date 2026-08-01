@@ -13,6 +13,7 @@ let
     "osx-cross/avr"
     "sandreas/tap"
     "slp/krunkit"
+    "steipete/tap"
   ];
 
   baseBrews = [
@@ -26,6 +27,10 @@ let
     "osx-cross/arm/arm-none-eabi-binutils"
     "osx-cross/arm/arm-none-eabi-gcc@8"
     "slp/krunkit/krunkit"
+    # Goose's computercontroller extension shells out to `brew install
+    # steipete/tap/peekaboo` the first time its computer_control tool runs.
+    # Declaring it keeps that install out of an agent's hands.
+    "steipete/tap/peekaboo"
     "switchaudio-osx"
   ];
 
