@@ -242,10 +242,10 @@ let
   # Destructive / irreversible / hook-bypassing command patterns that MUST be
   # denied in every harness (the mechanical floor under the global CLAUDE.md
   # prohibitions). Two representations of the same intent:
-  #   destructiveDenyRegexes — ERE, for regex-matching harnesses (Goose
-  #     shell.deny) and as the canonical reference for the guard scripts. These
-  #     mirror the patterns already inlined in claude-bash-guard.sh so all
-  #     harnesses block the same forms.
+  #   destructiveDenyRegexes — ERE, for regex-matching harnesses and as the
+  #     canonical reference for the guard scripts. These mirror the patterns
+  #     already inlined in claude-bash-guard.sh so all harnesses block the same
+  #     forms.
   #   destructiveDenyGlobs — prefix globs, for permission systems that match
   #     command prefixes (opencode permission.bash keys, Amp matches.cmd).
   #     Prefix matching is leakier than regex (a flag after positional args can
@@ -323,14 +323,6 @@ let
       action = "allow";
     }) tier;
 
-  # Goose: shell.allow expects regex patterns. Convert glob `*` → `.*`.
-  formatForGoose = tier: {
-    shell = {
-      allow = builtins.map (cmd: builtins.replaceStrings [ "*" ] [ ".*" ] cmd) tier;
-      deny = [ ];
-    };
-  };
-
   # Opencode: permission.bash is an attrset keyed by glob pattern with
   # values "allow". Each tier entry "<cmd>" or "<cmd> *" becomes a key.
   # For "<cmd>" (exact, no args) we emit "<cmd>*" because opencode's
@@ -351,8 +343,8 @@ let
   formatForOpencode = formatForOpencodeWithAction "allow";
 
   # Destructive-deny formatters. Each takes a pattern list and maps it into the
-  # harness's native deny shape.
-  #   Goose  — shell.deny is regex; pass destructiveDenyRegexes through.
+  # harness's native deny shape. Goose has no entry: its config has no
+  # command-pattern deny surface, only tool-level permission.yaml gates.
   #   opencode — permission.bash map keyed by glob → "deny".
   #   Amp    — amp.permissions triples with action "reject" (verify the reject
   #            action name against Amp's schema at apply; current allow/ask are
@@ -370,7 +362,6 @@ let
   formatForDevin = tier: builtins.map (cmd: "Exec(${stripTrailingGlob cmd})") tier;
   formatDestructiveForDevin = patterns: builtins.map (cmd: "Exec(${stripTrailingGlob cmd})") patterns;
 
-  formatDestructiveForGoose = patterns: patterns;
   formatDestructiveForOpencode =
     patterns: lib.listToAttrs (builtins.map (cmd: lib.nameValuePair cmd "deny") patterns);
   formatDestructiveForAmp =
@@ -423,11 +414,9 @@ in
     formatForClaude
     formatForCursor
     formatForAmp
-    formatForGoose
     formatForOpencodeWithAction
     formatForOpencode
     formatForDevin
-    formatDestructiveForGoose
     formatDestructiveForOpencode
     formatDestructiveForAmp
     formatDestructiveForCursor
