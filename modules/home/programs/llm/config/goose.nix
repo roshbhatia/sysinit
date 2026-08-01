@@ -8,34 +8,104 @@ let
   llmLib = import ../lib { inherit lib; };
   kit = llmLib.harnessKit.mkKit { inherit lib pkgs config; };
 
-  # `formatForGoose` returns `{ shell = { allow = [...]; deny = []; } }` which
-  # must be merged at the top level with `//` — assigning it to a `shell` key
-  # would produce double nesting (`shell.shell.allow`) that goose would ignore.
-  # tierA allow-list, plus the shared destructive-command patterns as
-  # `shell.deny` regexes (goose matches shell.deny as regex). formatForGoose
-  # emits `deny = []`; override it here so goose blocks the same forms as the
-  # other harnesses.
-  gooseShell = llmLib.allowlist.formatForGoose llmLib.allowlist.tierA;
-  gooseShellWithDeny = {
-    shell = gooseShell.shell // {
-      deny = llmLib.allowlist.formatDestructiveForGoose llmLib.allowlist.destructiveDenyRegexes;
+  # Goose's own bundled MCP servers, each reachable as `goose mcp <name>`.
+  # Declared as `type = "stdio"` rather than `type = "builtin"` on purpose:
+  # both shapes load the same server, but a builtin runs in-process and is
+  # therefore invisible to an ACP provider, while a stdio extension is
+  # forwarded to the agent as `mcp__<name>__<tool>`. With GOOSE_PROVIDER set
+  # to claude-acp below, builtin would mean zero goose tools reach the model.
+  bundledExtensions = {
+    computercontroller = {
+      enabled = true;
+      description = "macOS UI automation, web scraping, and office-document tools";
+    };
+    autovisualiser = {
+      enabled = true;
+      description = "Render charts and diagrams from data in the transcript";
+    };
+    # Superseded by the basic-memory MCP server, which the whole fleet shares.
+    # Goose's own store is per-harness and writes to ~/.config/goose/memory.
+    memory = {
+      enabled = false;
+      description = "Goose-local categorized memory store";
+    };
+    # Injects "the user may be new to goose" guidance into every system prompt.
+    tutorial = {
+      enabled = false;
+      description = "Built-in goose tutorials";
     };
   };
 
-  gooseConfig = builtins.toJSON (
-    {
-      EDIT_MODE = "vi";
-      GOOSE_CLI_MIN_PRIORITY = 0.2;
-      GOOSE_CLI_THEME = "ansi";
-      # Risk-assessed approval instead of blanket auto: goose prompts on
-      # higher-risk actions, auto-runs the rest.
-      GOOSE_MODE = "smart_approve";
-      GOOSE_TOOLSHIM = true;
+  mkBundledExtension = name: ext: {
+    inherit (ext) description enabled;
+    inherit name;
+    args = [
+      "mcp"
+      name
+    ];
+    bundled = null;
+    cmd = "${pkgs.goose-cli}/bin/goose";
+    env_keys = [ ];
+    envs = { };
+    timeout = 300;
+    type = "stdio";
+  };
 
-      extensions = llmLib.mcp.formatForGoose kit.mcpServers.servers;
-    }
-    // gooseShellWithDeny
-  );
+  # Goose's in-process extensions. `name` mirrors the value goose seeds itself,
+  # because the activation merge is a deep merge: everything omitted here
+  # (description, display_name, available_tools) is kept from goose's own copy.
+  #
+  # extensionmanager is off because it enables and disables extensions by
+  # rewriting config.yaml, which this module owns. code_execution is off
+  # because it is still experimental upstream.
+  platformExtensions = {
+    analyze = true;
+    apps = true;
+    chatrecall = true;
+    code_execution = false;
+    developer = true;
+    extensionmanager = false;
+    summarize = true;
+    summon = true;
+    todo = true;
+    tom = true;
+  };
+
+  platformName = name: if name == "extensionmanager" then "Extension Manager" else name;
+
+  mkPlatformExtension = name: enabled: {
+    inherit enabled;
+    bundled = true;
+    name = platformName name;
+    type = "platform";
+  };
+
+  gooseConfig = builtins.toJSON {
+    EDIT_MODE = "vi";
+    GOOSE_CLI_MIN_PRIORITY = 0.2;
+    GOOSE_CLI_THEME = "ansi";
+    # Risk-assessed approval instead of blanket auto: goose prompts on
+    # higher-risk actions, auto-runs the rest.
+    GOOSE_MODE = "smart_approve";
+    # Claude Code over ACP, through the claude-agent-acp adapter this repo
+    # already installs (see lib/acp.nix). Without a provider and model here,
+    # goose runs its first-run configuration wizard on every start.
+    GOOSE_PROVIDER = "claude-acp";
+    # Required by goose, but inert for this provider: the adapter never passes
+    # a model flag to `claude`, so the model comes from ~/.claude/settings.json.
+    # Change the model there, not here.
+    GOOSE_MODEL = "opus";
+    # Toolshim routes tool calls through a local ollama interpreter, for
+    # providers with no native tool calling. claude-acp has native tools, so
+    # leaving this on only adds a hop and a failure mode.
+    GOOSE_TOOLSHIM = false;
+    GOOSE_TELEMETRY_ENABLED = false;
+
+    extensions =
+      llmLib.mcp.formatForGoose kit.mcpServers.servers
+      // lib.mapAttrs mkBundledExtension bundledExtensions
+      // lib.mapAttrs mkPlatformExtension platformExtensions;
+  };
 
   # Goose's runtime wants to mutate this file (e.g., when the user
   # answers the first-run telemetry prompt). xdg.configFile would symlink
@@ -63,16 +133,20 @@ let
     merged="$(mktemp "''${target}.tmp.XXXXXX")"
     trap 'rm -f "$merged"' EXIT
 
+    # `... style=""` is not cosmetic. yq carries each node's flow style over
+    # from its input, and the base is JSON, so without the reset the merge
+    # writes config.yaml as one unreadable single-line blob — which then seeds
+    # the next merge and never recovers. `-o=yaml` alone does not undo it.
     if [ -f "$target" ]; then
       # yq (mikefarah/yq) handles both JSON and YAML input. eval-all reads
       # every doc and ireduce merges them; the later doc (our nix base)
       # wins on conflict for canonical fields, while goose's runtime
       # additions (e.g. telemetry consent) are preserved from the first.
-      ${pkgs.yq-go}/bin/yq eval-all \
-        '. as $item ireduce ({}; . * $item)' \
+      ${pkgs.yq-go}/bin/yq eval-all -o=yaml \
+        '(. as $item ireduce ({}; . * $item)) | ... style=""' \
         "$target" ${gooseConfigBase} > "$merged"
     else
-      cp ${gooseConfigBase} "$merged"
+      ${pkgs.yq-go}/bin/yq eval -o=yaml '... style=""' ${gooseConfigBase} > "$merged"
     fi
 
     mv "$merged" "$target"
@@ -144,8 +218,8 @@ in
       "COPILOT.md"
     ];
     GOOSE_RECIPE_PATH = "${config.home.homeDirectory}/.config/goose/recipes";
-    # Local Ollama endpoint. Switch provider at runtime with:
-    #   GOOSE_PROVIDER=ollama GOOSE_MODEL=qwen2.5-coder:14b goose
+    # Local Ollama endpoint. Switch provider per run without touching config:
+    #   goose run --provider ollama --model qwen2.5-coder:14b -t '...'
     OLLAMA_HOST = "http://localhost:11434";
   };
 
