@@ -154,6 +154,35 @@ let
     else
       true;
 
+  # Config files that both Nix and a harness write. One reconciler runs them
+  # all, so the five hand-written merge scripts this replaces cannot drift.
+  managedFiles = lib.filterAttrs (_: f: f.enable) config.sysinit.llm.managedFiles;
+  reconciler = llmLibForCoverage.managedFile.mkReconciler {
+    inherit pkgs;
+    files = config.sysinit.llm.managedFiles;
+  };
+
+  # Home Manager would install a read-only store symlink over the writable
+  # file, so the harness fails to write exactly as it did before. Catch the
+  # double declaration at evaluation time rather than at the next save.
+  # Compare against `.target`, not the attribute name. home.file keys are not
+  # normalized: everything from programs.claude-code and everything routed
+  # through xdg.configFile is keyed by absolute path, so an attrName comparison
+  # silently misses exactly the collisions that matter. `.target` is
+  # home-relative for both sources.
+  #
+  # Computed from the unfiltered set on purpose. If `enable = false` also
+  # switched off the guard, disabling a file would let Home Manager re-link a
+  # read-only symlink over the owner's writable copy at the next activation.
+  linkedTargets = map (v: v.target) (
+    builtins.filter (v: v.enable) (
+      builtins.attrValues config.home.file ++ builtins.attrValues config.xdg.configFile
+    )
+  );
+  collidingPaths = lib.filter (p: builtins.elem p linkedTargets) (
+    lib.mapAttrsToList (_: f: f.path) config.sysinit.llm.managedFiles
+  );
+
   # Agent-agnostic desktop notifier. The script + per-agent icons are installed
   # once here (multiple harness configs reference notify.exe in their hooks, but
   # only one place may own the home.file/home.packages entries).
@@ -197,6 +226,36 @@ in
     // copilotSpecutilSkillFiles
     // (vendoredSkillFilesFor ".copilot/skills")
     // notify.iconFiles;
+
+  assertions = [
+    {
+      assertion = collidingPaths == [ ];
+      message = "llm: ${lib.concatStringsSep ", " collidingPaths} is declared in sysinit.llm.managedFiles and also linked by home.file or xdg.configFile. A managed file must not also be a store symlink.";
+    }
+  ];
+
+  # Deliberately does not fail activation. Home Manager runs the activation
+  # script under `set -eu`, so a non-zero exit here would skip every later DAG
+  # entry (darwin defaults, launch agents, neovim config). A merge conflict is
+  # an expected state for a file with two writers, and it must not cost the
+  # owner an unrelated switch. The reconciler leaves the conflicting file
+  # untouched and every other file is still reconciled.
+  # Ordered BEFORE linkGeneration, not merely after writeBoundary. A target
+  # that is still a store symlink from the previous generation gets deleted by
+  # linkGeneration's cleanup once it leaves home.file. If the reconciler ran
+  # after that, a target it then failed to write would be left absent with
+  # nothing to restore it. Running first converts the symlink to a real file,
+  # and cleanup refuses to delete a non-symlink.
+  #
+  # Relying on the DAG rather than on the entry names sorting the right way:
+  # `linkGeneration` < `llmManagedFiles` bytewise today, which is an accident,
+  # not a guarantee.
+  home.activation.llmManagedFiles = lib.mkIf (config.sysinit.llm.managedFiles != { }) (
+    lib.hm.dag.entryBetween [ "linkGeneration" ] [ "writeBoundary" ] ''
+      $DRY_RUN_CMD ${lib.getExe reconciler} || \
+        echo "managed-file: one or more harness configs were left untouched; see above. Activation continued." >&2
+    ''
+  );
 
   home.packages = [
     notify.script

@@ -347,22 +347,27 @@ in
     force = true;
   };
 
-  # Patch ~/.claude.json to set disabledMcpServers — the authoritative location
-  # per github.com/anthropics/claude-code/issues/66737. settings.json above is
-  # a secondary path; jq merge here preserves all existing Claude Code state.
-  home.activation.disableClaudeAiMcpServers = lib.hm.dag.entryAfter [ "writeBoundary" ] (
-    lib.optionalString (disabledBuiltinServers != [ ]) ''
-      if [ -f "$HOME/.claude.json" ]; then
-        _tmpfile=$(mktemp)
-        if ${pkgs.jq}/bin/jq \
-          --argjson servers ${lib.escapeShellArg (builtins.toJSON disabledBuiltinServers)} \
-          '.disabledMcpServers = $servers' \
-          "$HOME/.claude.json" > "$_tmpfile"; then
-          mv "$_tmpfile" "$HOME/.claude.json"
-        else
-          rm -f "$_tmpfile"
-        fi
-      fi
-    ''
-  );
+  # ~/.claude.json is the authoritative location for disabledMcpServers, per
+  # github.com/anthropics/claude-code/issues/66737; settings.json above is a
+  # secondary path. Claude Code owns the rest of this file outright, including
+  # all session state, so Nix declares exactly the one key and the three-way
+  # merge preserves everything else.
+  sysinit.llm.managedFiles.claude-json = {
+    # Claude Code writes disabledMcpServers itself when a server is toggled off
+    # in /mcp. Declaring an empty list here would enforce that empty list over
+    # the owner's own choices, so this file is managed only when this
+    # repository actually has an opinion.
+    enable = disabledBuiltinServers != [ ];
+    path = ".claude.json";
+    format = "json";
+    content.disabledMcpServers = disabledBuiltinServers;
+    # This repository owns the list outright, so it is reasserted rather than
+    # merged. It is a list, and a merge compares a list whole: without this,
+    # Claude Code adding one entry from /mcp would make the next edit here an
+    # unresolvable conflict on a 117KB file of live session state.
+    enforce = [ "disabledMcpServers" ];
+    # Everything else in this file is Claude Code's own state. Creating it on a
+    # machine where Claude Code has never run would fabricate that state.
+    createIfMissing = false;
+  };
 }

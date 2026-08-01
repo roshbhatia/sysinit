@@ -653,46 +653,32 @@ let
     else
       true;
 
-  # All Nix-managed settings in one store file. Merged into settings.json at
-  # activation time so keys written by pi at runtime are preserved.
-  piSettingsBase = pkgs.writeText "pi-settings-base.json" (builtins.toJSON piManagedSettings);
-
   piKeybindings = pkgs.writeText "pi-keybindings.json" (
     builtins.toJSON {
       renameSession = "ctrl+shift+r";
     }
   );
 
-  # Merge piSettingsBase into settings.json, keeping keys written by pi at
-  # runtime (e.g. session data).  Right-hand side wins on conflict so our
-  # Nix-managed values always take effect.
-  updatePiSettings = pkgs.writeShellScript "update-pi-settings" ''
-    set -euo pipefail
-
-    settings="$HOME/.pi/agent/settings.json"
-    settings_dir="$(dirname "$settings")"
-    mkdir -p "$settings_dir"
-
-    merged_settings="$(mktemp "''${settings}.tmp.XXXXXX")"
-    trap 'rm -f "$merged_settings" "$merged_settings.stripped"' EXIT
-
-    if [ -f "$settings" ]; then
-      # Delete the retired keys BEFORE merging. A deep merge preserves whatever
-      # is already on disk, so dropping a key from the Nix side alone is a no-op
-      # against the running harness.
-      ${pkgs.jq}/bin/jq 'del(${
-        lib.concatMapStringsSep ", " (k: ''."${k}"'') piRetiredSettings
-      })' "$settings" > "$merged_settings.stripped"
-      ${pkgs.jq}/bin/jq -s '.[0] * .[1]' "$merged_settings.stripped" ${piSettingsBase} > "$merged_settings"
-      rm -f "$merged_settings.stripped"
-    else
-      cp ${piSettingsBase} "$merged_settings"
-    fi
-
-    mv "$merged_settings" "$settings"
-  '';
 in
 {
+  # Pi rewrites settings.json at runtime (session bookkeeping,
+  # `lastChangelogVersion`), so it cannot be a store symlink. Anything absent
+  # from `piManagedSettings` is left to pi's own runtime.
+  sysinit.llm.managedFiles.pi = {
+    path = ".pi/agent/settings.json";
+    format = "json";
+    content = piManagedSettings;
+    adoptDelete = piRetiredSettings;
+    # Both are Nix-owned lists. `packages` is the vendored extension set, whose
+    # entries are store paths that move on every bump, and `skills` is the
+    # shared skills root. A list is compared whole by the merge, so leaving
+    # these mergeable would turn any pi-side edit into a blocking conflict.
+    enforce = [
+      "packages"
+      "skills"
+    ];
+  };
+
   home = {
     packages = [
       piAcp
@@ -701,10 +687,6 @@ in
       # `rtk rewrite` backend for pi-rtk-optimizer (and reusable by other hooks).
       pkgs.rtk
     ];
-
-    activation.piSettings = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
-      $DRY_RUN_CMD ${updatePiSettings}
-    '';
 
     file =
       (

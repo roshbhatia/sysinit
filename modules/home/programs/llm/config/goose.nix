@@ -80,7 +80,7 @@ let
     type = "platform";
   };
 
-  gooseConfig = builtins.toJSON {
+  gooseSettings = {
     EDIT_MODE = "vi";
     GOOSE_CLI_MIN_PRIORITY = 0.2;
     GOOSE_CLI_THEME = "ansi";
@@ -107,52 +107,6 @@ let
       // lib.mapAttrs mkPlatformExtension platformExtensions;
   };
 
-  # Goose's runtime wants to mutate this file (e.g., when the user
-  # answers the first-run telemetry prompt). xdg.configFile would symlink
-  # it from the read-only nix store, and goose then fails with
-  # "Too many symlink levels (or a cycle)" while trying to rewrite.
-  # We materialize a writable copy via home.activation instead, mirroring
-  # the updatePiSettings pattern from pi.nix.
-  gooseConfigBase = pkgs.writeText "goose-config-base.json" gooseConfig;
-
-  updateGooseConfig = pkgs.writeShellScript "update-goose-config" ''
-    set -euo pipefail
-
-    target="$HOME/.config/goose/config.yaml"
-    target_dir="$(dirname "$target")"
-    mkdir -p "$target_dir"
-
-    # If the existing file is a symlink (left over from the old
-    # xdg.configFile setup), replace it outright. Otherwise deep-merge
-    # any keys goose has added at runtime (telemetry, etc.) with our
-    # nix-managed base.
-    if [ -L "$target" ]; then
-      rm -f "$target"
-    fi
-
-    merged="$(mktemp "''${target}.tmp.XXXXXX")"
-    trap 'rm -f "$merged"' EXIT
-
-    # `... style=""` is not cosmetic. yq carries each node's flow style over
-    # from its input, and the base is JSON, so without the reset the merge
-    # writes config.yaml as one unreadable single-line blob — which then seeds
-    # the next merge and never recovers. `-o=yaml` alone does not undo it.
-    if [ -f "$target" ]; then
-      # yq (mikefarah/yq) handles both JSON and YAML input. eval-all reads
-      # every doc and ireduce merges them; the later doc (our nix base)
-      # wins on conflict for canonical fields, while goose's runtime
-      # additions (e.g. telemetry consent) are preserved from the first.
-      ${pkgs.yq-go}/bin/yq eval-all -o=yaml \
-        '(. as $item ireduce ({}; . * $item)) | ... style=""' \
-        "$target" ${gooseConfigBase} > "$merged"
-    else
-      ${pkgs.yq-go}/bin/yq eval -o=yaml '... style=""' ${gooseConfigBase} > "$merged"
-    fi
-
-    mv "$merged" "$target"
-    chmod u+w "$target"
-  '';
-
   # Goose Desktop keeps its own shortcuts in Electron userData, not XDG, and
   # ships defaults of cmd+alt+G (focus) and cmd+alt+shift+G (quick launcher).
   # quickLauncher is the counterpart to Claude Desktop's cmd+enter quick entry,
@@ -163,37 +117,9 @@ let
   # Key names read from the 1.44.0 app bundle, not a documented API, so an
   # upgrade could rename them. Goose fills the rest of keyboardShortcuts from
   # its own defaults, so writing this one key is enough.
-  gooseDesktopSettingsBase = pkgs.writeText "goose-desktop-settings-base.json" (
-    builtins.toJSON {
-      keyboardShortcuts.quickLauncher = "CommandOrControl+Alt+Enter";
-    }
-  );
-
-  # Goose Desktop rewrites settings.json whenever a setting changes, so this
-  # merges at activation like config.yaml above rather than symlinking.
-  updateGooseDesktopSettings = pkgs.writeShellScript "update-goose-desktop-settings" ''
-    set -euo pipefail
-
-    target="$HOME/Library/Application Support/Goose/settings.json"
-    mkdir -p "$(dirname "$target")"
-
-    if [ -L "$target" ]; then
-      rm -f "$target"
-    fi
-
-    merged="$(mktemp "''${target}.tmp.XXXXXX")"
-    trap 'rm -f "$merged"' EXIT
-
-    if [ -f "$target" ]; then
-      ${pkgs.jq}/bin/jq -s '.[0] * .[1]' "$target" ${gooseDesktopSettingsBase} > "$merged"
-    else
-      cp ${gooseDesktopSettingsBase} "$merged"
-    fi
-
-    mv "$merged" "$target"
-    chmod u+w "$target"
-  '';
-
+  gooseDesktopSettings = {
+    keyboardShortcuts.quickLauncher = "CommandOrControl+Alt+Enter";
+  };
 in
 {
   # Goose reads `.goosehints` (the name is in the installed binary and is
@@ -223,15 +149,33 @@ in
     OLLAMA_HOST = "http://localhost:11434";
   };
 
-  home.activation.gooseConfig = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
-    $DRY_RUN_CMD ${updateGooseConfig}
-  '';
-
-  home.activation.gooseDesktopSettings = lib.mkIf pkgs.stdenv.isDarwin (
-    lib.hm.dag.entryAfter [ "writeBoundary" ] ''
-      $DRY_RUN_CMD ${updateGooseDesktopSettings}
-    ''
-  );
+  # Goose rewrites config.yaml at runtime (the first-run telemetry answer, for
+  # one), so it cannot be a store symlink. The shared reconciler owns it.
+  sysinit.llm.managedFiles = {
+    goose = {
+      path = ".config/goose/config.yaml";
+      format = "yaml";
+      content = gooseSettings;
+      # GOOSE_MODE gates which actions run without approval, so a value goose
+      # drops or rewrites must come back rather than stand.
+      #
+      # `extensions` is deliberately NOT enforced. Goose fills in
+      # description, display_name, and available_tools at runtime, and the
+      # deep merge keeps them, which is the behaviour the comment on
+      # `platformExtensions` above describes. Enforcing the block would strip
+      # those fields on every activation and goose would write them back.
+      enforce = [ "GOOSE_MODE" ];
+    };
+  }
+  # Goose Desktop keeps settings in Electron userData and rewrites the file
+  # whenever a setting changes. It exists on Darwin only.
+  // lib.optionalAttrs pkgs.stdenv.isDarwin {
+    goose-desktop = {
+      path = "Library/Application Support/Goose/settings.json";
+      format = "json";
+      content = gooseDesktopSettings;
+    };
+  };
 
   home.packages = [ pkgs.goose-cli ];
 }

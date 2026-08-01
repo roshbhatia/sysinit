@@ -5,6 +5,102 @@ let
 in
 {
   options.sysinit.llm = {
+    managedFiles = mkOption {
+      type = types.attrsOf (
+        types.submodule {
+          options = {
+            enable = mkOption {
+              type = types.bool;
+              default = true;
+              description = ''
+                Per-file kill switch. When false the target is neither read nor
+                written, so one misbehaving harness is disabled without
+                reverting the others.
+              '';
+            };
+            path = mkOption {
+              type = types.str;
+              description = "Target path, relative to the home directory.";
+            };
+            content = mkOption {
+              type = types.attrs;
+              default = { };
+              description = ''
+                The content Nix declares. Written as JSON and converted to
+                `format` on the way out, so one merge path serves every format.
+              '';
+            };
+            contentFile = mkOption {
+              type = types.nullOr types.path;
+              default = null;
+              description = ''
+                An already-rendered file to use instead of `content`, in
+                `format`. For a target whose content another Home Manager
+                module assembles, so this module does not duplicate an
+                assembly that would drift on the next upgrade.
+              '';
+            };
+            createIfMissing = mkOption {
+              type = types.bool;
+              default = true;
+              description = ''
+                Whether to create the target when it does not exist. Set false
+                for a file that is the harness's own state and should not be
+                conjured on a machine where the harness has never run.
+              '';
+            };
+            enforce = mkOption {
+              type = types.listOf types.str;
+              default = [ ];
+              description = ''
+                Top-level blocks this repository owns outright, reasserted on
+                every activation rather than merged. A list is compared whole,
+                so without this a harness that appends one entry makes the next
+                Nix edit to that list an unresolvable conflict. A key the
+                harness drops is also restored, which for an enforcement
+                setting is required rather than a preference.
+              '';
+            };
+            format = mkOption {
+              type = types.enum [
+                "json"
+                "yaml"
+                "toml"
+              ];
+              default = "json";
+              description = "On-disk format of the target file.";
+            };
+            schema = mkOption {
+              type = types.nullOr types.str;
+              default = null;
+              description = ''
+                Optional path to a JSON Schema. The merged result is validated
+                against it before it replaces the target.
+              '';
+            };
+            adoptDelete = mkOption {
+              type = types.listOf types.str;
+              default = [ ];
+              description = ''
+                Top-level keys deleted during the one-time adoption of an
+                existing file. These are keys this repository used to declare
+                and has since retired. A deep merge preserves them, and a
+                target whose schema sets `additionalProperties: false` then
+                fails validation on a key nothing declares any more.
+              '';
+            };
+          };
+        }
+      );
+      default = { };
+      description = ''
+        Harness config files that both Nix and the harness write. Each is
+        installed as a real writable file and reconciled at activation by a
+        three-way merge against a recorded base. Declaring a path here and in
+        `home.file` or `xdg.configFile` is an error.
+      '';
+    };
+
     mcp = {
       slackAllowedSendChannels = mkOption {
         type = types.listOf types.str;

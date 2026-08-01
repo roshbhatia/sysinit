@@ -59,6 +59,13 @@ in
     mergeProgram
     ;
 
+  # The two lists above, in the shape `sysinit.llm.managedFiles` consumes.
+  # `adoptDelete` applies once, during the adoption of the live file.
+  # `enforce` applies on every activation, which is what `authoritative` always
+  # meant: these blocks are this repository's, not OpenCode's.
+  adoptDelete = retiredMain;
+  enforce = authoritative;
+
   # OpenCode's config schema carries an absolute `$ref` to
   # https://models.dev/model-schema.json. A hermetic build has no network and no
   # writable HOME, so any validator that follows it fails with an unretrievable
