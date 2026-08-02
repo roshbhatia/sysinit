@@ -179,9 +179,13 @@ let
       builtins.attrValues config.home.file ++ builtins.attrValues config.xdg.configFile
     )
   );
-  collidingPaths = lib.filter (p: builtins.elem p linkedTargets) (
-    lib.mapAttrsToList (_: f: f.path) config.sysinit.llm.managedFiles
-  );
+  managedPaths = lib.mapAttrsToList (_: f: f.path) config.sysinit.llm.managedFiles;
+  collidingPaths = lib.filter (p: builtins.elem p linkedTargets) managedPaths;
+
+  # Two entries on one path share one sidecar, so each activation writes the
+  # file twice and whichever runs last wins. The loser's declaration never
+  # reaches disk, silently.
+  duplicatePaths = lib.unique (lib.filter (p: lib.count (q: q == p) managedPaths > 1) managedPaths);
 
   # Agent-agnostic desktop notifier. The script + per-agent icons are installed
   # once here (multiple harness configs reference notify.exe in their hooks, but
@@ -231,6 +235,10 @@ in
     {
       assertion = collidingPaths == [ ];
       message = "llm: ${lib.concatStringsSep ", " collidingPaths} is declared in sysinit.llm.managedFiles and also linked by home.file or xdg.configFile. A managed file must not also be a store symlink.";
+    }
+    {
+      assertion = duplicatePaths == [ ];
+      message = "llm: ${lib.concatStringsSep ", " duplicatePaths} is declared by more than one sysinit.llm.managedFiles entry. One path may have only one declaration.";
     }
   ];
 

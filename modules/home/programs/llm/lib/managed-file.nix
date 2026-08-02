@@ -217,19 +217,32 @@ let
             return 1
           fi
 
-          # A leftover home.file symlink is read-only and cannot be merged into,
-          # but it is NOT removed here. Everything below can still fail, and an
-          # early unlink would leave the harness with no config at all. The
-          # unlink happens immediately before the mv, once a validated
-          # replacement exists.
-          if [ -L "$target" ] || [ ! -f "$target" ]; then
+          # A symlink is two cases needing opposite handling, and neither `-e`
+          # nor `-f` separates them, because both follow the link. A link into
+          # the store is a leftover home.file entry holding nothing but Nix
+          # content, so replacing it loses nothing. A link anywhere else is the
+          # owner's, and what it points at is real data.
+          #
+          # The unlink happens immediately before the mv, not here: everything
+          # below can still fail, and an early unlink would leave the harness
+          # with no config at all.
+          local is_store_link=0
+          if [ -L "$target" ]; then
+            case "$(readlink "$target")" in
+              /nix/store/*) is_store_link=1 ;;
+              *)
+                echo "managed-file: $name refuses $rel: it is a symlink to $(readlink "$target"), which this module does not own." >&2
+                echo "managed-file: replace it with a regular file if Nix should manage it." >&2
+                return 1
+                ;;
+            esac
+          fi
+
+          if [ "$is_store_link" = 1 ] || [ ! -e "$target" ]; then
             # A target the harness has never written may be one this repository
             # should not conjure. ~/.claude.json is the case: creating it on a
             # machine where Claude Code has never run fabricates state.
-            # `-f`, not `-e`: a resolvable symlink satisfies `-e`, so an `-e`
-            # test would skip the guard for exactly the case it protects and
-            # replace the pointed-to file with Nix-only content.
-            if [ ! -f "$target" ] && [ "$create" != "create" ]; then
+            if [ ! -e "$target" ] && [ "$create" != "create" ]; then
               return 0
             fi
             if ! cp "$new_json" "$result_json"; then
@@ -237,6 +250,9 @@ let
               return 1
             fi
             echo "managed-file: $name seeded $rel"
+          elif [ ! -f "$target" ]; then
+            echo "managed-file: $name refuses $rel: it exists but is not a regular file." >&2
+            return 1
           elif [ ! -e "$sidecar" ]; then
             # First activation after conversion. Adopt once: deep-merge the new
             # content over the live file with Nix winning, exactly what the old
@@ -289,16 +305,41 @@ let
               echo "managed-file: $name could not reconcile $rel; it is left untouched" >&2
               return 1
             fi
-            # Re-add the enforced blocks from the Nix content. A block Nix does
-            # not declare keeps whatever the live file holds, matching the old
-            # `authoritative` pass, which only ever overwrote a declared block.
+            # Re-add the enforced blocks. Nix wins where it declares the block.
+            # Where it does not, the live value comes back rather than being
+            # dropped, matching the old `authoritative` pass, which only ever
+            # overwrote a block the managed content actually carried. The
+            # stripped disk copy is the third input for exactly that fallback.
             if ! jq -S -s --argjson keys "$enforce" '
-                  .[0] as $r | .[1] as $n
-                  | reduce $keys[] as $k ($r; if ($n | has($k)) then .[$k] = $n[$k] else . end)
-                ' "$tmp.merged" "$new_json" > "$result_json"; then
+                  .[0] as $r | .[1] as $n | .[2] as $d
+                  | reduce $keys[] as $k ($r;
+                      if ($n | has($k)) then .[$k] = $n[$k]
+                      elif ($d | has($k)) then .[$k] = $d[$k]
+                      else . end)
+                ' "$tmp.merged" "$new_json" "$tmp.disk" > "$result_json"; then
               echo "managed-file: $name could not apply the enforced blocks for $rel" >&2
               return 1
             fi
+          fi
+
+          # A partially-written target can still parse: YAML and TOML are line
+          # oriented, so a truncated prefix is valid input. The merge then reads
+          # the absent keys as a deliberate harness deletion and drops them for
+          # good. Report it rather than converging silently on a smaller file.
+          # Leaf paths, not top-level keys: the realistic partial write cuts
+          # inside a nested block, so a top-level comparison sees nothing wrong.
+          local dropped dropped_n
+          dropped="$(jq -r --slurpfile n "$new_json" '
+                . as $r
+                | [$n[0] | paths(scalars) | join(".")]
+                  - [$r | paths(scalars) | join(".")]
+                | .[]
+              ' "$result_json" 2> /dev/null || true)"
+          if [ -n "$dropped" ]; then
+            dropped_n="$(printf '%s\n' "$dropped" | wc -l | tr -d ' ')"
+            echo "managed-file: $name is dropping $dropped_n declared value(s) from $rel:" >&2
+            printf '%s\n' "$dropped" | head -8 | sed 's/^/managed-file:   /' >&2
+            echo "managed-file: this is the live file having removed them. If that was not deliberate, delete $sidecar and re-run." >&2
           fi
 
           if [ "$schema" != "-" ]; then
