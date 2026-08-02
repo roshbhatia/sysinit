@@ -51,7 +51,7 @@
 - [x] 2.2 Add the evaluation-time assertion that a path declared in
   `managedFiles` is not also declared in `home.file` or `xdg.configFile`
   `deps:` 2.1
-- [ ] 2.3 Convert the store-symlink targets selected in task 1.2, across
+- [x] 2.3 Convert the store-symlink targets selected in task 1.2, across
   `amp.nix`, `crush.nix`, `cursor.nix`, `devin.nix`, `copilot-cli.nix`, and
   `gemini.nix` `deps:` 2.2
 - [x] 2.4 Add `mkCapture` in `lib/managed-file.nix` and expose it as
