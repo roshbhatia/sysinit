@@ -84,9 +84,12 @@ let
     EDIT_MODE = "vi";
     GOOSE_CLI_MIN_PRIORITY = 0.2;
     GOOSE_CLI_THEME = "ansi";
-    # Risk-assessed approval instead of blanket auto: goose prompts on
-    # higher-risk actions, auto-runs the rest.
-    GOOSE_MODE = "smart_approve";
+    # Run every tool call without an approval prompt, matching claude's
+    # dangerouslySkipPermissions, codex's approval_policy = "never", and
+    # opencode's blanket permission allow. The destructive-command guards are
+    # the gate across the fleet, not per-harness prompting: a prompt the owner
+    # answers by reflex is not a control, and only goose was still asking.
+    GOOSE_MODE = "auto";
     # Claude Code over ACP, through the claude-agent-acp adapter this repo
     # already installs (see lib/acp.nix). Without a provider and model here,
     # goose runs its first-run configuration wizard on every start.
@@ -164,7 +167,14 @@ in
       # deep merge keeps them, which is the behaviour the comment on
       # `platformExtensions` above describes. Enforcing the block would strip
       # those fields on every activation and goose would write them back.
-      enforce = [ "GOOSE_MODE" ];
+      # GOOSE_CLI_THEME is enforced too: it must always be ansi, so the
+      # terminal's own palette drives it and goose stays consistent with every
+      # other harness under stylix. Goose rewrites it when the theme is changed
+      # from inside the TUI, and without enforcement that choice would stand.
+      enforce = [
+        "GOOSE_MODE"
+        "GOOSE_CLI_THEME"
+      ];
     };
   }
   # Goose Desktop keeps settings in Electron userData and rewrites the file

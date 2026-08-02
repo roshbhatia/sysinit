@@ -109,6 +109,13 @@ in
         path = ".codex/${f}";
         format = "toml";
         contentFile = config.home.file.".codex/${f}".source;
+        # The approval gates are this repository's, not Codex's. Codex writes
+        # this file at runtime, so without enforcement a prompt it records
+        # would stand and the harness would start asking again.
+        enforce = lib.optionals (f == "config.toml") [
+          "approval_policy"
+          "sandbox_mode"
+        ];
       }
     ) codexManagedFiles
   );
