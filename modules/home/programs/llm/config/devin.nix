@@ -44,7 +44,7 @@ let
   # devin reads JSON-with-comments from ~/.config/devin/config.json. Only
   # settings that differ from the shipped defaults are written here; defaults
   # are left to the CLI so this file does not drift as they change.
-  devinConfig = builtins.toJSON {
+  devinSettings = {
     # Match the no-co-author posture of every other harness in this repo.
     attribution = false;
 
@@ -77,13 +77,18 @@ let
   };
 in
 {
+
+  # The harness writes this file itself when a setting changes, so it
+  # cannot be a store symlink. Reconciled against a recorded base.
+  sysinit.llm.managedFiles.devin = {
+    path = ".config/devin/config.json";
+    format = "json";
+    content = devinSettings;
+    enforce = [ "permissions" ];
+  };
   home.packages = [ pkgs.devin-cli ];
 
   xdg.configFile = {
-    "devin/config.json" = {
-      text = devinConfig;
-      force = true;
-    };
     # devin has no documented global-instructions path of its own, so the shared
     # context lands as AGENTS.md, which it reads from the project root.
     "devin/AGENTS.md" = {

@@ -8,7 +8,7 @@ let
   llmLib = import ../lib { inherit lib; };
   kit = llmLib.harnessKit.mkKit { inherit lib pkgs config; };
 
-  cursorConfig = builtins.toJSON {
+  cursorSettings = {
     version = 1;
     permissions = {
       # Allow all shell commands — wildcard bypasses per-command prompts. The
@@ -102,13 +102,18 @@ let
       true;
 in
 {
+
+  # The harness writes this file itself when a setting changes, so it
+  # cannot be a store symlink. Reconciled against a recorded base.
+  sysinit.llm.managedFiles.cursor = {
+    path = ".cursor/cli-config.json";
+    format = "json";
+    content = cursorSettings;
+    enforce = [ "permissions" ];
+  };
   home.file = {
     ".cursor/rules/always.mdc" = {
       source = alwaysMdc;
-      force = true;
-    };
-    ".cursor/cli-config.json" = {
-      text = cursorConfig;
       force = true;
     };
     ".cursor/mcp.json" = {

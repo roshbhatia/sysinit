@@ -8,7 +8,7 @@ let
   llmLib = import ../lib { inherit lib; };
   kit = llmLib.harnessKit.mkKit { inherit lib pkgs config; };
 
-  ampConfig = builtins.toJSON {
+  ampSettings = {
     "amp.git.commit.ampThread.enabled" = false;
     "amp.git.commit.coauthor.enabled" = false;
     "amp.mcpServers" = llmLib.mcp.formatForAmp kit.mcpServers.servers;
@@ -35,11 +35,18 @@ let
   };
 in
 {
+
+  # The harness writes this file itself when a setting changes, so it
+  # cannot be a store symlink. Reconciled against a recorded base.
+  sysinit.llm.managedFiles.amp = {
+    path = ".config/amp/settings.json";
+    format = "json";
+    content = ampSettings;
+    enforce = [
+      "amp.permissions"
+    ];
+  };
   xdg.configFile = {
-    "amp/settings.json" = {
-      text = ampConfig;
-      force = true;
-    };
     # Amp reads AGENTS.md from project roots and global config paths.
     "amp/AGENTS.md" = {
       text = kit.mkInstructionsWithStyle {

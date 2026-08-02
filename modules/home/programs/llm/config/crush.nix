@@ -82,14 +82,18 @@ let
     };
   };
 
-  crushConfig = builtins.toJSON crushSettings;
 in
 {
+
+  # The harness writes this file itself when a setting changes, so it
+  # cannot be a store symlink. Reconciled against a recorded base.
+  sysinit.llm.managedFiles.crush = {
+    path = ".config/crush/crush.json";
+    format = "json";
+    content = crushSettings;
+    enforce = [ "permissions" ];
+  };
   xdg.configFile = {
-    "crush/crush.json" = {
-      text = crushConfig;
-      force = true;
-    };
     # Skills install only to ~/.claude/skills (per default.nix); Crush reads that
     # tree natively. Point instructions at the populated root, not a phantom
     # per-tool dir that holds no SKILL.md files.

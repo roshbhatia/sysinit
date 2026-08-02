@@ -8,7 +8,7 @@ let
   llmLib = import ../lib { inherit lib; };
   kit = llmLib.harnessKit.mkKit { inherit lib pkgs config; };
 
-  copilotConfig = builtins.toJSON {
+  copilotSettings = {
     banner = "never";
     renderMarkdown = true;
     screenReader = false;
@@ -22,11 +22,15 @@ let
   };
 in
 {
+
+  # The harness writes this file itself when a setting changes, so it
+  # cannot be a store symlink. Reconciled against a recorded base.
+  sysinit.llm.managedFiles.copilot = {
+    path = ".copilot/config.json";
+    format = "json";
+    content = copilotSettings;
+  };
   home.file = {
-    ".copilot/config.json" = {
-      text = copilotConfig;
-      force = true;
-    };
     ".copilot/mcp-config.json" = {
       text = copilotMcpConfig;
       force = true;
