@@ -32,8 +32,14 @@
 - [x] 1.9 Land the task 1.6 fixtures over `reconcile()`, the untested region
   every round regressed. 22 scenarios, mutation-tested: reintroducing two
   round-5 defects makes the check fail, and reverting makes it pass
-- [ ] 1.10 Run one confirming adversarial round against the now-covered
-  `reconcile()`; the loop stops when a round surfaces no new critical
+- [x] 1.10 Confirming adversarial round (6) against the covered
+  `reconcile()`. Verdict: converged. No defect found in the shipping code;
+  every finding was in the check itself. Its mutation test showed 11 of 19
+  mutations missed, and the highest-ranked gaps are now closed
+- [ ] 1.11 Two assertions remain unverified by mutation: `forget_base`
+  removing a disabled file's base, and the block-style YAML guard. Both pass
+  today and both still pass with the behaviour disabled, so neither is
+  currently proving anything. Close before relying on them
 
 ## 2. Harness conversion and list removal
 

@@ -328,6 +328,16 @@
                 # derivation on unreachable helpers unless they are suppressed.
                 want "all-disabled kill switch builds" "$([ -x ${allOff}/bin/sysinit-llm-reconcile ] && echo y)" "y"
 
+                # forget_base is the only code a disabled file runs, and it is
+                # the live path today: claude-json is disabled whenever
+                # disabledBuiltinServers is empty. It derives the sidecar name a
+                # second time, so a drift from reconcile() would be silent.
+                mkdir -p "$HOME/d"; echo '{"a":1}' > "$HOME/d/j.json"; echo '{"a":1}' > "$HOME/d/.j.json.nix-base"
+                ${allOff}/bin/sysinit-llm-reconcile > /dev/null
+                want "disabled file drops its base" "$([ -e "$HOME/d/.j.json.nix-base" ] && echo kept || echo dropped)" "dropped"
+                want "disabled file itself untouched" "$(jq -r .a "$HOME/d/j.json")" "1"
+                rm -f "$HOME/d/j.json"
+
                 R=${main}/bin/sysinit-llm-reconcile
 
                 # 1. seed, all three formats
@@ -336,6 +346,9 @@
                 want "yaml seeded"  "$(yq -r .mode "$HOME/d/y.yaml")" "smart"
                 want "toml block style" "$(yq -p toml -r '.p.spec.effort' "$HOME/d/t.toml")" "high"
                 want "yaml float kept" "$(yq -r .n "$HOME/d/y.yaml")" "0.2"
+                # Block style, not a single-line flow blob. yq carries flow style
+                # over from JSON input, and a blob seeds the next merge.
+                want "yaml is block style" "$(wc -l < "$HOME/d/y.yaml" | tr -d ' ')" "2"
                 want "createIfMissing=false skipped" "$([ -e "$HOME/d/skip.json" ] && echo present || echo absent)" "absent"
 
                 # createIfMissing=false must also refuse to seed over a leftover
@@ -377,13 +390,13 @@
                 want "harness key still kept" "$(jq -r .harnessAdded "$HOME/d/j.json")" "keep"
 
                 # 6. conflict refuses and leaves the target byte-identical
-                cp "$HOME/d/j.json" "$TMPDIR/pre"
                 jq '.a = 99' "$HOME/d/j.json" > "$TMPDIR/x" && mv "$TMPDIR/x" "$HOME/d/j.json"
                 jq '.a = 55' "$HOME/d/.j.json.nix-base" > "$TMPDIR/x" && mv "$TMPDIR/x" "$HOME/d/.j.json.nix-base"
+                cp "$HOME/d/j.json" "$TMPDIR/pre"
                 msg="$("$R" 2>&1 || true)"
+                want "conflict leaves target untouched" "$(cmp -s "$TMPDIR/pre" "$HOME/d/j.json" && echo same)" "same"
                 want "conflict names the key" "$(echo "$msg" | grep -c 'conflict at .a')" "1"
                 want "conflict shows three values" "$(echo "$msg" | grep -cE '^  (base|live|nix)')" "3"
-                jq '.a = 1' "$TMPDIR/pre" > "$TMPDIR/y" && mv "$TMPDIR/y" "$TMPDIR/pre"
 
                 # 7. an unreadable base refuses rather than guessing
                 rm -rf "$HOME/d2"; mkdir -p "$HOME/d2"
@@ -399,6 +412,7 @@
                 msg="$("$R" 2>&1 || true)"
                 want "schema failure reported" "$(echo "$msg" | grep -c 'failed schema validation')" "1"
                 want "schema failure keeps file" "$(jq -r .bogus "$HOME/d/strict.json")" "2"
+                want "schema failure writes no base" "$([ -e "$HOME/d/.strict.json.nix-base" ] && echo wrote || echo none)" "none"
 
                 # 9. a symlink the module does not own is refused, not replaced
                 rm -rf "$HOME/d3"; mkdir -p "$HOME/d3"
@@ -411,7 +425,10 @@
 
                 # 10. a leftover store symlink IS replaced
                 rm -f "$HOME/d/j.json" "$HOME/d/.j.json.nix-base"
-                ln -s /nix/store/deadbeef-home-manager-files/j.json "$HOME/d/j.json"
+                # Resolving, for the reason given on the skip fixture above: a
+                # dangling link passes this assertion even with store-link
+                # detection entirely disabled.
+                ln -s ${schemaStrict} "$HOME/d/j.json"
                 "$R" > /dev/null 2>&1 || true
                 want "store symlink replaced" "$([ -f "$HOME/d/j.json" ] && [ ! -L "$HOME/d/j.json" ] && echo y)" "y"
 
