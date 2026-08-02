@@ -54,9 +54,11 @@
 - [ ] 2.3 Convert the store-symlink targets selected in task 1.2, across
   `amp.nix`, `crush.nix`, `cursor.nix`, `devin.nix`, `copilot-cli.nix`, and
   `gemini.nix` `deps:` 2.2
-- [ ] 2.4 Write `config/capture-config.sh` and expose it as
+- [x] 2.4 Add `mkCapture` in `lib/managed-file.nix` and expose it as
   `sysinit-llm-capture` through `home.packages`, following the
-  `writeShellApplication` pattern in `config/notify.nix:158` `deps:` 2.2
+  `writeShellApplication` pattern in `config/notify.nix:158`. The diff recurses
+  to leaf level, so a harness that fills runtime fields into a Nix-declared
+  block does not bury the one key the owner changed `deps:` 2.2
 - [x] 2.5 Verify: `nix flake check` and `nh darwin build` green; review
   `git diff` `deps:` 2.3, 2.4
 - [x] 2.6 Apply: `nh darwin switch` `deps:` 2.5
@@ -68,7 +70,7 @@
   sidecar written, since that entry is disabled `deps:` 2.6
 - [ ] 2.7a Confirm by use: start each harness once and save a setting from
   its own interface. This is the owner's step; nothing automated covers it
-- [ ] 2.8 Confirm: `sysinit-llm-capture <harness>` prints the owner's runtime
+- [x] 2.8 Confirm: `sysinit-llm-capture <harness>` prints the owner's runtime
   edit as a Nix attrset, and the repository working tree is unmodified
   `deps:` 2.7
 - [ ] 2.9 Delete the `retired` and `authoritative` lists in
