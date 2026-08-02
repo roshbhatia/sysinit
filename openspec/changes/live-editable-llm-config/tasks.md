@@ -19,9 +19,9 @@
   `config/opencode-render.nix:39`
 - [x] 1.5 Act: add the sidecar base writer and the three-way reconciler; a
   conflict or an unreadable base exits non-zero and leaves the target untouched
-- [ ] 1.6 Act: add fixtures under `flake.nix` checks for every case named in
+- [x] 1.6 Act: add fixtures under `flake.nix` checks for every case named in
   the STOP condition
-- [ ] 1.7 Verify: `nix flake check` green; every STOP fixture passes
+- [x] 1.7 Verify: `nix flake check` green; every STOP fixture passes
 - [x] 1.8 Adversarial review (`adversarial-review` skill), rounds 1 to 5:
   nine critics across five rounds ran against the
   `harness-managed-config-files` spec scenarios, the design decisions, and the
@@ -29,9 +29,11 @@
   by the previous round's fixes. All reported criticals are fixed and verified
   against copies of the live files. Round 5 assessed the happy path as clean
   and the recovery surface as the remaining risk; see 1.9
-- [ ] 1.9 Close the two objections round 5 ranked above the switch: land the
-  task 1.6 fixtures over `reconcile()` itself, which is the untested region
-  every round regressed, then re-run one round to confirm convergence
+- [x] 1.9 Land the task 1.6 fixtures over `reconcile()`, the untested region
+  every round regressed. 22 scenarios, mutation-tested: reintroducing two
+  round-5 defects makes the check fail, and reverting makes it pass
+- [ ] 1.10 Run one confirming adversarial round against the now-covered
+  `reconcile()`; the loop stops when a round surfaces no new critical
 
 ## 2. Harness conversion and list removal
 

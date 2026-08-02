@@ -63,6 +63,22 @@ let
     "toml"
   ];
 
+  # The option defaults, in one place so a check can build a reconciler without
+  # going through the module system. Keep in sync with options.nix; the
+  # `managed-file-reconcile` check fails loudly if a required field is missing.
+  fileDefaults = {
+    enable = true;
+    content = { };
+    contentFile = null;
+    format = "json";
+    schema = null;
+    enforce = [ ];
+    adoptDelete = [ ];
+    createIfMissing = true;
+  };
+
+  mkTestFile = attrs: fileDefaults // attrs;
+
   mkReconciler =
     { pkgs, files }:
     let
@@ -418,6 +434,8 @@ in
   inherit
     mergeProgram
     formats
+    fileDefaults
+    mkTestFile
     mkReconciler
     ;
 }

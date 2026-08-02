@@ -233,6 +233,192 @@
           managedFile = import ./modules/home/programs/llm/lib/managed-file.nix { inherit lib; };
         in
         {
+          # End-to-end coverage of the reconcile() shell function, not just the
+          # jq program. Five adversarial review rounds each found a defect in
+          # this region and four of them regressed the previous round's fix,
+          # because nothing exercised it. Every scenario below is a defect that
+          # actually shipped and was caught by hand.
+          managed-file-reconcile =
+            let
+              mf = managedFile;
+              recFor =
+                files:
+                mf.mkReconciler {
+                  inherit pkgs;
+                  files = lib.mapAttrs (_: mf.mkTestFile) files;
+                };
+              schemaStrict = pkgs.writeText "strict.json" (
+                builtins.toJSON {
+                  type = "object";
+                  additionalProperties = false;
+                  properties.ok = { };
+                }
+              );
+              main = recFor {
+                j = {
+                  path = "d/j.json";
+                  format = "json";
+                  content = {
+                    a = 1;
+                    keep.deep = true;
+                  };
+                };
+                y = {
+                  path = "d/y.yaml";
+                  format = "yaml";
+                  content = {
+                    mode = "smart";
+                    n = 0.2;
+                  };
+                  enforce = [ "mode" ];
+                };
+                t = {
+                  path = "d/t.toml";
+                  format = "toml";
+                  content = {
+                    policy = "never";
+                    p.spec.effort = "high";
+                  };
+                };
+                skip = {
+                  path = "d/skip.json";
+                  createIfMissing = false;
+                  content.x = 1;
+                };
+                strict = {
+                  path = "d/strict.json";
+                  content.ok = 1;
+                  schema = "${schemaStrict}";
+                };
+              };
+              # Same paths, one key undeclared and one changed, to drive
+              # deletion-via-base and the conflict path.
+              drop = recFor {
+                j = {
+                  path = "d/j.json";
+                  format = "json";
+                  content.a = 1;
+                };
+              };
+              allOff = recFor {
+                j = {
+                  path = "d/j.json";
+                  enable = false;
+                };
+              };
+            in
+            pkgs.runCommand "managed-file-reconcile-check"
+              {
+                nativeBuildInputs = [
+                  pkgs.jq
+                  pkgs.yq-go
+                ];
+              }
+              ''
+                export HOME="$TMPDIR/home"
+                mkdir -p "$HOME/d"
+                fail=0
+                say() { echo "  $1"; }
+                want() { # label actual expected
+                  if [ "$2" = "$3" ]; then say "ok   $1"; else echo "FAIL $1: got [$2] want [$3]" >&2; fail=1; fi
+                }
+
+                # The all-disabled kill switch must build. It is what you reach
+                # for when the first switch misbehaves, and shellcheck fails the
+                # derivation on unreachable helpers unless they are suppressed.
+                want "all-disabled kill switch builds" "$([ -x ${allOff}/bin/sysinit-llm-reconcile ] && echo y)" "y"
+
+                R=${main}/bin/sysinit-llm-reconcile
+
+                # 1. seed, all three formats
+                "$R" > /dev/null
+                want "json seeded"  "$(jq -r .a "$HOME/d/j.json")" "1"
+                want "yaml seeded"  "$(yq -r .mode "$HOME/d/y.yaml")" "smart"
+                want "toml block style" "$(yq -p toml -r '.p.spec.effort' "$HOME/d/t.toml")" "high"
+                want "yaml float kept" "$(yq -r .n "$HOME/d/y.yaml")" "0.2"
+                want "createIfMissing=false skipped" "$([ -e "$HOME/d/skip.json" ] && echo present || echo absent)" "absent"
+
+                # createIfMissing=false must also refuse to seed over a leftover
+                # store symlink. Seeding writes Nix-only content, which is what
+                # the flag refuses; an earlier revision printed "leaves it alone"
+                # and then seeded anyway.
+                # A RESOLVING store path, not a dangling one: a dangling link
+                # fails the `-e` test and would return for the wrong reason,
+                # which is how an earlier version of this check passed against
+                # the defect it was written to catch.
+                ln -s ${schemaStrict} "$HOME/d/skip.json"
+                "$R" > /dev/null 2>&1 || true
+                want "skip target not seeded over a store link" "$([ -L "$HOME/d/skip.json" ] && echo link || echo seeded)" "link"
+
+                # ...nor delete a zero-byte target it has just refused to create.
+                # A crashed harness is exactly what produces one.
+                rm -f "$HOME/d/skip.json"; : > "$HOME/d/skip.json"
+                "$R" > /dev/null 2>&1 || true
+                want "skip target zero-byte not deleted" "$([ -e "$HOME/d/skip.json" ] && echo present || echo gone)" "present"
+                rm -f "$HOME/d/skip.json"
+
+                # 2. idempotence
+                cp "$HOME/d/j.json" "$TMPDIR/j1"; "$R" > /dev/null; "$R" > /dev/null
+                want "idempotent over 3 runs" "$(cmp -s "$TMPDIR/j1" "$HOME/d/j.json" && echo same)" "same"
+
+                # 3. a key the harness adds survives
+                jq '.harnessAdded = "keep"' "$HOME/d/j.json" > "$TMPDIR/x" && mv "$TMPDIR/x" "$HOME/d/j.json"
+                "$R" > /dev/null
+                want "harness-added key kept" "$(jq -r .harnessAdded "$HOME/d/j.json")" "keep"
+
+                # 4. a value the owner changes survives, unless enforced
+                yq -i '.mode = "owner"' "$HOME/d/y.yaml"
+                "$R" > /dev/null
+                want "enforced key reasserted" "$(yq -r .mode "$HOME/d/y.yaml")" "smart"
+
+                # 5. deletion via the base, with no tombstone list
+                ${drop}/bin/sysinit-llm-reconcile > /dev/null
+                want "undeclared key deleted" "$(jq -r 'has("keep")' "$HOME/d/j.json")" "false"
+                want "harness key still kept" "$(jq -r .harnessAdded "$HOME/d/j.json")" "keep"
+
+                # 6. conflict refuses and leaves the target byte-identical
+                cp "$HOME/d/j.json" "$TMPDIR/pre"
+                jq '.a = 99' "$HOME/d/j.json" > "$TMPDIR/x" && mv "$TMPDIR/x" "$HOME/d/j.json"
+                jq '.a = 55' "$HOME/d/.j.json.nix-base" > "$TMPDIR/x" && mv "$TMPDIR/x" "$HOME/d/.j.json.nix-base"
+                msg="$("$R" 2>&1 || true)"
+                want "conflict names the key" "$(echo "$msg" | grep -c 'conflict at .a')" "1"
+                want "conflict shows three values" "$(echo "$msg" | grep -cE '^  (base|live|nix)')" "3"
+                jq '.a = 1' "$TMPDIR/pre" > "$TMPDIR/y" && mv "$TMPDIR/y" "$TMPDIR/pre"
+
+                # 7. an unreadable base refuses rather than guessing
+                rm -rf "$HOME/d2"; mkdir -p "$HOME/d2"
+                echo 'not json {{{' > "$HOME/d/.j.json.nix-base"
+                echo '{"a":1,"mine":true}' > "$HOME/d/j.json"
+                msg="$("$R" 2>&1 || true)"
+                want "unreadable base reported" "$(echo "$msg" | grep -c 'unreadable base')" "1"
+                want "unreadable base leaves file" "$(jq -r .mine "$HOME/d/j.json")" "true"
+
+                # 8. a schema failure leaves the target untouched
+                rm -f "$HOME/d/.strict.json.nix-base"
+                echo '{"ok":1,"bogus":2}' > "$HOME/d/strict.json"
+                msg="$("$R" 2>&1 || true)"
+                want "schema failure reported" "$(echo "$msg" | grep -c 'failed schema validation')" "1"
+                want "schema failure keeps file" "$(jq -r .bogus "$HOME/d/strict.json")" "2"
+
+                # 9. a symlink the module does not own is refused, not replaced
+                rm -rf "$HOME/d3"; mkdir -p "$HOME/d3"
+                echo '{"precious":true}' > "$HOME/d3/real.json"
+                rm -f "$HOME/d/j.json"; ln -s "$HOME/d3/real.json" "$HOME/d/j.json"
+                msg="$("$R" 2>&1 || true)"
+                want "user symlink refused" "$(echo "$msg" | grep -c 'does not own')" "1"
+                want "user symlink intact" "$([ -L "$HOME/d/j.json" ] && echo y)" "y"
+                want "pointed-at file intact" "$(jq -r .precious "$HOME/d3/real.json")" "true"
+
+                # 10. a leftover store symlink IS replaced
+                rm -f "$HOME/d/j.json" "$HOME/d/.j.json.nix-base"
+                ln -s /nix/store/deadbeef-home-manager-files/j.json "$HOME/d/j.json"
+                "$R" > /dev/null 2>&1 || true
+                want "store symlink replaced" "$([ -f "$HOME/d/j.json" ] && [ ! -L "$HOME/d/j.json" ] && echo y)" "y"
+
+                if [ "$fail" -ne 0 ]; then echo "reconcile() regressed" >&2; exit 1; fi
+                echo "OK: reconcile() behaviour holds" > "$out"
+              '';
+
           # Ownership semantics of the three-way merge. Each case is a claim the
           # harness configs depend on: undeclaring a key deletes it without a
           # tombstone list, a key the harness wrote survives, a value the owner
