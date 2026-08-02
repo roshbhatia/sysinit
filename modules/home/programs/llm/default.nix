@@ -280,6 +280,7 @@ in
     notify.stateScript
     notify.promptScript
     notify.focusScript
+    notify.loopGate
     notify.reviewScript
     notify.syGate
   ];

@@ -223,6 +223,18 @@ let
   };
 
   # `sy delete` gate (see sy-gate.sh), named `sy` so it shadows seshy on PATH.
+  # Evaluates a declared STOP condition as a Stop hook. Disarmed by default, so
+  # an ordinary session is unaffected. See config/loop-gate.sh.
+  loopGate = pkgs.writeShellApplication {
+    name = "loop-gate";
+    runtimeInputs = [
+      pkgs.jq
+      pkgs.coreutils
+      pkgs.gawk
+    ];
+    text = builtins.readFile ./loop-gate.sh;
+  };
+
   syGate = pkgs.writeShellApplication {
     name = "sy";
     runtimeInputs = [ pkgs.coreutils ];
@@ -253,6 +265,7 @@ in
     stateScript
     promptScript
     focusScript
+    loopGate
     reviewScript
     syGate
     ;

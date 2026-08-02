@@ -316,6 +316,14 @@ in
           {
             matcher = "";
             hooks = [
+              # Evaluates a declared STOP condition before the turn is allowed to
+              # end. Not async: a block must resolve before control returns.
+              # Disarmed unless `loop-gate arm` wrote state for this directory,
+              # so an ordinary turn pays one file-existence check.
+              {
+                type = "command";
+                command = "${profileBin}/loop-gate check";
+              }
               {
                 type = "command";
                 command = "${profileBin}/agent-notify claude done ${profileBin}/agent-focus";
