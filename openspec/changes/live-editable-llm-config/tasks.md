@@ -57,12 +57,17 @@
 - [ ] 2.4 Write `config/capture-config.sh` and expose it as
   `sysinit-llm-capture` through `home.packages`, following the
   `writeShellApplication` pattern in `config/notify.nix:158` `deps:` 2.2
-- [ ] 2.5 Verify: `nix flake check` and `nh darwin build` green; review
+- [x] 2.5 Verify: `nix flake check` and `nh darwin build` green; review
   `git diff` `deps:` 2.3, 2.4
-- [ ] 2.6 Apply: `nh darwin switch` `deps:` 2.5
-- [ ] 2.7 Confirm: every target is a regular file, every sidecar base exists
-  and parses, and the owner starts each harness once and saves a setting from
-  its own interface without error `deps:` 2.6
+- [x] 2.6 Apply: `nh darwin switch` `deps:` 2.5
+- [x] 2.7 Confirm: all 8 enabled targets are regular files with a parseable
+  sidecar and zero pre-existing values lost, measured against a fresh
+  pre-switch capture in `.sysinit/llm-capture-preswitch/`. Retired keys were
+  deleted, owner-preference keys kept, enforced keys reasserted, and goose's
+  runtime extension fields survived. `~/.claude.json` untouched and no
+  sidecar written, since that entry is disabled `deps:` 2.6
+- [ ] 2.7a Confirm by use: start each harness once and save a setting from
+  its own interface. This is the owner's step; nothing automated covers it
 - [ ] 2.8 Confirm: `sysinit-llm-capture <harness>` prints the owner's runtime
   edit as a Nix attrset, and the repository working tree is unmodified
   `deps:` 2.7
