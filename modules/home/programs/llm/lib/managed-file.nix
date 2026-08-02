@@ -79,6 +79,168 @@ let
 
   mkTestFile = attrs: fileDefaults // attrs;
 
+  # Renders JSON as a Nix attrset. The point of `capture` is to hand back
+  # something pasteable into the harness config, so it emits Nix rather than a
+  # diff the owner has to translate.
+  nixRender = ''
+    def nixkey: if test("^[a-zA-Z_][a-zA-Z0-9_'-]*$") then . else tojson end;
+    def nixval($ind):
+      ($ind + "  ") as $i
+      | if type == "object" then
+          if length == 0 then "{ }"
+          else "{\n" + ([to_entries[] | $i + (.key | nixkey) + " = " + (.value | nixval($i)) + ";"] | join("\n")) + "\n" + $ind + "}"
+          end
+        elif type == "array" then
+          if length == 0 then "[ ]"
+          else "[\n" + ([.[] | $i + nixval($i)] | join("\n")) + "\n" + $ind + "]"
+          end
+        elif type == "string" then tojson
+        elif type == "boolean" then (if . then "true" else "false" end)
+        elif type == null then "null"
+        else tostring
+        end;
+  '';
+
+  # Reports what the owner changed from inside a harness, as Nix source.
+  # `diff(base, live)` is exactly that set: the base records what Nix applied,
+  # so anything the live file says differently came from the harness or the
+  # owner. Prints to stdout and never writes under modules/.
+  mkCapture =
+    { pkgs, files }:
+    let
+      enabled = lib.filterAttrs (_: f: f.enable) files;
+      # `jq -f` reads the whole program from the file, so the helper defs and
+      # the query have to ship as one file rather than as -f plus a positional.
+      #
+      # Both walks recurse. A whole-block comparison is useless here: goose
+      # fills description/display_name/available_tools into every extension at
+      # runtime, so the entire `extensions` block reads as changed and buries
+      # the one key the owner actually touched.
+      diffDefs = ''
+        def changedTree($b; $d):
+          reduce ($d | keys_unsorted[]) as $k ({};
+            if ($b | has($k) | not) then .
+            elif $b[$k] == $d[$k] then .
+            elif (($b[$k] | type) == "object") and (($d[$k] | type) == "object") then
+              (changedTree($b[$k]; $d[$k])) as $s
+              | if ($s | length) == 0 then . else .[$k] = $s end
+            else .[$k] = $d[$k]
+            end);
+        def addedTree($b; $d):
+          reduce ($d | keys_unsorted[]) as $k ({};
+            if ($b | has($k) | not) then .[$k] = $d[$k]
+            elif (($b[$k] | type) == "object") and (($d[$k] | type) == "object") then
+              (addedTree($b[$k]; $d[$k])) as $s
+              | if ($s | length) == 0 then . else .[$k] = $s end
+            else .
+            end);
+      '';
+      emit = fn: ''
+        .[0] as $b | .[1] as $d
+        | ${fn}($b; $d)
+        | if length == 0 then "" else nixval("") end'';
+      changedFile = pkgs.writeText "capture-changed.jq" (nixRender + diffDefs + emit "changedTree");
+      addedFile = pkgs.writeText "capture-added.jq" (nixRender + diffDefs + emit "addedTree");
+      mkCase =
+        name: f:
+        "${lib.escapeShellArg name}) capture ${lib.escapeShellArg name} ${lib.escapeShellArg f.path} ${f.format} ;;";
+    in
+    pkgs.writeShellApplication {
+      name = "sysinit-llm-capture";
+      runtimeInputs = [
+        pkgs.jq
+        pkgs.yq-go
+      ];
+      text = ''
+        names=${lib.escapeShellArg (lib.concatStringsSep " " (builtins.attrNames enabled))}
+
+        usage() {
+          echo "usage: sysinit-llm-capture [--all] <harness>" >&2
+          echo "  --all  also list values that exist only in the live file" >&2
+          echo "harnesses with a managed file:" >&2
+          for n in $names; do echo "  $n" >&2; done
+        }
+
+        to_json() {
+          case "$2" in
+            json) jq '.' "$1" ;;
+            yaml) yq -p yaml -o json '.' "$1" ;;
+            toml) yq -p toml -o json '.' "$1" ;;
+          esac
+        }
+
+        capture() {
+          local name="$1" rel="$2" fmt="$3"
+          local target="$HOME/$rel" base_name sidecar
+          base_name="$(basename "$target")"
+          case "$base_name" in
+            .*) sidecar="$(dirname "$target")/$base_name.nix-base" ;;
+            *) sidecar="$(dirname "$target")/.$base_name.nix-base" ;;
+          esac
+
+          if [ ! -f "$target" ]; then
+            echo "sysinit-llm-capture: $rel does not exist yet." >&2
+            return 1
+          fi
+          if [ ! -f "$sidecar" ]; then
+            echo "sysinit-llm-capture: $rel has no recorded base at $sidecar." >&2
+            echo "sysinit-llm-capture: run a switch first; without a base there is nothing to compare against." >&2
+            return 1
+          fi
+
+          local b d
+          b="$(mktemp)"; d="$(mktemp)"
+          # shellcheck disable=SC2064
+          trap "rm -f '$b' '$d'" RETURN
+          to_json "$sidecar" "$fmt" > "$b" || return 1
+          to_json "$target" "$fmt" > "$d" || return 1
+
+          # Changed: Nix declares it and the live file disagrees. These are the
+          # backport candidates. Added: the live file has a key Nix never
+          # declared, which is usually the harness's own state, so it is
+          # reported separately rather than mixed in.
+          local changed added n
+          changed="$(jq -s -r -f ${changedFile} "$b" "$d")"
+          added="$(jq -s -r -f ${addedFile} "$b" "$d")"
+
+          if [ -z "$changed" ] && [ -z "$added" ]; then
+            echo "# $name: $rel matches what Nix applied. Nothing to backport."
+            return 0
+          fi
+
+          echo "# $name: $rel"
+          if [ -n "$changed" ]; then
+            echo "# Changed from what Nix declares. Paste into the harness config to adopt:"
+            printf '%s\n' "$changed"
+          fi
+          if [ -n "$added" ]; then
+            if [ "$show_added" = 1 ]; then
+              echo "# Present only in the live file. Usually the harness's own state;"
+              echo "# declare a key here only if Nix should own it from now on:"
+              printf '%s\n' "$added" | sed 's/^/# /'
+            else
+              n="$(printf '%s\n' "$added" | grep -c ' = ' || true)"
+              echo "# ($n value(s) exist only in the live file. Almost always the"
+              echo "#  harness's own runtime state. Pass --all to see them.)"
+            fi
+          fi
+        }
+
+        show_added=0
+        if [ "''${1:-}" = "--all" ]; then show_added=1; shift; fi
+        if [ "$#" -ne 1 ]; then usage; exit 2; fi
+        case "$1" in
+          -h | --help) usage; exit 0 ;;
+          ${lib.concatStringsSep "\n          " (lib.mapAttrsToList mkCase enabled)}
+          *)
+            echo "sysinit-llm-capture: no managed file named '$1'." >&2
+            usage
+            exit 1
+            ;;
+        esac
+      '';
+    };
+
   mkReconciler =
     { pkgs, files }:
     let
@@ -436,6 +598,7 @@ in
     formats
     fileDefaults
     mkTestFile
+    mkCapture
     mkReconciler
     ;
 }

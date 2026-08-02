@@ -163,6 +163,14 @@ let
     files = config.sysinit.llm.managedFiles;
   };
 
+  # Turns a setting changed from inside a harness back into Nix source. The
+  # sidecar base makes this a diff rather than a guess: it records exactly what
+  # Nix applied, so anything the live file says differently is the owner's.
+  capture = llmLibForCoverage.managedFile.mkCapture {
+    inherit pkgs;
+    files = config.sysinit.llm.managedFiles;
+  };
+
   # Home Manager would install a read-only store symlink over the writable
   # file, so the harness fails to write exactly as it did before. Catch the
   # double declaration at evaluation time rather than at the next save.
@@ -267,6 +275,7 @@ in
   );
 
   home.packages = [
+    capture
     notify.script
     notify.stateScript
     notify.promptScript
