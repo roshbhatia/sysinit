@@ -58,6 +58,11 @@
   entirely keyless: lychee, the Crossref REST API, and monolith all work without
   credentials. There is no LLM-engine dependency in this loop.
 
+  `citelock capture` also uses `pplx content fetch` as its second liveness
+  oracle when lychee declines, so an authenticated `pplx` removes a class of
+  false-negative capture failures on hosts that redirect heavily. Liveness still
+  fails closed: both oracles must decline.
+
   When `pplx` is authenticated (see the `pplx-cli` skill), you MAY use
   `pplx search web` to find candidate sources and `pplx content fetch` as the
   snapshot fetcher for `citelock capture`. The quote-anchor semantics are

@@ -10,8 +10,10 @@
 #       and the pre-commit hook.
 #   citelock capture <url> ...  - authoring-time truth-check. Fetches the URL
 #       live, FAILS CLOSED unless the verbatim quote is in the fetched bytes,
-#       records a provenance sidecar, and runs the live-web checks (lychee +
-#       Crossref). This is where hallucination is caught.
+#       records a provenance sidecar, and runs the live-web checks (liveness +
+#       Crossref). This is where hallucination is caught. Liveness has two
+#       oracles: lychee, then pplx as a fallback, because lychee false-negatives
+#       on heavily-redirecting hosts. Fail-closed needs BOTH to decline.
 #   citelock recheck [lockdir]  - re-run the live-web checks on existing
 #       records (dead link / retraction drift), fail closed.
 #
@@ -209,14 +211,35 @@ live_checks() {
     log "CITELOCK_OFFLINE=1: skipping live checks (advisory)"
     return 0
   fi
-  # Link liveness via lychee. A transient network error is a skip-with-warning.
+  # Link liveness, two independent oracles. lychee first because it is keyless
+  # and fast; pplx second because it is a real content fetch and therefore a
+  # strictly stronger signal than a HEAD request.
+  #
+  # The fallback exists because lychee produces false negatives on sites that
+  # redirect heavily or filter by user-agent. Observed on
+  # anthropic.com/engineering/*: lychee follows 15 redirects and cannot confirm,
+  # while `pplx content fetch` returns the page. Failing closed on that is a
+  # gate that blocks correct citations, which trains the author to bypass it.
+  #
+  # Still fail-closed: the URL is dead only when BOTH oracles decline, or when
+  # lychee declines and pplx is unavailable.
   if command -v lychee > /dev/null 2>&1; then
     if ! lychee --no-progress --max-retries 1 -- "$url" > /dev/null 2>&1; then
-      log "live: lychee could not confirm ${url} (dead link or transient); treat as fail at capture"
+      if command -v pplx > /dev/null 2>&1 &&
+        pplx content fetch "$url" > /dev/null 2>&1; then
+        log "live: lychee could not confirm ${url}; pplx fetched it, treating as live"
+      else
+        log "live: neither lychee nor pplx could confirm ${url} (dead link or transient); treat as fail at capture"
+        return 1
+      fi
+    fi
+  elif command -v pplx > /dev/null 2>&1; then
+    if ! pplx content fetch "$url" > /dev/null 2>&1; then
+      log "live: pplx could not fetch ${url} (dead link or transient); treat as fail at capture"
       return 1
     fi
   else
-    log "live: lychee not on PATH; skipping liveness"
+    log "live: neither lychee nor pplx on PATH; skipping liveness"
   fi
   # DOI existence + retraction via Crossref REST (no key). curl args are inert.
   if [[ -n ${doi} ]] && command -v jq > /dev/null 2>&1; then
