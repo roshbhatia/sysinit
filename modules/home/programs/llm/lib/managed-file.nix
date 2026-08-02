@@ -16,6 +16,9 @@ let
   # flake check, for the reason given in config/opencode-render.nix: two
   # hand-copies would agree today and drift on the next edit.
   mergeProgram = ''
+    def show($v): ($v | tojson) as $s
+      | if ($s | length) > 160 then ($s[0:160] + " ...") else $s end;
+
     def m3($p; $b; $d; $n):
       if $d == $n then $n
       elif $d == $b then $n
@@ -37,10 +40,10 @@ let
                 if $d[$k] == $b[$k] then . else .[$k] = $d[$k] end
               elif $hb and ($hd | not) and $hn then
                 if $n[$k] == $b[$k] then .
-                else error("conflict at ." + ($q | join(".")) + ": the live file deleted this key and the Nix content changed it") end
+                else error("conflict at ." + ($q | join(".")) + ": the live file deleted this key and the Nix content changed it.\n  base: " + show($b[$k]) + "\n  live: (absent)\n  nix:  " + show($n[$k])) end
               elif ($hb | not) and $hd and $hn then
                 if $d[$k] == $n[$k] then .[$k] = $n[$k]
-                else error("conflict at ." + ($q | join(".")) + ": the live file and the Nix content each added a different value") end
+                else error("conflict at ." + ($q | join(".")) + ": the live file and the Nix content each added a different value.\n  base: (absent)\n  live: " + show($d[$k]) + "\n  nix:  " + show($n[$k])) end
               elif ($hb | not) and $hd and ($hn | not) then
                 .[$k] = $d[$k]
               elif ($hb | not) and ($hd | not) and $hn then
@@ -48,7 +51,7 @@ let
               else . end
           )
       else
-        error("conflict at ." + ($p | join(".")) + ": the base, the live file, and the Nix content all differ")
+        error("conflict at ." + ($p | join(".")) + ": the base, the live file, and the Nix content all differ.\n  base: " + show($b) + "\n  live: " + show($d) + "\n  nix:  " + show($n))
       end;
 
     m3([]; .[0]; .[1]; .[2])
@@ -112,9 +115,9 @@ let
         pkgs.check-jsonschema
       ];
       text = ''
-        ${lib.optionalString (
-          enabled == { }
-        ) "# Every managed file is disabled; only base cleanup runs.\n# shellcheck disable=SC2329"}
+        ${lib.optionalString (enabled == { })
+          "# Every managed file is disabled, so only base cleanup runs and the\n# helpers below are unreachable. Disabling every file is the kill switch;\n# it must still build."
+        }
         # Convert a file in the declared format to JSON on stdout.
         #
         # The merge addresses its inputs positionally, so an input that yields
@@ -123,7 +126,7 @@ let
         # read as null; a file with a stray `---` or a second document yields
         # two and makes document two read as the Nix content. Both wipe the
         # file and exit 0. Refuse instead.
-        to_json() {
+        ${lib.optionalString (enabled == { }) "# shellcheck disable=SC2329\n"}to_json() {
           local raw
           if ! raw="$(
             case "$2" in
@@ -148,7 +151,7 @@ let
         # from its input, and the input here is JSON, so without the reset a
         # YAML target is rewritten as one unreadable single-line blob that then
         # seeds the next merge.
-        from_json() {
+        ${lib.optionalString (enabled == { }) "# shellcheck disable=SC2329\n"}from_json() {
           case "$1" in
             json) jq '.' ;;
             yaml) yq -p json -o yaml '... style=""' ;;
@@ -175,7 +178,7 @@ let
           }
         ''}
 
-        reconcile() {
+        ${lib.optionalString (enabled == { }) "# shellcheck disable=SC2329\n"}reconcile() {
           local name="$1" rel="$2" fmt="$3" new="$4" new_fmt="$5" schema="$6"
           local enforce="$7" adopt_delete="$8" create="$9"
           local target="$HOME/$rel"
@@ -240,22 +243,26 @@ let
 
           # A zero-byte target is semantically absent, not corrupt. Treating it
           # as a parse failure would report an error on every activation and
-          # never manage the file.
-          if [ -f "$target" ] && [ ! -s "$target" ]; then
+          # never manage the file. Gated on `create`: on the skip path this
+          # would be an unconditional delete of harness state by a module that
+          # has just declared it must not create that state, and a crashed
+          # harness is exactly what produces a zero-byte file.
+          if [ "$create" = "create" ] && [ -f "$target" ] && [ ! -s "$target" ]; then
             rm -f "$target"
           fi
 
           if [ "$is_store_link" = 1 ] || [ ! -e "$target" ]; then
             # A target the harness has never written may be one this repository
             # should not conjure. ~/.claude.json is the case: creating it on a
-            # machine where Claude Code has never run fabricates state.
+            # machine where Claude Code has never run fabricates state. Seeding
+            # writes Nix-only content, which is precisely what is refused here,
+            # so this returns for a store symlink as well as for an absent
+            # target. linkGeneration cleans a stale link up on its own.
             if [ "$create" != "create" ]; then
               if [ "$is_store_link" = 1 ]; then
-                echo "managed-file: $name leaves $rel alone: it is a dangling store symlink and createIfMissing is false." >&2
+                echo "managed-file: $name leaves $rel alone: it is a store symlink and createIfMissing is false." >&2
               fi
-              if [ ! -e "$target" ]; then
-                return 0
-              fi
+              return 0
             fi
             if ! cp "$new_json" "$result_json"; then
               echo "managed-file: $name could not stage content for $rel" >&2
@@ -344,8 +351,17 @@ let
           # to acknowledge it, and the only remedy it could name -- delete the
           # base and re-adopt -- is exactly the action that reverts the owner's
           # edit. An inaccurate warning that recommends data loss is worse than
-          # none. `enforce` is the real protection: a key that must survive a
-          # partial write belongs there.
+          # none.
+          #
+          # The residual exposure is real and not fully covered. `enforce` does
+          # restore a key that must survive a partial write, but only 3 of the
+          # 9 targets declare any enforced key, so a truncated goose
+          # `extensions` block or a truncated codex TOML is lost silently.
+          # Enforcing those was tried and reverted: goose fills in
+          # description/display_name/available_tools at runtime, so enforcing
+          # `extensions` strips them on every activation and goose writes them
+          # back. Closing this properly needs a signal the merge does not have,
+          # not a wider `enforce`.
           if [ "$schema" != "-" ]; then
             if ! check-jsonschema --schemafile "$schema" "$result_json" > /dev/null 2>&1; then
               echo "managed-file: $name failed schema validation against $schema" >&2

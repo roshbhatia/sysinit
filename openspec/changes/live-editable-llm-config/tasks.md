@@ -22,14 +22,16 @@
 - [ ] 1.6 Act: add fixtures under `flake.nix` checks for every case named in
   the STOP condition
 - [ ] 1.7 Verify: `nix flake check` green; every STOP fixture passes
-- [x] 1.8 Adversarial review (`adversarial-review` skill), rounds 1 to 3 of >=5:
-  six critics across three rounds ran against the
+- [x] 1.8 Adversarial review (`adversarial-review` skill), rounds 1 to 5:
+  nine critics across five rounds ran against the
   `harness-managed-config-files` spec scenarios, the design decisions, and the
   rollout gates. Each round found criticals, including regressions introduced
   by the previous round's fixes. All reported criticals are fixed and verified
-  against copies of the live files. Rounds 4 and 5 remain; see 1.9
-- [ ] 1.9 Run adversarial rounds 4 and 5; the loop stops when a round
-  surfaces no new critical or the K=6 cap is reached
+  against copies of the live files. Round 5 assessed the happy path as clean
+  and the recovery surface as the remaining risk; see 1.9
+- [ ] 1.9 Close the two objections round 5 ranked above the switch: land the
+  task 1.6 fixtures over `reconcile()` itself, which is the untested region
+  every round regressed, then re-run one round to confirm convergence
 
 ## 2. Harness conversion and list removal
 
