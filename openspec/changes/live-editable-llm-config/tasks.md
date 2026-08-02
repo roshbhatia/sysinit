@@ -22,20 +22,23 @@
 - [ ] 1.6 Act: add fixtures under `flake.nix` checks for every case named in
   the STOP condition
 - [ ] 1.7 Verify: `nix flake check` green; every STOP fixture passes
-- [x] 1.8 Adversarial review (`adversarial-review` skill), round 1 of >=5:
-  three critics (merge correctness, data loss, spec conformance) ran against
-  the `harness-managed-config-files` spec scenarios, the design decisions, and
-  the rollout gates. Objections survive; see 1.9
-- [ ] 1.9 Fix the surviving round-1 objections, then run rounds 2 to 5
+- [x] 1.8 Adversarial review (`adversarial-review` skill), rounds 1 to 3 of >=5:
+  six critics across three rounds ran against the
+  `harness-managed-config-files` spec scenarios, the design decisions, and the
+  rollout gates. Each round found criticals, including regressions introduced
+  by the previous round's fixes. All reported criticals are fixed and verified
+  against copies of the live files. Rounds 4 and 5 remain; see 1.9
+- [ ] 1.9 Run adversarial rounds 4 and 5; the loop stops when a round
+  surfaces no new critical or the K=6 cap is reached
 
 ## 2. Harness conversion and list removal
 
 - **SHAPE** graph
 
-- [ ] 2.1 Convert the 5 harnesses that already carry a bespoke script
+- [x] 2.1 Convert the 5 harnesses that already carry a bespoke script
   (`goose.nix`, `opencode.nix`, `pi.nix`, `codex.nix`, `claude.nix`) to
   `managedFiles`, and delete their hand-written activation scripts `deps:` none
-- [ ] 2.2 Add the evaluation-time assertion that a path declared in
+- [x] 2.2 Add the evaluation-time assertion that a path declared in
   `managedFiles` is not also declared in `home.file` or `xdg.configFile`
   `deps:` 2.1
 - [ ] 2.3 Convert the store-symlink targets selected in task 1.2, across
