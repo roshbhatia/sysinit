@@ -1,0 +1,137 @@
+---
+description: Decides which code-search tool a query needs, in preference order: `ast-grep outline` to map structure before reading (mainstream languages only, silent on Nix and Lua), `ast-grep`/`sg` for code shapes in any language, `rg`/`grep`/Glob only for literal text, `gh search` for repos not cloned locally. Use when starting a search and the right tool is not obvious. Dispatches to the `ast-grep-outline` and `ast-grep` skills.
+allowed-tools: Bash(rg:*) Bash(grep:*) Bash(ast-grep:*) Bash(sg:*) Bash(gh:*) Read Glob
+model: haiku
+effort: low
+---
+
+# Code Search
+
+Four ways to search code on this machine, and they are **not** interchangeable.
+Picking the right one per query is the whole skill. The default reflex of
+reaching for `grep` is usually wrong here: ast-grep is the preferred tool for
+finding code, and `rg` is the fallback for literal text.
+
+This skill routes. It does not teach ast-grep. Two upstream skills own that
+depth, and you should load them rather than guess at syntax:
+
+- `ast-grep-outline` — how to read a structural map of files and directories
+- `ast-grep` — how to write ast-grep rules and patterns
+
+## Decision routing
+
+```
+Orienting in unfamiliar code, or about to read a file "to see what's in it"?
+    -> ast-grep outline   (load the `ast-grep-outline` skill)
+       but see the language note below — it is silent on Nix and Lua
+A code SHAPE — call pattern, signature, construct, refactor-grade?
+    -> ast-grep (sg) or the ast-grep MCP   (load the `ast-grep` skill for rules)
+Literal string, exact identifier, file path, or "every occurrence"?
+    -> builtin: rg / grep / Glob / Read
+Across repos — org-wide, not cloned locally, prior art on GitHub?
+    -> gh search (code / repos / issues / prs / commits)
+```
+
+Order matters. Outline before reading a whole file, because it costs a fraction
+of the context and usually answers the question. ast-grep before `rg`, because a
+shape query written as a regex silently misses wrapped lines and hits comments.
+
+## Language note — outline is narrower than ast-grep
+
+`ast-grep outline` covers the mainstream languages (TypeScript, JavaScript,
+Python, Go, Rust, and similar). It prints `nothing found` for **Nix** and
+**Lua**, which is most of `sysinit` and all of `sysinit.nvim`.
+
+`ast-grep` pattern search *does* parse Nix and Lua. So in this repo's Nix and in
+sysinit.nvim's Lua, skip step one and go straight to `ast-grep run -p ... -l nix`
+(or `-l lua`). A `nothing found` from outline on those files means the language
+is unsupported, not that the file is empty — do not conclude anything from it.
+
+## 1. Builtin — `rg` / `grep` / `Glob` / `Read`
+
+The right tool when the query is **lexical**, not structural: a literal string, a
+known symbol to locate, an exact or glob path (`Glob` for `**/*.test.ts`), or when
+you need *every* hit exhaustively (grep enumerates; ast-grep and gh search rank).
+
+```bash
+# good — literal text, known symbol, exhaustive enumeration
+rg "error: connection refused"
+rg -n "func ResolveTrust"
+
+# bad — using grep to match a code shape across line breaks
+rg "foo\(.*,.*\)"        # misses wrapped args, false-hits on strings and comments
+```
+
+## 2. ast-grep (`sg`) — structural / AST search
+
+Parses to an AST and matches by tree shape, so it is immune to whitespace, line
+breaks, and incidental formatting that defeat regex. Language-aware via
+`~/.config/ast-grep/sgconfig.yml`. Reach for it for call shapes, constructs
+(empty `catch`, a return type, a JSX prop), refactor-grade finds, and
+metavariable capture (`$VAR`, `$$$ARGS`).
+
+```bash
+# good — match a call shape regardless of how args wrap
+sg run -p 'foo($A, $$$REST)' -l ts
+sg scan                       # run the configured rule set
+
+# bad — ast-grep for literal text in comments/configs/markdown
+sg run -p 'TODO' -l ts        # slower and clumsier than `rg TODO` — that is grep's job
+```
+
+Two surfaces, same engine: the **CLI** (`sg run` / `sg scan`; `sg` aliases
+`ast-grep`) for ad-hoc text output, and the **ast-grep MCP server** when you want
+structured tool output instead of parsing CLI text.
+
+### Authoring a non-trivial pattern or rule — iterate, don't guess
+
+A pattern that misses is worse than no pattern: it reads as "no matches" when the
+syntax was just wrong. For anything past a one-liner, drive the ast-grep MCP loop
+instead of hand-writing YAML blind:
+
+1. **Dump the AST** of a representative snippet (`dump_syntax_tree`) so you match
+   real node kinds, not guessed ones.
+2. **Decompose** the query into the smallest sub-patterns that must hold.
+3. **Compose** them with relational (`inside`, `has`, `follows`) / composite
+   (`all`, `any`, `not`) rules rather than one over-specified pattern.
+4. **Test** each candidate against a known-good and known-bad snippet
+   (`test_match_code_rule`) before running it across the tree.
+5. **Revise** off the AST output when a match is empty or over-broad — a miss is a
+   wrong node kind or a missing metavariable, not "the code isn't there."
+
+## 3. gh search — repo-wide / org-wide / not-cloned
+
+When the answer is not in the working tree. Searches GitHub's index, so it reaches
+code you have not cloned.
+
+```bash
+# good — find prior art / usages across an org you have not cloned
+gh search code '<query>' --owner <org>
+gh search prs '<query>' --owner <org>
+
+# bad — gh search for something in the repo you already have checked out
+gh search code 'ResolveTrust' --owner me   # misses uncommitted work + non-default branches
+```
+
+Caveats: GitHub code search only indexes default branches and has its own syntax
+and rate limits. For the current repo, stay with builtin / ast-grep — faster,
+complete, and they see uncommitted work.
+
+## Typical flow
+
+1. Classify the query against the routing table before searching.
+2. Run the matching tool; for structural questions, write the ast-grep pattern
+   rather than approximating it with a regex.
+3. `Read` the top hits in full file context before concluding — ranked tools
+   return slices.
+4. Cite `file:line` for every source you used.
+
+## Guardrails — and what to do instead
+
+- Match the tool to the query shape, not to habit. Plain `grep` for a structural
+  pattern is the most common mistake; ast-grep for a literal string is the second.
+- `gh search` is for what is not in the working tree -> stay local for the current
+  repo; gh search misses uncommitted changes and non-default branches.
+- ast-grep mutations are off-limits from an agent session: read-only `sg run` /
+  `sg scan` only. `sg --rewrite` / `--update-all` change files and are user-driven.
+- Need *all* occurrences of a token -> use grep; the ranking tools may cap results.

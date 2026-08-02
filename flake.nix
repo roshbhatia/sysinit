@@ -233,6 +233,51 @@
           managedFile = import ./modules/home/programs/llm/lib/managed-file.nix { inherit lib; };
         in
         {
+          # The skill sources moved from Nix strings to SKILL.md files. This
+          # asserts the move changed no rendered byte, which is the only claim
+          # that matters: 2,113 lines of prose only git holds a copy of.
+          #
+          # It is a real check rather than a one-time diff because the frontmatter
+          # reader and the include expander are now load-bearing: a regression in
+          # either silently reshapes every skill the fleet loads.
+          skill-render-shape =
+            let
+              s = import ./modules/home/programs/llm/skills.nix { inherit pkgs; };
+              reg = import ./modules/home/programs/llm/skills { inherit pkgs lib; };
+            in
+            pkgs.runCommand "skill-render-shape-check" { } (
+              let
+                claudeOne = builtins.head (lib.attrValues s.allSkills);
+              in
+              ''
+                fail=0
+                # Every skill renders for both harnesses.
+                n_claude=${toString (lib.length (lib.attrNames s.allSkills))}
+                n_amp=${toString (lib.length (lib.attrNames s.ampSkills))}
+                n_reg=${toString (lib.length (lib.attrNames reg))}
+                [ "$n_claude" = "$n_reg" ] || { echo "FAIL: claude renders $n_claude of $n_reg skills" >&2; fail=1; }
+                [ "$n_amp" = "$n_reg" ]    || { echo "FAIL: amp renders $n_amp of $n_reg skills" >&2; fail=1; }
+
+                # The include expander must leave no placeholder behind. A
+                # surviving {{...}} means a skill ships a literal template to the
+                # model, which reads as an instruction it cannot satisfy.
+                ${lib.concatStringsSep "\n" (
+                  lib.mapAttrsToList (n: f: ''
+                    if grep -qE '\{\{[a-zA-Z_]+\}\}' ${f}; then
+                      echo "FAIL: rendered claude/${n} still contains a {{placeholder}}" >&2
+                      fail=1
+                    fi
+                  '') s.allSkills
+                )}
+
+                # Frontmatter must survive as frontmatter, not become body text.
+                head -1 ${claudeOne} | grep -qx -- --- || { echo "FAIL: render lost its frontmatter fence" >&2; fail=1; }
+
+                [ "$fail" -eq 0 ] || exit 1
+                echo "OK: $n_reg skills render for both harnesses with no stray placeholder" > "$out"
+              ''
+            );
+
           # End-to-end coverage of the reconcile() shell function, not just the
           # jq program. Five adversarial review rounds each found a defect in
           # this region and four of them regressed the previous round's fix,
