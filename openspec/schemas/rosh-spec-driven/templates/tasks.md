@@ -1,8 +1,15 @@
-## 1. <!-- Loop-shaped phase: gather, act, verify, repeat to a stop condition -->
+## 1. <!-- Loop-shaped phase: gather, act, verify, repeat to a stop condition.
+        Only use `loop` if the same tasks re-run on iteration 2. If every step
+        happens once, this is a graph with a dependency chain. -->
 
 - **SHAPE** loop
-- **STOP** <!-- the condition that ends the loop, e.g. all fixtures pass -->
+- **STOP** <!-- a COMMAND, or a predicate over one, e.g. `nix flake check` exits 0
+                and each new check fails on an injected defect. Not "it looks right":
+                nothing can evaluate that, so the loop would never terminate. -->
 - **MAX-ITERS** <!-- integer cap; 1 is the valid single-pass case -->
+- TERMINAL: <!-- how this ends WITHOUT success: CAPPED at MAX-ITERS,
+                   STALLED after <n> iterations with no change in the STOP
+                   metric, or CHURNING. See the `adversarial-review` skill. -->
 
 - [ ] 1.1 Gather: <!-- collect context / inputs -->
 - [ ] 1.2 Act: <!-- do the work -->
@@ -12,6 +19,9 @@
 ## 2. <!-- Graph-shaped phase: subtasks with dependency edges -->
 
 - **SHAPE** graph
+
+<!-- Fanning out to more than five siblings? Name a pilot subtask that runs the
+     same work over a smaller input and must finish first. -->
 
 - [ ] 2.1 <!-- root subtask --> `deps:` none
 - [ ] 2.2 <!-- depends on 2.1 --> `deps:` 2.1
