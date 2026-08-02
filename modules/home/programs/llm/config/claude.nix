@@ -152,9 +152,13 @@ in
         DISABLE_AUTOUPDATER = "1";
       };
 
-      # Adversarial-review critics run as in-process teammates (AGENT_TEAMS above);
-      # pin the mode so review never falls back to tmux/iTerm split panes. See the
-      # `adversarial-review` skill.
+      # How a teammate runs WHEN one is used, not whether to use one. Pinned so
+      # a teammate never falls back to tmux/iTerm split panes.
+      #
+      # Adversarial-review critics deliberately do NOT take this path: they run
+      # as fresh-context subagents, because a critic that shares the author's
+      # context inherits the author's reasoning and stops being adversarial. The
+      # `adversarial-review` skill routes on that, not on AGENT_TEAMS.
       teammateMode = "in-process";
 
       dangerouslySkipPermissions = true;

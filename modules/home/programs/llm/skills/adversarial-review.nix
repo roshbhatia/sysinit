@@ -52,22 +52,35 @@
   A waiver waives ONLY the critic loop. `specutil check` must still pass, and
   the human-verification gates for impactful actions still apply.
 
-  ## Pick the execution path (harness-aware)
+  ## Pick the execution path
 
-  Check the environment in this order and take the first match:
+  Route on what the review needs, not on what the harness offers. Fresh context
+  is the point of the exercise, so the capability question is only a fallback.
 
   1. **Already a critic** — your instructions carry the `ADVERSARIAL-CRITIC-ROLE`
      sentinel. You are a {{agent}} spawned for review. Do NOT spawn more critics
      (recursion guard). Produce your own objection and return.
-  2. **In-process {{agents}}** — `$CLAUDECODE` is set AND
-     `$CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS` is `1`. Spawn N=3 in-process
-     {{agents}} as adversarial critics, one per lens.
-  3. **Any harness with {{agents}}** — a Task/Agent mechanism exists. Spawn N=3
-     critic {{agents}} (fresh context each).
-  4. **No {{agent}} capability** — run N=3 sequential critique passes, each in a
+  2. **Fresh-context {{agents}} — THE DEFAULT.** A Task/Agent mechanism exists.
+     Spawn N critic {{agents}}, one per lens, each with its own context.
+  3. **Shared-context {{agents}}** — use ONLY when a critic must observe live
+     session state that is not on disk: an unsaved buffer, a running process, a
+     value that exists solely in this conversation. Name that reason in the
+     round record. If the work is on disk, this path is wrong.
+  4. **No {{agent}} capability** — run N sequential critique passes, each in a
      fresh reasoning context with authorship hidden.
 
-  Detect the harness with a shell check, e.g.
+  Prefer path 2 over path 3 for correctness, not cost. A critic that shares the
+  author's context inherits the author's reasoning, and a critic that has read
+  the argument for why the code is right is measurably worse at finding the way
+  it is wrong. The strongest published result on this is the Bun Rust port,
+  where the reviewer "gets the diff and nothing else — none of the implementer's
+  reasoning". Context starvation is the mechanism that makes the review
+  adversarial; sharing context defeats it.
+
+  Under Claude Code this means the Agent tool with a read-only subagent type,
+  not an in-process teammate, unless path 3's condition genuinely holds.
+
+  When the capability is genuinely in question, check with a shell probe, e.g.
   `printenv CLAUDECODE CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS`. Note that
   `printenv` prints nothing for an unset name rather than a blank line, so read
   each name separately when the distinction matters.
