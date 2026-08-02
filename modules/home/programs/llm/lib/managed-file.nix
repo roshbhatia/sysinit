@@ -238,12 +238,24 @@ let
             esac
           fi
 
+          # A zero-byte target is semantically absent, not corrupt. Treating it
+          # as a parse failure would report an error on every activation and
+          # never manage the file.
+          if [ -f "$target" ] && [ ! -s "$target" ]; then
+            rm -f "$target"
+          fi
+
           if [ "$is_store_link" = 1 ] || [ ! -e "$target" ]; then
             # A target the harness has never written may be one this repository
             # should not conjure. ~/.claude.json is the case: creating it on a
             # machine where Claude Code has never run fabricates state.
-            if [ ! -e "$target" ] && [ "$create" != "create" ]; then
-              return 0
+            if [ "$create" != "create" ]; then
+              if [ "$is_store_link" = 1 ]; then
+                echo "managed-file: $name leaves $rel alone: it is a dangling store symlink and createIfMissing is false." >&2
+              fi
+              if [ ! -e "$target" ]; then
+                return 0
+              fi
             fi
             if ! cp "$new_json" "$result_json"; then
               echo "managed-file: $name could not stage content for $rel" >&2
@@ -309,7 +321,9 @@ let
             # Where it does not, the live value comes back rather than being
             # dropped, matching the old `authoritative` pass, which only ever
             # overwrote a block the managed content actually carried. The
-            # stripped disk copy is the third input for exactly that fallback.
+            # The third input is the UNSTRIPPED disk. The stripped copy has
+            # every enforced key deleted, so `has($k)` on it is never true and
+            # the fallback would be a silent no-op.
             if ! jq -S -s --argjson keys "$enforce" '
                   .[0] as $r | .[1] as $n | .[2] as $d
                   | reduce $keys[] as $k ($r;
@@ -322,26 +336,16 @@ let
             fi
           fi
 
-          # A partially-written target can still parse: YAML and TOML are line
-          # oriented, so a truncated prefix is valid input. The merge then reads
-          # the absent keys as a deliberate harness deletion and drops them for
-          # good. Report it rather than converging silently on a smaller file.
-          # Leaf paths, not top-level keys: the realistic partial write cuts
-          # inside a nested block, so a top-level comparison sees nothing wrong.
-          local dropped dropped_n
-          dropped="$(jq -r --slurpfile n "$new_json" '
-                . as $r
-                | [$n[0] | paths(scalars) | join(".")]
-                  - [$r | paths(scalars) | join(".")]
-                | .[]
-              ' "$result_json" 2> /dev/null || true)"
-          if [ -n "$dropped" ]; then
-            dropped_n="$(printf '%s\n' "$dropped" | wc -l | tr -d ' ')"
-            echo "managed-file: $name is dropping $dropped_n declared value(s) from $rel:" >&2
-            printf '%s\n' "$dropped" | head -8 | sed 's/^/managed-file:   /' >&2
-            echo "managed-file: this is the live file having removed them. If that was not deliberate, delete $sidecar and re-run." >&2
-          fi
-
+          # Known limitation, deliberately not warned about. A target truncated
+          # to a valid prefix (YAML and TOML are line oriented) is byte-for-byte
+          # indistinguishable from the owner deliberately deleting those keys,
+          # and the merge honours deletion on purpose. A warning here fires on
+          # every deliberate deletion, repeats on every activation with no way
+          # to acknowledge it, and the only remedy it could name -- delete the
+          # base and re-adopt -- is exactly the action that reverts the owner's
+          # edit. An inaccurate warning that recommends data loss is worse than
+          # none. `enforce` is the real protection: a key that must survive a
+          # partial write belongs there.
           if [ "$schema" != "-" ]; then
             if ! check-jsonschema --schemafile "$schema" "$result_json" > /dev/null 2>&1; then
               echo "managed-file: $name failed schema validation against $schema" >&2

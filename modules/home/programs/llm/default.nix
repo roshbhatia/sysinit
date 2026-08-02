@@ -156,7 +156,8 @@ let
 
   # Config files that both Nix and a harness write. One reconciler runs them
   # all, so the five hand-written merge scripts this replaces cannot drift.
-  managedFiles = lib.filterAttrs (_: f: f.enable) config.sysinit.llm.managedFiles;
+  # Built from the unfiltered set: a disabled entry still needs its recorded
+  # base dropped, so the reconciler has to see it.
   reconciler = llmLibForCoverage.managedFile.mkReconciler {
     inherit pkgs;
     files = config.sysinit.llm.managedFiles;

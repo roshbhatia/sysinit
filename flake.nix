@@ -676,8 +676,13 @@
                 check-jsonschema --schemafile "$schemas/tui.json" ${tuiJson}
 
                 # A live file carrying retired keys and a stale nested entry must
-                # come out clean once the SAME merge program activation uses runs.
-                # Base-only validation cannot see either case.
+                # come out clean once the adoption pass runs. Base-only
+                # validation cannot see either case.
+                #
+                # This exercises `render.mergeProgram`, which models the adopt
+                # step's `adoptDelete` plus `enforce` shape. The reconciler's own
+                # three-way program is covered by the `managed-file-merge3`
+                # check; neither check alone covers the whole activation path.
                 jq -n '{
                   theme:"dark",
                   keybinds:{leader:"ctrl+b"},
