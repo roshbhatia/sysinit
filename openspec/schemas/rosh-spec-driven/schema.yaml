@@ -171,19 +171,16 @@ artifacts:
       - Tasks should be small enough to complete in one session
       - Order tasks by dependency (what must be done first?)
       - **rosh-spec-driven rule**: When the change spans more than one capability, group tasks under explicit phase headings (`## 1. Phase name`, `## 2. Phase name`, ...). Each phase MUST correspond to a coherent phase that could in principle be reviewed or shipped independently.
-      - **rosh-spec-driven rule — human verification before impactful actions**: Any task that performs an action with non-trivial blast radius MUST be preceded by a verification task and followed by a confirmation task. Impactful actions include (non-exhaustive):
-        - `nh os switch` / `nh darwin switch` (mutates the live system)
-        - `git push`, especially to `main` or any shared branch
-        - `openspec archive` (irreversibly moves a change out of the active set)
-        - Schema fork or migration steps
-        - Removal/deletion of files outside the working scratch space
-        - Network writes (POST/PUT/DELETE to external services)
-        - Updates to vendored upstream content (fetcher hash bumps, etc.)
-        - `nix fmt` / formatter sweeps that touch many files at once
-      - For each such task, the structure MUST be:
-        - `- [ ] X.N Verify: <preconditions, e.g., nix flake check passes, nh os build succeeds, diff reviewed>`
-        - `- [ ] X.N+1 Apply: <impactful action>`
-        - `- [ ] X.N+2 Confirm: <postconditions, e.g., expected files exist, user spot-checks, drift script reports OK>`
+      - **rosh-spec-driven rule — gate on judgment, not on distrust**: A human gate costs a context switch and trains the owner to click through, so it MUST earn its place. Apply this test, from Anthropic's own criterion that automated testing verifies functionality while human review verifies alignment with broader system requirements: gate where the failure mode is "every check passes and the wrong thing was built"; do NOT gate where the failure mode is "the code is broken", because a command already answers that.
+        - An action is IMPACTFUL when it is irreversible, outward-facing, or mutates state the owner cannot reconstruct. These MUST carry an owner gate: `nh os switch` / `nh darwin switch`, `git push`, `openspec archive`, schema fork or migration, deletion outside scratch space, network writes, vendored-content updates.
+        - An action is NOT impactful merely because it is a write. `git add`, `nix fmt`, and any formatter sweep are deterministic and revertible; gating them is ceremony. State them as ordinary tasks.
+        - A precondition a command can decide is NOT a gate. `nix flake check`, `nh os build`, `specutil check`, and `openspec validate` all exit non-zero on their own. Name the command in the Apply task's own line, or let the pre-commit path run it. Do not spend a checkbox asking the owner to confirm a program's exit code.
+        - Where a gate IS earned, the structure MUST be:
+          - `- [ ] X.N Apply: <impactful action>, gated on <command that must exit 0 first>`
+          - `- [ ] X.N+1 Confirm: <the judgment only a human can make, e.g. the owner spot-checks that the captured settings are the ones they meant to keep>`
+        - A `Confirm:` task MUST state a judgment, not a re-run of a command. "Confirm the tests pass" is not a gate; "confirm the migrated values are the ones you intended to keep" is.
+        - Prefer ONE confirmation per impactful action. A run of consecutive `Confirm:` tasks after a single action is a sign the author is enumerating observations rather than naming a decision.
+        - A gate is a boundary between runs, not a pause inside one. If a phase needs owner sign-off partway through, split it into two phases so the boundary is visible and the first half can be re-run on its own.
       - **rosh-spec-driven rule — reuse first**: For each task that introduces a new module/file, the description SHOULD reference the existing pattern it follows (cite a file path) or explicitly note this is a new pattern (with justification carried from design.md).
       - **rosh-spec-driven rule — adversarial-review gate per phase**: Each phase (numbered phase) MUST end with an adversarial-review checkbox before its impactful-action/rollout tasks. The checkbox invokes the `adversarial-review` skill, which first runs the mandatory deterministic `specutil check` lint, then elicits the owner's approve/deny for the LLM critic loop (default: run). On approve, independent critics attempt to break the phase against the rubric (spec scenarios, design decisions, rollout gates, non-goals) with a concrete failing scenario; the author revises against surviving objections; the loop repeats until it reaches a terminal state. The round cap is scaled by the skill (K=2 for one phase, K=4 for one capability, K=6 for a cross-capability or live-system change), and the loop also stops early on non-convergence or fix-induced churn. A cap hit is reported as open objections, never as a pass. On deny, the loop is waived and the checkbox records `Adversarial review: waived by owner`. Either way the checkbox is present (a waiver is explicit, never a missing or silently-checked box), `specutil check` still passes, and the human-verification gate for impactful actions still applies. The skill picks the executor by what the review needs: fresh-context subagents by default, because a critic that shares the author's context inherits the author's reasoning. Do not name a mechanism here.
       - **rosh-spec-driven rule — model the work as a loop or a graph, not prose**: Prefer an explicit agentic shape over an implicit sequence. A phase whose work is gather-context, act, verify is a `loop` and MUST declare its `STOP` condition and `MAX-ITERS`; a phase whose work fans out into independent subtasks is a `graph` and MUST declare its `deps:` edges. When an agent drives the iteration itself, drive it with the `loop` skill (`/loop` with no interval, so the model self-paces one iteration per cycle) and end it with the loop's own stop control the moment the `STOP` condition holds. State machines with named states and one transition per condition are preferred over prose descriptions of control flow, because a named terminal state is checkable and "until it looks done" is not.
@@ -204,9 +201,8 @@ artifacts:
 
       ## 3. Rollout
 
-      - [ ] 3.1 Verify: `nix flake check` + `nh os build` green; review `git diff`
-      - [ ] 3.2 Apply: `nh os switch`
-      - [ ] 3.3 Confirm: exported file appears at expected path; user spot-checks
+      - [ ] 3.1 Apply: `nh os switch`, gated on `nix flake check` and `nh os build` exiting 0
+      - [ ] 3.2 Confirm: the owner spot-checks that the exported columns are the ones they meant to expose
       ```
 
       Reference specs for what needs to be built, design for how to build it.

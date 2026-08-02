@@ -20,8 +20,11 @@
 ## 3. Rollout
 
 <!-- A Rollout phase is exempt from the shape and adversarial-review rules. It
-     sequences the impactful actions behind their verification gates. -->
+     sequences the impactful actions behind their gates.
 
-- [ ] 3.1 Verify: <!-- preconditions, e.g. nix flake check and nh darwin build green, diff reviewed -->
-- [ ] 3.2 Apply: <!-- the impactful action, e.g. nh darwin switch -->
-- [ ] 3.3 Confirm: <!-- postconditions, e.g. expected files exist, owner spot-checks -->
+     Gate on judgment, not on distrust. A precondition a command decides is not
+     a gate: name the command on the Apply line. A Confirm task states the
+     judgment only a human can make, and there is normally one per action. -->
+
+- [ ] 3.1 Apply: <!-- the impactful action, e.g. nh darwin switch --> , gated on <!-- the command that must exit 0 first -->
+- [ ] 3.2 Confirm: <!-- the judgment only a human can make, not a re-run of a command -->
