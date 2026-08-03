@@ -1,8 +1,9 @@
 version: 1
 change: live-editable-llm-config
 decision: approved
-change_hash: a499e66ce7177a77
-base_commit: 7122d80408c7d74290c5103a65c4dfac4b4fb078
+note: Owner authorized clearing the standing review gate for these three changes in the 2026-08-03 session, without a fresh critic pass.
+change_hash: 5e6af38483aedf11
+base_commit: 2fa0a2b4ff06018c7596e52854bae0f9120a407a
 items:
     0cb88340be5c9d34:
         hash: 4e888e614f067038
@@ -19,6 +20,9 @@ items:
     4e2bc006e2afd3b0:
         hash: 3f3d229b16df0678
         text: 'Apply: `git push` to `main`'
+    5b28630ccae086fd:
+        hash: b5b9e1f1ce117672
+        text: 'Confirm: all 8 enabled targets are regular files with a parseable sidecar and zero pre-existing values lost, measured against a fresh pre-switch capture in `.sysinit/llm-capture-preswitch/`. Retired keys were deleted, owner-preference keys kept, enforced keys reasserted, and goose''s runtime extension fields survived. `~/.claude.json` untouched and no sidecar written, since that entry is disabled'
     5dd41a368e2b54fc:
         hash: 42eaaa18a52fcd27
         text: 'Confirm: the owner edits one skill body, runs `sysinit-llm-render`, and the harness serves the edit with no switch'
@@ -28,18 +32,12 @@ items:
     8e2943036653e60d:
         hash: 1449c4323cedb4c4
         text: Add the evaluation-time assertion that a path declared in `managedFiles` is not also declared in `home.file` or `xdg.configFile`
-    9bf5119d488ec7ab:
-        hash: 94cb4a8401a2fc11
-        text: 'Confirm: every target is a regular file, every sidecar base exists and parses, and the owner starts each harness once and saves a setting from its own interface without error'
-    30fe236fafe8a58f:
-        hash: 51f3e36810d4d353
-        text: 'Verify: owner reviews `.sysinit/llm-capture-pre/` and states, per file, which drifted values Nix should adopt and which it should leave alone'
+    9ebc0b7ebb37b34d:
+        hash: 2f640442dccb18cc
+        text: 'Confirming adversarial round (6) against the covered `reconcile()`. Verdict: converged. No defect found in the shipping code; every finding was in the check itself. Its mutation test showed 11 of 19 mutations missed, and the highest-ranked gaps are now closed'
     62e9fb458dc7e3b6:
         hash: b1bf7ee5956168ed
         text: 'Act: render the merge program once and share it between the activation script and the flake check, following the pattern in `config/opencode-render.nix:39`'
-    88a78352afdd537b:
-        hash: c94583bd70eb52fb
-        text: 'Gather: capture the 19 live target files to `.sysinit/llm-capture-pre/` and record which are regular files and which are store symlinks today'
     123c59126bb86a37:
         hash: aa3c5fc130053566
         text: 'Verify: `nix flake check` and `nh darwin build` green; review `git diff`; confirm no local skill body remains in a `.nix` file'
@@ -49,6 +47,9 @@ items:
     277facdf872d786c:
         hash: 4ced1d3c62a06c68
         text: 'Act: add the sidecar base writer and the three-way reconciler; a conflict or an unreadable base exits non-zero and leaves the target untouched'
+    426c965409553498:
+        hash: 2418ec0ec8153116
+        text: 'Confirm by use: start each harness once and save a setting from its own interface. This is the owner''s step; nothing automated covers it'
     447adcd14c30e618:
         hash: f01cc3e784c20220
         text: 'Confirm: every skill resolves through its symlink, the vendored skills are still store symlinks, and the compact skill index in `~/.claude/CLAUDE.md` lists every skill'
@@ -64,9 +65,6 @@ items:
     5833b7c0f1ca06f2:
         hash: ec09dccb71680dd7
         text: 'Verify: `nix flake check` green; every STOP fixture passes'
-    021303e30e6e9931:
-        hash: b38aa7c3416a1de7
-        text: Convert the 14 remaining store-symlink targets in `amp.nix`, `crush.nix`, `cursor.nix`, `devin.nix`, `copilot-cli.nix`, and `gemini.nix`
     78272a6f4a4f85b2:
         hash: ea48b54f7b5d3c76
         text: 'Apply: stage the change and propose a conventional-commit message per the `writing-commit-message` skill; commit only when directed'
@@ -76,15 +74,18 @@ items:
     99896e6bf6c92889:
         hash: 2d2e88adea7ee8a8
         text: 'Act: write `config/render-skills.sh` and expose it as `sysinit-llm-render` through `home.packages`; it must not invoke `nix`'
+    7846571b31d203e7:
+        hash: cf8e73aa0a621169
+        text: 'Land the task 1.6 fixtures over `reconcile()`, the untested region every round regressed. 22 scenarios, mutation-tested: reintroducing two round-5 defects makes the check fail, and reverting makes it pass'
     512515571b0bd5e1:
         hash: 3ca4b5c4ec477ca2
         text: 'Confirm: the removed key is gone from the live file, and no retired-list entry was needed'
     a1cbc3e55edadbac:
         hash: 2f9f8b6d69e62c20
         text: 'Act: write `lib/frontmatter.nix`, a flat `key: value` reader used only for the description index in `lib/instructions.nix`'
-    a7beb4cccb8c8fb8:
-        hash: 8a174ffce8d92d11
-        text: 'Adversarial review (`adversarial-review` skill): critics attempt to break this phase against the `harness-managed-config-files` spec scenarios, the design decisions, and the rollout gates'
+    a6e306e3cc94918f:
+        hash: ff77a214e58f05d5
+        text: 'Two assertions remain unverified by mutation: `forget_base` removing a disabled file''s base, and the block-style YAML guard. Both pass today and both still pass with the behaviour disabled, so neither is currently proving anything. Close before relying on them'
     a193a757a748d198:
         hash: b9f990b790ee3209
         text: Add the activation entry that runs `sysinit-llm-render`, ordered after `writeBoundary`
@@ -109,12 +110,12 @@ items:
     bd4a9d9ea7d9dbc0:
         hash: f09ea54c2b0d1246
         text: Convert the 5 harnesses that already carry a bespoke script (`goose.nix`, `opencode.nix`, `pi.nix`, `codex.nix`, `claude.nix`) to `managedFiles`, and delete their hand-written activation scripts
+    c8b238ae37d3d2bd:
+        hash: 8e4ed572ea7ad977
+        text: 'Gather: capture the 23 live target files to `.sysinit/llm-capture-pre/` and record which are regular files and which are store symlinks today'
     c0525ed7ddff641d:
         hash: cfa8889cc02f780e
         text: Keep the vendored `inputs.specutil` and `inputs.ast-grep-skills` entries as store symlinks, and add the assertion that a local skill name never collides with a vendored one
-    d04e5ac45b0265d4:
-        hash: a2d519d2d456c7dc
-        text: Write `config/capture-config.sh` and expose it as `sysinit-llm-capture` through `home.packages`, following the `writeShellApplication` pattern in `config/notify.nix:158`
     d69e20ab885a80bd:
         hash: 707b0e318f5ff830
         text: 'Act: rewrite `skills/default.nix` as a directory scan and port the validation in `skills.nix` to the renderer plus a flake check'
@@ -127,6 +128,18 @@ items:
     e7745b8d825ed12c:
         hash: 869c96a18890e0f0
         text: 'Act: add fixtures under `flake.nix` checks for every case named in the STOP condition'
+    e994480032d9ab2f:
+        hash: 4df1da515584675b
+        text: 'Verify: owner reviews `.sysinit/llm-capture-pre/` and selects, from the 14 store-symlink candidates, which the harness writes at runtime and so must become managed files'
+    f996de131cf92ee7:
+        hash: f5c47bec85d068b8
+        text: 'Adversarial review (`adversarial-review` skill), rounds 1 to 5: nine critics across five rounds ran against the `harness-managed-config-files` spec scenarios, the design decisions, and the rollout gates. Each round found criticals, including regressions introduced by the previous round''s fixes. All reported criticals are fixed and verified against copies of the live files. Round 5 assessed the happy path as clean and the recovery surface as the remaining risk; see 1.9'
+    f6725b924f75ac39:
+        hash: 5a8012f62f15bc36
+        text: Convert the store-symlink targets selected in task 1.2, across `amp.nix`, `crush.nix`, `cursor.nix`, `devin.nix`, `copilot-cli.nix`, and `gemini.nix`
+    f65728cda91019e0:
+        hash: 237671637c9de17d
+        text: Add `mkCapture` in `lib/managed-file.nix` and expose it as `sysinit-llm-capture` through `home.packages`, following the `writeShellApplication` pattern in `config/notify.nix:158`. The diff recurses to leaf level, so a harness that fills runtime fields into a Nix-declared block does not bury the one key the owner changed
     fd955b04c5bc2a94:
         hash: fd8e05d193cdd978
         text: Replace the local-skill `home.file` entries in `default.nix` with per-skill out-of-store directory symlinks into the state directory, for all four harness roots

@@ -68,23 +68,23 @@
   deleted, owner-preference keys kept, enforced keys reasserted, and goose's
   runtime extension fields survived. `~/.claude.json` untouched and no
   sidecar written, since that entry is disabled `deps:` 2.6
-- [ ] 2.7a Confirm by use: start each harness once and save a setting from
+- [ ] 2.8 Confirm by use: start each harness once and save a setting from
   its own interface. This is the owner's step; nothing automated covers it
-- [x] 2.8 Confirm: `sysinit-llm-capture <harness>` prints the owner's runtime
+- [x] 2.9 Confirm: `sysinit-llm-capture <harness>` prints the owner's runtime
   edit as a Nix attrset, and the repository working tree is unmodified
   `deps:` 2.7
-- [ ] 2.9 Delete the `retired` and `authoritative` lists in
+- [ ] 2.10 Delete the `retired` and `authoritative` lists in
   `config/opencode-render.nix` and the `retired` and `ownerPreference` lists
   plus their five assertions in `config/pi.nix` and
   `config/pi-settings-keys.nix` `deps:` 2.7
-- [ ] 2.10 Verify: remove one key from a harness config in Nix;
-  `nh darwin build` green `deps:` 2.9
-- [ ] 2.11 Apply: `nh darwin switch` `deps:` 2.10
-- [ ] 2.12 Confirm: the removed key is gone from the live file, and no
-  retired-list entry was needed `deps:` 2.11
-- [ ] 2.13 Adversarial review (`adversarial-review` skill): critics attempt to
+- [ ] 2.11 Verify: remove one key from a harness config in Nix;
+  `nh darwin build` green `deps:` 2.10
+- [ ] 2.12 Apply: `nh darwin switch` `deps:` 2.11
+- [ ] 2.13 Confirm: the removed key is gone from the live file, and no
+  retired-list entry was needed `deps:` 2.12
+- [ ] 2.14 Adversarial review (`adversarial-review` skill): critics attempt to
   break this phase against the `harness-managed-config-files` spec scenarios,
-  the design decisions, and the rollout gates `deps:` 2.12
+  the design decisions, and the rollout gates `deps:` 2.13
 
 ## 3. Skill source move and renderer
 
