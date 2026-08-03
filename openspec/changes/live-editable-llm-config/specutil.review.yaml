@@ -1,9 +1,9 @@
 version: 1
 change: live-editable-llm-config
 decision: approved
-note: 'Phase 1 closed: forget_base was already covered, and the block-style assertion is not mutation-sensitive because the guard it covers is a no-op on a JSON input, verified against yq v4.53.3.'
-change_hash: 2c15f0f6f24a0ab0
-base_commit: 317dcfae9cb57f69a9231bfaa8a608e604e641eb
+note: 'Task 2.10 partly done: pi retired list deleted after verifying nested deletion to depth 3; opencode retiredMain, authoritative, and ownerPreference kept, each with a tested reason.'
+change_hash: 464485b0c3e8f0e9
+base_commit: de532334de0814109bbad984c6f1a82a2f56c6a6
 items:
     0cb88340be5c9d34:
         hash: 4e888e614f067038
@@ -35,6 +35,9 @@ items:
     9ebc0b7ebb37b34d:
         hash: 2f640442dccb18cc
         text: 'Confirming adversarial round (6) against the covered `reconcile()`. Verdict: converged. No defect found in the shipping code; every finding was in the check itself. Its mutation test showed 11 of 19 mutations missed, and the highest-ranked gaps are now closed'
+    11ecfdbe21b7258f:
+        hash: 97aa2dad284e2923
+        text: Partly done, and the task was wrong in two of its three parts. Tested first, then deleted only what the evidence allowed.
     62e9fb458dc7e3b6:
         hash: b1bf7ee5956168ed
         text: 'Act: render the merge program once and share it between the activation script and the flake check, following the pattern in `config/opencode-render.nix:39`'
@@ -95,9 +98,6 @@ items:
     aa1029bbc85517c2:
         hash: b8f93d3a4710089f
         text: 'Gather: snapshot the current rendered trees for claude and amp from the Nix build output, as the byte-identity reference'
-    b96bcbb6a0178b51:
-        hash: 11e0ed77a3cbfb02
-        text: Delete the `retired` and `authoritative` lists in `config/opencode-render.nix` and the `retired` and `ownerPreference` lists plus their five assertions in `config/pi.nix` and `config/pi-settings-keys.nix`
     b99a889dce1c4a8a:
         hash: 3860b918ee522a0d
         text: 'Verify: `nix flake check` green; the STOP condition holds for all four trees; iterate 3.2 through 3.7 if any file differs'

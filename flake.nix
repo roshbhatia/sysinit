@@ -549,6 +549,24 @@
                 ok "nested: inner undeclare deletes, sibling add survives" \
                   '{"s":{"a":1,"b":2}}' '{"s":{"a":1,"b":2,"z":9}}' '{"s":{"a":1}}' '{"s":{"a":1,"z":9}}'
 
+                # `opencode-render.nix` keeps an `authoritative` list that replaces
+                # whole blocks, on the stated grounds that a top-level `del` "only
+                # reaches depth one" and so cannot remove a stale nested entry such
+                # as a `provider.ollama` that Nix stopped declaring. These cases test
+                # that claim against the three-way program directly: if deletion
+                # recurses to any depth, that list is redundant.
+                ok "nested 2 deep: undeclared subtree is deleted" \
+                  '{"p":{"o":{"k":1},"x":1}}' '{"p":{"o":{"k":1},"x":1}}' '{"p":{"x":1}}' '{"p":{"x":1}}'
+                ok "nested 3 deep: undeclared leaf is deleted" \
+                  '{"p":{"o":{"k":1,"j":2}}}' '{"p":{"o":{"k":1,"j":2}}}' '{"p":{"o":{"k":1}}}' '{"p":{"o":{"k":1}}}'
+                ok "nested 3 deep: harness addition beside it survives" \
+                  '{"p":{"o":{"k":1,"j":2}}}' '{"p":{"o":{"k":1,"j":2,"z":9}}}' '{"p":{"o":{"k":1}}}' '{"p":{"o":{"k":1,"z":9}}}'
+                # Expected value is key-sorted: the program builds objects from a
+                # `unique` key set, and `jq -S` matches that so the first run does not
+                # rewrite a file for ordering alone.
+                ok "nested: owner edit to an undeclared leaf is kept" \
+                  '{"p":{"o":{"k":1,"j":2}}}' '{"p":{"o":{"k":1,"j":99}}}' '{"p":{"o":{"k":1}}}' '{"p":{"o":{"j":99,"k":1}}}'
+
                 refuses "three-way divergence on a scalar" \
                   '{"a":1}' '{"a":5}' '{"a":9}' "conflict at .a"
                 refuses "owner deleted a key nix then changed" \
@@ -913,17 +931,12 @@
                   fi
                 done
 
-                # Retired keys must stay absent, so a future edit cannot quietly
-                # reintroduce one that the binary never reads.
-                for k in ${lib.concatStringsSep " " (import ./modules/home/programs/llm/config/pi-settings-keys.nix).retired}; do
-                  if rg -qa "$k" "$bin"; then
-                    echo "FAIL: '$k' is retired but now exists in the pi build; re-evaluate it" >&2
-                    fail=1
-                  fi
-                done
+                # There is no retired list any more. It named keys to strip before the
+                # first merge, and the three-way merge now removes an undeclared key
+                # at any depth on its own, verified by managed-file-merge3.
 
                 [ "$fail" -eq 0 ] || exit 1
-                echo "OK: every declared pi settings key exists, every retired key is absent" | tee "$out"
+                echo "OK: every declared pi settings key exists in the installed build" | tee "$out"
               '';
 
           # The rendered OpenCode config must satisfy the schema the installed

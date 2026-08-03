@@ -81,10 +81,26 @@
 - [x] 2.9 Confirm: `sysinit-llm-capture <harness>` prints the owner's runtime
   edit as a Nix attrset, and the repository working tree is unmodified
   `deps:` 2.7
-- [ ] 2.10 Delete the `retired` and `authoritative` lists in
-  `config/opencode-render.nix` and the `retired` and `ownerPreference` lists
-  plus their five assertions in `config/pi.nix` and
-  `config/pi-settings-keys.nix` `deps:` 2.7
+- [x] 2.10 Partly done, and the task was wrong in two of its three parts. Tested
+  first, then deleted only what the evidence allowed.
+  - Deleted: pi's `retired` list, `piRetiredSettings`, `assertPiKeysDisjoint`, and
+    its `adoptDelete` wiring. Safe because the three-way merge removes an
+    undeclared key at any depth, verified to depth 3 by four new `nested N deep`
+    cases in the `managed-file-merge3` check, and because pi has no strict schema
+    to reject a leftover.
+  - KEPT opencode's `retiredMain`. Deleting it made
+    `opencode-config-schema` fail with `Additional properties are not allowed
+    ('keybinds', 'theme', 'tui')`. Those keys exist in the live file and the schema
+    forbids them, and on the ADOPT path there is no base for the merge to compare
+    against, so only a pre-merge delete removes them. The list is load-bearing for
+    a first adoption.
+  - KEPT `authoritative`. Its comment justified it on depth, and that is now
+    disproven, but its real effect is different: it replaces a block wholesale,
+    discarding a harness addition inside it, which the three-way merge deliberately
+    preserves. A different guarantee, not a redundant one.
+  - KEPT `ownerPreference` and `assertPreferencesUndeclared`. No mechanism replaces
+    that guard, so deleting it is a net loss of safety.
+  `deps:` 2.7
 - [ ] 2.11 Verify: remove one key from a harness config in Nix;
   `nh darwin build` green `deps:` 2.10
 - [ ] 2.12 Apply: `nh darwin switch` `deps:` 2.11
