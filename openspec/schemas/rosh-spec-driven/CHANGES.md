@@ -199,6 +199,17 @@ a rename/removal, and the flake check fails on a newly added or moved site.
   or a review), the owner-gate stop, the cycle exit code, and the instruction to
   arm a loop's `STOP` with `loop-gate` before iterating.
 
+### schema.yaml — `apply.instruction`, diff narration
+- Adds a narration step: before a ready set is marked done, read `git diff` and
+  tell the owner what changed, which `Behavior` criterion each edit serves, what
+  the diff does that no criterion asked for, and what a criterion asked for that
+  the diff does not do.
+- Reason: a passing rubric cannot see "every check passed and the wrong thing was
+  built". The last two bullets are the whole point of the step.
+- States explicitly that `meat` is NOT this step. It is installed for manual use
+  on a diff too large to read, but it never sees the proposal, so it cannot name
+  a criterion. See `overlays/meat.nix`.
+
 ## Pending sync notes
 
 - Initial fork taken from openspec 1.3.0 (`/nix/store/lwijn4py7cknh9zbvvx6icbap5gfl9ab-openspec-1.3.0/lib/openspec/schemas/spec-driven`).

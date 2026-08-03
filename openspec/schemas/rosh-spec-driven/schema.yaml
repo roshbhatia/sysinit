@@ -183,4 +183,25 @@ apply:
     condition often names a file path in backticks, and a guessed command looks
     right and proves nothing.
 
+    Narrate each ready set before you mark it done. Read `git diff` for the files
+    you touched and tell the owner, in a few lines:
+
+    - what changed, by file, in behaviour rather than in line counts
+    - which `Behavior` criterion from the proposal each edit serves
+    - anything in the diff that no criterion asked for, named as such
+    - anything a criterion asked for that the diff does not yet do
+
+    The last two are the point. A diff that satisfies every criterion and also
+    does something nobody asked for is the failure a passing check cannot see,
+    and it is the reason this step is prose rather than a command.
+
+    Keep it short. This is a running account of what is happening, not a summary
+    written at the end, so the owner can stop the work at the ready set where it
+    went wrong rather than after the phase.
+
+    Do not reach for a diff-summarizing tool here. `meat` is installed and is
+    good at shrinking a diff that is too large to read, but it never sees the
+    proposal, so it cannot say which criterion an edit serves or which one the
+    diff missed. Use it by hand when a diff is too big to read, not as this step.
+
     Pause if you hit a blocker or need clarification.

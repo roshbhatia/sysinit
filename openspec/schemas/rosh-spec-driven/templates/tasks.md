@@ -3,9 +3,12 @@
         happens once, this is a graph with a dependency chain. -->
 
 - **SHAPE** loop
-- **STOP** <!-- a COMMAND, or a predicate over one, e.g. `nix flake check` exits 0
-                and each new check fails on an injected defect. Not "it looks right":
-                nothing can evaluate that, so the loop would never terminate. -->
+- **STOP** `nix flake check` exits 0
+        <!-- Replace the command above with this phase's real exit. It MUST name a
+             command, or a predicate over one, e.g. `nix flake check` exits 0 and
+             each new check fails on an injected defect. Not "it looks right":
+             nothing can evaluate that, so the loop would never terminate, and
+             `specutil check` rejects it. -->
 - **MAX-ITERS** <!-- integer cap; 1 is the valid single-pass case -->
 - TERMINAL: <!-- how this ends WITHOUT success: CAPPED at MAX-ITERS,
                    STALLED after <n> iterations with no change in the STOP
@@ -14,7 +17,7 @@
 - [ ] 1.1 Gather: <!-- collect context / inputs -->
 - [ ] 1.2 Act: <!-- do the work -->
 - [ ] 1.3 Verify: <!-- check against the stop condition; iterate 1.2 if not met -->
-- [ ] 1.4 Adversarial review (`adversarial-review` skill): critics attempt to break this phase against its spec scenarios, the design decisions, and the rollout gates
+- [ ] 1.4 Adversarial review (`adversarial-review` skill): critics attempt to break this phase against the proposal `Behavior` criteria, the design decisions, and the rollout gates
 
 ## 2. <!-- Graph-shaped phase: subtasks with dependency edges -->
 
@@ -25,7 +28,7 @@
 
 - [ ] 2.1 <!-- root subtask --> `deps:` none
 - [ ] 2.2 <!-- depends on 2.1 --> `deps:` 2.1
-- [ ] 2.3 Adversarial review (`adversarial-review` skill): critics attempt to break this phase against its spec scenarios, the design decisions, and the rollout gates `deps:` 2.2
+- [ ] 2.3 Adversarial review (`adversarial-review` skill): critics attempt to break this phase against the proposal `Behavior` criteria, the design decisions, and the rollout gates `deps:` 2.2
 
 ## 3. Rollout
 
