@@ -17,8 +17,13 @@
       set and skipping the input entirely when that set is unknown
 - [x] 1.5 Build it through `notify.nix` so it shares the identity resolver, and
       install it on PATH
-- [ ] 1.6 Add a `nix flake check` derivation covering the ready, dirty,
-      unpushed, no-upstream, and stale-pane cases against fixture repositories
+- [x] 1.6 Add the `agent-review-readiness` flake check: fixture repositories for
+      ready, dirty, unpushed, no-upstream, a state file with no live pane set, a
+      path that is not a directory, and a directory holding no repository. Every
+      case asserts the exit code, because that code is what `sy delete` gates on.
+      Mutation tested against five defects, each caught by its own assertion and
+      not by a dependency failure: always-ready, ignore-dirty, ignore-unpushed,
+      dropping the no-upstream note, and a bad path returning success
 - [ ] 1.7 Adversarial review (`adversarial-review` skill): critics attempt to
       break this phase against its spec scenarios; revise until the loop reaches
       a terminal state

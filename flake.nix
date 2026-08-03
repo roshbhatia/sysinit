@@ -969,6 +969,133 @@
           # assertion below fails if its fix is reverted; a grep for the fix's
           # presence would not, because a caller can keep the call and still
           # pass the wrong argument.
+          # `agent-review` is the gate `sy delete` consults, so its exit code is
+          # load-bearing: a wrong 0 discards unfinished work. Exercised against
+          # fixture repositories rather than by grepping the script, because every
+          # case here is a behaviour and none of them is visible in a pattern.
+          agent-review-readiness =
+            let
+              notifyFor = import ./modules/home/programs/llm/config/notify.nix {
+                inherit pkgs lib;
+              };
+            in
+            pkgs.runCommand "agent-review-readiness-check"
+              {
+                nativeBuildInputs = [
+                  notifyFor.reviewScript
+                  pkgs.git
+                  pkgs.jq
+                ];
+              }
+              ''
+                export HOME="$TMPDIR/home"
+                export XDG_STATE_HOME="$TMPDIR/state"
+                mkdir -p "$HOME" "$XDG_STATE_HOME"
+                git config --global user.email fixture@example.invalid
+                git config --global user.name Fixture
+                git config --global init.defaultBranch main
+
+                fail=0
+                note() {
+                  echo "FAIL: $1" >&2
+                  printf '%s\n' "$body" | sed 's/^/    /' >&2
+                  fail=1
+                }
+
+                # `body` and `rc`, never `out`: $out is the derivation's output path.
+                run() {
+                  set +e
+                  body="$(agent-review "$1" 2>&1)"
+                  rc=$?
+                  set -e
+                }
+                expect_rc() {
+                  [ "$rc" -eq "$2" ] || note "$1: exit $rc, expected $2"
+                }
+                expect_out() {
+                  printf '%s\n' "$body" | grep -q -- "$2" ||
+                    note "$1: output does not contain '$2'"
+                }
+                reject_out() {
+                  printf '%s\n' "$body" | grep -q -- "$2" &&
+                    note "$1: output must not contain '$2'"
+                  true
+                }
+
+                # A repo level with its upstream, with nothing uncommitted.
+                mkrepo() {
+                  mkdir -p "$1"
+                  git init -q "$1"
+                  echo one > "$1/f"
+                  git -C "$1" add f
+                  git -C "$1" commit -qm one
+                  git init -q --bare "$1.origin.git"
+                  git -C "$1" remote add origin "$1.origin.git"
+                  git -C "$1" push -q -u origin main
+                }
+
+                # --- ready: clean and level with upstream ----------------------
+                s="$TMPDIR/ready"; mkdir -p "$s"; mkrepo "$s/repo-a"
+                run "$s"
+                expect_rc  "ready" 0
+                expect_out "ready" "clean"
+                expect_out "ready" "is ready"
+
+                # --- dirty: an uncommitted file blocks -------------------------
+                s="$TMPDIR/dirty"; mkdir -p "$s"; mkrepo "$s/repo-a"
+                echo two > "$s/repo-a/f"
+                run "$s"
+                expect_rc  "dirty" 1
+                expect_out "dirty" "1 uncommitted"
+                expect_out "dirty" "is not finished"
+
+                # --- unpushed: a commit ahead of upstream blocks ---------------
+                s="$TMPDIR/unpushed"; mkdir -p "$s"; mkrepo "$s/repo-a"
+                echo two > "$s/repo-a/f"
+                git -C "$s/repo-a" commit -qam two
+                run "$s"
+                expect_rc  "unpushed" 1
+                expect_out "unpushed" "1 unpushed"
+
+                # --- no upstream: said so, never reported as zero unpushed -----
+                # A branch with no upstream has no answer for "how many unpushed",
+                # and printing 0 would read as "nothing left to push".
+                s="$TMPDIR/noupstream"; mkdir -p "$s/repo-a"
+                git init -q "$s/repo-a"
+                echo one > "$s/repo-a/f"
+                git -C "$s/repo-a" add f
+                git -C "$s/repo-a" commit -qm one
+                run "$s"
+                expect_out "no upstream" "(no upstream)"
+                reject_out "no upstream" "0 unpushed"
+                expect_rc  "no upstream" 0
+
+                # --- a state file alone must not block -------------------------
+                # It records that a pane HELD a state, not that it still exists.
+                # Assuming liveness turns one crashed session into a permanent
+                # blocker, so an unreadable live set skips the input.
+                s="$TMPDIR/stale"; mkdir -p "$s"; mkrepo "$s/repo-a"
+                mkdir -p "$XDG_STATE_HOME/agents/panes"
+                printf '{"status":"working","agent":"claude","session":"stale"}\n' \
+                  > "$XDG_STATE_HOME/agents/panes/99.json"
+                run "$s"
+                expect_out "stale pane" "agents: skipped"
+                expect_rc  "stale pane" 0
+
+                # --- a path that is not a directory skips, and says why --------
+                run "$TMPDIR/absent"
+                expect_rc  "absent path" 2
+                expect_out "absent path" "skipping the readiness check"
+
+                # --- a directory holding no repository is ready ----------------
+                s="$TMPDIR/empty"; mkdir -p "$s/notarepo"
+                run "$s"
+                expect_rc "no repositories" 0
+
+                [ "$fail" -eq 0 ] || exit 1
+                echo "OK: agent-review reports readiness correctly" | tee "$out"
+              '';
+
           notify-defect-regressions =
             pkgs.runCommand "notify-defect-regressions-check"
               {
