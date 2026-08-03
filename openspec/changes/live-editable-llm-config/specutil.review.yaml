@@ -1,9 +1,9 @@
 version: 1
 change: live-editable-llm-config
 decision: approved
-note: 'Re-recorded after the 2026-08-03 pass: dependency edges declared on the converted phases, the toast-body composer extracted and fixture-tested, and phase-5 task ids renumbered to their own phase.'
-change_hash: e0b0117dada1d51e
-base_commit: af6ba6382e9599211b2069fb7a07dd48e1af6a1c
+note: 'Phase 1 closed: forget_base was already covered, and the block-style assertion is not mutation-sensitive because the guard it covers is a no-op on a JSON input, verified against yq v4.53.3.'
+change_hash: 2c15f0f6f24a0ab0
+base_commit: 317dcfae9cb57f69a9231bfaa8a608e604e641eb
 items:
     0cb88340be5c9d34:
         hash: 4e888e614f067038
@@ -74,6 +74,9 @@ items:
     99896e6bf6c92889:
         hash: 2d2e88adea7ee8a8
         text: 'Act: write `config/render-skills.sh` and expose it as `sysinit-llm-render` through `home.packages`; it must not invoke `nix`'
+    5268594b64ba2df3:
+        hash: 3a73ba77d5993193
+        text: 'Resolved, and the premise was half wrong. `forget_base` IS covered: replacing its `rm -f` with a no-op fails the check with `disabled file drops its base: got [kept] want [dropped]`. The block-style YAML assertion is genuinely not mutation-sensitive, and the reason is that the guard it was thought to cover is a no-op: verified against yq v4.53.3 that `... style=""` only changes a YAML-to-YAML transform, where yq preserves source node style, while the write path reads JSON, which carries none. The guard is kept as defence if that path ever takes YAML, the assertion is kept because it would fail if it did, and the comment claiming yq "carries flow style over from JSON input" is corrected: that is false'
     7846571b31d203e7:
         hash: cf8e73aa0a621169
         text: 'Land the task 1.6 fixtures over `reconcile()`, the untested region every round regressed. 22 scenarios, mutation-tested: reintroducing two round-5 defects makes the check fail, and reverting makes it pass'
@@ -83,9 +86,6 @@ items:
     a1cbc3e55edadbac:
         hash: 2f9f8b6d69e62c20
         text: 'Act: write `lib/frontmatter.nix`, a flat `key: value` reader used only for the description index in `lib/instructions.nix`'
-    a6e306e3cc94918f:
-        hash: ff77a214e58f05d5
-        text: 'Two assertions remain unverified by mutation: `forget_base` removing a disabled file''s base, and the block-style YAML guard. Both pass today and both still pass with the behaviour disabled, so neither is currently proving anything. Close before relying on them'
     a193a757a748d198:
         hash: b9f990b790ee3209
         text: Add the activation entry that runs `sysinit-llm-render`, ordered after `writeBoundary`

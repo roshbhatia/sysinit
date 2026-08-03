@@ -38,10 +38,16 @@
   `reconcile()`. Verdict: converged. No defect found in the shipping code;
   every finding was in the check itself. Its mutation test showed 11 of 19
   mutations missed, and the highest-ranked gaps are now closed
-- [ ] 1.11 Two assertions remain unverified by mutation: `forget_base`
-  removing a disabled file's base, and the block-style YAML guard. Both pass
-  today and both still pass with the behaviour disabled, so neither is
-  currently proving anything. Close before relying on them
+- [x] 1.11 Resolved, and the premise was half wrong. `forget_base` IS covered:
+  replacing its `rm -f` with a no-op fails the check with
+  `disabled file drops its base: got [kept] want [dropped]`. The block-style YAML
+  assertion is genuinely not mutation-sensitive, and the reason is that the guard
+  it was thought to cover is a no-op: verified against yq v4.53.3 that
+  `... style=""` only changes a YAML-to-YAML transform, where yq preserves source
+  node style, while the write path reads JSON, which carries none. The guard is
+  kept as defence if that path ever takes YAML, the assertion is kept because it
+  would fail if it did, and the comment claiming yq "carries flow style over from
+  JSON input" is corrected: that is false
 
 ## 2. Harness conversion and list removal
 

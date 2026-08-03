@@ -332,6 +332,9 @@ let
         ${lib.optionalString (enabled == { }) "# shellcheck disable=SC2329\n"}from_json() {
           case "$1" in
             json) jq '.' ;;
+            # `... style=""` is a no-op on a JSON input, which carries no node
+            # style; it is kept so the transform stays block-style if this path ever
+            # reads YAML. Verified against yq v4.53.3.
             yaml) yq -p json -o yaml '... style=""' ;;
             toml) yq -p json -o toml '.' ;;
           esac

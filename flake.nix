@@ -404,8 +404,13 @@
                 want "yaml seeded"  "$(yq -r .mode "$HOME/d/y.yaml")" "smart"
                 want "toml block style" "$(yq -p toml -r '.p.spec.effort' "$HOME/d/t.toml")" "high"
                 want "yaml float kept" "$(yq -r .n "$HOME/d/y.yaml")" "0.2"
-                # Block style, not a single-line flow blob. yq carries flow style
-                # over from JSON input, and a blob seeds the next merge.
+                # Block style, not a single-line flow blob. This asserts a property
+                # of the OUTPUT, and is deliberately not mutation-sensitive to the
+                # `... style=""` guard in managed-file.nix: verified with yq v4.53.3
+                # that the guard only changes a YAML-to-YAML transform, where yq
+                # preserves the source node style. The write path reads JSON, which
+                # carries no style, so the guard is a no-op there. The assertion still
+                # earns its place: it fails if the write path ever takes YAML input.
                 want "yaml is block style" "$(wc -l < "$HOME/d/y.yaml" | tr -d ' ')" "2"
                 want "createIfMissing=false skipped" "$([ -e "$HOME/d/skip.json" ] && echo present || echo absent)" "absent"
 
