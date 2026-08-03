@@ -41,8 +41,8 @@ Non-Goals:
 ## Adversarial Review
 
 <!-- rosh-spec-driven rule: REQUIRED section. Name the rubric this plan is
-     reviewed against: the spec scenarios including the negative ones, the
-     Decisions above, the Rollout & Gating gates, and the proposal Non-goals.
+     reviewed against: the proposal Behavior criteria, the Decisions above, the
+     Rollout & Gating gates, and the proposal Non-goals.
      The deterministic `specutil check` lint is mandatory. The LLM critic loop is
      default-on but owner-gated; a waiver is recorded as
      `Adversarial review: waived by owner`. Cite the `adversarial-review` skill

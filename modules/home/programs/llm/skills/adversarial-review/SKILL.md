@@ -135,12 +135,12 @@ and confirm every changed file is one you changed yourself.
 ## Deterministic rubric-lint first (`specutil check`)
 
 Before spawning critics, run the deterministic half: `specutil check
-<change-dir>` (installed on PATH). It checks only stated facts: every
-requirement has a declared-negative scenario (`- **POLARITY** negative`),
-design has the required sections, each `- Decision:` has an
-`- Alternative rejected:` marker, every phase declares a shape and carries an
-adversarial-review step, every `deps:` reference resolves, and `Non-goals` is
-present. Run `specutil check --list-rules` to see the resolved rubric. This
+<change-dir>` (installed on PATH). It checks only stated facts: design has the
+required sections, each `- Decision:` has an `- Alternative rejected:` marker,
+every phase declares a shape that the framework defines, a `loop` phase's `STOP`
+names a command, a `graph` phase with more than one subtask declares a dependency,
+every task carries an `N.M` id belonging to its own phase, every `deps:` reference
+resolves and forms no cycle, and `Non-goals` is present. Run `specutil check --list-rules` to see the resolved rubric. This
 part is a pure function of the artifacts and is reproducible. The LLM
 refutation below is stabilized (pinned artifact snapshot, fixed rubric, fixed
 N and lens set, temperature 0, structured verdict, majority vote) but NOT
@@ -149,10 +149,10 @@ otherwise. Fix every violation before the critic loop.
 
 ## The loop (summary — reference has the sourced detail)
 
-1. **Bind the rubric.** For an OpenSpec change, the rubric is the spec
-   scenarios (including the required negative scenarios), the design
-   `Decisions` and `Rollout & Gating`, and the proposal `Non-goals`. A critic
-   MUST cite the specific rubric item it believes is violated.
+1. **Bind the rubric.** For an OpenSpec change, the rubric is the proposal's
+   `Behavior` criteria, the design `Decisions` and `Rollout & Gating`, and the
+   proposal `Non-goals`. A critic MUST cite the specific rubric item it believes
+   is violated.
 2. **Spawn N=3 independent critics**, authorship hidden, one lens each (rotate
    across rounds: correctness, security, ops/rollback, cost, data-migration,
    citation). The `citation` lens adjudicates whether a pinned quote supports

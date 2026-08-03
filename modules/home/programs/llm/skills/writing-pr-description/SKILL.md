@@ -156,6 +156,6 @@ nothing was hand-verified, omit the section — do not leave an empty placeholde
 - Paste a generic GitHub template over an existing repo template.
 - Preamble (`This PR adds…`, `In this change…`) — lead with the action.
 - Tool-attribution / `Co-authored-by Claude` trailers unless the user opted in.
-- Architecture overviews — those live in `openspec/specs/` and design docs.
+- Architecture overviews, which belong in the change's `design.md`.
 - Em-dashes for elaboration — use `so`, `as`, `because`.
 - Emojis, anywhere.

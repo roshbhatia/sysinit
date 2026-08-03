@@ -115,14 +115,15 @@ require survival; (f) bound with a blast-radius-scaled K, early stops on churn, 
 
 ## Mapping to rosh-spec-driven OpenSpec artifacts
 
-- **Rubric source.** A change's spec scenarios (including the required negative
-  scenarios), the design `Decisions` and `Rollout & Gating`, and the proposal
-  `Non-goals` ARE the rubric. The critic cites which scenario/decision/gate the
-  plan violates.
-- **What the critic breaks.** For a plan, "fails" means: a scenario the plan
-  cannot satisfy, a decision whose rejected alternative was actually better, a
-  rollout step that mutates shared state with no verification gate, or a non-goal
-  the plan silently crosses.
+- **Rubric source.** The proposal's `Behavior` criteria, the design `Decisions`
+  and `Rollout & Gating`, and the proposal `Non-goals` ARE the rubric. The critic
+  cites which criterion, decision, or gate the plan violates. The schema carries
+  no separate requirement spec: acceptance criteria live in the proposal.
+- **What the critic breaks.** For a plan, "fails" means: a `Behavior` criterion
+  the plan cannot satisfy, a criterion no command or observation can decide, a
+  decision whose rejected alternative was actually better, a rollout step that
+  mutates shared state with no verification gate, or a non-goal the plan silently
+  crosses.
 - **Where it runs.** The `tasks.md` review-loop gate per phase and the design
   `Adversarial Review` section reference this skill; the skill decides in-process
   vs spawned execution.

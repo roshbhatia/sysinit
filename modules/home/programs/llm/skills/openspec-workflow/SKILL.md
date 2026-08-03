@@ -16,7 +16,9 @@ Use OpenSpec as a managed workflow, not as a project-local install step.
    ```bash
    openspec status --change "<name>" --json
    ```
-3. Read `proposal.md`, `design.md`, `tasks.md`, and relevant spec deltas before editing.
+3. Read `proposal.md`, `design.md`, and `tasks.md` before editing. The proposal's
+   `Behavior` section carries the acceptance criteria; the schema has no separate
+   requirement spec.
 
 ## Explore
 
