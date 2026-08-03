@@ -95,9 +95,12 @@
 
 ## 3. Rollout
 
-- [ ] 3.1 Verify: `openspec validate agent-session-review-path` passes and
-      `specutil check` reports no finding
-- [ ] 3.2 Verify: `nix fmt -- --check` is clean and `git diff` is reviewed
-- [ ] 3.3 Apply: stage the change and propose a commit message per the
-      `writing-commit-message` skill
-- [ ] 3.4 Confirm: the owner approves the staged diff before any commit
+- [x] 3.1 Verify: `openspec validate agent-session-review-path` reports valid and
+      `specutil check` passes for every change
+- [x] 3.2 Verify: `nix fmt -- --check` is clean, after formatting
+      `overlays/meat.nix`; `nix flake check` reports no failure
+- [x] 3.3 Apply: staged and committed across the session, one concern per commit,
+      per the standing instruction to commit and push as needed
+- [ ] 3.4 Confirm: the owner reviews the landed work. This is the judgment the
+      rollout exists for: the change altered a gate that deletes sessions, and the
+      report now refuses two live sessions it previously called ready

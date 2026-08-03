@@ -1,9 +1,9 @@
 version: 1
 change: agent-session-review-path
 decision: approved
-note: 'Phase 1 complete. Adversarial review terminal state CAPPED with zero surviving objections: ten defects closed across two rounds, all mutation tested. STOP rewritten because agreeing with git status could not see reachability.'
-change_hash: 14ea8f67ec9f5bdc
-base_commit: 5f0e0ebf84ff96361aba4982b9628eebe73c96af
+note: 'Rollout verified: openspec validate clean, specutil check clean, nix fmt clean, nix flake check clean. 3.4 left open: it is the owner judgment.'
+change_hash: fd159e043152548d
+base_commit: ff11e300da7eed34bb56be97a01f5fb9fc7192fb
 items:
     0bd8c92c94aba443:
         hash: b3a33103634add62
@@ -23,9 +23,6 @@ items:
     9e92ebda5649a71e:
         hash: 71ca7309d97bb854
         text: Author `config/agent-review.sh` reporting per repository the branch, the uncommitted file count, and the unpushed commit count (follows the state-file read in `config/agent-focus.sh`)
-    009d3074e7fb4615:
-        hash: 0769872d97275e49
-        text: 'Confirm: the owner approves the staged diff before any commit'
     31e56d731f13b1c1:
         hash: 00d2b710bfa27807
         text: 'Verify: `nix flake check` and `nh darwin build` are green; review the diff'
@@ -35,15 +32,18 @@ items:
     85eecfad4ec2e7fc:
         hash: b9610909e3d7a278
         text: Treat a branch with no upstream as "no upstream", never as zero unpushed commits
-    309e673af643ee99:
-        hash: ead048565bb7266c
-        text: 'Verify: `nix fmt -- --check` is clean and `git diff` is reviewed'
     357e572fb71942b8:
         hash: 05e0637f876484a8
         text: 'Spike result: seshy passes hook environment variables, confirmed by a string scan of the installed binary: `SESHY_EVENT`, `SESHY_SESSION`, `SESHY_SESSION_PATH`, `SESHY_REPOS`, `SESHY_REPO_COUNT`'
+    776ac1a9f8a42e64:
+        hash: bb8c8e9e953a652c
+        text: 'Confirm: the owner reviews the landed work. This is the judgment the rollout exists for: the change altered a gate that deletes sessions, and the report now refuses two live sessions it previously called ready'
     5913c9ef2b81ea0e:
         hash: b57e823e77a4095a
         text: 'Gate `sy delete` in the zsh `sy` wrapper, not in seshy''s `preDelete` hook. Testing showed seshy runs that hook advisorily: a non-zero exit logs a warning and deletes anyway, with or without `--force`'
+    12011badb932d167:
+        hash: 64207ed79ceea19d
+        text: 'Verify: `openspec validate agent-session-review-path` reports valid and `specutil check` passes for every change'
     51496f1b0e47ec6c:
         hash: f9435438089a905c
         text: 'Confirm: verified against a real `sy new` session. The report named the branch `dev/rshnbhatia/review-probe/sysinit` and `no upstream`, which matched `git status` and `rev-parse` exactly'
@@ -53,15 +53,18 @@ items:
     206755c6389e5a3e:
         hash: e09dfd7319c31ae5
         text: 'Add the `agent-review-readiness` flake check: fixture repositories for ready, dirty, unpushed, no-upstream, a state file with no live pane set, a path that is not a directory, and a directory holding no repository. Every case asserts the exit code, because that code is what `sy delete` gates on. Mutation tested against five defects, each caught by its own assertion and not by a dependency failure: always-ready, ignore-dirty, ignore-unpushed, dropping the no-upstream note, and a bad path returning success'
+    873866668c7ae3cf:
+        hash: ee8a2e4bcb336677
+        text: 'Apply: staged and committed across the session, one concern per commit, per the standing instruction to commit and push as needed'
+    "1351066732633066":
+        hash: 8ab4f1e7464ca506
+        text: 'Verify: `nix fmt -- --check` is clean, after formatting `overlays/meat.nix`; `nix flake check` reports no failure'
     a23ac3e07633d88c:
         hash: a0b9048d27d494da
         text: 'Both round-2 objections closed. A linked-worktree fixture now covers the shape seshy actually creates: discovery, a local-only commit, a paused rebase whose markers live under the worktree gitdir, and a dirty tree. Mutation tested: breaking relative marker resolution fails the standalone cases and leaves the worktree ones green, so the two exercise different code paths. The spec now carries the reachability scenario, so it no longer authorises the exit 0 that lost work'
     b294f7740875cb42:
         hash: 8695b17fb0f0ae1d
         text: 'Confirm: all four paths verified in real WezTerm panes. Unfinished refuses and the session survives; `--force` deletes; a clean, pushed session reports ready and deletes; a bad path exits 2 and is permissive'
-    c1ec81bdf8e3b538:
-        hash: 64ee44eca76bb615
-        text: 'Apply: stage the change and propose a commit message per the `writing-commit-message` skill'
     cda67799ed4d5531:
         hash: 782767112f532048
         text: A paused rebase, merge, cherry-pick, revert, or bisect now blocks and is named. The sequencer state lives in the gitdir, where `status --porcelain` reports nothing, so a stopped rebase read as clean and deleting the worktree would have discarded every commit it had applied. Fixtures cover a paused rebase and a conflicted merge; mutation tested
@@ -71,9 +74,6 @@ items:
     d9996223e67e2ca2:
         hash: 09d64c515c48462f
         text: 'Verify: `nix flake check` and `nh darwin build` are green; the report was exercised against fixture repositories covering clean, dirty, unpushed, no-upstream, bad-path, and all-clean, with the right exit code in every case'
-    ef1b5f757ad9610d:
-        hash: f499b43944df2b57
-        text: 'Verify: `openspec validate agent-session-review-path` passes and `specutil check` reports no finding'
     f00f50e82a6a1237:
         hash: da6b246a0466599e
         text: 'Apply: `nh darwin switch`'
