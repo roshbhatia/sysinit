@@ -1,9 +1,9 @@
 version: 1
 change: wezterm-command-console
 decision: approved
-note: 'Re-recorded after the 2026-08-03 pass: dependency edges declared on the converted phases, the toast-body composer extracted and fixture-tested, and phase-5 task ids renumbered to their own phase.'
-change_hash: b67723acf9469435
-base_commit: af6ba6382e9599211b2069fb7a07dd48e1af6a1c
+note: 'Re-recorded 2026-08-03: agent-review-readiness check added and mutation tested; the pane-resolution overlap settled as a shared agent-pane.sh helper.'
+change_hash: 98b2ec18b8338780
+base_commit: 6c0453d7159acb9d09361f4939179e0753d685c0
 items:
     0e00c2753a3682ec:
         hash: bec4756d3ad22b5e
@@ -71,6 +71,9 @@ items:
     104d5b7ce0674eb0:
         hash: 81b0df646192686e
         text: Honor the `${XDG_STATE_HOME:-$HOME/.local/state}/agents/console.disabled` file in `agent-run.sh` as an immediate pass-through, read fresh on every invocation.
+    179c3baf9f5ebda3:
+        hash: cff2282ff0bcef3d
+        text: 'Extract pane resolution into `config/agent-pane.sh`, sourced by `agent-run.sh` and by the session worker: resolve or create, record the id, confirm liveness against `wezterm cli list`, parse the id as digits on the last line, recreate when the owner closed it. The spool, heartbeat, instance stamp, breaker, and job claiming stay in `agent-run`. Follows the `agent-group.sh` and `agent-review-suffix.sh` pattern: one definition, sourced by every consumer'
     325ef84e7dc5a0bc:
         hash: 9e424eaedb9055b1
         text: 'Stamp every published job with the RUNNER instance identity, and have a starting `agent-console` discard jobs that are not its own. Do not scope the stamp to the WezTerm instance: closing the console pane forces a replacement runner inside the same instance, where a terminal-scoped stamp still matches and the stale `git push origin main` still runs.'
@@ -191,9 +194,6 @@ items:
     fe391d4049d263ad:
         hash: ef1d6e34e7913d17
         text: Surface a set kill switch in the statusline, beside the existing agent-state chips. The file is global and nothing removes it, so without a signal an owner who sets it during an incident disables the console everywhere, forever, silently.
-    fec220e4f9901593:
-        hash: 4faf357ed16427ca
-        text: 'Reconcile with the session worker pane. A working single-reusable-pane runner already exists as scratch tooling: it records a pane id, reuses the pane while `wezterm cli list` still reports it, recreates it when the owner closes it, returns focus to the caller, and writes a log and an exit code per run. `agent-run` needs the same pane-lifecycle logic. Fold it in or state why a second mechanism is warranted; two runners creating panes in one terminal is the parallel infrastructure the schema calls a default-reject'
     ffe9ad6abb2728d4:
         hash: 005a5b4fec020caa
         text: 'Verify: press Ctrl+C in the console during a job. `agent-run` exits non-zero and the returned text states that the owner interrupted the command.'

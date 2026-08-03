@@ -1,9 +1,9 @@
 version: 1
 change: agent-session-review-path
 decision: approved
-note: 'Re-recorded after the 2026-08-03 pass: dependency edges declared on the converted phases, the toast-body composer extracted and fixture-tested, and phase-5 task ids renumbered to their own phase.'
-change_hash: 62f12547d4e08403
-base_commit: af6ba6382e9599211b2069fb7a07dd48e1af6a1c
+note: 'Re-recorded 2026-08-03: agent-review-readiness check added and mutation tested; the pane-resolution overlap settled as a shared agent-pane.sh helper.'
+change_hash: 81b0725e8c21032e
+base_commit: 6c0453d7159acb9d09361f4939179e0753d685c0
 items:
     0bd8c92c94aba443:
         hash: b3a33103634add62
@@ -38,15 +38,15 @@ items:
     5913c9ef2b81ea0e:
         hash: b57e823e77a4095a
         text: 'Gate `sy delete` in the zsh `sy` wrapper, not in seshy''s `preDelete` hook. Testing showed seshy runs that hook advisorily: a non-zero exit logs a warning and deletes anyway, with or without `--force`'
-    14948b562788ef91:
-        hash: a5459619025ff509
-        text: Add a `nix flake check` derivation covering the ready, dirty, unpushed, no-upstream, and stale-pane cases against fixture repositories
     51496f1b0e47ec6c:
         hash: f9435438089a905c
         text: 'Confirm: verified against a real `sy new` session. The report named the branch `dev/rshnbhatia/review-probe/sysinit` and `no upstream`, which matched `git status` and `rev-parse` exactly'
     78199c7e5c30b1ff:
         hash: edfe3957fb993d03
         text: 'Adversarial review (`adversarial-review` skill): critics attempt to break this phase against its spec scenarios; revise until the loop reaches a terminal state'
+    206755c6389e5a3e:
+        hash: e09dfd7319c31ae5
+        text: 'Add the `agent-review-readiness` flake check: fixture repositories for ready, dirty, unpushed, no-upstream, a state file with no live pane set, a path that is not a directory, and a directory holding no repository. Every case asserts the exit code, because that code is what `sy delete` gates on. Mutation tested against five defects, each caught by its own assertion and not by a dependency failure: always-ready, ignore-dirty, ignore-unpushed, dropping the no-upstream note, and a bad path returning success'
     abf56866ee2e8446:
         hash: edfe3957fb993d03
         text: 'Adversarial review (`adversarial-review` skill): critics attempt to break this phase against its spec scenarios; revise until the loop reaches a terminal state'
