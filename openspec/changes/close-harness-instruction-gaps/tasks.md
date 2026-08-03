@@ -41,16 +41,16 @@
 - [x] 2.4 Write the goose global hints file from `kit.mkInstructionsWithStyle`
       in `config/goose.nix`
 - [x] 2.5 Move cursor, goose, and pi from known-missing to covered in the
-      coverage set
+      coverage set `deps:` 2.1,2.2,2.4
 - [ ] 2.6 Adversarial review (`adversarial-review` skill): critics attempt to
       break this phase against its spec scenarios; revise until no surviving
-      objection or K=4 rounds
+      objection or K=4 rounds `deps:` 2.3,2.5
 - [x] 2.7 Verify: `nix flake check` and `nh darwin build` are green; review
-      `git diff`
-- [x] 2.8 Apply: `nh darwin switch`
+      `git diff` `deps:` 2.6
+- [x] 2.8 Apply: `nh darwin switch` `deps:` 2.7
 - [x] 2.9 Confirm: a pi session shows the conventions in context and lists
       registry skills as `/skill:<name>`; a goose session loads the hints; roll
-      back the goose entry and mark goose exempt if it does not
+      back the goose entry and mark goose exempt if it does not `deps:` 2.8
 
 ## 3. Cursor rule generation and copilot outcome
 
@@ -62,29 +62,29 @@
 - [x] 3.1 Capture the current hand-written body of
       `config/cursor-rules/always.mdc` into the change directory before editing
 - [ ] 3.2 Verify: the owner reviews the captured text and names which facts move
-      to the repository `AGENTS.md` and which are deleted
+      to the repository `AGENTS.md` and which are deleted `deps:` 3.1
 - [x] 3.3 Generate the `always.mdc` body from `instructions.nix`, keeping the
-      authored frontmatter and leaving `nix.mdc` and `markdown.mdc` unchanged
+      authored frontmatter and leaving `nix.mdc` and `markdown.mdc` unchanged `deps:` 3.2
 - [x] 3.4 Strip the restated facts from `markdown.mdc` and `nix.mdc` before
       adding the assertion. `markdown.mdc:12` restates the 200-line cap and the
       six-section order, `markdown.mdc:16` names `openspec 1.3.0`,
       `markdown.mdc:20` restates the prohibitions, and `nix.mdc:26` carries its
-      own Prohibitions section. The assertion fails the build on all four
+      own Prohibitions section. The assertion fails the build on all four `deps:` 3.3
 - [x] 3.5 Add the duplicate-fact assertion that fails when an authored rule file
-      restates a generated prohibition or a pinned version
+      restates a generated prohibition or a pinned version `deps:` 3.4
 - [ ] 3.6 Spike: determine whether the installed copilot build reads a global
       instruction file; record the answer in `design.md` Open Questions
-- [ ] 3.7 Cover copilot, or leave it exempt with the spike result as the reason
+- [ ] 3.7 Cover copilot, or leave it exempt with the spike result as the reason `deps:` 3.6
 - [ ] 3.8 Adversarial review (`adversarial-review` skill): critics attempt to
       break this phase against its spec scenarios; revise until no surviving
-      objection or K=4 rounds
+      objection or K=4 rounds `deps:` 3.5,3.7
 - [x] 3.9 Verify: `nix flake check` and `nh darwin build` are green; the owner
-      reads the rendered `always.mdc`
-- [x] 3.10 Apply: `nh darwin switch`
+      reads the rendered `always.mdc` `deps:` 3.8
+- [x] 3.10 Apply: `nh darwin switch` `deps:` 3.9
 - [x] 3.11 Confirm: `always.mdc` states no fact that `instructions.nix` already
       states, and carries no pinned version at all; the generator renders none,
       and a pinned version is a repository fact that belongs in the
-      repository's own `AGENTS.md`
+      repository's own `AGENTS.md` `deps:` 3.10
 
 ## 4. Rollout
 

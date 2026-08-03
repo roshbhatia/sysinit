@@ -1,9 +1,9 @@
 version: 1
 change: live-editable-llm-config
 decision: approved
-note: 'Re-recorded after the 2026-08-03 STOP-condition pass: every loop STOP now names a command, and phases whose exit is an owner observation were reclassified from loop to graph.'
+note: 'Re-recorded after the 2026-08-03 pass: dependency edges declared on the converted phases, the toast-body composer extracted and fixture-tested, and phase-5 task ids renumbered to their own phase.'
 change_hash: e0b0117dada1d51e
-base_commit: cd40b1e7278ea5793208e4039e8036cc5b2648fa
+base_commit: af6ba6382e9599211b2069fb7a07dd48e1af6a1c
 items:
     0cb88340be5c9d34:
         hash: 4e888e614f067038

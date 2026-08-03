@@ -209,17 +209,25 @@
       command, and confirm it is acceptable at every-command scale.
 - [ ] 5.2 Act: add the `agent-run` timeout, set below the Bash tool's 120 second
       default. On expiry, return partial output and the console pane id, and leave
-      the job running.
+      the job running. `deps:` 5.1
 - [ ] 5.3 Act: add the `agent-run --reap <job>` invocation that returns a detached
-      job's final output and exit code.
+      job's final output and exit code. `deps:` 5.2
 - [ ] 5.4 Verify: run a job longer than the timeout. `agent-run` returns partial
       output and names the pane. A later reap returns the final result. Iterate 5.2
-      and 5.3 if not.
+      and 5.3 if not. `deps:` 5.2
 - [ ] 5.5 Verify: press Ctrl+C in the console during a job. `agent-run` exits
-      non-zero and the returned text states that the owner interrupted the command.
-- [ ] 5.6 Adversarial review (`adversarial-review` skill): critics attempt to break
+      non-zero and the returned text states that the owner interrupted the command. `deps:` 5.3
+- [ ] 5.6 Reconcile with the session worker pane. A working single-reusable-pane
+      runner already exists as scratch tooling: it records a pane id, reuses the
+      pane while `wezterm cli list` still reports it, recreates it when the owner
+      closes it, returns focus to the caller, and writes a log and an exit code
+      per run. `agent-run` needs the same pane-lifecycle logic. Fold it in or
+      state why a second mechanism is warranted; two runners creating panes in one
+      terminal is the parallel infrastructure the schema calls a default-reject
+      `deps:` 5.3
+- [ ] 5.7 Adversarial review (`adversarial-review` skill): critics attempt to break
       this slice against its spec scenarios, the design decisions, and the rollout
-      gates.
+      gates. `deps:` 5.4,5.5
 
 ## 6. Rollout of slice 3
 

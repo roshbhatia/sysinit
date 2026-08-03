@@ -1,9 +1,9 @@
 version: 1
 change: fix-goose-provider-and-extensions
 decision: approved
-note: 'Re-recorded after the 2026-08-03 STOP-condition pass: every loop STOP now names a command, and phases whose exit is an owner observation were reclassified from loop to graph.'
+note: 'Re-recorded after the 2026-08-03 pass: dependency edges declared on the converted phases, the toast-body composer extracted and fixture-tested, and phase-5 task ids renumbered to their own phase.'
 change_hash: 5691c40d2e2eb575
-base_commit: c798c556486907238ec8ba2e841b79d689c3c60a
+base_commit: af6ba6382e9599211b2069fb7a07dd48e1af6a1c
 items:
     0bdc106b1d461281:
         hash: 8df13a3fdd8a6bee

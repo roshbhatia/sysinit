@@ -1,9 +1,9 @@
 version: 1
 change: unify-agent-notification-layer
 decision: approved
-note: 'Re-recorded after the 2026-08-03 STOP-condition pass: every loop STOP now names a command, and phases whose exit is an owner observation were reclassified from loop to graph.'
-change_hash: 40d515db852050c7
-base_commit: c798c556486907238ec8ba2e841b79d689c3c60a
+note: 'Re-recorded after the 2026-08-03 pass: dependency edges declared on the converted phases, the toast-body composer extracted and fixture-tested, and phase-5 task ids renumbered to their own phase.'
+change_hash: 80a3b65f7d94a6d3
+base_commit: af6ba6382e9599211b2069fb7a07dd48e1af6a1c
 items:
     00bde2a78e456b8b:
         hash: ff1a6eb6f71b9ea5
@@ -32,6 +32,9 @@ items:
     7db1087e1c878d9d:
         hash: 338c1b1fec492a17
         text: Key the idle dedup file on `<pane-id>_<reason>` in `agent-notify.sh`, falling back to `<agent>_<context>_<reason>` when the pane id is empty
+    8a2db12e366ca653:
+        hash: 9f4de82dcacfd97a
+        text: Extract the suffix composition into `config/agent-review-suffix.sh`, sourced by the notifier and by the check, so the shipped body and the asserted body are the same code. The helper takes the pane, not a path, so the state-file location exists once
     8eff0f3905b9fa1f:
         hash: 2b4da7132707e6c8
         text: 'Verify: `openspec validate unify-agent-notification-layer` passes and `specutil check` reports no finding'
@@ -65,6 +68,9 @@ items:
     68c6302e85057ca0:
         hash: 356aebe6bc03ce2e
         text: Move OpenCode to bridged and add `attention.notifications = false` to the TUI config attribute set created by `modernize-opencode-and-pi-config` phase 1, both in the same commit as 3.6, and only when 3.6 produced a working plugin
+    73aee1185e9e01a1:
+        hash: 921210075551d5d5
+        text: 'Replace the presence-greps in `notify-defect-regressions` with fixture assertions over the composer: all fields, an empty branch, minute and hour rollover, a missing file, an unparseable file, and clock skew. Mutation tested: reverting the separator reproduces `sysinit · 0`, where the empty branch collapses and the timestamp is read as the branch name'
     85ee49a13ab26bf9:
         hash: e0a3e05fbd3a0c00
         text: 'Confirm: verified in a real WezTerm pane with a patched notifier. The captured toast read `finished its turn — sysinit · main ✱ — 1s`, subtitle `sysinit`, group `agent:17`'
@@ -74,9 +80,6 @@ items:
     967c2db4f0f82f8b:
         hash: edab2732b6b5c9de
         text: Build the coverage set in `notify.nix` naming all eleven configured harnesses as hook-bridged or scrape-bridged. Reasons are comments, not Nix string values; the data is only which set a harness is in
-    7033fe4e7f78f9ff:
-        hash: 817b3e169187361f
-        text: Extend `notify-defect-regressions` with two assertions covering the state-file read and the separator, both negative-tested
     52998b7441d8733a:
         hash: adf1c389b05b4dea
         text: Read the per-pane state file in `agent-notify.sh` and append repo, branch, a dirty marker, and elapsed time to the body (follows the state-file read already in `agent-focus.sh`)

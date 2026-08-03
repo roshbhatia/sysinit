@@ -97,7 +97,7 @@
 - [x] 3.1 Source the vendored extension files from
       `${pkgs.pi-coding-agent}/pi/examples/extensions/` and delete
       `piExtensionsRev`, `piExtensionsSrc`, and their hash
-- [x] 3.2 Add a build assertion that every named extension exists in the package
+- [x] 3.2 Add a build assertion that every named extension exists in the package `deps:` 3.1
 - [x] 3.3 Checked against the installed package: `protected-paths` AND
       `plan-mode` both call `pi.on("tool_call", ...)`, and so does
       `@gotgenes/pi-permission-system`. Both conflict and neither is vendored
@@ -107,17 +107,17 @@
 - [x] 3.5 Decided: wire it. `nvim-pi` is a `--clean` nvim wrapper that avoids
       the lazy.nvim startup wait, which is worth keeping; it was unreachable only
       because the setting was undeclared and the keybinding unbound
-- [x] 3.6 Apply the `nvim-pi` decision in `pi.nix` and in the keybindings file
+- [x] 3.6 Apply the `nvim-pi` decision in `pi.nix` and in the keybindings file `deps:` 3.5
 - [x] 3.7 Update `hack/update-pi.sh` so it no longer reports on a revision that
-      no longer exists
+      no longer exists `deps:` 3.1
 - [ ] 3.8 Adversarial review (`adversarial-review` skill): critics attempt to
       break this phase against its spec scenarios; revise until no surviving
-      objection or K=4 rounds
+      objection or K=4 rounds `deps:` 3.2,3.6,3.7
 - [x] 3.9 Verify: `nix flake check`, `nh darwin build`, and
-      `./hack/update-pi.sh` all behave as expected
-- [x] 3.10 Apply: `nh darwin switch`
+      `./hack/update-pi.sh` all behave as expected `deps:` 3.8
+- [x] 3.10 Apply: `nh darwin switch` `deps:` 3.9
 - [ ] 3.11 Confirm: pi starts with no extension load error; `/plan` toggles;
-      protected paths are blocked; the external editor opens or is gone
+      protected paths are blocked; the external editor opens or is gone `deps:` 3.10
 
 ## 4. Stale directory cleanup
 

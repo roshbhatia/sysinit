@@ -50,15 +50,15 @@
   wish. The phase ends at its `Confirm:` task instead.
 
 - [x] 3.1 Gather: inject a deliberate runtime error into `ui.lua` on the current configuration, start WezTerm, and record the observed behavior in `design.md`; the current fallback is an assumption, not a recorded fact
-- [x] 3.2 Act: restructure `extraConfig` in `modules/home/programs/wezterm/default.nix` so `core.setup` runs first and unguarded, and `events`, `keybindings`, and `ui` each run under `pcall`
-- [x] 3.3 Act: add the failure report; name the module and carry the Lua error text; write to the WezTerm error log and to one channel the owner sees without opening that log
-- [x] 3.4 Verify: reproduce the injected error and confirm the shell, `PATH`, and key table survive and the failure is reported
-- [x] 3.5 Verify: confirm a failure in the reporting channel itself does not prevent the configuration from returning
-- [x] 3.6 Act: remove the injected error
-- [ ] 3.7 Adversarial review (`adversarial-review` skill): critics attempt to break this slice against its spec scenarios, the design decisions, and the rollout gates
-- [ ] 3.8 Verify: `nix flake check` and `nh darwin build` green; review `git diff`
-- [ ] 3.9 Apply: `nh darwin switch`
-- [ ] 3.10 Confirm: normal startup is unchanged; the owner reproduces the error once more on the switched system and observes containment
+- [x] 3.2 Act: restructure `extraConfig` in `modules/home/programs/wezterm/default.nix` so `core.setup` runs first and unguarded, and `events`, `keybindings`, and `ui` each run under `pcall` `deps:` 3.1
+- [x] 3.3 Act: add the failure report; name the module and carry the Lua error text; write to the WezTerm error log and to one channel the owner sees without opening that log `deps:` 3.2
+- [x] 3.4 Verify: reproduce the injected error and confirm the shell, `PATH`, and key table survive and the failure is reported `deps:` 3.3
+- [x] 3.5 Verify: confirm a failure in the reporting channel itself does not prevent the configuration from returning `deps:` 3.3
+- [x] 3.6 Act: remove the injected error `deps:` 3.4,3.5
+- [ ] 3.7 Adversarial review (`adversarial-review` skill): critics attempt to break this slice against its spec scenarios, the design decisions, and the rollout gates `deps:` 3.6
+- [ ] 3.8 Verify: `nix flake check` and `nh darwin build` green; review `git diff` `deps:` 3.7
+- [ ] 3.9 Apply: `nh darwin switch` `deps:` 3.8
+- [ ] 3.10 Confirm: normal startup is unchanged; the owner reproduces the error once more on the switched system and observes containment `deps:` 3.9
 
 ## 4. WezTerm chord registry
 

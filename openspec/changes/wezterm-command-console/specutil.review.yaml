@@ -1,9 +1,9 @@
 version: 1
 change: wezterm-command-console
 decision: approved
-note: 'Re-recorded after the 2026-08-03 STOP-condition pass: every loop STOP now names a command, and phases whose exit is an owner observation were reclassified from loop to graph.'
-change_hash: 72b923a763e63824
-base_commit: c798c556486907238ec8ba2e841b79d689c3c60a
+note: 'Re-recorded after the 2026-08-03 pass: dependency edges declared on the converted phases, the toast-body composer extracted and fixture-tested, and phase-5 task ids renumbered to their own phase.'
+change_hash: b67723acf9469435
+base_commit: af6ba6382e9599211b2069fb7a07dd48e1af6a1c
 items:
     0e00c2753a3682ec:
         hash: bec4756d3ad22b5e
@@ -191,6 +191,9 @@ items:
     fe391d4049d263ad:
         hash: ef1d6e34e7913d17
         text: Surface a set kill switch in the statusline, beside the existing agent-state chips. The file is global and nothing removes it, so without a signal an owner who sets it during an incident disables the console everywhere, forever, silently.
+    fec220e4f9901593:
+        hash: 4faf357ed16427ca
+        text: 'Reconcile with the session worker pane. A working single-reusable-pane runner already exists as scratch tooling: it records a pane id, reuses the pane while `wezterm cli list` still reports it, recreates it when the owner closes it, returns focus to the caller, and writes a log and an exit code per run. `agent-run` needs the same pane-lifecycle logic. Fold it in or state why a second mechanism is warranted; two runners creating panes in one terminal is the parallel infrastructure the schema calls a default-reject'
     ffe9ad6abb2728d4:
         hash: 005a5b4fec020caa
         text: 'Verify: press Ctrl+C in the console during a job. `agent-run` exits non-zero and the returned text states that the owner interrupted the command.'

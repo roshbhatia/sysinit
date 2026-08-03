@@ -98,27 +98,27 @@
       `agent-state` and `agent-notify` (follows
       `config/extensions/openspec-status.ts`)
 - [x] 3.3 Confirm the bridge binds `agent_settled` and not `agent_end`, and
-      that a retried or auto-compacted run raises no done toast
-- [x] 3.4 Install the pi extension through `customExtensionFiles` in `pi.nix`
+      that a retried or auto-compacted run raises no done toast `deps:` 3.2
+- [x] 3.4 Install the pi extension through `customExtensionFiles` in `pi.nix` `deps:` 3.2
 - [x] 3.5 Move pi from deferred to bridged in the coverage set, and remove
       `notify` from the vendored extension list in `pi.nix`, both in the same
-      commit as 3.4, so pi is never left with no producer
+      commit as 3.4, so pi is never left with no producer `deps:` 3.4
 - [x] 3.6 Author the OpenCode plugin, or leave OpenCode deferred when 3.1 finds
-      no usable event
+      no usable event `deps:` 3.1
 - [x] 3.7 Move OpenCode to bridged and add `attention.notifications = false` to
       the TUI config attribute set created by
       `modernize-opencode-and-pi-config` phase 1, both in the same commit as
-      3.6, and only when 3.6 produced a working plugin
+      3.6, and only when 3.6 produced a working plugin `deps:` 3.6
 - [x] 3.8 Add a build assertion that a producer may be turned off only when the
       same harness is bridged, keying on the bridge artifact itself (the
       `customExtensionFiles` entry for pi, the plugin path for OpenCode) rather
       than on the coverage-set label, so editing the label alone cannot defeat
-      the guard
+      the guard `deps:` 3.5,3.7
 - [x] 3.9 Confirm both bridges swallow every error and never fail a turn:
       `opencode models` exits 0 with the plugin loaded; pi exits 0 in 6.4s with
       extensions on versus 1.7s with `--no-extensions`, so the bridge adds load
       time but does not hold the process open. Every spawn is detached, unref'd,
-      and wrapped, so a missing binary degrades to no notification
+      and wrapped, so a missing binary degrades to no notification `deps:` 3.5,3.7
 - [x] 3.10 Adversarial review (`adversarial-review` skill): round 1 returned 6
       surviving objections, all fixed. `detached: true` called setsid(), which
       severs the controlling terminal, so agent-state's OSC never landed and the
@@ -139,43 +139,54 @@
       `session.created` id as the root and ignoring every other session.
       Still unobserved end to end: no OpenCode turn completed in testing.
       `opencode run` exits before publishing an idle status, and three TUI turns
-      stayed busy indefinitely on the available models.
-- [x] 3.11 Verify: `nix flake check` and `nh darwin build` are green
-- [x] 3.12 Apply: `nh darwin switch`
+      stayed busy indefinitely on the available models. `deps:` 3.3,3.8,3.9
+- [x] 3.11 Verify: `nix flake check` and `nh darwin build` are green `deps:` 3.10
+- [x] 3.12 Apply: `nh darwin switch` `deps:` 3.11
 - [x] 3.13 Confirm: `agent-state pi done "your move"` writes a correct state
       file with the right agent, status, and repo, which is the exact call shape
       the pi bridge makes. A live toast from each harness still needs the owner:
-      it requires a real interactive turn
+      it requires a real interactive turn `deps:` 3.12
 
 ## 4. Toast body names the review path
 
-- **SHAPE** graph
-- Not a loop: the exit is the owner reading a real toast body. A check that
-  rendered the body from a fixture state file would make this a loop again, and
-  is worth writing; it does not exist yet.
+- **SHAPE** loop
+- **STOP** `nix build .#checks.aarch64-darwin.notify-defect-regressions` exits 0,
+  and the review-suffix fixtures fail when the separator, the dirty marker, or the
+  negative-age guard is reverted
+- **MAX-ITERS** 3
+- TERMINAL: CAPPED at MAX-ITERS, or STALLED after 2 iterations with no change in
+  the failing fixture set
 
 - [x] 4.1 Read the per-pane state file in `agent-notify.sh` and append
       repo, branch, a dirty marker, and elapsed time to the body (follows the
       state-file read already in `agent-focus.sh`)
 - [x] 4.2 Split the fields on `\u0001`, not on tab. Tab is an IFS whitespace
       character, so bash collapses runs of them and an empty field shifts every
-      later value left; a repo with no branch read the timestamp as its branch
-- [x] 4.3 Extend `notify-defect-regressions` with two assertions covering the
-      state-file read and the separator, both negative-tested
-- [x] 4.4 Adversarial review: deferred to the change-level review; this phase is
-      one file and its two failure modes each have a failing-on-revert check
-- [x] 4.5 Verify: `nix flake check` green, shellcheck clean on the combined
-      script, field split confirmed across four state-file shapes
-- [x] 4.6 Apply: `nh darwin switch`
-- [x] 4.7 Confirm: verified in a real WezTerm pane with a patched notifier. The
+      later value left; a repo with no branch read the timestamp as its branch `deps:` 4.1
+- [x] 4.3 Extract the suffix composition into
+      `config/agent-review-suffix.sh`, sourced by the notifier and by the check,
+      so the shipped body and the asserted body are the same code. The helper
+      takes the pane, not a path, so the state-file location exists once
+      `deps:` 4.1,4.2
+- [x] 4.4 Replace the presence-greps in `notify-defect-regressions` with fixture
+      assertions over the composer: all fields, an empty branch, minute and hour
+      rollover, a missing file, an unparseable file, and clock skew. Mutation
+      tested: reverting the separator reproduces `sysinit · 0`, where the empty
+      branch collapses and the timestamp is read as the branch name `deps:` 4.3
+- [x] 4.5 Adversarial review: deferred to the change-level review; this phase is
+      one file and its two failure modes each have a failing-on-revert check `deps:` 4.3
+- [x] 4.6 Verify: `nix flake check` green, shellcheck clean on the combined
+      script, field split confirmed across four state-file shapes `deps:` 4.5
+- [x] 4.7 Apply: `nh darwin switch` `deps:` 4.6
+- [x] 4.8 Confirm: verified in a real WezTerm pane with a patched notifier. The
       captured toast read `finished its turn — sysinit · main ✱ — 1s`, subtitle
-      `sysinit`, group `agent:17`
+      `sysinit`, group `agent:17` `deps:` 4.7
 
 ## 5. Rollout
 
-- [ ] 4.1 Verify: `openspec validate unify-agent-notification-layer` passes and
+- [ ] 5.1 Verify: `openspec validate unify-agent-notification-layer` passes and
       `specutil check` reports no finding
-- [ ] 4.2 Verify: `nix fmt -- --check` is clean and `git diff` is reviewed
-- [ ] 4.3 Apply: stage the change and propose a commit message per the
+- [ ] 5.2 Verify: `nix fmt -- --check` is clean and `git diff` is reviewed
+- [ ] 5.3 Apply: stage the change and propose a commit message per the
       `writing-commit-message` skill
-- [ ] 4.4 Confirm: the owner approves the staged diff before any commit
+- [ ] 5.4 Confirm: the owner approves the staged diff before any commit
