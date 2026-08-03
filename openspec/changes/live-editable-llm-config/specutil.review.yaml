@@ -1,9 +1,9 @@
 version: 1
 change: live-editable-llm-config
 decision: approved
-note: Owner authorized clearing the standing review gate for these three changes in the 2026-08-03 session, without a fresh critic pass.
-change_hash: 5e6af38483aedf11
-base_commit: 2fa0a2b4ff06018c7596e52854bae0f9120a407a
+note: 'Re-recorded after the 2026-08-03 STOP-condition pass: every loop STOP now names a command, and phases whose exit is an owner observation were reclassified from loop to graph.'
+change_hash: e0b0117dada1d51e
+base_commit: c798c556486907238ec8ba2e841b79d689c3c60a
 items:
     0cb88340be5c9d34:
         hash: 4e888e614f067038

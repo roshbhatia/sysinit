@@ -1,8 +1,9 @@
 version: 1
 change: harden-agent-shell-terminal
 decision: approved
-change_hash: 45644501aee57e58
-base_commit: 0840ef7775465784fe1944eee8dfcefe52c6bacf
+note: 'Re-recorded after the 2026-08-03 STOP-condition pass: every loop STOP now names a command, and phases whose exit is an owner observation were reclassified from loop to graph.'
+change_hash: 3b81a4a011ffef87
+base_commit: c798c556486907238ec8ba2e841b79d689c3c60a
 items:
     1c58c6ea4b2ed82f:
         hash: 359764493cf7ced6

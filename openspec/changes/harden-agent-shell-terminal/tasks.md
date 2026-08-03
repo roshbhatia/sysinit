@@ -1,7 +1,10 @@
 ## 1. Verification gate
 
 - **SHAPE** loop
-- **STOP** every new check passes on the clean tree and fails on an injected defect, and the CI job reports on a pull request
+- **STOP** `nix flake check` exits 0 on the clean tree, and every check this
+  phase adds fails when its defect is injected. Mutation is what puts a check the
+  phase wrote outside its own blast radius. The CI job reporting on a pull
+  request is a rollout task, not part of the exit
 - **MAX-ITERS** 5
 
 - [x] 1.1 Gather: list every zsh fragment `modules/home/programs/zsh/default.nix` interpolates, every `.lua` file under `modules/home/programs/wezterm/lua/`, and every `.sh` under `modules/home/programs/llm/config/` that no `writeShellApplication` wraps
@@ -21,7 +24,9 @@
 ## 2. Guard fixtures and pattern reconciliation
 
 - **SHAPE** loop
-- **STOP** the fixture table passes against the inlined patterns and still passes after the script consumes `destructiveDenyRegexes`
+- **STOP** `nix build .#checks.aarch64-darwin.destructive-guard-fixtures` exits
+  0 both before and after the script consumes `destructiveDenyRegexes`, and
+  removing any one pattern makes it fail
 - **MAX-ITERS** 4
 
 - [x] 2.1 Gather: record the effective pattern set of `claude-bash-guard.sh` beside `llmLib.allowlist.destructiveDenyRegexes`; name each of the differences (four are known)
@@ -39,9 +44,10 @@
 
 ## 3. WezTerm configuration containment
 
-- **SHAPE** loop
-- **STOP** an injected error in `ui.lua` degrades only `ui`, is reported visibly, and leaves the shell, environment, and keybindings intact
-- **MAX-ITERS** 3
+- **SHAPE** graph
+- Not a loop: the exit is the owner watching a deliberately broken `ui.lua`
+  degrade in a live WezTerm. Nothing can run that, so a STOP here would be a
+  wish. The phase ends at its `Confirm:` task instead.
 
 - [x] 3.1 Gather: inject a deliberate runtime error into `ui.lua` on the current configuration, start WezTerm, and record the observed behavior in `design.md`; the current fallback is an assumption, not a recorded fact
 - [x] 3.2 Act: restructure `extraConfig` in `modules/home/programs/wezterm/default.nix` so `core.setup` runs first and unguarded, and `events`, `keybindings`, and `ui` each run under `pcall`

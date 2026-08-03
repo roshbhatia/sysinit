@@ -1,9 +1,9 @@
 version: 1
 change: close-harness-instruction-gaps
 decision: approved
-note: review round applied
-change_hash: 93271df7791016f8
-base_commit: 6722e69d4b1b14bd4b83c8110f68462f67f693e1
+note: 'Re-recorded after the 2026-08-03 STOP-condition pass: every loop STOP now names a command, and phases whose exit is an owner observation were reclassified from loop to graph.'
+change_hash: 474e4ad919337ec6
+base_commit: c798c556486907238ec8ba2e841b79d689c3c60a
 items:
     1d0ef0a7f1e2bfad:
         hash: da6b246a0466599e

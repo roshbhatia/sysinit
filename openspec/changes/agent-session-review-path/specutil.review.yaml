@@ -1,9 +1,9 @@
 version: 1
 change: agent-session-review-path
 decision: approved
-note: seshy wired in as a flake input
+note: 'Re-recorded after the 2026-08-03 STOP-condition pass: every loop STOP now names a command, and phases whose exit is an owner observation were reclassified from loop to graph.'
 change_hash: 62f12547d4e08403
-base_commit: 9b7f510f25c18903b31ff7c577ed64c63a30e402
+base_commit: c798c556486907238ec8ba2e841b79d689c3c60a
 items:
     0bd8c92c94aba443:
         hash: b3a33103634add62

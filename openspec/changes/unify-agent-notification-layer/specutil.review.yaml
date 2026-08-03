@@ -1,9 +1,9 @@
 version: 1
 change: unify-agent-notification-layer
 decision: approved
-note: opencode bridge rebound to the real event
-change_hash: 94717328cecb8f86
-base_commit: 8896b2df95675b4987fefec868c4fc06a855a2bd
+note: 'Re-recorded after the 2026-08-03 STOP-condition pass: every loop STOP now names a command, and phases whose exit is an owner observation were reclassified from loop to graph.'
+change_hash: 40d515db852050c7
+base_commit: c798c556486907238ec8ba2e841b79d689c3c60a
 items:
     00bde2a78e456b8b:
         hash: ff1a6eb6f71b9ea5

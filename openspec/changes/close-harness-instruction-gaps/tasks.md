@@ -25,10 +25,10 @@
 
 ## 2. Pi and goose context, and pi skills
 
-- **SHAPE** loop
-- **STOP** a live pi session loads the context and lists the registry skills,
-  and a live goose session loads the hints
-- **MAX-ITERS** 4
+- **SHAPE** graph
+- Not a loop: the exit is the owner starting a live pi session and a live goose
+  session and reading what each loaded. No command does that, so the phase ends
+  at its `Confirm:` task instead.
 
 - [x] 2.1 Write `~/.pi/agent/AGENTS.md` from `kit.mkInstructionsWithStyle`
       in `config/pi.nix` (follows `config/devin.nix:89`)
@@ -54,10 +54,10 @@
 
 ## 3. Cursor rule generation and copilot outcome
 
-- **SHAPE** loop
-- **STOP** `always.mdc` is generated, states no fact twice, and copilot is
-  either covered or exempt with a reason
-- **MAX-ITERS** 4
+- **SHAPE** graph
+- Not a loop: generation is checkable, but "states no fact twice" and whether
+  copilot's exemption has a good reason are both owner judgments. The phase ends
+  at its `Confirm:` task instead.
 
 - [x] 3.1 Capture the current hand-written body of
       `config/cursor-rules/always.mdc` into the change directory before editing

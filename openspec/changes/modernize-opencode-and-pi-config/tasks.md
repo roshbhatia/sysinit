@@ -1,8 +1,9 @@
 ## 1. OpenCode config split and schema check
 
 - **SHAPE** loop
-- **STOP** both rendered files validate against the installed schemas and
-  OpenCode writes no new migration backup
+- **STOP** `nix build .#checks.aarch64-darwin.opencode-config-schema` exits 0.
+  It validates the same attrset activation writes against the schema shipped in
+  the installed OpenCode
 - **MAX-ITERS** 4
 
 - [x] 1.1 Add `pkgs.check-jsonschema` to the check closure; no flake input
@@ -50,9 +51,8 @@
 ## 2. Pi settings ownership
 
 - **SHAPE** loop
-- **STOP** every key this repository has an opinion about is declared, no
-  declared key is absent from the installed binary, and the stylix theme is
-  active
+- **STOP** `nix build .#checks.aarch64-darwin.pi-settings-keys-exist` exits 0,
+  so no declared key is absent from the installed binary
 - **MAX-ITERS** 4
 
 - [x] 2.1 Copy the live `~/.pi/agent/settings.json` into the change directory as
@@ -90,11 +90,10 @@
 
 ## 3. Pi extension source and new extensions
 
-- **SHAPE** loop
-- **STOP** every vendored extension resolves inside the installed pi package
-  and pi loads all of them without error
-- **MAX-ITERS** 4
-
+- **SHAPE** graph
+- Not a loop: path resolution is checkable, but "pi loads all of them without
+  error" needs a live pi run the owner reads. The phase ends at its `Confirm:`
+  task instead.
 - [x] 3.1 Source the vendored extension files from
       `${pkgs.pi-coding-agent}/pi/examples/extensions/` and delete
       `piExtensionsRev`, `piExtensionsSrc`, and their hash

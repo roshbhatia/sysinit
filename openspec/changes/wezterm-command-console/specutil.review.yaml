@@ -1,9 +1,9 @@
 version: 1
 change: wezterm-command-console
 decision: approved
-note: Owner authorized clearing the standing review gate for these three changes in the 2026-08-03 session, without a fresh critic pass.
-change_hash: 9b675861276cb9df
-base_commit: 2fa0a2b4ff06018c7596e52854bae0f9120a407a
+note: 'Re-recorded after the 2026-08-03 STOP-condition pass: every loop STOP now names a command, and phases whose exit is an owner observation were reclassified from loop to graph.'
+change_hash: 72b923a763e63824
+base_commit: c798c556486907238ec8ba2e841b79d689c3c60a
 items:
     0e00c2753a3682ec:
         hash: bec4756d3ad22b5e

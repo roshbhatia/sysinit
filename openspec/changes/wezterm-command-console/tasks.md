@@ -131,8 +131,10 @@
 ## 3. Guard rewrite
 
 - **SHAPE** loop
-- **STOP** every deny-set form still denies, and every allowed command carries an
-  `updatedInput` that invokes `agent-run`
+- **STOP** `nix build .#checks.aarch64-darwin.destructive-guard-fixtures` exits
+  0, and the guard fixture run in 3.8 exits 0 with every deny form denied and
+  every allowed form carrying an `updatedInput`. Removing any one deny pattern
+  must make it fail
 - **MAX-ITERS** 3
 
 - [ ] 3.1 Gather: re-read `modules/home/programs/llm/config/claude-bash-guard.sh`
@@ -199,11 +201,10 @@
 
 ## 5. Detach, reap, and default on
 
-- **SHAPE** loop
-- **STOP** a long build detaches, reaps correctly, and a Ctrl+C returns a non-zero
-  code to the agent
-- **MAX-ITERS** 3
-
+- **SHAPE** graph
+- Not a loop: the exit is the owner pressing Ctrl+C in a live pane and watching a
+  long build detach and reap. No command observes that, so the phase ends at its
+  `Confirm:` tasks instead.
 - [ ] 5.1 Gather: measure the real per-command overhead of the console on a trivial
       command, and confirm it is acceptable at every-command scale.
 - [ ] 5.2 Act: add the `agent-run` timeout, set below the Bash tool's 120 second

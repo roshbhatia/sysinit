@@ -1,7 +1,8 @@
 ## 1. Defect fixes in the shared scripts
 
 - **SHAPE** loop
-- **STOP** every defect has a fix and a check that fails without the fix
+- **STOP** `nix build .#checks.aarch64-darwin.notify-defect-regressions` exits
+  0, and reverting any one fix makes it fail
 - **MAX-ITERS** 4
 
 - [x] 1.1 Replace the notification group with `agent:<pane-id>` in
@@ -82,11 +83,10 @@
 
 ## 3. Pi and OpenCode bridges
 
-- **SHAPE** loop
-- **STOP** both harnesses raise one toast and write one state file, or the
-  harness is moved to the deferred set with its own producer left on
-- **MAX-ITERS** 4
-
+- **SHAPE** graph
+- Not a loop: the exit is the owner watching each harness raise exactly one toast
+  in a live session. No command counts toasts, so the phase ends at its
+  `Confirm:` task instead.
 - [x] 3.1 Spike result: OpenCode DOES expose a usable surface. The plugin `event`
       hook exists alongside `tool.execute.before/after` and `chat.*`, and the bus
       carries `session.idle` and `session.error`. A probe plugin confirmed the
@@ -149,11 +149,10 @@
 
 ## 4. Toast body names the review path
 
-- **SHAPE** loop
-- **STOP** a done toast names the repository, the branch, the dirty marker, and
-  the elapsed time, and degrades to the harness message when the state file is
-  missing
-- **MAX-ITERS** 2
+- **SHAPE** graph
+- Not a loop: the exit is the owner reading a real toast body. A check that
+  rendered the body from a fixture state file would make this a loop again, and
+  is worth writing; it does not exist yet.
 
 - [x] 4.1 Read the per-pane state file in `agent-notify.sh` and append
       repo, branch, a dirty marker, and elapsed time to the body (follows the
