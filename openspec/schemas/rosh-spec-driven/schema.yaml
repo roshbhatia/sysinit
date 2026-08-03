@@ -154,5 +154,33 @@ apply:
   requires: [tasks]
   tracks: tasks.md
   instruction: |
-    Read context files, work through pending tasks, mark complete as you go.
-    Pause if you hit blockers or need clarification.
+    Read the context files, then drive the work from `specutil next` rather than
+    from reading `tasks.md` in file order.
+
+    The loop:
+
+    1. Run `specutil next <change>`. It names the active phase, its shape, and
+       the subtasks whose dependencies are complete.
+    2. Do that ready set. When it reports `runnable concurrently`, fan out to one
+       fresh-context subagent per subtask; that only happens for a `graph` phase,
+       and never for a gate or an adversarial review.
+    3. Mark each finished subtask `- [x]` in `tasks.md`.
+    4. Repeat from 1. An exit code of 2 means the dependencies form a cycle: stop
+       and fix `tasks.md`, do not retry.
+
+    Why not read the file top to bottom: `tasks.md` declares a dependency graph
+    and a phase shape. Reading in file order ignores both, so the declaration
+    becomes decoration and the ordering is whatever the file happens to look like.
+    Asking the tool makes the same input always produce the same plan.
+
+    Stop at an owner gate. An `Apply:` task is impactful and a `Confirm:` task is
+    a judgment only the owner can make, so neither is yours to check off.
+
+    For a `loop` phase, arm the declared `STOP` with
+    `loop-gate arm --until '<command>' --max <n>` before you start iterating, so
+    the exit is evaluated rather than asserted. `specutil next` prints the STOP
+    verbatim and deliberately does not build the command for you: a stop
+    condition often names a file path in backticks, and a guessed command looks
+    right and proves nothing.
+
+    Pause if you hit a blocker or need clarification.

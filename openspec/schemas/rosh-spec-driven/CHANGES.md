@@ -187,6 +187,18 @@ a rename/removal, and the flake check fails on a newly added or moved site.
   shipped preset selects it. `POLARITY` stays on the `bolded-bullet-lead`
   allowlist so archived spec files still lint clean.
 
+### schema.yaml — `apply.instruction`
+- Upstream tells the agent to read the tasks and work through them. The fork
+  drives the loop from `specutil next` instead: ask which subtasks are runnable,
+  do that set, mark them, repeat.
+- Reason: the fork's `tasks.md` declares a phase shape and a dependency edge per
+  subtask, and nothing read either at apply time. Reading the file top to bottom
+  ignores the graph, so 121 declared edges and 49 parallel waves were decoration.
+  Asking the tool makes the same input produce the same plan.
+- Adds the fan-out rule (`runnable concurrently`, graph phases only, never a gate
+  or a review), the owner-gate stop, the cycle exit code, and the instruction to
+  arm a loop's `STOP` with `loop-gate` before iterating.
+
 ## Pending sync notes
 
 - Initial fork taken from openspec 1.3.0 (`/nix/store/lwijn4py7cknh9zbvvx6icbap5gfl9ab-openspec-1.3.0/lib/openspec/schemas/spec-driven`).

@@ -1,5 +1,5 @@
 ---
-description: Uses specutil (on PATH) to visualize and plan OpenSpec changes. Run before planning multi-change work to see the cross-change DAG, surface blockers, and preview Linear/Notion sync operations without network I/O. Use when the user asks about openspec change status, wants to see a dependency graph, explore or plan spec-driven work, render a change as RFC/design/tickets, or preview sync to Linear/Notion.
+description: Uses specutil (on PATH) to decide what to work on next in an OpenSpec change, and to visualize, gate, and render changes. Run `specutil next` before starting or resuming work on a change: it reads the declared phase shape and dependency edges and reports which subtasks are runnable now. Also use when the user asks about openspec change status, wants a dependency graph, explores or plans spec-driven work, renders a change as RFC/design/tickets, or previews sync to Linear/Notion.
 allowed-tools: Bash(specutil:*) Bash(mermaid-ascii:*)
 ---
 
@@ -8,6 +8,11 @@ dependency graphs, rendered documents, and sync plans without any network I/O.
 
 ## When to use
 
+- Before starting or resuming work on a change: run `specutil next`. It names the
+  active phase, its shape, and the subtasks whose dependencies are complete. Do
+  that set, mark it done, run it again. Do not read `tasks.md` top to bottom and
+  pick by eye: the file declares a dependency graph, and reading in file order
+  ignores it.
 - Before planning multi-change work: run `specutil graph --as mermaid` to see the cross-change DAG and discover blockers.
 - During an explore session: run `specutil web` to open the work graph (levels, readiness, critical path) in a browser.
 - Before marking a phase done: run `specutil check <change-dir>` as the deterministic rubric gate.
@@ -17,6 +22,10 @@ dependency graphs, rendered documents, and sync plans without any network I/O.
 ## Key commands
 
 ```bash
+specutil next                             # runnable subtasks in the active phase
+specutil next <change>                    # one change
+specutil next --as json                   # machine-readable ready set
+
 specutil graph                            # DAG as JSON (default)
 specutil graph --as mermaid               # Mermaid source — pipe to diagram-mermaid-render
 specutil graph --as dot                   # Graphviz DOT
@@ -50,6 +59,21 @@ When you run `specutil graph --as mermaid`, pipe the output through the
 ```bash
 specutil graph --as mermaid | mermaid-ascii
 ```
+
+## Reading `specutil next`
+
+- `ready` is what to do now. Every dependency of every listed subtask is done.
+- `runnable concurrently` appears only for a `graph` phase with more than one
+  ready subtask that is neither an owner gate nor an adversarial review. That is
+  the signal to fan out to parallel subagents. A `loop` phase never says it,
+  because its next iteration reads what the current one wrote.
+- `blocked` names the unmet dependency per subtask, so a stall has a reason.
+- `stop` is printed verbatim for a loop phase and is NOT turned into a
+  `loop-gate arm` command. A stop condition often names a file path in backticks,
+  and a command guessed from prose looks right and proves nothing. Read it, then
+  arm the gate yourself.
+- Exit code 2 means work remains but nothing is runnable, so the dependencies
+  form a cycle. Stop and fix `tasks.md`; do not retry.
 
 ## Notes
 
