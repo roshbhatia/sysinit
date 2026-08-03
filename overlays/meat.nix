@@ -3,8 +3,7 @@
   ...
 }:
 
-final: _prev:
-{
+final: _prev: {
   # Abridges a unified diff into a "reading diff": an LLM plans line removals and
   # folds, and meat's own compiler applies that plan to the immutable input, so
   # the model never authors the displayed diff.

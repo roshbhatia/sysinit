@@ -834,6 +834,20 @@
                   "git clean -n"
                   "git branch -d feature"
                   "nix flake check"
+                  # A flag belonging to a LATER command in the same compound must not
+                  # satisfy an earlier subcommand's rule. Each of these was denied
+                  # before the gap stopped being `.*`.
+                  "git push && rm -f /tmp/x"
+                  "git push origin main; rm -rf /tmp/x"
+                  "git reset HEAD~1 && printf -- --hard"
+                  "git branch -d old && grep -D pattern file"
+                )
+
+                # A deny must still fire when the flag really does belong to the
+                # subcommand, even with another command after it.
+                denied+=(
+                  "git push -f && echo done"
+                  "git reset --hard HEAD~1; echo done"
                 )
 
                 fail=0

@@ -259,9 +259,15 @@ let
   # `-f` is anchored on leading whitespace so it cannot match the tail of a
   # branch name. Without the anchor, `git push origin feature-f` is denied.
   # `--force` needs no anchor and also covers `--force-with-lease`.
+  #
+  # The gap between subcommand and flag is `[^;&|]*`, never `.*`: with `.*` a flag
+  # belonging to a LATER command in the same compound satisfies an earlier
+  # subcommand's rule. Observed: `git push` alongside `rm -f` was denied as a
+  # force-push. A guard that fires on a command the owner did not write trains them
+  # to route around it.
   destructiveDenyRules = [
     {
-      regex = "git[[:space:]]+push\\b.*([[:space:]]-f([[:space:]]|$)|--force)";
+      regex = "git[[:space:]]+push\\b[^;&|]*([[:space:]]-f([[:space:]]|$)|--force)";
       reason = "Force-pushing is prohibited (global CLAUDE.md: no force-push).";
     }
     {
@@ -269,19 +275,19 @@ let
       reason = "Hook-bypass flags are prohibited (global CLAUDE.md: no --no-verify / --no-gpg-sign).";
     }
     {
-      regex = "git[[:space:]]+reset\\b.*--hard\\b";
+      regex = "git[[:space:]]+reset\\b[^;&|]*--hard\\b";
       reason = "git reset --hard is prohibited without explicit instruction (global CLAUDE.md).";
     }
     {
-      regex = "git[[:space:]]+clean\\b.*-[a-zA-Z]*f";
+      regex = "git[[:space:]]+clean\\b[^;&|]*-[a-zA-Z]*f";
       reason = "git clean -f is prohibited without explicit instruction (global CLAUDE.md).";
     }
     {
-      regex = "git[[:space:]]+branch\\b.*-D\\b";
+      regex = "git[[:space:]]+branch\\b[^;&|]*-D\\b";
       reason = "git branch -D (force-delete) is prohibited without explicit instruction (global CLAUDE.md).";
     }
     {
-      regex = "git[[:space:]]+branch\\b.*--delete.*--force\\b";
+      regex = "git[[:space:]]+branch\\b[^;&|]*--delete[^;&|]*--force\\b";
       reason = "git branch --delete --force is prohibited without explicit instruction (global CLAUDE.md).";
     }
   ];
