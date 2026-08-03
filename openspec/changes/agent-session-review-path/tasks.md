@@ -32,10 +32,13 @@
       liveness intersection was extracted to `agent-busy-panes.sh` so it can be
       driven with a fixed live set. Surviving objections are listed in 1.8 to 1.11;
       run round 2 after they close
-- [ ] 1.8 Two of the new assertions do not catch their mutation: removing the
-      detached-HEAD block, and removing the session-key filter in
-      `agent-busy-panes.sh`, both leave the check green. Diagnose and close before
-      claiming either behaviour is covered `deps:` 1.7
+- [x] 1.8 Both assertions do catch their mutation. The earlier negative result was
+      a bad method: deleting a line leaves its variable unused, shellcheck fails the
+      `agent-review` package build, and the check derivation never runs, so a
+      dependency failure reads as zero assertion failures. A mutation must be
+      shellcheck-clean to test an assertion at all. Confirmed with
+      `[ "$detached" -eq 999 ]` and a session-key comparison that keeps both
+      variables referenced: one and two assertions fire respectively `deps:` 1.7
 - [ ] 1.9 A repo mid-rebase, mid-merge, or mid-cherry-pick reports clean: the
       sequencer state lives in the gitdir and `status --porcelain` says nothing.
       Read `rev-parse --git-path rebase-merge`, `MERGE_HEAD`, `CHERRY_PICK_HEAD`

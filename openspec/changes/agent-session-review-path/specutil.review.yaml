@@ -1,9 +1,9 @@
 version: 1
 change: agent-session-review-path
 decision: approved
-note: 'Round 1 of the phase-1 adversarial review: three defects fixed, four objections recorded as open tasks 1.8 to 1.11. Not a clean pass.'
-change_hash: f46fe1d1d6f77c6d
-base_commit: c6833bec6fddf239f82efd0f62e2689d18965794
+note: 'Round 1 objections: three defects fixed, task 1.8 closed, three objections remain open as 1.9 to 1.11.'
+change_hash: b2c3a291bb3c3533
+base_commit: 51a49b879f60a02c002cc2a82908797d68e844b4
 items:
     0bd8c92c94aba443:
         hash: b3a33103634add62
@@ -53,9 +53,6 @@ items:
     206755c6389e5a3e:
         hash: e09dfd7319c31ae5
         text: 'Add the `agent-review-readiness` flake check: fixture repositories for ready, dirty, unpushed, no-upstream, a state file with no live pane set, a path that is not a directory, and a directory holding no repository. Every case asserts the exit code, because that code is what `sy delete` gates on. Mutation tested against five defects, each caught by its own assertion and not by a dependency failure: always-ready, ignore-dirty, ignore-unpushed, dropping the no-upstream note, and a bad path returning success'
-    a8a31a42a8f59cb2:
-        hash: 3492236d6904261d
-        text: 'Two of the new assertions do not catch their mutation: removing the detached-HEAD block, and removing the session-key filter in `agent-busy-panes.sh`, both leave the check green. Diagnose and close before claiming either behaviour is covered'
     a2430e63677c67fd:
         hash: 2ea34642ad981780
         text: 'A repo mid-rebase, mid-merge, or mid-cherry-pick reports clean: the sequencer state lives in the gitdir and `status --porcelain` says nothing. Read `rev-parse --git-path rebase-merge`, `MERGE_HEAD`, `CHERRY_PICK_HEAD`'
@@ -80,3 +77,6 @@ items:
     f031d18c8f472677:
         hash: 70c4e3be475e609b
         text: Build it through `notify.nix` so it shares the identity resolver, and install it on PATH
+    f047fd4d2fb4407c:
+        hash: 0306500998fc06d1
+        text: 'Both assertions do catch their mutation. The earlier negative result was a bad method: deleting a line leaves its variable unused, shellcheck fails the `agent-review` package build, and the check derivation never runs, so a dependency failure reads as zero assertion failures. A mutation must be shellcheck-clean to test an assertion at all. Confirmed with `[ "$detached" -eq 999 ]` and a session-key comparison that keeps both variables referenced: one and two assertions fire respectively'
