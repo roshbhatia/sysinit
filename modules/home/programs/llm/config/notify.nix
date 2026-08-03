@@ -232,6 +232,20 @@ let
     text = busyPanes + "\n" + builtins.readFile ./agent-review.sh;
   };
 
+  # Runs one command in a single reusable WezTerm pane (see wtrun.sh). A long or
+  # noisy command belongs in its own pane rather than in the conversation pane, and
+  # creating a pane per command leaves a trail of them.
+  wtrun = pkgs.writeShellApplication {
+    name = "wtrun";
+    runtimeInputs = [
+      pkgs.coreutils
+      pkgs.gnugrep
+      pkgs.jq
+      pkgs.wezterm
+    ];
+    text = builtins.readFile ./wtrun.sh;
+  };
+
   # `sy delete` gate (see sy-gate.sh), named `sy` so it shadows seshy on PATH.
   # Evaluates a declared STOP condition as a Stop hook. Disarmed by default, so
   # an ordinary session is unaffected. See config/loop-gate.sh.
@@ -283,6 +297,7 @@ in
     loopGate
     reviewScript
     syGate
+    wtrun
     ;
 
   # Absolute paths used inside harness hook commands.

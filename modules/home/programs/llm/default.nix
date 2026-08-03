@@ -281,6 +281,7 @@ in
     pkgs.meat
     capture
     notify.script
+    notify.wtrun
     notify.stateScript
     notify.promptScript
     notify.focusScript
