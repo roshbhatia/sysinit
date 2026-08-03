@@ -39,18 +39,22 @@
       shellcheck-clean to test an assertion at all. Confirmed with
       `[ "$detached" -eq 999 ]` and a session-key comparison that keeps both
       variables referenced: one and two assertions fire respectively `deps:` 1.7
-- [ ] 1.9 A repo mid-rebase, mid-merge, or mid-cherry-pick reports clean: the
-      sequencer state lives in the gitdir and `status --porcelain` says nothing.
-      Read `rev-parse --git-path rebase-merge`, `MERGE_HEAD`, `CHERRY_PICK_HEAD`
+- [x] 1.9 A paused rebase, merge, cherry-pick, revert, or bisect now blocks and
+      is named. The sequencer state lives in the gitdir, where
+      `status --porcelain` reports nothing, so a stopped rebase read as clean and
+      deleting the worktree would have discarded every commit it had applied.
+      Fixtures cover a paused rebase and a conflicted merge; mutation tested
       `deps:` 1.7
-- [ ] 1.10 A configured upstream that no longer resolves, which `fetch.prune`
-      makes routine, is laundered into the permissive no-upstream branch and exits
-      0. Distinguish `branch.<n>.merge` unset from configured-but-unresolvable
+- [x] 1.10 A configured upstream that no longer resolves now blocks as
+      `upstream gone` instead of taking the benign no-upstream carve-out.
+      `branch.<n>.merge` being set distinguishes it from the seshy default the
+      carve-out was written for. Global `fetch.prune` makes this routine after a
+      merge-and-delete, and the local commits may exist nowhere else
       `deps:` 1.7
-- [ ] 1.11 Repository discovery walks upward: run from a repo root and every
-      top-level directory reports as its own repo with the same dirty count.
-      Accept a directory only when `rev-parse --show-toplevel` equals it
-      `deps:` 1.7
+- [x] 1.11 Discovery accepts a repository root only: `rev-parse --show-toplevel`
+      must equal the directory. `--git-dir` walks upward, so running the report
+      from a repo root previously reported every top-level directory as its own
+      repository carrying the same dirty count `deps:` 1.7
 - [x] 1.12 Verify: `nix flake check` and `nh darwin build` are green; the report
       was exercised against fixture repositories covering clean, dirty,
       unpushed, no-upstream, bad-path, and all-clean, with the right exit code
