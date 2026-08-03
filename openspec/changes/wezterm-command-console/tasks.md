@@ -217,14 +217,13 @@
       and 5.3 if not. `deps:` 5.2
 - [ ] 5.5 Verify: press Ctrl+C in the console during a job. `agent-run` exits
       non-zero and the returned text states that the owner interrupted the command. `deps:` 5.3
-- [ ] 5.6 Reconcile with the session worker pane. A working single-reusable-pane
-      runner already exists as scratch tooling: it records a pane id, reuses the
-      pane while `wezterm cli list` still reports it, recreates it when the owner
-      closes it, returns focus to the caller, and writes a log and an exit code
-      per run. `agent-run` needs the same pane-lifecycle logic. Fold it in or
-      state why a second mechanism is warranted; two runners creating panes in one
-      terminal is the parallel infrastructure the schema calls a default-reject
-      `deps:` 5.3
+- [ ] 5.6 Extract pane resolution into `config/agent-pane.sh`, sourced by
+      `agent-run.sh` and by the session worker: resolve or create, record the id,
+      confirm liveness against `wezterm cli list`, parse the id as digits on the
+      last line, recreate when the owner closed it. The spool, heartbeat, instance
+      stamp, breaker, and job claiming stay in `agent-run`. Follows the
+      `agent-group.sh` and `agent-review-suffix.sh` pattern: one definition,
+      sourced by every consumer `deps:` 5.3
 - [ ] 5.7 Adversarial review (`adversarial-review` skill): critics attempt to break
       this slice against its spec scenarios, the design decisions, and the rollout
       gates. `deps:` 5.4,5.5

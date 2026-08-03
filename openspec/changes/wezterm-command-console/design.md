@@ -160,6 +160,25 @@ Non-Goals:
     config` followed by `36`. A naive capture feeds that string to the next
     `wezterm cli` call, which then fails silently.
 
+- Decision: Pane resolution is extracted into a sourceable `agent-pane.sh` that
+  both `agent-run.sh` and the session worker share. It resolves or creates a pane,
+  records its id, confirms liveness against `wezterm cli list`, parses the id as
+  digits on the last line, and recreates the pane when the owner has closed it.
+  Nothing else moves: the spool, the heartbeat, the instance stamp, the circuit
+  breaker, and job claiming are `agent-run`'s, because only it routes every
+  command and must fail open.
+  - Alternative rejected: folding the session worker into `agent-run`. They give
+    different guarantees. `agent-run` is a per-command router that must preserve
+    ordering, block re-entrancy, and fall through to direct execution on any
+    failure. The worker is a deliberate dispatcher for one long command, where
+    blocking is the point and there is nothing to fail open to. One mechanism
+    serving both would carry the router's spool and breaker for a case that wants
+    neither.
+  - Alternative rejected: leaving two independent pane creators. Both parse the id
+    out of contaminated `wezterm cli` stdout, both keep a pane id across restarts,
+    and both must decide what "still alive" means. That is the same 20 lines twice,
+    and the second copy is where a plugin log line silently poisons the id.
+
 - Decision: The rewrite lives inside `claude-bash-guard.sh`, not in a second
   `PreToolUse` Bash matcher.
   - Alternative rejected: a separate hook script. Claude Code runs matching hooks in
