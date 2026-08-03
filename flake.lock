@@ -614,6 +614,22 @@
         "type": "github"
       }
     },
+    "meat": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1785689360,
+        "narHash": "sha256-wbDh49TBBhSInWWPYWtfYJz5PWpcthC4wl45NARYT5w=",
+        "owner": "boldsoftware",
+        "repo": "meat",
+        "rev": "7cfd5bcf347662d925f34b16810918104de1adfc",
+        "type": "github"
+      },
+      "original": {
+        "owner": "boldsoftware",
+        "repo": "meat",
+        "type": "github"
+      }
+    },
     "nix": {
       "inputs": {
         "flake-parts": "flake-parts",
@@ -963,6 +979,7 @@
         "firefox-addons": "firefox-addons",
         "home-manager": "home-manager",
         "hunk": "hunk",
+        "meat": "meat",
         "nix-claude-code": "nix-claude-code",
         "nix-gaming": "nix-gaming",
         "nixos-lima": "nixos-lima",

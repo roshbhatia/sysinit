@@ -25,6 +25,7 @@
   })
   (import ./nvfetcher-sources.nix)
   (import ./inputs.nix { inherit inputs; })
+  (import ./meat.nix { inherit inputs; })
   (import ./python311.nix)
   (import ./python313.nix)
   (import ./kubernetes-zeitgeist.nix)

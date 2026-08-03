@@ -275,6 +275,10 @@ in
   );
 
   home.packages = [
+    # Manual use only: `git diff HEAD | meat` when a diff is too large to read.
+    # Deliberately absent from the spec-driven apply loop; overlays/meat.nix says
+    # why.
+    pkgs.meat
     capture
     notify.script
     notify.stateScript

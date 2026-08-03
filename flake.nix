@@ -76,6 +76,15 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    # Abridges a unified diff into a reading diff. No upstream flake, so it is
+    # built from source by overlays/meat.nix. No LICENSE upstream either
+    # (boldsoftware/meat#2), so it is marked unfree there and must stay out of any
+    # public binary cache.
+    meat = {
+      url = "github:boldsoftware/meat";
+      flake = false;
+    };
+
     # OpenSpec change projection CLI (graph, render, plan, sync)
     specutil = {
       url = "github:roshbhatia/specutil";
@@ -206,6 +215,10 @@
           # (specutil, cupcake, …) have their own flakes/caches and their own
           # build fragility (e.g. specutil's stale go-modules vendorHash), so
           # caching them here just couples this job to upstream breakage.
+          #
+          # `meat` is overlay-defined and still MUST NOT be listed: upstream ships
+          # no LICENSE, so pushing a built binary to a public cache would be
+          # redistribution without a grant. Building it locally is fine.
           cacheBundleFor =
             system:
             let
