@@ -595,12 +595,11 @@
                 tmpl=${./openspec/schemas/rosh-spec-driven/templates}
                 root="$TMPDIR/proj"
                 change="$root/openspec/changes/probe"
-                mkdir -p "$change/specs/probe-cap"
+                mkdir -p "$change"
                 echo "schema: rosh-spec-driven" > "$root/openspec/config.yaml"
                 cp "$tmpl/proposal.md" "$change/proposal.md"
                 cp "$tmpl/design.md"   "$change/design.md"
                 cp "$tmpl/tasks.md"    "$change/tasks.md"
-                cp "$tmpl/spec.md"     "$change/specs/probe-cap/spec.md"
 
                 # review-decision-current: wants a recorded human verdict in
                 # specutil.review.yaml. A fresh scaffold has no reviewer yet.

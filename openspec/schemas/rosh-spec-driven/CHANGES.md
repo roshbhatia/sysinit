@@ -146,6 +146,47 @@ a rename/removal, and the flake check fails on a newly added or moved site.
 ### templates/spec.md
 - Adds a `- **POLARITY**` line to the scenario skeleton.
 
+## drop-requirement-spec-layer divergences
+
+### schema.yaml — `artifacts[id=specs]` removed
+- The fork no longer produces a requirement spec. Upstream keeps a `specs`
+  artifact that emits `specs/**/*.md` deltas, which `openspec archive` promotes
+  into `openspec/specs/`. The fork drops the artifact, so a change carries a
+  proposal, a design, and shaped tasks, and nothing is promoted.
+- Reason: the promoted corpus was never read. Over 30 archived changes it
+  accumulated 42 capability specs that no later change consulted and no gate
+  depended on. The acceptance criteria that mattered were already restated in
+  `tasks.md` as `STOP` conditions and `Confirm:` judgments, so the spec was a
+  second copy that drifted from the first.
+- Every `artifacts[id=specs]` divergence recorded above is therefore moot: the
+  negative-scenario rule, the polarity marker, and the delta-operation format all
+  described an artifact that no longer exists. They are kept in this file as
+  history, not as active divergences.
+- `artifacts[id=tasks].requires` drops `specs` and now names `design` only.
+
+### schema.yaml — `artifacts[id=proposal].instruction`
+- Replaces the `Capabilities` bullet with a `Behavior` bullet. `Capabilities`
+  existed only to name the spec files the next artifact would create, so it had
+  no purpose once that artifact was gone. `Behavior` states the acceptance
+  criteria in the proposal itself, and each entry must be decidable by a command
+  or an observation.
+- Retargets the review rubric from "the spec scenarios incl. negative ones" to
+  the proposal `Behavior` criteria, in the `Adversarial Review` section and in
+  the per-phase adversarial-review rule.
+
+### templates/proposal.md
+- Replaces the `## Capabilities` skeleton with a `## Behavior` skeleton carrying
+  `Must do:` and `Must still hold:` lists, each entry naming what decides it.
+
+### templates/spec.md removed
+- The template scaffolded the removed artifact.
+
+### Rubric change in specutil
+- `specutil`'s `rosh-spec-driven` preset drops `scenario-marker-coverage`. The
+  rule remains a built-in for a framework that does keep a requirement spec; no
+  shipped preset selects it. `POLARITY` stays on the `bolded-bullet-lead`
+  allowlist so archived spec files still lint clean.
+
 ## Pending sync notes
 
 - Initial fork taken from openspec 1.3.0 (`/nix/store/lwijn4py7cknh9zbvvx6icbap5gfl9ab-openspec-1.3.0/lib/openspec/schemas/spec-driven`).

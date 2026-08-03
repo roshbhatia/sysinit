@@ -1,6 +1,6 @@
 name: rosh-spec-driven
 version: 1
-description: Rosh's opinionated OpenSpec workflow - proposal → specs → design → tasks, with extra authoring rules
+description: Rosh's opinionated OpenSpec workflow - proposal, design, then shaped tasks, with extra authoring rules
 artifacts:
   - id: proposal
     generates: proposal.md
@@ -13,9 +13,7 @@ artifacts:
       - **Why**: 1-2 sentences on the problem or opportunity. What problem does this solve? Why now?
       - **What Changes**: Bullet list of changes. Be specific about new capabilities, modifications, or removals. Mark breaking changes with **BREAKING**.
       - **Non-goals**: When the change touches more than one capability, fill in a `### Non-goals` block under `## What Changes` listing the work explicitly NOT included. This rule is enforced by the rosh-spec-driven schema; omit only for trivially-scoped single-capability changes.
-      - **Capabilities**: Identify which specs will be created or modified:
-        - **New Capabilities**: List capabilities being introduced. Each becomes a new `specs/<name>/spec.md`. Use kebab-case names (e.g., `user-auth`, `data-export`).
-        - **Modified Capabilities**: List existing capabilities whose REQUIREMENTS are changing. Only include if spec-level behavior changes (not just implementation details). Each needs a delta spec file. Check `openspec/specs/` for existing spec names. Leave empty if no requirement changes.
+      - **Behavior**: State what the change must do, and what must still hold when it lands. Write each entry so a command or an observation can decide it. This replaces the requirement spec: the acceptance criteria live here, next to the reason for them, and nothing is promoted to a separate spec corpus.
       - **Impact**: Affected code, APIs, dependencies, or systems.
 
       **rosh-spec-driven rules** (apply before writing the proposal):
@@ -46,84 +44,23 @@ artifacts:
          lockfile pin already provides (nvfetcher `_sources`, `flake.lock`, `vendorHash`) is
          excluded; prose asserting a fact about that version's behavior or history is not.
       6. **Write in the CLAUDE.md communication standard (applies to EVERY artifact).**
-         Write proposal, specs, design, and tasks in Simplified Technical English per
+         Write the proposal, design, and tasks in Simplified Technical English per
          the Communication section of `~/.claude/CLAUDE.md`: one instruction per
          sentence, active voice, one term per concept, no em-dashes in prose, and no
          bolded first term in a bullet outside the format keywords (`WHEN`, `THEN`,
-         `AND`, `POLARITY`, `SHAPE`, `STOP`, `MAX-ITERS`, `BREAKING`). `specutil check`
+         `AND`, `SHAPE`, `STOP`, `MAX-ITERS`, `BREAKING`). `specutil check`
          enforces the mechanical parts (em-dashes, disallowed bolded bullet leads);
          the rest is checked in review.
 
-      IMPORTANT: The Capabilities section is critical. It creates the contract between
-      proposal and specs phases. Research existing specs before filling this in.
-      Each capability listed here will need a corresponding spec file.
+      IMPORTANT: The Behavior section is critical. It is the rubric every later
+      artifact is reviewed against, and the adversarial review reads it directly.
+      An entry no command and no observation can decide is not acceptance criteria.
 
       Keep it concise (1-2 pages). Focus on the "why" not the "how" -
       implementation details belong in design.md.
 
-      This is the foundation - specs, design, and tasks all build on this.
+      This is the foundation - design and tasks both build on this.
     requires: []
-
-  - id: specs
-    generates: "specs/**/*.md"
-    description: Detailed specifications for the change
-    template: spec.md
-    instruction: |
-      Create specification files that define WHAT the system should do.
-
-      Create one spec file per capability listed in the proposal's Capabilities section.
-      - New capabilities: use the exact kebab-case name from the proposal (specs/<capability>/spec.md).
-      - Modified capabilities: use the existing spec folder name from openspec/specs/<capability>/ when creating the delta spec at specs/<capability>/spec.md.
-
-      Delta operations (use ## headers):
-      - **ADDED Requirements**: New capabilities
-      - **MODIFIED Requirements**: Changed behavior - MUST include full updated content
-      - **REMOVED Requirements**: Deprecated features - MUST include **Reason** and **Migration**
-      - **RENAMED Requirements**: Name changes only - use FROM:/TO: format
-
-      Format requirements:
-      - Each requirement: `### Requirement: <name>` followed by description
-      - Use SHALL/MUST for normative requirements (avoid should/may)
-      - Each scenario: `#### Scenario: <name>` with WHEN/THEN format
-      - **CRITICAL**: Scenarios MUST use exactly 4 hashtags (`####`). Using 3 hashtags or bullets will fail silently.
-      - Every requirement MUST have at least one scenario.
-      - **rosh-spec-driven rule**: Every requirement MUST include at least one negative scenario describing what happens when an unexpected condition occurs (`WHEN <unexpected condition> THEN <error/rejection>`). Positive scenarios alone are insufficient.
-      - **rosh-spec-driven rule**: Each scenario MUST declare its polarity on a body line, `- **POLARITY** positive` or `- **POLARITY** negative`, as the first bullet under the `#### Scenario:` heading. Keep the heading canonical (`#### Scenario: <name>`); do NOT put the marker in the heading, because openspec's archive parser matches `#### Scenario:` strictly and a heading marker makes archive silently drop the scenario. `specutil check` reads this declared marker rather than inferring polarity from prose, so the negative-scenario rule is checked against a stated fact.
-
-      MODIFIED requirements workflow:
-      1. Locate the existing requirement in openspec/specs/<capability>/spec.md
-      2. Copy the ENTIRE requirement block (from `### Requirement:` through all scenarios)
-      3. Paste under `## MODIFIED Requirements` and edit to reflect new behavior
-      4. Ensure header text matches exactly (whitespace-insensitive)
-
-      Common pitfall: Using MODIFIED with partial content loses detail at archive time.
-      If adding new concerns without changing existing behavior, use ADDED instead.
-
-      Example:
-      ```
-      ## ADDED Requirements
-
-      ### Requirement: User can export data
-      The system SHALL allow users to export their data in CSV format.
-
-      #### Scenario: Successful export
-      - **WHEN** user clicks "Export" button
-      - **THEN** system downloads a CSV file with all user data
-
-      #### Scenario: Export with malformed data
-      - **WHEN** user data contains values that violate the CSV schema
-      - **THEN** the system rejects the export and reports the offending row
-
-      ## REMOVED Requirements
-
-      ### Requirement: Legacy export
-      **Reason**: Replaced by new export system
-      **Migration**: Use new export endpoint at /api/v2/export
-      ```
-
-      Specs should be testable - each scenario is a potential test case.
-    requires:
-      - proposal
 
   - id: design
     generates: design.md
@@ -145,11 +82,11 @@ artifacts:
       - **Rollout & Gating**: **rosh-spec-driven rule**: REQUIRED section. Describe the sequenced rollout — which phase ships first, what gate must pass before the next phase (build green, manual smoke test, user confirmation, etc.), and where the kill switch is if something goes wrong. For dotfiles work, the default gate sequence is: edit → `nix flake check` → `nh os build` (no system change) → user spot-check → `nh os switch`. Deviations from this sequence MUST be called out. Name any feature flag, config toggle, or capability gate that scopes the rollout.
       - **Risks / Trade-offs**: Known limitations, things that could go wrong. Format: [Risk] → Mitigation. Risks that map to human-verification checkpoints in `tasks.md` MUST be flagged here.
       - **Migration Plan**: Steps to deploy, rollback strategy (if applicable). **rosh-spec-driven rule**: Every step that mutates shared state, is hard to reverse, or requires elevated permissions MUST be preceded by a verification step and followed by a confirmation step. Single-line "run X" entries for impactful actions are insufficient.
-      - **Adversarial Review**: **rosh-spec-driven rule**: REQUIRED section. State the rubric the plan is reviewed against (the spec scenarios incl. negative ones, the `Decisions`, the `Rollout & Gating` gates, and the proposal `Non-goals`). Two halves: the deterministic `specutil check` lint is MANDATORY and runs on every phase; the LLM critic loop is default-on but OWNER-GATED — the `adversarial-review` skill elicits an approve/deny (default run), and the owner MAY waive the loop for a small phase, recorded as `Adversarial review: waived by owner`. When run, independent critics attempt to break the plan with a concrete failing scenario naming a violated rubric item, the author revises against surviving objections, and the loop repeats until it reaches a terminal state. The round cap is scaled by the skill (K=2 for one phase, K=4 for one capability, K=6 for a cross-capability or live-system change), and the loop also stops early on non-convergence or fix-induced churn. A cap hit is reported as open objections, never as a pass. Do not name the executor here; the `adversarial-review` skill routes it on what the review needs. This section names the methodology; the per-phase checkmarks live in `tasks.md`. Do not re-derive the methodology here; cite the skill.
+      - **Adversarial Review**: **rosh-spec-driven rule**: REQUIRED section. State the rubric the plan is reviewed against (the proposal `Behavior` criteria, the `Decisions`, the `Rollout & Gating` gates, and the proposal `Non-goals`). Two halves: the deterministic `specutil check` lint is MANDATORY and runs on every phase; the LLM critic loop is default-on but OWNER-GATED — the `adversarial-review` skill elicits an approve/deny (default run), and the owner MAY waive the loop for a small phase, recorded as `Adversarial review: waived by owner`. When run, independent critics attempt to break the plan with a concrete failing scenario naming a violated rubric item, the author revises against surviving objections, and the loop repeats until it reaches a terminal state. The round cap is scaled by the skill (K=2 for one phase, K=4 for one capability, K=6 for a cross-capability or live-system change), and the loop also stops early on non-convergence or fix-induced churn. A cap hit is reported as open objections, never as a pass. Do not name the executor here; the `adversarial-review` skill routes it on what the review needs. This section names the methodology; the per-phase checkmarks live in `tasks.md`. Do not re-derive the methodology here; cite the skill.
       - **Open Questions**: Outstanding decisions or unknowns to resolve
 
       Focus on architecture and approach, not line-by-line implementation.
-      Reference the proposal for motivation and specs for requirements.
+      Reference the proposal for motivation and for the `Behavior` criteria.
 
       Good design docs explain the "why" behind technical decisions.
     requires:
@@ -182,7 +119,7 @@ artifacts:
         - Prefer ONE confirmation per impactful action. A run of consecutive `Confirm:` tasks after a single action is a sign the author is enumerating observations rather than naming a decision.
         - A gate is a boundary between runs, not a pause inside one. If a phase needs owner sign-off partway through, split it into two phases so the boundary is visible and the first half can be re-run on its own.
       - **rosh-spec-driven rule — reuse first**: For each task that introduces a new module/file, the description SHOULD reference the existing pattern it follows (cite a file path) or explicitly note this is a new pattern (with justification carried from design.md).
-      - **rosh-spec-driven rule — adversarial-review gate per phase**: Each phase (numbered phase) MUST end with an adversarial-review checkbox before its impactful-action/rollout tasks. The checkbox invokes the `adversarial-review` skill, which first runs the mandatory deterministic `specutil check` lint, then elicits the owner's approve/deny for the LLM critic loop (default: run). On approve, independent critics attempt to break the phase against the rubric (spec scenarios, design decisions, rollout gates, non-goals) with a concrete failing scenario; the author revises against surviving objections; the loop repeats until it reaches a terminal state. The round cap is scaled by the skill (K=2 for one phase, K=4 for one capability, K=6 for a cross-capability or live-system change), and the loop also stops early on non-convergence or fix-induced churn. A cap hit is reported as open objections, never as a pass. On deny, the loop is waived and the checkbox records `Adversarial review: waived by owner`. Either way the checkbox is present (a waiver is explicit, never a missing or silently-checked box), `specutil check` still passes, and the human-verification gate for impactful actions still applies. The skill picks the executor by what the review needs: fresh-context subagents by default, because a critic that shares the author's context inherits the author's reasoning. Do not name a mechanism here.
+      - **rosh-spec-driven rule — adversarial-review gate per phase**: Each phase (numbered phase) MUST end with an adversarial-review checkbox before its impactful-action/rollout tasks. The checkbox invokes the `adversarial-review` skill, which first runs the mandatory deterministic `specutil check` lint, then elicits the owner's approve/deny for the LLM critic loop (default: run). On approve, independent critics attempt to break the phase against the rubric (proposal `Behavior` criteria, design decisions, rollout gates, non-goals) with a concrete failing scenario; the author revises against surviving objections; the loop repeats until it reaches a terminal state. The round cap is scaled by the skill (K=2 for one phase, K=4 for one capability, K=6 for a cross-capability or live-system change), and the loop also stops early on non-convergence or fix-induced churn. A cap hit is reported as open objections, never as a pass. On deny, the loop is waived and the checkbox records `Adversarial review: waived by owner`. Either way the checkbox is present (a waiver is explicit, never a missing or silently-checked box), `specutil check` still passes, and the human-verification gate for impactful actions still applies. The skill picks the executor by what the review needs: fresh-context subagents by default, because a critic that shares the author's context inherits the author's reasoning. Do not name a mechanism here.
       - **rosh-spec-driven rule — a loop must be able to run twice**: `SHAPE loop` is a claim about control flow, not a label for "several steps". Declare `loop` only when the phase has a real back-edge: the same tasks re-run on the next iteration against changed state. A phase of N distinct one-shot steps is a `graph` with a dependency chain, not a loop. Test before writing `loop`: name the task iteration 2 starts from. If there isn't one, it is not a loop.
       - **rosh-spec-driven rule — STOP is a command, not a wish**: A `- **STOP**` value MUST be decidable by running something. Write the command, or write a predicate over a command's output. `- **STOP** \`nix flake check\` exits 0 and every new check fails on an injected defect` is a stop condition. `- **STOP** the settings are coherent` is not, because nothing can evaluate it and the loop terminates when the model decides it is bored. The verifier MUST also be outside the blast radius of the work: a loop that may edit its own tests has no stop condition at all. To make the condition actually run rather than be asserted, arm the Stop hook: `loop-gate arm --until '<command>' --max <n> --stall <n>`. It evaluates the command when the turn tries to end, blocks the end while it fails, and reports CLEAN, CAPPED, or STALLED. `/goal` is NOT a substitute: its own docs state it "doesn't run commands or read files independently", so it terminates on a transcript that claims success.
       - **rosh-spec-driven rule — two bounds, not one**: Every `loop` MUST declare both a progress bound and an iteration bound, because they fail differently. `- **STOP**` is the success exit. `- **MAX-ITERS** <n>` is the iteration cap and is the marker `specutil check` currently enforces. `- TERMINAL:` names how the loop ends WITHOUT success, using the terminal-state vocabulary the `adversarial-review` skill already defines: `CAPPED` (MAX-ITERS reached), `STALLED` (N consecutive iterations with no change in the STOP metric), `CHURNING` (each fix induces the next defect). MAX-ITERS alone is insufficient: a loop that stalls burns the whole cap before anyone notices. A cap hit is reported as open work, never as a pass. Cite the skill rather than restating its cap-scaling rule.
@@ -200,7 +137,7 @@ artifacts:
 
       - [ ] 2.1 Implement data export function
       - [ ] 2.2 Add CSV formatting utilities
-      - [ ] 2.3 Adversarial review (`adversarial-review` skill): critics attempt to break the export phase against its spec scenarios; revise until the loop reaches a terminal state (see the skill for the scaled round cap)
+      - [ ] 2.3 Adversarial review (`adversarial-review` skill): critics attempt to break the export phase against the proposal `Behavior` criteria; revise until the loop reaches a terminal state (see the skill for the scaled round cap)
 
       ## 3. Rollout
 
@@ -208,10 +145,9 @@ artifacts:
       - [ ] 3.2 Confirm: the owner spot-checks that the exported columns are the ones they meant to expose
       ```
 
-      Reference specs for what needs to be built, design for how to build it.
+      Reference the proposal `Behavior` criteria for what needs to be built, design for how to build it.
       Each task should be verifiable — you know when it's done.
     requires:
-      - specs
       - design
 
 apply:
