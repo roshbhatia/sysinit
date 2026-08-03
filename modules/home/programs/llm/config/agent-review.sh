@@ -21,15 +21,23 @@ unfinished=0
 printf 'session %s\n' "$session"
 
 # --- per-repository git state -------------------------------------------------
-for repo_dir in "$root"/*/; do
-  [ -d "$repo_dir" ] || continue
+# Ambient git environment must not leak in: a hook or `rebase --exec` exports
+# these, and `rev-parse --show-toplevel` would then answer about the ambient repo
+# so every candidate mismatches and the session reports ready.
+unset GIT_DIR GIT_WORK_TREE GIT_INDEX_FILE GIT_COMMON_DIR
+
+examined=0
+
+report_repo() {
+  repo_dir="$1"
   repo=$(basename "$repo_dir")
   # A repository ROOT, not any directory inside one: `rev-parse --git-dir` walks
   # upward, so without this every top-level directory of a repo reports as its own
   # repository carrying that repo's dirty count.
-  top=$(git -C "$repo_dir" rev-parse --show-toplevel 2> /dev/null) || continue
-  here=$(cd "$repo_dir" 2> /dev/null && pwd -P) || continue
-  [ "$top" = "$here" ] || continue
+  top=$(git -C "$repo_dir" rev-parse --show-toplevel 2> /dev/null) || return 0
+  here=$(cd "$repo_dir" 2> /dev/null && pwd -P) || return 0
+  [ "$top" = "$here" ] || return 0
+  examined=$((examined + 1))
 
   # `rev-parse --abbrev-ref HEAD` prints the literal "HEAD" on a detached head and
   # exits 0, so an empty-string test never fires. agent-identity.sh:48 already
@@ -47,7 +55,7 @@ for repo_dir in "$root"/*/; do
   # `status --porcelain` reports nothing. Deleting the worktree then discards every
   # commit the operation had already applied.
   midop=""
-  for marker in rebase-merge rebase-apply MERGE_HEAD CHERRY_PICK_HEAD REVERT_HEAD BISECT_LOG; do
+  for marker in rebase-merge rebase-apply MERGE_HEAD CHERRY_PICK_HEAD REVERT_HEAD sequencer/todo; do
     gp=$(git -C "$repo_dir" rev-parse --git-path "$marker" 2> /dev/null) || continue
     case "$gp" in
       /*) : ;;
@@ -87,6 +95,25 @@ for repo_dir in "$root"/*/; do
   [ "$detached" -eq 1 ] && problems="$problems detached HEAD"
   [ -n "$midop" ] && problems="$problems mid-$midop"
   [ "$upstream" = "gone" ] && problems="$problems upstream gone"
+  # The other refs are enumerated rather than excluded by pattern: verified that
+  # `rev-list --not --exclude=refs/heads/<branch> --branches` counts 0 here, so the
+  # pattern form silently measures nothing.
+  others=()
+  while IFS= read -r ref; do
+    others+=("$ref")
+  done < <(git -C "$repo_dir" for-each-ref --format='%(refname)' \
+    refs/heads refs/tags refs/remotes 2> /dev/null |
+    grep -vFx "refs/heads/$branch")
+  if [ "${#others[@]}" -gt 0 ]; then
+    local_only=$(git -C "$repo_dir" rev-list --count HEAD --not "${others[@]}" 2> /dev/null) || local_only=0
+  else
+    # No other ref at all, so everything on HEAD is reachable from nowhere else.
+    local_only=$(git -C "$repo_dir" rev-list --count HEAD 2> /dev/null) || local_only=0
+  fi
+  case "$local_only" in
+    '' | *[!0-9]*) local_only=0 ;;
+  esac
+  [ "$local_only" -gt 0 ] && problems="$problems ${local_only} commits nowhere else"
 
   note=""
   [ "$upstream" = "no" ] && note=" (no upstream)"
@@ -97,7 +124,26 @@ for repo_dir in "$root"/*/; do
   else
     printf '  %-24s %-28s clean%s\n' "$repo" "$branch" "$note"
   fi
+}
+
+# A dot-named repo is invisible to `*/` but the delete path removes it anyway, so
+# it must be inspected. `.git` and friends fail the repository-root test below.
+shopt -s dotglob 2> /dev/null || true
+
+for repo_dir in "$root"/*/; do
+  [ -d "$repo_dir" ] || continue
+  report_repo "$repo_dir"
 done
+
+# `$root` itself may be the repository: the documented no-argument form is run
+# from inside one. Before this, that input examined nothing and reported ready.
+report_repo "$root"
+
+if [ "$examined" -eq 0 ]; then
+  printf '  no repository examined; readiness is unknown\n'
+  printf '\nsession %s: readiness could not be determined\n' "$session"
+  exit 2
+fi
 
 # --- live agent state ---------------------------------------------------------
 # A state file records that a pane held a state, not that it still exists. Skip

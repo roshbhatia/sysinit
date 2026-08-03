@@ -247,7 +247,12 @@ let
 
   syGate = pkgs.writeShellApplication {
     name = "sy";
-    runtimeInputs = [ pkgs.coreutils ];
+    # fzf so the gate can run the picker itself for a bare `sy delete`; without it
+    # that form execs through and the readiness check never sees the pick.
+    runtimeInputs = [
+      pkgs.coreutils
+      pkgs.fzf
+    ];
     text = ''
       SY_REAL=${lib.getExe' pkgs.seshy "sy"}
     ''

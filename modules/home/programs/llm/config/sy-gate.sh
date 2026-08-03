@@ -31,9 +31,22 @@ for arg in "$@"; do
   esac
 done
 
-# no name means seshy picks interactively, so there is nothing to check
+# A bare `sy delete` used to exec straight through, so the picker form bypassed the
+# gate completely. Do the pick here and fall through to the named path. On cancel,
+# an empty pick, or no fzf, exec unchanged: this gate never traps a session.
 if [ -z "$name" ]; then
-  exec "$SY_REAL" "$sub" "$@"
+  if command -v fzf > /dev/null 2>&1; then
+    picked=$("$SY_REAL" list --names 2> /dev/null | fzf --prompt 'delete session> ' --height 40%) || picked=""
+    if [ -n "$picked" ]; then
+      name=$picked
+      set -- "$picked" "$@"
+    else
+      exec "$SY_REAL" "$sub" "$@"
+    fi
+  else
+    printf 'sy: fzf is unavailable, so the readiness check cannot see the pick.\n' >&2
+    exec "$SY_REAL" "$sub" "$@"
+  fi
 fi
 
 # `|| session_dir=""` not a bare assignment: `sy path` exits non-zero for a name
@@ -59,11 +72,15 @@ else
   SESHY_SESSION=$name agent-review "$session_dir" || rc=$?
   if [ "$rc" -eq 1 ] && [ "$forced" -eq 0 ]; then
     printf '\nsy: refusing to delete an unfinished session.\n' >&2
-    printf "sy: use 'sy delete --force %s' to delete anyway.\n" "$name" >&2
+    printf "sy: use '%s %s --force' to proceed anyway.\n" "$sub" "$name" >&2
     exit 1
   fi
-  # rc 2 is permissive on purpose: a broken check must not trap a session
-  [ "$rc" -eq 2 ] && printf 'sy: readiness check could not run; continuing.\n' >&2
+  # Permissive on purpose for every non-blocking code: a broken check must not trap
+  # a session. But it must never be silent, so this covers 2 and anything else,
+  # including the 127 a missing sourced helper would produce.
+  if [ "$rc" -ne 0 ] && [ "$rc" -ne 1 ]; then
+    printf 'sy: readiness check could not run (exit %s); continuing.\n' "$rc" >&2
+  fi
 fi
 
 exec "$SY_REAL" "$sub" "$@"

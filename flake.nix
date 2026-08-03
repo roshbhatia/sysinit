@@ -1061,15 +1061,27 @@
                 # --- no upstream: said so, never reported as zero unpushed -----
                 # A branch with no upstream has no answer for "how many unpushed",
                 # and printing 0 would read as "nothing left to push".
-                s="$TMPDIR/noupstream"; mkdir -p "$s/repo-a"
-                git init -q "$s/repo-a"
-                echo one > "$s/repo-a/f"
-                git -C "$s/repo-a" add f
-                git -C "$s/repo-a" commit -qm one
+                # The seshy shape: a session branch created with `worktree add -b`,
+                # which sets no upstream, on a repo whose base branch IS pushed. A
+                # standalone `git init` with no remote at all is not what seshy
+                # creates, and asserting rc 0 on that shape hid the real defect.
+                s="$TMPDIR/noupstream"; mkdir -p "$s"; mkrepo "$s/repo-a"
+                git -C "$s/repo-a" checkout -q -b dev/session/repo-a
                 run "$s"
                 expect_out "no upstream" "(no upstream)"
                 reject_out "no upstream" "0 unpushed"
+                reject_out "no upstream" "commits nowhere else"
                 expect_rc  "no upstream" 0
+
+                # Same shape, but the agent committed. Those commits exist on no
+                # other ref, and `sy delete` runs `branch -D`, which never refuses an
+                # unmerged branch.
+                s="$TMPDIR/noupstream-work"; mkdir -p "$s"; mkrepo "$s/repo-a"
+                git -C "$s/repo-a" checkout -q -b dev/session/repo-a
+                echo work > "$s/repo-a/f"; git -C "$s/repo-a" commit -qam work
+                run "$s"
+                expect_out "session branch with commits" "1 commits nowhere else"
+                expect_rc  "session branch with commits" 1
 
                 # --- liveness, driven directly, both branches --------------------
                 # wezterm cannot be stubbed: agent-review is a writeShellApplication
@@ -1233,11 +1245,14 @@
                   note "discovery reported a subdirectory of a repo as its own repository"
                 # And running FROM a repo root reports that repo once, not once per
                 # top-level directory.
+                # `-le 1` was satisfied by 0, so it could not tell "reported once"
+                # from "never looked" — the only distinction that matters here.
                 set +e
                 body="$(cd "$s/repo-a" && agent-review . 2>&1)"; rc=$?
                 set -e
-                [ "$(printf '%s\n' "$body" | grep -c 'uncommitted')" -le 1 ] ||
-                  note "running from a repo root reported the dirty count more than once"
+                [ "$(printf '%s\n' "$body" | grep -c 'uncommitted')" -eq 1 ] ||
+                  note "running from a repo root did not report the dirty count exactly once"
+                expect_rc "from a repo root" 1
 
                 # --- an explicit argument wins over the environment --------------
                 s="$TMPDIR/argwins"; mkdir -p "$s"; mkrepo "$s/repo-a"
@@ -1253,10 +1268,57 @@
                 expect_rc  "absent path" 2
                 expect_out "absent path" "skipping the readiness check"
 
-                # --- a directory holding no repository is ready ----------------
+                # --- commits that exist nowhere else block ------------------------
+                # This is the state that actually loses work, and a missing upstream
+                # does not measure it. `sy delete` runs `worktree remove --force`
+                # then `branch -D`, and `branch -D` never refuses an unmerged branch,
+                # so a commit reachable from no other ref is gone.
+                s="$TMPDIR/localonly"; mkdir -p "$s/repo-a"
+                git init -q "$s/repo-a"
+                echo one > "$s/repo-a/f"; git -C "$s/repo-a" add f
+                git -C "$s/repo-a" commit -qm one
+                git -C "$s/repo-a" checkout -q -b feature
+                echo two > "$s/repo-a/f"; git -C "$s/repo-a" commit -qam two
+                run "$s"
+                expect_out "commits nowhere else" "1 commits nowhere else"
+                expect_rc  "commits nowhere else" 1
+
+                # A clean session whose HEAD is reachable from another ref is still
+                # ready: this must not refuse the most common delete.
+                s="$TMPDIR/reachable"; mkdir -p "$s"; mkrepo "$s/repo-a"
+                run "$s"
+                reject_out "reachable elsewhere" "commits nowhere else"
+                expect_rc  "reachable elsewhere" 0
+
+                # --- a dot-named repo is inspected, not skipped -------------------
+                # `*/` misses it, but the delete path removes it anyway: seshy
+                # iterates every directory entry and runs `branch -D`.
+                s="$TMPDIR/dotrepo"; mkdir -p "$s"; mkrepo "$s/.hidden"
+                echo two > "$s/.hidden/f"
+                run "$s"
+                expect_out "dot-named repo" "1 uncommitted"
+                expect_rc  "dot-named repo" 1
+
+                # --- ambient git environment must not leak in ---------------------
+                # A hook or `rebase --exec` exports these; `--show-toplevel` would
+                # then answer about the ambient repo and every candidate mismatches.
+                s="$TMPDIR/ambient"; mkdir -p "$s"; mkrepo "$s/repo-a"
+                echo two > "$s/repo-a/f"
+                set +e
+                body="$(GIT_DIR="$TMPDIR/ready/repo-a/.git" \
+                  GIT_WORK_TREE="$TMPDIR/ready/repo-a" agent-review "$s" 2>&1)"; rc=$?
+                set -e
+                expect_out "ambient git env ignored" "1 uncommitted"
+                expect_rc  "ambient git env ignored" 1
+
+                # --- examining nothing is unknown, not ready --------------------
+                # Exit 2 is permissive at the gate, so nothing is trapped, but the
+                # owner is told. Reporting 0 here made "found no repository" and
+                # "found three clean repositories" the same answer.
                 s="$TMPDIR/empty"; mkdir -p "$s/notarepo"
                 run "$s"
-                expect_rc "no repositories" 0
+                expect_rc  "no repositories" 2
+                expect_out "no repositories" "readiness could not be determined"
 
                 [ "$fail" -eq 0 ] || exit 1
                 echo "OK: agent-review reports readiness correctly" | tee "$out"
