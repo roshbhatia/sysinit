@@ -36,12 +36,23 @@ if [ -z "$name" ]; then
   exec "$SY_REAL" "$sub" "$@"
 fi
 
-session_dir=$("$SY_REAL" path "$name" 2> /dev/null)
+# `|| session_dir=""` not a bare assignment: `sy path` exits non-zero for a name
+# it cannot resolve, and writeShellApplication sets `set -e`, so a bare assignment
+# aborts the wrapper here. stderr is discarded, so the owner would see nothing at
+# all and `sy delete` would be a silent no-op for that name. Verified: `sy path
+# definitely-not-a-session` exits 1.
+session_dir=$("$SY_REAL" path "$name" 2> /dev/null) || session_dir=""
 if [ -z "$session_dir" ] || [ ! -d "$session_dir" ]; then
   session_dir="$HOME/.local/state/seshy/sessions/$name"
 fi
 
-if [ -d "$session_dir" ] && command -v agent-review > /dev/null 2>&1; then
+if [ ! -d "$session_dir" ]; then
+  # Say so rather than deleting silently: the owner has every reason to think the
+  # gate ran. Permissive by D3, but never quiet.
+  printf 'sy: no session directory for %s; readiness check skipped.\n' "$name" >&2
+elif ! command -v agent-review > /dev/null 2>&1; then
+  printf 'sy: agent-review is not on PATH; readiness check skipped.\n' >&2
+else
   # `|| rc=$?` not a bare call: writeShellApplication sets `set -e`, which would
   # abort here on unfinished work and skip both the refusal and the --force path
   rc=0

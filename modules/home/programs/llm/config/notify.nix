@@ -146,6 +146,11 @@ let
   # asserted body are the same code.
   reviewSuffix = builtins.readFile ./agent-review-suffix.sh;
 
+  # Which panes of a session still hold a non-idle agent state. Prepended into the
+  # report and read by the agent-review-readiness check, so the gate and the
+  # assertion run the same intersection.
+  busyPanes = builtins.readFile ./agent-busy-panes.sh;
+
   icons = pkgs.runCommand "agent-notify-icons" { nativeBuildInputs = [ pkgs.librsvg ]; } (
     assertGenericDisjoint
     + assertCoverageTotal
@@ -224,7 +229,7 @@ let
       pkgs.wezterm
     ];
     # unlike the notifier, its exit code is the gate, so strict mode stays on
-    text = builtins.readFile ./agent-review.sh;
+    text = busyPanes + "\n" + builtins.readFile ./agent-review.sh;
   };
 
   # `sy delete` gate (see sy-gate.sh), named `sy` so it shadows seshy on PATH.

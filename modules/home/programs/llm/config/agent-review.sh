@@ -26,8 +26,15 @@ for repo_dir in "$root"/*/; do
   repo=$(basename "$repo_dir")
   git -C "$repo_dir" rev-parse --git-dir > /dev/null 2>&1 || continue
 
+  # `rev-parse --abbrev-ref HEAD` prints the literal "HEAD" on a detached head and
+  # exits 0, so an empty-string test never fires. agent-identity.sh:48 already
+  # normalises it the same way.
   branch=$(git -C "$repo_dir" rev-parse --abbrev-ref HEAD 2> /dev/null) || branch=""
-  [ -n "$branch" ] || branch="(detached)"
+  detached=0
+  if [ -z "$branch" ] || [ "$branch" = "HEAD" ]; then
+    branch="(detached)"
+    detached=1
+  fi
 
   dirty=$(git -C "$repo_dir" status --porcelain 2> /dev/null | grep -c '') || dirty=0
 
@@ -45,6 +52,11 @@ for repo_dir in "$root"/*/; do
   problems=""
   [ "$dirty" -gt 0 ] && problems="$problems ${dirty} uncommitted"
   [ "$upstream" = "yes" ] && [ "$ahead" -gt 0 ] && problems="$problems ${ahead} unpushed"
+  # A detached head is not a branch: commits are reachable only from this
+  # worktree's HEAD, so removing the worktree makes them collectable. The
+  # no-upstream carve-out below was written for a seshy-created branch and must
+  # not launder this case into "clean".
+  [ "$detached" -eq 1 ] && problems="$problems detached HEAD"
 
   note=""
   [ "$upstream" = "no" ] && note=" (no upstream)"
@@ -61,33 +73,23 @@ done
 # A state file records that a pane held a state, not that it still exists. Skip
 # the input entirely when the live set is unknown: assuming liveness would turn
 # one crashed session into a permanent blocker.
-state_dir="${XDG_STATE_HOME:-$HOME/.local/state}/agents/panes"
 wz=$(command -v wezterm 2> /dev/null || true)
 
 if [ -z "$wz" ]; then
   printf '  agents: skipped, the live pane set is unknown outside WezTerm\n'
-elif [ -d "$state_dir" ]; then
+else
   live=$("$wz" cli list --format json 2> /dev/null | jq -r '.[].pane_id' 2> /dev/null) || live=""
   if [ -z "$live" ]; then
     printf '  agents: skipped, the live pane set could not be read\n'
   else
-    busy=0
-    for f in "$state_dir"/*.json; do
-      [ -f "$f" ] || continue
-      pane=$(basename "$f" .json)
-      printf '%s\n' "$live" | grep -qx "$pane" || continue
-
-      read -r st ag sess <<< "$(jq -r '[.status // "", .agent // "", .session // ""] | @tsv' "$f" 2> /dev/null)"
-      [ "$sess" = "$session" ] || continue
-      case "$st" in
-        working | waiting | done)
-          busy=1
-          unfinished=1
-          printf '  pane %-19s %-28s %s is %s\n' "$pane" "" "$ag" "$st"
-          ;;
-      esac
-    done
-    [ "$busy" -eq 0 ] && printf '  agents: none active in this session\n'
+    # The intersection lives in a sourced helper so the flake check can drive it
+    # with a fixed live set. wezterm cannot be stubbed here: writeShellApplication
+    # prepends its runtimeInputs to PATH, so the real binary always wins.
+    if agent_busy_panes "$session" "$live"; then
+      printf '  agents: none active in this session\n'
+    else
+      unfinished=1
+    fi
   fi
 fi
 

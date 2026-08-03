@@ -988,6 +988,7 @@
                 ];
               }
               ''
+                cfg=${./modules/home/programs/llm/config}
                 export HOME="$TMPDIR/home"
                 export XDG_STATE_HOME="$TMPDIR/state"
                 mkdir -p "$HOME" "$XDG_STATE_HOME"
@@ -1070,17 +1071,100 @@
                 reject_out "no upstream" "0 unpushed"
                 expect_rc  "no upstream" 0
 
-                # --- a state file alone must not block -------------------------
-                # It records that a pane HELD a state, not that it still exists.
-                # Assuming liveness turns one crashed session into a permanent
-                # blocker, so an unreadable live set skips the input.
-                s="$TMPDIR/stale"; mkdir -p "$s"; mkrepo "$s/repo-a"
+                # --- liveness, driven directly, both branches --------------------
+                # wezterm cannot be stubbed: agent-review is a writeShellApplication
+                # whose runtimeInputs are prepended to PATH. The intersection is a
+                # sourced helper for exactly that reason, so drive it with a fixed
+                # live set instead of faking a mux.
+                . "$cfg/agent-busy-panes.sh"
                 mkdir -p "$XDG_STATE_HOME/agents/panes"
-                printf '{"status":"working","agent":"claude","session":"stale"}\n' \
-                  > "$XDG_STATE_HOME/agents/panes/99.json"
+                busy_says() {
+                  local label="$1" want_rc="$2" session="$3" live="$4"
+                  set +e
+                  body="$(agent_busy_panes "$session" "$live")"; rc=$?
+                  set -e
+                  [ "$rc" -eq "$want_rc" ] ||
+                    note "$label: agent_busy_panes returned $rc, expected $want_rc"
+                }
+
+                printf '{"status":"working","agent":"claude","session":"s1"}\n' \
+                  > "$XDG_STATE_HOME/agents/panes/42.json"
+
+                # A live pane holding `working` blocks, and is named.
+                busy_says "live pane blocks" 1 s1 "42"
+                expect_out "live pane blocks" "claude is working"
+
+                # A state file whose pane is NOT live is ignored. This is task 1.4's
+                # intersection, which had no coverage at all before.
+                busy_says "dead pane ignored" 0 s1 "7"
+
+                # A state file belonging to another session is ignored.
+                busy_says "other session ignored" 0 s2 "42"
+
+                # An idle state is not busy.
+                printf '{"status":"idle","agent":"claude","session":"s1"}\n' \
+                  > "$XDG_STATE_HOME/agents/panes/42.json"
+                busy_says "idle is not busy" 0 s1 "42"
+                rm -f "$XDG_STATE_HOME/agents/panes"/*.json
+
+                # And end to end: with no live set readable, the report skips rather
+                # than blocking, because assuming liveness turns one crashed session
+                # into a permanent blocker.
+                s="$TMPDIR/stale"; mkdir -p "$s"; mkrepo "$s/repo-a"
                 run "$s"
-                expect_out "stale pane" "agents: skipped"
-                expect_rc  "stale pane" 0
+                expect_out "liveness unknown" "agents: skipped"
+                expect_rc  "liveness unknown" 0
+
+                # --- a clean repo after a dirty one must not clear the verdict ---
+                # `unfinished` is set inside the per-repo loop and never re-checked,
+                # so a reset in the clean branch would regress the whole session.
+                s="$TMPDIR/mixed"; mkdir -p "$s"
+                mkrepo "$s/repo-a"; mkrepo "$s/repo-b"
+                echo two > "$s/repo-a/f"
+                run "$s"
+                expect_rc  "dirty then clean" 1
+                expect_out "dirty then clean" "1 uncommitted"
+
+                # --- an untracked file is unfinished work ------------------------
+                # A file never `git add`ed exists nowhere else: no commit, no remote,
+                # no reflog. A wrong "ready" here is unrecoverable.
+                s="$TMPDIR/untracked"; mkdir -p "$s"; mkrepo "$s/repo-a"
+                echo new > "$s/repo-a/brand-new"
+                run "$s"
+                expect_rc  "untracked" 1
+                expect_out "untracked" "1 uncommitted"
+
+                # --- a detached HEAD blocks, and is named ------------------------
+                # `rev-parse --abbrev-ref HEAD` prints "HEAD" and exits 0 when
+                # detached, so an empty-string test never fires. On a detached head
+                # commits are reachable only from this worktree.
+                s="$TMPDIR/detached"; mkdir -p "$s"; mkrepo "$s/repo-a"
+                echo two > "$s/repo-a/f"
+                git -C "$s/repo-a" commit -qam two
+                git -C "$s/repo-a" checkout -q --detach HEAD
+                run "$s"
+                expect_out "detached" "(detached)"
+                reject_out "detached" "  HEAD "
+                expect_rc  "detached" 1
+
+                # --- SESHY_SESSION names the session the state bus keys on -------
+                # sy-gate passes it because the directory basename need not equal the
+                # logical session name. Dropping the override makes a live agent
+                # invisible.
+                printf '{"status":"working","agent":"claude","session":"logical"}\n' \
+                  > "$XDG_STATE_HOME/agents/panes/42.json"
+                busy_says "SESHY_SESSION names the bus key" 1 logical "42"
+                busy_says "the directory basename would miss it" 0 ondisk "42"
+                rm -f "$XDG_STATE_HOME/agents/panes"/*.json
+
+                # --- an explicit argument wins over the environment --------------
+                s="$TMPDIR/argwins"; mkdir -p "$s"; mkrepo "$s/repo-a"
+                echo two > "$s/repo-a/f"
+                set +e
+                body="$(SESHY_SESSION_PATH="$TMPDIR/ready" agent-review "$s" 2>&1)"; rc=$?
+                set -e
+                expect_rc  "argument beats SESHY_SESSION_PATH" 1
+                expect_out "argument beats SESHY_SESSION_PATH" "1 uncommitted"
 
                 # --- a path that is not a directory skips, and says why --------
                 run "$TMPDIR/absent"
