@@ -1,5 +1,5 @@
 ---
-description: Structures a technical design doc from the Kubernetes KEP skeleton: Summary, Goals/Non-Goals, Proposal, Design Details, Validation, Drawbacks, Alternatives. Use when drafting or reviewing a design doc or technical proposal.
+description: Structures a technical design doc from the Kubernetes KEP skeleton: Summary, Goals/Non-Goals, Proposal, Design Details, Validation, Drawbacks, Alternatives. Use when the open question is HOW to build something already agreed on, not whether to. When the question is whether or which, use `writing-doc-rfc` instead. Use when drafting or reviewing a design doc or technical proposal.
 ---
 
 # Writing a design doc
