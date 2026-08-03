@@ -1157,6 +1157,34 @@
                 busy_says "the directory basename would miss it" 0 ondisk "42"
                 rm -f "$XDG_STATE_HOME/agents/panes"/*.json
 
+                # --- the state reader failing must not block ----------------------
+                # This gate fails OPEN by design (D3). Only a return of 1 means busy;
+                # anything else is the reader itself failing, and treating that as
+                # unfinished would refuse every delete with no way to tell why.
+                s="$TMPDIR/readerfail"; mkdir -p "$s"; mkrepo "$s/repo-a"
+                # A stub wezterm so the script reaches the reader at all. This works
+                # because the assertion sources the raw script; the packaged
+                # writeShellApplication prepends its own runtimeInputs and cannot be
+                # stubbed, which is why the reader is a sourced helper.
+                stub="$TMPDIR/stubbin"; mkdir -p "$stub"
+                # A heredoc, not echo: unquoted `[{"pane_id":42}]` loses its quotes to
+                # the stub shell's own expansion and jq then reads invalid JSON.
+                {
+                  printf '#!/bin/sh\n'
+                  printf 'cat <<EOF\n'
+                  printf '[{"pane_id":42}]\n'
+                  printf 'EOF\n'
+                } > "$stub/wezterm"
+                chmod +x "$stub/wezterm"
+                set +e
+                body="$(PATH="$stub:$PATH" bash -c '
+                  agent_busy_panes() { return 42; }
+                  . '"$cfg"'/agent-review.sh '"$s"'
+                ' 2>&1)"; rc=$?
+                set -e
+                expect_out "reader failure is skipped" "the state reader failed"
+                expect_rc  "reader failure is skipped" 0
+
                 # --- a paused rebase is not clean --------------------------------
                 # The sequencer keeps its state in the gitdir, where
                 # `status --porcelain` reports nothing. Deleting the worktree would

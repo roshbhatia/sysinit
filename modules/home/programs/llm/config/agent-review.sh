@@ -115,11 +115,16 @@ else
     # The intersection lives in a sourced helper so the flake check can drive it
     # with a fixed live set. wezterm cannot be stubbed here: writeShellApplication
     # prepends its runtimeInputs to PATH, so the real binary always wins.
-    if agent_busy_panes "$session" "$live"; then
-      printf '  agents: none active in this session\n'
-    else
-      unfinished=1
-    fi
+    # Only 1 means busy. Any other non-zero is the helper itself failing, and this
+    # gate fails OPEN by design (D3): treating a missing helper or a jq error as
+    # "unfinished" would refuse every delete with no way to tell why.
+    bp=0
+    agent_busy_panes "$session" "$live" || bp=$?
+    case "$bp" in
+      0) printf '  agents: none active in this session\n' ;;
+      1) unfinished=1 ;;
+      *) printf '  agents: skipped, the state reader failed\n' ;;
+    esac
   fi
 fi
 
