@@ -1,9 +1,9 @@
 version: 1
 change: agent-session-review-path
 decision: approved
-note: 'Re-recorded 2026-08-03: agent-review-readiness check added and mutation tested; the pane-resolution overlap settled as a shared agent-pane.sh helper.'
-change_hash: 81b0725e8c21032e
-base_commit: 6c0453d7159acb9d09361f4939179e0753d685c0
+note: 'Round 1 of the phase-1 adversarial review: three defects fixed, four objections recorded as open tasks 1.8 to 1.11. Not a clean pass.'
+change_hash: f46fe1d1d6f77c6d
+base_commit: c6833bec6fddf239f82efd0f62e2689d18965794
 items:
     0bd8c92c94aba443:
         hash: b3a33103634add62
@@ -14,6 +14,9 @@ items:
     2eb93689be692837:
         hash: 84d837b443663de7
         text: Make the gate permissive when the report cannot run, so a session can never become undeletable
+    7b44656bac0e0dd2:
+        hash: 3f87fd91c54177d3
+        text: 'Adversarial review (`adversarial-review` skill), round 1 of K=2: two critics, correctness and test-hollowness lenses. NOT clean. Fixed and verified: the `sy` gate aborted under `errexit` on an unresolvable session name and deleted nothing while printing nothing; a detached HEAD reported `HEAD` as its branch and took the no-upstream carve-out to exit 0; the liveness intersection was extracted to `agent-busy-panes.sh` so it can be driven with a fixed live set. Surviving objections are listed in 1.8 to 1.11; run round 2 after they close'
     8a4c3315df64e5b6:
         hash: de252e711c7700a8
         text: Name `--force` in the refusal message itself
@@ -26,6 +29,9 @@ items:
     31e56d731f13b1c1:
         hash: 00d2b710bfa27807
         text: 'Verify: `nix flake check` and `nh darwin build` are green; review the diff'
+    38e121a4711fff5d:
+        hash: a82cf445735dfb8b
+        text: A configured upstream that no longer resolves, which `fetch.prune` makes routine, is laundered into the permissive no-upstream branch and exits 0. Distinguish `branch.<n>.merge` unset from configured-but-unresolvable
     85eecfad4ec2e7fc:
         hash: b9610909e3d7a278
         text: Treat a branch with no upstream as "no upstream", never as zero unpushed commits
@@ -47,9 +53,15 @@ items:
     206755c6389e5a3e:
         hash: e09dfd7319c31ae5
         text: 'Add the `agent-review-readiness` flake check: fixture repositories for ready, dirty, unpushed, no-upstream, a state file with no live pane set, a path that is not a directory, and a directory holding no repository. Every case asserts the exit code, because that code is what `sy delete` gates on. Mutation tested against five defects, each caught by its own assertion and not by a dependency failure: always-ready, ignore-dirty, ignore-unpushed, dropping the no-upstream note, and a bad path returning success'
-    abf56866ee2e8446:
-        hash: edfe3957fb993d03
-        text: 'Adversarial review (`adversarial-review` skill): critics attempt to break this phase against its spec scenarios; revise until the loop reaches a terminal state'
+    a8a31a42a8f59cb2:
+        hash: 3492236d6904261d
+        text: 'Two of the new assertions do not catch their mutation: removing the detached-HEAD block, and removing the session-key filter in `agent-busy-panes.sh`, both leave the check green. Diagnose and close before claiming either behaviour is covered'
+    a2430e63677c67fd:
+        hash: 2ea34642ad981780
+        text: 'A repo mid-rebase, mid-merge, or mid-cherry-pick reports clean: the sequencer state lives in the gitdir and `status --porcelain` says nothing. Read `rev-parse --git-path rebase-merge`, `MERGE_HEAD`, `CHERRY_PICK_HEAD`'
+    ad262d94a0cc5adc:
+        hash: 0602935a591a47e6
+        text: 'Repository discovery walks upward: run from a repo root and every top-level directory reports as its own repo with the same dirty count. Accept a directory only when `rev-parse --show-toplevel` equals it'
     b294f7740875cb42:
         hash: 8695b17fb0f0ae1d
         text: 'Confirm: all four paths verified in real WezTerm panes. Unfinished refuses and the session survives; `--force` deletes; a clean, pushed session reports ready and deletes; a bad path exits 2 and is permissive'

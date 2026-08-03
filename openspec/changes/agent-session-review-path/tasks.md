@@ -24,15 +24,36 @@
       Mutation tested against five defects, each caught by its own assertion and
       not by a dependency failure: always-ready, ignore-dirty, ignore-unpushed,
       dropping the no-upstream note, and a bad path returning success
-- [ ] 1.7 Adversarial review (`adversarial-review` skill): critics attempt to
-      break this phase against its spec scenarios; revise until the loop reaches
-      a terminal state
-- [x] 1.8 Verify: `nix flake check` and `nh darwin build` are green; the report
+- [ ] 1.7 Adversarial review (`adversarial-review` skill), round 1 of K=2:
+      two critics, correctness and test-hollowness lenses. NOT clean. Fixed and
+      verified: the `sy` gate aborted under `errexit` on an unresolvable session
+      name and deleted nothing while printing nothing; a detached HEAD reported
+      `HEAD` as its branch and took the no-upstream carve-out to exit 0; the
+      liveness intersection was extracted to `agent-busy-panes.sh` so it can be
+      driven with a fixed live set. Surviving objections are listed in 1.8 to 1.11;
+      run round 2 after they close
+- [ ] 1.8 Two of the new assertions do not catch their mutation: removing the
+      detached-HEAD block, and removing the session-key filter in
+      `agent-busy-panes.sh`, both leave the check green. Diagnose and close before
+      claiming either behaviour is covered `deps:` 1.7
+- [ ] 1.9 A repo mid-rebase, mid-merge, or mid-cherry-pick reports clean: the
+      sequencer state lives in the gitdir and `status --porcelain` says nothing.
+      Read `rev-parse --git-path rebase-merge`, `MERGE_HEAD`, `CHERRY_PICK_HEAD`
+      `deps:` 1.7
+- [ ] 1.10 A configured upstream that no longer resolves, which `fetch.prune`
+      makes routine, is laundered into the permissive no-upstream branch and exits
+      0. Distinguish `branch.<n>.merge` unset from configured-but-unresolvable
+      `deps:` 1.7
+- [ ] 1.11 Repository discovery walks upward: run from a repo root and every
+      top-level directory reports as its own repo with the same dirty count.
+      Accept a directory only when `rev-parse --show-toplevel` equals it
+      `deps:` 1.7
+- [x] 1.12 Verify: `nix flake check` and `nh darwin build` are green; the report
       was exercised against fixture repositories covering clean, dirty,
       unpushed, no-upstream, bad-path, and all-clean, with the right exit code
       in every case
-- [x] 1.9 Apply: `nh darwin switch`
-- [x] 1.10 Confirm: verified against a real `sy new` session. The report named
+- [x] 1.13 Apply: `nh darwin switch`
+- [x] 1.14 Confirm: verified against a real `sy new` session. The report named
       the branch `dev/rshnbhatia/review-probe/sysinit` and `no upstream`, which
       matched `git status` and `rev-parse` exactly
 
