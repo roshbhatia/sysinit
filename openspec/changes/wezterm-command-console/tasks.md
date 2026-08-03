@@ -218,12 +218,14 @@
 - [ ] 5.5 Verify: press Ctrl+C in the console during a job. `agent-run` exits
       non-zero and the returned text states that the owner interrupted the command. `deps:` 5.3
 - [ ] 5.6 Extract pane resolution into `config/agent-pane.sh`, sourced by
-      `agent-run.sh` and by the session worker: resolve or create, record the id,
-      confirm liveness against `wezterm cli list`, parse the id as digits on the
-      last line, recreate when the owner closed it. The spool, heartbeat, instance
-      stamp, breaker, and job claiming stay in `agent-run`. Follows the
-      `agent-group.sh` and `agent-review-suffix.sh` pattern: one definition,
-      sourced by every consumer `deps:` 5.3
+      `agent-run.sh` and by `config/wtrun.sh`, which now ships: resolve or create,
+      record the id, confirm liveness against `wezterm cli list`, parse the id as
+      digits on the last line, recreate when the owner closed it, and clear the
+      pane's input line before sending. The spool, heartbeat, instance stamp,
+      breaker, and job claiming stay in `agent-run`. Follows the `agent-group.sh`,
+      `agent-review-suffix.sh`, and `agent-busy-panes.sh` pattern: one definition,
+      sourced by every consumer. `wtrun` already carries working versions of every
+      item in that list, so this is a move, not a design `deps:` 5.3
 - [ ] 5.7 Adversarial review (`adversarial-review` skill): critics attempt to break
       this slice against its spec scenarios, the design decisions, and the rollout
       gates. `deps:` 5.4,5.5

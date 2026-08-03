@@ -1,9 +1,9 @@
 version: 1
 change: wezterm-command-console
 decision: approved
-note: 'Re-recorded 2026-08-03: agent-review-readiness check added and mutation tested; the pane-resolution overlap settled as a shared agent-pane.sh helper.'
-change_hash: 98b2ec18b8338780
-base_commit: 6c0453d7159acb9d09361f4939179e0753d685c0
+note: 'Task 5.6 retargeted: wtrun now ships in the llm config, so the shared pane helper is a move of working code rather than a new design.'
+change_hash: e798524ce518da43
+base_commit: 3c88b9a75706eeeff2cc10620ccaa8b970e14021
 items:
     0e00c2753a3682ec:
         hash: bec4756d3ad22b5e
@@ -71,12 +71,12 @@ items:
     104d5b7ce0674eb0:
         hash: 81b0df646192686e
         text: Honor the `${XDG_STATE_HOME:-$HOME/.local/state}/agents/console.disabled` file in `agent-run.sh` as an immediate pass-through, read fresh on every invocation.
-    179c3baf9f5ebda3:
-        hash: cff2282ff0bcef3d
-        text: 'Extract pane resolution into `config/agent-pane.sh`, sourced by `agent-run.sh` and by the session worker: resolve or create, record the id, confirm liveness against `wezterm cli list`, parse the id as digits on the last line, recreate when the owner closed it. The spool, heartbeat, instance stamp, breaker, and job claiming stay in `agent-run`. Follows the `agent-group.sh` and `agent-review-suffix.sh` pattern: one definition, sourced by every consumer'
     325ef84e7dc5a0bc:
         hash: 9e424eaedb9055b1
         text: 'Stamp every published job with the RUNNER instance identity, and have a starting `agent-console` discard jobs that are not its own. Do not scope the stamp to the WezTerm instance: closing the console pane forces a replacement runner inside the same instance, where a terminal-scoped stamp still matches and the stale `git push origin main` still runs.'
+    503f9f99590b53c8:
+        hash: 248066a1e7e7ba98
+        text: 'Extract pane resolution into `config/agent-pane.sh`, sourced by `agent-run.sh` and by `config/wtrun.sh`, which now ships: resolve or create, record the id, confirm liveness against `wezterm cli list`, parse the id as digits on the last line, recreate when the owner closed it, and clear the pane''s input line before sending. The spool, heartbeat, instance stamp, breaker, and job claiming stay in `agent-run`. Follows the `agent-group.sh`, `agent-review-suffix.sh`, and `agent-busy-panes.sh` pattern: one definition, sourced by every consumer. `wtrun` already carries working versions of every item in that list, so this is a move, not a design'
     715cb8a898dedd3a:
         hash: 3da0c7a80b6fb382
         text: 'Gather: re-read `modules/home/programs/llm/config/claude-bash-guard.sh` and the deny patterns it encodes. Confirm the deny set matches `openspec/specs/cross-harness-destructive-command-guard/spec.md`.'
