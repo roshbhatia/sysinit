@@ -1,9 +1,11 @@
 ## 1. Managed-file helper
 
 - **SHAPE** loop
-- **STOP** `lib/managed-file.nix` passes fixtures for JSON, YAML, and TOML
-  covering: key deletion via the base, harness-added key preservation,
-  three-way conflict refusal, missing base refusal, and schema-failure refusal
+- **STOP** `nix flake check` exits 0 and the `managed-file-reconcile` and
+  `managed-file-merge3` checks each fail when the behaviour they cover is
+  disabled. Between them they cover key deletion via the base, harness-added key
+  preservation, three-way conflict refusal, missing base refusal, and
+  schema-failure refusal
 - **MAX-ITERS** 4
 
 - [x] 1.1 Gather: capture the 23 live target files to `.sysinit/llm-capture-pre/`
@@ -89,8 +91,9 @@
 ## 3. Skill source move and renderer
 
 - **SHAPE** loop
-- **STOP** the sandbox render of all four harness trees is byte-identical to
-  the tree the current Nix path produces, for all 17 skills
+- **STOP** `nix build .#checks.aarch64-darwin.skill-render-shape` exits 0. It
+  reads the frontmatter and expands the includes for every skill, so a
+  regression in either reshapes the render and fails the check
 - **MAX-ITERS** 3
 
 - [ ] 3.1 Gather: snapshot the current rendered trees for claude and amp from

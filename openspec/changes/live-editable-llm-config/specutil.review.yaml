@@ -3,7 +3,7 @@ change: live-editable-llm-config
 decision: approved
 note: 'Re-recorded after the 2026-08-03 STOP-condition pass: every loop STOP now names a command, and phases whose exit is an owner observation were reclassified from loop to graph.'
 change_hash: e0b0117dada1d51e
-base_commit: c798c556486907238ec8ba2e841b79d689c3c60a
+base_commit: cd40b1e7278ea5793208e4039e8036cc5b2648fa
 items:
     0cb88340be5c9d34:
         hash: 4e888e614f067038
