@@ -1052,11 +1052,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1785782319,
-        "narHash": "sha256-dW0Aj+K6qqR4lJMKvJMpYcSvfgWd5rd9kLb7F/23YNg=",
+        "lastModified": 1785783602,
+        "narHash": "sha256-74XlyFo91ly/uVOJaq4k3xkue4CPRj4wZfu42EYMwZg=",
         "owner": "roshbhatia",
         "repo": "specutil",
-        "rev": "c15bcdf4637b7e30915fd0b11dc673f247d45685",
+        "rev": "8db7116d22dd7e14f50e49265fa1a2491034979a",
         "type": "github"
       },
       "original": {
