@@ -1,13 +1,16 @@
 version: 1
 change: agent-session-review-path
 decision: approved
-note: 'Rounds 1 and 2 complete, K=2 reached. Ten defects fixed. Two objections remain open as 1.15: no worktree-shaped fixture, and spec.md still authorises the exit 0 that round 2 fixed.'
-change_hash: 12a5a3447da96f06
-base_commit: 839ae23ae69d923a0db5f894c2d8a09ed5f491f3
+note: 'Phase 1 complete. Adversarial review terminal state CAPPED with zero surviving objections: ten defects closed across two rounds, all mutation tested. STOP rewritten because agreeing with git status could not see reachability.'
+change_hash: 14ea8f67ec9f5bdc
+base_commit: 5f0e0ebf84ff96361aba4982b9628eebe73c96af
 items:
     0bd8c92c94aba443:
         hash: b3a33103634add62
         text: Add the agent-state check, intersecting state files with the live pane set and skipping the input entirely when that set is unknown
+    1f7b78db9c02fe1c:
+        hash: d0f4d5bd2208bb6a
+        text: 'Adversarial review (`adversarial-review` skill), rounds 1 and 2 of K=2. Terminal state CAPPED with zero surviving objections: ten defects found across two rounds, all closed and mutation tested, but no round returned clean on its first pass, so this is not reported as a clean review. One defect was caused by a round-1 fix. The round-2 finding that mattered: commits reachable from no other ref exited 0, and the new predicate found real work at risk in two live sessions'
     2b60b04574ac572d:
         hash: da6b246a0466599e
         text: 'Apply: `nh darwin switch`'
@@ -50,9 +53,9 @@ items:
     206755c6389e5a3e:
         hash: e09dfd7319c31ae5
         text: 'Add the `agent-review-readiness` flake check: fixture repositories for ready, dirty, unpushed, no-upstream, a state file with no live pane set, a path that is not a directory, and a directory holding no repository. Every case asserts the exit code, because that code is what `sy delete` gates on. Mutation tested against five defects, each caught by its own assertion and not by a dependency failure: always-ready, ignore-dirty, ignore-unpushed, dropping the no-upstream note, and a bad path returning success'
-    2833317c24d88875:
-        hash: e70f99c9c7bd72f5
-        text: 'Round 2 objections still open, reported as open work because K=2 is reached: no fixture uses the worktree shape seshy actually creates, so fix 4''s per-worktree marker resolution and fix 6''s toplevel equality are both unexercised; and `spec.md` still authorises the exit 0 that O1 fixed, so the spec and the implementation now disagree'
+    a23ac3e07633d88c:
+        hash: a0b9048d27d494da
+        text: 'Both round-2 objections closed. A linked-worktree fixture now covers the shape seshy actually creates: discovery, a local-only commit, a paused rebase whose markers live under the worktree gitdir, and a dirty tree. Mutation tested: breaking relative marker resolution fails the standalone cases and leaves the worktree ones green, so the two exercise different code paths. The spec now carries the reachability scenario, so it no longer authorises the exit 0 that lost work'
     b294f7740875cb42:
         hash: 8695b17fb0f0ae1d
         text: 'Confirm: all four paths verified in real WezTerm panes. Unfinished refuses and the session survives; `--force` deletes; a clean, pushed session reports ready and deletes; a bad path exits 2 and is permissive'
@@ -68,9 +71,6 @@ items:
     d9996223e67e2ca2:
         hash: 09d64c515c48462f
         text: 'Verify: `nix flake check` and `nh darwin build` are green; the report was exercised against fixture repositories covering clean, dirty, unpushed, no-upstream, bad-path, and all-clean, with the right exit code in every case'
-    e426da9fefb438cc:
-        hash: 86f20e90c0618c87
-        text: 'Adversarial review (`adversarial-review` skill), rounds 1 and 2 of K=2. Round 1, two critics, found six defects. Round 2 found four more blocking, one of them caused by a round-1 fix. All ten are fixed and mutation tested. The one that mattered most: commits reachable from no other ref exited 0, and the new predicate found real work at risk in two live sessions. K=2 is reached, so the remaining objections are open work, not a pass. See 1.15'
     ef1b5f757ad9610d:
         hash: f499b43944df2b57
         text: 'Verify: `openspec validate agent-session-review-path` passes and `specutil check` reports no finding'

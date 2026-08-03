@@ -1311,6 +1311,43 @@
                 expect_out "ambient git env ignored" "1 uncommitted"
                 expect_rc  "ambient git env ignored" 1
 
+                # --- the shape seshy actually creates: a linked worktree ----------
+                # Every other fixture is a standalone `git init`, which seshy never
+                # produces. Fix 4 rests on `--git-path` resolving per-worktree markers
+                # into .git/worktrees/<n>/, and fix 6 on `--show-toplevel` equalling
+                # the physical path of a LINKED worktree. Neither was exercised.
+                main="$TMPDIR/mainrepo"
+                mkrepo "$main"
+                s="$TMPDIR/wt"; mkdir -p "$s"
+                git -C "$main" worktree add -q "$s/repo-a" -b dev/session/repo-a HEAD
+
+                # Discovery must accept a linked worktree as a repository root.
+                run "$s"
+                expect_out "worktree is discovered" "dev/session/repo-a"
+                expect_rc  "worktree is discovered" 0
+
+                # A commit in the worktree exists on no other ref.
+                echo work > "$s/repo-a/f"; git -C "$s/repo-a" commit -qam work
+                run "$s"
+                expect_out "worktree local commit" "1 commits nowhere else"
+                expect_rc  "worktree local commit" 1
+
+                # A paused rebase in a worktree keeps its markers under
+                # .git/worktrees/<n>/, which is what `--git-path` must resolve.
+                echo more > "$s/repo-a/f"; git -C "$s/repo-a" commit -qam more
+                GIT_SEQUENCE_EDITOR="sed -i.bak '2s/^pick/break/'" \
+                  git -C "$s/repo-a" rebase -i HEAD~2 > /dev/null 2>&1 || true
+                run "$s"
+                expect_out "worktree paused rebase" "mid-rebase-merge"
+                expect_rc  "worktree paused rebase" 1
+                git -C "$s/repo-a" rebase --abort > /dev/null 2>&1 || true
+
+                # An uncommitted change in a worktree still counts.
+                echo dirty > "$s/repo-a/f"
+                run "$s"
+                expect_out "worktree dirty" "uncommitted"
+                expect_rc  "worktree dirty" 1
+
                 # --- examining nothing is unknown, not ready --------------------
                 # Exit 2 is permissive at the gate, so nothing is trapped, but the
                 # owner is told. Reporting 0 here made "found no repository" and

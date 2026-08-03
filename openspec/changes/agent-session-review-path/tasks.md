@@ -1,8 +1,11 @@
 ## 1. The readiness report
 
 - **SHAPE** loop
-- **STOP** `agent-review` matches `git status` in every repository of a real
-  session and exits non-zero only when something is unfinished
+- **STOP** `nix build .#checks.aarch64-darwin.agent-review-readiness` exits 0, and
+  each of its cases fails when the behaviour it covers is disabled. It agreeing
+  with `git status` is not sufficient: a report can match `git status` in every
+  repository and still exit 0 on commits reachable from no other ref, which is the
+  state that actually loses work
 - **MAX-ITERS** 4
 
 - [x] 1.1 Spike result: seshy passes hook environment variables, confirmed by a
@@ -24,13 +27,13 @@
       Mutation tested against five defects, each caught by its own assertion and
       not by a dependency failure: always-ready, ignore-dirty, ignore-unpushed,
       dropping the no-upstream note, and a bad path returning success
-- [ ] 1.7 Adversarial review (`adversarial-review` skill), rounds 1 and 2 of K=2.
-      Round 1, two critics, found six defects. Round 2 found four more blocking,
-      one of them caused by a round-1 fix. All ten are fixed and mutation tested.
-      The one that mattered most: commits reachable from no other ref exited 0,
-      and the new predicate found real work at risk in two live sessions. K=2 is
-      reached, so the remaining objections are open work, not a pass. See 1.15
-      `deps:` 1.6
+- [x] 1.7 Adversarial review (`adversarial-review` skill), rounds 1 and 2 of K=2.
+      Terminal state CAPPED with zero surviving objections: ten defects found
+      across two rounds, all closed and mutation tested, but no round returned
+      clean on its first pass, so this is not reported as a clean review. One
+      defect was caused by a round-1 fix. The round-2 finding that mattered:
+      commits reachable from no other ref exited 0, and the new predicate found
+      real work at risk in two live sessions `deps:` 1.6
 - [x] 1.8 Both assertions do catch their mutation. The earlier negative result was
       a bad method: deleting a line leaves its variable unused, shellcheck fails the
       `agent-review` package build, and the check derivation never runs, so a
@@ -54,11 +57,13 @@
       must equal the directory. `--git-dir` walks upward, so running the report
       from a repo root previously reported every top-level directory as its own
       repository carrying the same dirty count `deps:` 1.7
-- [ ] 1.15 Round 2 objections still open, reported as open work because K=2 is
-      reached: no fixture uses the worktree shape seshy actually creates, so fix 4's
-      per-worktree marker resolution and fix 6's toplevel equality are both
-      unexercised; and `spec.md` still authorises the exit 0 that O1 fixed, so the
-      spec and the implementation now disagree `deps:` 1.7
+- [x] 1.15 Both round-2 objections closed. A linked-worktree fixture now covers
+      the shape seshy actually creates: discovery, a local-only commit, a paused
+      rebase whose markers live under the worktree gitdir, and a dirty tree.
+      Mutation tested: breaking relative marker resolution fails the standalone
+      cases and leaves the worktree ones green, so the two exercise different code
+      paths. The spec now carries the reachability scenario, so it no longer
+      authorises the exit 0 that lost work `deps:` 1.7
 - [x] 1.12 Verify: `nix flake check` and `nh darwin build` are green; the report
       was exercised against fixture repositories covering clean, dirty,
       unpushed, no-upstream, bad-path, and all-clean, with the right exit code

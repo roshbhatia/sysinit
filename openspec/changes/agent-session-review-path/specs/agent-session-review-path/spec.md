@@ -42,9 +42,22 @@ is on the path of an interactive command.
 - **THEN** the report does not count its commits as unpushed
 - **AND** it says the branch has no upstream rather than reporting a number it
   cannot compute
-- **AND** the missing upstream does NOT make the session unfinished, because
+- **AND** the missing upstream ALONE does NOT make the session unfinished, because
   seshy creates every session branch without one and blocking on it would
   refuse the most common delete on this machine
+
+#### Scenario: A commit reachable from no other ref makes the session unfinished
+
+- **POLARITY** negative
+- **WHEN** a repository holds a commit reachable from no branch, tag, or
+  remote-tracking ref other than the checked-out branch itself
+- **THEN** the report exits non-zero and names how many such commits there are
+- **AND** it does so whether or not an upstream is configured, because a missing
+  upstream does not measure this: `sy delete` removes the worktree and then runs
+  `git branch -D`, which never refuses an unmerged branch, so the commit
+  becomes unreachable
+- **AND** a session whose HEAD is reachable from another ref is still ready, so
+  the common delete is not refused
 
 #### Scenario: A gate that cannot report still reaches its decision
 
