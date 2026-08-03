@@ -975,6 +975,8 @@
                 nativeBuildInputs = [
                   pkgs.ripgrep
                   pkgs.bash
+                  # agent_review_suffix reads the state file with jq.
+                  pkgs.jq
                 ];
               }
               ''
@@ -1043,18 +1045,62 @@
 
                 # --- defect 5: the toast body names where and how long --------
                 # A "done" toast that says only "finished its turn" makes the
-                # human switch to find out what changed.
-                rg -q 'agents/panes/\$pane.json' "$cfg/agent-notify.sh" ||
-                  note "agent-notify does not read the per-pane state file; the body cannot name the repo, branch, or age"
+                # human switch to find out what changed. Asserted by running the
+                # composer over fixtures rather than by grepping for its parts: a
+                # presence-grep passes on code that is present and wrong.
+                . "$cfg/agent-review-suffix.sh"
+                # The helper builds the path from XDG_STATE_HOME, so a fixture
+                # tree is pointed at rather than passed in.
+                export XDG_STATE_HOME="$TMPDIR/state"
+                fixtures="$XDG_STATE_HOME/agents/panes"
+                mkdir -p "$fixtures"
 
-                # The fields must be split on a NON-whitespace separator. Tab and
-                # newline are IFS whitespace, so bash collapses runs of them and an
-                # empty field shifts every later value left: a repo with no branch
-                # reads the timestamp as its branch name.
-                rg -q 'join\("' "$cfg/agent-notify.sh" ||
-                  note "the state-file fields are not joined on \\u0001; an empty field will shift the rest"
-                rg -q 'IFS=\$\(printf' "$cfg/agent-notify.sh" ||
-                  note "the state-file fields are not split on the matching separator"
+                suffix_is() {
+                  local label="$1" want="$2" got="$3"
+                  [ "$got" = "$want" ] ||
+                    note "review suffix ($label): got '$got', want '$want'"
+                }
+
+                # Every field present. `now` is passed so the elapsed-time
+                # formatting is asserted against a fixed clock.
+                echo '{"repo":"sysinit","branch":"main","dirty":true,"since":1000}' > "$fixtures/full.json"
+                suffix_is "all fields" " — sysinit · main ✱ — 1s" \
+                  "$(agent_review_suffix full 1001)"
+
+                # An empty field must not shift the rest. This is the tab-versus-\001
+                # defect: tab is IFS whitespace, so bash collapses runs of it and a
+                # repo with no branch reads the timestamp as its branch name.
+                echo '{"repo":"sysinit","branch":"","dirty":false,"since":0}' > "$fixtures/nobranch.json"
+                suffix_is "empty branch" " — sysinit" \
+                  "$(agent_review_suffix nobranch 1001)"
+
+                # Elapsed time rolls over into minutes and hours.
+                echo '{"repo":"r","since":1000}' > "$fixtures/age.json"
+                suffix_is "90s reads as minutes" " — r — 1m" \
+                  "$(agent_review_suffix age 1090)"
+                suffix_is "2h reads as hours" " — r — 2h" \
+                  "$(agent_review_suffix age 8200)"
+
+                # Degrade to the harness message alone rather than emitting junk.
+                suffix_is "missing file" "" \
+                  "$(agent_review_suffix absent 1001)"
+                echo 'not json' > "$fixtures/bad.json"
+                suffix_is "unparseable file" "" \
+                  "$(agent_review_suffix bad 1001)"
+
+                # A future timestamp must not print a negative age.
+                suffix_is "clock skew" " — r" \
+                  "$(agent_review_suffix age 900)"
+
+                # The notifier must call the helper, not carry its own copy.
+                rg -q 'agent_review_suffix' "$cfg/agent-notify.sh" ||
+                  note "agent-notify does not call agent_review_suffix; the body cannot name the repo, branch, or age"
+                stray_suffix="$(
+                  rg -l 'agents/panes/\$pane\.json' "$cfg" 2> /dev/null |
+                    rg -v 'agent-review-suffix\.sh' || true
+                )"
+                [ -z "$stray_suffix" ] ||
+                  note "the state-file read was copied outside agent-review-suffix.sh: $stray_suffix"
 
                 # --- defect 6: agent-notify is the only toast producer --------
                 # The agent-deck flag is a Lua literal, so nothing else reads it.

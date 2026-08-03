@@ -141,6 +141,11 @@ let
   # kept separate from `identity`: agent-focus needs the group and nothing else
   group = builtins.readFile ./agent-group.sh;
 
+  # The review-path suffix a done toast carries. Prepended into the notifier and
+  # read by the notify-defect-regressions check, so the shipped body and the
+  # asserted body are the same code.
+  reviewSuffix = builtins.readFile ./agent-review-suffix.sh;
+
   icons = pkgs.runCommand "agent-notify-icons" { nativeBuildInputs = [ pkgs.librsvg ]; } (
     assertGenericDisjoint
     + assertCoverageTotal
@@ -166,7 +171,7 @@ let
     ];
     # best-effort: no errexit, it must never abort the agent
     bashOptions = [ ];
-    text = group + "\n" + identity + "\n" + builtins.readFile ./agent-notify.sh;
+    text = group + "\n" + reviewSuffix + "\n" + identity + "\n" + builtins.readFile ./agent-notify.sh;
   };
 
   # Per-pane lifecycle-state emitter (see agent-state.sh). Writes an OSC 1337

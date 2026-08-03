@@ -151,46 +151,10 @@ body=${msg:-$what}
 
 # Name the review path in the body, so the human knows what changed before
 # switching. Degrades to the harness message alone if the state file is unusable.
+# The suffix is composed by a sourced helper so the flake check can assert the
+# same code the toast uses, rather than a copy of it.
 if [ -n "$pane" ]; then
-  state_file="${XDG_STATE_HOME:-$HOME/.local/state}/agents/panes/$pane.json"
-  if [ -f "$state_file" ]; then
-    # \001, not tab: tab is IFS whitespace, so bash collapses runs of it and an
-    # empty field shifts every later value left
-    st=$(jq -rj '[.repo // "", .branch // "", (if .dirty then "dirty" else "" end), (.since // 0 | tostring)] | join("\u0001")' "$state_file" 2> /dev/null) || st=""
-    if [ -n "$st" ]; then
-      IFS=$(printf '\001') read -r s_repo s_branch s_dirty s_since <<< "$st"
-
-      where=""
-      [ -n "$s_repo" ] && where="$s_repo"
-      if [ -n "$s_branch" ]; then
-        [ -n "$where" ] && where="$where · $s_branch" || where="$s_branch"
-      fi
-      [ -n "$s_dirty" ] && [ -n "$where" ] && where="$where ✱"
-
-      age=""
-      case "$s_since" in
-        '' | *[!0-9]*) : ;;
-        0) : ;;
-        *)
-          now=$(date +%s 2> /dev/null) || now=0
-          secs=$((now - s_since))
-          if [ "$secs" -ge 0 ] 2> /dev/null; then
-            if [ "$secs" -lt 60 ]; then
-              age="${secs}s"
-            elif [ "$secs" -lt 3600 ]; then
-              age="$((secs / 60))m"
-            else
-              age="$((secs / 3600))h"
-            fi
-          fi
-          ;;
-      esac
-
-      for part in "$where" "$age"; do
-        [ -n "$part" ] && body="$body — $part"
-      done
-    fi
-  fi
+  body="$body$(agent_review_suffix "$pane")"
 fi
 group=$(agent_group "$agent" "$context" "$pane")
 
