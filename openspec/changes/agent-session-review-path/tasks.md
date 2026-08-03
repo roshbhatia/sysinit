@@ -24,14 +24,19 @@
       Mutation tested against five defects, each caught by its own assertion and
       not by a dependency failure: always-ready, ignore-dirty, ignore-unpushed,
       dropping the no-upstream note, and a bad path returning success
-- [ ] 1.7 Adversarial review (`adversarial-review` skill), round 1 of K=2:
-      two critics, correctness and test-hollowness lenses. NOT clean. Fixed and
-      verified: the `sy` gate aborted under `errexit` on an unresolvable session
-      name and deleted nothing while printing nothing; a detached HEAD reported
-      `HEAD` as its branch and took the no-upstream carve-out to exit 0; the
-      liveness intersection was extracted to `agent-busy-panes.sh` so it can be
-      driven with a fixed live set. Surviving objections are listed in 1.8 to 1.11;
-      run round 2 after they close
+- [ ] 1.7 Adversarial review (`adversarial-review` skill), rounds 1 and 2 of K=2.
+      Round 1 (two critics: correctness, test-hollowness) found six defects, all
+      fixed and mutation tested. Round 2 found four more blocking, one of which
+      round 1's own fix caused. Fixed in round 2: commits reachable from no other
+      ref exited 0, which is the state that actually loses work and which found
+      real work at risk in two live sessions; a bare `sy delete` bypassed the gate
+      entirely; `$root` itself being a repo examined nothing and reported ready; a
+      dot-named repo was invisible to the report and destroyed by the delete;
+      ambient `GIT_DIR` made every candidate mismatch; the gate execed silently on
+      any exit code outside 0 and 1; `sy remove` was told to run `sy delete
+      --force`; `sequencer/todo` was missing from the marker list. K=2 is reached,
+      so the remaining objections are reported as open work, not as a pass. See
+      1.15 `deps:` 1.6
 - [x] 1.8 Both assertions do catch their mutation. The earlier negative result was
       a bad method: deleting a line leaves its variable unused, shellcheck fails the
       `agent-review` package build, and the check derivation never runs, so a
@@ -55,6 +60,11 @@
       must equal the directory. `--git-dir` walks upward, so running the report
       from a repo root previously reported every top-level directory as its own
       repository carrying the same dirty count `deps:` 1.7
+- [ ] 1.15 Round 2 objections still open, reported as open work because K=2 is
+      reached: no fixture uses the worktree shape seshy actually creates, so fix 4's
+      per-worktree marker resolution and fix 6's toplevel equality are both
+      unexercised; and `spec.md` still authorises the exit 0 that O1 fixed, so the
+      spec and the implementation now disagree `deps:` 1.7
 - [x] 1.12 Verify: `nix flake check` and `nh darwin build` are green; the report
       was exercised against fixture repositories covering clean, dirty,
       unpushed, no-upstream, bad-path, and all-clean, with the right exit code

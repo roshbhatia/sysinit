@@ -1,9 +1,9 @@
 version: 1
 change: agent-session-review-path
 decision: approved
-note: Round 1 objections all closed and mutation tested. Round 2 critic in flight; 1.7 stays open until it reports.
-change_hash: 33a2dc1841af57a0
-base_commit: 5879b0f02e3dc304367183c0317c50d81870bfd0
+note: 'Rounds 1 and 2 complete, K=2 reached. Ten defects fixed. Two objections remain open as 1.15: no worktree-shaped fixture, and spec.md still authorises the exit 0 that O1 fixed.'
+change_hash: 28e3897c167e37a3
+base_commit: b05e020bd8e724efd22c874060d3439daede173a
 items:
     0bd8c92c94aba443:
         hash: b3a33103634add62
@@ -14,9 +14,6 @@ items:
     2eb93689be692837:
         hash: 84d837b443663de7
         text: Make the gate permissive when the report cannot run, so a session can never become undeletable
-    7b44656bac0e0dd2:
-        hash: 3f87fd91c54177d3
-        text: 'Adversarial review (`adversarial-review` skill), round 1 of K=2: two critics, correctness and test-hollowness lenses. NOT clean. Fixed and verified: the `sy` gate aborted under `errexit` on an unresolvable session name and deleted nothing while printing nothing; a detached HEAD reported `HEAD` as its branch and took the no-upstream carve-out to exit 0; the liveness intersection was extracted to `agent-busy-panes.sh` so it can be driven with a fixed live set. Surviving objections are listed in 1.8 to 1.11; run round 2 after they close'
     8a4c3315df64e5b6:
         hash: de252e711c7700a8
         text: Name `--force` in the refusal message itself
@@ -53,6 +50,14 @@ items:
     206755c6389e5a3e:
         hash: e09dfd7319c31ae5
         text: 'Add the `agent-review-readiness` flake check: fixture repositories for ready, dirty, unpushed, no-upstream, a state file with no live pane set, a path that is not a directory, and a directory holding no repository. Every case asserts the exit code, because that code is what `sy delete` gates on. Mutation tested against five defects, each caught by its own assertion and not by a dependency failure: always-ready, ignore-dirty, ignore-unpushed, dropping the no-upstream note, and a bad path returning success'
+    2833317c24d88875:
+        hash: e70f99c9c7bd72f5
+        text: 'Round 2 objections still open, reported as open work because K=2 is reached: no fixture uses the worktree shape seshy actually creates, so fix 4''s per-worktree marker resolution and fix 6''s toplevel equality are both unexercised; and `spec.md` still authorises the exit 0 that O1 fixed, so the spec and the implementation now disagree'
+    b21c6aed2db8c025:
+        hash: 21b5ccb1778fd45d
+        text: |-
+            1.7 Adversarial review (`adversarial-review` skill), rounds 1 and 2 of K=2. Round 1 (two critics: correctness, test-hollowness) found six defects, all fixed and mutation tested. Round 2 found four more blocking, one of which round 1's own fix caused. Fixed in round 2: commits reachable from no other ref exited 0, which is the state that actually loses work and which found real work at risk in two live sessions; a bare `sy delete` bypassed the gate entirely; `$root` itself being a repo examined nothing and reported ready; a dot-named repo was invisible to the report and destroyed by the delete; ambient `GIT_DIR` made every candidate mismatch; the gate execed silently on any exit code outside 0 and 1; `sy remove` was told to run `sy delete
+            --force`; `sequencer/todo` was missing from the marker list. K=2 is reached, so the remaining objections are reported as open work, not as a pass. See 1.15
     b294f7740875cb42:
         hash: 8695b17fb0f0ae1d
         text: 'Confirm: all four paths verified in real WezTerm panes. Unfinished refuses and the session survives; `--force` deletes; a clean, pushed session reports ready and deletes; a bad path exits 2 and is permissive'
