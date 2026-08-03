@@ -1157,6 +1157,60 @@
                 busy_says "the directory basename would miss it" 0 ondisk "42"
                 rm -f "$XDG_STATE_HOME/agents/panes"/*.json
 
+                # --- a paused rebase is not clean --------------------------------
+                # The sequencer keeps its state in the gitdir, where
+                # `status --porcelain` reports nothing. Deleting the worktree would
+                # discard every commit the rebase had already applied.
+                s="$TMPDIR/midrebase"; mkdir -p "$s"; mkrepo "$s/repo-a"
+                echo two > "$s/repo-a/f"; git -C "$s/repo-a" commit -qam two
+                echo three > "$s/repo-a/f"; git -C "$s/repo-a" commit -qam three
+                GIT_SEQUENCE_EDITOR="sed -i.bak '2s/^pick/break/'" \
+                  git -C "$s/repo-a" rebase -i HEAD~2 > /dev/null 2>&1 || true
+                run "$s"
+                expect_out "paused rebase" "mid-rebase-merge"
+                expect_rc  "paused rebase" 1
+                git -C "$s/repo-a" rebase --abort > /dev/null 2>&1 || true
+
+                # --- a merge paused on conflict is not clean ---------------------
+                s="$TMPDIR/midmerge"; mkdir -p "$s"; mkrepo "$s/repo-a"
+                git -C "$s/repo-a" checkout -q -b other
+                echo other > "$s/repo-a/f"; git -C "$s/repo-a" commit -qam other
+                git -C "$s/repo-a" checkout -q main
+                echo main > "$s/repo-a/f"; git -C "$s/repo-a" commit -qam main
+                git -C "$s/repo-a" merge other > /dev/null 2>&1 || true
+                run "$s"
+                expect_out "paused merge" "mid-MERGE_HEAD"
+                expect_rc  "paused merge" 1
+
+                # --- a configured upstream that no longer resolves blocks ---------
+                # `fetch.prune` is set globally, so this is routine after a
+                # merge-and-delete. It must NOT take the benign no-upstream carve-out:
+                # the local commits may exist nowhere else.
+                s="$TMPDIR/gone"; mkdir -p "$s"; mkrepo "$s/repo-a"
+                echo two > "$s/repo-a/f"; git -C "$s/repo-a" commit -qam two
+                git -C "$s/repo-a" update-ref -d refs/remotes/origin/main
+                run "$s"
+                expect_out "upstream gone" "upstream gone"
+                reject_out "upstream gone" "(no upstream)"
+                expect_rc  "upstream gone" 1
+
+                # --- discovery accepts a repository root only ---------------------
+                # `rev-parse --git-dir` walks upward, so without a toplevel check every
+                # top-level directory of one repo reports as its own repository.
+                s="$TMPDIR/nested"; mkdir -p "$s"; mkrepo "$s/repo-a"
+                mkdir -p "$s/repo-a/sub-one" "$s/repo-a/sub-two"
+                echo x > "$s/repo-a/sub-one/f"
+                run "$s"
+                [ "$(printf '%s\n' "$body" | grep -c 'sub-one\|sub-two')" -eq 0 ] ||
+                  note "discovery reported a subdirectory of a repo as its own repository"
+                # And running FROM a repo root reports that repo once, not once per
+                # top-level directory.
+                set +e
+                body="$(cd "$s/repo-a" && agent-review . 2>&1)"; rc=$?
+                set -e
+                [ "$(printf '%s\n' "$body" | grep -c 'uncommitted')" -le 1 ] ||
+                  note "running from a repo root reported the dirty count more than once"
+
                 # --- an explicit argument wins over the environment --------------
                 s="$TMPDIR/argwins"; mkdir -p "$s"; mkrepo "$s/repo-a"
                 echo two > "$s/repo-a/f"

@@ -24,7 +24,12 @@ printf 'session %s\n' "$session"
 for repo_dir in "$root"/*/; do
   [ -d "$repo_dir" ] || continue
   repo=$(basename "$repo_dir")
-  git -C "$repo_dir" rev-parse --git-dir > /dev/null 2>&1 || continue
+  # A repository ROOT, not any directory inside one: `rev-parse --git-dir` walks
+  # upward, so without this every top-level directory of a repo reports as its own
+  # repository carrying that repo's dirty count.
+  top=$(git -C "$repo_dir" rev-parse --show-toplevel 2> /dev/null) || continue
+  here=$(cd "$repo_dir" 2> /dev/null && pwd -P) || continue
+  [ "$top" = "$here" ] || continue
 
   # `rev-parse --abbrev-ref HEAD` prints the literal "HEAD" on a detached head and
   # exits 0, so an empty-string test never fires. agent-identity.sh:48 already
@@ -38,10 +43,33 @@ for repo_dir in "$root"/*/; do
 
   dirty=$(git -C "$repo_dir" status --porcelain 2> /dev/null | grep -c '') || dirty=0
 
+  # A paused rebase, merge, or cherry-pick keeps its state in the gitdir, where
+  # `status --porcelain` reports nothing. Deleting the worktree then discards every
+  # commit the operation had already applied.
+  midop=""
+  for marker in rebase-merge rebase-apply MERGE_HEAD CHERRY_PICK_HEAD REVERT_HEAD BISECT_LOG; do
+    gp=$(git -C "$repo_dir" rev-parse --git-path "$marker" 2> /dev/null) || continue
+    case "$gp" in
+      /*) : ;;
+      *) gp="$repo_dir/$gp" ;;
+    esac
+    if [ -e "$gp" ]; then
+      midop="$marker"
+      break
+    fi
+  done
+
   # no upstream means "unpushed" has no answer, so do not print a misleading 0
   if git -C "$repo_dir" rev-parse --abbrev-ref '@{upstream}' > /dev/null 2>&1; then
     ahead=$(git -C "$repo_dir" rev-list --count '@{upstream}..HEAD' 2> /dev/null) || ahead=0
     upstream="yes"
+  elif [ "$detached" -eq 0 ] &&
+    git -C "$repo_dir" config --get "branch.$branch.merge" > /dev/null 2>&1; then
+    # Configured but unresolvable: the remote-tracking ref is gone, which
+    # `fetch.prune` makes routine after a merge-and-delete. Local commits may exist
+    # nowhere else, so this must not take the benign carve-out below.
+    ahead=0
+    upstream="gone"
   else
     ahead=0
     upstream="no"
@@ -57,6 +85,8 @@ for repo_dir in "$root"/*/; do
   # no-upstream carve-out below was written for a seshy-created branch and must
   # not launder this case into "clean".
   [ "$detached" -eq 1 ] && problems="$problems detached HEAD"
+  [ -n "$midop" ] && problems="$problems mid-$midop"
+  [ "$upstream" = "gone" ] && problems="$problems upstream gone"
 
   note=""
   [ "$upstream" = "no" ] && note=" (no upstream)"
