@@ -25,18 +25,12 @@
       not by a dependency failure: always-ready, ignore-dirty, ignore-unpushed,
       dropping the no-upstream note, and a bad path returning success
 - [ ] 1.7 Adversarial review (`adversarial-review` skill), rounds 1 and 2 of K=2.
-      Round 1 (two critics: correctness, test-hollowness) found six defects, all
-      fixed and mutation tested. Round 2 found four more blocking, one of which
-      round 1's own fix caused. Fixed in round 2: commits reachable from no other
-      ref exited 0, which is the state that actually loses work and which found
-      real work at risk in two live sessions; a bare `sy delete` bypassed the gate
-      entirely; `$root` itself being a repo examined nothing and reported ready; a
-      dot-named repo was invisible to the report and destroyed by the delete;
-      ambient `GIT_DIR` made every candidate mismatch; the gate execed silently on
-      any exit code outside 0 and 1; `sy remove` was told to run `sy delete
-      --force`; `sequencer/todo` was missing from the marker list. K=2 is reached,
-      so the remaining objections are reported as open work, not as a pass. See
-      1.15 `deps:` 1.6
+      Round 1, two critics, found six defects. Round 2 found four more blocking,
+      one of them caused by a round-1 fix. All ten are fixed and mutation tested.
+      The one that mattered most: commits reachable from no other ref exited 0,
+      and the new predicate found real work at risk in two live sessions. K=2 is
+      reached, so the remaining objections are open work, not a pass. See 1.15
+      `deps:` 1.6
 - [x] 1.8 Both assertions do catch their mutation. The earlier negative result was
       a bad method: deleting a line leaves its variable unused, shellcheck fails the
       `agent-review` package build, and the check derivation never runs, so a

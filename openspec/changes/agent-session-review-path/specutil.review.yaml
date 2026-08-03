@@ -1,9 +1,9 @@
 version: 1
 change: agent-session-review-path
 decision: approved
-note: 'Rounds 1 and 2 complete, K=2 reached. Ten defects fixed. Two objections remain open as 1.15: no worktree-shaped fixture, and spec.md still authorises the exit 0 that O1 fixed.'
-change_hash: 28e3897c167e37a3
-base_commit: b05e020bd8e724efd22c874060d3439daede173a
+note: 'Rounds 1 and 2 complete, K=2 reached. Ten defects fixed. Two objections remain open as 1.15: no worktree-shaped fixture, and spec.md still authorises the exit 0 that round 2 fixed.'
+change_hash: 12a5a3447da96f06
+base_commit: 839ae23ae69d923a0db5f894c2d8a09ed5f491f3
 items:
     0bd8c92c94aba443:
         hash: b3a33103634add62
@@ -53,11 +53,6 @@ items:
     2833317c24d88875:
         hash: e70f99c9c7bd72f5
         text: 'Round 2 objections still open, reported as open work because K=2 is reached: no fixture uses the worktree shape seshy actually creates, so fix 4''s per-worktree marker resolution and fix 6''s toplevel equality are both unexercised; and `spec.md` still authorises the exit 0 that O1 fixed, so the spec and the implementation now disagree'
-    b21c6aed2db8c025:
-        hash: 21b5ccb1778fd45d
-        text: |-
-            1.7 Adversarial review (`adversarial-review` skill), rounds 1 and 2 of K=2. Round 1 (two critics: correctness, test-hollowness) found six defects, all fixed and mutation tested. Round 2 found four more blocking, one of which round 1's own fix caused. Fixed in round 2: commits reachable from no other ref exited 0, which is the state that actually loses work and which found real work at risk in two live sessions; a bare `sy delete` bypassed the gate entirely; `$root` itself being a repo examined nothing and reported ready; a dot-named repo was invisible to the report and destroyed by the delete; ambient `GIT_DIR` made every candidate mismatch; the gate execed silently on any exit code outside 0 and 1; `sy remove` was told to run `sy delete
-            --force`; `sequencer/todo` was missing from the marker list. K=2 is reached, so the remaining objections are reported as open work, not as a pass. See 1.15
     b294f7740875cb42:
         hash: 8695b17fb0f0ae1d
         text: 'Confirm: all four paths verified in real WezTerm panes. Unfinished refuses and the session survives; `--force` deletes; a clean, pushed session reports ready and deletes; a bad path exits 2 and is permissive'
@@ -73,6 +68,9 @@ items:
     d9996223e67e2ca2:
         hash: 09d64c515c48462f
         text: 'Verify: `nix flake check` and `nh darwin build` are green; the report was exercised against fixture repositories covering clean, dirty, unpushed, no-upstream, bad-path, and all-clean, with the right exit code in every case'
+    e426da9fefb438cc:
+        hash: 86f20e90c0618c87
+        text: 'Adversarial review (`adversarial-review` skill), rounds 1 and 2 of K=2. Round 1, two critics, found six defects. Round 2 found four more blocking, one of them caused by a round-1 fix. All ten are fixed and mutation tested. The one that mattered most: commits reachable from no other ref exited 0, and the new predicate found real work at risk in two live sessions. K=2 is reached, so the remaining objections are open work, not a pass. See 1.15'
     ef1b5f757ad9610d:
         hash: f499b43944df2b57
         text: 'Verify: `openspec validate agent-session-review-path` passes and `specutil check` reports no finding'
