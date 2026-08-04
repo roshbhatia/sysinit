@@ -354,6 +354,7 @@ in
             "custom/logo"
             "sway/mode"
             "sway/window"
+            "custom/agent-sessions"
           ];
           # Center: workspaces (matches sketchybar center)
           modules-center = [ "sway/workspaces" ];
@@ -367,6 +368,39 @@ in
           "custom/logo" = {
             format = "󱄅";
             tooltip = false;
+          };
+
+          # The selected seshy session and how many others hold a blocked agent.
+          # Reads `agent-sessions`, the same command the sketchybar widget polls, so
+          # both bars and WezTerm's own statusline agree on which session is worst.
+          #
+          # `selection_state` carries the heartbeat verdict. A stale selection is
+          # dimmed via the `stale` class rather than hidden: hiding it would be
+          # indistinguishable from having no sessions, and showing it plainly would
+          # claim a dead WezTerm's last workspace is current.
+          #
+          # `agent-sessions` always exits 0, so waybar never renders an error as the
+          # steady state. The `// empty` guards keep a missing field from producing
+          # the string "null" in the bar.
+          "custom/agent-sessions" = {
+            interval = 2;
+            return-type = "json";
+            exec = ''\
+              agent-sessions 2>/dev/null | ${pkgs.jq}/bin/jq -c '
+                if .selection_state == "absent" or (.selected // "") == "" then
+                  { text: "" }
+                else
+                  # `$sel` is bound from the root first: inside `.sessions[]` a bare
+                  # `.selected` resolves against the session object, where it does not
+                  # exist, so the comparison silently never matched.
+                  (.selected) as $sel
+                  | ( [ .sessions[] | select((.blocked // 0) > 0 and .name != $sel) ] | length ) as $n
+                  | { text: ("󰆍 " + $sel + (if $n > 0 then "  +" + ($n | tostring) else "" end)),
+                      tooltip: ([ .sessions[] | select((.blocked // 0) > 0) | .name + ": " + (.status // "idle") ] | join("\n")),
+                      class: .selection_state }
+                end
+              ' 2>/dev/null || echo '{"text":""}'
+            '';
           };
 
           "sway/mode" = {
@@ -446,6 +480,14 @@ in
         window#waybar {
           background-color: alpha(#${c.base00}, 0.85);
           color: #${c.base05};
+        }
+
+        /* A stale selection is dimmed, not hidden: the heartbeat says WezTerm quit
+           while leaving its last workspace behind, and hiding it would be
+           indistinguishable from having no sessions at all. Mirrors the
+           foreground_muted the sketchybar widget uses for the same state. */
+        #custom-agent-sessions.stale {
+          color: #${c.base03};
         }
 
         tooltip {
