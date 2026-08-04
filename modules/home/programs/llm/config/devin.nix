@@ -23,7 +23,7 @@ let
       bashGuardScript
     ];
     bashOptions = [ ];
-    text = builtins.readFile ./devin-guard.sh;
+    text = builtins.readFile ../runtime/exit-code-guard.sh;
   };
 
   # devin's matcher is the tool name; its shell tool is `exec`, not `Bash`.

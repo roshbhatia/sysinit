@@ -24,7 +24,7 @@
 # honesty boundary (a hand-forged provenance sidecar is out of the threat
 # model; the gate defends against agent hallucination, not a hostile author).
 #
-# Usage (installed on PATH via citation-tools):
+# Usage (installed on PATH via llm/skill-tools.nix):
 #   citelock verify  [lockdir]
 #   citelock capture <url> --id <id> --quote <text> --class <class> [--doi <doi>] [--lockdir <dir>]
 #   citelock recheck [lockdir]

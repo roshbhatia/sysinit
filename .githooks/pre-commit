@@ -7,8 +7,8 @@
 set -euo pipefail
 
 repo_root="$(git rev-parse --show-toplevel)"
-# citelock is a nix-installed PATH command (see citation-tools). If it is not on
-# PATH, do nothing rather than guess a repo-local script.
+# citelock is a nix-installed PATH command (see llm/skill-tools.nix). If it is
+# not on PATH, do nothing rather than guess a repo-local script.
 command -v citelock > /dev/null 2>&1 || exit 0
 
 # Verify every change dir that ships a citations.lock (cheap; verify no-ops when

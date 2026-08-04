@@ -26,6 +26,14 @@ let
   # Files a skill ships beside its SKILL.md, as "<subdir>/<file>" -> path. Two
   # levels is the whole of what any skill uses (references/, scripts/), and a
   # bounded walk throws on a third rather than silently dropping it.
+  #
+  # Only subdirectories are walked, so a file at the skill's top level is NOT
+  # installed. That is load-bearing, not an oversight: a skill that owns a PATH
+  # command keeps the source there (citation-verification/citelock.sh,
+  # wtrun/wtrun.sh) so it is colocated without shipping a second copy into
+  # ~/.claude/skills that would compete with the command llm/skill-tools.nix
+  # builds. A helper meant to be run by path belongs in scripts/ instead, which is
+  # why worklog/scripts/worklog-query.sh is there.
   extraFiles =
     name:
     let

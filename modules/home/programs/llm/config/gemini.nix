@@ -24,7 +24,7 @@ let
       bashGuardScript
     ];
     bashOptions = [ ];
-    text = builtins.readFile ./devin-guard.sh;
+    text = builtins.readFile ../runtime/exit-code-guard.sh;
   };
 
   # The matcher is a regex over the tool name. agy's shell tool is `run_command`;

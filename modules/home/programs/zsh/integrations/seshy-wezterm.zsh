@@ -84,4 +84,4 @@ function wezmon() {
 # No `sy` wrapper here. It used to live in this file, but .zshrc is read only by
 # interactive shells, so `zsh -c`, every script, and every agent's shell tool
 # bypassed it completely. The gate is now a real executable on PATH ahead of
-# seshy's own bin; see `sy-gate` in modules/home/programs/llm/config/notify.nix.
+# seshy's own bin; see `sy-gate` in modules/home/programs/llm/runtime/default.nix.

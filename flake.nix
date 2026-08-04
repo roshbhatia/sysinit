@@ -239,7 +239,7 @@
           pkgs = pkgsFor system;
           # The rendered notification icons, so a check can assert the generic
           # fallback is not a copy of a harness glyph.
-          notifyIcons = (import ./modules/home/programs/llm/config/notify.nix { inherit pkgs lib; }).icons;
+          notifyIcons = (import ./modules/home/programs/llm/runtime { inherit pkgs lib; }).icons;
           # The same jq program the activation reconciler runs. Imported rather
           # than restated, so the check cannot pass against a copy that has
           # drifted from what actually reconciles the live files.
@@ -257,6 +257,7 @@
             let
               s = import ./modules/home/programs/llm/skills.nix { inherit pkgs; };
               reg = import ./modules/home/programs/llm/skills { inherit pkgs lib; };
+              toolSources = import ./modules/home/programs/llm/skills/tool-sources.nix;
             in
             pkgs.runCommand "skill-render-shape-check" { } (
               let
@@ -285,6 +286,28 @@
 
                 # Frontmatter must survive as frontmatter, not become body text.
                 head -1 ${claudeOne} | grep -qx -- --- || { echo "FAIL: render lost its frontmatter fence" >&2; fail=1; }
+
+                # A skill that owns a PATH command keeps that command's source at
+                # its own top level, which skills/default.nix does not install. The
+                # asymmetry is load-bearing: moving such a script into scripts/
+                # would ship a second copy into all four rendered trees, where an
+                # agent could run it instead of the wrapper that has the runtime
+                # deps. Nothing else asserted this, so the placement was one edit
+                # away from silently reverting.
+                #
+                # The names come from skills/tool-sources.nix, the same list
+                # skill-tools.nix builds from, so a third tool is covered without a
+                # second edit here.
+                installed="${lib.concatStringsSep " " (lib.attrNames s.skillExtraFiles)}"
+                for src in ${lib.concatStringsSep " " (lib.attrValues toolSources)}; do
+                  for extra in $installed; do
+                    if [ "$extra" = "$src" ]; then
+                      echo "FAIL: $extra is installed into every skill tree, but a PATH command already provides it." >&2
+                      echo "Keep a skill-owned CLI's source at the skill's top level; see llm/skill-tools.nix." >&2
+                      fail=1
+                    fi
+                  done
+                done
 
                 [ "$fail" -eq 0 ] || exit 1
                 echo "OK: $n_reg skills render for both harnesses with no stray placeholder" > "$out"
@@ -751,7 +774,7 @@
                   [ -z "$lock" ] && continue
                   found=1
                   dir="$(dirname "$lock")"
-                  if ! bash ${./modules/home/programs/llm/citation-tools/citelock.sh} verify "$dir"; then
+                  if ! bash ${./modules/home/programs/llm/skills/citation-verification/citelock.sh} verify "$dir"; then
                     fail=1
                   fi
                 done < <(find "$changes" -name citations.lock 2> /dev/null)
@@ -759,7 +782,58 @@
                   echo "FAIL: citelock offline gate failed" >&2
                   exit 1
                 fi
-                echo "OK: citelock offline gate ($([ "$found" -eq 1 ] && echo 'all locks pass' || echo 'no locks present'))" | tee "$out"
+
+                # No change currently ships a citations.lock, so the loop above
+                # never executes the script and this check passed on a path
+                # literal alone. Fixtures make it run: without them, breaking
+                # citelock's lockless return or its format lint left every check
+                # green until the first change to carry a lock.
+                gate=${./modules/home/programs/llm/skills/citation-verification/citelock.sh}
+
+                # Both fixtures assert the REASON, not just the exit code. An exit
+                # code alone cannot tell the intended failure from an incidental
+                # one: `require_tool jq` also dies with status 1, so dropping
+                # pkgs.jq from nativeBuildInputs would leave an exit-code-only
+                # assertion green while the format lint never ran.
+                mkdir -p "$TMPDIR/nolock"
+                if ! nolock_out="$(bash "$gate" verify "$TMPDIR/nolock" 2>&1)"; then
+                  echo "FAIL: citelock verify must be a no-op for a directory with no citations.lock." >&2
+                  echo "The pre-commit hook runs it over every change dir, so a non-zero here blocks every commit." >&2
+                  printf '%s\n' "$nolock_out" | sed 's/^/    /' >&2
+                  exit 1
+                fi
+                case "$nolock_out" in
+                  *"nothing to verify"*) ;;
+                  *)
+                    echo "FAIL: citelock verify exited 0 for a lockless directory without taking the no-op path." >&2
+                    printf '%s\n' "$nolock_out" | sed 's/^/    /' >&2
+                    exit 1
+                    ;;
+                esac
+
+                # A record missing its required fields must fail the format lint.
+                # This is the cheapest input that reaches a real assertion: it needs
+                # no snapshot and no network.
+                mkdir -p "$TMPDIR/badlock"
+                echo '{"records":[{"id":"unanchored"}]}' > "$TMPDIR/badlock/citations.lock"
+                if badlock_out="$(bash "$gate" verify "$TMPDIR/badlock" 2>&1)"; then
+                  echo "FAIL: citelock verify accepted a record with no source, quote, snapshot, or sha256." >&2
+                  echo "The offline gate is the only thing standing between a hallucinated citation and a merge." >&2
+                  exit 1
+                fi
+                # Naming the record id proves the lint parsed the lock and reached
+                # that record, which a bare non-zero exit does not.
+                case "$badlock_out" in
+                  *"[unanchored] format:"*) ;;
+                  *)
+                    echo "FAIL: citelock verify rejected the bad lock for the wrong reason." >&2
+                    echo "Expected the format lint to name record 'unanchored'; it reported:" >&2
+                    printf '%s\n' "$badlock_out" | sed 's/^/    /' >&2
+                    exit 1
+                    ;;
+                esac
+
+                echo "OK: citelock offline gate ($([ "$found" -eq 1 ] && echo 'all locks pass' || echo 'no locks present'), fixtures pass)" | tee "$out"
               '';
 
           # Cross-layer chord collision gate for WezTerm.
@@ -1185,7 +1259,7 @@
           # case here is a behaviour and none of them is visible in a pattern.
           agent-review-readiness =
             let
-              notifyFor = import ./modules/home/programs/llm/config/notify.nix {
+              notifyFor = import ./modules/home/programs/llm/runtime {
                 inherit pkgs lib;
               };
             in
@@ -1198,7 +1272,7 @@
                 ];
               }
               ''
-                cfg=${./modules/home/programs/llm/config}
+                cfg=${./modules/home/programs/llm/runtime}
                 export HOME="$TMPDIR/home"
                 export XDG_STATE_HOME="$TMPDIR/state"
                 mkdir -p "$HOME" "$XDG_STATE_HOME"
@@ -1582,7 +1656,10 @@
                 ];
               }
               ''
-                cfg=${./modules/home/programs/llm/config}
+                cfg=${./modules/home/programs/llm/runtime}
+                # The agent-agnostic scripts and the per-harness modules are two
+                # roots now, so an assertion says which layer it is about.
+                harness=${./modules/home/programs/llm/config}
                 icons=${notifyIcons}
                 fail=0
                 note() {
@@ -1720,9 +1797,9 @@
                 # matches two unrelated readers further down the file.
                 # The OpenCode bridge must bind the event OpenCode actually
                 # publishes. `session.idle` does not exist in the plugin event
-                rg -q 'session\.status' "$cfg/plugins/sysinit-notify.ts" ||
+                rg -q 'session\.status' "$harness/plugins/sysinit-notify.ts" ||
                   note "the opencode bridge does not bind session.status; session.idle is not a plugin event"
-                rg -q '"session\.idle"' "$cfg/plugins/sysinit-notify.ts" &&
+                rg -q '"session\.idle"' "$harness/plugins/sysinit-notify.ts" &&
                   note "the opencode bridge binds session.idle, which the plugin hook never receives"
 
                 rg -q 'if not \(uv and uv.agent_state' "$ui" ||
@@ -1730,9 +1807,9 @@
 
                 # The two producers phase 3 retired. Each is a plain literal in a
                 # Nix file, so nothing else would notice it coming back.
-                rg -q '^\s*"notify"$' "$cfg/pi.nix" &&
+                rg -q '^\s*"notify"$' "$harness/pi.nix" &&
                   note "pi vendors the upstream notify extension again; agent-notify owns the toast"
-                rg -qU 'attention = \{\s*\n\s*notifications = false' "$cfg/opencode-render.nix" ||
+                rg -qU 'attention = \{\s*\n\s*notifications = false' "$harness/opencode-render.nix" ||
                   note "opencode attention.notifications is re-enabled; agent-notify owns the toast"
 
                 [ "$fail" -eq 0 ] || exit 1
@@ -1875,7 +1952,10 @@
                     fail=1
                   fi
                 }
-                require_nonempty "$src/modules/home/programs/llm/config"
+                require_nonempty "$src/modules/home/programs/llm/runtime"
+                # Skill-owned CLI sources now live beside their skill, so this
+                # subtree carries shell scripts that nothing else canaried.
+                require_nonempty "$src/modules/home/programs/llm/skills"
                 require_nonempty "$src/hack"
                 require_nonempty "$src/.githooks"
 

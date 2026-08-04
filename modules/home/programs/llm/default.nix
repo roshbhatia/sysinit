@@ -199,12 +199,12 @@ let
   # Agent-agnostic desktop notifier. The script + per-agent icons are installed
   # once here (multiple harness configs reference notify.exe in their hooks, but
   # only one place may own the home.file/home.packages entries).
-  notify = import ./config/notify.nix { inherit pkgs lib; };
+  notify = import ./runtime { inherit pkgs lib; };
 in
 {
   imports = [
     ./openspec-schema.nix
-    ./citation-tools
+    ./skill-tools.nix
     ./config/acp.nix
     ./config/amp.nix
     ./config/claude.nix
@@ -281,7 +281,6 @@ in
     pkgs.meat
     capture
     notify.script
-    notify.wtrun
     notify.stateScript
     notify.promptScript
     notify.focusScript

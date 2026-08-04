@@ -29,6 +29,6 @@ in
       # Best-effort / fail-open: no errexit or pipefail, so a non-zero grep never
       # becomes a hook abort. Claude treats exit 2 as a block.
       bashOptions = [ ];
-      text = preamble + "\n" + builtins.readFile ../config/claude-bash-guard.sh;
+      text = preamble + "\n" + builtins.readFile ../runtime/bash-guard.sh;
     };
 }
