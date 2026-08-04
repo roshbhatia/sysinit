@@ -1,9 +1,9 @@
 version: 1
 change: decompose-flake-checks
 decision: approved
-note: Relocation phase landed and verified by derivation path (18/19 identical, the exception being the check whose src is the flake source). Shell-body extraction deliberately deferred and recorded.
-change_hash: 7e67f7cda0e03b28
-base_commit: 3da51997f0f6ed9da9e19bf8720b1a408c740b7f
+note: Relocation landed and proven by drvPath. Body linting solved by reading drvAttrs.buildCommand rather than extracting to .sh, which supersedes D3/D4; 51 findings triaged, one real defect fixed.
+change_hash: 39f7b4c2b19ca240
+base_commit: f047da851d5e8bde603e4e27e94cec7c8237a62c
 items:
     2defa399acd57c42:
         hash: f0c3e489c60e6ac3

@@ -27,7 +27,9 @@ pkgs.runCommand "openspec-default-schema-check"
     cp -r ${../openspec/schemas/rosh-spec-driven} "$XDG_DATA_HOME/openspec/schemas/rosh-spec-driven"
     chmod -R u+w "$XDG_DATA_HOME/openspec/schemas/rosh-spec-driven"
     mkdir -p "$TMPDIR/proj"
-    cd "$TMPDIR/proj"
+    # Guarded: an unguarded cd that fails leaves every assertion below running in
+    # the wrong directory, where it can pass for the wrong reason.
+    cd "$TMPDIR/proj" || exit 1
     openspec new change probe > /dev/null 2>&1 || true
     cfg="$(find . -name config.yaml -path '*openspec*' | head -n1)"
     if [ -z "$cfg" ]; then

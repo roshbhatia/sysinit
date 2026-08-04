@@ -85,15 +85,18 @@ pkgs.runCommand "wezterm-chord-collision-check"
     #    never fires and nothing says so.
     if dupes=$(uniq -d < "$TMPDIR/wezterm") && [ -n "$dupes" ]; then
       echo "FAIL: WezTerm binds the same chord twice:" >&2
+      # shellcheck disable=SC2086  # deliberate word-splitting: one token per line
       printf '  %s\n' $dupes >&2
       fail=1
     fi
 
     # 2. Overlap with a layer that owns the chord globally.
     overlap=$(comm -12 <(sort -u "$TMPDIR/wezterm") "$TMPDIR/other")
+    # shellcheck disable=SC2086  # deliberate word-splitting: one token per line
     unexpected=$(comm -23 <(printf '%s\n' $overlap | sed '/^$/d' | sort -u) "$TMPDIR/accepted")
     if [ -n "$unexpected" ]; then
       echo "FAIL: WezTerm claims a chord another layer owns:" >&2
+      # shellcheck disable=SC2086  # deliberate word-splitting: one token per line
       printf '  %s\n' $unexpected >&2
       echo "Rebind it, or add it to acceptedOverlaps with a reason." >&2
       fail=1
@@ -102,6 +105,7 @@ pkgs.runCommand "wezterm-chord-collision-check"
     # 3. Aerospace invariant. See the header.
     if alt=$(grep '^alt+\|+alt+' "$TMPDIR/wezterm") && [ -n "$alt" ]; then
       echo "FAIL: WezTerm now binds ALT chords:" >&2
+      # shellcheck disable=SC2086  # deliberate word-splitting: one token per line
       printf '  %s\n' $alt >&2
       echo "Aerospace owns ALT. Compare against modules/darwin/aerospace.nix" >&2
       echo "or drop the ALT binding." >&2

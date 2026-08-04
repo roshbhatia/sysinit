@@ -72,19 +72,49 @@
       revise until the loop reaches a terminal state (see the skill for the scaled
       round cap) `deps:` 3.5
 
-## Not done, and why
+## Lint without extraction, which supersedes D3 and D4
 
-This is a record, not a phase. The tasks below stay unchecked above.
+This is a record, not a phase.
 
-- The relocation landed; the shell-body extraction did not. Tasks 1.3, 1.4's
-  extraction half, and 2.8 remain open: `checks/lib/prelude.sh`, per-check `.sh`
-  files, store paths as environment variables, and the shellcheck findings those
-  would surface. The 1469 lines of check shell are still unlinted.
-- Reason: extraction must reproduce Nix's indented-string stripping exactly per
-  check, which is a different and riskier operation than relocation. Both are
-  provable by derivation path, but extraction has to be done one check at a time
-  with room to verify each.
-- The `checks/` shellcheck canary is deliberately absent until a body is
-  extracted, because `require_nonempty` counts `.sh` files and would fail today.
+The goal of extracting bodies to `.sh` files was to get them linted. That goal is
+met without moving them, and better: `checks/check-bodies-shellcheck.nix` reads
+each check's own `drvAttrs.buildCommand` and runs shellcheck over it. That string
+is what bash actually executes, with every `${...}` already resolved to a store
+path, so the gate lints the real artifact rather than a copy of it.
+
+Why this is better than extraction, not merely cheaper:
+
+- Extraction would rewrite 19 derivations and risk changing the tests while moving
+  them. This changes none: the two derivations that did change, `wezterm-chord-collisions`
+  and `openspec-default-schema`, changed because a finding was fixed.
+- An extracted `.sh` cannot contain `${store paths}`, so extraction forces every
+  path through an environment variable. That is a real behavior change to every
+  check, made solely to satisfy the linter.
+- Coverage is total and automatic. A check added later is linted with no further
+  work, and cannot be forgotten.
+
+So D3 (extract where the body is large) and D4 (store paths as environment
+variables) are superseded. The `checks/lib/prelude.sh` deduplication in D5 is still
+worth doing and is still open; it is about duplicated helpers, not about linting.
+
+Findings from turning the gate on, over roughly 1,500 previously-unlinted lines:
+
+- 39 SC2154 and 5 SC1091: structurally false for a `runCommand` body, since stdenv
+  sets `$out` and `$TMPDIR` and a sourced path is a store path. Excluded by rule,
+  with the reason written at the exclusion.
+- 4 SC2086 in `wezterm-chord-collisions`: deliberate word-splitting, one token per
+  line. Given a targeted disable with that reason at each site.
+- 1 SC2164 in `openspec-default-schema`: a genuinely unguarded `cd`. Fixed, not
+  disabled. An unguarded `cd` that fails leaves every later assertion running in
+  the wrong directory, which is the same defect class as the never-firing
+  assertions this change was written to expose.
+
+Mutation tested both directions: a real finding in any body fails the gate, and a
+filter that matches nothing fails with "this gate covers nothing" rather than
+passing green.
+
+- The `checks/` shellcheck canary stays absent, because there are no `.sh` files
+  under `checks/` and `require_nonempty` counts those. The new check is the
+  coverage guard instead, and it has its own zero-coverage assertion.
 - `cacheBundleFor` (task 3.2) stayed in `flake.nix`. It is a packages helper, it
   is 34 lines, and moving it is unrelated to the checks.
