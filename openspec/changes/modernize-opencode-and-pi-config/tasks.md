@@ -77,9 +77,38 @@
       evaluation cannot read a derivation's contents)
 - [x] 2.6 Add a build assertion that a generated theme file is selected by a
       declared setting
-- [ ] 2.7 Adversarial review (`adversarial-review` skill): critics attempt to
-      break this phase against its spec scenarios; revise until no surviving
-      objection or K=4 rounds
+- [ ] 2.7 Adversarial review (`adversarial-review` skill), round 1 of K=4. NOT
+      clean: two critics, one on gate correctness and one on whether the check is
+      hollow. Eight objections, three of which defeat this phase's headline fixes.
+      Fixed and proven so far:
+      - A declared key did NOT win on every activation. The three-way merge returns
+        the DISK value whenever the Nix value is unchanged since the base, so a
+        mergeable key wins once and never again. Measured: base stylix, disk dark,
+        new stylix merged to `dark`. That is the "generated theme is never selected"
+        defect this proposal exists to fix, reappearing on the first pi-side write.
+        `enforce` now covers every declared key, and a probe proves mergeable yields
+        `dark` while enforced yields `stylix`.
+      - The STOP condition greps a 76 MB binary for a bare substring, so `editor`
+        matches and a typo for `externalEditor` passed while pi never read it.
+        Verified. It now checks the shipped `pi/docs/settings.md`, which lists every
+        real setting, and a bare `editor` is absent from it.
+      Objections still open are recorded in 2.11 to 2.14
+- [ ] 2.11 `powerline` is immortal on any host: it was never declared, so it is
+      base-absent, disk-present, Nix-absent, which the merge preserves by design.
+      `adoptDelete` does not reach it because a host with a base never takes the
+      adopt path. Needs a per-activation delete, not an adopt-only one `deps:` 2.7
+- [ ] 2.12 Nothing asserts `shellCommandPrefix` is three real lines, so a reflow to
+      a literal `\n` passes every gate. The other two defects of this phase got a
+      check and an assertion; this one got a comment, which design.md D3 forbids
+      `deps:` 2.7
+- [ ] 2.13 `assertThemeSelected` compares the literal "stylix" to the literal
+      "stylix", and the theme's own `name` field and filename are separate
+      hardcoded copies. Bind one `themeName` and derive all three `deps:` 2.7
+- [ ] 2.14 The documented rollback in proposal.md and design.md describes
+      re-imposition semantics the three-way merge does not have, and instructs the
+      operator to use a retired-key list by a name that no longer exists. Also
+      nothing checks `ownerPreference` keys still exist in pi, so a rename leaves
+      `assertPreferencesUndeclared` blocking a legitimate declaration `deps:` 2.7
 - [x] 2.8 Verify: `nix flake check` and `nh darwin build` are green; review
       `git diff`
 - [x] 2.9 Apply: `nh darwin switch`

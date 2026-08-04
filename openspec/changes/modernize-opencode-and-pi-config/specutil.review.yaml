@@ -1,9 +1,9 @@
 version: 1
 change: modernize-opencode-and-pi-config
 decision: approved
-note: 'Re-recorded after the 2026-08-03 pass: dependency edges declared on the converted phases, the toast-body composer extracted and fixture-tested, and phase-5 task ids renumbered to their own phase.'
-change_hash: ebb3e9583ffc7d99
-base_commit: af6ba6382e9599211b2069fb7a07dd48e1af6a1c
+note: 'Phase 2 review round 1 of K=4: NOT clean. Two headline defects fixed and proven (declared keys now enforced so they win every activation; the keys check now uses the shipped settings doc instead of a binary substring grep). Four objections open as 2.11 to 2.14.'
+change_hash: 00003e2d16a5eb97
+base_commit: d62eed4a48d65536ec6fbe5b433d0ef9ebbb44c6
 items:
     0f8cd7a6a4d731bb:
         hash: da42f5ffd02d176c
@@ -56,6 +56,9 @@ items:
     309e673af643ee99:
         hash: ead048565bb7266c
         text: 'Verify: `nix fmt -- --check` is clean and `git diff` is reviewed'
+    324a8e1243257385:
+        hash: 5520481b44fb5aa7
+        text: 'Adversarial review (`adversarial-review` skill), round 1 of K=4. NOT clean: two critics, one on gate correctness and one on whether the check is hollow. Eight objections, three of which defeat this phase''s headline fixes. Fixed and proven so far: - A declared key did NOT win on every activation. The three-way merge returns the DISK value whenever the Nix value is unchanged since the base, so a mergeable key wins once and never again. Measured: base stylix, disk dark, new stylix merged to `dark`. That is the "generated theme is never selected" defect this proposal exists to fix, reappearing on the first pi-side write. `enforce` now covers every declared key, and a probe proves mergeable yields `dark` while enforced yields `stylix`. - The STOP condition greps a 76 MB binary for a bare substring, so `editor` matches and a typo for `externalEditor` passed while pi never read it. Verified. It now checks the shipped `pi/docs/settings.md`, which lists every real setting, and a bare `editor` is absent from it. Objections still open are recorded in 2.11 to 2.14'
     365b66385e442f5e:
         hash: 3f69fb85af14904a
         text: 'Decided: wire it. `nvim-pi` is a `--clean` nvim wrapper that avoids the lazy.nvim startup wait, which is worth keeping; it was unreachable only because the setting was undeclared and the keybinding unbound'
@@ -86,15 +89,18 @@ items:
     909382035b732e45:
         hash: 6c1b682c82775cdc
         text: Declare the agreed key set, excluding `defaultProvider` and `defaultModel` by name, and including `theme = "stylix"`, `enableInstallTelemetry = false`, a corrected `shellCommandPrefix` whose newline escape is right, and `skills` if `close-harness-instruction-gaps` has already landed it; the live capture hides that key, because the merge preserves it
-    a02c360dfdf80e0a:
-        hash: c1389bff72961541
-        text: 'Adversarial review (`adversarial-review` skill): critics attempt to break this phase against its spec scenarios; revise until no surviving objection or K=4 rounds'
     a5f935c7b79f5565:
         hash: 9d2bf2924ab7748e
         text: Add a build assertion that a generated theme file is selected by a declared setting
     a54fdbe4de731ec7:
         hash: 7030f966126191f9
         text: 'Confirm: the live main config carries none of `theme`, `keybinds`, or `tui` after the switch, and `tui.json` carries all three'
+    ac65baf8307bdca5:
+        hash: e7ca60961a7c7458
+        text: Nothing asserts `shellCommandPrefix` is three real lines, so a reflow to a literal `\n` passes every gate. The other two defects of this phase got a check and an assertion; this one got a comment, which design.md D3 forbids
+    b336ceae709c46d3:
+        hash: 323496b25c511b44
+        text: '`assertThemeSelected` compares the literal "stylix" to the literal "stylix", and the theme''s own `name` field and filename are separate hardcoded copies. Bind one `themeName` and derive all three'
     b959ad93e33805fb:
         hash: 91ddf6ea87c9cdb5
         text: Move `theme`, `keybinds`, and `tui.scroll_acceleration` out of the main config attribute set into a TUI config attribute set
@@ -107,12 +113,18 @@ items:
     bebe61c26c49b872:
         hash: 56c9bbe994a5c328
         text: Add an activation-time validation of the real merged file that fails `nh darwin switch`; the build-time layer alone cannot see a key OpenCode wrote at runtime
+    bfd18f977883ce3b:
+        hash: 2e2a4bf58a2d8e97
+        text: '`powerline` is immortal on any host: it was never declared, so it is base-absent, disk-present, Nix-absent, which the merge preserves by design. `adoptDelete` does not reach it because a host with a base never takes the adopt path. Needs a per-activation delete, not an adopt-only one'
     c1ec81bdf8e3b538:
         hash: 64ee44eca76bb615
         text: 'Apply: stage the change and propose a commit message per the `writing-commit-message` skill'
     c2f3dcf0524fda4a:
         hash: ffc3a4bc91c191bf
         text: 'Adversarial review (`adversarial-review` skill): terminal state `CLEAN`, 0 open, within the K=2 cap for a one-phase review. Round 1 returned 6 surviving objections, all fixed and negative-tested: the check validated only 10 of 17 rendered keys; the retired-key filter and the merge pipeline existed as two hand-copies that could drift, and an unquotable key would have failed only at switch time; deletion reached depth one only, so a stale `provider.ollama` survived forever; nothing asserted the localized schema kept `additionalProperties: false`; the `$ref` walk dropped sibling constraints; `tui.json` had no retired mechanism and no merged fixture. Ordering deviation: 1.11 ran before this task. The review then forced a rework and a second switch.'
+    c3ae112a1916b181:
+        hash: 6809449edf3b39c2
+        text: The documented rollback in proposal.md and design.md describes re-imposition semantics the three-way merge does not have, and instructs the operator to use a retired-key list by a name that no longer exists. Also nothing checks `ownerPreference` keys still exist in pi, so a rename leaves `assertPreferencesUndeclared` blocking a legitimate declaration
     d3d65af592669127:
         hash: 3135fd0804e822bb
         text: 'Confirm: OpenCode starts and loses no configured plugin or tool'

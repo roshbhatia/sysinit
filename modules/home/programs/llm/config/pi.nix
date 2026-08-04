@@ -669,14 +669,21 @@ in
     format = "json";
     content = piManagedSettings;
     adoptDelete = piRetiredSettings;
-    # Both are Nix-owned lists. `packages` is the vendored extension set, whose
-    # entries are store paths that move on every bump, and `skills` is the
-    # shared skills root. A list is compared whole by the merge, so leaving
-    # these mergeable would turn any pi-side edit into a blocking conflict.
-    enforce = [
-      "packages"
-      "skills"
-    ];
+    # Every declared key, not just the two lists. D2 in design.md defines a
+    # declared key as one whose value is repository policy, and `enforce` is the
+    # only mechanism in managed-file.nix that makes Nix win on EVERY activation.
+    #
+    # Without this, the three-way merge returns the disk value whenever the Nix
+    # value has not changed since the base (`$n == $b` at lib/managed-file.nix:25),
+    # so a declared key wins exactly once and never again. Measured: base
+    # `theme=stylix`, disk `theme=dark`, new `theme=stylix` merged to `dark`, which
+    # is the "stylix theme is never selected" defect the proposal exists to fix,
+    # reappearing on the first pi-side theme write.
+    #
+    # `packages` and `skills` were already here for a second reason that still
+    # holds: a list is compared whole, so leaving them mergeable turns any pi-side
+    # edit into a blocking conflict.
+    enforce = piKeys.declared;
   };
 
   home = {

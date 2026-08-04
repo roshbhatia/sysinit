@@ -351,6 +351,28 @@
               };
               # Same paths, one key undeclared and one changed, to drive
               # deletion-via-base and the conflict path.
+              # The adopt path has no base, so the three-way merge has nothing to
+              # compare against and cannot remove an undeclared key. `adoptDelete`
+              # is the only thing that does. Two reconcilers, identical but for that
+              # list, so the pair proves the list is load-bearing rather than
+              # decorative: deleting it from a harness config is a silent
+              # regression on any host that has not adopted yet.
+              adoptWith = recFor {
+                a = {
+                  path = "d/adopt.json";
+                  format = "json";
+                  content.ok = 1;
+                  adoptDelete = [ "stale" ];
+                };
+              };
+              adoptWithout = recFor {
+                a = {
+                  path = "d/adopt.json";
+                  format = "json";
+                  content.ok = 1;
+                };
+              };
+
               drop = recFor {
                 j = {
                   path = "d/j.json";
@@ -393,6 +415,27 @@
                 mkdir -p "$HOME/d"; echo '{"a":1}' > "$HOME/d/j.json"; echo '{"a":1}' > "$HOME/d/.j.json.nix-base"
                 ${allOff}/bin/sysinit-llm-reconcile > /dev/null
                 want "disabled file drops its base" "$([ -e "$HOME/d/.j.json.nix-base" ] && echo kept || echo dropped)" "dropped"
+
+                # --- the adopt path cannot delete without adoptDelete -------------
+                # A base-relative merge has nothing to compare against on a first
+                # adoption, so only `adoptDelete` removes a key the harness wrote and
+                # Nix does not declare. Both halves are asserted: dropping the list
+                # from a harness config is a silent regression on a host that has not
+                # adopted, and that regression was made and reverted once.
+                mkdir -p "$HOME/d"
+                echo '{"ok":1,"stale":true}' > "$HOME/d/adopt.json"
+                ${adoptWithout}/bin/sysinit-llm-reconcile > /dev/null
+                want "adopt without adoptDelete keeps the undeclared key" \
+                  "$(jq -r 'has("stale")' "$HOME/d/adopt.json")" "true"
+
+                rm -f "$HOME/d/adopt.json" "$HOME/d/.adopt.json.nix-base"
+                echo '{"ok":1,"stale":true}' > "$HOME/d/adopt.json"
+                ${adoptWith}/bin/sysinit-llm-reconcile > /dev/null
+                want "adopt with adoptDelete removes it" \
+                  "$(jq -r 'has("stale")' "$HOME/d/adopt.json")" "false"
+                want "adopt with adoptDelete keeps the declared key" \
+                  "$(jq -r '.ok' "$HOME/d/adopt.json")" "1"
+                rm -f "$HOME/d/adopt.json" "$HOME/d/.adopt.json.nix-base"
                 want "disabled file itself untouched" "$(jq -r .a "$HOME/d/j.json")" "1"
                 rm -f "$HOME/d/j.json"
 
@@ -451,6 +494,20 @@
                 ${drop}/bin/sysinit-llm-reconcile > /dev/null
                 want "undeclared key deleted" "$(jq -r 'has("keep")' "$HOME/d/j.json")" "false"
                 want "harness key still kept" "$(jq -r .harnessAdded "$HOME/d/j.json")" "keep"
+
+                # --- a declared key must win on EVERY activation -------------------
+                # The three-way merge returns the DISK value whenever the Nix value
+                # has not changed since the base, so a mergeable key wins exactly
+                # once and never again. Measured before this assertion existed: base
+                # stylix, disk dark, new stylix merged to dark, which is the
+                # "generated theme is never selected" defect reappearing on the first
+                # harness-side write. `enforce` is the only mechanism that fixes it.
+                jq '.a = 999' "$HOME/d/j.json" > "$HOME/d/j.tmp" && mv "$HOME/d/j.tmp" "$HOME/d/j.json"
+                ${main}/bin/sysinit-llm-reconcile > /dev/null
+                want "a mergeable key loses to the harness on a later switch" \
+                  "$(jq -r .a "$HOME/d/j.json")" "999"
+                jq '.a = 1' "$HOME/d/j.json" > "$HOME/d/j.tmp" && mv "$HOME/d/j.tmp" "$HOME/d/j.json"
+
 
                 # 6. conflict refuses and leaves the target byte-identical
                 jq '.a = 99' "$HOME/d/j.json" > "$TMPDIR/x" && mv "$TMPDIR/x" "$HOME/d/j.json"
@@ -921,19 +978,37 @@
               }
               ''
                 bin=${pkgs.pi-coding-agent}/pi/pi
+                docs=${pkgs.pi-coding-agent}/pi/docs/settings.md
                 fail=0
 
-                # Declared keys must be present.
+                # The doc is the ground truth, not the binary's byte stream. A bare
+                # substring search over 76 MB matches for reasons unrelated to whether
+                # a name is a settings property: `rg -a editor` matches
+                # `editorPaddingX` and a dozen doc strings, so a typo like
+                # `editor` for `externalEditor` passed while pi never read it. The
+                # shipped doc enumerates every real setting in a table as `` `name` ``.
+                [ -f "$docs" ] || {
+                  echo "FAIL: pi no longer ships docs/settings.md; this check needs a new ground truth" >&2
+                  exit 1
+                }
+
+                # Declared keys must be documented settings of the installed build.
                 for k in ${lib.concatStringsSep " " (import ./modules/home/programs/llm/config/pi-settings-keys.nix).declared}; do
-                  if ! rg -qa "$k" "$bin"; then
-                    echo "FAIL: pi.nix declares '$k' but the installed pi build does not know it" >&2
+                  if ! rg -qF "\`$k\`" "$docs"; then
+                    echo "FAIL: pi.nix declares '$k' but the installed pi build does not document it as a setting" >&2
                     fail=1
                   fi
                 done
 
-                # Retired keys must stay absent, so a future edit cannot quietly
-                # reintroduce one that the binary never reads.
+                # Retired keys must stay absent from BOTH, so a future edit cannot
+                # quietly reintroduce one. The binary grep is kept here on purpose:
+                # for absence, a substring search is the conservative direction, since
+                # an incidental match only makes this stricter.
                 for k in ${lib.concatStringsSep " " (import ./modules/home/programs/llm/config/pi-settings-keys.nix).retired}; do
+                  if rg -qF "\`$k\`" "$docs"; then
+                    echo "FAIL: '$k' is retired but the installed build now documents it; re-evaluate it" >&2
+                    fail=1
+                  fi
                   if rg -qa "$k" "$bin"; then
                     echo "FAIL: '$k' is retired but now exists in the pi build; re-evaluate it" >&2
                     fail=1
@@ -941,7 +1016,7 @@
                 done
 
                 [ "$fail" -eq 0 ] || exit 1
-                echo "OK: every declared pi settings key exists, every retired key is absent" | tee "$out"
+                echo "OK: every declared pi settings key is documented, every retired key is absent" | tee "$out"
               '';
 
           # The rendered OpenCode config must satisfy the schema the installed
