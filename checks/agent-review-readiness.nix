@@ -1,13 +1,6 @@
-# Moved verbatim from flake.nix. The expression is unchanged: its derivation path
-# is asserted equal to the pre-move baseline in
-# openspec/changes/decompose-flake-checks/drv-baseline.json.
 {
   pkgs,
   lib,
-  inputs,
-  system,
-  notifyIcons,
-  managedFile,
   ...
 }:
 # Covers all four defects the phase fixes, not the group alone. Each

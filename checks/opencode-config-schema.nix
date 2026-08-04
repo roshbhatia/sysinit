@@ -1,13 +1,6 @@
-# Moved verbatim from flake.nix. The expression is unchanged: its derivation path
-# is asserted equal to the pre-move baseline in
-# openspec/changes/decompose-flake-checks/drv-baseline.json.
 {
   pkgs,
   lib,
-  inputs,
-  system,
-  notifyIcons,
-  managedFile,
   ...
 }:
 # The rendered OpenCode config must satisfy the schema the installed

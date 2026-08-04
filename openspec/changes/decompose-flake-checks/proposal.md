@@ -27,13 +27,10 @@ that produces those.
 - Add `checks/`, one file per check, aggregated by `checks/default.nix`. This
   follows `modules/lib/default.nix` and the `harnesses/default.nix` written in the
   previous change: a directory of single-purpose files behind one aggregator.
-- Reduce `flake.nix` to what a flake file should hold: `inputs`, `outputs`,
-  `packages`, `formatter`, `darwinConfigurations`, `nixosConfigurations`, and
-  `checks.${system} = import ./checks { ... }`. Target under 300 lines.
-- Extract each check's shell body to a real `.sh` file beside its `.nix` file, read
-  back with `builtins.readFile`. Reuses `modules/lib/shell.nix`'s `stripHeaders`,
-  which already exists for exactly this: read a script, drop its shebang, embed the
-  rest.
+- Reduce `flake.nix` to output declarations under 300 lines. Move the formatter
+  implementation to `flake/formatter.nix` and import the checks from `checks/`.
+- Shellcheck each derivation's evaluated `drvAttrs.buildCommand`. This covers the
+  shell that Nix executes without changing any check body.
 - **BREAKING** for anything that reads a check by line number or imports
   `flake.nix` internals. Nothing in-tree does.
 
@@ -42,51 +39,41 @@ that produces those.
 - Changing what any check asserts. Every check keeps its name, its semantics, and
   its pass and fail conditions. A behavior change inside this move would be
   invisible, because the thing being moved is the test.
-- Adding, removing, or merging checks.
+- Removing or merging any of the original 19 checks. The new
+  `check-bodies-shellcheck` coverage gate is in scope.
 - Adopting `flake-parts`. See the design.
 - Touching `inputs`, the overlays, or either host configuration.
-- Reformatting `flake.nix`'s pre-existing unformatted region as part of a
-  behavioral commit. That is its own commit.
+- Reformatting code outside the expressions changed by this refactor.
 
 ## Behavior
 
-- `nix flake check` exits 0, and the set of check names before and after is
-  identical. Compare `nix flake show --json` output across the change.
+- `nix flake check` exits 0, and all 19 original check names remain. This change
+  adds only `check-bodies-shellcheck`; concurrent changes can add their own checks.
 - Every check derivation is bit-identical before and after, except where a task
   says otherwise. Compare `nix path-info --derivation` per check. A store-path
   change means the body changed, which for a pure move is a defect.
 - `flake.nix` is under 300 lines and contains no Nix string block longer than 10
   lines.
-- The shellcheck gate covers every extracted body. `shellcheck` runs over each new
-  `checks/*.sh`, and the count of files it reports rises by the number extracted.
-- No extracted script interpolates a Nix store path into its body. Each receives
-  store paths through environment variables set in its derivation, so the script
-  is runnable by hand and `${` never appears in shell context.
-- A `require_nonempty` canary covers `checks/`, so the gate fails loudly if the
-  directory stops contributing scripts.
-- Each extracted script passes `shfmt -i 2 -ci -sr -s`, matching `hack/`.
+- The shellcheck gate covers every other check's evaluated build command. It
+  excludes itself because importing its derivation from its own definition recurses.
+- The shellcheck gate fails when no other check exposes a build command.
+- Each check function declares only the shared values that it uses.
 
 ## Impact
 
 Affected code:
 - `flake.nix`: roughly 1900 lines leave it.
-- New: `checks/default.nix` plus 19 `<check>.nix` files and the `.sh` bodies that
-  have one.
-- `modules/lib/shell.nix`: consumed, not modified.
+- New: `checks/default.nix`, one Nix file per check, and
+  `flake/formatter.nix`.
 
 Reuse:
-- `checks/default.nix` follows `modules/lib/default.nix`.
-- Script extraction follows `modules/lib/shell.nix`'s `stripHeaders` and the
-  `runtime/*.sh` pattern, where a script lives as a file and Nix reads it.
-- Passing store paths by environment variable follows `runtime/default.nix`'s
-  `NOTIFY_EXE`, `SY_REAL`, and `GUARD_EXE`.
+- Check aggregation follows the existing `modules/lib/default.nix` pattern.
+- Formatter extraction follows the existing `flake/bootstrap.nix` output helper.
 
 Progressive rollout:
-- One check per commit, largest first, because the largest carry the most risk and
-  the most benefit. `agent-review-readiness` is 388 lines, `managed-file-reconcile`
-  274, `notify-defect-regressions` 171.
-- Every commit leaves `nix flake check` green, so the work can stop at any point
-  with the repository in a better state than it started.
+- The check relocation landed in `afb26d140` as one commit after comparing every
+  derivation path.
+- Later simplifications use the current base commit as their preservation baseline.
 
 Impactful and irreversible actions:
 - None. No `nh darwin switch` is required, because `checks` are not part of any
@@ -94,5 +81,7 @@ Impactful and irreversible actions:
   reason to do it before any further behavioral work.
 
 Gating signal:
-- Per check: `nix flake check`, plus a derivation-hash comparison proving the move
-  changed nothing. The kill switch is `git revert` of that check's commit.
+- Run `nix flake check` and compare derivation paths against the current base.
+- The code kill switch reverses this follow-up's implementation changes while
+  retaining its OpenSpec history. The original relocation commits are unsafe
+  rollback targets because later checks depend on the aggregator.

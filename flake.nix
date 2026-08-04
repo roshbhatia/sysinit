@@ -213,19 +213,19 @@
           # `meat` is overlay-defined and still MUST NOT be listed: upstream ships
           # no LICENSE, so pushing a built binary to a public cache would be
           # redistribution without a grant. Building it locally is fine.
-          cacheBundleFor =
-            system:
-            let
-              pkgs = pkgsFor system;
-            in
-            pkgs.symlinkJoin {
-              name = "sysinit-cache-bundle-${system}";
-              paths = builtins.filter (p: p != null) (map (n: pkgs.${n} or null) cacheAttrs);
-            };
         in
-        lib.genAttrs cacheSystems (system: {
-          cacheBundle = cacheBundleFor system;
-        });
+        lib.genAttrs cacheSystems (
+          system:
+          let
+            pkgs = pkgsFor system;
+          in
+          {
+            cacheBundle = pkgs.symlinkJoin {
+              name = "sysinit-cache-bundle-${system}";
+              paths = builtins.filter (p: p != null) (map (name: pkgs.${name} or null) cacheAttrs);
+            };
+          }
+        );
 
       # One file per check under checks/, aggregated by checks/default.nix.
       # flake.nix declares outputs; it is not the place for 1,900 lines of test
@@ -233,7 +233,7 @@
       checks = lib.genAttrs cacheSystems (
         system:
         import ./checks {
-          inherit lib inputs system;
+          inherit lib system;
           pkgs = pkgsFor system;
         }
       );
@@ -280,67 +280,14 @@
           final: _prev:
           (lib.composeManyExtensions (import ./overlays/default.nix { inherit inputs; })) final _prev;
       };
-      formatter =
-        lib.genAttrs
-          [
-            "aarch64-darwin"
-            "x86_64-darwin"
-            "x86_64-linux"
-            "aarch64-linux"
-          ]
-          (
-            system:
-            let
-              pkgs = nixpkgs.legacyPackages.${system};
-            in
-            pkgs.writeShellApplication {
-              name = "sysinit-fmt";
-              runtimeInputs = [
-                pkgs.fd
-                pkgs.nixfmt
-                pkgs.shfmt
-              ];
-              # Formats Nix and shell. Shell was previously documented in
-              # AGENTS.md as `task fmt:sh`, which no Taskfile ever provided.
-              # Folding it in here means one command covers the repo and the tool
-              # comes from the flake rather than from whatever is on PATH.
-              text = ''
-                shfmt_flags=(-i 2 -ci -sr -s)
-
-                if [ "''${1:-}" = "--check" ]; then
-                  drift=0
-                  if ! fd --extension nix --type file --exec-batch nixfmt --check; then
-                    drift=1
-                  fi
-                  # `shfmt -l` exits non-zero when it lists a file. Without the
-                  # `|| true` the errexit that writeShellApplication sets kills
-                  # the script inside this substitution, and --check reports
-                  # nothing while still exiting 1.
-                  unformatted="$(fd --extension sh --type file \
-                    --exec-batch shfmt "''${shfmt_flags[@]}" -l || true)"
-                  if [ -n "$unformatted" ]; then
-                    echo "shfmt drift:" >&2
-                    echo "$unformatted" >&2
-                    drift=1
-                  fi
-                  [ "$drift" -eq 0 ] && echo "OK: formatting is clean"
-                  exit "$drift"
-                fi
-
-                if [ "$#" -gt 0 ]; then
-                  for target in "$@"; do
-                    case "$target" in
-                      *.sh) shfmt "''${shfmt_flags[@]}" -w "$target" ;;
-                      *) nixfmt "$target" ;;
-                    esac
-                  done
-                  exit 0
-                fi
-
-                fd --extension nix --type file --exec-batch nixfmt
-                fd --extension sh --type file --exec-batch shfmt "''${shfmt_flags[@]}" -w
-              '';
-            }
-          );
+      formatter = import ./flake/formatter.nix {
+        inherit nixpkgs;
+        systems = [
+          "aarch64-darwin"
+          "x86_64-darwin"
+          "x86_64-linux"
+          "aarch64-linux"
+        ];
+      };
     };
 }

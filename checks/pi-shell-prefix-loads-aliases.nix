@@ -1,13 +1,5 @@
-# Moved verbatim from flake.nix. The expression is unchanged: its derivation path
-# is asserted equal to the pre-move baseline in
-# openspec/changes/decompose-flake-checks/drv-baseline.json.
 {
   pkgs,
-  lib,
-  inputs,
-  system,
-  notifyIcons,
-  managedFile,
   ...
 }:
 # Parse gate for the zsh fragments `modules/home/programs/zsh/default.nix`

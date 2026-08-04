@@ -1,24 +1,11 @@
-# Every flake check, one file each.
-#
-# Follows the aggregator pattern already used by modules/lib/default.nix and
-# modules/home/programs/llm/harnesses/default.nix: a directory of single-purpose
-# files behind one import, rather than one file that holds all of them.
-#
-# The two values several checks share are built once here, so a check that asserts
-# against the notifier icons or the reconciler jq program reads the same value the
-# activation does.
 {
   pkgs,
   lib,
-  inputs,
   system,
 }:
 let
   notifyIcons = (import ../modules/home/programs/llm/runtime { inherit pkgs lib; }).icons;
 
-  # The same jq program the activation reconciler runs. Imported rather than
-  # restated, so a check cannot pass against a copy that has drifted from what
-  # actually reconciles the live files.
   managedFile = import ../modules/home/programs/llm/lib/managed-file.nix { inherit lib; };
 
   check =
@@ -27,7 +14,6 @@ let
       inherit
         pkgs
         lib
-        inputs
         system
         notifyIcons
         managedFile

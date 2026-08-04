@@ -11,13 +11,11 @@ than "the checks still pass", and it is the gate for every phase here.
 
 Beyond length, four smells are in scope:
 
-- Duplicated shell preludes. `note()`, `fail=0`, `expect_rc`, and `expect_out` are
-  re-declared per check with small variations.
+- Every check declared the same six shared arguments, although most used one or two.
 - Assertions that cannot fail. Three were found and fixed during
   `reorganize-llm-module-layout`, all in this region, all invisible because a
   never-matching pattern looks exactly like a passing one.
-- Store paths interpolated into shell bodies, which is how a `perl` edit emptied
-  four paths during that change and why `${` in shell context is a hazard.
+- Shell inside Nix strings bypassed the repository shellcheck gate.
 - `cacheBundleFor` sits among the checks and is a packages helper.
 
 ## Goals / Non-Goals
@@ -25,17 +23,16 @@ Beyond length, four smells are in scope:
 Goals:
 - `flake.nix` declares outputs and nothing else, under 300 lines.
 - Every check is one file, discoverable by name.
-- Every extracted shell body is linted by the gate that already exists.
-- A check receives store paths as environment variables, so its script runs by
-  hand.
+- Every other check's evaluated build command passes shellcheck.
+- Each check declares only the shared values that it reads.
 
 Non-Goals:
 - Changing what any check asserts. Verified by derivation-path equality, not by
   reading.
-- Adding, merging, or removing checks.
+- Adding, merging, or removing any of the original 19 checks. The new
+  `check-bodies-shellcheck` coverage gate is in scope.
 - Adopting `flake-parts`.
-- Fixing the pre-existing unformatted region of `flake.nix` in the same commit as
-  a move.
+- Reformatting code outside the expressions changed by this refactor.
 - Auditing all 19 checks for never-matching assertions. That is real work and it is
   its own change; this one makes it possible by putting each check where it can be
   read.
@@ -57,107 +54,96 @@ and `harnesses/default.nix`.
 ### D2. Derivation-path equality is the gate, per check
 
 Each move is verified by comparing that check's `drvPath` before and after. All 19
-are recorded up front.
+are recorded up front. For checks whose input is the full source tree, normalize
+only the expected source path and compare `drvAttrs.buildCommand` too.
 
 - Alternative rejected: run `nix flake check` and call it verified. Rejected
   because a check that passes both before and after tells you nothing about
   whether its body survived intact, and the bodies here contain assertions that
   pass when they match nothing.
 
-### D3. Extract the shell body only where the check has a real one
+### D3. Lint each evaluated check body in place
 
-A check that is mostly Nix with a three-line string stays one `.nix` file. A check
-whose body is dozens of lines of shell gets a `.sh` beside it. The threshold is
-whether shellcheck would have anything to say.
+`check-bodies-shellcheck` reads every other check's `drvAttrs.buildCommand`.
+Shellcheck sees the exact shell that Nix executes, including resolved store paths.
+The gate excludes itself because importing its own derivation recurses.
 
-- Alternative rejected: extract every string, uniformly. Rejected because a
-  three-line body in its own file costs a reader one more hop and gains no lint.
+- Alternative rejected: extract shell into sibling files. Rejected because this
+  rewrites each derivation only to expose its shell to a linter.
 
-### D4. Store paths arrive as environment variables
+### D4. Each check declares its actual dependencies
 
-An extracted script receives `$AGENT_REVIEW`, `$GUARD`, `$CFG` and so on, set in
-the derivation. The script never contains `${`.
+Every check accepts only the shared values that it reads. The aggregator can add
+a shared value without adding an unused argument to every check.
 
-- Alternative rejected: keep interpolating store paths into the body and read it
-  with `builtins.readFile`. Rejected because the two cannot coexist: `${` is Nix
-  interpolation inside a Nix string and a shell parameter expansion inside a
-  script, so a file that is both is a file no tool reads correctly. This is also
-  what makes the extracted script runnable by hand.
+- Alternative rejected: give each check one fixed argument signature. Rejected
+  because 19 checks declared six values while most used only one or two.
 
-### D5. One shared prelude, sourced by the extracted scripts
+### D5. Keep small shell helpers local
 
-`checks/lib/prelude.sh` declares `note`, `fail`, `expect_rc`, and `expect_out`
-once. It is a real file, so shellcheck lints it once and every consumer inherits
-the fix.
+The repeated helper names do not share one contract. `expect_rc` and `expect_out`
+occur in one check. The `note` variants have different output and failure rules.
 
-- Alternative rejected: leave each check's prelude inline. Rejected because the
-  variants already differ: some `note` implementations set `fail=1` and some do
-  not, which is the kind of difference that makes one check's failure silent.
+- Alternative rejected: add `checks/lib/prelude.sh`. Rejected because the shared
+  file adds a dependency without removing equivalent implementations.
 
-### D6. Largest checks first
+### D6. Move the checks as one verified set
 
-`agent-review-readiness` (388 lines), `managed-file-reconcile` (274), and
-`notify-defect-regressions` (171) move first. They carry the most risk and the
-most benefit, and doing them first means a mid-change stop still leaves the
-repository better.
+The relocation landed in `afb26d140` after comparing all 19 derivation paths.
 
-- Alternative rejected: smallest first, to build confidence. Rejected because the
-  small ones prove nothing about the hard cases, and stopping halfway would leave
-  the worst code in place.
+- Alternative rejected: one commit per check. Rejected because the shared
+  aggregator and the source-scanning check change as one seam.
 
 ## Rollout & Gating
 
-Per check: move it, then compare its `drvPath` against the recorded baseline. A
-mismatch means the body changed and the move is wrong. Then `nix flake check`.
+Compare every `drvPath` against the base revision. For a source-input mismatch,
+normalize the source path and compare the build command. Then run
+`nix flake check`.
 
-Phase 1 stands up `checks/default.nix` and moves one check as a pilot. Phase 2
-moves the rest in descending size order. Phase 3 removes the now-empty region from
-`flake.nix`, moves `cacheBundleFor` to where packages are built, and formats.
+Phase 1 adds `checks/default.nix` and moves one pilot check. Phase 2 moves the
+remaining checks and lints their evaluated build commands. Phase 3 reduces and
+formats the changed expressions in `flake.nix`.
 
-No `nh darwin switch` at any point: `checks` are in no system closure, so this
-change cannot affect the running machine. The kill switch is `git revert` per
-check.
+No `nh darwin switch` is needed because checks are outside every system closure.
+The code kill switch reverses this follow-up's implementation changes while
+retaining its OpenSpec history. Reverting the original relocation commits is
+unsafe because later checks depend on the aggregator.
 
 ## Risks / Trade-offs
 
-- An extracted body changes behavior invisibly, because the thing moved is the
-  test. Mitigation: derivation-path equality per check, which is exact.
-- A `${` left in an extracted script becomes a shell expansion instead of a Nix
-  interpolation, or vice versa. Mitigation: D4 forbids store-path interpolation in
-  extracted scripts, and the derivation-path comparison catches any change in what
-  the script receives.
-- The new `.sh` files enter the shellcheck gate and fail on pre-existing findings
-  that were never linted. Mitigation: that is the point, and each finding is fixed
-  or given a targeted `shellcheck disable` with a reason, per the repository rule.
-  A finding that indicates a real defect is split out rather than silenced.
-- `checks/default.nix` must pass through whatever each check needs (`inputs`,
-  `self`, `notifyIcons`, `lib`, `pkgs`). A wide argument set makes the seam vague.
-  Mitigation: the aggregator takes one attrset and each check declares what it
-  destructures, so the dependency is visible per file.
+- A source-scanning check changes derivation path when files move. Mitigation:
+  record these expected exceptions separately from body changes.
+- Shellcheck cannot see variables that stdenv supplies or store paths available
+  only during a build. Mitigation: exclude only SC2154 and SC1091 at the gate.
+- A future check can omit `drvAttrs.buildCommand`. Mitigation: direct attribute
+  access fails evaluation instead of filtering that check out.
 
 ## Migration Plan
 
-1. Record all 19 `drvPath` values. Done before any edit.
-2. Per check: move, compare `drvPath`, run `nix flake check`, commit.
-3. After the last one, remove the dead region from `flake.nix` and confirm it is
-   under 300 lines.
-4. Format `flake.nix` in its own commit, which also clears the pre-existing
-   unformatted region.
+1. Record all 19 `drvPath` values before the relocation.
+2. Move all checks behind one aggregator and compare every path.
+3. Remove the dead region from `flake.nix` and confirm it is under 300 lines.
+4. Run `nix flake check`.
 
-Rollback: `git revert` the commit for that check. Every commit is one check.
+Rollback the implementation paths from this follow-up: `checks/`, `flake.nix`,
+and `flake/formatter.nix`. Retain these OpenSpec artifacts because they record
+decisions already implemented by `1642fdc02` and the rollback history. Do not
+revert `afb26d140` or `1642fdc02`. Later commits add checks through their
+aggregator.
 
 ## Adversarial Review
 
 The rubric is the proposal's `Behavior` criteria, the `Decisions` above, the
 `Rollout & Gating` gates, and the proposal's `Non-goals`.
 
-Two halves per the `adversarial-review` skill. `specutil check` is mandatory every
-phase. The LLM critic loop is default-on and owner-gated, and a waiver is recorded
-as `Adversarial review: waived by owner`. When it runs, independent critics attempt
-to break the phase with a concrete failing scenario naming a violated rubric item,
-the author revises against surviving objections, and the loop runs to a terminal
-state. The skill scales the round cap and stops early on non-convergence or
-fix-induced churn. A cap hit is reported as open objections, never as a pass.
+Two halves per the `adversarial-review` skill. `specutil check` is mandatory. The
+relocation landed before this artifact caught up, so one whole-change critic loop
+verifies every phase. Each review task records the same terminal outcome. The loop
+is default-on and owner-gated, and a waiver is recorded as `Adversarial review:
+waived by owner`. Independent critics attempt to break the change with a concrete
+failing scenario naming a violated rubric item. The author revises against
+surviving objections until the loop reaches a terminal state. A cap hit is reported
+as open objections, never as a pass.
 
 The critic instruction that matters here: verify the move by derivation path, not
 by reading the diff. A 400-line relocation is not reviewable by eye, and saying so
