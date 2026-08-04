@@ -47,7 +47,7 @@ let
 
   # Amp validates skill frontmatter against a fixed allowlist and errors on any
   # key outside it, so it gets its own render rather than reading the Claude
-  # tree. config/amp.nix turns off Amp's .claude/skills auto-load to match.
+  # tree. harnesses/amp.nix turns off Amp's .claude/skills auto-load to match.
   ampSkillFiles = lib.mapAttrs' (
     name: path: lib.nameValuePair ".config/amp/skills/${name}/SKILL.md" { source = path; }
   ) skills.ampSkills;
@@ -205,19 +205,9 @@ in
   imports = [
     ./openspec-schema.nix
     ./skill-tools.nix
-    ./config/acp.nix
-    ./config/amp.nix
-    ./config/claude.nix
-    ./config/codex.nix
-    ./config/copilot-cli.nix
-    ./config/crush.nix
-    ./config/cursor.nix
-    ./config/devin.nix
-    ./config/gemini.nix
-    ./config/goose.nix
-    ./config/mcp-servers.nix
-    ./config/opencode.nix
-    ./config/pi.nix
+    ./acp.nix
+    ./mcp-servers.nix
+    ./harnesses
   ];
 
   home.file =

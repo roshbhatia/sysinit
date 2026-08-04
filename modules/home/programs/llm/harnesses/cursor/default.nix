@@ -5,7 +5,7 @@
   ...
 }:
 let
-  llmLib = import ../lib { inherit lib; };
+  llmLib = import ../../lib { inherit lib; };
   kit = llmLib.harnessKit.mkKit { inherit lib pkgs config; };
 
   cursorSettings = {
@@ -51,8 +51,8 @@ let
   # never both. Assertion below enforces this.
   #
   cursorRules = {
-    nix = ./cursor-rules/nix.mdc;
-    markdown = ./cursor-rules/markdown.mdc;
+    nix = ./rules/nix.mdc;
+    markdown = ./rules/markdown.mdc;
   };
 
   # Build-time check: a rule MDC must not declare both alwaysApply and globs.

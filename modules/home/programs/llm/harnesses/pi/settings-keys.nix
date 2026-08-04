@@ -1,5 +1,5 @@
 # The pi settings keys this repository declares, and the ones it does not.
-# Read by `config/pi.nix` and by the `pi-settings-keys-exist` flake check; a
+# Read by `harnesses/pi/default.nix` and by the `pi-settings-keys-exist` flake check; a
 # second copy in the check is what let `showLastPrompt` go unverified.
 {
   # repository policy, or derived from something Nix owns

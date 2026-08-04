@@ -5,7 +5,7 @@
   ...
 }:
 let
-  llmLib = import ../lib { inherit lib; };
+  llmLib = import ../../lib { inherit lib; };
   kit = llmLib.harnessKit.mkKit { inherit lib pkgs config; };
 
   profileBin = "${config.home.profileDirectory}/bin";

@@ -5,7 +5,7 @@
   ...
 }:
 let
-  llmLib = import ../lib { inherit lib; };
+  llmLib = import ../../lib { inherit lib; };
   kit = llmLib.harnessKit.mkKit { inherit lib pkgs config; };
 
   # Keep this list for confirmed per-harness incompatibilities only.
@@ -36,7 +36,7 @@ let
     + "\n## Output Style\n\n"
     + kit.llmLib.instructions.outputStyleRules;
 
-  render = import ./opencode-render.nix { inherit pkgs lib; };
+  render = import ./render.nix { inherit pkgs lib; };
 
   opencodeConfig = render.main // {
     mcp = llmLib.mcp.formatForOpencode disabledMcpServers kit.mcpServers.servers;

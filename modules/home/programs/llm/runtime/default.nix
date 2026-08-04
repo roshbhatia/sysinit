@@ -39,7 +39,7 @@ let
   };
 
   # Reaches agent-notify directly, carrying a reason string. Via the harness's
-  # own hooks, or via a bridge in config/{extensions,plugins}/sysinit-notify.ts.
+  # own hooks, or via a bridge under harnesses/{pi,opencode}/.
   hookBridged = [
     "claude"
     "codex"
@@ -78,8 +78,8 @@ let
   # keyed on the bridge file, not the label: the label lives here too, so a
   # contributor removing a bridge would edit both and the guard would agree
   bridgeArtifacts = {
-    pi = ../config/extensions/sysinit-notify.ts;
-    opencode = ../config/plugins/sysinit-notify.ts;
+    pi = ../harnesses/pi/extensions/sysinit-notify.ts;
+    opencode = ../harnesses/opencode/plugins/sysinit-notify.ts;
   };
 
   # a zero-byte file passes `pathExists` but loads no handlers

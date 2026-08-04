@@ -12,8 +12,14 @@ not restate any of those here.
 
 - openspec 1.6.0 via `overlays/openspec.nix`, patched so the custom
   `rosh-spec-driven` schema is the CLI default
-- Harness configs all generate from `modules/home/programs/llm/`: claude-code,
-  codex, gemini, cursor, opencode, amp, crush, devin, pi
+- Harness configs all generate from `modules/home/programs/llm/harnesses/`, one
+  module per harness: claude-code, codex, copilot, gemini, cursor, opencode, amp,
+  crush, devin, goose, pi. A harness owning assets is a directory holding its
+  `default.nix` beside them; one with no asset is a single file
+- The rest of `modules/home/programs/llm/` splits by role: `lib/` is
+  evaluation-time helpers, `runtime/` is the agent-agnostic runtime a harness hook
+  executes (notifier, state bus, gates, guard bodies), `skills/` is the scanned
+  skill registry, and `subagents/` is the teammate definitions
 - ACP adapter commands live in one registry, `lib/acp.nix`, rendered to
   `~/.config/acp/agents.json`. No ACP client is installed yet.
 - `hack/` scripts are bash with `set -euo pipefail`, formatted by

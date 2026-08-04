@@ -4,7 +4,7 @@
 # `config.sysinit.llm.mcp`) onto `main` and writes both files. The flake check
 { pkgs, lib }:
 let
-  llmLib = import ../lib { inherit lib; };
+  llmLib = import ../../lib { inherit lib; };
 
   # merge preserves whatever is already on disk, so undeclaring a key is a no-op
   # against the running harness unless it is deleted first.

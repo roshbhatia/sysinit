@@ -6,7 +6,7 @@
   # a separate adapter binary (claude, codex, pi).
   #
   # Commands are bare names, not store paths, because pi-acp is a derivation
-  # local to config/pi.nix and devin-cli is only on the home profile PATH.
+  # local to harnesses/pi/default.nix and devin-cli is only on the home profile PATH.
   # Every entry is installed by this repo, so PATH resolution is enough and
   # keeps the registry plain data.
   #

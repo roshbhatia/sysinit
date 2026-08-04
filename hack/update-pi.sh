@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
-# Report drift between pinned pi packages in modules/home/programs/llm/config/pi.nix
+# Report drift between pinned pi packages in modules/home/programs/llm/harnesses/pi/default.nix
 # and their latest versions on the npm registry. Also detects orphan
-# package-lock files under modules/home/programs/llm/config/locks/.
+# package-lock files under modules/home/programs/llm/harnesses/pi/locks/.
 #
 # Exits non-zero on any drift detected so this can gate CI / `task pi:update`.
 # Does NOT modify pi.nix. When drift exists, prints the next steps to
@@ -12,8 +12,8 @@
 
 set -euo pipefail
 
-PI_NIX="modules/home/programs/llm/config/pi.nix"
-LOCKS_DIR="modules/home/programs/llm/config/locks"
+PI_NIX="modules/home/programs/llm/harnesses/pi/default.nix"
+LOCKS_DIR="modules/home/programs/llm/harnesses/pi/locks"
 
 if [[ ! -f ${PI_NIX} ]]; then
   echo "ERROR: ${PI_NIX} not found" >&2
@@ -155,7 +155,7 @@ if [[ ${drift_count} -gt 0 ]]; then
   cat << 'EOF' >&2
 === Drift detected ===
 To update a package:
-  1. Bump version in modules/home/programs/llm/config/pi.nix
+  1. Bump version in modules/home/programs/llm/harnesses/pi/default.nix
   2. Recompute src hash:
      for fetchzip (mkFetchedNpmPackage):
        url='https://registry.npmjs.org/<pkg>/-/<basename>-<ver>.tgz'
@@ -165,7 +165,7 @@ To update a package:
   3. If buildNpmPackage: regenerate lockfile
        tmp=$(mktemp -d); cd "$tmp"; curl -sf "$url" | tar xz --strip-components=1
        npm install --package-lock-only --ignore-scripts
-       cp package-lock.json $REPO/modules/home/programs/llm/config/locks/<pkg>.lock.json
+       cp package-lock.json $REPO/modules/home/programs/llm/harnesses/pi/locks/<pkg>.lock.json
   4. If buildNpmPackage: harvest npmDepsHash
        set npmDepsHash to "sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA="
        nix build .#darwinConfigurations.<host>.system --no-link 2>&1 | grep got:

@@ -14,8 +14,8 @@ globs:
 ## Module layout
 
 - Each module is `{ lib, pkgs, config, ... }:` taking exactly the args it uses. Bring in `pkgs` and `config` only when needed.
-- Shared LLM-harness imports go through `lib/harness-kit.nix`: `let kit = llmLib.harnessKit.mkKit { inherit lib pkgs config; }; in ...`. Do not `import ../lib/instructions.nix`, `../mcp.nix`, or `../skills.nix` directly from a `config/<harness>.nix` file — the kit re-exports them.
-- Bash allowlists for agent harnesses consume `lib/allowlist.nix`'s canonical `tierA` / `tierB` patterns via the harness-specific `formatFor<X>`. Inline pattern lists in `config/<harness>.nix` are an anti-pattern.
+- Shared LLM-harness imports go through `lib/harness-kit.nix`: `let kit = llmLib.harnessKit.mkKit { inherit lib pkgs config; }; in ...`. Do not `import ../lib/instructions.nix`, `../lib/mcp-catalog.nix`, or `../skills/render.nix` directly from a harness module under `harnesses/` — the kit re-exports them.
+- Bash allowlists for agent harnesses consume `lib/allowlist.nix`'s canonical `tierA` / `tierB` patterns via the harness-specific `formatFor<X>`. Inline pattern lists in a harness module are an anti-pattern.
 
 ## Patterns to reuse
 

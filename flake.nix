@@ -1069,7 +1069,7 @@
               printf "alias fromzshdir='echo zshdir'\n" > "$HOME/.config/zsh/aliases.zsh"
 
               # Exactly what pi does: the prefix, then the command, in one bash -c.
-              got="$(bash -c "$(cat ${./modules/home/programs/llm/config/pi-shell-prefix.sh})
+              got="$(bash -c "$(cat ${./modules/home/programs/llm/harnesses/pi/shell-prefix.sh})
                 alias fromzshrc > /dev/null 2>&1 && echo zshrc-ok
                 alias fromzshdir > /dev/null 2>&1 && echo zshdir-ok" 2>&1)" || true
 
@@ -1094,7 +1094,7 @@
           # wins the last word, so the generated theme is active in zero sessions.
           pi-no-theme-writer =
             let
-              piKeys = import ./modules/home/programs/llm/config/pi-settings-keys.nix;
+              piKeys = import ./modules/home/programs/llm/harnesses/pi/settings-keys.nix;
               vendored = lib.optionalString (builtins.elem "theme" piKeys.declared) "yes";
             in
             pkgs.runCommand "pi-no-theme-writer-check" { nativeBuildInputs = [ pkgs.ripgrep ]; } ''
@@ -1109,7 +1109,7 @@
               fail=0
               for f in ${lib.concatStringsSep " " (
                 map (n: lib.escapeShellArg n) (
-                  import ./modules/home/programs/llm/config/pi-vendored-extensions.nix
+                  import ./modules/home/programs/llm/harnesses/pi/vendored-extensions.nix
                 )
               )}; do
                 p="$src/$f.ts"
@@ -1148,7 +1148,7 @@
                 }
 
                 # Declared keys must be documented settings of the installed build.
-                for k in ${lib.concatStringsSep " " (import ./modules/home/programs/llm/config/pi-settings-keys.nix).declared}; do
+                for k in ${lib.concatStringsSep " " (import ./modules/home/programs/llm/harnesses/pi/settings-keys.nix).declared}; do
                   # Anchored to the table column, and dotted children count: the doc
                   # lists `compaction`, `retry`, `warnings` and four others only as
                   # `compaction.enabled` style leaves, so a bare-name search rejected
@@ -1165,7 +1165,7 @@
                 # `assertPreferencesUndeclared` blocks declaring it. If pi renames or
                 # drops one, that assertion goes on blocking a declaration on behalf
                 # of a key that no longer exists, and nothing would say so.
-                for k in ${lib.concatStringsSep " " (import ./modules/home/programs/llm/config/pi-settings-keys.nix).ownerPreference}; do
+                for k in ${lib.concatStringsSep " " (import ./modules/home/programs/llm/harnesses/pi/settings-keys.nix).ownerPreference}; do
                   if ! rg -q "^\| \`$k(\\.[A-Za-z0-9_]+)*\`" "$docs"; then
                     echo "FAIL: '$k' is held back as owner preference but the installed pi build no longer documents it; re-evaluate the handback" >&2
                     fail=1
@@ -1176,7 +1176,7 @@
                 # quietly reintroduce one. The binary grep is kept here on purpose:
                 # for absence, a substring search is the conservative direction, since
                 # an incidental match only makes this stricter.
-                for k in ${lib.concatStringsSep " " (import ./modules/home/programs/llm/config/pi-settings-keys.nix).retired}; do
+                for k in ${lib.concatStringsSep " " (import ./modules/home/programs/llm/harnesses/pi/settings-keys.nix).retired}; do
                   if rg -qF "\`$k\`" "$docs"; then
                     echo "FAIL: '$k' is retired but the installed build now documents it; re-evaluate it" >&2
                     fail=1
@@ -1197,7 +1197,7 @@
           # same retired-key delete and merge, and the activation script
           opencode-config-schema =
             let
-              render = import ./modules/home/programs/llm/config/opencode-render.nix {
+              render = import ./modules/home/programs/llm/harnesses/opencode/render.nix {
                 inherit pkgs lib;
               };
               # The check must validate what activation writes, so it renders the
@@ -1659,7 +1659,7 @@
                 cfg=${./modules/home/programs/llm/runtime}
                 # The agent-agnostic scripts and the per-harness modules are two
                 # roots now, so an assertion says which layer it is about.
-                harness=${./modules/home/programs/llm/config}
+                harness=${./modules/home/programs/llm/harnesses}
                 icons=${notifyIcons}
                 fail=0
                 note() {
@@ -1680,9 +1680,9 @@
                 require_file "$cfg/agent-notify.sh"
                 require_file "$cfg/agent-prompt.sh"
                 require_file "$cfg/agent-focus.sh"
-                require_file "$harness/plugins/sysinit-notify.ts"
-                require_file "$harness/pi.nix"
-                require_file "$harness/opencode-render.nix"
+                require_file "$harness/opencode/plugins/sysinit-notify.ts"
+                require_file "$harness/pi/default.nix"
+                require_file "$harness/opencode/render.nix"
 
                 # --- defect 1: one definition of the group string -------------
                 # Execute the helper rather than grepping for its name. A call
@@ -1814,9 +1814,9 @@
                 # matches two unrelated readers further down the file.
                 # The OpenCode bridge must bind the event OpenCode actually
                 # publishes. `session.idle` does not exist in the plugin event
-                rg -q 'session\.status' "$harness/plugins/sysinit-notify.ts" ||
+                rg -q 'session\.status' "$harness/opencode/plugins/sysinit-notify.ts" ||
                   note "the opencode bridge does not bind session.status; session.idle is not a plugin event"
-                rg -q '"session\.idle"' "$harness/plugins/sysinit-notify.ts" &&
+                rg -q '"session\.idle"' "$harness/opencode/plugins/sysinit-notify.ts" &&
                   note "the opencode bridge binds session.idle, which the plugin hook never receives"
 
                 rg -q 'if not \(uv and uv.agent_state' "$ui" ||
@@ -1824,9 +1824,9 @@
 
                 # The two producers phase 3 retired. Each is a plain literal in a
                 # Nix file, so nothing else would notice it coming back.
-                rg -q '^\s*"notify"$' "$harness/pi.nix" &&
+                rg -q '^\s*"notify"$' "$harness/pi/default.nix" &&
                   note "pi vendors the upstream notify extension again; agent-notify owns the toast"
-                rg -qU 'attention = \{\s*\n\s*notifications = false' "$harness/opencode-render.nix" ||
+                rg -qU 'attention = \{\s*\n\s*notifications = false' "$harness/opencode/render.nix" ||
                   note "opencode attention.notifications is re-enabled; agent-notify owns the toast"
 
                 [ "$fail" -eq 0 ] || exit 1
@@ -1970,6 +1970,7 @@
                   fi
                 }
                 require_nonempty "$src/modules/home/programs/llm/runtime"
+                require_nonempty "$src/modules/home/programs/llm/harnesses"
                 # Skill-owned CLI sources now live beside their skill, so this
                 # subtree carries shell scripts that nothing else canaried.
                 require_nonempty "$src/modules/home/programs/llm/skills"

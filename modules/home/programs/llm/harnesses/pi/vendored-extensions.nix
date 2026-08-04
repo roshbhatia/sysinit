@@ -1,7 +1,7 @@
 # The pi extensions this repository vendors from the installed package into
 # `~/.pi/agent/extensions/`.
 #
-# Its own file so `config/pi.nix` and the `pi-no-theme-writer` flake check read one
+# Its own file so `harnesses/pi/default.nix` and the `pi-no-theme-writer` flake check read one
 # list. A second copy in the check is what let the theme-writing extension sit beside
 # a declared `theme` unnoticed.
 [

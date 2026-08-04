@@ -5,7 +5,7 @@
   ...
 }:
 let
-  llmLib = import ../lib { inherit lib; };
+  llmLib = import ../../lib { inherit lib; };
   kit = llmLib.harnessKit.mkKit { inherit lib pkgs config; };
 
   # agy reads hooks from ~/.agents/hooks.json with the same payload keys as
@@ -24,7 +24,7 @@ let
       bashGuardScript
     ];
     bashOptions = [ ];
-    text = builtins.readFile ../runtime/exit-code-guard.sh;
+    text = builtins.readFile ../../runtime/exit-code-guard.sh;
   };
 
   # The matcher is a regex over the tool name. agy's shell tool is `run_command`;
@@ -118,7 +118,7 @@ in
       force = true;
     };
     ".gemini/config/plugins/openspec-awareness/CONTEXT.md" = {
-      source = ./gemini-extensions/openspec-awareness/CONTEXT.md;
+      source = ./extensions/openspec-awareness/CONTEXT.md;
       force = true;
     };
     ".gemini/config/import_manifest.json" = {

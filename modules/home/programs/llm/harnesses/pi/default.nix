@@ -5,8 +5,8 @@
   ...
 }:
 let
-  llmLib = import ../lib { inherit lib; };
-  piKeys = import ./pi-settings-keys.nix;
+  llmLib = import ../../lib { inherit lib; };
+  piKeys = import ./settings-keys.nix;
   kit = llmLib.harnessKit.mkKit { inherit lib pkgs config; };
 
   # Extension TypeScript comes from the installed pi package, which ships its own
@@ -26,7 +26,7 @@ let
   # active in zero sessions. This host declares `appearance = "dark"` with a dark
   # scheme, so following the macOS appearance was already incoherent with the rest of
   # the system. The `pi-no-theme-writer` check fails the build if it comes back.
-  extensions = import ./pi-vendored-extensions.nix;
+  extensions = import ./vendored-extensions.nix;
 
   # Deliberately NOT vendored, both for the same reason `confirm-destructive` is
   # excluded above: each binds `tool_call`, and so does
@@ -591,7 +591,7 @@ let
     # Read from its own file so the `pi-shell-prefix-loads-aliases` flake check can
     # RUN it. The runtime-written value once carried a literal backslash-n, which
     # made the whole prefix one unparseable line and loaded no alias.
-    shellCommandPrefix = builtins.readFile ./pi-shell-prefix.sh;
+    shellCommandPrefix = builtins.readFile ./shell-prefix.sh;
   };
 
   # which the installed build does not recognize. The activation merge is a deep
@@ -640,9 +640,9 @@ let
   keysNotRendered = lib.subtractLists piDeclaredKeys piKeys.declared;
   assertKeysMatchManifest =
     if keysNotDeclared != [ ] then
-      throw "pi.nix: ${lib.concatStringsSep ", " keysNotDeclared} is written to settings.json but missing from pi-settings-keys.nix, so nothing verifies it against the installed binary."
+      throw "pi.nix: ${lib.concatStringsSep ", " keysNotDeclared} is written to settings.json but missing from settings-keys.nix, so nothing verifies it against the installed binary."
     else if keysNotRendered != [ ] then
-      throw "pi.nix: ${lib.concatStringsSep ", " keysNotRendered} is listed in pi-settings-keys.nix but not written to settings.json. Remove the stale entry."
+      throw "pi.nix: ${lib.concatStringsSep ", " keysNotRendered} is listed in settings-keys.nix but not written to settings.json. Remove the stale entry."
     else
       true;
 
