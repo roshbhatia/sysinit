@@ -1,9 +1,9 @@
 version: 1
 change: modernize-opencode-and-pi-config
 decision: approved
-note: 'Round 1 continues: 2.11 closed. The retired-key list now applies on every activation and is renamed retire; the base-absent immortal-key case is asserted and mutation tested. 2.12 to 2.14 remain open.'
-change_hash: acbbc58020610169
-base_commit: 2d796b8aa90ddbc6db581ccf1aab96e8a660dbe6
+note: 'Round 1: 2.11 to 2.13 closed, all mutation tested. Only 2.14 (rollback documentation and an ownerPreference existence guard) remains open.'
+change_hash: a723b9daea7cc739
+base_commit: 6d150070e33c6884e46da03e25f71aad746c9c71
 items:
     0f8cd7a6a4d731bb:
         hash: da42f5ffd02d176c
@@ -20,6 +20,9 @@ items:
     2ef836be866dfa76:
         hash: 3117b86500f01253
         text: Write the TUI config to `~/.config/opencode/tui.json` using the same merge-into-a-writable-file activation pattern as `opencode.nix:208`; this writer is the one `unify-agent-notification-layer` depends on for `attention.notifications`
+    3f200e515ecd45c8:
+        hash: 48a9a7f4ac7911d2
+        text: 'Fixed in two steps, because the first was not enough. `piThemeName` is now the one definition and the setting, the theme''s `name` field, and the install filename all derive from it. That alone did not catch a hardcoded name, so the theme is bound as an attrset before serialization and the assertion also compares its own `name` field. Mutation tested: wrapping the name as `${piThemeName}-dark` was NOT caught after step one and IS caught after step two'
     4a901c71652891ab:
         hash: b534611ee0de34a6
         text: Update `hack/update-pi.sh` so it no longer reports on a revision that no longer exists
@@ -86,6 +89,9 @@ items:
     9293d79e478f4222:
         hash: da6b246a0466599e
         text: 'Apply: `nh darwin switch`'
+    2521756a72438e41:
+        hash: f8671853d32993e3
+        text: 'Fixed. `assertPrefixHasRealNewlines` rejects a literal backslash-n and a prefix with fewer than three non-empty lines. Mutation tested by reflowing to the exact broken form the runtime once wrote: caught, naming the reason. This defect previously had only a comment guarding it while the other two of the three got a check and an assertion, which design.md D3 forbids'
     4667566e378c510e:
         hash: b007fbd2bac6ac4d
         text: Apply the `nvim-pi` decision in `pi.nix` and in the keybindings file
@@ -98,12 +104,6 @@ items:
     a54fdbe4de731ec7:
         hash: 7030f966126191f9
         text: 'Confirm: the live main config carries none of `theme`, `keybinds`, or `tui` after the switch, and `tui.json` carries all three'
-    ac65baf8307bdca5:
-        hash: e7ca60961a7c7458
-        text: Nothing asserts `shellCommandPrefix` is three real lines, so a reflow to a literal `\n` passes every gate. The other two defects of this phase got a check and an assertion; this one got a comment, which design.md D3 forbids
-    b336ceae709c46d3:
-        hash: 323496b25c511b44
-        text: '`assertThemeSelected` compares the literal "stylix" to the literal "stylix", and the theme''s own `name` field and filename are separate hardcoded copies. Bind one `themeName` and derive all three'
     b959ad93e33805fb:
         hash: 91ddf6ea87c9cdb5
         text: Move `theme`, `keybinds`, and `tui.scroll_acceleration` out of the main config attribute set into a TUI config attribute set

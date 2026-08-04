@@ -95,15 +95,19 @@ let
     };
   };
 
-  stylixTheme =
+  # Bound as an attrset before serialization so `assertThemeSelected` can compare
+  # the theme's OWN `name` field against `piThemeName`. Serializing inline made that
+  # field unreachable, so a hardcoded name could drift from the selected setting and
+  # nothing caught it.
+  stylixThemeAttrs =
     let
       c = config.lib.stylix.colors;
       hex = name: "#${c.${name}}";
     in
-    builtins.toJSON {
+    {
       "$schema" =
         "https://raw.githubusercontent.com/earendil-works/pi/main/packages/coding-agent/src/modes/interactive/theme/theme-schema.json";
-      name = "stylix";
+      name = piThemeName;
       vars = {
         primary = hex "base0D";
         secondary = hex "base03";
@@ -571,13 +575,18 @@ let
   # pi's own runtime, which is how `lastChangelogVersion` and the session
   # bookkeeping survive an activation.
   #
+  # One definition for the generated theme. The setting, the theme's own `name`
+  # field, and the install filename all derive from it, so the selection assertion
+  # below is structural rather than a literal compared to a copy of itself.
+  piThemeName = "stylix";
+
   piManagedSettings = {
     packages = piPackagePaths;
     quietStartup = true;
 
-    # The generated stylix theme, written to ~/.pi/agent/themes/stylix.json
+    # The generated theme, written to ~/.pi/agent/themes/${piThemeName}.json
     # below. Generating a theme and never selecting it left pi on "dark".
-    theme = "stylix";
+    theme = piThemeName;
 
     # Pi implements the Agent Skills standard and its own docs/skills.md gives
     # this exact array as the way to reuse another harness's tree. Without it,
@@ -626,10 +635,34 @@ let
   # the binary is dead configuration that reads as a working setting.
   piDeclaredKeys = builtins.attrNames piManagedSettings;
 
-  # A generated theme nobody selects is a file pi never reads. This module built
+  # A generated theme nobody selects is a file pi never reads. Structural, not
+  # tautological: the setting, the theme's own `name` field, and the install
+  # filename all derive from `piThemeName`, so this compares the setting against
+  # the one definition rather than against a second copy of the same literal.
+  stylixTheme = builtins.toJSON stylixThemeAttrs;
+
   assertThemeSelected =
-    if (piManagedSettings.theme or "") != "stylix" then
-      throw "pi.nix: the stylix theme is generated and installed but `piManagedSettings.theme` does not select it."
+    if (piManagedSettings.theme or "") != piThemeName then
+      throw "pi.nix: the ${piThemeName} theme is generated and installed but `piManagedSettings.theme` does not select it."
+    else if (stylixThemeAttrs.name or "") != piThemeName then
+      throw "pi.nix: the generated theme names itself '${stylixThemeAttrs.name or ""}' but the setting selects '${piThemeName}'. Pi resolves a theme by its name field, so the theme would be installed and unselected."
+    else
+      true;
+
+  # The prefix must carry REAL newlines. The runtime-written value held a literal
+  # backslash-n, which made the whole prefix one unparseable line and loaded no
+  # alias. Nothing caught a reflow back to that form, so the third defect this
+  # change fixes had only a comment guarding it while the other two got a check and
+  # an assertion. design.md D3: a dead setting is a build failure, not a comment.
+  assertPrefixHasRealNewlines =
+    let
+      prefix = piManagedSettings.shellCommandPrefix or "";
+      lines = builtins.filter (l: l != "") (lib.splitString "\n" prefix);
+    in
+    if lib.hasInfix "\\n" prefix then
+      throw "pi.nix: shellCommandPrefix contains a literal backslash-n. Pi reads it as one line and loads no alias. Use a real newline."
+    else if builtins.length lines < 3 then
+      throw "pi.nix: shellCommandPrefix has ${toString (builtins.length lines)} non-empty lines, expected at least 3 (the shopt and the two eval lines)."
     else
       true;
 
@@ -701,6 +734,7 @@ in
         assert assertPiBridgeInstalled;
         assert assertPiKeysDisjoint;
         assert assertThemeSelected;
+        assert assertPrefixHasRealNewlines;
         assert assertPreferencesUndeclared;
         assert assertKeysMatchManifest;
         extensionFiles
@@ -728,7 +762,7 @@ in
           };
           force = true;
         };
-        ".pi/agent/themes/stylix.json" = {
+        ".pi/agent/themes/${piThemeName}.json" = {
           text = stylixTheme;
           force = true;
         };

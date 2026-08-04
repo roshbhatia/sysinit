@@ -99,13 +99,18 @@
       EVERY activation, and is renamed `retire`, because `adoptDelete` would have
       been a lie. Asserted by `retire removes a base-absent key the harness rewrote`,
       mutation tested by stopping the base path from stripping `deps:` 2.7
-- [ ] 2.12 Nothing asserts `shellCommandPrefix` is three real lines, so a reflow to
-      a literal `\n` passes every gate. The other two defects of this phase got a
-      check and an assertion; this one got a comment, which design.md D3 forbids
-      `deps:` 2.7
-- [ ] 2.13 `assertThemeSelected` compares the literal "stylix" to the literal
-      "stylix", and the theme's own `name` field and filename are separate
-      hardcoded copies. Bind one `themeName` and derive all three `deps:` 2.7
+- [x] 2.12 Fixed. `assertPrefixHasRealNewlines` rejects a literal backslash-n and
+      a prefix with fewer than three non-empty lines. Mutation tested by reflowing to
+      the exact broken form the runtime once wrote: caught, naming the reason. This
+      defect previously had only a comment guarding it while the other two of the
+      three got a check and an assertion, which design.md D3 forbids `deps:` 2.7
+- [x] 2.13 Fixed in two steps, because the first was not enough. `piThemeName` is
+      now the one definition and the setting, the theme's `name` field, and the
+      install filename all derive from it. That alone did not catch a hardcoded name,
+      so the theme is bound as an attrset before serialization and the assertion also
+      compares its own `name` field. Mutation tested: wrapping the name as
+      `${piThemeName}-dark` was NOT caught after step one and IS caught after step
+      two `deps:` 2.7
 - [ ] 2.14 The documented rollback in proposal.md and design.md describes
       re-imposition semantics the three-way merge does not have, and instructs the
       operator to use a retired-key list by a name that no longer exists. Also
