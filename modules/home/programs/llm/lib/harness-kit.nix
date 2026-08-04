@@ -11,8 +11,8 @@
     }:
     let
       llmLib = import ../lib { inherit lib; };
-      skillsLib = import ../skills.nix { inherit pkgs; };
-      mcpServers = import ../mcp.nix {
+      skillsLib = import ../skills/render.nix { inherit pkgs; };
+      mcpServers = import ./mcp-catalog.nix {
         inherit lib;
         inherit (config.sysinit.llm.mcp) additionalServers;
       };

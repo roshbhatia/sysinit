@@ -180,14 +180,14 @@
 
 - **SHAPE** graph
 
-- [ ] 4.1 Move `llm/mcp.nix` to `lib/mcp-catalog.nix`, repoint `lib/harness-kit.nix`
+- [x] 4.1 Move `llm/mcp.nix` to `lib/mcp-catalog.nix`, repoint `lib/harness-kit.nix`
       at it, and leave `lib/mcp.nix` alone. The two are the catalog and the
       per-harness formatters, so they keep distinct names
-- [ ] 4.2 Move `llm/skills.nix` to `skills/render.nix`, and correct its relative
+- [x] 4.2 Move `llm/skills.nix` to `skills/render.nix`, and correct its relative
       reads of the registry and of `lib/vocab.nix` `deps:` 4.1
-- [ ] 4.3 Repoint every importer of the two moved files: `llm/default.nix`,
+- [x] 4.3 Repoint every importer of the two moved files: `llm/default.nix`,
       `lib/harness-kit.nix`, and the two `flake.nix` sites `deps:` 4.2
-- [ ] 4.4 Run `nix flake check` and confirm it exits 0. Confirm no top-level file
+- [x] 4.4 Run `nix flake check` and confirm it exits 0. Confirm no top-level file
       under `llm/` shares a name with a directory beside it `deps:` 4.3
 - [ ] 4.5 Adversarial review (`adversarial-review` skill): critics attempt to
       break the library-path phase against the proposal `Behavior` criteria and

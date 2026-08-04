@@ -6,7 +6,7 @@
   ...
 }:
 let
-  skills = import ./skills.nix { inherit pkgs; };
+  skills = import ./skills/render.nix { inherit pkgs; };
 
   # Claude Code standard path - most tools can read from here
   skillFiles = lib.mapAttrs' (

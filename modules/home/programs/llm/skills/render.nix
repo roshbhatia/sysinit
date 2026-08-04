@@ -5,8 +5,8 @@
 }:
 
 let
-  registry = import ./skills { inherit pkgs lib; };
-  vocab = import ./lib/vocab.nix { inherit lib; };
+  registry = import ./. { inherit pkgs lib; };
+  vocab = import ../lib/vocab.nix { inherit lib; };
 
   requiredSkills = [
     "shell-script-authoring"

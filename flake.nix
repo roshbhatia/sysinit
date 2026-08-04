@@ -255,7 +255,7 @@
           # either silently reshapes every skill the fleet loads.
           skill-render-shape =
             let
-              s = import ./modules/home/programs/llm/skills.nix { inherit pkgs; };
+              s = import ./modules/home/programs/llm/skills/render.nix { inherit pkgs; };
               reg = import ./modules/home/programs/llm/skills { inherit pkgs lib; };
               toolSources = import ./modules/home/programs/llm/skills/tool-sources.nix;
             in
