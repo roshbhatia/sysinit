@@ -98,7 +98,7 @@ in
   assertions = [
     {
       assertion = !config.home.preferXdgDirectories;
-      message = "llm/codex: home.preferXdgDirectories moves programs.codex to .config/codex, but sysinit.llm.managedFiles still points at .codex. Update the paths in config/codex.nix together with the flag.";
+      message = "llm/codex: home.preferXdgDirectories moves programs.codex to .config/codex, but sysinit.llm.managedFiles still points at .codex. Update the paths in harnesses/codex.nix together with the flag.";
     }
   ];
 

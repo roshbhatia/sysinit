@@ -1,55 +1,55 @@
 version: 1
 change: reorganize-llm-module-layout
 decision: approved
-note: 'Phase 1 complete after adversarial review rounds 1 and 2 (K=2). Six defects found and fixed, five mutation tested. Artifacts corrected: false removal criterion, unauthorized-edit criterion, unsatisfiable old-path criterion, two count errors, missing import-depth tasks.'
-change_hash: 31ac87ab45cdda0a
-base_commit: 7a490c231a9781b34e58db10d016b49c79f8830d
+note: All phases applied and switched. Adversarial review found 6 defects across phases; the last found 10 stale path strings in shipped content. All fixed and mutation tested where a check was involved.
+change_hash: 8dd75d40fd2f27db
+base_commit: 27132f45ff5bd7182966d4d7c97df33b9ba1d2c7
 items:
     1c3cbfec1de2b9d3:
         hash: a7ea4351b6b0b613
         text: Move the shellcheck `require_nonempty` canary from `llm/config` to `llm/runtime`, so the check still fails loudly if this subtree stops contributing scripts
+    1d0c724271f7e96e:
+        hash: 1d15d5f6c377c682
+        text: 'Round 1 finding: recalibrate the group-literal stray scan. Its patterns required a `$` after the colon, matching an interpolated form `agent_group` no longer emits, so it matched nothing, not even the canonical file, and a copied definition passed. Dead since the helper moved to `printf`. Added a positive control that fails if the patterns stop matching `agent-group.sh`, so the scan cannot go dead silently again. Both mutation tested'
     02af5a096b238a5c:
         hash: e0408ec39df3cbc0
         text: Rename gemini's wrapper derivation from `devin-guard` to `gemini-exit-code-guard`, so two harnesses stop building two different derivations under one name
     02f91804907fdfb2:
         hash: 95f1f892e92a7da7
         text: 'Pilot: create `harnesses/default.nix` holding the `imports` list (follows the aggregating list in `llm/default.nix`), move `config/amp.nix` to `harnesses/amp.nix`, and point `llm/default.nix` at `./harnesses`. One flat harness proves the aggregator and the `../lib` import depth before the other ten move'
+    5ed698ff2d6f4a7c:
+        hash: acc0e0373f890f8c
+        text: 'Repoint the remaining `flake.nix` sites: the `pi-shell-prefix`, `pi-settings-keys`, `pi-vendored-extensions`, and `opencode-render` checks, the `harness=` root in `notify-defect-regressions`, and the shellcheck canary, which gains `llm/harnesses`. The `require_file` guards added in 2.13 will name every assertion whose target this phase moved, so run the check and fix what it names rather than grepping for sites'
+    6ae5b1717f09b2e6:
+        hash: f62d14d3dc35b0ab
+        text: 'Confirm the check from 5.1 now passes, then mutation test it. Reverting 5.2 alone is NOT a valid mutation: `writeShellApplication` shellchecks the body, an unknown command fails the wrapper build, and a dependency failure reads as zero assertion failures. Point the injected path at a missing file instead, which is shellcheck-clean and reproduces the original fail-open'
     6f86bd93a444e3a1:
         hash: b4dd788c1638f852
         text: 'Create `harnesses/pi/`: `default.nix` from `config/pi.nix`, `settings-keys.nix`, `vendored-extensions.nix`, `shell-prefix.sh`, all four files under `extensions/` (two loose `.ts` files plus the two-file `openspec-sidebar/`), and the ten lockfiles under `locks/`. Correct the library import depth to `../../lib`, repoint the three internal reads that the renames break (`settings-keys.nix`, `vendored-extensions.nix`, `shell-prefix.sh`), and keep the sidebar''s `source` a directory rather than expanding it to files'
-    7a0f4eb84383a703:
-        hash: 43d43ea1c16a50af
-        text: 'Repoint the remaining `flake.nix` sites: the `pi-shell-prefix`, `pi-settings-keys`, `pi-vendored-extensions`, and `opencode-render` checks, and add `llm/harnesses` to the shellcheck canary'
     7ab950ba0ab40791:
         hash: d1c30623e427b43f
         text: 'Confirm: the owner reads the file-level difference between the current generation''s result path and the new one, and decides whether every difference was intended. The expectation is that no file appears and no file disappears, and that the only content difference is the `citelock` store path, which moves because the script''s usage comment was corrected. Any appearing or disappearing file is a defect in an earlier phase, not an expected consequence of this one'
     7ce2adf8d82bc7af:
         hash: 8cf307adda8dc2d7
         text: 'Confirm: the owner runs one agent session and reports whether the notifier, the statusline, and the state bus still fire, which is the judgment no check in this change can make'
-    7d7117f913c15b8b:
-        hash: d549ed4aa8b807e1
-        text: 'Adversarial review (`adversarial-review` skill): critics attempt to break the skill-tools phase against the proposal `Behavior` criteria, in particular the criterion that no skill tree gains a duplicate script; revise until the loop reaches a terminal state (see the skill for the scaled round cap)'
     7ea79dce9db2cf6e:
         hash: 4c9eecb796bdd178
         text: Move `llm/mcp.nix` to `lib/mcp-catalog.nix`, repoint `lib/harness-kit.nix` at it, and leave `lib/mcp.nix` alone. The two are the catalog and the per-harness formatters, so they keep distinct names
-    7fffa2f20cae7345:
-        hash: 8117ab3c46905803
-        text: Confirm the check from 5.1 now passes, then mutation test it. Revert 5.2 alone and confirm the destructive case fails. Then break the allowed case alone and confirm that case fails. A check that passes for one reason proves one thing
     8d7ff552710bcbcb:
         hash: 760446a55094f495
         text: 'Create `harnesses/claude/`: `default.nix` from `config/claude.nix`, `nix-guard.sh` from `config/claude-nix-guard.sh`, `statusline.sh`, and `worklog-hook.py` from `config/worklog.py`. Correct the library import depth to `../../lib`'
     8e19e45204ff46dc:
         hash: 2725e3d4459a0ae0
         text: 'Write the failing check first: a `flake.nix` check that pipes hook JSON carrying a destructive command to devin''s and gemini''s exec-guard wrappers and asserts a non-zero exit, plus JSON carrying an allowed command and asserts exit 0 (follows `destructive-guard-fixtures`, which drives the assembled guard rather than the source file). Confirm it fails against the current script'
+    9dd9b5e38fef4f31:
+        hash: 85cd7faf9f3d4725
+        text: 'Adversarial review (`adversarial-review` skill): critics attempt to break the harness-layer phase against the proposal `Behavior` criteria and against D2 and D8, in particular the criterion that no file under `harnesses/` imports the instructions, catalog, or renderer module directly; revise until the loop reaches a terminal state (see the skill for the scaled round cap) 3.14. Run as ONE consolidated review over phases 3, 4 and 5 rather than three separate loops, recorded here as a deviation. Terminal state HALTED at round 1 with 0 open objections; not a clean round'
     9e71dff4fbee6066:
         hash: b40838604f2c2a2b
         text: 'Round 2 finding: replace the two-filename denylist in `skill-render-shape` with the list in `skills/tool-sources.nix`, which `skill-tools.nix` also builds from, so a third skill-owned CLI cannot escape the guard. Mutation tested by adding a third entry pointing at an installed path'
     23b3aa7c0002fefa:
         hash: bb66ee890b04c76a
         text: Run `nix flake check` and confirm it exits 0. Confirm no top-level file under `llm/` shares a name with a directory beside it
-    35a328ffd1291c7f:
-        hash: f60b62b3c8e7bdea
-        text: 'Adversarial review (`adversarial-review` skill): critics attempt to break the library-path phase against the proposal `Behavior` criteria and against D5; revise until the loop reaches a terminal state (see the skill for the scaled round cap)'
     46c14f4213e2ea25:
         hash: d4b9c8c1f83fd828
         text: Move `llm/skills.nix` to `skills/render.nix`, and correct its relative reads of the registry and of `lib/vocab.nix`
@@ -86,12 +86,12 @@ items:
     2045b623dd12333a:
         hash: 8787812419c4dc32
         text: Record the old-path to new-path map in this change's directory, so the seven in-flight changes that name old paths can be read against it
-    5259b438e1c36339:
-        hash: 95db6bcc3b4967f6
-        text: Repoint `lib/guards.nix` at `../runtime/bash-guard.sh`, then confirm that no file under `lib/` reads a path outside `lib/` and `runtime/`
-    33663abac47b2f02:
-        hash: df2227d0bd18cb39
-        text: 'Adversarial review (`adversarial-review` skill): critics attempt to break the harness-layer phase against the proposal `Behavior` criteria and against D2 and D8, in particular the criterion that no file under `harnesses/` imports the instructions, catalog, or renderer module directly; revise until the loop reaches a terminal state (see the skill for the scaled round cap)'
+    8096f211739f555c:
+        hash: 032d90f26c6cb82f
+        text: 'Adversarial review (`adversarial-review` skill): critics attempt to break the skill-tools phase against the proposal `Behavior` criteria, in particular the criterion that no skill tree gains a duplicate script; revise until the loop reaches a terminal state (see the skill for the scaled round cap) 1.9. Terminal state CAPPED at K=2 with 0 open objections and no clean round: rounds 1 and 2 each found real defects, so this is not reported as a clean review. Round 2 also caught a fix-induced defect in a round-1 fix'
+    34676dae0d68521e:
+        hash: bdf067dcc1930cb1
+        text: 'Adversarial review (`adversarial-review` skill): critics attempt to break the library-path phase against the proposal `Behavior` criteria and against D5; revise until the loop reaches a terminal state (see the skill for the scaled round cap) 4.4. Covered by the consolidated review recorded at 3.15'
     48978de5488a4bf5:
         hash: 40d0b7cc988a75ac
         text: Run `nix flake check` and confirm it exits 0
@@ -116,6 +116,9 @@ items:
     a80f214865a6b0f1:
         hash: 9878fd3c015b230a
         text: 'Pilot: move `citation-tools/citelock.sh` to `skills/citation-verification/citelock.sh` with `git mv`. The pilot is the move whose consumer set is largest, so a wrong assumption about who reads the script surfaces on one file rather than two'
+    ac5db4394ef3e098:
+        hash: 8c5f5955048d8129
+        text: 'Repoint `lib/guards.nix` at `../runtime/bash-guard.sh`, then confirm no file under `lib/` reads a path inside the harness layer. Sibling module trees are allowed and stay: `instructions.nix` imports `../subagents`, and `harness-kit.nix` imports the renderer and the MCP catalog by design. Only `guards.nix` reached into the harness directory, and only for the shared guard body'
     b9e046fe86228c02:
         hash: 6523ddf232b57c23
         text: 'Adversarial review (`adversarial-review` skill): critics attempt to break the guard fix against the proposal `Behavior` criteria and against D6 and D7, in particular whether the fix turns a fail-open guard into an over-blocking one; revise until the loop reaches a terminal state (see the skill for the scaled round cap)'
@@ -137,9 +140,9 @@ items:
     ca964b7974c91ffa:
         hash: 450cc2e92deb2681
         text: Record in `skills/default.nix` that a skill's top-level file is not installed and a subdirectory's contents are, because D4 now depends on that distinction
-    daf696625df966de:
-        hash: 5b31ee51574a8531
-        text: 'Adversarial review (`adversarial-review` skill): critics attempt to break the runtime phase against the proposal `Behavior` criteria and against D1, in particular the claim that no file under `lib/` reads a harness path; revise until the loop reaches a terminal state (see the skill for the scaled round cap)'
+    cbd2c97ddd1b4fef:
+        hash: e298996e51c7ab36
+        text: 'Adversarial review (`adversarial-review` skill): critics attempt to break the runtime phase against the proposal `Behavior` criteria and against D1, in particular the claim that no file under `lib/` reads a harness path; revise until the loop reaches a terminal state (see the skill for the scaled round cap) 2.11. Terminal state HALTED at round 1 with 0 open objections: two objections, both upheld and fixed. Not a clean round'
     e1f00d0764232787:
         hash: 40d0b7cc988a75ac
         text: Run `nix flake check` and confirm it exits 0
@@ -176,6 +179,9 @@ items:
     f50c93079389d32d:
         hash: 1bb0f6ea771b0b9b
         text: 'Round 1 finding: extend the `skill-render-shape` flake check to fail when a skill-owned CLI source appears in the installed set, so D4 is gated rather than only commented. Mutation test it by naming an installed path in the guard and confirming the check fails'
-    f90a4db8b3630a8f:
-        hash: 31491a00986012db
-        text: Run `nix flake check` and confirm it exits 0. Read `git diff -M --stat` and confirm every file in this phase is reported as a rename, except `lib/guards.nix`, `flake.nix`, and the two harness modules
+    fa1649036fc2ea5c:
+        hash: 0bf181086f7d2c7b
+        text: 'Round 1 finding: add a `require_file` guard for every path `notify-defect-regressions` greps. `set -e` exempts the left side of a `&&`, and `rg` on a missing path exits 2, so an `rg ... && note ...` assertion neither fires nor aborts when its target moves. The `notify` guard is that shape and sits in its silent state whenever the regression is absent, so a dead guard and a live one looked identical. Mutation tested by pointing it at a moved path'
+    fb332cac3d44de41:
+        hash: a243b1a1d8facc94
+        text: 'Run `nix flake check` and confirm it exits 0. Read `git diff -M --stat` and confirm all 13 script moves are renames with zero changed lines. Five files are edited rather than moved, and each is authorized by a task above: `lib/guards.nix`, `flake.nix`, `config/devin.nix`, `config/gemini.nix`, and `llm/default.nix`. `runtime/default.nix` is a rename that also carries edits, per 2.5'

@@ -13,7 +13,7 @@
 { lib }:
 let
   # One jq program, rendered once and shared by the activation script and the
-  # flake check, for the reason given in config/opencode-render.nix: two
+  # flake check, for the reason given in harnesses/opencode/render.nix: two
   # hand-copies would agree today and drift on the next edit.
   mergeProgram = ''
     def show($v): ($v | tojson) as $s

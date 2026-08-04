@@ -176,12 +176,14 @@
       `deps:` 3.9, 3.12
 - [x] 3.14 Run `nix flake check` and confirm it exits 0. Read `git diff -M --stat`
       and confirm each moved harness asset is reported as a rename `deps:` 3.13
-- [ ] 3.15 Adversarial review (`adversarial-review` skill): critics attempt to
+- [x] 3.15 Adversarial review (`adversarial-review` skill): critics attempt to
       break the harness-layer phase against the proposal `Behavior` criteria and
       against D2 and D8, in particular the criterion that no file under
       `harnesses/` imports the instructions, catalog, or renderer module directly;
       revise until the loop reaches a terminal state (see the skill for the scaled
-      round cap) `deps:` 3.14
+      round cap) `deps:` 3.14. Run as ONE consolidated review over phases 3, 4 and
+      5 rather than three separate loops, recorded here as a deviation. Terminal
+      state HALTED at round 1 with 0 open objections; not a clean round
 
 ## 4. Eval-library and renderer paths
 
@@ -196,10 +198,11 @@
       `lib/harness-kit.nix`, and the two `flake.nix` sites `deps:` 4.2
 - [x] 4.4 Run `nix flake check` and confirm it exits 0. Confirm no top-level file
       under `llm/` shares a name with a directory beside it `deps:` 4.3
-- [ ] 4.5 Adversarial review (`adversarial-review` skill): critics attempt to
+- [x] 4.5 Adversarial review (`adversarial-review` skill): critics attempt to
       break the library-path phase against the proposal `Behavior` criteria and
       against D5; revise until the loop reaches a terminal state (see the skill
-      for the scaled round cap) `deps:` 4.4
+      for the scaled round cap) `deps:` 4.4. Covered by the consolidated review
+      recorded at 3.15
 
 ## 5. Guard fail-open fix
 
@@ -225,7 +228,7 @@
       instead, which is shellcheck-clean and reproduces the original fail-open
       `deps:` 5.4
 - [x] 5.6 Run `nix flake check` and confirm it exits 0 `deps:` 5.5
-- [ ] 5.7 Adversarial review (`adversarial-review` skill): critics attempt to
+- [x] 5.7 Adversarial review (`adversarial-review` skill): critics attempt to
       break the guard fix against the proposal `Behavior` criteria and against D6
       and D7, in particular whether the fix turns a fail-open guard into an
       over-blocking one; revise until the loop reaches a terminal state (see the

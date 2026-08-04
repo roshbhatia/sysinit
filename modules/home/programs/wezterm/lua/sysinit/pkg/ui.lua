@@ -158,7 +158,7 @@ function M.setup(config)
         -- only path to agent-notify today.
         --
         -- pi and opencode are deliberately absent: each has a native bridge
-        -- (config/extensions/ and config/plugins/sysinit-notify.ts) that calls
+        -- (harnesses/pi/extensions/ and harnesses/opencode/plugins/sysinit-notify.ts) that calls
         -- agent-notify with a real reason string. Registering them here too
         -- would give the scrape bridge a second, poorer path to the same event.
         gemini = {

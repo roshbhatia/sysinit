@@ -34,7 +34,7 @@
 
     ```
     # good — grounded, decisive, names the tradeoff and the deciding signal
-    Recommend approach B. The collision is in `config/mcp-servers.nix:42` where
+    Recommend approach B. The collision is in `mcp-servers.nix:42` where
     both plugins register `incident-io`. B (rename our entry) is reversible and
     isolated; A (drop theirs) breaks their plugin. Switch to A only if their
     plugin is unused on this host.

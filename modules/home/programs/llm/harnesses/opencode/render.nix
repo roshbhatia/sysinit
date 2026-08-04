@@ -1,6 +1,6 @@
 # The schema-relevant shape of OpenCode's two config files, in one place.
 #
-# `config/opencode.nix` merges the host-dependent parts (MCP servers, which need
+# `./default.nix` merges the host-dependent parts (MCP servers, which need
 # `config.sysinit.llm.mcp`) onto `main` and writes both files. The flake check
 { pkgs, lib }:
 let
@@ -89,7 +89,7 @@ in
   '';
 
   # Everything OpenCode reads from `~/.config/opencode/opencode.json` except the
-  # MCP block, which `opencode.nix` adds from the host's server registry.
+  # MCP block, which `./default.nix` adds from the host's server registry.
   main = {
     "$schema" = "https://opencode.ai/config.json";
     autoupdate = false;
@@ -268,7 +268,7 @@ in
     };
 
     # OpenCode's own toast is off; the plugin at
-    # `config/plugins/sysinit-notify.ts` forwards session.idle and
+    # `./plugins/sysinit-notify.ts` forwards session.idle and
     # session.error into agent-notify instead, so one producer announces every
     # harness. The sound stays on: it is a local cue, not a second toast.
     attention = {

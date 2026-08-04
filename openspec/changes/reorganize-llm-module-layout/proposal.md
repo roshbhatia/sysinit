@@ -102,11 +102,20 @@ of them, would not have hidden this.
 - No reference to the old paths survives outside `openspec/`. Inside it, two sets
   are exempt and stay untouched: `openspec/changes/`, where the seven in-flight
   changes name the old paths as their own history, and `openspec/specs/`, which
-  holds 8 such references across 6 files and is history under this schema. Both
-  exemptions are deliberate, so `rg 'llm/config/'` over the tracked tree outside
-  `openspec/` is the criterion. One consequence is accepted: the embedded
-  verification command in `openspec/specs/harness-kit/spec.md` becomes unrunnable,
-  which is what a frozen spec corpus means.
+  holds 8 such references across 6 files and is history under this schema. One
+  consequence is accepted: the embedded verification command in
+  `openspec/specs/harness-kit/spec.md` becomes unrunnable, which is what a frozen
+  spec corpus means.
+- The grep for that criterion MUST match a bare `config/<name>` and not only
+  `llm/config/`. Prose in shipped content writes the short form, so a search
+  anchored on `llm/` is blind to exactly the artifacts that teach an agent where
+  to look. Three stale strings survived the first pass that way, one of them in
+  `skills/worklog/SKILL.md`, which installs into four skill trees. The search MUST
+  cover `modules/`, `AGENTS.md`, `hack/`, and `.githooks/`, and MUST exclude
+  `.config/`, which is an XDG path and not a repository path.
+- Shipped content that teaches a path is part of this change's surface, not
+  incidental to it. That is every `SKILL.md`, every `.mdc` rule, every subagent
+  definition, `AGENTS.md`, and any comment naming a module by path.
 
 ## Impact
 

@@ -21,7 +21,7 @@ Window empty?                         -> say so plainly and stop; do not invent 
 
 ## Data source
 
-A `SessionEnd` hook (a PEP-723 Python script, `config/worklog.py`, run via uv)
+A `SessionEnd` hook (a PEP-723 Python script, `harnesses/claude/worklog-hook.py`, run via uv)
 appends one JSON line per session to `~/Documents/worklog.jsonl` (override:
 `$CLAUDE_WORKLOG_FILE`). The hook is dumb — it records pointers and cheap facts,
 never a summary. It skips `resume` and bare directories with no prompt, so every

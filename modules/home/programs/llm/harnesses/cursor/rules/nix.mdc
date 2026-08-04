@@ -19,8 +19,8 @@ globs:
 
 ## Patterns to reuse
 
-- For vendoring per-harness assets (extensions, recipes, rules), follow the `geminiExtensions` attrset pattern in `gemini.nix` or the `recipes` attrset pattern in `goose.nix`: declare a Nix attrset, render files via `home.file` or `xdg.configFile` with a small `mkEntry` helper.
-- For npm-package vendoring, follow the `fetchNpmPkg` / `buildNpmPkg` helpers in `pi.nix`: version + SRI hash + (for buildNpmPackage) a per-package lockfile under `config/locks/`.
+- For vendoring per-harness assets (extensions, recipes, rules), follow the `geminiExtensions` attrset pattern in `harnesses/gemini/default.nix` or the `recipes` attrset pattern in `harnesses/goose.nix`: declare a Nix attrset, render files via `home.file` or `xdg.configFile` with a small `mkEntry` helper.
+- For npm-package vendoring, follow the `fetchNpmPkg` / `buildNpmPkg` helpers in `harnesses/pi/default.nix`: version + SRI hash + (for buildNpmPackage) a per-package lockfile under `harnesses/pi/locks/`.
 - For openspec drift detection, follow the `hack/update-pi.sh` / `hack/sync-openspec-skills.sh` shape: bash, `set -euo pipefail`, exits non-zero on drift, never auto-modifies.
 
 ## Prohibitions
