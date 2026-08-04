@@ -50,11 +50,22 @@ Only the nested-NixOS-guest machinery goes.
   two allowed comments named in Non-goals, returns only the `pkgs.lima` package
   entry and the colima block.
 - `nixos-lima` appears in neither `flake.nix` nor `flake.lock`.
-- `nh darwin build` succeeds, and its generation diff shows the `lima-*` launch
-  agent removed and no colima path changed.
-- `pkgs.lima` is still installed: `command -v limactl` resolves after the switch.
-- The colima launchd agent is byte-identical before and after. Compare its
-  generated plist across the change.
+- The darwin evidence MUST come from building `lv426`, this repository's own darwin
+  host, not from `nh darwin build` on the live machine. The live Mac builds from
+  `sysinit.laurel`, which never set `sysinit.darwin.lima.instanceName`, so no
+  `lima-*` agent was ever generated there and its generation diff is empty. An
+  empty diff is not evidence, and an earlier draft of these criteria treated it as
+  such.
+- `nix build .#darwinConfigurations.lv426.system` succeeds, its toplevel store path
+  changes across the change (the removal is real), and its
+  `user/Library/LaunchAgents/` contains `org.nixos.colima.plist` and no `lima-*`
+  plist.
+- No file in `lv426`'s launch-agent output mentions lima, and its generated SSH
+  config carries no lima `Include` and no lima host block.
+- `pkgs.lima` is still installed: `command -v limactl` resolves.
+- The colima launchd agent is unchanged. Compare `lv426`'s
+  `org.nixos.colima.plist`, not `sysinit.laurel`'s, because only the former is
+  built from this repository.
 
 ## Impact
 

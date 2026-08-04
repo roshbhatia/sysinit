@@ -65,7 +65,18 @@
       nothing to apply. The push to main happened as part of phase 2
 - [x] 3.4 Confirm: `command -v limactl` resolves to
       `/run/current-system/sw/bin/limactl` and `org.nixos.colima` is still loaded
-- [x] 3.5 Downstream break, not predicted by the proposal: `sysinit.laurel`
+- [x] 3.5 Review finding: the darwin criteria named an empty generation diff as
+      their evidence, because the live Mac builds from `sysinit.laurel`, which never
+      set the option. Rewrote them to build `lv426`, this repository's own darwin
+      host: its toplevel store path changes, its launch agents contain
+      `org.nixos.colima.plist` and no `lima-*` plist, and no file in that output
+      mentions lima. Recording "the expectation was wrong" in a task while leaving a
+      false criterion standing in the proposal was the actual error
+- [x] 3.6 Review finding: removed two dead survivors the grep missed because both
+      are behind fallbacks. `modules/home/programs/fastfetch.nix` mapped
+      `nostromo = "nix"` for a deleted host, dead behind `or "rosh"`, and
+      `modules/home/programs/ssh.nix` still declared an unused `values` argument
+- [x] 3.7 Downstream break, not predicted by the proposal: `sysinit.laurel`
       declared `nixos-lima.follows = "sysinit/nixos-lima"`, so removing the input
       made that repo's lock update fail. The proposal said no in-tree consumer
       followed the input and did not enumerate the out-of-tree one. Fixed by

@@ -38,7 +38,6 @@ let
   artByHost = {
     lv426 = "rosh";
     arrakis = "nix";
-    nostromo = "nix";
   };
   artName = artByHost.${hostName} or "rosh";
 
