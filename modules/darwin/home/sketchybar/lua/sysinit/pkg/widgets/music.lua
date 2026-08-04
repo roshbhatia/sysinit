@@ -76,7 +76,7 @@ function M.setup()
     drawing = false,
   })
 
-  music_separator = utils.separator("music_separator", "left", { drawing = false })
+  music_separator = utils.separator("music_separator", "right", { drawing = false })
 
   music:subscribe("routine", function()
     get_music_info()

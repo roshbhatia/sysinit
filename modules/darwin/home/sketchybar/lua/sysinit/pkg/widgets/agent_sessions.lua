@@ -161,7 +161,14 @@ function M.setup()
     -- anything sketchybar can subscribe to. 2s matches how fast the notifier
     -- reacts, so the chip is never conspicuously behind a toast.
     update_freq = 2,
-    drawing = false,
+    -- Deliberately NOT created with `drawing = false`: sketchybar does not deliver
+    -- `routine` to a hidden item, so an item that starts hidden never polls and can
+    -- therefore never decide to show itself. That deadlock is why this chip stayed
+    -- dark while the command behind it worked perfectly. Every other polling widget
+    -- here (datetime, battery) also starts visible.
+    --
+    -- The setup call below hides it immediately when WezTerm is not the front app,
+    -- so the visible-by-default state lasts one tick at most.
   })
 
   -- Every tick re-derives the front app rather than trusting the cached value.
