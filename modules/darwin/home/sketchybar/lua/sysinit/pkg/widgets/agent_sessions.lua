@@ -43,10 +43,19 @@ local status_icons = {
   working = "󰑮",
 }
 
+-- cjson decodes JSON `null` to a lightuserdata sentinel, NOT to Lua nil, so
+-- `not value` is false for a null and any string operation on it raises. That raise
+-- happens inside an sbar.exec callback, which sbarLua swallows, so the chip sat
+-- visible-and-empty while the command ran correctly every two seconds. Coerce every
+-- nullable field through this before use.
+local function str(v)
+  return type(v) == "string" and v or nil
+end
+
 local function render(payload)
-  local selected = payload and payload.selected or nil
-  local state = payload and payload.selection_state or "absent"
-  local sessions = (payload and payload.sessions) or {}
+  local selected = str(payload and payload.selected)
+  local state = str(payload and payload.selection_state) or "absent"
+  local sessions = (payload and type(payload.sessions) == "table") and payload.sessions or {}
 
   if state == "absent" or not selected or selected == "" then
     utils.animate_visibility(item, false)
@@ -57,9 +66,11 @@ local function render(payload)
   -- the owner is looking at that one, so it is not news.
   local attention, worst = 0, nil
   for _, s in ipairs(sessions) do
-    if (s.blocked or 0) > 0 and s.name ~= selected then
+    if type(s.blocked) == "number" and s.blocked > 0 and str(s.name) ~= selected then
       attention = attention + 1
-      if not worst or (s.rank or 0) > (worst.rank or 0) then
+      local r = type(s.rank) == "number" and s.rank or 0
+      local wr = worst and type(worst.rank) == "number" and worst.rank or 0
+      if not worst or r > wr then
         worst = s
       end
     end
@@ -82,8 +93,9 @@ local function render(payload)
   end
 
   local icon = "󰆍"
-  if worst and status_icons[worst.status] then
-    icon = status_icons[worst.status]
+  local worst_status = worst and str(worst.status)
+  if worst_status and status_icons[worst_status] then
+    icon = status_icons[worst_status]
   end
 
   utils.animate(function()
@@ -110,9 +122,7 @@ end
 -- both facts in one command removes the ordering and the cache: either the output
 -- is a rollup to render, or it is the literal HIDE.
 local function poll()
-  -- TEMPORARY instrumentation: the marker proves whether sbar.exec runs the shell
-  -- at all. Remove once the chip renders.
-  local cmd = "date +%s >> /tmp/agent-sessions-probe; app=$(osascript -e 'tell application \"System Events\" to get name of first application process whose frontmost is true' 2>/dev/null); "
+  local cmd = "app=$(osascript -e 'tell application \"System Events\" to get name of first application process whose frontmost is true' 2>/dev/null); "
     .. "case \"$app\" in wezterm-gui|WezTerm|Wezterm) "
     .. agent_sessions_cmd()
     .. " 2>/dev/null | tr -d '\\n' ;; *) echo HIDE ;; esac"
