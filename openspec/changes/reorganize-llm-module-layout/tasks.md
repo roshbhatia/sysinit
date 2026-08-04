@@ -105,6 +105,13 @@
       against D1, in particular the claim that no file under `lib/` reads a
       harness path; revise until the loop reaches a terminal state (see the skill
       for the scaled round cap) `deps:` 2.11
+- [ ] 2.13 Round 1 finding: add a `require_file` guard for every path
+      `notify-defect-regressions` greps. `set -e` exempts the left side of a `&&`,
+      and `rg` on a missing path exits 2, so an `rg ... && note ...` assertion
+      neither fires nor aborts when its target moves. The `notify` guard is that
+      shape and sits in its silent state whenever the regression is absent, so a
+      dead guard and a live one looked identical. Mutation tested by pointing it at
+      a moved path `deps:` 2.12
 
 ## 3. Harness layer
 
@@ -143,7 +150,10 @@
       and opencode bridge files in their new homes `deps:` 3.6
 - [ ] 3.9 Repoint the remaining `flake.nix` sites: the `pi-shell-prefix`,
       `pi-settings-keys`, `pi-vendored-extensions`, and `opencode-render` checks,
-      and add `llm/harnesses` to the shellcheck canary `deps:` 3.7
+      the `harness=` root in `notify-defect-regressions`, and the shellcheck
+      canary, which gains `llm/harnesses`. The `require_file` guards added in 2.13
+      will name every assertion whose target this phase moved, so run the check
+      and fix what it names rather than grepping for sites `deps:` 3.7
 - [ ] 3.10 Repoint `hack/update-pi.sh`: `PI_NIX`, `LOCKS_DIR`, and the three path
       strings in its printed instructions `deps:` 3.7
 - [ ] 3.11 Update the shipped path text that teaches where harness config lives:

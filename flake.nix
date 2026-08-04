@@ -1667,6 +1667,23 @@
                   fail=1
                 }
 
+                # Every path this check greps must exist. Without this, a moved
+                # file turns an assertion into a silent pass: `set -e` exempts the
+                # left side of a `&&`, and `rg` on a missing path exits 2, so an
+                # `rg ... && note ...` arm neither fires nor aborts. A dead guard
+                # and a live one then look identical. The `notify` guard below is
+                # exactly that shape, and it sits in its silent state whenever the
+                # regression it watches for is absent, which is normally.
+                require_file() {
+                  [ -f "$1" ] || note "$1 does not exist, but an assertion below greps it. Repoint the assertion; a missing file makes it pass silently."
+                }
+                require_file "$cfg/agent-notify.sh"
+                require_file "$cfg/agent-prompt.sh"
+                require_file "$cfg/agent-focus.sh"
+                require_file "$harness/plugins/sysinit-notify.ts"
+                require_file "$harness/pi.nix"
+                require_file "$harness/opencode-render.nix"
+
                 # --- defect 1: one definition of the group string -------------
                 # Execute the helper rather than grepping for its name. A call
                 # that passes an empty pane produces the fallback form while
