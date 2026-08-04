@@ -931,12 +931,17 @@
                   fi
                 done
 
-                # There is no retired list any more. It named keys to strip before the
-                # first merge, and the three-way merge now removes an undeclared key
-                # at any depth on its own, verified by managed-file-merge3.
+                # Retired keys must stay absent, so a future edit cannot quietly
+                # reintroduce one that the binary never reads.
+                for k in ${lib.concatStringsSep " " (import ./modules/home/programs/llm/config/pi-settings-keys.nix).retired}; do
+                  if rg -qa "$k" "$bin"; then
+                    echo "FAIL: '$k' is retired but now exists in the pi build; re-evaluate it" >&2
+                    fail=1
+                  fi
+                done
 
                 [ "$fail" -eq 0 ] || exit 1
-                echo "OK: every declared pi settings key exists in the installed build" | tee "$out"
+                echo "OK: every declared pi settings key exists, every retired key is absent" | tee "$out"
               '';
 
           # The rendered OpenCode config must satisfy the schema the installed

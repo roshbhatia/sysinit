@@ -81,26 +81,31 @@
 - [x] 2.9 Confirm: `sysinit-llm-capture <harness>` prints the owner's runtime
   edit as a Nix attrset, and the repository working tree is unmodified
   `deps:` 2.7
-- [x] 2.10 Partly done, and the task was wrong in two of its three parts. Tested
-  first, then deleted only what the evidence allowed.
-  - Deleted: pi's `retired` list, `piRetiredSettings`, `assertPiKeysDisjoint`, and
-    its `adoptDelete` wiring. Safe because the three-way merge removes an
-    undeclared key at any depth, verified to depth 3 by four new `nested N deep`
-    cases in the `managed-file-merge3` check, and because pi has no strict schema
-    to reject a leftover.
-  - KEPT opencode's `retiredMain`. Deleting it made
-    `opencode-config-schema` fail with `Additional properties are not allowed
-    ('keybinds', 'theme', 'tui')`. Those keys exist in the live file and the schema
-    forbids them, and on the ADOPT path there is no base for the merge to compare
-    against, so only a pre-merge delete removes them. The list is load-bearing for
-    a first adoption.
-  - KEPT `authoritative`. Its comment justified it on depth, and that is now
-    disproven, but its real effect is different: it replaces a block wholesale,
-    discarding a harness addition inside it, which the three-way merge deliberately
-    preserves. A different guarantee, not a redundant one.
-  - KEPT `ownerPreference` and `assertPreferencesUndeclared`. No mechanism replaces
-    that guard, so deleting it is a net loss of safety.
-  `deps:` 2.7
+- [x] 2.10 Nothing deleted, and the task's premise is wrong for every one of its
+  four targets. Each verdict was tested, and the first attempt introduced a
+  regression that was caught and reverted the same day.
+  - The premise was that the three-way merge now removes an undeclared key at any
+    depth, so pre-merge delete lists are redundant. Depth is real: four `nested N
+    deep` cases in `managed-file-merge3` prove deletion recurses to depth 3.
+  - But the merge compares against a BASE, and the adopt path has none. Verified by
+    building a reconciler with no `adoptDelete` and running it against a
+    never-adopted fixture: `showLastPrompt` and `powerline` survived. So a delete
+    list is what removes an undeclared key on a first adoption, and nothing else
+    does.
+  - pi's `retired` list therefore STAYS, and was restored after being deleted. Task
+    2.3 of `modernize-opencode-and-pi-config` records that pi's own settings screen
+    writes `powerline`, so a fresh host acquires it and would then keep it forever.
+  - opencode's `retiredMain` STAYS. Deleting it made `opencode-config-schema` fail:
+    `Additional properties are not allowed ('keybinds', 'theme', 'tui')`.
+  - `authoritative` STAYS. Its comment justifies it on depth, which is now
+    disproven, but its real effect is to replace a block wholesale and discard a
+    harness addition inside it, which the merge deliberately preserves. A different
+    guarantee.
+  - `ownerPreference` and `assertPreferencesUndeclared` STAY. No mechanism replaces
+    that guard.
+  The lesson worth keeping: a base-relative mechanism cannot replace a delete list
+  on the path that has no base. The opencode schema check taught this an hour before
+  the same mistake was made on pi `deps:` 2.7
 - [x] 2.11 Verified by removing `enableInstallTelemetry` from `piManagedSettings`
   and from the keys manifest, then restoring. Evidence, in order of how much it
   proves:

@@ -22,4 +22,10 @@
     "hideThinkingBlock"
   ];
 
+  # absent from the installed build, so deleted before the merge as a deep merge
+  # cannot remove a key on its own
+  retired = [
+    "showLastPrompt"
+    "powerline"
+  ];
 }

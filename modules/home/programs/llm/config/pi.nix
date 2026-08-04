@@ -605,6 +605,9 @@ let
   # merge, so undeclaring one leaves it on disk forever; only an explicit delete
   # removes it.
   #
+  inherit (piKeys) retired;
+  piRetiredSettings = retired;
+
   # Keys this module once declared and has since handed back to the owner. They
   # are NOT retired: retiring would delete the owner's runtime choice on every
   # activation. They are listed so the handback is a recorded decision rather
@@ -643,6 +646,13 @@ let
     else
       true;
 
+  piKeyOverlap = lib.intersectLists piDeclaredKeys piRetiredSettings;
+  assertPiKeysDisjoint =
+    if piKeyOverlap != [ ] then
+      throw "pi.nix: ${lib.concatStringsSep ", " piKeyOverlap} is both declared and retired; activation would delete it and then merge it back on every switch."
+    else
+      true;
+
   piKeybindings = pkgs.writeText "pi-keybindings.json" (
     builtins.toJSON {
       renameSession = "ctrl+shift+r";
@@ -658,6 +668,7 @@ in
     path = ".pi/agent/settings.json";
     format = "json";
     content = piManagedSettings;
+    adoptDelete = piRetiredSettings;
     # Both are Nix-owned lists. `packages` is the vendored extension set, whose
     # entries are store paths that move on every bump, and `skills` is the
     # shared skills root. A list is compared whole by the merge, so leaving
@@ -681,6 +692,7 @@ in
       (
         assert assertExtensionsExist;
         assert assertPiBridgeInstalled;
+        assert assertPiKeysDisjoint;
         assert assertThemeSelected;
         assert assertPreferencesUndeclared;
         assert assertKeysMatchManifest;

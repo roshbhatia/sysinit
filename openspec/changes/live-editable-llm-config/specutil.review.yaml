@@ -1,9 +1,9 @@
 version: 1
 change: live-editable-llm-config
 decision: approved
-note: '2.11 verified: flake check green with a key removed, closure hash changed and reverted, nested deletion covered to depth 3. 2.8 and 2.12 remain: an owner confirm-by-use and the switch.'
-change_hash: 65bcc1adfde8cfa7
-base_commit: 4d1cc6ac905ef73d30ee1b14da842d0366d7ebbe
+note: '2.10 corrected: nothing deleted. A base-relative merge cannot replace a delete list on the adopt path, proven by a reconciler probe against a never-adopted fixture. The pi deletion was a same-day regression and is reverted.'
+change_hash: 5b977463334ac5d4
+base_commit: cf23b8f7611fd7c63707200ee01f33d5b0cdff24
 items:
     0cb88340be5c9d34:
         hash: 4e888e614f067038
@@ -11,6 +11,9 @@ items:
     1b20f75089c3f739:
         hash: 6b7efa2ebcf99218
         text: 'Verify: owner confirms the commit contents and that no formatting-only change is mixed with a behavioural one'
+    2f7716208c6faa8d:
+        hash: 6b9fa3913b06e0cb
+        text: Nothing deleted, and the task's premise is wrong for every one of its four targets. Each verdict was tested, and the first attempt introduced a regression that was caught and reverted the same day.
     3fe00aa28e60999a:
         hash: 2323d0458d83bccb
         text: 'Act: add the flake check that renders in a sandbox and asserts byte-identity against the 3.1 snapshot'
@@ -35,9 +38,6 @@ items:
     9ebc0b7ebb37b34d:
         hash: 2f640442dccb18cc
         text: 'Confirming adversarial round (6) against the covered `reconcile()`. Verdict: converged. No defect found in the shipping code; every finding was in the check itself. Its mutation test showed 11 of 19 mutations missed, and the highest-ranked gaps are now closed'
-    11ecfdbe21b7258f:
-        hash: 97aa2dad284e2923
-        text: Partly done, and the task was wrong in two of its three parts. Tested first, then deleted only what the evidence allowed.
     14a36f1da5ff946f:
         hash: c3424d74d90d9b80
         text: 'Verified by removing `enableInstallTelemetry` from `piManagedSettings` and from the keys manifest, then restoring. Evidence, in order of how much it proves:'
