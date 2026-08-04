@@ -102,8 +102,9 @@
         PasswordAuthentication = false;
         PermitRootLogin = "no";
         X11Forwarding = false;
-        # Lima runs `exec "$SHELL"` via SSH with a command, which picks up the
-        # non-login shell's $SHELL (bash). Force it to zsh so `lima` drops into zsh.
+        # An SSH login that carries a command gets a non-login shell, so $SHELL is
+        # bash regardless of the account's shell. Set it so `exec "$SHELL"` lands in
+        # zsh.
         SetEnv = "SHELL=/run/current-system/sw/bin/zsh";
       };
     };

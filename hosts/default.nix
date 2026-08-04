@@ -42,20 +42,9 @@ let
     values = identity.values // extraValues;
   };
 
-  limaHost = identity: {
-    system = "aarch64-linux";
-    platform = "linux";
-    lima = true;
-    inherit (identity) username;
-    inherit (identity) values;
-  };
 in
 {
-  lv426 = darwinHost personal {
-    environment.LIMA_INSTANCE = "nostromo";
-  };
-
-  nostromo = limaHost personal;
+  lv426 = darwinHost personal { };
 
   arrakis = {
     system = "x86_64-linux";

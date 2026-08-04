@@ -60,9 +60,6 @@
         }
       ]
       ++ lib.optionals (hostConfig ? hardware) [ hostConfig.hardware ]
-      ++ lib.optionals (hostConfig.lima or false) [
-        inputs.nixos-lima.nixosModules.lima
-      ]
       ++ lib.optionals ((hostConfig.desktop or false) && nix-gaming != null) [
         nix-gaming.nixosModules.pipewireLowLatency
         nix-gaming.nixosModules.platformOptimizations

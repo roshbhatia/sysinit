@@ -41,12 +41,6 @@
     # Community package repository
     nur.url = "github:nix-community/NUR";
 
-    # NixOS on macOS via Lima
-    nixos-lima = {
-      url = "github:nixos-lima/nixos-lima";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-
     # NixOS gaming configuration
     nix-gaming = {
       url = "github:fufexan/nix-gaming";

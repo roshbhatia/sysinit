@@ -36,11 +36,7 @@
         ];
 
         # NixOS systems use the nix-managed home directory
-        home.homeDirectory =
-          if values.isLima then
-            lib.mkForce "/home/${values.user.username}.linux"
-          else
-            "/home/${values.user.username}";
+        home.homeDirectory = "/home/${values.user.username}";
 
         sysinit.git = values.git or { };
         sysinit.llm = values.llm or { };

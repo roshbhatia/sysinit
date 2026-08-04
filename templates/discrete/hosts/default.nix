@@ -1,6 +1,6 @@
 # Host configurations
 # Each host defines: system, platform, username, values
-# Optional: config (path to host-specific nix module), isLima (for Lima VMs)
+# Optional: config (path to host-specific nix module)
 {
   overrides ? { },
 }:
@@ -55,8 +55,4 @@ in
     };
   };
 
-  # your-nixos-hostname - NixOS Lima VM (optional)
-  # Uncomment to enable Lima VM configuration
-  # your-nixos-hostname = {
-  #   system = "aarch64-linux";
 }

@@ -40,7 +40,6 @@ in
       values = (hostConfig.values or { }) // {
         inherit hostname;
         user.username = hostConfig.username;
-        isLima = hostConfig.lima or false;
         isDesktop = hostConfig.desktop or false;
       };
 

@@ -8,7 +8,6 @@ Nix-flakes configuration for discrete host setup consuming `roshbhatia/sysinit`.
 - `flake.nix` - Entry point consuming sysinit as input
 - `hosts/` - Host configuration (update `default.nix` for your system)
 - `modules/` - Host-specific module overrides (darwin, nixos, overlays)
-- `lima.yaml` - Optional Lima VM configuration
 - `AGENTS.md` - This file
 
 ## Essential Commands
@@ -43,26 +42,6 @@ nix-collect-garbage -d        # Cleanup old generations
 - **Comments**: Use for complex logic only
 - **Testing**: Run `nix flake check` before commits
 - **Pre-Commit**: `nix fmt` then `nix flake check` then `nh os build`
-
-## Lima VM Setup
-
-1. Create persistent storage:
-   ```bash
-   mkdir -p ~/.local/share/lima/<hostname>-nix
-   ```
-
-2. Create and start instance:
-   ```bash
-   limactl create --name=<hostname> lima.yaml
-   limactl start <hostname>
-   ```
-
-3. Configure from inside VM:
-   ```bash
-   limactl shell <hostname>
-   cd /path/to/repo
-   nh os switch '.#nixosConfigurations.<hostname>'
-   ```
 
 ## Inheriting from sysinit
 

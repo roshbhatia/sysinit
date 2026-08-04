@@ -12,7 +12,6 @@
     firefox-addons.follows = "sysinit/firefox-addons";
     home-manager.follows = "sysinit/home-manager";
     nixpkgs.follows = "sysinit/nixpkgs";
-    nixos-lima.follows = "sysinit/nixos-lima";
     nur.follows = "sysinit/nur";
     onepassword-shell-plugins.follows = "sysinit/onepassword-shell-plugins";
     stylix.follows = "sysinit/stylix";
