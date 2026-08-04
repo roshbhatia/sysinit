@@ -716,6 +716,11 @@ in
     # `packages` and `skills` were already here for a second reason that still
     # holds: a list is compared whole, so leaving them mergeable turns any pi-side
     # edit into a blocking conflict.
+    #
+    # Latent, and safe today: `enforce` replaces a block wholesale, so a NESTED
+    # declared key would discard whatever pi wrote inside it. Every declared key is
+    # currently a scalar or a flat list, so nothing is lost. Declaring a nested block
+    # here means deciding whether Nix owns every leaf under it.
     enforce = piKeys.declared;
   };
 
