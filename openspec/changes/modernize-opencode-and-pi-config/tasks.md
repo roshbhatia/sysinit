@@ -51,8 +51,13 @@
 ## 2. Pi settings ownership
 
 - **SHAPE** loop
-- **STOP** `nix build .#checks.aarch64-darwin.pi-settings-keys-exist` exits 0,
-  so no declared key is absent from the installed binary
+- **STOP** `nix build .#checks.aarch64-darwin.pi-settings-keys-exist` and
+  `nix build .#checks.aarch64-darwin.managed-file-reconcile` both exit 0. Presence
+  in the installed build is NOT sufficient on its own: round 1 showed a report can
+  satisfy a name check while a declared key still loses to a runtime write, so the
+  reconcile check is part of the exit. The keys check reads the shipped
+  `pi/docs/settings.md`, not the binary's bytes, because a substring search over
+  76 MB matched `editor` for `externalEditor`
 - **MAX-ITERS** 4
 
 - [x] 2.1 Copy the live `~/.pi/agent/settings.json` into the change directory as
@@ -111,11 +116,16 @@
       compares its own `name` field. Mutation tested: wrapping the name as
       `${piThemeName}-dark` was NOT caught after step one and IS caught after step
       two `deps:` 2.7
-- [ ] 2.14 The documented rollback in proposal.md and design.md describes
-      re-imposition semantics the three-way merge does not have, and instructs the
-      operator to use a retired-key list by a name that no longer exists. Also
-      nothing checks `ownerPreference` keys still exist in pi, so a rename leaves
-      `assertPreferencesUndeclared` blocking a legitimate declaration `deps:` 2.7
+- [x] 2.14 Both halves fixed. The rollback prose in `proposal.md` and `design.md`
+      said an unrelated switch "re-imposes every declared key" without naming the
+      mechanism, and told the operator to edit a list by its old name. It now states
+      that declared keys are ENFORCED, which is why restoring the captured file first
+      is wrong, and it names `retire`, adding that undeclaring alone cannot remove a
+      key because the merge preserves a base-absent key on purpose. The
+      `pi-settings-keys-exist` check now also asserts every `ownerPreference` key is
+      still a documented pi setting, so a rename cannot leave
+      `assertPreferencesUndeclared` blocking a declaration for a key that no longer
+      exists. Mutation tested: renaming one is caught by name `deps:` 2.7
 - [x] 2.8 Verify: `nix flake check` and `nh darwin build` are green; review
       `git diff`
 - [x] 2.9 Apply: `nh darwin switch`

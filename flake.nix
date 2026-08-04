@@ -1009,6 +1009,18 @@
                   fi
                 done
 
+                # An ownerPreference key must still BE a setting. It is deliberately
+                # undeclared so the owner's runtime choice survives, and
+                # `assertPreferencesUndeclared` blocks declaring it. If pi renames or
+                # drops one, that assertion goes on blocking a declaration on behalf
+                # of a key that no longer exists, and nothing would say so.
+                for k in ${lib.concatStringsSep " " (import ./modules/home/programs/llm/config/pi-settings-keys.nix).ownerPreference}; do
+                  if ! rg -qF "\`$k\`" "$docs"; then
+                    echo "FAIL: '$k' is held back as owner preference but the installed pi build no longer documents it; re-evaluate the handback" >&2
+                    fail=1
+                  fi
+                done
+
                 # Retired keys must stay absent from BOTH, so a future edit cannot
                 # quietly reintroduce one. The binary grep is kept here on purpose:
                 # for absence, a substring search is the conservative direction, since
@@ -1025,7 +1037,7 @@
                 done
 
                 [ "$fail" -eq 0 ] || exit 1
-                echo "OK: every declared pi settings key is documented, every retired key is absent" | tee "$out"
+                echo "OK: every declared and held-back pi key is documented, every retired key is absent" | tee "$out"
               '';
 
           # The rendered OpenCode config must satisfy the schema the installed

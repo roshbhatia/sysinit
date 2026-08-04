@@ -91,5 +91,7 @@ Gating signal:
 - The kill switch for pi's settings ownership is three steps, in this order:
   revert the phase's commit, run `nh darwin switch`, then restore the captured
   settings file that the phase's first task wrote to the change directory.
-  Restoring the file alone does not work. The activation merge runs on every
-  switch, so the next unrelated switch re-imposes every declared key.
+  Restoring the file alone does not work. Every declared key is enforced, so
+  activation reasserts it from Nix on every switch, not only when its Nix value
+  changes. Until the commit is reverted, any later switch overwrites the restored
+  file again.

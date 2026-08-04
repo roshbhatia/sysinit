@@ -1,9 +1,9 @@
 version: 1
 change: modernize-opencode-and-pi-config
 decision: approved
-note: 'Round 1: 2.11 to 2.13 closed, all mutation tested. Only 2.14 (rollback documentation and an ownerPreference existence guard) remains open.'
-change_hash: a723b9daea7cc739
-base_commit: 6d150070e33c6884e46da03e25f71aad746c9c71
+note: 'Round 1 complete: all eight objections closed and mutation tested. STOP corrected, since presence in the binary was not sufficient. Round 2 pending.'
+change_hash: 8ab72199e597e8c7
+base_commit: 94024975dedcd6a774dcf3033305e27e887c0b21
 items:
     0f8cd7a6a4d731bb:
         hash: da42f5ffd02d176c
@@ -122,9 +122,6 @@ items:
     c2f3dcf0524fda4a:
         hash: ffc3a4bc91c191bf
         text: 'Adversarial review (`adversarial-review` skill): terminal state `CLEAN`, 0 open, within the K=2 cap for a one-phase review. Round 1 returned 6 surviving objections, all fixed and negative-tested: the check validated only 10 of 17 rendered keys; the retired-key filter and the merge pipeline existed as two hand-copies that could drift, and an unquotable key would have failed only at switch time; deletion reached depth one only, so a stale `provider.ollama` survived forever; nothing asserted the localized schema kept `additionalProperties: false`; the `$ref` walk dropped sibling constraints; `tui.json` had no retired mechanism and no merged fixture. Ordering deviation: 1.11 ran before this task. The review then forced a rework and a second switch.'
-    c3ae112a1916b181:
-        hash: 6809449edf3b39c2
-        text: The documented rollback in proposal.md and design.md describes re-imposition semantics the three-way merge does not have, and instructs the operator to use a retired-key list by a name that no longer exists. Also nothing checks `ownerPreference` keys still exist in pi, so a rename leaves `assertPreferencesUndeclared` blocking a legitimate declaration
     d3d65af592669127:
         hash: 3135fd0804e822bb
         text: 'Confirm: OpenCode starts and loses no configured plugin or tool'
@@ -140,6 +137,9 @@ items:
     ed145c653a4d5a37:
         hash: 3cb16b9bc2a9a6d3
         text: 'Verify: `nix flake check`, `nh darwin build`, and `./hack/update-pi.sh` all behave as expected'
+    ee7375a40b6348ba:
+        hash: 0b370f359182cbfb
+        text: 'Both halves fixed. The rollback prose in `proposal.md` and `design.md` said an unrelated switch "re-imposes every declared key" without naming the mechanism, and told the operator to edit a list by its old name. It now states that declared keys are ENFORCED, which is why restoring the captured file first is wrong, and it names `retire`, adding that undeclaring alone cannot remove a key because the merge preserves a base-absent key on purpose. The `pi-settings-keys-exist` check now also asserts every `ownerPreference` key is still a documented pi setting, so a rename cannot leave `assertPreferencesUndeclared` blocking a declaration for a key that no longer exists. Mutation tested: renaming one is caught by name'
     f57ccba8d2c83623:
         hash: 887361bc75657e2b
         text: Copy the live `~/.pi/agent/settings.json` into the change directory as the rollback artifact

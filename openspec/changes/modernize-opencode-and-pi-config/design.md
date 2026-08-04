@@ -210,13 +210,15 @@ Default sequence: edit, `nix flake check`, `nh darwin build`, owner spot-check,
 `nh darwin switch`. No deviation.
 
 Kill switch: revert the phase's commit, run `nh darwin switch`, and only then
-restore the captured settings file. Restoring the file alone does not work. The
-activation merge runs on every switch, so any later `nh darwin switch` for an
-unrelated reason re-imposes every key the reverted phase declared. The captured
+restore the captured settings file. Restoring the file alone does not work,
+because every declared key is enforced: activation reasserts it from Nix on every
+switch, so any later `nh darwin switch` overwrites the restored file. The captured
 file is the second half of the rollback, never the whole of it.
 
-A key the phase added and the revert undeclares also needs an entry in the
-retired-key list, because a deep merge cannot remove a key on its own.
+A key the phase added and the revert undeclares also needs an entry in the `retire`
+list. Undeclaring alone is not enough: an undeclared key is absent from the
+recorded base, and the three-way merge preserves a base-absent key on purpose, so
+nothing else removes it.
 
 ## Risks / Trade-offs
 
@@ -261,9 +263,9 @@ retired-key list, because a deep merge cannot remove a key on its own.
    them only after the owner confirms. Confirm: OpenCode still starts.
 
 Rollback, in this order: revert the phase's commit, add any key the revert
-undeclares to the retired-key list, run `nh darwin switch`, then restore the
-captured settings file. Restoring the file first is wrong; the next activation
-re-imposes the declared keys over it.
+undeclares to the `retire` list, run `nh darwin switch`, then restore the captured
+settings file. Restoring the file first is wrong: declared keys are enforced, so
+the next activation reasserts them over the restored file.
 
 ## Adversarial Review
 
