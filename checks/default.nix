@@ -36,6 +36,7 @@ let
 in
 {
   agent-review-readiness = check ./agent-review-readiness.nix;
+  agent-sessions-rollup = check ./agent-sessions-rollup.nix;
   check-bodies-shellcheck = check ./check-bodies-shellcheck.nix;
   citelock = check ./citelock.nix;
   destructive-guard-fixtures = check ./destructive-guard-fixtures.nix;

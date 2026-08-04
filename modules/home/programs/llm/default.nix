@@ -276,6 +276,7 @@ in
     notify.focusScript
     notify.loopGate
     notify.reviewScript
+    notify.sessionsScript
     notify.syGate
   ];
 

@@ -218,6 +218,22 @@ let
     + builtins.readFile ./agent-prompt.sh;
   };
 
+  # The session rollup as JSON, for a status bar (see agent-sessions.sh). Always
+  # exits 0: a bar polls it, so a non-zero exit for the idle case would make every
+  # bar render an error as its steady state.
+  sessionsScript = pkgs.writeShellApplication {
+    name = "agent-sessions";
+    runtimeInputs = [
+      pkgs.jq
+      pkgs.coreutils
+      pkgs.gawk
+      pkgs.wezterm
+      pkgs.seshy
+    ];
+    bashOptions = [ ];
+    text = builtins.readFile ./agent-sessions.sh;
+  };
+
   # Session readiness report (see agent-review.sh). Read-only by contract.
   reviewScript = pkgs.writeShellApplication {
     name = "agent-review";
@@ -282,6 +298,7 @@ in
     focusScript
     loopGate
     reviewScript
+    sessionsScript
     syGate
     ;
 
@@ -291,6 +308,7 @@ in
   promptExe = lib.getExe promptScript;
   focusExe = lib.getExe focusScript;
   reviewExe = lib.getExe reviewScript;
+  sessionsExe = lib.getExe sessionsScript;
 
   # wired once in default.nix to avoid a home.file collision
   iconFiles = lib.listToAttrs (

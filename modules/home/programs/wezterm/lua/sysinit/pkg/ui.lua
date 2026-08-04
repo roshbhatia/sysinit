@@ -227,7 +227,39 @@ function M.setup(config)
     -- own workspace in its own window — scoping to `window` marked every pane in every
     -- other workspace as dead and wiped its state on each tick, so hookless agents
     -- outside the focused window never held a status.
+    -- Publish the active workspace with a heartbeat, so a status bar can read the
+    -- selection WezTerm alone knows. sketchybar and waybar cannot call into this
+    -- Lua, and `agent-sessions` cannot infer which workspace is focused, so the
+    -- selection has to be written out.
+    --
+    -- The heartbeat is what makes the file readable. Without it, "WezTerm is gone"
+    -- and "WezTerm is running and this is current" are the same bytes, so a bar
+    -- would show the last-focused session forever after WezTerm quit. A reader
+    -- compares the timestamp and reports fresh, stale, or absent.
+    --
+    -- Best-effort by construction: every failure is swallowed, because a status
+    -- file is never worth breaking the statusline over.
+    local function publish_selection()
+      local ok_ws, ws = pcall(wezterm.mux.get_active_workspace)
+      if not ok_ws or type(ws) ~= "string" or ws == "" then
+        return
+      end
+      local state = (os.getenv("XDG_STATE_HOME") or (os.getenv("HOME") .. "/.local/state")) .. "/agents"
+      pcall(function()
+        os.execute("mkdir -p " .. ("%q"):format(state))
+      end)
+      pcall(function()
+        local f = io.open(state .. "/selected.json", "w")
+        if not f then
+          return
+        end
+        f:write(string.format('{"selected":%s,"heartbeat":%d}\n', wezterm.json_encode(ws), os.time()))
+        f:close()
+      end)
+    end
+
     wezterm.on("update-status", function(_window, _pane)
+      publish_selection()
       local all_states = agent_deck.get_all_agent_states()
       local active_ids = {}
       local ok = pcall(function()

@@ -1,0 +1,6 @@
+version: 1
+change: surface-sessions-in-bars
+decision: approved
+note: Owner directed it in-session. Tabs confirmed already implemented and excluded as a non-goal.
+change_hash: 4e5df33cc076e3f2
+base_commit: 6022939c96fe67c9d3152ed3f70bbeaf07973a75
