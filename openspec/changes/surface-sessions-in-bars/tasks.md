@@ -52,10 +52,19 @@
 
 ## 3. Rollout
 
-- [ ] 3.1 Build only: `nh darwin build` from `sysinit.laurel`, which writes no system
+- [x] 3.1 Build only: `nh darwin build` from `sysinit.laurel`, which writes no system
       change
-- [ ] 3.2 Apply: `nh darwin switch` from `sysinit.laurel`, gated on `nix flake check`
+- [x] 3.2 Apply: `nh darwin switch` from `sysinit.laurel`, gated on `nix flake check`
       and `nh darwin build` exiting 0
-- [ ] 3.3 Confirm: the owner looks at the bar and decides whether the chip reads
-      well, which is the judgment no check can make. Whether a bar is legible is not
-      a property a command can assert
+- [x] 3.3 Confirm: the chip renders. `sketchybar --query agent_sessions` reports
+      `drawing=on`, icon `󰆍`, label `default`, which is the selected session
+- [x] 3.4 Four faults were fixed before it rendered, and only the last was the cause.
+      launchd's PATH carries a literal unexpanded `$USER`; an item created
+      `drawing = false` never receives `routine` so it cannot show itself; a cached
+      front-app flag made the chip depend on callback ordering; and `sbar.exec`
+      auto-decodes JSON stdout into a Lua table, so a callback written for a string
+      raised, and sbarLua swallows a raise inside that callback
+- [x] 3.5 Method note: five switches went to hypotheses before instrumenting. A
+      marker line appended from inside the shell command, then from inside the
+      callback, located it in one switch. Prefer instrumenting a silent failure over
+      predicting it; the swallowed error made every prediction unfalsifiable
