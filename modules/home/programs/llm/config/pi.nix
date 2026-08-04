@@ -633,6 +633,19 @@ let
     else
       true;
 
+  # The rendered settings must match the declared list exactly, in both
+  # directions. Otherwise the flake check verifies a list that is not what the
+  # module actually writes.
+  keysNotDeclared = lib.subtractLists piKeys.declared piDeclaredKeys;
+  keysNotRendered = lib.subtractLists piDeclaredKeys piKeys.declared;
+  assertKeysMatchManifest =
+    if keysNotDeclared != [ ] then
+      throw "pi.nix: ${lib.concatStringsSep ", " keysNotDeclared} is written to settings.json but missing from pi-settings-keys.nix, so nothing verifies it against the installed binary."
+    else if keysNotRendered != [ ] then
+      throw "pi.nix: ${lib.concatStringsSep ", " keysNotRendered} is listed in pi-settings-keys.nix but not written to settings.json. Remove the stale entry."
+    else
+      true;
+
   piKeyOverlap = lib.intersectLists piDeclaredKeys piRetiredSettings;
   assertPiKeysDisjoint =
     if piKeyOverlap != [ ] then
