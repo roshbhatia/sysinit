@@ -32,7 +32,7 @@ let
     text = ''
       export UV_PYTHON=${pkgs.python3}/bin/python3
       export UV_PYTHON_DOWNLOADS=never
-      exec uv run --script ${./worklog.py}
+      exec uv run --script ${./worklog-hook.py}
     '';
   };
 
@@ -54,7 +54,7 @@ let
     name = "claude-nix-guard";
     runtimeInputs = [ pkgs.jq ];
     bashOptions = [ ];
-    text = builtins.readFile ./claude-nix-guard.sh;
+    text = builtins.readFile ./nix-guard.sh;
   };
 
   # PreToolUse guard for the Slack send tools. `dangerouslySkipPermissions`

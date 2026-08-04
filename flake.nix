@@ -943,6 +943,34 @@
           #
           # The guard is the only mechanical floor under the agent's Bash tool
           # while `dangerouslySkipPermissions` is on, and until this check existed
+          # `nix flake check` evaluates darwinConfigurations but skips building them,
+          # so a `home.file` source or a `${./asset}` that no longer exists stays
+          # invisible until `nh darwin build`. That is exactly how a file rename in
+          # this module reached a green check and then failed the switch: the path is
+          # inside a lazily-forced attribute, so evaluation never touches it.
+          #
+          # Cheap and deterministic: read every relative asset path out of the
+          # module's Nix sources and assert it resolves. It cannot catch a path built
+          # by string interpolation, which is why it reports the count it checked.
+          llm-asset-paths-resolve =
+            pkgs.runCommand "llm-asset-paths-resolve-check" { nativeBuildInputs = [ pkgs.python3 ]; } ''
+              python3 - "${./modules/home/programs/llm}" <<'PY' | tee "$out"
+              import pathlib, re, sys
+              root = pathlib.Path(sys.argv[1])
+              checked = missing = 0
+              for f in sorted(root.rglob("*.nix")):
+                  for m in re.finditer(r'\.{1,2}/[A-Za-z0-9_./-]+\.(?:sh|py|ts|mdc|json|md)', f.read_text()):
+                      checked += 1
+                      if not (f.parent / m.group(0)).exists():
+                          print(f"FAIL: {f.relative_to(root)} reads {m.group(0)}, which does not exist", file=sys.stderr)
+                          missing += 1
+              if missing:
+                  print(f"{missing} unresolved asset path(s). A rename left a reader behind.", file=sys.stderr)
+                  sys.exit(1)
+              print(f"OK: {checked} relative asset paths in the llm module all resolve")
+              PY
+            '';
+
           # devin and agy block by exit code, not by a JSON permissionDecision, so
           # they wrap the shared guard. Both wrappers were dead: the body called the
           # guard by the bare name `claude-bash-guard`, which no harness puts on
