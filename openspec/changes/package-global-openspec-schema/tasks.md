@@ -12,5 +12,5 @@
 ## 2. Rollout
 
 - [x] 2.1 Verify: a built-package probe reports `rosh-spec-driven` with `Source: package`
-- [ ] 2.2 Apply: commit and `git push`, gated on the complete diff review and all checks exiting 0
-- [ ] 2.3 Confirm: the remote branch contains the package-owned schema commit
+- [x] 2.2 Apply: commit and `git push`, gated on the complete diff review and all checks exiting 0
+- [x] 2.3 Confirm: the remote branch contains the package-owned schema commit

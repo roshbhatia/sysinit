@@ -1,9 +1,9 @@
 version: 1
 change: codify-responsible-llm-workflow
 decision: approved
-note: Owner directed implementation of all proposed RFD 576 policy changes on 2026-08-04; deterministic checks passed.
-change_hash: bc00a3b8e1ed1619
-base_commit: 7e3f390d8956b658a13bd2daf738bd3b0b59d10e
+note: Owner-directed implementation is complete; commit 9fef8cc41 is present on origin/main.
+change_hash: ae614c20ca60ed7a
+base_commit: 9fef8cc41181b8633916a7aca3b4c56d913d8fdc
 items:
     4c0b7329577321d7:
         hash: acba710f454b6bd6

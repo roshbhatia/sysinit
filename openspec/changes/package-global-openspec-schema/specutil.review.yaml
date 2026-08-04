@@ -1,9 +1,9 @@
 version: 1
 change: package-global-openspec-schema
 decision: approved
-note: 'Owner directed implementation of all proposed schema-packaging changes on 2026-08-04; package probe reports Source: package.'
-change_hash: a521275d9b966403
-base_commit: 18109a7574a29ba896f53acbf23ebe58d669a3a7
+note: Owner-directed implementation is complete; commit 7e3f390d8 is present on origin/main.
+change_hash: 7aa18ec604e72b4d
+base_commit: 9fef8cc41181b8633916a7aca3b4c56d913d8fdc
 items:
     3f2b288be38cd5ea:
         hash: d3c7cd4f68e59f05
