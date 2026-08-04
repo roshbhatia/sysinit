@@ -100,11 +100,12 @@
       `lib/guards.nix`, `flake.nix`, `config/devin.nix`, `config/gemini.nix`, and
       `llm/default.nix`. `runtime/default.nix` is a rename that also carries edits,
       per 2.5 `deps:` 2.8
-- [ ] 2.12 Adversarial review (`adversarial-review` skill): critics attempt to
+- [x] 2.12 Adversarial review (`adversarial-review` skill): critics attempt to
       break the runtime phase against the proposal `Behavior` criteria and
       against D1, in particular the claim that no file under `lib/` reads a
       harness path; revise until the loop reaches a terminal state (see the skill
-      for the scaled round cap) `deps:` 2.11
+      for the scaled round cap) `deps:` 2.11. Terminal state HALTED at round 1 with
+      0 open objections: two objections, both upheld and fixed. Not a clean round
 - [x] 2.13 Round 1 finding: add a `require_file` guard for every path
       `notify-defect-regressions` greps. `set -e` exempts the left side of a `&&`,
       and `rg` on a missing path exits 2, so an `rg ... && note ...` assertion
@@ -112,6 +113,12 @@
       shape and sits in its silent state whenever the regression is absent, so a
       dead guard and a live one looked identical. Mutation tested by pointing it at
       a moved path `deps:` 2.12
+- [x] 2.14 Round 1 finding: recalibrate the group-literal stray scan. Its patterns
+      required a `$` after the colon, matching an interpolated form `agent_group`
+      no longer emits, so it matched nothing, not even the canonical file, and a
+      copied definition passed. Dead since the helper moved to `printf`. Added a
+      positive control that fails if the patterns stop matching `agent-group.sh`,
+      so the scan cannot go dead silently again. Both mutation tested `deps:` 2.13
 
 ## 3. Harness layer
 

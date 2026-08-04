@@ -1820,8 +1820,25 @@
                   note "agent-focus.sh does not rebuild the group from \$pane"
 
                 # No second definition may reappear outside the helper.
+                #
+                # The patterns must match what agent_group actually emits. They once
+                # required a `$` right after the colon, matching an interpolated
+                # `"agent:$pane"` form the helper no longer uses: it builds the group
+                # with `printf 'agent:%s'`. So the scan matched nothing, not even the
+                # canonical file, and the `rg -v agent-group.sh` filter below was the
+                # tell, since it only makes sense if that file is expected to match.
+                # A copied definition passed unnoticed for as long as the helper has
+                # used printf. Both forms are covered now, because a second
+                # definition could be written either way.
+                #
+                # Guarded by a positive control: if the canonical file stops matching,
+                # the patterns have drifted again and the scan is dead again.
+                rg -l -e 'agent:%s' -e 'agent-notify:%s' -e '"agent:\$' -e 'agent-notify:\$' \
+                  "$cfg/agent-group.sh" > /dev/null 2>&1 ||
+                  note "the group-literal patterns match nothing in agent-group.sh, so the stray scan below cannot fire. Recalibrate them against what agent_group emits."
+
                 stray="$(
-                  rg -l -e 'agent-notify:\$' -e 'agent-prompt:\$' -e '"agent:\$' \
+                  rg -l -e 'agent:%s' -e 'agent-notify:%s' -e '"agent:\$' -e 'agent-notify:\$' \
                     "$cfg" 2> /dev/null | rg -v 'agent-group\.sh' || true
                 )"
                 [ -z "$stray" ] || note "group literal outside agent-group.sh: $stray"
