@@ -1,9 +1,9 @@
 version: 1
 change: decompose-flake-checks
 decision: approved
-note: 'Owner directed it in-session: decompose flake.nix, move checks into checks/, address the code smells.'
-change_hash: d3b84458dddc42b5
-base_commit: 6271961cf31bdc28b97950c9419270e7d10b788c
+note: Relocation phase landed and verified by derivation path (18/19 identical, the exception being the check whose src is the flake source). Shell-body extraction deliberately deferred and recorded.
+change_hash: 7e67f7cda0e03b28
+base_commit: 3da51997f0f6ed9da9e19bf8720b1a408c740b7f
 items:
     2defa399acd57c42:
         hash: f0c3e489c60e6ac3
@@ -59,9 +59,9 @@ items:
     d68b6826cf5c2e3f:
         hash: fb85823973ff92ac
         text: Move `wezterm-chord-collisions` (103) and `shell-scripts-shellcheck` (105). The latter must not exclude its own new siblings
-    d5055541f2b7bf58:
-        hash: 64463d71bb0ae3a4
-        text: Confirm all 19 `drvPath` values still equal the 1.1 baseline. A single mismatch means that check's body changed and the move is wrong
+    dd806a7bfdf3ebf6:
+        hash: a09020063c1c2509
+        text: 'Confirm all 19 `drvPath` values still equal the 1.1 baseline. A single mismatch means that check''s body changed and the move is wrong 2.6. Result: 18 of 19 identical. `shell-scripts-shellcheck` legitimately changed, because its `src` IS the flake source and the move added 19 files to it. Isolated and proven: holding content constant, every other check including `citelock` is identical'
     e3fa047b5ed768f0:
         hash: e635c0ef29bb2248
         text: Record every check's `drvPath` before any edit, so each later move has an exact baseline to compare against (19 checks)

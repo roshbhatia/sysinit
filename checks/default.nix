@@ -1,0 +1,57 @@
+# Every flake check, one file each.
+#
+# Follows the aggregator pattern already used by modules/lib/default.nix and
+# modules/home/programs/llm/harnesses/default.nix: a directory of single-purpose
+# files behind one import, rather than one file that holds all of them.
+#
+# The two values several checks share are built once here, so a check that asserts
+# against the notifier icons or the reconciler jq program reads the same value the
+# activation does.
+{
+  pkgs,
+  lib,
+  inputs,
+  system,
+}:
+let
+  notifyIcons = (import ../modules/home/programs/llm/runtime { inherit pkgs lib; }).icons;
+
+  # The same jq program the activation reconciler runs. Imported rather than
+  # restated, so a check cannot pass against a copy that has drifted from what
+  # actually reconciles the live files.
+  managedFile = import ../modules/home/programs/llm/lib/managed-file.nix { inherit lib; };
+
+  check =
+    path:
+    import path {
+      inherit
+        pkgs
+        lib
+        inputs
+        system
+        notifyIcons
+        managedFile
+        ;
+    };
+in
+{
+  agent-review-readiness = check ./agent-review-readiness.nix;
+  citelock = check ./citelock.nix;
+  destructive-guard-fixtures = check ./destructive-guard-fixtures.nix;
+  exit-code-guard-blocks = check ./exit-code-guard-blocks.nix;
+  llm-asset-paths-resolve = check ./llm-asset-paths-resolve.nix;
+  lua-parses = check ./lua-parses.nix;
+  managed-file-merge3 = check ./managed-file-merge3.nix;
+  managed-file-reconcile = check ./managed-file-reconcile.nix;
+  notify-defect-regressions = check ./notify-defect-regressions.nix;
+  opencode-config-schema = check ./opencode-config-schema.nix;
+  openspec-default-schema = check ./openspec-default-schema.nix;
+  pi-no-theme-writer = check ./pi-no-theme-writer.nix;
+  pi-settings-keys-exist = check ./pi-settings-keys-exist.nix;
+  pi-shell-prefix-loads-aliases = check ./pi-shell-prefix-loads-aliases.nix;
+  schema-templates-conform = check ./schema-templates-conform.nix;
+  shell-scripts-shellcheck = check ./shell-scripts-shellcheck.nix;
+  skill-render-shape = check ./skill-render-shape.nix;
+  wezterm-chord-collisions = check ./wezterm-chord-collisions.nix;
+  zsh-fragments-parse = check ./zsh-fragments-parse.nix;
+}
