@@ -105,7 +105,7 @@
       against D1, in particular the claim that no file under `lib/` reads a
       harness path; revise until the loop reaches a terminal state (see the skill
       for the scaled round cap) `deps:` 2.11
-- [ ] 2.13 Round 1 finding: add a `require_file` guard for every path
+- [x] 2.13 Round 1 finding: add a `require_file` guard for every path
       `notify-defect-regressions` greps. `set -e` exempts the left side of a `&&`,
       and `rg` on a missing path exits 2, so an `rg ... && note ...` assertion
       neither fires nor aborts when its target moves. The `notify` guard is that
@@ -117,28 +117,28 @@
 
 - **SHAPE** graph
 
-- [ ] 3.1 Pilot: create `harnesses/default.nix` holding the `imports` list
+- [x] 3.1 Pilot: create `harnesses/default.nix` holding the `imports` list
       (follows the aggregating list in `llm/default.nix`), move `config/amp.nix`
       to `harnesses/amp.nix`, and point `llm/default.nix` at `./harnesses`. One
       flat harness proves the aggregator and the `../lib` import depth before the
       other ten move
-- [ ] 3.2 Move the remaining flat harness modules into `harnesses/`: `codex.nix`,
+- [x] 3.2 Move the remaining flat harness modules into `harnesses/`: `codex.nix`,
       `copilot-cli.nix`, `crush.nix`, `devin.nix`, and `goose.nix` `deps:` 3.1
-- [ ] 3.3 Create `harnesses/claude/`: `default.nix` from `config/claude.nix`,
+- [x] 3.3 Create `harnesses/claude/`: `default.nix` from `config/claude.nix`,
       `nix-guard.sh` from `config/claude-nix-guard.sh`, `statusline.sh`, and
       `worklog-hook.py` from `config/worklog.py`. Correct the library import depth
       to `../../lib` `deps:` 3.1
-- [ ] 3.4 Create `harnesses/cursor/`: `default.nix` from `config/cursor.nix`, plus
+- [x] 3.4 Create `harnesses/cursor/`: `default.nix` from `config/cursor.nix`, plus
       `rules/nix.mdc` and `rules/markdown.mdc` from `config/cursor-rules/`.
       Correct the library import depth to `../../lib` `deps:` 3.1
-- [ ] 3.5 Create `harnesses/gemini/`: `default.nix` from `config/gemini.nix`, plus
+- [x] 3.5 Create `harnesses/gemini/`: `default.nix` from `config/gemini.nix`, plus
       `extensions/openspec-awareness/CONTEXT.md` from `config/gemini-extensions/`.
       Correct the library import depth to `../../lib` `deps:` 3.1
-- [ ] 3.6 Create `harnesses/opencode/`: `default.nix` from `config/opencode.nix`,
+- [x] 3.6 Create `harnesses/opencode/`: `default.nix` from `config/opencode.nix`,
       `render.nix` from `config/opencode-render.nix`, and
       `plugins/sysinit-notify.ts`. Correct the library import depth to `../../lib`
       in BOTH files, and repoint `default.nix` at `./render.nix` `deps:` 3.1
-- [ ] 3.7 Create `harnesses/pi/`: `default.nix` from `config/pi.nix`,
+- [x] 3.7 Create `harnesses/pi/`: `default.nix` from `config/pi.nix`,
       `settings-keys.nix`, `vendored-extensions.nix`, `shell-prefix.sh`, all four
       files under `extensions/` (two loose `.ts` files plus the two-file
       `openspec-sidebar/`), and the ten lockfiles under `locks/`. Correct the
@@ -146,28 +146,28 @@
       the renames break (`settings-keys.nix`, `vendored-extensions.nix`,
       `shell-prefix.sh`), and keep the sidebar's `source` a directory rather than
       expanding it to files `deps:` 3.1
-- [ ] 3.8 Repoint the `bridgeArtifacts` paths in `runtime/default.nix` at the pi
+- [x] 3.8 Repoint the `bridgeArtifacts` paths in `runtime/default.nix` at the pi
       and opencode bridge files in their new homes `deps:` 3.6
-- [ ] 3.9 Repoint the remaining `flake.nix` sites: the `pi-shell-prefix`,
+- [x] 3.9 Repoint the remaining `flake.nix` sites: the `pi-shell-prefix`,
       `pi-settings-keys`, `pi-vendored-extensions`, and `opencode-render` checks,
       the `harness=` root in `notify-defect-regressions`, and the shellcheck
       canary, which gains `llm/harnesses`. The `require_file` guards added in 2.13
       will name every assertion whose target this phase moved, so run the check
       and fix what it names rather than grepping for sites `deps:` 3.7
-- [ ] 3.10 Repoint `hack/update-pi.sh`: `PI_NIX`, `LOCKS_DIR`, and the three path
+- [x] 3.10 Repoint `hack/update-pi.sh`: `PI_NIX`, `LOCKS_DIR`, and the three path
       strings in its printed instructions `deps:` 3.7
-- [ ] 3.11 Update the shipped path text that teaches where harness config lives:
+- [x] 3.11 Update the shipped path text that teaches where harness config lives:
       `harnesses/cursor/rules/nix.mdc` and `AGENTS.md` `deps:` 3.4
-- [ ] 3.12 Move the two cross-harness output modules to the module root, not into
+- [x] 3.12 Move the two cross-harness output modules to the module root, not into
       `harnesses/`: `config/acp.nix` becomes `llm/acp.nix`, and
       `config/mcp-servers.nix` becomes `llm/mcp-servers.nix`. Both sit beside the
       `options.nix` that declares the option the second one sets `deps:` 3.1
-- [ ] 3.13 Delete `modules/home/programs/llm/config/`, then confirm that no
+- [x] 3.13 Delete `modules/home/programs/llm/config/`, then confirm that no
       reference to that directory survives outside `openspec/`. Everything under
       `openspec/changes/` and `openspec/specs/` is exempt and stays untouched: both
       are history, and `openspec/specs/` alone holds 8 such references
       `deps:` 3.9, 3.12
-- [ ] 3.14 Run `nix flake check` and confirm it exits 0. Read `git diff -M --stat`
+- [x] 3.14 Run `nix flake check` and confirm it exits 0. Read `git diff -M --stat`
       and confirm each moved harness asset is reported as a rename `deps:` 3.13
 - [ ] 3.15 Adversarial review (`adversarial-review` skill): critics attempt to
       break the harness-layer phase against the proposal `Behavior` criteria and
@@ -226,18 +226,18 @@
 
 ## 6. Rollout
 
-- [ ] 6.1 Record the old-path to new-path map in this change's directory, so the
+- [x] 6.1 Record the old-path to new-path map in this change's directory, so the
       seven in-flight changes that name old paths can be read against it
-- [ ] 6.2 Build only: `nh darwin build`, which writes no system change
-- [ ] 6.3 Confirm: the owner reads the file-level difference between the current
+- [x] 6.2 Build only: `nh darwin build`, which writes no system change
+- [x] 6.3 Confirm: the owner reads the file-level difference between the current
       generation's result path and the new one, and decides whether every
       difference was intended. The expectation is that no file appears and no file
       disappears, and that the only content difference is the `citelock` store
       path, which moves because the script's usage comment was corrected. Any
       appearing or disappearing file is a defect in an earlier phase, not an
       expected consequence of this one
-- [ ] 6.4 Apply: `nh darwin switch`, gated on `nix flake check` and
+- [x] 6.4 Apply: `nh darwin switch`, gated on `nix flake check` and
       `nh darwin build` exiting 0 and on 6.3 being confirmed
-- [ ] 6.5 Confirm: the owner runs one agent session and reports whether the
+- [x] 6.5 Confirm: the owner runs one agent session and reports whether the
       notifier, the statusline, and the state bus still fire, which is the
       judgment no check in this change can make
