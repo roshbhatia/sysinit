@@ -1,0 +1,64 @@
+version: 1
+change: remove-lima-nixos-vm
+decision: approved
+note: 'Owner directed the teardown in-session: rip out the nixos nested-VM machinery, keep lima for ad-hoc use and colima as the docker backend.'
+change_hash: f12984235d3ce8ef
+base_commit: 55b5f1fde26a45ee2f47e158c4001074d65bb172
+items:
+    0f4fcc3e3529898c:
+        hash: cca33f3d31111080
+        text: Remove the `limaHost` builder and the `nostromo` host from `hosts/default.nix`
+    1db416920b49ad75:
+        hash: 58de3c295b378740
+        text: Remove the `lima-<instance>` launchd agent from `modules/darwin/macos-tools.nix`, leaving `pkgs.lima` and the entire colima block untouched
+    3e90c490e71cd28b:
+        hash: f4ab1e5e7243923f
+        text: Remove the `hostConfig.lima` gate and the `inputs.nixos-lima.nixosModules.lima` import from `lib/builders/nixos.nix`
+    3fab10ff94bf7bf4:
+        hash: 90ac4b0714156246
+        text: Remove the `isLima` branch from `modules/nixos/home-manager.nix` and the `isLima` binding from `lib/builders.nix`
+    4bac842a7ee38394:
+        hash: 4ae242a3196da65c
+        text: 'Apply: push to main, then `nh darwin switch`, gated on `nix flake check` and `nh darwin build` exiting 0 and on 3.2 being confirmed'
+    4dada078b1ac67de:
+        hash: 674c84e513e0c540
+        text: 'Adversarial review (`adversarial-review` skill): critics attempt to break the NixOS-side phase against the proposal `Behavior` criteria and D1 and D2, in particular whether any dead conditional or template reference survives; revise until the loop reaches a terminal state (see the skill for the scaled round cap)'
+    4ebb7541d82c674c:
+        hash: 7ca1eae831a367d6
+        text: Delete `lima.yaml` and `templates/discrete/lima.yaml`, and remove the lima sections from `templates/discrete/flake.nix`, `templates/discrete/hosts/default.nix`, `templates/discrete/AGENTS.md`, `templates/discrete/README.md`, and the root `README.md`
+    5c9e231004078501:
+        hash: 33d91b34942a6fa1
+        text: 'Adversarial review (`adversarial-review` skill): critics attempt to break the darwin-side phase against the proposal `Behavior` criteria and D4, in particular whether the colima launchd agent is provably unchanged; revise until the loop reaches a terminal state (see the skill for the scaled round cap)'
+    9ff415d1e71822f0:
+        hash: 98fcfa0cb7833441
+        text: Reword the `modules/nixos/common/default.nix` comment so it states the general reason (SSH with a command yields a non-login shell) rather than naming Lima. The behavior does not change
+    35bf9bdf8c2956ea:
+        hash: b591ef03f0b19025
+        text: 'Confirm: the owner reads the generation diff and decides whether the only launch-agent change is the `lima-*` removal, with every colima path identical'
+    48bc1f2e76c7fdfb:
+        hash: 80fc66eb7edec6ab
+        text: Run `nix flake check` and `nix flake show`. Confirm `nostromo` is absent, `arrakis` is present, and both darwin configurations are present
+    77f57c3a3de7d3a8:
+        hash: 8ccbeea3282b31e5
+        text: Remove the Lima-conditional SSH include and host entry from `modules/home/programs/ssh.nix`
+    aa1c6ae7382ec3c7:
+        hash: 1b15c8c2edcd6291
+        text: 'Run the Behavior grep: `rg -i lima` over the tracked tree, excluding `openspec/` and `flake.lock`, returns only `pkgs.lima`, the colima block, and the `overlays/default.nix` history comment'
+    b59d39a98d546afa:
+        hash: 6beaf65daadf25b2
+        text: Remove the `nixos-lima` input from `flake.nix`, then regenerate `flake.lock` and confirm only `nixos-lima` nodes left it
+    d2fe7b54e9e5b5f3:
+        hash: 52d246ca4f42fe05
+        text: Remove the `sysinit.darwin.lima.instanceName` option from `modules/darwin/options.nix`, leaving every `sysinit.darwin.colima.*` option
+    d9cdf91432763570:
+        hash: 40d0b7cc988a75ac
+        text: Run `nix flake check` and confirm it exits 0
+    e4abe1af0e5a812d:
+        hash: 217b755894f570c1
+        text: 'Confirm: the owner checks that `command -v limactl` still resolves and that the colima agent is still loaded, which is the judgment no check here can make'
+    ebe3ea3ac2d8d421:
+        hash: 28b2f0fb34132abc
+        text: 'Build only: `nh darwin build`, which writes no system change'
+    f549e7688e840cd9:
+        hash: d84d407b9d999e34
+        text: 'Pilot: delete `modules/nixos/lima/` and drop the `lib.optional values.isLima ./lima` entry from `modules/nixos/default.nix`. One module plus its single import proves the removal shape before the plumbing goes'
