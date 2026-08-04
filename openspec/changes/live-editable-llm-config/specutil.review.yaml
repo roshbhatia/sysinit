@@ -1,9 +1,9 @@
 version: 1
 change: live-editable-llm-config
 decision: approved
-note: 'Task 2.10 partly done: pi retired list deleted after verifying nested deletion to depth 3; opencode retiredMain, authoritative, and ownerPreference kept, each with a tested reason.'
-change_hash: 464485b0c3e8f0e9
-base_commit: de532334de0814109bbad984c6f1a82a2f56c6a6
+note: '2.11 verified: flake check green with a key removed, closure hash changed and reverted, nested deletion covered to depth 3. 2.8 and 2.12 remain: an owner confirm-by-use and the switch.'
+change_hash: 65bcc1adfde8cfa7
+base_commit: 4d1cc6ac905ef73d30ee1b14da842d0366d7ebbe
 items:
     0cb88340be5c9d34:
         hash: 4e888e614f067038
@@ -38,6 +38,9 @@ items:
     11ecfdbe21b7258f:
         hash: 97aa2dad284e2923
         text: Partly done, and the task was wrong in two of its three parts. Tested first, then deleted only what the evidence allowed.
+    14a36f1da5ff946f:
+        hash: c3424d74d90d9b80
+        text: 'Verified by removing `enableInstallTelemetry` from `piManagedSettings` and from the keys manifest, then restoring. Evidence, in order of how much it proves:'
     62e9fb458dc7e3b6:
         hash: b1bf7ee5956168ed
         text: 'Act: render the merge program once and share it between the activation script and the flake check, following the pattern in `config/opencode-render.nix:39`'
@@ -101,9 +104,6 @@ items:
     b99a889dce1c4a8a:
         hash: 3860b918ee522a0d
         text: 'Verify: `nix flake check` green; the STOP condition holds for all four trees; iterate 3.2 through 3.7 if any file differs'
-    b708cd6054ef768b:
-        hash: d0077a358643e438
-        text: 'Verify: remove one key from a harness config in Nix; `nh darwin build` green'
     bb918a584059f53d:
         hash: da6b246a0466599e
         text: 'Apply: `nh darwin switch`'

@@ -101,8 +101,19 @@
   - KEPT `ownerPreference` and `assertPreferencesUndeclared`. No mechanism replaces
     that guard, so deleting it is a net loss of safety.
   `deps:` 2.7
-- [ ] 2.11 Verify: remove one key from a harness config in Nix;
-  `nh darwin build` green `deps:` 2.10
+- [x] 2.11 Verified by removing `enableInstallTelemetry` from `piManagedSettings`
+  and from the keys manifest, then restoring. Evidence, in order of how much it
+  proves:
+  - `nix flake check` stayed green, so every assertion permits a bare removal with
+    no list to update. That is the whole point of the change: before it, a removed
+    key had to be added to `retired` or it lingered on disk forever.
+  - The built closure hash changed with the removal and back on restore, so the
+    edit genuinely propagated into the build rather than being evaluated away.
+  - Deletion against the base is covered separately by the `nested N deep` cases in
+    `managed-file-merge3`, verified to depth 3.
+  One attempt was inconclusive and is recorded as such: grepping the built toplevel
+  for the key returns 0 either way, because the rendered base is a referenced store
+  path rather than a directory nested inside the closure `deps:` 2.10
 - [ ] 2.12 Apply: `nh darwin switch` `deps:` 2.11
 - [ ] 2.13 Confirm: the removed key is gone from the live file, and no
   retired-list entry was needed `deps:` 2.12
