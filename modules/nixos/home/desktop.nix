@@ -13,28 +13,23 @@ let
   rofi1password = pkgs.writeShellScript "rofi-1password" ''
     set -euo pipefail
 
-    # Check if signed in
     if ! ${pkgs._1password-cli}/bin/op account list &>/dev/null; then
       ${pkgs.libnotify}/bin/notify-send "1Password" "Not signed in. Run: op signin" --urgency=critical
       exit 1
     fi
 
-    # List items from 1Password
     ITEM=$(${pkgs._1password-cli}/bin/op item list --format=json 2>/dev/null \
       | ${pkgs.jq}/bin/jq -r '.[] | "\(.title) [\(.category)]"' \
       | ${pkgs.rofi}/bin/rofi -dmenu -p "  1Password" -i) || exit 0
 
     [ -z "$ITEM" ] && exit 0
 
-    # Extract the title (strip the category suffix)
     TITLE=$(echo "$ITEM" | ${pkgs.gnused}/bin/sed 's/ \[.*\]$//')
 
-    # Choose which field to copy
     FIELD=$(printf "password\nusername\notp" | ${pkgs.rofi}/bin/rofi -dmenu -p "Copy field") || exit 0
 
     [ -z "$FIELD" ] && exit 0
 
-    # Get the field value and copy to clipboard
     if [ "$FIELD" = "otp" ]; then
       VALUE=$(${pkgs._1password-cli}/bin/op item get "$TITLE" --otp 2>/dev/null)
     else
@@ -385,21 +380,22 @@ in
           "custom/agent-sessions" = {
             interval = 2;
             return-type = "json";
-            exec = ''\
-              agent-sessions 2>/dev/null | ${pkgs.jq}/bin/jq -c '
-                if .selection_state == "absent" or (.selected // "") == "" then
-                  { text: "" }
-                else
-                  # `$sel` is bound from the root first: inside `.sessions[]` a bare
-                  # `.selected` resolves against the session object, where it does not
-                  # exist, so the comparison silently never matched.
-                  (.selected) as $sel
-                  | ( [ .sessions[] | select((.blocked // 0) > 0 and .name != $sel) ] | length ) as $n
-                  | { text: ("󰆍 " + $sel + (if $n > 0 then "  +" + ($n | tostring) else "" end)),
-                      tooltip: ([ .sessions[] | select((.blocked // 0) > 0) | .name + ": " + (.status // "idle") ] | join("\n")),
-                      class: .selection_state }
-                end
-              ' 2>/dev/null || echo '{"text":""}'
+            exec = ''
+              \
+                            agent-sessions 2>/dev/null | ${pkgs.jq}/bin/jq -c '
+                              if .selection_state == "absent" or (.selected // "") == "" then
+                                { text: "" }
+                              else
+                                # `$sel` is bound from the root first: inside `.sessions[]` a bare
+                                # `.selected` resolves against the session object, where it does not
+                                # exist, so the comparison silently never matched.
+                                (.selected) as $sel
+                                | ( [ .sessions[] | select((.blocked // 0) > 0 and .name != $sel) ] | length ) as $n
+                                | { text: ("󰆍 " + $sel + (if $n > 0 then "  +" + ($n | tostring) else "" end)),
+                                    tooltip: ([ .sessions[] | select((.blocked // 0) > 0) | .name + ": " + (.status // "idle") ] | join("\n")),
+                                    class: .selection_state }
+                              end
+                            ' 2>/dev/null || echo '{"text":""}'
             '';
           };
 

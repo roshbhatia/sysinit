@@ -1,4 +1,4 @@
-final: prev: {
+_final: prev: {
   direnv = prev.direnv.overrideAttrs (_old: {
     doCheck = false;
     env = (_old.env or { }) // {

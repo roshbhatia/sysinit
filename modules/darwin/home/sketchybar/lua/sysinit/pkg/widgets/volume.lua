@@ -113,7 +113,7 @@ function M.setup()
   volume_slider:subscribe("mouse.entered", show_volume_slider)
   volume_slider:subscribe("mouse.exited", hide_volume_slider)
 
-  volume_icon:subscribe("mouse.clicked", function(env)
+  volume_icon:subscribe("mouse.clicked", function()
     sbar.exec("audio-switcher")
   end)
 

@@ -22,11 +22,6 @@ _:
       executable = true;
     };
 
-    ".local/bin/loglib.nu" = {
-      source = ./dev/loglib.nu;
-      executable = true;
-    };
-
     ".local/bin/fzf-preview" = {
       source = ./dev/fzf-preview.nu;
       executable = true;

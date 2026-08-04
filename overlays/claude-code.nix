@@ -1,4 +1,4 @@
-final: prev:
+_final: prev:
 let
   version = "2.1.220";
   src = prev.fetchzip {
@@ -7,7 +7,7 @@ let
   };
 in
 {
-  claude-code = prev.claude-code.overrideAttrs (old: {
+  claude-code = prev.claude-code.overrideAttrs (_old: {
     inherit version src;
     postPatch = ''
       cp ${./claude-code-package-lock.json} package-lock.json

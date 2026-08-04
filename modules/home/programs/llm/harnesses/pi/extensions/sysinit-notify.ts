@@ -1,26 +1,14 @@
-/**
- * Bridges pi's lifecycle onto the shared agent notifier.
- *
- * Only spawns; classification, suppression, identity, icons, and sounds live in
- * the shell scripts so there is one copy of that logic.
- */
+/** Bridges pi lifecycle events onto the shared agent notifier. */
 
 import type { ExtensionAPI } from "@earendil-works/pi-coding-agent";
 
 const HOME = process.env.HOME ?? "";
 const BIN = `${HOME}/.nix-profile/bin`;
 
-// Best-effort: a notifier failure must never fail a pi turn.
 function spawnQuiet(exe: string, args: string[], input?: string): void {
 	try {
 		const { spawn } = require("node:child_process");
-		// No `detached`. On POSIX that calls setsid(), which makes the child a
-		// session leader with NO controlling terminal, so agent-state's
-		// `> /dev/tty` OSC write fails and the pane's agent_state user-var is
-		// never set. The WezTerm scrape bridge skips a pane only when that
-		// user-var is present, so a detached spawn would make every bridged
-		// harness announce twice. `unref()` alone already releases the parent
-		// event loop, which is all this needs.
+		// detached children lose the tty that `agent-state` uses for OSC
 		const child = spawn(`${BIN}/${exe}`, args, {
 			stdio: input === undefined ? "ignore" : ["pipe", "ignore", "ignore"],
 		});
@@ -40,11 +28,11 @@ function state(status: string, reason?: string): void {
 }
 
 export default function (pi: ExtensionAPI) {
-	pi.on("session_start", async () => {
+	pi.on("session_start", () => {
 		state("working", "session start");
 	});
 
-	pi.on("tool_call", async (event: any) => {
+	pi.on("tool_call", (event) => {
 		const name = event?.toolName ?? "";
 		// `event.input`, not `event.args`: the latter belongs to tool_execution_*
 		const args = event?.input ?? {};
@@ -55,12 +43,12 @@ export default function (pi: ExtensionAPI) {
 	});
 
 	// `agent_settled`, not `agent_end`: pi may still auto-retry or compact
-	pi.on("agent_settled", async () => {
+	pi.on("agent_settled", () => {
 		state("done", "your move");
 		spawnQuiet("agent-notify", ["pi", "done", `${BIN}/agent-focus`], "{}");
 	});
 
-	pi.on("session_shutdown", async () => {
+	pi.on("session_shutdown", () => {
 		state("exit");
 	});
 }

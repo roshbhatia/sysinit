@@ -1,17 +1,4 @@
--- Which seshy session is selected, and how many others need attention.
---
--- The rollup lives in WezTerm's Lua, which sketchybar cannot call, so this polls
--- `agent-sessions` instead. That command reads the same per-pane state bus and
--- `sy list` that WezTerm's own statusline reads, so the bar and the SUPER+s tree
--- cannot disagree about which session is worst.
---
--- Shown only while WezTerm is the front app: outside the terminal the selection is
--- not actionable, and a permanent chip would just be noise.
---
--- The heartbeat is why this can be trusted. `selection_state` distinguishes a live
--- WezTerm from one that quit while leaving its last selection behind, so a stale
--- name is dimmed rather than presented as current. Without it the bar would show
--- the last-focused session forever.
+-- read the shared state bus so Sketchybar and WezTerm select the same session
 local sbar = require("sketchybar")
 local cjson = require("cjson")
 local settings = require("sysinit.pkg.settings")
@@ -22,11 +9,7 @@ local M = {}
 
 local item
 
--- launchd hands sketchybar a PATH containing the literal string
--- "/etc/profiles/per-user/$USER/bin", and launchd does not expand variables, so that
--- entry names a directory that does not exist and a bare `agent-sessions` never
--- resolves. Build the real path from $USER, which Lua can read, rather than hoping
--- the inherited PATH is usable. Not a fallback chain: one deterministic path.
+-- launchd does not expand `$USER` in Sketchybar's inherited PATH
 local function agent_sessions_cmd()
   local user = os.getenv("USER")
   if user and user ~= "" then
@@ -35,19 +18,13 @@ local function agent_sessions_cmd()
   return "agent-sessions"
 end
 
--- Worst-wins, matching the notifier and the switcher: waiting means the owner must
--- act, done means it is their move, working means it is still going.
 local status_icons = {
   waiting = "󰀦",
   done = "󰄬",
   working = "󰑮",
 }
 
--- cjson decodes JSON `null` to a lightuserdata sentinel, NOT to Lua nil, so
--- `not value` is false for a null and any string operation on it raises. That raise
--- happens inside an sbar.exec callback, which sbarLua swallows, so the chip sat
--- visible-and-empty while the command ran correctly every two seconds. Coerce every
--- nullable field through this before use.
+-- cjson represents JSON null as lightuserdata instead of Lua nil
 local function str(v)
   return type(v) == "string" and v or nil
 end
@@ -62,8 +39,6 @@ local function render(payload)
     return
   end
 
-  -- Count sessions holding a blocked agent, excluding the one already selected:
-  -- the owner is looking at that one, so it is not news.
   local attention, worst = 0, nil
   for _, s in ipairs(sessions) do
     if type(s.blocked) == "number" and s.blocked > 0 and str(s.name) ~= selected then
@@ -81,14 +56,8 @@ local function render(payload)
     label = label .. "  +" .. tostring(attention)
   end
 
-  -- A stale selection is dimmed, never hidden and never shown as current. Hiding
-  -- would be indistinguishable from "no sessions"; showing it plainly would be a
-  -- lie about which session is focused.
   local color = colors.foreground_primary
   if state == "stale" then
-    -- foreground_muted, not a guessed key with an `or` fallback: a wrong key would
-    -- fall back to the primary colour and render stale identically to fresh, which
-    -- silently defeats the heartbeat this widget exists to respect.
     color = colors.foreground_muted
   end
 
@@ -115,29 +84,16 @@ local function render(payload)
   end)
 end
 
--- One exec, not two. The previous shape asked osascript for the front app, cached
--- the answer in a module-level flag, and polled separately -- so the chip depended
--- on two callbacks firing in the right order, and when the first never delivered
--- the item sat visible-but-empty with no branch having run. Asking the shell for
--- both facts in one command removes the ordering and the cache: either the output
--- is a rollup to render, or it is the literal HIDE.
+-- one command avoids ordering between separate front-app and rollup callbacks
 local function poll()
-  local cmd = "app=$(osascript -e 'tell application \"System Events\" to get name of first application process whose frontmost is true' 2>/dev/null); "
+  local cmd = "app=$(osascript -e 'tell application \"System Events\" to get name of first application process "
+    .. "whose frontmost is true' 2>/dev/null); "
     .. "case \"$app\" in wezterm-gui|WezTerm|Wezterm) "
     .. agent_sessions_cmd()
     .. " 2>/dev/null | tr -d '\\n' ;; *) echo HIDE ;; esac"
-  -- Output is flattened to ONE line. Every widget here that works through
-  -- `sbar.exec` returns a single line (front_app, datetime, battery); this one
-  -- returned pretty-printed JSON across ~30 lines, and its callback never fired
-  -- while a one-line `--set` of the same item rendered correctly. Flattening is the
-  -- one remaining difference from the widgets that work.
+  -- sbar.exec does not deliver multiline JSON reliably
   sbar.exec(cmd, function(result)
-    -- sbarLua AUTO-DECODES JSON stdout into a Lua table, so `result` is already the
-    -- payload whenever the command emits JSON, and only non-JSON arrives as a
-    -- string. Calling a string function on it raises, and sbarLua swallows a raise
-    -- inside this callback, which is why the chip sat visible-and-empty while the
-    -- command ran correctly every two seconds. front_app never hits this because its
-    -- output is a bare app name.
+    -- sbarLua automatically decodes JSON output into a table
     if type(result) == "table" then
       render(result)
       return
@@ -149,7 +105,6 @@ local function poll()
       return
     end
 
-    -- A JSON string that sbarLua did not decode: handle it rather than assume.
     local ok, payload = pcall(cjson.decode, text)
     if not ok or type(payload) ~= "table" then
       utils.animate_visibility(item, false)
@@ -173,22 +128,11 @@ function M.setup()
     background = { drawing = false },
     padding_left = settings.spacing.widget_spacing,
     padding_right = settings.spacing.widget_spacing,
-    -- Polled rather than event-driven: agent state changes in a pane, not in
-    -- anything sketchybar can subscribe to. 2s matches how fast the notifier
-    -- reacts, so the chip is never conspicuously behind a toast.
+    -- pane state has no Sketchybar event source
     update_freq = 2,
-    -- Deliberately NOT created with `drawing = false`: sketchybar does not deliver
-    -- `routine` to a hidden item, so an item that starts hidden never polls and can
-    -- therefore never decide to show itself. That deadlock is why this chip stayed
-    -- dark while the command behind it worked perfectly. Every other polling widget
-    -- here (datetime, battery) also starts visible.
-    --
-    -- The setup call below hides it immediately when WezTerm is not the front app,
-    -- so the visible-by-default state lasts one tick at most.
+    -- hidden items receive no routine events, so this item must start visible
   })
 
-  -- Every tick re-derives the front app inside the one exec, so there is no cached
-  -- state to go stale and no ordering between callbacks to get wrong.
   item:subscribe("front_app_switched", poll)
   item:subscribe("routine", poll)
   item:subscribe("forced", poll)

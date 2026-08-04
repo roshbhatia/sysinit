@@ -1,6 +1,6 @@
 #include <Carbon/Carbon.h>
 
-void ax_init() {
+void ax_init(void) {
   const void *keys[] = { kAXTrustedCheckOptionPrompt };
   const void *values[] = { kCFBooleanTrue };
 
@@ -48,7 +48,7 @@ void ax_select_menu_option(AXUIElementRef app, int id) {
 
     if (error == kAXErrorSuccess) {
       uint32_t count = CFArrayGetCount(children_ref);
-      if (id < count) {
+      if (id >= 0 && (uint32_t)id < count) {
         AXUIElementRef item = CFArrayGetValueAtIndex(children_ref, id);
         ax_perform_click(item);
       }
@@ -60,7 +60,6 @@ void ax_select_menu_option(AXUIElementRef app, int id) {
 
 void ax_print_menu_options(AXUIElementRef app) {
   AXUIElementRef menubars_ref = NULL;
-  CFTypeRef menubar = NULL;
   CFArrayRef children_ref = NULL;
 
   AXError error = AXUIElementCopyAttributeValue(app,
@@ -74,7 +73,7 @@ void ax_print_menu_options(AXUIElementRef app) {
     if (error == kAXErrorSuccess) {
       uint32_t count = CFArrayGetCount(children_ref);
 
-      for (int i = 1; i < count; i++) {
+      for (uint32_t i = 1; i < count; i++) {
         AXUIElementRef item = CFArrayGetValueAtIndex(children_ref, i);
         CFTypeRef title = ax_get_title(item);
 
@@ -179,8 +178,6 @@ AXUIElementRef ax_get_extra_menu_item(char* alias) {
         AXValueGetValue(size_ref, kAXValueCGSizeType, &size);
         CFRelease(position_ref);
         CFRelease(size_ref);
-        // The offset is exactly 8 on macOS Sonoma...
-        // printf("%f %f\n", position.x, bounds.origin.x);
         if (error == kAXErrorSuccess
             && fabs(position.x - bounds.origin.x) <= 10) {
           result = item;
@@ -194,8 +191,7 @@ AXUIElementRef ax_get_extra_menu_item(char* alias) {
   return result;
 }
 
-extern int SLSMainConnectionID();
-extern void SLSSetMenuBarVisibilityOverrideOnDisplay(int cid, int did, bool enabled);
+extern int SLSMainConnectionID(void);
 extern void SLSSetMenuBarVisibilityOverrideOnDisplay(int cid, int did, bool enabled);
 extern void SLSSetMenuBarInsetAndAlpha(int cid, double u1, double u2, float alpha);
 void ax_select_menu_extra(char* alias) {
@@ -213,7 +209,7 @@ void ax_select_menu_extra(char* alias) {
 extern void _SLPSGetFrontProcess(ProcessSerialNumber* psn);
 extern void SLSGetConnectionIDForPSN(int cid, ProcessSerialNumber* psn, int* cid_out);
 extern void SLSConnectionGetPID(int cid, pid_t* pid_out);
-AXUIElementRef ax_get_front_app() {
+AXUIElementRef ax_get_front_app(void) {
   ProcessSerialNumber psn;
   _SLPSGetFrontProcess(&psn);
   int target_cid;

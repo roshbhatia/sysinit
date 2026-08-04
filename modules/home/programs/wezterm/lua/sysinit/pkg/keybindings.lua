@@ -7,27 +7,17 @@ local M = {}
 
 M.locked_mode = false
 
--- smart_ssh.wezterm module, loaded in M.setup. Its M.tab() returns an
--- InputSelector "Choose Host" action over the configured ssh_domains.
+-- `smart_ssh` loads during setup because its tab action needs the final config
 local smart_ssh = nil
 
--- Constants
--- Processes that should receive raw key events instead of wezterm actions
 local EDITORS = { "nvim", "vim", "hx" }
--- Modifier keys used when generating bindings for both terminal and GUI contexts
 local COMMON_MODS = { "CTRL", "SUPER" }
 
--- Create a smart keybind that respects locked mode and passthrough processes.
--- key:              the key to bind
--- mods:             modifier string (e.g. "CTRL", "SUPER")
--- wezterm_action:   the action to perform when no override applies
--- opts.passthrough: list of process names that should receive the raw keystroke
 local function create_smart_keybind(key, mods, wezterm_action, opts)
   return {
     key = key,
     mods = mods,
     action = wezterm.action_callback(function(win, pane)
-      -- In locked mode every keybind is forwarded as-is to the pane
       if M.locked_mode then
         win:perform_action({ SendKey = { key = key, mods = mods } }, pane)
         return
@@ -43,19 +33,17 @@ local function create_smart_keybind(key, mods, wezterm_action, opts)
         end
       end
 
-      -- No overrides matched; execute the intended wezterm action
       win:perform_action(wezterm_action, pane)
     end),
   }
 end
 
--- Helper: Create multiple bindings for the same key with different modifiers
 local function create_multi_mod_bindings(key, action_fn, mod_list)
-  local bindings = {} -- accumulator table for the generated keybind entries
-  for _, mods in ipairs(mod_list or COMMON_MODS) do -- iterate each modifier string, falling back to CTRL + SUPER when mod_list is nil
-    table.insert(bindings, create_smart_keybind(key, mods, action_fn(mods))) -- invoke action_fn with the current modifier to produce the wezterm action, then build and append the smart keybind
+  local bindings = {}
+  for _, mods in ipairs(mod_list or COMMON_MODS) do
+    table.insert(bindings, create_smart_keybind(key, mods, action_fn(mods)))
   end
-  return bindings -- return the completed list of bindings to the caller
+  return bindings
 end
 
 local function get_pane_keys()
@@ -67,7 +55,6 @@ local function get_pane_keys()
     create_smart_keybind("n", "CTRL", act.RotatePanes("Clockwise")),
   }
 
-  -- Navigation and resize for h, j, k, l
   for _, key in ipairs({ "h", "j", "k", "l" }) do
     local dir = DIRECTION_KEYS[key]
     table.insert(keys, create_smart_keybind(key, "CTRL", { ActivatePaneDirection = dir }, { passthrough = EDITORS }))
@@ -77,7 +64,6 @@ local function get_pane_keys()
     )
   end
 
-  -- Close pane with CTRL/SUPER
   for _, binding in
     ipairs(create_multi_mod_bindings("w", function()
       return act.CloseCurrentPane({ confirm = true })
@@ -89,11 +75,7 @@ local function get_pane_keys()
   return keys
 end
 
--- Parse ~/.ssh/known_hosts into bare host names usable as an SSH: exec domain.
--- Lines look like `host1,host2,[host3]:2222 ssh-ed25519 AAAA... comment`; we
--- take only the comma-separated host field, dropping hashed entries (`|1|...`,
--- unreadable as names), comments/CA markers (`#`/`@...`), and wildcards. The
--- bracketed `[host]:port` form is unwrapped to the bare host.
+-- hashed and wildcard entries cannot become selectable SSH host names
 local function read_known_hosts_hosts()
   local hosts = {}
   local seen = {}
@@ -412,7 +394,6 @@ function M.setup(config)
     get_window_keys()
   )
 
-  -- Add locked mode toggle
   table.insert(keys, {
     key = "g",
     mods = "CTRL",
@@ -421,8 +402,6 @@ function M.setup(config)
     end),
   })
 
-  -- Load smart_ssh.wezterm: powers the SUPER+SHIFT+s fuzzy host picker
-  -- (get_ssh_picker). Its picker reads the configured ssh_domains below.
   local smart_ssh_ok, smart_ssh_mod = plugin_loader.load("smart-ssh")
   if smart_ssh_ok then
     smart_ssh = smart_ssh_mod
@@ -430,13 +409,10 @@ function M.setup(config)
     wezterm.log_warn("Failed to load smart_ssh.wezterm: " .. tostring(smart_ssh_mod))
   end
 
-  -- Seed the SSH domain set the SUPER+SHIFT+s picker draws from.
   config.ssh_domains = build_ssh_domains()
 
-  -- Enable kitty keyboard protocol for richer key event reporting (mod keys, etc.)
   config.enable_kitty_keyboard = true
 
-  -- Apply the merged keybindings table
   config.keys = keys
 
   -- Seed key_tables with WezTerm's built-in defaults (copy-mode, search-mode, etc.);

@@ -52,7 +52,6 @@ function M.setup()
     update_mode(env.MODE)
   end)
 
-  -- Initialize with MAIN mode
   update_mode("MAIN")
 end
 

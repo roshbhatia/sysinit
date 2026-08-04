@@ -9,12 +9,10 @@ function M.is_darwin()
   return wezterm.target_triple:find("darwin") ~= nil
 end
 
--- Get current username with empty string fallback
 function M.get_username()
   return os.getenv("USER") or ""
 end
 
--- Get home directory with fallback to /Users/{username}
 function M.get_home_dir()
   local home = os.getenv("HOME")
   if home then
@@ -23,17 +21,14 @@ function M.get_home_dir()
   return "/Users/" .. M.get_username()
 end
 
--- Get nix user bin directory
 function M.get_nix_user_bin()
   return "/etc/profiles/per-user/" .. M.get_username() .. "/bin"
 end
 
--- Get nix binary path for a specific binary
 function M.get_nix_binary(name)
   return M.get_nix_user_bin() .. "/" .. name
 end
 
--- Extract process name from pane (returns just the executable name)
 function M.get_process_name(pane)
   local proc = pane:get_foreground_process_name()
   if not proc then

@@ -21,7 +21,6 @@ function M.load_json_file(filepath)
   -- Simple JSON parser for basic structures
   -- This is a minimal implementation - for complex JSON, consider using a proper library
   local function parse_json(str)
-    -- Remove whitespace
     str = str:gsub("^%s*(.-)%s*$", "%1")
 
     -- Try to use hs.json if available (Hammerspoon's JSON module)

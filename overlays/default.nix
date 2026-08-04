@@ -61,10 +61,6 @@
       else
         prev.sdl3;
   })
-  # NOTE: openldap / python313.fsspec / kubernetes-helm test-disabling overrides
-  # were removed — nixpkgs now caches those for aarch64-darwin and x86_64-linux
-  # at the pinned rev, so the overrides only defeated the cache and forced local
-  # source builds. Re-add (platform-guarded) if a future rev reintroduces a
   (
     _final: prev:
     prev.lib.optionalAttrs prev.stdenv.hostPlatform.isDarwin {
@@ -94,10 +90,6 @@
       else
         prev._1password-gui;
   })
-  # NOTE: sketchybar's Tahoe cctools-ld override was removed — the crash is
-  # build-time only, and nixpkgs' aarch64-darwin build (produced on Hydra's
-  # older macOS) is cached and runs fine on Tahoe. Fetching it avoids both the
-  # local build and the crash.
   (final: prev: {
     cargo-watch =
       if prev.stdenv.hostPlatform.isDarwin then
@@ -127,7 +119,4 @@
       else
         (import inputs.nixpkgs { inherit (final.stdenv.hostPlatform) system; }).electron;
   })
-  # NOTE: lima's Tahoe GitHub-binary-release override was removed — nixpkgs'
-  # aarch64-darwin lima (same version, 2.1.4) is now cached and built on Hydra
-  # past the cctools/Tahoe constraint, so the pristine build is a cache hit.
 ]

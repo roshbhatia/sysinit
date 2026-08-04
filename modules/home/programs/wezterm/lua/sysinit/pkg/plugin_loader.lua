@@ -1,6 +1,4 @@
--- Plugin loader: loads wezterm plugins from Nix store paths via plain Lua.
--- Bypasses wezterm.plugin.require entirely (broken on NixOS due to
--- gitconfig insteadOf SSH rewrite + libgit2 lacking SSH support).
+-- load store plugins directly because libgit2 cannot follow the NixOS SSH rewrite
 local wezterm = require("wezterm")
 local utils = require("sysinit.pkg.utils")
 
@@ -9,11 +7,9 @@ local M = {}
 local config_data = utils.load_json_file(utils.get_config_path("config.json"))
 local plugins_config = config_data and config_data.plugins or {}
 
--- Track loaded plugins for wezterm.plugin.list() compatibility
 local loaded_plugins = {}
 
--- Monkey-patch wezterm.plugin.list to include our manually loaded plugins.
--- Some plugins (tabline.wez) call this at module scope to find their own directory.
+-- tabline.wez discovers its directory through `wezterm.plugin.list`
 local original_list = wezterm.plugin.list
 wezterm.plugin.list = function()
   local real = original_list()
@@ -23,9 +19,7 @@ wezterm.plugin.list = function()
   return real
 end
 
--- Load a Lua chunk from `path` under environment `env`, returning the compiled
--- function (or nil if the file is absent). Uses io.open + load rather than
--- loadfile so the per-plugin environment is applied portably.
+-- `load` applies the private plugin environment that `loadfile` cannot accept
 local function load_chunk(path, env)
   local fh = io.open(path, "r")
   if not fh then
@@ -47,28 +41,19 @@ function M.load(name)
     return false, nil
   end
 
-  -- Register in plugin list before loading (some plugins read list() at load time)
+  -- plugins can inspect the list while their module loads
   table.insert(loaded_plugins, {
     url = "file://" .. nix_path,
     component = name,
     plugin_dir = nix_path,
   })
 
-  -- Add plugin dirs to package.path so any fall-through requires (and other
-  -- plugins' cross-plugin lookups, e.g. ribbon -> warp.*) still resolve.
+  -- cross-plugin namespaced requires still use the global package path
   package.path = nix_path .. "/plugin/?.lua;"
     .. nix_path .. "/plugin/?/init.lua;"
     .. package.path
 
-  -- Per-plugin module isolation. Several of these plugins require generic bare
-  -- module names ("config", "state", "data", ...) that would all collide in the
-  -- single global package.loaded cache and clobber each other — e.g. agent-deck
-  -- and workspace-manager both `require("config")` at runtime, and the global
-  -- cache can only hold one. We give each plugin a private module cache plus a
-  -- scoped require, propagated through the chunk environment so it is also used
-  -- by the plugin's runtime closures. Modules that don't exist under this
-  -- plugin's dir (wezterm, sysinit.*, another plugin's namespaced modules) fall
-  -- back to the real global require.
+  -- private caches prevent generic module names from colliding across plugins
   local plugin_cache = {}
   local plugin_base = nix_path .. "/plugin/"
   local env
@@ -81,7 +66,7 @@ function M.load(name)
     for _, path in ipairs({ plugin_base .. rel .. ".lua", plugin_base .. rel .. "/init.lua" }) do
       local chunk = load_chunk(path, env)
       if chunk then
-        plugin_cache[modname] = true -- cycle guard before running the chunk
+        plugin_cache[modname] = true
         local result = chunk(modname, path)
         if result == nil then
           result = true
@@ -90,7 +75,6 @@ function M.load(name)
         return result
       end
     end
-    -- Not part of this plugin — defer to the global loader.
     return require(modname)
   end
 

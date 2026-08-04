@@ -25,7 +25,6 @@
           pkgs
           ;
         inherit (hostConfig) system;
-        # Path to sysinit flake for cross-flake imports (e.g., hosts/base/*.nix)
         sysinit = ../..;
       };
       modules = [
@@ -33,13 +32,11 @@
           _module.args = {
             inherit utils hostname;
           };
-          # Use pre-configured pkgs with overlays instead of letting nix-darwin instantiate its own
-          # Note: nixpkgs.config and nixpkgs.overlays are ignored when pkgs is set
+          # reuse the evaluated package set so overlays stay identical
           nixpkgs.pkgs = lib.mkDefault pkgs;
         }
         inputs.determinate.darwinModules.default
         {
-          # Let Determinate Nix handle Nix configuration rather than nix-darwin
           nix.enable = false;
         }
         {

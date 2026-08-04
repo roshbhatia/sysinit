@@ -1,4 +1,3 @@
-local wezterm = require("wezterm")
 local utils = require("sysinit.pkg.utils")
 
 local M = {}

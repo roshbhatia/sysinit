@@ -3,36 +3,7 @@
 # requires-python = ">=3.11"
 # dependencies = []
 # ///
-"""Claude Code SessionEnd hook — append one JSON line (schema v2) to the worklog.
-
-The worklog is a durable, append-only index of every Claude Code session across
-every repo. This hook reads the SessionEnd event JSON on stdin and appends one
-compact JSON object; `summary` is deliberately left null for the `worklog` skill
-to fill in on demand (the hook records cheap facts and pointers, never prose).
-
-Why Python instead of the old bash+jq: the record is structured data with nested
-arrays (per-repo commits and changed files), and assembling that in shell meant a
-fragile dance of `jq -R -s` reparsing and manual quoting. A real data model makes
-the schema legible and the diffs reviewable.
-
-Best-effort by design: every field is guarded so a single failure (not a git
-repo, no transcript, git missing) degrades that field to null/empty and never
-aborts the append.
-
-Identity lives in `repos[]` — always a list, never a scalar:
-  - a plain git cwd        -> one entry
-  - a seshy session        -> one entry per nested git worktree under the session
-    (~/.local/state/seshy/sessions/<name>/*, the session root itself is not a repo)
-
-Each repo entry carries the real "did work" signal vs a comparison ref — commit
-subjects, the changed-file list, line churn, and the human diffstat — enough to
-see WHAT happened without storing the raw diff (git holds it; `url` links to it,
-and this line is also mirrored to a size-bounded secret gist).
-
-Append-only and lock-free: a single small `>>` write is one O_APPEND write(),
-which the kernel serializes per-inode, so concurrent session-ends never tear a
-line. The `worklog` skill is the only rewriter and merges via a temp file.
-"""
+"""Append one best-effort Claude Code SessionEnd record to the worklog."""
 
 from __future__ import annotations
 
@@ -78,12 +49,7 @@ def is_git(path: str) -> bool:
 
 
 def normalize_remote(url: str) -> str:
-    """Normalize a git remote to a browseable https web URL.
-
-    git@github.com:org/repo.git    -> https://github.com/org/repo
-    ssh://git@github.com/org/repo   -> https://github.com/org/repo
-    https://github.com/org/repo.git -> https://github.com/org/repo
-    """
+    """Normalize a git remote to a browsable HTTPS URL."""
     u = url.removesuffix(".git")
     if u.startswith("git@"):
         host, _, path = u[len("git@") :].partition(":")
@@ -96,13 +62,7 @@ def normalize_remote(url: str) -> str:
 
 
 def comparison_ref(repo: str, branch: str, base: str) -> str | None:
-    """The ref the working branch's commits are measured against.
-
-    Feature branch -> origin/<base> (everything the branch adds). On the base
-    branch itself -> origin/<branch> (local commits not yet pushed), which is
-    what keeps work done directly on main from vanishing from the log. Returns
-    None when no such remote ref exists.
-    """
+    """Select the remote ref that exposes local work on any branch."""
     if not branch or not base:
         return None
     ref = f"origin/{base}" if branch != base else f"origin/{branch}"
@@ -150,7 +110,6 @@ def git_repo(path: str) -> dict | None:
         commits_ahead = int(count) if count and count.isdigit() else 0
         diffstat = (git(path, "diff", "--shortstat", f"{ref}...HEAD") or "").strip()
 
-        # Commit subjects, newest first — the "what was done" in words.
         log = git(path, "log", "--format=%h%x09%s", f"{ref}..HEAD") or ""
         for raw in log.splitlines()[:MAX_COMMITS]:
             if not raw:
@@ -158,7 +117,6 @@ def git_repo(path: str) -> dict | None:
             sha, _, subject = raw.partition("\t")
             commits.append({"sha": sha, "subject": subject})
 
-        # Changed files vs base (name-status) — which files the work touched.
         names = git(path, "diff", "--name-status", f"{ref}...HEAD") or ""
         for raw in names.splitlines()[:MAX_FILES]:
             if not raw:
@@ -166,7 +124,6 @@ def git_repo(path: str) -> dict | None:
             parts = raw.split("\t")
             files.append({"status": parts[0], "path": " -> ".join(parts[1:])})
 
-        # Total line churn vs base.
         numstat = git(path, "diff", "--numstat", f"{ref}...HEAD") or ""
         for raw in numstat.splitlines():
             cols = raw.split("\t")
@@ -193,9 +150,7 @@ def git_repo(path: str) -> dict | None:
 
 
 def resolve_transcript(hint: str, session_id: str) -> str | None:
-    """The stdin path is only a hint (on resume it can name a file that was
-    never written), so prefer it when present, else find the session by id under
-    the projects dir, else give up."""
+    """Fall back to the session ID because resume can supply a stale path."""
     if hint and Path(hint).is_file():
         return hint
     matches = sorted(
@@ -227,8 +182,7 @@ def parse_iso(value: str) -> datetime | None:
 
 
 def transcript_context(path: str) -> dict:
-    """Session intent + scale from the transcript: human prompts (first/last),
-    turn count, model, and start time — in one pass over the JSONL."""
+    """Read session intent and scale from one JSONL pass."""
     ts_start = ""
     model = ""
     prompts: list[str] = []
@@ -284,8 +238,7 @@ def main() -> None:
     session_id = event.get("session_id") or ""
     if not session_id:
         return
-    # `resume` is a session *start*, not a completion — recording it produces a
-    # junk line with no work behind it.
+    # `resume` starts a session, so it has no completed work to record
     reason = event.get("reason") or ""
     if reason == "resume":
         return
@@ -308,7 +261,7 @@ def main() -> None:
             in_seshy = False
 
     if in_seshy:
-        # The unit of work is the seshy session, spanning every nested git child.
+        # one seshy session can span several nested worktrees
         kind = "seshy-session"
         session_name = cwd_path.relative_to(seshy_root).parts[0]
         session_dir = seshy_root / session_name
@@ -327,7 +280,13 @@ def main() -> None:
     ctx = (
         transcript_context(transcript)
         if transcript
-        else {"ts_start": "", "model": "", "first_prompt": "", "last_prompt": "", "user_turns": 0}
+        else {
+            "ts_start": "",
+            "model": "",
+            "first_prompt": "",
+            "last_prompt": "",
+            "user_turns": 0,
+        }
     )
 
     duration_min = None
@@ -337,7 +296,6 @@ def main() -> None:
         if start and end and end >= start:
             duration_min = int((end - start).total_seconds() // 60)
 
-    # Zero-signal guard: no repos and no prompt means nothing worth indexing.
     if not repos and not ctx["first_prompt"]:
         return
 
@@ -361,7 +319,9 @@ def main() -> None:
     }
 
     log = Path(
-        os.environ.get("CLAUDE_WORKLOG_FILE", str(Path.home() / "Documents/worklog.jsonl"))
+        os.environ.get(
+            "CLAUDE_WORKLOG_FILE", str(Path.home() / "Documents/worklog.jsonl")
+        )
     )
     log.parent.mkdir(parents=True, exist_ok=True)
     with open(log, "a", encoding="utf-8") as fh:

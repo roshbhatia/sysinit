@@ -3,7 +3,7 @@ local wezterm = require("wezterm")
 local M = {}
 
 function M.setup(config)
-  wezterm.on("user-var-changed", function(window, pane, name, value)
+  wezterm.on("user-var-changed", function(window, _pane, name, value)
     if name == "wez_copy" then
       window:copy_to_clipboard(value, "Clipboard")
     elseif name == "wez_not" then
@@ -11,7 +11,6 @@ function M.setup(config)
     end
   end)
 
-  -- Auto-hide scrollbar when there is no scrollback or alternate screen is active
   config.enable_scroll_bar = true
   wezterm.on("update-status", function(window, pane)
     local overrides = window:get_config_overrides() or {}

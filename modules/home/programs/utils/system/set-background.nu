@@ -1,7 +1,6 @@
 #!/usr/bin/env nu
 
 def main [--update] {
-    # Check required commands
     let required_commands = ["fzf" "chafa" "gh" "fd"]
     for cmd in $required_commands {
         if (which $cmd | is-empty) {
@@ -11,7 +10,6 @@ def main [--update] {
         }
     }
 
-    # Determine OS
     let os = $nu.os-info.name
 
     if $os not-in ["macos" "linux"] {
@@ -19,7 +17,6 @@ def main [--update] {
         exit 1
     }
 
-    # Setup wallpapers directory
     let wallpapers_dir = $env.HOME | path join ".local" "share" "wallpapers"
     let wallpapers_repo = "roshbhatia/wallpapers"
 
@@ -44,7 +41,6 @@ def main [--update] {
         }
     }
 
-    # Find image files
     print $"(ansi blue)[INFO](ansi reset) Scanning for wallpapers..."
     let images = do { fd --type f --extension jpg --extension jpeg --extension png --extension webp . $wallpapers_dir } | complete | get stdout | str trim | lines
 
@@ -83,7 +79,6 @@ def main [--update] {
 
     print $"(ansi green)[OK](ansi reset) Found ($images | length) wallpapers"
 
-    # FZF preview with chafa
     let selected = $images | str join "\n" | fzf --preview "chafa --size 80x24 --colors 256 {}" --preview-window "right:50%" --height 50% | str trim
 
     if ($selected | is-empty) {
@@ -118,7 +113,6 @@ def main [--update] {
 
         print $"(ansi green)[OK](ansi reset) Background image linked to ~/.background-image"
 
-        # Set background directly via swaymsg if running
         if "SWAYSOCK" in $env {
             try {
                 swaymsg $'output * bg ($selected) fill'

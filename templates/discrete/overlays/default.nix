@@ -1,6 +1,6 @@
 # Host-specific overlays
 
-{ inputs, system }:
+_:
 
 [
   # Example overlay:

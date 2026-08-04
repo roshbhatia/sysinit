@@ -6,7 +6,7 @@
 }:
 
 {
-  # Disable nix-darwin's nix module - using Determinate Nix Installer which manages the Nix daemon
+  # Determinate manages the daemon, so nix-darwin must not manage Nix
   nix = {
     enable = false;
     buildMachines = [

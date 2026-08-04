@@ -501,9 +501,7 @@ let
     "${askUser}"
   ];
 
-  # Build-time assertion: permission-system and confirm-destructive must
-  # not both be active. The check works at module evaluation time.
-  _gateConflictCheck =
+  assertGatesDisjoint =
     let
       hasPermSystem = builtins.any (p: lib.hasInfix "permission-system" (toString p)) piPackagePaths;
       hasConfirmDestructive = builtins.elem "confirm-destructive" extensions;
@@ -704,6 +702,7 @@ in
       (
         assert assertExtensionsExist;
         assert assertPiBridgeInstalled;
+        assert assertGatesDisjoint;
         assert assertPiKeysDisjoint;
         assert assertThemeSelected;
         assert assertPreferencesUndeclared;

@@ -1,9 +1,4 @@
-/**
- * Bridges OpenCode's event bus onto the shared agent notifier.
- *
- * Only spawns; classification, suppression, identity, icons, and sounds live in
- * the shell scripts so there is one copy of that logic.
- */
+/** Bridges OpenCode events onto the shared agent notifier. */
 
 const HOME = process.env.HOME ?? "";
 const BIN = `${HOME}/.nix-profile/bin`;
@@ -11,15 +6,7 @@ const BIN = `${HOME}/.nix-profile/bin`;
 function spawnQuiet(exe: string, args: string[], input?: string): void {
 	try {
 		const { spawn } = require("node:child_process");
-		// No `detached`. On POSIX that calls setsid(), which makes the child a
-		// session leader with NO controlling terminal, so agent-state's
-		// `> /dev/tty` OSC write fails and the pane's agent_state user-var is
-		// never set. The WezTerm scrape bridge skips a pane only when that
-		// user-var is present, so a detached spawn would make every bridged
-		// harness announce twice. `unref()` alone already releases the parent
-		// event loop, which is all this needs.
-		// no `detached`: setsid() severs the controlling terminal, so
-		// agent-state's `> /dev/tty` OSC never lands and the pane looks hookless
+		// detached children lose the tty that `agent-state` uses for OSC
 		const child = spawn(`${BIN}/${exe}`, args, {
 			stdio: input === undefined ? "ignore" : ["pipe", "ignore", "ignore"],
 		});
@@ -34,12 +21,11 @@ function spawnQuiet(exe: string, args: string[], input?: string): void {
 	}
 }
 
-// a subagent runs in its own child session on the same bus, so only the root's
-// transitions are the human's turn
+// child sessions share this bus, so only root transitions represent the user's turn
 let rootSession: string | undefined;
 
-export const SysinitNotify = async () => ({
-	event: async ({
+export const SysinitNotify = () => ({
+	event: ({
 		event,
 	}: {
 		event?: {
@@ -55,8 +41,7 @@ export const SysinitNotify = async () => ({
 				return;
 			}
 
-			// turn end is `session.status` with type "idle"; there is no
-			// `session.idle` event delivered to plugins
+			// OpenCode reports turn completion as `session.status` with type `idle`
 			if (event?.type !== "session.status") return;
 			if (!sid || sid !== rootSession) return;
 

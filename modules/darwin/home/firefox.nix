@@ -1,4 +1,3 @@
-# Darwin-specific Firefox wrapper — imports shared config, adds macOS package
 {
   pkgs,
   ...
@@ -21,12 +20,10 @@ let
       '';
 in
 {
-  # Import the shared firefox config (extensions, policies, search, theming)
   imports = [
     ../../home/programs/firefox.nix
   ];
 
-  # Override package with macOS homebrew wrapper
   programs.firefox.package = firefoxWrapper // {
     override = _args: firefoxWrapper;
   };
