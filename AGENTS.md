@@ -10,7 +10,7 @@ not restate any of those here.
 
 ## Stack
 
-- openspec 1.6.0 via `overlays/openspec.nix`, patched so the custom
+- openspec 1.6.0 via `overlays/openspec/`, packaged with the custom
   `rosh-spec-driven` schema is the CLI default
 - Harness configs all generate from `modules/home/programs/llm/harnesses/`, one
   module per harness: claude-code, codex, copilot, gemini, cursor, opencode, amp,

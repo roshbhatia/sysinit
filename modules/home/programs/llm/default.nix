@@ -203,7 +203,6 @@ let
 in
 {
   imports = [
-    ./openspec-schema.nix
     ./skill-tools.nix
     ./acp.nix
     ./mcp-servers.nix

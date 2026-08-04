@@ -3,30 +3,30 @@
 ## Purpose
 TBD - created by archiving change supercharge-agent-skills. Update Purpose after archive.
 ## Requirements
-### Requirement: A forked schema captures recurring authoring rules
-A project-local OpenSpec schema MUST exist at `openspec/schemas/rosh-spec-driven/`, forked from the upstream `spec-driven` schema via `openspec schema fork spec-driven rosh-spec-driven`. The fork SHALL be the place where the user's recurring "manual rules" for proposal/design/tasks/specs authoring are encoded.
+### Requirement: A packaged schema captures recurring authoring rules
+The OpenSpec package MUST include `rosh-spec-driven` beside its upstream schemas. The source at `overlays/openspec/rosh-spec-driven/` SHALL encode the user's recurring authoring rules.
 
 #### Scenario: Schema is discoverable
-- **WHEN** `openspec schema which rosh-spec-driven` is run from the repo root
-- **THEN** it reports the path `openspec/schemas/rosh-spec-driven/`
+- **WHEN** `openspec schema which rosh-spec-driven` is run outside this repository with an empty XDG data directory
+- **THEN** it reports `Source: package`
 
 #### Scenario: Schema validates
 - **WHEN** `openspec schema validate rosh-spec-driven` is run
 - **THEN** it exits zero with no warnings
 
 ### Requirement: Schema additions beyond upstream are documented
-Every change made to the forked schema relative to upstream `spec-driven` MUST be documented in `openspec/schemas/rosh-spec-driven/CHANGES.md` with one bullet per rule, citing the upstream file or section being overridden.
+Every change made to the custom schema relative to upstream `spec-driven` MUST be documented in `overlays/openspec/rosh-spec-driven/CHANGES.md` with one bullet per rule.
 
 #### Scenario: Undocumented divergence caught
 - **WHEN** a template file in the fork differs from upstream but `CHANGES.md` does not mention it
 - **THEN** `hack/sync-openspec-skills.sh` (or the equivalent diff script) prints a warning naming the undocumented file
 
 ### Requirement: Projects reference the fork through config.yaml
-Each project's `openspec/config.yaml` that participates in this workflow MUST set `schema: rosh-spec-driven` (resolved either by local path or by Git URL once published). The sysinit repo's own `openspec/config.yaml` SHALL reference the local fork by relative path.
+Each personal project's `openspec/config.yaml` that participates in this workflow MUST set `schema: rosh-spec-driven`. The installed OpenSpec package provides the schema globally.
 
 #### Scenario: Sysinit uses the fork
 - **WHEN** `openspec config get schema` is run in the sysinit repo
-- **THEN** the resolved value points at `openspec/schemas/rosh-spec-driven/`
+- **THEN** the response reports `schemaName: rosh-spec-driven`
 
 #### Scenario: Foreign project picks up the fork
 - **WHEN** a user copies the documented `openspec/config.yaml` snippet into a new project and runs `openspec status --json`
@@ -55,19 +55,19 @@ At minimum, the fork MUST encode the following rules into the appropriate templa
 - **WHEN** an agent invokes `openspec instructions proposal --change <name>`
 - **THEN** the returned `instruction` text mentions the Non-goals requirement when the change touches more than one capability
 
-### Requirement: The fork resolves in every project via the XDG user override
+### Requirement: The custom schema resolves from the package
 
-The forked schema MUST be installed to the XDG user-override directory (`$XDG_DATA_HOME/openspec/schemas/rosh-spec-driven/`, default `~/.local/share/openspec/schemas/rosh-spec-driven/`) by home-manager, sourced from the in-repo `openspec/schemas/rosh-spec-driven/`. The install is a rebuild-gated snapshot: `nh darwin switch` copies the current repo files into the store and links the XDG path at them, so the repo is the only authoring site and a working-tree edit takes effect on the next rebuild. The spec makes no zero-drift claim between rebuilds; that snapshot behavior is the same as every other nix-managed file in this repo.
+The OpenSpec derivation MUST install `rosh-spec-driven` under its package schema directory. Resolution MUST NOT depend on a project-local schema or an XDG user override.
 
 #### Scenario: Fork resolves outside sysinit
 
 - **WHEN** `openspec schema which rosh-spec-driven` is run from a directory that is not the sysinit repo and has no project-local schema
-- **THEN** it reports the schema with `Source: user` and a path under `$XDG_DATA_HOME/openspec/schemas/rosh-spec-driven`
+- **THEN** it reports the schema with `Source: package`
 
-#### Scenario: XDG install missing
+#### Scenario: XDG data is empty
 
-- **WHEN** the XDG user-override directory does not contain `rosh-spec-driven/schema.yaml` and a foreign project sets `schema: rosh-spec-driven`
-- **THEN** `openspec validate` fails with a "schema not found" error naming the available schemas, rather than silently falling back to `spec-driven`
+- **WHEN** a temporary project uses an empty `XDG_DATA_HOME`
+- **THEN** `openspec new change` still resolves `rosh-spec-driven`
 
 ### Requirement: Bare init and resolution default to the fork
 
@@ -78,10 +78,10 @@ The openspec overlay MUST patch every default-schema assignment site in the buil
 - **WHEN** `openspec init` is run in a new project with no prior config and no `--schema` flag
 - **THEN** the written `openspec/config.yaml` sets `schema: rosh-spec-driven`
 
-#### Scenario: Patched default with no resolvable schema
+#### Scenario: Patched default resolves its packaged schema
 
-- **WHEN** the default is patched to `rosh-spec-driven` but the XDG override is absent and the project has no local fork
-- **THEN** the command fails with an explicit "schema not found" error, and MUST NOT fall back to upstream `spec-driven` without a message
+- **WHEN** the default is patched to `rosh-spec-driven` and XDG data is empty
+- **THEN** the command resolves the packaged schema without falling back to `spec-driven`
 
 ### Requirement: The shared-repo practice is documented and the failure is explicit
 
@@ -99,7 +99,7 @@ Because the fork is the machine-wide default but is deliberately not distributed
 
 ### Requirement: The patch fails loudly and its health is checked, not assumed
 
-The overlay patch MUST fail the build if any known target site does not match (for example `substituteInPlace ... --replace-fail`). Because `--replace-fail` is blind to a newly added or moved controlling site, a separate `nix flake check` MUST run a hermetic behavioral test: set `HOME` and `XDG_DATA_HOME` to temp dirs, copy the in-repo `rosh-spec-driven` schema into the temp `$XDG_DATA_HOME/openspec/schemas/`, run `openspec new change probe` in a temp project with no network, and assert the written `config.yaml` names `rosh-spec-driven`. It MUST be a flake check, not an `installCheckPhase` inside the openspec derivation, so the schema source does not pull the whole repo tree into the openspec derivation inputs and defeat its cache. This exercises the real resolution path, so a bump that routes the default through a new site fails the check. `hack/sync-openspec-schema.sh` cannot catch this because it never sees `dist/*.js`. The patch MUST be recorded in `openspec/schemas/rosh-spec-driven/CHANGES.md`.
+The overlay patch MUST fail the build if any known target site does not match. A separate `nix flake check` MUST use empty HOME and XDG directories, resolve the packaged schema, run `openspec new change probe`, and assert the written config names `rosh-spec-driven`. This exercises the installed result. The patch MUST be recorded in `overlays/openspec/rosh-spec-driven/CHANGES.md`.
 
 #### Scenario: Removed known site fails the build
 
@@ -118,7 +118,7 @@ The overlay patch MUST fail the build if any known target site does not match (f
 
 ### Requirement: The schema requires a citations.lock for external-factual claims
 
-The `rosh-spec-driven` schema MUST require that a change containing external-factual claims (pricing, availability, external API behavior, cited papers) carries a `citations.lock` that passes `citelock`. The exclusion is scoped narrowly: a sha256 or lockfile pin (`nvfetcher` `_sources`, `flake.lock`, `vendorHash`) excludes only the bare version identifier it pins, because the hash is provenance for the fetched bytes. Any prose claim about that version's behavior, history, or capabilities (for example "the first release with fix X", "this version adds Y") is NOT covered by the pin and remains in the claim class. This separates byte-provenance from claim-provenance, so a routine bump with no descriptive prose needs no lock, while a bump whose prose asserts a fact about the version does. An unresolved or unanchored external-factual claim is a named default-reject, in the same register as the "parallel infrastructure" default-reject. The rule MUST be encoded in the proposal and design instructions and recorded in `openspec/schemas/rosh-spec-driven/CHANGES.md`.
+The `rosh-spec-driven` schema MUST require that a change containing external-factual claims (pricing, availability, external API behavior, cited papers) carries a `citations.lock` that passes `citelock`. The exclusion is scoped narrowly: a sha256 or lockfile pin (`nvfetcher` `_sources`, `flake.lock`, `vendorHash`) excludes only the bare version identifier it pins, because the hash is provenance for the fetched bytes. Any prose claim about that version's behavior, history, or capabilities (for example "the first release with fix X", "this version adds Y") is NOT covered by the pin and remains in the claim class. This separates byte-provenance from claim-provenance, so a routine bump with no descriptive prose needs no lock, while a bump whose prose asserts a fact about the version does. An unresolved or unanchored external-factual claim is a named default-reject, in the same register as the "parallel infrastructure" default-reject.. The rule MUST be encoded in the proposal and design instructions and recorded in `overlays/openspec/rosh-spec-driven/CHANGES.md`.
 
 The determination of whether a change "has external-factual claims" is a review-gate judgment (the author and the adversarial-review critics), not a mechanical one. `citelock` is mechanical only once a `citations.lock` exists: it is a no-op that exits zero when no lock is present. The schema rule closes the gap by making an unanchored claim a default-reject at the review gate, so a missing lock on a change that clearly makes external claims is caught by review, not silently passed.
 
@@ -146,4 +146,3 @@ The determination of whether a change "has external-factual claims" is a review-
 - **POLARITY** negative
 - **WHEN** a bump's prose asserts a fact about the version (for example "the first release with fix X") not attested by the sha256
 - **THEN** that prose is in the claim class and the review gate requires a `citations.lock` record for it
-

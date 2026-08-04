@@ -1,0 +1,34 @@
+version: 1
+change: package-global-openspec-schema
+decision: approved
+note: 'Owner directed implementation of all proposed schema-packaging changes on 2026-08-04; package probe reports Source: package.'
+change_hash: a521275d9b966403
+base_commit: 18109a7574a29ba896f53acbf23ebe58d669a3a7
+items:
+    3f2b288be38cd5ea:
+        hash: d3c7cd4f68e59f05
+        text: 'Verify: a built-package probe reports `rosh-spec-driven` with `Source: package`'
+    32c08e3beb8058f6:
+        hash: f45de7a4362f5b38
+        text: Remove the Home Manager schema module
+    05898334b7365a19:
+        hash: 9805861d695078af
+        text: 'Apply: commit and `git push`, gated on the complete diff review and all checks exiting 0'
+    a751dab6b6067ab8:
+        hash: 6be767a74beb7c98
+        text: Verify `nix fmt -- --check`, `nix flake check`, and the package probe
+    af24ffc06685af91:
+        hash: c86e334967e2d431
+        text: 'Adversarial review: not run; deterministic lint passed'
+    c7fa5133e089c42b:
+        hash: e60a5075b7a44b96
+        text: Move the overlay and schema into `overlays/openspec/`
+    c360b43cdd37f056:
+        hash: cbb9f92989db1e1e
+        text: 'Confirm: the remote branch contains the package-owned schema commit'
+    e742166ce054abc4:
+        hash: ebb5fd9addff3ad9
+        text: Update checks and the drift script to use the package-owned source
+    edf027c680c71f57:
+        hash: fd88a1dc9e33fbdc
+        text: Install the custom schema into the OpenSpec package output

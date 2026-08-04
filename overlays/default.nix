@@ -33,7 +33,7 @@
   (import ./gomvp.nix)
   (import ./mermaid-ascii.nix)
   (import ./hererocks.nix)
-  (import ./openspec.nix)
+  (import ./openspec)
   (import ./pi-coding-agent.nix)
   (import ./crush.nix)
   (import ./contextive.nix)

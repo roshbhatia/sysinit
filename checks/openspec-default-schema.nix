@@ -15,13 +15,16 @@ pkgs.runCommand "openspec-default-schema-check"
     export XDG_DATA_HOME="$TMPDIR/xdg"
     export OPENSPEC_TELEMETRY=0
     export CI=true
-    mkdir -p "$XDG_DATA_HOME/openspec/schemas"
-    cp -r ${../openspec/schemas/rosh-spec-driven} "$XDG_DATA_HOME/openspec/schemas/rosh-spec-driven"
-    chmod -R u+w "$XDG_DATA_HOME/openspec/schemas/rosh-spec-driven"
     mkdir -p "$TMPDIR/proj"
     # Guarded: an unguarded cd that fails leaves every assertion below running in
     # the wrong directory, where it can pass for the wrong reason.
     cd "$TMPDIR/proj" || exit 1
+    schema_source="$(openspec schema which rosh-spec-driven 2>&1)"
+    if ! grep -q "Source: package" <<< "$schema_source"; then
+      echo "FAIL: rosh-spec-driven is not package-owned:" >&2
+      echo "$schema_source" >&2
+      exit 1
+    fi
     openspec new change probe > /dev/null 2>&1 || true
     cfg="$(find . -name config.yaml -path '*openspec*' | head -n1)"
     if [ -z "$cfg" ]; then

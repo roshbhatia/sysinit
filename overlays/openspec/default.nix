@@ -86,6 +86,7 @@ in
       runHook preInstall
       mkdir -p $out/lib/openspec $out/bin
       cp -r . $out/lib/openspec/
+      cp -r ${./rosh-spec-driven} $out/lib/openspec/schemas/rosh-spec-driven
       makeWrapper ${final.nodejs}/bin/node $out/bin/openspec \
         --add-flags "$out/lib/openspec/bin/openspec.js"
       runHook postInstall

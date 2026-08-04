@@ -5,7 +5,7 @@
 
 set -euo pipefail
 
-FORK_DIR="openspec/schemas/rosh-spec-driven"
+FORK_DIR="overlays/openspec/rosh-spec-driven"
 if [[ ! -d ${FORK_DIR} ]]; then
   echo "ERROR: fork directory not found at ${FORK_DIR}" >&2
   exit 2

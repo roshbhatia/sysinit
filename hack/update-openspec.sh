@@ -13,7 +13,7 @@
 
 set -euo pipefail
 
-OVERLAY_FILE="overlays/openspec.nix"
+OVERLAY_FILE="overlays/openspec/default.nix"
 FAKE_HASH="sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA="
 
 build_openspec() {
