@@ -164,9 +164,14 @@ function M.setup()
     drawing = false,
   })
 
+  -- Every tick re-derives the front app rather than trusting the cached value.
+  -- Subscribing the tick to `poll` alone made the chip depend on startup ordering:
+  -- if WezTerm was not frontmost the instant sketchybar restarted, `is_wezterm`
+  -- stayed false and nothing but an app switch could correct it, so the chip stayed
+  -- hidden while the command was working perfectly.
   item:subscribe("front_app_switched", front_app_changed)
-  item:subscribe("routine", poll)
-  item:subscribe("forced", poll)
+  item:subscribe("routine", front_app_changed)
+  item:subscribe("forced", front_app_changed)
 
   front_app_changed()
 end
