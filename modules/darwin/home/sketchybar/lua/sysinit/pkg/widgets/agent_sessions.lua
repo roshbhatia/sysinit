@@ -48,15 +48,6 @@ local status_icons = {
 -- happens inside an sbar.exec callback, which sbarLua swallows, so the chip sat
 -- visible-and-empty while the command ran correctly every two seconds. Coerce every
 -- nullable field through this before use.
--- TEMPORARY: pinpoint how far the callback gets. Remove once the chip renders.
-local function probe(tag)
-  local f = io.open("/tmp/agent-sessions-probe", "a")
-  if f then
-    f:write(tag .. "\n")
-    f:close()
-  end
-end
-
 local function str(v)
   return type(v) == "string" and v or nil
 end
@@ -140,25 +131,31 @@ local function poll()
   -- returned pretty-printed JSON across ~30 lines, and its callback never fired
   -- while a one-line `--set` of the same item rendered correctly. Flattening is the
   -- one remaining difference from the widgets that work.
-  sbar.exec(cmd, function(result, _exit_code)
-    probe("cb-entry type=" .. type(result))
-    local text = utils.trim(result or "")
-    probe("cb-text len=" .. #text)
+  sbar.exec(cmd, function(result)
+    -- sbarLua AUTO-DECODES JSON stdout into a Lua table, so `result` is already the
+    -- payload whenever the command emits JSON, and only non-JSON arrives as a
+    -- string. Calling a string function on it raises, and sbarLua swallows a raise
+    -- inside this callback, which is why the chip sat visible-and-empty while the
+    -- command ran correctly every two seconds. front_app never hits this because its
+    -- output is a bare app name.
+    if type(result) == "table" then
+      render(result)
+      return
+    end
+
+    local text = utils.trim(tostring(result or ""))
     if text == "" or text == "HIDE" then
       utils.animate_visibility(item, false)
       return
     end
-    -- cjson, the same decoder core/display.lua uses. Wrapped in pcall because a
-    -- truncated read must dim the chip, not raise out of the event loop.
+
+    -- A JSON string that sbarLua did not decode: handle it rather than assume.
     local ok, payload = pcall(cjson.decode, text)
-    probe("cb-decode ok=" .. tostring(ok) .. " type=" .. type(payload))
     if not ok or type(payload) ~= "table" then
       utils.animate_visibility(item, false)
       return
     end
-    probe("cb-render")
-    local rok, rerr = pcall(render, payload)
-    probe("cb-render-done ok=" .. tostring(rok) .. " err=" .. tostring(rerr))
+    render(payload)
   end)
 end
 
