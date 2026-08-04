@@ -1,9 +1,9 @@
 version: 1
 change: modernize-opencode-and-pi-config
 decision: approved
-note: 'Round 1 complete: all eight objections closed and mutation tested. STOP corrected, since presence in the binary was not sufficient. Round 2 pending.'
-change_hash: 8ab72199e597e8c7
-base_commit: 94024975dedcd6a774dcf3033305e27e887c0b21
+note: 'Round 2 of K=4: NOT clean. 2.12 refixed with a check that runs the prefix. Four objections open as 2.15 to 2.18, one blocking and one an owner decision.'
+change_hash: 17f225b90fb058aa
+base_commit: 8ff46a0c342cce9a17ce9eba9380892d119af913
 items:
     0f8cd7a6a4d731bb:
         hash: da42f5ffd02d176c
@@ -20,6 +20,9 @@ items:
     2ef836be866dfa76:
         hash: 3117b86500f01253
         text: Write the TUI config to `~/.config/opencode/tui.json` using the same merge-into-a-writable-file activation pattern as `opencode.nix:208`; this writer is the one `unify-agent-notification-layer` depends on for `attention.notifications`
+    3d765ff362ba3721:
+        hash: 2a17e47ce05437a6
+        text: '`quietStartup` fails design D2 now that every declared key is enforced. It is display-only, neither policy nor Nix-derived, and its exact peer `hideThinkingBlock` is handed back for that reason. The blanket `enforce = piKeys.declared` closed round 1''s objection without the per-key D2 re-test D2 requires. Either hand it back or record that reverting the owner''s `/settings` toggle is intended'
     3f200e515ecd45c8:
         hash: 48a9a7f4ac7911d2
         text: 'Fixed in two steps, because the first was not enough. `piThemeName` is now the one definition and the setting, the theme''s `name` field, and the install filename all derive from it. That alone did not catch a hardcoded name, so the theme is bound as an attrset before serialization and the assertion also compares its own `name` field. Mutation tested: wrapping the name as `${piThemeName}-dark` was NOT caught after step one and IS caught after step two'
@@ -71,6 +74,9 @@ items:
     921f93d9869db2b7:
         hash: 37758840bdf913fb
         text: Add a retired-key list to the OpenCode activation script that deletes `theme`, `keybinds`, and `tui` from the live main config before merging; a deep merge cannot remove a key on its own
+    922b7c1a3c606403:
+        hash: 4d1bdf109c8e03e5
+        text: Task 2.10's live confirmation is confounded and 2.3's rationale is self-contradictory. Pi rewrote the settings file between the capture and now, dropping `hideThinkingBlock` on its own, so a pi rewrite alone explains `powerline` being gone and the confirm passes even if `retire` does nothing. The derivation check is the real evidence. Also `powerline` appears nowhere in the 0.82.1 package, so it cannot be both absent from the build and written by pi's settings screen
     2308cb5dbd6a75f6:
         hash: 9fb569a170364543
         text: 'Verify: `nix flake check` and `nh darwin build` are green; review `git diff`'
@@ -89,9 +95,6 @@ items:
     9293d79e478f4222:
         hash: da6b246a0466599e
         text: 'Apply: `nh darwin switch`'
-    2521756a72438e41:
-        hash: f8671853d32993e3
-        text: 'Fixed. `assertPrefixHasRealNewlines` rejects a literal backslash-n and a prefix with fewer than three non-empty lines. Mutation tested by reflowing to the exact broken form the runtime once wrote: caught, naming the reason. This defect previously had only a comment guarding it while the other two of the three got a check and an assertion, which design.md D3 forbids'
     4667566e378c510e:
         hash: b007fbd2bac6ac4d
         text: Apply the `nvim-pi` decision in `pi.nix` and in the keybindings file
@@ -104,6 +107,9 @@ items:
     a54fdbe4de731ec7:
         hash: 7030f966126191f9
         text: 'Confirm: the live main config carries none of `theme`, `keybinds`, or `tui` after the switch, and `tui.json` carries all three'
+    a923362cd68af9f9:
+        hash: ca5dc1fa0c1b8514
+        text: 'Fixed twice. The first attempt asserted FORMATTING, not the property it named, and round 2 broke it two ways: a backslash-continuation prefix passed the line-count gate while bash read it as one command with `eval` as an argument, and a correct semicolon-separated one-liner was rejected. The prefix now lives in `config/pi-shell-prefix.sh` and the `pi-shell-prefix-loads-aliases` check RUNS it against fixture alias files, asserting an alias resolves from both `~/.zshrc` and `~/.config/zsh`. Mutation tested with the backslash form the old assertion passed: caught, with bash reporting `shopt: eval: invalid shell option name`'
     b959ad93e33805fb:
         hash: 91ddf6ea87c9cdb5
         text: Move `theme`, `keybinds`, and `tui.scroll_acceleration` out of the main config attribute set into a TUI config attribute set
@@ -122,9 +128,15 @@ items:
     c2f3dcf0524fda4a:
         hash: ffc3a4bc91c191bf
         text: 'Adversarial review (`adversarial-review` skill): terminal state `CLEAN`, 0 open, within the K=2 cap for a one-phase review. Round 1 returned 6 surviving objections, all fixed and negative-tested: the check validated only 10 of 17 rendered keys; the retired-key filter and the merge pipeline existed as two hand-copies that could drift, and an unquotable key would have failed only at switch time; deletion reached depth one only, so a stale `provider.ollama` survived forever; nothing asserted the localized schema kept `additionalProperties: false`; the `$ref` walk dropped sibling constraints; `tui.json` had no retired mechanism and no merged fixture. Ordering deviation: 1.11 ran before this task. The review then forced a rework and a second switch.'
+    d2d4f7f60bc5e5df:
+        hash: 69fdee41b89fb31c
+        text: The docs-based key check rejects real settings. `compaction`, `retry`, `warnings`, `terminal`, `images`, `markdown`, and `branchSummary` appear in `settings.md` only as dotted leaves, so declaring any of them fails the check that is supposed to permit them. Anchor to the table column and allow dotted children
     d3d65af592669127:
         hash: 3135fd0804e822bb
         text: 'Confirm: OpenCode starts and loses no configured plugin or tool'
+    d92c0445c04dfc42:
+        hash: a4b9d19b6caf98a0
+        text: 'BLOCKING. `theme` has a second writer this repository installs. `mac-system-theme`, vendored at `pi.nix:27`, calls `ctx.ui.setTheme` on session_start and polls every 2 seconds, and pi persists extension-driven theme changes to settings (its CHANGELOG, 0.54.1). So the generated stylix theme is active in zero sessions, and `enforce` turned the fight silent: pi sets dark, the next switch sets stylix, the next session sets dark. Pi 0.82 has native automatic light/dark mode with `/` reserved in theme names, so the options are to drop the extension or to generate a light and a dark stylix theme and use that. This is an owner decision about what the terminal looks like'
     d9900b5969fdeb31:
         hash: a5cb351ab9101edd
         text: 'Verify: `openspec validate modernize-opencode-and-pi-config` passes and `specutil check` reports no finding'

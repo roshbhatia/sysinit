@@ -104,11 +104,15 @@
       EVERY activation, and is renamed `retire`, because `adoptDelete` would have
       been a lie. Asserted by `retire removes a base-absent key the harness rewrote`,
       mutation tested by stopping the base path from stripping `deps:` 2.7
-- [x] 2.12 Fixed. `assertPrefixHasRealNewlines` rejects a literal backslash-n and
-      a prefix with fewer than three non-empty lines. Mutation tested by reflowing to
-      the exact broken form the runtime once wrote: caught, naming the reason. This
-      defect previously had only a comment guarding it while the other two of the
-      three got a check and an assertion, which design.md D3 forbids `deps:` 2.7
+- [x] 2.12 Fixed twice. The first attempt asserted FORMATTING, not the property it
+      named, and round 2 broke it two ways: a backslash-continuation prefix passed the
+      line-count gate while bash read it as one command with `eval` as an argument,
+      and a correct semicolon-separated one-liner was rejected. The prefix now lives
+      in `config/pi-shell-prefix.sh` and the `pi-shell-prefix-loads-aliases` check
+      RUNS it against fixture alias files, asserting an alias resolves from both
+      `~/.zshrc` and `~/.config/zsh`. Mutation tested with the backslash form the old
+      assertion passed: caught, with bash reporting
+      `shopt: eval: invalid shell option name` `deps:` 2.7
 - [x] 2.13 Fixed in two steps, because the first was not enough. `piThemeName` is
       now the one definition and the setting, the theme's `name` field, and the
       install filename all derive from it. That alone did not catch a hardcoded name,
@@ -126,6 +130,33 @@
       still a documented pi setting, so a rename cannot leave
       `assertPreferencesUndeclared` blocking a declaration for a key that no longer
       exists. Mutation tested: renaming one is caught by name `deps:` 2.7
+- [ ] 2.15 BLOCKING. `theme` has a second writer this repository installs.
+      `mac-system-theme`, vendored at `pi.nix:27`, calls `ctx.ui.setTheme` on
+      session_start and polls every 2 seconds, and pi persists extension-driven theme
+      changes to settings (its CHANGELOG, 0.54.1). So the generated stylix theme is
+      active in zero sessions, and `enforce` turned the fight silent: pi sets dark,
+      the next switch sets stylix, the next session sets dark. Pi 0.82 has native
+      automatic light/dark mode with `/` reserved in theme names, so the options are
+      to drop the extension or to generate a light and a dark stylix theme and use
+      that. This is an owner decision about what the terminal looks like `deps:` 2.7
+- [ ] 2.16 `quietStartup` fails design D2 now that every declared key is enforced.
+      It is display-only, neither policy nor Nix-derived, and its exact peer
+      `hideThinkingBlock` is handed back for that reason. The blanket
+      `enforce = piKeys.declared` closed round 1's objection without the per-key D2
+      re-test D2 requires. Either hand it back or record that reverting the owner's
+      `/settings` toggle is intended `deps:` 2.7
+- [ ] 2.17 The docs-based key check rejects real settings. `compaction`, `retry`,
+      `warnings`, `terminal`, `images`, `markdown`, and `branchSummary` appear in
+      `settings.md` only as dotted leaves, so declaring any of them fails the check
+      that is supposed to permit them. Anchor to the table column and allow dotted
+      children `deps:` 2.7
+- [ ] 2.18 Task 2.10's live confirmation is confounded and 2.3's rationale is
+      self-contradictory. Pi rewrote the settings file between the capture and now,
+      dropping `hideThinkingBlock` on its own, so a pi rewrite alone explains
+      `powerline` being gone and the confirm passes even if `retire` does nothing. The
+      derivation check is the real evidence. Also `powerline` appears nowhere in the
+      0.82.1 package, so it cannot be both absent from the build and written by pi's
+      settings screen `deps:` 2.7
 - [x] 2.8 Verify: `nix flake check` and `nh darwin build` are green; review
       `git diff`
 - [x] 2.9 Apply: `nh darwin switch`

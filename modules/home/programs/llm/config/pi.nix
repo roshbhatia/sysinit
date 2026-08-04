@@ -601,13 +601,10 @@ let
     # off. This does not disable pi's version check; PI_SKIP_VERSION_CHECK does.
     enableInstallTelemetry = false;
 
-    # Real newlines. The runtime-written value carried a literal backslash-n,
-    # so the whole prefix was one unparseable line and no alias ever loaded.
-    shellCommandPrefix = ''
-      shopt -s expand_aliases
-      eval "$(grep '^alias ' ~/.zshrc 2>/dev/null)"
-      eval "$(grep -rh '^alias ' ~/.config/zsh 2>/dev/null)"
-    '';
+    # Read from its own file so the `pi-shell-prefix-loads-aliases` flake check can
+    # RUN it. The runtime-written value once carried a literal backslash-n, which
+    # made the whole prefix one unparseable line and loaded no alias.
+    shellCommandPrefix = builtins.readFile ./pi-shell-prefix.sh;
   };
 
   # which the installed build does not recognize. The activation merge is a deep
@@ -646,36 +643,6 @@ let
       throw "pi.nix: the ${piThemeName} theme is generated and installed but `piManagedSettings.theme` does not select it."
     else if (stylixThemeAttrs.name or "") != piThemeName then
       throw "pi.nix: the generated theme names itself '${stylixThemeAttrs.name or ""}' but the setting selects '${piThemeName}'. Pi resolves a theme by its name field, so the theme would be installed and unselected."
-    else
-      true;
-
-  # The prefix must carry REAL newlines. The runtime-written value held a literal
-  # backslash-n, which made the whole prefix one unparseable line and loaded no
-  # alias. Nothing caught a reflow back to that form, so the third defect this
-  # change fixes had only a comment guarding it while the other two got a check and
-  # an assertion. design.md D3: a dead setting is a build failure, not a comment.
-  assertPrefixHasRealNewlines =
-    let
-      prefix = piManagedSettings.shellCommandPrefix or "";
-      lines = builtins.filter (l: l != "") (lib.splitString "\n" prefix);
-    in
-    if lib.hasInfix "\\n" prefix then
-      throw "pi.nix: shellCommandPrefix contains a literal backslash-n. Pi reads it as one line and loads no alias. Use a real newline."
-    else if builtins.length lines < 3 then
-      throw "pi.nix: shellCommandPrefix has ${toString (builtins.length lines)} non-empty lines, expected at least 3 (the shopt and the two eval lines)."
-    else
-      true;
-
-  # The rendered settings must match the declared list exactly, in both
-  # directions. Otherwise the flake check verifies a list that is not what the
-  # module actually writes.
-  keysNotDeclared = lib.subtractLists piKeys.declared piDeclaredKeys;
-  keysNotRendered = lib.subtractLists piDeclaredKeys piKeys.declared;
-  assertKeysMatchManifest =
-    if keysNotDeclared != [ ] then
-      throw "pi.nix: ${lib.concatStringsSep ", " keysNotDeclared} is written to settings.json but missing from pi-settings-keys.nix, so nothing verifies it against the installed binary."
-    else if keysNotRendered != [ ] then
-      throw "pi.nix: ${lib.concatStringsSep ", " keysNotRendered} is listed in pi-settings-keys.nix but not written to settings.json. Remove the stale entry."
     else
       true;
 
@@ -739,7 +706,6 @@ in
         assert assertPiBridgeInstalled;
         assert assertPiKeysDisjoint;
         assert assertThemeSelected;
-        assert assertPrefixHasRealNewlines;
         assert assertPreferencesUndeclared;
         assert assertKeysMatchManifest;
         extensionFiles
