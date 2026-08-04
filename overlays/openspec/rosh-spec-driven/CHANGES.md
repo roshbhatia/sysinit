@@ -52,10 +52,9 @@ upstream drift.
   that mutates shared state or requires elevated permissions MUST be
   surrounded by verification and confirmation steps.
 - Adds a REQUIRED `Adversarial Review` section naming the review rubric.
-  Split into two halves: the deterministic `specreview` lint is MANDATORY,
-  and the LLM critic loop is default-on but OWNER-GATED (the owner may waive
-  the loop for a small phase, recorded as a waiver). Cites the
-  `adversarial-review` skill for the methodology.
+  The deterministic `specutil check` lint is mandatory. Model critique is
+  optional evidence when requested or justified by a concrete risk. A critic
+  result never represents owner or peer approval.
 
 ### schema.yaml — `artifacts[id=tasks].instruction`
 - Adds a `rosh-spec-driven rule` bullet requiring multi-capability changes
@@ -69,10 +68,8 @@ upstream drift.
 - Extends the example to show a `## 3. Rollout` phase with a verify/apply/confirm
   task triplet for `nh os switch`.
 - Adds the per-phase adversarial-review gate rule. The checkbox is required,
-  but the LLM critic loop it invokes is default-on and OWNER-GATED: the
-  `adversarial-review` skill elicits approve/deny, and a deny records
-  `Adversarial review: waived by owner`. The mandatory `specreview` lint is
-  not gated. (`spec-driven-workflow-upgrades` change.)
+  and `specutil check` is mandatory. The model critic loop is optional. A
+  skipped loop records `not run` without waiver language.
 - Adds the phase-shape rule. Each non-Rollout phase declares `- **SHAPE**
   loop|graph`; a `loop` also declares `- **STOP**` and `- **MAX-ITERS**`; a
   `graph` subtask may carry a trailing `` `deps:` `` whose ids resolve to
@@ -81,6 +78,10 @@ upstream drift.
   Simplified Technical English per the `~/.claude/CLAUDE.md` Communication
   section. `specreview` fails on em-dashes and disallowed bolded bullet leads.
   (`spec-driven-workflow-upgrades`.)
+- Adds the human-owned-decision rule. Proposals state which judgment remains
+  with the owner, and automation evidence cannot represent approval.
+- Makes graph fan-out optional. Independent work may use subagents when the
+  user requests delegation or parallel work materially helps.
 - Adds the explicit-shape rule: model a phase as a `loop` or a `graph` rather
   than as prose. When an agent drives the iteration itself, drive it with the
   `loop` skill (`/loop` with no interval) and stop it the moment the declared
@@ -106,7 +107,8 @@ upstream drift.
 
 ## Package-level divergence (not a schema-file change)
 
-`overlays/openspec.nix` patches the built openspec `dist/` so `rosh-spec-driven`
+`overlays/openspec/default.nix` packages this schema and patches the built
+openspec `dist/` so `rosh-spec-driven`
 is the machine-wide default schema (`default-rosh-spec-driven-schema` change).
 This is a package patch, not a schema-template edit, so `hack/sync-openspec-schema.sh`
 (which diffs only the schema template files) does not and cannot see it. The

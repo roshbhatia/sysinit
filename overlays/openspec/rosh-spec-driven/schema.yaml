@@ -43,6 +43,7 @@ artifacts:
          external-factual claim is a default-reject. A bare version identifier that a sha256 or
          lockfile pin already provides (nvfetcher `_sources`, `flake.lock`, `vendorHash`) is
          excluded; prose asserting a fact about that version's behavior or history is not.
+         Prefer the original source. If only a secondary source is available, state why.
       6. **Write in the CLAUDE.md communication standard (applies to EVERY artifact).**
          Write the proposal, design, and tasks in Simplified Technical English per
          the Communication section of `~/.claude/CLAUDE.md`: one instruction per
@@ -51,6 +52,8 @@ artifacts:
          `AND`, `SHAPE`, `STOP`, `MAX-ITERS`, `BREAKING`). `specutil check`
          enforces the mechanical parts (em-dashes, disallowed bolded bullet leads);
          the rest is checked in review.
+      7. **Name the human-owned decision.** State which judgment remains with the owner.
+         Automation evidence and model critique MUST NOT be presented as approval.
 
       IMPORTANT: The Behavior section is critical. It is the rubric every later
       artifact is reviewed against, and the adversarial review reads it directly.
@@ -82,7 +85,7 @@ artifacts:
       - **Rollout & Gating**: **rosh-spec-driven rule**: REQUIRED section. Describe the sequenced rollout — which phase ships first, what gate must pass before the next phase (build green, manual smoke test, user confirmation, etc.), and where the kill switch is if something goes wrong. For dotfiles work, the default gate sequence is: edit → `nix flake check` → `nh os build` (no system change) → user spot-check → `nh os switch`. Deviations from this sequence MUST be called out. Name any feature flag, config toggle, or capability gate that scopes the rollout.
       - **Risks / Trade-offs**: Known limitations, things that could go wrong. Format: [Risk] → Mitigation. Risks that map to human-verification checkpoints in `tasks.md` MUST be flagged here.
       - **Migration Plan**: Steps to deploy, rollback strategy (if applicable). **rosh-spec-driven rule**: Every step that mutates shared state, is hard to reverse, or requires elevated permissions MUST be preceded by a verification step and followed by a confirmation step. Single-line "run X" entries for impactful actions are insufficient.
-      - **Adversarial Review**: **rosh-spec-driven rule**: REQUIRED section. State the rubric the plan is reviewed against (the proposal `Behavior` criteria, the `Decisions`, the `Rollout & Gating` gates, and the proposal `Non-goals`). Two halves: the deterministic `specutil check` lint is MANDATORY and runs on every phase; the LLM critic loop is default-on but OWNER-GATED — the `adversarial-review` skill elicits an approve/deny (default run), and the owner MAY waive the loop for a small phase, recorded as `Adversarial review: waived by owner`. When run, independent critics attempt to break the plan with a concrete failing scenario naming a violated rubric item, the author revises against surviving objections, and the loop repeats until it reaches a terminal state. The round cap is scaled by the skill (K=2 for one phase, K=4 for one capability, K=6 for a cross-capability or live-system change), and the loop also stops early on non-convergence or fix-induced churn. A cap hit is reported as open objections, never as a pass. Do not name the executor here; the `adversarial-review` skill routes it on what the review needs. This section names the methodology; the per-phase checkmarks live in `tasks.md`. Do not re-derive the methodology here; cite the skill.
+      - **Adversarial Review**: **rosh-spec-driven rule**: REQUIRED section. State the rubric the plan is reviewed against (the proposal `Behavior` criteria, the `Decisions`, the `Rollout & Gating` gates, and the proposal `Non-goals`). The deterministic `specutil check` lint is MANDATORY and runs on every phase. Model critique is optional evidence. Run it when the user requests it or a concrete risk needs an independent critic. Otherwise record `Adversarial review: not run; deterministic lint passed`. A critic result never represents owner or peer approval. When critique runs, follow the bounded loop in the `adversarial-review` skill. A cap hit reports open objections, never a pass. Do not re-derive the methodology here; cite the skill.
       - **Open Questions**: Outstanding decisions or unknowns to resolve
 
       Focus on architecture and approach, not line-by-line implementation.
@@ -119,7 +122,7 @@ artifacts:
         - Prefer ONE confirmation per impactful action. A run of consecutive `Confirm:` tasks after a single action is a sign the author is enumerating observations rather than naming a decision.
         - A gate is a boundary between runs, not a pause inside one. If a phase needs owner sign-off partway through, split it into two phases so the boundary is visible and the first half can be re-run on its own.
       - **rosh-spec-driven rule — reuse first**: For each task that introduces a new module/file, the description SHOULD reference the existing pattern it follows (cite a file path) or explicitly note this is a new pattern (with justification carried from design.md).
-      - **rosh-spec-driven rule — adversarial-review gate per phase**: Each phase (numbered phase) MUST end with an adversarial-review checkbox before its impactful-action/rollout tasks. The checkbox invokes the `adversarial-review` skill, which first runs the mandatory deterministic `specutil check` lint, then elicits the owner's approve/deny for the LLM critic loop (default: run). On approve, independent critics attempt to break the phase against the rubric (proposal `Behavior` criteria, design decisions, rollout gates, non-goals) with a concrete failing scenario; the author revises against surviving objections; the loop repeats until it reaches a terminal state. The round cap is scaled by the skill (K=2 for one phase, K=4 for one capability, K=6 for a cross-capability or live-system change), and the loop also stops early on non-convergence or fix-induced churn. A cap hit is reported as open objections, never as a pass. On deny, the loop is waived and the checkbox records `Adversarial review: waived by owner`. Either way the checkbox is present (a waiver is explicit, never a missing or silently-checked box), `specutil check` still passes, and the human-verification gate for impactful actions still applies. The skill picks the executor by what the review needs: fresh-context subagents by default, because a critic that shares the author's context inherits the author's reasoning. Do not name a mechanism here.
+      - **rosh-spec-driven rule — review evidence per phase**: Each phase (numbered phase) MUST end with an adversarial-review checkbox before its impactful-action or rollout tasks. The checkbox always runs the mandatory deterministic `specutil check` lint. Model critique is optional. Run it only when requested or justified by a concrete risk. Otherwise record `Adversarial review: not run; deterministic lint passed`. When critique runs, record its terminal state and open objections. `CLEAN` means only that no critic objection survived. It is not owner or peer approval. Human-verification gates for impactful actions still apply.
       - **rosh-spec-driven rule — a loop must be able to run twice**: `SHAPE loop` is a claim about control flow, not a label for "several steps". Declare `loop` only when the phase has a real back-edge: the same tasks re-run on the next iteration against changed state. A phase of N distinct one-shot steps is a `graph` with a dependency chain, not a loop. Test before writing `loop`: name the task iteration 2 starts from. If there isn't one, it is not a loop.
       - **rosh-spec-driven rule — STOP is a command, not a wish**: A `- **STOP**` value MUST be decidable by running something. Write the command, or write a predicate over a command's output. `- **STOP** \`nix flake check\` exits 0 and every new check fails on an injected defect` is a stop condition. `- **STOP** the settings are coherent` is not, because nothing can evaluate it and the loop terminates when the model decides it is bored. The verifier MUST also be outside the blast radius of the work: a loop that may edit its own tests has no stop condition at all. To make the condition actually run rather than be asserted, arm the Stop hook: `loop-gate arm --until '<command>' --max <n> --stall <n>`. It evaluates the command when the turn tries to end, blocks the end while it fails, and reports CLEAN, CAPPED, or STALLED. `/goal` is NOT a substitute: its own docs state it "doesn't run commands or read files independently", so it terminates on a transcript that claims success.
       - **rosh-spec-driven rule — two bounds, not one**: Every `loop` MUST declare both a progress bound and an iteration bound, because they fail differently. `- **STOP**` is the success exit. `- **MAX-ITERS** <n>` is the iteration cap and is the marker `specutil check` currently enforces. `- TERMINAL:` names how the loop ends WITHOUT success, using the terminal-state vocabulary the `adversarial-review` skill already defines: `CAPPED` (MAX-ITERS reached), `STALLED` (N consecutive iterations with no change in the STOP metric), `CHURNING` (each fix induces the next defect). MAX-ITERS alone is insufficient: a loop that stalls burns the whole cap before anyone notices. A cap hit is reported as open work, never as a pass. Cite the skill rather than restating its cap-scaling rule.
@@ -161,9 +164,9 @@ apply:
 
     1. Run `specutil next <change>`. It names the active phase, its shape, and
        the subtasks whose dependencies are complete.
-    2. Do that ready set. When it reports `runnable concurrently`, fan out to one
-       fresh-context subagent per subtask; that only happens for a `graph` phase,
-       and never for a gate or an adversarial review.
+    2. Do that ready set. When it reports `runnable concurrently`, MAY fan out
+       independent subtasks when the user requested delegation or parallel work
+       materially helps. Never delegate a gate or an owner decision.
     3. Mark each finished subtask `- [x]` in `tasks.md`.
     4. Repeat from 1. An exit code of 2 means the dependencies form a cycle: stop
        and fix `tasks.md`, do not retry.
@@ -205,3 +208,7 @@ apply:
     diff missed. Use it by hand when a diff is too big to read, not as this step.
 
     Pause if you hit a blocker or need clarification.
+
+    Before handoff, read the complete diff and run the relevant checks. Address
+    review feedback with targeted edits. Do not regenerate the whole change,
+    because that makes the effect of review feedback impossible to track.

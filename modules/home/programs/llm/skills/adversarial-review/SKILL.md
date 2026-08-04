@@ -20,11 +20,11 @@ before running the loop the first time.
   instance or a different model (see the reference: unaided self-correction
   degrades quality).
 
-## Owner gate (elicit before spawning critics)
+## Decide whether model critique adds value
 
 FIRST, the recursion guard takes precedence: if your own instructions contain
 the literal sentinel `ADVERSARIAL-CRITIC-ROLE`, you are already a critic. SKIP
-this entire owner gate and go straight to "Pick the execution path" path 1
+this entire selection step and go straight to "Pick the execution path" path 1
 (produce your objection and return). A critic never elicits and never runs the
 gate.
 
@@ -36,25 +36,21 @@ refuses to spawn critics in exactly the case that needs them. The sentinel is
 written by this skill when it spawns a critic, so it is the only signal the
 skill controls.
 
-Otherwise (a top-level review), the LLM critic loop is owner-gated; the
-deterministic `specutil check` lint below is NOT. Before spawning any critics:
+Otherwise, run the deterministic `specutil check` lint first. Model critique is
+optional evidence. It is not an approval gate and is never required only
+because a harness provides it.
 
 1. Run `specutil check <change-dir>` first regardless (it is cheap and pure).
    Fix every violation before offering the loop.
-2. Then elicit the owner's decision on the critic loop. In an interactive
-   harness use the approve/deny prompt (AskUserQuestion under Claude Code);
-   the DEFAULT is to run. Frame it per phase, e.g. "Run the adversarial critic
-   loop for this phase? (default: yes)".
-3. On approve, run the loop as specified below.
-4. On deny, SKIP the critic loop and record the decision in the phase's
-   review checkbox as `Adversarial review: waived by owner`. Do not leave the
-   checkbox unmarked (indistinguishable from a forgotten one) and do not
-   silently check it without the waiver note.
-5. Non-interactive / unattended runs (cron, CI, no TTY): default to running
-   the loop; there is no owner to elicit, so the gate falls back to on.
+2. Run the loop when the user requests it or when a concrete risk needs an
+   independent model critique.
+3. Otherwise, skip it and record `Adversarial review: not run; deterministic
+   lint passed` in the phase checkbox.
+4. In unattended runs, do not add model work unless the task or repository
+   policy requests it.
 
-A waiver waives ONLY the critic loop. `specutil check` must still pass, and
-the human-verification gates for impactful actions still apply.
+`specutil check` must still pass. Human-verification gates for impactful
+actions still apply. A critic result never represents owner or peer approval.
 
 ## Pick the execution path
 
@@ -183,10 +179,10 @@ which state you are in at each step, and name the terminal state you reached.
                 └────┬─────┘
               fail ← │ → pass
                 ┌────┴─────┐
-      REVISE ←──┤   GATE   │  owner approve/deny (default: approve)
+      REVISE ←──┤  SELECT  │  run only when requested or risk-justified
                 └────┬─────┘
-               deny ←│→ approve
-                     │        └──────────────→ [WAIVED]
+            not run ←│→ run
+                     │        └──────────────→ [NOT_RUN]
                 ┌────▼─────┐
            ┌───▶│  ROUND   │  spawn N critics, one lens each
            │    └────┬─────┘
@@ -204,8 +200,9 @@ which state you are in at each step, and name the terminal state you reached.
                 └──────────┘
 ```
 
-Terminal states: `CLEAN` is the only success. `WAIVED` is an owner decision
-made before the loop starts. `HALTED` is an owner decision made during it.
+Terminal states: `CLEAN` means no critic objection survived. It is not approval.
+`NOT_RUN` means no model critique was requested or justified. `HALTED` is an
+owner decision made during a loop.
 `CAPPED`, `STALLED`, and `CHURNING` all hand back with open objections and
 MUST be reported as such, never as a pass.
 
@@ -257,7 +254,7 @@ On halt:
 4. Record the halt in the phase's review checkbox as
    `Adversarial review: halted by owner at round <n>, <m> open`.
 
-A halt is not a waiver and not a pass. `specutil check` still runs, and the
+A halt is not a pass. `specutil check` still runs, and the
 human-verification gate for impactful actions still applies.
 
 ### Drive the iteration with `/loop` when it is available
@@ -304,7 +301,7 @@ owner decide whether to continue, re-scope, or accept the open objections.
 Report, in order: the rubric bound, the surviving-objection count per round,
 each round's surviving objections with their failing scenarios, the revisions
 applied, and the terminal state. The terminal state is one of `no surviving
-objection`, `waived by owner`, `halted by owner at round <n> with <m> open`,
+objection`, `not run`, `halted by owner at round <n> with <m> open`,
 `hit K=<n> with <m> open objections`, `stopped on non-convergence after <n>
 rounds`, or `stopped on fix-induced churn after <n> rounds`.
 
@@ -312,3 +309,6 @@ Do not pad a clean result with invented objections — a critic that finds
 nothing MUST say so. Do not report a cap hit as if it were a clean pass: an
 artifact that never reached a clean round has known-unreviewed state, and the
 report MUST say so plainly.
+
+Even a clean critic round is model evidence only. Never write an owner approval
+or peer-review decision from this result.

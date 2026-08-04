@@ -25,6 +25,9 @@ Must do:
 Must still hold:
 - <invariant>, decided by `<command or observation>`
 
+Human-owned decision:
+- <judgment that automation or model critique cannot approve>
+
 ## Impact
 
 <!-- Affected code, APIs, dependencies, systems. Use plain labels and

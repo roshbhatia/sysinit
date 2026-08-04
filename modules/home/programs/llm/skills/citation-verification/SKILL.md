@@ -56,6 +56,9 @@ caught, because the quote is checked against bytes the author did not write.
 
 ## Finding a source to cite
 
+Prefer the original source for each claim. Use a secondary source only when the
+original is unavailable, and record that reason in the artifact.
+
 To find a source for an assumption, use the harness's own web search and fetch
 (WebSearch / WebFetch): no dedicated tool, MCP, or API key is needed. Once you
 have a candidate URL, `citelock capture` pins and verifies it. Verification is

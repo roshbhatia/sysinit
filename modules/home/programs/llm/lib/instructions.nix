@@ -82,6 +82,17 @@ let
           ${skillsList}
         '';
 
+        responsibility = ''
+          ## Responsibility
+
+          - Treat model output as a draft until evidence verifies it
+          - The user owns each decision and artifact; never claim approval on the user's behalf
+          - Use models to sharpen reasoning, not to replace reading or understanding
+          - Inspect the complete diff and run relevant checks before handoff
+          - Keep shipped work understandable and maintainable without model assistance
+          - Model review supplements human review; it never constitutes approval
+        '';
+
         prohibitions = ''
           ## Prohibitions
 
@@ -100,12 +111,22 @@ let
       ]
       ++ lib.optional (builtins.elem harness harnessesWithoutSkillLoader) "skills"
       ++ [
+        "responsibility"
         "prohibitions"
       ];
 
       rendered = vocab.applyVocab harness (
         builtins.concatStringsSep "\n" (map (key: sections.${key}) order)
       );
+
+      requiredResponsibilityRules = [
+        "The user owns each decision and artifact"
+        "Inspect the complete diff"
+        "Model review supplements human review"
+      ];
+      missingResponsibilityRules = builtins.filter (
+        rule: !(lib.hasInfix rule rendered)
+      ) requiredResponsibilityRules;
 
       lineCount =
         let
@@ -122,6 +143,8 @@ let
     in
     if !(harnessCoverage ? ${harness}) then
       throw "instructions.nix: harness '${harness}' renders context but is not declared in harnessCoverage. Add its confirmed global path, or null with the reason it is exempt."
+    else if missingResponsibilityRules != [ ] then
+      throw "instructions.nix: harness '${harness}' is missing responsibility rules: ${builtins.concatStringsSep ", " missingResponsibilityRules}"
     else if lineCount > maxLines then
       throw "instructions.nix: rendered context exceeds ${toString maxLines} lines (got ${toString lineCount}). Move repo-specific facts to that repo's AGENTS.md and domain rules to the owning skill."
     else

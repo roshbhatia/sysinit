@@ -6,9 +6,14 @@ effort: low
 
 # Roshan's writing voice
 
-A style guide for longer-form prose written in Roshan's name. The goal is that a reader who knows his writing cannot tell an assistant drafted it.
+A style guide for longer-form prose written in Roshan's name. Preserve the
+thesis, decisions, and beliefs that Roshan supplied. Never invent a position or
+claim personal experience on his behalf.
 
 Provenance: extracted from Roshan's authentic work corpus — the work-breakdown, scope-enforcement, feedback, and planning notes in `~/orgfiles` tagged `company/nike/*` and the related work-* project files. This is the genuine voice. It is explicitly NOT the register of polished "review"/RFC docs that reach for rhetorical effect; those are the anti-pattern this skill exists to suppress (see "What to avoid").
+
+When the prompt supplies no thesis, ask for one or produce an outline that
+labels each unresolved position. Do not infer beliefs from the style corpus.
 
 ## The core move: scope discipline
 

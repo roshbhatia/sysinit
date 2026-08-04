@@ -1,32 +1,61 @@
 # adversarial-review-gating Specification
 
 ## Purpose
-Gate the LLM adversarial-review critic loop behind an owner decision (default on, waiver recorded), while keeping the deterministic `specutil check` lint mandatory.
+
+Keep deterministic review mandatory and treat model critique as optional evidence.
+
 ## Requirements
-### Requirement: The critic loop is owner-gated at phase entry
-The `adversarial-review` skill MUST elicit an owner approve/deny before it spawns critics, defaulting to run. On approve it runs the critic loop as today. On deny it MUST record the decision in the phase (`adversarial review: waived by owner`) rather than silently skipping. The gate applies only to the LLM critic loop, not to the deterministic `specutil check` lint.
 
-#### Scenario: Owner approves the review
+### Requirement: Model critique is optional evidence
+
+The `adversarial-review` skill MUST run `specutil check` first. It MUST run the
+model critic loop only when the user requests it or a concrete risk justifies
+it. The critic result MUST NOT represent owner or peer approval.
+
+#### Scenario: A concrete risk justifies critique
+
 - **POLARITY** positive
-- **WHEN** a phase reaches its adversarial-review step and the owner approves the elicitation
-- **THEN** the skill spawns the critics and runs the refutation loop as before
+- **WHEN** a phase has a named risk that benefits from an independent critic
+- **THEN** the skill runs the bounded critic loop and records its terminal state
 
-#### Scenario: Owner denies and the waiver is recorded
+#### Scenario: No critique is justified
+
 - **POLARITY** negative
-- **WHEN** the owner denies the review elicitation for a phase
-- **THEN** the critic loop is skipped
-- **AND** the phase's review checkbox is marked with `waived by owner` rather than left unmarked or silently checked
+- **WHEN** the user did not request critique and no concrete risk justifies it
+- **THEN** the critic loop does not run
+- **AND** the phase records `not run` without waiver language
 
 ### Requirement: The deterministic lint stays mandatory
-The deterministic rubric-lint MUST run on every change regardless of the critic-loop gate, because it is cheap and pure. A waived critic loop MUST NOT waive the lint; its violations still block the phase. The lint is `specutil check`, which reads the same declared markers and enforces the same rules from specutil's own parse.
 
-#### Scenario: The lint runs even when the loop is waived
+The deterministic rubric lint MUST run on every change. A decision not to run
+model critics MUST NOT skip or weaken the lint.
+
+#### Scenario: The lint runs without model critique
+
 - **POLARITY** positive
-- **WHEN** the critic loop is waived by the owner
-- **THEN** `specutil check <change-dir>` still runs and must pass before the phase is done
+- **WHEN** model critique does not run
+- **THEN** `specutil check <change-dir>` still runs and must pass
 
-#### Scenario: A lint violation blocks a waived phase
+#### Scenario: A lint violation blocks the phase
+
 - **POLARITY** negative
-- **WHEN** the critic loop is waived AND `specutil check` reports a rubric violation
-- **THEN** the phase is not done, because the deterministic lint is not gated
+- **WHEN** model critique does not run and `specutil check` reports a violation
+- **THEN** the phase remains incomplete
 
+### Requirement: Review authorities stay distinct
+
+Automation evidence, model critique, peer review, and owner approval MUST use
+distinct records. The `decision` in `specutil.review.yaml` is an owner decision.
+A model critic MUST write only its task result and open objections.
+
+#### Scenario: A critic reaches CLEAN
+
+- **POLARITY** positive
+- **WHEN** no model objection survives a critic round
+- **THEN** the task records `CLEAN` as model evidence without changing the owner decision
+
+#### Scenario: A model attempts to approve
+
+- **POLARITY** negative
+- **WHEN** a model critic produces an approval verdict
+- **THEN** the workflow rejects that verdict as an owner or peer decision

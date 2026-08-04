@@ -31,6 +31,9 @@ When there is no active change, explore freely and offer to create a proposal on
 - Keep edits tied to a named OpenSpec change when one exists.
 - Update `tasks.md` as work is completed.
 - Preserve proposal/design/spec intent; if implementation discovers a mismatch, update the OpenSpec artifact instead of silently drifting.
+- Read the complete diff before handoff and map each edit to a Behavior criterion.
+- Address review feedback with targeted edits. Do not regenerate the whole change.
+- Keep automation evidence, model critique, peer review, and owner approval distinct.
 - Validate the specific change with `openspec validate "<name>"` when the project supports it.
 
 ## Useful Commands
