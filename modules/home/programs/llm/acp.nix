@@ -1,6 +1,6 @@
 { lib, ... }:
 let
-  llmLib = import ../lib { inherit lib; };
+  llmLib = import ./lib { inherit lib; };
 
   # No ACP client is installed yet. Writing the registry to a neutral path keeps
   # one source of truth for the adapter commands, so adding a client later is a

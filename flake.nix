@@ -958,12 +958,23 @@
               import pathlib, re, sys
               root = pathlib.Path(sys.argv[1])
               checked = missing = 0
+              # Two shapes, because a rename breaks both. An asset read names a file
+              # with an extension; a module import names a sibling directory or a
+              # .nix file. The directory form is how `import ../lib` survived a move
+              # up one level and still passed every check.
+              patterns = [
+                  r'\.{1,2}/[A-Za-z0-9_./-]+\.(?:sh|py|ts|mdc|json|md)',
+                  r'import\s+(\.{1,2}/[A-Za-z0-9_./-]+)',
+              ]
               for f in sorted(root.rglob("*.nix")):
-                  for m in re.finditer(r'\.{1,2}/[A-Za-z0-9_./-]+\.(?:sh|py|ts|mdc|json|md)', f.read_text()):
-                      checked += 1
-                      if not (f.parent / m.group(0)).exists():
-                          print(f"FAIL: {f.relative_to(root)} reads {m.group(0)}, which does not exist", file=sys.stderr)
-                          missing += 1
+                  text = f.read_text()
+                  for pat in patterns:
+                      for m in re.finditer(pat, text):
+                          rel = m.group(1) if m.lastindex else m.group(0)
+                          checked += 1
+                          if not (f.parent / rel).exists():
+                              print(f"FAIL: {f.relative_to(root)} reads {rel}, which does not exist", file=sys.stderr)
+                              missing += 1
               if missing:
                   print(f"{missing} unresolved asset path(s). A rename left a reader behind.", file=sys.stderr)
                   sys.exit(1)
