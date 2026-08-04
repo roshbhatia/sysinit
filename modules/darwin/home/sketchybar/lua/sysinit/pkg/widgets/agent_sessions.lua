@@ -22,6 +22,19 @@ local M = {}
 
 local item
 
+-- launchd hands sketchybar a PATH containing the literal string
+-- "/etc/profiles/per-user/$USER/bin", and launchd does not expand variables, so that
+-- entry names a directory that does not exist and a bare `agent-sessions` never
+-- resolves. Build the real path from $USER, which Lua can read, rather than hoping
+-- the inherited PATH is usable. Not a fallback chain: one deterministic path.
+local function agent_sessions_cmd()
+  local user = os.getenv("USER")
+  if user and user ~= "" then
+    return "/etc/profiles/per-user/" .. user .. "/bin/agent-sessions"
+  end
+  return "agent-sessions"
+end
+
 -- Worst-wins, matching the notifier and the switcher: waiting means the owner must
 -- act, done means it is their move, working means it is still going.
 local status_icons = {
@@ -100,7 +113,7 @@ local function poll()
   -- Never blocks the bar: a timeout renders as absent rather than a stuck chip,
   -- and a non-zero exit is treated the same way. `agent-sessions` is written to
   -- always exit 0, so a failure here means something worse than "no sessions".
-  sbar.exec("agent-sessions 2>/dev/null", function(result, exit_code)
+  sbar.exec(agent_sessions_cmd() .. " 2>/dev/null", function(result, exit_code)
     if exit_code ~= 0 or not result or utils.trim(result) == "" then
       utils.animate_visibility(item, false)
       return

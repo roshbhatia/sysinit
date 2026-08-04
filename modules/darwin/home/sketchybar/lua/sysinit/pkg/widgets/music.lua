@@ -66,7 +66,7 @@ end
 
 function M.setup()
   music = sbar.add("item", "music", {
-    position = "left",
+    position = "right",
     icon = { font = settings.fonts.icons.regular },
     label = { font = settings.fonts.text.regular },
     background = { drawing = false },
