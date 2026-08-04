@@ -43,14 +43,12 @@ local status_icons = {
   working = "󰑮",
 }
 
-local is_wezterm = false
-
 local function render(payload)
   local selected = payload and payload.selected or nil
   local state = payload and payload.selection_state or "absent"
   local sessions = (payload and payload.sessions) or {}
 
-  if not is_wezterm or state == "absent" or not selected then
+  if state == "absent" or not selected or selected == "" then
     utils.animate_visibility(item, false)
     return
   end
@@ -105,42 +103,32 @@ local function render(payload)
   end)
 end
 
+-- One exec, not two. The previous shape asked osascript for the front app, cached
+-- the answer in a module-level flag, and polled separately -- so the chip depended
+-- on two callbacks firing in the right order, and when the first never delivered
+-- the item sat visible-but-empty with no branch having run. Asking the shell for
+-- both facts in one command removes the ordering and the cache: either the output
+-- is a rollup to render, or it is the literal HIDE.
 local function poll()
-  if not is_wezterm then
-    utils.animate_visibility(item, false)
-    return
-  end
-  -- Never blocks the bar: a timeout renders as absent rather than a stuck chip,
-  -- and a non-zero exit is treated the same way. `agent-sessions` is written to
-  -- always exit 0, so a failure here means something worse than "no sessions".
-  sbar.exec(agent_sessions_cmd() .. " 2>/dev/null", function(result, exit_code)
-    if exit_code ~= 0 or not result or utils.trim(result) == "" then
+  local cmd = "app=$(osascript -e 'tell application \"System Events\" to get name of first application process whose frontmost is true' 2>/dev/null); "
+    .. "case \"$app\" in wezterm-gui|WezTerm|Wezterm) "
+    .. agent_sessions_cmd()
+    .. " 2>/dev/null ;; *) echo HIDE ;; esac"
+  sbar.exec(cmd, function(result)
+    local text = utils.trim(result or "")
+    if text == "" or text == "HIDE" then
       utils.animate_visibility(item, false)
       return
     end
     -- cjson, the same decoder core/display.lua uses. Wrapped in pcall because a
     -- truncated read must dim the chip, not raise out of the event loop.
-    local ok, payload = pcall(cjson.decode, result)
+    local ok, payload = pcall(cjson.decode, text)
     if not ok or type(payload) ~= "table" then
       utils.animate_visibility(item, false)
       return
     end
     render(payload)
   end)
-end
-
-local function front_app_changed()
-  sbar.exec(
-    "osascript -e 'tell application \"System Events\" to get name of first application process whose frontmost is true'",
-    function(result, exit_code)
-      if exit_code ~= 0 then
-        return
-      end
-      local app = utils.trim(result)
-      is_wezterm = app == "wezterm-gui" or app == "WezTerm" or app == "Wezterm"
-      poll()
-    end
-  )
 end
 
 function M.setup()
@@ -171,16 +159,13 @@ function M.setup()
     -- so the visible-by-default state lasts one tick at most.
   })
 
-  -- Every tick re-derives the front app rather than trusting the cached value.
-  -- Subscribing the tick to `poll` alone made the chip depend on startup ordering:
-  -- if WezTerm was not frontmost the instant sketchybar restarted, `is_wezterm`
-  -- stayed false and nothing but an app switch could correct it, so the chip stayed
-  -- hidden while the command was working perfectly.
-  item:subscribe("front_app_switched", front_app_changed)
-  item:subscribe("routine", front_app_changed)
-  item:subscribe("forced", front_app_changed)
+  -- Every tick re-derives the front app inside the one exec, so there is no cached
+  -- state to go stale and no ordering between callbacks to get wrong.
+  item:subscribe("front_app_switched", poll)
+  item:subscribe("routine", poll)
+  item:subscribe("forced", poll)
 
-  front_app_changed()
+  poll()
 end
 
 return M
