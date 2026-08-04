@@ -18,27 +18,15 @@ let
   # confirm-destructive intentionally not in this list — replaced by
   # @gotgenes/pi-permission-system below (bash-AST-aware gate). The two
   # cannot both intercept tool calls without conflict.
-  extensions = [
-    "dirty-repo-guard"
-    "git-checkpoint"
-    "handoff"
-    "input-transform"
-    "interactive-shell"
-    "mac-system-theme"
-    "model-status"
-    "preset"
-    "reload-runtime"
-    "session-name"
-    "status-line"
-    "tools"
-
-    # Vim-style modal editing in the prompt, matching claude's editorMode,
-    # goose's EDIT_MODE, and cursor's vimMode. Binds `session_start` only.
-    "modal-editor"
-    # A todo tool plus /todos, the pi counterpart to Claude's TodoWrite. Binds
-    # `session_start` and `session_tree` only.
-    "todo"
-  ];
+  # `mac-system-theme` is deliberately NOT here. It calls `ctx.ui.setTheme` on
+  # session_start and polls every 2 seconds, and pi persists an extension-driven
+  # theme change to settings (pi CHANGELOG 0.54.1). With `theme` declared and
+  # enforced that is a silent fight: pi writes dark, the next activation writes the
+  # generated theme back, the next session writes dark. The generated theme would be
+  # active in zero sessions. This host declares `appearance = "dark"` with a dark
+  # scheme, so following the macOS appearance was already incoherent with the rest of
+  # the system. The `pi-no-theme-writer` check fails the build if it comes back.
+  extensions = import ./pi-vendored-extensions.nix;
 
   # Deliberately NOT vendored, both for the same reason `confirm-destructive` is
   # excluded above: each binds `tool_call`, and so does
@@ -582,7 +570,6 @@ let
 
   piManagedSettings = {
     packages = piPackagePaths;
-    quietStartup = true;
 
     # The generated theme, written to ~/.pi/agent/themes/${piThemeName}.json
     # below. Generating a theme and never selecting it left pi on "dark".

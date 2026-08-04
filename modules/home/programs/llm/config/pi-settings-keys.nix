@@ -5,7 +5,6 @@
   # repository policy, or derived from something Nix owns
   declared = [
     "packages"
-    "quietStartup"
     "theme"
     "enableInstallTelemetry"
     "shellCommandPrefix"
@@ -16,6 +15,11 @@
   # owner preference: a declared key wins on every activation and would revert
   # the runtime choice
   ownerPreference = [
+    # Display-only, so declaring it would revert an owner who turns the startup
+    # header back on from `/settings`. Its peer `hideThinkingBlock` is here for the
+    # same reason. Every declared key is enforced now, which is what made this a real
+    # regression rather than a style question.
+    "quietStartup"
     "defaultProvider"
     "defaultModel"
     "defaultThinkingLevel"

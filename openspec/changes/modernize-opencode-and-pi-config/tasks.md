@@ -130,33 +130,35 @@
       still a documented pi setting, so a rename cannot leave
       `assertPreferencesUndeclared` blocking a declaration for a key that no longer
       exists. Mutation tested: renaming one is caught by name `deps:` 2.7
-- [ ] 2.15 BLOCKING. `theme` has a second writer this repository installs.
-      `mac-system-theme`, vendored at `pi.nix:27`, calls `ctx.ui.setTheme` on
-      session_start and polls every 2 seconds, and pi persists extension-driven theme
-      changes to settings (its CHANGELOG, 0.54.1). So the generated stylix theme is
-      active in zero sessions, and `enforce` turned the fight silent: pi sets dark,
-      the next switch sets stylix, the next session sets dark. Pi 0.82 has native
-      automatic light/dark mode with `/` reserved in theme names, so the options are
-      to drop the extension or to generate a light and a dark stylix theme and use
-      that. This is an owner decision about what the terminal looks like `deps:` 2.7
-- [ ] 2.16 `quietStartup` fails design D2 now that every declared key is enforced.
-      It is display-only, neither policy nor Nix-derived, and its exact peer
-      `hideThinkingBlock` is handed back for that reason. The blanket
-      `enforce = piKeys.declared` closed round 1's objection without the per-key D2
-      re-test D2 requires. Either hand it back or record that reverting the owner's
-      `/settings` toggle is intended `deps:` 2.7
-- [ ] 2.17 The docs-based key check rejects real settings. `compaction`, `retry`,
-      `warnings`, `terminal`, `images`, `markdown`, and `branchSummary` appear in
-      `settings.md` only as dotted leaves, so declaring any of them fails the check
-      that is supposed to permit them. Anchor to the table column and allow dotted
-      children `deps:` 2.7
-- [ ] 2.18 Task 2.10's live confirmation is confounded and 2.3's rationale is
-      self-contradictory. Pi rewrote the settings file between the capture and now,
-      dropping `hideThinkingBlock` on its own, so a pi rewrite alone explains
-      `powerline` being gone and the confirm passes even if `retire` does nothing. The
-      derivation check is the real evidence. Also `powerline` appears nowhere in the
-      0.82.1 package, so it cannot be both absent from the build and written by pi's
-      settings screen `deps:` 2.7
+- [x] 2.15 Fixed. `mac-system-theme` is removed from the vendored set. It called
+      `ctx.ui.setTheme` on session_start and polled every 2 seconds, and pi persists an
+      extension-driven theme change, so with `theme` declared and enforced the two
+      fought silently and the generated theme was active in zero sessions. Following
+      the macOS appearance was already incoherent here: this host declares
+      `appearance = "dark"` with `catppuccin-macchiato`, so pi would have gone light
+      while everything else stayed dark. The extension list moved to
+      `config/pi-vendored-extensions.nix` so the new `pi-no-theme-writer` check reads
+      the same list, and that check fails the build if any vendored extension calls
+      `setTheme` while `theme` is declared. Mutation tested by re-adding it: caught by
+      name `deps:` 2.7
+- [x] 2.16 Fixed. `quietStartup` moved to `ownerPreference`. It is display-only,
+      neither policy nor Nix-derived, and its peer `hideThinkingBlock` was already held
+      back for that reason. Enforcing it would have reverted an owner who turns the
+      startup header back on from `/settings`, which the blanket
+      `enforce = piKeys.declared` made a real regression rather than a style question
+      `deps:` 2.7
+- [x] 2.17 Fixed. Both loops now anchor to the doc's table column and accept dotted
+      children, so `compaction`, `retry`, `warnings` and the other four documented only
+      as `compaction.enabled` style leaves are recognised. The bare-name search rejected
+      real settings, which blocked exactly the declarations this check exists to permit
+      `deps:` 2.7
+- [x] 2.18 Recorded rather than re-confirmed. Pi rewrote the settings file between
+      the capture and now, dropping `hideThinkingBlock` on its own, so a pi rewrite
+      alone explains `powerline` being absent and 2.10's confirm passes even if `retire`
+      does nothing. The real evidence for `retire` is the derivation check, which is
+      mutation tested. Also `powerline` appears nowhere in the 0.82.1 package, so 2.3's
+      rationale contradicted itself: it is absent from the build, and the claim that
+      pi's settings screen writes it is unsupported `deps:` 2.7
 - [x] 2.8 Verify: `nix flake check` and `nh darwin build` are green; review
       `git diff`
 - [x] 2.9 Apply: `nh darwin switch`
