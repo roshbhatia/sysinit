@@ -113,8 +113,13 @@ local function poll()
   local cmd = "app=$(osascript -e 'tell application \"System Events\" to get name of first application process whose frontmost is true' 2>/dev/null); "
     .. "case \"$app\" in wezterm-gui|WezTerm|Wezterm) "
     .. agent_sessions_cmd()
-    .. " 2>/dev/null ;; *) echo HIDE ;; esac"
-  sbar.exec(cmd, function(result)
+    .. " 2>/dev/null | tr -d '\\n' ;; *) echo HIDE ;; esac"
+  -- Output is flattened to ONE line. Every widget here that works through
+  -- `sbar.exec` returns a single line (front_app, datetime, battery); this one
+  -- returned pretty-printed JSON across ~30 lines, and its callback never fired
+  -- while a one-line `--set` of the same item rendered correctly. Flattening is the
+  -- one remaining difference from the widgets that work.
+  sbar.exec(cmd, function(result, _exit_code)
     local text = utils.trim(result or "")
     if text == "" or text == "HIDE" then
       utils.animate_visibility(item, false)
