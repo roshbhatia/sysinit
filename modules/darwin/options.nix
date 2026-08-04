@@ -5,14 +5,6 @@ let
 in
 {
   options.sysinit.darwin = {
-    lima = {
-      instanceName = mkOption {
-        type = types.str;
-        default = "";
-        description = "Name of the Lima NixOS VM instance to auto-start on login (empty = disabled)";
-      };
-    };
-
     colima = {
       cpu = mkOption {
         type = types.int;

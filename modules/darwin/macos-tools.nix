@@ -1,14 +1,13 @@
 {
   pkgs,
   config,
-  lib,
   ...
 }:
 
 {
   # macOS system-level packages (not home-manager)
   environment.systemPackages = with pkgs; [
-    lima # VM manager (system-level for launchd integration)
+    lima # ad-hoc VM manager, driven by hand; nothing auto-starts it
   ];
 
   # macOS-specific home packages
@@ -22,29 +21,17 @@
     ];
   };
 
-  launchd.user.agents = {
-    colima = {
-      serviceConfig = {
-        ProgramArguments = [
-          "${pkgs.colima}/bin/colima"
-          "start"
-        ];
-        RunAtLoad = true;
-        StandardOutPath = "/tmp/colima.log";
-        StandardErrorPath = "/tmp/colima.error.log";
-      };
-    };
-  }
-  // lib.optionalAttrs (config.sysinit.darwin.lima.instanceName != "") {
-    "lima-${config.sysinit.darwin.lima.instanceName}" = {
-      serviceConfig = {
-        ProgramArguments = [
-          "${pkgs.lima}/bin/limactl"
-          "start"
-          config.sysinit.darwin.lima.instanceName
-        ];
-        RunAtLoad = true;
-      };
+  # lima stays installed for ad-hoc VMs, driven by hand. Only colima starts at
+  # login, because it is the docker backend.
+  launchd.user.agents.colima = {
+    serviceConfig = {
+      ProgramArguments = [
+        "${pkgs.colima}/bin/colima"
+        "start"
+      ];
+      RunAtLoad = true;
+      StandardOutPath = "/tmp/colima.log";
+      StandardErrorPath = "/tmp/colima.error.log";
     };
   };
 }
