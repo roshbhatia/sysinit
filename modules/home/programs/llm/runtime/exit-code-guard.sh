@@ -7,13 +7,17 @@
 # wrapper runs the shared guard and translates its deny decision into the exit
 # code devin expects.
 #
+# GUARD_EXE is injected at build time by llmLib.guards.mkExitCodeGuard. It was
+# once a bare `claude-bash-guard` call, a name no harness puts on PATH, so the
+# lookup failed and this exited 0 for every command.
+#
 # Fail-open by construction: if the guard prints nothing — including when
 # devin's exec tool names its command field something other than `command` —
 # this exits 0 and the normal permission tiers decide.
 
 input="$(cat)"
 
-out="$(printf '%s' "$input" | claude-bash-guard 2> /dev/null)"
+out="$(printf '%s' "$input" | "$GUARD_EXE" 2> /dev/null)"
 
 if [ -z "$out" ]; then
   exit 0

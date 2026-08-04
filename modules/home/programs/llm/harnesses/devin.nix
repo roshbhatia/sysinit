@@ -11,19 +11,9 @@ let
   # Reuses the shared destructive-command guard, translated to devin's exit-code
   # blocking contract. bashOptions cleared for the same reason as the Claude
   # guard: a non-zero grep must not turn into an unintended block.
-  bashGuardScript = llmLib.guards.mkBashGuard {
+  devinGuardScript = llmLib.guards.mkExitCodeGuard {
     inherit pkgs;
-    name = "devin-bash-guard";
-  };
-
-  devinGuardScript = pkgs.writeShellApplication {
     name = "devin-guard";
-    runtimeInputs = [
-      pkgs.jq
-      bashGuardScript
-    ];
-    bashOptions = [ ];
-    text = builtins.readFile ../runtime/exit-code-guard.sh;
   };
 
   # devin's matcher is the tool name; its shell tool is `exec`, not `Bash`.

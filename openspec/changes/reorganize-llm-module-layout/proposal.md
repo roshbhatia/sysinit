@@ -85,9 +85,13 @@ of them, would not have hidden this.
   fixtures: a directory with no lock exits 0, and a record missing its required
   fields exits non-zero.
 - The devin exec guard and the gemini exec guard block a destructive command. A
-  new flake check pipes hook JSON carrying `rm -rf /` to each wrapper and asserts
-  a non-zero exit. The same check asserts exit 0 for an allowed command, so the
-  fix does not turn the guard into a deny-all.
+  new flake check drives each assembled wrapper with hook JSON and asserts a
+  non-zero exit for `git reset --hard`, `git push --force`, and `--no-verify`. It
+  also asserts exit 0 for `ls -la` and `git status`, so the fix does not turn the
+  guard into a deny-all. The commands MUST come from
+  `lib/allowlist.nix`'s `destructiveDenyRules`, which is git-specific: asserting a
+  block for `rm -rf` would test the fixture rather than the guard, because that
+  table never claimed it.
 - No file under `harnesses/` imports `lib/instructions.nix`,
   `lib/mcp-catalog.nix`, or `skills/render.nix` directly. `rg` over `harnesses/`
   for those three paths finds nothing outside `lib/harness-kit.nix`.

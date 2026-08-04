@@ -198,24 +198,26 @@
 
 - **SHAPE** graph
 
-- [ ] 5.1 Write the failing check first: a `flake.nix` check that pipes hook JSON
+- [x] 5.1 Write the failing check first: a `flake.nix` check that pipes hook JSON
       carrying a destructive command to devin's and gemini's exec-guard wrappers
       and asserts a non-zero exit, plus JSON carrying an allowed command and
       asserts exit 0 (follows `destructive-guard-fixtures`, which drives the
       assembled guard rather than the source file). Confirm it fails against the
       current script
-- [ ] 5.2 Change `runtime/exit-code-guard.sh` to call the guard through an injected
+- [x] 5.2 Change `runtime/exit-code-guard.sh` to call the guard through an injected
       absolute path instead of the bare name `claude-bash-guard` `deps:` 5.1
-- [ ] 5.3 Inject that path in the devin and gemini wrapper derivations, the way
+- [x] 5.3 Inject that path in the devin and gemini wrapper derivations, the way
       `runtime/default.nix` already injects `NOTIFY_EXE` and `SY_REAL` `deps:` 5.2
-- [ ] 5.4 Rename gemini's wrapper derivation from `devin-guard` to
+- [x] 5.4 Rename gemini's wrapper derivation from `devin-guard` to
       `gemini-exit-code-guard`, so two harnesses stop building two different
       derivations under one name `deps:` 5.3
-- [ ] 5.5 Confirm the check from 5.1 now passes, then mutation test it. Revert 5.2
-      alone and confirm the destructive case fails. Then break the allowed case
-      alone and confirm that case fails. A check that passes for one reason proves
-      one thing `deps:` 5.4
-- [ ] 5.6 Run `nix flake check` and confirm it exits 0 `deps:` 5.5
+- [x] 5.5 Confirm the check from 5.1 now passes, then mutation test it. Reverting
+      5.2 alone is NOT a valid mutation: `writeShellApplication` shellchecks the
+      body, an unknown command fails the wrapper build, and a dependency failure
+      reads as zero assertion failures. Point the injected path at a missing file
+      instead, which is shellcheck-clean and reproduces the original fail-open
+      `deps:` 5.4
+- [x] 5.6 Run `nix flake check` and confirm it exits 0 `deps:` 5.5
 - [ ] 5.7 Adversarial review (`adversarial-review` skill): critics attempt to
       break the guard fix against the proposal `Behavior` criteria and against D6
       and D7, in particular whether the fix turns a fail-open guard into an
