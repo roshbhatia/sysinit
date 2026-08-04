@@ -352,17 +352,17 @@
               # Same paths, one key undeclared and one changed, to drive
               # deletion-via-base and the conflict path.
               # The adopt path has no base, so the three-way merge has nothing to
-              # compare against and cannot remove an undeclared key. `adoptDelete`
-              # is the only thing that does. Two reconcilers, identical but for that
-              # list, so the pair proves the list is load-bearing rather than
-              # decorative: deleting it from a harness config is a silent
-              # regression on any host that has not adopted yet.
+              # compare against and cannot remove an undeclared key. `retire` is the
+              # only thing that does, and it now applies on EVERY activation, not
+              # only on adoption: a key that was never declared is absent from the
+              # base too, and the merge preserves base-absent by design. Two
+              # reconcilers, identical but for that list.
               adoptWith = recFor {
                 a = {
                   path = "d/adopt.json";
                   format = "json";
                   content.ok = 1;
-                  adoptDelete = [ "stale" ];
+                  retire = [ "stale" ];
                 };
               };
               adoptWithout = recFor {
@@ -416,25 +416,34 @@
                 ${allOff}/bin/sysinit-llm-reconcile > /dev/null
                 want "disabled file drops its base" "$([ -e "$HOME/d/.j.json.nix-base" ] && echo kept || echo dropped)" "dropped"
 
-                # --- the adopt path cannot delete without adoptDelete -------------
-                # A base-relative merge has nothing to compare against on a first
-                # adoption, so only `adoptDelete` removes a key the harness wrote and
-                # Nix does not declare. Both halves are asserted: dropping the list
-                # from a harness config is a silent regression on a host that has not
-                # adopted, and that regression was made and reverted once.
+                # --- `retire` removes a key the merge would otherwise keep --------
+                # Two paths, both covered. On adoption there is no base to compare
+                # against. On every later activation the key is base-ABSENT, which the
+                # merge preserves on purpose, so a harness rewrite would make it
+                # immortal. Dropping this list from a harness config is a silent
+                # regression, and that regression was made and reverted once.
                 mkdir -p "$HOME/d"
                 echo '{"ok":1,"stale":true}' > "$HOME/d/adopt.json"
                 ${adoptWithout}/bin/sysinit-llm-reconcile > /dev/null
-                want "adopt without adoptDelete keeps the undeclared key" \
+                want "adopt without retire keeps the undeclared key" \
                   "$(jq -r 'has("stale")' "$HOME/d/adopt.json")" "true"
 
                 rm -f "$HOME/d/adopt.json" "$HOME/d/.adopt.json.nix-base"
                 echo '{"ok":1,"stale":true}' > "$HOME/d/adopt.json"
                 ${adoptWith}/bin/sysinit-llm-reconcile > /dev/null
-                want "adopt with adoptDelete removes it" \
+                want "adopt with retire removes it" \
                   "$(jq -r 'has("stale")' "$HOME/d/adopt.json")" "false"
-                want "adopt with adoptDelete keeps the declared key" \
+                want "adopt with retire keeps the declared key" \
                   "$(jq -r '.ok' "$HOME/d/adopt.json")" "1"
+                # And the immortal case: the host has adopted, so a base exists, and
+                # the harness writes the key again. It is base-absent, so the merge
+                # keeps it; only `retire` removes it. This is the `powerline` defect.
+                echo '{"ok":1}' > "$HOME/d/adopt.json"
+                ${adoptWith}/bin/sysinit-llm-reconcile > /dev/null
+                echo '{"ok":1,"stale":"compact"}' > "$HOME/d/adopt.json"
+                ${adoptWith}/bin/sysinit-llm-reconcile > /dev/null
+                want "retire removes a base-absent key the harness rewrote" \
+                  "$(jq -r 'has("stale")' "$HOME/d/adopt.json")" "false"
                 rm -f "$HOME/d/adopt.json" "$HOME/d/.adopt.json.nix-base"
                 want "disabled file itself untouched" "$(jq -r .a "$HOME/d/j.json")" "1"
                 rm -f "$HOME/d/j.json"
@@ -1052,7 +1061,7 @@
                 # validation cannot see either case.
                 #
                 # This exercises `render.mergeProgram`, which models the adopt
-                # step's `adoptDelete` plus `enforce` shape. The reconciler's own
+                # step's `retire` plus `enforce` shape. The reconciler's own
                 # three-way program is covered by the `managed-file-merge3`
                 # check; neither check alone covers the whole activation path.
                 jq -n '{

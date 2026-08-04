@@ -67,14 +67,14 @@ in
       format = "json";
       content = opencodeConfig;
       schema = "${schemaDir}/config.json";
-      inherit (render) enforce adoptDelete;
+      inherit (render) enforce retire;
     };
     opencode-tui = {
       path = ".config/opencode/tui.json";
       format = "json";
       content = render.tui;
       schema = "${schemaDir}/tui.json";
-      adoptDelete = render.retiredTui;
+      retire = render.retiredTui;
     };
   };
 

@@ -78,15 +78,20 @@ in
                 against it before it replaces the target.
               '';
             };
-            adoptDelete = mkOption {
+            retire = mkOption {
               type = types.listOf types.str;
               default = [ ];
               description = ''
-                Top-level keys deleted during the one-time adoption of an
-                existing file. These are keys this repository used to declare
-                and has since retired. A deep merge preserves them, and a
-                target whose schema sets `additionalProperties: false` then
-                fails validation on a key nothing declares any more.
+                Top-level keys deleted from the target on EVERY activation. These
+                are keys this repository used to declare, or that the harness
+                writes and nothing reads, and which must not persist.
+
+                It applies on every activation, not only on adoption, because a
+                key that was never declared is absent from the recorded base, and
+                the three-way merge preserves a base-absent key by design. Without
+                this, such a key is immortal: the harness rewrites it and no code
+                path removes it. A target whose schema sets
+                `additionalProperties: false` then fails validation as well.
               '';
             };
           };

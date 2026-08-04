@@ -60,10 +60,11 @@ in
     ;
 
   # The two lists above, in the shape `sysinit.llm.managedFiles` consumes.
-  # `adoptDelete` applies once, during the adoption of the live file.
+  # `retire` applies on every activation: a key that was never declared is absent
+  # from the base, and the merge preserves a base-absent key by design.
   # `enforce` applies on every activation, which is what `authoritative` always
   # meant: these blocks are this repository's, not OpenCode's.
-  adoptDelete = retiredMain;
+  retire = retiredMain;
   enforce = authoritative;
 
   # OpenCode's config schema carries an absolute `$ref` to

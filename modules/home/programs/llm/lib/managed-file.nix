@@ -73,7 +73,7 @@ let
     format = "json";
     schema = null;
     enforce = [ ];
-    adoptDelete = [ ];
+    retire = [ ];
     createIfMissing = true;
   };
 
@@ -275,7 +275,7 @@ let
           (if f.contentFile != null then f.format else "json")
           (if f.schema == null then "-" else f.schema)
           (lib.escapeShellArg (builtins.toJSON f.enforce))
-          (lib.escapeShellArg (builtins.toJSON f.adoptDelete))
+          (lib.escapeShellArg (builtins.toJSON f.retire))
           (if f.createIfMissing then "create" else "skip")
         ];
 
@@ -361,7 +361,7 @@ let
 
         ${lib.optionalString (enabled == { }) "# shellcheck disable=SC2329\n"}reconcile() {
           local name="$1" rel="$2" fmt="$3" new="$4" new_fmt="$5" schema="$6"
-          local enforce="$7" adopt_delete="$8" create="$9"
+          local enforce="$7" retire="$8" create="$9"
           local target="$HOME/$rel"
           # Hidden so a harness that globs its own config directory does not
           # read it as a second config. An already-hidden target keeps one dot,
@@ -462,13 +462,13 @@ let
               echo "managed-file: $name cannot parse $rel as $fmt" >&2
               return 1
             fi
-            # `adoptDelete` names keys this repository used to declare and has
-            # retired. A deep merge preserves them, and a schema with
-            # `additionalProperties: false` then rejects the result.
+            # `retire` names keys this repository used to declare, or that the
+            # harness writes and nothing reads. A deep merge preserves them, and a
+            # schema with `additionalProperties: false` then rejects the result.
             # -S matches the key order the three-way merge emits (it builds
             # objects from a `unique` key set, which sorts). Without it the
             # first three-way run rewrites the whole file for ordering alone.
-            if ! jq -S -s --argjson del "$adopt_delete" '
+            if ! jq -S -s --argjson del "$retire" '
                   .[0] as $d | .[1] as $n
                   | (reduce $del[] as $k ($d; del(.[$k])))
                   | (. * $n)
@@ -492,6 +492,16 @@ let
             # the whole file on a three-way divergence, so leaving an enforced
             # key in would let a harness edit to it block every other key from
             # updating, which is the exact outcome `enforce` exists to prevent.
+            # Retired keys leave the disk BEFORE the merge sees it. A key that was
+            # never declared is absent from the base, and the merge preserves
+            # base-absent + disk-present on purpose, so nothing else can remove it.
+            if ! jq --argjson del "$retire" 'reduce $del[] as $k (.; del(.[$k]))' \
+                  "$tmp.disk" > "$tmp.disk.r"; then
+              echo "managed-file: $name could not drop the retired keys for $rel" >&2
+              return 1
+            fi
+            mv "$tmp.disk.r" "$tmp.disk"
+
             if ! jq --argjson keys "$enforce" 'reduce $keys[] as $k (.; del(.[$k]))' \
                   "$tmp.base" > "$tmp.base.s" \
               || ! jq --argjson keys "$enforce" 'reduce $keys[] as $k (.; del(.[$k]))' \

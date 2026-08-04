@@ -93,10 +93,12 @@
         Verified. It now checks the shipped `pi/docs/settings.md`, which lists every
         real setting, and a bare `editor` is absent from it.
       Objections still open are recorded in 2.11 to 2.14
-- [ ] 2.11 `powerline` is immortal on any host: it was never declared, so it is
-      base-absent, disk-present, Nix-absent, which the merge preserves by design.
-      `adoptDelete` does not reach it because a host with a base never takes the
-      adopt path. Needs a per-activation delete, not an adopt-only one `deps:` 2.7
+- [x] 2.11 Fixed. `adoptDelete` ran only on the adopt path, so a key that was never
+      declared is base-absent, and the merge preserves base-absent by design: the
+      harness rewrote `powerline` and nothing removed it. The list now applies on
+      EVERY activation, and is renamed `retire`, because `adoptDelete` would have
+      been a lie. Asserted by `retire removes a base-absent key the harness rewrote`,
+      mutation tested by stopping the base path from stripping `deps:` 2.7
 - [ ] 2.12 Nothing asserts `shellCommandPrefix` is three real lines, so a reflow to
       a literal `\n` passes every gate. The other two defects of this phase got a
       check and an assertion; this one got a comment, which design.md D3 forbids

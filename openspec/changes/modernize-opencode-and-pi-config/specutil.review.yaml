@@ -1,9 +1,9 @@
 version: 1
 change: modernize-opencode-and-pi-config
 decision: approved
-note: 'Phase 2 review round 1 of K=4: NOT clean. Two headline defects fixed and proven (declared keys now enforced so they win every activation; the keys check now uses the shipped settings doc instead of a binary substring grep). Four objections open as 2.11 to 2.14.'
-change_hash: 00003e2d16a5eb97
-base_commit: d62eed4a48d65536ec6fbe5b433d0ef9ebbb44c6
+note: 'Round 1 continues: 2.11 closed. The retired-key list now applies on every activation and is renamed retire; the base-absent immortal-key case is asserted and mutation tested. 2.12 to 2.14 remain open.'
+change_hash: acbbc58020610169
+base_commit: 2d796b8aa90ddbc6db581ccf1aab96e8a660dbe6
 items:
     0f8cd7a6a4d731bb:
         hash: da42f5ffd02d176c
@@ -74,6 +74,9 @@ items:
     3095fe2be90bb962:
         hash: c1389bff72961541
         text: 'Adversarial review (`adversarial-review` skill): critics attempt to break this phase against its spec scenarios; revise until no surviving objection or K=4 rounds'
+    3416b57d33e0e1c8:
+        hash: e3e9af6914a88267
+        text: 'Fixed. `adoptDelete` ran only on the adopt path, so a key that was never declared is base-absent, and the merge preserves base-absent by design: the harness rewrote `powerline` and nothing removed it. The list now applies on EVERY activation, and is renamed `retire`, because `adoptDelete` would have been a lie. Asserted by `retire removes a base-absent key the harness rewrote`, mutation tested by stopping the base path from stripping'
     5240c1c5941945f2:
         hash: 698cddf2917fb257
         text: 'Confirm: pi starts with no extension load error; `/plan` toggles; protected paths are blocked; the external editor opens or is gone'
@@ -113,9 +116,6 @@ items:
     bebe61c26c49b872:
         hash: 56c9bbe994a5c328
         text: Add an activation-time validation of the real merged file that fails `nh darwin switch`; the build-time layer alone cannot see a key OpenCode wrote at runtime
-    bfd18f977883ce3b:
-        hash: 2e2a4bf58a2d8e97
-        text: '`powerline` is immortal on any host: it was never declared, so it is base-absent, disk-present, Nix-absent, which the merge preserves by design. `adoptDelete` does not reach it because a host with a base never takes the adopt path. Needs a per-activation delete, not an adopt-only one'
     c1ec81bdf8e3b538:
         hash: 64ee44eca76bb615
         text: 'Apply: stage the change and propose a commit message per the `writing-commit-message` skill'

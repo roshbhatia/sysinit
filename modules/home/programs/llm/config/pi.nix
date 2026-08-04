@@ -668,7 +668,7 @@ in
     path = ".pi/agent/settings.json";
     format = "json";
     content = piManagedSettings;
-    adoptDelete = piRetiredSettings;
+    retire = piRetiredSettings;
     # Every declared key, not just the two lists. D2 in design.md defines a
     # declared key as one whose value is repository policy, and `enforce` is the
     # only mechanism in managed-file.nix that makes Nix win on EVERY activation.
