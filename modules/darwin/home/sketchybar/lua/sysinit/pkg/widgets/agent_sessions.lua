@@ -110,7 +110,9 @@ end
 -- both facts in one command removes the ordering and the cache: either the output
 -- is a rollup to render, or it is the literal HIDE.
 local function poll()
-  local cmd = "app=$(osascript -e 'tell application \"System Events\" to get name of first application process whose frontmost is true' 2>/dev/null); "
+  -- TEMPORARY instrumentation: the marker proves whether sbar.exec runs the shell
+  -- at all. Remove once the chip renders.
+  local cmd = "date +%s >> /tmp/agent-sessions-probe; app=$(osascript -e 'tell application \"System Events\" to get name of first application process whose frontmost is true' 2>/dev/null); "
     .. "case \"$app\" in wezterm-gui|WezTerm|Wezterm) "
     .. agent_sessions_cmd()
     .. " 2>/dev/null | tr -d '\\n' ;; *) echo HIDE ;; esac"
