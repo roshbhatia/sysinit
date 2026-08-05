@@ -42,5 +42,6 @@ in
   shell-scripts-shellcheck = check ./shell-scripts-shellcheck.nix;
   skill-render-shape = check ./skill-render-shape.nix;
   wezterm-chord-collisions = check ./wezterm-chord-collisions.nix;
+  agent-chord-collisions = check ./agent-chord-collisions.nix;
   zsh-fragments-parse = check ./zsh-fragments-parse.nix;
 }
