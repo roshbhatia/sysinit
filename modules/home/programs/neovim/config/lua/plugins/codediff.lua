@@ -6,7 +6,12 @@ return {
     config = function()
       require("codediff").setup({
         explorer = {
-          position = "bottom",
+          -- Left, not bottom. view_mode was already "tree", but a 15-line
+          -- horizontal strip renders a tree as something indistinguishable from a
+          -- flat list: the indent markers have nowhere to go. A vertical panel is
+          -- the shape a tree needs. `i` toggles back to list at runtime.
+          position = "left",
+          width = 40,
           view_mode = "tree",
         },
         keymaps = {
