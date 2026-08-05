@@ -97,3 +97,39 @@
 - [ ] 5.4 Decide: the owner rules on `pi-annotated-reply` and
       `@juicesharp/rpiv-advisor`, whose removal evidence is recorded in
       `piPackagePaths` comments, and on the stale `mcp-cache.json` `deps:` 5.3
+
+## 6. OpenSpec as a first-class, global workflow
+
+- **SHAPE** graph
+
+- [ ] 6.1 Rename the schema from `rosh-spec-driven` to `spec-driven`, replacing
+      the built-in directory instead of sitting beside it. Attempted and reverted:
+      the openspec half is clean and deletes all six `--replace-fail` patches in
+      `overlays/openspec/default.nix`, but `rosh-spec-driven` is a preset name
+      compiled into the specutil binary, which has no source in this repo. With
+      the schema renamed, `specutil check` resolves no rubric and every change
+      loses its gate. Needs a coordinated specutil change first, or an explicit
+      `check:` block in `openspec/specutil.yaml` that reproduces the preset
+      exactly `deps:` 1.1
+- [ ] 6.2 Install the openspec skills and prompts globally for every harness, so
+      no repo needs `openspec init`. Upstream ships `pi` as a first-class tool
+      (`.pi/skills/openspec-*/SKILL.md`, `.pi/prompts/opsx-<id>.md`), `codex` and
+      `agents` share `.agents/skills/`, and `opencode` uses `.opencode/skills/`.
+      Nix owns those roots already `deps:` 6.1
+- [ ] 6.3 Onboard the new opsx skills (`propose`, `explore`, `apply`, `update`,
+      `sync`, `archive`, and the expanded `new`/`continue`/`ff`/`verify`/
+      `bulk-archive`/`onboard`) into the generated skill set `deps:` 6.2
+- [ ] 6.4 Audit the schema itself against upstream's customization contract:
+      `openspec/config.yaml` supports a default schema, injected context,
+      per-artifact rules, and operation guidance. Confirm each is set and
+      correct, and that the language matches the output style `deps:` 6.1
+- [ ] 6.5 Evaluate stores and worksets (beta) for seshy: a store is a standalone
+      planning repo, registered per machine, referenced from a code repo via
+      `store:` or read-only `references:` in config.yaml. seshy already manages
+      multi-repo sessions, so the question is whether a workset is the same
+      object under another name or a layer beneath it `deps:` 6.1
+- [ ] 6.6 Move every agent's shell back to its default instead of zsh. The owner
+      reports zsh causes issues; `shellCommandPrefix` and `shellPath` are the pi
+      levers, and the other harnesses have equivalents `deps:` none
+- [ ] 6.7 Adversarial review: whether global install makes openspec present or
+      merely installed, and whether 6.1 is worth its coordination cost `deps:` 6.5, 6.6
