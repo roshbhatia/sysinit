@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Turns a `STOP` condition from prose into a predicate.
 #
-# The rosh-spec-driven schema requires a loop phase to declare a STOP that is a
+# The spec-driven schema requires a loop phase to declare a STOP that is a
 # command, but nothing ran it: the loop ended when the model decided it was
 # done. This is the Stop hook that actually evaluates it.
 #

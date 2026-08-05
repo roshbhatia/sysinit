@@ -11,7 +11,7 @@ not restate any of those here.
 ## Stack
 
 - openspec 1.6.0 via `overlays/openspec/`, packaged with the custom
-  `rosh-spec-driven` schema is the CLI default
+  `spec-driven` schema is the CLI default
 - Harness configs all generate from `modules/home/programs/llm/harnesses/`, one
   module per harness: claude-code, codex, copilot, gemini, cursor, opencode, amp,
   crush, devin, goose, pi. A harness owning assets is a directory holding its
@@ -65,7 +65,7 @@ subcommands: `feature-based-session-manager`, `openspec-workflow`, `specutil`.
   session start.
 - `~/.config/git/ignore` already excludes `**/.claude/` and `**/.agents/`. Do
   not repeat those in a per-project `.gitignore`.
-- `rosh-spec-driven` is not distributed. In a repo shared with others, pin
+- `spec-driven` is not distributed. In a repo shared with others, pin
   `schema: spec-driven`, because a collaborator without the fork gets a "schema
   not found" error.
 - Editing a generated dotfile fails: a PreToolUse hook denies writes that

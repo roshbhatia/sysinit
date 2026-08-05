@@ -14,11 +14,11 @@ pkgs.runCommand "schema-templates-conform-check"
     ];
   }
   ''
-    tmpl=${pkgs.openspec}/lib/openspec/schemas/rosh-spec-driven/templates
+    tmpl=${pkgs.openspec}/lib/openspec/schemas/spec-driven/templates
     root="$TMPDIR/proj"
     change="$root/openspec/changes/probe"
     mkdir -p "$change"
-    echo "schema: rosh-spec-driven" > "$root/openspec/config.yaml"
+    echo "schema: spec-driven" > "$root/openspec/config.yaml"
     cp "$tmpl/proposal.md" "$change/proposal.md"
     cp "$tmpl/design.md"   "$change/design.md"
     cp "$tmpl/tasks.md"    "$change/tasks.md"

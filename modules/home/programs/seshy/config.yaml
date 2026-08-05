@@ -6,7 +6,7 @@ sessionsDir: "~/.local/state/seshy/sessions"
 
 # Lifecycle hooks. Rendered as Go templates, run via `sh -c`, cwd = session dir.
 # Init OpenSpec once at the session root. Idempotent: skips if already inited.
-# `openspec init` defaults to the machine-wide rosh-spec-driven schema, so new
+# `openspec init` defaults to the machine-wide spec-driven schema, so new
 # sessions inherit our openspec config automatically.
 hooks:
   postCreate:

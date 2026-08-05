@@ -3,7 +3,7 @@
   ...
 }:
 # Behavioral guard for the machine-wide default (Lever 2). Assert a
-# bare `openspec new change` writes `schema: rosh-spec-driven`. This
+# bare `openspec new change` writes `schema: spec-driven`. This
 # catches a newly added or moved default-schema site that the
 # overlay's `--replace-fail` patch is blind to. Hermetic: HOME and
 pkgs.runCommand "openspec-default-schema-check"
@@ -19,9 +19,9 @@ pkgs.runCommand "openspec-default-schema-check"
     # Guarded: an unguarded cd that fails leaves every assertion below running in
     # the wrong directory, where it can pass for the wrong reason.
     cd "$TMPDIR/proj" || exit 1
-    schema_source="$(openspec schema which rosh-spec-driven 2>&1)"
+    schema_source="$(openspec schema which spec-driven 2>&1)"
     if ! grep -q "Source: package" <<< "$schema_source"; then
-      echo "FAIL: rosh-spec-driven is not package-owned:" >&2
+      echo "FAIL: spec-driven is not package-owned:" >&2
       echo "$schema_source" >&2
       exit 1
     fi
@@ -31,10 +31,10 @@ pkgs.runCommand "openspec-default-schema-check"
       echo "FAIL: bare 'openspec new change' wrote no openspec config.yaml" >&2
       exit 1
     fi
-    if grep -q "schema: rosh-spec-driven" "$cfg"; then
-      echo "OK: bare 'openspec new change' defaults to rosh-spec-driven" | tee "$out"
+    if grep -q "schema: spec-driven" "$cfg"; then
+      echo "OK: bare 'openspec new change' defaults to spec-driven" | tee "$out"
     else
-      echo "FAIL: default schema is not rosh-spec-driven. Wrote:" >&2
+      echo "FAIL: default schema is not spec-driven. Wrote:" >&2
       cat "$cfg" >&2
       exit 1
     fi

@@ -1,6 +1,6 @@
 # OpenSpec Awareness
 
-This workspace uses [OpenSpec](https://github.com/Fission-AI/OpenSpec) for spec-driven changes. Active changes live under `openspec/changes/<name>/` with proposal, design, specs, and tasks artifacts. The forked schema in use is `rosh-spec-driven`, which adds rules around progressive rollouts, pattern reuse, and human-verification gates before impactful actions.
+This workspace uses [OpenSpec](https://github.com/Fission-AI/OpenSpec) for spec-driven changes. Active changes live under `openspec/changes/<name>/` with proposal, design, specs, and tasks artifacts. The forked schema in use is `spec-driven`, which adds rules around progressive rollouts, pattern reuse, and human-verification gates before impactful actions.
 
 ## Read active state with these commands
 

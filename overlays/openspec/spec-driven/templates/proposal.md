@@ -8,13 +8,13 @@
 
 ### Non-goals
 
-<!-- rosh-spec-driven rule: enumerate work explicitly NOT included.
+<!-- spec-driven rule: enumerate work explicitly NOT included.
      REQUIRED whenever the change touches more than one capability.
      Trivially-scoped single-capability changes MAY omit this block. -->
 
 ## Behavior
 
-<!-- rosh-spec-driven rule: the acceptance criteria. Write each entry so a
+<!-- spec-driven rule: the acceptance criteria. Write each entry so a
      command or an observation can decide it. This is the rubric the design, the
      tasks, and the adversarial review are all checked against. Nothing here is
      promoted to a separate spec corpus. -->
@@ -40,7 +40,7 @@ Modified code:
 Dependencies: <!-- new or changed dependencies, or "none" -->
 
 Impactful and irreversible actions:
-<!-- rosh-spec-driven rule: enumerate every action that mutates shared state, is
+<!-- spec-driven rule: enumerate every action that mutates shared state, is
      hard to reverse, or needs owner confirmation. Each becomes a verify/apply/
      confirm triad in tasks.md. Write "none" if there are none. -->
 

@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
-# Detect drift between the forked rosh-spec-driven OpenSpec schema and the
+# Detect drift between the forked spec-driven OpenSpec schema and the
 # upstream spec-driven schema shipped with the installed openspec CLI.
 #
 
 set -euo pipefail
 
-FORK_DIR="overlays/openspec/rosh-spec-driven"
+FORK_DIR="overlays/openspec/spec-driven"
 if [[ ! -d ${FORK_DIR} ]]; then
   echo "ERROR: fork directory not found at ${FORK_DIR}" >&2
   exit 2
@@ -50,4 +50,4 @@ if [[ ${DRIFT_COUNT} -gt 0 ]]; then
   exit 1
 fi
 
-echo "OK: rosh-spec-driven matches upstream spec-driven byte-for-byte"
+echo "OK: spec-driven matches upstream spec-driven byte-for-byte"

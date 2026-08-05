@@ -113,7 +113,7 @@ Consolidated: (a) separate/independent critic; (b) hide authorship; (c) prompt
 for refutation + a concrete failing scenario; (d) rotate lenses; (e) N critics,
 require survival; (f) bound with a blast-radius-scaled K, early stops on churn, and an owner halt.
 
-## Mapping to rosh-spec-driven OpenSpec artifacts
+## Mapping to spec-driven OpenSpec artifacts
 
 - **Rubric source.** The proposal's `Behavior` criteria, the design `Decisions`
   and `Rollout & Gating`, and the proposal `Non-goals` ARE the rubric. The critic

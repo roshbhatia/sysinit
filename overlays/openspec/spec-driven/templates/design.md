@@ -22,7 +22,7 @@ Non-Goals:
 
 ## Rollout & Gating
 
-<!-- rosh-spec-driven rule: REQUIRED section. Which phase ships first, what gate
+<!-- spec-driven rule: REQUIRED section. Which phase ships first, what gate
      must pass before the next one, and where the kill switch is. The default
      gate sequence for this repo is: edit, `nix flake check`, `nh darwin build`,
      owner spot-check, `nh darwin switch`. Call out any deviation. -->
@@ -40,7 +40,7 @@ Non-Goals:
 
 ## Adversarial Review
 
-<!-- rosh-spec-driven rule: REQUIRED section. Name the rubric this plan is
+<!-- spec-driven rule: REQUIRED section. Name the rubric this plan is
      reviewed against: the proposal Behavior criteria, the Decisions above, the
      Rollout & Gating gates, and the proposal Non-goals.
      The deterministic `specutil check` lint is mandatory. Model critique is

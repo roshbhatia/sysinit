@@ -43,7 +43,7 @@ openspec list --json
 openspec status --change "<name>" --json
 openspec instructions <artifact> --change "<name>" --json
 openspec validate "<name>"
-openspec schema validate rosh-spec-driven
+openspec schema validate spec-driven
 ```
 
 For DAG visualization, rendering a change as RFC/design/tickets, and

@@ -1,5 +1,5 @@
 ---
-description: Runs an adversarial review loop: independent critics try to break an artifact and the author revises against surviving objections. Use at the rosh-spec-driven review gate, before marking a tasks.md phase done, or when asked to red-team a plan, spec, or design.
+description: Runs an adversarial review loop: independent critics try to break an artifact and the author revises against surviving objections. Use at the spec-driven review gate, before marking a tasks.md phase done, or when asked to red-team a plan, spec, or design.
 allowed-tools: Agent Read Grep Glob Bash(printenv:*) Bash(env:*) Bash(openspec:*)
 ---
 
@@ -12,7 +12,7 @@ before running the loop the first time.
 
 ## When to run
 
-- At the rosh-spec-driven review gate: before a `tasks.md` phase is marked
+- At the spec-driven review gate: before a `tasks.md` phase is marked
   done, and to satisfy the design `Adversarial Review` section.
 - When asked to "adversarially review", "try to break this plan", or "red-team
   this design".

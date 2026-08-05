@@ -1,4 +1,4 @@
-schema: rosh-spec-driven
+schema: spec-driven
 
 # Project context shown to AI when creating artifacts.
 context: |

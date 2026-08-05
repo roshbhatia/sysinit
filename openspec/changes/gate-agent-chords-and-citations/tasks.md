@@ -102,10 +102,10 @@
 
 - **SHAPE** graph
 
-- [ ] 6.1 Rename the schema from `rosh-spec-driven` to `spec-driven`, replacing
+- [ ] 6.1 Rename the schema from `spec-driven` to `spec-driven`, replacing
       the built-in directory instead of sitting beside it. Attempted and reverted:
       the openspec half is clean and deletes all six `--replace-fail` patches in
-      `overlays/openspec/default.nix`, but `rosh-spec-driven` is a preset name
+      `overlays/openspec/default.nix`, but `spec-driven` is a preset name
       compiled into the specutil binary, which has no source in this repo. With
       the schema renamed, `specutil check` resolves no rubric and every change
       loses its gate. Needs a coordinated specutil change first, or an explicit

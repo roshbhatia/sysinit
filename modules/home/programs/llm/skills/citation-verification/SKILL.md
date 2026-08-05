@@ -1,5 +1,5 @@
 ---
-description: Verify external-factual claims (pricing, availability, external API behavior, cited papers) deterministically with `citelock`: pin each claim into a citations.lock against a tool-captured snapshot, so the offline gate is a pure function and `citelock capture` fails closed on a quote a live source does not state. Use when authoring a rosh-spec-driven change with external-factual claims; the schema makes an unanchored claim a default-reject.
+description: Verify external-factual claims (pricing, availability, external API behavior, cited papers) deterministically with `citelock`: pin each claim into a citations.lock against a tool-captured snapshot, so the offline gate is a pure function and `citelock capture` fails closed on a quote a live source does not state. Use when authoring a spec-driven change with external-factual claims; the schema makes an unanchored claim a default-reject.
 allowed-tools: Bash(citelock:*) Read
 ---
 
@@ -10,7 +10,7 @@ this" becomes an exit code, not a review opinion.
 
 ## When to use
 
-- Authoring a rosh-spec-driven change that asserts external-factual claims:
+- Authoring a spec-driven change that asserts external-factual claims:
   pricing, availability, external API behavior, or a cited paper. The schema
   makes an unanchored external-factual claim a default-reject.
 - NOT for a bare version identifier a sha256 or lockfile pin already provides

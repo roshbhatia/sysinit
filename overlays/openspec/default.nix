@@ -52,29 +52,13 @@ in
 
     prePatch = "cp ${pnpmLock} pnpm-lock.yaml";
 
-    # Make rosh-spec-driven the machine-wide default. openspec has no config
-    # key for a default schema; the default is hardcoded across six sites in
-    # the prebuilt dist/. Patch every site, not just the named constants:
-    # `openspec new change` reads `root.defaultSchema` from the inline
-    # object-literal in root-selection.js, which is not a named constant.
-    # --replace-fail makes a missed site (upstream rename on a version bump)
-    # fail the build loudly instead of silently reverting to spec-driven.
-    # A newly *added* controlling site is caught by the behavioral flake check
-    # (checks.<system>.openspec-default-schema), not here.
-    postPatch = ''
-      substituteInPlace dist/core/openspec-root.js \
-        --replace-fail "DEFAULT_OPENSPEC_SCHEMA = 'spec-driven'" "DEFAULT_OPENSPEC_SCHEMA = 'rosh-spec-driven'"
-      substituteInPlace dist/core/init.js \
-        --replace-fail "DEFAULT_SCHEMA = 'spec-driven'" "DEFAULT_SCHEMA = 'rosh-spec-driven'"
-      substituteInPlace dist/commands/workflow/shared.js \
-        --replace-fail "DEFAULT_SCHEMA = 'spec-driven'" "DEFAULT_SCHEMA = 'rosh-spec-driven'"
-      substituteInPlace dist/utils/change-utils.js \
-        --replace-fail "DEFAULT_SCHEMA = 'spec-driven'" "DEFAULT_SCHEMA = 'rosh-spec-driven'"
-      substituteInPlace dist/core/planning-home.js \
-        --replace-fail "REPO_DEFAULT_SCHEMA = 'spec-driven'" "REPO_DEFAULT_SCHEMA = 'rosh-spec-driven'"
-      substituteInPlace dist/core/root-selection.js \
-        --replace-fail "defaultSchema: 'spec-driven'" "defaultSchema: 'rosh-spec-driven'"
-    '';
+    # No postPatch. This schema IS `spec-driven`: it replaces the built-in
+    # directory rather than sitting beside it under another name. Before this the
+    # overlay patched six hardcoded `'spec-driven'` sites across the prebuilt
+    # dist/ so a differently-named schema could be the default, and every one was
+    # a `--replace-fail` waiting for an upstream rename to break the build.
+    # Owning the name deletes that class of breakage; upstream's resolution order
+    # (CLI flag, change metadata, config.yaml, default) is left alone.
 
     buildPhase = ''
       runHook preBuild
@@ -86,7 +70,8 @@ in
       runHook preInstall
       mkdir -p $out/lib/openspec $out/bin
       cp -r . $out/lib/openspec/
-      cp -r ${./rosh-spec-driven} $out/lib/openspec/schemas/rosh-spec-driven
+      rm -rf $out/lib/openspec/schemas/spec-driven
+      cp -r ${./spec-driven} $out/lib/openspec/schemas/spec-driven
       makeWrapper ${final.nodejs}/bin/node $out/bin/openspec \
         --add-flags "$out/lib/openspec/bin/openspec.js"
       runHook postInstall

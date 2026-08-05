@@ -18,7 +18,7 @@ final: _prev: {
   inherit (inputs.cupcake.packages.${final.stdenv.hostPlatform.system}) cupcake-cli;
 
   # The spec-change projection CLI. It also provides `specutil check`, the
-  # deterministic rubric-lint the rosh-spec-driven schema and the
+  # deterministic rubric-lint the spec-driven schema and the
   # adversarial-review skill both require on PATH.
   specutil = inputs.specutil.packages.${final.stdenv.hostPlatform.system}.default;
 
