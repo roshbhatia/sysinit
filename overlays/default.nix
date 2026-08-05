@@ -67,11 +67,6 @@
       pipx = prev.pipx.overridePythonAttrs (o: {
         disabledTestPaths = (o.disabledTestPaths or [ ]) ++ [ "tests/test_inject.py" ];
       });
-      # rtk 0.43.0 (a from-source rust build, not in any cache for aarch64-darwin)
-      # trips its checkPhase, which also blocks its dependents. Skip its tests.
-      rtk = prev.rtk.overrideAttrs (_: {
-        doCheck = false;
-      });
     }
   )
   # 1Password sometimes re-uploads the aarch64 zip with new bytes

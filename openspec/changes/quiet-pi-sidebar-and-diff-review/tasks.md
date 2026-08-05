@@ -240,17 +240,21 @@
 
 ## 7. Rollout
 
-- [ ] 7.1 Move: the owner runs `mv ~/.config/nvim ~/.config/nvim.pre-inline`.
+- [x] 7.1 Move: the owner runs `mv ~/.config/nvim ~/.config/nvim.pre-inline`.
       Activation refuses while a real directory is there, and moving rather than
       deleting keeps any commit that never reached a remote
-- [ ] 7.2 Apply: `nh darwin switch` from the `sysinit.laurel` checkout in a split
+- [x] 7.2 Apply: `nh darwin switch` from the `sysinit.laurel` checkout in a split
       pane, gated on `nix flake check` and
       `nix build .#darwinConfigurations.lv426.system` exiting 0
-- [ ] 7.3 Confirm: nvim starts from the symlinked path with its plugins loaded, the
+- [x] 7.3 Confirm: nvim starts from the symlinked path with its plugins loaded, the
       owner reads a live sidebar and judges that it reports what they meant it to
       report, and `ctrl+b` opens a CodeDiff split that shows a note pi wrote
-- [ ] 7.4 Decide: the owner chooses when `~/.config/nvim.pre-inline` and the
-      `sysinit.nvim` remote are retired, whether the hand-written
-      `pi-permission-system/config.json` and `pi-rtk-optimizer/config.json` under
-      `~/.pi/agent/extensions/` move into Nix or are deleted, and whether the stale
-      `mcp-cache.json` is removed now that nothing reads it
+- [x] 7.4 Decide: the owner retired the `sysinit.nvim` remote (archived) and chose
+      each unmanaged config's fate. `pi-permission-system/config.json` moved into
+      Nix, generated from `allowlist.nix`. `pi-rtk-optimizer/config.json` was
+      deleted with its extension: the config held nothing but upstream defaults, and
+      the extension rewrote `event.input.command` to `rtk <cmd>` forms that match
+      none of the 13 deny globs, which under `yoloMode` auto-approve. `pkgs.rtk` and
+      its `doCheck = false` overlay went with it, unreferenced. Still open:
+      `~/.config/nvim.pre-inline`, the stale `mcp-cache.json`, and the hand-written
+      `pi-openai-fast.json` and `pi-openai-verbosity.json`

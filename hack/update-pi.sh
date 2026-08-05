@@ -27,7 +27,6 @@ declare -a TRACKED=(
   "pi-context"
   "pi-subagents"
   "pi-readline-search"
-  "pi-rtk-optimizer"
   "pi-threads"
   "pi-interview"
   "pi-librarian"

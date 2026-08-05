@@ -286,12 +286,6 @@ let
     readlineSearch =
       mkFetchedNpmPackage "pi-readline-search" "0.1.0"
         "sha256-HxomHcIceZX68M0f0ZcRJSiqDzqCI0p+wcyq8CVL514=";
-    # pi-rtk-optimizer: mature successor to pi-rtk. Delegates command rewriting
-    # to the `rtk` CLI (pkgs.rtk 0.43.0, added to home.packages — confirmed to
-    # provide `rtk rewrite`) and compacts tool output. Peer deps only.
-    rtkOptimizer =
-      mkFetchedNpmPackage "pi-rtk-optimizer" "0.9.0"
-        "sha256-qlwpcoJe1mvuFVXfujLYryy+CfLX4rE5yZYlN+Gx+lY=";
     threads =
       mkFetchedNpmPackage "pi-threads" "0.2.1"
         "sha256-MF++ANxMplxx0qydKoozrnNTFtb4HQ/0s923cGrsPyM=";
@@ -438,8 +432,8 @@ let
   # 2. Compaction — piVcc (deterministic, LLM-free)
   # 3. Orchestration — pi-subagents
   #
-  # Four packages were removed and are deliberately absent. Each was loaded and
-  # doing nothing, which reads as a working capability:
+  # The packages below were removed and are deliberately absent. Most were loaded
+  # and doing nothing, which reads as a working capability:
   #   - pi-mcp-adapter: reads ~/.pi/agent/mcp.json, which this repository never
   #     writes. It found no server, and the only file left was a stale
   #     mcp-cache.json the sidebar then rendered as live. Wiring pi to the MCP
@@ -456,6 +450,19 @@ let
   #     `specutil next` already provide, its parallelism duplicates pi-subagents, and
   #     seshy already gives worktree-per-session. What it uniquely added was a
   #     dashboard, cross-model review, and auto-merge, none of which were in use.
+  #   - pi-rtk-optimizer: this one was working, and that was the problem. In
+  #     `mode: "rewrite"` its tool_call handler reassigns event.input.command, so
+  #     `git status` runs as `rtk git status`. The permission gate is safe by load
+  #     order alone (piPermissionSystem is first, so it matches the ORIGINAL text),
+  #     which is a thin margin to rest on. The durable objection is the transcript:
+  #     it notifies every rewrite, teaching the model the `rtk <cmd>` form, and
+  #     every deny glob in allowlist.nix is anchored on `git ` — `rtk git push
+  #     --force` matches none of the 13, so under yoloMode it auto-approves.
+  #     Its second half, outputCompaction, truncated at 12k chars and carried
+  #     filterBuildOutput/aggregateTestOutput, which is how a failing check gets
+  #     read as passing; pi-diff and pi-tool-display already own that rendering.
+  #     Its peerDependencies also cap at pi ^0.80.0 against the pinned 0.82.1.
+  #     `pkgs.rtk` went with it: nothing else consumed it.
   piPackagePaths = with piPackages; [
     # 1. Permission gate — MUST load first to wrap all tool calls below.
     "${piPermissionSystem}"
@@ -483,7 +490,6 @@ let
     "${annotatedReply}"
     "${mermaid}"
     "${readlineSearch}"
-    "${rtkOptimizer}"
     "${threads}"
     "${librarian}"
     "${askUser}"
@@ -714,8 +720,6 @@ in
       piAcp
       piCosts
       nvimPi
-      # `rtk rewrite` backend for pi-rtk-optimizer (and reusable by other hooks).
-      pkgs.rtk
     ];
 
     file =
