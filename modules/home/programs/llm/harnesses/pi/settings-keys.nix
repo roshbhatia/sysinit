@@ -10,16 +10,20 @@
     "shellCommandPrefix"
     "skills"
     "externalEditor"
+    # Moved out of `ownerPreference` deliberately. That entry argued declaring it
+    # would revert an owner who re-enables the header from `/settings`. The owner has
+    # since asked for the header off as policy, so enforcing it is the intent rather
+    # than a regression. `--verbose` still forces it back for a single run, which is
+    # the escape hatch the runtime setting was protecting.
+    "quietStartup"
   ];
 
   # owner preference: a declared key wins on every activation and would revert
   # the runtime choice
   ownerPreference = [
-    # Display-only, so declaring it would revert an owner who turns the startup
-    # header back on from `/settings`. Its peer `hideThinkingBlock` is here for the
-    # same reason. Every declared key is enforced now, which is what made this a real
-    # regression rather than a style question.
-    "quietStartup"
+    # `hideThinkingBlock` stays here: display-only, and declaring it would revert an
+    # owner who toggles it from `/settings`. `quietStartup` was here for the same
+    # reason and is now declared, because the owner asked for the header off.
     "defaultProvider"
     "defaultModel"
     "defaultThinkingLevel"

@@ -393,13 +393,6 @@ let
 
     # Phase C additions (heavier packages with runtime npm deps).
 
-    # taskplane: parallel task orchestration with checkpoint discipline.
-    # Maps onto openspec apply phases for multi-step changes.
-    taskplane =
-      mkBuiltNpmPackage "taskplane" "0.30.4" "sha256-yc8UHHAL1qTGsc9b6tiBxCZv8LGGrfXgdDDh47HvuUc="
-        "sha256-ywPPwjMmPqI1KUaFzS6OPRE5ydmafLJfjUBKMWsxpgs="
-        ./locks/taskplane.lock.json;
-
     # @plannotator/pi-extension: interactive plan review with inline
     # annotations. Pairs with openspec-propose review point.
     plannotator =
@@ -457,6 +450,12 @@ let
   #   - pi-dcp: a third extension mutating the message list, beside piVcc
   #     (compaction) and context (context management).
   #   - pi-interview: a second interactive prompt UI beside askUser.
+  #   - taskplane: never configured on any host. No `.pi/task-runner.yaml` exists
+  #     anywhere, which is why its statusline read `0 areas`. Its task format
+  #     (PROMPT.md/STATUS.md plus a dependency map) duplicates what openspec and
+  #     `specutil next` already provide, its parallelism duplicates pi-subagents, and
+  #     seshy already gives worktree-per-session. What it uniquely added was a
+  #     dashboard, cross-model review, and auto-merge, none of which were in use.
   piPackagePaths = with piPackages; [
     # 1. Permission gate — MUST load first to wrap all tool calls below.
     "${piPermissionSystem}"
@@ -468,7 +467,6 @@ let
     "${piVcc}"
     # 3. Orchestration.
     "${piPackages.subagents}"
-    "${taskplane}"
     # 4. Memory + advisor.
     "${rpivAdvisor}"
     # 5. UI / workflow.
@@ -574,6 +572,12 @@ let
     # this setting: sysinit.laurel's sync no longer writes `~/.agents/skills`, so
     # that root is empty and this is the only one with content.
     skills = [ "~/.claude/skills" ];
+
+    # Hide the startup header. It listed every theme, skill, and MCP server on each
+    # session start, which is a catalogue of what is installed rather than anything
+    # about the session, and the sidebar reports the session state that matters.
+    # `--verbose` still forces it back for one run when something needs diagnosing.
+    quietStartup = true;
 
     # nvim-pi is a --clean nvim wrapper, so Ctrl+G opens instantly instead of
     # setting was undeclared and the keybinding was unbound, which made the
