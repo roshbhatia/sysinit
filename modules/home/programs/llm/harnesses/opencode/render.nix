@@ -102,10 +102,10 @@ in
     model = "openai/gpt-5.5";
     small_model = "openai/gpt-5.4-mini";
 
-    # Pin the shell rather than inheriting whatever login shell the GUI hands
-    # the process, matching CLAUDE_CODE_SHELL in claude.nix and
-    # shell_environment_policy.set.SHELL in codex.nix.
-    shell = "${lib.getExe pkgs.zsh}";
+    # No `shell`. This pinned zsh to match CLAUDE_CODE_SHELL and codex's
+    # shell_environment_policy.set.SHELL; all three are now unset, because the
+    # owner hit problems with agents running through a zsh profile. Whatever
+    # stdout that profile produces contaminates a captured tool result.
 
     # `build` is OpenCode's own default primary agent. Naming it makes the
     # choice visible next to the four subagent definitions this module writes.

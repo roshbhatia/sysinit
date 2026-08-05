@@ -159,9 +159,13 @@ in
 
       sandbox_mode = "danger-full-access";
 
+      # No `set.SHELL`. Forcing zsh on the agent caused problems the owner hit in
+      # practice: an interactive-shell profile brings prompt setup, completion, and
+      # plugin loading into a non-interactive tool call, and anything those write
+      # to stdout lands in the agent's captured output. `experimental_use_profile`
+      # stays on, so the shell codex picks by default still loads its profile.
       shell_environment_policy = {
         experimental_use_profile = true;
-        set.SHELL = lib.getExe pkgs.zsh;
       };
 
       # Opt in to the experimental Streamable HTTP MCP client (v0.44.0+). Without

@@ -144,9 +144,12 @@ in
     enableMcpIntegration = true;
 
     settings = {
+      # No CLAUDE_CODE_SHELL. It pinned zsh, and the owner hit problems from it:
+      # the harness then runs every tool call through an interactive-shell profile
+      # whose prompt, completion, and plugin output contaminates captured stdout.
+      # Unset, the harness uses the system default shell.
       env = {
         CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS = "1";
-        CLAUDE_CODE_SHELL = lib.getExe pkgs.zsh;
         # Nix owns updates for every harness in this repo; disable the in-place
         # auto-updater so it never fights the flake pin.
         DISABLE_AUTOUPDATER = "1";
