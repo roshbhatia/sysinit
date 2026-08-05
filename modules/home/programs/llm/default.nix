@@ -120,7 +120,23 @@ let
     in
     if isHttp then filtered // { type = "http"; } else filtered;
 
-  mcpServers = lib.mapAttrs (_: pruneServer) config.sysinit.llm.mcp.additionalServers;
+  # `suppressedServers` is applied here, after the merge, so a host that reaches a
+  # server through a gateway drops the direct entry without editing the shared
+  # catalog. A name that matches nothing is a typo that would silently keep the
+  # duplicate registration, so it throws.
+  suppressed = config.sysinit.llm.mcp.suppressedServers;
+  unknownSuppressed = lib.subtractLists (builtins.attrNames config.sysinit.llm.mcp.additionalServers) suppressed;
+  assertSuppressedExist =
+    if unknownSuppressed != [ ] then
+      throw "llm: sysinit.llm.mcp.suppressedServers names ${lib.concatStringsSep ", " unknownSuppressed}, which is not in additionalServers."
+    else
+      true;
+
+  mcpServers =
+    assert assertSuppressedExist;
+    lib.mapAttrs (_: pruneServer) (
+      lib.filterAttrs (name: _: !(builtins.elem name suppressed)) config.sysinit.llm.mcp.additionalServers
+    );
 
   # Every harness config this module imports, by name. Compared against
   # `harnessCoverage` below, because the renderer's own throw only fires for a

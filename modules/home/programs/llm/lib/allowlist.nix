@@ -432,10 +432,20 @@ let
     # Playwright browser automation — user has opted in
     "mcp__playwright__*"
 
-    # home-manager plugin MCP servers (declared in mcp-servers.nix)
+    # home-manager plugin MCP servers (declared in mcp-servers.nix). Present for
+    # hosts that register them directly; a host that routes them through a gateway
+    # suppresses these servers and the entries simply match nothing.
     "mcp__plugin_claude-code-home-manager_ast-grep__*"
     "mcp__plugin_claude-code-home-manager_basic-memory__*"
     "mcp__plugin_claude-code-home-manager_playwright__*"
+
+    # The aggregating gateway (sysinit.laurel). One entry, so it grants every tool
+    # the gateway fronts, which is strictly coarser than the per-server entries
+    # above: the same prefix covers ast-grep, playwright, and every remote target.
+    # The owner accepted that trade to get a single MCP entry. The consequence to
+    # remember is that ADDING a gateway target silently inherits auto-approval, so
+    # the gateway's target list is now a permission surface, not just plumbing.
+    "mcp__plugin_claude-code-home-manager_agentgateway__*"
   ];
 in
 {

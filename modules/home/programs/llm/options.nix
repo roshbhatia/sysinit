@@ -130,6 +130,20 @@ in
         '';
       };
 
+      suppressedServers = mkOption {
+        type = types.listOf types.str;
+        default = [ ];
+        description = ''
+          Server names to drop from the rendered MCP config on this host, after
+          `additionalServers` is merged.
+
+          For a host that reaches a server through an aggregating gateway instead of
+          directly. Registering both shows every tool twice, and the direct entry is
+          the one that has to go, because the gateway cannot un-register itself.
+          Names must match a key in `additionalServers`.
+        '';
+      };
+
       additionalServers = mkOption {
         type = types.attrsOf (
           types.submodule {
