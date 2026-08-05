@@ -22,7 +22,7 @@ Window empty?                         -> say so plainly and stop; do not invent 
 ## Data source
 
 A `SessionEnd` hook (a PEP-723 Python script, `harnesses/claude/worklog-hook.py`, run via uv)
-appends one JSON line per session to `~/Documents/worklog.jsonl` (override:
+appends one JSON line per session to `~/.local/state/agents/worklog.jsonl` (override:
 `$CLAUDE_WORKLOG_FILE`). The hook is dumb — it records pointers and cheap facts,
 never a summary. It skips `resume` and bare directories with no prompt, so every
 line carries real work. A **schema v2** line:
@@ -126,7 +126,7 @@ rewrites via temp-file + atomic `mv`:
 bash "$Q" apply /tmp/summaries.json
 
 # bad — in-place edit can corrupt the file or drop a concurrent append
-sed -i 's/"summary":null/"summary":"..."/' ~/Documents/worklog.jsonl
+sed -i 's/"summary":null/"summary":"..."/' ~/.local/state/agents/worklog.jsonl
 ```
 
 ### 3. Compose

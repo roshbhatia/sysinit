@@ -320,7 +320,11 @@ def main() -> None:
 
     log = Path(
         os.environ.get(
-            "CLAUDE_WORKLOG_FILE", str(Path.home() / "Documents/worklog.jsonl")
+            # NOT ~/Documents: that path is TCC-protected on macOS, so a launchd
+            # agent cannot read it without granting Full Disk Access to /bin/bash.
+            # The gist-sync timer failed on exactly that for months.
+            "CLAUDE_WORKLOG_FILE",
+            str(Path.home() / ".local/state/agents/worklog.jsonl"),
         )
     )
     log.parent.mkdir(parents=True, exist_ok=True)

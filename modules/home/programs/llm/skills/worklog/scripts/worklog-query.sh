@@ -6,7 +6,8 @@ set -euo pipefail
 # write-back. The skill does the judgment (summaries, composition); this
 # script owns all worklog.jsonl I/O so no agent hand-rolls jq against it.
 
-WORKLOG_FILE="${CLAUDE_WORKLOG_FILE:-${HOME}/Documents/worklog.jsonl}"
+# NOT ~/Documents: TCC-protected, so a launchd agent cannot read it there.
+WORKLOG_FILE="${CLAUDE_WORKLOG_FILE:-${HOME}/.local/state/agents/worklog.jsonl}"
 
 usage() {
   cat >&2 << 'EOF'
@@ -19,7 +20,7 @@ commands:
                                                    via temp-file + atomic mv; existing summaries are never overwritten
 
 TS compares lexicographically against .ts (ISO-8601, e.g. 2026-06-09).
-Reads $CLAUDE_WORKLOG_FILE, default ~/Documents/worklog.jsonl. Malformed
+Reads $CLAUDE_WORKLOG_FILE, default ~/.local/state/agents/worklog.jsonl. Malformed
 lines are skipped by list/pending and preserved verbatim by apply.
 EOF
   exit 2
