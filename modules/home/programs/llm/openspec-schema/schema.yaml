@@ -16,44 +16,37 @@ artifacts:
       - **Behavior**: State what the change must do, and what must still hold when it lands. Write each entry so a command or an observation can decide it. This replaces the requirement spec: the acceptance criteria live here, next to the reason for them, and nothing is promoted to a separate spec corpus.
       - **Impact**: Affected code, APIs, dependencies, or systems.
 
-      **spec-driven rules** (apply before writing the proposal):
+      **Steps.** Run them in order; do not skip to writing.
 
-      1. **Reuse existing patterns.** Before drafting "What Changes", survey the repo for prior
-         implementations of similar capabilities. Reference the closest existing module/file by
-         path in the proposal and explicitly note what is being reused vs. introduced. If no
-         existing pattern fits, state that explicitly. Inventing parallel infrastructure when an
-         established pattern would work is a default-reject.
-      2. **Plan for progressive rollout.** Every change MUST be shaped so it can land
-         incrementally. Scope the proposal so each capability can be reviewed, built, and
-         verified independently. Avoid all-or-nothing changes that flip many surfaces at once.
-         If the change is genuinely atomic (cannot be split), say so in `Impact` and explain why.
-      3. **Flag impactful actions up front.** In `Impact`, enumerate every action that mutates
-         shared state, is hard to reverse, or requires user confirmation: `nh os switch`,
-         `openspec archive`, `git push`, network writes, schema migrations, system config
-         changes, vendored-content updates, removal of public surfaces. These become explicit
-         human-verification checkpoints in `tasks.md`.
-      4. **Note the gating signal.** If the change has a natural feature flag, kill switch,
-         config toggle, or staged-rollout sequence, name it in `Impact` so design.md can build
-         on it. For dotfiles work this is typically `nh os build` (verify) before
-         `nh os switch` (apply).
-      5. **Anchor external-factual claims.** If the change asserts external-factual claims
-         (pricing, availability, external API behavior, cited papers), it MUST carry a
-         `citations.lock` next to its artifacts that passes `citelock`, and each claim MUST have
-         an anchored record (verbatim quote present in a tool-captured snapshot). An unanchored
-         external-factual claim is a default-reject. A bare version identifier that a sha256 or
-         lockfile pin already provides (nvfetcher `_sources`, `flake.lock`, `vendorHash`) is
-         excluded; prose asserting a fact about that version's behavior or history is not.
-         Prefer the original source. If only a secondary source is available, state why.
-      6. **Write in the CLAUDE.md communication standard (applies to EVERY artifact).**
-         Write the proposal, design, and tasks in Simplified Technical English per
-         the Communication section of `~/.claude/CLAUDE.md`: one instruction per
-         sentence, active voice, one term per concept, no em-dashes in prose, and no
-         bolded first term in a bullet outside the format keywords (`WHEN`, `THEN`,
-         `AND`, `SHAPE`, `STOP`, `MAX-ITERS`, `BREAKING`). `specutil check`
-         enforces the mechanical parts (em-dashes, disallowed bolded bullet leads);
-         the rest is checked in review.
-      7. **Name the human-owned decision.** State which judgment remains with the owner.
-         Automation evidence and model critique MUST NOT be presented as approval.
+      1. Run `spec-preflight proposal`. It runs the deterministic rules for you:
+         the `specutil check` rubric, `citelock` if the change carries a lock, a
+         survey of existing modules matching the proposal's own vocabulary, and
+         the presence of a non-empty Behavior section. Fix what it reports.
+      2. From its reuse candidates, name in `What Changes` the closest existing
+         module by path, and say what is reused against what is introduced. If
+         nothing fits, say that. Inventing parallel infrastructure beside an
+         established pattern is a default-reject. The script lists candidates; it
+         cannot judge closeness, so this judgement is yours.
+      3. Shape the change so it lands incrementally: each capability reviewable,
+         buildable, and verifiable on its own. If it is genuinely atomic, say so
+         in `Impact` and say why.
+      4. In `Impact`, enumerate every action that mutates shared state, is hard to
+         reverse, or needs confirmation: `nh darwin switch`, `openspec archive`,
+         `git push`, network writes, schema migrations, vendored-content updates,
+         removal of a public surface. Each becomes a human checkpoint in tasks.md.
+      5. In `Impact`, name the gating signal if one exists: a feature flag, kill
+         switch, config toggle, or staged sequence. Here that is usually
+         `nix build .#darwinConfigurations.lv426.system` before `nh darwin switch`.
+      6. State which judgement stays with the owner. Automation evidence and model
+         critique are never approval.
+
+      Rules the preflight already enforces, listed so you know not to hand-check
+      them: no em-dash in prose, no bolded first term in a bullet outside the
+      format keywords (`WHEN`, `THEN`, `AND`, `SHAPE`, `STOP`, `MAX-ITERS`,
+      `BREAKING`), every external-factual claim anchored in `citations.lock`.
+      Write in Simplified Technical English per the Communication section of
+      `~/.claude/CLAUDE.md`: one instruction per sentence, active voice, one term
+      per concept. That part is judged in review, not by a script.
 
       IMPORTANT: The Behavior section is critical. It is the rubric every later
       artifact is reviewed against, and the adversarial review reads it directly.

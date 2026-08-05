@@ -274,6 +274,23 @@ let
     text = builtins.readFile ./diffnote.sh;
   };
 
+  # The deterministic half of the spec-driven authoring rules (see
+  # spec-preflight.sh). The schema instructions call it instead of restating what
+  # it checks.
+  specPreflight = pkgs.writeShellApplication {
+    name = "spec-preflight";
+    runtimeInputs = [
+      pkgs.coreutils
+      pkgs.git
+      pkgs.gnugrep
+      pkgs.gnused
+      pkgs.gawk
+      pkgs.findutils
+      pkgs.ripgrep
+    ];
+    text = builtins.readFile ./spec-preflight.sh;
+  };
+
   # Periodic refinement of the durable half of the harness (see agent-refine.sh).
   # Proposes; never applies.
   agentRefine = pkgs.writeShellApplication {
@@ -328,6 +345,7 @@ in
     syGate
     diffNote
     agentRefine
+    specPreflight
     ;
 
   # Absolute paths used inside harness hook commands.

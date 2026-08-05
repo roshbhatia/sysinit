@@ -29,6 +29,65 @@ let
     name: path: lib.nameValuePair ".claude/skills/${name}/SKILL.md" { source = path; }
   ) inputs.specutil.lib.skills;
 
+  # OpenSpec's own skills and opsx slash commands, generated once at build time
+  # rather than by `openspec init` in each repository. `init` is a project
+  # bootstrap, but these artifacts are identical across projects for a given
+  # openspec version and schema, so running it per repo yields N copies that
+  # drift apart as the pin moves. Generating here makes the flake pin the only
+  # source, and lets the skills reach a repository that was never initialised.
+  #
+  # A local derivation, not an override of the openspec package: it consumes the
+  # CLI, so baking it into that derivation would rebuild the CLI whenever the
+  # generated output changed.
+  #
+  # `--force` and stdin from /dev/null are both load-bearing. Without them
+  # `openspec init` reaches its legacy-cleanup prompt, and with no TTY it blocks
+  # forever instead of failing, which presents as a build that never finishes.
+  # `timeout` turns any future prompt into a failed build rather than a hung one.
+  openspecSkills =
+    pkgs.runCommand "openspec-skills"
+      {
+        nativeBuildInputs = [
+          pkgs.git
+          pkgs.openspec
+          pkgs.coreutils
+        ];
+      }
+      ''
+        export HOME="$TMPDIR/home"
+        export OPENSPEC_TELEMETRY=0
+        export CI=true
+        mkdir -p "$HOME" work && cd work
+        git init -q .
+        git config user.email nix@localhost
+        git config user.name nix
+        timeout 180 openspec init --tools claude --profile core --force < /dev/null > /dev/null
+
+        # A layout change upstream must fail here, not install nothing quietly.
+        [ -d .claude/skills ] || { echo "openspec init produced no .claude/skills" >&2; exit 1; }
+        [ -d .claude/commands/opsx ] || { echo "openspec init produced no .claude/commands/opsx" >&2; exit 1; }
+
+        mkdir -p $out
+        cp -r .claude/skills $out/skills
+        cp -r .claude/commands/opsx $out/commands
+      '';
+
+  openspecSkillFiles = lib.listToAttrs (
+    map (name: {
+      name = ".claude/skills/${name}/SKILL.md";
+      value.source = "${openspecSkills}/skills/${name}/SKILL.md";
+    }) (builtins.attrNames (builtins.readDir "${openspecSkills}/skills"))
+  );
+
+  # Names are read off the derivation rather than listed here, so a workflow
+  # upstream adds or renames arrives on the next bump with no edit in this file.
+  openspecCommandFiles = lib.listToAttrs (
+    map (file: {
+      name = ".claude/commands/opsx/${file}";
+      value.source = "${openspecSkills}/commands/${file}";
+    }) (builtins.attrNames (builtins.readDir "${openspecSkills}/commands"))
+  );
+
   # The spec-driven schema, installed to openspec's user schema directory rather
   # than baked into the CLI derivation. `openspec schema which spec-driven`
   # reports this path shadowing the package's built-in of the same name, so
@@ -261,6 +320,8 @@ in
     skillFiles
     // skillScriptFiles
     // specutilSkillFiles
+    // openspecSkillFiles
+    // openspecCommandFiles
     // (vendoredSkillFilesFor ".claude/skills")
     // ampSkillFiles
     // ampSkillScriptFiles
@@ -318,6 +379,7 @@ in
     capture
     notify.script
     notify.agentRefine
+    notify.specPreflight
     notify.stateScript
     notify.promptScript
     notify.focusScript
