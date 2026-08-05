@@ -210,8 +210,15 @@ in
       tui = "fullscreen";
 
       # Documented control (Boolean, default true, min v2.1.119). Set explicitly
-      # for intent. `autoCompactWindow` (undocumented; no tunable threshold
-      # exists) and `autoDreamEnabled` (absent from docs) were removed.
+      # for intent. Verified live: the 2.1.220 bundle reads this key.
+      #
+      # A previous comment here claimed `autoCompactWindow` was undocumented with
+      # "no tunable threshold". That was wrong. The bundle validates it as
+      # `z.number().int().min(1e5).max(1e6).optional()`, an explicit token window,
+      # and feeds it to the arm-fraction computation that decides when compaction
+      # fires. It is left unset deliberately, not for lack of a knob: unset lets
+      # the window follow the model's context size, and pinning one number would
+      # be wrong for every model but the one it was chosen for.
       autoCompactEnabled = true;
 
       # Suppress "N servers need authentication" for unused claude.ai integrations.

@@ -52,13 +52,12 @@ in
 
     prePatch = "cp ${pnpmLock} pnpm-lock.yaml";
 
-    # No postPatch. This schema IS `spec-driven`: it replaces the built-in
-    # directory rather than sitting beside it under another name. Before this the
-    # overlay patched six hardcoded `'spec-driven'` sites across the prebuilt
-    # dist/ so a differently-named schema could be the default, and every one was
-    # a `--replace-fail` waiting for an upstream rename to break the build.
-    # Owning the name deletes that class of breakage; upstream's resolution order
-    # (CLI flag, change metadata, config.yaml, default) is left alone.
+    # No postPatch and no schema copy. The schema is NOT packaged here: it is
+    # installed to ~/.local/share/openspec/schemas/spec-driven by home-manager,
+    # where `openspec schema which` reports it shadowing the package's built-in of
+    # the same name. Keeping it in the overlay meant every template edit rebuilt
+    # openspec from source through pnpm, minutes per one-line change, for a file
+    # the CLI reads at runtime and never compiles against.
 
     buildPhase = ''
       runHook preBuild
@@ -70,8 +69,6 @@ in
       runHook preInstall
       mkdir -p $out/lib/openspec $out/bin
       cp -r . $out/lib/openspec/
-      rm -rf $out/lib/openspec/schemas/spec-driven
-      cp -r ${./spec-driven} $out/lib/openspec/schemas/spec-driven
       makeWrapper ${final.nodejs}/bin/node $out/bin/openspec \
         --add-flags "$out/lib/openspec/bin/openspec.js"
       runHook postInstall

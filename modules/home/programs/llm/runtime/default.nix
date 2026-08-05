@@ -274,6 +274,19 @@ let
     text = builtins.readFile ./diffnote.sh;
   };
 
+  # Periodic refinement of the durable half of the harness (see agent-refine.sh).
+  # Proposes; never applies.
+  agentRefine = pkgs.writeShellApplication {
+    name = "agent-refine";
+    runtimeInputs = [
+      pkgs.coreutils
+      pkgs.jq
+      pkgs.findutils
+      pkgs.gnugrep
+    ];
+    text = builtins.readFile ./agent-refine.sh;
+  };
+
   syGate = pkgs.writeShellApplication {
     name = "sy";
     # fzf so the gate can run the picker itself for a bare `sy delete`; without it
@@ -314,6 +327,7 @@ in
     sessionsScript
     syGate
     diffNote
+    agentRefine
     ;
 
   # Absolute paths used inside harness hook commands.

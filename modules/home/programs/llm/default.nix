@@ -29,6 +29,33 @@ let
     name: path: lib.nameValuePair ".claude/skills/${name}/SKILL.md" { source = path; }
   ) inputs.specutil.lib.skills;
 
+  # The spec-driven schema, installed to openspec's user schema directory rather
+  # than baked into the CLI derivation. `openspec schema which spec-driven`
+  # reports this path shadowing the package's built-in of the same name, so
+  # owning the name needs no patching of upstream at all.
+  #
+  # Written through `xdg.dataFile`, not `home.file` with a literal
+  # `.local/share`: openspec resolves its user schema directory from
+  # XDG_DATA_HOME when that is set, and modules/home/default.nix exports it from
+  # `config.xdg.dataHome`. Hardcoding the default path would silently install to
+  # the wrong place the moment that option moved.
+  #
+  # Enumerated file by file, never as a directory `source`. openspec's schema
+  # discovery skips a symlinked schema directory, so a single recursive entry
+  # installs a schema it then refuses to list. Per-file entries make home-manager
+  # create real directories and symlink only the leaves.
+  openspecSchemaRoot = ./openspec-schema;
+  openspecSchemaFiles = lib.listToAttrs (
+    map (relPath: {
+      name = "openspec/schemas/spec-driven/${relPath}";
+      value.source = openspecSchemaRoot + "/${relPath}";
+    }) (
+      map (f: lib.removePrefix "${toString openspecSchemaRoot}/" (toString f)) (
+        lib.filesystem.listFilesRecursive openspecSchemaRoot
+      )
+    )
+  );
+
   # Upstream ast-grep skills, vendored from the pinned `ast-grep-skills` input.
   # Installed verbatim: these are the tool author's own guides, so restating
   # them in skills/ would be the drift this repo's sync rules exist to prevent.
@@ -225,6 +252,10 @@ in
     ./harnesses
   ];
 
+  # The spec-driven schema. Separate from home.file because it is XDG-rooted;
+  # see openspecSchemaFiles above for why it is enumerated per file.
+  xdg.dataFile = openspecSchemaFiles;
+
   home.file =
     assert assertHarnessCoverage;
     skillFiles
@@ -286,6 +317,7 @@ in
     pkgs.meat
     capture
     notify.script
+    notify.agentRefine
     notify.stateScript
     notify.promptScript
     notify.focusScript

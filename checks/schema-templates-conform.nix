@@ -14,7 +14,7 @@ pkgs.runCommand "schema-templates-conform-check"
     ];
   }
   ''
-    tmpl=${pkgs.openspec}/lib/openspec/schemas/spec-driven/templates
+    tmpl=${../modules/home/programs/llm/openspec-schema}/templates
     root="$TMPDIR/proj"
     change="$root/openspec/changes/probe"
     mkdir -p "$change"
