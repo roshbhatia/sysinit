@@ -554,6 +554,13 @@ let
   # below is structural rather than a literal compared to a copy of itself.
   piThemeName = "stylix";
 
+  # Owner's choice: no prompt on an ordinary command. It is safe to the extent the
+  # DENY rules are, because yoloMode auto-approves `ask` and never `deny`, so the
+  # destructive globs from lib/allowlist.nix remain the guard. formatForPi omits the
+  # allow patterns under yolo for exactly that reason: with nothing to overlap, every
+  # destructive glob is enforced rather than only the subset that could be ordered.
+  yoloMode = true;
+
   piManagedSettings = {
     packages = piPackagePaths;
 
@@ -761,11 +768,12 @@ in
           text = builtins.toJSON {
             debugLog = false;
             permissionReviewLog = true;
-            yoloMode = false;
+            inherit yoloMode;
             permission = llmLib.allowlist.formatForPi {
               allowTiers = llmLib.allowlist.tierA ++ llmLib.allowlist.tierB;
               denyGlobs = llmLib.allowlist.destructiveDenyGlobs;
               mcpTier = llmLib.allowlist.tierMcp;
+              yolo = yoloMode;
             };
           };
           force = true;

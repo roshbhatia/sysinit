@@ -372,11 +372,26 @@ let
     in
     lib.hasPrefix a d || lib.hasPrefix d a;
 
+  # `yolo` is not a cosmetic flag here, it changes which half of the policy is
+  # load-bearing:
+  #
+  #   yolo = false — `ask` genuinely prompts, so the allow tiers are what keep the
+  #     session usable, and a deny that overlaps an allow has to be dropped because
+  #     ordering cannot be controlled (see `emittedDenies`).
+  #   yolo = true  — the extension auto-approves every `ask`, so ALLOW PATTERNS ARE
+  #     REDUNDANT: unlisted commands are approved regardless. Only `deny` still
+  #     refuses, because yoloMode covers ask and not deny. So the allows are omitted
+  #     entirely, which removes every allow/deny overlap and lets ALL of the
+  #     destructive globs be enforced rather than the disjoint subset.
+  #
+  # Getting this backwards is a real hole, not a style choice: dropping a deny is
+  # only safe while `ask` refuses, and under yolo it does not.
   formatForPi =
     {
       allowTiers,
       denyGlobs,
       mcpTier,
+      yolo,
     }:
     let
       # Only the denies no allow pattern can also match. A deny that overlaps an
@@ -388,7 +403,11 @@ let
       # read-only git reads. The dangerous forms those denies exist for name
       # subcommands that appear in NO tier, so they fall to the `ask` default and
       # still never auto-run. What is lost is a silent refusal, replaced by a prompt.
-      emittedDenies = lib.filter (d: !(lib.any (a: overlaps a d) allowTiers)) denyGlobs;
+      emittedAllows = if yolo then [ ] else allowTiers;
+      emittedMcp = if yolo then [ ] else mcpTier;
+      # With no allows emitted there is nothing for a deny to overlap, so under yolo
+      # every destructive glob is enforced instead of only the disjoint subset.
+      emittedDenies = lib.filter (d: !(lib.any (a: overlaps a d) emittedAllows)) denyGlobs;
       allowEntry = pattern: lib.nameValuePair pattern "allow";
       denyEntry = pattern: lib.nameValuePair pattern "deny";
     in
@@ -402,12 +421,12 @@ let
       bash = {
         "*" = "ask";
       }
-      // builtins.listToAttrs (map allowEntry allowTiers)
+      // builtins.listToAttrs (map allowEntry emittedAllows)
       // builtins.listToAttrs (map denyEntry emittedDenies);
       mcp = {
         "*" = "ask";
       }
-      // builtins.listToAttrs (map allowEntry mcpTier);
+      // builtins.listToAttrs (map allowEntry emittedMcp);
     };
 
   # Claude Code: settings.permissions.allow expects a list of "Bash(<pattern>)"
