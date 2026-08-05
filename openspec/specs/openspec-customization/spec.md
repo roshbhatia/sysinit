@@ -57,17 +57,27 @@ At minimum, the fork MUST encode the following rules into the appropriate templa
 
 ### Requirement: The custom schema resolves from the package
 
-The OpenSpec derivation MUST install `rosh-spec-driven` under its package schema directory. Resolution MUST NOT depend on a project-local schema or an XDG user override.
+The OpenSpec derivation MUST install `rosh-spec-driven` under its package
+schema directory. Resolution MUST NOT depend on a project-local schema or an
+XDG user override.
 
 #### Scenario: Fork resolves outside sysinit
 
-- **WHEN** `openspec schema which rosh-spec-driven` is run from a directory that is not the sysinit repo and has no project-local schema
-- **THEN** it reports the schema with `Source: package`
+- **POLARITY** positive
+- **WHEN** `openspec schema which rosh-spec-driven` runs from a directory that is not the sysinit repo and has no project-local schema
+- **THEN** it reports `Source: package`
 
 #### Scenario: XDG data is empty
 
+- **POLARITY** positive
 - **WHEN** a temporary project uses an empty `XDG_DATA_HOME`
 - **THEN** `openspec new change` still resolves `rosh-spec-driven`
+
+#### Scenario: Package omits the custom schema
+
+- **POLARITY** negative
+- **WHEN** the package output does not contain `rosh-spec-driven/schema.yaml`
+- **THEN** the default-schema check fails
 
 ### Requirement: Bare init and resolution default to the fork
 
@@ -146,3 +156,20 @@ The determination of whether a change "has external-factual claims" is a review-
 - **POLARITY** negative
 - **WHEN** a bump's prose asserts a fact about the version (for example "the first release with fix X") not attested by the sha256
 - **THEN** that prose is in the claim class and the review gate requires a `citations.lock` record for it
+
+### Requirement: Proposals name the human-owned decision
+
+Every proposal MUST state which judgment remains with the owner. Automation
+evidence and model critique MUST NOT represent that approval.
+
+#### Scenario: Proposal states the owner judgment
+
+- **POLARITY** positive
+- **WHEN** a proposal is ready for review
+- **THEN** its Behavior section names the human-owned decision
+
+#### Scenario: Automation claims the decision
+
+- **POLARITY** negative
+- **WHEN** a proposal treats a passing command or model verdict as owner approval
+- **THEN** review rejects the proposal

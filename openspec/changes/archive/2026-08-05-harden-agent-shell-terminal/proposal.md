@@ -1,3 +1,11 @@
+## Archive Status
+
+The owner abandoned this change during OpenSpec housekeeping on 2026-08-05.
+
+Thirty-four of 76 tasks were complete. The unchecked tasks remain unchanged.
+This archive does not promote its delta specifications to `openspec/specs/`.
+A later focused change can reconcile delivered behavior with canonical specs.
+
 ## Why
 
 The agent, shell, and WezTerm surfaces carry roughly 8,500 lines of authored

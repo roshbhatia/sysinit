@@ -61,3 +61,20 @@ The Claude Code context file MUST be generated as a regular file (`~/.claude/CLA
 - **WHEN** the build is run
 - **THEN** `~/.claude/CLAUDE.md` is a regular generated file
 - **AND** it contains the shared responsibility contract
+
+### Requirement: Global contexts state the responsibility contract
+
+Every generated global context MUST state human ownership, evidence before
+handoff, independent maintainability, and the limit of model review.
+
+#### Scenario: A harness receives global context
+
+- **POLARITY** positive
+- **WHEN** any covered harness context is evaluated
+- **THEN** it contains every required responsibility rule
+
+#### Scenario: A responsibility rule is missing
+
+- **POLARITY** negative
+- **WHEN** a rendered context omits a required responsibility rule
+- **THEN** evaluation fails with the harness and missing rule named
