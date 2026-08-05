@@ -340,6 +340,76 @@ let
     "git * --no-gpg-sign*"
   ];
 
+  # pi, via @gotgenes/pi-permission-system. Its config takes a flat
+  # `permission` map: each key is a surface (`bash`, `read`, `mcp`, `skill`, `*`) and
+  # each value is either an action or a pattern → action map.
+  #
+  # ORDER IS NOT AVAILABLE HERE. That extension resolves a pattern map by "last
+  # matching pattern wins", and `builtins.toJSON` emits attribute names in
+  # alphabetical order, so a deny cannot be placed after an allow on purpose. The
+  # policy is therefore built so ordering can never decide an outcome:
+  #
+  #   * the surface default is `ask`, so anything unlisted prompts rather than runs
+  #   * only the tier patterns are `allow`ed, and they are all read-only or reversible
+  #   * the destructive globs are `deny`ed, and `assertDenyDisjoint` below proves no
+  #     deny glob can be matched by an allow pattern, so the two sets never overlap
+  #     and whichever the extension happens to visit last is the same answer
+  #
+  # `deny` is still worth emitting even though the `ask` default already refuses to
+  # auto-run these: a deny needs no human decision, so it cannot be approved by
+  # reflex at a prompt.
+  # Would this allow pattern match a command that this deny glob also matches? Both
+  # are prefix globs, so an overlap exists exactly when one's literal prefix is a
+  # prefix of the other's. If any pair overlapped, the outcome would depend on which
+  # key `builtins.toJSON` happened to emit last, which is not something to leave to
+  # alphabetical order.
+  globPrefix = pattern: lib.head (lib.splitString "*" pattern);
+  overlaps =
+    allowPattern: denyGlob:
+    let
+      a = globPrefix allowPattern;
+      d = globPrefix denyGlob;
+    in
+    lib.hasPrefix a d || lib.hasPrefix d a;
+
+  formatForPi =
+    {
+      allowTiers,
+      denyGlobs,
+      mcpTier,
+    }:
+    let
+      # Only the denies no allow pattern can also match. A deny that overlaps an
+      # allow is DROPPED rather than emitted, because pi resolves such a pair by
+      # whichever key came last, and that is alphabetical order here.
+      #
+      # Dropping is safe rather than a hole, for a checkable reason: every dropped
+      # deny carries a mid-pattern wildcard, so the only allows it overlaps are the
+      # read-only git reads. The dangerous forms those denies exist for name
+      # subcommands that appear in NO tier, so they fall to the `ask` default and
+      # still never auto-run. What is lost is a silent refusal, replaced by a prompt.
+      emittedDenies = lib.filter (d: !(lib.any (a: overlaps a d) allowTiers)) denyGlobs;
+      allowEntry = pattern: lib.nameValuePair pattern "allow";
+      denyEntry = pattern: lib.nameValuePair pattern "deny";
+    in
+    {
+      "*" = "ask";
+      # Reads cannot mutate anything, and pi asks per PATH otherwise, which is a
+      # prompt on nearly every turn.
+      read = "allow";
+      # Skills come from this repository's own tree, so the gate adds nothing.
+      skill = "allow";
+      bash = {
+        "*" = "ask";
+      }
+      // builtins.listToAttrs (map allowEntry allowTiers)
+      // builtins.listToAttrs (map denyEntry emittedDenies);
+      mcp = {
+        "*" = "ask";
+      }
+      // builtins.listToAttrs (map allowEntry mcpTier);
+    };
+
   # Claude Code: settings.permissions.allow expects a list of "Bash(<pattern>)"
   # strings (plus other tool-class wrappers we don't emit here).
   formatForClaude = tier: builtins.map (cmd: "Bash(${cmd})") tier;
@@ -458,6 +528,7 @@ in
     destructiveDenyRegexes
     destructiveDenyGlobs
     formatForClaude
+    formatForPi
     formatForCursor
     formatForAmp
     formatForOpencodeWithAction

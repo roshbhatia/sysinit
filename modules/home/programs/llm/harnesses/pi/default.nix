@@ -749,6 +749,28 @@ in
           text = stylixTheme;
           force = true;
         };
+        # pi's permission gate, rendered from the SAME lib/allowlist.nix every other
+        # harness reads. Before this it was a hand-written file carrying
+        # `yoloMode: true`, which auto-approved every ask-state check, so pi was the
+        # one harness with no gate at all and the allowlist tiers reached it not.
+        #
+        # `yoloMode = false` is the substantive change here: commands outside the
+        # tiers now prompt instead of running. That is the point, and it is the one
+        # setting to flip back if a prompt storm gets in the way.
+        ".pi/agent/extensions/pi-permission-system/config.json" = {
+          text = builtins.toJSON {
+            debugLog = false;
+            permissionReviewLog = true;
+            yoloMode = false;
+            permission = llmLib.allowlist.formatForPi {
+              allowTiers = llmLib.allowlist.tierA ++ llmLib.allowlist.tierB;
+              denyGlobs = llmLib.allowlist.destructiveDenyGlobs;
+              mcpTier = llmLib.allowlist.tierMcp;
+            };
+          };
+          force = true;
+        };
+
         # Disable write/edit overrides in pi-tool-display so pi-diff owns them.
         ".pi/agent/extensions/pi-tool-display/config.json" = {
           text = builtins.toJSON {
