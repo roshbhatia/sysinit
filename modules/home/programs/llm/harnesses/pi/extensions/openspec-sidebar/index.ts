@@ -27,8 +27,18 @@ interface Tui {
   requestRender?(): void;
 }
 
+interface FooterData {
+  getGitBranch(): string | null;
+  getExtensionStatuses(): ReadonlyMap<string, string>;
+  getCwd?(): string;
+  getProvider?(): string | undefined;
+  getThinkingLevel?(): string | undefined;
+  onBranchChange(listener: () => void): () => void;
+}
+
 interface WidgetUi {
   setWidget(id: string, factory: (tui: Tui, theme: Theme) => { dispose(): void; invalidate(): void; render(width: number): string[] }, options: { placement: "belowEditor" }): void;
+  setFooter?(factory: ((tui: Tui, theme: Theme, footerData: FooterData) => { dispose?: () => void; invalidate(): void; render(width: number): string[] }) | undefined): void;
   notify?(message: string, level: "info" | "warning"): void;
 }
 
@@ -76,6 +86,14 @@ interface SessionData {
   turns: number;
   startedAt: number;
   activeTool: { name: string; startedAt: number } | null;
+  branch: string | null;
+  cwd: string | null;
+  provider: string | null;
+  thinking: string | null;
+  // Extension statuses, minus the editor mode. The mode is the one thing that stays
+  // in the footer, because it changes on every keystroke and belongs next to the
+  // cursor rather than in a panel refreshed on a timer.
+  statuses: string[];
 }
 
 let enabled = true;
@@ -125,7 +143,9 @@ function runGit(cwd: string, args: string[]): string { try { return execFileSync
 function getWorkspace(cwd: string | undefined): WorkspaceData { const empty: WorkspaceData = { isRepo: false, files: [] }; if (!cwd) return empty; if (workspaceCache && Date.now() - workspaceCache.at < 2_000) return workspaceCache.data; if (!runGit(cwd, ["rev-parse", "--git-dir"])) return empty; const files = runGit(cwd, ["diff", "--numstat", "HEAD"]).split("\n").flatMap((line) => { const [added, removed, path] = line.split("\t"); const plus = Number.parseInt(added ?? "", 10); const minus = Number.parseInt(removed ?? "", 10); return Number.isFinite(plus) && Number.isFinite(minus) && path ? [{ path, added: plus, removed: minus }] : []; }).sort((left, right) => right.added + right.removed - left.added - left.removed).slice(0, 15); const data: WorkspaceData = { isRepo: true, files }; workspaceCache = { data, at: Date.now() }; return data; }
 function invalidateWorkspace(): void { workspaceCache = undefined; }
 
-function renderSession(session: SessionData, theme: Theme, width: number): string[] { const lines = panelHeader(theme, "Session", width); lines.push(dim(theme, `  ${truncate(session.title ?? "(waiting for first message…)", Math.max(1, width - 2))}`)); if (session.id) lines.push(dim(theme, `  ${session.id}`)); lines.push(""); lines.push(dim(theme, "  model ") + style(theme, session.model ? "accent" : "muted", truncate(session.model ?? "—", Math.max(1, width - 8)))); if (session.contextPercent !== null) lines.push(dim(theme, "  ctx   ") + style(theme, session.contextPercent > 90 ? "warning" : "text", `${formatTokens(session.contextTokens ?? 0)} / ${formatTokens(session.contextWindow ?? 0)} (${session.contextPercent.toFixed(1)}%)`)); else lines.push(dim(theme, "  ctx   —")); if (session.activeTool) lines.push(dim(theme, "  tool  ") + style(theme, "accent", `${truncate(session.activeTool.name, Math.max(1, width - 16))} (${formatDuration(Date.now() - session.activeTool.startedAt)})`)); lines.push(""); const total = session.tokensIn + session.tokensOut + session.cacheRead + session.cacheWrite; lines.push(dim(theme, `  time  ${formatDuration(Date.now() - session.startedAt)}   turns ${session.turns || "—"}`)); lines.push(dim(theme, `  in    ${formatTokens(session.tokensIn)}   out   ${formatTokens(session.tokensOut)}`)); lines.push(dim(theme, `  total ${formatTokens(total)}   cost  ${session.cost > 0 ? `$${session.cost.toFixed(3)}` : "—"}`)); return lines; }
+// The footer's facts live here now: cwd, branch, provider, thinking level, and the
+// extension statuses. `setFooter` below keeps only the editor mode.
+function renderSession(session: SessionData, theme: Theme, width: number): string[] { const lines = panelHeader(theme, "Session", width); lines.push(dim(theme, `  ${truncate(session.title ?? "(waiting for first message…)", Math.max(1, width - 2))}`)); if (session.id) lines.push(dim(theme, `  ${session.id}`)); if (session.cwd) { const where = session.branch ? `${session.cwd} (${session.branch})` : session.cwd; lines.push(dim(theme, `  ${truncate(where, Math.max(1, width - 2))}`)); } lines.push(""); lines.push(dim(theme, "  model ") + style(theme, session.model ? "accent" : "muted", truncate(session.model ?? "—", Math.max(1, width - 8)))); if (session.provider || session.thinking) lines.push(dim(theme, "  via   ") + dim(theme, truncate([session.provider, session.thinking].filter(Boolean).join(" · "), Math.max(1, width - 8)))); if (session.contextPercent !== null) lines.push(dim(theme, "  ctx   ") + style(theme, session.contextPercent > 90 ? "warning" : "text", `${formatTokens(session.contextTokens ?? 0)} / ${formatTokens(session.contextWindow ?? 0)} (${session.contextPercent.toFixed(1)}%)`)); else lines.push(dim(theme, "  ctx   —")); if (session.activeTool) lines.push(dim(theme, "  tool  ") + style(theme, "accent", `${truncate(session.activeTool.name, Math.max(1, width - 16))} (${formatDuration(Date.now() - session.activeTool.startedAt)})`)); lines.push(""); const total = session.tokensIn + session.tokensOut + session.cacheRead + session.cacheWrite; lines.push(dim(theme, `  time  ${formatDuration(Date.now() - session.startedAt)}   turns ${session.turns || "—"}`)); lines.push(dim(theme, `  in    ${formatTokens(session.tokensIn)}   out   ${formatTokens(session.tokensOut)}`)); lines.push(dim(theme, `  total ${formatTokens(total)}   cost  ${session.cost > 0 ? `$${session.cost.toFixed(3)}` : "—"}`)); if (session.statuses.length > 0) { lines.push(""); for (const status of session.statuses) lines.push(dim(theme, `  ${truncate(status, Math.max(1, width - 2))}`)); } return lines; }
 function renderOpenSpec(state: SidebarState, theme: Theme, width: number): string[] { if (state.unavailable) return []; const summary = state.otherCount > 0 ? `+${state.otherCount} more` : ""; const lines = summaryHeader(theme, "OpenSpec", summary, width); const change = state.active; if (!change) return [...lines, dim(theme, "  no active changes")]; lines.push(style(theme, "text", ` ${truncate(change.name, Math.max(1, width - 2))}`)); if (change.totalTasks !== undefined && change.completedTasks !== undefined) lines.push(dim(theme, "   tasks ") + style(theme, change.completedTasks === change.totalTasks ? "success" : "warning", `${change.completedTasks}/${change.totalTasks}`)); for (const artifact of change.artifacts) lines.push(dim(theme, `   ${artifact.id.padEnd(9)}`) + style(theme, artifact.status === "complete" ? "success" : artifact.status === "blocked" ? "error" : "warning", artifact.status)); return lines; }
 function renderSubagents(subagents: SubagentEntry[], theme: Theme, width: number): string[] { const completed = subagents.filter((agent) => agent.status === "completed").length; if (subagents.length === 0) return []; const lines = summaryHeader(theme, "Subagents", `${completed}/${subagents.length}`, width); for (const agent of subagents) { const color = agent.status === "completed" ? "success" : agent.status === "failed" ? "warning" : "accent"; const glyph = agent.status === "completed" ? "✓" : agent.status === "failed" ? "✗" : "●"; lines.push(style(theme, color, glyph) + " " + style(theme, color, truncate(agent.name, Math.max(1, width - 2)))); const elapsed = (agent.completedAt ?? Date.now()) - agent.startedAt; lines.push(dim(theme, `  ${agent.status} (${formatDuration(elapsed)})`)); lines.push(dim(theme, `  ${agent.turns} turns · ${agent.toolCount} tools · ${formatTokens(agent.tokens)} tokens`)); for (const entry of agent.toolLog.slice(-3)) lines.push(dim(theme, `  ${truncate(entry, Math.max(1, width - 2))}`)); } return lines; }
 function renderWorkspace(workspace: WorkspaceData, theme: Theme, width: number): string[] { if (!workspace.isRepo) return []; const added = workspace.files.reduce((sum, file) => sum + file.added, 0); const removed = workspace.files.reduce((sum, file) => sum + file.removed, 0); const summary = workspace.files.length === 0 ? "clean" : `${workspace.files.length} file${workspace.files.length === 1 ? "" : "s"}  +${added} -${removed}`; const lines = summaryHeader(theme, "Changes", summary, width); if (workspace.files.length === 0) return lines; for (const file of workspace.files) { const stat = `+${file.added}${file.removed > 0 ? ` -${file.removed}` : ""}`; lines.push(" " + truncate(file.path, Math.max(1, width - stat.length - 2)) + " " + style(theme, "success", stat)); } return lines; }
@@ -144,7 +164,7 @@ export default function (pi: ExtensionAPI): void {
   let timer: ReturnType<typeof setInterval> | undefined;
   const subagents = new Map<string, SubagentEntry>();
   let activeSubagentId: string | undefined;
-  let session: SessionData = { title: null, id: null, model: null, contextTokens: null, contextPercent: null, contextWindow: null, tokensIn: 0, tokensOut: 0, cacheRead: 0, cacheWrite: 0, cost: 0, turns: 0, startedAt: Date.now(), activeTool: null };
+  let session: SessionData = { title: null, id: null, model: null, contextTokens: null, contextPercent: null, contextWindow: null, tokensIn: 0, tokensOut: 0, cacheRead: 0, cacheWrite: 0, cost: 0, turns: 0, startedAt: Date.now(), activeTool: null, branch: null, cwd: null, provider: null, thinking: null, statuses: [] };
   const lines = (): string[] => theme
     ? renderSidebar(latestState, session, [...subagents.values()], currentContext?.cwd, theme, sidebarWidth)
     : [];
@@ -153,7 +173,42 @@ export default function (pi: ExtensionAPI): void {
   const update = async (ctx: ExtensionContext): Promise<void> => { currentContext = runtimeContext(ctx); updateUsage(currentContext); latestState = await refresh(pi); compositor?.paint(); };
   const redraw = (): void => { compositor?.paint(); requestRender?.(); };
 
-  pi.on("session_start", async (_event, ctx) => { currentContext = runtimeContext(ctx); const manager = currentContext.sessionManager; session = { title: manager?.getSessionName?.() ?? null, id: manager?.getSessionId?.() ?? null, model: null, contextTokens: null, contextPercent: null, contextWindow: null, tokensIn: 0, tokensOut: 0, cacheRead: 0, cacheWrite: 0, cost: 0, turns: 0, startedAt: Date.now(), activeTool: null }; subagents.clear(); activeSubagentId = undefined; updateUsage(currentContext); if (timer) clearInterval(timer); timer = setInterval(redraw, 30_000); if (!currentContext.hasUI || !currentContext.ui) return; await update(ctx); currentContext.ui.setWidget(SIDEBAR_ID, (nextTui, nextTheme) => { tui = nextTui; theme = nextTheme; requestRender = () => nextTui.requestRender?.(); installCompositor(); return { dispose() { compositor?.dispose(); compositor = undefined; tui = undefined; theme = undefined; requestRender = undefined; }, invalidate() {}, render() { return []; } }; }, { placement: "belowEditor" }); });
+  pi.on("session_start", async (_event, ctx) => { currentContext = runtimeContext(ctx); const manager = currentContext.sessionManager; session = { title: manager?.getSessionName?.() ?? null, id: manager?.getSessionId?.() ?? null, model: null, contextTokens: null, contextPercent: null, contextWindow: null, tokensIn: 0, tokensOut: 0, cacheRead: 0, cacheWrite: 0, cost: 0, turns: 0, startedAt: Date.now(), activeTool: null, branch: null, cwd: null, provider: null, thinking: null, statuses: [] }; subagents.clear(); activeSubagentId = undefined; updateUsage(currentContext); if (timer) clearInterval(timer); timer = setInterval(redraw, 30_000); if (!currentContext.hasUI || !currentContext.ui) return; await update(ctx); currentContext.ui.setWidget(SIDEBAR_ID, (nextTui, nextTheme) => { tui = nextTui; theme = nextTheme; requestRender = () => nextTui.requestRender?.(); installCompositor(); installFooter(runtimeContext(ctx)); return { dispose() { compositor?.dispose(); compositor = undefined; tui = undefined; theme = undefined; requestRender = undefined; currentContext?.ui?.setFooter?.(undefined); }, invalidate() {}, render() { return []; } }; }, { placement: "belowEditor" }); });
+  // The footer used to restate what this sidebar already shows (cwd, branch, cost,
+  // context, provider, model, thinking) and then add the extension statuses on top.
+  // Replaced with one line carrying only the EDITOR MODE, which changes on every
+  // keystroke and belongs beside the cursor rather than in a panel on a 30s timer.
+  // Everything else is read off footerData and rendered in the Session panel.
+  //
+  // `getCwd`, `getProvider`, and `getThinkingLevel` are optional in this shim: they
+  // exist on the installed build but are not in the documented footerData surface,
+  // so a build that drops one degrades to a missing row instead of a crash.
+  const MODE_STATUS_KEYS = ["modal-editor", "mode", "vim"];
+  const isModeKey = (key: string): boolean => MODE_STATUS_KEYS.some((m) => key.toLowerCase().includes(m));
+  const installFooter = (runtime: RuntimeContext): void => {
+    if (!runtime.ui?.setFooter) return;
+    runtime.ui.setFooter((nextTui, _nextTheme, footerData) => {
+      const unsubscribe = footerData.onBranchChange(() => nextTui.requestRender?.());
+      return {
+        dispose: unsubscribe,
+        invalidate() {},
+        render(): string[] {
+          session.branch = footerData.getGitBranch();
+          const cwd = footerData.getCwd?.();
+          const home = process.env["HOME"] ?? "";
+          session.cwd = cwd ? (home && cwd.startsWith(home) ? "~" + cwd.slice(home.length) : cwd) : null;
+          session.provider = footerData.getProvider?.() ?? null;
+          session.thinking = footerData.getThinkingLevel?.() ?? null;
+          const statuses = [...footerData.getExtensionStatuses().entries()];
+          session.statuses = statuses.filter(([k]) => !isModeKey(k)).map(([, t]) => t).filter((t) => t.trim().length > 0);
+          compositor?.paint();
+          const mode = statuses.find(([k]) => isModeKey(k));
+          return [mode ? mode[1] : ""];
+        },
+      };
+    });
+  };
+
   pi.on("session_shutdown", () => { if (timer) clearInterval(timer); timer = undefined; });
   pi.on("before_agent_start", (event, ctx) => { currentContext = runtimeContext(ctx); const prompt = eventRecord(event).prompt; if (!session.title && typeof prompt === "string") session.title = truncate(prompt.split("\n")[0].trim(), 60); updateUsage(currentContext); redraw(); });
   pi.on("tool_call", (event, ctx) => { currentContext = runtimeContext(ctx); const details = eventRecord(event); const toolName = typeof details.toolName === "string" ? details.toolName : ""; const toolCallId = typeof details.toolCallId === "string" ? details.toolCallId : toolName; if (SUBAGENT_TOOL_PATTERN.test(toolName)) { const input = eventRecord(details.input); const name = [input.name, input.title, input.description, input.task].find((value): value is string => typeof value === "string") ?? "subagent"; subagents.set(toolCallId, { id: toolCallId, name: name.split("\n")[0].slice(0, 60), status: "running", startedAt: Date.now(), turns: 0, toolCount: 0, tokens: 0, toolLog: [] }); activeSubagentId = toolCallId; } else if (activeSubagentId) { const agent = subagents.get(activeSubagentId); if (agent) { agent.toolLog.push(`${toolName}: ${typeof details.input === "string" ? details.input.slice(0, 40) : ""}`); if (agent.toolLog.length > TOOL_LOG_MAX) agent.toolLog.shift(); agent.toolCount++; } } redraw(); });

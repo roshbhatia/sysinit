@@ -1,12 +1,12 @@
 {
   "name": "taskplane",
-  "version": "0.30.0",
+  "version": "0.30.4",
   "lockfileVersion": 3,
   "requires": true,
   "packages": {
     "": {
       "name": "taskplane",
-      "version": "0.30.0",
+      "version": "0.30.4",
       "license": "MIT",
       "dependencies": {
         "jiti": "^2.6.1",
@@ -110,6 +110,9 @@
         "arm64"
       ],
       "dev": true,
+      "libc": [
+        "glibc"
+      ],
       "license": "MIT OR Apache-2.0",
       "optional": true,
       "os": [
@@ -127,6 +130,9 @@
         "arm64"
       ],
       "dev": true,
+      "libc": [
+        "musl"
+      ],
       "license": "MIT OR Apache-2.0",
       "optional": true,
       "os": [
@@ -144,6 +150,9 @@
         "x64"
       ],
       "dev": true,
+      "libc": [
+        "glibc"
+      ],
       "license": "MIT OR Apache-2.0",
       "optional": true,
       "os": [
@@ -161,6 +170,9 @@
         "x64"
       ],
       "dev": true,
+      "libc": [
+        "musl"
+      ],
       "license": "MIT OR Apache-2.0",
       "optional": true,
       "os": [
@@ -205,16 +217,16 @@
       }
     },
     "node_modules/@sinclair/typebox": {
-      "version": "0.34.49",
-      "resolved": "https://registry.npmjs.org/@sinclair/typebox/-/typebox-0.34.49.tgz",
-      "integrity": "sha512-brySQQs7Jtn0joV8Xh9ZV/hZb9Ozb0pmazDIASBkYKCjXrXU3mpcFahmK/z4YDhGkQvP9mWJbVyahdtU5wQA+A==",
+      "version": "0.34.52",
+      "resolved": "https://registry.npmjs.org/@sinclair/typebox/-/typebox-0.34.52.tgz",
+      "integrity": "sha512-XiMQh7qqVlxZzcVD+kkGMNGMzcTrDMLWI7S4x7z1MkCkbDPrekpZXEUK0eZqZFMuHQg2a2DZOcDIh9o5v3Gonw==",
       "license": "MIT",
       "peer": true
     },
     "node_modules/@types/node": {
-      "version": "22.19.19",
-      "resolved": "https://registry.npmjs.org/@types/node/-/node-22.19.19.tgz",
-      "integrity": "sha512-dyh/xO2Fh5bYrfWaaqGrRQQGkNdmYw6AmaAUvYeUMNTWQtvb796ikLdmTchRmOlOiIJ1TDXfWgVx1QkUlQ6Hew==",
+      "version": "22.20.1",
+      "resolved": "https://registry.npmjs.org/@types/node/-/node-22.20.1.tgz",
+      "integrity": "sha512-EANqOCF9QFyra+4pfxUcX9STKJpCLjMbObVzljIJomAWSnuSIEAvyzEU53GaajbXJEgdh0iEcPL+DGvpUd4k1Q==",
       "dev": true,
       "license": "MIT",
       "dependencies": {

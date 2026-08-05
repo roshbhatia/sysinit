@@ -396,8 +396,8 @@ let
     # taskplane: parallel task orchestration with checkpoint discipline.
     # Maps onto openspec apply phases for multi-step changes.
     taskplane =
-      mkBuiltNpmPackage "taskplane" "0.30.0" "sha256-J2dGslYCL39fPbvvCFVnRI07lEBHy5d4h+ZZHPlNIrM="
-        "sha256-rbCUAJ0HBgnTIxjWhzBhver9lGdDDOngCin7W3Z6tm4="
+      mkBuiltNpmPackage "taskplane" "0.30.4" "sha256-yc8UHHAL1qTGsc9b6tiBxCZv8LGGrfXgdDDh47HvuUc="
+        "sha256-ywPPwjMmPqI1KUaFzS6OPRE5ydmafLJfjUBKMWsxpgs="
         ./locks/taskplane.lock.json;
 
     # @plannotator/pi-extension: interactive plan review with inline
@@ -566,6 +566,13 @@ let
     # Pi implements the Agent Skills standard and its own docs/skills.md gives
     # this exact array as the way to reuse another harness's tree. Without it,
     # pi advertised a skills root in its context that it could not load from.
+    #
+    # ONE root, deliberately. pi ALSO loads `~/.agents/skills` unconditionally
+    # (docs/skills.md lists it as a global location and offers no way to turn it
+    # off), so any skill present in both roots collided and pi skipped one copy,
+    # reporting e.g. `"linear-project-update" collision`. The fix is upstream of
+    # this setting: sysinit.laurel's sync no longer writes `~/.agents/skills`, so
+    # that root is empty and this is the only one with content.
     skills = [ "~/.claude/skills" ];
 
     # nvim-pi is a --clean nvim wrapper, so Ctrl+G opens instantly instead of
