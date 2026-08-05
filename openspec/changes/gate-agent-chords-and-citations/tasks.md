@@ -2,10 +2,24 @@
 
 - **SHAPE** graph
 
-- [ ] 1.1 Inventory every chord-binding layer: `modules/darwin/lib/chords.nix`,
+- [x] 1.1 Inventory every chord-binding layer: `modules/darwin/lib/chords.nix`,
       `keybindings.nix`, wezterm `keybindings.lua` and `ui.lua`, pi extensions and
       `piKeybindings`, neovim keymaps, hammerspoon, sketchybar, zsh ZLE. Record
       which the current check reads and which it does not
+
+      Found. The check reads `reservedChords`, `baseSymbolicHotkeys`, the wezterm
+      lua root, and a hand-written `uiChords` list. Binding-site counts:
+      `ui.lua` 33, `chords.nix` 22, pi `default.nix` 8, wezterm
+      `keybindings.lua` 3, `keybindings.nix` 2, pi extensions 2, neovim 86.
+      hammerspoon, sketchybar, and zsh ZLE bind zero chords, which bounds the
+      work to four real layers, not seven.
+
+      Two gaps, not one. Neovim is the largest surface at 86 sites and is
+      entirely ungated. But `uiChords` declares 11 chords against 33 literals in
+      `ui.lua`, and the check's own comment admits it is kept in step by hand
+      because ui.lua cannot load under the stub. So the existing gate is already
+      partly fictional for a layer it claims to cover. Phase 2 has to fix the
+      extraction, not only widen it.
 - [ ] 1.2 Determine how neovim keymaps can be extracted without loading the full
       config. `checks/lua-parses.nix` already parses them; the chord check needs
       the bound keys, not just parseability `deps:` 1.1

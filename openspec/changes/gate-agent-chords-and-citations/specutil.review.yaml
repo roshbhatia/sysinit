@@ -1,0 +1,78 @@
+version: 1
+change: gate-agent-chords-and-citations
+decision: approved
+change_hash: 41c8bf8027ddacde
+base_commit: a64b7b8ce1116c74cd3a0e0e0cad7d8cec67f018
+items:
+    0c0b2575c3526c1e:
+        hash: a4a6a94a082a579b
+        text: Read `citelock capture` and the `citation-verification` skill, and record the smallest authoring step that pins a claim
+    4e58c1b31b13a163:
+        hash: 0e0db639ce970b57
+        text: 'Adversarial review: whether each new pi command earns its surface, and whether the declared hook order matches observed behaviour'
+    6bb6c660d4aca71b:
+        hash: 43469da078ff233a
+        text: 'Adversarial review: whether a cheap capture path makes unpinned claims rarer, or only makes pinning look done'
+    09e25023dfa1f3b8:
+        hash: e5e902a67b6c46e5
+        text: 'Confirm: the owner runs the new pi commands against a real change and judges whether the write path is worth its surface'
+    13f21052fa8359e3:
+        hash: 8b478d909efcec93
+        text: 'Verify diffnote end to end on a real dirty tree: `ctrl+b` opens the split, pi writes notes through `diffnote apply --stdin`, the store validates, neovim renders them as virt_lines, and `stop()` clears every drawn buffer. `checks/diffnote-roundtrip.nix` covers the CLI, not the chord-to-render path'
+    22a44c319c4b0aec:
+        hash: fe0949a14dc1ebdd
+        text: Confirm whether WezTerm's compose behaviour is detectable from config alone, or whether the check must treat every `alt+<key>` as failing until `send_composed_key_when_left_alt_is_pressed = false` is set
+    23abceebc730a519:
+        hash: 3decf45fac5753f1
+        text: Decide whether the sidebar's OpenSpec panel should link its artifacts via OSC 8, reusing `link()`/`fileUri()` from the Changes panel
+    23b9dad7fec99468:
+        hash: d3e37ba0cca0d2bc
+        text: 'Adversarial review: whether the inventory is complete. A layer missed here is a layer the gate will not cover, which is the defect this change exists to fix'
+    73aa32ad5a7d7b9e:
+        hash: 2484fcbf23d3e162
+        text: 'Decide: the owner rules on `pi-annotated-reply` and `@juicesharp/rpiv-advisor`, whose removal evidence is recorded in `piPackagePaths` comments, and on the stale `mcp-cache.json`'
+    999d72b23ba61499:
+        hash: 322349b4b37aea0f
+        text: 'STOP: mutation-test the check. Reintroduce `alt+s` and the duplicate `<leader>dt` against the committed tree and confirm both fail'
+    9415c1f66efe00c6:
+        hash: e0a5171fc3f4b8ed
+        text: 'Adversarial review: critics attack the fixtures, not the check. A gate that passes because its fixture is wrong is worse than no gate'
+    38830de4e4c781c0:
+        hash: 73558ff06bb825cf
+        text: 'Confirm a change with no external-factual claim stays cheap: no lock file, no new gate output'
+    48754ffd1fbb8f96:
+        hash: 7f57afa502404a6f
+        text: Determine how neovim keymaps can be extracted without loading the full config. `checks/lua-parses.nix` already parses them; the chord check needs the bound keys, not just parseability
+    67852d2cd00b1dec:
+        hash: 91bae10f0db9b298
+        text: Confirm `specutil check` rejects an unpinned external-factual claim, and add the fixture if it does not
+    75976d9a7f2a6c3a:
+        hash: d0468ca4d98b9959
+        text: Declare the `context`-hook order next to `piPackagePaths` and assert the installed set matches it, so the composition is data rather than load-order accident
+    562845ded2d45fbb:
+        hash: ef4e45a2c0b85458
+        text: 'Apply: `nh darwin switch . --update` from the `sysinit.laurel` checkout in a split pane, gated on `nix flake check` and `nix build .#darwinConfigurations.lv426.system` exiting 0'
+    ad2431fa77d338e2:
+        hash: 704068b95053d6ea
+        text: 'Inventory every chord-binding layer: `modules/darwin/lib/chords.nix`, `keybindings.nix`, wezterm `keybindings.lua` and `ui.lua`, pi extensions and `piKeybindings`, neovim keymaps, hammerspoon, sketchybar, zsh ZLE. Record which the current check reads and which it does not'
+    b94c9b374ab87781:
+        hash: be3391453ae4f186
+        text: Register `specutil next` as a pi command returning the runnable subtasks for the active change
+    b251be61a4dc72f6:
+        hash: 8e86ae80dbe69e18
+        text: Extend `modules/darwin/lib/chords.nix` with a pi layer, sourced from the extensions rather than hand-copied, so it cannot drift the way `uiChords` already does
+    bc7e4e92c9368625:
+        hash: 9c2638d74be446c1
+        text: 'Confirm: the owner presses `shift+ctrl+b` and the sidebar toggles, presses `ctrl+b` and reads a left-hand tree explorer, ctrl+clicks a path in the Changes panel and it opens'
+    c5705a07c95c21ca:
+        hash: fdd7306a79046c11
+        text: Add the composing-modifier rule with its reason string
+    dcd0f60ef76ca92d:
+        hash: c31ed3fef5592dbf
+        text: 'Add fixtures: `alt+s` under default compose, `<leader>dt` bound twice, and one accepted overlap. Each must fail or pass for its stated reason, not incidentally'
+    e767e958546bde01:
+        hash: ac43d122b20e1ce2
+        text: Make `citelock capture` reachable from pi as a command, so pinning a claim does not require leaving the session
+    f1446cfbf05e5895:
+        hash: 97b39e80c3e09c7f
+        text: 'Extend `checks/wezterm-chord-collisions.nix` to consume the pi and neovim layers. Rename it: it is no longer WezTerm-specific'
