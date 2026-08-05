@@ -14,6 +14,7 @@
     ./fastfetch.nix
     ./fd.nix
     ./fzf.nix
+    ./gh.nix
     ./git
     ./helix.nix
     ./htop.nix

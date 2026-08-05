@@ -1,5 +1,5 @@
 ---
-description: Writes GitHub PR descriptions in a terse, opinionated style. Delegates body shape to the repo PR template when one exists; falls back to `## Summary` plus an optional ad-hoc validating-changes block. Never mutates an existing checklist. Use when drafting a `gh pr create` body, opening a PR, or when the user says 'PR body' / 'pull request description'.
+description: Writes GitHub PR descriptions in a terse, opinionated style. Delegates body shape to the repo PR template when one exists; falls back to `## Summary` plus an optional ad-hoc validating-changes block. Never mutates an existing checklist. A change carrying more than one reviewable concern is stacked by default, one PR per concern, via the `gh-stack` skill. Use when drafting a `gh pr create` body, opening a PR, or when the user says 'PR body' / 'pull request description'.
 model: haiku
 effort: low
 ---
@@ -16,12 +16,19 @@ Provenance: derived from a personal-OSS corpus of 295 PRs authored before
 ## Decision routing
 
 ```
+Change carries more than one concern?    -> stack it; `gh-stack` skill owns the shape
 Repo has a PR template?                 -> fill it verbatim; add no sections, no checklist items
 No template?                             -> ## Summary + optional ## Validating Changes
 Change tracks an external issue?         -> issue URL alone on line 1, nothing before it
 Behavior hand-verified, not by tests?    -> add the Validating Changes block
 Creating the PR?                          -> gh pr create --web; never auto-submit
 ```
+
+Stacked is the default shape for a change with more than one reviewable concern,
+which is the same rule as one concern per commit. One PR per concern, each based
+on the one below. Route to the `gh-stack` skill for the commands; the body of each
+layer is still written here. A change with one concern is an ordinary PR: a stack
+of one is just a PR.
 
 ## PR title
 
@@ -85,6 +92,10 @@ gh pr create --web \
   --title "<conv-commit-style title>" \
   --body "<body content>"
 ```
+
+For a stack, `gh stack submit` replaces this form and stays owner-gated the same
+way. Each layer gets its own body written by these rules, and only the bottom
+layer carries the issue URL.
 
 `--web` opens the pre-filled web editor so the user reviews, sets labels and
 reviewers, and submits. Never use these by default: `--draft`, `--fill` /
