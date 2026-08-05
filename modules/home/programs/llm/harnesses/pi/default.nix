@@ -683,6 +683,17 @@ let
     }
   );
 
+  # Also on PATH, so the owner can refresh both configs without a switch after pi
+  # discovers a new model.
+  piOpenaiModels = pkgs.writeShellApplication {
+    name = "pi-openai-model-configs";
+    runtimeInputs = [
+      pkgs.jq
+      pkgs.coreutils
+    ];
+    text = builtins.readFile ./openai-model-configs.sh;
+  };
+
 in
 {
   # Pi rewrites settings.json at runtime (session bookkeeping,
@@ -715,11 +726,25 @@ in
     enforce = piKeys.declared;
   };
 
+  # Both @benvargas/pi-openai-* configs carry a list of model ids, so neither is
+  # declared here. A model list in Nix goes stale exactly the way the extensions'
+  # own hardcoded defaults did, and costs a commit per model. piOpenaiModels
+  # regenerates both from pi's live catalog instead; see the script for why.
+  #
+  # Ordered after linkGeneration, unlike the reconciler: an earlier generation may
+  # have left a store symlink at either path, and cleanup has to remove it before
+  # the script writes a real file there.
+  home.activation.piOpenaiModelConfigs = lib.hm.dag.entryAfter [ "linkGeneration" ] ''
+    $DRY_RUN_CMD ${lib.getExe piOpenaiModels} || \
+      echo "pi-openai-models: left the openai model configs untouched; see above. Activation continued." >&2
+  '';
+
   home = {
     packages = [
       piAcp
       piCosts
       nvimPi
+      piOpenaiModels
     ];
 
     file =
