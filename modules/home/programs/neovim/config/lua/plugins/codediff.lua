@@ -19,7 +19,11 @@ return {
             toggle_explorer = "<leader>dt",
           },
           conflict = {
-            accept_incoming = "<leader>dt",
+            -- `di`, not `dt`: `dt` is toggle_explorer above. codediff scopes the two
+            -- keymap groups to different buffers so nothing broke, but one mnemonic
+            -- meaning both "toggle explorer" and "accept incoming" is a trap.
+            -- `di`/`dc`/`db`/`dx` now read as incoming/current/both/discard.
+            accept_incoming = "<leader>di",
             accept_current = "<leader>dc",
             accept_both = "<leader>db",
             discard = "<leader>dx",

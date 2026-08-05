@@ -234,8 +234,12 @@ export default function (pi: ExtensionAPI): void {
 
   pi.registerCommand("openspec-sidebar", { description: "Control OpenSpec sidebar: /openspec-sidebar [on | off | width <N>]", handler: (args, ctx) => { const runtime = runtimeContext(ctx); const [command, value] = (args?.trim() ?? "").split(/\s+/, 2); if (command === "width") { const width = Number.parseInt(value ?? "", 10); if (!Number.isInteger(width) || width < 24 || width > 60) { runtime.ui?.notify?.("Usage: /openspec-sidebar width <24-60>", "warning"); return; } sidebarWidth = width; installCompositor(); redraw(); runtime.ui?.notify?.(`OpenSpec sidebar width ${width}`, "info"); return; } if (command === "on" || command === "off") { setEnabled(command === "on", runtime); return; } if (!command) { setEnabled(!enabled, runtime); return; } runtime.ui?.notify?.("Usage: /openspec-sidebar [on | off | width <24-60>]", "warning"); } });
 
-  // alt+s, the only mnemonic key pi's own table leaves free: ctrl+o and shift+ctrl+o
-  // are both taken twice over (tool expand, tree filter cycling), and ctrl+b already
-  // went to diff-review.
-  pi.registerShortcut("alt+s", { description: "Toggle OpenSpec sidebar", handler: (ctx: ExtensionContext) => { setEnabled(!enabled, runtimeContext(ctx)); } });
+  // Pairs with diff-review's `ctrl+b`: both answer "show me the working tree",
+  // one as a split, one as the sidebar. Not `alt+s`, which reads as the obvious
+  // mnemonic and does not work — WezTerm defaults
+  // `send_composed_key_when_left_alt_is_pressed` to true on macOS and nothing here
+  // overrides it, so left-alt composes (alt+s types ß) instead of sending a chord.
+  // ctrl+o and shift+ctrl+o are each bound twice by pi already (tool expand, tree
+  // filter cycling), which is what pushed this off the mnemonic key in the first place.
+  pi.registerShortcut("shift+ctrl+b", { description: "Toggle OpenSpec sidebar", handler: (ctx: ExtensionContext) => { setEnabled(!enabled, runtimeContext(ctx)); } });
 }
