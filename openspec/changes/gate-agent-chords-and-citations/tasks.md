@@ -20,12 +20,23 @@
       because ui.lua cannot load under the stub. So the existing gate is already
       partly fictional for a layer it claims to cover. Phase 2 has to fix the
       extraction, not only widen it.
-- [ ] 1.2 Determine how neovim keymaps can be extracted without loading the full
+- [x] 1.2 Determine how neovim keymaps can be extracted without loading the full
       config. `checks/lua-parses.nix` already parses them; the chord check needs
       the bound keys, not just parseability `deps:` 1.1
-- [ ] 1.3 Confirm whether WezTerm's compose behaviour is detectable from config
+
+      Answer: do not load at all, read the source text. extract.lua loads
+      keybindings.lua under a stub and that cannot extend to ui.lua, which dies at
+      module scope pulling in tabline, lantern, and workspace-manager. Static
+      extraction covers wezterm lua, neovim lua, and pi TypeScript with one
+      mechanism and no stub per module. It cannot see a chord assembled from
+      variables at runtime, so it is a floor on coverage, not a ceiling.
+- [x] 1.3 Confirm whether WezTerm's compose behaviour is detectable from config
       alone, or whether the check must treat every `alt+<key>` as failing until
       `send_composed_key_when_left_alt_is_pressed = false` is set `deps:` 1.1
+
+      Detectable. The check greps the wezterm lua root for that option set false
+      and lifts the rule when it finds it, so the gate follows the config instead
+      of hardcoding an assumption about macOS.
 - [ ] 1.4 Read `citelock capture` and the `citation-verification` skill, and
       record the smallest authoring step that pins a claim `deps:` 1.1
 - [ ] 1.5 Adversarial review: whether the inventory is complete. A layer missed
@@ -36,19 +47,45 @@
 
 - **SHAPE** graph
 
-- [ ] 2.1 Extend `modules/darwin/lib/chords.nix` with a pi layer, sourced from the
+- [x] 2.1 Extend `modules/darwin/lib/chords.nix` with a pi layer, sourced from the
       extensions rather than hand-copied, so it cannot drift the way `uiChords`
       already does `deps:` 1.1
-- [ ] 2.2 Extend `checks/wezterm-chord-collisions.nix` to consume the pi and
+- [x] 2.2 Extend `checks/wezterm-chord-collisions.nix` to consume the pi and
       neovim layers. Rename it: it is no longer WezTerm-specific `deps:` 2.1, 1.2
-- [ ] 2.3 Add the composing-modifier rule with its reason string `deps:` 2.2, 1.3
-- [ ] 2.4 Add fixtures: `alt+s` under default compose, `<leader>dt` bound twice,
+- [x] 2.3 Add the composing-modifier rule with its reason string `deps:` 2.2, 1.3
+- [x] 2.4 Add fixtures: `alt+s` under default compose, `<leader>dt` bound twice,
       and one accepted overlap. Each must fail or pass for its stated reason, not
       incidentally `deps:` 2.3
-- [ ] 2.5 STOP: mutation-test the check. Reintroduce `alt+s` and the duplicate
+- [x] 2.5 STOP: mutation-test the check. Reintroduce `alt+s` and the duplicate
       `<leader>dt` against the committed tree and confirm both fail `deps:` 2.4
-- [ ] 2.6 Adversarial review: critics attack the fixtures, not the check. A gate
+
+      Five mutations against the committed tree. Caught: `alt+s` reintroduced in
+      pi, pi binding the reserved `cmd+space`, pi binding one chord twice, and
+      breaking the load-bearing extraction pattern. NOT caught at first: breaking
+      the `registerShortcut` pattern, because the generic literal pattern covers
+      the same chords and the pi floor of 2 was slack enough to absorb it. Floors
+      raised to just under the real counts (12/93/3) and the mutation then failed
+      correctly. A slack floor tests nothing.
+- [x] 2.6 Adversarial review: critics attack the fixtures, not the check. A gate
       that passes because its fixture is wrong is worse than no gate `deps:` 2.5
+
+      This is where the check earned its shape. Three rules were proposed and one
+      was withdrawn after its own candidates were checked against source.
+
+      Withdrawn: a same-file duplicate rule for neovim. Every candidate it raised
+      was legitimate. gitsigns binds `<leader>ghs` in normal and visual mode;
+      fyler and trouble both take `<C-t>` in their own buffers. A neovim mapping
+      is keyed by chord AND mode AND buffer, and static extraction sees only the
+      chord. Reporting those would bury a real find under noise and teach the
+      owner to ignore the gate. neovim is still extracted for the alt rule and
+      the coverage floor.
+
+      Also withdrawn by evidence: lower-casing chords. `<leader>cL` and
+      `<leader>cl` are different vim mappings, and merging them invented a
+      collision in lsp-lines.lua that does not exist. Only the modifier letter is
+      normalised now, because `<C-t>` and `<c-t>` genuinely are the same.
+      Terminal-style chords still normalise fully, since pi's own files carry
+      both `ctrl+shift+r` and `shift+ctrl+b` for what would be one chord.
 
 ## 3. Citations in the loop
 
