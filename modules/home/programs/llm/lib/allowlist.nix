@@ -168,6 +168,22 @@ let
     "gh api GET *"
     "gh api -X GET *"
 
+    # gh stack (github/gh-stack) — reading and local navigation only.
+    # `submit`, `merge`, `push`, `sync`, `unstack`, and `delete` reach GitHub, so
+    # they are deliberately absent from every tier and stay owner-gated, exactly
+    # like `gh pr create`.
+    "gh stack view"
+    "gh stack view *"
+    "gh stack up"
+    "gh stack up *"
+    "gh stack down"
+    "gh stack down *"
+    "gh stack top"
+    "gh stack bottom"
+    "gh stack trunk"
+    "gh stack --help"
+    "gh stack checkout *"
+
     # text utilities (no -i/-w modes)
     "echo *"
     "printf *"
@@ -211,18 +227,32 @@ let
     # specutil lock — writes the identity→externalId mapping after Linear/Notion syncs
     "specutil lock *"
 
-    # hunk — git diff pager; agent live-session review (read-only, UI-only)
-    "hunk skill path"
-    "hunk session list"
-    "hunk session *"
-    "hunk --help"
-    "hunk --version"
+    # diffnote — reading forms only. The writing forms are tierB: this tier is
+    # defined above as read-only with zero blast radius, and `add` and `apply`
+    # write a file.
+    "diffnote list *"
+    "diffnote list"
+    "diffnote path"
   ];
 
   # Reversible local writes. Each entry mutates the working tree or the
   # nix store but is recoverable (`git restore --staged`, `nix profile
   # rollback`, re-running the formatter, etc.). Opt-in per harness.
   tierB = [
+    # diffnote — review notes on the working-tree diff, rendered by neovim's
+    # CodeDiff view. Writes only to its own per-repository store under
+    # $XDG_STATE_HOME/agents/diff-notes/, never to the working tree, and a note is
+    # removable with `diffnote clear`.
+    #
+    # `diffnote clear` is deliberately absent from both tiers: it discards review
+    # notes the owner may not have read yet, so it asks.
+    #
+    # Note that pi does NOT read this file. Its gate is
+    # @gotgenes/pi-permission-system, configured under ~/.pi/agent/extensions/.
+    # These entries serve claude, amp, devin, cursor, and opencode.
+    "diffnote add *"
+    "diffnote apply *"
+
     "git add"
     "git add *"
     "git restore --staged *"

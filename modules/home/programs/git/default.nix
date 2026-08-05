@@ -195,12 +195,6 @@ in
         rebase = true;
       };
 
-      # hunk is core.pager for diff/show. git log output is not a diff, so
-      # hunk's TUI just waits for a quit key. Disable paging for log instead.
-      pager = {
-        log = false;
-      };
-
       push = {
         autoSetupRemote = true;
         followTags = true;

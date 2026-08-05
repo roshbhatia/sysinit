@@ -37,6 +37,10 @@ pkgs.runCommand "lua-parse-check"
     require_nonempty "$src/home/programs/wezterm/lua"
     require_nonempty "$src/darwin/home/hammerspoon"
     require_nonempty "$src/darwin/home/sketchybar/lua"
+    # The largest Lua home in the repository, moved in from sysinit.nvim. Without a
+    # guard, renaming it would drop ~150 files out of coverage while the other homes
+    # kept `found` well above zero and the check kept reporting OK.
+    require_nonempty "$src/home/programs/neovim/config/lua"
 
     if [ "$found" -eq 0 ]; then
       echo "FAIL: no .lua files found under modules/." >&2

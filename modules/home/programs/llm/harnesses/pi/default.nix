@@ -72,8 +72,9 @@ let
       source = ./extensions/sysinit-notify.ts;
       force = true;
     };
-    ".pi/agent/extensions/openspec-status.ts" = {
-      source = ./extensions/openspec-status.ts;
+    # Diff review in a native multiplexer split.
+    ".pi/agent/extensions/diff-review.ts" = {
+      source = ./extensions/diff-review.ts;
       force = true;
     };
     ".pi/agent/extensions/openspec-sidebar" = {
@@ -294,9 +295,6 @@ let
     threads =
       mkFetchedNpmPackage "pi-threads" "0.2.1"
         "sha256-MF++ANxMplxx0qydKoozrnNTFtb4HQ/0s923cGrsPyM=";
-    interview =
-      mkFetchedNpmPackage "pi-interview" "0.8.7"
-        "sha256-d7ZwYDc+FIOx9qRp+6hObjsha459exdjcRWo+iyJ0d0=";
     librarian =
       mkFetchedNpmPackage "pi-librarian" "1.3.7"
         "sha256-Obn+DyQD1WCptZO5t0YgUOdpGULNYfPxUA7NeGT7GfQ=";
@@ -311,10 +309,6 @@ let
         "sha256-nPHuANl4j5Ank2ccLUQFLxRIxTPJCLF3G73NpU8xHnI=";
 
     # npm packages with runtime deps - lock files stored in ./locks/
-    dcp =
-      mkBuiltNpmPackage "pi-dcp" "0.2.0" "sha256-mQ+F/0EoH8WKvY4Nq5vPnOhQWHNBTd7PmVDHmEfOfOQ="
-        "sha256-YyuGS17egfLwhqOwfYUKV7YY6Je9lS60HRUzBBBtoS8="
-        ./locks/pi-dcp.lock.json;
     # pi-web-access: web search + content fetch (URL/PDF/GitHub/YouTube).
     # Replaces pi-webfetch-to-markdown and adds web search — a capability gap in
     # pi vs Claude/Codex. Keep pi-librarian; disable the bundled librarian skill
@@ -342,10 +336,6 @@ let
         runHook postInstall
       '';
     };
-    mcpAdapter =
-      mkBuiltNpmPackage "pi-mcp-adapter" "2.6.0" "sha256-PvG5zESCiVHC69zPyVhZ0fqQhTaJZFHEOAFEnMSIiak="
-        "sha256-OSuEzxoOC2lPXUZRNqNhLTNRLkWFwQloFklW5hMvRyE="
-        ./locks/pi-mcp-adapter.lock.json;
 
     # Phase B additions (zero-dep extensions) — load order positions are
     # set via piPackagePaths array order below.
@@ -418,15 +408,6 @@ let
         "sha256-oiiZsd1UG1nIa7xhnOcUKpyr2J2qWbghXildxE036Ok="
         ./locks/plannotator.lock.json;
 
-    # @benvargas/pi-claude-code-use: patches Anthropic OAuth so pi can
-    # piggyback on a Claude Code subscription session. Inert when not
-    # using Anthropic provider.
-    piClaudeCodeUse =
-      mkBuiltNpmPackage "@benvargas/pi-claude-code-use" "1.0.1"
-        "sha256-remGlC3uuDoSq18TgOy344fj9lEecTr0cjMZ2FlYRag="
-        "sha256-NbhgVngG5y29BvVE5lcp+xImiOXi0m1kH5I6d9JuNq0="
-        ./locks/pi-claude-code-use.lock.json;
-
     # @firstpick/pi-extension-reverse-last: session-aware undo for write/
     # edit tool calls (/reverse-last). Complements git-checkpoint at the
     # in-session granularity.
@@ -463,11 +444,23 @@ let
   # 1. Provider routing — openaiFast + openaiVerbosity + piRetry (inert for non-OpenAI)
   # 2. Compaction — piVcc (deterministic, LLM-free)
   # 3. Orchestration — pi-subagents
+  #
+  # Four packages were removed and are deliberately absent. Each was loaded and
+  # doing nothing, which reads as a working capability:
+  #   - pi-mcp-adapter: reads ~/.pi/agent/mcp.json, which this repository never
+  #     writes. It found no server, and the only file left was a stale
+  #     mcp-cache.json the sidebar then rendered as live. Wiring pi to the MCP
+  #     catalog in lib/mcp-catalog.nix is a separate decision, not a revert.
+  #   - @benvargas/pi-claude-code-use: patches Anthropic OAuth payloads.
+  #     `defaultProvider` is openai-codex, so it wrapped the auth path for a
+  #     provider that is never selected.
+  #   - pi-dcp: a third extension mutating the message list, beside piVcc
+  #     (compaction) and context (context management).
+  #   - pi-interview: a second interactive prompt UI beside askUser.
   piPackagePaths = with piPackages; [
     # 1. Permission gate — MUST load first to wrap all tool calls below.
     "${piPermissionSystem}"
     # 2. Provider routing (inert when target provider not active).
-    "${piClaudeCodeUse}"
     "${openaiFast}"
     "${openaiVerbosity}"
     "${piRetry}"
@@ -485,9 +478,7 @@ let
     # 6. Tool providers.
     "${toolDisplay}"
     "${diff}"
-    "${dcp}"
     "${webAccess}"
-    "${mcpAdapter}"
     # 7. Content utilities.
     "${context}"
     "${subdirContext}"
@@ -496,7 +487,6 @@ let
     "${readlineSearch}"
     "${rtkOptimizer}"
     "${threads}"
-    "${interview}"
     "${librarian}"
     "${askUser}"
   ];
@@ -653,7 +643,19 @@ let
 
   piKeybindings = pkgs.writeText "pi-keybindings.json" (
     builtins.toJSON {
-      renameSession = "ctrl+shift+r";
+      # Namespaced ids, per the installed build's docs/keybindings.json format.
+      # `renameSession` was the pre-namespace id. The docs describe an automatic
+      # migration, but the pinned 0.82.1 binary contains that literal string zero
+      # times, so the binding was silently INERT rather than migrated: ctrl+shift+r
+      # did nothing. Measured, not inferred.
+      #
+      # Rename moves off its `ctrl+r` default because pi-readline-search binds
+      # ctrl+r for reverse history search.
+      "app.session.rename" = "ctrl+shift+r";
+      # `left` only, dropping the `ctrl+b` half of the default. diff-review.ts
+      # registers ctrl+b for the neovim review split, and which of the two wins is
+      # a precedence question that is better removed than relied on.
+      "tui.editor.cursorLeft" = "left";
     }
   );
 

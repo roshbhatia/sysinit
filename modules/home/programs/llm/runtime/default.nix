@@ -261,6 +261,19 @@ let
     text = builtins.readFile ./loop-gate.sh;
   };
 
+  # Agent review notes on a working-tree diff (see diffnote.sh). Writes JSON;
+  # neovim's CodeDiff view watches that file and renders it.
+  diffNote = pkgs.writeShellApplication {
+    name = "diffnote";
+    runtimeInputs = [
+      pkgs.git
+      pkgs.jq
+      pkgs.coreutils
+      pkgs.gnused
+    ];
+    text = builtins.readFile ./diffnote.sh;
+  };
+
   syGate = pkgs.writeShellApplication {
     name = "sy";
     # fzf so the gate can run the picker itself for a bare `sy delete`; without it
@@ -300,6 +313,7 @@ in
     reviewScript
     sessionsScript
     syGate
+    diffNote
     ;
 
   # Absolute paths used inside harness hook commands.
@@ -309,6 +323,7 @@ in
   focusExe = lib.getExe focusScript;
   reviewExe = lib.getExe reviewScript;
   sessionsExe = lib.getExe sessionsScript;
+  diffNoteExe = lib.getExe diffNote;
 
   # wired once in default.nix to avoid a home.file collision
   iconFiles = lib.listToAttrs (

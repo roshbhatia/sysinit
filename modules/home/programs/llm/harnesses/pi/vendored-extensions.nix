@@ -10,11 +10,9 @@
   "handoff"
   "input-transform"
   "interactive-shell"
-  "model-status"
   "preset"
   "reload-runtime"
   "session-name"
-  "status-line"
   "tools"
 
   # Vim-style modal editing in the prompt, matching claude's editorMode, goose's
@@ -23,4 +21,10 @@
   # A todo tool plus /todos, the pi counterpart to Claude's TodoWrite. Binds
   # `session_start` and `session_tree` only.
   "todo"
+
+  # `status-line` and `model-status` are deliberately NOT here. The sidebar
+  # already shows the turn count and the active model, so both only restated
+  # sidebar data in the footer. `model-status` also wrote an emoji and called
+  # console.log on every model change. `preset` is the one status writer left,
+  # and it is the only one carrying something the sidebar does not.
 ]
