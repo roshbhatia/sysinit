@@ -121,14 +121,37 @@
       beside it, deleting all six `--replace-fail` patches against upstream's
       prebuilt dist/. Archives and openspec/specs were left alone: they are
       history, and rewriting them to chase a rename would falsify the record.
-- [ ] 6.2 Install the openspec skills and prompts globally for every harness, so
+- [x] 6.2 Install the openspec skills and prompts globally for every harness, so
       no repo needs `openspec init`. Upstream ships `pi` as a first-class tool
       (`.pi/skills/openspec-*/SKILL.md`, `.pi/prompts/opsx-<id>.md`), `codex` and
       `agents` share `.agents/skills/`, and `opencode` uses `.opencode/skills/`.
       Nix owns those roots already `deps:` 6.1
-- [ ] 6.3 Onboard the new opsx skills (`propose`, `explore`, `apply`, `update`,
+
+      Done, and it exposed why builds were taking 40 minutes. The schema was
+      copied into the openspec derivation, so every template edit rebuilt the CLI
+      from source through pnpm. It never needed to be: `openspec schema which`
+      reports a user-level schema shadowing the package's built-in of the same
+      name. The schema moved to `modules/home/programs/llm/openspec-schema` and
+      installs through `xdg.dataFile`; build went from 40+ minutes to 67 seconds.
+
+      Two traps, both found by testing rather than assuming. It must be
+      `xdg.dataFile`, because openspec reads XDG_DATA_HOME when set and
+      `modules/home/default.nix` exports it. And it must be enumerated per file,
+      because openspec's discovery skips a symlinked schema directory, so one
+      recursive entry installs a schema it then refuses to list.
+
+      Skills and opsx commands are generated once by a local derivation and land
+      in `~/.claude/skills` and `~/.claude/commands/opsx`. `openspec init` needs
+      `--force` and closed stdin: without them it reaches its legacy-cleanup
+      prompt and, with no TTY, blocks forever instead of failing.
+- [x] 6.3 Onboard the new opsx skills (`propose`, `explore`, `apply`, `update`,
       `sync`, `archive`, and the expanded `new`/`continue`/`ff`/`verify`/
       `bulk-archive`/`onboard`) into the generated skill set `deps:` 6.2
+
+      Done, with a correction: openspec 1.6.0 offers `core` and `custom` only.
+      There is no `expanded` profile, so `new`/`continue`/`ff`/`verify`/
+      `bulk-archive`/`onboard` do not exist to onboard. `core` ships six:
+      propose, explore, apply, update, sync, archive. All six installed.
 - [x] 6.4 Audit the schema itself against upstream's customization contract:
       `openspec/config.yaml` supports a default schema, injected context,
       per-artifact rules, and operation guidance. Confirm each is set and
@@ -190,9 +213,21 @@
       specutil, and the change describing it can only live in one of them today.
       The case against is that stores are beta and upstream says file formats may
       still change. Decide adopt-now against wait `deps:` 7.1
-- [ ] 7.4 Decide how seshy relates to worksets. A seshy session already groups
+- [x] 7.4 Decide how seshy relates to worksets. A seshy session already groups
       repos for one feature and a workset is a personal multi-folder view, so the
       question is whether they are the same object named twice. If they are,
       seshy should emit the store reference rather than both tracking it `deps:` 7.3
+
+      Decided: they are not the same object, and one concrete fix fell out.
+      A seshy session groups working copies and dies with the session; its
+      `openspec/` is ephemeral. A store is a durable git-backed planning repo
+      registered per machine. They compose rather than compete: a session that
+      needs planning outliving it should reference a store instead of initing its
+      own tree.
+
+      The fix: seshy's postCreate ran `openspec init --tools all`, writing 30-plus
+      per-tool trees into every session, one per harness, all identical. Now that
+      the skills install globally that is pure duplication, so the hook is
+      `--tools none` and only the session-scoped `openspec/` structure is created.
 - [ ] 7.5 Adversarial review: whether an unattended refine that only proposes is
       actually read, or becomes a weekly file nobody opens `deps:` 7.2, 7.4

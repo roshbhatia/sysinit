@@ -6,11 +6,17 @@ sessionsDir: "~/.local/state/seshy/sessions"
 
 # Lifecycle hooks. Rendered as Go templates, run via `sh -c`, cwd = session dir.
 # Init OpenSpec once at the session root. Idempotent: skips if already inited.
-# `openspec init` defaults to the machine-wide spec-driven schema, so new
-# sessions inherit our openspec config automatically.
+# `openspec init` defaults to the spec-driven schema, which home-manager installs
+# to the XDG user schema directory, so new sessions inherit it automatically.
+#
+# `--tools none`, not `--tools all`. The openspec skills and opsx commands are
+# installed globally by the llm module now, so `--tools all` wrote 30-plus
+# per-tool trees into every session: one copy per harness per session, all
+# identical, all pinned to whatever openspec version created them. Only the
+# `openspec/` structure itself is session-scoped.
 hooks:
   postCreate:
-    - '[ -d openspec ] || openspec init --tools all'
+    - '[ -d openspec ] || openspec init --tools none'
     - 'command -v specutil >/dev/null 2>&1 && [ -d openspec/changes ] && specutil graph --as mermaid | mermaid-ascii || true'
 
   # No preDelete entry. seshy runs preDelete advisorily: a non-zero exit logs a
