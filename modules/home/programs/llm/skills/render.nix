@@ -168,7 +168,7 @@ let
       frontmatterLines = [
         "---"
         "name: ${name}"
-        "description: ${skill.description}"
+        "description: ${builtins.toJSON skill.description}"
       ]
       ++ lib.optional (skill ? "allowed-tools") "allowed-tools: ${skill."allowed-tools"}"
       ++ lib.optional (skill ? whenToUse) "when_to_use: ${skill.whenToUse}"
