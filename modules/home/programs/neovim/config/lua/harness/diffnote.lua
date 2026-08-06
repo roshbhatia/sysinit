@@ -334,6 +334,13 @@ function M.start()
     return false
   end
   state.handle, state.timer = handle, timer
+  -- Load what is already on disk. Without this, state.notes stayed nil until the
+  -- watcher happened to fire, so a note written BEFORE the view opened rendered
+  -- nothing at all: reopening a review to reread yesterday's annotations showed
+  -- an empty diff, and touching the store was the only recovery. The live path
+  -- hid it, because pi writes after `ctrl+b` opens the split and the fs event
+  -- then does the first load.
+  M.refresh()
   return true
 end
 

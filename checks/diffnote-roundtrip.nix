@@ -494,6 +494,21 @@ pkgs.runCommand "diffnote-roundtrip-check"
           note "one note with a 400-line rationale rendered $longLines virtual lines"
         fi
 
+        # --- notes already on disk must render on start -------------------------
+        # `M.start()` set up the fs watcher and never loaded the store, so
+        # `state.notes` stayed nil until the file next changed. A note written
+        # BEFORE the view opened rendered nothing: reopening a review to reread
+        # yesterday's annotations showed an empty diff, and touching the store was
+        # the only recovery. The live path hid it, because pi writes after ctrl+b
+        # opens the split and the fs event then does the first load. Written
+        # before `start()` here, which is exactly the case that broke.
+        $diffnote clear --yes > /dev/null
+        $diffnote add --file src/app.ts --line 2 --summary "preexisting" --rationale "r" > /dev/null
+        preload=$(nvim_eval "$repo" "local d = require('harness.diffnote') d.start() io.write(tostring(d.count()))")
+        if [ "$preload" != "1" ]; then
+          note "start() did not load an existing note store (count=$preload, expected 1)"
+        fi
+
         [ "$fail" -eq 0 ] || exit 1
         echo "OK: diffnote and the editor agree on the note file, the rejections, the store repair, and the rendering" | tee "$out"
   ''
