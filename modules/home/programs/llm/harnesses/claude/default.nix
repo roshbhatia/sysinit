@@ -211,15 +211,38 @@ in
 
       # Documented control (Boolean, default true, min v2.1.119). Set explicitly
       # for intent. Verified live: the 2.1.220 bundle reads this key.
-      #
-      # A previous comment here claimed `autoCompactWindow` was undocumented with
-      # "no tunable threshold". That was wrong. The bundle validates it as
-      # `z.number().int().min(1e5).max(1e6).optional()`, an explicit token window,
-      # and feeds it to the arm-fraction computation that decides when compaction
-      # fires. It is left unset deliberately, not for lack of a knob: unset lets
-      # the window follow the model's context size, and pinning one number would
-      # be wrong for every model but the one it was chosen for.
       autoCompactEnabled = true;
+
+      # The window compaction arms against, in tokens. The bundle validates it as
+      # `z.number().int().min(1e5).max(1e6).optional()` and feeds it to the
+      # arm-fraction computation that decides when compaction fires.
+      #
+      # This was deliberately left unset, on the argument that unset follows the
+      # model's own context size and that pinning one number would be wrong for
+      # every model but the one it was chosen for. The argument is sound and the
+      # conclusion was still wrong, because it costs real money at this scale.
+      # Measured across 30 days of transcripts, 1,213 sessions and 76,706 requests:
+      #
+      #   cache_read per request   p50 123,639   p90 692,677   max 999,009
+      #   requests over 500k ctx   14,644 (19.1% of requests, 55.1% of cache-read spend)
+      #   compactions that fired   101, across 21 of 1,213 sessions
+      #
+      # Read those together. Unset means the window tracks the model's context, and
+      # Opus 5 has 1M, so a session does not arm compaction until it is near 900k.
+      # Until then the whole transcript is re-read every request at cache-read rates.
+      # 101 compactions in a month is the symptom, not a healthy steady state.
+      #
+      # The model-specific objection does not bite here: the session model is Opus 5
+      # and `fallbackModel` below is Sonnet 5, and both are 1M. 300k is under every
+      # context this configuration can select, and above the working set of any task
+      # that has needed one.
+      #
+      # 300k rather than the 150k that would save most: context growth measured at
+      # ~520 tokens/request, so 300k compacts roughly every 577 requests against
+      # today's ~101/month total. The token cost of compacting more is negligible;
+      # the cost that is real is re-reading files whose context was summarized away,
+      # and that is what a tighter window buys you more of.
+      autoCompactWindow = 300000;
 
       # Suppress "N servers need authentication" for unused claude.ai integrations.
       # The home.activation below writes the same list to ~/.claude.json, which is
