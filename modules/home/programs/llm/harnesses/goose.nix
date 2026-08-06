@@ -172,22 +172,28 @@ in
       # other harness under stylix. Goose rewrites it when the theme is changed
       # from inside the TUI, and without enforcement that choice would stand.
       #
-      # autovisualiser is the one extension that has to be enforced, and it is
-      # written as a path so the other seventeen still merge normally. Goose keeps
-      # rewriting it back to `type: builtin`, which drops `cmd`, and that is a
-      # conflict the merge cannot resolve: the live file deleted a key the Nix
-      # content changed, so activation aborts and every other key stops updating
-      # with it. Builtin is also the wrong answer here for the reason given above
-      # `bundledExtensions`: it runs in-process and is invisible to the ACP
-      # provider, so under GOOSE_PROVIDER=claude-acp its tools reach no model.
+      # Every bundled extension is enforced, each by its own path, so the platform
+      # extensions and the MCP servers beside them still merge normally. Goose
+      # rewrites a bundled extension back to `type: builtin`, which drops `cmd`,
+      # and that is a conflict the merge cannot resolve: the live file deleted a
+      # key the Nix content changed, so activation aborts and every other key in
+      # the file stops updating with it. `cmd` holds a goose-cli store path, so
+      # the conflict returns on every goose upgrade, not only once. Builtin is
+      # also the wrong answer here for the reason given above `bundledExtensions`:
+      # it runs in-process and is invisible to the ACP provider, so under
+      # GOOSE_PROVIDER=claude-acp its tools reach no model.
+      #
+      # Derived from `bundledExtensions` rather than listed, because a name added
+      # there and missed here fails the same way, and only on the machine where
+      # goose had already rewritten it.
       enforce = [
         "GOOSE_MODE"
         "GOOSE_CLI_THEME"
-        [
-          "extensions"
-          "autovisualiser"
-        ]
-      ];
+      ]
+      ++ map (name: [
+        "extensions"
+        name
+      ]) (builtins.attrNames bundledExtensions);
     };
   }
   # Goose Desktop keeps settings in Electron userData and rewrites the file
