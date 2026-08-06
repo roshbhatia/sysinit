@@ -513,8 +513,8 @@ let
     "pi-vcc" # compaction, earliest: everything downstream sees compacted input
     "pi-subagents" # delegation
     "plannotator/pi-extension" # plan annotations
-    "pi-tool-display" # display only; its context hook sets thinking labels
     "pi-btw" # side conversations
+    "pi-tool-display" # display only; its context hook sets thinking labels
     "pi-context" # context management, last
   ];
 
@@ -531,16 +531,27 @@ let
     if builtins.pathExists manifest then (builtins.fromJSON (builtins.readFile manifest)).name or "" else ""
   ) piPackagePaths;
 
-  contextHookPresent = lib.filter (
-    name: lib.any (installed: lib.hasInfix name installed) installedPiPackageNames
-  ) contextHookOrder;
+  # The context hookers as piPackagePaths actually orders them. Filtering the
+  # INSTALLED list preserves load order; filtering the declared list would only
+  # ever reproduce the declaration and could never disagree with it.
+  contextHookActual = lib.filter (name: name != null) (
+    map (
+      installed: lib.findFirst (name: lib.hasInfix name installed) null contextHookOrder
+    ) installedPiPackageNames
+  );
 
   assertContextHookOrder =
     let
-      missing = lib.subtractLists contextHookPresent contextHookOrder;
+      missing = lib.subtractLists contextHookActual contextHookOrder;
     in
     if missing != [ ] then
       throw "pi.nix: ${lib.concatStringsSep ", " missing} is declared in contextHookOrder but not installed. Remove it from the order, or restore the package."
+    # Order, not merely membership. A presence-only assertion passed a declaration
+    # with pi-tool-display and pi-btw the wrong way round, which is the one thing
+    # the declaration exists to record: pi runs these handlers in load order and
+    # each sees the previous one's mutations.
+    else if contextHookActual != contextHookOrder then
+      throw "pi.nix: contextHookOrder does not match the load order in piPackagePaths.\n  declared: ${lib.concatStringsSep " -> " contextHookOrder}\n  actual:   ${lib.concatStringsSep " -> " contextHookActual}"
     else
       true;
 
