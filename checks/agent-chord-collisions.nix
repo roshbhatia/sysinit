@@ -62,6 +62,10 @@ pkgs.runCommand "agent-chord-collision-check"
     # pattern outright still passed, because the generic `"ctrl+..."` fallback
     # kept finding enough to clear it. A slack floor tests nothing. Lowering one
     # of these to accommodate a removal is a deliberate edit, which is the point.
+    #
+    # neovim went 93 -> 89 when a2a3f4a92 swapped fyler for neo-tree, and this
+    # floor caught it. That is the mechanism working: a plugin swap that silently
+    # drops four keymaps is exactly the change worth seeing.
     check_floor() {
       n=$(wc -l < "$2")
       if [ "$n" -lt "$3" ]; then
@@ -71,7 +75,7 @@ pkgs.runCommand "agent-chord-collision-check"
       fi
     }
     check_floor wezterm "$TMPDIR/wezterm.tsv" 12
-    check_floor neovim  "$TMPDIR/neovim.tsv"  90
+    check_floor neovim  "$TMPDIR/neovim.tsv"  89
     check_floor pi      "$TMPDIR/pi.tsv"      3
 
     # 1. A modifier that composes rather than sending a chord.
