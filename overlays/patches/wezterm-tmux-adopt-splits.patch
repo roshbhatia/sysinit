@@ -1,8 +1,17 @@
 diff --git a/mux/src/tmux_commands.rs b/mux/src/tmux_commands.rs
-index 2160116..7874464 100644
+index 2160116..893eb70 100644
 --- a/mux/src/tmux_commands.rs
 +++ b/mux/src/tmux_commands.rs
-@@ -286,6 +286,127 @@ impl TmuxDomainState {
+@@ -8,7 +8,7 @@ use crate::{Mux, MuxNotification, Pane};
+ use anyhow::{anyhow, Context};
+ use parking_lot::{Condvar, Mutex};
+ use portable_pty::{MasterPty, PtySize};
+-use std::collections::HashSet;
++use std::collections::{HashMap, HashSet};
+ use std::fmt::{Debug, Write};
+ use std::io::Write as _;
+ use std::sync::Arc;
+@@ -286,6 +286,190 @@ impl TmuxDomainState {
          return Ok(pane);
      }
  
@@ -30,6 +39,7 @@ index 2160116..7874464 100644
 +            .collect();
 +        pending.sort_by_key(|p| (p.pane_top, p.pane_left));
 +
++        let mut adopted = false;
 +        for pane in pending {
 +            let Some((origin, direction)) = self.find_split_origin(window_id, pane, panes) else {
 +                log::warn!(
@@ -67,35 +77,97 @@ index 2160116..7874464 100644
 +                }
 +            };
 +
-+            // tmux sized this pane for its own layout, and we just placed it in
-+            // ours, which is a different shape. Without reconciling the two,
-+            // tmux wraps its output to the width it believes in and the pane
-+            // renders as interleaved garbage. `split_pane` recorded OUR size
-+            // against the remote pane, which would make the resize below look
-+            // like a no-op, so record tmux's size first and then ask tmux to
-+            // adopt ours.
-+            {
-+                let pane_map = self.remote_panes.lock();
-+                if let Some(ref_pane) = pane_map.get(&pane.pane_id) {
-+                    let mut ref_pane = ref_pane.lock();
-+                    ref_pane.pane_width = pane.pane_width;
-+                    ref_pane.pane_height = pane.pane_height;
-+                }
++            let _ = local_pane;
++            log::info!("adopted tmux pane %{}", pane.pane_id);
++            adopted = true;
++        }
++
++        // Reconcile EVERY pane in the window, not only the ones just adopted.
++        // `split_and_insert` takes the new pane's space out of the pane it split
++        // from, so an adoption resizes existing panes as a side effect. Telling
++        // tmux about only the new pane left its neighbours believing their old
++        // width, and tmux then wrapped their output to a width wezterm was not
++        // drawing at: the visible symptom was one teammate pane rendering as
++        // wrapped garbage while the rest looked fine.
++        if adopted {
++            self.reconcile_pane_sizes(window_id, panes);
++        }
++
++        Ok(())
++    }
++
++    /// Push tmux a resize for every attached pane in `window_id`, using the size
++    /// the tab's layout assigns it.
++    fn reconcile_pane_sizes(&self, window_id: TmuxWindowId, panes: &[PaneItem]) {
++        let tab_id = {
++            let gui_tabs = self.gui_tabs.lock();
++            let Some(local_tab) = gui_tabs.get(&window_id) else {
++                return;
++            };
++            local_tab.tab_id
++        };
++        let mux = Mux::get();
++        let Some(tab) = mux.get_tab(tab_id) else {
++            return;
++        };
++
++        // Sizes come from the tab's own layout, NOT from each pane's renderer.
++        // This runs on the mux thread immediately after `split_and_insert`, and
++        // the GUI has not sized the new panes yet at that point:
++        // `Pane::get_dimensions` then reports a single row or column. Sending
++        // that to tmux made it believe in a 1x133 pane and wrap every teammate's
++        // output to it. `iter_panes_ignoring_zoom` reports the layout that was
++        // just computed, which is correct synchronously.
++        let mut layout = HashMap::new();
++        for positioned in tab.iter_panes_ignoring_zoom() {
++            layout.insert(
++                positioned.pane.pane_id(),
++                (positioned.width, positioned.height),
++            );
++        }
++
++        for pane in panes {
++            if pane.window_id != window_id || !self.check_pane_attached(window_id, pane.pane_id) {
++                continue;
 +            }
-+            let dims = local_pane.get_dimensions();
++            let local_pane_id = {
++                let pane_map = self.remote_panes.lock();
++                let Some(ref_pane) = pane_map.get(&pane.pane_id) else {
++                    continue;
++                };
++                // `split_pane` and `create_pane` record OUR size against the
++                // remote pane, so `Resize` would see no delta and emit nothing.
++                // Record what tmux currently believes, so the resize is real.
++                let mut ref_pane = ref_pane.lock();
++                ref_pane.pane_width = pane.pane_width;
++                ref_pane.pane_height = pane.pane_height;
++                ref_pane.local_pane_id
++            };
++            let Some(&(cols, rows)) = layout.get(&local_pane_id) else {
++                continue;
++            };
++            // A degenerate size means the layout still has not settled. Skip it
++            // rather than corrupt tmux: the next `%layout-change` brings us back
++            // here with real numbers.
++            if cols < 2 || rows < 2 {
++                log::debug!(
++                    "skipping resize of tmux pane %{}: layout not settled ({}x{})",
++                    pane.pane_id,
++                    cols,
++                    rows
++                );
++                continue;
++            }
 +            self.cmd_queue.lock().push_back(Box::new(Resize {
 +                pane_id: pane.pane_id,
 +                size: PtySize {
-+                    rows: dims.viewport_rows as u16,
-+                    cols: dims.cols as u16,
++                    rows: rows as u16,
++                    cols: cols as u16,
 +                    pixel_width: 0,
 +                    pixel_height: 0,
 +                },
 +            }));
-+            log::info!("adopted tmux pane %{}", pane.pane_id);
 +        }
-+
-+        Ok(())
 +    }
 +
 +    /// Find the attached pane that `pane` was split away from, by looking for
@@ -130,7 +202,7 @@ index 2160116..7874464 100644
      fn sync_pane_state(&self, panes: &[PaneItem]) -> anyhow::Result<()> {
          let Some(current_session) = *self.tmux_session.lock() else {
              return Ok(());
-@@ -752,6 +873,9 @@ impl TmuxCommand for ListAllPanes {
+@@ -752,6 +936,9 @@ impl TmuxCommand for ListAllPanes {
                  if !self.prune {
                      return tmux_domain.inner.sync_pane_state(&items);
                  } else {
