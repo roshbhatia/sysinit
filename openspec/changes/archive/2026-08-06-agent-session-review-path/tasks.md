@@ -1,3 +1,9 @@
+> **Closed with 1 tasks unfinished, by owner decision on 2026-08-06.**
+> The substance of this change is applied and running; what remained was review
+> ceremony and owner-confirmation gates the owner chose not to run. Archived
+> rather than deleted so the record of what was built survives. The unchecked
+> boxes below are accurate: they were dropped, not completed.
+
 ## 1. The readiness report
 
 - **SHAPE** loop

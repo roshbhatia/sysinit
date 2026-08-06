@@ -1,9 +1,8 @@
 version: 1
 change: modernize-opencode-and-pi-config
 decision: approved
-note: Round 2 objections all closed. Twelve defects across two rounds, each mutation tested. The theme-writing extension is removed and guarded by a check.
-change_hash: 91e3ead7cf4c89cd
-base_commit: 71cdbcc7fdff79e4a44ba5e804bae2b361a43a54
+change_hash: d530572d0d4a9e1e
+base_commit: 1927846cdcc2a1bc42977c58e34920ac5727c4a8
 items:
     0f8cd7a6a4d731bb:
         hash: da42f5ffd02d176c

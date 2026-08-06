@@ -1,9 +1,8 @@
 version: 1
 change: unify-agent-notification-layer
 decision: approved
-note: 'Re-recorded after the 2026-08-03 pass: dependency edges declared on the converted phases, the toast-body composer extracted and fixture-tested, and phase-5 task ids renumbered to their own phase.'
-change_hash: 80a3b65f7d94a6d3
-base_commit: af6ba6382e9599211b2069fb7a07dd48e1af6a1c
+change_hash: 916270219142229d
+base_commit: 1927846cdcc2a1bc42977c58e34920ac5727c4a8
 items:
     00bde2a78e456b8b:
         hash: ff1a6eb6f71b9ea5

@@ -1,9 +1,8 @@
 version: 1
 change: agent-session-review-path
 decision: approved
-note: 'Rollout verified: openspec validate clean, specutil check clean, nix fmt clean, nix flake check clean. 3.4 left open: it is the owner judgment.'
-change_hash: fd159e043152548d
-base_commit: ff11e300da7eed34bb56be97a01f5fb9fc7192fb
+change_hash: 7a3d959e1a9ed9d3
+base_commit: 1927846cdcc2a1bc42977c58e34920ac5727c4a8
 items:
     0bd8c92c94aba443:
         hash: b3a33103634add62

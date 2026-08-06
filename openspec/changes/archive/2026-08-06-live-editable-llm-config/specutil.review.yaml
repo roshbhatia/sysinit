@@ -1,9 +1,8 @@
 version: 1
 change: live-editable-llm-config
 decision: approved
-note: '2.10 corrected: nothing deleted. A base-relative merge cannot replace a delete list on the adopt path, proven by a reconciler probe against a never-adopted fixture. The pi deletion was a same-day regression and is reverted.'
-change_hash: 5b977463334ac5d4
-base_commit: cf23b8f7611fd7c63707200ee01f33d5b0cdff24
+change_hash: c95bacb884740c91
+base_commit: 1927846cdcc2a1bc42977c58e34920ac5727c4a8
 items:
     0cb88340be5c9d34:
         hash: 4e888e614f067038
