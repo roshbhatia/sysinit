@@ -6,36 +6,23 @@
   lib,
 }:
 let
-  icon =
-    name: url: hash:
-    pkgs.fetchurl {
-      inherit url hash;
-      name = "agent-icon-${name}.svg";
-    };
+  # Vendored, not fetched. These were `fetchurl` against cdn.simpleicons.org,
+  # which now answers 403 to GitHub's runners while serving everyone else, so
+  # every cold CI build failed on a third party's willingness to serve us. An
+  # icon is static by definition and there is nothing to gain from refetching it
+  # on each build. `hack/update-agent-icons.sh` refreshes them deliberately and
+  # shows the drift; nothing updates them automatically.
+  icon = name: ./icons/${name}.svg;
 
   svgs = {
-    claude =
-      icon "claude" "https://cdn.simpleicons.org/claude/D97757"
-        "sha256-URnvlQoNZIs/1ihleR5z8H8y4Y3auE5PIRYPjGQcD18=";
-    codex =
-      icon "codex" "https://upload.wikimedia.org/wikipedia/commons/0/04/ChatGPT_logo.svg"
-        "sha256-Wo2tKGTMHIEJ6650vqRH3y8wuXi9rVZ0kkfEBuHLIic=";
-    gemini =
-      icon "gemini" "https://cdn.simpleicons.org/googlegemini/4285F4"
-        "sha256-GKkvBO7dgQklPx29NxQhGTqZEhAGdFZ2lFurnRLeMPk=";
-    cursor =
-      icon "cursor" "https://cdn.simpleicons.org/cursor/000000"
-        "sha256-aMiOMXoD/vt9jtaLn+hu8zwKACdl+mv8hM3EPXu59P4=";
-    opencode =
-      icon "opencode" "https://cdn.simpleicons.org/opencode/000000"
-        "sha256-xlr+/bHrZ74ZpQ9xXQp6LBlVjb8Mvcl0/rNn4FXNX1g=";
+    claude = icon "claude";
+    codex = icon "codex";
+    gemini = icon "gemini";
+    cursor = icon "cursor";
+    opencode = icon "opencode";
     # simpleicons "Pi" sources from pi.dev, so it is the agent, not Pi Network
-    pi =
-      icon "pi" "https://cdn.simpleicons.org/pi/000000"
-        "sha256-0462udrr6XCPzGCuF9Ue7bnx5lZhyVytXC4eJzt3vyE=";
-    copilot =
-      icon "copilot" "https://cdn.simpleicons.org/githubcopilot/000000"
-        "sha256-DTSwqoKcIwlOr84UR0gdVvQd3mXXeRISItzylJQ90kU=";
+    pi = icon "pi";
+    copilot = icon "copilot";
   };
 
   # Reaches agent-notify directly, carrying a reason string. Via the harness's
