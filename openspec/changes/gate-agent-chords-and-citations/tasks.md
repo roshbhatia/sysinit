@@ -268,12 +268,26 @@
 - [ ] 7.2 Verify the first refine run produces a report whose every claim cites
       worklog evidence, and that a run with an empty window exits 0 without
       publishing a file `deps:` 7.1
-- [ ] 7.3 Evaluate an openspec store for the sysinit constellation. `store:` and
+- [x] 7.3 Evaluate an openspec store for the sysinit constellation. `store:` and
       `references:` are real keys in `ProjectConfigSchema`, so the wiring exists.
       The case for one is concrete: this work spans sysinit, sysinit.laurel, and
       specutil, and the change describing it can only live in one of them today.
       The case against is that stores are beta and upstream says file formats may
       still change. Decide adopt-now against wait `deps:` 7.1
+
+      Decided: wait, with a named trigger. The multi-repo evidence is stronger
+      than expected, 8 of 8 active changes reference sysinit.laurel, specutil, or
+      seshy, so this is the normal case rather than an occasional one. But the
+      pain a store removes is "planning lives in a repo that is not the one you
+      work in", and all 8 are authored, gated, and applied from sysinit. laurel
+      and specutil are satellites of it. Today a store would add a second repo to
+      keep in sync, a per-machine registration step, and exposure to beta formats
+      upstream says may still change, in exchange for solving a problem this
+      layout does not currently have.
+
+      Revisit when a change is authored primarily from laurel or specutil rather
+      than sysinit. That is the point at which the hub assumption breaks and
+      `store:` plus `references:` start paying for themselves.
 - [x] 7.4 Decide how seshy relates to worksets. A seshy session already groups
       repos for one feature and a workset is a personal multi-folder view, so the
       question is whether they are the same object named twice. If they are,
