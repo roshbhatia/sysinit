@@ -29,7 +29,7 @@ if [ ! -s "$STORE" ]; then
   exit 0
 fi
 
-ids=$(jq -r --arg p "$PROVIDER" '(.[$p].models // []) | map(.id) | .[]' "$STORE" 2>/dev/null || true)
+ids=$(jq -r --arg p "$PROVIDER" '(.[$p].models // []) | map(.id) | .[]' "$STORE" 2> /dev/null || true)
 if [ -z "$ids" ]; then
   echo "pi-openai-models: no $PROVIDER models in $STORE; left both configs alone" >&2
   exit 0
@@ -47,8 +47,8 @@ mkdir -p "$EXT_DIR"
 publish() {
   target="$1"
   tmp="$target.tmp.$$"
-  cat >"$tmp"
-  if ! jq -e . "$tmp" >/dev/null 2>&1; then
+  cat > "$tmp"
+  if ! jq -e . "$tmp" > /dev/null 2>&1; then
     rm -f "$tmp"
     echo "pi-openai-models: refusing to write malformed $target" >&2
     return 1
@@ -75,7 +75,7 @@ printf '%s' "$keys" |
 # toggle for every codex model without changing traffic on its own.
 FAST="$EXT_DIR/pi-openai-fast.json"
 existing='{}'
-if [ -s "$FAST" ] && jq -e . "$FAST" >/dev/null 2>&1; then
+if [ -s "$FAST" ] && jq -e . "$FAST" > /dev/null 2>&1; then
   existing=$(cat "$FAST")
 fi
 printf '%s' "$existing" |

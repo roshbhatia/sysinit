@@ -94,7 +94,10 @@ if [ "$stage" = "proposal" ] || [ "$stage" = "all" ]; then
   if [ -f "$dir/proposal.md" ] && grep -q '^## Behavior' "$dir/proposal.md"; then
     n=$(sed -n '/^## Behavior/,/^## /p' "$dir/proposal.md" | grep -c '^- ')
     note "present, $n entries"
-    [ "$n" -gt 0 ] || { note "a Behavior section with no entries is not acceptance criteria"; fail=1; }
+    [ "$n" -gt 0 ] || {
+      note "a Behavior section with no entries is not acceptance criteria"
+      fail=1
+    }
   else
     note "MISSING. Acceptance criteria live here; nothing is promoted to openspec/specs/"
     fail=1

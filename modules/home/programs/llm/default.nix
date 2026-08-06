@@ -105,14 +105,16 @@ let
   # create real directories and symlink only the leaves.
   openspecSchemaRoot = ./openspec-schema;
   openspecSchemaFiles = lib.listToAttrs (
-    map (relPath: {
-      name = "openspec/schemas/spec-driven/${relPath}";
-      value.source = openspecSchemaRoot + "/${relPath}";
-    }) (
-      map (f: lib.removePrefix "${toString openspecSchemaRoot}/" (toString f)) (
-        lib.filesystem.listFilesRecursive openspecSchemaRoot
+    map
+      (relPath: {
+        name = "openspec/schemas/spec-driven/${relPath}";
+        value.source = openspecSchemaRoot + "/${relPath}";
+      })
+      (
+        map (f: lib.removePrefix "${toString openspecSchemaRoot}/" (toString f)) (
+          lib.filesystem.listFilesRecursive openspecSchemaRoot
+        )
       )
-    )
   );
 
   # Upstream ast-grep skills, vendored from the pinned `ast-grep-skills` input.
