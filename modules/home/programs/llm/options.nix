@@ -106,6 +106,41 @@ in
       '';
     };
 
+    instructions.extraSections = mkOption {
+      type = types.listOf (
+        types.submodule {
+          options = {
+            title = mkOption {
+              type = types.str;
+              description = ''
+                Section heading, rendered as `## <title>`. Must not collide
+                with a section this repository owns.
+              '';
+            };
+            body = mkOption {
+              type = types.lines;
+              description = ''
+                Section text. `{{agent}}` and its variants are rendered per
+                harness, the same as the built-in sections.
+              '';
+            };
+          };
+        }
+      );
+      default = [ ];
+      description = ''
+        Cross-repo rules a downstream flake adds to every harness's global
+        context file, rendered after the built-in sections.
+
+        For a rule that holds in every repository on one machine and that no
+        single repository can state: a work machine's confidentiality boundary,
+        for instance. A fact about one repository belongs in that repository's
+        `AGENTS.md`, and a domain rule belongs in the skill that owns it. The
+        line budget is separate from and much smaller than the built-in one, so
+        a downstream flake cannot crowd out the shared rules.
+      '';
+    };
+
     mcp = {
       slackAllowedSendChannels = mkOption {
         type = types.listOf types.str;

@@ -54,6 +54,7 @@ let
       harness,
       localSkillDescriptions,
       skillsRoot ? "~/.claude/skills",
+      extraSections ? [ ],
     }:
     let
       skillsList = formatSkillsBlock localSkillDescriptions;
@@ -115,8 +116,28 @@ let
         "prohibitions"
       ];
 
+      base = builtins.concatStringsSep "\n" (map (key: sections.${key}) order);
+
+      # Downstream sections render last, so a machine-scoped rule sits at the
+      # recency position rather than in front of the shared ones.
+      extraText = section: ''
+        ## ${section.title}
+
+        ${section.body}
+      '';
+      extras = builtins.concatStringsSep "\n" (map extraText extraSections);
+
+      ownedTitles = [
+        "Conventions"
+        "Skills"
+        "Responsibility"
+        "Prohibitions"
+        "Output Style"
+      ];
+      shadowedTitles = builtins.filter (t: builtins.elem t ownedTitles) (map (s: s.title) extraSections);
+
       rendered = vocab.applyVocab harness (
-        builtins.concatStringsSep "\n" (map (key: sections.${key}) order)
+        base + lib.optionalString (extraSections != [ ]) "\n${extras}"
       );
 
       requiredResponsibilityRules = [
@@ -128,18 +149,26 @@ let
         rule: !(lib.hasInfix rule rendered)
       ) requiredResponsibilityRules;
 
-      lineCount =
+      countLines =
+        text:
         let
-          parts = builtins.split "\n" rendered;
+          parts = builtins.split "\n" text;
           stringParts = builtins.filter builtins.isString parts;
         in
         builtins.length stringParts;
+
+      lineCount = countLines base;
 
       # Sized to the cross-repo rules plus headroom for one more section. A
       # breach means a repository fact or a domain rule leaked in; move it to
       # that repository's AGENTS.md or to the owning skill instead of raising
       # the cap.
       maxLines = 45;
+
+      # Measured apart from the built-in sections, and much smaller, so a
+      # downstream flake spends its own budget rather than the shared one.
+      extraLineCount = countLines extras;
+      maxExtraLines = 16;
     in
     if !(harnessCoverage ? ${harness}) then
       throw "instructions.nix: harness '${harness}' renders context but is not declared in harnessCoverage. Add its confirmed global path, or null with the reason it is exempt."
@@ -147,6 +176,10 @@ let
       throw "instructions.nix: harness '${harness}' is missing responsibility rules: ${builtins.concatStringsSep ", " missingResponsibilityRules}"
     else if lineCount > maxLines then
       throw "instructions.nix: rendered context exceeds ${toString maxLines} lines (got ${toString lineCount}). Move repo-specific facts to that repo's AGENTS.md and domain rules to the owning skill."
+    else if shadowedTitles != [ ] then
+      throw "instructions.nix: sysinit.llm.instructions.extraSections shadows a section this repository owns: ${builtins.concatStringsSep ", " shadowedTitles}. Pick a distinct title."
+    else if extraLineCount > maxExtraLines then
+      throw "instructions.nix: sysinit.llm.instructions.extraSections exceeds ${toString maxExtraLines} lines (got ${toString extraLineCount}). A downstream rule that needs more room is a repository fact or a domain rule; move it to that repo's AGENTS.md or to the owning skill."
     else
       rendered;
 

@@ -24,6 +24,7 @@
         { harness, skillsRoot }:
         llmLib.instructions.makeInstructions {
           inherit (skillsLib) localSkillDescriptions;
+          inherit (config.sysinit.llm.instructions) extraSections;
           inherit harness skillsRoot;
         };
 
@@ -33,6 +34,7 @@
         { harness, skillsRoot }:
         llmLib.instructions.makeInstructionsWithStyle {
           inherit (skillsLib) localSkillDescriptions;
+          inherit (config.sysinit.llm.instructions) extraSections;
           inherit harness skillsRoot;
         };
     };
