@@ -27,6 +27,18 @@ not restate any of those here.
 - `hack/` scripts are bash with `set -euo pipefail`, formatted by
   `shfmt -i 2 -ci -sr -s`
 - Nix formatter is `nixfmt-rfc-style`
+- Custom packages that `cache.nixos.org` never serves are published to
+  `roshbhatia.cachix.org` (public key
+  `roshbhatia.cachix.org-1:K7Kq2esJYhrV/aCH8Xl7h54y8NULg/k+7WkObNT9VDk=`, token in
+  the 1Password item "Cachix" and the `CACHIX_AUTH_TOKEN` repo secret). The
+  producer is `.github/workflows/build-cache.yml`, which builds the
+  `cacheBundle` `symlinkJoin` from `flake.nix` on every push to main touching
+  flake, overlays, or `_sources`. Add a package by appending its attr name to
+  `cacheAttrs` (a flake-input package goes to `inputPkgsFor`); over-including is
+  harmless because only genuinely-built paths upload. The consumer substituter
+  is declared in `modules/darwin/system.nix` and
+  `modules/nixos/common/default.nix`; Lima needs none, it pulls from the host
+  store
 
 ## Commands
 
@@ -63,6 +75,15 @@ subcommands: `feature-based-session-manager`, `openspec-workflow`, `specutil`.
 
 - Overlays apply to every host. Gate a Darwin-only workaround on `isDarwin` or
   the Linux build breaks.
+- An overlay added to work around a broken build goes stale silently. A
+  test-skip (`doCheck = false`, `disabledTests`) or a Tahoe `cctools-ld` fix
+  becomes pure waste once Hydra caches the pristine package: the override only
+  perturbs the derivation hash and forces a local source build of something
+  already cached. Audit with the `nix-cache-audit` skill before adding one, and
+  keep heavy from-source overrides out of `cacheAttrs`.
+- `python313.override { packageOverrides = ... }` pins the whole Python set off
+  cache. One test-skip re-hashes every `python313Packages.*`. `openldap` does
+  not cascade on Darwin, because curl, git, and python do not link LDAP there.
 - `.sysinit/` is gitignored scratch space. Check `.sysinit/lessons.md` at
   session start.
 - `~/.config/git/ignore` already excludes `**/.claude/` and `**/.agents/`. Do
