@@ -10,8 +10,10 @@ not restate any of those here.
 
 ## Stack
 
-- openspec 1.6.0 via `overlays/openspec/`, packaged with the custom
-  `spec-driven` schema is the CLI default
+- openspec 1.6.0 via `overlays/openspec/`. The `spec-driven` schema is NOT in
+  that overlay: it lives in `modules/home/programs/llm/openspec-schema/` and
+  home-manager installs it to openspec's XDG user schema directory, where it
+  shadows the built-in. Editing a template rebuilds nothing
 - Harness configs all generate from `modules/home/programs/llm/harnesses/`, one
   module per harness: claude-code, codex, copilot, gemini, cursor, opencode, amp,
   crush, devin, goose, pi. A harness owning assets is a directory holding its
@@ -65,9 +67,11 @@ subcommands: `feature-based-session-manager`, `openspec-workflow`, `specutil`.
   session start.
 - `~/.config/git/ignore` already excludes `**/.claude/` and `**/.agents/`. Do
   not repeat those in a per-project `.gitignore`.
-- `spec-driven` is not distributed. In a repo shared with others, pin
-  `schema: spec-driven`, because a collaborator without the fork gets a "schema
-  not found" error.
+- This machine's `spec-driven` is a local override, installed to
+  `~/.local/share/openspec/schemas/` where it shadows the CLI's built-in of the
+  same name. A collaborator gets upstream's `spec-driven`, not this one, so a
+  shared repo silently authors against different templates and a different rubric
+  rather than erroring. Nothing warns about that; the names are identical.
 - Editing a generated dotfile fails: a PreToolUse hook denies writes that
   resolve into `/nix/store`. Edit the Nix source instead.
 - `modules/darwin/keybindings.nix` must hold the complete AppleSymbolicHotKeys
