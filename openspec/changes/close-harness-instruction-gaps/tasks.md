@@ -72,9 +72,23 @@
       own Prohibitions section. The assertion fails the build on all four `deps:` 3.3
 - [x] 3.5 Add the duplicate-fact assertion that fails when an authored rule file
       restates a generated prohibition or a pinned version `deps:` 3.4
-- [ ] 3.6 Spike: determine whether the installed copilot build reads a global
+- [x] 3.6 Spike: determine whether the installed copilot build reads a global
       instruction file; record the answer in `design.md` Open Questions
-- [ ] 3.7 Cover copilot, or leave it exempt with the spike result as the reason `deps:` 3.6
+
+      Answer: yes. GitHub Copilot CLI 1.0.61's bundle names
+      `$HOME/.copilot/copilot-instructions.md` directly, alongside a
+      `.copilot/instructions` directory, and its convention table resolves
+      project `AGENTS.md` (conventionPaths ["."]) and
+      `.github/copilot-instructions.md` (conventionPaths [".github"]). Measured
+      from the shipped app.js, not inferred from docs.
+- [x] 3.7 Cover copilot, or leave it exempt with the spike result as the reason `deps:` 3.6
+
+      Covered, and it already was. `harnesses/copilot-cli.nix` writes
+      `.copilot/copilot-instructions.md` and `lib/instructions.nix` lists copilot
+      with that path, so the global context reaches it from the same single
+      source as every other harness. Verified live: the file is a symlink into the
+      home-manager generation and opens on the shared Conventions section. The
+      spike's value was ruling out an exemption that would have been wrong.
 - [ ] 3.8 Adversarial review (`adversarial-review` skill): critics attempt to
       break this phase against its spec scenarios; revise until no surviving
       objection or K=4 rounds `deps:` 3.5,3.7
