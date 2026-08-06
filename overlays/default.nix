@@ -44,6 +44,7 @@
   (import ./direnv.nix)
   (import ./codex-acp.nix)
   (import ./kvazaar.nix)
+  (import ./obsidian.nix)
   (import ./localias.nix)
   (import ./pplx.nix)
   (import ./alerter.nix)
