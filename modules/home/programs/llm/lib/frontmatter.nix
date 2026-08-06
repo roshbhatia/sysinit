@@ -50,7 +50,14 @@ rec {
               else
                 builtins.replaceStrings [ "{{${builtins.elemAt kv 0}}}" ] [ (builtins.elemAt kv 1) ] acc;
             filled = lib.foldl' sub text pairs;
-            leftover = builtins.match ".*\\{\\{[a-zA-Z_]+\\}\\}.*" filled;
+            # Bracket expressions, not `\{`. A backslash-escaped brace is accepted
+            # by the regex library Nix links on Darwin and REJECTED by the one it
+            # links on Linux, which failed every NixOS evaluation with "invalid
+            # regular expression" while every Darwin build stayed green. `nix flake
+            # check` cannot see this from a Mac: it omits the Linux systems, so the
+            # divergence is invisible until a NixOS host evaluates. `[{]` is one
+            # literal brace under every grammar involved.
+            leftover = builtins.match ".*[{][{][a-zA-Z_]+[}][}].*" filled;
           in
           if leftover != null then
             throw "skill '${name}': include of ${file} leaves an unsubstituted {{placeholder}}"
