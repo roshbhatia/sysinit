@@ -252,13 +252,6 @@ let
     };
 
   piPackages = {
-    # Git packages - source only (no runtime npm deps)
-    annotatedReply = pkgs.fetchFromGitHub {
-      owner = "omaclaren";
-      repo = "pi-annotated-reply";
-      rev = "a230173eec2f3375671eb306b8749662b0ac9122";
-      hash = "sha256-BiwaJB1XrWsAuYXVrRTtpYZdIRD24KPxCfroAXiA02c=";
-    };
 
     # Git package with runtime npm deps - package-lock.json is in the repo
     mermaid = pkgs.buildNpmPackage {
@@ -383,12 +376,6 @@ let
       mkFetchedNpmPackage "@benvargas/pi-openai-verbosity" "1.0.0"
         "sha256-FXjeNW4UVe5PwNjjr2pL6DrLcYkdNtr7yP4jTzQvyPw=";
 
-    # @juicesharp/rpiv-advisor: second-opinion reviewer the model can
-    # request from a stronger model before acting. Spec-driven gate fit.
-    rpivAdvisor =
-      mkFetchedNpmPackage "@juicesharp/rpiv-advisor" "1.5.0"
-        "sha256-21vwJsX9+bbsyf/0FyrJM1lkUOoRvJKMCXUagl61Eqg=";
-
     # Phase C additions (heavier packages with runtime npm deps).
 
     # @plannotator/pi-extension: interactive plan review with inline
@@ -467,6 +454,14 @@ let
   #     read as passing; pi-diff and pi-tool-display already own that rendering.
   #     Its peerDependencies also cap at pi ^0.80.0 against the pinned 0.82.1.
   #     `pkgs.rtk` went with it: nothing else consumed it.
+  #   - pi-annotated-reply: eight commands and zero hooks, so purely
+  #     command-driven, and `/reply-diff` plus `/reply-diff-editor` duplicate what
+  #     `ctrl+b` now does through neovim and diffnote. Nothing in this repo's
+  #     skills, docs, or instructions routes to any of its commands.
+  #   - @juicesharp/rpiv-advisor: one manually-invoked `/advisor` command, paid for
+  #     with a `before_agent_start` system-prompt injection on EVERY agent start.
+  #     The adversarial-review skill and pi-subagents already cover second-opinion
+  #     review, and nothing routes to `/advisor` either.
   piPackagePaths = with piPackages; [
     # 1. Permission gate — MUST load first to wrap all tool calls below.
     "${piPermissionSystem}"
@@ -478,8 +473,6 @@ let
     "${piVcc}"
     # 3. Orchestration.
     "${piPackages.subagents}"
-    # 4. Memory + advisor.
-    "${rpivAdvisor}"
     # 5. UI / workflow.
     "${plannotator}"
     "${btw}"
@@ -491,7 +484,6 @@ let
     # 7. Content utilities.
     "${context}"
     "${subdirContext}"
-    "${annotatedReply}"
     "${mermaid}"
     "${readlineSearch}"
     "${threads}"

@@ -43,7 +43,6 @@ declare -a TRACKED=(
   "pi-sidebar-tui"
   "@benvargas/pi-openai-fast"
   "@benvargas/pi-openai-verbosity"
-  "@juicesharp/rpiv-advisor"
   "taskplane"
   "@plannotator/pi-extension"
   "@gotgenes/pi-permission-system"
