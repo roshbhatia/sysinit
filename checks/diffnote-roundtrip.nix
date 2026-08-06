@@ -279,17 +279,19 @@ pkgs.runCommand "diffnote-roundtrip-check"
           d.draw(0)
           local ns = vim.api.nvim_create_namespace('sysinit_diffnote')
           local marks = vim.api.nvim_buf_get_extmarks(0, ns, 0, -1, { details = true })
-          local widest = 0
+          local overflow = 'none'
           for _, m in ipairs(marks) do
-            local n = #(m[4].virt_lines or {})
-            if n > widest then widest = n end
+            for _, chunk in ipairs(m[4].virt_text or {}) do
+              if chunk[1]:match('more') then overflow = chunk[1]:gsub('%s+', ' ') end
+            end
           end
-          io.write(#marks .. ':' .. widest)
+          io.write(#marks .. ':' .. overflow)
         ")
-        # Six notes on row 1, capped at 3 rendered plus one "+3 more" line. Each note is
-        # one line here (no rationale), so the widest block is 4 lines, not 6.
-        if [ "$stacked" != "2:4" ]; then
-          note "expected 2 marks with a 4-line capped block, got '$stacked'"
+        # Six notes on row 1 render as ONE end-of-line annotation: the first note's
+        # summary, then a count of the rest. Rows are never stacked, so the code under
+        # the note cannot be pushed off screen however many notes land on the line.
+        if [ "$stacked" != "2: +5 more" ]; then
+          note "expected 2 marks and a '+5 more' overflow chunk, got '$stacked'"
         fi
 
         other=$(nvim_eval "$repo" "
@@ -441,14 +443,18 @@ pkgs.runCommand "diffnote-roundtrip-check"
           d.draw(0)
           local ns = vim.api.nvim_create_namespace('sysinit_diffnote')
           local marks = vim.api.nvim_buf_get_extmarks(0, ns, 0, -1, { details = true })
-          local lines = 0
-          for _, m in ipairs(marks) do lines = lines + #(m[4].virt_lines or {}) end
-          io.write(#marks .. ':' .. lines)
+          local parts = {}
+          for _, m in ipairs(marks) do
+            for _, chunk in ipairs(m[4].virt_text or {}) do parts[#parts + 1] = chunk[1] end
+          end
+          io.write(#marks .. ':' .. table.concat(parts))
         ")
-        # One row, one mark, and exactly the one valid note rendered on it.
-        if [ "$survivors" != "1:1" ]; then
-          note "expected the one valid note to survive three malformed ones, got '$survivors'"
-        fi
+        # One row, one mark, and exactly the one valid note rendered on it. No overflow
+        # chunk, because the three malformed notes were filtered before the count.
+        case $survivors in
+          "1:"*"the valid one") ;;
+          *) note "expected the one valid note to survive three malformed ones, got '$survivors'" ;;
+        esac
 
         # Attribution is rendered by the editor at the head of the note. Asserted on the
         # chunk text, because a line count cannot see the author chunk disappear.
@@ -461,7 +467,7 @@ pkgs.runCommand "diffnote-roundtrip-check"
           d.draw(0)
           local ns = vim.api.nvim_create_namespace('sysinit_diffnote')
           local m = vim.api.nvim_buf_get_extmarks(0, ns, 0, -1, { details = true })[1]
-          local first = m[4].virt_lines[1]
+          local first = m[4].virt_text
           -- table.concat, not an accumulator seeded with an empty string literal. The
           -- snippet is passed inside a double-quoted shell argument, where a bare pair
           -- of double quotes is quote-toggling that contributes nothing, leaving the
@@ -476,22 +482,35 @@ pkgs.runCommand "diffnote-roundtrip-check"
           *) note "the note head must render '<author>: <summary>', got '$head'" ;;
         esac
 
-        # A long rationale must not push the code off screen. The cap bounds rendered
-        # LINES as well as note count; a count alone let one note render 400 lines.
+        # Neither a long rationale nor a long summary may push the code off screen. The
+        # note renders as end-of-line virtual TEXT, so a rationale of any size adds no
+        # rows at all, and the summary is truncated to a column cap. Asserted together
+        # because they are the two fields a caller controls the length of.
         $diffnote clear --yes > /dev/null
         longRationale=$(seq 1 400 | tr '\n' '@' | tr '@' '\n')
-        $diffnote add --file src/app.ts --line 2 --summary "long" --rationale "$longRationale" > /dev/null
-        longLines=$(nvim_eval "$repo" "
+        longSummary=$(head -c 300 < /dev/zero | tr '\0' 'x')
+        $diffnote add --file src/app.ts --line 2 --summary "$longSummary" --rationale "$longRationale" > /dev/null
+        longRender=$(nvim_eval "$repo" "
           vim.cmd('edit src/app.ts')
           local d = require('harness.diffnote')
           d.refresh()
           d.draw(0)
           local ns = vim.api.nvim_create_namespace('sysinit_diffnote')
           local m = vim.api.nvim_buf_get_extmarks(0, ns, 0, -1, { details = true })[1]
-          io.write(tostring(#m[4].virt_lines))
+          local parts = {}
+          for _, chunk in ipairs(m[4].virt_text) do parts[#parts + 1] = chunk[1] end
+          local text = table.concat(parts)
+          io.write(#(m[4].virt_lines or {}) .. ' ' .. vim.fn.strchars(text))
         ")
-        if [ "$longLines" -gt 14 ] 2> /dev/null || [ -z "$longLines" ]; then
-          note "one note with a 400-line rationale rendered $longLines virtual lines"
+        # Zero virtual lines, and an annotation no wider than the 90-column summary cap
+        # plus the gutter and the 'pi: ' author prefix.
+        renderedLines=$(printf '%s\n' "$longRender" | cut -d' ' -f1)
+        renderedCols=$(printf '%s\n' "$longRender" | cut -d' ' -f2)
+        if [ "$renderedLines" != 0 ]; then
+          note "a 400-line rationale rendered $renderedLines virtual lines; it must render none"
+        fi
+        if [ -z "$renderedCols" ] || [ "$renderedCols" -gt 110 ] 2> /dev/null; then
+          note "a 300-character summary rendered $renderedCols columns; the cap is 90 plus a prefix"
         fi
 
         # --- notes already on disk must render on start -------------------------
