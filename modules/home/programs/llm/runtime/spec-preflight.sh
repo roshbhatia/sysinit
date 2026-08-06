@@ -9,7 +9,7 @@
 # So the instructions now say "run this and fix what it reports", and this is the
 # thing they run. It only reports; it never edits an artifact.
 #
-# Usage: spec-preflight <citations|proposal|design|tasks|all> [change-name]
+# Usage: spec-preflight <citations|review|proposal|design|tasks|all> [change-name]
 
 set -uo pipefail
 
@@ -38,6 +38,35 @@ fi
 
 dir="openspec/changes/$change"
 printf 'spec-preflight: %s (stage: %s)\n' "$change" "$stage"
+
+# 0. Schema drift. Three different things are called "openspec" and only one of
+# them is what the CLI reads:
+#
+#   modules/home/programs/llm/openspec-schema/  the Nix SOURCE you edit
+#   ~/.local/share/openspec/schemas/<name>/     the INSTALLED copy openspec reads
+#   openspec/                                   THIS repo's planning dir
+#
+# Editing the source has no effect until `nh darwin switch` relinks the middle
+# one, so an author can change a rule, re-run openspec, and be told the old rule.
+# That failure is silent and costs a whole debugging detour, so name it up front.
+# Only sysinit carries the source; everywhere else this stage is a no-op.
+schema_src="modules/home/programs/llm/openspec-schema"
+if [ -f "$schema_src/schema.yaml" ]; then
+  section "schema drift (source vs installed)"
+  schema_name=$(sed -n 's/^name:[[:space:]]*//p' "$schema_src/schema.yaml" | head -1)
+  installed="${XDG_DATA_HOME:-$HOME/.local/share}/openspec/schemas/${schema_name:-spec-driven}"
+  if [ ! -d "$installed" ]; then
+    note "installed schema '$schema_name' not found at $installed"
+  elif diff -qr "$schema_src" "$installed" > /dev/null 2>&1; then
+    note "pass: source and installed agree"
+  else
+    note "DRIFT: openspec is reading the installed copy, not your edit"
+    diff -qr "$schema_src" "$installed" 2> /dev/null | sed 's/^/    /' | head -6
+    note "  run a switch to apply; until then openspec enforces the OLD schema"
+    # Not a failure. Editing the schema and authoring a change in the same
+    # session is normal, and blocking the second on the first would be wrong.
+  fi
+fi
 
 # 1. The rubric. specutil owns em-dashes, bolded leads, phase markers, task ids,
 # dependency cycles, and the review-decision freshness gate.
@@ -144,6 +173,53 @@ if [ "$stage" = "citations" ] || [ "$stage" = "proposal" ] || [ "$stage" = "all"
       fi
     done <<< "$(printf '%s' "$records" | jq -r '.[] | "\(.id) \(.accessed)"')"
     [ "$stale" -eq 1 ] || note "pass fresh: no record past the age threshold"
+  fi
+fi
+
+# 2b. Review decision. openspec decides an artifact is complete by file
+# existence alone (`detectCompleted` in artifact-graph/state.js), so
+# `apply.requires: [tasks, review]` unblocks apply the moment review.md exists,
+# whatever it says. That makes the owner gate real: a review whose decision is
+# still `pending` is not a completed review, and nothing in openspec can say so.
+if [ "$stage" = "review" ] || [ "$stage" = "tasks" ] || [ "$stage" = "all" ]; then
+  section "review decision"
+  review="$dir/review.md"
+  if [ ! -f "$review" ]; then
+    note "FAIL exists: no review.md"
+    note "  apply is gated on this artifact; generate it before implementing"
+    fail=1
+  else
+    decision=$(sed -n 's/^Decision:[[:space:]]*//p' "$review" | head -1)
+    case "$decision" in
+      "run approved" | "not-run approved")
+        note "pass decision: $decision"
+        ;;
+      "" | pending | "<pending"*)
+        note "FAIL decision: still '${decision:-unset}'"
+        note "  the owner records this, not the agent. Elicit it before applying."
+        fail=1
+        ;;
+      *)
+        note "FAIL decision: unrecognised value '$decision'"
+        note "  expected: run approved | not-run approved"
+        fail=1
+        ;;
+    esac
+    # A terminal state that hands back open work must actually list it.
+    state=$(sed -n 's/^State:[[:space:]]*//p' "$review" | head -1)
+    case "$state" in
+      CAPPED | STALLED | CHURNING)
+        if sed -n '/^## Open objections/,$p' "$review" | grep -qE '^- \S'; then
+          note "pass open-objections: $state lists them"
+        else
+          note "FAIL open-objections: $state with none listed is a contradiction"
+          fail=1
+        fi
+        ;;
+      CLEAN | NOT-RUN) note "pass terminal: $state" ;;
+      "") ;;
+      *) note "warn terminal: unrecognised state '$state'" ;;
+    esac
   fi
 fi
 

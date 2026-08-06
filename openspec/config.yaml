@@ -27,6 +27,16 @@ rules:
     - "Put acceptance criteria in the Behavior section. Nothing is promoted to openspec/specs/, so a criterion recorded anywhere else is lost."
     - "Every external-factual claim (pricing, availability, third-party API behaviour, a cited document) needs a citelock entry. An unpinned claim is a default-reject, not a footnote."
     - "Non-goals are load-bearing. List what a reader would reasonably expect this change to cover and it deliberately does not."
+  citations:
+    - "The lock is required even when nothing is cited. Write {\"records\": []} rather than leaving the file out: an absent lock cannot distinguish \"nothing to cite\" from \"nobody looked\"."
+    - "Every record id must be referenced in prose as [cite: <id>], and every [cite: <id>] must name a real record. spec-preflight citations decides both directions."
+    - "Name a record for what it backs (rfd576-responsibility), never by number (claim-3). The id is the thing the prose cites."
+    - "Never hand-edit citations.lock to make the gate pass. The snapshot and its sha256 are the evidence; editing around them leaves a lock that verifies and proves nothing."
+  review:
+    - "Write the Recommendation before running any critic, and name the concrete risk critique would catch or state there is none. The owner must decide against an argument, not a blank."
+    - "Never write the Owner decision section. Not-run is the owner's call, and silence is not consent."
+    - "openspec marks this artifact done when the file exists, not when the decision is made. A review.md with a pending decision is not a completed review; spec-preflight review is what says so."
+    - "Append rounds, never regenerate the file. The surviving-objection trend is the only thing that separates converging from churning."
   design:
     - "Record the options rejected and why, not only the option taken. A design that lists one approach has not been designed."
     - "Name the mechanism rather than the intent - which file, which hook, which assertion. \"Nix owns it\" is not a mechanism."
