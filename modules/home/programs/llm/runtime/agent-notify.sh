@@ -125,25 +125,28 @@ fi
 # and alerter stops listening the moment it times out. So a short timeout is not
 # purely cosmetic: it trades away the one interaction these toasts offer.
 #
-# Hence per-reason, not one number. `done` is informational and nothing is
-# waiting on it, so 5s is right. `approval` means the agent is BLOCKED on a
-# permission prompt: dismissing that in 5s leaves it stuck with no signal left on
-# screen, which is the failure this notifier exists to prevent. `idle` sits
-# between, and its whole point is to be clicked.
+# 5s across the board, on the owner's instruction after reporting twice that
+# toasts hang around. The previous 600s for approval and 120s for idle are what
+# that complaint was: a permission toast sat for ten minutes and an idle nudge for
+# two, so several could be on screen at once.
 #
-# Each is overridable, so tuning does not need a Nix edit and a switch:
-#   AGENT_NOTIFY_TIMEOUT_DONE / _IDLE / _APPROVAL / _DEFAULT
-notif_timeout=${AGENT_NOTIFY_TIMEOUT_DEFAULT:-30}
+# The cost is explicit and accepted: a 5s window on `approval` means a BLOCKED
+# agent loses its on-screen signal almost immediately, and click-to-focus becomes
+# impractical for every reason. Raise the relevant variable to get either back.
+#
+#   AGENT_NOTIFY_TIMEOUT_APPROVAL=600   # restore the long permission window
+#   AGENT_NOTIFY_TIMEOUT_IDLE=60        # restore a clickable idle nudge
+notif_timeout=${AGENT_NOTIFY_TIMEOUT_DEFAULT:-5}
 case "$reason" in
   approval)
     what="needs your approval"
     sound="Blow" # distinctive whoosh — action required, but not jarring
-    notif_timeout=${AGENT_NOTIFY_TIMEOUT_APPROVAL:-600}
+    notif_timeout=${AGENT_NOTIFY_TIMEOUT_APPROVAL:-5}
     ;;
   idle)
     what="is waiting for you"
     sound="Pop" # brief, minimal — gentle nudge
-    notif_timeout=${AGENT_NOTIFY_TIMEOUT_IDLE:-60}
+    notif_timeout=${AGENT_NOTIFY_TIMEOUT_IDLE:-5}
     ;;
   done)
     what="finished its turn"
@@ -153,7 +156,7 @@ case "$reason" in
   *)
     what="needs your attention"
     sound="Pop"
-    notif_timeout=${AGENT_NOTIFY_TIMEOUT_DEFAULT:-30}
+    notif_timeout=${AGENT_NOTIFY_TIMEOUT_DEFAULT:-5}
     ;;
 esac
 

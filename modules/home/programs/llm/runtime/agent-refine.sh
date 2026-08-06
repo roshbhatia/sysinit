@@ -88,6 +88,11 @@ fi
 mv -f "$out.tmp" "$out"
 echo "agent-refine: wrote $out"
 
+# Positional, not flags: agent-notify takes `<agent> <reason> [focus-exe]`. An
+# earlier version here passed `--agent claude --reason ...`, which set agent to
+# the literal "--agent" and fell through to the generic "needs your attention"
+# branch. It notified, so it looked wired, but said nothing useful.
 if command -v agent-notify > /dev/null 2>&1; then
-  agent-notify --agent claude --reason "refine proposals ready: $out" > /dev/null 2>&1 || true
+  # `done` quoted: unquoted, shellcheck reads it as the loop keyword (SC1010).
+  agent-notify claude "done" > /dev/null 2>&1 || true
 fi
