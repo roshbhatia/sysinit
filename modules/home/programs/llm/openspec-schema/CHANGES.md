@@ -212,6 +212,82 @@ a rename/removal, and the flake check fails on a newly added or moved site.
   on a diff too large to read, but it never sees the proposal, so it cannot name
   a criterion. See `overlays/meat.nix`.
 
+### schema.yaml — `version: 2`, two new artifacts
+
+Bumped from 1. Two artifacts added and one section removed, so a change authored
+under version 1 does not satisfy version 2 without generating them.
+
+#### `artifacts[id=citations]` added, generates `citations.lock`
+
+- `citelock` was already the rule (the proposal preflight ran it and the rubric
+  made an unanchored external claim a default-reject), but it was a side file
+  nothing generated. It is now an artifact with `requires: [proposal]`, so the
+  claims are pinned against the document that makes them.
+- REQUIRED for every change, including changes that cite nothing. An absent lock
+  cannot distinguish "nothing to cite" from "nobody looked"; `{"records": []}`
+  says the first one on the record. Verified that `citelock verify` exits 0 on
+  that exact body.
+- The template is `templates/citations.lock`, the only non-markdown template in
+  the fork. The instruction routes all writes through `citelock capture` and
+  forbids hand-editing the lock, because the snapshot and its sha256 are the
+  evidence and editing around them leaves a lock that verifies and proves
+  nothing.
+
+#### `artifacts[id=review]` added, generates `review.md`
+
+- Replaces the `**Adversarial Review**` section of `design.md`, which is removed
+  in the same edit. That section was an instruction telling a {{agent}} what to
+  do; the durable thing was the methodology and the findings were not recorded
+  anywhere structured. Inverted: findings are the artifact, methodology is cited
+  from the `adversarial-review` skill.
+- Carries rubric, per-round findings as a table (lens, finding, concrete failing
+  scenario, verdict), the terminal state, the surviving-objection trend, and the
+  open objections. The trend is why the file is appended to rather than
+  regenerated: it is the only thing that separates converging from churning.
+- `## Recommendation` is written BEFORE any critic runs, and MUST name the
+  concrete risk critique would catch or state that there is none.
+- `## Owner decision` is owner-only. An agent MUST NOT write it and MUST NOT
+  read silence as consent. `NOT-RUN` is therefore not self-certifiable, which is
+  the divergence from version 1: there, an agent could record
+  `Adversarial review: not run` on its own authority.
+- `apply.requires` is now `[tasks, review]`, so implementation cannot start
+  while the owner decision is `pending`.
+
+#### `artifacts[id=proposal|design].instruction` — voice contract and linked citations
+
+- Both now load the `writing-doc-design` skill for voice rather than restating
+  it. A proposal and a design doc are design documents, so they take the same
+  contract as one, including the shared `_shared/doc-voice.md` fragment.
+- RFC 2119 keywords carry every normative statement, and both templates gained
+  the declaration block at the top. This is what replaces bolded emphasis, which
+  the rubric's `bolded-bullet-lead` rule already rejected without offering a
+  replacement.
+- Fixes a stale reference: the version 1 proposal instruction pointed at "the
+  Communication section of `~/.claude/CLAUDE.md`", which does not exist. The
+  rendered context has Conventions, Skills, Responsibility, and Prohibitions.
+  Simplified Technical English is now sourced from the skill.
+- Every external-factual claim in prose MUST carry `[cite: <id>]` naming its
+  `citations.lock` record. Version 1 required the claim to be anchored in the
+  lock but never required the prose to point at it, so a reader had to diff two
+  files by hand to find which sentence a record backed, and an orphaned record
+  was invisible. The link is bidirectional: an uncited record and a dangling
+  reference are both defects, and both are mechanically checkable.
+- Record ids MUST read as what they back (`rfd576-responsibility`), not as a
+  number (`claim-3`), because the id is the thing the prose cites.
+
+#### `apply.instruction` — teammate vs {{agent}} routing
+
+- Version 1 said "MAY fan out independent subtasks" without naming a mechanism.
+  Now routed on what the work needs: implementation subtasks sharing this
+  repository go to teammates (they coordinate and can see each other's edits,
+  which is what stops two of them writing the same file, so each needs a
+  disjoint file set); anything adversarial or verifying goes to fresh-context
+  {{agents}} with a read-only tool set.
+- The rule is coordination versus starvation: work that must agree wants shared
+  context, work that must disagree must not have it. Consistent with the
+  execution-path section of the `adversarial-review` skill, which this cites
+  rather than restates.
+
 ## Pending sync notes
 
 - Initial fork taken from openspec 1.3.0 (`/nix/store/lwijn4py7cknh9zbvvx6icbap5gfl9ab-openspec-1.3.0/lib/openspec/schemas/spec-driven`).

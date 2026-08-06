@@ -1,5 +1,5 @@
 name: spec-driven
-version: 1
+version: 2
 description: Rosh's opinionated OpenSpec workflow - proposal, design, then shaped tasks, with extra authoring rules
 artifacts:
   - id: proposal
@@ -44,9 +44,28 @@ artifacts:
       them: no em-dash in prose, no bolded first term in a bullet outside the
       format keywords (`WHEN`, `THEN`, `AND`, `SHAPE`, `STOP`, `MAX-ITERS`,
       `BREAKING`), every external-factual claim anchored in `citations.lock`.
-      Write in Simplified Technical English per the Communication section of
-      `~/.claude/CLAUDE.md`: one instruction per sentence, active voice, one term
-      per concept. That part is judged in review, not by a script.
+
+      **Voice.** A proposal is a design document, so it follows the same voice
+      contract as one. Load the `writing-doc-design` skill, which carries the
+      shared `_shared/doc-voice.md` fragment; do not re-derive it here.
+
+      Two parts of that fragment bind hardest and are judged in review:
+
+      - RFC 2119 keywords carry every normative statement, and the declaration
+        block at the top of the template MUST stay. This is what replaces bolded
+        emphasis: where you would have written `**Required:**`, write MUST and
+        leave the prose unbolded. Uppercase only when the word carries normative
+        force, so a reader can scan for requirements.
+      - Simplified Technical English: one instruction per sentence, active
+        voice, one term for one concept, no invented metaphors. Do not vary a
+        term for style; reuse it.
+
+      **Citations are linked, not just locked.** Every external-factual claim in
+      prose MUST carry an inline reference to its `citations.lock` record id,
+      written `[cite: <id>]`. A lock the prose never points at makes a reader
+      diff two files by hand to find which sentence a record backs, and makes an
+      orphaned record invisible. The reference is what turns the lock from an
+      appendix into something a reader can follow.
 
       IMPORTANT: The Behavior section is critical. It is the rubric every later
       artifact is reviewed against, and the adversarial review reads it directly.
@@ -57,6 +76,64 @@ artifacts:
 
       This is the foundation - design and tasks both build on this.
     requires: []
+
+  - id: citations
+    generates: citations.lock
+    description: Pinned external-factual claims, verified offline by citelock
+    template: citations.lock
+    instruction: |
+      Pin every external-factual claim the proposal makes, so the offline gate
+      is a pure function of the repository rather than of what a website says
+      today.
+
+      This artifact is REQUIRED for every change, including changes that cite
+      nothing. An absent lock is ambiguous: it cannot distinguish "there was
+      nothing to cite" from "nobody looked". A lock with an empty `records`
+      list says the first one, on the record.
+
+      **What counts as an external-factual claim.** Anything whose truth lives
+      outside this repository and can change without a commit here: pricing, a
+      product's availability or tier, external API behavior, a version or
+      release date, a rate limit, a cited paper or RFC, a quoted upstream
+      policy. A claim about this repository's own code is NOT external; a
+      command decides that one.
+
+      **Steps.**
+
+      1. Re-read the proposal and list every external-factual claim it makes,
+         including ones in `Why` used as justification. A claim that motivates
+         the change is exactly the one worth pinning, because the whole change
+         rests on it.
+      2. Give each record an id that reads as what it backs, not a number.
+         `rfd576-responsibility` tells a reader what the record is for;
+         `claim-3` does not, and the id is what the prose cites. Then run
+         `citelock capture <url> --id <id> --quote <text> --class <class>`.
+         Capture fails closed when the live source does not state the quote.
+         That failure is the feature: it means the claim is wrong, the quote is
+         paraphrased, or the URL moved. Fix the claim, do not weaken the quote
+         until it passes.
+      3. Quote the narrowest span that actually carries the claim. A quote wide
+         enough to survive any rewording anchors nothing.
+      4. Run `citelock verify <change-dir>`. It must exit 0.
+      5. If the change genuinely makes no external-factual claim, write the
+         template unchanged (`{"records": []}`) and say so in one line in the
+         proposal's `Impact`. Do not leave the file absent.
+
+      **The link is bidirectional and both directions are checkable.** Every
+      record id MUST be cited at least once as `[cite: <id>]` in a prose
+      artifact, and every `[cite: <id>]` MUST name a record that exists. An
+      uncited record is either a claim that got edited out, in which case delete
+      it, or a claim the prose forgot to anchor. A dangling reference is a claim
+      pretending to be pinned, which is worse than an unpinned one.
+
+      **When the change is revised.** A claim added to the proposal later needs
+      its own capture; the lock is not generated once and forgotten. Run
+      `citelock recheck` when a pinned source may have moved, and re-capture
+      what it reports. Never hand-edit `citations.lock` to make the gate pass:
+      the snapshot and its sha256 are the evidence, and editing around them
+      leaves a lock that verifies and proves nothing.
+    requires:
+      - proposal
 
   - id: design
     generates: design.md
@@ -78,8 +155,20 @@ artifacts:
       - **Rollout & Gating**: **spec-driven rule**: REQUIRED section. Describe the sequenced rollout — which phase ships first, what gate must pass before the next phase (build green, manual smoke test, user confirmation, etc.), and where the kill switch is if something goes wrong. For dotfiles work, the default gate sequence is: edit → `nix flake check` → `nh os build` (no system change) → user spot-check → `nh os switch`. Deviations from this sequence MUST be called out. Name any feature flag, config toggle, or capability gate that scopes the rollout.
       - **Risks / Trade-offs**: Known limitations, things that could go wrong. Format: [Risk] → Mitigation. Risks that map to human-verification checkpoints in `tasks.md` MUST be flagged here.
       - **Migration Plan**: Steps to deploy, rollback strategy (if applicable). **spec-driven rule**: Every step that mutates shared state, is hard to reverse, or requires elevated permissions MUST be preceded by a verification step and followed by a confirmation step. Single-line "run X" entries for impactful actions are insufficient.
-      - **Adversarial Review**: **spec-driven rule**: REQUIRED section. State the rubric the plan is reviewed against (the proposal `Behavior` criteria, the `Decisions`, the `Rollout & Gating` gates, and the proposal `Non-goals`). The deterministic `specutil check` lint is MANDATORY and runs on every phase. Model critique is optional evidence. Run it when the user requests it or a concrete risk needs an independent critic. Otherwise record `Adversarial review: not run; deterministic lint passed`. A critic result never represents owner or peer approval. When critique runs, follow the bounded loop in the `adversarial-review` skill. A cap hit reports open objections, never a pass. Do not re-derive the methodology here; cite the skill.
       - **Open Questions**: Outstanding decisions or unknowns to resolve
+
+      Adversarial review is NOT a section here. It is its own artifact
+      (`review.md`), because findings recorded as prose inside a design doc are
+      unreadable as a set: nobody can ask "what survived?" of a paragraph. State
+      the rubric sources in `Decisions` and `Rollout & Gating`; the review
+      artifact cites them.
+
+      **Voice.** Same contract as the proposal, and it binds harder here because
+      a design doc is mostly requirements. Load the `writing-doc-design` skill.
+      Keep the RFC 2119 declaration block at the top of the template, carry every
+      normative statement with a keyword rather than with bold, and write in
+      Simplified Technical English. Every external-factual claim carries its
+      `[cite: <id>]` reference, same as the proposal.
 
       Focus on architecture and approach, not line-by-line implementation.
       Reference the proposal for motivation and for the `Behavior` criteria.
@@ -115,7 +204,7 @@ artifacts:
         - Prefer ONE confirmation per impactful action. A run of consecutive `Confirm:` tasks after a single action is a sign the author is enumerating observations rather than naming a decision.
         - A gate is a boundary between runs, not a pause inside one. If a phase needs owner sign-off partway through, split it into two phases so the boundary is visible and the first half can be re-run on its own.
       - **spec-driven rule — reuse first**: For each task that introduces a new module/file, the description SHOULD reference the existing pattern it follows (cite a file path) or explicitly note this is a new pattern (with justification carried from design.md).
-      - **spec-driven rule — review evidence per phase**: Each phase (numbered phase) MUST end with an adversarial-review checkbox before its impactful-action or rollout tasks. The checkbox always runs the mandatory deterministic `specutil check` lint. Model critique is optional. Run it only when requested or justified by a concrete risk. Otherwise record `Adversarial review: not run; deterministic lint passed`. When critique runs, record its terminal state and open objections. `CLEAN` means only that no critic objection survived. It is not owner or peer approval. Human-verification gates for impactful actions still apply.
+      - **spec-driven rule — review evidence per phase**: Each phase MUST end with an adversarial-review checkbox before its impactful-action or rollout tasks. The checkbox runs the mandatory deterministic `specutil check` lint and appends a round block to `review.md`. Do not restate findings in `tasks.md`: the review artifact holds them, and two copies drift. Model critique itself is gated on the owner's recorded decision in `review.md`, so a phase whose review is still `pending` is not done. `CLEAN` means only that no critic objection survived; it is not owner or peer approval. Human-verification gates for impactful actions still apply.
       - **spec-driven rule — a loop must be able to run twice**: `SHAPE loop` is a claim about control flow, not a label for "several steps". Declare `loop` only when the phase has a real back-edge: the same tasks re-run on the next iteration against changed state. A phase of N distinct one-shot steps is a `graph` with a dependency chain, not a loop. Test before writing `loop`: name the task iteration 2 starts from. If there isn't one, it is not a loop.
       - **spec-driven rule — STOP is a command, not a wish**: A `- **STOP**` value MUST be decidable by running something. Write the command, or write a predicate over a command's output. `- **STOP** \`nix flake check\` exits 0 and every new check fails on an injected defect` is a stop condition. `- **STOP** the settings are coherent` is not, because nothing can evaluate it and the loop terminates when the model decides it is bored. The verifier MUST also be outside the blast radius of the work: a loop that may edit its own tests has no stop condition at all. To make the condition actually run rather than be asserted, arm the Stop hook: `loop-gate arm --until '<command>' --max <n> --stall <n>`. It evaluates the command when the turn tries to end, blocks the end while it fails, and reports CLEAN, CAPPED, or STALLED. `/goal` is NOT a substitute: its own docs state it "doesn't run commands or read files independently", so it terminates on a transcript that claims success.
       - **spec-driven rule — two bounds, not one**: Every `loop` MUST declare both a progress bound and an iteration bound, because they fail differently. `- **STOP**` is the success exit. `- **MAX-ITERS** <n>` is the iteration cap and is the marker `specutil check` currently enforces. `- TERMINAL:` names how the loop ends WITHOUT success, using the terminal-state vocabulary the `adversarial-review` skill already defines: `CAPPED` (MAX-ITERS reached), `STALLED` (N consecutive iterations with no change in the STOP metric), `CHURNING` (each fix induces the next defect). MAX-ITERS alone is insufficient: a loop that stalls burns the whole cap before anyone notices. A cap hit is reported as open work, never as a pass. Cite the skill rather than restating its cap-scaling rule.
@@ -146,8 +235,62 @@ artifacts:
     requires:
       - design
 
+  - id: review
+    generates: review.md
+    description: Adversarial review record - rubric, findings, verdicts, terminal state
+    template: review.md
+    instruction: |
+      Record the adversarial review of the plan as data, not as prose. This is
+      the artifact the owner reads to answer "what was challenged, what
+      survived, and what is still open".
+
+      Adversarial review used to be a paragraph in `design.md` that told a
+      subagent what to do. That is backwards: the instruction was durable and
+      the findings were not. Here the findings are the artifact and the
+      methodology is cited from the `adversarial-review` skill.
+
+      **Steps.**
+
+      1. Fill in `## Rubric` by naming its sources. Do not restate them. An
+         objection that cites no rubric item is out of scope and is discarded.
+      2. Run the deterministic lint FIRST and record it: `specutil check` and
+         `citelock verify`. It is mandatory, it is cheap, and it runs whatever
+         the owner decides below. It is evidence, never approval.
+      3. Write `## Recommendation` BEFORE running any critic. Say whether model
+         critique should run for this change and name the concrete risk it would
+         catch, or say plainly that there is none. Both answers are fine. An
+         absent recommendation is not: the owner must be deciding against an
+         argument rather than a blank.
+      4. STOP and elicit the owner's decision. You MUST NOT write
+         `## Owner decision` yourself, and you MUST NOT read silence as consent.
+         Skipping adversarial review is the owner's call, not the author's, so
+         `NOT-RUN` is not self-certifiable.
+      5. If the owner approves running it, execute the bounded loop from the
+         `adversarial-review` skill and record every round in the table: lens,
+         finding, the concrete failing scenario, and the verdict. A finding with
+         no reproducible scenario does not belong in the table; the loop already
+         discards it.
+      6. Record the terminal state and the surviving-objection trend. `CLEAN`
+         means no objection survived. It is not owner approval and it is not
+         peer approval. `CAPPED`, `STALLED`, and `CHURNING` all hand back with
+         open work, and each MUST list its open objections.
+
+      **Execution path.** Critics are fresh-context {{agents}} spawned with a
+      read-only tool set, never in-process teammates. Context starvation is the
+      mechanism that makes the review adversarial: a critic that has read the
+      author's argument for why the plan is right is measurably worse at finding
+      how it is wrong. Use a teammate only when a critic must observe live
+      session state that is not on disk, and name that reason in the round
+      record. See the skill's execution-path section; do not re-derive it.
+
+      **This artifact is revised, not regenerated.** A later phase that runs its
+      own review appends a round block. Rewriting the file loses the trend,
+      which is the one thing that distinguishes converging from churning.
+    requires:
+      - tasks
+
 apply:
-  requires: [tasks]
+  requires: [tasks, review]
   tracks: tasks.md
   instruction: |
     Read the context files, then drive the work from `specutil next` rather than
@@ -160,6 +303,22 @@ apply:
     2. Do that ready set. When it reports `runnable concurrently`, MAY fan out
        independent subtasks when the user requested delegation or parallel work
        materially helps. Never delegate a gate or an owner decision.
+
+       Route the fan-out on what the work needs, not on what is available:
+
+       - Implementation subtasks that share this repository and must not
+         conflict: teammates. They coordinate, they are long-lived, and they can
+         see each other's edits, which is what keeps two of them from writing
+         the same file. Give each a disjoint file set and say so in the prompt.
+       - Anything adversarial or verifying: fresh-context {{agents}} with a
+         read-only tool set. A reviewer that shares the implementer's context
+         inherits the implementer's reasoning. Never a teammate.
+       - Read-only investigation whose answer you need before deciding:
+         fresh-context {{agents}}. Cheaper than a teammate and there is nothing
+         to coordinate.
+
+       The distinction is coordination versus starvation. Work that must agree
+       wants shared context; work that must disagree must not have it.
     3. Mark each finished subtask `- [x]` in `tasks.md`.
     4. Repeat from 1. An exit code of 2 means the dependencies form a cycle: stop
        and fix `tasks.md`, do not retry.

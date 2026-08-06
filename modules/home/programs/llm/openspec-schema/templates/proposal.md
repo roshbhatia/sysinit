@@ -1,6 +1,14 @@
+> The keywords MUST, MUST NOT, SHOULD, SHOULD NOT, and MAY in this document are
+> to be interpreted as described in [RFC 2119](https://datatracker.ietf.org/doc/html/rfc2119).
+
 ## Why
 
-<!-- Explain the motivation for this change. What problem does this solve? Why now? -->
+<!-- Explain the motivation for this change. What problem does this solve? Why now?
+
+     Every external-factual claim here MUST carry an inline citation reference
+     to its `citations.lock` record id, written as `[cite: <id>]`. A claim in
+     `Why` is the one most worth pinning: the whole change rests on it. -->
+
 
 ## What Changes
 

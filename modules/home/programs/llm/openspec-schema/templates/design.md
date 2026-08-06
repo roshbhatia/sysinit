@@ -1,3 +1,6 @@
+> The keywords MUST, MUST NOT, SHOULD, SHOULD NOT, and MAY in this document are
+> to be interpreted as described in [RFC 2119](https://datatracker.ietf.org/doc/html/rfc2119).
+
 ## Context
 
 <!-- Background and current state. Name the existing patterns or files this
