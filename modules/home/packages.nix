@@ -37,6 +37,12 @@
       duf
       htop
       glow
+      # go-grip renders markdown as GitHub-styled HTML and serves it with live
+      # reload. Replaces markdown-preview.nvim, whose `build` step ran a yarn
+      # install inside the lazy plugin directory: a node toolchain and a network
+      # fetch outside the generation, which is the one thing this repo does not
+      # let any other dependency do.
+      go-grip
       tokei
       scc
       chafa
