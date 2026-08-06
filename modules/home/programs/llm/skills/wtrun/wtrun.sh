@@ -17,22 +17,30 @@
 #   -t N        lines of tail to print when waiting (default 20).
 #   -n NAME     name the log instead of using the run counter.
 #
-# Artifacts live under $XDG_STATE_HOME/agents/wtrun: <name>.log, <name>.rc, and
-# last.log / last.rc pointing at the most recent run.
+# Artifacts live under $XDG_STATE_HOME/agents/wtrun/<session>: <name>.log,
+# <name>.rc, and last.log / last.rc pointing at the most recent run.
 
 set -uo pipefail
-
-# The store path is read-only, so state and logs live under XDG.
-here="${XDG_STATE_HOME:-$HOME/.local/state}/agents/wtrun"
-mkdir -p "$here"
-state="$here/worker-pane"
-counter="$here/worker-runs"
-running="$here/worker-running"
 
 die() {
   echo "wtrun: $*" >&2
   exit 1
 }
+
+[ -n "${WEZTERM_PANE:-}" ] || die "not inside a WezTerm pane"
+
+# State is keyed by the calling pane, not shared machine-wide. One global
+# worker-pane file meant two concurrent agent sessions read each other's worker
+# id and sent runs into the wrong pane, and a shared `-n build` let one session's
+# rc overwrite the other's. Set WTRUN_SESSION to make sessions share a worker on
+# purpose.
+session="${WTRUN_SESSION:-pane-${WEZTERM_PANE}}"
+# The store path is read-only, so state and logs live under XDG.
+here="${XDG_STATE_HOME:-$HOME/.local/state}/agents/wtrun/$session"
+mkdir -p "$here"
+state="$here/worker-pane"
+counter="$here/worker-runs"
+running="$here/worker-running"
 
 pane_alive() {
   [ -n "${1:-}" ] || return 1
@@ -110,7 +118,6 @@ if [ "$#" -ge 2 ] && printf %s "$1" | grep -qE '^[a-z][a-z0-9_-]*$' &&
 fi
 
 command -v jq > /dev/null || die "jq is required to confirm the pane still exists"
-[ -n "${WEZTERM_PANE:-}" ] || die "not inside a WezTerm pane"
 
 # Run ids are monotonic so two runs never share a log, and `last` always points
 # at the newest.
@@ -127,7 +134,10 @@ queued=""
 [ -f "$running" ] && queued="$(cat "$running")"
 
 worker="$(worker_id)" || {
-  worker="$(wezterm cli split-pane --bottom --percent 40 2> /dev/null)" ||
+  # Split from the caller's own pane. Without --pane-id, split-pane targets
+  # whatever pane is active, which is how a run landed in an unrelated window
+  # when the owner had clicked elsewhere.
+  worker="$(wezterm cli split-pane --pane-id "$WEZTERM_PANE" --bottom --percent 40 2> /dev/null)" ||
     die "could not create a pane"
   worker="${worker//[^0-9]/}"
   echo "$worker" > "$state"
@@ -137,6 +147,12 @@ worker="$(worker_id)" || {
   # the conversation pane.
   wezterm cli activate-pane --pane-id "$WEZTERM_PANE" 2> /dev/null || true
 }
+
+# A second run under a name that is currently executing would delete the first
+# run's rc, and a caller waiting on that path would then read the wrong status.
+if [ -n "$queued" ] && [ "$queued" = "$name" ]; then
+  die "a run named $name is already executing; use a different -n, or wait for $rc"
+fi
 
 # The command goes to a script file rather than into the sent text. Sending it
 # inline would re-parse it in the worker's shell, so a quote, a newline, or a
