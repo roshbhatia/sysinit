@@ -11,6 +11,9 @@
 - [ ] 1.3 Verify: `nix build` on the new package succeeds and
       `./result/bin/sysinit-agent --help` lists no subcommands yet.
       `deps:` 1.2
+- [ ] 1.4 Adversarial review (`adversarial-review` skill): run deterministic
+      lint; run critics on `internal/store`, which every later phase depends on.
+      `deps:` 1.3
 
 ## 2. Tier A, diffnote
 
@@ -55,6 +58,10 @@
 - [ ] 3.4 Act: switch packaging to a `citelock` shim, deleting
       `skills/citation-verification/citelock.sh`. `deps:` 3.3
 
+- [ ] 3.5 Adversarial review (`adversarial-review` skill): run deterministic
+      lint; run critics on the lock-format compatibility, since a citations lock
+      the offline gate cannot read fails closed on every commit. `deps:` 3.4
+
 ## 4. Ship Tier A
 
 - **SHAPE** graph
@@ -67,6 +74,10 @@
 - [ ] 4.4 Confirm: after one working day of real use, `diffnote list --json`
       still parses and no note is missing against the 2.1 backup. This gate
       blocks phase 5. `deps:` 4.3
+
+- [ ] 4.5 Adversarial review (`adversarial-review` skill): run deterministic
+      lint. Critics are not justified here; this phase only gates on commands
+      and on the owner's own spot-check. `deps:` 4.4
 
 ## 5. Tier B, hot path
 
@@ -81,11 +92,15 @@
       original it replaced. `deps:` 5.1
 - [ ] 5.5 Apply: `nh darwin switch` carrying 5.1 and 5.3 only. `deps:` 5.2, 5.4
 
+- [ ] 5.6 Adversarial review (`adversarial-review` skill): run deterministic
+      lint; run critics on the file-bus layout, which the wezterm surfaces read
+      and no check fully covers. `deps:` 5.5
+
 ## 6. Tier B, deny path
 
 - **SHAPE** loop
-- **STOP** `checks/destructive-guard-fixtures.nix` and
-  `checks/exit-code-guard-blocks.nix` both pass, and a Go test exists per
+- **STOP** `nix flake check` exits 0 with `checks/destructive-guard-fixtures.nix`
+  and `checks/exit-code-guard-blocks.nix` unmodified, and a Go test exists per
   fixture case
 - **MAX-ITERS** 3
 - TERMINAL: CAPPED at 3, or STALLED with the same fixture failing twice. On
@@ -102,6 +117,10 @@
       security gate.
 - [ ] 6.5 Apply: `nh darwin switch`.
 
+- [ ] 6.6 Adversarial review (`adversarial-review` skill): run deterministic
+      lint; run critics adversarially against the deny path, whose failure mode
+      is to fail open. This is the highest-risk slice in the change.
+
 ## 7. Close out
 
 - **SHAPE** graph
@@ -110,3 +129,6 @@
       for any migrated script. `deps:` 6.5
 - [ ] 7.2 Confirm: record in the proposal whether Tier C follows, which is the
       second human-owned decision. `deps:` 7.1
+- [ ] 7.3 Adversarial review (`adversarial-review` skill): run deterministic
+      lint over the whole change; confirm no migrated path still shells out to
+      `jq`. `deps:` 7.2
