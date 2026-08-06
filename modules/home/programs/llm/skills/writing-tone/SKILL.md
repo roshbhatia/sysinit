@@ -1,5 +1,5 @@
 ---
-description: Rewrites longer-form prose into Roshan's working voice: scope-bounded, contract-shaped, terse. Use for audit docs, proposals, design notes, RFCs, status posts, and review comments written in his name.
+description: Rewrites longer-form prose into Roshan's working voice: scope-bounded, contract-shaped, plain, with no bolded prefixes and no callout boxes. Use for audit docs, proposals, design notes, RFCs, status posts, and review comments written in his name.
 model: haiku
 effort: low
 ---
@@ -10,7 +10,9 @@ A style guide for longer-form prose written in Roshan's name. Preserve the
 thesis, decisions, and beliefs that Roshan supplied. Never invent a position or
 claim personal experience on his behalf.
 
-Provenance: extracted from Roshan's authentic work corpus — the work-breakdown, scope-enforcement, feedback, and planning notes in `~/orgfiles` tagged `company/nike/*` and the related work-* project files. This is the genuine voice. It is explicitly NOT the register of polished "review"/RFC docs that reach for rhetorical effect; those are the anti-pattern this skill exists to suppress (see "What to avoid").
+Provenance, two corpora. The first is Roshan's work-breakdown, scope-enforcement, feedback, and planning notes in `~/orgfiles` tagged `company/nike/*` and the related work-* project files. The second is the Laurel multi-cloud topology RFC, confirmed by Roshan in 2026-08 as "exactly how i like things to be written".
+
+The anti-pattern is the *rhetorical* register, not long-form docs as such. A doc can be long, structured, and table-heavy and still be in voice. What puts it out of voice is reaching for effect: aphorisms, named rhetorical devices, and bolded labels doing work that a plain sentence should do. See "What to avoid".
 
 When the prompt supplies no thesis, ask for one or produce an outline that
 labels each unresolved position. Do not infer beliefs from the style corpus.
@@ -29,9 +31,9 @@ Scope does not include:
 - <thing out>
 ```
 
-Variants seen in the corpus: "Our scope of enforcement includes: / does not include:", "In scope: / Out of scope:", "Claim under test: ...". Pick the phrasing that fits, but always draw the line, and always name the out-of-scope items — silent omission reads as oversight; an explicit out-list reads as a decision.
+Variants seen in the corpus: "Our scope of enforcement includes: / does not include:", "In scope: / Out of scope:", "Claim under test: ...". Pick the phrasing that fits, but always draw the line, and always name the out-of-scope items, since silent omission reads as oversight while an explicit out-list reads as a decision.
 
-## Pair every claim with how it's validated — and its inverse
+## Pair every claim with how it's validated, and with its inverse
 
 Assertions do not stand alone. Each meaningful claim is paired with how it was checked, and where it matters, with the inverse case that proves the boundary holds.
 
@@ -59,7 +61,7 @@ Work breakdowns use a consistent shape. Each item carries:
 - Testing / Validation: how it's checked, including the inverse where relevant.
 - Notes: constraints, dependencies, flags.
 
-Keep the labels. The explicit `Output:` per item is part of the recognizable shape — it forces every subtask to name a deliverable rather than an activity.
+Keep the labels. The explicit `Output:` per item is part of the recognizable shape, because it forces every subtask to name a deliverable rather than an activity.
 
 ## Decisions are contracts, not discussion
 
@@ -73,9 +75,23 @@ When a document asks for a decision, frame each ask as an ownable contract, not 
 
 Close with `**Bottom line:**` or a one-line restatement of what must happen. Do not close with a rhetorical flourish.
 
+## Corrections go in a log, not in the body
+
+A document that has been through review accumulates corrections, and each one is tempting to confess where it happened. Do not. An inline "an earlier draft said X, which was wrong" discredits the surrounding evidence at the exact moment the reader needs to trust it, and a dozen of them make the whole document read as unreliable.
+
+Keep a dated log at the bottom instead, one line per correction, and state the current position plainly in the body:
+
+```
+## Decision log
+- <YYYY-MM-DD> <what changed and why it was wrong before> — <who>
+```
+
+Two exceptions, both narrow. Note the correction inline when the old claim is still circulating and a reader may act on it, or when the *direction* of error matters to how much the reader should trust the current number. One sentence, then move on.
+
 ## Prose mechanics
 
-- Terse and declarative. Short sentences. Cut hedges ("I think", "it seems", "perhaps", "arguably").
+- Declarative, and compound where the clauses genuinely connect. Join with `so`, `because`, `since`, `whereas`, or `but` when one clause causes or qualifies the next. The enemy is hedging and preamble, not sentence length. Chopping every thought into its own five-word sentence reads as clipped rather than terse, and Roshan has called that out directly.
+- Cut hedges ("I think", "it seems", "perhaps", "arguably").
 - Enforcement- and flag-driven framing: "enforce", "gate", "fail closed", "in scope", "count = 0", "defaults to true but is hardcoded off". Concrete mechanism over abstraction.
 - Emphasis via bold and italics on the operative word, not via sentence construction. `**Confirmed directly**`, `*Owner:*`.
 - Backtick every identifier, flag, config key, module name, resource count.
@@ -92,7 +108,8 @@ These are the markers of the polished-RFC voice that is NOT Roshan's. Suppress t
 - Cost-of-ownership poetry / abstract meditations on systems. Stay concrete: what is broken, where, how it's confirmed, what closes it.
 - Em-dashes for dramatic elaboration. Use `so`, `as`, `because`, or a period.
 - Throat-clearing preamble and section-summarizing meta-sentences ("In this section we will...").
-- Bolded prose used decoratively rather than on the operative word.
+- Bolded prefixes. `**Schedule.** The rewrite touches 50 services.` and `**The problem:** X` are the pattern to kill. Roshan's words: "that only results in confusion." Bold the operative word inside the sentence, or carry the force with an RFC 2119 keyword in a doc that declares them. Do not label a paragraph with a bolded noun phrase.
+- Callouts, admonition boxes, and highlighted panels. In Notion these are `<callout>`; elsewhere they are tip/warning/note blocks. Roshan reads them as confusing rather than emphatic. If the content matters, it belongs in the prose; if it does not, cut it.
 - Emojis, anywhere.
 - Marketing adjectives ("robust", "seamless", "powerful", "comprehensive") standing in for a concrete claim.
 
@@ -115,3 +132,15 @@ These are the markers of the polished-RFC voice that is NOT Roshan's. Suppress t
 
 - WHEN the user hands you text already written in the polished-RFC register
 - THEN recast it: strip aphorisms and named rhetorical devices, convert abstractions to concrete mechanism, draw the scope boundary, and pair claims with validation. Preserve all numbers, tables, glyphs, and links verbatim.
+
+- WHEN you reach for `**Label.**` at the start of a sentence or list item
+- THEN delete the label and write the sentence, since the content that followed the label is the point. In a doc that declares RFC 2119, carry the force with MUST or SHOULD instead.
+
+- WHEN you want to set a passage apart in a callout, tip block, or highlighted panel
+- THEN put it in the prose at the position where the reader needs it, or cut it. Roshan does not read the box as emphasis, he reads it as noise.
+
+- WHEN every sentence in a paragraph is under ten words
+- THEN join the clauses that actually connect, since the result reads clipped rather than terse. Keep the short sentence for the finding itself.
+
+- WHEN a review has corrected a claim several times
+- THEN state the current position in the body and move the history to a dated decision log, rather than confessing each correction where it happened.
