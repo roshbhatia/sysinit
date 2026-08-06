@@ -114,7 +114,7 @@ local last_source_win = nil
 
 local excluded_filetypes = {
   snacks_terminal = true,
-  ["fyler_finder"] = true,
+  ["neo-tree"] = true,
   NvimTree = true,
   Outline = true,
   qf = true,

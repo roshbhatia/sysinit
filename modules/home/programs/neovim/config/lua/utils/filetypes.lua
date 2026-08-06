@@ -1,7 +1,7 @@
 local M = {}
 
 -- Sidebar panels — skip resize, skip as open targets
-M.sidebar_filetypes = { "fyler_finder", "grug-far", "Outline" }
+M.sidebar_filetypes = { "neo-tree", "grug-far", "Outline" }
 
 -- Utility buffers — strip decorations, skip resize
 M.utility_filetypes = { "oil", "oil_preview", "quickfix", "help" }

@@ -90,7 +90,7 @@ local function main_win()
       local buf = vim.api.nvim_win_get_buf(win)
       local bt = vim.bo[buf].buftype
       local ft = vim.bo[buf].filetype
-      if bt ~= "terminal" and bt ~= "prompt" and ft ~= "fyler" and ft ~= "trouble" then
+      if bt ~= "terminal" and bt ~= "prompt" and ft ~= "neo-tree" and ft ~= "trouble" then
         return win
       end
     end
