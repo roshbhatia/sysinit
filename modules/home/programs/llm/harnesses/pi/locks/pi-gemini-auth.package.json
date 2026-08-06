@@ -1,0 +1,6 @@
+{
+  "name": "pi-gemini-auth-deps",
+  "version": "0.0.0",
+  "private": true,
+  "dependencies": { "@google/genai": "1.52.0" }
+}

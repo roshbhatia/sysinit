@@ -17,23 +17,58 @@ let
 
   # Gemini OAuth (Google Cloud Code Assist) as a provider, restoring what pi
   # dropped from core. Pinned from source rather than `pi install npm:...`:
-  # an imperative install lands outside the generation and drifts, and this
-  # package needs no node_modules to run. Its only non-pi dependency,
-  # `@google/genai`, appears once as `import type`, which is erased before
-  # execution; everything else is under its own src/vendor/.
-  piGeminiAuth = pkgs.fetchFromGitHub {
+  # an imperative install lands outside the generation and drifts.
+  piGeminiAuthSrc = pkgs.fetchFromGitHub {
     owner = "qraxiss";
     repo = "pi-gemini-auth";
     rev = "3fa07ac080594744a39c736a72885388fb0c1314";
     hash = "sha256-HjiSEC1loWfiziR47LLLx9N4y4Ly25HdWXLXtdqDZLQ=";
   };
 
+  # `@google/genai` is a RUNTIME dependency. An earlier revision of this comment
+  # called it type-only and shipped the source with no node_modules, and pi then
+  # refused to START: src/vendor/google-shared.ts imports FinishReason and
+  # FunctionCallingConfigMode as VALUES, and a failed extension load is fatal, not
+  # skipped. Only gemini-cli-provider.ts uses `import type`; reading that one line
+  # is what produced the wrong claim.
+  #
+  # That package alone is vendored, from a lock generated for it alone rather than
+  # for the upstream package.json. Upstream also lists `@earendil-works/pi-ai` and
+  # `pi-coding-agent` as peers, which npm installs by default; that would put a
+  # SECOND copy of the extension API inside the extension, which is the failure
+  # mode the comment on `extensionsDir` above exists to prevent. It also takes the
+  # tree from 42 packages to over 400.
+  piGeminiAuthDeps = pkgs.buildNpmPackage {
+    pname = "pi-gemini-auth-deps";
+    version = "1.52.0";
+    src = pkgs.runCommand "pi-gemini-auth-deps-src" { } ''
+      mkdir -p $out
+      cp ${./locks/pi-gemini-auth.package.json} $out/package.json
+      cp ${./locks/pi-gemini-auth.lock.json} $out/package-lock.json
+    '';
+    npmDepsHash = "sha256-hH6PzUgcORQMCrstyGHX5F+fF9OcokoANKAOtF3jl2M=";
+    npmFlags = "--ignore-scripts";
+    dontNpmBuild = true;
+    installPhase = ''
+      runHook preInstall
+      mkdir -p $out
+      cp -r node_modules $out/node_modules
+      runHook postInstall
+    '';
+  };
+
+  piGeminiAuth = pkgs.runCommand "pi-gemini-auth" { } ''
+    cp -r ${piGeminiAuthSrc} $out
+    chmod -R u+w $out
+    ln -s ${piGeminiAuthDeps}/node_modules $out/node_modules
+  '';
+
   # pi resolves a directory extension through its package.json `pi.extensions`
   # key, the same shape openspec-sidebar uses. Assert it rather than trust it:
   # upstream renaming that key would leave a directory installed that pi
   # silently never loads.
   assertGeminiAuthEntrypoint =
-    if !builtins.pathExists "${piGeminiAuth}/src/index.ts" then
+    if !builtins.pathExists "${piGeminiAuthSrc}/src/index.ts" then
       throw "pi.nix: pi-gemini-auth no longer ships src/index.ts; re-pin and check its package.json `pi.extensions`."
     else
       true;
