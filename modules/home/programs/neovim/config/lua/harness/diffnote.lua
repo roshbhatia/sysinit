@@ -1,8 +1,17 @@
 -- Render agent review notes inside the CodeDiff view.
 --
 -- An agent leaves notes with the `diffnote` CLI, which writes one JSON file per
--- repository. This module reads that file and draws each note as virtual lines
--- above its target line in the diff's modified window.
+-- repository. This module reads that file and draws each note as end-of-line
+-- virtual text on its target line in the diff's modified window.
+--
+-- Virtual TEXT, not virtual lines. codediff replaced native scrollbind with a
+-- structural sync whose alignment table counts every `virt_lines` extmark in the
+-- buffer across all namespaces (codediff/scrollsync.lua). Notes only anchor on
+-- the modified side, because the original side is a git object rather than a file
+-- on disk, so filler rows here and none there left the two panes' virtual-row
+-- mappings permanently disagreeing and the view scrolled up and down on its own.
+-- End-of-line virtual text occupies no row, so the alignment stays symmetric.
+-- The full note lives in `M.qflist` and `M.show_at_cursor` instead.
 --
 -- Watching the file (not talking to the agent) is the same choice spec_watch.lua
 -- makes, and for the same reasons: it works for every harness, needs no RPC
@@ -13,15 +22,11 @@ local M = {}
 
 local NS = vim.api.nvim_create_namespace("sysinit_diffnote")
 local DEBOUNCE_MS = 150
--- Notes accumulate: nothing prunes the store, and every review of the same hunk
--- adds another. Past this much on one row the block stops being readable, so the
--- rest collapse to a count. `diffnote clear` is how they actually go away.
---
--- Bounded on RENDERED LINES as well as note count. A count alone did not hold the
--- stated property: `rationale` keeps its newlines by contract and nothing bounds its
--- length, so one note with a 400-line rationale pushed the code off screen.
-local MAX_NOTES_PER_ROW = 3
-local MAX_LINES_PER_ROW = 12
+-- One row renders as one line of virtual text, so the note count no longer decides
+-- how much vertical space is taken. What still needs bounding is WIDTH: a long
+-- summary pushes past the window edge and is simply lost, and `rationale` is not
+-- rendered inline at all now. Extra notes on a row collapse to a count.
+local MAX_SUMMARY_COLS = 90
 
 -- `drawn` is every buffer this module has placed a mark in. M.stop cleared only
 -- `nvim_get_current_buf()`, so notes left behind in the reviewer's real file
@@ -143,24 +148,31 @@ end
 -- `author` is still self-declared by whatever wrote the note. This makes the claim
 -- visible and unambiguous; it does not authenticate it.
 ---@param note table
----@return table[][]  virtual line chunks
-local function render_note(note)
-  local author = type(note.author) == "string" and note.author ~= "" and note.author or "agent"
-  local lines = {
-    {
-      { "▎ ", "DiagnosticInfo" },
-      { author .. ": ", "DiagnosticInfo" },
-      { note.summary, "DiagnosticVirtualTextInfo" },
-    },
-  }
-  if type(note.rationale) == "string" and note.rationale ~= "" then
-    for piece in vim.gsplit(note.rationale, "\n", { plain = true }) do
-      if piece ~= "" then
-        table.insert(lines, { { "▎   ", "DiagnosticInfo" }, { piece, "Comment" } })
-      end
-    end
+---@return string
+local function note_author(note)
+  return type(note.author) == "string" and note.author ~= "" and note.author or "agent"
+end
+
+-- One row of notes renders as ONE line of end-of-line virtual text. The first
+-- note is shown; the rest collapse to a count, because there is only one line to
+-- spend and a row with five notes would otherwise be an unreadable run-on.
+---@param notes table[]
+---@return table[]  virtual text chunks
+local function render_row(notes)
+  local first = notes[1]
+  local summary = first.summary:gsub("%s+", " ")
+  if vim.fn.strchars(summary) > MAX_SUMMARY_COLS then
+    summary = vim.fn.strcharpart(summary, 0, MAX_SUMMARY_COLS - 1) .. "…"
   end
-  return lines
+  local chunks = {
+    { "  ▎ ", "DiagnosticInfo" },
+    { note_author(first) .. ": ", "DiagnosticInfo" },
+    { summary, "DiagnosticVirtualTextInfo" },
+  }
+  if #notes > 1 then
+    table.insert(chunks, { (" +%d more"):format(#notes - 1), "Comment" })
+  end
+  return chunks
 end
 
 -- Public so a test can render into a buffer without codediff loaded. `draw_all`
@@ -199,36 +211,12 @@ function M.draw(buf)
   end
 
   for _, row in ipairs(order) do
-    local row_notes = by_row[row]
-    local lines, shown = {}, 0
-    for index, note in ipairs(row_notes) do
-      local rendered = render_note(note)
-      local over_notes = index > MAX_NOTES_PER_ROW
-      local over_lines = #lines > 0 and (#lines + #rendered) > MAX_LINES_PER_ROW
-      if over_notes or over_lines then
-        local hidden = #row_notes - shown
-        table.insert(lines, {
-          { "▎ ", "DiagnosticInfo" },
-          { ("+%d more note%s"):format(hidden, hidden == 1 and "" or "s"), "Comment" },
-        })
-        break
-      end
-      vim.list_extend(lines, rendered)
-      shown = shown + 1
-    end
-    -- A single note longer than the line budget is still truncated, so one long
-    -- rationale cannot push the code off screen either.
-    if #lines > MAX_LINES_PER_ROW + 1 then
-      local dropped = #lines - MAX_LINES_PER_ROW
-      lines = vim.list_slice(lines, 1, MAX_LINES_PER_ROW)
-      table.insert(lines, {
-        { "▎ ", "DiagnosticInfo" },
-        { ("+%d more line%s"):format(dropped, dropped == 1 and "" or "s"), "Comment" },
-      })
-    end
     pcall(vim.api.nvim_buf_set_extmark, buf, NS, row, 0, {
-      virt_lines = lines,
-      virt_lines_above = true,
+      virt_text = render_row(by_row[row]),
+      virt_text_pos = "eol",
+      -- The diff highlights the line underneath; overwriting it would make an
+      -- annotated line stop reading as added or changed.
+      hl_mode = "combine",
     })
   end
 end
@@ -284,6 +272,84 @@ function M.count()
     total = total + #notes
   end
   return total
+end
+
+-- Reads the store directly rather than using `state`, so both entry points below
+-- work with no CodeDiff view open and without disturbing what is drawn.
+---@return string|nil root, table<string, table[]> by_file
+local function load()
+  local root = repo_root()
+  if not root then
+    return nil, {}
+  end
+  return root, read_notes(root)
+end
+
+-- Every note in the repository as a quickfix list. This is where the full set
+-- lives now that a row renders as one line: `:cnext` walks them, and the
+-- rationale that no longer fits inline is on the entry.
+function M.qflist()
+  local root, by_file = load()
+  if not root then
+    vim.notify("diffnote: not inside a git repository", vim.log.levels.WARN)
+    return
+  end
+  local items = {}
+  for file, notes in pairs(by_file) do
+    for _, note in ipairs(notes) do
+      local text = note_author(note) .. ": " .. note.summary:gsub("%s+", " ")
+      if type(note.rationale) == "string" and note.rationale ~= "" then
+        text = text .. "  — " .. note.rationale:gsub("%s+", " ")
+      end
+      table.insert(items, { filename = vim.fs.joinpath(root, file), lnum = note.line, text = text })
+    end
+  end
+  if #items == 0 then
+    vim.notify("diffnote: no notes in this repository", vim.log.levels.INFO)
+    return
+  end
+  table.sort(items, function(left, right)
+    if left.filename ~= right.filename then
+      return left.filename < right.filename
+    end
+    return left.lnum < right.lnum
+  end)
+  vim.fn.setqflist({}, " ", { title = "diffnote", items = items })
+  vim.cmd("copen")
+end
+
+-- The full text of every note on the cursor's line, including the rationale the
+-- inline text drops.
+function M.show_at_cursor()
+  local root, by_file = load()
+  if not root then
+    return
+  end
+  local buf = vim.api.nvim_get_current_buf()
+  local key = buf_key(buf, root)
+  local notes = key and by_file[key]
+  if not notes then
+    return
+  end
+  local row = vim.api.nvim_win_get_cursor(0)[1]
+  local lines = {}
+  for _, note in ipairs(notes) do
+    if note.line == row then
+      table.insert(lines, note_author(note) .. ": " .. note.summary)
+      if type(note.rationale) == "string" and note.rationale ~= "" then
+        for piece in vim.gsplit(note.rationale, "\n", { plain = true }) do
+          if piece ~= "" then
+            table.insert(lines, "  " .. piece)
+          end
+        end
+      end
+    end
+  end
+  if #lines == 0 then
+    vim.notify("diffnote: no note on this line", vim.log.levels.INFO)
+    return
+  end
+  vim.lsp.util.open_floating_preview(lines, "markdown", { border = "rounded", focus = false })
 end
 
 ---@return boolean started

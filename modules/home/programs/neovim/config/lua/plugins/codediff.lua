@@ -133,6 +133,20 @@ return {
         desc = "Open repo history",
       },
       {
+        "<leader>dn",
+        function()
+          require("harness.diffnote").qflist()
+        end,
+        desc = "Agent notes to quickfix",
+      },
+      {
+        "<leader>dN",
+        function()
+          require("harness.diffnote").show_at_cursor()
+        end,
+        desc = "Agent note under cursor",
+      },
+      {
         "<leader>dh",
         function()
           local filepath = vim.fn.expand("%")
