@@ -93,23 +93,6 @@ let
           - Model review supplements human review; it never constitutes approval
         '';
 
-        # Deliberately an instruction rather than a PostToolUse hook. A hook sees
-        # only the tool payload, so it can record that a line changed but never
-        # why, and the why is the entire value of a note at review time. A hook
-        # would also anchor a note per edit, and nothing re-anchors a note when a
-        # later edit shifts the file, so per-edit notes start correct and drift
-        # wrong. The agent writing them deliberately, at the moment it knows the
-        # reason, is the only version that carries information.
-        reviewNotes = ''
-          ## Review notes
-
-          - Leave a note with `diffnote add --file <path> --line <n> --summary <text>` when a change would surprise a reader: a non-obvious constraint, a workaround, a rejected alternative
-          - Pass `--rationale` for the why, and `--author <your name>` so a teammate's note is attributable
-          - Pass `--replace` when re-noting the same line, so repeated passes do not stack
-          - Do not note routine edits; the diff already shows what changed
-          - Notes render in the reviewer's editor next to the diff, so write them for a human reading the change later
-        '';
-
         prohibitions = ''
           ## Prohibitions
 
@@ -129,7 +112,6 @@ let
       ++ lib.optional (builtins.elem harness harnessesWithoutSkillLoader) "skills"
       ++ [
         "responsibility"
-        "reviewNotes"
         "prohibitions"
       ];
 
