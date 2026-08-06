@@ -1,9 +1,8 @@
 version: 1
 change: quiet-pi-sidebar-and-diff-review
 decision: approved
-note: 'Adversarial review rounds 1 and 2 of K=2 both ran with owner approval, six fresh-context critics total. Terminal state CAPPED: every code objection revised against, remaining items accepted and recorded in Risks/Non-goals.'
-change_hash: 1252ef5d7f928bc7
-base_commit: 71d5039429fd8021638855c21253d2fae80822ae
+change_hash: c35430be98526c3e
+base_commit: 523a425c2114ee11ad2143b511c8baddfd00be1f
 items:
     1bdc18763aaf60f9:
         hash: f668945435b3210c
@@ -26,9 +25,6 @@ items:
     5b3e1540c9e8b407:
         hash: c33d91c955fcd8b1
         text: Narrow `tui.editor.cursorLeft` to `left` in the generated `keybindings.json`, so `ctrl+b` is uncontested, and modernize `renameSession` to the namespaced `app.session.rename` (D7)
-    6acb32b004e05ade:
-        hash: b3bfc19173f37ff2
-        text: 'Decide: the owner chooses when `~/.config/nvim.pre-inline` and the `sysinit.nvim` remote are retired, whether the hand-written `pi-permission-system/config.json` and `pi-rtk-optimizer/config.json` under `~/.pi/agent/extensions/` move into Nix or are deleted, and whether the stale `mcp-cache.json` is removed now that nothing reads it'
     7d3c940fa32844be:
         hash: 8b33af6703ae14dc
         text: 'Add `runtime/diffnote.sh` (follows `runtime/agent-review.sh`) with hunk''s `session comment` command surface: `add`, `apply --stdin`, `list`, `clear`, `path`. Validate a whole batch before writing, and replace the store atomically (D11)'
@@ -149,6 +145,9 @@ items:
     c6b71e89fbd0b435:
         hash: 46495dbd7bf9f4a5
         text: 'Mutation test the check. Two mutations caught: shortening the Lua digest to 15 characters failed the path assertion, and dropping the clamp failed the extmark assertion. A third, moving the write before validation, was not run because the anchor was not unique; that property is asserted but not mutation-verified'
+    c14a4740f00b58e0:
+        hash: aa09bd48b94e670c
+        text: 'Decide: the owner retired the `sysinit.nvim` remote (archived) and chose each unmanaged config''s fate. `pi-permission-system/config.json` moved into Nix, generated from `allowlist.nix`. `pi-rtk-optimizer/config.json` was deleted with its extension: the config held nothing but upstream defaults, and the extension rewrote `event.input.command` to `rtk <cmd>` forms that match none of the 13 deny globs, which under `yoloMode` auto-approve. `pkgs.rtk` and its `doCheck = false` overlay went with it, unreferenced. Still open: `~/.config/nvim.pre-inline`, the stale `mcp-cache.json`, and the hand-written `pi-openai-fast.json` and `pi-openai-verbosity.json`'
     cca3bfbe992f925a:
         hash: 7d4eef727176400d
         text: Call it from the three `CodeDiff` lifecycle hooks in `config/lua/plugins/codediff.lua`
