@@ -149,6 +149,10 @@ in
     # Theming
     papirus-icon-theme
     apple-cursor
-    gruvbox-gtk-theme
+    # gruvbox-gtk-theme is deliberately absent. nixpkgs removed it with its
+    # gtk-engine-murrine dependency, which was unmaintained and GTK 2 only, and
+    # the removal broke every arrakis evaluation. Nothing here replaces it:
+    # `stylix.enable` with `autoEnable` derives the GTK theme from the base16
+    # scheme, so this package was installed and selected by nothing.
   ];
 }
