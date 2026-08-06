@@ -15,6 +15,29 @@ let
   # load time, not at build time. One source removes that class of defect, and a
   extensionsDir = "${pkgs.pi-coding-agent}/pi/examples/extensions";
 
+  # Gemini OAuth (Google Cloud Code Assist) as a provider, restoring what pi
+  # dropped from core. Pinned from source rather than `pi install npm:...`:
+  # an imperative install lands outside the generation and drifts, and this
+  # package needs no node_modules to run. Its only non-pi dependency,
+  # `@google/genai`, appears once as `import type`, which is erased before
+  # execution; everything else is under its own src/vendor/.
+  piGeminiAuth = pkgs.fetchFromGitHub {
+    owner = "qraxiss";
+    repo = "pi-gemini-auth";
+    rev = "3fa07ac080594744a39c736a72885388fb0c1314";
+    hash = "sha256-HjiSEC1loWfiziR47LLLx9N4y4Ly25HdWXLXtdqDZLQ=";
+  };
+
+  # pi resolves a directory extension through its package.json `pi.extensions`
+  # key, the same shape openspec-sidebar uses. Assert it rather than trust it:
+  # upstream renaming that key would leave a directory installed that pi
+  # silently never loads.
+  assertGeminiAuthEntrypoint =
+    if !builtins.pathExists "${piGeminiAuth}/src/index.ts" then
+      throw "pi.nix: pi-gemini-auth no longer ships src/index.ts; re-pin and check its package.json `pi.extensions`."
+    else
+      true;
+
   # confirm-destructive intentionally not in this list — replaced by
   # @gotgenes/pi-permission-system below (bash-AST-aware gate). The two
   # cannot both intercept tool calls without conflict.
@@ -83,6 +106,11 @@ let
     };
     ".pi/agent/extensions/openspec-sidebar" = {
       source = ./extensions/openspec-sidebar;
+      recursive = true;
+      force = true;
+    };
+    ".pi/agent/extensions/pi-gemini-auth" = {
+      source = piGeminiAuth;
       recursive = true;
       force = true;
     };
@@ -520,7 +548,10 @@ let
     let
       manifest = "${p}/package.json";
     in
-    if builtins.pathExists manifest then (builtins.fromJSON (builtins.readFile manifest)).name or "" else ""
+    if builtins.pathExists manifest then
+      (builtins.fromJSON (builtins.readFile manifest)).name or ""
+    else
+      ""
   ) piPackagePaths;
 
   # The context hookers as piPackagePaths actually orders them. Filtering the
@@ -803,6 +834,7 @@ in
       (
         assert assertExtensionsExist;
         assert assertPiBridgeInstalled;
+        assert assertGeminiAuthEntrypoint;
         assert assertGatesDisjoint;
         assert assertPiKeysDisjoint;
         assert assertThemeSelected;
