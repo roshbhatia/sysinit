@@ -14,7 +14,7 @@
 #
 # Usage:
 #   diffnote add --file <path> --line <n> --summary <text> [--rationale <text>]
-#                [--author <name>]
+#                [--author <name>] [--replace]
 #   diffnote apply --stdin
 #   diffnote list [--file <path>] [--json]
 #   diffnote clear [--file <path>] [--yes]
@@ -27,7 +27,7 @@ usage() {
     'Agent review notes on a working-tree diff, rendered by neovim'"'"'s CodeDiff view.' \
     '' \
     'Usage:' \
-    '  diffnote add --file <path> --line <n> --summary <text> [--rationale <text>] [--author <name>]' \
+    '  diffnote add --file <path> --line <n> --summary <text> [--rationale <text>] [--author <name>] [--replace]' \
     '  diffnote apply --stdin' \
     '  diffnote list [--file <path>] [--json]' \
     '  diffnote clear [--file <path>] [--yes]' \
@@ -214,9 +214,17 @@ SANITIZE='def clean:
             else . end;'
 
 cmd_add() {
-  local file="" line="" summary="" rationale="" author="agent"
+  local file="" line="" summary="" rationale="" author="agent" replace=false
   while [ $# -gt 0 ]; do
     case $1 in
+      # Drop any existing note with the same file, line, and author before
+      # appending. Nothing prunes this store, so a caller that writes on every
+      # edit rather than on every review would otherwise grow it without bound
+      # and bury the review notes it is meant to sit beside.
+      --replace)
+        replace=true
+        shift
+        ;;
       --file)
         need_value --file $#
         file=$2
@@ -267,26 +275,34 @@ cmd_add() {
     die "$file does not name a file inside $root"
   store=$(note_file "$root")
 
-  with_store_lock "$store" add_locked "$store" "$root" "$relative" "$line" "$summary" "$rationale" "$author"
+  with_store_lock "$store" add_locked "$store" "$root" "$relative" "$line" "$summary" "$rationale" "$author" "$replace"
   printf 'diffnote: %s:%s\n' "$relative" "$line"
 }
 
 add_locked() {
-  local store=$1 root=$2 relative=$3 line=$4 summary=$5 rationale=$6 author=$7
+  local store=$1 root=$2 relative=$3 line=$4 summary=$5 rationale=$6 author=$7 replace=$8
   ensure_store "$store" "$root"
+  # The filter runs on the sanitized author, matching what is stored, so a
+  # replace still finds the note a previous run wrote.
   jq "$SANITIZE"'
-    .notes += [{
+    .notes = ((if $replace
+               then (.notes | map(select(.file != $file
+                                         or .line != $line
+                                         or .author != ($author | oneline))))
+               else .notes end)
+              + [{
       file: $file,
       line: $line,
       summary: ($summary | oneline),
       rationale: (if $rationale == "" then null else ($rationale | clean) end),
       author: ($author | oneline)
-    }]' \
+    }])' \
     --arg file "$relative" \
     --argjson line "$line" \
     --arg summary "$summary" \
     --arg rationale "$rationale" \
     --arg author "$author" \
+    --argjson replace "$replace" \
     "$store" | write_store "$store"
 }
 
