@@ -118,9 +118,9 @@ local function _spawn(parent_pane_id, name, cmd_string, opts, focus)
   local env_str = build_env_prefix(env)
   local full_cmd = env_str ~= "" and (env_str .. " " .. cmd_string) or cmd_string
   local pct = math.floor((opts.percent or 0.4) * 100)
-  -- Agent panes sit to the left of the editor by default; only an explicit
-  -- side = "right" opts out.
-  local side_flag = (opts.side == "right") and "--right" or "--left"
+  -- Agent panes sit to the right of the editor by default; only an explicit
+  -- side = "left" opts out.
+  local side_flag = (opts.side == "left") and "--left" or "--right"
   local cwd = vim.fn.getcwd()
 
   -- Redirect stderr; wezterm prints config-reload notices to stderr that

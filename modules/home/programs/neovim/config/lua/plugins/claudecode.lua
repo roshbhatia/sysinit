@@ -35,7 +35,7 @@ return {
       return {
         terminal = {
           provider = provider,
-          split_side = "left",
+          split_side = "right",
           split_width_percentage = 0.4,
         },
         diff_opts = {
