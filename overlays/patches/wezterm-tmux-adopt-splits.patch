@@ -1,0 +1,142 @@
+diff --git a/mux/src/tmux_commands.rs b/mux/src/tmux_commands.rs
+index 2160116..7874464 100644
+--- a/mux/src/tmux_commands.rs
++++ b/mux/src/tmux_commands.rs
+@@ -286,6 +286,127 @@ impl TmuxDomainState {
+         return Ok(pane);
+     }
+ 
++    /// Adopt panes that tmux created without us asking for them, as
++    /// `tmux split-window` does. A `-d` split never raises
++    /// `%window-pane-changed`, so `%layout-change` is the only notice we get.
++    fn adopt_unattached_panes(
++        &self,
++        window_id: TmuxWindowId,
++        panes: &[PaneItem],
++    ) -> anyhow::Result<()> {
++        let tab_id = {
++            let gui_tabs = self.gui_tabs.lock();
++            let Some(local_tab) = gui_tabs.get(&window_id) else {
++                return Ok(());
++            };
++            local_tab.tab_id
++        };
++
++        // Adopt top-left first, so each pane already has an attached
++        // neighbour by the time we place it.
++        let mut pending: Vec<&PaneItem> = panes
++            .iter()
++            .filter(|p| p.window_id == window_id && !self.check_pane_attached(window_id, p.pane_id))
++            .collect();
++        pending.sort_by_key(|p| (p.pane_top, p.pane_left));
++
++        for pane in pending {
++            let Some((origin, direction)) = self.find_split_origin(window_id, pane, panes) else {
++                log::warn!(
++                    "no attached neighbour for tmux pane %{}, cannot place it",
++                    pane.pane_id
++                );
++                continue;
++            };
++
++            let local_pane_id = {
++                let pane_map = self.remote_panes.lock();
++                let Some(ref_pane) = pane_map.get(&origin) else {
++                    continue;
++                };
++                let local_pane_id = ref_pane.lock().local_pane_id;
++                local_pane_id
++            };
++
++            let split_request = SplitRequest {
++                direction,
++                target_is_second: true,
++                top_level: false,
++                size: SplitSize::Cells(match direction {
++                    SplitDirection::Horizontal => pane.pane_width as usize,
++                    SplitDirection::Vertical => pane.pane_height as usize,
++                }),
++            };
++
++            let local_pane = match self.split_pane(tab_id, local_pane_id, pane.pane_id, split_request)
++            {
++                Ok(local_pane) => local_pane,
++                Err(err) => {
++                    log::error!("failed to adopt tmux pane %{}: {:#}", pane.pane_id, err);
++                    continue;
++                }
++            };
++
++            // tmux sized this pane for its own layout, and we just placed it in
++            // ours, which is a different shape. Without reconciling the two,
++            // tmux wraps its output to the width it believes in and the pane
++            // renders as interleaved garbage. `split_pane` recorded OUR size
++            // against the remote pane, which would make the resize below look
++            // like a no-op, so record tmux's size first and then ask tmux to
++            // adopt ours.
++            {
++                let pane_map = self.remote_panes.lock();
++                if let Some(ref_pane) = pane_map.get(&pane.pane_id) {
++                    let mut ref_pane = ref_pane.lock();
++                    ref_pane.pane_width = pane.pane_width;
++                    ref_pane.pane_height = pane.pane_height;
++                }
++            }
++            let dims = local_pane.get_dimensions();
++            self.cmd_queue.lock().push_back(Box::new(Resize {
++                pane_id: pane.pane_id,
++                size: PtySize {
++                    rows: dims.viewport_rows as u16,
++                    cols: dims.cols as u16,
++                    pixel_width: 0,
++                    pixel_height: 0,
++                },
++            }));
++            log::info!("adopted tmux pane %{}", pane.pane_id);
++        }
++
++        Ok(())
++    }
++
++    /// Find the attached pane that `pane` was split away from, by looking for
++    /// the neighbour sharing a full edge with it. tmux leaves a one cell
++    /// divider between panes, which is what the +1 accounts for.
++    fn find_split_origin(
++        &self,
++        window_id: TmuxWindowId,
++        pane: &PaneItem,
++        panes: &[PaneItem],
++    ) -> Option<(TmuxPaneId, SplitDirection)> {
++        panes.iter().find_map(|other| {
++            if other.pane_id == pane.pane_id || !self.check_pane_attached(window_id, other.pane_id) {
++                return None;
++            }
++            if other.pane_top == pane.pane_top
++                && other.pane_height == pane.pane_height
++                && other.pane_left + other.pane_width + 1 == pane.pane_left
++            {
++                return Some((other.pane_id, SplitDirection::Horizontal));
++            }
++            if other.pane_left == pane.pane_left
++                && other.pane_width == pane.pane_width
++                && other.pane_top + other.pane_height + 1 == pane.pane_top
++            {
++                return Some((other.pane_id, SplitDirection::Vertical));
++            }
++            None
++        })
++    }
++
+     fn sync_pane_state(&self, panes: &[PaneItem]) -> anyhow::Result<()> {
+         let Some(current_session) = *self.tmux_session.lock() else {
+             return Ok(());
+@@ -752,6 +873,9 @@ impl TmuxCommand for ListAllPanes {
+                 if !self.prune {
+                     return tmux_domain.inner.sync_pane_state(&items);
+                 } else {
++                    tmux_domain
++                        .inner
++                        .adopt_unattached_panes(self.window_id, &items)?;
+                     return tmux_domain
+                         .inner
+                         .remove_detached_pane(self.window_id, &pane_set);
