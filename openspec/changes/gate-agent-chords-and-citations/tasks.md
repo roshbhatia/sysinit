@@ -91,33 +91,57 @@
 
 - **SHAPE** graph
 
-- [ ] 3.1 Make `citelock capture` reachable from pi as a command, so pinning a
+- [x] 3.1 Make `citelock capture` reachable from pi as a command, so pinning a
       claim does not require leaving the session `deps:` 1.4
-- [ ] 3.2 Confirm `specutil check` rejects an unpinned external-factual claim, and
+- [x] 3.2 Confirm `specutil check` rejects an unpinned external-factual claim, and
       add the fixture if it does not `deps:` 1.4
-- [ ] 3.3 Confirm a change with no external-factual claim stays cheap: no lock
+- [x] 3.3 Confirm a change with no external-factual claim stays cheap: no lock
       file, no new gate output `deps:` 3.2
-- [ ] 3.4 Adversarial review: whether a cheap capture path makes unpinned claims
+- [x] 3.4 Adversarial review: whether a cheap capture path makes unpinned claims
       rarer, or only makes pinning look done `deps:` 3.3
+
+      The guarantee is real and the first implementation was not. `citelock
+      capture` was tested against a quote no source states and failed closed:
+      "quote does not anchor in fetched content". So a cheap capture path cannot
+      make pinning merely look done; a captured claim is anchored or there is no
+      capture.
+
+      But `/cite` ran a bare `citelock capture`, which cannot work. Capture takes
+      a URL plus --id/--quote/--class, and bare it exits "capture requires a
+      URL". The command would have errored every time while looking like the
+      capture step existed and was merely failing, which is worse than not having
+      it. Arguments now pass through, with usage on an empty invocation.
 
 ## 4. openspec as a write path
 
 - **SHAPE** graph
 
-- [ ] 4.1 Register `specutil next` as a pi command returning the runnable subtasks
+- [x] 4.1 Register `specutil next` as a pi command returning the runnable subtasks
       for the active change `deps:` 1.1
 - [ ] 4.2 Decide whether the sidebar's OpenSpec panel should link its artifacts via
       OSC 8, reusing `link()`/`fileUri()` from the Changes panel `deps:` 4.1
-- [ ] 4.3 Declare the `context`-hook order next to `piPackagePaths` and assert the
+- [x] 4.3 Declare the `context`-hook order next to `piPackagePaths` and assert the
       installed set matches it, so the composition is data rather than
       load-order accident `deps:` 4.1
-- [ ] 4.4 Verify diffnote end to end on a real dirty tree: `ctrl+b` opens the
+- [x] 4.4 Verify diffnote end to end on a real dirty tree: `ctrl+b` opens the
       split, pi writes notes through `diffnote apply --stdin`, the store validates,
       neovim renders them as virt_lines, and `stop()` clears every drawn buffer.
       `checks/diffnote-roundtrip.nix` covers the CLI, not the chord-to-render
       path `deps:` 4.1
-- [ ] 4.5 Adversarial review: whether each new pi command earns its surface, and
+- [x] 4.5 Adversarial review: whether each new pi command earns its surface, and
       whether the declared hook order matches observed behaviour `deps:` 4.4
+
+      The order did NOT match. Declared pi-tool-display before pi-btw; the actual
+      order in piPackagePaths is the reverse. The assertion passed anyway because
+      it only checked membership, and membership is not the thing the declaration
+      exists to record: pi runs these handlers in load order and each sees the
+      previous one's mutations.
+
+      Fixed both halves. The declaration now matches, and the assertion compares
+      sequences. It derives the actual order by filtering the INSTALLED list,
+      because filtering the declared list would only ever reproduce the
+      declaration and could never disagree with it. Mutation-tested: swapping two
+      entries fails the build and prints declared against actual.
 
 ## 5. Rollout
 
