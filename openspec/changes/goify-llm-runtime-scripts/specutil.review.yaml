@@ -2,7 +2,7 @@ version: 1
 change: goify-llm-runtime-scripts
 decision: approved
 change_hash: 7846b3f44ad7bf95
-base_commit: 562b8c2130fa3c48ada4a90e4e6347d8085451b1
+base_commit: 55d5f0e087e4cdf7281a52a3936f7b0c3b1dfe8b
 items:
     0f77dab398695960:
         hash: 3648a138c6a9a00d

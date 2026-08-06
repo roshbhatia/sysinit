@@ -31,9 +31,14 @@ the cost proportional to the risk.
 
 ## Owner decision
 
-Decision: pending
-Decided by:
-Date:
+Decision: run approved
+Decided by: owner (roshan), stated in session 2026-08-06
+Date: 2026-08-06
+
+Scope approved as recommended: two slices, not the whole change. Phase 6
+`bash-guard` / `exit-code-guard` (deny path fails open), and phase 1
+`internal/store` (its shell original accumulated defects found in production,
+not in review).
 
 ## Deterministic lint
 
