@@ -253,6 +253,27 @@ under version 1 does not satisfy version 2 without generating them.
 - `apply.requires` is now `[tasks, review]`, so implementation cannot start
   while the owner decision is `pending`.
 
+#### `runtime/spec-preflight.sh` — citations as ordered, named stages
+
+- The version 1 citations check was one branch: lock present and `citelock
+  verify` passes, with an absent lock treated as silence. That contradicts the
+  new always-required policy and could not say WHICH property failed.
+- Now seven named stages, ordered so a later one does not emit noise about a
+  file an earlier one proved unreadable: `exists`, `parses`, `valid`,
+  `snapshot`, `uncited`, `dangling`, `fresh`. A new `citations` stage argument
+  runs just this section.
+- `uncited` and `dangling` are the two directions of the prose link, and they
+  are what make `[cite: <id>]` enforceable rather than advisory.
+- `fresh` is a warning and never a failure, gated on
+  `SPEC_PREFLIGHT_CITATION_MAX_AGE_DAYS` (default 90). A gate that flips red
+  because the clock moved would make the build a function of the date, and an
+  untouched change would start failing on its own.
+- Deliberately absent: "is every external-factual claim pinned". Recognising
+  which sentence asserts an external fact is a judgement; a script that
+  pretended to make it would give false assurance. Verified against the archived
+  `codify-responsible-llm-workflow` lock, which correctly reports its one record
+  as uncited under the new convention.
+
 #### `artifacts[id=proposal|design].instruction` — voice contract and linked citations
 
 - Both now load the `writing-doc-design` skill for voice rather than restating

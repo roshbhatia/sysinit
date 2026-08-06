@@ -114,7 +114,27 @@ artifacts:
          until it passes.
       3. Quote the narrowest span that actually carries the claim. A quote wide
          enough to survive any rewording anchors nothing.
-      4. Run `citelock verify <change-dir>`. It must exit 0.
+      4. Run `spec-preflight citations`. It runs the whole gate as ordered
+         stages and names which one failed, so you fix the right thing:
+
+         - exists: the lock is present at all
+         - parses: it has a `.records` array
+         - valid: `citelock verify` passes, so every snapshot sha256 and quote
+           anchor still holds
+         - snapshot: every record's snapshot file is on disk
+         - uncited: every record id appears in prose as `[cite: <id>]`
+         - dangling: every `[cite: <id>]` names a record that exists
+         - fresh: no record is past the age threshold
+
+         `fresh` is a warning and never a failure. A gate that turns red because
+         the clock moved would make the build a function of the date, so an
+         untouched change would start failing on its own. Treat it as a prompt
+         to run `citelock recheck`.
+
+         One thing this cannot decide: whether every external-factual claim in
+         the prose is pinned at all. Recognising which sentence asserts an
+         external fact is a judgement, and a script that pretended to make it
+         would give false assurance. That stays with you and with the review.
       5. If the change genuinely makes no external-factual claim, write the
          template unchanged (`{"records": []}`) and say so in one line in the
          proposal's `Impact`. Do not leave the file absent.

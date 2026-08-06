@@ -9,7 +9,7 @@
 # So the instructions now say "run this and fix what it reports", and this is the
 # thing they run. It only reports; it never edits an artifact.
 #
-# Usage: spec-preflight <proposal|design|tasks|all> [change-name]
+# Usage: spec-preflight <citations|proposal|design|tasks|all> [change-name]
 
 set -uo pipefail
 
@@ -49,19 +49,102 @@ else
   fail=1
 fi
 
-# 2. Citations. A change with no external-factual claim has no lock and that is
-# correct, so an absent lock is silence, not a failure.
-section "citations"
-if [ -f "$dir/citations.lock" ]; then
-  if out=$(citelock verify --change "$change" 2>&1) || out=$(citelock verify 2>&1); then
-    note "lock verifies"
-  else
-    printf '%s\n' "$out" | sed 's/^/  /'
+# 2. Citations, as ordered stages. Each answers one question a command can
+# decide, and the order matters: a later stage is meaningless if an earlier one
+# failed, so the first failure stops the rest rather than emitting noise about a
+# file that does not parse.
+#
+# What is NOT here: "is every external-factual claim pinned". Deciding which
+# sentence asserts an external fact is a judgement, and a script that pretended
+# to make it would give false assurance. That one stays with the author and the
+# review.
+if [ "$stage" = "citations" ] || [ "$stage" = "proposal" ] || [ "$stage" = "all" ]; then
+  section "citations"
+  lock="$dir/citations.lock"
+
+  # Stage 1: exists. An absent lock cannot distinguish "nothing to cite" from
+  # "nobody looked", so the schema requires the file even when it is empty.
+  if [ ! -f "$lock" ]; then
+    note "FAIL exists: no citations.lock"
+    note '  a change with no external-factual claim still needs one: {"records": []}'
     fail=1
+  elif ! records=$(jq -e '.records' "$lock" 2> /dev/null); then
+    # Stage 2: parses, with a records array.
+    note "FAIL parses: citations.lock has no .records array"
+    fail=1
+  else
+    count=$(printf '%s' "$records" | jq 'length')
+    note "pass exists: $count record(s)"
+
+    # Stage 3: valid. citelock owns snapshot sha256 and quote anchoring.
+    if out=$(citelock verify "$dir" 2>&1); then
+      note "pass valid: citelock verify"
+    else
+      printf '%s\n' "$out" | sed 's/^/    /'
+      fail=1
+    fi
+
+    # Stage 4: snapshots present. verify covers this, but naming it separately
+    # tells an author which of the two things to fix.
+    missing=0
+    while IFS= read -r snap; do
+      [ -n "$snap" ] || continue
+      [ -f "$dir/$snap" ] || {
+        note "FAIL snapshot: missing $snap"
+        missing=1
+      }
+    done <<< "$(printf '%s' "$records" | jq -r '.[].snapshot // empty')"
+    [ "$missing" -eq 0 ] || fail=1
+
+    # Stage 5 and 6: the prose link, both directions. A lock the prose never
+    # points at makes a reader diff two files by hand; a reference naming no
+    # record is a claim pretending to be pinned.
+    prose=$(cat "$dir"/*.md 2> /dev/null || true)
+    uncited=0
+    while IFS= read -r id; do
+      [ -n "$id" ] || continue
+      case "$prose" in
+        *"[cite: $id]"*) ;;
+        *)
+          note "FAIL uncited: record '$id' is never referenced as [cite: $id]"
+          uncited=1
+          ;;
+      esac
+    done <<< "$(printf '%s' "$records" | jq -r '.[].id // empty')"
+    [ "$uncited" -eq 0 ] || fail=1
+
+    dangling=0
+    while IFS= read -r ref; do
+      [ -n "$ref" ] || continue
+      if ! printf '%s' "$records" | jq -e --arg id "$ref" 'any(.[]; .id == $id)' > /dev/null 2>&1; then
+        note "FAIL dangling: [cite: $ref] names no record in citations.lock"
+        dangling=1
+      fi
+    done <<< "$(printf '%s' "$prose" | grep -oE '\[cite: [^]]+\]' | sed 's/^\[cite: //; s/\]$//' | sort -u)"
+    [ "$dangling" -eq 0 ] || fail=1
+
+    [ "$uncited" -eq 1 ] || [ "$dangling" -eq 1 ] || note "pass linked: prose and lock agree"
+
+    # Stage 7: freshness. A WARNING and never a failure, deliberately. A gate
+    # that flips to red because the clock moved makes the build a function of
+    # the date, so an untouched change would start failing on its own. Staleness
+    # is a prompt to run `citelock recheck`, not a defect in the change.
+    now=$(date +%s)
+    stale=0
+    while IFS= read -r line; do
+      [ -n "$line" ] || continue
+      id=${line%% *}
+      when=${line##* }
+      then_s=$(date -d "$when" +%s 2> /dev/null || date -j -f %Y-%m-%d "$when" +%s 2> /dev/null || echo "")
+      [ -n "$then_s" ] || continue
+      days=$(((now - then_s) / 86400))
+      if [ "$days" -gt "${SPEC_PREFLIGHT_CITATION_MAX_AGE_DAYS:-90}" ]; then
+        note "warn stale: '$id' captured $days days ago; citelock recheck"
+        stale=1
+      fi
+    done <<< "$(printf '%s' "$records" | jq -r '.[] | "\(.id) \(.accessed)"')"
+    [ "$stale" -eq 1 ] || note "pass fresh: no record past the age threshold"
   fi
-else
-  note "no citations.lock; correct only if this change asserts no external fact"
-  note "if it does: citelock capture, then re-run"
 fi
 
 # 3. Reuse survey. The rule says reference the closest existing implementation by
