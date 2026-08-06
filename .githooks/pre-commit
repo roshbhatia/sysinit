@@ -22,4 +22,31 @@ while IFS= read -r lock; do
   fi
 done < <(find "${repo_root}/openspec/changes" -name citations.lock 2> /dev/null)
 
+# Run the full deterministic gate for any ACTIVE change with staged files.
+#
+# Without this, spec-preflight only ran when an agent chose to type it, which is
+# the failure its own header warns about: prose that mirrors a gate drifts from
+# it and invites satisfying the prose instead of running it. openspec itself
+# cannot help here, because it decides an artifact is complete by file existence
+# and never reads content, so `apply.requires` would pass a review.md whose
+# decision is still `pending`.
+#
+# Scoped to changes the commit actually touches. Gating every active change
+# would fail a commit for a change the author is not working on, which trains
+# the owner to reach for --no-verify, and that disables the citation gate above
+# as collateral.
+if command -v spec-preflight > /dev/null 2>&1; then
+  while IFS= read -r change; do
+    [[ -z ${change} ]] && continue
+    if ! spec-preflight all "$change"; then
+      status=1
+    fi
+  done < <(
+    git diff --cached --name-only --diff-filter=ACMR |
+      sed -n 's|^openspec/changes/\([^/]*\)/.*|\1|p' |
+      grep -v '^archive$' |
+      sort -u
+  )
+fi
+
 exit "$status"

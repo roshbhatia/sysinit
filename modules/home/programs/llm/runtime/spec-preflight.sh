@@ -217,6 +217,10 @@ if [ "$stage" = "review" ] || [ "$stage" = "tasks" ] || [ "$stage" = "all" ]; th
         fi
         ;;
       CLEAN | NOT-RUN) note "pass terminal: $state" ;;
+      # `pending` is the pre-run state: the artifact exists and the loop has not
+      # started, which is exactly where a review sits while it waits on the
+      # owner. Treating it as unrecognised made a correctly-authored review warn.
+      pending) note "pass terminal: pending (loop not started)" ;;
       "") ;;
       *) note "warn terminal: unrecognised state '$state'" ;;
     esac

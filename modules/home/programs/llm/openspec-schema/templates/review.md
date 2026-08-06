@@ -54,12 +54,14 @@ Surviving after revision: <n>
 
 ## Terminal state
 
-<!-- One of: CLEAN, CAPPED, STALLED, CHURNING, NOT-RUN.
+<!-- One of: pending, CLEAN, CAPPED, STALLED, CHURNING, NOT-RUN.
+     `pending` is the pre-run state: the artifact exists and the loop has not
+     started, which is where a review sits while it waits on the owner.
      CLEAN means no critic objection survived. It is not owner approval and it
      is not peer approval. CAPPED, STALLED, and CHURNING all hand back with open
      work. See the `adversarial-review` skill for the state machine. -->
 
-State: <CLEAN | CAPPED | STALLED | CHURNING | NOT-RUN>
+State: <pending | CLEAN | CAPPED | STALLED | CHURNING | NOT-RUN>
 Rounds run: <n>
 Surviving-objection trend: <n, n, n>
 
