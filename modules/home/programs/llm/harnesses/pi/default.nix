@@ -77,6 +77,10 @@ let
       source = ./extensions/diff-review.ts;
       force = true;
     };
+    ".pi/agent/extensions/spec-tools.ts" = {
+      source = ./extensions/spec-tools.ts;
+      force = true;
+    };
     ".pi/agent/extensions/openspec-sidebar" = {
       source = ./extensions/openspec-sidebar;
       recursive = true;
@@ -495,6 +499,51 @@ let
     "${askUser}"
   ];
 
+  # Extensions that hook `context`, in the order pi loads them. pi runs handlers
+  # in extension load order and each sees the previous one's mutations, so this
+  # order decides what reaches the model. It was previously undocumented, and a
+  # prior removal justified itself by calling pi-dcp "a third extension mutating
+  # the message list" when the real count was six. That reasoning was wrong even
+  # though the removal may not have been.
+  #
+  # Declared as data and asserted against `piPackagePaths` below, so an extension
+  # added to the list without a decision about where it sits in the context
+  # pipeline fails the build instead of silently landing wherever the list put it.
+  contextHookOrder = [
+    "pi-vcc" # compaction, earliest: everything downstream sees compacted input
+    "pi-subagents" # delegation
+    "plannotator/pi-extension" # plan annotations
+    "pi-tool-display" # display only; its context hook sets thinking labels
+    "pi-btw" # side conversations
+    "pi-context" # context management, last
+  ];
+
+  # Read each package's declared name rather than matching its store path. Most
+  # of these are plain source fetches whose path is a bare `-source` with no name
+  # in it, so an infix test over paths silently matches nothing and the assertion
+  # below would fire for every entry. (The same trap made an earlier "is rtk
+  # installed?" check return false regardless of the answer.)
+  installedPiPackageNames = map (
+    p:
+    let
+      manifest = "${p}/package.json";
+    in
+    if builtins.pathExists manifest then (builtins.fromJSON (builtins.readFile manifest)).name or "" else ""
+  ) piPackagePaths;
+
+  contextHookPresent = lib.filter (
+    name: lib.any (installed: lib.hasInfix name installed) installedPiPackageNames
+  ) contextHookOrder;
+
+  assertContextHookOrder =
+    let
+      missing = lib.subtractLists contextHookPresent contextHookOrder;
+    in
+    if missing != [ ] then
+      throw "pi.nix: ${lib.concatStringsSep ", " missing} is declared in contextHookOrder but not installed. Remove it from the order, or restore the package."
+    else
+      true;
+
   assertGatesDisjoint =
     let
       hasPermSystem = builtins.any (p: lib.hasInfix "permission-system" (toString p)) piPackagePaths;
@@ -756,6 +805,7 @@ in
         assert assertThemeSelected;
         assert assertPreferencesUndeclared;
         assert assertKeysMatchManifest;
+        assert assertContextHookOrder;
         extensionFiles
       )
       // customExtensionFiles
