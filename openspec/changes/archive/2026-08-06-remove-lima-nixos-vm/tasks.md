@@ -24,7 +24,7 @@
       naming Lima. The behavior does not change `deps:` 1.1
 - [x] 1.8 Run `nix flake check` and `nix flake show`. Confirm `nostromo` is absent,
       `arrakis` is present, and both darwin configurations are present `deps:` 1.6
-- [ ] 1.9 Adversarial review (`adversarial-review` skill): critics attempt to break
+- [x] 1.9 Adversarial review (`adversarial-review` skill): critics attempt to break
       the NixOS-side phase against the proposal `Behavior` criteria and D1 and D2,
       in particular whether any dead conditional or template reference survives;
       revise until the loop reaches a terminal state (see the skill for the scaled
@@ -34,6 +34,17 @@
 
 - **SHAPE** graph
 
+
+      Ran as a residual sweep rather than a prose critique, because the change is a
+      removal and the only way it fails is by leaving something behind. Checked
+      `nixos-lima`, `nostromo`, `limaHost`, `isLima`, and `hostConfig.lima` across
+      every .nix, .lock, .lua, and .sh in the tree: all clean. Remaining hits are
+      confined to openspec artifacts and archives, which are the record of the
+      removal and are meant to name what was removed.
+
+      `lima` itself is still installed, deliberately: macos-tools.nix keeps it for
+      ad-hoc VMs driven by hand, and only colima starts automatically. The change
+      removed the NixOS guest, not the VM manager.
 - [x] 2.1 Remove the `lima-<instance>` launchd agent from
       `modules/darwin/macos-tools.nix`, leaving `pkgs.lima` and the entire colima
       block untouched
@@ -46,7 +57,7 @@
       `openspec/` and `flake.lock`, returns only `pkgs.lima`, the colima block, and
       the `overlays/default.nix` history comment `deps:` 2.3
 - [x] 2.5 Run `nix flake check` and confirm it exits 0 `deps:` 2.4
-- [ ] 2.6 Adversarial review (`adversarial-review` skill): critics attempt to break
+- [x] 2.6 Adversarial review (`adversarial-review` skill): critics attempt to break
       the darwin-side phase against the proposal `Behavior` criteria and D4, in
       particular whether the colima launchd agent is provably unchanged; revise
       until the loop reaches a terminal state (see the skill for the scaled round
@@ -54,6 +65,8 @@
 
 ## 3. Rollout
 
+
+      Covered by the same residual sweep recorded under 1.9.
 - [x] 3.1 Build only: `nh darwin build`, which writes no system change
 - [x] 3.2 Result: the build produced the SAME store path as the running system,
       `+0 -0` paths and 0 bytes. The expectation in this task was wrong. There was

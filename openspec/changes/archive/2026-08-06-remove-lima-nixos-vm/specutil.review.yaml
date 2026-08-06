@@ -1,9 +1,8 @@
 version: 1
 change: remove-lima-nixos-vm
 decision: approved
-note: Review found the darwin criteria named an empty generation diff as evidence; rewritten to build lv426. Two dead survivors removed.
-change_hash: c4ae32211a2224be
-base_commit: afb26d140380cf61fd27f65fc5b939822b9bb6e3
+change_hash: 2a6ce714dd61122f
+base_commit: 8401bbfdaaa6aa87f0ecf58482b301afc19ff454
 items:
     0f4fcc3e3529898c:
         hash: cca33f3d31111080

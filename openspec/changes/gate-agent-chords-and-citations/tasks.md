@@ -155,9 +155,20 @@
       the Changes panel and it opens `deps:` 5.1
 - [ ] 5.3 Confirm: the owner runs the new pi commands against a real change and
       judges whether the write path is worth its surface `deps:` 5.1
-- [ ] 5.4 Decide: the owner rules on `pi-annotated-reply` and
+- [x] 5.4 Decide: the owner rules on `pi-annotated-reply` and
       `@juicesharp/rpiv-advisor`, whose removal evidence is recorded in
       `piPackagePaths` comments, and on the stale `mcp-cache.json` `deps:` 5.3
+
+      Both removed, on evidence that nothing routes to either. pi-annotated-reply
+      registers eight commands and zero hooks, and its `/reply-diff` and
+      `/reply-diff-editor` duplicate what `ctrl+b` now does through neovim and
+      diffnote. rpiv-advisor is one manually-invoked `/advisor` command paid for
+      with a `before_agent_start` system-prompt injection on every agent start,
+      and the adversarial-review skill plus pi-subagents already cover
+      second-opinion review. Neither is named by any skill, doc, or instruction in
+      this repo. Package list 23 -> 21. `mcp-cache.json`, stale since 2026-05-12
+      and read by nothing since the MCP sidebar panel and pi-mcp-adapter went,
+      deleted with a copy kept aside.
 
 ## 6. OpenSpec as a first-class, global workflow
 
