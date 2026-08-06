@@ -50,15 +50,27 @@ in
               '';
             };
             enforce = mkOption {
-              type = types.listOf types.str;
+              type = types.listOf (types.either types.str (types.listOf types.str));
               default = [ ];
               description = ''
-                Top-level blocks this repository owns outright, reasserted on
-                every activation rather than merged. A list is compared whole,
-                so without this a harness that appends one entry makes the next
-                Nix edit to that list an unresolvable conflict. A key the
-                harness drops is also restored, which for an enforcement
-                setting is required rather than a preference.
+                Blocks this repository owns outright, reasserted on every
+                activation rather than merged. A list is compared whole, so
+                without this a harness that appends one entry makes the next Nix
+                edit to that list an unresolvable conflict. A key the harness
+                drops is also restored, which for an enforcement setting is
+                required rather than a preference.
+
+                An entry is either a string, naming one top-level key, or a list,
+                naming a path into the file. `[ "extensions" "autovisualiser" ]`
+                reaches one extension and leaves its siblings to the normal merge.
+
+                A string is NEVER split on dots. amp's settings use VS Code-style
+                keys, so `"amp.permissions"` is one key whose name contains dots,
+                and a dotted-string syntax would silently address the wrong thing.
+
+                Prefer the narrowest path that covers the key. Enforcing a parent
+                strips every runtime field the harness writes underneath it, and
+                the harness writes them back on its next run.
               '';
             };
             format = mkOption {

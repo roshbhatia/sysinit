@@ -162,7 +162,7 @@ in
       # GOOSE_MODE gates which actions run without approval, so a value goose
       # drops or rewrites must come back rather than stand.
       #
-      # `extensions` is deliberately NOT enforced. Goose fills in
+      # `extensions` as a whole is deliberately NOT enforced. Goose fills in
       # description, display_name, and available_tools at runtime, and the
       # deep merge keeps them, which is the behaviour the comment on
       # `platformExtensions` above describes. Enforcing the block would strip
@@ -171,9 +171,22 @@ in
       # terminal's own palette drives it and goose stays consistent with every
       # other harness under stylix. Goose rewrites it when the theme is changed
       # from inside the TUI, and without enforcement that choice would stand.
+      #
+      # autovisualiser is the one extension that has to be enforced, and it is
+      # written as a path so the other seventeen still merge normally. Goose keeps
+      # rewriting it back to `type: builtin`, which drops `cmd`, and that is a
+      # conflict the merge cannot resolve: the live file deleted a key the Nix
+      # content changed, so activation aborts and every other key stops updating
+      # with it. Builtin is also the wrong answer here for the reason given above
+      # `bundledExtensions`: it runs in-process and is invisible to the ACP
+      # provider, so under GOOSE_PROVIDER=claude-acp its tools reach no model.
       enforce = [
         "GOOSE_MODE"
         "GOOSE_CLI_THEME"
+        [
+          "extensions"
+          "autovisualiser"
+        ]
       ];
     };
   }

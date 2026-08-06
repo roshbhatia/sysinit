@@ -274,7 +274,13 @@ let
           newFile
           (if f.contentFile != null then f.format else "json")
           (if f.schema == null then "-" else f.schema)
-          (lib.escapeShellArg (builtins.toJSON f.enforce))
+          # A bare string is one literal key, a list is a path. Not dot-splitting
+          # a string is the whole point: amp's settings use VS Code-style keys, so
+          # `"amp.permissions"` is ONE key whose name contains dots, and splitting
+          # it would enforce a nested path that does not exist while the real key
+          # quietly fell back to merging. Normalise to jq's path shape here so the
+          # script has one representation to handle.
+          (lib.escapeShellArg (builtins.toJSON (map (e: if builtins.isList e then e else [ e ]) f.enforce)))
           (lib.escapeShellArg (builtins.toJSON f.retire))
           (if f.createIfMissing then "create" else "skip")
         ];
@@ -502,11 +508,11 @@ let
             fi
             mv "$tmp.disk.r" "$tmp.disk"
 
-            if ! jq --argjson keys "$enforce" 'reduce $keys[] as $k (.; del(.[$k]))' \
+            if ! jq --argjson paths "$enforce" 'delpaths($paths)' \
                   "$tmp.base" > "$tmp.base.s" \
-              || ! jq --argjson keys "$enforce" 'reduce $keys[] as $k (.; del(.[$k]))' \
+              || ! jq --argjson paths "$enforce" 'delpaths($paths)' \
                   "$tmp.disk" > "$tmp.disk.s" \
-              || ! jq --argjson keys "$enforce" 'reduce $keys[] as $k (.; del(.[$k]))' \
+              || ! jq --argjson paths "$enforce" 'delpaths($paths)' \
                   "$new_json" > "$tmp.new.s"; then
               echo "managed-file: $name could not separate the enforced blocks for $rel" >&2
               return 1
@@ -522,11 +528,20 @@ let
             # The third input is the UNSTRIPPED disk. The stripped copy has
             # every enforced key deleted, so `has($k)` on it is never true and
             # the fallback would be a silent no-op.
-            if ! jq -S -s --argjson keys "$enforce" '
+            # `getpath` cannot answer presence: it returns null for an absent key
+            # and for a key whose value IS null, and the two mean opposite things
+            # here. Absent must fall through to the next source; an explicit null
+            # is a value Nix declared and must be restored.
+            if ! jq -S -s --argjson paths "$enforce" '
+                  def haspath($p):
+                    if ($p | length) == 0 then true
+                    elif type != "object" then false
+                    elif has($p[0]) then (.[$p[0]] | haspath($p[1:]))
+                    else false end;
                   .[0] as $r | .[1] as $n | .[2] as $d
-                  | reduce $keys[] as $k ($r;
-                      if ($n | has($k)) then .[$k] = $n[$k]
-                      elif ($d | has($k)) then .[$k] = $d[$k]
+                  | reduce $paths[] as $p ($r;
+                      if ($n | haspath($p)) then setpath($p; $n | getpath($p))
+                      elif ($d | haspath($p)) then setpath($p; $d | getpath($p))
                       else . end)
                 ' "$tmp.merged" "$new_json" "$tmp.disk" > "$result_json"; then
               echo "managed-file: $name could not apply the enforced blocks for $rel" >&2
@@ -545,14 +560,17 @@ let
           # none.
           #
           # The residual exposure is real and not fully covered. `enforce` does
-          # restore a key that must survive a partial write, but only 3 of the
-          # 9 targets declare any enforced key, so a truncated goose
-          # `extensions` block or a truncated codex TOML is lost silently.
-          # Enforcing those was tried and reverted: goose fills in
+          # restore a key that must survive a partial write, but few targets
+          # declare one, so a truncated codex TOML is still lost silently.
+          # Enforcing a whole block was tried and reverted: goose fills in
           # description/display_name/available_tools at runtime, so enforcing
           # `extensions` strips them on every activation and goose writes them
-          # back. Closing this properly needs a signal the merge does not have,
-          # not a wider `enforce`.
+          # back. That is why `enforce` takes a path rather than a top-level key.
+          # A path reaches the one entry whose value is load-bearing and leaves
+          # its siblings to the merge, which is a narrower instrument than the
+          # block-level enforcement that was rejected. It is still not a general
+          # answer to truncation: closing that needs a signal the merge does not
+          # have, not more enforced paths.
           if [ "$schema" != "-" ]; then
             if ! check-jsonschema --schemafile "$schema" "$result_json" > /dev/null 2>&1; then
               echo "managed-file: $name failed schema validation against $schema" >&2

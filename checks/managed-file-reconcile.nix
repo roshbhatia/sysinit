@@ -39,8 +39,27 @@ let
       content = {
         mode = "smart";
         n = 0.2;
+        # `ext` models the goose `extensions` block: one entry this repository
+        # owns outright, one the harness is free to rewrite. Enforcing the
+        # parent would flatten both, which is the outcome a path exists to avoid.
+        ext = {
+          owned.cmd = "/nix/store/owned";
+          free.cmd = "/nix/store/free";
+        };
+        "dotted.key" = "nix";
       };
-      enforce = [ "mode" ];
+      enforce = [
+        "mode"
+        [
+          "ext"
+          "owned"
+        ]
+        # A literal top-level key whose NAME contains dots, as amp's VS Code-style
+        # settings use. A string entry must never be split, or this would enforce
+        # a nested path that does not exist and the real key would fall back to
+        # merging with nothing reporting it.
+        "dotted.key"
+      ];
     };
     t = {
       path = "d/t.toml";
@@ -82,6 +101,37 @@ let
       path = "d/adopt.json";
       format = "json";
       content.ok = 1;
+    };
+  };
+
+  # Same y target with the enforced path changed. Reproduces the goose defect:
+  # the harness deletes a key the next Nix content also changes, which the merge
+  # reports as an unresolvable conflict and which aborts the whole file.
+  yV2 = recFor {
+    y = {
+      path = "d/y.yaml";
+      format = "yaml";
+      content = {
+        mode = "smart";
+        n = 0.2;
+        ext = {
+          owned.cmd = "/nix/store/owned2";
+          free.cmd = "/nix/store/free";
+        };
+        "dotted.key" = "nix";
+      };
+      enforce = [
+        "mode"
+        [
+          "ext"
+          "owned"
+        ]
+        # A literal top-level key whose NAME contains dots, as amp's VS Code-style
+        # settings use. A string entry must never be split, or this would enforce
+        # a nested path that does not exist and the real key would fall back to
+        # merging with nothing reporting it.
+        "dotted.key"
+      ];
     };
   };
 
@@ -175,7 +225,12 @@ pkgs.runCommand "managed-file-reconcile-check"
     # preserves the source node style. The write path reads JSON, which
     # carries no style, so the guard is a no-op there. The assertion still
     # earns its place: it fails if the write path ever takes YAML input.
-    want "yaml is block style" "$(wc -l < "$HOME/d/y.yaml" | tr -d ' ')" "2"
+    #
+    # Asserted as the absence of a flow mapping rather than as a line count. A
+    # count re-pins on every fixture edit, and re-pinning a magic number is how
+    # an assertion quietly stops testing what it names.
+    want "yaml is block style" "$(grep -c '[{]' "$HOME/d/y.yaml" || true)" "0"
+    want "yaml nests as a block" "$(yq -r '.ext.owned.cmd' "$HOME/d/y.yaml")" "/nix/store/owned"
     want "createIfMissing=false skipped" "$([ -e "$HOME/d/skip.json" ] && echo present || echo absent)" "absent"
 
     # createIfMissing=false must also refuse to seed over a leftover
@@ -210,6 +265,44 @@ pkgs.runCommand "managed-file-reconcile-check"
     yq -i '.mode = "owner"' "$HOME/d/y.yaml"
     "$R" > /dev/null
     want "enforced key reasserted" "$(yq -r .mode "$HOME/d/y.yaml")" "smart"
+
+    # --- an enforced PATH reaches one entry and leaves its siblings alone ----
+    # Enforcing `ext` would win the same argument by flattening the block, and
+    # the harness would write its runtime fields back on the next run. These
+    # three assertions are what separate a path from that.
+    yq -i '.ext.owned.cmd = "harness"' "$HOME/d/y.yaml"
+    yq -i '.ext.owned.runtimeField = "written-by-harness"' "$HOME/d/y.yaml"
+    yq -i '.ext.free.runtimeField = "written-by-harness"' "$HOME/d/y.yaml"
+    "$R" > /dev/null
+    want "enforced path reasserted" \
+      "$(yq -r .ext.owned.cmd "$HOME/d/y.yaml")" "/nix/store/owned"
+    want "enforced path drops harness fields under it" \
+      "$(yq -r '.ext.owned | has("runtimeField")' "$HOME/d/y.yaml")" "false"
+    want "sibling of an enforced path keeps its harness fields" \
+      "$(yq -r .ext.free.runtimeField "$HOME/d/y.yaml")" "written-by-harness"
+
+    # A string entry is one literal key, dots and all. amp really does enforce
+    # "amp.permissions", so splitting a string would have addressed a nested path
+    # that does not exist and dropped that enforcement without a word.
+    yq -i '.["dotted.key"] = "harness"' "$HOME/d/y.yaml"
+    "$R" > /dev/null
+    want "literal dotted key reasserted" \
+      "$(yq -r '.["dotted.key"]' "$HOME/d/y.yaml")" "nix"
+    want "literal dotted key was not split into a path" \
+      "$(yq -r 'has("dotted")' "$HOME/d/y.yaml")" "false"
+
+    # The defect this path exists for: the harness DELETES a key that the next
+    # Nix content also changes. Unenforced that is "live deleted it, nix changed
+    # it", which the merge refuses, and refusing one key aborts the whole file.
+    yq -i 'del(.ext.owned.cmd)' "$HOME/d/y.yaml"
+    yq -i '.ext.owned.type = "builtin"' "$HOME/d/y.yaml"
+    msg="$(${yV2}/bin/sysinit-llm-reconcile 2>&1 || true)"
+    want "live-deleted key under an enforced path does not conflict" \
+      "$(echo "$msg" | grep -c 'conflict at' || true)" "0"
+    want "live-deleted key under an enforced path is restored to Nix" \
+      "$(yq -r .ext.owned.cmd "$HOME/d/y.yaml")" "/nix/store/owned2"
+    want "the rest of the file still updated" \
+      "$(yq -r .ext.free.runtimeField "$HOME/d/y.yaml")" "written-by-harness"
 
     # 5. deletion via the base, with no tombstone list
     ${drop}/bin/sysinit-llm-reconcile > /dev/null
