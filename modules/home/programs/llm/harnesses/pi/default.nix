@@ -763,6 +763,14 @@ let
       # registers ctrl+b for the neovim review split, and which of the two wins is
       # a precedence question that is better removed than relied on.
       "tui.editor.cursorLeft" = "left";
+      # Off its `alt+enter` default, which never reached pi on this machine:
+      # aerospace binds alt-enter to spawn a WezTerm window, and a window manager
+      # takes the chord before the terminal sees it, so queueing a follow-up was
+      # unreachable rather than merely awkward. `ctrl+enter` is the sibling of the
+      # two Enter chords pi already ships, and no aerospace, WezTerm, or pi
+      # default claims it. WezTerm sets enable_kitty_keyboard, so ctrl+enter
+      # encodes distinctly from a bare enter rather than arriving as one.
+      "app.message.followUp" = "ctrl+enter";
     }
   );
 
