@@ -1,8 +1,8 @@
 version: 1
 change: gate-agent-chords-and-citations
 decision: approved
-change_hash: 41c8bf8027ddacde
-base_commit: a64b7b8ce1116c74cd3a0e0e0cad7d8cec67f018
+change_hash: 3ef933086683a46c
+base_commit: 12baee5fc8409700ecee624713f0ffa160bfbdaf
 items:
     0c0b2575c3526c1e:
         hash: a4a6a94a082a579b
@@ -10,6 +10,9 @@ items:
     4e58c1b31b13a163:
         hash: 0e0db639ce970b57
         text: 'Adversarial review: whether each new pi command earns its surface, and whether the declared hook order matches observed behaviour'
+    6b181e063e7b1534:
+        hash: 2a813868e9e99ce2
+        text: 'Evaluate an openspec store for the sysinit constellation. `store:` and `references:` are real keys in `ProjectConfigSchema`, so the wiring exists. The case for one is concrete: this work spans sysinit, sysinit.laurel, and specutil, and the change describing it can only live in one of them today. The case against is that stores are beta and upstream says file formats may still change. Decide adopt-now against wait'
     6bb6c660d4aca71b:
         hash: 43469da078ff233a
         text: 'Adversarial review: whether a cheap capture path makes unpinned claims rarer, or only makes pinning look done'
@@ -28,15 +31,30 @@ items:
     23b9dad7fec99468:
         hash: d3e37ba0cca0d2bc
         text: 'Adversarial review: whether the inventory is complete. A layer missed here is a layer the gate will not cover, which is the defect this change exists to fix'
+    23f5c0e95a6acdfc:
+        hash: 16d80dd6b1c443b6
+        text: Move every agent's shell back to its default instead of zsh. The owner reports zsh causes issues; `shellCommandPrefix` and `shellPath` are the pi levers, and the other harnesses have equivalents
+    39dff4a1f3e9fce8:
+        hash: 983e2a77d9330ac9
+        text: Verify the first refine run produces a report whose every claim cites worklog evidence, and that a run with an empty window exits 0 without publishing a file
     73aa32ad5a7d7b9e:
         hash: 2484fcbf23d3e162
         text: 'Decide: the owner rules on `pi-annotated-reply` and `@juicesharp/rpiv-advisor`, whose removal evidence is recorded in `piPackagePaths` comments, and on the stale `mcp-cache.json`'
+    76ec6514a255986e:
+        hash: 8205fcd946d166ba
+        text: Onboard the new opsx skills (`propose`, `explore`, `apply`, `update`, `sync`, `archive`, and the expanded `new`/`continue`/`ff`/`verify`/ `bulk-archive`/`onboard`) into the generated skill set
+    177d9f983a5ee577:
+        hash: ed5117e9c027d27f
+        text: 'Audit the schema itself against upstream''s customization contract: `openspec/config.yaml` supports a default schema, injected context, per-artifact rules, and operation guidance. Confirm each is set and correct, and that the language matches the output style'
     999d72b23ba61499:
         hash: 322349b4b37aea0f
         text: 'STOP: mutation-test the check. Reintroduce `alt+s` and the duplicate `<leader>dt` against the committed tree and confirm both fail'
     9415c1f66efe00c6:
         hash: e0a5171fc3f4b8ed
         text: 'Adversarial review: critics attack the fixtures, not the check. A gate that passes because its fixture is wrong is worse than no gate'
+    026335ff1f8a4d1b:
+        hash: 0afecb3eac7059f9
+        text: 'Evaluate stores and worksets (beta) for seshy: a store is a standalone planning repo, registered per machine, referenced from a code repo via `store:` or read-only `references:` in config.yaml. seshy already manages multi-repo sessions, so the question is whether a workset is the same object under another name or a layer beneath it'
     38830de4e4c781c0:
         hash: 73558ff06bb825cf
         text: 'Confirm a change with no external-factual claim stays cheap: no lock file, no new gate output'
@@ -52,18 +70,30 @@ items:
     562845ded2d45fbb:
         hash: ef4e45a2c0b85458
         text: 'Apply: `nh darwin switch . --update` from the `sysinit.laurel` checkout in a split pane, gated on `nix flake check` and `nix build .#darwinConfigurations.lv426.system` exiting 0'
+    a990d3de1518cded:
+        hash: 276e0b1af9f257a3
+        text: Decide how seshy relates to worksets. A seshy session already groups repos for one feature and a workset is a personal multi-folder view, so the question is whether they are the same object named twice. If they are, seshy should emit the store reference rather than both tracking it
     ad2431fa77d338e2:
         hash: 704068b95053d6ea
         text: 'Inventory every chord-binding layer: `modules/darwin/lib/chords.nix`, `keybindings.nix`, wezterm `keybindings.lua` and `ui.lua`, pi extensions and `piKeybindings`, neovim keymaps, hammerspoon, sketchybar, zsh ZLE. Record which the current check reads and which it does not'
+    ade747fa2b67f5aa:
+        hash: fb4ce6604e822c1e
+        text: Adopt prime-agent's Continual Harness split. It is built on pi, and its durable idea is that supplemental state (memories, skills, subagent specs) is refined from evidence while the base prompt stays immutable. That split already exists here, `instructions.nix` immutable against `~/.claude/projects/*/memory/` mutable, but nothing refined the mutable half, so it only grew. `agent-refine` reads a bounded worklog window and writes a proposal, and a weekly launchd agent runs it unattended.
     b94c9b374ab87781:
         hash: be3391453ae4f186
         text: Register `specutil next` as a pi command returning the runnable subtasks for the active change
     b251be61a4dc72f6:
         hash: 8e86ae80dbe69e18
         text: Extend `modules/darwin/lib/chords.nix` with a pi layer, sourced from the extensions rather than hand-copied, so it cannot drift the way `uiChords` already does
+    bbcd72530d27fbb3:
+        hash: cb50c065b59e8c69
+        text: 'Rename the schema from `spec-driven` to `spec-driven`, replacing the built-in directory instead of sitting beside it. Attempted and reverted: the openspec half is clean and deletes all six `--replace-fail` patches in `overlays/openspec/default.nix`, but `spec-driven` is a preset name compiled into the specutil binary, which has no source in this repo. With the schema renamed, `specutil check` resolves no rubric and every change loses its gate. Needs a coordinated specutil change first, or an explicit `check:` block in `openspec/specutil.yaml` that reproduces the preset exactly'
     bc7e4e92c9368625:
         hash: 9c2638d74be446c1
         text: 'Confirm: the owner presses `shift+ctrl+b` and the sidebar toggles, presses `ctrl+b` and reads a left-hand tree explorer, ctrl+clicks a path in the Changes panel and it opens'
+    bded747e9bcaab75:
+        hash: 1f298e88d0feb105
+        text: 'Adversarial review: whether global install makes openspec present or merely installed, and whether 6.1 is worth its coordination cost'
     c5705a07c95c21ca:
         hash: fdd7306a79046c11
         text: Add the composing-modifier rule with its reason string
@@ -73,6 +103,12 @@ items:
     e767e958546bde01:
         hash: ac43d122b20e1ce2
         text: Make `citelock capture` reachable from pi as a command, so pinning a claim does not require leaving the session
+    eefca3eb807864e6:
+        hash: d65040017db94bbc
+        text: Install the openspec skills and prompts globally for every harness, so no repo needs `openspec init`. Upstream ships `pi` as a first-class tool (`.pi/skills/openspec-*/SKILL.md`, `.pi/prompts/opsx-<id>.md`), `codex` and `agents` share `.agents/skills/`, and `opencode` uses `.opencode/skills/`. Nix owns those roots already
+    f23a897719cf74eb:
+        hash: f9c79b7af09dd42e
+        text: 'Adversarial review: whether an unattended refine that only proposes is actually read, or becomes a weekly file nobody opens'
     f1446cfbf05e5895:
         hash: 97b39e80c3e09c7f
         text: 'Extend `checks/wezterm-chord-collisions.nix` to consume the pi and neovim layers. Rename it: it is no longer WezTerm-specific'
