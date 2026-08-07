@@ -24,6 +24,22 @@ local function create_smart_keybind(key, mods, wezterm_action, opts)
       end
 
       if opts and opts.passthrough then
+        -- The user var is checked FIRST, and is the only check that works over
+        -- ssh. `get_process_name` reports the LOCAL foreground process, which for
+        -- an ssh pane is `ssh` and never the remote `nvim`, so the process check
+        -- alone swallowed CTRL+hjkl and moved the local pane instead of the
+        -- remote window. Only locked mode got the keys through, by skipping both
+        -- checks. smart-splits sets IS_NVIM on load and clears it on ExitPre, and
+        -- its own README says the process-name check "will not work in all cases
+        -- (e.g. over an SSH connection)".
+        --
+        -- The process check stays as the fallback: it covers vim and hx, which
+        -- set no user var, and nvim before smart-splits has finished loading.
+        if pane:get_user_vars().IS_NVIM == "true" then
+          win:perform_action({ SendKey = { key = key, mods = mods } }, pane)
+          return
+        end
+
         local proc = utils.get_process_name(pane)
         for _, p in ipairs(opts.passthrough) do
           if proc == p then

@@ -3,11 +3,28 @@ local wezterm = require("wezterm")
 local M = {}
 
 function M.setup(config)
-  wezterm.on("user-var-changed", function(window, _pane, name, value)
+  -- Set by nvim's smart-splits config when the cursor is already at the edge of
+  -- its own splits and the move has to continue into a wezterm pane. nvim asks
+  -- rather than moving itself, because over ssh it can reach neither `wezterm
+  -- cli` nor this process any other way. The payload is "<direction>:<seq>";
+  -- the counter only exists to make the value differ so this event fires again.
+  local NAV_DIRECTIONS = {
+    left = "Left",
+    right = "Right",
+    up = "Up",
+    down = "Down",
+  }
+
+  wezterm.on("user-var-changed", function(window, pane, name, value)
     if name == "wez_copy" then
       window:copy_to_clipboard(value, "Clipboard")
     elseif name == "wez_not" then
       window:toast_notification("wezterm", value, nil, 4000)
+    elseif name == "SYSINIT_NAV" then
+      local dir = NAV_DIRECTIONS[tostring(value):match("^(%a+):") or ""]
+      if dir then
+        window:perform_action(wezterm.action.ActivatePaneDirection(dir), pane)
+      end
     end
   end)
 
