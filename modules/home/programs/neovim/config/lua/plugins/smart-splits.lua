@@ -5,20 +5,50 @@
 --
 -- Writing to stderr rather than stdout is smart-splits' own choice in
 -- autoload/smart_splits.vim, kept here so both writers behave the same.
+local function set_user_var(name, value)
+  local seq = ("\27]1337;SetUserVar=%s=%s\7"):format(name, vim.base64.encode(value))
+  vim.fn.chansend(vim.v.stderr, seq)
+end
+
 local nav_seq = 0
 
 local function ask_wezterm_to_move(direction)
   -- wezterm fires `user-var-changed` only when the VALUE changes, so a bare
   -- direction would move once and then go dead on the second identical press.
   nav_seq = nav_seq + 1
-  local payload = vim.base64.encode(direction .. ":" .. nav_seq)
-  vim.fn.chansend(vim.v.stderr, ("\27]1337;SetUserVar=SYSINIT_NAV=%s\7"):format(payload))
+  set_user_var("SYSINIT_NAV", direction .. ":" .. nav_seq)
+end
+
+-- smart-splits writes IS_NVIM as well, but only from its wezterm backend, and it
+-- picks that backend by reading TERM_PROGRAM (smart-splits/config.lua). ssh does
+-- not forward TERM_PROGRAM, so on a remote host no backend is selected and the
+-- var is never written. wezterm then sees only the local `ssh` process, keeps
+-- CTRL+hjkl for itself, and the keys never reach this nvim at all.
+--
+-- So write it unconditionally. Locally this only repeats the value smart-splits
+-- already wrote. The autocmd set mirrors smart-splits' own lifecycle in
+-- mux/utils.lua, so a suspended or exited nvim hands the keys back to wezterm.
+local function announce_nvim(present)
+  set_user_var("IS_NVIM", present and "true" or "false")
 end
 
 return {
   {
     "mrjones2014/smart-splits.nvim",
     event = "VeryLazy",
+    init = function()
+      announce_nvim(true)
+      vim.api.nvim_create_autocmd("VimResume", {
+        callback = function()
+          announce_nvim(true)
+        end,
+      })
+      vim.api.nvim_create_autocmd({ "VimSuspend", "VimLeavePre" }, {
+        callback = function()
+          announce_nvim(false)
+        end,
+      })
+    end,
     config = function()
       local ft = require("utils.filetypes")
       require("smart-splits").setup({
