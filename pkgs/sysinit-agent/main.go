@@ -13,6 +13,7 @@ import (
 	"os"
 	"sort"
 
+	"github.com/roshbhatia/sysinit/pkgs/sysinit-agent/internal/citelock"
 	"github.com/roshbhatia/sysinit/pkgs/sysinit-agent/internal/diffnote"
 )
 
@@ -27,6 +28,7 @@ type command struct {
 
 // Registered subcommands. One entry per migrated script.
 var commands = map[string]command{
+	"citelock": {name: "citelock", summary: citelock.Summary, run: citelock.Run},
 	"diffnote": {name: "diffnote", summary: diffnote.Summary, run: diffnote.Run},
 }
 

@@ -14,7 +14,18 @@ let
     text = builtins.readFile (sourceOf "wtrun");
   };
 
-  citelock = pkgs.writeShellScriptBin "citelock" (builtins.readFile (sourceOf "citelock"));
+  # A shim, not a rename: the pre-commit hook and the citation-verification
+  # skill both still spell this `citelock`.
+  citelock = pkgs.writeShellApplication {
+    name = "citelock";
+    runtimeInputs = [
+      pkgs.curl
+      pkgs.sysinit-agent
+    ];
+    text = ''
+      exec sysinit-agent citelock "$@"
+    '';
+  };
 in
 {
   home.packages = [

@@ -5,8 +5,8 @@
 pkgs.runCommand "citelock-check"
   {
     nativeBuildInputs = [
-      pkgs.jq
       pkgs.bash
+      pkgs.sysinit-agent
     ];
   }
   ''
@@ -17,7 +17,7 @@ pkgs.runCommand "citelock-check"
       [ -z "$lock" ] && continue
       found=1
       dir="$(dirname "$lock")"
-      if ! bash ${../modules/home/programs/llm/skills/citation-verification/citelock.sh} verify "$dir"; then
+      if ! sysinit-agent citelock verify "$dir"; then
         fail=1
       fi
     done < <(find "$changes" -name citations.lock 2> /dev/null)
@@ -26,10 +26,10 @@ pkgs.runCommand "citelock-check"
       exit 1
     fi
 
-    gate=${../modules/home/programs/llm/skills/citation-verification/citelock.sh}
+    gate="sysinit-agent citelock"
 
     mkdir -p "$TMPDIR/nolock"
-    if ! nolock_out="$(bash "$gate" verify "$TMPDIR/nolock" 2>&1)"; then
+    if ! nolock_out="$($gate verify "$TMPDIR/nolock" 2>&1)"; then
       echo "FAIL: citelock verify must be a no-op for a directory with no citations.lock." >&2
       echo "The pre-commit hook runs it over every change dir, so a non-zero here blocks every commit." >&2
       printf '%s\n' "$nolock_out" | sed 's/^/    /' >&2
@@ -46,7 +46,7 @@ pkgs.runCommand "citelock-check"
 
     mkdir -p "$TMPDIR/badlock"
     echo '{"records":[{"id":"unanchored"}]}' > "$TMPDIR/badlock/citations.lock"
-    if badlock_out="$(bash "$gate" verify "$TMPDIR/badlock" 2>&1)"; then
+    if badlock_out="$($gate verify "$TMPDIR/badlock" 2>&1)"; then
       echo "FAIL: citelock verify accepted a record with no source, quote, snapshot, or sha256." >&2
       echo "The offline gate is the only thing standing between a hallucinated citation and a merge." >&2
       exit 1
