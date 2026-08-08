@@ -373,5 +373,20 @@
             "url": "https://github.com/earendil-works/pi/releases/download/v0.82.1/pi-linux-x64.tar.gz"
         },
         "version": "0.82.1"
+    },
+    "tinycast": {
+        "cargoLock": null,
+        "date": null,
+        "extract": null,
+        "name": "tinycast",
+        "passthru": null,
+        "pinned": false,
+        "src": {
+            "name": null,
+            "sha256": "sha256-XLxxdnRrWYvJ+9ulwD+yrhGtCSzFl00EAjZoFCnR86g=",
+            "type": "url",
+            "url": "https://github.com/abue-ammar/tinycast/releases/download/v0.7.5/Tinycast-0.7.5.dmg"
+        },
+        "version": "0.7.5"
     }
 }

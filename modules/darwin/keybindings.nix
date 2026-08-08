@@ -5,7 +5,7 @@ let
   user = lib.escapeShellArg config.system.primaryUser;
 
   # `defaults write` replaces the whole AppleSymbolicHotKeys dict, so this set
-  # has to stay complete. aerospork owns tiling and space switching, raycast
+  # has to stay complete. aerospork owns tiling and space switching, tinycast
   # owns cmd+space, so almost every macOS window and search shortcut is off.
 
   renderHotkey =
@@ -59,8 +59,8 @@ in
 {
   sysinit.darwin.keybindings.symbolicHotkeys = chords.baseSymbolicHotkeys;
 
-  # Global chords held by layers outside Nix-readable config (raycast's own
-  # store, an Electron settings file, hammerspoon lua). Declared in
+  # Global chords held by layers outside Nix-readable config (tinycast's own
+  # UserDefaults, an Electron settings file, hammerspoon lua). Declared in
   # ./lib/chords.nix so the wezterm chord check reads the same list.
   sysinit.darwin.keybindings.reservedChords = chords.reservedChords;
 

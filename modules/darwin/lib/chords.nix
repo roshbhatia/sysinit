@@ -188,7 +188,7 @@ rec {
   };
 
   reservedChords = {
-    "cmd+space" = "raycast";
+    "cmd+space" = "tinycast";
     "cmd+tab" = "hammerspoon window switcher";
     "cmd+shift+tab" = "hammerspoon window switcher";
     "cmd+]" = "hammerspoon vim-mode";

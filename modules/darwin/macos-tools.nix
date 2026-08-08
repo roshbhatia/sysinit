@@ -8,6 +8,7 @@
   # macOS system-level packages (not home-manager)
   environment.systemPackages = with pkgs; [
     lima # ad-hoc VM manager, driven by hand; nothing auto-starts it
+    tinycast # launcher on cmd+space; registers its own login item via SMAppService
   ];
 
   # macOS-specific home packages
