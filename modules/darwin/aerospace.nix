@@ -10,7 +10,6 @@
         "1"
         "2"
         "C"
-        "E"
         "M"
       ];
 
@@ -57,18 +56,6 @@
             app-id = "com.hnc.Discord";
           };
           run = "move-node-to-workspace C";
-        }
-        {
-          "if" = {
-            app-id = "notion.mail.id";
-          };
-          run = "move-node-to-workspace E";
-        }
-        {
-          "if" = {
-            app-id = "com.cron.electron";
-          };
-          run = "move-node-to-workspace E";
         }
         {
           "if" = {
@@ -241,12 +228,10 @@
           alt-1 = "workspace 1";
           alt-2 = "workspace 2";
           alt-c = "workspace C";
-          alt-e = "workspace E";
           alt-m = "workspace M";
           alt-shift-1 = "move-node-to-workspace 1 --focus-follows-window";
           alt-shift-2 = "move-node-to-workspace 2 --focus-follows-window";
           alt-shift-c = "move-node-to-workspace C --focus-follows-window";
-          alt-shift-e = "move-node-to-workspace E --focus-follows-window";
           alt-shift-m = "move-node-to-workspace M --focus-follows-window";
 
           alt-tab = "workspace --wrap-around next";

@@ -127,9 +127,6 @@ in
             { class = "^Slack$"; }
             { app_id = "^vesktop$"; }
           ];
-          "E" = [
-            { class = "^thunderbird$"; }
-          ];
           "M" = [
             { class = "^Spotify$"; }
             { app_id = "^spotify$"; }
@@ -210,17 +207,15 @@ in
           # Resize mode
           "${mod}+r" = "mode resize";
 
-          # Workspaces (only 1, 2, C, E, M — matching aerospace)
+          # Workspaces (only 1, 2, C, M — matching aerospace)
           "${mod}+1" = "workspace 1";
           "${mod}+2" = "workspace 2";
           "${mod}+c" = "workspace C";
-          "${mod}+e" = "workspace E";
           "${mod}+m" = "workspace M";
 
           "${mod}+Shift+1" = "move container to workspace 1; workspace 1";
           "${mod}+Shift+2" = "move container to workspace 2; workspace 2";
           "${mod}+Shift+c" = "move container to workspace C; workspace C";
-          "${mod}+Shift+e" = "move container to workspace E; workspace E";
           "${mod}+Shift+m" = "move container to workspace M; workspace M";
 
           # Workspace cycling
@@ -416,7 +411,6 @@ in
               "1" = [ ];
               "2" = [ ];
               "C" = [ ];
-              "E" = [ ];
               "M" = [ ];
             };
           };
