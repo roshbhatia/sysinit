@@ -207,14 +207,16 @@ in
           # Resize mode
           "${mod}+r" = "mode resize";
 
-          # Workspaces (only 1, 2, C, M — matching aerospork)
+          # Workspaces (only 1, 2, 3, C, M — matching aerospork)
           "${mod}+1" = "workspace 1";
           "${mod}+2" = "workspace 2";
+          "${mod}+3" = "workspace 3";
           "${mod}+c" = "workspace C";
           "${mod}+m" = "workspace M";
 
           "${mod}+Shift+1" = "move container to workspace 1; workspace 1";
           "${mod}+Shift+2" = "move container to workspace 2; workspace 2";
+          "${mod}+Shift+3" = "move container to workspace 3; workspace 3";
           "${mod}+Shift+c" = "move container to workspace C; workspace C";
           "${mod}+Shift+m" = "move container to workspace M; workspace M";
 
@@ -410,6 +412,7 @@ in
             persistent-workspaces = {
               "1" = [ ];
               "2" = [ ];
+              "3" = [ ];
               "C" = [ ];
               "M" = [ ];
             };

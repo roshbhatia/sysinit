@@ -271,10 +271,12 @@ in
 
         alt-1 = "workspace 1";
         alt-2 = "workspace 2";
+        alt-3 = "workspace 3";
         alt-c = "workspace C";
         alt-m = "workspace M";
         alt-shift-1 = "move-node-to-workspace 1 --focus-follows-window";
         alt-shift-2 = "move-node-to-workspace 2 --focus-follows-window";
+        alt-shift-3 = "move-node-to-workspace 3 --focus-follows-window";
         alt-shift-c = "move-node-to-workspace C --focus-follows-window";
         alt-shift-m = "move-node-to-workspace M --focus-follows-window";
 
