@@ -19,7 +19,6 @@
   (import ./nvfetcher-sources.nix)
   (import ./inputs.nix { inherit inputs; })
   (import ./meat.nix { inherit inputs; })
-  (import ./python311.nix)
   (import ./python313.nix)
   (import ./kubernetes-zeitgeist.nix)
   (import ./go-enum.nix)
@@ -34,32 +33,13 @@
   (import ./ioskeleyMono.nix)
   (import ./wumpusMono.nix)
   (import ./bookerly.nix)
-  (import ./direnv.nix)
   (import ./codex-acp.nix)
-  (import ./kvazaar.nix)
   (import ./obsidian.nix)
   (import ./localias.nix)
   (import ./pplx.nix)
   (import ./alerter.nix)
   (import ./sheets.nix)
   (import ./tinycast.nix)
-  (_final: prev: {
-    sdl3 =
-      if prev.stdenv.hostPlatform.system == "i686-linux" then
-        prev.sdl3.overrideAttrs (_old: {
-          doCheck = false;
-        })
-      else
-        prev.sdl3;
-  })
-  (
-    _final: prev:
-    prev.lib.optionalAttrs prev.stdenv.hostPlatform.isDarwin {
-      pipx = prev.pipx.overridePythonAttrs (o: {
-        disabledTestPaths = (o.disabledTestPaths or [ ]) ++ [ "tests/test_inject.py" ];
-      });
-    }
-  )
   (_final: prev: {
     _1password-gui =
       if prev.stdenv.hostPlatform.isDarwin then

@@ -104,6 +104,10 @@ subcommands: `feature-based-session-manager`, `openspec-workflow`, `specutil`.
 - `python313.override { packageOverrides = ... }` pins the whole Python set off
   cache. One test-skip re-hashes every `python313Packages.*`. `openldap` does
   not cascade on Darwin, because curl, git, and python do not link LDAP there.
+- To test one override, dry-run the pristine attr at the locked nixpkgs rev:
+  `nix build --dry-run "github:NixOS/nixpkgs/<rev>#<attr>"`. "will be fetched"
+  means the override is now pure waste. "will be built" means cache never had
+  it, so the override costs nothing and can stay.
 - `.sysinit/` is gitignored scratch space. Check `.sysinit/lessons.md` at
   session start.
 - `~/.config/git/ignore` already excludes `**/.claude/` and `**/.agents/`. Do
