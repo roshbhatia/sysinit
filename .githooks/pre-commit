@@ -2,9 +2,24 @@
 set -euo pipefail
 
 repo_root="$(git rev-parse --show-toplevel)"
-command -v citelock > /dev/null 2>&1 || exit 0
 
 status=0
+
+# The nix source rules. This used to be a flake check, which meant it ran only
+# when someone remembered to run the flake. Here it runs on the staged files,
+# so a violation is caught by the commit that introduces it.
+if command -v ast-grep > /dev/null 2>&1; then
+  staged_nix=$(git diff --cached --name-only --diff-filter=ACMR | grep '\.nix$' || true)
+  if [[ -n ${staged_nix} ]]; then
+    # shellcheck disable=SC2086
+    if ! (cd "$repo_root" && ast-grep scan -c sgconfig.yml $staged_nix); then
+      echo "ast-grep: fix the source, or change the rule under .ast-grep/rules/" >&2
+      status=1
+    fi
+  fi
+fi
+
+command -v citelock > /dev/null 2>&1 || exit "$status"
 while IFS= read -r lock; do
   [[ -z ${lock} ]] && continue
   dir="$(dirname "$lock")"

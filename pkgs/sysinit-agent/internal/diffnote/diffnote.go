@@ -1,9 +1,9 @@
 // Package diffnote implements the `diffnote` command: agent review notes on a
 // working-tree diff, rendered by neovim's CodeDiff view.
 //
-// The on-disk format is fixed by lua/harness/diffnote.lua, which reads it. Every
-// rejection here has a matching case in checks/diffnote-roundtrip.nix, which
-// drives both halves.
+// The on-disk format is fixed by lua/harness/diffnote.lua, which reads it.
+// Nothing builds both halves together any more, so a change to either side has
+// to be checked against the other by hand.
 package diffnote
 
 import (

@@ -12,7 +12,8 @@ import (
 //
 // Copied rather than imported: the packaging generates the rule file from the
 // Nix list, and this asserts Go's RE2 decides the same way GNU grep -E did.
-// checks/destructive-guard-fixtures.nix drives the packaged pair end to end.
+// These tests are now the only gate on that: keep them in step with
+// modules/home/programs/llm/lib/allowlist.nix.
 var realRules = []Rule{
 	{`git[[:space:]]+push\b[^;&|]*([[:space:]]-f([[:space:]]|$)|--force)`, "Force-pushing is prohibited (global CLAUDE.md: no force-push)."},
 	{`(--no-verify|--no-gpg-sign)\b`, "Hook-bypass flags are prohibited (global CLAUDE.md: no --no-verify / --no-gpg-sign)."},
@@ -35,8 +36,8 @@ func compileReal(t *testing.T) []compiled {
 	return out
 }
 
-// denied is every fixture checks/destructive-guard-fixtures.nix expects to be
-// refused, plus the two compound forms it appends.
+// denied is every command the guard must refuse, plus two compound forms where
+// the destructive part is not the first command on the line.
 var denied = []string{
 	"git push --force",
 	"git push --force-with-lease origin main",

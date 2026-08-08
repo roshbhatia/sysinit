@@ -2,8 +2,8 @@
 //
 // The derivation is duplicated in lua/harness/diffnote.lua, which reads the
 // store the CLI writes. A drift between the two is silent: the CLI reports
-// success and the editor renders nothing. checks/diffnote-roundtrip.nix drives
-// both halves for that reason.
+// success and the editor renders nothing. Nothing checks the two against each
+// other, so edit them together.
 package repo
 
 import (
