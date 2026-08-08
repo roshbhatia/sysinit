@@ -55,7 +55,12 @@ pattern is proven.
 Must do:
 - `sysinit-agent diffnote` and `sysinit-agent citelock` pass the existing
   contract tests, decided by `nix flake check` with `checks/diffnote-roundtrip.nix`
-  and `checks/citelock.nix` unmodified
+  and `checks/citelock.nix` unmodified. Deviation on delivery:
+  `checks/citelock.nix` hardcoded `bash ${...citelock.sh}`, so its invocation
+  line had to change. Every assertion in it is unmodified.
+- `diffnote add` opens the diff in a running neovim on its own, decided by
+  adding a note with a server attached and observing the view appear. Added
+  after the change opened, at the owner's request.
 - every migrated command remains callable under its current name, decided by
   `command -v diffnote citelock agent-state statusline` after a switch
 - the diffnote store written by Go renders in the editor, decided by opening
@@ -93,7 +98,7 @@ Modified code:
 - `checks/`: unchanged, but now exercise the Go binary
 
 Dependencies: adds a Go toolchain at build time; removes `jq` from the migrated
-runtime paths
+runtime paths; vendors `github.com/neovim/go-client` for the diffnote auto-open
 
 Impactful and irreversible actions:
 - replacing `diffnote` while a note store exists on this machine. The store
