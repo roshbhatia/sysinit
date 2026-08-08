@@ -13,7 +13,7 @@ let
     inherit (themeConfig) base16Scheme;
     inherit (themeConfig) appearance;
     inherit (themeConfig) transparency;
-    aerospace_bin = "${pkgs.aerospace}/bin/aerospace";
+    aerospork_bin = "${pkgs.aerospork}/bin/aerospork";
     base16 = {
       base00 = "#${c.base00}";
       base01 = "#${c.base01}";

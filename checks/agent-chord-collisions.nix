@@ -5,7 +5,7 @@
 }:
 # Cross-layer chord collision gate for every layer that binds a key.
 #
-# The predecessor covered symbolic hotkeys, aerospace, and WezTerm. pi and
+# The predecessor covered symbolic hotkeys, aerospork, and WezTerm. pi and
 # neovim sat outside it, and that absence had a measured cost: a sidebar toggle
 # shipped on `alt+s`, which cannot fire on macOS because WezTerm defaults
 # `send_composed_key_when_left_alt_is_pressed` to true and left-alt composes.

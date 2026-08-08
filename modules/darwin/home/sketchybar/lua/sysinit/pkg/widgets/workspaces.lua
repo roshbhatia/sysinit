@@ -7,7 +7,7 @@ local config = require("sysinit.pkg.config")
 local M = {}
 
 local spaces = {}
-local aerospace = config.aerospace_bin or "aerospace"
+local aerospork = config.aerospork_bin or "aerospork"
 
 local function make_label(workspace, is_focused)
   return {
@@ -18,7 +18,7 @@ local function make_label(workspace, is_focused)
 end
 
 function M.setup()
-  sbar.exec(aerospace .. " list-workspaces --all", function(workspaces_output, exit_code)
+  sbar.exec(aerospork .. " list-workspaces --all", function(workspaces_output, exit_code)
     if exit_code ~= 0 then
       return
     end
@@ -42,7 +42,7 @@ function M.setup()
         background = { drawing = false },
         padding_left = settings.spacing.widget_spacing,
         padding_right = settings.spacing.widget_spacing,
-        click_script = string.format("%s workspace %s", aerospace, workspace),
+        click_script = string.format("%s workspace %s", aerospork, workspace),
       })
 
       space:subscribe("aerospace_workspace_change", function(env)
@@ -70,7 +70,7 @@ function M.setup()
 
     utils.separator("workspace_right_sep", "center")
 
-    sbar.exec(aerospace .. " list-workspaces --focused", function(focused_output, initial_exit_code)
+    sbar.exec(aerospork .. " list-workspaces --focused", function(focused_output, initial_exit_code)
       if initial_exit_code == 0 then
         local focused_workspace = utils.trim(focused_output)
 

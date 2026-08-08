@@ -1,4 +1,19 @@
 {
+    "aerospork": {
+        "cargoLock": null,
+        "date": null,
+        "extract": null,
+        "name": "aerospork",
+        "passthru": null,
+        "pinned": false,
+        "src": {
+            "name": null,
+            "sha256": "sha256-etCEWlJLSSzIrgyyFqCNZDJdC9kZNDsZrO9ss0KLuDA=",
+            "type": "url",
+            "url": "https://github.com/wbsmolen/aerospork/releases/download/v1.1.8/aerospork-v1.1.8.zip"
+        },
+        "version": "1.1.8"
+    },
     "crush": {
         "cargoLock": null,
         "date": null,

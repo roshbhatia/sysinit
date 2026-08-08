@@ -9,7 +9,7 @@
     ../home/programs/git/options.nix
 
     # System configurations
-    ./aerospace.nix
+    ./aerospork.nix
     ./clamshell.nix
     ./borders.nix
     ./desktop.nix

@@ -6,6 +6,14 @@
   dockerTools,
 }:
 {
+  aerospork = {
+    pname = "aerospork";
+    version = "1.1.8";
+    src = fetchurl {
+      url = "https://github.com/wbsmolen/aerospork/releases/download/v1.1.8/aerospork-v1.1.8.zip";
+      sha256 = "sha256-etCEWlJLSSzIrgyyFqCNZDJdC9kZNDsZrO9ss0KLuDA=";
+    };
+  };
   crush = {
     pname = "crush";
     version = "0.87.0";
