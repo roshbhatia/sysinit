@@ -198,7 +198,7 @@ in
           "Mod4+h" = "move scratchpad";
           "Mod4+m" = "move scratchpad";
 
-          # Focus (vim-style, matching aerospork)
+          # Focus (vim-style, matching aerospace)
           "${mod}+h" = "focus left";
           "${mod}+j" = "focus down";
           "${mod}+k" = "focus up";
@@ -207,7 +207,7 @@ in
           # Resize mode
           "${mod}+r" = "mode resize";
 
-          # Workspaces (only 1, 2, 3, C, M — matching aerospork)
+          # Workspaces (only 1, 2, 3, C, M — matching aerospace)
           "${mod}+1" = "workspace 1";
           "${mod}+2" = "workspace 2";
           "${mod}+3" = "workspace 3";
@@ -237,10 +237,10 @@ in
           "${mod}+v" = "floating toggle";
           "${mod}+t" = "layout toggle split";
 
-          # Move mode (like aerospork)
+          # Move mode (like aerospace)
           "${mod}+x" = "mode move";
 
-          # Locked mode (passthrough, like aerospork)
+          # Locked mode (passthrough, like aerospace)
           "${mod}+g" = "mode locked";
 
           # Clipboard history

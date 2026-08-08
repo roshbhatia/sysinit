@@ -5,7 +5,7 @@ let
   user = lib.escapeShellArg config.system.primaryUser;
 
   # `defaults write` replaces the whole AppleSymbolicHotKeys dict, so this set
-  # has to stay complete. aerospork owns tiling and space switching, tinycast
+  # has to stay complete. aerospace owns tiling and space switching, tinycast
   # owns cmd+space, so almost every macOS window and search shortcut is off.
 
   renderHotkey =
@@ -44,15 +44,15 @@ let
 
   reservedHits = lib.filter (e: cfg.reservedChords ? ${e.chord}) enabledHotkeys;
 
-  aerosporkModes = lib.attrByPath [ "services" "aerospork" "settings" "mode" ] { } config;
-  aerosporkChords = lib.unique (
+  aerospaceModes = lib.attrByPath [ "services" "aerospace" "settings" "mode" ] { } config;
+  aerospaceChords = lib.unique (
     lib.concatMap (m: map chordOfBindingName (builtins.attrNames (m.binding or { }))) (
-      builtins.attrValues aerosporkModes
+      builtins.attrValues aerospaceModes
     )
   );
-  aerosporkHits = lib.filter (
+  aerospaceHits = lib.filter (
     c: (cfg.reservedChords ? ${c}) || lib.any (e: e.chord == c) enabledHotkeys
-  ) aerosporkChords;
+  ) aerospaceChords;
 
   describe = es: lib.concatMapStringsSep ", " (e: "${e.chord} (ID ${e.id})") es;
 in
@@ -83,8 +83,8 @@ in
       message = "sysinit.darwin.keybindings: enabled symbolic hotkey collides with a reserved chord: ${describe reservedHits}";
     }
     {
-      assertion = aerosporkHits == [ ];
-      message = "sysinit.darwin.keybindings: aerospork binding collides with a reserved chord or an enabled symbolic hotkey: ${lib.concatStringsSep ", " aerosporkHits}";
+      assertion = aerospaceHits == [ ];
+      message = "sysinit.darwin.keybindings: aerospace binding collides with a reserved chord or an enabled symbolic hotkey: ${lib.concatStringsSep ", " aerospaceHits}";
     }
   ];
 

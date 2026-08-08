@@ -120,12 +120,6 @@ src.prefix = "v"
 fetch.url = "https://github.com/block/goose/releases/download/v$ver/goose-x86_64-unknown-linux-gnu.tar.gz"
 
 # macOS app bundles shipped as release archives, universal (no per-platform assets)
-# aerospork tags are v1.1.8; the asset keeps the v, so build it back into the url
-[aerospork]
-src.github = "wbsmolen/aerospork"
-src.prefix = "v"
-fetch.url = "https://github.com/wbsmolen/aerospork/releases/download/v$ver/aerospork-v$ver.zip"
-
 # tinycast tags are v0.7.5 but the dmg asset drops the v and capitalizes the name.
 # Every beta is flagged prerelease, so src.github tracks the stable channel.
 [tinycast]

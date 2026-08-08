@@ -114,7 +114,7 @@ let
   # ships defaults of cmd+alt+G (focus) and cmd+alt+shift+G (quick launcher).
   # quickLauncher is the counterpart to Claude Desktop's cmd+enter quick entry,
   # so it gets cmd+alt+enter: the same Enter key, one modifier along, and clear
-  # of aerospork's bare alt+enter. The chord is registered in
+  # of aerospace's bare alt+enter. The chord is registered in
   # modules/darwin/keybindings.nix so the conflict assertion knows it is taken.
   #
   # Key names read from the 1.44.0 app bundle, not a documented API, so an

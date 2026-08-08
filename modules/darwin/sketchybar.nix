@@ -20,7 +20,7 @@ let
 
     mkdir -p "$CACHE_DIR" 2>/dev/null || true
 
-    current_monitors=$(${pkgs.aerospork}/bin/aerospork list-monitors 2>/dev/null) || {
+    current_monitors=$(${pkgs.aerospace}/bin/aerospace list-monitors 2>/dev/null) || {
         echo "[$(${pkgs.coreutils}/bin/date '+%Y-%m-%d %H:%M:%S')] ERROR: Failed to get monitor list" >> "$LOG_FILE"
         exit 1
     }
@@ -64,7 +64,7 @@ in
       StandardErrorPath = "/tmp/sketchybar-reload.error.log";
       EnvironmentVariables.PATH = "${
         pkgs.lib.makeBinPath [
-          pkgs.aerospork
+          pkgs.aerospace
           pkgs.sketchybar
           pkgs.coreutils
           pkgs.gnused

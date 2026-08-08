@@ -127,7 +127,7 @@ let
 
   linuxPackagesText = "printf '%s (nix-store)' \"$(nix-store -q --requisites /run/current-system 2>/dev/null | wc -l | tr -d ' ')\"";
 
-  darwinWmText = "pgrep -xq AeroSpork && echo \"AeroSpork $(aerospork --version 2>/dev/null | head -1 | awk '{print $5}')\" || echo 'Quartz Compositor'";
+  darwinWmText = "pgrep -xq AeroSpace && echo \"AeroSpace $(aerospace --version 2>/dev/null | head -1 | awk '{print $5}')\" || echo 'Quartz Compositor'";
 
   linuxWmText = "echo \"\${XDG_CURRENT_DESKTOP:-\${DESKTOP_SESSION:-unknown}}\"";
 

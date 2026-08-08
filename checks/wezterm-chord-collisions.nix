@@ -6,7 +6,7 @@
 # Cross-layer chord collision gate for WezTerm.
 #
 # `modules/darwin/keybindings.nix` already asserts across symbolic
-# hotkeys, aerospork, and the reserved chords. WezTerm was the layer it
+# hotkeys, aerospace, and the reserved chords. WezTerm was the layer it
 let
   chordsLib = import ../modules/darwin/lib/chords.nix { inherit lib; };
 
@@ -95,12 +95,12 @@ pkgs.runCommand "wezterm-chord-collision-check"
       fail=1
     fi
 
-    # 3. Aerospork invariant. See the header.
+    # 3. Aerospace invariant. See the header.
     if alt=$(grep '^alt+\|+alt+' "$TMPDIR/wezterm") && [ -n "$alt" ]; then
       echo "FAIL: WezTerm now binds ALT chords:" >&2
       # shellcheck disable=SC2086  # deliberate word-splitting: one token per line
       printf '  %s\n' $alt >&2
-      echo "Aerospork owns ALT. Compare against modules/darwin/aerospork.nix" >&2
+      echo "Aerospace owns ALT. Compare against modules/darwin/aerospace.nix" >&2
       echo "or drop the ALT binding." >&2
       fail=1
     fi
