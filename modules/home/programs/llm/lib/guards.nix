@@ -2,44 +2,29 @@
 let
   allowlist = import ./allowlist.nix { inherit lib; };
 
-  sq = s: "'" + builtins.replaceStrings [ "'" ] [ "'\\''" ] s + "'";
+  # The rules travel as data rather than as generated bash. The shell version
+  # spliced each regex into an array literal, so a quote in a rule changed the
+  # meaning of the script it was embedded in.
+  rulesFile =
+    pkgs: pkgs.writeText "destructive-deny-rules.json" (builtins.toJSON allowlist.destructiveDenyRules);
 
-  preamble = ''
-    DENY_REGEXES=(
-      ${lib.concatMapStringsSep "\n      " (r: sq r.regex) allowlist.destructiveDenyRules}
-    )
-    DENY_REASONS=(
-      ${lib.concatMapStringsSep "\n      " (r: sq r.reason) allowlist.destructiveDenyRules}
-    )
-  '';
-  mkBashGuard =
+  mkGuard =
+    subcommand:
     { pkgs, name }:
     pkgs.writeShellApplication {
       inherit name;
-      runtimeInputs = [ pkgs.jq ];
+      runtimeInputs = [ pkgs.sysinit-agent ];
       bashOptions = [ ];
-      text = preamble + "\n" + builtins.readFile ../runtime/bash-guard.sh;
+      text = ''
+        exec sysinit-agent ${subcommand} --rules ${rulesFile pkgs} "$@"
+      '';
     };
 in
 {
-  inherit mkBashGuard;
+  mkBashGuard = mkGuard "bash-guard";
 
-  mkExitCodeGuard =
-    { pkgs, name }:
-    let
-      inner = mkBashGuard {
-        inherit pkgs;
-        name = "${name}-inner";
-      };
-    in
-    pkgs.writeShellApplication {
-      inherit name;
-      runtimeInputs = [ pkgs.jq ];
-      bashOptions = [ ];
-      text = ''
-        GUARD_EXE=${lib.getExe inner}
-      ''
-      + "\n"
-      + builtins.readFile ../runtime/exit-code-guard.sh;
-    };
+  # Not a wrapper around the bash guard: the exit-code form decides for itself.
+  # The shell original forked the inner guard and read its stdout, so an inner
+  # failure produced no output and the command was let through.
+  mkExitCodeGuard = mkGuard "exit-code-guard";
 }
