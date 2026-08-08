@@ -26,11 +26,15 @@ in
       final.installShellFiles
     ];
 
+    # bin/aerospork ships as a relative symlink to a SIBLING AeroSpork.app, so
+    # copying it verbatim next to an app that moved under Applications/ leaves it
+    # dangling. Relink by absolute path instead; the CLI and the server are one
+    # signed bundle, so it has to keep pointing inside it.
     installPhase = ''
       runHook preInstall
-      mkdir -p $out/Applications
+      mkdir -p $out/Applications $out/bin
       mv AeroSpork.app $out/Applications
-      cp -R bin $out
+      ln -s $out/Applications/AeroSpork.app/Contents/MacOS/aerospork-cli $out/bin/aerospork
       runHook postInstall
     '';
 
