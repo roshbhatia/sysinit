@@ -99,7 +99,7 @@ func (s *Store) Read() ([]byte, error) {
 		return s.Initial()
 	}
 	if err := s.Validate(data); err != nil {
-		return nil, fmt.Errorf("%w: %s: %v", ErrMalformed, s.Path, err)
+		return nil, fmt.Errorf("%w: %s: %w", ErrMalformed, s.Path, err)
 	}
 	return data, nil
 }
