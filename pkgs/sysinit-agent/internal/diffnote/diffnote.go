@@ -15,6 +15,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/roshbhatia/sysinit/pkgs/sysinit-agent/internal/nvimlink"
 	"github.com/roshbhatia/sysinit/pkgs/sysinit-agent/internal/repo"
 	"github.com/roshbhatia/sysinit/pkgs/sysinit-agent/internal/store"
 )
@@ -24,11 +25,15 @@ const Summary = "agent review notes on a working-tree diff"
 const usageText = `Agent review notes on a working-tree diff, rendered by neovim's CodeDiff view.
 
 Usage:
-  diffnote add --file <path> --line <n> --summary <text> [--rationale <text>] [--author <name>] [--replace]
-  diffnote apply --stdin
+  diffnote add --file <path> --line <n> --summary <text> [--rationale <text>] [--author <name>] [--replace] [--no-open]
+  diffnote apply --stdin [--no-open]
   diffnote list [--file <path>] [--json]
   diffnote clear [--file <path>] [--yes]
   diffnote path
+
+After a write, any neovim already sitting in this repository is asked to show
+the diff view, so notes appear as they land. Pass --no-open, or set
+DIFFNOTE_NO_OPEN=1, to write silently.
 `
 
 // Note is one anchored annotation. The field order is the serialized order, and
@@ -179,16 +184,31 @@ func cmdPath() error {
 	return nil
 }
 
+// showNotes nudges a running editor, unless the caller opted out.
+//
+// Best effort and after the write, never before: the note is on disk whether or
+// not an editor exists, and a caller in CI has none.
+func showNotes(root string, suppressed bool) {
+	if suppressed || os.Getenv("DIFFNOTE_NO_OPEN") == "1" {
+		return
+	}
+	nvimlink.ShowNotes(root)
+}
+
 func cmdAdd(args []string) error {
 	var file, line, summary, rationale string
 	author := "agent"
 	replace := false
+	noOpen := false
 
 	for i := 0; i < len(args); {
 		var err error
 		switch args[i] {
 		case "--replace":
 			replace, i = true, i+1
+			continue
+		case "--no-open":
+			noOpen, i = true, i+1
 			continue
 		case "--file":
 			file, i, err = takeValue(args, i, "--file")
@@ -271,6 +291,7 @@ func cmdAdd(args []string) error {
 	}
 	release()
 	fmt.Printf("diffnote: %s:%d\n", relative, parsed)
+	showNotes(root, noOpen)
 	return nil
 }
 
@@ -314,11 +335,16 @@ func dropMatching(notes []json.RawMessage, note Note) ([]json.RawMessage, error)
 
 func cmdApply(args []string, stdin io.Reader) error {
 	stdinFlag := false
+	noOpen := false
 	for i := 0; i < len(args); i++ {
-		if args[i] != "--stdin" {
+		switch args[i] {
+		case "--stdin":
+			stdinFlag = true
+		case "--no-open":
+			noOpen = true
+		default:
 			return die("unknown argument for apply: %s", args[i])
 		}
-		stdinFlag = true
 	}
 	if !stdinFlag {
 		return die("apply reads its batch from stdin; pass --stdin")
@@ -371,6 +397,7 @@ func cmdApply(args []string, stdin io.Reader) error {
 	}
 	release()
 	fmt.Printf("diffnote: applied %d note(s)\n", len(notes))
+	showNotes(root, noOpen)
 	return nil
 }
 

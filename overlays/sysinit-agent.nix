@@ -5,7 +5,7 @@ final: _prev: {
 
     src = ../pkgs/sysinit-agent;
 
-    vendorHash = null;
+    vendorHash = "sha256-/Bl4G5STa5lnNntZnMmt+BfES+N7ZYAwC9tzpuqUKcc=";
 
     # The tests build real working trees: the store path is derived from
     # `rev-parse --show-toplevel`, so a fake directory would key every test on

@@ -41,6 +41,9 @@ func newRepo(t *testing.T) string {
 		t.Fatal(err)
 	}
 	t.Setenv("XDG_STATE_HOME", filepath.Join(resolved, ".state"))
+	// Otherwise a test run reaches into the editor the owner is sitting in and
+	// opens a diff view for a temporary repository.
+	t.Setenv("DIFFNOTE_NO_OPEN", "1")
 	t.Chdir(resolved)
 	return resolved
 }
