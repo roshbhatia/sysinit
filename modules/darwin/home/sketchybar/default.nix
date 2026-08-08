@@ -1,6 +1,8 @@
 {
   pkgs,
   config,
+  lib,
+  osConfig ? null,
   ...
 }:
 
@@ -8,12 +10,40 @@ let
   c = config.lib.stylix.colors;
   themeConfig = config.sysinit.theme;
 
+  # The workspace chips are declared, not discovered. aerospork materializes a
+  # workspace only when it is first visited, so `list-workspaces --all` at bar
+  # startup reports one name. Read the names back out of the bindings that create
+  # them, so the bar and the window manager cannot disagree.
+  mainBindings = lib.attrByPath [
+    "services"
+    "aerospork"
+    "settings"
+    "mode"
+    "main"
+    "binding"
+  ] { } (if osConfig == null then { } else osConfig);
+  workspaceNames = lib.sort (a: b: a < b) (
+    lib.unique (
+      lib.concatMap (
+        v:
+        lib.concatMap (
+          cmd:
+          let
+            m = builtins.match "workspace ([^- ][^ ]*)" cmd;
+          in
+          if m == null then [ ] else m
+        ) (lib.toList v)
+      ) (lib.attrValues mainBindings)
+    )
+  );
+
   # Pass base16 colors and theme metadata to sketchybar Lua config
   sketchybarConfig = {
     inherit (themeConfig) base16Scheme;
     inherit (themeConfig) appearance;
     inherit (themeConfig) transparency;
     aerospork_bin = "${pkgs.aerospork}/bin/aerospork";
+    workspaces = workspaceNames;
     base16 = {
       base00 = "#${c.base00}";
       base01 = "#${c.base01}";

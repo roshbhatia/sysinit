@@ -18,16 +18,12 @@ local function make_label(workspace, is_focused)
 end
 
 function M.setup()
-  sbar.exec(aerospork .. " list-workspaces --all", function(workspaces_output, exit_code)
-    if exit_code ~= 0 then
-      return
-    end
+  -- The chips come from the Nix config, not from `list-workspaces --all`.
+  -- aerospork materializes a workspace only once it is visited, so querying at
+  -- startup returns just the focused one and the bar renders a single chip.
+  local workspace_group = config.workspaces or {}
 
-    local workspace_group = {}
-    for workspace in workspaces_output:gmatch("%S+") do
-      table.insert(workspace_group, workspace)
-    end
-
+  do
     sbar.add("event", "aerospace_workspace_change")
 
     utils.separator("workspace_left_sep", "center")
@@ -93,7 +89,7 @@ function M.setup()
         end
       end
     end)
-  end)
+  end
 end
 
 return M

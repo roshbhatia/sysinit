@@ -12,8 +12,14 @@ let
   configFile = format.generate "aerospork.toml" cfg.settings;
 
   # Both workspace hooks feed the same sketchybar item, so the trigger is written
-  # once. The env var is AEROSPORK_, not AEROSPACE_: the fork renamed every one.
-  notifySketchybar = "${pkgs.sketchybar}/bin/sketchybar --trigger aerospace_workspace_change FOCUSED=$AEROSPORK_FOCUSED_WORKSPACE";
+  # once.
+  #
+  # The focused name is queried back out of the CLI rather than read from
+  # $AEROSPORK_FOCUSED_WORKSPACE. That variable is populated only by
+  # `onWorkspaceChanged`, which serves the deprecated exec-on-workspace-change key;
+  # an on-focused-workspace-changed callback runs with exec.env-variables alone, so
+  # the variable expands empty and sketchybar highlights nothing.
+  notifySketchybar = "${pkgs.sketchybar}/bin/sketchybar --trigger aerospace_workspace_change FOCUSED=$(${pkgs.aerospork}/bin/aerospork list-workspaces --focused)";
 in
 {
   # nix-darwin ships services.aerospace, but it hardcodes the AeroSpace.app path
@@ -44,9 +50,11 @@ in
     # launchd owns startup; aerospork's own SMAppService login item would race it.
     start-at-login = false;
 
-    # No persistent-workspaces key in this fork, and none needed: workspaces named
-    # in a binding land in preservedWorkspaceNames, so 1/2/C/M stay listed by
-    # `list-workspaces --all` and keep their sketchybar chips while empty.
+    # No persistent-workspaces key in this fork, and no way to emulate it:
+    # garbageCollectUnusedWorkspaces drops every empty invisible workspace, and
+    # preservedWorkspaceNames only keeps a stub from stealing a bound name. So
+    # `list-workspaces --all` reports the occupied ones alone, and the sketchybar
+    # chips are declared from these bindings instead of discovered at bar startup.
 
     # No `/bin/bash -c` here: exec-and-forget already runs its argument through
     # /bin/bash -c, and the old config's second wrapper ate every argument after
