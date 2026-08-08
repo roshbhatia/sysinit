@@ -13,8 +13,11 @@ import (
 	"os"
 	"sort"
 
+	"github.com/roshbhatia/sysinit/pkgs/sysinit-agent/internal/agentstate"
 	"github.com/roshbhatia/sysinit/pkgs/sysinit-agent/internal/citelock"
 	"github.com/roshbhatia/sysinit/pkgs/sysinit-agent/internal/diffnote"
+	"github.com/roshbhatia/sysinit/pkgs/sysinit-agent/internal/guard"
+	"github.com/roshbhatia/sysinit/pkgs/sysinit-agent/internal/statusline"
 )
 
 // command is one subcommand. Run receives the arguments after the subcommand
@@ -28,8 +31,12 @@ type command struct {
 
 // Registered subcommands. One entry per migrated script.
 var commands = map[string]command{
-	"citelock": {name: "citelock", summary: citelock.Summary, run: citelock.Run},
-	"diffnote": {name: "diffnote", summary: diffnote.Summary, run: diffnote.Run},
+	"agent-state":     {name: "agent-state", summary: agentstate.Summary, run: agentstate.Run},
+	"bash-guard":      {name: "bash-guard", summary: guard.BashSummary, run: guard.RunBash},
+	"citelock":        {name: "citelock", summary: citelock.Summary, run: citelock.Run},
+	"diffnote":        {name: "diffnote", summary: diffnote.Summary, run: diffnote.Run},
+	"exit-code-guard": {name: "exit-code-guard", summary: guard.ExitCodeSummary, run: guard.RunExitCode},
+	"statusline":      {name: "statusline", summary: statusline.Summary, run: statusline.Run},
 }
 
 func usage(w *os.File) {
