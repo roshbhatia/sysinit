@@ -1,5 +1,3 @@
-{ ... }:
-
 {
   # Prevent lid-close sleep when the Apple Thunderbolt Display is connected.
   # system_profiler reports it as "Thunderbolt Display"; caffeinate -s holds

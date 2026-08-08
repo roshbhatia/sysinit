@@ -1,6 +1,8 @@
 {
-  system.primaryUser = "rshnbhatia";
-  system.defaults.finder.AppleShowAllExtensions = true;
-  system.stateVersion = 4;
+  system = {
+    primaryUser = "rshnbhatia";
+    defaults.finder.AppleShowAllExtensions = true;
+    stateVersion = 4;
+  };
   programs.zsh.enable = true;
 }

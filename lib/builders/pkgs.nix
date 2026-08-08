@@ -17,7 +17,7 @@
         allowUnsupportedSystem = true;
         allowUnfreePredicate =
           pkg:
-          builtins.elem (nixpkgs.lib.getName pkg) [
+          builtins.elem (lib.getName pkg) [
             "_1password-gui"
             # Antigravity CLI (`agy`) — the Gemini-family harness in llm/.
             "antigravity-cli"
@@ -28,7 +28,7 @@
         # Obsidian (arrakis desktop) bundles an EOL Electron; the pinned version
         # churns on nixpkgs-unstable, so match by name rather than exact version.
         # getName strips the version, so this is "electron", not "electron-40.x".
-        allowInsecurePredicate = pkg: nixpkgs.lib.hasPrefix "electron" (nixpkgs.lib.getName pkg);
+        allowInsecurePredicate = pkg: lib.hasPrefix "electron" (lib.getName pkg);
       };
     };
 

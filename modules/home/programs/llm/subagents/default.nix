@@ -53,10 +53,7 @@ in
         let
           table = modelIds.${harness};
         in
-        if table ? ${alias} then
-          table.${alias}
-        else
-          throw "Subagent ${name}: model alias '${alias}' has no ${harness} model ID";
+        table.${alias} or (throw "Subagent ${name}: model alias '${alias}' has no ${harness} model ID");
 
       # tools is an attrset of name -> bool
       enabledTools =

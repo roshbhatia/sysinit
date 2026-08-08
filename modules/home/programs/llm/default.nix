@@ -317,28 +317,6 @@ in
   # see openspecSchemaFiles above for why it is enumerated per file.
   xdg.dataFile = openspecSchemaFiles;
 
-  home.file =
-    assert assertHarnessCoverage;
-    skillFiles
-    // skillScriptFiles
-    // specutilSkillFiles
-    // openspecSkillFiles
-    // openspecCommandFiles
-    // (vendoredSkillFilesFor ".claude/skills")
-    // ampSkillFiles
-    // ampSkillScriptFiles
-    // ampSpecutilSkillFiles
-    // (vendoredSkillFilesFor ".config/amp/skills")
-    // devinSkillFiles
-    // devinSkillScriptFiles
-    // devinSpecutilSkillFiles
-    // (vendoredSkillFilesFor ".config/devin/skills")
-    // copilotSkillFiles
-    // copilotSkillScriptFiles
-    // copilotSpecutilSkillFiles
-    // (vendoredSkillFilesFor ".copilot/skills")
-    // notify.iconFiles;
-
   assertions = [
     {
       assertion = collidingPaths == [ ];
@@ -350,47 +328,71 @@ in
     }
   ];
 
-  # Deliberately does not fail activation. Home Manager runs the activation
-  # script under `set -eu`, so a non-zero exit here would skip every later DAG
-  # entry (darwin defaults, launch agents, neovim config). A merge conflict is
-  # an expected state for a file with two writers, and it must not cost the
-  # owner an unrelated switch. The reconciler leaves the conflicting file
-  # untouched and every other file is still reconciled.
-  # Ordered BEFORE linkGeneration, not merely after writeBoundary. A target
-  # that is still a store symlink from the previous generation gets deleted by
-  # linkGeneration's cleanup once it leaves home.file. If the reconciler ran
-  # after that, a target it then failed to write would be left absent with
-  # nothing to restore it. Running first converts the symlink to a real file,
-  # and cleanup refuses to delete a non-symlink.
-  #
-  # Relying on the DAG rather than on the entry names sorting the right way:
-  # `linkGeneration` < `llmManagedFiles` bytewise today, which is an accident,
-  # not a guarantee.
-  home.activation.llmManagedFiles = lib.mkIf (config.sysinit.llm.managedFiles != { }) (
-    lib.hm.dag.entryBetween [ "linkGeneration" ] [ "writeBoundary" ] ''
-      $DRY_RUN_CMD ${lib.getExe reconciler} || \
-        echo "managed-file: one or more harness configs were left untouched; see above. Activation continued." >&2
-    ''
-  );
+  home = {
+    file =
+      assert assertHarnessCoverage;
+      skillFiles
+      // skillScriptFiles
+      // specutilSkillFiles
+      // openspecSkillFiles
+      // openspecCommandFiles
+      // (vendoredSkillFilesFor ".claude/skills")
+      // ampSkillFiles
+      // ampSkillScriptFiles
+      // ampSpecutilSkillFiles
+      // (vendoredSkillFilesFor ".config/amp/skills")
+      // devinSkillFiles
+      // devinSkillScriptFiles
+      // devinSpecutilSkillFiles
+      // (vendoredSkillFilesFor ".config/devin/skills")
+      // copilotSkillFiles
+      // copilotSkillScriptFiles
+      // copilotSpecutilSkillFiles
+      // (vendoredSkillFilesFor ".copilot/skills")
+      // notify.iconFiles;
 
-  home.packages = [
-    # Manual use only: `git diff HEAD | meat` when a diff is too large to read.
-    # Deliberately absent from the spec-driven apply loop; overlays/meat.nix says
-    # why.
-    pkgs.meat
-    capture
-    notify.script
-    notify.agentRefine
-    notify.specPreflight
-    notify.stateScript
-    notify.promptScript
-    notify.focusScript
-    notify.loopGate
-    notify.reviewScript
-    notify.sessionsScript
-    notify.syGate
-    notify.diffNote
-  ];
+    # Deliberately does not fail activation. Home Manager runs the activation
+    # script under `set -eu`, so a non-zero exit here would skip every later DAG
+    # entry (darwin defaults, launch agents, neovim config). A merge conflict is
+    # an expected state for a file with two writers, and it must not cost the
+    # owner an unrelated switch. The reconciler leaves the conflicting file
+    # untouched and every other file is still reconciled.
+    # Ordered BEFORE linkGeneration, not merely after writeBoundary. A target
+    # that is still a store symlink from the previous generation gets deleted by
+    # linkGeneration's cleanup once it leaves home.file. If the reconciler ran
+    # after that, a target it then failed to write would be left absent with
+    # nothing to restore it. Running first converts the symlink to a real file,
+    # and cleanup refuses to delete a non-symlink.
+    #
+    # Relying on the DAG rather than on the entry names sorting the right way:
+    # `linkGeneration` < `llmManagedFiles` bytewise today, which is an accident,
+    # not a guarantee.
+    activation.llmManagedFiles = lib.mkIf (config.sysinit.llm.managedFiles != { }) (
+      lib.hm.dag.entryBetween [ "linkGeneration" ] [ "writeBoundary" ] ''
+        $DRY_RUN_CMD ${lib.getExe reconciler} || \
+          echo "managed-file: one or more harness configs were left untouched; see above. Activation continued." >&2
+      ''
+    );
+
+    packages = [
+      # Manual use only: `git diff HEAD | meat` when a diff is too large to read.
+      # Deliberately absent from the spec-driven apply loop; overlays/meat.nix says
+      # why.
+      pkgs.meat
+      capture
+      notify.script
+      notify.agentRefine
+      notify.specPreflight
+      notify.stateScript
+      notify.promptScript
+      notify.focusScript
+      notify.loopGate
+      notify.reviewScript
+      notify.sessionsScript
+      notify.syGate
+      notify.diffNote
+    ];
+  };
 
   programs.mcp = {
     enable = true;

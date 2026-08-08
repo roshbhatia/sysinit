@@ -87,33 +87,32 @@
       else
         prev._1password-gui;
   })
-  (final: prev: {
-    cargo-watch =
-      if prev.stdenv.hostPlatform.isDarwin then
-        prev.cargo-watch.overrideAttrs (old: {
-          nativeBuildInputs = (old.nativeBuildInputs or [ ]) ++ [ final.llvmPackages_latest.lld ];
-          RUSTFLAGS = "${old.RUSTFLAGS or ""} -C link-arg=-fuse-ld=${final.llvmPackages_latest.lld}/bin/ld64.lld";
-        })
-      else
-        prev.cargo-watch;
-    # Pull mise from a pristine nixpkgs so its closure hash matches
-    # cache.nixos.org on both platforms: repo overlays perturb prev.mise's deps
-    # on Linux, and the darwin Tahoe ld-fix is obsolete now that nixpkgs' cached
-    # aarch64-darwin build works on Tahoe.
-    mise = (import inputs.nixpkgs { inherit (final.stdenv.hostPlatform) system; }).mise;
-    # electron's ffmpeg pulls the gaming-patched SDL, perturbing its closure into
-    # a multi-hour chromium source build (obsidian depends on it). electron does
-    # not need those patches, so pin it to pristine nixpkgs on Linux for a cache
-    # hit; Darwin keeps prev to avoid an uncached darwin rebuild.
-    electron_41 =
-      if prev.stdenv.hostPlatform.isDarwin then
-        prev.electron_41
-      else
-        (import inputs.nixpkgs { inherit (final.stdenv.hostPlatform) system; }).electron_41;
-    electron =
-      if prev.stdenv.hostPlatform.isDarwin then
-        prev.electron
-      else
-        (import inputs.nixpkgs { inherit (final.stdenv.hostPlatform) system; }).electron;
-  })
+  (
+    final: prev:
+    let
+      # Pristine nixpkgs for the host system, i.e. this overlay list not applied.
+      pristine = import inputs.nixpkgs { inherit (final.stdenv.hostPlatform) system; };
+    in
+    {
+      cargo-watch =
+        if prev.stdenv.hostPlatform.isDarwin then
+          prev.cargo-watch.overrideAttrs (old: {
+            nativeBuildInputs = (old.nativeBuildInputs or [ ]) ++ [ final.llvmPackages_latest.lld ];
+            RUSTFLAGS = "${old.RUSTFLAGS or ""} -C link-arg=-fuse-ld=${final.llvmPackages_latest.lld}/bin/ld64.lld";
+          })
+        else
+          prev.cargo-watch;
+      # Pull mise from a pristine nixpkgs so its closure hash matches
+      # cache.nixos.org on both platforms: repo overlays perturb prev.mise's deps
+      # on Linux, and the darwin Tahoe ld-fix is obsolete now that nixpkgs' cached
+      # aarch64-darwin build works on Tahoe.
+      inherit (pristine) mise;
+      # electron's ffmpeg pulls the gaming-patched SDL, perturbing its closure into
+      # a multi-hour chromium source build (obsidian depends on it). electron does
+      # not need those patches, so pin it to pristine nixpkgs on Linux for a cache
+      # hit; Darwin keeps prev to avoid an uncached darwin rebuild.
+      electron_41 = if prev.stdenv.hostPlatform.isDarwin then prev.electron_41 else pristine.electron_41;
+      electron = if prev.stdenv.hostPlatform.isDarwin then prev.electron else pristine.electron;
+    }
+  )
 ]

@@ -33,17 +33,19 @@
           ./home
         ];
 
-        sysinit.git = values.git or { };
-        sysinit.llm = values.llm or { };
-        sysinit.theme =
-          if (values ? theme) then
-            values.theme
-            // {
-              # Strip readOnly `symbols` — it's derived in the module, not user-settable
-              font = builtins.removeAttrs (values.theme.font or { }) [ "symbols" ];
-            }
-          else
-            { };
+        sysinit = {
+          git = values.git or { };
+          llm = values.llm or { };
+          theme =
+            if (values ? theme) then
+              values.theme
+              // {
+                # Strip readOnly `symbols` — it's derived in the module, not user-settable
+                font = builtins.removeAttrs (values.theme.font or { }) [ "symbols" ];
+              }
+            else
+              { };
+        };
       };
   };
 }

@@ -4,8 +4,6 @@
   pkgs,
   ...
 }:
-
-with lib;
 let
   shell = import ../../lib/shell.nix { inherit lib; };
   paths_lib = import ../../lib/paths.nix { inherit config lib; };
@@ -16,7 +14,7 @@ in
 {
   programs.nushell = {
     enable = true;
-    shellAliases = mkDefault shell.commonAliases;
+    shellAliases = lib.mkDefault shell.commonAliases;
 
     settings = {
       show_banner = false;
@@ -65,7 +63,7 @@ in
     extraEnv = ''
       use std/util "path add"
 
-      ${concatMapStringsSep "\n" (path: "path add \"${path}\"") pathsList}
+      ${lib.concatMapStringsSep "\n" (path: "path add \"${path}\"") pathsList}
 
       $env.CARAPACE_LENIENT = "1"
     '';
@@ -97,7 +95,7 @@ in
       $env.config.completions.external.completer = $carapace_completer
 
       # macOS: preserve system open command
-      ${optionalString pkgs.stdenv.hostPlatform.isDarwin ''
+      ${lib.optionalString pkgs.stdenv.hostPlatform.isDarwin ''
         alias nu-open = open
         alias open = ^open
       ''}

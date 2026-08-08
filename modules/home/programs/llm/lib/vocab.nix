@@ -15,7 +15,7 @@ let
     };
   };
 
-  termsFor = harness: if terms ? ${harness} then terms.${harness} else terms.default;
+  termsFor = harness: terms.${harness} or terms.default;
 
   # Sentence-initial forms are derived, not stored, so a term cannot drift
   # between its lowercase and capitalized spellings.

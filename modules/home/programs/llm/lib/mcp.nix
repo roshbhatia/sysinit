@@ -1,5 +1,4 @@
 { lib }:
-with lib;
 {
   # Format MCP servers for Claude Desktop
   formatForClaude = builtins.mapAttrs (
@@ -34,14 +33,14 @@ with lib;
               type = "remote";
               inherit (server) url;
             }
-            // optionalAttrs (server.headers or null != null) { inherit (server) headers; }
-            // optionalAttrs (server.timeout or null != null) { inherit (server) timeout; }
+            // lib.optionalAttrs (server.headers or null != null) { inherit (server) headers; }
+            // lib.optionalAttrs (server.timeout or null != null) { inherit (server) timeout; }
           else
             {
               type = "local";
               command = [ server.command ] ++ server.args;
             }
-            // optionalAttrs (server.env or { } != { }) { environment = server.env; };
+            // lib.optionalAttrs (server.env or { } != { }) { environment = server.env; };
       in
       baseConfig // { enabled = if isDisabled then false else (server.enabled or true); }
     ) servers;
@@ -49,27 +48,27 @@ with lib;
   # Format MCP servers for Codex CLI (TOML format)
   formatForCodex =
     servers:
-    concatStringsSep "\n" (
-      mapAttrsToList (
+    lib.concatStringsSep "\n" (
+      lib.mapAttrsToList (
         name: server:
         if (server.type or "local") == "http" then
           ''
             [mcp_servers."${name}"]
             url = "${server.url}"
-            ${optionalString (server.description or "" != "") ''description = "${server.description}"''}
+            ${lib.optionalString (server.description or "" != "") ''description = "${server.description}"''}
           ''
         else
           ''
             [mcp_servers."${name}"]
             command = "${server.command}"
-            ${optionalString ((server.args or [ ]) != [ ])
-              "args = [${concatMapStringsSep ", " (arg: ''"${arg}"'') server.args}]"
+            ${lib.optionalString ((server.args or [ ]) != [ ])
+              "args = [${lib.concatMapStringsSep ", " (arg: ''"${arg}"'') server.args}]"
             }
-            ${optionalString (server.env or { } != { }) ''
+            ${lib.optionalString (server.env or { } != { }) ''
               [mcp_servers."${name}".env]
-              ${concatStringsSep "\n" (mapAttrsToList (k: v: "${k} = \"${v}\"") server.env)}
+              ${lib.concatStringsSep "\n" (lib.mapAttrsToList (k: v: "${k} = \"${v}\"") server.env)}
             ''}
-            ${optionalString (server.description or "" != "") ''description = "${server.description}"''}
+            ${lib.optionalString (server.description or "" != "") ''description = "${server.description}"''}
           ''
       ) servers
     );
@@ -101,13 +100,13 @@ with lib;
         {
           inherit (server) url;
         }
-        // optionalAttrs (server.headers or { } != { }) { inherit (server) headers; }
+        // lib.optionalAttrs (server.headers or { } != { }) { inherit (server) headers; }
       else
         {
           inherit (server) command;
           args = server.args or [ ];
         }
-        // optionalAttrs (server.env or { } != { }) { env = server.env; }
+        // lib.optionalAttrs (server.env or { } != { }) { inherit (server) env; }
     ) servers;
 
   # Format MCP servers for Antigravity (`agy`). Local servers use the usual
@@ -121,13 +120,13 @@ with lib;
           type = "http";
           serverUrl = server.url;
         }
-        // optionalAttrs (server.headers or { } != { }) { inherit (server) headers; }
+        // lib.optionalAttrs (server.headers or { } != { }) { inherit (server) headers; }
       else
         {
           inherit (server) command;
           args = server.args or [ ];
         }
-        // optionalAttrs (server.env or { } != { }) { env = server.env; }
+        // lib.optionalAttrs (server.env or { } != { }) { inherit (server) env; }
     ) servers;
 
   # Format MCP servers for Goose. Field-name footgun: goose uses `uri` (not
@@ -141,7 +140,7 @@ with lib;
           firstChar = builtins.substring 0 1 str;
           rest = builtins.substring 1 (-1) str;
         in
-        (toUpper firstChar) + rest;
+        (lib.toUpper firstChar) + rest;
       gooseName = _name: capitalizeFirst (builtins.substring 0 1 _name) + builtins.substring 1 (-1) _name;
     in
     mcp:

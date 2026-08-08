@@ -1,5 +1,6 @@
 {
   config,
+  lib,
   pkgs,
   hostname,
   ...
@@ -53,8 +54,8 @@
     pkgs.zsh
   ];
 
-  environment.variables.PATH = pkgs.lib.mkForce (
-    pkgs.lib.concatStringsSep ":" [
+  environment.variables.PATH = lib.mkForce (
+    lib.concatStringsSep ":" [
       "/run/current-system/sw/bin"
       "/nix/var/nix/profiles/default/bin"
       "/usr/local/bin"

@@ -1,4 +1,4 @@
-{ pkgs, ... }:
+{ lib, pkgs, ... }:
 
 let
   menus = pkgs.stdenv.mkDerivation {
@@ -63,7 +63,7 @@ in
       StandardOutPath = "/tmp/sketchybar-reload.log";
       StandardErrorPath = "/tmp/sketchybar-reload.error.log";
       EnvironmentVariables.PATH = "${
-        pkgs.lib.makeBinPath [
+        lib.makeBinPath [
           pkgs.aerospace
           pkgs.sketchybar
           pkgs.coreutils
