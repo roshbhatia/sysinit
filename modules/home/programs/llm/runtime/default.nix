@@ -138,13 +138,14 @@ let
   stateScript = pkgs.writeShellApplication {
     name = "agent-state";
     runtimeInputs = [
-      pkgs.jq
       pkgs.git
-      pkgs.coreutils
+      pkgs.sysinit-agent
       pkgs.wezterm
     ];
     bashOptions = [ ];
-    text = identity + "\n" + builtins.readFile ./agent-state.sh;
+    text = ''
+      exec sysinit-agent agent-state "$@"
+    '';
   };
 
   promptScript = pkgs.writeShellApplication {

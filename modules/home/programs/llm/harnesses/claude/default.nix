@@ -15,7 +15,17 @@ let
     skillsRoot = "~/.claude/skills";
   };
 
-  statuslineScript = pkgs.writeShellScript "claude-statusline" (builtins.readFile ./statusline.sh);
+  statuslineScript = pkgs.writeShellApplication {
+    name = "claude-statusline";
+    runtimeInputs = [
+      pkgs.git
+      pkgs.sysinit-agent
+    ];
+    bashOptions = [ ];
+    text = ''
+      exec sysinit-agent statusline "$@"
+    '';
+  };
 
   worklogScript = pkgs.writeShellApplication {
     name = "claude-worklog";
@@ -149,7 +159,7 @@ in
 
       statusLine = {
         type = "command";
-        command = "${statuslineScript}";
+        command = lib.getExe statuslineScript;
       };
 
       tui = "fullscreen";
