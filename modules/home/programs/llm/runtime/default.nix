@@ -203,15 +203,17 @@ let
     text = builtins.readFile ./loop-gate.sh;
   };
 
+  # A shim, not a rename: every caller, hook entry, and skill still spells this
+  # `diffnote`, and the binary is multi-call.
   diffNote = pkgs.writeShellApplication {
     name = "diffnote";
     runtimeInputs = [
       pkgs.git
-      pkgs.jq
-      pkgs.coreutils
-      pkgs.gnused
+      pkgs.sysinit-agent
     ];
-    text = builtins.readFile ./diffnote.sh;
+    text = ''
+      exec sysinit-agent diffnote "$@"
+    '';
   };
 
   specPreflight = pkgs.writeShellApplication {

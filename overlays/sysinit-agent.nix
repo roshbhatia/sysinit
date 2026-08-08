@@ -7,6 +7,15 @@ final: _prev: {
 
     vendorHash = null;
 
+    # The tests build real working trees: the store path is derived from
+    # `rev-parse --show-toplevel`, so a fake directory would key every test on
+    # the same file. HOME is set because git refuses to run without one.
+    nativeCheckInputs = [ final.git ];
+    preCheck = ''
+      export HOME="$TMPDIR/home"
+      mkdir -p "$HOME"
+    '';
+
     meta = {
       description = "Agent runtime commands that used to be shell scripts";
       mainProgram = "sysinit-agent";

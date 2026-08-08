@@ -12,6 +12,8 @@ import (
 	"fmt"
 	"os"
 	"sort"
+
+	"github.com/roshbhatia/sysinit/pkgs/sysinit-agent/internal/diffnote"
 )
 
 // command is one subcommand. Run receives the arguments after the subcommand
@@ -23,10 +25,10 @@ type command struct {
 	run     func(args []string) int
 }
 
-// Registered subcommands. Empty until the migration phases land one; the binary
-// is built and packaged first so the packaging change and the behavior changes
-// are never in the same commit.
-var commands = map[string]command{}
+// Registered subcommands. One entry per migrated script.
+var commands = map[string]command{
+	"diffnote": {name: "diffnote", summary: diffnote.Summary, run: diffnote.Run},
+}
 
 func usage(w *os.File) {
 	fmt.Fprintf(w, "sysinit-agent: agent runtime commands\n\nUsage:\n  sysinit-agent <command> [args...]\n\nCommands:\n")
