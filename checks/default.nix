@@ -28,6 +28,7 @@ in
   check-bodies-shellcheck = check ./check-bodies-shellcheck.nix;
   citelock = check ./citelock.nix;
   destructive-guard-fixtures = check ./destructive-guard-fixtures.nix;
+  diffnote-roundtrip = check ./diffnote-roundtrip.nix;
   exit-code-guard-blocks = check ./exit-code-guard-blocks.nix;
   llm-asset-paths-resolve = check ./llm-asset-paths-resolve.nix;
   lua-parses = check ./lua-parses.nix;
