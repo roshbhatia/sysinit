@@ -74,7 +74,7 @@ pkgs.runCommand "agent-chord-collision-check"
         fail=1
       fi
     }
-    check_floor wezterm "$TMPDIR/wezterm.tsv" 12
+    check_floor wezterm "$TMPDIR/wezterm.tsv" 10
     check_floor neovim  "$TMPDIR/neovim.tsv"  89
     check_floor pi      "$TMPDIR/pi.tsv"      3
 

@@ -30,6 +30,18 @@ local function read(path)
   return body
 end
 
+-- A chord written inside a comment is usually one the code deliberately does NOT
+-- bind. Counting it inflated the wezterm floor by two phantom entries.
+local function uncomment(body)
+  local out = {}
+  for line in (body .. "\n"):gmatch("([^\n]*)\n") do
+    if not line:match("^%s*%-%-") then
+      out[#out + 1] = line
+    end
+  end
+  return table.concat(out, "\n")
+end
+
 -- `find` rather than a Lua directory API: the check runs under a sandbox with
 -- coreutils and findutils, and lfs is not in the closure.
 local function files(dir, ext)
@@ -100,7 +112,7 @@ end
 
 if layer == "wezterm" then
   for _, path in ipairs(files(root, "lua")) do
-    local body = read(path)
+    local body = uncomment(read(path) or "")
     if body then
       -- Both orderings appear in this codebase, so match each independently
       -- rather than assuming one field comes first.
@@ -114,7 +126,7 @@ if layer == "wezterm" then
   end
 elseif layer == "neovim" then
   for _, path in ipairs(files(root, "lua")) do
-    local body = read(path)
+    local body = uncomment(read(path) or "")
     if body then
       -- Leader maps are the bulk of the surface and collide with each other far
       -- more often than with a modifier chord.
