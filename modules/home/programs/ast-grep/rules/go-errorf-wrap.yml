@@ -1,0 +1,15 @@
+id: go-errorf-wrap
+language: go
+severity: warning
+message: "`fmt.Errorf` with `%v` flattens the error into a string."
+note: |
+  Use `%w` when the argument is an error. `%v` renders it and drops the chain,
+  so `errors.Is` and `errors.As` stop working for every caller above this
+  point, and the failure shows up far from here as a type switch that never
+  matches. `%v` on a non-error argument is fine, which is why this is a warning
+  and not a gate.
+rule:
+  pattern: fmt.Errorf($FMT, $$$ARGS)
+  has:
+    field: arguments
+    regex: "%v"

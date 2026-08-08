@@ -1,0 +1,12 @@
+id: go-no-nolint
+language: go
+severity: error
+message: "`//nolint` suppresses a linter with no record of why."
+note: |
+  Fix the finding, or ask before suppressing. A bare `//nolint` disables every
+  linter on that line, so it also hides findings that arrive later from rules
+  nobody had enabled when it was written. If a suppression is genuinely right,
+  name the linter and the reason: `//nolint:errcheck // <why>`.
+rule:
+  kind: comment
+  regex: "//\\s*nolint"

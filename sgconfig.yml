@@ -1,0 +1,13 @@
+# ast-grep project root. `ast-grep scan` walks up from the working directory to
+# find this file, so it applies to every subdirectory of the checkout.
+#
+# ast-grep only reads rules named by `ruleDirs`. An inline `rules:` key here is
+# accepted by the YAML parser and then silently ignored, which is how the
+# previous global config in modules/home/programs/ast-grep.nix ran zero rules.
+ruleDirs:
+  # Rules that only make sense in this repository.
+  - .ast-grep/rules
+  # The global library this repository also installs to ~/.config/ast-grep/.
+  # Listed here so `nix flake check` gates this checkout against the same rules
+  # every other repository gets, rather than letting the two sets drift.
+  - modules/home/programs/ast-grep/rules

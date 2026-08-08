@@ -1,0 +1,12 @@
+id: tsx-no-any
+language: tsx
+severity: error
+message: "`any` disables type checking for everything it touches."
+note: |
+  Same rule as `ts-no-any`, duplicated because `language:` takes one value and
+  ast-grep parses `.tsx` with a separate grammar. Mapping `*.tsx` onto the
+  typescript grammar via `languageGlobs` is not the fix: that grammar reads JSX
+  as a comparison operator and the file stops parsing.
+rule:
+  kind: predefined_type
+  regex: "^any$"

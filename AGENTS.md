@@ -47,6 +47,8 @@ nix develop                     # dev shell: nh, shfmt, shellcheck, lua, jq, fd
 nix flake check                 # validate flake (run before commits)
 nix fmt                         # format all Nix and .sh files
 nix fmt -- --check              # verify formatting, no writes
+ast-grep scan                   # structural lint (reads ./sgconfig.yml)
+sgg <path>                      # the same rules against any other repository
 nh darwin build                 # build current host config (no system change)
 nh darwin switch                # apply config to system (use deliberately)
 ./hack/sync-openspec-schema.sh  # detect drift in the forked openspec schema
@@ -57,7 +59,8 @@ nh darwin switch                # apply config to system (use deliberately)
 checkout. `README.md` bootstraps the first switch with `nix run nixpkgs#nh`.
 
 `nix flake check` gates the OpenSpec schema, the citation locks, the
-destructive-command guard fixtures, and the parse of every authored fragment.
+destructive-command guard fixtures, the ast-grep rules, and the parse of every
+authored fragment.
 The parse checks scan broadly, not per-directory: every `.zsh` and `.lua` under
 `modules/`, and every shell script in the whole flake source, selected by
 shebang as well as by extension. Each also asserts that specific subtrees still
@@ -73,6 +76,16 @@ subcommands: `feature-based-session-manager`, `openspec-workflow`, `specutil`.
 
 ## Gotchas
 
+- ast-grep reads rules only from `ruleDirs`. An inline `rules:` key in
+  `sgconfig.yml` parses as YAML and is then discarded, with no warning. ast-grep
+  also never reads XDG and has no config environment variable: it finds
+  `sgconfig.yml` by walking up from the working directory, so the global library
+  in `modules/home/programs/ast-grep/rules/` is only reachable through the `sgg`
+  wrapper. Severity decides gating; `warning` rules report and do not fail.
+- `~/.config/git/ignore` excludes `**/sgconfig.yml` and `ast-grep/`. This repo's
+  `.gitignore` negates both, alongside the existing `!openspec/`. An untracked
+  file is absent from the flake source, so forgetting the negation presents as a
+  check that cannot find its own rules.
 - Overlays apply to every host. Gate a Darwin-only workaround on `isDarwin` or
   the Linux build breaks.
 - An overlay added to work around a broken build goes stale silently. A

@@ -26,3 +26,11 @@ nix.secrets.conf
 # we own the schema fork and historical changes, so they should be tracked.
 !openspec/
 
+# Same reasoning for ast-grep. `**/sgconfig.yml` and `ast-grep/` are gitignored
+# globally so a scratch rule set in a foreign project is never committed. Here
+# they are the rule library this repository ships to ~/.config/ast-grep/ and the
+# project root that `nix flake check` gates, so both have to be tracked. An
+# untracked file is absent from the flake source and the check fails on it.
+!sgconfig.yml
+!modules/home/programs/ast-grep/
+

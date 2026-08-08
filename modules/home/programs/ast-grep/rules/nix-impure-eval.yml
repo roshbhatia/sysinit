@@ -1,0 +1,17 @@
+id: nix-impure-eval
+language: nix
+severity: error
+message: "Impure evaluation: the result depends on the ambient environment."
+note: |
+  `import <nixpkgs>` reads NIX_PATH, and `builtins.getEnv` / `currentSystem` /
+  `currentTime` read the caller's environment. All four make an evaluation give
+  a different answer on a different machine, which is what the flake and its
+  lock exist to prevent. Take the value from a flake input or a module argument.
+files:
+  - "**/*.nix"
+rule:
+  any:
+    - pattern: import <$PATH>
+    - pattern: builtins.getEnv $NAME
+    - pattern: builtins.currentSystem
+    - pattern: builtins.currentTime

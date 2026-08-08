@@ -1,0 +1,15 @@
+id: nix-with-scope
+language: nix
+severity: error
+message: "`with lib;`/`with builtins;` hides where a name comes from."
+note: |
+  Qualify the call instead: `lib.optionalString`, `builtins.readFile`. A `with`
+  scope makes an undefined name resolve at eval time rather than at parse time,
+  so a typo surfaces as a confusing error far from the edit. `with pkgs;` inside
+  a package list is fine and is not matched here.
+files:
+  - "**/*.nix"
+rule:
+  any:
+    - pattern: "with lib; $BODY"
+    - pattern: "with builtins; $BODY"

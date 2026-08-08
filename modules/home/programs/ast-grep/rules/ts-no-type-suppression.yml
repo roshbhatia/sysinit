@@ -1,0 +1,14 @@
+id: ts-no-type-suppression
+language: typescript
+severity: error
+message: "Type or lint suppression comment."
+note: |
+  `@ts-ignore` and `@ts-nocheck` silence the checker with no record of what was
+  wrong. `@ts-expect-error` is the least bad of the three, because it fails once
+  the error goes away, but it still needs a reason on the same line.
+
+  Fix the type, or ask before suppressing. Global CLAUDE.md forbids type
+  suppressions without permission.
+rule:
+  kind: comment
+  regex: "@ts-(ignore|expect-error|nocheck)|eslint-disable"

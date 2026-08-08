@@ -1,0 +1,14 @@
+id: py-bare-except
+language: python
+severity: error
+message: "Bare `except:` swallows KeyboardInterrupt and SystemExit."
+note: |
+  It catches BaseException, not Exception, so Ctrl-C and `sys.exit()` are caught
+  too and the process stops responding to either. Catch the exception you expect,
+  or `except Exception:` when the intent really is everything recoverable.
+rule:
+  pattern: |
+    try:
+        $$$BODY
+    except:
+        $$$HANDLER

@@ -21,6 +21,7 @@ let
     };
 in
 {
+  ast-grep-nix-rules = check ./ast-grep-nix-rules.nix;
   agent-review-readiness = check ./agent-review-readiness.nix;
   agent-sessions-rollup = check ./agent-sessions-rollup.nix;
   check-bodies-shellcheck = check ./check-bodies-shellcheck.nix;

@@ -1,0 +1,10 @@
+id: tsx-no-type-suppression
+language: tsx
+severity: error
+message: "Type or lint suppression comment."
+note: |
+  Same rule as `ts-no-type-suppression`; see `tsx-no-any` for why `.tsx` needs
+  its own file.
+rule:
+  kind: comment
+  regex: "@ts-(ignore|expect-error|nocheck)|eslint-disable"

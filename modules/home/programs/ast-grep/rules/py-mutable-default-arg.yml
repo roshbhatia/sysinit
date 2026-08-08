@@ -1,0 +1,23 @@
+id: py-mutable-default-arg
+language: python
+severity: error
+message: "Mutable default argument is shared across every call."
+note: |
+  Python evaluates a default once, at definition time, so `[]`, `{}`, and
+  `set()` become one object that every call mutates. The bug reads as state
+  leaking between unrelated calls. Use `None` and build the value in the body.
+
+  Matched by node kind, not by a `def $F(...)` pattern. A pattern with no
+  function body parses as an incomplete definition, which `ast-grep run -p`
+  accepts and `ast-grep scan` rejects with "must specify a set of AST kinds".
+  A tuple default (`d=()`) is immutable and is not matched.
+rule:
+  any:
+    - kind: default_parameter
+    - kind: typed_default_parameter
+  has:
+    field: value
+    any:
+      - kind: list
+      - kind: dictionary
+      - kind: set

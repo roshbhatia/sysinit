@@ -1,0 +1,16 @@
+id: ts-no-any
+language: typescript
+severity: error
+message: "`any` disables type checking for everything it touches."
+note: |
+  Use `unknown` and narrow it, or write the real type. `any` is not a wider
+  type, it is an escape from the checker: a value typed `any` silently drops
+  every downstream error, so one annotation can hide a whole call chain.
+
+  Matches the annotation form (`x: any`), the return form (`(): any`), and the
+  cast form (`x as any`) - all three are the same `predefined_type` node.
+
+  Ask before suppressing. Global CLAUDE.md forbids `any` without permission.
+rule:
+  kind: predefined_type
+  regex: "^any$"

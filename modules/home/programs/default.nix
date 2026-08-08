@@ -4,7 +4,7 @@
 
 {
   imports = [
-    ./ast-grep.nix
+    ./ast-grep
     ./bash.nix
     ./bat.nix
     ./bottom.nix

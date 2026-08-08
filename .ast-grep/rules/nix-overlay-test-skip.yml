@@ -1,0 +1,26 @@
+id: nix-overlay-test-skip
+language: nix
+severity: warning
+message: "A test-skip override in overlays/ goes stale silently."
+note: |
+  `doCheck = false`, `disabledTests`, and `disabledTestPaths` only perturb the
+  derivation hash. Once Hydra caches the pristine package, the override stops
+  buying anything and starts forcing a local source build of something already
+  substitutable. AGENTS.md records this; run the `nix-cache-audit` skill before
+  adding one, and keep the result out of `cacheAttrs` in flake.nix.
+
+  Advisory, not a gate: the existing overrides under overlays/ are deliberate
+  and each carries a comment saying why.
+files:
+  - "overlays/**/*.nix"
+rule:
+  any:
+    - pattern:
+        context: "{ doCheck = false; }"
+        selector: binding
+    - pattern:
+        context: "{ disabledTests = $V; }"
+        selector: binding
+    - pattern:
+        context: "{ disabledTestPaths = $V; }"
+        selector: binding

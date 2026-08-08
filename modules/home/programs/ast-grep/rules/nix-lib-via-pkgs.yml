@@ -1,0 +1,17 @@
+id: nix-lib-via-pkgs
+language: nix
+severity: error
+message: "Reach `lib` directly, not through `pkgs`."
+note: |
+  `pkgs.lib` is the same attrset every module already receives as `lib`. Going
+  through `pkgs` hides the real defect, which is a missing `lib` argument. Add
+  `lib` to the function arguments and call `lib.<fn>`.
+
+  Not matched: `prev.lib` and `nixpkgs.lib`. An overlay takes only `final` and
+  `prev`, and flake/formatter.nix takes only `nixpkgs`, so in those two scopes
+  there is no bare `lib` to reach.
+files:
+  - "**/*.nix"
+rule:
+  pattern: pkgs.lib.$FN
+fix: lib.$FN
