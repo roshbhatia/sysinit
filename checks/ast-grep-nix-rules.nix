@@ -43,6 +43,25 @@ pkgs.runCommand "ast-grep-nix-rules-check"
       exit 1
     fi
 
+    # Positive control. A clean scan and a scan that loaded no rules at all are
+    # the same output and the same exit code, so counting rule files on disk is
+    # not evidence that ast-grep read any of them. This fixture must fail; if it
+    # passes, the rules are not loading and every result above is vacuous.
+    mkdir -p fixture
+    cat > fixture/violation.nix <<'FIXTURE'
+    { lib, pkgs, ... }:
+    with lib;
+    { path = pkgs.lib.makeBinPath [ ]; env = builtins.getEnv "HOME"; }
+    FIXTURE
+    # Output discarded on both streams. The fixture is meant to produce errors,
+    # and printing them would read as violations in the real source.
+    if ast-grep scan -c "$src/sgconfig.yml" fixture > /dev/null 2>&1; then
+      echo "FAIL: the known-bad fixture produced no error." >&2
+      echo "ast-grep loaded no rules. Check ruleDirs in sgconfig.yml: a rule file" >&2
+      echo "that is itself a symlink is skipped by the directory walk." >&2
+      exit 1
+    fi
+
     if ! ast-grep scan -c "$src/sgconfig.yml" "$src"; then
       echo "" >&2
       echo "Fix the source, or change the rule. The rule files are under" >&2

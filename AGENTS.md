@@ -82,6 +82,13 @@ subcommands: `feature-based-session-manager`, `openspec-workflow`, `specutil`.
   `sgconfig.yml` by walking up from the working directory, so the global library
   in `modules/home/programs/ast-grep/rules/` is only reachable through the `sgg`
   wrapper. Severity decides gating; `warning` rules report and do not fail.
+- A `ruleDirs` walk skips a rule file that is itself a symlink, so the module
+  installs `ast-grep/rules` as one directory entry. A per-file `xdg.configFile`
+  entry, or `recursive = true`, installs every rule and loads none of them, with
+  no warning and exit 0. This is the openspec schema gotcha with the halves
+  swapped: openspec skips a symlinked *directory* and needs per-file entries. The
+  `ast-grep-nix-rules` check carries a known-bad fixture for exactly this,
+  because a scan that loaded no rules is indistinguishable from a clean one.
 - `~/.config/git/ignore` excludes `**/sgconfig.yml` and `ast-grep/`. This repo's
   `.gitignore` negates both, alongside the existing `!openspec/`. An untracked
   file is absent from the flake source, so forgetting the negation presents as a

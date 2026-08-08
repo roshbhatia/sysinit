@@ -5,16 +5,7 @@
   ...
 }:
 let
-  ruleRoot = ./rules;
   configDir = "${config.xdg.configHome}/ast-grep";
-
-  # Enumerated off the directory, so adding a rule file needs no edit here.
-  ruleFiles = lib.listToAttrs (
-    map (name: {
-      name = "ast-grep/rules/${name}";
-      value.source = ruleRoot + "/${name}";
-    }) (lib.filter (lib.hasSuffix ".yml") (lib.attrNames (builtins.readDir ruleRoot)))
-  );
 
   # ast-grep has no config environment variable and never reads XDG. It finds
   # `sgconfig.yml` by walking up from the working directory, so a global rule set
@@ -32,7 +23,16 @@ in
 {
   home.packages = [ sgg ];
 
-  xdg.configFile = ruleFiles // {
+  xdg.configFile = {
+    # One entry for the whole directory, never `recursive = true` and never a
+    # per-file entry. A `ruleDirs` walk skips a rule file that is itself a
+    # symlink, so per-file entries install eleven rules and load none of them,
+    # silently and with exit 0. A single directory symlink whose contents are
+    # real files loads all of them. Same shape as openspec's schema directory in
+    # llm/default.nix, and the opposite resolution, because the two tools fail on
+    # opposite halves of the same layout.
+    "ast-grep/rules".source = ./rules;
+
     "ast-grep/sgconfig.yml".text = lib.generators.toYAML { } {
       # `ruleDirs` is the only way in. An inline `rules:` key parses as YAML and
       # is then discarded, which is how the previous version of this module ran

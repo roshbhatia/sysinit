@@ -63,6 +63,18 @@ none had been tested. On review most were wrong rather than merely unused.
 - The five `k8s-*` rules matched on `containers:` three separate times, so a
   single manifest drew three overlapping diagnostics.
 
+## Symlinks: rules that install but never load
+
+A `ruleDirs` walk skips a rule file that is itself a symlink. `default.nix`
+therefore installs this whole directory as one `xdg.configFile` entry, so
+`~/.config/ast-grep/rules` is a single symlink to a store directory of real
+files. A per-file entry, or `recursive = true`, installs all eleven rules and
+loads zero, reporting nothing and exiting 0.
+
+There is no signal when this happens: a scan that loaded no rules and a scan that
+found no violations produce identical output. That is why `checks/ast-grep-nix-rules.nix`
+scans a known-bad fixture and fails when it comes back clean.
+
 ## Go patterns: a parser gotcha
 
 `pkg.Func($ARG)` with exactly one argument does not match a Go call. Go's
