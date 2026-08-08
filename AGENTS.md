@@ -122,3 +122,44 @@ subcommands: `feature-based-session-manager`, `openspec-workflow`, `specutil`.
 - A spawned helper agent is named per harness: Claude Code says "teammate",
   every other harness says "subagent". Author source text with the `{{agent}}`
   placeholder and let `modules/home/programs/llm/lib/vocab.nix` render it.
+
+## Harness field footguns
+
+Each one below shipped as a working-looking config that did nothing. None of
+them errors; the code no longer carries a comment saying so.
+
+- goose uses `uri`, not `url`, and `type = "streamable_http"` for modern MCP.
+  `sse` is legacy and belongs only to a server advertising just `/sse`.
+- Antigravity uses `serverUrl`, not `url`, for a remote server.
+- Copilot needs an explicit `tools` allowlist on an http server. Omitting it
+  exposes no tools rather than all of them; `["*"]` opts in.
+- codex needs `experimental_use_rmcp_client = true` or every URL-based MCP entry
+  in its TOML is ignored. Its profile files are derived from the profile set,
+  never hand-listed: `programs.codex` writes one `<name>.config.toml` per
+  profile, so a hand-list breaks on the next rename.
+- devin inherits from Cursor, Windsurf, and Claude Code unless its own settings
+  are declared, which makes its behavior depend on config this repo does not own.
+- Amp validates skill frontmatter against a fixed allowlist and errors on any key
+  outside it, so it gets its own render. devin and copilot take the Amp render
+  for the same reason.
+- A vendored pi extension must not write the theme. `ctx.ui.setTheme` persists to
+  settings, every declared key is enforced, and the two writers then fight on
+  every activation with no message.
+- The agentgateway MCP allowlist prefix covers every target behind it. Adding a
+  gateway target grants it auto-approval, so that target list is a permission
+  surface.
+
+## Verified failure modes with no signal
+
+- `left-alt` chords cannot fire on macOS: WezTerm defaults
+  `send_composed_key_when_left_alt_is_pressed` to true, so left-alt composes.
+  `modules/darwin/lib/chords.nix` is the shared vocabulary the collision check
+  reads; two layers binding one chord means one wins and the other never fires.
+- A zero-byte state file is what an interrupted first write leaves behind.
+  Testing only for existence makes it absorbing: jq on an empty file exits 0 with
+  no output, so every later write reports success and stores nothing.
+- `git rev-parse --show-toplevel` answers physically, so a relative path reached
+  through a symlink reads as outside the repository it is inside. macOS `/tmp` is
+  such a symlink, so this is the ordinary case there.
+- An unreferenced `let` binding is dropped silently, so a derivation that exists
+  only to be checked must be forced from something that ships.
