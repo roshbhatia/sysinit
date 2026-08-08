@@ -111,7 +111,6 @@ let
       }
     '';
 
-    # Readable content width and line spacing for prose comfort
     "readable-layout" = ''
       .markdown-source-view.mod-cm6 .cm-contentContainer,
       .markdown-reading-view .markdown-preview-section {

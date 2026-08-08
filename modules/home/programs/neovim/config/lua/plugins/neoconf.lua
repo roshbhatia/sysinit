@@ -11,14 +11,12 @@ return {
 
     require("neoconf.plugins").register({
       on_schema = function(schema)
-        -- Formatting toggle (read by none-ls BufWritePre)
         schema:set("autoformat", {
           description = "Enable autoformat-on-save for this project",
           type = "boolean",
           default = true,
         })
 
-        -- LSP AI: per-project provider/model selection
         schema:set("lsp_ai", {
           type = "object",
           description = "lsp-ai config. Models defined here merge over auto-detected defaults.",
@@ -57,7 +55,6 @@ return {
           },
         })
 
-        -- Common LSP server settings (placeholders for autocomplete)
         schema:import("lua_ls", { settings = { Lua = {} } })
         schema:import("pyright", { settings = { python = {} } })
         schema:import("yamlls", { settings = { yaml = {} } })
@@ -88,7 +85,6 @@ return {
       end,
     })
 
-    -- Scaffold .sysinit/neoconf.json for the current project
     vim.api.nvim_create_user_command("NeoconfInit", function()
       local root = vim.uv.cwd()
       local path = vim.fs.joinpath(root, ".neoconf.json")

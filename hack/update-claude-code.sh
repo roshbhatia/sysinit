@@ -1,9 +1,4 @@
 #!/usr/bin/env bash
-# Updates version, fetchzip src hash, package-lock.json, and fetchNpmDeps hash for
-# the claude-code overlay when a new npm release is detected.
-#
-# Requires: curl, jq, nix (with nix-prefetch-url), npm, tar
-# Usage: ./hack/update-claude-code.sh
 
 set -euo pipefail
 
@@ -22,12 +17,10 @@ echo "Updating claude-code ${CURRENT} -> ${LATEST}..."
 
 TGZ_URL="https://registry.npmjs.org/@anthropic-ai/claude-code/-/claude-code-${LATEST}.tgz"
 
-# Compute fetchzip hash (hash of unpacked content)
 echo "  Computing src hash..."
 RAW_HASH=$(nix-prefetch-url --type sha256 --unpack "${TGZ_URL}" 2> /dev/null)
 SRC_HASH=$(nix hash convert --hash-algo sha256 --from nix32 --to sri "${RAW_HASH}")
 
-# Generate package-lock.json by extracting the package and running npm
 echo "  Generating package-lock.json..."
 WORKDIR=$(mktemp -d)
 trap 'rm -rf "${WORKDIR}"' EXIT
@@ -35,11 +28,9 @@ curl -sL "${TGZ_URL}" | tar -xz -C "${WORKDIR}"
 (cd "${WORKDIR}/package" && npm install --package-lock-only --ignore-scripts --quiet 2> /dev/null)
 cp "${WORKDIR}/package/package-lock.json" "${LOCK_FILE}"
 
-# Compute fetchNpmDeps hash
 echo "  Computing npm deps hash..."
 NPM_DEPS_HASH=$(nix run nixpkgs#prefetch-npm-deps -- "${LOCK_FILE}" 2> /dev/null)
 
-# Update overlay
 cp "${OVERLAY_FILE}" "${OVERLAY_FILE}.bak"
 sed \
   -e "s|version = \"[^\"]*\";|version = \"${LATEST}\";|" \

@@ -23,7 +23,6 @@ let
     in
     colorMap.${cleanHex} or cleanHex;
 
-  # Use stylix base16 colors directly
   tuigreetTheme =
     "text=${colorToTuigreetTheme "#${config.lib.stylix.colors.base05}"};"
     + "container=${colorToTuigreetTheme "#${config.lib.stylix.colors.base00}"};"
@@ -36,9 +35,6 @@ let
     + "greet=${colorToTuigreetTheme "#${config.lib.stylix.colors.base05}"}";
 in
 {
-  # Login manager (greetd + tuigreet)
-  # initial_session autologins rshnbhatia to sway on boot so Sunshine has a
-  # Wayland compositor to capture; tuigreet handles subsequent logins.
   services.greetd = {
     enable = true;
     settings = {
@@ -53,7 +49,6 @@ in
     };
   };
 
-  # Suppress kernel/systemd messages on VT1 so they don't corrupt tuigreet
   boot.kernelParams = [
     "quiet"
     "loglevel=3"
@@ -61,6 +56,5 @@ in
     "rd.udev.log_level=3"
   ];
 
-  # Unlock Greetd keyring on login
   security.pam.services.greetd.enableGnomeKeyring = true;
 }

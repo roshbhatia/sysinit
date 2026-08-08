@@ -57,14 +57,12 @@ local function clipboard_fallback(text)
 end
 
 local function try_send(text, submit)
-  -- 1. wezterm pane (out-of-process)
   local pane_id = vim.g.harness_wezterm_pane_claudecode
   if pane_id and wt.pane_alive_sync(pane_id) then
     if wt.send_text(pane_id, text, submit) then
       return true
     end
   end
-  -- 2. snacks nvim terminal buffer
   local buf = find_claude_terminal()
   if buf and chansend_to_buf(buf, text, submit) then
     return true
@@ -75,10 +73,6 @@ end
 return {
   name = "claudecode",
   label = "  Claude",
-  -- Flags verified against `claude --help`. --permission-mode renamed its
-  -- `default` choice to `manual`; passing `default` is now rejected.
-  -- --add-dir is variadic (one flag, many values), so it stays a single value
-  -- rather than a repeatable list.
   options_schema = {
     { name = "dangerous", flag = "--dangerously-skip-permissions", kind = "toggle" },
     { name = "ide", flag = "--ide", kind = "toggle", default = true },
@@ -162,7 +156,6 @@ return {
       return
     end
 
-    -- Pane isn't up yet — ensure :ClaudeCode, retry, then clipboard.
     pcall(vim.cmd, "ClaudeCode")
     vim.defer_fn(function()
       if try_send(text, submit) then

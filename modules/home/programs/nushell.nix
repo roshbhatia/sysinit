@@ -94,7 +94,6 @@ in
       $env.config.completions.external.max_results = 100
       $env.config.completions.external.completer = $carapace_completer
 
-      # macOS: preserve system open command
       ${lib.optionalString pkgs.stdenv.hostPlatform.isDarwin ''
         alias nu-open = open
         alias open = ^open

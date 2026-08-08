@@ -1,10 +1,3 @@
-# Claude Code statusline. Reads the session JSON on stdin and prints a single
-# line: model, context use, git branch, and — when relevant — the active seshy
-# session and openspec change.
-#
-# Best-effort by design: no `set -e`, every segment is guarded so one failure
-# (not a git repo, no openspec, no seshy) never blanks the whole line.
-
 input=$(cat)
 
 model=$(printf '%s' "$input" | jq -r '.model.display_name // empty')
@@ -20,8 +13,6 @@ if [ -n "$dir" ]; then
   [ -n "$branch" ] && parts+=("git:$branch")
 fi
 
-# seshy stores sessions under this dir; the active session is the first path
-# component of cwd beneath it.
 sessions_dir="$HOME/.local/state/seshy/sessions"
 if [ -n "$dir" ] && [ "${dir#"$sessions_dir"/}" != "$dir" ]; then
   session=${dir#"$sessions_dir"/}
@@ -29,9 +20,6 @@ if [ -n "$dir" ] && [ "${dir#"$sessions_dir"/}" != "$dir" ]; then
   [ -n "$session" ] && parts+=("seshy:$session")
 fi
 
-# openspec: walk up to the project root, then surface the active change.
-# Newest-by-mtime mirrors /opsx:apply's "most recent" inference; the archive
-# dir is excluded.
 osroot="$dir"
 while [ -n "$osroot" ] && [ "$osroot" != "/" ]; do
   [ -f "$osroot/openspec/config.yaml" ] && break

@@ -226,7 +226,6 @@ return {
         default_timeout = 5000,
         temp_dir = vim.fn.stdpath("cache") .. "/null-ls",
         sources = {
-          -- Code actions
           null_ls.builtins.code_actions.gitrebase,
           null_ls.builtins.code_actions.gitsigns,
           null_ls.builtins.code_actions.gomodifytags,
@@ -235,7 +234,6 @@ return {
           null_ls.builtins.code_actions.textlint,
           null_ls.builtins.code_actions.ts_node_action,
 
-          -- Diagnostics
           null_ls.builtins.diagnostics.actionlint,
           null_ls.builtins.diagnostics.checkmake,
           null_ls.builtins.diagnostics.commitlint,
@@ -247,12 +245,9 @@ return {
           null_ls.builtins.diagnostics.tfsec,
           null_ls.builtins.diagnostics.zsh,
 
-          -- Hover
           null_ls.builtins.hover.dictionary,
           null_ls.builtins.hover.printenv,
 
-          -- Formatting (only tools without a capable LSP counterpart)
-          -- gopls handles Go, nixd handles Nix, terraformls handles Terraform
           null_ls.builtins.formatting.stylua,
           null_ls.builtins.formatting.prettier.with({
             filetypes = {
@@ -290,8 +285,6 @@ return {
         generator = hex_color_generator(),
       })
 
-      -- When multiple native LSP formatters cover the same filetype, pick the first attached
-      -- one from this table rather than prompting. null-ls always wins when it has a source.
       local formatter_priority = {
         nix = { "nixd", "nil_ls" },
       }
@@ -313,10 +306,6 @@ return {
           end
 
           local ft = vim.bo[bufnr].filetype
-          -- null-ls is only preferred when it actually has a formatter for this filetype.
-          -- Without this check, filetypes like nix get silently swallowed: null-ls is
-          -- attached (for diagnostics/code-actions) but has no formatter, so native LSPs
-          -- (nixd, nil_ls) are incorrectly skipped.
           local has_null_ls_formatter = #require("null-ls.sources").get_available(
             ft,
             null_ls.methods.FORMATTING
@@ -324,8 +313,6 @@ return {
           local use_null_ls = has_null_ls_formatter
             and #vim.lsp.get_clients({ bufnr = bufnr, name = "null-ls" }) > 0
 
-          -- For filetypes with multiple native formatters, pick the highest-priority one
-          -- that is currently attached (silently falls through to the next if absent).
           local chosen_lsp = nil
           if not use_null_ls then
             local priority = formatter_priority[ft]

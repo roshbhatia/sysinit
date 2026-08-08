@@ -18,12 +18,9 @@ function M.load_json_file(filepath)
     return nil
   end
 
-  -- Simple JSON parser for basic structures
-  -- This is a minimal implementation - for complex JSON, consider using a proper library
   local function parse_json(str)
     str = str:gsub("^%s*(.-)%s*$", "%1")
 
-    -- Try to use hs.json if available (Hammerspoon's JSON module)
     if hs and hs.json then
       local ok, result = pcall(hs.json.decode, str)
       if ok then
@@ -31,8 +28,6 @@ function M.load_json_file(filepath)
       end
     end
 
-    -- Fallback: very basic JSON parsing (limited functionality)
-    -- This only handles simple key-value pairs and nested objects
     local function parse_value(v)
       v = v:gsub("^%s*(.-)%s*$", "%1")
       if v == "true" then

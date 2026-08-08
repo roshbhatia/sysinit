@@ -2,10 +2,6 @@
   pkgs,
   ...
 }:
-# The schema's templates must be a conforming starting point. A change
-# scaffolded verbatim from them has to pass the schema's own rubric,
-# otherwise an author who fills in the template still trips the gate
-# and has to reverse-engineer the rule from a failure. This caught the
 pkgs.runCommand "schema-templates-conform-check"
   {
     nativeBuildInputs = [
@@ -23,13 +19,8 @@ pkgs.runCommand "schema-templates-conform-check"
     cp "$tmpl/design.md"   "$change/design.md"
     cp "$tmpl/tasks.md"    "$change/tasks.md"
 
-    # review-decision-current: wants a recorded human verdict in
-    # specutil.review.yaml. A fresh scaffold has no reviewer yet.
     exempt='["review-decision-current"]'
 
-    # `specutil check` exits 1 on any error finding, so read the
-    # findings rather than the exit code. A non-JSON body means the
-    # tool itself broke, which must still fail loudly.
     specutil check "$change" --as json > "$TMPDIR/findings.json" || true
     if ! jq -e . "$TMPDIR/findings.json" > /dev/null 2>&1; then
       echo "FAIL: specutil check produced no parseable JSON:" >&2

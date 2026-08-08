@@ -21,7 +21,6 @@ function M.setup(config)
   config.line_height = 1.0
   config.cell_width = 1.0
 
-  -- Nix generates this palette from Stylix
   if config_data.colors then
     config.colors = config_data.colors
   end
@@ -41,7 +40,6 @@ function M.setup(config)
   config.use_fancy_tab_bar = false
   config.hide_tab_bar_if_only_one_tab = false
 
-  -- new windows must not inherit the last seshy workspace
   config.default_workspace = "default"
 
   config.window_frame = {
@@ -67,7 +65,6 @@ function M.setup(config)
     config.front_end = "WebGpu"
     config.window_decorations = "RESIZE"
     config.freetype_load_flags = "NO_HINTING|NO_AUTOHINT"
-    -- tiling detection keeps the tab bar inside the window bounds
     config.tiling_desktop_environments = {
       "X11 LG3D",
       "X11 bspwm",
@@ -84,7 +81,6 @@ function M.setup(config)
     return "  "
   end
 
-  -- tabline sections use the agent-deck API during setup
   local agent_deck_ok, agent_deck = plugin_loader.load("agent-deck")
   if not agent_deck_ok then
     wezterm.log_warn("Failed to load agent-deck: " .. tostring(agent_deck))
@@ -95,7 +91,6 @@ function M.setup(config)
       right_status = { enabled = false },
       cooldown_ms = 150,
       max_lines = 500,
-      -- agent-notify owns toasts because agent-deck lacks session metadata
       notifications = {
         enabled = false,
         on_waiting = false,
@@ -103,7 +98,6 @@ function M.setup(config)
       },
       agents = {
         claude = {
-          -- Bun exposes Claude Code as `.claude-wrapped` on macOS
           patterns = { ".claude%-wrapped", "claude", "claude%-code" },
           executable_patterns = { "@anthropic%-ai/claude%-code", "/claude%-code/", "/claude$", "claude" },
           argv_patterns = { "@anthropic%-ai/claude%-code", "claude%-code", "^claude%s*$" },
@@ -139,7 +133,6 @@ function M.setup(config)
           argv_patterns = { "^crush%s*$" },
           title_patterns = { "crush" },
         },
-        -- Gemini and Devin lack native notification events; pi and OpenCode have bridges
         gemini = {
           patterns = { "antigravity", "agy", "gemini" },
           executable_patterns = { "/agy$", "antigravity%-cli" },
@@ -155,7 +148,6 @@ function M.setup(config)
       },
     })
 
-    -- panes with native state already notified and must not announce twice
     local notified = {}
     wezterm.on("update-status", function()
       local ok, deck_states = pcall(agent_deck.get_all_agent_states)
@@ -187,7 +179,6 @@ function M.setup(config)
       end
     end)
 
-    -- the heartbeat lets external bars distinguish current state from stale state
     local function publish_selection()
       local ok_ws, ws = pcall(wezterm.mux.get_active_workspace)
       if not ok_ws or type(ws) ~= "string" or ws == "" then
@@ -220,7 +211,6 @@ function M.setup(config)
           end
         end
       end)
-      -- a partial walk must not prune panes that may still be live
       if not ok then
         return
       end
@@ -232,7 +222,6 @@ function M.setup(config)
     end)
   end
 
-  -- statusline and switcher must use the same worst-wins order
   local nf = wezterm.nerdfonts or {}
   local agent_state_icons = {
     waiting = nf.md_clock_alert or "⏱",
@@ -246,7 +235,6 @@ function M.setup(config)
     working = 2,
     idle    = 1,
   }
-  -- `done` requires attention, while `idle` does not
   local agent_state_labels = {
     waiting = "Needs Input",
     done    = "Done",
@@ -285,13 +273,6 @@ function M.setup(config)
     return string.format("%dh", math.floor(secs / 3600))
   end
 
-  -- Best-effort repo name for a pane: the basename of its current working dir.
-  -- Uses only the in-memory mux cwd (no shell-out), tolerates both the Url-object
-  -- and the raw `file://host/path` string forms wezterm has returned across
-  -- versions, and yields "" on any failure. Branch and dirty are NOT derivable
-  -- in-memory — the per-pane state-file bus carries those for out-of-WezTerm
-  -- consumers; the render-path rollup deliberately stays shell-out-free.
-  -- Returns (basename, fullpath). Both are "" on failure.
   local function pane_repo(p)
     local ok, repo, cwd = pcall(function()
       local url = p:get_current_working_dir()
@@ -310,9 +291,6 @@ function M.setup(config)
     return repo or "", cwd or ""
   end
 
-  -- Read per-pane agent state JSON (written by agent-state hook) for git metadata.
-  -- Returns { branch, dirty } or nil when no state file exists for this pane.
-  -- Only agent-active panes have state files; normal shell panes return nil.
   local function read_pane_git(pane_id)
     local home = os.getenv("HOME") or ""
     local path = home .. "/.local/state/agents/panes/" .. tostring(pane_id) .. ".json"
@@ -328,28 +306,20 @@ function M.setup(config)
     }
   end
 
-  -- Smart display path: strips noisy parent dirs, returns just the meaningful part.
-  --   ~/github/<tier>/<org>/<repo>[/sub]            → <repo>[/sub]
-  --   ~/.local/state/seshy/sessions/<s>/<rest>      → <rest>  (rest = repo[/sub] after session/)
-  --   ~/.local/state/seshy/sessions/<s>  (root)     → ""  (session name already in workspace row)
-  --   ~[/rest]                                       → ~[/rest]
   local function smart_path(full_cwd)
     if not full_cwd or full_cwd == "" then return "" end
     local home = os.getenv("HOME") or ""
-    -- Seshy: ~/.local/state/seshy/sessions/<session>[/rest] → {sy}/<session>[/rest]
     local seshy_base = home .. "/.local/state/seshy/sessions"
     if full_cwd == seshy_base or full_cwd:sub(1, #seshy_base + 1) == seshy_base .. "/" then
       local after = full_cwd:sub(#seshy_base + 2)  -- "<session>[/rest]"
       return after ~= "" and ("{sy}/" .. after) or "{sy}"
     end
-    -- GitHub: ~/github/<tier>/<org>/<repo>[/sub] → {gh}/<repo>[/sub]
     local gh_base = home .. "/github/"
     if full_cwd:sub(1, #gh_base) == gh_base then
       local rest = full_cwd:sub(#gh_base + 1)             -- "<tier>/<org>/<repo>[/sub]"
       local short = rest:match("^[^/]+/[^/]+/(.+)$") or rest
       return "{gh}/" .. short
     end
-    -- Home-relative fallback
     if full_cwd == home then return "{home}" end
     if full_cwd:sub(1, #home + 1) == home .. "/" then
       return "{home}/" .. full_cwd:sub(#home + 2)
@@ -357,7 +327,6 @@ function M.setup(config)
     return full_cwd
   end
 
-  -- lifecycle state takes precedence over scraped state
   local function pane_agent_state(p, deck_states)
     local status, reason, since, agent
     local uv = p:get_user_vars()
@@ -378,19 +347,6 @@ function M.setup(config)
     return status, reason, since, agent
   end
 
-  -- Roll per-pane agent state up to one state per seshy session (= workspace),
-  -- AND return the per-pane records visited on the same single walk. For each
-  -- live pane: prefer the `agent_state` user-var emitted by the agent lifecycle
-  -- hooks (status|reason|since|agent); fall back to agent-deck's scraped status
-  -- for panes that set none (hookless agents). Reduce a session's panes
-  -- worst-wins, carrying the reason + transition time of the winning pane (oldest
-  -- `since` breaks ties so age reflects the longest wait).
-  -- Pure in-memory walk of live panes — safe to call on every update-status
-  -- tick. Returns two values:
-  --   sessions = { [workspace] = { status, reason, since, rank } }
-  --   panes    = array of { pane_id, window_id, tab_id, workspace, repo, branch,
-  --                          agent, status, reason, since, rank } for every pane
-  --              currently holding agent state (branch always "" on this path).
   local function compute_agent_session_states()
     local sessions = {}
     local panes = {}
@@ -406,8 +362,6 @@ function M.setup(config)
             local status, reason, since, agent = pane_agent_state(p, deck_states)
             if status then
               local rank = agent_state_rank[status]
-              -- Per-pane record — same walk, in-memory only. Enough to activate
-              -- the exact pane later (window/tab/pane id + workspace).
               panes[#panes + 1] = {
                 pane_id = p:pane_id(),
                 window_id = window_id,
@@ -421,9 +375,6 @@ function M.setup(config)
                 since = since,
                 rank = rank,
               }
-              -- Session rollup. Higher rank wins; on a tie the older `since`
-              -- (smaller number) wins so age reflects the longest-running pane.
-              -- A pane with a real `since` beats one without (nil sorts last).
               local cur = sessions[workspace]
               local replace = false
               if not cur or rank > cur.rank then
@@ -453,11 +404,6 @@ function M.setup(config)
     return sessions, panes
   end
 
-  -- The rollup feeds the statusline, which tabline re-renders on every
-  -- update-status tick (status_update_interval = 150 ms) for every window. A
-  -- full mux walk at that rate is wasted work: the state only changes on hook
-  -- events, and every surface that reads it renders whole seconds. One-second
-  -- cache — os.time() has second granularity, so the compare IS the TTL.
   local rollup_cache = { at = -1, sessions = {}, panes = {} }
   local function agent_session_states()
     local now = os.time()
@@ -468,9 +414,6 @@ function M.setup(config)
     return rollup_cache.sessions, rollup_cache.panes
   end
 
-  -- The GUI window currently displaying `workspace`, or nil when no window shows
-  -- it. A background workspace still owns a mux window, so mux presence alone
-  -- does not answer "is this on screen".
   local function gui_window_for_workspace(workspace)
     if not workspace or workspace == "" then
       return nil
@@ -484,10 +427,6 @@ function M.setup(config)
         return w:get_workspace()
       end)
       if ok_ws and ws == workspace then
-        -- Guarded per window, not once around the whole loop: several mux
-        -- windows can share a workspace and only one of them is on screen, so a
-        -- throw on an unattached window must not end the scan before it reaches
-        -- the attached one.
         local ok_gui, gui = pcall(function()
           return w:gui_window()
         end)
@@ -499,12 +438,6 @@ function M.setup(config)
     return nil
   end
 
-  -- Go to a session, correctly with more than one GUI window open. Each GUI
-  -- window carries its own workspace, so the target may already be on screen in
-  -- a different window: focus that window instead of retargeting this one, which
-  -- would put two windows on the same workspace and abandon the one the user was
-  -- reading. SwitchToWorkspace is the fallback for a workspace with no window.
-  -- `spawn_cwd` (optional) roots the first pane when the workspace is created.
   local function switch_to_workspace(win, pane, name, spawn_cwd)
     if not name or name == "" then
       return
@@ -527,12 +460,6 @@ function M.setup(config)
     win:perform_action(act, pane)
   end
 
-  -- Activate the exact pane a rollup record points at. Pane/tab ids are global,
-  -- so the mux calls front the right tab + pane even in a background workspace.
-  -- Focus then follows the pane's own GUI window when it has one: activating a
-  -- mux tab does not move focus between GUI windows, so without this the picker
-  -- silently re-targeted a pane in a window the user could not see.
-  -- Best-effort — a since-closed pane resolves to nil and no-ops.
   local function activate_agent_pane(win, gui_pane, rec)
     if not rec or not rec.pane_id then
       return
@@ -550,8 +477,6 @@ function M.setup(config)
       end
       mp:activate()
     end)
-    -- Separate pcall: resolving the GUI window must not be able to skip the
-    -- pane activation above.
     local gui
     if mux_win then
       pcall(function()
@@ -567,17 +492,11 @@ function M.setup(config)
     switch_to_workspace(win, gui_pane, rec.workspace)
   end
 
-  -- Normalize process names for display. Strips the `.` prefix and `-wrapped`
-  -- suffix that Nix wrapping adds (e.g. `.claude-wrapped` → `claude`,
-  -- `.code-wrapped` → `code`).
   local function normalize_proc(raw)
     if not raw or raw == "" then return raw end
     return (raw:gsub("^%.", ""):gsub("%-wrapped$", ""))
   end
 
-  -- Best-effort short label for a pane: foreground process first (always current),
-  -- then stored agent name (may be stale), then OSC title, then "". Preferring
-  -- the live process avoids showing a previous agent's name after switching tools.
   local function pane_proc(p, agent)
     local ok, proc_name = pcall(function()
       local proc = p:get_foreground_process_name()
@@ -596,8 +515,6 @@ function M.setup(config)
     return (ok2 and title) or ""
   end
 
-  -- Best-effort tab segment: the tab's title, else the active pane's process,
-  -- else the 1-based index. Never errors.
   local function tab_label(tab, index, active_pane)
     local ok, title = pcall(function()
       return tab:get_title() or ""
@@ -614,10 +531,6 @@ function M.setup(config)
     return "tab " .. tostring(index)
   end
 
-  -- Names of seshy sessions from `sy list` (header row skipped, first column).
-  -- Returns (names, ok). `ok` is false when the shell-out failed, which callers
-  -- must distinguish from a genuinely empty list: an empty list is authoritative
-  -- ("no sessions"), a failure is not.
   local function seshy_session_names(sy_bin)
     if not sy_bin or sy_bin == "" then
       return {}, false
@@ -647,12 +560,6 @@ function M.setup(config)
     return names, true
   end
 
-  -- `sy` is resolved to an absolute path from env.json: wezterm.run_child_process
-  -- runs under the GUI process's own environment, whose PATH (when launched from
-  -- Finder or the Dock on macOS) omits ~/.local/bin, so a bare "sy" silently fails
-  -- and every seshy surface shows no sessions. Hoisted here rather than living in
-  -- the workspace-manager block below, because the tab-bar session chips need it
-  -- too and they are wired before that block runs.
   local home = os.getenv("HOME") or ""
   local seshy_dir = home .. "/.local/state/seshy/sessions"
   local sy_bin = home .. "/.local/bin/sy"
@@ -669,10 +576,6 @@ function M.setup(config)
     end
   end
 
-  -- `sy list` is a shell-out and the session tree calls it on every open, so
-  -- cache it for 5 s. On a failed shell-out keep the previous answer: reporting
-  -- zero sessions would empty the dormant view rather than admit the lookup
-  -- failed.
   local seshy_cache = { at = -1, names = {} }
   local function seshy_names_cached()
     local now = os.time()
@@ -687,14 +590,6 @@ function M.setup(config)
     return seshy_cache.names
   end
 
-  -- Active session names: every workspace that currently has a live mux window,
-  -- deduplicated. Two mux windows can share one workspace, so the dedup matters
-  -- once more than one window is open.
-  --
-  -- Dormant seshy sessions (present in `sy list`, no live workspace) are
-  -- deliberately excluded. The chip strip and the CTRL+SHIFT+<n> keys address
-  -- only what is running; dormant sessions are reached from the SUPER+s tree,
-  -- which lists them under ^d.
   local function active_session_names()
     local seen, names = {}, {}
     pcall(function()
@@ -709,28 +604,6 @@ function M.setup(config)
     return names
   end
 
-  -- Stable session slots, backing both the CTRL+SHIFT+<n> jump keys and the
-  -- tab-bar chips. Every display surface here sorts by urgency or recency, and
-  -- both reorder constantly, so the slot cannot come from the sort: CTRL+SHIFT+3
-  -- must reach the same session every time. A slot is claimed on first sight
-  -- (lowest free of 1..9), held for as long as the workspace stays live, and
-  -- released once it is gone. The map lives in wezterm.GLOBAL so it survives a
-  -- config reload; GLOBAL does not track nested mutation, so it is read,
-  -- rebuilt, and written back whole.
-  --
-  -- Slots cover ACTIVE sessions only — one number per live workspace. Dormant
-  -- seshy sessions get no slot and no chip: numbering them made the strip a list
-  -- of everything `sy list` had ever created, most of it not running, and pushed
-  -- live sessions past slot 9. Dormant sessions are reached from the SUPER+s
-  -- tree (^d), which needs no number.
-  --
-  -- "default" is the home-base workspace, not a seshy session. It permanently
-  -- holds the first slot and never competes with the rest, so it is always on
-  -- the strip even when it is the only session running.
-  --
-  -- Numbering starts at 1, matching the tab keys (SUPER+1..9) rather than a
-  -- 0-based array. That costs one addressable session: default takes 1 and the
-  -- rest get 2..9, so eight are reachable by key instead of nine.
   local DEFAULT_WORKSPACE = "default"
   local DEFAULT_SLOT = 1
   local MAX_SLOT = 9
@@ -742,9 +615,6 @@ function M.setup(config)
     end
 
     local names = active_session_names()
-    -- The mux walk came up empty. That is a lookup failure, not a world with no
-    -- sessions — a running GUI always has at least the window being rendered —
-    -- so rebuilding from it would drop every slot.
     if #names == 0 then
       return prev
     end
@@ -754,9 +624,6 @@ function M.setup(config)
       present[n] = true
     end
 
-    -- Carry forward every slot whose session is still around. The rest free up.
-    -- DEFAULT_SLOT is reserved before the walk so no seshy session can hold it,
-    -- and a duplicate in a stale GLOBAL map loses rather than colliding.
     local slots, taken = {}, {}
     taken[DEFAULT_SLOT] = true
     for name, slot in pairs(prev) do
@@ -771,8 +638,6 @@ function M.setup(config)
       end
     end
 
-    -- Claim the lowest free slot for anything newly seen, in name order so a
-    -- batch of new sessions numbers deterministically rather than by mux order.
     local fresh = {}
     for _, n in ipairs(names) do
       if n ~= DEFAULT_WORKSPACE and not slots[n] then
@@ -785,8 +650,6 @@ function M.setup(config)
       while probe <= MAX_SLOT and taken[probe] do
         probe = probe + 1
       end
-      -- Past the last slot: the session still appears in the picker, just with
-      -- no chip number and no jump key.
       if probe > MAX_SLOT then
         break
       end
@@ -794,11 +657,8 @@ function M.setup(config)
       taken[probe] = true
     end
 
-    -- "default" is always reachable — SwitchToWorkspace creates it on demand —
-    -- so it holds its slot whether or not it currently exists in the mux.
     slots[DEFAULT_WORKSPACE] = DEFAULT_SLOT
 
-    -- Only write when something actually moved. This runs on every status tick.
     local changed = false
     for name, slot in pairs(slots) do
       if prev[name] ~= slot then
@@ -820,9 +680,6 @@ function M.setup(config)
     return slots
   end
 
-  -- The chip strip asks for slots on every status tick, once per window. Cache
-  -- for a second, same as the agent rollup: a session cannot appear and need a
-  -- number in less time than that.
   local slots_cache = { at = -1, slots = {} }
   local function session_slots()
     local now = os.time()
@@ -832,20 +689,12 @@ function M.setup(config)
     return slots_cache.slots
   end
 
-  -- Workspace recency. The session tree sorts live sessions most-recent-first,
-  -- but WezTerm exposes no per-workspace last-used timestamp in Lua, so we keep
-  -- our own: stamp the focused window's workspace on each status tick. Without
-  -- it, recency was derived purely from agent `since` values, which sorted every
-  -- workspace holding no agent to the bottom — including the shell session you
-  -- were in a second ago. wezterm.GLOBAL survives config reloads; it does not
-  -- track nested mutation, so the table is read, updated, and written back whole.
   local touch_throttle = {}
   local function touch_workspace(name)
     if not name or name == "" then
       return
     end
     local now = os.time()
-    -- Sorting is coarse; a 5 s resolution keeps the write off the render path.
     if touch_throttle[name] and now - touch_throttle[name] < 5 then
       return
     end
@@ -861,9 +710,6 @@ function M.setup(config)
   end
 
   wezterm.on("update-status", function(window, _pane)
-    -- Prefer the focused window so a background workspace does not keep
-    -- refreshing its own recency. is_focused() postdates some WezTerm builds;
-    -- if the call is unavailable, stamp anyway rather than degrade to silence.
     local ok, focused = pcall(function()
       return window:is_focused()
     end)
@@ -874,7 +720,6 @@ function M.setup(config)
     end
   end)
 
-  -- one mux walk supplies both the workspace tree and attention list
   local function session_tree()
     local deck_states = agent_deck_ok and agent_deck.get_all_agent_states() or {}
     local workspaces = {}
@@ -892,7 +737,6 @@ function M.setup(config)
             dormant = false,
             rank = 0,
             since = nil,
-            -- non-agent sessions still sort by real workspace use
             last_active = workspace_last_active(workspace),
             status = nil,
             tabs = {},
@@ -913,8 +757,6 @@ function M.setup(config)
             tab_id = tab:tab_id(),
             index = ti,
             title = tab_label(tab, ti, resolved_active),
-            -- A tab jump is "activate this tab's active pane" — carry its id so
-            -- the switcher reuses activate_agent_pane for tabs too.
             active_pane_id = resolved_active and resolved_active:pane_id() or nil,
             panes = {},
           }
@@ -958,9 +800,6 @@ function M.setup(config)
       end
     end)
 
-    -- Dormant seshy sessions: present in `sy list` but not a live workspace.
-    -- Cached: the ^d / ^x round trips reopen the tree several times a second,
-    -- and `sy list` is a shell-out on each open.
     for _, name in ipairs(seshy_names_cached()) do
       if not ws_index[name] then
         local ws = { name = name, dormant = true, rank = 0, since = nil, status = nil, tabs = {} }
@@ -969,7 +808,6 @@ function M.setup(config)
       end
     end
 
-    -- Attention list urgency-ordered: rank desc, then oldest `since` first.
     local now = os.time()
     table.sort(attention, function(a, b)
       if a.rank ~= b.rank then
@@ -981,11 +819,6 @@ function M.setup(config)
     return { workspaces = workspaces, attention = attention }
   end
 
-  -- Shared palette for every agent-state surface (session chips, session tree),
-  -- read from the active window's resolved palette so it tracks colorscheme
-  -- changes (lantern). Falls back to config_data.colors (set at startup) when the
-  -- palette isn't available yet.
-  -- ANSI indices (1-based Lua): 1=black 2=red 3=green 4=yellow 5=blue 6=magenta 7=cyan 8=white
   local function tree_colors(win)
     local ok, pal = pcall(function()
       return win:effective_config().resolved_palette
@@ -1011,15 +844,6 @@ function M.setup(config)
     }
   end
 
-  -- Statusline component: name the single worst blocked session and its age,
-  -- then append how many sessions hold actionable state in total so the user
-  -- sees both which is worst and how many others are demanding attention. A
-  -- single mux walk (the shared rollup) feeds both the worst pick and the count.
-  --
-  -- "Actionable" is rank >= working (waiting/done/working); idle is excluded.
-  -- When nothing is actionable the component renders nothing (no worst, no `0`
-  -- count) — idle-only state is not worth statusline space. When exactly one
-  -- session is actionable the count suffix is omitted as redundant.
   local function agent_status()
     local sessions = agent_session_states()
     local now = os.time()
@@ -1041,33 +865,12 @@ function M.setup(config)
     end
     local icon = agent_state_icons[best.status] or "●"
     local text = " " .. icon
-    -- Multiple sessions needing attention: append count so the signal scales.
     if count > 1 then
       text = text .. " " .. count
     end
     return wezterm.format({ { Text = text .. " " } })
   end
 
-  -- Tab-bar session chips: one `<slot> <glyph> <name>` chip per ACTIVE session,
-  -- ordered by slot so the strip never moves under you. Slot 1 is the "default"
-  -- home-base workspace, so the chip you are standing in is always on the strip.
-  --
-  -- The strip is the live-session list, not the seshy inventory: a name appears
-  -- here only while it has a live workspace. It always renders, "default" alone
-  -- included — the strip is where the user reads which session they are in, so
-  -- suppressing it at one chip made the answer disappear exactly when the layout
-  -- was simplest.
-  --
-  -- The glyph carries agent state (waiting / done / working / idle), so a blocked
-  -- background session is visible without opening anything. A session with no
-  -- agent at all shows a bare dot.
-  --
-  -- Names are truncated so the strip cannot grow without bound. Nine sessions
-  -- with long names would otherwise run into the native tab strip; the full names,
-  -- repos, and branches live in the SUPER+s tree.
-  --
-  -- Signature is tabline's: a function component is called with the window and
-  -- must return a string, so the colored run is pre-rendered with wezterm.format.
   local CHIP_NAME_MAX = 16
 
   local function session_chips(window)
@@ -1099,15 +902,6 @@ function M.setup(config)
       if #label > CHIP_NAME_MAX then
         label = label:sub(1, CHIP_NAME_MAX - 1) .. "…"
       end
-      -- Two independent signals, carried by two independent attributes so they
-      -- can never mask each other:
-      --   underline  = the session you are standing in
-      --   colour+bold = the session that is waiting on YOU
-      -- Colouring the whole chip (not just the one-cell glyph) is the point: a
-      -- blocked session three chips away has to be legible without reading a
-      -- glyph. "Needs attention" is done or waiting — the agent has stopped and
-      -- the move is yours. `working` is informational, so it tints only the
-      -- glyph and leaves the chip dim.
       local rank = status and agent_state_rank[status] or 0
       local needs_attention = rank >= agent_state_rank.done
       local sc = status_color(status, colors) or colors.idle
@@ -1132,18 +926,6 @@ function M.setup(config)
     return wezterm.format(items)
   end
 
-  -- CTRL+SHIFT+<n> jumps straight to the session holding slot <n>, the same
-  -- number the chip shows. Slot 1 is the "default" home-base workspace.
-  --
-  -- CTRL, not SUPER: macOS reserves CMD+SHIFT+3/4/5 for screenshots and never
-  -- delivers them to the application, so three of the nine slots would have been
-  -- silently unreachable. CTRL+SHIFT+<digit> is unbound elsewhere in this config
-  -- (the plain digits are tab switching under CTRL and SUPER, without SHIFT).
-  --
-  -- `phys:` binds the physical key position. WezTerm's key_map_preference
-  -- defaults to "Mapped", where SHIFT+1 produces "!", so a plain
-  -- { key = "1", mods = "CTRL|SHIFT" } never matches. The mapped alternative
-  -- ({ key = "!", mods = "CTRL" }) would break on any non-US layout.
   config.keys = config.keys or {}
   for slot = DEFAULT_SLOT, MAX_SLOT do
     table.insert(config.keys, {
@@ -1161,8 +943,6 @@ function M.setup(config)
             break
           end
         end
-        -- Unassigned slot: no session holds this number. Do nothing rather than
-        -- guess at a neighbour.
         if not target then
           return
         end
@@ -1174,10 +954,6 @@ function M.setup(config)
             end
           end
         end)
-        -- Slots only cover live workspaces, so the dormant branch is a race: the
-        -- session died between the cached slot map and this keypress. Root the
-        -- first pane at the seshy session dir, as the session tree does for a
-        -- dormant row. "default" is not a seshy session and has no such dir.
         local spawn_cwd = nil
         if not live and target ~= DEFAULT_WORKSPACE then
           spawn_cwd = seshy_dir .. "/" .. target
@@ -1195,8 +971,6 @@ function M.setup(config)
     tabline.setup({
       options = {
         theme = config.colors,
-        -- Enabled so each tab title can carry its own agent-state icon (native
-        -- click-to-switch is the only clickable per-tab affordance WezTerm has).
         tabs_enabled = true,
         section_separators = {
           left = "",
@@ -1218,24 +992,9 @@ function M.setup(config)
         },
         tabline_b = {},
         tabline_c = {},
-        -- The whole right-hand group lives in `x`, with `y` and `z` empty. That
-        -- is deliberate, not laziness: tabline emits a section separator between
-        -- every pair of non-empty sections, and both agent_status and the old
-        -- `workspace` cap render "" or duplicate text most of the time — which
-        -- left a bare powerline wedge floating at the right edge. One section
-        -- means zero separators, so the chips end flush against the edge.
-        --
-        -- `workspace` is gone outright: the active chip already names the session
-        -- you are in, three cells to the left of where the cap used to sit.
-        --
-        -- agent_status leads so the chips stay rightmost. "ResetAttributes" is
-        -- tabline's own guard — it re-emits the section's colors after our
-        -- formatted run so nothing bleeds past it.
         tabline_x = { agent_status, session_chips, "ResetAttributes" },
         tabline_y = {},
         tabline_z = {},
-        -- Use cwd for both active and inactive tabs so that Nix-wrapped process
-        -- names (e.g. .claude-wrapped) never appear in the tab bar.
         tab_active = {
           "index",
           { "parent", padding = 0 },
@@ -1252,7 +1011,6 @@ function M.setup(config)
     tabline.apply_to_config(config)
   end
 
-  -- Fallback: if tabline plugin didn't load, use native right_status for locked indicator
   if not tabline_ok then
     wezterm.on("update-right-status", function(window, _pane)
       local mode_text = locked_indicator()
@@ -1262,9 +1020,7 @@ function M.setup(config)
     end)
   end
 
-  -- Post-process window padding for macOS
   if utils.is_darwin() then
-    -- Set window padding AFTER tabline.apply_to_config, which zeroes all padding
     config.window_padding = {
       left = "1cell",
       right = "1cell",
@@ -1273,9 +1029,6 @@ function M.setup(config)
     }
   end
 
-  -- sravioli UI toolkit: warp (stdlib) must load first so ribbon/sigil's
-  -- deps.lua `require("warp.api")` resolves off package.path. These bypass
-  -- wezterm.plugin.require entirely (see plugin_loader).
   plugin_loader.load("warp")
   local ribbon_ok, ribbon = plugin_loader.load("ribbon")
   if not ribbon_ok then
@@ -1287,14 +1040,9 @@ function M.setup(config)
   end
   if sigil_ok then
     sigil.setup({
-      -- Claude Code's foreground process basename is `.claude-wrapped` (a Bun
-      -- Mach-O binary); register it (and aliases) so tabs show a clean glyph
-      -- instead of the raw wrapper name.
       overrides = {
         claude = {
           name = "Claude",
-          -- Claude's brand sparkle (U+2733), in the brand orange. Marks every
-          -- Claude Code tab consistently instead of the raw OSC spinner glyph.
           icon = "✳",
           color = "#D97757",
           aliases = { ".claude-wrapped", "claude-code", "claude-wrapped" },
@@ -1309,9 +1057,6 @@ function M.setup(config)
     })
   end
 
-  -- Session tree icons: prefer sigil.symbol() for named structural icons so they
-  -- stay consistent with the rest of the UI toolkit, fall back to nerdfonts
-  -- directly. Agent-state icons live near agent_state_icons (above).
   local tree_icons = {
     session = (sigil_ok and sigil.symbol("Workspace")) or nf.cod_briefcase or "",
     dormant = nf.md_sleep or "󰒲",
@@ -1321,69 +1066,41 @@ function M.setup(config)
     branch  = nf.cod_git_branch or "⎇",
   }
 
-  -- Deterministic pane identity: hash pane_id → character name from sci-fi/fantasy.
-  -- Same id yields the same name+color on every surface (tab title, session tree,
-  -- statusline) so panes are cross-referenceable. Knuth multiplicative hash spreads
-  -- sequential IDs across the full name space — plain modulo clusters low IDs.
   local BADGE_NAMES = {
-    -- Dune (Herbert)
     "muadib",   "stilgar",  "chani",    "gurney",   "feyd",     "irulan",
     "alia",     "thufir",   "mentat",   "kwisatz",  "hayt",     "korba",    "scytale",
-    -- Hyperion (Simmons)
     "shrike",   "kassad",   "silenus",  "brawne",   "aenea",    "raul",
     "consul",   "ummon",    "moneta",   "sol",      "endymion", "templar",
-    -- Lord of the Rings (Tolkien)
     "aragorn",  "gandalf",  "samwise",  "legolas",  "gimli",    "boromir",
     "faramir",  "eowyn",    "galadriel","elrond",   "saruman",  "theoden",
     "frodo",    "merry",    "pippin",   "glorfindel","haldir",
-    -- Stormlight / Mistborn (Sanderson)
     "kaladin",  "dalinar",  "szeth",    "jasnah",   "shallan",  "adolin",
     "wit",      "vin",      "elend",    "kelsier",  "sazed",    "spook",
     "breeze",   "marsh",    "nightblood","hoid",    "vasher",   "renarin",
     "lift",     "taravangian","navani",
-    -- Empire of Silence (Ruocchio)
     "hadrian",  "valka",    "pallino",  "lorian",   "bassander",
     "vorgossos","gibson",   "siran",    "elara",    "kharn",
-    -- First Law (Abercrombie)
     "logen",    "glokta",   "jezal",    "bayaz",    "ferro",    "dogman",
     "shivers",  "monza",    "cosca",    "friendly", "temple",   "caul",     "chella",
-    -- Kingkiller Chronicle (Rothfuss)
     "kvothe",   "denna",    "bast",     "auri",     "elodin",   "kilvin",
     "simmon",   "wilem",    "devi",     "tempi",    "felurian", "ambrose",
-    -- Neuromancer (Gibson)
     "case",     "molly",    "wintermute","armitage", "riviera",  "maelcum",  "flatline",
-    -- Red Rising (Brown)
     "darrow",   "sevro",    "mustang",  "cassius",  "roque",    "victra",   "lysander",
-    -- Book of the New Sun (Wolfe)
     "severian", "thecla",   "dorcas",   "agia",     "baldanders","typhon",  "jonas",
-    -- Broken Empire (Lawrence)
     "jorg",     "makin",    "rike",     "sageous",  "miana",    "coddin",   "jalan",    "snorri",
-    -- Goblin Emperor (Addison)
     "maia",     "csevet",   "cala",     "beshelar", "setheris",
-    -- Necroscope (Lumley)
     "keogh",    "dragosani","zek",      "nathan",
-    -- Covenant of Steel (Ryan)
     "alwyn",    "evadine",  "deckin",   "tiler",
-    -- Raven's Shadow / Blood Song (Ryan)
     "vaelin",   "reva",     "nortah",   "caenis",   "barkus",
-    -- Will of the Many (Islington)
     "vis",      "emissa",   "callidus", "acqua",    "ulciscor",
-    -- Inheritance Cycle (Paolini)
     "eragon",   "saphira",  "arya",     "murtagh",  "brom",     "nasuada",  "roran",    "oromis",   "galbatorix",
-    -- Blacktongue Thief / Daughters' War (Buehlman)
     "kinch",    "galva",    "norrigal",
-    -- Between Two Fires (Buehlman)
     "thomas",
-    -- Alien
     "ripley",   "newt",     "bishop",   "hicks",    "ash",      "hudson",   "vasquez",  "dallas",   "lambert",  "burke",
-    -- Predator
     "dutch",    "mac",      "blain",    "harrigan", "dillon",
-    -- Blade Runner
     "deckard",  "rachael",  "roy",      "pris",     "gaff",     "joi",      "luv",
-    -- Metal Gear Solid
     "snake",    "otacon",   "meryl",    "liquid",   "ocelot",   "raiden",   "solidus",  "vamp",     "mantis",   "wolf",
     "quiet",    "paz",      "skull",
-    -- Resident Evil
     "leon",     "claire",   "jill",     "wesker",   "ada",      "barry",    "chris",    "ethan",    "heisenberg",
     "dimitrescu",
   }
@@ -1393,32 +1110,18 @@ function M.setup(config)
     return BADGE_NAMES[(h % #BADGE_NAMES) + 1]
   end
 
-  -- Return the ansi palette color for a pane badge. Uses ansi slots 2-7
-  -- (6 distinct, muted hues: red/green/yellow/blue/magenta/cyan — skips 1=black
-  -- and 8=white). Ansi colors are softer than brights, reducing visual noise.
-  -- `colors` is tree_colors() result (has .ansi) or cfg.colors from format-tab-title.
   local function pane_badge_color(pane_id, colors)
     local h = pane_id * 2654435761
     local slot = (h % 6) + 2  -- ansi slots 2..7
     if type(colors) == "table" then
       local a = colors.ansi or (colors.colors and colors.colors.ansi)
       if type(a) == "table" and a[slot] then return a[slot] end
-      -- fallback: brights (no ansi in this context, e.g. format-tab-title)
       local b = colors.brights or colors
       if type(b) == "table" then return b[(h % 6) + 2] end
     end
     return nil
   end
 
-  -- lantern: runtime appearance picker (colorschemes, fonts, GPU, opacity, …).
-  -- Its bundled "flames" (the choice sets) live at <plugin_dir>/plugin/lantern/
-  -- flames; lantern.meta locates that dir from either a plugin url containing
-  -- "lantern.wz" OR wezterm.GLOBAL.__lantern_plugin_dir. Our Nix-store paths
-  -- (/nix/store/HASH-source) carry neither, so we seed the global explicitly
-  -- BEFORE loading — otherwise register_builtins() (run at api.lua load) wires
-  -- the colorscheme/font/gpu wicks with no choices. Its deps.lua (log/memo/
-  -- ribbon/warp) is patched to resolve through plugin_loader instead of
-  -- wezterm.plugin.require (see patches/lantern-deps-loader.patch).
   wezterm.GLOBAL = wezterm.GLOBAL or {}
   wezterm.GLOBAL.__lantern_plugin_dir = config_data.plugins and config_data.plugins.lantern
   local lantern_ok, lantern = plugin_loader.load("lantern")
@@ -1428,17 +1131,11 @@ function M.setup(config)
   if lantern_ok then
     lantern.setup({
       log = { enabled = false },
-      -- Baseline the picker's "reset" font size to ours so it round-trips.
       default_font = { font_size = config.font_size },
       color = { opacity = config_data.transparency.opacity },
     })
-    -- Restore the appearance the user picked in a previous session.
     lantern.rekindle(config)
 
-    -- One entry point (SUPER+SHIFT+l) instead of the upstream CTRL+SHIFT+c/f/…
-    -- bindings, which collide with our copy (CTRL+SHIFT+c) and pane-select
-    -- (CTRL+SHIFT+f). Picking a category opens that wick's own selector —
-    -- lantern.light.<x>() returns a ready WezTerm action.
     local lantern_categories = {
       { id = "colorscheme", label = "Colorscheme", fn = lantern.light.colorscheme },
       { id = "font", label = "Font", fn = lantern.light.font },
@@ -1489,28 +1186,19 @@ function M.setup(config)
     })
   end
 
-  -- Smart tab titles using ribbon + sigil. Info priority: dir > proc > OSC title.
-  -- Badge (colored pet name) appended at the end so panes are cross-referenceable
-  -- with the session tree without counting positions.
-  -- Zoom indicator prepended when the active pane is zoomed.
   local SHELLS = { zsh = true, bash = true, fish = true, sh = true, ["-zsh"] = true }
 
   wezterm.on("format-tab-title", function(tab, _tabs, _panes, cfg, _hover, _max_width)
-    -- format-tab-title hands us TabInformation/PaneInformation structs (fields),
-    -- NOT MuxTab/Pane objects (methods). Calling methods here throws and aborts
-    -- the handler, dropping WezTerm back to its default tab text.
     local pane = tab.active_pane
     local explicit = normalize_proc(tab.tab_title or "")
     local osc = normalize_proc(pane and pane.title or "")
     local proc = pane and pane.foreground_process_name
     if proc then proc = normalize_proc(proc:match("([^/]+)$") or proc) end
 
-    -- A user- (or program-) set, non-numeric tab title always wins (no badge).
     if explicit ~= "" and not explicit:match("^%d+$") then
       return explicit
     end
 
-    -- cwd basename, collapsing $HOME to ~.
     local dir
     local cwd_uri = pane and pane.current_working_dir
     if cwd_uri then
@@ -1522,8 +1210,6 @@ function M.setup(config)
       end
     end
 
-    -- Primary label. Dir is preferred for shells (they set no useful OSC title);
-    -- TUIs (nvim, claude, htop…) set their own OSC-2 title which wins over dir.
     local label
     if osc and osc ~= "" and not osc:match("^%d+$") and not SHELLS[osc:lower()] then
       label = osc
@@ -1536,9 +1222,6 @@ function M.setup(config)
 
     local r = ribbon.new("tab")
 
-    -- Agent-state prefix: read the pane's user_var (plain table on PaneInformation,
-    -- already base64-decoded by WezTerm). Only non-idle states surface — idle adds
-    -- noise to every unattended pane.
     pcall(function()
       local uv = pane and pane.user_vars
       local raw = uv and uv.agent_state
@@ -1548,12 +1231,10 @@ function M.setup(config)
       if icon then r:append(nil, nil, icon .. " ") end
     end)
 
-    -- Zoom indicator: active pane is filling the window.
     if pane and pane.is_zoomed then
       r:append(nil, nil, nf.md_dock_window and (nf.md_dock_window .. " ") or "⊞ ")
     end
 
-    -- Process icon via sigil (fallback=false: skip unknown procs, no mystery glyph).
     if proc then
       local icon_items = sigil.items(proc, { padding = "right", fallback = false, reset = true })
       if icon_items and #icon_items > 0 then
@@ -1561,10 +1242,8 @@ function M.setup(config)
       end
     end
 
-    -- Main label (dir / OSC title).
     r:append(nil, nil, label)
 
-    -- Active-pane badge: muted chip for cross-referencing with session tree.
     if pane and pane.pane_id then
       local pid = pane.pane_id
       local bc = pane_badge_color(pid, cfg and cfg.colors or {})
@@ -1577,16 +1256,13 @@ function M.setup(config)
     return r:items()
   end)
 
-  -- Hyperlink rules: start with defaults, then add custom patterns
   local hyperlink_rules = wezterm.default_hyperlink_rules()
 
-  -- Nix store paths as file:// links
   table.insert(hyperlink_rules, {
     regex = [[(/nix/store/[a-z0-9]{32}[a-zA-Z0-9._+%-][^\s]*)]],
     format = "file://$1",
   })
 
-  -- owner/repo#NNN → GitHub issue URL
   table.insert(hyperlink_rules, {
     regex = [[([a-zA-Z0-9_.-]+/[a-zA-Z0-9_.-]+)#([0-9]+)]],
     format = "https://github.com/$1/issues/$2",
@@ -1594,7 +1270,6 @@ function M.setup(config)
 
   config.hyperlink_rules = hyperlink_rules
 
-  -- Extended quick-select patterns
   config.quick_select_patterns = {
     "/nix/store/[a-z0-9]{32}[a-zA-Z0-9._+%-][^\\s]*",
     "[0-9a-f]{40}",
@@ -1603,40 +1278,16 @@ function M.setup(config)
     "/[^\\s]+",
   }
 
-  -- workspace-manager: seshy session picker + layout persistence across restarts.
-  -- We feed its switcher from `sy list`, bind it to SUPER+s (see below), and also
-  -- surface it in the command palette. We do NOT use the plugin's own
-  -- apply_to_config keybindings (they'd shadow vim's CTRL+[).
   local wm_ok, wm = plugin_loader.load("workspace-manager")
   if not wm_ok then
     wezterm.log_warn("Failed to load workspace-manager.wezterm: " .. tostring(wm))
   end
   if wm_ok then
-    -- `home`, `seshy_dir`, and `sy_bin` are resolved once near seshy_session_names
-    -- above; the session chips need them before this block runs.
 
-    -- Replace the default choice provider: list seshy sessions instead of
-    -- scanning a projects dir. `sy list` prints a header row then one row per
-    -- session; column 1 is the session name.
-    --
-    -- The list always leads with a pinned "default" entry — the home-base
-    -- workspace WezTerm starts in. Selecting it does SwitchToWorkspace{name=
-    -- "default"} (create-if-absent), the one switcher path back from any seshy
-    -- session. It's seeded first so it survives an empty/header-only `sy list`
-    -- or a missing/erroring `sy` binary (the early return still carries it).
     wm.get_choices = function()
-      -- Roll up live agent state once and decorate each session row with its
-      -- state icon, reason, and age, sorted so the longest-blocked session is
-      -- on top. Sourced from the same helper the statusline reads, so the two
-      -- surfaces always agree on which session is worst.
       local sessions, panes = agent_session_states()
       local now = os.time()
 
-      -- Aggregate the per-pane view into per-session (== per-workspace) detail:
-      -- repo (in-memory cwd basename; branch/dirty aren't derivable here and the
-      -- state-file bus carries them for out-of-WezTerm consumers), total agent
-      -- pane count, blocked (rank >= working) count, and the worst pane's agent.
-      -- Keyed by workspace, which seshy makes equal to the session name.
       local agg = {}
       for _, rec in ipairs(panes) do
         local a = agg[rec.workspace]
@@ -1664,8 +1315,6 @@ function M.setup(config)
       local rows = {}
 
       for _, name in ipairs(seshy_session_names(sy_bin)) do
-        -- A seshy session actually named "default" would render twice: once as
-        -- the pinned home-base row above, once here. Keep the pinned one.
         if name ~= "default" then
           local st = sessions[name]
           local label = name
@@ -1686,15 +1335,12 @@ function M.setup(config)
             name = name,
             path = seshy_dir .. "/" .. name,
             label = label,
-            -- sort keys (stripped from the choice the plugin sees)
             _rank = st and st.rank or 0,
             _since = st and st.since or nil,
           })
         end
       end
 
-      -- Urgency sort: higher rank first, then older `since` (longer wait), then
-      -- name for stability. Stateless sessions (rank 0) fall to the bottom.
       table.sort(rows, function(a, b)
         if a._rank ~= b._rank then
           return a._rank > b._rank
@@ -1772,7 +1418,6 @@ function M.setup(config)
       end
       filter = filter or "all"
 
-      -- flat filtered views (blocked / agents): just attention-zone rows
       if filter == "blocked" or filter == "agents" then
         local list = {}
         if filter == "blocked" then
@@ -1796,7 +1441,6 @@ function M.setup(config)
         return choices
       end
 
-      -- dormant-only view: show seshy sessions that have no live mux workspace
       if filter == "dormant" then
         for _, ws in ipairs(tree.workspaces) do
           if ws.dormant then
@@ -1808,8 +1452,6 @@ function M.setup(config)
         return choices
       end
 
-      -- "sessions" view: workspace-only rows sorted by recency (no tab/pane expansion).
-      -- Quick overview of all live sessions at a glance.
       if filter == "sessions" then
         local live = {}
         for _, ws in ipairs(tree.workspaces) do
@@ -1837,8 +1479,6 @@ function M.setup(config)
         return choices
       end
 
-      -- "all" view: pure workspace tree, recency-sorted. Status is shown inline on
-      -- each pane/workspace row — no separate attention zone so nothing is doubled.
       local live_sorted = {}
       for _, ws in ipairs(tree.workspaces) do
         if not ws.dormant then live_sorted[#live_sorted + 1] = ws end
@@ -1848,7 +1488,6 @@ function M.setup(config)
       end)
 
       for _, ws in ipairs(live_sorted) do
-          -- workspace row: icon + name + rollup status icon (if any)
           local sc = status_color(ws.status, colors)
           local ws_r = ribbon.new("ws")
           ws_r:append(nil, sc or colors.ws_live, tree_icons.session .. " ")
@@ -1866,7 +1505,6 @@ function M.setup(config)
           for ti, tnode in ipairs(ws.tabs) do
             local tlast = ti == #ws.tabs
             local tbranch = tlast and "  └─ " or "  ├─ "
-            -- tab row: chrome + tab icon + [index]  title
             local tab_r = ribbon.new("tab")
             tab_r:append(nil, colors.chrome, tbranch)
             tab_r:append(nil, colors.ws_live, tree_icons.tab)
@@ -1878,17 +1516,14 @@ function M.setup(config)
             for pi, rec in ipairs(tnode.panes) do
               local pbranch = (tlast and "     " or "  │  ")
                 .. (pi == #tnode.panes and "└─ " or "├─ ")
-              -- pane row: <badge>  path  branch  proc  state
               local pane_r = ribbon.new("pane")
               pane_r:append(nil, colors.chrome, pbranch)
-              -- badge: colored character name for cross-referencing
               local bc = pane_badge_color(rec.pane_id, colors)
               if bc then
                 pane_r:append(nil, colors.chrome, "<")
                 pane_r:append(nil, bc, pane_badge(rec.pane_id))
                 pane_r:append(nil, colors.chrome, ">")
               end
-              -- "at <path>": smart path with placeholder prefix ({gh}/{sy}/{home})
               local pane_dp = smart_path(rec.cwd)
               if pane_dp == "" then pane_dp = rec.repo end
               if pane_dp ~= "" then
@@ -1896,14 +1531,12 @@ function M.setup(config)
                 pane_r:append(nil, colors.age, "at ")
                 pane_r:append(nil, colors.name, pane_dp)
               end
-              -- "on <branch>" (agent-active panes only, from state file)
               if rec.branch then
                 pane_r:append(nil, colors.chrome, "  ")
                 pane_r:append(nil, colors.age, "on ")
                 pane_r:append(nil, colors.age, rec.branch)
                 if rec.dirty then pane_r:append(nil, colors.working, " *") end
               end
-              -- "in <proc>": sigil icon + name
               local proc = rec.title ~= "" and rec.title or nil
               if proc then
                 pane_r:append(nil, colors.chrome, "  ")
@@ -1914,7 +1547,6 @@ function M.setup(config)
                 end
                 pane_r:append(nil, colors.name, proc)
               end
-              -- agent state: status icon + label + meaningful reason; age only when active
               if rec.status then
                 local asc = status_color(rec.status, colors) or colors.idle
                 local p_fmt = format_status_label(rec.status, rec.reason)
@@ -1923,7 +1555,6 @@ function M.setup(config)
                 if p_fmt ~= "" then
                   pane_r:append(nil, colors.reason, " " .. p_fmt)
                 end
-                -- age only for non-idle states; idle age is noise
                 if rec.status ~= "done" then
                   local age = rec.since and format_age(now - rec.since) or ""
                   if age ~= "" then pane_r:append(nil, colors.age, " " .. age) end
@@ -1937,12 +1568,6 @@ function M.setup(config)
       return choices
     end
 
-    -- Level-aware activation for a selected tree node. pane/attn/tab all resolve
-    -- to activating an exact pane (a tab carries its active pane id), reusing
-    -- activate_agent_pane. A live workspace switches; a dormant seshy session
-    -- switches with its session dir as cwd (D7: the plugin exposes no public
-    -- switch-with-restore, so pane-layout restore is intentionally not performed
-    -- here). Header rows and since-closed targets no-op.
     local function session_tree_dispatch(win, pane, id, by_id)
       if not id then
         return
@@ -1961,14 +1586,6 @@ function M.setup(config)
       end
     end
 
-    -- Navigation/filter keys inside the picker. WezTerm's InputSelector hosts no
-    -- custom keys directly, but a key table activated *before* the selector is
-    -- (the workspace-manager trick): each entry sets a pending filter, pops the
-    -- table, and sends Enter to close the selector; the callback then reopens the
-    -- tree scoped to that filter. Enter/Escape are included so the table is ALWAYS
-    -- popped on close — otherwise it would leak into normal typing. Every entry
-    -- is CTRL-modified: bare letters belong to InputSelector's own alphabet jump
-    -- in default mode, and to the filter text once `/` puts it in fuzzy mode.
     local tree_state = { pending_filter = nil, pending_action = nil, current_filter = "all", key_table_active = false }
     local function tree_close_key(key)
       return {
@@ -1986,14 +1603,6 @@ function M.setup(config)
     config.key_tables.session_tree_actions = {
       tree_close_key("Enter"),
       tree_close_key("Escape"),
-      -- Navigation is NOT bound here. InputSelector ships its own: Up/Down,
-      -- Ctrl+N/Ctrl+P, Ctrl+J/Ctrl+K, and bare j/k whenever the overlay is not
-      -- in fuzzy mode (its default `alphabet` omits j and k precisely so they
-      -- can move). Binding them again only risked shadowing the real thing.
-      --
-      -- The `^]`/`^[` workspace cycle is gone too: Ctrl+[ IS Escape at the
-      -- terminal level, so that binding could never fire without also cancelling
-      -- the picker. Cycle workspaces from the tree or the command palette.
       {
         key = "d",
         mods = "CTRL",
@@ -2016,15 +1625,6 @@ function M.setup(config)
       },
     }
 
-    -- ^x close: resolve the highlighted row to its containing workspace and
-    -- close that live session (kill its panes through the CLI — the Lua mux
-    -- API exposes no workspace close). Any row kind works — ws/tab/pane recs
-    -- all carry .workspace — so close acts on the session the cursor is inside,
-    -- not only its header row. The seshy session on disk is untouched: a
-    -- closed session simply shows as dormant afterwards. A session displayed in
-    -- any window is refused — closing the panes under the user's feet. Returns a
-    -- notice for the reopened picker's title: toasts need a code-signed binary
-    -- on macOS, so the title is the only reliable feedback channel.
     local function close_session_target(id, by_id)
       local rec = by_id[id]
       if type(rec) ~= "table" or not rec.workspace then
@@ -2034,9 +1634,6 @@ function M.setup(config)
       if rec.dormant then
         return "already dormant: " .. name
       end
-      -- Refuse any session that is on screen, not only this window's own. With
-      -- more than one GUI window the target may be displayed elsewhere, and
-      -- killing its panes would close that window under the user.
       if gui_window_for_workspace(name) then
         return "cannot close a visible session"
       end
@@ -2066,16 +1663,10 @@ function M.setup(config)
       return "closed " .. name
     end
 
-    -- Open the all-in-one session tree picker in fuzzy mode (type to filter,
-    -- ^j/^k to navigate). ^d toggles dormant view; Esc closes.
-    -- Recursive: ^d reopens in the toggled filter; `notice` is transient
-    -- feedback from the previous action, shown in the title.
     local function open_session_tree(win, pane, filter, notice)
       filter = filter or "all"
       tree_state.current_filter = filter
       local tree = session_tree()
-      -- Resolve palette once per open so all rows in this invocation share
-      -- the same colors even if the picker is open across a scheme switch.
       local colors = tree_colors(win)
       local by_id = {}
       local choices = session_tree_choices(tree, by_id, filter, colors)
@@ -2107,17 +1698,10 @@ function M.setup(config)
         wezterm.action.InputSelector({
           title = title,
           choices = choices,
-          -- Default (non-fuzzy) mode, deliberately. Starting in fuzzy mode sent
-          -- every keystroke to the filter, which is why j/k did not navigate:
-          -- they were filter text. In default mode InputSelector gives j/k and
-          -- Ctrl+N/Ctrl+P for movement, 1-9 and its `alphabet` letters for
-          -- direct row jumps, and `/` to enter fuzzy filtering when you want it.
           fuzzy = false,
           description = "  j/k nav  1-9 jump  / filter  ^d dormant  ^x close  Esc quit",
           fuzzy_description = "  filter (Esc to leave):  ",
           action = wezterm.action_callback(function(inner_win, inner_pane, id, _label)
-            -- Guard: pop the key table if it wasn't already cleared by a close/filter/cycle
-            -- key handler — e.g. picker was dismissed by clicking outside the window.
             if tree_state.key_table_active then
               tree_state.key_table_active = false
               inner_win:perform_action(wezterm.action.PopKeyTable, inner_pane)
@@ -2147,24 +1731,10 @@ function M.setup(config)
     end
 
     wm.session_enabled = true
-    -- Always launch (and relaunch after quit) into the "default" workspace
-    -- rather than auto-restoring the most-recently-used session. With this
-    -- false the plugin registers no gui-startup restore handler, so WezTerm's
-    -- own startup honors config.default_workspace ("default") below. Sessions
-    -- still save (session_enabled) and still restore when switched into via the
-    -- switcher; only the startup auto-restore is suppressed.
     wm.session_restore_on_startup = false
     wm.session_state_dir = home .. "/.local/state/wezterm/workspace_state"
     wm.workspace_switcher_sort = "recency"
 
-    -- apply_to_config appends its own leader bindings and an in-switcher
-    -- key_table (config.key_tables.workspace_switcher_actions). We keep the
-    -- key_table — it drives the switcher's own UI — but strip the four
-    -- user-facing leader bindings it injects: we open the switcher from SUPER+s
-    -- below, and CTRL+[ (= ESC) in particular would shadow vim. Remove by
-    -- (key, mods) identity so the override is explicit and immune to any
-    -- change in the plugin's append order. None of these combos are bound by
-    -- our own keybindings.lua, so this only removes the plugin's.
     wm.apply_to_config(config)
     local wm_injected_keys = {
       { key = "s", mods = "LEADER" },
@@ -2183,12 +1753,6 @@ function M.setup(config)
       end
     end
 
-    -- SUPER+s opens the all-in-one session tree (workspace → tab → pane → agent
-    -- state; label-jump default, `/` to filter by `session/tab/agent`). Bound
-    -- here (not keybindings.lua) because it needs this configured wm instance and
-    -- the tree helpers in scope; mirrors the locked-mode passthrough the other
-    -- smart keybinds use. ssh is SUPER+SHIFT+s (keybindings.lua). The plain
-    -- workspace switcher stays reachable via the command palette below.
     config.keys = config.keys or {}
     table.insert(config.keys, {
       key = "s",
@@ -2201,13 +1765,7 @@ function M.setup(config)
         open_session_tree(win, pane)
       end),
     })
-    -- No SUPER+] / SUPER+[ workspace cycle: hammerspoon's vim-mode owns cmd+]
-    -- as a global hs.hotkey, which wins over the focused app, so SUPER+] could
-    -- never reach WezTerm. Cycle from the SUPER+s tree or the command palette.
 
-    -- Command palette (reachable via SUPER+: / SUPER+; / CTRL+;): the tree, the
-    -- plain workspace switcher, previous-workspace, and the next/prev cycle that
-    -- used to be SUPER+] / SUPER+[.
     wezterm.on("augment-command-palette", function(_window, _pane)
       return {
         {
@@ -2236,10 +1794,6 @@ function M.setup(config)
     end)
   end
 
-  -- Agent navigation is now entirely SUPER+s (the session tree). The former
-  -- SUPER+g express jump and SUPER+SHIFT+g blocked-pane picker are retired — the
-  -- tree's needs-attention zone (worst on top) and pane nodes subsume both.
-  -- `CTRL+g` (locked-mode toggle) is unaffected.
 end
 
 return M

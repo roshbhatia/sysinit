@@ -1,12 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Deterministic access layer for the worklog skill: schema normalization
-# (v0/v1 -> v2 shape), window filtering, session dedup, and atomic summary
-# write-back. The skill does the judgment (summaries, composition); this
-# script owns all worklog.jsonl I/O so no agent hand-rolls jq against it.
-
-# NOT ~/Documents: TCC-protected, so a launchd agent cannot read it there.
 WORKLOG_FILE="${CLAUDE_WORKLOG_FILE:-${HOME}/.local/state/agents/worklog.jsonl}"
 
 usage() {
@@ -26,8 +20,6 @@ EOF
   exit 2
 }
 
-# v2 passes through; v1 renames per-repo scalar `commits` to `commits_ahead`;
-# v0 synthesizes repos[] from the scalar repo/branch/head fields.
 readonly NORMALIZE='
   def normalize:
     if .v == 2 then .
@@ -113,8 +105,6 @@ run_apply() {
   tmp="$(mktemp "${WORKLOG_FILE}.XXXXXX")"
   trap 'rm -f "${tmp}"' EXIT
 
-  # Only lines whose session_id gains a summary are reserialized; everything
-  # else (including malformed lines) passes through byte-for-byte.
   jq -rR --slurpfile s "${sumfile}" '
     . as $raw
     | (fromjson? // null) as $j

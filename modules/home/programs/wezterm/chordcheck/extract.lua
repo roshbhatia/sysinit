@@ -1,10 +1,3 @@
--- Loads keybindings.lua under the stub and prints one canonical chord per line.
---
--- Canonical form matches modules/darwin/lib/chords.nix: modifiers in the fixed
--- order cmd, ctrl, alt, shift, joined to the key with "+", all lower case.
--- Both sides must agree or a real collision reads as two different chords.
---
--- Usage: lua extract.lua <stub.lua> <lua-root>
 local stub_path, lua_root = ...
 assert(stub_path and lua_root, "usage: extract.lua <stub.lua> <lua-root>")
 
@@ -21,12 +14,9 @@ if not config.keys or #config.keys == 0 then
   os.exit(1)
 end
 
--- WezTerm spells modifiers SUPER/CTRL/ALT/SHIFT; the assertion spells them
--- cmd/ctrl/alt/shift.
 local MOD = { SUPER = "cmd", CTRL = "ctrl", ALT = "alt", SHIFT = "shift" }
 local ORDER = { "cmd", "ctrl", "alt", "shift" }
 
--- WezTerm key names that the assertion's vocabulary spells differently.
 local KEY = {
   Tab = "tab",
   Escape = "escape",
@@ -53,7 +43,6 @@ local function canonical(mods, key)
     end
   end
 
-  -- `phys:3` binds a physical position; the chord it occupies is still "3".
   local k = tostring(key):gsub("^phys:", "")
   k = KEY[k] or k:lower()
   table.insert(parts, k)

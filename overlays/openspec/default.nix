@@ -2,12 +2,6 @@ final: _prev:
 let
   version = "1.6.0";
 
-  # Node 24's libuv double-closes a guarded fd from a worker thread during
-  # process teardown on macOS, so pnpm (which uses worker threads to link its
-  # store) gets EXC_GUARD-killed (`Killed: 9` / exit 137) right after a
-  # successful `pnpm install`. Pin pnpm to Node 22 LTS to dodge the regression.
-  # The pnpmDeps output is content-addressed (recursive hash), so swapping the
-  # build-time Node does not change the autoupdate-managed FOD hash.
   pnpm22 = final.pnpm.override { nodejs-slim = final.nodejs-slim_22; };
 
   pnpmLock = final.fetchurl {
@@ -51,13 +45,6 @@ in
     inherit pnpmDeps;
 
     prePatch = "cp ${pnpmLock} pnpm-lock.yaml";
-
-    # No postPatch and no schema copy. The schema is NOT packaged here: it is
-    # installed to ~/.local/share/openspec/schemas/spec-driven by home-manager,
-    # where `openspec schema which` reports it shadowing the package's built-in of
-    # the same name. Keeping it in the overlay meant every template edit rebuilt
-    # openspec from source through pnpm, minutes per one-line change, for a file
-    # the CLI reads at runtime and never compiles against.
 
     buildPhase = ''
       runHook preBuild

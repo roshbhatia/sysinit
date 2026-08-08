@@ -1,13 +1,4 @@
 final: _prev: {
-  # alerter — terminal-notifier's actionable cousin: shows a macOS notification
-  # with Accept/Deny buttons and prints the chosen action to stdout, so a hook
-  # can relay the human's decision back into the agent pane.
-  #
-  # Not in nixpkgs (design.md D2). The upstream release ships a single prebuilt
-  # arm64 Mach-O binary in a zip — installed verbatim, hash-pinned so a re-cut
-  # release fails the build loudly rather than shipping unverified bytes. macOS
-  # only (NotificationCenter); the derivation carries `platforms.darwin` so it is
-  # never pulled into a linux closure.
   alerter = final.stdenvNoCC.mkDerivation (finalAttrs: {
     pname = "alerter";
     version = "26.5";
@@ -19,8 +10,6 @@ final: _prev: {
 
     nativeBuildInputs = [ final.unzip ];
 
-    # The zip holds a bare `alerter` binary (no top-level directory), so unpack
-    # into a scratch dir rather than letting unzip splatter cwd.
     unpackPhase = ''
       runHook preUnpack
       mkdir -p source

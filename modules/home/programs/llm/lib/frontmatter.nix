@@ -1,22 +1,5 @@
-# Reads the flat YAML frontmatter a SKILL.md carries.
-#
-# Deliberately not a YAML parser. The accepted grammar is one `key: value` per
-# line, no nesting, no lists, no block scalars, because that is the whole of
-# what a skill declares and because the renderer that ships the same files reads
-# them with `yq`. Two parsers agreeing is only achievable when the grammar is
-# small enough to state in a sentence.
-#
-# A key may not contain a colon, so the first `: ` splits. That matters: a
-# description routinely contains colons and must survive intact.
 { lib }:
 rec {
-  # Expands `<!-- include: <file> [k=v ...] -->` against a directory of shared
-  # fragments, substituting `{{k}}` in the fragment with v.
-  #
-  # This exists because two skills share a block whose whole purpose is that it
-  # cannot drift between them. Flattening the source to per-skill Markdown would
-  # have duplicated it and silently dropped that guarantee. The placeholder
-  # convention is the one `lib/vocab.nix` already uses.
   expandIncludes =
     { name, sharedDir }:
     body:
@@ -50,13 +33,6 @@ rec {
               else
                 builtins.replaceStrings [ "{{${builtins.elemAt kv 0}}}" ] [ (builtins.elemAt kv 1) ] acc;
             filled = lib.foldl' sub text pairs;
-            # Bracket expressions, not `\{`. A backslash-escaped brace is accepted
-            # by the regex library Nix links on Darwin and REJECTED by the one it
-            # links on Linux, which failed every NixOS evaluation with "invalid
-            # regular expression" while every Darwin build stayed green. `nix flake
-            # check` cannot see this from a Mac: it omits the Linux systems, so the
-            # divergence is invisible until a NixOS host evaluates. `[{]` is one
-            # literal brace under every grammar involved.
             leftover = builtins.match ".*[{][{][a-zA-Z_]+[}][}].*" filled;
           in
           if leftover != null then
@@ -86,8 +62,6 @@ rec {
 
       fmLines = lib.filter (l: l != "") (lib.take closeIdx rest);
       afterFence = lib.drop (closeIdx + 1) rest;
-      # The writer emits exactly one blank line after the fence; drop it so the
-      # body round-trips byte-identically.
       bodyLines =
         if afterFence != [ ] && builtins.head afterFence == "" then
           builtins.tail afterFence

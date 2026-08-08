@@ -1,7 +1,4 @@
 #!/usr/bin/env bash
-# Detect drift between the forked spec-driven OpenSpec schema and the
-# upstream spec-driven schema shipped with the installed openspec CLI.
-#
 
 set -euo pipefail
 
@@ -11,7 +8,6 @@ if [[ ! -d ${FORK_DIR} ]]; then
   exit 2
 fi
 
-# Discover where the installed openspec ships its spec-driven schema.
 WHICH_OUTPUT=$(openspec schema which spec-driven 2>&1 || true)
 UPSTREAM_PATH=$(echo "${WHICH_OUTPUT}" | awk '/^Path:/ {print $2}')
 if [[ -z ${UPSTREAM_PATH} ]] || [[ ! -d ${UPSTREAM_PATH} ]]; then
@@ -23,8 +19,6 @@ fi
 
 DRIFT_COUNT=0
 
-# Compare every file the upstream ships against the fork. The fork is
-# allowed to add files (e.g., CHANGES.md) without triggering drift.
 while IFS= read -r -d '' upstream_file; do
   rel="${upstream_file#"${UPSTREAM_PATH}"/}"
   fork_file="${FORK_DIR}/${rel}"

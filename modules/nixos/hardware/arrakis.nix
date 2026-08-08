@@ -1,16 +1,13 @@
-# Hardware configuration for arrakis (physical x86_64 desktop)
 { config, modulesPath, ... }:
 
 {
   imports = [ (modulesPath + "/installer/scan/not-detected.nix") ];
 
-  # Bootloader for physical UEFI system
   boot.loader = {
     systemd-boot.enable = true;
     efi.canTouchEfiVariables = true;
   };
 
-  # Kernel modules
   boot = {
     initrd = {
       availableKernelModules = [
@@ -27,7 +24,6 @@
     extraModulePackages = [ ];
   };
 
-  # Filesystems (arrakis-specific UUIDs)
   fileSystems = {
     "/" = {
       device = "/dev/disk/by-uuid/6ef554bd-f602-4f13-a2ba-9d540397ebc3";
@@ -43,10 +39,8 @@
     };
   };
 
-  # Graphics
   hardware.graphics.enable = true;
 
-  # NVIDIA GPU
   services.xserver.videoDrivers = [ "nvidia" ];
   hardware.nvidia = {
     modesetting.enable = true;
@@ -56,6 +50,5 @@
     package = config.boot.kernelPackages.nvidiaPackages.stable;
   };
 
-  # Hostname
   networking.hostName = "arrakis";
 }

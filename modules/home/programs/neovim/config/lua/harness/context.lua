@@ -59,7 +59,6 @@ function M.get_git_root()
     return git_root_cache[cwd] or nil
   end
 
-  -- 1.5s hard timeout to avoid hanging on slow filesystems
   local obj = vim.system({ "git", "rev-parse", "--show-toplevel" }, { cwd = cwd, text = true }):wait(1500)
   if not obj or obj.code == nil or obj.code ~= 0 then
     git_root_cache[cwd] = false

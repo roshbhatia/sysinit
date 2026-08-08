@@ -21,7 +21,6 @@
       }:
       {
         imports = [
-          # Shared module options at home-manager level
           ../shared/options/theme.nix
           ../home/programs/llm/options.nix
           ../home/programs/git/options.nix
@@ -35,7 +34,6 @@
           ../home/programs/obsidian.nix
         ];
 
-        # NixOS systems use the nix-managed home directory
         home.homeDirectory = "/home/${values.user.username}";
 
         sysinit = {

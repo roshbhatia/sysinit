@@ -40,8 +40,6 @@ function M.score(name)
   return entry.count * math.exp(-age / HALF_LIFE_S)
 end
 
----Sort adapters in place by frecency desc; preserve input order on ties
----so never-picked agents keep registry.ORDER.
 ---@param adapters table[]
 function M.sort(adapters)
   load()

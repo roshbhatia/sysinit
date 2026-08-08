@@ -20,7 +20,6 @@ return {
     log_level = "info",
     post_restore_cmds = {
       function()
-        -- Open dashboard if no files were restored
         if vim.fn.argc(-1) == 0 and #vim.fn.getbufinfo({ buflisted = 1 }) == 0 then
           Snacks.dashboard.open({
             wo = {
@@ -32,7 +31,6 @@ return {
     },
     no_restore_cmds = {
       function()
-        -- Open dashboard when starting without arguments and no session to restore
         if vim.fn.argc(-1) == 0 then
           Snacks.dashboard.open({
             wo = {

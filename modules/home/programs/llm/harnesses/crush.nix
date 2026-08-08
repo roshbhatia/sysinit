@@ -11,10 +11,6 @@ let
   crushSettings = {
     "$schema" = "https://charm.land/crush.json";
     mcp = llmLib.mcp.formatForCrush kit.mcpServers.servers;
-    # Two-tier split: Sonnet 5 is the mid-tier reasoner (near-Opus on coding and
-    # agentic work at lower cost), with a Haiku-class helper for cheap
-    # summarization/title work. `anthropic` is a built-in provider in Crush's
-    # catalog, so no explicit providers block is needed.
     models = {
       large = {
         model = "claude-sonnet-5";
@@ -25,8 +21,6 @@ let
         provider = "anthropic";
       };
     };
-    # Ollama local provider — discovers all pulled models automatically.
-    # Switch with Ctrl+L → select "ollama" provider.
     providers = {
       ollama = {
         name = "Ollama (local)";
@@ -35,7 +29,6 @@ let
         discover_models = true;
       };
     };
-    # Live nix diagnostics via nixd (full store path — no PATH dependency).
     lsp = {
       nix = {
         command = "${pkgs.nixd}/bin/nixd";
@@ -47,7 +40,6 @@ let
       ls = { };
       grep = { };
     };
-    # Allow all tool classes — crush uses class names, not bash patterns.
     permissions = {
       allowed_tools = [
         "bash"
@@ -85,8 +77,6 @@ let
 in
 {
 
-  # The harness writes this file itself when a setting changes, so it
-  # cannot be a store symlink. Reconciled against a recorded base.
   sysinit.llm.managedFiles.crush = {
     path = ".config/crush/crush.json";
     format = "json";
@@ -94,9 +84,6 @@ in
     enforce = [ "permissions" ];
   };
   xdg.configFile = {
-    # Skills install only to ~/.claude/skills (per default.nix); Crush reads that
-    # tree natively. Point instructions at the populated root, not a phantom
-    # per-tool dir that holds no SKILL.md files.
     "crush/AGENTS.md" = {
       text = kit.mkInstructionsWithStyle {
         harness = "crush";

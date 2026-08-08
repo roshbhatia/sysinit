@@ -9,7 +9,6 @@ let
   c = config.lib.stylix.colors;
   mod = "Mod1"; # Alt key
 
-  # 1Password quick access via rofi — search items, pick field, copy to clipboard
   rofi1password = pkgs.writeShellScript "rofi-1password" ''
     set -euo pipefail
 
@@ -179,35 +178,25 @@ in
         ];
 
         keybindings = lib.mkForce {
-          # Terminal
           "${mod}+Return" = "exec ${pkgs.wezterm}/bin/wezterm start";
 
-          # App launcher
           "Mod4+space" = "exec ${pkgs.rofi}/bin/rofi -show drun";
 
-          # 1Password quick access (like macOS Cmd+Shift+Space for 1Password)
           "Mod4+Shift+space" = "exec ${rofi1password}";
 
-          # Kill / exit
           "Mod4+q" = "kill";
           "Mod4+Control+q" = "exec swaymsg exit";
 
-          # macOS-like Super+key → Ctrl+key handled by kanata at evdev level
-
-          # Minimize (move to scratchpad)
           "Mod4+h" = "move scratchpad";
           "Mod4+m" = "move scratchpad";
 
-          # Focus (vim-style, matching aerospace)
           "${mod}+h" = "focus left";
           "${mod}+j" = "focus down";
           "${mod}+k" = "focus up";
           "${mod}+l" = "focus right";
 
-          # Resize mode
           "${mod}+r" = "mode resize";
 
-          # Workspaces (only 1, 2, 3, C, M — matching aerospace)
           "${mod}+1" = "workspace 1";
           "${mod}+2" = "workspace 2";
           "${mod}+3" = "workspace 3";
@@ -220,55 +209,41 @@ in
           "${mod}+Shift+c" = "move container to workspace C; workspace C";
           "${mod}+Shift+m" = "move container to workspace M; workspace M";
 
-          # Workspace cycling
           "${mod}+Tab" = "workspace next_on_output";
           "${mod}+Shift+Tab" = "workspace prev_on_output";
           "${mod}+p" = "workspace back_and_forth";
 
-          # Space switching, matching AppleSymbolicHotKeys 80 and 82 in
-          # modules/darwin/keybindings.nix
           "Control+Shift+Left" = "workspace prev_on_output";
           "Control+Shift+Right" = "workspace next_on_output";
 
-          # Fullscreen
           "${mod}+f" = "fullscreen toggle";
 
-          # Float / layout
           "${mod}+v" = "floating toggle";
           "${mod}+t" = "layout toggle split";
 
-          # Move mode (like aerospace)
           "${mod}+x" = "mode move";
 
-          # Locked mode (passthrough, like aerospace)
           "${mod}+g" = "mode locked";
 
-          # Clipboard history
-          # Window switcher (macOS-style Cmd+Tab)
           "Mod4+Tab" = "exec ${pkgs.rofi}/bin/rofi -show window";
           "Mod4+Shift+Tab" = "exec ${pkgs.rofi}/bin/rofi -show window";
 
-          # Clipboard history
           "${mod}+Shift+v" =
             "exec ${pkgs.cliphist}/bin/cliphist list | ${pkgs.rofi}/bin/rofi -dmenu | ${pkgs.cliphist}/bin/cliphist decode | ${pkgs.wl-clipboard}/bin/wl-copy";
 
-          # Color picker — click a pixel, hex color copied to clipboard
           "Mod4+Shift+c" =
             "exec ${pkgs.hyprpicker}/bin/hyprpicker -a -n && ${pkgs.libnotify}/bin/notify-send \"Color Picker\" \"Hex code copied to clipboard\" -i color-management";
 
-          # Screenshots (macOS-style: Super+Shift+3 = screen, Super+Shift+4 = region)
           "Mod4+Shift+3" = "exec ${pkgs.sway-contrib.grimshot}/bin/grimshot --notify savecopy output";
           "Mod4+Shift+4" = "exec ${pkgs.sway-contrib.grimshot}/bin/grimshot --notify savecopy area";
           "Mod4+Shift+5" = "exec ${pkgs.sway-contrib.grimshot}/bin/grimshot --notify savecopy window";
           "Print" = "exec ${pkgs.sway-contrib.grimshot}/bin/grimshot --notify savecopy area";
 
-          # Volume
           "XF86AudioRaiseVolume" = "exec wpctl set-volume @DEFAULT_AUDIO_SINK@ 0.05+";
           "XF86AudioLowerVolume" = "exec wpctl set-volume @DEFAULT_AUDIO_SINK@ 0.05-";
           "XF86AudioMute" = "exec wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle";
           "Mod4+a" = "exec audio-switcher";
 
-          # Media
           "XF86AudioPlay" = "exec ${pkgs.playerctl}/bin/playerctl play-pause";
           "XF86AudioPause" = "exec ${pkgs.playerctl}/bin/playerctl play-pause";
           "XF86AudioNext" = "exec ${pkgs.playerctl}/bin/playerctl next";
@@ -305,12 +280,9 @@ in
         export MOZ_ENABLE_WAYLAND=1
       '';
 
-      # SwayFX effects (requires swayfx from flake, not nixpkgs)
       extraConfig = ''
-          # Animations (swayfx — snappy resize/move)
           animation_duration_ms 150
 
-          # Visual effects
           blur enable
           blur_passes 2
           blur_radius 5
@@ -321,7 +293,6 @@ in
           shadow_color #0000007F
           default_dim_inactive 0.1
 
-          # Apply blur to waybar
           layer_effects "waybar" blur enable; shadows enable
       '';
     };
@@ -341,16 +312,13 @@ in
           height = 32;
           spacing = 0;
 
-          # Left: logo, mode, front app (matches sketchybar left side)
           modules-left = [
             "custom/logo"
             "sway/mode"
             "sway/window"
             "custom/agent-sessions"
           ];
-          # Center: workspaces (matches sketchybar center)
           modules-center = [ "sway/workspaces" ];
-          # Right: clock, battery, volume (matches sketchybar right side)
           modules-right = [
             "clock"
             "battery"
@@ -362,18 +330,6 @@ in
             tooltip = false;
           };
 
-          # The selected seshy session and how many others hold a blocked agent.
-          # Reads `agent-sessions`, the same command the sketchybar widget polls, so
-          # both bars and WezTerm's own statusline agree on which session is worst.
-          #
-          # `selection_state` carries the heartbeat verdict. A stale selection is
-          # dimmed via the `stale` class rather than hidden: hiding it would be
-          # indistinguishable from having no sessions, and showing it plainly would
-          # claim a dead WezTerm's last workspace is current.
-          #
-          # `agent-sessions` always exits 0, so waybar never renders an error as the
-          # steady state. The `// empty` guards keep a missing field from producing
-          # the string "null" in the bar.
           "custom/agent-sessions" = {
             interval = 2;
             return-type = "json";
@@ -383,9 +339,6 @@ in
                               if .selection_state == "absent" or (.selected // "") == "" then
                                 { text: "" }
                               else
-                                # `$sel` is bound from the root first: inside `.sessions[]` a bare
-                                # `.selected` resolves against the session object, where it does not
-                                # exist, so the comparison silently never matched.
                                 (.selected) as $sel
                                 | ( [ .sessions[] | select((.blocked // 0) > 0 and .name != $sel) ] | length ) as $n
                                 | { text: ("󰆍 " + $sel + (if $n > 0 then "  +" + ($n | tostring) else "" end)),
@@ -479,7 +432,6 @@ in
            while leaving its last workspace behind, and hiding it would be
            indistinguishable from having no sessions at all. Mirrors the
            foreground_muted the sketchybar widget uses for the same state. */
-        #custom-agent-sessions.stale {
           color: #${c.base03};
         }
 
@@ -490,57 +442,45 @@ in
           border-radius: 0;
         }
 
-        #custom-logo {
           padding: 0 12px;
           color: #${c.base0D};
           font-size: 15px;
         }
 
-        #mode {
           padding: 0 10px;
           color: #${c.base00};
           background-color: #${c.base0A};
           font-weight: bold;
         }
 
-        #window {
           padding: 0 10px;
           color: #${c.base04};
           font-style: italic;
         }
 
-        #workspaces button {
           padding: 0 8px;
           color: #${c.base03};
           background: transparent;
         }
 
-        #workspaces button.focused {
           color: #${c.base05};
           font-weight: bold;
           border-bottom: 2px solid #${c.base0D};
         }
 
-        #workspaces button.urgent {
           color: #${c.base00};
           background-color: #${c.base08};
         }
 
-        #workspaces button:hover {
           color: #${c.base05};
           background: alpha(#${c.base02}, 0.5);
         }
 
-        #clock, #battery, #pulseaudio {
           padding: 0 10px;
           color: #${c.base05};
           border-left: 1px solid alpha(#${c.base02}, 0.5);
         }
 
-        #battery.warning { color: #${c.base0A}; }
-        #battery.critical { color: #${c.base08}; }
-        #battery.charging { color: #${c.base0B}; }
-        #pulseaudio.muted { color: #${c.base03}; }
       '';
     };
     rofi = {

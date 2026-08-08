@@ -1,4 +1,3 @@
-# Audio: PipeWire, Bluetooth, real-time scheduling
 _:
 
 {

@@ -9,14 +9,6 @@ local M = {}
 ---@field prompt?   string   -- prompt label for kind="value"/"list"
 ---@field label?    string   -- display label in picker (defaults to flag)
 
--- Kinds beyond toggle/value exist because CLI surfaces drifted past a plain
--- on/off or key=value shape:
---   enum      -- fixed choice set; picked from a list so a stale choice can't
---               be typed and only fail at spawn time.
---   opt_value -- flag that is valid bare OR with a value (--resume [id]).
---               State is `true` for bare, a string for the value form.
---   list      -- repeatable flag (--add-dir A --add-dir B). Stored as one
---               comma-separated string, emitted as one flag pair per item.
 
 local persist = require("harness.persist")
 local STATE_FILE = persist.path("options")
@@ -204,8 +196,6 @@ function M.configure(agent_name, on_close)
   for i, opt in ipairs(schema) do
     table.insert(items, { idx = i, opt = opt, text = format_item(opt) })
   end
-  -- Sentinel "submit" item so the user has an explicit way to close the
-  -- options picker via <CR>. Esc cancels with the same effect.
   table.insert(items, { idx = -1, opt = nil, text = string.format("%-12s  %s", "", "→ Continue (submit options)") })
 
   local function reopen()
@@ -242,8 +232,6 @@ function M.configure(agent_name, on_close)
         return
       end
       if opt.kind == "opt_value" then
-        -- Bare and valued forms are both legal, so offer them explicitly
-        -- rather than making the user guess from a free-text prompt.
         local modes = { "off", "bare flag", "set value…" }
         vim.ui.select(modes, { prompt = (opt.label or opt.flag) .. ": " }, function(mode)
           if mode == "off" then

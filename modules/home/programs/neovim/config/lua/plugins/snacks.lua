@@ -20,11 +20,8 @@ return {
               hidden = true,
               ignored = false,
               follow = true, -- follow symlinks by default for files picker
-              -- make files picker larger by default (cover more of the screen)
               layout = {
-                -- `layout.layout` mirrors the example shape used by snacks for per-source overrides
                 layout = {
-                  -- relative width (0-1) or absolute columns depending on layout resolver
                   width = 0.95,
                   height = 0.95,
                 },
@@ -34,11 +31,8 @@ return {
               hidden = true,
               ignored = false,
               follow = true, -- follow symlinks by default for files picker
-              -- make files picker larger by default (cover more of the screen)
               layout = {
-                -- `layout.layout` mirrors the example shape used by snacks for per-source overrides
                 layout = {
-                  -- relative width (0-1) or absolute columns depending on layout resolver
                   width = 0.95,
                   height = 0.95,
                 },
@@ -55,7 +49,6 @@ return {
                 ["<S-Tab>"] = { "list_up", mode = { "i", "n" } },
                 ["<localleader>s"] = "edit_split",
                 ["<localleader>v"] = "edit_vsplit",
-                -- prefer localleader for follow/maximize toggles (Alt/Ctrl often captured by terminals)
                 ["<localleader>f"] = { "toggle_follow", mode = { "i", "n" } },
                 ["<localleader>m"] = { "toggle_maximize", mode = { "i", "n" } },
               },
@@ -71,7 +64,6 @@ return {
                 ["<S-Tab>"] = { "select_and_prev", mode = { "n", "x" } },
                 ["<Tab>"] = { "select_and_next", mode = { "n", "x" } },
                 ["<Up>"] = "list_up",
-                -- avoid Alt/Ctrl combos; prefer localleader or plain keys
                 ["d"] = "inspect",
                 ["<localleader>f"] = "toggle_follow",
                 ["<localleader>h"] = "toggle_hidden",
@@ -105,7 +97,6 @@ return {
                 concealcursor = "nvc",
               },
             },
-            -- preview window keybindings
             preview = {
               keys = {
                 ["<Esc>"] = "cancel",
@@ -210,8 +201,6 @@ return {
         },
       })
 
-      -- Fix for snacks dashboard autocommand group cleanup error
-      -- Safely handle autocommand group deletion to prevent E367 errors
       local original_delete_augroup = vim.api.nvim_del_augroup_by_id
       local safe_delete_augroup = function(group_id)
         if group_id and group_id > 0 then
@@ -220,7 +209,6 @@ return {
             return true
           end
           if err and err:find("No such group") then
-            -- Group already deleted or doesn't exist, silently ignore
             return true
           end
           return false
@@ -228,13 +216,11 @@ return {
         return true
       end
 
-      -- Override snacks dashboard cleanup to use safe deletion
       vim.api.nvim_del_augroup_by_id = function(group_id)
         return safe_delete_augroup(group_id) or original_delete_augroup(group_id)
       end
     end,
     keys = {
-        -- Terminal
         {
           "<leader>t",
           function()
@@ -242,7 +228,6 @@ return {
           end,
           desc = "Toggle terminal",
         },
-        -- Pickers
         {
           "<leader>ff",
           function()
@@ -300,7 +285,6 @@ return {
           end,
           desc = "Jumplist",
         },
-        -- LSP
         {
           "<leader>cfd",
           function()

@@ -1,15 +1,4 @@
 #!/usr/bin/env bash
-# Updates version and all hashes for the openspec overlay.
-#
-# Two cases:
-#   1. New npm version → recompute src + pnpm-lock + pnpm-deps hashes.
-#   2. Same npm version → verify the existing pnpm-deps hash still builds.
-#      A nixpkgs bump or fetchPnpmDeps behavior change can silently
-#      invalidate the cached hash; if `nix build` fails, recompute the
-#      pnpm-deps hash via the fake-hash technique.
-#
-# Requires: curl, jq, nix (with nix-prefetch-url and nix build)
-# Usage: ./hack/update-openspec.sh
 
 set -euo pipefail
 
@@ -28,9 +17,6 @@ build_openspec() {
   " 2>&1
 }
 
-# Stamps the pnpm-deps-hash line to FAKE_HASH, runs a build to extract the
-# real "got: sha256-..." value, and writes it back. Used both on version
-# bumps and on silent invalidation of the existing hash.
 refresh_pnpm_deps_hash() {
   sed -i.bak \
     -e "s|hash = \"[^\"]*\"; # autoupdate:pnpm-deps-hash|hash = \"${FAKE_HASH}\"; # autoupdate:pnpm-deps-hash|" \
@@ -76,18 +62,14 @@ echo "Updating openspec ${CURRENT} -> ${LATEST}..."
 TGZ_URL="https://registry.npmjs.org/@fission-ai/openspec/-/openspec-${LATEST}.tgz"
 PNPM_LOCK_URL="https://raw.githubusercontent.com/Fission-AI/OpenSpec/v${LATEST}/pnpm-lock.yaml"
 
-# Compute fetchurl hash for the npm tgz
 echo "  Computing src hash..."
 RAW_SRC=$(nix-prefetch-url --type sha256 "${TGZ_URL}" 2> /dev/null)
 SRC_HASH=$(nix hash convert --hash-algo sha256 --from nix32 --to sri "${RAW_SRC}")
 
-# Compute fetchurl hash for the pnpm-lock.yaml
 echo "  Computing pnpm-lock hash..."
 RAW_LOCK=$(nix-prefetch-url --type sha256 "${PNPM_LOCK_URL}" 2> /dev/null)
 PNPM_LOCK_HASH=$(nix hash convert --hash-algo sha256 --from nix32 --to sri "${RAW_LOCK}")
 
-# Write updated overlay with new version + src/lock hashes.
-# pnpm-deps hash is reset to fake by refresh_pnpm_deps_hash below.
 cp "${OVERLAY_FILE}" "${OVERLAY_FILE}.bak"
 sed \
   -e "s|version = \"[^\"]*\";|version = \"${LATEST}\";|" \

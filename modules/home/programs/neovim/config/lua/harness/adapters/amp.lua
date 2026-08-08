@@ -1,19 +1,3 @@
--- amp adapter: hybrid (bridge + spawned pane).
---   amp.nvim runs a websocket bridge inside nvim (opts.auto_start = true).
---   The CLI we spawn in the pane reads the lockfile amp.nvim writes and
---   auto-connects via --ide (default on). So send() can still use
---   amp.message.send_message to relay context-aware messages into the
---   connected CLI, while the pane gives the user a real UI to interact
---   with and lets CLI flags actually apply at spawn time.
---
--- NOTE: amp resume is a SUBCOMMAND (`amp threads continue`), not a flag,
--- so this adapter can't use _shared.raw_cli_adapter. The `thread` option
--- (cli=false) flips the cmd prefix to `amp threads continue`, letting
--- amp's own picker fire on launch.
---
--- CAVEAT: If the user also runs amp externally, two clients will connect
--- to the same bridge. amp.nvim's multi-client behavior is undocumented;
--- recommend picking one path (harness OR external).
 
 local lifecycle = require("harness.lifecycle")
 
@@ -27,7 +11,6 @@ local function build_amp_parts()
   if sel.thread then
     table.insert(parts, "threads")
     table.insert(parts, "continue")
-    -- --last belongs to the subcommand, so it must land before the globals.
     if sel.thread_last then
       table.insert(parts, "--last")
     end
@@ -70,9 +53,6 @@ return {
   name = "amp",
   label = "󰫤  Amp",
   options_schema = {
-    -- amp dropped --dangerously-allow-all and --effort as CLI flags. Permissions
-    -- are now the `amp.dangerouslyAllowAll` setting plus `amp permissions`
-    -- subcommands, and --mode absorbed what --effort used to select.
     {
       name = "mode",
       flag = "--mode",
@@ -85,8 +65,6 @@ return {
       kind = "enum",
       choices = { "private", "unlisted", "workspace", "group" },
     },
-    -- --ide is on by default and is what connects the CLI to the amp.nvim
-    -- bridge, so the useful knob is the opt-out.
     { name = "no_ide", flag = "--no-ide", kind = "toggle" },
     { name = "no_notifications", flag = "--no-notifications", kind = "toggle" },
     { name = "label", flag = "--label", kind = "list", prompt = "Thread labels (comma-separated)" },

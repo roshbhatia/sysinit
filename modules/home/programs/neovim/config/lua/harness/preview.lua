@@ -1,19 +1,3 @@
--- Markdown preview for spec artifacts.
---
--- glow emits ANSI, so the rendered form goes wherever escapes actually mean
--- something. Three tiers, in order:
---
---   1. a native WezTerm pane, when running under one. Same choice the harness
---      adapters make, and for the same reason: the preview survives anything
---      that happens to nvim's window layout, and it does not consume an nvim
---      window.
---   2. a Snacks terminal window, when snacks is available.
---   3. an nvim split with a terminal buffer, which needs nothing at all.
---
--- All three refresh live. nvim already knows when the file changed, so it
--- drives the re-render on `BufWritePost` rather than making the preview poll.
--- That keeps tier 1 free of a file-watcher dependency: nvim just re-sends the
--- render command to the pane.
 
 local M = {}
 
@@ -43,9 +27,6 @@ local function snacks()
   return ok and mod or nil
 end
 
--- Rendered in the target's own shell so `tput cols` reports THAT pane's width.
--- Passing a width measured on the nvim side would be the wrong number whenever
--- the owner resized the preview.
 ---@param full string
 ---@return string
 local function render_cmd(full)
@@ -54,9 +35,6 @@ local function render_cmd(full)
   )
 end
 
--- ---------------------------------------------------------------------------
--- Tier 1: native WezTerm pane
--- ---------------------------------------------------------------------------
 
 local function pane_alive(pane)
   if not pane then
@@ -76,14 +54,9 @@ local function render_in_wezterm(full)
   local wezterm = require("utils.wezterm_terminal")
 
   if pane_alive(state.pane) then
-    -- Re-send rather than respawn: a respawn would drop the pane's scroll
-    -- position, and the owner is usually mid-document when they save.
     return wezterm.send_text(state.pane, render_cmd(full), true)
   end
 
-  -- `exec` a shell after the first render so the pane outlives the command.
-  -- Without it the pane closes the moment glow exits, and the next save would
-  -- have to spawn a whole new pane beside the editor.
   local cmd = ("%s; exec ${SHELL:-sh}"):format(render_cmd(full))
   local spawn = ("wezterm cli split-pane --pane-id %d --right --percent 42 -- sh -c %s 2>/dev/null"):format(
     parent,
@@ -98,22 +71,16 @@ local function render_in_wezterm(full)
     return false
   end
   state.pane = id
-  -- Focus stays with the editor; the preview is something you glance at.
   vim.fn.jobstart({ "wezterm", "cli", "activate-pane", "--pane-id", tostring(parent) }, { detach = true })
   return true
 end
 
--- ---------------------------------------------------------------------------
--- Tiers 2 and 3: inside nvim
--- ---------------------------------------------------------------------------
 
 local function open_window()
   if win_valid() then
     vim.api.nvim_set_current_win(state.win)
     return
   end
-  -- Required lazily: control.lua reaches back into this module for its
-  -- preview op, and a top-level require either way would be a cycle.
   require("harness.control").dismiss_start_screen()
   vim.cmd("botright vsplit")
   state.win = vim.api.nvim_get_current_win()
@@ -131,9 +98,6 @@ local function render_in_snacks(full)
   if not mod or not mod.terminal then
     return false
   end
-  -- Closed and reopened rather than reused: Snacks.terminal keys its window on
-  -- the command string, and the command carries the path, so previewing a
-  -- second file would otherwise return the first file's window.
   if state.snacks and state.snacks:valid() then
     pcall(function()
       state.snacks:close()
@@ -159,15 +123,10 @@ local function render_with_glow(full)
   pcall(vim.api.nvim_buf_set_name, buf, "glow://" .. vim.fn.fnamemodify(full, ":t"))
   vim.keymap.set("n", "q", "<Cmd>close<CR>", { buffer = buf, nowait = true })
 
-  -- nvim_open_term interprets glow's ANSI without running the job *in* the
-  -- buffer. Spawning it with jobstart({term=true}) would leave a
-  -- "[Process exited 0]" line and a term:// buffer name in the winbar.
   local chan = vim.api.nvim_open_term(buf, {})
   local width = math.max(40, vim.api.nvim_win_get_width(state.win) - 2)
   vim.system(
     { "glow", "--style", "auto", "--width", tostring(width), full },
-    -- glow strips color when stdout is a pipe, which is exactly what we want
-    -- to override: the escapes are the point.
     { env = { CLICOLOR_FORCE = "1" } },
     vim.schedule_wrap(function(res)
       if not vim.api.nvim_buf_is_valid(buf) then
@@ -184,11 +143,7 @@ local function render_with_glow(full)
   end
 end
 
--- ---------------------------------------------------------------------------
 
--- Re-render on every write to the file being shown. Keyed on the resolved path
--- rather than the buffer, because the same file may be open in more than one
--- buffer and a preview should follow the file.
 local function watch(full)
   vim.api.nvim_clear_autocmds({ group = AUGROUP })
   vim.api.nvim_create_autocmd("BufWritePost", {
@@ -200,7 +155,6 @@ local function watch(full)
   })
 end
 
---- Open `path` in the preview.
 ---@param path string
 ---@param opts? { focus?: boolean }
 ---@return table result
@@ -241,8 +195,6 @@ function M.open(path, opts)
   return { ok = true, path = full, renderer = renderer, surface = "split" }
 end
 
---- Re-render whatever is already showing. Used by the spec watcher and by the
---- write autocmd above.
 function M.refresh()
   if not state.path then
     return
@@ -278,8 +230,6 @@ function M.current()
   return M.is_open() and state.path or nil
 end
 
--- A pane spawned out of process outlives nvim unless we say otherwise, and an
--- orphaned preview beside a closed editor is just litter.
 vim.api.nvim_create_autocmd("VimLeavePre", {
   group = AUGROUP,
   callback = function()

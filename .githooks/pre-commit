@@ -1,18 +1,9 @@
 #!/usr/bin/env bash
-# Offline citation gate. For each openspec change with a citations.lock, run
-# the offline stages of citelock (format, provenance, quote-anchor, integrity,
-# freshness). No network, no MCP tool: verify never fetches, so this is safe
-# offline and needs no --no-verify. Live-web checks live in `citelock capture`,
-# not here. A change with no citations.lock is a no-op.
 set -euo pipefail
 
 repo_root="$(git rev-parse --show-toplevel)"
-# citelock is a nix-installed PATH command (see llm/skill-tools.nix). If it is
-# not on PATH, do nothing rather than guess a repo-local script.
 command -v citelock > /dev/null 2>&1 || exit 0
 
-# Verify every change dir that ships a citations.lock (cheap; verify no-ops when
-# a dir has none). Covers active changes and archived ones.
 status=0
 while IFS= read -r lock; do
   [[ -z ${lock} ]] && continue
@@ -22,19 +13,6 @@ while IFS= read -r lock; do
   fi
 done < <(find "${repo_root}/openspec/changes" -name citations.lock 2> /dev/null)
 
-# Run the full deterministic gate for any ACTIVE change with staged files.
-#
-# Without this, spec-preflight only ran when an agent chose to type it, which is
-# the failure its own header warns about: prose that mirrors a gate drifts from
-# it and invites satisfying the prose instead of running it. openspec itself
-# cannot help here, because it decides an artifact is complete by file existence
-# and never reads content, so `apply.requires` would pass a review.md whose
-# decision is still `pending`.
-#
-# Scoped to changes the commit actually touches. Gating every active change
-# would fail a commit for a change the author is not working on, which trains
-# the owner to reach for --no-verify, and that disables the citation gate above
-# as collateral.
 if command -v spec-preflight > /dev/null 2>&1; then
   while IFS= read -r change; do
     [[ -z ${change} ]] && continue

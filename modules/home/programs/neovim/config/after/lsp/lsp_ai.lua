@@ -149,7 +149,6 @@ local function build_init_options()
     },
   }
 
-  -- json round-trip preserves file_store as {} not []
   return vim.fn.json_decode(vim.fn.json_encode(opts))
 end
 
@@ -187,7 +186,6 @@ local function build_config()
   }
 end
 
--- LspAiModel: switch active model at runtime; picker shows provider + model id
 if vim.fn.exists(":LspAiModel") == 0 then
   vim.api.nvim_create_user_command("LspAiModel", function(opts)
     local function apply(key)
@@ -242,9 +240,6 @@ if vim.fn.exists(":LspAiModel") == 0 then
   })
 end
 
--- LspAiConfig [global|local]: create/open the global or local config file.
--- global → ~/.config/nvim/neoconf.json
--- local  → .sysinit/neoconf.json (relative to cwd)
 if vim.fn.exists(":LspAiConfig") == 0 then
   local global_template = [[{
   "lsp_ai": {

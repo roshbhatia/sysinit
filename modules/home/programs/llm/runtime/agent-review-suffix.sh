@@ -1,19 +1,4 @@
 #!/usr/bin/env bash
-# One definition of the review-path suffix a done toast carries.
-#
-# Sourced by `agent-notify.sh` and by the `notify-defect-regressions` flake check,
-# so the shipped body and the asserted body cannot disagree. This follows
-# `agent-group.sh`, which is sourced the same way for the same reason.
-#
-# Usage: agent_review_suffix <pane> [now-epoch]
-#
-# Takes the pane, not a path: the state-file location is built here and nowhere
-# else, so a caller cannot drift from it. A fixture points at its own tree by
-# setting XDG_STATE_HOME.
-#
-# Prints the suffix, beginning with its own separator, or nothing when the state
-# file is missing, unreadable, or carries no usable field. `now` is a parameter so
-# a fixture can assert the elapsed-time formatting; it defaults to the clock.
 
 agent_review_suffix() {
   local pane="$1"
@@ -22,8 +7,6 @@ agent_review_suffix() {
   local state_file="${XDG_STATE_HOME:-$HOME/.local/state}/agents/panes/$pane.json"
   [ -f "$state_file" ] || return 0
 
-  # \001, not tab: tab is IFS whitespace, so bash collapses runs of it and an
-  # empty field shifts every later value left.
   local st
   st=$(jq -rj '[.repo // "", .branch // "", (if .dirty then "dirty" else "" end), (.since // 0 | tostring)] | join("\u0001")' \
     "$state_file" 2> /dev/null) || return 0

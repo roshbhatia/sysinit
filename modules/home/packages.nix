@@ -4,7 +4,6 @@
   home.packages =
     with pkgs;
     [
-      # Core Utilities
       coreutils
       curl
       wget
@@ -30,18 +29,11 @@
       jq
       jqp
       yq-go
-      # citelock (citation verification): lychee for link liveness, monolith for
-      # single-file HTML capture. jq (above) feeds the Crossref REST query.
       lychee
       monolith
       duf
       htop
       glow
-      # go-grip renders markdown as GitHub-styled HTML and serves it with live
-      # reload. Replaces markdown-preview.nvim, whose `build` step ran a yarn
-      # install inside the lazy plugin directory: a node toolchain and a network
-      # fetch outside the generation, which is the one thing this repo does not
-      # let any other dependency do.
       go-grip
       tokei
       scc
@@ -49,7 +41,6 @@
       imagemagick
       _1password-cli
 
-      # Git
       git
       gh
       delta
@@ -57,7 +48,6 @@
       git-filter-repo
       libgit2
 
-      # Nix
       nixd
       nil
       nixfmt
@@ -73,14 +63,12 @@
       nix-prefetch-github
       nvfetcher
 
-      # Bash
       bash-language-server
       shellcheck
       shfmt
       gum
       grc
 
-      # Go
       go
       gopls
       delve
@@ -96,18 +84,15 @@
       reftools
       richgo
 
-      # Python
       python311
       uv
       pipx
       pyright
 
-      # Rust & Zig
       rustup
       cargo-watch
       zig
 
-      # Node & Web
       nodejs_22
       bun
       typescript
@@ -116,14 +101,12 @@
       typescript-language-server
       vscode-langservers-extracted
 
-      # Lua
       luajit
       hererocks
       lua-language-server
       stylua
       lua54Packages.cjson
 
-      # Kubernetes
       argocd
       helm-ls
       k9s
@@ -138,7 +121,6 @@
       kustomize
       stern
 
-      # Docker
       docker
       docker-compose
       docker-buildx
@@ -146,7 +128,6 @@
       docker-compose-language-service
       docker-language-server
 
-      # Infrastructure & IaC
       ansible
       ansible-lint
       awscli2
@@ -159,7 +140,6 @@
       tofu-ls
       upbound
 
-      # AI & Editors
       amp-cli
       claude-agent-acp
       codex-acp
@@ -172,14 +152,12 @@
       openspec
       specutil
 
-      # Policy & Governance
       cupcake-cli
       open-policy-agent
       regols
       pi-coding-agent
       tree-sitter
 
-      # Config & Misc Dev
       ast-grep
       awk-language-server
       codespell

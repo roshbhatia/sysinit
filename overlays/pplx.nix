@@ -5,9 +5,6 @@ let
   version = "0.2.2";
   base = "https://github.com/perplexityai/perplexity-cli/releases/download/v${version}";
 
-  # Prebuilt release binaries (no public build path), one asset per platform.
-  # Pinned deliberately: nvfetcher would auto-advance the pin on each release,
-  # and a research tool should move on an intentional bump.
   platformInfo = {
     "aarch64-darwin" = {
       asset = "pplx-aarch64-apple-darwin.bin";
@@ -39,8 +36,6 @@ in
 
     dontUnpack = true;
 
-    # The Linux assets are glibc-linked (`-gnu`); patch the loader and libgcc so
-    # the raw binary runs on NixOS. Darwin macho binaries need no patching.
     nativeBuildInputs = lib.optionals stdenv.hostPlatform.isLinux [ final.autoPatchelfHook ];
     buildInputs = lib.optionals stdenv.hostPlatform.isLinux [ stdenv.cc.cc.lib ];
 

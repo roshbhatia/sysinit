@@ -1,7 +1,6 @@
 final: _prev:
 let
   contextiveVersion = "1.17.8";
-  # Hashes are for the raw zip file (used with fetchurl, not fetchzip)
   contextiveSources = {
     "x86_64-linux" = {
       platform = "linux-x64";
@@ -39,9 +38,6 @@ in
     ]
     ++ final.lib.optionals final.stdenv.hostPlatform.isLinux [ final.autoPatchelfHook ];
 
-    # .NET single-file bundle: managed assemblies are appended to the apphost.
-    # Stripping rewrites the Mach-O and truncates that trailer, which makes the
-    # runtime fail with "possible file corruption" on launch.
     dontStrip = true;
 
     buildInputs = final.lib.optionals final.stdenv.hostPlatform.isLinux [

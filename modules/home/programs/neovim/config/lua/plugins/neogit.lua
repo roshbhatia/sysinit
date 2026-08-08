@@ -6,9 +6,6 @@ return {
     },
     cmd = "Neogit",
     config = function()
-      -- Disable folds in all Neogit buffers.
-      -- neogit's buffer.lua explicitly sets foldenable=true during render,
-      -- so we defer with vim.schedule to run after the render completes.
       vim.api.nvim_create_autocmd("FileType", {
         pattern = {
           "NeogitStatus",
@@ -109,7 +106,6 @@ return {
 
           local git_dirs = {}
           for line in handle:lines() do
-            -- strip trailing /.git to get the repo root
             local root = line:match("^(.+)/%.git/?$")
             if root then
               table.insert(git_dirs, root)

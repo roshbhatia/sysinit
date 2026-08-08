@@ -1,12 +1,5 @@
-# Chord vocabulary shared by the eval-time collision assertion in
-# keybindings.nix and the `wezterm-chord-collisions` flake check. One
-# definition, because two spellings of "the same chord" is exactly the bug
-# the assertion exists to catch.
 { lib }:
 rec {
-  # A chord is compared as "<mods in fixed order>+<key>". macOS sets the fn bit
-  # on arrows and function keys and no other layer encodes it, so fn is left out
-  # or an arrow hotkey would never match a hand-written "ctrl+shift+left".
   modNames = [
     {
       bit = 1048576;
@@ -56,7 +49,6 @@ rec {
     "126" = "up";
   };
 
-  # aerospace spells the same keys differently; fold both onto one vocabulary.
   keyAliases = {
     esc = "escape";
     "/" = "slash";
@@ -75,7 +67,6 @@ rec {
     in
     mkChord present (keyNames.${toString code} or "kc${toString code}");
 
-  # aerospace binding names look like "alt-shift-1"; the last token is the key.
   chordOfBindingName =
     name:
     let
@@ -118,9 +109,7 @@ rec {
     "24" = disabled;
     "25" = disabled;
     "26" = disabled;
-    # cmd+` move focus to next window
     "27" = hotkey false 96 50 1048576;
-    # ctrl+up mission control, ctrl+down application windows
     "32" = hotkey false 65535 126 8650752;
     "33" = hotkey false 65535 125 8650752;
     "36" = hotkey false 65535 103 8388608;
@@ -129,13 +118,10 @@ rec {
     "54" = hotkey false 65535 113 8388608;
     "57" = hotkey false 65535 100 8650752;
     "59" = hotkey false 65535 96 9437184;
-    # ctrl+space and ctrl+opt+space input source switching
     "60" = hotkey false 32 49 262144;
     "61" = hotkey false 32 49 786432;
-    # cmd+space spotlight, cmd+opt+space spotlight finder window
     "64" = hotkey false 32 49 1048576;
     "65" = hotkey false 32 49 1572864;
-    # ctrl+arrow space switching off, ctrl+shift+arrow on
     "79" = hotkey false 65535 123 8650752;
     "80" = hotkey true 65535 123 8781824;
     "81" = hotkey false 65535 124 8650752;
@@ -165,7 +151,6 @@ rec {
     "232" = hotkey false 65535 65535 0;
     "233" = hotkey true 109 46 1048576;
     "235" = hotkey false 65535 65535 0;
-    # 237-251: Sequoia window tiling, all off so aerospace owns tiling
     "237" = hotkey false 102 3 8650752;
     "238" = hotkey false 99 8 8650752;
     "239" = hotkey false 114 15 8650752;

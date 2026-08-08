@@ -7,7 +7,6 @@ local M = {}
 
 M.locked_mode = false
 
--- `smart_ssh` loads during setup because its tab action needs the final config
 local smart_ssh = nil
 
 local EDITORS = { "nvim", "vim", "hx" }
@@ -24,17 +23,6 @@ local function create_smart_keybind(key, mods, wezterm_action, opts)
       end
 
       if opts and opts.passthrough then
-        -- The user var is checked FIRST, and is the only check that works over
-        -- ssh. `get_process_name` reports the LOCAL foreground process, which for
-        -- an ssh pane is `ssh` and never the remote `nvim`, so the process check
-        -- alone swallowed CTRL+hjkl and moved the local pane instead of the
-        -- remote window. Only locked mode got the keys through, by skipping both
-        -- checks. smart-splits sets IS_NVIM on load and clears it on ExitPre, and
-        -- its own README says the process-name check "will not work in all cases
-        -- (e.g. over an SSH connection)".
-        --
-        -- The process check stays as the fallback: it covers vim and hx, which
-        -- set no user var, and nvim before smart-splits has finished loading.
         if pane:get_user_vars().IS_NVIM == "true" then
           win:perform_action({ SendKey = { key = key, mods = mods } }, pane)
           return
@@ -91,7 +79,6 @@ local function get_pane_keys()
   return keys
 end
 
--- hashed and wildcard entries cannot become selectable SSH host names
 local function read_known_hosts_hosts()
   local hosts = {}
   local seen = {}
@@ -119,11 +106,6 @@ local function read_known_hosts_hosts()
   return hosts
 end
 
--- libssh ssh_options that let WezTerm's built-in SSH client authenticate with a
--- key instead of prompting for a password. WezTerm's libssh transport does not
--- read ~/.ssh/config reliably, so we hand it the ssh-agent socket and the first
--- existing default identity file explicitly. Empty when neither is present (a
--- bare {} is harmless on a domain).
 local function ssh_key_options()
   local opts = {}
   local agent = os.getenv("SSH_AUTH_SOCK")
@@ -143,21 +125,6 @@ local function ssh_key_options()
   return opts
 end
 
--- Assemble the SSH domain set smart_ssh's picker draws from (it reads the mux
--- domains whose name starts with "ssh"). We mirror smart_ssh's own domain shape
--- — lowercase "ssh:<host>", Posix shell — so its formatter (name:sub(5)) renders
--- the bare host, attach ssh_option for key auth, and coverage-merge
--- ~/.ssh/known_hosts hosts that enumerate_ssh_hosts misses (wildcard-only Host
--- blocks, hosts only ever connected to; wezterm#5553).
---
--- multiplexing = "WezTerm": persistent/reattachable mux domains (require remote
--- wezterm-mux-server). These are the hosts we control (our tailnet), so the mux
--- bootstrap is available; selecting one still opens a new tab via smart_ssh.
---
--- Merge: ~/.ssh/config aliases its Host entries to tailnet FQDNs (e.g. arrakis
--- -> arrakis.stork-eel.ts.net). enumerate returns the aliases AND their resolved
--- hostname, so we record every resolved hostname and skip the known_hosts FQDN
--- that maps back to an alias already added — collapsing the duplicate.
 local function build_ssh_domains()
   local key_options = ssh_key_options()
   local domains = {}
@@ -182,7 +149,6 @@ local function build_ssh_domains()
   local ok, hosts = pcall(wezterm.enumerate_ssh_hosts)
   if ok and hosts then
     for host, cfg in pairs(hosts) do
-      -- smart_ssh skips the synthetic "*.host" wildcard entries enumerate emits.
       if not host:match("%.host") then
         if type(cfg) == "table" and cfg.hostname then
           resolved_hostnames[cfg.hostname:lower()] = true
@@ -199,9 +165,6 @@ local function build_ssh_domains()
   return domains
 end
 
--- SSH picker: smart_ssh.wezterm's fuzzy "Choose Host" InputSelector over the
--- configured ssh_domains (seeded in M.setup from build_ssh_domains). Falls back
--- to WezTerm's native fuzzy launcher if smart_ssh failed to load.
 local function get_ssh_picker()
   if smart_ssh then
     return smart_ssh.tab()
@@ -215,8 +178,6 @@ local function get_system_keys()
     create_smart_keybind(":", "SUPER", act.ActivateCommandPalette),
     create_smart_keybind(";", "SUPER", act.ActivateCommandPalette),
     create_smart_keybind(";", "CTRL", act.ActivateCommandPalette),
-    -- SUPER+SHIFT+s: ssh host picker. SUPER+s is reserved for the workspace /
-    -- seshy switcher, bound in ui.lua where the configured plugin instance lives.
     {
       key = "s",
       mods = "SUPER|SHIFT",
@@ -228,7 +189,6 @@ local function get_system_keys()
         win:perform_action(get_ssh_picker(), pane)
       end),
     },
-    -- SUPER+E: open scrollback buffer in $EDITOR in a new tab
     {
       key = "e",
       mods = "SUPER",
@@ -293,19 +253,14 @@ local function get_tab_keys()
     create_smart_keybind("o", "CTRL|SHIFT", act.ActivateLastTab),
   }
 
-  -- New tab with CTRL in current domain
   table.insert(keys, create_smart_keybind("t", "CTRL", act.SpawnTab("CurrentPaneDomain")))
 
-  -- New tab with SUPER (CMD) in current domain
   table.insert(keys, create_smart_keybind("t", "SUPER", act.SpawnTab("CurrentPaneDomain")))
 
-  -- Fuzzy tab switcher on CTRL|SHIFT+t
   table.insert(keys, create_smart_keybind("t", "CTRL|SHIFT", act.ShowTabNavigator))
 
-  -- SUPER|SHIFT+t: always spawn a new tab in the local domain (bypass SSH/remote)
   table.insert(keys, create_smart_keybind("t", "SUPER|SHIFT", act.SpawnTab({ DomainName = "local" })))
 
-  -- Rename current tab
   table.insert(
     keys,
     create_smart_keybind(
@@ -337,11 +292,9 @@ local function get_tab_keys()
     )
   )
 
-  -- Reorder tabs
   table.insert(keys, create_smart_keybind(",", "CTRL|SHIFT", act.MoveTabRelative(-1)))
   table.insert(keys, create_smart_keybind(".", "CTRL|SHIFT", act.MoveTabRelative(1)))
 
-  -- Tab switching: 1-8 go to specific tabs, 9 goes to last tab
   for i = 1, 9 do
     local tab_action = i == 9 and act.ActivateTab(-1) or act.ActivateTab(i - 1)
     for _, binding in
@@ -359,7 +312,6 @@ end
 local function get_window_keys()
   return {
     create_smart_keybind("n", "SUPER", act.SpawnWindow),
-    -- SUPER|SHIFT+n: spawn a new window in the local domain (SpawnWindow uses DefaultDomain)
     create_smart_keybind("n", "SUPER|SHIFT", act.SpawnCommandInNewWindow({ domain = { DomainName = "local" } })),
   }
 end
@@ -379,13 +331,11 @@ local function get_scroll_keys()
     create_smart_keybind("d", "CTRL", { ScrollByLine = 40 }, { passthrough = EDITORS }),
     create_smart_keybind("u", "CTRL|SHIFT", act.ScrollToTop, { passthrough = EDITORS }),
     create_smart_keybind("d", "CTRL|SHIFT", act.ScrollToBottom, { passthrough = EDITORS }),
-    -- Jump between shell prompt boundaries (requires OSC 133 shell integration)
     create_smart_keybind("UpArrow", "CTRL|SHIFT", act.ScrollToPrompt(-1), { passthrough = EDITORS }),
     create_smart_keybind("DownArrow", "CTRL|SHIFT", act.ScrollToPrompt(1), { passthrough = EDITORS }),
   }
 end
 
--- Merge all key groups into a single table
 local function merge_keys(...)
   local result = {}
   for _, group in ipairs({ ... }) do
@@ -399,7 +349,6 @@ end
 function M.setup(config)
   config.disable_default_key_bindings = true
 
-  -- Collect all keybindings
   local keys = merge_keys(
     get_system_keys(),
     get_font_keys(),
@@ -431,30 +380,16 @@ function M.setup(config)
 
   config.keys = keys
 
-  -- Seed key_tables with WezTerm's built-in defaults (copy-mode, search-mode, etc.);
-  -- guard against headless / non-GUI contexts where wezterm.gui is nil
   config.key_tables = wezterm.gui and wezterm.gui.default_key_tables() or {}
 
-  -- Plain (NONE-modifier) drags are intentionally forwarded to mouse-capturing
-  -- TUIs (e.g. Claude Code fullscreen) so their own click-to-expand / URL click /
-  -- wheel scroll keep working. SHIFT+drag is the select-to-copy gesture: it
-  -- bypasses in-app mouse reporting and copies to the system clipboard. SHIFT is
-  -- already WezTerm's default bypass modifier; set it explicitly to document intent.
   config.bypass_mouse_reporting_modifiers = "SHIFT"
 
-  -- Triple-click selects a semantic zone (shell prompt / command output boundary)
-  -- rather than the default line-select behaviour. mouse_bindings merges with
-  -- WezTerm's defaults rather than replacing them.
   config.mouse_bindings = {
     {
       event = { Down = { streak = 3, button = "Left" } },
       action = act.SelectTextAtMouseCursor("SemanticZone"),
       mods = "NONE",
     },
-    -- SHIFT+drag select-to-copy under app mouse reporting. Bind Down/Drag/Up
-    -- together to avoid WezTerm's documented "Up-only" double-fire gotcha, and
-    -- complete to ClipboardAndPrimarySelection so the selection lands on the
-    -- macOS system clipboard (the default left-release only fills PrimarySelection).
     {
       event = { Down = { streak = 1, button = "Left" } },
       mods = "SHIFT",

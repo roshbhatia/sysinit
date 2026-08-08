@@ -1,31 +1,4 @@
 #!/usr/bin/env bash
-# Turns a `STOP` condition from prose into a predicate.
-#
-# The spec-driven schema requires a loop phase to declare a STOP that is a
-# command, but nothing ran it: the loop ended when the model decided it was
-# done. This is the Stop hook that actually evaluates it.
-#
-# Claude Code ships two adjacent primitives and neither fits. `/loop` restarts
-# on a time interval and stops when the model decides. `/goal` judges a
-# condition with a small model, but its docs are explicit that it "doesn't run
-# commands or read files independently" — so `/goal all tests pass` terminates
-# on a transcript that CLAIMS they passed. This runs the command.
-#
-# Two bounds, because they fail differently (see the `adversarial-review`
-# skill's terminal states):
-#   CLEAN     the command exited 0. The loop succeeded.
-#   CAPPED    max iterations reached. Reported as open work, never as a pass.
-#   STALLED   N consecutive iterations produced byte-identical output. The loop
-#             is not converging and burning the rest of the cap proves nothing.
-#
-# Disarmed by default. With no state file this is a no-op, so an ordinary
-# session is unaffected.
-#
-# Usage:
-#   loop-gate arm --until '<command>' [--max <n>] [--stall <n>]
-#   loop-gate status
-#   loop-gate clear
-#   loop-gate check          # the Stop hook entrypoint; reads hook JSON on stdin
 
 set -euo pipefail
 
@@ -82,7 +55,6 @@ cmd_clear() {
   echo "loop-gate: disarmed." >&2
 }
 
-# Block the stop and hand the reason back to the model as guidance.
 block() {
   jq -n --arg r "$1" '{decision:"block", reason:$r}'
   exit 0
@@ -91,15 +63,10 @@ block() {
 cmd_check() {
   local f
   f="$(state_file)"
-  # Disarmed: the overwhelmingly common case. Say nothing, change nothing.
   [ -f "$f" ] || exit 0
 
   local input stop_active
   input="$(cat 2> /dev/null || true)"
-  # Claude Code sets stop_hook_active when the stop was already blocked once by
-  # a hook. Honour it: without this the gate and the harness can trade turns
-  # with no way out. Claude Code also force-ends after 8 consecutive blocks,
-  # which is a backstop, not a substitute for reading this flag.
   stop_active="$(printf '%s' "$input" | jq -r '.stop_hook_active // false' 2> /dev/null || echo false)"
 
   local until_cmd max stall iter same last
@@ -130,8 +97,6 @@ cmd_check() {
     same=0
   fi
 
-  # Terminal without success. Clear the state so the next turn is not trapped,
-  # and say plainly that this is open work.
   if [ "$same" -ge "$stall" ]; then
     rm -f "$f"
     echo "loop-gate: STALLED — $same iterations produced identical output from \`$until_cmd\`. Open work, not a pass." >&2

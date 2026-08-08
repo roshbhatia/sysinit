@@ -1,9 +1,5 @@
 { pkgs, lib }:
 {
-  # Walk a tree, validate every selected file, and assert each named subtree
-  # still contributes. Without the per-subtree assertion a whole-source
-  # `found -eq 0` guard never fires, so a moved directory silently leaves
-  # coverage while the check keeps reporting OK.
   mkScanCheck =
     {
       name,

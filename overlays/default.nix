@@ -3,18 +3,11 @@
   ...
 }:
 [
-  # Sunshine runs with CAP_SYS_ADMIN (capSysAdmin=true) for KMS framebuffer
-  # capture on arrakis. CAP_SYS_ADMIN triggers AT_SECURE which blocks
-  # LD_LIBRARY_PATH, so /run/opengl-driver/lib must be in the RUNPATH for
-  # libnvidia-encode and libcuda to resolve at runtime. sunshine uses
   (_final: prev: {
     sunshine =
       if prev.stdenv.hostPlatform.isLinux then
         (prev.sunshine.override {
           cudaSupport = true;
-          # cuda_compat is a Jetson-only shim with no x86_64 src; the repo-wide
-          # allowUnsupportedSystem=true defeats its availability gate and pulls
-          # it into the cudart hook chain, so drop it from the scope.
           cudaPackages = prev.cudaPackages.overrideScope (_: _: { cuda_compat = null; });
         }).overrideAttrs
           (old: {
@@ -50,10 +43,6 @@
   (import ./alerter.nix)
   (import ./sheets.nix)
   (import ./tinycast.nix)
-  # sdl3-3.4.10 testrwlock times out on i686-linux under emulation (used by lutris
-  # via sdl2-compat); the rwlock test is a scheduler-sensitivity flake, not a
-  # correctness issue. Guard to i686: overriding sdl3 on x86_64 perturbs its hash
-  # and cascades an uncached rebuild through sdl2-compat -> ffmpeg -> the whole
   (_final: prev: {
     sdl3 =
       if prev.stdenv.hostPlatform.system == "i686-linux" then
@@ -71,10 +60,6 @@
       });
     }
   )
-  # 1Password sometimes re-uploads the aarch64 zip with new bytes
-  # without bumping the version, so nixpkgs' pinned hash no longer matches.
-  # Override src with the current upstream hash until nixpkgs catches up.
-  # Guard to Darwin: the Linux derivation uses a tar.gz and must not receive
   (_final: prev: {
     _1password-gui =
       if prev.stdenv.hostPlatform.isDarwin then
@@ -90,7 +75,6 @@
   (
     final: prev:
     let
-      # Pristine nixpkgs for the host system, i.e. this overlay list not applied.
       pristine = import inputs.nixpkgs { inherit (final.stdenv.hostPlatform) system; };
     in
     {
@@ -102,15 +86,7 @@
           })
         else
           prev.cargo-watch;
-      # Pull mise from a pristine nixpkgs so its closure hash matches
-      # cache.nixos.org on both platforms: repo overlays perturb prev.mise's deps
-      # on Linux, and the darwin Tahoe ld-fix is obsolete now that nixpkgs' cached
-      # aarch64-darwin build works on Tahoe.
       inherit (pristine) mise;
-      # electron's ffmpeg pulls the gaming-patched SDL, perturbing its closure into
-      # a multi-hour chromium source build (obsidian depends on it). electron does
-      # not need those patches, so pin it to pristine nixpkgs on Linux for a cache
-      # hit; Darwin keeps prev to avoid an uncached darwin rebuild.
       electron_41 = if prev.stdenv.hostPlatform.isDarwin then prev.electron_41 else pristine.electron_41;
       electron = if prev.stdenv.hostPlatform.isDarwin then prev.electron else pristine.electron;
     }

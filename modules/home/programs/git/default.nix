@@ -16,7 +16,6 @@ in
     enable = true;
 
     ignores = [
-      # macOS
       ".AppleDB"
       ".AppleDesktop"
       ".AppleDouble"
@@ -35,13 +34,11 @@ in
       "Network Trash Folder"
       "Temporary Items"
       "__MACOSX/"
-      # Linux
       ".Trash-*"
       ".directory"
       ".fuse_hidden*"
       ".nfs*"
       "nohup.out"
-      # Windows
       "$RECYCLE.BIN/"
       "*:Zone.Identifier"
       "*.cab"
@@ -56,7 +53,6 @@ in
       "Thumbs.db:encryptable"
       "ehthumbs.db"
       "ehthumbs_vista.db"
-      # Editors
       "*.swo"
       "*.swp"
       "*.un~"
@@ -73,12 +69,10 @@ in
       "tags"
       "tags.lock"
       "tags.temp"
-      # Backups
       "*.backup"
       "*.backup*"
       "*.bak"
       "*.bak*"
-      # AI Assistants
       "**/.agents/"
       "**/.amp/"
       "**/.claude/"
@@ -95,7 +89,6 @@ in
       "**/CRUSH.md"
       "**/GEMINI.md"
       ".sysinit/"
-      # Dev environment
       ".direnv/"
       ".env"
       ".env.*.local"
@@ -104,7 +97,6 @@ in
       ".gitattributes"
       ".sysinit.nix"
       ".neoconf.json"
-      # Package managers
       ".pnp.*"
       ".yarn-integrity"
       ".yarn/"
@@ -113,19 +105,16 @@ in
       "pnpm-debug.log*"
       "yarn-debug.log*"
       "yarn-error.log*"
-      # Testing & Coverage
       ".nyc_output"
       "coverage/"
       "*.lcov"
       ".pytest_cache/"
       ".coverage"
       "htmlcov/"
-      # Playwright
       ".playwright-mcp/"
       "playwright-report/"
       "playwright/.cache/"
       "blob-report/"
-      # Build artifacts
       "*.o"
       "*.so"
       "*.dylib"
@@ -137,7 +126,6 @@ in
       "build/"
       "*.egg-info/"
       "target/"
-      # Python
       "*.py[cod]"
       "*$py.class"
       "*.pyo"
@@ -151,20 +139,15 @@ in
       "ENV/"
       "env.bak/"
       "venv.bak/"
-      # Ruby
       "*.gem"
       ".bundle/"
       "vendor/bundle/"
-      # Java/JVM
       "*.class"
       "*.jar"
       "*.war"
       "*.ear"
-      # Rust
       "Cargo.lock"
-      # Go
       "go.work"
-      # Misc
       "**/*.glossary.yml"
       "**/sgconfig.yaml"
       "**/sgconfig.yml"

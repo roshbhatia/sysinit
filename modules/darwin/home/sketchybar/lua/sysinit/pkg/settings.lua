@@ -4,8 +4,6 @@ local display = require("sysinit.pkg.core.display")
 local monospace_font = config.font.monospace
 local font_size = display.get_font_size(config.font.size or 11.0)
 local icon_font = config.font.icons or "Symbols Nerd Font Mono"
--- When the icon font matches the text font the glyphs share the same em-square;
--- no size bump needed. For a separate symbols font bump slightly so glyphs fill the bar.
 local configured_icon_size = config.font.iconSize
 local icon_size = (configured_icon_size and configured_icon_size > 0) and configured_icon_size
   or ((icon_font == monospace_font) and font_size or (font_size + 2.0))
@@ -27,8 +25,6 @@ return {
       regular = { family = icon_font, style = "Regular", size = icon_size },
     },
     separators = {
-      -- Same size as text — older `+7.0` overhang clipped to nothing on
-      -- fonts with tall ascenders (e.g. Iosevka-derived).
       bold = { family = monospace_font, style = "Regular", size = font_size },
     },
   },

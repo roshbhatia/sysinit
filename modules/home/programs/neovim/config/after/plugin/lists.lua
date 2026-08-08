@@ -70,7 +70,6 @@ local function last_item()
   end
 end
 
--- Smart toggle: closed → open+focus; open unfocused → focus; focused → close
 local function toggle_qf()
   local winid = get_qf_winid()
   if not winid then

@@ -1,14 +1,9 @@
 vim.opt.mouse = "a"
 vim.o.mousemoveevent = true
 
--- Setting clipboard="unnamedplus" synchronously probes for the system clipboard
--- provider (pbcopy/pbpaste on macOS), which blocks startup for ~13ms. Deferring
--- via schedule() pushes the probe to the first main-loop tick — clipboard is
--- never needed before the first user-initiated copy/paste anyway.
 vim.schedule(function()
   vim.opt.clipboard = "unnamedplus"
 
-  -- https://github.com/tjdevries/config.nvim/blob/master/plugin/clipboard.lua
   if vim.env.SSH_CONNECTION then
     local function vim_paste()
       local content = vim.fn.getreg('"')

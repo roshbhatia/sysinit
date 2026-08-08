@@ -9,13 +9,6 @@ local function ensure_lifecycle()
   return lc
 end
 
--- pi.run reads pi.config at runtime to assemble the cmd. We bypass that by
--- passing an explicit cmd built from the harness options.
---
--- `--mode rpc --no-session` is fixed: pi.nvim speaks pi's RPC protocol and
--- expects an ephemeral session. That is why the session flags (--session,
--- --session-id, --fork, --name) are absent from the schema; they would
--- contradict --no-session.
 local function build_pi_cmd()
   local cmd = { "pi", "--mode", "rpc", "--no-session" }
   for _, arg in ipairs(require("harness.options").build_args("pi")) do
@@ -27,9 +20,6 @@ end
 return {
   name = "pi",
   label = "󰏿  Pi",
-  -- Flags verified against `pi --help`. --thinking gained `max`. --fast,
-  -- --plan, --preset, --mcp-config, and --retry-stall-timeout-ms come from
-  -- pi extensions, not the core parser, so they need those extensions loaded.
   options_schema = {
     { name = "no_tools", flag = "--no-tools", kind = "toggle" },
     { name = "no_builtin_tools", flag = "--no-builtin-tools", kind = "toggle" },

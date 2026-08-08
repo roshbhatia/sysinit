@@ -1,23 +1,12 @@
-# agent-state: agent-agnostic per-pane lifecycle-state emitter.
-#
-# Publishes the calling agent's current state to its WezTerm pane as an OSC 1337
-# SetUserVar named `agent_state`, so the statusline and seshy session switcher
-
 agent=${1:-agent}
 status=${2:-working}
 reason_src=${3:-}
 
-# The user-var only matters inside a WezTerm pane; bail quietly otherwise.
 [ -n "${WEZTERM_PANE:-}" ] || exit 0
 
-# Where the cross-surface state file lives (the bus other surfaces subscribe to).
 state_dir="${XDG_STATE_HOME:-$HOME/.local/state}/agents/panes"
 state_file="$state_dir/$WEZTERM_PANE.json"
 
-# `exit` is the terminal signal (wired to Claude's SessionEnd hook): the pane's
-# agent is gone, so drop its bus entry. Best-effort only — readers already prune
-# orphaned files by intersecting with live pane ids, so nothing depends on this
-# running. Codex has no SessionEnd hook; its files are reclaimed by that pruning.
 if [ "$status" = "exit" ]; then
   rm -f "$state_file" "$state_dir/$WEZTERM_PANE.start" 2> /dev/null || true
   exit 0
@@ -28,7 +17,6 @@ if [ ! -t 0 ]; then
   input=$(cat 2> /dev/null)
 fi
 
-# json FILTER -> field value, or empty string on any error / missing field.
 json() {
   [ -n "$input" ] || return 0
   printf '%s' "$input" | jq -r "$1 // empty" 2> /dev/null
@@ -36,12 +24,8 @@ json() {
 
 since=$(date +%s 2> /dev/null) || since=0
 
-# --- resolve the human reason ---
 case "$reason_src" in
   submit)
-    # UserPromptSubmit: new user turn beginning. Display "thinking" and record
-    # the turn-start timestamp so agent-notify can gate done-notifications on
-    # elapsed time (avoids pinging for quick 1-second replies).
     reason="thinking"
     if mkdir -p "$state_dir" 2> /dev/null; then
       printf '%s' "$since" > "$state_dir/$WEZTERM_PANE.start" 2> /dev/null || true
@@ -49,7 +33,6 @@ case "$reason_src" in
     ;;
   tool)
     tool=$(json '.tool_name')
-    # The most telling field varies by tool; take the first that exists.
     detail=$(json '.tool_input.command // .tool_input.file_path // .tool_input.path // .tool_input.description // .tool_input.pattern')
     if [ -n "$tool" ] && [ -n "$detail" ]; then
       reason="$tool: $detail"
@@ -71,39 +54,23 @@ case "$reason_src" in
     ;;
 esac
 
-# Squash to a single safe line: drop the `|` delimiter, collapse all whitespace
-# (incl. newlines) to single spaces, trim, and bound the length so a label is
-# always short. tr/awk are guarded; on any failure we fall back to the status.
 reason=$(
   printf '%s' "$reason" |
     tr '|\n\r\t' '    ' |
     awk '{ $1 = $1; print }' 2> /dev/null
 ) || reason="$status"
 [ -n "$reason" ] || reason="$status"
-# Bound to ~60 chars; the surfaces truncate further to fit.
 reason=${reason:0:60}
 
-# value = base64("<status>|<reason>|<since>|<agent>"). WezTerm requires the
-# SetUserVar value to be base64; it decodes it before delivering to Lua.
 payload="$status|$reason|$since|$agent"
 b64=$(printf '%s' "$payload" | base64 2> /dev/null | tr -d '\n') || exit 0
 [ -n "$b64" ] || exit 0
 
-# OSC 1337 SetUserVar to the controlling tty. /dev/tty (not stdout, which the
-# harness captures) is the pane WezTerm is reading. If there is no tty this is a
-# silent no-op.
 printf '\033]1337;SetUserVar=agent_state=%s\007' "$b64" > /dev/tty 2> /dev/null || true
 
-# --- second transport: the per-pane JSON state file (cross-surface bus) ---
-# Unlike the OSC user-var (readable only inside WezTerm Lua), this file is the
-# documented public contract for out-of-WezTerm consumers (neovim, seshy, neph).
-# Independent of the OSC emit above: either transport may fail without aborting
 if mkdir -p "$state_dir" 2> /dev/null; then
-  # Resolve the enriched identity for this pane (shared with agent-notify).
   agent_identity "$PWD" "$WEZTERM_PANE"
 
-  # `pane` and `since` are JSON numbers; guard so a non-numeric value can't emit
-  # invalid JSON. AI_DIRTY is already the literal "true"/"false".
   case "$WEZTERM_PANE" in
     '' | *[!0-9]*) pane_json="\"$WEZTERM_PANE\"" ;;
     *) pane_json="$WEZTERM_PANE" ;;
@@ -114,9 +81,6 @@ if mkdir -p "$state_dir" 2> /dev/null; then
   esac
 
   tmp_file="$state_file.$$.tmp"
-  # jq builds every value with correct JSON escaping (quotes/backslashes/newlines
-  # in reason can't corrupt the file). On any failure, remove the temp file so no
-  # partial write survives; the previous state file is left untouched.
   if jq -cn \
     --argjson pane "$pane_json" \
     --arg session "$AI_SESSION" \

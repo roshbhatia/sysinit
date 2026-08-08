@@ -1,7 +1,3 @@
-# Harness vocabulary. One concept, one word per harness.
-#
-# A spawned helper agent is the same thing everywhere, but the harnesses do not
-# agree on its name: Claude Code's own tools and UI say "teammate", every other
 { lib }:
 let
   terms = {
@@ -17,8 +13,6 @@ let
 
   termsFor = harness: terms.${harness} or terms.default;
 
-  # Sentence-initial forms are derived, not stored, so a term cannot drift
-  # between its lowercase and capitalized spellings.
   applyVocab =
     harness: text:
     let

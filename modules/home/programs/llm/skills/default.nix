@@ -1,16 +1,3 @@
-# The skill registry, scanned rather than enumerated.
-#
-# Each local skill is a directory whose SKILL.md carries flat frontmatter and
-# the body. Adding a skill is creating a directory; nothing here needs editing.
-# That is the point: a body is prose with no Nix dependency, so a renderer can
-# ship it without an eval and an edit can take effect without a rebuild.
-#
-# Two things are deliberately not directories:
-#   _shared/  fragments included by more than one skill, so a block whose
-#             purpose is that it cannot drift stays defined once.
-#   skills-ecosystem-discovery  upstream content pinned by hash. Inlining it
-#             into a SKILL.md would make it hand-editable, which the vendoring
-#             rule forbids, so it stays a Nix fetch.
 { pkgs, lib }:
 
 let
@@ -23,17 +10,6 @@ let
     builtins.readDir root
   );
 
-  # Files a skill ships beside its SKILL.md, as "<subdir>/<file>" -> path. Two
-  # levels is the whole of what any skill uses (references/, scripts/), and a
-  # bounded walk throws on a third rather than silently dropping it.
-  #
-  # Only subdirectories are walked, so a file at the skill's top level is NOT
-  # installed. That is load-bearing, not an oversight: a skill that owns a PATH
-  # command keeps the source there (citation-verification/citelock.sh,
-  # wtrun/wtrun.sh) so it is colocated without shipping a second copy into
-  # ~/.claude/skills that would compete with the command llm/skill-tools.nix
-  # builds. A helper meant to be run by path belongs in scripts/ instead, which is
-  # why worklog/scripts/worklog-query.sh is there.
   extraFiles =
     name:
     let
@@ -66,8 +42,6 @@ let
       content = frontmatter.expandIncludes { inherit name sharedDir; } parsed.body;
     }
     // lib.optionalAttrs (a ? "allowed-tools") { "allowed-tools" = a."allowed-tools"; }
-    # The file spells it when_to_use, matching what the render emits; the
-    # registry has always spelled it whenToUse. Map here so neither side moves.
     // lib.optionalAttrs (a ? when_to_use) { whenToUse = a.when_to_use; }
     // lib.optionalAttrs (a ? model) { inherit (a) model; }
     // lib.optionalAttrs (a ? effort) { inherit (a) effort; }

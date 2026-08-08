@@ -1,19 +1,10 @@
 #!/usr/bin/env zsh
 # shellcheck disable=all
-# Completion init and styling. Lives in a fragment file rather than inline in
-# default.nix so `checks.zsh-fragments-parse` actually sees it: the check globs
-# *.zsh, and a Nix string literal is invisible to it.
-#
-# ZSH_CACHE_DIR is set by default.nix immediately before this is sourced. It is
-# the one value that has to come from Nix.
 
 mkdir -p "$ZSH_CACHE_DIR"
 autoload -Uz compinit
 compinit -C -d "$ZSH_CACHE_DIR/zcompdump/.zcompdump"
 
-# Include dotfiles in tab completion (fzf-tab inherits from zsh's
-# underlying completion). Without globdots, `cd <tab>` and similar
-# only show non-hidden entries; with it, dotfiles appear too.
 setopt globdots
 
 zstyle ':completion:*' use-cache on

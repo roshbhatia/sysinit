@@ -7,7 +7,6 @@
 }:
 
 {
-  # Determinate manages the daemon, so nix-darwin must not manage Nix
   nix = {
     enable = false;
     buildMachines = [
@@ -66,8 +65,6 @@
     ]
   );
 
-  # nixos-render-docs removed --toc-depth before nix-darwin updated its manual builder;
-  # darwin-uninstaller also embeds a minimal nix-darwin eval that defaults docs on.
   documentation.enable = false;
   system.tools."darwin-uninstaller".enable = false;
 

@@ -1,20 +1,4 @@
 #!/usr/bin/env bash
-# Which panes of a session still hold a non-idle agent state.
-#
-# Sourced by `agent-review.sh` and by the `agent-review-readiness` flake check, so
-# the gate and the assertion run the same code.
-#
-# Usage: agent_busy_panes <session> <live-pane-ids>
-#
-# `live-pane-ids` is a newline-separated list, and it is a PARAMETER rather than
-# something this function reads: `agent-review` is a writeShellApplication whose
-# runtimeInputs are prepended to PATH, so a fixture cannot stub `wezterm`. Passing
-# the list in is what makes the intersection testable at all.
-#
-# Prints one report line per busy pane and returns 1 when any pane is busy, 0 when
-# none is. A state file records that a pane HELD a state, not that it still
-# exists, so a file whose pane is absent from the live list is ignored: assuming
-# liveness would turn one crashed session into a permanent blocker.
 
 agent_busy_panes() {
   local session="$1"

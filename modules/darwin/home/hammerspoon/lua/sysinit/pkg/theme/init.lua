@@ -24,7 +24,6 @@ end
 function M.getColors()
   local config = loadThemeConfig()
   if not config then
-    -- Fallback colors if theme config is not available
     return {
       background = { red = 0.1, green = 0.1, blue = 0.1, alpha = 0.9 },
       backgroundSecondary = { red = 0.15, green = 0.15, blue = 0.15, alpha = 0.8 },

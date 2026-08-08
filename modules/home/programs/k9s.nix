@@ -17,7 +17,6 @@ _:
     };
 
     settings.k9s = {
-      # General settings
       liveViewAutoRefresh = true;
       maxConnRetry = 5;
       noExitOnCtrlC = true;
@@ -27,7 +26,6 @@ _:
       skipLatestRevCheck = true;
       keepMissingClusters = false;
 
-      # UI settings
       noIcons = false;
       ui = {
         crumbsless = false;
@@ -39,7 +37,6 @@ _:
         reactive = true;
       };
 
-      # Logger settings
       logger = {
         buffer = 100;
         fullscreen = true;
@@ -49,7 +46,6 @@ _:
         textWrap = true;
       };
 
-      # Shell pod settings
       shellPod = {
         image = "killerAdmin";
         namespace = "default";

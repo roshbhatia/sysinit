@@ -32,7 +32,6 @@ end
 ---@field items? { value: string, label: string }[]
 ---@field error? string
 
--- Per-source listers. Each returns SessionListResult.
 local LISTERS = {}
 
 function LISTERS.crush()

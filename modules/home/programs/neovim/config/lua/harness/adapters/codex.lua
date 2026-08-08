@@ -1,5 +1,3 @@
--- Flags verified against `codex --help`. `--ask-for-approval` no longer accepts
--- on-failure; the live enum is untrusted/on-request/never.
 return require("harness.adapters._shared").raw_cli_adapter({
   name = "codex",
   label = "󱗿  Codex",

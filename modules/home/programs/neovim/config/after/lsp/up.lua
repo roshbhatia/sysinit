@@ -1,7 +1,5 @@
 local neoconf = require("neoconf")
 
--- Crossplane XPLS language server
--- Activates for YAML files when crossplane.yaml exists anywhere in the repo
 local base_config = {
   cmd = { "up", "xpls", "serve" },
   filetypes = {
@@ -13,13 +11,11 @@ local base_config = {
     "package/crossplane.yaml",
   },
   root_dir = function(bufnr, on_dir)
-    -- Find git root first
     local git_root = vim.fs.root(bufnr, ".git")
     if not git_root then
       return nil
     end
 
-    -- Check if crossplane.yaml exists at root or in package/
     local crossplane_at_root = vim.fn.filereadable(git_root .. "/crossplane.yaml") == 1
     local crossplane_in_pkg = vim.fn.filereadable(git_root .. "/package/crossplane.yaml") == 1
 
@@ -30,8 +26,6 @@ local base_config = {
   single_file_support = false,
   handlers = {
     ["textDocument/publishDiagnostics"] = function(err, result, ctx, config)
-      -- Fix: up xpls sometimes sends diagnostics = {} (object) instead of [] (array)
-      -- Neovim decodes empty JSON object as vim.empty_dict() userdata, causing crash
       if result and type(result.diagnostics) == "userdata" then
         result.diagnostics = {}
       end

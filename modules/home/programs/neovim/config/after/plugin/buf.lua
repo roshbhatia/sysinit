@@ -1,4 +1,3 @@
--- Disable fold/sign column decorations on floating windows and special filetypes
 local special_filetypes = require("utils.filetypes").utility_filetypes
 
 local function disable_decorations(win)
@@ -17,7 +16,6 @@ vim.api.nvim_create_autocmd("WinEnter", {
   end,
 })
 
--- OilEnter fires before WinEnter so re-apply to all windows on oil open
 vim.api.nvim_create_autocmd("User", {
   pattern = "OilEnter",
   callback = function()

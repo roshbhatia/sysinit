@@ -3,11 +3,6 @@
   lib,
   ...
 }:
-# A vendored pi extension may not write the theme while Nix declares it.
-# `ctx.ui.setTheme` persists to settings (pi CHANGELOG 0.54.1), and every
-# declared key is enforced, so the two writers fight on every session and
-# every activation with no conflict and no message. The extension always
-# wins the last word, so the generated theme is active in zero sessions.
 let
   piKeys = import ../modules/home/programs/llm/harnesses/pi/settings-keys.nix;
   vendored = lib.optionalString (builtins.elem "theme" piKeys.declared) "yes";
@@ -19,7 +14,6 @@ pkgs.runCommand "pi-no-theme-writer-check" { nativeBuildInputs = [ pkgs.ripgrep 
     exit 0
   fi
 
-  # Everything this repository vendors into ~/.pi/agent/extensions/.
   src=${pkgs.pi-coding-agent}/pi/examples/extensions
   fail=0
   for f in ${

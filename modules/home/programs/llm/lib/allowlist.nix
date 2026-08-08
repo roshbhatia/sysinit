@@ -1,19 +1,7 @@
-# Canonical bash-allowlist source. One place that defines "what bash is
-# safe to auto-allow"; each agent harness consumes via `formatFor<Harness>`.
-#
-# tierA — read-only inspection commands. Zero blast radius. Default for
-#         every harness that supports an auto-allowlist.
-# tierB — reversible local-write commands (formatters, `git add`, `nix
-#         build`). Opt-in per harness depending on its trust policy.
-#
-# Pattern syntax: `<command>` (exact match) or `<command> *` (prefix
-# match with anything after). Each formatter maps these patterns into
-# its harness's native shape.
 { lib }:
 
 let
   tierA = [
-    # git read-only
     "git status"
     "git status *"
     "git diff"
@@ -41,7 +29,6 @@ let
     "git describe *"
     "git stash list"
 
-    # openspec read-only
     "openspec list"
     "openspec list *"
     "openspec status"
@@ -64,7 +51,6 @@ let
     "openspec --version"
     "openspec --help"
 
-    # ast-grep structural search (read-only)
     "ast-grep run *"
     "ast-grep scan *"
     "ast-grep --help"
@@ -72,7 +58,6 @@ let
     "sg scan *"
     "sg --help"
 
-    # nix read-only
     "nix eval *"
     "nix flake check"
     "nix flake check *"
@@ -92,7 +77,6 @@ let
     "nix store ls *"
     "nix store path-from-hash-part *"
 
-    # filesystem reads (commands with no destructive flags)
     "ls"
     "ls *"
     "pwd"
@@ -114,13 +98,11 @@ let
     "basename *"
     "dirname *"
 
-    # search (read-only)
     "grep"
     "grep *"
     "rg"
     "rg *"
 
-    # process / system reads
     "ps"
     "ps *"
     "lsof *"
@@ -140,7 +122,6 @@ let
     "sw_vers"
     "sysctl -n *"
 
-    # GitHub (read-only)
     "gh pr list"
     "gh pr list *"
     "gh pr view"
@@ -168,10 +149,6 @@ let
     "gh api GET *"
     "gh api -X GET *"
 
-    # gh stack (github/gh-stack) — reading and local navigation only.
-    # `submit`, `merge`, `push`, `sync`, `unstack`, and `delete` reach GitHub, so
-    # they are deliberately absent from every tier and stay owner-gated, exactly
-    # like `gh pr create`.
     "gh stack view"
     "gh stack view *"
     "gh stack up"
@@ -184,7 +161,6 @@ let
     "gh stack --help"
     "gh stack checkout *"
 
-    # text utilities (no -i/-w modes)
     "echo *"
     "printf *"
     "sort"
@@ -199,7 +175,6 @@ let
     "jq *"
     "yq *"
 
-    # misc inspection
     "env"
     "type *"
     "command -v *"
@@ -207,11 +182,9 @@ let
     "nixfmt --check *"
     "nixfmt-rfc-style --check *"
 
-    # diff
     "diff *"
     "cmp *"
 
-    # specutil — OpenSpec change visualization, planning, rendering (read-only)
     "specutil graph"
     "specutil graph *"
     "specutil render *"
@@ -224,32 +197,14 @@ let
     "specutil --help"
     "specutil --version"
 
-    # specutil lock — writes the identity→externalId mapping after Linear/Notion syncs
     "specutil lock *"
 
-    # diffnote — reading forms only. The writing forms are tierB: this tier is
-    # defined above as read-only with zero blast radius, and `add` and `apply`
-    # write a file.
     "diffnote list *"
     "diffnote list"
     "diffnote path"
   ];
 
-  # Reversible local writes. Each entry mutates the working tree or the
-  # nix store but is recoverable (`git restore --staged`, `nix profile
-  # rollback`, re-running the formatter, etc.). Opt-in per harness.
   tierB = [
-    # diffnote — review notes on the working-tree diff, rendered by neovim's
-    # CodeDiff view. Writes only to its own per-repository store under
-    # $XDG_STATE_HOME/agents/diff-notes/, never to the working tree, and a note is
-    # removable with `diffnote clear`.
-    #
-    # `diffnote clear` is deliberately absent from both tiers: it discards review
-    # notes the owner may not have read yet, so it asks.
-    #
-    # Note that pi does NOT read this file. Its gate is
-    # @gotgenes/pi-permission-system, configured under ~/.pi/agent/extensions/.
-    # These entries serve claude, amp, devin, cursor, and opencode.
     "diffnote add *"
     "diffnote apply *"
 
@@ -269,32 +224,6 @@ let
     "mkdir -p *"
   ];
 
-  # Destructive / irreversible / hook-bypassing command patterns that MUST be
-  # denied in every harness (the mechanical floor under the global CLAUDE.md
-  # prohibitions). Two representations of the same intent:
-  #   destructiveDenyRegexes — ERE, for regex-matching harnesses and as the
-  #     canonical reference for the guard scripts. These mirror the patterns
-  #     already inlined in claude-bash-guard.sh so all harnesses block the same
-  #     forms.
-  #   destructiveDenyGlobs — prefix globs, for permission systems that match
-  #     command prefixes (opencode permission.bash keys, Amp matches.cmd).
-  #     Prefix matching is leakier than regex (a flag after positional args can
-  #     slip past), so these harnesses are defense-in-depth behind the robust
-  #     script/regex guards; several orderings are listed to widen coverage.
-  # Each rule pairs the pattern with the refusal the agent sees. The guard
-  # scripts generate their pattern table from this list, so a pattern cannot
-  # exist in a script and not here, or differ in form between the two. Before
-  # this was shared, five of the six had already drifted.
-  #
-  # `-f` is anchored on leading whitespace so it cannot match the tail of a
-  # branch name. Without the anchor, `git push origin feature-f` is denied.
-  # `--force` needs no anchor and also covers `--force-with-lease`.
-  #
-  # The gap between subcommand and flag is `[^;&|]*`, never `.*`: with `.*` a flag
-  # belonging to a LATER command in the same compound satisfies an earlier
-  # subcommand's rule. Observed: `git push` alongside `rm -f` was denied as a
-  # force-push. A guard that fires on a command the owner did not write trains them
-  # to route around it.
   destructiveDenyRules = [
     {
       regex = "git[[:space:]]+push\\b[^;&|]*([[:space:]]-f([[:space:]]|$)|--force)";
@@ -340,29 +269,6 @@ let
     "git * --no-gpg-sign*"
   ];
 
-  # pi, via @gotgenes/pi-permission-system. Its config takes a flat
-  # `permission` map: each key is a surface (`bash`, `read`, `mcp`, `skill`, `*`) and
-  # each value is either an action or a pattern → action map.
-  #
-  # ORDER IS NOT AVAILABLE HERE. That extension resolves a pattern map by "last
-  # matching pattern wins", and `builtins.toJSON` emits attribute names in
-  # alphabetical order, so a deny cannot be placed after an allow on purpose. The
-  # policy is therefore built so ordering can never decide an outcome:
-  #
-  #   * the surface default is `ask`, so anything unlisted prompts rather than runs
-  #   * only the tier patterns are `allow`ed, and they are all read-only or reversible
-  #   * the destructive globs are `deny`ed, and `assertDenyDisjoint` below proves no
-  #     deny glob can be matched by an allow pattern, so the two sets never overlap
-  #     and whichever the extension happens to visit last is the same answer
-  #
-  # `deny` is still worth emitting even though the `ask` default already refuses to
-  # auto-run these: a deny needs no human decision, so it cannot be approved by
-  # reflex at a prompt.
-  # Would this allow pattern match a command that this deny glob also matches? Both
-  # are prefix globs, so an overlap exists exactly when one's literal prefix is a
-  # prefix of the other's. If any pair overlapped, the outcome would depend on which
-  # key `builtins.toJSON` happened to emit last, which is not something to leave to
-  # alphabetical order.
   globPrefix = pattern: lib.head (lib.splitString "*" pattern);
   overlaps =
     allowPattern: denyGlob:
@@ -372,20 +278,6 @@ let
     in
     lib.hasPrefix a d || lib.hasPrefix d a;
 
-  # `yolo` is not a cosmetic flag here, it changes which half of the policy is
-  # load-bearing:
-  #
-  #   yolo = false — `ask` genuinely prompts, so the allow tiers are what keep the
-  #     session usable, and a deny that overlaps an allow has to be dropped because
-  #     ordering cannot be controlled (see `emittedDenies`).
-  #   yolo = true  — the extension auto-approves every `ask`, so ALLOW PATTERNS ARE
-  #     REDUNDANT: unlisted commands are approved regardless. Only `deny` still
-  #     refuses, because yoloMode covers ask and not deny. So the allows are omitted
-  #     entirely, which removes every allow/deny overlap and lets ALL of the
-  #     destructive globs be enforced rather than the disjoint subset.
-  #
-  # Getting this backwards is a real hole, not a style choice: dropping a deny is
-  # only safe while `ask` refuses, and under yolo it does not.
   formatForPi =
     {
       allowTiers,
@@ -394,29 +286,15 @@ let
       yolo,
     }:
     let
-      # Only the denies no allow pattern can also match. A deny that overlaps an
-      # allow is DROPPED rather than emitted, because pi resolves such a pair by
-      # whichever key came last, and that is alphabetical order here.
-      #
-      # Dropping is safe rather than a hole, for a checkable reason: every dropped
-      # deny carries a mid-pattern wildcard, so the only allows it overlaps are the
-      # read-only git reads. The dangerous forms those denies exist for name
-      # subcommands that appear in NO tier, so they fall to the `ask` default and
-      # still never auto-run. What is lost is a silent refusal, replaced by a prompt.
       emittedAllows = if yolo then [ ] else allowTiers;
       emittedMcp = if yolo then [ ] else mcpTier;
-      # With no allows emitted there is nothing for a deny to overlap, so under yolo
-      # every destructive glob is enforced instead of only the disjoint subset.
       emittedDenies = lib.filter (d: !(lib.any (a: overlaps a d) emittedAllows)) denyGlobs;
       allowEntry = pattern: lib.nameValuePair pattern "allow";
       denyEntry = pattern: lib.nameValuePair pattern "deny";
     in
     {
       "*" = "ask";
-      # Reads cannot mutate anything, and pi asks per PATH otherwise, which is a
-      # prompt on nearly every turn.
       read = "allow";
-      # Skills come from this repository's own tree, so the gate adds nothing.
       skill = "allow";
       bash = {
         "*" = "ask";
@@ -429,15 +307,10 @@ let
       // builtins.listToAttrs (map allowEntry emittedMcp);
     };
 
-  # Claude Code: settings.permissions.allow expects a list of "Bash(<pattern>)"
-  # strings (plus other tool-class wrappers we don't emit here).
   formatForClaude = tier: builtins.map (cmd: "Bash(${cmd})") tier;
 
-  # Cursor CLI: permissions.allow expects a list of "Shell(<cmd>)" strings.
   formatForCursor = tier: builtins.map (cmd: "Shell(${cmd})") tier;
 
-  # Amp: amp.permissions is a list of {tool, matches, action} triples.
-  # Bash patterns become {tool="Bash", matches={cmd=<pattern>}, action="allow"}.
   formatForAmp =
     tier:
     builtins.map (cmd: {
@@ -448,11 +321,6 @@ let
       action = "allow";
     }) tier;
 
-  # Opencode: permission.bash is an attrset keyed by glob pattern with
-  # values "allow". Each tier entry "<cmd>" or "<cmd> *" becomes a key.
-  # For "<cmd>" (exact, no args) we emit "<cmd>*" because opencode's
-  # glob matching is prefix-based — exact-only enforcement would require
-  # an opencode-specific syntax we don't emit here.
   formatForOpencodeWithAction =
     action: tier:
     let
@@ -467,18 +335,6 @@ let
 
   formatForOpencode = formatForOpencodeWithAction "allow";
 
-  # Destructive-deny formatters. Each takes a pattern list and maps it into the
-  # harness's native deny shape. Goose has no entry: its config has no
-  # command-pattern deny surface, only tool-level permission.yaml gates.
-  #   opencode — permission.bash map keyed by glob → "deny".
-  #   Amp    — amp.permissions triples with action "reject" (verify the reject
-  #            action name against Amp's schema at apply; current allow/ask are
-  #            confirmed, reject is the documented block action).
-  #   Cursor — permissions.deny takes the same "Shell(<pattern>)" shape as
-  #            allow. Without this the cursor config denies nothing at all.
-  #   Devin  — permissions.deny takes "Exec(<prefix>)" for shell and
-  #            "Read(<glob>)" for files. Devin matches Exec by command prefix,
-  #            not by glob, so a trailing " *" is stripped rather than kept.
   formatDestructiveForCursor = patterns: builtins.map (cmd: "Shell(${cmd})") patterns;
 
   stripTrailingGlob =
@@ -499,41 +355,21 @@ let
       action = "reject";
     }) patterns;
 
-  # Slack MCP tools that send messages — require explicit approval in every
-  # harness that supports a per-tool ask/confirm mechanism.  Shared here so
-  # all harness configs reference the same list instead of duplicating strings.
   slackSendTools = [
     "mcp__claude_ai_Slack__slack_send_message"
     "mcp__claude_ai_Slack__slack_send_message_draft"
     "mcp__claude_ai_Slack__slack_schedule_message"
   ];
 
-  # MCP tool patterns for Claude Code's permissions.allow list.  Claude Code
-  # accepts bare "mcp__<server>__<tool>" strings (no Bash() wrapper) alongside
-  # the Bash()-wrapped entries.  Glob is valid only in the tool position after a
-  # LITERAL server prefix — "mcp__<server>__*" is valid; "mcp__*__*" is not.
-  # Keep in sync with mcp-servers.nix (for plugin/static servers).
   tierMcp = [
-    # structural code search — read-only, zero blast radius
     "mcp__ast-grep__*"
-    # cross-harness memory store
     "mcp__basic-memory__*"
-    # Playwright browser automation — user has opted in
     "mcp__playwright__*"
 
-    # home-manager plugin MCP servers (declared in mcp-servers.nix). Present for
-    # hosts that register them directly; a host that routes them through a gateway
-    # suppresses these servers and the entries simply match nothing.
     "mcp__plugin_claude-code-home-manager_ast-grep__*"
     "mcp__plugin_claude-code-home-manager_basic-memory__*"
     "mcp__plugin_claude-code-home-manager_playwright__*"
 
-    # The aggregating gateway (sysinit.laurel). One entry, so it grants every tool
-    # the gateway fronts, which is strictly coarser than the per-server entries
-    # above: the same prefix covers ast-grep, playwright, and every remote target.
-    # The owner accepted that trade to get a single MCP entry. The consequence to
-    # remember is that ADDING a gateway target silently inherits auto-approval, so
-    # the gateway's target list is now a permission surface, not just plumbing.
     "mcp__plugin_claude-code-home-manager_agentgateway__*"
   ];
 in

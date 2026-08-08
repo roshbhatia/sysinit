@@ -1,4 +1,3 @@
--- Validation via :make
 vim.opt_local.makeprg = "cue vet %"
 vim.opt_local.errorformat = [[%m:,%Z    %f:%l:%c]]
 

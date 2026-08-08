@@ -1,4 +1,3 @@
--- read the shared state bus so Sketchybar and WezTerm select the same session
 local sbar = require("sketchybar")
 local cjson = require("cjson")
 local settings = require("sysinit.pkg.settings")
@@ -9,7 +8,6 @@ local M = {}
 
 local item
 
--- launchd does not expand `$USER` in Sketchybar's inherited PATH
 local function agent_sessions_cmd()
   local user = os.getenv("USER")
   if user and user ~= "" then
@@ -24,7 +22,6 @@ local status_icons = {
   working = "󰑮",
 }
 
--- cjson represents JSON null as lightuserdata instead of Lua nil
 local function str(v)
   return type(v) == "string" and v or nil
 end
@@ -84,16 +81,13 @@ local function render(payload)
   end)
 end
 
--- one command avoids ordering between separate front-app and rollup callbacks
 local function poll()
   local cmd = "app=$(osascript -e 'tell application \"System Events\" to get name of first application process "
     .. "whose frontmost is true' 2>/dev/null); "
     .. "case \"$app\" in wezterm-gui|WezTerm|Wezterm) "
     .. agent_sessions_cmd()
     .. " 2>/dev/null | tr -d '\\n' ;; *) echo HIDE ;; esac"
-  -- sbar.exec does not deliver multiline JSON reliably
   sbar.exec(cmd, function(result)
-    -- sbarLua automatically decodes JSON output into a table
     if type(result) == "table" then
       render(result)
       return
@@ -128,9 +122,7 @@ function M.setup()
     background = { drawing = false },
     padding_left = settings.spacing.widget_spacing,
     padding_right = settings.spacing.widget_spacing,
-    -- pane state has no Sketchybar event source
     update_freq = 2,
-    -- hidden items receive no routine events, so this item must start visible
   })
 
   item:subscribe("front_app_switched", poll)

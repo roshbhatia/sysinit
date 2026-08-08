@@ -10,7 +10,6 @@ local function color(hex, custom_alpha)
 end
 
 local colors = {
-  -- Base16 Palette (direct access)
   base00 = color(config.base16.base00),
   base01 = color(config.base16.base01),
   base02 = color(config.base16.base02),
@@ -28,23 +27,18 @@ local colors = {
   base0E = color(config.base16.base0E), -- Magenta
   base0F = color(config.base16.base0F), -- Brown
 
-  -- Foreground (mapped to base16)
   foreground_primary = color(config.base16.base05), -- Normal text
   foreground_muted = color(config.base16.base03), -- Muted text / comments
 
-  -- Background (mapped to base16 with transparency)
   background_primary = color(config.base16.base00, alpha), -- Primary background
   background_secondary = color(config.base16.base01, alpha), -- Secondary background
 
-  -- Accent (mapped to base16)
   accent_primary = color(config.base16.base0D), -- Blue
 
-  -- Semantic (mapped to base16)
   semantic_error = color(config.base16.base08), -- Red
   semantic_success = color(config.base16.base0B), -- Green
   semantic_warning = color(config.base16.base0A), -- Yellow
 
-  -- Syntax (mapped to base16)
   syntax_builtin = color(config.base16.base0C), -- Cyan
   syntax_function = color(config.base16.base0D), -- Blue
   syntax_keyword = color(config.base16.base0E), -- Magenta
@@ -56,17 +50,14 @@ local colors = {
   syntax_number = color(config.base16.base09), -- Orange
   syntax_operator = color(config.base16.base05), -- Normal text
 
-  -- Blur
   blur_radius = blur,
 }
 
--- Popup colors (use base16 directly)
 colors.popup = {
   bg = colors.background_primary, -- base00 with alpha
   border = colors.base0D, -- Blue
 }
 
--- Convenience aliases
 colors.white = colors.foreground_primary
 colors.bg = colors.background_primary
 colors.workspace_focused = colors.base08 -- Red for focused workspace

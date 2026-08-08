@@ -1,5 +1,3 @@
--- Flags verified against `crush --help`. Note crush inverts the usual short
--- flags: -c is --cwd and -C is --continue. Only long flags are emitted here.
 return require("harness.adapters._shared").raw_cli_adapter({
   name = "crush",
   label = "  Crush",

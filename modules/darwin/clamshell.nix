@@ -1,7 +1,4 @@
 {
-  # Prevent lid-close sleep when the Apple Thunderbolt Display is connected.
-  # system_profiler reports it as "Thunderbolt Display"; caffeinate -s holds
-  # a system-sleep assertion that is only active on AC power.
   launchd.user.agents.clamshell-thunderbolt = {
     serviceConfig = {
       ProgramArguments = [

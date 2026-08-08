@@ -1,14 +1,3 @@
--- Instance registry for out-of-process agents.
---
--- When nvim spawns an agent pane it exports NVIM_HOST_SOCKET, so the agent
--- already knows where to reach us. The reverse case has no such env var: the
--- user starts an agent in a bare terminal, and only later wants an editor. For
--- that flow the agent has to *discover* a live nvim, so every instance drops a
--- record here and removes it on exit. This mirrors the lockfile claudecode.nvim
--- writes for its own bridge.
---
--- Consumers outside nvim (bin/nvim-ctl, the nvim-walkthrough skill) read this
--- directory directly, so the record shape is part of the contract.
 
 local M = {}
 
@@ -43,7 +32,6 @@ function M.unregister()
   pcall(vim.fn.delete, record_path())
 end
 
---- Live records, with stale ones pruned as a side effect.
 ---@return table[]
 function M.list()
   local out = {}
@@ -51,8 +39,6 @@ function M.list()
   for _, file in ipairs(entries) do
     local ok, lines = pcall(vim.fn.readfile, file)
     local decoded = ok and lines[1] and select(2, pcall(vim.json.decode, lines[1])) or nil
-    -- A record whose socket is gone belongs to an nvim that died without
-    -- running VimLeavePre (crash, SIGKILL). Drop it so discovery stays honest.
     local live = type(decoded) == "table" and decoded.socket and vim.uv.fs_stat(decoded.socket) ~= nil
     if live then
       table.insert(out, decoded)

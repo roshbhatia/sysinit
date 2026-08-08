@@ -9,11 +9,6 @@ return {
       "copilotlsp-nvim/copilot-lsp",
     },
     opts = function()
-      -- Render an AI completion's insertion text as the doc-window `detail`
-      -- (above the separator, highlighted with the buffer's filetype treesitter)
-      -- and clear `documentation` so sources like blink-copilot that populate
-      -- both fields don't duplicate the same text below the separator.
-      -- Runs in transform_items, before blink's empty-doc guard.
       local function ai_doc_preview(item)
         local text = (item.textEdit and item.textEdit.newText) or item.insertText or item.label
         if type(text) ~= "string" or text == "" then
@@ -103,10 +98,6 @@ return {
           documentation = {
             auto_show = true,
             auto_show_delay_ms = 0,
-            -- blink only invokes draw when the item has documentation OR detail
-            -- (otherwise the doc window is closed before draw runs). draw is the
-            -- ACTUAL renderer when set, so we must call default_implementation()
-            -- ourselves; mutating item.documentation alone renders nothing.
             draw = function(opts)
               local item = opts.item
               if item and item.documentation and type(item.documentation) == "table" and item.documentation.value then

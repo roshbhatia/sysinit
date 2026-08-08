@@ -51,11 +51,6 @@ let
     "files"
   ];
 
-  # Injected once per generated SKILL.md so every skill carries the RFC 2119
-  # reference without each source file restating the boilerplate. Kept to one
-  # line: the full keyword gloss lives in the global instructions, and repeating
-  # it in 17 skill bodies cost ~5KB of context for a convention the reader
-  # already has.
   normativePreamble = ''
     > Normative keywords follow [RFC 2119](https://datatracker.ietf.org/doc/html/rfc2119); "never" is MUST NOT, "always" is MUST, "prefer" is SHOULD.
 
@@ -151,11 +146,6 @@ let
     else
       true;
 
-  # Amp auto-loads the same SKILL.md tree and validates frontmatter against a
-  # fixed allowlist, so a key Claude Code understands is a load error there.
-  # `effort` is not in Amp's allowlist. `model` is, but only as a full model ID,
-  # and Claude Code's short aliases are not valid there; Amp therefore renders
-  # without either key and falls back to its session model.
   renderSkill =
     harness: name: skill:
     let
@@ -182,9 +172,6 @@ let
 
       frontmatter = builtins.concatStringsSep "\n" frontmatterLines + "\n";
 
-      # applyVocab runs over the whole rendered file, frontmatter included, so a
-      # description that names a spawned helper agent uses the same word the
-      # harness's own tools use. See lib/vocab.nix.
       forced = builtins.deepSeq [
         _ck
         _nk
@@ -209,8 +196,6 @@ let
 
   allSkills = localSkills;
 
-  # Extra files a skill ships beside its SKILL.md (deterministic helper
-  # scripts), flattened to "<skill>/<relpath>" -> source for home.file mapping.
   skillExtraFiles = lib.foldlAttrs (
     acc: name: skill:
     acc // (lib.mapAttrs' (rel: src: lib.nameValuePair "${name}/${rel}" src) (skill.files or { }))

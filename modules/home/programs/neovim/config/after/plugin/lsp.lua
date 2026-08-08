@@ -1,5 +1,3 @@
--- lsp.config and lsp.enable must run synchronously: they register FileType
--- autocmds that have to exist before the initial buffer's FileType event fires.
 vim.lsp.config("*", {
   capabilities = require("blink.cmp").get_lsp_capabilities(),
 })
@@ -37,9 +35,6 @@ local servers = {
 
 vim.lsp.enable(servers)
 
--- Everything below only affects diagnostics display and keymaps — none of it
--- needs to exist before LSP servers start. Deferring avoids initialising the
--- inlay-hint and diagnostic modules (~10ms) during the startup critical path.
 vim.schedule(function()
   vim.lsp.inlay_hint.enable(true)
 
@@ -58,7 +53,6 @@ vim.schedule(function()
     },
     signs = {
       text = {
-        -- All empty on purpose, so it doesn't show in the sign column
         [vim.diagnostic.severity.ERROR] = "",
         [vim.diagnostic.severity.HINT] = "",
         [vim.diagnostic.severity.INFO] = "",

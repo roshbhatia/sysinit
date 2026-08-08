@@ -1,16 +1,8 @@
-# Instruction-writing principles for this file. The rendered text becomes each
-# harness's global context file (~/.claude/CLAUDE.md, ~/.config/*/AGENTS.md), so
-# its shape changes model behavior, not only its content. Keep new sections
-# consistent with these principles.
 { lib }:
 let
   subagents = import ../subagents { inherit lib; };
   vocab = import ./vocab.nix { inherit lib; };
 
-  # Names only, and only for harnesses that cannot load a skill. Every harness
-  # with a skill loader already surfaces each skill's own description from its
-  # skills tree, so listing them here says the same thing twice. Codex and
-  # copilot have no loader, but their Read tool still reaches the tree, so they
   formatSkillsBlock =
     skills:
     let
@@ -21,10 +13,6 @@ let
     else
       "Available: " + builtins.concatStringsSep ", " (map (n: "`${n}`") names);
 
-  # Where each configured harness reads its global context, or why it does not
-  # get one. Every harness config imported by `default.nix` must appear here, so
-  # adding a harness without deciding this fails the build rather than shipping
-  # an agent that never sees the conventions or the prohibitions.
   harnessCoverage = {
     claude = "~/.claude/CLAUDE.md";
     codex = "codex `context`";
@@ -41,10 +29,6 @@ let
 
   coveredHarnesses = builtins.attrNames harnessCoverage;
 
-  # Copilot is NOT here: its bundle carries `loadSkill` and `skills.load`, and
-  # its own help names `~/.copilot/skills/` as a personal skills root. An
-  # earlier draft listed it, which both mislabelled the harness and spent
-  # context on a Skills section it does not need.
   harnessesWithoutSkillLoader = [
     "codex"
   ];
@@ -61,7 +45,6 @@ let
 
       sections = {
         conventions = ''
-          ## Conventions
 
           - Normative keywords (MUST/SHOULD/MAY) here and in skills follow RFC 2119 (https://datatracker.ietf.org/doc/html/rfc2119); "never"/"always" rules are MUST-level
           - Read the repository's own context before authoring: `AGENTS.md`, `openspec/`, `.sysinit/lessons.md`
@@ -76,7 +59,6 @@ let
         '';
 
         skills = ''
-          ## Skills
 
           Skills live at `${skillsRoot}/<name>/SKILL.md`. This harness has no skill loader, so read a skill's file directly when its name matches the task.
 
@@ -84,7 +66,6 @@ let
         '';
 
         responsibility = ''
-          ## Responsibility
 
           - Treat model output as a draft until evidence verifies it
           - The user owns each decision and artifact; never claim approval on the user's behalf
@@ -95,7 +76,6 @@ let
         '';
 
         prohibitions = ''
-          ## Prohibitions
 
           - Never commit unless directed; stage the change and propose a message instead
           - Never use `--no-verify`, `--no-gpg-sign`, or other hook-bypass flags; fix the failing hook instead
@@ -118,10 +98,7 @@ let
 
       base = builtins.concatStringsSep "\n" (map (key: sections.${key}) order);
 
-      # Downstream sections render last, so a machine-scoped rule sits at the
-      # recency position rather than in front of the shared ones.
       extraText = section: ''
-        ## ${section.title}
 
         ${section.body}
       '';
@@ -159,14 +136,8 @@ let
 
       lineCount = countLines base;
 
-      # Sized to the cross-repo rules plus headroom for one more section. A
-      # breach means a repository fact or a domain rule leaked in; move it to
-      # that repository's AGENTS.md or to the owning skill instead of raising
-      # the cap.
       maxLines = 45;
 
-      # Measured apart from the built-in sections, and much smaller, so a
-      # downstream flake spends its own budget rather than the shared one.
       extraLineCount = countLines extras;
       maxExtraLines = 16;
     in
@@ -183,10 +154,6 @@ let
     else
       rendered;
 
-  # Compact, operationally-enforced output rules. Sole source for how the model
-  # writes: no context section restates them. No frontmatter — that is added by
-  # the consumer (claude.nix wraps these in the output-style file header;
-  # makeInstructionsWithStyle appends them as a plain section).
   outputStyleRules = ''
     Write all output in Simplified Technical English (ASD-STE100).
 
@@ -228,9 +195,6 @@ let
     Avoid bullet: "- **nix fmt** formats all Nix files" (bold term; use plain text)
   '';
 
-  # For harnesses without a native output-style layer, appends outputStyleRules
-  # at the recency position (after all context sections) so the model sees the
-  # operative rules last. Claude uses its native outputStyle mechanism instead.
   makeInstructionsWithStyle =
     args: makeInstructions args + "\n## Output Style\n\n" + outputStyleRules;
 
@@ -240,7 +204,5 @@ in
   inherit harnessCoverage coveredHarnesses;
   inherit subagents;
   inherit (subagents) formatSubagentAsMarkdown;
-  # subagentDefs: the subagent attrset without the formatter, so callers can
-  # iterate over agent definitions without the filterAttrs workaround.
   subagentDefs = builtins.removeAttrs subagents [ "formatSubagentAsMarkdown" ];
 }

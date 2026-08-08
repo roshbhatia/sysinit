@@ -1,20 +1,3 @@
-# PreToolUse(exec) guard for devin.
-#
-# devin's hook payload uses the same keys as Claude Code (`tool_name`,
-# `tool_input`, `hook_event_name`), so the shared destructive-command guard
-# reads it unmodified. The blocking contract differs: Claude blocks via a JSON
-# permissionDecision on exit 0, devin blocks via a non-zero exit code. This
-# wrapper runs the shared guard and translates its deny decision into the exit
-# code devin expects.
-#
-# GUARD_EXE is injected at build time by llmLib.guards.mkExitCodeGuard. It was
-# once a bare `claude-bash-guard` call, a name no harness puts on PATH, so the
-# lookup failed and this exited 0 for every command.
-#
-# Fail-open by construction: if the guard prints nothing — including when
-# devin's exec tool names its command field something other than `command` —
-# this exits 0 and the normal permission tiers decide.
-
 input="$(cat)"
 
 out="$(printf '%s' "$input" | "$GUARD_EXE" 2> /dev/null)"

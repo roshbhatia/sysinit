@@ -1,14 +1,3 @@
--- Editor operations an out-of-process agent can drive, so it can *show* you
--- code instead of pasting it into a chat pane: open a file, highlight a range,
--- annotate a line, split two files side by side, then narrate.
---
--- Transport is Neovim's own RPC socket. `bin/nvim-ctl` writes a JSON request to
--- a temp file and calls `nvim --server <sock> --remote-expr`, which is the same
--- mechanism utils/remote_editor.lua already uses for the $EDITOR bridge. No
--- extra daemon, no extra socket, nothing to install.
---
--- Highlights and annotations are extmarks in one namespace, so they never touch
--- buffer text and `clear` always fully undoes them.
 
 local M = {}
 
@@ -27,9 +16,6 @@ local function ensure_buf(path)
   end
   local buf = vim.fn.bufadd(full)
   vim.fn.bufload(buf)
-  -- bufadd() leaves the buffer unlisted, which hides agent-opened files from
-  -- :ls, :bnext, and every buffer picker. From the user's side these are
-  -- ordinary files they are now reading.
   vim.bo[buf].buflisted = true
   return buf, nil
 end
@@ -42,12 +28,6 @@ local START_SCREENS = {
   ministarter = true,
 }
 
---- Close any start screen still floating over the editor.
----
---- snacks.dashboard is a full-editor float at zindex 10. Opening a buffer in a
---- real window underneath succeeds but stays invisible, so an agent's
---- walkthrough looks like it did nothing. Interactive use never hits this
---- because the user opens a file, which dismisses the dashboard first.
 function M.dismiss_start_screen()
   for _, win in ipairs(vim.api.nvim_tabpage_list_wins(0)) do
     if vim.api.nvim_win_get_config(win).relative ~= "" then
@@ -59,11 +39,6 @@ function M.dismiss_start_screen()
   end
 end
 
---- Close leftover scratch windows.
----
---- Dismissing snacks.dashboard leaves an empty no-name window behind, so a
---- two-file walkthrough would otherwise show three splits. Only windows whose
---- buffer is unnamed, unmodified, and empty are closed, and never the last one.
 local function prune_empty_windows()
   local wins = vim.api.nvim_tabpage_list_wins(0)
   for _, win in ipairs(wins) do
@@ -81,7 +56,6 @@ local function prune_empty_windows()
   end
 end
 
---- Pick a window suitable for content, skipping terminals, sidebars, and floats.
 ---@return integer|nil
 local function main_win()
   for _, win in ipairs(vim.api.nvim_tabpage_list_wins(0)) do
@@ -171,7 +145,6 @@ function ops.highlight(req)
   for line = from, math.min(to, last) do
     vim.api.nvim_buf_set_extmark(buf, NS, line - 1, 0, {
       line_hl_group = "HarnessAgentRange",
-      -- The label rides only the first row so a long range reads as one block.
       virt_text = (line == from and req.label) and { { "  " .. req.label, "HarnessAgentLabel" } } or nil,
       virt_text_pos = "eol",
     })
@@ -238,8 +211,6 @@ function ops.diff(req)
     vim.cmd("diffthis")
     return { ok = true, mode = "pair" }
   end
-  -- Single path: show it against the index, which is what "what did the agent
-  -- just change" actually means during a working session.
   show(left, "tab")
   local ok = pcall(vim.cmd, "Gitsigns diffthis")
   return { ok = true, mode = ok and "index" or "buffer" }
@@ -323,7 +294,6 @@ function ops.notify(req)
   return { ok = true }
 end
 
---- Escape hatch. Kept last and named explicitly so a skill has to opt into it.
 function ops.command(req)
   if not req.command or req.command == "" then
     return err("command needs a command")
@@ -340,12 +310,10 @@ function M.ops()
   return vim.tbl_keys(ops)
 end
 
---- Drop every agent highlight and annotation. Bound to <leader>jC.
 function M.clear()
   return ops.clear({})
 end
 
---- Entry point for bin/nvim-ctl.
 ---@param ctl string  path to a file holding one line of JSON: { op = ..., ... }
 ---@return string     one line of JSON
 function M.rpc(ctl)

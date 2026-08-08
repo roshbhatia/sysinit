@@ -3,7 +3,6 @@ local M = {}
 local placeholders = require("harness.placeholders")
 local context = require("harness.context")
 
---- Open an input prompt for *agent_name*.
 ---@param opts {agent_name?:string, action?:string, default?:string, selection_marks?:table, on_confirm?:fun(text:string)}
 function M.create_input(opts)
   opts = opts or {}
@@ -26,7 +25,6 @@ function M.create_input(opts)
 
   local snacks_ok, snacks = pcall(require, "snacks")
   if snacks_ok and snacks.input and type(snacks.input) == "function" then
-    -- snacks.nvim exposes Snacks.input(opts, on_confirm) as a function table
     snacks.input({
       prompt = title,
       default = opts.default or "",
@@ -37,8 +35,6 @@ function M.create_input(opts)
     return
   end
 
-  -- Fallback: plain vim.ui.input. Won't fire blink since we can't set the
-  -- filetype, but at least the flow works without snacks installed.
   vim.ui.input({
     prompt = title .. ": ",
     default = opts.default or "",

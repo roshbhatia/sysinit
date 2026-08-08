@@ -3,11 +3,6 @@
   managedFile,
   ...
 }:
-# Ownership semantics of the three-way merge. Each case is a claim the
-# harness configs depend on: undeclaring a key deletes it without a
-# tombstone list, a key the harness wrote survives, a value the owner
-# changed from inside the harness is not clobbered, and a genuine
-# three-way divergence refuses rather than silently picking a side.
 pkgs.runCommand "managed-file-merge3-check" { nativeBuildInputs = [ pkgs.jq ]; } ''
   prog=${pkgs.writeText "merge3.jq" managedFile.mergeProgram}
   fail=0
@@ -51,21 +46,12 @@ pkgs.runCommand "managed-file-merge3-check" { nativeBuildInputs = [ pkgs.jq ]; }
   ok "nested: inner undeclare deletes, sibling add survives" \
     '{"s":{"a":1,"b":2}}' '{"s":{"a":1,"b":2,"z":9}}' '{"s":{"a":1}}' '{"s":{"a":1,"z":9}}'
 
-  # `opencode-render.nix` keeps an `authoritative` list that replaces
-  # whole blocks, on the stated grounds that a top-level `del` "only
-  # reaches depth one" and so cannot remove a stale nested entry such
-  # as a `provider.ollama` that Nix stopped declaring. These cases test
-  # that claim against the three-way program directly: if deletion
-  # recurses to any depth, that list is redundant.
   ok "nested 2 deep: undeclared subtree is deleted" \
     '{"p":{"o":{"k":1},"x":1}}' '{"p":{"o":{"k":1},"x":1}}' '{"p":{"x":1}}' '{"p":{"x":1}}'
   ok "nested 3 deep: undeclared leaf is deleted" \
     '{"p":{"o":{"k":1,"j":2}}}' '{"p":{"o":{"k":1,"j":2}}}' '{"p":{"o":{"k":1}}}' '{"p":{"o":{"k":1}}}'
   ok "nested 3 deep: harness addition beside it survives" \
     '{"p":{"o":{"k":1,"j":2}}}' '{"p":{"o":{"k":1,"j":2,"z":9}}}' '{"p":{"o":{"k":1}}}' '{"p":{"o":{"k":1,"z":9}}}'
-  # Expected value is key-sorted: the program builds objects from a
-  # `unique` key set, and `jq -S` matches that so the first run does not
-  # rewrite a file for ordering alone.
   ok "nested: owner edit to an undeclared leaf is kept" \
     '{"p":{"o":{"k":1,"j":2}}}' '{"p":{"o":{"k":1,"j":99}}}' '{"p":{"o":{"k":1}}}' '{"p":{"o":{"j":99,"k":1}}}'
 

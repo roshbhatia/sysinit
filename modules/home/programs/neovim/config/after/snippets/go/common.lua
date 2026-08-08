@@ -4,7 +4,6 @@ local i = ls.insert_node
 local fmt = require("luasnip.extras.fmt").fmt
 
 ls.add_snippets("go", {
-  -- Error handling
   s(
     "iferr",
     fmt(
@@ -29,7 +28,6 @@ if err != nil {{
     )
   ),
 
-  -- Test function
   s(
     "test",
     fmt(
@@ -42,7 +40,6 @@ func Test{}(t *testing.T) {{
     )
   ),
 
-  -- Struct definition
   s(
     "struct",
     fmt(
@@ -55,7 +52,6 @@ type {} struct {{
     )
   ),
 
-  -- Interface definition
   s(
     "interface",
     fmt(
@@ -68,7 +64,6 @@ type {} interface {{
     )
   ),
 
-  -- Method definition
   s(
     "method",
     fmt(
@@ -81,7 +76,6 @@ func ({}  *{}) {}({}) {} {{
     )
   ),
 
-  -- HTTP handler
   s(
     "handler",
     fmt(
@@ -94,7 +88,6 @@ func {}(w http.ResponseWriter, r *http.Request) {{
     )
   ),
 
-  -- Goroutine
   s(
     "go",
     fmt(
@@ -107,7 +100,6 @@ go func() {{
     )
   ),
 
-  -- Channel
   s(
     "chan",
     fmt(
@@ -118,7 +110,6 @@ go func() {{
     )
   ),
 
-  -- Context with timeout
   s(
     "ctx",
     fmt(

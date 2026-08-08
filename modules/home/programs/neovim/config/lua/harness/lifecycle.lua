@@ -142,7 +142,6 @@ function M._snacks(cmd, opts, name)
       end
       local payload = (send_opts.submit ~= false) and (text .. "\r") or text
       pcall(vim.api.nvim_chan_send, chan, payload)
-      -- Focus the terminal window so the user lands in the agent's input.
       pcall(function()
         if term.win and vim.api.nvim_win_is_valid(term.win) then
           vim.api.nvim_set_current_win(term.win)

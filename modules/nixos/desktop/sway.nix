@@ -1,4 +1,3 @@
-# SwayFX compositor + desktop packages
 {
   pkgs,
   inputs,
@@ -9,7 +8,6 @@
 let
   swayfxPkg = inputs.swayfx.packages.${pkgs.stdenv.hostPlatform.system}.default;
 
-  # Wrap swayfx the same way nixpkgs wraps sway
   swayfxWrapped = pkgs.sway.override {
     sway-unwrapped = swayfxPkg;
   };
@@ -50,10 +48,6 @@ in
     xserver.enable = false;
     dbus.enable = true;
 
-    # capSysAdmin=true grants CAP_SYS_ADMIN for KMS framebuffer capture.
-    # AT_SECURE mode (triggered by file capabilities) blocks LD_LIBRARY_PATH,
-    # so NVENC libs are provided via RPATH patched in the nixpkgs overlay in
-    # arrakis.nix instead.
     sunshine = {
       enable = true;
       openFirewall = true;
@@ -68,7 +62,6 @@ in
       xwayland.enable = true;
     };
 
-    # Gaming
     steam = {
       enable = true;
       remotePlay.openFirewall = true;
@@ -76,7 +69,6 @@ in
     };
     gamemode.enable = true;
 
-    # 1Password
     _1password.enable = true;
     _1password-gui = {
       enable = true;
@@ -101,7 +93,6 @@ in
     XCURSOR_SIZE = "16";
   };
 
-  # 32-bit graphics (required for Steam/Wine)
   hardware.graphics.enable32Bit = true;
 
   security.polkit.enable = true;
@@ -115,44 +106,31 @@ in
     wl-clipboard
     cliphist
 
-    # Launcher + notifications + utilities
     rofi
     bemenu
     j4-dmenu-desktop
     mako
     wlr-which-key
 
-    # File management
     nemo
 
-    # Communication
     vesktop
 
-    # Media viewers
     mpv
     imv
     (zathura.override { plugins = [ zathuraPkgs.zathura_pdf_mupdf ]; })
 
-    # Audio control
     pavucontrol
 
-    # Authentication
     polkit_gnome
 
-    # Gaming
     lutris
     mangohud
     gamescope
     heroic
     umu-launcher
 
-    # Theming
     papirus-icon-theme
     apple-cursor
-    # gruvbox-gtk-theme is deliberately absent. nixpkgs removed it with its
-    # gtk-engine-murrine dependency, which was unmaintained and GTK 2 only, and
-    # the removal broke every arrakis evaluation. Nothing here replaces it:
-    # `stylix.enable` with `autoEnable` derives the GTK theme from the base16
-    # scheme, so this package was installed and selected by nothing.
   ];
 }

@@ -5,9 +5,6 @@ scanLib.mkScanCheck {
   unit = "shell scripts";
   tools = [ pkgs.shellcheck ];
   findArgs = "-type f ! -path '*/.git/*'";
-  # Shebang as well as extension, and not `$`-anchored: `#!/usr/bin/env bash -e`
-  # is exactly how a script escapes an anchored pattern. zsh belongs to the zsh
-  # parse check.
   filter = ''
     case "$f" in
       *.sh) ;;

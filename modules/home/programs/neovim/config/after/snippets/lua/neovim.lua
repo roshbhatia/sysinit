@@ -4,7 +4,6 @@ local i = ls.insert_node
 local fmt = require("luasnip.extras.fmt").fmt
 
 ls.add_snippets("lua", {
-  -- Neovim autocommand
   s(
     "autocmd",
     fmt(
@@ -24,7 +23,6 @@ vim.api.nvim_create_autocmd({}, {{
     )
   ),
 
-  -- Neovim augroup with autocommand
   s(
     "augroup",
     fmt(
@@ -47,7 +45,6 @@ vim.api.nvim_create_autocmd({}, {{
     )
   ),
 
-  -- Keymap
   s(
     "map",
     fmt(
@@ -63,7 +60,6 @@ vim.keymap.set({}, {}, {}, {{ desc = "{}" }})
     )
   ),
 
-  -- Keymap with buffer
   s(
     "mapb",
     fmt(
@@ -79,7 +75,6 @@ vim.keymap.set({}, {}, {}, {{ buffer = true, desc = "{}" }})
     )
   ),
 
-  -- User command
   s(
     "cmd",
     fmt(
@@ -96,7 +91,6 @@ end, {{ nargs = {} }})
     )
   ),
 
-  -- Highlight
   s(
     "hl",
     fmt(
@@ -111,7 +105,6 @@ vim.api.nvim_set_hl(0, "{}", {{ fg = "{}", bg = "{}" }})
     )
   ),
 
-  -- Option
   s(
     "opt",
     fmt(
@@ -125,7 +118,6 @@ vim.opt.{} = {}
     )
   ),
 
-  -- Buffer-local option
   s(
     "optl",
     fmt(
@@ -139,7 +131,6 @@ vim.opt_local.{} = {}
     )
   ),
 
-  -- Plugin spec
   s(
     "plugin",
     fmt(
@@ -161,7 +152,6 @@ vim.opt_local.{} = {}
     )
   ),
 
-  -- Require guard
   s(
     "req",
     fmt(

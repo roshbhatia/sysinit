@@ -1,6 +1,5 @@
 local neoconf = require("neoconf")
 
--- Files that should never have Copilot enabled (secrets, credentials, etc.)
 local secret_patterns = {
   "%.env$",
   "%.env%.",
@@ -181,14 +180,11 @@ function setup_commands()
 end
 
 local base_config = {
-  -- Dynamically decide whether to activate based on file path
   root_dir = function(bufnr, on_dir)
     local bufname = vim.api.nvim_buf_get_name(bufnr)
     if is_secret_file(bufname) then
-      -- Don't call on_dir to prevent LSP from attaching
       return
     end
-    -- Use cwd as root for all other files
     on_dir(vim.uv.cwd())
   end,
   on_attach = function(client, bufnr)

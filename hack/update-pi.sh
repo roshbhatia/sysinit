@@ -1,14 +1,4 @@
 #!/usr/bin/env bash
-# Report drift between pinned pi packages in modules/home/programs/llm/harnesses/pi/default.nix
-# and their latest versions on the npm registry. Also detects orphan
-# package-lock files under modules/home/programs/llm/harnesses/pi/locks/.
-#
-# Exits non-zero on any drift detected so this can gate CI / `task pi:update`.
-# Does NOT modify pi.nix. When drift exists, prints the next steps to
-# update each package (hash recompute, npmDepsHash via fake-hash technique,
-# lockfile regeneration as needed).
-#
-# Usage: ./hack/update-pi.sh
 
 set -euo pipefail
 
@@ -20,9 +10,6 @@ if [[ ! -f ${PI_NIX} ]]; then
   exit 2
 fi
 
-# Packages we track: (npm-name, version-line-key). version-line-key is the
-# leading attr name in the piPackages attrset OR the package basename used
-# in pname for inline buildNpmPackage entries.
 declare -a TRACKED=(
   "pi-context"
   "pi-subagents"
@@ -46,10 +33,6 @@ declare -a TRACKED=(
   "taskplane"
   "@plannotator/pi-extension"
   "@gotgenes/pi-permission-system"
-  # @samfp/pi-memory remains dropped — needs node:sqlite which bun lacks.
-  # Other pi-* memory packages on npm still import the pre-rename
-  # @mariozechner scope and break against pi 0.74's @earendil-works
-  # runtime. Revisit when an @earendil-works-native memory package ships.
   "@benvargas/pi-claude-code-use"
   "@firstpick/pi-extension-reverse-last"
   "@heyhuynhgiabuu/pi-diff"
@@ -57,12 +40,8 @@ declare -a TRACKED=(
 
 drift_count=0
 
-# Extract the pinned version for a given npm name. Looks for the version
-# argument in `mkFetchedNpmPackage "<name>" "<version>"` or
-# `mkBuiltNpmPackage "<name>" "<version>"` or `pname = "<name>"; version = "<version>";`.
 pinned_version() {
   local pkg="$1"
-  # mkFetchedNpmPackage / mkBuiltNpmPackage form
   local v
   v=$(grep -E "mk(Fetched|Built)NpmPackage \"${pkg}\" \"[0-9a-z.+-]+\"" "${PI_NIX}" |
     head -1 | sed -E 's/.*mk(Fetched|Built)NpmPackage "[^"]*" "([^"]+)".*/\2/')
@@ -70,9 +49,6 @@ pinned_version() {
     echo "${v}"
     return
   fi
-  # pname/version pair form (inline buildNpmPackage). Try the full name
-  # first, then fall back to the basename (handles scoped packages where
-  # pname uses only the basename).
   local basename="${pkg##*/}"
   v=$(awk -v pkg="${pkg}" -v base="${basename}" '
     /pname = "/ {
@@ -121,7 +97,6 @@ done
 
 echo ""
 echo "=== Orphan lock files ==="
-# Known lock-name aliases that don't follow the npm-name pattern.
 declare -A KNOWN_LOCKS=(
   ["pi-acp"]="pi-acp"
   ["pi-dcp"]="pi-dcp"

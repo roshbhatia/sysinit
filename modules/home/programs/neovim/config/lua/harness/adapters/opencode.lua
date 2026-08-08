@@ -2,9 +2,6 @@ local function opencode_ok()
   return pcall(require, "opencode")
 end
 
--- Rebuild vim.g.opencode_opts.server with the current option args appended
--- to the spawn cmd. Takes effect on the NEXT fresh spawn — if a server
--- pane is already up, kill it first (<leader>jx) to re-pick options.
 local function refresh_server_cmd()
   local in_wezterm = vim.env.WEZTERM_PANE ~= nil and vim.fn.executable("wezterm") == 1
   if not in_wezterm then
@@ -23,7 +20,6 @@ local function refresh_server_cmd()
   end
   local server_opts = wt.build_server_callbacks(cmd, { name = "opencode", percent = 0.35 })
 
-  -- vim.g is a special table; reassign the whole value for changes to propagate.
   local g = vim.g.opencode_opts or {}
   g.server = server_opts
   vim.g.opencode_opts = g
@@ -32,8 +28,6 @@ end
 return {
   name = "opencode",
   label = "  OpenCode",
-  -- Flags verified against `opencode --help`. --port is fixed by the server
-  -- callback below, so it is deliberately absent here.
   options_schema = {
     { name = "continue", flag = "--continue", kind = "toggle" },
     { name = "fork", flag = "--fork", kind = "toggle" },

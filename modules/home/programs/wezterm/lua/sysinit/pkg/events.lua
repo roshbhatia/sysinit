@@ -3,11 +3,6 @@ local wezterm = require("wezterm")
 local M = {}
 
 function M.setup(config)
-  -- Set by nvim's smart-splits config when the cursor is already at the edge of
-  -- its own splits and the move has to continue into a wezterm pane. nvim asks
-  -- rather than moving itself, because over ssh it can reach neither `wezterm
-  -- cli` nor this process any other way. The payload is "<direction>:<seq>";
-  -- the counter only exists to make the value differ so this event fires again.
   local NAV_DIRECTIONS = {
     left = "Left",
     right = "Right",

@@ -4,26 +4,21 @@ local schemastore = require("schemastore")
 local base_config = {
   settings = {
     yaml = {
-      -- Use schemastore for JSON schemas
       schemaStore = { enable = false, url = "" }, -- Disable built-in, use schemastore plugin
       schemas = vim.tbl_extend("force", schemastore.yaml.schemas(), {
-        -- Custom Kubernetes schema pattern
         Kubernetes = "globPattern",
       }),
 
-      -- Formatting
       format = {
         enable = true,
         singleQuote = false,
         bracketSpacing = true,
       },
 
-      -- Validation
       validate = true,
       hover = true,
       completion = true,
 
-      -- Custom tags for GitLab CI, CloudFormation, etc.
       customTags = {
         "!reference sequence",
         "!And",
@@ -58,8 +53,6 @@ local base_config = {
   },
   handlers = {
     ["textDocument/publishDiagnostics"] = function(err, result, ctx, config)
-      -- Fix: some servers send diagnostics = {} (object) instead of [] (array)
-      -- Neovim decodes empty JSON object as vim.empty_dict() userdata, causing crash
       if result and type(result.diagnostics) == "userdata" then
         result.diagnostics = {}
       end

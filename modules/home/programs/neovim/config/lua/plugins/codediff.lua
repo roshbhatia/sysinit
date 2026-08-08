@@ -6,10 +6,6 @@ return {
     config = function()
       require("codediff").setup({
         explorer = {
-          -- Left, not bottom. view_mode was already "tree", but a 15-line
-          -- horizontal strip renders a tree as something indistinguishable from a
-          -- flat list: the indent markers have nowhere to go. A vertical panel is
-          -- the shape a tree needs. `i` toggles back to list at runtime.
           position = "left",
           width = 40,
           view_mode = "tree",
@@ -19,10 +15,6 @@ return {
             toggle_explorer = "<leader>dt",
           },
           conflict = {
-            -- `di`, not `dt`: `dt` is toggle_explorer above. codediff scopes the two
-            -- keymap groups to different buffers so nothing broke, but one mnemonic
-            -- meaning both "toggle explorer" and "accept incoming" is a trap.
-            -- `di`/`dc`/`db`/`dx` now read as incoming/current/both/discard.
             accept_incoming = "<leader>di",
             accept_current = "<leader>dc",
             accept_both = "<leader>db",
@@ -41,9 +33,6 @@ return {
         end
       end
 
-      -- Apply number/fold opts to just the two diff windows.
-      -- Must run via vim.schedule so it lands after welcome_window.sync restores
-      -- its saved profiles (which would otherwise override these settings).
       local function apply_diff_winopts(tabpage)
         local ok, lifecycle = pcall(require, "codediff.ui.lifecycle")
         if not ok then
@@ -76,10 +65,6 @@ return {
           local tabpage = (ev.data or {}).tabpage or vim.api.nvim_get_current_tabpage()
           vim.schedule(function()
             apply_diff_winopts(tabpage)
-            -- Agent review notes, written by the `diffnote` CLI. Watching starts
-            -- here so a note written while the view is open still appears.
-            -- pcall: this runs inside vim.schedule, where a raise becomes a
-            -- traceback over the diff the reviewer is reading.
             pcall(function()
               local diffnote = require("harness.diffnote")
               diffnote.start()
@@ -89,8 +74,6 @@ return {
         end,
       })
 
-      -- Re-apply on every file selection: welcome_window.sync restores saved
-      -- profiles synchronously, so we schedule to run after it.
       vim.api.nvim_create_autocmd("User", {
         pattern = "CodeDiffFileSelect",
         callback = function(ev)

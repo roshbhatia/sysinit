@@ -155,8 +155,6 @@ function M.send_selection()
   adapter.send(text, { submit = false })
 end
 
---- Send every review.nvim comment to the active agent as one message.
---- Sent unsubmitted so you can add framing before you hit enter.
 function M.send_review()
   local adapter = get_active_adapter()
   if not adapter then
@@ -197,8 +195,6 @@ end
 
 function M.setup()
   require("harness.completion").setup()
-  -- Registering the instance is what lets an agent started outside nvim find
-  -- and adopt this editor later. See doc/agent-ide-integration.md.
   require("harness.instance").setup()
   require("harness.control").setup()
   require("harness.spec_watch").setup()

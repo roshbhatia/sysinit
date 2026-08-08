@@ -1,10 +1,3 @@
--- Antigravity CLI (`agy`) is the Gemini-family harness; the standalone
--- `gemini` CLI is retired and is no longer installed. Flags below are read
--- from `agy --help`, not carried over from the gemini adapter. The two share
--- almost no surface (agy has no --yolo, --approval-mode, or --resume).
---
--- agy exposes no MCP flag, so it cannot receive a per-session nvim control
--- server. See doc/agent-ide-integration.md.
 return require("harness.adapters._shared").raw_cli_adapter({
   name = "antigravity",
   label = "󰊭  Antigravity",

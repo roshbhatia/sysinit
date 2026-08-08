@@ -1,43 +1,10 @@
 #!/usr/bin/env bash
-# Deterministic citation verification for external-factual claims in openspec
-# changes (the `citation-verification` capability).
-#
-# Two responsibilities, split by determinism:
-#   citelock verify [lockdir]   - the OFFLINE gate. A pure function of
-#       (artifact + citations.lock): format lint, capture-provenance,
-#       quote-anchor (grep -F), snapshot sha256, freshness. No network.
-#       Exits 0 when no lock is present (no-op). Wired into the flake check
-#       and the pre-commit hook.
-#   citelock capture <url> ...  - authoring-time truth-check. Fetches the URL
-#       live, FAILS CLOSED unless the verbatim quote is in the fetched bytes,
-#       records a provenance sidecar, and runs the live-web checks (liveness +
-#       Crossref). This is where hallucination is caught. Liveness has two
-#       oracles: lychee, then pplx as a fallback, because lychee false-negatives
-#       on heavily-redirecting hosts. Fail-closed needs BOTH to decline.
-#   citelock recheck [lockdir]  - re-run the live-web checks on existing
-#       records (dead link / retraction drift), fail closed.
-#
-# The offline gate does NOT fetch; the live checks live only in capture/recheck
-# and in online CI, never in the pre-commit gate. Client-side-rendered SPA
-# pages are out of scope (capture does not run JS) - cite a stable/archived URL
-# or a JSON API instead. See modules/.../skills for the authoring loop and the
-# honesty boundary (a hand-forged provenance sidecar is out of the threat
-# model; the gate defends against agent hallucination, not a hostile author).
-#
-# Usage (installed on PATH via llm/skill-tools.nix):
-#   citelock verify  [lockdir]
-#   citelock capture <url> --id <id> --quote <text> --class <class> [--doi <doi>] [--lockdir <dir>]
-#   citelock recheck [lockdir]
-#
-# CITELOCK_OFFLINE=1 forces the offline path everywhere (skips live checks with
-# a warning) so a commit succeeds with no network and without `--no-verify`.
 
 set -euo pipefail
 
 LOCKFILE_NAME="citations.lock"
 SNAP_DIR_NAME="citations"
 
-# Freshness thresholds in days per claim class. 0 means unbounded.
 freshness_days() {
   case "$1" in
     pricing | availability) echo 30 ;;
@@ -57,18 +24,11 @@ require_tool() {
   command -v "$1" > /dev/null 2>&1 || die "required tool not on PATH: $1"
 }
 
-# Literal whole-file substring test that keeps embedded newlines literal, so a
-# multiline quote must appear in full. grep -F matches line-by-line (OR
-# semantics), which would let a multiline quote pass if any single line-fragment
-# appeared; awk index() over the whole buffer does not. Quote is passed via env,
-# never -v, to avoid awk backslash mangling.
 anchor_contains() {
-  # $1 = file; quote read from $CITELOCK_Q
   awk 'BEGIN { q = ENVIRON["CITELOCK_Q"] } { b = b $0 ORS } END { exit index(b, q) ? 0 : 1 }' "$1"
 }
 
 sha256_of() {
-  # Portable sha256 of a file, hex only.
   if command -v sha256sum > /dev/null 2>&1; then
     sha256sum "$1" | awk '{print $1}'
   else
@@ -76,8 +36,6 @@ sha256_of() {
   fi
 }
 
-# Reject SSRF / non-public fetch targets. Only https public hosts are allowed.
-# Values are validated, never interpolated into a shell command.
 assert_safe_url() {
   local url="$1" host
   case "$url" in
@@ -102,8 +60,6 @@ assert_safe_url() {
 }
 
 lock_path() { echo "$1/${LOCKFILE_NAME}"; }
-
-# ---- offline gate ----------------------------------------------------------
 
 verify() {
   local lockdir="${1:-.}"
@@ -132,7 +88,6 @@ verify() {
     accessed="$(jq -r '.accessed // ""' <<< "$rec")"
     class="$(jq -r '.claim_class // ""' <<< "$rec")"
 
-    # 1. format lint
     if [[ -z ${source} || -z ${quote} || -z ${snap} || -z ${sha} || -z ${accessed} || -z ${class} ]]; then
       log "[$id] format: missing required field (source/quote/snapshot/sha256/accessed/claim_class)"
       failed=1
@@ -142,7 +97,6 @@ verify() {
     local snap_file="${lockdir}/${snap}"
     prov="${snap_file}.prov.json"
 
-    # 2. capture-provenance: snapshot must be tool-captured
     if [[ ! -f ${snap_file} ]]; then
       log "[$id] snapshot missing: ${snap_file}"
       failed=1
@@ -154,7 +108,6 @@ verify() {
       continue
     fi
 
-    # 3. snapshot integrity
     local actual
     actual="$(sha256_of "$snap_file")"
     if [[ ${actual} != "$sha" ]]; then
@@ -170,14 +123,12 @@ verify() {
       continue
     fi
 
-    # 4. quote-anchor (literal whole-file substring, offline; multiline-safe)
     if ! CITELOCK_Q="$quote" anchor_contains "$snap_file"; then
       log "[$id] unanchored: verbatim quote not found in snapshot"
       failed=1
       continue
     fi
 
-    # 5. freshness
     local max_days
     max_days="$(freshness_days "$class")"
     if [[ ${max_days} -gt 0 ]]; then
@@ -203,26 +154,12 @@ verify() {
   log "offline gate passed: ${lock}"
 }
 
-# ---- live-web checks (capture / recheck only) ------------------------------
-
 live_checks() {
   local url="$1" doi="${2:-}"
   if [[ ${CITELOCK_OFFLINE:-0} == 1 ]]; then
     log "CITELOCK_OFFLINE=1: skipping live checks (advisory)"
     return 0
   fi
-  # Link liveness, two independent oracles. lychee first because it is keyless
-  # and fast; pplx second because it is a real content fetch and therefore a
-  # strictly stronger signal than a HEAD request.
-  #
-  # The fallback exists because lychee produces false negatives on sites that
-  # redirect heavily or filter by user-agent. Observed on
-  # anthropic.com/engineering/*: lychee follows 15 redirects and cannot confirm,
-  # while `pplx content fetch` returns the page. Failing closed on that is a
-  # gate that blocks correct citations, which trains the author to bypass it.
-  #
-  # Still fail-closed: the URL is dead only when BOTH oracles decline, or when
-  # lychee declines and pplx is unavailable.
   if command -v lychee > /dev/null 2>&1; then
     if ! lychee --no-progress --max-retries 1 -- "$url" > /dev/null 2>&1; then
       if command -v pplx > /dev/null 2>&1 &&
@@ -241,7 +178,6 @@ live_checks() {
   else
     log "live: neither lychee nor pplx on PATH; skipping liveness"
   fi
-  # DOI existence + retraction via Crossref REST (no key). curl args are inert.
   if [[ -n ${doi} ]] && command -v jq > /dev/null 2>&1; then
     local resp
     if resp="$(curl -fsS --max-time 20 "https://api.crossref.org/works/${doi}" 2> /dev/null)"; then
@@ -258,8 +194,6 @@ live_checks() {
   fi
   return 0
 }
-
-# ---- capture ---------------------------------------------------------------
 
 capture() {
   local url="" id="" quote="" class="" doi="" lockdir="."
@@ -299,9 +233,6 @@ capture() {
   local prov="${snap_file}.prov.json"
   mkdir -p "${lockdir}/${SNAP_DIR_NAME}"
 
-  # Fetch: monolith for a self-contained HTML render of static content, else
-  # curl. Neither executes JS; a client-rendered SPA whose quote appears only
-  # after JS will not anchor and is rejected below.
   local tmp status
   tmp="$(mktemp)"
   if command -v monolith > /dev/null 2>&1; then
@@ -309,14 +240,10 @@ capture() {
   fi
   if [[ ! -s ${tmp} ]]; then
     require_tool curl
-    # No -L: do not follow redirects, so a redirect to an internal host cannot
-    # bypass assert_safe_url. A redirecting source fails closed; cite the final
-    # stable URL instead.
     curl -fsS --max-redirs 0 --max-time 30 -o "$tmp" -- "$url" || die "capture: fetch failed (or redirected) for ${url}"
   fi
   status=200
 
-  # Fail closed: the full verbatim quote must be present in the fetched bytes.
   if ! CITELOCK_Q="$quote" anchor_contains "$tmp"; then
     rm -f "$tmp"
     die "capture: quote does not anchor in fetched content for ${id}. If this is a client-rendered page, cite a stable/archived URL or the underlying JSON API."
@@ -328,10 +255,8 @@ capture() {
   jq -n --arg url "$url" --arg status "$status" --arg sha "$sha" --arg engine "$(command -v monolith > /dev/null 2>&1 && echo monolith || echo curl)" \
     '{url:$url, http_status:($status|tonumber), engine:$engine, sha256:$sha}' > "$prov"
 
-  # Live checks fail closed at capture.
   live_checks "$url" "$doi" || die "capture: live-web check failed for ${id}"
 
-  # Upsert the record into the lock.
   local lock
   lock="$(lock_path "$lockdir")"
   [[ -f ${lock} ]] || echo '{"records":[]}' > "$lock"
@@ -348,8 +273,6 @@ capture() {
   mv "$tmp_lock" "$lock"
   log "captured [$id] -> ${snap_rel} (sha ${sha:0:12})"
 }
-
-# ---- recheck ---------------------------------------------------------------
 
 recheck() {
   local lockdir="${1:-.}"

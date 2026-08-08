@@ -3,10 +3,8 @@ local neoconf = require("neoconf")
 local base_config = {
   settings = {
     gopls = {
-      -- Formatting
       gofumpt = true,
 
-      -- Analysis
       analyses = {
         unusedparams = true,
         unusedwrite = true,
@@ -15,10 +13,8 @@ local base_config = {
         unusedvariable = true,
       },
 
-      -- Static analysis
       staticcheck = true,
 
-      -- Hints
       hints = {
         assignVariableTypes = true,
         compositeLiteralFields = true,
@@ -29,11 +25,9 @@ local base_config = {
         rangeVariableTypes = true,
       },
 
-      -- Completion
       usePlaceholders = true,
       completeUnimported = true,
 
-      -- Codelens
       codelenses = {
         generate = true,
         gc_details = false,

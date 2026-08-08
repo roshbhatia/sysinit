@@ -1,6 +1,5 @@
 { lib }:
 {
-  # Format MCP servers for Claude Desktop
   formatForClaude = builtins.mapAttrs (
     _name: server:
     if (server.type or "local") == "http" then
@@ -20,7 +19,6 @@
       }
   );
 
-  # Format MCP servers for OpenCode
   formatForOpencode =
     disabledServers: servers:
     builtins.mapAttrs (
@@ -45,7 +43,6 @@
       baseConfig // { enabled = if isDisabled then false else (server.enabled or true); }
     ) servers;
 
-  # Format MCP servers for Codex CLI (TOML format)
   formatForCodex =
     servers:
     lib.concatStringsSep "\n" (
@@ -73,7 +70,6 @@
       ) servers
     );
 
-  # Format MCP servers for Amp
   formatForAmp =
     servers:
     builtins.mapAttrs (
@@ -90,8 +86,6 @@
         }
     ) servers;
 
-  # Format MCP servers for Cursor Agent. Cursor reads ~/.cursor/mcp.json and
-  # accepts the common local `{ command, args, env }` and remote `{ url }` shapes.
   formatForCursor =
     servers:
     builtins.mapAttrs (
@@ -109,8 +103,6 @@
         // lib.optionalAttrs (server.env or { } != { }) { inherit (server) env; }
     ) servers;
 
-  # Format MCP servers for Antigravity (`agy`). Local servers use the usual
-  # command/args/env shape; remote servers use `serverUrl`, not `url`.
   formatForAntigravity =
     servers:
     builtins.mapAttrs (
@@ -129,9 +121,6 @@
         // lib.optionalAttrs (server.env or { } != { }) { inherit (server) env; }
     ) servers;
 
-  # Format MCP servers for Goose. Field-name footgun: goose uses `uri` (not
-  # `url`) and `type = "streamable_http"` for modern MCP per the 2025-03-26
-  # spec; `sse` is legacy and only used when a server advertises only `/sse`.
   formatForGoose =
     let
       capitalizeFirst =
@@ -172,9 +161,6 @@
         }
     ) mcp;
 
-  # Format MCP servers for Copilot CLI. Copilot requires explicit `type` and
-  # an explicit `tools` allowlist for http servers (omitting it suppresses
-  # tool exposure); `["*"]` opts in to all tools.
   formatForCopilot =
     servers:
     builtins.mapAttrs (
@@ -196,7 +182,6 @@
         }
     ) servers;
 
-  # Format MCP servers for Crush
   formatForCrush =
     servers:
     builtins.mapAttrs (

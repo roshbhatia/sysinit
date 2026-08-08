@@ -1,11 +1,6 @@
 { pkgs, ... }:
 
 let
-  # Both workspace hooks feed the same sketchybar item, so the trigger is written
-  # once. The focused name is queried back out of the CLI rather than read from
-  # $AEROSPACE_FOCUSED_WORKSPACE: that variable is populated for
-  # exec-on-workspace-change alone, so an on-focus-changed callback expands it
-  # empty and sketchybar highlights nothing.
   notifySketchybar = "${pkgs.sketchybar}/bin/sketchybar --trigger aerospace_workspace_change FOCUSED=$(${pkgs.aerospace}/bin/aerospace list-workspaces --focused)";
 in
 {
@@ -28,9 +23,6 @@ in
         notifySketchybar
       ];
 
-      # No `/bin/bash -c` here: exec-and-forget already runs its argument through
-      # /bin/bash -c, and a second wrapper ate every argument after the binary, so
-      # sketchybar was triggered with no FOCUSED at all.
       on-focus-changed = [
         "exec-and-forget ${notifySketchybar}"
       ];

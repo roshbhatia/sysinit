@@ -25,8 +25,6 @@ let
   cSeparator = sgr "base03";
   cLogo = sgr "base0D";
 
-  # Prefer the flake-provided hostname: `networking.hostName` is unset on
-  # MDM-managed hosts, so it is not a reliable key for the art lookup.
   hostName =
     if values != null && values ? hostname then
       values.hostname

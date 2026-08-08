@@ -19,7 +19,6 @@ nixpkgs.lib.genAttrs systems (
         if ! fd --extension nix --type file --exec-batch nixfmt --check; then
           drift=1
         fi
-        # `shfmt -l` exits non-zero on drift, so preserve its output under errexit.
         unformatted="$(fd --extension sh --type file \
           --exec-batch shfmt "''${shfmt_flags[@]}" -l || true)"
         if [ -n "$unformatted" ]; then

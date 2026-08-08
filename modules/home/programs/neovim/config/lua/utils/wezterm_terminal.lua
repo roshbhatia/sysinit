@@ -1,12 +1,3 @@
--- Wezterm terminal helpers for AI agent integrations.
---
--- Two factories:
---   M.build_provider(opts)         → claudecode.nvim TerminalProvider contract
---   M.build_server_callbacks(cmd,opts) → opencode.nvim server.start/stop/toggle
---
--- Both spawn the CLI in a wezterm pane split (mirroring neph.nvim) and track
--- the pane_id for toggle/focus state. Panes are out-of-process so lifecycle
--- is owned entirely by `wezterm cli` calls.
 
 local M = {}
 
@@ -52,13 +43,6 @@ local function build_env_prefix(env_table)
   return table.concat(parts, " ")
 end
 
--- $EDITOR launched from an out-of-process agent pane (e.g. Claude's
--- chat:externalEditor) would otherwise nest a fresh nvim inside the pane.
--- Route it back into the owning nvim instance over its RPC socket instead:
--- focus the host pane, open the file there, block until the buffer is closed
--- (nvim has no --remote-wait, so we poll a sentinel the host touches on close),
--- then return focus to the agent pane. Falls back to a plain nvim when no host
--- socket is present.
 local EDITOR_WRAPPER = [[#!/bin/sh
 if [ -z "$NVIM_HOST_SOCKET" ] || ! command -v nvim >/dev/null 2>&1; then
   exec nvim "$@"
@@ -85,9 +69,6 @@ local function editor_wrapper_path()
   return path
 end
 
--- Env that makes $EDITOR in the spawned pane open in the host nvim instance.
--- Empty when the host has no RPC socket; the wrapper also falls back to a
--- plain nvim in that case, so behavior degrades gracefully.
 local function editor_env(parent_pane_id)
   local sock = vim.v.servername
   if not sock or sock == "" then
@@ -105,7 +86,6 @@ local function editor_env(parent_pane_id)
   }
 end
 
---- Shared low-level pane spawner.
 ---@param parent_pane_id integer
 ---@param name string  used in error messages and vim.g tracking key
 ---@param cmd_string string
@@ -113,18 +93,13 @@ end
 ---@param focus boolean
 ---@return integer|nil  spawned pane_id, or nil on failure
 local function _spawn(parent_pane_id, name, cmd_string, opts, focus)
-  -- Caller-provided env wins, so an explicit EDITOR is still honored.
   local env = vim.tbl_extend("force", editor_env(parent_pane_id), opts.env or {})
   local env_str = build_env_prefix(env)
   local full_cmd = env_str ~= "" and (env_str .. " " .. cmd_string) or cmd_string
   local pct = math.floor((opts.percent or 0.4) * 100)
-  -- Agent panes sit to the right of the editor by default; only an explicit
-  -- side = "left" opts out.
   local side_flag = (opts.side == "left") and "--left" or "--right"
   local cwd = vim.fn.getcwd()
 
-  -- Redirect stderr; wezterm prints config-reload notices to stderr that
-  -- corrupt the pane-id integer on stdout.
   local spawn_cmd = string.format(
     "wezterm cli split-pane --pane-id %d %s --percent %d --cwd %s -- sh -c %s 2>/dev/null",
     parent_pane_id,
@@ -146,7 +121,6 @@ local function _spawn(parent_pane_id, name, cmd_string, opts, focus)
     return nil
   end
 
-  -- Publish so harness adapters can route send() via `wezterm cli send-text`.
   vim.g["harness_wezterm_pane_" .. name] = id
 
   if focus then
@@ -158,7 +132,6 @@ local function _spawn(parent_pane_id, name, cmd_string, opts, focus)
   return id
 end
 
---- Synchronous pane liveness check (blocks on wezterm cli list).
 ---@param pane_id integer
 ---@return boolean
 function M.pane_alive_sync(pane_id)
@@ -178,8 +151,6 @@ function M.pane_alive_sync(pane_id)
   return false
 end
 
---- Send text to a wezterm pane via a temp file (preserves newlines/special chars).
---- Returns true on success.
 ---@param pane_id integer
 ---@param text string
 ---@param submit boolean  append \r to submit
@@ -200,7 +171,6 @@ function M.send_text(pane_id, text, submit)
   return sent
 end
 
---- Build a claudecode-compatible provider that uses wezterm panes.
 --- @param opts? { name?: string, percent?: number, side?: "left"|"right" }
 --- @return table provider
 function M.build_provider(opts)
@@ -309,15 +279,6 @@ function M.build_provider(opts)
   return Provider
 end
 
---- Build start/stop/toggle callbacks for plugins like opencode.nvim that
---- accept a server-management table (`vim.g.opencode_opts.server`).
---- The plugin discovers the server out-of-band (e.g. opencode lsof-scans for
---- a process listening on `--port`), so we only need to manage the pane.
----
---- toggle() implements focus-toggle semantics: focus the agent pane if not
---- focused, otherwise focus the parent pane. Killing on toggle would terminate
---- the server process and lose session state, which is rarely what you want.
----
 --- @param cmd string  shell command to run in the pane (e.g. "opencode --port")
 --- @param opts? { name?: string, percent?: number, side?: "left"|"right", env?: table<string,string> }
 --- @return { start: fun(), stop: fun(), toggle: fun() }

@@ -1,9 +1,3 @@
--- Host side of the agent-pane $EDITOR bridge (see utils/wezterm_terminal.lua).
--- An out-of-process agent pane (e.g. Claude's chat:externalEditor) invokes its
--- $EDITOR wrapper, which RPCs into this owning instance to open the file here
--- instead of nesting a fresh nvim. We open it in a new tab and touch a sentinel
--- once the buffer is closed so the wrapper can unblock and let the agent read
--- the edited file back.
 
 local M = {}
 
@@ -17,8 +11,6 @@ function M.open(ctl)
   vim.schedule(function()
     vim.cmd("tabedit " .. vim.fn.fnameescape(target))
     local buf = vim.api.nvim_get_current_buf()
-    -- 'hidden' is on by default, so closing the window would merely hide the
-    -- buffer; wipe it instead so BufWipeout fires and we can unblock the agent.
     vim.bo[buf].bufhidden = "wipe"
     vim.api.nvim_create_autocmd("BufWipeout", {
       buffer = buf,

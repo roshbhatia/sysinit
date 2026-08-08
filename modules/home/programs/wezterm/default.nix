@@ -10,7 +10,6 @@ let
   themeConfig = config.sysinit.theme;
   c = config.lib.stylix.colors;
 
-  # Pre-fetch wezterm plugins — loaded via plain Lua dofile(), no git needed
   weztermPlugins = {
     tabline = pkgs.fetchFromGitHub {
       owner = "michaelbrusegard";
@@ -25,14 +24,8 @@ let
         rev = "bd5a57e7806032998e6cae56ade67b72a08b7868";
         hash = "sha256-nb5eCStxsgLBgZSNZjOBMYLNbv0haxXM+6609FywnwE=";
       };
-      # Fix: "> text" lines are Claude Code tool-output prefixes, not idle prompts.
-      # The upstream check `trimmed:match('^>%s')` fired on lines like
-      # "> Running bash: git status" and returned 'idle' while the agent was working.
       patches = [ ./patches/agent-deck-idle-detection.patch ];
     };
-    # sravioli UI toolkit — loaded in dependency order (warp first): ribbon and
-    # sigil's deps.lua does `require("warp.api")`, which resolves once warp's
-    # plugin/ dir is on package.path (added by plugin_loader.load("warp")).
     warp = pkgs.fetchFromGitHub {
       owner = "sravioli";
       repo = "warp.wz";
@@ -51,7 +44,6 @@ let
       rev = "1e58c730dcbf8bfdcd32cdada3484a1d673e0464";
       hash = "sha256-tEspBNdQqGif5DQV8JAzVQRdW0Hl6ykdSMmx+BqNj90=";
     };
-    # log/memo are leaf libraries (logging, cache+state) pulled in by lantern.
     log = pkgs.fetchFromGitHub {
       owner = "sravioli";
       repo = "log.wz";
@@ -64,10 +56,6 @@ let
       rev = "f5cdebca623809f7e61563a48b1679c81d32b148";
       hash = "sha256-SnI3n2oi0txKVK+v55aA4TVx0rcmli+okWUdzuy6SGU=";
     };
-    # lantern: appearance picker (colorschemes/fonts/GPU/opacity). Its deps.lua
-    # resolves log/memo/ribbon/warp via wezterm.plugin.require (git clone), which
-    # always fails under our Nix-store dofile loading; patch it to resolve them
-    # through sysinit.pkg.plugin_loader instead.
     lantern = pkgs.applyPatches {
       src = pkgs.fetchFromGitHub {
         owner = "sravioli";
@@ -77,14 +65,12 @@ let
       };
       patches = [ ./patches/lantern-deps-loader.patch ];
     };
-    # Fuzzy SSH host picker (InputSelector over configured ssh_domains).
     smart-ssh = pkgs.fetchFromGitHub {
       owner = "DavidRR-F";
       repo = "smart_ssh.wezterm";
       rev = "8ad528e73d627b68c3625d5d4827a31a21e320d0";
       hash = "sha256-2dh27ioUdFUfeaM5bzyMJFSy3LQ07fliY2pKi/B8CCA=";
     };
-    # Seshy session picker + workspace-layout persistence across restarts.
     workspace-manager = pkgs.fetchFromGitHub {
       owner = "ryanmsnyder";
       repo = "workspace-manager.wezterm";
@@ -94,7 +80,6 @@ let
   };
 in
 {
-  # Disable Stylix's wezterm target — we manage colors via config.json
   stylix.targets.wezterm.enable = false;
 
   programs.wezterm = {
@@ -102,9 +87,6 @@ in
     enableZshIntegration = true;
     enableBashIntegration = true;
 
-    # Only the package.path lines stay inline, because they are what make
-    # sysinit.pkg.* resolvable. Everything else lives in bootstrap.lua so the
-    # parse check covers it.
     extraConfig = ''
       local home_dir = os.getenv("HOME") or (os.getenv("USER") and "/Users/" .. os.getenv("USER"))
       package.path = package.path
@@ -182,7 +164,6 @@ in
           };
         };
       };
-      # Plugin Nix store paths — loaded via dofile() in plugin_loader.lua
       plugins = {
         tabline = "${weztermPlugins.tabline}";
         agent-deck = "${weztermPlugins.agent-deck}";

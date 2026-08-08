@@ -117,8 +117,6 @@ in
         ${coreInit}
       '')
 
-      # Only the array literal is generated. The loop that consumes it lives in
-      # core/path-apply.zsh so the parse check covers it.
       (lib.mkOrder 300 ''
         ${corePath}
 
@@ -132,8 +130,6 @@ in
         ${libCache}
       '')
 
-      # Only the Nix-derived cache path stays inline. Everything else lives in
-      # core/compinit.zsh so the parse check covers it.
       (lib.mkOrder 500 ''
         ZSH_CACHE_DIR="${config.xdg.cacheHome}/zsh"
         ${coreCompinit}

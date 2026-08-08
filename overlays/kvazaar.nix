@@ -1,8 +1,4 @@
 _final: prev: {
-  # CTest suites OOM-killed on aarch64-darwin in nixpkgs-unstable. Guard to
-  # Darwin: on Linux these override the cached kvazaar/chromaprint, which
-  # perturbs ffmpeg's closure and forces uncached source builds of everything
-  # downstream (electron, webkitgtk, obsidian, lutris).
   kvazaar =
     if prev.stdenv.hostPlatform.isDarwin then
       prev.kvazaar.overrideAttrs (_: {

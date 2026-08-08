@@ -1,13 +1,3 @@
--- Browser markdown preview via `go-grip`, which nix installs.
---
--- Replaces iamcco/markdown-preview.nvim. That plugin's `build` ran
--- `yarn install` inside the lazy plugin directory, so the preview depended on a
--- node toolchain and a network fetch that no generation pinned. go-grip is a
--- single binary with the same job and its own live reload, so a write in nvim
--- refreshes the open tab without nvim doing anything.
---
--- No plugin spec: there is nothing to install. `lazy.nvim` accepts an empty
--- list, and the keymap is registered directly.
 
 local state = { job = nil, path = nil }
 
@@ -29,8 +19,6 @@ local function toggle()
     return
   end
 
-  -- Serving a second file means a second server on a second port, and the old
-  -- tab then shows a file the owner has stopped looking at.
   if state.job and state.path == path and vim.fn.jobwait({ state.job }, 0)[1] == -1 then
     stop()
     vim.notify("markdown preview: stopped")
@@ -38,8 +26,6 @@ local function toggle()
   end
   stop()
 
-  -- `-b` opens the browser once. go-grip watches the file itself, so writing
-  -- from nvim reloads the tab with no autocmd on our side.
   state.job = vim.fn.jobstart({ "go-grip", "-b", path }, { detach = false })
   if state.job <= 0 then
     state.job = nil

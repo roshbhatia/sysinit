@@ -8,7 +8,6 @@ let
   c = config.lib.stylix.colors;
   themeConfig = config.sysinit.theme;
 
-  # Pass base16 colors and theme metadata to sketchybar Lua config
   sketchybarConfig = {
     inherit (themeConfig) base16Scheme;
     inherit (themeConfig) appearance;

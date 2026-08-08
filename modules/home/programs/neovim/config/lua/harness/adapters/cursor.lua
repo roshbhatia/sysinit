@@ -1,5 +1,3 @@
--- Flags verified against `cursor-agent --help`. --resume and --worktree both
--- take an optional value, so they use opt_value rather than a plain toggle.
 return require("harness.adapters._shared").raw_cli_adapter({
   name = "cursor",
   label = "  Cursor Agent",

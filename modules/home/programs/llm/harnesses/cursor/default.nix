@@ -11,10 +11,6 @@ let
   cursorSettings = {
     version = 1;
     permissions = {
-      # Allow all shell commands — wildcard bypasses per-command prompts. The
-      # deny list is what makes that safe: it carries the same destructive-command
-      # globs every other harness denies, so `git reset --hard` and friends are
-      # blocked here too rather than sailing through the wildcard.
       allow = [ "Shell(.*)" ];
       deny = llmLib.allowlist.formatDestructiveForCursor llmLib.allowlist.destructiveDenyGlobs;
     };
@@ -30,10 +26,6 @@ let
     mcpServers = llmLib.mcp.formatForCursor kit.mcpServers.servers;
   };
 
-  # The always-applied rule is GENERATED. Its body was authored prose that
-  # summarized the shared context and then drifted from it: it stated
-  # `openspec 1.3.0` against a 1.6.0 overlay, and carried "never push to main",
-  # which this repository does not hold. Only the frontmatter stays authored,
   alwaysMdc = pkgs.writeText "cursor-always.mdc" ''
     ---
     description: Repo-wide conventions and prohibitions, generated from instructions.nix.
@@ -46,16 +38,11 @@ let
     }}
   '';
 
-  # Cursor MDC rule files installed at ~/.cursor/rules/<name>.mdc.
-  # Each MDC has frontmatter declaring either `alwaysApply: true` OR `globs:`,
-  # never both. Assertion below enforces this.
-  #
   cursorRules = {
     nix = ./rules/nix.mdc;
     markdown = ./rules/markdown.mdc;
   };
 
-  # Build-time check: a rule MDC must not declare both alwaysApply and globs.
   validateMdc =
     name: path:
     let
@@ -75,10 +62,6 @@ let
       force = true;
     }
   ) cursorRules;
-  # No authored rule file may restate a fact the generator already renders.
-  # Restating one creates a second place to drift, which is exactly how
-  # always.mdc came to claim openspec 1.3.0 and a prohibition this repository
-  # does not hold.
   generatedFacts = [
     "never push"
     "openspec 1."
@@ -103,8 +86,6 @@ let
 in
 {
 
-  # The harness writes this file itself when a setting changes, so it
-  # cannot be a store symlink. Reconciled against a recorded base.
   sysinit.llm.managedFiles.cursor = {
     path = ".cursor/cli-config.json";
     format = "json";

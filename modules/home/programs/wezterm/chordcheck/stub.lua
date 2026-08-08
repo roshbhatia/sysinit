@@ -1,13 +1,3 @@
--- Minimal `wezterm` stand-in, enough to load keybindings.lua outside the
--- WezTerm host and read back the chords it binds.
---
--- Why a stub rather than a Nix-side declaration of the chords: a declaration
--- has to be kept in step with the Lua by hand, and a chord list that disagrees
--- with the bindings is the same class of drift that let the guard patterns and
--- lib/allowlist.nix diverge. Reading the real table cannot drift.
---
--- Actions are represented as inert tables. The check only ever looks at `key`
--- and `mods`, so an action never has to do anything.
 local M = {}
 
 local function tag(name)
@@ -36,8 +26,6 @@ M.log_error = function() end
 M.log_info = function() end
 M.on = function() end
 
--- nil on purpose: keybindings.lua guards on `wezterm.gui` for headless runs,
--- which is exactly the path this check exercises.
 M.gui = nil
 
 M.plugin = {
@@ -49,8 +37,6 @@ M.plugin = {
   end,
 }
 
--- Both are pcall-guarded by keybindings.lua; erroring here drives it down its
--- own fallback path rather than the machine's real ssh config.
 M.enumerate_ssh_hosts = function()
   error("no ssh host enumeration under the stub")
 end
@@ -69,8 +55,6 @@ M.strftime = function()
   return ""
 end
 
--- Shape-compatible with the real config.json/env.json the loader reads. Values
--- are irrelevant; only the keys have to exist.
 M.json_parse = function(_)
   return {
     plugins = {},

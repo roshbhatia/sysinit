@@ -4,10 +4,6 @@ let
   cfg = config.sysinit.darwin.keybindings;
   user = lib.escapeShellArg config.system.primaryUser;
 
-  # `defaults write` replaces the whole AppleSymbolicHotKeys dict, so this set
-  # has to stay complete. aerospace owns tiling and space switching, tinycast
-  # owns cmd+space, so almost every macOS window and search shortcut is off.
-
   renderHotkey =
     _: hk:
     {
@@ -28,8 +24,6 @@ let
     "com.apple.symbolichotkeys".AppleSymbolicHotKeys = lib.mapAttrs renderHotkey cfg.symbolicHotkeys;
   };
 
-  # Chord vocabulary lives in ./lib/chords.nix so the `wezterm-chord-collisions`
-  # flake check canonicalizes chords the same way this assertion does.
   chords = import ./lib/chords.nix { inherit lib; };
   inherit (chords) chordOfHotkey chordOfBindingName;
 
@@ -59,14 +53,8 @@ in
 {
   sysinit.darwin.keybindings.symbolicHotkeys = chords.baseSymbolicHotkeys;
 
-  # Global chords held by layers outside Nix-readable config (tinycast's own
-  # UserDefaults, an Electron settings file, hammerspoon lua). Declared in
-  # ./lib/chords.nix so the wezterm chord check reads the same list.
   sysinit.darwin.keybindings.reservedChords = chords.reservedChords;
 
-  # Nothing detects a chord fight at runtime: whichever layer registers first
-  # wins and the other silently never fires, which is how hammerspoon's cmd+]
-  # swallowed WezTerm's workspace cycle. Catch it at eval instead.
   assertions = [
     {
       assertion = sharedChords == { };
@@ -90,10 +78,6 @@ in
 
   system.defaults.CustomUserPreferences = lib.recursiveUpdate appShortcutPrefs hotkeyPrefs;
 
-  # nix-darwin no longer nudges the settings daemon, so a fresh symbolic hotkey
-  # would otherwise wait for the next logout. Activation runs as root, and
-  # activateSettings only reloads the calling user's session, so drop into the
-  # primary user's GUI session the same way nix-darwin writes user defaults.
   system.activationScripts.postActivation.text = ''
     launchctl asuser "$(id -u -- ${user})" sudo --user=${user} -- \
       /System/Library/PrivateFrameworks/SystemAdministration.framework/Resources/activateSettings -u \

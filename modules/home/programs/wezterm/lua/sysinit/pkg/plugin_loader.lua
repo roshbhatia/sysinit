@@ -1,4 +1,3 @@
--- load store plugins directly because libgit2 cannot follow the NixOS SSH rewrite
 local wezterm = require("wezterm")
 local utils = require("sysinit.pkg.utils")
 
@@ -9,7 +8,6 @@ local plugins_config = config_data and config_data.plugins or {}
 
 local loaded_plugins = {}
 
--- tabline.wez discovers its directory through `wezterm.plugin.list`
 local original_list = wezterm.plugin.list
 wezterm.plugin.list = function()
   local real = original_list()
@@ -19,7 +17,6 @@ wezterm.plugin.list = function()
   return real
 end
 
--- `load` applies the private plugin environment that `loadfile` cannot accept
 local function load_chunk(path, env)
   local fh = io.open(path, "r")
   if not fh then
@@ -41,19 +38,16 @@ function M.load(name)
     return false, nil
   end
 
-  -- plugins can inspect the list while their module loads
   table.insert(loaded_plugins, {
     url = "file://" .. nix_path,
     component = name,
     plugin_dir = nix_path,
   })
 
-  -- cross-plugin namespaced requires still use the global package path
   package.path = nix_path .. "/plugin/?.lua;"
     .. nix_path .. "/plugin/?/init.lua;"
     .. package.path
 
-  -- private caches prevent generic module names from colliding across plugins
   local plugin_cache = {}
   local plugin_base = nix_path .. "/plugin/"
   local env

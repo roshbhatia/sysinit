@@ -10,9 +10,6 @@ local function get_palette_colors()
 end
 
 return {
-  -- Companions are dependencies, not siblings: a second spec carrying
-  -- cmd = "Neotree" loads ahead of neo-tree, so lazy resolves the command
-  -- before neo-tree's setup() creates it.
   {
     "s1n7ax/nvim-window-picker",
     version = "2.*",

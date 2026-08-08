@@ -1,6 +1,5 @@
 vim.opt_local.foldlevel = 99
 
--- Validation via :make (yq validates YAML by attempting to parse it)
 vim.opt_local.makeprg = "yq . % > /dev/null"
 vim.opt_local.errorformat = [[%EError: bad file '%f': yaml: line %l: %m,%-G%.%#]]
 

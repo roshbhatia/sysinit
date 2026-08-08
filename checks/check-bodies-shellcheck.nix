@@ -25,7 +25,6 @@ pkgs.runCommand "check-bodies-shellcheck-check" { nativeBuildInputs = [ pkgs.she
     checked=$((checked + 1))
     body_file="$TMPDIR/check-body-$checked.sh"
     printf '%s' ${lib.escapeShellArg b.body} > "$body_file"
-    # stdenv supplies SC2154 variables, and SC1091 paths exist only at build time.
     if ! shellcheck -s bash -e SC2154,SC1091 "$body_file"; then
       echo "  ^ in the body of check '${b.name}'" >&2
       fail=1

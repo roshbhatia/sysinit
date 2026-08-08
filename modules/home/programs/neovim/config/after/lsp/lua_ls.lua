@@ -3,7 +3,6 @@ local neoconf = require("neoconf")
 local base_config = {
   settings = {
     Lua = {
-      -- Runtime
       runtime = {
         version = "LuaJIT",
         path = {
@@ -12,7 +11,6 @@ local base_config = {
         },
       },
 
-      -- Workspace
       workspace = {
         checkThirdParty = false,
         library = {
@@ -21,7 +19,6 @@ local base_config = {
         },
       },
 
-      -- Diagnostics
       diagnostics = {
         globals = { "vim" },
         disable = {
@@ -30,24 +27,20 @@ local base_config = {
         },
       },
 
-      -- Completion
       completion = {
         callSnippet = "Replace",
         keywordSnippet = "Replace",
         showWord = "Disable",
       },
 
-      -- Formatting (disable in favor of stylua)
       format = {
         enable = false,
       },
 
-      -- Telemetry
       telemetry = {
         enable = false,
       },
 
-      -- Hints
       hint = {
         enable = true,
         setType = true,

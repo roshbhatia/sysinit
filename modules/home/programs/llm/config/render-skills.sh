@@ -1,18 +1,4 @@
 #!/usr/bin/env bash
-# Renders the skill sources into one tree per harness, without Nix.
-#
-# This is the whole point of moving skill bodies out of Nix strings: a body is
-# prose with no store dependency, so an edit should not cost a rebuild. Home
-# Manager runs this at activation and the owner runs it directly; a flake check
-# asserts both produce the same bytes.
-#
-# It MUST NOT invoke nix. If it did, the fast path would be the slow path again.
-#
-# The render is not a copy. Per harness it selects the frontmatter keys that
-# harness accepts, injects the RFC 2119 preamble once, and substitutes the
-# vocabulary placeholders. Amp validates frontmatter against a fixed allowlist
-# and errors on any key outside it, which is why `model` and `effort` are
-# claude-only.
 
 set -euo pipefail
 
@@ -27,14 +13,10 @@ die() {
   exit 1
 }
 
-# One concept, one word per harness. Mirrors lib/vocab.nix; the flake check
-# fails if the two disagree.
 vocab_agent() { [ "$1" = claude ] && echo teammate || echo subagent; }
 vocab_agents() { [ "$1" = claude ] && echo teammates || echo subagents; }
 sentence_case() { printf '%s' "$1" | awk '{print toupper(substr($0,1,1)) substr($0,2)}'; }
 
-# Expand `<!-- include: <file> [k=v ...] -->`, substituting {{k}} in the
-# fragment. Same grammar as lib/frontmatter.nix.
 expand_includes() {
   local name="$1" line file args frag
   while IFS= read -r line; do
@@ -57,8 +39,6 @@ expand_includes() {
   done
 }
 
-# Flat `key: value` until the closing fence. A key cannot contain a colon, so
-# the first `: ` splits and a description keeps its own colons.
 fm_get() {
   awk -v want="$1" '
     NR == 1 && $0 == "---" { infm = 1; next }
@@ -130,7 +110,6 @@ main() {
       [ -f "$dir/SKILL.md" ] || continue
       mkdir -p "$staged/$harness/$name"
       render_one "$harness" "$name" "$dir/SKILL.md" "$staged/$harness/$name/SKILL.md"
-      # Helper scripts and references ship beside the body, executable bit kept.
       local sub
       for sub in "$dir"*/; do
         [ -d "$sub" ] || continue
@@ -143,7 +122,6 @@ main() {
       done
     done
   done
-  # Swap whole trees, so a reader never sees a half-written skill set.
   mkdir -p "$(dirname "$OUT")"
   rm -rf "$OUT.old"
   [ -e "$OUT" ] && mv "$OUT" "$OUT.old"

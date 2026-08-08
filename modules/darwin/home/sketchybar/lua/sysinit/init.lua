@@ -15,8 +15,6 @@ require("sysinit.pkg.widgets.menu").setup()
 require("sysinit.pkg.widgets.datetime").setup()
 require("sysinit.pkg.widgets.battery").setup()
 require("sysinit.pkg.widgets.volume").setup()
--- After volume: on the right side a later item sits further left, so this puts
--- music to the left of the audio widget.
 require("sysinit.pkg.widgets.music").setup()
 
 sbar.event_loop()

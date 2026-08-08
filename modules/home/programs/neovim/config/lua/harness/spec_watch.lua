@@ -1,12 +1,3 @@
--- Auto-preview spec artifacts as an agent writes them.
---
--- The openspec workflow is a write loop over a small, predictable set of files:
--- proposal.md, design.md, tasks.md, and specs/<capability>/spec.md under
--- openspec/changes/<name>/. When an agent edits one of those we surface it in
--- the preview window instead of leaving the user to guess what moved.
---
--- Watching the filesystem (not the agent) is deliberate: it works for all
--- twelve agents, needs no MCP, and needs no cooperation from the CLI.
 
 local M = {}
 
@@ -29,7 +20,6 @@ local function watchable(path)
   if not path:match("%.md$") then
     return false
   end
-  -- Archived changes are history, not work in progress.
   if path:find("/changes/archive/", 1, true) then
     return false
   end
@@ -50,8 +40,6 @@ local function on_event(filename)
   if not filename or not state.root then
     return
   end
-  -- libuv reports either a path relative to the watched root or a bare name,
-  -- depending on platform and backend. Normalize both to an absolute path.
   local path = filename
   if not path:match("^/") then
     path = vim.fs.joinpath(state.root, filename)

@@ -3,17 +3,6 @@
   lib,
   ...
 }:
-# devin and agy block by exit code, not by a JSON permissionDecision, so
-# they wrap the shared guard. Both wrappers were dead: the body called the
-# guard by the bare name `claude-bash-guard`, which no harness puts on
-# PATH, so the lookup failed, the output was empty, and the wrapper exited
-# 0 for every command. Nothing noticed, because a fail-open guard and a
-# working one are indistinguishable until something destructive is run.
-#
-# Drives the assembled wrappers, like destructive-guard-fixtures does, and
-# asserts both directions: a destructive command must block, and an
-# ordinary one must pass. Without the second assertion a deny-all wrapper
-# would look like a fix.
 let
   guards = import ../modules/home/programs/llm/lib/guards.nix { inherit lib; };
   wrapperFor =
@@ -34,8 +23,6 @@ pkgs.runCommand "exit-code-guard-blocks-check"
   ''
     fail=0
 
-    # Each harness names its shell tool differently; the guard reads
-    # tool_input.command either way.
     payload() {
       jq -cn --arg c "$1" '{tool_name:"exec",tool_input:{command:$c}}'
     }
@@ -58,11 +45,6 @@ pkgs.runCommand "exit-code-guard-blocks-check"
       fi
     }
 
-    # Commands the deny table actually claims, from
-    # lib/allowlist.nix's destructiveDenyRules. `rm -rf` is deliberately
-    # NOT among them: the table is git-specific, and asserting a block
-    # for a command the guard never claimed would test the fixture
-    # rather than the guard.
     for w in ${wrapperFor "devin-guard"} ${wrapperFor "gemini-exit-code-guard"}; do
       label="$(basename "$w")"
       drive "$w" "$label" 'git reset --hard HEAD~3' block

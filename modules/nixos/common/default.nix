@@ -11,13 +11,11 @@
     hostName = lib.mkDefault hostname;
     networkmanager.enable = true;
 
-    # Tailscale VPN
     firewall.allowedUDPPorts = [ 41641 ];
     firewall.trustedInterfaces = [ "tailscale0" ];
   };
 
   imports = [
-    # Shared module options at system level
     ../../shared/options/user.nix
     ../../shared/options/theme.nix
     ../../home/programs/git/options.nix
@@ -25,7 +23,6 @@
     ./stylix.nix
   ];
 
-  # Nix configuration
   nix.settings = {
     experimental-features = [
       "nix-command"
@@ -51,14 +48,12 @@
     auto-optimise-store = true;
   };
 
-  # Nix garbage collection — weekly, keep 7 days
   nix.gc = {
     automatic = true;
     dates = "weekly";
     options = "--delete-older-than 7d";
   };
 
-  # Standard user settings
   users.users.${values.user.username} = {
     isNormalUser = true;
     extraGroups = [
@@ -77,7 +72,6 @@
 
   users.groups.${values.user.username} = { };
 
-  # Basic system packages
   environment.systemPackages = with pkgs; [
     coreutils
     curl
@@ -94,7 +88,6 @@
   programs.zsh.enable = true;
 
   services = {
-    # SSH — hardened
     openssh = {
       enable = true;
       startWhenNeeded = false;
@@ -102,14 +95,10 @@
         PasswordAuthentication = false;
         PermitRootLogin = "no";
         X11Forwarding = false;
-        # An SSH login that carries a command gets a non-login shell, so $SHELL is
-        # bash regardless of the account's shell. Set it so `exec "$SHELL"` lands in
-        # zsh.
         SetEnv = "SHELL=/run/current-system/sw/bin/zsh";
       };
     };
 
-    # mDNS / network discovery (Sunshine auto-discovery, .local hostnames)
     avahi = {
       enable = true;
       nssmdns4 = true;
@@ -119,22 +108,17 @@
       };
     };
 
-    # Tailscale VPN
     tailscale.enable = true;
 
-    # USB auto-mount
     udisks2.enable = true;
 
-    # Firmware updates
     fwupd.enable = true;
   };
 
-  # Libvirt (KVM virtual machines)
   virtualisation.libvirtd.enable = true;
 
   programs.virt-manager.enable = true;
 
-  # Docker
   virtualisation.docker = {
     enable = true;
     enableOnBoot = true;
@@ -144,16 +128,13 @@
     };
   };
 
-  # Swap (zram — compressed in-memory swap)
   zramSwap = {
     enable = true;
     memoryPercent = 50;
   };
 
-  # Security
   security.sudo.wheelNeedsPassword = false;
 
-  # Fonts — full coverage
   fonts.packages = with pkgs; [
     terminus_font
     nerd-fonts.terminess-ttf
@@ -165,7 +146,6 @@
     liberation_ttf # Microsoft metric-compatible
   ];
 
-  # Console font (TTY + tuigreet)
   console = {
     font = "ter-v20n";
     packages = [ pkgs.terminus_font ];
@@ -174,7 +154,6 @@
 
   system.stateVersion = lib.mkDefault "26.05";
 
-  # Localisation
   time.timeZone = lib.mkDefault "America/Los_Angeles";
   i18n.defaultLocale = "en_US.UTF-8";
 }

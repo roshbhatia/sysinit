@@ -1,15 +1,11 @@
 local cjson = require("cjson")
 local M = {}
 
--- y_offset: distance from top of screen (below notch) in points
 local DISPLAY_PROFILES = {
   { w = 2056, h = 1329, y_offset = 52 },
   { w = 1800, h = 1169, y_offset = 52 },
 }
 
--- Per-display overrides keyed by monitor name as reported by
--- system_profiler's `_name` field. External 4K panels make small
--- bar fonts unreadable, so bump font size when one is connected.
 local NAME_PROFILES = {
   ["LG HDR 4K"] = { font_size = 14 },
 }

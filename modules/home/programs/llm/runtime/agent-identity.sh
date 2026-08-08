@@ -1,9 +1,3 @@
-# Shared session/repo/pane identity, concatenated into agent-notify and
-# agent-state at build time so the two cannot disagree.
-#
-# `agent_identity <cwd> <pane>` sets AI_WORKSPACE, AI_SESSION, AI_REPO,
-# AI_BRANCH, AI_DIRTY, AI_WORKTREE. All best-effort, empty on failure.
-
 ai_workspace() {
   ai_pane=$1
   [ -n "$ai_pane" ] || return 0
@@ -14,9 +8,6 @@ ai_workspace() {
     head -1
 }
 
-# Session prefers the cwd-under-seshy-root parse, which is reliable even when the
-# pane's workspace is the unnamed default.
-#
 # shellcheck disable=SC2034
 agent_identity() {
   ai_cwd=${1:-$PWD}
@@ -32,7 +23,6 @@ agent_identity() {
       AI_SESSION=${ai_rest%%/*}
       ;;
   esac
-  # wezterm's unnamed default workspace is not a session — ignore it.
   if [ -z "$AI_SESSION" ] && [ -n "$AI_WORKSPACE" ] && [ "$AI_WORKSPACE" != "default" ]; then
     AI_SESSION=$AI_WORKSPACE
   fi

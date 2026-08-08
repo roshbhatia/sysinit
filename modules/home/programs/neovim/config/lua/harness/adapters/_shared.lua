@@ -30,8 +30,6 @@ function M.raw_cli_adapter(def)
 
   local function ensure()
     local cmd_string = build_cmd_string()
-    -- Rebuild the lifecycle whenever the args change so a freshly-spawned
-    -- pane reflects the user's latest option toggles.
     if not lc or lc_signature ~= cmd_string then
       if lc and lc.kill then pcall(lc.kill) end
       lc = lifecycle.build(cmd_string, {
@@ -49,8 +47,6 @@ function M.raw_cli_adapter(def)
     label = def.label,
     options_schema = def.options_schema,
     available = function()
-      -- def.cmd may carry a subcommand ("hermes chat"), which is fine for the
-      -- shell but not for executable(). Test the binary, not the whole string.
       return vim.fn.executable(def.cmd:match("^%S+")) == 1
     end,
     toggle = function()

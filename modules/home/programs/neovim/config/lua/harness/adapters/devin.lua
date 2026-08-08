@@ -1,6 +1,3 @@
--- Flags verified against `devin --help`. The permission-mode enum below is the
--- one the CLI documents; the binary also accepts an undocumented `autonomous`
--- value that additionally requires --sandbox, so it is listed last.
 return require("harness.adapters._shared").raw_cli_adapter({
   name = "devin",
   label = "󰚩  Devin",
