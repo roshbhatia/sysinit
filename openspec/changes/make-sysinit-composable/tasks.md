@@ -2,7 +2,7 @@
 
 - **SHAPE** graph
 
-- [ ] 1.1 Act: stand the baseline up. Two deliverables, because the second is
+- [x] 1.1 Act: stand the baseline up. Two deliverables, because the second is
       what produces half of the first: a committed baseline holding the two host
       drvPaths, one line per host carrying the attribute path and the drvPath,
       plus a sorted derivation-path file per host; and the CI job that evaluates
@@ -142,9 +142,9 @@
       `path:matched-text` pairs. 31 lines today, minus 1 for `doc/`, minus 4 for
       the removed lines, is 26. It has to be recorded before the edits, or the
       gate compares the edited tree against a snapshot of itself. `deps:` none
-- [ ] 1.2 Gather: capture `nix path-info -S` on the current home closure, so the
+- [x] 1.2 Gather: capture `nix path-info -S` on the current home closure, so the
       profile split has a number to beat. `deps:` 1.1
-- [ ] 1.3 Verify: the CI job 1.1 adds re-evaluates the `lv426` line and its
+- [x] 1.3 Verify: the CI job 1.1 adds re-evaluates the `lv426` line and its
       output matches what the owner recorded locally. Exercise the job here,
       against an answer already known, rather than letting 2.12 be the first thing
       that runs it. Nine gates depend on this job and none of them tests it, so a

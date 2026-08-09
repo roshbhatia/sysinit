@@ -1,8 +1,8 @@
 version: 1
 change: make-sysinit-composable
 decision: approved
-change_hash: c335295276ea183e
-base_commit: 9eab9bfb02ddeb1c3d5b0e9f45f6a6c52d0694c4
+change_hash: 876133bd31b41f25
+base_commit: 0440ba31f3c3c0067dd27199770bc50ce489b3df
 items:
     0cd74be6febf08e9:
         hash: 7262630e5226087a
