@@ -1,8 +1,15 @@
-{ pkgs, ... }:
-# One check remains. The rest left `nix flake check` because a check that only
-# runs when someone remembers to run the flake reports a regression long after
-# the commit that caused it. ast-grep stays here so CI can reach it by name,
-# and `.githooks/pre-commit` runs the same scan on every commit.
+{ pkgs, lib, ... }:
+# Three checks. The rest left `nix flake check` because a check that only runs
+# when someone remembers to run the flake reports a regression long after the
+# commit that caused it. ast-grep stays here so CI can reach it by name, and
+# `.githooks/pre-commit` runs the same scan on every commit.
+#
+# The two note checks stay here rather than in the hook for the opposite reason:
+# the hook's idiom is skip-when-absent, and a guard that silently skips is the
+# failure they exist to catch. Under `checks/` their inputs are present by
+# construction.
 {
   ast-grep-nix-rules = import ./ast-grep-nix-rules.nix { inherit pkgs; };
+  hunk-agent-context = import ./hunk-agent-context.nix { inherit pkgs lib; };
+  llm-skill-destinations = import ./llm-skill-destinations.nix { inherit pkgs lib; };
 }
