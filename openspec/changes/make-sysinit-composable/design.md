@@ -167,10 +167,31 @@ review on neovim is what forced a CLI to learn how to drive neovim.
 
 An earlier draft of this decision said to delete `diffnote` outright, on the
 claim that its command surface was a re-implementation of hunk's. Adversarial
-review refuted that claim, and the refutation holds. The documented
-`hunk session comment add` surface carries `filePath`, one line selector, and
-`summary`. It carries no second body field, no author, and no upsert. Three of
-our fields have no target, so "deleting them is not a feature loss" was false.
+review refuted that claim. The conclusion holds and the refutation's reasoning
+does not, so both are recorded here rather than the tidier one alone.
+
+That refutation argued from the documented `hunk session comment add` surface: it
+carries `filePath`, one line selector, and `summary`, and so carries no second
+body field, no author, and no upsert, leaving three of our fields with no target.
+Task 3.1 probed the binary instead of the documentation and refuted all three.
+`openspec/changes/make-sysinit-composable/hunk-probe.md` has the evidence.
+`rationale` and `author` are first-class fields on BOTH of hunk's surfaces, the
+sidecar annotation carries an optional `id` that is exactly an upsert key, and
+the sidecar takes a line RANGE rather than one line selector. Reading the
+documentation for a capability question is the mistake 3.1 was written to
+prevent, and it caught one.
+
+So "deleting them is not a feature loss" was false for a different reason than
+the one given. `--rationale`, `--author`, and `--replace` are not data with
+nowhere to go. They are data whose home is a viewer, and the record has to
+outlive the viewer. Keep them because the note store is ours and answers when no
+hunk is installed, which is the ordinary state on the non-Nix path phase 9
+builds, not because hunk cannot represent them.
+
+One thing that reasoning bought back: task 3.5 worried that `rationale` might
+have to be flattened into a one-line field and that the loss would need
+recording. It does not. `rationale` is a plain string with no newline handling,
+so structure survives the boundary intact.
 
 `diffnote` is not one tool. It is four responsibilities in one binary:
 

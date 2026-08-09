@@ -583,7 +583,7 @@ words: the defect was never the pane, it was an agent opening one.
   hunk command failing. On either, stop and report which presentation behavior
   hunk does not cover, and leave that behavior out rather than rebuilding it.
 
-- [ ] 3.1 Gather: probe the `hunk` binary, not its README. It is not installed
+- [x] 3.1 Gather: probe the `hunk` binary, not its README. It is not installed
       on this machine and 3.2, which installs it, depends on this task, so probe
       it with `nix run github:modem-dev/hunk -- ...`, which needs no repo change.
       An earlier draft said "the installed binary" and was completable only by a
@@ -611,6 +611,29 @@ words: the defect was never the pane, it was an agent opening one.
       `list`, `clear`, and `session get`, every accepted flag and whether a
       comment carries any field beyond a file, one line selector, and a summary.
       Record the result in the change folder, because decision 2 rests on it.
+
+      Recorded 2026-08-08 in `hunk-probe.md`, against hunk 0.18.0. It overturned
+      decision 2's stated reasoning, which is why this task says probe the binary
+      and not its README. All three of that reasoning's claims are false:
+      `rationale` and `author` are first-class fields on both hunk surfaces, and
+      the sidecar annotation carries an optional `id`, which is an upsert key.
+      The sidecar also takes a line RANGE, not one line selector. design.md
+      decision 2 is corrected; its conclusion survives on a different reason.
+      Four answers this task asked for, all favorable. The `--agent-context`
+      schema is `src/core/agent.ts`, undocumented in the bundled skill and
+      published only as an example; `summary` is the only required annotation
+      field. `rationale` is a plain string with no newline handling, so 3.5 has
+      no flattening loss to record. A path that does not exist FAILS, exit 1 with
+      `ENOENT`, which settles 3.3's open choice: omit `--agent-context` when there
+      is no export rather than passing the missing path through. `--watch` DOES
+      survive replace-by-rename, because hunk groups watch targets into
+      parent-directory groups rather than watching the file, so 3.5's
+      republish-inside-the-lock design works with no adapter and no re-run. The
+      one trap is `--agent-context -`, which returns a null watch plan, so
+      `review` must pass a real path. And the flake provides exactly
+      `aarch64-darwin`, `aarch64-linux`, and `x86_64-linux`, which is
+      `cacheSystems` exactly, so 3.13 needs no gating; 3.2's reason for pinning
+      is unaffected and separate.
       `deps:` 2.9
 - [ ] 3.2 Act: add the `hunk` flake input back, pinned to its own nixpkgs. Do
       not make it follow ours: its build enumerates `perSystem.x86_64-darwin`,

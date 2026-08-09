@@ -1,9 +1,9 @@
 version: 1
 change: make-sysinit-composable
 decision: approved
-note: 'Phase 2 complete. 2.11 was tested mechanically at the owner direction rather than by an owner session; the task records what was and was not covered. 2.12 re-recorded both host baselines: -2 on each (the two wtrun skill renders), 29 name-stable hash moves, nothing new. CI reproduced the local lv426 recording byte for byte.'
-change_hash: 0f5fbb2431940493
-base_commit: dc32e26976e12bfad44c0156c3a714551f7a19af
+note: 'Task 3.1 probed hunk 0.18.0 and overturned design decision 2 reasoning: rationale, author, and an upsert id all exist on hunk surfaces. Conclusion unchanged, reason corrected. Probe recorded in hunk-probe.md.'
+change_hash: 2c0bc34d8277c006
+base_commit: d86af5d87881e57a05851a671c7dff33c7d32dd5
 items:
     0cd74be6febf08e9:
         hash: 7262630e5226087a
