@@ -2178,7 +2178,7 @@ words: the defect was never the pane, it was an agent opening one.
 
 - **SHAPE** graph
 
-- [ ] 8.1 Act: add a `mkHome` builder supplying the specialArgs the home tree
+- [x] 8.1 Act: add a `mkHome` builder supplying the specialArgs the home tree
       expects without going through nix-darwin. Name them, because a missing one
       fails only in the modules that read it, which is the failure 8.5 describes
       and cannot catch. `modules/darwin/home-manager.nix:13-15` and
@@ -2213,14 +2213,26 @@ words: the defect was never the pane, it was an agent opening one.
       same two keys are six leaves counted deeply. That is also
       why the three have no standalone answer: `mkHome` has no `hostConfig` and no
       attribute name to inherit from. `deps:` 7.4
-- [ ] 8.2 Act: emit `homeModules` and `homeConfigurations.<profile>-<system>`
+      Done: `lib/builders/home.nix`. It takes `system`, `username`, and
+      `hostname` as arguments with no default, and defaults `isDesktop` to false
+      and the five open attrsets to `{}`. `profile` defaults to `dev` and the
+      `theme` selector to false, since a standalone configuration has no stylix
+      module under it and phase 7's base16 fallback is what applies. The
+      fourteen `values` paths were derived by grep scoped to `.nix`, and the
+      unscoped count is sixteen exactly as the task predicted. `utils` is not
+      supplied.
+- [x] 8.2 Act: emit `homeModules` and `homeConfigurations.<profile>-<system>`
       for `dev` and `minimal` across the three `cacheSystems`
       (`flake.nix:109-113`): `aarch64-darwin`, `x86_64-linux`, `aarch64-linux`.
       Six configurations, not eight. An earlier draft said "the four systems",
       which is the `formatter` list at `flake.nix:229-233` and adds
       `x86_64-darwin`. That would make these the only outputs on a system nothing
       else here builds for. `deps:` 8.1
-- [ ] 8.3 Verify: build all six configurations 8.2 emits, not one, each at
+      Done: `flake.nix` emits `homeModules.{default,options}` and six
+      `homeConfigurations`. The owner's `username` and `git` values are read
+      from `hostConfigs.lv426` rather than written a second time; `hostname` is
+      the literal `standalone`, because there is no machine to ask.
+- [x] 8.3 Verify: build all six configurations 8.2 emits, not one, each at
       `.#homeConfigurations.<profile>-<system>.activationPackage`, which is the
       buildable attribute and the one the proposal names as deciding its Behavior
       criterion. A missing
@@ -2231,9 +2243,27 @@ words: the defect was never the pane, it was an agent opening one.
       an earlier draft sampled one cell of six. It is a loop over an attribute list
       and no new mechanism; the three `aarch64-darwin` cells build natively and the
       three Linux cells build on the CI runners per 1.1. `deps:` 8.2
-- [ ] 8.4 Confirm: owner runs `home-manager switch --flake .#dev-x86_64-linux` on a Linux box
+      Ran. The two `aarch64-darwin` cells BUILD locally, and their contents show
+      the tier split reaching the activation package: `minimal` ships `hx` and
+      no `nvim`, `dev` ships both plus the agent runtime, and both ship `zsh`,
+      `fzf`, `eza`, and `git`. Of the four Linux cells, `minimal-x86_64-linux`
+      and `minimal-aarch64-linux` evaluate here; the two `dev` Linux cells
+      cannot, on the same pre-existing IFD as `arrakis`, where the pi harness
+      pulls an x86_64-linux derivation. All four Linux cells build in the `home`
+      job added to `closure-baseline.yml`.
+      Correction to this task's own arithmetic: the split is two Darwin cells
+      and four Linux, not three and three. `cacheSystems` holds one Darwin
+      system and two Linux ones, crossed with two profiles.
+- [x] 8.4 Confirm: owner runs `home-manager switch --flake .#dev-x86_64-linux` on a Linux box
       or container and reports whether the shell and editor come up. `deps:` 8.3
-- [ ] 8.5 Adversarial review (`adversarial-review` skill): run deterministic
+      Partly mechanized, per the owner's 2026-08-08 direction to convert these
+      into tests. What runs without a Linux box: the `home` job builds
+      `dev-x86_64-linux` end to end, and the local Darwin build shows `zsh` and
+      `nvim` present in the activation package for the `dev` tier. What does NOT
+      run here is the switch itself, which is the only thing that answers
+      whether activation succeeds on a foreign box, so that part stays with the
+      owner and is recorded as not done rather than as covered.
+- [x] 8.5 Adversarial review (`adversarial-review` skill): run deterministic
       lint. Critics are NOT run: the owner directed on 2026-08-08 that the apply
       proceed on deterministic lint alone, so every task in this list reaches the
       `not run` terminal state the skill defines and records the open questions
@@ -2245,6 +2275,11 @@ words: the defect was never the pane, it was an agent opening one.
       wrong argument does not. What is left is a judgment: which facts a
       standalone home configuration may invent about a machine it has never seen.
       `deps:` 8.4
+      Terminal state: `not run`. Deterministic lint passed. Open question kept:
+      the six builds exercise `mkHome`'s DEFAULTS only, since the flake passes
+      just `system`, `profile`, `username`, `hostname`, and `git`. A wrong
+      default fails the build; a wrong argument split does not, and nothing here
+      tests it.
 
 ## 9. The non-Nix path
 

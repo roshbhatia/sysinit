@@ -8,9 +8,11 @@ let
   pkgBuilders = import ./builders/pkgs.nix { inherit lib nixpkgs inputs; };
   darwinBuilder = import ./builders/darwin.nix { inherit lib inputs; };
   nixosBuilder = import ./builders/nixos.nix { inherit lib inputs; };
+  homeBuilder = import ./builders/home.nix { inherit lib inputs; };
 in
 {
   inherit (pkgBuilders) mkPkgs mkOverlays;
+  inherit (homeBuilder) mkHome;
 
   buildConfiguration =
     {

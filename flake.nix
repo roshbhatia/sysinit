@@ -156,6 +156,58 @@
         inherit buildConfig;
       };
 
+      # The home tree without a host under it, for a box this repository does
+      # not administer. `lib/builders/home.nix` says what `mkHome` defaults and
+      # what it takes as an argument, and why.
+      homeModules = {
+        default = ./modules/home;
+        options = {
+          imports = [
+            ./modules/shared/options/theme.nix
+            ./modules/home/programs/llm/options.nix
+            ./modules/home/programs/git/options.nix
+          ];
+        };
+      };
+
+      # `dev` and `minimal` across `cacheSystems`, so six. Not `workstation`,
+      # which is the layer that only makes sense in front of a screen this
+      # builder cannot see. Not `x86_64-darwin` either: that is the `formatter`
+      # list, and these would be the only outputs on a system nothing else here
+      # builds for.
+      homeConfigurations =
+        let
+          buildHome = builders.mkHome {
+            inherit (inputs) home-manager;
+            inherit (builders) mkPkgs mkOverlays;
+          };
+        in
+        lib.listToAttrs (
+          lib.concatMap
+            (
+              profile:
+              map (system: {
+                name = "${profile}-${system}";
+                value = buildHome {
+                  inherit system profile;
+                  # The owner's identity, read from `hosts/default.nix` rather
+                  # than written down a second time. These outputs exist for this
+                  # owner on a box someone else administers, so the identity is
+                  # the one fact they may carry over.
+                  inherit (hostConfigs.lv426) username;
+                  hostname = "standalone";
+                  values = {
+                    inherit (hostConfigs.lv426.values) git;
+                  };
+                };
+              }) cacheSystems
+            )
+            [
+              "dev"
+              "minimal"
+            ]
+        );
+
       packages =
         let
           cacheAttrs = [

@@ -26,6 +26,5 @@
       };
     };
 
-
   mkOverlays = _system: import ../../overlays/default.nix { inherit inputs; };
 }
