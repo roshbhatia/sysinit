@@ -1736,7 +1736,7 @@ words: the defect was never the pane, it was an agent opening one.
 
 - **SHAPE** graph
 
-- [ ] 5.1 Act: add `sysinit-agent watch`, which renders a wtrun log, the
+- [x] 5.1 Act: add `sysinit-agent watch`, which renders a wtrun log, the
       agent-state bus, or a transcript, and tails it. It reads its paths from the
       phase 4 manifest. Name the resolution key per source rather than saying it
       resolves from the current directory, which an earlier draft did and which
@@ -1762,6 +1762,46 @@ words: the defect was never the pane, it was an agent opening one.
       existence, since a live mux says nothing about one pane in it. Use it to
       reject, never to confirm.
       `deps:` 3.4, 4.1
+
+      Done. `internal/watch/watch.go`, registered in `main.go`. No new wrapper:
+      `pkgs.sysinit-agent` is already on PATH under its own name, so the command
+      is `sysinit-agent watch` and 5.2 spawns exactly that.
+
+      The contract, one resolution key per source, is the package comment and the
+      usage text:
+
+      - wtrun, by pane, from `WTRUN_SESSION` or an explicit argument. The viewer's
+        OWN `WEZTERM_PANE` is the last resort and never overrides either, which is
+        the case 5.2 breaks: a viewer spawned into a new pane resolves a directory
+        wtrun never wrote to. A test asserts the precedence.
+      - bus, by directory, matched against the record's `worktree` with trailing
+        slashes trimmed on both sides.
+      - transcript, by harness session id, under the new `agentTranscripts`
+        manifest key. Nothing writes it until 5.3, so the viewer reports the path
+        it is waiting on rather than failing.
+
+      Two manifest keys added, `agentWtrun` and `agentTranscripts`, with accessors
+      in `internal/paths`. No path is composed in the viewer.
+
+      Liveness is `unverified` unless it can be RULED OUT. No fork was added: the
+      only signal used is the `mux` pid from 4.7, signalled with 0. A live mux
+      returns `unverified`, not `live`, because a live mux says nothing about one
+      pane inside it. Two mutations confirm it, one making a live mux read `live`
+      and one deleting the stale branch.
+
+      Polling, not a filesystem watch, at 500ms. The module has zero external
+      dependencies and a watch would add one plus a descriptor per source. This is
+      the honest answer to 5.5's question about reproducing the coupling: the
+      viewer holds no handle on any producer and a producer that stops writing
+      just stops changing the screen.
+
+      Verified end to end rather than by unit test alone: appends to a live wtrun
+      log appear in a running viewer, and the nix-built binary lists and runs the
+      subcommand.
+
+      One defect found and fixed while testing: Go's `flag` stops at the first
+      positional, so `watch bus --no-follow` read `--no-follow` as a directory and
+      followed forever. Parsing now runs in passes, one positional per pass.
 - [ ] 5.2 Act: add a wezterm chord that spawns the viewer in a new pane the
       owner asked for. `deps:` 5.1
 - [ ] 5.3 Act: mirror the native transcript into

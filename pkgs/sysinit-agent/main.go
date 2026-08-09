@@ -18,6 +18,7 @@ import (
 	"github.com/roshbhatia/sysinit/pkgs/sysinit-agent/internal/guard"
 	"github.com/roshbhatia/sysinit/pkgs/sysinit-agent/internal/note"
 	"github.com/roshbhatia/sysinit/pkgs/sysinit-agent/internal/statusline"
+	"github.com/roshbhatia/sysinit/pkgs/sysinit-agent/internal/watch"
 )
 
 // command is one subcommand. Run receives the arguments after the subcommand
@@ -37,6 +38,7 @@ var commands = map[string]command{
 	"exit-code-guard": {name: "exit-code-guard", summary: guard.ExitCodeSummary, run: guard.RunExitCode},
 	"note":            {name: "note", summary: note.Summary, run: note.Run},
 	"statusline":      {name: "statusline", summary: statusline.Summary, run: statusline.Run},
+	"watch":           {name: "watch", summary: watch.Summary, run: watch.Run},
 }
 
 func usage(w *os.File) {

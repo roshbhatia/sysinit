@@ -19,11 +19,13 @@ import (
 // Keys the manifest carries. Named rather than typed as strings at each call
 // site, so a typo is a compile error instead of an empty path.
 const (
-	StateHomeKey      = "stateHome"
-	AgentsKey         = "agents"
-	AgentPanesKey     = "agentPanes"
-	AgentDiffNotesKey = "agentDiffNotes"
-	SeshySessionsKey  = "seshySessions"
+	StateHomeKey        = "stateHome"
+	AgentsKey           = "agents"
+	AgentPanesKey       = "agentPanes"
+	AgentDiffNotesKey   = "agentDiffNotes"
+	AgentWtrunKey       = "agentWtrun"
+	AgentTranscriptsKey = "agentTranscripts"
+	SeshySessionsKey    = "seshySessions"
 )
 
 type document struct {
@@ -115,4 +117,22 @@ func AgentDiffNotes() string {
 		return value
 	}
 	return filepath.Join(fallbackStateHome(), "agents", "diff-notes")
+}
+
+// AgentWtrun is the directory wtrun writes its per-session logs under. Read
+// rather than written here: wtrun.sh owns the layout below it.
+func AgentWtrun() string {
+	if value, ok := Get(AgentWtrunKey); ok {
+		return value
+	}
+	return filepath.Join(fallbackStateHome(), "agents", "wtrun")
+}
+
+// AgentTranscripts is the directory holding mirrored harness transcripts, laid
+// out as <harness>/<session>.jsonl.
+func AgentTranscripts() string {
+	if value, ok := Get(AgentTranscriptsKey); ok {
+		return value
+	}
+	return filepath.Join(fallbackStateHome(), "agents", "transcripts")
 }

@@ -9,6 +9,7 @@
     "agentRefine": "$HOME/.local/state/agents/refine",
     "agentWtrun": "$HOME/.local/state/agents/wtrun",
     "agentDiffNotes": "$HOME/.local/state/agents/diff-notes",
+    "agentTranscripts": "$HOME/.local/state/agents/transcripts",
     "agentWorklog": "$HOME/.local/state/agents/worklog.jsonl",
     "seshySessions": "$HOME/.local/state/seshy/sessions",
     "weztermWorkspaceState": "$HOME/.local/state/wezterm/workspace_state",

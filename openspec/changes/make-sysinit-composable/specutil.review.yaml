@@ -1,9 +1,9 @@
 version: 1
 change: make-sysinit-composable
 decision: approved
-note: Phase 4 complete. 4.9 records terminal state NOT_RUN with the three open questions.
-change_hash: e02d1d12a20e66f7
-base_commit: afb290ca9d8c70fa8c76673b4385391b8d964955
+note: '5.1: sysinit-agent watch, one resolution key per source, liveness rejects and never confirms.'
+change_hash: 056d407a5a045dbe
+base_commit: 8551516406508a26d9164802d99581475cd8e037
 items:
     0cd74be6febf08e9:
         hash: 7262630e5226087a
