@@ -1,0 +1,26 @@
+modules/home/programs/neovim/config/lua/harness/adapters/claudecode.lua:      vim.fn.jobstart({ "wezterm", "cli", "kill-pane", "--pane-id", tostring(pane_id) }, { detach = true })
+modules/home/programs/neovim/config/lua/harness/adapters/opencode.lua:  local in_wezterm = vim.env.WEZTERM_PANE ~= nil and vim.fn.executable("wezterm") == 1
+modules/home/programs/neovim/config/lua/harness/lifecycle.lua:  if backend == "wezterm" then
+modules/home/programs/neovim/config/lua/harness/lifecycle.lua:  local in_wezterm = vim.env.WEZTERM_PANE ~= nil and vim.fn.executable("wezterm") == 1
+modules/home/programs/neovim/config/lua/harness/lifecycle.lua:  return in_wezterm and "wezterm" or "snacks"
+modules/home/programs/neovim/config/lua/harness/preview.lua:      return { ok = true, path = full, renderer = "glow", surface = "wezterm" }
+modules/home/programs/neovim/config/lua/harness/preview.lua:      vim.fn.system({ "wezterm", "cli", "kill-pane", "--pane-id", tostring(state.pane) })
+modules/home/programs/neovim/config/lua/harness/preview.lua:    vim.fn.jobstart({ "wezterm", "cli", "kill-pane", "--pane-id", tostring(state.pane) }, { detach = true })
+modules/home/programs/neovim/config/lua/harness/preview.lua:  if not parent or vim.fn.executable("wezterm") ~= 1 then
+modules/home/programs/neovim/config/lua/harness/preview.lua:  local spawn = ("wezterm cli split-pane --pane-id %d --right --percent 42 -- sh -c %s 2>/dev/null"):format(
+modules/home/programs/neovim/config/lua/harness/preview.lua:  vim.fn.jobstart({ "wezterm", "cli", "activate-pane", "--pane-id", tostring(parent) }, { detach = true })
+modules/home/programs/neovim/config/lua/plugins/claudecode.lua:        choice = in_wezterm and "wezterm" or "snacks"
+modules/home/programs/neovim/config/lua/plugins/claudecode.lua:        local in_wezterm = vim.env.WEZTERM_PANE ~= nil and vim.fn.executable("wezterm") == 1
+modules/home/programs/neovim/config/lua/plugins/claudecode.lua:      if choice == "wezterm" then
+modules/home/programs/neovim/config/lua/plugins/lazydev.lua:            "wezterm",
+modules/home/programs/neovim/config/lua/plugins/opencode.lua:        choice = in_wezterm and "wezterm" or "snacks"
+modules/home/programs/neovim/config/lua/plugins/opencode.lua:        local in_wezterm = vim.env.WEZTERM_PANE ~= nil and vim.fn.executable("wezterm") == 1
+modules/home/programs/neovim/config/lua/plugins/opencode.lua:      if choice == "wezterm" then
+modules/home/programs/neovim/config/lua/utils/wezterm_terminal.lua:    "wezterm cli split-pane --pane-id %d %s --percent %d --cwd %s -- sh -c %s 2>/dev/null",
+modules/home/programs/neovim/config/lua/utils/wezterm_terminal.lua:    return parent_pane_id ~= nil and vim.fn.executable("wezterm") == 1
+modules/home/programs/neovim/config/lua/utils/wezterm_terminal.lua:    vim.fn.jobstart({ "wezterm", "cli", "activate-pane", "--pane-id", tostring(pane_id) }, { detach = true })
+modules/home/programs/neovim/config/lua/utils/wezterm_terminal.lua:  local res = vim.fn.system({ "wezterm", "cli", "list", "--format", "json" })
+modules/home/programs/neovim/config/lua/utils/wezterm_terminal.lua:  vim.fn.jobstart({ "wezterm", "cli", "activate-pane", "--pane-id", tostring(pane_id) }, { detach = true })
+modules/home/programs/neovim/config/lua/utils/wezterm_terminal.lua:  vim.fn.jobstart({ "wezterm", "cli", "kill-pane", "--pane-id", tostring(pane_id) }, { detach = true })
+modules/home/programs/neovim/config/lua/utils/wezterm_terminal.lua:  vim.fn.jobstart({ "wezterm", "cli", "list", "--format", "json" }, {
+modules/home/programs/neovim/config/lua/utils/wezterm_terminal.lua:  vim.fn.system(string.format("wezterm cli send-text --no-paste --pane-id %d < %s", pane_id, vim.fn.shellescape(tmp)))
