@@ -185,8 +185,12 @@
       independently known answer; this proves the checkout, the installer, the
       attribute path, and the output format end to end, and costs one runner
       minute. `deps:` 1.1
-- [ ] 1.3 Adversarial review (`adversarial-review` skill): run deterministic
-      lint; run critics on whether the baseline captured is the right one, since
+- [x] 1.3 Adversarial review (`adversarial-review` skill): run deterministic
+      lint. Critics are NOT run: the owner directed on 2026-08-08 that the apply
+      proceed on deterministic lint alone, so every task in this list reaches the
+      `not run` terminal state the skill defines and records the open questions
+      rather than refuting them. The questions below are what critics WOULD have
+      been asked, kept because they name where this phase is weakest on whether the baseline captured is the right one, since
       every later STOP gate compares against it. `deps:` 1.2
 
 ## 2. Stop the agents pushing
@@ -479,7 +483,11 @@ words: the defect was never the pane, it was an agent opening one.
       adds, which is where every gate from here on gets its Linux side.
       `deps:` 2.11
 - [ ] 2.13 Adversarial review (`adversarial-review` skill): run deterministic
-      lint; run critics on whether 2.2's self-report line is a real distinction
+      lint. Critics are NOT run: the owner directed on 2026-08-08 that the apply
+      proceed on deterministic lint alone, so every task in this list reaches the
+      `not run` terminal state the skill defines and records the open questions
+      rather than refuting them. The questions below are what critics WOULD have
+      been asked, kept because they name where this phase is weakest on whether 2.2's self-report line is a real distinction
       or a rationalization, on whether 2.4 leaves any agent path to a pane, and
       on whether 2.7 leaves any agent route into `harness.api`, and on the
       `$EDITOR` shim kept in 2.8. `deps:` 2.12
@@ -869,7 +877,11 @@ words: the defect was never the pane, it was an agent opening one.
       recording, not against 1.1. The `lv426` half runs locally and the `arrakis`
       half runs in the CI job 1.1 adds. `deps:` 3.8
 - [ ] 3.15 Adversarial review (`adversarial-review` skill): run deterministic
-      lint; run critics on the claim that no behavior was lost silently, on the
+      lint. Critics are NOT run: the owner directed on 2026-08-08 that the apply
+      proceed on deterministic lint alone, so every task in this list reaches the
+      `not run` terminal state the skill defines and records the open questions
+      rather than refuting them. The questions below are what critics WOULD have
+      been asked, kept because they name where this phase is weakest on the claim that no behavior was lost silently, on the
       derived export as an artifact that can go stale against its record, and
       on the loopback daemon as an unauthenticated local listener. `deps:` 3.14
 
@@ -1081,7 +1093,11 @@ words: the defect was never the pane, it was an agent opening one.
       `templates/discrete/flake.nix:53`, which is a published flake output, and the
       unused `sysinit = ../..` arg. `deps:` 4.1
 - [ ] 4.9 Adversarial review (`adversarial-review` skill): run deterministic
-      lint; run critics on the generated manifest, where a consumer silently
+      lint. Critics are NOT run: the owner directed on 2026-08-08 that the apply
+      proceed on deterministic lint alone, so every task in this list reaches the
+      `not run` terminal state the skill defines and records the open questions
+      rather than refuting them. The questions below are what critics WOULD have
+      been asked, kept because they name where this phase is weakest on the generated manifest, where a consumer silently
       falling back to a hardcoded path defeats the whole phase, and on whether
       4.7's liveness bound can be stated without a clock the readers disagree
       about. `deps:` 4.8
@@ -1133,7 +1149,11 @@ words: the defect was never the pane, it was an agent opening one.
 - [ ] 5.4 Verify: the ten uncovered harnesses are recorded in the
       proposal as uncovered, with no scraping added. `deps:` 5.3
 - [ ] 5.5 Adversarial review (`adversarial-review` skill): run deterministic
-      lint; run critics on whether a viewer that polls files reproduces the
+      lint. Critics are NOT run: the owner directed on 2026-08-08 that the apply
+      proceed on deterministic lint alone, so every task in this list reaches the
+      `not run` terminal state the skill defines and records the open questions
+      rather than refuting them. The questions below are what critics WOULD have
+      been asked, kept because they name where this phase is weakest on whether a viewer that polls files reproduces the
       coupling it replaced. `deps:` 5.4
 
 ## 6. The profile layer
@@ -1192,7 +1212,11 @@ words: the defect was never the pane, it was an agent opening one.
       discriminating 790 MiB of it, and that is what both sides of this
       comparison should measure. `deps:` 6.5
 - [ ] 6.7 Adversarial review (`adversarial-review` skill): run deterministic
-      lint; run critics on the gating, where a mis-scoped `optionals` silently
+      lint. Critics are NOT run: the owner directed on 2026-08-08 that the apply
+      proceed on deterministic lint alone, so every task in this list reaches the
+      `not run` terminal state the skill defines and records the open questions
+      rather than refuting them. The questions below are what critics WOULD have
+      been asked, kept because they name where this phase is weakest on the gating, where a mis-scoped `optionals` silently
       drops a module from every profile. `deps:` 6.6
 
 ## 7. Decouple theming
@@ -1233,7 +1257,11 @@ words: the defect was never the pane, it was an agent opening one.
 - [ ] 7.4 Verify: with the flag false the home modules evaluate without the
       stylix module present. `deps:` 7.2
 - [ ] 7.5 Adversarial review (`adversarial-review` skill): run deterministic
-      lint; run critics on guards placed at the wrong nesting level, which would
+      lint. Critics are NOT run: the owner directed on 2026-08-08 that the apply
+      proceed on deterministic lint alone, so every task in this list reaches the
+      `not run` terminal state the skill defines and records the open questions
+      rather than refuting them. The questions below are what critics WOULD have
+      been asked, kept because they name where this phase is weakest on guards placed at the wrong nesting level, which would
       change the true branch too. `deps:` 7.4
 
 ## 8. Standalone home configurations
@@ -1296,7 +1324,11 @@ words: the defect was never the pane, it was an agent opening one.
 - [ ] 8.4 Confirm: owner runs `home-manager switch --flake .#dev-x86_64-linux` on a Linux box
       or container and reports whether the shell and editor come up. `deps:` 8.3
 - [ ] 8.5 Adversarial review (`adversarial-review` skill): run deterministic
-      lint; run critics on 8.1's split between the paths `mkHome` defaults and
+      lint. Critics are NOT run: the owner directed on 2026-08-08 that the apply
+      proceed on deterministic lint alone, so every task in this list reaches the
+      `not run` terminal state the skill defines and records the open questions
+      rather than refuting them. The questions below are what critics WOULD have
+      been asked, kept because they name where this phase is weakest on 8.1's split between the paths `mkHome` defaults and
       the paths it takes as arguments. Point them there and not at a missing
       specialArg, which 8.3 now catches mechanically across all six cells. The six
       builds exercise the defaults only, so a wrong default fails the build and a
@@ -1397,7 +1429,11 @@ words: the defect was never the pane, it was an agent opening one.
       contents, that is the finding, not a reason to waive.
       `deps:` 9.8
 - [ ] 9.10 Adversarial review (`adversarial-review` skill): run deterministic
-      lint; run critics on the generator, where silent drift between the two
+      lint. Critics are NOT run: the owner directed on 2026-08-08 that the apply
+      proceed on deterministic lint alone, so every task in this list reaches the
+      `not run` terminal state the skill defines and records the open questions
+      rather than refuting them. The questions below are what critics WOULD have
+      been asked, kept because they name where this phase is weakest on the generator, where silent drift between the two
       lists is the failure this phase exists to prevent. `deps:` 9.9
 
 ## 10. The session substrate
@@ -1745,7 +1781,11 @@ the named task and re-running the gate, not re-entering the phase.
       against the 3.14 recording. The `lv426` half runs locally and the `arrakis`
       half runs in the CI job 1.1 adds. `deps:` 10.11
 - [ ] 10.13 Adversarial review (`adversarial-review` skill): run deterministic
-      lint; run critics on whether zmx and seshy now own the same fact under two
+      lint. Critics are NOT run: the owner directed on 2026-08-08 that the apply
+      proceed on deterministic lint alone, so every task in this list reaches the
+      `not run` terminal state the skill defines and records the open questions
+      rather than refuting them. The questions below are what critics WOULD have
+      been asked, kept because they name where this phase is weakest on whether zmx and seshy now own the same fact under two
       names, and on whether the session key can disagree between the file bus and
       the deck after 10.8. `deps:` 10.12
 
@@ -1783,5 +1823,9 @@ the named task and re-running the gate, not re-entering the phase.
 - [ ] 11.4 Act: open the follow-on change `decompose-wezterm-ui`, which
       design.md section 8 sequences after this one. `deps:` 11.3
 - [ ] 11.5 Adversarial review (`adversarial-review` skill): run deterministic
-      lint; run critics on the whole diff, asking what a profile smaller than
+      lint. Critics are NOT run: the owner directed on 2026-08-08 that the apply
+      proceed on deterministic lint alone, so every task in this list reaches the
+      `not run` terminal state the skill defines and records the open questions
+      rather than refuting them. The questions below are what critics WOULD have
+      been asked, kept because they name where this phase is weakest on the whole diff, asking what a profile smaller than
       `workstation` silently loses that nothing asserts. `deps:` 11.4
