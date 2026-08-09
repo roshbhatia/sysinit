@@ -234,7 +234,11 @@ func TestLivenessRejectsAndNeverConfirms(t *testing.T) {
 	// SCHEMA.md's rule is pane existence, which this command cannot answer
 	// without forking `wezterm cli list`. So the only verdict it may reach is
 	// "ruled out"; everything else stays unverified.
-	cmd := exec.Command("/usr/bin/true")
+	//
+	// The dead pid comes from this test binary re-run with a filter that matches
+	// no test, so it starts and exits immediately. Not `/usr/bin/true`, which
+	// exists on darwin and does not exist inside a Linux nix build sandbox.
+	cmd := exec.Command(os.Args[0], "-test.run=^$")
 	if err := cmd.Run(); err != nil {
 		t.Fatalf("could not produce a dead pid: %v", err)
 	}

@@ -321,16 +321,27 @@ func TestMuxIDReadsTheGenerationMarkerOrNothing(t *testing.T) {
 	}
 }
 
-func TestReapRemovesOnlyRecordsFromADeadMux(t *testing.T) {
-	dir := t.TempDir()
-
-	// A pid that is certainly not running: start a process, wait for it, then
-	// reuse its number. Inventing a large pid would be a guess.
-	cmd := exec.Command("/usr/bin/true")
+// A pid that is certainly not running: start a process, wait for it, then reuse
+// its number. Inventing a large pid would be a guess.
+//
+// The child is this test binary re-run with a filter that matches no test, so
+// it starts and exits immediately and needs nothing on disk that is not already
+// there. An earlier version ran `/usr/bin/true`, which exists on darwin and does
+// not exist inside a Linux nix build sandbox, so this package built on the
+// owner's machine and failed on every Linux runner.
+func deadPid(t *testing.T) int {
+	t.Helper()
+	cmd := exec.Command(os.Args[0], "-test.run=^$")
 	if err := cmd.Run(); err != nil {
 		t.Fatalf("could not produce a dead pid: %v", err)
 	}
-	dead := cmd.Process.Pid
+	return cmd.Process.Pid
+}
+
+func TestReapRemovesOnlyRecordsFromADeadMux(t *testing.T) {
+	dir := t.TempDir()
+
+	dead := deadPid(t)
 
 	write := func(pane string, mux int) {
 		body, err := json.Marshal(state{Version: SchemaVersion, Mux: mux, Pane: pane})
@@ -380,11 +391,7 @@ func TestReapRunsOncePerMux(t *testing.T) {
 	dir := t.TempDir()
 	current := os.Getpid()
 
-	cmd := exec.Command("/usr/bin/true")
-	if err := cmd.Run(); err != nil {
-		t.Fatalf("could not produce a dead pid: %v", err)
-	}
-	dead := cmd.Process.Pid
+	dead := deadPid(t)
 
 	reapDeadMuxes(dir, current)
 
