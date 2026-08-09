@@ -173,9 +173,7 @@
       `path:matched-text` pairs. 31 lines today, minus 1 for `doc/`, minus 4 for
       the removed lines, is 26. It has to be recorded before the edits, or the
       gate compares the edited tree against a snapshot of itself. `deps:` none
-- [x] 1.2 Gather: capture `nix path-info -S` on the current home closure, so the
-      profile split has a number to beat. `deps:` 1.1
-- [x] 1.3 Verify: the CI job 1.1 adds re-evaluates the `lv426` line and its
+- [x] 1.2 Verify: the CI job 1.1 adds re-evaluates the `lv426` line and its
       output matches what the owner recorded locally. Exercise the job here,
       against an answer already known, rather than letting 2.12 be the first thing
       that runs it. Nine gates depend on this job and none of them tests it, so a
@@ -186,10 +184,10 @@
       judges. Use `lv426` and not `arrakis` because only `lv426` has an
       independently known answer; this proves the checkout, the installer, the
       attribute path, and the output format end to end, and costs one runner
-      minute. `deps:` 1.2
-- [ ] 1.4 Adversarial review (`adversarial-review` skill): run deterministic
+      minute. `deps:` 1.1
+- [ ] 1.3 Adversarial review (`adversarial-review` skill): run deterministic
       lint; run critics on whether the baseline captured is the right one, since
-      every later STOP gate compares against it. `deps:` 1.3
+      every later STOP gate compares against it. `deps:` 1.2
 
 ## 2. Stop the agents pushing
 
@@ -1174,7 +1172,25 @@ words: the defect was never the pane, it was an agent opening one.
       and 6.5 cannot tell them apart. This is the one gate that keeps
       `nix path-info -S`, because a size is the point here rather than a set of
       names, and it is also the one gate that needs realized paths. Run both
-      profiles for `lv426` locally, where the closures already exist. `deps:` 6.5
+      profiles for `lv426` locally, where the closures already exist.
+
+      Both sizes are measured at the same instant, and there is deliberately no
+      third clause comparing `minimal` against a size recorded back in phase 1.
+      Phase 1 tried that and the artifact was dropped, because a cross-time
+      absolute size cannot carry the claim. `update-sources.yml` runs
+      `nix flake update` every six hours, so nixpkgs moves under the measurement
+      between phase 1 and phase 6, and phases 2 through 5 move it again. A red
+      cross-time clause would be ambiguous between "the split did not shrink
+      anything" and "nixpkgs grew", which is the ambiguity task 1.2 exists to
+      keep out of these gates. The same-instant comparison has no such
+      confound: one nixpkgs, one evaluation, two profiles.
+
+      Measuring the home closure specifically does not rescue it either. The
+      home-manager activation package for `lv426` measures 17.0 GiB, within
+      noise of the whole system closure at 17.5 GiB, so it is dominated by
+      derivations no profile split touches. The home `profile` output is the
+      discriminating 790 MiB of it, and that is what both sides of this
+      comparison should measure. `deps:` 6.5
 - [ ] 6.7 Adversarial review (`adversarial-review` skill): run deterministic
       lint; run critics on the gating, where a mis-scoped `optionals` silently
       drops a module from every profile. `deps:` 6.6
