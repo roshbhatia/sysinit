@@ -427,6 +427,18 @@ func identify(dir string) identity {
 		id.session = strings.SplitN(rest, "/", 2)[0]
 	}
 
+	// Then the zmx session, which is an environment lookup: no fork, no
+	// terminal, and inherited by every child of the session, confirmed by probe
+	// rather than by documentation.
+	//
+	// The prefix is stripped, because it is a namespace and not part of the
+	// name. `sy list` reports unprefixed names and this record is joined
+	// against that list, so leaving the prefix on makes a set difference that
+	// removes nothing and emits every live session twice.
+	if id.session == "" {
+		id.session = zmxSession()
+	}
+
 	toplevel := gitOut(dir, "rev-parse", "--show-toplevel")
 	if toplevel == "" {
 		return id
@@ -438,6 +450,18 @@ func identify(dir string) identity {
 	}
 	id.dirty = gitOut(dir, "status", "--porcelain") != ""
 	return id
+}
+
+// zmxSession reads the current zmx session with the namespace removed.
+//
+// Empty when the variable is unset, which is a pane that is not in a session,
+// and the readers resolve their own fallback from there.
+func zmxSession() string {
+	name := os.Getenv("ZMX_SESSION")
+	if name == "" {
+		return ""
+	}
+	return strings.TrimPrefix(name, os.Getenv("ZMX_SESSION_PREFIX"))
 }
 
 func gitOut(dir string, args ...string) string {

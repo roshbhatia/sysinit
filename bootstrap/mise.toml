@@ -21,3 +21,4 @@
 "ubi:boyter/scc" = "latest"
 "aqua:cli/cli" = "latest"
 "aqua:dandavison/delta" = "latest"
+"github:neurosnap/zmx" = "latest"

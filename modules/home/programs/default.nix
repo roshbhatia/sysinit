@@ -162,6 +162,10 @@ let
     }
     {
       tier = "minimal";
+      path = ./zmx;
+    }
+    {
+      tier = "minimal";
       path = ./zoxide.nix;
     }
     {

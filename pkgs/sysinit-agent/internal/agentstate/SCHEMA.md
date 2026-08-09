@@ -131,7 +131,7 @@ Three holes remain, all real:
 | Reader | Reads | Authority |
 |---|---|---|
 | `wezterm/lua/sysinit/pkg/ui.lua` `pane_agent_state` | the user variable, falling back to the agent-deck plugin | the variable, because it is live and pane-scoped |
-| `wezterm/lua/sysinit/pkg/ui.lua` `read_pane_git` | the JSON file, `branch` and `dirty` only | the file, because the variable does not carry them |
+| `wezterm/lua/sysinit/pkg/ui.lua` `read_pane_record` | the JSON file, `session`, `branch`, and `dirty` only | the file, because the variable does not carry them |
 | `llm/runtime/agent-sessions.sh` | the JSON file | the file, because it runs outside the pane |
 | `llm/runtime/agent-busy-panes.sh` | the JSON file | the file |
 | `llm/runtime/agent-review-suffix.sh` | the JSON file | the file |

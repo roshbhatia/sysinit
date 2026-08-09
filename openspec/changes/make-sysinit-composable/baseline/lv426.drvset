@@ -21,7 +21,6 @@
 01ih55na41xlw599aakj674dki725pp1-DarwinTools-1.drv
 01jyvzr26qbhz4b6bcw0md95hpwnfwll-tree-sitter-c-sharp-b5eb574.drv
 01srs30sgbqsybm0619araxxp3qf74g5-python3.14-scp-0.15.0.drv
-01z96kgc1002fy03446v0iz4mixww5jl-home-manager-files.drv
 02664qk5ar1q6grv464wsbwxf7jfl4zm-writeable-0.6.2.drv
 027jj4yf4jg90mjvasm61v14d6bc6vvm-bun-pkg-cli-cursor-5.0.0.drv
 027kz5n1hw2d4fzjs81v6j43q6p613gf-perl5.42.0-XML-SAX-1.02.drv
@@ -147,7 +146,6 @@
 0g5cvq6bifskajl3n0rdkbir0p8bvc9a-source.drv
 0gdg2c6gwc1nzip39a7ba02fkvyw013w-source.drv
 0gf33i6zhbsr19na7s3svajdi2xvmjw0-python3.14-orjson-3.11.9.drv
-0gj2zbnlynacy6f1537pnhqb75hh4fgl-hm_.agentshooks.json.drv
 0gkcw6xwnp583w2pczfk1bclkyjg5924-hspec-discover-2.11.17.tar.gz.drv
 0gl2m9nvz6d2v5inv41an4xaj5srv3z4-mailcap-2.1.54.drv
 0gnhj5czpw3fgc04acqv2smrdyapljly-pip-install-hook.drv
@@ -189,7 +187,6 @@
 0kv88jfla42pr7wsf3knrhd4li3daxm3-cargo-package-tinyvec_macros-0.1.1.drv
 0kvn7y3xa4jg8pawzfpifdq92vi8qja0-regex-posix-0.96.0.2.drv
 0kx6m479rln0gz98m1v5q10bwyqr36wk-docbook-style-xsl-non-recursive-string-subst.patch.drv
-0lmhnz3100sxinw10kb1gcfgn51b5aq5-gemini-exit-code-guard.drv
 0lwfijx0fc6vjk93z0yjrsaphh5lkg4f-pyproject_hooks-1.2.0.tar.gz.drv
 0m34kz7x3w3qxj77c3ss9gzriagi97j5-cargo-vendor-dir.drv
 0m557346mqarjml3gfszr8d112d094r5-MutatorMath-3.0.1.zip.drv
@@ -605,6 +602,7 @@
 20d1701wvy6cncm5sic7hsyfh193qpd0-source.drv
 20lbnjcjpsp8lgnazyvk2r56ck3bi4f3-cargo-package-windows_i686_msvc-0.53.0.drv
 20lsg1587c4fggbdhrinjfnx681z3mq9-source.drv
+20qg5pw284pssslbh6hrggzsrpd6nad6-source.drv
 20w6izh499sm4rd816rjaql207qn1021-smallcheck-1.2.1.1.tar.gz.drv
 21d3b62wfl7x4330zb5gc5f101rh74qc-expand-response-params.drv
 21dlb9s1p75xf0xh7zws49w9jly8m06p-source.drv
@@ -970,6 +968,7 @@
 35n03gzm36rkqww86p43l4y398i7dmk4-text-short-0.1.6.1.tar.gz.drv
 35q67splvzrrnsi3a077wl98ann4kdg5-nix-manual-2.31.5.drv
 35skbpnx5c0xsjmajn45bxw5ipd89nmn-python3-3.14.6.drv
+35zw27sw4iz8a8hy9pyvzkbgsvlhlyr2-config.yaml.drv
 36761razmgz6qgn5sdy5brn4hry217z0-python3.14-subprocess-tee-0.4.2.drv
 367hdbck9nymf7mpv8j34pdri9n9pxj7-ghc-9.4-llvm-support-20.patch.drv
 36a9brqh64x0rchfr1bn27wky1yxn3wm-primitive-0.9.1.0.tar.gz.drv
@@ -1002,6 +1001,7 @@
 38n3lnxni2x9qpfvymk166zf8cdpgh96-rcodesign-0.29.0-vendor.drv
 38n9jqwawniafmi3cczinrs41xqkviyr-autoconf-2.73.drv
 38p6xlicab07ngbrmk0p1dhwg8xjgv6c-tree-sitter-markdown-62516e8.drv
+38r09i16f6x2gsasancz8bjaalbms59p-etc.drv
 38rd1rrqyz74ixppsqlnxrrd0kbrdpwa-bun-darwin-aarch64-1.3.14.tgz.drv
 38wys5fjb7b27qib80z5fcahnsc796yx-libxtst-1.2.5.drv
 39648lyv8pgvljxnhg9xipmh08gnr5a3-onig-6.9.10.tar.gz.drv
@@ -1476,6 +1476,7 @@
 4m9j0j83bqwv76ifckvs3c9k8y7l7sx7-python3.13-pyproject-hooks-1.2.0.drv
 4mhzd5afvw1xrdz62x8xjj83byhb5z1r-patchutils-0.3.3.drv
 4mkaqmkn6ahkfqz3msvcj1xp4pjalyxx-shell_cmds-329.drv
+4mmbf600if29s38h10r9ckiv7h2nx3m0-claude-bash-guard.drv
 4mp6q9lgcd27w99r03x1xg2z17qgs2di-libxcrypt-4.5.2.drv
 4mv7lcfjnbkzgprddpns5f89xj430yx8-pub-cli_repl-0.2.3.tar.gz.drv
 4nsq218rygb67418iwc1yym1ni46rn93-autoconf-2.73.tar.xz.drv
@@ -1493,7 +1494,6 @@
 4q3r6davzfqw5zia8fjbbpcjzys771pm-hm_.piagentAGENTS.md.drv
 4q6j2zqizygszzwgawiyq4s6x0jg0as8-kyua-0.13-unstable-2024-01-22.drv
 4qb8hisv2wzx9cc9qamk1mm8b75liqyd-6bed8737a34dbb54782a18f47dccf933a9967a12.patch?full_index=1.drv
-4qiwivkm2p38f17jdng0sd11xdaszs1a-agent-sessions.drv
 4qk6mmlz5bxb5i8x6lxhprvqbp9il5cm-locale-118.drv
 4qkx8k366vxc2kbh0j7gwf99mfy07i6f-lima-2.2.0-go-modules.drv
 4qvdgvqn1r2pwxvv3hdfhd7cpqmm6jda-pub-source_span-1.10.2.drv
@@ -1639,7 +1639,6 @@
 57kraq6r4iwz5jrmqj2jncf3pb6s9rni-singleton-bool-0.1.8.drv
 57sc1pxh6zkh8hb11bb6whbx0v2vjym9-lua-term-luarocks-config.lua.drv
 57vnhmw118l2f8f8hcfx8wykcgq2cv91-nghttp3-1.15.0.tar.bz2.drv
-57y9df31y6dcrqpgr805c2764qdrm4ln-sy.drv
 57zyi8qg93bplbdamwvk6mpg80ycy2lr-source.drv
 586936lhpqmir07jz5v1nqyglylnsqkl-cpio-2.15.tar.bz2.drv
 58a59yrs9sj1wbyi23aamssc5avvxnjm-re2-2025-11-05.drv
@@ -1686,6 +1685,7 @@
 5b7xhkf40scian3mb27sik37g1jwiq9z-python3.14-kiwisolver-1.5.0.drv
 5bcbjy2061g6iazp835ifhn29k6smk53-Devel-Cycle-1.12.tar.gz.drv
 5biqm9dq186nwjv0yz7fcmy150k36c2d-source.drv
+5bnmbnyr3kjhq9i5iglcf3bzybdz42pc-home-manager-fonts.drv
 5brzb0n2vplal73dn2rzfj8av3rb34da-hunk-config.toml.drv
 5bsyrhpa98h4b78z3f5h1g3rjq79cmj6-source.drv
 5bvq44lf0qf9qjzn3bk5r2kcf3hcgirk-v4.1.0.tar.gz.drv
@@ -1712,7 +1712,6 @@
 5f4xpy99snn66zwlhxnplcbxp32sb9c6-cargo-package-pyo3-macros-0.23.5.drv
 5fawrdwwvlcxr6plb30i1ldmn84lyacl-dart-fixup-hook.drv
 5fkx34dwpbbc91r6i7lfhqxqgli5lzsp-source.drv
-5fp46sqc4h8k53r25vk43bdgwrj59r6w-claude-worklog.drv
 5fqnrz481dhxn06j7w5wi2qpkgql7m4d-python3.14-buildcatrust-0.5.1.drv
 5fz71z447yww2dw85589yr4kkk42ga17-pub-retry-3.1.2.drv
 5g207y7nxs3xdf3vdcvdg1q3c0pzlnxc-crate-windows-sys-0.61.2.tar.gz.drv
@@ -2234,7 +2233,6 @@
 78rhw3daf5hl3x1i4kmxqakahhx19mb0-bun-pkg-nan-2.26.2.drv
 78v1j3vjfnb8r792634cxk669ca46g5a-cargo-package-bytes-1.10.1.drv
 7918qya49qgk0vsx2fsjbypwzkn2l9r9-hm_LibraryApplicationSupportFirefoxProfilesdefault.keep.drv
-791lpiid2bjys7jkyainji1yk8kvfcrk-wtrun.drv
 794dgk0jp70p37hyxhjldnzwl04c30sw-python3.13-pexpect-4.9.0.drv
 795fd8dazzny1g2zm7jnyvq1mc51wmyn-pi-gemini-auth-deps-1.52.0.drv
 796i0csnwg8ghc61ncgan3zqmhzsg7n9-subr_prf.c.drv
@@ -2246,7 +2244,6 @@
 79m2bwfhbkwqfndjbiifzsr425dld6pq-make-shell-wrapper-hook.drv
 79m2hbx4mb32zi16z7sz6kq03a9ysxa1-ws-7.5.10.tgz.drv
 7a4846jcyq0k809zl3mm467gvk67p68b-cargo-package-miniz_oxide-0.8.9.drv
-7a991bc8gh77dwqx87gpic1r5i4sn4dd-hm_.configzsh.zprofile.drv
 7aazvpxg3cslky6k4365knlgjj4lp3fq-crossbeam-deque-0.8.6.drv
 7ad4vhs1clnc0b0s4jvfhivjkgd5vl33-automake-1.18.1.tar.xz.drv
 7adg23n3m6278kic3ax07k1faaaplrkg-python3.13-buildcatrust-0.5.1.drv
@@ -2291,7 +2288,6 @@
 7gavpxdzcmmchdr0yfgqcv8hafsjsv16-tokio-util-0.7.17.drv
 7gb19n86z7svrv25zxzg30zas17pxr7n-source.drv
 7gb20bhr2b91xnl02g1r274lr52a5m7f-cargo-package-cranelift-native-0.122.0.drv
-7gcj3nnpannm6c2m73kib7j11y1121ki-claude-statusline.drv
 7gl74vs5788n7hqkamwhrfwp1svywp72-graphene-1.10.8.drv
 7gp0kbm04yqkzxnl1zxlrr3ynjcd7skm-libmd-1.1.0.tar.xz.drv
 7gp8zmz3qhzshw179dxbpfx6xca9ahgj-skopeo-1.24.0.drv
@@ -2371,6 +2367,7 @@
 7pvxjrg1dzm4g6vrhqzzgzznzk3jzq6i-toml-1.1.2+spec-1.1.0.drv
 7py4x6qqr9whljzjhnb4s3m18pkl9al0-python3.14-sh-2.3.0.drv
 7q78qz33d2y2ss86qx19159rk27vgf2c-cargo-package-generic-array-0.14.7.drv
+7q8gwhbl5zc2q8mfmrj12f5jkz1h1qhd-zmx-0.6.0.drv
 7qh6w733mw7v6544m4fvk7x613jhrm30-cargo-package-unicode-segmentation-1.12.0.drv
 7qk54zzafn5xcskgzq8ydrdw35gbg36m-cargo-package-rustls-pki-types-1.13.0.drv
 7qryl45p0pdgisx6z8qq0f5hcqdkjydv-source.drv
@@ -2428,7 +2425,6 @@
 7ydz9b5p4rza93vx755g9f5yykwjxsm9-haskell-lexer-1.2.1.drv
 7yh2ich6qjjy2skr1z9krqlfi96lh4s6-cargo-package-futures-macro-0.3.31.drv
 7yjfmb3jzypv4f2kpgjdmk2z7vzxas7g-bun-pkg--oxfmt-binding-openharmony-arm64-0.41.0.drv
-7ys4x3a9xy7ac5laxlhbvg6c45wnln5r-hm_.configzsh.zshrc.drv
 7yy1xw410rwrwhd6mq6b0jn9qz62sm2z-pygments-2.20.0.tar.gz.drv
 7z29916m4yr752dyb0cpbmrrfvz97mvd-nasm-3.02.drv
 7zf4xsfykqc7b474ymk82dsdn98a39fn-node-server-1.19.11.tgz.drv
@@ -2549,7 +2545,6 @@
 891agb6pcyfhj6pk755l97j216jp8ns4-tasty-discover-5.0.2.tar.gz.drv
 896f122l4vwv30b66md6l1m93xm9k12b-python3.14-pathspec-1.1.1.drv
 899g26hxgl0gfjrg3vc1m5vyd5yryh1s-wai-extra-3.1.18.drv
-89dbqvqsawry4lq0qcnlk4c5kr2b9yzv-profile.drv
 89i3mji8slb5zm6gqayr1asfcrh7injq-pub-type_plus-2.1.1.drv
 89nq07ky7jrah2zazl8gmmmw7hyz8ga7-bash53-002.drv
 89nywkhngpr3v3jwyz7pba4ngf7b3hzl-gnu-config-2024-01-01.drv
@@ -2974,6 +2969,7 @@
 9lby1kii65h6ad6fcxcv2rsigd40xjln-source.drv
 9lc6ks5kamx89r2fh4haxhj81wwpiv7d-cargo-package-rustversion-1.0.22.drv
 9ldwfm3virw79j6d22jn0kfd3sr2aqx7-pub-coverage-1.15.1.drv
+9llcxmg58xynci7c95fg24bh7727wwkm-claude-code-settings.json.drv
 9llh47jq25ymzn66vlc7da1f11zx6pv1-temporary-1.3.tar.gz.drv
 9lnvdhnyyaiikqk96hx7s0z6wmwxg22s-source.drv
 9lq9vccvqvl2ymw2xsm25hpchrp80mkn-llvm-src-22.1.8.drv
@@ -3160,7 +3156,6 @@ a9jibmmcvsw0cab2ldi9dlkzbk2igf1b-libksba-1.8.0.tar.bz2.drv
 a9kda61vlhglh3mkqmnw6jcr1mgl1hq1-bun-pkg-pid-from-port-1.1.3.drv
 a9mhhwg0lr0wh14kj5kzam53cnr1jjk4-popt-1.19.tar.gz.drv
 a9nz84hryv414yhfp945cbmymyd2qjd4-stdenv-darwin.drv
-aa0j2434nmc3kq54clf9vph6kgf1d6pz-etc.drv
 aa1z15cp7n8i0w5m9ni1n5fszml1as26-tokei-14.0.0-vendor.drv
 aa60i0smlrr5wqsf2d9hg62lj4s8rd47-hourglass-0.2.12.tar.gz.drv
 aa61by248m2w3g8gfq4vywrjr19vbrhx-mpdecimal-4.0.1.tar.gz.drv
@@ -3359,6 +3354,7 @@ ayj0nlv5d41zbs02sd4jqmxwabi59yvm-python3.14-accessible-pygments-0.0.5.drv
 ayn6l46j0xjk9pbqmix50cx03d2a77n4-hm_.codexAGENTS.md.drv
 ayp8x2w77w9yv60pqskykbh22br99ilb-python3.14-sphinxcontrib-serializinghtml-2.0.0.drv
 ayp9mxm69h2s204xkd9azy4f0bi99zl1-ffmpeg-headless-8.1.2.drv
+ays5chnrdc6fbp6h61vz3s6939ji6zzc-hm_LibraryFonts.homemanagerfontsversion.drv
 ayyzchagvvcj7r1mfbpli04xqbgrzqn9-js-flot-0.8.3.drv
 az4mp3n013wglcnkih397wy44ij1ngzn-python3.13-tomli-w-1.2.0.drv
 az76icy1gi359cb283wxrr8np1rnqrpl-bootstrap-stage3-stdenv-darwin.drv
@@ -3387,7 +3383,6 @@ b2cmqpanzqx5rd3rczjsd0gd1kyzfr2m-bootstrap-stage2-stdenv-darwin.drv
 b2ia8kax2n9dd6r4hn8vyic1jkgjqzj3-python3.14-skia-pathops-0.9.2.drv
 b2npsg4w7b1h16fca69wbaj753i6f120-cargo-package-typenum-1.18.0.drv
 b2q9m2pk0n99w26b5dlfapa12aqa1447-source.drv
-b2xiiqrm0kissncrvmiaqmkzd4286ywm-codex-bash-guard.drv
 b32dn8qh2kd7n99277y7qgqhsa6s6m0l-IPC-Run-20231003.0.tar.gz.drv
 b332jcf1fjyxqj6pwbmjdrjhmyvjmmcd-ed-1.22.5.drv
 b35x33a1c53f1910zv57x1q8nqpwwwds-python3.14-h11-0.16.0.drv
@@ -3481,6 +3476,7 @@ bdqn7xhhaljafcgxlkwv5fqfdx9wlz5k-dec-0.0.6.tar.gz.drv
 bdvhzdy9i0xs9k3s9pimq2h44skpa4cd-crate-potential_utf-0.1.4.tar.gz.drv
 bdxd9kqh6dk5yvh68h3n73457d82nllk-expect5.45.4.tar.gz.drv
 bdzlnd13f94r0vgf1aj5g66ikmh0iacs-debugid-0.8.0.drv
+bf30m65qlmr7z9sjfcc0m55ysrqby3mi-sy.drv
 bf6g64p0iwrv5a2jk931ip7pzr332av4-character-ps-0.1.tar.gz.drv
 bfbj8wnkrbfzc9nfis3pbmxazwgmzf3q-source.drv
 bfbljpq8f8pis7w9k4r7y73x1qcvlic5-bifunctors-5.6.3.tar.gz.drv
@@ -3598,7 +3594,6 @@ braldl4ncs3hdlcrgwvzy6a018h63kki-bun-pkg-emoji-regex-10.6.0.drv
 brc23qa64c78kg52jic59kq1x1pj3mdx-vector-stream-0.1.0.1.tar.gz.drv
 brgmdwjjp7h375kbyhyxpj8zs44bw1gv-skylighting-format-typst-0.1.tar.gz.drv
 brh362qa9kmy8qzn4dyb4rcgmj3n13dp-libssh-unconst-backport.patch.drv
-brs18yh47r9q5m3z1avd4ym1slb5p0n2-sysinit-llm-reconcile.drv
 brwd5cjpxa4g1agkr6p33xhjisfyk6ba-clang-wrapper-20.1.8.drv
 bs24qlayxkvrsikxad316fw26379020a-readline83-003.drv
 bs628cyg1hii454b9l0jvc0dl4bzgpjr-python3.14-sphinx-rtd-theme-3.1.0.drv
@@ -3648,6 +3643,7 @@ bym9y7k706hd5hd67qwxwzi9nr2gmpkd-source.drv
 bymsbxvnlhil1ahj9n7y4sfmd1gws5zd-napi-2.16.17.drv
 byqj91aqipayzhqjbnc5z5k97ayriv72-python3.14-cycler-0.12.1.drv
 bys248ajn5114c0hfj5qzvv3gramkrr2-bash53-005.drv
+byykjwrbiq4m0hghhg1sbx7916mz7djh-home-manager-files.drv
 bz61cjsm467hslkvba6isksk6znbncwa-python-remove-tests-dir-hook.drv
 bz7gbjdmk909hhi84l90rvg9s2564kv6-source.drv
 bz7q76w5hmczw3bkfaz2dkiz2gjjc051-heaps-0.4.1.drv
@@ -3673,7 +3669,6 @@ c1njy75ka34g52qnhk2maldr0y6zb67c-expect-5.45.4.drv
 c20bixsajhw9xcd7fw8xiazhgqsiykby-crypton-x509-system-1.6.8.drv
 c24nwa89d73vfhiwghny4ljkvsw7ghaf-source.drv
 c2c7b1dq9hdaiw6fa35zh10zyfl0y0mm-wl-pprint-annotated-0.1.0.1.drv
-c2cwnrf1gn03m0mhxcrqvbl9q0nq2f3i-citelock.drv
 c2jizg8akx7crvfwgr6hc4n3gbgqimgw-aws-sdk-cpp-1.11.647.drv
 c2lwk97j3nh2rm9p157y76cdk2ibjxfa-tree-sitter-markdown_inline-62516e8.drv
 c2mzfi7kwlch0jyal3hik2jivslba0vb-perl5.42.0-XML-SAX-Base-1.09.drv
@@ -3830,7 +3825,6 @@ clh8micpy680lk7xy811kzvsz4r7xnp7-algebraic-graphs-0.7-r3.cabal.drv
 clh92czi6hl998i2zal7cbh443r5v17w-mergiraf-0.18.0.drv
 clinm8n3xbfpg33vv10ps6rfmigcng5z-nushell-0.114.1-vendor-staging.drv
 clp5k9p7i41i4fzs5ngz7sv2yxhwn3zw-gstreamer-1.28.5.drv
-clp9ayvrnqs99l8df9d89snly4mk1g05-hm_LibraryFonts.homemanagerfontsversion.drv
 clxbhiq9x8y8vygz6x1nxw4w0i8sf1cp-source.drv
 clxh1wgwsf96yzyf54lwzgz5bah96qdc-source.drv
 clzc6fmhbrbyx8sbbi6ba4bqvvirlb1j-ittapi-0.4.0.drv
@@ -3858,6 +3852,7 @@ cpjh5baw1wyww7brj5pzmd236cln5q6b-tree-sitter-forth-9018923.drv
 cpv3v4sq8j56dc1nbngwgg4a61cs1cxk-utf8proc-2.11.3.drv
 cpx4shpqgffxn6c3rkmfivvrffn6v03l-copyfile-deps-private-headers.drv
 cpyi9cwmhwr8vkn2gwad74n2fq390s21-swagger2-2.8.10.drv
+cq21l4cfk8vhshbw2wjsa8y1p0l5a9mb-hm_.agentshooks.json.drv
 cq8h5n1a3vm25c0as8v630ykkilzincc-crate-windows_aarch64_msvc-0.52.6.tar.gz.drv
 cqgq18igkh3acwnj1bpalxdsn768nfmm-python3-3.13.12-env.drv
 cqgz3rrrdyakqi2fra1qb4zszvvs1x3l-python3.14-docutils-0.23.drv
@@ -3885,7 +3880,6 @@ cvn4zv8kdrnzbl2l28nk0jim83zf6szk-cranelift-entity-0.122.0.drv
 cvxl95ngbjnnhm05ih7zqvlpbm8rjnz8-gnum4-1.4.21.drv
 cvyq4fx88c5jrmiqz8j4744lf3g9y6xr-cargo-package-directories-5.0.1.drv
 cvz2fpj1l7kgrkim6k8c0kjrlcqh343h-groups-0.5.3.tar.gz.drv
-cvzwzqa4z6kczsp4qvmm6nxm1kznh5a9-home-manager-applications.drv
 cw1j9jpnpy49zz2rp7g8hhx143yxr68l-hslua-module-text-1.1.1.drv
 cw70s5jx19s16cmsxniimlf4ig0kb6pn-source.drv
 cw7qdxny4x0nb6jd2q1y461qq1xag5i2-tree-sitter-dart-e398400.drv
@@ -4132,7 +4126,6 @@ dkp2k14nndm4gqhhb76r9f741q4jqrzq--gotgenes-pi-permission-system-5.14.1-npm-deps.
 dksfll8jw1mgc0ddp87334brzm4f4xry-binding-freebsd-x64-1.56.0.tgz.drv
 dkwa1chib8hnh38wysn0i9n2zcsxvpy9-pub-test-1.31.2.drv
 dkxxxjsk9prikg8zriqayc0pzr4dr1bx-source.drv
-dkzgq75wisxdxd9jsn7wva7xxl62n7ay-agent-prompt.drv
 dl2vajlipx0cmdgd8219658wq8rdwsyb-bc-1.08.2.drv
 dl7933szdlr1xd5rfwhvpkh67qxsakkz-source.drv
 dl83wc4mc0x6rj71zb97jv84c8nbcnv4-patchutils-0.3.3.drv
@@ -4148,6 +4141,7 @@ dmlmwszh64cisjzwk2w0ldjv5qn1bfkw-memory-0.18.0.drv
 dmlxz4r2xwr84gkxcw9xjbr56wr5gkjz-source.drv
 dmrpiw4h5bw65r5z87dmqwq5vjjq2v12-bash53-006.drv
 dmsixm0i5djf0n8953rr71zwiwaf6j7y-conduit-extra-1.3.8-r1.cabal.drv
+dmsp0dvyh34b22ychmz88ciyjnyzixcg-agent-sessions.drv
 dmsq9qm3q60srrkb0y03ypkfc1vnlxz3-bash-5.3p15.drv
 dmx0ig57ip21z1l1w5v8an24zh3zmp94-source.drv
 dmx64zcpyrd4wx9hcyxhzlbvwb4v2wi4-windows-targets-0.52.6.drv
@@ -4379,7 +4373,6 @@ fc7d6vwf11df5bpd2sh2qribj6md8lnh-shiki-3.23.0.tgz.drv
 fcjzz2zpf57z857v399mv59yxyz9m3cd-fastimport-0.9.16.tar.gz.drv
 fclb1d22rc5nnx3h7v01ysflgz63aqxc-python2.7-six-1.16.0.drv
 fcpz81spm5iisl3hpfi95xjn7p1dbqqj-source.drv
-fcrvd3mh0cijmq63ag26jm6llzv48hxg-agent-notify.drv
 fcwxsfb6g0bk761abz7zh75wblnr5fh6-source.drv
 fcx3zb3226afhpabzlyhcjw1lk6bk8vr-tree-diff-0.3.4.tar.gz.drv
 fcz07x0v1fvf2j4vlbki7x1hngx11969-xnu-src.drv
@@ -4438,7 +4431,9 @@ fjradp46plqlf4xjcy56hh9mrvxsg7wg-pygment-2_19-compatibility.patch.drv
 fjy02v0ah6canm96ykys7r7skk7sm2xn-tree-sitter-regex-e1cfca3.drv
 fjyky3w219hg5b6d5xs4csnx7qh2sfal-dirs-sys-next-0.1.2.drv
 fjypiyvxvygh7iidnx5f0wxb6hyifj0b-source.drv
+fk1hmz39bqn5c4x3xq57gxdiffs7bwp3-sysinit-agent-0.1.0.drv
 fk2x48xyfzmxn2qknbwgd2bd088wsxb6-source.drv
+fk4vx6azr2d68dvzkby91ga3rqzlnk3q-home-manager-applications.drv
 fkg5mxcn5w3wvvyp8ms1ign9qglzfisn-windows_aarch64_msvc-0.52.6.drv
 fkmj65vkaa9g76y91xlnqr75fy2dpswr-lifted-base-0.2.3.12.drv
 fkqy3g3ia5ir2348zay3n4rjw9sc3pcf-source.drv
@@ -4448,6 +4443,7 @@ fl7zcdnrx1rzj74hid852x185zy1gcd8-cargo-package-windows-link-0.1.3.drv
 flc78dw9c2wal9w8lji7ca00ndl54lr6-http-client-tls-0.3.6.4-r3.cabal.drv
 fldjilacia70nz54f7hxjbk3224qhb6c-cargo-package-cranelift-srcgen-0.122.0.drv
 flharvz0pmlrma423wbjzy22qpvp66lp-libpng-apng-1.6.58.drv
+flmz6w6n8dcy8f1q1m3md371v41ic33l-home-manager-path.drv
 flnxrx17571vsrny278b867i8haj4bcz-Class-Inspector-1.36.tar.gz.drv
 flqwx59npqnspy3h7wm27f3s95yzf45r-pyproject_metadata-0.12.1.tar.gz.drv
 flwxndwrx9f9nl0a67mk8yl72qvgcdas-pyright-1.1.411-npm-deps.drv
@@ -4542,6 +4538,7 @@ fx8brmz0qqy2sij0ld9azj63wbm00iyy-pyo3-ffi-0.23.5.drv
 fxa52h3dxnj9q42xmb2z3a0kz9z6ddd7-nix-expr-2.31.5.drv
 fxknxg92hfhr9vd6vdggv3cg1s3lz87s-prettyprinter-1.7.1.drv
 fxn8pbladckv9nbvd3pqfyvsf6537n1v-node-v24.18.1.tar.xz.drv
+fxq7jkzcivki22aq9l2ar8zrhrddc9md-hm_.configzsh.zshrc.drv
 fxwphirqmcnh5av7k88lzflz1zhkr8zm-perl5.42.0-FCGI-Client-0.09.drv
 fxzphfm2pkpykv1ysw8pdp1hnyi9gwjy-npm-run-path-2.0.2.tgz.drv
 fy4zcxpjz2f302g5f1r8d9bvzx0d1gcy-doclayout-0.5.0.1.tar.gz.drv
@@ -4674,7 +4671,6 @@ g9y3cks71lyalid0zlar91lsf2i6ys2a-cargo-package-criterion-0.5.1.drv
 ga226qrilirbnvzjf6vy70gvl90lwxl1-clang-at-least-16-LLVMgold-path.patch.drv
 ga54b15j1dws8s7hal3mhinnj71iglvj-cargo-package-scc-2.4.0.drv
 ga6v84spzhi7irx74zj5dj50bhy62ydv-windows_x86_64_gnu-0.52.6.drv
-ga7gdwyxpwsv11hf125nfbg9h3bq3vs4-agent-state.drv
 gabjfdygvrsi2s1svcrrgpzbrswgb71s-tree-sitter-jq-13990f5.drv
 gakm9ihc58njs825lgqck7b3mf80545f-python-runtime-deps-check-hook.sh.drv
 gal99f3nsk06kvdigiy4295dn4qhvpnz-pkg-config-role-hook.drv
@@ -4714,6 +4710,7 @@ gd8ldkwlz62zc97ym5pg8x3s3b9sr0fs-python3.14-trove-classifiers-2026.6.1.19.drv
 gd8p93z6xrb3h2hpwklwhi2m294yhzy3-digest-0.0.2.1.drv
 gd972p7i7i1xmmqd71dv7r0123r5ayp4-mozlz4a-2022-03-19.drv
 gdfw7ll1c0yy5ck73mlsrbdmbrhgj1d5-cups-headers-2.4.19.drv
+gdgg97prhv5fqdplsz9f89cydd8mx7zs-zig-0.15.2.drv
 gdhg3pfs570c12rhv750iyqdfaf121my-gnused-4.9.drv
 gdmaflw0anp5db5zl3fcz29ix2b1qvrk-cargo-watch-8.5.3.drv
 gdmsxibs1yvnx4rcjpjpwricv4nin3d2-time-manager-0.2.4.drv
@@ -4738,7 +4735,6 @@ ggx3l021m4ll3ca8avpbsp9553zshsrg-CVE-2026-0990.patch.drv
 gh12igar95rlhwys0mrvzs76w4sa5bpp-regress-2025.10.1-vendor.drv
 gh2vyngjwasj9wppnnayaz7gflmi484g-source.drv
 gh5qsim1350rwvsxsar8vbqf2y834p1p-pdf-reader-2.15.0.gem.drv
-gh901lh51h5nd2gym8hs7kz5d2d0xdm5-claude-bash-guard.drv
 ghfw0rcq20i84lgy0lyghvfjlbx2l532-source.drv
 ghhgx84qmjw9raxcq885hqvd7zypymf3-crate-getrandom-0.2.16.tar.gz.drv
 ghq9f8rcxiic4724grm06bkj0mzm21js-stylua-2.5.2-vendor-staging.drv
@@ -4811,7 +4807,6 @@ gpld20v5601qag12cbawk6zhr7113iw4-source.drv
 gps8m86cd71asd25af4pzxbilpvwfag5-libiconv-115.100.1.drv
 gpvkkqxgny1vrcnfdfxwj42fm04vn97h-lsof-4.99.7.drv
 gpy7v25wkbjdcysjqbbgl45srbw9pgf8-python3.14-testtools-2.9.1.drv
-gq7c8i30v47bikh1nm7p9gdy120913xc-home-manager-fonts.drv
 gqf7sp751ishqas52k0nl52pn5lvqbwq-tap_py-3.2.1.tar.gz.drv
 gqgkz95hqbf2nrxcjyr727p5gz2bdwv0-cargo-package-rustls-0.23.35.drv
 gqh3h7nq0c99071d89f3qshvmlkzbkdp-cargo-package-wasmtime-internal-component-util-35.0.0.drv
@@ -4856,7 +4851,6 @@ gwmjz88snsxb6x696yqclc366jfxgjps-source.drv
 gwvd8zllmf9crv66j9rbdgqdgvxp39wa-add-flags.sh.drv
 gwysfk7jfw2w38aidnd1rf1a0m18swzc-errno-0.3.13.drv
 gwzxwsldip9jxkrh6xsx0376z1sff1xi-source.drv
-gx149fh7j2inh6474n3zkjdp1rcdq7p8-activation-script.drv
 gx2x9ladf7kzyjsa7l8ymyw3a639z5ac-bun-pkg--oxlint-binding-linux-s390x-gnu-1.56.0.drv
 gxcjhc5gzskhklgwk1p9sglmamyh8awd-gettext-1.07.tar.gz.drv
 gxi2lbiy48js7wv776rikzn8jhqm6gjv-skylighting-format-ansi-0.1.drv
@@ -5080,7 +5074,6 @@ hik2085z0mc5s0jj5r19x69nwzm8wl62-perl5.42.0-Role-Tiny-2.002004.drv
 hikp8d7q5579xhhd0hgd790g4974qnbc-source.drv
 hildhr8mb0nsj677ip7fpzv06vz6bnk5-luarocks_bootstrap-3.13.0.drv
 hiqjbpxj96qvfznm8611a3c3mlkp9n75-pi-diff-0.3.0.drv
-hiqzshj0p68dipb91xixpp5gzx6j11kk-home-manager-generation.drv
 his026wsm9x230sg6bzq8kq80817k555-iana-etc-20251215.drv
 hiwka7ik1qjiqhzan42f0i3glrq3hqlj-ruby3.4-hashery-2.1.2.drv
 hiyp3ihzh19q7i8m07z0ipyn37i0m2dn-bun-pkg-ansi-escapes-7.3.0.drv
@@ -5143,6 +5136,7 @@ hny3vhv3ax2ywaa7yyy22h70pb7jspm0-cargo-auditable-0.7.5-vendor.drv
 hp1rpdcn3pfr0qkmsa7w5ifgm12xqim6-tasty-hspec-1.2.0.4.drv
 hp5hp1zbl4gx5mxyrc3ajzxxhyzzdqqb-hslua-cli-1.4.4.tar.gz.drv
 hp85y4brw63k741nwcc9d7pnywvq32gy-python3.14-socksio-1.0.0.drv
+hp9zk1j2dzsccqdqj5sl8rqbxk2zrv4d-review.drv
 hpcz5g84nni9n2b1ai02b7jvaflxcfjy-bash-completion-2.18.0.drv
 hpf97pcx7n8ggip2m204mb71lcdbhd4r-ICU-76142.4.7.drv
 hpfmfaff2nfaqhrn671rx234hjq8g9hd-tzdata2026a.tar.gz.drv
@@ -5203,7 +5197,6 @@ hxwy2j89aws4dpimmgf56d0d19h198x3-windows_i686_gnu-0.48.5.drv
 hxy1qg3zd8982d41w9df01f9jj5g96mn-python3.13-build-1.4.2.drv
 hxys9p0dkbp3y59i3n574b98mdgr5sl9-lua5.5-sbarLua-0-unstable-2026-03-06.drv
 hxyziwxkdfn6zj77n4k1xn39xm1n1q7r-ipynb-0.2.tar.gz.drv
-hy01m153rgf3840v4hqrd7nkbjkym2cm-agent-review.drv
 hy2k6gk2f70xdjzigw8k9kih6w12sq33-source.drv
 hy57h9a6y82fc1188x3mh8j7h3qdxlf8-crypton-x509-store-1.6.14.tar.gz.drv
 hy7m084zn9grqlzxqfk4rvyirggljlbx-alex-3.5.4.0.drv
@@ -5273,6 +5266,7 @@ i4crca4q9ajyk674sab30dcwmavpy6hn-source.drv
 i4dl1b1bc8b32ya9f90ixd72vz6hy9rk-crate-portable-atomic-util-0.2.4.tar.gz.drv
 i4h608b5rrv1p8n588md2v4bn158dnia-gzip-1.14.tar.xz.drv
 i4kvbf2kmy7c8h45af2am2n5yxkjmc25-tree-sitter-python-4bfdd90.drv
+i4rdbs07ldkkygrcx4qad4an57y8xsd3-hm_devinhooks.v1.json.drv
 i4rwm9sp7cwaq81v4rmxkpv9wmysxggq-memory-0.18.0.drv
 i4v9vib6m01xcb3q5p9g26601ga5m8zs-cargo-package-memoffset-0.9.1.drv
 i4vd3qs8r41rqwj2yh2vw6w1nx98vaqx-pdf-core-0.9.0.gem.drv
@@ -5285,7 +5279,6 @@ i5cycnzw744x6q42vcvyhvpfpvxhlryw-patchutils-0.3.3.tar.xz.drv
 i5gf1cipwnhs51nl777xvk084wykvvvx-source.drv
 i5hczn3lw832sazijbd0vwp1icjqjars-inline-c-0.9.1.10.tar.gz.drv
 i6bkz1ap94514qgmz6jqsgh13m80f1pz-swagger2-2.8.10.tar.gz.drv
-i6ifwkpz32ki5a89id8wg63wjwg43il6-agent-refine.drv
 i6jdnzdhjvj706i45kb1yzqk5sbxq2xg-glow-2.1.2.drv
 i6rzr5pnfc9djwi65m4idc3fqiiy2d6z-source.drv
 i6z49r11r8h0ng53skwqsa44k371p7vi-auditable-cargo-1.97.1.drv
@@ -5411,6 +5404,7 @@ ik0ysqqh1fdrz82lr4i12g75rs4y326g-binding-win32-x64-msvc-0.41.0.tgz.drv
 ik60qfh00kcs8wrklq8piaa5d0z2x14c-spice-protocol-0.14.5.tar.xz.drv
 ik77pd5fdgnql3j0mjlc9hmq5kwra2vk-pyo3-0.23.5.drv
 ik7pwygp0508z8fw5jzd9ff33if76zd4-tmux-3.7b.drv
+ik93bmzvpj8664jxdx64xl4lhsgrw7y6-wtrun.drv
 ikfk667fy2iz0ysrfpbfi10m783al4qw-source.drv
 iki446cyw2n202vc4k0dwbx6h73sflap-x265-4.2.drv
 ikmf8d5s3ar5bj0g3ziijf1v882nxswp-digest-0.0.2.1.tar.gz.drv
@@ -5543,6 +5537,7 @@ j1jxv28di41zbfxv0gsmd3i0mcyzasdr-file-5.45.drv
 j1lhph5m611cjx6w54kwpx2ahg7hy52m-quickcheck-instances-0.3.33-r1.cabal.drv
 j1pijw3fjddcjb1bkkih381vqawdl2d5-python3.14-testpath-0.6.0.drv
 j1v3c7dn62168m16by710j9d488i490m-source.drv
+j1vij3i4s3gb87b4da1ai93wylcjzz2m-agent-prompt.drv
 j2dsmiwdmgdiqkh1mblfp1w7nj7a7azr-cargo-package-fxprof-processed-profile-0.6.0.drv
 j2g9w0pdx6zcd5rfwsv7cdw8rbqzdwg8-cpio-2.15.drv
 j2xlggfvi6vn8n5wghgibzw3my3a6fhw-source.drv
@@ -5616,6 +5611,7 @@ jafm2vihjwdm014dby4q53ijxzg3rqda-cargo-package-valuable-0.1.1.drv
 jag74ggfc9z1idw38xrycbxng77kywcw-sad-0.4.32-vendor-staging.drv
 jahj2lz845c0zga456n9f9x3zrjh8zc1-gridtables-0.1.1.0.drv
 jarv048bbp0iinrwkipb3c4apanqp6c5-bun-pkg-dequal-2.0.3.drv
+jayrqp95jcr30v9hh44m0bd8cdx8ylwy-devin-guard.drv
 jayzanz2z02lwxznq522pdjb073q58lg-nodejs-install-manuals.drv
 jaz3paxzhfy0bdp8p9fijr4jq8kjqfx7-source.drv
 jb2gl04hkiw6irfhhd7f4qrs7lczi282-cargo-package-arbitrary-1.4.1.drv
@@ -5731,6 +5727,7 @@ jmg6r7i5l676alvqrmawsm1j65hr5bcc-cargo-package-itertools-0.10.5.drv
 jmhlxmrnb3j7f08qqkwji93riy2j7a2w-http-media-0.8.1.1-r2.cabal.drv
 jmij6grw78g6gr19lrvd2bzp8y2ji94r-source.drv
 jmj1d844nm7xhxdqwcz50yfgrl58q3sp-unittest-check-hook.drv
+jmjm9246aqrhwdvy4qni0pzq0pv69nlk-citelock.drv
 jmjx642l0yw79iqn9mx98y0wjyms1zn9-hslua-marshalling-2.3.2.drv
 jmjxl5sg9z14pq7sxisgm1r3ahqs2prc-update-autotools-gnu-config-scripts-hook.drv
 jmrpij83ikbs81yr9vlli9hsa3845w44-gfxstream-0.1.2.drv
@@ -5815,6 +5812,7 @@ jxd90mz2i47vmlxfnphm18ipaxm5974r-microlens-0.4.14.0.tar.gz.drv
 jxfl08gfz86mvmfvgc2khggc8dli2plr-ghc-9.4-llvm-support-16-17-18.patch.drv
 jxjas4zi33jcmv62327b1ncg0phb7wl0-mise-2026.7.17.drv
 jxkqb14gbdygrdfgl649vnry0dymvnn7-python3.14-pycrypto-3.23.0.drv
+jxnir1k9w5mn1l5hls0nc2vdc1bb2hzr-sysinit-llm-reconcile.drv
 jxp1ns65mhxscwzwkrla37kygvgl17qh-js-sys-0.3.77.drv
 jxrbps154iwg3rhnbb2mjibggg6wb0gg-hotdoc-0.17.4.drv
 jxs064qwppa1p7azyn5dfg5vr22qcv7d-tree-sitter-vhdl-32d3e3d.drv
@@ -5920,6 +5918,7 @@ k8cb7k84n9gr3wznrbsf87kcsaprzxly-simple-sendfile-0.2.32.drv
 k8fyp3jpnv4n43h848avzzdhbpafbk5v-ast-grep-0.45.0.drv
 k8jaj4j00f1cpb3xyjkxmdgqkx5yrjwj-nvfetcher-0.8.0.0.drv
 k8jjh3pl674fclni8qw2n9h44lshb6va-vector-0.13.2.0.drv
+k8r7l012za3rl61wrrnj7ixc34nk2asr-xcrun.drv
 k8yg1icm1xjnfcqqnv06a9bkfvmlpm7z-nototools-0.3.2.drv
 k939b66zmb1ixlqbvi689zrchxzgwn96-cargo-package-windows_x86_64_gnullvm-0.53.0.drv
 k93zh42prch7gvr9bxhwxj5hq34gksah-python3.14-furo-2025.12.19.drv
@@ -5962,6 +5961,7 @@ kds2nq8ai1i3rqqsqy0j2zcvsvvcs460-generic-lens-2.2.2.0-r1.cabal.drv
 kdw9cfhm4b4whi9a97s3iar979yc908r-Clone-0.46.tar.gz.drv
 kdx2986wgpm14f91bac5jip0pr9ad8a8-warp-3.4.9.tar.gz.drv
 kf2mkyby76hn3z60xlmk2nq2j4a8iq53-servant-conduit-0.16.1.drv
+kfaj9jxrkr3z9anr1jadvi9dn1yd5ll1-hm-session-vars.sh.drv
 kfg9fgvnws3dl9nd0hyf3gfc8n4l5bhy-python3.14-ncclient-0.7.1.drv
 kg0wwkvyhx2cm4yzww18yzxdcjpn90a9-gnu-config-2024-01-01.drv
 kg24gxbk0c7v2b653qg4qwpfacn4fa64-dart-config-hook.drv
@@ -6168,7 +6168,6 @@ l5hvglb449lg7246b6pb29148skkid3s-potential_utf-0.1.4.drv
 l5jcklzs0r3cwkck5yjlnsbdzkrf4dwh-tree-sitter-properties-579b62f.drv
 l5q10w6b5cnri1cpmq3dj271hakg8lya-darwin-version.drv
 l5sgqzxy6z3g15fhgdds1cs8qlkyzi72-python3.14-tomli-2.4.1.drv
-l5si59c3jxz1faz6ag2c6bq4335widw9-codex-config.drv
 l5ysbyfg9mvs67h3qzxqvs9zyvbnzcn0-dnspython-2.8.0.tar.gz.drv
 l627bnyvm3lqvlcbzxbk5s4jdf3zfalf-crate-libc-0.2.177.tar.gz.drv
 l634y4in5nbdq39vjhdgxspg0ppds92n-test-framework-quickcheck2-0.3.0.7.tar.gz.drv
@@ -6193,6 +6192,7 @@ l7kw2w591zvcc950rw2hcsiv39hw9sa1-quickcheck-classes-0.6.5.0-r3.cabal.drv
 l7l7c23wylcmw6mydzh4ncccxf6j915y-ocl-icd-2.3.5.drv
 l7lh3p9yv30mi16mwx60vd69hiznp319-tree-sitter-snakemake-e909815.drv
 l7rk36j5c6yzck9kw42bnmil39gd81mk-docbook-xsl-nons-1.79.2.drv
+l7rsns93px4a25kmzs7h154272b15d2v-hm_.configzsh.zshenv.drv
 l7x7qpbi2rzqx6b6c1ki4y0kmgpzyf7k-pnpm-fixup-state-db-1.0.0.drv
 l7yaggl3qfzqfilc2qsrnn9dbwdidp4s-source.drv
 l85d3dicqr5a3l8ipy3bqk4prnrx6hw2-core-0.4.3.tgz.drv
@@ -6207,7 +6207,6 @@ l99nc1kabmnljamxp7y5dd432xc44dba-wai-app-static-3.1.9.1.tar.gz.drv
 l9bfxyzpcm4gqg39lqa8qlp82qfslp3q-tracing-attributes-0.1.30.drv
 l9fa7pll1ccwwwfzv2s2ismg4d1v7iph-http-client-0.7.19.drv
 l9idia8cfad9glwk4k0x2ilf87jsn9s7-helpers-0.65.0.tgz.drv
-l9jlqmdcr8ymihms4prcpaa98c4zxgwn-sysinit-agent-0.1.0.drv
 l9kcqiym03q10x4jxis6qjj96pwqmi74-dataloader-1.4.0.tgz.drv
 l9q5ijcdfbarlm8cyad52bq72qpp27x2-profunctors-5.6.3.drv
 l9vichf0rr9i8hr0hcy3gyxxsb76fahn-pandoc-lua-marshal-0.3.2.1.tar.gz.drv
@@ -6248,7 +6247,6 @@ lcq6c39cgcgbj20knbvjb4lvndgw1j6b-sniffio-1.3.1.tar.gz.drv
 lcq9pnlx6zkx5gyq7xvig8l3r1d8ihrz-pcre2-10.46.tar.bz2.drv
 lcrkcz93xz8knqziz6br8bz3lyqqa3gn-python3.13-sphinxcontrib-htmlhelp-2.1.0.drv
 lcrw2q7ch2bm209xr77hq7kxh7fxj0gs-readline83-001.drv
-ld63anaf90377kmiqww7kwkv7b1aig2a-hm-session-vars.sh.drv
 ldaj47qwm7afdr0n5k4x5n6wma0ls910-windows_aarch64_gnullvm-0.53.1.drv
 ldaqbw2x1s6njixysl9id6cmxxkiq861-CVE-2026-0989.patch.drv
 lddzlica8kjslss11aqrppcrmyb32sqq-grep-3.12.tar.xz.drv
@@ -6392,7 +6390,6 @@ lvzvqhbc4xdw2awqk42sd2fk5484l6yi-python3.13-sphinxcontrib-applehelp-2.0.0.drv
 lw053sg7xzcqhkn1sj25nf86k994pp8d-python3.14-pytest-regressions-2.11.0.drv
 lw11fjb1iwr0wx7ibrls2138kj3m0lmp-python-setup-hook.sh.drv
 lw24mvq6wrss44yj9s744gzmw3zimiyk-tree-sitter-dockerfile-087daa2.drv
-lw8phbamm9wgxdgbd912gyam63hm5glq-hm_devinhooks.v1.json.drv
 lw8sgrzls5a6jailjjqpmh15ycp3p2pk-pcre-8.45.drv
 lwa083fbapm2z4vcph8z28capzc11d3x-python3.14-pytest-subprocess-1.6.0.drv
 lwdnklpps8gw51iixiirzmxva4q73pfa-hererocks-0.25.1.drv
@@ -6410,6 +6407,7 @@ lxhkkm4ir6sfk2n3261gv02wlvaks4lf-libevent-2.1.13-stable.tar.gz.drv
 lxjb1q190f16yihfc6mhs1s0pn6ry825-gum-0.17.0-go-modules.drv
 lxk571iqgqnz1r7zixwblii760rk4s49-oniguruma-6.9.10.drv
 lxn8q8yvcwx7wdlcx385fi2qc4ya3cdw-nix-cmd-2.31.5.drv
+lxpv58jyky1cw2js6k93n8vpl62fslkn-agent-review.drv
 lxrhw158ankqki63yls1rd6as3ip7v9n-bun-linux-x64-musl-baseline-1.3.14.tgz.drv
 ly0gwz76w1714svv622v0rj5s6gm0yx5-http-semantics-0.3.0.tar.gz.drv
 ly32f2ff40khv8y72rv6x7bh4gbl20aa-ansi-terminal-1.1.5.drv
@@ -6480,6 +6478,7 @@ m5bd4j2ycwadlgd0d8zpdn69db64zfl0-xtrans-1.6.0.tar.xz.drv
 m5gwfz0ad0i7mrdq3ig72bbhfj8rvnd1-perl-5.42.0.drv
 m5j6qyciyhiic0ilpgx665ga14isahbx-source.drv
 m5kj7s3bgfdf8jgm3x8h7fpdydrjn1y9-source.drv
+m5li4ch27byzbrxyy9kqrfi5dig0cdmz-lld-20.1.8.drv
 m5xmqf9m9ayym9wc3jh3adl0sk9x1kwk-source.drv
 m658iqlhwh6b4hvz85k9m0yl84kbphyj-path-17.1.1.tar.gz.drv
 m68sbxq94y9f3n1an866z91n0jihlilg-cargo-package-directories-6.0.0.drv
@@ -6531,6 +6530,7 @@ maygf27n5qk3wnd0dr1pdpzqsvzqicsa-comma-separated-tokens-2.0.3.tgz.drv
 mb1ixza00yza13ifspw5gvi4jncjdjrx-tzdata-1.19.patch.drv
 mb8w6v5kyjz2pcdqz6ihqaggrwjg3cbv-JuicyPixels-3.3.9-r1.cabal.drv
 mbfsp5da8s5cggid5ik2drljbkbw0yn0-dart-sass-1.101.2-package-config.json.drv
+mbi71mvfrka5pj2ngfmi7b9hsb9zqa4v-claude-worklog.drv
 mbmvvs88j6sk2saa91d56grnn3350dm1-ncurses-6.6.drv
 mbrq2jws0h4lsaw3n5qdlkllnjq2dl1n-pub-oauth2-2.0.5.drv
 mbwc9mf4x7g9ggwlzh23y3j5y2bs840f-http-media-0.8.1.1.tar.gz.drv
@@ -6655,6 +6655,7 @@ ms01jijncrvyk1x3yc45bybq8mjhraz9-perl5.42.0-Readonly-2.05.drv
 ms1mypc3za8jdlc0hzh1dfdlnvlyihaw-libiconv-1.19.tar.gz.drv
 ms3v64mwyxnqf5maxww2l76rib4krfh3-CVE-2019-13232-2.patch.drv
 msa2w5g7mddic30k6vvri353gigd3jps-source.drv
+msdzbirmsbkf16wsng8fhd1rfimqlb0l-zmx-0.6.0-zig-deps.drv
 msj7lkn8ph4a8hpr7z0fmnpcnnwfyr6h-source.drv
 msrsvlm7x9k68abq7n9xy133fa1bqphc-logict-0.8.2.0.drv
 msyq44215c3kgnaw2yr5xld6i1zn7crw-xmlto-0.0.29.drv
@@ -6699,7 +6700,6 @@ my63pvw0b3a7lhldh2nq9d4lf0yiqw5i-source.drv
 myfbxncvclgfskh8skr43r6hzcslq9gv-cargo-package-serde_derive-1.0.219.drv
 myjs3h6mvvkd4r9dkprs8y83smccg4pi-crate-shlex-1.3.0.tar.gz.drv
 mykxi2w69nqz2vk6sc06q3l7847vcaai-which-2.25.tar.gz.drv
-myl13k0fxs4fvqpb26ayv7c1yk8df9pp-hm_.configzsh.zshenv.drv
 myl91lxay0br9i6nnlkxcp5lflrc4777-python3.13-babel-2.17.0.drv
 myll1wbnlkihil1v78a8p38nxwgnk0ja-removeReferencesToRustToolchainHook.drv
 mysakhvq6nfbhblzrfibsypfklipfs5v-extra-config.toml.drv
@@ -6740,7 +6740,6 @@ n2hpirnyw22pdslyjyc7m19zjgaqn3lp-cargo-package-rand-0.9.2.drv
 n2pykpm9ikjsyzincpy3gf4z7qh9gcvc-docbook-xsl-1.79.2.tar.bz2.drv
 n2vkf472fis53yv21d2hlyvsvl5ahahb-concurrent-output-1.10.21.tar.gz.drv
 n2xd60ih21gbw8i0cvfia0iapaddb2sb-tracing-core-0.1.34.drv
-n2z5vlc7nq21v1dw7vhrd5dfd0q6mxdp-review.drv
 n2z9c8mcqam5g9z613hmhhmw6inp95v5-source.drv
 n30ib6kahifyqj5ddck7maw355zsl6am-bottom-0.14.6-vendor-staging.drv
 n321a8l38xn64jj3i3r1gh47brpb5gpd-gn-0-unstable-2026-05-27.drv
@@ -7275,6 +7274,7 @@ pvl7y2hs74idhgpw96y7f9azlh9rzcjl-tree-sitter-sml-bd4055d.drv
 pvml12bwwvslx80a839vbz3a4pqgzrn4-gettext-1.0.tar.gz.drv
 pvpcwx9xq2v42mlss6y5d5dacnpgx67m-deriving-aeson-0.2.10.drv
 pvx3ffp98jsflwmz36q1kb1bnl7gjksp-bootstrap-stage-xclang-stdenv-darwin.drv
+pvypnw86gx2f38cmjdiy6xi7vcb602d9-agent-state.drv
 pvyvcng7q1z4sfjrhgab66q1aaj4pwsv-tempfile-3.23.0.drv
 pw3fwlyjn77p2lgwkglyk8aqc2hi02kx-pub-convert-3.1.2.tar.gz.drv
 pw3lh8n9qplkilyqsmfqviwhby84w58d-jq-lsp-0.1.18.drv
@@ -7306,7 +7306,6 @@ pzk81qxw9bvzc1qlqch8yc8gjm3gxj11-cargo-package-termcolor-1.4.1.drv
 pzl4kyx2m1gqsygb4p75zrnmn2w5dfnf-jansson-2.15.0.drv
 pzpsyd9827wyh0mrgzgjmzi2qw7267j4-source.drv
 pzrgqi4kw011wf1niags6k0bfrx8gb77-source.drv
-pzz55pp8kh3a2p3b48xn14g9j0n852ll-activation-rshnbhatia.drv
 q03g54aql6fpwyqbxg0xrgix4c08zzb7-test-framework-0.8.2.3.tar.gz.drv
 q04p6pbn0f0pc7w3z2avvkvc40cx32cg-lame-3.100.tar.gz.drv
 q04zg67sjz2d7cxq4s7q0dwx4797dbzb-cargo-package-wasm-bindgen-macro-0.2.100.drv
@@ -7479,7 +7478,6 @@ qk86fnfbijh7f3hq9x10x3qg6qcsisnz-crate-pin-project-lite-0.2.16.tar.gz.drv
 qk9lr1zx2wkr9si9sy8g1kxkvzfviidd-darwin-version.json.drv
 qkb7l2xdq3j9v4rpf0a8jwh0ldplnzay-cargo-package-wasmtime-internal-wit-bindgen-35.0.0.drv
 qkc7512bwnkrb98lhkpyi76jrdn0hv3y-perl5.42.0-Net-SMTP-SSL-1.04.drv
-qkkl0jsk3g5w8hpksjciwlwvpn1aqj23-devin-guard.drv
 qkl7d2hcm9njv4zp3dxvfn3g9g5c8g3z-default-fallbackTsserverPath.diff.drv
 qkmgqa9ma41zs1qa9gscyf7h42gwrzi9-1Password-8.12.28-aarch64.zip.drv
 qknhjg24gj3afkayngiv0xbnrgsirdk1-add-flags.sh.drv
@@ -7629,7 +7627,6 @@ r1kld55rj9dxjhgjdxck6hb1vlki7wjz-clap_derive-4.5.41.drv
 r1wycl0f4q13kzh2v8bh82srqnbgp605-word-wrap-0.5.drv
 r1x72zrvgx7x5jky9kzl3qx6c5gwkmw8-gpgme-2.1.2.tar.bz2.drv
 r1x8mvk1sh9br5kijndi8cdf7f2kiwi6-regex-tdfa-1.3.2.5.tar.gz.drv
-r1xkxdawcxj2x2n6gv0wf61cw2xx9z2i-claude-code-settings-directory.drv
 r22r8nrrbwfc57xm0n5w2w4p3kq0cgbb-source.drv
 r25bc3wfvrd5mmzfkgbyws4ph8j9h56j-source.drv
 r29gmbcsan3yjgwcvp98l7a690skhw2a-truetype-shz-limit-heap-buffer-overflow-part1.patch.drv
@@ -7692,6 +7689,7 @@ r7x3p4dhg25l5lr0nb2ba8smsl1ikjcc-libthai-0.1.30.drv
 r7y4i12vjf8zj1zky5xyywaikfyzz6r5-xml-1.3.14.drv
 r7y8i1pzvmykrc2x7vbd9r9pa10kxwp9-crate-sha2-0.10.9.tar.gz.drv
 r8578ziw9wzizykchbzwsn191js4dwb7-boost_1_89_0.tar.bz2.drv
+r8861y54fqnrdniyad0nj9anl526yp2p-hm_.configzsh.zprofile.drv
 r88z83lv01yx0bf2acvw9bg4paqrr4gk-CoreSymbolication-0-unstable-2018-06-17.drv
 r8g1clhhdvhd38y7hnsdjhs3i3za6l60-cargo-package-anstyle-parse-0.2.7.drv
 r8j0fspa4ppirycs6japwlbcbd4z8n8k-lpeg-luarocks-config.lua.drv
@@ -7786,7 +7784,6 @@ rjn6qqbpgpmx8r9mq7zmqzc0hzgi9f5l-ansi-terminal-1.1.5.drv
 rjp9gwzqni6y3wydi4nd1vql7dn5vzgq-symlink-0.1.0.drv
 rjph3llgiglmznpjkfi7ssdi2ypvvw1i-async-trait-0.1.88.drv
 rk0p13lbq7c6h5q9x52kcmb7sfnj8wb4-hm_blender4.1scriptspresetsinterface_themeStylix.xml.drv
-rk3r4izwppbrb35k6dl2j64hpd2j2zqa-home-manager-path.drv
 rk7a9nygsq7xjbpnjpn25cn9qc8ya7d4-agent-icon-generic.svg.drv
 rkhyh8crx0m81794ni8ywal4gyhl7ymr-scheduler-0.27.0.tgz.drv
 rkqv4m2dvl0rd3m9lh54i0mavjhs42a8-crate-anstyle-wincon-3.0.11.tar.gz.drv
@@ -7852,6 +7849,7 @@ rr29m6g0h5x8d45dvzvsj58b1wi7smrv-copyfile-deps-private-headers.drv
 rrjji8636rig7a91dh83rjzmnj73dyzd-thiserror-2.0.14.drv
 rrp5g5wbg7rm48jfjrfqvvwpyp5ciqz6-gdb-17.2.drv
 rrq4a61m2h1fwq32xbij1mph7lh9shsm-zlib-rs-0.5.2.drv
+rrrkdp744q58qqzvdnf6mj3123x7i84d-activation-rshnbhatia.drv
 rs0h4blfjfzjk78p8dfs8wyxpc069vhy-source.drv
 rs1bm8i7br1ys3ngy4lc0gm7gyxq8lsk-tofu-ls-0.5.3.drv
 rs3fdgd6180nb0ap3fz9nk7dacm440s9-getopt-1.1.6.drv
@@ -7931,6 +7929,7 @@ s0vpxybnfbra1260xy6qcy1vaz1sgd7d-tree-sitter-r-cc04302.drv
 s11h93ljwprhy2fnhrlamqanxwgbss6z-source.drv
 s11ka0b3br69vsrk82r4ifjbrwwlx9lc-docbook-xml-4.3.zip.drv
 s166yrj6fpflayd76x83213dbqfxbvhg-tree-sitter-cairo-4c6a256.drv
+s16i5ijm0w5id578v40lg8sfp6gfaigr-xcode-select.drv
 s1blgwmwasi1bdckybaphg9dp5by896z-qemu-11.0.2.drv
 s1nv5v4gb04pj2g51ypkvkb50y5q3csv-krb5-1.22.2.tar.gz.drv
 s1p4q4wv3r021zxiinzggbxz7di7i87d-luasystem-0.7.1-1.rockspec.drv
@@ -7993,6 +7992,7 @@ s6ndfzlsn5782im8jqm8d3yxj6rrrdbs-bun-pkg--shikijs-themes-3.23.0.drv
 s6pcasjm71g8xqi79zq912266x78g0s5-ipynb-0.2.drv
 s6q6c6qjk3q8iip7kc3xrrmb03sy0xcw-isocline-1.0.9.tar.gz.drv
 s6s729sh35zjw1g94p8whrrgwqhayra4-windows_x86_64_gnullvm-0.48.5.drv
+s6xvrw37zpwjm54aqkx043h8ckw63axb-lld-src-20.1.8.drv
 s733wd23fp8y4jkwhj390cmaklqgpk4r-nghttp3-1.16.0.tar.bz2.drv
 s786vlqkazi0zdf9vv2mzgkj6hjvc1n3-tree-sitter-capnp-fc6e2ad.drv
 s78q0560081s9vn2496jqvchcspwgwpl-docbook2X-0.8.8.tar.gz.drv
@@ -8339,6 +8339,7 @@ vd5738d7d8l1zalg5z8inwvsvja3ir7c-node-fetch-2.7.0.tgz.drv
 vdc7s63j5sdilgbpxgydzhd655ddqvr8-librusty_v8-145.0.0.drv
 vdf46g69gjkf512c82w4amagv7p6cf41-300-relative.patch.drv
 vdpxbckrjg5pcna5kidrghylcz5c3ba0-python3.14-pytest-xdist-3.8.0.drv
+vdvsbh8wyndwncckvw8z6cq79md2axk8-claude-statusline.drv
 vdwc6dvrn3y4g1jkjbgnv37qayj2k9r5-crate-windows_i686_gnullvm-0.53.1.tar.gz.drv
 vdz6nh6wbysmg4r5qp3rzn91j5xkr5b7-pub-protobuf-6.0.0.tar.gz.drv
 vffva4rdvb4f7yz56vg38ll78czv3r0m-cctools-binutils-darwin-1010.6.drv
@@ -8466,7 +8467,6 @@ vwbf25aa9hnpzf44dsf5wnjf50g1mqvl-libxslt-1.1.45.drv
 vwcnkclxrxnvhw9hb6kmjd7nzx1k0sqj-editables-0.6.tar.gz.drv
 vwi0mzbwf22ha4s25nalpwzmvwhwv14z-sshpass-1.10.tar.gz.drv
 vwiyldp6xnqkb6nid335v5f4hnqaym76-remove-references-to.drv
-vwkvjx8qxqh6pd2b4hb7lb5mb6l7ns9d-claude-code-settings.json.drv
 vwkw5skm431anh88iid3isy4xchdwfy1-python3.13-bootstrap-tomli-2.4.0.drv
 vwlxmwj34lm7q1rkw4cv1nl452xj75hs-vector-0.13.2.0.tar.gz.drv
 vwlzxc6y7539mdxjvs7cx43s4rs0kg03-source.drv
@@ -8856,6 +8856,7 @@ x56ds715brg7d0s9fqv70r3xyc6kwcsk-resourcet-1.3.0.tar.gz.drv
 x570vwdvqix58gqqrgwrcli3wxall0rp-semigroupoids-6.0.2-r1.cabal.drv
 x58xz8ig6fhbba7jxkkr8j81ljvsvc5n-gofumpt-0.11.0.drv
 x5f2apc9d1r0j6gmlccdfcy3fapxvxng-ruby3.4-treetop-1.6.18.drv
+x5iw7z1j09bk5psc9sy6dxpa6b1l1gsf-user-environment.drv
 x5y7qbc444v7gmwic1anm771f7m3vbig-bash-completion-2.18.0.tar.xz.drv
 x62kdw3m0j22dr3hcqr0pv809c4vnsbz-fix-darwin-dylib-names-hook.drv
 x62l4a0yrw62wkvhhycqjm5xv43gzbja-typst-0.8.0.2.tar.gz.drv
@@ -8949,6 +8950,7 @@ xfvpz8mn840l24j4h6jlzka7kyg9blyw-cargo-package-tokio-util-0.7.17.drv
 xg6mdzz9fgpcxvw5ybcflkv6qcdpga8w-source.drv
 xg8rb831i481d56l3f963kb3fjknj4kx-cborg-0.2.10.0.tar.gz.drv
 xgckw69zdqm7c5wbhmnafpn7hb98amyc-source.drv
+xgdb7z37b9lzb3xxwfgiz36b2n5sdgfl-codex-bash-guard.drv
 xglvvf5hpqnhbvgm1q2mimgkximldmvz-aspell-dict-en-2020.12.07-0.drv
 xgvb5ldmy1c7x4pgw8838bxrm3pzmwci-cargo-package-hyper-1.8.1.drv
 xh2fwr1xvv1b5w4wzs690d357c51rpn2-zlib-1.3.2.drv
@@ -9079,6 +9081,7 @@ xwgrmss2c6w1606zbpjskqc8d9jb4c6v-singleton-bool-0.1.8-r1.cabal.drv
 xwla75gnh1z5ysl9dakmc11z39arj1gn-ruby3.4-prawn-2.4.0.drv
 xwll1jb9c7yqzwzvszl2wm5h46w1gfn5-source.drv
 xwnff1lbkkwsvm6n38n7d3mg3cdvazzd-vault-0.3.1.6.tar.gz.drv
+xwsxwcscjh4x98psp9gfw8njmhg3ip1x-agent-notify.drv
 xx2y48xvd6mcrxn1n183xjjk1vab3x6a-monad-parallel-0.8.0.1.drv
 xxd27syp0can8s61qmhz54gjxbk78mkr-tree-sitter-tera-e8d679a.drv
 xxf5ikv7bflshf26jac77mdp6dyh4wga-tree-sitter-yara-eb3ede2.drv
@@ -9106,6 +9109,7 @@ xzk2y08sp1y6sfknhzil48yicivm70fy-source.drv
 xzl67fm77va7s25w8hl3vay6kyd915pg-ICU-deps-private-headers.drv
 xzwqkbkrsv3azcidlsa2i43zric6pc6b-flex-2.6.4.drv
 xzy06rpgdj2q30ry6q6wpajialiqjf05-source.drv
+y0404dp89gv99ykxrxjbd27f1215ggrd-claude-code-settings-directory.drv
 y07kzc73sjfc0dxhybyar0valdhr7dm2-pkg-config-wrapper-0.29.2.drv
 y07mp1b3dhn6ysvfd8by1js25iwjh4vd-CVE-2019-13232-2.patch.drv
 y08yvffinnf2c5xdkr3ih928nxx3yhvq-source.drv
@@ -9135,6 +9139,7 @@ y36mkp78bx968w02jpqb7ax1hk2ly9rr-pth-2.0.7.tar.gz.drv
 y376il2x8gxiaw1bcnv78hahim75crhm-trifecta-2.1.4.drv
 y37xvm8z4njv762mrlf4152nc1q4kl21-polib-1.2.0.tar.gz.drv
 y3f86vp7sp4h9ljxxdisk0zq100qpqmj-sop-core-0.5.0.2.drv
+y3i17h5qa0mnzaqbwpxbdfjpxqv6zm6v-home-manager-generation.drv
 y3idxhrqmjh8wq7cds2mq9k8nrl44frn-file-5.45.drv
 y3jdnx38bsj12riagzcc473pz1s8rsww-distributive-0.6.3.tar.gz.drv
 y3jhiq9iwc7pzm28rlv95z9szypgdkri-bun-linux-aarch64-1.3.14.tgz.drv
@@ -9171,6 +9176,7 @@ y6ryamc8a5slc0ichjmslagswr0b3p8g-hslua-cli-1.4.4.tar.gz.drv
 y6ymj2qyayfw12b89gs3nsqgwlbh6lf4-python3.14-pyclipper-1.4.0.drv
 y6z3zcwfsc85vjqqbi4cm4rfzrhr0s9r-cargo-package-zerotrie-0.2.3.drv
 y6zy52d1wpi5wxjln1qlp1zpjl3jbihk-nix-store-tests-run.drv
+y71d5hpjgxgvzpd9gfadsmw0fzabi852-sysinit-paths.json.drv
 y79rxqrh57byl0zgvgz44619262l15q4-base64-bytestring-1.2.1.0-r1.cabal.drv
 y7c68ncaxd79yd7p8szscbhka7z6d100-cpp_demangle-0.4.4.drv
 y7cn1vzaf680z9wh2d010f43v12k3a0m-clang-21.1.8.drv
@@ -9238,6 +9244,7 @@ ycgi14ykw68b851n3b4v7fa7i6r8vc73-libssh2-1.11.1.drv
 ychpmpynqhfaw4ky11j7d23s1y07xqlp-python3.13-hatchling-1.29.0.drv
 ycihiknk1xmfdhf2h5hlwngffi02kry2-python3-3.14.6-env.drv
 ycq1s70x2xj9pq0z36xmxssgqdkim62m-haskell-src-exts-1.23.1.tar.gz.drv
+ycq4g00y40x0yg3bwb4rbyylyhb7qa6h-source.drv
 ycrwli659nb3pgqvqnlm1q50pmx6972y-source.drv
 ycyrbddfx78larv99wipiyplh01hw9rz-cctools-binutils-darwin-wrapper-boot.drv
 yd6fy9mq2l9v1il6pmrx3kai2725j9rr-amazonka-core-2.0-unstable-2025-04-16.drv
@@ -9257,6 +9264,7 @@ yggcly0c9wh8g12q4n8vrf22kpv47drr-unliftio-core-0.2.1.0.drv
 ygksqkia6jsp84pjni1vzczyybp722pk-auto-update-0.2.6.drv
 ygnhxkmk6gwjpg95p9p3j47plsa48qij-cctools-binutils-darwin-wrapper-boot.drv
 ygqnv39q2xslmzjwqq6gl77gipvyaw13-crate-itoa-1.0.15.tar.gz.drv
+ygv7gifcvla6k1lliqyv7ksk4h4lf67p-activation-script.drv
 ygvq62ifigx9g81b4mr707qhn5hvagdm-python3.14-aiodns-4.0.4.drv
 yh4cigczcsfr95y6jyvwxbbsswzyz3ih-tree-sitter-cel-9f2b65d.drv
 yh8n7nknbd2p8wgxv1wnqjg1nsdn2a6b-unicode-ident-1.0.24.drv
@@ -9264,6 +9272,7 @@ yha2ys3d271n8canz2fzhspjbknb4s7a-dlist-1.0-r2.cabal.drv
 yhdjnxz6s24yn201sr5ihn281r6d41kb-th-lift-instances-0.1.20.tar.gz.drv
 yhjcwxdngapjswnac63wpfamh7mv4qzs-nix-util-tests-run.drv
 yhk7vavri54rklcg9l7ix5zi19w0mihv-dummy.rs.drv
+yhkl34hvbl05rv26prj04hlg1rs321ib-codex-config.drv
 yhmmjnbxkki9ap8r0wg319pi97jvxax2-cc-1.2.46.drv
 yhmrgils8h8vr4fqlgrhcg7c2694nslg-devbox-0.17.5.drv
 yhplw804078dajxs4p3b7ssrkx77p6zl-cargo-1.97.1.drv
@@ -9412,6 +9421,7 @@ yyv94ziibkmhz0g6zyhj16h0xhxmzq2l-skylighting-format-blaze-html-0.1.2.drv
 yyyh3iliiyply0kakmfhhw2j9wzj5lng-msgpack-1.7.5.gem.drv
 yzbvrfbmizh66khq6aas1mphl6bzbg5i-pub-js-0.6.7.tar.gz.drv
 yzc8cwzq5zbmkqxhd5h0qvgi1030labg-go-md2man-2.0.7.drv
+yzjpywgyl7vmakvgrlxgw2xxbnkj7wc1-agent-refine.drv
 yzwfg896rivj9c45x9bjl68pwhj56bvi-source.drv
 z02kcc7f2c41rcki506bvjsbka4fskcb-unzip-6.0.drv
 z0bl2aagqwsfdm0yklsrc4jdv1w393n1-mailcap-2.1.54.tar.xz.drv
@@ -9446,6 +9456,7 @@ z4a9dr6lq2xgwbdzh76yrs7db7f2l9v7-crate-toml_parser-1.1.2+spec-1.1.0.tar.gz.drv
 z4ikw7r3cpzimfmcysgdxfyyj125k1n8-fromYAML.drv
 z4m6n4h8sszv7v54wxmdyp959g3kzqh9-pretty-hex-1.1.tar.gz.drv
 z4w9p26wfy7xvkc58qgnx6v4qhb98bgw-3e1367a3b5efcdc8ce716db77a322cedeb5e01b4.patch.drv
+z4xb3vk96ldw2wsiprfmjzbmcx2bc288-profile.drv
 z50wcrlgwm2ixd15gbfxxy3bhyr2mqxi-cargo-package-colorchoice-1.0.4.drv
 z53har81nf2jds5rndqgizngal4nyz2q-network-byte-order-0.1.8.tar.gz.drv
 z54vgv4aq9swfxcznvprjfv64cr3ia8w-hspec-2.11.17.drv
@@ -9505,7 +9516,6 @@ za4zgprahlkzh5awq3gcv7xcd6ypc60i-expand-response-params.drv
 zaayc0smjsxx29cc6w28pii2d4qpccyr-libunistring-1.4.2.tar.gz.drv
 zad8chcx0pk30ip8v9v565ssvsq3vwhy-perl5.42.0-LWP-MediaTypes-6.04.drv
 zai6sdqrah6iix3yhfcbxdj4wrarl3q9-rand-0.9.2.drv
-zalp6jv0v9yd8w8fkidac7ja64cgg5m0-user-environment.drv
 zapzfsrj2f2xwfwh9ym05h3168wyw0xa-tagsoup-0.14.8.drv
 zaqkrdm8xsn6cpjymaci6gjv2sv048l0-icu_provider-2.1.1.drv
 zav9fc9s16krbkbplhic6yy2ywkldi13-source.drv
@@ -9660,6 +9670,7 @@ zrmm7fcx206fyvxi5yikis4v9dpiviw0-scientific-0.3.8.1.drv
 zrrzwk8vmh7qlhcvmrbjsn8mgyfw3wfh-hrfsize-0.0.2.tar.gz.drv
 zryp2a2myv9cfc68w9nf0g8vrfjx2s0y-perl5.42.0-Clone-0.46.drv
 zs0yjzv8gzl3mxsb35l105k7mzk85nfq-crypton-x509-validation-1.6.14-r1.cabal.drv
+zs21sfjqya6vvjnzsvywngasmdgb1hi0-gemini-exit-code-guard.drv
 zs3h3z3sqfs3synls8pq95xjwhiml953-locale-118.drv
 zsad0j8r4jvvq5w3f629f6sb9169cfh0-python3.14-certifi-2026.06.17.drv
 zsd4yryjic2milyrf37lsd9bapfxcrl6-crush_0.87.0_Darwin_arm64.tar.gz.drv

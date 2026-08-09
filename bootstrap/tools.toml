@@ -211,6 +211,22 @@ system = "git-filter-repo"
 nix = "libgit2"
 system = "libgit2-dev"
 
+# ------------------------------------------------------------------- session
+
+# Session persistence, added by phase 10. `minimal` and not `dev`: decision 6
+# makes `minimal` and this manifest the same list, so a `minimal` member has to
+# be installable without Nix, and `zmx-probe.md` records that mise carries it as
+# `github:neurosnap/zmx` with release assets for all four platforms this
+# repository targets. So the taxonomy argument task 10.2 spends most of its text
+# on does not arise: it was about `dev` being a poor category fit for a session
+# manager, and `dev` is not the answer.
+#
+# LAST in the list on purpose. Appending leaves every existing element at its
+# old index, so this entry is the only thing that moves in the derivation.
+[[tool]]
+nix = "zmx"
+mise = "github:neurosnap/zmx"
+
 # --------------------------------------------------- beyond the package list
 
 # Three things the Nix side installs through `modules/home/programs/` rather

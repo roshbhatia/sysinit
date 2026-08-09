@@ -25,7 +25,11 @@ hooks:
   # against seshy 4.0.0. A hook here would print a "refusing" message and then
   # not refuse, which is worse than saying nothing.
   #
-  # The gate is the `sy` shell wrapper in
-  # modules/home/programs/zsh/integrations/seshy-wezterm.zsh, which runs
-  # agent-review and returns non-zero before ever calling the binary.
+  # The gate is a generated binary wrapper, built from `sy-gate.sh` at
+  # modules/home/programs/llm/runtime/default.nix, which runs agent-review and
+  # returns non-zero before ever calling the binary.
+  #
+  # NOT a shell wrapper in zsh/integrations/seshy-wezterm.zsh, which this
+  # comment said until task 10.4. That file defines s, sl, si, wezcopy, weznot,
+  # and wezmon, and no sy.
   preDelete: []

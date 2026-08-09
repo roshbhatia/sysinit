@@ -291,8 +291,9 @@ function M.setup(config)
     return repo or "", cwd or ""
   end
 
-  -- Reads the pane record file for `branch` and `dirty`, which the OSC user
-  -- variable does not carry. Schema: pkgs/sysinit-agent/internal/agentstate/SCHEMA.md.
+  -- Reads the pane record file for `session`, `branch`, and `dirty`, which the
+  -- OSC user variable does not carry. Schema:
+  -- pkgs/sysinit-agent/internal/agentstate/SCHEMA.md.
   --
   -- The liveness rule is pane existence, and the caller already satisfies it:
   -- every id reaching here comes from `tab:panes_with_info()`, so a record whose
@@ -300,7 +301,7 @@ function M.setup(config)
   -- checked, because the GUI process carries no `WEZTERM_UNIX_SOCKET` and so
   -- cannot tell which mux it is. `agent-state` deletes dead muxes' records
   -- instead.
-  local function read_pane_git(pane_id)
+  local function read_pane_record(pane_id)
     local path = utils.state_path("agentPanes", "agents/panes") .. "/" .. tostring(pane_id) .. ".json"
     local f = io.open(path, "r")
     if not f then return nil end
@@ -309,6 +310,7 @@ function M.setup(config)
     local ok, data = pcall(wezterm.json_parse, content)
     if not ok or type(data) ~= "table" then return nil end
     return {
+      session = type(data.session) == "string" and data.session or "",
       branch = type(data.branch) == "string" and data.branch ~= "" and data.branch or nil,
       dirty  = data.dirty == true,
     }
@@ -374,13 +376,23 @@ function M.setup(config)
             local status, reason, since, agent = pane_agent_state(p, deck_states)
             if status then
               local rank = agent_state_rank[status]
+              local pane_id = p:pane_id()
+              -- The record read costs one file open per agent pane. Only panes
+              -- with a status reach here, and `rollup_cache` throttles the whole
+              -- function to once a second, which is what `session_tree` relies on
+              -- for the same read.
+              local rec = read_pane_record(pane_id)
+              local session = rec and rec.session or ""
               panes[#panes + 1] = {
-                pane_id = p:pane_id(),
+                pane_id = pane_id,
                 window_id = window_id,
                 tab_id = tab_id,
                 workspace = workspace,
+                -- The workspace is the group; the session is what is inside it.
+                -- The two are different namespaces and neither replaces the other.
+                session = session,
                 repo = (function() local r, _ = pane_repo(p); return r end)(),
-                branch = "", -- not in-memory; the state-file bus carries it
+                branch = rec and rec.branch or "",
                 agent = agent or "",
                 status = status,
                 reason = reason or "",
@@ -388,22 +400,40 @@ function M.setup(config)
                 rank = rank,
               }
               local cur = sessions[workspace]
-              local replace = false
-              if not cur or rank > cur.rank then
-                replace = true
-              elseif rank == cur.rank then
-                local a, b = since, cur.since
-                if a and (not b or a < b) then
-                  replace = true
-                end
-              end
-              if replace then
-                sessions[workspace] = {
+              if not cur then
+                cur = {
                   status = status,
                   reason = reason or "",
                   since = since,
                   rank = rank,
+                  -- The session names of the panes in this group, first seen
+                  -- first. It lives on the collapsed entry and not on `panes`
+                  -- alone, because two of the three consumers take the first
+                  -- return only and would never see it.
+                  names = {},
                 }
+                sessions[workspace] = cur
+              else
+                local replace = rank > cur.rank
+                if not replace and rank == cur.rank then
+                  local a, b = since, cur.since
+                  replace = a ~= nil and (b == nil or a < b)
+                end
+                if replace then
+                  cur.status, cur.reason, cur.since, cur.rank = status, reason or "", since, rank
+                end
+              end
+              if session ~= "" then
+                local seen = false
+                for _, n in ipairs(cur.names) do
+                  if n == session then
+                    seen = true
+                    break
+                  end
+                end
+                if not seen then
+                  cur.names[#cur.names + 1] = session
+                end
               end
             end
           end
@@ -778,7 +808,7 @@ function M.setup(config)
             local rank = status and agent_state_rank[status] or 0
             local pid = p:pane_id()
             local repo, cwd = pane_repo(p)
-            local git = read_pane_git(pid)
+            local git = read_pane_record(pid)
             local rec = {
               pane_id = pid,
               window_id = window_id,
@@ -884,6 +914,26 @@ function M.setup(config)
   end
 
   local CHIP_NAME_MAX = 16
+  local CHIP_SESSIONS_MAX = 20
+
+  -- The session names inside a workspace chip, so a group named for a workspace
+  -- still says which zmx sessions are in it. Empty when there is nothing the
+  -- chip label does not already say: no record carried a session, or the one
+  -- session has the workspace's own name.
+  local function chip_sessions(st, workspace)
+    local names = st and st.names or nil
+    if not names or #names == 0 then
+      return ""
+    end
+    if #names == 1 and names[1] == workspace then
+      return ""
+    end
+    local text = table.concat(names, ",")
+    if #text > CHIP_SESSIONS_MAX then
+      text = text:sub(1, CHIP_SESSIONS_MAX - 1) .. "…"
+    end
+    return "[" .. text .. "]"
+  end
 
   local function session_chips(window)
     local slots = session_slots()
@@ -933,6 +983,12 @@ function M.setup(config)
       items[#items + 1] = { Text = status and (agent_state_icons[status] or "●") or "·" }
       items[#items + 1] = { Foreground = { Color = fg } }
       items[#items + 1] = { Text = " " .. label }
+      local inside = chip_sessions(st, entry.name)
+      if inside ~= "" then
+        items[#items + 1] = { Attribute = { Intensity = "Normal" } }
+        items[#items + 1] = { Foreground = { Color = colors.chrome } }
+        items[#items + 1] = { Text = " " .. inside }
+      end
     end
     items[#items + 1] = { Text = " " }
     return wezterm.format(items)

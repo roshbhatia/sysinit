@@ -78,12 +78,16 @@ fi
 live=""
 have_live=0
 pane_ws=""
+active_pane=""
 if command -v wezterm > /dev/null 2>&1; then
   # Bounded. `wezterm cli list` talks to the mux server, and an unresponsive mux
   # makes it block with no timeout of its own. On a timeout the probe yields
   # nothing, which `pane_is_live` already reads as "cannot tell, keep the pane".
+  #
+  # Three fields, not two. `is_active` is what task 10.8's second half needs and
+  # it costs nothing here, because this is the one call already being made.
   pane_ws=$(timeout "$PROBE_TIMEOUT" wezterm cli list --format json 2> /dev/null |
-    jq -r '.[] | "\(.pane_id) \(.workspace // "")"' 2> /dev/null)
+    jq -r '.[] | "\(.pane_id) \(.workspace // "") \(.is_active)"' 2> /dev/null)
   live=$(printf '%s\n' "$pane_ws" | awk 'NF { print $1 }' | tr '\n' ' ')
   [ -n "$live" ] && have_live=1
 fi
@@ -110,8 +114,42 @@ pane_is_live() {
 # resolves it live for the same reason.
 workspace_of() {
   [ -n "$pane_ws" ] || return 0
-  printf '%s\n' "$pane_ws" | awk -v p="$1" '$1 == p { $1 = ""; sub(/^ /, ""); print; exit }'
+  printf '%s\n' "$pane_ws" | awk -v p="$1" '$1 == p { print $2; exit }'
 }
+
+# The record session of a pane, or empty.
+session_of_pane() {
+  [ -n "$1" ] || return 0
+  [ -f "$panes_dir/$1.json" ] || return 0
+  jq -r '.session // ""' "$panes_dir/$1.json" 2> /dev/null
+}
+
+# Reconcile `selected` into the SESSION namespace.
+#
+# Three producers name things here and two joins consume them. The set
+# difference below joins `sy list` against the record's `.session`, and both are
+# seshy names since task 10.6, so that one agrees. This is the other join: the
+# `+N` badge in `nixos/home/desktop.nix` and the sketchybar widget both test
+# `.name != $sel` to exclude the selected session, and `$sel` came from
+# `selected.json`, which `ui.lua` writes from `mux.get_active_workspace()`. A
+# workspace name compared against a session name never matches, so the selected
+# session failed to exclude itself.
+#
+# It is reconciled HERE and not in either consumer. `desktop.nix` binds `$sel`
+# out of the payload this script hands it, so it consumes the name and cannot
+# resolve it, and the sketchybar widget reads the same field from the same
+# payload. One edit here settles both surfaces.
+#
+# The resolution is: the active pane's recorded session. Falling back to the
+# workspace name keeps the previous behavior on a box with no wezterm and on a
+# pane that has no record, where no better answer exists.
+if [ -n "$pane_ws" ]; then
+  active_pane=$(printf '%s\n' "$pane_ws" | awk '$3 == "true" { print $1; exit }')
+fi
+if [ "$selected" != null ] && [ -n "$active_pane" ]; then
+  sel_session=$(session_of_pane "$active_pane")
+  [ -n "$sel_session" ] && selected=$(jq -cn --arg s "$sel_session" '$s')
+fi
 
 rank_of() {
   case "$1" in

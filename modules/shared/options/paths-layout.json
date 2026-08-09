@@ -12,6 +12,7 @@
     "agentTranscripts": "$HOME/.local/state/agents/transcripts",
     "agentWorklog": "$HOME/.local/state/agents/worklog.jsonl",
     "seshySessions": "$HOME/.local/state/seshy/sessions",
+    "zmxSessions": "$HOME/.local/state/zmx",
     "weztermWorkspaceState": "$HOME/.local/state/wezterm/workspace_state",
     "llmSkills": "$HOME/.local/state/sysinit/llm/skills",
     "manifest": "$HOME/.local/state/sysinit/paths.json"

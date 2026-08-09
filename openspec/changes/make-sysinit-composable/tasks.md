@@ -2500,7 +2500,7 @@ the named task and re-running the gate, not re-entering the phase.
   could never pass. It is an owner-run confirm instead, in the shape of 2.11 and
   8.4.
 
-- [ ] 10.1 Gather: probe the installed `zmx`, not its README, in the shape of
+- [x] 10.1 Gather: probe the installed `zmx`, not its README, in the shape of
       3.1. Record the environment variables it sets, and specifically whether a
       child process spawned inside a session inherits `ZMX_SESSION`. Also record
       whether `ZMX_SESSION` carries the `ZMX_SESSION_PREFIX` that 10.4 sets, since
@@ -2515,7 +2515,13 @@ the named task and re-running the gate, not re-entering the phase.
       no terminal, and an earlier draft asserted it from documentation. zmx is
       the only third-party dependency in this change with no probe, which is the
       standard 3.1 sets for the other one. `deps:` 4.1
-- [ ] 10.2 Act: add `zmx` to the `dev` package group and a
+
+      Recorded in `zmx-probe.md`, probed at 0.6.0. The three answers this phase
+      turns on: a grandchild inherits `ZMX_SESSION`, the variable carries
+      `ZMX_SESSION_PREFIX`, and mise can install zmx. The third moved the package
+      group from `dev` to `minimal`, so the taxonomy question 10.2 spends most of
+      its text on does not arise.
+- [x] 10.2 Act: add `zmx` to the `dev` package group and a
       `modules/home/programs/zmx/` module owning `ZMX_SESSION_PREFIX` and
       `ZMX_DIR`. Name the group, and give the reason from decision 6 rather than
       from a later task. An earlier draft said to pick `dev` "because 10.3's
@@ -2542,7 +2548,10 @@ the named task and re-running the gate, not re-entering the phase.
       re-runs. Offering a branch that costs a reopened phase invites an
       implementer to take it. Do not leave the taxonomy widened silently, which is
       how a profile stops meaning anything and is the failure 11.4 asks a critic to
-      look for. It is
+      look for. The taxonomy is NOT widened: 10.1 found mise can install zmx, so
+      the group is `minimal` and `dev` keeps its stated meaning. The package
+      enters through `bootstrap/tools.toml`, which 9.4 makes the Nix `minimal`
+      group read, so one entry serves both paths. It is
       in nixpkgs at 0.6.0 and evaluates against this repository's pinned
       nixpkgs, so it needs no flake input and no overlay entry. The phase 4
       paths manifest owns the zmx state directory and this module reads it from
@@ -2551,7 +2560,7 @@ the named task and re-running the gate, not re-entering the phase.
       is not true of a namespace string. Design decision 4 already draws this
       line: the manifest owns the prefix, the consumer owns the identity under
       it. `deps:` 10.1
-- [ ] 10.3 Act: make `s` in `zsh/integrations/seshy-wezterm.zsh:20-34` attach a
+- [x] 10.3 Act: make `s` in `zsh/integrations/seshy-wezterm.zsh:20-34` attach a
       zmx session named for the seshy session, rather than only `cd` into its
       directory at `:33`. Edit `s` alone. An earlier draft named `si` as a second
       site; `si` (`:40-48`) is an fzf picker that resolves a name and calls `s`
@@ -2559,7 +2568,7 @@ the named task and re-running the gate, not re-entering the phase.
       Keep the `cd` as the path taken when `zmx` is absent, because phase 9
       builds a box that has neither zmx nor Nix and `s` has to keep working
       there. `deps:` 10.2
-- [ ] 10.4 Act: make every zmx session that `s` creates carry a seshy session
+- [x] 10.4 Act: make every zmx session that `s` creates carry a seshy session
       name, and use
       `ZMX_SESSION_PREFIX` for the namespace rather than encoding it in each
       name, which is what the variable is for. State the invariant in one
@@ -2574,7 +2583,7 @@ the named task and re-running the gate, not re-entering the phase.
       `si`, `wezcopy`, `weznot`, and `wezmon` and no `sy`. The gate is real but is
       a generated binary wrapper, `runtime/default.nix:255` reading `sy-gate.sh`.
       Correct the comment while here. `deps:` 10.3
-- [ ] 10.5 Confirm: owner runs the comparison. Every name `zmx list` reports
+- [x] 10.5 Confirm: owner runs the comparison. Every name `zmx list` reports
       under `ZMX_SESSION_PREFIX` is a
       name `sy list` reports. One direction, per 10.4, and scoped to the prefix.
       This is a Confirm and not a check because it needs a live daemon and real
@@ -2600,7 +2609,38 @@ the named task and re-running the gate, not re-entering the phase.
       left side is empty, and on a box where no session has been entered that is
       the state the check finds, so without the non-empty assertion this task
       passes without testing anything. `deps:` 10.4, 10.8
-- [ ] 10.6 Act: make `ZMX_SESSION` the session key wherever a fork is what it
+
+      Run by the implementer rather than the owner, per the 2026-08-08 direction
+      to test the Confirms mechanically. In three parts, because no single run
+      reaches all of it.
+
+      Part one, real binaries. A real zmx 0.6.0 from `nix build nixpkgs#zmx`,
+      `ZMX_SESSION_PREFIX=seshy-`, `sysinit_path` stubbed to fail so the
+      documented default supplies the seshy root, and `s dirtytest` run under a
+      pty. `s` resolved the target, entered it, and attached. `zmx list --short`
+      then reported `seshy-dirtytest`, which is non-empty and, with the prefix
+      stripped, is a name `sy list` reports. Subset-of holds and the left side is
+      not empty, which is what this task asks. Only one seshy session exists on
+      this box, so the two-session count below runs on stubs instead of creating
+      a second worktree in owner state.
+
+      Part two, the two joins, with the producers stubbed and
+      `agent-sessions.sh` itself real. Two live panes with records naming
+      sessions `alpha` and `beta`, one workspace `default`, `sy list` reporting
+      `alpha`, `beta`, and an unentered `gamma`. Result: three entries, no
+      duplicates, and `gamma` alone carrying `status: null`. So two live sessions
+      produced two entries and not four, which is the failure signature this task
+      names.
+
+      Part three, the badge. The same payload reported `selected: "alpha"`, the
+      active pane's recorded session, rather than the workspace name `default`
+      that `selected.json` holds. Counting `.name != $sel and .blocked > 0` over
+      it gives 1. Re-running that count with `$sel` left as `default`, which is
+      the pre-10.8 value, gives 2. So the selected session now excludes itself
+      and the reconciliation is load-bearing rather than cosmetic.
+
+      The probe session was killed and its socket directory removed.
+- [x] 10.6 Act: make `ZMX_SESSION` the session key wherever a fork is what it
       replaces. Two files, and they are not symmetric, because phase 2 already
       changed one of them.
       In `agentstate.go`, `identify` resolves the seshy directory and then
@@ -2641,7 +2681,7 @@ the named task and re-running the gate, not re-entering the phase.
       the instrument: what 10.6 changes is when the fork runs, and that is control
       flow. No grep can see it, because the gated call and the ungated call have
       identical text. Task 10.9 checks it by behavior instead. `deps:` 10.2
-- [ ] 10.7 Act: decide what the workspace rollup and its renderers display, not
+- [x] 10.7 Act: decide what the workspace rollup and its renderers display, not
       what key the rollup groups by. Say "rollup" and not "agent deck": `agent-deck`
       is a third-party wezterm plugin loaded at `ui.lua:84` through
       `plugin_loader.load`, patched here by
@@ -2704,7 +2744,33 @@ the named task and re-running the gate, not re-entering the phase.
       both returns. An earlier draft said the edit was one field plus a render
       change and named neither renderer.
       `deps:` 10.6
-- [ ] 10.8 Act: reconcile the namespace the two joins share. This is a key
+
+      Four sites, named. One, `read_pane_git` now returns the record's `session`
+      alongside `branch` and `dirty`, and is renamed `read_pane_record`, because a
+      name that says `git` while returning a session name is the kind of
+      half-truth SCHEMA.md's reader table was written to stop. The authority row
+      there is updated with it. Two, the rollup's per-pane constructor gains a
+      `session` field from that read, and its `branch` field is filled from the
+      same record rather than left empty, since the file it said it could not
+      reach is now open in front of it. Three, the collapsed entry gains `names`,
+      the distinct session names in the group in first-seen order, which is the
+      branch this task offers: the two consumers that take the first return only
+      would never see a field on `panes`. Four, `session_chips` renders those
+      names after the workspace label, dimmed, so a group named `default` reads
+      `default [alpha,beta]`.
+
+      The collapsed entry is now mutated in place rather than rebuilt, so the
+      accumulated names survive a rank replacement. The winner-selection
+      arithmetic is unchanged: higher rank wins, and on a tie the earlier `since`
+      wins.
+
+      Two things are deliberately NOT done. The chip suffix is empty when the one
+      session in a group has the workspace's own name, because a chip reading
+      `alpha [alpha]` says nothing twice. And `wm.get_choices`, the third
+      consumer, is left alone: it lists seshy names and looks them up in a table
+      keyed by workspace, which is the namespace question 10.8 owns and not a
+      display question.
+- [x] 10.8 Act: reconcile the namespace the two joins share. This is a key
       decision and lives apart from 10.7, which decides display. An earlier draft
       merged them, and 10.5 could then draw no correct edge: it needs this half
       and not the other, and the merged task's own first line says it decides
@@ -2740,7 +2806,17 @@ the named task and re-running the gate, not re-entering the phase.
       one. An earlier draft named both joins and instructed on one, and a later
       one offered `desktop.nix:343` as a place to resolve `$sel`, which sends an
       implementer to a consumer. `deps:` 10.4, 10.6
-- [ ] 10.9 Verify: the `agent-identity.sh` fork does not run when a cheaper
+
+      The producer that wins is the record's `.session`. Both joins are settled
+      in `agent-sessions.sh`. The first join needed no edit, because 10.6 already
+      put both of its sides in the seshy namespace. The second is new code: the
+      `wezterm cli list` probe already being made now also reports `is_active`,
+      `session_of_pane` reads the active pane's record, and `selected` is
+      rewritten to that session before the payload is built. It falls back to the
+      workspace name when there is no wezterm and when the active pane has no
+      record, which is the previous behavior and the only answer available there.
+      10.5 part three measures the effect: the badge counts 1 rather than 2.
+- [x] 10.9 Verify: the `agent-identity.sh` fork does not run when a cheaper
       source answers. Put a stub named `wezterm` first on `PATH` that appends to
       a marker file and exits non-zero, set `ZMX_SESSION`, source the file, call
       `agent_identity` with a non-empty pane argument, and assert it resolves the
@@ -2781,11 +2857,22 @@ the named task and re-running the gate, not re-entering the phase.
       non-zero, so a harness with those options aborts the caller at the pipeline
       on `:6-8`. The marker assertion would still hold, since the stub writes
       before it exits, but nothing after the pipeline would run. `deps:` 10.6
-- [ ] 10.10 Verify: a command still running after a detach is still running after
+- [x] 10.10 Verify: a command still running after a detach is still running after
       a reattach, decided by starting a `sleep` in a zmx session, closing the
       wezterm pane, opening a new one, and reattaching. This is the property zmx
       is here for, and nothing else in the change tests it. `deps:` 10.6
-- [ ] 10.11 Verify: the surfaces agree by name. There are two keys and three
+
+      Passed, with a separate process standing in for a new pane, since each tool
+      call here is its own process and the property under test is process
+      lifetime rather than pane lifetime. A session ran a 60-second tick loop
+      writing to a file. The starting process exited. Four later processes read
+      the tick count and saw 2, 17, 26, and 37, so the command kept running with
+      the session at `clients=0`. A fifth process attached over a pty, was served
+      the session's scrollback, and typed a line; the tick count reached 46 while
+      it was attached, and the typed line ran once the loop finished, so the
+      reattached client's input reached the same live shell. The session was
+      killed and its socket directory removed.
+- [x] 10.11 Verify: the surfaces agree by name. There are two keys and three
       surfaces, and an earlier draft said two of each. `agent-sessions` is one
       producer with three consumers: itself, the sketchybar widget, and the waybar
       module, all inheriting the record's `session`; the wezterm deck is the one
@@ -2798,11 +2885,66 @@ the named task and re-running the gate, not re-entering the phase.
       displays disagree.
       Also confirm an agent in a pane with no `ZMX_SESSION` still resolves,
       through the readers 2.2 moved that fallback to. `deps:` 10.7, 10.8
-- [ ] 10.12 Verify: re-record the two host drvPaths. This phase adds a package
+
+      Two of the three surfaces pass. The third is recorded as NOT asserted
+      rather than assumed, in the shape 8.4 takes.
+
+      The `agent-sessions` half is 10.5 part two: two panes carrying sessions
+      `alpha` and `beta` produced exactly those two names and no third. The
+      sketchybar half shares that payload and is one arithmetic step past it,
+      `blocked > 0 and name ~= selected` at `agent_sessions.lua:41` with
+      `selected` as the label at `:51`; the equivalent jq over the same payload
+      gives 1, and the label is the session name because `selected` now is one.
+      That is the payload checked and the arithmetic read, not the widget run
+      under sketchybar.
+
+      The fallback passes on its own run: a record with an empty `session` on a
+      pane in workspace `work`, beside a record naming `alpha`, produced names
+      `work` and `alpha`, so a pane with no `ZMX_SESSION` still resolves and
+      still carries its status.
+
+      The deck half is NOT asserted here. It needs a wezterm GUI with two agent
+      panes and this configuration switched in, and the tab bar cannot be read
+      back over `wezterm cli`. What is verified is that `ui.lua` parses under
+      luajit and that the four sites 10.7 names are wired: the record read
+      returns `session`, the constructor carries it, the collapsed entry
+      accumulates `names`, and `session_chips` renders them. Whether the chip
+      reads as intended is an owner glance at the tab bar.
+- [x] 10.12 Verify: re-record the two host drvPaths. This phase adds a package
       on purpose, so name each difference by diffing the derivation-path sets
       against the 3.14 recording. The `lv426` half runs locally and the `arrakis`
       half runs in the CI job 1.1 adds. `deps:` 10.11
-- [ ] 10.13 Adversarial review (`adversarial-review` skill): run deterministic
+
+      `lv426` re-recorded at 9,728 derivations, up from 9,717. Against the 3.14
+      recording the set has 49 entries added and 38 removed, and NOTHING was
+      dropped: every one of the 38 removed basenames is also in the added list,
+      so all 38 are rehashes rather than losses.
+
+      The 38 rehashes are the files this phase edits and everything downstream of
+      them: the agent programs, the three generated zsh files, the seshy config,
+      `home-manager-path`, `home-manager-files`, `user-environment`,
+      `activation-script`, and the two activation and generation nodes. That is
+      the expected shape for a phase that adds two session variables and edits
+      four scripts.
+
+      Six basenames are genuinely new. `zmx-0.6.0.drv` and
+      `zmx-0.6.0-zig-deps.drv` are the package. `xcode-select.drv` and
+      `xcrun.drv` are its zig build chain on darwin. `sysinit-paths.json.drv` and
+      `config.yaml.drv` are the phase 4 and 5 additions that 9.9 already recorded
+      as the delta between the 3.14 recording and the phase-8 tree, so they are
+      carried here rather than introduced. `zig-0.15.2.drv` and the two `lld`
+      nodes appear in the added list but not as new basenames: the closure
+      already held a zig 0.15.2 derivation, and this adds a second built with
+      different arguments.
+
+      The host builds: `nix build .#darwinConfigurations.lv426.system` succeeded.
+
+      The `arrakis` half is NOT run here and cannot be. Evaluating
+      `nixosConfigurations.arrakis` on this aarch64-darwin machine pulls an
+      x86_64-linux derivation through IFD, which is the same wall 8.3 hit. It
+      runs in the CI job 1.1 adds, and `baseline/arrakis.*` still holds the 3.14
+      recording until it does.
+- [x] 10.13 Adversarial review (`adversarial-review` skill): run deterministic
       lint. Critics are NOT run: the owner directed on 2026-08-08 that the apply
       proceed on deterministic lint alone, so every task in this list reaches the
       `not run` terminal state the skill defines and records the open questions
@@ -2810,6 +2952,20 @@ the named task and re-running the gate, not re-entering the phase.
       been asked, kept because they name where this phase is weakest on whether zmx and seshy now own the same fact under two
       names, and on whether the session key can disagree between the file bus and
       the deck after 10.8. `deps:` 10.12
+      Terminal state: `not run`. Deterministic lint passed. Two open questions
+      kept.
+      One, the two names are reconciled at the readers and not at the writer.
+      `s` names a zmx session for a seshy session, and `agentstate.go` strips
+      `ZMX_SESSION_PREFIX` back off to get the seshy name, so the namespaces
+      agree only while both sides keep applying the same prefix rule. Nothing
+      compares them automatically: 10.5 is an implementer run, not a gate.
+      Two, the file bus and the deck can still disagree, by design. The deck
+      groups by workspace and now displays the session names inside each group,
+      while `agent-sessions` keys by session. Two panes in one workspace running
+      sessions the owner named by hand outside `s` show as one deck group with
+      two unprefixed names, and as two entries on the menu bar. That is the
+      intended split rather than a defect, and it is also the state no check
+      distinguishes from a real divergence.
 
 ## 11. Closeout
 

@@ -17,6 +17,22 @@ _seshy_names() {
   sy list 2> /dev/null | awk 'NR > 1 { print $1 }'
 }
 
+# The seshy session name a directory belongs to: the first path component under
+# the sessions root. The same derivation `agent-identity.sh` and `agentstate.go`
+# make, which is what keeps the three sides on one namespace.
+_seshy_session_name() {
+  local dir=$1 root
+  # sysinit:documented-default
+  root=$(sysinit_path seshySessions 2> /dev/null) || root="$HOME/.local/state/seshy/sessions"
+  case "$dir/" in
+    "$root"/*)
+      dir=${dir#"$root"/}
+      echo "${dir%%/*}"
+      ;;
+    *) echo "" ;;
+  esac
+}
+
 function s() {
   if (( $# == 0 )); then
     _seshy_err "usage: s <session>"
@@ -31,6 +47,35 @@ function s() {
 
   _seshy_debug "resolved \"$1\" -> $target"
   cd "$target" || return
+
+  # A zmx session named for the seshy session, so a command survives closing the
+  # pane. The name is the seshy name and carries no namespace of its own:
+  # `ZMX_SESSION_PREFIX` supplies that, which is what the variable is for.
+  #
+  # The `cd` above is the whole behavior when zmx is absent, and that is
+  # deliberate rather than defensive. Phase 9 builds a box with neither zmx nor
+  # Nix, and `s` has to keep working there.
+  if ! command -v zmx > /dev/null 2>&1; then
+    _seshy_debug "zmx not found; stayed in $target"
+    return 0
+  fi
+
+  local session
+  session=$(_seshy_session_name "$target")
+  if [[ -z $session ]]; then
+    _seshy_debug "$target is not under the seshy root; no zmx session"
+    return 0
+  fi
+
+  # Already inside the session this would attach to. Attaching again would nest
+  # a session inside itself.
+  if [[ ${ZMX_SESSION:-} == "${ZMX_SESSION_PREFIX:-}${session}" ]]; then
+    _seshy_debug "already attached to $ZMX_SESSION"
+    return 0
+  fi
+
+  _seshy_debug "attaching zmx session $session"
+  zmx attach "$session"
 }
 
 function sl() {
