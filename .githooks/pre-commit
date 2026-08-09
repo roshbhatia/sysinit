@@ -19,6 +19,14 @@ if command -v ast-grep > /dev/null 2>&1; then
   fi
 fi
 
+# One place owns each state path. Over the whole tree rather than the staged
+# files, because a reader's fallback and the manifest key it falls back from
+# usually move in separate commits, and the pair is what has to stay consistent.
+# Needs only git, grep, and awk, so there is nothing to skip when absent.
+if ! "$repo_root/hack/check-state-paths.sh"; then
+  status=1
+fi
+
 command -v citelock > /dev/null 2>&1 || exit "$status"
 while IFS= read -r lock; do
   [[ -z ${lock} ]] && continue

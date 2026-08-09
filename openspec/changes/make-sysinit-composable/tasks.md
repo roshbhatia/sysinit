@@ -1333,7 +1333,7 @@ words: the defect was never the pane, it was an agent opening one.
       failed on test order. Reintroducing it kills three of the new tests,
       including the one that names it.
       `deps:` 4.1
-- [ ] 4.3 Verify: the behavior this phase promises is that one place owns each
+- [x] 4.3 Verify: the behavior this phase promises is that one place owns each
       state path, decided by a check that fails when `.local/state` appears
       outside the paths module. 4.2 covers `ui.lua` alone, and the promise has no
       other gate, which leaves the phase's own stated failure mode undetectable.
@@ -1388,7 +1388,41 @@ words: the defect was never the pane, it was an agent opening one.
       `skills/feature-based-session-manager/SKILL.md:20` and `:74`, the usage
       text at `worklog-query.sh:17`, and the comment at `repo.go:61`. A consumer that keeps its hardcoded fallback
       is otherwise invisible, and 4.9 asking a critic to argue about it is not a
-      gate. `deps:` 4.1
+      gate.
+
+      `hack/check-state-paths.sh` is the check, run over the whole tree from
+      `.githooks/pre-commit`. Whole tree rather than staged files, because a
+      reader's fallback and the manifest key it falls back from usually move in
+      separate commits and the pair is what has to stay consistent. It needs
+      only git, grep, and awk, so unlike the `hunk` case in 3.13 there is
+      nothing to skip when absent.
+
+      It matches both forms and reports them separately: an unmarked occurrence
+      names its lines, and a second marked occurrence in one file reports as
+      more than one documented default. The allowlist is the two producers.
+      Prose, `openspec/`, the `.sysinit/` captures, and test files are out of
+      scope; the three Go tests that pin the default are why the last exemption
+      exists.
+
+      The check does not exclude itself by name. The literal is assembled from
+      two halves and the Go pattern is spelled with an escape, so the file does
+      not contain the strings it searches for. A name-based carve-out would
+      leave one file where a path could be written down unseen.
+
+      Four mutations, all caught, tree green after each: an unmarked literal
+      added to `agent-sessions.sh`, a second marked occurrence added to
+      `paths.sh` (reported as `more than one documented default, at line(s) 20
+      29`), an unmarked `filepath.Join` form added to `repo.go`, and the marker
+      deleted from `utils.lua`.
+
+      Ten consumer files moved their marker while building this. Every one had
+      the token as the FIRST line of its explanatory comment, with the
+      occurrence one to four lines below, which 4.1's stated rule of "the same
+      line or the line above" does not admit. The token is now the last comment
+      line before the occurrence in each. The alternative was widening the rule
+      to the whole preceding comment block, which makes the check ambiguous
+      about which occurrence a marker covers.
+      `deps:` 4.1
 - [ ] 4.4 Act: enumerate the hand-kept lists first, and write the enumeration
       into the change as a file with one `path:line` per list. The proposal's
       count of fourteen is an estimate, so the enumeration replaces it and the

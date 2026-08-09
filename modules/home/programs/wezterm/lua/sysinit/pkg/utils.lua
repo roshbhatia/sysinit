@@ -66,10 +66,10 @@ end
 -- composes a path.
 local paths_cache = nil
 
--- sysinit:documented-default
 -- The single fallback of the wezterm tree. It locates the manifest, and it is
 -- the root every key below falls back under when the manifest is absent.
 local function state_root()
+  -- sysinit:documented-default
   return os.getenv("XDG_STATE_HOME") or (M.get_home_dir() .. "/.local/state")
 end
 

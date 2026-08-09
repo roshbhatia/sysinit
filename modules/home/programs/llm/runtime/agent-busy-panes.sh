@@ -3,8 +3,8 @@
 agent_busy_panes() {
   local session="$1"
   local live="$2"
-  # sysinit:documented-default
   local state_dir
+  # sysinit:documented-default
   state_dir=$(sysinit_path agentPanes) || state_dir="${XDG_STATE_HOME:-$HOME/.local/state}/agents/panes"
   local busy=0 f pane st ag sess
 

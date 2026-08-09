@@ -2,10 +2,10 @@ agent=${1:-agent}
 reason=${2:-attention}
 focus_exe=${3:-}
 
-# sysinit:documented-default
 # The one fallback in this file, reached only when the paths manifest is
 # absent. Both state paths below derive from it, so the layout is written
 # here once rather than once per branch.
+# sysinit:documented-default
 an_agents="${XDG_STATE_HOME:-$HOME/.local/state}/agents"
 
 notifier=$(command -v alerter 2> /dev/null) || exit 0

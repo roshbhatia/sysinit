@@ -39,7 +39,6 @@ func manifestFile() string {
 	return filepath.Join(fallbackStateHome(), "sysinit", "paths.json")
 }
 
-// sysinit:documented-default
 //
 // The one default in this package, reached only when the manifest is absent.
 // Phase 9 builds a box with `go install` and no Nix, and until the manifest is
@@ -48,6 +47,7 @@ func fallbackStateHome() string {
 	if home := strings.TrimRight(os.Getenv("XDG_STATE_HOME"), "/"); home != "" {
 		return home
 	}
+	// sysinit:documented-default
 	return filepath.Join(os.Getenv("HOME"), ".local", "state")
 }
 

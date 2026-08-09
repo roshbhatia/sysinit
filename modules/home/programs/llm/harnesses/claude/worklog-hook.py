@@ -27,10 +27,10 @@ def sysinit_path(key: str, fallback_suffix: str) -> Path:
     written down. This reads the manifest that module generates, so this file
     is a reader of the layout rather than a second producer of it.
     """
-    # sysinit:documented-default
     # The one default in this file. It locates the manifest, and it is the root
     # each key falls back under when the manifest is absent, which is the case
     # on a box installed without Nix.
+    # sysinit:documented-default
     root = os.environ.get("XDG_STATE_HOME") or str(Path.home() / ".local/state")
     manifest = Path(os.environ.get("SYSINIT_PATHS_MANIFEST") or f"{root}/sysinit/paths.json")
     try:

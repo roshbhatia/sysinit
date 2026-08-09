@@ -4,8 +4,8 @@ agent_review_suffix() {
   local pane="$1"
   local now="${2:-}"
   [ -n "$pane" ] || return 0
-  # sysinit:documented-default
   local panes_dir
+  # sysinit:documented-default
   panes_dir=$(sysinit_path agentPanes) || panes_dir="${XDG_STATE_HOME:-$HOME/.local/state}/agents/panes"
   local state_file="$panes_dir/$pane.json"
   [ -f "$state_file" ] || return 0

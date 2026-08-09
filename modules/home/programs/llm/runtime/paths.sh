@@ -13,10 +13,10 @@
 # instead would make this file a second producer of the layout, which is the
 # defect the manifest removes.
 sysinit_path() {
-  # sysinit:documented-default
   # The manifest's own location is the one fact it cannot carry, so this is the
   # single bootstrap constant of the shell tree. Phase 9 installs the manifest
   # here on a box with no Nix.
+  # sysinit:documented-default
   manifest="${SYSINIT_PATHS_MANIFEST:-${XDG_STATE_HOME:-$HOME/.local/state}/sysinit/paths.json}"
   [ -s "$manifest" ] || return 1
   command -v jq > /dev/null 2>&1 || return 1
