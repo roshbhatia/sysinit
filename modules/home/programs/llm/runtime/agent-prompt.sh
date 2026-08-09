@@ -75,20 +75,7 @@ else
 fi
 
 icons="${XDG_DATA_HOME:-$HOME/.local/share}/agent-notify/icons"
-case "$agent" in
-  claude) label="Claude Code" ;;
-  codex) label="Codex" ;;
-  gemini) label="Gemini" ;;
-  cursor) label="Cursor" ;;
-  opencode) label="OpenCode" ;;
-  pi) label="Pi" ;;
-  copilot) label="Copilot" ;;
-  amp) label="Amp" ;;
-  crush) label="Crush" ;;
-  goose) label="Goose" ;;
-  devin) label="Devin" ;;
-  *) label="$agent" ;;
-esac
+label=$(agent_label "$agent")
 icon="$icons/$agent.png"
 [ -f "$icon" ] || icon="$icons/agent.png"
 

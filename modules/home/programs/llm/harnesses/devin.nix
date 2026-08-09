@@ -55,7 +55,6 @@ in
     content = devinSettings;
     enforce = [ "permissions" ];
   };
-  home.packages = [ pkgs.devin-cli ];
 
   xdg.configFile = {
     "devin/AGENTS.md" = {

@@ -1423,7 +1423,7 @@ words: the defect was never the pane, it was an agent opening one.
       to the whole preceding comment block, which makes the check ambiguous
       about which occurrence a marker covers.
       `deps:` 4.1
-- [ ] 4.4 Act: enumerate the hand-kept lists first, and write the enumeration
+- [x] 4.4 Act: enumerate the hand-kept lists first, and write the enumeration
       into the change as a file with one `path:line` per list. The proposal's
       count of fourteen is an estimate, so the enumeration replaces it and the
       enumeration is what the next task tests. A list qualifies when adding a
@@ -1438,6 +1438,45 @@ words: the defect was never the pane, it was an agent opening one.
       the seven `throw` assertions that existed to police them
       (`llm/default.nix:190` and `:192`, `runtime/default.nix:64`, `:73`, `:75`,
       `lib/instructions.nix:145`, `harnesses/pi/default.nix:75`).
+
+      The enumeration is `harness-lists.md` in this change. Fifteen lists
+      qualify, not the estimated fourteen, and four of them spell the names
+      without the quotes the starting command matches.
+
+      `modules/home/programs/llm/harnesses/registry.nix` is the registry. Lists
+      1 through 12 and 15 now derive from it. Lists 13 and 14 stay hand-kept on
+      purpose: both are neovim and wezterm config that has to work on a box with
+      no Nix, so generating them would make the build a dependency of the thing
+      that must not have one. The registry carries `neovimAdapter` for 4.5 to
+      check the first against.
+
+      Six of the seven assertions are deleted and one more that 4.4 did not name
+      went with them. The pi one could not fail: it tested a literal attribute
+      key against the literal set defined four lines below it.
+
+      `runtime/default.nix:64` is KEPT, against this task's instruction. Every
+      other assertion compares two hand-kept lists, and one list cannot disagree
+      with itself. That one compares a registry field against the filesystem: a
+      declared bridge file that is deleted or truncated still leaves its harness
+      with no notifier. It now reads the registry and reports by harness name.
+
+      Two defects surfaced while wiring list 15. `crush` and `opencode` were
+      installed twice, once in `packages.nix` and once by their own harness
+      module, and `devin`, `gemini`, and `goose` were installed only by their
+      module, so the first registry draft recorded `package = null` for all
+      three. The registry now owns every harness package and the five modules no
+      longer install their own. Evaluating `home.packages` afterwards shows each
+      harness CLI exactly once.
+
+      One generation bug was caught by reading the built script rather than the
+      source. Nix indented strings do not process backslash escapes, so the
+      fallback branch of the generated `agent_label` emitted a literal `\n`
+      while the interpolated branches emitted a newline. Verified by running the
+      function out of the built store path: an unknown harness name now returns
+      itself.
+
+      The registry rewiring alone was closure-identical: the system derivation
+      hash was unchanged from the build before it.
       `deps:` 4.1
 - [ ] 4.5 Verify: every list in 4.4's enumeration now reads from the registry,
       checked site by site against that file rather than against a count. Then

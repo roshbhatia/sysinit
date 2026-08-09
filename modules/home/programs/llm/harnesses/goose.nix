@@ -130,5 +130,4 @@ in
     };
   };
 
-  home.packages = [ pkgs.goose-cli ];
 }

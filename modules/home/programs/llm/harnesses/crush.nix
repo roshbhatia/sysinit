@@ -93,5 +93,4 @@ in
     };
   };
 
-  home.packages = [ pkgs.crush ];
 }

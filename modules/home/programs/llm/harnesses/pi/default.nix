@@ -68,14 +68,6 @@ let
     ) extensions
   );
 
-  piBridgePath = ".pi/agent/extensions/sysinit-notify.ts";
-
-  assertPiBridgeInstalled =
-    if !(customExtensionFiles ? ${piBridgePath}) then
-      throw "pi.nix: ${piBridgePath} is not installed, but notify.nix lists pi as bridged and its own notify extension is retired. Pi would have no notifier."
-    else
-      true;
-
   customExtensionFiles = {
     ".pi/agent/extensions/sysinit-notify.ts" = {
       source = ./extensions/sysinit-notify.ts;
@@ -585,7 +577,6 @@ in
     file =
       (
         assert assertExtensionsExist;
-        assert assertPiBridgeInstalled;
         assert assertGeminiAuthEntrypoint;
         assert assertGatesDisjoint;
         assert assertPiKeysDisjoint;

@@ -13,25 +13,17 @@ let
     else
       "Available: " + builtins.concatStringsSep ", " (map (n: "`${n}`") names);
 
-  harnessCoverage = {
-    claude = "~/.claude/CLAUDE.md";
-    codex = "codex `context`";
-    gemini = "~/.agents/AGENTS.md";
-    opencode = "~/.config/opencode/AGENTS.md";
-    amp = "~/.config/amp/AGENTS.md";
-    crush = "~/.config/crush/AGENTS.md";
-    devin = "~/.config/devin/AGENTS.md";
-    pi = "~/.pi/agent/AGENTS.md";
-    goose = "~/.config/goose/.goosehints";
-    cursor = "~/.cursor/rules/always.mdc";
-    copilot = "~/.copilot/copilot-instructions.md";
-  };
+  # Both derived from the registry. A harness cannot be configured without a
+  # context path or a skill-loader answer, because one entry supplies all three.
+  registry = import ../harnesses/registry.nix;
+
+  harnessCoverage = builtins.mapAttrs (_name: h: h.context) registry;
 
   coveredHarnesses = builtins.attrNames harnessCoverage;
 
-  harnessesWithoutSkillLoader = [
-    "codex"
-  ];
+  harnessesWithoutSkillLoader = builtins.attrNames (
+    lib.filterAttrs (_name: h: !h.skillLoader) registry
+  );
 
   makeInstructions =
     {
@@ -141,9 +133,7 @@ let
       extraLineCount = countLines extras;
       maxExtraLines = 16;
     in
-    if !(harnessCoverage ? ${harness}) then
-      throw "instructions.nix: harness '${harness}' renders context but is not declared in harnessCoverage. Add its confirmed global path, or null with the reason it is exempt."
-    else if missingResponsibilityRules != [ ] then
+    if missingResponsibilityRules != [ ] then
       throw "instructions.nix: harness '${harness}' is missing responsibility rules: ${builtins.concatStringsSep ", " missingResponsibilityRules}"
     else if lineCount > maxLines then
       throw "instructions.nix: rendered context exceeds ${toString maxLines} lines (got ${toString lineCount}). Move repo-specific facts to that repo's AGENTS.md and domain rules to the owning skill."

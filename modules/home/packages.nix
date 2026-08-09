@@ -140,22 +140,16 @@
       tofu-ls
       upbound
 
-      amp-cli
       claude-agent-acp
       codex-acp
       copilot-language-server
-      crush
-      cursor-cli
-      github-copilot-cli
       lsp-ai
-      opencode
       openspec
       specutil
 
       cupcake-cli
       open-policy-agent
       regols
-      pi-coding-agent
       tree-sitter
 
       ast-grep
@@ -181,5 +175,13 @@
       yaml-language-server
       yamllint
     ]
+    # The harness CLIs come from the registry, so adding a harness does not
+    # need a second edit here. Entries with no package arrive another way:
+    # claude through `programs.claude-code`, the rest are not in nixpkgs.
+    ++ map (name: pkgs.${name}) (
+      lib.filter (name: name != null) (
+        lib.mapAttrsToList (_name: h: h.package) (import ./programs/llm/harnesses/registry.nix)
+      )
+    )
     ++ (lib.optionals pkgs.stdenv.hostPlatform.isLinux [ hyprpicker ]);
 }

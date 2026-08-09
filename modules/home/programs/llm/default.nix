@@ -165,33 +165,12 @@ let
       lib.filterAttrs (name: _: !(builtins.elem name suppressed)) config.sysinit.llm.mcp.additionalServers
     );
 
-  harnessConfigNames = [
-    "amp"
-    "claude"
-    "codex"
-    "copilot"
-    "crush"
-    "cursor"
-    "devin"
-    "gemini"
-    "goose"
-    "opencode"
-    "pi"
-  ];
+  # The registry is the list. The two assertions that used to compare this
+  # against `harnessCoverage` are gone: both now read one attribute set, so a
+  # harness with a config and no coverage entry cannot be written down.
+  harnessConfigNames = builtins.attrNames (import ./harnesses/registry.nix);
 
   llmLibForCoverage = import ./lib { inherit lib; };
-  declaredHarnesses = builtins.attrNames llmLibForCoverage.instructions.harnessCoverage;
-
-  undeclaredHarnesses = lib.subtractLists declaredHarnesses harnessConfigNames;
-  phantomHarnesses = lib.subtractLists harnessConfigNames declaredHarnesses;
-
-  assertHarnessCoverage =
-    if undeclaredHarnesses != [ ] then
-      throw "llm/default.nix: ${lib.concatStringsSep ", " undeclaredHarnesses} has a harness config but no harnessCoverage entry. Declare its confirmed context path in lib/instructions.nix."
-    else if phantomHarnesses != [ ] then
-      throw "llm/default.nix: ${lib.concatStringsSep ", " phantomHarnesses} is declared in harnessCoverage but has no harness config. Remove the stale entry."
-    else
-      true;
 
   reconciler = llmLibForCoverage.managedFile.mkReconciler {
     inherit pkgs;
@@ -238,7 +217,6 @@ in
 
   home = {
     file =
-      assert assertHarnessCoverage;
       skillFiles
       // skillScriptFiles
       // specutilSkillFiles

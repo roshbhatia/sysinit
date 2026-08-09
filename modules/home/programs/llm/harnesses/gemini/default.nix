@@ -84,5 +84,4 @@ in
     };
   };
 
-  home.packages = [ pkgs.antigravity-cli ];
 }

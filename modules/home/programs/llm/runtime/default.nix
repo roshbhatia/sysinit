@@ -3,85 +3,33 @@
   lib,
 }:
 let
-  icon = name: ./icons/${name}.svg;
+  # Every harness fact here comes from the registry, so the four assertions that
+  # used to compare these lists against each other are gone. A harness cannot be
+  # bridged two ways, or carry both an icon and the generic one, because one
+  # field answers each question.
+  registry = import ../harnesses/registry.nix;
 
-  svgs = {
-    claude = icon "claude";
-    codex = icon "codex";
-    gemini = icon "gemini";
-    cursor = icon "cursor";
-    opencode = icon "opencode";
-    pi = icon "pi";
-    copilot = icon "copilot";
-  };
+  svgs = builtins.mapAttrs (name: _h: ./icons/${name}.svg) (
+    lib.filterAttrs (_name: h: h.ownIcon) registry
+  );
 
-  hookBridged = [
-    "claude"
-    "codex"
-    "pi"
-    "opencode"
-  ];
-
-  scrapeBridged = [
-    "amp"
-    "copilot"
-    "crush"
-    "cursor"
-    "devin"
-    "gemini"
-    "goose"
-  ];
-
-  configuredHarnesses = [
-    "amp"
-    "claude"
-    "codex"
-    "copilot"
-    "crush"
-    "cursor"
-    "devin"
-    "gemini"
-    "goose"
-    "opencode"
-    "pi"
-  ];
-
-  covered = hookBridged ++ scrapeBridged;
-
-  bridgeArtifacts = {
-    pi = ../harnesses/pi/extensions/sysinit-notify.ts;
-    opencode = ../harnesses/opencode/plugins/sysinit-notify.ts;
-  };
+  bridgeArtifacts = lib.filterAttrs (_name: v: v != null) (
+    builtins.mapAttrs (_name: h: h.bridge) registry
+  );
 
   bridgePresent = p: builtins.pathExists p && builtins.stringLength (builtins.readFile p) > 0;
 
-  missingBridges = lib.filter (
-    h: (bridgeArtifacts ? ${h}) && !(bridgePresent bridgeArtifacts.${h})
-  ) hookBridged;
+  # The one property the registry cannot make unrepresentable: a declared bridge
+  # whose file is empty or absent leaves that harness with no notifier at all.
+  missingBridges = builtins.attrNames (
+    lib.filterAttrs (_name: src: !(bridgePresent src)) bridgeArtifacts
+  );
 
   assertBridgesExist =
     if missingBridges != [ ] then
-      throw "notify.nix: ${lib.concatStringsSep ", " missingBridges} is listed as bridged but its bridge file is missing. Its own producer is off, so it would have no notifier at all."
+      throw "notify.nix: ${lib.concatStringsSep ", " missingBridges} declares a notify bridge whose file is missing or empty. Its own producer is off, so it would have no notifier at all."
     else
       "";
-
-  uncovered = lib.subtractLists covered configuredHarnesses;
-  stale = lib.subtractLists configuredHarnesses covered;
-
-  assertCoverageTotal =
-    if uncovered != [ ] then
-      throw "notify.nix: ${lib.concatStringsSep ", " uncovered} configured but reaches no notifier. Add each to hookBridged or scrapeBridged."
-    else if stale != [ ] then
-      throw "notify.nix: ${lib.concatStringsSep ", " stale} named as covered but not configured. Remove the stale entry."
-    else
-      "";
-
-  intentionallyGeneric = [
-    "amp"
-    "crush"
-    "goose"
-    "devin"
-  ];
 
   genericSvg = pkgs.writeText "agent-icon-generic.svg" ''
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
@@ -91,14 +39,21 @@ let
     </svg>
   '';
 
-  names = builtins.attrNames svgs;
-
-  genericConflicts = lib.intersectLists names intentionallyGeneric;
-  assertGenericDisjoint =
-    if genericConflicts != [ ] then
-      throw "notify.nix: ${lib.concatStringsSep ", " genericConflicts} appear in both `svgs` and `intentionallyGeneric`; a harness cannot be both."
-    else
-      "";
+  # Generated from the registry rather than written twice. `agent-notify` and
+  # `agent-prompt` each carried the same eleven pairs and neither cited the
+  # other.
+  labels = ''
+    agent_label() {
+      case "$1" in
+    ${lib.concatStringsSep "\n" (
+      lib.mapAttrsToList (
+        name: h: "    ${name}) printf '%s\\n' ${lib.escapeShellArg h.label} ;;"
+      ) registry
+    )}
+        *) printf '%s\n' "$1" ;;
+      esac
+    }
+  '';
 
   # Prepended wherever a script needs a state path, so no script composes one.
   paths = builtins.readFile ./paths.sh;
@@ -112,9 +67,7 @@ let
   busyPanes = builtins.readFile ./agent-busy-panes.sh;
 
   icons = pkgs.runCommand "agent-notify-icons" { nativeBuildInputs = [ pkgs.librsvg ]; } (
-    assertGenericDisjoint
-    + assertCoverageTotal
-    + assertBridgesExist
+    assertBridgesExist
     + "mkdir -p $out\n"
     + lib.concatStringsSep "\n" (
       lib.mapAttrsToList (
@@ -143,6 +96,8 @@ let
       + reviewSuffix
       + "\n"
       + identity
+      + "\n"
+      + labels
       + "\n"
       + builtins.readFile ./agent-notify.sh;
   };
@@ -179,6 +134,8 @@ let
     + group
     + "\n"
     + identity
+    + "\n"
+    + labels
     + "\n"
     + builtins.readFile ./agent-prompt.sh;
   };
@@ -312,6 +269,6 @@ in
       lib.nameValuePair ".local/share/agent-notify/icons/${name}.png" {
         source = "${icons}/${name}.png";
       }
-    ) (names ++ [ "agent" ])
+    ) (builtins.attrNames svgs ++ [ "agent" ])
   );
 }

@@ -79,5 +79,4 @@ in
     subagentFiles
   ];
 
-  home.packages = [ pkgs.opencode ];
 }
