@@ -2971,7 +2971,7 @@ the named task and re-running the gate, not re-entering the phase.
 
 - **SHAPE** graph
 
-- [ ] 11.1 Verify: the two host drvPaths still match the phase 10 re-recording,
+- [x] 11.1 Verify: the two host drvPaths still match the phase 10 re-recording,
       which is the last one, since phase 10 adds a package and phases 4 through 9
       are closure-neutral. Separately, enumerate what phases 2, 3, and 10 changed
       by diffing the derivation-path sets against 1.1's, and confirm every entry
@@ -2981,12 +2981,66 @@ the named task and re-running the gate, not re-entering the phase.
       The `lv426` half runs locally and the `arrakis` half runs in the CI job 1.1
       adds. An unexplained entry is a silent loss.
       `deps:` 10.13
-- [ ] 11.2 Act: write the spec deltas this change owes. `agent-state-emission`
+
+      `lv426` matches the phase 10 re-recording exactly, both the drvPath and the
+      9,728-entry set. The one commit between them formats three bootstrap shell
+      scripts, and this proves those files do not reach the closure.
+
+      The enumeration against 1.1: 7,440 entries then, 9,728 now. Nothing in the
+      lock drifted underneath it. The `nixpkgs` rev is the same value at both
+      ends, and the root input list gained exactly one member, `hunk`, so every
+      difference below belongs to this change rather than to a nixpkgs bump.
+
+      SIX basenames present at 1.1 are gone, and each is named in a task.
+      `diffnote.drv` and the two `skill-<harness>-diffnote-SKILL.md.drv` are
+      replaced by `skill-<harness>-note-SKILL.md.drv`, which is phase 3 and
+      phase 5 replacing the viewer with hunk and keeping the writer.
+      The two `skill-<harness>-wtrun-SKILL.md.drv` are gone with no replacement,
+      which is `notSkills` in `llm/skills/default.nix` un-advertising wtrun while
+      `wtrun.drv` stays on the owner's PATH, exactly what 2.4 asks for.
+      `sysinit-agent-0.1.0-go-modules.drv` is gone because the module has no
+      dependencies left to fetch: `go.mod` required `github.com/neovim/go-client`
+      at 1.1 and requires nothing now, which is 2.2 removing the agent's route
+      into the editor. Six removals, six tasks, no silent loss.
+
+      The 2,294 additions are dominated by ONE decision, and it is worth naming
+      plainly rather than burying in a count. hunk does not follow this
+      repository's `nixpkgs`, for the reason `flake.nix:84-91` records, so it
+      brings a second copy of a toolchain graph: a second `go`, a second `rustc`
+      and `cargo`, `bun` and its several hundred package derivations, `cmake`,
+      and a python3.13 sphinx set. That is most of the growth, and phase 3 owns
+      it. zmx accounts for a handful more through zig, and 10.12 names those. The
+      remainder are this change's own generated files: `review.drv`,
+      `hunk-config.toml.drv`, `sysinit-paths.json.drv`, `config.yaml.drv`, and
+      the two note skills.
+
+      The `arrakis` half is NOT run here, for the reason 10.12 records: it cannot
+      be evaluated on this machine. It runs in the CI job 1.1 adds.
+- [x] 11.2 Act: write the spec deltas this change owes. `agent-state-emission`
       keeps its OSC requirement because 2.2 reverses the deletion, so that one
       needs no delta. The behaviors with no spec today and a spec-worthy
       contract after this change are the note file and its derived export, and
       `review` as the reader. Add them rather than leaving a change that ships
       behavior no spec describes. `deps:` 11.1
+
+      Two deltas, not one. `specs/agent-diff-notes/spec.md` is new and holds the
+      four requirements this task names: the record is ours and the writer
+      reaches no viewer, the export is derived and republished inside the same
+      lock, `review` is the reader and a separate verb, and a running viewer is
+      not refreshed by a write. `openspec validate --strict` passes.
+
+      The second delta is one this task did not ask for, and finding it is what
+      writing the first one was worth. `specs/agent-session-rollup/spec.md` is a
+      MODIFIED delta, because phase 10 broke two clauses of the existing
+      requirement. That spec keys the rollup by "seshy session name (= WezTerm
+      workspace)", an equality 10.7 and 10.8 end: a workspace now holds several
+      sessions. And it says the helper "MUST NOT shell out (no `sy list`, no fs
+      reads) on that path", while 10.7 adds one record read per agent pane. The
+      delta re-states the key as the workspace, adds the session-names field, and
+      narrows the prohibition to process spawns while permitting a cached
+      per-agent-pane read. Shipping without it would have left an implementation
+      that contradicts a spec in the repository, which is the failure this task
+      exists to prevent, one requirement over from where it looked.
 - [ ] 11.3 Act: remove the gate scaffolding in the same commit that archives
       the change. Delete `.github/workflows/closure-baseline.yml`,
       `hack/host-baseline.sh`, and `openspec/changes/make-sysinit-composable/baseline/`.
@@ -2998,12 +3052,61 @@ the named task and re-running the gate, not re-entering the phase.
       which is why this depends on it rather than running earlier. Keep
       `hack/host-baseline.sh` only if something outside this change has adopted
       it by then; check before deleting. `deps:` 11.2
-- [ ] 11.4 Act: open the follow-on change `decompose-wezterm-ui`, which
+- [x] 11.4 Act: open the follow-on change `decompose-wezterm-ui`, which
       design.md section 8 sequences after this one. `deps:` 11.3
-- [ ] 11.5 Adversarial review (`adversarial-review` skill): run deterministic
+
+      Opened on disk, on the `spec-driven` schema, with the goal carrying the
+      pointer back to decision 8. It records the starting state measured rather
+      than quoted: 1,867 lines today against decision 8's 1,799, because phase 5
+      added a viewer and phase 10 added the session names. It also lists what
+      this change already took out of that file, so the follow-on does not
+      re-litigate it, and two open questions worth settling before it is scoped.
+
+      It carries five artifacts rather than a bare scaffold, because the
+      pre-commit hook runs `spec-preflight all` for every change with staged
+      files and an empty directory fails three of its rules. So `proposal.md`,
+      `design.md`, `tasks.md`, `citations.lock`, and `review.md` are written.
+
+      The directory is NOT committed, and this is the one task in the change
+      that does not close. `specutil check`'s `review-decision-current` rubric
+      accepts exactly one decision value, `approved`. That rubric comes from the
+      shipped `spec-driven` preset, not from a per-change file, so it cannot be
+      relaxed for one change without weakening the gate for every change. The
+      recorded decision is `commented`, which the rubric rejects, and recording
+      `approved` would claim the owner's approval. `openspec/config.yaml` says
+      the same thing twice over: "the owner is the only contributor and the only
+      approver", and its review rules say "Never write the Owner decision
+      section ... silence is not consent." So the artifacts stay untracked until
+      the owner runs `specutil review set decompose-wezterm-ui --decision
+      approved`, after which the directory commits with no other edit. Nothing
+      else in this change depends on it; leaving it untracked blocks no other
+      commit, because the hook fires per change only on staged files.
+- [x] 11.5 Adversarial review (`adversarial-review` skill): run deterministic
       lint. Critics are NOT run: the owner directed on 2026-08-08 that the apply
       proceed on deterministic lint alone, so every task in this list reaches the
       `not run` terminal state the skill defines and records the open questions
       rather than refuting them. The questions below are what critics WOULD have
       been asked, kept because they name where this phase is weakest on the whole diff, asking what a profile smaller than
       `workstation` silently loses that nothing asserts. `deps:` 11.4
+      Terminal state: `not run`. Deterministic lint passed and
+      `openspec validate --strict` passes. Three open questions kept, in the
+      order they would bite.
+      One, the question this task names. What a profile smaller than
+      `workstation` loses is asserted only by evaluation, not by behavior. 6.6
+      compares `minimal` against `workstation` by derivation path, and 8.3 builds
+      all six standalone configurations, so both answer "does it evaluate and
+      build". Neither answers "does the resulting shell work". 9.8's container
+      gate is the closest thing, and it tests the non-Nix `minimal` path rather
+      than the Nix one.
+      Two, several gates in this change ran once. The container gate, the
+      six-cell home build, and the two closure baselines are `workflow_dispatch`
+      or hand-run, and 11.3 deletes two of the three on archive. What survives
+      into the repository is `checks/`, the pre-commit hooks, and `check.yml`.
+      That is deliberate, and 1.1's own comment says why a change-scoped gate
+      must not become a required check, but the consequence is that the closure
+      arithmetic this change leaned on has no successor.
+      Three, the change moved several facts to one owner and then verified the
+      owners by running them, not by proving nothing else writes them. The paths
+      manifest has `check-state-paths.sh` and the harness registry has its own
+      check; the session namespace has neither. 10.13 records that gap for
+      phase 10, and at the whole-diff level it is the same shape three times.
