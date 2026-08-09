@@ -65,8 +65,12 @@ yours. Do not reach for it to tidy up.
 ## Reading
 
 The reader is `review`. It runs the `hunk` diff viewer with this repository's
-export attached, and passes its own arguments through, so `review --watch`
-re-reads the export as notes land.
+export attached, and passes its own arguments through.
+
+A `review` that is already open does not pick up a note written after it
+started. Neither does `review --watch`. Re-run `review` instead. Do not offer to
+refresh the owner's open pane for them: there is no route that does it, and
+`hunk session reload` drops the notes entirely rather than refreshing them.
 
 For the viewer's own surface, read the skill `hunk` ships rather than a copy of
 it here, which would drift on every upgrade:

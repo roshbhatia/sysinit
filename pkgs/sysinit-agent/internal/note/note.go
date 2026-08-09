@@ -32,9 +32,10 @@ Usage:
   note rebuild
 
 A write never opens a viewer. It publishes the record and the viewer-shaped
-export derived from it, and a running ` + "`review --watch`" + ` picks the change up on
-its own. Run ` + "`note rebuild`" + ` after hand-editing the record, which is the one
-route that changes it without going through a write.
+export derived from it, so the next ` + "`review`" + ` shows the note. A ` + "`review`" + ` that
+is already running does not: it was measured and it picks up nothing on its own,
+` + "`--watch`" + ` included. Re-run it. Run ` + "`note rebuild`" + ` after hand-editing the
+record, which is the one route that changes it without going through a write.
 `
 
 // Note is one anchored annotation. The field order is the serialized order, so
