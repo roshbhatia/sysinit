@@ -1527,7 +1527,7 @@ words: the defect was never the pane, it was an agent opening one.
       drives, but nothing in the tree states that and 4.5 does not ask for it.
       Left as is, and named here so it is not mistaken for covered.
       `deps:` 4.4
-- [ ] 4.6 Act: give the pane record a written schema and a version field. Its
+- [x] 4.6 Act: give the pane record a written schema and a version field. Its
       own comment at `agentstate.go:33-34` already calls it "a published
       interface", and it has neither. Three readers exist today and phase 5 adds
       more, each reproducing rules nothing states: `pane` is a JSON number when
@@ -1550,7 +1550,40 @@ words: the defect was never the pane, it was an agent opening one.
       the file outlives it and needs 4.7, and they disagree precisely inside the
       window 4.7 covers. Say which is authoritative for which reader, since
       `ui.lua:333-339` prefers the var and `agent-sessions.sh:63-70` reads only
-      the file. `deps:` 4.1
+      the file.
+
+      The schema is `pkgs/sysinit-agent/internal/agentstate/SCHEMA.md`, next to
+      the writer. `SchemaVersion` is 1 and the record carries `version`. The
+      constant's comment states when to bump it: on a field changing meaning or
+      disappearing, never on an addition, because every reader looks fields up
+      by name.
+
+      Both encodings now come from one value. `Run` builds the record first and
+      `userVar(record)` renders the OSC payload from it, where the two used to
+      be assembled separately from the same four variables. The write order is
+      unchanged and the reason is now written down: the user variable is emitted
+      before the identity lookup because that lookup forks git.
+
+      `TestBothEncodingsAgree` is the test. It reads the payload the code emits
+      through an `emitUserVar` seam rather than re-deriving one, which would
+      compare a derivation to itself, and compares all four shared fields plus
+      the version against the published JSON. Its reason argument contains a
+      pipe, so it also pins the rule that makes the four-field split safe.
+      Mutating `Run` back to a separately-built payload fails it on `since`.
+
+      All five readers cite the schema, and `ui.lua` gets two citations because
+      it is two readers: `pane_agent_state` on the user variable and
+      `read_pane_git` on the file. The authority table in SCHEMA.md gives it two
+      rows for the same reason.
+
+      One correction against the tree rather than the task: `pane_agent_state`
+      falls back to the agent-deck plugin, not to nothing. The schema says so.
+
+      `agent-sessions.sh` composed `$state_dir/panes` rather than reading the
+      `agentPanes` key. The state-path check did not catch it, because a
+      composed path carries no literal to match. It reads the key now, still
+      falling back under the one marked default that file already had.
+      `deps:` 4.1
 - [ ] 4.7 Act: give the pane record a liveness rule at read time, and do not
       make it a time bound. The archived change chose user vars partly because a
       file "reintroduces exactly the stale-entry pruning problem"

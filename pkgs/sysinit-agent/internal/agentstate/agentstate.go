@@ -31,9 +31,19 @@ const Summary = "record this pane's agent status for the wezterm surfaces"
 // read time, so every consumer sees the same string.
 const reasonLimit = 60
 
+// SchemaVersion is the pane record's schema version. Bump it when a field
+// changes meaning or disappears, never for an added field: every reader looks
+// fields up by name, so an addition is invisible to a reader that does not want
+// it.
+//
+// The schema itself is SCHEMA.md, next to this file. Every reader cites it.
+const SchemaVersion = 1
+
 // state is the file-bus record. Field order is the serialized order and the
-// names are read by lua, so this struct is a published interface.
+// names are read by lua, so this struct is a published interface. SCHEMA.md
+// states the rules a reader cannot see here.
 type state struct {
+	Version  int    `json:"version"`
 	Pane     any    `json:"pane"`
 	Session  string `json:"session"`
 	Repo     string `json:"repo"`
@@ -76,31 +86,46 @@ func Run(args []string) int {
 	}
 	reason = truncate(reason, reasonLimit)
 
+	// Built before either encoding is emitted, so both are rendered from one
+	// value. The two used to be assembled separately from the same four
+	// variables, which is the same fact with two owners.
+	record := state{
+		Version: SchemaVersion,
+		Pane:    paneValue(pane),
+		Agent:   agent,
+		Status:  status,
+		Reason:  reason,
+		Since:   since,
+	}
+
 	// The user variable is what the tab bar reads live. Written before the
-	// file, because it is the half the owner sees.
-	payload := fmt.Sprintf("%s|%s|%d|%s", status, reason, since, agent)
-	if encoded := base64.StdEncoding.EncodeToString([]byte(payload)); encoded != "" {
-		writeUserVar(encoded)
+	// file, and before the identity lookup below, because that lookup forks git
+	// and this is the half the owner sees.
+	if encoded := base64.StdEncoding.EncodeToString([]byte(userVar(record))); encoded != "" {
+		emitUserVar(encoded)
 	}
 
 	if os.MkdirAll(stateDir, 0o755) != nil {
 		return 0
 	}
 	id := identify(cwd())
-	record := state{
-		Pane:     paneValue(pane),
-		Session:  id.session,
-		Repo:     id.repo,
-		Branch:   id.branch,
-		Dirty:    id.dirty,
-		Worktree: id.worktree,
-		Agent:    agent,
-		Status:   status,
-		Reason:   reason,
-		Since:    since,
-	}
+	record.Session = id.session
+	record.Repo = id.repo
+	record.Branch = id.branch
+	record.Dirty = id.dirty
+	record.Worktree = id.worktree
+
 	publish(stateFile, record)
 	return 0
+}
+
+// userVar renders the OSC payload from the record, so the two encodings cannot
+// disagree about the four fields they share.
+//
+// The record carries more than this. SCHEMA.md says which reader is entitled to
+// which encoding, and why the user variable is the shorter one.
+func userVar(r state) string {
+	return fmt.Sprintf("%s|%s|%d|%s", r.Status, r.Reason, r.Since, r.Agent)
 }
 
 func arg(args []string, i int, fallback string) string {
@@ -228,6 +253,11 @@ func truncate(s string, limit int) string {
 //
 // Sent to /dev/tty rather than stdout: the caller's stdout is a hook's, and a
 // control sequence in it corrupts the payload the harness is parsing.
+// emitUserVar is the seam the agreement test reads. Production writes the OSC;
+// a test swaps it to capture the payload the code actually emits, rather than
+// re-deriving one and comparing it to itself.
+var emitUserVar = writeUserVar
+
 func writeUserVar(encoded string) {
 	tty, err := os.OpenFile("/dev/tty", os.O_WRONLY, 0)
 	if err != nil {

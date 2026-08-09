@@ -1,9 +1,11 @@
 package agentstate
 
 import (
+	"encoding/base64"
 	"encoding/json"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"testing"
 
@@ -223,5 +225,77 @@ func TestPaneDirFallsBackToHomeLocalState(t *testing.T) {
 	t.Setenv("XDG_STATE_HOME", "/state/")
 	if got := paths.AgentPanes(); got != "/state/agents/panes" {
 		t.Fatalf("AgentPanes() kept a trailing slash: %q", got)
+	}
+}
+
+// TestBothEncodingsAgree pins the property SCHEMA.md states: the OSC user
+// variable and the JSON record are rendered from one value, so the four fields
+// they share cannot disagree.
+//
+// It reads the payload the code emits through the emitUserVar seam rather than
+// building one from the same inputs, which would compare a derivation to
+// itself.
+func TestBothEncodingsAgree(t *testing.T) {
+	dir := t.TempDir()
+	t.Setenv("XDG_STATE_HOME", dir)
+	t.Setenv("SYSINIT_PATHS_MANIFEST", filepath.Join(dir, "absent.json"))
+	t.Setenv("WEZTERM_PANE", "7")
+
+	var captured string
+	original := emitUserVar
+	emitUserVar = func(encoded string) { captured = encoded }
+	t.Cleanup(func() { emitUserVar = original })
+
+	if code := Run([]string{"claude", "working", "a reason with | a pipe"}); code != 0 {
+		t.Fatalf("Run returned %d", code)
+	}
+	if captured == "" {
+		t.Fatal("no user variable was emitted")
+	}
+
+	raw, err := base64.StdEncoding.DecodeString(captured)
+	if err != nil {
+		t.Fatalf("user variable is not base64: %v", err)
+	}
+	parts := strings.Split(string(raw), "|")
+	if len(parts) != 4 {
+		t.Fatalf("user variable has %d fields, want 4: %q", len(parts), raw)
+	}
+
+	body, err := os.ReadFile(filepath.Join(dir, "agents", "panes", "7.json"))
+	if err != nil {
+		t.Fatalf("read record: %v", err)
+	}
+	var record struct {
+		Version int    `json:"version"`
+		Agent   string `json:"agent"`
+		Status  string `json:"status"`
+		Reason  string `json:"reason"`
+		Since   int64  `json:"since"`
+	}
+	if err := json.Unmarshal(body, &record); err != nil {
+		t.Fatalf("record is not JSON: %v", err)
+	}
+
+	if record.Version != SchemaVersion {
+		t.Errorf("record version = %d, want %d", record.Version, SchemaVersion)
+	}
+	if parts[0] != record.Status {
+		t.Errorf("status: user var %q, record %q", parts[0], record.Status)
+	}
+	if parts[1] != record.Reason {
+		t.Errorf("reason: user var %q, record %q", parts[1], record.Reason)
+	}
+	if parts[2] != strconv.FormatInt(record.Since, 10) {
+		t.Errorf("since: user var %q, record %d", parts[2], record.Since)
+	}
+	if parts[3] != record.Agent {
+		t.Errorf("agent: user var %q, record %q", parts[3], record.Agent)
+	}
+
+	// The pipe rule is what makes the four-field split safe. Without it this
+	// reason would have produced five fields above.
+	if strings.Contains(record.Reason, "|") {
+		t.Errorf("reason kept a pipe: %q", record.Reason)
 	}
 }

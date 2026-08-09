@@ -39,7 +39,6 @@ func manifestFile() string {
 	return filepath.Join(fallbackStateHome(), "sysinit", "paths.json")
 }
 
-//
 // The one default in this package, reached only when the manifest is absent.
 // Phase 9 builds a box with `go install` and no Nix, and until the manifest is
 // installed there a consumer with no default cannot resolve a path at all.

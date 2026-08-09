@@ -1,9 +1,9 @@
 version: 1
 change: make-sysinit-composable
 decision: approved
-note: 'Phase 4.5: registry verified site by site and by a throwaway harness.'
-change_hash: 97bbef2b20f449ea
-base_commit: 5e71fe50189409726bbdecf6512fb1acb64864ed
+note: 'Phase 4.6: pane record schema, version, and an agreement test.'
+change_hash: 7b1a299810a23686
+base_commit: 9c1855319473d0e84e9afb2c8f96776598533e78
 items:
     0cd74be6febf08e9:
         hash: 7262630e5226087a

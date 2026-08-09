@@ -6,6 +6,7 @@ agent_busy_panes() {
   local state_dir
   # sysinit:documented-default
   state_dir=$(sysinit_path agentPanes) || state_dir="${XDG_STATE_HOME:-$HOME/.local/state}/agents/panes"
+  # Reads the pane records. Schema: pkgs/sysinit-agent/internal/agentstate/SCHEMA.md.
   local busy=0 f pane st ag sess
 
   [ -d "$state_dir" ] || return 0

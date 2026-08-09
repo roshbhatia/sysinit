@@ -291,6 +291,8 @@ function M.setup(config)
     return repo or "", cwd or ""
   end
 
+  -- Reads the pane record file for `branch` and `dirty`, which the OSC user
+  -- variable does not carry. Schema: pkgs/sysinit-agent/internal/agentstate/SCHEMA.md.
   local function read_pane_git(pane_id)
     local path = utils.state_path("agentPanes", "agents/panes") .. "/" .. tostring(pane_id) .. ".json"
     local f = io.open(path, "r")
@@ -326,6 +328,10 @@ function M.setup(config)
     return full_cwd
   end
 
+  -- Reads the OSC user variable, which wezterm has already base64-decoded,
+  -- and falls back to the agent-deck plugin. Schema: pkgs/sysinit-agent/internal/agentstate/SCHEMA.md.
+  -- The variable is authoritative here because it is live and dies with the
+  -- pane, so it needs no liveness rule.
   local function pane_agent_state(p, deck_states)
     local status, reason, since, agent
     local uv = p:get_user_vars()

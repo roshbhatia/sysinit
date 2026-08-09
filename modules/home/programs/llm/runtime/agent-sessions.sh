@@ -1,6 +1,9 @@
 # sysinit:documented-default
 state_dir=$(sysinit_path agents) || state_dir="${XDG_STATE_HOME:-$HOME/.local/state}/agents"
-panes_dir="$state_dir/panes"
+# The pane records. Their schema is pkgs/sysinit-agent/internal/agentstate/SCHEMA.md.
+# This reads the file rather than the OSC user variable, because it runs
+# outside the pane and the variable is pane-scoped.
+panes_dir=$(sysinit_path agentPanes) || panes_dir="$state_dir/panes"
 selected_file="$state_dir/selected.json"
 cache_file="$state_dir/sessions.json"
 lock_dir="$state_dir/sessions.lock"
