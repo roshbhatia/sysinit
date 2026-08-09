@@ -1670,10 +1670,38 @@ words: the defect was never the pane, it was an agent opening one.
 
       `version` stays 1. The rule written on `SchemaVersion` is that an added field
       never bumps it, because every reader looks fields up by name.
-- [ ] 4.8 Act: delete the dead `utils` specialArg from all thirteen sites, nine
+- [x] 4.8 Act: delete the dead `utils` specialArg from all thirteen sites, nine
       threaded and four forwarding into `extraSpecialArgs`, plus `mkUtils` in
       `templates/discrete/flake.nix:53`, which is a published flake output, and the
       unused `sysinit = ../..` arg. `deps:` 4.1
+
+      Done. Thirteen sites removed across `lib/builders.nix`, `lib/builders/darwin.nix`,
+      `lib/builders/nixos.nix`, `lib/builders/pkgs.nix`, `modules/darwin/home-manager.nix`,
+      `modules/nixos/home-manager.nix`, `flake.nix`, and the template. Both
+      `sysinit = ../..` args are gone.
+
+      `modules/lib/default.nix` went with them. It existed only to be what
+      `mkUtils` imported, and its two members are imported directly by their own
+      paths everywhere else. `modules/lib/paths.nix` and `modules/lib/shell.nix`
+      stay.
+
+      The proof that the arg was dead is a bit-identical derivation, not an
+      argument: `darwinConfigurations.lv426` evaluates to
+      `x14favyym5mipc5261c4l09y8wx5csig-darwin-system` both at HEAD, in a detached
+      worktree, and after the deletion.
+
+      `nixosConfigurations.arrakis` cannot be evaluated on this machine, and could
+      not before this task either, confirmed in the same worktree: the pi harness
+      pulls an x86_64-linux derivation through IFD and this is an aarch64-darwin
+      host. Not caused here and not closed here.
+
+      The template's edit does not take effect until its lock advances. It consumes
+      `github:roshbhatia/sysinit` pinned at `354ce92`, which still requires
+      `mkUtils`, so `nix flake check ./templates/discrete` fails against that pin
+      and passes against the local tree with `--override-input sysinit path:$PWD`,
+      which is the check that proves the edit. Every signature change to
+      `buildConfiguration` has had this property. The template is gated by nothing
+      in CI.
 - [ ] 4.9 Adversarial review (`adversarial-review` skill): run deterministic
       lint. Critics are NOT run: the owner directed on 2026-08-08 that the apply
       proceed on deterministic lint alone, so every task in this list reaches the

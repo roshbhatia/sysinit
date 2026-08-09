@@ -10,7 +10,7 @@ let
   nixosBuilder = import ./builders/nixos.nix { inherit lib inputs; };
 in
 {
-  inherit (pkgBuilders) mkPkgs mkUtils mkOverlays;
+  inherit (pkgBuilders) mkPkgs mkOverlays;
 
   buildConfiguration =
     {
@@ -20,7 +20,6 @@ in
       onepassword-shell-plugins,
       nix-gaming ? null,
       mkPkgs,
-      mkUtils,
       mkOverlays,
     }:
     {
@@ -33,10 +32,6 @@ in
         inherit (hostConfig) system;
         inherit overlays;
       };
-      utils = mkUtils {
-        inherit (hostConfig) system;
-        inherit pkgs;
-      };
       values = (hostConfig.values or { }) // {
         inherit hostname;
         user.username = hostConfig.username;
@@ -48,7 +43,6 @@ in
           hostConfig
           hostname
           pkgs
-          utils
           values
           ;
       };

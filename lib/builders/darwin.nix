@@ -12,7 +12,6 @@
       hostConfig,
       hostname,
       pkgs,
-      utils,
       values,
     }:
     darwin.lib.darwinSystem {
@@ -21,16 +20,14 @@
         inherit
           inputs
           values
-          utils
           pkgs
           ;
         inherit (hostConfig) system;
-        sysinit = ../..;
       };
       modules = [
         {
           _module.args = {
-            inherit utils hostname;
+            inherit hostname;
           };
           nixpkgs.pkgs = lib.mkDefault pkgs;
         }
@@ -53,7 +50,6 @@
           inherit
             lib
             values
-            utils
             pkgs
             inputs
             ;
@@ -61,7 +57,6 @@
         home-manager.darwinModules.home-manager
         stylix.darwinModules.stylix
         {
-          _module.args.utils = utils;
           home-manager.sharedModules = [
             onepassword-shell-plugins.hmModules.default
           ];

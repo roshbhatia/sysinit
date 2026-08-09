@@ -11,7 +11,6 @@
       hostConfig,
       hostname,
       pkgs,
-      utils,
       values,
     }:
     lib.nixosSystem {
@@ -21,7 +20,6 @@
           inputs
           values
           ;
-        sysinit = ../..;
       };
       modules = [
         {
@@ -47,7 +45,6 @@
           inherit
             values
             inputs
-            utils
             stylix
             ;
           inherit pkgs;

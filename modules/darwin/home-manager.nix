@@ -1,6 +1,5 @@
 {
   values,
-  utils,
   inputs ? { },
   ...
 }:
@@ -11,7 +10,7 @@
     useUserPackages = true;
     backupFileExtension = "backup";
     extraSpecialArgs = {
-      inherit utils values inputs;
+      inherit values inputs;
     };
 
     users.${values.user.username} =

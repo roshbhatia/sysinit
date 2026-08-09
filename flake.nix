@@ -120,7 +120,7 @@
           onepassword-shell-plugins
           nix-gaming
           ;
-        inherit (builders) mkPkgs mkUtils mkOverlays;
+        inherit (builders) mkPkgs mkOverlays;
       };
 
       cacheSystems = [

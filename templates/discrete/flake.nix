@@ -50,7 +50,7 @@
           stylix
           onepassword-shell-plugins
           ;
-        inherit (builders) mkPkgs mkUtils;
+        inherit (builders) mkPkgs;
         mkOverlays = mkHostOverlays;
       };
 
