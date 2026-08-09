@@ -43,6 +43,22 @@
       at `:51` runs on all three matrix cells. So no local builder is needed once
       this task adds the job. The job is new work, not an existing thing to point
       at.
+      Put it in its own workflow, `.github/workflows/closure-baseline.yml`, on
+      `workflow_dispatch` alone, with both hosts as a matrix. Do NOT add it to
+      `check.yml`. An earlier implementation put the steps in the `verify` job and
+      that was wrong in a way worth recording, because the reasoning for it was
+      superficially good: `check.yml` deliberately carries no path filter, so it
+      sees every change. But `verify` is the required check on main, and
+      `update-sources.yml:5` opens a `nix flake update` PR on a six-hourly cron.
+      Every such PR moves thousands of derivation paths, so none of them could
+      ever go green, and `auto-merge-dependabot.yml:23-26` records that its
+      `--auto` needs `verify` required on main. The gate would have stopped the
+      repository's dependency automation for eleven phases. It would also have
+      made every intermediate commit of a multi-task phase red by construction,
+      since phase 2 re-records only at 2.12. A change-scoped gate does not belong
+      in a permanent required check. `workflow_dispatch` is what these gates
+      actually are: per phase and owner-invoked, run with
+      `gh workflow run closure-baseline.yml` at a phase boundary.
       Every gate that evaluates for `x86_64-linux` splits the same way, Darwin
       locally and Linux in CI: 2.12, 3.14, 6.5, 9.9, 10.12, and 11.1, plus 6.6,
       and 7.3, whose whole-closure form spans both hosts and is the only form
@@ -66,9 +82,19 @@
       measured here at 7441 derivations and 3278 distinct names in 9.9 seconds for
       `lv426`, materializing nothing. It answers the question these gates actually
       ask, which package appeared or disappeared, and it beats `diff-closures` on
-      three counts. It is order-insensitive, because a set of paths has no order
-      and a reordering rewrite moves only the root, which the comparison excludes;
-      that is the property 9.9 switched to `diff-closures` to get. It covers
+      two counts. It is NOT order-insensitive, and an earlier draft claimed it
+      was on the reasoning that a set of paths has no order. The set has no
+      order, but its membership changes, because a `buildEnv`'s own derivation is
+      computed from the order of its `paths` and input-addressed hashes propagate
+      upward. Verified: two graphs differing only in `paths = [hello jq]` versus
+      `[jq hello]` hold 572 derivations each and differ on two, the root and the
+      `-env.drv`, so excluding the root leaves the other. That node is interior
+      in the real graph, not the root, which is why the class is present: 20
+      `-env.drv` entries for `lv426` and 70 for `arrakis`. So order preservation
+      is a requirement on 6.2 and 9.4 rather than a nicety, stated in both. What
+      the set does buy over a bare hash is a readable failure: only `-env.drv`
+      nodes moving is a reorder, a missing package is a dropped module, and a
+      hash cannot tell those apart. It covers
       build-time dependencies, which `diff-closures` cannot see. And it needs no
       GC root, so nothing in this change pins a closure. The cost is real and
       small: it compares identity, not size, so a package that changed size
@@ -134,9 +160,14 @@
       re-records the baseline as its last step, and states in one line what
       moved and why it was intended. Capture `owner-wezterm-sites.txt` here too,
       which task 2.9 compares against: the literal output of
-      `rg --no-line-number '"wezterm"|wezterm cli'` over
+      `rg --sort path --no-line-number '"wezterm"|wezterm cli'` over
       `modules/home/programs/neovim/config` with `-g '!**/doc/**'`, minus the four
-      lines phase 2 removes. Run it without line numbers. 2.8 deletes 41 lines
+      lines phase 2 removes. Run it without line numbers, and with `--sort path`,
+      which is load-bearing rather than tidy. `rg` walks files in parallel and
+      does not order its output otherwise: five consecutive runs of the unsorted
+      command here produced five different checksums, so 2.9 would compare a
+      committed file against a differently ordered live capture and fail on every
+      correct implementation. Both sides must use the same command. 2.8 deletes 41 lines
       above `wezterm_terminal.lua:100`, which shifts five surviving sites in that
       file, so a positional artifact fails on a correct implementation. The set is
       `path:matched-text` pairs. 31 lines today, minus 1 for `doc/`, minus 4 for
@@ -1285,8 +1316,11 @@ words: the defect was never the pane, it was an agent opening one.
       manifest is the source. Preserve the current element order in the derived
       list. `home.packages` reaches `buildEnv`, whose `drvPath` changes when
       identical paths are reordered, so a re-ordering rewrite churns every host
-      hash for no content change. 9.9 uses a set-based instrument for that reason
-      and does not depend on this, but a stable order keeps the hashes readable.
+      hash for no content change. 9.9 depends on this rather than being immune to
+      it, which an earlier draft had backwards: the derivation-path set carries
+      each `buildEnv`'s own derivation as an interior entry, and that entry's
+      hash is computed from the order of its `paths`. So a reordering rewrite
+      fails 9.9 on a correct implementation. Preserve element order.
       `deps:` 9.1, 6.2
 - [ ] 9.5 Act: generate `bootstrap/mise.toml` from the same manifest, with a
       pre-commit assertion that the checked-in file matches. `deps:` 9.1
@@ -1317,8 +1351,11 @@ words: the defect was never the pane, it was an agent opening one.
       packages, and the gate fails first on a correct implementation. Task 8.1
       carries a smaller version of the same risk depending on whether `mkHome`
       shares the darwin specialArg plumbing or sits beside it, which 8.1 does not
-      say. A derivation-path set has no order, so it is blind to a reordering and
-      still catches a dropped package, and 2.12, 3.14, and 10.12 already use it.
+      say. The set is not blind to a reordering, so 9.4 must preserve element
+      order and says so; what the set adds over a hash is that it names which
+      derivations moved, so a reorder reads as `-env.drv` entries changing while
+      a dropped package reads as an entry disappearing. 2.12, 3.14, and 10.12
+      already use it.
       The `lv426` half runs locally and the `arrakis` half runs in the CI job 1.1
       adds.
       This closes a three-phase hole. The temporal comparison tasks are 6.5, which
@@ -1716,8 +1753,19 @@ the named task and re-running the gate, not re-entering the phase.
       contract after this change are the note file and its derived export, and
       `review` as the reader. Add them rather than leaving a change that ships
       behavior no spec describes. `deps:` 11.1
-- [ ] 11.3 Act: open the follow-on change `decompose-wezterm-ui`, which
-      design.md section 8 sequences after this one. `deps:` 11.2
-- [ ] 11.4 Adversarial review (`adversarial-review` skill): run deterministic
+- [ ] 11.3 Act: remove the gate scaffolding in the same commit that archives
+      the change. Delete `.github/workflows/closure-baseline.yml`,
+      `hack/host-baseline.sh`, and `openspec/changes/make-sysinit-composable/baseline/`.
+      This is its own task because nothing else closes the loop: archiving moves
+      the change directory under `openspec/changes/archive/`, and the workflow
+      diffs against paths inside it, so the job breaks on the archive commit.
+      Same commit, not a follow-up, or there is a window where the workflow points
+      at a path that no longer exists. 11.1 is the last consumer of the baseline,
+      which is why this depends on it rather than running earlier. Keep
+      `hack/host-baseline.sh` only if something outside this change has adopted
+      it by then; check before deleting. `deps:` 11.2
+- [ ] 11.4 Act: open the follow-on change `decompose-wezterm-ui`, which
+      design.md section 8 sequences after this one. `deps:` 11.3
+- [ ] 11.5 Adversarial review (`adversarial-review` skill): run deterministic
       lint; run critics on the whole diff, asking what a profile smaller than
-      `workstation` silently loses that nothing asserts. `deps:` 11.2
+      `workstation` silently loses that nothing asserts. `deps:` 11.4

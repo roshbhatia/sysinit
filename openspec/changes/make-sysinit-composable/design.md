@@ -321,9 +321,12 @@ closures in one store. The `lv426` system closure measures 17.5 GiB, and
 machine they are a 35 GiB hold across eleven phases for a comparison that never
 needed the bytes. `nix derivation show -r` answers the same question by pure
 evaluation, measured at 7441 derivations in 9.9 seconds for `lv426`. Comparing
-the set of derivation paths with the root excluded is order-insensitive, which
-is the property that pushed the gate to `diff-closures` in the first place, and
-it sees build-time dependencies that `diff-closures` cannot. It trades size for
+the set of derivation paths with the root excluded is not order-insensitive,
+which an earlier draft claimed: a `buildEnv`'s own derivation is interior and is
+computed from the order of its `paths`. Order preservation is therefore a
+requirement on tasks 6.2 and 9.4. What the set buys over a bare hash is a
+readable failure, since it names which derivations moved, and it sees build-time
+dependencies that `diff-closures` cannot. It trades size for
 identity, so task 6.6 keeps `nix path-info -S` where a number is the point.
 
 Two costs are accepted rather than solved. A gate in CI cannot be run before

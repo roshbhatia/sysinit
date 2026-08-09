@@ -4,14 +4,35 @@
 # derivation paths its graph reaches with the root removed.
 #
 # Both are pure evaluation. Nothing is realized, so this runs on a CI runner
-# that cannot hold a host closure: lv426 measures 17.5 GiB and a runner has
-# roughly 14 GB free (see .github/workflows/check.yml).
+# that cannot hold a host closure: lv426 measures 17.5 GiB today and a runner
+# has roughly 14 GB free. .github/workflows/check.yml says 17.9 GiB, measured
+# earlier; the closure moved, the conclusion did not.
 #
-# The root is removed because it is the one derivation a reordering rewrite
-# moves. `buildEnv` with [hello jq] and with [jq hello] installs the same
-# packages and yields different root hashes, so a gate that kept the root would
-# fail on a correct implementation. Every other path in the graph is unchanged
-# by order, which makes the remaining set the thing worth comparing.
+# The root is removed from the set because `<host>.drvpath` already records it,
+# so keeping it in both files would report one difference twice.
+#
+# The set is NOT order-insensitive, and an earlier version of this comment
+# claimed it was. Reordering a `buildEnv`'s `paths` moves that buildEnv's own
+# derivation, which is an interior node, and every ancestor between it and the
+# root, because input-addressed hashes propagate upward. Verified: two graphs
+# differing only in `paths = [hello jq]` versus `[jq hello]` hold 572
+# derivations each and differ on two, the root and the `-env.drv`. Removing the
+# root leaves the other. The real graph carries the class: 20 `-env.drv` nodes
+# for lv426 and 70 for arrakis.
+#
+# So a reorder reports a difference here, and callers must preserve order rather
+# than rely on this being blind to it. The set still beats a bare drvPath
+# comparison, because it names which derivations moved: only `-env.drv` nodes
+# moving is a reorder, a missing package is a dropped module, and a hash cannot
+# tell those apart.
+#
+# One blind spot follows from excluding the root: a change confined to the
+# root's own env is invisible here, and `<host>.drvpath` is what covers it. That
+# split is safe for these hosts because nothing a dropped module does stays in
+# the root. `system-path.drv`, `home-manager-path.drv`, and
+# `activation-script.drv` are all interior and all present in both baselines, so
+# a package leaving `environment.systemPackages` or `home.packages` moves an
+# entry in the set, not only the root.
 
 set -euo pipefail
 
@@ -61,8 +82,14 @@ if len(kept) != len(graph) - 1:
     )
     sys.exit(1)
 
+# Emit basenames. This map is already keyed that way on Determinate Nix 3.17.3,
+# so today this is identity. Normalizing rather than asserting is deliberate: it
+# makes the output form independent of how Nix keys the map, so a future version
+# that keys by absolute path produces the same file instead of prefixing all
+# 7440 lines at once and failing the gate with a diff that reads as total drift.
+# Root matching above normalizes the same way, so both ends absorb the change.
 for path in kept:
-    print(path)
+    print(os.path.basename(path))
 ' "${drvpath}" > "${OUTDIR}/${HOST}.drvset"
 
 # Attribute path first, because the two hosts take different ones and a hash
