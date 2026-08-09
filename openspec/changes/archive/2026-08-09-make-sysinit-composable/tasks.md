@@ -2251,6 +2251,15 @@ words: the defect was never the pane, it was an agent opening one.
       cannot, on the same pre-existing IFD as `arrakis`, where the pi harness
       pulls an x86_64-linux derivation. All four Linux cells build in the `home`
       job added to `closure-baseline.yml`.
+      Closed at archive time against a specific run rather than a remembered
+      one, because the run this claim first rested on had FAILED. Run
+      31340960048 at `4dec25a35` is green in all six cells: two `minimal` Linux,
+      two `dev` Linux, and both Darwin. The earlier failure was
+      `agentstate_test.go` producing a dead pid from `/usr/bin/true`, which
+      exists on darwin and does not exist in a Linux nix sandbox, so the two
+      `dev` Linux cells failed while `minimal` passed because `minimal` excludes
+      `sysinit-agent`. Commit `4dec25a35` fixes it. The `home` job survives the
+      archive as `.github/workflows/home-configurations.yml`, per 11.3.
       Correction to this task's own arithmetic: the split is two Darwin cells
       and four Linux, not three and three. `cacheSystems` holds one Darwin
       system and two Linux ones, crossed with two profiles.
@@ -3054,6 +3063,16 @@ the named task and re-running the gate, not re-entering the phase.
       file in the tree is the current value rather than a phase 2 one. 11.3
       deletes the whole directory on archive, and recording it first is still
       correct: the evidence for this task has to exist in the history it cites.
+
+      That same run recorded `lv426` on a GitHub `macos-latest` runner, and it
+      matches the file recorded on the owner's machine EXACTLY: the same drvPath,
+      `6jlmprn89g1i...`, and a zero-line diff over all 9,728 entries. This was
+      not asked for and is the strongest single result in the phase. Every gate
+      in this change from 1.1 onward assumes a derivation graph is a property of
+      the flake rather than of the machine that evaluated it, and until now
+      nothing tested that assumption: `lv426` had only ever been recorded on one
+      machine. Two independent macOS machines agreeing to the byte is what makes
+      the eleven phases of comparison mean what they were read as meaning.
 - [x] 11.2 Act: write the spec deltas this change owes. `agent-state-emission`
       keeps its OSC requirement because 2.2 reverses the deletion, so that one
       needs no delta. The behaviors with no spec today and a spec-worthy
@@ -3079,7 +3098,7 @@ the named task and re-running the gate, not re-entering the phase.
       per-agent-pane read. Shipping without it would have left an implementation
       that contradicts a spec in the repository, which is the failure this task
       exists to prevent, one requirement over from where it looked.
-- [ ] 11.3 Act: remove the gate scaffolding in the same commit that archives
+- [x] 11.3 Act: remove the gate scaffolding in the same commit that archives
       the change. Delete `.github/workflows/closure-baseline.yml`,
       `hack/host-baseline.sh`, and `openspec/changes/make-sysinit-composable/baseline/`.
       This is its own task because nothing else closes the loop: archiving moves
