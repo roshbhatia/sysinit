@@ -18,6 +18,21 @@
 # no-drift gate unreadable.
 let
   profiles = import ../shared/profile-tiers.nix { inherit lib; };
+
+  # The `minimal` group, read from `bootstrap/tools.toml` rather than written
+  # here. That file is the profile's own manifest and the non-Nix bootstrap
+  # reads the same entries, so there is one list rather than two that drift.
+  # design.md section 6 has the reasoning.
+  #
+  # Order is preserved element for element, because `home.packages` reaches
+  # `buildEnv`, whose derivation hash is computed from the order of its `paths`.
+  # A derived list in a different order installs the same packages and rewrites
+  # every host hash, which is what task 9.9 fails on.
+  #
+  # `fromTOML` on the file contents rather than an import: a TOML file is not a
+  # nix expression and `import` would try to parse it as one.
+  manifest = builtins.fromTOML (builtins.readFile ../../bootstrap/tools.toml);
+  minimalPackages = map (entry: pkgs.${entry.nix}) manifest.tool;
 in
 {
   home.packages =
@@ -25,51 +40,7 @@ in
     profiles.forProfile profile {
       # What a box reached over ssh needs to be usable at all: the core CLI and
       # git. Nothing here is a toolchain.
-      minimal = [
-        coreutils
-        curl
-        wget
-        findutils
-        gettext
-        gnugrep
-        gnused
-        gnumake
-        pkg-config
-        which
-        tree
-        unzip
-        zip
-        watch
-        socat
-        sshpass
-        openssh
-        gnupg
-        bat
-        eza
-        fd
-        ripgrep
-        jq
-        jqp
-        yq-go
-        lychee
-        monolith
-        duf
-        htop
-        glow
-        go-grip
-        tokei
-        scc
-        chafa
-        imagemagick
-        _1password-cli
-
-        git
-        gh
-        delta
-        git-crypt
-        git-filter-repo
-        libgit2
-      ];
+      minimal = minimalPackages;
 
       # Toolchains, language servers, and the infrastructure tools. This is the
       # bulk of the list and the tier that makes a box worth developing on.

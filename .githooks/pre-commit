@@ -40,6 +40,13 @@ if ! "$repo_root/hack/check-wezterm-chords.sh"; then
   status=1
 fi
 
+# `bootstrap/mise.toml` is derived from `bootstrap/tools.toml`. It is checked in
+# so the bootstrap can read it on a box with no python, which means it can also
+# be edited by hand or left behind when the manifest moves.
+if ! "$repo_root/bootstrap/gen-mise-toml.sh" --check; then
+  status=1
+fi
+
 command -v citelock > /dev/null 2>&1 || exit "$status"
 while IFS= read -r lock; do
   [[ -z ${lock} ]] && continue

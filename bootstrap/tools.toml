@@ -1,0 +1,242 @@
+# The `minimal` profile, named once.
+#
+# This is not a second list derived from the Nix one. It IS the `minimal`
+# profile's manifest, and both readers go through it:
+#
+#   modules/home/packages.nix    reads `nix` to build the `minimal` group
+#   bootstrap/mise.toml          generated from `mise`, checked by pre-commit
+#
+# design.md section 6 has the reasoning: what an ephemeral agent box needs and
+# what the smallest useful profile holds are the same list, so there is one list
+# rather than two that drift.
+#
+# ORDER IS LOAD-BEARING. `home.packages` reaches `buildEnv`, whose derivation
+# hash is computed from the order of its `paths`, confirmed by swapping two
+# entries and watching `home-manager-path` move. The entries below are in the
+# exact order the literal list held before task 9.4 replaced it, so the derived
+# list produces the same derivation. A reordering edit here rewrites every host
+# hash while installing the same packages.
+#
+# EACH ENTRY HAS EXACTLY ONE SOURCE FIELD:
+#
+#   mise = "<id>"    mise installs it. Every id here was taken from
+#                    `mise registry` rather than guessed.
+#   system = "<pkg>" the distribution provides it. Debian and Ubuntu package
+#                    names, since that is what `verify-container.sh` runs.
+#   none = "<why>"   no non-Nix installation path. The tool is dropped from the
+#                    ephemeral box, which is the outcome this phase's TERMINAL
+#                    clause asks for by name rather than a silent omission.
+
+# ---------------------------------------------------------------- core unix
+
+[[tool]]
+nix = "coreutils"
+system = "coreutils"
+
+[[tool]]
+nix = "curl"
+system = "curl"
+
+[[tool]]
+nix = "wget"
+system = "wget"
+
+[[tool]]
+nix = "findutils"
+system = "findutils"
+
+[[tool]]
+nix = "gettext"
+system = "gettext"
+
+[[tool]]
+nix = "gnugrep"
+system = "grep"
+
+[[tool]]
+nix = "gnused"
+system = "sed"
+
+[[tool]]
+nix = "gnumake"
+system = "make"
+
+[[tool]]
+nix = "pkg-config"
+system = "pkg-config"
+
+[[tool]]
+nix = "which"
+system = "debianutils"
+
+[[tool]]
+nix = "tree"
+system = "tree"
+
+[[tool]]
+nix = "unzip"
+system = "unzip"
+
+[[tool]]
+nix = "zip"
+system = "zip"
+
+[[tool]]
+nix = "watch"
+system = "procps"
+
+[[tool]]
+nix = "socat"
+system = "socat"
+
+[[tool]]
+nix = "sshpass"
+system = "sshpass"
+
+[[tool]]
+nix = "openssh"
+system = "openssh-client"
+
+[[tool]]
+nix = "gnupg"
+system = "gnupg"
+
+[[tool]]
+nix = "bat"
+mise = "aqua:sharkdp/bat"
+
+[[tool]]
+nix = "eza"
+mise = "ubi:eza-community/eza"
+
+[[tool]]
+nix = "fd"
+mise = "aqua:sharkdp/fd"
+
+[[tool]]
+nix = "ripgrep"
+mise = "aqua:BurntSushi/ripgrep"
+
+[[tool]]
+nix = "jq"
+mise = "aqua:jqlang/jq"
+
+[[tool]]
+nix = "jqp"
+mise = "aqua:noahgorstein/jqp"
+
+[[tool]]
+nix = "yq-go"
+mise = "aqua:mikefarah/yq"
+
+[[tool]]
+nix = "lychee"
+mise = "aqua:lycheeverse/lychee"
+
+# Bundles a page and its assets into one HTML file. Not in Debian, and its only
+# release channel is cargo, which would pull a rust toolchain onto a box whose
+# whole point is not having one.
+[[tool]]
+nix = "monolith"
+none = "no release binary and no distribution package"
+
+[[tool]]
+nix = "duf"
+mise = "aqua:muesli/duf"
+
+[[tool]]
+nix = "htop"
+system = "htop"
+
+[[tool]]
+nix = "glow"
+mise = "aqua:charmbracelet/glow"
+
+[[tool]]
+nix = "go-grip"
+none = "installs through `go install` only, which the bootstrap does for sysinit-agent alone"
+
+# Dropped from the ephemeral set, which is the outcome this phase's TERMINAL
+# clause asks to be named rather than hidden. `mise registry` lists three
+# backends for it and the container gate refused all three: aqua routes it
+# through cargo, which the aqua backend does not support; ubi finds no release
+# asset for linux-arm64; and cargo would pull a rust toolchain onto a box whose
+# point is not having one. `scc`, two entries down, counts code on the same box.
+[[tool]]
+nix = "tokei"
+none = "no arm64 release asset, and every mise backend for it routes through cargo"
+
+[[tool]]
+nix = "scc"
+mise = "ubi:boyter/scc"
+
+[[tool]]
+nix = "chafa"
+system = "chafa"
+
+[[tool]]
+nix = "imagemagick"
+system = "imagemagick"
+
+# The desktop app pairs with it and neither belongs on an ephemeral box. Its
+# Debian package also comes from 1Password's own apt repository, which means
+# trusting a third-party key for a tool this box has no secrets for.
+[[tool]]
+nix = "_1password-cli"
+none = "vendor apt repository only, and an ephemeral box holds no vault"
+
+# ---------------------------------------------------------------------- git
+
+[[tool]]
+nix = "git"
+system = "git"
+
+[[tool]]
+nix = "gh"
+mise = "aqua:cli/cli"
+
+[[tool]]
+nix = "delta"
+mise = "aqua:dandavison/delta"
+
+[[tool]]
+nix = "git-crypt"
+system = "git-crypt"
+
+[[tool]]
+nix = "git-filter-repo"
+system = "git-filter-repo"
+
+[[tool]]
+nix = "libgit2"
+system = "libgit2-dev"
+
+# --------------------------------------------------- beyond the package list
+
+# Three things the Nix side installs through `modules/home/programs/` rather
+# than through `packages.nix`. They are `[[program]]` and not `[[tool]]`, so
+# task 9.4's reader does not see them and the `minimal` package group stays
+# exactly the list above.
+#
+# They are in this file anyway, because this file is where the ephemeral set is
+# written down and a second file holding three lines is the drift this phase
+# exists to remove.
+
+[[program]]
+name = "zsh"
+system = "zsh"
+
+# `dev` tier under Nix, where a `minimal` box gets helix instead. The bootstrap
+# installs it regardless: design.md section 7 keeps the neovim config in this
+# repository and has `bootstrap.sh` sparse-check it out, and this phase's STOP
+# gate asserts `nvim --headless +qa` exits 0.
+[[program]]
+name = "neovim"
+mise = "aqua:neovim/neovim"
+
+# Not an editor tool but the compiler the bootstrap needs: `sysinit-agent` is
+# installed with `go install`, since it is this repository's own binary and has
+# no release channel.
+[[program]]
+name = "go"
+mise = "core:go"

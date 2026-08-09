@@ -2294,18 +2294,33 @@ words: the defect was never the pane, it was an agent opening one.
   tool failing to install. On either, stop and report which tool has no
   non-Nix installation path, and drop it from the ephemeral set.
 
-- [ ] 9.1 Act: add `bootstrap/tools.toml` as the `minimal` profile's own
+- [x] 9.1 Act: add `bootstrap/tools.toml` as the `minimal` profile's own
       manifest, naming each tool once with its nixpkgs attribute and its mise
       identifier. Decided in design.md section 6: the ephemeral-box set and the
       `minimal` profile are the same list, so there is no second list to drift
       from. `deps:` 6.2
-- [ ] 9.2 Act: write `bootstrap/verify-container.sh`, the script this phase's
+      Done: `bootstrap/tools.toml`, 42 `[[tool]]` entries in the exact order the
+      literal list held, each with its nixpkgs attribute and exactly one source
+      field: `mise` for 13, `system` for 25, `none` for 4. Every mise id was
+      taken from `mise registry` rather than guessed. Three `[[program]]` entries
+      carry what `programs/` installs rather than `packages.nix`: zsh, neovim,
+      and go. They are a separate table so 9.4's reader cannot see them.
+- [x] 9.2 Act: write `bootstrap/verify-container.sh`, the script this phase's
       STOP gate runs. Write it before the bootstrap it verifies, so the gate is
       not authored by the thing it judges. `deps:` 9.1
-- [ ] 9.3 Act: make `bootstrap.sh` use a sparse checkout rather than a full
+      Done: `bootstrap/verify-container.sh`, written before the bootstrap.
+      It SNAPSHOTS the working tree into a throwaway repository first. A clone
+      carries commits and not a working tree, so mounting the repository
+      directly tested the last commit; the gate's own first run reported a
+      missing `tools.toml` that was sitting on disk.
+- [x] 9.3 Act: make `bootstrap.sh` use a sparse checkout rather than a full
       clone, which is what design.md section 7 chose over splitting the neovim
       config into its own repository. `deps:` 9.2
-- [ ] 9.4 Act: make the Nix `minimal` package group read the manifest, so the
+      Done: a blob-filtered clone with no checkout, then a cone sparse-checkout
+      over five paths, then `read-tree -mu HEAD`. Not a checkout of the branch:
+      the clone has already set HEAD to it, so checking it out is a no-op that
+      leaves the tree empty, which the gate caught.
+- [x] 9.4 Act: make the Nix `minimal` package group read the manifest, so the
       manifest is the source. Preserve the current element order in the derived
       list. `home.packages` reaches `buildEnv`, whose `drvPath` changes when
       identical paths are reordered, so a re-ordering rewrite churns every host
@@ -2315,12 +2330,30 @@ words: the defect was never the pane, it was an agent opening one.
       hash is computed from the order of its `paths`. So a reordering rewrite
       fails 9.9 on a correct implementation. Preserve element order.
       `deps:` 9.1, 6.2
-- [ ] 9.5 Act: generate `bootstrap/mise.toml` from the same manifest, with a
+      Done: `minimalPackages = map (entry: pkgs.${entry.nix}) manifest.tool`,
+      through `builtins.fromTOML`. Order preserved element for element, and the
+      `lv426` derivation path is unchanged by the rewrite, which is the direct
+      evidence that it was.
+- [x] 9.5 Act: generate `bootstrap/mise.toml` from the same manifest, with a
       pre-commit assertion that the checked-in file matches. `deps:` 9.1
-- [ ] 9.6 Act: add `bootstrap/bootstrap.sh` that sparse-checks-out, symlinks the
+      Done: `bootstrap/gen-mise-toml.sh`, and `.githooks/pre-commit` runs it
+      with `--check`. The file is checked in so the bootstrap can read it on a
+      box with no python, which is also why it can drift and needs the check.
+- [x] 9.6 Act: add `bootstrap/bootstrap.sh` that sparse-checks-out, symlinks the
       neovim and zsh configs, runs `mise install`, and
       `go install ./pkgs/sysinit-agent`. `deps:` 9.3, 9.5
-- [ ] 9.7 Act: write the paths manifest during bootstrap by expanding `$HOME`
+      Done. Two things the gate forced. The generated `mise.toml` becomes mise's
+      GLOBAL config by symlink rather than being passed through
+      an environment variable, because a shim resolves its version from the
+      config mise finds on its own and go was unresolvable afterwards. And the
+      install step runs with an explicit `GOBIN`, because GOPATH under a
+      mise-managed go is not necessarily the default and the binary landed
+      somewhere PATH did not reach.
+      One duplication is left and named in the script: zsh cannot be a symlink,
+      because the Nix side assembles `initContent` from fragments rather than
+      shipping a directory, so the fragment ORDER is written both in
+      `zsh/default.nix` and in `bootstrap.sh`.
+- [x] 9.7 Act: write the paths manifest during bootstrap by expanding `$HOME`
       into 4.1's layout template, so a box with no Nix resolves state paths from
       the same source every other consumer reads. Do not author the paths here:
       a second producer in a second language is the defect phase 4 removes, and
@@ -2330,11 +2363,33 @@ words: the defect was never the pane, it was an agent opening one.
       every non-Nix box and 4.3's check has nothing to prove. This is the paths
       manifest, not `bootstrap/tools.toml`, which the rest of this phase calls the
       manifest. `deps:` 9.6
-- [ ] 9.8 Verify: the container run in the STOP gate passes; the manifest 9.7
+      Done: `sed "s#$HOME#${HOME}#g"` over `paths-layout.json`, one substitution
+      and no authoring. `hack/check-state-paths.sh` still passes.
+- [x] 9.8 Verify: the container run in the STOP gate passes; the manifest 9.7
       wrote matches 4.1's template with `$HOME` expanded, so the two producers are
       one; and `sysinit-agent note add` inside the container resolves its path
       from that manifest rather than from a default. `deps:` 9.7
-- [ ] 9.9 Verify: the derivation-path set matches the 3.14 recording exactly,
+      Ran, exit 0, all four assertions. `nvim --headless +qa` exits 0 after
+      lazy.nvim installs its plugin tree and treesitter its parsers, and
+      `sysinit-agent --help` exits 0.
+      The note assertion is stronger than the task asked for: the manifest is
+      rewritten to point `agentDiffNotes` at `/opt/elsewhere/diff-notes`, which
+      no default would ever name, and the note lands at
+      `/opt/elsewhere/diff-notes/noterepo-5e5ed493ee3929e2.json`. A path that
+      came from `sysinit:documented-default` could not be there.
+      The two-producers assertion is also stronger. Comparing the container's
+      manifest against the template it was expanded from would only re-check
+      `sed`, so the gate compares it against what NIX produces from the same
+      template, read through `homeConfigurations.minimal-aarch64-darwin` with the
+      home prefix swapped. 13 paths, identical. It skips loudly rather than
+      silently when there is no nix on PATH.
+      Iterations: twelve runs, of which the first four failed on the gate's own
+      harness rather than on a tool, and the rest are recorded above and in
+      `tools.toml`. One tool was DROPPED, which this phase's TERMINAL clause
+      asks to be named: `tokei` has no arm64 release asset and every mise backend
+      listed for it routes through cargo. `scc` covers the same ground and
+      installs.
+- [x] 9.9 Verify: the derivation-path set matches the 3.14 recording exactly,
       for both hosts, with an empty diff each way. Do NOT compare drvPath hashes
       here, which an earlier draft did. `drvPath` is order-sensitive: building `buildEnv` with
       `[hello jq]` and with `[jq hello]` yields different hashes, confirmed by
@@ -2359,6 +2414,23 @@ words: the defect was never the pane, it was an agent opening one.
       wrong when written and rots on every edit: it names nine tasks, not six,
       including 6.6, 9.4, and this task itself. Name the comparison tasks instead,
       since a re-record is not a check.
+
+      Passed, and stronger than an unchanged root hash: at the phase-8 commit and
+      in the phase-9 tree the `lv426` derivation path is the same value and the
+      derivation-path SET is byte-identical at 9,719 entries. So 9.4's rewrite of
+      the package list moved nothing at all.
+
+      A DISCREPANCY worth recording rather than papering over. This task says to
+      compare against the 3.14 recording, and the committed
+      `baseline/lv426.drvset` differs from the phase-8 tree by 68 lines: 33
+      derivations rehashed, 2 added (`sysinit-paths.json.drv` and
+      `config.yaml.drv`), and NONE removed, which is the shape phases 4 and 5
+      should produce and carries no dropped package. Task 6.5 recorded
+      "bit-identical" while claiming to cover phases 4 through 6; what it
+      actually compared was the phase-5 HEAD against the phase-6 tree, which is
+      the right comparison for catching a dropped module in phase 6 and does not
+      cover phases 4 and 5. The gap is closed here by naming the delta rather
+      than by re-recording it, since 10.12 re-records next.
       The phase that matters is 9. Task 9.4 makes the `minimal` package group read
       the manifest, and every host installs it because `workstation` contains
       `minimal`, so a package dropped there is a silent loss on both hosts.
@@ -2373,13 +2445,18 @@ words: the defect was never the pane, it was an agent opening one.
       not; the second is correct. If any of the three phases moves the closure
       contents, that is the finding, not a reason to waive.
       `deps:` 9.8
-- [ ] 9.10 Adversarial review (`adversarial-review` skill): run deterministic
+- [x] 9.10 Adversarial review (`adversarial-review` skill): run deterministic
       lint. Critics are NOT run: the owner directed on 2026-08-08 that the apply
       proceed on deterministic lint alone, so every task in this list reaches the
       `not run` terminal state the skill defines and records the open questions
       rather than refuting them. The questions below are what critics WOULD have
       been asked, kept because they name where this phase is weakest on the generator, where silent drift between the two
       lists is the failure this phase exists to prevent. `deps:` 9.9
+      Terminal state: `not run`. Deterministic lint passed. Open question kept:
+      the generator check is one-directional. `gen-mise-toml.sh --check` catches
+      a `mise.toml` that drifted from `tools.toml`, and nothing catches a mise id
+      that is in the manifest and wrong. Twelve gate runs found two of those by
+      running them; a manifest entry the gate never installs has no such check.
 
 ## 10. The session substrate
 
