@@ -31,6 +31,7 @@ that lookup forks git and the variable is the half the owner sees.
 | Field | Type | Notes |
 |---|---|---|
 | `version` | number | this schema's version, currently 1 |
+| `mux` | number | the wezterm mux's pid, 0 when unknown. See Liveness |
 | `pane` | number OR string | see below |
 | `session` | string | seshy session name, empty outside one |
 | `repo` | string | repository basename |
@@ -75,15 +76,55 @@ one leaves its last record behind.
 The rule is pane existence, not an age bound. `since` is republished on every
 tool call, so it is a heartbeat only while tool calls happen, and `waiting` and
 `done` are turn-terminal. An age bound would expire the two states the deck
-exists to show, while a long `working` build kept refreshing.
+exists to show, while a long `working` build kept refreshing. It is not the
+writer's pid either: `agent-state` is a one-shot and its pid is dead
+microseconds after it publishes.
 
-Two holes, both real:
+Every reader already answers pane existence, and each read site says so:
 
-- A reader outside wezterm cannot answer the question. There is no such reader
-  today.
-- A reused pane id inherits the previous occupant's record, and pane existence
-  cannot tell the difference. Reached by restarting the terminal, not by an edge
-  case: the state directory outlives the mux and nothing clears it at mux start.
+- `ui.lua` walks the panes it is drawing, so a record it never asks for is a
+  record it never shows.
+- `agent-sessions.sh` forks `wezterm cli list` once per run and prunes against
+  it.
+- `agent-busy-panes.sh` takes the live pane list from its caller and skips any
+  record not in it.
+
+### `mux` is the generation marker
+
+Pane ids restart at 0 in each mux, confirmed by reading `WEZTERM_PANE` in a
+running instance and in two freshly started ones: all three reported pane 0. So
+a pane id alone cannot tell yesterday's record from today's, and pane existence
+answers "is there a pane 0" rather than "is it the same pane 0".
+
+`mux` is the pid of the wezterm mux the pane belongs to, parsed from the
+`gui-sock-<pid>` socket path wezterm sets in every pane. It is 0 outside
+wezterm, when the socket path is shaped differently, and in records written
+before this field existed. A reader treats 0 as "no marker", never as a
+mismatch.
+
+The marker is enforced by deletion rather than at read time. `agent-state`
+removes the records of any mux that is no longer running, once per mux, gated on
+a `.mux-<pid>` marker file so the check costs one stat on the hot path. This is
+the routine trigger, not an edge case: the state directory outlives the mux,
+nothing else clears it, and the first pane of a restarted terminal takes the id
+the last one had.
+
+Doing it by deletion rather than in each reader is what lets `ui.lua` benefit.
+The wezterm GUI process carries neither `WEZTERM_UNIX_SOCKET` nor
+`WEZTERM_PANE`, confirmed with `ps -Eww` on a running GUI, so `ui.lua` cannot
+work out which mux it is and cannot evaluate the marker itself.
+
+Three holes remain, all real:
+
+- A reader outside wezterm cannot answer pane existence. There is no such reader
+  today. A Go reader would have to fork `wezterm cli list`, which is the fork
+  removed in 2.9.
+- Two muxes running at once both hand out low pane ids, so a record from the
+  other live mux is neither stale nor ours. Both muxes are alive, so neither the
+  reap nor pane existence rejects it.
+- The reap runs on the first agent tool call in a new mux. A pane opened in that
+  mux before any agent runs can be drawn once against the previous occupant's
+  record.
 
 ## Readers
 

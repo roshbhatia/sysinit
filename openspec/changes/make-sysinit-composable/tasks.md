@@ -1584,7 +1584,7 @@ words: the defect was never the pane, it was an agent opening one.
       composed path carries no literal to match. It reads the key now, still
       falling back under the one marked default that file already had.
       `deps:` 4.1
-- [ ] 4.7 Act: give the pane record a liveness rule at read time, and do not
+- [x] 4.7 Act: give the pane record a liveness rule at read time, and do not
       make it a time bound. The archived change chose user vars partly because a
       file "reintroduces exactly the stale-entry pruning problem"
       (`archive/2026-07-08-surface-agent-session-state/design.md:49-59`), and
@@ -1629,6 +1629,47 @@ words: the defect was never the pane, it was an agent opening one.
       existence from Go means forking `wezterm cli list`, which is the fork 2.9
       just removed. Carry that constraint into 5.1 rather than leaving it to be
       rediscovered there. `deps:` 4.6
+
+      Done. The rule is pane existence and it is now stated at all three read
+      sites (`ui.lua` `read_pane_git`, `agent-sessions.sh` `pane_is_live`,
+      `agent-busy-panes.sh`), each citing `SCHEMA.md`. All three already
+      satisfied it; none of them said why, which is what let an age bound keep
+      looking reasonable.
+
+      The id recurrence is confirmed by observation, not by argument: `WEZTERM_PANE`
+      read in the running mux and in two independent `--always-new-process`
+      instances reported 0 in all three. Ids are per-mux and restart at 0.
+
+      The mux DOES expose a generation marker, so the state-directory clear is not
+      needed. Every pane carries
+      `WEZTERM_UNIX_SOCKET=.../wezterm/gui-sock-<gui pid>`, and that pid is the
+      mux's. The record now carries it as `mux`. This is not the writer's pid this
+      task rules out: `agent-state` dies microseconds after publishing, the mux
+      outlives every record stamped with it.
+
+      Enforced by deletion, not at read time. `agent-state` reaps the records of
+      any mux that is no longer running, once per mux, gated on a `.mux-<pid>`
+      marker file so the steady-state cost on the hottest path is one stat. Read-
+      time enforcement was rejected because the wezterm GUI process carries neither
+      `WEZTERM_UNIX_SOCKET` nor `WEZTERM_PANE`, confirmed with `ps -Eww` on the
+      running GUI, so `ui.lua` cannot work out its own mux and could never evaluate
+      the marker. Deletion is the one mechanism that covers every reader.
+
+      Socket-file existence is not a liveness signal and is not used as one: a dead
+      mux's socket persists, observed as `gui-sock-73310` still on disk after the
+      4.2 probe's process exited. The reap signals the pid with 0 instead.
+
+      Three holes recorded in `SCHEMA.md` rather than closed: a reader outside
+      wezterm (still vacuous, see 5.1); two live muxes, whose low pane ids collide
+      while both are alive so neither the reap nor pane existence rejects either;
+      and a pane opened in a new mux before that mux's first agent tool call, which
+      can be drawn once against the previous occupant's record.
+
+      Four mutations of the reaper each kill a test: dropping the `mux == 0` guard,
+      the once-per-mux gate, the `.start` removal, and the no-marker early return.
+
+      `version` stays 1. The rule written on `SchemaVersion` is that an added field
+      never bumps it, because every reader looks fields up by name.
 - [ ] 4.8 Act: delete the dead `utils` specialArg from all thirteen sites, nine
       threaded and four forwarding into `extraSpecialArgs`, plus `mkUtils` in
       `templates/discrete/flake.nix:53`, which is a published flake output, and the
@@ -1667,7 +1708,11 @@ words: the defect was never the pane, it was an agent opening one.
       lands the hole 4.7 records as vacuous today: answering pane existence from
       Go means forking `wezterm cli list`, and 2.9 removed exactly that fork.
       Do not reintroduce it. Show the record's own state and mark it unverified
-      when this command cannot answer liveness, rather than guessing.
+      when this command cannot answer liveness, rather than guessing. 4.7 leaves
+      one half answerable without a fork: the record's `mux` field is a pid, so
+      Go can signal it with 0 and rule out a dead mux. That is weaker than pane
+      existence, since a live mux says nothing about one pane in it. Use it to
+      reject, never to confirm.
       `deps:` 3.4, 4.1
 - [ ] 5.2 Act: add a wezterm chord that spawns the viewer in a new pane the
       owner asked for. `deps:` 5.1

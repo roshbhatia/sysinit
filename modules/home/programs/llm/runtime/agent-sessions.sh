@@ -88,6 +88,8 @@ if command -v wezterm > /dev/null 2>&1; then
   [ -n "$live" ] && have_live=1
 fi
 
+# The liveness rule from SCHEMA.md: a record counts while its pane exists. Not an
+# age bound, because `waiting` and `done` are turn-terminal and would expire.
 pane_is_live() {
   [ "$have_live" -eq 0 ] && return 0
   case " $live " in

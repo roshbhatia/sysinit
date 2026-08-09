@@ -293,6 +293,13 @@ function M.setup(config)
 
   -- Reads the pane record file for `branch` and `dirty`, which the OSC user
   -- variable does not carry. Schema: pkgs/sysinit-agent/internal/agentstate/SCHEMA.md.
+  --
+  -- The liveness rule is pane existence, and the caller already satisfies it:
+  -- every id reaching here comes from `tab:panes_with_info()`, so a record whose
+  -- pane is gone is a record nothing asks for. The record's `mux` marker is not
+  -- checked, because the GUI process carries no `WEZTERM_UNIX_SOCKET` and so
+  -- cannot tell which mux it is. `agent-state` deletes dead muxes' records
+  -- instead.
   local function read_pane_git(pane_id)
     local path = utils.state_path("agentPanes", "agents/panes") .. "/" .. tostring(pane_id) .. ".json"
     local f = io.open(path, "r")

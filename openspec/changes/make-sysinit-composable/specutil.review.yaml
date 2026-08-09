@@ -1,9 +1,9 @@
 version: 1
 change: make-sysinit-composable
 decision: approved
-note: 'Phase 4.6: pane record schema, version, and an agreement test.'
-change_hash: 7b1a299810a23686
-base_commit: 9c1855319473d0e84e9afb2c8f96776598533e78
+note: 'Phase 4 through 4.7: pane record carries a mux generation marker; dead-mux records are reaped once per mux; liveness rule stated at all three read sites. Deterministic lint only, critics not run per owner direction.'
+change_hash: 35c0935a2bc0ab79
+base_commit: 09ad880dbc5f00296ea1e2289c6a1382d3b4a030
 items:
     0cd74be6febf08e9:
         hash: 7262630e5226087a
@@ -224,9 +224,9 @@ items:
     cab3120c649009a2:
         hash: 65e84e54e46431dc
         text: 'Act: delete the dead `utils` specialArg from all thirteen sites, nine threaded and four forwarding into `extraSpecialArgs`, plus `mkUtils` in `templates/discrete/flake.nix:53`, which is a published flake output, and the unused `sysinit = ../..` arg.'
-    cc44aa5dc1da3454:
-        hash: 7c25be21e81d2ce5
-        text: 'Act: add `sysinit-agent watch`, which renders a wtrun log, the agent-state bus, or a transcript, and tails it. It reads its paths from the phase 4 manifest. Name the resolution key per source rather than saying it resolves from the current directory, which an earlier draft did and which works for one source of three. The agent-state bus does key by directory, since the record carries `Repo` and `Worktree` (`agentstate.go:36-39`). wtrun keys by pane: `skills/wtrun/wtrun.sh:12-13` sets `session="${WTRUN_SESSION:-pane-${WEZTERM_PANE}}"` and nothing under that directory records a repository, so a viewer spawned into a new pane by 5.2 resolves its own empty directory. The transcript keys by harness session id, per 5.3''s `<harness>/<session>.jsonl`. Take the wtrun name from `WTRUN_SESSION` or an explicit argument, and have 5.3 record the repository next to the session so the transcript is reachable by directory; 5.3 carries that clause in its own body, since an implementer working 5.3 does not read 5.1. The phase is called one viewer, one contract, and the contract is what this task writes down. Reading the agent-state bus makes this the first Go reader of it, which lands the hole 4.7 records as vacuous today: answering pane existence from Go means forking `wezterm cli list`, and 2.9 removed exactly that fork. Do not reintroduce it. Show the record''s own state and mark it unverified when this command cannot answer liveness, rather than guessing.'
+    cc5284e3a9ea73d5:
+        hash: 91e5de86670cab8f
+        text: 'Act: add `sysinit-agent watch`, which renders a wtrun log, the agent-state bus, or a transcript, and tails it. It reads its paths from the phase 4 manifest. Name the resolution key per source rather than saying it resolves from the current directory, which an earlier draft did and which works for one source of three. The agent-state bus does key by directory, since the record carries `Repo` and `Worktree` (`agentstate.go:36-39`). wtrun keys by pane: `skills/wtrun/wtrun.sh:12-13` sets `session="${WTRUN_SESSION:-pane-${WEZTERM_PANE}}"` and nothing under that directory records a repository, so a viewer spawned into a new pane by 5.2 resolves its own empty directory. The transcript keys by harness session id, per 5.3''s `<harness>/<session>.jsonl`. Take the wtrun name from `WTRUN_SESSION` or an explicit argument, and have 5.3 record the repository next to the session so the transcript is reachable by directory; 5.3 carries that clause in its own body, since an implementer working 5.3 does not read 5.1. The phase is called one viewer, one contract, and the contract is what this task writes down. Reading the agent-state bus makes this the first Go reader of it, which lands the hole 4.7 records as vacuous today: answering pane existence from Go means forking `wezterm cli list`, and 2.9 removed exactly that fork. Do not reintroduce it. Show the record''s own state and mark it unverified when this command cannot answer liveness, rather than guessing. 4.7 leaves one half answerable without a fork: the record''s `mux` field is a pid, so Go can signal it with 0 and rule out a dead mux. That is weaker than pane existence, since a live mux says nothing about one pane in it. Use it to reject, never to confirm.'
     cd0ef7342d56e9fd:
         hash: 44a7ff4ac66652bf
         text: 'Act: generate `bootstrap/mise.toml` from the same manifest, with a pre-commit assertion that the checked-in file matches.'

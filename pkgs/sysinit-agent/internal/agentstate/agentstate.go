@@ -20,6 +20,7 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
+	"syscall"
 	"time"
 
 	"github.com/roshbhatia/sysinit/pkgs/sysinit-agent/internal/paths"
@@ -44,6 +45,7 @@ const SchemaVersion = 1
 // states the rules a reader cannot see here.
 type state struct {
 	Version  int    `json:"version"`
+	Mux      int    `json:"mux"`
 	Pane     any    `json:"pane"`
 	Session  string `json:"session"`
 	Repo     string `json:"repo"`
@@ -91,6 +93,7 @@ func Run(args []string) int {
 	// variables, which is the same fact with two owners.
 	record := state{
 		Version: SchemaVersion,
+		Mux:     muxID(),
 		Pane:    paneValue(pane),
 		Agent:   agent,
 		Status:  status,
@@ -108,6 +111,7 @@ func Run(args []string) int {
 	if os.MkdirAll(stateDir, 0o755) != nil {
 		return 0
 	}
+	reapDeadMuxes(stateDir, record.Mux)
 	id := identify(cwd())
 	record.Session = id.session
 	record.Repo = id.repo
@@ -265,6 +269,100 @@ func writeUserVar(encoded string) {
 	}
 	defer tty.Close()
 	fmt.Fprintf(tty, "\033]1337;SetUserVar=agent_state=%s\007", encoded)
+}
+
+// muxID is the pane record's generation marker: the pid of the wezterm mux the
+// pane belongs to, read from the socket path wezterm sets in every pane.
+//
+// Pane ids restart at 0 in each mux, observed by reading WEZTERM_PANE in a
+// running instance and in two freshly started ones, so a pane id alone cannot
+// tell yesterday's record from today's. The mux pid can.
+//
+// This is not the writer's pid, which would be useless: `agent-state` is a
+// one-shot and its own pid is dead microseconds after it publishes. The mux
+// outlives every record it is stamped on.
+//
+// Returns 0 when the socket path is absent or shaped differently, which readers
+// treat as "no marker" rather than as a mismatch.
+func muxID() int {
+	socket := os.Getenv("WEZTERM_UNIX_SOCKET")
+	if socket == "" {
+		return 0
+	}
+	name := filepath.Base(socket)
+	const prefix = "gui-sock-"
+	if !strings.HasPrefix(name, prefix) {
+		return 0
+	}
+	pid, err := strconv.Atoi(strings.TrimPrefix(name, prefix))
+	if err != nil || pid <= 0 {
+		return 0
+	}
+	return pid
+}
+
+// muxAlive reports whether a mux pid is still running. Signal 0 checks for the
+// process without delivering anything.
+func muxAlive(pid int) bool {
+	if pid <= 0 {
+		return false
+	}
+	return syscall.Kill(pid, 0) == nil
+}
+
+// reapDeadMuxes removes records left by a mux that is no longer running.
+//
+// This is the routine trigger, not an edge case: the state directory outlives
+// the mux, nothing clears it at mux start, and a fresh mux hands out the same
+// low pane ids, so the first pane of a restarted terminal inherits yesterday's
+// record and pane existence cannot tell.
+//
+// Gated on a marker file so it runs once per mux rather than on every tool
+// call, which is the hottest path in this binary. One stat is the steady-state
+// cost.
+func reapDeadMuxes(stateDir string, mux int) {
+	if mux <= 0 {
+		return
+	}
+	marker := filepath.Join(stateDir, fmt.Sprintf(".mux-%d", mux))
+	if _, err := os.Stat(marker); err == nil {
+		return
+	}
+
+	entries, err := os.ReadDir(stateDir)
+	if err != nil {
+		return
+	}
+	for _, entry := range entries {
+		name := entry.Name()
+		if !strings.HasSuffix(name, ".json") {
+			continue
+		}
+		body, err := os.ReadFile(filepath.Join(stateDir, name))
+		if err != nil {
+			continue
+		}
+		var record struct {
+			Mux int `json:"mux"`
+		}
+		if json.Unmarshal(body, &record) != nil {
+			continue
+		}
+		// A record with no marker predates this field. Left alone: it cannot be
+		// shown to be stale, and deleting a live pane's record is the worse
+		// failure.
+		if record.Mux == 0 || record.Mux == mux || muxAlive(record.Mux) {
+			continue
+		}
+		os.Remove(filepath.Join(stateDir, name))
+		os.Remove(filepath.Join(stateDir, strings.TrimSuffix(name, ".json")+".start"))
+	}
+
+	// Written last. A failed reap then retries on the next tool call rather
+	// than being skipped forever.
+	if f, err := os.Create(marker); err == nil {
+		f.Close()
+	}
 }
 
 // paneValue keeps a numeric pane id a JSON number and anything else a string,

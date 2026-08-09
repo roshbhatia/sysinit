@@ -14,6 +14,8 @@ agent_busy_panes() {
   for f in "$state_dir"/*.json; do
     [ -f "$f" ] || continue
     pane=$(basename "$f" .json)
+    # The liveness rule from SCHEMA.md: pane existence. The caller passes the
+    # live pane list rather than this forking a second `wezterm cli list`.
     printf '%s\n' "$live" | grep -qx "$pane" || continue
 
     read -r st ag sess <<< "$(jq -r '[.status // "", .agent // "", .session // ""] | @tsv' "$f" 2> /dev/null)"

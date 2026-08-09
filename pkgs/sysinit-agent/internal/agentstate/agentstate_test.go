@@ -4,6 +4,7 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"strconv"
 	"strings"
@@ -297,5 +298,129 @@ func TestBothEncodingsAgree(t *testing.T) {
 	// reason would have produced five fields above.
 	if strings.Contains(record.Reason, "|") {
 		t.Errorf("reason kept a pipe: %q", record.Reason)
+	}
+}
+
+func TestMuxIDReadsTheGenerationMarkerOrNothing(t *testing.T) {
+	// wezterm sets this in every pane. The pid in the socket name is the only
+	// per-mux identity a pane can read, so it is the generation marker.
+	cases := map[string]int{
+		"/Users/x/.local/share/wezterm/gui-sock-1679": 1679,
+		"gui-sock-1":         1,
+		"":                   0,
+		"/tmp/gui-sock-":     0,
+		"/tmp/gui-sock-abc":  0,
+		"/tmp/gui-sock--3":   0,
+		"/tmp/mux-sock-1679": 0,
+	}
+	for socket, want := range cases {
+		t.Setenv("WEZTERM_UNIX_SOCKET", socket)
+		if got := muxID(); got != want {
+			t.Errorf("muxID() with socket %q = %d, want %d", socket, got, want)
+		}
+	}
+}
+
+func TestReapRemovesOnlyRecordsFromADeadMux(t *testing.T) {
+	dir := t.TempDir()
+
+	// A pid that is certainly not running: start a process, wait for it, then
+	// reuse its number. Inventing a large pid would be a guess.
+	cmd := exec.Command("/usr/bin/true")
+	if err := cmd.Run(); err != nil {
+		t.Fatalf("could not produce a dead pid: %v", err)
+	}
+	dead := cmd.Process.Pid
+
+	write := func(pane string, mux int) {
+		body, err := json.Marshal(state{Version: SchemaVersion, Mux: mux, Pane: pane})
+		if err != nil {
+			t.Fatal(err)
+		}
+		if err := os.WriteFile(filepath.Join(dir, pane+".json"), body, 0o644); err != nil {
+			t.Fatal(err)
+		}
+		if err := os.WriteFile(filepath.Join(dir, pane+".start"), []byte("1"), 0o644); err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	current := os.Getpid()
+	write("dead", dead)
+	write("current", current)
+	write("live", os.Getppid())
+	write("unmarked", 0)
+	if err := os.WriteFile(filepath.Join(dir, "notjson.txt"), []byte("x"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+
+	reapDeadMuxes(dir, current)
+
+	for _, pane := range []string{"current", "live", "unmarked"} {
+		if _, err := os.Stat(filepath.Join(dir, pane+".json")); err != nil {
+			t.Errorf("%s.json was reaped and should not have been: %v", pane, err)
+		}
+	}
+	if _, err := os.Stat(filepath.Join(dir, "dead.json")); !os.IsNotExist(err) {
+		t.Errorf("dead.json survived the reap: %v", err)
+	}
+	// The start stamp is the same record's other half. Leaving it makes the
+	// next pane to take that id look like it has been running since yesterday.
+	if _, err := os.Stat(filepath.Join(dir, "dead.start")); !os.IsNotExist(err) {
+		t.Errorf("dead.start survived the reap: %v", err)
+	}
+	if _, err := os.Stat(filepath.Join(dir, "notjson.txt")); err != nil {
+		t.Errorf("a non-record file was touched: %v", err)
+	}
+}
+
+func TestReapRunsOncePerMux(t *testing.T) {
+	// The reap is on the hottest path in this binary, so it must not scan the
+	// directory on every tool call.
+	dir := t.TempDir()
+	current := os.Getpid()
+
+	cmd := exec.Command("/usr/bin/true")
+	if err := cmd.Run(); err != nil {
+		t.Fatalf("could not produce a dead pid: %v", err)
+	}
+	dead := cmd.Process.Pid
+
+	reapDeadMuxes(dir, current)
+
+	body, err := json.Marshal(state{Version: SchemaVersion, Mux: dead, Pane: "0"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(dir, "0.json"), body, 0o644); err != nil {
+		t.Fatal(err)
+	}
+
+	reapDeadMuxes(dir, current)
+
+	if _, err := os.Stat(filepath.Join(dir, "0.json")); err != nil {
+		t.Errorf("the second reap scanned the directory again: %v", err)
+	}
+}
+
+func TestReapWithoutAMarkerDoesNothing(t *testing.T) {
+	// Outside wezterm there is no mux to compare against, so every record is
+	// someone else's and none of them can be shown to be stale.
+	dir := t.TempDir()
+	if err := os.WriteFile(filepath.Join(dir, "0.json"), []byte(`{"mux":1}`), 0o644); err != nil {
+		t.Fatal(err)
+	}
+
+	reapDeadMuxes(dir, 0)
+
+	if _, err := os.Stat(filepath.Join(dir, "0.json")); err != nil {
+		t.Errorf("a record was reaped with no mux of our own: %v", err)
+	}
+	entries, err := os.ReadDir(dir)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(entries) != 1 {
+		t.Errorf("the marker file was written with no mux: %d entries", len(entries))
 	}
 }
