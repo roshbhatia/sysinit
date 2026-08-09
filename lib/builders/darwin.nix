@@ -12,6 +12,7 @@
       hostConfig,
       hostname,
       pkgs,
+      profile,
       values,
     }:
     darwin.lib.darwinSystem {
@@ -19,6 +20,7 @@
       specialArgs = {
         inherit
           inputs
+          profile
           values
           pkgs
           ;
@@ -27,7 +29,7 @@
       modules = [
         {
           _module.args = {
-            inherit hostname;
+            inherit hostname profile;
           };
           nixpkgs.pkgs = lib.mkDefault pkgs;
         }
@@ -52,6 +54,7 @@
             values
             pkgs
             inputs
+            profile
             ;
         })
         home-manager.darwinModules.home-manager

@@ -38,6 +38,11 @@ let
   darwinHost = identity: extraValues: {
     system = "aarch64-darwin";
     platform = "darwin";
+    # What the host is for. Both hosts here are machines with a screen, so both
+    # say so rather than leaning on the builder's default: a host that is silent
+    # about its profile reads as an oversight, and the default exists for a
+    # third-party host built from the template, not for these two.
+    profile = "workstation";
     inherit (identity) username;
     values = identity.values // extraValues;
   };
@@ -49,6 +54,7 @@ in
   arrakis = {
     system = "x86_64-linux";
     platform = "linux";
+    profile = "workstation";
     desktop = true;
     hardware = ../modules/nixos/hardware/arrakis.nix;
     inherit (personal) username;

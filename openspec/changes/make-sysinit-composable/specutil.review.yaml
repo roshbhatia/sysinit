@@ -1,9 +1,9 @@
 version: 1
 change: make-sysinit-composable
 decision: approved
-note: Phase 5 complete. 5.5 records NOT_RUN with the polling question left open.
-change_hash: 0d1b3671dfb613fa
-base_commit: 361b57173b00373bfc5bc32ef0ea870efdcff9d1
+note: 'Phase 6: profile layer wired through specialArgs; workstation drvPath bit-identical, minimal 4.42 GiB against 14.69 GiB.'
+change_hash: fae33fc2d7e7eb05
+base_commit: f7cbeaba612f38a17024aad6fca38dc21edca2e3
 items:
     0cd74be6febf08e9:
         hash: 7262630e5226087a

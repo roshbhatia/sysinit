@@ -1932,12 +1932,43 @@ words: the defect was never the pane, it was an agent opening one.
 
 - **SHAPE** graph
 
-- [ ] 6.1 Act: add `modules/shared/options/profiles.nix` defining
+- [x] 6.1 Act: add `modules/shared/options/profiles.nix` defining
       `sysinit.profiles.<minimal|dev|workstation>.enable`, each implying the one
       below. `deps:` 4.6
-- [ ] 6.2 Act: split `packages.nix` into named groups behind the profiles,
+
+      Done. Two files rather than one, because the same fact has two faces and
+      only one of them can reach `config`:
+
+      - `modules/shared/profile-tiers.nix` is a plain library holding the ordered
+        tier list and two functions, `atLeast` and `forProfile`. Its callers are
+        `imports` lists and package lists.
+      - `modules/shared/options/profiles.nix` is the option face, imported into
+        the home configuration. It reads the library, so there is one tier list
+        rather than two that can disagree.
+
+      Implication is a position comparison against the ordered list, not a
+      boolean per tier, so adding a tier is one list entry. Verified by
+      evaluation: `minimal` enables only minimal, `dev` enables minimal and dev,
+      `workstation` enables all three, and an unknown profile throws rather than
+      silently enabling nothing.
+- [x] 6.2 Act: split `packages.nix` into named groups behind the profiles,
       keeping every current package. `deps:` 6.1
-- [ ] 6.3 Act: gate the 34 imports in `programs/default.nix` on the profile.
+
+      Done. Three groups: `minimal` is the core CLI and git, `dev` is every
+      toolchain, language server, and infrastructure tool plus the registry's
+      harness CLIs, `workstation` is the Linux-only colour picker.
+
+      The harness CLIs are `dev`, not `workstation`. An agent CLI is a
+      development tool and runs the same over ssh as it does in front of a
+      screen.
+
+      Each group is a CONTIGUOUS slice of the list it replaced, which is a
+      constraint and not an accident. `home.packages` order reaches the
+      derivation, confirmed by swapping `coreutils` and `curl` and watching the
+      `home-manager-path` drvPath move from `mamp93y6` to `yvqbv3gq`. A grouping
+      that reordered would change the build without changing what is installed,
+      and would make 6.5's own gate unreadable.
+- [x] 6.3 Act: gate the 34 imports in `programs/default.nix` on the profile.
       The selector must NOT be the option 6.1 declares. `imports` is resolved
       before `config` exists, so reading `config.sysinit.profiles.*.enable` from
       an `imports` list is infinite recursion, and `lib.mkIf` inside each module
@@ -1945,8 +1976,25 @@ words: the defect was never the pane, it was an agent opening one.
       `specialArgs` and `home-manager.extraSpecialArgs` instead, and let 6.1's
       option read from it so a host still sets one value in one place.
       `deps:` 6.1
-- [ ] 6.4 Act: set every host in `hosts/` to `workstation`. `deps:` 6.2, 6.3
-- [ ] 6.5 Verify: the two drvPaths are unchanged against the baseline as
+
+      Done, and the task's own warning is what the code does. `profile` is a
+      function argument threaded through `specialArgs` and
+      `home-manager.extraSpecialArgs`; 6.1's option reads it.
+
+      The list is 35 modules, not 34. The count in this task was one short.
+
+      The list keeps its original order and is FILTERED rather than being written
+      as one list per tier and concatenated, for the reason 6.2 measured: a
+      module's position feeds list-valued options downstream.
+
+      Per profile: minimal imports 18, dev 33, workstation 35.
+- [x] 6.4 Act: set every host in `hosts/` to `workstation`. `deps:` 6.2, 6.3
+
+      Done. Both `lv426` and `arrakis` say `profile = "workstation"` explicitly
+      rather than leaning on the builder's default. A host silent about its
+      profile reads as an oversight; the default is for a third-party host built
+      from the template.
+- [x] 6.5 Verify: the two drvPaths are unchanged against the baseline as
       re-recorded at the end of phase 3, not against 1.1. Phases 2 and 3 moved
       it on purpose. This phase must not move it at all: it only reorganizes
       which module is selected, so any difference is a module silently dropped
@@ -1955,7 +2003,23 @@ words: the defect was never the pane, it was an agent opening one.
       phase-6 cause because that is the likely one, not the only one: if phase 4 or
       5 moved the closure, this is where it surfaces. The `lv426` half runs
       locally and the `arrakis` half runs in the CI job 1.1 adds. `deps:` 6.4
-- [ ] 6.6 Verify: `nix path-info -S` on `minimal` is smaller than on
+
+      Passed for `lv426`, bit-identical:
+      `1j4j3p57a47xbidw1vfp6b2nydi68rvy-darwin-system`, evaluated both at the
+      phase-5 HEAD in a detached worktree and with the whole profile layer plus
+      6.4's host edits applied.
+
+      The first attempt compared against a drvPath recorded mid-phase-5 and read
+      as drift. It was not: phase 5's own test files are inputs to
+      `pkgs.sysinit-agent`, so adding `transcript_test.go` moved
+      `home-manager-path` between the recording and the comparison. The reference
+      point has to be a commit, not a number written down mid-edit. Re-run
+      against the phase-5 commit it was identical.
+
+      The `arrakis` half did not run. That host cannot be evaluated on this
+      machine at all, for the pre-existing reason 4.8 recorded: the pi harness
+      pulls an x86_64-linux derivation through IFD. It is left to the CI job.
+- [x] 6.6 Verify: `nix path-info -S` on `minimal` is smaller than on
       `workstation`, and the `minimal` and `workstation` drvPaths differ from
       each other. Both clauses are the STOP gate, not 6.5 alone. `drvPath` is
       input-addressed, so a gate that only checks `workstation` equality passes
@@ -1983,13 +2047,56 @@ words: the defect was never the pane, it was an agent opening one.
       derivations no profile split touches. The home `profile` output is the
       discriminating 790 MiB of it, and that is what both sides of this
       comparison should measure. `deps:` 6.5
-- [ ] 6.7 Adversarial review (`adversarial-review` skill): run deterministic
+
+      Passed on both clauses, measured at the same instant against one nixpkgs
+      through one evaluation harness that takes the profile as an argument.
+
+      Size, `nix path-info -S` on the realized `home.path` for `lv426`:
+
+      | profile | closure |
+      |---|---|
+      | minimal | 4.42 GiB |
+      | dev | 14.24 GiB |
+      | workstation | 14.69 GiB |
+
+      `minimal` is 4.42 against 14.69, a 70 percent cut. The dev-to-workstation
+      step is small because the workstation tier carries its weight in modules,
+      `fastfetch` and `wezterm`, rather than in packages.
+
+      Distinctness, which is the clause that catches a profile layer that was
+      never wired: all three drvPaths differ, `snw12wjj` for minimal, `6zk02gg8`
+      for dev, `mamp93y6` for workstation. The workstation value equals the one
+      the flake itself produces, so the harness measures the same thing the flake
+      builds and not a parallel construction.
+
+      No cross-time clause was added, per the task.
+- [x] 6.7 Adversarial review (`adversarial-review` skill): run deterministic
       lint. Critics are NOT run: the owner directed on 2026-08-08 that the apply
       proceed on deterministic lint alone, so every task in this list reaches the
       `not run` terminal state the skill defines and records the open questions
       rather than refuting them. The questions below are what critics WOULD have
       been asked, kept because they name where this phase is weakest on the gating, where a mis-scoped `optionals` silently
       drops a module from every profile. `deps:` 6.6
+
+      Adversarial review: not run; deterministic lint passed. Terminal state
+      `NOT_RUN`, per the owner's 2026-08-08 direction.
+
+      The question, left open: could a mis-scoped selector silently drop a module
+      from every profile?
+
+      It could not go unnoticed here, and the reason is 6.6's second clause
+      rather than 6.5's. A selector that dropped a module from every profile
+      would move the `workstation` drvPath, which 6.5 pins bit-for-bit. A
+      selector that dropped nothing because it was never wired would leave the
+      three profiles identical, which 6.6 rejects by comparing them to each
+      other. The two gates fail in opposite directions, so the gap between them
+      is narrow.
+
+      What remains genuinely open is tier ASSIGNMENT, which no gate checks. That
+      `helix` is minimal and `neovim` is dev is a judgement, and a wrong one
+      produces a `minimal` box that builds, passes both gates, and is missing
+      something its owner wanted. Only using a `minimal` host would find it, and
+      no host is set to `minimal` today.
 
 ## 7. Decouple theming
 

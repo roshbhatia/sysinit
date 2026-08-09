@@ -38,11 +38,18 @@ in
         isDesktop = hostConfig.desktop or false;
       };
 
+      # What the host is for, in one word. A specialArg rather than an option,
+      # because `imports` lists read it and `imports` is resolved before
+      # `config` exists. `modules/shared/options/profiles.nix` has the whole
+      # reason.
+      profile = hostConfig.profile or "workstation";
+
       commonArgs = {
         inherit
           hostConfig
           hostname
           pkgs
+          profile
           values
           ;
       };

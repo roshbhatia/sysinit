@@ -13,6 +13,7 @@ in
 {
   imports = [
     ../shared/options/paths.nix
+    ../shared/options/profiles.nix
     ./programs
     ./packages.nix
   ];

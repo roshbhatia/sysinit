@@ -11,6 +11,7 @@
       hostConfig,
       hostname,
       pkgs,
+      profile,
       values,
     }:
     lib.nixosSystem {
@@ -18,13 +19,14 @@
       specialArgs = {
         inherit
           inputs
+          profile
           values
           ;
       };
       modules = [
         {
           _module.args = {
-            inherit hostname;
+            inherit hostname profile;
           };
           nixpkgs.pkgs = lib.mkDefault pkgs;
         }
@@ -45,6 +47,7 @@
           inherit
             values
             inputs
+            profile
             stylix
             ;
           inherit pkgs;
