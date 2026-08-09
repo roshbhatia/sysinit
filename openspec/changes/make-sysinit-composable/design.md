@@ -299,25 +299,39 @@ paths live is how two names for one concept survive a migration.
 The STOP gate for the coupling phases is the same in each: after the phase, a
 grep for the removed channel returns nothing outside its own history.
 
-The gates split by platform, and the split is not a compromise. `lv426` is
-`aarch64-darwin` and every gate touching it runs on the owner's machine.
-`arrakis` is `x86_64-linux` and cannot evaluate there at all, because its module
-set imports from a derivation. That half runs in CI, on the `ubuntu-latest`
-runner `.github/workflows/build-cache.yml:32-33` already declares under
-`system: x86_64-linux`. An earlier draft made a local remote-builder a hard
-precondition for the whole change. The runner is better than the builder on
-every axis that matters here: it exists, it is already proven with the installer
-step at `:51`, and it does not make the owner maintain a second machine to start
-phase 1. `.github/workflows/check.yml:42` stays on `macos-latest` for the
-reason its own comment gives.
+The gates split by platform. `lv426` is `aarch64-darwin` and every gate touching
+it runs on the owner's machine. `arrakis` is `x86_64-linux` and cannot evaluate
+there at all, because its module set imports from a derivation. That half runs
+in a CI job task 1.1 adds. An earlier draft made a local remote-builder a hard
+precondition for the whole change; a workflow file is at least declared in the
+tree, where a second machine configured out of band is the same defect phase 4
+exists to remove, a fact held somewhere other than the repository. The evidence
+for the runner is narrower than an earlier draft claimed and still sufficient:
+`build-cache.yml:32-33` declares `os: ubuntu-latest` under
+`system: x86_64-linux` and the installer at `:51` runs on every matrix cell, so
+a Linux runner is reachable and proven to install Nix. Nothing in CI touches
+`arrakis` today. `check.yml:42` stays on `macos-latest` for the reason its own
+comment gives.
 
-One constraint follows from putting them in CI. An equality gate compares
-recorded text against a fresh evaluation, so it reads the committed baseline and
-needs nothing else. A `diff-closures` gate needs two realized closures in one
-store at one time, and a runner's store does not survive the job, so those gates
-have to build both revisions inside a single job. Splitting one across jobs
-compares against an empty store and passes. That also settles the GC-root
-question on the Linux side, since both closures live and die inside the job.
+No gate realizes a host closure, which is what makes the CI half possible at
+all. An earlier draft used `nix store diff-closures`, which needs two realized
+closures in one store. The `lv426` system closure measures 17.5 GiB, and
+`check.yml:86-90` already records that a runner has roughly 14 GB free and that
+`nix build` of a host fails on disk there. Two do not fit, and on the owner's
+machine they are a 35 GiB hold across eleven phases for a comparison that never
+needed the bytes. `nix derivation show -r` answers the same question by pure
+evaluation, measured at 7441 derivations in 9.9 seconds for `lv426`. Comparing
+the set of derivation paths with the root excluded is order-insensitive, which
+is the property that pushed the gate to `diff-closures` in the first place, and
+it sees build-time dependencies that `diff-closures` cannot. It trades size for
+identity, so task 6.6 keeps `nix path-info -S` where a number is the point.
+
+Two costs are accepted rather than solved. A gate in CI cannot be run before
+committing, so eleven phase boundaries each mean pushing and waiting; the Darwin
+half still runs locally in about ten seconds, so this applies to the `arrakis`
+half alone. And the workflow the job joins establishes a skip-when-absent idiom
+at `build-cache.yml:53-63`, which is what the phase 3 STOP moved a check out of
+the pre-commit hook to avoid, so 1.1 requires the job to fail rather than skip.
 
 Building on `arrakis` at pull time was the alternative and does not replace
 this. These gates are per phase, and their whole purpose is to name which phase

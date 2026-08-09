@@ -3,17 +3,17 @@
 - **SHAPE** graph
 
 - [ ] 1.1 Act: stand the baseline up. Two deliverables, because the second is
-      what produces half of the first: a committed file holding the two host
-      drvPaths, one line per host carrying the attribute path, the drvPath, and
-      the `--out-link` output path; and the CI job that evaluates the
-      `x86_64-linux` half. This is Act and not Gather for that reason. The owner
+      what produces half of the first: a committed baseline holding the two host
+      drvPaths, one line per host carrying the attribute path and the drvPath,
+      plus a sorted derivation-path file per host; and the CI job that evaluates
+      the `x86_64-linux` half. This is Act and not Gather for that reason. The owner
       records `lv426` locally and takes the `arrakis` line from the job's output.
       Commit the file rather than leaving it in the working tree, because the
       Linux half of every later gate runs in CI on a different machine, and CI
       can only compare against a referent that is in the repository.
       Record the attribute path and not just the hash. This is the only task in the
       change that names an attribute path, and the two shapes differ in a way an
-      implementer will not guess; 2.12, 3.14, 6.5, 10.11, and 11.1 all say only
+      implementer will not guess; 2.12, 3.14, 6.5, 10.12, and 11.1 all say only
       "the two host drvPaths" and would otherwise reconstruct the command from
       memory. Task 3.10 sets the standard: a gate needs an artifact rather than a
       memory, and a hash with no attribute path beside it is exactly that. Two hosts, not
@@ -27,37 +27,73 @@
       `.#nixosConfigurations.arrakis.config.system.build.toplevel.drvPath`. The
       third `darwinConfigurations` entry, `bootstrap` (`flake.nix:130`), is an
       installer configuration and not a host; leave it out of every gate.
-      The `arrakis` half runs in CI on an `x86_64-linux` runner, and no local
-      builder is needed. On the owner's `aarch64-darwin` machine the evaluation
-      fails with "Required system: 'x86_64-linux'" before it prints a hash,
-      because the module set imports from a derivation. An earlier draft made a
-      local remote-builder a hard precondition for the whole change. It is not
-      one, because `.github/workflows/build-cache.yml:32-33` already runs an
-      `ubuntu-latest` job under `system: x86_64-linux`, so the runner exists and
-      the installer step at `:51` is already proven on it. Add the Linux half of
-      the gates as a workflow job rather than as a machine the owner has to
-      configure. Every gate that evaluates or builds for `x86_64-linux` splits
-      the same way, Darwin locally and Linux in CI: the drvPath gates 2.12, 3.14,
-      6.5, 9.9, 10.11, and 11.1, plus 6.6, which runs `nix path-info -S` and so
-      needs realized paths, and 7.3, whose whole-closure form spans both hosts
-      and is the only form reaching `nixos/desktop/greetd.nix` and
-      `nixos/home/desktop.nix`, and also 8.3, which builds
-      `.#homeConfigurations.dev-x86_64-linux` and is a Behavior criterion of its
-      own. An earlier draft said "every drvPath gate", whose wording excludes 8.3.
-      Task 8.4 already sends the owner to a Linux box for the switch, so phase 8
-      knows the boundary exists; 8.3 is the task CI takes off the owner's machine.
-      One constraint shapes how the CI job is written. An equality clause
-      compares recorded text against a fresh evaluation, so it can read the
-      committed baseline and needs nothing else. A `diff-closures` clause needs
-      two realized closures in one store at one time, and a GitHub runner's store
-      does not survive the job. So every `diff-closures` clause has to check out
-      the referent revision, build, check out the head revision, build, and diff,
-      all inside a single job. Splitting it across jobs silently compares against
-      an empty store. That constraint also removes the GC-root problem on the
-      Linux side, because both closures live and die inside the job.
-      `.github/workflows/check.yml:42` stays on `macos-latest` and is not the
-      place for this; its comment records why, that `nix flake check` builds only
-      the current system's checks and Darwin is what the owner experiences.
+      The `arrakis` half needs an `x86_64-linux` machine, and this task adds a CI
+      job rather than making the owner configure a builder. On the owner's
+      `aarch64-darwin` machine the evaluation fails with "Required system:
+      'x86_64-linux'" before it prints a hash, because the module set imports from
+      a derivation.
+      State the evidence at its real strength, because an earlier draft said "the
+      `arrakis` half runs in CI" in the present tense and nothing in CI touches
+      `arrakis` today. `build-cache.yml:74` builds
+      `.#packages.<system>.cacheBundle`, which is a `symlinkJoin` at
+      `flake.nix:174`, and `check.yml:37-42` has exactly one job on
+      `macos-latest`. What the evidence does establish is enough: a Linux runner
+      is reachable and proven to install Nix, because `build-cache.yml:32-33`
+      declares `os: ubuntu-latest` under `system: x86_64-linux` and the installer
+      at `:51` runs on all three matrix cells. So no local builder is needed once
+      this task adds the job. The job is new work, not an existing thing to point
+      at.
+      Every gate that evaluates for `x86_64-linux` splits the same way, Darwin
+      locally and Linux in CI: 2.12, 3.14, 6.5, 9.9, 10.12, and 11.1, plus 6.6,
+      and 7.3, whose whole-closure form spans both hosts and is the only form
+      reaching `nixos/desktop/greetd.nix` and `nixos/home/desktop.nix`, and also
+      8.3, which builds `.#homeConfigurations.dev-x86_64-linux` and is a Behavior
+      criterion of its own. An earlier draft said "every drvPath gate", whose
+      wording excludes 8.3. Task 8.4 already sends the owner to a Linux box for
+      the switch, so phase 8 knows the boundary exists; 8.3 is the task CI takes
+      off the owner's machine. Each of those tasks carries the split in its own
+      words rather than relying on this one, because a constraint stated once and
+      read at eight sites is the memory this task's own first paragraph refuses.
+      No gate here realizes a host closure, and that is a decision rather than an
+      accident. An earlier draft used `nix store diff-closures`, which needs two
+      realized closures in one store. The `lv426` system closure measures 17.5 GiB
+      and `check.yml:86-90` already records that a runner has roughly 14 GB free
+      and that `nix build` of a host fails on disk there, so two of them fit on no
+      runner, and holding both as GC roots across eleven phases is a 35 GiB charge
+      on the owner's machine for a comparison that never needed the bytes.
+      Use `nix derivation show -r <attr>` instead, and compare the set of
+      derivation paths in the graph excluding the root. That is pure evaluation:
+      measured here at 7441 derivations and 3278 distinct names in 9.9 seconds for
+      `lv426`, materializing nothing. It answers the question these gates actually
+      ask, which package appeared or disappeared, and it beats `diff-closures` on
+      three counts. It is order-insensitive, because a set of paths has no order
+      and a reordering rewrite moves only the root, which the comparison excludes;
+      that is the property 9.9 switched to `diff-closures` to get. It covers
+      build-time dependencies, which `diff-closures` cannot see. And it needs no
+      GC root, so nothing in this change pins a closure. The cost is real and
+      small: it compares identity, not size, so a package that changed size
+      without changing identity reads as unchanged. Task 6.6 keeps
+      `nix path-info -S` for the one place a number is the point.
+      Two things about the CI job itself, both because the file it joins
+      establishes the opposite convention. It must fail rather than skip when a
+      precondition is missing. `build-cache.yml:53-63` gates its push on a secret
+      so the job stays green without one, and `:28` sets `fail-fast: false`; that
+      skip-when-absent shape is what 3.13 moved a check out of the pre-commit hook
+      to avoid, and it is worse here because the owner looks at CI less often. And
+      it runs at every phase boundary, not once at the end, for the same reason
+      the last paragraph of this task gives.
+      `check.yml:42` stays on `macos-latest` and is not the place for this; its
+      comment records why, that `nix flake check` builds only the current system's
+      checks and Darwin is what the owner experiences.
+      Accept the cost this imposes and name it here rather than leaving an
+      implementer to meet it at the first phase boundary. A gate that lives in CI
+      cannot be run before committing. Passing 3.14 means pushing a branch,
+      waiting on a runner, and reading a result, eleven times. That inverts the
+      property 3.13 and the phase 10 STOP were written to protect. It is accepted
+      because the alternative is a second machine the owner maintains out of band,
+      which is the same defect phase 4 exists to remove, a fact held somewhere
+      other than the repository. The Darwin half of every gate still runs locally
+      in about ten seconds, so the wait applies to the `arrakis` half alone.
       Building on `arrakis` itself at pull time was the other option and is not a
       substitute. These gates are per phase and exist to catch a module silently
       dropped during the refactor, so a check that runs after all eleven phases
@@ -75,19 +111,19 @@
       modules 7.2 guards and neither is reachable without it. Ungating Linux is a
       scope decision for the owner and a proposal edit, not a footnote in this
       task.
-      Also build each host with `nix build --out-link` and record the output path
-      beside its hash, and give each build its own link name, `-o result-lv426`
-      and `-o result-arrakis`. `--out-link` takes a path, and with no name both
-      builds write `./result`, so the second drops the first host's GC root, which
-      is the exact loss the flag is here to prevent. The build attribute drops the
-      `.drvPath` suffix: `nix build .#darwinConfigurations.lv426.system`, verified
-      here with `--dry-run`, which resolves to the same derivation the `nix eval`
-      beside it prints. A recorded hash is enough for an equality clause, which compares text
-      against a fresh evaluation. It is not enough for a `diff-closures` clause,
-      which needs two realized closures: 11.1 diffs against this build across the
-      whole change, and with no GC root an ordinary `nix-collect-garbage` makes
-      that task uncompletable. Task 3.10 already sets the standard this follows,
-      that a gate needs an artifact rather than a memory. This is the
+      Record the derivation-path set beside each host's drvPath, as a sorted file
+      per host from `nix derivation show -r <attr>` with the root drv removed.
+      Those two files are what 2.12, 3.14, 6.5, 7.3, 9.9, 10.12, and 11.1 compare
+      against, and they are text, so they commit and diff like text. An earlier
+      draft instead built each host with `nix build --out-link`, named
+      `-o result-lv426` and `-o result-arrakis` so the second would not drop the
+      first host's GC root, and recorded the output paths. Every line of that is
+      now dead: no gate realizes a closure, so there is no root to hold, no
+      `./result` collision to avoid, and no store path worth recording. It was
+      also unbuildable for `arrakis`, whose out-link would have named a path in a
+      runner's store that ceases to exist with the job. Task 3.10 already sets the
+      standard this follows, that a gate needs an artifact rather than a memory,
+      and a committed text file meets it where a GC root did not. This is the
       baseline for 11.1's enumeration clause alone. An earlier draft called it the
       baseline for phases 6, 7, and 8, which three tasks contradict: 3.14 says
       "Phases 6 through 9 compare against this recording, not against 1.1", 6.5
@@ -108,9 +144,21 @@
       gate compares the edited tree against a snapshot of itself. `deps:` none
 - [ ] 1.2 Gather: capture `nix path-info -S` on the current home closure, so the
       profile split has a number to beat. `deps:` 1.1
-- [ ] 1.3 Adversarial review (`adversarial-review` skill): run deterministic
+- [ ] 1.3 Verify: the CI job 1.1 adds re-evaluates the `lv426` line and its
+      output matches what the owner recorded locally. Exercise the job here,
+      against an answer already known, rather than letting 2.12 be the first thing
+      that runs it. Nine gates depend on this job and none of them tests it, so a
+      failure at 2.12 would be ambiguous between "phase 2 dropped a module" and
+      "the job is wrong", which is the exact signal phase 1 exists to make
+      unambiguous. Task 9.2 states this repository's rule for it: write the gate
+      before the thing it judges, so the gate is not authored by the thing it
+      judges. Use `lv426` and not `arrakis` because only `lv426` has an
+      independently known answer; this proves the checkout, the installer, the
+      attribute path, and the output format end to end, and costs one runner
+      minute. `deps:` 1.2
+- [ ] 1.4 Adversarial review (`adversarial-review` skill): run deterministic
       lint; run critics on whether the baseline captured is the right one, since
-      every later STOP gate compares against it. `deps:` 1.2
+      every later STOP gate compares against it. `deps:` 1.3
 
 ## 2. Stop the agents pushing
 
@@ -349,7 +397,7 @@ words: the defect was never the pane, it was an agent opening one.
       reads green. Nothing else in this phase
       would catch a lua file broken by 2.5, 2.6, 2.7, or 2.8. The neovim config
       is an out-of-store symlink, so nix never evaluates it and the
-      `nix store diff-closures` at 2.12 cannot see it.
+      derivation-path comparison at 2.12 cannot see it.
       Two earlier forms of this gate could not pass. One grepped for strings that miss
       `agentstate.go:329`, which forks `wezterm cli list` on every tool call.
       That fork must go, but NOT by substituting `WEZTERM_PANE`: it sits inside
@@ -392,12 +440,14 @@ words: the defect was never the pane, it was an agent opening one.
       directly, which this repository cannot prevent. Removing the
       advertisement is the largest reduction available and it is not a fence.
       `deps:` 2.9
-- [ ] 2.12 Verify: re-record the two host drvPaths, and keep an `--out-link` for
-      each as 1.1 does, because 3.14 diffs against this build. This phase changes
-      them on purpose, so name each difference and its cause, using
-      `nix store diff-closures` against the 1.1 build rather than the hashes alone.
-      Name the referent: an earlier draft said only "name each difference", and a
-      diff whose second operand is unstated cannot be checked by a reviewer.
+- [ ] 2.12 Verify: re-record the two host drvPaths and the two derivation-path
+      files, as 1.1 does, because 3.14 compares against this recording. This phase
+      changes them on purpose, so name each difference and its cause by diffing
+      the derivation-path sets against 1.1's, rather than the hashes alone. Name
+      the referent: an earlier draft said only "name each difference", and a diff
+      whose second operand is unstated cannot be checked by a reviewer. The
+      `lv426` half runs locally and the `arrakis` half runs in the CI job 1.1
+      adds, which is where every gate from here on gets its Linux side.
       `deps:` 2.11
 - [ ] 2.13 Adversarial review (`adversarial-review` skill): run deterministic
       lint; run critics on whether 2.2's self-report line is a real distinction
@@ -558,8 +608,25 @@ words: the defect was never the pane, it was an agent opening one.
       and lands outside it. Add a test that catches the wrong version, and assert
       the ordering rather than the end state. Assert that at the moment
       `release()` is called the export on disk already equals a rebuild from the
-      record, through a seam on the release call in `cmdAdd`, `cmdApply`, and
-      `cmdClear`. That fires on every single call and needs no interleaving.
+      record, through a seam on the EXPLICIT release calls at
+      `diffnote.go:292`, `:398`, and `:706`. Name those three line numbers,
+      because each of the three commands releases twice and the two are not
+      interchangeable. `cmdAdd` takes the lock at `:267` and has `defer release()`
+      at `:271` as well as the explicit call at `:292`; `cmdApply` is `:378`,
+      `:382`, `:398`; `cmdClear` is `:678`, `:682`, `:706`. `store.go:67-68`
+      confirms the pair is deliberate, guarding against a double release. Bound to
+      the explicit call the assertion is deterministic, because the lock is still
+      held and no other writer is in the critical section, and it fires on every
+      invocation including single-threaded ones. Bound to the `release` variable
+      it also fires at function return with the lock dropped, where another
+      process may have written the record, so it fails on correct work. The seam
+      needs no refactor and does not touch `internal/store`: `store.go:52`
+      documents that `Lock` returns the release function, so `release` is a local
+      closure in `diffnote`, and a package-level hook called immediately before
+      each explicit call is one `var` and three lines. One path is vacuous rather
+      than false and that is correct: `cmdClear`'s kill-switch return at
+      `diffnote.go:658-661` happens before `s.Lock()` at `:678`, so the seam never
+      fires there.
       An earlier draft asked instead for a concurrent test in the shape of
       `TestConcurrentAddsLoseNoNote`, comparing the export against a rebuild
       after concurrent adds. That shape does not transfer, and the reason is a
@@ -765,12 +832,13 @@ words: the defect was never the pane, it was an agent opening one.
       set, not presence in a rendered block. The clause was written for the
       pre-commit hook, which could grep the store, and it did not survive the move
       unchanged. `deps:` 3.5, 3.8
-- [ ] 3.14 Verify: re-record the two host drvPaths, and keep an `--out-link`
-      for each as 1.1 does, since 9.9 diffs closures against this build across
-      phases 4 through 9. This phase changes them on purpose, so name each
-      difference and its cause against the 2.12 build, using
-      `nix store diff-closures` rather than the hashes alone. Phases 6 through 9
-      compare against this recording, not against 1.1. `deps:` 3.8
+- [ ] 3.14 Verify: re-record the two host drvPaths and the two derivation-path
+      files, as 1.1 does, since 9.9 compares against this recording across phases
+      4 through 9. This phase changes them on purpose, so name each difference and
+      its cause against the 2.12 recording, by diffing the derivation-path sets
+      rather than the hashes alone. Phases 6 through 9 compare against this
+      recording, not against 1.1. The `lv426` half runs locally and the `arrakis`
+      half runs in the CI job 1.1 adds. `deps:` 3.8
 - [ ] 3.15 Adversarial review (`adversarial-review` skill): run deterministic
       lint; run critics on the claim that no behavior was lost silently, on the
       derived export as an artifact that can go stale against its record, and
@@ -1064,14 +1132,18 @@ words: the defect was never the pane, it was an agent opening one.
       from a profile. This task covers phases 4, 5, and 6, since 3.14 is the last
       recording before it, and 9.9 leans on that span. The diagnosis above names a
       phase-6 cause because that is the likely one, not the only one: if phase 4 or
-      5 moved the closure, this is where it surfaces. `deps:` 6.4
+      5 moved the closure, this is where it surfaces. The `lv426` half runs
+      locally and the `arrakis` half runs in the CI job 1.1 adds. `deps:` 6.4
 - [ ] 6.6 Verify: `nix path-info -S` on `minimal` is smaller than on
       `workstation`, and the `minimal` and `workstation` drvPaths differ from
       each other. Both clauses are the STOP gate, not 6.5 alone. `drvPath` is
       input-addressed, so a gate that only checks `workstation` equality passes
       when the profile layer was never wired: an `optionals` expression that
       yields the same list for every profile is identical to no profile layer,
-      and 6.5 cannot tell them apart. `deps:` 6.5
+      and 6.5 cannot tell them apart. This is the one gate that keeps
+      `nix path-info -S`, because a size is the point here rather than a set of
+      names, and it is also the one gate that needs realized paths. Run both
+      profiles for `lv426` locally, where the closures already exist. `deps:` 6.5
 - [ ] 6.7 Adversarial review (`adversarial-review` skill): run deterministic
       lint; run critics on the gating, where a mis-scoped `optionals` silently
       drops a module from every profile. `deps:` 6.6
@@ -1087,9 +1159,11 @@ words: the defect was never the pane, it was an agent opening one.
 - [ ] 7.3 Verify: with the flag true, every theme file the guarded modules
       generate is byte-identical to today, with the file list derived from 7.1's
       enumeration rather than named here. Simplest sufficient form: compare the
-      whole closure with the flag true against the 3.14 recording, which is the value
-      in force at the end of phase 6, since 6.5 asserts equality against it and
-      phase 6 makes no recording of its own. An earlier draft said "the phase 6
+      whole derivation-path set with the flag true against the 3.14 recording,
+      which is the value in force at the end of phase 6, since 6.5 asserts
+      equality against it and phase 6 makes no recording of its own. The `lv426`
+      half runs locally and the `arrakis` half runs in the CI job 1.1 adds, which
+      is what reaches the two `nixos/` modules below. An earlier draft said "the phase 6
       recording", which names nothing. It covers
       all twenty at once in 6.5's shape.
       An earlier draft named wezterm and neovim and stopped, gating two of the
@@ -1147,8 +1221,11 @@ words: the defect was never the pane, it was an agent opening one.
       builder injects `hostname`, `user.username`, and `isDesktop` on top of the
       host's own `values`, taking `hostname` from the attribute name and
       `username` and `desktop` from host fields that sit beside `values` rather
-      than inside it. `hosts/default.nix` supplies exactly two paths under
-      `values`, `git` for both hosts and `theme` for `arrakis` alone. That is also
+      than inside it. `hosts/default.nix` supplies exactly two top-level keys
+      under `values`, `git` for both hosts and `theme` for `arrakis` alone. Say
+      top-level keys and not paths, because this task counts fourteen deep paths
+      elsewhere and the same word in both senses reads as a contradiction; the
+      same two keys are six leaves counted deeply. That is also
       why the three have no standalone answer: `mkHome` has no `hostConfig` and no
       attribute name to inherit from. `deps:` 7.4
 - [ ] 8.2 Act: emit `homeModules` and `homeConfigurations.<profile>-<system>`
@@ -1230,9 +1307,9 @@ words: the defect was never the pane, it was an agent opening one.
       wrote matches 4.1's template with `$HOME` expanded, so the two producers are
       one; and `sysinit-agent note add` inside the container resolves its path
       from that manifest rather than from a default. `deps:` 9.7
-- [ ] 9.9 Verify: `nix store diff-closures` against the 3.14 build reports an
-      empty diff for both hosts. Do NOT compare drvPath hashes here, which an
-      earlier draft did. `drvPath` is order-sensitive: building `buildEnv` with
+- [ ] 9.9 Verify: the derivation-path set matches the 3.14 recording exactly,
+      for both hosts, with an empty diff each way. Do NOT compare drvPath hashes
+      here, which an earlier draft did. `drvPath` is order-sensitive: building `buildEnv` with
       `[hello jq]` and with `[jq hello]` yields different hashes, confirmed by
       running it. Task 9.4 replaces a literal package list with one derived from
       `bootstrap/tools.toml`, so unless the derived order matches the literal one
@@ -1240,8 +1317,10 @@ words: the defect was never the pane, it was an agent opening one.
       packages, and the gate fails first on a correct implementation. Task 8.1
       carries a smaller version of the same risk depending on whether `mkHome`
       shares the darwin specialArg plumbing or sits beside it, which 8.1 does not
-      say. `diff-closures` is set-based, so it is blind to order and still catches
-      a dropped package, and 2.12, 3.14, and 10.11 already use it.
+      say. A derivation-path set has no order, so it is blind to a reordering and
+      still catches a dropped package, and 2.12, 3.14, and 10.12 already use it.
+      The `lv426` half runs locally and the `arrakis` half runs in the CI job 1.1
+      adds.
       This closes a three-phase hole. The temporal comparison tasks are 6.5, which
       checks against 3.14, and 11.1, which checks against phase 10's re-record.
       "Temporal" because 6.6 also compares drvPaths, `minimal` against
@@ -1253,7 +1332,7 @@ words: the defect was never the pane, it was an agent opening one.
       The phase that matters is 9. Task 9.4 makes the `minimal` package group read
       the manifest, and every host installs it because `workstation` contains
       `minimal`, so a package dropped there is a silent loss on both hosts.
-      Without this task that loss is re-recorded as the new baseline by 10.11 and
+      Without this task that loss is re-recorded as the new baseline by 10.12 and
       then confirmed correct by 11.1, which is the failure 1.1 exists to prevent.
       Phases 7 and 8 are covered because covering them is free, not because they
       are equally exposed. 7.2 adds `sysinit.theme.enable` defaulting to true, and
@@ -1609,8 +1688,9 @@ the named task and re-running the gate, not re-entering the phase.
       Also confirm an agent in a pane with no `ZMX_SESSION` still resolves,
       through the readers 2.2 moved that fallback to. `deps:` 10.7, 10.8
 - [ ] 10.12 Verify: re-record the two host drvPaths. This phase adds a package
-      on purpose, so name each difference with `nix store diff-closures`.
-      `deps:` 10.11
+      on purpose, so name each difference by diffing the derivation-path sets
+      against the 3.14 recording. The `lv426` half runs locally and the `arrakis`
+      half runs in the CI job 1.1 adds. `deps:` 10.11
 - [ ] 10.13 Adversarial review (`adversarial-review` skill): run deterministic
       lint; run critics on whether zmx and seshy now own the same fact under two
       names, and on whether the session key can disagree between the file bus and
@@ -1623,11 +1703,12 @@ the named task and re-running the gate, not re-entering the phase.
 - [ ] 11.1 Verify: the two host drvPaths still match the phase 10 re-recording,
       which is the last one, since phase 10 adds a package and phases 4 through 9
       are closure-neutral. Separately, enumerate what phases 2, 3, and 10 changed
-      with `nix store diff-closures` against the 1.1 build, and confirm every
-      entry is named in a task of one of those three phases. A
-      `drvPath` is one opaque hash: it answers equal or unequal and cannot be
-      diffed into a list, so an earlier draft asked for an enumeration the named
-      artifact cannot produce. An unexplained entry is a silent loss.
+      by diffing the derivation-path sets against 1.1's, and confirm every entry
+      is named in a task of one of those three phases. A `drvPath` is one opaque
+      hash: it answers equal or unequal and cannot be diffed into a list, so an
+      earlier draft asked for an enumeration the named artifact cannot produce.
+      The `lv426` half runs locally and the `arrakis` half runs in the CI job 1.1
+      adds. An unexplained entry is a silent loss.
       `deps:` 10.13
 - [ ] 11.2 Act: write the spec deltas this change owes. `agent-state-emission`
       keeps its OSC requirement because 2.2 reverses the deletion, so that one
