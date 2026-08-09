@@ -1,17 +1,56 @@
 state_dir="${XDG_STATE_HOME:-$HOME/.local/state}/agents"
 panes_dir="$state_dir/panes"
 selected_file="$state_dir/selected.json"
+cache_file="$state_dir/sessions.json"
+lock_dir="$state_dir/sessions.lock"
 
 STALE_AFTER=${AGENT_SESSIONS_STALE_AFTER:-10}
+# Every external call this script makes is bounded. A status line runs it on a
+# short timer, so a call that can block forever is not slow, it is unbounded:
+# each hung run holds four processes and the timer keeps starting more.
+PROBE_TIMEOUT=${AGENT_SESSIONS_PROBE_TIMEOUT:-2}
+LOCK_STALE_AFTER=${AGENT_SESSIONS_LOCK_STALE_AFTER:-30}
 
 emit_empty() {
   printf '{"selected":null,"selection_state":"absent","sessions":[]}\n'
   exit 0
 }
 
+# Answer from the last good run rather than computing a second one.
+emit_cached() {
+  if [ -s "$cache_file" ]; then
+    cat "$cache_file"
+    exit 0
+  fi
+  emit_empty
+}
+
 command -v jq > /dev/null 2>&1 || emit_empty
 
+mkdir -p "$state_dir" 2> /dev/null || true
+
+# One instance at a time, because the caller is a timer and not a person.
+#
+# Without this, a run that outlives the timer's interval is joined by the next
+# one rather than replaced by it, and the two stack. That is how a single
+# unresponsive probe turned into thousands of live processes and a machine that
+# could no longer fork.
 now=$(date +%s)
+
+if [ -d "$lock_dir" ]; then
+  born=$(cat "$lock_dir/born" 2> /dev/null)
+  case "$born" in
+    '' | *[!0-9]*) born=0 ;;
+  esac
+  # A lock with no readable birth time is also stale. A run killed between the
+  # mkdir and the stamp would otherwise wedge the timer permanently.
+  if [ "$born" -eq 0 ] || [ "$((now - born))" -ge "$LOCK_STALE_AFTER" ]; then
+    rm -rf "$lock_dir" 2> /dev/null || true
+  fi
+fi
+mkdir "$lock_dir" 2> /dev/null || emit_cached
+printf '%s\n' "$now" > "$lock_dir/born" 2> /dev/null || true
+trap 'rm -rf "$lock_dir" 2> /dev/null || true' EXIT INT TERM
 
 selected=null
 selection_state=absent
@@ -36,7 +75,10 @@ live=""
 have_live=0
 pane_ws=""
 if command -v wezterm > /dev/null 2>&1; then
-  pane_ws=$(wezterm cli list --format json 2> /dev/null |
+  # Bounded. `wezterm cli list` talks to the mux server, and an unresponsive mux
+  # makes it block with no timeout of its own. On a timeout the probe yields
+  # nothing, which `pane_is_live` already reads as "cannot tell, keep the pane".
+  pane_ws=$(timeout "$PROBE_TIMEOUT" wezterm cli list --format json 2> /dev/null |
     jq -r '.[] | "\(.pane_id) \(.workspace // "")"' 2> /dev/null)
   live=$(printf '%s\n' "$pane_ws" | awk 'NF { print $1 }' | tr '\n' ' ')
   [ -n "$live" ] && have_live=1
@@ -98,11 +140,11 @@ rollup=$(
 
 known=$(
   if command -v sy > /dev/null 2>&1; then
-    sy list 2> /dev/null | awk 'NR > 1 && NF > 0 { print $1 }'
+    timeout "$PROBE_TIMEOUT" sy list 2> /dev/null | awk 'NR > 1 && NF > 0 { print $1 }'
   fi
 )
 
-printf '%s' "$rollup" | jq -R -s --arg sel "$selected_file" --argjson selected "$selected" \
+out=$(printf '%s' "$rollup" | jq -R -s --arg sel "$selected_file" --argjson selected "$selected" \
   --arg selstate "$selection_state" --arg known "$known" '
   def rows: split("\n") | map(select(length > 0) | split("\t"));
   ( rows
@@ -122,4 +164,11 @@ printf '%s' "$rollup" | jq -R -s --arg sel "$selected_file" --argjson selected "
   | { selected: $selected,
       selection_state: $selstate,
       sessions: (($active + $idle) | sort_by(-.rank, .name)) }
-' 2> /dev/null || emit_empty
+' 2> /dev/null) || emit_cached
+
+[ -n "$out" ] || emit_cached
+
+# Cached by rename, so a reader never sees a half-written document.
+printf '%s\n' "$out" > "$cache_file.tmp" 2> /dev/null &&
+  mv -f "$cache_file.tmp" "$cache_file" 2> /dev/null
+printf '%s\n' "$out"
