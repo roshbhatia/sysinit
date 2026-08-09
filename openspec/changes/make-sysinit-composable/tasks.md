@@ -1802,8 +1802,38 @@ words: the defect was never the pane, it was an agent opening one.
       One defect found and fixed while testing: Go's `flag` stops at the first
       positional, so `watch bus --no-follow` read `--no-follow` as a directory and
       followed forever. Parsing now runs in passes, one positional per pass.
-- [ ] 5.2 Act: add a wezterm chord that spawns the viewer in a new pane the
+- [x] 5.2 Act: add a wezterm chord that spawns the viewer in a new pane the
       owner asked for. `deps:` 5.1
+
+      Done. Two chords in `wezterm/lua/sysinit/pkg/keybindings.lua`, both
+      `SUPER|SHIFT`: `w` opens this pane's wtrun log, `b` opens the agent bus for
+      this directory. Both split right and run `sysinit-agent watch`. No new
+      wrapper: the binary is already on PATH under its own name.
+
+      Two rather than one picker, because a picker is a mode and each of these is
+      one key with one outcome. `SUPER w` and `SUPER b` are free:
+      `disable_default_key_bindings` is set, and neither appears in the key table.
+
+      The chord resolves the source name in the pane the owner pressed it in, and
+      passes it as an argument. This is the failure 5.1's contract is written to
+      prevent and the chord is where it would happen: the viewer lands in a NEW
+      pane, whose own id names a wtrun directory that was never written and whose
+      working directory is not the worktree being watched.
+
+      No transcript chord. A transcript is keyed by harness session id, which the
+      owner does not know and cannot type. 5.3 records the repository next to the
+      session; a chord becomes possible then.
+
+      Verified by execution, not by parsing. `hack/check-wezterm-chords.sh` loads
+      the module against a stub `wezterm` and presses both chords, asserting the
+      exact argv, that an unresolvable source opens no pane at all, and that
+      locked mode passes the key through. Wired into `.githooks/pre-commit`, and
+      it skips when luajit is absent. Five mutations are each caught: resolving
+      wtrun late, spawning with no directory, ignoring locked mode, dropping the
+      bus chord, and keeping a trailing slash on the working directory.
+
+      Not verified against a running wezterm. That needs a darwin switch, which
+      this task did not run.
 - [ ] 5.3 Act: mirror the native transcript into
       `agents/transcripts/<harness>/<session>.jsonl` for claude only. Claude is
       the one harness whose hook payload carries `transcript_path`. An earlier

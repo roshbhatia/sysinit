@@ -34,6 +34,12 @@ if ! "$repo_root/hack/check-harness-registry.sh"; then
   status=1
 fi
 
+# The wezterm viewer chords. A chord body only runs when the key is pressed, so
+# without this a typo inside one reaches the owner as a broken config.
+if ! "$repo_root/hack/check-wezterm-chords.sh"; then
+  status=1
+fi
+
 command -v citelock > /dev/null 2>&1 || exit "$status"
 while IFS= read -r lock; do
   [[ -z ${lock} ]] && continue

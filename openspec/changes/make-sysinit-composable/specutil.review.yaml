@@ -1,9 +1,9 @@
 version: 1
 change: make-sysinit-composable
 decision: approved
-note: '5.1: sysinit-agent watch, one resolution key per source, liveness rejects and never confirms.'
-change_hash: 056d407a5a045dbe
-base_commit: 8551516406508a26d9164802d99581475cd8e037
+note: '5.2: two owner-pressed viewer chords, argv asserted by a stub-load check in pre-commit.'
+change_hash: 5ee3e3569c491d9e
+base_commit: f6808f019f62b8d7edf4b4f681ac43edf84dc6fa
 items:
     0cd74be6febf08e9:
         hash: 7262630e5226087a
