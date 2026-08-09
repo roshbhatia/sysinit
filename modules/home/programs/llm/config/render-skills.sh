@@ -3,7 +3,25 @@
 set -euo pipefail
 
 SRC="${SYSINIT_SKILL_SRC:?SYSINIT_SKILL_SRC must name the skill source directory}"
-OUT="${SYSINIT_SKILL_OUT:-${XDG_STATE_HOME:-$HOME/.local/state}/sysinit/llm/skills}"
+# Read one path out of the paths manifest. The layout has one owner,
+# modules/shared/options/paths-layout.json, and this only reads it.
+#
+# sysinit:documented-default
+# The one fallback in this file. It locates the manifest, and it is the root a
+# caller composes under when the manifest has no answer.
+sysinit_state_root="${XDG_STATE_HOME:-$HOME/.local/state}"
+sysinit_manifest="${SYSINIT_PATHS_MANIFEST:-$sysinit_state_root/sysinit/paths.json}"
+
+sysinit_path() {
+  [ -s "$sysinit_manifest" ] || return 1
+  command -v jq > /dev/null 2>&1 || return 1
+  sp_value=$(jq -er --arg k "$1" '.paths[$k] // empty' "$sysinit_manifest" 2> /dev/null) || return 1
+  [ -n "$sp_value" ] || return 1
+  printf '%s\n' "$sp_value"
+}
+
+OUT="${SYSINIT_SKILL_OUT:-$(sysinit_path llmSkills)}"
+: "${OUT:?the paths manifest has no llmSkills entry and SYSINIT_SKILL_OUT is unset}"
 SHARED="$SRC/_shared"
 
 PREAMBLE='> Normative keywords follow [RFC 2119](https://datatracker.ietf.org/doc/html/rfc2119); "never" is MUST NOT, "always" is MUST, "prefer" is SHOULD.'

@@ -1200,7 +1200,7 @@ words: the defect was never the pane, it was an agent opening one.
 
 - **SHAPE** graph
 
-- [ ] 4.1 Act: add `modules/shared/options/paths.nix` owning every state path.
+- [x] 4.1 Act: add `modules/shared/options/paths.nix` owning every state path.
       Generate a JSON manifest from it that Go, shell, lua, python, and YAML
       read, so the five derivations become one. All five: an earlier draft named
       four and silently dropped `seshy/config.yaml:5`, which the proposal counts
@@ -1238,6 +1238,43 @@ words: the defect was never the pane, it was an agent opening one.
       which phase 9 already uses the word for. One word, one meaning is this
       change's own rule, and an earlier draft had the word naming two artifacts
       across a phase boundary.
+
+      `modules/shared/options/paths-layout.json` is the template and the one
+      producer. `modules/shared/options/paths.nix` substitutes `$HOME` into it
+      and writes the paths manifest to `~/.local/state/sysinit/paths.json`. All
+      five consumers read it: `runtime/paths.sh` for shell,
+      `internal/paths/paths.go` for Go, `sysinit_path()` in `worklog-hook.py`
+      for python, `utils.state_path()` for lua, and `seshy/default.nix` for
+      YAML at build time.
+
+      Each reader was proved to follow a redirected manifest rather than only
+      its default. Pointing `SYSINIT_PATHS_MANIFEST` (or `XDG_STATE_HOME` for
+      lua, which has no override) at a manifest naming `/tmp/pathsproof/st`
+      moved shell, Go, python, and lua all to that root, and an absent key fell
+      back per consumer. The installed `~/.config/seshy/config.yaml` reads
+      `sessionsDir: "/Users/rshnbhatia/.local/state/seshy/sessions"`, so YAML is
+      resolved from the same layout.
+
+      The absolute-path requirement was confirmed rather than assumed, by
+      reading the environment of live processes with `ps -Eww`. `wezterm-gui`
+      (pid 1679) and `sketchybar` (pid 1101) both carry `HOME` and no
+      `XDG_STATE_HOME`, which covers the lua reader and the shell readers
+      sketchybar invokes. The python reader is NOT confirmed on this launch
+      path: `worklog-hook.py` is spawned by `claude`, and this `claude` (pid
+      2663) does carry `XDG_STATE_HOME` because a shell launched it. An
+      absolute manifest is still right there, because it costs nothing and the
+      desktop-app launch of `claude` has no shell above it.
+
+      `sysinit:documented-default` marks one occurrence per consumer file. The
+      Go, python, and lua defaults locate the manifest and serve as the root a
+      missing key falls back under; `runtime/paths.sh` fails rather than
+      guessing, so each runtime script writes its own marked fallback. Three
+      Go tests pin the default (`note_test.go:148`, `agentstate_test.go:214`,
+      `statusline_test.go:30`), which 4.3 must exempt alongside prose.
+      `statusline_test.go` needed updating: the seshy root used to come from
+      `HOME` alone there while `agentstate` honoured `XDG_STATE_HOME`, and
+      unifying both through `internal/paths` is exactly the divergence 4.2
+      names.
       `deps:` 2.9
 - [ ] 4.2 Verify: the `XDG_STATE_HOME` divergence at `ui.lua:296`, `:312`,
       `:564`, and `:1735` is fixed, decided by launching wezterm itself with

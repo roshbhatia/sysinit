@@ -1,9 +1,9 @@
 version: 1
 change: make-sysinit-composable
 decision: approved
-note: 'Phase 3 complete, all 15 tasks. Carries forward the owner directive of 2026-08-08 that this apply proceeds on deterministic lint alone: no critic ran and 3.15 records the not-run terminal state. 3.10 ran as an experiment and overturned the 3.1 probe, so design.md, the note usage text, the note skill, and the pi extension all now say re-run review. Two silent losses were found by running rather than reading: hunk hides agent notes by default, and deleting the diffnote shim left sysinit-agent on no PATH.'
-change_hash: e0b753160a09b570
-base_commit: c874a0ed405f8cb5ab0b32a5e7cccb10c6837c35
+note: 'Phase 4.1: paths manifest, five readers proved against a redirected manifest.'
+change_hash: 61c4f5a5de270068
+base_commit: d70122dad432c0516bc007b31903b660ead31070
 items:
     0cd74be6febf08e9:
         hash: 7262630e5226087a

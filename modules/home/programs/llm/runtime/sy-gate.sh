@@ -40,7 +40,9 @@ fi
 
 session_dir=$("$SY_REAL" path "$name" 2> /dev/null) || session_dir=""
 if [ -z "$session_dir" ] || [ ! -d "$session_dir" ]; then
-  session_dir="$HOME/.local/state/seshy/sessions/$name"
+  # sysinit:documented-default
+  sg_root=$(sysinit_path seshySessions) || sg_root="$HOME/.local/state/seshy/sessions"
+  session_dir="$sg_root/$name"
 fi
 
 if [ ! -d "$session_dir" ]; then

@@ -100,6 +100,9 @@ let
     else
       "";
 
+  # Prepended wherever a script needs a state path, so no script composes one.
+  paths = builtins.readFile ./paths.sh;
+
   identity = builtins.readFile ./agent-identity.sh;
 
   group = builtins.readFile ./agent-group.sh;
@@ -132,7 +135,16 @@ let
       pkgs.wezterm
     ];
     bashOptions = [ ];
-    text = group + "\n" + reviewSuffix + "\n" + identity + "\n" + builtins.readFile ./agent-notify.sh;
+    text =
+      paths
+      + "\n"
+      + group
+      + "\n"
+      + reviewSuffix
+      + "\n"
+      + identity
+      + "\n"
+      + builtins.readFile ./agent-notify.sh;
   };
 
   stateScript = pkgs.writeShellApplication {
@@ -162,6 +174,8 @@ let
       NOTIFY_EXE=${lib.getExe script}
     ''
     + "\n"
+    + paths
+    + "\n"
     + group
     + "\n"
     + identity
@@ -179,7 +193,7 @@ let
       pkgs.seshy
     ];
     bashOptions = [ ];
-    text = builtins.readFile ./agent-sessions.sh;
+    text = paths + "\n" + builtins.readFile ./agent-sessions.sh;
   };
 
   reviewScript = pkgs.writeShellApplication {
@@ -191,7 +205,7 @@ let
       pkgs.gnugrep
       pkgs.wezterm
     ];
-    text = busyPanes + "\n" + builtins.readFile ./agent-review.sh;
+    text = paths + "\n" + busyPanes + "\n" + builtins.readFile ./agent-review.sh;
   };
 
   loopGate = pkgs.writeShellApplication {
@@ -239,7 +253,7 @@ let
       pkgs.findutils
       pkgs.gnugrep
     ];
-    text = builtins.readFile ./agent-refine.sh;
+    text = paths + "\n" + builtins.readFile ./agent-refine.sh;
   };
 
   syGate = pkgs.writeShellApplication {
@@ -251,6 +265,8 @@ let
     text = ''
       SY_REAL=${lib.getExe' pkgs.seshy "sy"}
     ''
+    + "\n"
+    + paths
     + "\n"
     + builtins.readFile ./sy-gate.sh;
   };

@@ -1,7 +1,25 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-WORKLOG_FILE="${CLAUDE_WORKLOG_FILE:-${HOME}/.local/state/agents/worklog.jsonl}"
+# Read one path out of the paths manifest. The layout has one owner,
+# modules/shared/options/paths-layout.json, and this only reads it.
+#
+# sysinit:documented-default
+# The one fallback in this file. It locates the manifest, and it is the root a
+# caller composes under when the manifest has no answer.
+sysinit_state_root="${XDG_STATE_HOME:-$HOME/.local/state}"
+sysinit_manifest="${SYSINIT_PATHS_MANIFEST:-$sysinit_state_root/sysinit/paths.json}"
+
+sysinit_path() {
+  [ -s "$sysinit_manifest" ] || return 1
+  command -v jq > /dev/null 2>&1 || return 1
+  sp_value=$(jq -er --arg k "$1" '.paths[$k] // empty' "$sysinit_manifest" 2> /dev/null) || return 1
+  [ -n "$sp_value" ] || return 1
+  printf '%s\n' "$sp_value"
+}
+
+WORKLOG_FILE="${CLAUDE_WORKLOG_FILE:-$(sysinit_path agentWorklog)}"
+: "${WORKLOG_FILE:?the paths manifest has no agentWorklog entry and CLAUDE_WORKLOG_FILE is unset}"
 
 usage() {
   cat >&2 << 'EOF'
@@ -14,7 +32,8 @@ commands:
                                                    via temp-file + atomic mv; existing summaries are never overwritten
 
 TS compares lexicographically against .ts (ISO-8601, e.g. 2026-06-09).
-Reads $CLAUDE_WORKLOG_FILE, default ~/.local/state/agents/worklog.jsonl. Malformed
+Reads $CLAUDE_WORKLOG_FILE, default the agentWorklog entry of the paths
+manifest. Malformed
 lines are skipped by list/pending and preserved verbatim by apply.
 EOF
   exit 2

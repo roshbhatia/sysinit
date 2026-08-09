@@ -15,7 +15,8 @@ agent_identity() {
 
   AI_WORKSPACE=$(ai_workspace "$ai_pane")
 
-  ai_seshy_root="$HOME/.local/state/seshy/sessions"
+  # sysinit:documented-default
+  ai_seshy_root=$(sysinit_path seshySessions) || ai_seshy_root="$HOME/.local/state/seshy/sessions"
   AI_SESSION=""
   case "$ai_cwd/" in
     "$ai_seshy_root"/*)

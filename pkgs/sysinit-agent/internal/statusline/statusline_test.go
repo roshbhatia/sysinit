@@ -23,7 +23,12 @@ func TestWholePercentDropsTheFraction(t *testing.T) {
 }
 
 func TestSeshySessionNamesOnlyDirectoriesInsideASession(t *testing.T) {
+	// Both, because the seshy root now comes from internal/paths, which honours
+	// XDG_STATE_HOME. This file used to derive it from HOME alone while
+	// agentstate honoured the variable, and those two answers disagreed.
 	t.Setenv("HOME", "/home/someone")
+	t.Setenv("XDG_STATE_HOME", "/home/someone/.local/state")
+	t.Setenv("SYSINIT_PATHS_MANIFEST", filepath.Join(t.TempDir(), "absent.json"))
 	root := "/home/someone/.local/state/seshy/sessions"
 	if got := seshySession(root + "/zulu/repo/src"); got != "zulu" {
 		t.Errorf("seshySession = %q, want zulu", got)

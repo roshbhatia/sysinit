@@ -9,8 +9,26 @@ die() {
 
 [ -n "${WEZTERM_PANE:-}" ] || die "not inside a WezTerm pane"
 
+# Read one path out of the paths manifest. The layout has one owner,
+# modules/shared/options/paths-layout.json, and this only reads it.
+#
+# sysinit:documented-default
+# The one fallback in this file. It locates the manifest, and it is the root a
+# caller composes under when the manifest has no answer.
+sysinit_state_root="${XDG_STATE_HOME:-$HOME/.local/state}"
+sysinit_manifest="${SYSINIT_PATHS_MANIFEST:-$sysinit_state_root/sysinit/paths.json}"
+
+sysinit_path() {
+  [ -s "$sysinit_manifest" ] || return 1
+  command -v jq > /dev/null 2>&1 || return 1
+  sp_value=$(jq -er --arg k "$1" '.paths[$k] // empty' "$sysinit_manifest" 2> /dev/null) || return 1
+  [ -n "$sp_value" ] || return 1
+  printf '%s\n' "$sp_value"
+}
+
 session="${WTRUN_SESSION:-pane-${WEZTERM_PANE}}"
-here="${XDG_STATE_HOME:-$HOME/.local/state}/agents/wtrun/$session"
+wtrun_root=$(sysinit_path agentWtrun) || wtrun_root="$sysinit_state_root/agents/wtrun"
+here="$wtrun_root/$session"
 mkdir -p "$here"
 state="$here/worker-pane"
 counter="$here/worker-runs"

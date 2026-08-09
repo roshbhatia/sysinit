@@ -15,6 +15,8 @@ import (
 	"path/filepath"
 	"sort"
 	"strings"
+
+	"github.com/roshbhatia/sysinit/pkgs/sysinit-agent/internal/paths"
 )
 
 const Summary = "render the claude status line"
@@ -101,7 +103,7 @@ func gitBranch(dir string) string {
 
 // seshySession names the session when the directory sits inside one.
 func seshySession(dir string) string {
-	root := filepath.Join(os.Getenv("HOME"), ".local", "state", "seshy", "sessions")
+	root := paths.SeshySessions()
 	rest := strings.TrimPrefix(dir, root+"/")
 	if rest == dir {
 		return ""

@@ -20,6 +20,28 @@ MAX_FILES = 50
 PROMPT_CHARS = 200
 
 
+def sysinit_path(key: str, fallback_suffix: str) -> Path:
+    """Read one absolute path out of the sysinit paths manifest.
+
+    `modules/shared/options/paths-layout.json` is the only place the layout is
+    written down. This reads the manifest that module generates, so this file
+    is a reader of the layout rather than a second producer of it.
+    """
+    # sysinit:documented-default
+    # The one default in this file. It locates the manifest, and it is the root
+    # each key falls back under when the manifest is absent, which is the case
+    # on a box installed without Nix.
+    root = os.environ.get("XDG_STATE_HOME") or str(Path.home() / ".local/state")
+    manifest = Path(os.environ.get("SYSINIT_PATHS_MANIFEST") or f"{root}/sysinit/paths.json")
+    try:
+        value = json.loads(manifest.read_text(encoding="utf-8"))["paths"][key]
+    except Exception:
+        return Path(root) / fallback_suffix
+    if not isinstance(value, str) or not value:
+        return Path(root) / fallback_suffix
+    return Path(value.rstrip("/"))
+
+
 def run(args: list[str]) -> str | None:
     """Run a command, returning stripped stdout, or None on any failure."""
     try:
@@ -250,7 +272,7 @@ def main() -> None:
     session_name = ""
     repos: list[dict] = []
 
-    seshy_root = Path.home() / ".local/state/seshy/sessions"
+    seshy_root = sysinit_path("seshySessions", "seshy/sessions")
     cwd_path = Path(cwd) if cwd else None
     in_seshy = False
     if cwd_path is not None:
@@ -324,7 +346,7 @@ def main() -> None:
             # agent cannot read it without granting Full Disk Access to /bin/bash.
             # The gist-sync timer failed on exactly that for months.
             "CLAUDE_WORKLOG_FILE",
-            str(Path.home() / ".local/state/agents/worklog.jsonl"),
+            str(sysinit_path("agentWorklog", "agents/worklog.jsonl")),
         )
     )
     log.parent.mkdir(parents=True, exist_ok=True)

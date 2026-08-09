@@ -1,5 +1,7 @@
-STATE_DIR="${AGENT_REFINE_STATE_DIR:-$HOME/.local/state/agents/refine}"
-WORKLOG="${CLAUDE_WORKLOG_FILE:-$HOME/.local/state/agents/worklog.jsonl}"
+# sysinit:documented-default
+ar_agents="$HOME/.local/state/agents"
+STATE_DIR="${AGENT_REFINE_STATE_DIR:-$(sysinit_path agentRefine || printf %s "$ar_agents/refine")}"
+WORKLOG="${CLAUDE_WORKLOG_FILE:-$(sysinit_path agentWorklog || printf %s "$ar_agents/worklog.jsonl")}"
 MEMORY_ROOT="${AGENT_REFINE_MEMORY_ROOT:-$HOME/.claude/projects}"
 WINDOW_DAYS="${AGENT_REFINE_WINDOW_DAYS:-7}"
 

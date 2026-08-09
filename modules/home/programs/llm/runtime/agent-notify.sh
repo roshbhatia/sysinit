@@ -2,6 +2,12 @@ agent=${1:-agent}
 reason=${2:-attention}
 focus_exe=${3:-}
 
+# sysinit:documented-default
+# The one fallback in this file, reached only when the paths manifest is
+# absent. Both state paths below derive from it, so the layout is written
+# here once rather than once per branch.
+an_agents="${XDG_STATE_HOME:-$HOME/.local/state}/agents"
+
 notifier=$(command -v alerter 2> /dev/null) || exit 0
 
 input=""
@@ -70,7 +76,8 @@ if [ "$reason" = "attention" ]; then
 fi
 
 if [ "$reason" = "done" ] && [ -n "${WEZTERM_PANE:-}" ]; then
-  start_file="${XDG_STATE_HOME:-$HOME/.local/state}/agents/panes/$WEZTERM_PANE.start"
+  an_panes=$(sysinit_path agentPanes) || an_panes="$an_agents/panes"
+  start_file="$an_panes/$WEZTERM_PANE.start"
   if [ -f "$start_file" ]; then
     start=$(cat "$start_file" 2> /dev/null) || start=0
     now=$(date +%s 2> /dev/null) || now=0
@@ -80,7 +87,7 @@ if [ "$reason" = "done" ] && [ -n "${WEZTERM_PANE:-}" ]; then
 fi
 
 if [ "$reason" = "idle" ]; then
-  notif_dir="${XDG_STATE_HOME:-$HOME/.local/state}/agents/notif"
+  notif_dir=$(sysinit_path agentNotif) || notif_dir="$an_agents/notif"
   mkdir -p "$notif_dir" 2> /dev/null || true
   if [ -n "$pane" ]; then
     dedup_key="${pane}_idle"

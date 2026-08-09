@@ -14,6 +14,8 @@ import (
 	"os/exec"
 	"path/filepath"
 	"strings"
+
+	"github.com/roshbhatia/sysinit/pkgs/sysinit-agent/internal/paths"
 )
 
 // ErrOutsideRoot is returned for a path that does not name a file inside the
@@ -56,18 +58,12 @@ func filterEnv(env []string, drop ...string) []string {
 	return kept
 }
 
-// StateHome returns XDG_STATE_HOME with any trailing slash removed, falling
-// back to $HOME/.local/state.
+// StateHome is the root the note record and its export sit under.
 //
-// The trailing slash matters: a process launched from a mux server inherits no
-// session variables, so the fallback branch is the one that runs in practice,
-// and a trailing slash would key the same repository on a second path.
+// It delegates rather than deriving. The layout has one owner, the paths
+// manifest, and internal/paths is this module's only reader of it.
 func StateHome() string {
-	home := strings.TrimRight(os.Getenv("XDG_STATE_HOME"), "/")
-	if home != "" {
-		return home
-	}
-	return filepath.Join(os.Getenv("HOME"), ".local", "state")
+	return paths.StateHome()
 }
 
 // NoteFile returns the note-record path for root.

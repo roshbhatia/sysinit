@@ -21,6 +21,8 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/roshbhatia/sysinit/pkgs/sysinit-agent/internal/paths"
 )
 
 const Summary = "record this pane's agent status for the wezterm surfaces"
@@ -45,10 +47,7 @@ type state struct {
 }
 
 func stateHome() string {
-	if home := strings.TrimRight(os.Getenv("XDG_STATE_HOME"), "/"); home != "" {
-		return home
-	}
-	return filepath.Join(os.Getenv("HOME"), ".local", "state")
+	return paths.StateHome()
 }
 
 // Run records the status and always returns 0.
@@ -299,7 +298,7 @@ func identify(dir string) identity {
 	// A reader that wants the fallback resolves it live. ui.lua already does
 	// (pkg/ui.lua:357, :731) and agent-sessions.sh does it from the
 	// `wezterm cli list` it already runs.
-	seshyRoot := filepath.Join(os.Getenv("HOME"), ".local", "state", "seshy", "sessions")
+	seshyRoot := paths.SeshySessions()
 	if rest := strings.TrimPrefix(dir, seshyRoot+"/"); rest != dir {
 		id.session = strings.SplitN(rest, "/", 2)[0]
 	}

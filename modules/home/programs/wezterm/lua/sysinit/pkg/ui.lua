@@ -184,7 +184,7 @@ function M.setup(config)
       if not ok_ws or type(ws) ~= "string" or ws == "" then
         return
       end
-      local state = (os.getenv("XDG_STATE_HOME") or (os.getenv("HOME") .. "/.local/state")) .. "/agents"
+      local state = utils.state_path("agents", "agents")
       pcall(function()
         os.execute("mkdir -p " .. ("%q"):format(state))
       end)
@@ -292,8 +292,7 @@ function M.setup(config)
   end
 
   local function read_pane_git(pane_id)
-    local home = os.getenv("HOME") or ""
-    local path = home .. "/.local/state/agents/panes/" .. tostring(pane_id) .. ".json"
+    local path = utils.state_path("agentPanes", "agents/panes") .. "/" .. tostring(pane_id) .. ".json"
     local f = io.open(path, "r")
     if not f then return nil end
     local content = f:read("*a")
@@ -309,7 +308,7 @@ function M.setup(config)
   local function smart_path(full_cwd)
     if not full_cwd or full_cwd == "" then return "" end
     local home = os.getenv("HOME") or ""
-    local seshy_base = home .. "/.local/state/seshy/sessions"
+    local seshy_base = utils.state_path("seshySessions", "seshy/sessions")
     if full_cwd == seshy_base or full_cwd:sub(1, #seshy_base + 1) == seshy_base .. "/" then
       local after = full_cwd:sub(#seshy_base + 2)  -- "<session>[/rest]"
       return after ~= "" and ("{sy}/" .. after) or "{sy}"
@@ -561,7 +560,7 @@ function M.setup(config)
   end
 
   local home = os.getenv("HOME") or ""
-  local seshy_dir = home .. "/.local/state/seshy/sessions"
+  local seshy_dir = utils.state_path("seshySessions", "seshy/sessions")
   local sy_bin = home .. "/.local/bin/sy"
   do
     local env = utils.load_json_file(utils.get_config_path("env.json"))
@@ -1732,7 +1731,7 @@ function M.setup(config)
 
     wm.session_enabled = true
     wm.session_restore_on_startup = false
-    wm.session_state_dir = home .. "/.local/state/wezterm/workspace_state"
+    wm.session_state_dir = utils.state_path("weztermWorkspaceState", "wezterm/workspace_state")
     wm.workspace_switcher_sort = "recency"
 
     wm.apply_to_config(config)

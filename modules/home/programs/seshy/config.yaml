@@ -1,8 +1,9 @@
 # Branch naming template. Variables: {{.Session}}, {{.Repo}}, {{.User}}
 branchFormat: "dev/{{.User}}/{{.Session}}/{{.Repo}}"
 
-# Sessions storage directory
-sessionsDir: "~/.local/state/seshy/sessions"
+# Sessions storage directory. Substituted from the paths manifest at build
+# time by default.nix, because YAML cannot read a manifest at runtime.
+sessionsDir: "@seshySessions@"
 
 # Lifecycle hooks. Rendered as Go templates, run via `sh -c`, cwd = session dir.
 # Init OpenSpec once at the session root. Idempotent: skips if already inited.

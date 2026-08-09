@@ -1,0 +1,18 @@
+{
+  "version": 1,
+  "comment": "The one producer of every sysinit state path. Nix reads this and emits the paths manifest; a box with no Nix expands it with $HOME and gets the same file. Every path is spelled in full rather than composed from stateHome, because the only substitution allowed here is $HOME, and a second pass would make the expander something a shell one-liner cannot be. See modules/shared/options/paths.nix.",
+  "paths": {
+    "stateHome": "$HOME/.local/state",
+    "agents": "$HOME/.local/state/agents",
+    "agentPanes": "$HOME/.local/state/agents/panes",
+    "agentNotif": "$HOME/.local/state/agents/notif",
+    "agentRefine": "$HOME/.local/state/agents/refine",
+    "agentWtrun": "$HOME/.local/state/agents/wtrun",
+    "agentDiffNotes": "$HOME/.local/state/agents/diff-notes",
+    "agentWorklog": "$HOME/.local/state/agents/worklog.jsonl",
+    "seshySessions": "$HOME/.local/state/seshy/sessions",
+    "weztermWorkspaceState": "$HOME/.local/state/wezterm/workspace_state",
+    "llmSkills": "$HOME/.local/state/sysinit/llm/skills",
+    "manifest": "$HOME/.local/state/sysinit/paths.json"
+  }
+}

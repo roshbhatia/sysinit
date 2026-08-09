@@ -1,4 +1,5 @@
-state_dir="${XDG_STATE_HOME:-$HOME/.local/state}/agents"
+# sysinit:documented-default
+state_dir=$(sysinit_path agents) || state_dir="${XDG_STATE_HOME:-$HOME/.local/state}/agents"
 panes_dir="$state_dir/panes"
 selected_file="$state_dir/selected.json"
 cache_file="$state_dir/sessions.json"
