@@ -45,25 +45,17 @@ if [ "$eff_reason" = "attention" ]; then
   esac
 fi
 
-approve_keys=""
-reject_keys=""
-case "$agent" in
-  claude)
-    approve_keys=$(printf '\r')
-    reject_keys=$(printf '\033')
-    ;;
-  codex)
-    approve_keys="y"
-    reject_keys="n"
-    ;;
-esac
-
 pane=${WEZTERM_PANE:-}
 alerter=$(command -v alerter 2> /dev/null || true)
 
+# No `approve_keys` clause. It used to stand here and it was doing two jobs: it
+# selected the rich alerter, and it also restricted the rich alerter to claude
+# and codex, because those were the only two agents with a keystroke table. The
+# table is gone, so the restriction went with it and every agent now gets the
+# same notification. The alerter no longer answers a prompt; it tells you an
+# agent is waiting and puts you in the pane when you click.
 if [ -z "$alerter" ] ||
   [ "$eff_reason" != "approval" ] ||
-  [ -z "$approve_keys" ] ||
   [ -z "$pane" ]; then
   plain_notify
   exit 0
@@ -104,15 +96,12 @@ title="$label · needs your approval"
 body=${msg:-needs your approval}
 group=$(agent_group "$agent" "$context" "$pane")
 
-wz=$(command -v wezterm 2> /dev/null || true)
-
 (
   action=$(
     "$alerter" \
       --title "$title" \
       --subtitle "$context" \
       --message "$body" \
-      --actions "Accept,Deny" \
       --app-icon "$icon" \
       --content-image "$icon" \
       --sound "Blow" \
@@ -121,20 +110,17 @@ wz=$(command -v wezterm 2> /dev/null || true)
       2> /dev/null
   ) || action=""
 
-  keys=""
+  # One arm, and it is the owner clicking. `--actions "Accept,Deny"` is gone
+  # from the alerter call above, so `Accept` and `Deny` are no longer reachable
+  # actions and their arms went with them. `@ACTIONCLICKED` stays because
+  # alerter still reports it for a click on the notification body.
   case "$action" in
-    Accept) keys=$approve_keys ;;
-    Deny) keys=$reject_keys ;;
     @CONTENTCLICKED | @ACTIONCLICKED)
       if [ -n "$focus_exe" ]; then
         "$focus_exe" "$pane" "$session" > /dev/null 2>&1 || true
       fi
       ;;
   esac
-
-  if [ -n "$keys" ] && [ -n "$wz" ]; then
-    printf '%s' "$keys" | "$wz" cli send-text --no-paste --pane-id "$pane" 2> /dev/null || true
-  fi
 ) < /dev/null > /dev/null 2>&1 &
 disown 2> /dev/null || true
 

@@ -91,7 +91,7 @@ func Run(args []string) int {
 	if os.MkdirAll(stateDir, 0o755) != nil {
 		return 0
 	}
-	id := identify(cwd(), pane)
+	id := identify(cwd())
 	record := state{
 		Pane:     paneValue(pane),
 		Session:  id.session,
@@ -283,18 +283,25 @@ type identity struct {
 	worktree string
 }
 
-func identify(dir, pane string) identity {
+func identify(dir string) identity {
 	var id identity
-	workspace := paneWorkspace(pane)
 
-	// A seshy session directory names the session in its path. That is
-	// authoritative; the wezterm workspace is the fallback.
+	// A seshy session directory names the session in its path. That is the only
+	// session source here now.
+	//
+	// The wezterm workspace used to be the fallback, resolved by forking
+	// `wezterm cli list` on every tool call. That fork is gone. It cost a
+	// process per call to answer a question the readers can already answer for
+	// themselves, and caching it would have been worse: a workspace is a
+	// per-pane fact recorded under a bare pane id, so a reused id would serve
+	// the previous occupant's value.
+	//
+	// A reader that wants the fallback resolves it live. ui.lua already does
+	// (pkg/ui.lua:357, :731) and agent-sessions.sh does it from the
+	// `wezterm cli list` it already runs.
 	seshyRoot := filepath.Join(os.Getenv("HOME"), ".local", "state", "seshy", "sessions")
 	if rest := strings.TrimPrefix(dir, seshyRoot+"/"); rest != dir {
 		id.session = strings.SplitN(rest, "/", 2)[0]
-	}
-	if id.session == "" && workspace != "" && workspace != "default" {
-		id.session = workspace
 	}
 
 	toplevel := gitOut(dir, "rev-parse", "--show-toplevel")
@@ -316,31 +323,4 @@ func gitOut(dir string, args ...string) string {
 		return ""
 	}
 	return strings.TrimRight(string(out), "\n")
-}
-
-// paneWorkspace asks wezterm which workspace owns this pane.
-//
-// Absent wezterm this is simply unknown, not an error: the same command runs
-// under other terminals, where the file bus is still worth writing.
-func paneWorkspace(pane string) string {
-	if pane == "" {
-		return ""
-	}
-	out, err := exec.Command("wezterm", "cli", "list", "--format", "json").Output()
-	if err != nil {
-		return ""
-	}
-	var panes []struct {
-		PaneID    json.Number `json:"pane_id"`
-		Workspace string      `json:"workspace"`
-	}
-	if json.Unmarshal(out, &panes) != nil {
-		return ""
-	}
-	for _, entry := range panes {
-		if entry.PaneID.String() == pane {
-			return entry.Workspace
-		}
-	}
-	return ""
 }

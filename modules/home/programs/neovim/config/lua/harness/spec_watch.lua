@@ -120,10 +120,22 @@ function M.setup()
   vim.api.nvim_create_user_command("HarnessSpecWatch", function()
     M.toggle()
   end, { desc = "Harness: toggle openspec artifact auto-preview" })
-  M.start()
+
+  -- No M.start() here. The watcher is opt-in: run :HarnessSpecWatch to turn it
+  -- on. It used to start unconditionally, which opened a preview the owner
+  -- never asked for.
+  --
+  -- The guard below is the other half of that edit and is not optional.
+  -- Re-rooting on DirChanged is still right, because the watcher is anchored to
+  -- an openspec/ directory and a cd can move it. But the callback was stop-then-
+  -- start with no condition, so it would restart the watcher after the owner
+  -- toggled it off. Restart only what was running.
   vim.api.nvim_create_autocmd("DirChanged", {
     group = vim.api.nvim_create_augroup("harness_spec_watch", { clear = true }),
     callback = function()
+      if not M.is_active() then
+        return
+      end
       M.stop()
       M.start()
     end,

@@ -220,7 +220,7 @@ removal. And `:130` activates a pane, which is remote control, and 2.1 keeps it
 because the owner clicked. Task 2.4 already states the correct rule in its own
 words: the defect was never the pane, it was an agent opening one.
 
-- [ ] 2.1 Act: in `runtime/agent-prompt.sh`, delete the `Accept)` and `Deny)`
+- [x] 2.1 Act: in `runtime/agent-prompt.sh`, delete the `Accept)` and `Deny)`
       arms of the `case` at `:125`, the `send-text` block at `:135-137`, the
       `approve_keys` and `reject_keys` tables at `:50-59`, and
       `--actions "Accept,Deny"` at `:115`. Do not delete by line range: `:128-132`
@@ -230,7 +230,7 @@ words: the defect was never the pane, it was an agent opening one.
       non-empty and would otherwise be decided by a table that no longer exists.
       The agent deck stays. The notification says an agent needs you, and
       clicking it puts you in the pane, where you answer. `deps:` 1.1
-- [ ] 2.2 Act: keep the OSC `SetUserVar` write in `internal/agentstate`. An
+- [x] 2.2 Act: keep the OSC `SetUserVar` write in `internal/agentstate`. An
       earlier draft deleted it. That was wrong twice over: a program reporting
       its own status to its own terminal is self-report, not remote control, and
       `archive/2026-07-08-surface-agent-session-state/design.md:49-59` already
@@ -253,12 +253,12 @@ words: the defect was never the pane, it was an agent opening one.
       Resolve it live there from the `wezterm cli list` the script already runs at
       `:38`. `ui.lua` already resolves it live (`:357`, `:731`) and needs nothing.
       `deps:` 1.1
-- [ ] 2.3 Act: leave `pane_agent_state` at `wezterm/lua/sysinit/pkg/ui.lua`
+- [x] 2.3 Act: leave `pane_agent_state` at `wezterm/lua/sysinit/pkg/ui.lua`
       alone. An earlier draft deleted `:330-348` as "the user-var path". That
       range is the whole function, and `:342-346` is the agent-deck fallback,
       which is the only status source for the seven harnesses that fire no
       hooks. `deps:` 2.2
-- [ ] 2.4 Act: stop exposing `wtrun` to agents. Remove it from the rendered
+- [x] 2.4 Act: stop exposing `wtrun` to agents. Remove it from the rendered
       skill set so it is an owner command only. Do not reimplement it as a child
       process. `skills/wtrun/SKILL.md:47-56` documents five guarantees, and a
       child of an agent's tool call keeps none of them. It also loses four
@@ -269,7 +269,7 @@ words: the defect was never the pane, it was an agent opening one.
       guarantee anywhere. An earlier draft cited `:58-70` for all four, which
       overruns a 66-line file. The defect was never the pane. It was an agent
       opening one. `deps:` 1.1
-- [ ] 2.5 Act: make `spec_watch.lua` opt-in by deleting the unconditional
+- [x] 2.5 Act: make `spec_watch.lua` opt-in by deleting the unconditional
       auto-start at `spec_watch.lua:123`. The `:HarnessSpecWatch` command
       already exists at `:120-122` with its toggle at `:106-117`. That is not the
       whole edit, and an earlier draft said it was. `:124-130` registers a
@@ -281,7 +281,7 @@ words: the defect was never the pane, it was an agent opening one.
       fresh editor that never changed directory passes with the defect present.
       An earlier draft also cited `:19-27`, which is the `watchable(path)`
       filename predicate and not the watcher. `deps:` 1.1
-- [ ] 2.6 Act: delete `neovim/config/lua/harness/control.lua` and
+- [x] 2.6 Act: delete `neovim/config/lua/harness/control.lua` and
       `neovim/config/bin/nvim-ctl`. In `harness/api.lua`, delete only the
       `harness.control` line at `:199`. Do not delete `:196-201`: that range is
       the whole of `M.setup`, and removing it breaks `harness.completion`,
@@ -296,7 +296,7 @@ words: the defect was never the pane, it was an agent opening one.
       repository does not generate. The strongest reason is `ops.command` at
       `control.lua:297`, which runs an arbitrary `vim.cmd` on request.
       `deps:` 1.1
-- [ ] 2.7 Act: cut the agent's route into the editor's pane-driving code, and
+- [x] 2.7 Act: cut the agent's route into the editor's pane-driving code, and
       leave the owner's. An earlier draft deleted the wezterm control surface in
       `harness/preview.lua`, `utils/wezterm_terminal.lua`,
       `harness/adapters/claudecode.lua`, and `harness/lifecycle.lua` outright.
@@ -334,7 +334,7 @@ words: the defect was never the pane, it was an agent opening one.
       the surviving set here, which two earlier drafts tried in this task and in
       2.8. Task 1.1 owns it, because an expectation sampled after the edits
       cannot fail when an edit is wrong. `deps:` 2.6
-- [ ] 2.8 Act: fix the orphan and decide the `$EDITOR` shim. `plugins/harness.lua:25`
+- [x] 2.8 Act: fix the orphan and decide the `$EDITOR` shim. `plugins/harness.lua:25`
       binds `<leader>jC` to `harness.api.walkthrough_clear()`, which calls into
       the `control.lua` that 2.6 deletes, so that keymap and its api entry go
       too. Separately, `utils/wezterm_terminal.lua:54`, inside the
@@ -365,9 +365,25 @@ words: the defect was never the pane, it was an agent opening one.
       which is worse for the agent and is the point, because the cost lands on
       the process that chose to open an editor. Record the decision in
       `design.md`. `deps:` 2.7
-- [ ] 2.9 Verify: no agent-reachable path drives a terminal or an editor. The
-      gate has four clauses and only one is a grep for nothing: a search for any
-      nvim socket or msgpack reference under `pkgs/` returns nothing.
+- [x] 2.9 Verify: no agent-reachable path drives a terminal or an editor, EXCEPT
+      the one this phase does not own, which is named below rather than left for
+      a reader to notice.
+      The second clause is a grep for a named set and NOT for zero, and an
+      earlier draft made it zero: it required any nvim socket or msgpack
+      reference under `pkgs/` to return nothing. No correct implementation of
+      phase 2 can satisfy that, because the reference that remains is
+      `internal/nvimlink`, and deleting it is task 3.6 in the next phase.
+      `diffnote.go:195` calls `nvimlink.ShowNotes(root)` and `diffnote` is a
+      subcommand agents run, so this genuinely is an agent-reachable path into
+      the owner's editor and it is genuinely still open when phase 2 ends. Say
+      that plainly. Phase 3 owns it because nvimlink dies as part of the diffnote
+      responsibility split, not as a coupling fix, and 3.4 removes the call sites
+      before 3.6 removes the package. So the clause is: `rg -l` for
+      `nvim\.Dial|go-client/nvim|nvimlink` over `pkgs` must return exactly three
+      files, `internal/nvimlink/nvimlink.go`,
+      `internal/nvimlink/nvimlink_test.go`, and `internal/diffnote/diffnote.go`.
+      A fourth hit is a NEW socket route and fails the gate. After 3.6 the same
+      command returns nothing, and that is where the zero form belongs.
       The first clause is a grep for a named set, not for zero.
       `rg -n 'cli send-text|cli activate-pane|cli split-pane'` over
       `modules/home/programs/llm pkgs` must return exactly three files:
@@ -406,6 +422,15 @@ words: the defect was never the pane, it was an agent opening one.
       2.7's was written before 2.8 edited two of its lines, so it could never
       match, and 2.8's snapshotted the post-edit tree and compared it to itself, so
       a site left behind would be recorded as correct and the gate could not fail.
+      Run it from the repository root, with the tree as an argument, exactly as
+      1.1 writes it. This is not pedantry: `rg` prefixes each line with the path
+      as given, so running the same pattern from inside
+      `modules/home/programs/neovim/config` emits `./lua/harness/preview.lua`
+      where the baseline holds
+      `modules/home/programs/neovim/config/lua/harness/preview.lua`. All 26
+      matched texts are then identical and all 26 lines still differ, so the gate
+      fails on a correct implementation and the diff reads as total drift.
+      Observed while running this gate.
       At 2.9 the live command must equal that 26-entry set exactly. That fails when a site is left
       behind and it fails when a new one appears, which a grep for nothing does
       neither of once the answer is not zero. It must match the argv-table form,
@@ -414,12 +439,21 @@ words: the defect was never the pane, it was an agent opening one.
       `preview.lua:61`. An earlier draft said the old pattern saw four, a number
       left over from the draft that called the total thirteen; it returns eight
       lines over the config.
-      The fifth clause is `rg -n 'wezterm' pkgs/sysinit-agent` returning nothing,
-      which is what proves 2.2 deleted the per-tool-call fork. Clause one cannot
-      see it: `agentstate.go:329` is
+      The fifth clause is `rg -n '"wezterm"' pkgs/sysinit-agent` returning
+      nothing, which is what proves 2.2 deleted the per-tool-call fork. Clause
+      one cannot see it: the fork was
       `exec.Command("wezterm", "cli", "list", "--format", "json")`, so no
       `wezterm cli` string pattern matches it, and an earlier draft left the fork
-      with no clause at all.
+      with no clause at all. Match the quoted word and not the bare word. An
+      earlier draft required `rg -n 'wezterm' pkgs/sysinit-agent` to return
+      nothing, which no correct implementation can satisfy, because 2.2 KEEPS
+      the OSC `SetUserVar` write and that code says in its own doc comment which
+      terminal reads it. Eight prose hits survive a correct 2.2:
+      `agentstate.go:1`, `:6`, `:26`, `:232`, the four comment lines where the
+      removed fork is explained, and `agentstate_test.go:141`. A gate that
+      cannot pass gets waived, which this task says twice about other clauses.
+      The quoted form is the executable one: Go spells the argv head as a string
+      literal, so `"wezterm"` matches the fork and no comment.
       The fourth clause is that the config still loads:
       `nvim --headless -c 'lua require("harness.api").setup()' -c qa` exits 0.
       It must call `setup()` and not merely require the module: every reference
@@ -455,7 +489,7 @@ words: the defect was never the pane, it was an agent opening one.
       which this change touches. Each command is scoped to a tree this phase
       owns, so "reachable from an agent" is no longer a human judgment. This is
       the STOP gate for the phase. `deps:` 2.1, 2.2, 2.3, 2.4, 2.5, 2.6, 2.7, 2.8
-- [ ] 2.10 Verify: `wtrun` still passes its own contract unchanged, since 2.4
+- [x] 2.10 Verify: `wtrun` still passes its own contract unchanged, since 2.4
       changes who may call it and not what it does. `wtrun -w 0 'false'` exits 1,
       `wtrun -w 1 'sleep 5'` exits 75, and the `sleep` is still running when it
       does. `deps:` 2.4

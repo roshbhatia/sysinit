@@ -43,48 +43,22 @@ local function build_env_prefix(env_table)
   return table.concat(parts, " ")
 end
 
-local EDITOR_WRAPPER = [[#!/bin/sh
-if [ -z "$NVIM_HOST_SOCKET" ] || ! command -v nvim >/dev/null 2>&1; then
-  exec nvim "$@"
-fi
-ctl=$(mktemp) || exec nvim "$@"
-sentinel=$(mktemp) && rm -f "$sentinel"
-printf '%s\n%s\n' "$1" "$sentinel" >"$ctl"
-[ -n "$NVIM_HOST_PANE" ] && wezterm cli activate-pane --pane-id "$NVIM_HOST_PANE" >/dev/null 2>&1
-nvim --server "$NVIM_HOST_SOCKET" --remote-expr "luaeval('require(\"utils.remote_editor\").open(_A)', '$ctl')" >/dev/null 2>&1
-while [ ! -e "$sentinel" ]; do sleep 0.15; done
-rm -f "$ctl" "$sentinel"
-[ -n "$WEZTERM_PANE" ] && wezterm cli activate-pane --pane-id "$WEZTERM_PANE" >/dev/null 2>&1
-]]
-
-local function editor_wrapper_path()
-  local path = vim.fn.stdpath("cache") .. "/agent-remote-editor.sh"
-  if vim.fn.filereadable(path) == 0 or table.concat(vim.fn.readfile(path), "\n") .. "\n" ~= EDITOR_WRAPPER then
-    local ok = pcall(vim.fn.writefile, vim.split(EDITOR_WRAPPER, "\n", { plain = true }), path)
-    if not ok then
-      return nil
-    end
-    vim.fn.setfperm(path, "rwxr-xr-x")
-  end
-  return path
-end
-
-local function editor_env(parent_pane_id)
-  local sock = vim.v.servername
-  if not sock or sock == "" then
-    return {}
-  end
-  local script = editor_wrapper_path()
-  if not script then
-    return {}
-  end
-  return {
-    EDITOR = script,
-    VISUAL = script,
-    NVIM_HOST_SOCKET = sock,
-    NVIM_HOST_PANE = tostring(parent_pane_id),
-  }
-end
+-- The $EDITOR shim used to live here: EDITOR_WRAPPER, editor_wrapper_path, and
+-- editor_env, merged into every spawned pane's environment by _spawn.
+--
+-- It is gone. It was a pure agent route and the exact composite this change
+-- exists to remove: it activated the owner's pane, drove the owner's editor over
+-- `nvim --server ... --remote-expr`, and blocked the caller until the owner
+-- wrote the buffer.
+--
+-- It was never on an owner path. modules/home/default.nix sets EDITOR = "nvim"
+-- for the whole home configuration, so the owner's shell never saw the shim, and
+-- every path through _spawn spawns an agent CLI into a new pane.
+--
+-- The consequence, stated rather than hidden: an agent that runs `git commit`
+-- with no -m now opens nvim nested inside its own pane. That is worse for the
+-- agent, and that is the point. The cost lands on the process that chose to open
+-- an editor.
 
 ---@param parent_pane_id integer
 ---@param name string  used in error messages and vim.g tracking key
@@ -93,7 +67,7 @@ end
 ---@param focus boolean
 ---@return integer|nil  spawned pane_id, or nil on failure
 local function _spawn(parent_pane_id, name, cmd_string, opts, focus)
-  local env = vim.tbl_extend("force", editor_env(parent_pane_id), opts.env or {})
+  local env = opts.env or {}
   local env_str = build_env_prefix(env)
   local full_cmd = env_str ~= "" and (env_str .. " " .. cmd_string) or cmd_string
   local pct = math.floor((opts.percent or 0.4) * 100)

@@ -177,10 +177,6 @@ function M.send_review()
   vim.notify(string.format("Harness: sent %d review comment(s) to %s", count, adapter.name), vim.log.levels.INFO)
 end
 
-function M.walkthrough_clear()
-  require("harness.control").clear()
-end
-
 function M.preview_spec()
   local path = vim.api.nvim_buf_get_name(0)
   if path == "" then
@@ -195,8 +191,6 @@ end
 
 function M.setup()
   require("harness.completion").setup()
-  require("harness.instance").setup()
-  require("harness.control").setup()
   require("harness.spec_watch").setup()
 end
 

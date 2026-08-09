@@ -34,8 +34,11 @@ fi
 
 live=""
 have_live=0
+pane_ws=""
 if command -v wezterm > /dev/null 2>&1; then
-  live=$(wezterm cli list --format json 2> /dev/null | jq -r '.[].pane_id' 2> /dev/null | tr '\n' ' ')
+  pane_ws=$(wezterm cli list --format json 2> /dev/null |
+    jq -r '.[] | "\(.pane_id) \(.workspace // "")"' 2> /dev/null)
+  live=$(printf '%s\n' "$pane_ws" | awk 'NF { print $1 }' | tr '\n' ' ')
   [ -n "$live" ] && have_live=1
 fi
 
@@ -45,6 +48,21 @@ pane_is_live() {
     *" $1 "*) return 0 ;;
     *) return 1 ;;
   esac
+}
+
+# Which workspace owns this pane, resolved live.
+#
+# `agent-state` used to record the workspace into each pane file, and got it by
+# forking `wezterm cli list` on every single tool call. That fork is gone. The
+# answer is a per-pane fact and pane ids are reused, so a recorded one goes
+# wrong the moment a pane id serves a new occupant.
+#
+# Reading it here costs nothing: the liveness check above already runs the same
+# command, so this reuses that output rather than adding a second call. `ui.lua`
+# resolves it live for the same reason.
+workspace_of() {
+  [ -n "$pane_ws" ] || return 0
+  printf '%s\n' "$pane_ws" | awk -v p="$1" '$1 == p { $1 = ""; sub(/^ /, ""); print; exit }'
 }
 
 rank_of() {
@@ -64,6 +82,11 @@ rollup=$(
       [ -n "$pane" ] || continue
       pane_is_live "$pane" || continue
       sess=$(jq -r '.session // ""' "$f" 2> /dev/null)
+      # The record carries the seshy-derived session when the directory supplied
+      # one. Otherwise fall back to the live workspace, then to "default". That
+      # is the same order the writer used before the fork was removed, including
+      # treating a workspace literally named "default" as no workspace at all.
+      [ -n "$sess" ] || sess=$(workspace_of "$pane")
       [ -n "$sess" ] || sess="default"
       status=$(jq -r '.status // ""' "$f" 2> /dev/null)
       repo=$(jq -r '.repo // ""' "$f" 2> /dev/null)

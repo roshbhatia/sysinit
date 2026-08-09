@@ -1,7 +1,13 @@
 ---
-description: Runs one long or noisy command in a single reusable WezTerm pane via `wtrun`, and waits for its exit code. Use instead of running a build, a switch, a test suite, or anything that streams a lot of output directly in the conversation pane. Also use when a command needs to keep running while you do something else. Do NOT use for a quick command whose output you want inline.
-allowed-tools: Bash(wtrun:*)
+description: Owner documentation for `wtrun`. This is NOT a rendered skill; skills/default.nix excludes this directory from the registry.
 ---
+
+> `wtrun` is an owner command, not an agent skill. It is on the owner's PATH
+> through `skill-tools.nix`, which reads `wtrun.sh` directly. Nothing renders
+> this file into a harness skill directory, and there is no `allowed-tools`
+> grant, so an agent that types `wtrun` gets whatever its allowlist default is
+> rather than a pre-approval. The defect this removes was never the pane. It was
+> an agent opening one.
 
 `wtrun` sends a command to ONE reusable WezTerm pane and reports the result. It
 exists for two reasons: a long or noisy command belongs somewhere other than the

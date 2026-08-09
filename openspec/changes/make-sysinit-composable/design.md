@@ -83,6 +83,64 @@ sets a value with no reader obligation and no effect on screen position, and it
 expires on its own. The mirror deleted in decision 2 fails that test, since it
 puts a note into another program's live display.
 
+- Decision: keep the OSC `SetUserVar` write in `internal/agentstate`. An earlier
+  draft of this change deleted it. That was a reversal worth recording, because
+  it was wrong twice. A program reporting its own status to its own terminal is
+  self-report, not remote control, so this rule never reached it. And
+  `archive/2026-07-08-surface-agent-session-state/design.md:49-59` already chose
+  the user var over a per-pane file, for a reason this change does not answer: a
+  user var dies with its pane and a file does not. Claude and pi wire an exit
+  hook, so their files are cleaned up. Codex and opencode do not, so they leave a
+  record reading `working` forever, and a crash does the same for all four.
+- Alternative rejected: delete the OSC write and keep the file bus alone. It
+  would have traded a self-report for a class of permanently stale records, and
+  it would have re-decided a settled question with no new evidence.
+
+- Decision: `agent-state` no longer resolves the wezterm workspace. The
+  per-tool-call fork of `wezterm cli list` is deleted, and readers that want the
+  workspace fallback resolve it live.
+- Alternative rejected: cache the workspace in the pane record. That amortizes
+  the fork instead of removing it, and it is wrong on its own terms. A workspace
+  is a per-pane fact stored under a bare pane id, and wezterm reuses pane ids, so
+  a cached value serves the previous occupant's workspace. `ui.lua` reads it live
+  on every tick while `agent-sessions.sh` would group by the cached one, giving
+  one pane two session names with nothing comparing them.
+- Alternative rejected: substitute `$WEZTERM_PANE` for the fork. It returns the
+  pane id, not the workspace, and the id is already in hand at the call site.
+
+- Decision: delete the `$EDITOR` shim in `utils/wezterm_terminal.lua`, along with
+  `utils/remote_editor.lua`, its only consumer. An earlier draft kept it, on the
+  reason that the owner runs `git commit` and the shim is what makes it open in
+  their existing neovim. That reason does not survive its own evidence. The
+  owner's shell never sees the shim: `modules/home/default.nix:41` sets
+  `EDITOR = "nvim"` for the whole home configuration, and the shim was installed
+  only by `editor_env`, which `_spawn` merged into every pane it creates. Every
+  path through `_spawn` spawns an agent CLI into a new pane, so the shim reached
+  agent panes and nothing else. `harness/preview.lua` never reaches `_spawn` at
+  all, having its own inline split, so `<leader>jp` never got it either. It was a
+  pure agent route, and it is the composite this phase exists to remove: it
+  activated the owner's pane, drove the owner's editor, and blocked the caller
+  until the owner wrote the buffer.
+- Alternative rejected: keep the shim and accept the coupling. It is the same
+  `nvim --server ... --remote-expr` construct as `internal/nvimlink`, which this
+  change deletes and which this document calls Feature Envy across a process
+  boundary. Keeping one instance of a construct while deleting the other on
+  principle is not a decision, it is an exception with no rule.
+- Consequence, recorded rather than hidden: an agent that runs `git commit` with
+  no `-m` now opens nvim nested inside its own pane. That is worse for the agent,
+  and that is the point. The cost lands on the process that chose to open an
+  editor.
+
+- Decision: `dismiss_start_screen` moves from the deleted `harness/control.lua`
+  into `harness/preview.lua`, its only surviving caller. No task named it, and
+  deleting `control.lua` wholesale would have broken `<leader>jp`, which task 2.7
+  keeps on purpose as an owner keymap. It qualifies to survive on this phase's own
+  rule: it closes a floating dashboard in the local editor, moves no pane, and
+  answers no request.
+- Alternative rejected: delete it with the rest of `control.lua`. `<leader>jp`
+  would then open its preview split behind whatever dashboard was floating, which
+  is a visible regression in an owner path this phase set out to protect.
+
 This is the Unix rule McIlroy stated: write programs that do one thing, and
 write programs to work together. It is also the X11 "mechanism, not policy"
 rule. sysinit supplies the state files, which is mechanism. Which viewer reads

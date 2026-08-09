@@ -22,7 +22,6 @@ return {
       { "<leader>j?", function() require("harness.api").status() end,         desc = "Harness: show active agent + options" },
       { "<leader>jb", function() require("harness.api").add_buffer() end,     desc = "Harness: add current buffer" },
       { "<leader>js", function() require("harness.api").send_selection() end, desc = "Harness: send selection",            mode = "v" },
-      { "<leader>jC", function() require("harness.api").walkthrough_clear() end, desc = "Harness: clear agent annotations" },
       { "<leader>jp", function() require("harness.api").preview_spec() end,   desc = "Harness: preview current file (glow)" },
       { "<leader>jw", "<Cmd>HarnessSpecWatch<CR>",                            desc = "Harness: toggle spec auto-preview" },
     },

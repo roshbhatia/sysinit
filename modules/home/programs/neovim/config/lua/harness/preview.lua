@@ -76,12 +76,37 @@ local function render_in_wezterm(full)
 end
 
 
+local START_SCREENS = {
+  snacks_dashboard = true,
+  dashboard = true,
+  alpha = true,
+  starter = true,
+  ministarter = true,
+}
+
+-- Close a floating start screen so the preview split does not open behind it.
+--
+-- This came from harness/control.lua, which is deleted. It is here rather than
+-- gone because it is not part of what control.lua was deleted for: it moves no
+-- pane, answers no request, and only the owner's <leader>jp reaches it.
+-- open_window is its only caller.
+local function dismiss_start_screen()
+  for _, win in ipairs(vim.api.nvim_tabpage_list_wins(0)) do
+    if vim.api.nvim_win_get_config(win).relative ~= "" then
+      local buf = vim.api.nvim_win_get_buf(win)
+      if START_SCREENS[vim.bo[buf].filetype] then
+        pcall(vim.api.nvim_win_close, win, true)
+      end
+    end
+  end
+end
+
 local function open_window()
   if win_valid() then
     vim.api.nvim_set_current_win(state.win)
     return
   end
-  require("harness.control").dismiss_start_screen()
+  dismiss_start_screen()
   vim.cmd("botright vsplit")
   state.win = vim.api.nvim_get_current_win()
   vim.api.nvim_win_set_width(state.win, math.max(60, math.floor(vim.o.columns * 0.42)))
