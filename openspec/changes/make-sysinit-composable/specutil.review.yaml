@@ -1,9 +1,9 @@
 version: 1
 change: make-sysinit-composable
 decision: approved
-note: 'Phase 2 tasks 2.1 through 2.10 applied. Two gate clauses in 2.9 were corrected because neither could pass on a correct implementation: clause 5 grepped the bare word wezterm over a package whose kept OSC write documents which terminal reads it, and clause 2 demanded the nvimlink removal that task 3.6 owns. Both are now named-set clauses. Clause 3 gained a working-directory requirement after rg path prefixes made all 26 lines differ.'
-change_hash: 376abcaa20f2acb7
-base_commit: 44ad0db111cf50b11dafb670782c7574b659de81
+note: 'Phase 2 complete. 2.11 was tested mechanically at the owner direction rather than by an owner session; the task records what was and was not covered. 2.12 re-recorded both host baselines: -2 on each (the two wtrun skill renders), 29 name-stable hash moves, nothing new. CI reproduced the local lv426 recording byte for byte.'
+change_hash: 0f5fbb2431940493
+base_commit: dc32e26976e12bfad44c0156c3a714551f7a19af
 items:
     0cd74be6febf08e9:
         hash: 7262630e5226087a
@@ -26,9 +26,6 @@ items:
     4bbcc1edec3334f7:
         hash: a47148742ea3177b
         text: 'Verify: the ten uncovered harnesses are recorded in the proposal as uncovered, with no scraping added.'
-    4fb6286e9b13cb2f:
-        hash: b5b51141db89608a
-        text: 'Confirm: owner uses an agent for one session and reports whether anything they relied on is now missing. Record, rather than claim absence, that agent paths to a pane survive this phase. `wtrun` stays on `PATH` by construction because 2.4 makes it an owner command (`skill-tools.nix:31-34`, independent of `skills/render.nix`), and what 2.4 removes is the description and the `allowed-tools` grant at `skills/wtrun/SKILL.md:3`. The allowlist default is ask, not deny (`lib/allowlist.nix:296`, `:300`, `:305`), so an agent that types it gets a prompt. Under pi it gets nothing: `harnesses/pi/default.nix:487` sets `yoloMode = true` and `lib/allowlist.nix:289-290` emits no entries at all. And any harness with a Bash tool can call `wezterm cli split-pane` directly, which this repository cannot prevent. Removing the advertisement is the largest reduction available and it is not a fence.'
     5b0fe3d8c9d44b8a:
         hash: 54ea0f95701cb93e
         text: 'Act: make `bootstrap.sh` use a sparse checkout rather than a full clone, which is what design.md section 7 chose over splitting the neovim config into its own repository.'
@@ -86,6 +83,9 @@ items:
     25eca985d82cf1d4:
         hash: 659fe3375458d0ad
         text: 'Act: enumerate the hand-kept lists first, and write the enumeration into the change as a file with one `path:line` per list. The proposal''s count of fourteen is an estimate, so the enumeration replaces it and the enumeration is what the next task tests. A list qualifies when adding a harness requires editing it; a site that branches on one harness name does not qualify. Start from what `rg -n ''"(claude|codex|opencode|crush|goose|gemini|cursor|devin|amp)"''` reports over `modules/`, and record for each site which of the two it is. Do not carry a count into this task: an earlier draft said 24 sites in nine files and the command returns 127 matches across 31 files, which is the point of enumerating rather than counting. Then add one harness registry replacing the qualifying lists, and delete the seven `throw` assertions that existed to police them (`llm/default.nix:190` and `:192`, `runtime/default.nix:64`, `:73`, `:75`, `lib/instructions.nix:145`, `harnesses/pi/default.nix:75`).'
+    27fff53ff2502243:
+        hash: 5cc0549d65298332
+        text: 'Confirm: owner uses an agent for one session and reports whether anything they relied on is now missing. The owner directed on 2026-08-08 that this be tested mechanically instead, so record what was and was NOT covered rather than claiming the session happened. Exercised: the whole `lv426` system builds; the full neovim config starts with no error; all 13 surviving harness keymaps resolve and `<leader>jC` is gone; the three deleted lua modules no longer resolve and the seven kept ones still load; `spec_watch` is off at startup and a `DirChanged` does not resurrect it; `agent-state` writes a record and `agent-sessions` groups it under the live workspace with no fork; the OSC user var still decodes to `status|reason|since|agent`; an alerter answering `Accept` drives no pane and `--actions` is no longer passed; click-to-focus still fires; `gemini` now reaches the rich alerter that the deleted keystroke table used to gate; the built system ships the `wtrun` binary and no `wtrun` skill. NOT covered, and this is the residue the owner still carries: whether daily use turns up something none of those probes name. That surfaces on the next `nh darwin switch`, not here. Record, rather than claim absence, that agent paths to a pane survive this phase. `wtrun` stays on `PATH` by construction because 2.4 makes it an owner command (`skill-tools.nix:31-34`, independent of `skills/render.nix`), and what 2.4 removes is the description and the `allowed-tools` grant at `skills/wtrun/SKILL.md:3`. The allowlist default is ask, not deny (`lib/allowlist.nix:296`, `:300`, `:305`), so an agent that types it gets a prompt. Under pi it gets nothing: `harnesses/pi/default.nix:487` sets `yoloMode = true` and `lib/allowlist.nix:289-290` emits no entries at all. And any harness with a Bash tool can call `wezterm cli split-pane` directly, which this repository cannot prevent. Removing the advertisement is the largest reduction available and it is not a fence.'
     51b75ac14185cee9:
         hash: 5b313fde66e3f766
         text: 'Act: write the paths manifest during bootstrap by expanding `$HOME` into 4.1''s layout template, so a box with no Nix resolves state paths from the same source every other consumer reads. Do not author the paths here: a second producer in a second language is the defect phase 4 removes, and 4.3''s check would fail on this script. Task 4.1 allows each consumer one documented default keyed to the manifest being absent and hands the installing to this task; without it that default is the permanent path on every non-Nix box and 4.3''s check has nothing to prove. This is the paths manifest, not `bootstrap/tools.toml`, which the rest of this phase calls the manifest.'

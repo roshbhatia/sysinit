@@ -493,8 +493,23 @@ words: the defect was never the pane, it was an agent opening one.
       changes who may call it and not what it does. `wtrun -w 0 'false'` exits 1,
       `wtrun -w 1 'sleep 5'` exits 75, and the `sleep` is still running when it
       does. `deps:` 2.4
-- [ ] 2.11 Confirm: owner uses an agent for one session and reports whether
-      anything they relied on is now missing. Record, rather than claim absence,
+- [x] 2.11 Confirm: owner uses an agent for one session and reports whether
+      anything they relied on is now missing. The owner directed on 2026-08-08
+      that this be tested mechanically instead, so record what was and was NOT
+      covered rather than claiming the session happened. Exercised: the whole
+      `lv426` system builds; the full neovim config starts with no error; all 13
+      surviving harness keymaps resolve and `<leader>jC` is gone; the three
+      deleted lua modules no longer resolve and the seven kept ones still load;
+      `spec_watch` is off at startup and a `DirChanged` does not resurrect it;
+      `agent-state` writes a record and `agent-sessions` groups it under the
+      live workspace with no fork; the OSC user var still decodes to
+      `status|reason|since|agent`; an alerter answering `Accept` drives no pane
+      and `--actions` is no longer passed; click-to-focus still fires; `gemini`
+      now reaches the rich alerter that the deleted keystroke table used to gate;
+      the built system ships the `wtrun` binary and no `wtrun` skill.
+      NOT covered, and this is the residue the owner still carries: whether
+      daily use turns up something none of those probes name. That surfaces on
+      the next `nh darwin switch`, not here. Record, rather than claim absence,
       that agent paths to a pane survive this phase. `wtrun` stays on `PATH` by
       construction because 2.4 makes it an owner command
       (`skill-tools.nix:31-34`, independent of `skills/render.nix`), and what
@@ -507,7 +522,7 @@ words: the defect was never the pane, it was an agent opening one.
       directly, which this repository cannot prevent. Removing the
       advertisement is the largest reduction available and it is not a fence.
       `deps:` 2.9
-- [ ] 2.12 Verify: re-record the two host drvPaths and the two derivation-path
+- [x] 2.12 Verify: re-record the two host drvPaths and the two derivation-path
       files, as 1.1 does, because 3.14 compares against this recording. This phase
       changes them on purpose, so name each difference and its cause by diffing
       the derivation-path sets against 1.1's, rather than the hashes alone. Name
@@ -515,8 +530,31 @@ words: the defect was never the pane, it was an agent opening one.
       whose second operand is unstated cannot be checked by a reviewer. The
       `lv426` half runs locally and the `arrakis` half runs in the CI job 1.1
       adds, which is where every gate from here on gets its Linux side.
+
+      Recorded 2026-08-08. Both hosts moved by exactly the same shape, which is
+      itself the result: `lv426` 7440 to 7438 and `arrakis` 14848 to 14846.
+      Nothing APPEARED on either host. Two derivations DISAPPEARED on each, and
+      they are the same two, `skill-amp-wtrun-SKILL.md.drv` and
+      `skill-claude-wtrun-SKILL.md.drv`: task 2.4 took `wtrun` out of the
+      registry and both harnesses had been rendering it. 29 derivations MOVED on
+      each host with their names unchanged. Every one traces to two edits.
+      `agent-prompt.drv` is 2.1. `agent-state.drv`, `agent-sessions.drv`,
+      `sysinit-agent-0.1.0.drv`, and its `-go-modules` are 2.2. The remaining 24
+      are ancestors: the `writeShellApplication` wrappers over `sysinit-agent`
+      (`citelock`, `diffnote`, `claude-statusline`, the three guards), the
+      generated settings that name those wrappers by store path
+      (`claude-code-settings.json`, `hm_.agentshooks.json`, `hm_devinhooks.v1.json`,
+      `codex-config`, `hm_.codexAGENTS.md`), and the profile and activation roots
+      above them.
+      The neovim edits are absent from both sets on purpose. That config is an
+      out-of-store symlink, so nix never evaluates it, which is the same fact
+      2.9's fourth clause exists to compensate for.
+      The CI job reproduced the local `lv426` recording byte for byte, so 1.2's
+      property still holds after the phase-2 edits. Both jobs failed against the
+      committed phase-1 baseline before it was replaced, which is the gate
+      working: the closure moved and the gate said so.
       `deps:` 2.11
-- [ ] 2.13 Adversarial review (`adversarial-review` skill): run deterministic
+- [x] 2.13 Adversarial review (`adversarial-review` skill): run deterministic
       lint. Critics are NOT run: the owner directed on 2026-08-08 that the apply
       proceed on deterministic lint alone, so every task in this list reaches the
       `not run` terminal state the skill defines and records the open questions
