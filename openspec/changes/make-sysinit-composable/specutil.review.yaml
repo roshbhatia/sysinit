@@ -1,9 +1,9 @@
 version: 1
 change: make-sysinit-composable
 decision: approved
-note: 'Phase 4.4: harness registry replacing 13 of 15 hand-kept lists.'
-change_hash: 27e30426f86007b2
-base_commit: 80f7e155c3bdd8ec24672f744af54bcc12707067
+note: 'Phase 4.5: registry verified site by site and by a throwaway harness.'
+change_hash: 97bbef2b20f449ea
+base_commit: 5e71fe50189409726bbdecf6512fb1acb64864ed
 items:
     0cd74be6febf08e9:
         hash: 7262630e5226087a

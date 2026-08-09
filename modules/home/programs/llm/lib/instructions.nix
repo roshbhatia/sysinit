@@ -13,13 +13,9 @@ let
     else
       "Available: " + builtins.concatStringsSep ", " (map (n: "`${n}`") names);
 
-  # Both derived from the registry. A harness cannot be configured without a
-  # context path or a skill-loader answer, because one entry supplies all three.
+  # A harness cannot be configured without a skill-loader answer, because the
+  # registry entry that configures it supplies one.
   registry = import ../harnesses/registry.nix;
-
-  harnessCoverage = builtins.mapAttrs (_name: h: h.context) registry;
-
-  coveredHarnesses = builtins.attrNames harnessCoverage;
 
   harnessesWithoutSkillLoader = builtins.attrNames (
     lib.filterAttrs (_name: h: !h.skillLoader) registry
@@ -191,7 +187,6 @@ let
 in
 {
   inherit makeInstructions makeInstructionsWithStyle outputStyleRules;
-  inherit harnessCoverage coveredHarnesses;
   inherit subagents;
   inherit (subagents) formatSubagentAsMarkdown;
   subagentDefs = builtins.removeAttrs subagents [ "formatSubagentAsMarkdown" ];

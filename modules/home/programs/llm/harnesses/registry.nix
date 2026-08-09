@@ -13,7 +13,11 @@
 # Fields:
 #   label          the display name a notifier shows
 #   module         this harness's own module, imported by ./default.nix
-#   context        the confirmed global context path, or the reason it has none
+#   context        the confirmed global context path. A recorded fact, not a
+#                  build input: nothing reads it. It used to feed an assertion
+#                  that a configured harness declared one, which this file makes
+#                  unrepresentable. Keeping it is what stops the next harness
+#                  from being added without anyone confirming where it reads.
 #   skillLoader    false when the harness cannot load skills on demand, so its
 #                  instructions carry the skill list inline
 #   ownIcon        false means the generic dashed circle, chosen rather than

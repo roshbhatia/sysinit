@@ -165,11 +165,6 @@ let
       lib.filterAttrs (name: _: !(builtins.elem name suppressed)) config.sysinit.llm.mcp.additionalServers
     );
 
-  # The registry is the list. The two assertions that used to compare this
-  # against `harnessCoverage` are gone: both now read one attribute set, so a
-  # harness with a config and no coverage entry cannot be written down.
-  harnessConfigNames = builtins.attrNames (import ./harnesses/registry.nix);
-
   llmLibForCoverage = import ./lib { inherit lib; };
 
   reconciler = llmLibForCoverage.managedFile.mkReconciler {

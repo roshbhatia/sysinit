@@ -27,6 +27,13 @@ if ! "$repo_root/hack/check-state-paths.sh"; then
   status=1
 fi
 
+# The harness registry and the neovim adapter list. The second stays hand-kept
+# because that config must work without Nix, so agreement is checked rather than
+# generated.
+if ! "$repo_root/hack/check-harness-registry.sh"; then
+  status=1
+fi
+
 command -v citelock > /dev/null 2>&1 || exit "$status"
 while IFS= read -r lock; do
   [[ -z ${lock} ]] && continue

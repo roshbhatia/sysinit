@@ -1478,12 +1478,54 @@ words: the defect was never the pane, it was an agent opening one.
       The registry rewiring alone was closure-identical: the system derivation
       hash was unchanged from the build before it.
       `deps:` 4.1
-- [ ] 4.5 Verify: every list in 4.4's enumeration now reads from the registry,
+- [x] 4.5 Verify: every list in 4.4's enumeration now reads from the registry,
       checked site by site against that file rather than against a count. Then
       test the property the lists existed to hold: add a throwaway harness to the
       registry alone, build, and confirm it appears in every surface the
       enumeration named, with no other file edited. Also confirm the registry and
       `neovim/config/lua/harness/registry.lua` agree, which they do not today.
+
+      Site by site against `harness-lists.md`. Lists 1, 5, 9, 10, 11, 12 and 15
+      read the registry. Lists 2, 3 and 8 were deleted instead: their only
+      consumers were the assertions 4.4 removed, so `harnessConfigNames`,
+      `harnessCoverage` and `coveredHarnesses` were dead code kept alive by
+      nothing. Lists 6 and 7 collapsed into the `notify` field. List 4 reads
+      `skillLoader`. Lists 13 and 14 stay hand-kept, as 4.4 records.
+
+      The registry's `context` field now has no reader at all. It is kept and
+      labelled a recorded fact rather than a build input, because it is the one
+      thing that stops a harness being added without anyone confirming where it
+      reads its instructions.
+
+      The throwaway-harness test ran with one registry entry plus that
+      harness's own module, and nothing else. `git status` during the run
+      confirms it: the only other two files changed were the dead-code deletions
+      above, made before the probe.
+
+      Five surfaces picked it up, each read from the built output rather than
+      the source. Its module was imported, so `.probeharness-marker` appeared in
+      `home.file`. Both generated label tables carry
+      `probeharness) printf '%s\n' 'Probe Harness' ;;`. With `skillLoader =
+      false` its rendered instructions carry the skill list inline while `amp`
+      still gets the loader, which is the one field whose effect is not a list.
+      With `ownIcon = false` no icon file was emitted, and the whole `home.file`
+      set matching the name is exactly the one marker. With `bridge = null` and
+      `package = null` nothing else moved.
+
+      They agree now. `hack/check-harness-registry.sh` is the gate, run from
+      `.githooks/pre-commit`, comparing the registry's `neovimAdapter` values
+      against `ORDER` in `registry.lua`. It compares against `neovimAdapter`
+      rather than the harness names, because two of them differ on purpose:
+      `claude` is `claudecode` and `gemini` is `antigravity`. That translation
+      is why 4.5 read them as disagreeing, and it now lives in the registry.
+      The check was exercised by the probe itself, reporting `in the registry,
+      not in ORDER: probeharness`, and went green when the probe was removed.
+
+      `ui.lua`'s detection table is NOT covered by this check. It names eight
+      harnesses and the registry has eleven, with `opencode` and `pi` absent.
+      Both are hook-bridged, so neither needs the process scraping that table
+      drives, but nothing in the tree states that and 4.5 does not ask for it.
+      Left as is, and named here so it is not mistaken for covered.
       `deps:` 4.4
 - [ ] 4.6 Act: give the pane record a written schema and a version field. Its
       own comment at `agentstate.go:33-34` already calls it "a published
