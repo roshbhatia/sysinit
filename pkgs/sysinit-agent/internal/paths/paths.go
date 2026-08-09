@@ -14,27 +14,21 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
-	"sync"
 )
 
 // Keys the manifest carries. Named rather than typed as strings at each call
 // site, so a typo is a compile error instead of an empty path.
 const (
-	StateHomeKey     = "stateHome"
-	AgentsKey        = "agents"
-	AgentPanesKey    = "agentPanes"
-	AgentDiffNotes   = "agentDiffNotes"
-	SeshySessionsKey = "seshySessions"
+	StateHomeKey      = "stateHome"
+	AgentsKey         = "agents"
+	AgentPanesKey     = "agentPanes"
+	AgentDiffNotesKey = "agentDiffNotes"
+	SeshySessionsKey  = "seshySessions"
 )
 
 type document struct {
 	Paths map[string]string `json:"paths"`
 }
-
-var (
-	once   sync.Once
-	loaded map[string]string
-)
 
 // manifestFile is the one fact the manifest cannot carry, so it is the single
 // bootstrap constant of this package.
@@ -57,19 +51,22 @@ func fallbackStateHome() string {
 	return filepath.Join(os.Getenv("HOME"), ".local", "state")
 }
 
+// load re-reads the manifest on every call rather than caching it.
+//
+// A cache would be free in a process that runs once and exits, which is every
+// real caller, but it makes the answer depend on which lookup happened first.
+// A test that sets HOME or XDG_STATE_HOME would then get whatever an earlier
+// test in the same binary resolved, and pass or fail on test order.
 func load() map[string]string {
-	once.Do(func() {
-		raw, err := os.ReadFile(manifestFile())
-		if err != nil {
-			return
-		}
-		var doc document
-		if err := json.Unmarshal(raw, &doc); err != nil {
-			return
-		}
-		loaded = doc.Paths
-	})
-	return loaded
+	raw, err := os.ReadFile(manifestFile())
+	if err != nil {
+		return nil
+	}
+	var doc document
+	if err := json.Unmarshal(raw, &doc); err != nil {
+		return nil
+	}
+	return doc.Paths
 }
 
 // Get returns the manifest's value for key, and whether the manifest had one.
@@ -99,4 +96,24 @@ func SeshySessions() string {
 		return value
 	}
 	return filepath.Join(fallbackStateHome(), "seshy", "sessions")
+}
+
+// AgentPanes is the directory holding one record per agent pane.
+//
+// Read as its own key rather than composed under StateHome, because ui.lua
+// reads the same key and a composed path would let the two disagree whenever
+// the manifest's stateHome and the reader's own root differ.
+func AgentPanes() string {
+	if value, ok := Get(AgentPanesKey); ok {
+		return value
+	}
+	return filepath.Join(fallbackStateHome(), "agents", "panes")
+}
+
+// AgentDiffNotes is the directory holding the note record and its export.
+func AgentDiffNotes() string {
+	if value, ok := Get(AgentDiffNotesKey); ok {
+		return value
+	}
+	return filepath.Join(fallbackStateHome(), "agents", "diff-notes")
 }

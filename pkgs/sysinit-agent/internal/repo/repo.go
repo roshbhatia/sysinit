@@ -58,14 +58,6 @@ func filterEnv(env []string, drop ...string) []string {
 	return kept
 }
 
-// StateHome is the root the note record and its export sit under.
-//
-// It delegates rather than deriving. The layout has one owner, the paths
-// manifest, and internal/paths is this module's only reader of it.
-func StateHome() string {
-	return paths.StateHome()
-}
-
 // NoteFile returns the note-record path for root.
 func NoteFile(root string) string {
 	return noteBase(root) + ".json"
@@ -84,7 +76,7 @@ func ExportFile(root string) string {
 func noteBase(root string) string {
 	sum := sha256.Sum256([]byte(root))
 	digest := hex.EncodeToString(sum[:])[:16]
-	return fmt.Sprintf("%s/agents/diff-notes/%s-%s", StateHome(), filepath.Base(root), digest)
+	return fmt.Sprintf("%s/%s-%s", paths.AgentDiffNotes(), filepath.Base(root), digest)
 }
 
 // normalizeAbsolute resolves "." and ".." lexically, without touching the disk.

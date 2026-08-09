@@ -1,9 +1,9 @@
 version: 1
 change: make-sysinit-composable
 decision: approved
-note: 'Phase 4.1: paths manifest, five readers proved against a redirected manifest.'
-change_hash: 61c4f5a5de270068
-base_commit: d70122dad432c0516bc007b31903b660ead31070
+note: 'Phase 4.2: divergence observed fixed in a live GUI, instrument mutation-tested.'
+change_hash: 50077065145f7ac6
+base_commit: 82c05897643c4c083d71a5502a67dc5560d64814
 items:
     0cd74be6febf08e9:
         hash: 7262630e5226087a

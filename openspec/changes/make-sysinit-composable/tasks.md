@@ -1276,7 +1276,7 @@ words: the defect was never the pane, it was an agent opening one.
       unifying both through `internal/paths` is exactly the divergence 4.2
       names.
       `deps:` 2.9
-- [ ] 4.2 Verify: the `XDG_STATE_HOME` divergence at `ui.lua:296`, `:312`,
+- [x] 4.2 Verify: the `XDG_STATE_HOME` divergence at `ui.lua:296`, `:312`,
       `:564`, and `:1735` is fixed, decided by launching wezterm itself with
       `XDG_STATE_HOME` set to a non-default value and seeing the status bar read
       the record `agent-state` wrote there. Exporting the variable in a shell
@@ -1287,7 +1287,52 @@ words: the defect was never the pane, it was an agent opening one.
       `agentstate.go:65`, which honours the variable, against `ui.lua:296`,
       which does not. An earlier draft cited `ui.lua:187` as the other half; that
       line writes a different file in the same process and cannot diverge from
-      `:296`. `deps:` 4.1
+      `:296`.
+
+      Fixed and observed. A second `wezterm-gui` was launched directly with
+      `XDG_STATE_HOME=/tmp/xdgproof` and no manifest under it, so the fallback
+      was the branch under test. `ps -Eww` confirmed the GUI process itself
+      carried the variable, which is the part exporting it in a shell cannot
+      establish.
+
+      The read had to be driven, because `read_pane_git` runs from
+      `session_tree()` and not from `update-status`, and no `wezterm cli`
+      subcommand can send a key assignment. A probe config loaded the installed
+      config unchanged and performed the SUPER+s binding once, gated on a
+      sentinel file so it fired after the evidence was in place rather than
+      before.
+
+      Three readings, one run. The status bar wrote
+      `/tmp/xdgproof/agents/selected.json` with a heartbeat equal to the
+      current time, so the redirect reached the running GUI. `agent-state`
+      wrote its record to `/tmp/xdgproof/agents/panes/0.json`. The record's
+      access time then moved from a reset epoch to the moment the session tree
+      opened, while a `9999.json` control that no pane carries stayed at the
+      reset epoch, so the GUI read that record by pane id rather than scanning
+      the directory.
+
+      The instrument was mutation-tested rather than trusted. Restoring the
+      pre-4.1 `state_root()`, which derives from `HOME` alone, killed every
+      reading in the same run: `selected.json` never appeared under the
+      redirect and the record's access time never moved, even though the probe
+      log confirms the session tree still opened. That is the divergence
+      itself, reproduced and then removed.
+
+      Two Go sites were changed while verifying. `agentstate.go` composed
+      `stateHome() + "agents/panes"` and `repo.go` composed
+      `StateHome() + "agents/diff-notes"`, so a manifest carrying `stateHome`
+      but not those keys would have let the two ends disagree again. Both now
+      read `agentPanes` and `agentDiffNotes` as keys, which is what `ui.lua`
+      reads. `agentstate.stateHome()` and `repo.StateHome()` became dead and
+      were deleted; the test that kept the first alive now asserts
+      `paths.AgentPanes()`, which is what the code calls.
+
+      `internal/paths` also lost its `sync.Once` cache and gained seven tests.
+      The cache made a lookup return whatever an earlier lookup in the same
+      process resolved, so a test setting `HOME` or `XDG_STATE_HOME` passed or
+      failed on test order. Reintroducing it kills three of the new tests,
+      including the one that names it.
+      `deps:` 4.1
 - [ ] 4.3 Verify: the behavior this phase promises is that one place owns each
       state path, decided by a check that fails when `.local/state` appears
       outside the paths module. 4.2 covers `ui.lua` alone, and the promise has no

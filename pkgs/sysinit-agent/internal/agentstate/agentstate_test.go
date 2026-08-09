@@ -6,6 +6,8 @@ import (
 	"path/filepath"
 	"strings"
 	"testing"
+
+	"github.com/roshbhatia/sysinit/pkgs/sysinit-agent/internal/paths"
 )
 
 func TestTidyFoldsEverySeparatorItOwns(t *testing.T) {
@@ -208,15 +210,18 @@ func TestNoWezternPaneIsASilentNoOp(t *testing.T) {
 	}
 }
 
-func TestStateHomeFallsBackToHomeLocalState(t *testing.T) {
+func TestPaneDirFallsBackToHomeLocalState(t *testing.T) {
+	// The manifest has to be absent for the fallback to be reachable, and this
+	// box has a real one at the default location.
+	t.Setenv("SYSINIT_PATHS_MANIFEST", filepath.Join(t.TempDir(), "absent.json"))
 	t.Setenv("XDG_STATE_HOME", "")
 	t.Setenv("HOME", "/home/someone")
-	if got := stateHome(); got != "/home/someone/.local/state" {
-		t.Fatalf("stateHome() = %q", got)
+	if got := paths.AgentPanes(); got != "/home/someone/.local/state/agents/panes" {
+		t.Fatalf("AgentPanes() = %q", got)
 	}
 	// A trailing slash must not double up in the joined path.
 	t.Setenv("XDG_STATE_HOME", "/state/")
-	if got := stateHome(); got != "/state" {
-		t.Fatalf("stateHome() kept a trailing slash: %q", got)
+	if got := paths.AgentPanes(); got != "/state/agents/panes" {
+		t.Fatalf("AgentPanes() kept a trailing slash: %q", got)
 	}
 }

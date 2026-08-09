@@ -46,10 +46,6 @@ type state struct {
 	Since    int64  `json:"since"`
 }
 
-func stateHome() string {
-	return paths.StateHome()
-}
-
 // Run records the status and always returns 0.
 func Run(args []string) int {
 	agent := arg(args, 0, "agent")
@@ -61,7 +57,7 @@ func Run(args []string) int {
 		return 0
 	}
 
-	stateDir := filepath.Join(stateHome(), "agents", "panes")
+	stateDir := paths.AgentPanes()
 	stateFile := filepath.Join(stateDir, pane+".json")
 
 	if status == "exit" {
