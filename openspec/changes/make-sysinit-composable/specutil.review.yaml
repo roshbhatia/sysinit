@@ -1,9 +1,9 @@
 version: 1
 change: make-sysinit-composable
 decision: approved
-note: 'Phase 3 applied through 3.8: note writer renamed and split from the viewer, hunk-shaped export added inside the store lock, nvimlink and the neovim renderer deleted, skill and allowlist re-pointed at sysinit-agent note. Carries forward the owner decision of 2026-08-08 to run this apply on deterministic lint alone; no critic ran.'
-change_hash: 5b73c949f1116134
-base_commit: 354ce929e0f638f6a5d478f594e9c91d7c2093da
+note: 'Phase 3 complete, all 15 tasks. Carries forward the owner directive of 2026-08-08 that this apply proceeds on deterministic lint alone: no critic ran and 3.15 records the not-run terminal state. 3.10 ran as an experiment and overturned the 3.1 probe, so design.md, the note usage text, the note skill, and the pi extension all now say re-run review. Two silent losses were found by running rather than reading: hunk hides agent notes by default, and deleting the diffnote shim left sysinit-agent on no PATH.'
+change_hash: e0b753160a09b570
+base_commit: c874a0ed405f8cb5ab0b32a5e7cccb10c6837c35
 items:
     0cd74be6febf08e9:
         hash: 7262630e5226087a

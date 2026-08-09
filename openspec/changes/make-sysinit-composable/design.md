@@ -250,10 +250,26 @@ The cost of that is honest, and an earlier draft understated it twice. Without
 a push, a note written after the viewer started reaches it only if the file
 hunk re-reads actually changes. So the export is not a one-shot command: the
 writer republishes it inside the same store lock that publishes the record, on
-every write. And whether `hunk --watch` re-reads that file is a fact to probe
-rather than assume, which is why task 3.1 probes it and task 3.10 checks the
-write-after-start case either way. If it does not re-read, the live workflow is
-to re-run `review`, and this document will say that.
+every write.
+
+It does not re-read, so the live workflow is to re-run `review`, and this is
+where the document says so. Task 3.10 ran it as an experiment and
+`watch-observation.md` in this folder is the record. A note written while
+`review --watch` is running does not reach that viewer: not at 5, 15, 30, or 60
+seconds, not after a focus change, not after keystrokes. The control fails the
+same way, so the honest statement is broader than the sidecar. Nothing reaches a
+running viewer on its own, a tracked-file edit included.
+
+Task 3.1's probe read the opposite out of hunk's source, and 3.1 named the
+tie-break in advance: where the probe and 3.10 disagree, 3.10 governs.
+
+`hunk session reload` is not the remedy. It does pick the working tree up, and
+it drops the agent context to zero doing it, so it trades a stale note view for
+no notes at all. Restarting `review` is the remedy.
+
+None of this moves the republish-inside-the-lock design. That design is what
+keeps the export correct on disk at every instant, which is exactly what the
+next `review` reads. Only the claim about an already-running viewer was wrong.
 
 If the probe in task 3.1 finds that `--agent-context` expects hunk's own
 `filePath` and `newLine` vocabulary, the answer is a derived export the writer

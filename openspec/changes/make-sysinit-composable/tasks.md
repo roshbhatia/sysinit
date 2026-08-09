@@ -913,14 +913,21 @@ words: the defect was never the pane, it was an agent opening one.
       "--watch"]`: without `--watch` the pane would open before the annotate
       prompt runs and would never show the notes it then asks for. `:71` was a
       seventh stale `CodeDiff` reference that no draft named. `deps:` 3.7
-- [ ] 3.9 Verify: a note carrying a multi-line rationale and an author, written
+- [x] 3.9 Verify: a note carrying a multi-line rationale and an author, written
       with no `hunk` process running, is readable from the RECORD afterward with
       both fields intact. That half is unconditional. What `review` displays
       depends on 3.1: if the schema has no multi-line field, 3.5 permits the
       loss in the export, and then this task asserts only that the design says
       so. The record is the contract; the display is what the probe allows.
+
+      Run with zero `hunk` processes alive. A note with a three-newline
+      rationale and `--author pi` reads back from the record with both fields
+      byte-identical, newlines included. The conditional half turned out
+      unconditional too: 3.1 established the sidecar `rationale` is a plain
+      string with no newline handling, and the export carries the same three
+      newlines, so there is no loss for the design to permit.
       `deps:` 3.7
-- [ ] 3.10 Verify: a note written AFTER `review --watch` is already running
+- [x] 3.10 Verify: a note written AFTER `review --watch` is already running
       either reaches the viewer within 5 seconds or does not. Run it as an
       experiment, not as a disjunction an edit to `design.md` can satisfy:
       confirm the note is absent in the running viewer first, write it without
@@ -932,8 +939,45 @@ words: the defect was never the pane, it was an agent opening one.
       to a file in the change folder, because the phase STOP cites it and a STOP
       clause needs an artifact rather than a memory. Make `design.md` match. Every earlier draft wrote the note before the
       viewer started, so the one property the no-push decision rests on was
-      asserted in prose and checked nowhere. `deps:` 3.5
-- [ ] 3.11 Verify: `go test ./...` passes under `pkgs/sysinit-agent` with all
+      asserted in prose and checked nowhere.
+
+      It does not reach the viewer. The artifact is `watch-observation.md` in
+      this folder. Absent at 5, 15, 30, and 60 seconds, after a focus change
+      into and out of the pane, and after keystrokes sent to it.
+
+      The control fails too, which changes how the result may be stated. A
+      tracked-file edit does not reach the running viewer either, so `--watch`
+      auto-reloaded for nothing in this environment. The narrow claim "the
+      sidecar specifically is not re-read" is therefore unsupported and is not
+      made. The supported claim is broader: nothing reaches a running viewer on
+      its own.
+
+      A previous attempt reported the same absence and was discarded for
+      failing its own control. Three things separate this run. `session get`
+      reads live daemon state, proved by an explicit `session reload` moving the
+      reported diff from `+1 -1` to `+3 -3` in the same session. The seed note
+      IS reported by the same instrument in the same session, so a positive
+      reading is reachable. And `--watch` was confirmed on the process command
+      line with `ps` rather than inferred from the wrapper. The first run of
+      this session was itself thrown away: a `session reload` issued DURING the
+      observation dropped the agent context and every later reading was zero for
+      that reason instead of the one under test.
+
+      One finding with no workaround, which is why the design cannot just say
+      "reload". `hunk session reload -- diff` picks up the working tree AND
+      drops the agent context to zero, trading a stale note view for no notes.
+      Re-running `review` is the only remedy.
+
+      This contradicts 3.1's source reading, and 3.1 named the tie-break in
+      advance, so 3.10 governs. Four artifacts said the opposite and are
+      corrected: `design.md`, the `sysinit-agent note` usage text, the `note`
+      skill, and the pi extension. The pi extension needed more than prose:
+      `VIEWER_COMMAND` was `["review", "--watch"]` and the flag's entire stated
+      reason was this behavior, so the flag is dropped and the notify line tells
+      the owner to re-run `review`. 3.5's republish-inside-the-lock design is
+      untouched: it is what keeps the export correct on disk for the next
+      `review` to read. `deps:` 3.5
+- [x] 3.11 Verify: `go test ./...` passes under `pkgs/sysinit-agent` with all
       ten store-discipline tests of the writer still present and asserting the
       same behavior: `TestZeroByteStoreIsNotAbsorbing`,
       `TestMalformedStoreIsRefusedNotOverwritten`,
@@ -954,15 +998,39 @@ words: the defect was never the pane, it was an agent opening one.
       names "a store the editor filters", whose editor half 3.7 deletes. Nothing
       else may change. Naming that
       exception matters because literal compliance would otherwise keep dead code
-      that no STOP pattern matches. `deps:` 3.5
-- [ ] 3.12 Verify: `neovim/config/lua/` has no remaining reference to any
+      that no STOP pattern matches.
+
+      All ten are present and green. Every named exception was taken and
+      nothing else in the test file changed: the `DIFFNOTE_NO_OPEN` setenv and
+      its comment are gone with `--no-open`, `:183` says `note list`, and
+      `:464` no longer names an editor. `internal/store` and its tests are
+      untouched. `deps:` 3.5
+- [x] 3.12 Verify: `neovim/config/lua/` has no remaining reference to any
       sysinit binary or state path, so the config is standalone. Scope this to
       the whole lua tree, not `harness/` alone: 3.7 edits
       `plugins/codediff.lua`, which an earlier draft's scope excluded, and three
       of its call sites sit inside `pcall` (`:68-72`, `:86-88`, `:101-103`), so
       a missed one fails silently on every CodeDiff open rather than throwing.
-      Load the config headlessly here, since no other gate in the phase does. `deps:` 3.7
-- [ ] 3.13 Act: add a `checks/` assertion that the export schema still matches
+      Load the config headlessly here, since no other gate in the phase does.
+
+      Clean on both halves, over the whole lua tree. No sysinit binary name
+      appears: not `sysinit-agent`, `agent-state`, `agent-notify`,
+      `agent-focus`, `agent-prompt`, `agent-sessions`, `agent-refine`,
+      `agent-identity`, `agent-busy-panes`, `diffnote`, `nvim-ctl`, `wtrun`,
+      `loop-gate`, `sy-gate`, or `worklog`. No state path appears either:
+      neither `.local/state`, `XDG_STATE_HOME`, `agents/diff-notes`, nor
+      `agents/panes`. Every shell-out in the tree goes to a third-party tool,
+      `git`, `wezterm`, `tmux`, `go-grip`, or `open`.
+
+      The `pcall` hazard this task named needed more than a headless load, so
+      both were run. The load is clean and exits 0. Then `:CodeDiff` itself was
+      exercised headlessly, which is what reaches the three wrapped call sites:
+      it opens 2 tabpages and 3 windows on a `CodeDiff Explorer` buffer, with an
+      empty message log. The surviving normal-mode `<leader>d` keymaps are
+      exactly `dd`, `dh`, `dH`, and `dr`. `dn` and `dN` are gone, which is 3.7's
+      stated loss observed rather than assumed, and `dr` belongs to
+      `review.nvim` and predates this change. `deps:` 3.7
+- [x] 3.13 Act: add a `checks/` assertion that the export schema still matches
       what `hunk diff --agent-context` accepts, using the accepted and rejected
       fixtures 3.1 produces. Put it in `checks/` and not in `.githooks/pre-commit`,
       which an earlier draft chose. That hook's established idiom is
@@ -1031,22 +1099,102 @@ words: the defect was never the pane, it was an agent opening one.
       alone, which an earlier draft did: that proves membership in the description
       set, not presence in a rendered block. The clause was written for the
       pre-commit hook, which could grep the store, and it did not survive the move
-      unchanged. `deps:` 3.5, 3.8
-- [ ] 3.14 Verify: re-record the two host drvPaths and the two derivation-path
+      unchanged.
+
+      Shipped as two files rather than one, because the two properties fail
+      independently and a shared derivation would hide which one broke.
+      `checks/hunk-agent-context.nix` carries the schema fixtures and the
+      `locked.rev` assertion; `checks/llm-skill-destinations.nix` carries the
+      three destination assertions. Both are wired into `checks/default.nix`,
+      which takes `lib` now.
+
+      Both were mutation-tested rather than accepted on a green run, because a
+      check that reaches nothing also passes. Dropping `summary` from the
+      accepted fixture fails with `hunk refused the document the note writer
+      publishes`, which proves the check reaches hunk's parser and that the
+      no-TTY build sandbox does not short-circuit it. That was the live risk:
+      hunk opens a full-screen viewer, so the exit code cannot separate accepted
+      from refused, and the check reads the refusal literal on stderr instead.
+      Renaming the skill fails with `does not appear in the instruction block
+      makeInstructions renders for codex`.
+
+      Two things this task asked to decide, both now observed rather than
+      argued. The system scoping needs no gate: `nix eval` resolves both checks'
+      `drvPath` on all three of `aarch64-darwin`, `aarch64-linux`, and
+      `x86_64-linux`, so `pkgs.hunk` is reachable everywhere `cacheSystems`
+      instantiates. And the destination reproduction is guarded against
+      `llm/default.nix` rather than trusted: the check greps that file for each
+      of the four root strings, so re-pointing a root there without updating the
+      check fails instead of passing against a path nothing writes to.
+      `nix flake check` exits 0. `deps:` 3.5, 3.8
+- [x] 3.14 Verify: re-record the two host drvPaths and the two derivation-path
       files, as 1.1 does, since 9.9 compares against this recording across phases
       4 through 9. This phase changes them on purpose, so name each difference and
       its cause against the 2.12 recording, by diffing the derivation-path sets
       rather than the hashes alone. Phases 6 through 9 compare against this
       recording, not against 1.1. The `lv426` half runs locally and the `arrakis`
-      half runs in the CI job 1.1 adds. `deps:` 3.8
-- [ ] 3.15 Adversarial review (`adversarial-review` skill): run deterministic
+      half runs in the CI job 1.1 adds.
+
+      `lv426` re-recorded. The root moved, `ci75cnxg` to `zj581hwl`, and the set
+      went 7438 to 9717 with the root excluded: 2310 added and 31 removed. Both
+      numbers are explained and neither is a surprise.
+
+      The 2310 are almost entirely one cause, which the drvPath alone could not
+      have told apart from a runaway. Task 3.2 pins hunk to its own nixpkgs
+      rather than making it follow ours, because its build enumerates
+      `perSystem.x86_64-darwin`, which nixpkgs-unstable dropped. A second
+      nixpkgs instantiation carries a second toolchain, and that is what the set
+      shows: duplicate `bootstrap-stage2-stdenv-darwin`, `apple-sdk-14.4`,
+      `clang-wrapper-21.1.8`, `perl-5.42.0`, and the autotools and python build
+      hooks, 114 `source.drv` among them. Eleven nodes name hunk directly. The
+      cost is the price of 3.2's decision, recorded here rather than rediscovered
+      in phase 9.
+
+      The 31 removed are this phase's own deletions and renames, and each is
+      accounted for: `diffnote.drv` and the two `skill-*-diffnote-SKILL.md.drv`
+      leave, the four `guard.drv` and the harness config nodes move because
+      `sysinit-agent` itself changed, and `review.drv` plus the two
+      `skill-*-note-SKILL.md.drv` arrive to replace them.
+
+      `arrakis` is NOT re-recorded here and its two files are unchanged, which
+      this task already anticipated by assigning that half to CI.
+      `hack/host-baseline.sh arrakis` cannot run on this box: it hits an
+      import-from-derivation that needs an `x86_64-linux` builder, and fails with
+      `required system or feature not available`. CI owns it. `deps:` 3.8
+- [x] 3.15 Adversarial review (`adversarial-review` skill): run deterministic
       lint. Critics are NOT run: the owner directed on 2026-08-08 that the apply
       proceed on deterministic lint alone, so every task in this list reaches the
       `not run` terminal state the skill defines and records the open questions
       rather than refuting them. The questions below are what critics WOULD have
       been asked, kept because they name where this phase is weakest on the claim that no behavior was lost silently, on the
       derived export as an artifact that can go stale against its record, and
-      on the loopback daemon as an unauthenticated local listener. `deps:` 3.14
+      on the loopback daemon as an unauthenticated local listener.
+
+      Terminal state: `not run`. `specutil check` passes. No critic ran, per the
+      owner directive. The review decision was re-stamped after the phase-3
+      edits restaled it.
+
+      Two of the three open questions moved during the apply, which is worth
+      recording since no critic will now press them.
+
+      On behavior lost silently: two losses were found by running things rather
+      than by reading them, and both were real. `hunk` hides agent notes by
+      default (`agent_notes = false`), so `review` loaded the sidecar, paid the
+      read, and displayed nothing; `--agent-notes` is now passed explicitly. And
+      deleting the `diffnote` shim in 3.8 left `sysinit-agent` on no PATH at
+      all, so every command the new skill and the allowlist tell an agent to
+      type did not exist. `pkgs.sysinit-agent` is now in `home.packages` under
+      its own name. Neither was caught by any gate in this phase, which is the
+      honest answer to the question as asked.
+
+      On the export going stale against its record: unchanged and still true by
+      design. `rebuild` is the repair, the marker is advisory, and nothing
+      compares the two. 3.10 added a neighbouring staleness the design had not
+      named: a running viewer is stale against the export as well, with no
+      remedy but restarting it.
+
+      The loopback daemon question is untouched. `hunk` runs one, this change
+      did not audit it, and phase 3 did not need to. `deps:` 3.14
 
 ## 4. One owner per fact
 
