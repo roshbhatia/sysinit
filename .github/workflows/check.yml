@@ -7,10 +7,8 @@ name: Check
 # never built by CI at all. That is exactly the gap this job closes, so filtering
 # here would reproduce it.
 #
-# The Darwin work is one job, several steps rather than several jobs: the host
-# evaluation reuses the store the check step already populated, so the
-# substitutions are paid once. `baseline-linux` is a separate job because it
-# needs a different runner, not because it wants a fresh store.
+# One job, two steps rather than two jobs: the host build reuses the store the
+# check step already populated, so the substitutions are paid once.
 
 on:
   push:
@@ -90,71 +88,7 @@ jobs:
       # the whole module tree, which is what fires the assertions, and takes about
       # 10 seconds while materialising nothing. Verified by injecting a failing
       # assertion: the eval aborts with its message.
-      # Records the same two artifacts `baseline-linux` records for arrakis, so
-      # both halves of the gate are produced by one script and compared the same
-      # way. Forcing `.drvPath` is what fires the module assertions; enumerating
-      # the graph is what catches a module silently dropped.
-      - name: Record the lv426 baseline
+      - name: Evaluate host configuration (lv426)
         env:
           NIX_CONFIG: "access-tokens = github.com=${{ secrets.GITHUB_TOKEN }}"
-        run: ./hack/host-baseline.sh lv426 "${RUNNER_TEMP}/baseline"
-
-      - name: Compare against the committed baseline
-        run: |
-          committed="openspec/changes/make-sysinit-composable/baseline"
-          if [ ! -f "${committed}/lv426.drvset" ]; then
-            echo "::error::No committed lv426 baseline. Download the artifact from this run and commit it to ${committed}/."
-            exit 1
-          fi
-          diff -u "${committed}/lv426.drvpath" "${RUNNER_TEMP}/baseline/lv426.drvpath"
-          diff -u "${committed}/lv426.drvset" "${RUNNER_TEMP}/baseline/lv426.drvset"
-
-      - if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: lv426-baseline
-          path: ${{ runner.temp }}/baseline/
-
-  # The arrakis half of the closure gates for the `make-sysinit-composable`
-  # change. arrakis is x86_64-linux and its module set imports from a
-  # derivation, so it cannot evaluate on the Darwin runner above at all.
-  #
-  # Evaluates, never builds. `hack/host-baseline.sh` enumerates the derivation
-  # graph rather than realizing the closure, so this fits a runner that could
-  # not hold one host system closure, let alone two.
-  #
-  # Unlike build-cache.yml's Cachix step, nothing here is gated on a secret.
-  # A gate that reports green when a precondition is missing is worse than no
-  # gate, and this one is read less often than a local check.
-  baseline-linux:
-    runs-on: ubuntu-latest
-    timeout-minutes: 30
-    steps:
-      - uses: actions/checkout@v7
-
-      - uses: DeterminateSystems/nix-installer-action@v22
-
-      - name: Record the arrakis baseline
-        env:
-          NIX_CONFIG: "access-tokens = github.com=${{ secrets.GITHUB_TOKEN }}"
-        run: ./hack/host-baseline.sh arrakis "${RUNNER_TEMP}/baseline"
-
-      # Fail rather than skip when the committed baseline is absent. The first
-      # run has nothing to compare against by construction, because only this
-      # job can produce the arrakis side; it fails and names the artifact to
-      # commit, which is the bootstrap rather than an error.
-      - name: Compare against the committed baseline
-        run: |
-          committed="openspec/changes/make-sysinit-composable/baseline"
-          if [ ! -f "${committed}/arrakis.drvset" ]; then
-            echo "::error::No committed arrakis baseline. Download the artifact from this run and commit it to ${committed}/."
-            exit 1
-          fi
-          diff -u "${committed}/arrakis.drvpath" "${RUNNER_TEMP}/baseline/arrakis.drvpath"
-          diff -u "${committed}/arrakis.drvset" "${RUNNER_TEMP}/baseline/arrakis.drvset"
-
-      - if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: arrakis-baseline
-          path: ${{ runner.temp }}/baseline/
+        run: nix eval --raw ".#darwinConfigurations.lv426.system.drvPath"

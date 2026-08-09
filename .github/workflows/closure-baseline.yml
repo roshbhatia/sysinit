@@ -1,0 +1,76 @@
+name: Closure baseline
+
+# Per-phase gate for the `make-sysinit-composable` change. Records each host's
+# derivation graph and compares it against the baseline committed under
+# openspec/changes/make-sysinit-composable/baseline/.
+#
+# Deliberately NOT a required check and deliberately NOT on push.
+#
+# An earlier version put these steps in check.yml's `verify` job. That job is
+# required on main and has no path filter, so every commit that moves a closure
+# failed until the baseline was re-recorded. update-sources.yml opens a
+# `nix flake update` PR every six hours (cron at :5), and each one moves
+# thousands of derivation paths, so those PRs could never go green and
+# auto-merge-dependabot.yml's `--auto` could never fire. A change-scoped gate
+# does not belong in the repository's permanent required check.
+#
+# These gates are per phase and owner-invoked, which is what workflow_dispatch
+# is. Run it at a phase boundary:
+#
+#   gh workflow run closure-baseline.yml
+#
+# Evaluates, never builds. `hack/host-baseline.sh` enumerates the derivation
+# graph rather than realizing the closure, so this fits a runner that could not
+# hold one host system closure (lv426 measures 17.5 GiB) let alone two.
+
+on:
+  workflow_dispatch: {}
+
+concurrency:
+  group: closure-baseline-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  baseline:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: macos-latest
+            host: lv426
+          - os: ubuntu-latest
+            host: arrakis
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: DeterminateSystems/nix-installer-action@v22
+
+      - name: Record the ${{ matrix.host }} baseline
+        env:
+          NIX_CONFIG: "access-tokens = github.com=${{ secrets.GITHUB_TOKEN }}"
+        run: ./hack/host-baseline.sh "${{ matrix.host }}" "${RUNNER_TEMP}/baseline"
+
+      # Fails rather than skips when the committed baseline is absent. Nothing
+      # here is gated on a secret: a gate that reports green when a precondition
+      # is missing is worse than no gate.
+      - name: Compare against the committed baseline
+        run: |
+          host="${{ matrix.host }}"
+          committed="openspec/changes/make-sysinit-composable/baseline"
+          if [ ! -f "${committed}/${host}.drvset" ]; then
+            echo "::error::No committed ${host} baseline. Download the artifact from this run and commit it to ${committed}/."
+            exit 1
+          fi
+          diff -u "${committed}/${host}.drvpath" "${RUNNER_TEMP}/baseline/${host}.drvpath"
+          diff -u "${committed}/${host}.drvset" "${RUNNER_TEMP}/baseline/${host}.drvset"
+
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.host }}-baseline
+          path: ${{ runner.temp }}/baseline/
