@@ -40,4 +40,9 @@ fi
 
 # A real path, never `-`. Reading the sidecar from stdin returns a null watch
 # plan, which turns `review --watch` into a one-shot with no diagnostic.
-exec hunk diff --agent-context "$export_file" "$@"
+#
+# `--agent-notes` is not optional here. hunk's own default is `agent_notes =
+# false`, so without it the sidecar loads, costs the read, and displays nothing,
+# which is indistinguishable from having no notes at all. It goes before "$@" so
+# a caller who passes `--no-agent-notes` still wins.
+exec hunk diff --agent-context "$export_file" --agent-notes "$@"
