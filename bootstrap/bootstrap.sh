@@ -32,8 +32,8 @@ if [ ! -d "$checkout/.git" ]; then
 else
   log "updating ${checkout}"
   git -C "$checkout" fetch --depth 1 origin "$branch"
-  git -C "$checkout" reset --hard "origin/${branch}" >/dev/null 2>&1 ||
-    git -C "$checkout" reset --hard FETCH_HEAD >/dev/null
+  git -C "$checkout" reset --hard "origin/${branch}" > /dev/null 2>&1 ||
+    git -C "$checkout" reset --hard FETCH_HEAD > /dev/null
 fi
 
 git -C "$checkout" sparse-checkout set --cone \
@@ -71,7 +71,7 @@ manifest="$HOME/.local/state/sysinit/paths.json"
 
 log "writing ${manifest}"
 mkdir -p "$(dirname "$manifest")"
-sed "s#\$HOME#${HOME}#g" "$layout" >"$manifest.tmp"
+sed "s#\$HOME#${HOME}#g" "$layout" > "$manifest.tmp"
 mv "$manifest.tmp" "$manifest"
 
 # --------------------------------------------------------- 3. system packages
@@ -79,7 +79,7 @@ mv "$manifest.tmp" "$manifest"
 # The `system` entries in the manifest. Read out of the TOML by shell rather
 # than by python, because python is not guaranteed on the box this runs on and
 # the shape here is two fixed keys.
-if command -v apt-get >/dev/null 2>&1; then
+if command -v apt-get > /dev/null 2>&1; then
   packages=$(
     awk '
       /^\[\[tool\]\]|^\[\[program\]\]/ { pkg = "" }
@@ -88,14 +88,14 @@ if command -v apt-get >/dev/null 2>&1; then
   )
   log "apt-get install: $(echo "$packages" | tr '\n' ' ')"
   # shellcheck disable=SC2086
-  DEBIAN_FRONTEND=noninteractive apt-get install -y -qq --no-install-recommends $packages >/dev/null
+  DEBIAN_FRONTEND=noninteractive apt-get install -y -qq --no-install-recommends $packages > /dev/null
 else
   log "no apt-get; skipping the distribution packages"
 fi
 
 # ------------------------------------------------------------------- 4. mise
 
-if ! command -v mise >/dev/null 2>&1 && [ ! -x "$HOME/.local/bin/mise" ]; then
+if ! command -v mise > /dev/null 2>&1 && [ ! -x "$HOME/.local/bin/mise" ]; then
   log "installing mise"
   curl -fsSL https://mise.run | sh
 fi
@@ -109,9 +109,9 @@ export PATH="$HOME/.local/bin:$PATH"
 log "mise install"
 mkdir -p "$HOME/.config/mise"
 ln -sfn "$checkout/bootstrap/mise.toml" "$HOME/.config/mise/config.toml"
-mise trust --yes "$HOME/.config/mise/config.toml" >/dev/null 2>&1 || true
+mise trust --yes "$HOME/.config/mise/config.toml" > /dev/null 2>&1 || true
 mise install --yes
-mise reshim >/dev/null 2>&1 || true
+mise reshim > /dev/null 2>&1 || true
 
 export PATH="$HOME/.local/share/mise/shims:$PATH"
 
@@ -150,7 +150,7 @@ zsh_dir="$checkout/modules/home/programs/zsh"
     integrations/extras.zsh; do
     echo ". ${zsh_dir}/${fragment}"
   done
-} >"$HOME/.zshrc"
+} > "$HOME/.zshrc"
 
 # --------------------------------------------------------- 6. sysinit-agent
 

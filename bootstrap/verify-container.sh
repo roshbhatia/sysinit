@@ -24,12 +24,12 @@ repo_root=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)
 image=${SYSINIT_VERIFY_IMAGE:-ubuntu:24.04}
 runtime=${SYSINIT_CONTAINER_RUNTIME:-docker}
 
-if ! command -v "$runtime" >/dev/null 2>&1; then
+if ! command -v "$runtime" > /dev/null 2>&1; then
   echo "verify-container: no '$runtime' on PATH" >&2
   exit 1
 fi
 
-if ! "$runtime" info >/dev/null 2>&1; then
+if ! "$runtime" info > /dev/null 2>&1; then
   echo "verify-container: '$runtime' is installed but not running" >&2
   exit 1
 fi
@@ -63,7 +63,7 @@ git -C "$snapshot" \
 # expanding it, and a container root shell that inherited nothing would expand
 # it to the wrong place silently.
 script=$(
-  cat <<'INNER'
+  cat << 'INNER'
 set -euo pipefail
 
 export HOME=/root
@@ -134,8 +134,8 @@ INNER
 # token when the host has one keeps a 403 from reading as a broken manifest,
 # which it did on one run of this gate.
 github_token=${GITHUB_TOKEN:-}
-if [ -z "$github_token" ] && command -v gh >/dev/null 2>&1; then
-  github_token=$(gh auth token 2>/dev/null || true)
+if [ -z "$github_token" ] && command -v gh > /dev/null 2>&1; then
+  github_token=$(gh auth token 2> /dev/null || true)
 fi
 
 out="${snapshot}.out"
@@ -158,7 +158,7 @@ trap 'rm -rf "$snapshot" "$out"' EXIT
 #
 # Skipped rather than faked when nix is absent, and it says so, because a gate
 # that reports green on a precondition it could not check is worse than no gate.
-if ! command -v nix >/dev/null 2>&1; then
+if ! command -v nix > /dev/null 2>&1; then
   echo "verify-container: no nix on PATH, so the nix-side manifest was NOT compared" >&2
   exit 0
 fi

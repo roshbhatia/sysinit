@@ -14,7 +14,7 @@ here=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
 mode=${1:-write}
 
 generated=$(
-  python3 - "$here/tools.toml" <<'PY'
+  python3 - "$here/tools.toml" << 'PY'
 import sys, tomllib
 
 with open(sys.argv[1], "rb") as fh:
@@ -54,5 +54,5 @@ if [ "$mode" = "--check" ]; then
   exit 0
 fi
 
-printf '%s\n' "$generated" >"$target"
+printf '%s\n' "$generated" > "$target"
 echo "gen-mise-toml: wrote $target"
