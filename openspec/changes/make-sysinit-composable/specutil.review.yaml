@@ -1,9 +1,9 @@
 version: 1
 change: make-sysinit-composable
 decision: approved
-note: '5.3 and 5.4: claude transcript published as a link with a worktree sidecar; the other ten stay uncovered and nothing scrapes.'
-change_hash: 974521f36d6710b4
-base_commit: c0f59b3e9594b058c39dee576ebef9c5f4e7516f
+note: Phase 5 complete. 5.5 records NOT_RUN with the polling question left open.
+change_hash: 0d1b3671dfb613fa
+base_commit: 361b57173b00373bfc5bc32ef0ea870efdcff9d1
 items:
     0cd74be6febf08e9:
         hash: 7262630e5226087a

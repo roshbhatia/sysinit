@@ -1897,13 +1897,36 @@ words: the defect was never the pane, it was an agent opening one.
       No scraping added. The phase-5 diff contains no added line matching
       `get_lines_as_text`, `get_logical_lines`, `capture-pane`, `screencapture`,
       or `scrollback`, and neither does the new Go code or the claude module.
-- [ ] 5.5 Adversarial review (`adversarial-review` skill): run deterministic
+- [x] 5.5 Adversarial review (`adversarial-review` skill): run deterministic
       lint. Critics are NOT run: the owner directed on 2026-08-08 that the apply
       proceed on deterministic lint alone, so every task in this list reaches the
       `not run` terminal state the skill defines and records the open questions
       rather than refuting them. The questions below are what critics WOULD have
       been asked, kept because they name where this phase is weakest on whether a viewer that polls files reproduces the
       coupling it replaced. `deps:` 5.4
+
+      Adversarial review: not run; deterministic lint passed. Terminal state
+      `NOT_RUN`, per the owner's 2026-08-08 direction.
+
+      The question, left open rather than refuted: does a viewer that polls files
+      reproduce the coupling it replaced?
+
+      The answer this phase can defend is that it does not, and the reason is
+      which direction the arrow points. The coupling removed was an agent
+      reaching INTO a terminal or an editor: opening panes, sending keys, moving
+      focus. The viewer holds nothing. It opens a file, reads what grew, and
+      closes. It never signals a producer, and a producer that stops writing just
+      stops changing the screen.
+
+      What remains open is cost, not coupling. Polling at 500ms is a stat per
+      source per tick, forever, whether or not anything changed. Nobody has
+      measured that against a filesystem watch on this machine, and no budget was
+      set for it. If it ever matters, the fix is local to `fileTail.Render`.
+
+      The second open point is that neither the chords nor the hook has run
+      against a live wezterm or a live claude session. Both were verified by
+      execution against stubs and real files, which is stronger than parsing and
+      weaker than a switch.
 
 ## 6. The profile layer
 
