@@ -1,9 +1,9 @@
 version: 1
 change: make-sysinit-composable
 decision: approved
-note: 'phase 11 closeout: lv426 re-recorded and reconciled against the 1.1 baseline entry by entry, two spec deltas written (agent-diff-notes added, agent-session-rollup modified), the follow-on change opened on disk but held out of the commit until the owner records its own decision'
-change_hash: 842c0e32aaf7bd04
-base_commit: 4dec25a35e9adc48619e8e0e50324c0e6299734c
+note: 'phase 11: arrakis baseline recorded from CI run 31340960048 and enumerated against 1.1, the same six removals as lv426'
+change_hash: a9c25059189e9702
+base_commit: 7e8c783b460d731bd50651933b6317f30947c1ae
 items:
     0cd74be6febf08e9:
         hash: 7262630e5226087a

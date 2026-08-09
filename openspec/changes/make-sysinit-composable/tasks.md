@@ -2939,11 +2939,15 @@ the named task and re-running the gate, not re-entering the phase.
 
       The host builds: `nix build .#darwinConfigurations.lv426.system` succeeded.
 
-      The `arrakis` half is NOT run here and cannot be. Evaluating
+      The `arrakis` half cannot run here. Evaluating
       `nixosConfigurations.arrakis` on this aarch64-darwin machine pulls an
-      x86_64-linux derivation through IFD, which is the same wall 8.3 hit. It
-      runs in the CI job 1.1 adds, and `baseline/arrakis.*` still holds the 3.14
-      recording until it does.
+      x86_64-linux derivation through IFD, which is the same wall 8.3 hit. It ran
+      in the CI job 1.1 adds: run 31340960048 at `4dec25a35`. `zmx-0.6.0.drv` and
+      `zmx-0.6.0-zig-deps.drv` are present in that host's set too, with four zig
+      entries rather than darwin's `xcode-select` and `xcrun` pair, so this
+      phase's package reaches both hosts. 11.1 carries the full arrakis
+      enumeration and re-records `baseline/arrakis.*`, which held the phase 2
+      recording until then.
 - [x] 10.13 Adversarial review (`adversarial-review` skill): run deterministic
       lint. Critics are NOT run: the owner directed on 2026-08-08 that the apply
       proceed on deterministic lint alone, so every task in this list reaches the
@@ -3014,8 +3018,42 @@ the named task and re-running the gate, not re-entering the phase.
       `hunk-config.toml.drv`, `sysinit-paths.json.drv`, `config.yaml.drv`, and
       the two note skills.
 
-      The `arrakis` half is NOT run here, for the reason 10.12 records: it cannot
-      be evaluated on this machine. It runs in the CI job 1.1 adds.
+      The `arrakis` half cannot be evaluated on this machine, for the reason
+      10.12 records, so it ran in the CI job 1.1 adds: run 31340960048, job
+      `baseline (ubuntu-latest, arrakis)`, at `4dec25a35`. That job compares
+      against the recorded file and exits non-zero on any difference, so its
+      failure IS the report, not a breakage. The drvPath moved from
+      `inq6skw3y127...` at 1.1 to `smmjcn8bdwsn...`, and the set went from
+      14,848 entries to 17,420, 9,186 unique basenames to 10,272.
+
+      The nixpkgs rev is the same value at both ends and is visible in the
+      derivation name itself, `nixos-system-arrakis-26.11.20260803.104240a`, so
+      no lock drift hides underneath this either.
+
+      The removals are the SAME SIX as `lv426`, which is the result worth having:
+      `diffnote.drv`, `skill-{amp,claude}-diffnote-SKILL.md.drv`,
+      `skill-{amp,claude}-wtrun-SKILL.md.drv`, and
+      `sysinit-agent-0.1.0-go-modules.drv`. Two hosts, different platforms,
+      different harness sets, the same six losses, each already named in a task
+      of phase 2 or 3. A removal that appeared on one host and not the other
+      would mean a host-conditional deletion nobody asked for.
+
+      The 1,092 additions have the same owner as `lv426`'s: `hunk` not following
+      this repository's nixpkgs. On Linux that shows up more starkly, because the
+      second toolchain has to bootstrap itself. 255 entries carry `bun` and 206
+      more are the npm tarballs it fetches, 135 are python3.13, sphinx, and
+      docutils, and roughly 300 are an x86_64-linux stdenv bootstrap chain that
+      arrakis did not have at 1.1: the mes and stage0 builders, four
+      `bootstrap-stage*-gcc-wrapper` derivations, clang, and a ghc set. zmx adds
+      four through zig, which 10.12 names. The change's own generated files are
+      the rest and are individually identifiable: `review.drv`,
+      `hunk-config.toml.drv`, `sysinit-paths.json.drv`, `config.yaml.drv`, and
+      `skill-{amp,claude}-note-SKILL.md.drv`.
+
+      The recorded `baseline/arrakis.*` is updated to the run's artifact, so the
+      file in the tree is the current value rather than a phase 2 one. 11.3
+      deletes the whole directory on archive, and recording it first is still
+      correct: the evidence for this task has to exist in the history it cites.
 - [x] 11.2 Act: write the spec deltas this change owes. `agent-state-emission`
       keeps its OSC requirement because 2.2 reverses the deletion, so that one
       needs no delta. The behaviors with no spec today and a spec-worthy
@@ -3052,6 +3090,32 @@ the named task and re-running the gate, not re-entering the phase.
       which is why this depends on it rather than running earlier. Keep
       `hack/host-baseline.sh` only if something outside this change has adopted
       it by then; check before deleting. `deps:` 11.2
+
+      Checked first, as this task asks. Nothing outside this change references
+      `hack/host-baseline.sh`, the `baseline/` directory, or the workflow: the
+      only hits are the workflow itself, this file, and the review record. So all
+      three go.
+
+      One deviation, and it is a narrowing rather than an addition.
+      `closure-baseline.yml` holds TWO jobs, and this task's own reason covers
+      only one of them. The `baseline` job diffs against
+      `openspec/changes/make-sysinit-composable/baseline/`, so it cannot outlive
+      the archive and is deleted. The `home` job references nothing under the
+      change directory: it builds
+      `.#homeConfigurations.<profile>-<system>.activationPackage` for all six
+      cells, which is 8.3's gate and the only Linux coverage of the profile split
+      this change created. Deleting it would remove a working gate on the reason
+      that a different job in the same file broke, and 11.5's second open
+      question is a complaint about exactly this loss. So the `home` job moves to
+      `.github/workflows/home-configurations.yml` unchanged, its comment records
+      where it came from, and `closure-baseline.yml` is deleted. The workflow is
+      renamed rather than kept under a name that describes a job it no longer
+      holds.
+
+      The last `baseline` run before the deletion is 31340960048, and 10.12 and
+      11.1 cite it. It stays reachable in the Actions history after the workflow
+      file is gone, which is why deleting the file loses no evidence either task
+      depends on.
 - [x] 11.4 Act: open the follow-on change `decompose-wezterm-ui`, which
       design.md section 8 sequences after this one. `deps:` 11.3
 
