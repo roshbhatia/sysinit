@@ -1834,7 +1834,7 @@ words: the defect was never the pane, it was an agent opening one.
 
       Not verified against a running wezterm. That needs a darwin switch, which
       this task did not run.
-- [ ] 5.3 Act: mirror the native transcript into
+- [x] 5.3 Act: mirror the native transcript into
       `agents/transcripts/<harness>/<session>.jsonl` for claude only. Claude is
       the one harness whose hook payload carries `transcript_path`. An earlier
       draft named four, which the evidence does not support: opencode's payload
@@ -1850,8 +1850,53 @@ words: the defect was never the pane, it was an agent opening one.
       transcript from the current directory. Without it the transcript is
       reachable only by harness session id, which the owner does not know.
       `deps:` 5.1
-- [ ] 5.4 Verify: the ten uncovered harnesses are recorded in the
+
+      Done. `sysinit-agent transcript-link claude`, wired as a second
+      `UserPromptSubmit` hook in `harnesses/claude/default.nix`.
+
+      A symlink, not a copy. The point is to tail a session that is still being
+      written, and a copy would be a second producer of the same bytes, stale
+      between refreshes, and twice the disk of a long session. The cost is
+      recorded rather than hidden: this makes a transcript REACHABLE, it does not
+      ARCHIVE one. A harness that deletes its file leaves a dangling link and the
+      viewer says nothing is there.
+
+      On every prompt rather than at SessionEnd, because a mirror that appears
+      after the session ends cannot be tailed. Repeating it costs one unlink and
+      one symlink. It also republishes: `--resume` moves a session's file, so a
+      link that is merely present is not a link that is correct.
+
+      The sidecar `<session>.json` records the worktree, and `watch transcript
+      claude` with no id resolves through it, newest session first. That is the
+      clause 5.1 asked for, and the viewer now reads it.
+
+      The payload's own `transcript_path` is preferred and the session id is the
+      fallback, globbing claude's project layout the way `worklog-hook.py:174`
+      already does. This matters because the UserPromptSubmit payload shape was
+      NOT probed: the code handles the field being absent rather than asserting
+      it is present. Verified against a real transcript, this session's own, with
+      the field omitted from the payload.
+
+      Never fails a hook. Every unusable payload is a silent exit 0 that writes
+      nothing: no session id, malformed JSON, a traversing session id or harness
+      name, a transcript that is a directory, and one that does not exist. Seven
+      mutations are each caught, including publishing a copy instead of a link,
+      skipping an existing link, and trusting the session id.
+
+      The other ten harnesses stay uncovered and nothing scrapes a terminal.
+- [x] 5.4 Verify: the ten uncovered harnesses are recorded in the
       proposal as uncovered, with no scraping added. `deps:` 5.3
+
+      Verified, and the arithmetic checks out rather than being restated. The
+      registry has 11 entries and `proposal.md:203-217` records ten as uncovered,
+      split as five that fire no hooks at all and five whose hook payloads carry
+      no transcript reference. The first five are amp, copilot, crush, cursor,
+      and goose, and none of their modules mentions a hook. The second five are
+      codex, pi, opencode, devin, and gemini. 5 + 5 + claude = 11.
+
+      No scraping added. The phase-5 diff contains no added line matching
+      `get_lines_as_text`, `get_logical_lines`, `capture-pane`, `screencapture`,
+      or `scrollback`, and neither does the new Go code or the claude module.
 - [ ] 5.5 Adversarial review (`adversarial-review` skill): run deterministic
       lint. Critics are NOT run: the owner directed on 2026-08-08 that the apply
       proceed on deterministic lint alone, so every task in this list reaches the

@@ -1,9 +1,9 @@
 version: 1
 change: make-sysinit-composable
 decision: approved
-note: '5.2: two owner-pressed viewer chords, argv asserted by a stub-load check in pre-commit.'
-change_hash: 5ee3e3569c491d9e
-base_commit: f6808f019f62b8d7edf4b4f681ac43edf84dc6fa
+note: '5.3 and 5.4: claude transcript published as a link with a worktree sidecar; the other ten stay uncovered and nothing scrapes.'
+change_hash: 974521f36d6710b4
+base_commit: c0f59b3e9594b058c39dee576ebef9c5f4e7516f
 items:
     0cd74be6febf08e9:
         hash: 7262630e5226087a

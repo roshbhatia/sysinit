@@ -28,7 +28,19 @@ var ErrOutsideRoot = errors.New("path is not inside the repository")
 // pointing at whatever repository triggered the hook, so the store would be
 // keyed on a repository the caller is not in.
 func Root() (string, error) {
+	return RootAt("")
+}
+
+// RootAt returns the top level of the working tree holding dir, or of the
+// process's own directory when dir is empty.
+//
+// Taking the directory as an argument rather than chdir-ing to it: a hook runs
+// wherever the harness left it, which is not reliably the session's worktree,
+// and changing this process's directory to find out would be a global mutation
+// to answer a local question.
+func RootAt(dir string) (string, error) {
 	cmd := exec.Command("git", "rev-parse", "--show-toplevel")
+	cmd.Dir = dir
 	cmd.Env = filterEnv(os.Environ(), "GIT_DIR", "GIT_WORK_TREE", "GIT_INDEX_FILE")
 	out, err := cmd.Output()
 	if err != nil {

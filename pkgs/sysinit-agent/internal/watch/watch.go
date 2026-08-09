@@ -43,6 +43,7 @@ import (
 	"time"
 
 	"github.com/roshbhatia/sysinit/pkgs/sysinit-agent/internal/paths"
+	"github.com/roshbhatia/sysinit/pkgs/sysinit-agent/internal/transcript"
 )
 
 const Summary = "render and tail a wtrun log, the agent-state bus, or a transcript"
@@ -52,6 +53,7 @@ const usageText = `One viewer for the three things an agent leaves behind.
 Usage:
   watch wtrun [<session>] [--log <name>]
   watch bus [<directory>]
+  watch transcript <harness>            resolve by directory
   watch transcript <harness>/<session>
   watch transcript <harness> <session>
 
@@ -59,7 +61,8 @@ Each source is named by what identifies it, and they differ:
   wtrun       by pane. Defaults to $WTRUN_SESSION, then pane-$WEZTERM_PANE.
               Never the viewer's own pane when a name is given.
   bus         by directory. Defaults to the working directory.
-  transcript  by harness session id.
+  transcript  by harness session id, or by directory through the sidecar
+              published next to it.
 
 Flags:
   --log <name>   which wtrun log, default "last"
@@ -306,13 +309,27 @@ func newTranscript(args []string) (renderer, error) {
 	switch len(args) {
 	case 1:
 		harness, session, _ = strings.Cut(args[0], "/")
+		// A bare harness resolves by directory. Nobody knows a session id, so
+		// requiring one would make this source reachable only from the sidecar
+		// 5.3 writes, read by hand.
+		if session == "" {
+			here, err := os.Getwd()
+			if err != nil {
+				return nil, err
+			}
+			found, ok := transcript.FindByWorktree(harness, here)
+			if !ok {
+				return nil, fmt.Errorf("no %s transcript published for %s", harness, here)
+			}
+			session = found
+		}
 	case 2:
 		harness, session = args[0], args[1]
 	default:
-		return nil, fmt.Errorf("transcript takes <harness>/<session> or <harness> <session>")
+		return nil, fmt.Errorf("transcript takes <harness>[/<session>] or <harness> <session>")
 	}
 	if harness == "" || session == "" {
-		return nil, fmt.Errorf("transcript needs both a harness and a session id")
+		return nil, fmt.Errorf("transcript needs a harness, and a session id or a published one here")
 	}
 	if strings.Contains(harness, "/") || strings.Contains(session, "/") {
 		return nil, fmt.Errorf("harness and session must not contain a path separator")

@@ -18,6 +18,7 @@ import (
 	"github.com/roshbhatia/sysinit/pkgs/sysinit-agent/internal/guard"
 	"github.com/roshbhatia/sysinit/pkgs/sysinit-agent/internal/note"
 	"github.com/roshbhatia/sysinit/pkgs/sysinit-agent/internal/statusline"
+	"github.com/roshbhatia/sysinit/pkgs/sysinit-agent/internal/transcript"
 	"github.com/roshbhatia/sysinit/pkgs/sysinit-agent/internal/watch"
 )
 
@@ -38,6 +39,7 @@ var commands = map[string]command{
 	"exit-code-guard": {name: "exit-code-guard", summary: guard.ExitCodeSummary, run: guard.RunExitCode},
 	"note":            {name: "note", summary: note.Summary, run: note.Run},
 	"statusline":      {name: "statusline", summary: statusline.Summary, run: statusline.Run},
+	"transcript-link": {name: "transcript-link", summary: transcript.Summary, run: transcript.Run},
 	"watch":           {name: "watch", summary: watch.Summary, run: watch.Run},
 }
 
