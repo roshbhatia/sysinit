@@ -90,10 +90,30 @@ jobs:
       # the whole module tree, which is what fires the assertions, and takes about
       # 10 seconds while materialising nothing. Verified by injecting a failing
       # assertion: the eval aborts with its message.
-      - name: Evaluate host configuration (lv426)
+      # Records the same two artifacts `baseline-linux` records for arrakis, so
+      # both halves of the gate are produced by one script and compared the same
+      # way. Forcing `.drvPath` is what fires the module assertions; enumerating
+      # the graph is what catches a module silently dropped.
+      - name: Record the lv426 baseline
         env:
           NIX_CONFIG: "access-tokens = github.com=${{ secrets.GITHUB_TOKEN }}"
-        run: nix eval --raw ".#darwinConfigurations.lv426.system.drvPath"
+        run: ./hack/host-baseline.sh lv426 "${RUNNER_TEMP}/baseline"
+
+      - name: Compare against the committed baseline
+        run: |
+          committed="openspec/changes/make-sysinit-composable/baseline"
+          if [ ! -f "${committed}/lv426.drvset" ]; then
+            echo "::error::No committed lv426 baseline. Download the artifact from this run and commit it to ${committed}/."
+            exit 1
+          fi
+          diff -u "${committed}/lv426.drvpath" "${RUNNER_TEMP}/baseline/lv426.drvpath"
+          diff -u "${committed}/lv426.drvset" "${RUNNER_TEMP}/baseline/lv426.drvset"
+
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: lv426-baseline
+          path: ${{ runner.temp }}/baseline/
 
   # The arrakis half of the closure gates for the `make-sysinit-composable`
   # change. arrakis is x86_64-linux and its module set imports from a
