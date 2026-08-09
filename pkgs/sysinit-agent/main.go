@@ -15,8 +15,8 @@ import (
 
 	"github.com/roshbhatia/sysinit/pkgs/sysinit-agent/internal/agentstate"
 	"github.com/roshbhatia/sysinit/pkgs/sysinit-agent/internal/citelock"
-	"github.com/roshbhatia/sysinit/pkgs/sysinit-agent/internal/diffnote"
 	"github.com/roshbhatia/sysinit/pkgs/sysinit-agent/internal/guard"
+	"github.com/roshbhatia/sysinit/pkgs/sysinit-agent/internal/note"
 	"github.com/roshbhatia/sysinit/pkgs/sysinit-agent/internal/statusline"
 )
 
@@ -34,8 +34,8 @@ var commands = map[string]command{
 	"agent-state":     {name: "agent-state", summary: agentstate.Summary, run: agentstate.Run},
 	"bash-guard":      {name: "bash-guard", summary: guard.BashSummary, run: guard.RunBash},
 	"citelock":        {name: "citelock", summary: citelock.Summary, run: citelock.Run},
-	"diffnote":        {name: "diffnote", summary: diffnote.Summary, run: diffnote.Run},
 	"exit-code-guard": {name: "exit-code-guard", summary: guard.ExitCodeSummary, run: guard.RunExitCode},
+	"note":            {name: "note", summary: note.Summary, run: note.Run},
 	"statusline":      {name: "statusline", summary: statusline.Summary, run: statusline.Run},
 }
 

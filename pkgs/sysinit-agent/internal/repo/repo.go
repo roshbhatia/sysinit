@@ -1,9 +1,8 @@
-// Package repo derives the repository root and the note-store path from it.
+// Package repo derives the repository root and the note paths under it.
 //
-// The derivation is duplicated in lua/harness/diffnote.lua, which reads the
-// store the CLI writes. A drift between the two is silent: the CLI reports
-// success and the editor renders nothing. Nothing checks the two against each
-// other, so edit them together.
+// The derivation lives here alone. It used to be duplicated in a second
+// language, where a drift was silent, and both addresses now come from one
+// function so there is nothing left to keep in step by hand.
 package repo
 
 import (
@@ -60,9 +59,9 @@ func filterEnv(env []string, drop ...string) []string {
 // StateHome returns XDG_STATE_HOME with any trailing slash removed, falling
 // back to $HOME/.local/state.
 //
-// The trailing slash matters: nvim launched from a mux server inherits no
+// The trailing slash matters: a process launched from a mux server inherits no
 // session variables, so the fallback branch is the one that runs in practice,
-// and the two halves must agree on both branches.
+// and a trailing slash would key the same repository on a second path.
 func StateHome() string {
 	home := strings.TrimRight(os.Getenv("XDG_STATE_HOME"), "/")
 	if home != "" {
@@ -71,11 +70,25 @@ func StateHome() string {
 	return filepath.Join(os.Getenv("HOME"), ".local", "state")
 }
 
-// NoteFile returns the diffnote store path for root.
+// NoteFile returns the note-record path for root.
 func NoteFile(root string) string {
+	return noteBase(root) + ".json"
+}
+
+// ExportFile returns the path of the viewer-shaped export derived from the
+// record for root.
+//
+// Same base as NoteFile, so the two cannot drift and both ends compute one
+// address from the root alone. Two viewers in two panes therefore read one file
+// rather than each deriving its own.
+func ExportFile(root string) string {
+	return noteBase(root) + ".hunk.json"
+}
+
+func noteBase(root string) string {
 	sum := sha256.Sum256([]byte(root))
 	digest := hex.EncodeToString(sum[:])[:16]
-	return fmt.Sprintf("%s/agents/diff-notes/%s-%s.json", StateHome(), filepath.Base(root), digest)
+	return fmt.Sprintf("%s/agents/diff-notes/%s-%s", StateHome(), filepath.Base(root), digest)
 }
 
 // normalizeAbsolute resolves "." and ".." lexically, without touching the disk.
@@ -131,8 +144,8 @@ func physicalWD() (string, error) {
 
 // RelativeToRoot returns path expressed relative to root, or ErrOutsideRoot.
 //
-// The root itself is refused: a note anchors on a file, and the editor keys its
-// extmarks on a repo-relative file path that would be empty here.
+// The root itself is refused: a note anchors on a file, and every reader keys
+// on a repo-relative file path that would be empty here.
 func RelativeToRoot(root, path string) (string, error) {
 	absolute := path
 	if !strings.HasPrefix(path, "/") {

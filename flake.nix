@@ -77,6 +77,23 @@
       flake = false;
     };
 
+    # Terminal-first diff reviewer. It reads the note file this repository owns
+    # through `--agent-context`, which is why it is an input again after
+    # 878f78300 removed it.
+    #
+    # Do NOT make nixpkgs follow ours. hunk's bun2nix/flake-parts build
+    # enumerates perSystem.x86_64-darwin, which nixpkgs-unstable (26.11) dropped,
+    # so following ours breaks its evaluation. Pin the same rev hunk's own lock
+    # uses, which still carries x86_64-darwin, so the build matches upstream.
+    #
+    # That pin is about hunk's build, not its coverage. Its own packages cover
+    # aarch64-darwin, aarch64-linux, and x86_64-linux, which is `cacheSystems`
+    # exactly. Probed at 0.18.0; see the change's hunk-probe.md.
+    hunk = {
+      url = "github:modem-dev/hunk";
+      inputs.nixpkgs.url = "github:NixOS/nixpkgs/549bd84d6279f9852cae6225e372cc67fb91a4c1";
+    };
+
   };
 
   outputs =

@@ -204,17 +204,17 @@ let
     text = builtins.readFile ./loop-gate.sh;
   };
 
-  # A shim, not a rename: every caller, hook entry, and skill still spells this
-  # `diffnote`, and the binary is multi-call.
-  diffNote = pkgs.writeShellApplication {
-    name = "diffnote";
+  # The reader half. `hunk` itself stays on PATH under its own name; this only
+  # adds the repository's note export to it.
+  noteReview = pkgs.writeShellApplication {
+    name = "review";
     runtimeInputs = [
+      pkgs.coreutils
       pkgs.git
+      pkgs.hunk
       pkgs.sysinit-agent
     ];
-    text = ''
-      exec sysinit-agent diffnote "$@"
-    '';
+    text = builtins.readFile ./review.sh;
   };
 
   specPreflight = pkgs.writeShellApplication {
@@ -277,7 +277,7 @@ in
     reviewScript
     sessionsScript
     syGate
-    diffNote
+    noteReview
     agentRefine
     specPreflight
     ;
@@ -288,7 +288,7 @@ in
   focusExe = lib.getExe focusScript;
   reviewExe = lib.getExe reviewScript;
   sessionsExe = lib.getExe sessionsScript;
-  diffNoteExe = lib.getExe diffNote;
+  noteReviewExe = lib.getExe noteReview;
 
   iconFiles = lib.listToAttrs (
     map (

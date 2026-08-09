@@ -5,7 +5,10 @@ final: _prev: {
 
     src = ../pkgs/sysinit-agent;
 
-    vendorHash = "sha256-/Bl4G5STa5lnNntZnMmt+BfES+N7ZYAwC9tzpuqUKcc=";
+    # null, not a hash. Deleting internal/nvimlink took the last dependency with
+    # it, so there is no module to fetch and a hash here would name an empty
+    # derivation the build never needs.
+    vendorHash = null;
 
     # The tests build real working trees: the store path is derived from
     # `rev-parse --show-toplevel`, so a fake directory would key every test on

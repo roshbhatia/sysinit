@@ -199,14 +199,17 @@ let
 
     "specutil lock *"
 
-    "diffnote list *"
-    "diffnote list"
-    "diffnote path"
+    "sysinit-agent note list *"
+    "sysinit-agent note list"
+    "sysinit-agent note path"
+
+    "hunk skill path"
   ];
 
   tierB = [
-    "diffnote add *"
-    "diffnote apply *"
+    "sysinit-agent note add *"
+    "sysinit-agent note apply *"
+    "sysinit-agent note rebuild"
 
     "git add"
     "git add *"

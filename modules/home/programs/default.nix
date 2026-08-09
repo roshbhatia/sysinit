@@ -18,6 +18,7 @@
     ./git
     ./helix.nix
     ./htop.nix
+    ./hunk.nix
     ./hushlogin.nix
     ./k9s.nix
     ./kubectl.nix

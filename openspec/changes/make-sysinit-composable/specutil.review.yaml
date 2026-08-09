@@ -1,9 +1,9 @@
 version: 1
 change: make-sysinit-composable
 decision: approved
-note: 'Task 3.1 probed hunk 0.18.0 and overturned design decision 2 reasoning: rationale, author, and an upsert id all exist on hunk surfaces. Conclusion unchanged, reason corrected. Probe recorded in hunk-probe.md.'
-change_hash: 2c0bc34d8277c006
-base_commit: d86af5d87881e57a05851a671c7dff33c7d32dd5
+note: 'Phase 3 applied through 3.8: note writer renamed and split from the viewer, hunk-shaped export added inside the store lock, nvimlink and the neovim renderer deleted, skill and allowlist re-pointed at sysinit-agent note. Carries forward the owner decision of 2026-08-08 to run this apply on deterministic lint alone; no critic ran.'
+change_hash: 5b73c949f1116134
+base_commit: 354ce929e0f638f6a5d478f594e9c91d7c2093da
 items:
     0cd74be6febf08e9:
         hash: 7262630e5226087a

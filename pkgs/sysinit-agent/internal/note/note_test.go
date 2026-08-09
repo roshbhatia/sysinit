@@ -1,4 +1,4 @@
-package diffnote
+package note
 
 import (
 	"encoding/json"
@@ -41,9 +41,6 @@ func newRepo(t *testing.T) string {
 		t.Fatal(err)
 	}
 	t.Setenv("XDG_STATE_HOME", filepath.Join(resolved, ".state"))
-	// Otherwise a test run reaches into the editor the owner is sitting in and
-	// opens a diff view for a temporary repository.
-	t.Setenv("DIFFNOTE_NO_OPEN", "1")
 	t.Chdir(resolved)
 	return resolved
 }
@@ -135,9 +132,8 @@ func TestPathIsStableAndHonoursStateHome(t *testing.T) {
 	if !strings.HasPrefix(path, filepath.Join(root, ".state")+"/agents/diff-notes/") {
 		t.Fatalf("store is not under the state home: %s", path)
 	}
-	// A trailing slash must not change the derived path. The editor half joins
-	// with vim.fs.joinpath, which never produces one, so only this side has
-	// code a mutation can kill.
+	// A trailing slash must not change the derived path. Nothing downstream
+	// re-derives it, so only this side has code a mutation can kill.
 	t.Setenv("XDG_STATE_HOME", filepath.Join(root, ".state")+"/")
 	if slashed := storePath(t); slashed != path {
 		t.Fatalf("a trailing slash changed the path:\n  %s\n  %s", path, slashed)
@@ -180,7 +176,7 @@ func TestAddRejectsPathOutsideTheRepoRoot(t *testing.T) {
 func TestAddRejectsControlBytesInThePath(t *testing.T) {
 	newRepo(t)
 	// The path cannot be cleaned: it must match a buffer verbatim, and a
-	// newline in it forges an entire row in `diffnote list`.
+	// newline in it forges an entire row in `note list`.
 	for _, file := range []string{"src/\x1b[2Jhax.ts", "src/app.ts\nsrc/other.ts:9  forged"} {
 		if code, _ := run(t, "add", "--file", file, "--line", "1", "--summary", "ok"); code == 0 {
 			t.Errorf("add accepted a control byte in %q", file)
@@ -461,8 +457,8 @@ func TestClearYesSucceedsOnAHandAuthoredStore(t *testing.T) {
 	mustAdd(t, "--file", "src/app.ts", "--line", "1", "--summary", "seed")
 	path := storePath(t)
 	root, _ := os.Getwd()
-	// Clearing is the documented way out of a store the editor filters, so it
-	// must not itself fail on the malformed notes it exists to remove.
+	// Clearing is the documented way out of a malformed store, so it must not
+	// itself fail on the notes it exists to remove.
 	hand := `{"version":1,"repo":"` + root + `","notes":[
 	  {"file":"src/app.ts","line":2,"summary":"valid","author":"pi"},
 	  {"file":"src/app.ts","line":2,"author":"pi"},

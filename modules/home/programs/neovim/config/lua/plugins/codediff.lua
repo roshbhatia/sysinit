@@ -65,11 +65,6 @@ return {
           local tabpage = (ev.data or {}).tabpage or vim.api.nvim_get_current_tabpage()
           vim.schedule(function()
             apply_diff_winopts(tabpage)
-            pcall(function()
-              local diffnote = require("harness.diffnote")
-              diffnote.start()
-              diffnote.refresh(tabpage)
-            end)
           end)
         end,
       })
@@ -83,9 +78,6 @@ return {
           end
           vim.schedule(function()
             apply_diff_winopts(tabpage)
-            pcall(function()
-              require("harness.diffnote").refresh(tabpage)
-            end)
           end)
         end,
       })
@@ -98,9 +90,6 @@ return {
             vim.g.codediff_saved_showtabline = nil
           end
           require("nvim-foldsign").setup({ enabled = true })
-          pcall(function()
-            require("harness.diffnote").stop()
-          end)
         end,
       })
     end,
@@ -114,20 +103,6 @@ return {
         "<leader>dH",
         "<Cmd>CodeDiff history<CR>",
         desc = "Open repo history",
-      },
-      {
-        "<leader>dn",
-        function()
-          require("harness.diffnote").qflist()
-        end,
-        desc = "Agent notes to quickfix",
-      },
-      {
-        "<leader>dN",
-        function()
-          require("harness.diffnote").show_at_cursor()
-        end,
-        desc = "Agent note under cursor",
       },
       {
         "<leader>dh",

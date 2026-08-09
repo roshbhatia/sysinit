@@ -1,10 +1,10 @@
-// Package diffnote implements the `diffnote` command: agent review notes on a
-// working-tree diff, rendered by neovim's CodeDiff view.
+// Package note implements the `note` command: agent review notes on a
+// working-tree diff.
 //
-// The on-disk format is fixed by lua/harness/diffnote.lua, which reads it.
-// Nothing builds both halves together any more, so a change to either side has
-// to be checked against the other by hand.
-package diffnote
+// The record is this package's own file and outlives any viewer. Writing a note
+// never opens or nudges anything: the writer writes files, and whoever wants to
+// look at them runs `review`.
+package note
 
 import (
 	"encoding/json"
@@ -15,29 +15,30 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/roshbhatia/sysinit/pkgs/sysinit-agent/internal/nvimlink"
 	"github.com/roshbhatia/sysinit/pkgs/sysinit-agent/internal/repo"
 	"github.com/roshbhatia/sysinit/pkgs/sysinit-agent/internal/store"
 )
 
 const Summary = "agent review notes on a working-tree diff"
 
-const usageText = `Agent review notes on a working-tree diff, rendered by neovim's CodeDiff view.
+const usageText = `Agent review notes on a working-tree diff. Read them with ` + "`review`" + `.
 
 Usage:
-  diffnote add --file <path> --line <n> --summary <text> [--rationale <text>] [--author <name>] [--replace] [--no-open]
-  diffnote apply --stdin [--no-open]
-  diffnote list [--file <path>] [--json]
-  diffnote clear [--file <path>] [--yes]
-  diffnote path
+  note add --file <path> --line <n> --summary <text> [--rationale <text>] [--author <name>] [--replace]
+  note apply --stdin
+  note list [--file <path>] [--json]
+  note clear [--file <path>] [--yes]
+  note path [--export]
+  note rebuild
 
-After a write, any neovim already sitting in this repository is asked to show
-the diff view, so notes appear as they land. Pass --no-open, or set
-DIFFNOTE_NO_OPEN=1, to write silently.
+A write never opens a viewer. It publishes the record and the viewer-shaped
+export derived from it, and a running ` + "`review --watch`" + ` picks the change up on
+its own. Run ` + "`note rebuild`" + ` after hand-editing the record, which is the one
+route that changes it without going through a write.
 `
 
-// Note is one anchored annotation. The field order is the serialized order, and
-// the editor reads these names, so neither may be reordered casually.
+// Note is one anchored annotation. The field order is the serialized order, so
+// it may not be reordered casually.
 type Note struct {
 	File      string  `json:"file"`
 	Line      int64   `json:"line"`
@@ -95,12 +96,14 @@ func Run(args []string) int {
 	case "clear":
 		err = cmdClear(args[1:])
 	case "path":
-		err = cmdPath()
+		err = cmdPath(args[1:])
+	case "rebuild":
+		err = cmdRebuild(args[1:])
 	default:
 		err = die("unknown subcommand '%s'", args[0])
 	}
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "diffnote: %s\n", err)
+		fmt.Fprintf(os.Stderr, "note: %s\n", err)
 		return 1
 	}
 	return 0
@@ -125,8 +128,8 @@ func marshal(doc *document) ([]byte, error) {
 	return append(out, '\n'), nil
 }
 
-// newStore builds the guarded store for root. The validator is the shape test
-// the editor also applies: an object carrying a notes array.
+// newStore builds the guarded store for root. The validator is the shape every
+// reader applies: an object carrying a notes array.
 func newStore(path, root string) *store.Store {
 	return &store.Store{
 		Path: path,
@@ -175,40 +178,40 @@ func openStore() (*store.Store, string, error) {
 	return newStore(repo.NoteFile(root), root), root, nil
 }
 
-func cmdPath() error {
+func cmdPath(args []string) error {
+	export := false
+	for i := 0; i < len(args); i++ {
+		switch args[i] {
+		case "--export":
+			export = true
+		default:
+			return die("unknown argument for path: %s", args[i])
+		}
+	}
 	root, err := repo.Root()
 	if err != nil {
 		return err
 	}
+	// Printed whether or not the file exists. This names an address, and the
+	// caller that wants to know which of the two files is on disk can stat it.
+	if export {
+		fmt.Println(repo.ExportFile(root))
+		return nil
+	}
 	fmt.Println(repo.NoteFile(root))
 	return nil
-}
-
-// showNotes nudges a running editor, unless the caller opted out.
-//
-// Best effort and after the write, never before: the note is on disk whether or
-// not an editor exists, and a caller in CI has none.
-func showNotes(root string, suppressed bool) {
-	if suppressed || os.Getenv("DIFFNOTE_NO_OPEN") == "1" {
-		return
-	}
-	nvimlink.ShowNotes(root)
 }
 
 func cmdAdd(args []string) error {
 	var file, line, summary, rationale string
 	author := "agent"
 	replace := false
-	noOpen := false
 
 	for i := 0; i < len(args); {
 		var err error
 		switch args[i] {
 		case "--replace":
 			replace, i = true, i+1
-			continue
-		case "--no-open":
-			noOpen, i = true, i+1
 			continue
 		case "--file":
 			file, i, err = takeValue(args, i, "--file")
@@ -286,12 +289,21 @@ func cmdAdd(args []string) error {
 		return err
 	}
 	doc.Notes = append(doc.Notes, encoded)
+	// Record first. Two renames cannot be atomic together, so one file leads,
+	// and the rule is which harm the window causes rather than which file grows.
+	// Record first only ever leaves the export missing a note the record already
+	// holds, which `rebuild` repairs; export first would show a note the record
+	// never got, which nothing repairs. `--replace` takes the same order even
+	// though its cardinality does not change.
 	if err := publishDoc(s, doc); err != nil {
 		return err
 	}
+	if err := publishExport(root, doc.Notes); err != nil {
+		return err
+	}
+	beforeRelease()
 	release()
-	fmt.Printf("diffnote: %s:%d\n", relative, parsed)
-	showNotes(root, noOpen)
+	fmt.Printf("note: %s:%d\n", relative, parsed)
 	return nil
 }
 
@@ -335,13 +347,10 @@ func dropMatching(notes []json.RawMessage, note Note) ([]json.RawMessage, error)
 
 func cmdApply(args []string, stdin io.Reader) error {
 	stdinFlag := false
-	noOpen := false
 	for i := 0; i < len(args); i++ {
 		switch args[i] {
 		case "--stdin":
 			stdinFlag = true
-		case "--no-open":
-			noOpen = true
 		default:
 			return die("unknown argument for apply: %s", args[i])
 		}
@@ -392,12 +401,16 @@ func cmdApply(args []string, stdin io.Reader) error {
 		}
 		doc.Notes = append(doc.Notes, encoded)
 	}
+	// Record first, for the reason cmdAdd states.
 	if err := publishDoc(s, doc); err != nil {
 		return err
 	}
+	if err := publishExport(root, doc.Notes); err != nil {
+		return err
+	}
+	beforeRelease()
 	release()
-	fmt.Printf("diffnote: applied %d note(s)\n", len(notes))
-	showNotes(root, noOpen)
+	fmt.Printf("note: applied %d note(s)\n", len(notes))
 	return nil
 }
 
@@ -700,15 +713,23 @@ func cmdClear(args []string) error {
 	} else {
 		doc.Notes = []json.RawMessage{}
 	}
+	// Export first, and only here. Clear is a documented kill switch, so the
+	// harm to avoid is not a fabricated note but a switch that appears not to
+	// have taken effect: record first would empty the record and leave every
+	// note still on display until something rebuilt the export.
+	if err := publishExport(root, doc.Notes); err != nil {
+		return err
+	}
 	if err := publishDoc(s, doc); err != nil {
 		return err
 	}
+	beforeRelease()
 	release()
 
 	if relative != "" {
-		fmt.Printf("diffnote: cleared notes on %s\n", relative)
+		fmt.Printf("note: cleared notes on %s\n", relative)
 	} else {
-		fmt.Println("diffnote: cleared every note")
+		fmt.Println("note: cleared every note")
 	}
 	return nil
 }

@@ -635,7 +635,7 @@ words: the defect was never the pane, it was an agent opening one.
       `cacheSystems` exactly, so 3.13 needs no gating; 3.2's reason for pinning
       is unaffected and separate.
       `deps:` 2.9
-- [ ] 3.2 Act: add the `hunk` flake input back, pinned to its own nixpkgs. Do
+- [x] 3.2 Act: add the `hunk` flake input back, pinned to its own nixpkgs. Do
       not make it follow ours: its build enumerates `perSystem.x86_64-darwin`,
       which nixpkgs-unstable dropped. Restore `programs/hunk.nix` from
       `878f78300^` and re-derive its theme from stylix, but do NOT restore its
@@ -650,7 +650,7 @@ words: the defect was never the pane, it was an agent opening one.
       passes checks only `{ lib, system, pkgs }` with no `inputs` and no `self`.
       So without the overlay entry there is no route to `hunk` from `checks/`,
       and 3.13 cannot be written. `deps:` 3.1
-- [ ] 3.3 Act: ship `review`, a command that runs
+- [x] 3.3 Act: ship `review`, a command that runs
       `hunk diff --agent-context <notes>` for the current repository. Do not
       ship a wrapper named `hunk`. An earlier draft did, and it broke the
       change's own non-goal at `proposal.md:187-188`: a script named `hunk` that
@@ -675,14 +675,32 @@ words: the defect was never the pane, it was an agent opening one.
       empty document. `review` distinguishes the two cases by stating our own
       files, which it can do without help. What 3.1's probe of a nonexistent path
       decides is how the no-notes branch is implemented: pass the missing path
-      through, omit `--agent-context`, or synthesize an empty export. `deps:` 3.2
-- [ ] 3.4 Act: rename `internal/diffnote` to `internal/note` and remove only the
+      through, omit `--agent-context`, or synthesize an empty export.
+
+      Shipped as `runtime/review.sh`, installed by `runtime/default.nix` as
+      `noteReview`. It takes the probe's answer and omits `--agent-context`
+      when there is no export. All four branches were exercised against the
+      real `sysinit-agent` and a recording stand-in for `hunk`: a clean
+      repository runs `hunk diff --watch` and exits 0; a record with no export
+      exits 1 naming `sysinit-agent note rebuild`; after that rebuild the flag
+      is applied and `--watch` still reaches `hunk` behind it; and an absent
+      `sysinit-agent` exits 1 saying so rather than looking like "no notes".
+      `deps:` 3.2
+- [x] 3.4 Act: rename `internal/diffnote` to `internal/note` and remove only the
       neovim paths from it. Keep `add`, `apply`, `list`, `clear`, and `path`,
       and keep `--rationale`, `--author`, and `--replace`: task 3.1 establishes
       that hunk has no field for them, so deleting them loses data. Delete
       `--no-open` and every call into `nvimlink`. Keep `internal/store` byte for
-      byte. `deps:` 3.3
-- [ ] 3.5 Act: add the hunk-shaped export as a derived file the writer
+      byte.
+
+      Done as `git mv`, so the history follows. The command is `note` now, on
+      the binary and on the `runtime/default.nix` shim, which 3.8's allowlist
+      has to match. `showNotes`, `DIFFNOTE_NO_OPEN`, and the `nvimlink` import
+      are gone; `--rationale`, `--author`, and `--replace` all stayed.
+      `internal/store` is untouched, including its one pre-existing gofmt
+      misalignment at `store.go:44-47`, which this change does not repair
+      because "byte for byte" says not to. `deps:` 3.3
+- [x] 3.5 Act: add the hunk-shaped export as a derived file the writer
       maintains, not as a one-shot command. Every `add`, `apply`, and `clear`
       republishes it inside the same store lock that publishes the record, so
       the two cannot disagree. Its path derives from the repo root by the same
@@ -785,8 +803,23 @@ words: the defect was never the pane, it was an agent opening one.
       also records whether `--agent-context` tolerates an unknown top-level key
       and 3.13's accepted fixture is the marked file rather than a bare one. Rebuild fails on a malformed
       record because `readDoc` refuses one (`diffnote.go:147-160`); that is a
-      loud failure and `clear --yes` stays the documented escape. `deps:` 3.4
-- [ ] 3.6 Act: delete `internal/nvimlink` and the `neovim/go-client` dependency,
+      loud failure and `clear --yes` stays the documented escape.
+
+      Shipped as `internal/note/export.go`. `repo.ExportFile` shares
+      `noteBase` with `repo.NoteFile`, so the two addresses cannot drift.
+      Order is record-then-export in `add` and `apply` and export-then-record
+      in `clear`, each inside the lock and before the explicit `release()`.
+      The seam is `beforeRelease`, one package-level `var` and three call
+      sites, exactly as this task specified. `rebuild` takes the same lock.
+      The ordering assertion was mutation-tested: moving the export publish
+      after `release()` in `cmdAdd` fails
+      `TestAddPublishesTheExportBeforeReleasingTheLock` and leaves every other
+      test green, which is the case the task said a post-hoc comparison would
+      miss. The derived marker rides in the root `summary`, which the parser
+      reads and the viewer displays; an unknown key would have been dropped
+      silently. A multi-line rationale crosses intact, so there is no loss to
+      record in the design. `deps:` 3.4
+- [x] 3.6 Act: delete `internal/nvimlink` and the `neovim/go-client` dependency,
       then re-vendor. Keep `internal/repo`. An earlier draft deleted it on the
       true premise that its callers are all in the note writer and the false
       conclusion that the writer dies: 3.4 keeps the writer, and with it
@@ -800,8 +833,17 @@ words: the defect was never the pane, it was an agent opening one.
       digest under it. Correct the stale references in the package comment at
       `repo.go:3-6`, which names `lua/harness/diffnote.lua` that 3.7 deletes, and
       in the `StateHome` comment at `repo.go:63` while here, or the phase STOP
-      gate cannot go green. `deps:` 3.4
-- [ ] 3.7 Act: delete `neovim/config/lua/harness/diffnote.lua` and its callers
+      gate cannot go green.
+
+      It was the module's last dependency, so `go mod tidy` emptied `go.sum`
+      and the file is deleted rather than left empty. `overlays/sysinit-agent.nix`
+      takes `vendorHash = null` to match: a hash there would name an empty
+      derivation the build never fetches. `repo.go` keeps `Root`,
+      `RelativeToRoot`, `NoteFile`, and `ExportFile`; the three stale comments
+      are corrected. The phase STOP's
+      `rg -n 'nvim|neovim|diffnote\.lua|CodeDiff' pkgs/sysinit-agent` returns
+      nothing. `deps:` 3.4
+- [x] 3.7 Act: delete `neovim/config/lua/harness/diffnote.lua` and its callers
       in `plugins/codediff.lua`. Delete the five `harness.diffnote` call sites at
       `:69-71`, `:87`, `:102`, `:121`, and `:128`, and the two keymap entries
       that contain them. Do not delete `:69-128` as a span: the file is 142
@@ -810,8 +852,14 @@ words: the defect was never the pane, it was an agent opening one.
       `CodeDiffClose` restore, and the `<leader>dd` and `<leader>dH` keymaps,
       none of which is diffnote. This removes inline virtual text, the
       `<leader>dn` quickfix list, the `<leader>dN` float, and the fs watcher.
-      That loss is the decision, not an oversight. `deps:` 3.6
-- [ ] 3.8 Act: replace `skills/diffnote/` with a skill that wraps
+      That loss is the decision, not an oversight.
+
+      Removed by call site, not by line span, exactly as this task warned.
+      `codediff.lua` is 117 lines from 142 and keeps `CodeDiffFileSelect`, the
+      `CodeDiffClose` restore, and `<leader>dd`, `<leader>dH`, and `<leader>dh`.
+      Two `vim.schedule` bodies now hold only `apply_diff_winopts`, and the
+      `pcall` wrappers around them went with their contents. `deps:` 3.6
+- [x] 3.8 Act: replace `skills/diffnote/` with a skill that wraps
       `hunk skill path` for reading, and documents `sysinit-agent note add` for
       writing. Update the five `diffnote` allowlist entries at
       `llm/lib/allowlist.nix:202-204` and `:208-209`, and the registration in
@@ -844,7 +892,27 @@ words: the defect was never the pane, it was an agent opening one.
       pi prompt against the rule that applies instead: every command name in
       `:36-44` must be a subcommand `sysinit-agent note` provides after 3.4. For
       the skill, a mismatch fails nothing and silently downgrades every note write
-      to a prompt, which reads as friction rather than as a defect. `deps:` 3.7
+      to a prompt, which reads as friction rather than as a defect.
+
+      The skill is `skills/note/`. Every command it names resolves to an
+      allowlist entry except `clear`, which is left off deliberately and the
+      skill says so: it is the owner's kill switch and it deletes their notes
+      too. `allowed-tools` is `Bash(sysinit-agent:*)` alone, because
+      `render.nix:130` accepts only a single lowercase word inside `Bash(...)`,
+      so `Bash(sysinit-agent note:*)` is not expressible. `hunk` is off that
+      list on purpose: `hunk skill path` is on the read-only allowlist, and
+      every other `hunk` verb opens a viewer that is the owner's to open.
+
+      One thing this task did not name and the apply decided: the `diffnote`
+      shim in `runtime/default.nix` is DELETED rather than renamed. A bare
+      command named `note` on PATH is a generic word with no caller left, since
+      the skill and the allowlist both spell the full `sysinit-agent note`. That
+      is the same one-name-one-thing rule 3.3 applies to `review`.
+
+      All six pi sites are rewritten. `VIEWER_COMMAND` is `["review",
+      "--watch"]`: without `--watch` the pane would open before the annotate
+      prompt runs and would never show the notes it then asks for. `:71` was a
+      seventh stale `CodeDiff` reference that no draft named. `deps:` 3.7
 - [ ] 3.9 Verify: a note carrying a multi-line rationale and an author, written
       with no `hunk` process running, is readable from the RECORD afterward with
       both fields intact. That half is unconditional. What `review` displays
