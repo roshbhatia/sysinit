@@ -1,0 +1,1 @@
+.#nixosConfigurations.arrakis.config.system.build.toplevel	/nix/store/inq6skw3y127fc9xfnp7y302j8v0v18k-nixos-system-arrakis-26.11.20260803.104240a.drv
