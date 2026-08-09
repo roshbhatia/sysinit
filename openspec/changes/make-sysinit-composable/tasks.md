@@ -1702,7 +1702,7 @@ words: the defect was never the pane, it was an agent opening one.
       which is the check that proves the edit. Every signature change to
       `buildConfiguration` has had this property. The template is gated by nothing
       in CI.
-- [ ] 4.9 Adversarial review (`adversarial-review` skill): run deterministic
+- [x] 4.9 Adversarial review (`adversarial-review` skill): run deterministic
       lint. Critics are NOT run: the owner directed on 2026-08-08 that the apply
       proceed on deterministic lint alone, so every task in this list reaches the
       `not run` terminal state the skill defines and records the open questions
@@ -1711,6 +1711,26 @@ words: the defect was never the pane, it was an agent opening one.
       falling back to a hardcoded path defeats the whole phase, and on whether
       4.7's liveness bound can be stated without a clock the readers disagree
       about. `deps:` 4.8
+
+      Adversarial review: not run; deterministic lint passed. Terminal state
+      `NOT_RUN`, per the owner's 2026-08-08 direction that the apply proceed on
+      deterministic lint alone.
+
+      What the three questions would have asked, left open rather than refuted:
+
+      - Whether every consumer of the generated manifest is covered. The check
+        `hack/check-state-paths.sh` answers a narrower question, that no state
+        path is written down outside the paths module, and four mutations confirm
+        it fires. It does not prove each of the five readers resolves the same
+        value at run time.
+      - Whether a consumer silently falls back to a hardcoded path. Each fallback
+        is marked `sysinit:documented-default` and the check counts them, so an
+        unmarked one fails a commit. A marked fallback that is silently WRONG
+        still passes.
+      - Whether 4.7's liveness bound can be stated without a shared clock. It can,
+        and is: the rule is pane existence, with a mux pid as the generation
+        marker. No reader consults a clock, so there is no clock to disagree
+        about.
 
 ## 5. One viewer, one contract
 

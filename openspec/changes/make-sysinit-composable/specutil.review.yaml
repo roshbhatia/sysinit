@@ -1,9 +1,9 @@
 version: 1
 change: make-sysinit-composable
 decision: approved
-note: 'Phase 4 through 4.8: dead utils specialArg removed, proven by a bit-identical lv426 derivation. Deterministic lint only, critics not run per owner direction.'
-change_hash: 7527b0d5e1129a7c
-base_commit: 35f24ab670eb24edc4c1b39a334e8fcb43ae0dd0
+note: Phase 4 complete. 4.9 records terminal state NOT_RUN with the three open questions.
+change_hash: e02d1d12a20e66f7
+base_commit: afb290ca9d8c70fa8c76673b4385391b8d964955
 items:
     0cd74be6febf08e9:
         hash: 7262630e5226087a
