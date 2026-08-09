@@ -2,6 +2,7 @@
   lib,
   values,
   profile ? "workstation",
+  theme ? true,
   inputs ? { },
   ...
 }:
@@ -12,7 +13,12 @@
     useUserPackages = true;
     backupFileExtension = "backup";
     extraSpecialArgs = {
-      inherit values inputs profile;
+      inherit
+        values
+        inputs
+        profile
+        theme
+        ;
     };
 
     users.${values.user.username} =

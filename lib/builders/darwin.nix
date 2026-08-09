@@ -13,6 +13,7 @@
       hostname,
       pkgs,
       profile,
+      theme,
       values,
     }:
     darwin.lib.darwinSystem {
@@ -21,6 +22,7 @@
         inherit
           inputs
           profile
+          theme
           values
           pkgs
           ;
@@ -55,6 +57,7 @@
             pkgs
             inputs
             profile
+            theme
             ;
         })
         home-manager.darwinModules.home-manager

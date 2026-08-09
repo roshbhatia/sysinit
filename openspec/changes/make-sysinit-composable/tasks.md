@@ -2102,11 +2102,21 @@ words: the defect was never the pane, it was an agent opening one.
 
 - **SHAPE** graph
 
-- [ ] 7.1 Gather: list the 20 modules referencing `stylix` and note what
+- [x] 7.1 Gather: list the 20 modules referencing `stylix` and note what
       each sets. `deps:` 6.5
-- [ ] 7.2 Act: add `sysinit.theme.enable`, default true, guarding each.
+      Done: `stylix-modules.md` enumerates 21 files, not 20, split by what each
+      one needs. Both halves break on a box without stylix, on a missing color
+      and on a missing option name respectively.
+- [x] 7.2 Act: add `sysinit.theme.enable`, default true, guarding each.
       `deps:` 7.1
-- [ ] 7.3 Verify: with the flag true, every theme file the guarded modules
+      Done in two shapes, because the two halves fail differently. The thirteen
+      color readers go through `modules/shared/theme-colors.nix`, whose
+      `colorsOf` returns stylix's palette or a written-down base16 default dark.
+      The six target overrides moved into `modules/home/stylix-targets.nix`,
+      imported only when the `theme` argument is true, since a guard cannot
+      declare an option that stylix has not injected. `theme` is a specialArg
+      threaded like phase 6's `profile`, and `sysinit.theme.enable` reads it.
+- [x] 7.3 Verify: with the flag true, every theme file the guarded modules
       generate is byte-identical to today, with the file list derived from 7.1's
       enumeration rather than named here. Simplest sufficient form: compare the
       whole derivation-path set with the flag true against the 3.14 recording,
@@ -2133,15 +2143,36 @@ words: the defect was never the pane, it was an agent opening one.
       owner looks at daily, and the old gate passed. Handing the residue to 7.5 is
       not a substitute: 4.3 already states this repository's position, that a
       critic asking about it is not a gate. `deps:` 7.2
-- [ ] 7.4 Verify: with the flag false the home modules evaluate without the
+      Ran: the `lv426` derivation path with the flag true is
+      `1j4j3p57a47xbidw1vfp6b2nydi68rvy-darwin-system-26.11.15abb8c.drv`, the
+      3.14 recording unchanged, re-checked after the target file moved and after
+      the fallback gained its `-rgb-*` keys. The `arrakis` half stays with CI,
+      which cannot be run here: the pi harness pulls an x86_64-linux derivation
+      through IFD.
+- [x] 7.4 Verify: with the flag false the home modules evaluate without the
       stylix module present. `deps:` 7.2
-- [ ] 7.5 Adversarial review (`adversarial-review` skill): run deterministic
+      Ran with `theme = false` on both hosts:
+      `nix eval --raw .#darwinConfigurations.lv426.config.system.build.toplevel.drvPath`
+      evaluates to `0ay3s4xjzcs0d6zmc3idywsvm77iq6wb-darwin-system-26.11.15abb8c.drv`,
+      and the home tree answers false to `c: c ? stylix`, so the modules are
+      evaluating with the stylix module genuinely absent rather than present and
+      disabled. It caught two real defects, both in the fallback's key shape:
+      `fastfetch.nix` reads `base05-rgb-r` and reads `scheme`, and neither
+      existed. Fixed by deriving the `-rgb-*` channels from the hex values and
+      writing down a scheme name.
+- [x] 7.5 Adversarial review (`adversarial-review` skill): run deterministic
       lint. Critics are NOT run: the owner directed on 2026-08-08 that the apply
       proceed on deterministic lint alone, so every task in this list reaches the
       `not run` terminal state the skill defines and records the open questions
       rather than refuting them. The questions below are what critics WOULD have
       been asked, kept because they name where this phase is weakest on guards placed at the wrong nesting level, which would
       change the true branch too. `deps:` 7.4
+      Terminal state: `not run`. Deterministic lint passed. Open question kept:
+      7.3 compares whole derivation paths, so a guard at the wrong nesting level
+      inside a branch that 7.3 does not take is invisible to it. 7.4 now covers
+      the false branch by evaluation, which is weaker than comparing its output
+      to something, because nothing has recorded what the false branch should
+      produce.
 
 ## 8. Standalone home configurations
 

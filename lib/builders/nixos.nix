@@ -12,6 +12,7 @@
       hostname,
       pkgs,
       profile,
+      theme,
       values,
     }:
     lib.nixosSystem {
@@ -20,6 +21,7 @@
         inherit
           inputs
           profile
+          theme
           values
           ;
       };
@@ -49,6 +51,7 @@
             inputs
             profile
             stylix
+            theme
             ;
           inherit pkgs;
         })

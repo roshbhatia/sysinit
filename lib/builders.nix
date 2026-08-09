@@ -44,12 +44,18 @@ in
       # reason.
       profile = hostConfig.profile or "workstation";
 
+      # Whether stylix computes this host's palette. A specialArg for the same
+      # reason `profile` is one: the stylix target overrides are a whole module
+      # that is imported or not, and `imports` cannot read `config`.
+      theme = hostConfig.theme or true;
+
       commonArgs = {
         inherit
           hostConfig
           hostname
           pkgs
           profile
+          theme
           values
           ;
       };

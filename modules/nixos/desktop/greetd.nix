@@ -6,6 +6,11 @@
 }:
 
 let
+  # The palette, read through one accessor rather than reached for directly.
+  # `config.lib.stylix.colors` does not exist on a box without the stylix
+  # module, where the dereference is an evaluation error and not a missing color.
+  themeLib = import ../../shared/theme-colors.nix { inherit lib; };
+  themeColors = themeLib.colorsOf config;
   colorToTuigreetTheme =
     color:
     let
@@ -24,15 +29,15 @@ let
     colorMap.${cleanHex} or cleanHex;
 
   tuigreetTheme =
-    "text=${colorToTuigreetTheme "#${config.lib.stylix.colors.base05}"};"
-    + "container=${colorToTuigreetTheme "#${config.lib.stylix.colors.base00}"};"
-    + "border=${colorToTuigreetTheme "#${config.lib.stylix.colors.base0D}"};"
-    + "title=${colorToTuigreetTheme "#${config.lib.stylix.colors.base0D}"};"
-    + "prompt=${colorToTuigreetTheme "#${config.lib.stylix.colors.base04}"};"
-    + "input=${colorToTuigreetTheme "#${config.lib.stylix.colors.base0D}"};"
-    + "action=${colorToTuigreetTheme "#${config.lib.stylix.colors.base03}"};"
-    + "button=${colorToTuigreetTheme "#${config.lib.stylix.colors.base0C}"};"
-    + "greet=${colorToTuigreetTheme "#${config.lib.stylix.colors.base05}"}";
+    "text=${colorToTuigreetTheme "#${themeColors.base05}"};"
+    + "container=${colorToTuigreetTheme "#${themeColors.base00}"};"
+    + "border=${colorToTuigreetTheme "#${themeColors.base0D}"};"
+    + "title=${colorToTuigreetTheme "#${themeColors.base0D}"};"
+    + "prompt=${colorToTuigreetTheme "#${themeColors.base04}"};"
+    + "input=${colorToTuigreetTheme "#${themeColors.base0D}"};"
+    + "action=${colorToTuigreetTheme "#${themeColors.base03}"};"
+    + "button=${colorToTuigreetTheme "#${themeColors.base0C}"};"
+    + "greet=${colorToTuigreetTheme "#${themeColors.base05}"}";
 in
 {
   services.greetd = {

@@ -1,12 +1,19 @@
 {
+  lib,
   config,
   inputs,
   ...
 }:
 
 let
-  stylixEnabled = config.stylix.enable or false;
-  c = config.lib.stylix.colors;
+  # The palette, read through one accessor rather than reached for directly.
+  # `config.lib.stylix.colors` does not exist on a box without the stylix
+  # module, where the dereference is an evaluation error and not a missing color.
+  themeLib = import ../../shared/theme-colors.nix { inherit lib; };
+  themeColors = themeLib.colorsOf config;
+  themeEnabled = themeLib.enabled config;
+  stylixEnabled = themeEnabled;
+  c = themeColors;
 
   # Map semantic Base16 roles onto Hunk's custom_theme fields. Hunk's
   # transparent-background mode removes all surfaces, so each foreground must

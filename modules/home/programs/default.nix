@@ -1,6 +1,7 @@
 {
   lib,
   profile ? "workstation",
+  theme ? true,
   ...
 }:
 # Which program modules this host imports, chosen by what the host is for.
@@ -170,7 +171,11 @@ let
   ];
 in
 {
-  imports = map (module: module.path) (
-    lib.filter (module: profiles.atLeast profile module.tier) modules
-  );
+  imports =
+    map (module: module.path) (lib.filter (module: profiles.atLeast profile module.tier) modules)
+    # Every stylix target this repository overrides. Imported rather than
+    # guarded, because `stylix.targets.*` does not exist when stylix is off and
+    # a definition attached to an undeclared option is an error, not a no-op.
+    # `../stylix-targets.nix` carries the whole reason.
+    ++ lib.optional theme ../stylix-targets.nix;
 }

@@ -6,7 +6,12 @@
 }:
 
 let
-  c = config.lib.stylix.colors;
+  # The palette, read through one accessor rather than reached for directly.
+  # `config.lib.stylix.colors` does not exist on a box without the stylix
+  # module, where the dereference is an evaluation error and not a missing color.
+  themeLib = import ../../shared/theme-colors.nix { inherit lib; };
+  themeColors = themeLib.colorsOf config;
+  c = themeColors;
   mod = "Mod1"; # Alt key
 
   rofi1password = pkgs.writeShellScript "rofi-1password" ''
@@ -297,8 +302,6 @@ in
       '';
     };
   };
-
-  stylix.targets.waybar.addCss = false;
 
   programs = {
     waybar = {

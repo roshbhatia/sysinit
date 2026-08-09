@@ -3,6 +3,14 @@
   lib,
   ...
 }:
+let
+  # The palette, read through one accessor rather than reached for directly.
+  # `config.lib.stylix.colors` does not exist on a box without the stylix
+  # module, where the dereference is an evaluation error and not a missing color.
+  themeLib = import ../../shared/theme-colors.nix { inherit lib; };
+  themeColors = themeLib.colorsOf config;
+  themeEnabled = themeLib.enabled config;
+in
 
 {
   programs.zoxide = {
@@ -31,21 +39,21 @@
         "--scheme=history"
         "--style=minimal"
       ]
-      ++ lib.optionals (config.stylix.enable or false) [
+      ++ lib.optionals themeEnabled [
         "--color=bg:-1"
         "--color=bg+:-1"
-        "--color=fg:#${config.lib.stylix.colors.base05}"
-        "--color=fg+:#${config.lib.stylix.colors.base06}"
+        "--color=fg:#${themeColors.base05}"
+        "--color=fg+:#${themeColors.base06}"
         "--color=gutter:-1"
-        "--color=header:#${config.lib.stylix.colors.base0A}"
-        "--color=hl:#${config.lib.stylix.colors.base0D}"
-        "--color=hl+:#${config.lib.stylix.colors.base0D}"
-        "--color=info:#${config.lib.stylix.colors.base0A}"
-        "--color=marker:#${config.lib.stylix.colors.base0D}"
-        "--color=pointer:#${config.lib.stylix.colors.base0D}"
+        "--color=header:#${themeColors.base0A}"
+        "--color=hl:#${themeColors.base0D}"
+        "--color=hl+:#${themeColors.base0D}"
+        "--color=info:#${themeColors.base0A}"
+        "--color=marker:#${themeColors.base0D}"
+        "--color=pointer:#${themeColors.base0D}"
         "--color=preview-bg:-1"
-        "--color=prompt:#${config.lib.stylix.colors.base0D}"
-        "--color=spinner:#${config.lib.stylix.colors.base0D}"
+        "--color=prompt:#${themeColors.base0D}"
+        "--color=spinner:#${themeColors.base0D}"
       ]
     );
   };

@@ -1,14 +1,20 @@
 {
+  lib,
   config,
   ...
 }:
 let
+  # The palette, read through one accessor rather than reached for directly.
+  # `config.lib.stylix.colors` does not exist on a box without the stylix
+  # module, where the dereference is an evaluation error and not a missing color.
+  themeLib = import ../../shared/theme-colors.nix { inherit lib; };
+  themeColors = themeLib.colorsOf config;
   ompColors = {
-    primary = "#${config.lib.stylix.colors.base0D}"; # Blue (accent primary)
-    muted = "#${config.lib.stylix.colors.base03}"; # Comments (accent dim)
-    error = "#${config.lib.stylix.colors.base08}"; # Red
-    accent = "#${config.lib.stylix.colors.base0E}"; # Purple (accent tertiary)
-    info = "#${config.lib.stylix.colors.base0D}"; # Blue
+    primary = "#${themeColors.base0D}"; # Blue (accent primary)
+    muted = "#${themeColors.base03}"; # Comments (accent dim)
+    error = "#${themeColors.base08}"; # Red
+    accent = "#${themeColors.base0E}"; # Purple (accent tertiary)
+    info = "#${themeColors.base0D}"; # Blue
   };
 in
 {

@@ -6,9 +6,14 @@
 }:
 
 let
+  # The palette, read through one accessor rather than reached for directly.
+  # `config.lib.stylix.colors` does not exist on a box without the stylix
+  # module, where the dereference is an evaluation error and not a missing color.
+  themeLib = import ../../../shared/theme-colors.nix { inherit lib; };
+  themeColors = themeLib.colorsOf config;
   paths = import ../../../lib/paths.nix { inherit lib; };
   themeConfig = config.sysinit.theme;
-  c = config.lib.stylix.colors;
+  c = themeColors;
 
   weztermPlugins = {
     tabline = pkgs.fetchFromGitHub {
@@ -80,7 +85,6 @@ let
   };
 in
 {
-  stylix.targets.wezterm.enable = false;
 
   programs.wezterm = {
     enable = true;

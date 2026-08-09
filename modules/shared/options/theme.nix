@@ -1,9 +1,32 @@
-{ lib, ... }:
+{
+  lib,
+  theme ? true,
+  ...
+}:
 let
   inherit (lib) mkOption types;
 in
 {
   options.sysinit.theme = {
+    enable = mkOption {
+      type = types.bool;
+      readOnly = true;
+      default = theme;
+      description = ''
+        Whether stylix computes this host's palette.
+
+        This drives `stylix.enable`, so turning it off stops the thing that
+        derives colors rather than only hiding the result. Programs whose config
+        is themed either way then read the neutral base16 default written down in
+        `modules/shared/theme-colors.nix`, and the three that can drop their
+        themed section entirely do so.
+
+        The point of the flag is that the modules evaluate at all without stylix,
+        which is what a standalone home configuration needs. It is not a second
+        color scheme.
+      '';
+    };
+
     base16Scheme = mkOption {
       type = types.either types.str (types.attrsOf types.str);
       default = "catppuccin-mocha";

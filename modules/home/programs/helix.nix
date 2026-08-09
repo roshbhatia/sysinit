@@ -1,8 +1,6 @@
 _:
 
 {
-  stylix.targets.helix.opacity.enable = false;
-
   programs.helix = {
     enable = true;
     settings = {

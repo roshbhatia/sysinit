@@ -14,7 +14,10 @@ let
 in
 {
   stylix = {
-    enable = true;
+    # The owner's choice, not a constant. Everything that reads a color reads it
+    # through `modules/shared/theme-colors.nix`, which answers with a fallback
+    # when this is off, so nothing downstream has to know.
+    enable = themeConfig.enable;
     autoEnable = true;
 
     polarity = themeConfig.appearance;

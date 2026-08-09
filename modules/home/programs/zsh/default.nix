@@ -6,6 +6,11 @@
   ...
 }:
 let
+  # The palette, read through one accessor rather than reached for directly.
+  # `config.lib.stylix.colors` does not exist on a box without the stylix
+  # module, where the dereference is an evaluation error and not a missing color.
+  themeLib = import ../../../shared/theme-colors.nix { inherit lib; };
+  themeColors = themeLib.colorsOf config;
   shellUtils = import ../../../lib/shell.nix { inherit lib; };
   paths_lib = import ../../../lib/paths.nix { inherit config lib; };
 
@@ -50,8 +55,8 @@ in
       ZVM_LINE_INIT_MODE = "i";
       ZVM_SYSTEM_CLIPBOARD_ENABLED = "true";
       ZVM_INSERT_MODE_CURSOR = "be";
-      ZVM_VI_HIGHLIGHT_BACKGROUND = "#${config.lib.stylix.colors.base05}";
-      ZVM_VI_HIGHLIGHT_FOREGROUND = "#${config.lib.stylix.colors.base0D}";
+      ZVM_VI_HIGHLIGHT_BACKGROUND = "#${themeColors.base05}";
+      ZVM_VI_HIGHLIGHT_FOREGROUND = "#${themeColors.base0D}";
     }
     // (values.environment or { });
 

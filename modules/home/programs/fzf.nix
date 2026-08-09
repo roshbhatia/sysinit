@@ -4,6 +4,14 @@
   config,
   ...
 }:
+let
+  # The palette, read through one accessor rather than reached for directly.
+  # `config.lib.stylix.colors` does not exist on a box without the stylix
+  # module, where the dereference is an evaluation error and not a missing color.
+  themeLib = import ../../shared/theme-colors.nix { inherit lib; };
+  themeColors = themeLib.colorsOf config;
+  themeEnabled = themeLib.enabled config;
+in
 
 {
   programs.fzf = {
@@ -56,17 +64,17 @@
     ];
 
     colors = lib.mkForce (
-      lib.optionalAttrs (config.stylix.enable or false) {
-        fg = "#${config.lib.stylix.colors.base05}";
-        "fg+" = "#${config.lib.stylix.colors.base06}";
-        hl = "#${config.lib.stylix.colors.base0D}";
-        "hl+" = "#${config.lib.stylix.colors.base0D}";
-        info = "#${config.lib.stylix.colors.base0A}";
-        prompt = "#${config.lib.stylix.colors.base0D}";
-        pointer = "#${config.lib.stylix.colors.base0D}";
-        marker = "#${config.lib.stylix.colors.base0D}";
-        spinner = "#${config.lib.stylix.colors.base0D}";
-        header = "#${config.lib.stylix.colors.base0A}";
+      lib.optionalAttrs themeEnabled {
+        fg = "#${themeColors.base05}";
+        "fg+" = "#${themeColors.base06}";
+        hl = "#${themeColors.base0D}";
+        "hl+" = "#${themeColors.base0D}";
+        info = "#${themeColors.base0A}";
+        prompt = "#${themeColors.base0D}";
+        pointer = "#${themeColors.base0D}";
+        marker = "#${themeColors.base0D}";
+        spinner = "#${themeColors.base0D}";
+        header = "#${themeColors.base0A}";
       }
       // {
         bg = "-1";
