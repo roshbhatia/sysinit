@@ -16,19 +16,20 @@ Reasoning:
 - Phase 2 rewrites the import list that every host depends on. Its failure mode
   is silent: a module dropped from the `workstation` gate disappears from the
   build and nothing reports it, because there is no longer a flake check that
-  would notice. Task 2.5 turns that into a hard gate by comparing the three host
+  would notice. Task 2.12 turns that into a hard gate by comparing the two host
   `drvPath` values against the baseline, which is why phase 1 exists at all.
-- Phase 3 touches eleven modules that reference `stylix`. A guard placed at the
+- Phase 7 touches the 20 modules that reference `stylix`. A guard placed at the
   wrong nesting level changes the styling under the true branch as well as the
-  false one, and the true branch is what the owner looks at every day. Task 3.3
-  makes that a byte comparison rather than a judgment.
+  false one, and the true branch is what the owner looks at every day. Task 7.3
+  makes that a byte comparison rather than a judgment, over every theme file the
+  guarded modules generate rather than over two of them.
 - Phase 5 is the only phase producing a second copy of anything. A hand-edited
   `mise.toml` that drifts from the Nix list is the exact failure the generator
   exists to prevent, so the generator is the piece a critic should read hardest.
 
 ## Risks
 
-- The three host `drvPath` values are the only thing standing between this
+- The two host `drvPath` values are the only thing standing between this
   refactor and a silent loss. If the baseline in phase 1 is captured after an
   unrelated edit, every later gate compares against the wrong value and passes
   while the change is wrong.

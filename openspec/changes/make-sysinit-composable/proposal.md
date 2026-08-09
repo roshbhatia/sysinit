@@ -234,8 +234,9 @@ durability properties that have a test here and no owner anywhere else.
 
 ### Non-goals
 
-- No change to what the current hosts install. `lv426`, `arrakis`, and
-  `nostromo` select `workstation` and resolve to the same closure. This change
+- No change to what the current hosts install. `lv426` and `arrakis`, which are
+  the two hosts `hosts/default.nix` defines, select `workstation` and resolve to
+  the same closure. This change
   adds ways to take less, never less by default.
 - No reimplementation of `wtrun` as a child process. It keeps its pane and all
   five of its documented guarantees; only its agent skill entry goes.
@@ -287,10 +288,17 @@ Must do:
   proves nothing: that package is kept byte for byte, so its tests cannot fail,
   and they assert the property exists rather than that the writer still uses it
 - a profile smaller than `workstation` produces a smaller closure, decided by
-  `nix path-info -S` on both
+  `nix path-info -S` on `minimal` and on `workstation`
 - the reorganizing phases change nothing the hosts install, decided by
-  `nix eval .#darwinConfigurations.lv426.system.drvPath` matching the baseline
-  as re-recorded after phase 3. Phases 2 and 3 move it on purpose by deleting
+  `nix eval .#darwinConfigurations.lv426.system.drvPath` AND
+  `nix eval .#nixosConfigurations.arrakis.config.system.build.toplevel.drvPath`
+  matching the baseline as re-recorded after phase 3. Both hosts, because
+  `hosts/default.nix` defines two and they take different attribute paths. An
+  earlier draft named `lv426` alone while saying "the hosts", so this criterion
+  could be met in full while a module was silently dropped from the NixOS host.
+  The `arrakis` half evaluates only on `x86_64-linux` and so runs in CI rather
+  than on the owner's machine, per task 1.1. No local builder is a precondition.
+  Phases 2 and 3 move it on purpose by deleting
   and renaming packaged code, so every difference they cause must be named by a
   task, and no difference may appear after them
 - a standalone home configuration evaluates without nix-darwin or NixOS,

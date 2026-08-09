@@ -2,10 +2,97 @@
 
 - **SHAPE** graph
 
-- [ ] 1.1 Capture `nix eval --raw .#darwinConfigurations.lv426.system.drvPath`
-      and the same for `arrakis` and `nostromo` into a scratch file. This is the
-      baseline for the phases that must not change what the hosts install:
-      6, 7, and 8. It is NOT a whole-change gate. Phases 2 and 3 change the
+- [ ] 1.1 Act: stand the baseline up. Two deliverables, because the second is
+      what produces half of the first: a committed file holding the two host
+      drvPaths, one line per host carrying the attribute path, the drvPath, and
+      the `--out-link` output path; and the CI job that evaluates the
+      `x86_64-linux` half. This is Act and not Gather for that reason. The owner
+      records `lv426` locally and takes the `arrakis` line from the job's output.
+      Commit the file rather than leaving it in the working tree, because the
+      Linux half of every later gate runs in CI on a different machine, and CI
+      can only compare against a referent that is in the repository.
+      Record the attribute path and not just the hash. This is the only task in the
+      change that names an attribute path, and the two shapes differ in a way an
+      implementer will not guess; 2.12, 3.14, 6.5, 10.11, and 11.1 all say only
+      "the two host drvPaths" and would otherwise reconstruct the command from
+      memory. Task 3.10 sets the standard: a gate needs an artifact rather than a
+      memory, and a hash with no attribute path beside it is exactly that. Two hosts, not
+      three, and two different attribute paths, because `hosts/default.nix:47,49`
+      defines exactly `lv426` and `arrakis`. An earlier draft said
+      `nix eval --raw .#darwinConfigurations.lv426.system.drvPath` "and the same
+      for `arrakis` and `nostromo`", which is wrong three ways: `nostromo` does not
+      exist anywhere in this repository, `arrakis` is a `nixosConfiguration` and
+      not a `darwinConfiguration`, and one attribute path cannot serve both. Use
+      `.#darwinConfigurations.lv426.system.drvPath` and
+      `.#nixosConfigurations.arrakis.config.system.build.toplevel.drvPath`. The
+      third `darwinConfigurations` entry, `bootstrap` (`flake.nix:130`), is an
+      installer configuration and not a host; leave it out of every gate.
+      The `arrakis` half runs in CI on an `x86_64-linux` runner, and no local
+      builder is needed. On the owner's `aarch64-darwin` machine the evaluation
+      fails with "Required system: 'x86_64-linux'" before it prints a hash,
+      because the module set imports from a derivation. An earlier draft made a
+      local remote-builder a hard precondition for the whole change. It is not
+      one, because `.github/workflows/build-cache.yml:32-33` already runs an
+      `ubuntu-latest` job under `system: x86_64-linux`, so the runner exists and
+      the installer step at `:51` is already proven on it. Add the Linux half of
+      the gates as a workflow job rather than as a machine the owner has to
+      configure. Every gate that evaluates or builds for `x86_64-linux` splits
+      the same way, Darwin locally and Linux in CI: the drvPath gates 2.12, 3.14,
+      6.5, 9.9, 10.11, and 11.1, plus 6.6, which runs `nix path-info -S` and so
+      needs realized paths, and 7.3, whose whole-closure form spans both hosts
+      and is the only form reaching `nixos/desktop/greetd.nix` and
+      `nixos/home/desktop.nix`, and also 8.3, which builds
+      `.#homeConfigurations.dev-x86_64-linux` and is a Behavior criterion of its
+      own. An earlier draft said "every drvPath gate", whose wording excludes 8.3.
+      Task 8.4 already sends the owner to a Linux box for the switch, so phase 8
+      knows the boundary exists; 8.3 is the task CI takes off the owner's machine.
+      One constraint shapes how the CI job is written. An equality clause
+      compares recorded text against a fresh evaluation, so it can read the
+      committed baseline and needs nothing else. A `diff-closures` clause needs
+      two realized closures in one store at one time, and a GitHub runner's store
+      does not survive the job. So every `diff-closures` clause has to check out
+      the referent revision, build, check out the head revision, build, and diff,
+      all inside a single job. Splitting it across jobs silently compares against
+      an empty store. That constraint also removes the GC-root problem on the
+      Linux side, because both closures live and die inside the job.
+      `.github/workflows/check.yml:42` stays on `macos-latest` and is not the
+      place for this; its comment records why, that `nix flake check` builds only
+      the current system's checks and Darwin is what the owner experiences.
+      Building on `arrakis` itself at pull time was the other option and is not a
+      substitute. These gates are per phase and exist to catch a module silently
+      dropped during the refactor, so a check that runs after all eleven phases
+      land reports the loss with no signal about which phase caused it. Keep it
+      as a final confirmation, not as the gate.
+      An earlier draft offered a second branch, recording that `arrakis` is ungated
+      and that every gate covers one host. Three tasks refuse it: 6.5 checks "the
+      two drvPaths", 9.9 requires "an empty diff for both hosts", and 11.1 compares
+      "the two host drvPaths". Under that branch all three name a referent nothing
+      recorded. It also quietly changes what this change proves: `arrakis` is the
+      only Linux host and the only consumer of `modules/nixos/`, so dropping it
+      removes Linux from the profile split, from theming, and from standalone home
+      configurations. Phase 7 is the sharpest case, since
+      `nixos/desktop/greetd.nix` and `nixos/home/desktop.nix` are two of the twenty
+      modules 7.2 guards and neither is reachable without it. Ungating Linux is a
+      scope decision for the owner and a proposal edit, not a footnote in this
+      task.
+      Also build each host with `nix build --out-link` and record the output path
+      beside its hash, and give each build its own link name, `-o result-lv426`
+      and `-o result-arrakis`. `--out-link` takes a path, and with no name both
+      builds write `./result`, so the second drops the first host's GC root, which
+      is the exact loss the flag is here to prevent. The build attribute drops the
+      `.drvPath` suffix: `nix build .#darwinConfigurations.lv426.system`, verified
+      here with `--dry-run`, which resolves to the same derivation the `nix eval`
+      beside it prints. A recorded hash is enough for an equality clause, which compares text
+      against a fresh evaluation. It is not enough for a `diff-closures` clause,
+      which needs two realized closures: 11.1 diffs against this build across the
+      whole change, and with no GC root an ordinary `nix-collect-garbage` makes
+      that task uncompletable. Task 3.10 already sets the standard this follows,
+      that a gate needs an artifact rather than a memory. This is the
+      baseline for 11.1's enumeration clause alone. An earlier draft called it the
+      baseline for phases 6, 7, and 8, which three tasks contradict: 3.14 says
+      "Phases 6 through 9 compare against this recording, not against 1.1", 6.5
+      says the same in its own words, and 9.9 diffs against the 3.14 build. No
+      phase from 6 to 9 anchors here. It is NOT a whole-change gate. Phases 2 and 3 change the
       closure on purpose, because they delete and rename packaged code, so an
       equality gate spanning them can only fail. Each of those two phases
       re-records the baseline as its last step, and states in one line what
@@ -19,8 +106,8 @@
       `path:matched-text` pairs. 31 lines today, minus 1 for `doc/`, minus 4 for
       the removed lines, is 26. It has to be recorded before the edits, or the
       gate compares the edited tree against a snapshot of itself. `deps:` none
-- [ ] 1.2 Capture `nix path-info -S` on the current home closure, so the profile
-      split has a number to beat. `deps:` 1.1
+- [ ] 1.2 Gather: capture `nix path-info -S` on the current home closure, so the
+      profile split has a number to beat. `deps:` 1.1
 - [ ] 1.3 Adversarial review (`adversarial-review` skill): run deterministic
       lint; run critics on whether the baseline captured is the right one, since
       every later STOP gate compares against it. `deps:` 1.2
@@ -305,9 +392,13 @@ words: the defect was never the pane, it was an agent opening one.
       directly, which this repository cannot prevent. Removing the
       advertisement is the largest reduction available and it is not a fence.
       `deps:` 2.9
-- [ ] 2.12 Verify: re-record the three host drvPaths. This phase changes them on
-      purpose, so name each difference and its cause, using
-      `nix store diff-closures` rather than the hashes alone. `deps:` 2.11
+- [ ] 2.12 Verify: re-record the two host drvPaths, and keep an `--out-link` for
+      each as 1.1 does, because 3.14 diffs against this build. This phase changes
+      them on purpose, so name each difference and its cause, using
+      `nix store diff-closures` against the 1.1 build rather than the hashes alone.
+      Name the referent: an earlier draft said only "name each difference", and a
+      diff whose second operand is unstated cannot be checked by a reviewer.
+      `deps:` 2.11
 - [ ] 2.13 Adversarial review (`adversarial-review` skill): run deterministic
       lint; run critics on whether 2.2's self-report line is a real distinction
       or a rationalization, on whether 2.4 leaves any agent path to a pane, and
@@ -464,7 +555,28 @@ words: the defect was never the pane, it was an agent opening one.
       nothing yet catches for the export. Publish the export inside the lock and
       before the explicit `release()` that `cmdAdd`, `cmdApply`, and `cmdClear`
       each call, because a second publish added after that line reads naturally
-      and lands outside it. Mark the export as derived in the file itself. That
+      and lands outside it. Add a test that catches the wrong version, and assert
+      the ordering rather than the end state. Assert that at the moment
+      `release()` is called the export on disk already equals a rebuild from the
+      record, through a seam on the release call in `cmdAdd`, `cmdApply`, and
+      `cmdClear`. That fires on every single call and needs no interleaving.
+      An earlier draft asked instead for a concurrent test in the shape of
+      `TestConcurrentAddsLoseNoNote`, comparing the export against a rebuild
+      after concurrent adds. That shape does not transfer, and the reason is a
+      real asymmetry. A lost add is permanent, so the post-hoc count at
+      `diffnote_test.go:533-557` is a sound instrument for it. A stale export is
+      self-healing: every writer re-reads the record and republishes, and
+      `wg.Wait()` returns only after the last publish, which read a record already
+      holding every note. So the buggy version passes except on the one
+      interleaving where an older read lands last, and nothing in the test forces
+      that interleaving. Keep the concurrent test, because it does add real
+      detection, but do not call it the gate. The STOP is `nix flake check` plus
+      `go test ./...`, and an implementer who publishes after `release()`, which
+      this task itself calls the reading that comes naturally, passes both unless
+      the ordering assertion is there. 3.13 gates the export schema
+      against what `hunk diff --agent-context` accepts, which is a different
+      property, and 3.15 hands the rest to a critic, which 4.3 rules out as a gate.
+      The STOP already runs `go test ./...`, so the wiring costs nothing. Mark the export as derived in the file itself. That
       is advisory and not enforcement: nothing compares the export against the
       record, so an owner edit is still overwritten silently and the marker only
       changes what they can learn afterward. Do not also put it in the skill,
@@ -653,9 +765,11 @@ words: the defect was never the pane, it was an agent opening one.
       set, not presence in a rendered block. The clause was written for the
       pre-commit hook, which could grep the store, and it did not survive the move
       unchanged. `deps:` 3.5, 3.8
-- [ ] 3.14 Verify: re-record the three host drvPaths. This phase changes them on
-      purpose, so name each difference and its cause, using
-      `nix store diff-closures` rather than the hashes alone. Phases 6 through 8
+- [ ] 3.14 Verify: re-record the two host drvPaths, and keep an `--out-link`
+      for each as 1.1 does, since 9.9 diffs closures against this build across
+      phases 4 through 9. This phase changes them on purpose, so name each
+      difference and its cause against the 2.12 build, using
+      `nix store diff-closures` rather than the hashes alone. Phases 6 through 9
       compare against this recording, not against 1.1. `deps:` 3.8
 - [ ] 3.15 Adversarial review (`adversarial-review` skill): run deterministic
       lint; run critics on the claim that no behavior was lost silently, on the
@@ -678,15 +792,21 @@ words: the defect was never the pane, it was an agent opening one.
       manifest on a box with no Nix, so without a template it would author the
       same paths a second time in shell, which makes the five derivations two
       rather than one and reintroduces the defect this phase removes. It would
-      also fail 4.3's check, whose allowlist holds only the module. Exempt the
-      template there alongside `paths.nix`, have 9.7 expand it rather than author
-      paths, and let 9.8 compare the expanded file against it. The absolute path
+      also fail 4.3's check, because the template is a second producer of paths
+      and carries no consumer's documented default. 4.3 exempts it alongside
+      `paths.nix`, and those two entries are its whole producer set. An earlier
+      draft described that check as a two-file allowlist over every occurrence,
+      which 4.3 replaced: the allowlist now covers unmarked occurrences only.
+      Have 9.7 expand the template rather than author paths, and let 9.8 compare
+      the expanded file against it. The absolute path
       is required because
       `repo.go:63-64` records that nvim launched from a mux server inherits no
       session variables, so `XDG_STATE_HOME` is unset exactly where the fallback
       runs. That comment is about nvim; treat it as the demonstrated case rather
       than as proof for every consumer, and confirm the same for the shell and
-      python readers while implementing. Allow each consumer exactly one documented default, keyed to
+      python readers while implementing. Allow each consumer exactly one default marked with the bare token
+      `sysinit:documented-default` in a comment on the same line or the line above,
+      keyed to
       the manifest being absent, and no other. An earlier draft banned defaults
       outright and cited that same comment, which does not support the ban and
       contradicts this change's own criterion that the agent runtime installs
@@ -715,9 +835,35 @@ words: the defect was never the pane, it was an agent opening one.
       state path, decided by a check that fails when `.local/state` appears
       outside the paths module. 4.2 covers `ui.lua` alone, and the promise has no
       other gate, which leaves the phase's own stated failure mode undetectable.
-      Add the check as a pre-commit assertion over the whole tree, allowing the
-      path only in `modules/shared/options/paths.nix` and in the layout template
-      4.1 defines, which 9.7 expands on a box with no Nix. Those two are the
+      Add the check as a pre-commit assertion over the whole tree, counting
+      occurrences per file rather than banning the string outside two files. One
+      occurrence carrying the `sysinit:documented-default` token 4.1 defines
+      passes; a second in the same file, or any unmarked occurrence, fails. An
+      earlier draft said "the documented-default marker" and no task made one, so
+      the check could not be built as specified. The token is bare rather than a
+      comment form because 4.1 spans five languages whose comment syntax differs,
+      `//` in Go, `#` in shell, python, and YAML, `--` in lua. The token survives
+      into generated scripts, and the one placement that loses it is worth
+      stating. `modules/lib/shell.nix:3-12` is `stripHeaders`: `:9` builds
+      `isHeaderLine` from the two prefixes, then `:10` filters with the negation,
+      so it removes the shebang line and the `shellcheck disable` line and keeps
+      every other line, ordinary comments included. An earlier draft
+      read `:9` alone and said the function keeps those two, which inverts what it
+      does and sends an implementer looking for a stripping hazard that is not
+      there. The real residual is narrow: a token written on a line that begins
+      with `# shellcheck disable` goes with that whole line. Put the token on its
+      own line or at the end of the code line, never appended to a shellcheck
+      directive.
+      A two-file allowlist cannot work, and an earlier draft used one. Task 4.1
+      requires each consumer to keep "exactly one documented default, keyed to the
+      manifest being absent", because phase 9 builds a box with `go install` and no
+      Nix where a consumer with no default cannot resolve a path at all, and 9.7
+      depends on that clause. So the check would fire on all twenty-four consumers
+      this task lists, every one of them correct. 4.1 is load-bearing and cannot be
+      the side that moves. The allowlist survives for unmarked occurrences only,
+      and its two entries are `modules/shared/options/paths.nix` and the layout
+      template 4.1 defines, which 9.7 expands on a box with no Nix. Those two are
+      the
       producer; everything else is a consumer. Derive the site list from
       the tree rather than from a hand-written set: an earlier draft named eight
       and the real count is over twenty. A literal grep for `.local/state`
@@ -771,7 +917,11 @@ words: the defect was never the pane, it was an agent opening one.
       numeric and a string otherwise (`agentstate.go:247-252`), and `|` is
       stripped from the reason for a field separator that only the OSC form
       uses. Publish the schema next to the writer, keep the `|` rule since 2.2
-      keeps the OSC channel, and make the readers cite it. A fact with several
+      keeps the OSC channel, and make the readers cite it. Do not describe
+      `ui.lua` as a user-var reader only. It is both: `pane_agent_state` at
+      `:333-339` reads `p:get_user_vars()`, and `read_pane_git` at `:294-296`
+      opens the record file, so the authority table must give it two rows or it
+      describes half the file. 10.7 depends on that second half being there. A fact with several
       readers and no owner is the same defect this phase exists to fix.
       Two encodings now carry one fact: base64 of a pipe-delimited line at
       `agentstate.go:86-89` and JSON at `:95-107`, with `ui.lua:333-339`
@@ -907,11 +1057,14 @@ words: the defect was never the pane, it was an agent opening one.
       option read from it so a host still sets one value in one place.
       `deps:` 6.1
 - [ ] 6.4 Act: set every host in `hosts/` to `workstation`. `deps:` 6.2, 6.3
-- [ ] 6.5 Verify: the three drvPaths are unchanged against the baseline as
+- [ ] 6.5 Verify: the two drvPaths are unchanged against the baseline as
       re-recorded at the end of phase 3, not against 1.1. Phases 2 and 3 moved
       it on purpose. This phase must not move it at all: it only reorganizes
       which module is selected, so any difference is a module silently dropped
-      from a profile. `deps:` 6.4
+      from a profile. This task covers phases 4, 5, and 6, since 3.14 is the last
+      recording before it, and 9.9 leans on that span. The diagnosis above names a
+      phase-6 cause because that is the likely one, not the only one: if phase 4 or
+      5 moved the closure, this is where it surfaces. `deps:` 6.4
 - [ ] 6.6 Verify: `nix path-info -S` on `minimal` is smaller than on
       `workstation`, and the `minimal` and `workstation` drvPaths differ from
       each other. Both clauses are the STOP gate, not 6.5 alone. `drvPath` is
@@ -927,12 +1080,35 @@ words: the defect was never the pane, it was an agent opening one.
 
 - **SHAPE** graph
 
-- [ ] 7.1 Gather: list the 21 modules referencing `stylix` and note what
+- [ ] 7.1 Gather: list the 20 modules referencing `stylix` and note what
       each sets. `deps:` 6.5
 - [ ] 7.2 Act: add `sysinit.theme.enable`, default true, guarding each.
       `deps:` 7.1
-- [ ] 7.3 Verify: with the flag true the generated wezterm and neovim theme
-      files are byte-identical to today. `deps:` 7.2
+- [ ] 7.3 Verify: with the flag true, every theme file the guarded modules
+      generate is byte-identical to today, with the file list derived from 7.1's
+      enumeration rather than named here. Simplest sufficient form: compare the
+      whole closure with the flag true against the 3.14 recording, which is the value
+      in force at the end of phase 6, since 6.5 asserts equality against it and
+      phase 6 makes no recording of its own. An earlier draft said "the phase 6
+      recording", which names nothing. It covers
+      all twenty at once in 6.5's shape.
+      An earlier draft named wezterm and neovim and stopped, gating two of the
+      twenty modules 7.2 guards. The proposal's Behavior criterion is unscoped and
+      says theme files, and several unguarded-by-this-gate modules generate them:
+      `sketchybar/default.nix`, `omp.nix`, `fastfetch.nix`, `fzf.nix`,
+      `firefox.nix`, `zoxide.nix:34-38`, `llm/harnesses/pi/default.nix:104-106`
+      with `:518`, `nixos/desktop/greetd.nix`, and `nixos/home/desktop.nix`. That
+      list is illustrative and the gate does not depend on it, which is why it is
+      worth stating what an earlier draft got wrong in both directions:
+      `helix.nix:4` and `vivid.nix:4` were listed and generate nothing, each being
+      a single line toggling a stylix target and consuming no colors, while
+      `zoxide.nix` and the pi harness both read `config.lib.stylix.colors` and were
+      missing. `borders.nix` and `zsh/default.nix` produce service arguments and
+      environment variables rather than files, so they are excluded here. A guard at the
+      wrong nesting level in any of them changes the true branch, which is what the
+      owner looks at daily, and the old gate passed. Handing the residue to 7.5 is
+      not a substitute: 4.3 already states this repository's position, that a
+      critic asking about it is not a gate. `deps:` 7.2
 - [ ] 7.4 Verify: with the flag false the home modules evaluate without the
       stylix module present. `deps:` 7.2
 - [ ] 7.5 Adversarial review (`adversarial-review` skill): run deterministic
@@ -944,16 +1120,65 @@ words: the defect was never the pane, it was an agent opening one.
 - **SHAPE** graph
 
 - [ ] 8.1 Act: add a `mkHome` builder supplying the specialArgs the home tree
-      expects without going through nix-darwin. `deps:` 7.4
+      expects without going through nix-darwin. Name them, because a missing one
+      fails only in the modules that read it, which is the failure 8.5 describes
+      and cannot catch. `modules/darwin/home-manager.nix:13-15` and
+      `modules/nixos/home-manager.nix:14-16` both pass
+      `inherit utils values inputs`. Supply `values` and `inputs` and drop
+      `utils`: no `.nix` file dereferences it, confirmed by a `utils.` search over
+      `modules`, `lib`, `hosts`, and `flake.nix` returning nothing, and the
+      proposal already counts its removal.
+      `values` is the hard one, because it is read by path. Derive the list from
+      the tree by command rather than writing it by hand, in 4.4's shape, and
+      scope the search to `.nix`. It is fourteen paths today, from `values.darwin`
+      through `values.user.username`. Unscoped it returns sixteen, because
+      `neovim/config/after/lsp/helm_ls.lua:14-15` holds `values.yaml` and
+      `values.lint.yaml`, which are Helm filenames in a lua string and not this
+      specialArg.
+      Five of the fourteen are not leaves and the schema has to say so, or it
+      describes the wrong shape. `values.git`, `values.llm`, and `values.theme`
+      (`darwin/home-manager.nix:34,35,38`), `values.darwin` (`home/colima.nix:9`),
+      and `values.environment` (`home/default.nix:48`) are open attrsets that the
+      consumer either indexes further or forwards whole. Treating them as leaves
+      pins a shape their consumers do not agree to.
+      Then say which paths `mkHome` defaults and which it takes as arguments.
+      `values.hostname` and `values.user.username` have no standalone answer.
+      Read that from `lib/builders.nix:40-44`, not from `hosts/default.nix`. The
+      builder injects `hostname`, `user.username`, and `isDesktop` on top of the
+      host's own `values`, taking `hostname` from the attribute name and
+      `username` and `desktop` from host fields that sit beside `values` rather
+      than inside it. `hosts/default.nix` supplies exactly two paths under
+      `values`, `git` for both hosts and `theme` for `arrakis` alone. That is also
+      why the three have no standalone answer: `mkHome` has no `hostConfig` and no
+      attribute name to inherit from. `deps:` 7.4
 - [ ] 8.2 Act: emit `homeModules` and `homeConfigurations.<profile>-<system>`
-      for `dev` and `minimal` across the four systems. `deps:` 8.1
-- [ ] 8.3 Verify: `nix build .#homeConfigurations.dev-x86_64-linux.activationPackage`
-      succeeds. `deps:` 8.2
-- [ ] 8.4 Confirm: owner runs `home-manager switch --flake .#dev` on a Linux box
+      for `dev` and `minimal` across the three `cacheSystems`
+      (`flake.nix:109-113`): `aarch64-darwin`, `x86_64-linux`, `aarch64-linux`.
+      Six configurations, not eight. An earlier draft said "the four systems",
+      which is the `formatter` list at `flake.nix:229-233` and adds
+      `x86_64-darwin`. That would make these the only outputs on a system nothing
+      else here builds for. `deps:` 8.1
+- [ ] 8.3 Verify: build all six configurations 8.2 emits, not one, each at
+      `.#homeConfigurations.<profile>-<system>.activationPackage`, which is the
+      buildable attribute and the one the proposal names as deciding its Behavior
+      criterion. A missing
+      `values` leaf fails per module, and which modules are imported depends on the
+      profile and the system, so a leaf read only by a `dev` module is invisible to
+      a `minimal` build and a leaf read only by a Darwin module is invisible to a
+      Linux build. Profile crossed with system is where the 8.5 failure hides, and
+      an earlier draft sampled one cell of six. It is a loop over an attribute list
+      and no new mechanism; the three `aarch64-darwin` cells build natively and the
+      three Linux cells build on the CI runners per 1.1. `deps:` 8.2
+- [ ] 8.4 Confirm: owner runs `home-manager switch --flake .#dev-x86_64-linux` on a Linux box
       or container and reports whether the shell and editor come up. `deps:` 8.3
 - [ ] 8.5 Adversarial review (`adversarial-review` skill): run deterministic
-      lint; run critics on `mkHome`, where a missing specialArg fails only for
-      the modules that read it. `deps:` 8.4
+      lint; run critics on 8.1's split between the paths `mkHome` defaults and
+      the paths it takes as arguments. Point them there and not at a missing
+      specialArg, which 8.3 now catches mechanically across all six cells. The six
+      builds exercise the defaults only, so a wrong default fails the build and a
+      wrong argument does not. What is left is a judgment: which facts a
+      standalone home configuration may invent about a machine it has never seen.
+      `deps:` 8.4
 
 ## 9. The non-Nix path
 
@@ -980,7 +1205,12 @@ words: the defect was never the pane, it was an agent opening one.
       clone, which is what design.md section 7 chose over splitting the neovim
       config into its own repository. `deps:` 9.2
 - [ ] 9.4 Act: make the Nix `minimal` package group read the manifest, so the
-      manifest is the source. `deps:` 9.1, 6.2
+      manifest is the source. Preserve the current element order in the derived
+      list. `home.packages` reaches `buildEnv`, whose `drvPath` changes when
+      identical paths are reordered, so a re-ordering rewrite churns every host
+      hash for no content change. 9.9 uses a set-based instrument for that reason
+      and does not depend on this, but a stable order keeps the hashes readable.
+      `deps:` 9.1, 6.2
 - [ ] 9.5 Act: generate `bootstrap/mise.toml` from the same manifest, with a
       pre-commit assertion that the checked-in file matches. `deps:` 9.1
 - [ ] 9.6 Act: add `bootstrap/bootstrap.sh` that sparse-checks-out, symlinks the
@@ -1000,9 +1230,43 @@ words: the defect was never the pane, it was an agent opening one.
       wrote matches 4.1's template with `$HOME` expanded, so the two producers are
       one; and `sysinit-agent note add` inside the container resolves its path
       from that manifest rather than from a default. `deps:` 9.7
-- [ ] 9.9 Adversarial review (`adversarial-review` skill): run deterministic
+- [ ] 9.9 Verify: `nix store diff-closures` against the 3.14 build reports an
+      empty diff for both hosts. Do NOT compare drvPath hashes here, which an
+      earlier draft did. `drvPath` is order-sensitive: building `buildEnv` with
+      `[hello jq]` and with `[jq hello]` yields different hashes, confirmed by
+      running it. Task 9.4 replaces a literal package list with one derived from
+      `bootstrap/tools.toml`, so unless the derived order matches the literal one
+      element for element, every host hash moves while installing exactly the same
+      packages, and the gate fails first on a correct implementation. Task 8.1
+      carries a smaller version of the same risk depending on whether `mkHome`
+      shares the darwin specialArg plumbing or sits beside it, which 8.1 does not
+      say. `diff-closures` is set-based, so it is blind to order and still catches
+      a dropped package, and 2.12, 3.14, and 10.11 already use it.
+      This closes a three-phase hole. The temporal comparison tasks are 6.5, which
+      checks against 3.14, and 11.1, which checks against phase 10's re-record.
+      "Temporal" because 6.6 also compares drvPaths, `minimal` against
+      `workstation`, which is cross-profile rather than against a recording. Between them, phases 7, 8, and 9 have none. An earlier draft
+      argued this by quoting what `grep -n 'drvPath' tasks.md` returns, which was
+      wrong when written and rots on every edit: it names nine tasks, not six,
+      including 6.6, 9.4, and this task itself. Name the comparison tasks instead,
+      since a re-record is not a check.
+      The phase that matters is 9. Task 9.4 makes the `minimal` package group read
+      the manifest, and every host installs it because `workstation` contains
+      `minimal`, so a package dropped there is a silent loss on both hosts.
+      Without this task that loss is re-recorded as the new baseline by 10.11 and
+      then confirmed correct by 11.1, which is the failure 1.1 exists to prevent.
+      Phases 7 and 8 are covered because covering them is free, not because they
+      are equally exposed. 7.2 adds `sysinit.theme.enable` defaulting to true, and
+      8.1 and 8.2 add a builder attribute and new flake outputs that hosts do not
+      evaluate through, because nix attrsets are lazy and an unforced `mkHome`
+      never enters a host closure. An earlier draft of this task said in one
+      sentence that hosts evaluate through `mkHome` and in another that they do
+      not; the second is correct. If any of the three phases moves the closure
+      contents, that is the finding, not a reason to waive.
+      `deps:` 9.8
+- [ ] 9.10 Adversarial review (`adversarial-review` skill): run deterministic
       lint; run critics on the generator, where silent drift between the two
-      lists is the failure this phase exists to prevent. `deps:` 9.8
+      lists is the failure this phase exists to prevent. `deps:` 9.9
 
 ## 10. The session substrate
 
@@ -1015,20 +1279,80 @@ It enters under zsh, and seshy and wezterm integrate with it. It does NOT
 replace `wtrun`, whose worker pane is an owner-visible surface, and it does not
 become phase 5's viewer source. Widening it to those is a separate decision.
 
+The STOP below is a `checks/` entry, so `nix flake check` builds the current
+system's checks and only evaluates the rest. It passes on the owner's machine and
+covers `aarch64-darwin` alone. That is a scope statement, not a defect; phase 3's
+STOP has the same shape.
+
+The gate below is a graph-phase STOP, which is a third convention in this file
+and needs its failure behavior stated. Phase 3 and phase 9 are loops and pair
+their STOP with a MAX-ITERS and a TERMINAL, which is what tells an implementer
+what to do when the gate fails. Phase 2 has no header STOP and keeps its gate as
+prose inside task 2.9. A graph does not iterate, so this STOP has no retry
+semantics: it is a precondition on closing the phase, and a failure means fixing
+the named task and re-running the gate, not re-entering the phase.
+
 - **SHAPE** graph
+- **STOP** the 10.9 check passes and lives in `checks/` rather than in this
+  file. Prose in a task list runs once by hand and never again, so a later edit to
+  `agent-identity.sh` would silently remove the gate 10.6 installs. Task 3.13
+  already settled where such a check belongs: it was moved out of
+  `.githooks/pre-commit` because that hook's idiom is skip-when-absent, and a
+  guard that silently skips is the failure the task exists to catch. 10.9 fits
+  there because it sources a function library and its stub replaces the only
+  binary it needs. Note the technique has no precedent here: `checks/` and
+  `.githooks/` contain no fake-binary pattern, so 10.9 introduces one and owes it
+  a home.
+  10.5 is NOT in this gate, and an earlier draft put it here. `checks/` receives
+  only `{ lib, system, pkgs }` (`flake.nix:181-187`) and builds in a sandbox, and
+  3.13 already recorded that limitation. 10.5 needs a live zmx daemon, real seshy
+  worktrees under `$HOME`, and `sy list`, so it cannot run there and the STOP
+  could never pass. It is an owner-run confirm instead, in the shape of 2.11 and
+  8.4.
 
 - [ ] 10.1 Gather: probe the installed `zmx`, not its README, in the shape of
       3.1. Record the environment variables it sets, and specifically whether a
-      child process spawned inside a session inherits `ZMX_SESSION`. The whole
+      child process spawned inside a session inherits `ZMX_SESSION`. Also record
+      whether `ZMX_SESSION` carries the `ZMX_SESSION_PREFIX` that 10.4 sets, since
+      that string shape decides 10.8: if the variable is prefixed and `sy list`
+      names are not, the two sides of `agent-sessions.sh:98` still differ by a
+      prefix after both are drawn from the seshy namespace, and 10.5's
+      scoped-to-the-prefix comparison needs the same fact. Also record
+      whether `mise` can install zmx, which 10.2 needs to choose a package group:
+      decision 6 makes `minimal` and the non-Nix manifest the same list, so a
+      `minimal` member has to be installable without Nix. The whole
       argument for the dependency is that this key is readable with no fork and
       no terminal, and an earlier draft asserted it from documentation. zmx is
       the only third-party dependency in this change with no probe, which is the
       standard 3.1 sets for the other one. `deps:` 4.1
 - [ ] 10.2 Act: add `zmx` to the `dev` package group and a
       `modules/home/programs/zmx/` module owning `ZMX_SESSION_PREFIX` and
-      `ZMX_DIR`. Name the group, because 10.3's fallback argument depends on it:
-      phase 9's box has no Nix, and 9.1 makes `bootstrap/tools.toml` the
-      `minimal` manifest, so zmx in `minimal` would falsify that premise. It is
+      `ZMX_DIR`. Name the group, and give the reason from decision 6 rather than
+      from a later task. An earlier draft said to pick `dev` "because 10.3's
+      fallback argument depends on it", which chooses a group to keep an argument
+      true and is circular: 10.3's fallback holds on its own terms, since any box
+      without zmx needs `s` to keep working.
+      The real constraint runs the other way. Decision 6 makes `minimal` and the
+      non-Nix manifest the same list, so anything in `minimal` must be installable
+      by `mise` on a box with no Nix. 10.1 answers that; read its result here. If
+      zmx turns out to be `mise`-installable, `minimal` is the better group, and
+      10.3's fallback is unaffected either way.
+      State the taxonomy cost plainly. Decision 6 defines `dev` as `minimal` plus
+      language toolchains and their servers and formatters, and a session manager
+      is not one, so `dev` is a poor fit by category. It is not a shell-group fit
+      either: `packages.nix:66-70`, which decision 6 calls the shell group, is
+      `bash-language-server`, `shellcheck`, `shfmt`, `gum`, and `grc`, which is
+      shell tooling rather than session tooling. So put zmx in `dev` and widen
+      that group's stated meaning in `design.md` to "toolchains plus session
+      tooling". Only the wording is open. An earlier draft also offered adding a
+      fourth group, and that option is not reachable from here: 6.1 authors
+      `sysinit.profiles.<minimal|dev|workstation>.enable` with each implying the
+      one below, so a new group edits that option and its implication chain, and
+      phase 6 closed behind two drvPath gates at 6.5 and 6.6 that nothing
+      re-runs. Offering a branch that costs a reopened phase invites an
+      implementer to take it. Do not leave the taxonomy widened silently, which is
+      how a profile stops meaning anything and is the failure 11.4 asks a critic to
+      look for. It is
       in nixpkgs at 0.6.0 and evaluates against this repository's pinned
       nixpkgs, so it needs no flake input and no overlay entry. The phase 4
       paths manifest owns the zmx state directory and this module reads it from
@@ -1045,7 +1369,8 @@ become phase 5's viewer source. Widening it to those is a separate decision.
       Keep the `cd` as the path taken when `zmx` is absent, because phase 9
       builds a box that has neither zmx nor Nix and `s` has to keep working
       there. `deps:` 10.2
-- [ ] 10.4 Act: make every zmx session name a seshy session name, and use
+- [ ] 10.4 Act: make every zmx session that `s` creates carry a seshy session
+      name, and use
       `ZMX_SESSION_PREFIX` for the namespace rather than encoding it in each
       name, which is what the variable is for. State the invariant in one
       direction only. An earlier draft asked that `sy list` and `zmx list` "name
@@ -1059,14 +1384,32 @@ become phase 5's viewer source. Widening it to those is a separate decision.
       `si`, `wezcopy`, `weznot`, and `wezmon` and no `sy`. The gate is real but is
       a generated binary wrapper, `runtime/default.nix:255` reading `sy-gate.sh`.
       Correct the comment while here. `deps:` 10.3
-- [ ] 10.5 Verify: every name `zmx list` reports is a name `sy list` reports.
-      One direction, per 10.4. Nothing else in the phase exercises the invariant
+- [ ] 10.5 Confirm: owner runs the comparison. Every name `zmx list` reports
+      under `ZMX_SESSION_PREFIX` is a
+      name `sy list` reports. One direction, per 10.4, and scoped to the prefix.
+      This is a Confirm and not a check because it needs a live daemon and real
+      worktrees, which a sandboxed `checks/` build has neither of.
+      Check the two joins by their output, not just the two lists. With two live
+      sessions, `agent-sessions` emits each session exactly once, with no duplicate
+      carrying `status: null`. Count entries rather than looking for a repeated
+      name: on a split the two entries for one session carry DIFFERENT names, the
+      record name in `$active` and the seshy name in `$idle`, so two live sessions
+      show four entries. An owner watching for the same name twice finds none and
+      passes. And the waybar badge
+      excludes the selected session, which is what `desktop.nix:343` fails to do on
+      the same divergence. This phase has no automated gate for name agreement,
+      since the STOP covers 10.8 alone, so this Confirm is the only thing standing
+      between a namespace split and two silently wrong displays.
+      Nothing constrains a direct `zmx` invocation, and 10.2 puts `zmx` on `PATH`,
+      so an owner naming a session by hand creates one that matches no seshy
+      directory. An unscoped comparison would fail on an implementation that is
+      correct in every way this change controls. Nothing else in the phase exercises the invariant
       10.4 introduces, and an earlier draft asked 10.4 to "add the comparison"
       with no task running it. Create two sessions with `s` first and assert
       `zmx list` is non-empty before comparing. Subset-of holds trivially when the
       left side is empty, and on a box where no session has been entered that is
       the state the check finds, so without the non-empty assertion this task
-      passes without testing anything. `deps:` 10.4
+      passes without testing anything. `deps:` 10.4, 10.8
 - [ ] 10.6 Act: make `ZMX_SESSION` the session key wherever a fork is what it
       replaces. Two files, and they are not symmetric, because phase 2 already
       changed one of them.
@@ -1082,9 +1425,18 @@ become phase 5's viewer source. Widening it to those is a separate decision.
       In `runtime/agent-identity.sh` all three sources stay, because that file
       has readers with no other way to answer. Order them seshy directory,
       `ZMX_SESSION`, then workspace, and move the `ai_workspace` call at `:16`
-      so it runs only when both earlier sources are empty. That fork at `:6-7`
-      is `"$ai_wz" cli list --format json`, the shell twin of the Go fork 2.2
-      deletes, and it runs unconditionally today. No clause of 2.9 can see it:
+      so it runs only when both earlier sources are empty. The line a test has to
+      beat is `:4`, `ai_wz=$(command -v wezterm ...)`, which is where the binary is
+      resolved. That fork at `:6-7`
+      is `"$ai_wz" cli list --format json` at `:6`, piped through `jq` to `:8`,
+      the shell twin of the Go fork 2.2
+      deletes, and today it runs on every call made from inside wezterm. Not on
+      every call without qualification: `ai_workspace` returns at `:3` when the
+      pane argument is empty, and both callers pass `${WEZTERM_PANE:-}`
+      (`agent-prompt.sh:61`, `agent-notify.sh:22`), so outside wezterm it already
+      does nothing. Moving the call is safe for consumers, which is worth
+      stating because deferring a variable usually is not: `AI_WORKSPACE` has no
+      reader outside this file, only the fallback at `:26-27`. No clause of 2.9 can see it:
       clause one's pattern is `cli send-text|cli activate-pane|cli split-pane`
       and clause five is scoped to `pkgs/sysinit-agent`. Do not widen 2.9 to
       cover it. An earlier draft of this task said to add a clause whose pattern
@@ -1098,59 +1450,177 @@ become phase 5's viewer source. Widening it to those is a separate decision.
       eight-file set, which is dilution rather than coverage. The deeper error is
       the instrument: what 10.6 changes is when the fork runs, and that is control
       flow. No grep can see it, because the gated call and the ungated call have
-      identical text. Task 10.8 checks it by behavior instead. `deps:` 10.2
-- [ ] 10.7 Act: decide what the agent deck groups by, and write it down. The
-      three-source key 10.6 sets governs the file bus. The deck does not read it:
-      `ui.lua:349-398` walks `wezterm.mux.all_windows()`, takes
-      `win:get_workspace()` at `:357`, and groups by that at `:377` and `:388`,
-      never reading the record's `session`. So two zmx sessions inside one
-      wezterm workspace collapse to one deck group, and that is the motivating
-      case, since zmx exists to make a session independent of the terminal and
-      the owner has no reason to open a second workspace. `ui.lua` cannot read
-      `ZMX_SESSION` in any case: it runs in the mux process and the variable is
-      in a pane's child shell. This disagreement predates zmx, because `identify`
-      already writes the seshy directory name while the deck groups by workspace.
-      Either make the deck prefer the record's `session` when present, which is a
-      scoped edit at `:377` and `:388` and not the `ui.lua` rewrite the non-goals
-      forbid, or record in `design.md` that the deck is workspace-keyed by design
-      and that zmx sessions inside one workspace merge there. Do one or the
-      other. Leaving it is two surfaces naming one pane two ways with nothing
-      comparing them. `deps:` 10.6
-- [ ] 10.8 Verify: the `agent-identity.sh` fork does not run when a cheaper
+      identical text. Task 10.9 checks it by behavior instead. `deps:` 10.2
+- [ ] 10.7 Act: decide what the workspace rollup and its renderers display, not
+      what key the rollup groups by. Say "rollup" and not "agent deck": `agent-deck`
+      is a third-party wezterm plugin loaded at `ui.lua:84` through
+      `plugin_loader.load`, patched here by
+      `wezterm/patches/agent-deck-idle-detection.patch`, and its API is
+      `get_all_agent_states` (`:153`, `:203`, `:353`, `:724`). The code this task
+      edits is the sysinit-owned rollup at `:350-405`, which consumes the plugin's
+      output at `:353`. An earlier draft said "agent deck", which points an
+      implementer at vendored upstream code the repo rule forbids editing.
+      The record keeps one name field, `session`, which is the one fact its writer
+      owns. The workspace stays a reader-side fact each surface resolves for
+      itself.
+      An earlier draft added a second `workspace` field to the record so each
+      surface could read the one it wanted. That field has no writer.
+      `agentstate.go` is the sole producer, with the record directory at `:65`,
+      and 2.2 deletes `paneWorkspace` at `:321-346`, its call at `:288`, and the
+      fallback at `:296-298`, which were the only way it could learn a workspace.
+      `design.md:69` already says why nothing cheaper exists: no environment
+      variable carries the workspace. So the writer would emit an empty field on
+      every record, and filling it means restoring the fork, which fails 2.9's
+      fifth clause. The readers already have their own answer: `ui.lua` takes it
+      from the mux at `:357`, and `agent-sessions.sh` runs `wezterm cli list` at
+      `:38` anyway.
+      What to change. the rollup at `:350-405` groups by `win:get_workspace()` at `:378`
+      and `:389` and never reads the record's `session`. An earlier draft cited
+      `:377` and `:388`, which are a closing brace and an `if`. Keep the grouping
+      and make the group display the session names of the panes in it, so a deck
+      group named for a workspace still shows which zmx sessions are inside it.
+      This does not require the `ui.lua` restructuring the non-goals forbid, and
+      the reason is worth naming so an implementer does not reach for one. The
+      function already builds a flat `panes` array at `:365-377` carrying one entry
+      per pane with `workspace` on it at `:369`, alongside the collapsed `sessions`
+      table, so the grouping structure needs no change.
+      The session name is not there yet, and an earlier draft said it nearly was.
+      That draft cited `:369` for the `repo` derivation, which is `:370`, and
+      called it the same mechanism as reading the record, which it is not:
+      `pane_repo` at `:276` resolves from the pane in memory, while
+      `read_pane_git` at `:294` opens the record file. This function makes no
+      per-pane file read at all today, and says so in a comment at `:371`. So the
+      edit is one more field on that constructor plus a per-pane `read_pane_git`
+      call plus a render change.
+      Why display and not key. Three surfaces read the record's `session` and two
+      are not wezterm. The sketchybar widget `agent_sessions.lua:14-16` shells out
+      to `agent-sessions` for the macOS menu bar, and `desktop.nix:333-338` wires
+      it as a waybar module. A workspace key is defensible for a workspace-scoped
+      display, and a global menu bar is not one. Leaving the deck to show only a
+      workspace name ships a screen where the tab bar says `default` and the menu
+      bar says the zmx session name, for the same agent, at the same moment.
+      That is still not the rewrite the non-goals forbid, and there is a working
+      shape to copy: `session_tree` at `:723` already does this exact read at
+      `:768-769`, the only call site besides the definition, and `rollup_cache` at
+      `:407-414` already throttles the rollup that would carry the cost.
+      Name all four sites, because the producer is not enough. `panes` reaches one
+      consumer of three: `:1288` destructures `local sessions, panes`, while `:848`
+      and `:889` take the first return only. The collapsed entry at `:389-394` is
+      `{status, reason, since, rank}`, its four fields on `:390-393`, and carries
+      no name, so the tab bar at `:889`,
+      which reads `sessions[entry.name]` at `:898`, cannot see a field added to
+      `panes`. The tab bar is this task's own example of the defect, so either add
+      a names field to the collapsed entry at `:389-394` or change `:889` to take
+      both returns. An earlier draft said the edit was one field plus a render
+      change and named neither renderer.
+      `deps:` 10.6
+- [ ] 10.8 Act: reconcile the namespace the two joins share. This is a key
+      decision and lives apart from 10.7, which decides display. An earlier draft
+      merged them, and 10.5 could then draw no correct edge: it needs this half
+      and not the other, and the merged task's own first line says it decides
+      display and not key.
+      There are three name producers today:
+      `selected.json` holds `mux.get_active_workspace()` (`ui.lua:183`, written at
+      `:192`, read at `agent-sessions.sh:19`), a wezterm workspace name; the
+      record's `.session` (`agent-sessions.sh:66-67`, defaulting to `default`),
+      which this phase changes to a zmx name; and `sy list`
+      (`agent-sessions.sh:78`), seshy names. Two joins consume them.
+      `agent-sessions.sh:98` computes `$names - ($active | map(.name))`, seshy names
+      minus record names, so if the two namespaces diverge the subtraction removes
+      nothing and every live session is emitted twice, once in `$active` and once
+      in `$idle` with `status: null`. `desktop.nix:343` computes
+      `.name != $sel`, a record name against a workspace name, so on divergence the
+      selected session fails to exclude itself from the `+N` badge.
+      Decide which producer wins, and settle both joins with that one decision.
+      They do not share a producer pair: `:98` joins producer 3 against producer
+      2, while `desktop.nix:343` joins producer 2 against producer 1, the
+      workspace name in `selected.json`. So reconciling `:98` alone leaves `:343`
+      still comparing a session name against a workspace name, and the selected
+      session still fails to exclude itself from the `+N` badge, which is a thing
+      10.5 asserts directly. A set difference across two namespaces is
+      meaningless whatever it returns, and so is an inequality test.
+      Land the second half in `agent-sessions.sh` and not in `desktop.nix`.
+      `desktop.nix:342` binds `$sel` from `.selected` in the payload it is handed,
+      so it consumes the name and cannot resolve it. The value is built at
+      `agent-sessions.sh:19` from `selected.json`, which `ui.lua:192` writes, so
+      those two are the only places the reconciliation can go. `agent-sessions.sh`
+      is the better of them, because the sketchybar widget reads the same
+      `selected` field from the same payload (`agent_sessions.lua:30`), so one
+      edit there settles both surfaces where an edit in `desktop.nix` would settle
+      one. An earlier draft named both joins and instructed on one, and a later
+      one offered `desktop.nix:343` as a place to resolve `$sel`, which sends an
+      implementer to a consumer. `deps:` 10.4, 10.6
+- [ ] 10.9 Verify: the `agent-identity.sh` fork does not run when a cheaper
       source answers. Put a stub named `wezterm` first on `PATH` that appends to
-      a marker file and exits non-zero, set `ZMX_SESSION`, run the script, and
-      assert it resolves the session AND the marker file is absent. Then unset
-      both earlier sources, run it again, and assert the marker file now exists.
+      a marker file and exits non-zero, set `ZMX_SESSION`, source the file, call
+      `agent_identity` with a non-empty pane argument, and assert it resolves the
+      session AND the marker file is absent. Then unset both earlier sources, call
+      it again, and assert the marker file now exists. Source and call; do not run
+      the file. An earlier draft said "run the script" and there is no script:
+      `agent-identity.sh` defines two functions and nothing else, so executing it
+      defines them and exits, producing no marker in either half and passing half
+      one for the wrong reason.
       Both halves are needed: the first proves the gate is there, the second
       proves the gate did not become a deletion, which would take the fallback
       away from the readers 10.6 says must keep it. This is a behavioral check
       because the property is control flow and the gated call has the same text as
-      the ungated one, so no grep distinguishes them. `deps:` 10.6
-- [ ] 10.9 Verify: a command still running after a detach is still running after
+      the ungated one, so no grep distinguishes them.
+      Source `agent-identity.sh` directly in the test shell. Do NOT put the stub
+      on the `PATH` of `agent-notify` or `agent-prompt` and run those: the stub is
+      unreachable there and both halves of the check break in opposite directions.
+      `agent-identity.sh` is never installed as a program. `rg -n 'agent-identity'`
+      returns one hit outside `openspec`, `runtime/default.nix:103`, which reads it
+      into a string that is concatenated into two `writeShellApplication`s, and
+      both list `pkgs.wezterm` in `runtimeInputs` (`:132`, `:157`).
+      `writeShellApplication` prepends `runtimeInputs` to `PATH` ahead of the
+      inherited one, so `command -v wezterm` at `:4` returns the store binary and
+      the stub never runs. Half one would then find the marker absent because the
+      stub was unreachable rather than because the gate worked, which is a pass on
+      the exact defect it targets; half two would find the marker missing forever
+      and fail on a correct implementation. Sourcing the file works because it is a
+      function library with no top-level side effects, so `:4` executes as written
+      and `PATH` decides. Overriding `runtimeInputs` in a test derivation is the
+      other correct form. Pass a non-empty pane argument in both halves, or
+      `ai_workspace` returns at `:3` and the second half asserts a marker that
+      could never appear. Run the test shell without `errexit` and `pipefail`, to
+      match production. Only two applications embed this file, `agent-notify` and
+      `agent-prompt`, and both set `bashOptions = [ ]` (`runtime/default.nix:134`
+      and `:160`; the embeds are `:135` and `:167`). An earlier draft cited five
+      sites, which is every `bashOptions = [ ]` in the file and three more than the
+      claim needs. The stub exits
+      non-zero, so a harness with those options aborts the caller at the pipeline
+      on `:6-8`. The marker assertion would still hold, since the stub writes
+      before it exits, but nothing after the pipeline would run. `deps:` 10.6
+- [ ] 10.10 Verify: a command still running after a detach is still running after
       a reattach, decided by starting a `sleep` in a zmx session, closing the
       wezterm pane, opening a new one, and reattaching. This is the property zmx
       is here for, and nothing else in the change tests it. `deps:` 10.6
-- [ ] 10.10 Verify: two clauses, one per surface, since 10.7 establishes they use
-      different keys. In `agent-sessions`, two agents in two zmx sessions produce
-      two groups, keyed by the record's `session`. In the deck, the result is
-      whichever 10.7 decided, checked against that decision by name rather than
-      by count. An earlier draft checked cardinality per surface without
-      comparing names across them, which passes while the two displays disagree.
+- [ ] 10.11 Verify: the surfaces agree by name. There are two keys and three
+      surfaces, and an earlier draft said two of each. `agent-sessions` is one
+      producer with three consumers: itself, the sketchybar widget, and the waybar
+      module, all inheriting the record's `session`; the wezterm deck is the one
+      surface on the workspace key, which it resolves itself. Run two agents in
+      two zmx sessions in one wezterm workspace and assert that `agent-sessions`
+      and the sketchybar widget both report two entries under the zmx session
+      names, and that the deck shows one group named for the workspace containing
+      both of those same session names. An earlier draft checked cardinality
+      per surface without comparing names across them, which passes while two
+      displays disagree.
       Also confirm an agent in a pane with no `ZMX_SESSION` still resolves,
-      through the readers 2.2 moved that fallback to. `deps:` 10.7
-- [ ] 10.11 Verify: re-record the three host drvPaths. This phase adds a package
+      through the readers 2.2 moved that fallback to. `deps:` 10.7, 10.8
+- [ ] 10.12 Verify: re-record the two host drvPaths. This phase adds a package
       on purpose, so name each difference with `nix store diff-closures`.
-      `deps:` 10.10
-- [ ] 10.12 Adversarial review (`adversarial-review` skill): run deterministic
+      `deps:` 10.11
+- [ ] 10.13 Adversarial review (`adversarial-review` skill): run deterministic
       lint; run critics on whether zmx and seshy now own the same fact under two
       names, and on whether the session key can disagree between the file bus and
-      the deck after 10.7. `deps:` 10.11
+      the deck after 10.8. `deps:` 10.12
 
 ## 11. Closeout
 
 - **SHAPE** graph
 
-- [ ] 11.1 Verify: the three host drvPaths still match the phase 10 re-recording,
+- [ ] 11.1 Verify: the two host drvPaths still match the phase 10 re-recording,
       which is the last one, since phase 10 adds a package and phases 4 through 9
       are closure-neutral. Separately, enumerate what phases 2, 3, and 10 changed
       with `nix store diff-closures` against the 1.1 build, and confirm every
@@ -1158,7 +1628,7 @@ become phase 5's viewer source. Widening it to those is a separate decision.
       `drvPath` is one opaque hash: it answers equal or unequal and cannot be
       diffed into a list, so an earlier draft asked for an enumeration the named
       artifact cannot produce. An unexplained entry is a silent loss.
-      `deps:` 10.12
+      `deps:` 10.13
 - [ ] 11.2 Act: write the spec deltas this change owes. `agent-state-emission`
       keeps its OSC requirement because 2.2 reverses the deletion, so that one
       needs no delta. The behaviors with no spec today and a spec-worthy

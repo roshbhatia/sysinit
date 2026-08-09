@@ -299,6 +299,31 @@ paths live is how two names for one concept survive a migration.
 The STOP gate for the coupling phases is the same in each: after the phase, a
 grep for the removed channel returns nothing outside its own history.
 
+The gates split by platform, and the split is not a compromise. `lv426` is
+`aarch64-darwin` and every gate touching it runs on the owner's machine.
+`arrakis` is `x86_64-linux` and cannot evaluate there at all, because its module
+set imports from a derivation. That half runs in CI, on the `ubuntu-latest`
+runner `.github/workflows/build-cache.yml:32-33` already declares under
+`system: x86_64-linux`. An earlier draft made a local remote-builder a hard
+precondition for the whole change. The runner is better than the builder on
+every axis that matters here: it exists, it is already proven with the installer
+step at `:51`, and it does not make the owner maintain a second machine to start
+phase 1. `.github/workflows/check.yml:42` stays on `macos-latest` for the
+reason its own comment gives.
+
+One constraint follows from putting them in CI. An equality gate compares
+recorded text against a fresh evaluation, so it reads the committed baseline and
+needs nothing else. A `diff-closures` gate needs two realized closures in one
+store at one time, and a runner's store does not survive the job, so those gates
+have to build both revisions inside a single job. Splitting one across jobs
+compares against an empty store and passes. That also settles the GC-root
+question on the Linux side, since both closures live and die inside the job.
+
+Building on `arrakis` at pull time was the alternative and does not replace
+this. These gates are per phase, and their whole purpose is to name which phase
+dropped a module. A check that runs after all eleven land reports the loss with
+no such signal. It stays as a final confirmation.
+
 ## Risks / Trade-offs
 
 `hunk` is a third-party dependency reached over a loopback daemon on port
@@ -324,7 +349,7 @@ the alternative, which is scraping pane text.
 `sysinit.theme.enable = false` is a path no host exercises. It will be correct
 the day it is written and can rot silently.
 
-The three host `drvPath` values are the only thing standing between the profile
+The two host `drvPath` values are the only thing standing between the profile
 refactor and a silent loss. A baseline captured after an unrelated edit makes
 every later gate compare against the wrong value and pass while wrong.
 
@@ -427,7 +452,7 @@ groups by `win:get_workspace()` and never reads the record's `session` field, so
 two zmx sessions in one workspace collapse to one group, and that is the case zmx
 exists to create. `ui.lua` runs in the mux process and cannot read a pane's child
 environment, so this is a decision, not a bug to fix in passing. Task 10.7 forces
-it either way and 10.9 checks the surfaces by name rather than by count.
+it either way and 10.11 checks the surfaces by name rather than by count.
 
 `agent-identity.sh:1-9` forks `wezterm cli list` unconditionally at `:16`. It is
 the shell twin of the Go fork phase 2 deletes, and no clause of 2.9 could see it:
@@ -435,17 +460,28 @@ clause one greps for `send-text`, `activate-pane`, and `split-pane`, and clause
 five is scoped to `pkgs/sysinit-agent`. Task 10.6 gates it behind the two cheaper
 sources.
 
-The first fix for that was to widen 2.9 with a `cli list` pattern, and checking
-it before sending it out refuted it. `cli list` matches six files under
+Two fixes for that were wrong before one was right, and both were caught by
+checking rather than by reasoning.
+
+The first was to widen 2.9 with a `cli list` pattern. `cli list` matches six files under
 `modules/home/programs/llm`, and five fork it correctly and on purpose: `wtrun`
 and its skill, which decision 3 makes an owner command, `agent-sessions.sh`,
 which task 2.2's repair depends on, `agent-review.sh`, and `agent-focus.sh`. The
 pattern is not a signal of the defect, so the clause would have grown from three
 files to eight and gated less than before. The instrument was wrong rather than
 the scope: 10.6 changes when the fork runs, the gated call and the ungated call
-have identical text, and no grep separates them. Task 10.8 checks it by behavior,
-with a stub `wezterm` on `PATH` and a marker file, in both directions, so that a
-gate is distinguishable from a deletion.
+have identical text, and no grep separates them. Task 10.9 checks it by behavior,
+with a stub `wezterm` and a marker file, in both directions, so that a gate is
+distinguishable from a deletion.
+
+The second wrong fix was where to put that stub. `agent-identity.sh` is never
+installed as a program: it is read into a string and concatenated into two
+`writeShellApplication`s, both of which list `pkgs.wezterm` in `runtimeInputs`,
+and `writeShellApplication` prepends those to `PATH` ahead of the inherited one.
+A stub on the caller's `PATH` is therefore unreachable, and the check would have
+passed on the ungated fork and failed on a correct implementation, which is the
+failure class it was written to avoid. The file is a function library with no
+top-level side effects, so the test sources it directly instead.
 
 Four smaller corrections. `si` was named as an edit site and is an fzf picker
 that calls `s`, so editing both attaches twice. The seshy and zmx name agreement
@@ -455,6 +491,50 @@ reason that it is a state path, which is not true of a namespace string. And the
 phase asserted `ZMX_SESSION` inheritance from documentation with no probe task,
 which is the standard task 3.1 sets for this change's other third-party
 dependency.
+
+### Round 4, the convergence round
+
+Both critics ran to the end and neither found a FATAL. That is the first round
+where nothing stopped a task from being completed and no gate could pass on a
+wrong change. Recording it plainly, because a review that never converges is not
+evidence of rigor.
+
+What both found independently was one class, and it is worth naming because it
+outlived every number check. A citation read once and stated in the wrong
+direction. `modules/lib/shell.nix:9` was described as keeping `#!/usr/bin/env`
+and `# shellcheck disable`; the function is `stripHeaders` and `:10` filters
+with the negation, so it removes exactly those two and keeps every other line.
+The token phase 4 defines was never at risk, and the line cited as the hazard is
+the line that proves it safe. The only real residual is a token appended to a
+`# shellcheck disable` line, which goes with it.
+
+Two more of the same shape. Task 8.1 sent an implementer to `hosts/default.nix`
+for the `values` schema; `lib/builders.nix:40-44` injects `hostname`,
+`user.username`, and `isDesktop`, and the host file supplies two paths, `git`
+and `theme`. Task 10.8 offered `desktop.nix:343` as a place to resolve `$sel`;
+`:342` binds it from the payload it is handed, so the reconciliation belongs in
+`agent-sessions.sh` where the value is built, which also settles the sketchybar
+surface reading the same field.
+
+One gate was weaker than it claimed. Task 3.5 asked for a concurrent test in the
+shape of `TestConcurrentAddsLoseNoNote`, comparing the export against a rebuild
+after concurrent adds. A lost add is permanent, so a post-hoc count catches it.
+A stale export is self-healing: every writer republishes and `wg.Wait()` returns
+after the last one, so the buggy version passes on every interleaving except the
+one where an older read lands last, and nothing forces it. The gate is now an
+ordering assertion on the release call, which fires on every call.
+
+Two counts were also refined rather than corrected. The fourteen `values` paths
+hold only if the search is scoped to `.nix`, because two Helm filenames in a lua
+string match otherwise, and five of the fourteen are open attrsets rather than
+leaves, so a schema treating them as leaves pins a shape their consumers never
+agreed to.
+
+The standing lesson is smaller than a rule. A fold that changes a gate's
+mechanism should grep the artifact for the old mechanism's words before it
+lands. Six of these findings were a task describing another task's gate, or a
+file's behavior, by a property it no longer had or never had, and no number
+check can see that.
 
 ## Resolved questions
 
@@ -607,14 +687,21 @@ way to answer: a pane the owner opened directly has no `ZMX_SESSION`, and neithe
 does anything on the bare box phase 9 builds, so that branch is the correct
 answer there rather than dead code.
 
-Three sources for one fact is a cost worth stating plainly, and there is a fourth
-name in play that predates zmx. The agent deck in `ui.lua` groups by
-`win:get_workspace()` and never reads the record's `session` field, so it already
-disagrees with `identify`. `ui.lua` runs in the mux process and cannot read a
-pane's child environment in any case. Phase 10 forces that to be decided rather
-than inherited: either the deck prefers the record's `session`, or the design
-records that the deck is workspace-keyed and that zmx sessions inside one
-workspace merge there.
+Three sources for one fact is a cost, and the fix for it is not to pick a winner.
+The agent deck in `ui.lua` groups by `win:get_workspace()` and never reads the
+record's `session` field, so it already disagrees with `identify`, and that
+predates zmx. `ui.lua` runs in the mux process and cannot read a pane's child
+environment in any case.
+
+So the record carries two named fields, a session name and a workspace, and each
+surface reads the one it wants. The alternative was to declare the deck
+workspace-keyed by design, and its own evidence refutes it: three surfaces read
+the record's key and two are not wezterm, the sketchybar menu bar widget and the
+waybar module. A workspace key is defensible for a workspace-scoped display and a
+global menu bar is not one, so that branch ships a screen where the tab bar and
+the menu bar name the same agent differently at the same moment. Decision 4's
+task 4.6 already gives the record a schema and a version field, so a second field
+is a schema addition rather than new machinery.
 
 What `zmx` does NOT take: `wtrun`, whose worker pane is a surface the owner
 watches, and phase 5's viewer. `zmx run` and `zmx tail` could plausibly do both,
