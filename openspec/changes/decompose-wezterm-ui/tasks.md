@@ -376,3 +376,61 @@
       Terminal state: `not run`, per the owner's standing direction. Lint:
       `specutil check` clean, `luac -p` clean on all eight lua files, all three
       wezterm checks green.
+
+## 6. Extract the switcher and the tab title
+
+- **SHAPE** graph
+
+- [x] 6.1 Act: move the three focus actions into `ui/actions.lua`. `deps:` none
+
+      `gui_window_for_workspace`, `switch_to_workspace`, and
+      `activate_agent_pane`. They read only `wezterm` and each other, so they
+      move whole. They go first because the switcher reads all three, and task
+      1.2 measured that block as the file's worst mover.
+      `ui.lua` 1,197 -> 1,125.
+- [x] 6.2 Act: move the workspace-manager block into `ui/switcher.lua`.
+      `deps:` 6.1
+
+      510 lines, the largest single thing in the file. `ui.lua` 1,125 -> 627.
+
+      Task 1.2 measured this block reading 23 other locals and called it the
+      worst candidate to move early. Phases 2 to 5 are why it is not the worst
+      any more: by the time it moved, 15 of those names had module homes and
+      three more had just moved to `actions`. What was left is the five in the
+      `ctx` table: the two mux walks, the palette, `home`, and the two optional
+      plugin handles.
+
+      A context table rather than 8 positional arguments, because the surface
+      is one setup call and a positional list of that length is a defect
+      waiting for its first reorder.
+- [x] 6.3 Act: move the tab title formatter into `ui/tabtitle.lua`.
+      `deps:` 6.2
+
+      `ui.lua` 627 -> 568. The `wezterm.on` registration stays behind: the
+      handler signature is wezterm's, and the module should answer a question
+      rather than match an event contract.
+- [x] 6.4 Verify: the globals check earns its place. `deps:` 6.3
+
+      It caught a real defect in 6.2, not a hypothetical one. The extracted
+      switcher reads `keybindings` and `utils`, both required at the top of
+      `ui.lua` and neither required in the new module. `luac -p` passed on it.
+      The globals check named both, and adding two requires fixed it.
+
+      That is twice now: `agent_state_rank` in 3.2 and these two here. Both
+      would have reached the owner as a broken chord rather than as a failing
+      build.
+- [x] 6.5 Verify: config unchanged across all three moves. `deps:` 6.4
+
+      `wezterm --config-file` against `1af14210b` and against this tree: 232
+      lines, byte-identical.
+
+      This comparison is worth more here than in any earlier phase. The
+      switcher builds `config.keys` and `config.key_tables`, so the key table
+      it produces IS most of what `show-keys` prints. An extraction that
+      dropped a chord or reordered a key table would show up as a diff.
+- [x] 6.6 Adversarial review (`adversarial-review` skill): run deterministic
+      lint. Record the terminal state. `deps:` 6.5
+
+      Terminal state: `not run`, per the owner's standing direction. Lint:
+      `specutil check` clean, `luac -p` clean on all eleven lua files, and both
+      wezterm checks green.

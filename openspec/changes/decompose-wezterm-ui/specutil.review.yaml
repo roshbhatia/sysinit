@@ -1,12 +1,18 @@
 version: 1
 change: decompose-wezterm-ui
 decision: approved
-change_hash: 634c1baef5123997
-base_commit: f7edc0bc1d1b2eea81c14768d500d97bd7629bd0
+change_hash: 0218ab4166912810
+base_commit: 1af14210bdb222f4c08d18ea2e80ece16afac536
 items:
     1b90120bbaa8ef5c:
         hash: 42efb5ad968e3376
         text: 'Act: move `session_tree` and its palette into `ui/session_tree.lua`.'
+    2f4968255db125ef:
+        hash: f300f03d41fcc217
+        text: 'Verify: config unchanged across all three moves.'
+    3fb21f772ba825ad:
+        hash: aa38acbf694e6657
+        text: 'Act: move the workspace-manager block into `ui/switcher.lua`.'
     4c2cfae0b248c216:
         hash: f0e0cabedeb98d9e
         text: 'Act: move the seshy list, the workspace slot assignment, and the last-active record into `ui/sessions.lua`.'
@@ -22,15 +28,24 @@ items:
     08d827709d5f8644:
         hash: 41f4a3fd4ebe8828
         text: 'Adversarial review (`adversarial-review` skill): run deterministic lint. Record the terminal state.'
+    9c202dd1448e25cd:
+        hash: ca05632d288e4506
+        text: 'Act: move the tab title formatter into `ui/tabtitle.lua`.'
     47afc1b67b7c4185:
         hash: aebc235f480b73c6
         text: 'Verify: the config is unchanged and the file set is the only difference.'
     54d49427bf6608d6:
         hash: a183a175da273c48
         text: 'Verify: the test fails when the rollup''s precedence is inverted. A test that passes against a broken reducer is not coverage.'
+    86def43ef16913ba:
+        hash: 41f4a3fd4ebe8828
+        text: 'Adversarial review (`adversarial-review` skill): run deterministic lint. Record the terminal state.'
     358d203b3c84a97e:
         hash: 4fcca2f873d41d09
         text: 'Verify: the proposal''s walk criterion, measured rather than assumed.'
+    689e20644b8b4c5b:
+        hash: 15967c2bc2d5bd1b
+        text: 'Verify: the globals check earns its place.'
     6508dc465a181230:
         hash: 3afbd7f6bacdcbbd
         text: 'Confirm: owner looks at the tab bar and the session tree and reports whether anything moved. This is decision 4''s gate and there is no automated substitute for it.'
@@ -58,6 +73,9 @@ items:
     d731906ed3987724:
         hash: 85b2d6fa2b5d40ad
         text: 'Verify: the wezterm configuration''s derivation path differs from 1.1''s recording only by the file set, and name each difference.'
+    e1f023c481f859b6:
+        hash: ce1f616e721565ad
+        text: 'Act: move the three focus actions into `ui/actions.lua`.'
     e1758efccfb483c7:
         hash: 41f4a3fd4ebe8828
         text: 'Adversarial review (`adversarial-review` skill): run deterministic lint. Record the terminal state.'
