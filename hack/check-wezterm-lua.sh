@@ -39,7 +39,8 @@ ALLOWED
 sort -o "$work/allowed" "$work/allowed"
 
 find "$tree" -name '*.lua' -print0 | while IFS= read -r -d '' f; do
-  luac -l -l "$f" |
+  # `-p` parses without writing a `luac.out` into the caller's directory.
+  luac -p -l -l "$f" |
     grep -o '_ENV "[a-zA-Z_][a-zA-Z0-9_]*"' |
     sed 's/_ENV "//; s/"$//'
 done | sort -u > "$work/seen"
