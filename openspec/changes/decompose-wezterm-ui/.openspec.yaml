@@ -1,0 +1,5 @@
+schema: spec-driven
+created: 2026-08-09
+goal: ui.lua is 1,799 lines with M.setup spanning :9-1797 and nineteen nested
+  closures. Decompose it. Sequenced after make-sysinit-composable by that
+  change's design decision 8.

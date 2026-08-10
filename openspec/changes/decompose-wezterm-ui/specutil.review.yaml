@@ -1,0 +1,37 @@
+version: 1
+change: decompose-wezterm-ui
+decision: approved
+note: owner approved on 2026-08-09 in session; critics not run; opened by make-sysinit-composable task 11.4
+change_hash: 5437b6f66b2576b5
+base_commit: 70c3277053e0026f46158b10e582fa7230ce2993
+items:
+    6d1f26f8cf9f315f:
+        hash: 8c4ecafccac3a68d
+        text: 'Gather: record the wezterm configuration''s derivation path, so every later phase has something to compare against. Record it in this folder, in the shape `make-sysinit-composable` phase 1 used for its host baselines.'
+    08d827709d5f8644:
+        hash: 41f4a3fd4ebe8828
+        text: 'Adversarial review (`adversarial-review` skill): run deterministic lint. Record the terminal state.'
+    54d49427bf6608d6:
+        hash: a183a175da273c48
+        text: 'Verify: the test fails when the rollup''s precedence is inverted. A test that passes against a broken reducer is not coverage.'
+    6508dc465a181230:
+        hash: 3afbd7f6bacdcbbd
+        text: 'Confirm: owner looks at the tab bar and the session tree and reports whether anything moved. This is decision 4''s gate and there is no automated substitute for it.'
+    84599a480f4223af:
+        hash: cac0a25b5ba5f1de
+        text: 'Adversarial review (`adversarial-review` skill): run deterministic lint. Critics run or not per the owner''s direction at the time; record the terminal state either way.'
+    949303d2bf11d35c:
+        hash: 05642d5a4dc0f6d1
+        text: 'Gather: answer the first open question in `design.md`. Read how the lua tree reaches the store, and record whether a new directory needs a Nix change.'
+    a9fb4fb8bc2cc6c7:
+        hash: 29ce6ef89ec63f67
+        text: 'Act: give that module a test that runs without a GUI, by taking the mux walk''s result as an argument rather than performing the walk inside the reducer.'
+    d731906ed3987724:
+        hash: 85b2d6fa2b5d40ad
+        text: 'Verify: the wezterm configuration''s derivation path differs from 1.1''s recording only by the file set, and name each difference.'
+    e35214261cbeca53:
+        hash: 27f6f5543ac4ad13
+        text: 'Gather: list every local defined inside `M.setup`, with the set of other locals it reads. This is the input to decision 2''s boundary, and guessing it from function names is how a shared cache ends up duplicated.'
+    fb786e3545324e0d:
+        hash: 1044ee8209794f53
+        text: 'Act: move `compute_agent_session_states`, its cache, and the pane record read into their own module, and have `ui.lua` require it. Change no behavior.'
