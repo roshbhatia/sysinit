@@ -85,8 +85,17 @@ Must still hold:
 
 Human-owned decision:
 - whether the added build step and Go module are worth the reduction in shell
-  risk, since both tiers work today
-- whether Tier C follows, once Tier A and B are in production use
+  risk, since both tiers work today. ANSWERED yes: both tiers shipped and are
+  in use.
+- whether Tier C follows, once Tier A and B are in production use. ANSWERED on
+  2026-08-09: NO. `runtime/` fell from 3,646 lines across 30 scripts to 1,389
+  lines across 12, so the corpus this change was written against is 62%
+  smaller. `worklog-query.sh`, one of the four named candidates, no longer
+  exists. Of the three that remain, only `agent-sessions.sh` still holds a lock
+  and an atomic rename, which is the risk shape that justified Go here;
+  `loop-gate.sh` and `agent-notify.sh` read JSON and branch, with no lock, no
+  atomic rename, and no state file written. Migrating `agent-sessions.sh` alone
+  is a separate change if it is ever worth doing.
 
 ## Impact
 
@@ -98,7 +107,11 @@ Modified code:
 - `checks/`: unchanged, but now exercise the Go binary
 
 Dependencies: adds a Go toolchain at build time; removes `jq` from the migrated
-runtime paths; vendors `github.com/neovim/go-client` for the diffnote auto-open
+runtime paths; vendored `github.com/neovim/go-client` for the diffnote
+auto-open. That vendoring is GONE as of `make-sysinit-composable` phase 2,
+which removed every agent-initiated route into the editor. `go.mod` now
+requires nothing, and the `sysinit-agent-0.1.0-go-modules` derivation
+disappeared from both host closures as a result.
 
 Impactful and irreversible actions:
 - replacing `diffnote` while a note store exists on this machine. The store
