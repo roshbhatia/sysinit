@@ -1,4 +1,3 @@
-
 local M = {}
 
 local function pane_alive(pane_id, callback)

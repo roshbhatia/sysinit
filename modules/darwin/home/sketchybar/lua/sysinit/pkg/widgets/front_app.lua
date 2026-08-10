@@ -66,7 +66,7 @@ local app_display_names = {
 
 local function get_front_app()
   sbar.exec(
-    "osascript -e 'tell application \"System Events\" to get name of first application process "
+    'osascript -e \'tell application "System Events" to get name of first application process '
       .. "whose frontmost is true'",
     function(result, exit_code)
       if exit_code ~= 0 then

@@ -92,9 +92,9 @@ local function toggle_loc()
   end
 end
 
-Snacks.keymap.set("n", "]q", next_item,  { desc = "Next qf/loc item" })
-Snacks.keymap.set("n", "[q", prev_item,  { desc = "Prev qf/loc item" })
-Snacks.keymap.set("n", "]Q", last_item,  { desc = "Last qf/loc item" })
+Snacks.keymap.set("n", "]q", next_item, { desc = "Next qf/loc item" })
+Snacks.keymap.set("n", "[q", prev_item, { desc = "Prev qf/loc item" })
+Snacks.keymap.set("n", "]Q", last_item, { desc = "Last qf/loc item" })
 Snacks.keymap.set("n", "[Q", first_item, { desc = "First qf/loc item" })
-Snacks.keymap.set("n", "<leader>eq", toggle_qf,  { desc = "Toggle quickfix" })
+Snacks.keymap.set("n", "<leader>eq", toggle_qf, { desc = "Toggle quickfix" })
 Snacks.keymap.set("n", "<leader>el", toggle_loc, { desc = "Toggle loclist" })

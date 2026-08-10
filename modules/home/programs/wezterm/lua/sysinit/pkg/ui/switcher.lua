@@ -10,7 +10,6 @@ local ui_sessions = require("sysinit.pkg.ui.sessions")
 local M = {}
 
 function M.setup(config, wm, ctx)
-
   wm.get_choices = function()
     local sessions, panes = ctx.sessions()
     local now = os.time()
@@ -50,13 +49,21 @@ function M.setup(config, wm, ctx)
           label = icon .. " " .. name
           local a = agg[name]
           if a then
-            if a.repo ~= "" then label = label .. "  at " .. a.repo end
-            if a.agent ~= "" then label = label .. "  in " .. a.agent end
+            if a.repo ~= "" then
+              label = label .. "  at " .. a.repo
+            end
+            if a.agent ~= "" then
+              label = label .. "  in " .. a.agent
+            end
           end
           local age = st.since and ui_format.age(now - st.since) or ""
           local fmt = ui_format.status_label(st.status, st.reason)
-          if fmt ~= "" then label = label .. "  — " .. fmt end
-          if age ~= "" then label = label .. "  " .. age end
+          if fmt ~= "" then
+            label = label .. "  — " .. fmt
+          end
+          if age ~= "" then
+            label = label .. "  " .. age
+          end
         end
         table.insert(rows, {
           name = name,
@@ -99,10 +106,14 @@ function M.setup(config, wm, ctx)
     end
     r:append(nil, sc, icon .. " ")
     local crumb = rec.workspace
-    if rec.tab_title ~= "" then crumb = crumb .. " · " .. rec.tab_title end
+    if rec.tab_title ~= "" then
+      crumb = crumb .. " · " .. rec.tab_title
+    end
     r:append(nil, colors.name, crumb, "Bold")
     local attn_dp = ui_format.smart_path(rec.cwd)
-    if attn_dp == "" then attn_dp = rec.repo end
+    if attn_dp == "" then
+      attn_dp = rec.repo
+    end
     if attn_dp ~= "" and attn_dp ~= rec.tab_title then
       r:append(nil, colors.chrome, "  ")
       r:append(nil, colors.age, "at ")
@@ -112,7 +123,9 @@ function M.setup(config, wm, ctx)
       r:append(nil, colors.chrome, "  ")
       r:append(nil, colors.age, "on ")
       r:append(nil, colors.age, rec.branch)
-      if rec.dirty then r:append(nil, colors.working, " *") end
+      if rec.dirty then
+        r:append(nil, colors.working, " *")
+      end
     end
     if rec.title ~= "" then
       r:append(nil, colors.chrome, "  ")
@@ -124,7 +137,9 @@ function M.setup(config, wm, ctx)
       r:append(nil, colors.name, rec.title)
     end
     local fmt = ui_format.status_label(rec.status, rec.reason)
-    if fmt ~= "" then r:append(nil, colors.reason, "  " .. fmt) end
+    if fmt ~= "" then
+      r:append(nil, colors.reason, "  " .. fmt)
+    end
     if age ~= "" then
       r:append(nil, colors.age, "  " .. age)
     end
@@ -148,17 +163,23 @@ function M.setup(config, wm, ctx)
     if filter == "blocked" or filter == "agents" then
       local list = {}
       if filter == "blocked" then
-        for _, rec in ipairs(tree.attention) do list[#list + 1] = rec end
+        for _, rec in ipairs(tree.attention) do
+          list[#list + 1] = rec
+        end
       else
         for _, ws in ipairs(tree.workspaces) do
           for _, tnode in ipairs(ws.tabs) do
             for _, rec in ipairs(tnode.panes) do
-              if rec.status then list[#list + 1] = rec end
+              if rec.status then
+                list[#list + 1] = rec
+              end
             end
           end
         end
         table.sort(list, function(a, b)
-          if a.rank ~= b.rank then return a.rank > b.rank end
+          if a.rank ~= b.rank then
+            return a.rank > b.rank
+          end
           return (a.since or now) < (b.since or now)
         end)
       end
@@ -182,7 +203,9 @@ function M.setup(config, wm, ctx)
     if filter == "sessions" then
       local live = {}
       for _, ws in ipairs(tree.workspaces) do
-        if not ws.dormant then live[#live + 1] = ws end
+        if not ws.dormant then
+          live[#live + 1] = ws
+        end
       end
       table.sort(live, function(a, b)
         return (a.last_active or 0) > (b.last_active or 0)
@@ -208,88 +231,95 @@ function M.setup(config, wm, ctx)
 
     local live_sorted = {}
     for _, ws in ipairs(tree.workspaces) do
-      if not ws.dormant then live_sorted[#live_sorted + 1] = ws end
+      if not ws.dormant then
+        live_sorted[#live_sorted + 1] = ws
+      end
     end
     table.sort(live_sorted, function(a, b)
       return (a.last_active or 0) > (b.last_active or 0)
     end)
 
     for _, ws in ipairs(live_sorted) do
-        local sc = ui_format.status_color(ws.status, colors)
-        local ws_r = ctx.ribbon.new("ws")
-        ws_r:append(nil, sc or colors.ws_live, ctx.icons.session .. " ")
-        ws_r:append(nil, colors.name, ws.name, { "Bold", "Single" })
-        if ws.status then
-          local ws_lbl = ui_format.state_labels[ws.status] or ""
-          ws_r:append(nil, colors.chrome, "  ")
-          ws_r:append(nil, sc or colors.working, ui_format.state_icons[ws.status] or "●")
-          if ws_lbl ~= "" then
-            ws_r:append(nil, colors.reason, " " .. ws_lbl)
-          end
+      local sc = ui_format.status_color(ws.status, colors)
+      local ws_r = ctx.ribbon.new("ws")
+      ws_r:append(nil, sc or colors.ws_live, ctx.icons.session .. " ")
+      ws_r:append(nil, colors.name, ws.name, { "Bold", "Single" })
+      if ws.status then
+        local ws_lbl = ui_format.state_labels[ws.status] or ""
+        ws_r:append(nil, colors.chrome, "  ")
+        ws_r:append(nil, sc or colors.working, ui_format.state_icons[ws.status] or "●")
+        if ws_lbl ~= "" then
+          ws_r:append(nil, colors.reason, " " .. ws_lbl)
         end
-        add("ws:" .. ws.name, ws_r:format(), { workspace = ws.name, dormant = false })
+      end
+      add("ws:" .. ws.name, ws_r:format(), { workspace = ws.name, dormant = false })
 
-        for ti, tnode in ipairs(ws.tabs) do
-          local tlast = ti == #ws.tabs
-          local tbranch = tlast and "  └─ " or "  ├─ "
-          local tab_r = ctx.ribbon.new("tab")
-          tab_r:append(nil, colors.chrome, tbranch)
-          tab_r:append(nil, colors.ws_live, ctx.icons.tab)
-          tab_r:append(nil, colors.chrome, " [" .. tostring(ti) .. "]")
-          tab_r:append(nil, colors.chrome, "  ")
-          tab_r:append(nil, colors.name, tnode.title)
-          add("tab:" .. tnode.tab_id, tab_r:format(), { pane_id = tnode.active_pane_id, workspace = ws.name })
+      for ti, tnode in ipairs(ws.tabs) do
+        local tlast = ti == #ws.tabs
+        local tbranch = tlast and "  └─ " or "  ├─ "
+        local tab_r = ctx.ribbon.new("tab")
+        tab_r:append(nil, colors.chrome, tbranch)
+        tab_r:append(nil, colors.ws_live, ctx.icons.tab)
+        tab_r:append(nil, colors.chrome, " [" .. tostring(ti) .. "]")
+        tab_r:append(nil, colors.chrome, "  ")
+        tab_r:append(nil, colors.name, tnode.title)
+        add("tab:" .. tnode.tab_id, tab_r:format(), { pane_id = tnode.active_pane_id, workspace = ws.name })
 
-          for pi, rec in ipairs(tnode.panes) do
-            local pbranch = (tlast and "     " or "  │  ")
-              .. (pi == #tnode.panes and "└─ " or "├─ ")
-            local pane_r = ctx.ribbon.new("pane")
-            pane_r:append(nil, colors.chrome, pbranch)
-            local bc = ui_badges.color(rec.pane_id, colors)
-            if bc then
-              pane_r:append(nil, colors.chrome, "<")
-              pane_r:append(nil, bc, ui_badges.name(rec.pane_id))
-              pane_r:append(nil, colors.chrome, ">")
-            end
-            local pane_dp = ui_format.smart_path(rec.cwd)
-            if pane_dp == "" then pane_dp = rec.repo end
-            if pane_dp ~= "" then
-              pane_r:append(nil, colors.chrome, "  ")
-              pane_r:append(nil, colors.age, "at ")
-              pane_r:append(nil, colors.name, pane_dp)
-            end
-            if rec.branch then
-              pane_r:append(nil, colors.chrome, "  ")
-              pane_r:append(nil, colors.age, "on ")
-              pane_r:append(nil, colors.age, rec.branch)
-              if rec.dirty then pane_r:append(nil, colors.working, " *") end
-            end
-            local proc = rec.title ~= "" and rec.title or nil
-            if proc then
-              pane_r:append(nil, colors.chrome, "  ")
-              pane_r:append(nil, colors.age, "in ")
-              if ctx.sigil_ok then
-                local proc_items = ctx.sigil.items(proc, { fallback = true, padding = "right", reset = true })
-                pane_r:append_items(proc_items)
-              end
-              pane_r:append(nil, colors.name, proc)
-            end
-            if rec.status then
-              local asc = ui_format.status_color(rec.status, colors) or colors.idle
-              local p_fmt = ui_format.status_label(rec.status, rec.reason)
-              pane_r:append(nil, colors.chrome, "  ")
-              pane_r:append(nil, asc, ui_format.state_icons[rec.status] or "●")
-              if p_fmt ~= "" then
-                pane_r:append(nil, colors.reason, " " .. p_fmt)
-              end
-              if rec.status ~= "done" then
-                local age = rec.since and ui_format.age(now - rec.since) or ""
-                if age ~= "" then pane_r:append(nil, colors.age, " " .. age) end
-              end
-            end
-            add("pane:" .. rec.pane_id, pane_r:format(), rec)
+        for pi, rec in ipairs(tnode.panes) do
+          local pbranch = (tlast and "     " or "  │  ") .. (pi == #tnode.panes and "└─ " or "├─ ")
+          local pane_r = ctx.ribbon.new("pane")
+          pane_r:append(nil, colors.chrome, pbranch)
+          local bc = ui_badges.color(rec.pane_id, colors)
+          if bc then
+            pane_r:append(nil, colors.chrome, "<")
+            pane_r:append(nil, bc, ui_badges.name(rec.pane_id))
+            pane_r:append(nil, colors.chrome, ">")
           end
+          local pane_dp = ui_format.smart_path(rec.cwd)
+          if pane_dp == "" then
+            pane_dp = rec.repo
+          end
+          if pane_dp ~= "" then
+            pane_r:append(nil, colors.chrome, "  ")
+            pane_r:append(nil, colors.age, "at ")
+            pane_r:append(nil, colors.name, pane_dp)
+          end
+          if rec.branch then
+            pane_r:append(nil, colors.chrome, "  ")
+            pane_r:append(nil, colors.age, "on ")
+            pane_r:append(nil, colors.age, rec.branch)
+            if rec.dirty then
+              pane_r:append(nil, colors.working, " *")
+            end
+          end
+          local proc = rec.title ~= "" and rec.title or nil
+          if proc then
+            pane_r:append(nil, colors.chrome, "  ")
+            pane_r:append(nil, colors.age, "in ")
+            if ctx.sigil_ok then
+              local proc_items = ctx.sigil.items(proc, { fallback = true, padding = "right", reset = true })
+              pane_r:append_items(proc_items)
+            end
+            pane_r:append(nil, colors.name, proc)
+          end
+          if rec.status then
+            local asc = ui_format.status_color(rec.status, colors) or colors.idle
+            local p_fmt = ui_format.status_label(rec.status, rec.reason)
+            pane_r:append(nil, colors.chrome, "  ")
+            pane_r:append(nil, asc, ui_format.state_icons[rec.status] or "●")
+            if p_fmt ~= "" then
+              pane_r:append(nil, colors.reason, " " .. p_fmt)
+            end
+            if rec.status ~= "done" then
+              local age = rec.since and ui_format.age(now - rec.since) or ""
+              if age ~= "" then
+                pane_r:append(nil, colors.age, " " .. age)
+              end
+            end
+          end
+          add("pane:" .. rec.pane_id, pane_r:format(), rec)
         end
+      end
     end
 
     return choices
@@ -417,10 +447,7 @@ function M.setup(config, wm, ctx)
     end
     tree_state.pending_filter = nil
     tree_state.key_table_active = true
-    win:perform_action(
-      wezterm.action.ActivateKeyTable({ name = "session_tree_actions", one_shot = false }),
-      pane
-    )
+    win:perform_action(wezterm.action.ActivateKeyTable({ name = "session_tree_actions", one_shot = false }), pane)
     win:perform_action(
       wezterm.action.InputSelector({
         title = title,

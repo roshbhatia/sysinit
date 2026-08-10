@@ -2,7 +2,6 @@ local M = {}
 
 -- -@class harness.OptionDef
 
-
 local persist = require("harness.persist")
 local STATE_FILE = persist.path("options")
 
@@ -11,7 +10,9 @@ local state = {}
 local loaded = false
 
 local function load()
-  if loaded then return end
+  if loaded then
+    return
+  end
   loaded = true
   state = persist.load(STATE_FILE) or {}
 end
@@ -144,7 +145,9 @@ function M.configure(agent_name, on_close)
   local schema = M.get_schema(agent_name)
   if not schema or #schema == 0 then
     vim.notify("harness: " .. agent_name .. " has no configurable options", vim.log.levels.INFO)
-    if on_close then on_close() end
+    if on_close then
+      on_close()
+    end
     return
   end
 
@@ -173,7 +176,9 @@ function M.configure(agent_name, on_close)
   local ok_snacks, snacks = pcall(require, "snacks")
   if not (ok_snacks and snacks.picker) then
     vim.notify("harness: snacks.picker unavailable", vim.log.levels.WARN)
-    if on_close then on_close() end
+    if on_close then
+      on_close()
+    end
     return
   end
 
@@ -190,13 +195,17 @@ function M.configure(agent_name, on_close)
   snacks.picker.pick({
     source = "harness_options_" .. agent_name,
     items = items,
-    format = function(item) return { { item.text, "Normal" } } end,
+    format = function(item)
+      return { { item.text, "Normal" } }
+    end,
     title = "Options — " .. agent_name,
     layout = { preset = "select" },
     confirm = function(picker, item)
       picker:close()
       if not item or not item.opt then
-        if on_close then on_close() end
+        if on_close then
+          on_close()
+        end
         return
       end
       local opt = item.opt

@@ -9,7 +9,9 @@ local state = {}
 local loaded = false
 
 local function load()
-  if loaded then return end
+  if loaded then
+    return
+  end
   loaded = true
   state = persist.load(STATE_FILE) or {}
 end
@@ -20,7 +22,9 @@ end
 
 ---@param name string
 function M.record(name)
-  if not name or name == "" then return end
+  if not name or name == "" then
+    return
+  end
   load()
   local entry = state[name] or { count = 0, last_ts = 0 }
   entry.count = entry.count + 1
@@ -34,9 +38,13 @@ end
 function M.score(name)
   load()
   local entry = state[name]
-  if not entry or (entry.count or 0) == 0 then return 0 end
+  if not entry or (entry.count or 0) == 0 then
+    return 0
+  end
   local age = os.time() - (entry.last_ts or 0)
-  if age < 0 then age = 0 end
+  if age < 0 then
+    age = 0
+  end
   return entry.count * math.exp(-age / HALF_LIFE_S)
 end
 
@@ -49,7 +57,9 @@ function M.sort(adapters)
   end
   table.sort(adapters, function(a, b)
     local sa, sb = M.score(a.name), M.score(b.name)
-    if sa ~= sb then return sa > sb end
+    if sa ~= sb then
+      return sa > sb
+    end
     return (rank[a.name] or 0) < (rank[b.name] or 0)
   end)
 end

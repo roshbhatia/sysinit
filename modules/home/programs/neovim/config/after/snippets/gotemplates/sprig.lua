@@ -3,7 +3,6 @@ local s = ls.snippet
 local i = ls.insert_node
 local fmt = require("luasnip.extras.fmt").fmt
 
-
 ls.add_snippets("gotmpl", {
   s("vv", fmt("{{{{ {} }}}}{}", { i(1), i(0) })),
 

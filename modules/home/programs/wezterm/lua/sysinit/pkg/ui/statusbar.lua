@@ -10,11 +10,7 @@ function M.agent_status(sessions)
   for _, st in pairs(sessions) do
     if st.rank >= ui_panes.state_rank.working then
       count = count + 1
-      if
-        not best
-        or st.rank > best.rank
-        or (st.rank == best.rank and (st.since or now) < (best.since or now))
-      then
+      if not best or st.rank > best.rank or (st.rank == best.rank and (st.since or now) < (best.since or now)) then
         best = st
       end
     end

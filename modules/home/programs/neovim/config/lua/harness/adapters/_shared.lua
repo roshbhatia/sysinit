@@ -31,7 +31,9 @@ function M.raw_cli_adapter(def)
   local function ensure()
     local cmd_string = build_cmd_string()
     if not lc or lc_signature ~= cmd_string then
-      if lc and lc.kill then pcall(lc.kill) end
+      if lc and lc.kill then
+        pcall(lc.kill)
+      end
       lc = lifecycle.build(cmd_string, {
         name = def.name,
         percent = def.percent,

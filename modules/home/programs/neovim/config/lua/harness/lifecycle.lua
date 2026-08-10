@@ -113,7 +113,9 @@ function M._snacks(cmd, opts, name)
     kill = function()
       local term = get_term(false)
       if term then
-        pcall(function() term:close() end)
+        pcall(function()
+          term:close()
+        end)
       end
     end,
     is_visible = function()

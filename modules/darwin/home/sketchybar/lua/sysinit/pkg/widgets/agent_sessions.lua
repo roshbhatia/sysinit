@@ -90,9 +90,9 @@ local function poll()
   end
   in_flight = true
 
-  local cmd = "app=$(timeout 2 osascript -e 'tell application \"System Events\" to get name of first application process "
+  local cmd = 'app=$(timeout 2 osascript -e \'tell application "System Events" to get name of first application process '
     .. "whose frontmost is true' 2>/dev/null); "
-    .. "case \"$app\" in wezterm-gui|WezTerm|Wezterm) timeout 5 "
+    .. 'case "$app" in wezterm-gui|WezTerm|Wezterm) timeout 5 '
     .. agent_sessions_cmd()
     .. " 2>/dev/null | tr -d '\\n' ;; *) echo HIDE ;; esac"
   sbar.exec(cmd, function(result)

@@ -25,10 +25,10 @@ return {
           local win = vim.api.nvim_get_current_win()
           vim.schedule(function()
             if vim.api.nvim_buf_is_valid(args.buf) and vim.api.nvim_win_is_valid(win) then
-              vim.wo[win].foldenable  = false
-              vim.wo[win].foldcolumn  = "0"
-              vim.wo[win].foldmethod  = "manual"
-              vim.wo[win].foldexpr    = ""
+              vim.wo[win].foldenable = false
+              vim.wo[win].foldcolumn = "0"
+              vim.wo[win].foldmethod = "manual"
+              vim.wo[win].foldexpr = ""
             end
           end)
         end,

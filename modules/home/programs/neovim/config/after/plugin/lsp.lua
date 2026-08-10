@@ -89,8 +89,12 @@ vim.schedule(function()
   }
 
   local function autoformat_enabled(buf)
-    if vim.g.disable_autoformat or vim.b[buf].disable_autoformat then return false end
-    if require("neoconf").get("autoformat", nil, { bufnr = buf }) == false then return false end
+    if vim.g.disable_autoformat or vim.b[buf].disable_autoformat then
+      return false
+    end
+    if require("neoconf").get("autoformat", nil, { bufnr = buf }) == false then
+      return false
+    end
     return true
   end
 
@@ -103,7 +107,9 @@ vim.schedule(function()
         vim.api.nvim_create_autocmd("BufWritePre", {
           buffer = bufnr,
           callback = function()
-            if not autoformat_enabled(bufnr) then return end
+            if not autoformat_enabled(bufnr) then
+              return
+            end
             vim.cmd("EslintFixAll")
           end,
         })
@@ -113,7 +119,9 @@ vim.schedule(function()
         vim.api.nvim_create_autocmd("BufWritePre", {
           buffer = bufnr,
           callback = function()
-            if not autoformat_enabled(bufnr) then return end
+            if not autoformat_enabled(bufnr) then
+              return
+            end
             vim.lsp.buf.code_action({
               context = { only = { "source.fixAll.ruff", "source.organizeImports.ruff" }, diagnostics = {} },
               apply = true,

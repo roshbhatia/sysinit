@@ -42,11 +42,15 @@ return {
       local augroup_wb = vim.api.nvim_create_augroup("WilderWinborder", { clear = true })
       vim.api.nvim_create_autocmd("CmdlineEnter", {
         group = augroup_wb,
-        callback = function() vim.o.winborder = "" end,
+        callback = function()
+          vim.o.winborder = ""
+        end,
       })
       vim.api.nvim_create_autocmd("CmdlineLeave", {
         group = augroup_wb,
-        callback = function() vim.o.winborder = "rounded" end,
+        callback = function()
+          vim.o.winborder = "rounded"
+        end,
       })
 
       local popupmenu_renderer = wilder.popupmenu_renderer(wilder.popupmenu_palette_theme({

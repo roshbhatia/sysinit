@@ -1,4 +1,3 @@
-
 local layer, root = ...
 if not layer or not root then
   io.stderr:write("usage: extract-static.lua <wezterm|neovim|pi> <root>\n")

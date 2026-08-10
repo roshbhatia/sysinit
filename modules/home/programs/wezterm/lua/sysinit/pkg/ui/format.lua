@@ -7,24 +7,27 @@ local M = {}
 
 M.state_icons = {
   waiting = nf.md_clock_alert or "⏱",
-  done    = nf.md_check_circle or "✔",
+  done = nf.md_check_circle or "✔",
   working = nf.md_loading or "⟳",
-  idle    = nf.cod_circle_small_filled or "○",
+  idle = nf.cod_circle_small_filled or "○",
 }
 
 M.state_labels = {
   waiting = "Needs Input",
-  done    = "Done",
+  done = "Done",
   working = "Working",
-  idle    = "",
+  idle = "",
 }
 
 M.suppressed_reasons = { ["your move"] = true, ["submit"] = true, ["message"] = true }
 
 function M.status_color(status, colors)
-  if status == "waiting" then return colors.waiting
-  elseif status == "done" then return colors.done
-  elseif status == "working" then return colors.working
+  if status == "waiting" then
+    return colors.waiting
+  elseif status == "done" then
+    return colors.done
+  elseif status == "working" then
+    return colors.working
   end
   return nil
 end
@@ -32,10 +35,16 @@ end
 function M.status_label(status, reason)
   local lbl = M.state_labels[status] or ""
   local show_reason = reason and reason ~= "" and not M.suppressed_reasons[reason]
-  if lbl == "" and not show_reason then return "" end
+  if lbl == "" and not show_reason then
+    return ""
+  end
   local parts = {}
-  if lbl ~= "" then parts[#parts + 1] = lbl end
-  if show_reason then parts[#parts + 1] = reason end
+  if lbl ~= "" then
+    parts[#parts + 1] = lbl
+  end
+  if show_reason then
+    parts[#parts + 1] = reason
+  end
   return table.concat(parts, " · ")
 end
 
@@ -52,7 +61,9 @@ function M.age(secs)
 end
 
 function M.smart_path(full_cwd)
-  if not full_cwd or full_cwd == "" then return "" end
+  if not full_cwd or full_cwd == "" then
+    return ""
+  end
   local home = os.getenv("HOME") or ""
   local seshy_base = utils.state_path("seshySessions", "seshy/sessions")
   if full_cwd == seshy_base or full_cwd:sub(1, #seshy_base + 1) == seshy_base .. "/" then
@@ -65,7 +76,9 @@ function M.smart_path(full_cwd)
     local short = rest:match("^[^/]+/[^/]+/(.+)$") or rest
     return "{gh}/" .. short
   end
-  if full_cwd == home then return "{home}" end
+  if full_cwd == home then
+    return "{home}"
+  end
   if full_cwd:sub(1, #home + 1) == home .. "/" then
     return "{home}/" .. full_cwd:sub(#home + 2)
   end
@@ -73,7 +86,9 @@ function M.smart_path(full_cwd)
 end
 
 function M.normalize_proc(raw)
-  if not raw or raw == "" then return raw end
+  if not raw or raw == "" then
+    return raw
+  end
   return (raw:gsub("^%.", ""):gsub("%-wrapped$", ""))
 end
 
@@ -91,7 +106,9 @@ function M.pane_proc(p, agent)
   if agent and agent ~= "" then
     return agent
   end
-  local ok2, title = pcall(function() return M.normalize_proc(p:get_title() or "") end)
+  local ok2, title = pcall(function()
+    return M.normalize_proc(p:get_title() or "")
+  end)
   return (ok2 and title) or ""
 end
 

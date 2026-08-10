@@ -161,7 +161,9 @@ function M.setup(config)
     local notified = {}
     wezterm.on("update-status", function()
       local ok, deck_states = pcall(agent_deck.get_all_agent_states)
-      if not ok or type(deck_states) ~= "table" then return end
+      if not ok or type(deck_states) ~= "table" then
+        return
+      end
       for _, win in ipairs(wezterm.mux.all_windows()) do
         for _, tab in ipairs(win:tabs()) do
           for _, p in ipairs(tab:panes()) do
@@ -258,7 +260,6 @@ function M.setup(config)
   local gui_window_for_workspace = ui_actions.gui_window_for_workspace
   local switch_to_workspace = ui_actions.switch_to_workspace
   local activate_agent_pane = ui_actions.activate_agent_pane
-
 
   local normalize_proc = ui_format.normalize_proc
   local pane_proc = ui_format.pane_proc
@@ -437,10 +438,10 @@ function M.setup(config)
   local tree_icons = {
     session = (sigil_ok and sigil.symbol("Workspace")) or nf.cod_briefcase or "",
     dormant = nf.md_sleep or "󰒲",
-    tab     = nf.md_tab or "󰓩",
-    folder  = (sigil_ok and sigil.symbol("Folder")) or nf.md_folder or "",
-    attn    = nf.md_alert or "󰀪",
-    branch  = nf.cod_git_branch or "⎇",
+    tab = nf.md_tab or "󰓩",
+    folder = (sigil_ok and sigil.symbol("Folder")) or nf.md_folder or "",
+    attn = nf.md_alert or "󰀪",
+    branch = nf.cod_git_branch or "⎇",
   }
 
   local pane_badge = ui_badges.name
@@ -558,7 +559,6 @@ function M.setup(config)
       ribbon = ribbon,
     })
   end
-
 end
 
 return M

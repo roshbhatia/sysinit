@@ -176,13 +176,17 @@ end
 local function pane_cwd(pane)
   local ok, path = pcall(function()
     local url = pane:get_current_working_dir()
-    if not url then return nil end
+    if not url then
+      return nil
+    end
     if type(url) == "string" then
       return (url:gsub("^file://[^/]*", ""))
     end
     return url.file_path
   end)
-  if not ok or not path or path == "" then return nil end
+  if not ok or not path or path == "" then
+    return nil
+  end
   return (path:gsub("/+$", ""))
 end
 
@@ -202,10 +206,7 @@ local function watch_keybind(key, describe, build_args)
       end
       table.insert(args, 1, utils.get_nix_binary("sysinit-agent"))
       table.insert(args, 2, "watch")
-      win:perform_action(
-        act.SplitPane({ direction = "Right", command = { args = args } }),
-        pane
-      )
+      win:perform_action(act.SplitPane({ direction = "Right", command = { args = args } }), pane)
     end),
   }
 end
@@ -266,7 +267,9 @@ local function get_system_keys()
     end),
     watch_keybind("b", "no working directory", function(pane)
       local cwd = pane_cwd(pane)
-      if not cwd then return nil end
+      if not cwd then
+        return nil
+      end
       return { "bus", cwd }
     end),
   }

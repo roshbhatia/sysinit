@@ -21,9 +21,13 @@ local function run_with_timeout(argv)
 end
 
 local function decode_json(raw)
-  if not raw or raw == "" then return nil end
+  if not raw or raw == "" then
+    return nil
+  end
   local ok, data = pcall(vim.json.decode, raw)
-  if not ok then return nil end
+  if not ok then
+    return nil
+  end
   return data
 end
 
@@ -103,7 +107,9 @@ function M.list(source, on_select)
   if not (ok_snacks and snacks.picker) then
     vim.ui.select(result.items, {
       prompt = "Resume " .. source .. " session:",
-      format_item = function(item) return item.label end,
+      format_item = function(item)
+        return item.label
+      end,
     }, function(item)
       on_select(item and item.value or nil)
     end)
@@ -113,7 +119,9 @@ function M.list(source, on_select)
   snacks.picker.pick({
     source = "harness_sessions_" .. source,
     items = result.items,
-    format = function(item) return { { item.label, "Normal" } } end,
+    format = function(item)
+      return { { item.label, "Normal" } }
+    end,
     title = "Resume — " .. source,
     layout = { preset = "select" },
     confirm = function(picker, item)

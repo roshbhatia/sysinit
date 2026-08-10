@@ -19,7 +19,13 @@ return {
       },
     },
     keys = {
-      { "<leader>cc", function() require("dropbar.api").pick() end, desc = "Pick breadcrumbs" },
+      {
+        "<leader>cc",
+        function()
+          require("dropbar.api").pick()
+        end,
+        desc = "Pick breadcrumbs",
+      },
     },
   },
 }

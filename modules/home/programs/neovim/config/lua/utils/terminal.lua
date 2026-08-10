@@ -28,7 +28,9 @@ function M.is_transparent()
       local result = handle:read("*a")
       handle:close()
       local val = result:match("TERM_PROGRAM=(%S+)")
-      if val then term_program = val end
+      if val then
+        term_program = val
+      end
     end
   end
 
@@ -53,12 +55,20 @@ end
 --- @return string|nil
 local function parse_osc_rgb(rgb_str)
   local r, g, b = rgb_str:match("rgb:(%x+)/(%x+)/(%x+)")
-  if not r then return nil end
+  if not r then
+    return nil
+  end
 
   local function to_byte(hex)
-    if #hex >= 4 then return hex:sub(1, 2) end
-    if #hex == 2 then return hex end
-    if #hex == 1 then return hex .. hex end
+    if #hex >= 4 then
+      return hex:sub(1, 2)
+    end
+    if #hex == 2 then
+      return hex
+    end
+    if #hex == 1 then
+      return hex .. hex
+    end
     return "00"
   end
 
@@ -71,20 +81,26 @@ function M.query_colors(callback)
   local bg_color = nil
 
   if not vim.fn.has("gui_running") and vim.fn.has("nvim") == 1 and #vim.api.nvim_list_uis() == 0 then
-    vim.schedule(function() callback(colors, bg_color) end)
+    vim.schedule(function()
+      callback(colors, bg_color)
+    end)
     return
   end
 
   local fd, open_err = vim.uv.fs_open("/dev/tty", "r+", 438) -- 0o666
   if not fd then
-    vim.schedule(function() callback(colors, bg_color) end)
+    vim.schedule(function()
+      callback(colors, bg_color)
+    end)
     return
   end
 
   local ok, tty = pcall(vim.uv.new_tty, fd, true)
   if not ok or not tty then
     vim.uv.fs_close(fd)
-    vim.schedule(function() callback(colors, bg_color) end)
+    vim.schedule(function()
+      callback(colors, bg_color)
+    end)
     return
   end
 
@@ -93,31 +109,45 @@ function M.query_colors(callback)
   local done = false
 
   local function finish()
-    if done then return end
+    if done then
+      return
+    end
     done = true
 
     if timer then
       timer:stop()
       timer:close()
     end
-    pcall(function() tty:read_stop() end)
-    pcall(function() tty:close() end)
+    pcall(function()
+      tty:read_stop()
+    end)
+    pcall(function()
+      tty:close()
+    end)
 
     local buf = response_buf:gsub("\27\27", "\27")
 
     for idx, rgb in buf:gmatch("\27%]4;(%d+);(rgb:%x+/%x+/%x+)") do
       local hex = parse_osc_rgb(rgb)
-      if hex then colors[tonumber(idx)] = hex end
+      if hex then
+        colors[tonumber(idx)] = hex
+      end
     end
 
     local bg_rgb = buf:match("\27%]11;(rgb:%x+/%x+/%x+)")
-    if bg_rgb then bg_color = parse_osc_rgb(bg_rgb) end
+    if bg_rgb then
+      bg_color = parse_osc_rgb(bg_rgb)
+    end
 
-    vim.schedule(function() callback(colors, bg_color) end)
+    vim.schedule(function()
+      callback(colors, bg_color)
+    end)
   end
 
   tty:read_start(function(err, data)
-    if err or not data then return end
+    if err or not data then
+      return
+    end
     response_buf = response_buf .. data
   end)
 

@@ -24,7 +24,10 @@ function M.collect(deck_states)
               tab_id = tab_id,
               workspace = workspace,
               session = rec and rec.session or "",
-              repo = (function() local r, _ = panes_mod.pane_repo(p); return r end)(),
+              repo = (function()
+                local r, _ = panes_mod.pane_repo(p)
+                return r
+              end)(),
               branch = rec and rec.branch or "",
               agent = agent or "",
               status = status,

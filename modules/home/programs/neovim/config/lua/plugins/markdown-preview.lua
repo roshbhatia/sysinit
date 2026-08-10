@@ -1,4 +1,3 @@
-
 local state = { job = nil, path = nil }
 
 local function stop()

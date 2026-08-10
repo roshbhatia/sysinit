@@ -4,12 +4,24 @@ local COLOR_256 = {}
 
 do
   local ansi = {
-    [0] = "#000000", "#cc0000", "#4e9a06", "#c4a000",
-    "#3465a4", "#75507b", "#06989a", "#d3d7cf",
+    [0] = "#000000",
+    "#cc0000",
+    "#4e9a06",
+    "#c4a000",
+    "#3465a4",
+    "#75507b",
+    "#06989a",
+    "#d3d7cf",
   }
   local bright = {
-    [0] = "#555753", "#ef2929", "#8ae234", "#fce94f",
-    "#729fcf", "#ad7fa8", "#34e2e2", "#eeeeec",
+    [0] = "#555753",
+    "#ef2929",
+    "#8ae234",
+    "#fce94f",
+    "#729fcf",
+    "#ad7fa8",
+    "#34e2e2",
+    "#eeeeec",
   }
   for i = 0, 7 do
     COLOR_256[i] = ansi[i]
@@ -20,8 +32,7 @@ do
   for r = 0, 5 do
     for g = 0, 5 do
       for b = 0, 5 do
-        COLOR_256[16 + 36 * r + 6 * g + b] =
-          string.format("#%02x%02x%02x", cube[r + 1], cube[g + 1], cube[b + 1])
+        COLOR_256[16 + 36 * r + 6 * g + b] = string.format("#%02x%02x%02x", cube[r + 1], cube[g + 1], cube[b + 1])
       end
     end
   end
@@ -68,11 +79,15 @@ local function parse_sgr(attr)
       i = i + 4
     elseif c == 38 and codes[i + 1] == 5 then
       local n = codes[i + 2]
-      if n and COLOR_256[n] then result.fg = COLOR_256[n] end
+      if n and COLOR_256[n] then
+        result.fg = COLOR_256[n]
+      end
       i = i + 2
     elseif c == 48 and codes[i + 1] == 5 then
       local n = codes[i + 2]
-      if n and COLOR_256[n] then result.bg = COLOR_256[n] end
+      if n and COLOR_256[n] then
+        result.bg = COLOR_256[n]
+      end
       i = i + 2
     elseif SGR_FG[c] then
       result.fg = COLOR_256[SGR_FG[c]]
@@ -89,7 +104,9 @@ end
 --- @return table<string, { fg: string|nil, bg: string|nil, bold: boolean }>
 function M.parse()
   local raw = vim.env.LS_COLORS
-  if not raw or raw == "" then return {} end
+  if not raw or raw == "" then
+    return {}
+  end
 
   local entries = {}
   for entry in raw:gmatch("[^:]+") do

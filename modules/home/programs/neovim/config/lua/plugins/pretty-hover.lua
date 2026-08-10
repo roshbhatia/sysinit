@@ -7,7 +7,13 @@ return {
       max_height = math.floor(vim.o.lines * 0.3),
     },
     keys = {
-      { "<S-k>", function() require("pretty_hover").hover() end, desc = "Hover documentation" },
+      {
+        "<S-k>",
+        function()
+          require("pretty_hover").hover()
+        end,
+        desc = "Hover documentation",
+      },
     },
   },
 }

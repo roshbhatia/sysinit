@@ -103,12 +103,7 @@ local function compute_slots()
   local slots, taken = {}, {}
   taken[M.DEFAULT_SLOT] = true
   for name, slot in pairs(prev) do
-    if
-      present[name]
-      and name ~= M.DEFAULT_WORKSPACE
-      and type(slot) == "number"
-      and not taken[slot]
-    then
+    if present[name] and name ~= M.DEFAULT_WORKSPACE and type(slot) == "number" and not taken[slot] then
       slots[name] = slot
       taken[slot] = true
     end

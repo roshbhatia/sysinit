@@ -44,9 +44,7 @@ function M.load(name)
     plugin_dir = nix_path,
   })
 
-  package.path = nix_path .. "/plugin/?.lua;"
-    .. nix_path .. "/plugin/?/init.lua;"
-    .. package.path
+  package.path = nix_path .. "/plugin/?.lua;" .. nix_path .. "/plugin/?/init.lua;" .. package.path
 
   local plugin_cache = {}
   local plugin_base = nix_path .. "/plugin/"

@@ -234,202 +234,202 @@ return {
       end
     end,
     keys = {
-        {
-          "<leader>t",
-          function()
-            Snacks.terminal.toggle()
-          end,
-          desc = "Toggle terminal",
-        },
-        {
-          "<leader>ff",
-          function()
-            Snacks.picker.files()
-          end,
-          desc = "Files",
-        },
-        {
-          "<leader>fF",
-          function()
-            Snacks.picker.files({
-              dirs = {
-                "~/github",
-              },
-            })
-          end,
-          desc = "Files (accross all projects)",
-        },
-        {
-          "<leader>fg",
-          function()
-            Snacks.picker.grep()
-          end,
-          desc = "Grep",
-        },
-        {
-          "<leader>fb",
-          function()
-            Snacks.picker.buffers({
-              layout = "vscode",
-              sort_mru = true,
-              current = true,
-            })
-          end,
-          desc = "Buffers",
-        },
-        {
-          "<leader>fu",
-          function()
-            Snacks.picker.undo()
-          end,
-          desc = "Undo history",
-        },
-        {
-          "<leader>fr",
-          function()
-            Snacks.picker.resume()
-          end,
-          desc = "Last picker",
-        },
-        {
-          "<leader>fj",
-          function()
-            Snacks.picker.jumps({ layout = "top" })
-          end,
-          desc = "Jumplist",
-        },
-        {
-          "<leader>cfd",
-          function()
-            Snacks.picker.lsp_definitions()
-          end,
-          desc = "LSP definitions",
-        },
-        {
-          "<leader>cfD",
-          function()
-            Snacks.picker.lsp_declarations()
-          end,
-          desc = "LSP declarations",
-        },
-        {
-          "<leader>cfr",
-          function()
-            Snacks.picker.lsp_references()
-          end,
-          desc = "References",
-          nowait = true,
-        },
-        {
-          "<leader>cfi",
-          function()
-            Snacks.picker.lsp_implementations()
-          end,
-          desc = "Implementations",
-        },
-        {
-          "<leader>cfy",
-          function()
-            Snacks.picker.lsp_type_definitions()
-          end,
-          desc = "Type definition",
-        },
-        {
-          "<leader>cfI",
-          function()
-            Snacks.picker.lsp_incoming_calls()
-          end,
-          desc = "Incoming calls",
-        },
-        {
-          "<leader>cfo",
-          function()
-            Snacks.picker.lsp_outgoing_calls()
-          end,
-          desc = "Outgoing calls",
-        },
-        {
-          "<leader>cfs",
-          function()
-            Snacks.picker.lsp_symbols({ layout = "bottom" })
-          end,
-          desc = "Document symbols",
-        },
-        {
-          "<leader>cfS",
-          function()
-            Snacks.picker.lsp_workspace_symbols({ layout = "bottom" })
-          end,
-          desc = "Workspace symbols",
-        },
-        {
-          "<leader>cft",
-          desc = "AST Grep",
-          function()
-            Snacks.picker.pick({
-              title = "AST Grep",
-              format = "file",
-              notify = false,
-              show_empty = true,
-              live = true,
-              supports_live = true,
-              finder = function(opts, ctx)
-                local cmd = "ast-grep"
-                local args = { "run", "--color=never", "--json=stream", "--no-ignore=hidden" }
-                local pattern, pargs = Snacks.picker.util.parse(ctx.filter.search)
-                table.insert(args, string.format("--pattern=%s", pattern))
-                vim.list_extend(args, pargs)
-                opts = vim.tbl_extend("force", opts, {
-                  cmd = cmd,
-                  args = args,
-                  transform = function(item)
-                    local entry = vim.json.decode(item.text)
-                    if vim.tbl_isempty(entry) then
-                      return false
-                    end
-                    local start = entry.range.start
-                    item.cwd = vim.fs.normalize(opts and opts.cwd or vim.uv.cwd() or ".") or nil
-                    item.file = entry.file
-                    item.line = entry.line
-                    item.pos = { tonumber(start.line) + 1, tonumber(start.column) }
-                    return true
-                  end,
-                })
-                return require("snacks.picker.source.proc").proc(opts, ctx)
-              end,
-            })
-          end,
-        },
-        {
-          "<leader>cfx",
-          function()
-            Snacks.picker.diagnostics()
-          end,
-          desc = "Workspace diagnostics",
-        },
-        {
-          "<leader>cfb",
-          function()
-            Snacks.picker.diagnostics({ buf = 0 })
-          end,
-          desc = "Buffer diagnostics",
-        },
-        {
-          "]]",
-          function()
-            Snacks.words.jump(vim.v.count1)
-          end,
-          desc = "Next Reference",
-          mode = { "n", "t" },
-        },
-        {
-          "[[",
-          function()
-            Snacks.words.jump(-vim.v.count1)
-          end,
-          desc = "Prev Reference",
-          mode = { "n", "t" },
-        },
+      {
+        "<leader>t",
+        function()
+          Snacks.terminal.toggle()
+        end,
+        desc = "Toggle terminal",
+      },
+      {
+        "<leader>ff",
+        function()
+          Snacks.picker.files()
+        end,
+        desc = "Files",
+      },
+      {
+        "<leader>fF",
+        function()
+          Snacks.picker.files({
+            dirs = {
+              "~/github",
+            },
+          })
+        end,
+        desc = "Files (accross all projects)",
+      },
+      {
+        "<leader>fg",
+        function()
+          Snacks.picker.grep()
+        end,
+        desc = "Grep",
+      },
+      {
+        "<leader>fb",
+        function()
+          Snacks.picker.buffers({
+            layout = "vscode",
+            sort_mru = true,
+            current = true,
+          })
+        end,
+        desc = "Buffers",
+      },
+      {
+        "<leader>fu",
+        function()
+          Snacks.picker.undo()
+        end,
+        desc = "Undo history",
+      },
+      {
+        "<leader>fr",
+        function()
+          Snacks.picker.resume()
+        end,
+        desc = "Last picker",
+      },
+      {
+        "<leader>fj",
+        function()
+          Snacks.picker.jumps({ layout = "top" })
+        end,
+        desc = "Jumplist",
+      },
+      {
+        "<leader>cfd",
+        function()
+          Snacks.picker.lsp_definitions()
+        end,
+        desc = "LSP definitions",
+      },
+      {
+        "<leader>cfD",
+        function()
+          Snacks.picker.lsp_declarations()
+        end,
+        desc = "LSP declarations",
+      },
+      {
+        "<leader>cfr",
+        function()
+          Snacks.picker.lsp_references()
+        end,
+        desc = "References",
+        nowait = true,
+      },
+      {
+        "<leader>cfi",
+        function()
+          Snacks.picker.lsp_implementations()
+        end,
+        desc = "Implementations",
+      },
+      {
+        "<leader>cfy",
+        function()
+          Snacks.picker.lsp_type_definitions()
+        end,
+        desc = "Type definition",
+      },
+      {
+        "<leader>cfI",
+        function()
+          Snacks.picker.lsp_incoming_calls()
+        end,
+        desc = "Incoming calls",
+      },
+      {
+        "<leader>cfo",
+        function()
+          Snacks.picker.lsp_outgoing_calls()
+        end,
+        desc = "Outgoing calls",
+      },
+      {
+        "<leader>cfs",
+        function()
+          Snacks.picker.lsp_symbols({ layout = "bottom" })
+        end,
+        desc = "Document symbols",
+      },
+      {
+        "<leader>cfS",
+        function()
+          Snacks.picker.lsp_workspace_symbols({ layout = "bottom" })
+        end,
+        desc = "Workspace symbols",
+      },
+      {
+        "<leader>cft",
+        desc = "AST Grep",
+        function()
+          Snacks.picker.pick({
+            title = "AST Grep",
+            format = "file",
+            notify = false,
+            show_empty = true,
+            live = true,
+            supports_live = true,
+            finder = function(opts, ctx)
+              local cmd = "ast-grep"
+              local args = { "run", "--color=never", "--json=stream", "--no-ignore=hidden" }
+              local pattern, pargs = Snacks.picker.util.parse(ctx.filter.search)
+              table.insert(args, string.format("--pattern=%s", pattern))
+              vim.list_extend(args, pargs)
+              opts = vim.tbl_extend("force", opts, {
+                cmd = cmd,
+                args = args,
+                transform = function(item)
+                  local entry = vim.json.decode(item.text)
+                  if vim.tbl_isempty(entry) then
+                    return false
+                  end
+                  local start = entry.range.start
+                  item.cwd = vim.fs.normalize(opts and opts.cwd or vim.uv.cwd() or ".") or nil
+                  item.file = entry.file
+                  item.line = entry.line
+                  item.pos = { tonumber(start.line) + 1, tonumber(start.column) }
+                  return true
+                end,
+              })
+              return require("snacks.picker.source.proc").proc(opts, ctx)
+            end,
+          })
+        end,
+      },
+      {
+        "<leader>cfx",
+        function()
+          Snacks.picker.diagnostics()
+        end,
+        desc = "Workspace diagnostics",
+      },
+      {
+        "<leader>cfb",
+        function()
+          Snacks.picker.diagnostics({ buf = 0 })
+        end,
+        desc = "Buffer diagnostics",
+      },
+      {
+        "]]",
+        function()
+          Snacks.words.jump(vim.v.count1)
+        end,
+        desc = "Next Reference",
+        mode = { "n", "t" },
+      },
+      {
+        "[[",
+        function()
+          Snacks.words.jump(-vim.v.count1)
+        end,
+        desc = "Prev Reference",
+        mode = { "n", "t" },
+      },
     },
   },
 }

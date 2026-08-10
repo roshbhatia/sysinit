@@ -306,12 +306,8 @@ return {
           end
 
           local ft = vim.bo[bufnr].filetype
-          local has_null_ls_formatter = #require("null-ls.sources").get_available(
-            ft,
-            null_ls.methods.FORMATTING
-          ) > 0
-          local use_null_ls = has_null_ls_formatter
-            and #vim.lsp.get_clients({ bufnr = bufnr, name = "null-ls" }) > 0
+          local has_null_ls_formatter = #require("null-ls.sources").get_available(ft, null_ls.methods.FORMATTING) > 0
+          local use_null_ls = has_null_ls_formatter and #vim.lsp.get_clients({ bufnr = bufnr, name = "null-ls" }) > 0
 
           local chosen_lsp = nil
           if not use_null_ls then
@@ -336,9 +332,15 @@ return {
             bufnr = bufnr,
             async = false,
             filter = function(client)
-              if client.name == "null-ls" then return use_null_ls end
-              if use_null_ls then return false end
-              if chosen_lsp then return client.name == chosen_lsp end
+              if client.name == "null-ls" then
+                return use_null_ls
+              end
+              if use_null_ls then
+                return false
+              end
+              if chosen_lsp then
+                return client.name == chosen_lsp
+              end
               return true
             end,
           })

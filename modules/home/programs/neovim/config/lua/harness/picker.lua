@@ -85,7 +85,9 @@ function M.pick_agent()
     source = "harness_agents",
     items = items,
     title = "Select agent  (<c-o> for options)",
-    format = function(item) return { { item.text, "Normal" } } end,
+    format = function(item)
+      return { { item.text, "Normal" } }
+    end,
     layout = { preset = "select" },
     confirm = function(picker, item)
       picker:close()
@@ -95,7 +97,9 @@ function M.pick_agent()
     end,
     actions = {
       open_options = function(picker, item)
-        if not item then return end
+        if not item then
+          return
+        end
         local agent_name = item.adapter.name
         picker:close()
         require("harness.options").configure(agent_name, function()

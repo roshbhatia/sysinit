@@ -13,7 +13,9 @@ function M.format(tab, cfg, ctx)
   local explicit = ui_format.normalize_proc(tab.tab_title or "")
   local osc = ui_format.normalize_proc(pane and pane.title or "")
   local proc = pane and pane.foreground_process_name
-  if proc then proc = ui_format.normalize_proc(proc:match("([^/]+)$") or proc) end
+  if proc then
+    proc = ui_format.normalize_proc(proc:match("([^/]+)$") or proc)
+  end
 
   if explicit ~= "" and not explicit:match("^%d+$") then
     return explicit
@@ -45,10 +47,14 @@ function M.format(tab, cfg, ctx)
   pcall(function()
     local uv = pane and pane.user_vars
     local raw = uv and uv.agent_state
-    if not raw or raw == "" then return end
+    if not raw or raw == "" then
+      return
+    end
     local s = raw:match("^([^|]*)|")
     local icon = s and s ~= "idle" and ui_format.state_icons[s]
-    if icon then r:append(nil, nil, icon .. " ") end
+    if icon then
+      r:append(nil, nil, icon .. " ")
+    end
   end)
 
   if pane and pane.is_zoomed then

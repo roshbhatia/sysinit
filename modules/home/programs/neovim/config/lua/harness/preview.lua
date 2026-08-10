@@ -1,4 +1,3 @@
-
 local M = {}
 
 local state = { win = nil, buf = nil, path = nil, pane = nil, snacks = nil }
@@ -30,11 +29,8 @@ end
 ---@param full string
 ---@return string
 local function render_cmd(full)
-  return ("clear; CLICOLOR_FORCE=1 glow --style auto --width $(tput cols) %s"):format(
-    vim.fn.shellescape(full)
-  )
+  return ("clear; CLICOLOR_FORCE=1 glow --style auto --width $(tput cols) %s"):format(vim.fn.shellescape(full))
 end
-
 
 local function pane_alive(pane)
   if not pane then
@@ -74,7 +70,6 @@ local function render_in_wezterm(full)
   vim.fn.jobstart({ "wezterm", "cli", "activate-pane", "--pane-id", tostring(parent) }, { detach = true })
   return true
 end
-
 
 local START_SCREENS = {
   snacks_dashboard = true,
@@ -162,7 +157,6 @@ local function render_with_glow(full)
     pcall(vim.api.nvim_buf_delete, old, { force = true })
   end
 end
-
 
 local function watch(full)
   vim.api.nvim_clear_autocmds({ group = AUGROUP })
