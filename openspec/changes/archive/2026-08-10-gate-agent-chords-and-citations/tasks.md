@@ -1,3 +1,24 @@
+> **Closed with 10 tasks unfinished, by owner decision on 2026-08-09.**
+> Phases 2 and 3 shipped. Phases 1, 4, 6, and 7 are partial and phase 5, the
+> rollout, is 1 of 4. Archived rather than deleted so the record of what was
+> built survives. The unchecked boxes below are accurate: they were dropped,
+> not completed.
+>
+> Two facts a later reader needs, because they change what the checked boxes
+> mean:
+>
+> Phase 2's gate no longer exists. Tasks 2.2 through 2.5 extended
+> `checks/wezterm-chord-collisions.nix` to cover the pi and neovim layers, added
+> the composing-modifier rule, and mutation-tested it. Commit `db26551bc`,
+> "drop superseded checks and extract mkScanCheck", removed that check when
+> `checks/` was reduced. `modules/darwin/lib/chords.nix` survives with the pi
+> layer in it and nothing enforcing collisions against it. The `alt+s` defect
+> this change was written to catch would ship again today.
+>
+> Task 5.1 could not run as written. It says apply "from the `sysinit.laurel`
+> checkout", and that host moved to its own repository, so the path it names
+> does not exist. Phase 5 is unfinished for that reason as much as any other.
+
 ## 1. Discovery
 
 - **SHAPE** graph
