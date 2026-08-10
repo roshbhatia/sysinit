@@ -1,6 +1,7 @@
 {
   lib,
   additionalServers ? { },
+  suppressedServers ? [ ],
 }:
 let
   flattenPermissions =
@@ -92,7 +93,12 @@ let
   };
 
   allPermissions = flattenPermissions (builtins.attrValues permissions);
-  allServers = defaultServers // additionalServers;
+  # Suppression has to land here, not at the call site: every harness renders
+  # from this catalog, so a filter applied anywhere else is one the harnesses
+  # never see.
+  allServers = lib.filterAttrs (name: _: !(builtins.elem name suppressedServers)) (
+    defaultServers // additionalServers
+  );
 in
 {
   servers = allServers;
