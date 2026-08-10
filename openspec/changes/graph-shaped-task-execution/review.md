@@ -201,6 +201,29 @@ Evidence rather than assertion:
   12, and every other rule count is unchanged.
 - `nix eval` on the lv426 system drvPath succeeds.
 
+### Phase 2 implementation
+
+Adversarial review: not run; deterministic lint passed. No critic was spawned.
+The phase changes one function in one file, and its risk is concentrated in a
+check no critic can run either.
+
+Evidence rather than assertion:
+
+- `hack/lint.sh` passes, including `stylua`, and `luac -p` parses the changed
+  file. `nix build .#darwinConfigurations.lv426.system` exits 0.
+- The declared write set was wrong and was corrected rather than worked around.
+  Task 2.1 named `switcher.lua`, but that file already passes the spawn
+  directory to `actions.lua`, and the fix belongs in the callee. This is the
+  first live instance of the drift the design records as an accepted risk: the
+  declaration is not checked, so it was wrong until a human read it.
+- The positive path is not claimed. Opening a workspace from the switcher needs
+  a keystroke in a running GUI, so the check moved to the owner at task 3.2 and
+  the Behavior criterion now says so. Marking it here would have been a claim
+  with no evidence behind it.
+- The fallback is structural rather than tested: the spawned command ends in
+  `exec zsh -i`, so an undefined `s`, or its own `command -v` guards declining,
+  still leaves a plain shell in the same directory.
+
 ## Terminal state
 
 State: STALLED

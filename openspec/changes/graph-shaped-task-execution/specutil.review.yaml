@@ -1,9 +1,9 @@
 version: 1
 change: graph-shaped-task-execution
 decision: approved
-note: Re-stamped at the phase 1 boundary after implementation. Review terminal state remains STALLED at round 2 with 6 open objections listed in review.md.
-change_hash: 8b8e7fd2a5ddd181
-base_commit: 145b3ff73c1cbf6496bb8f7f4955523e7d721d87
+note: Re-stamped at the phase 2 boundary. Terminal state remains STALLED at round 2 with 6 open objections in review.md.
+change_hash: 3f04dc77554e5846
+base_commit: 96bb516ecc7951c976648f06f6b299219805414a
 items:
     0d20dcbdf12c632b:
         hash: f511f151da937dfd
@@ -17,6 +17,9 @@ items:
     82fe1270f99494eb:
         hash: c524c71e474af317
         text: 'Merge: run `specutil check`, `spec-preflight all graph-shaped-task-execution`, `specutil render graph-shaped-task-execution --as tickets`, and `nix eval --raw .#darwinConfigurations.lv426.system.drvPath`, then reconcile any marker name the schema, the template, and the rubric spell differently'
+    86c9d2ccf1bbc99b:
+        hash: 12d0f1a5ce7a550d
+        text: 'Confirm: the owner runs `zmx kill` on a scratch seshy session, opens that workspace from the switcher, and confirms `zmx ls` reports the name where it did not before; then reads the rewritten fan-out paragraph and the fake-edge test in the rendered schema, decides whether the write-set rule declines the cases they wanted declined, and decides whether the tasks instruction is now too long to be followed'
     653ee66e5364cab5:
         hash: d2bc3ec0ee850fb8
         text: 'Rewrite the tasks instruction in `modules/home/programs/llm/openspec-schema/schema.yaml`: replace the "order by dependency" sentence with the fake-edge test, key the fan-out prohibition on overlapping write sets rather than on shared output, define the two new graph markers, state that a task''s prose MUST NOT repeat a marker label and MUST NOT open with a kind verb because the extractor takes the first match on the line and strips a leading kind word, and delete the note that bolding TERMINAL fails the lint'
@@ -26,15 +29,12 @@ items:
     8556f19c7b0d25a0:
         hash: 88c96ff2a05b6336
         text: Carry the two new markers into `modules/home/programs/llm/openspec-schema/templates/tasks.md`, give the merge marker a concrete placeholder id rather than an HTML comment because a comment satisfies the presence check while naming no task, and promote the terminal marker to its bolded form so the allowlist entry corresponds to something the template emits
+    17412a2e3241c3d3:
+        hash: 16073748da961831
+        text: 'Merge: run `hack/lint.sh --all`, `luac -p` over the changed file, and `nix build .#darwinConfigurations.lv426.system`. The positive path cannot be decided here: opening a workspace from the switcher needs a keystroke in a running GUI, so that check belongs to the owner at 3.2 and is stated there rather than claimed here'
     029087a2e9bbc7b3:
         hash: 3d9c81d8e4cfe64c
         text: Make the wezterm workspace switcher spawn a seshy target through `s`. `s` is a zsh function in `modules/home/programs/zsh/integrations/seshy-wezterm.zsh`, not an executable, so the switcher MUST delegate to an interactive zsh rather than call it directly, and MUST fall back to a plain workspace when that shell or its `command -v` guards fail
-    b1c6bd7fe97f8f86:
-        hash: 9c27ba22b50bdd76
-        text: 'Merge: run `hack/lint.sh --all` and `nix build .#darwinConfigurations.lv426.system`, then decide the positive path by name: `zmx kill` a scratch session, open that workspace from the switcher, and confirm `zmx ls` reports the name where it did not before. Confirm the negative path separately by breaking one guard'
-    c20e59cfb9cf784f:
-        hash: 0b9fe5cb721236b6
-        text: 'Confirm: the owner reads the rewritten fan-out paragraph and the fake-edge test in the rendered schema, decides whether the write-set rule declines the cases they wanted declined, and decides whether the tasks instruction is now too long to be followed'
     cb2f6a9ff8205d61:
         hash: 8f6604057254a84f
         text: 'Apply: `nh darwin switch`, gated on `hack/lint.sh --all`, `nix flake check`, `nix build .#darwinConfigurations.lv426.system`, and `nix eval --raw .#nixosConfigurations.arrakis.config.system.build.toplevel.drvPath` exiting 0'

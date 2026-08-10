@@ -1,6 +1,17 @@
 local wezterm = require("wezterm")
+local utils = require("sysinit.pkg.utils")
 
 local M = {}
+
+-- `s` is a zsh function, not an executable, so the only way to reach it is an
+-- interactive shell that has sourced .zshrc. The trailing `exec` is the
+-- fallback: if `s` is undefined, or its `command -v sy`/`command -v zmx` guards
+-- decline, the workspace still opens as a plain shell in the same directory.
+local function seshy_spawn_args(name)
+  local zsh = utils.get_nix_binary("zsh")
+  local quoted = "'" .. name:gsub("'", "'\\''") .. "'"
+  return { zsh, "-i", "-c", string.format("s %s; exec %s -i", quoted, zsh) }
+end
 
 function M.gui_window_for_workspace(workspace)
   if not workspace or workspace == "" then
@@ -43,7 +54,11 @@ function M.switch_to_workspace(win, pane, name, spawn_cwd)
     end)
     return
   end
-  local act = spawn_cwd and wezterm.action.SwitchToWorkspace({ name = name, spawn = { cwd = spawn_cwd } })
+  local act = spawn_cwd
+      and wezterm.action.SwitchToWorkspace({
+        name = name,
+        spawn = { cwd = spawn_cwd, args = seshy_spawn_args(name) },
+      })
     or wezterm.action.SwitchToWorkspace({ name = name })
   win:perform_action(act, pane)
 end

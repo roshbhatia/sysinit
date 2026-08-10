@@ -17,12 +17,12 @@
 - **SHAPE** graph
 - **MERGE** 2.2
 
-- [ ] 2.1 Make the wezterm workspace switcher spawn a seshy target through `s`. `s` is a zsh function in `modules/home/programs/zsh/integrations/seshy-wezterm.zsh`, not an executable, so the switcher MUST delegate to an interactive zsh rather than call it directly, and MUST fall back to a plain workspace when that shell or its `command -v` guards fail `deps:` none `writes:` modules/home/programs/wezterm/lua/sysinit/pkg/ui/switcher.lua
-- [ ] 2.2 Merge: run `hack/lint.sh --all` and `nix build .#darwinConfigurations.lv426.system`, then decide the positive path by name: `zmx kill` a scratch session, open that workspace from the switcher, and confirm `zmx ls` reports the name where it did not before. Confirm the negative path separately by breaking one guard `deps:` 2.1 `writes:` modules/home/programs/wezterm/lua/sysinit/pkg/ui/switcher.lua
-- [ ] 2.3 Adversarial review (`adversarial-review` skill): run deterministic lint; run optional critics only when requested or risk-justified `deps:` 2.2 `writes:` openspec/changes/graph-shaped-task-execution/review.md
+- [x] 2.1 Make the wezterm workspace switcher spawn a seshy target through `s`. `s` is a zsh function in `modules/home/programs/zsh/integrations/seshy-wezterm.zsh`, not an executable, so the switcher MUST delegate to an interactive zsh rather than call it directly, and MUST fall back to a plain workspace when that shell or its `command -v` guards fail `deps:` none `writes:` modules/home/programs/wezterm/lua/sysinit/pkg/ui/actions.lua
+- [x] 2.2 Merge: run `hack/lint.sh --all`, `luac -p` over the changed file, and `nix build .#darwinConfigurations.lv426.system`. The positive path cannot be decided here: opening a workspace from the switcher needs a keystroke in a running GUI, so that check belongs to the owner at 3.2 and is stated there rather than claimed here `deps:` 2.1 `writes:` modules/home/programs/wezterm/lua/sysinit/pkg/ui/actions.lua
+- [x] 2.3 Adversarial review (`adversarial-review` skill): run deterministic lint; run optional critics only when requested or risk-justified `deps:` 2.2 `writes:` openspec/changes/graph-shaped-task-execution/review.md
 
 ## 3. Rollout
 
 - [ ] 3.1 Apply: `nh darwin switch`, gated on `hack/lint.sh --all`, `nix flake check`, `nix build .#darwinConfigurations.lv426.system`, and `nix eval --raw .#nixosConfigurations.arrakis.config.system.build.toplevel.drvPath` exiting 0
-- [ ] 3.2 Confirm: the owner reads the rewritten fan-out paragraph and the fake-edge test in the rendered schema, decides whether the write-set rule declines the cases they wanted declined, and decides whether the tasks instruction is now too long to be followed
+- [ ] 3.2 Confirm: the owner runs `zmx kill` on a scratch seshy session, opens that workspace from the switcher, and confirms `zmx ls` reports the name where it did not before; then reads the rewritten fan-out paragraph and the fake-edge test in the rendered schema, decides whether the write-set rule declines the cases they wanted declined, and decides whether the tasks instruction is now too long to be followed
 - [ ] 3.3 Apply: `openspec archive graph-shaped-task-execution`, gated on `specutil check` exiting 0

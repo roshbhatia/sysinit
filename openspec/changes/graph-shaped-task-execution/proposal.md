@@ -132,7 +132,7 @@ Must do:
 - the added rubric rules fire on input this change did not author, decided by copying every change under `openspec/changes/archive/` into a scratch active tree and running `specutil check`, which MUST report `graph-declares-merge` on each archived `graph` phase that declares no merge marker, and MUST report zero new `bolded-bullet-lead` findings against the preset
 - no artifact in the fork still asks the author for an adversarial-review design section, decided by `grep -rn "Adversarial Review" modules/home/programs/llm/openspec-schema/templates/ modules/home/programs/llm/skills/adversarial-review/` returning nothing
 - the template emits the promoted marker, decided by `grep -c -F -- "- **TERMINAL**" modules/home/programs/llm/openspec-schema/templates/tasks.md` returning 1
-- the switcher reaches `s`, decided by running `zmx kill` on a scratch session name, opening that workspace from the switcher, then `zmx ls` naming it where it did not before
+- the switcher reaches `s`, decided by the owner at task 3.2 running `zmx kill` on a scratch session name, opening that workspace from the switcher, then `zmx ls` naming it where it did not before. No headless command can decide this, because opening a workspace from the switcher needs a keystroke in a running GUI
 
 Must still hold:
 - no agent-initiated pane or editor, decided by `grep -rn "wezterm cli spawn\|nvim --server" modules/home/programs/llm/` returning nothing
@@ -155,7 +155,7 @@ Modified code:
 - `modules/home/programs/llm/openspec-schema/specutil.yaml`
 - `modules/home/programs/llm/skills/adversarial-review/SKILL.md`
 - `modules/home/programs/llm/skills/adversarial-review/references/adversarial-review-methodology.md`
-- `modules/home/programs/wezterm/lua/sysinit/pkg/ui/switcher.lua`
+- `modules/home/programs/wezterm/lua/sysinit/pkg/ui/actions.lua`
 - `openspec/specutil.yaml`, as a symlink into the managed schema
 
 New code: none.
