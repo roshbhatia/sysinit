@@ -22,18 +22,6 @@ function M.is_transparent()
 
   local term_program = vim.env.TERM_PROGRAM
 
-  if vim.env.TMUX then
-    local handle = io.popen("tmux show-environment TERM_PROGRAM 2>/dev/null")
-    if handle then
-      local result = handle:read("*a")
-      handle:close()
-      local val = result:match("TERM_PROGRAM=(%S+)")
-      if val then
-        term_program = val
-      end
-    end
-  end
-
   if term_program and TRANSPARENT_TERMINALS[term_program:lower()] then
     return true
   end
@@ -151,22 +139,13 @@ function M.query_colors(callback)
     response_buf = response_buf .. data
   end)
 
-  local in_tmux = vim.env.TMUX ~= nil
   local parts = {}
 
   for i = 0, 15 do
-    if in_tmux then
-      parts[#parts + 1] = string.format("\27Ptmux;\27\27]4;%d;?\7\27\\", i)
-    else
-      parts[#parts + 1] = string.format("\27]4;%d;?\7", i)
-    end
+    parts[#parts + 1] = string.format("\27]4;%d;?\7", i)
   end
 
-  if in_tmux then
-    parts[#parts + 1] = "\27Ptmux;\27\27]11;?\7\27\\"
-  else
-    parts[#parts + 1] = "\27]11;?\7"
-  end
+  parts[#parts + 1] = "\27]11;?\7"
 
   tty:write(table.concat(parts))
 

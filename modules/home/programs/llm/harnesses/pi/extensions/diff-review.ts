@@ -4,9 +4,9 @@
  * Opens the working-tree diff in `review`, in a terminal split beside pi. `ctrl+b`,
  * or `/review`.
  *
- * The split is native: the WezTerm CLI under WezTerm, `tmux split-window` under
- * tmux. Without either multiplexer there is no pane to open, so the command is
- * reported instead of being launched into pi's own terminal, which the TUI owns.
+ * The split is native, through the WezTerm CLI. Outside WezTerm there is no pane
+ * to open, so the command is reported instead of being launched into pi's own
+ * terminal, which the TUI owns.
  *
  * ctrl+b shadows pi's `tui.editor.cursorLeft`, which is also bound to `left`. That
  * is the owner's choice; `left` still moves the cursor.
@@ -51,9 +51,6 @@ function splitCommand(command: string[], cwd: string): string[] | undefined {
 	if (process.env["WEZTERM_PANE"]) {
 		return ["wezterm", "cli", "split-pane", "--right", "--percent", SPLIT_PERCENT, "--cwd", cwd, "--", ...command];
 	}
-	if (process.env["TMUX"]) {
-		return ["tmux", "split-window", "-h", "-c", cwd, ...command];
-	}
 	return undefined;
 }
 
@@ -90,7 +87,7 @@ async function open(pi: ExtensionAPI, ctx: ExtensionContext): Promise<void> {
 
 	const split = splitCommand(VIEWER_COMMAND, cwd);
 	if (!split) {
-		notify(ctx, `diff review: no WezTerm or tmux pane. Run: ${VIEWER_COMMAND.join(" ")}`, "warning");
+		notify(ctx, `diff review: no WezTerm pane. Run: ${VIEWER_COMMAND.join(" ")}`, "warning");
 		return;
 	}
 

@@ -125,10 +125,6 @@ let
       path = ./ssh.nix;
     }
     {
-      tier = "dev";
-      path = ./tmux.nix;
-    }
-    {
       tier = "minimal";
       path = ./utils;
     }

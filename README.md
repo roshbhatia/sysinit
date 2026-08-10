@@ -55,10 +55,7 @@ symlinks the neovim config, and writes a `.zshrc` that sources the shell fragmen
 curl -fsSL https://raw.githubusercontent.com/roshbhatia/sysinit/main/bootstrap/bootstrap.sh | bash
 ```
 
-Pass `--editor` for the editor alone. It installs neovim, the 5 tools the config
-shells out to, and nothing else: no shell, no `sysinit-agent`, no `.zshrc`. Use it
-on a box that is not yours.
-
+Pass `--editor` for the editor alone.
 ```bash
 curl -fsSL https://raw.githubusercontent.com/roshbhatia/sysinit/main/bootstrap/bootstrap.sh | bash -s -- --editor
 ```
