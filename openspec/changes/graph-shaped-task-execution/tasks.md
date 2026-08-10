@@ -23,6 +23,6 @@
 
 ## 3. Rollout
 
-- [ ] 3.1 Apply: `nh darwin switch`, gated on `hack/lint.sh --all`, `nix flake check`, `nix build .#darwinConfigurations.lv426.system`, and `nix eval --raw .#nixosConfigurations.arrakis.config.system.build.toplevel.drvPath` exiting 0
+- [x] 3.1 Apply: `nh darwin switch`, gated on `hack/lint.sh --all`, `nix flake check`, `nix build .#darwinConfigurations.lv426.system`, and `nix eval --raw .#nixosConfigurations.arrakis.config.system.build.toplevel.drvPath` exiting 0
 - [ ] 3.2 Confirm: the owner runs `zmx kill` on a scratch seshy session, opens that workspace from the switcher, and confirms `zmx ls` reports the name where it did not before; then reads the rewritten fan-out paragraph and the fake-edge test in the rendered schema, decides whether the write-set rule declines the cases they wanted declined, and decides whether the tasks instruction is now too long to be followed
 - [ ] 3.3 Apply: `openspec archive graph-shaped-task-execution`, gated on `specutil check` exiting 0

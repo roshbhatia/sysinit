@@ -1,9 +1,9 @@
 version: 1
 change: graph-shaped-task-execution
 decision: approved
-note: Re-stamped at the phase 2 boundary. Terminal state remains STALLED at round 2 with 6 open objections in review.md.
-change_hash: 3f04dc77554e5846
-base_commit: 96bb516ecc7951c976648f06f6b299219805414a
+note: Re-stamped after the rollout switch. Task 3.2 is an owner gate and 3.3 is blocked on it. Terminal state remains STALLED at round 2 with 6 open objections.
+change_hash: 5a8e05a82feb4e5b
+base_commit: 96c5a8853c0d89e5905bfd26045708d51a0f55b7
 items:
     0d20dcbdf12c632b:
         hash: f511f151da937dfd
