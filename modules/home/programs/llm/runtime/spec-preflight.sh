@@ -1,3 +1,8 @@
+# This script reports every failing section and exits once at the end, so a
+# section that finds a problem must not abort it. `writeShellApplication` adds
+# `set -o errexit`, and with `pipefail` that turns a `diff` or `grep` finding
+# nothing into a silent early exit part-way through the report.
+set +o errexit
 set -uo pipefail
 
 stage="${1:-all}"
