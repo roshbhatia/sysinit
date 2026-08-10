@@ -13,6 +13,15 @@ let
   themeConfig = config.sysinit.theme;
   c = themeColors;
 
+  # libssh cannot expand `~`, and the GUI's own $SSH_AUTH_SOCK is wezterm's empty
+  # agent proxy, so the ssh domains need this path spelled out.
+  sshCfg = config.sysinit.git.ssh;
+  sshAgentSocket =
+    if lib.hasPrefix "~/" sshCfg.agentSocket then
+      config.home.homeDirectory + lib.removePrefix "~" sshCfg.agentSocket
+    else
+      sshCfg.agentSocket;
+
   weztermPlugins = {
     tabline = pkgs.fetchFromGitHub {
       owner = "michaelbrusegard";
@@ -106,6 +115,7 @@ in
   xdg.configFile = {
     "wezterm/lua".source = ./lua;
     "wezterm/config.json".text = builtins.toJSON {
+      ssh = lib.optionalAttrs sshCfg.use1PasswordAgent { agent_socket = sshAgentSocket; };
       font = {
         inherit (themeConfig.font) monospace;
         inherit (themeConfig.font) symbols;

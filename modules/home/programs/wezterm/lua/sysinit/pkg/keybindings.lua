@@ -108,7 +108,19 @@ end
 
 local function ssh_key_options()
   local opts = {}
-  local agent = os.getenv("SSH_AUTH_SOCK")
+  -- The nix-declared agent first: under the GUI $SSH_AUTH_SOCK is wezterm's own
+  -- proxy, which holds no identities, so trusting it denies every key.
+  local config_data = utils.load_json_file(utils.get_config_path("config.json"))
+  local agent = config_data and config_data.ssh and config_data.ssh.agent_socket
+  if agent then
+    local ok, matches = pcall(wezterm.glob, agent)
+    if not ok or #matches == 0 then
+      agent = nil
+    end
+  end
+  if not agent or agent == "" then
+    agent = os.getenv("SSH_AUTH_SOCK")
+  end
   if agent and agent ~= "" then
     opts.identityagent = agent
   end
