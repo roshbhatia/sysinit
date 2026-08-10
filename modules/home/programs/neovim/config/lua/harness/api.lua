@@ -191,7 +191,6 @@ end
 
 function M.setup()
   require("harness.completion").setup()
-  require("harness.spec_watch").setup()
 end
 
 return M
