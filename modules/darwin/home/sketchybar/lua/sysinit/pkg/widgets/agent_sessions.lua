@@ -90,7 +90,6 @@ local function poll()
   end
   in_flight = true
 
-  -- Both halves are bounded. `osascript` reaches System Events over an
   local cmd = "app=$(timeout 2 osascript -e 'tell application \"System Events\" to get name of first application process "
     .. "whose frontmost is true' 2>/dev/null); "
     .. "case \"$app\" in wezterm-gui|WezTerm|Wezterm) timeout 5 "

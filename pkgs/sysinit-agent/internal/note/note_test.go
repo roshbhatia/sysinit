@@ -15,7 +15,6 @@ import (
 func newRepo(t *testing.T) string {
 	t.Helper()
 	dir := t.TempDir()
-	// Resolved, because macOS puts TMPDIR under a symlinked /var and git
 	resolved, err := filepath.EvalSymlinks(dir)
 	if err != nil {
 		t.Fatalf("resolve tempdir: %v", err)
@@ -129,7 +128,6 @@ func TestPathIsStableAndHonoursStateHome(t *testing.T) {
 	if !strings.HasPrefix(path, filepath.Join(root, ".state")+"/agents/diff-notes/") {
 		t.Fatalf("store is not under the state home: %s", path)
 	}
-	// A trailing slash must not change the derived path. Nothing downstream
 	t.Setenv("XDG_STATE_HOME", filepath.Join(root, ".state")+"/")
 	if slashed := storePath(t); slashed != path {
 		t.Fatalf("a trailing slash changed the path:\n  %s\n  %s", path, slashed)
@@ -148,7 +146,6 @@ func TestPathFallsBackToHomeLocalState(t *testing.T) {
 
 func TestAddRejectsLineWithLeadingZero(t *testing.T) {
 	newRepo(t)
-	// 0123 is the case that matters: it reaches a JSON store as 123, so the
 	for _, line := range []string{"0", "00", "0123", "1.5", "-1", "x", ""} {
 		if code, _ := run(t, "add", "--file", "src/app.ts", "--line", line, "--summary", "x"); code == 0 {
 			t.Errorf("add accepted --line %q", line)
@@ -170,7 +167,6 @@ func TestAddRejectsPathOutsideTheRepoRoot(t *testing.T) {
 
 func TestAddRejectsControlBytesInThePath(t *testing.T) {
 	newRepo(t)
-	// The path cannot be cleaned: it must match a buffer verbatim, and a
 	for _, file := range []string{"src/\x1b[2Jhax.ts", "src/app.ts\nsrc/other.ts:9  forged"} {
 		if code, _ := run(t, "add", "--file", file, "--line", "1", "--summary", "ok"); code == 0 {
 			t.Errorf("add accepted a control byte in %q", file)
@@ -192,7 +188,6 @@ func TestAddStripsControlBytesFromTheSummary(t *testing.T) {
 
 func TestAddRejectsSummaryThatIsEmptyOnceStripped(t *testing.T) {
 	newRepo(t)
-	// The shell original validated before sanitizing, so this landed as a blank
 	if code, _ := run(t, "add", "--file", "src/app.ts", "--line", "1", "--summary", "\r\a\b"); code == 0 {
 		t.Fatal("add accepted a summary that is empty once stripped")
 	}
@@ -200,7 +195,6 @@ func TestAddRejectsSummaryThatIsEmptyOnceStripped(t *testing.T) {
 
 func TestAddRejectsAFlagWithNoValue(t *testing.T) {
 	newRepo(t)
-	// Under the shell original's errexit an unguarded shift exited silently,
 	if code, _ := run(t, "add", "--file", "src/app.ts", "--line", "1", "--summary"); code == 0 {
 		t.Fatal("add accepted --summary with no value")
 	}
@@ -291,7 +285,6 @@ func TestZeroByteStoreIsNotAbsorbing(t *testing.T) {
 	mustAdd(t, "--file", "src/app.ts", "--line", "1", "--summary", "seed")
 	path := storePath(t)
 
-	// This is what an interrupted first write leaves behind. Testing only for
 	if err := os.Truncate(path, 0); err != nil {
 		t.Fatal(err)
 	}
@@ -333,7 +326,6 @@ func TestFailedProducerDoesNotPublish(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	// A scalar note satisfies the store's own shape test, so the command gets
 	scalar := `{"version":1,"repo":"` + root + `","notes":[5]}`
 	if err := os.WriteFile(path, []byte(scalar), 0o644); err != nil {
 		t.Fatal(err)
@@ -363,7 +355,6 @@ func TestSymlinkedStoreIsRefused(t *testing.T) {
 	if err := os.Symlink(target, path); err != nil {
 		t.Fatal(err)
 	}
-	// Replacing the link with a regular file is what emptied the real target.
 	if code, _ := run(t, "add", "--file", "src/app.ts", "--line", "1", "--summary", "x"); code == 0 {
 		t.Fatal("add wrote through a symlinked store")
 	}
@@ -399,7 +390,6 @@ func TestLockIsReleasedAfterEveryWrite(t *testing.T) {
 	if _, err := os.Stat(path + ".lock"); err == nil {
 		t.Fatal("the lock survived a successful write")
 	}
-	// A refused write must release it too, or one bad input wedges the store.
 	run(t, "add", "--file", "../outside.txt", "--line", "1", "--summary", "x")
 	if _, err := os.Stat(path + ".lock"); err == nil {
 		t.Fatal("the lock survived a refused write")
@@ -409,7 +399,6 @@ func TestLockIsReleasedAfterEveryWrite(t *testing.T) {
 
 func TestRelativePathResolvesThroughASymlinkedCwd(t *testing.T) {
 	root := newRepo(t)
-	// macOS /tmp is such a symlink, so this is the ordinary case there. The
 	link := filepath.Join(filepath.Dir(root), "link")
 	if err := os.Symlink(root, link); err != nil {
 		t.Skipf("cannot create the symlink: %v", err)
@@ -446,7 +435,6 @@ func TestClearYesSucceedsOnAHandAuthoredStore(t *testing.T) {
 	mustAdd(t, "--file", "src/app.ts", "--line", "1", "--summary", "seed")
 	path := storePath(t)
 	root, _ := os.Getwd()
-	// Clearing is the documented way out of a malformed store, so it must not
 	hand := `{"version":1,"repo":"` + root + `","notes":[
 	  {"file":"src/app.ts","line":2,"summary":"valid","author":"pi"},
 	  {"file":"src/app.ts","line":2,"author":"pi"},
@@ -518,7 +506,6 @@ func TestConcurrentAddsLoseNoNote(t *testing.T) {
 	newRepo(t)
 	mustAdd(t, "--file", "src/app.ts", "--line", "1", "--summary", "seed")
 
-	// The shell original was last-write-wins until the lock landed, and nothing
 	const writers = 8
 	var wg sync.WaitGroup
 	for i := 0; i < writers; i++ {

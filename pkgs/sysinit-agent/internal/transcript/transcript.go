@@ -33,7 +33,7 @@ that blocks a prompt to report a bookkeeping problem is worse than no
 bookkeeping.
 `
 
-// SidecarVersion is the sidecar's schema version. The link is the artifact; this
+// SidecarVersion is the sidecar's schema version.
 const SidecarVersion = 1
 
 // sidecar records what a session id cannot: which worktree it belongs to.
@@ -47,7 +47,7 @@ type sidecar struct {
 	Updated    int64  `json:"updated"`
 }
 
-// payload is the subset of a hook payload this reads. Every field is optional:
+// payload is the subset of a hook payload this reads.
 type payload struct {
 	SessionID      string `json:"session_id"`
 	TranscriptPath string `json:"transcript_path"`
@@ -89,7 +89,6 @@ func Run(args []string) int {
 	}
 
 	link := filepath.Join(dir, session+".jsonl")
-	// Replace rather than skip. `--resume` moves a session's file, so a link
 	os.Remove(link)
 	if os.Symlink(native, link) != nil {
 		return 0
@@ -107,7 +106,7 @@ func Run(args []string) int {
 	return 0
 }
 
-// sanitize keeps a session id usable as one path element. A harness owns the id
+// sanitize keeps a session id usable as one path element.
 func sanitize(id string) string {
 	if strings.ContainsAny(id, "/\\") || id == "." || id == ".." {
 		return ""
@@ -130,7 +129,6 @@ func resolveTranscript(hint, session string) string {
 	if err != nil || len(matches) == 0 {
 		return ""
 	}
-	// Newest wins: the same session id can appear under two project directories
 	sort.Slice(matches, func(i, j int) bool {
 		return modTime(matches[i]).After(modTime(matches[j]))
 	})
@@ -145,7 +143,7 @@ func modTime(path string) time.Time {
 	return info.ModTime()
 }
 
-// worktree is the repository root holding cwd, or cwd itself outside one. A
+// worktree is the repository root holding cwd, or cwd itself outside one.
 func worktree(cwd string) string {
 	if cwd == "" {
 		return ""
@@ -164,7 +162,7 @@ func repoName(cwd string) string {
 	return filepath.Base(root)
 }
 
-// rootOf answers for cwd rather than for this process's directory. A hook runs
+// rootOf answers for cwd rather than for this process's directory.
 var rootOf = repo.RootAt
 
 // publishSidecar writes through a temporary file, so a reader never sees half a

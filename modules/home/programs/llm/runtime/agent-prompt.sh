@@ -48,7 +48,7 @@ fi
 pane=${WEZTERM_PANE:-}
 alerter=$(command -v alerter 2> /dev/null || true)
 
-# No `approve_keys` clause. It used to stand here and it was doing two jobs: it
+# No `approve_keys` clause.
 if [ -z "$alerter" ] ||
   [ "$eff_reason" != "approval" ] ||
   [ -z "$pane" ]; then
@@ -92,7 +92,7 @@ group=$(agent_group "$agent" "$context" "$pane")
       2> /dev/null
   ) || action=""
 
-  # One arm, and it is the owner clicking. `--actions "Accept,Deny"` is gone
+  # One arm, and it is the owner clicking.
   case "$action" in
     @CONTENTCLICKED | @ACTIONCLICKED)
       if [ -n "$focus_exe" ]; then

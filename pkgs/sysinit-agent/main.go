@@ -15,14 +15,14 @@ import (
 	"github.com/roshbhatia/sysinit/pkgs/sysinit-agent/internal/watch"
 )
 
-// command is one subcommand. Run receives the arguments after the subcommand
+// command is one subcommand.
 type command struct {
 	name    string
 	summary string
 	run     func(args []string) int
 }
 
-// Registered subcommands. One entry per migrated script.
+// Registered subcommands.
 var commands = map[string]command{
 	"agent-state":     {name: "agent-state", summary: agentstate.Summary, run: agentstate.Run},
 	"bash-guard":      {name: "bash-guard", summary: guard.BashSummary, run: guard.RunBash},
@@ -57,7 +57,6 @@ func main() {
 	}
 	switch os.Args[1] {
 	case "-h", "--help", "help":
-		// Help is the one thing that goes to stdout: a caller asking for it
 		usage(os.Stdout)
 		return
 	}

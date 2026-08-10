@@ -8,7 +8,7 @@ import (
 	"strings"
 )
 
-// Keys the manifest carries. Named rather than typed as strings at each call
+// Keys the manifest carries.
 const (
 	StateHomeKey        = "stateHome"
 	AgentsKey           = "agents"
@@ -94,7 +94,7 @@ func AgentDiffNotes() string {
 	return filepath.Join(fallbackStateHome(), "agents", "diff-notes")
 }
 
-// AgentWtrun is the directory wtrun writes its per-session logs under. Read
+// AgentWtrun is the directory wtrun writes its per-session logs under.
 func AgentWtrun() string {
 	if value, ok := Get(AgentWtrunKey); ok {
 		return value

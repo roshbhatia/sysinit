@@ -19,13 +19,13 @@ import (
 
 const Summary = "record this pane's agent status for the wezterm surfaces"
 
-// reasonLimit is the width the surfaces render. Truncated here rather than at
+// reasonLimit is the width the surfaces render.
 const reasonLimit = 60
 
-// SchemaVersion is the pane record's schema version. Bump it when a field
+// SchemaVersion is the pane record's schema version.
 const SchemaVersion = 1
 
-// state is the file-bus record. Field order is the serialized order and the
+// state is the file-bus record.
 type state struct {
 	Version  int    `json:"version"`
 	Mux      int    `json:"mux"`
@@ -71,7 +71,6 @@ func Run(args []string) int {
 	}
 	reason = truncate(reason, reasonLimit)
 
-	// Built before either encoding is emitted, so both are rendered from one
 	record := state{
 		Version: SchemaVersion,
 		Mux:     muxID(),
@@ -82,7 +81,6 @@ func Run(args []string) int {
 		Since:   since,
 	}
 
-	// The user variable is what the tab bar reads live. Written before the
 	if encoded := base64.StdEncoding.EncodeToString([]byte(userVar(record))); encoded != "" {
 		emitUserVar(encoded)
 	}
@@ -168,7 +166,6 @@ func dig(doc map[string]any, paths ...string) string {
 func deriveReason(src, status string, input map[string]any, stateDir, pane string, since int64) string {
 	switch src {
 	case "submit":
-		// The start stamp is what the surfaces subtract to show elapsed time.
 		if os.MkdirAll(stateDir, 0o755) == nil {
 			os.WriteFile(filepath.Join(stateDir, pane+".start"),
 				[]byte(strconv.FormatInt(since, 10)), 0o644)
@@ -252,7 +249,7 @@ func muxID() int {
 	return pid
 }
 
-// muxAlive reports whether a mux pid is still running. Signal 0 checks for the
+// muxAlive reports whether a mux pid is still running.
 func muxAlive(pid int) bool {
 	if pid <= 0 {
 		return false
@@ -289,7 +286,6 @@ func reapDeadMuxes(stateDir string, mux int) {
 		if json.Unmarshal(body, &record) != nil {
 			continue
 		}
-		// A record with no marker predates this field. Left alone: it cannot be
 		if record.Mux == 0 || record.Mux == mux || muxAlive(record.Mux) {
 			continue
 		}
@@ -297,7 +293,6 @@ func reapDeadMuxes(stateDir string, mux int) {
 		os.Remove(filepath.Join(stateDir, strings.TrimSuffix(name, ".json")+".start"))
 	}
 
-	// Written last. A failed reap then retries on the next tool call rather
 	if f, err := os.Create(marker); err == nil {
 		f.Close()
 	}
@@ -343,13 +338,11 @@ type identity struct {
 func identify(dir string) identity {
 	var id identity
 
-	// A seshy session directory names the session in its path. That is the only
 	seshyRoot := paths.SeshySessions()
 	if rest := strings.TrimPrefix(dir, seshyRoot+"/"); rest != dir {
 		id.session = strings.SplitN(rest, "/", 2)[0]
 	}
 
-	// Then the zmx session, which is an environment lookup: no fork, no
 	if id.session == "" {
 		id.session = zmxSession()
 	}

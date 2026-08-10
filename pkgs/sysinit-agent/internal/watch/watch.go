@@ -57,7 +57,6 @@ func Run(args []string) int {
 	noFollow := fs.Bool("no-follow", false, "render once and exit")
 	interval := fs.Duration("interval", pollDefault, "poll interval")
 
-	// Parse in passes, taking one positional each time. Go's flag package stops
 	var rest []string
 	remaining := args
 	for {
@@ -105,11 +104,9 @@ func Run(args []string) int {
 	return follow(source, *history, !*noFollow, *interval)
 }
 
-// renderer is one source. Render writes everything worth showing right now;
+// renderer is one source.
 type renderer interface {
-	// Title is the one line naming what is being watched, so the owner can
 	Title() string
-	// Render writes the current view. history is the number of trailing lines
 	Render(w io.Writer, history int) error
 }
 
@@ -143,12 +140,11 @@ func follow(source renderer, history int, tail bool, interval time.Duration) int
 	}
 }
 
-// fileTail is the shared body of the two line-oriented sources. It remembers
+// fileTail is the shared body of the two line-oriented sources.
 type fileTail struct {
-	path   string
-	title  string
-	offset int64
-	// missing suppresses repeating the "not there yet" line every tick.
+	path    string
+	title   string
+	offset  int64
 	missing bool
 }
 
@@ -165,7 +161,6 @@ func (f *fileTail) Render(w io.Writer, history int) error {
 	}
 	f.missing = false
 
-	// A file that shrank was replaced, not appended to. wtrun rotates `last.log`
 	if info.Size() < f.offset {
 		f.offset = 0
 	}
@@ -203,7 +198,6 @@ func lastLines(body string, n int) string {
 		return ""
 	}
 	lines := strings.SplitAfter(body, "\n")
-	// SplitAfter leaves a trailing empty element when the body ends in a
 	if lines[len(lines)-1] == "" {
 		lines = lines[:len(lines)-1]
 	}
@@ -213,7 +207,7 @@ func lastLines(body string, n int) string {
 	return strings.Join(lines, "")
 }
 
-// newWtrun resolves a wtrun log. The session name is an argument or an
+// newWtrun resolves a wtrun log.
 func newWtrun(args []string, logName string) (renderer, error) {
 	session := ""
 	switch len(args) {
@@ -251,13 +245,12 @@ func newWtrun(args []string, logName string) (renderer, error) {
 	return &fileTail{path: path, title: fmt.Sprintf("wtrun %s/%s", session, logName)}, nil
 }
 
-// newTranscript resolves a mirrored harness transcript. Both spellings are
+// newTranscript resolves a mirrored harness transcript.
 func newTranscript(args []string) (renderer, error) {
 	var harness, session string
 	switch len(args) {
 	case 1:
 		harness, session, _ = strings.Cut(args[0], "/")
-		// A bare harness resolves by directory. Nobody knows a session id, so
 		if session == "" {
 			here, err := os.Getwd()
 			if err != nil {
@@ -286,7 +279,7 @@ func newTranscript(args []string) (renderer, error) {
 	return &fileTail{path: path, title: fmt.Sprintf("transcript %s/%s", harness, session)}, nil
 }
 
-// busRecord is the subset of the pane record this viewer shows. The schema is
+// busRecord is the subset of the pane record this viewer shows.
 type busRecord struct {
 	Mux      int             `json:"mux"`
 	Pane     json.RawMessage `json:"pane"`
@@ -302,8 +295,7 @@ type busRecord struct {
 
 // bus renders the pane records whose worktree is the directory being watched.
 type bus struct {
-	dir string
-	// last is the previous frame, so an unchanged bus prints nothing.
+	dir  string
 	last string
 }
 
@@ -380,7 +372,6 @@ func formatRow(pane string, record busRecord) string {
 	if record.Since > 0 {
 		age = time.Since(time.Unix(record.Since, 0)).Truncate(time.Second).String()
 	}
-	// Wide enough for a multi-day age. A record from a mux that has been gone
 	return fmt.Sprintf("pane %-6s %-10s %-8s %-12s %-11s %s",
 		pane, record.Agent, record.Status, age, liveness(record), record.Reason)
 }

@@ -3,13 +3,8 @@
   ...
 }:
 # `sysinit.pkg.ui.rollup`'s precedence rule, exercised without a GUI.
-#
-# `reduce` is pure, so this feeds it observation tables directly. It also runs the
-# suite against two MUTANTS and requires both to fail, because a test that passes
-# against a broken reducer is not coverage.
 let
-  # Lua 5.4 is what wezterm embeds. `reduce` reaches neither stub, so the real
-  # module files are used unmodified.
+  # Lua 5.4 is what wezterm embeds.
   suite = pkgs.writeText "rollup-test.lua" ''
     local root = arg[1]
     package.path = root .. "/?.lua;" .. package.path
@@ -102,8 +97,7 @@ pkgs.runCommand "wezterm-rollup-check"
     fi
     cat "$TMPDIR/out"
 
-    # One mutant per half of the precedence rule. A substitution that stops matching
-    # is reported rather than passing silently.
+    # One mutant per half of the precedence rule.
     mutate() {
       cp -r "$src" "$TMPDIR/mutant"
       chmod -R u+w "$TMPDIR/mutant"

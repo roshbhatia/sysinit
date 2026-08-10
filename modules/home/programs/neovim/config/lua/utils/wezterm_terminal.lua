@@ -45,7 +45,7 @@ end
 
 -- The $EDITOR shim used to live here: EDITOR_WRAPPER, editor_wrapper_path, and
 
----@param parent_pane_id integer
+-- -@param parent_pane_id integer
 local function _spawn(parent_pane_id, name, cmd_string, opts, focus)
   local env = opts.env or {}
   local env_str = build_env_prefix(env)
@@ -86,8 +86,7 @@ local function _spawn(parent_pane_id, name, cmd_string, opts, focus)
   return id
 end
 
----@param pane_id integer
----@return boolean
+-- -@param pane_id integer -@return boolean
 function M.pane_alive_sync(pane_id)
   local res = vim.fn.system({ "wezterm", "cli", "list", "--format", "json" })
   if vim.v.shell_error ~= 0 then
@@ -105,7 +104,7 @@ function M.pane_alive_sync(pane_id)
   return false
 end
 
----@param pane_id integer
+-- -@param pane_id integer
 function M.send_text(pane_id, text, submit)
   local payload = submit and (text .. "\r") or text
   local tmp = vim.fn.tempname()
@@ -122,8 +121,7 @@ function M.send_text(pane_id, text, submit)
   return sent
 end
 
---- @param opts? { name?: string, percent?: number, side?: "left"|"right" }
---- @return table provider
+-- - @param opts?
 function M.build_provider(opts)
   opts = opts or {}
   local name = opts.name or "agent"
@@ -230,7 +228,7 @@ function M.build_provider(opts)
   return Provider
 end
 
---- @param cmd string  shell command to run in the pane (e.g. "opencode --port")
+-- - @param cmd string  shell command to run in the pane (e.g.
 function M.build_server_callbacks(cmd, opts)
   opts = opts or {}
   local name = opts.name or "server"

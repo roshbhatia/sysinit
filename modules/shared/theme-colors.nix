@@ -21,7 +21,7 @@ let
     base0F = "a16946";
   };
 
-  # The key shape stylix hands out. Only the plain name and the three `-rgb-*`
+  # The key shape stylix hands out.
   channel = value: offset: lib.fromHexString (lib.substring offset 2 value);
 
   expand = name: value: {
@@ -44,6 +44,6 @@ in
   colorsOf = config: config.lib.stylix.colors or fallback;
 
   # Two conditions: `sysinit.theme.enable` is the owner's choice, `stylix.enable` is
-  # whether anything computes a palette. Themed output needs both.
+  # whether anything computes a palette.
   enabled = config: (config.sysinit.theme.enable or true) && (config.stylix.enable or false);
 }

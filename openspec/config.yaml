@@ -1,7 +1,6 @@
 schema: spec-driven
 
-# Project context shown to AI when creating artifacts. Kept to what a writer
-# cannot infer from the tree in front of them.
+# Project context shown to AI when creating artifacts.
 context: |
   Nix-flakes config for macOS (Apple Silicon) and NixOS via nix-darwin + home-manager.
   Single-user dotfiles; the owner is the only contributor and the only approver.
@@ -15,12 +14,6 @@ context: |
   `openspec/specs/` is history, not authority: nothing is promoted to it.
 
 # Per-artifact rules, appended to each artifact's own template instruction and
-# keyed by artifact id from the schema. These encode the failures this repository
-# actually hit, not general writing advice.
-#
-# Quote every rule that contains a colon. openspec IGNORES a config it cannot
-# parse rather than failing on it, so one unquoted `foo: bar` inside a list drops
-# `schema:` along with everything else and leaves only a warning behind.
 rules:
   proposal:
     - "State the defect as observed behaviour, not as a missing feature: \"X is not enforced, measured by Y\" beats \"we should add X\"."

@@ -8,7 +8,6 @@ const BIN = `${HOME}/.nix-profile/bin`;
 function spawnQuiet(exe: string, args: string[], input?: string): void {
 	try {
 		const { spawn } = require("node:child_process");
-		// detached children lose the tty that `agent-state` uses for OSC
 		const child = spawn(`${BIN}/${exe}`, args, {
 			stdio: input === undefined ? "ignore" : ["pipe", "ignore", "ignore"],
 		});
@@ -19,7 +18,6 @@ function spawnQuiet(exe: string, args: string[], input?: string): void {
 		}
 		child.unref();
 	} catch {
-		// degrade to no notification, never to a failed turn
 	}
 }
 
@@ -34,7 +32,6 @@ export default function (pi: ExtensionAPI) {
 
 	pi.on("tool_call", (event) => {
 		const name = event?.toolName ?? "";
-		// `event.input`, not `event.args`: the latter belongs to tool_execution_*
 		const args = event?.input ?? {};
 		const detail =
 			args.command ?? args.file_path ?? args.path ?? args.description ?? args.pattern ?? "";
@@ -42,7 +39,6 @@ export default function (pi: ExtensionAPI) {
 		state("working", reason);
 	});
 
-	// `agent_settled`, not `agent_end`: pi may still auto-retry or compact
 	pi.on("agent_settled", () => {
 		state("done", "your move");
 		spawnQuiet("agent-notify", ["pi", "done", `${BIN}/agent-focus`], "{}");

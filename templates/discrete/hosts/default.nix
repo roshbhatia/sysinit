@@ -1,6 +1,4 @@
 # Host configurations
-# Each host defines: system, platform, username, values
-# Optional: config (path to host-specific nix module)
 {
   overrides ? { },
 }:

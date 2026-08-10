@@ -12,16 +12,13 @@ import (
 	"unicode"
 )
 
-// Validator decides whether a candidate document is publishable. A store is
+// Validator decides whether a candidate document is publishable.
 type Validator func([]byte) error
 
 var (
-	// ErrMalformed is returned for a non-empty store that does not validate.
 	ErrMalformed = errors.New("store is not valid")
-	// ErrSymlink is returned when the store path is a symlink. Replacing the
-	ErrSymlink = errors.New("store is a symlink")
-	// ErrLockHeld is returned when the lock could not be taken in time.
-	ErrLockHeld = errors.New("another process holds the store lock")
+	ErrSymlink   = errors.New("store is a symlink")
+	ErrLockHeld  = errors.New("another process holds the store lock")
 )
 
 const (
@@ -33,8 +30,7 @@ const (
 type Store struct {
 	Path     string
 	Validate Validator
-	// Initial produces the document written when the store is absent or empty.
-	Initial func() ([]byte, error)
+	Initial  func() ([]byte, error)
 }
 
 func (s *Store) lockPath() string { return s.Path + ".lock" }
@@ -49,7 +45,6 @@ func (s *Store) Lock() (func(), error) {
 		if err == nil {
 			var released bool
 			return func() {
-				// Guarded against a double release. Between a release and a
 				if released {
 					return
 				}
@@ -88,7 +83,6 @@ func (s *Store) Publish(data []byte) error {
 	if err := s.Validate(data); err != nil {
 		return fmt.Errorf("refusing to publish a malformed store: %w", err)
 	}
-	// Lstat, not Stat: Stat follows the link and reports the target, which is
 	if info, err := os.Lstat(s.Path); err == nil && info.Mode()&os.ModeSymlink != 0 {
 		target, _ := os.Readlink(s.Path)
 		return fmt.Errorf("%w: %s -> %s", ErrSymlink, s.Path, target)
@@ -106,7 +100,6 @@ func (s *Store) Publish(data []byte) error {
 		tmp.Close()
 		return err
 	}
-	// Synced before the rename. Without it a crash between rename and flush can
 	if err := tmp.Sync(); err != nil {
 		tmp.Close()
 		return err

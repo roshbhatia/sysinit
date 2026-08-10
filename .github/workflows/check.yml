@@ -1,14 +1,6 @@
 name: Check
 
 # Runs `nix flake check` and builds the daily-driver host configuration.
-#
-# Deliberately has NO path filter. `build-cache` filters on flake.lock, flake.nix,
-# overlays, _sources, and nvfetcher.toml, which means a change under modules/ was
-# never built by CI at all. That is exactly the gap this job closes, so filtering
-# here would reproduce it.
-#
-# One job, two steps rather than two jobs: the host build reuses the store the
-# check step already populated, so the substitutions are paid once.
 
 on:
   push:
@@ -16,29 +8,18 @@ on:
   pull_request:
   workflow_dispatch: {}
 
-# Cancel superseded PR runs, never main runs. On a pull request only the tip
-# matters, so cancelling saves runner time. On main every commit is a candidate
-# for `git bisect` and for the required-check history, and cancelling means a
-# run of pushes leaves most commits unverified.
+# Cancel superseded PR runs, never main runs.
 concurrency:
   group: check-${{ github.ref }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
-# Read-only. This job runs PR-authored Nix (`runCommand` bodies evaluate and
-# build), so it must not carry a writable token.
-#
-# Caveat worth knowing: a fork PR can rewrite this file into an empty job still
-# named `verify` and satisfy the required status check. The required check alone
-# does not make a fork PR safe to merge; read the diff. Dependabot is unaffected,
-# because its branches live in this repo, not a fork.
+# Read-only.
 permissions:
   contents: read
 
 jobs:
   verify:
     # macos-latest is aarch64-darwin, the platform the daily-driver host targets.
-    # `nix flake check` builds only the current system's checks, so running on
-    # Darwin covers the checks as the owner experiences them.
     runs-on: macos-latest
     timeout-minutes: 30
     steps:
@@ -46,8 +27,8 @@ jobs:
 
       - uses: DeterminateSystems/nix-installer-action@v22
 
-      # Same gate as build-cache: a pull request from a fork has no secret, so
-      # read from the cache without pushing rather than failing the job.
+      # Same gate as build-cache: a pull request from a fork has no secret, so read from
+      # the cache without pushing rather than failing the job.
       - name: Detect Cachix token
         id: cachix
         run: |
@@ -65,9 +46,6 @@ jobs:
           authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
 
       # `nix fmt -- --check` is not reachable from `nix flake check`, so without
-      # this step the formatter's check mode existed and was documented while
-      # drift still shipped green. The `--` is mandatory: `nix fmt --check`
-      # errors before the formatter runs.
       - name: nix fmt -- --check
         env:
           NIX_CONFIG: "access-tokens = github.com=${{ secrets.GITHUB_TOKEN }}"
@@ -79,15 +57,6 @@ jobs:
         run: nix flake check --print-build-logs
 
       # Evaluation-time assertions (the cross-layer keybinding chord check, the
-      # home-manager module assertions) do not fire under `nix flake check`,
-      # which reports the host configuration as "build skipped".
-      #
-      # Evaluate rather than build. The lv426 system closure is 17.9 GiB and a
-      # macos-latest runner has roughly 14 GB free, so `nix build` of it fails on
-      # disk before it can fail on anything useful. Forcing `.drvPath` evaluates
-      # the whole module tree, which is what fires the assertions, and takes about
-      # 10 seconds while materialising nothing. Verified by injecting a failing
-      # assertion: the eval aborts with its message.
       - name: Evaluate host configuration (lv426)
         env:
           NIX_CONFIG: "access-tokens = github.com=${{ secrets.GITHUB_TOKEN }}"

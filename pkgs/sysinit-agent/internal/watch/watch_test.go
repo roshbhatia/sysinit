@@ -24,7 +24,6 @@ func TestLastLinesKeepsTheTrailingN(t *testing.T) {
 		}
 	}
 
-	// A body with no final newline keeps not having one, so the last line is
 	if got := lastLines("a\nb", 1); got != "b" {
 		t.Errorf("lastLines without a final newline = %q, want %q", got, "b")
 	}
@@ -34,7 +33,6 @@ func TestLastLinesKeepsTheTrailingN(t *testing.T) {
 }
 
 func TestWtrunNeverResolvesFromTheViewersOwnPane(t *testing.T) {
-	// 5.2 spawns this viewer into a NEW pane. If an explicit name lost to the
 	t.Setenv("WEZTERM_PANE", "99")
 	t.Setenv("WTRUN_SESSION", "from-env")
 
@@ -99,7 +97,6 @@ func TestFileTailEmitsOnlyWhatWasAppended(t *testing.T) {
 
 	source := &fileTail{path: path, title: "test"}
 
-	// A source that does not exist yet is the normal state of a run that is
 	var first strings.Builder
 	if err := source.Render(&first, 40); err != nil {
 		t.Fatal(err)
@@ -108,7 +105,6 @@ func TestFileTailEmitsOnlyWhatWasAppended(t *testing.T) {
 		t.Errorf("an absent file did not say so: %q", first.String())
 	}
 
-	// And it says so once, not on every tick.
 	var second strings.Builder
 	if err := source.Render(&second, 0); err != nil {
 		t.Fatal(err)
@@ -128,7 +124,6 @@ func TestFileTailEmitsOnlyWhatWasAppended(t *testing.T) {
 		t.Errorf("history = %q, want %q", third.String(), "b\nc\n")
 	}
 
-	// Nothing changed, so nothing is printed. A viewer that reprinted the file
 	var fourth strings.Builder
 	if err := source.Render(&fourth, 0); err != nil {
 		t.Fatal(err)
@@ -150,7 +145,6 @@ func TestFileTailEmitsOnlyWhatWasAppended(t *testing.T) {
 }
 
 func TestFileTailRestartsWhenTheFileShrinks(t *testing.T) {
-	// wtrun repoints `last.log` at a new run's file on every run, so the
 	dir := t.TempDir()
 	path := filepath.Join(dir, "last.log")
 	if err := os.WriteFile(path, []byte("old\nold\nold\n"), 0o644); err != nil {
@@ -191,7 +185,6 @@ func TestBusShowsOnlyThisWorktree(t *testing.T) {
 		}
 	}
 	write("1", "/repo/here", "claude")
-	// A trailing slash is the same worktree. The record and the caller spell it
 	write("2", "/repo/here/", "codex")
 	write("3", "/repo/elsewhere", "pi")
 
@@ -213,7 +206,6 @@ func TestBusShowsOnlyThisWorktree(t *testing.T) {
 		t.Errorf("a record from another worktree was shown:\n%s", got)
 	}
 
-	// An unchanged bus prints nothing on the next tick.
 	var again strings.Builder
 	if err := source.Render(&again, 0); err != nil {
 		t.Fatal(err)
@@ -224,7 +216,6 @@ func TestBusShowsOnlyThisWorktree(t *testing.T) {
 }
 
 func TestLivenessRejectsAndNeverConfirms(t *testing.T) {
-	// SCHEMA.md's rule is pane existence, which this command cannot answer
 	cmd := exec.Command(os.Args[0], "-test.run=^$")
 	if err := cmd.Run(); err != nil {
 		t.Fatalf("could not produce a dead pid: %v", err)

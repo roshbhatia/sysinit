@@ -6,7 +6,7 @@ agent_busy_panes() {
   local state_dir
   # sysinit:documented-default
   state_dir=$(sysinit_path agentPanes) || state_dir="${XDG_STATE_HOME:-$HOME/.local/state}/agents/panes"
-  # Reads the pane records. Schema: pkgs/sysinit-agent/internal/agentstate/SCHEMA.md.
+  # Reads the pane records.
   local busy=0 f pane st ag sess
 
   [ -d "$state_dir" ] || return 0
@@ -14,8 +14,7 @@ agent_busy_panes() {
   for f in "$state_dir"/*.json; do
     [ -f "$f" ] || continue
     pane=$(basename "$f" .json)
-    # The liveness rule from SCHEMA.md: pane existence. The caller passes the
-    # live pane list rather than this forking a second `wezterm cli list`.
+    # The liveness rule from SCHEMA.md: pane existence.
     printf '%s\n' "$live" | grep -qx "$pane" || continue
 
     read -r st ag sess <<< "$(jq -r '[.status // "", .agent // "", .session // ""] | @tsv' "$f" 2> /dev/null)"

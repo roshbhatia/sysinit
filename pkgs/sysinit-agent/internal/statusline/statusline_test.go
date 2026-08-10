@@ -8,7 +8,6 @@ import (
 )
 
 func TestWholePercentDropsTheFraction(t *testing.T) {
-	// A status line has no room for decimals and the number moves constantly.
 	for in, want := range map[string]string{
 		"42.7": "42",
 		"42":   "42",
@@ -23,7 +22,6 @@ func TestWholePercentDropsTheFraction(t *testing.T) {
 }
 
 func TestSeshySessionNamesOnlyDirectoriesInsideASession(t *testing.T) {
-	// Both, because the seshy root now comes from internal/paths, which honours
 	t.Setenv("HOME", "/home/someone")
 	t.Setenv("XDG_STATE_HOME", "/home/someone/.local/state")
 	t.Setenv("SYSINIT_PATHS_MANIFEST", filepath.Join(t.TempDir(), "absent.json"))
@@ -34,7 +32,6 @@ func TestSeshySessionNamesOnlyDirectoriesInsideASession(t *testing.T) {
 	if got := seshySession(root + "/zulu"); got != "zulu" {
 		t.Errorf("seshySession on the session root = %q, want zulu", got)
 	}
-	// A sibling that merely shares the prefix is not inside a session.
 	for _, dir := range []string{"/home/someone/code/repo", root, root + "-other/zulu"} {
 		if got := seshySession(dir); got != "" {
 			t.Errorf("seshySession(%q) = %q, want empty", dir, got)
@@ -52,7 +49,6 @@ func openspecTree(t *testing.T, changes ...string) string {
 	if err := os.WriteFile(filepath.Join(root, "openspec", "config.yaml"), []byte("x\n"), 0o644); err != nil {
 		t.Fatal(err)
 	}
-	// Stamped apart so the ordering is by mtime rather than by creation order,
 	base := time.Now().Add(-time.Hour)
 	for i, name := range changes {
 		dir := filepath.Join(root, "openspec", "changes", name)
@@ -80,7 +76,6 @@ func TestOpenspecChangePicksTheMostRecentlyTouched(t *testing.T) {
 
 func TestOpenspecChangeIgnoresTheArchive(t *testing.T) {
 	root := openspecTree(t, "only", "archive")
-	// The archive holds completed work. Counting it would keep the line
 	change, extra := openspecChange(root)
 	if change != "only" {
 		t.Errorf("openspecChange = %q, want only", change)
@@ -96,7 +91,6 @@ func TestOpenspecChangeWalksUpToTheConfig(t *testing.T) {
 	if err := os.MkdirAll(deep, 0o755); err != nil {
 		t.Fatal(err)
 	}
-	// The status line reports the directory claude is in, which is usually a
 	if change, _ := openspecChange(deep); change != "active" {
 		t.Errorf("openspecChange from a subdirectory = %q, want active", change)
 	}
@@ -119,7 +113,6 @@ func TestOpenspecChangeIsEmptyWithNoChanges(t *testing.T) {
 }
 
 func TestMalformedPayloadRendersNothingRatherThanFailing(t *testing.T) {
-	// The line re-renders continuously. An error would replace it entirely.
 	for _, body := range []string{"not json", "", "[]"} {
 		r, w, err := os.Pipe()
 		if err != nil {

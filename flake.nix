@@ -77,7 +77,7 @@
       flake = false;
     };
 
-    # Terminal-first diff reviewer. It reads the note file this repository owns
+    # Terminal-first diff reviewer.
     hunk = {
       url = "github:modem-dev/hunk";
       inputs.nixpkgs.url = "github:NixOS/nixpkgs/549bd84d6279f9852cae6225e372cc67fb91a4c1";
@@ -157,7 +157,7 @@
         };
       };
 
-      # `dev` and `minimal` across `cacheSystems`, so six. Not `workstation`,
+      # `dev` and `minimal` across `cacheSystems`, so six.
       homeConfigurations =
         let
           buildHome = builders.mkHome {

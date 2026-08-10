@@ -27,7 +27,7 @@ func newStore(t *testing.T) *Store {
 	}
 }
 
-// A zero-byte file is what an interrupted first write leaves behind. It must be
+// A zero-byte file is what an interrupted first write leaves behind.
 func TestReadTreatsZeroByteAsAbsent(t *testing.T) {
 	s := newStore(t)
 	if err := os.MkdirAll(filepath.Dir(s.Path), 0o755); err != nil {
@@ -45,7 +45,7 @@ func TestReadTreatsZeroByteAsAbsent(t *testing.T) {
 	}
 }
 
-// A non-empty store that does not parse holds the owner's data. Rebuilding it
+// A non-empty store that does not parse holds the owner's data.
 func TestReadRefusesMalformed(t *testing.T) {
 	s := newStore(t)
 	if err := os.MkdirAll(filepath.Dir(s.Path), 0o755); err != nil {
@@ -69,7 +69,7 @@ func TestPublishRefusesMalformed(t *testing.T) {
 	}
 }
 
-// A symlinked store is the owner's layout choice. Replacing the link with a
+// A symlinked store is the owner's layout choice.
 func TestPublishRefusesSymlink(t *testing.T) {
 	s := newStore(t)
 	dir := filepath.Dir(s.Path)
@@ -174,7 +174,7 @@ func TestCleanKeepsNewlinesAndDropsControls(t *testing.T) {
 	}
 }
 
-// Non-ASCII must survive. The shell original once used an escaped \uXXXX range
+// Non-ASCII must survive.
 func TestCleanKeepsUnicode(t *testing.T) {
 	got := Clean("héllo → wörld\x07")
 	want := "héllo → wörld"

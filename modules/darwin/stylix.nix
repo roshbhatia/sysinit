@@ -14,7 +14,7 @@ let
 in
 {
   stylix = {
-    # The owner's choice, not a constant. Everything that reads a color reads it
+    # The owner's choice, not a constant.
     enable = themeConfig.enable;
     autoEnable = true;
     enableReleaseChecks = false;

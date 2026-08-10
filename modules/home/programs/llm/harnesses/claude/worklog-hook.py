@@ -1,8 +1,5 @@
 #!/usr/bin/env -S uv run --script
 # /// script
-# requires-python = ">=3.11"
-# dependencies = []
-# ///
 """Append one best-effort Claude Code SessionEnd record to the worklog."""
 
 from __future__ import annotations
@@ -27,9 +24,7 @@ def sysinit_path(key: str, fallback_suffix: str) -> Path:
     written down. This reads the manifest that module generates, so this file
     is a reader of the layout rather than a second producer of it.
     """
-    # The one default in this file. It locates the manifest, and it is the root
-    # each key falls back under when the manifest is absent, which is the case
-    # on a box installed without Nix.
+    # The one default in this file.
     # sysinit:documented-default
     root = os.environ.get("XDG_STATE_HOME") or str(Path.home() / ".local/state")
     manifest = Path(os.environ.get("SYSINIT_PATHS_MANIFEST") or f"{root}/sysinit/paths.json")
@@ -343,8 +338,6 @@ def main() -> None:
     log = Path(
         os.environ.get(
             # NOT ~/Documents: that path is TCC-protected on macOS, so a launchd
-            # agent cannot read it without granting Full Disk Access to /bin/bash.
-            # The gist-sync timer failed on exactly that for months.
             "CLAUDE_WORKLOG_FILE",
             str(sysinit_path("agentWorklog", "agents/worklog.jsonl")),
         )

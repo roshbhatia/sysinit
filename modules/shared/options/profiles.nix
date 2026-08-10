@@ -3,7 +3,7 @@
   profile ? "workstation",
   ...
 }:
-# What a host is FOR, in one word. Three additive tiers: minimal (ssh), dev
+# What a host is FOR, in one word.
 let
   inherit (lib) mkOption types;
 

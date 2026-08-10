@@ -16,12 +16,10 @@ in
   home.packages =
     with pkgs;
     profiles.forProfile profile {
-      # What a box reached over ssh needs to be usable at all: the core CLI and
-      # git. Nothing here is a toolchain.
+      # What a box reached over ssh needs to be usable at all: the core CLI and git.
       minimal = minimalPackages;
 
-      # Toolchains, language servers, and the infrastructure tools. This is the
-      # bulk of the list and the tier that makes a box worth developing on.
+      # Toolchains, language servers, and the infrastructure tools.
       dev = [
         nixd
         nil
@@ -157,7 +155,7 @@ in
         )
       );
 
-      # What only makes sense in front of a screen. A colour picker for a
+      # What only makes sense in front of a screen.
       workstation = lib.optionals pkgs.stdenv.hostPlatform.isLinux [ hyprpicker ];
     };
 }

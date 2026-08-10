@@ -75,7 +75,7 @@ func Run(_ []string) int {
 	return 0
 }
 
-// wholePercent drops the fraction, as `cut -d. -f1` did. A status line has no
+// wholePercent drops the fraction, as `cut -d.
 func wholePercent(raw string) string {
 	if raw == "" {
 		return ""

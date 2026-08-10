@@ -1,7 +1,5 @@
 { pkgs, lib, ... }:
 # ast-grep is here so CI can reach it by name; `.githooks/pre-commit` runs the
-# same scan. The rest are here rather than in the hook, whose skip-when-absent
-# idiom would make them no-ops on a box missing their inputs.
 {
   agent-identity-fork = import ./agent-identity-fork.nix { inherit pkgs lib; };
   ast-grep-nix-rules = import ./ast-grep-nix-rules.nix { inherit pkgs; };

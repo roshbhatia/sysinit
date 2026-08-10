@@ -2,7 +2,6 @@ version: 2
 
 updates:
   # Nix flake inputs (flake.lock).
-  # See https://github.blog/changelog/2026-04-07-dependabot-version-updates-now-support-the-nix-ecosystem/
   - package-ecosystem: "nix"
     directory: "/"
     schedule:

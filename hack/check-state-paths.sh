@@ -19,8 +19,7 @@ is_in_scope() {
       return 1
       ;;
     *.md | openspec/*)
-      # Prose. Documentation that describes a default is not a second producer
-      # of one.
+      # Prose.
       return 1
       ;;
     .sysinit/*)
@@ -28,8 +27,8 @@ is_in_scope() {
       return 1
       ;;
     *_test.go | *_test.py | *_spec.lua)
-      # Tests pin the documented default on purpose, which is what keeps the
-      # fallback honest. Three of them assert it today.
+      # Tests pin the documented default on purpose, which is what keeps the fallback
+      # honest.
       return 1
       ;;
   esac
@@ -44,7 +43,7 @@ while IFS= read -r file; do
   report=$(
     awk -v token="$token" -v literal="$literal" '
       {
-        # Both forms. The Go consumers never match the literal, because they
+        # Both forms.
         hit = (index($0, literal) > 0) || ($0 ~ /"\.local"[[:space:]]*,[[:space:]]*"state"/)
         if (hit) {
           if (index($0, token) > 0 || index(prev, token) > 0) {

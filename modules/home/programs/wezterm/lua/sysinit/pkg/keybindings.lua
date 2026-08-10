@@ -172,7 +172,7 @@ local function get_ssh_picker()
   return act.ShowLauncherArgs({ flags = "FUZZY|DOMAINS" })
 end
 
--- The viewer chords. `sysinit-agent watch` is the one reader of the three
+-- The viewer chords.
 local function pane_cwd(pane)
   local ok, path = pcall(function()
     local url = pane:get_current_working_dir()
@@ -261,17 +261,14 @@ local function get_system_keys()
     create_smart_keybind("q", "SUPER", act.QuitApplication),
     create_smart_keybind("v", "SUPER", act.PasteFrom("Clipboard")),
     create_smart_keybind("v", "CTRL|SHIFT", act.PasteFrom("Clipboard")),
-    -- The wtrun log of THIS pane. wtrun names its directory after the pane it
     watch_keybind("w", "no pane id", function(pane)
       return { "wtrun", "pane-" .. tostring(pane:pane_id()) }
     end),
-    -- The agent bus for THIS directory. Keyed by directory because the pane
     watch_keybind("b", "no working directory", function(pane)
       local cwd = pane_cwd(pane)
       if not cwd then return nil end
       return { "bus", cwd }
     end),
-    -- No transcript chord. A transcript is keyed by harness session id, which
   }
 end
 

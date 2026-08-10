@@ -25,7 +25,7 @@ interface RuntimeContext {
 
 const SPLIT_PERCENT = "45";
 
-// `review` is the whole working-tree changeset in one view. Not `git difftool`,
+// `review` is the whole working-tree changeset in one view.
 const VIEWER_COMMAND = ["review"];
 
 // Notes go to `sysinit-agent note`, which writes one record per repository and
@@ -63,7 +63,6 @@ type TreeState = "no-repo" | "clean" | "dirty";
 async function treeState(pi: ExtensionAPI, cwd: string): Promise<TreeState> {
 	const inRepo = await pi.exec("git", ["-C", cwd, "rev-parse", "--git-dir"]);
 	if (inRepo.code !== 0) return "no-repo";
-	// An unborn HEAD has no commit to diff against, so staged content is the signal.
 	const hasHead = await pi.exec("git", ["-C", cwd, "rev-parse", "--verify", "HEAD"]);
 	if (hasHead.code !== 0) {
 		const staged = await pi.exec("git", ["-C", cwd, "diff", "--cached", "--name-only"]);
@@ -102,7 +101,6 @@ async function open(pi: ExtensionAPI, ctx: ExtensionContext): Promise<void> {
 	}
 	notify(ctx, "diff review: opened in review. Re-run `review` to read the notes.");
 
-	// `deliverAs` is required while the agent streams and throws if omitted, so it
 	await pi.sendUserMessage(ANNOTATE_PROMPT, { deliverAs: "followUp" });
 }
 

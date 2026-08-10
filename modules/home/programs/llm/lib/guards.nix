@@ -2,7 +2,7 @@
 let
   allowlist = import ./allowlist.nix { inherit lib; };
 
-  # The rules travel as data rather than as generated bash. The shell version
+  # The rules travel as data rather than as generated bash.
   rulesFile =
     pkgs: pkgs.writeText "destructive-deny-rules.json" (builtins.toJSON allowlist.destructiveDenyRules);
 

@@ -38,7 +38,7 @@ let
   darwinHost = identity: extraValues: {
     system = "aarch64-darwin";
     platform = "darwin";
-    # What the host is for. Both hosts here are machines with a screen, so both
+    # What the host is for.
     profile = "workstation";
     inherit (identity) username;
     values = identity.values // extraValues;

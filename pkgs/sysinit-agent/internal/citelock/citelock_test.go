@@ -96,7 +96,6 @@ func stderr(t *testing.T, fn func() error) (error, string) {
 
 func TestVerifyIsANoOpWithNoLockfile(t *testing.T) {
 	dir := t.TempDir()
-	// The pre-commit hook runs this over every change directory, so a non-zero
 	err, out := stderr(t, func() error { return verify(dir) })
 	if err != nil {
 		t.Fatalf("verify on a lockless directory failed: %v", err)
@@ -123,7 +122,6 @@ func TestVerifyRejectsARecordMissingEveryField(t *testing.T) {
 	if err := os.WriteFile(lockPath(dir), []byte(`{"records":[{"id":"unanchored"}]}`), 0o644); err != nil {
 		t.Fatal(err)
 	}
-	// The offline gate is the only thing between a hallucinated citation and a
 	err, out := stderr(t, func() error { return verify(dir) })
 	if err == nil {
 		t.Fatal("verify accepted a record with no source, quote, snapshot, or sha256")
@@ -151,7 +149,6 @@ func TestVerifyRejectsAHandAuthoredSnapshot(t *testing.T) {
 	dir := t.TempDir()
 	body := "prelude the verbatim quote postlude"
 	capturedRecord(t, dir, goodRecord(), body)
-	// Removing the sidecar is exactly what a hand-written snapshot looks like:
 	if err := os.Remove(filepath.Join(dir, goodRecord().Snapshot+".prov.json")); err != nil {
 		t.Fatal(err)
 	}
@@ -168,7 +165,6 @@ func TestVerifyRejectsAnEditedSnapshot(t *testing.T) {
 	dir := t.TempDir()
 	rec := goodRecord()
 	capturedRecord(t, dir, rec, "prelude the verbatim quote postlude")
-	// Editing the snapshot after capture is how a quote gets made to anchor.
 	if err := os.WriteFile(filepath.Join(dir, rec.Snapshot), []byte("the verbatim quote, edited"), 0o644); err != nil {
 		t.Fatal(err)
 	}
@@ -186,7 +182,6 @@ func TestVerifyRejectsASidecarThatDisagreesWithTheRecord(t *testing.T) {
 	rec := goodRecord()
 	body := "prelude the verbatim quote postlude"
 	capturedRecord(t, dir, rec, body)
-	// Both the record and the file are consistent; only the sidecar lies. It
 	sidecar := `{"url":"x","http_status":200,"engine":"curl","sha256":"` + strings.Repeat("b", 64) + `"}`
 	if err := os.WriteFile(filepath.Join(dir, rec.Snapshot+".prov.json"), []byte(sidecar), 0o644); err != nil {
 		t.Fatal(err)
@@ -202,7 +197,6 @@ func TestVerifyRejectsASidecarThatDisagreesWithTheRecord(t *testing.T) {
 
 func TestVerifyRejectsAQuoteThatDoesNotAnchor(t *testing.T) {
 	dir := t.TempDir()
-	// A paraphrase is the case: close enough to read as the same claim, absent
 	capturedRecord(t, dir, goodRecord(), "prelude a similar but different quote postlude")
 	err, out := stderr(t, func() error { return verify(dir) })
 	if err == nil {
@@ -262,7 +256,6 @@ func TestVerifyRejectsAnUnparseableAccessedDate(t *testing.T) {
 
 func TestVerifyReportsEveryBadRecordNotJustTheFirst(t *testing.T) {
 	dir := t.TempDir()
-	// The shell original selected records by id. A record with no id was
 	if err := os.WriteFile(lockPath(dir), []byte(
 		`{"records":[{"id":"one"},{"source":"https://example.com"},{"id":"three"}]}`), 0o644); err != nil {
 		t.Fatal(err)
@@ -279,7 +272,6 @@ func TestVerifyReportsEveryBadRecordNotJustTheFirst(t *testing.T) {
 }
 
 func TestAssertSafeURLRefusesEveryUnsafeHost(t *testing.T) {
-	// capture reaches the network with the host's routing, so each of these
 	unsafe := []string{
 		"http://example.com/x",
 		"ftp://example.com/x",
@@ -297,7 +289,6 @@ func TestAssertSafeURLRefusesEveryUnsafeHost(t *testing.T) {
 		"https://172.31.255.255/x",
 		"https://0x7f000001/x",
 		"https://2130706433/x",
-		// Userinfo naming a safe host in front of a loopback address.
 		"https://example.com@127.0.0.1/x",
 	}
 	for _, url := range unsafe {
@@ -310,7 +301,6 @@ func TestAssertSafeURLRefusesEveryUnsafeHost(t *testing.T) {
 		"https://example.com/x",
 		"https://api.example.com:443/v1",
 		"https://docs.rs/serde/latest/serde/",
-		// 172.15 and 172.32 sit outside the RFC-1918 range, so they must stay
 		"https://sub.internal-docs.example.com/x",
 	}
 	for _, url := range safe {
@@ -396,7 +386,6 @@ func TestVerifyRefusesALockThatDoesNotParse(t *testing.T) {
 	if err := os.WriteFile(lockPath(dir), []byte("not json"), 0o644); err != nil {
 		t.Fatal(err)
 	}
-	// Fails closed, not open: an unreadable lock is indistinguishable from one
 	if err, _ := stderr(t, func() error { return verify(dir) }); err == nil {
 		t.Fatal("verify accepted a lock that does not parse")
 	}

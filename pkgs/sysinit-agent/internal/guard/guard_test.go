@@ -47,7 +47,7 @@ var denied = []string{
 	"git reset --hard HEAD~1; echo done",
 }
 
-// allowed is every fixture that must produce no decision at all. The last four
+// allowed is every fixture that must produce no decision at all.
 var allowed = []string{
 	"git push",
 	"git push origin main",
@@ -81,7 +81,6 @@ func TestEveryAllowedFixtureIsPermitted(t *testing.T) {
 	rules := compileReal(t)
 	for _, cmd := range allowed {
 		if reason, got := Decide(cmd, rules); got {
-			// A guard that blocks everything is not a fix.
 			t.Errorf("expected no decision, got deny (%s) for: %s", reason, cmd)
 		}
 	}
@@ -89,7 +88,6 @@ func TestEveryAllowedFixtureIsPermitted(t *testing.T) {
 
 func TestExitCodeGuardFixturesDecideTheSameWay(t *testing.T) {
 	rules := compileReal(t)
-	// checks/exit-code-guard-blocks.nix drives these through both wrappers.
 	for _, cmd := range []string{
 		"git reset --hard HEAD~3",
 		"git push --force origin main",
@@ -108,7 +106,6 @@ func TestExitCodeGuardFixturesDecideTheSameWay(t *testing.T) {
 
 func TestFirstMatchingRuleSuppliesTheReason(t *testing.T) {
 	rules := compileReal(t)
-	// The reason has to name the specific prohibition, not whichever rule
 	reason, got := Decide("git push --force", rules)
 	if !got || !strings.Contains(reason, "Force-pushing") {
 		t.Fatalf("expected the force-push reason, got %q", reason)
@@ -120,7 +117,6 @@ func TestFirstMatchingRuleSuppliesTheReason(t *testing.T) {
 }
 
 func TestMalformedEventProducesNoDecision(t *testing.T) {
-	// The three malformed payloads the fixture check feeds in. A harness
 	for _, payload := range []string{"not json at all", "{}", `{"tool_input":{}}`} {
 		if _, ok := readCommand(strings.NewReader(payload)); ok {
 			t.Errorf("readCommand found a command in: %s", payload)
@@ -129,7 +125,6 @@ func TestMalformedEventProducesNoDecision(t *testing.T) {
 }
 
 func TestMissingRuleFileIsFatalNotSilent(t *testing.T) {
-	// Failing open is the shape that matters: a guard that cannot reach its
 	for _, path := range []string{"", filepath.Join(t.TempDir(), "absent.json")} {
 		if _, err := loadRules(path); err == nil {
 			t.Errorf("loadRules accepted %q", path)

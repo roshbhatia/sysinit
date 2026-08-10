@@ -59,8 +59,7 @@ function s() {
     return 0
   fi
 
-  # Already inside the session this would attach to. Attaching again would nest
-  # a session inside itself.
+  # Already inside the session this would attach to.
   if [[ ${ZMX_SESSION:-} == "${ZMX_SESSION_PREFIX:-}${session}" ]]; then
     _seshy_debug "already attached to $ZMX_SESSION"
     return 0

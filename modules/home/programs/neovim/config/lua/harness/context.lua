@@ -1,7 +1,6 @@
 local M = {}
 
----@param buf? integer
----@return boolean
+-- -@param buf?
 function M.is_file(buf)
   buf = buf or vim.api.nvim_get_current_buf()
   local name = vim.api.nvim_buf_get_name(buf)
@@ -12,10 +11,10 @@ function M.is_file(buf)
   return bt == "" or bt == "acwrite"
 end
 
----@type table<string,string|false>
+-- -@type table<string,string|false>
 local git_root_cache = {}
 
----@param cwd string
+-- -@param cwd string
 local function prewarm_git_root(cwd)
   if git_root_cache[cwd] ~= nil then
     return
@@ -52,7 +51,7 @@ vim.api.nvim_create_autocmd("BufEnter", {
   end,
 })
 
----@return string|nil
+-- -@return string|nil
 function M.get_git_root()
   local cwd = vim.fn.getcwd()
   if git_root_cache[cwd] ~= nil then
@@ -70,8 +69,7 @@ function M.get_git_root()
   return git_root_cache[cwd] or nil
 end
 
----@param path string
----@return string
+-- -@param path string -@return string
 function M.strip_git_root(path)
   local root = M.get_git_root()
   if root and path:sub(1, #root) == root then
@@ -81,8 +79,7 @@ function M.strip_git_root(path)
   return path
 end
 
----@param buf? integer
----@return {from: integer[], to: integer[], kind: string}|nil
+-- -@param buf?
 function M.get_selection_range(buf)
   buf = buf or vim.api.nvim_get_current_buf()
 
@@ -108,7 +105,7 @@ function M.get_selection_range(buf)
   }
 end
 
----@type integer|nil
+-- -@type integer|nil
 local last_source_win = nil
 
 local excluded_filetypes = {
@@ -143,8 +140,7 @@ local excluded_filetypes = {
   ai_terminals_input = true,
 }
 
----@param win integer
----@return boolean
+-- -@param win integer -@return boolean
 local function is_source_window(win)
   if not vim.api.nvim_win_is_valid(win) then
     return false
@@ -171,9 +167,9 @@ vim.api.nvim_create_autocmd({ "WinEnter", "BufEnter" }, {
   end,
 })
 
----@class harness.EditorState
+-- -@class harness.EditorState
 
----@return harness.EditorState
+-- -@return harness.EditorState
 function M.capture()
   local win, buf
 
@@ -228,17 +224,16 @@ function M.capture()
   }
 end
 
----@class harness.Context
+-- -@class harness.Context
 local Context = {}
 Context.__index = Context
 
----@return harness.Context
+-- -@return harness.Context
 function Context.new()
   return setmetatable({ ctx = M.capture(), cache = {} }, Context)
 end
 
----@param name string  e.g. "position" or "line|file"
----@return string|nil
+-- -@param name string  e.g.
 function Context:get(name)
   local names = vim.split(name, "|", { plain = true })
   for _, n in ipairs(names) do
@@ -263,7 +258,7 @@ end
 M.Context = Context
 M.new = Context.new
 
----@param buf integer
+-- -@param buf integer
 function M.from_marks(buf, marks)
   local cur_buf = vim.api.nvim_get_current_buf()
   local cur_win = vim.api.nvim_get_current_win()

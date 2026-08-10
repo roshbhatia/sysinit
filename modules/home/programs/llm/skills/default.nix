@@ -6,7 +6,7 @@ let
   root = ./.;
   sharedDir = root + "/_shared";
 
-  # Directories here that are NOT skills. A directory can hold a tool's source
+  # Directories here that are NOT skills.
   notSkills = [ "wtrun" ];
 
   skillDirs = lib.filterAttrs (

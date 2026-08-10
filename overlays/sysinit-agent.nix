@@ -5,7 +5,7 @@ final: _prev: {
 
     src = ../pkgs/sysinit-agent;
 
-    # null, not a hash. Deleting internal/nvimlink took the last dependency with
+    # null, not a hash.
     vendorHash = null;
 
     # The tests build real working trees: the store path is derived from

@@ -4,10 +4,6 @@
   ...
 }:
 # The review skill reaches every harness, asserted by destination.
-#
-# The skill tree renders at build time, so nothing else notices when the skill
-# stops being rendered or installed. Enumerated by destination because the roots
-# are a closed list of four and the eleven harnesses reach them three ways.
 let
   skillName = "note";
 
@@ -17,8 +13,6 @@ let
   instructions = (import (llmRoot + "/lib") { inherit lib; }).instructions;
 
   # One: the block `makeInstructions` returns for codex, the only harness in
-  # `harnessesWithoutSkillLoader`. Asserted against the RENDERED string, because an
-  # attrset membership test is a weaker claim than reaching a harness.
   codexBlock = instructions.makeInstructions {
     harness = "codex";
     inherit (skills) localSkillDescriptions;
@@ -27,9 +21,7 @@ let
   # Backticked: a bare `note` would match another skill's description.
   codexToken = "`${skillName}`";
 
-  # Two and three: where the renders install it. `renderSkillsFor "amp"` is a
-  # separate evaluation, so asserting `.claude/skills/` alone would stay green while
-  # amp, devin, and copilot lose the skill.
+  # Two and three: where the renders install it.
   claudeRoot = ".claude/skills";
   ampRoots = [
     ".config/amp/skills"

@@ -24,8 +24,8 @@ interface RuntimeContext {
 
 const runtime = (ctx: ExtensionContext): RuntimeContext => ctx as unknown as RuntimeContext;
 
-// `pi.exec` takes no cwd, so anything that must run in the session's repository
-// is routed through `sh -c` with an explicit cd. Same reason diff-review.ts does.
+// `pi.exec` takes no cwd, so anything that must run in the session's repository is
+// routed through `sh -c` with an explicit cd.
 async function run(pi: ExtensionAPI, cwd: string, command: string): Promise<string> {
 	const result = await pi.exec("sh", ["-c", `cd ${JSON.stringify(cwd)} && ${command}`]);
 	const out = [result.stdout, result.stderr].filter(Boolean).join("\n").trim();
@@ -74,7 +74,6 @@ export default function (pi: ExtensionAPI): void {
 		},
 	});
 
-	// Capture, not verify. `citelock verify` already runs in the pre-commit gate
 	pi.registerCommand("cite", {
 		description: "citelock capture <url> --id <id> --quote <text> --class <class>",
 		handler: async (args, ctx) => {

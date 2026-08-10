@@ -1,4 +1,4 @@
-# One entry per harness. Every hand-kept harness list in this tree derives from
+# One entry per harness.
 {
   amp = {
     label = "Amp";
@@ -20,8 +20,8 @@
     ownIcon = true;
     notify = "hook";
     bridge = null;
-    # The `programs.claude-code` home-manager module installs it, not a
-    # `home.packages` entry.
+    # The `programs.claude-code` home-manager module installs it, not a `home.packages`
+    # entry.
     package = null;
     neovimAdapter = "claudecode";
   };
@@ -30,8 +30,8 @@
     label = "Codex";
     module = ./codex.nix;
     context = "codex `context`";
-    # Codex has no on-demand skill loader, so its instructions name every skill
-    # inline instead of telling it where to look.
+    # Codex has no on-demand skill loader, so its instructions name every skill inline
+    # instead of telling it where to look.
     skillLoader = false;
     ownIcon = true;
     notify = "hook";

@@ -33,7 +33,7 @@ is already running does not: it was measured and it picks up nothing on its own,
 record, which is the one route that changes it without going through a write.
 `
 
-// Note is one anchored annotation. The field order is the serialized order, so
+// Note is one anchored annotation.
 type Note struct {
 	File      string  `json:"file"`
 	Line      int64   `json:"line"`
@@ -42,7 +42,7 @@ type Note struct {
 	Author    string  `json:"author"`
 }
 
-// document is the store. Notes stay raw so an operation that does not read a
+// document is the store.
 type document struct {
 	Version int               `json:"version"`
 	Repo    string            `json:"repo"`
@@ -114,7 +114,7 @@ func marshal(doc *document) ([]byte, error) {
 	return append(out, '\n'), nil
 }
 
-// newStore builds the guarded store for root. The validator is the shape every
+// newStore builds the guarded store for root.
 func newStore(path, root string) *store.Store {
 	return &store.Store{
 		Path: path,
@@ -177,7 +177,6 @@ func cmdPath(args []string) error {
 	if err != nil {
 		return err
 	}
-	// Printed whether or not the file exists. This names an address, and the
 	if export {
 		fmt.Println(repo.ExportFile(root))
 		return nil
@@ -224,7 +223,6 @@ func cmdAdd(args []string) error {
 	if summary == "" {
 		return die("add requires --summary")
 	}
-	// Emptiness is tested after stripping, not before. Validating first let a
 	cleanSummary := store.OneLine(summary)
 	if cleanSummary == "" {
 		return die("--summary is empty once control bytes are removed")
@@ -271,7 +269,6 @@ func cmdAdd(args []string) error {
 		return err
 	}
 	doc.Notes = append(doc.Notes, encoded)
-	// Record first. Two renames cannot be atomic together, so one file leads,
 	if err := publishDoc(s, doc); err != nil {
 		return err
 	}
@@ -347,7 +344,6 @@ func cmdApply(args []string, stdin io.Reader) error {
 		return err
 	}
 
-	// Resolution comes last and before the lock. Every rejection has to leave
 	for i := range notes {
 		relative, err := repo.RelativeToRoot(root, notes[i].File)
 		if err != nil {
@@ -373,7 +369,6 @@ func cmdApply(args []string, stdin io.Reader) error {
 		}
 		doc.Notes = append(doc.Notes, encoded)
 	}
-	// Record first, for the reason cmdAdd states.
 	if err := publishDoc(s, doc); err != nil {
 		return err
 	}
@@ -437,7 +432,6 @@ func pick(m map[string]any, keys ...string) (any, bool) {
 func normalizeItem(fields map[string]any) (Note, error) {
 	var note Note
 
-	// An oldLine-only comment names the original side. Notes anchor on the
 	lineValue, hasModified := pick(fields, "line", "newLine")
 	if !hasModified {
 		if _, hasOld := pick(fields, "oldLine"); hasOld {
@@ -483,7 +477,6 @@ func normalizeItem(fields map[string]any) (Note, error) {
 		note.Rationale = &cleaned
 	}
 
-	// The path is rejected rather than cleaned. It must survive verbatim to
 	if store.HasControlBytes(file) {
 		return note, die("a note's file contains a control byte")
 	}
@@ -525,7 +518,6 @@ func cmdList(args []string) error {
 	info, statErr := os.Stat(s.Path)
 	if statErr != nil || info.Size() == 0 {
 		if asJSON {
-			// Same keys on the absent-store path as everywhere else, so a
 			data, err := marshal(&document{Version: 1, Repo: root, Notes: []json.RawMessage{}})
 			if err != nil {
 				return err
@@ -628,7 +620,6 @@ func cmdClear(args []string) error {
 	if err != nil {
 		return err
 	}
-	// No store is success, not failure. This is a documented kill switch, and
 	info, statErr := os.Stat(s.Path)
 	if statErr != nil || info.Size() == 0 {
 		return nil
@@ -674,7 +665,6 @@ func cmdClear(args []string) error {
 	} else {
 		doc.Notes = []json.RawMessage{}
 	}
-	// Export first, and only here. Clear is a documented kill switch, so the
 	if err := publishExport(root, doc.Notes); err != nil {
 		return err
 	}

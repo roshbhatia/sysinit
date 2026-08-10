@@ -27,14 +27,14 @@ type compiled struct {
 	reason  string
 }
 
-// event is the hook payload. Only the command is read: the rules match on
+// event is the hook payload.
 type event struct {
 	ToolInput struct {
 		Command string `json:"command"`
 	} `json:"tool_input"`
 }
 
-// decision is the PreToolUse answer shape. The key names are fixed by the
+// decision is the PreToolUse answer shape.
 type decision struct {
 	HookSpecificOutput struct {
 		HookEventName            string `json:"hookEventName"`
@@ -170,6 +170,5 @@ func RunExitCode(args []string) int {
 		return 0
 	}
 	fmt.Fprintln(os.Stderr, reason)
-	// 2, not 1: the harnesses read this specific code as "refused", and treat
 	return 2
 }

@@ -14,7 +14,6 @@ import (
 )
 
 func TestTidyFoldsEverySeparatorItOwns(t *testing.T) {
-	// The pipe is the OSC payload's own field separator, so one inside a
 	cases := map[string]string{
 		"a|b":              "a b",
 		"a\nb":             "a b",
@@ -40,7 +39,6 @@ func TestTruncateCapsTheReasonAtTheRenderedWidth(t *testing.T) {
 	if got := truncate("short", reasonLimit); got != "short" {
 		t.Fatalf("truncate shortened a string under the cap: %q", got)
 	}
-	// Counted in runes, not bytes, so a multibyte reason is not cut mid-character.
 	multi := strings.Repeat("é", 80)
 	if got := truncate(multi, reasonLimit); len([]rune(got)) != reasonLimit {
 		t.Fatalf("multibyte truncation produced %d runes", len([]rune(got)))
@@ -48,7 +46,6 @@ func TestTruncateCapsTheReasonAtTheRenderedWidth(t *testing.T) {
 }
 
 func TestPaneValueKeepsANumericIDANumber(t *testing.T) {
-	// The lua side compares pane ids numerically where it can. Quoting a
 	if got := paneValue("12"); got != int64(12) {
 		t.Errorf("paneValue(\"12\") = %v (%T), want int64 12", got, got)
 	}
@@ -70,14 +67,12 @@ func TestDigWalksDottedPathsAndSkipsEmpties(t *testing.T) {
 	if got := dig(doc, "tool_name"); got != "Bash" {
 		t.Errorf("dig tool_name = %q", got)
 	}
-	// An empty string must fall through to the next candidate, which is what
 	if got := dig(doc, "tool_input.command", "tool_input.file_path"); got != "/tmp/x" {
 		t.Errorf("dig did not fall through an empty value: %q", got)
 	}
 	if got := dig(doc, "absent.deeply.nested"); got != "" {
 		t.Errorf("dig invented a value: %q", got)
 	}
-	// A non-object where an object belongs must not panic.
 	if got := dig(map[string]any{"a": 5}, "a.b"); got != "" {
 		t.Errorf("dig indexed into a scalar: %q", got)
 	}
@@ -113,7 +108,6 @@ func TestDeriveReasonPerSource(t *testing.T) {
 
 func TestSubmitWritesTheStartStamp(t *testing.T) {
 	dir := t.TempDir()
-	// The surfaces subtract this to show elapsed time; without it every turn
 	if got := deriveReason("submit", "working", nil, dir, "7", 1234); got != "thinking" {
 		t.Fatalf("submit reason = %q", got)
 	}
@@ -139,7 +133,6 @@ func TestPublishWritesCompleteJSONOrNothing(t *testing.T) {
 	if err := json.Unmarshal(data, &back); err != nil {
 		t.Fatalf("the published record does not parse: %v: %s", err, data)
 	}
-	// The wezterm surfaces read these names. A rename here is silent.
 	for _, key := range []string{
 		"pane", "session", "repo", "branch", "dirty", "worktree",
 		"agent", "status", "reason", "since",
@@ -163,7 +156,6 @@ func TestPublishLeavesNoTempFileBehind(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	// A surface reading a half-written record shows garbage, and this rewrites
 	for _, entry := range entries {
 		if entry.Name() != "3.json" {
 			t.Errorf("publish left %s behind", entry.Name())
@@ -198,7 +190,6 @@ func TestNoWezternPaneIsASilentNoOp(t *testing.T) {
 	dir := t.TempDir()
 	t.Setenv("XDG_STATE_HOME", dir)
 	t.Setenv("WEZTERM_PANE", "")
-	// The same hooks run under other terminals, where there is no pane to key
 	if code := Run([]string{"claude", "working"}); code != 0 {
 		t.Fatalf("Run returned %d with no pane", code)
 	}
@@ -208,14 +199,12 @@ func TestNoWezternPaneIsASilentNoOp(t *testing.T) {
 }
 
 func TestPaneDirFallsBackToHomeLocalState(t *testing.T) {
-	// The manifest has to be absent for the fallback to be reachable, and this
 	t.Setenv("SYSINIT_PATHS_MANIFEST", filepath.Join(t.TempDir(), "absent.json"))
 	t.Setenv("XDG_STATE_HOME", "")
 	t.Setenv("HOME", "/home/someone")
 	if got := paths.AgentPanes(); got != "/home/someone/.local/state/agents/panes" {
 		t.Fatalf("AgentPanes() = %q", got)
 	}
-	// A trailing slash must not double up in the joined path.
 	t.Setenv("XDG_STATE_HOME", "/state/")
 	if got := paths.AgentPanes(); got != "/state/agents/panes" {
 		t.Fatalf("AgentPanes() kept a trailing slash: %q", got)
@@ -281,14 +270,12 @@ func TestBothEncodingsAgree(t *testing.T) {
 		t.Errorf("agent: user var %q, record %q", parts[3], record.Agent)
 	}
 
-	// The pipe rule is what makes the four-field split safe. Without it this
 	if strings.Contains(record.Reason, "|") {
 		t.Errorf("reason kept a pipe: %q", record.Reason)
 	}
 }
 
 func TestMuxIDReadsTheGenerationMarkerOrNothing(t *testing.T) {
-	// wezterm sets this in every pane. The pid in the socket name is the only
 	cases := map[string]int{
 		"/Users/x/.local/share/wezterm/gui-sock-1679": 1679,
 		"gui-sock-1":         1,
@@ -353,7 +340,6 @@ func TestReapRemovesOnlyRecordsFromADeadMux(t *testing.T) {
 	if _, err := os.Stat(filepath.Join(dir, "dead.json")); !os.IsNotExist(err) {
 		t.Errorf("dead.json survived the reap: %v", err)
 	}
-	// The start stamp is the same record's other half. Leaving it makes the
 	if _, err := os.Stat(filepath.Join(dir, "dead.start")); !os.IsNotExist(err) {
 		t.Errorf("dead.start survived the reap: %v", err)
 	}
@@ -363,7 +349,6 @@ func TestReapRemovesOnlyRecordsFromADeadMux(t *testing.T) {
 }
 
 func TestReapRunsOncePerMux(t *testing.T) {
-	// The reap is on the hottest path in this binary, so it must not scan the
 	dir := t.TempDir()
 	current := os.Getpid()
 
@@ -387,7 +372,6 @@ func TestReapRunsOncePerMux(t *testing.T) {
 }
 
 func TestReapWithoutAMarkerDoesNothing(t *testing.T) {
-	// Outside wezterm there is no mux to compare against, so every record is
 	dir := t.TempDir()
 	if err := os.WriteFile(filepath.Join(dir, "0.json"), []byte(`{"mux":1}`), 0o644); err != nil {
 		t.Fatal(err)

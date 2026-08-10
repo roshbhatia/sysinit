@@ -6,7 +6,6 @@ const BIN = `${HOME}/.nix-profile/bin`;
 function spawnQuiet(exe: string, args: string[], input?: string): void {
 	try {
 		const { spawn } = require("node:child_process");
-		// detached children lose the tty that `agent-state` uses for OSC
 		const child = spawn(`${BIN}/${exe}`, args, {
 			stdio: input === undefined ? "ignore" : ["pipe", "ignore", "ignore"],
 		});
@@ -17,7 +16,6 @@ function spawnQuiet(exe: string, args: string[], input?: string): void {
 		}
 		child.unref();
 	} catch {
-		// degrade to no notification, never to a failed session
 	}
 }
 
@@ -41,7 +39,6 @@ export const SysinitNotify = () => ({
 				return;
 			}
 
-			// OpenCode reports turn completion as `session.status` with type `idle`
 			if (event?.type !== "session.status") return;
 			if (!sid || sid !== rootSession) return;
 
@@ -56,12 +53,10 @@ export const SysinitNotify = () => ({
 					spawnQuiet("agent-notify", ["opencode", "approval", `${BIN}/agent-focus`], "{}");
 					break;
 
-				// busy, retry, waiting are mid-run
 				default:
 					break;
 			}
 		} catch {
-			// an unexpected event shape must not propagate into OpenCode
 		}
 	},
 });

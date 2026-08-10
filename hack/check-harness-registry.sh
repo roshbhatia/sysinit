@@ -19,8 +19,7 @@ from_registry=$(
     sort
 )
 
-# ORDER is a flat list of quoted names. Read it rather than the adapter files on
-# disk, because a file the list does not name is never loaded.
+# ORDER is a flat list of quoted names.
 from_adapters=$(
   awk '/^local ORDER = \{/ {inside = 1; next} inside && /^\}/ {exit} inside' "$adapters" |
     grep -o '"[^"]*"' | tr -d '"' | sort

@@ -37,7 +37,7 @@ Claim classes and their freshness windows:
   anything else          180 days
 `
 
-// Record is one citation. The field order is the serialized order, and the lock
+// Record is one citation.
 type Record struct {
 	ID         string `json:"id"`
 	Source     string `json:"source"`
@@ -153,7 +153,6 @@ func readLock(path string) (*lockfile, error) {
 func verify(lockdir string) error {
 	lock := lockPath(lockdir)
 	if _, err := os.Stat(lock); err != nil {
-		// The no-op path. The pre-commit hook runs this over every change
 		logf("no %s in %s; nothing to verify (no-op)", lockfileName, lockdir)
 		return nil
 	}
@@ -165,7 +164,6 @@ func verify(lockdir string) error {
 
 	failed := false
 	now := time.Now()
-	// Records are walked in order rather than looked up by id. The shell
 	for _, raw := range parsed.Records {
 		if !verifyRecord(raw, lockdir, now) {
 			failed = true
@@ -203,7 +201,6 @@ func verifyRecord(raw json.RawMessage, lockdir string, now time.Time) bool {
 		logf("[%s] snapshot missing: %s", id, snapFile)
 		return false
 	}
-	// Without the sidecar there is no evidence the snapshot was ever fetched.
 	if _, err := os.Stat(prov); err != nil {
 		logf("[%s] no capture provenance sidecar (%s.prov.json); hand-authored snapshots are rejected", id, rec.Snapshot)
 		return false
@@ -264,7 +261,6 @@ func assertSafeURL(rawURL string) error {
 	if i := strings.Index(host, "/"); i >= 0 {
 		host = host[:i]
 	}
-	// Userinfo is stripped before matching. https://evil.com@127.0.0.1/ names
 	if i := strings.LastIndex(host, "@"); i >= 0 {
 		host = host[i+1:]
 	}
@@ -290,7 +286,6 @@ func assertSafeURL(rawURL string) error {
 	case strings.HasPrefix(host, "0x") || strings.Contains(host, ".0x"):
 		return die("refusing hex-IP host: %s", host)
 	}
-	// All digits and dots is a dotted or decimal IP. Anything else is a DNS
 	if strings.IndexFunc(host, func(r rune) bool {
 		return (r < '0' || r > '9') && r != '.'
 	}) < 0 {
@@ -433,7 +428,6 @@ func capture(url string, args []string) error {
 	}
 	if info, err := os.Stat(tmpName); err != nil || info.Size() == 0 {
 		engine = "curl"
-		// --max-redirs 0: a redirect is how an allowlisted host hands the
 		if err := run("curl", "-fsS", "--max-redirs", "0", "--max-time", "30",
 			"-o", tmpName, "--", url); err != nil {
 			return die("capture: fetch failed (or redirected) for %s", url)

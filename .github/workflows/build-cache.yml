@@ -1,10 +1,6 @@
 name: Build cache
 
 # Builds the custom-package bundle (packages.<system>.cacheBundle) on each
-# platform and pushes anything not already on cache.nixos.org to Cachix. The
-# cachix-action post-build-hook only uploads paths built during the job, so the
-# nixpkgs deps these packages pull are fetched (not re-uploaded) and the cache
-# stays small — well within the free OSS tier.
 
 on:
   push:
@@ -38,8 +34,6 @@ jobs:
       - uses: actions/checkout@v7
 
       # ubuntu runners ship with ~14GB free on /; building the whole custom
-      # bundle from source overflows the Nix store. Reclaim the preinstalled
-      # toolchains we don't use (~25GB) before building.
       - name: Free disk space
         if: runner.os == 'Linux'
         run: |

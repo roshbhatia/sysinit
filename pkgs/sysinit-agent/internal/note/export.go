@@ -11,12 +11,12 @@ import (
 	"github.com/roshbhatia/sysinit/pkgs/sysinit-agent/internal/store"
 )
 
-// The export is the record rendered in the viewer's own schema. It is derived,
+// The export is the record rendered in the viewer's own schema.
 
 // derivedMarker tells an owner who opens this file that editing it is pointless.
 const derivedMarker = "Derived from the sysinit note record. Every note write rewrites this file, so edit the record instead: sysinit-agent note path"
 
-// exportDoc is the sidecar root. `files` orders the review, so it follows the
+// exportDoc is the sidecar root.
 type exportDoc struct {
 	Version int          `json:"version"`
 	Summary string       `json:"summary"`
@@ -36,7 +36,7 @@ type exportAnnotation struct {
 	NewRange  [2]int64 `json:"newRange"`
 }
 
-// stored is the lenient view of a record note for the export builder. It is
+// stored is the lenient view of a record note for the export builder.
 type stored struct {
 	File      *string      `json:"file"`
 	Line      *json.Number `json:"line"`
@@ -95,7 +95,6 @@ func buildExport(notes []json.RawMessage) *exportDoc {
 			}
 			line = parsed
 		}
-		// The sidecar refuses a line below 1 outright rather than clamping it,
 		if line < 1 {
 			continue
 		}
@@ -138,14 +137,12 @@ func cmdRebuild(args []string) error {
 		return err
 	}
 
-	// The same lock the writers take. Without it a rebuild can read the record,
 	release, err := s.Lock()
 	if err != nil {
 		return err
 	}
 	defer release()
 
-	// An absent or zero-byte record rebuilds to an empty export rather than
 	notes := []json.RawMessage{}
 	if info, statErr := os.Stat(s.Path); statErr == nil && info.Size() > 0 {
 		doc, err := readDoc(s)

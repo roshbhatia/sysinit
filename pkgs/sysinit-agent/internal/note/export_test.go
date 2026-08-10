@@ -133,7 +133,6 @@ func TestExportCarriesRationaleAndAuthorIntact(t *testing.T) {
 	if got.Summary != "anchored" {
 		t.Errorf("summary crossed as %q", got.Summary)
 	}
-	// The multi-line rationale is the whole reason 3.5 checks this. The sidecar
 	if got.Rationale == nil || *got.Rationale != rationale {
 		t.Errorf("rationale did not cross intact: %v", got.Rationale)
 	}
@@ -164,7 +163,6 @@ func TestExportGroupsNotesByFileInRecordOrder(t *testing.T) {
 	mustAdd(t, "--file", "src/other.ts", "--line", "2", "--summary", "third")
 
 	doc := readExport(t)
-	// The viewer orders the review by the sidecar's file order, so the record's
 	if len(doc.Files) != 2 || doc.Files[0].Path != "src/other.ts" || doc.Files[1].Path != "src/app.ts" {
 		t.Fatalf("file order is not the record's: %+v", doc.Files)
 	}
@@ -173,7 +171,7 @@ func TestExportGroupsNotesByFileInRecordOrder(t *testing.T) {
 	}
 }
 
-// TestRebuildRepairsAHandEditedRecord is the reason the verb exists. The record
+// TestRebuildRepairsAHandEditedRecord is the reason the verb exists.
 func TestRebuildRepairsAHandEditedRecord(t *testing.T) {
 	newRepo(t)
 	mustAdd(t, "--file", "src/app.ts", "--line", "1", "--summary", "one")

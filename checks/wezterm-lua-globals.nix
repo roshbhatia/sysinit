@@ -3,10 +3,6 @@
   ...
 }:
 # Every global the wezterm lua tree reads, against the Lua standard library.
-#
-# `luac -p` cannot catch a dropped local: Lua resolves an unbound name to a global,
-# which compiles clean and reads nil at run time. A global read is
-# `GETTABUP _ENV "name"`, so this compiles each file and checks the names.
 let
   allowed = [
     "_G"

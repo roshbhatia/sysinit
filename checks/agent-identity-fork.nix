@@ -4,15 +4,6 @@
   ...
 }:
 # `agent_identity` must not fork `wezterm cli list` when a cheaper source answers.
-#
-# Behavioral, not a grep: the gated call and the ungated call have identical text.
-# A stub `wezterm` goes first on PATH and appends to a marker file. Half one asserts
-# the marker is absent when a cheap source answers; half two asserts it is present
-# when none does, so the gate cannot become a deletion.
-#
-# The file is SOURCED, not run: it defines two functions and has no side effects.
-# The stub cannot go on the PATH of `agent-notify` or `agent-prompt`, whose
-# `runtimeInputs` prepend the store wezterm ahead of it.
 let
   identity = ../modules/home/programs/llm/runtime/agent-identity.sh;
 in
@@ -53,7 +44,6 @@ pkgs.runCommand "check-agent-identity-fork"
     }
 
     # --- half 1: ZMX_SESSION answers, so the fork must not run.
-    # The pane argument is NON-EMPTY on purpose: `ai_workspace` returns early on empty.
     rm -f "$SYSINIT_FORK_MARKER"
     ZMX_SESSION_PREFIX="seshy-"
     ZMX_SESSION="seshy-alpha"

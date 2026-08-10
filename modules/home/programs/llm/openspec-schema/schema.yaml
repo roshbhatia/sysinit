@@ -233,18 +233,18 @@ artifacts:
 
       Example:
       ```
-      ## 1. Setup
+      # # 1.
 
       - [ ] 1.1 Create new module structure (follows `modules/home/programs/llm/skills/` layout)
       - [ ] 1.2 Add dependencies to package.json
 
-      ## 2. Core Implementation
+      # # 2.
 
       - [ ] 2.1 Implement data export function
       - [ ] 2.2 Add CSV formatting utilities
       - [ ] 2.3 Adversarial review (`adversarial-review` skill): critics attempt to break the export phase against the proposal `Behavior` criteria; revise until the loop reaches a terminal state (see the skill for the scaled round cap)
 
-      ## 3. Rollout
+      # # 3.
 
       - [ ] 3.1 Apply: `nh os switch`, gated on `nix flake check` and `nh os build` exiting 0
       - [ ] 3.2 Confirm: the owner spot-checks that the exported columns are the ones they meant to expose

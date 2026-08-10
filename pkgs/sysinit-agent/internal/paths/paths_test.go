@@ -28,7 +28,6 @@ func TestManifestValueWins(t *testing.T) {
 }
 
 func TestKeyMissingFromTheManifestFallsBack(t *testing.T) {
-	// The manifest is present and parses, but has no answer for this key. That
 	writeManifest(t, `{"version":1,"paths":{"agentPanes":"/srv/panes"}}`)
 	t.Setenv("XDG_STATE_HOME", "/state")
 	if got := SeshySessions(); got != "/state/seshy/sessions" {
@@ -49,7 +48,6 @@ func TestAbsentManifestFallsBackToHomeLocalState(t *testing.T) {
 }
 
 func TestMalformedManifestFallsBackRatherThanFailing(t *testing.T) {
-	// A half-written manifest must not take the agent runtime down. The
 	writeManifest(t, `{"version":1,"paths":{"agentPanes":`)
 	t.Setenv("XDG_STATE_HOME", "/state")
 	if got := AgentPanes(); got != "/state/agents/panes" {
@@ -58,7 +56,6 @@ func TestMalformedManifestFallsBackRatherThanFailing(t *testing.T) {
 }
 
 func TestTrailingSlashesAreTrimmedOnBothSides(t *testing.T) {
-	// Both sides, because either one alone keys the same directory on a second
 	writeManifest(t, `{"version":1,"paths":{"stateHome":"/srv/state/"}}`)
 	if got := StateHome(); got != "/srv/state" {
 		t.Fatalf("StateHome() kept the manifest's trailing slash: %q", got)
@@ -80,7 +77,6 @@ func TestEmptyManifestValueIsNotAnAnswer(t *testing.T) {
 }
 
 func TestLookupDoesNotDependOnTestOrder(t *testing.T) {
-	// The reader used to cache the document once per process. Under that cache
 	writeManifest(t, `{"version":1,"paths":{"agentPanes":"/first/panes"}}`)
 	if got := AgentPanes(); got != "/first/panes" {
 		t.Fatalf("AgentPanes() = %q on the first manifest", got)

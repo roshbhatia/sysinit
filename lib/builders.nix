@@ -40,15 +40,10 @@ in
         isDesktop = hostConfig.desktop or false;
       };
 
-      # What the host is for, in one word. A specialArg rather than an option,
-      # because `imports` lists read it and `imports` is resolved before
-      # `config` exists. `modules/shared/options/profiles.nix` has the whole
-      # reason.
+      # What the host is for, in one word.
       profile = hostConfig.profile or "workstation";
 
-      # Whether stylix computes this host's palette. A specialArg for the same
-      # reason `profile` is one: the stylix target overrides are a whole module
-      # that is imported or not, and `imports` cannot read `config`.
+      # Whether stylix computes this host's palette.
       theme = hostConfig.theme or true;
 
       commonArgs = {

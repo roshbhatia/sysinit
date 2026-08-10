@@ -1,12 +1,12 @@
 local M = {}
 
----@class harness.OptionDef
+-- -@class harness.OptionDef
 
 
 local persist = require("harness.persist")
 local STATE_FILE = persist.path("options")
 
----@type table<string, table<string, any>>  agent_name → { opt_name = value }
+-- -@type table<string, table<string, any>>  agent_name → { opt_name = value }
 local state = {}
 local loaded = false
 
@@ -20,8 +20,7 @@ local function save()
   persist.save(STATE_FILE, state)
 end
 
----@param agent_name string
----@return harness.OptionDef[]|nil
+-- -@param agent_name string -@return harness.OptionDef[]|nil
 function M.get_schema(agent_name)
   local ok, adapter = pcall(require, "harness.adapters." .. agent_name)
   if not ok then
@@ -30,8 +29,7 @@ function M.get_schema(agent_name)
   return adapter.options_schema
 end
 
----@param agent_name string
----@return table<string, any>
+-- -@param agent_name string -@return table<string, any>
 function M.get_selected(agent_name)
   load()
   if not state[agent_name] then
@@ -49,30 +47,28 @@ function M.get_selected(agent_name)
   return state[agent_name]
 end
 
----@param agent_name string
+-- -@param agent_name string
 function M.set(agent_name, opt_name, value)
   local sel = M.get_selected(agent_name)
   sel[opt_name] = value
   save()
 end
 
----@param agent_name string
----@param opt_name string
+-- -@param agent_name string -@param opt_name string
 function M.toggle(agent_name, opt_name)
   local sel = M.get_selected(agent_name)
   sel[opt_name] = not sel[opt_name]
   save()
 end
 
----@param agent_name string
+-- -@param agent_name string
 function M.reset(agent_name)
   load()
   state[agent_name] = nil
   save()
 end
 
----@param agent_name string
----@return string[]
+-- -@param agent_name string -@return string[]
 function M.build_args(agent_name)
   local schema = M.get_schema(agent_name)
   if not schema then
@@ -115,8 +111,7 @@ function M.build_args(agent_name)
   return args
 end
 
----@param agent_name string
----@return string
+-- -@param agent_name string -@return string
 function M.summary(agent_name)
   local schema = M.get_schema(agent_name)
   if not schema then
@@ -144,8 +139,7 @@ function M.summary(agent_name)
   return table.concat(parts, " ")
 end
 
----@param agent_name string
----@param on_close? fun()
+-- -@param agent_name string -@param on_close?
 function M.configure(agent_name, on_close)
   local schema = M.get_schema(agent_name)
   if not schema or #schema == 0 then

@@ -1,15 +1,14 @@
 # sysinit:documented-default
 state_dir=$(sysinit_path agents) || state_dir="${XDG_STATE_HOME:-$HOME/.local/state}/agents"
-# Pane records. Schema: pkgs/sysinit-agent/internal/agentstate/SCHEMA.md. Reads the
-# file, not the OSC variable, because it runs outside the pane.
+# Pane records.
 panes_dir=$(sysinit_path agentPanes) || panes_dir="$state_dir/panes"
 selected_file="$state_dir/selected.json"
 cache_file="$state_dir/sessions.json"
 lock_dir="$state_dir/sessions.lock"
 
 STALE_AFTER=${AGENT_SESSIONS_STALE_AFTER:-10}
-# Every external call is bounded: a status line runs this on a timer, so an
-# unbounded call stacks processes rather than merely running slow.
+# Every external call is bounded: a status line runs this on a timer, so an unbounded
+# call stacks processes rather than merely running slow.
 PROBE_TIMEOUT=${AGENT_SESSIONS_PROBE_TIMEOUT:-2}
 LOCK_STALE_AFTER=${AGENT_SESSIONS_LOCK_STALE_AFTER:-30}
 
@@ -31,8 +30,7 @@ command -v jq > /dev/null 2>&1 || emit_empty
 
 mkdir -p "$state_dir" 2> /dev/null || true
 
-# One instance at a time. Without this a run that outlives the timer's interval is
-# joined by the next rather than replaced, which once reached thousands of processes.
+# One instance at a time.
 now=$(date +%s)
 
 if [ -d "$lock_dir" ]; then
@@ -80,8 +78,7 @@ if command -v wezterm > /dev/null 2>&1; then
   [ -n "$live" ] && have_live=1
 fi
 
-# The liveness rule from SCHEMA.md: a record counts while its pane exists. Not an
-# age bound, because `waiting` and `done` are turn-terminal and would expire.
+# The liveness rule from SCHEMA.md: a record counts while its pane exists.
 pane_is_live() {
   [ "$have_live" -eq 0 ] && return 0
   case " $live " in
@@ -103,7 +100,7 @@ session_of_pane() {
   jq -r '.session // ""' "$panes_dir/$1.json" 2> /dev/null
 }
 
-# Reconcile `selected` into the SESSION namespace. `ui.lua` writes a WORKSPACE name
+# Reconcile `selected` into the SESSION namespace.
 if [ -n "$pane_ws" ]; then
   active_pane=$(printf '%s\n' "$pane_ws" | awk '$3 == "true" { print $1; exit }')
 fi

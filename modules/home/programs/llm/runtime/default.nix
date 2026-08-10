@@ -16,8 +16,8 @@ let
 
   bridgePresent = p: builtins.pathExists p && builtins.stringLength (builtins.readFile p) > 0;
 
-  # The one property the registry cannot make unrepresentable: a declared bridge
-  # whose file is empty or absent leaves that harness with no notifier at all.
+  # The one property the registry cannot make unrepresentable: a declared bridge whose
+  # file is empty or absent leaves that harness with no notifier at all.
   missingBridges = builtins.attrNames (
     lib.filterAttrs (_name: src: !(bridgePresent src)) bridgeArtifacts
   );
@@ -36,7 +36,7 @@ let
     </svg>
   '';
 
-  # Generated from the registry rather than written twice. `agent-notify` and
+  # Generated from the registry rather than written twice.
   labels = ''
     agent_label() {
       case "$1" in
@@ -170,8 +170,7 @@ let
     text = builtins.readFile ./loop-gate.sh;
   };
 
-  # The reader half. `hunk` itself stays on PATH under its own name; this only
-  # adds the repository's note export to it.
+  # The reader half.
   noteReview = pkgs.writeShellApplication {
     name = "review";
     runtimeInputs = [

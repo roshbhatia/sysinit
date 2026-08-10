@@ -13,7 +13,7 @@ let
   stylixEnabled = themeEnabled;
   c = themeColors;
 
-  # Map semantic Base16 roles onto Hunk's custom_theme fields. Hunk's
+  # Map semantic Base16 roles onto Hunk's custom_theme fields.
   stylixTheme = {
     base = if config.stylix.polarity == "light" then "github-light-default" else "github-dark-default";
 
@@ -49,7 +49,7 @@ in
   programs.hunk = {
     enable = true;
 
-    # Deliberately NOT enableGitIntegration. That option sets
+    # Deliberately NOT enableGitIntegration.
     enableGitIntegration = false;
 
     # Link the hunk-review skill under ~/.claude/skills for live-session review.
@@ -65,8 +65,8 @@ in
         }
       else
         {
-          # "auto" queries the terminal background and selects a light or dark
-          # github theme, with a dark fallback.
+          # "auto" queries the terminal background and selects a light or dark github
+          # theme, with a dark fallback.
           theme = "auto";
         }
     );

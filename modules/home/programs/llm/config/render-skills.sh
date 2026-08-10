@@ -3,7 +3,7 @@
 set -euo pipefail
 
 SRC="${SYSINIT_SKILL_SRC:?SYSINIT_SKILL_SRC must name the skill source directory}"
-# Read one path out of the paths manifest. The layout has one owner,
+# Read one path out of the paths manifest.
 # sysinit:documented-default
 sysinit_state_root="${XDG_STATE_HOME:-$HOME/.local/state}"
 sysinit_manifest="${SYSINIT_PATHS_MANIFEST:-$sysinit_state_root/sysinit/paths.json}"

@@ -70,19 +70,6 @@ jobs:
           labels: automated,dependencies
 
       # Queue the automation PR behind the required checks.
-      #
-      # This used to squash-merge after `sleep 5`, with a comment asserting "No
-      # branch protection, no required checks, so there's nothing for
-      # `gh pr merge --auto` to wait on". That is no longer true: main requires
-      # the `verify` context. This is the higher-volume automation path (every 6
-      # hours, bumping flake.lock and _sources), so leaving it on a 5-second
-      # merge would bypass the gate far more often than the Dependabot path does.
-      #
-      # A PR opened with GITHUB_TOKEN does not trigger `on: pull_request`
-      # workflows, so `verify` would never report and `--auto` would queue
-      # forever. The PR is therefore created with WORKFLOWS_PAT when it is
-      # available. Without that secret the PR still opens and simply waits for a
-      # human, which is the safe direction: nothing merges unverified.
       - name: Merge automation PR
         if: steps.cpr.outputs.pull-request-operation != ''
         env:

@@ -9,7 +9,7 @@ die() {
   exit 1
 }
 
-# Loud, not silent. Without the record command there is no way to tell "this
+# Loud, not silent.
 command -v sysinit-agent > /dev/null 2>&1 ||
   die "sysinit-agent is not on PATH, so the note record cannot be located"
 
@@ -21,10 +21,10 @@ if [ -s "$record" ] && [ ! -s "$export_file" ]; then
   die "$record holds notes but $export_file is missing. Run: sysinit-agent note rebuild"
 fi
 
-# Neither file is the ordinary state of a clean repository, not an error. Omit
+# Neither file is the ordinary state of a clean repository, not an error.
 if [ ! -s "$export_file" ]; then
   exec hunk diff "$@"
 fi
 
-# A real path, never `-`. Reading the sidecar from stdin returns a null watch
+# A real path, never `-`.
 exec hunk diff --agent-context "$export_file" --agent-notes "$@"

@@ -1,7 +1,7 @@
 { lib }:
 # The profile tiers, and the one predicate that reads them.
 let
-  # Ordered, lowest first. Each tier contains the one below it.
+  # Ordered, lowest first.
   tiers = [
     "minimal"
     "dev"

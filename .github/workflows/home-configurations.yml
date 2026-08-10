@@ -1,19 +1,6 @@
 name: Home configurations
 
 # Builds every standalone home configuration: profile crossed with system.
-#
-# Deliberately NOT a required check and deliberately NOT on push. The Linux
-# cells build a second toolchain graph, which takes tens of minutes, and
-# check.yml's `verify` job is required on main. Run it when the profile split,
-# the module tiers, or the package lists move:
-#
-#   gh workflow run home-configurations.yml
-#
-# This file is what survives `.github/workflows/closure-baseline.yml`. That
-# workflow's `baseline` job diffed against a path inside the
-# `make-sysinit-composable` change directory and could not outlive its archive.
-# The `home` job below never referenced that directory and gates something the
-# repository keeps, so it stays.
 
 on:
   workflow_dispatch: {}
@@ -26,15 +13,7 @@ permissions:
   contents: read
 
 jobs:
-  # Every cell of profile crossed with system, not a sample of one. Which
-  # modules are imported depends on both, so a `values` leaf read only by a
-  # `dev` module is invisible to a `minimal` build and a leaf read only by a
-  # Darwin module is invisible to a Linux build.
-  #
-  # Six cells, split two and four rather than three and three: `cacheSystems`
-  # holds one Darwin system and two Linux ones. The two Darwin cells also build
-  # locally on the owner's machine; the four Linux cells cannot, because the pi
-  # harness pulls an x86_64-linux derivation through IFD.
+  # Every cell of profile crossed with system, not a sample of one.
   home:
     strategy:
       fail-fast: false
@@ -47,9 +26,6 @@ jobs:
           - x86_64-linux
           - aarch64-linux
         # Each entry names a `system` that the cross above already produces, so
-        # the runner is merged into those cells rather than added as jobs of its
-        # own. An include that shared no key with the matrix would append
-        # standalone jobs instead, which is the trap here.
         include:
           - system: aarch64-darwin
             os: macos-latest

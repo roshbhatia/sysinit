@@ -14,26 +14,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       # Squash + delete branch, queued behind the required checks.
-      #
-      # This used to be a plain `gh pr merge --squash` after `sleep 5`, from
-      # when no checks gated the repo. The `check` workflow now does, and a
-      # 5-second merge would land a flake.lock bump before that workflow had
-      # even started — the dependency bumps most likely to break the build were
-      # the ones least gated. `--auto` queues the merge until every required
-      # check passes.
-      #
-      # `--auto` needs two repo settings: auto-merge allowed, and the `verify`
-      # job required on main. Without them the command errors rather than
-      # merging early, which fails safe.
-      #
-      # PRs that modify workflow files require the `workflow` PAT scope —
-      # GITHUB_TOKEN alone can't merge those. If WORKFLOWS_PAT is set
-      # (a PAT with `repo` + `workflow` scopes), use it; otherwise fall
-      # back to GITHUB_TOKEN and accept that workflow-bump PRs need to be
-      # merged manually.
-      #
-      # To create the PAT: gh auth refresh -s workflow then store via
-      #   gh secret set WORKFLOWS_PAT --repo roshbhatia/sysinit
       - name: Merge Dependabot PR
         env:
           GH_TOKEN: ${{ secrets.WORKFLOWS_PAT || secrets.GITHUB_TOKEN }}
