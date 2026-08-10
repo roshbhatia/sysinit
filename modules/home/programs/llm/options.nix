@@ -181,6 +181,25 @@ in
         '';
       };
 
+      harnessOverrides = mkOption {
+        type = types.attrsOf (types.attrsOf types.attrs);
+        default = { };
+        example = {
+          crush.agentgateway.url = "http://127.0.0.1:18081/mcp";
+        };
+        description = ''
+          Per-harness replacements for a server's definition, keyed by harness
+          name then server name, applied after `suppressedServers`.
+
+          For a harness that must reach the same server on different terms than
+          the rest of the host. A local model cannot afford the full tool
+          surface an aggregating gateway exposes, so it points at a filtered
+          endpoint while every other harness keeps the unfiltered one. The
+          server name must already exist for this host, because this replaces a
+          definition rather than adding one.
+        '';
+      };
+
       suppressedServers = mkOption {
         type = types.listOf types.str;
         default = [ ];

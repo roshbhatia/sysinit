@@ -2,6 +2,7 @@
   lib,
   additionalServers ? { },
   suppressedServers ? [ ],
+  harnessOverrides ? { },
 }:
 let
   flattenPermissions =
@@ -99,9 +100,23 @@ let
   allServers = lib.filterAttrs (name: _: !(builtins.elem name suppressedServers)) (
     defaultServers // additionalServers
   );
+  # Throws rather than skipping an unknown name. A silent no-op is how
+  # suppressedServers sat dead for five days: the option was set, read by
+  # nobody, and nothing said so.
+  serversFor =
+    harness:
+    let
+      patches = harnessOverrides.${harness} or { };
+      unknown = lib.subtractLists (builtins.attrNames allServers) (builtins.attrNames patches);
+    in
+    if unknown != [ ] then
+      throw "llm: sysinit.llm.mcp.harnessOverrides.${harness} names ${lib.concatStringsSep ", " unknown}, which this host does not serve."
+    else
+      allServers // lib.mapAttrs (name: patch: allServers.${name} // patch) patches;
 in
 {
   servers = allServers;
+  inherit serversFor;
   inherit permissions;
   inherit allPermissions;
 }

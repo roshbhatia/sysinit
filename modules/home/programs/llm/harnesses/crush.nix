@@ -10,7 +10,7 @@ let
 
   crushSettings = {
     "$schema" = "https://charm.land/crush.json";
-    mcp = llmLib.mcp.formatForCrush kit.mcpServers.servers;
+    mcp = llmLib.mcp.formatForCrush (kit.mcpServers.serversFor "crush");
     models = {
       large = {
         model = "claude-sonnet-5";

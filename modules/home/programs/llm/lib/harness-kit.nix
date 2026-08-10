@@ -10,7 +10,7 @@
       skillsLib = import ../skills/render.nix { inherit pkgs; };
       mcpServers = import ./mcp-catalog.nix {
         inherit lib;
-        inherit (config.sysinit.llm.mcp) additionalServers suppressedServers;
+        inherit (config.sysinit.llm.mcp) additionalServers suppressedServers harnessOverrides;
       };
     in
     {
