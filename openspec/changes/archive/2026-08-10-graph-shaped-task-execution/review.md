@@ -224,6 +224,34 @@ Evidence rather than assertion:
   `exec zsh -i`, so an undefined `s`, or its own `command -v` guards declining,
   still leaves a plain shell in the same directory.
 
+### Phase 3 rollout
+
+The switch ran with all four gates green: `hack/lint.sh --all`, `nix flake
+check`, the lv426 build, and the arrakis toplevel evaluation. After it,
+`spec-preflight` reports no schema drift, `wtrun` is absent from the rendered
+skill registry, and the rendered schema carries the new fan-out rule.
+
+Task 3.2, tested as far as a command can decide it:
+
+- `/etc/profiles/per-user/rshnbhatia/bin/zsh`, the path `get_nix_binary`
+  resolves, exists. A wrong path here would have broken the whole route.
+- `s` is reachable from `zsh -i -c`: `whence -w s` reports `s: function`, so an
+  interactive shell does source the definition.
+- `s 'dirtytest'` resolves the target and reaches the attach. With
+  `SYSINIT_DEBUG=1` the run prints `resolved "dirtytest" -> ...` followed by
+  `attaching zmx session dirtytest`.
+- Not decided here: the session persisting in `zmx ls`. Under `script`,
+  `zmx attach` resets the terminal and exits on stdin EOF, so a session created
+  that way ends immediately. zmx itself is sound: `zmx run probe -d` created and
+  listed a session in the same socket directory. The remaining step needs a
+  user-controlled TTY, which is the reason the check was moved to this gate
+  rather than claimed at 2.2.
+- No state was left behind: no zmx session and no stray process remain.
+
+The two human-owned decisions, on where the write-set rule is drawn and whether
+the tasks instruction is now too long, were settled by the owner directing the
+archive. They are recorded as the owner's, not as a check that passed.
+
 ## Terminal state
 
 State: STALLED
