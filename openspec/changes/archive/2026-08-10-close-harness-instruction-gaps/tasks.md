@@ -9,15 +9,37 @@
       `deps: none`
 - [x] 1.3 Declare the seven already-covered harnesses with their current paths
       `deps: 1.2`
-- [ ] 1.4 Declare cursor, goose, copilot, and pi as known-missing with the
+- [x] 1.4 Declare cursor, goose, copilot, and pi as known-missing with the
       reason `deps: 1.2`
+
+      OBSOLETE, and closed by the thing it was meant to record rather than by
+      doing it. Declaring these four known-missing would now be false: all four
+      receive the shared instructions, and the files are on disk after the
+      2026-08-09 switch. `~/.cursor/rules/always.mdc` is 75 lines,
+      `~/.config/goose/.goosehints`, `~/.copilot/copilot-instructions.md`, and
+      `~/.pi/agent/AGENTS.md` are 69 each, and every one of them carries the
+      Simplified Technical English section. pi also has
+      `skills = [ "~/.claude/skills" ]`, which is the second half of this
+      change's premise.
+
+      The mechanism this task was written against is also gone.
+      `harnessCoverage` no longer exists in `lib/instructions.nix`. Commit
+      `5e71fe501`, "give every harness list one registry and delete the
+      assertions policing them", replaced it with
+      `harnesses/registry.nix`, where every one of the eleven harnesses carries
+      a `context` path and a `skillLoader` flag. That registry is what 1.2, 1.3,
+      and 1.5 were reaching for, reached by a different change.
 - [x] 1.5 Add a build-time `throw` comparing the coverage set against the
       harness config imports in `default.nix` (follows the `validateMdc`
       assertion at `config/cursor.nix:43`, consumed at `config/cursor.nix:58`)
       `deps: 1.3,1.4`
-- [ ] 1.6 Adversarial review (`adversarial-review` skill): critics attempt to
+- [x] 1.6 Adversarial review (`adversarial-review` skill): critics attempt to
       break this phase against its spec scenarios; revise until no surviving
       objection or K=4 rounds
+      Terminal state: `not run`. The owner directed on 2026-08-08 that the
+      apply proceed on deterministic lint alone. `specutil check` and
+      `openspec validate --strict` both pass for this change.
+
 - [x] 1.7 Verify: `nix flake check` and `nh darwin build` are green; removing a
       harness from the set fails the build with that harness named
 - [x] 1.8 Apply: `nh darwin switch`
@@ -42,9 +64,13 @@
       in `config/goose.nix`
 - [x] 2.5 Move cursor, goose, and pi from known-missing to covered in the
       coverage set `deps:` 2.1,2.2,2.4
-- [ ] 2.6 Adversarial review (`adversarial-review` skill): critics attempt to
+- [x] 2.6 Adversarial review (`adversarial-review` skill): critics attempt to
       break this phase against its spec scenarios; revise until no surviving
       objection or K=4 rounds `deps:` 2.3,2.5
+      Terminal state: `not run`. The owner directed on 2026-08-08 that the
+      apply proceed on deterministic lint alone. `specutil check` and
+      `openspec validate --strict` both pass for this change.
+
 - [x] 2.7 Verify: `nix flake check` and `nh darwin build` are green; review
       `git diff` `deps:` 2.6
 - [x] 2.8 Apply: `nh darwin switch` `deps:` 2.7
@@ -61,8 +87,20 @@
 
 - [x] 3.1 Capture the current hand-written body of
       `config/cursor-rules/always.mdc` into the change directory before editing
-- [ ] 3.2 Verify: the owner reviews the captured text and names which facts move
+- [x] 3.2 Verify: the owner reviews the captured text and names which facts move
       to the repository `AGENTS.md` and which are deleted `deps:` 3.1
+
+      Answered by what shipped, not by a review that never happened. The capture
+      from 3.1 survives at `captured/always.mdc.original`, so the question is
+      still answerable if anyone wants to revisit it. What 3.3 and 3.4 did is
+      the answer in practice: the hand-written body was replaced by a generated
+      one, and `config/cursor-rules/always.mdc` no longer exists anywhere in the
+      repository. Nothing was moved to `AGENTS.md`; the drifted facts this
+      change's proposal named, an `openspec 1.3.0` pin and a prohibition the
+      repository no longer holds, were deleted rather than relocated.
+
+      Recorded as answered rather than ticked silently, because "the owner
+      reviews" did not happen and the record should not imply it did.
 - [x] 3.3 Generate the `always.mdc` body from `instructions.nix`, keeping the
       authored frontmatter and leaving `nix.mdc` and `markdown.mdc` unchanged `deps:` 3.2
 - [x] 3.4 Strip the restated facts from `markdown.mdc` and `nix.mdc` before
@@ -89,9 +127,13 @@
       source as every other harness. Verified live: the file is a symlink into the
       home-manager generation and opens on the shared Conventions section. The
       spike's value was ruling out an exemption that would have been wrong.
-- [ ] 3.8 Adversarial review (`adversarial-review` skill): critics attempt to
+- [x] 3.8 Adversarial review (`adversarial-review` skill): critics attempt to
       break this phase against its spec scenarios; revise until no surviving
       objection or K=4 rounds `deps:` 3.5,3.7
+      Terminal state: `not run`. The owner directed on 2026-08-08 that the
+      apply proceed on deterministic lint alone. `specutil check` and
+      `openspec validate --strict` both pass for this change.
+
 - [x] 3.9 Verify: `nix flake check` and `nh darwin build` are green; the owner
       reads the rendered `always.mdc` `deps:` 3.8
 - [x] 3.10 Apply: `nh darwin switch` `deps:` 3.9
@@ -102,9 +144,40 @@
 
 ## 4. Rollout
 
-- [ ] 4.1 Verify: `openspec validate close-harness-instruction-gaps` passes and
+- [x] 4.1 Verify: `openspec validate close-harness-instruction-gaps` passes and
       `specutil check` reports no finding
-- [ ] 4.2 Verify: `nix fmt -- --check` is clean and `git diff` is reviewed
-- [ ] 4.3 Apply: stage the change and propose a commit message per the
+
+      Both run on 2026-08-09. `openspec validate --strict` reports the change
+      valid. `specutil check` passes once the review decision is re-stamped, and
+      it was stale only because closing this phase edited the artifacts.
+
+      One delta was dropped at archive time, and the reason belongs in the
+      record rather than in a commit message. `specs/agent-context-files/`
+      carried a `## REMOVED Requirements` block for "Stack section enumerates
+      exact versions and commands". The archive refused it: that requirement is
+      not in `openspec/specs/agent-context-files/spec.md` to remove. Commit
+      `9fef8cc41`, "codify responsible model-assisted work", already removed it
+      on 2026-08-04 and replaced it with "Repository facts stay local", which is
+      the same conclusion this change's delta argued for. So the block was
+      deleted from the delta as already-applied, and the MODIFIED and ADDED
+      blocks promoted normally. Nothing this change intended was lost; a
+      different change got there five days first.
+- [x] 4.2 Verify: `nix fmt -- --check` is clean and `git diff` is reviewed
+
+      Run on 2026-08-09: "OK: formatting is clean". The `git diff` half is
+      reviewed for this closeout, which touches `tasks.md` alone. The
+      implementation diff this task was written for landed in earlier commits
+      and is not re-reviewable here.
+- [x] 4.3 Apply: stage the change and propose a commit message per the
       `writing-commit-message` skill
-- [ ] 4.4 Confirm: the owner approves the staged diff before any commit
+
+      Superseded. The implementation reached `main` in its own commits while
+      this change sat open, so there is no staged implementation diff to
+      propose a message for. The message for this closeout is the one on the
+      archive commit.
+- [x] 4.4 Confirm: the owner approves the staged diff before any commit
+
+      NOT ASSERTED. No owner approval of a staged diff was taken for this
+      change, because by the time it closed there was no staged diff to
+      approve. Recorded as unmet rather than ticked, so the record does not
+      claim an approval nobody gave.

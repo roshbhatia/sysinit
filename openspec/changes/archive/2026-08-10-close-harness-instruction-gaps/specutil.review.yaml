@@ -1,9 +1,9 @@
 version: 1
 change: close-harness-instruction-gaps
 decision: approved
-note: 'Re-recorded after the 2026-08-03 pass: dependency edges declared on the converted phases, the toast-body composer extracted and fixture-tested, and phase-5 task ids renumbered to their own phase.'
-change_hash: 5db56c05dd6a9595
-base_commit: af6ba6382e9599211b2069fb7a07dd48e1af6a1c
+note: 'closeout on 2026-08-09: premise delivered via harnesses/registry.nix; the agent-context-files REMOVED delta dropped as already applied by 9fef8cc41; 4.4 recorded NOT ASSERTED'
+change_hash: 8e239c64d3887c5a
+base_commit: 54d2684714c2e7ed6c5c1b8f057e6cc5e00e2e18
 items:
     1d0ef0a7f1e2bfad:
         hash: da6b246a0466599e
@@ -11,6 +11,9 @@ items:
     2c456ac2595d9300:
         hash: 853aa3fd86baa66c
         text: 'Verify: `openspec validate close-harness-instruction-gaps` passes and `specutil check` reports no finding'
+    4ef85a96d6ec918a:
+        hash: 1f0ca5b0540d8fc1
+        text: 'Adversarial review (`adversarial-review` skill): critics attempt to break this phase against its spec scenarios; revise until no surviving objection or K=4 rounds Terminal state: `not run`. The owner directed on 2026-08-08 that the apply proceed on deterministic lint alone. `specutil check` and `openspec validate --strict` both pass for this change.'
     5a788b29818db2e1:
         hash: 259f012e0e0f808a
         text: Move cursor, goose, and pi from known-missing to covered in the coverage set
@@ -62,12 +65,6 @@ items:
     4261fbf25ed46c7d:
         hash: 54d17a39d4ee338c
         text: Add a `harnessCoverage` attribute set to `lib/instructions.nix` mapping each configured harness to a context path or an exemption reason
-    9259a54c40a7147d:
-        hash: c1389bff72961541
-        text: 'Adversarial review (`adversarial-review` skill): critics attempt to break this phase against its spec scenarios; revise until no surviving objection or K=4 rounds'
-    0631681f6afe0f53:
-        hash: c1389bff72961541
-        text: 'Adversarial review (`adversarial-review` skill): critics attempt to break this phase against its spec scenarios; revise until no surviving objection or K=4 rounds'
     a9ee44250fbef9c3:
         hash: a9cc77f502090bf9
         text: Write the goose global hints file from `kit.mkInstructionsWithStyle` in `config/goose.nix`
@@ -77,6 +74,9 @@ items:
     c1ec81bdf8e3b538:
         hash: 64ee44eca76bb615
         text: 'Apply: stage the change and propose a commit message per the `writing-commit-message` skill'
+    c3b6991a6265b22b:
+        hash: 1f0ca5b0540d8fc1
+        text: 'Adversarial review (`adversarial-review` skill): critics attempt to break this phase against its spec scenarios; revise until no surviving objection or K=4 rounds Terminal state: `not run`. The owner directed on 2026-08-08 that the apply proceed on deterministic lint alone. `specutil check` and `openspec validate --strict` both pass for this change.'
     c6e0d5cf51191d17:
         hash: 3943310dbf86a311
         text: Add the duplicate-fact assertion that fails when an authored rule file restates a generated prohibition or a pinned version
@@ -92,9 +92,9 @@ items:
     d105d2e977c88b39:
         hash: da6b246a0466599e
         text: 'Apply: `nh darwin switch`'
-    dc17a060a21a2654:
-        hash: c1389bff72961541
-        text: 'Adversarial review (`adversarial-review` skill): critics attempt to break this phase against its spec scenarios; revise until no surviving objection or K=4 rounds'
+    eb9efe08e31eb46c:
+        hash: 1f0ca5b0540d8fc1
+        text: 'Adversarial review (`adversarial-review` skill): critics attempt to break this phase against its spec scenarios; revise until no surviving objection or K=4 rounds Terminal state: `not run`. The owner directed on 2026-08-08 that the apply proceed on deterministic lint alone. `specutil check` and `openspec validate --strict` both pass for this change.'
     f51a9e4e8e662c8d:
         hash: 8b1678640010d658
         text: Declare cursor, goose, copilot, and pi as known-missing with the reason

@@ -46,28 +46,6 @@ satisfied jointly with it.
 - **AND** the message directs the author to move the text to a repository
   `AGENTS.md` or to the owning skill
 
-## REMOVED Requirements
-
-### Requirement: Stack section enumerates exact versions and commands
-
-**Reason**: The requirement mandates a `## Stack` section listing each tool with
-its pinned version and a `## Commands` section of fenced bash blocks. The
-renderer at `modules/home/programs/llm/lib/instructions.nix` produces neither
-section, and the corrected section-list requirement above forbids both. A
-renderer cannot omit `Stack` and populate `Stack`. Leaving this requirement in
-force would preserve the exact self-contradiction that the section-list
-correction exists to remove.
-
-Its scenario "Version drift caught" is already false against shipped code: the
-repository is on openspec 1.6.0 while `config/cursor-rules/always.mdc` still
-states 1.3.0, and no check fails.
-
-**Migration**: A pinned version and a command list are repository facts. They
-belong in that repository's own `AGENTS.md`, which already carries both, not in
-the cross-repository context that loads in every session. The duplicate-fact
-assertion added by the `cursor-rules-mdc` delta covers the drift this
-requirement tried to catch.
-
 ## ADDED Requirements
 
 ### Requirement: Every configured harness receives the generated context
