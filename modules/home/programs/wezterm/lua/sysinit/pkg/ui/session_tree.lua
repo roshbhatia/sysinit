@@ -110,20 +110,20 @@ function M.colors(win, config_data)
   pal = (ok and pal) or (config_data and config_data.colors) or {}
   local a, b = pal.ansi or {}, pal.brights or {}
   return {
-    ws_live  = b[7] or b[8] or pal.foreground or "#c0caf5",   -- bright cyan/white — live session
-    ws_dorm  = a[8] or pal.foreground or "#a9b1d6",           -- ansi-white (mid-gray) — dormant
-    dir_ic   = a[5] or "#7aa2f7",                             -- ansi blue — folder icon (softer than bright)
-    waiting  = b[2] or a[2] or "#f7768e",                     -- bright red — needs input (status signal: keep vivid)
-    done     = b[3] or a[3] or "#9ece6a",                     -- bright green — finished (status signal: keep vivid)
-    working  = b[4] or a[4] or "#e0af68",                     -- bright yellow — running (status signal: keep vivid)
-    idle     = a[8] or "#a9b1d6",                             -- ansi-white (mid-gray) — idle
+    ws_live  = b[7] or b[8] or pal.foreground or "#c0caf5",
+    ws_dorm  = a[8] or pal.foreground or "#a9b1d6",
+    dir_ic   = a[5] or "#7aa2f7",
+    waiting  = b[2] or a[2] or "#f7768e",
+    done     = b[3] or a[3] or "#9ece6a",
+    working  = b[4] or a[4] or "#e0af68",
+    idle     = a[8] or "#a9b1d6",
     name     = pal.foreground or "#c0caf5",
-    reason   = a[6] or "#bb9af7",                             -- ansi magenta — muted; reason is secondary info
-    age      = a[8] or "#a9b1d6",                             -- ansi-white (mid-gray) — timestamps
-    chrome   = b[1] or "#414868",                             -- bright-black — intentionally dim tree lines
-    badge_bg = pal.cursor_bg or b[1] or "#414868",            -- subtle chip background for pane badges
-    ghost    = a[8] or pal.foreground or "#a9b1d6",            -- muted bracketed match suffix
-    ansi     = a,                                              -- raw ansi array for badge color slots
+    reason   = a[6] or "#bb9af7",
+    age      = a[8] or "#a9b1d6",
+    chrome   = b[1] or "#414868",
+    badge_bg = pal.cursor_bg or b[1] or "#414868",
+    ghost    = a[8] or pal.foreground or "#a9b1d6",
+    ansi     = a,
     brights  = b,
   }
 end

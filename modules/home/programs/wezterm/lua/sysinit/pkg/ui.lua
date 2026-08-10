@@ -245,10 +245,6 @@ function M.setup(config)
 
   local smart_path = ui_format.smart_path
 
-  -- Reads the OSC user variable, which wezterm has already base64-decoded,
-  -- and falls back to the agent-deck plugin. Schema: pkgs/sysinit-agent/internal/agentstate/SCHEMA.md.
-  -- The variable is authoritative here because it is live and dies with the
-  -- pane, so it needs no liveness rule.
   local pane_agent_state = ui_panes.agent_state
 
   local function deck_states()

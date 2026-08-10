@@ -19,7 +19,6 @@ M.state_labels = {
   idle    = "",
 }
 
--- Reasons the agent emits that add nothing next to the label.
 M.suppressed_reasons = { ["your move"] = true, ["submit"] = true, ["message"] = true }
 
 function M.status_color(status, colors)

@@ -83,8 +83,7 @@ function M.active_names()
   return names
 end
 
--- Assigns each live workspace a stable digit. A workspace keeps its slot for as
--- long as it exists, so the switcher chords do not move under the owner.
+-- A workspace keeps its digit while it exists, so the chords do not move.
 local function compute_slots()
   local prev = wezterm.GLOBAL.workspace_slots
   if type(prev) ~= "table" then

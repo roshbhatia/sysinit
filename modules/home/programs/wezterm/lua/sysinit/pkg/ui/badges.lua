@@ -1,7 +1,5 @@
 local M = {}
 
--- Pane badges. A stable nickname per pane id so two panes are told apart at a
--- glance without reading the id.
 local NAMES = {
   "muadib",   "stilgar",  "chani",    "gurney",   "feyd",     "irulan",
   "alia",     "thufir",   "mentat",   "kwisatz",  "hayt",     "korba",    "scytale",
@@ -42,13 +40,13 @@ local NAMES = {
 }
 
 function M.name(pane_id)
-  local h = pane_id * 2654435761  -- Knuth multiplicative hash
+  local h = pane_id * 2654435761
   return NAMES[(h % #NAMES) + 1]
 end
 
 function M.color(pane_id, colors)
   local h = pane_id * 2654435761
-  local slot = (h % 6) + 2  -- ansi slots 2..7
+  local slot = (h % 6) + 2
   if type(colors) == "table" then
     local a = colors.ansi or (colors.colors and colors.colors.ansi)
     if type(a) == "table" and a[slot] then return a[slot] end

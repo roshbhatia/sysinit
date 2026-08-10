@@ -9,10 +9,6 @@ local ui_sessions = require("sysinit.pkg.ui.sessions")
 
 local M = {}
 
--- The workspace-manager surface: the switcher choices, the session tree
--- overlay, and the chords that drive both. `ctx` carries what this surface
--- reads and does not own: the two mux walks, the palette, and the optional
--- plugin handles.
 function M.setup(config, wm, ctx)
 
   wm.get_choices = function()

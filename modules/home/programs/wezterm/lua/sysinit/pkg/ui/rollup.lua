@@ -1,18 +1,10 @@
 local wezterm = require("wezterm")
 local panes_mod = require("sysinit.pkg.ui.panes")
 
--- Collapses every agent pane in the mux to one entry per workspace, and caches
--- the result for a second.
---
--- The walk and the collapse are separate on purpose. `collect` needs a live
--- mux and cannot run under test; `reduce` is a pure function of `collect`'s
--- output and is where the precedence rule lives, so a test can exercise the
--- rule without a GUI.
+-- `collect` needs a live mux; `reduce` is pure, so the precedence rule is testable.
 local M = {}
 
--- Walks the mux and returns one observation per agent pane, in walk order.
--- Returns nil if the walk raised, which is what the pcall in the original
--- `compute_agent_session_states` did before it returned two empty tables.
+-- Returns nil if the walk raised.
 function M.collect(deck_states)
   local observations = {}
   local ok = pcall(function()
@@ -25,18 +17,12 @@ function M.collect(deck_states)
           local status, reason, since, agent = panes_mod.agent_state(p, deck_states)
           if status then
             local pane_id = p:pane_id()
-            -- The record read costs one file open per agent pane. Only panes
-            -- with a status reach here, and the cache below throttles the whole
-            -- function to once a second, which is what `session_tree` relies on
-            -- for the same read.
             local rec = panes_mod.read_pane_record(pane_id)
             observations[#observations + 1] = {
               pane_id = pane_id,
               window_id = window_id,
               tab_id = tab_id,
               workspace = workspace,
-              -- The workspace is the group; the session is what is inside it.
-              -- The two are different namespaces and neither replaces the other.
               session = rec and rec.session or "",
               repo = (function() local r, _ = panes_mod.pane_repo(p); return r end)(),
               branch = rec and rec.branch or "",
@@ -57,11 +43,7 @@ function M.collect(deck_states)
   return observations
 end
 
--- Collapses observations to one entry per workspace. Pure: same input, same
--- output, no mux and no filesystem.
---
--- Precedence: the higher rank wins, and on a tie the older `since` wins. A
--- pane with no `since` never displaces one that has it.
+-- Higher rank wins; on a tie the older `since` wins, and a nil `since` never displaces.
 function M.reduce(observations)
   local sessions = {}
   for _, o in ipairs(observations) do
@@ -74,10 +56,6 @@ function M.reduce(observations)
           reason = o.reason or "",
           since = o.since,
           rank = rank,
-          -- The session names of the panes in this group, first seen first. It
-          -- lives on the collapsed entry and not on the observation list alone,
-          -- because two of the three consumers take the first return only and
-          -- would never see it.
           names = {},
         }
         sessions[o.workspace] = cur
@@ -111,10 +89,7 @@ end
 
 local cache = { at = -1, sessions = {}, panes = {} }
 
--- `get_deck_states` is a function rather than the table itself, so the deck is
--- not queried on a cache hit. The agent-deck handle stays in `ui.lua`: the same
--- handle configures the plugin and feeds `session_tree`, so it is not the
--- rollup's to own.
+-- A function, not a table, so the deck is not queried on a cache hit.
 function M.states(get_deck_states)
   local now = os.time()
   if now ~= cache.at then

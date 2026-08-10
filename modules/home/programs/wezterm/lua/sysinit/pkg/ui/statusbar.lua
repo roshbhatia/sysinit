@@ -33,10 +33,7 @@ end
 local CHIP_NAME_MAX = 16
 local CHIP_SESSIONS_MAX = 20
 
--- The session names inside a workspace chip, so a group named for a workspace
--- still says which zmx sessions are in it. Empty when there is nothing the
--- chip label does not already say: no record carried a session, or the one
--- session has the workspace's own name.
+-- Empty when the chip label already says it.
 local function chip_sessions(st, workspace)
   local names = st and st.names or nil
   if not names or #names == 0 then
