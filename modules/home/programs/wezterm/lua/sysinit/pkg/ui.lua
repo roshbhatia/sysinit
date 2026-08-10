@@ -3,10 +3,12 @@ local wezterm = require("wezterm")
 local keybindings = require("sysinit.pkg.keybindings")
 local utils = require("sysinit.pkg.utils")
 local plugin_loader = require("sysinit.pkg.plugin_loader")
+local ui_badges = require("sysinit.pkg.ui.badges")
 local ui_format = require("sysinit.pkg.ui.format")
 local ui_panes = require("sysinit.pkg.ui.panes")
 local ui_session_tree = require("sysinit.pkg.ui.session_tree")
 local ui_sessions = require("sysinit.pkg.ui.sessions")
+local ui_statusbar = require("sysinit.pkg.ui.statusbar")
 local ui_rollup = require("sysinit.pkg.ui.rollup")
 
 local M = {}
@@ -368,111 +370,11 @@ function M.setup(config)
     return ui_session_tree.colors(win, config_data)
   end
   local function agent_status()
-    local sessions = agent_session_states()
-    local now = os.time()
-    local best, count = nil, 0
-    for _, st in pairs(sessions) do
-      if st.rank >= agent_state_rank.working then
-        count = count + 1
-        if
-          not best
-          or st.rank > best.rank
-          or (st.rank == best.rank and (st.since or now) < (best.since or now))
-        then
-          best = st
-        end
-      end
-    end
-    if not best then
-      return ""
-    end
-    local icon = agent_state_icons[best.status] or "●"
-    local text = " " .. icon
-    if count > 1 then
-      text = text .. " " .. count
-    end
-    return wezterm.format({ { Text = text .. " " } })
-  end
-
-  local CHIP_NAME_MAX = 16
-  local CHIP_SESSIONS_MAX = 20
-
-  -- The session names inside a workspace chip, so a group named for a workspace
-  -- still says which zmx sessions are in it. Empty when there is nothing the
-  -- chip label does not already say: no record carried a session, or the one
-  -- session has the workspace's own name.
-  local function chip_sessions(st, workspace)
-    local names = st and st.names or nil
-    if not names or #names == 0 then
-      return ""
-    end
-    if #names == 1 and names[1] == workspace then
-      return ""
-    end
-    local text = table.concat(names, ",")
-    if #text > CHIP_SESSIONS_MAX then
-      text = text:sub(1, CHIP_SESSIONS_MAX - 1) .. "…"
-    end
-    return "[" .. text .. "]"
+    return ui_statusbar.agent_status(agent_session_states())
   end
 
   local function session_chips(window)
-    local slots = session_slots()
-    local ordered = {}
-    for name, slot in pairs(slots) do
-      ordered[#ordered + 1] = { name = name, slot = slot }
-    end
-    if #ordered == 0 then
-      return ""
-    end
-    table.sort(ordered, function(a, b)
-      return a.slot < b.slot
-    end)
-
-    local sessions = agent_session_states()
-    local active = ""
-    pcall(function()
-      active = window:active_workspace()
-    end)
-    local colors = tree_colors(window)
-
-    local items = {}
-    for _, entry in ipairs(ordered) do
-      local st = sessions[entry.name]
-      local status = st and st.status or nil
-      local is_active = entry.name == active
-      local label = entry.name
-      if #label > CHIP_NAME_MAX then
-        label = label:sub(1, CHIP_NAME_MAX - 1) .. "…"
-      end
-      local rank = status and agent_state_rank[status] or 0
-      local needs_attention = rank >= agent_state_rank.done
-      local sc = status_color(status, colors) or colors.idle
-      local fg
-      if needs_attention then
-        fg = sc
-      elseif is_active then
-        fg = colors.name
-      else
-        fg = colors.chrome
-      end
-      items[#items + 1] = { Attribute = { Underline = is_active and "Single" or "None" } }
-      items[#items + 1] = { Attribute = { Intensity = (is_active or needs_attention) and "Bold" or "Normal" } }
-      items[#items + 1] = { Foreground = { Color = fg } }
-      items[#items + 1] = { Text = "  " .. tostring(entry.slot) .. " " }
-      items[#items + 1] = { Foreground = { Color = sc } }
-      items[#items + 1] = { Text = status and (agent_state_icons[status] or "●") or "·" }
-      items[#items + 1] = { Foreground = { Color = fg } }
-      items[#items + 1] = { Text = " " .. label }
-      local inside = chip_sessions(st, entry.name)
-      if inside ~= "" then
-        items[#items + 1] = { Attribute = { Intensity = "Normal" } }
-        items[#items + 1] = { Foreground = { Color = colors.chrome } }
-        items[#items + 1] = { Text = " " .. inside }
-      end
-    end
-    items[#items + 1] = { Text = " " }
-    return wezterm.format(items)
+    return ui_statusbar.session_chips(window, agent_session_states(), session_slots(), tree_colors(window))
   end
 
   config.keys = config.keys or {}
@@ -615,61 +517,8 @@ function M.setup(config)
     branch  = nf.cod_git_branch or "⎇",
   }
 
-  local BADGE_NAMES = {
-    "muadib",   "stilgar",  "chani",    "gurney",   "feyd",     "irulan",
-    "alia",     "thufir",   "mentat",   "kwisatz",  "hayt",     "korba",    "scytale",
-    "shrike",   "kassad",   "silenus",  "brawne",   "aenea",    "raul",
-    "consul",   "ummon",    "moneta",   "sol",      "endymion", "templar",
-    "aragorn",  "gandalf",  "samwise",  "legolas",  "gimli",    "boromir",
-    "faramir",  "eowyn",    "galadriel","elrond",   "saruman",  "theoden",
-    "frodo",    "merry",    "pippin",   "glorfindel","haldir",
-    "kaladin",  "dalinar",  "szeth",    "jasnah",   "shallan",  "adolin",
-    "wit",      "vin",      "elend",    "kelsier",  "sazed",    "spook",
-    "breeze",   "marsh",    "nightblood","hoid",    "vasher",   "renarin",
-    "lift",     "taravangian","navani",
-    "hadrian",  "valka",    "pallino",  "lorian",   "bassander",
-    "vorgossos","gibson",   "siran",    "elara",    "kharn",
-    "logen",    "glokta",   "jezal",    "bayaz",    "ferro",    "dogman",
-    "shivers",  "monza",    "cosca",    "friendly", "temple",   "caul",     "chella",
-    "kvothe",   "denna",    "bast",     "auri",     "elodin",   "kilvin",
-    "simmon",   "wilem",    "devi",     "tempi",    "felurian", "ambrose",
-    "case",     "molly",    "wintermute","armitage", "riviera",  "maelcum",  "flatline",
-    "darrow",   "sevro",    "mustang",  "cassius",  "roque",    "victra",   "lysander",
-    "severian", "thecla",   "dorcas",   "agia",     "baldanders","typhon",  "jonas",
-    "jorg",     "makin",    "rike",     "sageous",  "miana",    "coddin",   "jalan",    "snorri",
-    "maia",     "csevet",   "cala",     "beshelar", "setheris",
-    "keogh",    "dragosani","zek",      "nathan",
-    "alwyn",    "evadine",  "deckin",   "tiler",
-    "vaelin",   "reva",     "nortah",   "caenis",   "barkus",
-    "vis",      "emissa",   "callidus", "acqua",    "ulciscor",
-    "eragon",   "saphira",  "arya",     "murtagh",  "brom",     "nasuada",  "roran",    "oromis",   "galbatorix",
-    "kinch",    "galva",    "norrigal",
-    "thomas",
-    "ripley",   "newt",     "bishop",   "hicks",    "ash",      "hudson",   "vasquez",  "dallas",   "lambert",  "burke",
-    "dutch",    "mac",      "blain",    "harrigan", "dillon",
-    "deckard",  "rachael",  "roy",      "pris",     "gaff",     "joi",      "luv",
-    "snake",    "otacon",   "meryl",    "liquid",   "ocelot",   "raiden",   "solidus",  "vamp",     "mantis",   "wolf",
-    "quiet",    "paz",      "skull",
-    "leon",     "claire",   "jill",     "wesker",   "ada",      "barry",    "chris",    "ethan",    "heisenberg",
-    "dimitrescu",
-  }
-
-  local function pane_badge(pane_id)
-    local h = pane_id * 2654435761  -- Knuth multiplicative hash
-    return BADGE_NAMES[(h % #BADGE_NAMES) + 1]
-  end
-
-  local function pane_badge_color(pane_id, colors)
-    local h = pane_id * 2654435761
-    local slot = (h % 6) + 2  -- ansi slots 2..7
-    if type(colors) == "table" then
-      local a = colors.ansi or (colors.colors and colors.colors.ansi)
-      if type(a) == "table" and a[slot] then return a[slot] end
-      local b = colors.brights or colors
-      if type(b) == "table" then return b[(h % 6) + 2] end
-    end
-    return nil
-  end
+  local pane_badge = ui_badges.name
+  local pane_badge_color = ui_badges.color
 
   wezterm.GLOBAL = wezterm.GLOBAL or {}
   wezterm.GLOBAL.__lantern_plugin_dir = config_data.plugins and config_data.plugins.lantern

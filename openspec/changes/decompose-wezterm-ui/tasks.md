@@ -347,3 +347,32 @@
 
       Lint: `specutil check` clean, `luac -p` clean on all six lua files, and
       all three wezterm checks green.
+
+## 5. Extract the status bar and the pane badges
+
+- **SHAPE** graph
+
+- [x] 5.1 Act: move the tabline components into `ui/statusbar.lua`. `deps:` none
+
+      `agent_status` and `session_chips`, plus `chip_sessions` and the two width
+      constants they own. `ui.lua` 1,348 -> 1,249.
+
+      Four closure reads become arguments: the rollup, the slot map, the
+      palette, and the window. `ui.lua` keeps a two-line wrapper per component,
+      because tabline calls them with its own signature and the module should
+      not have to match it.
+- [x] 5.2 Act: move the pane badge table into `ui/badges.lua`. `deps:` 5.1
+
+      153 nicknames, the Knuth hash that picks one, and the ansi slot that
+      colours it. It reads nothing at all, which is why it is its own file
+      rather than part of `statusbar`. `ui.lua` 1,249 -> 1,197.
+- [x] 5.3 Verify: config unchanged, file set is the only difference. `deps:` 5.2
+
+      `wezterm --config-file` against `f7edc0bc1` and against this tree: 232
+      lines, byte-identical, across both moves. Globals check green.
+- [x] 5.4 Adversarial review (`adversarial-review` skill): run deterministic
+      lint. Record the terminal state. `deps:` 5.3
+
+      Terminal state: `not run`, per the owner's standing direction. Lint:
+      `specutil check` clean, `luac -p` clean on all eight lua files, all three
+      wezterm checks green.
