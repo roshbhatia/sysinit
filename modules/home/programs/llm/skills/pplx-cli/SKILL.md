@@ -20,6 +20,14 @@ search and page-content fetch that return structured JSON.
 4. NEVER send internal, private, or in-repo content to `pplx`: use local
    tools (grep, Read, ast-grep) for anything in this repo or on this machine.
 
+```bash
+# good — a public question, no repo content in the query
+pplx search web "nixpkgs cctools ld64 darwin link failure tracking issue"
+
+# bad — ships a private path and the repo's own code to a third party
+pplx search web "why does overlays/lima.nix fail with $(cat overlays/lima.nix)"
+```
+
 Auth setup is the owner's job: `pplx auth login` (interactive, needs a TTY),
 or export `PERPLEXITY_API_KEY` (non-interactive; `auth login` rejects piped
 input). The env var takes precedence over stored credentials.

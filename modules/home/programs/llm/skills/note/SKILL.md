@@ -25,6 +25,17 @@ Do not note a rename, a formatting pass, or a change whose reason is its own
 diff. Notes accumulate and nothing prunes the record, so a note that adds nothing
 costs the reader attention on every later review.
 
+```bash
+# good — names a constraint the changed lines do not show
+sysinit-agent note add --file overlays/lima.nix --line 12 \
+  --summary 'Pinned to the old nixpkgs rev because cctools ld is broken on darwin' \
+  --rationale 'Building against current nixpkgs fails at link time; drop the pin once upstream fixes it.'
+
+# bad — restates the diff
+sysinit-agent note add --file overlays/lima.nix --line 12 \
+  --summary 'Changed the nixpkgs revision'
+```
+
 ## Writing
 
 ```bash

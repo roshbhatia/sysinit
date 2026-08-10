@@ -13,6 +13,14 @@ dependency graphs, rendered documents, and sync plans without any network I/O.
   that set, mark it done, run it again. Do not read `tasks.md` top to bottom and
   pick by eye: the file declares a dependency graph, and reading in file order
   ignores it.
+
+  ```bash
+  # good — the tool resolves the graph and names what is runnable now
+  specutil next <change>
+
+  # bad — file order is not dependency order, so this picks a blocked subtask
+  rg '^- \[ \]' openspec/changes/<change>/tasks.md | head -1
+  ```
 - Before planning multi-change work: run `specutil graph --as mermaid` to see the cross-change DAG and discover blockers.
 - During an explore session: run `specutil web` to open the work graph (levels, readiness, critical path) in a browser.
 - Before marking a phase done: run `specutil check <change-dir>` as the deterministic rubric gate.

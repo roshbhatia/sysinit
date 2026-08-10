@@ -36,6 +36,17 @@ When there is no active change, explore freely and offer to create a proposal on
 - Keep automation evidence, model critique, peer review, and owner approval distinct.
 - Validate the specific change with `openspec validate "<name>"` when the project supports it.
 
+<examples>
+<example>
+<bad>Implementation needed a third state, so the code has one and the design still lists two.</bad>
+<good>Implementation needed a third state, so update `design.md` to list three, then write the code.</good>
+</example>
+<example>
+<bad>Phase 2 is done. All checks passed.</bad>
+<good>Phase 2 is done: `specutil check` exits 0, and each of the 4 edits maps to Behavior criterion B2.</good>
+</example>
+</examples>
+
 ## Useful Commands
 
 ```bash

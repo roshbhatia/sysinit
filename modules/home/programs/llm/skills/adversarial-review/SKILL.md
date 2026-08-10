@@ -107,6 +107,17 @@ it needs current state:
 When a critic reports a defect as unfixed, the author MUST verify against the
 file before acting. Re-fixing an already-fixed defect is how a loop churns.
 
+<examples>
+<example>
+<bad>Review the recent changes to the wezterm lua tree and find defects.</bad>
+<good>ADVERSARIAL-CRITIC-ROLE: do not spawn further critics. The work is in commits `8edabbe86..HEAD`; read `git diff 8edabbe86..HEAD`, and read each file directly for current state. Use read-only tools only.</good>
+</example>
+<example>
+<bad>Round 3 found nothing, so the change is approved.</bad>
+<good>Round 3 returned NO SURVIVING OBJECTION from all 3 critics. Terminal state CLEAN. This is model evidence, not owner approval.</good>
+</example>
+</examples>
+
 ## Critics are read-only (MUST)
 
 A critic MUST NOT modify the working tree. Spawn every critic with a read-only

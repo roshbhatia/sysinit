@@ -20,6 +20,17 @@ and its binary runs on Tahoe, so the pristine package gets cached. The override
 then changes the derivation hash and nothing more, which forces a local source
 build of a package that was already available.
 
+<examples>
+<example>
+<bad>The build fails at link time, so add an `ld64.lld` override to `overlays/`.</bad>
+<good>The build fails at link time. Check whether the pristine path substitutes from cache.nixos.org first; add the override only if it does not.</good>
+</example>
+<example>
+<bad>The overlay entry still exists, so it is still needed.</bad>
+<good>The pristine path for `lima` is cached, so the override only costs a source build. Delete it.</good>
+</example>
+</examples>
+
 ## Audit one package
 
 Run all three steps. `<pkg>` is the attribute name, `<nixpkgs-store-path>` is

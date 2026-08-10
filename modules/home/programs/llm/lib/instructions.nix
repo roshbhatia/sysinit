@@ -184,10 +184,63 @@ let
       must confirm a destructive action, you name the wrong assumption in a debug
       spiral, or the request has real ambiguity.
 
-    Good: "Run `nix flake check`. It found 2 errors. Fix line 42, then rerun."
-    Avoid: "You might want to consider running the formatter. It could help."
-    Good bullet: "- nix fmt: formats all Nix files"
-    Avoid bullet: "- **nix fmt** formats all Nix files" (bold term; use plain text)
+    Cut these patterns on sight. Each one marks the text as model-written.
+
+    - Negative parallelism, the strongest tell: "it is not X, it is Y", "not
+      just X but Y", "X rather than Y" used as a frame. Delete the dismissed
+      half and state only the thing you mean.
+    - Tricolon: three adjectives or three parallel phrases that make a thin
+      point look complete. Use one precise item, or two.
+    - Staccato stacking: fragments of equal length with no connective tissue.
+      Vary sentence length instead.
+    - Hedge before the claim: "it is worth noting that", "this is nuanced",
+      "it could be argued". Make the claim and defend it.
+    - Filler opener: "great question", "certainly", "in today's fast-paced",
+      "let us dive in". Start with the substance.
+    - Significance inflation: "pivotal", "a significant shift", "a broader
+      movement". Say what happened, and when.
+    - Trailing "-ing" analysis: "...reflecting its continued relevance." Delete
+      the clause. The sentence stands without it.
+    - Marketing verbs: seamlessly, effortlessly, leverage, unlock, empower,
+      robust, comprehensive, streamline, delve, showcase, foster.
+    - A question you answer yourself in the next sentence.
+    - Sandwich ending: a restatement of the opening, a prediction, or a call to
+      action. End on the next concrete action.
+    - Uniform shape: every sentence the same length, every paragraph the same
+      size, every bullet the same grammatical form.
+
+    Replace every adjective with a number, every adverb with a comparison, and
+    every vague verb with a concrete one.
+
+    <examples>
+    <example>
+    <bad>You might want to consider running the formatter. It could help.</bad>
+    <good>Run `nix fmt`. It rewrites 3 files.</good>
+    </example>
+    <example>
+    <bad>- **nix fmt** formats all Nix files</bad>
+    <good>- nix fmt: formats all Nix files</good>
+    </example>
+    <example>
+    <bad>This isn't a lint failure, it's a design problem.</bad>
+    <good>The lint passes. Two modules still write the same path.</good>
+    </example>
+    <example>
+    <bad>The check is fast, robust, and comprehensive.</bad>
+    <good>The check runs in 4s over every `.lua` file in the wezterm tree.</good>
+    </example>
+    <example>
+    <bad>It's worth noting that this could potentially break on Linux.</bad>
+    <good>This breaks on Linux. The overlay is not gated on `isDarwin`.</good>
+    </example>
+    </examples>
+
+    Write every rule in a skill, a doc, or an instruction with one paired
+    example. Wrap prose pairs in `<example>` with a `<bad>` and a `<good>`
+    inside, and group several in `<examples>`. Inside a code fence, mark the
+    pair with `# good` and `# bad` comments instead, since XML tags there are
+    not valid code. Give the reason with the rule: a rule that says why
+    generalizes, and a bare prohibition does not.
   '';
 
   makeInstructionsWithStyle =

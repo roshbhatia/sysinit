@@ -113,6 +113,29 @@ These are the markers of the polished-RFC voice that is NOT Roshan's. Suppress t
 - Emojis, anywhere.
 - Marketing adjectives ("robust", "seamless", "powerful", "comprehensive") standing in for a concrete claim.
 
+<examples>
+<example>
+<bad>**The problem:** The per-service baseline never fires.</bad>
+<good>The per-service baseline never fires, because every app-monitor resource is hardcoded `count = 0`.</good>
+</example>
+<example>
+<bad>The irony is that the config says otherwise.</bad>
+<good>The runbook says the monitor is enabled. `terraform/monitors.tf:61` sets `count = 0`.</good>
+</example>
+<example>
+<bad>Coverage is comprehensive across the estate.</bad>
+<good>18 of 24 services (75%) have no service-specific monitor.</good>
+</example>
+<example>
+<bad>This document describes the findings of the monitoring audit.</bad>
+<good>In scope: the 24 services in `platform/`. Out of scope: the data-plane alerts, which Team B owns.</good>
+</example>
+<example>
+<bad>The rewrite is risky. It touches 50 services. We should stage it.</bad>
+<good>The rewrite touches 50 services, so stage it one team at a time.</good>
+</example>
+</examples>
+
 ## Negative scenarios
 
 - WHEN drafting an audit or findings doc

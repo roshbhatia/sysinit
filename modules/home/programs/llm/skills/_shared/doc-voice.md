@@ -32,5 +32,16 @@ Uppercase the keyword only when it carries normative force. Ordinary uses of
 "must" and "should" in explanatory prose stay lowercase, so a reader can scan
 for the uppercase ones and find every requirement.
 
+<examples>
+<example>
+<bad>**Required:** every service emits a health metric.</bad>
+<good>Every service MUST emit a health metric.</good>
+</example>
+<example>
+<bad>Callers MUST generally prefer the batched endpoint.</bad>
+<good>Callers SHOULD use the batched endpoint. Use the single endpoint when the caller has exactly one id.</good>
+</example>
+</examples>
+
 This section applies to design docs and RFCs only. It does NOT apply to PR
 descriptions, commit messages, status posts, review comments, or code comments.

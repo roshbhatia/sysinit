@@ -35,6 +35,17 @@ caught, because the quote is checked against bytes the author did not write.
 
 ## Authoring loop
 
+<examples>
+<example>
+<bad>The API rate limit is generous, per Anthropic's published limits.</bad>
+<good>The API allows 4,000 requests per minute on tier 4, quoted verbatim in `citations.lock` id `anthropic-rate-limits`.</good>
+</example>
+<example>
+<bad>A paraphrase used as the `--quote` value, because the page says roughly this.</bad>
+<good>The exact bytes from the page, copied character for character, so `grep -F` anchors.</good>
+</example>
+</examples>
+
 1. Write the claim with a verbatim quote you can point to in the source.
 2. Run `citelock capture` for it. If capture fails closed, either the quote is
    wrong (fix it) or the page is client-side-rendered (see below).

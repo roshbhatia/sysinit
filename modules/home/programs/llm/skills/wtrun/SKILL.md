@@ -24,6 +24,14 @@ conversation pane, and creating a pane per command leaves a trail of them.
 Do NOT use it for a short command. The pane costs a round trip and the output is
 easier to act on inline.
 
+```bash
+# good — a long build, blocked on, so the status comes back directly
+wtrun -w 600 'nh darwin build .'
+
+# bad — a one-second command paying a pane round trip
+wtrun -w 60 'git status'
+```
+
 ## Usage
 
 ```bash
