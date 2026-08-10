@@ -1,0 +1,40 @@
+{
+  "records": [
+    {
+      "id": "scaling-agents-task-structure",
+      "source": "https://arxiv.org/abs/2512.08296v3",
+      "accessed": "2026-08-09",
+      "claim_class": "paper",
+      "quote": "Relative performance change compared to single-agent baseline ranges from +80.8% on decomposable financial reasoning to -70.0% on sequential planning",
+      "snapshot": "citations/scaling-agents-task-structure.snapshot",
+      "sha256": "9bb3cc40138c44c17a8debb28f9464962c23cfd6b95d5f924eb65c89ba0fbefb"
+    },
+    {
+      "id": "scaling-agents-mismatch",
+      "source": "https://arxiv.org/abs/2512.08296v3",
+      "accessed": "2026-08-09",
+      "claim_class": "paper",
+      "quote": "Agent effectiveness depends on alignment between coordination and task structure, and that mismatched coordination degrades the performance",
+      "snapshot": "citations/scaling-agents-mismatch.snapshot",
+      "sha256": "9bb3cc40138c44c17a8debb28f9464962c23cfd6b95d5f924eb65c89ba0fbefb"
+    },
+    {
+      "id": "scaling-agents-centralized-verification",
+      "source": "https://arxiv.org/abs/2512.08296v3",
+      "accessed": "2026-08-09",
+      "claim_class": "paper",
+      "quote": "architectures without centralized verification tend to propagate errors more than those with centralized coordination",
+      "snapshot": "citations/scaling-agents-centralized-verification.snapshot",
+      "sha256": "9bb3cc40138c44c17a8debb28f9464962c23cfd6b95d5f924eb65c89ba0fbefb"
+    },
+    {
+      "id": "scaling-agents-tool-overhead",
+      "source": "https://arxiv.org/abs/2512.08296v3",
+      "accessed": "2026-08-09",
+      "claim_class": "paper",
+      "quote": "tool-heavy tasks appear to incur multi-agent overhead",
+      "snapshot": "citations/scaling-agents-tool-overhead.snapshot",
+      "sha256": "9bb3cc40138c44c17a8debb28f9464962c23cfd6b95d5f924eb65c89ba0fbefb"
+    }
+  ]
+}

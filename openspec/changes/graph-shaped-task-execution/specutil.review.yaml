@@ -1,0 +1,49 @@
+version: 1
+change: graph-shaped-task-execution
+decision: approved
+note: Owner directed full-scope revision against all 16 round-2 objections, against the recommendation to cut scope. Review terminal state is STALLED at round 2 (trend 14, 16) with 6 open objections listed in review.md.
+change_hash: f8ac8221833263de
+base_commit: 992926704c6e990c802e5a1f15f8024ac826bd85
+items:
+    0d20dcbdf12c632b:
+        hash: f511f151da937dfd
+        text: 'Apply: `openspec archive graph-shaped-task-execution`, gated on `specutil check` exiting 0'
+    01e4232ec5092a49:
+        hash: c5626727319c724b
+        text: 'Adversarial review (`adversarial-review` skill): run deterministic lint; run optional critics only when requested or risk-justified'
+    4b83b0e8b78c6bd1:
+        hash: 00bdeb0be6628535
+        text: 'Write `modules/home/programs/llm/openspec-schema/specutil.yaml` with an extraction block for the two new markers and a rubric block stating `preset: spec-driven` plus the three appended rules, using the marker names 1.1 defines, wording every comment so it does not itself contain a string the Behavior criteria grep for, and symlink `openspec/specutil.yaml` to it'
+    82fe1270f99494eb:
+        hash: c524c71e474af317
+        text: 'Merge: run `specutil check`, `spec-preflight all graph-shaped-task-execution`, `specutil render graph-shaped-task-execution --as tickets`, and `nix eval --raw .#darwinConfigurations.lv426.system.drvPath`, then reconcile any marker name the schema, the template, and the rubric spell differently'
+    653ee66e5364cab5:
+        hash: d2bc3ec0ee850fb8
+        text: 'Rewrite the tasks instruction in `modules/home/programs/llm/openspec-schema/schema.yaml`: replace the "order by dependency" sentence with the fake-edge test, key the fan-out prohibition on overlapping write sets rather than on shared output, define the two new graph markers, state that a task''s prose MUST NOT repeat a marker label and MUST NOT open with a kind verb because the extractor takes the first match on the line and strips a leading kind word, and delete the note that bolding TERMINAL fails the lint'
+    8004ceac3d68ec1c:
+        hash: 2d12b8c3121ec5ed
+        text: 'Run the rubric against input this change did not author: copy every change under `openspec/changes/archive/` into a scratch active tree, run `specutil check` with and without the local rubric, and record which findings the added rules produce and which are unchanged'
+    8556f19c7b0d25a0:
+        hash: 88c96ff2a05b6336
+        text: Carry the two new markers into `modules/home/programs/llm/openspec-schema/templates/tasks.md`, give the merge marker a concrete placeholder id rather than an HTML comment because a comment satisfies the presence check while naming no task, and promote the terminal marker to its bolded form so the allowlist entry corresponds to something the template emits
+    029087a2e9bbc7b3:
+        hash: 3d9c81d8e4cfe64c
+        text: Make the wezterm workspace switcher spawn a seshy target through `s`. `s` is a zsh function in `modules/home/programs/zsh/integrations/seshy-wezterm.zsh`, not an executable, so the switcher MUST delegate to an interactive zsh rather than call it directly, and MUST fall back to a plain workspace when that shell or its `command -v` guards fail
+    b1c6bd7fe97f8f86:
+        hash: 9c27ba22b50bdd76
+        text: 'Merge: run `hack/lint.sh --all` and `nix build .#darwinConfigurations.lv426.system`, then decide the positive path by name: `zmx kill` a scratch session, open that workspace from the switcher, and confirm `zmx ls` reports the name where it did not before. Confirm the negative path separately by breaking one guard'
+    c20e59cfb9cf784f:
+        hash: 0b9fe5cb721236b6
+        text: 'Confirm: the owner reads the rewritten fan-out paragraph and the fake-edge test in the rendered schema, decides whether the write-set rule declines the cases they wanted declined, and decides whether the tasks instruction is now too long to be followed'
+    cb2f6a9ff8205d61:
+        hash: 8f6604057254a84f
+        text: 'Apply: `nh darwin switch`, gated on `hack/lint.sh --all`, `nix flake check`, `nix build .#darwinConfigurations.lv426.system`, and `nix eval --raw .#nixosConfigurations.arrakis.config.system.build.toplevel.drvPath` exiting 0'
+    da66f59ebb353a58:
+        hash: da37730012470f6f
+        text: Record the schema change in `modules/home/programs/llm/openspec-schema/CHANGES.md`, following the existing dated-entry style
+    e5061caa4729c597:
+        hash: c5626727319c724b
+        text: 'Adversarial review (`adversarial-review` skill): run deterministic lint; run optional critics only when requested or risk-justified'
+    e712478564686a71:
+        hash: 4e140416e00a3e55
+        text: 'Resolve the adversarial-review section contradiction inside the fork, which the rubric override alone does not reach: `templates/design.md` emits the section labelled REQUIRED, and both skill files tell the author to satisfy it in wording that carries no heading marker'
