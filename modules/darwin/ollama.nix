@@ -20,8 +20,8 @@ in
       Program = toString ollamaStartScript;
       RunAtLoad = true;
       KeepAlive = true;
-      StandardOutPath = "/tmp/ollama-postgres.log";
-      StandardErrorPath = "/tmp/ollama-postgres.error.log";
+      StandardOutPath = "/tmp/ollama.log";
+      StandardErrorPath = "/tmp/ollama.error.log";
     };
   };
 
