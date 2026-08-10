@@ -174,12 +174,20 @@ return {
     end,
     keys = {
       {
-        "<leader>et",
+        "<leader>ee",
         function()
           vim.cmd("Neotree toggle")
           vim.cmd("wincmd p")
         end,
         desc = "Toggle explorer tree",
+      },
+      {
+        "<leader>et",
+        function()
+          vim.cmd("Neotree toggle position=top")
+          vim.cmd("wincmd p")
+        end,
+        desc = "Toggle explorer tree (top)",
       },
     },
   },
