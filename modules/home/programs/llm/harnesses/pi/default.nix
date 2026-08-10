@@ -40,32 +40,46 @@ let
     '';
   };
 
+  # The entrypoint check is here rather than a `builtins.pathExists`, for the
+  # reason `vendoredExtensions` states below.
   piGeminiAuth = pkgs.runCommand "pi-gemini-auth" { } ''
+    if [ ! -f ${piGeminiAuthSrc}/src/index.ts ]; then
+      echo "pi.nix: pi-gemini-auth no longer ships src/index.ts; re-pin and check its package.json \`pi.extensions\`." >&2
+      exit 1
+    fi
     cp -r ${piGeminiAuthSrc} $out
     chmod -R u+w $out
     ln -s ${piGeminiAuthDeps}/node_modules $out/node_modules
   '';
 
-  assertGeminiAuthEntrypoint =
-    if !builtins.pathExists "${piGeminiAuthSrc}/src/index.ts" then
-      throw "pi.nix: pi-gemini-auth no longer ships src/index.ts; re-pin and check its package.json `pi.extensions`."
-    else
-      true;
-
   extensions = import ./vendored-extensions.nix;
 
-  missingExtensions = lib.filter (n: !builtins.pathExists "${extensionsDir}/${n}.ts") extensions;
-  assertExtensionsExist =
-    if missingExtensions != [ ] then
-      throw "pi.nix: ${lib.concatStringsSep ", " missingExtensions} named in `extensions` but absent from the installed pi package. A version bump may have renamed or removed it."
-    else
-      true;
+  # A build rather than `builtins.pathExists`, because probing a store path at
+  # evaluation time forces `pi-coding-agent` to build, and a linux home config
+  # then cannot evaluate on a darwin machine. Every extension file is copied
+  # here, so the check cannot be skipped while the files are still installed.
+  vendoredExtensions = pkgs.runCommand "pi-vendored-extensions" { } ''
+    mkdir -p "$out"
+    missing=""
+    for name in ${lib.escapeShellArgs extensions}; do
+      if [ ! -f "${extensionsDir}/$name.ts" ]; then
+        missing="$missing $name"
+        continue
+      fi
+      cp "${extensionsDir}/$name.ts" "$out/$name.ts"
+    done
+    if [ -n "$missing" ]; then
+      echo "pi.nix:$missing named in vendored-extensions.nix but absent from the installed pi package." >&2
+      echo "A version bump may have renamed or removed them." >&2
+      exit 1
+    fi
+  '';
 
   extensionFiles = lib.listToAttrs (
     map (
       name:
       lib.nameValuePair ".pi/agent/extensions/${name}.ts" {
-        source = "${extensionsDir}/${name}.ts";
+        source = "${vendoredExtensions}/${name}.ts";
         force = true;
       }
     ) extensions
@@ -199,6 +213,7 @@ let
     pkgs.fetchzip {
       url = "https://registry.npmjs.org/${name}/-/${basename}-${version}.tgz";
       inherit hash;
+      passthru.npmName = name;
     };
 
   buildNpmPkg =
@@ -212,6 +227,7 @@ let
     pkgs.buildNpmPackage {
       pname = name;
       inherit version npmDepsHash;
+      passthru.npmName = name;
       src = fetchNpmPkg { inherit name version hash; };
       postPatch = ''
         cp ${lockFile} package-lock.json
@@ -247,6 +263,7 @@ let
 
     mermaid = pkgs.buildNpmPackage {
       pname = "pi-mermaid";
+      passthru.npmName = "pi-mermaid";
       version = "0.3.0";
       src = pkgs.fetchFromGitHub {
         owner = "Gurpartap";
@@ -291,6 +308,7 @@ let
 
     webAccess = pkgs.buildNpmPackage {
       pname = "pi-web-access";
+      passthru.npmName = "pi-web-access";
       version = "0.13.0";
       src = fetchNpmPkg {
         name = "pi-web-access";
@@ -351,6 +369,7 @@ let
 
     diff = pkgs.buildNpmPackage {
       pname = "pi-diff";
+      passthru.npmName = "@heyhuynhgiabuu/pi-diff";
       version = "0.3.0";
       src = pkgs.fetchurl {
         url = "https://registry.npmjs.org/@heyhuynhgiabuu/pi-diff/-/pi-diff-0.3.0.tgz";
@@ -370,27 +389,31 @@ let
     };
   };
 
-  piPackagePaths = with piPackages; [
-    "${piPermissionSystem}"
-    "${openaiFast}"
-    "${openaiVerbosity}"
-    "${piRetry}"
-    "${piVcc}"
-    "${piPackages.subagents}"
-    "${plannotator}"
-    "${btw}"
-    "${piReverseLast}"
-    "${toolDisplay}"
-    "${diff}"
-    "${webAccess}"
-    "${context}"
-    "${subdirContext}"
-    "${mermaid}"
-    "${readlineSearch}"
-    "${threads}"
-    "${librarian}"
-    "${askUser}"
+  # Order matters: pi loads the packages in this order, and `contextHookOrder`
+  # below asserts against it.
+  piPackageList = with piPackages; [
+    piPermissionSystem
+    openaiFast
+    openaiVerbosity
+    piRetry
+    piVcc
+    piPackages.subagents
+    plannotator
+    btw
+    piReverseLast
+    toolDisplay
+    diff
+    webAccess
+    context
+    subdirContext
+    mermaid
+    readlineSearch
+    threads
+    librarian
+    askUser
   ];
+
+  piPackagePaths = map (p: "${p}") piPackageList;
 
   contextHookOrder = [
     "pi-vcc" # compaction, earliest: everything downstream sees compacted input
@@ -401,16 +424,10 @@ let
     "pi-context" # context management, last
   ];
 
-  installedPiPackageNames = map (
-    p:
-    let
-      manifest = "${p}/package.json";
-    in
-    if builtins.pathExists manifest then
-      (builtins.fromJSON (builtins.readFile manifest)).name or ""
-    else
-      ""
-  ) piPackagePaths;
+  # Read from the declaration, not from the built package's `package.json`.
+  # Probing a store path at evaluation time forces the package to build, and a
+  # linux home config then cannot evaluate on a darwin machine.
+  installedPiPackageNames = map (p: p.npmName or "") piPackageList;
 
   contextHookActual = lib.filter (name: name != null) (
     map (
@@ -431,7 +448,7 @@ let
 
   assertGatesDisjoint =
     let
-      hasPermSystem = builtins.any (p: lib.hasInfix "permission-system" (toString p)) piPackagePaths;
+      hasPermSystem = builtins.any (p: lib.hasInfix "permission-system" (p.npmName or "")) piPackageList;
       hasConfirmDestructive = builtins.elem "confirm-destructive" extensions;
     in
     if hasPermSystem && hasConfirmDestructive then
@@ -579,8 +596,6 @@ in
 
     file =
       (
-        assert assertExtensionsExist;
-        assert assertGeminiAuthEntrypoint;
         assert assertGatesDisjoint;
         assert assertPiKeysDisjoint;
         assert assertThemeSelected;

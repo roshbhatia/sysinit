@@ -51,19 +51,24 @@ let
         cp -r .claude/commands/opsx $out/commands
       '';
 
-  openspecSkillFiles = lib.listToAttrs (
-    map (name: {
-      name = ".claude/skills/${name}/SKILL.md";
-      value.source = "${openspecSkills}/skills/${name}/SKILL.md";
-    }) (builtins.attrNames (builtins.readDir "${openspecSkills}/skills"))
-  );
+  # Linked as directories rather than enumerated. Reading the directory at
+  # evaluation time would force `openspecSkills` to build, and a linux home
+  # configuration then cannot evaluate on a darwin machine. home-manager links a
+  # recursive entry with `lndir` at build time, so the other `.claude/skills`
+  # entries still land beside these.
+  openspecSkillFiles = {
+    ".claude/skills" = {
+      source = "${openspecSkills}/skills";
+      recursive = true;
+    };
+  };
 
-  openspecCommandFiles = lib.listToAttrs (
-    map (file: {
-      name = ".claude/commands/opsx/${file}";
-      value.source = "${openspecSkills}/commands/${file}";
-    }) (builtins.attrNames (builtins.readDir "${openspecSkills}/commands"))
-  );
+  openspecCommandFiles = {
+    ".claude/commands/opsx" = {
+      source = "${openspecSkills}/commands";
+      recursive = true;
+    };
+  };
 
   openspecSchemaRoot = ./openspec-schema;
   openspecSchemaFiles = lib.listToAttrs (
