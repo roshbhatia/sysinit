@@ -22,6 +22,10 @@ in
       KeepAlive = true;
       StandardOutPath = "/tmp/ollama.log";
       StandardErrorPath = "/tmp/ollama.error.log";
+      # Left unset, ollama sizes context from VRAM and picks 32768, which the
+      # harness prompts overrun: they measured 31k-55k tokens and came back
+      # 400. 65536 clears that without the KV cost of the model's full 131072.
+      EnvironmentVariables.OLLAMA_CONTEXT_LENGTH = "65536";
     };
   };
 
