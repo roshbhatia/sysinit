@@ -51,18 +51,18 @@ jobs:
           NIX_CONFIG: "access-tokens = github.com=${{ secrets.GITHUB_TOKEN }}"
         run: nix fmt -- --check
 
+      # Before `nix flake check`, so a lint failure is not masked by an
+      # evaluation failure. `hack/lint.sh` is the same list `.githooks/pre-commit`
+      # runs, over the whole tree rather than the staged paths.
+      - name: Lint
+        env:
+          NIX_CONFIG: "access-tokens = github.com=${{ secrets.GITHUB_TOKEN }}"
+        run: nix develop --command bash hack/lint.sh --all
+
       - name: nix flake check
         env:
           NIX_CONFIG: "access-tokens = github.com=${{ secrets.GITHUB_TOKEN }}"
         run: nix flake check --print-build-logs
-
-      # The behavioral checks live in `hack/` and run from `.githooks/pre-commit`,
-      # which CI never runs. Here they run over the whole tree rather than the
-      # staged paths.
-      - name: Behavioral checks
-        env:
-          NIX_CONFIG: "access-tokens = github.com=${{ secrets.GITHUB_TOKEN }}"
-        run: nix develop --command bash hack/check-all.sh
 
       # Evaluation-time assertions (the cross-layer keybinding chord check, the
       - name: Evaluate host configuration (lv426)

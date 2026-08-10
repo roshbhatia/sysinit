@@ -249,9 +249,8 @@
               pkgs.lua5_4
               pkgs.jq
               pkgs.fd
-              # The behavioral checks under `hack/` skip when their tool is
-              # absent, so the shell has to carry them or CI checks nothing.
-              pkgs.hunk
+              # `hack/lint.sh` skips a tool that is absent, so the shell has to
+              # carry them or CI lints nothing.
               pkgs.ast-grep
               pkgs.stylua
             ];

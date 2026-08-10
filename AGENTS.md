@@ -58,12 +58,14 @@ nh darwin switch                # apply config to system (use deliberately)
 `nh` reaches PATH only after a switch, so run it from `nix develop` on a clean
 checkout. `README.md` bootstraps the first switch with `nix run nixpkgs#nh`.
 
-There is no `checks` flake output. Every behavioral check is a script under
-`hack/`, run by `.githooks/pre-commit` against the staged paths that can break
-it, so a violation is a rejected commit rather than a broken switch.
-`hack/check-all.sh` runs the same set over the whole tree, and is what CI runs.
-Each script exits 0 with a note on stderr when its tool is absent, so the
-`nix develop` shell has to carry `hunk`, `ast-grep`, `stylua`, and `lua`.
+There is no `checks` flake output. `hack/lint.sh` is the one list of formatters
+and linters: ast-grep over the nix source, `stylua`, `shellcheck`, the
+`bootstrap/mise.toml` drift check, `citelock verify`, and `spec-preflight`.
+`.githooks/pre-commit` calls it on the staged files, so a violation is a
+rejected commit rather than a broken switch, and CI calls it with `--all` over
+the whole tree. Each tool is skipped when it is absent, so the `nix develop`
+shell has to carry `ast-grep`, `stylua`, and `shellcheck`. `hack/` holds nothing
+else but the update scripts for the sources nvfetcher does not cover.
 
 The OpenSpec schema, the citation locks, the destructive-command guard
 fixtures, and the parse of every authored fragment are evaluation-time
@@ -74,7 +76,7 @@ source, selected by shebang as well as by extension. Each also asserts that
 specific subtrees still contribute files, so moving one fails loudly instead of
 dropping coverage.
 
-CI runs `nix fmt -- --check`, `nix flake check`, and `hack/check-all.sh` on
+CI runs `nix fmt -- --check`, `hack/lint.sh --all`, and `nix flake check` on
 every push to `main` and every pull request, plus a `nix eval` of the `lv426`
 host so the evaluation-time assertions fire. It evaluates rather than builds:
 that closure is 17.9 GiB and a hosted macOS runner has about 14 GB free.
