@@ -41,15 +41,11 @@ Non-Goals:
      is hard to reverse MUST be preceded by a verification step and followed by
      a confirmation step. -->
 
-## Adversarial Review
-
-<!-- spec-driven rule: REQUIRED section. Name the rubric this plan is
-     reviewed against: the proposal Behavior criteria, the Decisions above, the
-     Rollout & Gating gates, and the proposal Non-goals.
-     The deterministic `specutil check` lint is mandatory. Model critique is
-     optional evidence and never represents owner or peer approval. Record
-     `not run` when no concrete risk justifies it. Cite the
-     `adversarial-review` skill rather than re-deriving its methodology here. -->
+<!-- The refutation loop is NOT a section here. It is its own artifact,
+     `review.md`, which holds the rubric, each round's surviving objections,
+     the owner decision, and the terminal state. Findings recorded as prose
+     inside a design doc are unreadable as a set: nobody can ask "what
+     survived?" of a paragraph. See the `adversarial-review` skill. -->
 
 ## Open Questions
 

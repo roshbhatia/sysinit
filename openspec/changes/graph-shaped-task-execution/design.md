@@ -256,11 +256,14 @@ itself is not blocked.
   down the file is read. Mitigation: none mechanical. This is the second
   human-owned decision in the proposal, added because the earlier drafts treated
   every defect as a missing rule and never counted the cost of another one.
-- An archived change that is later resumed fails a lint it never had to pass,
-  because `graph-declares-merge` binds new changes and 26 archived changes carry
-  `graph` phases with no merge marker. Mitigation: the phase 1 fixture task
-  measures exactly how many, so the cost of a future resume is known rather than
-  discovered.
+- An archived change that is later resumed fails a lint it never had to pass.
+  Measured by the phase 1 fixture over all 48 archived changes: the local rubric
+  adds 74 `graph-declares-merge` findings and removes 21 `design-sections`
+  findings, and every other rule count is identical, including
+  `bolded-bullet-lead` at 106 either way. Mitigation: the debt is now a number
+  rather than a guess. Context that reduces its weight: the preset alone already
+  reports 452 findings against those changes, so a resumed archive fails the
+  lint today for reasons this change did not introduce.
 - The switcher makes a workspace switch depend on `sy` and `zmx`, and on an
   interactive zsh. Mitigation: the fallback to a plain workspace is required by
   task 2.1 and confirmed by task 2.2.

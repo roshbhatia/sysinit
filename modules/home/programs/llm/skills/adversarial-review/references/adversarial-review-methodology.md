@@ -124,9 +124,9 @@ require survival; (f) bound with a blast-radius-scaled K, early stops on churn, 
   decision whose rejected alternative was actually better, a rollout step that
   mutates shared state with no verification gate, or a non-goal the plan silently
   crosses.
-- **Where it runs.** The `tasks.md` review-loop gate per phase and the design
-  `Adversarial Review` section reference this skill; the skill decides in-process
-  vs spawned execution.
+- **Where it runs.** The `tasks.md` review-loop gate per phase references this
+  skill, and the findings land in the change's `review.md`; the skill decides
+  in-process vs spawned execution.
 
 ## Citation index
 

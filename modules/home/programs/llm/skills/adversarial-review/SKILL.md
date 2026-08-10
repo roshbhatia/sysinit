@@ -13,7 +13,7 @@ before running the loop the first time.
 ## When to run
 
 - At the spec-driven review gate: before a `tasks.md` phase is marked
-  done, and to satisfy the design `Adversarial Review` section.
+  done. The findings go to the change's `review.md`, never into the design.
 - When asked to "adversarially review", "try to break this plan", or "red-team
   this design".
 - MUST NOT run as a same-instance self-review. An adversary MUST be a separate

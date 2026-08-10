@@ -1,9 +1,9 @@
 version: 1
 change: graph-shaped-task-execution
 decision: approved
-note: Owner directed full-scope revision against all 16 round-2 objections, against the recommendation to cut scope. Review terminal state is STALLED at round 2 (trend 14, 16) with 6 open objections listed in review.md.
-change_hash: f8ac8221833263de
-base_commit: 992926704c6e990c802e5a1f15f8024ac826bd85
+note: Re-stamped at the phase 1 boundary after implementation. Review terminal state remains STALLED at round 2 with 6 open objections listed in review.md.
+change_hash: 8b8e7fd2a5ddd181
+base_commit: 145b3ff73c1cbf6496bb8f7f4955523e7d721d87
 items:
     0d20dcbdf12c632b:
         hash: f511f151da937dfd

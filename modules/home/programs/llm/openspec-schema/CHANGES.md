@@ -309,6 +309,54 @@ under version 1 does not satisfy version 2 without generating them.
   execution-path section of the `adversarial-review` skill, which this cites
   rather than restates.
 
+## graph-shaped-task-execution divergences
+
+### schema.yaml — `artifacts[id=tasks].instruction`
+- Upstream: "Order tasks by dependency (what must be done first?)".
+- Fork: an edge exists only when the downstream task reads the upstream task's
+  output. Sequencing and data flow are different questions, and the upstream
+  wording admits an edge for any task that merely feels later.
+- Adds `- **MERGE** <task id>` as a required marker on a `graph` phase, naming
+  the one subtask that reads every sibling's output. The merge node is a
+  coordination point; the phase's review subtask remains the verifier.
+- Adds an optional `` `writes:` `` field per `graph` subtask, naming the paths
+  that subtask may modify. It is the input to the fan-out rule below.
+- Adds a rule against colliding with the extractor: prose MUST NOT repeat a
+  marker label, and a task MUST NOT open with a kind verb. The field pass takes
+  the first match on the line and the kind pass strips a leading kind word, and
+  neither failure produces a lint error.
+- Removes the note that `TERMINAL` stays unbolded pending an allowlist change.
+  The allowlist now carries it and the template emits `- **TERMINAL**`.
+
+### schema.yaml — `apply.instruction`
+- Upstream, and the previous fork text: fan out "when parallel work materially
+  helps", a permission with no negative case.
+- Fork: a ready set whose declared write sets intersect MUST run in one context.
+  Keying the prohibition on shared output instead was tried and rejected:
+  `specutil next` releases a subtask only when its dependencies are complete, so
+  a ready set never holds two subtasks with an edge between them, and a rule
+  scoped that way can never fire.
+
+### templates/tasks.md
+- The `graph` example declares `- **MERGE** 2.2` with a real id rather than an
+  HTML comment, because the lint checks the marker's presence and not its value.
+- Subtasks carry `` `writes:` ``, and `- TERMINAL:` becomes `- **TERMINAL**`.
+
+### templates/design.md
+- The adversarial-review heading is removed. The fork's design instruction
+  already stated the refutation loop is its own artifact (`review.md`), so the
+  template contradicted the instruction on every change.
+
+### specutil.yaml — new file
+- The rubric ships with the schema rather than per repository, appended to the
+  `spec-driven` preset: `graph-declares-merge`, a `bolded-bullet-lead` allowlist
+  carrying MERGE and TERMINAL, and a `design-sections` override that drops the
+  adversarial-review heading the preset requires.
+- Measured over all 48 archived changes: the rubric adds 74
+  `graph-declares-merge` findings, removes 21 `design-sections` findings, and
+  changes no other rule's count, including `bolded-bullet-lead` at 106 either
+  way.
+
 ## Pending sync notes
 
 - Initial fork taken from openspec 1.3.0 (`/nix/store/lwijn4py7cknh9zbvvx6icbap5gfl9ab-openspec-1.3.0/lib/openspec/schemas/spec-driven`).

@@ -10,7 +10,7 @@
              nothing can evaluate that, so the loop would never terminate, and
              `specutil check` rejects it. -->
 - **MAX-ITERS** <!-- integer cap; 1 is the valid single-pass case -->
-- TERMINAL: <!-- how this ends WITHOUT success: CAPPED at MAX-ITERS,
+- **TERMINAL** <!-- how this ends WITHOUT success: CAPPED at MAX-ITERS,
                    STALLED after <n> iterations with no change in the STOP
                    metric, or CHURNING. See the `adversarial-review` skill. -->
 
@@ -22,13 +22,22 @@
 ## 2. <!-- Graph-shaped phase: subtasks with dependency edges -->
 
 - **SHAPE** graph
+- **MERGE** 2.2
+        <!-- Name the ONE subtask that reads every sibling's output and owns the
+             merged result. A real id, never a comment: the lint checks that the
+             marker is present, not that it names a task, so a placeholder
+             comment here passes while naming nothing. -->
 
 <!-- Fanning out to more than five siblings? Name a pilot subtask that runs the
      same work over a smaller input and must finish first. -->
 
-- [ ] 2.1 <!-- root subtask --> `deps:` none
-- [ ] 2.2 <!-- depends on 2.1 --> `deps:` 2.1
-- [ ] 2.3 Adversarial review (`adversarial-review` skill): run deterministic lint; run optional critics only when requested or risk-justified `deps:` 2.2
+<!-- `writes:` names the paths a subtask may modify. Siblings that can run at
+     once MUST have disjoint sets: the apply instruction refuses to fan out a
+     ready set whose write sets intersect. -->
+
+- [ ] 2.1 <!-- root subtask --> `deps:` none `writes:` <!-- paths, or none -->
+- [ ] 2.2 Merge: <!-- reads 2.1 and every other sibling --> `deps:` 2.1 `writes:` <!-- paths, or none -->
+- [ ] 2.3 Adversarial review (`adversarial-review` skill): run deterministic lint; run optional critics only when requested or risk-justified `deps:` 2.2 `writes:` <!-- this change's review.md -->
 
 ## 3. Rollout
 

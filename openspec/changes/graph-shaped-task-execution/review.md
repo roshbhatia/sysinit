@@ -175,6 +175,32 @@ Fix-induced regression:
   live and load-bearing; `bolded-bullet-lead` is regression-free against four
   archived changes.
 
+### Phase 1 implementation
+
+Adversarial review: not run; deterministic lint passed. No critic was spawned.
+The plan itself already took two full rounds, and phase 1 implements exactly
+what those rounds settled, so a third critic pass would re-read a text no
+objection touched.
+
+Evidence rather than assertion:
+
+- `hack/lint.sh` passes every stage. The one failure during the phase was
+  `review-decision-current` reporting the record stale, which is the record
+  doing its job after the task checkboxes moved.
+- The three Behavior criteria for task 1.1 each returned 0 before the edit and
+  return non-zero after: `reads the`, `write sets`, and `first match`.
+- The adversarial-review section criterion returned 3 hits before task 1.4 and
+  returns none after.
+- The template emits `- **TERMINAL**` exactly once, so the allowlist entry now
+  corresponds to a form an artifact produces.
+- `specutil render --as tickets` renders all 14 task lines in full, so neither
+  extractor collision recurred.
+- The fixture over all 48 archived changes is the phase's strongest evidence,
+  because it exercises the added rules against input this change did not write:
+  `graph-declares-merge` goes from 0 to 74, `design-sections` falls from 33 to
+  12, and every other rule count is unchanged.
+- `nix eval` on the lv426 system drvPath succeeds.
+
 ## Terminal state
 
 State: STALLED
