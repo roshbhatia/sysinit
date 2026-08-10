@@ -227,13 +227,6 @@
           }
         );
 
-      checks = lib.genAttrs cacheSystems (
-        system:
-        import ./checks {
-          inherit lib system;
-          pkgs = pkgsFor system;
-        }
-      );
       lib = {
         inherit
           builders
@@ -256,6 +249,11 @@
               pkgs.lua5_4
               pkgs.jq
               pkgs.fd
+              # The behavioral checks under `hack/` skip when their tool is
+              # absent, so the shell has to carry them or CI checks nothing.
+              pkgs.hunk
+              pkgs.ast-grep
+              pkgs.stylua
             ];
           };
         }

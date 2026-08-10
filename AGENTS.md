@@ -58,18 +58,26 @@ nh darwin switch                # apply config to system (use deliberately)
 `nh` reaches PATH only after a switch, so run it from `nix develop` on a clean
 checkout. `README.md` bootstraps the first switch with `nix run nixpkgs#nh`.
 
-`nix flake check` gates the OpenSpec schema, the citation locks, the
-destructive-command guard fixtures, the ast-grep rules, and the parse of every
-authored fragment.
-The parse checks scan broadly, not per-directory: every `.zsh` and `.lua` under
-`modules/`, and every shell script in the whole flake source, selected by
-shebang as well as by extension. Each also asserts that specific subtrees still
-contribute files, so moving one fails loudly instead of dropping coverage.
+There is no `checks` flake output. Every behavioral check is a script under
+`hack/`, run by `.githooks/pre-commit` against the staged paths that can break
+it, so a violation is a rejected commit rather than a broken switch.
+`hack/check-all.sh` runs the same set over the whole tree, and is what CI runs.
+Each script exits 0 with a note on stderr when its tool is absent, so the
+`nix develop` shell has to carry `hunk`, `ast-grep`, `stylua`, and `lua`.
 
-CI runs `nix fmt -- --check` and `nix flake check` on every push to `main` and
-every pull request, plus a `nix eval` of the `lv426` host so the
-evaluation-time assertions fire. It evaluates rather than builds: that closure
-is 17.9 GiB and a hosted macOS runner has about 14 GB free.
+The OpenSpec schema, the citation locks, the destructive-command guard
+fixtures, and the parse of every authored fragment are evaluation-time
+assertions in the module tree, so they fire on `nix eval` of a host rather than
+on `nix flake check`. The parse checks scan broadly, not per-directory: every
+`.zsh` and `.lua` under `modules/`, and every shell script in the whole flake
+source, selected by shebang as well as by extension. Each also asserts that
+specific subtrees still contribute files, so moving one fails loudly instead of
+dropping coverage.
+
+CI runs `nix fmt -- --check`, `nix flake check`, and `hack/check-all.sh` on
+every push to `main` and every pull request, plus a `nix eval` of the `lv426`
+host so the evaluation-time assertions fire. It evaluates rather than builds:
+that closure is 17.9 GiB and a hosted macOS runner has about 14 GB free.
 
 `sy`, `openspec`, and `specutil` are machine-wide. Their own skills carry the
 subcommands: `feature-based-session-manager`, `openspec-workflow`, `specutil`.
