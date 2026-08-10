@@ -81,9 +81,6 @@ local function clamp_channel(value)
 end
 
 --- @param c1 string "#rrggbb"
---- @param c2 string "#rrggbb"
---- @param t  number  0.0 = c1, 1.0 = c2
---- @return string "#rrggbb"
 function M.interpolate(c1, c2, t)
   local r1, g1, b1 = hex_to_rgb(c1)
   local r2, g2, b2 = hex_to_rgb(c2)
@@ -313,9 +310,6 @@ local function pick_accent_color(candidates, target_hue, used)
 end
 
 --- @param terminal_colors table<number, string>  ANSI index → "#rrggbb" (from OSC 4)
---- @param ls_palette      table<string, string>  Catppuccin slot → "#rrggbb" (from LS_COLORS)
---- @param bg              string|nil             terminal background from OSC 11
---- @return table<string, string>|nil  slot → "#rrggbb", or nil when no data
 function M.build(terminal_colors, ls_palette, bg)
   terminal_colors = terminal_colors or {}
   local has_terminal = not vim.tbl_isempty(terminal_colors)

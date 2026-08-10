@@ -33,8 +33,6 @@ async function run(pi: ExtensionAPI, cwd: string, command: string): Promise<stri
 }
 
 // The active change is whichever directory under openspec/changes/ was touched
-// last. `specutil next` refuses to guess when several are active, and asking the
-// owner to name it every time is the friction this command exists to remove.
 async function activeChange(pi: ExtensionAPI, cwd: string): Promise<string | null> {
 	const out = await run(
 		pi,
@@ -77,15 +75,6 @@ export default function (pi: ExtensionAPI): void {
 	});
 
 	// Capture, not verify. `citelock verify` already runs in the pre-commit gate
-	// and in spec-preflight, so a second way to read the same verdict adds
-	// nothing. Capturing is the step that was only reachable outside the session,
-	// which is why an unpinned claim was the cheap path and pinning was not.
-	//
-	// Arguments are REQUIRED and passed straight through. An earlier version ran
-	// a bare `citelock capture`, which cannot work: capture takes a URL plus
-	// --id/--quote/--class, and bare it exits with "capture requires a URL". A
-	// command that always errors is worse than no command, because it looks like
-	// the capture step exists and is merely failing.
 	pi.registerCommand("cite", {
 		description: "citelock capture <url> --id <id> --quote <text> --class <class>",
 		handler: async (args, ctx) => {

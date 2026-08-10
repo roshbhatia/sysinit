@@ -7,8 +7,6 @@
 
 let
   # The palette, read through one accessor rather than reached for directly.
-  # `config.lib.stylix.colors` does not exist on a box without the stylix
-  # module, where the dereference is an evaluation error and not a missing color.
   themeLib = import ../../shared/theme-colors.nix { inherit lib; };
   themeColors = themeLib.colorsOf config;
   themeEnabled = themeLib.enabled config;
@@ -16,9 +14,6 @@ let
   c = themeColors;
 
   # Map semantic Base16 roles onto Hunk's custom_theme fields. Hunk's
-  # transparent-background mode removes all surfaces, so each foreground must
-  # remain legible against the terminal background rather than a diff tint.
-  # Keys are camelCase, which hunk reads verbatim from [custom_theme].
   stylixTheme = {
     base = if config.stylix.polarity == "light" then "github-light-default" else "github-dark-default";
 
@@ -55,11 +50,6 @@ in
     enable = true;
 
     # Deliberately NOT enableGitIntegration. That option sets
-    # `programs.git.settings.core.pager = "hunk pager"`, which routes every
-    # `git diff` and `git log` through a reviewer.
-    # archive/2026-08-06-quiet-pi-sidebar-and-diff-review removed that on
-    # purpose, and re-adding it is a second decision this change is not making.
-    # `review` is the entry point instead: one verb, invoked when you want it.
     enableGitIntegration = false;
 
     # Link the hunk-review skill under ~/.claude/skills for live-session review.

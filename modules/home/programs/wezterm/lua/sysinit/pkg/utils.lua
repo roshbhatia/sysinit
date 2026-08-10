@@ -60,10 +60,6 @@ function M.get_config_path(filename)
 end
 
 -- The paths manifest, read once per config load.
---
--- The layout has one owner, modules/shared/options/paths-layout.json, and this
--- is the wezterm tree's only reader of it. A caller names a key and never
--- composes a path.
 local paths_cache = nil
 
 -- The single fallback of the wezterm tree. It locates the manifest, and it is
@@ -83,11 +79,6 @@ local function paths_manifest()
 end
 
 -- Resolve one state path by key.
---
--- `fallback_suffix` is joined onto the state root above when the manifest has
--- no answer for the key. The caller names its own subdirectory rather than a
--- whole path, so the state root is written down in one place in this tree
--- instead of once per call site.
 function M.state_path(key, fallback_suffix)
   local value = paths_manifest()[key]
   if type(value) == "string" and value ~= "" then

@@ -9,24 +9,6 @@ ai_workspace() {
 }
 
 # shellcheck disable=SC2034
-# Three sources for the session, in cost order, and all three stay. Unlike
-# `agentstate.go`, this file has readers with no other way to answer, so the
-# workspace is still the last resort here.
-#
-#   1. the seshy session directory   a string operation on the cwd
-#   2. ZMX_SESSION                   an environment lookup
-#   3. the wezterm workspace         a fork, a pipe, and a jq
-#
-# Source 3 is why the order matters. `ai_workspace` forks `wezterm cli list` on
-# every call made from inside wezterm, and it used to run unconditionally at the
-# top of this function. It now runs only when the two cheaper sources are both
-# empty. `AI_WORKSPACE` has no reader outside this file, so deferring it is safe
-# for consumers, which is worth saying because deferring a variable usually is
-# not.
-#
-# No grep can see this property: the gated call and the ungated call have the
-# same text, and what changed is when it runs. `checks/agent-identity-fork.nix`
-# checks it by behavior instead.
 agent_identity() {
   ai_cwd=${1:-$PWD}
   ai_pane=${2:-}

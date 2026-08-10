@@ -7,22 +7,6 @@ let
   sharedDir = root + "/_shared";
 
   # Directories here that are NOT skills. A directory can hold a tool's source
-  # without advertising that tool to an agent.
-  #
-  # `wtrun` drives a WezTerm pane. It stays on the owner's PATH through
-  # skill-tools.nix, which reads wtrun/wtrun.sh directly and does not go through
-  # this registry. What excluding it removes is the advertisement: no rendered
-  # SKILL.md, so no description telling an agent to reach for it and no
-  # `allowed-tools` grant pre-approving it.
-  #
-  # This is not a fence and is not meant as one. Any harness with a Bash tool can
-  # drive a pane through the wezterm CLI directly, and this repository cannot
-  # prevent that. Removing the advertisement is the largest reduction available.
-  #
-  # The wording above is deliberate and the gate at task 2.9 is why: that gate
-  # requires the pane-driving command names to appear in exactly three files, so
-  # spelling one out in a comment here fails it. A comment is not a caller, and a
-  # gate that cannot tell them apart is the one we have.
   notSkills = [ "wtrun" ];
 
   skillDirs = lib.filterAttrs (

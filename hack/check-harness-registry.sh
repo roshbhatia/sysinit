@@ -1,15 +1,5 @@
 #!/usr/bin/env bash
 # Fail when the harness registry and the neovim adapter list disagree.
-#
-# `modules/home/programs/llm/harnesses/registry.nix` is the registry. Every
-# hand-kept harness list derives from it except two, which stay hand-kept
-# because the configs holding them must work on a box with no Nix. This checks
-# the first of those two.
-#
-# The names differ on purpose: the registry says `claude` and `gemini` where the
-# adapters say `claudecode` and `antigravity`. The registry's `neovimAdapter`
-# field is that translation, and this compares against it rather than against
-# the harness names.
 set -euo pipefail
 
 repo_root="$(git rev-parse --show-toplevel)"

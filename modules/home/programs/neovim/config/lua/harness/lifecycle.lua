@@ -6,8 +6,6 @@ local function pick_backend()
 end
 
 ---@param cmd string  shell command to run in the pane
----@param opts? { name?: string, percent?: number, side?: "left"|"right", env?: table<string,string> }
----@return { toggle: fun(), focus: fun(), send: fun(text:string, opts?:table), is_visible: fun():boolean, kill: fun() }
 function M.build(cmd, opts)
   opts = opts or {}
   local name = opts.name or "harness"

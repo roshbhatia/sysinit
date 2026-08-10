@@ -26,19 +26,9 @@ interface RuntimeContext {
 const SPLIT_PERCENT = "45";
 
 // `review` is the whole working-tree changeset in one view. Not `git difftool`,
-// which hands a viewer one file pair at a time.
-//
-// No `--watch`. An earlier version passed it, on the reasoning that the annotate
-// prompt below runs after this pane opens, so the pane needs to pick the notes
-// up later. It does not pick them up, with the flag or without it. That was
-// measured, not read: see `watch-observation.md` in the make-sysinit-composable
-// change. Carrying an inert flag would only make the pane look like it were
-// waiting for something.
 const VIEWER_COMMAND = ["review"];
 
 // Notes go to `sysinit-agent note`, which writes one record per repository and
-// the export `review` reads. Nothing pushes, and nothing pulls either, so this
-// pane shows the diff as it stands now. Re-run `review` to read the notes.
 const ANNOTATE_PROMPT = [
 	"A `review` of the working tree is now open beside this session.",
 	"Annotate it with `sysinit-agent note`: read the diff, then leave the notes in one",
@@ -70,16 +60,6 @@ function splitCommand(command: string[], cwd: string): string[] | undefined {
 type TreeState = "no-repo" | "clean" | "dirty";
 
 // `pi.exec` takes no cwd, so a command that must run in the session's repository
-// says so itself. The split's own cwd comes from the multiplexer.
-//
-// `diff HEAD` plus a staged check, NOT `status --porcelain`. Porcelain counts an
-// untracked file as a change, and the viewer shows tracked modifications, so an
-// otherwise-clean tree with one scratch file opened an empty diff and then still
-// spent a turn asking the agent to annotate it. This is also the same question the
-// sidebar's `Changes` panel answers, so the two surfaces now answer it the same way.
-//
-// `no-repo` is distinguished from `clean`: reporting "the working tree is clean" in a
-// directory that is not a repository asserts something untrue.
 async function treeState(pi: ExtensionAPI, cwd: string): Promise<TreeState> {
 	const inRepo = await pi.exec("git", ["-C", cwd, "rev-parse", "--git-dir"]);
 	if (inRepo.code !== 0) return "no-repo";
@@ -123,9 +103,6 @@ async function open(pi: ExtensionAPI, ctx: ExtensionContext): Promise<void> {
 	notify(ctx, "diff review: opened in review. Re-run `review` to read the notes.");
 
 	// `deliverAs` is required while the agent streams and throws if omitted, so it
-	// is always passed: the chord is reachable mid-turn. The notes land in the
-	// record whether or not the split is still open, so nothing here waits on the
-	// pane. What the pane cannot do is show them without being re-run.
 	await pi.sendUserMessage(ANNOTATE_PROMPT, { deliverAs: "followUp" });
 }
 

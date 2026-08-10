@@ -1,14 +1,7 @@
 { lib }:
 # Reading the active palette without requiring stylix to be there.
-#
-# On a box with no stylix module, `config.lib.stylix.colors` is an evaluation error
-# rather than a missing colour, so thirteen readers go through one accessor. A
-# library and not an option: some callers are `let` bindings.
 let
   # Base16 default dark, written down rather than fetched: the fallback exists for a
-  # box with neither stylix nor `pkgs.base16-schemes`. Deliberately not this
-  # repository's own theme, which would be a second place it is written down.
-  # would create a second place it is written down.
   hex = {
     base00 = "181818";
     base01 = "282828";
@@ -29,8 +22,6 @@ let
   };
 
   # The key shape stylix hands out. Only the plain name and the three `-rgb-*`
-  # channels, which are what this repository reads. A missing-attribute error naming
-  # the key is the signal to add it here.
   channel = value: offset: lib.fromHexString (lib.substring offset 2 value);
 
   expand = name: value: {

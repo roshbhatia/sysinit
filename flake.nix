@@ -78,17 +78,6 @@
     };
 
     # Terminal-first diff reviewer. It reads the note file this repository owns
-    # through `--agent-context`, which is why it is an input again after
-    # 878f78300 removed it.
-    #
-    # Do NOT make nixpkgs follow ours. hunk's bun2nix/flake-parts build
-    # enumerates perSystem.x86_64-darwin, which nixpkgs-unstable (26.11) dropped,
-    # so following ours breaks its evaluation. Pin the same rev hunk's own lock
-    # uses, which still carries x86_64-darwin, so the build matches upstream.
-    #
-    # That pin is about hunk's build, not its coverage. Its own packages cover
-    # aarch64-darwin, aarch64-linux, and x86_64-linux, which is `cacheSystems`
-    # exactly. Probed at 0.18.0; see the change's hunk-probe.md.
     hunk = {
       url = "github:modem-dev/hunk";
       inputs.nixpkgs.url = "github:NixOS/nixpkgs/549bd84d6279f9852cae6225e372cc67fb91a4c1";
@@ -157,8 +146,6 @@
       };
 
       # The home tree without a host under it, for a box this repository does
-      # not administer. `lib/builders/home.nix` says what `mkHome` defaults and
-      # what it takes as an argument, and why.
       homeModules = {
         default = ./modules/home;
         options = {
@@ -171,10 +158,6 @@
       };
 
       # `dev` and `minimal` across `cacheSystems`, so six. Not `workstation`,
-      # which is the layer that only makes sense in front of a screen this
-      # builder cannot see. Not `x86_64-darwin` either: that is the `formatter`
-      # list, and these would be the only outputs on a system nothing else here
-      # builds for.
       homeConfigurations =
         let
           buildHome = builders.mkHome {
@@ -191,9 +174,6 @@
                 value = buildHome {
                   inherit system profile;
                   # The owner's identity, read from `hosts/default.nix` rather
-                  # than written down a second time. These outputs exist for this
-                  # owner on a box someone else administers, so the identity is
-                  # the one fact they may carry over.
                   inherit (hostConfigs.lv426) username;
                   hostname = "standalone";
                   values = {

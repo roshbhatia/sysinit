@@ -6,13 +6,9 @@ final: _prev: {
     src = ../pkgs/sysinit-agent;
 
     # null, not a hash. Deleting internal/nvimlink took the last dependency with
-    # it, so there is no module to fetch and a hash here would name an empty
-    # derivation the build never needs.
     vendorHash = null;
 
     # The tests build real working trees: the store path is derived from
-    # `rev-parse --show-toplevel`, so a fake directory would key every test on
-    # the same file. HOME is set because git refuses to run without one.
     nativeCheckInputs = [ final.git ];
     preCheck = ''
       export HOME="$TMPDIR/home"

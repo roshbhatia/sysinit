@@ -173,16 +173,6 @@ local function get_ssh_picker()
 end
 
 -- The viewer chords. `sysinit-agent watch` is the one reader of the three
--- things an agent leaves behind, so these open it rather than an editor, a
--- pager, or a program per source.
---
--- The owner presses these. Nothing else opens a pane: an agent that wanted to
--- show its own output would have to ask, and asking is this key.
---
--- The source name is resolved in the CURRENT pane and passed as an argument,
--- never left for the viewer to work out. The viewer lands in a NEW pane whose
--- own id and working directory are not the ones being watched, which is exactly
--- the mistake `sysinit-agent watch`'s contract is written to prevent.
 local function pane_cwd(pane)
   local ok, path = pcall(function()
     local url = pane:get_current_working_dir()
@@ -272,22 +262,16 @@ local function get_system_keys()
     create_smart_keybind("v", "SUPER", act.PasteFrom("Clipboard")),
     create_smart_keybind("v", "CTRL|SHIFT", act.PasteFrom("Clipboard")),
     -- The wtrun log of THIS pane. wtrun names its directory after the pane it
-    -- ran in, so the id is read here and passed along; the split pane's own id
-    -- names a directory wtrun has never written to.
     watch_keybind("w", "no pane id", function(pane)
       return { "wtrun", "pane-" .. tostring(pane:pane_id()) }
     end),
     -- The agent bus for THIS directory. Keyed by directory because the pane
-    -- record carries a worktree, which is the one source of the three where the
-    -- working directory is a real key.
     watch_keybind("b", "no working directory", function(pane)
       local cwd = pane_cwd(pane)
       if not cwd then return nil end
       return { "bus", cwd }
     end),
     -- No transcript chord. A transcript is keyed by harness session id, which
-    -- the owner does not know and cannot type. Task 5.3 records the repository
-    -- next to the session; a chord becomes possible then, not before.
   }
 end
 

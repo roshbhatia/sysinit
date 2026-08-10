@@ -1,16 +1,5 @@
 #!/usr/bin/env bash
 # Fail when a state path is written down outside the paths module.
-#
-# The layout has one producer, `modules/shared/options/paths-layout.json`, and
-# `modules/shared/options/paths.nix` resolves it into the paths manifest. Every
-# other file is a reader. A reader may keep exactly one fallback, reached only
-# when the manifest is absent, and must mark it with the bare token
-# `sysinit:documented-default` on the same line or the line above.
-#
-# The token is bare rather than a comment form because the readers span five
-# languages: `//` in Go, `#` in shell, python, and YAML, `--` in lua. Put it on
-# its own line or at the end of a code line, never appended to a
-# `# shellcheck disable` directive, which `modules/lib/shell.nix` strips whole.
 set -euo pipefail
 
 repo_root="$(git rev-parse --show-toplevel)"
@@ -19,8 +8,6 @@ cd "$repo_root"
 token="sysinit:documented-default"
 
 # Assembled from two halves so this file does not itself contain the string it
-# searches for. Excluding the checker by name would work too, and would leave a
-# file where a path could be written down unseen.
 literal=".local""/state"
 
 status=0
@@ -58,9 +45,6 @@ while IFS= read -r file; do
     awk -v token="$token" -v literal="$literal" '
       {
         # Both forms. The Go consumers never match the literal, because they
-        # pass the two segments to filepath.Join as separate arguments. The
-        # second pattern is spelled with an escape so this line does not match
-        # itself.
         hit = (index($0, literal) > 0) || ($0 ~ /"\.local"[[:space:]]*,[[:space:]]*"state"/)
         if (hit) {
           if (index($0, token) > 0 || index(prev, token) > 0) {

@@ -44,28 +44,8 @@ local function build_env_prefix(env_table)
 end
 
 -- The $EDITOR shim used to live here: EDITOR_WRAPPER, editor_wrapper_path, and
--- editor_env, merged into every spawned pane's environment by _spawn.
---
--- It is gone. It was a pure agent route and the exact composite this change
--- exists to remove: it activated the owner's pane, drove the owner's editor over
--- `nvim --server ... --remote-expr`, and blocked the caller until the owner
--- wrote the buffer.
---
--- It was never on an owner path. modules/home/default.nix sets EDITOR = "nvim"
--- for the whole home configuration, so the owner's shell never saw the shim, and
--- every path through _spawn spawns an agent CLI into a new pane.
---
--- The consequence, stated rather than hidden: an agent that runs `git commit`
--- with no -m now opens nvim nested inside its own pane. That is worse for the
--- agent, and that is the point. The cost lands on the process that chose to open
--- an editor.
 
 ---@param parent_pane_id integer
----@param name string  used in error messages and vim.g tracking key
----@param cmd_string string
----@param opts { env?: table, percent?: number, side?: "left"|"right" }
----@param focus boolean
----@return integer|nil  spawned pane_id, or nil on failure
 local function _spawn(parent_pane_id, name, cmd_string, opts, focus)
   local env = opts.env or {}
   local env_str = build_env_prefix(env)
@@ -126,9 +106,6 @@ function M.pane_alive_sync(pane_id)
 end
 
 ---@param pane_id integer
----@param text string
----@param submit boolean  append \r to submit
----@return boolean
 function M.send_text(pane_id, text, submit)
   local payload = submit and (text .. "\r") or text
   local tmp = vim.fn.tempname()
@@ -254,8 +231,6 @@ function M.build_provider(opts)
 end
 
 --- @param cmd string  shell command to run in the pane (e.g. "opencode --port")
---- @param opts? { name?: string, percent?: number, side?: "left"|"right", env?: table<string,string> }
---- @return { start: fun(), stop: fun(), toggle: fun() }
 function M.build_server_callbacks(cmd, opts)
   opts = opts or {}
   local name = opts.name or "server"

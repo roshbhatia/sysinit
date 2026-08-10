@@ -1,9 +1,6 @@
 local M = {}
 
 --- @param hl_name string The name of the highlight group
---- @param attr? "fg"|"bg" The attribute to get (default: "fg")
---- @param fallback? string Hex color fallback (default: "#FFFFFF" for fg, "#000000" for bg)
---- @return string Hex color code (e.g., "#FFFFFF")
 function M.get_hl_raw_safe(hl_name, attr, fallback)
   attr = attr or "fg"
 
@@ -22,15 +19,11 @@ function M.get_hl_raw_safe(hl_name, attr, fallback)
 end
 
 --- @param hl_name string The name of the highlight group
---- @param fallback? string Hex color fallback (default: "#FFFFFF")
---- @return string Hex color code (e.g., "#FFFFFF")
 function M.get_fg(hl_name, fallback)
   return M.get_hl_raw_safe(hl_name, "fg", fallback)
 end
 
 --- @param hl_name string The name of the highlight group
---- @param fallback? string Hex color fallback (default: "#000000")
---- @return string Hex color code (e.g., "#000000")
 function M.get_bg(hl_name, fallback)
   return M.get_hl_raw_safe(hl_name, "bg", fallback)
 end

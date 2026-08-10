@@ -82,13 +82,6 @@ local function render(payload)
 end
 
 -- One poll at a time.
---
--- This item is subscribed to three events and also carries update_freq = 2, so
--- a routine tick and a front_app_switched tick can both fire while an earlier
--- poll is still running. Without this flag they stack, and a poll that blocks
--- turns a status widget into an unbounded process spawner: the machine ran out
--- of forks that way once, with thousands of these queued behind one
--- unresponsive probe.
 local in_flight = false
 
 local function poll()
@@ -98,8 +91,6 @@ local function poll()
   in_flight = true
 
   -- Both halves are bounded. `osascript` reaches System Events over an
-  -- interprocess call that can hang, and it sits outside anything the
-  -- agent-sessions script can guard, so the timeout has to be here.
   local cmd = "app=$(timeout 2 osascript -e 'tell application \"System Events\" to get name of first application process "
     .. "whose frontmost is true' 2>/dev/null); "
     .. "case \"$app\" in wezterm-gui|WezTerm|Wezterm) timeout 5 "

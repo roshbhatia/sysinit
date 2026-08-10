@@ -10,10 +10,6 @@ die() {
 [ -n "${WEZTERM_PANE:-}" ] || die "not inside a WezTerm pane"
 
 # Read one path out of the paths manifest. The layout has one owner,
-# modules/shared/options/paths-layout.json, and this only reads it.
-#
-# The one fallback in this file. It locates the manifest, and it is the root a
-# caller composes under when the manifest has no answer.
 # sysinit:documented-default
 sysinit_state_root="${XDG_STATE_HOME:-$HOME/.local/state}"
 sysinit_manifest="${SYSINIT_PATHS_MANIFEST:-$sysinit_state_root/sysinit/paths.json}"

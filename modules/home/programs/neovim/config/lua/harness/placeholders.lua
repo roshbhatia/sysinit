@@ -178,8 +178,6 @@ M.providers.diagnostics = function(ctx)
 end
 
 ---@param ctx harness.EditorState
----@param type_patterns string[]
----@return string|nil
 local function ts_ancestor(ctx, type_patterns)
   local ok, ts_utils = pcall(require, "nvim-treesitter.ts_utils")
   if not ok then
@@ -361,10 +359,6 @@ M.descriptions = {
 }
 
 ---@param parts  string[]
----@param pos    integer
----@param input  string
----@param len    integer
----@return integer
 local function strip_token_whitespace(parts, pos, input, len)
   while pos <= len and input:sub(pos, pos) == " " do
     pos = pos + 1
@@ -384,8 +378,6 @@ local function strip_token_whitespace(parts, pos, input, len)
 end
 
 ---@param input  string
----@param state? harness.Context|table
----@return string
 function M.apply(input, state)
   if not input or input == "" then
     return input

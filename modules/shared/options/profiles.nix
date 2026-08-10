@@ -4,12 +4,6 @@
   ...
 }:
 # What a host is FOR, in one word. Three additive tiers: minimal (ssh), dev
-# (toolchains), workstation (screen).
-#
-# This option READS `profile`; it does not own it. `profile` is a specialArg because
-# `imports` is resolved before `config` exists, so an `imports` entry reading this
-# option would be infinite recursion. `lib.mkIf` does not help: the module is still
-# imported and evaluated, only its output discarded.
 let
   inherit (lib) mkOption types;
 

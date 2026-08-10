@@ -5,32 +5,10 @@
   ...
 }:
 # Every package this host installs, grouped by the lowest tier that needs it.
-#
-# `profile` is a function argument for the same reason it is one in
-# `programs/default.nix`: the two have to agree, and one of them cannot read
-# `config`.
-#
-# Each group is a CONTIGUOUS slice of the list this replaced, and that is a
-# constraint rather than a coincidence. `home.packages` order reaches the
-# derivation, confirmed by swapping two entries and watching the
-# `home-manager-path` drvPath change, so regrouping the list would change the
-# build without changing what is installed and would make the phase's own
-# no-drift gate unreadable.
 let
   profiles = import ../shared/profile-tiers.nix { inherit lib; };
 
   # The `minimal` group, read from `bootstrap/tools.toml` rather than written
-  # here. That file is the profile's own manifest and the non-Nix bootstrap
-  # reads the same entries, so there is one list rather than two that drift.
-  # design.md section 6 has the reasoning.
-  #
-  # Order is preserved element for element, because `home.packages` reaches
-  # `buildEnv`, whose derivation hash is computed from the order of its `paths`.
-  # A derived list in a different order installs the same packages and rewrites
-  # every host hash, which is what task 9.9 fails on.
-  #
-  # `fromTOML` on the file contents rather than an import: a TOML file is not a
-  # nix expression and `import` would try to parse it as one.
   manifest = builtins.fromTOML (builtins.readFile ../../bootstrap/tools.toml);
   minimalPackages = map (entry: pkgs.${entry.nix}) manifest.tool;
 in
@@ -173,11 +151,6 @@ in
         yamllint
       ]
       # The harness CLIs come from the registry, so adding a harness does not
-      # need a second edit here. Entries with no package arrive another way:
-      # claude through `programs.claude-code`, the rest are not in nixpkgs.
-      #
-      # `dev` rather than `workstation`: an agent CLI is a development tool and
-      # runs the same over ssh as it does in front of a screen.
       ++ map (name: pkgs.${name}) (
         lib.filter (name: name != null) (
           lib.mapAttrsToList (_name: h: h.package) (import ./programs/llm/harnesses/registry.nix)
@@ -185,8 +158,6 @@ in
       );
 
       # What only makes sense in front of a screen. A colour picker for a
-      # Wayland session is the whole of it today, so this tier is thin on
-      # packages and carries its weight in `programs/default.nix` instead.
       workstation = lib.optionals pkgs.stdenv.hostPlatform.isLinux [ hyprpicker ];
     };
 }

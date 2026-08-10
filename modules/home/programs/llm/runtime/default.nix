@@ -4,9 +4,6 @@
 }:
 let
   # Every harness fact here comes from the registry, so the four assertions that
-  # used to compare these lists against each other are gone. A harness cannot be
-  # bridged two ways, or carry both an icon and the generic one, because one
-  # field answers each question.
   registry = import ../harnesses/registry.nix;
 
   svgs = builtins.mapAttrs (name: _h: ./icons/${name}.svg) (
@@ -40,8 +37,6 @@ let
   '';
 
   # Generated from the registry rather than written twice. `agent-notify` and
-  # `agent-prompt` each carried the same eleven pairs and neither cited the
-  # other.
   labels = ''
     agent_label() {
       case "$1" in

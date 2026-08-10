@@ -5,21 +5,6 @@
   ...
 }:
 # One owner for every sysinit state path.
-#
-# Not to be confused with `modules/lib/paths.nix`, which builds the executable
-# search path. This file owns where state is written; that one owns where
-# programs are found. The names collide and the concerns do not.
-#
-# The layout lives in `paths-layout.json`, not here, and that split is the whole
-# point. Nix reads the template and emits the paths manifest. Phase 9 builds a
-# box with no Nix, and there the same template is expanded by substituting
-# `$HOME` and nothing else. Two producers of the same paths would be the defect
-# this module exists to remove, so there is one producer and two readers of it.
-#
-# Consumers read the manifest at runtime. Each is allowed exactly one fallback,
-# marked `sysinit:documented-default`, reached only when the manifest is absent.
-# That fallback is not decoration: on the no-Nix box the manifest may not be
-# installed yet, and a consumer with no default cannot resolve a path at all.
 let
   inherit (lib) mkOption types;
 
@@ -39,9 +24,6 @@ let
   );
 
   # `manifest` is the one path a consumer cannot learn from the manifest, so it
-  # is the bootstrap constant every consumer hardcodes. Stripping the home
-  # prefix here keeps that constant expressible as `$HOME/...` in five languages
-  # without any of them re-deriving the layout.
   manifestRelative = lib.removePrefix "${config.home.homeDirectory}/" resolved.manifest;
 in
 {
@@ -69,7 +51,5 @@ in
   };
 
   # Absolute, not a variable to expand. `repo.go:63-64` records that a process
-  # launched from a mux server inherits no session variables, so `XDG_STATE_HOME`
-  # is unset in exactly the place the fallback would have to run.
   config.home.file.${manifestRelative}.source = manifest;
 }

@@ -28,9 +28,6 @@ local function decode_json(raw)
 end
 
 ---@class harness.SessionListResult
----@field ok     boolean
----@field items? { value: string, label: string }[]
----@field error? string
 
 local LISTERS = {}
 

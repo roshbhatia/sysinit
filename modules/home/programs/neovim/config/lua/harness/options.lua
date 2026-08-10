@@ -1,13 +1,6 @@
 local M = {}
 
 ---@class harness.OptionDef
----@field name      string   -- key used in state table (e.g. "dangerous")
----@field flag      string   -- CLI flag emitted (e.g. "--dangerously-skip-permissions")
----@field kind      string   -- "toggle" | "value" | "enum" | "opt_value" | "list"
----@field default?  any
----@field choices?  string[] -- allowed values for kind="enum"
----@field prompt?   string   -- prompt label for kind="value"/"list"
----@field label?    string   -- display label in picker (defaults to flag)
 
 
 local persist = require("harness.persist")
@@ -57,8 +50,6 @@ function M.get_selected(agent_name)
 end
 
 ---@param agent_name string
----@param opt_name string
----@param value any
 function M.set(agent_name, opt_name, value)
   local sel = M.get_selected(agent_name)
   sel[opt_name] = value

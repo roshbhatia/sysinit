@@ -181,12 +181,6 @@ in
                 async = true;
               }
               # On every prompt rather than at SessionEnd, because the point is
-              # to tail a session while it runs. It publishes a symlink, so the
-              # cost of repeating it is one unlink and one symlink.
-              #
-              # Claude alone: it is the one harness whose hook payload carries a
-              # transcript reference. The other ten are uncovered and nothing
-              # scrapes a terminal to cover them.
               {
                 type = "command";
                 command = "${profileBin}/sysinit-agent transcript-link claude";

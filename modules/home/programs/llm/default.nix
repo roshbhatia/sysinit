@@ -242,10 +242,6 @@ in
     packages = [
       pkgs.meat
       # On PATH under its own name, because the skill and the allowlist both
-      # spell `sysinit-agent note`. Every other reference to this package is a
-      # `runtimeInputs` entry of some wrapper, which puts it on that wrapper's
-      # PATH and nobody else's, so without this line the one command agents are
-      # told to type does not exist.
       pkgs.sysinit-agent
       capture
       notify.script

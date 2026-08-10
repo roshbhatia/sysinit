@@ -49,11 +49,6 @@ pane=${WEZTERM_PANE:-}
 alerter=$(command -v alerter 2> /dev/null || true)
 
 # No `approve_keys` clause. It used to stand here and it was doing two jobs: it
-# selected the rich alerter, and it also restricted the rich alerter to claude
-# and codex, because those were the only two agents with a keystroke table. The
-# table is gone, so the restriction went with it and every agent now gets the
-# same notification. The alerter no longer answers a prompt; it tells you an
-# agent is waiting and puts you in the pane when you click.
 if [ -z "$alerter" ] ||
   [ "$eff_reason" != "approval" ] ||
   [ -z "$pane" ]; then
@@ -98,9 +93,6 @@ group=$(agent_group "$agent" "$context" "$pane")
   ) || action=""
 
   # One arm, and it is the owner clicking. `--actions "Accept,Deny"` is gone
-  # from the alerter call above, so `Accept` and `Deny` are no longer reachable
-  # actions and their arms went with them. `@ACTIONCLICKED` stays because
-  # alerter still reports it for a click on the notification body.
   case "$action" in
     @CONTENTCLICKED | @ACTIONCLICKED)
       if [ -n "$focus_exe" ]; then

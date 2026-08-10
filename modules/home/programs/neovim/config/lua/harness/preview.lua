@@ -85,11 +85,6 @@ local START_SCREENS = {
 }
 
 -- Close a floating start screen so the preview split does not open behind it.
---
--- This came from harness/control.lua, which is deleted. It is here rather than
--- gone because it is not part of what control.lua was deleted for: it moves no
--- pane, answers no request, and only the owner's <leader>jp reaches it.
--- open_window is its only caller.
 local function dismiss_start_screen()
   for _, win in ipairs(vim.api.nvim_tabpage_list_wins(0)) do
     if vim.api.nvim_win_get_config(win).relative ~= "" then
@@ -181,8 +176,6 @@ local function watch(full)
 end
 
 ---@param path string
----@param opts? { focus?: boolean }
----@return table result
 function M.open(path, opts)
   opts = opts or {}
   local full = vim.fn.fnamemodify(vim.fn.expand(path), ":p")

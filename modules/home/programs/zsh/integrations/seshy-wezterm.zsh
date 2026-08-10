@@ -18,8 +18,6 @@ _seshy_names() {
 }
 
 # The seshy session name a directory belongs to: the first path component under
-# the sessions root. The same derivation `agent-identity.sh` and `agentstate.go`
-# make, which is what keeps the three sides on one namespace.
 _seshy_session_name() {
   local dir=$1 root
   # sysinit:documented-default
@@ -49,12 +47,6 @@ function s() {
   cd "$target" || return
 
   # A zmx session named for the seshy session, so a command survives closing the
-  # pane. The name is the seshy name and carries no namespace of its own:
-  # `ZMX_SESSION_PREFIX` supplies that, which is what the variable is for.
-  #
-  # The `cd` above is the whole behavior when zmx is absent, and that is
-  # deliberate rather than defensive. Phase 9 builds a box with neither zmx nor
-  # Nix, and `s` has to keep working there.
   if ! command -v zmx > /dev/null 2>&1; then
     _seshy_debug "zmx not found; stayed in $target"
     return 0

@@ -1,15 +1,5 @@
 #!/usr/bin/env bash
 # Fail when a wezterm viewer chord stops resolving what it is supposed to.
-#
-# Parsing the file proves nothing here: a chord's body only runs when the key is
-# pressed, so a typo inside the callback reaches the owner as a broken config
-# rather than a failed build. This loads the module against a stub `wezterm` and
-# presses both chords.
-#
-# What it asserts is the one thing `sysinit-agent watch`'s contract can silently
-# lose: the source name must be resolved in the pane the owner pressed the key
-# in, never in the pane the viewer lands in. A split pane's own id and working
-# directory are not the ones being watched.
 set -euo pipefail
 
 repo_root="$(git rev-parse --show-toplevel)"

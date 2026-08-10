@@ -1,13 +1,5 @@
 _:
 # Every stylix target this repository overrides, in one place.
-#
-# They cannot live next to the programs they override: setting `stylix.targets.<name>`
-# requires the option to EXIST, and stylix injects its home modules only when enabled.
-# `lib.mkIf` makes a value conditional, not an option name, and `config ? stylix` at
-# module level forces the option set mid-assembly, which is infinite recursion.
-#
-# So the whole file is imported or not, decided by the `theme` argument in
-# `programs/default.nix`.
 {
   stylix.targets = {
     # Helix draws its own background, so stylix's opacity pass doubles up.

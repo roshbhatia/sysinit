@@ -74,8 +74,6 @@ pane_ws=""
 active_pane=""
 if command -v wezterm > /dev/null 2>&1; then
   # Bounded: an unresponsive mux makes `wezterm cli list` block with no timeout of its
-  # own. On timeout the probe yields nothing, which reads as "keep the pane".
-  # it costs nothing here, because this is the one call already being made.
   pane_ws=$(timeout "$PROBE_TIMEOUT" wezterm cli list --format json 2> /dev/null |
     jq -r '.[] | "\(.pane_id) \(.workspace // "") \(.is_active)"' 2> /dev/null)
   live=$(printf '%s\n' "$pane_ws" | awk 'NF { print $1 }' | tr '\n' ' ')
@@ -93,8 +91,6 @@ pane_is_live() {
 }
 
 # Which workspace owns this pane, resolved live rather than recorded: pane ids are
-# reused, so a recorded answer goes wrong when a pane id serves a new occupant. The
-# liveness check above already runs the same command.
 workspace_of() {
   [ -n "$pane_ws" ] || return 0
   printf '%s\n' "$pane_ws" | awk -v p="$1" '$1 == p { print $2; exit }'
@@ -108,11 +104,6 @@ session_of_pane() {
 }
 
 # Reconcile `selected` into the SESSION namespace. `ui.lua` writes a WORKSPACE name
-# to selected.json, and both consumers test `.name != $sel` against a SESSION name,
-# so the selected session failed to exclude itself. Resolved here because both
-# consumers bind `$sel` out of this payload and cannot resolve it themselves.
-# workspace name keeps the previous behavior on a box with no wezterm and on a
-# pane that has no record, where no better answer exists.
 if [ -n "$pane_ws" ]; then
   active_pane=$(printf '%s\n' "$pane_ws" | awk '$3 == "true" { print $1; exit }')
 fi

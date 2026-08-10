@@ -64,8 +64,6 @@ interface RuntimeContext {
 interface OpenSpecArtifact { id: string; status: string; }
 interface OpenSpecChange { name: string; artifacts: OpenSpecArtifact[]; completedTasks?: number; totalTasks?: number; lastModified: number; }
 // One change, not every change. This repository carries a dozen at once, so
-// rendering all of them buried the rest of the sidebar and ran two `openspec`
-// subprocesses per change on every refresh.
 interface SidebarState { active: OpenSpecChange | null; otherCount: number; unavailable: boolean; }
 interface CachedState { state: SidebarState; at: number; }
 interface WorkspaceFile { path: string; added: number; removed: number; }
@@ -91,8 +89,6 @@ interface SessionData {
   provider: string | null;
   thinking: string | null;
   // Extension statuses, minus the editor mode. The mode is the one thing that stays
-  // in the footer, because it changes on every keystroke and belongs next to the
-  // cursor rather than in a panel refreshed on a timer.
   statuses: string[];
 }
 
@@ -111,17 +107,8 @@ function style(theme: Theme, color: string, text: string): string { return theme
 function dim(theme: Theme, text: string): string { return style(theme, "dim", text); }
 function truncate(text: string, width: number): string { return visibleWidth(text) > width ? truncateToWidth(text, width, "", true) : text; }
 // Every painted row must occupy the full sidebar width. `paint` writes at absolute
-// cursor positions over the previous frame, so a short row leaves that frame's tail
-// on screen; panels change height between frames (the `tool` row appears and
-// disappears), which shifted every row below it and rendered each header twice.
 function pad(text: string, width: number): string { const line = truncate(text, width); const gap = width - visibleWidth(line); return gap > 0 ? line + reset() + " ".repeat(gap) : line; }
 // OSC 8, so WezTerm makes a changed file ctrl+clickable. `visibleWidth` already
-// ignores the escape, but `truncateToWidth` does NOT: given a wrapped string it
-// cuts between the opener and the closer and emits no `ESC]8;;ST`, leaving the
-// hyperlink open across every row painted afterwards. So callers MUST truncate the
-// label first and wrap only what survives — never wrap and then truncate.
-// Percent-encoding is limited to the characters that terminate or reframe a URI;
-// encodeURI would also escape the `/` separators.
 function fileUri(root: string, path: string): string { return `file://${`${root}/${path}`.replace(/[%#?"'\\\s]/g, (c) => `%${c.charCodeAt(0).toString(16).padStart(2, "0")}`)}`; }
 function link(uri: string, label: string): string { return `\x1b]8;;${uri}\x1b\\${label}\x1b]8;;\x1b\\`; }
 function panelHeader(theme: Theme, title: string, width: number): string[] { return [theme.bold(` ${title}`), dim(theme, "─".repeat(width))]; }
@@ -131,13 +118,6 @@ function formatTokens(tokens: number): string { return tokens >= 1_000_000 ? `${
 
 function withTimeout<T>(promise: Promise<T>): Promise<T | undefined> { return Promise.race([promise, new Promise<undefined>((resolve) => setTimeout(resolve, EXEC_TIMEOUT_MS))]); }
 // `openspec list --json` carries `lastModified`, `completedTasks`, and `totalTasks`
-// per change. An earlier revision discarded them and re-derived all three: an
-// N-wide stat() fan-out for the mtime and a readFile of tasks.md for the counts.
-// Both substitutes were also WRONG. A directory's mtime does not move when an
-// existing artifact is rewritten in place, so a change edited all afternoon lost to
-// one whose directory merely gained a file; and both paths joined against the raw
-// cwd, so running pi anywhere below the repository root made every stat throw and
-// the panel named an arbitrary change with no counts.
 function parseChanges(json: string): OpenSpecChange[] | undefined { try { const parsed: unknown = JSON.parse(json); if (!isRecord(parsed) || !Array.isArray(parsed.changes)) return undefined; return parsed.changes.flatMap((change) => { if (!isRecord(change) || typeof change.name !== "string" || change.name.length === 0) return []; const completed = typeof change.completedTasks === "number" ? change.completedTasks : undefined; const total = typeof change.totalTasks === "number" ? change.totalTasks : undefined; const at = typeof change.lastModified === "string" ? Date.parse(change.lastModified) : Number.NaN; return [{ name: change.name, artifacts: [], completedTasks: completed, totalTasks: total, lastModified: Number.isFinite(at) ? at : 0 }]; }); } catch { return undefined; } }
 function parseArtifacts(json: string): OpenSpecArtifact[] { try { const parsed: unknown = JSON.parse(json); return isRecord(parsed) && Array.isArray(parsed.artifacts) ? parsed.artifacts.flatMap((artifact) => isRecord(artifact) && typeof artifact.id === "string" && typeof artifact.status === "string" ? [{ id: artifact.id, status: artifact.status }] : []) : []; } catch { return []; } }
 // Most recently modified change, which is the rule `/opsx:apply` uses to infer the
@@ -184,14 +164,6 @@ export default function (pi: ExtensionAPI): void {
 
   pi.on("session_start", async (_event, ctx) => { currentContext = runtimeContext(ctx); const manager = currentContext.sessionManager; session = { title: manager?.getSessionName?.() ?? null, id: manager?.getSessionId?.() ?? null, model: null, contextTokens: null, contextPercent: null, contextWindow: null, tokensIn: 0, tokensOut: 0, cacheRead: 0, cacheWrite: 0, cost: 0, turns: 0, startedAt: Date.now(), activeTool: null, branch: null, cwd: null, provider: null, thinking: null, statuses: [] }; subagents.clear(); activeSubagentId = undefined; updateUsage(currentContext); if (timer) clearInterval(timer); timer = setInterval(redraw, 30_000); if (!currentContext.hasUI || !currentContext.ui) return; await update(ctx); currentContext.ui.setWidget(SIDEBAR_ID, (nextTui, nextTheme) => { tui = nextTui; theme = nextTheme; requestRender = () => nextTui.requestRender?.(); installCompositor(); installFooter(runtimeContext(ctx)); return { dispose() { compositor?.dispose(); compositor = undefined; tui = undefined; theme = undefined; requestRender = undefined; currentContext?.ui?.setFooter?.(undefined); }, invalidate() {}, render() { return []; } }; }, { placement: "belowEditor" }); });
   // The footer used to restate what this sidebar already shows (cwd, branch, cost,
-  // context, provider, model, thinking) and then add the extension statuses on top.
-  // Replaced with one line carrying only the EDITOR MODE, which changes on every
-  // keystroke and belongs beside the cursor rather than in a panel on a 30s timer.
-  // Everything else is read off footerData and rendered in the Session panel.
-  //
-  // `getCwd`, `getProvider`, and `getThinkingLevel` are optional in this shim: they
-  // exist on the installed build but are not in the documented footerData surface,
-  // so a build that drops one degrades to a missing row instead of a crash.
   const MODE_STATUS_KEYS = ["modal-editor", "mode", "vim"];
   const isModeKey = (key: string): boolean => MODE_STATUS_KEYS.some((m) => key.toLowerCase().includes(m));
   const installFooter = (runtime: RuntimeContext): void => {
@@ -235,11 +207,5 @@ export default function (pi: ExtensionAPI): void {
   pi.registerCommand("openspec-sidebar", { description: "Control OpenSpec sidebar: /openspec-sidebar [on | off | width <N>]", handler: (args, ctx) => { const runtime = runtimeContext(ctx); const [command, value] = (args?.trim() ?? "").split(/\s+/, 2); if (command === "width") { const width = Number.parseInt(value ?? "", 10); if (!Number.isInteger(width) || width < 24 || width > 60) { runtime.ui?.notify?.("Usage: /openspec-sidebar width <24-60>", "warning"); return; } sidebarWidth = width; installCompositor(); redraw(); runtime.ui?.notify?.(`OpenSpec sidebar width ${width}`, "info"); return; } if (command === "on" || command === "off") { setEnabled(command === "on", runtime); return; } if (!command) { setEnabled(!enabled, runtime); return; } runtime.ui?.notify?.("Usage: /openspec-sidebar [on | off | width <24-60>]", "warning"); } });
 
   // Pairs with diff-review's `ctrl+b`: both answer "show me the working tree",
-  // one as a split, one as the sidebar. Not `alt+s`, which reads as the obvious
-  // mnemonic and does not work — WezTerm defaults
-  // `send_composed_key_when_left_alt_is_pressed` to true on macOS and nothing here
-  // overrides it, so left-alt composes (alt+s types ß) instead of sending a chord.
-  // ctrl+o and shift+ctrl+o are each bound twice by pi already (tool expand, tree
-  // filter cycling), which is what pushed this off the mnemonic key in the first place.
   pi.registerShortcut("shift+ctrl+b", { description: "Toggle OpenSpec sidebar", handler: (ctx: ExtensionContext) => { setEnabled(!enabled, runtimeContext(ctx)); } });
 }

@@ -172,12 +172,6 @@ vim.api.nvim_create_autocmd({ "WinEnter", "BufEnter" }, {
 })
 
 ---@class harness.EditorState
----@field win    integer
----@field buf    integer
----@field cwd    string
----@field row    integer  1-indexed
----@field col    integer  1-indexed
----@field range  {from:integer[],to:integer[],kind:string}|nil
 
 ---@return harness.EditorState
 function M.capture()
@@ -235,8 +229,6 @@ function M.capture()
 end
 
 ---@class harness.Context
----@field ctx   harness.EditorState
----@field cache table<string,string|false>
 local Context = {}
 Context.__index = Context
 
@@ -272,8 +264,6 @@ M.Context = Context
 M.new = Context.new
 
 ---@param buf integer
----@param marks {from: integer[], to: integer[], kind: string}
----@return harness.Context
 function M.from_marks(buf, marks)
   local cur_buf = vim.api.nvim_get_current_buf()
   local cur_win = vim.api.nvim_get_current_win()
