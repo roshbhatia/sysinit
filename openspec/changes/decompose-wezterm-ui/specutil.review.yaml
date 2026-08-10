@@ -1,9 +1,9 @@
 version: 1
 change: decompose-wezterm-ui
 decision: approved
-note: owner approved on 2026-08-09 in session; critics not run; opened by make-sysinit-composable task 11.4
-change_hash: 5437b6f66b2576b5
-base_commit: 70c3277053e0026f46158b10e582fa7230ce2993
+note: 'phase 1 measured: baseline recorded, the setup-locals read-set map produced, and decision 2 corrected from one module to two layers because session_tree reads the pane primitives and not the rollup'
+change_hash: 3fa55a889bfc5f2f
+base_commit: 88d48cfb5f98781a1b0a94762cab448972d13718
 items:
     6d1f26f8cf9f315f:
         hash: 8c4ecafccac3a68d

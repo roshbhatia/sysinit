@@ -29,11 +29,22 @@ up front stops this change being judged on it.
 
 ### 2. Boundaries follow the data, not the surfaces
 
-- Decision: extract the rollup and the mux walk first, as one module that both
-  the tab bar and the session tree consume.
+- Decision: extract the pane primitives and the rollup first, as TWO layers.
+  The lower layer holds what both mux walks read: the agent-deck handle,
+  `agent_state_rank`, `pane_repo`, `read_pane_record`, and `pane_agent_state`.
+  The upper layer holds `rollup_cache`, `compute_agent_session_states`, and
+  `agent_session_states`, and exports only the last of those.
 - Alternative rejected: one module per visible surface. The two walks are the
   duplication that matters, and a per-surface split freezes it in place by
   giving each surface its own copy.
+- Alternative rejected, and this one was the decision until task 1.2 measured
+  it: ONE module holding the rollup and the primitives together, required by
+  both the tab bar and the session tree. `session_tree` does not consume the
+  rollup. It reads the six primitives and reduces them to a different shape. A
+  single module makes the tree require a cache it never reads, which is the
+  kind of edge the derivation-path gate in decision 3 cannot see. The read-set
+  map in `setup-locals.md` is the evidence; `agent_session_states` is the only
+  name in the upper layer that anything outside it reads.
 
 ### 3. Behavior preservation is gated by comparison, not by review
 
@@ -82,7 +93,8 @@ critic could name. The loop runs per phase once the tasks exist, in the shape
 
 ## Open questions
 
-- Does the wezterm lua tree install file by file or as a directory? The answer
-  decides whether a new module directory needs a Nix change at all.
+- ANSWERED by task 1.3. The tree installs as one directory,
+  `"wezterm/lua".source = ./lua`, so a new module directory needs no Nix
+  change.
 - Is one mux walk with two reducers actually cheaper, or does the session tree
   need fields the rollup would then compute on every tick and throw away?
