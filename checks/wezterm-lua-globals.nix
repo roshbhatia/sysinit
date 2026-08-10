@@ -2,18 +2,11 @@
   pkgs,
   ...
 }:
-# Every global name the wezterm lua tree reads, against an allowlist of the Lua
-# standard library.
+# Every global the wezterm lua tree reads, against the Lua standard library.
 #
-# `luac -p` cannot catch a dropped local. Lua resolves an unbound name to a
-# global, so deleting `local x = ...` and leaving its readers behind compiles
-# clean and evaluates to nil at run time. That happened while extracting
-# `ui.lua`: `agent_state_rank` was swallowed by an edit, parsed fine, and would
-# have broken every status comparison in the tab bar.
-#
-# The bytecode says what the source cannot. A global read is `GETTABUP _ENV
-# "name"`, so the check compiles each file and requires every such name to be
-# one Lua itself provides.
+# `luac -p` cannot catch a dropped local: Lua resolves an unbound name to a global,
+# which compiles clean and reads nil at run time. A global read is
+# `GETTABUP _ENV "name"`, so this compiles each file and checks the names.
 let
   allowed = [
     "_G"

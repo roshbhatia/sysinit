@@ -4,22 +4,12 @@
 }:
 # `sysinit.pkg.ui.rollup`'s precedence rule, exercised without a GUI.
 #
-# The rollup collapses every agent pane in the mux to one entry per workspace.
-# Which pane wins is the whole behavior, and it had no coverage: the tab bar,
-# the chips, and the session tree all render from it, and a wrong winner reaches
-# the owner as a wrong badge rather than as a failing check.
-#
-# The module splits the walk from the collapse for this reason. `collect` needs
-# a live mux and cannot run here. `reduce` is a pure function of `collect`'s
-# output, so this check feeds it observation tables directly.
-#
-# It also runs the test against two MUTANTS and requires both to fail. A test
-# that passes against a broken reducer is not coverage, and the only way to keep
-# that true is to break the reducer on every run rather than once by hand.
+# `reduce` is pure, so this feeds it observation tables directly. It also runs the
+# suite against two MUTANTS and requires both to fail, because a test that passes
+# against a broken reducer is not coverage.
 let
-  # Lua 5.4 because that is what wezterm embeds. `wezterm` and
-  # `sysinit.pkg.utils` are stubbed: `reduce` reaches neither, and preloading
-  # them keeps the real module files unmodified.
+  # Lua 5.4 is what wezterm embeds. `reduce` reaches neither stub, so the real
+  # module files are used unmodified.
   suite = pkgs.writeText "rollup-test.lua" ''
     local root = arg[1]
     package.path = root .. "/?.lua;" .. package.path
@@ -112,10 +102,8 @@ pkgs.runCommand "wezterm-rollup-check"
     fi
     cat "$TMPDIR/out"
 
-    # Each mutant inverts one half of the precedence rule in
-    # `sysinit/pkg/ui/rollup.lua`. The suite must fail against both. If a
-    # substitution stops matching, the mutant is identical to the original and
-    # the guard below reports that rather than passing silently.
+    # One mutant per half of the precedence rule. A substitution that stops matching
+    # is reported rather than passing silently.
     mutate() {
       cp -r "$src" "$TMPDIR/mutant"
       chmod -R u+w "$TMPDIR/mutant"

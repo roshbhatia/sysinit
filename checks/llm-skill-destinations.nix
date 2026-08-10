@@ -5,51 +5,31 @@
 }:
 # The review skill reaches every harness, asserted by destination.
 #
-# `hunk skill path` resolves at runtime, but the skill tree renders at build
-# time, so nothing else notices when the skill stops being rendered or stops
-# being installed somewhere. The design claims it reaches all eleven harnesses
-# through machinery that already exists. This is that claim's only gate.
-#
-# Three assertions, enumerated by destination rather than by harness, because a
-# skills destination in `llm/default.nix` is a closed list of four roots and the
-# eleven harnesses reach them three different ways.
+# The skill tree renders at build time, so nothing else notices when the skill
+# stops being rendered or installed. Enumerated by destination because the roots
+# are a closed list of four and the eleven harnesses reach them three ways.
 let
   skillName = "note";
 
-  # `checks/` receives only `{ lib, system, pkgs }` (flake.nix:181-187), so it
-  # has no handle on `self` and no evaluated home configuration to read a
-  # rendered block out of. It imports the two producers directly instead.
+  # `checks/` gets no handle on `self`, so it imports the two producers directly.
   llmRoot = ../modules/home/programs/llm;
   skills = import (llmRoot + "/skills/render.nix") { inherit pkgs; };
   instructions = (import (llmRoot + "/lib") { inherit lib; }).instructions;
 
-  # One: the block `makeInstructions` returns for codex.
-  #
-  # Only codex gets an inlined skill list. `instructions.nix:93` emits the
-  # `skills` section for a harness in `harnessesWithoutSkillLoader`, and that
-  # list is codex alone. Asserting the block for the other ten would fail on
-  # correct code.
-  #
-  # `localSkillDescriptions` is a required argument of `makeInstructions` and
-  # `render.nix` is its only producer, which is why this check imports it. The
-  # assertion is against the RENDERED string, not against that attrset: an
-  # attrset membership test proves the skill is in the description set, which is
-  # a weaker claim than that it reached a harness.
+  # One: the block `makeInstructions` returns for codex, the only harness in
+  # `harnessesWithoutSkillLoader`. Asserted against the RENDERED string, because an
+  # attrset membership test is a weaker claim than reaching a harness.
   codexBlock = instructions.makeInstructions {
     harness = "codex";
     inherit (skills) localSkillDescriptions;
   };
 
-  # `formatSkillsBlock` renders each name backticked, so the backticks are what
-  # make this specific. A bare `note` is an ordinary English word and would
-  # match another skill's description.
+  # Backticked: a bare `note` would match another skill's description.
   codexToken = "`${skillName}`";
 
-  # Two and three: where the two renders install the file.
-  #
-  # `renderSkillsFor "amp"` is a separate evaluation from the claude one, so it
-  # can fail on its own, and an assertion on `.claude/skills/` alone stays green
-  # while amp, devin, and copilot silently lose the skill.
+  # Two and three: where the renders install it. `renderSkillsFor "amp"` is a
+  # separate evaluation, so asserting `.claude/skills/` alone would stay green while
+  # amp, devin, and copilot lose the skill.
   claudeRoot = ".claude/skills";
   ampRoots = [
     ".config/amp/skills"
@@ -57,10 +37,8 @@ let
     ".copilot/skills"
   ];
 
-  # The roots live in `llm/default.nix`, which this check cannot evaluate, so it
-  # reproduces the mapping and then guards the reproduction against the file
-  # itself. Without the text guard, re-pointing a root there would leave this
-  # check passing against roots nothing installs to.
+  # This check cannot evaluate `llm/default.nix`, so it reproduces the mapping and
+  # guards the reproduction against the file itself.
   llmDefault = builtins.readFile (llmRoot + "/default.nix");
   destinationFor = root: ''"${root}/'' + "\${name}" + ''/SKILL.md"'';
   missingRoots = builtins.filter (root: !(lib.hasInfix (destinationFor root) llmDefault)) (

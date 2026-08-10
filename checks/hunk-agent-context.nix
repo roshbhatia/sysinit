@@ -5,27 +5,12 @@
 }:
 # The export schema against what `hunk diff --agent-context` actually accepts.
 #
-# This lives in `checks/` and not in `.githooks/pre-commit`. That hook's idiom is
-# skip-when-absent, so a branch written there is a no-op on any box without hunk,
-# and a guard that silently skips is the failure this check exists to catch.
-# Under `checks/` the tool is present by construction, because hunk is a flake
-# input, so the check cannot skip.
+# Under `checks/` rather than in the pre-commit hook, whose skip-when-absent idiom
+# would make this a no-op on any box without hunk.
 #
-# The writer republishes the export on every note write, which makes a schema
-# mismatch silent and continuous rather than loud once: the writer keeps
-# producing a file hunk ignores and `review` shows empty context with no error on
-# either side.
-#
-# Not scoped by system, and that is a finding rather than an omission. Checks are
-# instantiated over `cacheSystems`, so `nativeBuildInputs = [ pkgs.hunk ]` forces
-# that attribute at eval on both Linux systems too. hunk's flake provides exactly
-# `aarch64-darwin`, `aarch64-linux`, and `x86_64-linux`, which is `cacheSystems`
-# exactly, so there is nothing to gate. If that stops being true the eval fails,
-# which is the phase's first STOP clause and is the correct place to learn it.
+# Not scoped by system: hunk's flake provides exactly `cacheSystems`.
 let
-  # The accepted fixture is the MARKED file, not a bare one. The derived marker
-  # rides in the root `summary`, a key hunk's parser reads, so a check against an
-  # unmarked document would not cover the file the writer actually publishes.
+  # The MARKED file, not a bare one: the marker rides in the root `summary`.
   accepted = builtins.toJSON {
     version = 1;
     summary = "Derived from the sysinit note record. Every note write rewrites this file, so edit the record instead: sysinit-agent note path";
@@ -47,9 +32,7 @@ let
     ];
   };
 
-  # Rejected for the one reason the parser states: `summary` is the only required
-  # annotation field. A fixture that is merely malformed JSON would prove nothing
-  # about the schema.
+  # Rejected for the one reason the parser states: `summary` is required.
   rejected = builtins.toJSON {
     version = 1;
     files = [
@@ -60,12 +43,8 @@ let
     ];
   };
 
-  # Pinned because an input bump can silently turn a file watch into a poll, and
-  # task 3.10's observation is the only thing that can tell the difference. It is
-  # asserted against `flake.lock` and not `flake.nix`, because the input is
-  # deliberately unpinned there.
-  #
-  # When this fails, re-run the 3.10 observation by hand, then move the string.
+  # Pinned: an input bump can turn a file watch into a poll. When this fails, re-run
+  # the 3.10 observation by hand, then move the string.
   expectedRev = "505d9d373aec50b7c855e536dbab477560e5168d";
 
   lock = builtins.fromJSON (builtins.readFile ../flake.lock);
@@ -92,8 +71,8 @@ pkgs.runCommand "hunk-agent-context-check"
     export HOME="$TMPDIR/home"
     mkdir -p "$HOME"
 
-    # A real repository, because hunk resolves the diff before it renders it and
-    # a store path has no working tree.
+    # A real repository: hunk resolves the diff before rendering, and a store path
+    # has no working tree.
     repo="$TMPDIR/repo"
     mkdir -p "$repo/src"
     cd "$repo"
@@ -108,17 +87,13 @@ pkgs.runCommand "hunk-agent-context-check"
     printf '%s\n' "$acceptedJSON" > "$TMPDIR/accepted.json"
     printf '%s\n' "$rejectedJSON" > "$TMPDIR/rejected.json"
 
-    # Bounded, and read on stderr rather than on the exit code. A document hunk
-    # accepts opens a full-screen viewer, which does not exit on its own, so the
-    # exit code cannot separate "accepted" from "refused". The schema complaint
-    # is printed before any of that.
+    # Read on stderr, not the exit code: an accepted document opens a viewer that
+    # never exits on its own.
     probe() {
       timeout 30 hunk diff --agent-context "$1" --agent-notes < /dev/null > "$2" 2>&1 || true
     }
 
-    # The literal hunk 0.18.0 printed for this fixture during the 3.1 probe. A
-    # looser pattern would also match a message about something else and let the
-    # check pass for the wrong reason.
+    # The literal hunk 0.18.0 message. A looser pattern would pass for the wrong reason.
     refusal='Each agent annotation requires a summary'
 
     probe "$TMPDIR/rejected.json" "$TMPDIR/rejected.out"
