@@ -1,8 +1,8 @@
 version: 1
 change: decompose-wezterm-ui
 decision: approved
-change_hash: 0218ab4166912810
-base_commit: 1af14210bdb222f4c08d18ea2e80ece16afac536
+change_hash: 623be606042bfbf2
+base_commit: 128a765bc152c397c58b2419abc1d971414af8ce
 items:
     1b90120bbaa8ef5c:
         hash: 42efb5ad968e3376
@@ -40,6 +40,9 @@ items:
     86def43ef16913ba:
         hash: 41f4a3fd4ebe8828
         text: 'Adversarial review (`adversarial-review` skill): run deterministic lint. Record the terminal state.'
+    93ca67b52dbba003:
+        hash: 9fc5153805ec808f
+        text: 'Verify: every extracted module loads on its own.'
     358d203b3c84a97e:
         hash: 4fcca2f873d41d09
         text: 'Verify: the proposal''s walk criterion, measured rather than assumed.'
@@ -67,6 +70,9 @@ items:
     cc35c0ecfa94cbdb:
         hash: cd67e0e39f72c6d0
         text: 'Act: move the pure formatting helpers into `ui/format.lua`. These are the leaves, so nothing they read has to move with them.'
+    cd123fec6f0e262e:
+        hash: 1b6c6f9308384ea3
+        text: 'Verify: the whole tree still builds the same config.'
     d528da6cbffb0044:
         hash: 41f4a3fd4ebe8828
         text: 'Adversarial review (`adversarial-review` skill): run deterministic lint. Record the terminal state.'
@@ -76,6 +82,9 @@ items:
     e1f023c481f859b6:
         hash: ce1f616e721565ad
         text: 'Act: move the three focus actions into `ui/actions.lua`.'
+    e3deb80368fdd5bd:
+        hash: aedc394109bfb3ff
+        text: 'Verify: `ui.lua` holds no helper definitions.'
     e1758efccfb483c7:
         hash: 41f4a3fd4ebe8828
         text: 'Adversarial review (`adversarial-review` skill): run deterministic lint. Record the terminal state.'
@@ -91,3 +100,6 @@ items:
     fb786e3545324e0d:
         hash: 1044ee8209794f53
         text: 'Act: move `compute_agent_session_states`, its cache, and the pane record read into their own module, and have `ui.lua` require it. Change no behavior.'
+    fd47c018887308e5:
+        hash: 41f4a3fd4ebe8828
+        text: 'Adversarial review (`adversarial-review` skill): run deterministic lint. Record the terminal state.'

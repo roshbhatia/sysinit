@@ -434,3 +434,66 @@
       Terminal state: `not run`, per the owner's standing direction. Lint:
       `specutil check` clean, `luac -p` clean on all eleven lua files, and both
       wezterm checks green.
+
+## 7. Close the change against its own criteria
+
+- **SHAPE** graph
+
+- [x] 7.1 Verify: `ui.lua` holds no helper definitions. `deps:` none
+
+      PARTLY MET, and the remainder is named rather than claimed.
+
+      564 lines, from 1,867. Nine function definitions remain and eight are
+      wiring by the criterion's own words: `deck_states` and
+      `agent_session_states` bind the agent-deck handle to the rollup; four are
+      two-line adapters that give a module's function the signature its consumer
+      expects; two are `wezterm.on` handlers, whose bodies now delegate.
+
+      NOT MET for one: `locked_indicator` is a real helper and it stays. It is
+      six lines, it reads `keybindings.locked_mode`, and it has one consumer.
+      Moving it would make a file to hold six lines.
+
+      The rest of `ui.lua` is `config.*` assignment, plugin loading, and the
+      tabline block. That is what a composition root does.
+- [x] 7.2 Verify: every extracted module loads on its own. `deps:` 7.1
+
+      Ten modules, each loadable with a stubbed `wezterm`, which is what
+      `checks/wezterm-rollup.nix` already does for two of them.
+
+      The stronger gate is `checks/wezterm-lua-globals.nix`, and it covers all
+      ten. A module missing a require reads it as a global, and the check names
+      it. That is how the switcher's two missing requires were found in 6.4.
+- [x] 7.3 Verify: the whole tree still builds the same config. `deps:` 7.2
+
+      `wezterm --config-file` against `1af14210b` and against the final tree:
+      232 lines of key table, byte-identical. Store path
+      `afl8fbms...` -> the current tree, with the file set as the whole
+      difference.
+
+      Final shape, against `baseline/lua.files`' seven files:
+
+      | file | lines |
+      | --- | --- |
+      | `ui.lua` | 564 |
+      | `ui/switcher.lua` | 528 |
+      | `ui/sessions.lua` | 188 |
+      | `ui/session_tree.lua` | 132 |
+      | `ui/format.lua` | 114 |
+      | `ui/rollup.lua` | 106 |
+      | `ui/statusbar.lua` | 107 |
+      | `ui/actions.lua` | 82 |
+      | `ui/panes.lua` | 76 |
+      | `ui/tabtitle.lua` | 79 |
+      | `ui/badges.lua` | 58 |
+- [x] 7.4 Adversarial review (`adversarial-review` skill): run deterministic
+      lint. Record the terminal state. `deps:` 7.3
+
+      Terminal state: `not run`, per the owner's standing direction.
+
+      Lint across the whole change: `specutil check` clean, `luac -p` clean on
+      all eleven lua files, all six flake checks green, `go test ./...` green,
+      and both host configurations evaluate.
+
+      What is still not asserted, stated once rather than per phase: nothing
+      here paints a tab bar. Design decision 4 says that gate is the owner's,
+      and five phases of byte-identical key tables do not replace it.
