@@ -1,0 +1,67 @@
+# The markers and fields lifted out of the parsed markdown. A rule can only key
+# on a marker that is extracted, so a new marker is declared here first.
+extract:
+  preset: spec-driven
+
+  markers:
+    # The one subtask in a fan-out that reads every sibling's output.
+    - key: merge
+      scope: phase
+      bullet: MERGE
+
+  fields:
+    # The paths a subtask may modify. Declared so a fan-out prompt can hand each
+    # worker a disjoint set. Nothing checks disjointness yet; see design.md.
+    - key: writes
+      scope: task
+      label: writes
+      type: list
+
+# The rubric `specutil check` enforces. Without this file the built-in
+# `spec-driven` preset applies alone. `preset:` keeps every rule it ships;
+# `rules:` appends, and a rule sharing a preset rule's name replaces it.
+check:
+  preset: spec-driven
+
+  rules:
+    # Replaces the preset's `design-sections`, which still requires a heading
+    # for the refutation loop. The schema fork moved those findings to
+    # `review.md` and its design instruction states the section must not exist
+    # here, so the preset and the schema contradicted each other on every
+    # change. The heading is spelled out nowhere in this file on purpose: a
+    # Behavior criterion greps for it, and a comment naming it would be a hit.
+    - id: required-sections
+      name: design-sections
+      artifact: design
+      sections:
+        - "## Decisions"
+        - "## Rollout & Gating"
+
+    # Replaces the preset's allowlist. MERGE is this repository's graph marker.
+    # TERMINAL closes the note the schema already carries, that the marker stays
+    # unbolded only because the allowlist did not reach it. WRITES is absent on
+    # purpose: the write set is an inline task field, never a bolded bullet.
+    - id: bolded-bullet-lead
+      allow:
+        - WHEN
+        - THEN
+        - AND
+        - POLARITY
+        - SHAPE
+        - STOP
+        - MAX-ITERS
+        - BREAKING
+        - MERGE
+        - TERMINAL
+
+    # A fan-out with no named merge owner is the shape the scaling study reports
+    # propagating the most error. The phase declares which subtask reads every
+    # sibling's output.
+    - id: phase-marker-conditional
+      name: graph-declares-merge
+      when:
+        marker: shape
+        value: graph
+      require:
+        - merge
+      skipPhasePattern: "(?i)rollout"
