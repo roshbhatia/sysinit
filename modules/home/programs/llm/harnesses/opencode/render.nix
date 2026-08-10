@@ -172,18 +172,28 @@ in
         options = {
           baseURL = "http://localhost:11434/v1";
         };
+        # context matches OLLAMA_CONTEXT_LENGTH in modules/darwin/ollama.nix.
+        # Claiming more than the server allows gets the request rejected, not
+        # truncated.
         models = {
-          "qwen2.5-coder:14b" = {
-            name = "Qwen2.5-Coder 14B";
+          "muse-glimmer:30b-mlx" = {
+            name = "Muse Glimmer 30B (MLX)";
             limit = {
-              context = 32768;
+              context = 65536;
               output = 8192;
             };
           };
-          "qwen2.5-coder:7b" = {
-            name = "Qwen2.5-Coder 7B";
+          "qwen3.5:35b-a3b-coding-nvfp4" = {
+            name = "Qwen3.5 35B A3B Coding";
             limit = {
-              context = 32768;
+              context = 65536;
+              output = 8192;
+            };
+          };
+          "gemma4:12b-mlx" = {
+            name = "Gemma4 12B (MLX)";
+            limit = {
+              context = 65536;
               output = 4096;
             };
           };
