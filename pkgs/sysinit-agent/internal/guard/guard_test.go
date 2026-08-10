@@ -9,11 +9,6 @@ import (
 )
 
 // realRules mirrors modules/home/programs/llm/lib/allowlist.nix verbatim.
-//
-// Copied rather than imported: the packaging generates the rule file from the
-// Nix list, and this asserts Go's RE2 decides the same way GNU grep -E did.
-// These tests are now the only gate on that: keep them in step with
-// modules/home/programs/llm/lib/allowlist.nix.
 var realRules = []Rule{
 	{`git[[:space:]]+push\b[^;&|]*([[:space:]]-f([[:space:]]|$)|--force)`, "Force-pushing is prohibited (global CLAUDE.md: no force-push)."},
 	{`(--no-verify|--no-gpg-sign)\b`, "Hook-bypass flags are prohibited (global CLAUDE.md: no --no-verify / --no-gpg-sign)."},
@@ -37,7 +32,6 @@ func compileReal(t *testing.T) []compiled {
 }
 
 // denied is every command the guard must refuse, plus two compound forms where
-// the destructive part is not the first command on the line.
 var denied = []string{
 	"git push --force",
 	"git push --force-with-lease origin main",
@@ -54,8 +48,6 @@ var denied = []string{
 }
 
 // allowed is every fixture that must produce no decision at all. The last four
-// are the near-misses: text that looks destructive but sits after a command
-// separator, or is an argument rather than a flag.
 var allowed = []string{
 	"git push",
 	"git push origin main",
@@ -117,7 +109,6 @@ func TestExitCodeGuardFixturesDecideTheSameWay(t *testing.T) {
 func TestFirstMatchingRuleSuppliesTheReason(t *testing.T) {
 	rules := compileReal(t)
 	// The reason has to name the specific prohibition, not whichever rule
-	// happens to sit last in the list.
 	reason, got := Decide("git push --force", rules)
 	if !got || !strings.Contains(reason, "Force-pushing") {
 		t.Fatalf("expected the force-push reason, got %q", reason)
@@ -130,7 +121,6 @@ func TestFirstMatchingRuleSuppliesTheReason(t *testing.T) {
 
 func TestMalformedEventProducesNoDecision(t *testing.T) {
 	// The three malformed payloads the fixture check feeds in. A harness
-	// forwards events indiscriminately, so a non-Bash event is ordinary.
 	for _, payload := range []string{"not json at all", "{}", `{"tool_input":{}}`} {
 		if _, ok := readCommand(strings.NewReader(payload)); ok {
 			t.Errorf("readCommand found a command in: %s", payload)
@@ -140,7 +130,6 @@ func TestMalformedEventProducesNoDecision(t *testing.T) {
 
 func TestMissingRuleFileIsFatalNotSilent(t *testing.T) {
 	// Failing open is the shape that matters: a guard that cannot reach its
-	// rules and exits 0 permits everything it was installed to refuse.
 	for _, path := range []string{"", filepath.Join(t.TempDir(), "absent.json")} {
 		if _, err := loadRules(path); err == nil {
 			t.Errorf("loadRules accepted %q", path)

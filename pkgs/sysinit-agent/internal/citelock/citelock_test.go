@@ -13,7 +13,6 @@ import (
 )
 
 // capturedRecord writes a lock, a snapshot, and a provenance sidecar that all
-// agree, so a test can break exactly one of them.
 func capturedRecord(t *testing.T, dir string, rec Record, body string) {
 	t.Helper()
 	if err := os.MkdirAll(filepath.Join(dir, snapDirName), 0o755); err != nil {
@@ -98,7 +97,6 @@ func stderr(t *testing.T, fn func() error) (error, string) {
 func TestVerifyIsANoOpWithNoLockfile(t *testing.T) {
 	dir := t.TempDir()
 	// The pre-commit hook runs this over every change directory, so a non-zero
-	// here blocks every commit in the repository.
 	err, out := stderr(t, func() error { return verify(dir) })
 	if err != nil {
 		t.Fatalf("verify on a lockless directory failed: %v", err)
@@ -126,7 +124,6 @@ func TestVerifyRejectsARecordMissingEveryField(t *testing.T) {
 		t.Fatal(err)
 	}
 	// The offline gate is the only thing between a hallucinated citation and a
-	// merge, so this must name the record it rejected.
 	err, out := stderr(t, func() error { return verify(dir) })
 	if err == nil {
 		t.Fatal("verify accepted a record with no source, quote, snapshot, or sha256")
@@ -155,7 +152,6 @@ func TestVerifyRejectsAHandAuthoredSnapshot(t *testing.T) {
 	body := "prelude the verbatim quote postlude"
 	capturedRecord(t, dir, goodRecord(), body)
 	// Removing the sidecar is exactly what a hand-written snapshot looks like:
-	// content that anchors, with no evidence it was ever fetched.
 	if err := os.Remove(filepath.Join(dir, goodRecord().Snapshot+".prov.json")); err != nil {
 		t.Fatal(err)
 	}
@@ -191,7 +187,6 @@ func TestVerifyRejectsASidecarThatDisagreesWithTheRecord(t *testing.T) {
 	body := "prelude the verbatim quote postlude"
 	capturedRecord(t, dir, rec, body)
 	// Both the record and the file are consistent; only the sidecar lies. It
-	// is the piece a forger controls without touching what the gate hashes.
 	sidecar := `{"url":"x","http_status":200,"engine":"curl","sha256":"` + strings.Repeat("b", 64) + `"}`
 	if err := os.WriteFile(filepath.Join(dir, rec.Snapshot+".prov.json"), []byte(sidecar), 0o644); err != nil {
 		t.Fatal(err)
@@ -208,7 +203,6 @@ func TestVerifyRejectsASidecarThatDisagreesWithTheRecord(t *testing.T) {
 func TestVerifyRejectsAQuoteThatDoesNotAnchor(t *testing.T) {
 	dir := t.TempDir()
 	// A paraphrase is the case: close enough to read as the same claim, absent
-	// from the page as written.
 	capturedRecord(t, dir, goodRecord(), "prelude a similar but different quote postlude")
 	err, out := stderr(t, func() error { return verify(dir) })
 	if err == nil {
@@ -269,7 +263,6 @@ func TestVerifyRejectsAnUnparseableAccessedDate(t *testing.T) {
 func TestVerifyReportsEveryBadRecordNotJustTheFirst(t *testing.T) {
 	dir := t.TempDir()
 	// The shell original selected records by id. A record with no id was
-	// skipped entirely, which is a hole in a gate whose job is completeness.
 	if err := os.WriteFile(lockPath(dir), []byte(
 		`{"records":[{"id":"one"},{"source":"https://example.com"},{"id":"three"}]}`), 0o644); err != nil {
 		t.Fatal(err)
@@ -287,7 +280,6 @@ func TestVerifyReportsEveryBadRecordNotJustTheFirst(t *testing.T) {
 
 func TestAssertSafeURLRefusesEveryUnsafeHost(t *testing.T) {
 	// capture reaches the network with the host's routing, so each of these
-	// turns a citation into a request forgery.
 	unsafe := []string{
 		"http://example.com/x",
 		"ftp://example.com/x",
@@ -319,7 +311,6 @@ func TestAssertSafeURLRefusesEveryUnsafeHost(t *testing.T) {
 		"https://api.example.com:443/v1",
 		"https://docs.rs/serde/latest/serde/",
 		// 172.15 and 172.32 sit outside the RFC-1918 range, so they must stay
-		// refused as bare IPs rather than as private ones.
 		"https://sub.internal-docs.example.com/x",
 	}
 	for _, url := range safe {
@@ -406,7 +397,6 @@ func TestVerifyRefusesALockThatDoesNotParse(t *testing.T) {
 		t.Fatal(err)
 	}
 	// Fails closed, not open: an unreadable lock is indistinguishable from one
-	// whose records were deleted.
 	if err, _ := stderr(t, func() error { return verify(dir) }); err == nil {
 		t.Fatal("verify accepted a lock that does not parse")
 	}

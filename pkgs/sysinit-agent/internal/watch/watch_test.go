@@ -25,7 +25,6 @@ func TestLastLinesKeepsTheTrailingN(t *testing.T) {
 	}
 
 	// A body with no final newline keeps not having one, so the last line is
-	// not silently completed.
 	if got := lastLines("a\nb", 1); got != "b" {
 		t.Errorf("lastLines without a final newline = %q, want %q", got, "b")
 	}
@@ -36,8 +35,6 @@ func TestLastLinesKeepsTheTrailingN(t *testing.T) {
 
 func TestWtrunNeverResolvesFromTheViewersOwnPane(t *testing.T) {
 	// 5.2 spawns this viewer into a NEW pane. If an explicit name lost to the
-	// viewer's own WEZTERM_PANE, every spawned viewer would read an empty
-	// directory that wtrun has never written to.
 	t.Setenv("WEZTERM_PANE", "99")
 	t.Setenv("WTRUN_SESSION", "from-env")
 
@@ -103,7 +100,6 @@ func TestFileTailEmitsOnlyWhatWasAppended(t *testing.T) {
 	source := &fileTail{path: path, title: "test"}
 
 	// A source that does not exist yet is the normal state of a run that is
-	// still starting, so it reports rather than failing.
 	var first strings.Builder
 	if err := source.Render(&first, 40); err != nil {
 		t.Fatal(err)
@@ -133,7 +129,6 @@ func TestFileTailEmitsOnlyWhatWasAppended(t *testing.T) {
 	}
 
 	// Nothing changed, so nothing is printed. A viewer that reprinted the file
-	// every 500ms would be unreadable.
 	var fourth strings.Builder
 	if err := source.Render(&fourth, 0); err != nil {
 		t.Fatal(err)
@@ -156,7 +151,6 @@ func TestFileTailEmitsOnlyWhatWasAppended(t *testing.T) {
 
 func TestFileTailRestartsWhenTheFileShrinks(t *testing.T) {
 	// wtrun repoints `last.log` at a new run's file on every run, so the
-	// followed path routinely becomes a shorter, different file.
 	dir := t.TempDir()
 	path := filepath.Join(dir, "last.log")
 	if err := os.WriteFile(path, []byte("old\nold\nold\n"), 0o644); err != nil {
@@ -198,7 +192,6 @@ func TestBusShowsOnlyThisWorktree(t *testing.T) {
 	}
 	write("1", "/repo/here", "claude")
 	// A trailing slash is the same worktree. The record and the caller spell it
-	// differently often enough that treating them as two would hide the row.
 	write("2", "/repo/here/", "codex")
 	write("3", "/repo/elsewhere", "pi")
 
@@ -232,12 +225,6 @@ func TestBusShowsOnlyThisWorktree(t *testing.T) {
 
 func TestLivenessRejectsAndNeverConfirms(t *testing.T) {
 	// SCHEMA.md's rule is pane existence, which this command cannot answer
-	// without forking `wezterm cli list`. So the only verdict it may reach is
-	// "ruled out"; everything else stays unverified.
-	//
-	// The dead pid comes from this test binary re-run with a filter that matches
-	// no test, so it starts and exits immediately. Not `/usr/bin/true`, which
-	// exists on darwin and does not exist inside a Linux nix build sandbox.
 	cmd := exec.Command(os.Args[0], "-test.run=^$")
 	if err := cmd.Run(); err != nil {
 		t.Fatalf("could not produce a dead pid: %v", err)
@@ -260,7 +247,6 @@ func TestLivenessRejectsAndNeverConfirms(t *testing.T) {
 }
 
 // writeManifest builds a paths manifest holding the given keys and returns its
-// path, so a test can point the resolver at a temporary directory.
 func writeManifest(t *testing.T, entries map[string]string) string {
 	t.Helper()
 	body, err := json.Marshal(map[string]any{"version": 1, "paths": entries})

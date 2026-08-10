@@ -15,7 +15,6 @@ import (
 
 func TestTidyFoldsEverySeparatorItOwns(t *testing.T) {
 	// The pipe is the OSC payload's own field separator, so one inside a
-	// reason forges a field. A newline does the same to the file bus.
 	cases := map[string]string{
 		"a|b":              "a b",
 		"a\nb":             "a b",
@@ -50,7 +49,6 @@ func TestTruncateCapsTheReasonAtTheRenderedWidth(t *testing.T) {
 
 func TestPaneValueKeepsANumericIDANumber(t *testing.T) {
 	// The lua side compares pane ids numerically where it can. Quoting a
-	// numeric id would make every comparison fail silently.
 	if got := paneValue("12"); got != int64(12) {
 		t.Errorf("paneValue(\"12\") = %v (%T), want int64 12", got, got)
 	}
@@ -73,7 +71,6 @@ func TestDigWalksDottedPathsAndSkipsEmpties(t *testing.T) {
 		t.Errorf("dig tool_name = %q", got)
 	}
 	// An empty string must fall through to the next candidate, which is what
-	// jq's `//` did.
 	if got := dig(doc, "tool_input.command", "tool_input.file_path"); got != "/tmp/x" {
 		t.Errorf("dig did not fall through an empty value: %q", got)
 	}
@@ -117,7 +114,6 @@ func TestDeriveReasonPerSource(t *testing.T) {
 func TestSubmitWritesTheStartStamp(t *testing.T) {
 	dir := t.TempDir()
 	// The surfaces subtract this to show elapsed time; without it every turn
-	// reads as having just started.
 	if got := deriveReason("submit", "working", nil, dir, "7", 1234); got != "thinking" {
 		t.Fatalf("submit reason = %q", got)
 	}
@@ -168,7 +164,6 @@ func TestPublishLeavesNoTempFileBehind(t *testing.T) {
 		t.Fatal(err)
 	}
 	// A surface reading a half-written record shows garbage, and this rewrites
-	// on every tool call, so the window is not theoretical.
 	for _, entry := range entries {
 		if entry.Name() != "3.json" {
 			t.Errorf("publish left %s behind", entry.Name())
@@ -204,7 +199,6 @@ func TestNoWezternPaneIsASilentNoOp(t *testing.T) {
 	t.Setenv("XDG_STATE_HOME", dir)
 	t.Setenv("WEZTERM_PANE", "")
 	// The same hooks run under other terminals, where there is no pane to key
-	// the record on.
 	if code := Run([]string{"claude", "working"}); code != 0 {
 		t.Fatalf("Run returned %d with no pane", code)
 	}
@@ -215,7 +209,6 @@ func TestNoWezternPaneIsASilentNoOp(t *testing.T) {
 
 func TestPaneDirFallsBackToHomeLocalState(t *testing.T) {
 	// The manifest has to be absent for the fallback to be reachable, and this
-	// box has a real one at the default location.
 	t.Setenv("SYSINIT_PATHS_MANIFEST", filepath.Join(t.TempDir(), "absent.json"))
 	t.Setenv("XDG_STATE_HOME", "")
 	t.Setenv("HOME", "/home/someone")
@@ -230,12 +223,6 @@ func TestPaneDirFallsBackToHomeLocalState(t *testing.T) {
 }
 
 // TestBothEncodingsAgree pins the property SCHEMA.md states: the OSC user
-// variable and the JSON record are rendered from one value, so the four fields
-// they share cannot disagree.
-//
-// It reads the payload the code emits through the emitUserVar seam rather than
-// building one from the same inputs, which would compare a derivation to
-// itself.
 func TestBothEncodingsAgree(t *testing.T) {
 	dir := t.TempDir()
 	t.Setenv("XDG_STATE_HOME", dir)
@@ -295,7 +282,6 @@ func TestBothEncodingsAgree(t *testing.T) {
 	}
 
 	// The pipe rule is what makes the four-field split safe. Without it this
-	// reason would have produced five fields above.
 	if strings.Contains(record.Reason, "|") {
 		t.Errorf("reason kept a pipe: %q", record.Reason)
 	}
@@ -303,7 +289,6 @@ func TestBothEncodingsAgree(t *testing.T) {
 
 func TestMuxIDReadsTheGenerationMarkerOrNothing(t *testing.T) {
 	// wezterm sets this in every pane. The pid in the socket name is the only
-	// per-mux identity a pane can read, so it is the generation marker.
 	cases := map[string]int{
 		"/Users/x/.local/share/wezterm/gui-sock-1679": 1679,
 		"gui-sock-1":         1,
@@ -322,13 +307,6 @@ func TestMuxIDReadsTheGenerationMarkerOrNothing(t *testing.T) {
 }
 
 // A pid that is certainly not running: start a process, wait for it, then reuse
-// its number. Inventing a large pid would be a guess.
-//
-// The child is this test binary re-run with a filter that matches no test, so
-// it starts and exits immediately and needs nothing on disk that is not already
-// there. An earlier version ran `/usr/bin/true`, which exists on darwin and does
-// not exist inside a Linux nix build sandbox, so this package built on the
-// owner's machine and failed on every Linux runner.
 func deadPid(t *testing.T) int {
 	t.Helper()
 	cmd := exec.Command(os.Args[0], "-test.run=^$")
@@ -376,7 +354,6 @@ func TestReapRemovesOnlyRecordsFromADeadMux(t *testing.T) {
 		t.Errorf("dead.json survived the reap: %v", err)
 	}
 	// The start stamp is the same record's other half. Leaving it makes the
-	// next pane to take that id look like it has been running since yesterday.
 	if _, err := os.Stat(filepath.Join(dir, "dead.start")); !os.IsNotExist(err) {
 		t.Errorf("dead.start survived the reap: %v", err)
 	}
@@ -387,7 +364,6 @@ func TestReapRemovesOnlyRecordsFromADeadMux(t *testing.T) {
 
 func TestReapRunsOncePerMux(t *testing.T) {
 	// The reap is on the hottest path in this binary, so it must not scan the
-	// directory on every tool call.
 	dir := t.TempDir()
 	current := os.Getpid()
 
@@ -412,7 +388,6 @@ func TestReapRunsOncePerMux(t *testing.T) {
 
 func TestReapWithoutAMarkerDoesNothing(t *testing.T) {
 	// Outside wezterm there is no mux to compare against, so every record is
-	// someone else's and none of them can be shown to be stale.
 	dir := t.TempDir()
 	if err := os.WriteFile(filepath.Join(dir, "0.json"), []byte(`{"mux":1}`), 0o644); err != nil {
 		t.Fatal(err)

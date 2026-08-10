@@ -1,9 +1,4 @@
 // Package citelock implements the `citelock` command: an offline gate over a
-// change's citations.lock, plus the capture and recheck paths that fill it.
-//
-// `verify` runs from the pre-commit hook over every change directory, so it
-// must be a no-op where there is no lock at all. A gate that fails closed on
-// absence blocks every commit in the repository.
 package citelock
 
 import (
@@ -43,8 +38,6 @@ Claim classes and their freshness windows:
 `
 
 // Record is one citation. The field order is the serialized order, and the lock
-// is read by the pre-commit hook on every commit, so a shape change here fails
-// closed across the whole repository.
 type Record struct {
 	ID         string `json:"id"`
 	Source     string `json:"source"`
@@ -114,7 +107,6 @@ func firstOr(args []string, fallback string) string {
 func lockPath(dir string) string { return filepath.Join(dir, lockfileName) }
 
 // freshnessDays is the age a claim of this class may reach before it has to be
-// re-read. Zero means it never expires.
 func freshnessDays(class string) int {
 	switch class {
 	case "pricing", "availability":
@@ -138,10 +130,6 @@ func sha256File(path string) (string, error) {
 }
 
 // anchored reports whether the verbatim quote appears in the snapshot.
-//
-// A byte-level substring test, not a normalized one: the point of the quote is
-// that it was read from the page as written, and any normalization here is a
-// place a paraphrase can slip through.
 func anchored(path, quote string) (bool, error) {
 	data, err := os.ReadFile(path)
 	if err != nil {
@@ -166,7 +154,6 @@ func verify(lockdir string) error {
 	lock := lockPath(lockdir)
 	if _, err := os.Stat(lock); err != nil {
 		// The no-op path. The pre-commit hook runs this over every change
-		// directory, and most carry no citations at all.
 		logf("no %s in %s; nothing to verify (no-op)", lockfileName, lockdir)
 		return nil
 	}
@@ -179,8 +166,6 @@ func verify(lockdir string) error {
 	failed := false
 	now := time.Now()
 	// Records are walked in order rather than looked up by id. The shell
-	// original selected by id, which silently skipped a record whose id was
-	// absent and double-counted a duplicated one.
 	for _, raw := range parsed.Records {
 		if !verifyRecord(raw, lockdir, now) {
 			failed = true
@@ -219,7 +204,6 @@ func verifyRecord(raw json.RawMessage, lockdir string, now time.Time) bool {
 		return false
 	}
 	// Without the sidecar there is no evidence the snapshot was ever fetched.
-	// A hand-authored one is exactly what this gate exists to catch.
 	if _, err := os.Stat(prov); err != nil {
 		logf("[%s] no capture provenance sidecar (%s.prov.json); hand-authored snapshots are rejected", id, rec.Snapshot)
 		return false
@@ -272,10 +256,6 @@ func verifyRecord(raw json.RawMessage, lockdir string, now time.Time) bool {
 }
 
 // assertSafeURL refuses a source the capture path must never fetch.
-//
-// This runs before any request. capture reaches the network with the caller's
-// credentials and the host's routing, so a URL naming loopback, link-local, or
-// a cloud metadata endpoint turns a citation into a request forgery.
 func assertSafeURL(rawURL string) error {
 	if !strings.HasPrefix(rawURL, "https://") {
 		return die("refusing non-https source (scheme allowlist): %s", rawURL)
@@ -285,7 +265,6 @@ func assertSafeURL(rawURL string) error {
 		host = host[:i]
 	}
 	// Userinfo is stripped before matching. https://evil.com@127.0.0.1/ names
-	// the loopback, and matching the text before the @ reads as a DNS name.
 	if i := strings.LastIndex(host, "@"); i >= 0 {
 		host = host[i+1:]
 	}
@@ -312,7 +291,6 @@ func assertSafeURL(rawURL string) error {
 		return die("refusing hex-IP host: %s", host)
 	}
 	// All digits and dots is a dotted or decimal IP. Anything else is a DNS
-	// name, which resolution-time policy handles.
 	if strings.IndexFunc(host, func(r rune) bool {
 		return (r < '0' || r > '9') && r != '.'
 	}) < 0 {
@@ -350,8 +328,6 @@ func run(name string, args ...string) error {
 }
 
 // liveChecks confirms the source is still reachable and, for a DOI, not
-// retracted. Advisory under CITELOCK_OFFLINE=1, because the gate that decides
-// a commit is `verify`, which never touches the network.
 func liveChecks(url, doi string) error {
 	if os.Getenv("CITELOCK_OFFLINE") == "1" {
 		logf("CITELOCK_OFFLINE=1: skipping live checks (advisory)")
@@ -458,7 +434,6 @@ func capture(url string, args []string) error {
 	if info, err := os.Stat(tmpName); err != nil || info.Size() == 0 {
 		engine = "curl"
 		// --max-redirs 0: a redirect is how an allowlisted host hands the
-		// fetch to one that would never have passed assertSafeURL.
 		if err := run("curl", "-fsS", "--max-redirs", "0", "--max-time", "30",
 			"-o", tmpName, "--", url); err != nil {
 			return die("capture: fetch failed (or redirected) for %s", url)
@@ -519,9 +494,6 @@ func capture(url string, args []string) error {
 }
 
 // upsert replaces any record with the same id and appends the new one.
-//
-// Published through internal/store, so a crash mid-write cannot leave a lock
-// the offline gate then refuses to parse on every commit.
 func upsert(lockdir string, rec Record) error {
 	path := lockPath(lockdir)
 	s := &store.Store{

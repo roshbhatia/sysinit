@@ -1,9 +1,4 @@
 // Package statusline implements `statusline`: the one line claude renders
-// under the prompt.
-//
-// It re-renders continuously, so every part is best effort and a part that
-// cannot be resolved is simply omitted. An error here would replace the whole
-// line with nothing.
 package statusline
 
 import (
@@ -22,7 +17,6 @@ import (
 const Summary = "render the claude status line"
 
 // separator is a middle dot with spaces, matching what the shell original
-// emitted. The line is read at a glance, so the parts need visible gaps.
 const separator = " · "
 
 type payload struct {
@@ -82,7 +76,6 @@ func Run(_ []string) int {
 }
 
 // wholePercent drops the fraction, as `cut -d. -f1` did. A status line has no
-// room for decimals and the number moves constantly.
 func wholePercent(raw string) string {
 	if raw == "" {
 		return ""
@@ -112,10 +105,6 @@ func seshySession(dir string) string {
 }
 
 // openspecChange returns the most recently touched change and how many others
-// there are.
-//
-// Most recent by mtime, not by name: the one being worked on is the one just
-// written, and change names carry no ordering.
 func openspecChange(dir string) (string, int) {
 	root := dir
 	for root != "" && root != "/" {

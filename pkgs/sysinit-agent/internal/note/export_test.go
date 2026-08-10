@@ -32,8 +32,6 @@ func readExport(t *testing.T) *exportDoc {
 }
 
 // rebuiltFromRecord renders the export a rebuild would publish right now,
-// reading the record directly rather than through `rebuild`, which would take
-// the lock the assertion runs under.
 func rebuiltFromRecord(t *testing.T) []byte {
 	t.Helper()
 	data, err := os.ReadFile(storePath(t))
@@ -52,11 +50,6 @@ func rebuiltFromRecord(t *testing.T) []byte {
 }
 
 // assertExportLeadsRelease binds the seam that fires immediately before each
-// explicit release, while the lock is still held.
-//
-// This asserts the ORDERING, not the end state. An implementation that
-// republishes the export after `release()` reads naturally and leaves the same
-// files on disk, so a post-hoc comparison passes on it and this does not.
 func assertExportLeadsRelease(t *testing.T) {
 	t.Helper()
 	fired := false
@@ -103,8 +96,6 @@ func TestClearPublishesTheExportBeforeReleasingTheLock(t *testing.T) {
 }
 
 // TestClearEmptiesTheExportBeforeTheRecord pins the one command whose order is
-// reversed. Clear is a documented kill switch, so the harm to avoid is a switch
-// that appears not to have taken effect, not a fabricated note.
 func TestClearEmptiesTheExportBeforeTheRecord(t *testing.T) {
 	newRepo(t)
 	mustAdd(t, "--file", "src/app.ts", "--line", "2", "--summary", "one")
@@ -143,7 +134,6 @@ func TestExportCarriesRationaleAndAuthorIntact(t *testing.T) {
 		t.Errorf("summary crossed as %q", got.Summary)
 	}
 	// The multi-line rationale is the whole reason 3.5 checks this. The sidecar
-	// field is a plain string, so nothing may flatten it on the way across.
 	if got.Rationale == nil || *got.Rationale != rationale {
 		t.Errorf("rationale did not cross intact: %v", got.Rationale)
 	}
@@ -156,8 +146,6 @@ func TestExportCarriesRationaleAndAuthorIntact(t *testing.T) {
 }
 
 // TestExportIsMarkedAsDerived covers the marker riding in a field the viewer's
-// parser reads. An unknown top-level key would be dropped, so it would tell an
-// owner looking at the viewer nothing.
 func TestExportIsMarkedAsDerived(t *testing.T) {
 	newRepo(t)
 	mustAdd(t, "--file", "src/app.ts", "--line", "1", "--summary", "one")
@@ -177,7 +165,6 @@ func TestExportGroupsNotesByFileInRecordOrder(t *testing.T) {
 
 	doc := readExport(t)
 	// The viewer orders the review by the sidecar's file order, so the record's
-	// own order is what has to survive, not a sort.
 	if len(doc.Files) != 2 || doc.Files[0].Path != "src/other.ts" || doc.Files[1].Path != "src/app.ts" {
 		t.Fatalf("file order is not the record's: %+v", doc.Files)
 	}
@@ -187,7 +174,6 @@ func TestExportGroupsNotesByFileInRecordOrder(t *testing.T) {
 }
 
 // TestRebuildRepairsAHandEditedRecord is the reason the verb exists. The record
-// is the owner's to hand-edit, and no writer runs on that route.
 func TestRebuildRepairsAHandEditedRecord(t *testing.T) {
 	newRepo(t)
 	mustAdd(t, "--file", "src/app.ts", "--line", "1", "--summary", "one")
@@ -211,8 +197,6 @@ func TestRebuildRepairsAHandEditedRecord(t *testing.T) {
 }
 
 // TestRebuildAfterClearLeavesAnEmptyExport covers the state clear strands.
-// cmdClear returns early on an absent or zero-byte record, so nothing there
-// touches the export.
 func TestRebuildAfterClearLeavesAnEmptyExport(t *testing.T) {
 	newRepo(t)
 	mustAdd(t, "--file", "src/app.ts", "--line", "1", "--summary", "one")
@@ -239,8 +223,6 @@ func TestRebuildRefusesAMalformedRecord(t *testing.T) {
 }
 
 // TestExportSurvivesAMalformedNote keeps one bad note from making the whole
-// export unbuildable. `clear --yes` is the documented way out of that state and
-// it cannot run if the export write fails first.
 func TestExportSurvivesAMalformedNote(t *testing.T) {
 	newRepo(t)
 	mustAdd(t, "--file", "src/app.ts", "--line", "1", "--summary", "seed")
@@ -263,10 +245,6 @@ func TestExportSurvivesAMalformedNote(t *testing.T) {
 }
 
 // TestConcurrentAddsLeaveTheExportCurrent adds real detection and is not the
-// gate. A stale export is self-healing: every writer re-reads the record and
-// republishes, and wg.Wait returns only after the last publish. So a version
-// that publishes outside the lock passes this except on one interleaving. The
-// ordering assertion above is what actually catches that.
 func TestConcurrentAddsLeaveTheExportCurrent(t *testing.T) {
 	newRepo(t)
 	mustAdd(t, "--file", "src/app.ts", "--line", "1", "--summary", "seed")

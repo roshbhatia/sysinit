@@ -9,7 +9,6 @@ import (
 )
 
 // setup points the paths resolver at a temporary directory and makes the
-// worktree lookup answer without a repository on disk.
 func setup(t *testing.T) string {
 	t.Helper()
 	published := t.TempDir()
@@ -26,8 +25,6 @@ func setup(t *testing.T) string {
 	}
 	t.Setenv("SYSINIT_PATHS_MANIFEST", manifest)
 	// The session-id fallback globs under the home directory. Point it at an
-	// empty one, or these tests would pass or fail on what the machine running
-	// them happens to have in ~/.claude/projects.
 	t.Setenv("HOME", t.TempDir())
 
 	previous := rootOf
@@ -84,7 +81,6 @@ func TestPublishesALinkNotACopy(t *testing.T) {
 	}
 
 	// A link is only useful while it follows. Appending to the harness's file
-	// must be visible through the published name.
 	handle, err := os.OpenFile(native, os.O_APPEND|os.O_WRONLY, 0o644)
 	if err != nil {
 		t.Fatal(err)
@@ -119,7 +115,6 @@ func TestSidecarMakesADirectoryEnoughToFindIt(t *testing.T) {
 		t.Errorf("a trailing slash lost the session: %q, %v", got, ok)
 	}
 	// The same, recorded with a trailing slash. Trimming only the query would
-	// leave this one unfindable by the directory it names.
 	run(t, "claude", `{"session_id":"slashy","transcript_path":"`+native+`","cwd":"/repo/slashy/"}`)
 	if got, ok := FindByWorktree("claude", "/repo/slashy"); !ok || got != "slashy" {
 		t.Errorf("a worktree recorded with a trailing slash was not found: %q, %v", got, ok)
@@ -141,9 +136,6 @@ func TestTheNewestSessionInADirectoryWins(t *testing.T) {
 	}
 
 	// Two sessions in one worktree is the ordinary case, not an oddity: every
-	// new conversation in the same repository adds one.
-	// Named so the newest sorts LAST in the directory. Otherwise a reader that
-	// simply took the first match would pass this without comparing anything.
 	run(t, "claude", `{"session_id":"zzz-newest","transcript_path":"`+native+`","cwd":"/repo/here"}`)
 	run(t, "claude", `{"session_id":"aaa-oldest","transcript_path":"`+native+`","cwd":"/repo/here"}`)
 
@@ -177,7 +169,6 @@ func TestTheNewestSessionInADirectoryWins(t *testing.T) {
 
 func TestARepublishFollowsTheSessionToItsNewFile(t *testing.T) {
 	// `--resume` moves a session's file. A link that is merely present is not a
-	// link that is correct.
 	published := setup(t)
 	first := filepath.Join(t.TempDir(), "one.jsonl")
 	second := filepath.Join(t.TempDir(), "two.jsonl")
@@ -201,7 +192,6 @@ func TestARepublishFollowsTheSessionToItsNewFile(t *testing.T) {
 
 func TestAnUnusablePayloadIsASilentNoOp(t *testing.T) {
 	// A hook that blocks a prompt to report a bookkeeping problem is worse than
-	// no bookkeeping, so every one of these must exit 0 and write nothing.
 	published := setup(t)
 	native := filepath.Join(t.TempDir(), "sess.jsonl")
 	if err := os.WriteFile(native, []byte("x\n"), 0o644); err != nil {

@@ -24,8 +24,6 @@ func TestWholePercentDropsTheFraction(t *testing.T) {
 
 func TestSeshySessionNamesOnlyDirectoriesInsideASession(t *testing.T) {
 	// Both, because the seshy root now comes from internal/paths, which honours
-	// XDG_STATE_HOME. This file used to derive it from HOME alone while
-	// agentstate honoured the variable, and those two answers disagreed.
 	t.Setenv("HOME", "/home/someone")
 	t.Setenv("XDG_STATE_HOME", "/home/someone/.local/state")
 	t.Setenv("SYSINIT_PATHS_MANIFEST", filepath.Join(t.TempDir(), "absent.json"))
@@ -55,7 +53,6 @@ func openspecTree(t *testing.T, changes ...string) string {
 		t.Fatal(err)
 	}
 	// Stamped apart so the ordering is by mtime rather than by creation order,
-	// which is the property the picker relies on.
 	base := time.Now().Add(-time.Hour)
 	for i, name := range changes {
 		dir := filepath.Join(root, "openspec", "changes", name)
@@ -84,7 +81,6 @@ func TestOpenspecChangePicksTheMostRecentlyTouched(t *testing.T) {
 func TestOpenspecChangeIgnoresTheArchive(t *testing.T) {
 	root := openspecTree(t, "only", "archive")
 	// The archive holds completed work. Counting it would keep the line
-	// claiming a change that shipped months ago.
 	change, extra := openspecChange(root)
 	if change != "only" {
 		t.Errorf("openspecChange = %q, want only", change)
@@ -101,7 +97,6 @@ func TestOpenspecChangeWalksUpToTheConfig(t *testing.T) {
 		t.Fatal(err)
 	}
 	// The status line reports the directory claude is in, which is usually a
-	// subdirectory rather than the repository root.
 	if change, _ := openspecChange(deep); change != "active" {
 		t.Errorf("openspecChange from a subdirectory = %q, want active", change)
 	}

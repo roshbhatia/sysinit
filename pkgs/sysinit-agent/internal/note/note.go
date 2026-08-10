@@ -1,9 +1,4 @@
 // Package note implements the `note` command: agent review notes on a
-// working-tree diff.
-//
-// The record is this package's own file and outlives any viewer. Writing a note
-// never opens or nudges anything: the writer writes files, and whoever wants to
-// look at them runs `review`.
 package note
 
 import (
@@ -39,7 +34,6 @@ record, which is the one route that changes it without going through a write.
 `
 
 // Note is one anchored annotation. The field order is the serialized order, so
-// it may not be reordered casually.
 type Note struct {
 	File      string  `json:"file"`
 	Line      int64   `json:"line"`
@@ -49,9 +43,6 @@ type Note struct {
 }
 
 // document is the store. Notes stay raw so an operation that does not read a
-// note's contents cannot fail on one it did not write. `clear --yes` must
-// succeed on a hand-authored store holding malformed notes, because clearing is
-// the documented way out of exactly that state.
 type document struct {
 	Version int               `json:"version"`
 	Repo    string            `json:"repo"`
@@ -59,9 +50,6 @@ type document struct {
 }
 
 // existing is the lenient view of a stored note, for the operations that do
-// filter on contents. A scalar where an object belongs fails to decode, which
-// is the shell original's behavior: its jq producer exited non-zero and
-// published nothing.
 type existing struct {
 	File    *string      `json:"file"`
 	Line    *json.Number `json:"line"`
@@ -111,9 +99,6 @@ func Run(args []string) int {
 }
 
 // takeValue reads the value of a flag that requires one.
-//
-// A flag with no value must say so. Under the shell original's errexit an
-// unguarded shift exited silently, which reads to a caller as success.
 func takeValue(args []string, i int, name string) (string, int, error) {
 	if i+1 >= len(args) {
 		return "", 0, die("%s needs a value", name)
@@ -130,7 +115,6 @@ func marshal(doc *document) ([]byte, error) {
 }
 
 // newStore builds the guarded store for root. The validator is the shape every
-// reader applies: an object carrying a notes array.
 func newStore(path, root string) *store.Store {
 	return &store.Store{
 		Path: path,
@@ -194,7 +178,6 @@ func cmdPath(args []string) error {
 		return err
 	}
 	// Printed whether or not the file exists. This names an address, and the
-	// caller that wants to know which of the two files is on disk can stat it.
 	if export {
 		fmt.Println(repo.ExportFile(root))
 		return nil
@@ -242,8 +225,6 @@ func cmdAdd(args []string) error {
 		return die("add requires --summary")
 	}
 	// Emptiness is tested after stripping, not before. Validating first let a
-	// summary of only control bytes land as a blank note, where `apply` refused
-	// the same input.
 	cleanSummary := store.OneLine(summary)
 	if cleanSummary == "" {
 		return die("--summary is empty once control bytes are removed")
@@ -291,11 +272,6 @@ func cmdAdd(args []string) error {
 	}
 	doc.Notes = append(doc.Notes, encoded)
 	// Record first. Two renames cannot be atomic together, so one file leads,
-	// and the rule is which harm the window causes rather than which file grows.
-	// Record first only ever leaves the export missing a note the record already
-	// holds, which `rebuild` repairs; export first would show a note the record
-	// never got, which nothing repairs. `--replace` takes the same order even
-	// though its cardinality does not change.
 	if err := publishDoc(s, doc); err != nil {
 		return err
 	}
@@ -309,9 +285,6 @@ func cmdAdd(args []string) error {
 }
 
 // parseLineArg accepts only a bare positive integer.
-//
-// A leading zero is refused rather than normalized: `0123` reaches the store as
-// 123, so the caller's line and the stored line differ with no diagnostic.
 func parseLineArg(line string) (int64, error) {
 	if line == "" {
 		return 0, die("add requires --line")
@@ -375,8 +348,6 @@ func cmdApply(args []string, stdin io.Reader) error {
 	}
 
 	// Resolution comes last and before the lock. Every rejection has to leave
-	// the store byte-identical, and a repository with no store must still have
-	// none once a bad batch is refused.
 	for i := range notes {
 		relative, err := repo.RelativeToRoot(root, notes[i].File)
 		if err != nil {
@@ -416,10 +387,6 @@ func cmdApply(args []string, stdin io.Reader) error {
 }
 
 // normalizeBatch accepts both payload shapes and validates every item.
-//
-// Two shapes because the harness skills already emit hunk's (`filePath`,
-// `newLine`) while this tool's own is (`file`, `line`). Neither side is going
-// to change, so both are read.
 func normalizeBatch(payload []byte) ([]Note, error) {
 	decoder := json.NewDecoder(strings.NewReader(string(payload)))
 	decoder.UseNumber()
@@ -456,7 +423,6 @@ func normalizeBatch(payload []byte) ([]Note, error) {
 }
 
 // pick returns the first key present with a value that is neither null nor
-// false, mirroring jq's `//` alternative operator.
 func pick(m map[string]any, keys ...string) (any, bool) {
 	for _, key := range keys {
 		value, ok := m[key]
@@ -472,8 +438,6 @@ func normalizeItem(fields map[string]any) (Note, error) {
 	var note Note
 
 	// An oldLine-only comment names the original side. Notes anchor on the
-	// modified side, and silently re-anchoring one would attach it to whatever
-	// text now occupies that row.
 	lineValue, hasModified := pick(fields, "line", "newLine")
 	if !hasModified {
 		if _, hasOld := pick(fields, "oldLine"); hasOld {
@@ -520,8 +484,6 @@ func normalizeItem(fields map[string]any) (Note, error) {
 	}
 
 	// The path is rejected rather than cleaned. It must survive verbatim to
-	// match a buffer, and a stripped path would key the note on something the
-	// caller never named. A newline in it also forges a whole listing row.
 	if store.HasControlBytes(file) {
 		return note, die("a note's file contains a control byte")
 	}
@@ -564,7 +526,6 @@ func cmdList(args []string) error {
 	if statErr != nil || info.Size() == 0 {
 		if asJSON {
 			// Same keys on the absent-store path as everywhere else, so a
-			// consumer never has to branch on whether a store exists yet.
 			data, err := marshal(&document{Version: 1, Repo: root, Notes: []json.RawMessage{}})
 			if err != nil {
 				return err
@@ -668,7 +629,6 @@ func cmdClear(args []string) error {
 		return err
 	}
 	// No store is success, not failure. This is a documented kill switch, and
-	// the shell original returned the status of its own `-s` test here.
 	info, statErr := os.Stat(s.Path)
 	if statErr != nil || info.Size() == 0 {
 		return nil
@@ -715,9 +675,6 @@ func cmdClear(args []string) error {
 		doc.Notes = []json.RawMessage{}
 	}
 	// Export first, and only here. Clear is a documented kill switch, so the
-	// harm to avoid is not a fabricated note but a switch that appears not to
-	// have taken effect: record first would empty the record and leave every
-	// note still on display until something rebuilt the export.
 	if err := publishExport(root, doc.Notes); err != nil {
 		return err
 	}

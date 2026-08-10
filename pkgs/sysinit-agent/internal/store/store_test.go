@@ -28,8 +28,6 @@ func newStore(t *testing.T) *Store {
 }
 
 // A zero-byte file is what an interrupted first write leaves behind. It must be
-// treated as absent, not as a valid empty store, or every later write reports
-// success and stores nothing.
 func TestReadTreatsZeroByteAsAbsent(t *testing.T) {
 	s := newStore(t)
 	if err := os.MkdirAll(filepath.Dir(s.Path), 0o755); err != nil {
@@ -48,7 +46,6 @@ func TestReadTreatsZeroByteAsAbsent(t *testing.T) {
 }
 
 // A non-empty store that does not parse holds the owner's data. Rebuilding it
-// silently would discard notes they cannot recover.
 func TestReadRefusesMalformed(t *testing.T) {
 	s := newStore(t)
 	if err := os.MkdirAll(filepath.Dir(s.Path), 0o755); err != nil {
@@ -73,7 +70,6 @@ func TestPublishRefusesMalformed(t *testing.T) {
 }
 
 // A symlinked store is the owner's layout choice. Replacing the link with a
-// regular file left the real target empty.
 func TestPublishRefusesSymlink(t *testing.T) {
 	s := newStore(t)
 	dir := filepath.Dir(s.Path)
@@ -100,7 +96,6 @@ func TestPublishRefusesSymlink(t *testing.T) {
 }
 
 // Read-modify-write with no lock was last-write-wins, and the losing run still
-// reported success.
 func TestLockSerializesWriters(t *testing.T) {
 	s := newStore(t)
 	const writers = 8
@@ -171,9 +166,6 @@ func TestReleaseIsIdempotent(t *testing.T) {
 }
 
 // Only the control byte is removed, which is what defangs an escape sequence:
-// without its ESC the residual "[31m" is inert text, not a color change. The
-// shell original's `gsub("[[:cntrl:]]"; "")` behaved the same way, and matching
-// it matters because a store written by either half must read the same.
 func TestCleanKeepsNewlinesAndDropsControls(t *testing.T) {
 	got := Clean("a\x07b\nc\x1b[31md")
 	want := "ab\nc[31md"
@@ -183,8 +175,6 @@ func TestCleanKeepsNewlinesAndDropsControls(t *testing.T) {
 }
 
 // Non-ASCII must survive. The shell original once used an escaped \uXXXX range
-// that matched the printable bytes and left the control bytes in place, which
-// is the exact opposite of the intent.
 func TestCleanKeepsUnicode(t *testing.T) {
 	got := Clean("héllo → wörld\x07")
 	want := "héllo → wörld"
@@ -202,7 +192,6 @@ func TestOneLineFoldsNewlines(t *testing.T) {
 }
 
 // grep matches within a line, so a newline is a separator it can never match.
-// That is why the shell original used `tr -d` and why this checks newlines too.
 func TestHasControlBytesDetectsNewline(t *testing.T) {
 	if !HasControlBytes("a\nb") {
 		t.Fatal("newline not reported as a control byte")

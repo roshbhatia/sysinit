@@ -1,32 +1,4 @@
 // Package watch implements the `watch` command: one viewer for the three
-// things an agent leaves behind.
-//
-// One viewer rather than three, because the alternative is what this replaces:
-// a chord per source, each opening a different program, each knowing where its
-// source lives. Here the paths come from the manifest and the rendering is the
-// same loop.
-//
-// The viewer only reads. It never nudges a producer, never opens an editor, and
-// never sends a key to a pane. A source that stops being written just stops
-// changing on screen.
-//
-// # Resolution
-//
-// The three sources do NOT share a key, and pretending they do is the mistake
-// this contract exists to prevent. Each is named by what actually identifies
-// it:
-//
-//	wtrun       by pane. wtrun.sh writes under
-//	            <agentWtrun>/${WTRUN_SESSION:-pane-$WEZTERM_PANE}/, and nothing
-//	            below that records a repository. A viewer spawned into a NEW
-//	            pane would resolve its own empty directory, so the name comes
-//	            from WTRUN_SESSION or an explicit argument, never from the
-//	            viewer's own pane.
-//	bus         by directory. The pane record carries `repo` and `worktree`, so
-//	            the working directory is a real key here.
-//	transcript  by harness session id, <agentTranscripts>/<harness>/<session>.jsonl.
-//	            Resolving one by directory needs the repository recorded next to
-//	            the session, which is task 5.3's job, not this file's.
 package watch
 
 import (
@@ -75,12 +47,6 @@ signals a producer.
 `
 
 // pollDefault is how often a followed source is re-read.
-//
-// Polling rather than a filesystem watch, and the tradeoff is deliberate. A
-// watch needs a dependency this module does not have and an open descriptor per
-// source; polling a handful of files twice a second costs a stat each and
-// cannot leak. It also degrades honestly over a filesystem where change
-// notification does not work.
 const pollDefault = 500 * time.Millisecond
 
 func Run(args []string) int {
@@ -92,8 +58,6 @@ func Run(args []string) int {
 	interval := fs.Duration("interval", pollDefault, "poll interval")
 
 	// Parse in passes, taking one positional each time. Go's flag package stops
-	// at the first non-flag argument, so a single Parse would read `--no-follow`
-	// in `watch bus --no-follow` as a directory name and then follow forever.
 	var rest []string
 	remaining := args
 	for {
@@ -142,17 +106,10 @@ func Run(args []string) int {
 }
 
 // renderer is one source. Render writes everything worth showing right now;
-// since is how much history to include, in whatever unit the source counts in.
-//
-// A source that cannot answer says so in its own output rather than returning
-// an error, because a wtrun log that has not been created yet is the normal
-// state of a run that is still starting.
 type renderer interface {
 	// Title is the one line naming what is being watched, so the owner can
-	// tell at a glance that the resolution went where they meant.
 	Title() string
 	// Render writes the current view. history is the number of trailing lines
-	// to include on the first call; later calls pass 0 for "only what is new".
 	Render(w io.Writer, history int) error
 }
 
@@ -187,7 +144,6 @@ func follow(source renderer, history int, tail bool, interval time.Duration) int
 }
 
 // fileTail is the shared body of the two line-oriented sources. It remembers
-// how far it has read, so a tick emits only what was appended.
 type fileTail struct {
 	path   string
 	title  string
@@ -210,9 +166,6 @@ func (f *fileTail) Render(w io.Writer, history int) error {
 	f.missing = false
 
 	// A file that shrank was replaced, not appended to. wtrun rotates `last.log`
-	// by symlink on every run, so this is the common case and not an oddity:
-	// start over rather than reading from an offset that now means something
-	// else.
 	if info.Size() < f.offset {
 		f.offset = 0
 	}
@@ -245,14 +198,12 @@ func (f *fileTail) Render(w io.Writer, history int) error {
 }
 
 // lastLines returns the trailing n lines of body, keeping the final newline
-// state it found.
 func lastLines(body string, n int) string {
 	if body == "" || n <= 0 {
 		return ""
 	}
 	lines := strings.SplitAfter(body, "\n")
 	// SplitAfter leaves a trailing empty element when the body ends in a
-	// newline. Dropping it stops that empty from consuming one of the n.
 	if lines[len(lines)-1] == "" {
 		lines = lines[:len(lines)-1]
 	}
@@ -263,8 +214,6 @@ func lastLines(body string, n int) string {
 }
 
 // newWtrun resolves a wtrun log. The session name is an argument or an
-// environment variable, never the viewer's own pane: 5.2 spawns this into a NEW
-// pane, whose own id names a directory wtrun has never written to.
 func newWtrun(args []string, logName string) (renderer, error) {
 	session := ""
 	switch len(args) {
@@ -303,15 +252,12 @@ func newWtrun(args []string, logName string) (renderer, error) {
 }
 
 // newTranscript resolves a mirrored harness transcript. Both spellings are
-// accepted because the id is written both ways in practice.
 func newTranscript(args []string) (renderer, error) {
 	var harness, session string
 	switch len(args) {
 	case 1:
 		harness, session, _ = strings.Cut(args[0], "/")
 		// A bare harness resolves by directory. Nobody knows a session id, so
-		// requiring one would make this source reachable only from the sidecar
-		// 5.3 writes, read by hand.
 		if session == "" {
 			here, err := os.Getwd()
 			if err != nil {
@@ -341,8 +287,6 @@ func newTranscript(args []string) (renderer, error) {
 }
 
 // busRecord is the subset of the pane record this viewer shows. The schema is
-// internal/agentstate/SCHEMA.md; every field here is read by name, so a field
-// added there is invisible to this.
 type busRecord struct {
 	Mux      int             `json:"mux"`
 	Pane     json.RawMessage `json:"pane"`
@@ -422,7 +366,6 @@ func (b *bus) Render(w io.Writer, _ int) error {
 }
 
 // emit writes a frame only when it differs from the last one, so a followed bus
-// that nothing is changing stays quiet.
 func (b *bus) emit(w io.Writer, frame string) error {
 	if frame == b.last {
 		return nil
@@ -438,23 +381,11 @@ func formatRow(pane string, record busRecord) string {
 		age = time.Since(time.Unix(record.Since, 0)).Truncate(time.Second).String()
 	}
 	// Wide enough for a multi-day age. A record from a mux that has been gone
-	// for a week is exactly the case worth seeing lined up, not the case worth
-	// letting overflow the column.
 	return fmt.Sprintf("pane %-6s %-10s %-8s %-12s %-11s %s",
 		pane, record.Agent, record.Status, age, liveness(record), record.Reason)
 }
 
 // liveness is deliberately weak, and says so in its output.
-//
-// SCHEMA.md's rule is pane existence, and this command cannot answer it: doing
-// so from Go means forking `wezterm cli list` on every frame, which is exactly
-// the fork task 2.9 removed. So a row is `unverified` unless it can be RULED
-// OUT: the record's `mux` field is the pid of the mux that wrote it, and a dead
-// pid means the record is stale.
-//
-// The marker rejects and never confirms. A live mux says nothing about one pane
-// inside it, so `unverified` is the honest answer for every record this cannot
-// eliminate, and guessing `live` there would be worse than saying nothing.
 func liveness(record busRecord) string {
 	if record.Mux <= 0 {
 		return "unverified"

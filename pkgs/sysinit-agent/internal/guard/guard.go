@@ -1,12 +1,4 @@
 // Package guard implements the two deny-path commands: `bash-guard`, which
-// answers a PreToolUse hook with a permission decision, and `exit-code-guard`,
-// which carries the same decision to a harness that reads exit codes instead.
-//
-// The failure mode here is failing OPEN, which is worse than failing closed:
-// a guard that cannot reach its rules and exits 0 silently permits everything
-// it was installed to refuse. Every path that cannot reach a decision is
-// therefore an error, not a silent pass. The one deliberate exception is an
-// event carrying no command at all, which is not a Bash call.
 package guard
 
 import (
@@ -36,7 +28,6 @@ type compiled struct {
 }
 
 // event is the hook payload. Only the command is read: the rules match on
-// command text, and every other field varies by harness.
 type event struct {
 	ToolInput struct {
 		Command string `json:"command"`
@@ -44,7 +35,6 @@ type event struct {
 }
 
 // decision is the PreToolUse answer shape. The key names are fixed by the
-// harness contract, so a rename here silently stops denying anything.
 type decision struct {
 	HookSpecificOutput struct {
 		HookEventName            string `json:"hookEventName"`
@@ -54,9 +44,6 @@ type decision struct {
 }
 
 // loadRules reads the rule file the packaging generated.
-//
-// An unreadable or unparseable file is fatal. Treating it as "no rules" is the
-// exact fail-open shape this package exists to prevent.
 func loadRules(path string) ([]compiled, error) {
 	if path == "" {
 		return nil, fmt.Errorf("no --rules given; refusing to run with no deny rules")
@@ -84,9 +71,6 @@ func loadRules(path string) ([]compiled, error) {
 }
 
 // Decide returns the reason the command is refused, if any.
-//
-// Rules are tried in order and the first match wins, so the reason a caller
-// sees names the specific prohibition rather than the last rule in the list.
 func Decide(command string, rules []compiled) (string, bool) {
 	for _, rule := range rules {
 		if rule.pattern.MatchString(command) {
@@ -117,10 +101,6 @@ func parseArgs(args []string) (string, error) {
 }
 
 // readCommand returns the command under review, and whether there is one.
-//
-// A payload that does not parse, or carries no command, is not a Bash call the
-// rules can speak to. Those exit 0 with no decision, which is what the harness
-// expects for an event it forwarded indiscriminately.
 func readCommand(stdin io.Reader) (string, bool) {
 	data, err := io.ReadAll(stdin)
 	if err != nil {
@@ -170,10 +150,6 @@ func RunBash(args []string) int {
 }
 
 // RunExitCode carries the same decision to a harness that reads exit codes.
-//
-// The decision is made here rather than by shelling out to bash-guard. The
-// shell original forked the inner guard and read its stdout, so an inner
-// failure produced empty output and the wrapper passed the command through.
 func RunExitCode(args []string) int {
 	rulesPath, err := parseArgs(args)
 	if err != nil {
@@ -195,6 +171,5 @@ func RunExitCode(args []string) int {
 	}
 	fmt.Fprintln(os.Stderr, reason)
 	// 2, not 1: the harnesses read this specific code as "refused", and treat
-	// 1 as the tool itself having failed.
 	return 2
 }

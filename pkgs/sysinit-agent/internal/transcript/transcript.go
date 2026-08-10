@@ -1,30 +1,4 @@
 // Package transcript implements the `transcript-link` command: make a harness's
-// own transcript reachable by a stable name.
-//
-// Claude only. It is the one harness whose hook payload carries a transcript
-// reference at all. The others were checked rather than assumed: opencode's
-// payload is typed `{ type, properties: { sessionID, status } }`, pi's handlers
-// carry `toolName` and `input`, and codex's hooks are fixed argv that read no
-// stdin. Ten of eleven harnesses are uncovered, and nothing here scrapes a
-// terminal to close that gap.
-//
-// # A link, not a copy
-//
-// The published name is a symlink to the harness's own file, so
-// `sysinit-agent watch transcript` tails a session that is still being written.
-// A copy would be a second producer of the same bytes, would be stale between
-// refreshes, and would double the disk of a long session.
-//
-// The cost is stated rather than hidden: this does not archive anything. If the
-// harness deletes or moves its transcript, the link dangles and the viewer says
-// nothing is there. Outliving the harness is a different job from being
-// reachable, and this is the second one.
-//
-// # The sidecar
-//
-// A transcript is named by harness session id, which the owner does not know and
-// cannot type. So each link gets a sidecar recording the worktree it belongs to,
-// which is what lets the viewer resolve a transcript from the current directory.
 package transcript
 
 import (
@@ -60,7 +34,6 @@ bookkeeping.
 `
 
 // SidecarVersion is the sidecar's schema version. The link is the artifact; this
-// is only the index that makes it findable.
 const SidecarVersion = 1
 
 // sidecar records what a session id cannot: which worktree it belongs to.
@@ -75,8 +48,6 @@ type sidecar struct {
 }
 
 // payload is the subset of a hook payload this reads. Every field is optional:
-// the shape is the harness's, not this repository's, and a missing field is
-// handled rather than asserted away.
 type payload struct {
 	SessionID      string `json:"session_id"`
 	TranscriptPath string `json:"transcript_path"`
@@ -119,8 +90,6 @@ func Run(args []string) int {
 
 	link := filepath.Join(dir, session+".jsonl")
 	// Replace rather than skip. `--resume` moves a session's file, so a link
-	// written on an earlier run can point at the wrong one, and a link that is
-	// merely present is not a link that is correct.
 	os.Remove(link)
 	if os.Symlink(native, link) != nil {
 		return 0
@@ -139,7 +108,6 @@ func Run(args []string) int {
 }
 
 // sanitize keeps a session id usable as one path element. A harness owns the id
-// and this owns the directory, so the id is checked rather than trusted.
 func sanitize(id string) string {
 	if strings.ContainsAny(id, "/\\") || id == "." || id == ".." {
 		return ""
@@ -148,11 +116,6 @@ func sanitize(id string) string {
 }
 
 // resolveTranscript prefers the payload's own path and falls back to the session
-// id, because a resumed session can carry a path that no longer names a file.
-//
-// The glob is claude's layout. It is here rather than in a shared place because
-// it is one harness's private detail, and the next harness to carry a transcript
-// reference will not share it.
 func resolveTranscript(hint, session string) string {
 	if hint != "" {
 		if info, err := os.Stat(hint); err == nil && info.Mode().IsRegular() {
@@ -168,8 +131,6 @@ func resolveTranscript(hint, session string) string {
 		return ""
 	}
 	// Newest wins: the same session id can appear under two project directories
-	// when a worktree is moved, and the one still being written is the one worth
-	// publishing.
 	sort.Slice(matches, func(i, j int) bool {
 		return modTime(matches[i]).After(modTime(matches[j]))
 	})
@@ -185,7 +146,6 @@ func modTime(path string) time.Time {
 }
 
 // worktree is the repository root holding cwd, or cwd itself outside one. A
-// directory is still a usable key when it is not a repository.
 func worktree(cwd string) string {
 	if cwd == "" {
 		return ""
@@ -205,13 +165,9 @@ func repoName(cwd string) string {
 }
 
 // rootOf answers for cwd rather than for this process's directory. A hook runs
-// wherever the harness left it, which is not reliably the session's worktree.
-//
-// A variable so a test can answer without a repository on disk.
 var rootOf = repo.RootAt
 
 // publishSidecar writes through a temporary file, so a reader never sees half a
-// record. Failure is silent for the reason in the usage text.
 func publishSidecar(path string, record sidecar) {
 	body, err := json.Marshal(record)
 	if err != nil {
@@ -233,11 +189,6 @@ func publishSidecar(path string, record sidecar) {
 }
 
 // FindByWorktree returns the newest published session for a worktree, so a
-// viewer can resolve a transcript from a directory. Empty when there is none.
-//
-// Exported because the viewer is the only caller and the alternative is the
-// viewer re-deriving this layout, which is the duplication the sidecar exists to
-// remove.
 func FindByWorktree(harness, dir string) (session string, ok bool) {
 	dir = strings.TrimRight(dir, "/")
 	if dir == "" {

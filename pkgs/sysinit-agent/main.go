@@ -1,11 +1,4 @@
 // sysinit-agent is one binary hosting the agent runtime commands that used to
-// be separate shell scripts.
-//
-// Multi-call rather than one binary per command: every command shares the store,
-// lock, and sanitization code in internal/store, so separate binaries would
-// either duplicate it or need this module anyway. Each command keeps its current
-// name on PATH through a thin shim that execs the matching subcommand, so no
-// caller knows the difference.
 package main
 
 import (
@@ -23,8 +16,6 @@ import (
 )
 
 // command is one subcommand. Run receives the arguments after the subcommand
-// name and returns the process exit code, so a command can distinguish "denied"
-// from "failed" the way the guard scripts do.
 type command struct {
 	name    string
 	summary string
@@ -67,7 +58,6 @@ func main() {
 	switch os.Args[1] {
 	case "-h", "--help", "help":
 		// Help is the one thing that goes to stdout: a caller asking for it
-		// wants to read it, and everything else here keeps stdout for data.
 		usage(os.Stdout)
 		return
 	}
