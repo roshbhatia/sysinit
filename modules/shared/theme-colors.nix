@@ -1,24 +1,13 @@
 { lib }:
 # Reading the active palette without requiring stylix to be there.
 #
-# Thirteen modules read `config.lib.stylix.colors`. On a box with no stylix
-# module that attribute does not exist, and the dereference is an evaluation
-# error rather than a missing color, so every one of them has to go through one
-# accessor instead of reaching for the attribute themselves.
-#
-# A library rather than an option, for the same reason `profile-tiers.nix` is
-# one: some callers are in `let` bindings evaluated before the module system has
-# finished, and all of them want a plain function.
+# On a box with no stylix module, `config.lib.stylix.colors` is an evaluation error
+# rather than a missing colour, so thirteen readers go through one accessor. A
+# library and not an option: some callers are `let` bindings.
 let
-  # The palette used when stylix is absent. Base16 default dark, which is the
-  # scheme base16 itself ships as its reference.
-  #
-  # Written down rather than fetched, because the point of the fallback is a box
-  # that has neither stylix nor `pkgs.base16-schemes`. A palette that needed a
-  # package to resolve would fail in exactly the case it exists for.
-  #
-  # It is deliberately NOT this repository's own theme. A host without stylix is
-  # not making a statement about colors, and copying the owner's scheme here
+  # Base16 default dark, written down rather than fetched: the fallback exists for a
+  # box with neither stylix nor `pkgs.base16-schemes`. Deliberately not this
+  # repository's own theme, which would be a second place it is written down.
   # would create a second place it is written down.
   hex = {
     base00 = "181818";
@@ -39,13 +28,9 @@ let
     base0F = "a16946";
   };
 
-  # The same sixteen colors in the key shape stylix hands out, because a consumer
-  # reads `base08` and `base08-rgb-r` from the same attrset and cannot be asked
-  # to know which one it got. Only the plain name and the three `-rgb-*` channels
-  # are produced: they are what this repository reads, checked by searching the
-  # tree for every key taken off the palette. A consumer that starts reading
-  # `-hex-r` or `withHashtag` gets a missing-attribute error naming the key, which
-  # is the signal to add it here.
+  # The key shape stylix hands out. Only the plain name and the three `-rgb-*`
+  # channels, which are what this repository reads. A missing-attribute error naming
+  # the key is the signal to add it here.
   channel = value: offset: lib.fromHexString (lib.substring offset 2 value);
 
   expand = name: value: {
@@ -56,28 +41,18 @@ let
   };
 
   fallback = lib.foldl' (acc: name: acc // expand name hex.${name}) {
-    # `fastfetch.nix` prints the scheme's name, so the fallback needs one. It
-    # says what it is rather than borrowing the name of a scheme this host is
-    # not running.
+    # `fastfetch.nix` prints the scheme name, so the fallback needs one of its own.
     scheme = "Base16 Default Dark";
   } (lib.attrNames hex);
 in
 {
   inherit fallback;
 
-  # colorsOf config: the active base16 palette.
-  #
-  # `or` catches a missing level anywhere in the path, so this answers whether
-  # stylix is disabled, whether `config.lib.stylix` is undefined, or whether the
-  # module was never imported. A caller cannot tell the three apart and does not
-  # need to.
+  # `or` catches a missing level anywhere in the path: stylix disabled, `lib.stylix`
+  # undefined, or the module never imported.
   colorsOf = config: config.lib.stylix.colors or fallback;
 
-  # enabled config: should this host generate themed output at all?
-  #
-  # Two conditions, because they answer different questions. `sysinit.theme.enable`
-  # is the owner's choice. `stylix.enable` is whether the thing that computes a
-  # palette is running. Themed output needs both, and a module that checked only
-  # the first would emit the fallback palette as though it were a decision.
+  # Two conditions: `sysinit.theme.enable` is the owner's choice, `stylix.enable` is
+  # whether anything computes a palette. Themed output needs both.
   enabled = config: (config.sysinit.theme.enable or true) && (config.stylix.enable or false);
 }

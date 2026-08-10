@@ -1,17 +1,15 @@
 # sysinit:documented-default
 state_dir=$(sysinit_path agents) || state_dir="${XDG_STATE_HOME:-$HOME/.local/state}/agents"
-# The pane records. Their schema is pkgs/sysinit-agent/internal/agentstate/SCHEMA.md.
-# This reads the file rather than the OSC user variable, because it runs
-# outside the pane and the variable is pane-scoped.
+# Pane records. Schema: pkgs/sysinit-agent/internal/agentstate/SCHEMA.md. Reads the
+# file, not the OSC variable, because it runs outside the pane.
 panes_dir=$(sysinit_path agentPanes) || panes_dir="$state_dir/panes"
 selected_file="$state_dir/selected.json"
 cache_file="$state_dir/sessions.json"
 lock_dir="$state_dir/sessions.lock"
 
 STALE_AFTER=${AGENT_SESSIONS_STALE_AFTER:-10}
-# Every external call this script makes is bounded. A status line runs it on a
-# short timer, so a call that can block forever is not slow, it is unbounded:
-# each hung run holds four processes and the timer keeps starting more.
+# Every external call is bounded: a status line runs this on a timer, so an
+# unbounded call stacks processes rather than merely running slow.
 PROBE_TIMEOUT=${AGENT_SESSIONS_PROBE_TIMEOUT:-2}
 LOCK_STALE_AFTER=${AGENT_SESSIONS_LOCK_STALE_AFTER:-30}
 
@@ -33,12 +31,8 @@ command -v jq > /dev/null 2>&1 || emit_empty
 
 mkdir -p "$state_dir" 2> /dev/null || true
 
-# One instance at a time, because the caller is a timer and not a person.
-#
-# Without this, a run that outlives the timer's interval is joined by the next
-# one rather than replaced by it, and the two stack. That is how a single
-# unresponsive probe turned into thousands of live processes and a machine that
-# could no longer fork.
+# One instance at a time. Without this a run that outlives the timer's interval is
+# joined by the next rather than replaced, which once reached thousands of processes.
 now=$(date +%s)
 
 if [ -d "$lock_dir" ]; then
@@ -46,8 +40,7 @@ if [ -d "$lock_dir" ]; then
   case "$born" in
     '' | *[!0-9]*) born=0 ;;
   esac
-  # A lock with no readable birth time is also stale. A run killed between the
-  # mkdir and the stamp would otherwise wedge the timer permanently.
+  # A lock with no readable birth time is stale, or a kill mid-stamp wedges the timer.
   if [ "$born" -eq 0 ] || [ "$((now - born))" -ge "$LOCK_STALE_AFTER" ]; then
     rm -rf "$lock_dir" 2> /dev/null || true
   fi
@@ -80,11 +73,8 @@ have_live=0
 pane_ws=""
 active_pane=""
 if command -v wezterm > /dev/null 2>&1; then
-  # Bounded. `wezterm cli list` talks to the mux server, and an unresponsive mux
-  # makes it block with no timeout of its own. On a timeout the probe yields
-  # nothing, which `pane_is_live` already reads as "cannot tell, keep the pane".
-  #
-  # Three fields, not two. `is_active` is what task 10.8's second half needs and
+  # Bounded: an unresponsive mux makes `wezterm cli list` block with no timeout of its
+  # own. On timeout the probe yields nothing, which reads as "keep the pane".
   # it costs nothing here, because this is the one call already being made.
   pane_ws=$(timeout "$PROBE_TIMEOUT" wezterm cli list --format json 2> /dev/null |
     jq -r '.[] | "\(.pane_id) \(.workspace // "") \(.is_active)"' 2> /dev/null)
@@ -102,16 +92,9 @@ pane_is_live() {
   esac
 }
 
-# Which workspace owns this pane, resolved live.
-#
-# `agent-state` used to record the workspace into each pane file, and got it by
-# forking `wezterm cli list` on every single tool call. That fork is gone. The
-# answer is a per-pane fact and pane ids are reused, so a recorded one goes
-# wrong the moment a pane id serves a new occupant.
-#
-# Reading it here costs nothing: the liveness check above already runs the same
-# command, so this reuses that output rather than adding a second call. `ui.lua`
-# resolves it live for the same reason.
+# Which workspace owns this pane, resolved live rather than recorded: pane ids are
+# reused, so a recorded answer goes wrong when a pane id serves a new occupant. The
+# liveness check above already runs the same command.
 workspace_of() {
   [ -n "$pane_ws" ] || return 0
   printf '%s\n' "$pane_ws" | awk -v p="$1" '$1 == p { print $2; exit }'
@@ -124,23 +107,10 @@ session_of_pane() {
   jq -r '.session // ""' "$panes_dir/$1.json" 2> /dev/null
 }
 
-# Reconcile `selected` into the SESSION namespace.
-#
-# Three producers name things here and two joins consume them. The set
-# difference below joins `sy list` against the record's `.session`, and both are
-# seshy names since task 10.6, so that one agrees. This is the other join: the
-# `+N` badge in `nixos/home/desktop.nix` and the sketchybar widget both test
-# `.name != $sel` to exclude the selected session, and `$sel` came from
-# `selected.json`, which `ui.lua` writes from `mux.get_active_workspace()`. A
-# workspace name compared against a session name never matches, so the selected
-# session failed to exclude itself.
-#
-# It is reconciled HERE and not in either consumer. `desktop.nix` binds `$sel`
-# out of the payload this script hands it, so it consumes the name and cannot
-# resolve it, and the sketchybar widget reads the same field from the same
-# payload. One edit here settles both surfaces.
-#
-# The resolution is: the active pane's recorded session. Falling back to the
+# Reconcile `selected` into the SESSION namespace. `ui.lua` writes a WORKSPACE name
+# to selected.json, and both consumers test `.name != $sel` against a SESSION name,
+# so the selected session failed to exclude itself. Resolved here because both
+# consumers bind `$sel` out of this payload and cannot resolve it themselves.
 # workspace name keeps the previous behavior on a box with no wezterm and on a
 # pane that has no record, where no better answer exists.
 if [ -n "$pane_ws" ]; then
@@ -168,10 +138,8 @@ rollup=$(
       [ -n "$pane" ] || continue
       pane_is_live "$pane" || continue
       sess=$(jq -r '.session // ""' "$f" 2> /dev/null)
-      # The record carries the seshy-derived session when the directory supplied
-      # one. Otherwise fall back to the live workspace, then to "default". That
-      # is the same order the writer used before the fork was removed, including
-      # treating a workspace literally named "default" as no workspace at all.
+      # Record session, then live workspace, then "default", treating a workspace
+      # literally named "default" as no workspace at all.
       [ -n "$sess" ] || sess=$(workspace_of "$pane")
       [ -n "$sess" ] || sess="default"
       status=$(jq -r '.status // ""' "$f" 2> /dev/null)
