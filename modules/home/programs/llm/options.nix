@@ -91,12 +91,16 @@ in
               '';
             };
             retire = mkOption {
-              type = types.listOf types.str;
+              type = types.listOf (types.either types.str (types.listOf types.str));
               default = [ ];
               description = ''
-                Top-level keys deleted from the target on EVERY activation. These
-                are keys this repository used to declare, or that the harness
-                writes and nothing reads, and which must not persist.
+                Keys deleted from the target on EVERY activation. These are keys
+                this repository used to declare, or that the harness writes and
+                nothing reads, and which must not persist.
+
+                A bare string is a top-level key; a list is a path, so
+                `[ "extensions" "playwright" ]` reaches a nested entry. Same
+                convention as `enforce`.
 
                 It applies on every activation, not only on adoption, because a
                 key that was never declared is absent from the recorded base, and

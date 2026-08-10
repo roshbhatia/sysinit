@@ -228,7 +228,7 @@ let
           (if f.contentFile != null then f.format else "json")
           (if f.schema == null then "-" else f.schema)
           (lib.escapeShellArg (builtins.toJSON (map (e: if builtins.isList e then e else [ e ]) f.enforce)))
-          (lib.escapeShellArg (builtins.toJSON f.retire))
+          (lib.escapeShellArg (builtins.toJSON (map (e: if builtins.isList e then e else [ e ]) f.retire)))
           (if f.createIfMissing then "create" else "skip")
         ];
 
@@ -357,7 +357,7 @@ let
             fi
             if ! jq -S -s --argjson del "$retire" '
                   .[0] as $d | .[1] as $n
-                  | (reduce $del[] as $k ($d; del(.[$k])))
+                  | ($d | delpaths($del))
                   | (. * $n)
                 ' "$tmp.disk" "$new_json" > "$result_json"; then
               echo "managed-file: $name could not adopt $rel" >&2
@@ -374,7 +374,7 @@ let
               echo "managed-file: $name cannot parse $rel as $fmt" >&2
               return 1
             fi
-            if ! jq --argjson del "$retire" 'reduce $del[] as $k (.; del(.[$k]))' \
+            if ! jq --argjson del "$retire" 'delpaths($del)' \
                   "$tmp.disk" > "$tmp.disk.r"; then
               echo "managed-file: $name could not drop the retired keys for $rel" >&2
               return 1

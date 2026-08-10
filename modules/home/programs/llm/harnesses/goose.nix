@@ -120,6 +120,13 @@ in
         "extensions"
         name
       ]) (builtins.attrNames bundledExtensions);
+      # goose rewrites config.yaml at runtime, so dropping a server from the
+      # catalog is not enough: the on-disk entry is absent from the recorded
+      # base and the merge keeps it. Delete what this host suppresses.
+      retire = map (name: [
+        "extensions"
+        name
+      ]) config.sysinit.llm.mcp.suppressedServers;
     };
   }
   // lib.optionalAttrs pkgs.stdenv.isDarwin {
