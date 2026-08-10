@@ -123,6 +123,9 @@ local function ssh_key_options()
   end
   if agent and agent ~= "" then
     opts.identityagent = agent
+    -- wezterm defaults identitiesonly to yes, which skips agent auth outright and
+    -- leaves only its default id_* list, none of which exists here.
+    opts.identitiesonly = "no"
   end
   local home = utils.get_home_dir()
   for _, name in ipairs({ "id_ed25519", "id_ecdsa", "id_rsa" }) do
