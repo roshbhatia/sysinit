@@ -45,6 +45,28 @@ a package is listed once at the lowest profile that needs it.
 | `dev` | a box you build on | the above plus toolchains and the agent runtime |
 | `workstation` | a box you sit in front of | the above plus the GUI |
 
+### Installing on a Box With No Nix
+
+`bootstrap/bootstrap.sh` brings the configuration up without Nix. It sparse-clones
+this repository into `~/.local/share/sysinit`, installs the tools through mise,
+symlinks the neovim config, and writes a `.zshrc` that sources the shell fragments.
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/roshbhatia/sysinit/main/bootstrap/bootstrap.sh | bash
+```
+
+Pass `--editor` for the editor alone. It installs neovim, the 5 tools the config
+shells out to, and nothing else: no shell, no `sysinit-agent`, no `.zshrc`. Use it
+on a box that is not yours.
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/roshbhatia/sysinit/main/bootstrap/bootstrap.sh | bash -s -- --editor
+```
+
+Both modes are re-runnable and both honor `SYSINIT_REMOTE`, `SYSINIT_BRANCH`, and
+`SYSINIT_CHECKOUT`. `bootstrap/verify-container.sh` runs both in a clean Ubuntu
+container.
+
 ### Creating a Discrete Host Repository
 
 To create a separate repository that consumes this flake for host-specific configurations (i.e., work machine):

@@ -6,6 +6,19 @@ remote=${SYSINIT_REMOTE:-https://github.com/roshbhatia/sysinit.git}
 branch=${SYSINIT_BRANCH:-main}
 checkout=${SYSINIT_CHECKOUT:-$HOME/.local/share/sysinit}
 
+# `--editor` installs the neovim config and nothing else: no zsh, no
+# sysinit-agent, and only the tools the config shells out to. It is the mode for
+# a box that is not yours, where replacing the shell would be rude.
+mode=full
+case ${1:-} in
+  --editor) mode=editor ;;
+  "") ;;
+  *)
+    echo "usage: bootstrap.sh [--editor]" >&2
+    exit 2
+    ;;
+esac
+
 log() { printf '\033[1msysinit:\033[0m %s\n' "$*"; }
 
 # ---------------------------------------------------------------- 1.
@@ -23,12 +36,19 @@ else
     git -C "$checkout" reset --hard FETCH_HEAD > /dev/null
 fi
 
-git -C "$checkout" sparse-checkout set --cone \
-  bootstrap \
-  modules/home/programs/neovim/config \
-  modules/home/programs/zsh \
-  modules/shared/options \
-  pkgs/sysinit-agent
+if [ "$mode" = editor ]; then
+  git -C "$checkout" sparse-checkout set --cone \
+    bootstrap \
+    modules/home/programs/neovim/config \
+    modules/shared/options
+else
+  git -C "$checkout" sparse-checkout set --cone \
+    bootstrap \
+    modules/home/programs/neovim/config \
+    modules/home/programs/zsh \
+    modules/shared/options \
+    pkgs/sysinit-agent
+fi
 # `read-tree -mu HEAD` rather than `checkout "$branch"`.
 git -C "$checkout" read-tree -mu HEAD
 
@@ -52,14 +72,27 @@ mv "$manifest.tmp" "$manifest"
 
 # --------------------------------------------------------- 3.
 
-# The `system` entries in the manifest.
+# The `system` entries in the manifest. In editor mode only the entries the
+# neovim config needs, which is what `editor = true` marks.
 if command -v apt-get > /dev/null 2>&1; then
-  packages=$(
-    awk '
-      /^\[\[tool\]\]|^\[\[program\]\]/ { pkg = "" }
-      /^system = / { gsub(/^system = "|"$/, "", $0); print $0 }
-    ' "$checkout/bootstrap/tools.toml"
-  )
+  if [ "$mode" = editor ]; then
+    packages=$(
+      awk '
+        /^\[\[tool\]\]|^\[\[program\]\]/ { sys = ""; want = 0 }
+        /^system = / { sys = $0; gsub(/^system = "|"$/, "", sys) }
+        /^editor = true/ { want = 1 }
+        /^$/ { if (want && sys != "") print sys; sys = ""; want = 0 }
+        END { if (want && sys != "") print sys }
+      ' "$checkout/bootstrap/tools.toml"
+    )
+  else
+    packages=$(
+      awk '
+        /^\[\[tool\]\]|^\[\[program\]\]/ { pkg = "" }
+        /^system = / { gsub(/^system = "|"$/, "", $0); print $0 }
+      ' "$checkout/bootstrap/tools.toml"
+    )
+  fi
   log "apt-get install: $(echo "$packages" | tr '\n' ' ')"
   # shellcheck disable=SC2086
   DEBIAN_FRONTEND=noninteractive apt-get install -y -qq --no-install-recommends $packages > /dev/null
@@ -78,7 +111,11 @@ export PATH="$HOME/.local/bin:$PATH"
 # The generated file becomes mise's GLOBAL config, by symlink, rather than
 log "mise install"
 mkdir -p "$HOME/.config/mise"
-ln -sfn "$checkout/bootstrap/mise.toml" "$HOME/.config/mise/config.toml"
+if [ "$mode" = editor ]; then
+  ln -sfn "$checkout/bootstrap/mise-editor.toml" "$HOME/.config/mise/config.toml"
+else
+  ln -sfn "$checkout/bootstrap/mise.toml" "$HOME/.config/mise/config.toml"
+fi
 mise trust --yes "$HOME/.config/mise/config.toml" > /dev/null 2>&1 || true
 mise install --yes
 mise reshim > /dev/null 2>&1 || true
@@ -92,6 +129,12 @@ log "linking the neovim config"
 mkdir -p "$HOME/.config"
 rm -rf "$HOME/.config/nvim"
 ln -sfn "$checkout/modules/home/programs/neovim/config" "$HOME/.config/nvim"
+
+if [ "$mode" = editor ]; then
+  # shellcheck disable=SC2016  # printed for the reader to paste, not expanded
+  log 'done. Run: PATH="$HOME/.local/share/mise/shims:$PATH" nvim'
+  exit 0
+fi
 
 # zsh cannot be a symlink: the Nix side assembles `initContent` from fragments
 log "writing the zsh config"

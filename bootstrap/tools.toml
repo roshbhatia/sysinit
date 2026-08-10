@@ -9,6 +9,7 @@ system = "coreutils"
 [[tool]]
 nix = "curl"
 system = "curl"
+editor = true
 
 [[tool]]
 nix = "wget"
@@ -33,10 +34,12 @@ system = "sed"
 [[tool]]
 nix = "gnumake"
 system = "make"
+editor = true
 
 [[tool]]
 nix = "pkg-config"
 system = "pkg-config"
+editor = true
 
 [[tool]]
 nix = "which"
@@ -49,6 +52,7 @@ system = "tree"
 [[tool]]
 nix = "unzip"
 system = "unzip"
+editor = true
 
 [[tool]]
 nix = "zip"
@@ -85,14 +89,17 @@ mise = "ubi:eza-community/eza"
 [[tool]]
 nix = "fd"
 mise = "aqua:sharkdp/fd"
+editor = true
 
 [[tool]]
 nix = "ripgrep"
 mise = "aqua:BurntSushi/ripgrep"
+editor = true
 
 [[tool]]
 nix = "jq"
 mise = "aqua:jqlang/jq"
+editor = true
 
 [[tool]]
 nix = "jqp"
@@ -122,6 +129,7 @@ system = "htop"
 [[tool]]
 nix = "glow"
 mise = "aqua:charmbracelet/glow"
+editor = true
 
 [[tool]]
 nix = "go-grip"
@@ -154,6 +162,7 @@ none = "vendor apt repository only, and an ephemeral box holds no vault"
 [[tool]]
 nix = "git"
 system = "git"
+editor = true
 
 [[tool]]
 nix = "gh"
@@ -194,6 +203,7 @@ system = "zsh"
 [[program]]
 name = "neovim"
 mise = "aqua:neovim/neovim"
+editor = true
 
 # Not an editor tool but the compiler the bootstrap needs: `sysinit-agent` is
 [[program]]

@@ -45,6 +45,17 @@ apt-get install -y -qq --no-install-recommends git ca-certificates curl >/dev/nu
 
 git config --global --add safe.directory /src
 
+# Editor mode first, in its own checkout, so the full run below cannot mask a
+# missing dependency it happens to install.
+echo "--- bootstrap --editor"
+SYSINIT_CHECKOUT=/root/.local/share/sysinit-editor /src/bootstrap/bootstrap.sh --editor
+PATH="$HOME/.local/share/mise/shims:$HOME/.local/bin:$PATH" nvim --headless +qa
+test -L /root/.config/nvim
+test ! -e /root/.local/share/sysinit-editor/pkgs/sysinit-agent
+test ! -e /root/.local/share/sysinit-editor/modules/home/programs/zsh
+test ! -f /root/.zshrc
+rm -rf /root/.config/nvim /root/.config/mise /root/.local/share/sysinit-editor
+
 /src/bootstrap/bootstrap.sh
 
 # The two assertions this phase's STOP gate names.
