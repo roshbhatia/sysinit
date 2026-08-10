@@ -95,12 +95,20 @@ return {
     keys = {
       {
         "<leader>dd",
-        "<Cmd>CodeDiff<CR>",
+        function()
+          require("utils.gitrepo").resolve(function(root)
+            vim.cmd("CodeDiff --repo " .. vim.fn.fnameescape(root))
+          end)
+        end,
         desc = "Open repo diff",
       },
       {
         "<leader>dH",
-        "<Cmd>CodeDiff history<CR>",
+        function()
+          require("utils.gitrepo").resolve(function(root)
+            vim.cmd("CodeDiff --repo " .. vim.fn.fnameescape(root) .. " history")
+          end)
+        end,
         desc = "Open repo history",
       },
       {

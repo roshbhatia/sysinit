@@ -191,9 +191,22 @@ return {
             easing = "outQuad",
           },
           filter = function(buf)
-            return vim.g.snacks_scroll ~= false
-              and vim.b[buf].snacks_scroll ~= false
-              and vim.bo[buf].buftype ~= "terminal"
+            if
+              vim.g.snacks_scroll == false
+              or vim.b[buf].snacks_scroll == false
+              or vim.bo[buf].buftype == "terminal"
+            then
+              return false
+            end
+            -- A diff pair is scroll-bound. Snacks animates only the current
+            -- window of a bound pair, so the other one jumps and the two
+            -- halves drift apart mid-animation.
+            for _, win in ipairs(vim.fn.win_findbuf(buf)) do
+              if vim.wo[win].diff then
+                return false
+              end
+            end
+            return true
           end,
         },
         words = {

@@ -94,43 +94,11 @@ return {
       {
         "<leader>gg",
         function()
-          local cwd = vim.fn.getcwd()
-
-          local handle = io.popen(
-            string.format("fd -H -I -t d -t f --max-depth 5 '^[.]git$' %s 2>/dev/null", vim.fn.shellescape(cwd))
-          )
-          if not handle then
-            require("neogit").open()
-            return
-          end
-
-          local git_dirs = {}
-          for line in handle:lines() do
-            local root = line:match("^(.+)/%.git/?$")
-            if root then
-              table.insert(git_dirs, root)
-            end
-          end
-          handle:close()
-
-          local is_root_repo = #git_dirs == 1 and git_dirs[1] == cwd
-
-          if is_root_repo then
-            require("neogit").open()
-          elseif #git_dirs == 0 then
-            require("neogit").open()
-          else
-            vim.ui.select(git_dirs, {
-              prompt = "Select Git Repo",
-              format_item = function(root)
-                return vim.fn.fnamemodify(root, ":~:.")
-              end,
-            }, function(choice)
-              if choice then
-                require("neogit").open({ cwd = choice })
-              end
-            end)
-          end
+          -- Neogit resolves its root from nvim's cwd, not from the buffer, so a
+          -- workspace holding several repos needs the root passed in.
+          require("utils.gitrepo").resolve(function(root)
+            require("neogit").open({ cwd = root })
+          end)
         end,
         desc = "Toggle",
         mode = "n",
