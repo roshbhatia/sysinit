@@ -3,6 +3,8 @@ local wezterm = require("wezterm")
 local keybindings = require("sysinit.pkg.keybindings")
 local utils = require("sysinit.pkg.utils")
 local plugin_loader = require("sysinit.pkg.plugin_loader")
+local ui_panes = require("sysinit.pkg.ui.panes")
+local ui_rollup = require("sysinit.pkg.ui.rollup")
 
 local M = {}
 
@@ -229,12 +231,7 @@ function M.setup(config)
     working = nf.md_loading or "⟳",
     idle    = nf.cod_circle_small_filled or "○",
   }
-  local agent_state_rank = {
-    waiting = 4,
-    done    = 3,
-    working = 2,
-    idle    = 1,
-  }
+  local agent_state_rank = ui_panes.state_rank
   local agent_state_labels = {
     waiting = "Needs Input",
     done    = "Done",
@@ -273,48 +270,8 @@ function M.setup(config)
     return string.format("%dh", math.floor(secs / 3600))
   end
 
-  local function pane_repo(p)
-    local ok, repo, cwd = pcall(function()
-      local url = p:get_current_working_dir()
-      if not url then return "", "" end
-      local path
-      if type(url) == "string" then
-        path = url:gsub("^file://[^/]*", "")
-      else
-        path = url.file_path
-      end
-      if not path or path == "" then return "", "" end
-      path = path:gsub("/+$", "")
-      return path:match("([^/]+)$") or "", path
-    end)
-    if not ok then return "", "" end
-    return repo or "", cwd or ""
-  end
-
-  -- Reads the pane record file for `session`, `branch`, and `dirty`, which the
-  -- OSC user variable does not carry. Schema:
-  -- pkgs/sysinit-agent/internal/agentstate/SCHEMA.md.
-  --
-  -- The liveness rule is pane existence, and the caller already satisfies it:
-  -- every id reaching here comes from `tab:panes_with_info()`, so a record whose
-  -- pane is gone is a record nothing asks for. The record's `mux` marker is not
-  -- checked, because the GUI process carries no `WEZTERM_UNIX_SOCKET` and so
-  -- cannot tell which mux it is. `agent-state` deletes dead muxes' records
-  -- instead.
-  local function read_pane_record(pane_id)
-    local path = utils.state_path("agentPanes", "agents/panes") .. "/" .. tostring(pane_id) .. ".json"
-    local f = io.open(path, "r")
-    if not f then return nil end
-    local content = f:read("*a")
-    f:close()
-    local ok, data = pcall(wezterm.json_parse, content)
-    if not ok or type(data) ~= "table" then return nil end
-    return {
-      session = type(data.session) == "string" and data.session or "",
-      branch = type(data.branch) == "string" and data.branch ~= "" and data.branch or nil,
-      dirty  = data.dirty == true,
-    }
-  end
+  local pane_repo = ui_panes.pane_repo
+  local read_pane_record = ui_panes.read_pane_record
 
   local function smart_path(full_cwd)
     if not full_cwd or full_cwd == "" then return "" end
@@ -341,119 +298,14 @@ function M.setup(config)
   -- and falls back to the agent-deck plugin. Schema: pkgs/sysinit-agent/internal/agentstate/SCHEMA.md.
   -- The variable is authoritative here because it is live and dies with the
   -- pane, so it needs no liveness rule.
-  local function pane_agent_state(p, deck_states)
-    local status, reason, since, agent
-    local uv = p:get_user_vars()
-    local raw = uv and uv.agent_state
-    if raw and raw ~= "" then
-      local s, r, ts, a = raw:match("^([^|]*)|([^|]*)|([^|]*)|(.*)$")
-      if s and agent_state_rank[s] then
-        status, reason, since, agent = s, r, tonumber(ts), a
-      end
-    end
-    if not status then
-      local deck = deck_states[p:pane_id()]
-      if deck and agent_state_rank[deck.status] then
-        status = deck.status -- working | waiting | idle; no reason/age
-        agent = deck.agent
-      end
-    end
-    return status, reason, since, agent
+  local pane_agent_state = ui_panes.agent_state
+
+  local function deck_states()
+    return agent_deck_ok and agent_deck.get_all_agent_states() or {}
   end
 
-  local function compute_agent_session_states()
-    local sessions = {}
-    local panes = {}
-    local deck_states = agent_deck_ok and agent_deck.get_all_agent_states() or {}
-
-    local ok = pcall(function()
-      for _, win in ipairs(wezterm.mux.all_windows()) do
-        local workspace = win:get_workspace()
-        local window_id = win:window_id()
-        for _, tab in ipairs(win:tabs()) do
-          local tab_id = tab:tab_id()
-          for _, p in ipairs(tab:panes()) do
-            local status, reason, since, agent = pane_agent_state(p, deck_states)
-            if status then
-              local rank = agent_state_rank[status]
-              local pane_id = p:pane_id()
-              -- The record read costs one file open per agent pane. Only panes
-              -- with a status reach here, and `rollup_cache` throttles the whole
-              -- function to once a second, which is what `session_tree` relies on
-              -- for the same read.
-              local rec = read_pane_record(pane_id)
-              local session = rec and rec.session or ""
-              panes[#panes + 1] = {
-                pane_id = pane_id,
-                window_id = window_id,
-                tab_id = tab_id,
-                workspace = workspace,
-                -- The workspace is the group; the session is what is inside it.
-                -- The two are different namespaces and neither replaces the other.
-                session = session,
-                repo = (function() local r, _ = pane_repo(p); return r end)(),
-                branch = rec and rec.branch or "",
-                agent = agent or "",
-                status = status,
-                reason = reason or "",
-                since = since,
-                rank = rank,
-              }
-              local cur = sessions[workspace]
-              if not cur then
-                cur = {
-                  status = status,
-                  reason = reason or "",
-                  since = since,
-                  rank = rank,
-                  -- The session names of the panes in this group, first seen
-                  -- first. It lives on the collapsed entry and not on `panes`
-                  -- alone, because two of the three consumers take the first
-                  -- return only and would never see it.
-                  names = {},
-                }
-                sessions[workspace] = cur
-              else
-                local replace = rank > cur.rank
-                if not replace and rank == cur.rank then
-                  local a, b = since, cur.since
-                  replace = a ~= nil and (b == nil or a < b)
-                end
-                if replace then
-                  cur.status, cur.reason, cur.since, cur.rank = status, reason or "", since, rank
-                end
-              end
-              if session ~= "" then
-                local seen = false
-                for _, n in ipairs(cur.names) do
-                  if n == session then
-                    seen = true
-                    break
-                  end
-                end
-                if not seen then
-                  cur.names[#cur.names + 1] = session
-                end
-              end
-            end
-          end
-        end
-      end
-    end)
-    if not ok then
-      return {}, {}
-    end
-    return sessions, panes
-  end
-
-  local rollup_cache = { at = -1, sessions = {}, panes = {} }
   local function agent_session_states()
-    local now = os.time()
-    if now ~= rollup_cache.at then
-      local sessions, panes = compute_agent_session_states()
-      rollup_cache = { at = now, sessions = sessions, panes = panes }
-    end
-    return rollup_cache.sessions, rollup_cache.panes
+    return ui_rollup.states(deck_states)
   end
 
   local function gui_window_for_workspace(workspace)

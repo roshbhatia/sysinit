@@ -1,9 +1,8 @@
 version: 1
 change: decompose-wezterm-ui
 decision: approved
-note: 'phase 1 measured: baseline recorded, the setup-locals read-set map produced, and decision 2 corrected from one module to two layers because session_tree reads the pane primitives and not the rollup'
-change_hash: 3fa55a889bfc5f2f
-base_commit: 88d48cfb5f98781a1b0a94762cab448972d13718
+change_hash: b8769d121b049315
+base_commit: a5f7f47824d603a87f419adf497f87273b9ba597
 items:
     6d1f26f8cf9f315f:
         hash: 8c4ecafccac3a68d

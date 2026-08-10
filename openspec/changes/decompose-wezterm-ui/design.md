@@ -30,10 +30,19 @@ up front stops this change being judged on it.
 ### 2. Boundaries follow the data, not the surfaces
 
 - Decision: extract the pane primitives and the rollup first, as TWO layers.
-  The lower layer holds what both mux walks read: the agent-deck handle,
-  `agent_state_rank`, `pane_repo`, `read_pane_record`, and `pane_agent_state`.
-  The upper layer holds `rollup_cache`, `compute_agent_session_states`, and
-  `agent_session_states`, and exports only the last of those.
+  The lower layer holds what both mux walks read: `agent_state_rank`,
+  `pane_repo`, `read_pane_record`, and `pane_agent_state`. The upper layer holds
+  `rollup_cache`, `compute_agent_session_states`, and `agent_session_states`,
+  and exports only the last of those. The agent-deck handle stays in `ui.lua`
+  and reaches both layers as an argument.
+- Alternative rejected, corrected by task 2.1: moving the agent-deck handle
+  into the lower layer with the other five shared names. Task 1.2's read-set
+  map counted it as shared and it is, but three of its five call sites are
+  outside both walks, and one of those is `agent_deck.apply_to_config`. Moving
+  the handle would move plugin configuration into a pane-primitives module and
+  would load the plugin at require time rather than inside `M.setup`. Passing
+  `deck_states` in costs one parameter and is what makes the upper layer
+  testable without the plugin, which task 2.2 needs.
 - Alternative rejected: one module per visible surface. The two walks are the
   duplication that matters, and a per-surface split freezes it in place by
   giving each surface its own copy.
