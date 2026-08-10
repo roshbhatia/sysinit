@@ -291,3 +291,59 @@
 
       Lint: `specutil check` clean, `luac -p` clean on all four lua files, and
       both wezterm checks green.
+
+## 4. Extract the session domain
+
+- **SHAPE** graph
+
+- [x] 4.1 Act: move the seshy list, the workspace slot assignment, and the
+      last-active record into `ui/sessions.lua`. `deps:` none
+
+      Eleven names. The `sy` binary resolution moves with them, because the
+      block that walks `env.json` for it exists only to serve `list_names`.
+      `ui.lua` 1,628 -> 1,464.
+
+      Nothing here reads a `ui.lua` local, which is why it moves whole rather
+      than by argument. `home` is the exception and it is not a dependency:
+      `sessions.lua` reads `HOME` itself and `ui.lua` keeps its own, so the two
+      cannot drift.
+- [x] 4.2 Act: move `session_tree` and its palette into `ui/session_tree.lua`.
+      `deps:` 4.1
+
+      This is the second mux walk, and it moves only now because it reads nine
+      names that phases 2 to 4 had to place first: `tab_label` and `pane_proc`
+      from `format`, four primitives from `panes`, and `last_active` and
+      `names_cached` from `sessions`.
+
+      Two arguments replace two closure reads: `build(deck_states)` takes the
+      agent-deck snapshot, and `colors(win, config_data)` takes the palette
+      fallback. Those were the only two, which is what made the move mechanical.
+      `ui.lua` 1,464 -> 1,348.
+- [x] 4.3 Verify: the proposal's walk criterion, measured rather than assumed.
+      `deps:` 4.2
+
+      ANSWERED, and the proposal's framing was wrong. The criterion asks that
+      the mux be walked once per tick rather than twice. It already is.
+
+      `session_tree` has exactly one caller, `open_session_tree`, which runs on
+      a chord press. The rollup's walk has two callers, `agent_status` and
+      `session_chips`, and both are tabline components, so both run on every
+      status update. Both reach the same one-second cache, so a tick costs ONE
+      walk and a chord costs a second.
+
+      So the two walks are kept, and the reason is not cost. They reduce to
+      different shapes: the rollup collapses to one entry per workspace, the
+      tree keeps every pane under its tab. Merging them would make the per-tick
+      path compute a tab hierarchy that the tab bar throws away.
+- [x] 4.4 Verify: config unchanged, file set is the only difference. `deps:` 4.3
+
+      `wezterm --config-file` against `1508f0466` and against this tree: 232
+      lines, byte-identical. Globals check green, so no local was lost across
+      either move.
+- [x] 4.5 Adversarial review (`adversarial-review` skill): run deterministic
+      lint. Record the terminal state. `deps:` 4.4
+
+      Terminal state: `not run`, per the owner's standing direction.
+
+      Lint: `specutil check` clean, `luac -p` clean on all six lua files, and
+      all three wezterm checks green.

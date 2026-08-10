@@ -5,6 +5,8 @@ local utils = require("sysinit.pkg.utils")
 local plugin_loader = require("sysinit.pkg.plugin_loader")
 local ui_format = require("sysinit.pkg.ui.format")
 local ui_panes = require("sysinit.pkg.ui.panes")
+local ui_session_tree = require("sysinit.pkg.ui.session_tree")
+local ui_sessions = require("sysinit.pkg.ui.sessions")
 local ui_rollup = require("sysinit.pkg.ui.rollup")
 
 local M = {}
@@ -334,183 +336,18 @@ function M.setup(config)
   local pane_proc = ui_format.pane_proc
   local tab_label = ui_format.tab_label
 
-  local function seshy_session_names(sy_bin)
-    if not sy_bin or sy_bin == "" then
-      return {}, false
-    end
-    local names = {}
-    local ok, out = pcall(function()
-      local success, stdout = wezterm.run_child_process({ sy_bin, "list" })
-      if not success then
-        error("sy list failed")
-      end
-      return stdout
-    end)
-    if not ok or not out then
-      return {}, false
-    end
-    local first = true
-    for _, line in ipairs(wezterm.split_by_newlines(out)) do
-      if first then
-        first = false
-      elseif line ~= "" then
-        local name = line:match("^(%S+)")
-        if name then
-          names[#names + 1] = name
-        end
-      end
-    end
-    return names, true
-  end
-
+  local seshy_session_names = ui_sessions.list_names
+  local seshy_names_cached = ui_sessions.names_cached
+  local active_session_names = ui_sessions.active_names
+  local session_slots = ui_sessions.slots
+  local touch_workspace = ui_sessions.touch
+  local workspace_last_active = ui_sessions.last_active
+  local seshy_dir = ui_sessions.seshy_dir
+  local sy_bin = ui_sessions.sy_bin
+  local DEFAULT_WORKSPACE = ui_sessions.DEFAULT_WORKSPACE
+  local DEFAULT_SLOT = ui_sessions.DEFAULT_SLOT
+  local MAX_SLOT = ui_sessions.MAX_SLOT
   local home = os.getenv("HOME") or ""
-  local seshy_dir = utils.state_path("seshySessions", "seshy/sessions")
-  local sy_bin = home .. "/.local/bin/sy"
-  do
-    local env = utils.load_json_file(utils.get_config_path("env.json"))
-    for dir in (env and env.PATH or ""):gmatch("[^:]+") do
-      local candidate = dir .. "/sy"
-      local fh = io.open(candidate, "r")
-      if fh then
-        fh:close()
-        sy_bin = candidate
-        break
-      end
-    end
-  end
-
-  local seshy_cache = { at = -1, names = {} }
-  local function seshy_names_cached()
-    local now = os.time()
-    if now - seshy_cache.at >= 5 then
-      local names, ok = seshy_session_names(sy_bin)
-      if ok then
-        seshy_cache = { at = now, names = names }
-      else
-        seshy_cache.at = now
-      end
-    end
-    return seshy_cache.names
-  end
-
-  local function active_session_names()
-    local seen, names = {}, {}
-    pcall(function()
-      for _, win in ipairs(wezterm.mux.all_windows()) do
-        local n = win:get_workspace()
-        if n and n ~= "" and not seen[n] then
-          seen[n] = true
-          names[#names + 1] = n
-        end
-      end
-    end)
-    return names
-  end
-
-  local DEFAULT_WORKSPACE = "default"
-  local DEFAULT_SLOT = 1
-  local MAX_SLOT = 9
-
-  local function compute_session_slots()
-    local prev = wezterm.GLOBAL.workspace_slots
-    if type(prev) ~= "table" then
-      prev = {}
-    end
-
-    local names = active_session_names()
-    if #names == 0 then
-      return prev
-    end
-
-    local present = {}
-    for _, n in ipairs(names) do
-      present[n] = true
-    end
-
-    local slots, taken = {}, {}
-    taken[DEFAULT_SLOT] = true
-    for name, slot in pairs(prev) do
-      if
-        present[name]
-        and name ~= DEFAULT_WORKSPACE
-        and type(slot) == "number"
-        and not taken[slot]
-      then
-        slots[name] = slot
-        taken[slot] = true
-      end
-    end
-
-    local fresh = {}
-    for _, n in ipairs(names) do
-      if n ~= DEFAULT_WORKSPACE and not slots[n] then
-        fresh[#fresh + 1] = n
-      end
-    end
-    table.sort(fresh)
-    local probe = 1
-    for _, name in ipairs(fresh) do
-      while probe <= MAX_SLOT and taken[probe] do
-        probe = probe + 1
-      end
-      if probe > MAX_SLOT then
-        break
-      end
-      slots[name] = probe
-      taken[probe] = true
-    end
-
-    slots[DEFAULT_WORKSPACE] = DEFAULT_SLOT
-
-    local changed = false
-    for name, slot in pairs(slots) do
-      if prev[name] ~= slot then
-        changed = true
-        break
-      end
-    end
-    if not changed then
-      for name in pairs(prev) do
-        if slots[name] == nil then
-          changed = true
-          break
-        end
-      end
-    end
-    if changed then
-      wezterm.GLOBAL.workspace_slots = slots
-    end
-    return slots
-  end
-
-  local slots_cache = { at = -1, slots = {} }
-  local function session_slots()
-    local now = os.time()
-    if now ~= slots_cache.at then
-      slots_cache = { at = now, slots = compute_session_slots() }
-    end
-    return slots_cache.slots
-  end
-
-  local touch_throttle = {}
-  local function touch_workspace(name)
-    if not name or name == "" then
-      return
-    end
-    local now = os.time()
-    if touch_throttle[name] and now - touch_throttle[name] < 5 then
-      return
-    end
-    touch_throttle[name] = now
-    local t = wezterm.GLOBAL.workspace_last_active or {}
-    t[name] = now
-    wezterm.GLOBAL.workspace_last_active = t
-  end
-
-  local function workspace_last_active(name)
-    local t = wezterm.GLOBAL.workspace_last_active
-    return type(t) == "table" and t[name] or nil
-  end
 
   wezterm.on("update-status", function(window, _pane)
     local ok, focused = pcall(function()
@@ -524,129 +361,12 @@ function M.setup(config)
   end)
 
   local function session_tree()
-    local deck_states = agent_deck_ok and agent_deck.get_all_agent_states() or {}
-    local workspaces = {}
-    local ws_index = {}
-    local attention = {}
-
-    pcall(function()
-      for _, win in ipairs(wezterm.mux.all_windows()) do
-        local workspace = win:get_workspace()
-        local window_id = win:window_id()
-        local ws = ws_index[workspace]
-        if not ws then
-          ws = {
-            name = workspace,
-            dormant = false,
-            rank = 0,
-            since = nil,
-            last_active = workspace_last_active(workspace),
-            status = nil,
-            tabs = {},
-          }
-          ws_index[workspace] = ws
-          workspaces[#workspaces + 1] = ws
-        end
-        for ti, tab in ipairs(win:tabs()) do
-          local infos = tab:panes_with_info()
-          local active_pane
-          for _, info in ipairs(infos) do
-            if info.is_active then
-              active_pane = info.pane
-            end
-          end
-          local resolved_active = active_pane or (infos[1] and infos[1].pane)
-          local tnode = {
-            tab_id = tab:tab_id(),
-            index = ti,
-            title = tab_label(tab, ti, resolved_active),
-            active_pane_id = resolved_active and resolved_active:pane_id() or nil,
-            panes = {},
-          }
-          for _, info in ipairs(infos) do
-            local p = info.pane
-            local status, reason, since, agent = pane_agent_state(p, deck_states)
-            local rank = status and agent_state_rank[status] or 0
-            local pid = p:pane_id()
-            local repo, cwd = pane_repo(p)
-            local git = read_pane_record(pid)
-            local rec = {
-              pane_id = pid,
-              window_id = window_id,
-              tab_id = tnode.tab_id,
-              workspace = workspace,
-              tab_title = tnode.title,
-              repo = repo,
-              cwd = cwd,
-              branch = git and git.branch or nil,
-              dirty = git and git.dirty or false,
-              title = pane_proc(p, agent),
-              agent = agent or "",
-              status = status,
-              reason = reason or "",
-              since = since,
-              rank = rank,
-            }
-            tnode.panes[#tnode.panes + 1] = rec
-            if since and (not ws.last_active or since > ws.last_active) then
-              ws.last_active = since
-            end
-            if rank >= agent_state_rank.working then
-              attention[#attention + 1] = rec
-              if rank > ws.rank or (rank == ws.rank and since and (not ws.since or since < ws.since)) then
-                ws.rank, ws.since, ws.status = rank, since, status
-              end
-            end
-          end
-          ws.tabs[#ws.tabs + 1] = tnode
-        end
-      end
-    end)
-
-    for _, name in ipairs(seshy_names_cached()) do
-      if not ws_index[name] then
-        local ws = { name = name, dormant = true, rank = 0, since = nil, status = nil, tabs = {} }
-        ws_index[name] = ws
-        workspaces[#workspaces + 1] = ws
-      end
-    end
-
-    local now = os.time()
-    table.sort(attention, function(a, b)
-      if a.rank ~= b.rank then
-        return a.rank > b.rank
-      end
-      return (a.since or now) < (b.since or now)
-    end)
-
-    return { workspaces = workspaces, attention = attention }
+    return ui_session_tree.build(deck_states())
   end
 
   local function tree_colors(win)
-    local ok, pal = pcall(function()
-      return win:effective_config().resolved_palette
-    end)
-    pal = (ok and pal) or (config_data and config_data.colors) or {}
-    local a, b = pal.ansi or {}, pal.brights or {}
-    return {
-      ws_live  = b[7] or b[8] or pal.foreground or "#c0caf5",   -- bright cyan/white — live session
-      ws_dorm  = a[8] or pal.foreground or "#a9b1d6",           -- ansi-white (mid-gray) — dormant
-      dir_ic   = a[5] or "#7aa2f7",                             -- ansi blue — folder icon (softer than bright)
-      waiting  = b[2] or a[2] or "#f7768e",                     -- bright red — needs input (status signal: keep vivid)
-      done     = b[3] or a[3] or "#9ece6a",                     -- bright green — finished (status signal: keep vivid)
-      working  = b[4] or a[4] or "#e0af68",                     -- bright yellow — running (status signal: keep vivid)
-      idle     = a[8] or "#a9b1d6",                             -- ansi-white (mid-gray) — idle
-      name     = pal.foreground or "#c0caf5",
-      reason   = a[6] or "#bb9af7",                             -- ansi magenta — muted; reason is secondary info
-      age      = a[8] or "#a9b1d6",                             -- ansi-white (mid-gray) — timestamps
-      chrome   = b[1] or "#414868",                             -- bright-black — intentionally dim tree lines
-      badge_bg = pal.cursor_bg or b[1] or "#414868",            -- subtle chip background for pane badges
-      ghost    = a[8] or pal.foreground or "#a9b1d6",            -- muted bracketed match suffix
-      ansi     = a,                                              -- raw ansi array for badge color slots
-      brights  = b,
-    }
+    return ui_session_tree.colors(win, config_data)
   end
-
   local function agent_status()
     local sessions = agent_session_states()
     local now = os.time()
