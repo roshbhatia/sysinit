@@ -233,10 +233,61 @@
       three lua files, and `nix build .#checks.aarch64-darwin.wezterm-rollup`
       green including both mutants.
 
-      What a critic would have been pointed at. The extraction preserved
+      What a critic would have been pointed at (phase 2). The extraction preserved
       behavior on four paths that were checked by reading and then by running:
       the deck is queried on a cache miss and not on a hit; a walk that raises
       still yields two empty tables and still discards partial work; the cache
       still keys on `os.time()` equality; and `agent_state_rank` is one table
       shared by both modules rather than a copy. The path no gate covers is the
       one 2.5 names: nothing here paints a tab bar.
+
+## 3. Extract the leaf formatting helpers
+
+- **SHAPE** graph
+
+- [x] 3.1 Act: move the pure formatting helpers into `ui/format.lua`. These are
+      the leaves, so nothing they read has to move with them. `deps:` none
+
+      Ten names: `state_icons`, `state_labels`, `suppressed_reasons`,
+      `status_color`, `status_label`, `age`, `smart_path`, `normalize_proc`,
+      `pane_proc`, and `tab_label`. `ui.lua` 1,719 -> 1,628.
+
+      They go first because phase 5's `session_tree` reads `tab_label` and
+      `pane_proc`. Extracting the tree before its leaves would have pulled them
+      into a module that does not own them.
+
+      `nf` stays in `ui.lua`, which reads it at eight other sites. `format.lua`
+      derives its own from `wezterm.nerdfonts`, so the two agree by construction
+      rather than by an argument.
+- [x] 3.2 Verify: no name was lost in the move. `deps:` 3.1
+
+      This task exists because 3.1 lost one. The edit that cut the icon table
+      through to `pane_repo` swallowed `local agent_state_rank =
+      ui_panes.state_rank` in between. `luac -p` passed: Lua resolves an unbound
+      name to a global, so every rank comparison in the tab bar would have read
+      nil at run time and no parse check could see it.
+
+      The gate that sees it is the bytecode. A global read compiles to
+      `GETTABUP _ENV "name"`, so `checks/wezterm-lua-globals.nix` compiles every
+      file in the tree and requires each such name to be one Lua provides. On
+      the broken tree it prints `agent_state_rank`; on the fixed tree the set is
+      17 names and all of them are stdlib.
+
+      That check is the seventh in `checks/default.nix` and it covers every
+      phase after this one, not just this move.
+- [x] 3.3 Verify: the config is unchanged and the file set is the only
+      difference. `deps:` 3.2
+
+      `wezterm --config-file` against `63b66d0fe` and against this tree: 232
+      lines of resolved key table, byte-identical.
+
+      Store path `vcla1wx1...` -> `jykiq21h...`, from `ui.lua` shrinking and
+      `ui/format.lua` appearing. No Nix file changed.
+- [x] 3.4 Adversarial review (`adversarial-review` skill): run deterministic
+      lint. Record the terminal state. `deps:` 3.3
+
+      Terminal state: `not run`, per the owner's standing direction that the
+      apply proceed on deterministic lint alone.
+
+      Lint: `specutil check` clean, `luac -p` clean on all four lua files, and
+      both wezterm checks green.

@@ -3,6 +3,7 @@ local wezterm = require("wezterm")
 local keybindings = require("sysinit.pkg.keybindings")
 local utils = require("sysinit.pkg.utils")
 local plugin_loader = require("sysinit.pkg.plugin_loader")
+local ui_format = require("sysinit.pkg.ui.format")
 local ui_panes = require("sysinit.pkg.ui.panes")
 local ui_rollup = require("sysinit.pkg.ui.rollup")
 
@@ -225,74 +226,17 @@ function M.setup(config)
   end
 
   local nf = wezterm.nerdfonts or {}
-  local agent_state_icons = {
-    waiting = nf.md_clock_alert or "⏱",
-    done    = nf.md_check_circle or "✔",
-    working = nf.md_loading or "⟳",
-    idle    = nf.cod_circle_small_filled or "○",
-  }
+  local agent_state_icons = ui_format.state_icons
+  local agent_state_labels = ui_format.state_labels
   local agent_state_rank = ui_panes.state_rank
-  local agent_state_labels = {
-    waiting = "Needs Input",
-    done    = "Done",
-    working = "Working",
-    idle    = "",
-  }
-  local SUPPRESSED_REASONS = { ["your move"] = true, ["submit"] = true, ["message"] = true }
-
-  local function status_color(status, colors)
-    if status == "waiting" then return colors.waiting
-    elseif status == "done" then return colors.done
-    elseif status == "working" then return colors.working
-    end
-    return nil
-  end
-
-  local function format_status_label(status, reason)
-    local lbl = agent_state_labels[status] or ""
-    local show_reason = reason and reason ~= "" and not SUPPRESSED_REASONS[reason]
-    if lbl == "" and not show_reason then return "" end
-    local parts = {}
-    if lbl ~= "" then parts[#parts + 1] = lbl end
-    if show_reason then parts[#parts + 1] = reason end
-    return table.concat(parts, " · ")
-  end
-
-  local function format_age(secs)
-    if not secs or secs < 0 then
-      return ""
-    end
-    if secs < 60 then
-      return string.format("%ds", secs)
-    elseif secs < 3600 then
-      return string.format("%dm", math.floor(secs / 60))
-    end
-    return string.format("%dh", math.floor(secs / 3600))
-  end
+  local status_color = ui_format.status_color
+  local format_status_label = ui_format.status_label
+  local format_age = ui_format.age
 
   local pane_repo = ui_panes.pane_repo
   local read_pane_record = ui_panes.read_pane_record
 
-  local function smart_path(full_cwd)
-    if not full_cwd or full_cwd == "" then return "" end
-    local home = os.getenv("HOME") or ""
-    local seshy_base = utils.state_path("seshySessions", "seshy/sessions")
-    if full_cwd == seshy_base or full_cwd:sub(1, #seshy_base + 1) == seshy_base .. "/" then
-      local after = full_cwd:sub(#seshy_base + 2)  -- "<session>[/rest]"
-      return after ~= "" and ("{sy}/" .. after) or "{sy}"
-    end
-    local gh_base = home .. "/github/"
-    if full_cwd:sub(1, #gh_base) == gh_base then
-      local rest = full_cwd:sub(#gh_base + 1)             -- "<tier>/<org>/<repo>[/sub]"
-      local short = rest:match("^[^/]+/[^/]+/(.+)$") or rest
-      return "{gh}/" .. short
-    end
-    if full_cwd == home then return "{home}" end
-    if full_cwd:sub(1, #home + 1) == home .. "/" then
-      return "{home}/" .. full_cwd:sub(#home + 2)
-    end
-    return full_cwd
-  end
+  local smart_path = ui_format.smart_path
 
   -- Reads the OSC user variable, which wezterm has already base64-decoded,
   -- and falls back to the agent-deck plugin. Schema: pkgs/sysinit-agent/internal/agentstate/SCHEMA.md.
@@ -386,44 +330,9 @@ function M.setup(config)
     switch_to_workspace(win, gui_pane, rec.workspace)
   end
 
-  local function normalize_proc(raw)
-    if not raw or raw == "" then return raw end
-    return (raw:gsub("^%.", ""):gsub("%-wrapped$", ""))
-  end
-
-  local function pane_proc(p, agent)
-    local ok, proc_name = pcall(function()
-      local proc = p:get_foreground_process_name()
-      if proc and proc ~= "" then
-        return normalize_proc((proc:gsub("/+$", "")):match("([^/]+)$") or "")
-      end
-      return nil
-    end)
-    if ok and proc_name and proc_name ~= "" then
-      return proc_name
-    end
-    if agent and agent ~= "" then
-      return agent
-    end
-    local ok2, title = pcall(function() return normalize_proc(p:get_title() or "") end)
-    return (ok2 and title) or ""
-  end
-
-  local function tab_label(tab, index, active_pane)
-    local ok, title = pcall(function()
-      return tab:get_title() or ""
-    end)
-    if ok and title and title ~= "" then
-      return title
-    end
-    if active_pane then
-      local proc = pane_proc(active_pane, nil)
-      if proc ~= "" then
-        return proc
-      end
-    end
-    return "tab " .. tostring(index)
-  end
+  local normalize_proc = ui_format.normalize_proc
+  local pane_proc = ui_format.pane_proc
+  local tab_label = ui_format.tab_label
 
   local function seshy_session_names(sy_bin)
     if not sy_bin or sy_bin == "" then

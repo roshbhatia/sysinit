@@ -1,8 +1,8 @@
 version: 1
 change: decompose-wezterm-ui
 decision: approved
-change_hash: b8769d121b049315
-base_commit: a5f7f47824d603a87f419adf497f87273b9ba597
+change_hash: f6a68f3188f8a55f
+base_commit: 63b66d0fe8cebc840f75ca8e37daa480408f603b
 items:
     6d1f26f8cf9f315f:
         hash: 8c4ecafccac3a68d
@@ -10,6 +10,9 @@ items:
     08d827709d5f8644:
         hash: 41f4a3fd4ebe8828
         text: 'Adversarial review (`adversarial-review` skill): run deterministic lint. Record the terminal state.'
+    47afc1b67b7c4185:
+        hash: aebc235f480b73c6
+        text: 'Verify: the config is unchanged and the file set is the only difference.'
     54d49427bf6608d6:
         hash: a183a175da273c48
         text: 'Verify: the test fails when the rollup''s precedence is inverted. A test that passes against a broken reducer is not coverage.'
@@ -25,6 +28,15 @@ items:
     a9fb4fb8bc2cc6c7:
         hash: 29ce6ef89ec63f67
         text: 'Act: give that module a test that runs without a GUI, by taking the mux walk''s result as an argument rather than performing the walk inside the reducer.'
+    b56545a2aad44eec:
+        hash: 364973bfb7ad4e6a
+        text: 'Verify: no name was lost in the move.'
+    c3d14fb7dcc3ca9f:
+        hash: 41f4a3fd4ebe8828
+        text: 'Adversarial review (`adversarial-review` skill): run deterministic lint. Record the terminal state.'
+    cc35c0ecfa94cbdb:
+        hash: cd67e0e39f72c6d0
+        text: 'Act: move the pure formatting helpers into `ui/format.lua`. These are the leaves, so nothing they read has to move with them.'
     d731906ed3987724:
         hash: 85b2d6fa2b5d40ad
         text: 'Verify: the wezterm configuration''s derivation path differs from 1.1''s recording only by the file set, and name each difference.'
