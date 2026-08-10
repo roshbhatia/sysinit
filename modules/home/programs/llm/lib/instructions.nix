@@ -143,6 +143,15 @@ let
   outputStyleRules = ''
     Write all output in Simplified Technical English (ASD-STE100).
 
+    Zinsser's four principles decide anything the rules below leave open, in
+    this order when they conflict:
+
+    - Clarity. The reader must not have to read a sentence twice.
+    - Simplicity. Cut every word that does no work.
+    - Brevity. Say it once, in the fewest sentences that stay clear.
+    - Humanity. Write to a person, not at one. Warmth is not padding, and
+      neither is admitting what you do not know.
+
     Standards basis: ISO 24495-1:2023 (relevant, findable, understandable,
     usable); W3C Cognitive Accessibility Guidance (clear words, literal language,
     short text, separate steps, no reliance on memory); US Plain Writing Act
