@@ -33,6 +33,55 @@ func init() {
 	})
 
 	register(rule{
+		id: "section-min-bullets",
+		doc: "a named section must hold at least min bullets, so a required heading " +
+			"cannot be satisfied by an empty one (params: artifact, section, min)",
+		eval: func(p params, c *ir.Change) []Finding {
+			artifact, section, min := p.String("artifact"), p.String("section"), p.Int("min")
+			if section == "" || min <= 0 {
+				return nil
+			}
+			text, file, ok := artifactText(c, artifact)
+			if !ok {
+				return nil
+			}
+			// A heading with nothing under it passes `required-sections`, because that
+			// rule asks only whether the author typed the heading. For a section that
+			// carries the acceptance criteria, presence is not the property worth
+			// checking: an empty `## Behavior` is indistinguishable from a change
+			// nobody wrote criteria for, and it is what a template leaves behind.
+			//
+			// The section ends at the next h2, so bullets under an h3 subsection still
+			// count. Indented bullets count too: nesting is a way of grouping
+			// criteria, not a way of demoting them.
+			var found, counting int
+			for _, raw := range strings.Split(text, "\n") {
+				line := strings.TrimSpace(raw)
+				switch {
+				case line == section:
+					counting = 1
+					continue
+				case counting == 1 && strings.HasPrefix(line, "## "):
+					counting = 2
+				}
+				if counting == 1 && strings.HasPrefix(line, "- ") {
+					found++
+				}
+			}
+			if counting == 0 || found >= min {
+				// An absent section is `required-sections`' finding to report, not this
+				// rule's. Two rules naming one defect reads as two defects.
+				return nil
+			}
+			return []Finding{{
+				File: file,
+				Msg: fmt.Sprintf("%s holds %d bullet(s), under the %d this rubric requires; a heading with nothing under it states no criteria",
+					section, found, min),
+			}}
+		},
+	})
+
+	register(rule{
 		id: "paired-bullet",
 		doc: "every bullet matching lead must be followed by one matching follower " +
 			"before the next lead (params: artifact, lead, follower)",

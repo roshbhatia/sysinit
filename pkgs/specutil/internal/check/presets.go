@@ -16,7 +16,22 @@ var presets = map[string][]RuleConfig{
 			Name: "proposal-sections",
 			Params: map[string]any{
 				"artifact": "proposal",
-				"sections": []string{"### Non-goals"},
+				"sections": []string{"### Non-goals", "## Behavior"},
+			},
+		},
+		{
+			// `openspec validate` cannot check this. It validates the delta model:
+			// specs/<capability>/spec.md with `## ADDED Requirements` headers and a
+			// `#### Scenario:` under each requirement. This schema has no spec
+			// corpus, so validate reports "no delta" on every change and its exit
+			// code carries no information. The criteria this schema does have live in
+			// the proposal, which makes them specutil's to check or nobody's.
+			ID:   "section-min-bullets",
+			Name: "behavior-has-criteria",
+			Params: map[string]any{
+				"artifact": "proposal",
+				"section":  "## Behavior",
+				"min":      1,
 			},
 		},
 		{

@@ -17,7 +17,7 @@ func good() *ir.Change {
 	return &ir.Change{
 		Name: "demo",
 		Proposal: &ir.Proposal{
-			Section: ir.Section{Raw: "## Why\n\nA reason.\n\n## What Changes\n\n- Do the thing\n\n### Non-goals\n\n- Not this\n"},
+			Section: ir.Section{Raw: "## Why\n\nA reason.\n\n## What Changes\n\n- Do the thing\n\n### Non-goals\n\n- Not this\n\n## Behavior\n\nMust do:\n\n- The thing happens, decided by `run it`\n"},
 		},
 		Design: &ir.Design{
 			Section: ir.Section{Raw: "## Decisions\n\n- Decision: use X\n  - Alternative rejected: Y\n\n## Rollout & Gating\n\nBuild, then switch.\n\n## Adversarial Review\n\nPer the skill.\n"},
