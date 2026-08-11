@@ -128,8 +128,40 @@
       NOT-RUN, per the owner decision recorded in `review.md`. The
       capability-overclaim risk named there is the one this phase could have hit,
       and the guard added in 2.1 is the answer to it.
-- [ ] 2.4 Apply: `git push`, then `nh darwin switch` from the `sysinit.laurel` checkout in a separate WezTerm pane, gated on `nix flake check` and `nh darwin build` exiting 0
+- [x] 2.4 Apply: `git push`, then `nh darwin switch` from the `sysinit.laurel` checkout in a separate WezTerm pane, gated on `nix flake check` and `nh darwin build` exiting 0
+
+      Run at the owner's direction, in a spawned WezTerm window rather than the
+      conversation pane. Exit 0. The generation diff added exactly one path,
+      `agent-edit-event`, and nothing else.
+
+      Three live checks after it: the installed manifest resolves `agentEdits` to
+      `~/.local/state/agents/edits`, `agent-edit-event` is on PATH under
+      `/etc/profiles/per-user/roshan/bin`, and `~/.claude/settings.json` holds the
+      `PostToolUse` entry with that resolved path.
+
 - [ ] 2.5 Confirm: the owner edits a file through claude and accepts that the events written name the files they expected, at the volume they expected, with nothing recorded that claude did not touch
+
+      Evidence gathered, judgement outstanding.
+
+      Trial run in a fresh seshy session, `edit-bus-trial`, with claude driven
+      non-interactively. Asked for two Writes, one Read, one Edit, and one Bash
+      call. The log holds three events: `write a.txt`, `write b.txt`,
+      `edit a.txt`. The Read and the Bash call recorded nothing, which is the
+      negative case in `proposal.md` holding on a live harness rather than in a
+      test.
+
+      One log, keyed to the session directory, at the digest predicted before the
+      run. Paths absolute.
+
+      The first trial found a defect the tests did not. All four events read
+      `kind: "edit"`, three of them Writes, so the field carried no information.
+      Fixed by reading `tool_name` from the payload, with `edit` as a fallback
+      rather than a default; three tests added and a sixth mutation confirms the
+      tool name is load-bearing. The numbers above are from the re-run after the
+      fix and a second switch.
+
+      Left in place for the owner to inspect: the session, and the log at
+      `~/.local/state/agents/edits/edit-bus-trial-2ff968978c83bf25.jsonl`.
 
 ## 3. Neovim reads events
 
