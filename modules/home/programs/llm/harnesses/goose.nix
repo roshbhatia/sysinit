@@ -55,6 +55,17 @@ let
     tom = true;
   };
 
+  # Servers this host stopped declaring, which goose's own rewrite kept on disk.
+  # Both are reachable through `agentgateway`, which the catalog does declare, so
+  # the direct entry is a duplicate rather than a loss. Named here because
+  # `retire` otherwise reaches only `suppressedServers`, and an undeclared name
+  # is not a suppressed one: they sat in `~/.config/goose/config.yaml` from
+  # 2026-07-01 to 2026-08-11 with nothing reporting them.
+  retiredExtensions = [
+    "cocoindex"
+    "incident-io"
+  ];
+
   platformName = name: if name == "extensionmanager" then "Extension Manager" else name;
 
   mkPlatformExtension = name: enabled: {
@@ -123,10 +134,24 @@ in
       # goose rewrites config.yaml at runtime, so dropping a server from the
       # catalog is not enough: the on-disk entry is absent from the recorded
       # base and the merge keeps it. Delete what this host suppresses.
-      retire = map (name: [
-        "extensions"
-        name
-      ]) config.sysinit.llm.mcp.suppressedServers;
+      #
+      # Named one at a time rather than by enforcing the whole `extensions` map,
+      # which is what `hermes.nix` does to `mcp_servers`. The two look alike and
+      # are not: hermes keys hold MCP servers only, so the catalog is the complete
+      # set. goose's `extensions` is a mixed namespace holding MCP servers, the
+      # bundled extensions, and goose's own `platform` entries. On 2026-08-11 it
+      # carried 12 keys this repository does not declare, of which 8 were live
+      # work MCP servers and 2 were goose platform extensions (`skills` and
+      # `orchestrator`). Enforcing the map would have deleted all of them.
+      retire =
+        map (name: [
+          "extensions"
+          name
+        ]) config.sysinit.llm.mcp.suppressedServers
+        ++ map (name: [
+          "extensions"
+          name
+        ]) retiredExtensions;
     };
   }
   // lib.optionalAttrs pkgs.stdenv.isDarwin {
