@@ -1,243 +1,127 @@
 # Agent context for specutil
 
-This file is for AI coding agents (Claude, Codex, Cursor, etc.) working in
-this repository. Read it before making any changes.
+Read this before changing anything under `pkgs/specutil/`.
 
----
+## What this is
 
-## What this project is
+A pure, local Go CLI. It reads OpenSpec change artifacts from the filesystem and
+projects them into rendered documents, a dependency graph, a browser view, a
+rubric lint, and a review record. It performs no network I/O.
 
-`specutil` is a **CLI** — a pure, local tool. It reads spec-framework change
-artifacts (OpenSpec, BMAD, plain `plan.md`) from the local filesystem and
-projects them into RFCs, design docs, sync plans, dependency graphs, and
-visualizations.
-
-**The binary never makes network calls.** Remote writes (Linear, Notion, GitHub
-Issues) are handled by AI skills in `skills/` — not by the binary itself. This
-is the core architectural invariant. Do not break it.
-
----
+It was a standalone repository (`roshbhatia/specutil`) until 2026-08-11, when it
+was vendored here and the upstream was archived. Build it with the sysinit flake,
+not with a Taskfile or a nested `nix develop`.
 
 ## Repository map
 
 ```
-cmd/specutil/         entry point (thin: parse flags, call cli.NewRootCmd)
+cmd/specutil/     entry point: parse flags, call cli.NewRootCmd
 internal/
-  cli/                cobra command tree; all verb wiring lives here
-  ir/                 normalized intermediate representation (IR)
-  provider/           input providers: openspec, bmad, plan, stdin, script
-  registry/           provider and target registration; wraps providers with extract
-  extract/            schema-declared marker/field grammar (composable, config-driven)
-  check/              rubric rules and presets for the check verb
-  ident/              content-addressed task handles (identity, hash, similarity)
-  review/             human verdict on a change: record, drift, agent brief
-  vcs/                local git working-tree diff, parsed into files and hunks
-  export/             IR → tracker vocabulary (the naming boundary)
-  render/             IR → RFC / design / tickets Markdown
-  syncplan/           IR → create/update/orphan JSON plan
-  graph/              dependency DAG (mermaid, dot, json)
-  web/                HTML dashboard (embedded assets, annotation surface)
-  detail/             per-change detail view
-skills/               AI skills for remote writes (one dir per target)
-examples/             working examples (bmad-project, getting-started, plan-md)
-assets/               logo SVG
-hack/                 shell scripts (shfmt-formatted)
+  cli/            cobra command tree; every verb is wired here
+  ir/             normalized intermediate representation
+  provider/       the inbound port, plus its one adapter: openspec
+  registry/       resolves the provider and decorates it with extract
+  extract/        schema-declared marker and field grammar
+  parse/          markdown to IR, tolerantly
+  check/          rubric rules and per-schema presets
+  ident/          content-addressed task handles
+  review/         a human verdict: record, drift, agent brief
+  vcs/            local git working-tree diff, parsed into files and hunks
+  lifecycle/      change state and the runnable-subtask calculation for `next`
+  export/         IR to reader-facing vocabulary
+  render/         IR to RFC, design, or ticket-list markdown
+  graph/          dependency DAG as json, mermaid, or dot
+  detail/         per-change detail feed the web page inlines
+  web/            HTML page, embedded assets, annotation surface
+  guard/          tests that hold the invariants below
+skills/           agent skills: discover-deps, review-change
 ```
 
----
+## The invariants, and what holds them
 
-## Core invariant
+Each of these has a test in `internal/guard`. Read the test before arguing with
+the rule.
 
-```
-┌─────────────────────────────────────┐
-│  specutil binary (this repo)        │
-│  - reads local files only           │
-│  - pure: same input → same output   │
-│  - no network, no auth, no secrets  │
-└──────────────┬──────────────────────┘
-               │ emits plan JSON / rendered Markdown
-               ▼
-┌─────────────────────────────────────┐
-│  AI skill (skills/sync-to-*/...)    │
-│  - reads the plan                   │
-│  - drives MCP tools for API calls   │
-│  - calls `specutil lock set` after  │
-└─────────────────────────────────────┘
-```
+The binary never makes a network call. `TestNoNetworkImportsInBinary` walks every
+non-test file and fails on a `net`, `net/http`, or `net/smtp` import. Anything
+that needs credentials or a remote API belongs in a skill, driven by the agent's
+own MCP tools.
 
-Any code that makes a network call, reads credentials, or writes to an external
-service belongs in a skill, not in the binary.
+The web page exports; it never posts. No `fetch`, no `WebSocket`, no `<form>`, no
+server. Feedback leaves as a document the reader copies or downloads, and
+`specutil review ingest` folds it back in. `TestWebFeedbackIsExportedNotPosted`
+fails the build if that changes.
 
----
+Staleness is a hash, never a timestamp. A review record fingerprints the
+artifacts it describes, so two runs over one repository agree and a record
+survives a checkout. When you change what `review.ChangeHash` covers, bump
+`review.RecordVersion` and raise `hashComparableFrom`, or every stored hash
+silently reports stale.
 
-## The naming boundary
+## Schema conventions are declared, never branched on
 
-`internal/export` is where spec-framework convention stops. Anything that leaves
-the repository — a Linear issue, a Notion page, a GitHub issue — goes through it.
+specutil supports plain OpenSpec. A schema that layers extra convention on
+markdown (a scenario's polarity, a phase's shape, an inline task-dependency
+field) declares it under `extract:` in `openspec/specutil.yaml`, or gets it from a
+built-in preset keyed on the schema name in its own `openspec/config.yaml`.
 
-It strips: task identifiers (`1.1`), phase numbers (`## 2.`), sibling keys
-(`1a`), the verify/apply/confirm keyword (it becomes a label), and spec delta
-keywords (`ADDED Requirements`). It translates requirements and scenarios into
-Given/When/Then acceptance criteria.
+If you write `if schema == "..."` anywhere outside `internal/extract` or
+`internal/check`, stop: that knowledge belongs in a preset. The same rule governs
+a rubric rule, which is generic and takes parameters; the schema-specific values
+live only in `internal/check/presets.go`.
 
-Ordering that the numbering used to carry moves to the target's own primitives:
-`Ticket.Position` for sort order, `Ticket.Milestone` for the stage, and blocking
-relations between consecutive stages (drawn by the skill).
+## Identity has one definition
 
-If you add a field that reaches a tracker, route it through `export`. If you find
-yourself formatting a title in a skill, the formatting belongs here instead.
-
----
-
-## Schema-specific conventions are composable, not assumed
-
-specutil ships plain OpenSpec support and nothing more by default. A spec
-framework that layers extra convention on top of markdown (a scenario's
-polarity, a phase's shape, an inline task-dependency field) declares that
-convention in `openspec/specutil.yaml` under `extract:`, or gets it for free
-when its own config names a schema specutil recognizes (`internal/extract`'s
-built-in presets, e.g. `rosh-spec-driven`). Nothing in `parse`, the providers,
-`export`, `graph`, or `web` hard-codes a specific framework's marker names.
-
-Adding support for a new convention means adding an `extract.Marker` or
-`extract.Field` declaration (or a new preset), never a branch keyed on a schema
-name in a consuming package. If you catch yourself writing
-`if schema == "some-framework"` anywhere outside `internal/extract` or
-`internal/check`, stop: that knowledge belongs in a preset instead.
-
-The same rule governs `internal/check`. A rubric rule is generic and takes
-parameters (`required-sections` with a section list, `phase-marker-required`
-with a marker name); the framework-specific values live only in a preset in
-`internal/check/presets.go`.
-
-## The review loop is the only inbound path
-
-Every other package projects what the author wrote outward. `internal/review` is
-the one path that goes the other way: a person annotates the change in the
-browser page, exports a JSON document, and `specutil review ingest` folds it
-into `openspec/changes/<name>/specutil.review.yaml`.
-
-Two rules keep it inside the invariant.
-
-**Reading git is a local read; talking to a forge is not.** `internal/vcs` runs
-the local `git` binary to collect a working-tree diff, the same class of
-operation as reading a file. It must never fetch, push, clone, or hit a forge
-API. A pull-request URL does not belong here: that is a network read, and it
-belongs in a skill.
-
-**The page exports; it never posts.** It has no `fetch`, no `WebSocket`, no
-`<form>`, and no server behind it. Feedback leaves as a document the user copies
-or downloads. `internal/guard`'s `TestWebFeedbackIsExportedNotPosted` fails the
-build if that changes, because a listener would mean network I/O in the binary.
-
-**Staleness is a hash, never a timestamp.** A review record fingerprints the
-artifacts it describes. An edit reports the decision stale rather than letting
-it stand. Do not add a recorded time to the record: it would make two runs over
-the same repository disagree and would break resume-from-checkout.
-
-Handles come from `internal/ident`, which is the single definition of identity
-(normalized, edit-tolerant), content hash (exact), and similarity (token
-Jaccard). `syncplan` delegates to it, and `vcs` builds a hunk's handle from its
-changed lines alone so an edit elsewhere in the file does not orphan a comment.
-If you need to name something in a new consumer, call `ident`, do not re-derive
-one.
-
-### Adding a check rule
-
-1. Register it in `internal/check/rules.go` with an ID, a one-line doc, and
-   parameters. The doc shows up in `specutil check --list-rules`
-2. Read only stated facts (a heading, a declared marker, a bullet ordering).
-   A rule that infers intent from prose is not reproducible and does not belong
-3. Reference it from a preset if a framework needs it
-4. Test the pass case and the fail case in `internal/check/check_test.go`
-
----
+`internal/ident` defines identity (normalized, edit-tolerant), content hash
+(exact), and similarity (token Jaccard). `review` and `vcs` both call it, and a
+hunk's handle comes from its changed lines alone so an edit elsewhere in the file
+does not orphan a comment. Call `ident`; never re-derive a handle.
 
 ## Making changes
 
-### Adding an input provider
+Adding a check rule:
 
-1. Implement `provider.Provider` in `internal/provider/<name>/<name>.go`
-2. Register in `internal/registry/registry.go`
-3. Add auto-detection logic to `detect()` if the provider can be inferred from
-   repo layout
-4. Unit-test the section-mapping: absent sections must emit warnings, not errors
-   (tolerant-parse contract)
+1. Register it in `internal/check/rules.go` with an ID, a one-line doc, and
+   parameters. The doc is what `specutil check --list-rules` prints.
+2. Read only stated facts: a heading, a declared marker, a bullet ordering. A
+   rule that infers intent from prose is not reproducible.
+3. Reference it from a preset if a schema needs it.
+4. Test the pass case and the fail case.
 
-### Adding a sync target
+Adding a render format:
 
-1. Write a skill at `skills/sync-to-<name>/SKILL.md` following the pattern of
-   `skills/sync-to-linear/SKILL.md`
-2. Map change/phase/task onto that target's own primitives; state the mapping in
-   a table in the skill
-3. Register the skill in `flake.nix` under `lib.skills`
-4. No binary changes are needed. The plan is target-neutral: every operation
-   already carries `title`, `milestone`, `position`, `labels`, and `body`
-
-### Adding a render format
-
-1. Add the format to `render/mapping.go`
-2. Implement the template in `render/templates/`. Read from `.Export` for
-   anything a reader outside the repo sees; `.Change` is the raw IR and carries
-   source numbering
-3. Integration-test via `internal/cli/cli_test.go` (see `TestRenderRFC` pattern)
-
----
+1. Declare its section routing in `render/mapping.go`.
+2. Write the template in `render/templates/`. Read `.Export` for anything a
+   reader outside the repository sees; `.Change` is raw IR and carries source
+   numbering.
+3. Cover it in `internal/cli/cli_test.go`, following `TestRenderRFC`.
 
 ## Testing
 
 ```bash
-go test ./...              # all tests
-go test ./internal/cli/... # CLI integration tests (call cobra directly, no exec)
-go test -race ./...        # with race detector (required before merging)
+go test ./...          # 19 packages
+go test -race ./...    # before committing
 ```
 
-Integration tests in `internal/cli/cli_test.go` call `cli.NewRootCmd()` and
-`Execute()` directly. Use `examplesDir()` to resolve fixture paths relative to
-the repo root. Do not use `os.Exec` or shell out to the binary in tests.
+The nix derivation runs the full suite as its check phase, so a failing test
+fails `nix flake check`. Do not set `subPackages` in `overlays/specutil.nix`: it
+narrows the check phase as well as the build, and `cmd/specutil` holds no tests,
+so the build would pass having run nothing.
 
-Fixture data lives in `examples/`. Use `setupMinimalOpenspec()` for tests that
-need a bare-minimum OpenSpec tree without depending on a specific example.
-
----
-
-## Style rules
-
-- **Conventional commits, title-only.** `feat`, `fix`, `chore`, `docs`, `test`.
-  No body required.
-- **One concern per PR.** Bug fix ≠ cleanup.
-- **No comments** unless the WHY is non-obvious (hidden constraint, workaround,
-  subtle invariant). Never restate what the code says.
-- **No network I/O in the binary.** Not even `http.Get`. Remote calls belong in
-  skills.
-- Shell scripts in `hack/` use `set -euo pipefail` and are formatted with
-  `shfmt -i 2 -ci -sr -s`.
-- Nix files are formatted with `nixfmt-rfc-style` (`nix fmt`).
-
----
+Integration tests call `cli.NewRootCmd()` and `Execute()` directly, never
+`os/exec`. Fixtures live in `internal/cli/testdata/`; use `setupMinimalOpenspec`
+for a bare tree and `fixture("getting-started")` for a realistic one.
 
 ## What not to do
 
-- Do not add a `sync` verb. Sync lives in skills.
-- Do not write source numbering into anything a tracker or a reader outside the
-  repository sees. Route it through `internal/export` instead.
-- Do not add global state, init functions that do I/O, or package-level HTTP
-  clients.
-- Do not modify `flake.nix` or `flake.lock` without understanding the overlay
-  structure in `overlays/`.
-- Do not add dependencies without discussion — the binary surface is
-  intentionally small.
-- Do not run `--no-verify` or bypass pre-commit hooks.
+Do not add a sync verb, a tracker lockfile, or a second input provider. All three
+existed and were removed on 2026-08-11 because nothing on this host used them; a
+`git log` on this directory has the reasoning. To file work in a tracker, run
+`specutil render --as tickets` and write it with the tracker's own MCP tools.
 
----
+Do not write source numbering into anything a tracker or an outside reader sees.
+Route it through `internal/export`.
 
-## Running locally
+Do not add global state, an `init` that does I/O, or a package-level client.
 
-```bash
-nix develop              # enter dev shell (Go toolchain + tools)
-go build -o specutil ./cmd/specutil
-./specutil --help
-
-# Validate the flake before touching flake.nix
-nix flake check
-```
+Do not add a dependency without discussion. The surface is deliberately small.
