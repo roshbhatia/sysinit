@@ -42,28 +42,18 @@ in
     enforce = [ "autoUpdate" ];
   };
 
-  # Only to retire keys. `config.json` is copilot's own state file, so nothing
-  # here declares content for it.
-  sysinit.llm.managedFiles.copilot-config = {
-    path = ".copilot/config.json";
-    format = "json";
-    content = { };
-    createIfMissing = false;
+  # `~/.copilot/config.json` is deliberately not managed here, and a `retire`
+  # entry for it does not work. Copilot writes the file with a `//` header
+  # ("User settings belong in settings.json. This file is managed
+  # automatically."), which is JSONC, and the reconcile parses with jq: it
+  # reported "cannot parse .copilot/config.json as json" and skipped the file.
+  # Teaching the reconcile JSONC would also mean rewriting the file without those
+  # comments, which contradicts the header.
+  #
+  # Nothing is lost. Copilot's own 1.0.35 migration moves the settings keys out of
+  # config.json into settings.json on startup and logs the count, so the keys this
+  # repository used to declare there are already gone.
 
-    # `trusted_folders` was never a key copilot read: it is absent from the
-    # settings schema and from the three legacy aliases the migration honours, so
-    # the CLI leaves it in place forever. The five settings keys are retired
-    # because this repository declared them here until 1.0.35 moved them, and the
-    # merge preserves a key the recorded base does not account for.
-    retire = [
-      "trusted_folders"
-      "banner"
-      "renderMarkdown"
-      "screenReader"
-      "theme"
-      "autoUpdate"
-    ];
-  };
   home.file = {
     ".copilot/mcp-config.json" = {
       text = copilotMcpConfig;
