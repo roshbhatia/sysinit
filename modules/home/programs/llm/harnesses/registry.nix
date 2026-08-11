@@ -1,4 +1,19 @@
 # One entry per harness.
+#
+# `openspecTool` names this harness in `openspec init --tools`, which the seshy
+# postCreate hook runs in every new session. A list, not a string, because
+# `gemini` here is antigravity-cli, which reads both `~/.agents` and
+# `~/.gemini/config`, so both of openspec's adapters land in a tree it reads.
+#
+# Empty means openspec 1.6.0 ships no adapter for that harness: amp, atomic,
+# devin, goose, hermes, and prime-agent. Six of the fourteen, and the loss is
+# smaller than it looks. openspec's adapters install the four opsx skills
+# repo-locally, and every one of these six is pointed at `~/.claude/skills`,
+# where the same skills are installed for the machine. What they lose is the
+# repo-local `opsx-*` prompt or command entry, not the skills.
+#
+# `modules/home/programs/seshy/default.nix` checks each name against the enum
+# `openspec init --help` prints.
 {
   amp = {
     label = "Amp";
@@ -10,6 +25,7 @@
     bridge = null;
     package = "amp-cli";
     neovimAdapter = "amp";
+    openspecTool = [ ];
   };
 
   atomic = {
@@ -22,6 +38,7 @@
     bridge = ./atomic/extensions/sysinit-notify.ts;
     package = "atomic-coding-agent";
     neovimAdapter = "atomic";
+    openspecTool = [ ];
   };
 
   claude = {
@@ -36,6 +53,7 @@
     # entry.
     package = null;
     neovimAdapter = "claudecode";
+    openspecTool = [ "claude" ];
   };
 
   codex = {
@@ -50,6 +68,7 @@
     bridge = null;
     package = null;
     neovimAdapter = "codex";
+    openspecTool = [ "codex" ];
   };
 
   copilot = {
@@ -62,6 +81,7 @@
     bridge = null;
     package = "github-copilot-cli";
     neovimAdapter = "copilot";
+    openspecTool = [ "github-copilot" ];
   };
 
   crush = {
@@ -74,6 +94,7 @@
     bridge = null;
     package = "crush";
     neovimAdapter = "crush";
+    openspecTool = [ "crush" ];
   };
 
   cursor = {
@@ -86,6 +107,7 @@
     bridge = null;
     package = "cursor-cli";
     neovimAdapter = "cursor";
+    openspecTool = [ "cursor" ];
   };
 
   devin = {
@@ -98,6 +120,7 @@
     bridge = null;
     package = "devin-cli";
     neovimAdapter = "devin";
+    openspecTool = [ ];
   };
 
   gemini = {
@@ -110,6 +133,10 @@
     bridge = null;
     package = "antigravity-cli";
     neovimAdapter = "antigravity";
+    openspecTool = [
+      "antigravity"
+      "gemini"
+    ];
   };
 
   goose = {
@@ -122,6 +149,7 @@
     bridge = null;
     package = "goose-cli";
     neovimAdapter = "goose";
+    openspecTool = [ ];
   };
 
   hermes = {
@@ -137,6 +165,7 @@
     bridge = null;
     package = "hermes-agent";
     neovimAdapter = "hermes";
+    openspecTool = [ ];
   };
 
   opencode = {
@@ -149,6 +178,7 @@
     bridge = ./opencode/plugins/sysinit-notify.ts;
     package = "opencode";
     neovimAdapter = "opencode";
+    openspecTool = [ "opencode" ];
   };
 
   prime-agent = {
@@ -161,6 +191,7 @@
     bridge = ./prime-agent/extensions/sysinit-notify.ts;
     package = "prime-agent";
     neovimAdapter = "primeagent";
+    openspecTool = [ ];
   };
 
   pi = {
@@ -173,5 +204,6 @@
     bridge = ./pi/extensions/sysinit-notify.ts;
     package = "pi-coding-agent";
     neovimAdapter = "pi";
+    openspecTool = [ "pi" ];
   };
 }
