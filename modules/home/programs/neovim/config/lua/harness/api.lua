@@ -191,6 +191,15 @@ end
 
 function M.setup()
   require("harness.completion").setup()
+
+  -- Started here rather than from `session.set_active`, because the harness whose
+  -- edits matter most is usually the one in its own WezTerm pane, which this
+  -- Neovim never launched and cannot know about. A watcher that only ran for a
+  -- harness toggled from inside Neovim would miss exactly the workflow this
+  -- exists for.
+  pcall(function()
+    require("harness.edit_events").start()
+  end)
 end
 
 return M

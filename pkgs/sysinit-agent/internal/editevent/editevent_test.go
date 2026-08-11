@@ -293,6 +293,65 @@ func TestKindFallsBackToEdit(t *testing.T) {
 	}
 }
 
+// The reader gets its path from here, so this must agree with what a write
+// produces and must not create the log as a side effect.
+func TestPrintLogAgreesWithTheWriteAndCreatesNothing(t *testing.T) {
+	work := isolate(t)
+
+	stdout := captureStdout(t, func() {
+		if code := Run([]string{"--print-log", "--cwd", work}); code != 0 {
+			t.Fatalf("exit code = %d, want 0", code)
+		}
+	})
+	printed := strings.TrimSpace(stdout)
+
+	if printed != logFor(t, work) {
+		t.Fatalf("printed %q, want %q", printed, logFor(t, work))
+	}
+	if _, err := os.Stat(printed); !os.IsNotExist(err) {
+		t.Error("--print-log created the log; it must only name it")
+	}
+
+	Run([]string{"claude", "--cwd", work, "--file", "a.go"})
+	if _, err := os.Stat(printed); err != nil {
+		t.Fatalf("a write did not land at the printed path: %v", err)
+	}
+}
+
+// captureStdout replaces os.Stdout with a pipe for the duration of run.
+func captureStdout(t *testing.T, run func()) string {
+	t.Helper()
+	reader, writer, err := os.Pipe()
+	if err != nil {
+		t.Fatalf("pipe: %v", err)
+	}
+	original := os.Stdout
+	os.Stdout = writer
+
+	done := make(chan string, 1)
+	go func() {
+		var builder strings.Builder
+		buffer := make([]byte, 4096)
+		for {
+			n, err := reader.Read(buffer)
+			if n > 0 {
+				builder.Write(buffer[:n])
+			}
+			if err != nil {
+				break
+			}
+		}
+		done <- builder.String()
+	}()
+
+	run()
+	os.Stdout = original
+	writer.Close()
+	captured := <-done
+	reader.Close()
+	return captured
+}
+
 func TestSeshySessionKeysOneLogForSeveralRepositories(t *testing.T) {
 	root := t.TempDir()
 	manifest := filepath.Join(root, "paths.json")

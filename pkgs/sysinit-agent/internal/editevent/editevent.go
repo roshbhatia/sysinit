@@ -64,6 +64,19 @@ func Run(args []string) int {
 		return 0
 	}
 
+	// The reader asks for the path rather than deriving it. Two implementations of
+	// the keying rule, one in Go and one in Lua, would agree until the day they
+	// did not, and the failure would be a watcher silently tailing a file nothing
+	// writes.
+	if opts.printLog {
+		dir := opts.cwd
+		if dir == "" {
+			dir = workingDir()
+		}
+		fmt.Println(repo.EditLogFile(repo.Workspace(dir)))
+		return 0
+	}
+
 	payload := readStdin()
 	files := opts.files
 	if len(files) == 0 {
@@ -121,16 +134,19 @@ func Run(args []string) int {
 }
 
 type options struct {
-	harness string
-	kind    string
-	cwd     string
-	files   []string
+	harness  string
+	kind     string
+	cwd      string
+	files    []string
+	printLog bool
 }
 
 func parse(args []string) (options, error) {
 	var opts options
 	for i := 0; i < len(args); i++ {
 		switch args[i] {
+		case "--print-log":
+			opts.printLog = true
 		case "--file", "--kind", "--cwd":
 			name := args[i]
 			if i+1 >= len(args) {
@@ -157,7 +173,8 @@ func parse(args []string) (options, error) {
 			opts.harness = args[i]
 		}
 	}
-	if opts.harness == "" {
+	// A reader asking for the path is not writing, so it names no harness.
+	if opts.harness == "" && !opts.printLog {
 		return opts, fmt.Errorf("the first argument names the harness")
 	}
 	return opts, nil
