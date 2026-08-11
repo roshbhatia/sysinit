@@ -5,6 +5,7 @@ local ORDER = {
   "opencode",
   "amp",
   "pi",
+  "atomic",
   "codex",
   "copilot",
   "crush",

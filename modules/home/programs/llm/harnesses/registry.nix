@@ -12,6 +12,18 @@
     neovimAdapter = "amp";
   };
 
+  atomic = {
+    label = "Atomic";
+    module = ./atomic;
+    context = "~/.atomic/agent/AGENTS.md";
+    skillLoader = true;
+    ownIcon = false;
+    notify = "hook";
+    bridge = ./atomic/extensions/sysinit-notify.ts;
+    package = "atomic-coding-agent";
+    neovimAdapter = "atomic";
+  };
+
   claude = {
     label = "Claude Code";
     module = ./claude;

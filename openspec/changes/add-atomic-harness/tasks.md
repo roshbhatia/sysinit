@@ -161,11 +161,105 @@
 > decide the harness is not worth having on those terms. The package phase is
 > already committed and reverts with one line in `overlays/default.nix`.
 
-- [ ] 3.1 Add the `atomic` entry to `harnesses/registry.nix` with `context = "~/.atomic/agent/AGENTS.md"`, `notify`, `bridge`, `package`, and `neovimAdapter` filled in per the proposal `writes:` modules/home/programs/llm/harnesses/registry.nix `deps:` none
-- [ ] 3.2 Write `harnesses/atomic/` reading the shared package set, carrying an exclusion set with a reason per entry for `pi-subagents`, `pi-web-access`, and `pi-ask-user`, its own `contextHookOrder`, a `pi-tool-display` config keyed on `search`, and `ATOMIC_SKIP_VERSION_CHECK`; add the two assertions that an excluded name cannot reach the rendered list and that no display-override key names a tool outside atomic's core set `writes:` modules/home/programs/llm/harnesses/atomic/ `deps:` 3.1
-- [ ] 3.3 Read the `pablopunk/pi.nvim` source to confirm the binary is parameterised by `cmd` on every path it spawns, then write `harness/adapters/atomic.lua` driving `atomic --mode rpc --no-session` and add `atomic` to the `ORDER` list `writes:` modules/home/programs/neovim/config/lua/harness/adapters/atomic.lua, modules/home/programs/neovim/config/lua/harness/registry.lua `deps:` none
-- [ ] 3.4 Build both configurations, run the headless neovim check that `get_by_name("atomic")` returns a table, then inject two defects that MUST each fail the darwin build: `pi-web-access` returned to atomic's package list, and a display-override key set to `grep` `writes:` none `deps:` 3.2, 3.3
-- [ ] 3.5 Adversarial review (`adversarial-review` skill): critics attempt to break the module and editor phase against the proposal `Behavior` criteria; revise until the loop reaches a terminal state
+- [x] 3.1 Add the `atomic` entry to `harnesses/registry.nix` with `context = "~/.atomic/agent/AGENTS.md"`, `notify`, `bridge`, `package`, and `neovimAdapter` filled in per the proposal `writes:` modules/home/programs/llm/harnesses/registry.nix `deps:` none
+
+      `notify = "hook"` with its own bridge, not `scrape`. Two probes decided it.
+      Pi's `sysinit-notify.ts` loads into atomic unchanged, because its only
+      import of the pi package is `import type` and the bundler erases it; and a
+      deliberately-throwing extension dropped in
+      `~/.atomic/agent/extensions/probe.ts` fires on `session_start`, so atomic
+      discovers that directory. All four hook names the bridge uses
+      (`session_start`, `tool_call`, `agent_settled`, `session_shutdown`) are
+      present in atomic 0.9.12 and documented in its `docs/extensions.md`.
+
+      Atomic gets its own copy rather than sharing pi's: the first argument to
+      `agent-state` and `agent-notify` is the harness name, and the `tool_call`
+      detail reads `paths` and `pattern` first, because atomic's `find` and
+      `search` carry those rather than pi's `path` and `file_path`.
+- [x] 3.2 Write `harnesses/atomic/` reading the shared package set, carrying an exclusion set with a reason per entry for `pi-subagents`, `pi-web-access`, and `pi-ask-user`, its own `contextHookOrder`, a `pi-tool-display` config keyed on `search`, and `ATOMIC_SKIP_VERSION_CHECK`; add the two assertions that an excluded name cannot reach the rendered list and that no display-override key names a tool outside atomic's core set `writes:` modules/home/programs/llm/harnesses/atomic/ `deps:` 3.1
+
+      Written to the evidence in the phase note above, so it diverges from the
+      task text in four places.
+
+      The exclusion set is 11 entries, not 3, and each carries the verdict that
+      put it there rather than a rationale. `contextHookOrder` is one entry,
+      `plannotator/pi-extension`, because it is the only context-hook package
+      that loads. There is no `pi-tool-display` config: the package never loads,
+      so a config file for it would be dead. And there is no session variable:
+      `ATOMIC_SKIP_VERSION_CHECK` does not appear anywhere in atomic 0.9.12, so
+      declaring it would ship a name nothing reads. `quietStartup` is what
+      suppresses the startup output.
+
+      The second requested assertion has no subject once the display overrides
+      go, so it is replaced by one that guards the finding instead:
+      `assertPackageSetPartitioned` requires `loaded` and `excluded` to cover
+      `shared/pi-packages.nix` exactly. A package added there for pi cannot reach
+      atomic, or be silently missing from it, without someone recording a
+      verdict. The first assertion is kept as `assertExclusionsHold`.
+
+      `settings-keys.nix` follows pi's three-list shape, so the same
+      declared-versus-owner-preference and manifest assertions apply. `theme` and
+      `lastChangelogVersion` are owner preference here: the owner's existing
+      `~/.atomic/agent/settings.json` sets both, and no atomic theme is
+      generated.
+- [x] 3.3 Read the `pablopunk/pi.nvim` source to confirm the binary is parameterised by `cmd` on every path it spawns, then write `harness/adapters/atomic.lua` driving `atomic --mode rpc --no-session` and add `atomic` to the `ORDER` list `writes:` modules/home/programs/neovim/config/lua/harness/adapters/atomic.lua, modules/home/programs/neovim/config/lua/harness/registry.lua `deps:` none
+
+      Confirmed, with one limitation the read surfaced. `M.run(opts)` takes
+      `opts.cmd` and hands it straight to `runner.start`, which spawns it with
+      `vim.system`; `M.get_cmd()` is only the fallback when `cmd` is omitted. So
+      the binary is fully parameterised.
+
+      The limitation: `active_session` is module-level state in `pi.nvim`, so pi
+      and atomic share one send slot and a send during the other's run is refused
+      with the plugin's own "already running" notice. The pane routes go through
+      `harness.lifecycle`, which keys on the adapter name, so `toggle` and `focus`
+      stay independent. Both facts are recorded in a comment in the adapter.
+
+      The three extension flags in the schema are the ones this repository's
+      package set actually provides, verified against `--help` with the rendered
+      settings in place: `--fast` from `@benvargas/pi-openai-fast`, `--plan` from
+      `@plannotator/pi-extension`, and `--mcp-config` from atomic's bundled
+      `@bastani/mcp`. Pi's `--preset` is absent, because the package that
+      registers it does not load here.
+- [x] 3.4 Build both configurations, run the headless neovim check that `get_by_name("atomic")` returns a table, then inject two defects that MUST each fail the darwin build: `pi-web-access` returned to atomic's package list, and a display-override key set to `grep` `writes:` none `deps:` 3.2, 3.3
+
+      The darwin configuration builds to
+      `/nix/store/6mpkcnzrllgb6mybid87ibw1s62d9jxb-darwin-system-26.11.15abb8c`
+      and `nix flake check` exits 0, which is where `nixosConfigurations.arrakis`
+      evaluates. Headless neovim returns the adapter table with label
+      `󰬛  Atomic` and loads 13 adapters, up from 12.
+
+      The rendered `~/.atomic/agent/settings.json` carries exactly the 8 tested
+      packages and `externalEditor` points at `nvim-atomic`. `home.file`
+      contributes three paths: `AGENTS.md`, the notify bridge, and the
+      permission-system config. That config path is right for atomic:
+      `pi-permission-system` resolves it as
+      `join(runtime.agentDir, "extensions", "pi-permission-system", "config.json")`,
+      and `agentDir` is `~/.atomic/agent` here.
+
+      Three injected defects, each failing with its own assertion's message. The
+      first is the one the task names: `webAccess` returned to `loaded` fails
+      `assertExclusionsHold`. The second replaces the moot `grep` defect:
+      dropping `mermaid` from `excluded` fails
+      `assertPackageSetPartitioned`. The third: `pi-vcc` added to
+      `contextHookOrder` fails `assertContextHookOrder`. Each was restored from a
+      copy rather than by `git checkout`, because the tree carries uncommitted
+      work.
+
+      The check `design.md` said no build could decide now runs before the
+      switch, which answers the gate-ordering risk in `review.md`. Against the
+      rendered settings copied into a scratch `HOME`, with the bridge and the
+      permission config in place, `atomic -p 'reply with ok'` produces zero
+      `Error:` lines, no `conflicts with`, and no `Duplicate tool name(s)`. The
+      only failure is the deliberately invalid API key. What still needs the
+      switch is `find ~/.pi -newermt` returning nothing, because a scratch `HOME`
+      cannot exercise that.
+- [x] 3.5 Adversarial review (`adversarial-review` skill): critics attempt to break the module and editor phase against the proposal `Behavior` criteria; revise until the loop reaches a terminal state
+
+      Terminal state: `not run`, per the owner's direction recorded in
+      `review.md`. The tool-namespace-collision risk it was scoped to is answered
+      by the loader run instead, which is stronger than a critic reading tool
+      names: it names the 11 packages that fail and why.
 
 ## 4. Rollout
 
