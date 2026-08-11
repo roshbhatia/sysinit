@@ -11,7 +11,10 @@
   home-manager = {
     useGlobalPkgs = true;
     useUserPackages = true;
-    backupFileExtension = "backup";
+    # Deletes the file in the way rather than renaming it. See the comment in
+    # `modules/darwin/home-manager.nix`; the two must stay in step because a
+    # collision on one platform behaves the same on the other.
+    backupCommand = "rm -f";
     extraSpecialArgs = {
       inherit
         values
