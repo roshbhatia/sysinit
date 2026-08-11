@@ -1,13 +1,13 @@
 // Package provider defines the inbound port: a source of spec changes that the
-// rest of specutil consumes as normalized IR. OpenSpec is the only adapter that
-// ships in v1, but the port keeps the core framework-agnostic.
+// rest of specutil consumes as normalized IR. OpenSpec is the only adapter. The
+// port survives its siblings because registry decorates the provider with the
+// extraction pass, and a decorator needs an interface to sit behind.
 package provider
 
 import "github.com/roshbhatia/specutil/internal/ir"
 
-// Provider discovers and loads spec changes from some backing store (a
-// filesystem layout, in the OpenSpec case) into the normalized IR. Implementations
-// MUST NOT perform network I/O.
+// Provider discovers and loads spec changes from a filesystem layout into the
+// normalized IR. Implementations MUST NOT perform network I/O.
 type Provider interface {
 	// Name identifies the provider (e.g. "openspec").
 	Name() string

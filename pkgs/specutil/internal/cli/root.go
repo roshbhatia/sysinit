@@ -44,7 +44,6 @@ func NewRootCmd(version ...string) *cobra.Command {
 
 	// Global flags inherited by all subcommands.
 	root.PersistentFlags().StringP("repo", "C", ".", "repository root containing the openspec/ directory")
-	root.PersistentFlags().String("from", "", "input provider: openspec|bmad|plan|stdin|<script-adapter> (default: auto-detect)")
 
 	root.AddCommand(
 		newRenderCmd(),
@@ -103,42 +102,15 @@ func runRender(cmd *cobra.Command, args []string) error {
 	return writeOut(cmd, out)
 }
 
-// resolveChange loads the change named by --change or the first positional arg,
-// dispatching to the provider selected by --from (or auto-detected).
+// resolveChange loads the change named by --change or the first positional arg.
 func resolveChange(cmd *cobra.Command, args []string) (*ir.Change, error) {
 	repo, _ := cmd.Flags().GetString("repo")
-	from, _ := cmd.Flags().GetString("from")
 	name, _ := cmd.Flags().GetString("change")
-
-	// For path-based providers, the first positional arg is the file path.
-	// For openspec, it is the change name. Detect which is which below.
-	var pathArg string
 	if name == "" && len(args) > 0 {
-		// If --from is a path-based provider or looks like a file, treat as path.
-		if isPathBased(from) {
-			pathArg = args[0]
-		} else {
-			name = args[0]
-		}
+		name = args[0]
 	}
 
-	// Enforce --change when using stdin — without it, resolveChange would call
-	// p.List() then p.Load() on the same stdin-backed provider, and even with
-	// caching the second read's parsed name may differ from what the caller wants.
-	if from == "stdin" && name == "" {
-		return nil, fmt.Errorf("%s: --change is required when --from stdin", cmd.Name())
-	}
-
-	manifest, err := graph.LoadManifest(repo)
-	if err != nil {
-		fmt.Fprintf(cmd.ErrOrStderr(), "warning: loading specutil.yaml: %v\n", err)
-	}
-	var providerCfgs []graph.ProviderConfig
-	if manifest != nil {
-		providerCfgs = manifest.Providers
-	}
-
-	p, err := registry.SelectProvider(from, repo, pathArg, providerCfgs)
+	p, err := registry.SelectProvider(repo)
 	if err != nil {
 		return nil, err
 	}
@@ -150,7 +122,7 @@ func resolveChange(cmd *cobra.Command, args []string) (*ir.Change, error) {
 		}
 		switch len(names) {
 		case 0:
-			return nil, fmt.Errorf("no changes found via provider %q", p.Name())
+			return nil, fmt.Errorf("no changes found under %s/openspec/changes", repo)
 		case 1:
 			name = names[0]
 		default:
@@ -158,16 +130,6 @@ func resolveChange(cmd *cobra.Command, args []string) (*ir.Change, error) {
 		}
 	}
 	return p.Load(name)
-}
-
-// isPathBased reports whether the --from value selects a provider that
-// interprets a positional arg as a file path rather than a change name.
-func isPathBased(from string) bool {
-	switch from {
-	case "bmad", "plan", "stdin":
-		return true
-	}
-	return false
 }
 
 // emitWarnings prints parse/render warnings to stderr; the binary stays silent
@@ -186,21 +148,10 @@ func emitWarnings(cmd *cobra.Command, warns []ir.Warning) {
 	}
 }
 
-// loadAllChanges uses the registry to load all changes for graph and web.
+// loadAllChanges loads every change for graph and web.
 func loadAllChanges(cmd *cobra.Command) ([]*ir.Change, error) {
 	repo, _ := cmd.Flags().GetString("repo")
-	from, _ := cmd.Flags().GetString("from")
-
-	manifest, err := graph.LoadManifest(repo)
-	if err != nil {
-		fmt.Fprintf(cmd.ErrOrStderr(), "warning: loading specutil.yaml: %v\n", err)
-	}
-	var providerCfgs []graph.ProviderConfig
-	if manifest != nil {
-		providerCfgs = manifest.Providers
-	}
-
-	p, err := registry.SelectProvider(from, repo, "", providerCfgs)
+	p, err := registry.SelectProvider(repo)
 	if err != nil {
 		return nil, err
 	}

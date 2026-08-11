@@ -104,31 +104,6 @@ func TestGraphDot(t *testing.T) {
 	}
 }
 
-func TestRenderBMAD(t *testing.T) {
-	dir := fixture("bmad-project")
-
-	out, _, err := run("-C", dir, "--from", "bmad", "render", "--as", "rfc", "--change", "story-1.1")
-	if err != nil {
-		t.Fatalf("render bmad rfc: %v", err)
-	}
-	if !strings.Contains(out, "Story 1.1") {
-		t.Error("render bmad output missing the reader-facing title")
-	}
-}
-
-func TestRenderPlanMd(t *testing.T) {
-	dir := fixture("plan-md")
-
-	// Use -C to set the repo root so the plan provider auto-discovers plan.md.
-	out, _, err := run("-C", dir, "--from", "plan", "render", "--as", "rfc")
-	if err != nil {
-		t.Fatalf("render plan.md rfc: %v", err)
-	}
-	if len(out) == 0 {
-		t.Error("render plan.md produced empty output")
-	}
-}
-
 // setupMinimalOpenspec creates a temp dir with a minimal openspec change and returns the root.
 func setupMinimalOpenspec(t *testing.T, changeName string) string {
 	t.Helper()

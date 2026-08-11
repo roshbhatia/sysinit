@@ -10,20 +10,16 @@ type Section struct {
 	Raw string
 }
 
-// Change is a single workstream loaded from a provider (e.g. an OpenSpec
-// change). Artifact pointers are nil when the source omitted them.
-// Annotations carries provider-specific metadata (e.g. "bmad.status",
-// "github.url") without polluting the typed struct. Nil is equivalent to
-// an empty map; callers must not assume it is non-nil.
+// Change is a single OpenSpec change. Artifact pointers are nil when the source
+// omitted them.
 type Change struct {
-	Name        string
-	Root        string
-	Proposal    *Proposal
-	Specs       []*Spec
-	Design      *Design
-	Tasks       *Tasks
-	Warnings    []Warning
-	Annotations map[string]string
+	Name     string
+	Root     string
+	Proposal *Proposal
+	Specs    []*Spec
+	Design   *Design
+	Tasks    *Tasks
+	Warnings []Warning
 }
 
 // Proposal models proposal.md.
