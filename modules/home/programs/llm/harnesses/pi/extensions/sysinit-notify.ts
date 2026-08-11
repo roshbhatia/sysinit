@@ -39,6 +39,28 @@ export default function (pi: ExtensionAPI) {
 		state("working", reason);
 	});
 
+	// `tool_result` is the post-edit surface: it carries the tool name, the input
+	// that produced it, and whether it failed, all in one event, so no correlation
+	// with `tool_call` is needed. `input.path` is relative to pi's working
+	// directory, which is this process's too, so `--cwd` pins the resolution rather
+	// than leaving it to wherever the spawned command happens to land.
+	pi.on("tool_result", (event) => {
+		const name = event?.toolName ?? "";
+		if (name !== "write" && name !== "edit") return;
+		if (event?.isError) return;
+		const path = event?.input?.path;
+		if (typeof path !== "string" || path === "") return;
+		spawnQuiet("agent-edit-event", [
+			"pi",
+			"--file",
+			path,
+			"--kind",
+			name,
+			"--cwd",
+			process.cwd(),
+		]);
+	});
+
 	pi.on("agent_settled", () => {
 		state("done", "your move");
 		spawnQuiet("agent-notify", ["pi", "done", `${BIN}/agent-focus`], "{}");

@@ -45,7 +45,8 @@
     skillLoader = true;
     ownIcon = false;
     notify = "hook";
-    editBus = false;
+    # `tool_result` carries `details.resolvedPath`, an absolute path.
+    editBus = true;
     bridge = ./atomic/extensions/sysinit-notify.ts;
     package = "atomic-coding-agent";
     neovimAdapter = "atomic";
@@ -77,7 +78,8 @@
     skillLoader = false;
     ownIcon = true;
     notify = "hook";
-    editBus = false;
+    # `PostToolUse` names files only inside the apply-patch envelope.
+    editBus = true;
     bridge = null;
     package = null;
     neovimAdapter = "codex";
@@ -195,7 +197,8 @@
     skillLoader = true;
     ownIcon = true;
     notify = "hook";
-    editBus = false;
+    # `file.edited` carries one absolute path, for every editing tool.
+    editBus = true;
     bridge = ./opencode/plugins/sysinit-notify.ts;
     package = "opencode";
     neovimAdapter = "opencode";
@@ -209,6 +212,7 @@
     skillLoader = true;
     ownIcon = false;
     notify = "hook";
+    # not logged in on this machine, so `tool_result` is unverified.
     editBus = false;
     bridge = ./prime-agent/extensions/sysinit-notify.ts;
     package = "prime-agent";
@@ -223,7 +227,8 @@
     skillLoader = true;
     ownIcon = true;
     notify = "hook";
-    editBus = false;
+    # `tool_result` carries `input.path`, relative to pi's cwd.
+    editBus = true;
     bridge = ./pi/extensions/sysinit-notify.ts;
     package = "pi-coding-agent";
     neovimAdapter = "pi";

@@ -28,11 +28,27 @@ export const SysinitNotify = () => ({
 	}: {
 		event?: {
 			type?: string;
-			properties?: { sessionID?: string; status?: { type?: string } };
+			properties?: {
+				sessionID?: string;
+				status?: { type?: string };
+				file?: string;
+			};
 		};
 	}) => {
 		try {
 			const sid = event?.properties?.sessionID;
+
+			// `file.edited` is a purpose-built post-edit event carrying one absolute
+			// path, so this needs no tool name and no correlation. It fires for every
+			// editing tool, `apply_patch` included, which is why the patch envelope
+			// codex has to parse is irrelevant here.
+			if (event?.type === "file.edited") {
+				const file = event?.properties?.file;
+				if (file) {
+					spawnQuiet("agent-edit-event", ["opencode", "--file", file]);
+				}
+				return;
+			}
 
 			if (event?.type === "session.created") {
 				rootSession ??= sid;

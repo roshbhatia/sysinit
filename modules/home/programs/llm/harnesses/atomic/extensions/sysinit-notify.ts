@@ -50,6 +50,28 @@ export default function (atomic: ExtensionAPI) {
 		state("working", reason);
 	});
 
+	// `tool_result` is the post-edit surface. Atomic resolves the path for you and
+	// puts it in `details.resolvedPath`, so prefer that over the relative
+	// `input.path` the model supplied: an absolute path needs no assumption about
+	// which directory this process is in.
+	atomic.on("tool_result", (event) => {
+		const name = event?.toolName ?? "";
+		if (name !== "write" && name !== "edit") return;
+		if (event?.isError) return;
+		const resolved = event?.details?.resolvedPath;
+		const path = typeof resolved === "string" && resolved !== "" ? resolved : event?.input?.path;
+		if (typeof path !== "string" || path === "") return;
+		spawnQuiet("agent-edit-event", [
+			"atomic",
+			"--file",
+			path,
+			"--kind",
+			name,
+			"--cwd",
+			process.cwd(),
+		]);
+	});
+
 	atomic.on("agent_settled", () => {
 		state("done", "your move");
 		spawnQuiet("agent-notify", ["atomic", "done", `${BIN}/agent-focus`], "{}");
