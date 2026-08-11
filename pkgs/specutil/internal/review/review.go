@@ -35,7 +35,7 @@ const Schema = "specutil.review/v1"
 //
 // 1: ChangeHash folded in the raw bytes of tasks.md.
 // 2: ChangeHash covers the phase structure and task identities instead, so
-//    progress and evidence no longer restale a decision.
+// progress and evidence no longer restale a decision.
 const RecordVersion = 2
 
 // hashComparableFrom is the lowest record version whose stored ChangeHash this
@@ -409,11 +409,11 @@ type HunkStatus struct {
 // verdict, whether that verdict still describes the current text, what drifted,
 // and which comments are still attached.
 type Status struct {
-	Change      string       `json:"change"`
-	Reviewed    bool         `json:"reviewed"`
-	Decision    Decision     `json:"decision,omitempty"`
-	Note        string       `json:"note,omitempty"`
-	Stale       bool         `json:"stale"`
+	Change   string   `json:"change"`
+	Reviewed bool     `json:"reviewed"`
+	Decision Decision `json:"decision,omitempty"`
+	Note     string   `json:"note,omitempty"`
+	Stale    bool     `json:"stale"`
 	// HashRetired means the record was written by an older build whose ChangeHash
 	// covered different ground, so Stale is reported false because it cannot be
 	// computed rather than because the artifacts held still. The next real
