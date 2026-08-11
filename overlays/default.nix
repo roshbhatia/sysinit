@@ -19,6 +19,7 @@
   (import ./nvfetcher-sources.nix)
   (import ./inputs.nix { inherit inputs; })
   (import ./meat.nix { inherit inputs; })
+  (import ./hermes-agent.nix { inherit inputs; })
   (import ./sysinit-agent.nix)
   (import ./python313.nix)
   (import ./kubernetes-zeitgeist.nix)

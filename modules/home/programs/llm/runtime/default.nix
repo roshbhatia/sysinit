@@ -28,6 +28,22 @@ let
     else
       "";
 
+  # `neovimAdapter` is declared on every entry and read by no Nix code, so
+  # nothing but this check stops an entry naming an adapter that was never
+  # written. `harness/registry.lua` requires each adapter under `pcall`, so the
+  # runtime failure is a silent skip: the harness just never appears.
+  adapterDir = ../../neovim/config/lua/harness/adapters;
+
+  missingAdapters = lib.mapAttrsToList (_name: h: h.neovimAdapter) (
+    lib.filterAttrs (_name: h: !(builtins.pathExists (adapterDir + "/${h.neovimAdapter}.lua"))) registry
+  );
+
+  assertNeovimAdaptersExist =
+    if missingAdapters != [ ] then
+      throw "runtime/default.nix: ${lib.concatStringsSep ", " missingAdapters} is named by a registry neovimAdapter but no such file exists under neovim/config/lua/harness/adapters. registry.lua would skip it silently."
+    else
+      "";
+
   genericSvg = pkgs.writeText "agent-icon-generic.svg" ''
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
       <circle cx="12" cy="12" r="9" fill="none" stroke="#6E7781" stroke-width="2"
@@ -63,6 +79,7 @@ let
 
   icons = pkgs.runCommand "agent-notify-icons" { nativeBuildInputs = [ pkgs.librsvg ]; } (
     assertBridgesExist
+    + assertNeovimAdaptersExist
     + "mkdir -p $out\n"
     + lib.concatStringsSep "\n" (
       lib.mapAttrsToList (

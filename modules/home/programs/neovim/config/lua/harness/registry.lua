@@ -12,6 +12,7 @@ local ORDER = {
   "devin",
   "antigravity",
   "goose",
+  "hermes",
 }
 
 ---@return table[]

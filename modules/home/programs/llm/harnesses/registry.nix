@@ -112,6 +112,21 @@
     neovimAdapter = "goose";
   };
 
+  hermes = {
+    label = "Hermes";
+    module = ./hermes.nix;
+    # SOUL.md, not config.yaml: hermes injects it into the system prompt from
+    # HERMES_HOME on every session, so it is the file that plays the part
+    # `.goosehints` plays for goose.
+    context = "~/.hermes/SOUL.md";
+    skillLoader = true;
+    ownIcon = false;
+    notify = "scrape";
+    bridge = null;
+    package = "hermes-agent";
+    neovimAdapter = "hermes";
+  };
+
   opencode = {
     label = "OpenCode";
     module = ./opencode;

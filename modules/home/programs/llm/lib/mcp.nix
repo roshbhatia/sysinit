@@ -161,6 +161,27 @@
         }
     ) mcp;
 
+  # Emitted under `mcp_servers:` in ~/.hermes/config.yaml. Stdio servers carry
+  # `command` + `args`; http servers carry `url` plus optional headers and
+  # timeout. Hermes reads the transport off whichever key is present.
+  formatForHermes =
+    servers:
+    builtins.mapAttrs (
+      _name: server:
+      if (server.type or "local") == "http" then
+        {
+          inherit (server) url;
+        }
+        // lib.optionalAttrs (server.headers or null != null) { inherit (server) headers; }
+        // lib.optionalAttrs (server.timeout or null != null) { inherit (server) timeout; }
+      else
+        {
+          inherit (server) command;
+          inherit (server) args;
+        }
+        // lib.optionalAttrs (server.env or { } != { }) { inherit (server) env; }
+    ) servers;
+
   formatForCopilot =
     servers:
     builtins.mapAttrs (

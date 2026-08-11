@@ -83,6 +83,14 @@
       inputs.nixpkgs.url = "github:NixOS/nixpkgs/549bd84d6279f9852cae6225e372cc67fb91a4c1";
     };
 
+    # Pinned to upstream's own nixpkgs rather than following ours: the package is
+    # a uv2nix venv, and resolving it against a different nixpkgs rebuilds every
+    # wheel against a revision upstream never tested.
+    hermes-agent = {
+      url = "github:NousResearch/hermes-agent";
+      inputs.nixpkgs.url = "github:NixOS/nixpkgs/0954f7ee2f6bb3dc7d4e3d0d8bcb8fd4bde4cfc5";
+    };
+
   };
 
   outputs =
