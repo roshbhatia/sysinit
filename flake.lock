@@ -661,11 +661,11 @@
     "meat": {
       "flake": false,
       "locked": {
-        "lastModified": 1785689360,
-        "narHash": "sha256-wbDh49TBBhSInWWPYWtfYJz5PWpcthC4wl45NARYT5w=",
+        "lastModified": 1785788194,
+        "narHash": "sha256-fj04sdMiwPxh4F+kBpF5c+YYeKnKCDD9dsIgwAGPoK4=",
         "owner": "boldsoftware",
         "repo": "meat",
-        "rev": "7cfd5bcf347662d925f34b16810918104de1adfc",
+        "rev": "f39f41dfe7b5b37a12b35fdfbaecc7e779855bd3",
         "type": "github"
       },
       "original": {
