@@ -1,9 +1,9 @@
 version: 1
 change: readd-hermes-agent-harness
 decision: approved
-note: owner approved in session 2026-08-10 after being shown the external_dirs substitution to task 2.4; critics not run at owner request
-change_hash: be86b31265e387c7
-base_commit: 031d420e033ee3f342584ebda494431b48847e4e
+note: owner approved in session 2026-08-10 and directed the apply; re-stamped after appending closing evidence to tasks.md, which moved no task text (specutil reported no drift)
+change_hash: 86f42f217455a402
+base_commit: 7650733b4a406243c2236bc124890fe101e96933
 items:
     2b5d605ce0d90699:
         hash: 7b5cd30b29878ba0

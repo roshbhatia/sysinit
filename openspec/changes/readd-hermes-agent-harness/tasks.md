@@ -44,7 +44,10 @@
       Terminal state: `not run`. The owner directed on 2026-08-10 that the apply
       proceed on deterministic lint alone. `review.md` records the three risks
       that stay unexamined.
-- [ ] 1.6 Confirm: the owner accepts the measured build time and closure delta from 1.3, given that upstream classes the Nix path as best-effort and nothing substitutes this derivation
+- [x] 1.6 Confirm: the owner accepts the measured build time and closure delta from 1.3, given that upstream classes the Nix path as best-effort and nothing substitutes this derivation
+
+      Accepted 2026-08-10. The owner was shown the 4m37s build, the 3.7 GiB
+      closure, and the 2.38 GiB delta, then directed the apply.
 
 ## 2. Harness module
 
@@ -124,7 +127,12 @@
 
 ## 4. Rollout
 
-- [ ] 4.1 Apply: `git push`, then `nh darwin switch` from the `sysinit.laurel` checkout, gated on `nix flake check` and `nh darwin build` exiting 0
+- [x] 4.1 Apply: `git push`, then `nh darwin switch` from the `sysinit.laurel` checkout, gated on `nix flake check` and `nh darwin build` exiting 0
+
+      Pushed as `7650733b4`. `nh darwin switch . --update` from
+      `sysinit.laurel` exited 0. The live closure went 1251 -> 1582 paths and
+      16.7 -> 19.0 GiB, which is 2.3 GiB, matching the 2.38 GiB predicted in 1.3.
+      Neither the brew-trust abort nor the App Management exit-1 appeared.
 - [ ] 4.2 Run the post-switch checks: `hermes --version`, `hermes-acp --help`, the credential grep over the built store path, and a hermes session from `env -i PATH=/usr/bin:/bin` resolving the six subagent binaries
 
       Three of the four already pass against the built store path, before any
@@ -135,4 +143,27 @@
       `claude`, `codex-acp`, `opencode`, `copilot`, `gh`, and `gemini` all
       resolve from them with only `/usr/bin:/bin` behind. What is left for after
       the switch is `command -v hermes` resolving from the profile.
+
+      After the switch, all four pass on the live machine. `command -v hermes`
+      is `/etc/profiles/per-user/roshan/bin/hermes` and reports
+      `Hermes Agent v0.20.0 (2026.8.3)`. All six subagents resolve off the
+      profile wrapper's own prefixed dirs. `~/.hermes/SOUL.md` is a store
+      symlink. `hermes skills list` names 79 local skills, which is every
+      `SKILL.md` directory under `~/.claude/skills`, plus 87 hermes builtins.
 - [ ] 4.3 Confirm: the owner runs `hermes` once and decides whether the keys in `~/.hermes/config.yaml` are the ones they meant this repository to declare
+
+      One finding for the owner to rule on. `~/.hermes/config.yaml` survived the
+      2026-07-01 removal, so the file the merge found was 582 lines of the
+      owner's own settings. `skills.external_dirs` and
+      `telemetry.shared_metrics` are enforced and now read as declared.
+      `mcp_servers` is not enforced, so the on-disk map won: it lists
+      `agentgateway`, `cocoindex`, and `incident-io`, while `sysinit.laurel`
+      declares only `agentgateway`. `cocoindex` and `incident-io` are servers
+      this host stopped declaring before the removal, and neither `enforce` nor
+      `retire` reaches them, because `retire` covers `suppressedServers` only.
+
+      This is the established behaviour, not a hermes-specific fault:
+      `~/.config/goose/config.yaml` carries the same two names for the same
+      reason. The owner's call is whether to add `mcp_servers` to `enforce`,
+      which makes the catalog authoritative at the cost of wiping whatever
+      `hermes mcp add` writes, or to delete the two keys by hand once.
