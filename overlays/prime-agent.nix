@@ -85,15 +85,27 @@ in
       # python) belong to the wrapper below rather than to a build-time download.
       rm -f $out/lib/prime-agent/postinstall.cjs
 
+      # `uv` is on PATH because the `ipython` tool is prime-agent's headline
+      # feature and `dist/core/kernel/bootstrap.js` needs uv to build its kernel
+      # venv. `PRIME_AGENT_INSTALL_UV=0` is what stops the fallback: without it,
+      # a missing uv makes prime-agent offer to run astral.sh's curl installer,
+      # which would write a binary outside the store.
+      #
+      # The venv itself lands in `~/.prime/agent/kernel-venv` on first use and
+      # needs the network once. Nix does not manage it: it holds ipykernel, a
+      # version-matched `prime-agent-runtime`, and whatever python packages a
+      # session installs, so it is session state like `auth.json`, not config.
       makeWrapper ${final.nodejs_22}/bin/node $out/bin/prime-agent \
         --add-flags $out/lib/prime-agent/dist/bundle/cli.js \
         --prefix PATH : ${
           final.lib.makeBinPath [
             final.fd
             final.ripgrep
+            final.uv
           ]
         } \
-        --set PRIME_AGENT_INTERACTIVE_SELF_UPDATE 0
+        --set PRIME_AGENT_INTERACTIVE_SELF_UPDATE 0 \
+        --set PRIME_AGENT_INSTALL_UV 0
 
       runHook postInstall
     '';
