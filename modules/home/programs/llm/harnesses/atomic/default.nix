@@ -200,11 +200,30 @@ in
         };
       };
 
-    # No session variable. `ATOMIC_SKIP_VERSION_CHECK` does not exist in 0.9.12,
-    # and neither does a `PI_SKIP_VERSION_CHECK` equivalent; `quietStartup` above
-    # is what suppresses the startup chatter. Atomic does read several `PI_*`
-    # names as aliases of its own (`PI_MODEL`, `PI_PROVIDER`, `PI_PACKAGE_DIR`,
-    # `PI_NO_PTY`, `PI_SESSION_ID`), so anything set for pi later would reach
-    # atomic too. Nothing in this repository sets one of those today.
+    # Atomic builds every variable name from its own app name
+    # (`ENV_PREFIX = APP_NAME.toUpperCase()`), and falls back to the `PI_`
+    # spelling of the same name when the `ATOMIC_` one is unset. So each name
+    # here is read by atomic alone, while a `PI_*` name set for pi reaches both
+    # agents.
+    sessionVariables = {
+      # Without this, `getAgentDirs()` returns `[~/.atomic/agent, ~/.pi/agent]`,
+      # because atomic carries `.pi` as its legacy config dir. Atomic then loads
+      # every loose extension in pi's directory, and the four that import
+      # `@earendil-works/pi-coding-agent` at runtime fail, which exits 1 and
+      # takes the neovim RPC session down with it. Setting the variable is what
+      # makes `getAgentDirs()` return the primary alone.
+      #
+      # The same legacy entry is how atomic read `~/.pi/agent/auth.json`, so
+      # pinning the directory means atomic needs its own login. That is the
+      # intended trade: atomic writes credentials to `~/.atomic/agent`, and
+      # sharing one `auth.json` between two agents that both refresh OAuth
+      # tokens risks one corrupting the other's file.
+      ATOMIC_CODING_AGENT_DIR = "$HOME/.atomic/agent";
+
+      # Set explicitly rather than inherited. Atomic would otherwise fall back
+      # to pi's `PI_SKIP_VERSION_CHECK`, so atomic's startup behaviour would
+      # depend on a variable the pi module owns.
+      ATOMIC_SKIP_VERSION_CHECK = "1";
+    };
   };
 }

@@ -1,9 +1,9 @@
 version: 1
 change: add-atomic-harness
 decision: approved
-note: 'owner approved in session 2026-08-10; critics not run at owner request. Re-approved after the phase 3 finding: only 8 of pi''s 19 packages load into atomic 0.9.12, the single tool collision is pi-web-access against atomic''s own bundled @bastani/web-access, and the pi-tool-display work in 3.2 and 3.4 is moot. The owner was shown that finding and the two options, and directed continuation with the evidence-derived 8-package set. Re-stamped again for the tasks.md phase 3 evidence, which records four deviations from the approved task text: notify=hook with atomic''s own bridge rather than scrape; no ATOMIC_SKIP_VERSION_CHECK, since the name does not exist in 0.9.12; assertPackageSetPartitioned in place of the moot display-override assertion; and a dropped-exclusion defect in place of the moot injected-grep defect. Each is argued from a probe recorded in tasks.md.'
-change_hash: d51c0ddbee7b6228
-base_commit: abf31fb3480863b5edcef7175d1894ede7593099
+note: 'owner approved in session 2026-08-10; critics not run at owner request. Approved scope: the evidence-derived 8-package set, after the owner was shown that only 8 of pi''s 19 packages load into atomic 0.9.12. Re-stamped for the phase 4 finding: the post-switch check caught atomic loading pi''s extension directory, because atomic carries .pi as a legacy config dir; fixed with ATOMIC_CODING_AGENT_DIR, which costs atomic its read of pi''s auth.json and so needs one login. Also corrects an earlier note in tasks.md: ATOMIC_SKIP_VERSION_CHECK does exist, since atomic builds variable names at runtime. Deviations from the approved task text, each argued from a recorded probe, are listed in tasks.md phases 3 and 4.'
+change_hash: 18da16df09053a65
+base_commit: 01c5eb35dd444b102800f4849d286f01f6e2da38
 items:
     0d272bf28f2ae825:
         hash: 0b928ed4d715aa6c

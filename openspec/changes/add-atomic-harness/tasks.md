@@ -185,10 +185,17 @@
       put it there rather than a rationale. `contextHookOrder` is one entry,
       `plannotator/pi-extension`, because it is the only context-hook package
       that loads. There is no `pi-tool-display` config: the package never loads,
-      so a config file for it would be dead. And there is no session variable:
-      `ATOMIC_SKIP_VERSION_CHECK` does not appear anywhere in atomic 0.9.12, so
-      declaring it would ship a name nothing reads. `quietStartup` is what
-      suppresses the startup output.
+      so a config file for it would be dead. `quietStartup` suppresses the
+      startup output, and the module sets two session variables rather than the
+      one the task named.
+
+      Correction to an earlier draft of this note, which said
+      `ATOMIC_SKIP_VERSION_CHECK` does not exist. It does. Atomic builds every
+      variable name at runtime from `ENV_PREFIX = APP_NAME.toUpperCase()`, so no
+      literal spelling appears in the binary and the grep that looked for one
+      found nothing. The module sets it, and also
+      `ATOMIC_CODING_AGENT_DIR`; the 4.2 note says why the second is
+      load-bearing.
 
       The second requested assertion has no subject once the display overrides
       go, so it is replaced by one that guards the finding instead:
@@ -263,7 +270,54 @@
 
 ## 4. Rollout
 
-- [ ] 4.1 Apply: `git push`, then `nh darwin switch` from the `sysinit.laurel` checkout, gated on `nix flake check` and `nh darwin build` exiting 0
-- [ ] 4.2 Run the post-switch checks that no build can decide: `atomic -p 'reply with ok'` exits 0 with no `conflicts with` on stderr, the tool list names `subagent` and `web_fetch` exactly once each, `pi -p 'reply with ok'` still exits 0, and `find ~/.pi -newermt '-5 minutes'` returns nothing after the atomic run
+- [x] 4.1 Apply: `git push`, then `nh darwin switch` from the `sysinit.laurel` checkout, gated on `nix flake check` and `nh darwin build` exiting 0
+
+      Pushed as `01c5eb35d` after a rebase onto 4 dependabot input bumps
+      (`home-manager`, `meat`, `nix-claude-code`, `nix-gaming`) that landed
+      first. Re-verified on the rebased tree before pushing: `nix flake check`
+      exit 0, darwin build exit 0, and the rendered `settings.json` still
+      carrying the same 8 packages and the `nvim-atomic` editor.
+
+      Switch exit 0. It added `atomic-coding-agent 0.9.12` (+300 MiB),
+      `nvim-atomic`, `AGENTS.md`, the permission config, and the managed
+      settings file. On disk, `~/.atomic/agent/settings.json` merged as
+      designed: the 8 declared keys replaced the owner's hand-written 19-package
+      list, and all 5 owner-preference keys survived.
+- [x] 4.2 Run the post-switch checks that no build can decide: `atomic -p 'reply with ok'` exits 0 with no `conflicts with` on stderr, the tool list names `subagent` and `web_fetch` exactly once each, `pi -p 'reply with ok'` still exits 0, and `find ~/.pi -newermt '-5 minutes'` returns nothing after the atomic run
+
+      This check found a defect the pre-switch run could not, and it is the
+      reason to keep it. Atomic exited 1 with four
+      `Cannot find module '@earendil-works/pi-coding-agent'` errors, each naming
+      a file under `~/.pi/agent/extensions/`. The neovim RPC path failed the
+      same way, so atomic was unusable.
+
+      Root cause, read from atomic's own `getAgentDirs()`: it carries `.pi` as
+      `LEGACY_CONFIG_DIR_NAME`, and unless its agent-dir variable is set it
+      returns `[~/.atomic/agent, ~/.pi/agent]`. Atomic therefore loaded pi's
+      loose extensions, and the four that import the upstream pi package at
+      runtime failed. The pre-switch run used a scratch `HOME` with no `~/.pi`,
+      which is exactly why it passed. A scratch `HOME` cannot see a
+      cross-harness collision; that is the class of defect this task exists for.
+
+      Fixed by setting `ATOMIC_CODING_AGENT_DIR`, which makes `getAgentDirs()`
+      return the primary alone. Verified by running atomic with the variable set:
+      0 lines matching `.pi/agent/extensions`, 0 `conflicts with`, 0
+      `Duplicate tool name`.
+
+      Two consequences worth recording. First, that same legacy entry is how
+      atomic read `~/.pi/agent/auth.json`, so atomic now reports
+      `No API key found` until it is logged in once on its own; it writes
+      credentials to `~/.atomic/agent`, and sharing one `auth.json` between two
+      agents that both refresh OAuth tokens is the worse option. Second, the
+      `find ~/.pi -newermt` criterion is now structural rather than empirical:
+      with the directory pinned, atomic has no path that reads `~/.pi`.
+
+      One pre-existing defect found and not fixed here, because it changes pi's
+      behaviour and belongs to the pi module:
+      `harnesses/pi/default.nix` sets `PI_SKIP_VERSION_CHECK = "$HOME/.pi"`, a
+      path where a flag belongs. It matters beyond pi now, because atomic falls
+      back to the `PI_` spelling of each of its own variables, so atomic was
+      skipping its version check by inheriting that value. This module sets
+      `ATOMIC_SKIP_VERSION_CHECK` explicitly so it no longer depends on it.
 - [ ] 4.3 Check that atomic's permission gate is live by running one command the destructive allowlist denies, and confirming atomic refuses it rather than running it
 - [ ] 4.4 Confirm: the owner decides whether running two pi-lineage harnesses side by side is worth the shared `PI_*` environment surface, and whether the exclusion set is the set they want
