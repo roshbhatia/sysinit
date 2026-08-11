@@ -168,12 +168,35 @@
 - **SHAPE** graph
 - **MERGE** 3.3
 
-- [ ] 3.1 Add a watcher that resolves the log from the installed manifest, starts at the current end of the file, survives the file being replaced under it, and reloads an open buffer only when it holds no unsaved changes `writes:` modules/home/programs/neovim/config/lua/harness/edit_events.lua `deps:` none
-- [ ] 3.2 Record the files an agent touched this session, so a later review can be scoped to them `writes:` modules/home/programs/neovim/config/lua/harness/edit_events.lua `deps:` 3.1
-- [ ] 3.3 Start the watcher where the polling refresh is started today, leaving that poll in place for the harnesses with no hook surface `writes:` modules/home/programs/neovim/config/lua/harness/ `deps:` 3.1, 3.2
+- [x] 3.1 Add a watcher that resolves the log from the installed manifest, starts at the current end of the file, survives the file being replaced under it, and reloads an open buffer only when it holds no unsaved changes `writes:` modules/home/programs/neovim/config/lua/harness/edit_events.lua `deps:` none
+- [x] 3.2 Record the files an agent touched this session, so a later review can be scoped to them `writes:` modules/home/programs/neovim/config/lua/harness/edit_events.lua `deps:` 3.1
+- [x] 3.3 Start the watcher where the polling refresh is started today, leaving that poll in place for the harnesses with no hook surface `writes:` modules/home/programs/neovim/config/lua/harness/ `deps:` 3.1, 3.2
 - [ ] 3.4 Adversarial review (`adversarial-review` skill): critics attempt to break the reader phase against the proposal `Behavior` criteria; revise until the loop reaches a terminal state
-- [ ] 3.5 Apply: `git push`, then `nh darwin switch` from the `sysinit.laurel` checkout in a separate WezTerm pane, gated on `nix flake check` and `nh darwin build` exiting 0
+- [x] 3.5 Apply: `git push`, then `nh darwin switch` from the `sysinit.laurel` checkout in a separate WezTerm pane, gated on `nix flake check` and `nh darwin build` exiting 0
 - [ ] 3.6 Confirm: the owner makes an unsaved edit to a file, has claude write that same file, and accepts what Neovim did with the conflict
+
+Live evidence, session `edit-bus-trial`, a running `nvim --listen` and `claude -p`:
+
+- The watcher resolved the same log claude writes, without deriving the path:
+  `{"active": true, "offset": 0, "log": ".../edit-bus-trial-2ff968978c83bf25.jsonl"}`.
+- A restart began at the log's current end. With 2 events already present,
+  `offset` was 418 and `touched` was 0, so a Neovim started after the harness
+  replays no history.
+- An event for a file no buffer held moved `touched` 0 to 1 and `offset` 418 to
+  628, and opened no buffer. `autoread` cannot produce a touched set, so this is
+  the watcher's own state.
+- With the watcher stopped, a further event left `offset` at 209 and `touched` at
+  1. Attribution note: the buffer still reloaded, because `--remote-expr` makes
+  Neovim process input and run its own `autoread` check. The probe caused the
+  reload it was measuring, so reload is not evidence here and `offset`/`touched`
+  are.
+- The unsaved-work path held. With `MY-UNSAVED-WORK` unsaved in the buffer,
+  claude wrote `AGENT-OVERWROTE` to the same file. The buffer kept
+  `MY-UNSAVED-WORK`, `modified` stayed 1, and the log carried
+  `claude wrote a.txt, which you have unsaved changes in. Your buffer was left
+  alone; :e! to take theirs.` That message exists only in the watcher.
+
+3.4 is NOT-RUN, per the decision in `review.md`. 3.6 is the owner's.
 
 ## 4. The remaining hook harnesses
 

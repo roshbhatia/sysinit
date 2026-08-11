@@ -2,7 +2,7 @@ version: 2
 change: add-agent-edit-bus
 decision: approved
 change_hash: b9a7621a1939100f
-base_commit: 4437106ca5af03816f3225d19a26b6d48fdc6af1
+base_commit: ed62fe13579f94e22a36e4f60bbefd30db0517cf
 items:
     0b241f2bcd0ed6b4:
         hash: 09870189d97b127d
