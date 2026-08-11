@@ -203,15 +203,55 @@ Live evidence, session `edit-bus-trial`, a running `nvim --listen` and `claude -
 - **SHAPE** graph
 - **MERGE** 4.6
 
-- [ ] 4.1 Establish whether codex exposes a post-edit event carrying a file path, and either wire it or record the capability as false `writes:` modules/home/programs/llm/harnesses/codex.nix, modules/home/programs/llm/harnesses/registry.nix `deps:` none
-- [ ] 4.2 Establish whether opencode's plugin surface exposes a post-edit event carrying a file path, and either wire it or record the capability as false `writes:` modules/home/programs/llm/harnesses/opencode/plugins/sysinit-notify.ts, modules/home/programs/llm/harnesses/registry.nix `deps:` none
-- [ ] 4.3 Establish whether atomic's extension surface exposes a post-edit event carrying a file path, and either wire it or record the capability as false `writes:` modules/home/programs/llm/harnesses/atomic/extensions/sysinit-notify.ts, modules/home/programs/llm/harnesses/registry.nix `deps:` none
-- [ ] 4.4 Establish whether pi's extension surface exposes a post-edit event carrying a file path, and either wire it or record the capability as false `writes:` modules/home/programs/llm/harnesses/pi/extensions/sysinit-notify.ts, modules/home/programs/llm/harnesses/registry.nix `deps:` none
-- [ ] 4.5 Establish whether prime-agent's extension surface exposes a post-edit event carrying a file path, and either wire it or record the capability as false `writes:` modules/home/programs/llm/harnesses/prime-agent/extensions/sysinit-notify.ts, modules/home/programs/llm/harnesses/registry.nix `deps:` none
-- [ ] 4.6 Reconcile the five findings into one registry state and prove `nix build .#darwinConfigurations.lv426.system` exits 0, with no harness claiming a capability its surface does not have `writes:` modules/home/programs/llm/harnesses/registry.nix `deps:` 4.1, 4.2, 4.3, 4.4, 4.5
+- [x] 4.1 Establish whether codex exposes a post-edit event carrying a file path, and either wire it or record the capability as false `writes:` modules/home/programs/llm/harnesses/codex.nix, modules/home/programs/llm/harnesses/registry.nix `deps:` none
+- [x] 4.2 Establish whether opencode's plugin surface exposes a post-edit event carrying a file path, and either wire it or record the capability as false `writes:` modules/home/programs/llm/harnesses/opencode/plugins/sysinit-notify.ts, modules/home/programs/llm/harnesses/registry.nix `deps:` none
+- [x] 4.3 Establish whether atomic's extension surface exposes a post-edit event carrying a file path, and either wire it or record the capability as false `writes:` modules/home/programs/llm/harnesses/atomic/extensions/sysinit-notify.ts, modules/home/programs/llm/harnesses/registry.nix `deps:` none
+- [x] 4.4 Establish whether pi's extension surface exposes a post-edit event carrying a file path, and either wire it or record the capability as false `writes:` modules/home/programs/llm/harnesses/pi/extensions/sysinit-notify.ts, modules/home/programs/llm/harnesses/registry.nix `deps:` none
+- [x] 4.5 Establish whether prime-agent's extension surface exposes a post-edit event carrying a file path, and either wire it or record the capability as false `writes:` modules/home/programs/llm/harnesses/prime-agent/extensions/sysinit-notify.ts, modules/home/programs/llm/harnesses/registry.nix `deps:` none
+- [x] 4.6 Reconcile the five findings into one registry state and prove `nix build .#darwinConfigurations.lv426.system` exits 0, with no harness claiming a capability its surface does not have `writes:` modules/home/programs/llm/harnesses/registry.nix `deps:` 4.1, 4.2, 4.3, 4.4, 4.5
 - [ ] 4.7 Adversarial review (`adversarial-review` skill): critics attempt to break the fan-out phase against the proposal `Behavior` criteria; revise until the loop reaches a terminal state
-- [ ] 4.8 Apply: `git push`, then `nh darwin switch` from the `sysinit.laurel` checkout in a separate WezTerm pane, gated on `nix flake check` and `nh darwin build` exiting 0
+- [x] 4.8 Apply: `git push`, then `nh darwin switch` from the `sysinit.laurel` checkout in a separate WezTerm pane, gated on `nix flake check` and `nh darwin build` exiting 0
 - [ ] 4.9 Confirm: the owner accepts which harnesses ended up on the bus and which were recorded as incapable, rather than approximated
+
+Each finding came from running the harness against a probe hook or extension in a
+scratch home, on a scratch git repository, with one instruction to write one file.
+Reading a shipped `.d.ts` established what to look for; only a firing event
+established that it exists, because pi's `on()` accepts any name and registers a
+handler that never runs.
+
+| harness | post-edit event | where the path is | verdict |
+| --- | --- | --- | --- |
+| opencode | `file.edited` | `properties.file`, absolute | true |
+| atomic | `tool_result` | `details.resolvedPath`, absolute | true |
+| pi | `tool_result` | `input.path`, relative to its cwd | true |
+| codex | `PostToolUse` | inside the apply-patch envelope only | true |
+| prime-agent | unestablished | nowhere | false |
+
+Notes that the table cannot hold:
+
+- opencode's `file.edited` carries one absolute path and nothing else, and fires
+  for every editing tool including `apply_patch`. It is the only surface of the
+  five that needs no tool name, no correlation, and no parsing.
+- atomic and pi agree on `tool_result`, which carries `toolName`, the `input` that
+  produced it, and `isError` in one event. No correlation with `tool_call` is
+  needed. Atomic additionally resolves the path itself.
+- codex names no file in any structured field. It edits through `apply_patch` and
+  passes the envelope as `tool_input.command`, so `--apply-patch` parses the
+  `*** Add File:`, `*** Update File:` and `*** Delete File:` markers. An edit codex
+  makes through a shell redirect names no file anywhere and records nothing, which
+  is the accepted limit of this surface.
+- codex runs no hook until its command is trusted, and trust is keyed on the
+  hook's position as well as its text. The new entry needs accepting once in an
+  interactive codex session before it fires. A probe proved the event itself with
+  `--dangerously-bypass-hook-trust`.
+- prime-agent has no credentials on this machine, in its own home or a scratch
+  one, so `tool_result` could not be made to fire. Its probe extension loaded and
+  `session_start` and `session_shutdown` did fire, so the extension surface works
+  and only the tool events are unestablished. `false` is what `editBus` documents
+  for that state; wiring it on the pi shape would be the approximation this change
+  rejects.
+
+4.7 is NOT-RUN, per the decision in `review.md`. 4.9 is the owner's.
 
 ## 5. Reviews scoped to the turn
 
