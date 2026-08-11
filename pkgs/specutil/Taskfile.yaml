@@ -1,0 +1,127 @@
+version: "3"
+
+vars:
+  BIN: specutil
+  BIN_DIR: "{{.HOME}}/.local/bin"
+  COVER_OUT: coverage.out
+
+tasks:
+  default:
+    desc: List available tasks
+    cmd: task --list
+
+  # ── Build ──────────────────────────────────────────────────────────────────
+
+  build:
+    desc: Build the specutil binary to ./specutil
+    cmd: go build -ldflags="-s -w" -o {{.BIN}} ./cmd/specutil
+    sources:
+      - "**/*.go"
+      - go.mod
+      - go.sum
+    generates:
+      - "{{.BIN}}"
+
+  install:
+    desc: Install specutil to $BIN_DIR (~/.local/bin by default)
+    cmd: |
+      mkdir -p {{.BIN_DIR}}
+      GOBIN={{.BIN_DIR}} go install ./cmd/specutil
+      echo "installed to {{.BIN_DIR}}/specutil"
+      # A nix profile entry shadows ~/.local/bin on PATH, so this build is not
+      # necessarily what `specutil` runs. Saying so beats silently testing a
+      # different binary than the one just built.
+      resolved=$(command -v specutil 2> /dev/null || true)
+      if [ -n "$resolved" ] && [ "$resolved" != "{{.BIN_DIR}}/specutil" ]; then
+        echo "warning: PATH resolves specutil to $resolved, not the binary just installed" >&2
+        echo "warning: run {{.BIN_DIR}}/specutil directly, or update the flake input and switch" >&2
+      fi
+
+  clean:
+    desc: Remove build artifacts and coverage output
+    cmd: rm -f {{.BIN}} {{.COVER_OUT}}
+
+  # ── Test ───────────────────────────────────────────────────────────────────
+
+  test:
+    desc: Run all tests
+    cmd: go test ./...
+
+  test:race:
+    desc: Run all tests with race detector
+    cmd: go test -race ./...
+
+  test:cover:
+    desc: Run tests with coverage and open the report
+    cmds:
+      - go test -race -coverprofile={{.COVER_OUT}} ./...
+      - go tool cover -html={{.COVER_OUT}}
+
+  test:ci:
+    desc: Run tests as CI does (race + coverage artifact)
+    cmd: go test -race -coverprofile={{.COVER_OUT}} ./...
+
+  # ── Lint / vet ─────────────────────────────────────────────────────────────
+
+  lint:
+    desc: Run go vet and staticcheck
+    cmds:
+      - go vet ./...
+      - staticcheck ./...
+
+  vet:
+    desc: Run go vet only
+    cmd: go vet ./...
+
+  # ── Format ─────────────────────────────────────────────────────────────────
+
+  fmt:
+    desc: Format Go files with gofumpt
+    cmd: gofumpt -w .
+
+  fmt:check:
+    desc: Check Go formatting without writing
+    cmd: gofumpt -l . | grep . && exit 1 || true
+
+  fmt:sh:
+    desc: Format shell scripts in hack/ with shfmt
+    cmd: shfmt -i 2 -ci -sr -s -w hack/
+
+  fmt:sh:check:
+    desc: Check shell script formatting without writing
+    cmd: shfmt -i 2 -ci -sr -s -d hack/
+
+  fmt:nix:
+    desc: Format Nix files
+    cmd: nix fmt
+
+  fmt:all:
+    desc: Format Go, shell, and Nix files
+    deps: [fmt, fmt:sh, fmt:nix]
+
+  # ── Nix ────────────────────────────────────────────────────────────────────
+
+  nix:check:
+    desc: Validate the Nix flake
+    cmd: nix flake check
+
+  nix:build:
+    desc: Build the Nix package (does not switch)
+    cmd: nix build
+
+  # ── Release ────────────────────────────────────────────────────────────────
+
+  release:dry:
+    desc: Dry-run a release with goreleaser (snapshot, no publish)
+    cmd: goreleaser release --snapshot --clean
+
+  release:check:
+    desc: Validate the goreleaser config
+    cmd: goreleaser check
+
+  # ── Convenience ────────────────────────────────────────────────────────────
+
+  check:
+    desc: Full pre-commit check (vet, fmt check, tests with race)
+    deps: [vet, fmt:check, fmt:sh:check]
+    cmd: go test -race ./...

@@ -62,11 +62,6 @@
       flake = false;
     };
 
-    specutil = {
-      url = "github:roshbhatia/specutil";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-
     seshy = {
       url = "github:roshbhatia/seshy";
       inputs.nixpkgs.follows = "nixpkgs";

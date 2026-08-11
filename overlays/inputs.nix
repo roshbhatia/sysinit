@@ -20,7 +20,5 @@ final: _prev: {
   # The overlay entry is what gives `checks/` a route to hunk.
   hunk = inputs.hunk.packages.${final.stdenv.hostPlatform.system}.hunk;
 
-  specutil = inputs.specutil.packages.${final.stdenv.hostPlatform.system}.default;
-
   seshy = inputs.seshy.packages.${final.stdenv.hostPlatform.system}.default;
 }

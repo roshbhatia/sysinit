@@ -8,6 +8,17 @@
 let
   skills = import ./skills/render.nix { inherit pkgs; };
 
+  # specutil's agent skills, from the vendored source tree rather than a flake
+  # input. The directory is read instead of the names being listed, so adding a
+  # skill under pkgs/specutil/skills is one edit rather than two, and a skill
+  # directory without a SKILL.md cannot render a broken home.file entry.
+  specutilSkillRoot = ../../../../pkgs/specutil/skills;
+  specutilSkills = lib.mapAttrs (name: _: specutilSkillRoot + "/${name}/SKILL.md") (
+    lib.filterAttrs (
+      name: type: type == "directory" && builtins.pathExists (specutilSkillRoot + "/${name}/SKILL.md")
+    ) (builtins.readDir specutilSkillRoot)
+  );
+
   skillFiles = lib.mapAttrs' (
     name: path: lib.nameValuePair ".claude/skills/${name}/SKILL.md" { source = path; }
   ) skills.allSkills;
@@ -22,7 +33,7 @@ let
 
   specutilSkillFiles = lib.mapAttrs' (
     name: path: lib.nameValuePair ".claude/skills/${name}/SKILL.md" { source = path; }
-  ) inputs.specutil.lib.skills;
+  ) specutilSkills;
 
   openspecSkills =
     pkgs.runCommand "openspec-skills"
@@ -110,7 +121,7 @@ let
 
   ampSpecutilSkillFiles = lib.mapAttrs' (
     name: path: lib.nameValuePair ".config/amp/skills/${name}/SKILL.md" { source = path; }
-  ) inputs.specutil.lib.skills;
+  ) specutilSkills;
 
   devinSkillFiles = lib.mapAttrs' (
     name: path: lib.nameValuePair ".config/devin/skills/${name}/SKILL.md" { source = path; }
@@ -126,7 +137,7 @@ let
 
   devinSpecutilSkillFiles = lib.mapAttrs' (
     name: path: lib.nameValuePair ".config/devin/skills/${name}/SKILL.md" { source = path; }
-  ) inputs.specutil.lib.skills;
+  ) specutilSkills;
 
   copilotSkillFiles = lib.mapAttrs' (
     name: path: lib.nameValuePair ".copilot/skills/${name}/SKILL.md" { source = path; }
@@ -142,7 +153,7 @@ let
 
   copilotSpecutilSkillFiles = lib.mapAttrs' (
     name: path: lib.nameValuePair ".copilot/skills/${name}/SKILL.md" { source = path; }
-  ) inputs.specutil.lib.skills;
+  ) specutilSkills;
 
   pruneServer =
     server:

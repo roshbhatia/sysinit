@@ -1,0 +1,10 @@
+Part of **{{ .Export.Title }}** — {{ .Ticket.Milestone }}.
+
+{{ index .Section "summary" }}
+{{ if .Ticket.Kind }}
+> This is a **{{ .Ticket.Kind }}** step. {{ if eq .Ticket.Kind "verify" }}Do not close it until the check passes.{{ else if eq .Ticket.Kind "apply" }}It changes a live system and is hard to reverse. Get approval before you run it.{{ else }}Confirm the result before you close it.{{ end }}
+{{ end }}{{ with .Ticket.Refs }}
+Related: {{ range $i, $r := . }}{{ if $i }}, {{ end }}{{ $r }}{{ end }}
+{{ end }}{{ if .Export.Criteria }}
+The acceptance criteria for {{ .Export.Title }} are on the parent project.
+{{ end }}
