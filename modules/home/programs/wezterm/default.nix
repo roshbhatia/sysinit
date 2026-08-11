@@ -77,12 +77,6 @@ let
       };
       patches = [ ./patches/lantern-deps-loader.patch ];
     };
-    smart-ssh = pkgs.fetchFromGitHub {
-      owner = "DavidRR-F";
-      repo = "smart_ssh.wezterm";
-      rev = "8ad528e73d627b68c3625d5d4827a31a21e320d0";
-      hash = "sha256-2dh27ioUdFUfeaM5bzyMJFSy3LQ07fliY2pKi/B8CCA=";
-    };
     workspace-manager = pkgs.fetchFromGitHub {
       owner = "ryanmsnyder";
       repo = "workspace-manager.wezterm";
@@ -185,7 +179,6 @@ in
         log = "${weztermPlugins.log}";
         memo = "${weztermPlugins.memo}";
         lantern = "${weztermPlugins.lantern}";
-        smart-ssh = "${weztermPlugins.smart-ssh}";
         workspace-manager = "${weztermPlugins.workspace-manager}";
       };
     };

@@ -1,13 +1,10 @@
 local wezterm = require("wezterm")
 local act = wezterm.action
 local utils = require("sysinit.pkg.utils")
-local plugin_loader = require("sysinit.pkg.plugin_loader")
 
 local M = {}
 
 M.locked_mode = false
-
-local smart_ssh = nil
 
 local EDITORS = { "nvim", "vim", "hx" }
 local COMMON_MODS = { "CTRL", "SUPER" }
@@ -180,13 +177,6 @@ local function build_ssh_domains()
   return domains
 end
 
-local function get_ssh_picker()
-  if smart_ssh then
-    return smart_ssh.tab()
-  end
-  return act.ShowLauncherArgs({ flags = "FUZZY|DOMAINS" })
-end
-
 -- The viewer chords.
 local function pane_cwd(pane)
   local ok, path = pcall(function()
@@ -232,17 +222,6 @@ local function get_system_keys()
     create_smart_keybind(":", "SUPER", act.ActivateCommandPalette),
     create_smart_keybind(";", "SUPER", act.ActivateCommandPalette),
     create_smart_keybind(";", "CTRL", act.ActivateCommandPalette),
-    {
-      key = "s",
-      mods = "SUPER|SHIFT",
-      action = wezterm.action_callback(function(win, pane)
-        if M.locked_mode then
-          win:perform_action({ SendKey = { key = "s", mods = "SUPER|SHIFT" } }, pane)
-          return
-        end
-        win:perform_action(get_ssh_picker(), pane)
-      end),
-    },
     {
       key = "e",
       mods = "SUPER",
@@ -430,13 +409,6 @@ function M.setup(config)
       M.locked_mode = not M.locked_mode
     end),
   })
-
-  local smart_ssh_ok, smart_ssh_mod = plugin_loader.load("smart-ssh")
-  if smart_ssh_ok then
-    smart_ssh = smart_ssh_mod
-  else
-    wezterm.log_warn("Failed to load smart_ssh.wezterm: " .. tostring(smart_ssh_mod))
-  end
 
   config.ssh_domains = build_ssh_domains()
 
