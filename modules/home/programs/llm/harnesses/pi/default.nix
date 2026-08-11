@@ -478,7 +478,14 @@ in
       };
 
     sessionVariables = {
-      PI_SKIP_VERSION_CHECK = "$HOME/.pi";
+      # A flag, not a path. Pi reads it as `if (getEnvValue(...)) return`, so the
+      # old `$HOME/.pi` value skipped the check too, by being non-empty rather
+      # than by meaning anything. `1` is what pi itself writes when `--offline`
+      # sets the same flag.
+      #
+      # The value mattered beyond pi: atomic reads the `PI_` spelling of each of
+      # its own variables as a fallback, so this name reaches both harnesses.
+      PI_SKIP_VERSION_CHECK = "1";
     };
   };
 }
