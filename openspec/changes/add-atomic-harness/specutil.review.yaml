@@ -1,9 +1,9 @@
 version: 1
 change: add-atomic-harness
 decision: approved
-note: 'owner approved in session 2026-08-10; critics not run at owner request. Approved scope: the evidence-derived 8-package set. Phase 4 applied and verified: the post-switch check caught atomic loading pi''s whole agent directory via its .pi legacy config dir, fixed with ATOMIC_CODING_AGENT_DIR. Trade recorded in 4.2: atomic loses its read of pi''s auth.json and needs credentials of its own, so 4.3 is blocked on that and 4.4 is the owner''s call. tasks.md also corrects an earlier note that said ATOMIC_SKIP_VERSION_CHECK does not exist.'
-change_hash: 33a3bdfd8af206a0
-base_commit: fb6c334160a43b870df6b4c82e0de42787dc46d3
+note: 'owner approved in session 2026-08-10; critics not run at owner request. Approved scope: the evidence-derived 8-package set. Phase 4 applied and verified; the post-switch check caught atomic loading pi''s whole agent directory via its .pi legacy config dir, fixed with ATOMIC_CODING_AGENT_DIR at the cost of atomic needing its own credentials. Re-stamped once more because the fingerprint algorithm changed: it now covers the shape of the task list rather than its bytes, so recording progress and evidence no longer restales a decision. This is the last bookkeeping stamp this change needs.'
+change_hash: b733599462da3ea8
+base_commit: d814e0e6e846173f7024e3cfc1d974f4248ed935
 items:
     0d272bf28f2ae825:
         hash: 0b928ed4d715aa6c
