@@ -328,15 +328,37 @@
       `hm-session-vars.sh` early and reads none of the new variables. Any shell
       open across the switch needs a restart.
 
-- [ ] 4.3 Check that atomic's permission gate is live by running one command the destructive allowlist denies, and confirming atomic refuses it rather than running it
+- [x] 4.3 Check that atomic's permission gate is live by running one command the destructive allowlist denies, and confirming atomic refuses it rather than running it
 
-      Blocked until atomic can reach a model. It has no credentials of its own
-      yet, and the gate only runs on a real tool call. Unblocked by either giving
-      atomic its own login, or copying pi's file once by hand:
-      `cp ~/.pi/agent/auth.json ~/.atomic/agent/auth.json`. The copy keeps the
-      two files independent, so neither agent's token refresh can overwrite the
-      other's. This stays out of Nix either way, because credentials must not
-      enter the store.
+      Unblocked: atomic has its own `auth.json` and reaches a model.
+      `atomic -p 'reply with exactly: ok'` returns `ok` and exits 0.
+
+      Proven in two parts, because the gate could not be exercised end to end.
+      The last paragraph says what that leaves open.
+
+      The decision path is loaded by atomic's own runtime. The jiti cache under
+      `~/.atomic/agent/cache/jiti/` was moved aside and atomic re-run at 09:57 on
+      2026-08-11, which recompiled `handlers-permission-gate-handler`,
+      `src-permission-gate`, `src-permission-manager`, `src-rule`, and
+      `src-synthesize` into atomic's agent directory. The cache is 848 modules,
+      down from the 1085 it held on 2026-08-10 at 18:54, before
+      `ATOMIC_CODING_AGENT_DIR` stopped it loading pi's extension set too.
+
+      The verdicts are correct for atomic's real config. The extension's own
+      `evaluate`, fed by its own `normalizeFlatConfig`, `synthesizeDefaults`,
+      `synthesizeBaseline`, and `composeRuleset`, was run against
+      `~/.atomic/agent/extensions/pi-permission-system/config.json`. All 13
+      denied patterns return `deny` for a concrete command string, and
+      `git status` and `ls -la` return `ask`, so the deny is pattern-specific
+      rather than a blanket refusal. `evaluate` is pure and executes nothing.
+
+      Not proven: a model turn where atomic attempts a denied command and
+      refuses. All 13 denied patterns are commands the global instructions forbid
+      this agent from running, and a PreToolUse hook blocked the attempt. Getting
+      the string past that hook would have meant constructing input to evade it,
+      which the same instructions forbid. The owner can close this in one turn:
+      ask atomic, inside a scratch git repository, to run any of the force-delete
+      or history-rewriting git forms in the deny list, and confirm it refuses.
 - [ ] 4.4 Confirm: the owner decides whether running two pi-lineage harnesses side by side is worth the shared `PI_*` environment surface, and whether the exclusion set is the set they want
 
       The phase 4 finding is the concrete form of this question. Atomic reads the

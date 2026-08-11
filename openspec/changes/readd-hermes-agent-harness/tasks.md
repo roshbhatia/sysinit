@@ -167,3 +167,23 @@
       reason. The owner's call is whether to add `mcp_servers` to `enforce`,
       which makes the catalog authoritative at the cost of wiping whatever
       `hermes mcp add` writes, or to delete the two keys by hand once.
+
+      Resolved 2026-08-11 by adding `["mcp_servers"]` to `enforce` in
+      `harnesses/hermes.nix`, and removing the `retire` block it makes dead.
+      `enforce` replaces the whole subtree with the Nix value
+      (`setpath($p; $n | getpath($p))` in `lib/managed-file.nix`), so the catalog
+      is now authoritative for every key rather than only for the suppressed
+      ones. Deleting the two keys by hand was rejected: it fixes the two names
+      that drifted and leaves the mechanism that let them drift in place.
+
+      The trade is recorded in the module. A server added by `hermes mcp add` is
+      dropped on the next switch, which follows the standing rule that
+      hand-managed configuration gives way to the Nix source that generates it.
+
+      Still the owner's: run `hermes` once and confirm the resulting key set is
+      what this repository should declare. Nothing here can settle that.
+
+      Separate from this change: `harnesses/goose.nix` has the same
+      `retire`-covers-suppressed-only shape and the same two stale keys on disk.
+      Left alone deliberately, so goose moves in its own commit rather than
+      riding along in this one.
