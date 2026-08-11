@@ -4,6 +4,7 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
+	"errors"
 	"os"
 	"path/filepath"
 	"strings"
@@ -409,6 +410,51 @@ func TestRecheckRefusesAnUnsafeSourceBeforeFetching(t *testing.T) {
 	writeLock(t, dir, rec)
 	if err, _ := stderr(t, func() error { return recheck(dir) }); err == nil {
 		t.Fatal("recheck fetched a link-local source")
+	}
+}
+
+// stubRun records the probe commands and answers each from a lookup keyed on the
+// program name, so liveness can be exercised with no network.
+func stubRun(t *testing.T, answers map[string]error) *[][]string {
+	t.Helper()
+	var seen [][]string
+	original := run
+	run = func(name string, args ...string) error {
+		seen = append(seen, append([]string{name}, args...))
+		return answers[name]
+	}
+	t.Cleanup(func() { run = original })
+	return &seen
+}
+
+func TestLivenessProbesTheURLItselfNotTheLinksInsideIt(t *testing.T) {
+	seen := stubRun(t, nil)
+	if err := liveChecks("https://example.com/README.md", ""); err != nil {
+		t.Fatalf("a resolving URL was reported dead: %v", err)
+	}
+	if len(*seen) != 1 {
+		t.Fatalf("expected one probe, got %v", *seen)
+	}
+	probe := (*seen)[0]
+	if probe[0] != "curl" {
+		t.Errorf("probed with %q, want curl", probe[0])
+	}
+	// The defect this guards: lychee reads the document and checks every link in
+	// it, so a cited README fails on any embedded link that 404s for a bot.
+	for _, arg := range probe {
+		if arg == "lychee" {
+			t.Fatal("liveness asked lychee to walk the document")
+		}
+	}
+	if probe[len(probe)-1] != "https://example.com/README.md" {
+		t.Errorf("probed %q, not the cited URL", probe[len(probe)-1])
+	}
+}
+
+func TestLivenessFallsBackToPplxThenFails(t *testing.T) {
+	stubRun(t, map[string]error{"curl": errors.New("no"), "pplx": errors.New("no")})
+	if err := liveChecks("https://example.com/gone", ""); err == nil {
+		t.Fatal("a URL no probe could reach was reported live")
 	}
 }
 

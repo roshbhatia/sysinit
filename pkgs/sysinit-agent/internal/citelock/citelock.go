@@ -315,7 +315,11 @@ func have(tool string) bool {
 	return err == nil
 }
 
-func run(name string, args ...string) error {
+// run is a package variable so a test can watch which probe commands liveChecks
+// issues without reaching the network. Production never reassigns it.
+var run = runCommand
+
+func runCommand(name string, args ...string) error {
 	cmd := exec.Command(name, args...)
 	cmd.Stdout = nil
 	cmd.Stderr = nil
@@ -328,23 +332,25 @@ func liveChecks(url, doi string) error {
 		logf("CITELOCK_OFFLINE=1: skipping live checks (advisory)")
 		return nil
 	}
-	switch {
-	case have("lychee"):
-		if run("lychee", "--no-progress", "--max-retries", "1", "--", url) != nil {
-			if have("pplx") && run("pplx", "content", "fetch", url) == nil {
-				logf("live: lychee could not confirm %s; pplx fetched it, treating as live", url)
-			} else {
-				logf("live: neither lychee nor pplx could confirm %s (dead link or transient); treat as fail at capture", url)
-				return errors.New("not live")
-			}
-		}
-	case have("pplx"):
-		if run("pplx", "content", "fetch", url) != nil {
-			logf("live: pplx could not fetch %s (dead link or transient); treat as fail at capture", url)
+	// A GET of the URL, with the bytes discarded. This asks whether the cited
+	// document resolves, which is the only question liveness is about.
+	//
+	// lychee was the primary oracle here and answered a different question. Given a
+	// URL, lychee reads that document and checks every link inside it, so a cited
+	// README fails the moment it links to anything that 404s for a bot. A herdr
+	// README returning 200 was rejected because one shields.io badge target did.
+	// That is a false negative with no upper bound: the more thorough the cited
+	// page, the likelier it is to fail.
+	//
+	// HEAD is not used because too many hosts answer it with 403 or 405 while
+	// serving the same URL to a GET.
+	if run("curl", "-fsSL", "--max-time", "20", "-o", os.DevNull, "--", url) != nil {
+		if have("pplx") && run("pplx", "content", "fetch", url) == nil {
+			logf("live: curl could not confirm %s; pplx fetched it, treating as live", url)
+		} else {
+			logf("live: %s did not resolve (dead link or transient); treat as fail at capture", url)
 			return errors.New("not live")
 		}
-	default:
-		logf("live: neither lychee nor pplx on PATH; skipping liveness")
 	}
 
 	if doi == "" {
