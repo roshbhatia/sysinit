@@ -94,6 +94,20 @@ fetch.url = "https://github.com/bastani-inc/atomic/releases/download/$ver/atomic
 src.github = "bastani-inc/atomic"
 fetch.url = "https://github.com/bastani-inc/atomic/releases/download/$ver/atomic-linux-x64.tar.gz"
 
+# prime-agent (PrimeIntellect-ai/prime-agent) is a pi fork, and unlike pi and
+# atomic it publishes an npm tarball rather than a per-platform prebuilt binary,
+# so there is one entry rather than four. Tags carry a `v` prefix that the asset
+# filename does not, hence src.prefix plus the literal `v` in the path.
+#
+# The tarball is the release-packed one, which renames the package away from pi:
+# `name: prime-agent`, `bin: prime-agent`, `piConfig.configDir: .prime/agent`.
+# The source tree publishes as `@earendil-works/pi-coding-agent` with bin `pi`,
+# which would collide with pi on PATH; the release asset does not.
+[prime-agent]
+src.github = "PrimeIntellect-ai/prime-agent"
+src.prefix = "v"
+fetch.url = "https://github.com/PrimeIntellect-ai/prime-agent/releases/download/v$ver/prime-agent-$ver.tgz"
+
 # Binary release packages - localias (peterldowns/localias) Tags are
 # v3.0.0+commit.XXXXXXX; strip v prefix so $ver = 3.0.0+commit.XXXXXXX
 [localias]

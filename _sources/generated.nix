@@ -229,6 +229,14 @@
       sha256 = "sha256-iEqd7H4LdaVMTRkzyTp9Ra8fu4HDKWTB3UXWf6wfZUQ=";
     };
   };
+  prime-agent = {
+    pname = "prime-agent";
+    version = "0.7.1";
+    src = fetchurl {
+      url = "https://github.com/PrimeIntellect-ai/prime-agent/releases/download/v0.7.1/prime-agent-0.7.1.tgz";
+      sha256 = "sha256-1oYSyDI5yq+rcsx2xVrFcr/QegWeqPvSo92+HytV3Ns=";
+    };
+  };
   tinycast = {
     pname = "tinycast";
     version = "0.7.5";

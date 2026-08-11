@@ -1,0 +1,124 @@
+final: _prev:
+let
+  sources = final.nvfetcherSources;
+  inherit (sources.prime-agent) version;
+
+  # prime-agent's release asset is an npm tarball, not the per-platform prebuilt
+  # binary that `pi-coding-agent.nix` and `atomic-coding-agent.nix` extract. Its
+  # `dist/bundle/cli.js` inlines every pure-JS dependency, so the runtime needs
+  # only the handful esbuild left external.
+  #
+  # This set was found by running the bundle against a node_modules holding one
+  # package at a time until `--version` succeeded, not by reading package.json:
+  # of the 21 declared dependencies, 18 are inlined, and `cmake-ts` is needed
+  # while not being declared as a runtime dependency at all.
+  #
+  #   zeromq    native, imported eagerly; removing it fails `--version`
+  #   cmake-ts  zeromq's own prebuild loader (`cmake-ts/build/loader`)
+  #   undici    `await import("undici")` on the startup path
+  #
+  # Pinned here rather than tracked in nvfetcher.toml on purpose. These are
+  # prime-agent's dependencies, so the version that matters is the one its
+  # package.json accepts; following npm's `latest` tag would let a major bump
+  # (zeromq 6 to 7) land without prime-agent asking for it.
+  nodeDeps = {
+    zeromq = {
+      version = "6.5.0"; # prime-agent asks for ^6.1.2
+      hash = "sha256-Mwq6wkLDp7hndz7CAFb45ZAso5C0Bc6z1gDaG4L9uBw=";
+    };
+    cmake-ts = {
+      version = "1.0.2"; # zeromq pins this exactly
+      hash = "sha256-5hZnCu06bdnM+Sm3lB9oEI4cmlLkl52gqsfred+niIU=";
+    };
+    undici = {
+      version = "7.29.0"; # prime-agent asks for ^7.28.0
+      hash = "sha256-7CAF2CJzR2X8CMPuXVCx9yC/HD/GI1qwKOXMYchaOnA=";
+    };
+  };
+
+  fetchNpm =
+    name:
+    { version, hash }:
+    final.fetchurl {
+      url = "https://registry.npmjs.org/${name}/-/${name}-${version}.tgz";
+      inherit hash;
+    };
+
+  nodeDepTarballs = final.lib.mapAttrsToList (name: spec: {
+    inherit name;
+    tarball = fetchNpm name spec;
+  }) nodeDeps;
+in
+{
+  prime-agent = final.stdenv.mkDerivation {
+    pname = "prime-agent";
+    inherit version;
+    inherit (sources.prime-agent) src;
+
+    # The tarball unpacks to `package/`, which is where every path below is
+    # relative to.
+    sourceRoot = "package";
+
+    nativeBuildInputs = [ final.makeWrapper ];
+
+    # The payload is bundled JavaScript plus zeromq's prebuilt `addon.node` for
+    # every platform it ships. Neither wants the default fixup: strip would
+    # rewrite a signed darwin addon, and patchelf has nothing to do on a Mach-O
+    # tree but logs a not-found line per file while proving it.
+    dontStrip = true;
+    dontPatchELF = true;
+
+    installPhase = ''
+      runHook preInstall
+
+      mkdir -p $out/lib/prime-agent
+      cp -r . $out/lib/prime-agent/
+
+      mkdir -p $out/lib/prime-agent/node_modules
+      ${final.lib.concatMapStringsSep "\n" (dep: ''
+        mkdir -p "$out/lib/prime-agent/node_modules/${dep.name}"
+        tar -xzf ${dep.tarball} -C "$out/lib/prime-agent/node_modules/${dep.name}" --strip-components=1
+      '') nodeDepTarballs}
+
+      # `postinstall.cjs` is a no-op unless one of the bootstrap variables is
+      # set, and both of the things it would bootstrap (ripgrep, fd, a uv-managed
+      # python) belong to the wrapper below rather than to a build-time download.
+      rm -f $out/lib/prime-agent/postinstall.cjs
+
+      makeWrapper ${final.nodejs_22}/bin/node $out/bin/prime-agent \
+        --add-flags $out/lib/prime-agent/dist/bundle/cli.js \
+        --prefix PATH : ${
+          final.lib.makeBinPath [
+            final.fd
+            final.ripgrep
+          ]
+        } \
+        --set PRIME_AGENT_INTERACTIVE_SELF_UPDATE 0
+
+      runHook postInstall
+    '';
+
+    # Proves the wrapper resolves node, the bundle, and all three vendored
+    # dependencies. A missing one fails here rather than on first use, which is
+    # the whole reason the set above was measured instead of guessed.
+    doInstallCheck = true;
+    installCheckPhase = ''
+      runHook preInstallCheck
+      # prime-agent prints its version on stderr, so a plain capture is empty.
+      got=$($out/bin/prime-agent --version 2>&1)
+      if [ "$got" != "${version}" ]; then
+        echo "prime-agent --version printed '$got', expected '${version}'" >&2
+        exit 1
+      fi
+      runHook postInstallCheck
+    '';
+
+    meta = with final.lib; {
+      description = "Self-improving RLM coding agent, a pi fork with an IPython tool";
+      homepage = "https://github.com/PrimeIntellect-ai/prime-agent";
+      license = licenses.mit;
+      mainProgram = "prime-agent";
+      platforms = platforms.unix;
+    };
+  };
+}
