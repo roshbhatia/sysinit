@@ -319,5 +319,29 @@
       back to the `PI_` spelling of each of its own variables, so atomic was
       skipping its version check by inheriting that value. This module sets
       `ATOMIC_SKIP_VERSION_CHECK` explicitly so it no longer depends on it.
+      Verified after the second switch, in a login shell started with
+      `__HM_SESS_VARS_SOURCED` cleared: both variables are set, atomic reports 0
+      `.pi/agent/extensions` errors, 0 `conflicts with`, 0
+      `Duplicate tool name`, and `pi -p 'reply with ok'` still exits 0 and
+      answers `ok`. Clearing that guard matters for the check: an already-running
+      shell exported it before the switch, so a child login shell returns from
+      `hm-session-vars.sh` early and reads none of the new variables. Any shell
+      open across the switch needs a restart.
+
 - [ ] 4.3 Check that atomic's permission gate is live by running one command the destructive allowlist denies, and confirming atomic refuses it rather than running it
+
+      Blocked until atomic can reach a model. It has no credentials of its own
+      yet, and the gate only runs on a real tool call. Unblocked by either giving
+      atomic its own login, or copying pi's file once by hand:
+      `cp ~/.pi/agent/auth.json ~/.atomic/agent/auth.json`. The copy keeps the
+      two files independent, so neither agent's token refresh can overwrite the
+      other's. This stays out of Nix either way, because credentials must not
+      enter the store.
 - [ ] 4.4 Confirm: the owner decides whether running two pi-lineage harnesses side by side is worth the shared `PI_*` environment surface, and whether the exclusion set is the set they want
+
+      The phase 4 finding is the concrete form of this question. Atomic reads the
+      `PI_` spelling of each of its own variables and, until this change, pi's
+      whole agent directory. The directory is now pinned and the one variable
+      atomic needed is set explicitly, so the remaining shared surface is any
+      `PI_*` name the pi module sets that atomic also understands. Today that is
+      one: `PI_SKIP_VERSION_CHECK`.
