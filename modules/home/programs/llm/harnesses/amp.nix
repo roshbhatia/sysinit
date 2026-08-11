@@ -8,6 +8,17 @@ let
   llmLib = import ../lib { inherit lib; };
   kit = llmLib.harnessKit.mkKit { inherit lib pkgs config; };
 
+  inherit (config.sysinit.llm.amp) remoteExecution;
+
+  # `amp orb` is a whole command tree, so one glob covers every subcommand. The
+  # matching entry for the settings side is `amp.remoteThreadCreation.enabled`
+  # below: together they close the two ways a thread leaves this machine, an
+  # agent starting an orb and ampcode.com opening a thread here.
+  remoteExecutionDenyGlobs = [
+    "amp orb*"
+    "amp * orb*"
+  ];
+
   ampSettings = {
     "amp.git.commit.ampThread.enabled" = false;
     "amp.git.commit.coauthor.enabled" = false;
@@ -17,13 +28,20 @@ let
         inherit tool;
         action = "ask";
       }) llmLib.allowlist.slackSendTools
-      ++ llmLib.allowlist.formatDestructiveForAmp llmLib.allowlist.destructiveDenyGlobs
+      ++ llmLib.allowlist.formatDestructiveForAmp (
+        llmLib.allowlist.destructiveDenyGlobs ++ lib.optionals (!remoteExecution) remoteExecutionDenyGlobs
+      )
       ++ [
         {
           tool = "*";
           action = "allow";
         }
       ];
+
+    # Amp's own read of this key is "let ampcode.com create new threads that open
+    # in the interactive Amp TUI on this machine". Declared rather than left to
+    # amp's default so the posture is visible in the file the owner reads.
+    "amp.remoteThreadCreation.enabled" = remoteExecution;
 
     "amp.updates.mode" = "disabled";
     "amp.skills.disableClaudeCodeSkills" = true;

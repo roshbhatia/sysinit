@@ -157,6 +157,25 @@ in
       '';
     };
 
+    amp.remoteExecution = mkOption {
+      type = types.bool;
+      default = false;
+      description = ''
+        Whether this host uses Amp's remote execution: orbs, and threads that
+        ampcode.com opens on this machine.
+
+        Off by default. Amp bills an orb against the Amp subscription, so on a
+        host whose active model provider is a linked ChatGPT subscription an orb
+        routes the work around the provider the host is meant to use. It also
+        puts the working tree on a sandbox this repository does not control,
+        which the work machine's confidentiality boundary does not allow.
+
+        When false, `amp.remoteThreadCreation.enabled` is false and `amp orb` is
+        rejected as a Bash command. Neither stops the owner running `amp orb`
+        themselves; this governs what an agent may do.
+      '';
+    };
+
     mcp = {
       slackAllowedSendChannels = mkOption {
         type = types.listOf types.str;
