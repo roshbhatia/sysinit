@@ -1,0 +1,5 @@
+schema: spec-driven
+created: 2026-08-11
+goal: One append-only event bus between any hook-capable harness and Neovim, so
+  edits reach the editor as events instead of a 1s checktime poll, with no
+  harness-specific IDE protocol.

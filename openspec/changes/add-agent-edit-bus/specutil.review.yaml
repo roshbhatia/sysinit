@@ -1,0 +1,105 @@
+version: 2
+change: add-agent-edit-bus
+decision: approved
+change_hash: b9a7621a1939100f
+base_commit: 4437106ca5af03816f3225d19a26b6d48fdc6af1
+items:
+    0b241f2bcd0ed6b4:
+        hash: 09870189d97b127d
+        text: 'Apply: `git push`, then `nh darwin switch` from the `sysinit.laurel` checkout in a separate WezTerm pane, gated on `nix flake check` and `nh darwin build` exiting 0'
+    1ef298288959ea9e:
+        hash: 06f64b03538299c0
+        text: 'Confirm: the owner accepts that a scoped review shows the work they meant to review, and that the narrowing is obvious enough to not be mistaken for the whole diff'
+    3d85877f520368b6:
+        hash: ec9c3f248603d6ea
+        text: Record the files an agent touched this session, so a later review can be scoped to them
+    3e3ede45e8db91f4:
+        hash: 818926f9e7df4d1a
+        text: 'Confirm: the owner makes an unsaved edit to a file, has claude write that same file, and accepts what Neovim did with the conflict'
+    06da1ab0298fff84:
+        hash: 6e1935fa1bac089e
+        text: 'Adversarial review (`adversarial-review` skill): critics attempt to break the claude wiring against the proposal `Behavior` criteria; revise until the loop reaches a terminal state'
+    8f782725b9af780d:
+        hash: d9977c3fd9e32e20
+        text: Start the watcher where the polling refresh is started today, leaving that poll in place for the harnesses with no hook surface
+    071e86c0282b9365:
+        hash: 09870189d97b127d
+        text: 'Apply: `git push`, then `nh darwin switch` from the `sysinit.laurel` checkout in a separate WezTerm pane, gated on `nix flake check` and `nh darwin build` exiting 0'
+    116adb137afc087b:
+        hash: d06476e2dbcce1a9
+        text: Measure an ordinary turn's event count and set the size bound and retained-line count from it, replacing whatever placeholder shipped in phase 1
+    241c636e728543a4:
+        hash: 298cf4cbca646247
+        text: Establish whether opencode's plugin surface exposes a post-edit event carrying a file path, and either wire it or record the capability as false
+    344f761d6cc72231:
+        hash: ae9b96074815009d
+        text: Decide whether the declared review plugin can scope a diff to a file list, or whether the diff plugin beneath it must be driven directly
+    884d6b0936221a1d:
+        hash: 8832931329bb8f98
+        text: 'Confirm: the owner accepts which harnesses ended up on the bus and which were recorded as incapable, rather than approximated'
+    7671a0f34b2c7ab7:
+        hash: b41c17fb72b5aebe
+        text: Add a watcher that resolves the log from the installed manifest, starts at the current end of the file, survives the file being replaced under it, and reloads an open buffer only when it holds no unsaved changes
+    0580944a834ced6a:
+        hash: 09870189d97b127d
+        text: 'Apply: `git push`, then `nh darwin switch` from the `sysinit.laurel` checkout in a separate WezTerm pane, gated on `nix flake check` and `nh darwin build` exiting 0'
+    905140fd7b0f74dd:
+        hash: e0bc16efcded4343
+        text: 'Apply: `openspec archive add-agent-edit-bus`, gated on `specutil check` and `spec-preflight all` exiting 0'
+    5400845ab6b73a0a:
+        hash: 16a450e54e31fca4
+        text: Add a `sysinit-agent` subcommand that appends one JSON event per edited file, keyed to a workspace the way the diff-note path is keyed, and bounded in size, following `pkgs/sysinit-agent/internal/note/` for layout and `internal/agentstate/` for stdin handling
+    a4a37bbc8b547d97:
+        hash: a5d6c147c8fccba9
+        text: Establish whether atomic's extension surface exposes a post-edit event carrying a file path, and either wire it or record the capability as false
+    a2922635339a4492:
+        hash: bbcd857e61518b06
+        text: 'Adversarial review (`adversarial-review` skill): critics attempt to break the fan-out phase against the proposal `Behavior` criteria; revise until the loop reaches a terminal state'
+    aa174c5c20bc1d3b:
+        hash: 94828dd0ba689609
+        text: Establish whether prime-agent's extension surface exposes a post-edit event carrying a file path, and either wire it or record the capability as false
+    ad8dbfefbd1cbf24:
+        hash: 01c04f0b6b982884
+        text: Record edit-bus capability as its own field on every registry entry, true for claude and false elsewhere until each surface is proven
+    b4a5dbcfb936bd97:
+        hash: 09870189d97b127d
+        text: 'Apply: `git push`, then `nh darwin switch` from the `sysinit.laurel` checkout in a separate WezTerm pane, gated on `nix flake check` and `nh darwin build` exiting 0'
+    d45ce84404e9d57d:
+        hash: 9d5b905bb06127c5
+        text: Give claude a post-edit hook that writes one event per edited file, reusing the matcher its existing pre-edit guard already uses, then prove `nix build .#darwinConfigurations.lv426.system` exits 0
+    d68def0999dbce88:
+        hash: 5e8bc91f4aa78b55
+        text: Expose the subcommand through the runtime wrapper that already exposes `agent-state`, then prove `nix flake check` and `go test ./...` exit 0
+    e2fb81999e86e516:
+        hash: 499921f1226d1821
+        text: Decide whether the poll should now be skipped for a workspace whose harness writes to the bus, or left running for every harness
+    e4a27088966c03fb:
+        hash: 4c7f8ceeae300c6e
+        text: 'Prove the failure paths with Go tests: an unwritable log directory still exits 0 with no stdout, concurrent writers each produce an intact line, and passing the size bound leaves the newest events and a shorter file'
+    ea0d9f05a82a1b30:
+        hash: d20330f0818e4594
+        text: Reconcile the five findings into one registry state and prove `nix build .#darwinConfigurations.lv426.system` exits 0, with no harness claiming a capability its surface does not have
+    ed0f3689b6a585c3:
+        hash: cd549913654608d9
+        text: 'Adversarial review (`adversarial-review` skill): critics attempt to break the reader phase against the proposal `Behavior` criteria; revise until the loop reaches a terminal state'
+    ed2b94a6cfff3a8d:
+        hash: 717a85f455731560
+        text: Establish whether pi's extension surface exposes a post-edit event carrying a file path, and either wire it or record the capability as false
+    ee94843d65f4cc3f:
+        hash: a24174441c4a190e
+        text: Declare the event-log location as a new path in the layout manifest, so both ends resolve it and neither hardcodes it
+    ef2cc2a2f3a64d5e:
+        hash: 0be40a4771648c7f
+        text: 'Adversarial review (`adversarial-review` skill): critics attempt to break the writer phase against the proposal `Behavior` criteria; revise until the loop reaches a terminal state (see the skill for the scaled round cap)'
+    efcadcb0b31859b8:
+        hash: b64658ffb240be73
+        text: Open a review restricted to the files an agent touched this session, keeping the full working diff reachable and making the narrowed scope visible
+    f3b0ff4d22b41b29:
+        hash: fda0a39af4c4cffb
+        text: 'Adversarial review (`adversarial-review` skill): critics attempt to break the scoping phase against the proposal `Behavior` criteria; revise until the loop reaches a terminal state'
+    f42c8865f7cc760c:
+        hash: 63bbe7d02f2c05ee
+        text: Establish whether codex exposes a post-edit event carrying a file path, and either wire it or record the capability as false
+    f98ee2c881998cc8:
+        hash: 46fb2bc65e61c26d
+        text: 'Confirm: the owner edits a file through claude and accepts that the events written name the files they expected, at the volume they expected, with nothing recorded that claude did not touch'
