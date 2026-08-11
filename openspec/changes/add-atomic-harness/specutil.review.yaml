@@ -1,9 +1,9 @@
 version: 1
 change: add-atomic-harness
 decision: approved
-note: owner approved in session 2026-08-10; critics not run at owner request
-change_hash: ad9aff3c10ed9c2e
-base_commit: 031d420e033ee3f342584ebda494431b48847e4e
+note: 'owner approved in session 2026-08-10; critics not run at owner request. Re-stamped after phase 1 appended evidence: no task text moved, and specutil reported no drift and no open comments. Two deviations recorded in tasks.md 1.1 and 1.2: five lock files moved to shared/locks and hack/update-pi.sh was repointed, neither in the approved writes list; the shared editor derivation takes its binary name as a parameter instead of fixing nvim-pi.'
+change_hash: 78e24e99ac7853bd
+base_commit: acda91b90ad15f9ef135ba618f79cbba98197623
 items:
     0d272bf28f2ae825:
         hash: 0b928ed4d715aa6c

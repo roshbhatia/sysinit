@@ -2,13 +2,26 @@
 
 set -euo pipefail
 
-PI_NIX="modules/home/programs/llm/harnesses/pi/default.nix"
-LOCKS_DIR="modules/home/programs/llm/harnesses/pi/locks"
+HARNESSES="modules/home/programs/llm/harnesses"
 
-if [[ ! -f ${PI_NIX} ]]; then
-  echo "ERROR: ${PI_NIX} not found" >&2
-  exit 2
-fi
+# Two files carry pins, and two directories carry lock files. The shared package
+# set holds everything the pi lineage installs as an extension; pi's own module
+# keeps the pins that only pi uses, `pi-acp` and `pi-gemini-auth`.
+declare -a PIN_FILES=(
+  "${HARNESSES}/shared/pi-packages.nix"
+  "${HARNESSES}/pi/default.nix"
+)
+declare -a LOCKS_DIRS=(
+  "${HARNESSES}/shared/locks"
+  "${HARNESSES}/pi/locks"
+)
+
+for f in "${PIN_FILES[@]}"; do
+  if [[ ! -f ${f} ]]; then
+    echo "ERROR: ${f} not found" >&2
+    exit 2
+  fi
+done
 
 declare -a TRACKED=(
   "pi-context"
@@ -43,7 +56,7 @@ drift_count=0
 pinned_version() {
   local pkg="$1"
   local v
-  v=$(grep -E "mk(Fetched|Built)NpmPackage \"${pkg}\" \"[0-9a-z.+-]+\"" "${PI_NIX}" |
+  v=$(grep -hE "mk(Fetched|Built)NpmPackage \"${pkg}\" \"[0-9a-z.+-]+\"" "${PIN_FILES[@]}" |
     head -1 | sed -E 's/.*mk(Fetched|Built)NpmPackage "[^"]*" "([^"]+)".*/\2/')
   if [[ -n ${v} ]]; then
     echo "${v}"
@@ -62,7 +75,7 @@ pinned_version() {
       print substr($0, RSTART+1, RLENGTH-2)
       exit
     }
-  ' "${PI_NIX}")
+  ' "${PIN_FILES[@]}")
   echo "${v}"
 }
 
@@ -78,7 +91,7 @@ for pkg in "${TRACKED[@]}"; do
   pinned=$(pinned_version "${pkg}")
   latest=$(latest_version "${pkg}")
   if [[ -z ${pinned} ]]; then
-    printf "  %-40s NOT FOUND in %s\n" "${pkg}" "${PI_NIX}"
+    printf "  %-40s NOT FOUND in %s\n" "${pkg}" "${PIN_FILES[*]}"
     drift_count=$((drift_count + 1))
     continue
   fi
@@ -110,13 +123,15 @@ declare -A KNOWN_LOCKS=(
   ["taskplane"]="taskplane"
 )
 orphan_count=0
-for lock in "${LOCKS_DIR}"/*.lock.json; do
-  base="${lock##*/}"
-  name="${base%.lock.json}"
-  if [[ -z ${KNOWN_LOCKS[${name}]+x} ]]; then
-    echo "  ORPHAN: ${lock}"
-    orphan_count=$((orphan_count + 1))
-  fi
+for dir in "${LOCKS_DIRS[@]}"; do
+  for lock in "${dir}"/*.lock.json; do
+    base="${lock##*/}"
+    name="${base%.lock.json}"
+    if [[ -z ${KNOWN_LOCKS[${name}]+x} ]]; then
+      echo "  ORPHAN: ${lock}"
+      orphan_count=$((orphan_count + 1))
+    fi
+  done
 done
 if [[ ${orphan_count} -eq 0 ]]; then
   echo "  (none)"
@@ -128,7 +143,8 @@ if [[ ${drift_count} -gt 0 ]]; then
   cat << 'EOF' >&2
 === Drift detected ===
 To update a package:
-  1. Bump version in modules/home/programs/llm/harnesses/pi/default.nix
+  1. Bump version in modules/home/programs/llm/harnesses/shared/pi-packages.nix
+     (pi-acp and pi-gemini-auth live in harnesses/pi/default.nix instead)
   2. Recompute src hash:
      for fetchzip (mkFetchedNpmPackage):
        url='https://registry.npmjs.org/<pkg>/-/<basename>-<ver>.tgz'
@@ -138,7 +154,7 @@ To update a package:
   3. If buildNpmPackage: regenerate lockfile
        tmp=$(mktemp -d); cd "$tmp"; curl -sf "$url" | tar xz --strip-components=1
        npm install --package-lock-only --ignore-scripts
-       cp package-lock.json $REPO/modules/home/programs/llm/harnesses/pi/locks/<pkg>.lock.json
+       cp package-lock.json $REPO/modules/home/programs/llm/harnesses/shared/locks/<pkg>.lock.json
   4. If buildNpmPackage: harvest npmDepsHash
        set npmDepsHash to "sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA="
        nix build .#darwinConfigurations.<host>.system --no-link 2>&1 | grep got:
