@@ -92,6 +92,44 @@ function M.normalize_proc(raw)
   return (raw:gsub("^%.", ""):gsub("%-wrapped$", ""))
 end
 
+-- Processes that hold a pane's pty without doing the work in it. wezterm reports
+-- the pane's own foreground process, and a multiplexer client is that process,
+-- so the shell and the agent running inside are invisible from the pane alone.
+-- Every zmx-backed session read as `zmx` and told you nothing about what it was
+-- running, while every other pane named its real process.
+local passthrough_procs = {
+  zmx = true,
+}
+
+-- Deepest descendant of a passthrough process, by pid order at each level.
+--
+-- Within one wrapper's subtree the highest pid is the newest process, which is
+-- what the pane is showing: `zmx attach` re-execs itself before spawning the
+-- shell, so the chain is zmx -> zmx -> zsh -> whatever the shell started.
+-- The depth cap is a loop guard, not a semantic limit; the real chains are 3
+-- deep and a cycle in this tree would otherwise hang the switcher render.
+local function deepest_proc_name(info, depth)
+  if depth <= 0 or type(info) ~= "table" then
+    return nil
+  end
+  local best_pid, best_child = nil, nil
+  for pid, child in pairs(info.children or {}) do
+    if type(pid) == "number" and (best_pid == nil or pid > best_pid) then
+      best_pid, best_child = pid, child
+    end
+  end
+  if best_child == nil then
+    -- A leaf. `name` is a bare command on macOS, but a login shell arrives as
+    -- `-zsh`, so strip the leading dash the same way normalize_proc does.
+    local name = info.name
+    if type(name) ~= "string" or name == "" then
+      return nil
+    end
+    return M.normalize_proc((name:gsub("^%-", "")))
+  end
+  return deepest_proc_name(best_child, depth - 1)
+end
+
 function M.pane_proc(p, agent)
   local ok, proc_name = pcall(function()
     local proc = p:get_foreground_process_name()
@@ -100,6 +138,17 @@ function M.pane_proc(p, agent)
     end
     return nil
   end)
+  if ok and proc_name and proc_name ~= "" and passthrough_procs[proc_name] then
+    -- Only descend for a wrapper. For every other pane wezterm already reports
+    -- the right process, and walking the tree there would replace a correct
+    -- answer with the newest background child.
+    local ok_info, inner = pcall(function()
+      return deepest_proc_name(p:get_foreground_process_info(), 8)
+    end)
+    if ok_info and inner and inner ~= "" and not passthrough_procs[inner] then
+      return inner
+    end
+  end
   if ok and proc_name and proc_name ~= "" then
     return proc_name
   end
