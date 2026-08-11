@@ -1,5 +1,4 @@
 <div align="center">
-  <img src="assets/logo.svg" alt="specutil mascot" width="96"/>
   <h1>specutil</h1>
   <p>Bridge your local spec workflow to the rest of your stack.</p>
 </div>

@@ -12,11 +12,15 @@ import (
 	"github.com/roshbhatia/specutil/internal/cli"
 )
 
-func examplesDir() string {
+// fixture resolves a repository under testdata/. The trees are real change
+// artifacts rather than generated ones, so a parser regression shows up as a
+// diff a reader can follow instead of as a mismatch against a builder.
+func fixture(name string) string {
 	_, file, _, _ := runtime.Caller(0)
-	root := filepath.Join(filepath.Dir(file), "..", "..")
-	return filepath.Join(root, "examples", "getting-started")
+	return filepath.Join(filepath.Dir(file), "testdata", name)
 }
+
+func examplesDir() string { return fixture("getting-started") }
 
 func run(args ...string) (stdout, stderr string, err error) {
 	var outBuf, errBuf bytes.Buffer
@@ -144,9 +148,7 @@ func TestLockSetGet(t *testing.T) {
 }
 
 func TestRenderBMAD(t *testing.T) {
-	_, file, _, _ := runtime.Caller(0)
-	root := filepath.Join(filepath.Dir(file), "..", "..")
-	dir := filepath.Join(root, "examples", "bmad-project")
+	dir := fixture("bmad-project")
 
 	out, _, err := run("-C", dir, "--from", "bmad", "render", "--as", "rfc", "--change", "story-1.1")
 	if err != nil {
@@ -158,9 +160,7 @@ func TestRenderBMAD(t *testing.T) {
 }
 
 func TestRenderPlanMd(t *testing.T) {
-	_, file, _, _ := runtime.Caller(0)
-	root := filepath.Join(filepath.Dir(file), "..", "..")
-	dir := filepath.Join(root, "examples", "plan-md")
+	dir := fixture("plan-md")
 
 	// Use -C to set the repo root so the plan provider auto-discovers plan.md.
 	out, _, err := run("-C", dir, "--from", "plan", "render", "--as", "rfc")
