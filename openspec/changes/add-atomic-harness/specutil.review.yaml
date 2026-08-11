@@ -1,0 +1,61 @@
+version: 1
+change: add-atomic-harness
+decision: approved
+note: owner approved in session 2026-08-10; critics not run at owner request
+change_hash: ad9aff3c10ed9c2e
+base_commit: 031d420e033ee3f342584ebda494431b48847e4e
+items:
+    0d272bf28f2ae825:
+        hash: 0b928ed4d715aa6c
+        text: 'Adversarial review (`adversarial-review` skill): critics attempt to break the extraction against the proposal `Behavior` criteria; revise until the loop reaches a terminal state (see the skill for the scaled round cap)'
+    3e7051e9a2b40b85:
+        hash: 2e2239206658a2b0
+        text: Build the configuration for each of `aarch64-darwin`, `x86_64-linux`, and `aarch64-linux`, and check that `atomic` appears in the rendered profile
+    5c200355e0a5146f:
+        hash: feed9967afeb6277
+        text: 'Adversarial review (`adversarial-review` skill): critics attempt to break the package phase against the proposal `Behavior` criteria; revise until the loop reaches a terminal state'
+    8b66eab94ffd1618:
+        hash: ad8948dcc15644d3
+        text: 'Build both configurations, run the headless neovim check that `get_by_name("atomic")` returns a table, then inject two defects that MUST each fail the darwin build: `pi-web-access` returned to atomic''s package list, and a display-override key set to `grep`'
+    51aa79cdaadd9e2e:
+        hash: 87bc5815d900f531
+        text: Write `overlays/atomic-coding-agent.nix` following `overlays/pi-coding-agent.nix`, installing `bin/atomic` and throwing on an unsupported system, then register it in `overlays/default.nix`
+    218d5435e2aed78b:
+        hash: c2b6c3e16d37037b
+        text: 'Adversarial review (`adversarial-review` skill): critics attempt to break the module and editor phase against the proposal `Behavior` criteria; revise until the loop reaches a terminal state'
+    498f11eb1ff15d50:
+        hash: d91aaea5eaa28b85
+        text: Build the darwin configuration on the pre-change revision and on this one, then compare the rendered `.pi/agent/settings.json` byte for byte; the refactor is correct only if the two are identical
+    519e8c4e5f92d668:
+        hash: 1d2950df5795d22a
+        text: Check that atomic's permission gate is live by running one command the destructive allowlist denies, and confirming atomic refuses it rather than running it
+    30554cb98b72b65e:
+        hash: e6102ea23741685b
+        text: 'Apply: `git push`, then `nh darwin switch` from the `sysinit.laurel` checkout, gated on `nix flake check` and `nh darwin build` exiting 0'
+    365811ab7a6847a8:
+        hash: 836b55023b722055
+        text: Write `harnesses/atomic/` reading the shared package set, carrying an exclusion set with a reason per entry for `pi-subagents`, `pi-web-access`, and `pi-ask-user`, its own `contextHookOrder`, a `pi-tool-display` config keyed on `search`, and `ATOMIC_SKIP_VERSION_CHECK`; add the two assertions that an excluded name cannot reach the rendered list and that no display-override key names a tool outside atomic's core set
+    990779815c087ea1:
+        hash: 8d9c542aea88f21e
+        text: Read the `pablopunk/pi.nvim` source to confirm the binary is parameterised by `cmd` on every path it spawns, then write `harness/adapters/atomic.lua` driving `atomic --mode rpc --no-session` and add `atomic` to the `ORDER` list
+    abfab62894d04741:
+        hash: 83f9df4bcc8368be
+        text: Add four `atomic-coding-agent` entries to `nvfetcher.toml`, one per platform asset, following the four `pi-coding-agent` entries; run `nvfetcher`, then read the resolved version in `_sources/generated.nix` and settle whether it tracks releases or prerelease tags
+    b3d825eb212d9515:
+        hash: b6308cffa1a23f9d
+        text: Move `nvimPi` into `harnesses/shared/nvim-markdown-editor.nix` and repoint pi's `externalEditor` at it, so one derivation owns `bin/nvim-pi`
+    c4b061e37bdcc896:
+        hash: 08ec23389a4b47d1
+        text: Move pi's npm package attribute set and its `fetchNpmPkg`, `buildNpmPkg`, `mkFetchedNpmPackage`, and `mkBuiltNpmPackage` helpers into `harnesses/shared/pi-packages.nix`, keeping every pinned version and hash byte-identical
+    ca0ce92693d3030d:
+        hash: d1700101f429e8b8
+        text: 'Run the post-switch checks that no build can decide: `atomic -p ''reply with ok''` exits 0 with no `conflicts with` on stderr, the tool list names `subagent` and `web_fetch` exactly once each, `pi -p ''reply with ok''` still exits 0, and `find ~/.pi -newermt ''-5 minutes''` returns nothing after the atomic run'
+    da4d0a625ba0c8a8:
+        hash: 70451230a5c5446b
+        text: 'Confirm: the owner decides whether running two pi-lineage harnesses side by side is worth the shared `PI_*` environment surface, and whether the exclusion set is the set they want'
+    db23570254fe65f7:
+        hash: 9cfe605e54cda0b9
+        text: Add the `atomic` entry to `harnesses/registry.nix` with `context = "~/.atomic/agent/AGENTS.md"`, `notify`, `bridge`, `package`, and `neovimAdapter` filled in per the proposal
+    f5c624177f0ef43a:
+        hash: d2d4a6b9e23237a2
+        text: 'Confirm: the owner accepts that pi''s rendered settings are unchanged and that the shared files sit where they want them'

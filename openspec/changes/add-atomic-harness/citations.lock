@@ -1,0 +1,76 @@
+{
+  "records": [
+    {
+      "id": "atomic-local-path-tool-conflict",
+      "source": "https://raw.githubusercontent.com/bastani-inc/atomic/5abb744a749bea9d7d154fbd28523f54469aac79/packages/workflows/src/extension/companions.ts",
+      "accessed": "2026-08-10",
+      "claim_class": "api",
+      "quote": " *   via `bundledDependencies` produced a parallel \"local-path\" identity",
+      "snapshot": "citations/atomic-local-path-tool-conflict.snapshot",
+      "sha256": "f8e149241f972d27b11c2435b287080dedb560f5f4a43f0b73f0538a55c97d1c"
+    },
+    {
+      "id": "atomic-bundled-builtin-packages",
+      "source": "https://raw.githubusercontent.com/bastani-inc/atomic/5abb744a749bea9d7d154fbd28523f54469aac79/packages/coding-agent/scripts/copy-builtin-packages.ts",
+      "accessed": "2026-08-10",
+      "claim_class": "api",
+      "quote": "\t{ packageName: \"@bastani/subagents\", workspaceDirName: \"subagents\" },",
+      "snapshot": "citations/atomic-bundled-builtin-packages.snapshot",
+      "sha256": "4fc98e115b7bc02db312359e3634850a4241788a519b6ec1e330b561b6b46a37"
+    },
+    {
+      "id": "atomic-core-tool-names",
+      "source": "https://raw.githubusercontent.com/bastani-inc/atomic/5abb744a749bea9d7d154fbd28523f54469aac79/packages/coding-agent/src/core/tools/index.ts",
+      "accessed": "2026-08-10",
+      "claim_class": "api",
+      "quote": "export type ToolName = \"read\" | \"bash\" | \"edit\" | \"write\" | \"find\" | \"search\" | \"ls\" | \"ask_user_question\" | \"todo\";",
+      "snapshot": "citations/atomic-core-tool-names.snapshot",
+      "sha256": "f9994f90c6d00c7e7872f0153bb3eb37b1c0f9a6501975b6bd2bc430b6368855"
+    },
+    {
+      "id": "atomic-reads-pi-manifest-key",
+      "source": "https://raw.githubusercontent.com/bastani-inc/atomic/5abb744a749bea9d7d154fbd28523f54469aac79/packages/coding-agent/package.json",
+      "accessed": "2026-08-10",
+      "claim_class": "api",
+      "quote": "  \"piConfig\": {\n    \"name\": \"atomic\",\n    \"configDir\": \".atomic\",",
+      "snapshot": "citations/atomic-reads-pi-manifest-key.snapshot",
+      "sha256": "b94328cad5a252979081656d1be15bb3899a800fb912ca8996e401ab6f87f61f"
+    },
+    {
+      "id": "atomic-rpc-mode-flag",
+      "source": "https://raw.githubusercontent.com/bastani-inc/atomic/5abb744a749bea9d7d154fbd28523f54469aac79/packages/coding-agent/src/rpc-entry.ts",
+      "accessed": "2026-08-10",
+      "claim_class": "api",
+      "quote": "insertForcedOptionsBeforeTerminator(process.argv.slice(2), [\"--mode\", \"rpc\"])",
+      "snapshot": "citations/atomic-rpc-mode-flag.snapshot",
+      "sha256": "a23dec810e43b888bc4a0843eaa8df6e0568cf41a9522cfa7a7ffbc67ea57f64"
+    },
+    {
+      "id": "atomic-honors-pi-env-aliases",
+      "source": "https://raw.githubusercontent.com/bastani-inc/atomic/5abb744a749bea9d7d154fbd28523f54469aac79/packages/intercom/broker/paths.ts",
+      "accessed": "2026-08-10",
+      "claim_class": "api",
+      "quote": "const piAgentDir = process.env.PI_CODING_AGENT_DIR;",
+      "snapshot": "citations/atomic-honors-pi-env-aliases.snapshot",
+      "sha256": "ac031f721d8c88f5a113382c2bcd14f8fc020a152b163c92fd6b18955e04f7eb"
+    },
+    {
+      "id": "pi-core-tool-names",
+      "source": "https://raw.githubusercontent.com/earendil-works/pi/dea1b248f6e9ab5536ed46420b1755f4db4d4813/packages/coding-agent/src/core/tools/index.ts",
+      "accessed": "2026-08-10",
+      "claim_class": "api",
+      "quote": "export type ToolName = \"read\" | \"bash\" | \"edit\" | \"write\" | \"grep\" | \"find\" | \"ls\";",
+      "snapshot": "citations/pi-core-tool-names.snapshot",
+      "sha256": "afeb406e0f5edde143aaac51b9c928cb497bfb8216c04ac9242bfd0f9241ffe1"
+    },
+    {
+      "id": "atomic-platform-release-tarballs",
+      "source": "https://api.github.com/repos/bastani-inc/atomic/releases/tags/0.9.12",
+      "accessed": "2026-08-10",
+      "claim_class": "availability",
+      "quote": "\"name\": \"atomic-darwin-arm64.tar.gz\"",
+      "snapshot": "citations/atomic-platform-release-tarballs.snapshot",
+      "sha256": "4af56d5de3b255f778dab1faab845a7a6baca001ca442a14797f86b945104d1b"
+    }
+  ]
+}
