@@ -1,12 +1,22 @@
 /** Bridges OpenCode events onto the shared agent notifier. */
 
-const HOME = process.env.HOME ?? "";
-const BIN = `${HOME}/.nix-profile/bin`;
+// Resolve a command the way a shell would, rather than naming a directory.
+// `~/.nix-profile/bin` was hardcoded here and holds none of these commands on a
+// nix-darwin machine, where they land in `/etc/profiles/per-user/$USER/bin`. Every
+// spawn failed with ENOENT into `spawnQuiet`'s empty catch, so the bridge looked
+// installed and did nothing.
+function resolve(exe: string): string {
+	const { existsSync } = require("node:fs");
+	for (const dir of (process.env.PATH ?? "").split(":")) {
+		if (dir && existsSync(`${dir}/${exe}`)) return `${dir}/${exe}`;
+	}
+	return exe;
+}
 
 function spawnQuiet(exe: string, args: string[], input?: string): void {
 	try {
 		const { spawn } = require("node:child_process");
-		const child = spawn(`${BIN}/${exe}`, args, {
+		const child = spawn(resolve(exe), args, {
 			stdio: input === undefined ? "ignore" : ["pipe", "ignore", "ignore"],
 		});
 		child.on("error", () => {});
@@ -61,12 +71,12 @@ export const SysinitNotify = () => ({
 			switch (event?.properties?.status?.type) {
 				case "idle":
 					spawnQuiet("agent-state", ["opencode", "done", "your move"]);
-					spawnQuiet("agent-notify", ["opencode", "done", `${BIN}/agent-focus`], "{}");
+					spawnQuiet("agent-notify", ["opencode", "done", resolve("agent-focus")], "{}");
 					break;
 
 				case "error":
 					spawnQuiet("agent-state", ["opencode", "waiting", "session error"]);
-					spawnQuiet("agent-notify", ["opencode", "approval", `${BIN}/agent-focus`], "{}");
+					spawnQuiet("agent-notify", ["opencode", "approval", resolve("agent-focus")], "{}");
 					break;
 
 				default:

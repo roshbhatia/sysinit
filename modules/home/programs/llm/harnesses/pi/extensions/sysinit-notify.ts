@@ -2,13 +2,23 @@
 
 import type { ExtensionAPI } from "@earendil-works/pi-coding-agent";
 
-const HOME = process.env.HOME ?? "";
-const BIN = `${HOME}/.nix-profile/bin`;
+// Resolve a command the way a shell would, rather than naming a directory.
+// `~/.nix-profile/bin` was hardcoded here and holds none of these commands on a
+// nix-darwin machine, where they land in `/etc/profiles/per-user/$USER/bin`. Every
+// spawn failed with ENOENT into `spawnQuiet`'s empty catch, so the bridge looked
+// installed and did nothing.
+function resolve(exe: string): string {
+	const { existsSync } = require("node:fs");
+	for (const dir of (process.env.PATH ?? "").split(":")) {
+		if (dir && existsSync(`${dir}/${exe}`)) return `${dir}/${exe}`;
+	}
+	return exe;
+}
 
 function spawnQuiet(exe: string, args: string[], input?: string): void {
 	try {
 		const { spawn } = require("node:child_process");
-		const child = spawn(`${BIN}/${exe}`, args, {
+		const child = spawn(resolve(exe), args, {
 			stdio: input === undefined ? "ignore" : ["pipe", "ignore", "ignore"],
 		});
 		child.on("error", () => {});
@@ -63,7 +73,7 @@ export default function (pi: ExtensionAPI) {
 
 	pi.on("agent_settled", () => {
 		state("done", "your move");
-		spawnQuiet("agent-notify", ["pi", "done", `${BIN}/agent-focus`], "{}");
+		spawnQuiet("agent-notify", ["pi", "done", resolve("agent-focus")], "{}");
 	});
 
 	pi.on("session_shutdown", () => {
