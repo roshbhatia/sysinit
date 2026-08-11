@@ -251,6 +251,34 @@ Notes that the table cannot hold:
   for that state; wiring it on the pi shape would be the approximation this change
   rejects.
 
+Applying the wiring found a defect that review had not, and that predates this
+change. All four notify bridges spawned `~/.nix-profile/bin/agent-state` and
+friends. That directory holds one binary on this machine, `specutil`; the commands
+live in `/etc/profiles/per-user/roshan/bin`. Every spawn failed with ENOENT into
+`spawnQuiet`'s empty catch, so the opencode, atomic, pi, and prime-agent notify
+bridges have been installed and silently doing nothing. `881d2e6d0` replaces the
+hardcoded directory with a PATH lookup, and 4.8 was applied again over that fix.
+
+Live evidence, one file per harness, in its own scratch git repository, read back
+from the log the writer names for that workspace:
+
+| harness | tool it chose | event line written |
+| --- | --- | --- |
+| opencode | patch | `kind":"edit"`, absolute `target.txt`, correct `cwd` |
+| pi | edit | `kind":"edit"`, absolute `target.txt`, correct `cwd` |
+| atomic | edit | `kind":"edit"`, absolute `target.txt`, correct `cwd` |
+
+opencode reached the file through its patch tool rather than an edit tool, and
+`file.edited` still fired. That is the tool-agnostic claim above, confirmed rather
+than asserted.
+
+One caveat the probe surfaced and the bus does not own: atomic exits 1 when
+`ATOMIC_CODING_AGENT_DIR` is unset, because it then loads pi's extension
+directory. The variable is a `home.sessionVariables` entry, and
+`hm-session-vars.sh` returns early when `__HM_SESS_VARS_SOURCED` is already set,
+so a shell that predates the switch never sees it. A shell started afterwards
+does. Nothing to fix here; the probe had to pin the variable explicitly.
+
 4.7 is NOT-RUN, per the decision in `review.md`. 4.9 is the owner's.
 
 ## 5. Reviews scoped to the turn
