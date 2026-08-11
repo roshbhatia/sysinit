@@ -151,6 +151,18 @@
     neovimAdapter = "opencode";
   };
 
+  prime-agent = {
+    label = "Prime Agent";
+    module = ./prime-agent;
+    context = "~/.prime/agent/AGENTS.md";
+    skillLoader = true;
+    ownIcon = false;
+    notify = "hook";
+    bridge = ./prime-agent/extensions/sysinit-notify.ts;
+    package = "prime-agent";
+    neovimAdapter = "primeagent";
+  };
+
   pi = {
     label = "Pi";
     module = ./pi;

@@ -6,6 +6,7 @@ local ORDER = {
   "amp",
   "pi",
   "atomic",
+  "primeagent",
   "codex",
   "copilot",
   "crush",
