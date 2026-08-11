@@ -43,13 +43,21 @@ in
         "telemetry"
         "shared_metrics"
       ]
+      # The catalog owns the whole map, not just the names this host suppresses.
+      #
+      # `hermes mcp add` and `hermes config set` rewrite config.yaml, so a server
+      # dropped from the catalog is absent from the recorded base and the merge
+      # keeps the on-disk entry. `retire` covered `suppressedServers` only, which
+      # left every other undeclared name in place: this file carried `cocoindex`
+      # and `incident-io` for the 41 days after 2026-07-01, when the host stopped
+      # declaring them.
+      #
+      # Enforcing the map means a server added by `hermes mcp add` is dropped on
+      # the next switch. That is the intended trade rather than a cost: a server
+      # added by hand is hand-managed configuration where a Nix equivalent
+      # exists, and `sysinit.llm.mcp.additionalServers` is where it belongs. The
+      # alternative leaves silent drift that nothing reports.
+      [ "mcp_servers" ]
     ];
-    # `hermes mcp add` and `hermes config set` rewrite config.yaml, so a server
-    # dropped from the catalog is absent from the recorded base and the merge
-    # keeps the on-disk entry. Delete what this host suppresses.
-    retire = map (name: [
-      "mcp_servers"
-      name
-    ]) config.sysinit.llm.mcp.suppressedServers;
   };
 }
