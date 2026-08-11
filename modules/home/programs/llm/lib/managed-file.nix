@@ -25,6 +25,16 @@ let
                 else error("conflict at ." + ($q | join(".")) + ": the live file deleted this key and the Nix content changed it.\n  base: " + show($b[$k]) + "\n  live: (absent)\n  nix:  " + show($n[$k])) end
               elif ($hb | not) and $hd and $hn then
                 if $d[$k] == $n[$k] then .[$k] = $n[$k]
+                # Two independent additions of an object are not a conflict: they
+                # merge key by key, and a genuine disagreement still errors at
+                # its own deeper path. Recursing with an empty base is what makes
+                # `enforce` work on a nested key. Extracting the enforced path
+                # leaves the Nix side of its parent as `{}`, so `security` in
+                # hermes' config.yaml arrived here as live-has-eight-keys against
+                # nix-has-none and aborted the whole file, which is how
+                # `tirith_enabled` survived a switch that declared it false.
+                elif (($d[$k] | type) == "object") and (($n[$k] | type) == "object") then
+                  .[$k] = m3($q; {}; $d[$k]; $n[$k])
                 else error("conflict at ." + ($q | join(".")) + ": the live file and the Nix content each added a different value.\n  base: (absent)\n  live: " + show($d[$k]) + "\n  nix:  " + show($n[$k])) end
               elif ($hb | not) and $hd and ($hn | not) then
                 .[$k] = $d[$k]
