@@ -157,7 +157,11 @@ if [ "$stage" = "review" ] || [ "$stage" = "tasks" ] || [ "$stage" = "all" ]; th
     state=$(sed -n 's/^State:[[:space:]]*//p' "$review" | head -1)
     case "$state" in
       CAPPED | STALLED | CHURNING)
-        if sed -n '/^## Open objections/,$p' "$review" | grep -qE '^- \S'; then
+        # Bounded to the section, not to end of file. `Logged, not fixed` sits
+        # after this heading and holds findings the review deliberately did not
+        # act on, so an unbounded read would count one as an open objection.
+        if awk '/^## Open objections/ { inside = 1; next } /^## / { inside = 0 } inside' "$review" |
+          grep -qE '^- \S'; then
           note "pass open-objections: $state lists them"
         else
           note "FAIL open-objections: $state with none listed is a contradiction"

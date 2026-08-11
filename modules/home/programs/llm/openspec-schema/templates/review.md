@@ -45,11 +45,21 @@ Date: <YYYY-MM-DD>
 
 ### Round <n>
 
-| Critic lens | Finding | Failing scenario | Verdict |
-| --- | --- | --- | --- |
-| <correctness / security / rollout / reuse> | <the objection> | <inputs or state that produce the wrong outcome> | SURVIVED / REFUTED |
+<!-- A surviving finding still needs a disposition. Being real is not the same
+     as being worth fixing here, and treating the two as one is what turns a
+     review into an unbounded backlog.
 
-Revision: <what the author changed, against surviving objections only>
+     FIX means it threatens a proposal `Behavior` criterion or a phase `STOP`
+     condition. Only FIX findings may reopen the loop.
+     LOG means it is real, it does not threaten either, and it is written down
+     and left. A logged finding is a result, not a failure to act.
+     DEFER means it belongs to work outside this change; name where it went. -->
+
+| Critic lens | Finding | Failing scenario | Verdict | Disposition |
+| --- | --- | --- | --- | --- |
+| <correctness / security / rollout / reuse> | <the objection> | <inputs or state that produce the wrong outcome> | SURVIVED / REFUTED | FIX / LOG / DEFER |
+
+Revision: <what the author changed, against FIX findings only>
 Surviving after revision: <n>
 
 ## Terminal state
@@ -73,3 +83,11 @@ Surviving-objection trend: <n, n, n>
      able to say so. -->
 
 - <objection, and what it blocks>
+
+## Logged, not fixed
+
+<!-- Findings dispositioned LOG or DEFER. They are real and they are recorded
+     here so nobody rediscovers them, and this change does not act on them.
+     Leaving this empty when every finding was FIX is correct. -->
+
+- <finding, and why it does not threaten a criterion or a stop condition>

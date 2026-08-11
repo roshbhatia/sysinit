@@ -33,6 +33,21 @@ Must do:
 Must still hold:
 - <invariant>, decided by `<command or observation>`
 
+Runs where it ships:
+<!-- REQUIRED when the change produces something that runs: a binary, a service,
+     a shell hook, an editor plugin. Name the one check that exercises the real
+     artifact in the real environment, and say what synthetic state it avoids.
+
+     A build proves the shape and a scratch environment proves the happy path.
+     Neither can see what the real environment already contains. A harness
+     verified against an empty scratch HOME passed clean and then failed on the
+     machine, because the real home held another tool's config directory that the
+     harness read. That class of defect is only visible where it ships.
+
+     Write "none: nothing here runs" when the change is documentation or pure
+     configuration with no runtime. -->
+- <the check>, run against <the real target>, avoiding <the synthetic state that would hide a defect>
+
 Human-owned decision:
 - <judgment that automation or model critique cannot approve>
 

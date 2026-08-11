@@ -1,3 +1,19 @@
+<!-- A task line states an outcome and its gate. Nothing else.
+     `specutil check` warns over 60 words, about four sentences.
+
+     Evidence, findings, corrections, and dates go in an indented block under
+     the task line, never into it. The two have opposite update rules: the line
+     is the plan and should shrink as work finishes, the block is the record and
+     only grows. Merged, every new fact rewrites a prior conclusion in place, so
+     the line fills with strikethroughs and no reader can tell what is still
+     true. The indented block is also invisible to the review fingerprint, so
+     recording evidence there does not restale an approved decision.
+
+     State the outcome, not the mechanism. A task written before any measurement
+     that names the package, flag, or assertion to use has guessed, and every
+     guess later has to be defended or renegotiated. Name what must be true;
+     let the implementer choose how. -->
+
 ## 1. <!-- Loop-shaped phase: gather, act, verify, repeat to a stop condition.
         Only use `loop` if the same tasks re-run on iteration 2. If every step
         happens once, this is a graph with a dependency chain. -->
