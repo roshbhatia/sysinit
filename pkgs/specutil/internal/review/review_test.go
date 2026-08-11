@@ -232,3 +232,43 @@ func TestMarkdownLeadsWithTheVerdict(t *testing.T) {
 		t.Errorf("the brief must carry the note: %s", out)
 	}
 }
+
+func TestRetiredHashIsGrandfatheredRatherThanStale(t *testing.T) {
+	// A record written by an older build carries a hash computed over different
+	// ground, so comparing it says nothing about whether the artifacts moved.
+	// Reporting stale there demands a re-stamp that carries no judgement.
+	c := change("c", "do the thing")
+	rec := review.Apply(c, &review.Feedback{
+		Schema: review.Schema, Change: "c", Decision: review.DecisionApproved,
+	})
+	rec.Version = 1
+	rec.ChangeHash = "0000000000000000"
+
+	st := review.Build(c, rec)
+	if st.Stale {
+		t.Fatal("a hash from a retired algorithm must not be reported stale")
+	}
+	if !st.HashRetired {
+		t.Fatal("the status must say why staleness could not be computed")
+	}
+	if st.Gated() {
+		t.Fatal("grandfathering exists so the change is not gated on bookkeeping")
+	}
+}
+
+func TestCurrentRecordStillGoesStaleOnAScopeChange(t *testing.T) {
+	// Grandfathering must not swallow a real drift on a current record.
+	c := change("c", "do the thing")
+	rec := review.Apply(c, &review.Feedback{
+		Schema: review.Schema, Change: "c", Decision: review.DecisionApproved,
+	})
+	if rec.Version != review.RecordVersion {
+		t.Fatalf("Apply must stamp the current version, got %d", rec.Version)
+	}
+	c.Tasks.Phases[0].Items = append(c.Tasks.Phases[0].Items,
+		ir.TaskItem{ID: "1.2", Text: "something nobody reviewed"})
+
+	if st := review.Build(c, rec); !st.Stale {
+		t.Fatal("adding a task to a current record must still report stale")
+	}
+}

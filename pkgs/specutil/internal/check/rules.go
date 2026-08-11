@@ -585,11 +585,16 @@ func init() {
 						rec.Decision, strings.Join(accept, ", ")),
 				})
 			}
-			if cur := review.ChangeHash(c); cur != rec.ChangeHash {
+			// Staleness is defined once, in review.Build, so this rule and
+			// `specutil review status` can never disagree about whether a decision
+			// still stands. Build also grandfathers a record written before the
+			// current ChangeHash algorithm, which reports nothing here: that
+			// mismatch is a fact about the tool version, not about the artifacts.
+			if st := review.Build(c, rec); st.Stale {
 				out = append(out, Finding{
 					File: review.RecordFile,
 					Msg: fmt.Sprintf("review decision is stale: the artifacts changed since it was recorded (reviewed %s, now %s)",
-						rec.ChangeHash, cur),
+						st.ReviewHash, st.ChangeHash),
 				})
 			}
 			return out

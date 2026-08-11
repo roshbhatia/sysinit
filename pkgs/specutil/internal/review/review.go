@@ -29,8 +29,22 @@ import (
 // field. Ingest rejects anything else rather than guessing at an unknown shape.
 const Schema = "specutil.review/v1"
 
-// RecordVersion is the on-disk schema version of the review record.
-const RecordVersion = 1
+// RecordVersion is the on-disk schema version of the review record. Bump it
+// whenever ChangeHash changes what it covers, because a stored hash is only
+// meaningful to the algorithm that produced it.
+//
+// 1: ChangeHash folded in the raw bytes of tasks.md.
+// 2: ChangeHash covers the phase structure and task identities instead, so
+//    progress and evidence no longer restale a decision.
+const RecordVersion = 2
+
+// hashComparableFrom is the lowest record version whose stored ChangeHash this
+// build can compare against a freshly computed one. A record below it is
+// grandfathered rather than reported stale: its hash was produced by a retired
+// algorithm, so a mismatch says nothing about whether the artifacts moved.
+// Reporting one anyway would demand a re-stamp that carries no judgement, which
+// is the exact treadmill version 2 exists to end.
+const hashComparableFrom = 2
 
 // RecordFile is the review record's filename inside a change directory.
 const RecordFile = "specutil.review.yaml"
@@ -147,7 +161,9 @@ func LoadRecord(repoRoot, change string) (*Record, error) {
 		return nil, fmt.Errorf("parsing %s: %w", path, err)
 	}
 	if r.Version == 0 {
-		r.Version = RecordVersion
+		// Predates versioning, so it is version 1 rather than the current one.
+		// Defaulting to RecordVersion would claim a retired hash is comparable.
+		r.Version = 1
 	}
 	return &r, nil
 }
@@ -172,7 +188,9 @@ func LoadForChange(c *ir.Change) (*Record, error) {
 		return nil, fmt.Errorf("parsing %s: %w", path, err)
 	}
 	if r.Version == 0 {
-		r.Version = RecordVersion
+		// Predates versioning, so it is version 1 rather than the current one.
+		// Defaulting to RecordVersion would claim a retired hash is comparable.
+		r.Version = 1
 	}
 	return &r, nil
 }
@@ -396,6 +414,11 @@ type Status struct {
 	Decision    Decision     `json:"decision,omitempty"`
 	Note        string       `json:"note,omitempty"`
 	Stale       bool         `json:"stale"`
+	// HashRetired means the record was written by an older build whose ChangeHash
+	// covered different ground, so Stale is reported false because it cannot be
+	// computed rather than because the artifacts held still. The next real
+	// decision rewrites the record at the current version and clears this.
+	HashRetired bool         `json:"hashRetired,omitempty"`
 	ChangeHash  string       `json:"changeHash"`
 	ReviewHash  string       `json:"reviewHash,omitempty"`
 	BaseCommit  string       `json:"baseCommit,omitempty"`
@@ -425,7 +448,8 @@ func Build(c *ir.Change, rec *Record) *Status {
 		st.Note = rec.Note
 		st.ReviewHash = rec.ChangeHash
 		st.BaseCommit = rec.BaseCommit
-		st.Stale = rec.ChangeHash != st.ChangeHash
+		st.HashRetired = rec.Version < hashComparableFrom
+		st.Stale = !st.HashRetired && rec.ChangeHash != st.ChangeHash
 		st.Annotations = rec.Annotations
 	}
 
