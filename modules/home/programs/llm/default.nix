@@ -264,6 +264,7 @@ in
       notify.agentRefine
       notify.specPreflight
       notify.stateScript
+      notify.editEventScript
       notify.promptScript
       notify.focusScript
       notify.loopGate

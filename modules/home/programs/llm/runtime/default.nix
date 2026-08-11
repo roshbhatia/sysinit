@@ -127,6 +127,20 @@ let
     '';
   };
 
+  # Named for what it records rather than for the harness, because the harness
+  # name is an argument and every hook-capable harness calls the same command.
+  editEventScript = pkgs.writeShellApplication {
+    name = "agent-edit-event";
+    runtimeInputs = [
+      pkgs.git
+      pkgs.sysinit-agent
+    ];
+    bashOptions = [ ];
+    text = ''
+      exec sysinit-agent edit-event "$@"
+    '';
+  };
+
   promptScript = pkgs.writeShellApplication {
     name = "agent-prompt";
     runtimeInputs = [
@@ -255,6 +269,7 @@ in
     icons
     script
     stateScript
+    editEventScript
     promptScript
     focusScript
     loopGate
@@ -268,6 +283,7 @@ in
 
   exe = lib.getExe script;
   stateExe = lib.getExe stateScript;
+  editEventExe = lib.getExe editEventScript;
   promptExe = lib.getExe promptScript;
   focusExe = lib.getExe focusScript;
   reviewExe = lib.getExe reviewScript;

@@ -66,9 +66,47 @@ func ExportFile(root string) string {
 }
 
 func noteBase(root string) string {
+	return keyed(paths.AgentDiffNotes(), root)
+}
+
+// EditLogFile returns the edit-event log path for root.
+func EditLogFile(root string) string {
+	return keyed(paths.AgentEdits(), root) + ".jsonl"
+}
+
+// keyed names a per-directory state file under dir. The basename is for a human
+// reading `ls`; the digest is what makes it unique, because two checkouts of one
+// repository share a basename.
+func keyed(dir, root string) string {
 	sum := sha256.Sum256([]byte(root))
 	digest := hex.EncodeToString(sum[:])[:16]
-	return fmt.Sprintf("%s/%s-%s", paths.AgentDiffNotes(), filepath.Base(root), digest)
+	return fmt.Sprintf("%s/%s-%s", dir, filepath.Base(root), digest)
+}
+
+// Workspace resolves dir to the directory a state file should be keyed on. It
+// applies the same rule `agentstate.identify` applies, in the same order: a
+// seshy session directory wins over the git top level, because one session can
+// hold several repositories and the editor is opened on the session.
+//
+// Unlike `identify` it runs no `git status`, since a hook on the edit path
+// should not pay for a working-tree scan it does not read.
+func Workspace(dir string) string {
+	if dir == "" {
+		if here, err := os.Getwd(); err == nil {
+			dir = here
+		}
+	}
+	dir = strings.TrimRight(dir, "/")
+
+	seshyRoot := paths.SeshySessions()
+	if rest := strings.TrimPrefix(dir, seshyRoot+"/"); rest != dir {
+		return filepath.Join(seshyRoot, strings.SplitN(rest, "/", 2)[0])
+	}
+
+	if root, err := RootAt(dir); err == nil {
+		return root
+	}
+	return dir
 }
 
 // normalizeAbsolute resolves "." and ".." lexically, without touching the disk.

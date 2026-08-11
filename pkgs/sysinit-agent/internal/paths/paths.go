@@ -14,6 +14,7 @@ const (
 	AgentsKey           = "agents"
 	AgentPanesKey       = "agentPanes"
 	AgentDiffNotesKey   = "agentDiffNotes"
+	AgentEditsKey       = "agentEdits"
 	AgentWtrunKey       = "agentWtrun"
 	AgentTranscriptsKey = "agentTranscripts"
 	SeshySessionsKey    = "seshySessions"
@@ -92,6 +93,14 @@ func AgentDiffNotes() string {
 		return value
 	}
 	return filepath.Join(fallbackStateHome(), "agents", "diff-notes")
+}
+
+// AgentEdits is the directory holding one edit-event log per workspace.
+func AgentEdits() string {
+	if value, ok := Get(AgentEditsKey); ok {
+		return value
+	}
+	return filepath.Join(fallbackStateHome(), "agents", "edits")
 }
 
 // AgentWtrun is the directory wtrun writes its per-session logs under.
