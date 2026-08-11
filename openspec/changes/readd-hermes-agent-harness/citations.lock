@@ -1,0 +1,139 @@
+{
+  "records": [
+    {
+      "id": "hermes-all-excludes-voice",
+      "source": "https://raw.githubusercontent.com/NousResearch/hermes-agent/ee4bb75b532e932a1055d9a710802a7435163b6a/pyproject.toml",
+      "accessed": "2026-08-10",
+      "claim_class": "api",
+      "quote": "matrix, slack, honcho, voice (faster-whisper),",
+      "snapshot": "citations/hermes-all-excludes-voice.snapshot",
+      "sha256": "6dc46abf1af6577fe8ac5ed9b49bdb1739e9b89f73d3bbeeaa3a94d3a84722a2"
+    },
+    {
+      "id": "hermes-default-is-full-with-voice",
+      "source": "https://raw.githubusercontent.com/NousResearch/hermes-agent/ee4bb75b532e932a1055d9a710802a7435163b6a/nix/packages.nix",
+      "accessed": "2026-08-10",
+      "claim_class": "api",
+      "quote": "          \"vercel\"\n          \"voice\"",
+      "snapshot": "citations/hermes-default-is-full-with-voice.snapshot",
+      "sha256": "9a81ce99d58b164e7a1bc8d67ae0d03ac6cd5c1e90b5543669b30ad47c89bef0"
+    },
+    {
+      "id": "hermes-voice-extra-is-wheel-only",
+      "source": "https://raw.githubusercontent.com/NousResearch/hermes-agent/ee4bb75b532e932a1055d9a710802a7435163b6a/pyproject.toml",
+      "accessed": "2026-08-10",
+      "claim_class": "api",
+      "quote": "  # Local STT pulls in wheel-only transitive deps (ctranslate2, onnxruntime).",
+      "snapshot": "citations/hermes-voice-extra-is-wheel-only.snapshot",
+      "sha256": "6dc46abf1af6577fe8ac5ed9b49bdb1739e9b89f73d3bbeeaa3a94d3a84722a2"
+    },
+    {
+      "id": "hermes-minimal-package-output",
+      "source": "https://raw.githubusercontent.com/NousResearch/hermes-agent/ee4bb75b532e932a1055d9a710802a7435163b6a/nix/packages.nix",
+      "accessed": "2026-08-10",
+      "claim_class": "api",
+      "quote": "        inherit minimal;",
+      "snapshot": "citations/hermes-minimal-package-output.snapshot",
+      "sha256": "9a81ce99d58b164e7a1bc8d67ae0d03ac6cd5c1e90b5543669b30ad47c89bef0"
+    },
+    {
+      "id": "hermes-all-extra-membership",
+      "source": "https://raw.githubusercontent.com/NousResearch/hermes-agent/ee4bb75b532e932a1055d9a710802a7435163b6a/pyproject.toml",
+      "accessed": "2026-08-10",
+      "claim_class": "api",
+      "quote": "  \"hermes-agent[acp]\",\n  \"hermes-agent[google]\",",
+      "snapshot": "citations/hermes-all-extra-membership.snapshot",
+      "sha256": "6dc46abf1af6577fe8ac5ed9b49bdb1739e9b89f73d3bbeeaa3a94d3a84722a2"
+    },
+    {
+      "id": "hermes-acp-entrypoint",
+      "source": "https://raw.githubusercontent.com/NousResearch/hermes-agent/ee4bb75b532e932a1055d9a710802a7435163b6a/pyproject.toml",
+      "accessed": "2026-08-10",
+      "claim_class": "api",
+      "quote": "hermes-acp = \"acp_adapter.entry:main\"",
+      "snapshot": "citations/hermes-acp-entrypoint.snapshot",
+      "sha256": "6dc46abf1af6577fe8ac5ed9b49bdb1739e9b89f73d3bbeeaa3a94d3a84722a2"
+    },
+    {
+      "id": "hermes-overlay-is-alias",
+      "source": "https://raw.githubusercontent.com/NousResearch/hermes-agent/ee4bb75b532e932a1055d9a710802a7435163b6a/nix/overlays.nix",
+      "accessed": "2026-08-10",
+      "claim_class": "api",
+      "quote": "# re-instantiation against the consumer's nixpkgs.  This guarantees",
+      "snapshot": "citations/hermes-overlay-is-alias.snapshot",
+      "sha256": "c9f2781dd2ea4d82cee1865c3966df7f7815a9de11245ece68cb7825060dd80a"
+    },
+    {
+      "id": "hermes-cachix-cache-name",
+      "source": "https://raw.githubusercontent.com/NousResearch/hermes-agent/ee4bb75b532e932a1055d9a710802a7435163b6a/.github/actions/nix-setup/action.yml",
+      "accessed": "2026-08-10",
+      "claim_class": "availability",
+      "quote": "        name: hermes-agent",
+      "snapshot": "citations/hermes-cachix-cache-name.snapshot",
+      "sha256": "1ba3eae5965aaff8433ae2a3b657f711479d9a9ca53d8c71ce373a8dfc3b26f7"
+    },
+    {
+      "id": "hermes-supported-systems",
+      "source": "https://raw.githubusercontent.com/NousResearch/hermes-agent/ee4bb75b532e932a1055d9a710802a7435163b6a/flake.nix",
+      "accessed": "2026-08-10",
+      "claim_class": "api",
+      "quote": "        \"x86_64-linux\"\n        \"aarch64-linux\"\n        \"aarch64-darwin\"",
+      "snapshot": "citations/hermes-supported-systems.snapshot",
+      "sha256": "3f647cb1203955bebe4e07a093ba9d5f22c1d02a07309e3a99b36410c7c314ff"
+    },
+    {
+      "id": "hermes-cachix-public-key",
+      "source": "https://hermes-agent.cachix.org/api/v1/cache/hermes-agent",
+      "accessed": "2026-08-10",
+      "claim_class": "availability",
+      "quote": "\"publicSigningKeys\":[\"hermes-agent.cachix.org-1:jN3pjR50Mxi4SESKC/FIMNM6/LCosvPk2VUwzVvebzU=\"]",
+      "snapshot": "citations/hermes-cachix-public-key.snapshot",
+      "sha256": "8cbaf69e739054c566c75abd99e86ecbba18c70716f6f684b813eb98510a1d82"
+    },
+    {
+      "id": "hermes-nix-path-best-effort",
+      "source": "https://raw.githubusercontent.com/NousResearch/hermes-agent/ee4bb75b532e932a1055d9a710802a7435163b6a/website/docs/getting-started/platform-support.md",
+      "accessed": "2026-08-10",
+      "claim_class": "api",
+      "quote": "Breaks often due to node.js packaging woes.",
+      "snapshot": "citations/hermes-nix-path-best-effort.snapshot",
+      "sha256": "250c36a664d84170cf9240486b920208ef2e7fba1392c445d265b20d01bdf1e1"
+    },
+    {
+      "id": "hermes-skills-external-dirs",
+      "source": "https://raw.githubusercontent.com/NousResearch/hermes-agent/ee4bb75b532e932a1055d9a710802a7435163b6a/agent/skill_utils.py",
+      "accessed": "2026-08-10",
+      "claim_class": "api",
+      "quote": "Read ``skills.external_dirs`` from config.yaml and return validated paths.",
+      "snapshot": "citations/hermes-skills-external-dirs.snapshot",
+      "sha256": "0e3066a3609695ef020fb0a74ad7b22f6a4df5e035032845a859082d40f68e6d"
+    },
+    {
+      "id": "hermes-soul-is-global-context",
+      "source": "https://raw.githubusercontent.com/NousResearch/hermes-agent/ee4bb75b532e932a1055d9a710802a7435163b6a/agent/prompt_builder.py",
+      "accessed": "2026-08-10",
+      "claim_class": "api",
+      "quote": "SOUL.md from HERMES_HOME is independent and always included when present.",
+      "snapshot": "citations/hermes-soul-is-global-context.snapshot",
+      "sha256": "8fead57581d1a95d2afc56a2bcb73123eeab223e210a9bf53898fb3be867db23"
+    },
+    {
+      "id": "hermes-skill-dir-holds-skill-md",
+      "source": "https://raw.githubusercontent.com/NousResearch/hermes-agent/ee4bb75b532e932a1055d9a710802a7435163b6a/agent/skill_utils.py",
+      "accessed": "2026-08-10",
+      "claim_class": "api",
+      "quote": "progressive-disclosure support areas when they sit directly inside a skill\n    directory containing ``SKILL.md``.",
+      "snapshot": "citations/hermes-skill-dir-holds-skill-md.snapshot",
+      "sha256": "0e3066a3609695ef020fb0a74ad7b22f6a4df5e035032845a859082d40f68e6d"
+    },
+    {
+      "id": "hermes-platforms-field-optional",
+      "source": "https://raw.githubusercontent.com/NousResearch/hermes-agent/ee4bb75b532e932a1055d9a710802a7435163b6a/agent/skill_utils.py",
+      "accessed": "2026-08-10",
+      "claim_class": "api",
+      "quote": "If the field is absent or empty the skill is compatible with **all**",
+      "snapshot": "citations/hermes-platforms-field-optional.snapshot",
+      "sha256": "0e3066a3609695ef020fb0a74ad7b22f6a4df5e035032845a859082d40f68e6d"
+    }
+  ]
+}
