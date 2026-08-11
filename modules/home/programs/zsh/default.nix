@@ -18,6 +18,7 @@ let
   corePath = shellUtils.stripHeaders ./core/path.zsh;
   coreCompinit = shellUtils.stripHeaders ./core/compinit.zsh;
   coreZshenv = shellUtils.stripHeaders ./core/zshenv.zsh;
+  coreAgentGlob = shellUtils.stripHeaders ./core/agent-glob.zsh;
   corePathApply = shellUtils.stripHeaders ./core/path-apply.zsh;
   env = shellUtils.stripHeaders ./system/env.zsh;
   integrationsCompletions = shellUtils.stripHeaders ./integrations/completions.zsh;
@@ -31,6 +32,11 @@ in
     enable = true;
 
     dotDir = "${config.xdg.configHome}/zsh";
+
+    # .zshenv, not initContent. An agent's shell is `zsh -c`, which reads this
+    # file and never reads .zshrc, so a glob rule set in initContent would miss
+    # exactly the shells that need it.
+    envExtra = coreAgentGlob;
 
     autocd = true;
     enableCompletion = false;
