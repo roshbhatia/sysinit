@@ -16,6 +16,17 @@ let
       # external dir for `<name>/SKILL.md`, which is already the layout
       # `skills/render.nix` writes under `~/.claude/skills`.
       external_dirs = [ "${config.home.homeDirectory}/.claude/skills" ];
+
+      # Upstream's default is 15, which reminds the model to save a new skill
+      # every 15 tool-calling iterations. Skill creation always writes to
+      # `~/.hermes/skills`, never to an external dir, so the default grows a
+      # second skill library that Nix does not declare and no switch reconciles.
+      # That directory already holds 87 skill documents against the 69 this
+      # repository renders.
+      #
+      # 0 disables the nudge. It does not stop the owner asking hermes to write a
+      # skill, and it does not remove what is already there.
+      creation_nudge_interval = 0;
     };
 
     telemetry.shared_metrics.enabled = false;
@@ -38,6 +49,10 @@ in
       [
         "skills"
         "external_dirs"
+      ]
+      [
+        "skills"
+        "creation_nudge_interval"
       ]
       [
         "telemetry"
