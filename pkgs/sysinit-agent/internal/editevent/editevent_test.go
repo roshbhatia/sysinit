@@ -233,6 +233,66 @@ func TestKindOverridesTheDefault(t *testing.T) {
 	}
 }
 
+// A live run against claude produced four events all reading `edit`, three of
+// which were Writes, so the field carried nothing. The tool name is what makes
+// a created file distinguishable from a modified one.
+func TestStdinToolNameBecomesTheKind(t *testing.T) {
+	work := isolate(t)
+
+	payload, err := json.Marshal(map[string]any{
+		"cwd":        work,
+		"tool_name":  "Write",
+		"tool_input": map[string]any{"file_path": filepath.Join(work, "new.go")},
+	})
+	if err != nil {
+		t.Fatalf("marshal payload: %v", err)
+	}
+
+	withStdin(t, payload, func() {
+		Run([]string{"claude"})
+	})
+
+	events := readEvents(t, logFor(t, work))
+	if len(events) != 1 || events[0].Kind != "write" {
+		t.Fatalf("events = %+v, want one with kind write", events)
+	}
+}
+
+// An explicit --kind still wins, for a bridge that knows better than the payload.
+func TestFlagKindBeatsTheToolName(t *testing.T) {
+	work := isolate(t)
+
+	payload, err := json.Marshal(map[string]any{
+		"cwd":        work,
+		"tool_name":  "Write",
+		"tool_input": map[string]any{"file_path": filepath.Join(work, "new.go")},
+	})
+	if err != nil {
+		t.Fatalf("marshal payload: %v", err)
+	}
+
+	withStdin(t, payload, func() {
+		Run([]string{"claude", "--kind", "patch"})
+	})
+
+	events := readEvents(t, logFor(t, work))
+	if len(events) != 1 || events[0].Kind != "patch" {
+		t.Fatalf("events = %+v, want one with kind patch", events)
+	}
+}
+
+// No tool name and no flag still records the edit rather than dropping it.
+func TestKindFallsBackToEdit(t *testing.T) {
+	work := isolate(t)
+
+	Run([]string{"claude", "--cwd", work, "--file", "a.go"})
+
+	events := readEvents(t, logFor(t, work))
+	if len(events) != 1 || events[0].Kind != "edit" {
+		t.Fatalf("events = %+v, want one with kind edit", events)
+	}
+}
+
 func TestSeshySessionKeysOneLogForSeveralRepositories(t *testing.T) {
 	root := t.TempDir()
 	manifest := filepath.Join(root, "paths.json")

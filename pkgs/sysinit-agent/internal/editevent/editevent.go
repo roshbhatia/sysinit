@@ -83,7 +83,15 @@ func Run(args []string) int {
 		dir = workingDir()
 	}
 
+	// The tool's own name, lowercased, so a reader can tell a file that was
+	// created from one that was modified. Claude's `Write` on an existing path
+	// still means "this file was replaced wholesale", which is a different thing
+	// to show than a hunk. `edit` is the fallback rather than the default,
+	// because a harness whose payload names no tool still produced an edit.
 	kind := opts.kind
+	if kind == "" {
+		kind = strings.ToLower(dig(payload, "tool_name"))
+	}
 	if kind == "" {
 		kind = "edit"
 	}
