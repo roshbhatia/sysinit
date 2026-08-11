@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"os"
 	"path/filepath"
+	"reflect"
 	"strings"
 	"sync"
 	"testing"
@@ -433,4 +434,130 @@ func withStdin(t *testing.T, body []byte, run func()) {
 		writer.Close()
 	}()
 	run()
+}
+
+func TestApplyPatchEnvelopeNamesEveryFileWithItsOwnVerb(t *testing.T) {
+	work := isolate(t)
+
+	envelope := strings.Join([]string{
+		"*** Begin Patch",
+		"*** Add File: created.go",
+		"+package main",
+		"*** Update File: changed.go",
+		"@@",
+		"-old",
+		"+new",
+		"*** Delete File: gone.go",
+		"*** End Patch",
+	}, "\n")
+	payload, err := json.Marshal(map[string]any{
+		"cwd":        work,
+		"tool_name":  "apply_patch",
+		"tool_input": map[string]any{"command": envelope},
+	})
+	if err != nil {
+		t.Fatalf("marshal payload: %v", err)
+	}
+
+	withStdin(t, payload, func() {
+		Run([]string{"codex", "--apply-patch"})
+	})
+
+	events := readEvents(t, logFor(t, work))
+	got := map[string]string{}
+	for _, e := range events {
+		got[filepath.Base(e.File)] = e.Kind
+	}
+	want := map[string]string{"created.go": "write", "changed.go": "edit", "gone.go": "delete"}
+	if len(events) != 3 || !reflect.DeepEqual(got, want) {
+		t.Fatalf("got %v from %d events, want %v", got, len(events), want)
+	}
+}
+
+func TestApplyPatchResolvesAgainstThePayloadCwdNotTheProcess(t *testing.T) {
+	work := isolate(t)
+
+	envelope := "*** Begin Patch\n*** Add File: nested/created.go\n+x\n*** End Patch"
+	payload, err := json.Marshal(map[string]any{
+		"cwd":        work,
+		"tool_input": map[string]any{"command": envelope},
+	})
+	if err != nil {
+		t.Fatalf("marshal payload: %v", err)
+	}
+
+	withStdin(t, payload, func() {
+		Run([]string{"codex", "--apply-patch"})
+	})
+
+	events := readEvents(t, logFor(t, work))
+	want := filepath.Join(work, "nested", "created.go")
+	if len(events) != 1 || events[0].File != want {
+		t.Fatalf("events = %+v, want one file %q", events, want)
+	}
+}
+
+func TestApplyPatchWithNoEnvelopeWritesNothing(t *testing.T) {
+	work := isolate(t)
+
+	payload, err := json.Marshal(map[string]any{
+		"cwd":        work,
+		"tool_name":  "shell",
+		"tool_input": map[string]any{"command": "sed -i s/a/b/ target.go"},
+	})
+	if err != nil {
+		t.Fatalf("marshal payload: %v", err)
+	}
+
+	withStdin(t, payload, func() {
+		Run([]string{"codex", "--apply-patch"})
+	})
+
+	if _, err := os.Stat(logFor(t, work)); !os.IsNotExist(err) {
+		t.Fatalf("a shell edit named no file, so the log should not exist: %v", err)
+	}
+}
+
+func TestFlagKindBeatsTheEnvelopeVerb(t *testing.T) {
+	work := isolate(t)
+
+	envelope := "*** Begin Patch\n*** Add File: created.go\n+x\n*** End Patch"
+	payload, err := json.Marshal(map[string]any{
+		"cwd":        work,
+		"tool_input": map[string]any{"command": envelope},
+	})
+	if err != nil {
+		t.Fatalf("marshal payload: %v", err)
+	}
+
+	withStdin(t, payload, func() {
+		Run([]string{"codex", "--apply-patch", "--kind", "patch"})
+	})
+
+	events := readEvents(t, logFor(t, work))
+	if len(events) != 1 || events[0].Kind != "patch" {
+		t.Fatalf("events = %+v, want one with kind patch", events)
+	}
+}
+
+func TestFileFlagBeatsTheEnvelope(t *testing.T) {
+	work := isolate(t)
+
+	envelope := "*** Begin Patch\n*** Add File: from-envelope.go\n+x\n*** End Patch"
+	payload, err := json.Marshal(map[string]any{
+		"cwd":        work,
+		"tool_input": map[string]any{"command": envelope},
+	})
+	if err != nil {
+		t.Fatalf("marshal payload: %v", err)
+	}
+
+	withStdin(t, payload, func() {
+		Run([]string{"atomic", "--apply-patch", "--file", filepath.Join(work, "from-flag.go")})
+	})
+
+	events := readEvents(t, logFor(t, work))
+	if len(events) != 1 || filepath.Base(events[0].File) != "from-flag.go" {
+		t.Fatalf("events = %+v, want only the flag's file", events)
+	}
 }

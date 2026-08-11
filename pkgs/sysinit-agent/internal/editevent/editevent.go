@@ -78,13 +78,23 @@ func Run(args []string) int {
 	}
 
 	payload := readStdin()
-	files := opts.files
-	if len(files) == 0 {
+
+	// A change is one file and the verb that touched it. Most harnesses name one
+	// file per call, so this list usually holds a single entry; an apply-patch
+	// envelope is the case that names several, each with its own verb.
+	var changes []change
+	for _, file := range opts.files {
+		changes = append(changes, change{file: file})
+	}
+	if len(changes) == 0 && opts.applyPatch {
+		changes = applyPatchChanges(dig(payload, patchTextKeys...))
+	}
+	if len(changes) == 0 {
 		if found := dig(payload, "tool_input.file_path", "tool_input.notebook_path"); found != "" {
-			files = []string{found}
+			changes = []change{{file: found}}
 		}
 	}
-	if len(files) == 0 {
+	if len(changes) == 0 {
 		return 0
 	}
 
@@ -116,16 +126,22 @@ func Run(args []string) int {
 	trim(log)
 
 	now := time.Now().UnixMilli()
-	for _, file := range files {
-		absolute, err := filepath.Abs(file)
+	for _, c := range changes {
+		absolute, err := absoluteIn(dir, c.file)
 		if err != nil {
 			continue
+		}
+		// A verb the envelope named beats the tool name, because `apply_patch` says
+		// nothing about whether a file was created or rewritten.
+		fileKind := kind
+		if c.kind != "" && opts.kind == "" {
+			fileKind = c.kind
 		}
 		append1(log, event{
 			Version: SchemaVersion,
 			TS:      now,
 			Harness: opts.harness,
-			Kind:    kind,
+			Kind:    fileKind,
 			File:    absolute,
 			CWD:     dir,
 		})
@@ -133,12 +149,77 @@ func Run(args []string) int {
 	return 0
 }
 
+// change is one file and, when the source named it, the verb that touched it.
+type change struct {
+	file string
+	kind string
+}
+
+// Where a harness conventionally puts the text of an apply-patch envelope. The
+// package knows the format, not the harness: codex passes it as a shell command,
+// and opencode as a named tool argument.
+var patchTextKeys = []string{
+	"tool_input.command",
+	"tool_input.patchText",
+	"tool_input.patch_text",
+	"output.args.patchText",
+}
+
+// applyPatchChanges reads the file markers out of an apply-patch envelope.
+//
+// This is a parse of a documented format rather than a guess at one: the envelope
+// declares one marker per file, and the marker's verb is the only place the
+// difference between a created and a rewritten file is stated. A harness that
+// edits through a shell redirect instead names no file anywhere, and correctly
+// produces nothing here.
+func applyPatchChanges(text string) []change {
+	if text == "" {
+		return nil
+	}
+	verbs := map[string]string{
+		"*** Add File: ":    "write",
+		"*** Update File: ": "edit",
+		"*** Delete File: ": "delete",
+	}
+	var out []change
+	for _, line := range strings.Split(text, "\n") {
+		line = strings.TrimRight(line, "\r")
+		for marker, kind := range verbs {
+			path, found := strings.CutPrefix(line, marker)
+			if !found {
+				continue
+			}
+			// `*** Move to: ` follows a rename's Update marker; the destination is
+			// what exists afterwards, so it is what a reader should be told about.
+			if path = strings.TrimSpace(path); path != "" {
+				out = append(out, change{file: path, kind: kind})
+			}
+			break
+		}
+	}
+	return out
+}
+
+// absoluteIn resolves file against dir rather than the process working directory.
+// A hook runs wherever the harness happened to spawn it, which is not always the
+// directory the relative path in its payload was written against.
+func absoluteIn(dir, file string) (string, error) {
+	if filepath.IsAbs(file) {
+		return filepath.Clean(file), nil
+	}
+	if dir != "" {
+		return filepath.Join(dir, file), nil
+	}
+	return filepath.Abs(file)
+}
+
 type options struct {
-	harness  string
-	kind     string
-	cwd      string
-	files    []string
-	printLog bool
+	harness    string
+	kind       string
+	cwd        string
+	files      []string
+	printLog   bool
+	applyPatch bool
 }
 
 func parse(args []string) (options, error) {
@@ -147,6 +228,8 @@ func parse(args []string) (options, error) {
 		switch args[i] {
 		case "--print-log":
 			opts.printLog = true
+		case "--apply-patch":
+			opts.applyPatch = true
 		case "--file", "--kind", "--cwd":
 			name := args[i]
 			if i+1 >= len(args) {
