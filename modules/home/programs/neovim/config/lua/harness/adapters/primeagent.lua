@@ -66,9 +66,16 @@ return {
     { name = "fork", flag = "--fork", kind = "value", prompt = "Session id or path to fork" },
     { name = "goal", flag = "--goal", kind = "value", prompt = "Persistent objective for a new root session" },
     { name = "append_system_prompt", flag = "--append-system-prompt", kind = "value", prompt = "Text or file path" },
+    { name = "theme", flag = "--theme", kind = "value", prompt = "Theme file path" },
     { name = "autonomous_gate", flag = "--autonomous-gate", kind = "list", prompt = "Gate commands (comma-separated)" },
     { name = "skill", flag = "--skill", kind = "list", prompt = "Skill files or dirs (comma-separated)" },
     { name = "extension", flag = "--extension", kind = "list", prompt = "Extension files (comma-separated)" },
+    {
+      name = "prompt_template",
+      flag = "--prompt-template",
+      kind = "list",
+      prompt = "Prompt template paths (comma-separated)",
+    },
   },
   available = function()
     return vim.fn.executable("prime-agent") == 1

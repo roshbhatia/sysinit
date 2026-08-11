@@ -20,6 +20,13 @@ end
 return {
   name = "pi",
   label = "󰏿  Pi",
+  -- Every flag was probed against the installed binary, which answers
+  -- `Unknown option: <flag>` on anything it does not take. Do not re-add
+  -- `--mcp-config`: pi rejects it. It comes from atomic's bundled
+  -- `@bastani/mcp`, so it belongs in atomic's schema alone.
+  --
+  -- `--fast` comes from @benvargas/pi-openai-fast and `--plan` from
+  -- @plannotator/pi-extension, both packages this repository loads.
   options_schema = {
     { name = "no_tools", flag = "--no-tools", kind = "toggle" },
     { name = "no_builtin_tools", flag = "--no-builtin-tools", kind = "toggle" },
@@ -31,6 +38,8 @@ return {
     { name = "no_skills", flag = "--no-skills", kind = "toggle" },
     { name = "no_extensions", flag = "--no-extensions", kind = "toggle" },
     { name = "no_context_files", flag = "--no-context-files", kind = "toggle" },
+    { name = "no_prompt_templates", flag = "--no-prompt-templates", kind = "toggle" },
+    { name = "no_themes", flag = "--no-themes", kind = "toggle" },
     { name = "approve", flag = "--approve", kind = "toggle" },
     { name = "offline", flag = "--offline", kind = "toggle" },
     {
@@ -46,9 +55,16 @@ return {
     { name = "exclude_tools", flag = "--exclude-tools", kind = "value", prompt = "Tool denylist, comma-separated" },
     { name = "append_system_prompt", flag = "--append-system-prompt", kind = "value", prompt = "Text or file path" },
     { name = "preset", flag = "--preset", kind = "value", prompt = "Preset configuration name" },
-    { name = "mcp_config", flag = "--mcp-config", kind = "value", prompt = "Path to MCP config file" },
+    { name = "fork", flag = "--fork", kind = "value", prompt = "Session id or path to fork" },
+    { name = "theme", flag = "--theme", kind = "value", prompt = "Theme file path" },
     { name = "skill", flag = "--skill", kind = "list", prompt = "Skill files or dirs (comma-separated)" },
     { name = "extension", flag = "--extension", kind = "list", prompt = "Extension files (comma-separated)" },
+    {
+      name = "prompt_template",
+      flag = "--prompt-template",
+      kind = "list",
+      prompt = "Prompt template paths (comma-separated)",
+    },
   },
   available = function()
     return vim.fn.executable("pi") == 1

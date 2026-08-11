@@ -36,6 +36,7 @@ return {
     { name = "no_extensions", flag = "--no-extensions", kind = "toggle" },
     { name = "no_context_files", flag = "--no-context-files", kind = "toggle" },
     { name = "no_prompt_templates", flag = "--no-prompt-templates", kind = "toggle" },
+    { name = "no_themes", flag = "--no-themes", kind = "toggle" },
     { name = "approve", flag = "--approve", kind = "toggle" },
     { name = "offline", flag = "--offline", kind = "toggle" },
     {
@@ -51,8 +52,16 @@ return {
     { name = "exclude_tools", flag = "--exclude-tools", kind = "value", prompt = "Tool denylist, comma-separated" },
     { name = "append_system_prompt", flag = "--append-system-prompt", kind = "value", prompt = "Text or file path" },
     { name = "mcp_config", flag = "--mcp-config", kind = "value", prompt = "Path to MCP config file" },
+    { name = "fork", flag = "--fork", kind = "value", prompt = "Session id or path to fork" },
+    { name = "theme", flag = "--theme", kind = "value", prompt = "Theme file path" },
     { name = "skill", flag = "--skill", kind = "list", prompt = "Skill files or dirs (comma-separated)" },
     { name = "extension", flag = "--extension", kind = "list", prompt = "Extension files (comma-separated)" },
+    {
+      name = "prompt_template",
+      flag = "--prompt-template",
+      kind = "list",
+      prompt = "Prompt template paths (comma-separated)",
+    },
   },
   available = function()
     return vim.fn.executable("atomic") == 1
