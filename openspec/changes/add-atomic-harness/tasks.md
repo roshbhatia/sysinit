@@ -76,15 +76,90 @@
 - **SHAPE** graph
 - **MERGE** 2.3
 
-- [ ] 2.1 Add four `atomic-coding-agent` entries to `nvfetcher.toml`, one per platform asset, following the four `pi-coding-agent` entries; run `nvfetcher`, then read the resolved version in `_sources/generated.nix` and settle whether it tracks releases or prerelease tags `writes:` nvfetcher.toml, _sources/generated.nix `deps:` none
-- [ ] 2.2 Write `overlays/atomic-coding-agent.nix` following `overlays/pi-coding-agent.nix`, installing `bin/atomic` and throwing on an unsupported system, then register it in `overlays/default.nix` `writes:` overlays/atomic-coding-agent.nix, overlays/default.nix `deps:` 2.1
-- [ ] 2.3 Build the configuration for each of `aarch64-darwin`, `x86_64-linux`, and `aarch64-linux`, and check that `atomic` appears in the rendered profile `writes:` none `deps:` 2.2
-- [ ] 2.4 Adversarial review (`adversarial-review` skill): critics attempt to break the package phase against the proposal `Behavior` criteria; revise until the loop reaches a terminal state
+- [x] 2.1 Add four `atomic-coding-agent` entries to `nvfetcher.toml`, one per platform asset, following the four `pi-coding-agent` entries; run `nvfetcher`, then read the resolved version in `_sources/generated.nix` and settle whether it tracks releases or prerelease tags `writes:` nvfetcher.toml, _sources/generated.nix `deps:` none
+
+      Settled: `src.github` resolves `0.9.12`, the latest non-prerelease. The
+      `0.9.13-alpha.1` prerelease published two days later is not taken.
+      `src.prefix` is omitted, because atomic's tags carry no `v`. The glibc
+      linux assets are taken and the `-musl` variants are left unused, matching
+      pi.
+
+      One deviation the task text does not cover. `nvfetcher` re-resolves every
+      entry, and this run also bumped crush 0.87.0 to 0.88.1, goose-cli-bin
+      1.44.0 to 1.45.0, kubernetes-zeitgeist v0.7.0 to v0.8.0, pi-coding-agent
+      0.82.1 to 0.84.1, and tinycast 0.7.5 to 0.9.1. Every one of those was
+      reverted to its `HEAD` value: both `_sources` files are now pure additions,
+      60 JSON lines and 32 nix lines, with zero deletions. Those bumps belong to
+      their own change.
+- [x] 2.2 Write `overlays/atomic-coding-agent.nix` following `overlays/pi-coding-agent.nix`, installing `bin/atomic` and throwing on an unsupported system, then register it in `overlays/default.nix` `writes:` overlays/atomic-coding-agent.nix, overlays/default.nix `deps:` 2.1
+
+      The tarball has pi's layout, `atomic/atomic` under an `atomic/` root, so
+      the install phase is pi's with the names changed. `meta.license` is `mit`,
+      from `package.json`; GitHub reports `NOASSERTION` because no LICENSE file
+      ships in the tarball, and that is recorded in a comment beside the field.
+- [x] 2.3 Build the configuration for each of `aarch64-darwin`, `x86_64-linux`, and `aarch64-linux`, and check that `atomic` appears in the rendered profile `writes:` none `deps:` 2.2
+
+      The darwin package builds and runs: `atomic --version` reports `0.9.12` and
+      `bin/atomic` is a symlink into the store copy. The two linux halves are
+      decided by derivation rather than by realisation, for the reason lv426
+      cannot build linux, and each carries the right `system` and the right
+      asset: `x86_64-linux` with `atomic-linux-x64.tar.gz` and `aarch64-linux`
+      with `atomic-linux-arm64.tar.gz`. Realising them stays open until someone
+      runs it on arrakis.
+
+      The unsupported-platform throw fires: evaluating the package for
+      `riscv64-linux` fails with the overlay's own message.
+
+      "Appears in the rendered profile" is not yet decided, because that needs
+      the registry entry from 3.1.
+- [x] 2.4 Adversarial review (`adversarial-review` skill): critics attempt to break the package phase against the proposal `Behavior` criteria; revise until the loop reaches a terminal state
+
+      Terminal state: `not run`, per the owner's direction recorded in
+      `review.md`.
 
 ## 3. Harness module and editor route
 
 - **SHAPE** graph
 - **MERGE** 3.4
+
+> BLOCKED on an owner decision. The exclusion set this phase was approved
+> around is wrong, and the load test that decides it now runs before the switch
+> rather than after. Read the finding below before starting 3.2.
+>
+> The plan excludes three of pi's 19 packages and asserts the other 16 are
+> clean. Run against the built `atomic-coding-agent-0.9.12`, only 8 of the 19
+> load. The other 11 fail, and mostly not from a tool-name collision:
+>
+> - 10 fail to resolve a module. They import `@earendil-works/pi-coding-agent`
+>   or `@mariozechner/pi-coding-agent`, and atomic provides neither:
+>   `@narumitw/pi-retry`, `@monotykamary/pi-vcc`, `pi-subagents`, `pi-btw`,
+>   `pi-tool-display`, `pi-context`, `pi-threads`, `pi-librarian`,
+>   `pi-ask-user`, and `pi-readline-search` when discovery resolves its
+>   directory entry.
+> - `pi-mermaid` fails its preflight schema check.
+> - `pi-web-access` is the only real collision, and its tool names are not the
+>   ones the plan names. It takes `web_search`, `fetch_content`, and
+>   `get_search_content` from atomic's own bundled `@bastani/web-access`, which
+>   then fails to load. Atomic loses its integrated web tools rather than
+>   refusing to start.
+>
+> Three approved premises fall with it. `pi-tool-display` never loads, so
+> keying its display overrides on `search` instead of `grep` is moot and so is
+> the injected-`grep` defect in 3.4. Of the six context-hook packages only
+> `@plannotator/pi-extension` loads, so atomic's `contextHookOrder` is one
+> entry. And `design.md` says no build can decide the conflict; a run against a
+> scratch `HOME` decides it in about a second, before any switch.
+>
+> The set that loads with zero errors and discovery on:
+> `@gotgenes/pi-permission-system`, `@benvargas/pi-openai-fast`,
+> `@benvargas/pi-openai-verbosity`, `@plannotator/pi-extension`,
+> `@firstpick/pi-extension-reverse-last`, `@heyhuynhgiabuu/pi-diff`,
+> `pi-subdir-context`, and `pi-readline-search`. Adding `pi-web-access` to that
+> set reproduces the three conflicts.
+>
+> The owner's call: accept an atomic that carries 8 of pi's 19 extensions, or
+> decide the harness is not worth having on those terms. The package phase is
+> already committed and reverts with one line in `overlays/default.nix`.
 
 - [ ] 3.1 Add the `atomic` entry to `harnesses/registry.nix` with `context = "~/.atomic/agent/AGENTS.md"`, `notify`, `bridge`, `package`, and `neovimAdapter` filled in per the proposal `writes:` modules/home/programs/llm/harnesses/registry.nix `deps:` none
 - [ ] 3.2 Write `harnesses/atomic/` reading the shared package set, carrying an exclusion set with a reason per entry for `pi-subagents`, `pi-web-access`, and `pi-ask-user`, its own `contextHookOrder`, a `pi-tool-display` config keyed on `search`, and `ATOMIC_SKIP_VERSION_CHECK`; add the two assertions that an excluded name cannot reach the rendered list and that no display-override key names a tool outside atomic's core set `writes:` modules/home/programs/llm/harnesses/atomic/ `deps:` 3.1

@@ -72,6 +72,28 @@ src.github = "earendil-works/pi"
 src.prefix = "v"
 fetch.url = "https://github.com/earendil-works/pi/releases/download/v$ver/pi-linux-x64.tar.gz"
 
+# Binary release packages - atomic-coding-agent (one entry per platform asset)
+# Tags carry no `v` prefix, so no src.prefix. `src.github` tracks the latest
+# non-prerelease release; atomic publishes an `-alpha.N` prerelease before most
+# tags, and following those would move the pin on nearly every push.
+# The glibc linux assets are the ones taken, matching pi; `-musl` variants exist
+# and are unused.
+[atomic-coding-agent]
+src.github = "bastani-inc/atomic"
+fetch.url = "https://github.com/bastani-inc/atomic/releases/download/$ver/atomic-darwin-arm64.tar.gz"
+
+[atomic-coding-agent-x86_64-darwin]
+src.github = "bastani-inc/atomic"
+fetch.url = "https://github.com/bastani-inc/atomic/releases/download/$ver/atomic-darwin-x64.tar.gz"
+
+[atomic-coding-agent-aarch64-linux]
+src.github = "bastani-inc/atomic"
+fetch.url = "https://github.com/bastani-inc/atomic/releases/download/$ver/atomic-linux-arm64.tar.gz"
+
+[atomic-coding-agent-x86_64-linux]
+src.github = "bastani-inc/atomic"
+fetch.url = "https://github.com/bastani-inc/atomic/releases/download/$ver/atomic-linux-x64.tar.gz"
+
 # Binary release packages - localias (peterldowns/localias) Tags are
 # v3.0.0+commit.XXXXXXX; strip v prefix so $ver = 3.0.0+commit.XXXXXXX
 [localias]

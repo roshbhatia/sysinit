@@ -1,4 +1,64 @@
 {
+    "atomic-coding-agent": {
+        "cargoLock": null,
+        "date": null,
+        "extract": null,
+        "name": "atomic-coding-agent",
+        "passthru": null,
+        "pinned": false,
+        "src": {
+            "name": null,
+            "sha256": "sha256-EmXNSNsB+UbgrrRxifS2SgPvcd0sLNaNGYJkmEpw8ag=",
+            "type": "url",
+            "url": "https://github.com/bastani-inc/atomic/releases/download/0.9.12/atomic-darwin-arm64.tar.gz"
+        },
+        "version": "0.9.12"
+    },
+    "atomic-coding-agent-aarch64-linux": {
+        "cargoLock": null,
+        "date": null,
+        "extract": null,
+        "name": "atomic-coding-agent-aarch64-linux",
+        "passthru": null,
+        "pinned": false,
+        "src": {
+            "name": null,
+            "sha256": "sha256-8BO5VCDmkING7bDVG5w3mrCDbKkNDeiYy7sU0zhQazg=",
+            "type": "url",
+            "url": "https://github.com/bastani-inc/atomic/releases/download/0.9.12/atomic-linux-arm64.tar.gz"
+        },
+        "version": "0.9.12"
+    },
+    "atomic-coding-agent-x86_64-darwin": {
+        "cargoLock": null,
+        "date": null,
+        "extract": null,
+        "name": "atomic-coding-agent-x86_64-darwin",
+        "passthru": null,
+        "pinned": false,
+        "src": {
+            "name": null,
+            "sha256": "sha256-d9u2tITBORfMXr/ZqQJ60dU5uk0w9APbjQ3G9tOE0q0=",
+            "type": "url",
+            "url": "https://github.com/bastani-inc/atomic/releases/download/0.9.12/atomic-darwin-x64.tar.gz"
+        },
+        "version": "0.9.12"
+    },
+    "atomic-coding-agent-x86_64-linux": {
+        "cargoLock": null,
+        "date": null,
+        "extract": null,
+        "name": "atomic-coding-agent-x86_64-linux",
+        "passthru": null,
+        "pinned": false,
+        "src": {
+            "name": null,
+            "sha256": "sha256-yUC+8H/K00KYZhbSylURQbc16w1kluEvDZSKSgfhcHg=",
+            "type": "url",
+            "url": "https://github.com/bastani-inc/atomic/releases/download/0.9.12/atomic-linux-x64.tar.gz"
+        },
+        "version": "0.9.12"
+    },
     "crush": {
         "cargoLock": null,
         "date": null,

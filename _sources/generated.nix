@@ -6,6 +6,38 @@
   dockerTools,
 }:
 {
+  atomic-coding-agent = {
+    pname = "atomic-coding-agent";
+    version = "0.9.12";
+    src = fetchurl {
+      url = "https://github.com/bastani-inc/atomic/releases/download/0.9.12/atomic-darwin-arm64.tar.gz";
+      sha256 = "sha256-EmXNSNsB+UbgrrRxifS2SgPvcd0sLNaNGYJkmEpw8ag=";
+    };
+  };
+  atomic-coding-agent-aarch64-linux = {
+    pname = "atomic-coding-agent-aarch64-linux";
+    version = "0.9.12";
+    src = fetchurl {
+      url = "https://github.com/bastani-inc/atomic/releases/download/0.9.12/atomic-linux-arm64.tar.gz";
+      sha256 = "sha256-8BO5VCDmkING7bDVG5w3mrCDbKkNDeiYy7sU0zhQazg=";
+    };
+  };
+  atomic-coding-agent-x86_64-darwin = {
+    pname = "atomic-coding-agent-x86_64-darwin";
+    version = "0.9.12";
+    src = fetchurl {
+      url = "https://github.com/bastani-inc/atomic/releases/download/0.9.12/atomic-darwin-x64.tar.gz";
+      sha256 = "sha256-d9u2tITBORfMXr/ZqQJ60dU5uk0w9APbjQ3G9tOE0q0=";
+    };
+  };
+  atomic-coding-agent-x86_64-linux = {
+    pname = "atomic-coding-agent-x86_64-linux";
+    version = "0.9.12";
+    src = fetchurl {
+      url = "https://github.com/bastani-inc/atomic/releases/download/0.9.12/atomic-linux-x64.tar.gz";
+      sha256 = "sha256-yUC+8H/K00KYZhbSylURQbc16w1kluEvDZSKSgfhcHg=";
+    };
+  };
   crush = {
     pname = "crush";
     version = "0.87.0";

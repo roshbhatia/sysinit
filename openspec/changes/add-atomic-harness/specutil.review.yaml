@@ -1,9 +1,9 @@
 version: 1
 change: add-atomic-harness
 decision: approved
-note: 'owner approved in session 2026-08-10; critics not run at owner request. Re-stamped after phase 1 appended evidence: no task text moved, and specutil reported no drift and no open comments. Two deviations recorded in tasks.md 1.1 and 1.2: five lock files moved to shared/locks and hack/update-pi.sh was repointed, neither in the approved writes list; the shared editor derivation takes its binary name as a parameter instead of fixing nvim-pi.'
-change_hash: 78e24e99ac7853bd
-base_commit: acda91b90ad15f9ef135ba618f79cbba98197623
+note: 'owner approved in session 2026-08-10; critics not run at owner request. Re-approved 2026-08-10 after the phase 3 finding: only 8 of pi 19 packages load into atomic 0.9.12, the single tool collision is pi-web-access against atomic own bundled @bastani/web-access, and the pi-tool-display work in 3.2 and 3.4 is moot. The owner was shown that finding and the two options, and directed continuation with the evidence-derived 8-package set. tasks.md phase 3 carries the evidence and the revised scope.'
+change_hash: 1a9ad208b5e12ae7
+base_commit: 1a681e25cd0d25d05d2e8a2f0942546eac9d8f6b
 items:
     0d272bf28f2ae825:
         hash: 0b928ed4d715aa6c
