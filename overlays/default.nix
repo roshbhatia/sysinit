@@ -32,6 +32,7 @@
   (import ./pi-coding-agent.nix)
   (import ./atomic-coding-agent.nix)
   (import ./prime-agent.nix)
+  (import ./amp-cli.nix)
   (import ./crush.nix)
   (import ./contextive.nix)
   (import ./opa.nix)

@@ -108,6 +108,33 @@ src.github = "PrimeIntellect-ai/prime-agent"
 src.prefix = "v"
 fetch.url = "https://github.com/PrimeIntellect-ai/prime-agent/releases/download/v$ver/prime-agent-$ver.tgz"
 
+# amp-cli tracks amp's own release channel rather than a git tag: amp is closed
+# source, so `https://static.ampcode.com/cli/cli-version.txt` is the only place
+# upstream states which build is current. It is the same file nixpkgs' own
+# `amp-cli/update.sh` reads, so this pin and nixpkgs' pin follow one oracle and
+# only the update cadence differs. The npm `@sourcegraph/amp` dist-tag carries
+# the same version and would work too; the static channel is one indirection
+# fewer.
+#
+# Three platforms, matching nixpkgs. Upstream also publishes `amp-darwin-x64.gz`
+# and a non-baseline `amp-linux-x64.gz`, and nixpkgs' derivation has no
+# x86_64-darwin entry to hand a source to, so adding either is a platform
+# change rather than a version bump.
+[amp-cli]
+src.webpage = "https://static.ampcode.com/cli/cli-version.txt"
+src.regex = '0\.0\.[0-9]+-g[0-9a-f]+'
+fetch.url = "https://static.ampcode.com/cli/$ver/amp-darwin-arm64.gz"
+
+[amp-cli-aarch64-linux]
+src.webpage = "https://static.ampcode.com/cli/cli-version.txt"
+src.regex = '0\.0\.[0-9]+-g[0-9a-f]+'
+fetch.url = "https://static.ampcode.com/cli/$ver/amp-linux-arm64.gz"
+
+[amp-cli-x86_64-linux]
+src.webpage = "https://static.ampcode.com/cli/cli-version.txt"
+src.regex = '0\.0\.[0-9]+-g[0-9a-f]+'
+fetch.url = "https://static.ampcode.com/cli/$ver/amp-linux-x64-baseline.gz"
+
 # Binary release packages - localias (peterldowns/localias) Tags are
 # v3.0.0+commit.XXXXXXX; strip v prefix so $ver = 3.0.0+commit.XXXXXXX
 [localias]

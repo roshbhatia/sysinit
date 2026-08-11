@@ -6,6 +6,30 @@
   dockerTools,
 }:
 {
+  amp-cli = {
+    pname = "amp-cli";
+    version = "0.0.1786450425-gba6cf7";
+    src = fetchurl {
+      url = "https://static.ampcode.com/cli/0.0.1786450425-gba6cf7/amp-darwin-arm64.gz";
+      sha256 = "sha256-WCdVSlaFoJHBzoYhHp5xbbh9hAiKrdMRodLPipb066E=";
+    };
+  };
+  amp-cli-aarch64-linux = {
+    pname = "amp-cli-aarch64-linux";
+    version = "0.0.1786450425-gba6cf7";
+    src = fetchurl {
+      url = "https://static.ampcode.com/cli/0.0.1786450425-gba6cf7/amp-linux-arm64.gz";
+      sha256 = "sha256-1nOtLmlm2ACZQbDAhyTuRnUzrBzUkSzV466FmfAUiGk=";
+    };
+  };
+  amp-cli-x86_64-linux = {
+    pname = "amp-cli-x86_64-linux";
+    version = "0.0.1786450425-gba6cf7";
+    src = fetchurl {
+      url = "https://static.ampcode.com/cli/0.0.1786450425-gba6cf7/amp-linux-x64-baseline.gz";
+      sha256 = "sha256-xlhLxMGMRvg+vWbghsniZKoXqiSZMXOUM/5ogl32q/E=";
+    };
+  };
   atomic-coding-agent = {
     pname = "atomic-coding-agent";
     version = "0.9.12";
