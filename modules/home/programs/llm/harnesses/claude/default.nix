@@ -228,6 +228,22 @@ in
             ];
           }
         ];
+        # The same matcher the pre-edit guard uses, because the two hooks are
+        # interested in exactly the same tool calls. Claude passes
+        # `tool_input.file_path` on stdin, which is where the command reads it
+        # from; `async` because nothing in the turn waits on the result.
+        PostToolUse = [
+          {
+            matcher = "Edit|Write|NotebookEdit";
+            hooks = [
+              {
+                type = "command";
+                command = "${profileBin}/agent-edit-event claude";
+                async = true;
+              }
+            ];
+          }
+        ];
         SessionEnd = [
           {
             matcher = "";

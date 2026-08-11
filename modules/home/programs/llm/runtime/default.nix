@@ -44,6 +44,19 @@ let
     else
       "";
 
+  # `editBus` is read by no Nix code either, and the one way to get it wrong is to
+  # claim it on a harness that has no hook surface to write from. That entry would
+  # look supported and emit nothing.
+  busWithoutHook = builtins.attrNames (
+    lib.filterAttrs (_name: h: h.editBus && h.notify != "hook") registry
+  );
+
+  assertBusHarnessesHook =
+    if busWithoutHook != [ ] then
+      throw "runtime/default.nix: ${lib.concatStringsSep ", " busWithoutHook} sets editBus but notify is not \"hook\", so it has no hook surface to write edit events from."
+    else
+      "";
+
   genericSvg = pkgs.writeText "agent-icon-generic.svg" ''
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
       <circle cx="12" cy="12" r="9" fill="none" stroke="#6E7781" stroke-width="2"
@@ -80,6 +93,7 @@ let
   icons = pkgs.runCommand "agent-notify-icons" { nativeBuildInputs = [ pkgs.librsvg ]; } (
     assertBridgesExist
     + assertNeovimAdaptersExist
+    + assertBusHarnessesHook
     + "mkdir -p $out\n"
     + lib.concatStringsSep "\n" (
       lib.mapAttrsToList (

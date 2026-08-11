@@ -14,6 +14,15 @@
 #
 # `modules/home/programs/seshy/default.nix` checks each name against the enum
 # `openspec init --help` prints.
+#
+# `editBus` says the harness writes `agent-edit-event` from a post-edit hook, so
+# Neovim learns which files it wrote instead of noticing on the next 1s
+# `checktime`. Deliberately its own field rather than derived from
+# `notify == "hook"`: a notification hook and a post-edit hook are different
+# surfaces, and a harness can expose the first without the second. False is the
+# honest value for a harness whose surface has not been established, and
+# `runtime/default.nix` rejects true on a `notify = "scrape"` entry, which has no
+# hook surface at all.
 {
   amp = {
     label = "Amp";
@@ -22,6 +31,7 @@
     skillLoader = true;
     ownIcon = false;
     notify = "scrape";
+    editBus = false;
     bridge = null;
     package = "amp-cli";
     neovimAdapter = "amp";
@@ -35,6 +45,7 @@
     skillLoader = true;
     ownIcon = false;
     notify = "hook";
+    editBus = false;
     bridge = ./atomic/extensions/sysinit-notify.ts;
     package = "atomic-coding-agent";
     neovimAdapter = "atomic";
@@ -48,6 +59,7 @@
     skillLoader = true;
     ownIcon = true;
     notify = "hook";
+    editBus = true;
     bridge = null;
     # The `programs.claude-code` home-manager module installs it, not a `home.packages`
     # entry.
@@ -65,6 +77,7 @@
     skillLoader = false;
     ownIcon = true;
     notify = "hook";
+    editBus = false;
     bridge = null;
     package = null;
     neovimAdapter = "codex";
@@ -78,6 +91,7 @@
     skillLoader = true;
     ownIcon = true;
     notify = "scrape";
+    editBus = false;
     bridge = null;
     package = "github-copilot-cli";
     neovimAdapter = "copilot";
@@ -91,6 +105,7 @@
     skillLoader = true;
     ownIcon = false;
     notify = "scrape";
+    editBus = false;
     bridge = null;
     package = "crush";
     neovimAdapter = "crush";
@@ -104,6 +119,7 @@
     skillLoader = true;
     ownIcon = true;
     notify = "scrape";
+    editBus = false;
     bridge = null;
     package = "cursor-cli";
     neovimAdapter = "cursor";
@@ -117,6 +133,7 @@
     skillLoader = true;
     ownIcon = false;
     notify = "scrape";
+    editBus = false;
     bridge = null;
     package = "devin-cli";
     neovimAdapter = "devin";
@@ -130,6 +147,7 @@
     skillLoader = true;
     ownIcon = true;
     notify = "scrape";
+    editBus = false;
     bridge = null;
     package = "antigravity-cli";
     neovimAdapter = "antigravity";
@@ -146,6 +164,7 @@
     skillLoader = true;
     ownIcon = false;
     notify = "scrape";
+    editBus = false;
     bridge = null;
     package = "goose-cli";
     neovimAdapter = "goose";
@@ -162,6 +181,7 @@
     skillLoader = true;
     ownIcon = false;
     notify = "scrape";
+    editBus = false;
     bridge = null;
     package = "hermes-agent";
     neovimAdapter = "hermes";
@@ -175,6 +195,7 @@
     skillLoader = true;
     ownIcon = true;
     notify = "hook";
+    editBus = false;
     bridge = ./opencode/plugins/sysinit-notify.ts;
     package = "opencode";
     neovimAdapter = "opencode";
@@ -188,6 +209,7 @@
     skillLoader = true;
     ownIcon = false;
     notify = "hook";
+    editBus = false;
     bridge = ./prime-agent/extensions/sysinit-notify.ts;
     package = "prime-agent";
     neovimAdapter = "primeagent";
@@ -201,6 +223,7 @@
     skillLoader = true;
     ownIcon = true;
     notify = "hook";
+    editBus = false;
     bridge = ./pi/extensions/sysinit-notify.ts;
     package = "pi-coding-agent";
     neovimAdapter = "pi";

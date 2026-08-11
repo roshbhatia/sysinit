@@ -3,20 +3,131 @@
 - **SHAPE** graph
 - **MERGE** 1.4
 
-- [ ] 1.1 Declare the event-log location as a new path in the layout manifest, so both ends resolve it and neither hardcodes it `writes:` modules/shared/options/paths-layout.json `deps:` none
-- [ ] 1.2 Add a `sysinit-agent` subcommand that appends one JSON event per edited file, keyed to a workspace the way the diff-note path is keyed, and bounded in size, following `pkgs/sysinit-agent/internal/note/` for layout and `internal/agentstate/` for stdin handling `writes:` pkgs/sysinit-agent/main.go, pkgs/sysinit-agent/internal/editevent/ `deps:` 1.1
-- [ ] 1.3 Prove the failure paths with Go tests: an unwritable log directory still exits 0 with no stdout, concurrent writers each produce an intact line, and passing the size bound leaves the newest events and a shorter file `writes:` pkgs/sysinit-agent/internal/editevent/ `deps:` 1.2
-- [ ] 1.4 Expose the subcommand through the runtime wrapper that already exposes `agent-state`, then prove `nix flake check` and `go test ./...` exit 0 `writes:` modules/home/programs/llm/runtime/default.nix `deps:` 1.2, 1.3
-- [ ] 1.5 Adversarial review (`adversarial-review` skill): critics attempt to break the writer phase against the proposal `Behavior` criteria; revise until the loop reaches a terminal state (see the skill for the scaled round cap)
+- [x] 1.1 Declare the event-log location as a new path in the layout manifest, so both ends resolve it and neither hardcodes it `writes:` modules/shared/options/paths-layout.json `deps:` none
+
+      `agentEdits` = `$HOME/.local/state/agents/edits`, beside `agentDiffNotes`.
+      `paths.go` gained `AgentEditsKey` and `AgentEdits()` with the same
+      manifest-then-fallback shape every other accessor has, so a box whose
+      manifest predates the entry still resolves a path rather than an empty
+      string.
+
+- [x] 1.2 Add a `sysinit-agent` subcommand that appends one JSON event per edited file, keyed to a workspace the way the diff-note path is keyed, and bounded in size, following `pkgs/sysinit-agent/internal/note/` for layout and `internal/agentstate/` for stdin handling `writes:` pkgs/sysinit-agent/main.go, pkgs/sysinit-agent/internal/editevent/ `deps:` 1.1
+
+      `sysinit-agent edit-event <harness> [--file P]... [--kind K] [--cwd D]`,
+      falling back to `tool_input.file_path` and `cwd` on stdin when no flag
+      supplies them. One line per file:
+      `{version, ts, harness, kind, file, cwd}`.
+
+      Two things the task text does not name had to be decided.
+
+      The keying and the workspace rule went into `internal/repo`, not into the
+      new package, because `repo` already owned both: `noteBase` was refactored
+      into a shared `keyed(dir, root)` and `EditLogFile` reuses it, so the
+      diff-note and edit-log names cannot drift apart. `Workspace(dir)` applies
+      `agentstate.identify`'s rule in `identify`'s order, seshy session before
+      git top level, but runs no `git status`: a hook on the edit path should not
+      pay for a working-tree scan whose result it never reads.
+
+      `parse` is the one loud failure path. A malformed argument list comes from
+      a Nix expression rather than from bad luck, so it prints to stderr once.
+      It still exits 0, because the agent can do nothing about it either way.
+
+- [x] 1.3 Prove the failure paths with Go tests: an unwritable log directory still exits 0 with no stdout, concurrent writers each produce an intact line, and passing the size bound leaves the newest events and a shorter file `writes:` pkgs/sysinit-agent/internal/editevent/ `deps:` 1.2
+
+      Ten tests. Beyond the three the task names: the line carries no file
+      contents (asserted against a sentinel written into the file), a call
+      naming no file creates no log at all, a seshy session keys one log for two
+      repositories under it, and stdin supplies the path when no flag does.
+
+      Five mutations, each applied to the committed tree and reverted:
+
+      | Mutation | Caught by |
+      | --- | --- |
+      | `O_APPEND` dropped | 4 tests, concurrency among them |
+      | truncation keeps the oldest lines | `TestBoundKeepsNewestAndShortensFile` |
+      | truncation disabled | same |
+      | exit 1 when the log is unwritable | `TestUnwritableLogDirectoryStillExitsZero` |
+      | seshy branch removed from `Workspace` | `TestSeshySessionKeysOneLogForSeveralRepositories` |
+
+      The first attempt at the exit-1 mutation reported a pass. The test had not
+      run: this shell resets its working directory between calls, so
+      `./internal/editevent/` resolved to nothing. Re-run from the module root it
+      fails, as it should. Two of the five were verified only after that was
+      found.
+
+- [x] 1.4 Expose the subcommand through the runtime wrapper that already exposes `agent-state`, then prove `nix flake check` and `go test ./...` exit 0 `writes:` modules/home/programs/llm/runtime/default.nix `deps:` 1.2, 1.3
+
+      `agent-edit-event`, named for what it records rather than for a harness,
+      since the harness is an argument. Added to the `inherit` list, given an
+      `editEventExe`, and installed through `home.packages` in
+      `llm/default.nix`, which is the step `stateScript` needs and the runtime
+      file alone does not provide.
+
+      `nix flake check` exits 0. `nix build .#darwinConfigurations.lv426.system`
+      exits 0. `go test ./...`, `go vet ./...`, and `gofmt -l` are all clean
+      across the whole module, not only the new package.
+
+      The first build failed with `cannot find module providing package
+      .../internal/editevent`. The cause was not vendoring: flakes copy tracked
+      files only, and the new directory was untracked. Staging it fixed it.
+
+      `nix fmt` also reformatted `modules/home/programs/seshy/default.nix`, which
+      this change does not touch. Reverted rather than carried, so no
+      formatting-only edit rides along; the drift is left where it was found.
+
+      Smoke-tested against the built store path, not only in tests: both the
+      `--file` form and a real claude `PostToolUse` stdin payload write one
+      correct line and exit 0.
+
+- [x] 1.5 Adversarial review (`adversarial-review` skill): critics attempt to break the writer phase against the proposal `Behavior` criteria; revise until the loop reaches a terminal state (see the skill for the scaled round cap)
+
+      NOT-RUN, per the owner decision recorded in `review.md`. The
+      already-implemented risk named there was the one that mattered for this
+      phase and it did not appear: nothing in the repository wrote edit events
+      before this.
 
 ## 2. Claude emits events
 
 - **SHAPE** graph
 - **MERGE** 2.2
 
-- [ ] 2.1 Record edit-bus capability as its own field on every registry entry, true for claude and false elsewhere until each surface is proven `writes:` modules/home/programs/llm/harnesses/registry.nix `deps:` none
-- [ ] 2.2 Give claude a post-edit hook that writes one event per edited file, reusing the matcher its existing pre-edit guard already uses, then prove `nix build .#darwinConfigurations.lv426.system` exits 0 `writes:` modules/home/programs/llm/harnesses/claude/default.nix `deps:` 2.1
-- [ ] 2.3 Adversarial review (`adversarial-review` skill): critics attempt to break the claude wiring against the proposal `Behavior` criteria; revise until the loop reaches a terminal state
+- [x] 2.1 Record edit-bus capability as its own field on every registry entry, true for claude and false elsewhere until each surface is proven `writes:` modules/home/programs/llm/harnesses/registry.nix `deps:` none
+
+      `editBus` on all 14 entries, true on claude alone.
+
+      One thing the task text does not name: the field needed a guard, because
+      like `neovimAdapter` it is read by no Nix code, and the way to get it wrong
+      is to claim it on a `notify = "scrape"` harness that has no hook surface at
+      all. That entry would look supported and emit nothing.
+      `runtime/default.nix` now throws on that combination, alongside the two
+      assertions already there.
+
+      The guard was verified by injecting `editBus = true` on amp, whose notify
+      is `scrape`. Instantiation fails with `amp sets editBus but notify is not
+      "hook"`. Restored from a copy, not with `git checkout`, since the tree
+      carries other work.
+
+      `nix eval --apply "x: 1"` did NOT catch it: the throw lives in a
+      `runCommand` script, so nothing forces it until the derivation is
+      instantiated. `.drvPath` is what forces it.
+
+- [x] 2.2 Give claude a post-edit hook that writes one event per edited file, reusing the matcher its existing pre-edit guard already uses, then prove `nix build .#darwinConfigurations.lv426.system` exits 0 `writes:` modules/home/programs/llm/harnesses/claude/default.nix `deps:` 2.1
+
+      A `PostToolUse` entry on `Edit|Write|NotebookEdit`, the same matcher the
+      nix guard already uses in `PreToolUse`, running
+      `agent-edit-event claude` with `async = true`. Claude had no `PostToolUse`
+      block at all before this.
+
+      Build exits 0. The rendered `claude-code-settings.json` in the store holds
+      the hook with the profile path resolved, which is stronger evidence than
+      the build alone: it proves the wrapper is on PATH under the name the hook
+      calls.
+
+- [x] 2.3 Adversarial review (`adversarial-review` skill): critics attempt to break the claude wiring against the proposal `Behavior` criteria; revise until the loop reaches a terminal state
+
+      NOT-RUN, per the owner decision recorded in `review.md`. The
+      capability-overclaim risk named there is the one this phase could have hit,
+      and the guard added in 2.1 is the answer to it.
 - [ ] 2.4 Apply: `git push`, then `nh darwin switch` from the `sysinit.laurel` checkout in a separate WezTerm pane, gated on `nix flake check` and `nh darwin build` exiting 0
 - [ ] 2.5 Confirm: the owner edits a file through claude and accepts that the events written name the files they expected, at the volume they expected, with nothing recorded that claude did not touch
 
