@@ -1,6 +1,6 @@
-// Package cli wires the cobra command tree. Verbs: render, plan, diff, lock,
-// graph, check, review, web. No `sync` verb — orchestration of remote writes
-// lives in the shipped skills, never in the binary.
+// Package cli wires the cobra command tree. Verbs: render, graph, check, next,
+// review, web. Nothing here writes to a remote: the binary is pure and offline,
+// and internal/guard has a test that keeps it that way.
 package cli
 
 import (
@@ -21,17 +21,9 @@ import (
 	"github.com/roshbhatia/specutil/internal/ir"
 	"github.com/roshbhatia/specutil/internal/registry"
 	"github.com/roshbhatia/specutil/internal/render"
-	"github.com/roshbhatia/specutil/internal/syncplan"
 	"github.com/roshbhatia/specutil/internal/web"
 	"github.com/spf13/cobra"
 )
-
-// IsNoMapping reports that a `lock get` found no entry. main maps it to exit
-// code 3 so callers can distinguish "absent" from other failures.
-func IsNoMapping(err error) bool {
-	_, ok := err.(errNoMapping)
-	return ok
-}
 
 // NewRootCmd builds the specutil root command and registers every verb.
 func NewRootCmd(version ...string) *cobra.Command {
@@ -45,8 +37,7 @@ func NewRootCmd(version ...string) *cobra.Command {
 		Version: v,
 		Long: "specutil parses spec-framework change artifacts (OpenSpec in v1) into a " +
 			"normalized IR and projects them into RFCs, design docs, tickets, dependency " +
-			"graphs, and visualizations. Remote writes are delegated to an agent via the " +
-			"shipped sync skills.",
+			"graphs, and visualizations. It performs no network I/O.",
 		SilenceUsage:  true,
 		SilenceErrors: false,
 	}
@@ -57,9 +48,6 @@ func NewRootCmd(version ...string) *cobra.Command {
 
 	root.AddCommand(
 		newRenderCmd(),
-		newPlanCmd(),
-		newDiffCmd(),
-		newLockCmd(),
 		newGraphCmd(),
 		newCheckCmd(),
 		newNextCmd(),
@@ -217,228 +205,6 @@ func loadAllChanges(cmd *cobra.Command) ([]*ir.Change, error) {
 		return nil, err
 	}
 	return p.LoadAll()
-}
-
-func newPlanCmd() *cobra.Command {
-	cmd := &cobra.Command{
-		Use:   "plan [change]",
-		Short: "Output a create/update/orphan plan for syncing tasks to an external tracker",
-		Long: "Computes what create, update, and orphan operations are needed to reconcile\n" +
-			"a change's tasks with an external tracker (Linear, Notion, etc.). The output\n" +
-			"is a JSON plan consumed by the sync skills — you rarely invoke this directly.\n\n" +
-			"Every operation is ready to write: a reader-facing title, the delivery stage\n" +
-			"it belongs to, its sort position, tracker labels, and a rendered Markdown body.\n" +
-			"The plan also carries an `overview` body for the container the target groups\n" +
-			"tickets under, holding the acceptance criteria once. Source numbering (task\n" +
-			"identifiers, phase numbers, spec delta keywords) never appears in that output.\n\n" +
-			"How it fits in the workflow:\n" +
-			"  1. Edit tasks in tasks.md\n" +
-			"  2. specutil plan --target linear --change my-change\n" +
-			"  3. A skill reads the plan and performs the actual Linear/Notion API calls\n" +
-			"  4. The skill calls `specutil lock set` to record the mapping\n\n" +
-			"Invoke manually when debugging sync issues or building custom integrations.",
-		Args: cobra.MaximumNArgs(1),
-		RunE: runPlan,
-	}
-	cmd.Flags().String("target", "", "sync target namespace: linear|notion|github-issues (required)")
-	cmd.Flags().String("change", "", "change name to plan (or pass as positional arg)")
-	cmd.Flags().String("templates", "", "override built-in template directory (ticket.md.tmpl, overview.md.tmpl)")
-	cmd.Flags().StringP("out", "o", "", "write output to a file instead of stdout")
-	return cmd
-}
-
-func runPlan(cmd *cobra.Command, args []string) error {
-	target, _ := cmd.Flags().GetString("target")
-	if target == "" {
-		return fmt.Errorf("plan: --target is required")
-	}
-	repo, _ := cmd.Flags().GetString("repo")
-	change, err := resolveChange(cmd, args)
-	if err != nil {
-		return err
-	}
-	emitWarnings(cmd, change.Warnings)
-	lock, err := syncplan.LoadLock(repo, change.Name)
-	if err != nil {
-		return err
-	}
-	overrideDir, _ := cmd.Flags().GetString("templates")
-	plan, err := syncplan.BuildPlanWithOptions(change, lock, target, syncplan.BuildPlanOptions{
-		TemplateOverrideDir: overrideDir,
-	})
-	if err != nil {
-		return err
-	}
-	out, err := json.MarshalIndent(plan, "", "  ")
-	if err != nil {
-		return err
-	}
-	return writeOut(cmd, append(out, '\n'))
-}
-
-func newDiffCmd() *cobra.Command {
-	cmd := &cobra.Command{
-		Use:   "diff [change]",
-		Short: "Show what has drifted between local tasks and the sync lockfile",
-		Long: "Compares the current tasks.md against the per-change lockfile to surface\n" +
-			"what has been added, changed, or removed since the last sync. Output is JSON.\n\n" +
-			"Use this to audit drift before re-running a sync, or to understand why a\n" +
-			"plan would issue create/update operations. Like `plan`, this is normally\n" +
-			"called by sync skills rather than directly — but it is useful for debugging\n" +
-			"when a task appears to sync-but-not-update.\n\n" +
-			"Example:\n" +
-			"  specutil diff --target linear --change my-change | jq '.changed'",
-		Args: cobra.MaximumNArgs(1),
-		RunE: runDiff,
-	}
-	cmd.Flags().String("target", "", "sync target namespace: linear|notion|github-issues (required)")
-	cmd.Flags().String("change", "", "change name to diff (or pass as positional arg)")
-	cmd.Flags().StringP("out", "o", "", "write output to a file instead of stdout")
-	return cmd
-}
-
-func runDiff(cmd *cobra.Command, args []string) error {
-	target, _ := cmd.Flags().GetString("target")
-	if target == "" {
-		return fmt.Errorf("diff: --target is required")
-	}
-	repo, _ := cmd.Flags().GetString("repo")
-	change, err := resolveChange(cmd, args)
-	if err != nil {
-		return err
-	}
-	emitWarnings(cmd, change.Warnings)
-	lock, err := syncplan.LoadLock(repo, change.Name)
-	if err != nil {
-		return err
-	}
-	d := syncplan.DiffChange(change, lock, target)
-	out, err := json.MarshalIndent(d, "", "  ")
-	if err != nil {
-		return err
-	}
-	return writeOut(cmd, append(out, '\n'))
-}
-
-func newLockCmd() *cobra.Command {
-	cmd := &cobra.Command{
-		Use:   "lock",
-		Short: "Read and write the task-to-external-ID mapping used by sync skills",
-		Long: "Manages the per-change lockfile that records which local task maps to which\n" +
-			"external ticket (Linear issue ID, Notion page ID, etc.).\n\n" +
-			"  lock get <identity>                    — read a mapping; exits 3 if absent\n" +
-			"  lock set <identity> <external-id>      — write a mapping\n\n" +
-			"The lockfile is written by sync skills after they create or update an external\n" +
-			"record. You should rarely need to call this directly — use `specutil diff` to\n" +
-			"audit the mapping state, and `specutil plan` to preview what a sync would do.\n\n" +
-			"When a task is renamed or moved between stages, the identity hash changes and\n" +
-			"the old mapping becomes orphaned — `specutil plan` will flag it for deletion.",
-	}
-	cmd.PersistentFlags().String("target", "", "sync target namespace (e.g. linear|notion)")
-	cmd.PersistentFlags().String("change", "", "change owning the lockfile")
-
-	get := &cobra.Command{
-		Use:   "get <identity>",
-		Short: "Read a lock entry; exits 3 if no mapping exists",
-		Args:  cobra.ExactArgs(1),
-		RunE:  runLockGet,
-	}
-	set := &cobra.Command{
-		Use:   "set <identity> <external-id>",
-		Short: "Write a lock entry",
-		Args:  cobra.ExactArgs(2),
-		RunE:  runLockSet,
-	}
-	set.Flags().String("content-hash", "", "content hash to record for drift detection")
-	set.Flags().String("title", "", "item title to retain for fuzzy re-match")
-
-	cmd.AddCommand(get, set)
-	return cmd
-}
-
-// errNoMapping signals `lock get` found no entry; main maps it to exit code 3
-// so callers can distinguish "absent" from other failures.
-type errNoMapping struct{ identity string }
-
-func (e errNoMapping) Error() string { return fmt.Sprintf("no mapping for identity %q", e.identity) }
-
-func lockChangeName(cmd *cobra.Command) (string, error) {
-	name, _ := cmd.Flags().GetString("change")
-	if name != "" {
-		return name, nil
-	}
-	from, _ := cmd.Flags().GetString("from")
-	// stdin requires --change because lockfile path depends on the change name and
-	// consuming stdin just to extract a name would hang on interactive terminals.
-	if from == "stdin" {
-		return "", fmt.Errorf("lock: --change is required when --from stdin")
-	}
-	repo, _ := cmd.Flags().GetString("repo")
-	manifest, err := graph.LoadManifest(repo)
-	if err != nil {
-		fmt.Fprintf(cmd.ErrOrStderr(), "warning: loading specutil.yaml: %v\n", err)
-	}
-	var providerCfgs []graph.ProviderConfig
-	if manifest != nil {
-		providerCfgs = manifest.Providers
-	}
-	p, err := registry.SelectProvider(from, repo, "", providerCfgs)
-	if err != nil {
-		return "", err
-	}
-	names, err := p.List()
-	if err != nil {
-		return "", err
-	}
-	if len(names) == 1 {
-		return names[0], nil
-	}
-	return "", fmt.Errorf("specify --change (found: %v)", names)
-}
-
-func runLockGet(cmd *cobra.Command, args []string) error {
-	target, _ := cmd.Flags().GetString("target")
-	if target == "" {
-		return fmt.Errorf("lock get: --target is required")
-	}
-	repo, _ := cmd.Flags().GetString("repo")
-	change, err := lockChangeName(cmd)
-	if err != nil {
-		return err
-	}
-	lock, err := syncplan.LoadLock(repo, change)
-	if err != nil {
-		return err
-	}
-	ref, ok := lock.Get(target, args[0])
-	if !ok {
-		return errNoMapping{args[0]}
-	}
-	fmt.Fprintln(cmd.OutOrStdout(), ref.ExternalID)
-	return nil
-}
-
-func runLockSet(cmd *cobra.Command, args []string) error {
-	target, _ := cmd.Flags().GetString("target")
-	if target == "" {
-		return fmt.Errorf("lock set: --target is required")
-	}
-	repo, _ := cmd.Flags().GetString("repo")
-	change, err := lockChangeName(cmd)
-	if err != nil {
-		return err
-	}
-	lock, err := syncplan.LoadLock(repo, change)
-	if err != nil {
-		return err
-	}
-	if args[1] == "" {
-		return fmt.Errorf("lock set: external-id must not be empty")
-	}
-	contentHash, _ := cmd.Flags().GetString("content-hash")
-	title, _ := cmd.Flags().GetString("title")
-	lock.Set(target, args[0], syncplan.Ref{ExternalID: args[1], ContentHash: contentHash, Title: title})
-	return lock.Save(repo, change)
 }
 
 func newGraphCmd() *cobra.Command {
@@ -788,35 +554,7 @@ func runWeb(cmd *cobra.Command, args []string) error {
 	}
 	g, diags := graph.Build(changes, manifest)
 
-	// Build the external-ref map from per-change lockfiles. Missing or unreadable
-	// lockfiles are silently skipped — serve never fails over a missing lock.
-	refs := make(detail.RefsByKey)
-	for _, c := range changes {
-		if c.Tasks == nil {
-			continue
-		}
-		lock, lerr := syncplan.LoadLock(repo, c.Name)
-		if lerr != nil {
-			continue
-		}
-		for _, p := range c.Tasks.Phases {
-			for _, it := range p.Items {
-				identity := syncplan.Identity(p.Name, it.Text)
-				for target, ns := range lock.Targets {
-					if ref, ok := ns[identity]; ok && ref.ExternalID != "" {
-						key := c.Name + "\x00" + p.Name + "\x00" + it.Text
-						refs[key] = append(refs[key], detail.ExternalRef{
-							Target:     target,
-							ExternalID: ref.ExternalID,
-						})
-					}
-				}
-			}
-		}
-	}
-
 	opts := reviewOptions(repo, changes)
-	opts.Refs = refs
 	if err := attachDiff(cmd, repo, changes, &opts); err != nil {
 		return err
 	}

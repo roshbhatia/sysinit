@@ -1,10 +1,11 @@
 ---
-description: Uses specutil (on PATH) to decide what to work on next in an OpenSpec change, and to visualize, gate, and render changes. Run `specutil next` before starting or resuming work on a change: it reads the declared phase shape and dependency edges and reports which subtasks are runnable now. Also use when the user asks about openspec change status, wants a dependency graph, explores or plans spec-driven work, renders a change as RFC/design/tickets, or previews sync to Linear/Notion.
+description: Uses specutil (on PATH) to decide what to work on next in an OpenSpec change, and to visualize, gate, and render changes. Run `specutil next` before starting or resuming work on a change: it reads the declared phase shape and dependency edges and reports which subtasks are runnable now. Also use when the user asks about openspec change status, wants a dependency graph, explores spec-driven work, or renders a change as an RFC, a design doc, or a ticket list.
 allowed-tools: Bash(specutil:*) Bash(mermaid-ascii:*)
 ---
 
 specutil is a Go CLI that reads the repo's `openspec/changes/` tree and produces
-dependency graphs, rendered documents, and sync plans without any network I/O.
+dependency graphs, rendered documents, and review records without any network
+I/O.
 
 ## When to use
 
@@ -24,8 +25,7 @@ dependency graphs, rendered documents, and sync plans without any network I/O.
 - Before planning multi-change work: run `specutil graph --as mermaid` to see the cross-change DAG and discover blockers.
 - During an explore session: run `specutil web` to open the work graph (levels, readiness, critical path) in a browser.
 - Before marking a phase done: run `specutil check <change-dir>` as the deterministic rubric gate.
-- Before syncing to Linear or Notion: run `specutil plan --target <linear|notion>` to preview creates/updates/orphans; then run `specutil lock set` after each sync to record the mapping.
-- To render a change as an RFC, design doc, or ticket list: `specutil render --as rfc|design|tickets --change <name>`.
+- To render a change as an RFC, design doc, or ticket list: `specutil render --as rfc|design|tickets --change <name>`. `--as tickets` is also what to hand a tracker: it carries no phase numbers or task identifiers, so a reader outside the repository can act on it.
 
 ## Key commands
 
@@ -51,12 +51,6 @@ specutil check --list-rules               # the built-in rule set
 specutil render --as rfc     --change NAME
 specutil render --as design  --change NAME
 specutil render --as tickets --change NAME
-
-specutil plan --target linear  --change NAME   # preview Linear create/update/orphan ops
-specutil plan --target notion  --change NAME
-
-specutil diff --target linear  --change NAME   # diff IR vs lockfile
-specutil lock set <identity> <external-id> --target <linear|notion> --change NAME
 ```
 
 ## Pairing with diagram-mermaid-render
@@ -87,4 +81,4 @@ specutil graph --as mermaid | mermaid-ascii
 
 - `--change NAME` is optional when only one change exists under `openspec/changes/`; required otherwise.
 - `-C <path>` points specutil at a different repo root (default: `.`).
-- specutil performs no network I/O. All external writes (Linear, Notion) are done by the caller using MCP tools after reviewing `specutil plan` output.
+- specutil performs no network I/O, and a test in `internal/guard` fails the build if a non-test file imports a network package. To file work in a tracker, run `specutil render --as tickets` and write it with the tracker's own MCP tools.

@@ -344,8 +344,8 @@ func runReviewSet(cmd *cobra.Command, args []string) error {
 // reviewOptions assembles the review facts a renderer needs: each task's drift
 // against the recorded verdict, the reviewer's standing comments, and the
 // verdict itself. An absent or unreadable record is skipped rather than failing
-// the render, for the same reason a missing lockfile is: a visualization must
-// still draw when only some changes have been reviewed.
+// the render: a visualization must still draw when only some changes have been
+// reviewed.
 func reviewOptions(repo string, changes []*ir.Change) detail.Options {
 	opts := detail.Options{
 		Drift:  detail.DriftByKey{},

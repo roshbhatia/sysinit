@@ -485,11 +485,6 @@ ul.tasks li.done .txt { color: var(--muted); text-decoration: line-through; text
 .kind.verify  { background: var(--lc-proposed-bg); color: var(--lc-proposed-ink); border-color: var(--lc-proposed-line); }
 .kind.apply   { background: var(--lc-active-bg);   color: var(--lc-active-ink);   border-color: var(--lc-active-line); }
 .kind.confirm { background: var(--lc-archived-bg); color: var(--lc-archived-ink); border-color: var(--lc-archived-line); }
-.ext-ref {
-  flex: 0 0 auto; font-family: var(--font-mono); font-size: 9px; font-weight: 700;
-  letter-spacing: .04em; padding: 1px 5px;
-  background: var(--surface-3); border: 1px solid var(--line); color: var(--muted);
-}
 .phase-block { margin-top: .65rem; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; }
 .phase-block > summary { cursor: pointer; list-style: none; }
 .phase-block > summary::-webkit-details-marker { display: none; }
@@ -913,9 +908,6 @@ const SUGGEST = {{.SuggestJSON}};
         '" target="_blank" rel="noopener" title="Open in Linear">' + esc(id) + "</a>";
     }
     return '<span class="' + cls + '" title="' + esc(title || id) + '">' + esc(id) + "</span>";
-  }
-  function extRefChips(it) {
-    return (it.externalRefs || []).map((r) => refLink(r.externalId || "", "ext-ref", r.target)).join("");
   }
   function tagChips(it) {
     return (it.tags || []).map((t) => {

@@ -84,26 +84,6 @@ func TestRenderUnknownTarget(t *testing.T) {
 	}
 }
 
-func TestPlanLinear(t *testing.T) {
-	out, _, err := run("-C", examplesDir(), "plan", "--target", "linear", "--change", "add-auth-layer")
-	if err != nil {
-		t.Fatalf("plan linear: %v", err)
-	}
-	if !strings.Contains(out, "add-auth-layer") {
-		t.Error("plan output missing change name")
-	}
-}
-
-func TestPlanGitHubIssues(t *testing.T) {
-	out, _, err := run("-C", examplesDir(), "plan", "--target", "github-issues", "--change", "add-auth-layer")
-	if err != nil {
-		t.Fatalf("plan github-issues: %v", err)
-	}
-	if !strings.Contains(out, "add-auth-layer") {
-		t.Error("plan github-issues output missing change name")
-	}
-}
-
 func TestGraphMermaid(t *testing.T) {
 	out, _, err := run("-C", examplesDir(), "graph", "--as", "mermaid")
 	if err != nil {
@@ -121,29 +101,6 @@ func TestGraphDot(t *testing.T) {
 	}
 	if !strings.Contains(out, "digraph") {
 		t.Error("graph dot output missing digraph keyword")
-	}
-}
-
-func TestDiffNoLock(t *testing.T) {
-	_, _, err := run("-C", examplesDir(), "diff", "--target", "linear", "--change", "add-auth-layer")
-	if err != nil {
-		t.Fatalf("diff with no lock: %v", err)
-	}
-}
-
-func TestLockSetGet(t *testing.T) {
-	dir := setupMinimalOpenspec(t, "test-change")
-	_, _, err := run("-C", dir, "lock", "set", "test-id", "ext-123", "--target", "linear", "--change", "test-change")
-	if err != nil {
-		t.Fatalf("lock set: %v", err)
-	}
-
-	out, _, err := run("-C", dir, "lock", "get", "test-id", "--target", "linear", "--change", "test-change")
-	if err != nil {
-		t.Fatalf("lock get: %v", err)
-	}
-	if !strings.Contains(out, "ext-123") {
-		t.Errorf("lock get output missing ext-123, got: %q", out)
 	}
 }
 

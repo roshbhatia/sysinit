@@ -14,9 +14,9 @@ metadata:
 This skill finds implied dependency relationships between OpenSpec changes and
 helps you record them in `openspec/specutil.yaml`.
 
-Run this before planning a sync (`specutil plan`) to ensure the graph reflects
-actual ordering constraints. Missing edges mean changes that should wait for a
-prerequisite may be synced out of order.
+Run this before planning multi-change work, so the graph reflects actual
+ordering constraints. A missing edge means `specutil next` reports a change as
+runnable when a prerequisite is still open.
 
 ## Flow
 

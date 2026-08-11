@@ -28,13 +28,6 @@ type Mapping struct {
 	Fields []Field
 }
 
-// internalTargets are render targets used by other packages (e.g. syncplan) but
-// not exposed as user-facing --as values.
-var internalTargets = map[string]bool{
-	TicketTarget:   true,
-	OverviewTarget: true,
-}
-
 // mappings is the registry of supported render targets. Adding a target is a
 // matter of declaring its section routing here and shipping a matching template.
 var mappings = map[string]Mapping{
@@ -71,34 +64,13 @@ var mappings = map[string]Mapping{
 			{"summary", proposalWhy},
 		},
 	},
-	// ticket is the internal per-item body target that syncplan pre-renders for
-	// every tracker. It is not a user-facing --as value.
-	TicketTarget: {
-		Target: TicketTarget,
-		Fields: []Field{
-			{"summary", proposalWhy},
-		},
-	},
-	// overview is the internal change-level body that syncplan pre-renders for
-	// the container a tracker groups tickets under: a Linear project, a GitHub
-	// milestone, or a Notion page. It holds the acceptance criteria once, so
-	// individual tickets do not each repeat them.
-	OverviewTarget: {
-		Target: OverviewTarget,
-		Fields: []Field{
-			{"summary", proposalWhy},
-		},
-	},
 }
 
-// SupportedTargets returns the sorted list of user-facing render targets
-// (internal-only targets like github-issues are excluded).
+// SupportedTargets returns the sorted list of render targets.
 func SupportedTargets() []string {
 	out := make([]string, 0, len(mappings))
 	for k := range mappings {
-		if !internalTargets[k] {
-			out = append(out, k)
-		}
+		out = append(out, k)
 	}
 	sort.Strings(out)
 	return out

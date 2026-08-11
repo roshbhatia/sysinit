@@ -101,10 +101,9 @@ type Item struct {
 	Key   string `json:"key"`
 	// DependsOn lists the source IDs of sibling tasks this task waits on, as
 	// declared through a taskRefs field. Empty when none are declared.
-	DependsOn    []string      `json:"dependsOn,omitempty"`
-	Tags         []string      `json:"tags,omitempty"`
-	InlineRefs   []string      `json:"inlineRefs,omitempty"`
-	ExternalRefs []ExternalRef `json:"externalRefs,omitempty"`
+	DependsOn  []string `json:"dependsOn,omitempty"`
+	Tags       []string `json:"tags,omitempty"`
+	InlineRefs []string `json:"inlineRefs,omitempty"`
 	// Identity is the content-addressed task handle. It is what an annotation
 	// written in a browser names, so a comment survives the renumbering that
 	// follows almost every edit to the source.
@@ -124,12 +123,10 @@ type Note struct {
 	Action  string `json:"action,omitempty"`
 }
 
-// Options carries the per-change facts that live outside the IR: external
-// ticket refs, review drift, and recorded verdicts. The caller assembles them
-// from the lockfiles and review records so this package stays free of sync and
-// review dependencies. Every field is optional.
+// Options carries the per-change facts that live outside the IR: review drift
+// and recorded verdicts. The caller assembles them from the review records so
+// this package stays free of a review dependency. Every field is optional.
 type Options struct {
-	Refs   RefsByKey
 	Drift  DriftByKey
 	Notes  NotesByKey
 	Review ReviewByChange
@@ -147,18 +144,6 @@ type NotesByKey map[string]Note
 
 // ReviewByChange maps a change name to its recorded verdict.
 type ReviewByChange map[string]ReviewState
-
-// ExternalRef is a confirmed mapping from a task to an external system record
-// (e.g. a Linear issue or Notion page) written by `specutil lock set`.
-type ExternalRef struct {
-	Target     string `json:"target"`
-	ExternalID string `json:"externalId"`
-}
-
-// RefsByKey maps a composite key (changeName + "\x00" + phaseName + "\x00" +
-// itemText) to the external refs confirmed for that item. Built by the caller
-// from the per-change lockfiles so the detail package stays free of sync deps.
-type RefsByKey map[string][]ExternalRef
 
 // levelKey renders the (level, sibling-index) pair as a compact handle: the
 // 0-based level followed by a letter (a..z), falling back to the raw index past
@@ -249,19 +234,12 @@ func taskLevels(phases []ir.Phase) map[[2]int]int {
 	return levels
 }
 
-// Build assembles the detail feed from the loaded changes with no external refs.
+// Build assembles the detail feed from the loaded changes with no annotations.
 func Build(changes []*ir.Change) *Feed { return BuildWith(changes, Options{}) }
-
-// BuildWithRefs assembles the detail feed and annotates each task item with any
-// confirmed external references from refs. refs may be nil (no-op).
-func BuildWithRefs(changes []*ir.Change, refs RefsByKey) *Feed {
-	return BuildWith(changes, Options{Refs: refs})
-}
 
 // BuildWith assembles the detail feed and annotates it with every optional fact
 // in opts.
 func BuildWith(changes []*ir.Change, opts Options) *Feed {
-	refs := opts.Refs
 	out := make([]Change, 0, len(changes))
 	for _, c := range changes {
 		done, total := lifecycle.Progress(c)
@@ -317,10 +295,6 @@ func BuildWith(changes []*ir.Change, opts Options) *Feed {
 						Identity:   identity,
 					}
 					seen[level]++
-					if len(refs) > 0 {
-						key := c.Name + "\x00" + p.Name + "\x00" + it.Text
-						it2.ExternalRefs = refs[key]
-					}
 					idKey := c.Name + "\x00" + identity
 					it2.Drift = opts.Drift[idKey]
 					if n, ok := opts.Notes[idKey]; ok {

@@ -1,9 +1,8 @@
 // Package ident computes the stable, content-addressed handles every other
 // package uses to talk about the same task without agreeing on its position in
 // a file. Identity survives renumbering and minor edits; ContentHash flips on
-// any byte change. Both are pure functions of their input, so a lockfile, a
-// review record, and the rendered web page all name a task identically without
-// coordinating.
+// any byte change. Both are pure functions of their input, so a review record
+// and the rendered web page name a task identically without coordinating.
 package ident
 
 import (

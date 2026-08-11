@@ -106,15 +106,13 @@ func TestRenderEscapesScriptBreakout(t *testing.T) {
 	}
 }
 
-func TestRenderInlinesExternalRefs(t *testing.T) {
-	// detail.Item.ExternalRefs must reach the page as part of the inlined detail
-	// JSON so the template can render "ENG-123" chips next to task keys.
+func TestRenderInlinesTicketRefs(t *testing.T) {
+	// detail.Item.InlineRefs must reach the page as part of the inlined detail
+	// JSON so the template can render "INF-42" chips next to task keys.
 	d := &detail.Feed{Changes: []detail.Change{
 		{Name: "db", Lifecycle: "active", Phases: []detail.Phase{
 			{Number: "1", Name: "Setup", Items: []detail.Item{
-				{Text: "init", Key: "0a", ExternalRefs: []detail.ExternalRef{
-					{Target: "linear", ExternalID: "ENG-42"},
-				}},
+				{Text: "init", Key: "0a", InlineRefs: []string{"INF-42"}},
 			}},
 		}},
 	}}
@@ -122,9 +120,9 @@ func TestRenderInlinesExternalRefs(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Render: %v", err)
 	}
-	for _, want := range []string{"ENG-42", "externalRefs", "linear"} {
+	for _, want := range []string{"INF-42", "inlineRefs"} {
 		if !strings.Contains(string(out), want) {
-			t.Errorf("rendered page missing external ref %q", want)
+			t.Errorf("rendered page missing ticket ref %q", want)
 		}
 	}
 }
