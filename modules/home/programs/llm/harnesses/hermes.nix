@@ -29,6 +29,22 @@ let
       creation_nudge_interval = 0;
     };
 
+    # tirith is a prebuilt binary from `sheeki03/tirith`, a personal GitHub
+    # account, which hermes downloads unpinned from `releases/latest` into
+    # `~/.hermes/bin/tirith` on a background thread at startup, then runs before
+    # every shell command it executes. Two reasons that has to go rather than be
+    # tolerated: the download is unpinned upstream content this repository never
+    # declared, and `tirith_fail_open` defaults to true, so a spawn error or a
+    # 5-second timeout allows the command anyway. It adds supply-chain surface
+    # without being a gate you can rely on.
+    #
+    # This one key is the whole switch. `tools/tirith_security.py` opens its
+    # resolve-and-install path with `if not cfg["tirith_enabled"]: return None`,
+    # so the binary is neither fetched nor invoked. It is deliberately narrower
+    # than `security.allow_lazy_installs`, which gates hermes' optional PyPI
+    # backends and is a separate decision.
+    security.tirith_enabled = false;
+
     telemetry.shared_metrics.enabled = false;
   };
 in
@@ -53,6 +69,13 @@ in
       [
         "skills"
         "creation_nudge_interval"
+      ]
+      # Narrow on purpose. Enforcing `security` whole would strip
+      # `acked_advisories`, which records advisories the owner has read and acted
+      # on, and hermes writes it back only when a new one appears.
+      [
+        "security"
+        "tirith_enabled"
       ]
       [
         "telemetry"
