@@ -134,7 +134,10 @@ func TestAddedTaskIsNewAndRewordedTaskIsChanged(t *testing.T) {
 	})
 
 	after := change("c", "wire up the token issuer with a configurable TTL", "add a metrics counter")
-	drift := review.DriftByIdentity(after, rec)
+	drift := map[string]string{}
+	for id, m := range review.MatchTasks(after, rec) {
+		drift[id] = m.Drift
+	}
 
 	reworded := idOf(t, "wire up the token issuer with a configurable TTL")
 	added := idOf(t, "add a metrics counter")

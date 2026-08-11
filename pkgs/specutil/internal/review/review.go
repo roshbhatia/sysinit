@@ -376,16 +376,6 @@ func MatchTasks(c *ir.Change, rec *Record) map[string]Match {
 	return out
 }
 
-// DriftByIdentity classifies every current task against rec, discarding the
-// re-match provenance. See MatchTasks.
-func DriftByIdentity(c *ir.Change, rec *Record) map[string]string {
-	out := map[string]string{}
-	for id, m := range MatchTasks(c, rec) {
-		out[id] = m.Drift
-	}
-	return out
-}
-
 // ItemStatus is one task's standing against the review record.
 type ItemStatus struct {
 	Identity string `json:"identity"`

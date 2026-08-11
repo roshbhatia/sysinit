@@ -234,7 +234,9 @@ func taskLevels(phases []ir.Phase) map[[2]int]int {
 	return levels
 }
 
-// Build assembles the detail feed from the loaded changes with no annotations.
+// Build assembles the detail feed with no annotations. Its callers are the
+// tests, which read it a dozen times; inlining it would repeat the zero Options
+// at every one.
 func Build(changes []*ir.Change) *Feed { return BuildWith(changes, Options{}) }
 
 // BuildWith assembles the detail feed and annotates it with every optional fact
