@@ -176,10 +176,10 @@ function M.setup(config)
                   notified[id] = deck.status
                   local reason = deck.status == "waiting" and "idle" or "done"
                   wezterm.background_child_process({
-                    os.getenv("HOME") .. "/.nix-profile/bin/agent-notify",
+                    utils.get_nix_binary("agent-notify"),
                     deck.agent or "agent",
                     reason,
-                    os.getenv("HOME") .. "/.nix-profile/bin/agent-focus",
+                    utils.get_nix_binary("agent-focus"),
                   })
                 end
               end
