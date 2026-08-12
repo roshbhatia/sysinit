@@ -44,6 +44,24 @@ function M.findings()
 
   add("ok", "workspace: " .. tostring(repos.workspace))
 
+  -- Which rule produced that directory, because the wrong workspace is the failure
+  -- that looks like every other one: the roots are wrong, so the review is wrong, and
+  -- the path alone does not say whether it was declared or inferred.
+  local declared = vim.env.SYSINIT_WORKSPACE
+  if declared == nil or declared == "" then
+    add("ok", "workspace source: inferred, from the git top level or the cwd. `$SYSINIT_WORKSPACE` is unset")
+  elseif vim.fs.normalize(vim.fn.expand(declared)) == repos.workspace then
+    add("ok", "workspace source: declared by `$SYSINIT_WORKSPACE`")
+  else
+    add(
+      "warn",
+      string.format(
+        "workspace source: `$SYSINIT_WORKSPACE` is %s, which does not contain the cwd, so the inferred boundary is in use",
+        declared
+      )
+    )
+  end
+
   if repos.source == "none" then
     add(
       "warn",
