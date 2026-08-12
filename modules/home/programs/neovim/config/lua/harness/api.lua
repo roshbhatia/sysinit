@@ -295,6 +295,44 @@ local function show_changed_list()
   end
 end
 
+--- Open the explorer over a repository with nothing changed.
+---
+--- `:CodeDiff` cannot: it refuses a clean repository with "No changes to show" before
+--- it builds anything (`lua/codediff/commands.lua:376`), and the guard takes no option.
+--- So this calls the same `view.create` the command calls after that guard, with an
+--- empty status, which is the one seam that can say `Changes (0)`.
+---
+--- An empty diff is worth opening because "nothing changed" and "the review looked
+--- somewhere else" read identically as a message and not at all identically as a
+--- pane naming the repository.
+---
+--- Reaching into another plugin's internals is a cost paid deliberately, and bounded:
+--- every step is in one `pcall`, and a codediff that moves this seam falls back to the
+--- message rather than breaking the entry point.
+---@param root string
+---@return boolean opened
+local function open_empty(root)
+  local ok = pcall(function()
+    local view = require("codediff.ui.view")
+    local path = require("codediff.core.path")
+    view.create({
+      mode = "explorer",
+      git_root = root,
+      original = path.empty(),
+      modified = path.empty(),
+      original_revision = nil,
+      modified_revision = nil,
+      layout = "inline",
+      explorer_data = {
+        status_result = { unstaged = {}, staged = {}, conflicts = {} },
+        focus_file = nil,
+        pathspec = nil,
+      },
+    }, "")
+  end)
+  return ok
+end
+
 --- `group` is `{ root, files, scoped }` with absolute paths in `files`. `scoped`
 --- false means the whole working diff of that repository.
 ---@param group table
@@ -302,6 +340,27 @@ end
 local function open_one(group, on_open)
   has_conflict(group.root, function(unmerged)
     close_sessions()
+
+    -- A repository the caller already knows is clean never reaches `:CodeDiff`, which
+    -- would refuse it. `empty` is set by the caller that resolved the change set, so
+    -- this side does not run git a second time to find out.
+    if group.empty then
+      local opened = open_empty(group.root)
+      if not opened then
+        vim.notify(
+          "Harness: " .. vim.fn.fnamemodify(group.root, ":t") .. " is clean, and codediff would not open it",
+          vim.log.levels.WARN
+        )
+      end
+      vim.defer_fn(function()
+        attach_review()
+        show_changed_list()
+        if on_open then
+          on_open(opened)
+        end
+      end, 200)
+      return
+    end
 
     local args = { "--repo", group.root }
     -- A repository with an unmerged file opens side-by-side, against the inline
@@ -537,10 +596,19 @@ function M.review_workspace()
       vim.notify("Harness: no git repository under " .. gitrepo.workspace(), vim.log.levels.WARN)
       return
     end
+    -- An empty diff is a diff. Refusing to open one made a clean tree look like a
+    -- broken review: the owner presses the key, reads "nothing changed", and cannot
+    -- tell that from a workspace resolved to the wrong place. Opening it says both
+    -- things at once, because codediff's own explorer reads `Changes (0)` and
+    -- `Staged Changes (0)` over the repository it names.
     if #groups == 0 then
-      vim.notify(
-        string.format("Harness: nothing changed in %d repositor%s here", #roots, #roots == 1 and "y" or "ies"),
-        vim.log.levels.INFO
+      -- The repository the owner is standing in, or the first under the workspace when
+      -- the cwd is the workspace itself and holds several. A clean workspace has no
+      -- "most changed" repository to prefer, so the cwd is the only signal left.
+      local here = gitrepo.owning_root(vim.fs.normalize(vim.uv.cwd() or "."), roots) or roots[1]
+      open_review(
+        { { root = here, files = {}, scoped = false, empty = true } },
+        string.format("Harness: %s is clean", vim.fn.fnamemodify(here, ":t"))
       )
       return
     end
