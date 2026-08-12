@@ -22,7 +22,10 @@ return {
         { "<leader>c", group = "Code" },
         { "<leader>cf", group = "Find" },
         { "<leader>d", group = "Diff" },
-        { "<leader>dr", group = "Review" },
+        -- No group on `<leader>dr`: it is an action, and declaring it a group made
+        -- which-key present the review as a prefix waiting for another key while
+        -- `<leader>dR` sat under it as a sibling. A group and a mapping cannot share a
+        -- sequence.
         { "<leader>e", group = "Explorer" },
         { "<leader>f", group = "Find" },
         { "<leader>g", group = "Git" },
