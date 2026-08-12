@@ -1,0 +1,58 @@
+{
+  "records": [
+    {
+      "id": "herdr-pane-state",
+      "source": "https://raw.githubusercontent.com/herdrdev/herdr/d004089dee8a51d2083fef1bf58ef66b2b166448/README.md",
+      "accessed": "2026-08-11",
+      "claim_class": "api",
+      "quote": "every pane is marked working, blocked, or idle",
+      "snapshot": "citations/herdr-pane-state.snapshot",
+      "sha256": "a6aec1979a5259ce2e4e85fb6102a9bbff0e145bacadb6c563ef242496c96dbf"
+    },
+    {
+      "id": "herdr-wait-until-blocked",
+      "source": "https://raw.githubusercontent.com/herdrdev/herdr/d004089dee8a51d2083fef1bf58ef66b2b166448/README.md",
+      "accessed": "2026-08-11",
+      "claim_class": "api",
+      "quote": "wait until another agent is genuinely blocked",
+      "snapshot": "citations/herdr-wait-until-blocked.snapshot",
+      "sha256": "a6aec1979a5259ce2e4e85fb6102a9bbff0e145bacadb6c563ef242496c96dbf"
+    },
+    {
+      "id": "herdr-is-a-server",
+      "source": "https://raw.githubusercontent.com/herdrdev/herdr/d004089dee8a51d2083fef1bf58ef66b2b166448/README.md",
+      "accessed": "2026-08-11",
+      "claim_class": "api",
+      "quote": "herdr is a background server; the terminals live inside it",
+      "snapshot": "citations/herdr-is-a-server.snapshot",
+      "sha256": "a6aec1979a5259ce2e4e85fb6102a9bbff0e145bacadb6c563ef242496c96dbf"
+    },
+    {
+      "id": "cmux-subagents-become-panes",
+      "source": "https://raw.githubusercontent.com/manaflow-ai/cmux/71d80faac07992683f5165bfdea72a0598eb83bf/README.md",
+      "accessed": "2026-08-11",
+      "claim_class": "api",
+      "quote": "cmux turns them into native panes and splits instead of hidden background processes",
+      "snapshot": "citations/cmux-subagents-become-panes.snapshot",
+      "sha256": "f4438cef7cbe60b507e65f4d1743d7091f39c72a73a94a1743874a9d8d42bd53"
+    },
+    {
+      "id": "cmux-is-a-terminal",
+      "source": "https://raw.githubusercontent.com/manaflow-ai/cmux/71d80faac07992683f5165bfdea72a0598eb83bf/README.md",
+      "accessed": "2026-08-11",
+      "claim_class": "api",
+      "quote": "A Ghostty-based macOS terminal with vertical tabs and notifications for AI coding agents",
+      "snapshot": "citations/cmux-is-a-terminal.snapshot",
+      "sha256": "f4438cef7cbe60b507e65f4d1743d7091f39c72a73a94a1743874a9d8d42bd53"
+    },
+    {
+      "id": "herdr-runs-in-your-terminal",
+      "source": "https://raw.githubusercontent.com/herdrdev/herdr/d004089dee8a51d2083fef1bf58ef66b2b166448/README.md",
+      "accessed": "2026-08-11",
+      "claim_class": "api",
+      "quote": "runs in whatever terminal you already use",
+      "snapshot": "citations/herdr-runs-in-your-terminal.snapshot",
+      "sha256": "a6aec1979a5259ce2e4e85fb6102a9bbff0e145bacadb6c563ef242496c96dbf"
+    }
+  ]
+}
