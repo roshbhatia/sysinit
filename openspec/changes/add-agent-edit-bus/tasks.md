@@ -331,9 +331,64 @@ does. Nothing to fix here; the probe had to pin the variable explicitly.
 - **SHAPE** graph
 - **MERGE** 5.2
 
-- [ ] 5.1 Decide whether the declared review plugin can scope a diff to a file list, or whether the diff plugin beneath it must be driven directly `writes:` none `deps:` none
-- [ ] 5.2 Open a review restricted to the files an agent touched this session, keeping the full working diff reachable and making the narrowed scope visible `writes:` modules/home/programs/neovim/config/lua/harness/, modules/home/programs/neovim/config/lua/plugins/review.lua `deps:` 5.1
-- [ ] 5.3 Adversarial review (`adversarial-review` skill): critics attempt to break the scoping phase against the proposal `Behavior` criteria; revise until the loop reaches a terminal state
+- [x] 5.1 Decide whether the declared review plugin can scope a diff to a file list, or whether the diff plugin beneath it must be driven directly `writes:` none `deps:` none
+
+      It cannot, and the diff plugin beneath it can, so the scope comes from below
+      and the review layer is attached on top.
+
+      review.nvim exposes nine subcommands and none takes a path. `open()` calls
+      `open_codediff_with_revisions(nil, nil)`, whose only parameters are revisions and
+      which runs a bare `:CodeDiff`; `open_commits` takes `rev1` and `rev2`. Read at
+      `review.nvim/lua/review/init.lua:77-130` and `plugin/review.lua:6-15`.
+
+      codediff.nvim takes git pathspecs as trailing operands after `--`, and keeps
+      them across a refresh rather than losing the scope on the first reload:
+      `codediff.nvim/lua/codediff/commands.lua:773` declares the trailing arg and
+      `:395` carries `pathspec` into the session as "Scope (#74): preserved so refresh
+      re-applies it".
+
+      The two are joined by the seam review.nvim uses on itself.
+      `review._check_codediff_session()` reads whatever session the current tabpage
+      holds and installs the comment hooks and keymaps onto it, so opening codediff
+      scoped and then calling that function produces a scoped review without forking
+      or vendoring either plugin. It is a private name, so 5.2 degrades to a warning if
+      it disappears rather than opening a diff that silently records nothing.
+- [x] 5.2 Open a review restricted to the files an agent touched this session, keeping the full working diff reachable and making the narrowed scope visible `writes:` modules/home/programs/neovim/config/lua/harness/, modules/home/programs/neovim/config/lua/plugins/review.lua `deps:` 5.1
+
+      `harness.api.review_touched()`, on `<leader>dR`, beside the unchanged
+      `<leader>dr` that reviews everything. The keymap is declared in
+      `plugins/review.lua` rather than beside the watcher so lazy loads review.nvim
+      before the callback runs; a keymap that fired first would open a plain diff.
+
+      Three things the touched set forced, none of which the proposal anticipated:
+
+      - A path outside the repository cannot be a pathspec, and the set holds them
+        because the log is keyed on the directory the agent ran in while each event
+        carries an absolute path. They are counted and named in the message, not
+        dropped in silence.
+      - An empty scope NEVER falls back to the full diff. Both the no-events case and
+        the all-outside case say what happened and name `<leader>dr`, because a
+        narrowed review that silently widens is the one outcome 5.5 asks the owner to
+        be able to trust.
+      - The pathspecs are passed as command arguments through `vim.cmd({ cmd = ...,
+        args = ... })`, so a path holding a space or a bracket needs no escaping rule
+        of its own.
+
+      One defect was written and then found by reading, before any build:
+      `_check_codediff_session` returns nothing and returns early when there is no
+      session, so the first attach loop pcall'd it and treated "did nothing" as
+      success. It now waits for `lifecycle.get_session` to exist and warns after five
+      attempts.
+- [x] 5.3 Adversarial review (`adversarial-review` skill): critics attempt to break the scoping phase against the proposal `Behavior` criteria; revise until the loop reaches a terminal state
+
+      Terminal state: NOT-RUN, on the `review.md:75` direction that has governed
+      every review gate in this change.
+
+      The deterministic half: `stylua --check` clean, both files parse under
+      `loadfile`, `nix flake check` and the darwin build exit 0. What that cannot
+      reach is a running editor, so 5.5 is where this phase is actually tested, and
+      the one defect found so far came from reading the plugin rather than from any
+      gate.
 - [ ] 5.4 Apply: `git push`, then `nh darwin switch` from the `sysinit.laurel` checkout in a separate WezTerm pane, gated on `nix flake check` and `nh darwin build` exiting 0
 - [ ] 5.5 Confirm: the owner accepts that a scoped review shows the work they meant to review, and that the narrowing is obvious enough to not be mistaken for the whole diff
 
