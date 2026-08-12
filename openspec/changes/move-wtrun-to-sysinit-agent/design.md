@@ -64,7 +64,7 @@ Non-Goals:
   [cite: cmux-is-a-terminal]; this drives WezTerm through `wezterm cli`.
 - Changing the pane-record schema, or editing `switcher.lua`, `agent-sessions.sh`, or
   the status line. What they render changes without them changing: the worker becomes
-  one more pane record, so the switcher gains a row labeled `in wtrun` and a session
+  one more pane record, so the switcher gains a row labeled `in worker` and a session
   holding a blocked worker reads as `waiting`. That is what reusing the bus buys and
   what it costs, recorded under the `waiting` decision and in the proposal's `Impact`.
 - Filtering the worker out of the session rollup. It would need `agent-sessions.sh` to
@@ -74,9 +74,29 @@ Non-Goals:
 
 ## Decisions
 
-- Decision: `wtrun` becomes a `sysinit-agent wtrun` subcommand, and the skill
-  ships a wrapper that execs it. The wrapper keeps the name and the flags, so the
-  skill documentation and every existing call site are unchanged.
+- Decision: the command is named `worker`, decided by the owner on 2026-08-11,
+  with no `wtrun` alias. Every sibling subcommand is a plain noun and `wtrun` was
+  the only tool-prefixed abbreviation among them. `worker` is the word the state
+  files (`worker-pane`, `worker-running`, `worker-runs`) and this design already
+  used for the pane, so the rename retires a second name for one thing.
+  - Consequence: the rename is a caller-visible break, and the proposal's
+    "nothing that invokes `wtrun` today has to change" no longer holds. It is
+    scoped to the wrapper on PATH and the skill, both of which land together in
+    phase 2, so no window exists in which the old name resolves to nothing.
+  - Consequence: the state root moves from `agentWtrun` to a new `agentWorker`
+    manifest key. Nothing is migrated across it. The old root holds only the
+    superseded flat and `pane-N` shapes, so the two roots never hold two shapes of
+    the same thing, and the prune can take the old root whole.
+  - Alternative rejected: keep `wtrun` as an alias beside `worker`. Rejected by the
+    owner on the rule the rename exists to satisfy: two names for one thing is what
+    is being removed, so shipping both would leave the defect and add a name.
+  - Alternative rejected: keep the name `wtrun` and move only the implementation.
+    Rejected because the port is the one moment the name can change without a
+    second migration of the state root, which is keyed off the name.
+
+- Decision: `wtrun` becomes a `sysinit-agent worker` subcommand, and the skill
+  ships a wrapper that execs it. The wrapper keeps the flags, so every existing
+  call site changes only in the command name.
   - Alternative rejected: keep bash and move the shared parts into a sourced
     library. This is cheaper than the first draft of this design said, and the
     draft's stated reason was wrong: it claimed the keying rule would be written
@@ -109,7 +129,7 @@ Non-Goals:
     name. Rejected because nothing prints that name, so the key becomes unspellable
     by the owner at the moment the watch keybinding is the thing that needs it.
   - Alternative rejected: drop the `/` guard. Rejected because it is what stops a
-    session name from escaping the wtrun root, and `newBus` shows the guard is
+    session name from escaping the state root, and `newBus` shows the guard is
     unnecessary only once the argument is resolved with `filepath.Abs` first.
 
 - Decision: `waiting` is declared by the run and published through the state bus
@@ -122,7 +142,7 @@ Non-Goals:
     path for one fact. `panes.lua:57` reads the user var and validates it against
     `panes.lua:6`, whose top-ranked value is already `waiting`, and
     `ui.lua:174`, `ui/tabtitle.lua:48`, `ui/session_tree.lua:50`, and
-    `ui/switcher.lua:98` read the same value. A wtrun-only file would make
+    `ui/switcher.lua:98` read the same value. A worker-only file would make
     `--status` say `waiting` while all five of those said `working` about the same
     pane. This change's stated goal is removing duplicated readers, so adding a
     writer is the wrong direction.
@@ -159,7 +179,7 @@ Non-Goals:
     `agentstate.go:92-97` fills `Session` from the process cwd, which the body makes
     the caller's directory. So a build waiting on a sudo prompt reads, in the status
     line and at the top of the switcher, like the agent in that session being blocked
-    on the owner. The switcher row is labeled `in wtrun`; the session rollup is not,
+    on the owner. The switcher row is labeled `in worker`; the session rollup is not,
     because it does not read the agent field.
   - Consequence: a worker that publishes its own state never notifies.
     `ui.lua:172-175` fires `agent-notify` only for a pane that carries no
@@ -175,7 +195,7 @@ Non-Goals:
   WezTerm holds a var for the life of the pane and `panes.lua:59-66` prefers the var
   over the record, so `exit` would leave `--status` reporting idle while the status
   line, tab title, switcher, and session tree still read `waiting`. That is the exact
-  divergence the wtrun-only state file was rejected for, so `exit` reproduces the
+  divergence the worker-only state file was rejected for, so `exit` reproduces the
   defect its replacement was chosen to avoid.
   - Accepted cost: writing `idle` keeps the record, so the worker pane stays
     registered as an agent pane. `switcher.lua:172` lists any pane whose status is
@@ -240,7 +260,7 @@ Non-Goals:
     the pane-record schema, which is a non-goal, and because the marker already holds
     the run name and is written by the same body.
   - Consequence: a state written by something `wtrun` did not launch is not reported
-    as a wtrun run. The worker is an ordinary interactive shell, split with no program
+    as a worker run. The worker is an ordinary interactive shell, split with no program
     argument (`wtrun.sh:116`), so the owner can type into it and start a harness there.
     `agentstate` keys on the pane, so that harness owns the record. Without the
     correlation, `--status` would report the worker as blocked while `wtrun` has no run
@@ -276,9 +296,9 @@ Non-Goals:
     that are gone, so nothing will ever remove them. A reader that treats 0 as current
     reads those as live state.
 
-- Decision: the worker publishes with the agent name `wtrun`, not the default
+- Decision: the worker publishes with the agent name `worker`, not the default
   `agent`. `agentstate.go:46` takes the name positionally, so this needs no schema
-  change, and `switcher.lua:34-56` renders it as `in wtrun`. A worker's row is
+  change, and `switcher.lua:34-56` renders it as `in worker`. A worker's row is
   therefore labeled as a worker wherever the agent name is rendered.
   - Known limit: `agent-sessions.sh` does not read the agent field at all, so the
     session rollup cannot distinguish a blocked build from a blocked agent. See the
@@ -360,12 +380,21 @@ Non-Goals:
     reason the design already accepted, which makes it useless for catching a real
     reuse defect.
 
-- Decision: the prune considers only entries under the wtrun root that are
+- Decision: the prune considers only entries under the `agentWorker` root that are
   directories whose name matches `^pane-[0-9]+$` or the current key shape,
   `<basename>-<16 hex>` as `repo.keyed` produces it. The match MUST be anchored, and
   the current shape MUST be tested first, because a workspace whose basename is
   `pane-3` keys to `pane-3-<16hex>` and matches an unanchored `pane-*` too.
   Everything else it leaves alone, and it says how many it left.
+  - Decision within it: the superseded `agentWtrun` root is removed whole, decided
+    by the owner on 2026-08-11, rather than left on disk or swept entry by entry.
+    Nothing under it is current shape and nothing new writes there, so the two
+    branches the earlier draft left open, adopt or ignore, collapse: there is
+    nothing to adopt and nothing to keep ignoring. This supersedes the by-hand
+    deletion the earlier tasks 3.9 and 4.1 left to the owner.
+  - Alternative rejected: sweep the old root entry by entry with the same anchored
+    match. Rejected because it would preserve exactly the 296 flat artifacts the
+    match cannot claim, which is the state the removal exists to end.
   - Decision within it: liveness is read from `<dir>/worker-pane`, never from the
     directory name. A `pane-N` name is the CALLER pane (`wtrun.sh:25`), and
     `worker-pane` holds the WORKER pane (`wtrun.sh:29`), so the two are different
@@ -518,13 +547,13 @@ whether the symlinks are inside its count.
   caller would act on it. This holds only because the marker is cleared when the
   run ends; a marker with no owner would over-report permanently.
 
-- [Reporting `waiting` through the shared bus means a wtrun run writes the same
+- [Reporting `waiting` through the shared bus means a worker run writes the same
   pane state a harness writes] -> Correct and intended: it is one pane and one
   state. Three costs follow and all three are accepted rather than mitigated: the
   session rollup cannot tell a blocked build from a blocked agent, the worker stays
   registered as an agent pane because the clear writes `idle` rather than removing
   the record, and the worker never notifies because publishing the var is what
-  suppresses notification. The switcher labels the row `in wtrun`; nothing else does.
+  suppresses notification. The switcher labels the row `in worker`; nothing else does.
 
 - [The clear must survive a signal, and the first draft's clear did not] -> A zsh
   trap in the body on `EXIT INT TERM HUP`, plus an explicit removal in `--close`.
@@ -551,7 +580,7 @@ holds `cd .../sysinit.laurel && nh darwin switch . --update`, and three sibling
 invocation, and the first invocation after phase 3 activates prunes.
 
 0. Capture the baseline from a plain shell, BEFORE phase 3 is activated. For every
-   key-shaped directory under the wtrun root, record its name, the id in
+   key-shaped directory under the state root, record its name, the id in
    `<dir>/worker-pane`, and whether that id appears in
    `wezterm cli list --format json`. Counts alone are not a baseline: they cannot say
    which record went.
@@ -559,7 +588,7 @@ invocation, and the first invocation after phase 3 activates prunes.
    precondition first by recording `pane-$WEZTERM_PANE/worker-pane` and confirming
    that id is live at the moment of the comparison. Create a worker through the bash
    script immediately before comparing if none is live. Then run
-   `sysinit-agent wtrun --status` and the bash `--status`. They are expected to
+   `sysinit-agent worker --status` and the bash `--status`. They are expected to
    DISAGREE: the script names the worker and the subcommand reports none. Agreement on
    "no worker" means the precondition lapsed, not a defect. That distinction matters
    here because the only superseded record naming a live worker is keyed on a

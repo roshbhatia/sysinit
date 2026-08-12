@@ -1,27 +1,31 @@
 version: 2
 change: move-wtrun-to-sysinit-agent
 decision: approved
-change_hash: eab1a6eb5345c913
-base_commit: 627fbb2c9c4c556eed82c8c815ebbbab602b3852
+note: renamed wtrun to worker, no alias, prune removes the old state root
+change_hash: 16328e4c2fe25728
+base_commit: d9515ee4924d7753e24645bab6fa210feffbdfe5
 items:
+    2c340666383b73d7:
+        hash: e694eb789bdadfcf
+        text: Rename the watch source and its session override to match, so `watch wtrun` and `WTRUN_SESSION` do not outlive the command they were named for
+    3a4da06b1796fe06:
+        hash: 790ed52a492a7ad7
+        text: Add a `worker` subcommand whose worker record is keyed on the workspace rather than the calling pane, following `pkgs/sysinit-agent/internal/editevent/` for layout and flag handling
     3b995b908c4bf153:
         hash: e5dab99773fe9128
         text: Report a worker held under the superseded key on one line, without adopting it and without killing it, so the extra pane the first run splits is explained when it happens
     3ba24e4a19224cda:
         hash: 41968831fe0d6e40
         text: Report `waiting` through the state bus that already exists, so the pane record and the WezTerm user var carry the word the status line, tab title, switcher, session tree, and session script already read, attributing it to a run only when the running marker names that run, and leaving an undeclared run reported as running
-    5c20db839576daaa:
-        hash: a10f8308862fb32a
-        text: Remove a record whose WORKER pane no longer exists, reading liveness from `worker-pane` rather than from a `pane-N` directory name, with the scan anchored to the current key shape tested before `^pane-[0-9]+$`, and report the count left untouched, split between override-keyed directories and the legacy flat artifacts, stating whether the two `last.*` symlinks are inside that count
     06b897398553da8b:
         hash: 0a91f4586b0c5661
         text: 'Confirm: the owner accepts that the two implementations disagree about the live worker in the expected way, the script naming it and the subcommand reporting none, with no other difference'
     7c3b75779231973e:
         hash: 09870189d97b127d
         text: 'Apply: `git push`, then `nh darwin switch` from the `sysinit.laurel` checkout in a separate WezTerm pane, gated on `nix flake check` and `nh darwin build` exiting 0'
-    8e6a701919287156:
-        hash: 239082ae150c83c2
-        text: Decide whether the roughly 296 legacy flat run artifacts and the dead root `worker-pane` are deleted by hand, which the prune deliberately does not touch
+    16cacf1ab9ae5377:
+        hash: cec555b7772924a6
+        text: 'Decided by 3.9: the legacy artifacts are removed by the prune, not by hand'
     41a6c133511ba8b6:
         hash: 4db820b100613b14
         text: 'Apply: `git push`, then `nh darwin switch` from the `sysinit.laurel` checkout in a separate WezTerm pane, gated on `nix flake check` and `nh darwin build` exiting 0. The bash script stays installed and stays the one the skill calls'
@@ -49,21 +53,18 @@ items:
     379071e1c3359ee7:
         hash: 98714319f1e71a8e
         text: 'Adversarial review (`adversarial-review` skill): critics attempt to break the parity phase against the proposal `Behavior` criteria; revise until the loop reaches a terminal state (see the skill for the scaled round cap)'
-    21466414ce30d0ab:
-        hash: 12c7ff532f006c6e
-        text: Point the skill at the subcommand and delete the bash script in one commit, restating the documented promise about run ids now that a workspace shares one namespace
     b4e95575fd337161:
         hash: 5af7fa367fcccae5
         text: Reconcile the subtasks and prove `go test ./...` and `nix build .#darwinConfigurations.lv426.system` exit 0, with a test for every negative scenario the proposal states
     ba432dc267137ca5:
         hash: 2c3b21f89cf1de4e
         text: 'Adversarial review (`adversarial-review` skill): critics attempt to break the state phase against the proposal `Behavior` criteria; revise until the loop reaches a terminal state'
-    be96b76c9a319015:
-        hash: bbcdc61f94cc86c0
-        text: 'Decide: the owner decides whether the roughly 300 legacy flat run artifacts are deleted by hand, which the prune deliberately does not touch'
     c1d4f1d1b15580d4:
         hash: 5bc4ff62db5b61ba
         text: Reconcile the four subtasks and prove `go test ./...` and `nix build .#darwinConfigurations.lv426.system` exit 0, including tests that pruning cannot remove live state, cannot read a flat run artifact as a key, and that a run which declared itself blocked and then exited reports as neither
+    c1e4e0a9abb9813f:
+        hash: 6d316e6ae046254f
+        text: Point the skill at the subcommand under its new name and delete the bash script in one commit, restating the documented promise about run ids now that a workspace shares one namespace
     c98dd83049a6db9a:
         hash: f93761d8c876321a
         text: 'Confirm: the owner accepts that an opt-in `waiting` is the right trade, having seen one blocked run that declared itself and one that did not, that the five existing surfaces agree with `--status` about the worker pane, that the switcher row reads `in wtrun`, and that a session holding a blocked worker reads as `waiting`'
@@ -73,12 +74,15 @@ items:
     ced2c984e7598bb4:
         hash: 30d1c98d8797ffa3
         text: 'Decide: the owner decided on 2026-08-11 to keep `waiting` and design the clear, having been shown that its only producer is a harness run inside the worker, that such a run holds the shared worker while it waits, and that the bus''s `exit` status leaves the user var stale. The three accepted costs are recorded in the design'
+    d19f624ef83ae570:
+        hash: 2982e1c51079e6f7
+        text: 'Decide: the owner decided on 2026-08-11 that the superseded `agentWtrun` root is removed whole by the prune, rather than left for a by-hand deletion. That covers the roughly 296 legacy flat run artifacts and the dead root `worker-pane` together, because the rename moves the live state to a new root and leaves nothing current behind'
     dd8ee61bc2ff780c:
         hash: 3ba088cf683f4a1d
         text: Refuse a run name whose previous run has recorded no exit code, so two panes sharing one workspace cannot share one log, and ship a per-run release so a name an interrupted run burned can be retyped without discarding any other run's log
-    e3b4b5e4a01a3912:
-        hash: 4eabed18d508dd6a
-        text: Add a `wtrun` subcommand whose worker record is keyed on the workspace rather than the calling pane, following `pkgs/sysinit-agent/internal/editevent/` for layout and flag handling
+    eab2cd2c13fc6115:
+        hash: ea6269a5181353c3
+        text: Remove a record whose WORKER pane no longer exists, reading liveness from `worker-pane` rather than from a `pane-N` directory name, with the scan anchored to the current key shape tested before `^pane-[0-9]+$`, and report the count left untouched, split between override-keyed directories and the legacy flat artifacts, and remove the superseded `agentWtrun` root whole
     eb141845f7e302ce:
         hash: ed8f70a89d7a0f69
         text: 'Confirm: the owner runs one real build through the new implementation and accepts the exit code, the log tail, and the directory it reported, with the one extra pane explained by the superseded-worker line rather than appearing unannounced'

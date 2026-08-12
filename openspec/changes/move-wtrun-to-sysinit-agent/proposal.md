@@ -80,8 +80,15 @@ complained.
 
 `wtrun` becomes a `sysinit-agent` subcommand. `internal/repo` supplies the keying
 that `internal/editevent` already uses, `internal/paths` replaces the script's own
-manifest reader, and the bounded liveness probe is written once. The skill keeps
-its name and its flags, so nothing that invokes `wtrun` today has to change.
+manifest reader, and the bounded liveness probe is written once.
+
+The subcommand is called `worker`, not `wtrun`. The owner decided this on
+2026-08-11 and chose no alias, so the flags carry over unchanged and the command
+name does not. Every sibling subcommand is a plain noun (`agent-state`,
+`edit-event`, `note`, `watch`, `citelock`, `bash-guard`), and `wtrun` was the only
+tool-prefixed abbreviation among them. `worker` is the word the state files and the
+documentation already used for the pane, so the rename removes a second name for
+one thing rather than adding one.
 
 Six behavioral changes ride along, in dependency order:
 
@@ -95,7 +102,9 @@ Six behavioral changes ride along, in dependency order:
    in the output.
 6. A flag that wants a number rejects anything else, before a pane is split.
 
-Item 4 depends on item 2 existing. Items 1, 3, 5, and 6 are independent.
+Item 4 depends on item 2 existing. Items 1, 3, 5, and 6 are independent. The
+rename is independent of all six and lands with the cutover, so phase 1 ships the
+subcommand while the script keeps the name on PATH.
 
 ### Non-goals
 
@@ -103,9 +112,9 @@ Item 4 depends on item 2 existing. Items 1, 3, 5, and 6 are independent.
   [cite: cmux-is-a-terminal]; this keeps WezTerm and drives it through
   `wezterm cli`.
 - No server, which is the one thing that separates this from herdr
-  [cite: herdr-is-a-server]. The state stays files under the `agentWtrun` path,
-  readable by a shell one-liner, because that is what makes the status line and the
-  Lua side able to read it without linking anything.
+  [cite: herdr-is-a-server]. The state stays files under a manifest path, now
+  `agentWorker`, readable by a shell one-liner, because that is what makes the
+  status line and the Lua side able to read it without linking anything.
 - No second state bus. `agentstate` already publishes a pane's state to a WezTerm
   user var and a pane record, and `panes.lua:57`, `ui.lua:174`,
   `ui/tabtitle.lua:48`, `ui/session_tree.lua:50`, and `ui/switcher.lua:98` read it.
@@ -210,7 +219,7 @@ shipping under that constraint is an owner decision, recorded as such.
 The clear MUST NOT be the bus's `exit` status. `exit` removes the pane record without
 updating the user var, and WezTerm holds a var until the pane closes, so `exit` makes
 `--status` disagree with all five readers about the same pane. That is the divergence
-this design rejected a wtrun-only state file to avoid.
+this design rejected a worker-only state file to avoid.
 
 A blocked worker is a visual signal, not a notification. `ui.lua:172` suppresses
 notification for any pane carrying a state var, so publishing is what silences it.
@@ -325,14 +334,19 @@ the tty input buffer holds the command until the previous one finishes.
 - THEN that is the failure above, rather than a wait of `-t` and a command of
   whatever followed
 
-### Nothing else that calls wtrun today has to change
+### An existing invocation behaves the same, under the new name
 
 - WHEN an existing invocation runs, with any combination of `-w`, `-t`, `-n`,
-  `--status`, `--close`, and a command
+  `--status`, `--close`, and a command, spelled `worker` rather than `wtrun`
 - THEN it behaves as the bash implementation did, including the exit code and the
   log and rc file paths
 
-There are three deliberate exceptions, not two. A caller that relied on the worker's
+The command name is the fourth exception, and unlike the other three it is a
+decision rather than a defect being corrected. The owner chose `worker` with no
+alias on 2026-08-11, so `wtrun` stops resolving when phase 2 lands, and every call
+site is edited in the same phase that removes the script.
+
+There are three further deliberate exceptions. A caller that relied on the worker's
 directory rather than its own gets a different directory, and a caller that passed a
 non-number to `-w` gets an error where it used to get a pane. Both were the defect;
 preserving them is not compatibility.

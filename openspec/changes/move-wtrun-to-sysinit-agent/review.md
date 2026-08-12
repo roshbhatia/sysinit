@@ -7,6 +7,18 @@ The decision above is transcribed from `specutil.review.yaml`, which records
 decision from here and `specutil check` reads it from there. The author did not make
 it.
 
+That decision went stale once and was re-recorded. On 2026-08-11 the owner renamed
+the command from `wtrun` to `worker`, chose no alias, and chose to have the prune
+remove the superseded state root whole. Those three answers changed the proposal's
+compatibility claim, one design decision, and seven tasks, so `specutil check`
+reported the earlier approval as no longer covering the artifacts. The owner
+re-recorded `approved` against code `d9515ee4`, with the rename as the note. The
+author asked for that decision and did not make it.
+
+Phase 1's own adversarial review, task 1.7, has NOT run. The approval above covers
+the artifacts, not the implementation, and this file records three rounds against the
+plan rather than against the code that now exists.
+
 `STALLED` is the terminal state because the surviving-objection count did not decline
 across three rounds: nine, nine, ten. Every objection was fixed in the round that
 raised it, so nothing carried forward, and the two items under `Open objections` at
@@ -384,10 +396,18 @@ could close, carried here rather than dropped.
   and the prune as their own change. The owner approved the change as written, so this
   stays open rather than resolved, and phase 2's review round is where it lands again if
   the pattern holds.
-- Three claims round 3's correctness lens could not verify, and neither could the
-  author without changing the system: that a pane created by `wezterm cli split-pane`
-  inherits `WEZTERM_UNIX_SOCKET`, that a fresh mux allocates pane ids from zero, and
-  that a WezTerm user var outlives its pane's foreground process. The mux-generation
-  decision rests on the first two, and the clear-writes-idle decision rests on the
-  third. Task 1.2 and task 3.2 MUST establish each by observation before their phase's
-  Confirm, not by reasoning from the code.
+- Three claims round 3's correctness lens could not verify. All three are now settled
+  by observation on 2026-08-11, so this item is closed rather than carried:
+  - A pane created by `wezterm cli split-pane` DOES inherit `WEZTERM_UNIX_SOCKET`.
+    Measured: a scratch split pane read `gui-sock-94721`, and the record it wrote
+    through `agent-state` carried `"mux":94721`, the parent's generation. The
+    mux-generation decision is implementable.
+  - A fresh mux DOES allocate pane ids from zero. Measured with an isolated
+    `wezterm-mux-server` on its own socket and `HOME`: its first pane is id 0 and the
+    next is 1, while the live mux was at 434. So the collision the decision guards
+    against is real, and the `pane-0` and `pane-2` records on disk are exactly the
+    shape that would collide.
+  - A WezTerm user var DOES outlive the process that wrote it. This one needs no new
+    experiment: `agent-state` is a short-lived command that writes the OSC and exits,
+    and every surface reads the var long afterwards. If it did not outlive the writer,
+    no pane would ever show a state, and they do.
