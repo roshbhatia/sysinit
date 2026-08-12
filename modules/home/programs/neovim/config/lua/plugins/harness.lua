@@ -108,6 +108,32 @@ return {
         end,
         desc = "Diff: health of the review surface",
       },
+      {
+        -- The review fills the quickfix list with every changed file in the
+        -- workspace, so walking it is walking the review. Declared here, with the
+        -- rest of the review surface, because nothing else in this config maps them.
+        "]q",
+        "<cmd>cnext<cr>",
+        desc = "Quickfix: next entry",
+      },
+      {
+        "[q",
+        "<cmd>cprevious<cr>",
+        desc = "Quickfix: previous entry",
+      },
+      {
+        "<leader>dq",
+        function()
+          local open = false
+          for _, win in ipairs(vim.fn.getwininfo()) do
+            if win.quickfix == 1 then
+              open = true
+            end
+          end
+          vim.cmd(open and "cclose" or "copen")
+        end,
+        desc = "Diff: the review's changed-file list",
+      },
     },
   },
 }
