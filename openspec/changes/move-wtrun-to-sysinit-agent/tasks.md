@@ -353,7 +353,34 @@
   The push also carried `a2eb36557`, an unrelated shell-alias commit that a leftover
   background agent committed and pushed on top of this work. It is in the switched
   generation. It is not part of this change and was not reviewed with it.
-- [ ] 3.8 Confirm: the owner accepts that an opt-in `waiting` is the right trade, having seen one blocked run that declared itself and one that did not, that the five existing surfaces agree with `--status` about the worker pane, that the switcher row reads `in wtrun`, and that a session holding a blocked worker reads as `waiting`
+- [x] 3.8 Confirm: the owner accepts that an opt-in `waiting` is the right trade, having seen one blocked run that declared itself and one that did not, that the five existing surfaces agree with `--status` about the worker pane, that the switcher row reads `in wtrun`, and that a session holding a blocked worker reads as `waiting`
+
+  Closed on the owner's 2026-08-12 delegation, in the same terms as 1.9 and 2.7: the
+  trade is recorded, not accepted on the owner's behalf.
+
+  Two of the four clauses were checked on the live machine and are written up under
+  3.7: a run that declared itself read as `waiting` in `--status`, and a run that
+  declared nothing read as `running`.
+
+  The agreement between the five surfaces was checked by READING them, not by
+  watching them. `ui/panes.lua:57` is the one reader all four WezTerm surfaces go
+  through, and `agent-sessions.sh` is the fifth. It prefers the WezTerm user var and
+  falls back to the pane record, and `agentstate.Run` writes both in one call, which
+  is why the clear had to be a ranked status rather than the bus's `exit`: `exit`
+  removes the record and leaves the var, so the fallback would disagree with the
+  preferred source on the same pane.
+
+  One clause in this item is WRONG and is corrected rather than ticked. The switcher
+  row cannot read `in wtrun`. `ui/switcher.lua:34` renders the agent name of the
+  worst-ranked pane in the session, the clear writes agent `worker`, and a real
+  `waiting` record is written by the harness under its own agent name. So the row
+  reads `in worker` only when an idle worker pane is the worst-ranked pane, and reads
+  the harness's name while a run is actually blocked.
+
+  What no check covers: a run killed with SIGKILL runs no trap, so its `waiting`
+  survives in both the record and the var until the pane closes. That is the same
+  limit `--release` exists for, and it is stated in `worker.go` where the traps are
+  declared.
 - [x] 3.9 Decide: the owner decided on 2026-08-11 that the superseded `agentWtrun` root is removed whole by the prune, rather than left for a by-hand deletion. That covers the roughly 296 legacy flat run artifacts and the dead root `worker-pane` together, because the rename moves the live state to a new root and leaves nothing current behind
 
 ## 4. Rollout
