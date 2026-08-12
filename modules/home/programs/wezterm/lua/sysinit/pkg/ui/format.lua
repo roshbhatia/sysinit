@@ -99,7 +99,26 @@ end
 -- running, while every other pane named its real process.
 local passthrough_procs = {
   zmx = true,
+  -- `caffeinate -- <cmd>` holds the pty exactly the way a multiplexer client does, so
+  -- a pane running an agent under it read `caffeinate` and named the wrapper instead
+  -- of the work.
+  caffeinate = true,
 }
+
+-- Whether a process name is a wrapper rather than the work.
+--
+-- Exported because three renderers see only a name: the tab title formatter gets a
+-- table rather than a Pane and cannot walk the tree, and `tab_label` reads a title
+-- wezterm already derived from one of these names. Each of them needs to know the name
+-- is worthless even when it cannot find the better one itself.
+---@param name string|nil
+---@return boolean
+function M.is_passthrough(name)
+  if type(name) ~= "string" or name == "" then
+    return false
+  end
+  return passthrough_procs[M.normalize_proc(name):lower()] == true
+end
 
 -- Deepest descendant of a passthrough process, by pid order at each level.
 --
@@ -149,7 +168,10 @@ function M.pane_proc(p, agent)
       return inner
     end
   end
-  if ok and proc_name and proc_name ~= "" then
+  -- A wrapper name is not an answer. When the descent above found nothing, say what the
+  -- agent is instead, and let the caller fall back to the directory rather than print
+  -- the name of the thing holding the pty.
+  if ok and proc_name and proc_name ~= "" and not passthrough_procs[proc_name] then
     return proc_name
   end
   if agent and agent ~= "" then
@@ -165,7 +187,10 @@ function M.tab_label(tab, index, active_pane)
   local ok, title = pcall(function()
     return tab:get_title() or ""
   end)
-  if ok and title and title ~= "" then
+  -- wezterm derives an unset tab title from the pane's own, so a wrapper's name arrives
+  -- here as the tab's title and the switcher listed a tab called `zmx`. Rejecting it
+  -- here reaches `pane_proc` below, which is the one path that can walk the tree.
+  if ok and title and title ~= "" and not M.is_passthrough(title) then
     return title
   end
   if active_pane then

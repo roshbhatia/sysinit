@@ -33,8 +33,15 @@ function M.format(tab, cfg, ctx)
   end
 
   local label
-  if osc and osc ~= "" and not osc:match("^%d+$") and not SHELLS[osc:lower()] then
+  -- A wrapper name is rejected for the same reason a shell name is: it holds the pane
+  -- without doing the work in it. This formatter is handed a table rather than a Pane,
+  -- so it cannot walk the process tree to find the work; the directory says more than
+  -- the wrapper does.
+  if osc and osc ~= "" and not osc:match("^%d+$") and not SHELLS[osc:lower()] and not ui_format.is_passthrough(osc) then
     label = osc
+  end
+  if ui_format.is_passthrough(proc) then
+    proc = nil
   end
   label = label or dir or proc or "shell"
 
