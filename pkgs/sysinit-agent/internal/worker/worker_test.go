@@ -323,12 +323,20 @@ func TestTheGeneratedBodyChecksItsDirectoryAndQuotesIt(t *testing.T) {
 	if code := readRC(t, ws, "run1"); code != "0" {
 		t.Errorf("exit code = %q, want 0", code)
 	}
+	// The body removes itself once its exit code lands, so nothing accumulates a
+	// dead script per run.
+	if _, err := os.Stat(body); err == nil {
+		t.Error("the body survived its own run")
+	}
 
-	// Now remove the directory and re-run the same body: it must refuse rather
-	// than fall through and run the command wherever the pane happens to be, and
-	// it must say so with a code no ordinary command returns.
+	// Now remove the directory and run a fresh body for the same name: it must
+	// refuse rather than fall through and run the command wherever the pane happens
+	// to be, and it must say so with a code no ordinary command returns.
 	os.RemoveAll(awkward)
 	os.Remove(ws.rcFile("run1"))
+	if err := ws.writeBody(body, "run1", awkward, "pwd"); err != nil {
+		t.Fatal(err)
+	}
 	out, err = exec.Command("zsh", body).CombinedOutput()
 	if err == nil {
 		t.Errorf("body ran with its directory gone:\n%s", out)
@@ -525,6 +533,36 @@ func TestANameInFlightIsRefusedAndReleasableAlone(t *testing.T) {
 	}
 }
 
+// A run queued in the tty input buffer is not releasable. Its marker still names
+// its predecessor, because the body writes the marker when the PREVIOUS command
+// finishes, so keying the refusal on the marker released it and deleted the body
+// the pane was about to run.
+func TestAQueuedRunIsNotReleasable(t *testing.T) {
+	state(t)
+	mux := &fakeMux{panes: []int{7, 12}}
+	mux.install(t)
+
+	ws := workspaceIn(t, t.TempDir())
+	ws.live(t, "12")
+
+	// `a` is running, so the marker names it. `b` is queued behind it: its log and
+	// body exist, and it has recorded no exit code.
+	os.WriteFile(ws.logFile("a"), []byte("a's output\n"), 0o600)
+	os.WriteFile(ws.runningFile(), []byte("a\n"), 0o600)
+	os.WriteFile(ws.logFile("b"), []byte("=== b\n"), 0o600)
+	os.WriteFile(ws.bodyFile("b"), []byte("#!/usr/bin/env zsh\ntrue\n"), 0o700)
+
+	if code := ws.release("7", "b"); code != 2 {
+		t.Errorf("release of a queued run = %d, want 2", code)
+	}
+	if _, err := os.Stat(ws.bodyFile("b")); err != nil {
+		t.Error("release deleted the body the pane was about to run")
+	}
+	if got := ws.runningRun(); got != "a" {
+		t.Errorf("marker = %q, want it untouched at \"a\"", got)
+	}
+}
+
 // A marker naming a run whose pane is gone has no owner: the pane died before
 // its trap could clear it. Both recoveries have to reclaim it, or the name stays
 // unusable with no command-line way back.
@@ -675,9 +713,167 @@ func TestAFailedSendDoesNotBurnTheName(t *testing.T) {
 	}
 }
 
-// A run name has to stay inside the workspace's directory.
+// A caller with no mux generation of its own refuses, rather than splitting a
+// worker it will refuse again next time. The record it would write is equally
+// unverifiable, so accepting the split means one new pane per invocation and no
+// way for --close to reach any of them.
+func TestACallerWithNoGenerationRefusesInsteadOfSplittingForever(t *testing.T) {
+	state(t)
+	t.Setenv("WEZTERM_UNIX_SOCKET", "/tmp/not-a-gui-sock")
+	mux := &fakeMux{panes: []int{7, 12}, split: 99}
+	mux.install(t)
+
+	ws := workspaceIn(t, t.TempDir())
+	os.WriteFile(ws.paneFile(), []byte("12\n"), 0o600)
+	os.WriteFile(ws.muxFile(), []byte("0\n"), 0o600)
+
+	if code := ws.start("7", t.TempDir(), options{tail: 20}); code != 2 {
+		t.Errorf("start with no generation = %d, want 2", code)
+	}
+	for _, action := range mux.actions {
+		if strings.Contains(action, "split-pane") {
+			t.Fatal("a worker was split that the next invocation would refuse again")
+		}
+	}
+	// And --close can still say why, rather than deleting the record and killing
+	// nothing.
+	if code := ws.closePane("7"); code != 2 {
+		t.Errorf("close with no generation = %d, want 2", code)
+	}
+	if _, err := os.Stat(ws.paneFile()); err != nil {
+		t.Error("the record was deleted while the pane's state was unknown")
+	}
+}
+
+// A record naming the calling pane says who is asking, not whether the pane
+// exists. Reading it as absence deleted the record of a pane that was still on
+// screen, and discarded a run executing in that very pane.
+func TestARecordNamingTheCallerIsNotAbsence(t *testing.T) {
+	state(t)
+	mux := &fakeMux{panes: []int{12}, split: 99}
+	mux.install(t)
+
+	ws := workspaceIn(t, t.TempDir())
+	ws.live(t, "12")
+
+	// --close from inside the worker pane keeps the record and kills nothing.
+	if code := ws.closePane("12"); code != 2 {
+		t.Errorf("close from the worker pane = %d, want 2", code)
+	}
+	if _, err := os.Stat(ws.paneFile()); err != nil {
+		t.Error("the record of a live pane was deleted")
+	}
+	for _, action := range mux.actions {
+		if strings.Contains(action, "kill-pane") {
+			t.Error("the calling pane was killed")
+		}
+	}
+
+	// --release from inside the worker pane refuses: the run is executing here.
+	os.WriteFile(ws.logFile("live"), []byte("running\n"), 0o600)
+	os.WriteFile(ws.runningFile(), []byte("live\n"), 0o600)
+	if code := ws.release("12", "live"); code != 2 {
+		t.Errorf("release from the worker pane = %d, want 2", code)
+	}
+	if _, err := os.Stat(ws.logFile("live")); err != nil {
+		t.Error("a running run's log was unlinked while tee was writing to it")
+	}
+
+	// Starting a run from inside the worker still splits, which is correct: the
+	// caller needs a worker other than itself, and its own pane is not orphaned.
+	if code := ws.start("12", t.TempDir(), options{tail: 20}); code != 0 {
+		t.Errorf("start from the worker pane = %d, want 0", code)
+	}
+}
+
+// --close records an exit code for the run it killed. Without it the log has no
+// rc, which reads as a run in flight, so --close silently burned that name for
+// the whole workspace while printing a message that read like cleanup finishing.
+func TestCloseRecordsACodeForTheRunItKilled(t *testing.T) {
+	state(t)
+	mux := &fakeMux{panes: []int{7, 12}}
+	mux.install(t)
+
+	ws := workspaceIn(t, t.TempDir())
+	ws.live(t, "12")
+	os.WriteFile(ws.logFile("build"), []byte("half a build\n"), 0o600)
+	os.WriteFile(ws.runningFile(), []byte("build\n"), 0o600)
+
+	if code := ws.closePane("7"); code != 0 {
+		t.Fatalf("close = %d, want 0", code)
+	}
+	if ws.inFlight("build") {
+		t.Error("--close burned the name of the run it killed")
+	}
+	if got := readRC(t, ws, "build"); got != strconv.Itoa(paneClosed) {
+		t.Errorf("recorded exit code = %q, want %d", got, paneClosed)
+	}
+}
+
+// A read-only query never creates the record directory. The migration plan has
+// the owner run --status to compare the two implementations, and a query that
+// writes perturbs the baseline the later steps compare against.
+func TestAQueryDoesNotCreateTheRecord(t *testing.T) {
+	state(t)
+	t.Setenv("WEZTERM_PANE", "7")
+	mux := &fakeMux{panes: []int{7}}
+	mux.install(t)
+
+	dir := t.TempDir()
+	t.Chdir(dir)
+	ws, err := newWorkspace(dir)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	for _, args := range [][]string{{"--status"}, {"--close"}, {"--release", "build"}} {
+		if code := Run(args); code != 0 {
+			t.Errorf("%v = %d, want 0", args, code)
+		}
+		if _, err := os.Stat(ws.dir); err == nil {
+			t.Fatalf("%v created the record directory %s", args, ws.dir)
+		}
+	}
+}
+
+// Two callers passing the same explicit -n never both hold the name. The reuse
+// path used to remove the log and then create it, so the second caller removed
+// the log the first had just created and both proceeded.
+func TestTheReuseRaceHandsTheNameToOneCaller(t *testing.T) {
+	state(t)
+	ws := workspaceIn(t, t.TempDir())
+
+	const rounds = 200
+	for round := range rounds {
+		os.WriteFile(ws.logFile("build"), []byte("a finished run\n"), 0o600)
+		os.WriteFile(ws.rcFile("build"), []byte("0\n"), 0o600)
+
+		var wait sync.WaitGroup
+		won := make([]bool, 2)
+		for i := range won {
+			wait.Add(1)
+			go func() {
+				defer wait.Done()
+				won[i] = ws.claimExact("build", true) == nil
+			}()
+		}
+		wait.Wait()
+
+		if won[0] && won[1] {
+			t.Fatalf("round %d: both callers held the name build", round)
+		}
+		if !won[0] && !won[1] {
+			t.Fatalf("round %d: neither caller got the name", round)
+		}
+		os.Remove(ws.logFile("build"))
+		os.Remove(ws.rcFile("build"))
+	}
+}
+
+// A run name has to stay inside the workspace's directory, and cannot be the
+// alias for the most recent run.
 func TestARunNameIsOnePathElement(t *testing.T) {
-	for _, name := range []string{"", "..", ".", "../etc/passwd", "a/b", `a\b`} {
+	for _, name := range []string{"", "..", ".", "../etc/passwd", "a/b", `a\b`, "last", "a\nb"} {
 		if err := validRunName(name); err == nil {
 			t.Errorf("run name %q was accepted", name)
 		}

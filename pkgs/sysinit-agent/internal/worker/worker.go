@@ -76,6 +76,11 @@ const timedOut = 75
 // workload. This sits with the 130, 143, and 129 the body records for signals.
 const directoryGone = 78
 
+// paneClosed is what `--close` records for a run the pane was in the middle of.
+// 129 is 128+SIGHUP, which is what the body's own trap would have written had it
+// outlived the pane, so a caller branching on it needs no new case.
+const paneClosed = 129
+
 // muxTimeout bounds one call to the mux. The bash implementation piped `wezterm
 // cli list` into `jq` with no timeout, so a mux that stopped answering hung the
 // caller instead of failing it.
@@ -93,6 +98,14 @@ const maxWait = 365 * 24 * 60 * 60
 // momentary mux stall into a second worker beside the live one, which is the
 // orphan this package exists to prevent.
 var errProbe = errors.New("the mux did not answer")
+
+// errSelf marks a record that names the pane doing the asking.
+//
+// It is a statement about who is asking, not about whether the pane exists, and
+// collapsing it into absence loses a live pane. `wtrun.sh:42` collapsed it, and
+// `wtrun.sh:83` then removed the record whatever happened, so `wtrun --close` typed
+// inside the worker pane deleted the record of a pane that was still on screen.
+var errSelf = errors.New("the record names the calling pane")
 
 // The mux calls and the two waits, as variables so a test can drive them without
 // a terminal and without paying the real intervals. Production never reassigns
@@ -135,10 +148,11 @@ func Run(args []string) int {
 	if err != nil {
 		return fail(err)
 	}
-	if err := os.MkdirAll(ws.dir, 0o700); err != nil {
-		return fail(err)
-	}
 
+	// The directory is created by `start` alone. Creating it here made `--status` a
+	// writer: every query minted an empty keyed directory, and the migration plan
+	// tells the owner to run `--status` for the two-implementation comparison, so the
+	// baseline that step 5 compares against was perturbed by the act of reading it.
 	switch {
 	case opts.status:
 		return ws.reportStatus(pane)
@@ -232,6 +246,17 @@ func (w *workspace) bodyFile(name string) string { return filepath.Join(w.dir, n
 // A probe that cannot answer is NOT one of the four. It returns errProbe, and no
 // caller may read that as absence.
 func (w *workspace) pane(caller string) (string, error) {
+	// Checked before the record is even read, and ahead of every other rejection.
+	// Without a generation of its own this process can neither verify a record nor
+	// write one another process could verify, so every outcome is an unknown. Reading
+	// it as absence lets `start` split a worker, write an equally unverifiable record,
+	// and split again next time: one new pane per invocation, none reachable by
+	// `--close`. Ordering matters as much as the check: testing the RECORDED value
+	// first left that same loop reachable whenever both were blind.
+	if currentMux() == "0" {
+		return "", fmt.Errorf("%w: WEZTERM_UNIX_SOCKET is unset or malformed, so no record can be written or matched", errProbe)
+	}
+
 	recorded, err := os.ReadFile(w.paneFile())
 	if err != nil {
 		return "", errors.New("none recorded")
@@ -241,7 +266,7 @@ func (w *workspace) pane(caller string) (string, error) {
 		return "", errors.New("none recorded")
 	}
 	if id == caller {
-		return "", errors.New("the record names the calling pane")
+		return "", errSelf
 	}
 	if err := w.generationMatches(id); err != nil {
 		return "", err
@@ -272,14 +297,11 @@ func (w *workspace) generationMatches(id string) error {
 	if recorded == "" || recorded == "0" {
 		return fmt.Errorf("the recorded mux generation %q cannot be matched", recorded)
 	}
-	now := currentMux()
-	if now == "0" {
-		// Refusing rather than guessing. Reusing the record could type a command into
-		// an unrelated pane, and splitting a replacement would split one on every
-		// invocation, because the new record would be equally unverifiable.
-		return errors.New("WEZTERM_UNIX_SOCKET is unset or malformed, so no record can be matched")
-	}
-	if recorded != now {
+	// `pane` has already established that this process has a generation of its own,
+	// so a mismatch here is a real mismatch rather than an unknown: the record was
+	// written blind or by an earlier mux. Splitting a replacement is therefore
+	// correct AND terminating, because the record it writes is verifiable.
+	if now := currentMux(); recorded != now {
 		return fmt.Errorf("pane %s belongs to mux %s, not %s", id, recorded, now)
 	}
 	return nil
@@ -287,6 +309,10 @@ func (w *workspace) generationMatches(id string) error {
 
 // start sends one run to the worker pane, splitting one if there is none.
 func (w *workspace) start(caller, dir string, opts options) int {
+	if err := os.MkdirAll(w.dir, 0o700); err != nil {
+		return fail(err)
+	}
+
 	target, err := w.pane(caller)
 	switch {
 	case err == nil:
@@ -295,6 +321,9 @@ func (w *workspace) start(caller, dir string, opts options) int {
 		// splitting on unknown is how a momentary stall orphans a live worker.
 		return fail(fmt.Errorf("cannot tell whether pane %s is alive: %w", w.recordedID(), err))
 	default:
+		// Includes errSelf. A caller that is itself the recorded worker needs a worker
+		// other than itself, and taking over the record is right: the old worker is the
+		// caller's own pane, which is not orphaned by losing the role.
 		id, splitErr := w.split(caller)
 		if splitErr != nil {
 			return fail(splitErr)
@@ -311,6 +340,18 @@ func (w *workspace) start(caller, dir string, opts options) int {
 		return fail(err)
 	}
 
+	// Every failure between the claim and a successful send rolls the name back.
+	// Nothing has run, so a log with no exit code left behind reads as a run in
+	// flight and burns the name for every pane in the workspace. Rolling back on the
+	// send failure alone left two paths that burned it: a full disk, or the record
+	// directory removed by hand while this call was in it.
+	sent := false
+	defer func() {
+		if !sent {
+			w.discard(name)
+		}
+	}()
+
 	body := w.bodyFile(name)
 	if err := w.writeBody(body, name, dir, opts.command); err != nil {
 		return fail(err)
@@ -321,12 +362,9 @@ func (w *workspace) start(caller, dir string, opts options) int {
 	os.Remove(w.rcFile(name))
 
 	if err := w.send(target, name, body); err != nil {
-		// Rolled back, because nothing ran. Left in place, the log with no exit code
-		// reads as a run in flight and burns the name for every pane in the
-		// workspace, and the previous run's exit code has already been removed.
-		w.discard(name)
 		return fail(err)
 	}
+	sent = true
 
 	if queued := w.runningRun(); queued != "" && queued != name {
 		fmt.Printf("pane %s  %s queued behind %s  in %s  log %s\n",
@@ -397,8 +435,17 @@ func (w *workspace) claimExact(name string, reuse bool) error {
 	if !reuse {
 		return fmt.Errorf("the name %s is taken by a finished run", name)
 	}
+	// Take the right to reuse by MOVING the old log aside, which only one caller can
+	// do: after the rename the source is gone, so a second caller's rename fails and
+	// it loops back to the exclusive create, finds this caller's fresh log, and is
+	// refused as in flight. Removing the log first and creating second let both
+	// callers through, because the second removed the log the first had just created.
+	moved := w.logFile(name) + ".superseded"
+	if err := os.Rename(w.logFile(name), moved); err != nil {
+		return fmt.Errorf("another caller took the name %s", name)
+	}
 	os.Remove(w.rcFile(name))
-	os.Remove(w.logFile(name))
+	os.Remove(moved)
 	created, err = os.OpenFile(w.logFile(name), os.O_CREATE|os.O_EXCL|os.O_WRONLY, 0o600)
 	if err != nil {
 		return fmt.Errorf("another caller took the name %s", name)
@@ -435,6 +482,13 @@ finish() {
   local code=$?
   print -r -- $code > %[1]s.new && mv %[1]s.new %[1]s
   rm -f %[2]s
+  # The body is dead once its exit code is recorded, and nothing else would ever
+  # remove it: 13 of the 41 entries in the live superseded record are dead bodies.
+  # Measured safe, twice: zsh runs a 300-line script to completion after the script
+  # is deleted mid-run, and a trap can remove the file it is running from. It is
+  # named literally rather than as $0, because zsh sets FUNCTION_ARGZERO and $0
+  # inside a function is the function's name.
+  rm -f %[7]s
 }
 trap finish EXIT
 trap 'exit 130' INT
@@ -454,6 +508,7 @@ cd -- "$dir" || { print -u2 -r -- "worker: $dir is gone"; exit %[5]d; }
 		shellQuote(dir),
 		directoryGone,
 		command,
+		shellQuote(path),
 	)
 	return os.WriteFile(path, []byte(body), 0o700)
 }
@@ -548,18 +603,33 @@ func (w *workspace) release(caller, name string) int {
 		fmt.Printf("no run named %s in %s\n", name, w.root)
 		return 0
 	}
-	if w.runningRun() == name {
+	if w.inFlight(name) {
+		// The run has recorded no exit code, so it is running, queued in the tty
+		// input buffer, or owned by a pane that died. A live pane cannot be told apart
+		// from a queued one: the marker is written by the body, when the PREVIOUS
+		// command finishes, so a queued run's marker still names its predecessor.
+		// Keying the refusal on the marker therefore released queued runs, deleting the
+		// body the pane was about to run and leaving nothing in any log.
 		switch _, err := w.pane(caller); {
-		case err == nil:
-			return fail(fmt.Errorf("%s is running now; releasing it would orphan its output", name))
+		case err == nil, errors.Is(err, errSelf):
+			// errSelf belongs with the live case, not with the dead one. The caller IS
+			// the worker, so the run is executing in the caller's own pane: the one state
+			// in which it is certainly live. Treating it as absence unlinked a running
+			// run's log while `tee` kept writing to the unlinked inode, which is exactly
+			// the harm this refusal names.
+			return fail(fmt.Errorf(
+				"%s has recorded no exit code and pane %s is alive, so it is running or queued; wait for %s, or end it with --close",
+				name, w.recordedID(), w.rcFile(name)))
 		case errors.Is(err, errProbe):
 			return fail(fmt.Errorf("cannot tell whether %s is still running: %w", name, err))
 		}
-		// The marker names this run and no pane can be running it, so the marker has
-		// no owner: the pane died before its trap could clear it. This is the case
-		// --release exists for, and refusing here left the name unusable with no
-		// command-line way back.
-		os.Remove(w.runningFile())
+		// No usable pane, so nothing can run this name. If the marker names it, the
+		// marker has no owner either: the pane died before its trap could clear it.
+		// This is the case --release exists for, and refusing here left the name
+		// unusable with no command-line way back.
+		if w.runningRun() == name {
+			os.Remove(w.runningFile())
+		}
 	}
 	w.discard(name)
 	fmt.Printf("released %s in %s\n", name, w.root)
@@ -583,6 +653,9 @@ func (w *workspace) reportStatus(caller string) int {
 	case errors.Is(err, errProbe):
 		// Not "no worker". The record may name a live pane; this process cannot tell.
 		return fail(fmt.Errorf("cannot report on pane %s: %w", w.recordedID(), err))
+	case errors.Is(err, errSelf):
+		fmt.Printf("pane %s is this pane, which is the workspace's worker  in %s\n", w.recordedID(), w.root)
+		return 0
 	case err != nil:
 		fmt.Printf("no worker for %s (%v)\n", w.root, err)
 		return 0
@@ -603,6 +676,14 @@ func (w *workspace) closePane(caller string) int {
 		// The record is kept. Clearing it while the pane's state is unknown could
 		// leave a live pane with nothing addressing it.
 		return fail(fmt.Errorf("cannot tell whether pane %s is alive: %w", w.recordedID(), err))
+	case errors.Is(err, errSelf):
+		// The record is kept, and nothing is killed. errSelf says who is asking, not
+		// whether the pane exists, and the pane doing the asking certainly exists.
+		// Reading it as absence deleted the record of a pane that was still on screen,
+		// and the next call then split a second worker beside it.
+		return fail(fmt.Errorf(
+			"pane %s is this pane, which is the workspace's worker; close it from another pane, or exit it",
+			w.recordedID()))
 	case err != nil:
 		// The record is unusable, so it is stale, so it is cleared. This is the only
 		// path that reclaims a running marker left by a pane that died before its
@@ -619,8 +700,14 @@ func (w *workspace) closePane(caller string) int {
 	return 0
 }
 
-// forget removes the pane record and the running marker, and describes what it
-// reclaimed so a stale marker's removal is visible rather than silent.
+// forget removes the pane record and the running marker, records an exit code for
+// a run the closed pane was in the middle of, and describes what it did.
+//
+// The exit code matters as much as the marker. Killing the pane leaves the run's
+// log with no `.rc`, which reads as a run in flight, so `--close` silently burned
+// that name for the whole workspace while printing a message that read like
+// cleanup finishing. The code is 129, which is what the body's own HUP trap would
+// have recorded had it survived the pane.
 func (w *workspace) forget() string {
 	marker := w.runningRun()
 	for _, path := range []string{w.paneFile(), w.muxFile(), w.runningFile()} {
@@ -629,7 +716,13 @@ func (w *workspace) forget() string {
 	if marker == "" {
 		return ""
 	}
-	return fmt.Sprintf("; reclaimed a marker naming %s", marker)
+	if !w.inFlight(marker) {
+		return fmt.Sprintf("; reclaimed a marker naming %s", marker)
+	}
+	if err := writeAtomic(w.rcFile(marker), strconv.Itoa(paneClosed)); err != nil {
+		return fmt.Sprintf("; %s recorded no exit code and its name is still in use", marker)
+	}
+	return fmt.Sprintf("; %s was running, and is recorded as exit %d", marker, paneClosed)
 }
 
 // waitForExit blocks until the run records an exit code, and returns it. A wait
@@ -926,6 +1019,19 @@ func validRunName(name string) error {
 	}
 	if strings.ContainsAny(name, `/\`) || name == "." || name == ".." {
 		return fmt.Errorf("run name %q is not a single path element", name)
+	}
+	if strings.ContainsAny(name, "\n\r") {
+		// The reported counts are line-oriented, so a name holding a newline makes them
+		// undecidable.
+		return fmt.Errorf("run name %q contains a line break", name)
+	}
+	// `last` is the alias, not a run. `-n last` made its own log unreadable: the
+	// reuse path removed the `last.log` symlink, the run created a regular file with
+	// that name, and `linkLast` then removed that file and pointed the symlink at
+	// itself. Measured: every read of the result returns ELOOP, so the command ran
+	// and reported its exit code with its entire output gone.
+	if name == "last" {
+		return errors.New("`last` is the alias for the most recent run, so it cannot name one")
 	}
 	return nil
 }
