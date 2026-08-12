@@ -377,6 +377,43 @@ func TestEachWorkspaceKeysItsOwnRecord(t *testing.T) {
 	}
 }
 
+// The explicit key override takes a private worker under a name the caller
+// chooses, and a name that would escape the state root is refused rather than
+// used.
+func TestTheSessionOverrideTakesAPrivateWorker(t *testing.T) {
+	root := state(t)
+	dir := t.TempDir()
+
+	derived := newWorkspace(dir)
+
+	t.Setenv(sessionOverride, "build")
+	override := newWorkspace(dir)
+	if override.dir != filepath.Join(root, "build") {
+		t.Errorf("override keyed to %q, want %q", override.dir, filepath.Join(root, "build"))
+	}
+	if override.dir == derived.dir {
+		t.Error("the override resolved to the derived key")
+	}
+
+	// Two callers in different workspaces share one override, which is the point
+	// of the hatch: the name is the key.
+	if newWorkspace(t.TempDir()).dir != override.dir {
+		t.Error("the override did not out-rank the workspace")
+	}
+
+	// A traversal is refused and the derived key is used instead.
+	t.Setenv(sessionOverride, "../escape")
+	if got := newWorkspace(dir); got.dir != derived.dir {
+		t.Errorf("a traversing override keyed to %q, want the derived %q", got.dir, derived.dir)
+	}
+
+	// Whitespace-only is not a name.
+	t.Setenv(sessionOverride, "   ")
+	if got := newWorkspace(dir); got.dir != derived.dir {
+		t.Errorf("a blank override keyed to %q, want the derived %q", got.dir, derived.dir)
+	}
+}
+
 // A wait returns the run's own exit code, and a wait that expires returns the
 // timeout code and names the file to poll.
 func TestWaitReturnsTheRunsCodeOrTheTimeoutCode(t *testing.T) {

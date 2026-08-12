@@ -27,10 +27,17 @@ import (
 	"time"
 
 	"github.com/roshbhatia/sysinit/pkgs/sysinit-agent/internal/agentstate"
+	"github.com/roshbhatia/sysinit/pkgs/sysinit-agent/internal/paths"
 	"github.com/roshbhatia/sysinit/pkgs/sysinit-agent/internal/repo"
 )
 
 const Summary = "run a command in one reused WezTerm pane and report the result"
+
+// sessionOverride names the environment variable that replaces the derived key
+// with a literal one. Spelled for this command rather than for the script it
+// replaces: the superseded `WTRUN_SESSION` stays read by the bash script until
+// that script is deleted, so the two never have to agree.
+const sessionOverride = "WORKER_SESSION"
 
 // timedOut is the exit code for a wait that expired while the command ran on.
 // Inherited from the bash implementation, where callers already branch on it.
@@ -105,7 +112,23 @@ type workspace struct {
 	dir  string // the keyed state directory
 }
 
+// newWorkspace resolves the record for dir, honouring the explicit key override.
+//
+// The override is the escape hatch for a caller that wants a worker of its own,
+// not a compatibility shim. It is an arbitrary caller-supplied string by design,
+// because the point is a name the caller can choose and type again, so it matches
+// neither prune shape and a caller that takes a private worker owns its cleanup.
+//
+// It is validated as one path element for the same reason a run name is: it
+// becomes a directory under the state root.
 func newWorkspace(dir string) *workspace {
+	if override := strings.TrimSpace(os.Getenv(sessionOverride)); override != "" {
+		if err := validRunName(override); err == nil {
+			return &workspace{root: override, dir: filepath.Join(paths.AgentWorker(), override)}
+		}
+		fmt.Fprintf(os.Stderr, "worker: ignoring %s=%q, which is not a single path element\n",
+			sessionOverride, override)
+	}
 	root := repo.Workspace(dir)
 	return &workspace{root: root, dir: repo.WorkerDir(root)}
 }
