@@ -1,0 +1,131 @@
+-- One report of what the diff review surface can see: which layer answered the
+-- repository query, which repositories it found, whether the edit-event watcher is
+-- running, the log it resolved, how many events it read, and whether each plugin
+-- the review needs is loaded.
+--
+-- Reachable as `:checkhealth harness` and as `require("harness.health").show()`.
+-- Both read the same findings, so the terminal answer and the buffer answer cannot
+-- drift apart.
+--
+-- Every input here is optional at runtime, and a missing one narrows the review
+-- rather than breaking it. So this reports what each one degraded to and names the
+-- consequence, which is the difference between "the scope looks wrong" and "the
+-- watcher is not running, so the scope is the full diff".
+local M = {}
+
+--- One finding: `level` is a `vim.health` function name, `text` is the whole line.
+---@alias HarnessFinding { level: "ok"|"warn"|"error", text: string }
+
+--- Whether a plugin is loaded, installed but not yet loaded, or absent.
+---
+--- "Not yet loaded" is not a fault: these plugins load on their command or their
+--- keymap, so before the first review they are all in that state.
+---@return string
+local function plugin_state(module, lazy_name)
+  if package.loaded[module] then
+    return "loaded"
+  end
+  local ok, config = pcall(require, "lazy.core.config")
+  if ok and config.plugins and config.plugins[lazy_name] then
+    return "installed, loads on demand"
+  end
+  return "absent"
+end
+
+---@return HarnessFinding[]
+function M.findings()
+  local out = {}
+  local function add(level, text)
+    out[#out + 1] = { level = level, text = text }
+  end
+
+  local gitrepo = require("utils.gitrepo")
+  local repos = gitrepo.status()
+
+  add("ok", "workspace: " .. tostring(repos.workspace))
+
+  if repos.source == "none" then
+    add(
+      "warn",
+      "repository query: none has run yet, so no source has answered. Open a diff, or run `:lua require('utils.gitrepo').workspace_roots(function() end)`"
+    )
+  else
+    add(
+      "ok",
+      string.format(
+        "repository query: answered by %s, %d repositor%s found",
+        repos.source,
+        #repos.roots,
+        #repos.roots == 1 and "y" or "ies"
+      )
+    )
+    if #repos.roots == 0 then
+      add("warn", "no repository under the workspace, so every review entry point will say so and open nothing")
+    end
+  end
+
+  -- Which tiers are available decides what the next query can use, which is why
+  -- both are reported even when the last query succeeded.
+  if repos.agent then
+    add("ok", "`sysinit-agent` is on PATH")
+  else
+    add("warn", "`sysinit-agent` is not on PATH, so the repository query falls back to the `fd` scan")
+  end
+  if not repos.fd then
+    add(
+      "warn",
+      "`fd` is not on PATH, so with `sysinit-agent` absent the query falls back to `git rev-parse`, which sees one repository"
+    )
+  end
+
+  local ok_events, events = pcall(require, "harness.edit_events")
+  if not ok_events then
+    add("error", "the edit-event watcher module did not load, so a scoped review opens the full workspace diff")
+  else
+    local watch = events.status()
+    if watch.active then
+      add("ok", "edit-event watcher: running")
+    else
+      add("warn", "edit-event watcher: not running, so a scoped review opens the full workspace diff")
+    end
+    if watch.log then
+      add("ok", "edit-event log: " .. watch.log .. string.format(" (read to byte %d)", watch.offset))
+    else
+      add(
+        "warn",
+        "edit-event log: not resolved. `sysinit-agent edit-event --print-log` did not answer, so no event can arrive"
+      )
+    end
+    add("ok", string.format("agent edits recorded this session: %d", watch.touched))
+  end
+
+  for _, plugin in ipairs({
+    { module = "codediff", lazy = "codediff.nvim", need = "the diff itself" },
+    { module = "review", lazy = "review.nvim", need = "the comment layer" },
+    { module = "claudecode", lazy = "claudecode.nvim", need = "an agent's own inline edit" },
+  }) do
+    local state = plugin_state(plugin.module, plugin.lazy)
+    add(state == "absent" and "error" or "ok", string.format("%s: %s (%s)", plugin.lazy, state, plugin.need))
+  end
+
+  return out
+end
+
+--- `:checkhealth harness`.
+function M.check()
+  vim.health.start("harness: the diff review surface")
+  for _, finding in ipairs(M.findings()) do
+    vim.health[finding.level](finding.text)
+  end
+end
+
+--- The same findings as one notification, for reading without leaving the diff.
+function M.show()
+  local lines = {}
+  for _, finding in ipairs(M.findings()) do
+    lines[#lines + 1] = string.format("%-5s %s", finding.level, finding.text)
+  end
+  vim.notify(table.concat(lines, "\n"), vim.log.levels.INFO, { title = "Harness health" })
+end
+
+return M

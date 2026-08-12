@@ -98,6 +98,16 @@ return {
         end,
         desc = "Harness: preview current file (glow)",
       },
+      {
+        -- Declared on this plugin rather than beside the diff keymaps because it
+        -- has to answer when a diff plugin is exactly what did not load. `harness`
+        -- is not lazy, so this key exists from startup.
+        "<leader>d?",
+        function()
+          require("harness.health").show()
+        end,
+        desc = "Diff: health of the review surface",
+      },
     },
   },
 }
