@@ -31,6 +31,31 @@ _seshy_session_name() {
   esac
 }
 
+# State the workspace boundary for whatever reads it: the seshy session directory
+# when the cwd is inside one, and nothing otherwise.
+#
+# The variable, not the path, is the contract. Neovim and `sysinit-agent` read
+# `$SYSINIT_WORKSPACE` and fall back to the git top level, so they need no rule of
+# their own about where a session manager keeps its checkouts. Set from `chpwd`
+# rather than only from `s`, because a shell can arrive in a session by `cd`, by a
+# multiplexer reattaching, or by a pane opening there.
+_seshy_export_workspace() {
+  local session root
+  session=$(_seshy_session_name "$PWD")
+  if [[ -z $session ]]; then
+    unset SYSINIT_WORKSPACE
+    return 0
+  fi
+  # sysinit:documented-default
+  root=$(sysinit_path seshySessions 2> /dev/null) || root="$HOME/.local/state/seshy/sessions"
+  export SYSINIT_WORKSPACE="$root/$session"
+  _seshy_debug "workspace $SYSINIT_WORKSPACE"
+}
+
+autoload -Uz add-zsh-hook
+add-zsh-hook chpwd _seshy_export_workspace
+_seshy_export_workspace
+
 function s() {
   if (( $# == 0 )); then
     _seshy_err "usage: s <session>"
