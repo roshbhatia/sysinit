@@ -1,0 +1,54 @@
+version: 2
+change: flatten-review-to-one-session
+decision: approved
+change_hash: 13d97c7bd5db2080
+base_commit: b66cdc326583137aec0674f255f2a84ed7102735
+items:
+    0ca066f4bc48483f:
+        hash: 416e14bdde4088d6
+        text: 'Confirm: the owner runs each entry point on real work and accepts the one-session reading, or names what it costs them'
+    3acaeb1149656e14:
+        hash: 6fd5874bed518edb
+        text: Read the workspace root from the environment, falling back to the cwd when it is unset or names a missing path
+    9e82425d87eeb43e:
+        hash: c5626727319c724b
+        text: 'Adversarial review (`adversarial-review` skill): run deterministic lint; run optional critics only when requested or risk-justified'
+    09b57ba98bba095f:
+        hash: c5626727319c724b
+        text: 'Adversarial review (`adversarial-review` skill): run deterministic lint; run optional critics only when requested or risk-justified'
+    30cba15b45baf090:
+        hash: 604d743fa598ed2d
+        text: Swap the open session for another repository's in place, closing the previous one first
+    31ef09bd21ae381c:
+        hash: c5626727319c724b
+        text: 'Adversarial review (`adversarial-review` skill): run deterministic lint; run optional critics only when requested or risk-justified'
+    144aed445b19837d:
+        hash: 8f3435e0b3de8fe5
+        text: 'Delete the machinery the fan-out needed: the tab bound, the chained opens, the session poll, the render wait, the focus re-assertion'
+    370fcffee74ff256:
+        hash: bd7ab0bd8fefd61e
+        text: 'Merge: prove the list in one repository and in the forty-six repository workspace, and that `:cdo` acts on it'
+    712fd7be111ab326:
+        hash: 76a8ec69bebaee12
+        text: 'Apply: `git push`, then `nh darwin switch` from the `sysinit.laurel` checkout in its own pane, gated on the checks in `design.md`'
+    a70f027751aa8377:
+        hash: e391349c2c0f2e57
+        text: Make the same rule answer in the Go layer, so the repo set and the edit-event log key share one boundary
+    c9a9fe143b3a6932:
+        hash: d929739630abf487
+        text: Export the boundary from the shell function that already resolves and enters a session
+    d32b5ee19b62a79c:
+        hash: c83139e7efbd6fc9
+        text: Fill the quickfix list with every changed file under the workspace, absolute, status in the entry text, titled for the review
+    dcb5935be2a5c759:
+        hash: c306772a64981adb
+        text: Swap the session when the current quickfix entry belongs to a repository other than the open one
+    ee2698558a18ddaf:
+        hash: f2afd54f6c880ddf
+        text: 'Merge: prove the landing tab over five consecutive runs in a real pane, and that one diff tab exists at any repository count'
+    f86ad8afa25dc610:
+        hash: 92f32b12bf312995
+        text: 'Merge: prove the editor and the agent agree in a session directory, a plain directory of repositories, and a subdirectory of one repository'
+    f894249298cd9d17:
+        hash: ca5a6d962d7ecebd
+        text: Open one session, for the repository with the most changes, and report the rest as a count rather than as tabs
