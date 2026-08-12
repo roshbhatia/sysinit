@@ -70,13 +70,18 @@
   Twelve commits pushed to `main` as `cd88a9859..684ac0600`. Both gates exited 0
   before the push. The switch ran in its own pane and recorded 0, moving 1590 paths
   with 26 replaced. The script is still installed and the skill still calls it.
-- [ ] 1.9 Confirm: the owner accepts that the two implementations disagree about the live worker in the expected way, the script naming it and the subcommand reporting none, with no other difference
+- [x] 1.9 Confirm: the owner accepts that the two implementations disagree about the live worker in the expected way, the script naming it and the subcommand reporting none, with no other difference
 
   The comparison is captured, on 2026-08-11, from the conversation pane that holds
   the precondition. In this repository `wtrun --status` prints `worker pane 434,
   idle`; `worker --status` prints `no worker for <repo> (none recorded)`. That is the
   disagreement, and the wording differs as declared. The owner still runs a real
   command, which this comparison does not cover.
+
+  Closed on the owner's 2026-08-12 delegation, not on a fresh observation. The
+  comparison cannot be re-run: `wtrun` was deleted by 2.3 and no longer exists on
+  this machine, so the capture above is the whole record. What it does not cover
+  stays uncovered rather than being inferred from the two real builds under 2.7.
 
 ## 2. The cutover
 
@@ -194,7 +199,20 @@
 
   The switch itself ran through the new implementation, in a pane the worker split,
   which is the first thing this change ships being used to ship itself.
-- [ ] 2.7 Confirm: the owner runs one real build through the new implementation and accepts the exit code, the log tail, and the directory it reported, with the one extra pane explained by the superseded-worker line rather than appearing unannounced
+- [x] 2.7 Confirm: the owner runs one real build through the new implementation and accepts the exit code, the log tail, and the directory it reported, with the one extra pane explained by the superseded-worker line rather than appearing unannounced
+
+  Closed on the owner's 2026-08-12 delegation. Two real `nh darwin switch` runs went
+  through `worker`, in a pane it split, and both returned 0: phase 2's own switch
+  (1590 paths, 27 replaced) and the pretty-mermaid one (1591 paths). Each reported
+  the tail and the directory it ran in, and each pane was closed with `worker
+  --close`.
+
+  The superseded-worker line never fired, and the honest reason is that it cannot
+  fire here rather than that it was seen to work. This machine has one mux socket,
+  `gui-sock-3828`, holding one live pane; the four legacy records name panes 3, 474,
+  22, and 434, all dead. Its two tests are the only thing standing behind it, and
+  phase 3's prune removes the root it reads, so on this machine the line is now
+  permanently unreachable.
 - [x] 2.8 Decide: the owner decided on 2026-08-11 to keep `waiting` and design the clear, having been shown that its only producer is a harness run inside the worker, that such a run holds the shared worker while it waits, and that the bus's `exit` status leaves the user var stale. The three accepted costs are recorded in the design
 
 ## 3. Blocked runs and state that does not accumulate
@@ -202,15 +220,50 @@
 - **SHAPE** graph
 - **MERGE** 3.4
 
-- [ ] 3.1 Report `waiting` through the state bus that already exists, so the pane record and the WezTerm user var carry the word the status line, tab title, switcher, session tree, and session script already read, attributing it to a run only when the running marker names that run, and leaving an undeclared run reported as running `writes:` pkgs/sysinit-agent/internal/worker/ `deps:` none
-- [ ] 3.2 Clear by writing the ranked status `idle`, never the bus's `exit`, from a zsh trap in the generated body on `EXIT INT TERM HUP`, and remove the worker's record directly in `--close`, so an interrupted run and a killed pane both clear `writes:` pkgs/sysinit-agent/internal/worker/ `deps:` 3.1
+- [x] 3.1 Report `waiting` through the state bus that already exists, so the pane record and the WezTerm user var carry the word the status line, tab title, switcher, session tree, and session script already read, attributing it to a run only when the running marker names that run, and leaving an undeclared run reported as running `writes:` pkgs/sysinit-agent/internal/worker/ `deps:` none
+
+  Attribution is one function, `blocked`, used by `--status` and by the wait alike,
+  so the two cannot disagree about whose run is blocked. The reader it needs did not
+  exist: `agentstate.state` is unexported and `watch` had duplicated it, so
+  `PaneStatus` is exported there rather than a third copy written here. It reads a
+  record from a DIFFERENT live generation as absent, because pane ids restart at 0
+  when the mux restarts and an old record's id can name a pane this generation
+  allocated for something else.
+
+  A pane holding `waiting` with no marker reports idle, which is the owner's
+  hand-started harness. Mutation-tested on the committed tree: dropping the marker
+  check from `blocked` returns 76 for another run's state and for a run that has not
+  started.
+- [x] 3.2 Clear by writing the ranked status `idle`, never the bus's `exit`, from a zsh trap in the generated body on `EXIT INT TERM HUP`, and remove the worker's record directly in `--close`, so an interrupted run and a killed pane both clear `writes:` pkgs/sysinit-agent/internal/worker/ `deps:` 3.1
 
   `exit` removes the record above the user-var write, so it leaves the var reading
   `waiting` until the pane closes. `--close` cannot go through the bus, which keys on
   its own pane and writes to its own tty; killing the pane disposes of the var, so
   only the record needs removing.
-- [ ] 3.3 Return from a wait when the caller's own run reaches `waiting`, under its own flag so `-w` keeps its two outcomes, while an exit still returns the run's exit code and a timeout still names the file to poll `writes:` pkgs/sysinit-agent/internal/worker/ `deps:` 3.1, 3.2
-- [ ] 3.4 Remove a record whose WORKER pane no longer exists, reading liveness from `worker-pane` rather than from a `pane-N` directory name, with the scan anchored to the current key shape tested before `^pane-[0-9]+$`, and report the count left untouched, split between override-keyed directories and the legacy flat artifacts, and remove the superseded `agentWtrun` root whole `writes:` pkgs/sysinit-agent/internal/worker/ `deps:` none
+
+  One rule is not in the artifacts and is load-bearing: the trap writes `idle` only
+  when a record already EXISTS. Nothing in this pane's documented workload declares
+  anything, so an unconditional write would not clear a state, it would create one,
+  registering the worker pane as an agent pane on every run and putting a row for it
+  on all five surfaces. Mutation-tested: replacing the guard with `:` makes a run
+  that declared nothing write state.
+
+  The binary is called by absolute path, from `os.Executable`, because the body runs
+  in the owner's interactive shell and a run that breaks its own PATH would leave
+  `waiting` on screen for the life of the pane. That path is a variable, because
+  under `go test` the executable IS the test binary: a body that called it would run
+  the suite again inside itself.
+- [x] 3.3 Return from a wait when the caller's own run reaches `waiting`, under its own flag so `-w` keeps its two outcomes, while an exit still returns the run's exit code and a timeout still names the file to poll `writes:` pkgs/sysinit-agent/internal/worker/ `deps:` 3.1, 3.2
+
+  The flag is `-b, --wait-blocked SECONDS` and the third outcome is exit 76, neither
+  of which the proposal named; both are now in `SKILL.md` and the usage text. 76 sits
+  outside the 0-to-2 band an ordinary command uses and outside the 128+signal band the
+  body records, so no run can produce it by exiting. Passing `-w` and `-b` together is
+  refused rather than resolved, because it leaves the exit contract undecided.
+
+  The exit code is read before the state on every round of the poll. Mutation-tested:
+  swapping the two returns 76 for a run that declared itself blocked and then exited.
+- [x] 3.4 Remove a record whose WORKER pane no longer exists, reading liveness from `worker-pane` rather than from a `pane-N` directory name, with the scan anchored to the current key shape tested before `^pane-[0-9]+$`, and report the count left untouched, split between override-keyed directories and the legacy flat artifacts, and remove the superseded `agentWtrun` root whole `writes:` pkgs/sysinit-agent/internal/worker/ `deps:` none
 
   A record whose `worker-lock` is held MUST be skipped. The lock constraint comes
   from review round 3. `flock` is held on an inode, not on
@@ -222,16 +275,52 @@
   legacy flat artifacts, and state whether the two `last.*` symlinks are inside that
   count.
 
+  They are NOT inside it. Both `last.log` and `last.rc` live inside a record, beside
+  the run they point at, so nothing the scan sees at the root is one of them. The
+  report reads `pruned N record(s) whose worker pane was gone; kept M, of which X
+  override-keyed and Y legacy`, and it is printed only when something was removed or
+  the probe failed.
+
+  Two things the requirement did not name and the implementation has to leave alone:
+  a record with no `worker-pane`, which is the state `--close` leaves and whose logs
+  are what the close message pointed at, and a record whose key is a legacy
+  `pane-N` directory, which is counted as legacy rather than as override-keyed.
+  The removal HOLDS the lock rather than merely testing it, which closes the window
+  between the test and the `RemoveAll`. The mux is probed once per call, not once per
+  record, and an unanswerable probe returns a nil set rather than an empty one so
+  absence cannot be inferred from silence.
+
   The owner decided on 2026-08-11 that the old root is removed rather than swept or
   left. Nothing under it is current shape and nothing writes there after 2.3, so the
   anchored match never has to claim the 296 flat artifacts. This supersedes 3.9 and
   4.1.
-- [ ] 3.5 Reconcile the four subtasks and prove `go test ./...` and `nix build .#darwinConfigurations.lv426.system` exit 0, including tests that pruning cannot remove live state, cannot read a flat run artifact as a key, and that a run which declared itself blocked and then exited reports as neither `writes:` none `deps:` 3.1, 3.2, 3.3, 3.4
+- [x] 3.5 Reconcile the four subtasks and prove `go test ./...` and `nix build .#darwinConfigurations.lv426.system` exit 0, including tests that pruning cannot remove live state, cannot read a flat run artifact as a key, and that a run which declared itself blocked and then exited reports as neither `writes:` none `deps:` 3.1, 3.2, 3.3, 3.4
 
   The liveness test MUST construct a record whose caller pane is dead and whose
   worker pane is alive. No such record exists on disk today, so a test written from
   current state passes whichever pane the prune reads and proves nothing.
-- [ ] 3.6 Adversarial review (`adversarial-review` skill): critics attempt to break the state phase against the proposal `Behavior` criteria; revise until the loop reaches a terminal state
+
+  Constructed as required: the surviving record is keyed on a directory whose
+  basename is literally `pane-99`, so its key carries a dead pane id while its
+  recorded worker pane is alive. Mutation-tested: reading the key instead of
+  `worker-pane` deletes that record and the one `--close` had already forgotten.
+
+  `go vet`, `gofmt -l`, and `go test -count=1 ./...` (13 packages) all pass. Five
+  mutations were run against the committed tree and all five were caught: the marker
+  check in `blocked`, the read order in `poll`, the held-lock skip, the record guard
+  in the trap, and reading the key instead of the recorded pane.
+- [x] 3.6 Adversarial review (`adversarial-review` skill): critics attempt to break the state phase against the proposal `Behavior` criteria; revise until the loop reaches a terminal state
+
+  Terminal state: NOT_RUN, on the same two reasons recorded under 2.5. This session
+  forbids spawning teammates unless the owner asks, and round 4's phase-1 critics
+  have still never reported.
+
+  The deterministic half passed: `go vet`, `gofmt -l`, `go test -count=1 ./...`,
+  `nix flake check`, and the darwin build. In place of an adversary there are five
+  mutations against the committed tree, listed under 3.5, each of which a named test
+  caught. What that leaves unreviewed, plainly: the attribution rule, the third exit
+  code, the trap's guard, and the prune have tests and mutations behind them, and no
+  independent adversary.
 - [ ] 3.7 Apply: `git push`, then `nh darwin switch` from the `sysinit.laurel` checkout in a separate WezTerm pane, gated on `nix flake check` and `nh darwin build` exiting 0
 - [ ] 3.8 Confirm: the owner accepts that an opt-in `waiting` is the right trade, having seen one blocked run that declared itself and one that did not, that the five existing surfaces agree with `--status` about the worker pane, that the switcher row reads `in wtrun`, and that a session holding a blocked worker reads as `waiting`
 - [x] 3.9 Decide: the owner decided on 2026-08-11 that the superseded `agentWtrun` root is removed whole by the prune, rather than left for a by-hand deletion. That covers the roughly 296 legacy flat run artifacts and the dead root `worker-pane` together, because the rename moves the live state to a new root and leaves nothing current behind
