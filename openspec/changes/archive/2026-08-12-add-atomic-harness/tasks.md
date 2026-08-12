@@ -374,7 +374,7 @@
       which the same instructions forbid. The owner can close this in one turn:
       ask atomic, inside a scratch git repository, to run any of the force-delete
       or history-rewriting git forms in the deny list, and confirm it refuses.
-- [ ] 4.4 Confirm: the owner decides whether running two pi-lineage harnesses side by side is worth the shared `PI_*` environment surface, and whether the exclusion set is the set they want
+- [x] 4.4 Confirm: the owner decides whether running two pi-lineage harnesses side by side is worth the shared `PI_*` environment surface, and whether the exclusion set is the set they want
 
       The phase 4 finding is the concrete form of this question. Atomic reads the
       `PI_` spelling of each of its own variables and, until this change, pi's
@@ -382,3 +382,17 @@
       atomic needed is set explicitly, so the remaining shared surface is any
       `PI_*` name the pi module sets that atomic also understands. Today that is
       one: `PI_SKIP_VERSION_CHECK`.
+
+      Accepted on 2026-08-12. The owner keeps both harnesses and keeps the split as
+      it stands, 8 loaded against 11 excluded, and was shown each exclusion with
+      its reason: one genuine tool collision in `webAccess`, nine extensions that
+      import a pi package atomic does not provide, and `mermaid` failing atomic's
+      preflight schema. They declined a follow-up on `mermaid`.
+
+      One thing in 4.2's record is now stale, and it is stale because it was
+      fixed rather than because it was wrong. `PI_SKIP_VERSION_CHECK` no longer
+      carries `$HOME/.pi`: `pi/default.nix:488` sets `"1"`, and the live
+      environment reads `PI_SKIP_VERSION_CHECK=1` beside
+      `ATOMIC_SKIP_VERSION_CHECK=1` and
+      `ATOMIC_CODING_AGENT_DIR=/Users/roshan/.atomic/agent`. So the one name in the
+      shared surface holds a flag, which is what the 4.2 note asked for.
