@@ -3,15 +3,69 @@
 - **SHAPE** graph
 - **MERGE** 1.4
 
-- [ ] 1.1 Read the workspace root from the environment, falling back to the cwd when it is unset or names a missing path `deps:` none `writes:` modules/home/programs/neovim/config/lua/utils/gitrepo.lua
+- [x] 1.1 Read the workspace root from the environment, falling back to the cwd when it is unset or names a missing path `deps:` none `writes:` modules/home/programs/neovim/config/lua/utils/gitrepo.lua
 
-- [ ] 1.2 Make the same rule answer in the Go layer, so the repo set and the edit-event log key share one boundary `deps:` none `writes:` pkgs/sysinit-agent/internal/repo/repo.go
+      `declared_workspace(dir)` reads `$SYSINIT_WORKSPACE`, expands it, and answers
+      only when it is a directory that contains `dir`. The containment rule is what
+      keeps the variable a boundary rather than a global override.
 
-- [ ] 1.3 Export the boundary from the shell function that already resolves and enters a session `deps:` none `writes:` modules/home/programs/zsh/integrations/seshy-wezterm.zsh
+      The fallback gained a step the old rule did not have: the git top level of the
+      cwd, then the cwd. So an editor opened in `src/` and an agent writing from the
+      repository root now resolve the same workspace, and therefore the same
+      edit-event log. Memoised per cwd, because the git step spawns a process and
+      `workspace()` is read on every roots query, message, and health report.
 
-- [ ] 1.4 Merge: prove the editor and the agent agree in a session directory, a plain directory of repositories, and a subdirectory of one repository `deps:` 1.1, 1.2, 1.3 `writes:` none
+- [x] 1.2 Make the same rule answer in the Go layer, so the repo set and the edit-event log key share one boundary `deps:` none `writes:` pkgs/sysinit-agent/internal/repo/repo.go
 
-- [ ] 1.5 Adversarial review (`adversarial-review` skill): run deterministic lint; run optional critics only when requested or risk-justified `deps:` 1.4 `writes:` openspec/changes/flatten-review-to-one-session/review.md
+      `repo.DeclaredWorkspace(dir)` is the same three rules in the same order, and
+      `repo.Workspace` calls it before `RootAt`. The seshy path rule is gone from
+      this file. `paths.SeshySessions` stays where it belongs: `agentstate.identify`
+      uses it to name the session for the status line, which is a label, not a
+      boundary.
+
+      `TestSeshySessionKeysOneLogForSeveralRepositories` asserted the old mechanism
+      and now fails by design, so it was rewritten as
+      `TestDeclaredWorkspaceKeysOneLogForSeveralRepositories`: the guarantee is
+      unchanged, that two repositories in one workspace write one log, and its source
+      is now the declaration. `TestDeclaredWorkspaceAnswersOnlyForWhatItContains`
+      covers the three refusals: a directory outside the declaration, a declaration
+      naming a missing path, and a declaration naming a file.
+
+- [x] 1.3 Export the boundary from the shell function that already resolves and enters a session `deps:` none `writes:` modules/home/programs/zsh/integrations/seshy-wezterm.zsh
+
+      Set from a `chpwd` hook rather than only from `s()`. A shell can arrive in a
+      session three ways, by `cd`, by a multiplexer reattaching, or by a pane opening
+      there, and only the hook covers all three. It unsets the variable on leaving,
+      which is what makes the containment rule in 1.1 and 1.2 the second line of
+      defence rather than the first.
+
+- [x] 1.4 Merge: prove the editor and the agent agree in a session directory, a plain directory of repositories, and a subdirectory of one repository `deps:` 1.1, 1.2, 1.3 `writes:` none
+
+      One fixture, four cases, both ends. A fake session root holding `repoA` and
+      `repoB`, a plain directory holding one repository, and a repository with a
+      `sub/deep` subdirectory.
+
+      | case | `sysinit-agent workspace health` | `gitrepo.workspace()` | roots |
+      | --- | --- | --- | --- |
+      | cwd in a declared session's repoA | `sessions/mine` | `sessions/mine` | 2 |
+      | plain directory of repositories | `plain` | `plain` | 1 |
+      | subdirectory of one repository | `one` | `one` | 1 |
+      | declaration names a missing path | `plain` | `plain` | 1 |
+
+      The shell hook was proven in a `zsh -f` sandbox with the paths manifest pointed
+      at the fixture: entering `sessions/mine/repoA` set the variable to
+      `sessions/mine`, entering the plain directory unset it, and entering the session
+      root set it again.
+
+- [x] 1.5 Adversarial review (`adversarial-review` skill): run deterministic lint; run optional critics only when requested or risk-justified `deps:` 1.4 `writes:` openspec/changes/flatten-review-to-one-session/review.md
+
+      Adversarial review: not run, per the recorded decision. Deterministic lint:
+      `stylua --check`, `gofmt -l`, `go vet ./...`, `go test ./...`, and
+      `nix flake check` all exit 0.
+
+      The defect this phase actually had was a test that encoded the mechanism rather
+      than the guarantee, and `go test` named it in one run. A critic reading the diff
+      would have had to notice that a seshy-shaped fixture no longer resolves.
 
 ## 2. One session at a time
 
