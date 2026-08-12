@@ -172,7 +172,7 @@
       version. That is not chased here, because this task gates the subagent PATH
       and the credential grep and both pass. It is left flagged rather than
       smoothed over.
-- [ ] 4.3 Confirm: the owner runs `hermes` once and decides whether the keys in `~/.hermes/config.yaml` are the ones they meant this repository to declare
+- [x] 4.3 Confirm: the owner runs `hermes` once and decides whether the keys in `~/.hermes/config.yaml` are the ones they meant this repository to declare
 
       One finding for the owner to rule on. `~/.hermes/config.yaml` survived the
       2026-07-01 removal, so the file the merge found was 582 lines of the
@@ -202,8 +202,15 @@
       dropped on the next switch, which follows the standing rule that
       hand-managed configuration gives way to the Nix source that generates it.
 
-      Still the owner's: run `hermes` once and confirm the resulting key set is
-      what this repository should declare. Nothing here can settle that.
+      Settled by the owner on 2026-08-12: they accept the declared key set, with
+      `agentgateway` the only MCP server this repository declares and `cocoindex`
+      and `incident-io` gone from `~/.hermes/config.yaml`. They took the trade that
+      `mcp_servers` in `enforce` carries: a server added later by `hermes mcp add`
+      is dropped on the next switch.
+
+      They chose this over running `hermes` first, so no live session was read
+      before the decision. That is their call to make, and it is recorded as made
+      rather than inferred from a session nobody ran.
 
       Separate from this change: `harnesses/goose.nix` has the same
       `retire`-covers-suppressed-only shape and the same two stale keys on disk.

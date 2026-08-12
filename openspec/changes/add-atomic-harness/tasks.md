@@ -69,7 +69,22 @@
       proceed on deterministic lint alone. `review.md` records the three risks
       that stay unexamined; the refactor-blast-radius one is answered by 1.3's
       identical system path rather than by a critic.
-- [ ] 1.5 Confirm: the owner accepts that pi's rendered settings are unchanged and that the shared files sit where they want them
+- [x] 1.5 Confirm: the owner accepts that pi's rendered settings are unchanged and that the shared files sit where they want them
+
+      Accepted on 2026-08-12, on the layout as it stands: `shared/pi-packages.nix`,
+      `shared/nvim-markdown-editor.nix`, and the five lock files under
+      `shared/locks/` keeping their `pi-` names.
+
+      The owner was shown that three harnesses now import `pi-packages.nix`, pi,
+      atomic, and prime-agent, so the file's name still says pi while the file is
+      shared, and was offered a rename of the nix file alone or of the locks with
+      it. They chose neither. Nothing rebuilds as a result, which is the point: a
+      lock's store path is a function of its basename, so renaming the locks would
+      have cost every pinned package a rebuild for a naming preference.
+
+      The unchanged-settings half rests on 1.3, not on this task: one
+      `darwin-system` store path across both revisions, and all 22 `.pi/` paths
+      identical.
 
 ## 2. Package
 
