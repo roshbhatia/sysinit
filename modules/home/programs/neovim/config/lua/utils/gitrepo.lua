@@ -84,18 +84,56 @@ function M.scan(dir, cb)
   )
 end
 
--- The workspace is the directory the roots are counted under. Neovim's cwd, except
--- when it sits inside a seshy session, where the session directory is the unit:
--- one session holds several checkouts and the editor is opened on the session.
+--- The workspace boundary the environment states, or nil when it states none.
+---
+--- `$SYSINIT_WORKSPACE` is read rather than a session manager's state directory
+--- being recognised by path, so whatever put the owner in a workspace is what says
+--- where it ends: a shell function, direnv, or a `cd` wrapper, none of which this
+--- code has to know about.
+---
+--- It answers only for a directory it contains. An explicit path outside it is the
+--- caller meaning that path, so hijacking it would make the variable a global
+--- override rather than a boundary.
+---@param dir string
+---@return string|nil
+local function declared_workspace(dir)
+  local value = vim.env.SYSINIT_WORKSPACE
+  if value == nil or value == "" then
+    return nil
+  end
+  local root = vim.fs.normalize(vim.fn.expand(value)):gsub("/+$", "")
+  local stat = vim.uv.fs_stat(root)
+  if not stat or stat.type ~= "directory" then
+    return nil
+  end
+  if dir == root or dir:sub(1, #root + 1) == root .. "/" then
+    return root
+  end
+  return nil
+end
+
+-- Memoised per cwd: the git fallback spawns a process, and this is read on every
+-- roots query, every message, and every health report.
+local workspace_cache = {}
+
+-- The workspace is the directory the roots are counted under: what the environment
+-- declares, else the repository the cwd sits in, else the cwd itself.
+--
+-- The git step is what makes a subdirectory of one repository agree with the
+-- repository root, so an editor opened in `src/` and an agent writing from the top
+-- resolve the same workspace and therefore the same edit-event log.
+--
 -- This mirrors `repo.Workspace` in `sysinit-agent` so both ends agree.
 function M.workspace()
   local cwd = vim.fs.normalize(vim.uv.cwd() or ".")
-  local sessions = vim.fs.normalize(vim.env.HOME .. "/.local/state/seshy/sessions")
-  local rest = cwd:sub(1, #sessions + 1) == sessions .. "/" and cwd:sub(#sessions + 2) or nil
-  if rest then
-    return sessions .. "/" .. (rest:match("^([^/]+)") or rest)
+  local declared = declared_workspace(cwd)
+  if declared then
+    return declared
   end
-  return cwd
+  if workspace_cache[cwd] == nil then
+    workspace_cache[cwd] = M.cwd_root() or cwd
+  end
+  return workspace_cache[cwd]
 end
 
 -- Every repository under the workspace, including one nested inside another.
