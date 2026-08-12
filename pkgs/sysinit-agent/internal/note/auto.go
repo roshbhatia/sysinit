@@ -117,20 +117,30 @@ type hunk struct {
 //
 // A deletion does not advance the modified side, so a hunk that only removes lines
 // anchors on the line that now sits where they were.
+//
+// A blank added line is skipped when the hunk adds anything else, because an
+// append usually opens with one and a note rendered above an empty line points at
+// nothing.
 func (h hunk) firstChangedLine() int64 {
 	line := h.NewStart
+	var firstChanged int64
 	for _, text := range h.Lines {
 		if text == "" {
 			continue
 		}
-		switch text[0] {
-		case '+':
+		changed := text[0] == '+' || text[0] == '-'
+		if changed && firstChanged == 0 {
+			firstChanged = line
+		}
+		if changed && strings.TrimSpace(text[1:]) != "" {
 			return line
-		case '-':
-			return line
-		default:
+		}
+		if text[0] != '-' {
 			line++
 		}
+	}
+	if firstChanged != 0 {
+		return firstChanged
 	}
 	return h.NewStart
 }

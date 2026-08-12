@@ -152,6 +152,42 @@ func TestAutoAnchorsOnTheFirstChangedLineNotTheHunkStart(t *testing.T) {
 	}
 }
 
+func TestFirstChangedLineSkipsABlankAddition(t *testing.T) {
+	cases := []struct {
+		name string
+		h    hunk
+		want int64
+	}{
+		{
+			name: "an append opening with a blank line anchors on the text",
+			h:    hunk{NewStart: 40, NewLines: 5, Lines: []string{" a", " b", " c", "+", "+text"}},
+			want: 44,
+		},
+		{
+			name: "a deletion anchors where the removed lines were",
+			h:    hunk{NewStart: 10, NewLines: 2, Lines: []string{" a", "-gone", " b"}},
+			want: 11,
+		},
+		{
+			name: "a hunk that adds only blank lines still anchors on one",
+			h:    hunk{NewStart: 7, NewLines: 2, Lines: []string{" a", "+"}},
+			want: 8,
+		},
+		{
+			name: "no marked line falls back to the start",
+			h:    hunk{NewStart: 3, NewLines: 1, Lines: []string{" a"}},
+			want: 3,
+		},
+	}
+	for _, c := range cases {
+		t.Run(c.name, func(t *testing.T) {
+			if got := c.h.firstChangedLine(); got != c.want {
+				t.Errorf("firstChangedLine = %d, want %d", got, c.want)
+			}
+		})
+	}
+}
+
 func TestAutoWritesNothingWithoutNarration(t *testing.T) {
 	root := newRepo(t)
 	file := filepath.Join(root, "src", "app.ts")
