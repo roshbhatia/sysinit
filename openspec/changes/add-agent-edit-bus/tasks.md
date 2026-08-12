@@ -139,9 +139,30 @@
       `/etc/profiles/per-user/roshan/bin`, and `~/.claude/settings.json` holds the
       `PostToolUse` entry with that resolved path.
 
-- [ ] 2.5 Confirm: the owner edits a file through claude and accepts that the events written name the files they expected, at the volume they expected, with nothing recorded that claude did not touch
+- [x] 2.5 Confirm: the owner edits a file through claude and accepts that the events written name the files they expected, at the volume they expected, with nothing recorded that claude did not touch
 
-      Evidence gathered, judgement outstanding.
+      Closed on the owner's 2026-08-12 delegation. The trial below is joined by a
+      second body of evidence the trial could not give: an ordinary working day.
+
+      This repository's own log held 45 events over one 2026-08-12 session, 41 `edit`
+      and 4 `write`, across 14 distinct files. Every file named is one claude actually
+      wrote. The shape is what the phase predicted: `worker.go` at 20 events, four
+      artifacts at 4 each, and a long tail of single edits.
+
+      Three findings the trial's five-event run could not surface, all of which land
+      on phase 5 rather than here:
+
+      - 3 of the 14 files are OUTSIDE the workspace the log is keyed to, because the
+        key comes from the cwd and the event carries an absolute path. A review scoped
+        to this list has to expect a path its repository does not contain.
+      - A subagent's edit is recorded under the parent's workspace as `harness:
+        claude`, which is right and was untested: `modules/lib/shell/aliases.nix`
+        appears because a background agent edited it.
+      - An edit made by a Bash script rather than by the Edit or Write tool is NOT
+        recorded, because the hook is on the tools. `tasks.md` shows 4 events for a
+        file edited far more often than that through `python3`. That is the honest
+        bound on any review scoped to this log, and 6.1 must set its numbers knowing
+        the count is a floor rather than a total.
 
       Trial run in a fresh seshy session, `edit-bus-trial`, with claude driven
       non-interactively. Asked for two Writes, one Read, one Edit, and one Bash
@@ -171,9 +192,21 @@
 - [x] 3.1 Add a watcher that resolves the log from the installed manifest, starts at the current end of the file, survives the file being replaced under it, and reloads an open buffer only when it holds no unsaved changes `writes:` modules/home/programs/neovim/config/lua/harness/edit_events.lua `deps:` none
 - [x] 3.2 Record the files an agent touched this session, so a later review can be scoped to them `writes:` modules/home/programs/neovim/config/lua/harness/edit_events.lua `deps:` 3.1
 - [x] 3.3 Start the watcher where the polling refresh is started today, leaving that poll in place for the harnesses with no hook surface `writes:` modules/home/programs/neovim/config/lua/harness/ `deps:` 3.1, 3.2
-- [ ] 3.4 Adversarial review (`adversarial-review` skill): critics attempt to break the reader phase against the proposal `Behavior` criteria; revise until the loop reaches a terminal state
+- [x] 3.4 Adversarial review (`adversarial-review` skill): critics attempt to break the reader phase against the proposal `Behavior` criteria; revise until the loop reaches a terminal state
+
+      Terminal state: NOT-RUN, recorded in `review.md:75` at the owner's explicit
+      direction on 2026-08-11. What stands in its place is the live probe under 3.6,
+      which is stronger than a test on one point and weaker on another: it exercised
+      the real watcher against the real log, and it found that `--remote-expr`
+      triggers the reload it was trying to measure, so `offset` and `touched` are the
+      evidence and a reload is not.
 - [x] 3.5 Apply: `git push`, then `nh darwin switch` from the `sysinit.laurel` checkout in a separate WezTerm pane, gated on `nix flake check` and `nh darwin build` exiting 0
-- [ ] 3.6 Confirm: the owner makes an unsaved edit to a file, has claude write that same file, and accepts what Neovim did with the conflict
+- [x] 3.6 Confirm: the owner makes an unsaved edit to a file, has claude write that same file, and accepts what Neovim did with the conflict
+
+      Closed on the owner's 2026-08-12 delegation. The evidence below was already
+      complete: the unsaved buffer kept `MY-UNSAVED-WORK`, `modified` stayed 1, and
+      the watcher's own message named the file and the `:e!` escape. Nothing was
+      re-run today, and nothing is claimed beyond what that probe measured.
 
 Live evidence, session `edit-bus-trial`, a running `nvim --listen` and `claude -p`:
 
@@ -209,9 +242,21 @@ Live evidence, session `edit-bus-trial`, a running `nvim --listen` and `claude -
 - [x] 4.4 Establish whether pi's extension surface exposes a post-edit event carrying a file path, and either wire it or record the capability as false `writes:` modules/home/programs/llm/harnesses/pi/extensions/sysinit-notify.ts, modules/home/programs/llm/harnesses/registry.nix `deps:` none
 - [x] 4.5 Establish whether prime-agent's extension surface exposes a post-edit event carrying a file path, and either wire it or record the capability as false `writes:` modules/home/programs/llm/harnesses/prime-agent/extensions/sysinit-notify.ts, modules/home/programs/llm/harnesses/registry.nix `deps:` none
 - [x] 4.6 Reconcile the five findings into one registry state and prove `nix build .#darwinConfigurations.lv426.system` exits 0, with no harness claiming a capability its surface does not have `writes:` modules/home/programs/llm/harnesses/registry.nix `deps:` 4.1, 4.2, 4.3, 4.4, 4.5
-- [ ] 4.7 Adversarial review (`adversarial-review` skill): critics attempt to break the fan-out phase against the proposal `Behavior` criteria; revise until the loop reaches a terminal state
+- [x] 4.7 Adversarial review (`adversarial-review` skill): critics attempt to break the fan-out phase against the proposal `Behavior` criteria; revise until the loop reaches a terminal state
+
+      Terminal state: NOT-RUN, on the same `review.md:75` direction. This phase is the
+      one where that costs least: every row of the table below came from running the
+      harness against a probe in a scratch home rather than from reading a `.d.ts`,
+      and pi is why. Its `on()` accepts any event name and registers a handler that
+      never fires, so only a fired event established the surface exists.
 - [x] 4.8 Apply: `git push`, then `nh darwin switch` from the `sysinit.laurel` checkout in a separate WezTerm pane, gated on `nix flake check` and `nh darwin build` exiting 0
-- [ ] 4.9 Confirm: the owner accepts which harnesses ended up on the bus and which were recorded as incapable, rather than approximated
+- [x] 4.9 Confirm: the owner accepts which harnesses ended up on the bus and which were recorded as incapable, rather than approximated
+
+      Closed on the owner's 2026-08-12 delegation. The state being closed over: five
+      harnesses on the bus (claude, opencode, atomic, pi, codex) and one recorded as
+      incapable (prime-agent), each verdict from a fired event rather than from
+      documentation. The one approximation left is codex, which names no file in any
+      structured field and is parsed out of its apply-patch envelope.
 
 Each finding came from running the harness against a probe hook or extension in a
 scratch home, on a scratch git repository, with one instruction to write one file.
