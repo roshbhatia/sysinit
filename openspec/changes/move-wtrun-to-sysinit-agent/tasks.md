@@ -185,7 +185,15 @@
   separate assertions; and silencing the line loses the report. A fourth attempt was
   invalid rather than a result: deleting the print left `note` unused, so the package
   failed to build, and it was redone as `_ = note`.
-- [ ] 2.6 Apply: `git push`, then `nh darwin switch` from the `sysinit.laurel` checkout in a separate WezTerm pane, gated on `nix flake check` and `nh darwin build` exiting 0. Recovery is activating the previous system generation, not a revert, because a revert reaches this machine only through a full build run by the tool being replaced
+- [x] 2.6 Apply: `git push`, then `nh darwin switch` from the `sysinit.laurel` checkout in a separate WezTerm pane, gated on `nix flake check` and `nh darwin build` exiting 0. Recovery is activating the previous system generation, not a revert, because a revert reaches this machine only through a full build run by the tool being replaced
+
+  Pushed `684ac0600..20fdbb83a`, then switched. Exit 0, 1590 paths with 27 replaced.
+  The switch names the swap in one line each: ADDED `worker`, REMOVED `wtrun`.
+  `/etc/profiles/per-user/roshan/bin/wtrun` is gone and `worker` is in its place,
+  ending in `exec sysinit-agent worker "$@"`.
+
+  The switch itself ran through the new implementation, in a pane the worker split,
+  which is the first thing this change ships being used to ship itself.
 - [ ] 2.7 Confirm: the owner runs one real build through the new implementation and accepts the exit code, the log tail, and the directory it reported, with the one extra pane explained by the superseded-worker line rather than appearing unannounced
 - [x] 2.8 Decide: the owner decided on 2026-08-11 to keep `waiting` and design the clear, having been shown that its only producer is a harness run inside the worker, that such a run holds the shared worker while it waits, and that the bus's `exit` status leaves the user var stale. The three accepted costs are recorded in the design
 
