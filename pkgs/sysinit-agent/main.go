@@ -15,6 +15,7 @@ import (
 	"github.com/roshbhatia/sysinit/pkgs/sysinit-agent/internal/transcript"
 	"github.com/roshbhatia/sysinit/pkgs/sysinit-agent/internal/watch"
 	"github.com/roshbhatia/sysinit/pkgs/sysinit-agent/internal/worker"
+	"github.com/roshbhatia/sysinit/pkgs/sysinit-agent/internal/workspace"
 )
 
 // command is one subcommand.
@@ -36,6 +37,7 @@ var commands = map[string]command{
 	"transcript-link": {name: "transcript-link", summary: transcript.Summary, run: transcript.Run},
 	"watch":           {name: "watch", summary: watch.Summary, run: watch.Run},
 	"worker":          {name: "worker", summary: worker.Summary, run: worker.Run},
+	"workspace":       {name: "workspace", summary: workspace.Summary, run: workspace.Run},
 }
 
 func usage(w *os.File) {
