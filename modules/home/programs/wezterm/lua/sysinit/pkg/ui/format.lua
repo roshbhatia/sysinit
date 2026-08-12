@@ -177,10 +177,20 @@ function M.pane_proc(p, agent)
   if agent and agent ~= "" then
     return agent
   end
+  -- The pane's own OSC title, and only when it reads like a process name.
+  --
+  -- An agent sets it to a sentence describing the session, which the tab line above
+  -- already shows, so accepting it printed `in ✳ Identify explicit steps to launch FRA
+  -- this week` under a tab of that same name. Returning nothing instead drops the
+  -- segment: the switcher omits `in …` for an empty title, and a line that says less
+  -- says it once.
   local ok2, title = pcall(function()
     return M.normalize_proc(p:get_title() or "")
   end)
-  return (ok2 and title) or ""
+  if ok2 and title and title ~= "" and not title:find("%s") and not M.is_passthrough(title) then
+    return title
+  end
+  return ""
 end
 
 function M.tab_label(tab, index, active_pane)
