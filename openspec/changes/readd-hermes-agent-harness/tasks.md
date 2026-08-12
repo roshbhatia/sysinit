@@ -133,7 +133,7 @@
       `sysinit.laurel` exited 0. The live closure went 1251 -> 1582 paths and
       16.7 -> 19.0 GiB, which is 2.3 GiB, matching the 2.38 GiB predicted in 1.3.
       Neither the brew-trust abort nor the App Management exit-1 appeared.
-- [ ] 4.2 Run the post-switch checks: `hermes --version`, `hermes-acp --help`, the credential grep over the built store path, and a hermes session from `env -i PATH=/usr/bin:/bin` resolving the six subagent binaries
+- [x] 4.2 Run the post-switch checks: `hermes --version`, `hermes-acp --help`, the credential grep over the built store path, and a hermes session from `env -i PATH=/usr/bin:/bin` resolving the six subagent binaries
 
       Three of the four already pass against the built store path, before any
       switch. `hermes --version` reports `Hermes Agent v0.20.0 (2026.8.3)`,
@@ -150,6 +150,28 @@
       profile wrapper's own prefixed dirs. `~/.hermes/SOUL.md` is a store
       symlink. `hermes skills list` names 79 local skills, which is every
       `SKILL.md` directory under `~/.claude/skills`, plus 87 hermes builtins.
+
+      Re-run on 2026-08-12, after the switch that shipped `add-agent-edit-bus`, to
+      confirm the four still hold rather than to trust a day-old reading. All four
+      do. `command -v hermes` is `/etc/profiles/per-user/roshan/bin/hermes`,
+      reporting `Hermes Agent v0.20.0 (2026.8.3)`. `hermes-acp --help` exits 0. The
+      credential grep over the wrapper's store tree returns nothing.
+      `~/.hermes/SOUL.md` still resolves into `home-manager-files`.
+
+      The six subagents resolve from the wrapper's own prefixes with nothing but
+      `/usr/bin:/bin` behind them. The prefixes were read out of the wrapper script
+      rather than assumed, six of them, one per binary: `claude` 2.1.227,
+      `codex-acp` 0.13.0, `opencode` 1.18.11, `copilot` 1.0.61, `gh` 2.97.0, and
+      `gemini` 0.47.0.
+
+      Two numbers moved and only one is explained. Local skills now read 76, and
+      they match disk exactly, but only under `find -L`: the directories under
+      `~/.claude/skills` are symlinks, so an unfollowed `find` sees 69 of them and
+      the three names that look missing are table truncation. Builtins now read 9,
+      not 87, from `hermes skills list --source builtin` on the same hermes
+      version. That is not chased here, because this task gates the subagent PATH
+      and the credential grep and both pass. It is left flagged rather than
+      smoothed over.
 - [ ] 4.3 Confirm: the owner runs `hermes` once and decides whether the keys in `~/.hermes/config.yaml` are the ones they meant this repository to declare
 
       One finding for the owner to rule on. `~/.hermes/config.yaml` survived the
