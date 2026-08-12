@@ -389,11 +389,101 @@ does. Nothing to fix here; the probe had to pin the variable explicitly.
       reach is a running editor, so 5.5 is where this phase is actually tested, and
       the one defect found so far came from reading the plugin rather than from any
       gate.
-- [ ] 5.4 Apply: `git push`, then `nh darwin switch` from the `sysinit.laurel` checkout in a separate WezTerm pane, gated on `nix flake check` and `nh darwin build` exiting 0
-- [ ] 5.5 Confirm: the owner accepts that a scoped review shows the work they meant to review, and that the narrowing is obvious enough to not be mistaken for the whole diff
+- [x] 5.4 Apply: `git push`, then `nh darwin switch` from the `sysinit.laurel` checkout in a separate WezTerm pane, gated on `nix flake check` and `nh darwin build` exiting 0
+
+      Pushed as `36448b13e`. `nix flake check` and
+      `nix build .#darwinConfigurations.lv426.system` both exited 0 on that tree.
+      The switch ran in worker pane 15 and exited 0, after one retry: the first
+      attempt failed in `--update` because GitHub answered the tarball fetch with
+      HTTP 503, before any evaluation.
+
+      The switch changed nothing: `PATHS 1591 -> 1591`, `DIFF 0 bytes`, same
+      `darwin-system` store path in and out. That is correct rather than a failed
+      apply. `sysinit-nvim.nix:13` installs the config with
+      `mkOutOfStoreSymlink`, and the chain ends at this checkout, so a phase whose
+      only artifacts are lua files is live the moment they are written and is
+      absent from the system closure. The switch proves the tree still activates;
+      it is not what makes the keymap exist.
+
+- [x] 5.5 Confirm: the owner accepts that a scoped review shows the work they meant to review, and that the narrowing is obvious enough to not be mistaken for the whole diff
+
+      Exercised in a live Neovim driven over `--listen`, calling the same function
+      `<leader>dR` calls, with `vim.notify` collected so what the owner would read
+      is what is quoted here. `maparg` confirms the keymap exists.
+
+      What the three branches did, each from a real touched set rather than a
+      constructed one:
+
+      - Only a scratchpad file touched: `all 1 agent edit(s) are outside
+        /Users/roshan/github/personal/roshbhatia/sysinit`, ending in the pointer to
+        `<leader>dr` for the full diff. No diff opened.
+      - `design.md` touched: `review scoped to 1 file(s) an agent wrote`, then the
+        same pointer, over an explorer session against
+        `36448b13ecf31cfc100d68890d0f30d99cef8b22` holding that file alone.
+      - Both: `review scoped to 1 file(s) an agent wrote, 1 outside this repository
+        omitted`, so the count the owner sees names what was dropped.
+      - `design.md` and `tasks.md`: `review scoped to 2 file(s) an agent wrote`,
+        and the explorer's own `pathspec` held exactly those two, against four
+        modified files in the working tree.
+
+      The gate found a defect the deterministic half could not, and it was not in
+      this change: review.nvim `8e4bc16` cannot attach to codediff `31510a9` at
+      all. codediff's explorer session holds `{ absolute, relative }` where
+      review.nvim expects a path string, so `set_buffer_filetype` hands a table to
+      `vim.filetype.match`, which throws in `normalize_path` and aborts
+      `on_session_created` before its augroup and keymaps exist. Plain `:Review`
+      failed identically, from review.nvim's own call site at `init.lua:112`, so
+      `<leader>dr` has been opening a diff with no comment layer too.
+
+      Fixed in `plugins/review.lua` rather than in the vendored tree, by reading the
+      record's `absolute` field. Proved after the fix: the `review_buf_marks`
+      augroup exists, and both diff buffers carry the comment keymaps, `i` to add,
+      `c` to list, `e` to edit, `d` to delete, `F` for a file comment.
+
+      Two limits worth naming. The watcher resolves its log once at startup from the
+      process's working directory, so a Neovim launched outside the repository and
+      `:cd`'d in afterwards watches another workspace's log and reports no edits;
+      this was found by making that mistake in the harness. And the scope stays a
+      floor: the same session's `python3` writes are absent from the log, so the
+      full diff remains the only complete view.
 
 ## 6. Rollout
 
-- [ ] 6.1 Measure an ordinary turn's event count and set the size bound and retained-line count from it, replacing whatever placeholder shipped in phase 1
-- [ ] 6.2 Decide whether the poll should now be skipped for a workspace whose harness writes to the bus, or left running for every harness
+- [x] 6.1 Measure an ordinary turn's event count and set the size bound and retained-line count from it, replacing whatever placeholder shipped in phase 1
+
+      Measured from this workspace's own log, `sysinit-90f8d757d2331834.jsonl`:
+      52 events naming 18 distinct files over 90 minutes, all from claude, 47
+      `edit` and 5 `write`. Lines run 201 to 263 bytes, mean 233. Segmented on a
+      two-minute gap the log holds 9 turns of 1, 4, 2, 8, 29, 1, 4, 2, 1 events:
+      mean 6, worst 29.
+
+      Set `maxBytes = 512 * 1024` and `keepLines = 200`, replacing 256 KiB and
+      500. The bytes bound sets how often a trim happens, about once every 40
+      sessions at this rate. The line count sets what a trim costs, and the cost is
+      not only the re-read: a reader whose offset is past the shortened file starts
+      again at 0 and counts every survivor as touched, so 200 is the smallest
+      window that still holds a session's own edits with the worst turn inside it.
+      Lowering the retained count from 500 is therefore the substantive half of
+      this change, and raising the bytes bound is what keeps it rare.
+
+      The count is a floor, not a census. Every event here came from an edit tool;
+      the same session rewrote `worker.go` repeatedly through `python3` heredocs
+      and those writes appear nowhere in the log. So the real edit rate is higher
+      than 52, and a bound derived from it is generous rather than tight.
+- [x] 6.2 Decide whether the poll should now be skipped for a workspace whose harness writes to the bus, or left running for every harness
+
+      Left running for every harness. No code change.
+
+      Three reasons, in order. The bus records tool edits only, proved in 6.1: a
+      shell-driven write produces no event, and the poll is the only thing that
+      reloads a buffer after one. The poll is already narrow, because
+      `session.set_active` starts it only for a harness Neovim itself launched, and
+      the common case of a harness in its own WezTerm pane never starts it, so
+      there is close to nothing to save. Its cost is one `checktime` a second,
+      which does nothing when no buffer changed.
+
+      The shape of the failure decides the rest. Skipping the poll would make the
+      reader trust the registry's claim about a writer, and a claim that is wrong
+      by one harness reads as buffers silently stopping reloading, which is the
+      hardest symptom here to attribute.
 - [ ] 6.3 Apply: `openspec archive add-agent-edit-bus`, gated on `specutil check` and `spec-preflight all` exiting 0

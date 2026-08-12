@@ -246,6 +246,15 @@ by reading the installed harness rather than by assuming.
 
 The exact size bound and last-K-lines value. They should be picked from an
 observed turn's event count rather than guessed, which phase 2 makes measurable.
+Answered in 6.1 from this workspace's own log: 512 KiB and 200 lines, measured
+from 52 events over 90 minutes at 233 bytes a line.
+
+Whether review.nvim can attach to a codediff session at all on the pinned pair.
+Answered in 5.5, and the answer was no: codediff `31510a9` returns
+`{ absolute, relative }` where review.nvim `8e4bc16` expects a path string, so
+`on_session_created` throws before it installs its comment layer. `<leader>dr`
+was broken the same way and by the same line, which is why the guard lives in
+`plugins/review.lua` rather than beside the scoped open.
 
 Whether the reader should also consume the events claude already delivers over
 its WebSocket connection, or ignore them and rely on the bus. Deferred: claude
