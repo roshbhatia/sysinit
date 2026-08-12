@@ -14,6 +14,10 @@
 ---   which is why the plain `<leader>dd` diff shows them as well as `<leader>dr`.
 local M = {}
 
+--- The command that owns the note record. Named once, so the health check reports on
+--- the same binary this reads through and a rename is one edit.
+M.tool = "sysinit-agent"
+
 local ns = vim.api.nvim_create_namespace("harness_agent_notes")
 local augroup = "harness_agent_notes"
 
@@ -165,7 +169,19 @@ end
 ---@param root string
 ---@param done? fun(count: integer)
 local function load(root, done)
-  vim.system({ "sysinit-agent", "note", "list", "--json" }, { cwd = root, text = true }, function(result)
+  -- The tool is checked for rather than assumed. `vim.system` raises `ENOENT` for a
+  -- command that is not on PATH, and this runs inside the review's open path, so a
+  -- machine without `sysinit-agent` would fail the diff itself rather than lose its
+  -- notes. Measured: `pcall(vim.system, {"missing"})` returns false, not a result with
+  -- a non-zero code.
+  if vim.fn.executable(M.tool) ~= 1 then
+    by_root[root] = {}
+    if done then
+      done(0)
+    end
+    return
+  end
+  vim.system({ M.tool, "note", "list", "--json" }, { cwd = root, text = true }, function(result)
     local notes = {}
     local count = 0
     if result.code == 0 and result.stdout and result.stdout ~= "" then

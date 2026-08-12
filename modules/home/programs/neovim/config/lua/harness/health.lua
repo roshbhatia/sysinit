@@ -117,6 +117,18 @@ function M.findings()
     add("ok", string.format("agent edits recorded this session: %d", watch.touched))
   end
 
+  local ok_notes, notes = pcall(require, "harness.notes")
+  if not ok_notes then
+    add("error", "the agent-note module did not load, so a review shows the diff and none of the reasoning")
+  elseif vim.fn.executable(notes.tool) ~= 1 then
+    add(
+      "warn",
+      string.format("agent notes: `%s` is not on PATH, so a review draws no notes and does not fail either", notes.tool)
+    )
+  else
+    add("ok", string.format("agent notes: %d drawn for the open review", notes.count()))
+  end
+
   for _, plugin in ipairs({
     { module = "codediff", lazy = "codediff.nvim", need = "the diff itself" },
     { module = "review", lazy = "review.nvim", need = "the comment layer" },
@@ -124,6 +136,40 @@ function M.findings()
   }) do
     local state = plugin_state(plugin.module, plugin.lazy)
     add(state == "absent" and "error" or "ok", string.format("%s: %s (%s)", plugin.lazy, state, plugin.need))
+  end
+
+  -- The two places this config reaches into another plugin's internals. Reported by
+  -- name because an upstream rename breaks them silently: every review would open with
+  -- no comment layer, and a clean repository would fall back to a message. Only checked
+  -- for a module already loaded, so reading the report does not load a lazy plugin and
+  -- change what the next line says.
+  for _, seam in ipairs({
+    {
+      module = "review",
+      what = "review.nvim attach seam `_check_codediff_session`",
+      cost = "a review opens with no comment layer",
+      ok = function(m)
+        return type(m._check_codediff_session) == "function"
+      end,
+    },
+    {
+      module = "codediff.ui.view",
+      what = "codediff seam `ui.view.create`",
+      cost = "a clean repository reports itself in a message instead of opening `Changes (0)`",
+      ok = function(m)
+        local ok_path, path = pcall(require, "codediff.core.path")
+        return type(m.create) == "function" and ok_path and type(path.empty) == "function"
+      end,
+    },
+  }) do
+    local loaded = package.loaded[seam.module]
+    if loaded == nil then
+      add("ok", string.format("%s: not checked, %s is not loaded yet", seam.what, seam.module))
+    elseif seam.ok(loaded) then
+      add("ok", seam.what .. ": present")
+    else
+      add("error", string.format("%s: gone. %s", seam.what, seam.cost))
+    end
   end
 
   return out
