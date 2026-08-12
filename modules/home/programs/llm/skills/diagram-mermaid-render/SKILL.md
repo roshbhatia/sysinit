@@ -1,33 +1,50 @@
 ---
-description: Renders Mermaid diagrams so they live where they are read: ASCII inline via `mermaid-ascii` for markdown, openspec artifacts, and chat; PNG/SVG export via the Kroki API only when visual fidelity is required. Per-diagram-type syntax guidance is sourced from the Agents365 mermaid-skill. Use when a diagram clarifies more than prose: capability flow, state transitions, sequence-of-calls, option trees, dependency graphs, decision points, architecture sketches.
-allowed-tools: Bash(mermaid-ascii:*) Bash(curl:*) Read Write Edit
+description: Renders Mermaid diagrams so they live where they are read. Render EVERY mermaid diagram you write or read as ASCII in the terminal first: `mermaid-ascii` for flowcharts, `pretty-mermaid --format ascii --use-ascii` for sequence and ER. Themed SVG comes from `pretty-mermaid` offline; the Kroki API is the last resort. Per-diagram-type syntax is sourced from the Agents365 mermaid-skill, the SVG and ASCII renderer from imxv/Pretty-mermaid-skills. Use when a diagram clarifies more than prose: capability flow, state transitions, sequence-of-calls, option trees, dependency graphs, decision points, architecture sketches.
+allowed-tools: Bash(mermaid-ascii:*) Bash(pretty-mermaid:*) Bash(pretty-mermaid-batch:*) Bash(pretty-mermaid-themes:*) Bash(curl:*) Read Write Edit
 ---
 
 # Diagramming
 
-Diagrams live where they are read. Default to **ASCII inline** so a diagram
-survives in markdown, openspec artifacts, terminals, and chat without an asset
-pipeline. Reach for a **rendered image** (PNG/SVG) only when fidelity earns it —
-a diagram type ASCII cannot express, or a doc that ships to a rendering surface.
+Diagrams live where they are read. Render **every** mermaid diagram as ASCII in the
+terminal, including one you only read: a mermaid block in a file, a PR, or a spec is
+text a reader has to simulate in their head, and one command turns it into a picture.
+An ASCII render also survives in markdown, openspec artifacts, and chat with no asset
+pipeline. Reach for an image only when fidelity earns it.
 
 Mermaid is always the source of truth; ASCII or image is the render. Keep the
 Mermaid alongside the render so it can be edited and re-rendered later.
 
 Provenance: per-diagram-type syntax below is distilled from the Agents365
-`mermaid-skill` (`Agents365-ai/mermaid-skill`). The opinions on top — ASCII-first,
-Kroki over a local Puppeteer/mmdc toolchain, the subset guardrails — are this
-repository's own.
+`mermaid-skill` (`Agents365-ai/mermaid-skill`). The themed SVG and multi-type ASCII
+renderer is `imxv/Pretty-mermaid-skills` (MIT), packaged as `pretty-mermaid` and
+pinned by rev in `overlays/pretty-mermaid.nix`; `hack/update-pretty-mermaid.sh`
+surfaces drift. The opinions on top — ASCII-first, offline before network, the
+per-type routing below — are this repository's own.
 
 ## Decision routing — pick the render target first
 
 ```
-Flowchart/graph landing in markdown, openspec, or chat?              -> ASCII inline via mermaid-ascii (default)
-Type ASCII can't express (sequence, state, ER, gantt, class, pie)
-  OR shipping to a rendering surface (published page, slide)?         -> image via Kroki HTTP API (curl)
-Trivial two-box flow shorter as prose?                                -> skip the diagram
+Flowchart or graph?                                     -> ASCII via mermaid-ascii (Path A)
+Sequence or ER?                                         -> ASCII via pretty-mermaid (Path A2)
+State, class, gantt, pie, mindmap?                      -> themed SVG via pretty-mermaid (Path B)
+Shipping to a rendering surface (published page, slide)? -> themed SVG via pretty-mermaid (Path B)
+A type pretty-mermaid does not parse?                    -> Kroki (Path C, network)
+Trivial two-box flow shorter as prose?                   -> skip the diagram
 ```
 
-Prefer ASCII; escalate to an image only when the target genuinely needs it.
+The split between Path A and Path A2 is measured, not stylistic. Both renderers were
+run against the five upstream examples on 2026-08-12:
+
+- `mermaid-ascii` draws flowcharts with box-drawing characters and reads better than
+  `pretty-mermaid` on the same input. It parses nothing else.
+- `pretty-mermaid` ASCII is excellent for `sequenceDiagram` (lifelines, solid calls,
+  dotted replies) and readable for `erDiagram`, which `mermaid-ascii` cannot draw
+  at all.
+- `pretty-mermaid` ASCII is NOT usable for `classDiagram` or `stateDiagram-v2`. Edge
+  labels are written over the box borders, producing lines like `+co writes tring`,
+  and the state diagram's first node renders empty. Send those two to SVG.
+
+Prefer ASCII; escalate only when the target or the type genuinely needs it.
 
 ## When a diagram earns its place
 
@@ -86,37 +103,66 @@ flowchart LR
 ```
 ````
 
-## Path B — image export via Kroki (fidelity)
+## Path A2 — ASCII for sequence and ER
 
-When ASCII cannot carry the diagram, render through Kroki with `curl` — no local
-`mmdc` / Puppeteer / headless-Chrome toolchain.
+`pretty-mermaid` renders five types; two of them beat having no ASCII at all.
 
 ```bash
-# SVG (preferred — scalable, diff-able, smaller)
+pretty-mermaid --input diagram.mmd --format ascii --use-ascii
+pretty-mermaid --input diagram.mmd --format ascii --use-ascii --padding-x 3
+```
+
+It reads a file, not stdin, so write the block to a `.mmd` file first. Embed the
+source and the render together exactly as Path A does.
+
+## Path B — themed SVG, offline
+
+`pretty-mermaid` renders SVG locally, with no network call and no
+Puppeteer/headless-Chrome toolchain. This is the default for an image.
+
+```bash
+pretty-mermaid --input diagram.mmd --output diagram.svg --format svg --theme tokyo-night
+pretty-mermaid-themes                              # the 14 available themes
+pretty-mermaid-batch --input-dir ./diagrams --output-dir ./out --format svg --theme nord --workers 4
+```
+
+Themes worth knowing: `tokyo-night` for dark docs, `github-light` for light docs,
+`dracula` for something vivid. `nord`, `catppuccin-mocha`, and `solarized-*` are
+there too.
+
+One caveat: the emitted SVG `@import`s Inter from Google Fonts, so a viewer fetches
+a font when the file is opened. For a diagram that must not phone home, pass
+`--font` with a local family, or accept that the render itself was offline and the
+view is not.
+
+## Path C — Kroki (last resort, network)
+
+Only for a type `pretty-mermaid` cannot parse.
+
+```bash
 curl -s -X POST https://kroki.io/mermaid/svg --data-binary @diagram.mmd -o diagram.svg
-# PNG (only when the target cannot embed SVG)
 curl -s -X POST https://kroki.io/mermaid/png --data-binary @diagram.mmd -o diagram.png
 ```
 
-Kroki is a network call to an external service. State that the diagram source is
-being sent off-box before doing it, never send anything sensitive in the diagram
-text, and keep the `.mmd` source in the repo next to the exported asset.
+Kroki is a network call to an external service, which is why it moved below the
+local renderer. State that the diagram source is being sent off-box before doing
+it, never send Laurel code or customer data in the diagram text, and keep the
+`.mmd` source in the repo next to the exported asset.
 
 ## Per-diagram-type syntax (distilled from mermaid-skill)
 
-Pick the type that matches the relationship. Flowchart/graph -> Path A; the rest
--> Path B.
+Pick the type that matches the relationship, then take the path named beside it.
 
 - **flowchart** — process/decision flow. `flowchart LR|TD`; `A[rect]`, `A(round)`,
-  `A{diamond}`; edges `-->`, `-->|label|`, `-.->`.
+  `A{diamond}`; edges `-->`, `-->|label|`, `-.->`. Path A.
 - **sequenceDiagram** — ordered messages. `participant A`; `A->>B: call`;
-  `B-->>A: reply`; `loop`/`alt`/`opt` blocks.
-- **stateDiagram-v2** — lifecycle. `[*] --> Idle`; `Idle --> Running: start`.
-- **erDiagram** — data model. `CUSTOMER ||--o{ ORDER : places`.
-- **classDiagram** — types. `class Foo { +field; +method() }`; `Foo <|-- Bar`.
-- **gantt** — schedule. `dateFormat YYYY-MM-DD`; sections; `task :id, start, dur`.
-- **pie** — proportions. `pie title T` then `"Label" : value` rows.
-- **mindmap** — hierarchical brainstorm. `mindmap` then indented nodes.
+  `B-->>A: reply`; `loop`/`alt`/`opt` blocks. Path A2.
+- **erDiagram** — data model. `CUSTOMER ||--o{ ORDER : places`. Path A2.
+- **stateDiagram-v2** — lifecycle. `[*] --> Idle`; `Idle --> Running: start`. Path B.
+- **classDiagram** — types. `class Foo { +field; +method() }`; `Foo <|-- Bar`. Path B.
+- **gantt** — schedule. `dateFormat YYYY-MM-DD`; sections; `task :id, start, dur`. Path B.
+- **pie** — proportions. `pie title T` then `"Label" : value` rows. Path B.
+- **mindmap** — hierarchical brainstorm. `mindmap` then indented nodes. Path B.
 
 Across types: short labels; quote labels with spaces/punctuation when a parser
 complains; one relationship per line; render early and iterate.
@@ -133,5 +179,10 @@ complains; one relationship per line; render early and iterate.
 - The diagram is for human comprehension — if it does not help a reader, omit.
 - Always render before pasting; never hand-draw ASCII boxes or paste stale ASCII.
 - Keep the Mermaid source in the file. A render alone is write-only.
-- Stay inside the `mermaid-ascii` subset for Path A; escalate to Path B rather
-  than forcing an unsupported type into ASCII.
+- Stay inside the `mermaid-ascii` subset for Path A; take Path A2 or B rather than
+  forcing an unsupported type into the wrong renderer.
+- Render a mermaid block you are only READING, too. If a file, PR, or spec contains
+  one, render it before reasoning about it: a diagram parsed by eye is a diagram
+  half-read.
+- Never claim an ASCII render is faithful without looking at it. Both renderers
+  garble some inputs, and the routing above is the record of which ones.
