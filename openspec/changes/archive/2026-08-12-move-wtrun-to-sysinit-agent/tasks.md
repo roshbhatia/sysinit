@@ -386,7 +386,15 @@
 ## 4. Rollout
 
 - [x] 4.1 Decided by 3.9: the legacy artifacts are removed by the prune, not by hand
-- [ ] 4.2 Apply: `openspec archive move-wtrun-to-sysinit-agent`, gated on `specutil check` and `spec-preflight all` exiting 0
+- [x] 4.2 Apply: `openspec archive move-wtrun-to-sysinit-agent`, gated on `specutil check` and `spec-preflight all` exiting 0
+
+  Both gates passed, then archived as `2026-08-12-move-wtrun-to-sysinit-agent`.
+
+  Run with `-y --skip-specs`. `-y` because the only incomplete task was this one,
+  which cannot be ticked before the command it describes has run. `--skip-specs`
+  because this repository keeps no in-repo spec corpus: the acceptance criteria live
+  in the proposal's Behavior section, so there is no delta to fold into a main spec,
+  and the tool's "no deltas found" warning is that absence rather than a gap.
 
 The phase that deleted a duplicated manifest reader from `agent-sessions.sh` is
 gone. That reader does not exist: `runtime/paths.sh:3` defines the lookup once and
