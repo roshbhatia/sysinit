@@ -189,6 +189,7 @@ local MAX_TABS = 4
 --- with them.
 local attach_review
 local await_session
+local await_render
 
 --- Which tabpages hold a codediff session, and which repository each is on.
 ---
@@ -253,7 +254,29 @@ local function open_review(groups, said)
   -- first is the repository with the most changes.
   local tabs, missed = {}, 0
 
+  -- Which tabpages have finished rendering a diff, filled from codediff's own two
+  -- render events.
+  --
+  -- A session exists before its diff is drawn, and with a real repository the draw
+  -- lands after the next repository has been asked for. So the wait between opens is
+  -- on the render, not on the session: the watcher is installed before the first
+  -- open, which is what makes an event that arrives during the poll interval count.
+  local rendered = {}
+  local watch = vim.api.nvim_create_augroup("harness_review_open", { clear = true })
+  vim.api.nvim_create_autocmd("User", {
+    group = watch,
+    pattern = { "CodeDiffOpen", "CodeDiffFileSelect" },
+    callback = function(args)
+      local tab = args.data and args.data.tabpage
+      if tab then
+        rendered[tab] = true
+      end
+    end,
+  })
+
   local function finish()
+    pcall(vim.api.nvim_del_augroup_by_id, watch)
+
     if #tabs == 0 then
       vim.notify("Harness: codediff opened no diff for any of these repositories", vim.log.levels.ERROR)
       return
@@ -263,6 +286,18 @@ local function open_review(groups, said)
     -- tab, so without this the owner arrives on the last and smallest of the set.
     vim.api.nvim_set_current_tabpage(tabs[1])
     attach_review(tabs[1])
+
+    -- Then take the tabpage back once, after the last deferred focus can arrive.
+    -- review.nvim focuses a session's modified window 150ms after it attaches to it
+    -- and does not check that the owner is still on that tab
+    -- (`review/hooks.lua:228`), so an attach it made on its own `TabEnter` while a
+    -- repository was opening pulled the owner into that repository after this
+    -- function had already chosen a different one.
+    vim.defer_fn(function()
+      if vim.api.nvim_tabpage_is_valid(tabs[1]) and vim.api.nvim_get_current_tabpage() ~= tabs[1] then
+        vim.api.nvim_set_current_tabpage(tabs[1])
+      end
+    end, 250)
 
     if missed > 0 then
       said = said .. string.format(". %d opened no diff", missed)
@@ -346,12 +381,15 @@ local function open_review(groups, said)
       end
 
       await_session(group.root, held, function(tab)
-        if tab then
-          table.insert(tabs, tab)
-        else
+        if tab == nil then
           missed = missed + 1
+          open_next(index + 1)
+          return
         end
-        open_next(index + 1)
+        table.insert(tabs, tab)
+        await_render(tab, rendered, function()
+          open_next(index + 1)
+        end)
       end)
     end)
   end
@@ -390,6 +428,27 @@ await_session = function(root, held, resume)
     resume(nil)
   end
   vim.defer_fn(poll, 50)
+end
+
+--- Wait until `rendered[tab]` is set, then call `resume()`. Resumes anyway after two
+--- seconds, keeping the tab.
+---
+--- The tab is kept on a timeout because a rendered diff is not what the caller needs
+--- from this wait. It needs the repository's own late work to have happened while its
+--- own tab was current, so that work cannot move the owner later. A diff that is
+--- slower than two seconds is still a diff, and dropping it would turn a slow
+--- repository into a missing one.
+await_render = function(tab, rendered, resume)
+  local attempts = 0
+  local function poll()
+    attempts = attempts + 1
+    if rendered[tab] or attempts >= 20 then
+      resume()
+      return
+    end
+    vim.defer_fn(poll, 100)
+  end
+  poll()
 end
 
 --- Attach review.nvim's comment layer to the codediff session in `tab`.
