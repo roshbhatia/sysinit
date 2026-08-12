@@ -321,7 +321,38 @@
   caught. What that leaves unreviewed, plainly: the attribution rule, the third exit
   code, the trap's guard, and the prune have tests and mutations behind them, and no
   independent adversary.
-- [ ] 3.7 Apply: `git push`, then `nh darwin switch` from the `sysinit.laurel` checkout in a separate WezTerm pane, gated on `nix flake check` and `nh darwin build` exiting 0
+- [x] 3.7 Apply: `git push`, then `nh darwin switch` from the `sysinit.laurel` checkout in a separate WezTerm pane, gated on `nix flake check` and `nh darwin build` exiting 0
+
+  Both gates exited 0 before the push. The switch ran through `worker` itself, in a
+  pane it split, and returned 0: CHANGED `sysinit-agent` +18.0 KiB, 1591 paths with
+  29 replaced.
+
+  Four behaviours were then exercised on the live machine, and the pane was closed
+  with `worker --close`:
+
+  - The prune reported `pruned 0 record(s) whose worker pane was gone; kept 1, of
+    which 0 override-keyed and 0 legacy; removed the superseded wtrun root`. The old
+    root held 303 entries and 434 files and is gone. The one live record survived.
+    A later run printed no report line at all, which is the intended silence.
+  - `--status` read `pane 14  waiting live: <reason>`, then `idle` once the run ended.
+  - `-b 60` returned 76 while its own run was in flight, naming the run, the reason,
+    and the tail.
+  - `--close` printed `its state record is removed`, and the record is gone.
+
+  Two things that qualify the above rather than being hidden below it. The `waiting`
+  records were CONSTRUCTED by hand, because no harness declared one: what is proved
+  is the reading, the attribution, and the clear, not that a harness writes what this
+  expects. And the WezTerm user var itself was not read back, because no `wezterm
+  cli` subcommand reads one; only the pane record was checked, and the var is written
+  by the same `agentstate` path the bus has always used.
+
+  Unplanned but load-bearing: the owner closed pane 11 by hand while `sleep 45` ran
+  in it. The run recorded 129 and released its name, which is the SIGHUP path of the
+  trap working on the live machine rather than in a test.
+
+  The push also carried `a2eb36557`, an unrelated shell-alias commit that a leftover
+  background agent committed and pushed on top of this work. It is in the switched
+  generation. It is not part of this change and was not reviewed with it.
 - [ ] 3.8 Confirm: the owner accepts that an opt-in `waiting` is the right trade, having seen one blocked run that declared itself and one that did not, that the five existing surfaces agree with `--status` about the worker pane, that the switcher row reads `in wtrun`, and that a session holding a blocked worker reads as `waiting`
 - [x] 3.9 Decide: the owner decided on 2026-08-11 that the superseded `agentWtrun` root is removed whole by the prune, rather than left for a by-hand deletion. That covers the roughly 296 legacy flat run artifacts and the dead root `worker-pane` together, because the rename moves the live state to a new root and leaves nothing current behind
 
