@@ -241,6 +241,19 @@ in
                 command = "${profileBin}/agent-edit-event claude";
                 async = true;
               }
+              # Files a review note from the words the model already wrote about
+              # the edit, so the notes exist whether or not it was asked for one.
+              # Nothing is added to the prompt: an instruction to run `note add`
+              # competes with the task, and the notes then appear for the edits
+              # the model happened to narrate rather than for the change.
+              #
+              # It reads the transcript this hook's own payload names, prints
+              # nothing, and always exits 0.
+              {
+                type = "command";
+                command = "${profileBin}/agent-note-auto claude";
+                async = true;
+              }
             ];
           }
         ];

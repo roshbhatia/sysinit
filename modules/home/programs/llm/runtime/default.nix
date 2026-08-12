@@ -155,6 +155,21 @@ let
     '';
   };
 
+  # A second hook on the same tool calls, for the same reason the edit log has
+  # one: a note derived from the transcript needs nothing from the agent, and the
+  # agent's own PATH is not where a hook should find git.
+  noteAutoScript = pkgs.writeShellApplication {
+    name = "agent-note-auto";
+    runtimeInputs = [
+      pkgs.git
+      pkgs.sysinit-agent
+    ];
+    bashOptions = [ ];
+    text = ''
+      exec sysinit-agent note auto "$@"
+    '';
+  };
+
   promptScript = pkgs.writeShellApplication {
     name = "agent-prompt";
     runtimeInputs = [
@@ -284,6 +299,7 @@ in
     script
     stateScript
     editEventScript
+    noteAutoScript
     promptScript
     focusScript
     loopGate
@@ -298,6 +314,7 @@ in
   exe = lib.getExe script;
   stateExe = lib.getExe stateScript;
   editEventExe = lib.getExe editEventScript;
+  noteAutoExe = lib.getExe noteAutoScript;
   promptExe = lib.getExe promptScript;
   focusExe = lib.getExe focusScript;
   reviewExe = lib.getExe reviewScript;

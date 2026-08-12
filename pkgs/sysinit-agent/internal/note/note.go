@@ -21,10 +21,18 @@ const usageText = `Agent review notes on a working-tree diff. Read them with ` +
 Usage:
   note add --file <path> --line <n> --summary <text> [--rationale <text>] [--author <name>] [--replace]
   note apply --stdin
+  note auto <harness> [--explain]
   note list [--file <path>] [--json]
   note clear [--file <path>] [--yes]
   note path [--export]
   note rebuild
+
+` + "`auto`" + ` is for a PostToolUse hook, not for an agent to call. It reads the hook
+payload on stdin and files one note from what the harness had already written
+about the edit, so a review shows every edit's reasoning without the agent being
+asked for any of it. It writes nothing when the transcript holds no narration,
+prints nothing, and always exits 0; ` + "`--explain`" + ` prints the note it would file
+and the reason it would not.
 
 A write never opens a viewer. It publishes the record and the viewer-shaped
 export derived from it, so the next ` + "`review`" + ` shows the note. A ` + "`review`" + ` that
@@ -78,6 +86,10 @@ func Run(args []string) int {
 		return 0
 	case "add":
 		err = cmdAdd(args[1:])
+	case "auto":
+		// Returns its own code, because this one runs from a hook and the error
+		// path below writes to stderr and exits 1.
+		return autoRun(args[1:], os.Stdin)
 	case "apply":
 		err = cmdApply(args[1:], os.Stdin)
 	case "list":
