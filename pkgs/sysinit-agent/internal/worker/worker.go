@@ -43,6 +43,7 @@ const usage = `usage: worker [-w SECONDS] [-t N] [-n NAME] <command...>
       --status         report the workspace's pane and what it is running
       --close          kill the pane and forget it
       --release NAME   free a run name whose run recorded no exit code
+      --force          with --release, free a name the worker pane may still reach
       --               end of flags; every word after it is the command
 
 Every word after the flags is joined into one command, so both
@@ -160,7 +161,7 @@ func Run(args []string) int {
 	case opts.close:
 		return ws.closePane(pane)
 	case opts.release != "":
-		return ws.release(pane, opts.release)
+		return ws.release(pane, opts.release, opts.force)
 	case opts.command == "":
 		return fail(errors.New("no command\n\n" + usage))
 	}
@@ -255,8 +256,17 @@ func (w *workspace) pane(caller string) (string, error) {
 	// and split again next time: one new pane per invocation, none reachable by
 	// `--close`. Ordering matters as much as the check: testing the RECORDED value
 	// first left that same loop reachable whenever both were blind.
+	// The message names the variable's VALUE rather than asserting it is unset. A pane
+	// from a mux server or a unix domain carries a well-formed socket path that is not
+	// a `gui-sock-<n>`, so `MuxID` returns 0 for a caller whose `wezterm cli` works
+	// perfectly. Measured against an isolated `wezterm-mux-server`: pane 1, socket
+	// /tmp/r3-probe-sock, every operation refused. Saying "unset or malformed" there is
+	// a false statement of cause and leaves the owner without a next step, so the value
+	// is quoted and the supported shape is named instead.
 	if currentMux() == "0" {
-		return "", fmt.Errorf("%w: WEZTERM_UNIX_SOCKET is unset or malformed, so no record can be written or matched", errProbe)
+		return "", fmt.Errorf(
+			"%w: this pane reports WEZTERM_UNIX_SOCKET=%q, which is not a gui-sock-<n> socket, so no record can be written or matched; a worker is supported from a GUI pane",
+			errProbe, os.Getenv("WEZTERM_UNIX_SOCKET"))
 	}
 
 	recorded, err := os.ReadFile(w.paneFile())
@@ -350,7 +360,7 @@ func (w *workspace) start(caller, dir string, opts options) int {
 	sent := false
 	defer func() {
 		if !sent {
-			w.discard(name)
+			w.rollback(name)
 		}
 	}()
 
@@ -485,6 +495,19 @@ func (w *workspace) claimExact(name string, reuse bool) error {
 
 // discard removes one run's artifacts. Used to roll back a run that never
 // started, and by --release.
+// rollback frees a name whose run never started.
+//
+// Named and separate from `discard` because it takes the allocation lock, for the
+// same reason the claim does: it removes the log that IS the claim, and unlocked
+// the read-decide-remove straddled another caller's claim of the same name, so it
+// deleted a freshly claimed log and body rather than its own abandoned ones.
+func (w *workspace) rollback(name string) {
+	w.underLock(func() error {
+		w.discard(name)
+		return nil
+	})
+}
+
 func (w *workspace) discard(name string) {
 	for _, path := range []string{w.logFile(name), w.rcFile(name), w.bodyFile(name)} {
 		os.Remove(path)
@@ -507,17 +530,31 @@ func (w *workspace) discard(name string) {
 func (w *workspace) writeBody(path, name, dir, command string) error {
 	body := fmt.Sprintf(`#!/usr/bin/env zsh
 # Record an exit code however this run ends, including on a signal.
+#
+# The order in here is load-bearing, and it is the reverse of the obvious one. The
+# exit code is published LAST, because publishing it is what tells every other
+# process that this name is free: claimExact's refusal names the rc file to wait
+# for, and so does the wait timeout. Writing the code first and then deleting the
+# body left a window, measured at up to 19.7ms and hit in 20 of 20 rounds, in which
+# a successor reusing the name had already written ITS body to the same path and
+# this trap deleted it. The pane was then told to run a file that no longer existed,
+# so nothing ran, no trap fired, no exit code was ever written, and the caller
+# printed a start line and exited 0.
 finish() {
   local code=$?
-  print -r -- $code > %[1]s.new && mv %[1]s.new %[1]s
-  rm -f %[2]s
-  # The body is dead once its exit code is recorded, and nothing else would ever
-  # remove it: 13 of the 41 entries in the live superseded record are dead bodies.
-  # Measured safe, twice: zsh runs a 300-line script to completion after the script
-  # is deleted mid-run, and a trap can remove the file it is running from. It is
-  # named literally rather than as $0, because zsh sets FUNCTION_ARGZERO and $0
-  # inside a function is the function's name.
+  # The body is dead once the run is over, and nothing else would ever remove it:
+  # 13 of the 41 entries in the live superseded record are dead bodies. Measured
+  # safe, twice: zsh runs a 300-line script to completion after the script is
+  # deleted mid-run, and a trap can remove the file it is running from. It is named
+  # literally rather than as $0, because zsh sets FUNCTION_ARGZERO and $0 inside a
+  # function is the function's name.
   rm -f %[7]s
+  # Removed only while it still names THIS run. One marker path serves the whole
+  # workspace, so a pane that handed over the worker role and kept running would
+  # otherwise delete the marker belonging to the pane that replaced it, leaving
+  # --status reporting idle for a pane that is running something.
+  [[ "$(cat %[2]s 2>/dev/null)" == %[3]s ]] && rm -f %[2]s
+  print -r -- $code > %[1]s.new && mv %[1]s.new %[1]s
 }
 trap finish EXIT
 trap 'exit 130' INT
@@ -559,9 +596,44 @@ func (w *workspace) send(target, name, body string) error {
 	return muxRun([]string{"cli", "send-text", "--pane-id", target, "--no-paste"}, line)
 }
 
+// retire clears the running marker belonging to the worker this call is about to
+// replace, because the marker is part of the record and replacing a record means
+// replacing all of it.
+//
+// Leaving it behind made a fresh pane inherit a run it never had: the start line
+// said "queued behind run1", `--status` reported "running run1" on a pane that had
+// run one command, and `--close` later recorded exit 129 for run1 against a pane
+// that was never the one running it.
+//
+// Whether an exit code is recorded depends on which pane is losing the role, and
+// the difference is the whole point:
+//
+//   - The outgoing pane is GONE. Its run can never finish and can never write its
+//     own code, so 129 is recorded, the same value and for the same reason as in
+//     `forget`.
+//   - The outgoing pane is the CALLER, handing the role over while it keeps
+//     running. Its run is still executing and its own trap still owns the exit
+//     code, so recording one here would report a code for a live run, and the
+//     trap would later overwrite it. Only the marker is cleared.
+func (w *workspace) retire(caller string) {
+	marker := w.runningRun()
+	if marker == "" {
+		return
+	}
+	outgoing := w.recordedID()
+	os.Remove(w.runningFile())
+	if outgoing == caller {
+		return
+	}
+	if w.inFlight(marker) {
+		writeAtomic(w.rcFile(marker), strconv.Itoa(paneClosed))
+	}
+}
+
 // split creates the worker pane below the caller and returns focus to the
 // caller, so a build does not pull the owner out of the conversation.
 func (w *workspace) split(caller string) (string, error) {
+	w.retire(caller)
 	out, err := muxOutput([]string{
 		"cli", "split-pane", "--pane-id", caller, "--bottom", "--percent", "40",
 	})
@@ -624,7 +696,7 @@ func (w *workspace) inFlight(name string) bool {
 //
 // Removing the whole record cannot serve this purpose: it would discard every
 // other run's log.
-func (w *workspace) release(caller, name string) int {
+func (w *workspace) release(caller, name string, force bool) int {
 	if err := validRunName(name); err != nil {
 		return fail(err)
 	}
@@ -632,35 +704,69 @@ func (w *workspace) release(caller, name string) int {
 		fmt.Printf("no run named %s in %s\n", name, w.root)
 		return 0
 	}
-	if w.inFlight(name) {
-		// The run has recorded no exit code, so it is running, queued in the tty
-		// input buffer, or owned by a pane that died. A live pane cannot be told apart
-		// from a queued one: the marker is written by the body, when the PREVIOUS
-		// command finishes, so a queued run's marker still names its predecessor.
-		// Keying the refusal on the marker therefore released queued runs, deleting the
-		// body the pane was about to run and leaving nothing in any log.
-		switch _, err := w.pane(caller); {
-		case err == nil, errors.Is(err, errSelf):
-			// errSelf belongs with the live case, not with the dead one. The caller IS
-			// the worker, so the run is executing in the caller's own pane: the one state
-			// in which it is certainly live. Treating it as absence unlinked a running
-			// run's log while `tee` kept writing to the unlinked inode, which is exactly
-			// the harm this refusal names.
-			return fail(fmt.Errorf(
-				"%s has recorded no exit code and pane %s is alive, so it is running or queued; wait for %s, or end it with --close",
-				name, w.recordedID(), w.rcFile(name)))
-		case errors.Is(err, errProbe):
-			return fail(fmt.Errorf("cannot tell whether %s is still running: %w", name, err))
+
+	// The pane is probed OUTSIDE the lock. The probe costs up to muxTimeout, and
+	// blocking every claim in the workspace for five seconds behind one query is a
+	// worse trade than a liveness answer that is a moment old. What has to be atomic
+	// is the in-flight test and the removal, not the probe.
+	live := false
+	switch _, err := w.pane(caller); {
+	case err == nil, errors.Is(err, errSelf):
+		// errSelf belongs with the live case, not with the dead one. The caller IS the
+		// worker, so a run executing here is executing in the caller's own pane: the one
+		// state in which it is certainly live. Treating it as absence unlinked a running
+		// run's log while `tee` kept writing to the unlinked inode.
+		live = true
+	case errors.Is(err, errProbe):
+		return fail(fmt.Errorf("cannot tell whether %s is still running: %w", name, err))
+	}
+
+	var refusal error
+	// Locked, and for the same reason the claim is: the decision reads the log and the
+	// removal deletes it, and unlocked the two straddled another caller's claim of the
+	// same name, so the release deleted a log and a body that belonged to a run that
+	// was about to start.
+	if err := w.underLock(func() error {
+		if !w.inFlight(name) {
+			w.discard(name)
+			return nil
 		}
-		// No usable pane, so nothing can run this name. If the marker names it, the
-		// marker has no owner either: the pane died before its trap could clear it.
-		// This is the case --release exists for, and refusing here left the name
-		// unusable with no command-line way back.
+		// The marker names it, so it is not "could be running", it IS running: the body
+		// writes the marker as its first act. No --force here, because forcing it is the
+		// unlink-while-tee-writes harm with an extra step.
+		if live && w.runningRun() == name {
+			refusal = fmt.Errorf(
+				"%s is running now in pane %s; wait for %s, or end it with --close",
+				name, w.recordedID(), w.rcFile(name))
+			return nil
+		}
+		// A missing exit code with a live pane is genuinely ambiguous, and it is not
+		// decidable from state: the run may be queued in the tty input buffer, where the
+		// marker still names its predecessor, or it may be abandoned because the caller
+		// died between writing the log and reaching the send. Refusing outright made the
+		// name unrecoverable for as long as the worker lived, which is the property that
+		// got prune-as-release rejected in the design. So the default still refuses, and
+		// --force is the way back, with the cost named rather than discovered.
+		if live && !force {
+			refusal = fmt.Errorf(
+				"%s has recorded no exit code and pane %s is alive, so it is queued or abandoned; wait for %s, or free it with --release %s --force, which breaks it if it was merely queued",
+				name, w.recordedID(), w.rcFile(name), name)
+			return nil
+		}
+		// Either no usable pane, so nothing can ever run this name, or the owner forced
+		// it. A marker naming the run has no owner either: the pane died before its trap
+		// could clear it.
 		if w.runningRun() == name {
 			os.Remove(w.runningFile())
 		}
+		w.discard(name)
+		return nil
+	}); err != nil {
+		return fail(err)
 	}
-	w.discard(name)
+	if refusal != nil {
+		return fail(refusal)
+	}
 	fmt.Printf("released %s in %s\n", name, w.root)
 	return 0
 }
@@ -913,6 +1019,7 @@ type options struct {
 	status  bool
 	close   bool
 	release string
+	force   bool
 	help    bool
 }
 
@@ -933,6 +1040,8 @@ func parse(args []string) (options, error) {
 			opts.status = true
 		case "--close":
 			opts.close = true
+		case "--force":
+			opts.force = true
 		case "--":
 			// End of flags: every word after this is the command, dashes and all.
 			return finish(opts, args[i+1:])
@@ -943,9 +1052,20 @@ func parse(args []string) (options, error) {
 			i++
 			value := args[i]
 			switch arg {
+			// Both names are validated HERE, before a pane exists, for the same reason a
+			// numeric flag is: `-n ../escape` used to be caught inside `claim`, which runs
+			// after the worker has been resolved or split, so a name the call was always
+			// going to refuse cost a pane on screen. `claimExact` still checks, because it
+			// is the one place that turns a name into a file.
 			case "-n", "--name":
+				if err := validRunName(value); err != nil {
+					return opts, err
+				}
 				opts.name = value
 			case "--release":
+				if err := validRunName(value); err != nil {
+					return opts, err
+				}
 				opts.release = value
 			case "-t", "--tail":
 				n, err := nonNegative(arg, value)
@@ -1002,6 +1122,12 @@ func finish(opts options, words []string) (options, error) {
 	}
 	if count := boolCount(opts.status, opts.close, opts.release != ""); count > 1 {
 		return opts, errors.New("--status, --close, and --release are three different actions; pass one")
+	}
+	// --force modifies --release and nothing else. Accepting it anywhere would make
+	// `worker --force <command>` look like it did something, and it would have run the
+	// command with the flag silently ignored.
+	if opts.force && opts.release == "" {
+		return opts, errors.New("--force only modifies --release NAME")
 	}
 	return opts, nil
 }

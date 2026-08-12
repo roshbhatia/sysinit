@@ -3,12 +3,14 @@ package worker
 import (
 	"encoding/json"
 	"errors"
+	"io"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"strconv"
 	"strings"
 	"sync"
+	"syscall"
 	"testing"
 	"time"
 )
@@ -89,6 +91,10 @@ func (f *fakeMux) install(t *testing.T) {
 		if f.fail {
 			return "", os.ErrDeadlineExceeded
 		}
+		// Recorded here too, not only in muxRun. `split-pane` goes through this call, so
+		// while it was recorded in one place the "nothing was split" assertions could
+		// never fire: they scanned a slice that split-pane never reached.
+		f.actions = append(f.actions, strings.Join(args, " "))
 		switch {
 		case len(args) > 1 && args[1] == "list":
 			if f.listFail {
@@ -124,6 +130,69 @@ func (f *fakeMux) install(t *testing.T) {
 	}
 }
 
+// split reports how many panes the fake was asked to create, so a test can say
+// "nothing was split" about the call rather than about a helper.
+func (f *fakeMux) splits() int {
+	n := 0
+	for _, action := range f.actions {
+		if strings.Contains(action, "split-pane") {
+			n++
+		}
+	}
+	return n
+}
+
+// typed returns the line sent to a pane, and the pane it was sent to. Every
+// declared output line and the sent line itself are parity contracts, so they are
+// asserted rather than assumed: without this the target could be hardcoded and the
+// suite stayed green.
+func (f *fakeMux) typed(t *testing.T) (target, line string) {
+	t.Helper()
+	for _, action := range f.actions {
+		if !strings.Contains(action, "send-text") {
+			continue
+		}
+		words := strings.Fields(action)
+		for i, word := range words {
+			if word == "--pane-id" && i+1 < len(words) {
+				target = words[i+1]
+			}
+		}
+	}
+	if target == "" {
+		t.Fatalf("nothing was sent to any pane; actions = %v", f.actions)
+	}
+	if len(f.sent) != 1 {
+		t.Fatalf("lines typed = %d, want exactly 1: %v", len(f.sent), f.sent)
+	}
+	return target, f.sent[0]
+}
+
+// captured collects what fn prints on stdout. The one line every ordinary
+// invocation prints, and the three --status forms, are declared behaviour, and a
+// suite with no output assertion at all let every one of them be deleted.
+func captured(t *testing.T, fn func()) string {
+	t.Helper()
+	real := os.Stdout
+	read, write, err := os.Pipe()
+	if err != nil {
+		t.Fatal(err)
+	}
+	os.Stdout = write
+	done := make(chan string, 1)
+	go func() {
+		var collected strings.Builder
+		io.Copy(&collected, read)
+		done <- collected.String()
+	}()
+	fn()
+	write.Close()
+	os.Stdout = real
+	out := <-done
+	read.Close()
+	return out
+}
+
 // fast shrinks the two waits so a timeout test costs milliseconds.
 func fast(t *testing.T) {
 	t.Helper()
@@ -132,18 +201,57 @@ func fast(t *testing.T) {
 	pollInterval, settle = time.Millisecond, 0
 }
 
-// 1. No WEZTERM_PANE: refuse before touching anything.
-func TestRefusesOutsideWezTerm(t *testing.T) {
+// The reason this package exists: a live worker recorded by ANOTHER pane is
+// reused, and the command goes to it.
+//
+// This is the whole reuse contract, and it had no test. Every other test that
+// called `start` drove a failure path or the errSelf split, so an implementation
+// that split a second worker beside a live one, or that sent every command to a
+// hardcoded pane, passed the suite.
+func TestALiveWorkerRecordedByAnotherPaneIsReused(t *testing.T) {
 	state(t)
-	t.Setenv("WEZTERM_PANE", "")
-	if code := Run([]string{"true"}); code != 2 {
-		t.Errorf("Run outside wezterm = %d, want 2", code)
+	fast(t)
+	mux := &fakeMux{panes: []int{7, 12}, split: 99}
+	mux.install(t)
+
+	ws := workspaceIn(t, t.TempDir())
+	ws.live(t, "12")
+	dir := t.TempDir()
+
+	var code int
+	out := captured(t, func() { code = ws.start("7", dir, options{tail: 20, command: "true"}) })
+	if code != 0 {
+		t.Fatalf("start against a live worker = %d, want 0", code)
+	}
+	if n := mux.splits(); n != 0 {
+		t.Errorf("panes split = %d, want 0: the live worker was recorded and alive", n)
+	}
+
+	target, line := mux.typed(t)
+	if target != "12" {
+		t.Errorf("the command went to pane %s, want the recorded worker 12", target)
+	}
+	if !strings.HasPrefix(line, "\025clear; ") {
+		t.Errorf("sent line %q does not open with C-u and clear", line)
+	}
+	if !strings.Contains(line, "| tee -a ") || !strings.Contains(line, "run1.log") {
+		t.Errorf("sent line %q does not tee into the run's own log", line)
+	}
+	if !strings.Contains(out, "pane 12  run1  in "+dir+"  log ") {
+		t.Errorf("start line = %q, want the pane, the name, the directory, and the log", out)
+	}
+	// The record is untouched: reuse must not rewrite what it read.
+	body, _ := os.ReadFile(ws.paneFile())
+	if strings.TrimSpace(string(body)) != "12" {
+		t.Errorf("pane record = %q after a reuse, want 12", body)
 	}
 }
 
-// 2. A recorded pane that is gone is not addressed; a fresh one is split.
+// 2. A recorded pane that is gone is not addressed; a fresh one is split, and
+// nothing is ever sent to the dead id.
 func TestDeadRecordedPaneIsReplaced(t *testing.T) {
 	dir := state(t)
+	fast(t)
 	t.Setenv("WEZTERM_PANE", "7")
 	mux := &fakeMux{panes: []int{7}, split: 9}
 	mux.install(t)
@@ -151,18 +259,84 @@ func TestDeadRecordedPaneIsReplaced(t *testing.T) {
 	ws := workspaceIn(t, t.TempDir())
 	ws.live(t, "404")
 
-	if _, err := ws.pane("7"); err == nil {
-		t.Fatal("a dead recorded pane was accepted")
+	// Driven through `start`, not through `pane` and `split` by hand: "no command is
+	// sent to the dead id" is a statement about the call, and calling the two helpers
+	// in sequence proved only that each one works alone.
+	var code int
+	captured(t, func() { code = ws.start("7", t.TempDir(), options{tail: 20, command: "true"}) })
+	if code != 0 {
+		t.Fatalf("start with a dead recorded worker = %d, want 0", code)
 	}
-	if got, err := ws.split("7"); err != nil || got != "9" {
-		t.Fatalf("split = %q, %v; want \"9\", nil", got, err)
+	if n := mux.splits(); n != 1 {
+		t.Errorf("panes split = %d, want exactly 1", n)
 	}
+
+	target, _ := mux.typed(t)
+	if target != "9" {
+		t.Errorf("the command went to pane %s, want the freshly split 9", target)
+	}
+	for _, action := range mux.actions {
+		if strings.Contains(action, "send-text") && strings.Contains(action, "--pane-id 404") {
+			t.Error("a command was sent to the dead recorded pane")
+		}
+	}
+	// Focus returns to the caller, which is one of the three guards the design calls
+	// load-bearing. Untested, it was one line from being lost in the rewrite.
+	if !strings.Contains(strings.Join(mux.actions, "\n"), "activate-pane --pane-id 7") {
+		t.Errorf("focus was not returned to the caller: %v", mux.actions)
+	}
+
 	body, err := os.ReadFile(ws.paneFile())
 	if err != nil || strings.TrimSpace(string(body)) != "9" {
 		t.Errorf("pane file = %q, %v; want 9", body, err)
 	}
 	if !strings.HasPrefix(ws.dir, dir) {
 		t.Errorf("record %q is not under the manifest directory %q", ws.dir, dir)
+	}
+}
+
+// A run queued behind another is reported as queued, naming what it waits for.
+// This is the second of the three guards the design calls load-bearing, and it
+// had no test either.
+func TestARunQueuedBehindAnotherSaysSo(t *testing.T) {
+	state(t)
+	fast(t)
+	mux := &fakeMux{panes: []int{7, 12}, split: 99}
+	mux.install(t)
+
+	ws := workspaceIn(t, t.TempDir())
+	ws.live(t, "12")
+	if err := os.WriteFile(ws.runningFile(), []byte("earlier\n"), 0o600); err != nil {
+		t.Fatal(err)
+	}
+
+	out := captured(t, func() { ws.start("7", t.TempDir(), options{tail: 20, command: "true"}) })
+	if !strings.Contains(out, "queued behind earlier") {
+		t.Errorf("start line = %q, want it to name the run being waited on", out)
+	}
+}
+
+// The `last.log` and `last.rc` aliases are created, which is what makes `last` a
+// reserved name worth reserving.
+func TestTheLastAliasesPointAtTheNewestRun(t *testing.T) {
+	state(t)
+	fast(t)
+	mux := &fakeMux{panes: []int{7, 12}, split: 99}
+	mux.install(t)
+
+	ws := workspaceIn(t, t.TempDir())
+	ws.live(t, "12")
+	captured(t, func() { ws.start("7", t.TempDir(), options{tail: 20, command: "true"}) })
+
+	for _, pair := range [][2]string{{"last.log", "run1.log"}, {"last.rc", "run1.rc"}} {
+		got, err := os.Readlink(filepath.Join(ws.dir, pair[0]))
+		if err != nil {
+			t.Errorf("%s: %v", pair[0], err)
+			continue
+		}
+		if filepath.Base(got) != pair[1] {
+			t.Errorf("%s -> %s, want %s", pair[0], filepath.Base(got), pair[1])
+		}
 	}
 }
 
@@ -274,23 +448,6 @@ func TestAnUnanswerableProbeDoesNotSplitASecondWorker(t *testing.T) {
 	body, _ := os.ReadFile(ws.paneFile())
 	if strings.TrimSpace(string(body)) != "12" {
 		t.Errorf("the record was overwritten: %q", body)
-	}
-}
-
-// 4. The caller's directory is checked before anything is sent.
-func TestARemovedWorkingDirectoryStopsTheCall(t *testing.T) {
-	state(t)
-	t.Setenv("WEZTERM_PANE", "7")
-	gone := filepath.Join(t.TempDir(), "gone")
-	if err := os.MkdirAll(gone, 0o700); err != nil {
-		t.Fatal(err)
-	}
-	t.Chdir(gone)
-	if err := os.RemoveAll(gone); err != nil {
-		t.Fatal(err)
-	}
-	if _, err := callerDir(); err == nil {
-		t.Error("a removed working directory was accepted")
 	}
 }
 
@@ -509,7 +666,7 @@ func TestANameInFlightIsRefusedAndReleasableAlone(t *testing.T) {
 		t.Errorf("an explicit -n could not reuse a finished name: %v", err)
 	}
 
-	if code := ws.release("7", "build"); code != 0 {
+	if code := ws.release("7", "build", false); code != 0 {
 		t.Errorf("release = %d, want 0", code)
 	}
 	if ws.inFlight("build") {
@@ -525,7 +682,7 @@ func TestANameInFlightIsRefusedAndReleasableAlone(t *testing.T) {
 	mux.panes = append(mux.panes, 12)
 	os.WriteFile(ws.logFile("live"), []byte("running\n"), 0o600)
 	os.WriteFile(ws.runningFile(), []byte("live\n"), 0o600)
-	if code := ws.release("7", "live"); code != 2 {
+	if code := ws.release("7", "live", false); code != 2 {
 		t.Errorf("release of the running run = %d, want 2", code)
 	}
 	if _, err := os.Stat(ws.logFile("live")); err != nil {
@@ -552,7 +709,7 @@ func TestAQueuedRunIsNotReleasable(t *testing.T) {
 	os.WriteFile(ws.logFile("b"), []byte("=== b\n"), 0o600)
 	os.WriteFile(ws.bodyFile("b"), []byte("#!/usr/bin/env zsh\ntrue\n"), 0o700)
 
-	if code := ws.release("7", "b"); code != 2 {
+	if code := ws.release("7", "b", false); code != 2 {
 		t.Errorf("release of a queued run = %d, want 2", code)
 	}
 	if _, err := os.Stat(ws.bodyFile("b")); err != nil {
@@ -560,6 +717,50 @@ func TestAQueuedRunIsNotReleasable(t *testing.T) {
 	}
 	if got := ws.runningRun(); got != "a" {
 		t.Errorf("marker = %q, want it untouched at \"a\"", got)
+	}
+
+	// And --force is the way back. The default refusal above cannot tell a queued run
+	// from one abandoned by a caller that died between writing the log and the send, so
+	// refusing outright left the name unrecoverable for as long as the worker lived,
+	// which is the property that got prune-as-release rejected in the design.
+	if code := ws.release("7", "b", true); code != 0 {
+		t.Errorf("forced release of an ambiguous name = %d, want 0", code)
+	}
+	if _, err := os.Stat(ws.logFile("b")); err == nil {
+		t.Error("a forced release left the name burned")
+	}
+}
+
+// --force still refuses a run the marker names. That run is not "could be
+// running", it IS running, and unlinking its log while `tee` writes to the inode
+// is the harm the refusal exists for: forcing it would be that harm with an extra
+// step.
+func TestForceDoesNotReleaseARunThatIsActuallyRunning(t *testing.T) {
+	state(t)
+	mux := &fakeMux{panes: []int{7, 12}}
+	mux.install(t)
+
+	ws := workspaceIn(t, t.TempDir())
+	ws.live(t, "12")
+	os.WriteFile(ws.logFile("a"), []byte("a's output\n"), 0o600)
+	os.WriteFile(ws.runningFile(), []byte("a\n"), 0o600)
+
+	if code := ws.release("7", "a", true); code != 2 {
+		t.Errorf("forced release of a running run = %d, want 2", code)
+	}
+	if _, err := os.Stat(ws.logFile("a")); err != nil {
+		t.Error("a forced release unlinked the log of a run that is executing")
+	}
+}
+
+// --force modifies --release and nothing else, so it is rejected anywhere else
+// rather than silently ignored while the command runs.
+func TestForceWithoutAReleaseIsRefused(t *testing.T) {
+	if _, err := parse([]string{"--force", "true"}); err == nil {
+		t.Error("--force with a command was accepted")
+	}
+	if _, err := parse([]string{"--release", "build", "--force"}); err != nil {
+		t.Errorf("--release with --force = %v, want it accepted", err)
 	}
 }
 
@@ -577,7 +778,7 @@ func TestAMarkerWithNoOwnerIsReclaimable(t *testing.T) {
 	os.WriteFile(ws.logFile("build"), []byte("half a log\n"), 0o600)
 	os.WriteFile(ws.runningFile(), []byte("build\n"), 0o600)
 
-	if code := ws.release("7", "build"); code != 0 {
+	if code := ws.release("7", "build", false); code != 0 {
 		t.Fatalf("release with a dead owner = %d, want 0", code)
 	}
 	if ws.inFlight("build") {
@@ -772,7 +973,7 @@ func TestARecordNamingTheCallerIsNotAbsence(t *testing.T) {
 	// --release from inside the worker pane refuses: the run is executing here.
 	os.WriteFile(ws.logFile("live"), []byte("running\n"), 0o600)
 	os.WriteFile(ws.runningFile(), []byte("live\n"), 0o600)
-	if code := ws.release("12", "live"); code != 2 {
+	if code := ws.release("12", "live", false); code != 2 {
 		t.Errorf("release from the worker pane = %d, want 2", code)
 	}
 	if _, err := os.Stat(ws.logFile("live")); err != nil {
@@ -1016,4 +1217,370 @@ func readRC(t *testing.T, ws *workspace, name string) string {
 		t.Fatalf("no exit code recorded for %s: %v", name, err)
 	}
 	return strings.TrimSpace(string(body))
+}
+
+// The exit code is published LAST, so a name is never reusable while the previous
+// run's body still exists.
+//
+// This is the ordering defect, and it is the one that could ship silently. The rc
+// appearing is what tells every other process the name is free: claimExact's
+// refusal names the rc to wait for, and so does the wait timeout. While the body
+// was deleted after the rc, a successor reusing the name had already written its
+// own body to the same path and the predecessor's trap deleted it. The pane was
+// then told to run a file that no longer existed, so nothing ran and no trap fired,
+// which means no exit code was ever written: the caller printed a start line, exited
+// 0, and burned the name for the whole workspace. Reproduced in 20 of 20 rounds, with
+// a window measured up to 19.7ms, before the order was reversed.
+func TestAReusedNameNeverLosesItsBodyToThePreviousRunsTrap(t *testing.T) {
+	if _, err := exec.LookPath("zsh"); err != nil {
+		t.Skip("no zsh")
+	}
+	state(t)
+	dir := t.TempDir()
+	ws := workspaceIn(t, dir)
+
+	lost := 0
+	const rounds = 20
+	for round := 0; round < rounds; round++ {
+		for _, path := range []string{ws.logFile("build"), ws.rcFile("build"), ws.bodyFile("build")} {
+			os.Remove(path)
+		}
+		if _, err := ws.claim("build"); err != nil {
+			t.Fatal(err)
+		}
+		body := ws.bodyFile("build")
+		if err := ws.writeBody(body, "build", dir, "true"); err != nil {
+			t.Fatal(err)
+		}
+		run := exec.Command("zsh", body)
+		if err := run.Start(); err != nil {
+			t.Fatal(err)
+		}
+		// Polled exactly the way the refusal message and the wait timeout tell a caller
+		// to poll: the rc file, and nothing else.
+		for {
+			if _, err := os.Stat(ws.rcFile("build")); err == nil {
+				break
+			}
+		}
+		// Then everything `worker -n build <command>` does before the send.
+		if _, err := ws.claim("build"); err != nil {
+			t.Fatalf("round %d: the name was still refused after its exit code appeared: %v", round, err)
+		}
+		if err := ws.writeBody(body, "build", dir, "echo second"); err != nil {
+			t.Fatal(err)
+		}
+		run.Wait()
+		if _, err := os.Stat(body); err != nil {
+			lost++
+		}
+	}
+	if lost > 0 {
+		t.Errorf("%d of %d rounds lost the successor's body to the previous run's trap", lost, rounds)
+	}
+}
+
+// One marker serves the whole workspace, so a body removes it only while it still
+// names that body's own run. A pane that handed the worker role over and kept
+// running would otherwise delete the marker of the pane that replaced it.
+func TestABodyDoesNotRemoveAnotherRunsMarker(t *testing.T) {
+	if _, err := exec.LookPath("zsh"); err != nil {
+		t.Skip("no zsh")
+	}
+	state(t)
+	dir := t.TempDir()
+	ws := workspaceIn(t, dir)
+
+	// The command stands in for the other pane: the body claims the marker on the way
+	// in, as every body does, and by the time it exits the marker names a run that
+	// started elsewhere. Writing the marker before the body starts would not test
+	// anything, because the body's first act is to overwrite it with its own name.
+	body := ws.bodyFile("mine")
+	if err := ws.writeBody(body, "mine", dir, "print -r -- theirs > "+shellQuote(ws.runningFile())); err != nil {
+		t.Fatal(err)
+	}
+	if out, err := exec.Command("zsh", body).CombinedOutput(); err != nil {
+		t.Fatalf("body: %v: %s", err, out)
+	}
+	if got := ws.runningRun(); got != "theirs" {
+		t.Errorf("marker = %q after another run finished, want it left at \"theirs\"", got)
+	}
+}
+
+// A replacement split replaces the WHOLE record, marker included, and records an
+// exit code for the run the gone pane can no longer finish.
+//
+// Leaving the marker behind made a fresh pane inherit a run it never had: the start
+// line said "queued behind run1", `--status` reported "running run1" on a pane that
+// had run one command, and run1's name stayed burned because nothing would ever
+// write its exit code.
+func TestAReplacementSplitDoesNotInheritTheDeadPanesRun(t *testing.T) {
+	state(t)
+	fast(t)
+	mux := &fakeMux{panes: []int{7}, split: 9}
+	mux.install(t)
+
+	ws := workspaceIn(t, t.TempDir())
+	ws.live(t, "404")
+	os.WriteFile(ws.logFile("run1"), []byte("=== run1\n"), 0o600)
+	os.WriteFile(ws.runningFile(), []byte("run1\n"), 0o600)
+
+	out := captured(t, func() { ws.start("7", t.TempDir(), options{tail: 20, command: "true"}) })
+	if strings.Contains(out, "queued behind") {
+		t.Errorf("start line = %q, want no queue: the pane it would have queued behind is gone", out)
+	}
+	if got := ws.runningRun(); got != "" {
+		t.Errorf("marker = %q on a freshly split pane, want it cleared", got)
+	}
+	if got := readRC(t, ws, "run1"); got != strconv.Itoa(paneClosed) {
+		t.Errorf("run1 recorded %s, want %d: its pane is gone, so it can never record its own", got, paneClosed)
+	}
+	status := captured(t, func() { ws.reportStatus("7") })
+	if strings.Contains(status, "run1") {
+		t.Errorf("--status = %q, want no mention of a run this pane never had", status)
+	}
+}
+
+// Handing the role over is not the same as losing it. The outgoing pane is the
+// caller, it is alive, and its run keeps executing, so its exit code stays its own
+// trap's to write: recording one here would report a code for a live run and the
+// trap would later overwrite it, so one run would report two exit codes.
+func TestHandingOverTheRoleDoesNotRecordACodeForTheCallersRun(t *testing.T) {
+	state(t)
+	fast(t)
+	mux := &fakeMux{panes: []int{12}, split: 14}
+	mux.install(t)
+
+	ws := workspaceIn(t, t.TempDir())
+	ws.live(t, "12")
+	os.WriteFile(ws.logFile("run1"), []byte("=== run1\n"), 0o600)
+	os.WriteFile(ws.runningFile(), []byte("run1\n"), 0o600)
+
+	// Pane 12 is the recorded worker AND the caller: something inside the run is
+	// invoking worker, which is errSelf, so the role moves to a new pane.
+	captured(t, func() { ws.start("12", t.TempDir(), options{tail: 20, command: "true"}) })
+
+	if got := ws.runningRun(); got == "run1" {
+		t.Error("the marker still names a run that is executing in the pane that gave up the role")
+	}
+	if _, err := os.Stat(ws.rcFile("run1")); err == nil {
+		t.Error("an exit code was recorded for a run still executing in a live pane")
+	}
+}
+
+// --close records 129 only for a run it can attribute to the pane it killed.
+func TestCloseDoesNotRecordACodeForAnotherPanesRun(t *testing.T) {
+	state(t)
+	fast(t)
+	mux := &fakeMux{panes: []int{12}, split: 14}
+	mux.install(t)
+
+	ws := workspaceIn(t, t.TempDir())
+	ws.live(t, "12")
+	os.WriteFile(ws.logFile("run1"), []byte("=== run1\n"), 0o600)
+	os.WriteFile(ws.runningFile(), []byte("run1\n"), 0o600)
+
+	// The role moves from pane 12 to pane 14 while run1 keeps running in 12.
+	captured(t, func() { ws.start("12", t.TempDir(), options{tail: 20, command: "true"}) })
+	// Closing from a third pane kills 14, which was never the pane running run1.
+	out := captured(t, func() { ws.closePane("3") })
+
+	if strings.Contains(out, "run1") {
+		t.Errorf("--close = %q, want no claim about a run in a pane it did not kill", out)
+	}
+	if _, err := os.Stat(ws.rcFile("run1")); err == nil {
+		t.Error("--close recorded an exit code for a run executing in a pane it never killed")
+	}
+}
+
+// The allocation lock covers every path that decides a name's fate, not just the
+// claim. release reads the log and then deletes it, and unlocked those two steps
+// straddled another caller's claim of the same name.
+func TestReleaseTakesTheAllocationLock(t *testing.T) {
+	state(t)
+	mux := &fakeMux{panes: []int{7}}
+	mux.install(t)
+
+	ws := workspaceIn(t, t.TempDir())
+	os.WriteFile(ws.logFile("build"), []byte("=== build\n"), 0o600)
+	os.WriteFile(ws.rcFile("build"), []byte("0\n"), 0o600)
+
+	held, err := os.OpenFile(ws.lockFile(), os.O_CREATE|os.O_RDWR, 0o600)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer held.Close()
+	if err := syscall.Flock(int(held.Fd()), syscall.LOCK_EX); err != nil {
+		t.Fatal(err)
+	}
+
+	done := make(chan int, 1)
+	go func() { done <- ws.release("7", "build", false) }()
+	select {
+	case <-done:
+		t.Error("release ran to completion while another caller held the allocation lock")
+	case <-time.After(200 * time.Millisecond):
+	}
+	syscall.Flock(int(held.Fd()), syscall.LOCK_UN)
+	if code := <-done; code != 0 {
+		t.Errorf("release after the lock was dropped = %d, want 0", code)
+	}
+}
+
+// The rollback is under the lock for the same reason the claim is: it removes the
+// log that IS the claim, and unlocked it removed a second caller's freshly claimed
+// log rather than its own abandoned one.
+func TestTheRollbackTakesTheAllocationLock(t *testing.T) {
+	state(t)
+	fast(t)
+	mux := &fakeMux{panes: []int{7, 12}, sendFail: true}
+	mux.install(t)
+
+	ws := workspaceIn(t, t.TempDir())
+	ws.live(t, "12")
+
+	// Driven directly rather than by racing a real `start`: waiting for the claim to
+	// appear and then grabbing the lock is a race the test cannot win reliably, and a
+	// test that only sometimes exercises the path it names is worse than none.
+	os.WriteFile(ws.logFile("run1"), []byte("=== run1\n"), 0o600)
+	held, err := os.OpenFile(ws.lockFile(), os.O_CREATE|os.O_RDWR, 0o600)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer held.Close()
+	if err := syscall.Flock(int(held.Fd()), syscall.LOCK_EX); err != nil {
+		t.Fatal(err)
+	}
+
+	done := make(chan struct{})
+	go func() { ws.rollback("run1"); close(done) }()
+	select {
+	case <-done:
+		t.Error("the rollback ran while another caller held the allocation lock")
+	case <-time.After(200 * time.Millisecond):
+	}
+	syscall.Flock(int(held.Fd()), syscall.LOCK_UN)
+	<-done
+	if _, err := os.Stat(ws.logFile("run1")); err == nil {
+		t.Error("the name stayed burned after the rollback")
+	}
+
+	// And the whole path still frees the name when a send fails.
+	mux.sendFail = true
+	var code int
+	captured(t, func() { code = ws.start("7", t.TempDir(), options{tail: 20, command: "true"}) })
+	if code != 2 {
+		t.Errorf("start with a failing send = %d, want 2", code)
+	}
+	if _, err := os.Stat(ws.logFile("run1")); err == nil {
+		t.Error("a failed send burned the name")
+	}
+}
+
+// --status has three forms and all three are declared parity items, so all three
+// are asserted. The whole reporter could be gutted to `return 0` and the suite
+// stayed green: the one test that called it checked only the exit code.
+func TestStatusReportsTheThreeStatesItDeclares(t *testing.T) {
+	state(t)
+	mux := &fakeMux{panes: []int{7, 12}}
+	mux.install(t)
+	ws := workspaceIn(t, t.TempDir())
+
+	// No worker at all. Declared as its own negative scenario, and it exits 0 because
+	// "there is no worker" is an answer, not a failure.
+	var code int
+	out := captured(t, func() { code = ws.reportStatus("7") })
+	if code != 0 || !strings.Contains(out, "no worker for "+ws.root) {
+		t.Errorf("--status with no record = %d, %q; want 0 and a line saying so", code, out)
+	}
+
+	// A worker with nothing running.
+	ws.live(t, "12")
+	out = captured(t, func() { code = ws.reportStatus("7") })
+	if code != 0 || !strings.Contains(out, "pane 12  idle  in "+ws.root) {
+		t.Errorf("--status on an idle worker = %d, %q", code, out)
+	}
+
+	// A worker running a named run, which has to name the run and its log.
+	os.WriteFile(ws.runningFile(), []byte("build\n"), 0o600)
+	out = captured(t, func() { code = ws.reportStatus("7") })
+	if code != 0 || !strings.Contains(out, "pane 12  running build  log "+ws.logFile("build")) {
+		t.Errorf("--status on a busy worker = %d, %q", code, out)
+	}
+}
+
+// The guard against running outside WezTerm splits nothing and never reaches the
+// real mux.
+//
+// Without a fake installed this test passed for the wrong reason: dropping the
+// guard let the call fall through to the real `wezterm`, which failed on an empty
+// --pane-id and returned the same exit 2 the test asserted. A guard that no test
+// protects, satisfied by an unrelated failure, in a test that shelled out to the
+// owner's live mux during `go test`.
+func TestRefusesOutsideWezTermWithoutTouchingTheMux(t *testing.T) {
+	state(t)
+	t.Setenv("WEZTERM_PANE", "")
+	mux := &fakeMux{panes: []int{7}, split: 9}
+	mux.install(t)
+
+	if code := Run([]string{"true"}); code != 2 {
+		t.Errorf("Run outside wezterm = %d, want 2", code)
+	}
+	if len(mux.actions) != 0 {
+		t.Errorf("the mux was called %d times: %v", len(mux.actions), mux.actions)
+	}
+	if len(mux.panes) != 1 {
+		t.Errorf("panes = %v, want the one that was already there", mux.panes)
+	}
+}
+
+// A working directory removed under the caller stops the call through `Run`, and
+// splits nothing. Proved through the entry point rather than through `callerDir`:
+// "splits nothing" is a claim about the call, and a helper cannot make it.
+func TestARemovedWorkingDirectoryStopsTheCallAndSplitsNothing(t *testing.T) {
+	state(t)
+	t.Setenv("WEZTERM_PANE", "7")
+	mux := &fakeMux{panes: []int{7}, split: 9}
+	mux.install(t)
+
+	gone := filepath.Join(t.TempDir(), "gone")
+	if err := os.MkdirAll(gone, 0o700); err != nil {
+		t.Fatal(err)
+	}
+	t.Chdir(gone)
+	if err := os.RemoveAll(gone); err != nil {
+		t.Fatal(err)
+	}
+
+	if code := Run([]string{"true"}); code != 2 {
+		t.Errorf("Run from a removed directory = %d, want 2", code)
+	}
+	if len(mux.actions) != 0 {
+		t.Errorf("the mux was called before the directory was checked: %v", mux.actions)
+	}
+}
+
+// A run name is validated before a pane exists, not after.
+//
+// It used to be checked inside `claim`, which runs once the worker has been
+// resolved or split, so `-n ../escape` cost a pane on screen before the refusal.
+// The numeric flags have always been checked at parse time; this is the same rule.
+func TestABadRunNameIsRefusedBeforeAPaneIsCreated(t *testing.T) {
+	state(t)
+	t.Setenv("WEZTERM_PANE", "7")
+	t.Chdir(t.TempDir())
+	mux := &fakeMux{panes: []int{7}, split: 9}
+	mux.install(t)
+
+	for _, name := range []string{"../escape", "a/b", "last", "with\nbreak"} {
+		if code := Run([]string{"-n", name, "true"}); code != 2 {
+			t.Errorf("Run with -n %q = %d, want 2", name, code)
+		}
+	}
+	if len(mux.actions) != 0 {
+		t.Errorf("a refused name still cost mux calls: %v", mux.actions)
+	}
+	if n := mux.splits(); n != 0 {
+		t.Errorf("panes split for a name that was always going to be refused = %d", n)
+	}
 }
