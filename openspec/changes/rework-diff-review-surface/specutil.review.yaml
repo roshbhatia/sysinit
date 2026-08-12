@@ -1,0 +1,84 @@
+version: 2
+change: rework-diff-review-surface
+decision: approved
+change_hash: 4f1b42baa60fa0f9
+base_commit: d8ef9db673614f6d4050ce7bcba42eb59e828df0
+items:
+    1a636247030e785b:
+        hash: 72d3d0af56da5808
+        text: Report in one place which source answered the last repository query, the repositories found, whether the edit-event watcher is attached, the log it resolved, the events it read, and whether each review plugin is loaded
+    1b9e59c62cb3f4bb:
+        hash: 8d5439bcb40863be
+        text: 'Merge: prove the inline default, that the toggle preserves the comment layer, and that a conflicted file still opens the three-pane view with its accept keymaps'
+    2ea01bef2b658b34:
+        hash: ad222529c1a3c848
+        text: Make an agent's own edit render inline in the current tab rather than as a split in a new one
+    3af07d20df9b8b94:
+        hash: b727e8884fc860ef
+        text: Extend it to print the changed paths within those repositories, each resolved against the repository that owns it, resolved concurrently so a wide workspace does not stall
+    7a64785c90aeb7d5:
+        hash: d3aa8259f2c8fc50
+        text: 'Merge: prove the report distinguishes a working setup from each degraded one, by breaking each input in turn and reading what it says'
+    7b3a1ba69f517851:
+        hash: c5626727319c724b
+        text: 'Adversarial review (`adversarial-review` skill): run deterministic lint; run optional critics only when requested or risk-justified'
+    7ec1f312648b7250:
+        hash: e453eb4090b3af38
+        text: Prove the output composes from a shell without an editor, and that `gofmt -l`, `go vet`, and `go test ./...` are clean
+    07b923acfd43eaee:
+        hash: c5626727319c724b
+        text: 'Adversarial review (`adversarial-review` skill): run deterministic lint; run optional critics only when requested or risk-justified'
+    8a5d1110615cde71:
+        hash: 3e4b7f595eaa64ad
+        text: Make the single-repo resolver read that set, prefer the repository the current buffer lives in, and prompt only when nothing else decides it
+    8c36375899844053:
+        hash: c5626727319c724b
+        text: 'Adversarial review (`adversarial-review` skill): run deterministic lint; run optional critics only when requested or risk-justified'
+    24dcacde44f06a0e:
+        hash: cb390aece3447395
+        text: 'Confirm: the owner breaks the watching deliberately, reads the health report, and accepts that it named the cause'
+    38cf40ae50993700:
+        hash: e656abba3d7a6ede
+        text: Open the working diff and the history over the repositories that have changes, bounded, with the remainder named alongside the way to reach it
+    970e928e8bdcfeb8:
+        hash: 462fd771f439f73a
+        text: 'Merge: prove every path against a fixture workspace whose root is itself a repository holding two nested repositories, including the no-repository case and each degraded source'
+    3730c6317b244516:
+        hash: cb7975271bad17ee
+        text: Expose the workspace's repository set to Neovim, preferring the subcommand and degrading to the existing scan and then to git, cached against the workspace and dropped when the directory changes
+    6459d267ce147d9f:
+        hash: f4dc7ddb21ac8c26
+        text: 'Apply: `git push`, then `nh darwin switch` from the `sysinit.laurel` checkout in a separate WezTerm pane, gated on `nix flake check`, `nh darwin build`, and `go test ./...` exiting 0'
+    8564bad3e0ce786b:
+        hash: b6ffc070f531b8d2
+        text: Add a subcommand that prints the repositories under a directory, one absolute path per line, including a repository nested inside another, needing git alone
+    009316832adc7c54:
+        hash: d58a6f20ee0850f1
+        text: Make the scoped review and the full review one path with different file sets, so a silent bus narrows nothing and still opens
+    a9bafc2b1ae9debd:
+        hash: 8783a7276fbf040e
+        text: 'Merge: prove each `Behavior` criterion for the scoped, full, and degraded paths against the fixture workspace, including edits outside every repository'
+    a997ce7fbf0b4027:
+        hash: bb1fdd5c3b114a34
+        text: 'Confirm: the owner accepts the tab bound, or names the number it should be'
+    ae430cd9ff7a22b4:
+        hash: c5626727319c724b
+        text: 'Adversarial review (`adversarial-review` skill): run deterministic lint; run optional critics only when requested or risk-justified'
+    c2cbfeab0e0135d4:
+        hash: 4e3a04a760b66bec
+        text: 'Confirm: the owner opens a real workspace holding several repositories, runs each review entry point, and accepts what appears or names what is wrong with it'
+    cbbbb15913e350cc:
+        hash: cfbccac504855751
+        text: 'Merge: prove the contract with Go tests over a fixture tree, covering a nested repository, a clean repository, an empty workspace, and an unusable argument'
+    d034fcbd994eb1e9:
+        hash: c4106b5ffd8aa628
+        text: Make the working diff open as one pane with deletions rendered in place, leaving the layout toggle and the per-invocation override working
+    daf65869a7e93800:
+        hash: 9747b69d52611af9
+        text: 'Prove the whole config still loads clean: `stylua --check` and `nix flake check` exit 0, and a headless Neovim starts with no error'
+    e8d333fd7300a337:
+        hash: 96a057ef419463e5
+        text: Route the full review and the git status buffer through the same resolution, so every entry point agrees on what is under review
+    f7501dffde1973ef:
+        hash: c5626727319c724b
+        text: 'Adversarial review (`adversarial-review` skill): run deterministic lint; run optional critics only when requested or risk-justified'
