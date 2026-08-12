@@ -73,7 +73,7 @@ func Run(args []string) int {
 
 	record := state{
 		Version: SchemaVersion,
-		Mux:     muxID(),
+		Mux:     MuxID(),
 		Pane:    paneValue(pane),
 		Agent:   agent,
 		Status:  status,
@@ -231,8 +231,11 @@ func writeUserVar(encoded string) {
 	fmt.Fprintf(tty, "\033]1337;SetUserVar=agent_state=%s\007", encoded)
 }
 
-// muxID is the pane record's generation marker: the pid of the wezterm mux the
-func muxID() int {
+// MuxID is the pane record's generation marker: the pid of the wezterm mux the
+// pane belongs to. Exported because `worker` records it too, and a second
+// definition of what a generation is would let the two disagree about whether a
+// recorded pane id is stale.
+func MuxID() int {
 	socket := os.Getenv("WEZTERM_UNIX_SOCKET")
 	if socket == "" {
 		return 0

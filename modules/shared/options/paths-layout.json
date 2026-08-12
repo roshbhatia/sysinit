@@ -8,6 +8,7 @@
     "agentNotif": "$HOME/.local/state/agents/notif",
     "agentRefine": "$HOME/.local/state/agents/refine",
     "agentWtrun": "$HOME/.local/state/agents/wtrun",
+    "agentWorker": "$HOME/.local/state/agents/worker",
     "agentDiffNotes": "$HOME/.local/state/agents/diff-notes",
     "agentEdits": "$HOME/.local/state/agents/edits",
     "agentTranscripts": "$HOME/.local/state/agents/transcripts",

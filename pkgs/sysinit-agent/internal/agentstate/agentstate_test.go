@@ -287,8 +287,8 @@ func TestMuxIDReadsTheGenerationMarkerOrNothing(t *testing.T) {
 	}
 	for socket, want := range cases {
 		t.Setenv("WEZTERM_UNIX_SOCKET", socket)
-		if got := muxID(); got != want {
-			t.Errorf("muxID() with socket %q = %d, want %d", socket, got, want)
+		if got := MuxID(); got != want {
+			t.Errorf("MuxID() with socket %q = %d, want %d", socket, got, want)
 		}
 	}
 }

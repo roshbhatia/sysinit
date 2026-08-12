@@ -74,6 +74,36 @@ func EditLogFile(root string) string {
 	return keyed(paths.AgentEdits(), root) + ".jsonl"
 }
 
+// WorkerDir returns the directory holding one workspace's worker state: the pane
+// id, its mux generation, the run counter, and every run's log and exit code.
+//
+// A directory rather than a file, because a workspace has many runs and one
+// pane. The name is the same keyed shape the note and the edit log use, so a
+// prune can tell a current key from the superseded `pane-N` shape by matching the
+// name alone.
+func WorkerDir(root string) string {
+	return keyed(paths.AgentWorker(), root)
+}
+
+// WorkerKeyed reports whether name is a current-shape worker key: a basename, a
+// hyphen, and the 16 hex characters keyed appends.
+//
+// Checked before the superseded `pane-N` shape, never after. A workspace whose
+// basename is literally `pane-3` keys to `pane-3-<16 hex>`, which an unanchored
+// `pane-*` test would claim.
+func WorkerKeyed(name string) bool {
+	cut := strings.LastIndex(name, "-")
+	if cut <= 0 || len(name)-cut-1 != 16 {
+		return false
+	}
+	for _, r := range name[cut+1:] {
+		if (r < '0' || r > '9') && (r < 'a' || r > 'f') {
+			return false
+		}
+	}
+	return true
+}
+
 // keyed names a per-directory state file under dir. The basename is for a human
 // reading `ls`; the digest is what makes it unique, because two checkouts of one
 // repository share a basename.

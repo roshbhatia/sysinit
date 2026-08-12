@@ -16,6 +16,7 @@ const (
 	AgentDiffNotesKey   = "agentDiffNotes"
 	AgentEditsKey       = "agentEdits"
 	AgentWtrunKey       = "agentWtrun"
+	AgentWorkerKey      = "agentWorker"
 	AgentTranscriptsKey = "agentTranscripts"
 	SeshySessionsKey    = "seshySessions"
 )
@@ -103,12 +104,23 @@ func AgentEdits() string {
 	return filepath.Join(fallbackStateHome(), "agents", "edits")
 }
 
-// AgentWtrun is the directory wtrun writes its per-session logs under.
+// AgentWtrun is the directory the superseded `wtrun` script writes its per-pane
+// logs under. Kept only so the two implementations can run side by side, and so
+// the prune can find what the script left behind; nothing new writes here.
 func AgentWtrun() string {
 	if value, ok := Get(AgentWtrunKey); ok {
 		return value
 	}
 	return filepath.Join(fallbackStateHome(), "agents", "wtrun")
+}
+
+// AgentWorker is the directory holding one keyed record per workspace: the pane
+// id, its mux generation, the run counter, and every run's log and exit code.
+func AgentWorker() string {
+	if value, ok := Get(AgentWorkerKey); ok {
+		return value
+	}
+	return filepath.Join(fallbackStateHome(), "agents", "worker")
 }
 
 // AgentTranscripts is the directory holding mirrored harness transcripts, laid
