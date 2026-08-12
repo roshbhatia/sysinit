@@ -353,15 +353,17 @@ func captureStdout(t *testing.T, run func()) string {
 	return captured
 }
 
-func TestSeshySessionKeysOneLogForSeveralRepositories(t *testing.T) {
+// A declared workspace keys one log for every repository under it, which is what
+// makes a session of several checkouts reviewable as one thing. The declaration is
+// the mechanism: this used to be inferred from seshy's state directory, and is now
+// stated by whoever put the shell there.
+func TestDeclaredWorkspaceKeysOneLogForSeveralRepositories(t *testing.T) {
 	root := t.TempDir()
 	manifest := filepath.Join(root, "paths.json")
-	sessions := filepath.Join(root, "sessions")
 	body, err := json.Marshal(map[string]any{
 		"version": 1,
 		"paths": map[string]string{
-			"seshySessions": sessions,
-			"agentEdits":    filepath.Join(root, "edits"),
+			"agentEdits": filepath.Join(root, "edits"),
 		},
 	})
 	if err != nil {
@@ -372,16 +374,18 @@ func TestSeshySessionKeysOneLogForSeveralRepositories(t *testing.T) {
 	}
 	t.Setenv("SYSINIT_PATHS_MANIFEST", manifest)
 
-	first := filepath.Join(sessions, "a-session", "repo-one")
-	second := filepath.Join(sessions, "a-session", "repo-two")
+	session := filepath.Join(root, "a-session")
+	first := filepath.Join(session, "repo-one")
+	second := filepath.Join(session, "repo-two")
 	for _, dir := range []string{first, second} {
 		if err := os.MkdirAll(dir, 0o755); err != nil {
 			t.Fatalf("mkdir %s: %v", dir, err)
 		}
 	}
+	t.Setenv("SYSINIT_WORKSPACE", session)
 
 	if repo.Workspace(first) != repo.Workspace(second) {
-		t.Fatalf("two directories in one session resolved to %q and %q; they must share a workspace",
+		t.Fatalf("two directories in one workspace resolved to %q and %q; they must share a workspace",
 			repo.Workspace(first), repo.Workspace(second))
 	}
 
@@ -391,6 +395,44 @@ func TestSeshySessionKeysOneLogForSeveralRepositories(t *testing.T) {
 	events := readEvents(t, repo.EditLogFile(repo.Workspace(first)))
 	if len(events) != 2 {
 		t.Fatalf("event count = %d, want both repositories in one log", len(events))
+	}
+}
+
+func TestDeclaredWorkspaceAnswersOnlyForWhatItContains(t *testing.T) {
+	root := t.TempDir()
+	inside := filepath.Join(root, "declared", "nested")
+	outside := filepath.Join(root, "elsewhere")
+	for _, dir := range []string{inside, outside} {
+		if err := os.MkdirAll(dir, 0o755); err != nil {
+			t.Fatalf("mkdir %s: %v", dir, err)
+		}
+	}
+	declared := filepath.Join(root, "declared")
+
+	t.Setenv("SYSINIT_WORKSPACE", declared)
+	if got := repo.DeclaredWorkspace(inside); got != declared {
+		t.Fatalf("a directory inside the declaration resolved to %q, want %q", got, declared)
+	}
+	// An explicit path outside the declaration is the caller meaning that path, so
+	// the variable must not act as a global override.
+	if got := repo.DeclaredWorkspace(outside); got != "" {
+		t.Fatalf("a directory outside the declaration resolved to %q, want no answer", got)
+	}
+
+	t.Setenv("SYSINIT_WORKSPACE", filepath.Join(root, "gone"))
+	if got := repo.DeclaredWorkspace(inside); got != "" {
+		t.Fatalf("a declaration naming a missing directory resolved to %q, want no answer", got)
+	}
+
+	// A file is not a workspace, and answering with one would key state under a path
+	// that cannot hold it.
+	file := filepath.Join(root, "a-file")
+	if err := os.WriteFile(file, []byte("x"), 0o600); err != nil {
+		t.Fatalf("write file: %v", err)
+	}
+	t.Setenv("SYSINIT_WORKSPACE", file)
+	if got := repo.DeclaredWorkspace(file); got != "" {
+		t.Fatalf("a declaration naming a file resolved to %q, want no answer", got)
 	}
 }
 
