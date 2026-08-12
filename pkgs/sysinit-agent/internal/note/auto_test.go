@@ -128,6 +128,30 @@ func TestAutoFilesTheNarrationAsANote(t *testing.T) {
 	}
 }
 
+func TestAutoAnchorsOnTheFirstChangedLineNotTheHunkStart(t *testing.T) {
+	root := newRepo(t)
+	file := filepath.Join(root, "src", "app.ts")
+	tx := transcript(t, root, "Appended a line.", file)
+
+	// A real patch from an append: three lines of context, then the addition. The
+	// note belongs on the addition.
+	patch := []map[string]any{{
+		"newStart": 1,
+		"newLines": 4,
+		"lines":    []string{" one", " two", " three", "+four"},
+	}}
+	if code, _ := autoHook(t, payload(t, root, tx, file, patch, nil), "claude"); code != 0 {
+		t.Fatalf("auto exited %d", code)
+	}
+	stored := notes(t)
+	if len(stored) != 1 {
+		t.Fatalf("want 1 note, got %d", len(stored))
+	}
+	if stored[0]["line"] != float64(4) {
+		t.Errorf("line = %v, want 4 (the added line), not 1 (the hunk start)", stored[0]["line"])
+	}
+}
+
 func TestAutoWritesNothingWithoutNarration(t *testing.T) {
 	root := newRepo(t)
 	file := filepath.Join(root, "src", "app.ts")

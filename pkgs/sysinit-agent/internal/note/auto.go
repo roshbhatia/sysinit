@@ -102,10 +102,37 @@ type autoPayload struct {
 }
 
 // hunk is one changed region on the modified side, which is the side a note
-// anchors to.
+// anchors to. The lines carry a diff's leading space, plus, or minus.
 type hunk struct {
-	NewStart int64 `json:"newStart"`
-	NewLines int64 `json:"newLines"`
+	NewStart int64    `json:"newStart"`
+	NewLines int64    `json:"newLines"`
+	Lines    []string `json:"lines"`
+}
+
+// firstChangedLine returns the line the edit actually changed.
+//
+// Not `newStart`: a hunk opens with three lines of context, so anchoring on it put
+// the note three lines above the change. Measured on a live edit that appended to
+// a README, where the note landed on line 38 and the new text was on line 41.
+//
+// A deletion does not advance the modified side, so a hunk that only removes lines
+// anchors on the line that now sits where they were.
+func (h hunk) firstChangedLine() int64 {
+	line := h.NewStart
+	for _, text := range h.Lines {
+		if text == "" {
+			continue
+		}
+		switch text[0] {
+		case '+':
+			return line
+		case '-':
+			return line
+		default:
+			line++
+		}
+	}
+	return h.NewStart
 }
 
 func autoWrite(harness string, stdin io.Reader, explain bool) (string, error) {
@@ -223,11 +250,13 @@ func anchor(event autoPayload, file string) (int64, int64) {
 	if json.Unmarshal(event.ToolResponse, &response) == nil && len(response.StructuredPatch) > 0 {
 		first := response.StructuredPatch[0]
 		if first.NewStart >= 1 {
+			// The region is the whole hunk, context included, because it is what a
+			// later pass over the same code should replace. The anchor is narrower.
 			end := first.NewStart + first.NewLines - 1
 			if end < first.NewStart {
 				end = first.NewStart
 			}
-			return first.NewStart, end
+			return first.firstChangedLine(), end
 		}
 	}
 
