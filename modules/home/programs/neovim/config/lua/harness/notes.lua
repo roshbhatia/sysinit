@@ -29,23 +29,47 @@ local roots = {}
 
 local attached = false
 
----@param text string
+--- The marker for a rule between two notes sharing one box. A control byte, so no
+--- note's own text can produce it.
+local rule = "\1"
+
+--- One box holding every note on a line.
+---
+--- One box rather than one per note, because two notes on a line drew two frames and
+--- two signs, and the owner read the pair as the same note twice. A line's notes are
+--- one annotation of that line: they share a frame, a rule between them, and a count
+--- in the header saying how many there are.
+---@param entries string[]
 ---@param hl string
 ---@return table[]
-local function box(text, hl)
-  local lines = {}
-  local body = vim.split(text, "\n", { plain = true })
+local function box(entries, hl)
+  local body = {}
+  for index, entry in ipairs(entries) do
+    if index > 1 then
+      table.insert(body, rule)
+    end
+    for _, line in ipairs(vim.split(entry, "\n", { plain = true })) do
+      table.insert(body, line)
+    end
+  end
+
   local width = 20
   for _, line in ipairs(body) do
-    width = math.max(width, vim.fn.strdisplaywidth(line))
+    if line ~= rule then
+      width = math.max(width, vim.fn.strdisplaywidth(line))
+    end
   end
-  local header = "[AGENT]"
-  table.insert(
-    lines,
-    { { "╭─" .. header .. string.rep("─", width - vim.fn.strdisplaywidth(header) + 1) .. "╮", hl } }
-  )
+
+  local header = #entries > 1 and string.format("[AGENT ×%d]", #entries) or "[AGENT]"
+  local lines = {
+    { { "╭─" .. header .. string.rep("─", width - vim.fn.strdisplaywidth(header) + 1) .. "╮", hl } },
+  }
   for _, line in ipairs(body) do
-    table.insert(lines, { { "│ " .. line .. string.rep(" ", width - vim.fn.strdisplaywidth(line)) .. " │", hl } })
+    if line == rule then
+      table.insert(lines, { { "├" .. string.rep("─", width + 2) .. "┤", hl } })
+    else
+      table.insert(lines, { { "│ " .. line .. string.rep(" ", width - vim.fn.strdisplaywidth(line)) .. " │", hl } })
+    end
   end
   table.insert(lines, { { "╰" .. string.rep("─", width + 2) .. "╯", hl } })
   return lines
@@ -109,15 +133,26 @@ function M.place(bufnr)
     return
   end
   local last = vim.api.nvim_buf_line_count(bufnr)
+  -- Grouped by row before anything is drawn, so a line's notes share one extmark and
+  -- therefore one frame and one sign. `rows` keeps the record's order, since the store
+  -- is append-only and the oldest note on a line is the first thing written about it.
+  local rows, order = {}, {}
   for _, note in ipairs(notes) do
     -- The record's line is 1-based on the new side. A note on a line the file no
     -- longer has still shows, on the last line, because a note the owner cannot see
     -- is worse than a note in the wrong place.
     local row = math.max(0, math.min(tonumber(note.line) or 1, last) - 1)
+    if rows[row] == nil then
+      rows[row] = {}
+      table.insert(order, row)
+    end
+    table.insert(rows[row], render(note))
+  end
+  for _, row in ipairs(order) do
     pcall(vim.api.nvim_buf_set_extmark, bufnr, ns, row, 0, {
       sign_text = "󰚩",
       sign_hl_group = "DiagnosticInfo",
-      virt_lines = box(render(note), "DiagnosticInfo"),
+      virt_lines = box(rows[row], "DiagnosticInfo"),
       virt_lines_above = false,
     })
   end
