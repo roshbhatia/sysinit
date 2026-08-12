@@ -336,7 +336,25 @@
 
 ## 6. Rollout
 
-- [ ] 6.1 Apply: `git push`, then `nh darwin switch` from the `sysinit.laurel` checkout in a separate WezTerm pane, gated on `nix flake check`, `nh darwin build`, and `go test ./...` exiting 0
+- [x] 6.1 Apply: `git push`, then `nh darwin switch` from the `sysinit.laurel` checkout in a separate WezTerm pane, gated on `nix flake check`, `nh darwin build`, and `go test ./...` exiting 0
+
+      Five commits, one concern each: the workspace subcommand, the repository
+      resolver, the review fan-out, the health report, and this record. Pushed to
+      `main` as `d8ef9db67..21a2cf825`.
+
+      Applied from the `sysinit.laurel` checkout in worker pane `laurel-switch2`:
+      `nix flake update sysinit && nh darwin switch .`, exit 0 in 51s. The only
+      closure change was `sysinit-agent +35.1 KiB`, which is the Lua config being an
+      out-of-store symlink and the Go binary being the one thing that is not. The
+      live `/etc/profiles/per-user/roshan/bin/sysinit-agent` now answers
+      `workspace health`. Pane closed, and laurel's lock bump committed and pushed as
+      `d04534f`.
+
+      The `nh darwin build` gate needed correcting rather than passing: it reads
+      `NH_FLAKE`, which points at the laurel checkout, so it built that flake's
+      pinned revision of this repository and reported `DIFF 0` for a tree it never
+      read. `nix build .#darwinConfigurations.lv426.system` is the gate that builds
+      this tree.
 
 - [ ] 6.2 Confirm: the owner opens a real workspace holding several repositories, runs each review entry point, and accepts what appears or names what is wrong with it
 
