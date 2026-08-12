@@ -148,11 +148,49 @@ already keys its log on.
 - THEN a fresh worker is split, the record is replaced, and no command is sent to
   the dead id
 
+"The record is replaced" means all of it, marker included, and the marker is what a
+first draft left behind. A fresh pane then inherited a run it never had: the start
+line said it was queued behind that run, `--status` reported the pane as running it,
+and the name stayed burned because the pane that could have recorded its exit code
+was gone. So a replacement records exit 129 for the outgoing pane's in-flight run,
+the same value and for the same reason as closing a pane under a running run.
+
 #### Scenario: the caller is the recorded worker (negative)
 
 - WHEN the recorded worker id equals the calling pane
 - THEN the record is rejected and a new worker is split, so a command is never
   sent to the pane that asked for it
+
+Here the outgoing pane is ALIVE and its run keeps executing, so this case MUST NOT
+record an exit code for it: that run's own trap still owns its code, and writing one
+here reported a code for a live run which the trap then overwrote, so one run reported
+two. Only the marker moves. The consequence is deliberate and worth stating: the
+handing-over pane keeps running a command that no `--status` and no `--close` will
+address, because the role now belongs to the new pane.
+
+#### Scenario: a caller wants a worker of its own
+
+- WHEN `SYSINIT_WORKER_SESSION` is set to a name
+- THEN that name replaces the derived key, so the caller gets a private worker, and
+  an unusable value fails the call rather than falling back to the shared record
+
+Silently falling back would aim `--close` and `--release` at another pane's worker
+and another run's name. State under an override is exempt from the prune, because an
+override is an arbitrary string that matches no key shape, so a caller that takes a
+private worker owns its cleanup.
+
+#### Scenario: the pane cannot name its own mux generation (negative)
+
+- WHEN the calling pane's `WEZTERM_UNIX_SOCKET` is not a `gui-sock-<n>` socket
+- THEN every operation refuses, quoting the value it read, rather than splitting a
+  worker it could never match again
+
+A pane from a `wezterm-mux-server` or a unix domain carries a well-formed socket path
+of a different shape, so `agentstate.MuxID` cannot derive a generation from it even
+though `wezterm cli` works in that pane. Measured against an isolated mux server:
+pane 1, socket `/tmp/r3-probe-sock`, every operation refused. Supporting those panes
+is a non-goal, so the refusal MUST name the value rather than assert the variable is
+unset, which was a false statement of cause and left the owner without a next step.
 
 ### One worker per workspace does not mean one log per workspace
 
@@ -162,6 +200,25 @@ run's log and exit-code file is not.
 - WHEN two panes in one workspace each ask for a worker
 - THEN they share the worker, and each run keeps its own log and its own exit-code
   file
+
+#### Scenario: a run name is reused the moment it becomes free
+
+- WHEN a caller reuses a run name as soon as that run's exit-code file appears
+- THEN the finished run has already removed everything belonging to it, so the new
+  run's own body survives and the command actually executes
+
+The exit-code file appearing is what publishes a name as free: the in-flight refusal
+names that file to wait for, and so does the wait timeout. So the run MUST publish it
+LAST, after removing its script and its marker. Publishing the code first left a
+window, measured at up to 19.7ms and hit in 20 of 20 rounds, in which the successor
+had already written its body to the same path and the finishing run deleted it. The
+pane was then told to run a file that no longer existed, so nothing ran, no trap
+fired, and no exit code was ever written: the caller printed an ordinary start line,
+exited 0, and burned the name for the whole workspace.
+
+The marker is removed only while it still names the finishing run, because one marker
+serves the whole workspace and a pane that gave up the worker role while still
+running would otherwise delete the marker of the pane that replaced it.
 
 #### Scenario: the same run name is already in flight (negative)
 
@@ -417,6 +474,29 @@ plus a live worker pane.
 - THEN the call refuses, names the pane that is going to run it, and leaves its body
   and its log in place
 
+#### Scenario: a name is burned while the worker is alive
+
+- WHEN a run has recorded no exit code, the running marker does not name it, and the
+  worker pane is alive
+- THEN the unforced release refuses and names `--force`, and `--release NAME --force`
+  frees the name
+
+The refusal above cannot distinguish a queued run from one abandoned because its
+caller died between writing the log and reaching the send, and the second is reachable
+by killing a caller mid-call. Refusing both left the name unusable for as long as the
+worker lived, which is exactly the property that got prune-as-release rejected, so the
+default refusal MUST come with a way past it. `--force` MUST still refuse a run the
+marker names: that run is executing, and unlinking its log while `tee` writes to the
+inode is the harm the refusal exists for. The cost of forcing a genuinely queued run
+is named in the refusal rather than left to be discovered, because the state is not
+decidable and the owner is the one who knows which case it is.
+
+Every path that frees a name takes the same lock the claim takes. The release reads
+the log and then deletes it, and unlocked those two steps straddled another caller's
+claim of the same name, so the release deleted a log and a body belonging to a run
+that was about to start. The rollback after a failed send has the same shape and the
+same fix.
+
 #### Scenario: the pane is closed under a running run (negative)
 
 - WHEN `--close` kills a pane whose run has recorded no exit code
@@ -438,10 +518,24 @@ than counted, because a count in this list goes stale every time one is added:
   bash's `shift` refuses to shift past `$#` and returns non-zero, and the script sets
   no `-e`, so the loop re-enters with `$1` still `-w` and spins. `wtrun -w` therefore
   ran nothing at all, rather than waiting.
-- Mode flags are no longer order-dependent. Bash acted on `--status` inside its
-  parse loop, so a later flag was never read; here the parse finishes first, and a
-  mode flag combined with a command is refused rather than discarding the command.
-- `-n` validates its value as one path element. Bash passed it into a path unchecked.
+- Mode flags are no longer order-dependent among themselves. Bash acted on
+  `--status` inside its parse loop, so a later flag was never read; here the parse
+  finishes first, and a mode flag combined with a command is refused rather than
+  discarding the command. This holds for flags BEFORE the command and no further: the
+  parse ends at the first non-flag word, exactly as bash's `"$*"` did, so
+  `worker true --status` runs `true --status` rather than reporting status. The usage
+  line puts the command last for that reason.
+- `-n` validates its value as one path element, at parse time, before any pane
+  exists. Bash passed it into a path unchecked. The numeric flags are checked at the
+  same point, and for the same reason: a value the call was always going to refuse
+  MUST NOT cost a pane on screen first.
+- `--release NAME --force` frees a name whose worker pane is alive. The unforced
+  refusal cannot tell a queued run from one abandoned by a caller that died between
+  writing the log and reaching the send, and refusing both left the name unusable for
+  as long as the worker lived, which is the property that got prune-as-release
+  rejected in the design. `--force` still refuses a run the running marker names,
+  because that run is executing and unlinking its log is the harm the refusal exists
+  for. Bash had no equivalent, having no refusal to escape.
 - Every log's header, and the line printed on a successful start, carry an `in <dir>`
   field, because the directory is now the key and a log that does not name it cannot
   be read six hours later. The start line goes from `pane <id>  <name>  log <path>`
@@ -505,7 +599,21 @@ change (`worker-pane`, `worker-running`, `worker-runs`, `<name>.log`, `<name>.rc
 A record gains two files. `worker-mux` holds the mux generation that wrote
 `worker-pane`, and the phase-3 prune MUST know about it, since the pane record is now
 two files rather than one. `worker-lock` is an empty file held under `flock` while a
-run name is allocated; it carries no state and is never read.
+run name is allocated or freed; it carries no state and its contents are never read.
+
+Its PATH is state, though, and that constrains the prune. `flock` is held on an
+inode, not on a name, so a caller that removes the record directory and lets the next
+`start` recreate it hands the two callers different inodes, and the exclusion is gone:
+measured, both take `LOCK_EX` immediately. Nothing in the package removes a record
+directory today, but the phase-3 prune removes whole records, so the prune MUST NOT
+remove a record whose `worker-lock` is held. That is a constraint on 3.4, recorded
+here because the alternative, moving the lock outside the record, would key it on
+something the prune does not own.
+
+The lock also makes a filesystem that cannot lock fatal rather than degraded: an
+`ENOLCK` from `flock` fails the invocation. The default root is local, so this is
+stated rather than handled, and pointing `agentWorker` at a network filesystem is out
+of scope for this change.
 
 Writes to `worker-mux` and `worker-runs` go through a temporary `<name>.new` beside
 the target and then a rename, so a reader never sees a partial record. A `.new` file

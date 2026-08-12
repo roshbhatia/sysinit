@@ -1,9 +1,9 @@
 version: 2
 change: move-wtrun-to-sysinit-agent
 decision: approved
-note: Owner verdict of 2026-08-11 carried forward at the owner's explicit direction, after the phase-1 code review's rounds 1 and 2 closed 37 objections. Not a new approval.
-change_hash: 59e10cd9709a4c43
-base_commit: 31037acb6e695eacd58f77a699e374760ec1f1c0
+note: 'Recorded on the owner''s explicit instruction of 2026-08-11, verbatim: ''push, and implement and everything''. That instruction also halts the adversarial review loop at round 4, whose two critics had not yet reported. Rounds 1-3 raised 55 objections and closed 55. Round 3''s fixes carry 18 mutations but no independent review, and round 4''s findings, if any, arrive after this decision.'
+change_hash: cc8ce7dd85602834
+base_commit: 14da60ab60a7f1f23753c5341e5b6e876249fa33
 items:
     2c340666383b73d7:
         hash: e694eb789bdadfcf

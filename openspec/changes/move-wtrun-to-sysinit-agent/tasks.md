@@ -9,6 +9,13 @@
   `repo.WorkerDir` are new; `agentstate.muxID` became `MuxID` so the generation
   rule has one definition rather than two.
 - [x] 1.2 Resolve pane liveness, the refusal to address the caller's own pane, and the return of focus in one place, with the call to the mux bounded so an unresponsive mux fails rather than hangs, and with the worker record carrying the mux generation so a recorded id from an earlier generation is rejected rather than reused `writes:` pkgs/sysinit-agent/internal/worker/ `deps:` 1.1
+
+  Two of these shipped implemented and unprotected until review round 3, and the
+  note here claimed both without qualification. The return of focus was one deletion
+  from being lost with a green suite. The bound was covered by a test that replaced
+  the bounded functions with a fake returning an error, so it proved the error's
+  classification and nothing about the timeout; the bound is now measured against a
+  real process that never answers, which required making `muxTimeout` a variable.
 - [x] 1.3 Run the command in the caller's working directory, checking it in the caller and again in the generated body, so a directory that disappears while the run is queued stops the run instead of relocating it `writes:` pkgs/sysinit-agent/internal/worker/ `deps:` 1.1
 - [x] 1.4 Reject a non-numeric value for a numeric flag before any pane is created, naming the flag and the value `writes:` pkgs/sysinit-agent/internal/worker/ `deps:` 1.1
 - [x] 1.5 Refuse a run name whose previous run has recorded no exit code, so two panes sharing one workspace cannot share one log, and ship a per-run release so a name an interrupted run burned can be retyped without discarding any other run's log `writes:` pkgs/sysinit-agent/internal/worker/ `deps:` 1.1
@@ -20,18 +27,44 @@
   cannot reach, such as a killed pane.
 - [x] 1.6 Reconcile the subtasks and prove `go test ./...` and `nix build .#darwinConfigurations.lv426.system` exit 0, with a test for every negative scenario the proposal states `writes:` pkgs/sysinit-agent/internal/worker/ `deps:` 1.2, 1.3, 1.4, 1.5
 
-  The eight scenarios: no `WEZTERM_PANE`; a dead recorded worker; the caller as the
-  recorded worker; the caller's directory gone at send time; gone at run time; a
-  directory name needing quoting; a flag name where a number belongs; and a run
-  name already in flight.
+  The negative scenarios: no `WEZTERM_PANE`; a dead recorded worker; the caller as
+  the recorded worker; the caller's directory gone at send time; gone at run time; a
+  directory name needing quoting; a flag name where a number belongs; a run name
+  already in flight; a queued run released; no worker at all; and a pane whose socket
+  carries no derivable mux generation.
 
-  All eight have tests, plus the mux-generation rejection and the unresponsive mux.
   `go test ./...` and `nix build .#darwinConfigurations.lv426.system --no-link` both
   exit 0, the latter after staging: a flake copies only tracked files, so the new
-  package was invisible to the build until it was added. Two mutations, dropping the
-  generation check and dropping the trap, each fail the test that covers them. The
-  four `waiting`-attribution scenarios belong to 3.5, not here.
-- [ ] 1.7 Adversarial review (`adversarial-review` skill): critics attempt to break the parity phase against the proposal `Behavior` criteria; revise until the loop reaches a terminal state (see the skill for the scaled round cap)
+  package was invisible to the build until it was added. The four
+  `waiting`-attribution scenarios belong to 3.5, not here.
+
+  Corrected at review round 3, because the first version of this note was true only
+  by name. Three of the original eight were proved at helper level or by an unrelated
+  failure: the `WEZTERM_PANE` guard was satisfied by the real `wezterm` failing on an
+  empty `--pane-id`, and the removed-directory and run-name scenarios called their
+  helpers rather than the entry point. "No worker at all" was a declared phase-1
+  negative scenario missing from the list entirely, so "a test for every negative
+  scenario the proposal states" was false when it was written. The reuse path, which
+  is the reason this change exists, had no test at all. Coverage is now stated in
+  mutations rather than in names: 18 are recorded in `review.md`, each failing the
+  test that covers it.
+- [x] 1.7 Adversarial review (`adversarial-review` skill): critics attempt to break the parity phase against the proposal `Behavior` criteria; revise until the loop reaches a terminal state (see the skill for the scaled round cap)
+
+  Terminal state: halted by the owner at round 4, with 0 open. Three rounds ran and
+  each closed everything it raised: 22, then 15, then 18. The count did not decline,
+  and that is the finding rather than a failure of the loop. Round 2 found four
+  defects in round 1's fixes and round 3 found two severe ones in round 2's, so the
+  trend measures how much unreviewed change each round introduced, not how wrong the
+  original was.
+
+  NOT clean: no round returned nothing. Round 3's own fixes carry 18 mutations and no
+  independent review, and round 4's two critics were still running when the owner
+  halted the loop. Anything they report becomes follow-up work against a shipped
+  phase rather than a gate on it.
+
+  Method mattered more than round count. Rounds 1 and 2 read the code; round 3 ran
+  mutations and found that 10 of 14 survived a 32-test suite, including the total
+  absence of a test for the reuse path this whole change exists to deliver.
 - [ ] 1.8 Apply: `git push`, then `nh darwin switch` from the `sysinit.laurel` checkout in a separate WezTerm pane, gated on `nix flake check` and `nh darwin build` exiting 0. The bash script stays installed and stays the one the skill calls
 - [ ] 1.9 Confirm: the owner accepts that the two implementations disagree about the live worker in the expected way, the script naming it and the subcommand reporting none, with no other difference
 
@@ -90,6 +123,12 @@
   only the record needs removing.
 - [ ] 3.3 Return from a wait when the caller's own run reaches `waiting`, under its own flag so `-w` keeps its two outcomes, while an exit still returns the run's exit code and a timeout still names the file to poll `writes:` pkgs/sysinit-agent/internal/worker/ `deps:` 3.1, 3.2
 - [ ] 3.4 Remove a record whose WORKER pane no longer exists, reading liveness from `worker-pane` rather than from a `pane-N` directory name, with the scan anchored to the current key shape tested before `^pane-[0-9]+$`, and report the count left untouched, split between override-keyed directories and the legacy flat artifacts, and remove the superseded `agentWtrun` root whole `writes:` pkgs/sysinit-agent/internal/worker/ `deps:` none
+
+  A record whose `worker-lock` is held MUST be skipped. The lock constraint comes
+  from review round 3. `flock` is held on an inode, not on
+  a name, so removing a record directory while a claim holds its lock and letting the
+  next `start` recreate it gives two callers different inodes and no exclusion at all,
+  measured. Nothing removes a record today, so this phase introduces the hazard.
 
   Report the count left untouched, split between override-keyed directories and the
   legacy flat artifacts, and state whether the two `last.*` symlinks are inside that

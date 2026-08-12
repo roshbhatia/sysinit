@@ -492,12 +492,18 @@ A run in flight at activation time is not interrupted. The worker pane holds a
 shell, and the store path the shell already started is not collected while it
 runs. The next invocation gets the new implementation.
 
-`WTRUN_SESSION` stays as the explicit key override. It is the escape hatch for a
-caller that wants a worker of its own, and it is not a compatibility shim.
+`SYSINIT_WORKER_SESSION` is the explicit key override. It is the escape hatch for a
+caller that wants a worker of its own, and it is not a compatibility shim. It is
+deliberately NOT the superseded `WTRUN_SESSION`, and not because the two would
+collide: they read different roots. It is because `watch.go:222` reads
+`WTRUN_SESSION` and resolves it under the OLD root, so honouring that name here
+would aim the watcher at a path nothing writes, with no error. Task 2.9 repairs the
+watch side, and until it lands the watch override keeps its own name and its own
+meaning.
 
 State keyed by that override is exempt from the prune, and the exemption MUST be
 stated in the skill rather than left to be discovered. An override is an arbitrary
-caller-supplied string, so `WTRUN_SESSION=build` writes `<root>/build/`, which
+caller-supplied string, so `SYSINIT_WORKER_SESSION=build` writes `<root>/build/`, which
 matches neither prune shape. A caller that takes a private worker therefore owns its
 cleanup. The alternative, constraining the override to the keyed shape, is rejected
 because the point of the hatch is a name the caller chooses and can type again. The
@@ -514,7 +520,11 @@ whether the symlinks are inside its count.
 - [A regression here breaks every long-running command an agent runs] -> The three
   guards at `wtrun.sh:43`, `wtrun.sh:113`, and `wtrun.sh:121` become named tests
   rather than review notes, and phase 1 ships behind the unchanged bash script so
-  a failure is invisible to the owner until phase 2.
+  a failure is invisible to the owner until phase 2. Named tests means tests that
+  fail when the guard is removed, which is not the same as tests that touch the code:
+  two of the three were implemented and unprotected, and dropping the focus return or
+  the queued-behind report left the suite green. Each of the three now has a mutation
+  recorded against it in `review.md`.
 
 - [Phase 2 deletes the only working implementation in one commit] -> It is gated
   on the owner running a real build through the new one, which is the

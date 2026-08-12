@@ -615,3 +615,114 @@ has ever come back with nothing, and round 2's own fixes have not been reviewed 
 anyone. Roughly 8 of the 15 were caused by round 1's fixes, and one round-2 fix was
 wrong on its first attempt, so a round 3 has real expected value rather than nominal
 value. Whether to spend it is the owner's call.
+
+## Phase 1 code review (task 1.7), round 3
+
+Spent on the owner's explicit decision, against the argument that round 2's own fixes
+had been reviewed by nobody and that roughly 8 of round 2's 15 objections were caused
+by round 1's fixes. That argument was right. Round 3 raised 18 objections, and the two
+most serious are both in round 2's own fixes.
+
+Two lenses, both told to read the files directly at `31037acb6` and not to use
+`git diff HEAD`. One attacked round 2's six fixes; one bound every `## Behavior`
+WHEN/THEN to code and tests and audited the evidence notes in tasks.md and design.md.
+
+The coverage lens did what no earlier round did: it ran mutations rather than reading.
+14 mutations, 10 of which the suite did not catch. That is the finding behind the
+finding, and it is why this round's count is high after two rounds of zero-open.
+
+| Lens | Finding | Failing scenario | Verdict |
+| --- | --- | --- | --- |
+| fixes | The generated body published its exit code BEFORE deleting itself, so a name was reusable while the file still existed | The rc appearing is what publishes a name as free: the in-flight refusal names that file to wait for, and so does the wait timeout. A successor that polled it, claimed, and wrote its body to the same path had that body deleted by the predecessor's trap. The pane was told to run a file that no longer existed, so nothing ran, no trap fired, no exit code was ever written: the caller printed an ordinary start line and exited 0, and the name was burned for the workspace. Window measured up to 19.7ms, present in 40 of 40 runs; the full harm reproduced in 20 of 20 rounds | upheld |
+| fixes | The allocation lock covered the claim only, so `release` and the rollback mutated the same files unsynchronised | `release` read the log and then deleted it with no lock at all, so the two steps straddled another caller's claim of the same name and the release deleted a log and a body belonging to a run that was about to start. `start`'s rollback had the same shape. Both reproduced deterministically | upheld |
+| fixes | `--close` recorded exit 129 for a run that was still executing | The role moves from pane 9 to pane 11 on `errSelf`, but the marker still named pane 9's run. Closing pane 11 read the shared marker and recorded 129 for a run executing in a pane it never killed. A waiter got 129 plus a tail of a log still being written, and the run's own trap later overwrote it, so one run reported two exit codes | upheld |
+| fixes | A replacement split left the dead pane's marker in place, so a fresh pane inherited a run it never had | The start line said "queued behind run1", `--status` reported "running run1" on a pane that had run one command, and run1's name stayed burned because the pane that could have recorded its exit code was gone. `split` wrote two files of a three-file record | upheld |
+| fixes | `--release` refused exactly the state it exists for, and the messages formed a circle | Log with no rc, no marker naming it, worker alive: `claim` says to use `--release`, `--release` says to use `--close`, and `--close` from the worker pane says to close it from another pane. The design rejected prune-as-release for not being reachable while the worker is alive, and the shipped release had that same property | upheld |
+| fixes | The lock is a path, not a record | `flock` is held on an inode. Removing the record directory and letting the next `start` recreate it gives two callers different inodes, and both take `LOCK_EX` immediately. Nothing removes a record today; the phase-3 prune will | upheld, as a phase-3 constraint |
+| fixes | The blind-caller refusal stated a cause that can be false | Measured against an isolated `wezterm-mux-server`: a pane with `WEZTERM_UNIX_SOCKET=/tmp/r3-probe-sock` and a working `wezterm cli` is refused for every operation, with a message asserting the variable is unset or malformed. It is neither | upheld, as wording plus a non-goal |
+| coverage | The reuse path had no test | The change exists to reuse a live worker recorded by another pane. Every test that called `start` drove a failure path or the `errSelf` split, so an implementation that split a second worker beside a live one passed the suite | upheld |
+| coverage | No test proved a command reached the resolved pane | `fakeMux.sent` was written and read by nothing, so the typed line was never asserted: target, C-u prefix, and the `zsh <body> \| tee -a <log>` shape were all unproven. `send` could address a hardcoded pane 1 | upheld |
+| coverage | Three "nothing was split" assertions could never fire | `split-pane` goes through `muxOutput`, which never appended to the slice those assertions scanned. The tests still caught their mutations by other means, but the named assertion was dead | upheld |
+| coverage | The outside-WezTerm test passed for the wrong reason and reached the live mux | With no fake installed, dropping the guard let the call fall through to the real `wezterm`, which failed on an empty `--pane-id` and returned the same exit 2 the test asserted. A guard no test protected, in a test that shelled out to the owner's running mux during `go test` | upheld |
+| coverage | `--status` was entirely unproven | The reporter could be gutted to `return 0`. The one test that called it asserted the exit code and that no directory was created. Three declared forms, none asserted | upheld |
+| coverage | 32 tests, zero output assertions | The start line's `in <dir>`, the log header, and the five reporting strings are declared parity items. `writeHeader` was called by no test | upheld |
+| coverage | Two more tests tested a helper where the rubric names the call | "splits nothing" is a claim about the call: the removed-directory test called `callerDir`, and the run-name test called `validRunName`. Both mutations survived, and `-n ../escape` cost a pane before failing | upheld |
+| coverage | design.md called three guards "named tests" and two had none | Dropping the focus return or the queued-behind report left the suite green | upheld |
+| coverage | design.md named `WTRUN_SESSION` as the worker's override | The code deliberately uses `SYSINIT_WORKER_SESSION`, with a comment saying so. The inversion: the override had a 45-line test and no declaration, while the reuse path had a declaration and no test | upheld |
+| coverage | The mux bound was not tested | The unresponsive-mux test replaces the bounded functions with a fake returning an error, so it proves the error's classification. `muxOutputCmd` and `muxRunCmd` were executed by no test, so the timeout, both context checks, and the message were unexercised. This is the half the bash version got wrong | upheld |
+| coverage | `last.log` and `last.rc` were unproven | `linkLast` was called by no test, so the aliases that make `last` worth reserving were never created in one | upheld |
+| coverage | "Mode flags are no longer order-dependent" was broader than the code | The parse ends at the first non-flag word, so `worker true --status` runs `true --status`. True for flags before the command only | upheld, as wording |
+
+Attacked and not broken, listed because it is evidence too: `underLock`'s defer
+ordering; `claimExact` unreachable without the lock; the allocation path taking a
+finished name; the rollback firing on a run that started, and failing to fire when it
+should; the `MkdirAll` move, re-verified to create nothing from any query; `errSelf`
+leaving the owner stuck on `--close`; `pane()`'s ordering; 129 as the value; and any
+debug loss from the self-deleting body.
+
+### Revisions applied
+
+32. The generated body publishes its exit code LAST, after removing its script and
+    its marker. The order is the reverse of the obvious one and the comment says why.
+33. The body removes the marker only while it still names its own run, so a pane that
+    gave up the worker role and kept running cannot delete the marker of the pane that
+    replaced it.
+34. `split` retires the outgoing worker's marker, and records 129 for its in-flight
+    run only when the outgoing pane is GONE. When the outgoing pane is the caller,
+    handing over while it keeps running, only the marker moves: that run's own trap
+    still owns its exit code.
+35. `release` and the rollback both run under the allocation lock. The rollback is now
+    a named method for that reason. The pane probe stays outside the lock, because
+    blocking every claim for five seconds behind one query is the worse trade.
+36. `--release NAME --force` frees a name whose worker pane is alive. It still refuses
+    a run the marker names, because that run is executing. The refusal names the cost.
+37. `-n` and `--release` validate their values at parse time, before a pane exists,
+    matching the numeric flags.
+38. The blind-caller refusal quotes the socket value it read and names the shape it
+    needs. Mux-server and unix-domain panes are declared a non-goal.
+39. `muxTimeout` became a variable so the bound could be measured against a real
+    process that never answers.
+40. Eleven tests added and two replaced, covering the reuse path, the typed line and
+    its target, the three `--status` forms, the start line and the header, the focus
+    return, the queued-behind line, the `last.*` aliases, the mux bound, and every
+    fix above. `fakeMux` records `split-pane`, so the three dead assertions fire.
+41. Seven declarations corrected or added: the reuse-and-republish ordering, the
+    marker's ownership, what "the record is replaced" includes, the handover's
+    deliberate orphan, the session override, the non-gui-socket refusal, the forced
+    release, and the lock's inode identity as a constraint on the phase-3 prune.
+    tasks.md 1.2, 1.6, and 3.4 corrected, including one note that was false when
+    written.
+
+Eighteen mutations, each failing the test that covers it: rc before body, unguarded
+marker removal, split keeping the marker, retire coding a live caller's run, release
+unlocked, rollback unlocked, force ignored, force releasing a running run, force
+without a release, name unvalidated at parse, the lock itself, no timeout on a mux
+call, an unquoted socket value, a silent `--status`, splitting over a live worker, a
+hardcoded send target, focus not returned, the start line's directory, the
+queued-behind line, and the `last.*` aliases.
+
+Two of my own errors, both caught by a mutation rather than by reasoning. A test that
+read a one-value channel twice deadlocked on the very failure it asserted, which
+turned a failing test into a hung suite. And a first attempt at the rollback test
+raced a real `start` for the claim, which it cannot win reliably; a test that only
+sometimes exercises the path it names is worse than none, so it drives the method
+directly now.
+
+The `git checkout --` trap fired a third time, discarding an uncommitted change to
+`muxTimeout` mid-mutation and turning eight otherwise-valid mutations into build
+failures. The lesson was already written down twice. The mutation loop now runs only
+against committed files, and this is recorded because writing it down has not been
+enough.
+
+Surviving-objection trend: round 1, 22 raised, 22 fixed. Round 2, 15 raised, 15
+fixed. Round 3, 18 raised, 18 fixed, zero open.
+
+Terminal state: hit K=2 with zero open objections, at round 3, K having been extended
+by the owner's decision to spend a third round. NOT clean: no round has returned
+nothing, and round 3's own fixes have been reviewed by nobody, exactly as round 2's
+had not been when round 3 found two severe defects in them. The count rose from 15 to
+18, so the loop is not converging on the count. What it is converging on is method:
+round 3's objections came from mutation and from a running mux, and the two lenses
+found different classes with almost no overlap. A round 4 would have real expected
+value. Whether to spend it is the owner's call, and so is accepting phase 1 with the
+knowledge that its newest fixes are unreviewed.
