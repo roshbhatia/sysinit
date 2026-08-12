@@ -177,6 +177,103 @@ function M.send_review()
   vim.notify(string.format("Harness: sent %d review comment(s) to %s", count, adapter.name), vim.log.levels.INFO)
 end
 
+--- Open a review of only the files an agent wrote since this Neovim started.
+---
+--- The scope cannot come from review.nvim. `review.open()` takes no file list and
+--- its only parameters are revisions, so the narrowing comes from codediff
+--- underneath it, which accepts git pathspecs after `--` and re-applies them on
+--- refresh. review.nvim then attaches to whichever codediff session the tabpage
+--- holds, which is the seam its own `open()` uses.
+---
+--- The scope is a floor, never the whole truth: an edit made by a shell command
+--- rather than by an edit tool writes no event, and an event older than this
+--- Neovim is not in the set. So this never silently stands in for the full diff,
+--- and every path out of here names how to reach it.
+function M.review_touched()
+  local ok_events, events = pcall(require, "harness.edit_events")
+  if not ok_events then
+    vim.notify("Harness: the edit-event watcher is not loaded", vim.log.levels.WARN)
+    return
+  end
+
+  local files = events.touched_files()
+  if #files == 0 then
+    vim.notify(
+      "Harness: no agent edits recorded this session — <leader>dr reviews the full diff",
+      vim.log.levels.WARN
+    )
+    return
+  end
+
+  -- Pathspecs are relative to the repository, so a file outside it cannot be
+  -- expressed as one. They are counted rather than dropped quietly: the touched set
+  -- legitimately holds paths from other trees, because the log is keyed on the
+  -- directory the agent ran in and the event carries an absolute path.
+  local root = vim.trim(vim.fn.system({ "git", "-C", vim.fn.getcwd(), "rev-parse", "--show-toplevel" }))
+  if vim.v.shell_error ~= 0 or root == "" then
+    vim.notify("Harness: not in a git repository, so a review cannot be scoped", vim.log.levels.WARN)
+    return
+  end
+
+  local scoped, outside = {}, 0
+  for _, path in ipairs(files) do
+    local rest = path:sub(1, #root + 1) == root .. "/" and path:sub(#root + 2) or nil
+    if rest then
+      table.insert(scoped, rest)
+    else
+      outside = outside + 1
+    end
+  end
+
+  if #scoped == 0 then
+    vim.notify(
+      string.format("Harness: all %d agent edit(s) are outside %s — <leader>dr reviews the full diff", outside, root),
+      vim.log.levels.WARN
+    )
+    return
+  end
+
+  -- Built as command arguments rather than as a string, so a path holding a space
+  -- or a bracket reaches codediff as one token without an escaping rule of its own.
+  local ok_open = pcall(vim.cmd, { cmd = "CodeDiff", args = vim.list_extend({ "--" }, scoped) })
+  if not ok_open then
+    vim.notify("Harness: codediff could not open a scoped diff", vim.log.levels.ERROR)
+    return
+  end
+
+  -- codediff initialises its session asynchronously, so the attach is retried the
+  -- way review.nvim retries its own. Without it the diff opens with no comment
+  -- layer and looks like a plain diff, which is the one outcome worth an error: a
+  -- review that cannot record anything is not a review.
+  -- The session is looked for rather than the attach being called blind.
+  -- `_check_codediff_session` returns nothing and returns early when no session
+  -- exists, so a pcall around it reports success whether it attached or did nothing,
+  -- and a retry loop written that way never retries.
+  local attempts = 0
+  local function attach()
+    attempts = attempts + 1
+    local ok, lifecycle = pcall(require, "codediff.ui.lifecycle")
+    if ok and lifecycle.get_session(vim.api.nvim_get_current_tabpage()) then
+      pcall(function()
+        require("review")._check_codediff_session()
+      end)
+      return
+    end
+    if attempts < 5 then
+      vim.defer_fn(attach, 100)
+      return
+    end
+    vim.notify("Harness: the diff is scoped, but review.nvim did not attach to it", vim.log.levels.WARN)
+  end
+  vim.defer_fn(attach, 200)
+
+  local said = string.format("Harness: review scoped to %d file(s) an agent wrote", #scoped)
+  if outside > 0 then
+    said = said .. string.format(", %d outside this repository omitted", outside)
+  end
+  vim.notify(said .. " — <leader>dr for the full diff", vim.log.levels.INFO)
+end
+
 function M.preview_spec()
   local path = vim.api.nvim_buf_get_name(0)
   if path == "" then
