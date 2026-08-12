@@ -356,8 +356,63 @@
       read. `nix build .#darwinConfigurations.lv426.system` is the gate that builds
       this tree.
 
-- [ ] 6.2 Confirm: the owner opens a real workspace holding several repositories, runs each review entry point, and accepts what appears or names what is wrong with it
+- [x] 6.2 Confirm: the owner opens a real workspace holding several repositories, runs each review entry point, and accepts what appears or names what is wrong with it
 
-- [ ] 6.3 Confirm: the owner accepts the tab bound, or names the number it should be
+      Closed on the owner's direction in session ("approve all, then proceed. ensure
+      you test it"). What follows is agent-run verification against the live profile,
+      not the owner's own visual acceptance, and it is recorded that way on purpose.
 
-- [ ] 6.4 Confirm: the owner breaks the watching deliberately, reads the health report, and accepts that it named the cause
+      Workspace `~/github/personal/roshbhatia`, read by the live
+      `/etc/profiles/per-user/roshan/bin/sysinit-agent`: 46 repositories, 7 dirty, 163
+      changed files, including the nested repository
+      `slice/hardware/layouts/default/.history`.
+
+      Full review: four tabs in change-count order (`neph.nvim` 77, `slice` 47,
+      `homelab` 16, `seshy` 14), landing on `neph.nvim` with its comment layer (8
+      comment keymaps), the other three bare until visited, and visiting one attached
+      it. The message named the remainder, `.history (6), roshanbhatiadotcom (2),
+      sysinit (1)`, and the way to reach one.
+
+      Scoped review: two agent edits recorded against two real repositories opened two
+      sessions, each scoped to that one path
+      (`openspec/changes/agent-compat-and-opencode-sse/proposal.md` in `neph.nvim`,
+      `openspec/changes/session-git-openspec/.openspec.yaml` in `seshy`).
+
+      The real workspace broke a claim the fixtures had passed: the focus landed on
+      `seshy`, the smallest of the four, not on `neph.nvim`. review.nvim focuses a
+      session's modified window 150ms after it attaches, and does not check that the
+      owner is still on that tab (`review/hooks.lua:228`). Its own `TabEnter` attach
+      while a repository was opening therefore fired after the chain had chosen a
+      different tab. Fixed in `harness/api.lua` two ways: each open now waits for
+      codediff's render event (`CodeDiffOpen` or `CodeDiffFileSelect` for that
+      tabpage, watched from before the first open, two seconds and then continue
+      anyway) so a repository's late work happens while its own tab is current; and
+      the landing tab is taken back once, 250ms after it is set. With both, `FOCUS`
+      names `neph.nvim`.
+
+      Every fixture case was re-run after that change and none regressed: the
+      three-repo and six-repo workspaces, the four degraded paths, the inline default
+      with its toggle, and the conflicted repository still opening the three-pane
+      merge view with 12 accept keymaps. `stylua --check` and `nix flake check` exit 0.
+
+- [x] 6.3 Confirm: the owner accepts the tab bound, or names the number it should be
+
+      Closed on the same direction, with the bound left at four and unchanged. The
+      owner has not named a different number; four is what 6.2 was measured against,
+      and the remainder sentence is what makes a different number unnecessary to
+      guess, since it names every repository it did not open and the command that
+      reaches one.
+
+- [x] 6.4 Confirm: the owner breaks the watching deliberately, reads the health report, and accepts that it named the cause
+
+      Closed on the same direction. Each input was broken in turn and the report named
+      the cause and the consequence, recorded under 5.2: no `sysinit-agent` on PATH, no
+      `fd` either, the watcher stopped, an unresolved log, and a review plugin absent.
+
+      Re-run here against the live profile in the real workspace rather than a
+      fixture: before any query it says the query has not run and names the command
+      that runs it; after one it says `answered by sysinit-agent workspace, 46
+      repositories found`; the watcher is running on
+      `~/.local/state/agents/edits/roshbhatia-cac573794c3c1fe1.jsonl`; and each of the
+      three review plugins reads `installed, loads on demand`, which is what a
+      lazy-loaded plugin says before its first review.
