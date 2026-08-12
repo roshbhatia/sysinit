@@ -1593,3 +1593,70 @@ func TestABadRunNameIsRefusedBeforeAPaneIsCreated(t *testing.T) {
 		t.Errorf("panes split for a name that was always going to be refused = %d", n)
 	}
 }
+
+// The bound on a mux call is real, and it is proved against a real process.
+//
+// The two functions that carry it, muxOutputCmd and muxRunCmd, were executed by no
+// test: the unresponsive-mux test replaces them with a fake that returns an error,
+// which proves the error is classified as errProbe and nothing about the timeout.
+// A mux that stops answering is the failure the bash version had, which piped
+// `wezterm cli list` into `jq` with no bound at all.
+func TestAMuxCallIsBoundedByARealTimeout(t *testing.T) {
+	stub := t.TempDir()
+	script := filepath.Join(stub, "wezterm")
+	if err := os.WriteFile(script, []byte("#!/bin/sh\nsleep 30\n"), 0o700); err != nil {
+		t.Fatal(err)
+	}
+	t.Setenv("PATH", stub+string(os.PathListSeparator)+os.Getenv("PATH"))
+
+	real := muxTimeout
+	t.Cleanup(func() { muxTimeout = real })
+	muxTimeout = 150 * time.Millisecond
+
+	for _, probe := range []struct {
+		name string
+		call func() error
+	}{
+		{"muxOutputCmd", func() error { _, err := muxOutputCmd([]string{"cli", "list"}); return err }},
+		{"muxRunCmd", func() error { return muxRunCmd([]string{"cli", "activate-pane"}, "") }},
+	} {
+		started := time.Now()
+		err := probe.call()
+		elapsed := time.Since(started)
+		if err == nil {
+			t.Errorf("%s: a mux that never answered returned no error", probe.name)
+		} else if !strings.Contains(err.Error(), "no answer in") {
+			t.Errorf("%s: error = %v, want it to name the bound", probe.name, err)
+		}
+		if elapsed > 3*time.Second {
+			t.Errorf("%s: took %s, so the call was not bounded", probe.name, elapsed)
+		}
+	}
+}
+
+// A pane whose socket is not a gui-sock is refused, and the refusal quotes the
+// value rather than asserting the variable is unset.
+//
+// Measured against an isolated wezterm-mux-server: a mux-server or unix-domain
+// pane carries a well-formed socket path that MuxID does not accept, so every
+// operation is refused for a caller whose `wezterm cli` works. Saying "unset or
+// malformed" there is a false statement of cause and leaves no next step.
+func TestASocketThatIsNotAGuiSockIsNamedInTheRefusal(t *testing.T) {
+	state(t)
+	mux := &fakeMux{panes: []int{7, 12}}
+	mux.install(t)
+	ws := workspaceIn(t, t.TempDir())
+	ws.live(t, "12")
+
+	t.Setenv("WEZTERM_UNIX_SOCKET", "/tmp/r3-probe-sock")
+	_, err := ws.pane("7")
+	if !errors.Is(err, errProbe) {
+		t.Fatalf("pane() = %v, want an errProbe", err)
+	}
+	if !strings.Contains(err.Error(), `"/tmp/r3-probe-sock"`) {
+		t.Errorf("refusal = %v, want it to quote the value it read", err)
+	}
+	if strings.Contains(err.Error(), "unset or malformed") {
+		t.Errorf("refusal = %v, want no claim about a variable that is set and well formed", err)
+	}
+}

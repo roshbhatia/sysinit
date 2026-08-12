@@ -83,11 +83,6 @@ const directoryGone = 78
 // outlived the pane, so a caller branching on it needs no new case.
 const paneClosed = 129
 
-// muxTimeout bounds one call to the mux. The bash implementation piped `wezterm
-// cli list` into `jq` with no timeout, so a mux that stopped answering hung the
-// caller instead of failing it.
-const muxTimeout = 5 * time.Second
-
 // maxWait clamps a requested wait to one year of seconds. Without it,
 // `time.Duration(seconds) * time.Second` overflows int64 above 9223372036 and the
 // deadline lands in the past, so an absurdly large wait reported a timeout
@@ -123,6 +118,14 @@ var (
 	// written by a trap inside the pipeline, so it can land before the last lines of
 	// output do.
 	settle = 250 * time.Millisecond
+
+	// muxTimeout bounds one call to the mux. The bash implementation piped `wezterm
+	// cli list` into `jq` with no timeout, so a mux that stopped answering hung the
+	// caller instead of failing it. A variable rather than a constant so the bound can
+	// be tested against a real process: the two functions that carry it were reached by
+	// no test, so the timeout, both context checks, and the message were unexercised,
+	// and this is the half of the behaviour the bash version got wrong.
+	muxTimeout = 5 * time.Second
 )
 
 // Run executes one invocation and returns the process exit code.
