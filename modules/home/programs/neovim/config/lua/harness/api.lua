@@ -467,6 +467,21 @@ local function open_review(groups, said)
   fill_changed_list(groups, said)
   require("harness.review_follow").attach()
 
+  -- The agent's notes cover every repository the review covers, not only the open
+  -- one, so a step to another repository finds its notes already read.
+  local note_roots = {}
+  for _, group in ipairs(groups) do
+    table.insert(note_roots, group.root)
+  end
+  require("harness.notes").attach(note_roots, function(count)
+    if count > 0 then
+      vim.notify(
+        string.format("Harness: %d agent note%s in this review", count, count == 1 and "" or "s"),
+        vim.log.levels.INFO
+      )
+    end
+  end)
+
   -- Only a review that spans repositories shows the list. For one repository
   -- codediff's explorer is already the file index, and a second one beside it would
   -- say nothing new.
@@ -505,6 +520,9 @@ function M.review_close()
   close_sessions()
   pcall(function()
     require("harness.review_follow").detach()
+  end)
+  pcall(function()
+    require("harness.notes").detach()
   end)
   -- The list window came with the review, so it goes with it. The entries stay: a
   -- closed quickfix list is still there for `:copen` and for `<leader>eq`.
