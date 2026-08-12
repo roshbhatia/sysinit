@@ -96,6 +96,11 @@ return {
         function()
           -- Neogit resolves its root from nvim's cwd, not from the buffer, so a
           -- workspace holding several repos needs the root passed in.
+          --
+          -- Still one repository, deliberately: a status buffer spanning several
+          -- would be a fiction. What changed is that `resolve` now sees a repository
+          -- nested inside the workspace, so the buffer's own checkout can win over
+          -- the outer one instead of being invisible.
           require("utils.gitrepo").resolve(function(root)
             require("neogit").open({ cwd = root })
           end)

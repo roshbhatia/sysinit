@@ -22,6 +22,17 @@ return {
         },
         diff = {
           compute_moves = true,
+
+          -- One pane with deletions rendered as virtual lines, which is what a
+          -- reader wants for the common case of reading a change in the buffer it
+          -- lands in. Set here rather than passed per call site, so `:CodeDiff`
+          -- typed by hand behaves the same way. `t` toggles to side-by-side for the
+          -- case inline is bad at, a file whose every line changed, and
+          -- `--side-by-side` overrides one invocation.
+          --
+          -- The three-pane conflict view is unaffected: `session.layout` gates only
+          -- the two-pane path (`lua/codediff/ui/layout.lua:47`).
+          layout = "inline",
         },
       })
 
@@ -94,15 +105,18 @@ return {
     end,
     keys = {
       {
+        -- The workspace, not one repository. `harness.api` owns the fan-out because
+        -- the scoped review needs the same bound and the same message, and two
+        -- copies of that would drift.
         "<leader>dd",
         function()
-          require("utils.gitrepo").resolve(function(root)
-            vim.cmd("CodeDiff --repo " .. vim.fn.fnameescape(root))
-          end)
+          require("harness.api").review_workspace()
         end,
-        desc = "Open repo diff",
+        desc = "Open workspace diff",
       },
       {
+        -- History is per repository by nature: a commit list spanning several
+        -- repositories is a fiction, so this one still resolves to one.
         "<leader>dH",
         function()
           require("utils.gitrepo").resolve(function(root)
