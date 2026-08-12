@@ -177,20 +177,6 @@ function M.send_review()
   vim.notify(string.format("Harness: sent %d review comment(s) to %s", count, adapter.name), vim.log.levels.INFO)
 end
 
---- The most repositories opened at once. Above this the caller picks.
----
---- Four is measured against the seshy session distribution rather than chosen:
---- three of eight sessions hold four or fewer repositories, and one holds twenty,
---- which is what makes an unbounded fan-out untenable.
-local MAX_TABS = 4
-
---- Forward declarations: `open_review` waits for each session and attaches the
---- comment layer to it, and both are defined below it so their explanations sit
---- with them.
-local attach_review
-local await_session
-local await_render
-
 --- Which tabpages hold a codediff session, and which repository each is on.
 ---
 --- The one place that reads codediff's session registry, so its shape is asserted
@@ -225,11 +211,49 @@ local function has_conflict(root, cb)
   end)
 end
 
---- Open a review over a set of repositories, each with its own file list.
+--- Close every open codediff session, so the next open starts from a clear tab.
 ---
---- One codediff session per repository, because codediff scopes a session to one
---- repository and its pathspecs are relative to that repository. Ordered by how
---- much changed, so the largest is what the owner lands on.
+--- `:CodeDiff` is a toggle at its entry point: issued from a tab that already holds a
+--- session it closes that session and opens nothing (`codediff/commands.lua:930`).
+--- Closing through `lifecycle` instead says what is meant, and does not depend on
+--- which tab the cursor is in when it runs.
+local function close_sessions()
+  local ok, lifecycle = pcall(require, "codediff.ui.lifecycle")
+  if not ok then
+    return
+  end
+  for tab in pairs(session_tabs()) do
+    pcall(lifecycle.close, tab)
+  end
+end
+
+--- Attach review.nvim's comment layer to the codediff session in the current tab.
+---
+--- Without an attach the diff opens with no comment layer and looks like a plain
+--- diff, which is the one outcome worth a warning: a review that cannot record
+--- anything is not a review.
+---
+--- This reaches another plugin's internals. It is the existing attach seam and there
+--- is no upstream API to replace it with, so it is confined to this one function and
+--- reported by the health check rather than spread across the call sites.
+local function attach_review()
+  if not pcall(function()
+    require("review")._check_codediff_session()
+  end) then
+    vim.notify("Harness: the diff opened, but review.nvim did not attach to it", vim.log.levels.WARN)
+  end
+end
+
+--- Open one repository's diff, replacing whatever session is open.
+---
+--- One session at a time, which is what makes this indifferent to how many
+--- repositories the workspace holds. The fan-out this replaces opened one tab per
+--- repository and then had to decide which tab the owner belonged in, a question
+--- codediff and review.nvim answer on their own asynchronous schedules: review.nvim
+--- focuses a session's modified window 150ms after it attaches and does not check
+--- that the owner is still on that tab (`review/hooks.lua:228`). Measured in a real
+--- pane, that lost the race one run in three whatever this side waited for. With one
+--- session there is no tab to choose.
 ---
 --- The file scope cannot come from review.nvim. `review.open()` takes no file list
 --- and its only parameters are revisions, so the narrowing comes from codediff
@@ -237,245 +261,216 @@ end
 --- refresh. review.nvim then attaches to whichever codediff session the tabpage
 --- holds, which is the seam its own `open()` uses.
 ---
---- `groups` is a list of `{ root, files, scoped }` with absolute paths in `files`.
---- `scoped` false means the whole working diff of that repository, and `files` is
---- then only what the ordering and the message count.
-local function open_review(groups, said)
-  local opened, remainder = {}, {}
-  for index, group in ipairs(groups) do
-    if index <= MAX_TABS then
-      table.insert(opened, group)
-    else
-      table.insert(remainder, group)
+--- `group` is `{ root, files, scoped }` with absolute paths in `files`. `scoped`
+--- false means the whole working diff of that repository.
+---@param group table
+---@param on_open fun(ok: boolean)|nil
+local function open_one(group, on_open)
+  has_conflict(group.root, function(unmerged)
+    close_sessions()
+
+    local args = { "--repo", group.root }
+    -- A repository with an unmerged file opens side-by-side, against the inline
+    -- default. codediff sends a conflicted file to its three-pane merge view, which
+    -- needs both panes to already exist: `side_by_side.update` rebuilds a pane that
+    -- was closed but not an inline session's single one, so an inline session showed
+    -- one side of the conflict with no result pane and no accept keymaps. `t` still
+    -- toggles it back.
+    if unmerged then
+      table.insert(args, "--side-by-side")
     end
-  end
-
-  -- One tabpage per repository that opened, in the order they were opened, so the
-  -- first is the repository with the most changes.
-  local tabs, missed = {}, 0
-
-  -- Which tabpages have finished rendering a diff, filled from codediff's own two
-  -- render events.
-  --
-  -- A session exists before its diff is drawn, and with a real repository the draw
-  -- lands after the next repository has been asked for. So the wait between opens is
-  -- on the render, not on the session: the watcher is installed before the first
-  -- open, which is what makes an event that arrives during the poll interval count.
-  local rendered = {}
-  local watch = vim.api.nvim_create_augroup("harness_review_open", { clear = true })
-  vim.api.nvim_create_autocmd("User", {
-    group = watch,
-    pattern = { "CodeDiffOpen", "CodeDiffFileSelect" },
-    callback = function(args)
-      local tab = args.data and args.data.tabpage
-      if tab then
-        rendered[tab] = true
+    if group.scoped and #group.files > 0 then
+      table.insert(args, "--")
+      for _, path in ipairs(group.files) do
+        -- Pathspecs are relative to the repository they are passed with, so the
+        -- absolute path is made relative here rather than at the call site.
+        local rest = path:sub(1, #group.root + 1) == group.root .. "/" and path:sub(#group.root + 2) or nil
+        if rest then
+          table.insert(args, rest)
+        end
       end
-    end,
-  })
+    end
 
-  local function finish()
-    pcall(vim.api.nvim_del_augroup_by_id, watch)
-
-    if #tabs == 0 then
-      vim.notify("Harness: codediff opened no diff for any of these repositories", vim.log.levels.ERROR)
+    -- Built as command arguments rather than as a string, so a path holding a space
+    -- or a bracket reaches codediff as one token without an escaping rule of its own.
+    if not pcall(vim.cmd, { cmd = "CodeDiff", args = args }) then
+      vim.notify("Harness: codediff could not open a diff for " .. group.root, vim.log.levels.ERROR)
+      if on_open then
+        on_open(false)
+      end
       return
     end
 
-    -- Land on the repository with the most changes. Each `:CodeDiff` focuses its own
-    -- tab, so without this the owner arrives on the last and smallest of the set.
-    vim.api.nvim_set_current_tabpage(tabs[1])
-    attach_review(tabs[1])
-
-    -- Then take the tabpage back once, after the last deferred focus can arrive.
-    -- review.nvim focuses a session's modified window 150ms after it attaches to it
-    -- and does not check that the owner is still on that tab
-    -- (`review/hooks.lua:228`), so an attach it made on its own `TabEnter` while a
-    -- repository was opening pulled the owner into that repository after this
-    -- function had already chosen a different one.
+    -- The attach is deferred because codediff registers the session asynchronously and
+    -- review.nvim reads the current tabpage to decide what it is attaching to. It also
+    -- attaches on `TabEnter` by itself (`review/init.lua:27`), so this is the first of
+    -- two chances rather than the only one.
     vim.defer_fn(function()
-      if vim.api.nvim_tabpage_is_valid(tabs[1]) and vim.api.nvim_get_current_tabpage() ~= tabs[1] then
-        vim.api.nvim_set_current_tabpage(tabs[1])
+      attach_review()
+      if on_open then
+        on_open(true)
       end
-    end, 250)
+    end, 200)
+  end)
+end
 
-    if missed > 0 then
-      said = said .. string.format(". %d opened no diff", missed)
+--- Put the review's changed files in the quickfix list, most changed repository
+--- first, and open nothing.
+---
+--- The list is the cross-repository index, because a changed file's path is absolute
+--- and so a list of them does not care how many repositories they came from. It is
+--- the quickfix list rather than a buffer of this feature's own so that `:cdo`, `]q`,
+--- and any quickfix renderer already read it, knowing nothing about reviews.
+---
+--- Within a repository codediff's explorer stays the index. The two do not compete:
+--- this one crosses roots, that one crosses files in one root.
+---@param groups table[]
+---@param title string
+local function fill_changed_list(groups, title)
+  local items = {}
+  for _, group in ipairs(groups) do
+    local label = vim.fn.fnamemodify(group.root, ":t")
+    for _, path in ipairs(group.files) do
+      table.insert(items, {
+        filename = path,
+        lnum = 1,
+        col = 1,
+        -- The repository is in the text because the filename column shows a path that
+        -- is long enough to be truncated, and the repository is what tells the owner
+        -- which diff a step will open.
+        text = string.format("[%s] %s", label, vim.fn.fnamemodify(path, ":.")),
+      })
     end
+  end
+  if #items == 0 then
+    return
+  end
+  vim.fn.setqflist({}, " ", { title = title, items = items })
+end
 
-    if #remainder > 0 then
-      local names = {}
-      for _, group in ipairs(remainder) do
-        table.insert(names, string.format("%s (%d)", vim.fn.fnamemodify(group.root, ":t"), #group.files))
-      end
-      said = said
-        .. string.format(
-          ". %d more not opened: %s. Reach one with :CodeDiff --repo <path>",
-          #remainder,
-          table.concat(names, ", ")
-        )
+--- What the open review covers: every group it was given, and which one is open.
+---
+--- Held so that stepping to another repository keeps the review's own scope. Without
+--- it, a step out of a scoped review and back would silently widen to the whole
+--- working diff, which is the same file set the review deliberately narrowed.
+---@type { groups: table[], root: string|nil, said: string|nil }
+local review_state = { groups = {}, root = nil, said = nil }
+
+--- Open a review over a set of repositories, most changed first.
+---
+--- The first is opened. The rest are named, with the count and the command that
+--- reaches one, because a review that silently covered two of seven repositories
+--- would read as a clean workspace.
+---
+--- `groups` is a list of `{ root, files, scoped }`, already sorted by the caller.
+local function open_review(groups, said)
+  local first = groups[1]
+  if first == nil then
+    return
+  end
+
+  review_state = { groups = groups, root = first.root, said = said }
+  fill_changed_list(groups, said)
+  require("harness.review_follow").attach()
+
+  if #groups > 1 then
+    local names = {}
+    for index = 2, #groups do
+      table.insert(names, string.format("%s (%d)", vim.fn.fnamemodify(groups[index].root, ":t"), #groups[index].files))
     end
+    said = said
+      .. string.format(
+        ". Open: %s. Also changed: %s. Step with ]q, or :CodeDiff --repo <path>",
+        vim.fn.fnamemodify(first.root, ":t"),
+        table.concat(names, ", ")
+      )
+  end
 
+  open_one(first, function()
     vim.notify(said, vim.log.levels.INFO)
-  end
+  end)
+end
 
-  --- Move to a tabpage that holds no codediff session.
-  ---
-  --- `:CodeDiff` is a toggle at its entry point: issued from a tab that already
-  --- holds a session it closes that session and opens nothing
-  --- (`codediff/commands.lua:930`). The attach leaves the cursor in the session's
-  --- own tab, so without this every second open shut the previous repository.
-  local function stand_clear()
-    local held = session_tabs()
-    for _, tab in ipairs(vim.api.nvim_list_tabpages()) do
-      if held[tab] == nil then
-        vim.api.nvim_set_current_tabpage(tab)
-        return
+--- Close the review: every codediff session, the follower, and the held scope.
+---
+--- Called before a session manager saves the layout, because a diff tab is a view
+--- rather than a layout worth restoring. Saved, it returns as an empty tab, and one
+--- accumulated per review: measured over five consecutive reviews of the same
+--- workspace, the tab count on start went 2, 3, 4, 5, 6.
+---
+--- Safe to call when nothing is open, which is what lets the caller be a blunt
+--- "before save" hook rather than something that has to know the review's state.
+function M.review_close()
+  close_sessions()
+  pcall(function()
+    require("harness.review_follow").detach()
+  end)
+  review_state = { groups = {}, root = nil, said = nil }
+end
+
+--- Whether a review is open, meaning a set of repositories is under review and one of
+--- them has a session.
+---
+--- Asked by `harness.review_follow` before it moves anything, so the follower needs no
+--- copy of this module's state.
+---@return boolean
+function M.review_is_open()
+  if review_state.root == nil then
+    return false
+  end
+  return next(session_tabs()) ~= nil
+end
+
+--- Move the review to another repository, in place of the open one.
+---
+--- `where` is a repository root or any path inside one. The review's own scope for
+--- that repository is reused when it has one, so stepping out of a scoped review and
+--- back does not widen it to the whole working diff.
+---
+--- Nothing is opened when the path belongs to no repository the current query found.
+--- That is a real answer: it means the review does not cover that file, and opening
+--- the whole diff of somewhere else would hide it.
+---@param where string
+function M.review_repo(where)
+  local gitrepo = require("utils.gitrepo")
+  local path = vim.fs.normalize(vim.fn.expand(where))
+
+  -- The innermost repository containing the path, not the first that does. A
+  -- workspace that is itself a repository contains every nested one, so a first match
+  -- resolves `ws/repoA/f.txt` to `ws` and the step goes nowhere.
+  local found = nil
+  for _, group in ipairs(review_state.groups) do
+    if path == group.root or path:sub(1, #group.root + 1) == group.root .. "/" then
+      if found == nil or #group.root > #found.root then
+        found = group
       end
     end
-    vim.cmd("tabnew")
   end
-
-  --- Open one repository, then the next only once this one has its session.
-  ---
-  --- Chained rather than looped. A loop issues every `:CodeDiff` before any session
-  --- exists, and codediff registers a session against whichever tabpage is current
-  --- when its own initialisation finishes, so a loop puts the repositories in tabs
-  --- in a scrambled order and points every attach at one tab.
-  local function open_next(index)
-    local group = opened[index]
-    if group == nil then
-      finish()
+  if found then
+    if found.root == review_state.root then
       return
     end
-
-    has_conflict(group.root, function(unmerged)
-      stand_clear()
-      local held = session_tabs()
-      local args = { "--repo", group.root }
-      -- A repository with an unmerged file opens side-by-side, against the inline
-      -- default. codediff sends a conflicted file to its three-pane merge view,
-      -- which needs both panes to already exist: `side_by_side.update` rebuilds a
-      -- pane that was closed but not an inline session's single one, so an inline
-      -- session showed one side of the conflict with no result pane and no accept
-      -- keymaps. `t` still toggles it back.
-      if unmerged then
-        table.insert(args, "--side-by-side")
-      end
-      if group.scoped and #group.files > 0 then
-        table.insert(args, "--")
-        for _, path in ipairs(group.files) do
-          -- Pathspecs are relative to the repository they are passed with, so the
-          -- absolute path is made relative here rather than at the call site.
-          local rest = path:sub(1, #group.root + 1) == group.root .. "/" and path:sub(#group.root + 2) or nil
-          if rest then
-            table.insert(args, rest)
-          end
-        end
-      end
-      -- Built as command arguments rather than as a string, so a path holding a space
-      -- or a bracket reaches codediff as one token without an escaping rule of its own.
-      if not pcall(vim.cmd, { cmd = "CodeDiff", args = args }) then
-        vim.notify("Harness: codediff could not open a diff for " .. group.root, vim.log.levels.ERROR)
-        return
-      end
-
-      await_session(group.root, held, function(tab)
-        if tab == nil then
-          missed = missed + 1
-          open_next(index + 1)
-          return
-        end
-        table.insert(tabs, tab)
-        await_render(tab, rendered, function()
-          open_next(index + 1)
-        end)
-      end)
+    review_state.root = found.root
+    open_one(found, function()
+      vim.notify("Harness: reviewing " .. vim.fn.fnamemodify(found.root, ":t"), vim.log.levels.INFO)
     end)
+    return
   end
 
-  open_next(1)
-end
-
---- Wait for a codediff session on `root` in a tabpage that `held` does not already
---- list, then call `resume(tab)`. `resume(nil)` if none appeared.
----
---- codediff initialises a session asynchronously, so it is waited for the way
---- review.nvim waits for its own. The session is identified by its repository and by
---- being new, not by the current tabpage: codediff moves the cursor on its own
---- schedule, so reading the current tabpage attached three of four repositories to
---- one tab.
----
---- The session is looked for rather than the next step being taken blind.
---- `_check_codediff_session` returns early when no session exists, so a pcall around
---- it reports success whether it attached or did nothing, and a retry loop written
---- that way never retries.
-await_session = function(root, held, resume)
-  local target = vim.fn.resolve(root)
-  local attempts = 0
-  local function poll()
-    attempts = attempts + 1
-    for tab, session_root in pairs(session_tabs()) do
-      if held[tab] == nil and vim.fn.resolve(session_root) == target then
-        resume(tab)
-        return
-      end
-    end
-    if attempts < 10 then
-      vim.defer_fn(poll, 100)
+  gitrepo.workspace_roots(function(roots)
+    local owner = gitrepo.owning_root(path, roots)
+    if not owner then
+      vim.notify("Harness: " .. path .. " is in no repository under the workspace", vim.log.levels.WARN)
       return
     end
-    resume(nil)
-  end
-  vim.defer_fn(poll, 50)
-end
-
---- Wait until `rendered[tab]` is set, then call `resume()`. Resumes anyway after two
---- seconds, keeping the tab.
----
---- The tab is kept on a timeout because a rendered diff is not what the caller needs
---- from this wait. It needs the repository's own late work to have happened while its
---- own tab was current, so that work cannot move the owner later. A diff that is
---- slower than two seconds is still a diff, and dropping it would turn a slow
---- repository into a missing one.
-await_render = function(tab, rendered, resume)
-  local attempts = 0
-  local function poll()
-    attempts = attempts + 1
-    if rendered[tab] or attempts >= 20 then
-      resume()
+    if owner == review_state.root then
       return
     end
-    vim.defer_fn(poll, 100)
-  end
-  poll()
-end
-
---- Attach review.nvim's comment layer to the codediff session in `tab`.
----
---- Only the tab the owner lands on is attached here. review.nvim attaches on
---- `TabEnter` itself (`review/init.lua:27`), so the other repositories get their
---- comment layer when they are visited, and attaching them up front only made its
---- deferred pane focus pull the cursor into the last one.
----
---- Without an attach the diff opens with no comment layer and looks like a plain
---- diff, which is the one outcome worth a warning: a review that cannot record
---- anything is not a review. The check is sound because the caller only reaches
---- here with a tabpage a session was already found in, so review.nvim's own
---- "no session, return early" path cannot be what succeeded.
----
---- This reaches two plugins' internals. It is the existing attach seam and there is
---- no upstream API to replace it with, so it is confined to this one function and
---- reported by the health check rather than spread across the call sites.
-attach_review = function(tab)
-  -- Set explicitly: review.nvim reads the current tabpage to decide what it is
-  -- attaching to.
-  vim.api.nvim_set_current_tabpage(tab)
-  if not pcall(function()
-    require("review")._check_codediff_session()
-  end) then
-    vim.notify("Harness: the diff opened, but review.nvim did not attach to it", vim.log.levels.WARN)
-  end
+    review_state.root = owner
+    open_one({ root = owner, files = {}, scoped = false }, function()
+      vim.notify("Harness: reviewing " .. vim.fn.fnamemodify(owner, ":t"), vim.log.levels.INFO)
+    end)
+  end)
 end
 
 --- Open a review of the workspace's changes, over every repository that has any.
