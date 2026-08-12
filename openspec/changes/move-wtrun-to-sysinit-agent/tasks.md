@@ -164,7 +164,27 @@
   generation, which lists only panes 0 and 1, so there was no live pane to report.
   The owner meets that line from the pane that holds the old record, which is what
   2.7 exercises.
-- [ ] 2.5 Adversarial review (`adversarial-review` skill): critics attempt to break the cutover against the proposal `Behavior` criteria; revise until the loop reaches a terminal state
+- [x] 2.5 Adversarial review (`adversarial-review` skill): critics attempt to break the cutover against the proposal `Behavior` criteria; revise until the loop reaches a terminal state
+
+  Terminal state: NOT_RUN. The deterministic half passed: `specutil check`,
+  `spec-preflight all`, `citelock verify`, `go test ./...`, `nix flake check`, and
+  the darwin build.
+
+  No critics were spawned, for two reasons the owner set. The owner halted the
+  phase-1 loop at round 4 with its critics still running, and this session forbids
+  spawning teammates unless the owner asks. Round 4's two critics have also never
+  reported, so a phase-2 round would start while a phase-1 round is unaccounted for.
+
+  What that leaves unreviewed, plainly: the reader cutover, the courtesy report, the
+  rename, and the deletion of the script have deterministic gates and named tests
+  behind them, and no independent adversary.
+
+  Three mutations were run rather than asserted, because round 3 proved a named test
+  can pass for an unrelated reason. Removing the liveness check reports a pane that
+  is gone; adopting the superseded record instead of splitting fails on three
+  separate assertions; and silencing the line loses the report. A fourth attempt was
+  invalid rather than a result: deleting the print left `note` unused, so the package
+  failed to build, and it was redone as `_ = note`.
 - [ ] 2.6 Apply: `git push`, then `nh darwin switch` from the `sysinit.laurel` checkout in a separate WezTerm pane, gated on `nix flake check` and `nh darwin build` exiting 0. Recovery is activating the previous system generation, not a revert, because a revert reaches this machine only through a full build run by the tool being replaced
 - [ ] 2.7 Confirm: the owner runs one real build through the new implementation and accepts the exit code, the log tail, and the directory it reported, with the one extra pane explained by the superseded-worker line rather than appearing unannounced
 - [x] 2.8 Decide: the owner decided on 2026-08-11 to keep `waiting` and design the clear, having been shown that its only producer is a harness run inside the worker, that such a run holds the shared worker while it waits, and that the bus's `exit` status leaves the user var stale. The three accepted costs are recorded in the design

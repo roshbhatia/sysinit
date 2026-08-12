@@ -1,9 +1,9 @@
 version: 2
 change: move-wtrun-to-sysinit-agent
 decision: approved
-note: 'Re-fingerprint of the owner''s instruction of 2026-08-11, verbatim: ''push, and implement and everything''. NOT a new approval: no task text changed, so the approved scope is intact; only evidence and checkbox state moved as 1.8, 2.1, 2.2, 2.3, 2.4, and 2.9 landed. 2.5 (the cutover''s adversarial review), 2.6 (the apply), and 2.7 (the owner''s confirm) are open, and the round-4 critics are still unreported.'
+note: 'Re-fingerprint of the owner''s instruction of 2026-08-11, verbatim: ''push, and implement and everything''. NOT a new approval: no task text changed, so the approved scope is intact; only evidence and checkbox state moved as 1.8, 2.1, 2.2, 2.3, 2.4, 2.5, and 2.9 landed. 2.5 is recorded NOT_RUN, not clean: no critics were spawned, because the owner halted the phase-1 loop at round 4 and this session forbids spawning teammates unasked. 2.6 (the apply) and 2.7 (the owner''s confirm) are open, and the round-4 critics have never reported.'
 change_hash: 2d11b29ee9f3a3c4
-base_commit: b8cc135201734e5d6f7ac1d84b5743b43910b359
+base_commit: 45e4fb1783810e207ec4248795e90e25ac21c61b
 items:
     2c340666383b73d7:
         hash: e694eb789bdadfcf
