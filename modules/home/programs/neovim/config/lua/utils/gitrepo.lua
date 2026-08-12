@@ -1,6 +1,22 @@
+-- Repository discovery for a workspace that may hold several of them.
+--
+-- Three sources answer the same question, in falling order of what they know:
+-- the `sysinit-agent workspace` subcommand, an `fd` scan, and `git` alone. None is
+-- required. This config is deployed where the binary predates the subcommand, and
+-- a review surface that fails there is the coupling this module exists to avoid.
+--
+-- The contract with every caller is a list of absolute paths and nothing richer.
 local M = {}
 
 local SCAN_DEPTH = 5
+
+-- Which source answered the last query, for the health report. A stall or a wrong
+-- answer is then readable rather than inferred.
+---@type { source: string, roots: string[], workspace: string|nil }
+local last = { source = "none", roots = {}, workspace = nil }
+
+---@type table<string, string[]>
+local cache = {}
 
 local function toplevel(dir)
   if not dir or dir == "" then
@@ -25,7 +41,31 @@ function M.cwd_root()
   return toplevel(vim.uv.cwd())
 end
 
+-- The subcommand, when this box has one new enough to carry it. `workspace roots`
+-- exits 2 on a usage error, which is how an older binary answers, so the exit code
+-- distinguishes "no repositories" from "does not know the question".
+local function agent_roots(dir, cb)
+  if vim.fn.executable("sysinit-agent") ~= 1 then
+    return cb(nil)
+  end
+  vim.system({ "sysinit-agent", "workspace", "roots", dir }, { text = true }, function(res)
+    if res.code ~= 0 then
+      return cb(nil)
+    end
+    local roots = {}
+    for line in (res.stdout or ""):gmatch("[^\n]+") do
+      roots[#roots + 1] = vim.fs.normalize(line)
+    end
+    cb(roots)
+  end)
+end
+
+-- The scan this module has always used. Kept as the fallback rather than deleted,
+-- because it needs nothing this repository builds.
 function M.scan(dir, cb)
+  if vim.fn.executable("fd") ~= 1 then
+    return cb(nil)
+  end
   vim.system(
     { "fd", "-H", "-I", "-t", "d", "-t", "f", "--max-depth", tostring(SCAN_DEPTH), "^[.]git$", dir },
     { text = true },
@@ -39,29 +79,200 @@ function M.scan(dir, cb)
         end
       end
       table.sort(roots)
-      vim.schedule(function()
-        cb(roots)
-      end)
+      cb(roots)
     end
   )
 end
 
--- Resolve one repo root for a command that needs one, preferring the repo the
--- current buffer lives in so a workspace holding several repos does not prompt.
-function M.resolve(cb)
-  local root = M.buffer_root() or M.cwd_root()
-  if root then
-    return cb(root)
+-- The workspace is the directory the roots are counted under. Neovim's cwd, except
+-- when it sits inside a seshy session, where the session directory is the unit:
+-- one session holds several checkouts and the editor is opened on the session.
+-- This mirrors `repo.Workspace` in `sysinit-agent` so both ends agree.
+function M.workspace()
+  local cwd = vim.fs.normalize(vim.uv.cwd() or ".")
+  local sessions = vim.fs.normalize(vim.env.HOME .. "/.local/state/seshy/sessions")
+  local rest = cwd:sub(1, #sessions + 1) == sessions .. "/" and cwd:sub(#sessions + 2) or nil
+  if rest then
+    return sessions .. "/" .. (rest:match("^([^/]+)") or rest)
+  end
+  return cwd
+end
+
+-- Every repository under the workspace, including one nested inside another.
+--
+-- Cached against the workspace directory, because `fd` over a twenty-repository
+-- tree is paid on every review open otherwise. `DirChanged` drops the cache below.
+function M.workspace_roots(cb)
+  local dir = M.workspace()
+  if cache[dir] then
+    -- The source is recorded without appending, because a label built by appending
+    -- to the previous one reads as "fd scan (cached) (cached)" by the third open.
+    last = { source = last.source, roots = cache[dir], workspace = dir, cached = true }
+    return cb(cache[dir])
   end
 
-  M.scan(vim.uv.cwd(), function(roots)
+  local function finish(source, roots)
+    roots = roots or {}
+    cache[dir] = roots
+    last = { source = source, roots = roots, workspace = dir }
+    vim.schedule(function()
+      cb(roots)
+    end)
+  end
+
+  agent_roots(dir, function(roots)
+    if roots then
+      return finish("sysinit-agent workspace", roots)
+    end
+    M.scan(dir, function(scanned)
+      if scanned then
+        return finish("fd scan", scanned)
+      end
+      -- Last resort: git knows one repository, which is better than none and is
+      -- the answer a single-repository checkout wanted anyway.
+      local root = M.cwd_root()
+      finish("git rev-parse", root and { root } or {})
+    end)
+  end)
+end
+
+-- The repositories under the workspace that have something to review, each with
+-- its changed files. A clean repository is absent rather than listed as empty.
+--
+-- Falls back to `git status` per root when the subcommand is missing, which is the
+-- same question asked the same way, one process per repository instead of one.
+--
+-- Calls `cb(groups, roots)`. The root set is passed on because an empty `groups`
+-- means two different things: a workspace with no repository in it, and a workspace
+-- whose repositories are all clean. A caller that cannot tell them apart reports
+-- the wrong one.
+function M.workspace_changes(cb)
+  M.workspace_roots(function(roots)
     if #roots == 0 then
-      vim.notify("No git repository under " .. vim.fn.fnamemodify(vim.uv.cwd(), ":~"), vim.log.levels.WARN)
+      return cb({}, roots)
+    end
+
+    local function group_by_root(files)
+      local groups, index = {}, {}
+      for _, path in ipairs(files) do
+        local owner = M.owning_root(path, roots)
+        if owner then
+          if not index[owner] then
+            index[owner] = { root = owner, files = {} }
+            groups[#groups + 1] = index[owner]
+          end
+          table.insert(index[owner].files, path)
+        end
+      end
+      table.sort(groups, function(a, b)
+        if #a.files ~= #b.files then
+          return #a.files > #b.files
+        end
+        return a.root < b.root
+      end)
+      return groups
+    end
+
+    if vim.fn.executable("sysinit-agent") == 1 then
+      vim.system({ "sysinit-agent", "workspace", "changes", M.workspace() }, { text = true }, function(res)
+        if res.code == 0 then
+          local files = {}
+          for line in (res.stdout or ""):gmatch("[^\n]+") do
+            files[#files + 1] = vim.fs.normalize(line)
+          end
+          return vim.schedule(function()
+            cb(group_by_root(files), roots)
+          end)
+        end
+        M._changes_via_git(roots, cb)
+      end)
+      return
+    end
+
+    M._changes_via_git(roots, cb)
+  end)
+end
+
+-- The fallback for `workspace_changes`. Named rather than inlined so the health
+-- report can say which path ran.
+function M._changes_via_git(roots, cb)
+  local groups, pending = {}, #roots
+  for i, root in ipairs(roots) do
+    vim.system({ "git", "-C", root, "status", "--porcelain", "--untracked-files=all" }, { text = true }, function(res)
+      local files = {}
+      if res.code == 0 then
+        for line in (res.stdout or ""):gmatch("[^\n]+") do
+          local rel = line:sub(4)
+          local path = vim.fs.normalize(root .. "/" .. rel)
+          -- A nested repository answers for itself, so its paths are dropped
+          -- from the parent here the way the subcommand drops them by pathspec.
+          if M.owning_root(path, roots) == root then
+            files[#files + 1] = path
+          end
+        end
+      end
+      if #files > 0 then
+        groups[i] = { root = root, files = files }
+      end
+      pending = pending - 1
+      if pending == 0 then
+        -- Indexed by root position, so a clean repository leaves a hole and
+        -- `ipairs` would stop at the first one. Walked by index instead.
+        local kept = {}
+        for index = 1, #roots do
+          if groups[index] then
+            kept[#kept + 1] = groups[index]
+          end
+        end
+        table.sort(kept, function(a, b)
+          if #a.files ~= #b.files then
+            return #a.files > #b.files
+          end
+          return a.root < b.root
+        end)
+        vim.schedule(function()
+          cb(kept, roots)
+        end)
+      end
+    end)
+  end
+end
+
+-- The repository a path belongs to: the longest root that prefixes it, which is
+-- what makes a nested repository win over the parent it sits in.
+function M.owning_root(path, roots)
+  local best = nil
+  for _, root in ipairs(roots) do
+    if path == root or path:sub(1, #root + 1) == root .. "/" then
+      if not best or #root > #best then
+        best = root
+      end
+    end
+  end
+  return best
+end
+
+-- Resolve one repo root for a command that needs one, preferring the repo the
+-- current buffer lives in so a workspace holding several repos does not prompt.
+--
+-- The buffer's repository is preferred over the workspace's own root even when the
+-- workspace is a repository, because a nested checkout is what the buffer means.
+function M.resolve(cb)
+  M.workspace_roots(function(roots)
+    if #roots == 0 then
+      vim.notify("No git repository under " .. vim.fn.fnamemodify(M.workspace(), ":~"), vim.log.levels.WARN)
       return
     end
     if #roots == 1 then
       return cb(roots[1])
     end
+
+    local buffer = M.buffer_root()
+    if buffer then
+      local owner = M.owning_root(buffer, roots) or buffer
+      return cb(owner)
+    end
+
     vim.ui.select(roots, {
       prompt = "Select git repo",
       format_item = function(r)
@@ -74,5 +285,23 @@ function M.resolve(cb)
     end)
   end)
 end
+
+-- What answered last, for `:checkhealth`.
+function M.status()
+  return {
+    source = last.source,
+    workspace = last.workspace or M.workspace(),
+    roots = last.roots,
+    agent = vim.fn.executable("sysinit-agent") == 1,
+    fd = vim.fn.executable("fd") == 1,
+  }
+end
+
+vim.api.nvim_create_autocmd("DirChanged", {
+  group = vim.api.nvim_create_augroup("gitrepo_cache", { clear = true }),
+  callback = function()
+    cache = {}
+  end,
+})
 
 return M
