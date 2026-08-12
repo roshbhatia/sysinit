@@ -843,27 +843,44 @@ func TestTheReuseRaceHandsTheNameToOneCaller(t *testing.T) {
 	state(t)
 	ws := workspaceIn(t, t.TempDir())
 
-	const rounds = 200
+	// The window is between the exclusive create failing and the replacement being
+	// made, so the callers have to arrive inside it. A plain `go` for each is not
+	// enough: without the barrier this test passed against the very mutation it
+	// exists to catch, over three runs.
+	const rounds = 2000
+	const callers = 4
 	for round := range rounds {
 		os.WriteFile(ws.logFile("build"), []byte("a finished run\n"), 0o600)
 		os.WriteFile(ws.rcFile("build"), []byte("0\n"), 0o600)
 
-		var wait sync.WaitGroup
-		won := make([]bool, 2)
+		release := make(chan struct{})
+		var ready, done sync.WaitGroup
+		won := make([]bool, callers)
 		for i := range won {
-			wait.Add(1)
+			ready.Add(1)
+			done.Add(1)
 			go func() {
-				defer wait.Done()
-				won[i] = ws.claimExact("build", true) == nil
+				defer done.Done()
+				ready.Done()
+				<-release
+				// `claim`, not `claimExact`: the exclusion lives in `claim`, so a test
+				// that calls the inner function proves nothing about the real path.
+				name, err := ws.claim("build")
+				won[i] = err == nil && name == "build"
 			}()
 		}
-		wait.Wait()
+		ready.Wait()
+		close(release)
+		done.Wait()
 
-		if won[0] && won[1] {
-			t.Fatalf("round %d: both callers held the name build", round)
+		holders := 0
+		for _, w := range won {
+			if w {
+				holders++
+			}
 		}
-		if !won[0] && !won[1] {
-			t.Fatalf("round %d: neither caller got the name", round)
+		if holders != 1 {
+			t.Fatalf("round %d: %d of %d callers held the name build, want exactly 1", round, holders, callers)
 		}
 		os.Remove(ws.logFile("build"))
 		os.Remove(ws.rcFile("build"))

@@ -24,6 +24,7 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
+	"syscall"
 	"time"
 
 	"github.com/roshbhatia/sysinit/pkgs/sysinit-agent/internal/agentstate"
@@ -229,6 +230,7 @@ func (w *workspace) paneFile() string    { return filepath.Join(w.dir, "worker-p
 func (w *workspace) muxFile() string     { return filepath.Join(w.dir, "worker-mux") }
 func (w *workspace) runningFile() string { return filepath.Join(w.dir, "worker-running") }
 func (w *workspace) counterFile() string { return filepath.Join(w.dir, "worker-runs") }
+func (w *workspace) lockFile() string    { return filepath.Join(w.dir, "worker-lock") }
 
 func (w *workspace) logFile(name string) string  { return filepath.Join(w.dir, name+".log") }
 func (w *workspace) rcFile(name string) string   { return filepath.Join(w.dir, name+".rc") }
@@ -397,20 +399,53 @@ func (w *workspace) recordedID() string {
 // it, because the counter is not a reliable high-water mark: it lives in the same
 // directory as the runs, so a removed or truncated counter file restarts numbering
 // at 1 and would silently take run1's log with it.
+//
+// The whole allocation runs under a lock on the record. Reclaiming a finished run's
+// name means removing a token another caller may be creating, and no ordering of
+// remove and exclusive-create fixes that. Two attempts failed here, and the test
+// caught both rather than the reasoning: remove-then-create let the second caller
+// delete the log the first had just created, and rename-then-create let the second
+// caller's rename succeed against that same fresh log.
 func (w *workspace) claim(requested string) (string, error) {
-	if requested != "" {
-		if err := validRunName(requested); err != nil {
-			return "", err
+	var name string
+	err := w.underLock(func() error {
+		if requested != "" {
+			if err := validRunName(requested); err != nil {
+				return err
+			}
+			name = requested
+			return w.claimExact(requested, true)
 		}
-		return requested, w.claimExact(requested, true)
-	}
-	for attempt := 0; attempt < 1000; attempt++ {
-		name := "run" + strconv.Itoa(w.bumpCounter())
-		if err := w.claimExact(name, false); err == nil {
-			return name, nil
+		for attempt := 0; attempt < 1000; attempt++ {
+			candidate := "run" + strconv.Itoa(w.bumpCounter())
+			if err := w.claimExact(candidate, false); err == nil {
+				name = candidate
+				return nil
+			}
 		}
+		return errors.New("could not allocate a run name")
+	})
+	return name, err
+}
+
+// underLock runs fn holding an exclusive advisory lock on the record.
+//
+// The lock is per record, so two workspaces never wait on each other, and it is
+// held only for the allocation, never across a mux call or a wait. `flock` is
+// advisory and per open file description, so it serializes goroutines in one
+// process and processes in one workspace alike, which is what two panes sharing a
+// key needs.
+func (w *workspace) underLock(fn func() error) error {
+	handle, err := os.OpenFile(w.lockFile(), os.O_CREATE|os.O_RDWR, 0o600)
+	if err != nil {
+		return err
 	}
-	return "", errors.New("could not allocate a run name")
+	defer handle.Close()
+	if err := syscall.Flock(int(handle.Fd()), syscall.LOCK_EX); err != nil {
+		return fmt.Errorf("could not lock %s: %w", w.lockFile(), err)
+	}
+	defer syscall.Flock(int(handle.Fd()), syscall.LOCK_UN)
+	return fn()
 }
 
 // claimExact creates name's log exclusively, so the winner of a race is decided
@@ -435,17 +470,11 @@ func (w *workspace) claimExact(name string, reuse bool) error {
 	if !reuse {
 		return fmt.Errorf("the name %s is taken by a finished run", name)
 	}
-	// Take the right to reuse by MOVING the old log aside, which only one caller can
-	// do: after the rename the source is gone, so a second caller's rename fails and
-	// it loops back to the exclusive create, finds this caller's fresh log, and is
-	// refused as in flight. Removing the log first and creating second let both
-	// callers through, because the second removed the log the first had just created.
-	moved := w.logFile(name) + ".superseded"
-	if err := os.Rename(w.logFile(name), moved); err != nil {
-		return fmt.Errorf("another caller took the name %s", name)
-	}
+	// Safe to remove and then create, because `claim` holds the record's lock. The
+	// exclusive create stays as the inner check: it costs nothing, and it means a
+	// caller reaching here without the lock still cannot silently double-claim.
 	os.Remove(w.rcFile(name))
-	os.Remove(moved)
+	os.Remove(w.logFile(name))
 	created, err = os.OpenFile(w.logFile(name), os.O_CREATE|os.O_EXCL|os.O_WRONLY, 0o600)
 	if err != nil {
 		return fmt.Errorf("another caller took the name %s", name)
