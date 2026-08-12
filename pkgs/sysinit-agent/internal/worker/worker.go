@@ -354,16 +354,21 @@ func (w *workspace) recordedID() string {
 
 // claim reserves a run name and creates its log in one step. An empty requested
 // name allocates run1, run2, and so on.
+//
+// Only an explicit name reuses a finished run's name. An allocated one moves past
+// it, because the counter is not a reliable high-water mark: it lives in the same
+// directory as the runs, so a removed or truncated counter file restarts numbering
+// at 1 and would silently take run1's log with it.
 func (w *workspace) claim(requested string) (string, error) {
 	if requested != "" {
 		if err := validRunName(requested); err != nil {
 			return "", err
 		}
-		return requested, w.claimExact(requested)
+		return requested, w.claimExact(requested, true)
 	}
 	for attempt := 0; attempt < 1000; attempt++ {
 		name := "run" + strconv.Itoa(w.bumpCounter())
-		if err := w.claimExact(name); err == nil {
+		if err := w.claimExact(name, false); err == nil {
 			return name, nil
 		}
 	}
@@ -371,8 +376,9 @@ func (w *workspace) claim(requested string) (string, error) {
 }
 
 // claimExact creates name's log exclusively, so the winner of a race is decided
-// by the filesystem rather than by ordering.
-func (w *workspace) claimExact(name string) error {
+// by the filesystem rather than by ordering. reuse allows a finished run's name to
+// be taken over, which discards that run's log.
+func (w *workspace) claimExact(name string, reuse bool) error {
 	created, err := os.OpenFile(w.logFile(name), os.O_CREATE|os.O_EXCL|os.O_WRONLY, 0o600)
 	if err == nil {
 		created.Close()
@@ -387,6 +393,9 @@ func (w *workspace) claimExact(name string) error {
 		return fmt.Errorf(
 			"a run named %s has recorded no exit code; wait for %s, or free the name with --release %s",
 			name, w.rcFile(name), name)
+	}
+	if !reuse {
+		return fmt.Errorf("the name %s is taken by a finished run", name)
 	}
 	os.Remove(w.rcFile(name))
 	os.Remove(w.logFile(name))

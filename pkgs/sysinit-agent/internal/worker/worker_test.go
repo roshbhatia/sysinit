@@ -494,11 +494,11 @@ func TestANameInFlightIsRefusedAndReleasableAlone(t *testing.T) {
 	if ws.inFlight("never-ran") {
 		t.Error("a name with no log read as in flight")
 	}
-	if err := ws.claimExact("build"); err == nil {
+	if err := ws.claimExact("build", true); err == nil {
 		t.Error("a name in flight was claimed")
 	}
-	if err := ws.claimExact("other"); err != nil {
-		t.Errorf("a finished name was not reusable: %v", err)
+	if err := ws.claimExact("other", true); err != nil {
+		t.Errorf("an explicit -n could not reuse a finished name: %v", err)
 	}
 
 	if code := ws.release("7", "build"); code != 0 {
@@ -620,6 +620,36 @@ func TestConcurrentCallersNeverShareARunName(t *testing.T) {
 	}
 	if len(seen) != callers {
 		t.Errorf("got %d distinct names for %d callers", len(seen), callers)
+	}
+}
+
+// An allocated name never takes over a finished run's log. The counter lives in
+// the same directory as the runs it numbers, so a counter file that is removed or
+// truncated restarts at 1, and reuse there would delete run1's log silently.
+func TestAnAllocatedNameNeverTakesAFinishedRunsLog(t *testing.T) {
+	state(t)
+	ws := workspaceIn(t, t.TempDir())
+
+	os.WriteFile(ws.logFile("run1"), []byte("run1's output\n"), 0o600)
+	os.WriteFile(ws.rcFile("run1"), []byte("0\n"), 0o600)
+	// The counter is behind the runs on disk, as it is after a partial prune.
+	os.WriteFile(ws.counterFile(), []byte("0\n"), 0o600)
+
+	name, err := ws.claim("")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if name == "run1" {
+		t.Error("an allocated name took over a finished run's name")
+	}
+	body, err := os.ReadFile(ws.logFile("run1"))
+	if err != nil || !strings.Contains(string(body), "run1's output") {
+		t.Errorf("run1's log = %q, %v; want it untouched", body, err)
+	}
+
+	// An explicit -n still reuses it, which is what the superseded script did.
+	if got, err := ws.claim("run1"); err != nil || got != "run1" {
+		t.Errorf("explicit -n run1 = %q, %v; want it reusable", got, err)
 	}
 }
 
