@@ -9,6 +9,85 @@ local ui_sessions = require("sysinit.pkg.ui.sessions")
 
 local M = {}
 
+--- What `^x` does to a row, decided from the pane list alone.
+---
+--- Separated from the killing because this is the part with the edge cases and the part
+--- worth testing: which panes go, whether the window has to move first, whether one pane
+--- has to stay, and whether the selector may reopen afterwards. It runs no process and
+--- touches no window, so a test can hand it a pane list and read the plan.
+---
+--- `opts` is `{ panes, match, label, here, self_pane_id, fallback, target_workspace }`.
+--- `panes` is the shape `wezterm cli list --format=json` returns, `match` says which of
+--- them the row names, `here` is the workspace the selector was opened from, `fallback` is
+--- the session to move to when the close would empty the current one, and
+--- `target_workspace` is set only when the row names a whole session.
+---
+--- Returns `{ targets, label, verb, switch_to, reopen, refusal }`. A plan with a `refusal`
+--- has no targets and is reported to the owner as it stands.
+---@param opts table
+---@return table
+function M.close_plan(opts)
+  local targets, self_targeted, here_panes, here_targets = {}, false, 0, 0
+  for _, p in ipairs(opts.panes or {}) do
+    local hit = opts.match(p) and true or false
+    if opts.here ~= nil and p.workspace == opts.here then
+      here_panes = here_panes + 1
+      if hit then
+        here_targets = here_targets + 1
+      end
+    end
+    if hit then
+      if p.pane_id == opts.self_pane_id then
+        self_targeted = true
+      end
+      targets[#targets + 1] = p.pane_id
+    end
+  end
+  if #targets == 0 then
+    return { targets = {}, label = opts.label, refusal = "nothing open in " .. opts.label }
+  end
+
+  -- Emptying the workspace the owner is in leaves the window with nothing to show, so the
+  -- window moves to the fallback session first.
+  --
+  -- The fallback session is never closed, only reset: one pane stays. It is where every
+  -- other close falls back to, so closing it outright is the one close that can leave a
+  -- window with nowhere to go. The pane kept is the selector's own when the selector is
+  -- running in it, and the first one otherwise. This is keyed on the row rather than on
+  -- where the owner is sitting, because `^x` on the fallback row means the same thing from
+  -- anywhere.
+  local empties_here = opts.here ~= nil and here_targets > 0 and here_targets == here_panes
+  local resetting = opts.target_workspace ~= nil and opts.target_workspace == opts.fallback
+  if resetting then
+    local keep = self_targeted and opts.self_pane_id or targets[1]
+    local kept = {}
+    for _, pane_id in ipairs(targets) do
+      if pane_id ~= keep then
+        kept[#kept + 1] = pane_id
+      end
+    end
+    if #kept == 0 then
+      return { targets = {}, label = opts.fallback, refusal = opts.fallback .. " is already one pane" }
+    end
+    return {
+      targets = kept,
+      label = opts.fallback,
+      verb = "reset",
+      reopen = true,
+    }
+  end
+
+  return {
+    targets = targets,
+    label = opts.label,
+    verb = "closed",
+    switch_to = empties_here and opts.fallback or nil,
+    -- The selector cannot reopen against a pane that is gone, and after a move it would
+    -- reopen over the session the owner has just landed in.
+    reopen = not self_targeted and not empties_here,
+  }
+end
+
 function M.setup(config, wm, ctx)
   wm.get_choices = function()
     local sessions, panes = ctx.sessions()
@@ -393,10 +472,20 @@ function M.setup(config, wm, ctx)
   -- to, and `^x` on any row of the session you were sitting in refused outright. The kind
   -- prefix in the row id is what says which level the cursor is on, so read it the way
   -- session_tree_dispatch does and close exactly that.
-  local function close_session_target(pane, id, by_id)
+  --
+  -- Nothing refuses now, including the pane the selector runs in. Refusing was the wrong
+  -- answer to a real problem: closing every pane of the current workspace leaves the
+  -- window with nothing to show, and killing the selector's own pane leaves the reopen
+  -- below running against a dead pane. So the close answers both first. It moves the
+  -- window to `default` when the close would empty the current workspace, it keeps one
+  -- pane when the workspace being emptied is `default` itself, since that is the session
+  -- there is nowhere to fall back from, and it reports whether the selector may reopen.
+  --
+  -- Returns `notice, reopen`.
+  local function close_session_target(win, pane, id, by_id)
     local rec = by_id[id]
     if type(rec) ~= "table" then
-      return "nothing to close"
+      return "nothing to close", true
     end
     local kind = id:match("^([^:]+):")
     local match, label
@@ -409,7 +498,7 @@ function M.setup(config, wm, ctx)
     elseif kind == "tab" then
       local tab_id = tonumber(id:match("^tab:(.+)$"))
       if not tab_id then
-        return "not a closable row"
+        return "not a closable row", true
       end
       match = function(p)
         return p.tab_id == tab_id
@@ -422,48 +511,56 @@ function M.setup(config, wm, ctx)
       end
       label = "pane " .. ui_badges.name(pane_id)
     else
-      return "not a closable row"
+      return "not a closable row", true
     end
 
-    -- The pane running the selector is off limits at every level. Killing it takes the
-    -- selector with it, and the reopen that follows this call then runs against a dead
-    -- pane. Refusing names the reason instead of half-closing and erroring.
     local self_pane_id
     pcall(function()
       self_pane_id = pane:pane_id()
+    end)
+    local here
+    pcall(function()
+      here = win:active_workspace()
     end)
 
     local wezterm_bin = (wezterm.executable_dir or "") .. "/wezterm"
     local ok, stdout = wezterm.run_child_process({ wezterm_bin, "cli", "list", "--format=json" })
     if not ok then
       wezterm.log_error("wezterm cli list failed; " .. label .. " left open")
-      return "close failed: " .. label
+      return "close failed: " .. label, true
     end
-    local targets = {}
-    for _, p in ipairs(wezterm.json_parse(stdout) or {}) do
-      if match(p) then
-        if p.pane_id == self_pane_id then
-          return "cannot close " .. label .. " from inside it"
-        end
-        targets[#targets + 1] = p.pane_id
-      end
+
+    local plan = M.close_plan({
+      panes = wezterm.json_parse(stdout) or {},
+      match = match,
+      label = label,
+      here = here,
+      self_pane_id = self_pane_id,
+      fallback = "default",
+      target_workspace = kind == "ws" and rec.workspace or nil,
+    })
+    if plan.refusal then
+      return plan.refusal, true
     end
-    if #targets == 0 then
-      return "nothing open in " .. label
+    -- Moved before the kill, not after: a window whose every pane is about to go has to be
+    -- showing something else first, or wezterm closes it.
+    if plan.switch_to then
+      ui_actions.switch_to_workspace(win, pane, plan.switch_to)
     end
+
     local killed = 0
-    for _, pane_id in ipairs(targets) do
+    for _, pane_id in ipairs(plan.targets) do
       if wezterm.run_child_process({ wezterm_bin, "cli", "kill-pane", "--pane-id=" .. tostring(pane_id) }) then
         killed = killed + 1
       end
     end
     if killed == 0 then
-      return "close failed: " .. label
+      return "close failed: " .. plan.label, plan.reopen
     end
-    if killed == #targets then
-      return string.format("closed %s (%d pane%s)", label, killed, killed == 1 and "" or "s")
+    if killed == #plan.targets then
+      return string.format("%s %s (%d pane%s)", plan.verb, plan.label, killed, killed == 1 and "" or "s"), plan.reopen
     end
-    return string.format("closed %d of %d panes in %s", killed, #targets, label)
+    return string.format("%s %d of %d panes in %s", plan.verb, killed, #plan.targets, plan.label), plan.reopen
   end
 
   local function open_session_tree(win, pane, filter, notice)
@@ -511,10 +608,12 @@ function M.setup(config, wm, ctx)
           local pf = tree_state.pending_filter
           tree_state.pending_filter = nil
           if pa == "delete" and id then
-            local close_notice = close_session_target(inner_pane, id, by_id)
-            wezterm.time.call_after(0.15, function()
-              open_session_tree(inner_win, inner_pane, tree_state.current_filter, close_notice)
-            end)
+            local close_notice, reopen = close_session_target(inner_win, inner_pane, id, by_id)
+            if reopen then
+              wezterm.time.call_after(0.15, function()
+                open_session_tree(inner_win, inner_pane, tree_state.current_filter, close_notice)
+              end)
+            end
             return
           end
           if pf then
@@ -536,6 +635,9 @@ function M.setup(config, wm, ctx)
   wm.workspace_switcher_sort = "recency"
 
   wm.apply_to_config(config)
+  -- The plugin's own user-facing bindings are removed and re-stated below, so this file
+  -- says what every key does rather than inheriting it. The switcher key tables it also
+  -- installs are kept: they drive the plugin's own UI.
   local wm_injected_keys = {
     { key = "s", mods = "LEADER" },
     { key = "S", mods = "LEADER" },
@@ -565,6 +667,35 @@ function M.setup(config, wm, ctx)
       open_session_tree(win, pane)
     end),
   })
+
+  -- `^[` and `^]` step back and forward through the sessions, in the plugin's own cycle
+  -- order, which is the same order the switcher lists and which saves the workspace it
+  -- leaves. Both were stripped for a real cost: `^[` is how a terminal sends ESC, so a
+  -- pane never sees that keypress again. Locked mode is the way back to it, and is why
+  -- these are callbacks rather than the plugin's actions bound directly.
+  for _, cycle in ipairs({
+    { key = "]", step = wm.next_workspace },
+    { key = "[", step = wm.previous_workspace },
+  }) do
+    -- Built once, not per keypress: each call registers an event handler, so building it
+    -- inside the callback would add one every time the key is pressed.
+    local step = type(cycle.step) == "function" and cycle.step() or nil
+    if step then
+      table.insert(config.keys, {
+        key = cycle.key,
+        mods = "CTRL",
+        action = wezterm.action_callback(function(win, pane)
+          if keybindings.locked_mode then
+            win:perform_action({ SendKey = { key = cycle.key, mods = "CTRL" } }, pane)
+            return
+          end
+          win:perform_action(step, pane)
+        end),
+      })
+    else
+      wezterm.log_warn("workspace-manager has no " .. cycle.key .. " cycle action; CTRL-" .. cycle.key .. " unbound")
+    end
+  end
 
   wezterm.on("augment-command-palette", function(_window, _pane)
     return {
