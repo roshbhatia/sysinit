@@ -30,11 +30,22 @@ local function is_loc_win()
   return wininfo and wininfo.loclist == 1
 end
 
+-- A list with entries is steppable whether or not a window shows it. Requiring the
+-- window made these keys depend on screen space: a diff review fills the quickfix
+-- list, `copen` failed with `E36: Not enough room` in a short terminal, and `]q` then
+-- refused to move through a list that was right there. `:cnext` never needed the
+-- window, so neither does this.
+local function has_qf_entries()
+  return vim.fn.getqflist({ size = 0 }).size > 0
+end
+
 local function next_item()
   if is_qf_win() or (get_qf_winid() and not get_loc_winid()) then
     vim.cmd.cnext()
   elseif is_loc_win() or get_loc_winid() then
     vim.cmd.lnext()
+  elseif has_qf_entries() then
+    vim.cmd.cnext()
   else
     vim.notify("No quickfix or location list open", vim.log.levels.INFO)
   end
@@ -45,6 +56,8 @@ local function prev_item()
     vim.cmd.cprev()
   elseif is_loc_win() or get_loc_winid() then
     vim.cmd.lprev()
+  elseif has_qf_entries() then
+    vim.cmd.cprev()
   else
     vim.notify("No quickfix or location list open", vim.log.levels.INFO)
   end
@@ -55,6 +68,8 @@ local function first_item()
     vim.cmd.cfirst()
   elseif is_loc_win() or get_loc_winid() then
     vim.cmd.lfirst()
+  elseif has_qf_entries() then
+    vim.cmd.cfirst()
   else
     vim.notify("No quickfix or location list open", vim.log.levels.INFO)
   end
@@ -65,6 +80,8 @@ local function last_item()
     vim.cmd.clast()
   elseif is_loc_win() or get_loc_winid() then
     vim.cmd.llast()
+  elseif has_qf_entries() then
+    vim.cmd.clast()
   else
     vim.notify("No quickfix or location list open", vim.log.levels.INFO)
   end
