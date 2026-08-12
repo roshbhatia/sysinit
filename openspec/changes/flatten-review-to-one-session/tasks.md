@@ -179,9 +179,9 @@
       ENTRY3 [repoB] repoB/f.txt
       ```
 
-      `]q`, `[q`, and `<leader>dq` are declared on the harness plugin, which is not
-      lazy. Nothing in this config mapped them before, so the message that says to step
-      with `]q` was not true until they existed.
+      This phase also declared `]q`, `[q`, and `<leader>dq` on the harness plugin,
+      which was wrong and 4.1 removed: `after/plugin/lists.lua` had mapped the generic
+      versions since 2026-08-09.
 
 - [x] 3.2 Swap the session when the current quickfix entry belongs to a repository other than the open one `deps:` 3.1 `writes:` modules/home/programs/neovim/config/lua/harness/
 
@@ -219,6 +219,48 @@
 
 - **SHAPE** sequence
 
-- [ ] 4.1 Apply: `git push`, then `nh darwin switch` from the `sysinit.laurel` checkout in its own pane, gated on the checks in `design.md` `deps:` 1.5, 2.5, 3.4 `writes:` none
+- [x] 4.1 Apply: `git push`, then `nh darwin switch` from the `sysinit.laurel` checkout in its own pane, gated on the checks in `design.md` `deps:` 1.5, 2.5, 3.4 `writes:` none
+
+      `nix build .#darwinConfigurations.lv426.system` exit 0, then eleven commits
+      pushed as `b66cdc326..e0ce7bb6a`, then `sysinit.laurel`'s lock moved
+      `21a2cf8` to `e0ce7bb` and `nh darwin switch .` exit 0, `DIFF +1.06 KiB`.
+
+      Two runs failed before that, neither on this change. GitHub's codeload returned
+      503 for the tarball, so the lock never moved and the switch rebuilt the old
+      revision. Then the Homebrew step aborted: `block-goose` could not upgrade because
+      its `/Applications/Goose.app` had been deleted outside Nix. The cask is now
+      removed from `modules/darwin/homebrew.nix` at the owner's direction, which is the
+      declaration matching the machine rather than the reverse.
+
+      Proven on the installed binary rather than a build output, since the point of
+      applying is that the boundary now travels with it:
+
+      | `$SYSINIT_WORKSPACE` | cwd | `workspace=` | roots |
+      | --- | --- | --- | --- |
+      | `personal/roshbhatia` | `sysinit/modules` | `personal/roshbhatia` | 46 |
+      | `~/Downloads` | `sysinit/modules` | `sysinit` | 1 |
+      | unset | `sysinit/modules` | `sysinit` | 1 |
+
+      The middle row is the containment rule refusing a declaration that does not
+      contain the cwd, on the shipped binary.
+
+      One defect surfaced only here, from reading the live keymap table rather than the
+      diff: `after/plugin/lists.lua` has mapped `]q`, `[q`, `]Q`, `[Q`, and
+      `<leader>eq` since 2026-08-09, loclist-aware, and `after/plugin` loads after a
+      lazy plugin's keys. So 3.1's three keymaps were redundant, two of them shadowed
+      and dead. Worse, the generic `]q` steps a list only while its window is open and
+      otherwise notifies `No quickfix or location list open`, so the review's own
+      message named a step that did nothing. Fixed by deleting the three and opening
+      the list from the review, focus returned to the diff:
+
+      ```
+      SPAN  qfwin=true  qf=165 wins=7 tabs=2 focus=file   ]q: idx 1 -> 2, no notify
+      SOLO  qfwin=false qf=2   wins=6 tabs=2
+      CLOSE qfwin=false qf_entries=165   (the window goes, the entries stay)
+      ```
+
+      One repository keeps no list window, because codediff's explorer is already that
+      index. 3.1's claim that nothing else mapped `]q` was wrong, and only the applied
+      config could say so.
 
 - [ ] 4.2 Confirm: the owner runs each entry point on real work and accepts the one-session reading, or names what it costs them `deps:` 4.1 `writes:` none
