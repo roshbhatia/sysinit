@@ -224,6 +224,11 @@ in
       # to pi's `PI_SKIP_VERSION_CHECK`, so atomic's startup behaviour would
       # depend on a variable the pi module owns.
       ATOMIC_SKIP_VERSION_CHECK = "1";
+
+      # Both names above are declared here and defaulted again in the wrapper in
+      # `overlays/atomic-coding-agent.nix`, which also unsets the twelve `PI_*`
+      # aliases atomic honours. This block is the declaration a reader looks for;
+      # the wrapper is the floor a shell opened before a switch still gets.
     };
   };
 }

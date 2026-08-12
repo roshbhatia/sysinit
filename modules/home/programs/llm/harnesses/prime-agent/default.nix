@@ -208,7 +208,10 @@ in
 
       # No PRIME_AGENT_SKIP_VERSION_CHECK is set here because prime-agent does
       # not derive that one from its app name: the fork still reads the literal
-      # `PI_SKIP_VERSION_CHECK`, which the pi harness already sets.
+      # `PI_SKIP_VERSION_CHECK`. That name is set in `overlays/prime-agent.nix`,
+      # in the wrapper, rather than borrowed from the pi harness's session
+      # variable. The wrapper also carries this directory as a default, so a
+      # shell open across a switch cannot start prime-agent without it.
     };
   };
 }

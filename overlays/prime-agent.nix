@@ -95,6 +95,15 @@ in
       # needs the network once. Nix does not manage it: it holds ipykernel, a
       # version-matched `prime-agent-runtime`, and whatever python packages a
       # session installs, so it is session state like `auth.json`, not config.
+      #
+      # The last two lines are the isolation from the other two pi-lineage
+      # agents. Unlike atomic, prime-agent publishes no prefixed alias for
+      # `PI_SKIP_VERSION_CHECK`: the fork reads that literal name, so unsetting
+      # the pi spelling would take a knob away rather than separate anything.
+      # Setting it here instead ends the cross-module dependency, where
+      # prime-agent's startup behaviour came from a session variable the pi module
+      # owns and could change without prime-agent noticing. `:-` leaves both an
+      # owner override and the agent directory's own default reachable.
       makeWrapper ${final.nodejs_22}/bin/node $out/bin/prime-agent \
         --add-flags $out/lib/prime-agent/dist/bundle/cli.js \
         --prefix PATH : ${
@@ -105,7 +114,9 @@ in
           ]
         } \
         --set PRIME_AGENT_INTERACTIVE_SELF_UPDATE 0 \
-        --set PRIME_AGENT_INSTALL_UV 0
+        --set PRIME_AGENT_INSTALL_UV 0 \
+        --run 'export PRIME_AGENT_CODING_AGENT_DIR="''${PRIME_AGENT_CODING_AGENT_DIR:-$HOME/.prime/agent}"' \
+        --run 'export PI_SKIP_VERSION_CHECK="''${PI_SKIP_VERSION_CHECK:-1}"'
 
       runHook postInstall
     '';
