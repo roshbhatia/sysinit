@@ -116,7 +116,7 @@
   The superseded root is redirected in the test helper as well. Left at its
   default, the report would have read the owner's real records, so a test's output
   would have depended on which panes this machine happens to have.
-- [ ] 2.3 Point the skill at the subcommand under its new name and delete the bash script in one commit, restating the documented promise about run ids now that a workspace shares one namespace `writes:` modules/home/programs/llm/skills/wtrun/, modules/home/programs/llm/skills/worker/, modules/home/programs/llm/skill-tools.nix, modules/home/programs/llm/skills/tool-sources.nix `deps:` 2.1, 2.2
+- [x] 2.3 Point the skill at the subcommand under its new name and delete the bash script in one commit, restating the documented promise about run ids now that a workspace shares one namespace `writes:` modules/home/programs/llm/skills/wtrun/, modules/home/programs/llm/skills/worker/, modules/home/programs/llm/skill-tools.nix, modules/home/programs/llm/skills/tool-sources.nix `deps:` 2.1, 2.2
 
   The rename lands here, in one commit with the deletion, so `wtrun` never resolves
   to a missing subcommand. The wrapper becomes a shim in the shape `citelock`
