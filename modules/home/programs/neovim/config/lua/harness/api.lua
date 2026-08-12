@@ -196,17 +196,34 @@ local function session_tabs()
   return tabs
 end
 
---- Whether a repository holds a file git reports as unmerged, called back with a
---- boolean. Answers false when git cannot say.
+--- The two facts about a repository that decide how to open it: whether it holds an
+--- unmerged file, and whether it holds any change at all. Called back with both, and
+--- with both false when git cannot say.
 ---
---- Asked of git rather than read out of the changed-file list, so this stays a
---- yes-or-no question about one repository and does not depend on the format the
---- list arrived in.
-local function has_conflict(root, cb)
-  vim.system({ "git", "-C", root, "diff", "--name-only", "--diff-filter=U" }, { text = true }, function(res)
-    local unmerged = res.code == 0 and (res.stdout or ""):match("%S") ~= nil
+--- Asked of git rather than read out of the changed-file list, so this does not depend
+--- on the format the list arrived in. One call answers both, because both are in the
+--- same porcelain line: an unmerged path carries `U` on either side, or is `AA` or
+--- `DD`, and a repository with no line at all has nothing to diff.
+---
+--- Emptiness matters because `:CodeDiff` refuses a clean repository before it builds
+--- anything, so an entry point that reaches it without knowing opens nothing and says
+--- "No changes to show". Measured: `review_repo` on a clean repository, which resolves
+--- a root that the change query never listed and so has no count of its own.
+local function repo_state(root, cb)
+  vim.system({ "git", "-C", root, "status", "--porcelain", "--untracked-files=all" }, { text = true }, function(res)
+    local unmerged, empty = false, false
+    if res.code == 0 then
+      local out = res.stdout or ""
+      empty = out:match("%S") == nil
+      for line in out:gmatch("[^\n]+") do
+        local x, y = line:sub(1, 1), line:sub(2, 2)
+        if x == "U" or y == "U" or (x == "A" and y == "A") or (x == "D" and y == "D") then
+          unmerged = true
+        end
+      end
+    end
     vim.schedule(function()
-      cb(unmerged)
+      cb(unmerged, empty)
     end)
   end)
 end
@@ -315,13 +332,13 @@ end
 ---@param group table
 ---@param on_open fun(ok: boolean)|nil
 local function open_one(group, on_open)
-  has_conflict(group.root, function(unmerged)
+  repo_state(group.root, function(unmerged, empty)
     close_sessions()
 
-    -- A repository the caller already knows is clean never reaches `:CodeDiff`, which
-    -- would refuse it. `empty` is set by the caller that resolved the change set, so
-    -- this side does not run git a second time to find out.
-    if group.empty then
+    -- A clean repository never reaches `:CodeDiff`, which would refuse it. A caller
+    -- that already resolved the change set says so with `empty`; every other caller
+    -- gets git's answer, so no entry point can reach the refusal by not knowing.
+    if group.empty or (group.empty == nil and empty) then
       local opened = open_empty(group.root)
       if not opened then
         vim.notify(
