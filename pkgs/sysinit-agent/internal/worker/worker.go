@@ -216,6 +216,22 @@ func newWorkspace(dir string) (*workspace, error) {
 	return &workspace{root: root, dir: filepath.Join(paths.AgentWorker(), override)}, nil
 }
 
+// RecordDir returns the state directory holding the worker record for dir, and the
+// workspace root it was keyed from.
+//
+// Exported for readers rather than writers. `watch` has to resolve the same
+// directory this package writes, and the phase-1 review spent two rounds on defects
+// that came from one rule having two definitions, so the derivation stays in one
+// place and callers ask for it. The override is honoured here too, which is what
+// makes a private worker watchable.
+func RecordDir(dir string) (record, root string, err error) {
+	ws, err := newWorkspace(dir)
+	if err != nil {
+		return "", "", err
+	}
+	return ws.dir, ws.root, nil
+}
+
 // legacyPaneKey reports whether name is the superseded `pane-<digits>` key.
 func legacyPaneKey(name string) bool {
 	rest, ok := strings.CutPrefix(name, "pane-")

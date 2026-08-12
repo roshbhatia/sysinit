@@ -256,8 +256,16 @@ local function get_system_keys()
     create_smart_keybind("q", "SUPER", act.QuitApplication),
     create_smart_keybind("v", "SUPER", act.PasteFrom("Clipboard")),
     create_smart_keybind("v", "CTRL|SHIFT", act.PasteFrom("Clipboard")),
-    watch_keybind("w", "no pane id", function(pane)
-      return { "wtrun", "pane-" .. tostring(pane:pane_id()) }
+    watch_keybind("w", "no working directory", function(pane)
+      -- The worker is keyed on the workspace, so this passes the same thing `bus`
+      -- does. Passing the viewer's own pane id read the record of whichever pane
+      -- pressed the chord, which is the wrong one whenever that is not the pane
+      -- that ran the command.
+      local cwd = pane_cwd(pane)
+      if not cwd then
+        return nil
+      end
+      return { "worker", cwd }
     end),
     watch_keybind("b", "no working directory", function(pane)
       local cwd = pane_cwd(pane)

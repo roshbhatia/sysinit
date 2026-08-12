@@ -16,28 +16,29 @@ import (
 
 	"github.com/roshbhatia/sysinit/pkgs/sysinit-agent/internal/paths"
 	"github.com/roshbhatia/sysinit/pkgs/sysinit-agent/internal/transcript"
+	"github.com/roshbhatia/sysinit/pkgs/sysinit-agent/internal/worker"
 )
 
-const Summary = "render and tail a wtrun log, the agent-state bus, or a transcript"
+const Summary = "render and tail a worker log, the agent-state bus, or a transcript"
 
 const usageText = `One viewer for the three things an agent leaves behind.
 
 Usage:
-  watch wtrun [<session>] [--log <name>]
+  watch worker [<directory>] [--log <name>]
   watch bus [<directory>]
   watch transcript <harness>            resolve by directory
   watch transcript <harness>/<session>
   watch transcript <harness> <session>
 
 Each source is named by what identifies it, and they differ:
-  wtrun       by pane. Defaults to $WTRUN_SESSION, then pane-$WEZTERM_PANE.
-              Never the viewer's own pane when a name is given.
+  worker      by directory, the same key the worker itself uses. Defaults to
+              the working directory, and honours $SYSINIT_WORKER_SESSION.
   bus         by directory. Defaults to the working directory.
   transcript  by harness session id, or by directory through the sidecar
               published next to it.
 
 Flags:
-  --log <name>   which wtrun log, default "last"
+  --log <name>   which worker log, default "last"
   -n <count>     lines of history to show first, default 40
   --no-follow    render once and exit
   --interval <d> poll interval while following, default 500ms
@@ -52,7 +53,7 @@ const pollDefault = 500 * time.Millisecond
 func Run(args []string) int {
 	fs := flag.NewFlagSet("watch", flag.ContinueOnError)
 	fs.SetOutput(io.Discard)
-	logName := fs.String("log", "last", "which wtrun log")
+	logName := fs.String("log", "last", "which worker log")
 	history := fs.Int("n", 40, "lines of history")
 	noFollow := fs.Bool("no-follow", false, "render once and exit")
 	interval := fs.Duration("interval", pollDefault, "poll interval")
@@ -84,8 +85,8 @@ func Run(args []string) int {
 	var source renderer
 	var err error
 	switch rest[0] {
-	case "wtrun":
-		source, err = newWtrun(rest[1:], *logName)
+	case "worker":
+		source, err = newWorker(rest[1:], *logName)
 	case "bus":
 		source, err = newBus(rest[1:])
 	case "transcript":
@@ -94,7 +95,7 @@ func Run(args []string) int {
 		fmt.Fprint(os.Stdout, usageText)
 		return 0
 	default:
-		err = fmt.Errorf("unknown source %q, want wtrun, bus, or transcript", rest[0])
+		err = fmt.Errorf("unknown source %q, want worker, bus, or transcript", rest[0])
 	}
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "watch: %v\n", err)
@@ -207,30 +208,27 @@ func lastLines(body string, n int) string {
 	return strings.Join(lines, "")
 }
 
-// newWtrun resolves a wtrun log.
-func newWtrun(args []string, logName string) (renderer, error) {
-	session := ""
+// newWorker resolves one run's log inside the worker record for a DIRECTORY.
+//
+// It takes a directory rather than a session name because the worker is keyed on
+// the workspace now, not on the pane that asked for it. The argument therefore has
+// the same meaning it has for `bus`, and `worker.RecordDir` does the keying, so this
+// reader cannot drift from the writer. The old form took a key and joined it into a
+// path, which meant the path separator guard applied to the ARGUMENT; the guard now
+// belongs to the derived name, which the caller does not choose.
+func newWorker(args []string, logName string) (renderer, error) {
+	dir := ""
 	switch len(args) {
 	case 0:
-	case 1:
-		session = args[0]
-	default:
-		return nil, fmt.Errorf("wtrun takes at most one session name, got %d", len(args))
-	}
-
-	if session == "" {
-		session = os.Getenv("WTRUN_SESSION")
-	}
-	if session == "" {
-		if pane := os.Getenv("WEZTERM_PANE"); pane != "" {
-			session = "pane-" + pane
+		here, err := os.Getwd()
+		if err != nil {
+			return nil, err
 		}
-	}
-	if session == "" {
-		return nil, fmt.Errorf("no wtrun session: pass one, or set WTRUN_SESSION")
-	}
-	if strings.Contains(session, "/") {
-		return nil, fmt.Errorf("wtrun session %q contains a path separator", session)
+		dir = here
+	case 1:
+		dir = args[0]
+	default:
+		return nil, fmt.Errorf("worker takes at most one directory, got %d", len(args))
 	}
 
 	if logName == "" {
@@ -241,8 +239,16 @@ func newWtrun(args []string, logName string) (renderer, error) {
 		return nil, fmt.Errorf("log name %q contains a path separator", logName)
 	}
 
-	path := filepath.Join(paths.AgentWtrun(), session, logName+".log")
-	return &fileTail{path: path, title: fmt.Sprintf("wtrun %s/%s", session, logName)}, nil
+	record, root, err := worker.RecordDir(dir)
+	if err != nil {
+		return nil, err
+	}
+	if strings.Contains(filepath.Base(record), "/") {
+		return nil, fmt.Errorf("derived worker key %q contains a path separator", filepath.Base(record))
+	}
+
+	path := filepath.Join(record, logName+".log")
+	return &fileTail{path: path, title: fmt.Sprintf("worker %s/%s", filepath.Base(root), logName)}, nil
 }
 
 // newTranscript resolves a mirrored harness transcript.

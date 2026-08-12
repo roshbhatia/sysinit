@@ -65,7 +65,11 @@
   Method mattered more than round count. Rounds 1 and 2 read the code; round 3 ran
   mutations and found that 10 of 14 survived a 32-test suite, including the total
   absence of a test for the reuse path this whole change exists to deliver.
-- [ ] 1.8 Apply: `git push`, then `nh darwin switch` from the `sysinit.laurel` checkout in a separate WezTerm pane, gated on `nix flake check` and `nh darwin build` exiting 0. The bash script stays installed and stays the one the skill calls
+- [x] 1.8 Apply: `git push`, then `nh darwin switch` from the `sysinit.laurel` checkout in a separate WezTerm pane, gated on `nix flake check` and `nh darwin build` exiting 0. The bash script stays installed and stays the one the skill calls
+
+  Twelve commits pushed to `main` as `cd88a9859..684ac0600`. Both gates exited 0
+  before the push. The switch ran in its own pane and recorded 0, moving 1590 paths
+  with 26 replaced. The script is still installed and the skill still calls it.
 - [ ] 1.9 Confirm: the owner accepts that the two implementations disagree about the live worker in the expected way, the script naming it and the subcommand reporting none, with no other difference
 
   The comparison is captured, on 2026-08-11, from the conversation pane that holds
@@ -79,11 +83,19 @@
 - **SHAPE** graph
 - **MERGE** 2.4
 
-- [ ] 2.1 Move every reader of the superseded pane key onto the new one: the watch renderer at `pkgs/sysinit-agent/internal/watch/watch.go:224`, which takes a directory and keys it internally so the slash guard at `watch.go:233` applies to the derived name, and the keybinding at `modules/home/programs/wezterm/lua/sysinit/pkg/keybindings.lua:260`, which hardcodes the prefix and cannot be repaired by the session override `writes:` pkgs/sysinit-agent/internal/watch/, modules/home/programs/wezterm/lua/sysinit/pkg/keybindings.lua `deps:` none
+- [x] 2.1 Move every reader of the superseded pane key onto the new one: the watch renderer at `pkgs/sysinit-agent/internal/watch/watch.go:224`, which takes a directory and keys it internally so the slash guard at `watch.go:233` applies to the derived name, and the keybinding at `modules/home/programs/wezterm/lua/sysinit/pkg/keybindings.lua:260`, which hardcodes the prefix and cannot be repaired by the session override `writes:` pkgs/sysinit-agent/internal/watch/, modules/home/programs/wezterm/lua/sysinit/pkg/keybindings.lua `deps:` none
 
   These commits are separable for review and for the revert, but they are not
   separately activatable: a moved reader resolves to a path nothing writes until
   2.3 lands. Phase 2 reaches the machine as one activation, at 2.6.
+
+  The renderer now asks `worker.RecordDir` for the record, so the reader cannot
+  drift from the writer, and the override is honoured for both. The keybinding
+  passes `pane_cwd(pane)`, the same argument the `bus` chord passes; its toast now
+  says "no working directory", because a pane with no cwd is the only way it can
+  fail. The two old tests were replaced rather than adapted: one asserted the pane
+  fallback this task removes, and the other asserted a separator guard on an
+  argument that is now a path.
 - [ ] 2.2 Report a worker held under the superseded key on one line, without adopting it and without killing it, so the extra pane the first run splits is explained when it happens `writes:` pkgs/sysinit-agent/internal/worker/ `deps:` none
 - [ ] 2.3 Point the skill at the subcommand under its new name and delete the bash script in one commit, restating the documented promise about run ids now that a workspace shares one namespace `writes:` modules/home/programs/llm/skills/wtrun/, modules/home/programs/llm/skills/worker/, modules/home/programs/llm/skill-tools.nix, modules/home/programs/llm/skills/tool-sources.nix `deps:` 2.1, 2.2
 
@@ -98,11 +110,15 @@
   promises the pane is recreated only if the owner closed it, which a mux restart now
   also does. And the directory a run executes in, the `last` reservation, and
   `--release` are undocumented.
-- [ ] 2.9 Rename the watch source and its session override to match, so `watch wtrun` and `WTRUN_SESSION` do not outlive the command they were named for `writes:` pkgs/sysinit-agent/internal/watch/, modules/home/programs/wezterm/lua/sysinit/pkg/keybindings.lua `deps:` 2.1
+- [x] 2.9 Rename the watch source and its session override to match, so `watch wtrun` and `WTRUN_SESSION` do not outlive the command they were named for `writes:` pkgs/sysinit-agent/internal/watch/, modules/home/programs/wezterm/lua/sysinit/pkg/keybindings.lua `deps:` 2.1
 
   Separate from 2.1 because 2.1 changes what the renderer resolves and this changes
   what it is called. `WTRUN_SESSION` is read only by `watch.go:222`, so the override
   is renamable without touching a caller.
+
+  Landed with 2.1 rather than after it, because 2.1 replaced the function that read
+  the old name. `WTRUN_SESSION` is gone with no alias: it addressed a per-pane key
+  that no longer exists, so honouring it would resolve to a path nothing writes.
 - [ ] 2.4 Reconcile the cutover and prove `nix flake check` and `nix build .#darwinConfigurations.lv426.system` exit 0, that the installed wrapper resolves to the subcommand, and that the watch keybinding resolves to a path the subcommand writes `writes:` none `deps:` 2.1, 2.2, 2.3, 2.9
 - [ ] 2.5 Adversarial review (`adversarial-review` skill): critics attempt to break the cutover against the proposal `Behavior` criteria; revise until the loop reaches a terminal state
 - [ ] 2.6 Apply: `git push`, then `nh darwin switch` from the `sysinit.laurel` checkout in a separate WezTerm pane, gated on `nix flake check` and `nh darwin build` exiting 0. Recovery is activating the previous system generation, not a revert, because a revert reaches this machine only through a full build run by the tool being replaced
