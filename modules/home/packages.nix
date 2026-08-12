@@ -138,6 +138,7 @@ in
         meld
         mermaid-ascii
         pplx
+        pretty-mermaid
         proselint
         sad
         sheets

@@ -198,6 +198,7 @@
             "localias"
             "pplx"
             "mermaid-ascii"
+            "pretty-mermaid"
             "pi-coding-agent"
             "crush"
             "contextive"

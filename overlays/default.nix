@@ -27,6 +27,7 @@
   (import ./go-enum.nix)
   (import ./gomvp.nix)
   (import ./mermaid-ascii.nix)
+  (import ./pretty-mermaid.nix)
   (import ./hererocks.nix)
   (import ./openspec)
   (import ./pi-coding-agent.nix)
