@@ -263,7 +263,11 @@ function M.setup(config, wm, ctx)
         tab_r:append(nil, colors.chrome, " [" .. tostring(ti) .. "]")
         tab_r:append(nil, colors.chrome, "  ")
         tab_r:append(nil, colors.name, tnode.title)
-        add("tab:" .. tnode.tab_id, tab_r:format(), { pane_id = tnode.active_pane_id, workspace = ws.name })
+        add(
+          "tab:" .. tnode.tab_id,
+          tab_r:format(),
+          { pane_id = tnode.active_pane_id, workspace = ws.name, tab_index = ti }
+        )
 
         for pi, rec in ipairs(tnode.panes) do
           local pbranch = (tlast and "     " or "  │  ") .. (pi == #tnode.panes and "└─ " or "├─ ")
@@ -382,42 +386,84 @@ function M.setup(config, wm, ctx)
     },
   }
 
-  local function close_session_target(id, by_id)
+  -- `^x` closes the row under the cursor, at the level that row is on.
+  --
+  -- Every row carries a workspace field, so keying the close on that field alone made one
+  -- key mean three things: `^x` on a pane row killed the whole session the pane belonged
+  -- to, and `^x` on any row of the session you were sitting in refused outright. The kind
+  -- prefix in the row id is what says which level the cursor is on, so read it the way
+  -- session_tree_dispatch does and close exactly that.
+  local function close_session_target(pane, id, by_id)
     local rec = by_id[id]
-    if type(rec) ~= "table" or not rec.workspace then
-      return "not a session row"
+    if type(rec) ~= "table" then
+      return "nothing to close"
     end
-    local name = rec.workspace
-    if rec.dormant then
-      return "already dormant: " .. name
+    local kind = id:match("^([^:]+):")
+    local match, label
+    if kind == "ws" then
+      local name = rec.workspace
+      match = function(p)
+        return p.workspace == name
+      end
+      label = "session " .. name
+    elseif kind == "tab" then
+      local tab_id = tonumber(id:match("^tab:(.+)$"))
+      if not tab_id then
+        return "not a closable row"
+      end
+      match = function(p)
+        return p.tab_id == tab_id
+      end
+      label = "tab " .. tostring(rec.tab_index or tab_id)
+    elseif kind == "pane" then
+      local pane_id = rec.pane_id
+      match = function(p)
+        return p.pane_id == pane_id
+      end
+      label = "pane " .. ui_badges.name(pane_id)
+    else
+      return "not a closable row"
     end
-    if ui_actions.gui_window_for_workspace(name) then
-      return "cannot close a visible session"
-    end
+
+    -- The pane running the selector is off limits at every level. Killing it takes the
+    -- selector with it, and the reopen that follows this call then runs against a dead
+    -- pane. Refusing names the reason instead of half-closing and erroring.
+    local self_pane_id
+    pcall(function()
+      self_pane_id = pane:pane_id()
+    end)
+
     local wezterm_bin = (wezterm.executable_dir or "") .. "/wezterm"
     local ok, stdout = wezterm.run_child_process({ wezterm_bin, "cli", "list", "--format=json" })
     if not ok then
-      wezterm.log_error("wezterm cli list failed; workspace " .. name .. " left open")
-      return "close failed: " .. name
+      wezterm.log_error("wezterm cli list failed; " .. label .. " left open")
+      return "close failed: " .. label
+    end
+    local targets = {}
+    for _, p in ipairs(wezterm.json_parse(stdout) or {}) do
+      if match(p) then
+        if p.pane_id == self_pane_id then
+          return "cannot close " .. label .. " from inside it"
+        end
+        targets[#targets + 1] = p.pane_id
+      end
+    end
+    if #targets == 0 then
+      return "nothing open in " .. label
     end
     local killed = 0
-    for _, p in ipairs(wezterm.json_parse(stdout) or {}) do
-      if p.workspace == name then
-        local kill_ok = wezterm.run_child_process({
-          wezterm_bin,
-          "cli",
-          "kill-pane",
-          "--pane-id=" .. tostring(p.pane_id),
-        })
-        if kill_ok then
-          killed = killed + 1
-        end
+    for _, pane_id in ipairs(targets) do
+      if wezterm.run_child_process({ wezterm_bin, "cli", "kill-pane", "--pane-id=" .. tostring(pane_id) }) then
+        killed = killed + 1
       end
     end
     if killed == 0 then
-      return "no panes found: " .. name
+      return "close failed: " .. label
     end
-    return "closed " .. name
+    if killed == #targets then
+      return string.format("closed %s (%d pane%s)", label, killed, killed == 1 and "" or "s")
+    end
+    return string.format("closed %d of %d panes in %s", killed, #targets, label)
   end
 
   local function open_session_tree(win, pane, filter, notice)
@@ -465,7 +511,7 @@ function M.setup(config, wm, ctx)
           local pf = tree_state.pending_filter
           tree_state.pending_filter = nil
           if pa == "delete" and id then
-            local close_notice = close_session_target(id, by_id)
+            local close_notice = close_session_target(inner_pane, id, by_id)
             wezterm.time.call_after(0.15, function()
               open_session_tree(inner_win, inner_pane, tree_state.current_filter, close_notice)
             end)
