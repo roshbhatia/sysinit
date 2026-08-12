@@ -1,17 +1,17 @@
 { pkgs, ... }:
 let
-  sources = import ./skills/tool-sources.nix;
-  sourceOf = name: ./skills + "/${sources.${name}}";
-
-  wtrun = pkgs.writeShellApplication {
-    name = "wtrun";
+  # A rename, not a shim: the owner chose no `wtrun` alias, so this is the only
+  # name that resolves. `tool-sources.nix` went with the script it pointed at;
+  # nothing else read it, and a source map for zero sources is scaffolding.
+  worker = pkgs.writeShellApplication {
+    name = "worker";
     runtimeInputs = [
-      pkgs.coreutils
-      pkgs.gnugrep
-      pkgs.jq
+      pkgs.sysinit-agent
       pkgs.wezterm
     ];
-    text = builtins.readFile (sourceOf "wtrun");
+    text = ''
+      exec sysinit-agent worker "$@"
+    '';
   };
 
   # A shim, not a rename: the pre-commit hook and the citation-verification
@@ -30,6 +30,6 @@ in
 {
   home.packages = [
     citelock
-    wtrun
+    worker
   ];
 }

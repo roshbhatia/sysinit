@@ -1,3 +1,0 @@
-{
-  wtrun = "wtrun/wtrun.sh";
-}

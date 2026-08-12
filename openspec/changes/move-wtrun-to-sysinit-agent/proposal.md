@@ -564,11 +564,15 @@ than counted, because a count in this list goes stale every time one is added:
 
 Affected: `pkgs/sysinit-agent/` (a new subcommand, plus `internal/repo` and
 `internal/paths` gaining the lookups the shell copies did),
-`modules/home/programs/llm/skills/wtrun/` (the script is replaced by a wrapper
+`modules/home/programs/llm/skills/wtrun/`, which becomes
+`modules/home/programs/llm/skills/worker/` (the script is replaced by a wrapper
 around the subcommand, and `SKILL.md:57`'s promise that two runs never share a log
-has to be restated for a shared key), and
-`modules/home/programs/llm/runtime/agent-sessions.sh` (its duplicated manifest
-reader is deleted).
+has to be restated for a shared key).
+
+Not `modules/home/programs/llm/runtime/agent-sessions.sh`. The first draft said its
+duplicated manifest reader is deleted, and there is no such reader:
+`runtime/paths.sh:3` defines the lookup once and the runtime prepends it, so the
+session script is a call site. The only hand-rolled copy was in the deleted script.
 
 Also affected, and missed in the first draft. Three places compute or hardcode the
 old key, and none of them is a caller passing flags:

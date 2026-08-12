@@ -7,7 +7,7 @@ let
   sharedDir = root + "/_shared";
 
   # Directories here that are NOT skills.
-  notSkills = [ "wtrun" ];
+  notSkills = [ "worker" ];
 
   skillDirs = lib.filterAttrs (
     n: type: type == "directory" && !(lib.hasPrefix "_" n) && !(builtins.elem n notSkills)

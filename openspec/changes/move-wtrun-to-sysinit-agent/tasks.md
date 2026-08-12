@@ -124,6 +124,19 @@
   promises the pane is recreated only if the owner closed it, which a mux restart now
   also does. And the directory a run executes in, the `last` reservation, and
   `--release` are undocumented.
+
+  All four edited, plus three the survey missed: the header described a wrapper that
+  reads `wtrun.sh`, the GUI-socket requirement was absent, and the superseded-worker
+  line 2.2 introduces needed explaining where the owner will meet it.
+  `SYSINIT_WORKER_SESSION` and `--force` are documented for the first time.
+
+  `tool-sources.nix` went with the script. It existed to map a name to a file the
+  wrapper read, and a source map for zero sources is scaffolding; nothing else
+  imported it. `notSkills` still excludes the directory, so this file stays owner
+  documentation rather than becoming a rendered skill under its new name.
+
+  Two comments in `worker.go` cited `wtrun.sh:42` and `:83`. The file is deleted, so
+  they now say the lines are in the history rather than the tree.
 - [x] 2.9 Rename the watch source and its session override to match, so `watch wtrun` and `WTRUN_SESSION` do not outlive the command they were named for `writes:` pkgs/sysinit-agent/internal/watch/, modules/home/programs/wezterm/lua/sysinit/pkg/keybindings.lua `deps:` 2.1
 
   Separate from 2.1 because 2.1 changes what the renderer resolves and this changes

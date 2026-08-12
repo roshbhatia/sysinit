@@ -99,9 +99,11 @@ var errProbe = errors.New("the mux did not answer")
 // errSelf marks a record that names the pane doing the asking.
 //
 // It is a statement about who is asking, not about whether the pane exists, and
-// collapsing it into absence loses a live pane. `wtrun.sh:42` collapsed it, and
-// `wtrun.sh:83` then removed the record whatever happened, so `wtrun --close` typed
-// inside the worker pane deleted the record of a pane that was still on screen.
+// collapsing it into absence loses a live pane. The superseded script collapsed it
+// at `wtrun.sh:42` and then removed the record whatever happened at `:83`, so
+// `wtrun --close` typed inside the worker pane deleted the record of a pane that was
+// still on screen. Both lines are in this repository's history, not its tree: the
+// script is deleted, and the defect is the reason for the split above.
 var errSelf = errors.New("the record names the calling pane")
 
 // The mux calls and the two waits, as variables so a test can drive them without
