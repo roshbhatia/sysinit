@@ -13,6 +13,8 @@ import (
 	"syscall"
 	"testing"
 	"time"
+
+	"github.com/roshbhatia/sysinit/pkgs/sysinit-agent/internal/paths"
 )
 
 // state points the paths manifest at a temporary tree and returns the directory
@@ -26,7 +28,11 @@ func state(t *testing.T) string {
 	body, err := json.Marshal(map[string]any{
 		"version": 1,
 		"paths": map[string]string{
-			"agentWorker":   filepath.Join(home, "worker"),
+			"agentWorker": filepath.Join(home, "worker"),
+			// The superseded root is redirected too. Left at its default, the
+			// courtesy report would read the owner's real records, so a test's output
+			// would depend on which panes this machine happens to have.
+			"agentWtrun":    filepath.Join(home, "wtrun"),
 			"agentPanes":    filepath.Join(home, "panes"),
 			"seshySessions": filepath.Join(home, "no-sessions-here"),
 		},
@@ -244,6 +250,79 @@ func TestALiveWorkerRecordedByAnotherPaneIsReused(t *testing.T) {
 	body, _ := os.ReadFile(ws.paneFile())
 	if strings.TrimSpace(string(body)) != "12" {
 		t.Errorf("pane record = %q after a reuse, want 12", body)
+	}
+}
+
+// The first run in a workspace splits a pane beside a worker the owner can see, so
+// that pane is explained on one line rather than appearing unannounced.
+//
+// The report is a report. A test that only matched the wording would pass an
+// implementation that adopted the old worker or killed it, so both are asserted:
+// nothing is sent to the old pane and nothing kills it.
+func TestASupersededWorkerIsReportedAndLeftAlone(t *testing.T) {
+	state(t)
+	fast(t)
+	// 12 is the old worker, recorded by the bash script under the caller's pane.
+	mux := &fakeMux{panes: []int{7, 12}, split: 99}
+	mux.install(t)
+	old := filepath.Join(paths.AgentWtrun(), "pane-7")
+	if err := os.MkdirAll(old, 0o700); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(old, "worker-pane"), []byte("12\n"), 0o600); err != nil {
+		t.Fatal(err)
+	}
+
+	ws := workspaceIn(t, t.TempDir())
+	var code int
+	out := captured(t, func() { code = ws.start("7", t.TempDir(), options{tail: 20, command: "true"}) })
+	if code != 0 {
+		t.Fatalf("start = %d, want 0", code)
+	}
+	if !strings.Contains(out, "pane 12") || !strings.Contains(out, "pane-7") {
+		t.Errorf("output = %q, want one line naming the held pane and the key it is under", out)
+	}
+	if mux.splits() != 1 {
+		t.Errorf("panes split = %d, want exactly 1: the old worker is not adopted", mux.splits())
+	}
+	target, _ := mux.typed(t)
+	if target != "99" {
+		t.Errorf("the command went to pane %s, want the freshly split 99", target)
+	}
+	for _, action := range mux.actions {
+		if strings.Contains(action, "kill-pane") && strings.Contains(action, "12") {
+			t.Error("the superseded worker was killed")
+		}
+		if strings.Contains(action, "send-text") && strings.Contains(action, "--pane-id 12") {
+			t.Error("a command was sent to the superseded worker")
+		}
+	}
+	// Its record is left exactly as it was, so the old script still finds its worker.
+	body, err := os.ReadFile(filepath.Join(old, "worker-pane"))
+	if err != nil || strings.TrimSpace(string(body)) != "12" {
+		t.Errorf("superseded record = %q, %v; want an untouched 12", body, err)
+	}
+}
+
+// A dead pane in the superseded record is not worth a line: there is no worker on
+// screen to explain, and a note about one would send the owner looking for it.
+func TestADeadSupersededWorkerIsNotReported(t *testing.T) {
+	state(t)
+	fast(t)
+	mux := &fakeMux{panes: []int{7}, split: 99}
+	mux.install(t)
+	old := filepath.Join(paths.AgentWtrun(), "pane-7")
+	if err := os.MkdirAll(old, 0o700); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(old, "worker-pane"), []byte("404\n"), 0o600); err != nil {
+		t.Fatal(err)
+	}
+
+	ws := workspaceIn(t, t.TempDir())
+	out := captured(t, func() { ws.start("7", t.TempDir(), options{tail: 20, command: "true"}) })
+	if strings.Contains(out, "404") {
+		t.Errorf("output = %q, want no mention of a pane that is gone", out)
 	}
 }
 

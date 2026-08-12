@@ -355,10 +355,15 @@ func (w *workspace) start(caller, dir string, opts options) int {
 		// Includes errSelf. A caller that is itself the recorded worker needs a worker
 		// other than itself, and taking over the record is right: the old worker is the
 		// caller's own pane, which is not orphaned by losing the role.
+		//
+		// Read before the split, so the line describes the state that made this call
+		// split rather than the state after it.
+		note := superseded(caller)
 		id, splitErr := w.split(caller)
 		if splitErr != nil {
 			return fail(splitErr)
 		}
+		fmt.Print(note)
 		target = id
 	}
 
@@ -647,6 +652,40 @@ func (w *workspace) retire(caller string) {
 	if w.inFlight(marker) {
 		writeAtomic(w.rcFile(marker), strconv.Itoa(paneClosed))
 	}
+}
+
+// superseded describes a worker the bash script's per-pane record still holds, or
+// returns "" when there is nothing to explain.
+//
+// The first run in a workspace splits a pane even though the owner can see a
+// perfectly good worker on screen, because that worker is recorded under the
+// caller's pane id and this command keys on the workspace. Unexplained, that reads
+// as a bug in the new command. It is only a report: the old worker keeps running,
+// keeps its record, and is neither adopted nor killed. Adopting it is not an
+// option, because the record carries no mux generation, so an id that matches a
+// live pane is not proof it is the same pane. The line says "may" for that reason.
+//
+// Keyed on the caller's pane only. The old script also honoured WTRUN_SESSION,
+// which this command has dropped, and reading that name back in to widen a
+// courtesy message would keep a superseded variable alive.
+func superseded(caller string) string {
+	if caller == "" {
+		return ""
+	}
+	body, err := os.ReadFile(filepath.Join(paths.AgentWtrun(), "pane-"+caller, "worker-pane"))
+	if err != nil {
+		return ""
+	}
+	id := strings.TrimSpace(string(body))
+	if id == "" || id == caller {
+		return ""
+	}
+	if alive, err := paneAlive(id); err != nil || !alive {
+		return ""
+	}
+	return fmt.Sprintf(
+		"a worker from the superseded script may still hold pane %s, recorded under pane-%s with no mux generation to confirm it; it is left alone, so this run gets a worker of its own\n",
+		id, caller)
 }
 
 // split creates the worker pane below the caller and returns focus to the

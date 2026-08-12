@@ -96,7 +96,21 @@
   fail. The two old tests were replaced rather than adapted: one asserted the pane
   fallback this task removes, and the other asserted a separator guard on an
   argument that is now a path.
-- [ ] 2.2 Report a worker held under the superseded key on one line, without adopting it and without killing it, so the extra pane the first run splits is explained when it happens `writes:` pkgs/sysinit-agent/internal/worker/ `deps:` none
+- [x] 2.2 Report a worker held under the superseded key on one line, without adopting it and without killing it, so the extra pane the first run splits is explained when it happens `writes:` pkgs/sysinit-agent/internal/worker/ `deps:` none
+
+  Printed on the split path only, which is the path that produces the extra pane.
+  `--status` keeps the wording 1.9 captured, because the owner has already accepted
+  that disagreement and a second line there would restate it.
+
+  The line says "may still hold". The superseded record carries no mux generation,
+  so an id that matches a live pane is not proof it is the same pane, and a report
+  is the only thing this evidence supports. Adopting the record is not available
+  for the same reason. A dead recorded pane produces no line at all: there is
+  nothing on screen to explain, and a note would send the owner looking for it.
+
+  The superseded root is redirected in the test helper as well. Left at its
+  default, the report would have read the owner's real records, so a test's output
+  would have depended on which panes this machine happens to have.
 - [ ] 2.3 Point the skill at the subcommand under its new name and delete the bash script in one commit, restating the documented promise about run ids now that a workspace shares one namespace `writes:` modules/home/programs/llm/skills/wtrun/, modules/home/programs/llm/skills/worker/, modules/home/programs/llm/skill-tools.nix, modules/home/programs/llm/skills/tool-sources.nix `deps:` 2.1, 2.2
 
   The rename lands here, in one commit with the deletion, so `wtrun` never resolves
