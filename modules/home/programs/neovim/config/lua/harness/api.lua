@@ -373,7 +373,11 @@ local function open_review(groups, said)
   fill_changed_list(groups, said)
   require("harness.review_follow").attach()
 
-  if #groups > 1 then
+  -- Only a review that spans repositories shows the list. For one repository
+  -- codediff's explorer is already the file index, and a second one beside it would
+  -- say nothing new.
+  local span = #groups > 1
+  if span then
     local names = {}
     for index = 2, #groups do
       table.insert(names, string.format("%s (%d)", vim.fn.fnamemodify(groups[index].root, ":t"), #groups[index].files))
@@ -387,6 +391,17 @@ local function open_review(groups, said)
   end
 
   open_one(first, function()
+    -- The generic `]q` in `after/plugin/lists.lua` steps a list only while its window
+    -- is open, and refuses with "No quickfix or location list open" when it is not.
+    -- So the message above is true only if the review opens it. Focus goes straight
+    -- back, because the diff is what the owner asked for.
+    if span then
+      local diff_win = vim.api.nvim_get_current_win()
+      pcall(vim.cmd, "botright copen")
+      if vim.api.nvim_win_is_valid(diff_win) then
+        pcall(vim.api.nvim_set_current_win, diff_win)
+      end
+    end
     vim.notify(said, vim.log.levels.INFO)
   end)
 end
@@ -405,6 +420,13 @@ function M.review_close()
   pcall(function()
     require("harness.review_follow").detach()
   end)
+  -- The list window came with the review, so it goes with it. The entries stay: a
+  -- closed quickfix list is still there for `:copen` and for `<leader>eq`.
+  for _, win in ipairs(vim.fn.getwininfo()) do
+    if win.quickfix == 1 and win.loclist == 0 then
+      pcall(vim.api.nvim_win_close, win.winid, false)
+    end
+  end
   review_state = { groups = {}, root = nil, said = nil }
 end
 
