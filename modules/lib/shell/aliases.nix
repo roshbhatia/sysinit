@@ -1,5 +1,6 @@
 let
   commonAliases = {
+    c = "claude --dangerously-skip-permissions";
     cat = "bat -pp";
     f = "yazi";
     kk = "k9s";
