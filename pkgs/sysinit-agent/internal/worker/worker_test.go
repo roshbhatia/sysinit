@@ -14,7 +14,9 @@ import (
 	"testing"
 	"time"
 
+	"github.com/roshbhatia/sysinit/pkgs/sysinit-agent/internal/agentstate"
 	"github.com/roshbhatia/sysinit/pkgs/sysinit-agent/internal/paths"
+	"github.com/roshbhatia/sysinit/pkgs/sysinit-agent/internal/repo"
 )
 
 // state points the paths manifest at a temporary tree and returns the directory
@@ -1737,5 +1739,386 @@ func TestASocketThatIsNotAGuiSockIsNamedInTheRefusal(t *testing.T) {
 	}
 	if strings.Contains(err.Error(), "unset or malformed") {
 		t.Errorf("refusal = %v, want no claim about a variable that is set and well formed", err)
+	}
+}
+
+// declare writes a pane record on the state bus, the way a harness running inside
+// the worker pane does.
+func declare(t *testing.T, pane, status, reason string) {
+	t.Helper()
+	record, _ := agentstate.PaneRecord(pane)
+	if err := os.MkdirAll(filepath.Dir(record), 0o700); err != nil {
+		t.Fatal(err)
+	}
+	body, err := json.Marshal(map[string]any{
+		"version": agentstate.SchemaVersion,
+		"mux":     agentstate.MuxID(),
+		"pane":    pane,
+		"agent":   "claude",
+		"status":  status,
+		"reason":  reason,
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(record, body, 0o600); err != nil {
+		t.Fatal(err)
+	}
+}
+
+// `waiting` is reported only for the run the marker names, and every other shape
+// of the same state reads as something else.
+//
+// The pane record carries no run identifier, so it answers for the PANE. Reading
+// it alone would report the owner's own harness, started by hand in the worker
+// pane, as a blocked run of this command.
+func TestStatusReportsWaitingOnlyForTheRunTheMarkerNames(t *testing.T) {
+	state(t)
+	mux := &fakeMux{panes: []int{7, 12}}
+	mux.install(t)
+	ws := workspaceIn(t, t.TempDir())
+	ws.live(t, "12")
+
+	// A run that declared itself blocked, with the reason the surfaces render.
+	os.WriteFile(ws.runningFile(), []byte("build\n"), 0o600)
+	declare(t, "12", "waiting", "needs input")
+	var code int
+	out := captured(t, func() { code = ws.reportStatus("7") })
+	want := "pane 12  waiting build: needs input  log " + ws.logFile("build")
+	if code != 0 || !strings.Contains(out, want) {
+		t.Errorf("--status on a blocked run = %d, %q; want %q", code, out, want)
+	}
+
+	// The same record with no marker: a harness the owner started in the pane by
+	// hand. No run of this command is blocked, so none is reported.
+	os.Remove(ws.runningFile())
+	out = captured(t, func() { code = ws.reportStatus("7") })
+	if code != 0 || !strings.Contains(out, "pane 12  idle  in "+ws.root) {
+		t.Errorf("--status on a hand-started harness = %d, %q; want the idle line", code, out)
+	}
+
+	// A run that never declares anything stays running, which is what every build,
+	// switch, and test suite in this pane does.
+	os.WriteFile(ws.runningFile(), []byte("build\n"), 0o600)
+	declare(t, "12", "working", "Bash: nix build")
+	out = captured(t, func() { code = ws.reportStatus("7") })
+	if !strings.Contains(out, "pane 12  running build") {
+		t.Errorf("--status on an undeclared run = %q, want the running line", out)
+	}
+}
+
+// The blocked wait has three outcomes and each one has to be reachable, while
+// `-w` keeps exactly two.
+func TestTheBlockedWaitReturnsOnBlockedAndStillLosesToAnExit(t *testing.T) {
+	state(t)
+	fast(t)
+	ws := workspaceIn(t, t.TempDir())
+	os.WriteFile(ws.logFile("build"), []byte("Continue? [y/N]\n"), 0o600)
+	os.WriteFile(ws.runningFile(), []byte("build\n"), 0o600)
+	declare(t, "12", "waiting", "needs input")
+
+	var code int
+	out := captured(t, func() { code = ws.waitForBlocked("build", "12", 1, 5) })
+	if code != blockedReturn {
+		t.Errorf("blocked wait = %d, want %d", code, blockedReturn)
+	}
+	if !strings.Contains(out, "build is waiting on input: needs input") ||
+		!strings.Contains(out, "Continue? [y/N]") {
+		t.Errorf("blocked line = %q, want the run, the reason, and the tail", out)
+	}
+
+	// `-w` cannot produce that code. A caller that branches on $? reads 76 as the
+	// command's own status, so the third outcome belongs to the flag that asked for it.
+	if code := ws.waitForExit("build", 1, 0); code != timedOut {
+		t.Errorf("-w on a blocked run = %d, want the timeout code %d", code, timedOut)
+	}
+
+	// An exit beats the state, whichever order they land in. A run that declared
+	// itself blocked and then finished is finished.
+	os.WriteFile(ws.rcFile("build"), []byte("0\n"), 0o600)
+	captured(t, func() { code = ws.waitForBlocked("build", "12", 1, 0) })
+	if code != 0 {
+		t.Errorf("wait on a run that blocked and then exited = %d, want its own code 0", code)
+	}
+}
+
+// Two negatives that the record alone cannot tell apart: another run in the
+// workspace is the blocked one, and the caller's own command has not started yet.
+func TestABlockedWaitDoesNotReturnForAnotherRunsState(t *testing.T) {
+	state(t)
+	fast(t)
+	ws := workspaceIn(t, t.TempDir())
+	os.WriteFile(ws.logFile("mine"), []byte("\n"), 0o600)
+	declare(t, "12", "waiting", "needs input")
+
+	// The marker names a different run.
+	os.WriteFile(ws.runningFile(), []byte("theirs\n"), 0o600)
+	var code int
+	captured(t, func() { code = ws.waitForBlocked("mine", "12", 1, 0) })
+	if code != timedOut {
+		t.Errorf("wait while another run is blocked = %d, want the timeout %d", code, timedOut)
+	}
+
+	// The caller's command is still in the tty input buffer, so nothing names it.
+	os.Remove(ws.runningFile())
+	captured(t, func() { code = ws.waitForBlocked("mine", "12", 1, 0) })
+	if code != timedOut {
+		t.Errorf("wait before the run started = %d, want the timeout %d", code, timedOut)
+	}
+}
+
+func TestTheTwoWaitsCannotBePassedTogether(t *testing.T) {
+	if _, err := parse([]string{"-w", "5", "-b", "5", "true"}); err == nil {
+		t.Error("-w and -b were accepted together, which leaves the exit contract undecided")
+	}
+}
+
+// The trap clears a `waiting` the run published, and creates nothing when there
+// was nothing to clear.
+//
+// The second half is the load-bearing one. Writing `idle` unconditionally would
+// register the worker pane as an agent pane on every run, putting a row for a pane
+// that declared nothing on all five surfaces.
+func TestTheBodyClearsADeclaredWaitingAndNothingElse(t *testing.T) {
+	if _, err := exec.LookPath("zsh"); err != nil {
+		t.Skip("no zsh")
+	}
+	state(t)
+	ws := workspaceIn(t, t.TempDir())
+	t.Setenv("WEZTERM_PANE", "12")
+
+	// A stub in place of this binary. Under `go test` the executable is the test
+	// binary, so a real body would run the suite again inside itself.
+	home := t.TempDir()
+	calls := filepath.Join(home, "calls")
+	stub := filepath.Join(home, "stub")
+	script := "#!/usr/bin/env zsh\nprint -r -- \"$@\" >> " + calls + "\n"
+	if err := os.WriteFile(stub, []byte(script), 0o700); err != nil {
+		t.Fatal(err)
+	}
+	realSelf := self
+	t.Cleanup(func() { self = realSelf })
+	self = func() string { return stub }
+
+	// No record: the clear must not run.
+	body := ws.bodyFile("run1")
+	if err := ws.writeBody(body, "run1", t.TempDir(), "true"); err != nil {
+		t.Fatal(err)
+	}
+	if err := exec.Command("zsh", body).Run(); err != nil {
+		t.Fatalf("the body failed: %v", err)
+	}
+	if _, err := os.Stat(calls); err == nil {
+		got, _ := os.ReadFile(calls)
+		t.Errorf("the trap wrote state for a run that declared none: %q", got)
+	}
+
+	// A record: the clear runs, with the ranked status and never the bus's `exit`.
+	declare(t, "12", "waiting", "needs input")
+	body = ws.bodyFile("run2")
+	if err := ws.writeBody(body, "run2", t.TempDir(), "true"); err != nil {
+		t.Fatal(err)
+	}
+	if err := exec.Command("zsh", body).Run(); err != nil {
+		t.Fatalf("the body failed: %v", err)
+	}
+	got, err := os.ReadFile(calls)
+	if err != nil {
+		t.Fatalf("the trap did not clear a declared waiting: %v", err)
+	}
+	line := strings.TrimSpace(string(got))
+	if !strings.HasPrefix(line, "agent-state worker idle") {
+		t.Errorf("the trap called %q, want the ranked status idle", line)
+	}
+	if strings.Contains(line, "exit") {
+		t.Errorf("the trap called %q; `exit` removes the record without updating the user var", line)
+	}
+}
+
+// `--close` disposes of the pane's state with the pane. The var goes with the
+// pane, the file does not.
+func TestCloseRemovesThePanesStateRecord(t *testing.T) {
+	state(t)
+	mux := &fakeMux{panes: []int{7, 12}}
+	mux.install(t)
+	ws := workspaceIn(t, t.TempDir())
+	ws.live(t, "12")
+	declare(t, "12", "waiting", "needs input")
+	declare(t, "7", "working", "the caller")
+
+	out := captured(t, func() { ws.closePane("7") })
+	if !strings.Contains(out, "its state record is removed") {
+		t.Errorf("close said %q, want it to report the record it removed", out)
+	}
+	worker, _ := agentstate.PaneRecord("12")
+	if _, err := os.Stat(worker); err == nil {
+		t.Error("the killed pane is still listed as waiting on every surface")
+	}
+	caller, _ := agentstate.PaneRecord("7")
+	if _, err := os.Stat(caller); err != nil {
+		t.Error("close removed the record of a pane it did not kill")
+	}
+}
+
+// record builds a worker record at a chosen key, with a chosen worker pane, so a
+// prune test can construct states that do not exist on this machine.
+func record(t *testing.T, key, workerPane string) string {
+	t.Helper()
+	dir := filepath.Join(paths.AgentWorker(), key)
+	if err := os.MkdirAll(dir, 0o700); err != nil {
+		t.Fatal(err)
+	}
+	if workerPane != "" {
+		if err := os.WriteFile(filepath.Join(dir, "worker-pane"), []byte(workerPane+"\n"), 0o600); err != nil {
+			t.Fatal(err)
+		}
+		if err := os.WriteFile(filepath.Join(dir, "worker-mux"), []byte(currentMux()+"\n"), 0o600); err != nil {
+			t.Fatal(err)
+		}
+	}
+	return dir
+}
+
+// The prune reads liveness from the recorded worker pane, never from the key.
+//
+// The construction is the point, and 3.5 requires it: the surviving record is keyed
+// on a directory whose BASENAME is `pane-99`, so its key contains a dead pane id
+// while its worker pane is alive. A prune that read the key would delete a record
+// whose worker is on screen, which is what the superseded per-pane layout invited.
+func TestPruneReadsTheWorkerPaneAndNotTheKey(t *testing.T) {
+	root := state(t)
+	mux := &fakeMux{panes: []int{7, 12}}
+	mux.install(t)
+
+	// A live worker under a key that names a dead pane.
+	home := t.TempDir()
+	alive := filepath.Join(home, "pane-99")
+	if err := os.MkdirAll(alive, 0o700); err != nil {
+		t.Fatal(err)
+	}
+	live := workspaceIn(t, alive)
+	live.live(t, "12")
+	if !repo.WorkerKeyed(filepath.Base(live.dir)) {
+		t.Fatalf("the test's own record %q is not current shape", live.dir)
+	}
+
+	// A record whose worker is gone.
+	dead := workspaceIn(t, t.TempDir())
+	dead.live(t, "99")
+
+	line := prune(false)
+	if _, err := os.Stat(live.dir); err != nil {
+		t.Error("the prune removed a record whose worker pane is alive")
+	}
+	if _, err := os.Stat(dead.dir); err == nil {
+		t.Error("the prune kept a record whose worker pane is gone")
+	}
+	if !strings.Contains(line, "pruned 1 record") {
+		t.Errorf("report = %q, want the count it removed", line)
+	}
+	if entries, err := os.ReadDir(root); err != nil || len(entries) != 1 {
+		t.Errorf("records left = %v (%v), want only the live one", entries, err)
+	}
+}
+
+// Three records the prune must not touch, and the two counts it has to report.
+func TestPruneLeavesHeldOverrideAndFlatStateAlone(t *testing.T) {
+	state(t)
+	mux := &fakeMux{panes: []int{7}}
+	mux.install(t)
+
+	// A dead worker whose allocation lock is held. `flock` is on an inode, so removing
+	// the directory and letting the next `start` recreate it would give two callers
+	// different inodes and no exclusion at all.
+	locked := workspaceIn(t, t.TempDir())
+	locked.live(t, "99")
+	handle, err := os.OpenFile(locked.lockFile(), os.O_CREATE|os.O_RDWR, 0o600)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer handle.Close()
+	if err := syscall.Flock(int(handle.Fd()), syscall.LOCK_EX); err != nil {
+		t.Fatal(err)
+	}
+
+	// A worker a caller named itself, and one flat artifact from the old layout.
+	private := record(t, "my-own-worker", "99")
+	flat := filepath.Join(paths.AgentWorker(), "run7.log")
+	if err := os.WriteFile(flat, []byte("=== run7\n"), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	// A record `--close` has already forgotten. Its logs are what the close message
+	// pointed the owner at, so they outlive the pane.
+	closed := record(t, filepath.Base(workspaceIn(t, t.TempDir()).dir), "")
+
+	// The superseded root, so the call has something to report. Without it the prune
+	// removes nothing, returns "", and the count assertion below never runs.
+	if err := os.MkdirAll(paths.AgentWtrun(), 0o700); err != nil {
+		t.Fatal(err)
+	}
+
+	line := prune(false)
+	for what, path := range map[string]string{
+		"a record whose lock is held":  locked.dir,
+		"an override-keyed record":     private,
+		"a flat artifact":              flat,
+		"a record close already swept": closed,
+	} {
+		if _, err := os.Stat(path); err != nil {
+			t.Errorf("the prune removed %s", what)
+		}
+	}
+	if !strings.Contains(line, "kept 4, of which 1 override-keyed and 1 legacy") {
+		t.Errorf("report = %q, want the untouched count split by class", line)
+	}
+	syscall.Flock(int(handle.Fd()), syscall.LOCK_UN)
+}
+
+// An unanswerable probe removes nothing and says so. Reading silence as absence
+// would remove every record on the machine in one call.
+func TestPruneRemovesNothingWhenTheMuxCannotAnswer(t *testing.T) {
+	state(t)
+	mux := &fakeMux{panes: []int{7}, listFail: true}
+	mux.install(t)
+	dead := workspaceIn(t, t.TempDir())
+	dead.live(t, "99")
+
+	line := prune(false)
+	if _, err := os.Stat(dead.dir); err != nil {
+		t.Error("the prune removed a record while the probe could not answer")
+	}
+	if !strings.Contains(line, "pruned nothing") {
+		t.Errorf("report = %q, want it to say the probe failed", line)
+	}
+}
+
+// The superseded root goes whole, on the owner's 2026-08-11 decision, and waits one
+// call when this run has just reported a live worker of its own.
+func TestPruneRemovesTheSupersededRootUnlessOneWasJustReported(t *testing.T) {
+	state(t)
+	mux := &fakeMux{panes: []int{7}}
+	mux.install(t)
+
+	old := paths.AgentWtrun()
+	if err := os.MkdirAll(filepath.Join(old, "pane-186"), 0o700); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(old, "pane-186", "worker-pane"), []byte("474\n"), 0o600); err != nil {
+		t.Fatal(err)
+	}
+
+	if line := prune(true); strings.Contains(line, "superseded") {
+		t.Errorf("report = %q, want the root kept while a live one was reported", line)
+	}
+	if _, err := os.Stat(old); err != nil {
+		t.Fatal("the root was removed in the same call that reported a worker inside it")
+	}
+
+	line := prune(false)
+	if _, err := os.Stat(old); err == nil {
+		t.Error("the superseded root survived a prune that had nothing to hold it back")
+	}
+	if !strings.Contains(line, "removed the superseded wtrun root") {
+		t.Errorf("report = %q, want it to name what it removed", line)
 	}
 }

@@ -45,12 +45,18 @@ worker -w 0  'nh darwin build .'       # block with no timeout
 worker 'long-running-thing'            # fire and forget; poll the rc file
 worker -n build 'nix build .#foo'      # name the log `build` instead of `runN`
 worker -t 40 -w 600 'cargo test'       # 40 lines of tail instead of 20
+worker -b 600 'claude -p "..."'        # like -w, and returns 76 if the run asks
+                                       # for input instead of finishing
 worker --status                        # which pane, and what is running in it
 worker --release build                 # free a name a killed pane left in flight
 worker --close                         # close the worker pane
 ```
 
 `-w` is the common case: one call instead of run, sleep, then read.
+
+`-b` is for running a harness in the pane. It is `-w` plus a third outcome, which
+is why it is a separate flag: `-w` returns the command's own status or 75, and a
+caller branching on `$?` must never read a blocked run as a build result.
 
 The command runs in the directory you called from, checked twice: once here and
 once in the pane. A directory that disappears while the run waits in the pane's
@@ -61,6 +67,10 @@ input buffer stops the run with exit 78 rather than running it somewhere else.
 - The exit status of `worker -w` IS the command's status, so branch on it directly.
 - Exit 75 means the wait timed out and the command is still running. The message
   names the `.rc` file to poll. It is not a failure of the command.
+- Exit 76 comes back from `-b` alone, and means your run asked for input. The line
+  names the run, the reason, and the tail it is waiting at. An exit always wins
+  over a block, so a run that asked for input and then finished returns its own
+  status.
 - Artifacts live one directory down, under a key derived from the workspace:
   `$XDG_STATE_HOME/agents/worker/<key>/` holds `<name>.log`, `<name>.rc`, and
   `last.log` / `last.rc` for the most recent run. `watch worker` finds them from a
@@ -101,6 +111,45 @@ pane.
   keystroke sitting in the buffer prefixes the command and it silently does not
   run.
 
+## Blocked runs
+
+A run says it is blocked; nothing infers it. The only thing that says so is a
+harness running inside the pane, whose hooks call `agent-state` already. A build, a
+switch, or a test suite declares nothing, so the ordinary case reads as running and
+`-b` holds until its timeout, exactly as before.
+
+- `--status` reports `waiting` only while the running marker names the run, so a
+  harness you started in the pane by hand is not reported as a run of this command.
+- The same word reaches the pane record and the WezTerm user var, so the status
+  line, the tab title, the switcher, the session tree, and `agent-sessions.sh`
+  agree with `--status` about that pane. A pane carrying a state var is also
+  exempt from notification, so publishing is what silences it.
+- The run's trap clears it by writing `idle`, on an ordinary exit and on Ctrl-C
+  alike, and only when a record exists: writing one where there was none would put
+  a row for the worker pane on all five surfaces.
+- `--close` removes the record itself. The var goes with the pane.
+
+One blocked harness holds the workspace's only worker for as long as it waits, and
+every other run there is then refused by name. Give it a worker of its own with
+`SYSINIT_WORKER_SESSION` when that matters.
+
+## State that does not accumulate
+
+Each run removes its own body once its exit code is recorded, and a `start` prunes
+records whose worker pane is gone. What it never touches:
+
+- A record whose worker pane is alive, whatever the key says. Liveness is read from
+  the recorded pane, not from the key, so a worker outlives the pane that made it.
+- A record whose allocation lock is held, and a record `--close` has already
+  forgotten: its logs are what the close message pointed you at.
+- A worker keyed by `SYSINIT_WORKER_SESSION`, and anything at the root that is not
+  a current-shape record. Both are reported as a count rather than deleted.
+- Anything at all, when `wezterm cli` cannot answer. The report line says so
+  instead.
+
+Logs are not rotated. Roughly 163 KB and 8 files a day per record, measured over
+five days of one owner's use.
+
 ## Notes
 
 - Requires a GUI WezTerm pane: it refuses outside one rather than guessing. A mux
@@ -117,4 +166,5 @@ pane.
 - The first run after the rename may say that a worker from the superseded script
   still holds a pane. That pane is left running and is neither adopted nor killed,
   because its record carries no mux generation to confirm it. Close it yourself
-  when you are done watching it.
+  when you are done watching it. The superseded root is then removed whole by the
+  next prune, so the message fires at most until you deal with the pane.

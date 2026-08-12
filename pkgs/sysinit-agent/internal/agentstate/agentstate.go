@@ -100,6 +100,42 @@ func Run(args []string) int {
 	return 0
 }
 
+// PaneRecord returns the two files the bus keeps for a pane: the record itself
+// and the submit-time sidecar. Exported because `worker --close` disposes of a
+// pane and has to dispose of its state with it, and a second spelling of these
+// paths would leave a killed pane listed on five surfaces.
+func PaneRecord(pane string) (record, start string) {
+	dir := paths.AgentPanes()
+	return filepath.Join(dir, pane+".json"), filepath.Join(dir, pane+".start")
+}
+
+// PaneStatus returns the ranked status and reason recorded for a pane, or two
+// empty strings when there is nothing this generation can vouch for.
+//
+// A record whose mux is a DIFFERENT live generation is read as absent. Pane ids
+// restart at 0 when the mux restarts, so an old record's id can name a pane this
+// generation allocated for something else, and reporting its word would attribute
+// one pane's state to another. A recorded 0 is not a mismatch but an unclassified
+// writer, which `reapDeadMuxes` also declines to judge, so it is read as written.
+func PaneStatus(pane string) (status, reason string) {
+	if pane == "" {
+		return "", ""
+	}
+	file, _ := PaneRecord(pane)
+	body, err := os.ReadFile(file)
+	if err != nil {
+		return "", ""
+	}
+	var record state
+	if json.Unmarshal(body, &record) != nil {
+		return "", ""
+	}
+	if now := MuxID(); record.Mux != 0 && now != 0 && record.Mux != now {
+		return "", ""
+	}
+	return record.Status, record.Reason
+}
+
 // userVar renders the OSC payload from the record, so the two encodings cannot
 func userVar(r state) string {
 	return fmt.Sprintf("%s|%s|%d|%s", r.Status, r.Reason, r.Since, r.Agent)
