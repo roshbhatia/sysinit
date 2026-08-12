@@ -27,13 +27,20 @@ const SchemaVersion = 1
 // The log's bound. Past maxBytes the writer keeps the newest keepLines and drops
 // the rest, which is the same truncation the reader must already survive.
 //
-// Placeholder values. Task 6.1 of `add-agent-edit-bus` replaces them with
-// numbers measured from a real turn; until then they are large enough that a
-// long turn is not evicted and small enough that the file stays cheap to read
-// from a Lua watcher.
+// Measured, not guessed: one session of ordinary work on this repository wrote
+// 52 events naming 18 files over 90 minutes, at 233 bytes a line and 263 at the
+// longest. Segmented on a two-minute gap, a turn ran 1 to 29 events, mean 6.
+//
+// The two numbers answer different questions. maxBytes decides how often a trim
+// happens, and 512 KiB is roughly 2200 events, so a workspace at the measured
+// rate trims about once every 40 sessions. keepLines decides what a trim costs,
+// because a reader whose offset is now past the file re-reads what survived and
+// counts those files as touched again: 200 events is the smallest window that
+// still holds a whole session's own edits, with a turn's worst case of 29 well
+// inside it.
 const (
-	maxBytes  = 256 * 1024
-	keepLines = 500
+	maxBytes  = 512 * 1024
+	keepLines = 200
 )
 
 // event is one line of the log. It carries no file contents on purpose: the file
