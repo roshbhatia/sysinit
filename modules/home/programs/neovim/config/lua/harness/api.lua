@@ -261,39 +261,16 @@ end
 --- refresh. review.nvim then attaches to whichever codediff session the tabpage
 --- holds, which is the seam its own `open()` uses.
 ---
---- Whether the open review spans repositories, so the changed-file list is shown.
+--- The review opens no window for the changed-file list.
 ---
---- Read by every open rather than by the first, because a step closes the session's
---- tab and the list window goes with it. Measured: after `]q]q` moved the review from
---- `sysinit` to `homelab`, the list was gone, and the generic `]q` that had just moved
---- it refuses once its window is closed. So the thing you step with disappeared on the
---- first step.
-local span_repos = false
-
---- Put the changed-file list back beside the diff, focus unchanged.
+--- It did, and the owner saw two indexes of the same files: codediff's explorer under
+--- the diff saying `Changes (2)`, and a quickfix window under that saying the same
+--- thing in a different order. The explorer is the one to keep, so the list is filled
+--- and left closed.
 ---
---- `botright` rather than a plain `copen` so it spans the width under codediff's panes
---- instead of splitting one of them.
----
---- Failing is allowed and silent. A short terminal has no room for another window and
---- answers `E36: Not enough room`, and `]q` steps the list either way: the generic
---- keys in `after/plugin/lists.lua` fall back to `:cnext` when the list has entries and
---- no window shows them. The window orients the owner; it is not the mechanism.
-local function show_changed_list()
-  if not span_repos then
-    return
-  end
-  for _, win in ipairs(vim.fn.getwininfo()) do
-    if win.quickfix == 1 and win.loclist == 0 then
-      return
-    end
-  end
-  local here = vim.api.nvim_get_current_win()
-  pcall(vim.cmd, "botright copen")
-  if vim.api.nvim_win_is_valid(here) then
-    pcall(vim.api.nvim_set_current_win, here)
-  end
-end
+--- Nothing is lost by closing it. `]q` steps a list with entries whether or not a
+--- window shows it, because `after/plugin/lists.lua` falls back to `:cnext`, and
+--- `<leader>eq` opens the window for anyone who wants to read it as a list.
 
 --- Open the explorer over a repository with nothing changed.
 ---
@@ -354,7 +331,6 @@ local function open_one(group, on_open)
       end
       vim.defer_fn(function()
         attach_review()
-        show_changed_list()
         if on_open then
           on_open(opened)
         end
@@ -400,7 +376,6 @@ local function open_one(group, on_open)
     -- two chances rather than the only one.
     vim.defer_fn(function()
       attach_review()
-      show_changed_list()
       if on_open then
         on_open(true)
       end
@@ -482,11 +457,7 @@ local function open_review(groups, said)
     end
   end)
 
-  -- Only a review that spans repositories shows the list. For one repository
-  -- codediff's explorer is already the file index, and a second one beside it would
-  -- say nothing new.
-  span_repos = #groups > 1
-  if span_repos then
+  if #groups > 1 then
     local names = {}
     for index = 2, #groups do
       table.insert(names, string.format("%s (%d)", vim.fn.fnamemodify(groups[index].root, ":t"), #groups[index].files))
@@ -499,9 +470,6 @@ local function open_review(groups, said)
       )
   end
 
-  -- `open_one` shows the list itself, on this open and on every later step. The
-  -- message above names `]q`, and the generic `]q` in `after/plugin/lists.lua` steps a
-  -- list only while its window is open.
   open_one(first, function()
     vim.notify(said, vim.log.levels.INFO)
   end)
@@ -524,14 +492,13 @@ function M.review_close()
   pcall(function()
     require("harness.notes").detach()
   end)
-  -- The list window came with the review, so it goes with it. The entries stay: a
-  -- closed quickfix list is still there for `:copen` and for `<leader>eq`.
+  -- A window the owner opened over the list themselves goes with the review, since it
+  -- was opened to read this review's files. The entries stay, for `:copen` later.
   for _, win in ipairs(vim.fn.getwininfo()) do
     if win.quickfix == 1 and win.loclist == 0 then
       pcall(vim.api.nvim_win_close, win.winid, false)
     end
   end
-  span_repos = false
   review_state = { groups = {}, root = nil, said = nil }
 end
 
