@@ -1416,13 +1416,22 @@ func TestReleaseTakesTheAllocationLock(t *testing.T) {
 
 	done := make(chan int, 1)
 	go func() { done <- ws.release("7", "build", false) }()
+	// The value is taken in the select, not read a second time afterwards: a test that
+	// reads a one-value channel twice deadlocks on the very failure it is asserting,
+	// which turns a failing test into a hung suite.
+	code := -1
+	blocked := false
 	select {
-	case <-done:
+	case code = <-done:
 		t.Error("release ran to completion while another caller held the allocation lock")
 	case <-time.After(200 * time.Millisecond):
+		blocked = true
 	}
 	syscall.Flock(int(held.Fd()), syscall.LOCK_UN)
-	if code := <-done; code != 0 {
+	if blocked {
+		code = <-done
+	}
+	if code != 0 {
 		t.Errorf("release after the lock was dropped = %d, want 0", code)
 	}
 }
