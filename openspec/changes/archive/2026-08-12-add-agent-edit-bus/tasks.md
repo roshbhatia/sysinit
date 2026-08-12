@@ -486,4 +486,16 @@ does. Nothing to fix here; the probe had to pin the variable explicitly.
       reader trust the registry's claim about a writer, and a claim that is wrong
       by one harness reads as buffers silently stopping reloading, which is the
       hardest symptom here to attribute.
-- [ ] 6.3 Apply: `openspec archive add-agent-edit-bus`, gated on `specutil check` and `spec-preflight all` exiting 0
+- [x] 6.3 Apply: `openspec archive add-agent-edit-bus`, gated on `specutil check` and `spec-preflight all` exiting 0
+
+      Both gates exit 0. `specutil check` first failed on a stale review decision,
+      because 5.4 through 6.2 changed the artifacts after the owner approved them.
+      The owner refreshed the decision themselves; nothing here recorded an
+      approval on their behalf, and the pre-commit hook held the docs commit back
+      until they had.
+
+      `openspec archive` reports two non-blocking proposal warnings: a long `Why`
+      section, and no deltas. The second is expected and is recorded in
+      `no-in-repo-spec-corpus`: this repository carries no spec corpus, so the
+      acceptance criteria live in the proposal's `Behavior` section, which
+      preflight confirms holds 24 entries.
