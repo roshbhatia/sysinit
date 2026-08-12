@@ -289,6 +289,30 @@ run as a build result.
 - THEN the prune removes nothing and says so on its report line, rather than reading
   an unanswerable probe as every worker being absent
 
+The section title is true of whole records and NOT of the inside of a live one, and
+the difference matters more after this change than before it. The old key was per
+caller pane, so a record aged out with the pane that made it. The workspace key gives
+one record per repository, reused by every pane for as long as the repository exists,
+and the negative scenario above guarantees that such a record is never pruned.
+
+One of the two things that accumulated is fixed here. The generated body deletes
+itself once its exit code is recorded, because a body is dead the moment its run ends:
+13 of the 41 entries in the live superseded record are dead bodies. Measured twice
+before relying on it, since a script removing the file it is running from is not
+obviously safe: zsh runs a 300-line script to completion after the file is deleted
+mid-run, and a trap can remove it.
+
+Logs are NOT rotated, and that is out of scope rather than solved. Measured on the
+live superseded record: 41 entries and 816 KB over five days of one owner's use, with
+the two largest logs at 288 KB and 273 KB, so roughly 163 KB and 8 files a day per
+record. A month of the same use is about 5 MB. The `.cmd` fix removes about a third of
+the file count and almost none of the bytes.
+
+#### Scenario: a finished run leaves no script behind
+
+- WHEN a run records its exit code
+- THEN its generated body is gone, while its log and its exit-code file remain
+
 ### A relative path means the caller's directory
 
 - WHEN a caller runs a command containing a relative path
@@ -352,13 +376,22 @@ non-number to `-w` gets an error where it used to get a pane. Both were the defe
 preserving them is not compatibility.
 
 The third is the run-name refusal, and it is the one that costs the owner something
-they have today. `wtrun.sh:110` is an unconditional `rm -f "$rc"`, so bash reuses any
-name, whatever the previous run left behind. Refusing a name whose previous run
-recorded no exit code therefore breaks a case that works now, and it breaks it for
-the ordinary reason: an interrupted run leaves a log and no `.rc`. Three such names
-exist on disk right now, one of them from today's session, which is one run in eight.
-The workspace key widens the blast radius, because a burned name is scoped to one
-caller pane today and to the whole workspace after the change.
+they have today. An earlier draft of this paragraph said bash reused any name. It did
+not: `wtrun.sh:124-126` refuses a name the running marker currently holds. What
+changes is the refusal's scope and how long it lasts.
+
+Bash keyed the refusal on the marker, so it covered only the one name the marker held,
+and any later run overwrote the marker and cleared the burn. The new refusal keys on a
+missing `.rc`, so it covers every name whose run recorded no exit code and it lasts
+until the name is released. That is a real cost: an interrupted run leaves a log and no
+`.rc`, three such names exist on disk right now, one from today's session, which is one
+run in eight. The workspace key widens it further, because a burned name is scoped to
+one caller pane today and to the whole workspace after the change.
+
+Bash's own refusal was also unfollowable, which is why keeping it as it stood was not an
+option. `wtrun.sh:110` removes the `.rc` file at the top of every run, before the guard
+at `:124` runs, so the message telling the caller to wait for that file names a file the
+same invocation had just deleted.
 
 So the refusal MUST come with a release, and the release MUST NOT be "wait for the
 worker pane to die", which discards every other run's log in the workspace.
@@ -369,6 +402,58 @@ worker pane to die", which discards every other run's log in the workspace.
   exit code
 - THEN the call names the run, names how to release it, and the release clears that
   one run's artifacts without touching any other run in the workspace
+
+The release MUST refuse while the run could still execute, and "could still execute"
+is not the same as "is executing". A run queued in the tty input buffer has not
+written the running marker, because the body writes it when the PREVIOUS command
+finishes, so a marker-based refusal released a run that was about to start: it
+deleted the body, the pane then failed to open its own script, and the name was
+burned a second time by the release itself. The decidable test is a missing exit code
+plus a live worker pane.
+
+#### Scenario: a run queued behind another is released (negative)
+
+- WHEN a caller releases the name of a run that has been sent but has not begun
+- THEN the call refuses, names the pane that is going to run it, and leaves its body
+  and its log in place
+
+#### Scenario: the pane is closed under a running run (negative)
+
+- WHEN `--close` kills a pane whose run has recorded no exit code
+- THEN the run is recorded as exit 129, so closing the pane does not leave that name
+  unusable, and the output says which run it ended
+
+The smaller differences below are deliberate, and are declared here rather than left
+for a reader to find by diffing the two implementations. Each one changes observable
+output, so none of them is an implementation detail. They are grouped by kind rather
+than counted, because a count in this list goes stale every time one is added:
+
+- A caller error exits 2, where `wtrun.sh:7` exited 1. 2 separates a caller mistake
+  from a command that failed, and 75 already means "still running". `--close` also
+  exits 2 when the kill itself fails, where bash exited 0 whatever happened.
+- A run whose directory disappeared exits 78, not 2, so it is distinguishable from
+  the ordinary failure `make` and `go test` report as 2.
+- A flag with no value is an error. Bash defaulted `-w` to 0, `-t` to 20, and `-n` to
+  empty at `wtrun.sh:54,58,62`, then ran `shift 2` with one argument left. Measured:
+  bash's `shift` refuses to shift past `$#` and returns non-zero, and the script sets
+  no `-e`, so the loop re-enters with `$1` still `-w` and spins. `wtrun -w` therefore
+  ran nothing at all, rather than waiting.
+- Mode flags are no longer order-dependent. Bash acted on `--status` inside its
+  parse loop, so a later flag was never read; here the parse finishes first, and a
+  mode flag combined with a command is refused rather than discarding the command.
+- `-n` validates its value as one path element. Bash passed it into a path unchecked.
+- Every log's header, and the line printed on a successful start, carry an `in <dir>`
+  field, because the directory is now the key and a log that does not name it cannot
+  be read six hours later. The start line goes from `pane <id>  <name>  log <path>`
+  to `pane <id>  <name>  in <dir>  log <path>`, and the queued form gains the same
+  field. This is the one line every ordinary invocation prints.
+- Five reporting strings change wording. Bash printed `worker pane <id>, running
+  <name>`, `worker pane <id>, idle`, `no worker pane` for both `--status` and
+  `--close`, and `closed pane <id>`. The new forms are `pane <id>  running <name>
+  log <path>`, `pane <id>  idle  in <root>`, `no worker for <root> (<reason>)`, and
+  `closed pane <id> for <root>`, the last optionally followed by `; reclaimed a
+  marker naming <name>`. Every exit code is unchanged, so a caller reading `$?` is
+  unaffected and a caller grepping `no worker pane` finds nothing.
 
 #### Scenario: not inside WezTerm (negative)
 
@@ -413,8 +498,29 @@ the workspace as its crumb. That is a consequence of the round-1 decision, not a
 side effect to be discovered later, and phase 3 MUST show the owner what the worker
 looks like in the switcher before it is accepted.
 
-Not affected: the pane record schema, the `agentWtrun` path itself, and every
-caller's flags.
+Not affected: the pane record schema, and the file names a record carried before this
+change (`worker-pane`, `worker-running`, `worker-runs`, `<name>.log`, `<name>.rc`,
+`<name>.cmd`, `last.log`, `last.rc`).
+
+A record gains two files. `worker-mux` holds the mux generation that wrote
+`worker-pane`, and the phase-3 prune MUST know about it, since the pane record is now
+two files rather than one. `worker-lock` is an empty file held under `flock` while a
+run name is allocated; it carries no state and is never read.
+
+Writes to `worker-mux` and `worker-runs` go through a temporary `<name>.new` beside
+the target and then a rename, so a reader never sees a partial record. A `.new` file
+left behind is a crashed write rather than state, and none has ever been left: a scan
+of the 303 entries in the superseded root finds none.
+
+`last` is reserved and cannot name a run. `last.log` and `last.rc` are the aliases
+for the most recent run, so `-n last` made the alias and the run's own log the same
+path: the run created a regular file where the symlink was, the alias was then
+pointed at itself, and every read of the result returned ELOOP. The command ran and
+reported its exit code with its entire output gone.
+
+The `agentWtrun` path is affected, and an earlier draft of this line said it was
+not. The rename gives the live state a new root, `agentWorker`, and phase 3 removes
+the old root whole rather than sweeping it.
 
 Risk: `wtrun` is what an agent uses to run a build, so a regression here is a
 regression in every long-running command. The `WEZTERM_PANE`, dead-worker, and

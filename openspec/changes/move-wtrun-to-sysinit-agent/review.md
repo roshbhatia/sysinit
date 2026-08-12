@@ -15,9 +15,15 @@ reported the earlier approval as no longer covering the artifacts. The owner
 re-recorded `approved` against code `d9515ee4`, with the rename as the note. The
 author asked for that decision and did not make it.
 
-Phase 1's own adversarial review, task 1.7, has NOT run. The approval above covers
-the artifacts, not the implementation, and this file records three rounds against the
-plan rather than against the code that now exists.
+It went stale a second time on 2026-08-11, when the phase-1 code review's first two
+rounds closed 37 objections and changed all four artifacts. The owner was shown the
+hashes and the round-2 record and directed that the same `approved` verdict be carried
+forward, against code `31037acb6`. Carried forward, not re-decided: the author asked,
+and the author did not make it.
+
+Rounds 1 to 3 review the PLAN, and reached `STALLED`. Task 1.7 reviews the phase-1
+CODE, is a separate loop with its own rounds, and is recorded at the end of this file.
+The approval above covers the artifacts, not the implementation.
 
 `STALLED` is the terminal state because the surviving-objection count did not decline
 across three rounds: nine, nine, ten. Every objection was fixed in the round that
@@ -411,3 +417,201 @@ could close, carried here rather than dropped.
     experiment: `agent-state` is a short-lived command that writes the OSC and exits,
     and every surface reads the var long afterwards. If it did not outlive the writer,
     no pane would ever show a state, and they do.
+
+## Phase 1 code review (task 1.7), round 1
+
+A separate loop, bound to code rather than to the plan. Three fresh-context read-only
+critics were spawned against commits `d9515ee49..6374aecee`, one lens each: parity
+against the 167-line script, correctness, and state. Parity returned 10 objections and
+correctness returned 12. The state lens never reported, which is recorded as a gap
+rather than as a clean lens: two of three lenses ran.
+
+Every objection was verified against the file before it was acted on, and the parity
+report was checked against all 167 lines of `wtrun.sh` rather than against its summary
+of them. All 22 were upheld. None was discarded, and none was already fixed.
+
+The correctness lens's central finding is that the author overclaimed. A code comment
+and the task 1.5 note said the generated body records an exit code however the run
+ends. The trap does not cover `SIGKILL`, an `exec`, or a command that clears it, so
+the claim was wrong in three ways and the comment now says which.
+
+| Lens | Finding | Failing scenario | Verdict |
+| --- | --- | --- | --- |
+| correctness | An unanswerable liveness probe split a second worker | The mux stalls for one `wezterm cli list`. `pane()` returns an error, `start()` reads any error as "no worker", splits, and overwrites `worker-pane`. The live worker is now unaddressable: the orphan the change exists to remove, manufactured by the change | upheld |
+| correctness | An absent or zero generation marker was treated as current | Two shapes. A record with no `worker-mux` skipped the check entirely. A record written by a process with no `WEZTERM_UNIX_SOCKET` holds `0`, and `0 == 0` matches every later blind process. The proposal requires an absent marker to read as no state | upheld |
+| correctness | A marker with no owner burned a run name and neither recovery freed it | The pane is killed with `SIGKILL`, so no trap runs and `worker-running` still names `build`. `--release build` refused, because the marker named the running run. `--close` refused too, because `pane()` failed. The name was unusable with no command-line way back, contradicting the task 1.5 note | upheld |
+| correctness | Two callers in one workspace could be handed one run name | `nextRunName` read the counter, incremented, and wrote it back with no exclusion. Two panes in one repository interleave, both get `run7`, and they share one log and one exit-code file. The workspace key is what makes this reachable; the per-pane key could not | upheld |
+| correctness | A failed `send` burned the name it had just prepared | The log and header are written, `wezterm cli send-text` fails, the call exits 2 having run nothing. The log with no rc reads as a run in flight, so the name is burned for the whole workspace, and the previous run's exit code has already been removed | upheld |
+| correctness | The body's directory-gone exit code collided with an ordinary failure | It was 2, which `make` and `go test` both return for an ordinary failure. A caller branching on `$?` cannot tell a build that failed from a build that never ran | upheld |
+| correctness | The key override could forge either shape the phase-3 prune matches | `SYSINIT_WORKER_SESSION=pane-241` or `=myrepo-<16hex>` resolves to a directory indistinguishable from a derived key, so `--close` under that override kills another workspace's worker and the prune's count becomes undecidable | upheld |
+| correctness | An invalid override fell back to the shared derived key | A caller asking for a private worker and mistyping the name got the shared one, with a warning on stderr. Its `--close` then killed the pane every sibling was using | upheld |
+| correctness | A wait beyond a duration's range expired at once | `time.Duration(seconds) * time.Second` overflows int64 above 9223372036, so the deadline landed in the past and `-w 99999999999` returned 75 immediately | upheld |
+| correctness | `-n ''` reached the filesystem unvalidated | The empty string skipped the name check and produced `.log` and `.rc` in the record directory | upheld |
+| correctness | `cd -- $dir` was unquoted in the generated body | A sourced `~/.zshenv` setting `SH_WORD_SPLIT` splits a directory name containing a space, so the run lands somewhere else or fails | upheld |
+| correctness | The 250 ms settle was a guess about a race the code never observed | A command whose output exceeds what `tee` drains in 250 ms has its tail truncated; a command that leaves a writer running holds the caller for a fixed pause that helps nothing | upheld |
+| parity | A bare multi-word command was refused | `wtrun.sh:132` and `:137` use `"$*"`, joining every remaining word. `worker git status` reported a second command and ran nothing. This is the single most common invocation shape | upheld |
+| parity | The long flag forms were dropped entirely | `wtrun.sh:53,57,61` accept `--wait`, `--tail`, and `--name`. The Go parser knew only the short forms, so `--wait 900` was an unknown flag | upheld |
+| parity | The `--` terminator was dropped | `wtrun.sh:86-89` ends flag parsing, so a command beginning with a dash is runnable. Without it, `worker -- -n hello` fails | upheld |
+| parity | The log-name mistake was no longer caught | `wtrun.sh:96-99` detects a bare name followed by a quoted command and prints the corrected invocation. Restoring `"$*"` without this makes `worker build 'nix build'` run `build nix build` | upheld |
+| parity | `--close` left a stale record when the pane was unreachable | `wtrun.sh:83` removes the record and the marker unconditionally. The Go version refused and cleared nothing, so a record naming a dead pane survived every recovery | upheld |
+| parity | `--close` claimed success on a failed kill, then removed the record | `wtrun.sh:79` prints only on `&&`, but `wtrun.sh:83` removes the record whatever happened, so a live pane became unreachable. Both halves needed fixing, in opposite directions | upheld |
+| parity | Four differences were real but undeclared: the error exit code, the `--status` wording, a missing flag value being an error, and mode flags no longer being order-dependent | Each changes observable output. `wtrun.sh:7` exits 1; `:54,58,62` default a missing value; `:65-84` act inside the parse loop, so a later flag is never read. A caller grepping `worker pane 12, idle` finds nothing | upheld |
+
+The parity lens also corrected the author's stated reason for giving the override a new
+name. The author's reason was collision, which cannot happen: the two implementations
+read different roots. The real reason is that `watch.go:222` reads `WTRUN_SESSION` and
+resolves it under the OLD root, so honouring that name here would aim the watcher at a
+path nothing writes, silently. Task 2.9 repairs the watch side. The comment now gives
+the sound reason and says the weak one is not it.
+
+One finding the author raised against their own work before any critic reported: the
+design commits at `design.md:491` to an explicit key override, and the implementation
+had none. Added as `6374aecee`.
+
+### Revisions applied
+
+All 22 are closed in commit `2470058f0`, which rewrote the file rather than patching it
+17 times.
+
+1. An unanswerable probe returns a distinguishable `errProbe`, and no caller reads it as
+   absence. `start` refuses rather than splitting, `--status` says it cannot report, and
+   `--close` keeps the record.
+2. An absent, empty, or `0` generation marker is "not current", never "current". A caller
+   with no generation of its own refuses rather than guessing, because splitting would
+   split again on every later invocation.
+3. `--close` clears a record it has proved unusable, and says which marker it reclaimed.
+   `--release` clears a marker whose run no pane can be running. A failed kill keeps the
+   record.
+4. Run names are claimed by creating the log with `O_CREATE|O_EXCL`, so the filesystem
+   decides a race. The counter is a hint, not a reservation.
+5. A failed send rolls back the log, the rc file, and the body.
+6. The directory-gone code is 78, beside the 130, 143, and 129 the body records for
+   signals.
+7. The override refuses a name shaped like either prune key, and refuses an invalid name
+   outright rather than substituting the shared one. An empty value still means "no
+   override", which is what `${WTRUN_SESSION:-<derived>}` meant.
+8. The wait clamps to one year of seconds, `-n` is validated before use, and the body
+   quotes its `cd`.
+9. The settle became an observed drain: wait for the log to stop growing, 20 steps at
+   most, so a large tail is not truncated and a leftover writer cannot hold the caller.
+10. The parser joins every remaining word, accepts the long forms and `--`, restores the
+    log-name heuristic with its corrected invocation, refuses a mode flag combined with a
+    command, and gained a usage synopsis and `-h`.
+11. The four undeclared differences, plus three more the author found while declaring
+    them, are stated in `proposal.md` as seven smaller deliberate differences. The
+    `agentWtrun` path is no longer listed as unaffected, which was false from the rename.
+
+Four mutations, one per new check, each fails the test that covers it: reading `errProbe`
+as absence, accepting an absent generation, dropping `O_EXCL`, and removing the record on
+a failed kill. `go build`, `go vet`, `gofmt -l`, `go test ./...` across all 13 packages,
+and `nix build .#darwinConfigurations.lv426.system --no-link` all exit 0 on the commit.
+
+Surviving-objection trend: phase-1 round 1, 22 raised, 22 fixed, zero open. Two of three
+lenses reported.
+
+## Phase 1 code review (task 1.7), round 2
+
+Bound to the code as round 1 left it, not to the plan. Three lenses: parity, correctness,
+and the state lens that had gone silent in round 1, prompted to report and given the new
+revision. All three reported. 15 distinct objections, all verified against the files
+before anything was changed, all 15 upheld, zero open.
+
+The state lens opened by WITHDRAWING five findings the rewrite had closed, naming the
+line that closed each. That is the only lens in this review to do so, and it is what
+keeps a loop from churning.
+
+Two objections arrived from two lenses independently: the queued-release defect was
+raised by both parity and state. It is counted once.
+
+| Lens | Finding | Failing scenario | Verdict |
+| --- | --- | --- | --- |
+| correctness | A caller with no mux generation of its own split a new worker on every invocation | `WEZTERM_UNIX_SOCKET` unset or malformed makes `MuxID` return 0. The refusal was a plain error, which `start` reads as absence, so it split, wrote another unverifiable `0`, and split again next call. `--close` could then reach none of them. The code's own comment promised the opposite | upheld |
+| correctness | `--close` from inside the worker pane deleted the record of a live pane | `pane()` returned a plain error for "the record names the calling pane", which is a statement about who is asking. `closePane` read it as stale and cleared the record without attempting a kill. The next call split a second worker beside the live one | upheld |
+| correctness | `--release` from inside the worker pane discarded a RUNNING run | Same root cause. The guard fell through, so the log was unlinked while `tee` kept writing to the unlinked inode: the exact harm the guard's own message names | upheld |
+| correctness | Two callers passing the same `-n` could both hold the name | The reuse branch removed the log and then created it, so the second caller removed the log the first had just created. Reproduced by the critic at 2 rounds in 400, and later by a test here at 2 callers in 4 | upheld |
+| state | `-n last` destroyed the aliases and made the run's own log unreadable | `last` passed validation, `inFlight` followed the `last.log` symlink to the previous run and read it as finished, the reuse path deleted both aliases, and `linkLast` then removed the run's own log and pointed the symlink at itself. Measured: every read returns ELOOP, so the command reported its exit code with its entire output gone | upheld |
+| state | A failure between the claim and the send burned the name permanently | Rollback covered the send only. A full disk, or the record directory removed by hand mid-call, left a log with no exit code, which reads as a run in flight and burns the name for every pane in the workspace | upheld |
+| state | `--close` silently burned the name of the run it killed | The killed run's log has no `.rc`, so the name reads as in flight. The output said "reclaimed a marker", which reads as cleanup finishing | upheld |
+| state | A live record grows without bound, and the prune is specified never to look inside one | Measured on the live superseded record: 41 entries and 816 KB over five days, 13 of them dead `.cmd` bodies. The old per-pane key aged a record out with its pane; the workspace key keeps one per repository, and the negative scenario guarantees it survives pruning | upheld |
+| state | A read-only query created the keyed directory | `MkdirAll` ran before the dispatch, so `--status` minted an empty record. The migration plan has the owner run `--status` for the two-implementation comparison, so reading perturbed the baseline step 5 compares against | upheld |
+| parity + state | `--release` on a QUEUED run deleted the body the pane was about to run | The guard keyed on the running marker, and a queued run's marker still names its predecessor, because the body writes the marker when the previous command finishes. The release removed the body; the pane then failed to open its own script; the name was burned a second time by the release | upheld |
+| parity | The run-name declaration misdescribed bash. Bash refused too | `wtrun.sh:124-126` refuses a name the marker holds, and an interrupted run leaves the marker set. The declaration said bash reused any name, which is the thing a reader would check. It also cited `:110` as what made reuse work, when `:110` is what made bash's own message unfollowable: it deletes the `.rc` it then says to wait for | upheld |
+| parity | The missing-flag-value declaration misdescribed bash on both halves | It said `wtrun -w` waited forever and `wtrun -n` ran an unnamed run. Measured: bash's `shift 2` with one argument left refuses to shift and returns non-zero, and the script sets no `-e`, so the loop re-enters with `$1` still `-w` and spins. Neither ran anything | upheld |
+| parity | The line every ordinary invocation prints gained a field, and only the log header was declared | Bash printed `pane <id>  <name>  log <path>`; the new form inserts `in <dir>`. Anything anchored between the name and `log ` breaks | upheld |
+| parity | Four more reporting strings changed and none was declared | `worker pane <id>, idle`, `no worker pane` for both `--status` and `--close`, and `closed pane <id>`. `no worker pane` is the exact literal a wrapper would test for and now appears nowhere. `--close` also exits 2 on a failed kill where bash exited 0 | upheld |
+| parity | The record's file list was declared exhaustive and was already wrong | `worker-mux` is a new file in a record, added by round 1's own generation fix, and the "not affected" list written in round 1 omitted it. `design.md` also described the comparison as reading the pane record's `Mux` field, when it reads a separate file | upheld |
+
+The parity lens also confirmed, against attack, what the rewrite got right: the C-u prefix,
+`clear`, `--no-paste`, `--bottom --percent 40`, the 1s settle and the return of focus, the
+tail separator, exit 75 and its message, the `-t` default, the `last.*` symlinks, the
+counter's name and contents, and the `"$*"`-style join are all preserved verbatim. The
+correctness lens separately cleared the `errProbe` call sites, the first-run path, the
+generated zsh's quoting including a single quote in a path, and `drain`.
+
+Two defects found here rather than by a critic:
+
+- An auto-allocated name reused a FINISHED run's name, deleting its log. The counter
+  lives in the same directory as the runs it numbers, so a pruned or truncated counter
+  restarts at 1. Only an explicit `-n` reuses now.
+- The first fix for the reuse race was WRONG, and a test caught it rather than review.
+  Moving the old log aside instead of removing it does not serialize anything: the
+  winner recreates the log, so the next caller's rename succeeds against the fresh one
+  and both hold the name. No ordering of remove and exclusive-create fixes this. The
+  allocation now runs under `flock` on a per-record lock file.
+
+### Revisions applied
+
+All 15 are closed across three commits: `a759e7159`, `31037acb6`, and the doc edits.
+
+22. A caller with no generation of its own returns `errProbe` and refuses, checked
+    before the record is even read. Ordering was load-bearing: testing the RECORDED
+    value first left the split-forever loop reachable whenever both were blind, which
+    the test caught after the first attempt.
+23. The self case gets its own sentinel. `--close` and `--release` refuse on it and
+    keep the record; `start` still splits, which is correct, because the caller needs a
+    worker other than itself and its own pane is not orphaned by losing the role.
+24. Run-name allocation runs under `flock` on `worker-lock`. The exclusive create stays
+    as an inner check.
+25. `last` is reserved, and a name containing a line break is refused, because the
+    reported counts are line-oriented.
+26. Every failure between the claim and a successful send rolls the name back, not just
+    the send.
+27. `--close` records exit 129 for a run it killed, which is what the body's own HUP
+    trap would have written, and says which run it ended.
+28. The record directory is created by `start` alone, so a query writes nothing.
+    Verified against the live root: the two directories my own earlier `--status` runs
+    created were removed, and a query now leaves the root absent.
+29. The generated body deletes itself once its exit code lands. Measured safe twice
+    before relying on it: zsh completes a 300-line script deleted mid-run, and a trap
+    can remove the file it runs from. Named literally, not as `$0`, because zsh sets
+    `FUNCTION_ARGZERO` and `$0` inside a function is the function's name.
+30. Six documentation defects fixed: the run-name declaration, the missing-value
+    declaration, the start line, the four reporting strings plus `--close`'s exit code,
+    the record's file list, and the design's description of the generation comparison.
+    Accumulation is now stated rather than implied by a section title, with the measured
+    numbers and with logs named as out of scope.
+31. Task 2.3 records four SKILL.md statements to edit rather than one.
+
+Seven mutations, one per new check, each fails the test that covers it: reading a blind
+caller as absence, collapsing the self case into absence, letting `--close` burn the
+name, creating the record from a query, allowing `-n last`, keeping the body after the
+run, and removing the lock. `go build`, `go vet`, `gofmt -l`, `go test ./...` across all
+13 packages, `nix build .#darwinConfigurations.lv426.system --no-link`, and `nix flake
+check` all exit 0.
+
+One process failure worth recording, because it has now happened twice in this
+repository. Reverting a mutation with `git checkout --` discarded the uncommitted lock
+implementation, and the test then failed for a reason that looked like a design flaw in
+the lock. The lesson already written down is to mutate only a committed tree. It was not
+followed, and roughly twenty minutes went into re-deriving a fix that was already
+correct.
+
+Surviving-objection trend: phase-1 round 1, 22 raised, 22 fixed. Round 2, 15 raised, 15
+fixed. Zero open after both.
+
+Terminal state: hit K=2 with zero open objections. The count declined, so this is not
+non-convergence, and every objection is closed. It is NOT clean: no round of this loop
+has ever come back with nothing, and round 2's own fixes have not been reviewed by
+anyone. Roughly 8 of the 15 were caused by round 1's fixes, and one round-2 fix was
+wrong on its first attempt, so a round 3 has real expected value rather than nominal
+value. Whether to spend it is the owner's call.

@@ -279,10 +279,14 @@ Non-Goals:
   - Alternative rejected: return 0 on blocked. Rejected because a caller would read a
     blocked run as a successful build.
 
-- Decision: the worker record carries the mux generation, and worker reuse rejects a
-  worker from another generation. `--status` compares the record's `Mux` against the
-  current mux and treats absent or 0 as no state. `agentstate.go:235-250` already
-  computes the marker, so this needs no schema change.
+- Decision: the worker record carries the mux generation in a file of its own,
+  `worker-mux`, written before `worker-pane` so a partial write reads as no record.
+  Reuse rejects a worker from another generation, and treats absent, empty, and 0 as
+  no state. `agentstate.MuxID` already computes the marker, exported so the two
+  definitions of a generation cannot drift; the pane record's schema is untouched.
+  A caller with no generation of its OWN refuses the invocation rather than splitting,
+  because the record it would write is equally unverifiable, so splitting means one
+  new pane per invocation and none of them reachable by `--close`.
   - Alternative rejected: rely on `pane_alive` alone, which is what the first draft
     specified. Rejected because pane ids restart with the mux, and the workspace key
     removes the collision that used to hide it. Reaching stale worker state used to

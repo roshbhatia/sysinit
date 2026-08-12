@@ -1,9 +1,9 @@
 version: 2
 change: move-wtrun-to-sysinit-agent
 decision: approved
-note: renamed wtrun to worker, no alias, prune removes the old state root
-change_hash: 16328e4c2fe25728
-base_commit: d9515ee4924d7753e24645bab6fa210feffbdfe5
+note: Owner verdict of 2026-08-11 carried forward at the owner's explicit direction, after the phase-1 code review's rounds 1 and 2 closed 37 objections. Not a new approval.
+change_hash: 59e10cd9709a4c43
+base_commit: 31037acb6e695eacd58f77a699e374760ec1f1c0
 items:
     2c340666383b73d7:
         hash: e694eb789bdadfcf

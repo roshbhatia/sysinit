@@ -35,6 +35,12 @@
 - [ ] 1.8 Apply: `git push`, then `nh darwin switch` from the `sysinit.laurel` checkout in a separate WezTerm pane, gated on `nix flake check` and `nh darwin build` exiting 0. The bash script stays installed and stays the one the skill calls
 - [ ] 1.9 Confirm: the owner accepts that the two implementations disagree about the live worker in the expected way, the script naming it and the subcommand reporting none, with no other difference
 
+  The comparison is captured, on 2026-08-11, from the conversation pane that holds
+  the precondition. In this repository `wtrun --status` prints `worker pane 434,
+  idle`; `worker --status` prints `no worker for <repo> (none recorded)`. That is the
+  disagreement, and the wording differs as declared. The owner still runs a real
+  command, which this comparison does not cover.
+
 ## 2. The cutover
 
 - **SHAPE** graph
@@ -52,6 +58,13 @@
   to a missing subcommand. The wrapper becomes a shim in the shape `citelock`
   already uses at `skill-tools.nix:19`, the skill directory moves from `skills/wtrun/`
   to `skills/worker/`, and the owner chose no alias.
+
+  Four SKILL.md statements need editing, not one. `:57`'s promise that two runs never
+  share a log still holds and needs only rewording for the shared key. `:55` names a
+  root the artifacts have left, and they are now one directory deeper. `:61-62`
+  promises the pane is recreated only if the owner closed it, which a mux restart now
+  also does. And the directory a run executes in, the `last` reservation, and
+  `--release` are undocumented.
 - [ ] 2.9 Rename the watch source and its session override to match, so `watch wtrun` and `WTRUN_SESSION` do not outlive the command they were named for `writes:` pkgs/sysinit-agent/internal/watch/, modules/home/programs/wezterm/lua/sysinit/pkg/keybindings.lua `deps:` 2.1
 
   Separate from 2.1 because 2.1 changes what the renderer resolves and this changes
