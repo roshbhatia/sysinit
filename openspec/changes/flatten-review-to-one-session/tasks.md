@@ -264,3 +264,287 @@
       config could say so.
 
 - [ ] 4.2 Confirm: the owner runs each entry point on real work and accepts the one-session reading, or names what it costs them `deps:` 4.1 `writes:` none
+
+## 5. What the confirm found
+
+- **SHAPE** graph
+- **MERGE** 5.5
+
+The owner ran the entry points on real work in a seshy workspace with a live agent
+and named four costs. Three are the surface being wrong rather than the reading:
+a key that meant three things, a key that refused on two rows out of three, and
+tab and pane rows naming the wrapper holding a pty. The fourth is the reading
+itself: the review showed the diff and none of the reasoning, because the notes
+only existed when the agent had been told to write them.
+
+- [x] 5.1 File a review note from what the harness already wrote, on the hook that already fires for an edit `deps:` none `writes:` pkgs/sysinit-agent/internal/note/auto.go
+
+      `note auto <harness>` reads a PostToolUse payload, walks the transcript that
+      payload names, and files one note. It is a second hook on the matcher
+      `agent-edit-event` already uses, wrapped as `agent-note-auto` so git comes from
+      the closure rather than from the agent's PATH.
+
+      The rejected option is the one the owner offered first: ask the model to run
+      `note add` itself, from an instruction in the hook's output. It was already how
+      this worked, and it is what produced the complaint. The instruction competes with
+      the task, so notes appear for the edits the model narrates and a review then
+      shows three files annotated out of nine, reading as though the other six went
+      unexamined. Reading the words the model already wrote needs nothing from the
+      model, and cannot be crowded out.
+
+      Three rules keep it honest. The first sentence of the narration is the summary
+      and the rest is the rationale, because that is where a harness states what it did
+      and then why. The anchor is the patch the tool reported, falling back to locating
+      the replacement text in the file. And an author of `claude (auto)` says the note
+      was derived, so a reader weighs it differently from one written deliberately.
+
+      No narration means no note: a box that restates the diff is worse than no box.
+      Every other failure is silent with exit 0, for the reason `edit-event` is, and
+      `--explain` is the one mode that prints the note it would file or the reason it
+      would not.
+
+      Proven against this session's own transcript, 21k lines, and in a fixture:
+
+      ```
+      --explain, real transcript      line=511 from structuredPatch, summary=first sentence
+      --explain, tool_response=string line=100 by locating the text in the file
+      empty transcript                writes nothing, exit 0
+      file outside a repository       writes nothing, exit 0
+      same region twice               1 note; a far region adds a second
+      nested repository               note lands in the inner store, outer store empty
+      ```
+
+      `go test ./internal/note/` covers all of it, including that a garbage payload,
+      an unknown flag, and a missing harness argument each exit 0 and print nothing.
+
+- [x] 5.2 Leave one owner per `<leader>d` sequence `deps:` none `writes:` modules/home/programs/neovim/config/lua/plugins/which-key.lua
+
+      One real conflict, and it was in which-key rather than in a keymap:
+      `{ "<leader>dr", group = "Review" }` declared a sequence that is also a mapping,
+      so the review read as a prefix waiting for another key with `<leader>dR` sitting
+      under it. A group and a mapping cannot share a sequence. The group is gone.
+
+      The rest of the namespace has one owner each, which the config now says by
+      grep rather than by memory: `dd` workspace diff, `dr` review, `dR` scoped
+      review, `d?` health, `dh` file history, `dH` repository history, `dt` explorer,
+      `dq` quit, `dl` layout, and `di`/`dc`/`db`/`dx` for a conflict.
+
+- [x] 5.3 Close what the switcher row names, at the level that row is on `deps:` none `writes:` modules/home/programs/wezterm/lua/sysinit/pkg/ui/switcher.lua
+
+      `^x` keyed on the row's `workspace` field, which every row carries, so one key
+      meant three things: on a pane row it killed the whole session that pane belonged
+      to. It also refused outright on any row of a session with a window open, which is
+      most of them.
+
+      It now reads the kind prefix out of the row id, the way `session_tree_dispatch`
+      already does, and closes a session's panes, a tab's panes, or one pane. The one
+      refusal left is the pane running the selector, at every level: killing it takes
+      the selector with it, and the reopen that follows would run against a dead pane.
+
+- [x] 5.4 Name the work in a tab or pane row, not the wrapper holding its pty `deps:` none `writes:` modules/home/programs/wezterm/lua/sysinit/pkg/ui/format.lua
+
+      `zmx` and `caffeinate` hold a pane's pty without doing the work in it, and
+      wezterm reports the pane's own foreground process, so every session through
+      either read as the wrapper's name. `is_passthrough` is now exported, because
+      three renderers see only a name and one of them is handed a table rather than a
+      Pane and cannot walk the process tree.
+
+      A pane row's last fallback was the pane's OSC title, which an agent sets to a
+      sentence about the session, so the row printed
+      `in ✳ Identify explicit steps to launch FRA this week` under a tab of that same
+      name. The title is accepted only as a single non-passthrough token now, and the
+      switcher omits the segment when it is empty.
+
+- [x] 5.5 Merge: apply, then prove all four on the installed configuration `deps:` 5.1, 5.2, 5.3, 5.4 `writes:` none
+
+      `nix build .#darwinConfigurations.lv426.system` exit 0, six commits pushed as
+      `b1e7eb736..eced0bc14`, three `nh darwin switch .` runs from `sysinit.laurel`,
+      each exit 0, `DIFF +22.6 KiB` then 0 bytes twice.
+
+      The first build failed and named nothing about this change:
+      `internal/note/note.go:92:10: undefined: autoRun`. A flake copies tracked files
+      only, and `auto.go` was untracked, so the build compiled a package with a call to
+      a function that was not there. `git add` fixed it.
+
+      5.1, end to end, twice, in a three-repository seshy workspace with a live
+      `claude` started at the workspace root and told explicitly not to write notes:
+
+      ```
+      homelab/README.md:38  I am adding a one-sentence purpose statement to homelab/README.md, because…
+      sysinit/README.md:76  I am adding a one-sentence purpose statement to sysinit/README.md, because…
+      sysinit/README.md:82  I am adding a one-sentence maintainer line naming @roshbhatia, …
+      ```
+
+      Each note reached the store of the repository holding the file, from an agent
+      whose own directory was the workspace above both. The author reads
+      `claude (auto)`, and the notes render as `[AGENT]` boxes in the inline diff
+      alongside an older hand-written note authored `claude`, which is the distinction
+      the author field exists to make.
+
+      Two anchor defects surfaced only here, both from the note landing next to the
+      change rather than on it. A hunk opens with three lines of context, so
+      `newStart` put the note three lines above the edit: 38 where the text was 41.
+      Then an append opens with a blank added line, so the first changed line was the
+      blank one: 43 where the text was 44. Both are fixed and both are proven on the
+      installed binary, the second on a live agent edit that anchored on 82, the line
+      it wrote.
+
+      5.2, read from the running editor's keymap table rather than from the diff:
+      `d?`, `dH`, `dR`, `dd`, `dh`, `dr`, six mappings, no duplicate, and `dr` is a
+      mapping rather than a prefix.
+
+      5.3 and 5.4 are on the machine and evaluate: `wezterm show-keys` renders the
+      whole config, `session_tree_actions` included, with no Lua error, and the store
+      path `~/.config/wezterm` points at carries both changes. What is not proven here
+      is the keypress: `^x` acts inside an InputSelector overlay, which takes input
+      from the window rather than from a pane's pty, so `wezterm cli send-text` cannot
+      reach it. The same is true of reading a rendered switcher row. Both are the
+      owner's to try, which is what 4.2 is for.
+
+- [x] 5.6 Show one index of the changed files, not two `deps:` 5.5 `writes:` modules/home/programs/neovim/config/lua/harness/api.lua
+
+      The owner saw both at once and said which one to keep: codediff's explorer under
+      the diff reading `Changes (2)` and `Staged Changes (0)`, and a quickfix window
+      under that listing the same files in a different order. The review no longer
+      opens a window for the list.
+
+      Nothing is lost by closing it, which is what 3.1 and 4.1 already built: `]q`
+      steps a list with entries whether or not a window shows it, and `<leader>eq`
+      opens the window for anyone who wants to read it as a list. So `show_changed_list`
+      and the `span_repos` flag that existed only to decide when to call it are both
+      gone, and the composability claim is unchanged because it never depended on the
+      window.
+
+      ```
+      windows  diff h=57, codediff-explorer h=15, no qf window
+      ]q       qf=4 idx=2 tabs=2 qfwin=0, review swapped to homelab, 3 notes drawn
+      ```
+
+      One measurement lied first. The window was still there after the edit, and the
+      loaded module's own traceback named a function the file no longer holds: nvim's
+      byte-code cache under `~/.cache/nvim/luac` had served the old compiled chunk
+      while `readfile` showed the new source. So a Lua edit is live after a restart
+      only once that cache is invalidated, and a probe that reads the file proves
+      nothing about the module in memory.
+
+- [x] 5.8 Take each layer out and prove the review still opens `deps:` 5.6 `writes:` modules/home/programs/neovim/config/lua/harness/api.lua
+
+      Every input the review reads is optional, and until now that was a claim rather
+      than a measurement. Five layers can be swapped out under it: `sysinit-agent`,
+      `fd`, the note store, review.nvim's attach seam, and codediff's empty-view seam.
+      Each was removed on a real fixture in its own WezTerm pane, against a directory
+      of six repositories built to be awkward: a clean one, one holding a deleted file,
+      an untracked file, a binary, a CRLF file and a file with no trailing newline, a
+      repository nested inside it, a second repository whose basename collides with the
+      first, and one stopped mid-merge with an unmerged path. Notes were seeded on a
+      line 2, a line 9999, and a line carrying a long non-ASCII summary.
+
+      Ten cases on the full configuration, then six more from a clean editor:
+
+      ```
+      health, 13 findings, 0 error       every changed file opens, 9 entries stepped
+      5 repositories found               clean repository opens Changes (0)
+      one session, 1 explorer, 0 qf win  no repository opens nothing
+      two notes on a line, one [AGENT ×2] scoped review with no event still opens
+      note on line 9999 draws on line 4  three opens in a row, still 2 tabs
+      innermost repository owns its note  20-line window, 1 explorer, no error
+      colliding basename owns its own     mid-merge, 8 windows, di dc db dx
+      close leaves 1 tab, 0 marks
+      ```
+
+      One defect, and it was the criterion this change wrote for itself. `open_one`
+      opened the empty explorer only when the caller passed `empty`, which only the
+      workspace path did. `review_repo` on a clean repository resolved a root the
+      change query had never listed, so it reached `:CodeDiff`, which refuses a clean
+      repository before it builds anything, and the review said "No changes to show"
+      and opened nothing. `has_conflict` is now `repo_state`: one `git status
+      --porcelain` answers both whether a path is unmerged and whether anything changed
+      at all, so no entry point can reach that refusal by not knowing. It is also one
+      git call where there were two.
+
+      With a layer removed, each degraded run opens the review and says what it lost:
+
+      ```
+      no sysinit-agent          source=fd scan, 5 roots, 0 notes, review opens
+      no sysinit-agent, no fd   source=git rev-parse, 1 root, 0 notes, review opens
+      review.nvim seam gone     health error, warns "did not attach", review opens
+      codediff seam gone        health error, clean repository falls back to a message
+      ```
+
+      The note layer needed a fix to reach that row. `vim.system` raises `ENOENT` for a
+      command that is not on PATH rather than returning a non-zero code, and that call
+      sits inside the review's open path, so a machine without `sysinit-agent` failed
+      the diff itself rather than losing its notes. It is guarded the way every other
+      caller in `utils.gitrepo` already guards, and the health report names the binary
+      once so a rename is one edit.
+
+      `git` is deliberately not guarded. Nothing in this configuration works without
+      it, so a guard there would add a branch that can only be reached on a machine
+      where the diff plugin, the sign column and the history keys are all already dead.
+
+      The Claude half is the same question asked of the hook, and the hook does not
+      read the agent's PATH: `agent-note-auto` is a `writeShellApplication` that
+      prepends its own git and `sysinit-agent` store paths. Run with
+      `env -i PATH=/usr/bin:/bin`, seven malformed payloads each exit 0, print nothing,
+      and leave the note count unchanged: empty stdin, text that is not JSON, JSON with
+      no fields, a transcript path that does not exist, a transcript that is not JSONL,
+      a file in no repository, and a tool it does not handle.
+
+      One interactive step is left, and it is codediff's own guard rather than
+      something to fix here. Opening a merge result marks its buffer modified before
+      the owner accepts anything, so a review that stepped through an unmerged file
+      asks `(D)iscard, [C]ancel` on close. It blocks Neovim's main loop, which is worth
+      knowing when driving the review from a script: the first run of this suite read
+      two later cases as failures that were only the loop waiting for a key.
+
+- [x] 5.9 Let `^x` close the session it is pressed in, and step between sessions with `^[` and `^]` `deps:` 5.3 `writes:` modules/home/programs/wezterm/lua/sysinit/pkg/ui/switcher.lua
+
+      The owner pressed `^x` on the row of the session they were sitting in and it
+      refused. 5.3 had reduced that refusal from three levels to one, and one was
+      still one too many: the row named a session, and the answer was to leave it.
+
+      Refusing was the wrong answer to a real problem. Closing every pane of the
+      current workspace leaves the window with nothing to show, and killing the
+      selector's own pane leaves the reopen running against a dead pane. Both are now
+      answered before the kill rather than avoided by it. The window moves to
+      `default` first when the close would empty the workspace it is showing, and the
+      selector reopens only when its own pane survived and the window did not move.
+
+      `default` is never closed, only reset to one pane, from any session. It is
+      where every other close falls back to, so closing it outright is the one close
+      that can leave a window with nowhere to go. The pane kept is the selector's own
+      when the selector is running in it.
+
+      The decision is now a pure function of the pane list, `M.close_plan`, separate
+      from the killing, because the edge cases are all in the decision and none of
+      them are in the two `wezterm cli` calls. Driven under the `chordcheck` stub,
+      31 assertions over a five-pane fixture:
+
+      ```
+      another session      targets it, no move, reopens
+      own session          targets all 3, moves to default, no reopen
+      default, 1 pane      refuses, nothing closed
+      default, 3 panes     keeps the selector's own, resets, reopens
+      default from work    keeps the first, resets, reopens
+      own tab, own pane    closed, no reopen
+      last tab, last pane  moves to default, no reopen
+      dormant row          refuses, names the row
+      ```
+
+      `^[` and `^]` step back and forward through the plugin's own cycle order, which
+      is the order the switcher lists and which saves the workspace it leaves. Both
+      were stripped in June for a stated reason: `^[` is how a terminal sends ESC, so
+      binding it means a pane never sees that keypress again. The owner asked for them
+      back knowing the cost. Locked mode is the way back to ESC, and is why these are
+      callbacks rather than the plugin's actions bound directly.
+
+      `wezterm show-keys` against the edited tree renders 219 lines with no Lua error,
+      `CTRL [` and `CTRL ]` among them, and `nix build .#darwinConfigurations.lv426.system`
+      exits 0. What is still not proven here is the keypress itself, for the reason
+      5.5 gives: an InputSelector takes input from the window rather than from a
+      pane's pty.
+
+      The 31 assertions are not in the repository. There is no Lua test runner in
+      `hack/lint.sh` to hold them, and adding one is a change of its own.
+
+- [ ] 5.7 Adversarial review (`adversarial-review` skill): run deterministic lint; run optional critics only when requested or risk-justified `deps:` 5.5, 5.6, 5.8, 5.9 `writes:` openspec/changes/flatten-review-to-one-session/review.md

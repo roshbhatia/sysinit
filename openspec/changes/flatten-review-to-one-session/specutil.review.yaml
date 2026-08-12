@@ -1,18 +1,28 @@
 version: 2
 change: flatten-review-to-one-session
 decision: approved
-change_hash: 13d97c7bd5db2080
-base_commit: b66cdc326583137aec0674f255f2a84ed7102735
+note: 'owner approved phase 5 in session: 5.8 audit and battle test, 5.9 switcher close and cycle keys'
+change_hash: 877fb98c8534c12e
+base_commit: e4ede946ffc8e54757e9b426afbe9f25eae7ecc0
 items:
     0ca066f4bc48483f:
         hash: 416e14bdde4088d6
         text: 'Confirm: the owner runs each entry point on real work and accepts the one-session reading, or names what it costs them'
+    2ae041e4f0d2286f:
+        hash: 830e08df1b6f41ef
+        text: File a review note from what the harness already wrote, on the hook that already fires for an edit
     3acaeb1149656e14:
         hash: 6fd5874bed518edb
         text: Read the workspace root from the environment, falling back to the cwd when it is unset or names a missing path
+    7bd4ee8556fcc0d9:
+        hash: cb2eb9475ffcd06d
+        text: Let `^x` close the session it is pressed in, and step between sessions with `^[` and `^]`
     9e82425d87eeb43e:
         hash: c5626727319c724b
         text: 'Adversarial review (`adversarial-review` skill): run deterministic lint; run optional critics only when requested or risk-justified'
+    9f3c10b8ccad8ad1:
+        hash: 8ba42190a1869724
+        text: Close what the switcher row names, at the level that row is on
     09b57ba98bba095f:
         hash: c5626727319c724b
         text: 'Adversarial review (`adversarial-review` skill): run deterministic lint; run optional critics only when requested or risk-justified'
@@ -22,18 +32,33 @@ items:
     31ef09bd21ae381c:
         hash: c5626727319c724b
         text: 'Adversarial review (`adversarial-review` skill): run deterministic lint; run optional critics only when requested or risk-justified'
+    130dd32edb36d4c6:
+        hash: 95554f9f86ab7932
+        text: Leave one owner per `<leader>d` sequence
     144aed445b19837d:
         hash: 8f3435e0b3de8fe5
         text: 'Delete the machinery the fan-out needed: the tab bound, the chained opens, the session poll, the render wait, the focus re-assertion'
+    344e9545a162c3b9:
+        hash: c5626727319c724b
+        text: 'Adversarial review (`adversarial-review` skill): run deterministic lint; run optional critics only when requested or risk-justified'
     370fcffee74ff256:
         hash: bd7ab0bd8fefd61e
         text: 'Merge: prove the list in one repository and in the forty-six repository workspace, and that `:cdo` acts on it'
     712fd7be111ab326:
         hash: 76a8ec69bebaee12
         text: 'Apply: `git push`, then `nh darwin switch` from the `sysinit.laurel` checkout in its own pane, gated on the checks in `design.md`'
+    69600287a9f60406:
+        hash: 1e02c538c1a0e6bb
+        text: Name the work in a tab or pane row, not the wrapper holding its pty
     a70f027751aa8377:
         hash: e391349c2c0f2e57
         text: Make the same rule answer in the Go layer, so the repo set and the edit-event log key share one boundary
+    b0ed13780703cb23:
+        hash: 8068e1bbad10ea3b
+        text: Take each layer out and prove the review still opens
+    b9ab25547fb4c9b7:
+        hash: 9364057881b43a24
+        text: 'Merge: apply, then prove all four on the installed configuration'
     c9a9fe143b3a6932:
         hash: d929739630abf487
         text: Export the boundary from the shell function that already resolves and enters a session
@@ -43,6 +68,9 @@ items:
     dcb5935be2a5c759:
         hash: c306772a64981adb
         text: Swap the session when the current quickfix entry belongs to a repository other than the open one
+    de1d0188e8a0928e:
+        hash: de575c859c195ba1
+        text: Show one index of the changed files, not two
     ee2698558a18ddaf:
         hash: f2afd54f6c880ddf
         text: 'Merge: prove the landing tab over five consecutive runs in a real pane, and that one diff tab exists at any repository count'
