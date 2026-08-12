@@ -146,7 +146,24 @@
   Landed with 2.1 rather than after it, because 2.1 replaced the function that read
   the old name. `WTRUN_SESSION` is gone with no alias: it addressed a per-pane key
   that no longer exists, so honouring it would resolve to a path nothing writes.
-- [ ] 2.4 Reconcile the cutover and prove `nix flake check` and `nix build .#darwinConfigurations.lv426.system` exit 0, that the installed wrapper resolves to the subcommand, and that the watch keybinding resolves to a path the subcommand writes `writes:` none `deps:` 2.1, 2.2, 2.3, 2.9
+- [x] 2.4 Reconcile the cutover and prove `nix flake check` and `nix build .#darwinConfigurations.lv426.system` exit 0, that the installed wrapper resolves to the subcommand, and that the watch keybinding resolves to a path the subcommand writes `writes:` none `deps:` 2.1, 2.2, 2.3, 2.9
+
+  Both gates exit 0 on the committed tree. The wrapper is
+  `/nix/store/3db4v...-worker/bin/worker`, whose whole body is
+  `exec sysinit-agent worker "$@"`, and it is in the built system's closure while no
+  `-wtrun` store path is.
+
+  The reader and the writer were proved against each other rather than by
+  inspection, both from the store path activation will install. `worker -n cutover`
+  wrote `.../agents/worker/sysinit-90f8d757d2331834/cutover.log`, and
+  `watch worker <directory>`, which is the argv the chord now builds, read that run
+  back through `last` and again by name. `--status` then reported the pane idle.
+
+  The superseded-worker line did not fire, correctly. The old record lives under
+  `pane-241` and names pane 434; this call came from pane 0 of a different mux
+  generation, which lists only panes 0 and 1, so there was no live pane to report.
+  The owner meets that line from the pane that holds the old record, which is what
+  2.7 exercises.
 - [ ] 2.5 Adversarial review (`adversarial-review` skill): critics attempt to break the cutover against the proposal `Behavior` criteria; revise until the loop reaches a terminal state
 - [ ] 2.6 Apply: `git push`, then `nh darwin switch` from the `sysinit.laurel` checkout in a separate WezTerm pane, gated on `nix flake check` and `nh darwin build` exiting 0. Recovery is activating the previous system generation, not a revert, because a revert reaches this machine only through a full build run by the tool being replaced
 - [ ] 2.7 Confirm: the owner runs one real build through the new implementation and accepts the exit code, the log tail, and the directory it reported, with the one extra pane explained by the superseded-worker line rather than appearing unannounced

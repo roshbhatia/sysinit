@@ -1,9 +1,9 @@
 version: 2
 change: move-wtrun-to-sysinit-agent
 decision: approved
-note: 'Re-fingerprint of the owner''s instruction of 2026-08-11, verbatim: ''push, and implement and everything''. NOT a new approval: no task text changed (every item hash is identical), so the approved scope is intact. What moved since the fingerprint cc8ce7dd85602834 is evidence and state, which that instruction produces: 1.8, 2.1, 2.9, 2.2, and 2.3 marked done with their implementation notes, and the proposal Impact corrected to name skills/worker/ and to retract a claim that agent-sessions.sh holds a duplicated manifest reader, which it does not. The round-4 critics are still unreported and remain follow-up work against a shipped phase.'
+note: 'Re-fingerprint of the owner''s instruction of 2026-08-11, verbatim: ''push, and implement and everything''. NOT a new approval: no task text changed, so the approved scope is intact; only evidence and checkbox state moved as 1.8, 2.1, 2.2, 2.3, 2.4, and 2.9 landed. 2.5 (the cutover''s adversarial review), 2.6 (the apply), and 2.7 (the owner''s confirm) are open, and the round-4 critics are still unreported.'
 change_hash: 2d11b29ee9f3a3c4
-base_commit: 5bab0adf939c7d4f0dbd6b425f55abad8cf3a222
+base_commit: b8cc135201734e5d6f7ac1d84b5743b43910b359
 items:
     2c340666383b73d7:
         hash: e694eb789bdadfcf
