@@ -274,8 +274,8 @@ local function open_one(group, on_open)
     -- default. codediff sends a conflicted file to its three-pane merge view, which
     -- needs both panes to already exist: `side_by_side.update` rebuilds a pane that
     -- was closed but not an inline session's single one, so an inline session showed
-    -- one side of the conflict with no result pane and no accept keymaps. `t` still
-    -- toggles it back.
+    -- one side of the conflict with no result pane and no accept keymaps.
+    -- `<leader>dl` still toggles it back.
     if unmerged then
       table.insert(args, "--side-by-side")
     end

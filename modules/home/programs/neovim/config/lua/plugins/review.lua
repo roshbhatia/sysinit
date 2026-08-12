@@ -5,8 +5,27 @@ return {
     dependencies = { "esmuellert/codediff.nvim", "MunifTanjim/nui.nvim" },
     cmd = { "Review" },
     opts = {
+      -- review.nvim's default is `readonly = true`, which maps `i`, `d`, `e`, and `F`
+      -- to comment actions. That is safe in a scratch diff buffer and wrong here:
+      -- codediff's inline mode puts the *real file* on the modified side, listed and
+      -- modifiable, so `i` opened a comment popup instead of inserting and `d` deleted
+      -- a comment instead of text. Edit mode moves those to `<localleader>c…` and hands
+      -- the operators back.
+      codediff = {
+        readonly = false,
+      },
       keymaps = {
         send_sidekick = false,
+        -- Same reason, for the keys edit mode still leaves on bare letters. `c` and `d`
+        -- are operators, `f` and `t` are motions, and `q` records a macro. A review is
+        -- not a mode the owner is trapped in: they read a diff and then fix the thing
+        -- they just read, in the same buffer.
+        list_comments = "<localleader>cl",
+        export_clipboard = "<localleader>cy",
+        toggle_file_panel = "<localleader>cF",
+        toggle_readonly = "<localleader>cr",
+        show_help = "<localleader>c?",
+        close = false,
       },
     },
     config = function(_, opts)
