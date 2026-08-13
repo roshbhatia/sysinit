@@ -35,7 +35,17 @@ local function has_qf_entries()
   return vim.fn.getqflist({ size = 0 }).size > 0
 end
 
+-- The review's scope list answers a step itself: its rows hold no file to jump to, and
+-- stepping one means opening another scope.
+local function stepped_scope(delta)
+  local ok, scopes = pcall(require, "harness.scopes")
+  return ok and scopes.step(delta)
+end
+
 local function next_item()
+  if stepped_scope(1) then
+    return
+  end
   if is_qf_win() or (get_qf_winid() and not get_loc_winid()) then
     vim.cmd.cnext()
   elseif is_loc_win() or get_loc_winid() then
@@ -48,6 +58,9 @@ local function next_item()
 end
 
 local function prev_item()
+  if stepped_scope(-1) then
+    return
+  end
   if is_qf_win() or (get_qf_winid() and not get_loc_winid()) then
     vim.cmd.cprev()
   elseif is_loc_win() or get_loc_winid() then

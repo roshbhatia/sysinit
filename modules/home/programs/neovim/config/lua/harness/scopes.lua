@@ -1,0 +1,249 @@
+-- The review's scope list: the workspace diff, then each repository's recent commits.
+local M = {}
+
+-- Ten per repository: far enough back to reach the change under review, short enough
+-- that the list still fits under a diff.
+local PER_REPO = 10
+
+-- git's empty tree, which is the only left side a root commit has.
+local EMPTY_TREE = "4b825dc642cb6eb9a060e54bf8d69288fbee4904"
+
+-- `id` is what tells a step whether the quickfix still shows the scopes or has been
+-- replaced by a file list, since both live in the same stack.
+local state = { id = nil, said = "workspace" }
+
+local function qf_winid()
+  for _, win in ipairs(vim.fn.getwininfo()) do
+    if win.quickfix == 1 and win.loclist == 0 then
+      return win.winid
+    end
+  end
+  return nil
+end
+
+--- Whether the quickfix currently shows the scope list.
+---@return boolean
+function M.is_shown()
+  return state.id ~= nil and vim.fn.getqflist({ id = 0 }).id == state.id
+end
+
+--- Forget the chosen scope, for a caller that opened the workspace diff itself.
+function M.reset()
+  state.said = "workspace"
+end
+
+--- The repositories to list commits for: the open review's, else the workspace's.
+---@param cb fun(roots: string[])
+local function scope_roots(cb)
+  local roots = require("harness.api").review_roots()
+  if #roots > 0 then
+    return cb(roots)
+  end
+  require("utils.gitrepo").workspace_roots(cb)
+end
+
+--- One repository's recent commits, newest first.
+---@param root string
+---@param cb fun(commits: table[])
+local function commits(root, cb)
+  vim.system({
+    "git",
+    "-C",
+    root,
+    "log",
+    "--max-count=" .. PER_REPO,
+    "--format=%H%x1f%h%x1f%P%x1f%s",
+  }, { text = true }, function(res)
+    local found = {}
+    if res.code == 0 then
+      for line in (res.stdout or ""):gmatch("[^\n]+") do
+        local sha, short, parents, subject = line:match("^([^\31]*)\31([^\31]*)\31([^\31]*)\31(.*)$")
+        if sha and sha ~= "" then
+          found[#found + 1] = {
+            kind = "commit",
+            root = root,
+            sha = sha,
+            short = short,
+            -- The first parent, so a merge reads as what it brought in, and the empty
+            -- tree when there is none, since `<sha>^` does not resolve on a root commit.
+            parent = parents:match("^(%S+)") or EMPTY_TREE,
+            subject = subject,
+          }
+        end
+      end
+    end
+    vim.schedule(function()
+      cb(found)
+    end)
+  end)
+end
+
+--- Every repository's commits, grouped in the order the roots were given.
+---@param roots string[]
+---@param cb fun(commits: table[])
+local function all_commits(roots, cb)
+  local found, pending = {}, #roots
+  for index, root in ipairs(roots) do
+    commits(root, function(list)
+      found[index] = list
+      pending = pending - 1
+      if pending == 0 then
+        local flat = {}
+        for at = 1, #roots do
+          for _, commit in ipairs(found[at] or {}) do
+            flat[#flat + 1] = commit
+          end
+        end
+        cb(flat)
+      end
+    end)
+  end
+end
+
+--- `repo | sha | subject`, in three columns wide enough for every row.
+---@param scopes table[]
+---@return table[] items
+local function render(scopes)
+  local name_width, sha_width = #"all", #"workspace"
+  for _, scope in ipairs(scopes) do
+    if scope.kind == "commit" then
+      name_width = math.max(name_width, #vim.fn.fnamemodify(scope.root, ":t"))
+      sha_width = math.max(sha_width, #scope.short)
+    end
+  end
+
+  local format = "%-" .. name_width .. "s | %-" .. sha_width .. "s | %s"
+  local items = {}
+  for _, scope in ipairs(scopes) do
+    local name, sha, rest = "all", "workspace", "every repository's working diff"
+    if scope.kind == "commit" then
+      name, sha, rest = vim.fn.fnamemodify(scope.root, ":t"), scope.short, scope.subject
+    end
+    items[#items + 1] = {
+      text = string.format(format, name, sha, rest),
+      user_data = scope,
+    }
+  end
+  return items
+end
+
+--- Put the scopes in the quickfix, open it along the bottom, and stand in it.
+---@param items table[]
+local function show(items)
+  vim.fn.setqflist({}, " ", {
+    title = "Review scopes: " .. state.said,
+    items = items,
+    -- Per list, because `nvim-pqf` sets the global one, and a row naming no file comes
+    -- back from it as a bare `||` with the columns gone.
+    quickfixtextfunc = function(info)
+      local got = vim.fn.getqflist({ id = info.id, items = 1 }).items
+      local lines = {}
+      for index = info.start_idx, info.end_idx do
+        lines[#lines + 1] = got[index] and got[index].text or ""
+      end
+      return lines
+    end,
+  })
+  state.id = vim.fn.getqflist({ id = 0 }).id
+  pcall(vim.cmd, "botright copen 10")
+  local win = qf_winid()
+  if win then
+    pcall(vim.api.nvim_set_current_win, win)
+  end
+end
+
+--- Open one scope, replacing whatever session is open.
+---@param scope table
+local function open(scope)
+  local api = require("harness.api")
+
+  if scope.kind == "all" then
+    state.said = "workspace"
+    require("harness.review_follow").attach()
+    api.review_workspace()
+    return
+  end
+
+  -- Detached for a commit: the follower swaps the session to a file's working diff, so
+  -- opening a file from the commit would drop the range the owner just picked.
+  require("harness.review_follow").detach()
+  api.close_sessions()
+  local label = vim.fn.fnamemodify(scope.root, ":t")
+  state.said = label .. " " .. scope.short
+
+  local args = { "--repo", scope.root, scope.parent, scope.sha }
+  if not pcall(vim.cmd, { cmd = "CodeDiff", args = args }) then
+    vim.notify("Harness: codediff could not open " .. scope.short, vim.log.levels.ERROR)
+    return
+  end
+
+  -- Deferred because codediff registers its session in a new tab asynchronously, and the
+  -- list has to be re-opened in the tab that registration creates.
+  vim.defer_fn(function()
+    vim.fn.setqflist({}, "r", { title = "Review scopes: " .. state.said })
+    pcall(vim.cmd, "botright copen 10")
+    vim.notify(string.format("Harness: %s %s %s", label, scope.short, scope.subject), vim.log.levels.INFO)
+  end, 200)
+end
+
+--- Open the scope on the cursor's row. False when the quickfix holds something else, so
+--- a caller can fall back to opening a file.
+---@return boolean handled
+function M.activate()
+  if not M.is_shown() then
+    return false
+  end
+  local win = qf_winid()
+  if win == nil then
+    return false
+  end
+  local row = vim.api.nvim_win_get_cursor(win)[1]
+  local item = vim.fn.getqflist({ id = state.id, items = 1 }).items[row]
+  if item == nil or item.user_data == nil then
+    return false
+  end
+  open(item.user_data)
+  return true
+end
+
+--- Step to the next or previous scope and open it.
+---@param delta integer
+---@return boolean handled
+function M.step(delta)
+  if not M.is_shown() then
+    return false
+  end
+  local win = qf_winid()
+  if win == nil then
+    return false
+  end
+  local size = vim.fn.getqflist({ id = state.id, size = 1 }).size
+  local at = vim.api.nvim_win_get_cursor(win)[1]
+  local row = math.min(math.max(at + delta, 1), size)
+  -- A step off either end moves nowhere, and re-opening the scope already open would
+  -- tear down the session and rebuild it for no change.
+  if row == at then
+    return true
+  end
+  pcall(vim.api.nvim_win_set_cursor, win, { row, 0 })
+  return M.activate()
+end
+
+--- Build the scope list from the review's repositories and show it.
+function M.open()
+  scope_roots(function(roots)
+    if #roots == 0 then
+      vim.notify("Harness: no git repository under " .. require("utils.gitrepo").workspace(), vim.log.levels.WARN)
+      return
+    end
+    all_commits(roots, function(found)
+      local scopes = { { kind = "all" } }
+      for _, commit in ipairs(found) do
+        scopes[#scopes + 1] = commit
+      end
+      show(render(scopes))
+    end)
+  end)
+end
+
+return M

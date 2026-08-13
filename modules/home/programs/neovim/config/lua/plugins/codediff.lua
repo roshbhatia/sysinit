@@ -136,6 +136,13 @@ return {
         desc = "Review the workspace diff",
       },
       {
+        "<leader>ds",
+        function()
+          require("harness.scopes").open()
+        end,
+        desc = "Pick the review scope",
+      },
+      {
         -- History is per repository by nature: a commit list spanning several
         -- repositories is a fiction, so this one still resolves to one.
         "<leader>dH",

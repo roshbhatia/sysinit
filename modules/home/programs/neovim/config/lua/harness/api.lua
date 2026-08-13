@@ -347,6 +347,10 @@ local function open_review(groups, said)
   review_state = { groups = groups, root = first.root, said = said }
   fill_changed_list(groups, said)
   require("harness.review_follow").attach()
+  -- The scope list titles itself with the open scope, and this is the workspace one.
+  pcall(function()
+    require("harness.scopes").reset()
+  end)
 
   -- The agent's notes cover every repository the review covers, not only the open
   -- one, so a step to another repository finds its notes already read.
@@ -399,6 +403,22 @@ function M.review_close()
     end
   end
   review_state = { groups = {}, root = nil, said = nil }
+end
+
+--- The repositories the open review covers, in the order it holds them.
+---@return string[]
+function M.review_roots()
+  local roots = {}
+  for _, group in ipairs(review_state.groups) do
+    table.insert(roots, group.root)
+  end
+  return roots
+end
+
+--- Close every session, for a caller that opens a scope of its own rather than a
+--- repository's working diff.
+function M.close_sessions()
+  close_sessions()
 end
 
 --- Whether a review is open, meaning a set of repositories is under review and one of
