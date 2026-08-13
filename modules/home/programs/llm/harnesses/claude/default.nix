@@ -170,6 +170,21 @@ in
 
       disabledMcpServers = disabledBuiltinServers;
 
+      # The marketplace name must equal the `name` in the repository's
+      # `.claude-plugin/marketplace.json`, which Claude Code enforces.
+      extraKnownMarketplaces = {
+        openai-codex = {
+          source = {
+            source = "github";
+            repo = "openai/codex-plugin-cc";
+          };
+        };
+      };
+
+      enabledPlugins = {
+        "codex@openai-codex" = true;
+      };
+
       hooks = {
         UserPromptSubmit = [
           {
