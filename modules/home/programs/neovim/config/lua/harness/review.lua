@@ -11,6 +11,11 @@ local M = {}
 -- The repositories under review, and the tab each one was opened into.
 local session = { roots = {}, tabs = {} }
 
+-- Past this many changed files a review switches from the two-window diff to the single
+-- window one. Two windows cost two buffers per file, and a review that large is read by
+-- scrolling the list rather than by studying each file side by side.
+local INLINE_ABOVE = 40
+
 -- The revision the working tree is compared against, when the reader has asked for one.
 -- Held across repositories, since a review spanning several of them is read against one
 -- base, and passed to diffview as the git-rev argument it already understands.
@@ -70,6 +75,41 @@ function M.root()
   return session.roots[1]
 end
 
+--- Choose the layout for the views about to open. diffview reads this from its config
+--- when a view is built, so it is set here rather than passed, and set back afterwards so
+--- a later small review is side by side again.
+---@param files integer
+local function layout_for(files)
+  local ok, config = pcall(require, "diffview.config")
+  if not ok then
+    return
+  end
+  local resolved = config.get_config()
+  local wanted = files > INLINE_ABOVE and "diff1_plain" or "diff2_horizontal"
+  if resolved.view.default.layout ~= wanted then
+    resolved.view.default.layout = wanted
+    if wanted == "diff1_plain" then
+      vim.notify(string.format("Review: %d files, showing one window per file", files), vim.log.levels.INFO)
+    end
+  end
+end
+
+--- How many files the review is about to hold, so the layout can be chosen before the
+--- first view is built. Counted with one `git` call per repository, since the answer is
+--- needed now and `ws changes` is asynchronous.
+---@param roots string[]
+---@return integer
+local function changed_count(roots)
+  local total = 0
+  for _, root in ipairs(roots) do
+    local out = vim.fn.systemlist({ "git", "-C", root, "status", "--porcelain", "--untracked-files=all" })
+    if vim.v.shell_error == 0 then
+      total = total + #out
+    end
+  end
+  return total
+end
+
 --- Open one repository, recording the tab diffview opened it into.
 ---@param root string
 ---@param args string|nil
@@ -100,6 +140,7 @@ function M.open(roots, args)
   if #roots == 0 then
     return
   end
+  layout_for(changed_count(roots))
   for _, root in ipairs(roots) do
     if not alive(session.tabs[root]) then
       open_one(root, type(args) == "table" and args[root] or args)
