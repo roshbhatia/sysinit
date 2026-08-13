@@ -1,24 +1,72 @@
 final: _prev: {
-  utils = final.buildGoModule {
-    pname = "utils";
-    version = "0.1.0";
+  utils =
+    let
+      # Mirrored in `pkgs/utils/main.go`, which dispatches on `argv[0]`. A name in one
+      # and not the other either installs nothing or installs a name that runs the
+      # multiplexer's usage text.
+      links = [
+        "agent-edit-event"
+        "agent-note-auto"
+        "agent-state"
+        "agent-statusline"
+        "agent-watch"
+        "bash-guard"
+        "citelock"
+        "exit-code-guard"
+        "loop-gate"
+        "nix-guard"
+        "note"
+        "transcript-link"
+        "worker"
+        "ws"
+      ];
 
-    src = ../pkgs/utils;
+      # A hook runs with the harness's own PATH, and these are what the commands shell
+      # out to. Not wezterm: `worker` only means anything inside a WezTerm session, where
+      # wezterm is already on PATH, and naming it here would put a terminal in the
+      # closure of every host that installs these commands.
+      runtimePath = final.lib.makeBinPath [
+        final.git
+        final.curl
+      ];
+    in
+    final.buildGoModule {
+      pname = "utils";
+      version = "0.1.0";
 
-    # null, not a hash.
-    vendorHash = null;
+      src = ../pkgs/utils;
 
-    # The tests build real working trees: the store path is derived from
-    nativeCheckInputs = [ final.git ];
-    preCheck = ''
-      export HOME="$TMPDIR/home"
-      mkdir -p "$HOME"
-    '';
+      # null, not a hash.
+      vendorHash = null;
 
-    meta = {
-      description = "Agent runtime commands that used to be shell scripts";
-      mainProgram = "utils";
-      platforms = final.lib.platforms.unix;
+      # A compiled wrapper rather than a shell one, so a hook that fires on every tool
+      # call reaches the binary without forking a shell first.
+      nativeBuildInputs = [ final.makeBinaryWrapper ];
+
+      # The tests build real working trees: the store path is derived from
+      nativeCheckInputs = [ final.git ];
+      preCheck = ''
+        export HOME="$TMPDIR/home"
+        mkdir -p "$HOME"
+      '';
+
+      # One name per command, each carrying its own `argv[0]`, which is what the binary
+      # dispatches on.
+      postInstall = ''
+        mv "$out/bin/utils" "$out/bin/.utils-real"
+        makeWrapper "$out/bin/.utils-real" "$out/bin/utils" \
+          --prefix PATH : "${runtimePath}"
+        ${final.lib.concatMapStringsSep "\n" (name: ''
+          makeWrapper "$out/bin/.utils-real" "$out/bin/${name}" \
+            --argv0 "${name}" \
+            --prefix PATH : "${runtimePath}"
+        '') links}
+      '';
+
+      meta = {
+        description = "The commands that used to be shell scripts, one binary and one name each";
+        mainProgram = "utils";
+        platforms = final.lib.platforms.unix;
+      };
     };
-  };
 }

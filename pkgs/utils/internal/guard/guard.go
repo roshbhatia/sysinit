@@ -6,12 +6,15 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"path/filepath"
 	"regexp"
+	"strings"
 )
 
 const (
 	BashSummary     = "deny destructive Bash commands via a PreToolUse decision"
 	ExitCodeSummary = "deny destructive commands via a non-zero exit code"
+	NixSummary      = "deny an edit that resolves into the Nix store"
 )
 
 const fallbackReason = "blocked by sysinit destructive-command guard"
@@ -30,7 +33,9 @@ type compiled struct {
 // event is the hook payload.
 type event struct {
 	ToolInput struct {
-		Command string `json:"command"`
+		Command      string `json:"command"`
+		FilePath     string `json:"file_path"`
+		NotebookPath string `json:"notebook_path"`
 	} `json:"tool_input"`
 }
 
@@ -143,6 +148,76 @@ func RunBash(args []string) int {
 	encoded, err := json.Marshal(out)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "bash-guard: %s\n", err)
+		return 1
+	}
+	fmt.Println(string(encoded))
+	return 0
+}
+
+// storePrefix is the one directory an edit must never land in.
+const storePrefix = "/nix/store/"
+
+// readPath returns the file the tool is about to write, and whether there is one.
+func readPath(stdin io.Reader) (string, bool) {
+	data, err := io.ReadAll(stdin)
+	if err != nil {
+		return "", false
+	}
+	var ev event
+	if json.Unmarshal(data, &ev) != nil {
+		return "", false
+	}
+	path := ev.ToolInput.FilePath
+	if path == "" {
+		path = ev.ToolInput.NotebookPath
+	}
+	if path == "" {
+		return "", false
+	}
+	return path, true
+}
+
+// resolve follows symlinks, falling back to the parent directory. A new file under a
+// linked directory does not exist yet, and its directory is what decides where it lands.
+func resolve(path string) (string, bool) {
+	if resolved, err := filepath.EvalSymlinks(path); err == nil {
+		return resolved, true
+	}
+	resolved, err := filepath.EvalSymlinks(filepath.Dir(path))
+	if err != nil {
+		return "", false
+	}
+	return resolved, true
+}
+
+// RunNix denies an edit whose path resolves into the store.
+func RunNix(args []string) int {
+	if len(args) > 0 {
+		fmt.Fprintf(os.Stderr, "nix-guard: unknown argument: %s\n", args[0])
+		return 1
+	}
+	path, ok := readPath(os.Stdin)
+	if !ok {
+		return 0
+	}
+	resolved, ok := resolve(path)
+	if !ok {
+		return 0
+	}
+	if !strings.HasPrefix(resolved, storePrefix) {
+		return 0
+	}
+
+	var out decision
+	out.HookSpecificOutput.HookEventName = "PreToolUse"
+	out.HookSpecificOutput.PermissionDecision = "deny"
+	out.HookSpecificOutput.PermissionDecisionReason = fmt.Sprintf(
+		"%s resolves to %s, which is Nix-managed and read-only. Edit the Nix source that generates it (under modules/), then run: nh darwin switch. Editing the store path directly is discarded on the next switch.",
+		path, resolved,
+	)
+	encoded, err := json.Marshal(out)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "nix-guard: %s\n", err)
 		return 1
 	}
 	fmt.Println(string(encoded))

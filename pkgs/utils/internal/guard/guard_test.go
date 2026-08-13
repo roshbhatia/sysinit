@@ -175,3 +175,45 @@ func TestReasonFallsBackWhenARuleCarriesNone(t *testing.T) {
 		t.Fatalf("expected the fallback reason, got %q", reason)
 	}
 }
+
+func TestNixGuardReadsEitherPathField(t *testing.T) {
+	for _, payload := range []string{
+		`{"tool_input":{"file_path":"/tmp/a.txt"}}`,
+		`{"tool_input":{"notebook_path":"/tmp/a.txt"}}`,
+	} {
+		path, ok := readPath(strings.NewReader(payload))
+		if !ok || path != "/tmp/a.txt" {
+			t.Errorf("readPath(%s) = %q, %v", payload, path, ok)
+		}
+	}
+	for _, payload := range []string{"not json", "{}", `{"tool_input":{}}`} {
+		if _, ok := readPath(strings.NewReader(payload)); ok {
+			t.Errorf("readPath found a path in: %s", payload)
+		}
+	}
+}
+
+func TestAPathUnderALinkedDirectoryResolvesThroughIt(t *testing.T) {
+	dir := t.TempDir()
+	target := filepath.Join(dir, "target")
+	if err := os.MkdirAll(target, 0o755); err != nil {
+		t.Fatal(err)
+	}
+	link := filepath.Join(dir, "link")
+	if err := os.Symlink(target, link); err != nil {
+		t.Fatal(err)
+	}
+
+	// The file does not exist, which is the case a new write presents.
+	resolved, ok := resolve(filepath.Join(link, "new.txt"))
+	if !ok {
+		t.Fatal("resolve gave up on a path under a linked directory")
+	}
+	if want, err := filepath.EvalSymlinks(target); err != nil || resolved != want {
+		t.Errorf("resolve = %q, want %q", resolved, want)
+	}
+
+	if _, ok := resolve(filepath.Join(dir, "absent", "new.txt")); ok {
+		t.Error("resolve answered for a path whose directory does not exist")
+	}
+}

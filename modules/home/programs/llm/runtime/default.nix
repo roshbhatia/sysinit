@@ -126,48 +126,6 @@ let
       + builtins.readFile ./agent-notify.sh;
   };
 
-  stateScript = pkgs.writeShellApplication {
-    name = "agent-state";
-    runtimeInputs = [
-      pkgs.git
-      pkgs.utils
-      pkgs.wezterm
-    ];
-    bashOptions = [ ];
-    text = ''
-      exec utils agent-state "$@"
-    '';
-  };
-
-  # Named for what it records rather than for the harness, because the harness
-  # name is an argument and every hook-capable harness calls the same command.
-  editEventScript = pkgs.writeShellApplication {
-    name = "agent-edit-event";
-    runtimeInputs = [
-      pkgs.git
-      pkgs.utils
-    ];
-    bashOptions = [ ];
-    text = ''
-      exec utils edit-event "$@"
-    '';
-  };
-
-  # A second hook on the same tool calls, for the same reason the edit log has
-  # one: a note derived from the transcript needs nothing from the agent, and the
-  # agent's own PATH is not where a hook should find git.
-  noteAutoScript = pkgs.writeShellApplication {
-    name = "agent-note-auto";
-    runtimeInputs = [
-      pkgs.git
-      pkgs.utils
-    ];
-    bashOptions = [ ];
-    text = ''
-      exec utils note auto "$@"
-    '';
-  };
-
   promptScript = pkgs.writeShellApplication {
     name = "agent-prompt";
     runtimeInputs = [
@@ -216,16 +174,6 @@ let
       pkgs.wezterm
     ];
     text = paths + "\n" + busyPanes + "\n" + builtins.readFile ./agent-review.sh;
-  };
-
-  loopGate = pkgs.writeShellApplication {
-    name = "loop-gate";
-    runtimeInputs = [
-      pkgs.jq
-      pkgs.coreutils
-      pkgs.gawk
-    ];
-    text = builtins.readFile ./loop-gate.sh;
   };
 
   # The reader half.
@@ -295,12 +243,8 @@ in
   inherit
     icons
     script
-    stateScript
-    editEventScript
-    noteAutoScript
     promptScript
     focusScript
-    loopGate
     reviewScript
     sessionsScript
     syGate
@@ -310,9 +254,6 @@ in
     ;
 
   exe = lib.getExe script;
-  stateExe = lib.getExe stateScript;
-  editEventExe = lib.getExe editEventScript;
-  noteAutoExe = lib.getExe noteAutoScript;
   promptExe = lib.getExe promptScript;
   focusExe = lib.getExe focusScript;
   reviewExe = lib.getExe reviewScript;

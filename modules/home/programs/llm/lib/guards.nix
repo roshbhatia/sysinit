@@ -6,17 +6,21 @@ let
   rulesFile =
     pkgs: pkgs.writeText "destructive-deny-rules.json" (builtins.toJSON allowlist.destructiveDenyRules);
 
+  # A compiled wrapper that only binds the rules file, rather than a shell script: this
+  # runs on every Bash tool call, and a shell in front of it is a fork per call.
   mkGuard =
     subcommand:
     { pkgs, name }:
-    pkgs.writeShellApplication {
-      inherit name;
-      runtimeInputs = [ pkgs.utils ];
-      bashOptions = [ ];
-      text = ''
-        exec utils ${subcommand} --rules ${rulesFile pkgs} "$@"
+    pkgs.runCommand name
+      {
+        nativeBuildInputs = [ pkgs.makeBinaryWrapper ];
+        meta.mainProgram = name;
+      }
+      ''
+        mkdir -p "$out/bin"
+        makeWrapper ${pkgs.utils}/bin/${subcommand} "$out/bin/${name}" \
+          --add-flags "--rules ${rulesFile pkgs}"
       '';
-    };
 in
 {
   mkBashGuard = mkGuard "bash-guard";

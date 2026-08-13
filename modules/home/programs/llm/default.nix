@@ -256,12 +256,8 @@ in
       notify.script
       notify.agentRefine
       notify.specPreflight
-      notify.stateScript
-      notify.editEventScript
-      notify.noteAutoScript
       notify.promptScript
       notify.focusScript
-      notify.loopGate
       notify.reviewScript
       notify.sessionsScript
       notify.syGate

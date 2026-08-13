@@ -15,18 +15,6 @@ let
     skillsRoot = "~/.claude/skills";
   };
 
-  statuslineScript = pkgs.writeShellApplication {
-    name = "claude-statusline";
-    runtimeInputs = [
-      pkgs.git
-      pkgs.utils
-    ];
-    bashOptions = [ ];
-    text = ''
-      exec utils statusline "$@"
-    '';
-  };
-
   worklogScript = pkgs.writeShellApplication {
     name = "claude-worklog";
     runtimeInputs = [
@@ -44,13 +32,6 @@ let
   bashGuardScript = llmLib.guards.mkBashGuard {
     inherit pkgs;
     name = "claude-bash-guard";
-  };
-
-  nixGuardScript = pkgs.writeShellApplication {
-    name = "claude-nix-guard";
-    runtimeInputs = [ pkgs.jq ];
-    bashOptions = [ ];
-    text = builtins.readFile ./nix-guard.sh;
   };
 
   slackGuardScript =
@@ -159,7 +140,7 @@ in
 
       statusLine = {
         type = "command";
-        command = lib.getExe statuslineScript;
+        command = "${pkgs.utils}/bin/agent-statusline";
       };
 
       tui = "fullscreen";
@@ -219,7 +200,7 @@ in
             hooks = [
               {
                 type = "command";
-                command = "${lib.getExe nixGuardScript}";
+                command = "${pkgs.utils}/bin/nix-guard";
               }
             ];
           }
