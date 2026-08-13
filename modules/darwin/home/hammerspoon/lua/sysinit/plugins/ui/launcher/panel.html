@@ -52,13 +52,13 @@
         user-select: none;
       }
 
-      /* The window's own shadow is square, and the panel is not, so the shadow is drawn in
-         here inside a transparent margin. */
       #frame {
-        padding: 26px;
         height: 100%;
       }
 
+      /* No shadow of its own: a blur drawn here is clipped at the window edge and reads as a
+         square smudge around the rounded panel. The window's shadow follows this shape,
+         because a transparent window is shadowed by the part of it that is opaque. */
       #panel {
         height: 100%;
         display: flex;
@@ -66,7 +66,6 @@
         background: var(--bg);
         border: 1px solid var(--edge);
         border-radius: 12px;
-        box-shadow: 0 22px 60px rgba(0, 0, 0, 0.45);
         overflow: hidden;
       }
 

@@ -6,11 +6,10 @@ local M = {}
 -- The page, installed beside this file by home-manager.
 local page = hs.configdir .. "/lua/sysinit/plugins/ui/launcher/panel.html"
 
--- The panel's width and where its top edge sits, as a fraction of the screen. The margin is
--- the transparent border the page draws its shadow into, so the window is wider than the
--- panel by twice that.
+-- The panel's width and where its top edge sits, as a fraction of the screen. The window is
+-- the panel exactly: it carries no transparent margin, because a shadow drawn into one is
+-- clipped square at the window edge.
 local width = 750
-local margin = 26
 local top = 0.16
 
 local view = nil
@@ -42,10 +41,10 @@ local sent = {}
 local function frame(height)
   local screen = hs.screen.mainScreen():frame()
   return {
-    x = screen.x + (screen.w - width - margin * 2) / 2,
+    x = screen.x + (screen.w - width) / 2,
     y = screen.y + screen.h * top,
-    w = width + margin * 2,
-    h = height + margin * 2,
+    w = width,
+    h = height,
   }
 end
 
@@ -163,8 +162,7 @@ local function build()
   view:allowTextEntry(true)
   view:transparent(true)
   view:level(hs.drawing.windowLevels.modalPanel)
-  -- The window's shadow is square and the panel is not, so the page draws its own.
-  view:shadow(false)
+  view:shadow(true)
 
   local file = io.open(page, "r")
   if file then
