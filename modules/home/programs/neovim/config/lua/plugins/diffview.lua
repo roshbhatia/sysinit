@@ -133,7 +133,7 @@ return {
         function()
           require("harness.review").toggle()
         end,
-        desc = "Review: the repo you are in, or a pick",
+        desc = "Diff: toggle",
         mode = "n",
       },
       {
@@ -141,7 +141,7 @@ return {
         function()
           require("harness.review").history()
         end,
-        desc = "History of this file",
+        desc = "Diff: file history",
         mode = "n",
       },
       {
@@ -149,7 +149,7 @@ return {
         function()
           require("harness.history").open()
         end,
-        desc = "History of this repo, or of every repo by time",
+        desc = "Diff: project history",
         mode = "n",
       },
       {
@@ -157,7 +157,7 @@ return {
         function()
           require("harness.notes_list").quickfix()
         end,
-        desc = "Notes in the quickfix, kept current",
+        desc = "Diff: quickfix notes",
         mode = "n",
       },
       {
@@ -165,7 +165,7 @@ return {
         function()
           require("harness.notes_list").pick()
         end,
-        desc = "Find a note",
+        desc = "Diff: find notes",
         mode = "n",
       },
       -- `]r`, not `]d`: the LSP attaches `]d` per buffer for diagnostics, and a global
@@ -175,7 +175,7 @@ return {
         function()
           require("harness.review").cycle(1)
         end,
-        desc = "Next repo under review",
+        desc = "Diff: next repo",
         mode = "n",
       },
       {
@@ -183,7 +183,7 @@ return {
         function()
           require("harness.review").cycle(-1)
         end,
-        desc = "Prev repo under review",
+        desc = "Diff: previous repo",
         mode = "n",
       },
     },

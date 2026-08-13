@@ -78,11 +78,13 @@ type Provider interface {
 	Run(ctx context.Context, req Request) (<-chan Event, error)
 }
 
-// Find returns the provider a caller named.
+// Find returns the provider a caller named, by its name or by the letter its flag uses.
 func Find(name string) (Provider, error) {
 	switch name {
-	case "", "claude":
+	case "", "claude", "c":
 		return Claude{}, nil
+	case "codex", "o":
+		return Codex{}, nil
 	}
-	return nil, fmt.Errorf("unknown provider %q, known: claude", name)
+	return nil, fmt.Errorf("unknown provider %q, known: claude, codex", name)
 }

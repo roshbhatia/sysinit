@@ -22,14 +22,23 @@ import (
 	"github.com/roshbhatia/sysinit/pkgs/ask/internal/ui"
 )
 
-const usage = `usage: ask [flags] <prompt...>
+const usage = `usage: ask [flags] -- <prompt...>
+       ask <prompt...>
 
 Pipes stdin into a coding agent and prints the answer on stdout. Everything else,
 the spinner and what the model is doing, goes to stderr.
 
   cat main.go | ask summarise this file
-  cat log.txt | ask --schema 'level:error|warn|info, message:string' -- classify this
+  cat log.txt | ask -o --schema 'level:error|warn|info, message:string' -- classify this
   ask --show-input | pbcopy
+
+The prompt is the bare words after the flags, so the -- is only needed when a flag
+comes first. Quote a prompt that holds shell metacharacters, as in
+ask -c 'what does the | operator do', or the shell reads them before ask does.
+
+Both providers answer --json and --schema in the shape asked for, and a codex run
+that answers outside it is reported as a failure. Codex reports no cost, so the
+line after a codex run says $0.0000.
 
 flags:
   -j, --json            answer in JSON, shape unspecified
@@ -38,7 +47,9 @@ flags:
                         question mark makes a field optional and a bar makes an
                         enum, or @path to a JSON Schema file
   -m, --model NAME      model alias, such as opus or sonnet
-      --provider NAME   which agent to run (default claude)
+  -c                    run claude, which is the default
+  -o                    run codex
+      --provider NAME   which agent to run by name, claude or codex
       --replay          rerun the last input, with this prompt or the last one
       --show-input      print the last input and exit
       --show-prompt     print the last prompt and exit
@@ -98,6 +109,10 @@ func parse(args []string) (options, error) {
 			opts.show = "prompt"
 		case "--show-output":
 			opts.show = "output"
+		case "-c":
+			opts.provider = "claude"
+		case "-o":
+			opts.provider = "codex"
 		case "-s", "--schema":
 			opts.spec, err = value()
 		case "-m", "--model":
