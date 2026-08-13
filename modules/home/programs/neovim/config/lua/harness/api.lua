@@ -155,76 +155,37 @@ function M.send_selection()
   adapter.send(text, { submit = false })
 end
 
---- Close the review, and the follower and notes it attached.
+--- Close the review, and the notes it attached.
 function M.review_close()
   pcall(function()
-    require("review").close()
+    require("harness.review").close()
   end)
   pcall(function()
     require("harness.notes").detach()
   end)
 end
 
---- The repository the open review is on, as a list, for a caller that lists commits per
---- repository. Empty when no review is open.
+--- The repositories the open review is on, for a caller that lists commits per repository.
+--- Empty when no review is open.
 ---@return string[]
 function M.review_roots()
-  local ok, review = pcall(require, "review")
-  if not ok or not review.is_open() then
+  local ok, review = pcall(require, "harness.review")
+  if not ok then
     return {}
   end
-  local root = review.root()
-  return root and { root } or {}
+  return review.roots()
 end
 
 --- Whether a review is open.
 ---@return boolean
 function M.review_is_open()
-  local ok, review = pcall(require, "review")
+  local ok, review = pcall(require, "harness.review")
   return ok and review.is_open()
 end
 
---- Pick a repository to review and open it. Every repository under the workspace that has
---- a change is offered, most changed first, because a workspace holding eighteen of them
---- has no single answer and the file that happens to be open is a poor guess at one.
+--- Pick a repository to review and open it.
 function M.review_pick()
-  local gitrepo = require("utils.gitrepo")
-  gitrepo.workspace_changes(function(groups, roots)
-    -- Two different empty answers, reported as two different messages. "Nothing changed"
-    -- in a directory holding no repository sends the owner looking for a diff that was
-    -- never possible.
-    if #roots == 0 then
-      vim.notify("Harness: no git repository under " .. gitrepo.workspace(), vim.log.levels.WARN)
-      return
-    end
-    local review = require("review")
-    if #groups == 0 then
-      -- The repository the owner is standing in, or the first under the workspace. A
-      -- clean workspace has no most-changed repository to prefer.
-      local here = gitrepo.owning_root(vim.fs.normalize(vim.uv.cwd() or "."), roots) or roots[1]
-      vim.notify(
-        #roots == 1 and string.format("Harness: %s is clean", vim.fn.fnamemodify(here, ":t"))
-          or string.format("Harness: no changes in %d repositories, showing %s", #roots, vim.fn.fnamemodify(here, ":t")),
-        vim.log.levels.INFO
-      )
-      review.open(here)
-      return
-    end
-    if #groups == 1 then
-      review.open(groups[1].root)
-      return
-    end
-    vim.ui.select(groups, {
-      prompt = "Review which repository?",
-      format_item = function(group)
-        return string.format("%s  (%d changed)", vim.fn.fnamemodify(group.root, ":t"), #group.files)
-      end,
-    }, function(group)
-      if group then
-        review.open(group.root)
-      end
-    end)
-  end)
+  require("harness.review").pick()
 end
 
 function M.setup()

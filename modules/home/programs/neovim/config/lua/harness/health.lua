@@ -116,6 +116,7 @@ function M.findings()
 
   for _, plugin in ipairs({
     { module = "claudecode", lazy = "claudecode.nvim", need = "an agent's own inline edit" },
+    { module = "diffview", lazy = "diffview.nvim", need = "the diff itself" },
   }) do
     local state = plugin_state(plugin.module, plugin.lazy)
     add(state == "absent" and "error" or "ok", string.format("%s: %s (%s)", plugin.lazy, state, plugin.need))

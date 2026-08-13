@@ -217,7 +217,7 @@ local function open(scope)
   local label = vim.fn.fnamemodify(scope.root, ":t")
   state.said = label .. " " .. scope.short
 
-  require("review").open_revision(scope.root, {
+  require("harness.review").open_revision(scope.root, {
     sha = scope.sha,
     parent = scope.parent,
     short = scope.short,
