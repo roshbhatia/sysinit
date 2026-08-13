@@ -1,0 +1,180 @@
+package wezspawn
+
+import (
+	"fmt"
+	"os"
+	"path/filepath"
+	"strings"
+	"testing"
+	"time"
+)
+
+// mux installs a stub wezterm on PATH that answers the two probes from files and records
+// the spawn it is asked for.
+type mux struct {
+	dir string
+}
+
+func stub(t *testing.T, clients, panes string) *mux {
+	t.Helper()
+	dir := t.TempDir()
+	write := func(name, body string) {
+		if err := os.WriteFile(filepath.Join(dir, name), []byte(body), 0o600); err != nil {
+			t.Fatal(err)
+		}
+	}
+	write("clients.json", clients)
+	write("panes.json", panes)
+
+	// Absolute paths, because one test empties PATH to prove the named binary is driven.
+	script := fmt.Sprintf(`#!/bin/sh
+case "$2" in
+  list-clients) /bin/cat %[1]s/clients.json ;;
+  list)         /bin/cat %[1]s/panes.json ;;
+  spawn)        echo "$@" > %[1]s/spawn.txt; echo 42 ;;
+esac
+`, dir)
+	path := filepath.Join(dir, "wezterm")
+	if err := os.WriteFile(path, []byte(script), 0o700); err != nil {
+		t.Fatal(err)
+	}
+	t.Setenv("PATH", dir+string(os.PathListSeparator)+os.Getenv("PATH"))
+	return &mux{dir: dir}
+}
+
+// spawned returns the spawn call the stub recorded.
+func (m *mux) spawned(t *testing.T) string {
+	t.Helper()
+	data, err := os.ReadFile(filepath.Join(m.dir, "spawn.txt"))
+	if err != nil {
+		t.Fatalf("nothing was spawned: %v", err)
+	}
+	return strings.TrimSpace(string(data))
+}
+
+func clientsFor(workspace string, pane int) string {
+	return fmt.Sprintf(`[{"workspace":%q,"focused_pane_id":%d}]`, workspace, pane)
+}
+
+func panesFor(pane int, cwd string) string {
+	return fmt.Sprintf(`[{"pane_id":%d,"cwd":"file://somehost%s"}]`, pane, cwd)
+}
+
+func TestTheWindowJoinsTheFocusedWorkspaceAndDirectory(t *testing.T) {
+	dir := t.TempDir()
+	m := stub(t, clientsFor("fra-region-spin-up", 23), panesFor(23, dir))
+	if code := Run(nil); code != 0 {
+		t.Fatalf("Run exited %d", code)
+	}
+	for _, want := range []string{"--new-window", "--workspace fra-region-spin-up", "--cwd " + dir} {
+		if got := m.spawned(t); !strings.Contains(got, want) {
+			t.Errorf("spawn is missing %q:\n%s", want, got)
+		}
+	}
+}
+
+// A pane on a remote domain names a path this host does not have, and a spawn carrying it
+// would fail rather than open a window.
+func TestADirectoryThatIsNotHereIsLeftOff(t *testing.T) {
+	m := stub(t, clientsFor("laurel", 4), panesFor(4, "/not/a/directory/here"))
+	if code := Run(nil); code != 0 {
+		t.Fatalf("Run exited %d", code)
+	}
+	got := m.spawned(t)
+	if strings.Contains(got, "--cwd") {
+		t.Errorf("a path that does not exist here was still passed:\n%s", got)
+	}
+	if !strings.Contains(got, "--workspace laurel") {
+		t.Errorf("the workspace was dropped along with the path:\n%s", got)
+	}
+}
+
+// A file whose pane is not in the list leaves the directory unknown, and the window still
+// opens in the right workspace.
+func TestAnUnlistedFocusedPaneStillPicksTheWorkspace(t *testing.T) {
+	m := stub(t, clientsFor("default", 99), panesFor(23, t.TempDir()))
+	if code := Run(nil); code != 0 {
+		t.Fatalf("Run exited %d", code)
+	}
+	got := m.spawned(t)
+	if strings.Contains(got, "--cwd") {
+		t.Errorf("a pane that was not listed still produced a directory:\n%s", got)
+	}
+	if !strings.Contains(got, "--workspace default") {
+		t.Errorf("spawn = %s", got)
+	}
+}
+
+// No client at all still has to produce a terminal, because this is bound to a key.
+func TestNoClientStillSpawnsAWindow(t *testing.T) {
+	m := stub(t, "[]", "[]")
+	if code := Run(nil); code != 0 {
+		t.Fatalf("Run exited %d", code)
+	}
+	got := m.spawned(t)
+	if !strings.Contains(got, "--new-window") {
+		t.Errorf("spawn = %s", got)
+	}
+	if strings.Contains(got, "--workspace") || strings.Contains(got, "--cwd") {
+		t.Errorf("nothing was known, yet the spawn named something:\n%s", got)
+	}
+}
+
+func TestAProgramRunsInsteadOfTheShell(t *testing.T) {
+	m := stub(t, clientsFor("default", 1), "[]")
+	if code := Run([]string{"nvim", "-R"}); code != 0 {
+		t.Fatalf("Run exited %d", code)
+	}
+	if got := m.spawned(t); !strings.Contains(got, "-- nvim -R") {
+		t.Errorf("spawn is missing the program:\n%s", got)
+	}
+}
+
+func TestHelpIsNotASpawn(t *testing.T) {
+	m := stub(t, clientsFor("default", 1), "[]")
+	if code := Run([]string{"--help"}); code != 0 {
+		t.Errorf("--help exited %d", code)
+	}
+	if _, err := os.Stat(filepath.Join(m.dir, "spawn.txt")); err == nil {
+		t.Error("--help opened a window")
+	}
+}
+
+// A window manager passes its own store path, because it has no wezterm on PATH and no
+// shell to prepend one.
+func TestANamedBinaryIsDrivenInsteadOfThePathOne(t *testing.T) {
+	m := stub(t, clientsFor("laurel", 3), "[]")
+	named := filepath.Join(m.dir, "wezterm")
+	t.Setenv("PATH", t.TempDir())
+
+	if code := Run([]string{"--wezterm", named}); code != 0 {
+		t.Fatalf("Run exited %d with no wezterm on PATH", code)
+	}
+	if got := m.spawned(t); !strings.Contains(got, "--workspace laurel") {
+		t.Errorf("spawn = %s", got)
+	}
+	if code := Run([]string{"--wezterm"}); code != 2 {
+		t.Errorf("--wezterm with no path exited %d, want 2", code)
+	}
+}
+
+// The bound is real, and it is proved against a process that never answers.
+func TestAMuxCallIsBounded(t *testing.T) {
+	dir := t.TempDir()
+	if err := os.WriteFile(filepath.Join(dir, "wezterm"), []byte("#!/bin/sh\nsleep 30\n"), 0o700); err != nil {
+		t.Fatal(err)
+	}
+	t.Setenv("PATH", dir+string(os.PathListSeparator)+os.Getenv("PATH"))
+
+	real := muxTimeout
+	t.Cleanup(func() { muxTimeout = real })
+	muxTimeout = 150 * time.Millisecond
+
+	started := time.Now()
+	if code := Run(nil); code != 1 {
+		t.Errorf("a mux that never answered exited %d, want 1", code)
+	}
+	if elapsed := time.Since(started); elapsed > 3*time.Second {
+		t.Errorf("took %s, so the calls were not bounded", elapsed)
+	}
+}

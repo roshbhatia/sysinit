@@ -18,6 +18,7 @@ import (
 	"github.com/roshbhatia/sysinit/pkgs/utils/internal/statusline"
 	"github.com/roshbhatia/sysinit/pkgs/utils/internal/transcript"
 	"github.com/roshbhatia/sysinit/pkgs/utils/internal/watch"
+	"github.com/roshbhatia/sysinit/pkgs/utils/internal/wezspawn"
 	"github.com/roshbhatia/sysinit/pkgs/utils/internal/worker"
 	"github.com/roshbhatia/sysinit/pkgs/utils/internal/workspace"
 )
@@ -42,6 +43,7 @@ var commands = map[string]command{
 	"statusline":      {name: "statusline", summary: statusline.Summary, run: statusline.Run},
 	"transcript-link": {name: "transcript-link", summary: transcript.Summary, run: transcript.Run},
 	"watch":           {name: "watch", summary: watch.Summary, run: watch.Run},
+	"wezspawn":        {name: "wezspawn", summary: wezspawn.Summary, run: wezspawn.Run},
 	"worker":          {name: "worker", summary: worker.Summary, run: worker.Run},
 	"workspace":       {name: "workspace", summary: workspace.Summary, run: workspace.Run},
 }
@@ -68,6 +70,7 @@ var links = map[string]link{
 	"nix-guard":        {command: "nix-guard"},
 	"note":             {command: "note"},
 	"transcript-link":  {command: "transcript-link"},
+	"wezspawn":         {command: "wezspawn"},
 	"worker":           {command: "worker"},
 	"ws":               {command: "workspace"},
 }

@@ -17,14 +17,15 @@ final: _prev: {
         "nix-guard"
         "note"
         "transcript-link"
+        "wezspawn"
         "worker"
         "ws"
       ];
 
       # A hook runs with the harness's own PATH, and these are what the commands shell
-      # out to. Not wezterm: `worker` only means anything inside a WezTerm session, where
-      # wezterm is already on PATH, and naming it here would put a terminal in the
-      # closure of every host that installs these commands.
+      # out to. Not wezterm: naming it here would put a terminal in the closure of every
+      # host that installs these commands, so `worker` relies on the WezTerm session it
+      # only ever runs inside, and `wezspawn`'s caller prepends the path it wants.
       runtimePath = final.lib.makeBinPath [
         final.git
         final.curl
