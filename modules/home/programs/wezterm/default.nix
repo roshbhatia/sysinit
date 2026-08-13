@@ -126,6 +126,9 @@ in
         cursor_border = "#${c.base05}";
         selection_bg = "#${c.base02}";
         selection_fg = "#${c.base05}";
+        # The accent, not wezterm's default grey, so the line between two panes is
+        # visible against a dimmed inactive pane rather than lost in it.
+        split = "#${c.base0D}";
         ansi = [
           "#${c.base00}"
           "#${c.base08}"
