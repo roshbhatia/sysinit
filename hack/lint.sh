@@ -62,6 +62,14 @@ if [ -n "$sh_files" ] && command -v shellcheck > /dev/null 2>&1; then
   run shellcheck --shell=bash $sh_files
 fi
 
+# ---------------------------------------------------------------------- python
+
+py_files=$(files_matching '\.py$')
+if [ -n "$py_files" ]; then
+  # shellcheck disable=SC2086
+  run hack/check-script-blocks.sh $py_files
+fi
+
 # ------------------------------------------------------- the generated manifest
 
 # `bootstrap/mise.toml` is derived from `bootstrap/tools.toml`. It is checked in
