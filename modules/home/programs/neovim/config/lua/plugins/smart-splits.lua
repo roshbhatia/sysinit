@@ -5,6 +5,18 @@ end
 
 local nav_seq = 0
 
+-- A deliberate resize becomes the layout bufresize keeps in proportion on the next
+-- terminal resize. Without this the split is restored to the size it had before the
+-- keypress.
+local function keep(resize)
+  return function()
+    resize()
+    pcall(function()
+      require("bufresize").register()
+    end)
+  end
+end
+
 local function ask_wezterm_to_move(direction)
   nav_seq = nav_seq + 1
   set_user_var("SYSINIT_NAV", direction .. ":" .. nav_seq)
@@ -80,33 +92,25 @@ return {
         },
         {
           "<C-S-h>",
-          function()
-            smart_splits.resize_left()
-          end,
+          keep(smart_splits.resize_left),
           mode = { "n", "i", "v", "t" },
           desc = "Decrease pane width",
         },
         {
           "<C-S-j>",
-          function()
-            smart_splits.resize_down()
-          end,
+          keep(smart_splits.resize_down),
           mode = { "n", "i", "v", "t" },
           desc = "Decrease pane height",
         },
         {
           "<C-S-k>",
-          function()
-            smart_splits.resize_up()
-          end,
+          keep(smart_splits.resize_up),
           mode = { "n", "i", "v", "t" },
           desc = "Increase pane height",
         },
         {
           "<C-S-l>",
-          function()
-            smart_splits.resize_right()
-          end,
+          keep(smart_splits.resize_right),
           mode = { "n", "i", "v", "t" },
           desc = "Increase pane width",
         },
