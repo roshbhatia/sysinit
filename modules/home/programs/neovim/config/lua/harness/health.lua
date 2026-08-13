@@ -98,13 +98,13 @@ function M.findings()
 
   local ok_events, events = pcall(require, "harness.edit_events")
   if not ok_events then
-    add("error", "the edit-event watcher module did not load, so a scoped review opens the full workspace diff")
+    add("error", "the edit-event watcher module did not load")
   else
     local watch = events.status()
     if watch.active then
-      add("ok", "edit-event watcher: running")
+      add("ok", "edit-event watcher: running, with no consumer since the scoped review was removed")
     else
-      add("warn", "edit-event watcher: not running, so a scoped review opens the full workspace diff")
+      add("warn", "edit-event watcher: not running")
     end
     if watch.log then
       add("ok", "edit-event log: " .. watch.log .. string.format(" (read to byte %d)", watch.offset))
@@ -131,27 +131,16 @@ function M.findings()
 
   for _, plugin in ipairs({
     { module = "codediff", lazy = "codediff.nvim", need = "the diff itself" },
-    { module = "review", lazy = "review.nvim", need = "the comment layer" },
     { module = "claudecode", lazy = "claudecode.nvim", need = "an agent's own inline edit" },
   }) do
     local state = plugin_state(plugin.module, plugin.lazy)
     add(state == "absent" and "error" or "ok", string.format("%s: %s (%s)", plugin.lazy, state, plugin.need))
   end
 
-  -- The two places this config reaches into another plugin's internals. Reported by
-  -- name because an upstream rename breaks them silently: every review would open with
-  -- no comment layer, and a clean repository would fall back to a message. Only checked
-  -- for a module already loaded, so reading the report does not load a lazy plugin and
-  -- change what the next line says.
+  -- Where this config reaches into codediff's internals. Reported by name because an
+  -- upstream rename breaks it silently. Only checked for a module already loaded, so
+  -- reading the report does not load a lazy plugin and change what the next line says.
   for _, seam in ipairs({
-    {
-      module = "review",
-      what = "review.nvim attach seam `_check_codediff_session`",
-      cost = "a review opens with no comment layer",
-      ok = function(m)
-        return type(m._check_codediff_session) == "function"
-      end,
-    },
     {
       module = "codediff.ui.view",
       what = "codediff seam `ui.view.create`",

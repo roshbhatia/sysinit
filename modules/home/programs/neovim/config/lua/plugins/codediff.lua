@@ -114,6 +114,13 @@ return {
     end,
     keys = {
       {
+        "<leader>dd",
+        function()
+          require("harness.api").review_workspace()
+        end,
+        desc = "Review the workspace diff",
+      },
+      {
         -- History is per repository by nature: a commit list spanning several
         -- repositories is a fiction, so this one still resolves to one.
         "<leader>dH",

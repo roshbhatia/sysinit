@@ -155,28 +155,6 @@ function M.send_selection()
   adapter.send(text, { submit = false })
 end
 
-function M.send_review()
-  local adapter = get_active_adapter()
-  if not adapter then
-    return
-  end
-  local ok_store, store = pcall(require, "review.store")
-  local ok_export, export = pcall(require, "review.export")
-  if not (ok_store and ok_export) then
-    vim.notify("Harness: review.nvim not loaded — open a review with <leader>dd", vim.log.levels.WARN)
-    return
-  end
-  local count = store.count()
-  if count == 0 then
-    vim.notify("Harness: no review comments to send", vim.log.levels.WARN)
-    return
-  end
-  local markdown = export.generate_markdown()
-  last_prompts[adapter.name] = markdown
-  adapter.send(markdown, { submit = false })
-  vim.notify(string.format("Harness: sent %d review comment(s) to %s", count, adapter.name), vim.log.levels.INFO)
-end
-
 --- Which tabpages hold a codediff session, and which repository each is on.
 ---
 --- The one place that reads codediff's session registry, so its shape is asserted
@@ -241,23 +219,6 @@ local function close_sessions()
   end
   for tab in pairs(session_tabs()) do
     pcall(lifecycle.close, tab)
-  end
-end
-
---- Attach review.nvim's comment layer to the codediff session in the current tab.
----
---- Without an attach the diff opens with no comment layer and looks like a plain
---- diff, which is the one outcome worth a warning: a review that cannot record
---- anything is not a review.
----
---- This reaches another plugin's internals. It is the existing attach seam and there
---- is no upstream API to replace it with, so it is confined to this one function and
---- reported by the health check rather than spread across the call sites.
-local function attach_review()
-  if not pcall(function()
-    require("review")._check_codediff_session()
-  end) then
-    vim.notify("Harness: the diff opened, but review.nvim did not attach to it", vim.log.levels.WARN)
   end
 end
 
@@ -346,8 +307,9 @@ local function open_one(group, on_open)
           vim.log.levels.WARN
         )
       end
+      -- Deferred because codediff registers the session asynchronously, and the
+      -- callback opens the changed-file list in the tab that registration creates.
       vim.defer_fn(function()
-        attach_review()
         if on_open then
           on_open(opened)
         end
@@ -387,12 +349,9 @@ local function open_one(group, on_open)
       return
     end
 
-    -- The attach is deferred because codediff registers the session asynchronously and
-    -- review.nvim reads the current tabpage to decide what it is attaching to. It also
-    -- attaches on `TabEnter` by itself (`review/init.lua:27`), so this is the first of
-    -- two chances rather than the only one.
+    -- Deferred because codediff registers the session asynchronously, and the callback
+    -- opens the changed-file list in the tab that registration creates.
     vim.defer_fn(function()
-      attach_review()
       if on_open then
         on_open(true)
       end
