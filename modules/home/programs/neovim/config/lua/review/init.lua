@@ -4,6 +4,7 @@ local M = {}
 
 local lists = require("review.lists")
 local diff = require("review.diff")
+local inline = require("review.inline")
 
 ---@class ReviewState
 ---@field tab integer|nil
@@ -11,16 +12,33 @@ local diff = require("review.diff")
 ---@field base string|nil a commit the working tree is compared back to
 ---@field rev table|nil a revision under review, as `{ sha, parent, short }`
 ---@field sections table[]
+---@field entry table|nil the file being read, so a layout change can redraw it
 ---@field placement "bottom"|"tree"
+---@field layout "split"|"inline"
 local state = {
   tab = nil,
   root = nil,
   base = nil,
   rev = nil,
   sections = {},
+  entry = nil,
   -- Remembered across reviews, so the next one opens the way the last was left.
   placement = "bottom",
+  layout = "split",
 }
+
+--- Show one file in whichever layout is chosen, tearing the other one down first.
+---@param entry table
+---@return boolean opened
+local function render(entry)
+  state.entry = entry
+  if state.layout == "inline" then
+    diff.close()
+    return inline.open(entry)
+  end
+  inline.close()
+  return diff.open(entry)
+end
 
 --- Whether the review's tab is still standing.
 ---@return boolean
@@ -58,7 +76,7 @@ local function draw()
     end
   end
   if first then
-    diff.open(first)
+    render(first)
   end
 
   local counts = {}
@@ -133,6 +151,7 @@ end
 --- Close the review and everything it opened.
 function M.close()
   diff.close()
+  inline.close()
   lists.forget()
   pcall(function()
     require("harness.notes").detach()
@@ -142,7 +161,8 @@ function M.close()
     -- spine and both sides with it in one step.
     pcall(vim.cmd, state.tab .. "tabclose")
   end
-  state.tab, state.root, state.base, state.rev, state.sections = nil, nil, nil, nil, {}
+  state.tab, state.root, state.base, state.rev = nil, nil, nil, nil
+  state.sections, state.entry = {}, nil
 end
 
 --- Open the review of the repository the caller is in, or close the open one. The repo is
@@ -175,6 +195,17 @@ function M.toggle_placement()
   end
 end
 
+--- Swap the file view between the two sides side by side and the one-window inline
+--- reading, redrawing the file already open so the swap costs no place in the review.
+function M.toggle_layout()
+  state.layout = state.layout == "split" and "inline" or "split"
+  if M.is_open() and state.entry ~= nil then
+    render(state.entry)
+  else
+    vim.notify("Review: files will open " .. state.layout, vim.log.levels.INFO)
+  end
+end
+
 --- Compare the working tree back to a commit, adding the cumulative section.
 ---@param base string|nil nil drops back to the working tree alone
 function M.set_base(base)
@@ -195,7 +226,7 @@ function M.activate()
   if entry == nil then
     return false
   end
-  return diff.open(entry)
+  return render(entry)
 end
 
 --- Step to the next or previous file in the spine and open it.
@@ -211,7 +242,7 @@ function M.step(delta)
     -- reader who wanted the next section reaches for `>`.
     return true
   end
-  return diff.open(entry)
+  return render(entry)
 end
 
 --- Whether the cursor sits in one of the review's windows.

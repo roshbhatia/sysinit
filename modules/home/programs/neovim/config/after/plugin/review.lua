@@ -12,6 +12,10 @@ Snacks.keymap.set("n", "<leader>dt", function()
   review().toggle_placement()
 end, { desc = "Review spine: bottom or tree" })
 
+Snacks.keymap.set("n", "<leader>dl", function()
+  review().toggle_layout()
+end, { desc = "Review file view: split or inline" })
+
 Snacks.keymap.set("n", "<leader>dR", function()
   review().refresh()
 end, { desc = "Reload the review" })
