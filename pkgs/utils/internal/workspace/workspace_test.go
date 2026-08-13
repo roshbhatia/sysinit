@@ -290,3 +290,73 @@ func TestRunOnACleanWorkspaceExitsZero(t *testing.T) {
 		t.Fatalf("Run changes on a clean workspace returned %d, want 0", code)
 	}
 }
+
+func TestLogReportsOneRowPerCommitNewestFirst(t *testing.T) {
+	ws := isolate(t)
+	commitRepo(t, ws)
+	write(t, filepath.Join(ws, "tracked.txt"), "second\n")
+	git(t, ws, "commit", "-qam", "the second commit")
+
+	commits := Log([]string{ws}, 10)
+	if len(commits) != 2 {
+		t.Fatalf("Log found %d commits, want 2", len(commits))
+	}
+	if commits[0].Subject != "the second commit" {
+		t.Errorf("newest subject = %q", commits[0].Subject)
+	}
+	if commits[0].Parent != commits[1].SHA {
+		t.Errorf("parent of the newest = %q, want %q", commits[0].Parent, commits[1].SHA)
+	}
+	// The root commit has no parent, and the empty tree is what it diffs against.
+	if commits[1].Parent != emptyTree {
+		t.Errorf("parent of the root commit = %q, want the empty tree", commits[1].Parent)
+	}
+	if !strings.HasPrefix(commits[0].SHA, commits[0].Short) {
+		t.Errorf("short sha %q does not prefix %q", commits[0].Short, commits[0].SHA)
+	}
+}
+
+func TestLogBoundsTheCountPerRepository(t *testing.T) {
+	ws := isolate(t)
+	commitRepo(t, ws)
+	for i := 0; i < 3; i++ {
+		write(t, filepath.Join(ws, "tracked.txt"), string(rune('a'+i)))
+		git(t, ws, "commit", "-qam", "another")
+	}
+	if commits := Log([]string{ws}, 2); len(commits) != 2 {
+		t.Errorf("Log with -n 2 returned %d commits", len(commits))
+	}
+}
+
+func TestLogOnARepositoryWithNoCommitsIsEmptyNotAnError(t *testing.T) {
+	ws := isolate(t)
+	git(t, ws, "init", "-q", ".")
+	if commits := Log([]string{ws}, 10); len(commits) != 0 {
+		t.Errorf("Log found %d commits in an empty repository", len(commits))
+	}
+}
+
+func TestRootsFromStdinKeepTheirOrder(t *testing.T) {
+	got := readRoots(strings.NewReader("/b\n\n  /a  \n/c\n"))
+	want := []string{"/b", "/a", "/c"}
+	if len(got) != len(want) {
+		t.Fatalf("readRoots = %v", got)
+	}
+	for i := range want {
+		if got[i] != want[i] {
+			t.Errorf("readRoots[%d] = %q, want %q", i, got[i], want[i])
+		}
+	}
+}
+
+func TestCountFlagIsValidated(t *testing.T) {
+	count := 10
+	if _, code := takeCount([]string{"-n", "5", "dir"}, &count); code != 0 || count != 5 {
+		t.Errorf("takeCount(-n 5) gave code %d, count %d", code, count)
+	}
+	for _, args := range [][]string{{"-n"}, {"-n", "zero"}, {"-n", "0"}, {"-n", "-3"}} {
+		if _, code := takeCount(args, &count); code == 0 {
+			t.Errorf("takeCount accepted %v", args)
+		}
+	}
+}

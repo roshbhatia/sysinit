@@ -42,6 +42,44 @@ local function scope_roots(cb)
   require("utils.gitrepo").workspace_roots(cb)
 end
 
+--- Parse one `ws log` row: root, sha, short sha, first parent, subject.
+---@param line string
+---@return table|nil
+local function row(line)
+  local root, sha, short, parent, subject = line:match("^([^\t]*)\t([^\t]*)\t([^\t]*)\t([^\t]*)\t(.*)$")
+  if root == nil or sha == "" then
+    return nil
+  end
+  return { kind = "commit", root = root, sha = sha, short = short, parent = parent, subject = subject }
+end
+
+--- Every root's commits in one call, from the same command that answers `ws roots`. The
+--- roots go in on stdin, so the review's order survives.
+---@param roots string[]
+---@param cb fun(commits: table[]|nil)
+local function commits_via_ws(roots, cb)
+  if vim.fn.executable("ws") ~= 1 then
+    return cb(nil)
+  end
+  vim.system({ "ws", "log", "-n", tostring(PER_REPO), "-" }, {
+    text = true,
+    stdin = table.concat(roots, "\n") .. "\n",
+  }, function(res)
+    if res.code ~= 0 then
+      return vim.schedule(function()
+        cb(nil)
+      end)
+    end
+    local found = {}
+    for line in (res.stdout or ""):gmatch("[^\n]+") do
+      found[#found + 1] = row(line)
+    end
+    vim.schedule(function()
+      cb(found)
+    end)
+  end)
+end
+
 --- One repository's recent commits, newest first.
 ---@param root string
 ---@param cb fun(commits: table[])
@@ -78,10 +116,10 @@ local function commits(root, cb)
   end)
 end
 
---- Every repository's commits, grouped in the order the roots were given.
+--- One `git log` per repository, for a box with no `ws` on PATH.
 ---@param roots string[]
 ---@param cb fun(commits: table[])
-local function all_commits(roots, cb)
+local function all_commits_via_git(roots, cb)
   local found, pending = {}, #roots
   for index, root in ipairs(roots) do
     commits(root, function(list)
@@ -98,6 +136,19 @@ local function all_commits(roots, cb)
       end
     end)
   end
+end
+
+--- Every repository's commits, grouped in the order the roots were given. `ws` answers
+--- for all of them in one process, and the fan-out is what runs without it.
+---@param roots string[]
+---@param cb fun(commits: table[])
+local function all_commits(roots, cb)
+  commits_via_ws(roots, function(found)
+    if found ~= nil then
+      return cb(found)
+    end
+    all_commits_via_git(roots, cb)
+  end)
 end
 
 --- `repo | sha | subject`, in three columns wide enough for every row.

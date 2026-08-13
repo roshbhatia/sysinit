@@ -10,6 +10,7 @@ import (
 	"os/exec"
 	"path/filepath"
 	"sort"
+	"strconv"
 	"strings"
 	"sync"
 
@@ -20,6 +21,48 @@ const Summary = "list the repositories under a workspace, and the changes in the
 
 // scanDepth bounds the walk, in path segments below the workspace root.
 const scanDepth = 5
+
+// logCount is how many commits per repository `log` reports without being told.
+const logCount = 10
+
+// emptyTree is git's empty tree, reported as the parent of a root commit so every row
+// names something a caller can diff against.
+const emptyTree = "4b825dc642cb6eb9a060e54bf8d69288fbee4904"
+
+// takeCount pulls `-n <count>` out of the arguments and returns the rest.
+func takeCount(args []string, count *int) ([]string, int) {
+	rest := make([]string, 0, len(args))
+	for i := 0; i < len(args); i++ {
+		if args[i] != "-n" {
+			rest = append(rest, args[i])
+			continue
+		}
+		if i+1 >= len(args) {
+			fmt.Fprintln(os.Stderr, "workspace: -n needs a value")
+			return nil, 2
+		}
+		parsed, err := strconv.Atoi(args[i+1])
+		if err != nil || parsed < 1 {
+			fmt.Fprintf(os.Stderr, "workspace: -n takes a positive integer, got %q\n", args[i+1])
+			return nil, 2
+		}
+		*count = parsed
+		i++
+	}
+	return rest, 0
+}
+
+// readRoots reads one absolute path per line, keeping the order they arrive in.
+func readRoots(r io.Reader) []string {
+	var roots []string
+	scanner := bufio.NewScanner(r)
+	for scanner.Scan() {
+		if line := strings.TrimSpace(scanner.Text()); line != "" {
+			roots = append(roots, line)
+		}
+	}
+	return roots
+}
 
 // Run dispatches the subcommands. It returns 2 for a usage error and 0 otherwise,
 // including when the answer is empty: a workspace with no repository and a
@@ -35,22 +78,45 @@ func Run(args []string) int {
 	case "-h", "--help", "help":
 		usage(os.Stdout)
 		return 0
-	case "roots", "changes", "health":
+	case "roots", "changes", "health", "log":
 	default:
 		fmt.Fprintf(os.Stderr, "workspace: unknown action %q\n", action)
 		usage(os.Stderr)
 		return 2
 	}
 
-	dir, code := resolveDir(rest)
-	if code != 0 {
-		return code
+	count := logCount
+	rest, usageCode := takeCount(rest, &count)
+	if usageCode != 0 {
+		return usageCode
 	}
 
-	roots, err := Roots(dir)
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "workspace: %v\n", err)
-		return 1
+	// `-` reads the roots from stdin, so a caller that already holds a set of them, in an
+	// order of its own, does not get the workspace's instead.
+	fromStdin := len(rest) == 1 && rest[0] == "-"
+	if fromStdin && action == "health" {
+		fmt.Fprintln(os.Stderr, "workspace: health reports on a directory, not on roots from stdin")
+		return 2
+	}
+
+	var (
+		dir   string
+		roots []string
+	)
+	if fromStdin {
+		roots = readRoots(os.Stdin)
+	} else {
+		var dirCode int
+		dir, dirCode = resolveDir(rest)
+		if dirCode != 0 {
+			return dirCode
+		}
+		var err error
+		roots, err = Roots(dir)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "workspace: %v\n", err)
+			return 1
+		}
 	}
 
 	out := bufio.NewWriter(os.Stdout)
@@ -58,6 +124,14 @@ func Run(args []string) int {
 
 	if action == "roots" {
 		writeLines(out, roots)
+		return 0
+	}
+
+	if action == "log" {
+		for _, commit := range Log(roots, count) {
+			fmt.Fprintf(out, "%s\t%s\t%s\t%s\t%s\n",
+				commit.Root, commit.SHA, commit.Short, commit.Parent, commit.Subject)
+		}
 		return 0
 	}
 
@@ -93,16 +167,23 @@ func writeHealth(w io.Writer, dir string, roots []string, groups []Group) {
 }
 
 func usage(w io.Writer) {
-	fmt.Fprint(w, `utils workspace: what a workspace holds
+	fmt.Fprint(w, `ws: what a workspace holds
 
 Usage:
-  utils workspace roots   [dir]   repository roots, one absolute path per line
-  utils workspace changes [dir]   changed paths in those repositories
-  utils workspace health  [dir]   what this layer sees, as key=value lines
+  ws roots   [dir]        repository roots, one absolute path per line
+  ws changes [dir|-]      changed paths in those repositories
+  ws log     [dir|-] [-n] recent commits, as root, sha, short sha, parent, subject
+  ws health  [dir]        what this layer sees, as key=value lines
 
 dir defaults to the working directory. The workspace is the seshy session holding
 dir when there is one, and otherwise dir's own repository root or dir itself, which
 is the same rule the edit-event log is keyed on.
+
+`+"`-`"+` reads the roots from stdin instead, one per line, keeping their order:
+
+  ws roots | ws log -n 5 -
+
+log writes tab-separated fields, and -n bounds the commits per repository (10).
 
 Exits 0 with no output when there is nothing to report, 1 when git fails, and 2 on
 a usage error.
@@ -186,6 +267,70 @@ func Roots(dir string) ([]string, error) {
 
 	sort.Strings(found)
 	return found, nil
+}
+
+// Commit is one commit, as `log` reports it.
+type Commit struct {
+	Root    string
+	SHA     string
+	Short   string
+	Parent  string
+	Subject string
+}
+
+// Log returns the recent commits per root, grouped in the order the roots were given.
+func Log(roots []string, count int) []Commit {
+	perRoot := make([][]Commit, len(roots))
+	var wg sync.WaitGroup
+
+	for i, root := range roots {
+		wg.Add(1)
+		go func(i int, root string) {
+			defer wg.Done()
+			perRoot[i] = logIn(root, count)
+		}(i, root)
+	}
+
+	wg.Wait()
+
+	var all []Commit
+	for _, commits := range perRoot {
+		all = append(all, commits...)
+	}
+	return all
+}
+
+// logIn reads one repository's recent commits, newest first. A repository with no commits
+// yet reports none, which is an answer rather than a failure.
+func logIn(root string, count int) []Commit {
+	cmd := exec.Command("git", "-C", root, "log",
+		"--max-count="+strconv.Itoa(count), "--format=%H%x1f%h%x1f%P%x1f%s")
+	cmd.Env = append(os.Environ(), "GIT_OPTIONAL_LOCKS=0")
+	out, err := cmd.Output()
+	if err != nil {
+		return nil
+	}
+
+	var commits []Commit
+	for _, line := range strings.Split(strings.TrimRight(string(out), "\n"), "\n") {
+		fields := strings.Split(line, "\x1f")
+		if len(fields) != 4 || fields[0] == "" {
+			continue
+		}
+		// The first parent, so a merge reads as what it brought in.
+		parent := emptyTree
+		if parents := strings.Fields(fields[2]); len(parents) > 0 {
+			parent = parents[0]
+		}
+		commits = append(commits, Commit{
+			Root:    root,
+			SHA:     fields[0],
+			Short:   fields[1],
+			Parent:  parent,
+			Subject: fields[3],
+		})
+	}
+	return commits
 }
 
 // Group is one repository's changed paths.
