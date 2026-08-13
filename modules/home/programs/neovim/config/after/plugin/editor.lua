@@ -27,7 +27,9 @@ end)
 vim.opt.number = true
 vim.opt.signcolumn = "yes:3"
 vim.opt.numberwidth = 4
-vim.opt.fillchars:append({ eob = " ", diff = " " })
+-- `/` on the missing side of a diff, drawn as a hatched block. A blank there reads as a
+-- line the file has and this one does not show, which is the opposite of what it means.
+vim.opt.fillchars:append({ eob = " ", diff = "/" })
 
 vim.opt.diffopt = {
   -- histogram over minimal: minimal optimises for the smallest edit script, which on
