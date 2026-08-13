@@ -100,7 +100,9 @@ function M.rows()
   for _, entry in ipairs(history) do
     rows[#rows + 1] = {
       text = entry.label,
-      subText = "clipboard",
+      detail = "",
+      label = "Clipboard",
+      badge = "C",
       kind = "clipboard",
       entry = entry,
       at = entry.at,

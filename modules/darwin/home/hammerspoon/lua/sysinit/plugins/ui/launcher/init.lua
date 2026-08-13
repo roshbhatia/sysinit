@@ -4,6 +4,7 @@
 -- the whole disk.
 local json_loader = require("sysinit.pkg.utils.json_loader")
 local clipboard = require("sysinit.plugins.ui.launcher.clipboard")
+local panel = require("sysinit.plugins.ui.launcher.panel")
 local recency = require("sysinit.plugins.ui.launcher.recency")
 
 local M = {}
@@ -11,12 +12,7 @@ local M = {}
 -- The applications, cached across opens, because scanning the directories on every open is
 -- the cost Spotlight is disliked for. The live sources are cheap enough to ask again.
 local apps = nil
-local chooser = nil
 local config = nil
-
--- The keys that move the selection, live only while the panel is up. A modal rather than an
--- `hs.eventtap`, so shift+j reaches the query field as a `J` everywhere else.
-local keys = nil
 
 --- The absolute paths and the declared commands, from Nix. Hammerspoon runs with a
 --- minimal PATH, so a tool is named by its full path or it is not found at all.
@@ -61,6 +57,41 @@ local function json(args, cb)
   end)
 end
 
+--- One application's icon as a data URI, at the size the page draws it. The page holds no
+--- file access of its own, so an icon reaches it inline or not at all.
+---@param path string
+---@return string|nil
+local function icon(path)
+  local image = hs.image.iconForFile(path)
+  if image == nil then
+    return nil
+  end
+  local ok, encoded = pcall(function()
+    return image:setSize({ w = 24, h = 24 }):encodeAsURLString()
+  end)
+  return ok and encoded or nil
+end
+
+--- Add one application, unless a directory earlier in the list already claimed the name.
+---@param path string
+---@param name string
+---@param into table[]
+---@param seen table<string, boolean>
+local function add_app(path, name, into, seen)
+  if seen[name] then
+    return
+  end
+  seen[name] = true
+  into[#into + 1] = {
+    text = name:sub(1, #name - 4),
+    detail = "",
+    label = "Application",
+    icon = icon(path),
+    kind = "app",
+    path = path,
+  }
+end
+
 --- Every `.app` directly under `dir`, and under one level of subdirectory, because the Nix
 --- and home-manager apps sit in a folder of their own inside `/Applications` and
 --- `~/Applications` and a one-level scan never reaches them.
@@ -77,16 +108,7 @@ local function scan(dir, into, seen)
     if name ~= "." and name ~= ".." then
       local path = dir .. "/" .. name
       if name:sub(-4) == ".app" then
-        if not seen[name] then
-          seen[name] = true
-          into[#into + 1] = {
-            text = name:sub(1, #name - 4),
-            subText = dir,
-            image = hs.image.iconForFile(path),
-            kind = "app",
-            path = path,
-          }
-        end
+        add_app(path, name, into, seen)
       else
         nested[#nested + 1] = path
       end
@@ -98,15 +120,8 @@ local function scan(dir, into, seen)
       local sub_ok, sub_iter, sub_state = pcall(hs.fs.dir, path)
       if sub_ok and sub_iter then
         for name in sub_iter, sub_state do
-          if name:sub(-4) == ".app" and not seen[name] then
-            seen[name] = true
-            into[#into + 1] = {
-              text = name:sub(1, #name - 4),
-              subText = path,
-              image = hs.image.iconForFile(path .. "/" .. name),
-              kind = "app",
-              path = path .. "/" .. name,
-            }
+          if name:sub(-4) == ".app" then
+            add_app(path .. "/" .. name, name, into, seen)
           end
         end
       end
@@ -128,6 +143,19 @@ local function app_rows()
   return apps
 end
 
+--- The icon of an installed application, by name, so a WezTerm pane and a Firefox tab are
+--- marked with the thing they belong to rather than a placeholder.
+---@param name string
+---@return string|nil
+local function app_icon(name)
+  for _, row in ipairs(app_rows()) do
+    if row.text == name then
+      return row.icon
+    end
+  end
+  return nil
+end
+
 --- The open WezTerm panes, named by workspace and title, because that is how a reader
 --- knows which one they meant.
 ---@param cb fun(rows: table[])
@@ -145,7 +173,9 @@ local function pane_rows(cb)
       end
       rows[#rows + 1] = {
         text = string.format("%s: %s", pane.workspace or "default", title),
-        subText = string.format("WezTerm pane %d", pane.pane_id or 0),
+        detail = pane.cwd or "",
+        label = "WezTerm Pane",
+        icon = app_icon("WezTerm"),
         kind = "pane",
         pane_id = pane.pane_id,
       }
@@ -166,7 +196,9 @@ local function session_rows(cb)
     for _, session in ipairs(sessions) do
       rows[#rows + 1] = {
         text = session.name or "",
-        subText = string.format("seshy session, %d repos", session.repoCount or 0),
+        detail = string.format("%d repos", session.repoCount or 0),
+        label = "Session",
+        icon = app_icon("WezTerm"),
         kind = "session",
         path = session.path,
       }
@@ -187,7 +219,9 @@ local function tab_rows(cb)
     for _, tab in ipairs(tabs) do
       rows[#rows + 1] = {
         text = tab.title or tab.url or "",
-        subText = tab.url or "Firefox tab",
+        detail = tab.url or "",
+        label = "Firefox Tab",
+        icon = app_icon("Firefox"),
         kind = "tab",
         url = tab.url,
       }
@@ -204,7 +238,9 @@ local function command_rows()
   for _, command in ipairs(settings().commands or {}) do
     rows[#rows + 1] = {
       text = command.label or "",
-      subText = command.about or "command",
+      detail = "",
+      label = "Command",
+      badge = "\u{2318}",
       kind = "command",
       run = command.run,
       url = command.url,
@@ -256,71 +292,22 @@ local function activate(choice)
   end
 end
 
---- Move the selection by posting the arrow key the panel already handles, rather than
---- setting the selected row, so the list scrolls and stops at its ends on its own.
----@param key string
-local function step(key)
-  hs.eventtap.keyStroke({}, key, 0)
-end
-
---- Build the chooser. No colours of its own: `hs.chooser` is an AppKit panel, and left
---- alone it takes the system's own vibrant appearance, which is what makes it read as a
---- native window rather than a themed one.
-local function build()
-  chooser = hs.chooser.new(activate)
-  chooser:rows(10)
-  chooser:width(28)
-  chooser:searchSubText(true)
-  chooser:placeholderText("Search apps, panes, sessions, tabs, clipboard")
-
-  keys = hs.hotkey.modal.new()
-  keys:bind(
-    { "shift" },
-    "j",
-    function()
-      step("down")
-    end,
-    nil,
-    function()
-      step("down")
-    end
-  )
-  keys:bind(
-    { "shift" },
-    "k",
-    function()
-      step("up")
-    end,
-    nil,
-    function()
-      step("up")
-    end
-  )
-  chooser:showCallback(function()
-    keys:enter()
-  end)
-  chooser:hideCallback(function()
-    keys:exit()
-  end)
-
-  return chooser
-end
-
 --- Show the launcher, or hide it when it is already up, so the same key both opens and
 --- closes it.
 function M.toggle()
-  if chooser == nil then
-    build()
-  end
-  if chooser:isVisible() then
-    chooser:hide()
+  if panel.visible() then
+    panel.hide()
     return
   end
+  local first = true
   M.gather(function(rows)
-    chooser:choices(rows)
+    if first then
+      first = false
+      panel.show(rows, "Search apps, panes, sessions, tabs, clipboard", activate)
+    else
+      panel.rows(rows)
+    end
   end)
-  chooser:query(nil)
-  chooser:show()
 end
 
 --- Every row, ordered by how recently it was opened, handed over as soon as there is
@@ -357,11 +344,16 @@ function M.setup()
     M.toggle()
   end)
 
+  -- Indexed now rather than on the first open, because encoding a hundred and twenty icons
+  -- takes over a second and that second would otherwise be the wait after cmd+space.
+  hs.timer.doAfter(2, app_rows)
+
   -- The applications are cached, so one installed while Hammerspoon is up would not
   -- appear. Watching the directories costs nothing and keeps the list honest.
   for _, dir in ipairs(settings().appDirs or {}) do
     local watcher = hs.pathwatcher.new(dir, function()
       apps = nil
+      hs.timer.doAfter(2, app_rows)
     end)
     if watcher then
       watcher:start()
