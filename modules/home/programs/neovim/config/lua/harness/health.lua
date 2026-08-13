@@ -115,35 +115,10 @@ function M.findings()
   end
 
   for _, plugin in ipairs({
-    { module = "codediff", lazy = "codediff.nvim", need = "the diff itself" },
     { module = "claudecode", lazy = "claudecode.nvim", need = "an agent's own inline edit" },
   }) do
     local state = plugin_state(plugin.module, plugin.lazy)
     add(state == "absent" and "error" or "ok", string.format("%s: %s (%s)", plugin.lazy, state, plugin.need))
-  end
-
-  -- Where this config reaches into codediff's internals. Reported by name because an
-  -- upstream rename breaks it silently. Only checked for a module already loaded, so
-  -- reading the report does not load a lazy plugin and change what the next line says.
-  for _, seam in ipairs({
-    {
-      module = "codediff.ui.view",
-      what = "codediff seam `ui.view.create`",
-      cost = "a clean repository reports itself in a message instead of opening `Changes (0)`",
-      ok = function(m)
-        local ok_path, path = pcall(require, "codediff.core.path")
-        return type(m.create) == "function" and ok_path and type(path.empty) == "function"
-      end,
-    },
-  }) do
-    local loaded = package.loaded[seam.module]
-    if loaded == nil then
-      add("ok", string.format("%s: not checked, %s is not loaded yet", seam.what, seam.module))
-    elseif seam.ok(loaded) then
-      add("ok", seam.what .. ": present")
-    else
-      add("error", string.format("%s: gone. %s", seam.what, seam.cost))
-    end
   end
 
   return out

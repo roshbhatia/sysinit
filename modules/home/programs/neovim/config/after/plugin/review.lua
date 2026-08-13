@@ -8,6 +8,14 @@ Snacks.keymap.set("n", "<leader>dr", function()
   review().toggle()
 end, { desc = "Toggle the review" })
 
+Snacks.keymap.set("n", "<leader>dd", function()
+  require("harness.api").review_pick()
+end, { desc = "Review a repo, picked from those with changes" })
+
+Snacks.keymap.set("n", "<leader>ds", function()
+  require("harness.scopes").open()
+end, { desc = "Pick the review scope" })
+
 Snacks.keymap.set("n", "<leader>dt", function()
   review().toggle_placement()
 end, { desc = "Review spine: bottom or tree" })

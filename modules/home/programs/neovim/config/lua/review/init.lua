@@ -245,6 +245,12 @@ function M.step(delta)
   return render(entry)
 end
 
+--- The repository under review, for a caller that lists its commits.
+---@return string|nil
+function M.root()
+  return state.root
+end
+
 --- Whether the cursor sits in one of the review's windows.
 ---@return boolean
 function M.here()

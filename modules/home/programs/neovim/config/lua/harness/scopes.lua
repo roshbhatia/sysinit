@@ -210,31 +210,19 @@ local function open(scope)
 
   if scope.kind == "all" then
     state.said = "workspace"
-    require("harness.review_follow").attach()
-    api.review_workspace()
+    api.review_pick()
     return
   end
 
-  -- Detached for a commit: the follower swaps the session to a file's working diff, so
-  -- opening a file from the commit would drop the range the owner just picked.
-  require("harness.review_follow").detach()
-  api.close_sessions()
   local label = vim.fn.fnamemodify(scope.root, ":t")
   state.said = label .. " " .. scope.short
 
-  local args = { "--repo", scope.root, scope.parent, scope.sha }
-  if not pcall(vim.cmd, { cmd = "CodeDiff", args = args }) then
-    vim.notify("Harness: codediff could not open " .. scope.short, vim.log.levels.ERROR)
-    return
-  end
-
-  -- Deferred because codediff registers its session in a new tab asynchronously, and the
-  -- list has to be re-opened in the tab that registration creates.
-  vim.defer_fn(function()
-    vim.fn.setqflist({}, "r", { title = "Review scopes: " .. state.said })
-    pcall(vim.cmd, "botright copen 10")
-    vim.notify(string.format("Harness: %s %s %s", label, scope.short, scope.subject), vim.log.levels.INFO)
-  end, 200)
+  require("review").open_revision(scope.root, {
+    sha = scope.sha,
+    parent = scope.parent,
+    short = scope.short,
+  })
+  vim.notify(string.format("Harness: %s %s %s", label, scope.short, scope.subject), vim.log.levels.INFO)
 end
 
 --- Open the scope on the cursor's row. False when the quickfix holds something else, so

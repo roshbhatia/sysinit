@@ -37,10 +37,8 @@ return {
       require("neogit").setup({
         graph_style = "kitty",
         integrations = {
-          codediff = true,
           snacks = true,
         },
-        diff_viewer = "codediff",
         commit_editor = {
           staged_diff_split_kind = "auto",
         },
