@@ -13,16 +13,6 @@ let
   inherit (piPkgs) packages;
 
   # Which of the shared pi packages atomic can actually load.
-  #
-  # Decided by running the built `atomic-coding-agent-0.9.12` against a scratch
-  # HOME, one package at a time and then all together, not by reading tool
-  # names. Atomic is a pi fork with its own extension package
-  # (`@bastani/atomic`), so a pi extension that imports the upstream package by
-  # name fails to resolve it and never registers anything.
-  #
-  # Every entry in `excluded` carries the verdict that put it there. Adding a
-  # package to either list without running the loader is how this set rots, and
-  # `assertPackageSetPartitioned` below is what makes the omission loud.
   loaded = [
     "piPermissionSystem"
     "openaiFast"
@@ -200,24 +190,12 @@ in
         };
       };
 
-    # Atomic builds every variable name from its own app name
-    # (`ENV_PREFIX = APP_NAME.toUpperCase()`), and falls back to the `PI_`
-    # spelling of the same name when the `ATOMIC_` one is unset. So each name
-    # here is read by atomic alone, while a `PI_*` name set for pi reaches both
-    # agents.
+    # Atomic builds every variable name from its own app name (`ENV_PREFIX =
+    # APP_NAME.toUpperCase()`), and falls back to the `PI_` spelling of the same name
+    # when the `ATOMIC_` one is unset.
     sessionVariables = {
-      # Without this, `getAgentDirs()` returns `[~/.atomic/agent, ~/.pi/agent]`,
-      # because atomic carries `.pi` as its legacy config dir. Atomic then loads
-      # every loose extension in pi's directory, and the four that import
-      # `@earendil-works/pi-coding-agent` at runtime fail, which exits 1 and
-      # takes the neovim RPC session down with it. Setting the variable is what
-      # makes `getAgentDirs()` return the primary alone.
-      #
-      # The same legacy entry is how atomic read `~/.pi/agent/auth.json`, so
-      # pinning the directory means atomic needs its own login. That is the
-      # intended trade: atomic writes credentials to `~/.atomic/agent`, and
-      # sharing one `auth.json` between two agents that both refresh OAuth
-      # tokens risks one corrupting the other's file.
+      # Without this, `getAgentDirs()` returns `[~/.atomic/agent, ~/.pi/agent]`, because
+      # atomic carries `.pi` as its legacy config dir.
       ATOMIC_CODING_AGENT_DIR = "$HOME/.atomic/agent";
 
       # Set explicitly rather than inherited. Atomic would otherwise fall back
@@ -226,9 +204,8 @@ in
       ATOMIC_SKIP_VERSION_CHECK = "1";
 
       # Both names above are declared here and defaulted again in the wrapper in
-      # `overlays/atomic-coding-agent.nix`, which also unsets the twelve `PI_*`
-      # aliases atomic honours. This block is the declaration a reader looks for;
-      # the wrapper is the floor a shell opened before a switch still gets.
+      # `overlays/atomic-coding-agent.nix`, which also unsets the twelve `PI_*` aliases
+      # atomic honours.
     };
   };
 }

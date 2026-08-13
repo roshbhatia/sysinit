@@ -18,11 +18,7 @@ return {
     cwd_change_handling = true,
     continue_restore_on_error = true,
     log_level = "info",
-    -- A diff review is a view over the working tree, not a layout to restore. Saved,
-    -- its tab comes back empty, and one accumulated per review: five consecutive
-    -- reviews of one workspace started with 2, 3, 4, 5, then 6 tabs. Closing it here
-    -- rather than on `VimLeavePre` is what makes it happen before the save, since
-    -- autocommands run in registration order and this plugin registers first.
+    -- A diff review is a view over the working tree, not a layout to restore.
     pre_save_cmds = {
       function()
         pcall(function()

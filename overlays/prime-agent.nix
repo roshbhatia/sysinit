@@ -3,24 +3,8 @@ let
   sources = final.nvfetcherSources;
   inherit (sources.prime-agent) version;
 
-  # prime-agent's release asset is an npm tarball, not the per-platform prebuilt
-  # binary that `pi-coding-agent.nix` and `atomic-coding-agent.nix` extract. Its
-  # `dist/bundle/cli.js` inlines every pure-JS dependency, so the runtime needs
-  # only the handful esbuild left external.
-  #
-  # This set was found by running the bundle against a node_modules holding one
-  # package at a time until `--version` succeeded, not by reading package.json:
-  # of the 21 declared dependencies, 18 are inlined, and `cmake-ts` is needed
-  # while not being declared as a runtime dependency at all.
-  #
-  #   zeromq    native, imported eagerly; removing it fails `--version`
-  #   cmake-ts  zeromq's own prebuild loader (`cmake-ts/build/loader`)
-  #   undici    `await import("undici")` on the startup path
-  #
-  # Pinned here rather than tracked in nvfetcher.toml on purpose. These are
-  # prime-agent's dependencies, so the version that matters is the one its
-  # package.json accepts; following npm's `latest` tag would let a major bump
-  # (zeromq 6 to 7) land without prime-agent asking for it.
+  # prime-agent's release asset is an npm tarball, not the per-platform prebuilt binary
+  # that `pi-coding-agent.nix` and `atomic-coding-agent.nix` extract.
   nodeDeps = {
     zeromq = {
       version = "6.5.0"; # prime-agent asks for ^6.1.2
@@ -61,10 +45,8 @@ in
 
     nativeBuildInputs = [ final.makeWrapper ];
 
-    # The payload is bundled JavaScript plus zeromq's prebuilt `addon.node` for
-    # every platform it ships. Neither wants the default fixup: strip would
-    # rewrite a signed darwin addon, and patchelf has nothing to do on a Mach-O
-    # tree but logs a not-found line per file while proving it.
+    # The payload is bundled JavaScript plus zeromq's prebuilt `addon.node` for every
+    # platform it ships.
     dontStrip = true;
     dontPatchELF = true;
 

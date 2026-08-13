@@ -1,7 +1,5 @@
-// Package guard hosts the determinism guard: a test asserting that no
-// non-test code path in the binary imports a network package. This is the
-// enforcement arm of the core invariant — the binary is pure and offline; all
-// remote I/O is delegated to the agent via the shipped sync skills.
+// Package guard hosts the determinism guard: a test asserting that no non-test code
+// path in the binary imports a network package.
 package guard
 
 import (
@@ -84,14 +82,8 @@ var cdnTag = regexp.MustCompile(`(?s)<(?:script|link)\b[^>]*?(?:src|href)="(http
 // a floating @latest or bare major.
 var versionPin = regexp.MustCompile(`@\d+\.\d+\.\d+`)
 
-// TestWebRuntimeIsPinnedCDN guards the *presentation* half of the web viewer's
-// trust boundary. The runtime is no longer vendored — Pico CSS and Chart.js load
-// from a CDN at view time — so the guard inverts: the old bundles must be gone,
-// the old inline template fields must be gone, and every CDN reference must be
-// version-pinned with an SRI integrity hash, crossorigin, and an onerror handler
-// so a supply-chain swap can't execute and an offline open degrades loudly
-// rather than silently. The binary's own no-network guarantee is covered
-// separately by TestNoNetworkImportsInBinary.
+// TestWebRuntimeIsPinnedCDN guards the *presentation* half of the web viewer's trust
+// boundary.
 func TestWebRuntimeIsPinnedCDN(t *testing.T) {
 	root := moduleRoot(t)
 	assets := filepath.Join(root, "internal", "web", "assets")
@@ -145,14 +137,7 @@ func TestWebRuntimeIsPinnedCDN(t *testing.T) {
 	}
 }
 
-// TestWebFeedbackIsExportedNotPosted guards the annotation return path. The page
-// collects a reviewer's comments, but it has nowhere to send them: there is no
-// server behind it and the binary opens no socket. The loop closes when the
-// reviewer hands the exported document to `specutil review ingest`.
-//
-// A future edit that "just posts it back" would need a listener, and a listener
-// would put network I/O in the binary. This test is what makes that a failing
-// build rather than a design drift nobody notices.
+// TestWebFeedbackIsExportedNotPosted guards the annotation return path.
 func TestWebFeedbackIsExportedNotPosted(t *testing.T) {
 	root := moduleRoot(t)
 	tmpl, err := os.ReadFile(filepath.Join(root, "internal", "web", "assets", "page.html.tmpl"))

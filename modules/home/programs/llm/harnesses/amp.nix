@@ -10,10 +10,7 @@ let
 
   inherit (config.sysinit.llm.amp) remoteExecution;
 
-  # `amp orb` is a whole command tree, so one glob covers every subcommand. The
-  # matching entry for the settings side is `amp.remoteThreadCreation.enabled`
-  # below: together they close the two ways a thread leaves this machine, an
-  # agent starting an orb and ampcode.com opening a thread here.
+  # `amp orb` is a whole command tree, so one glob covers every subcommand.
   remoteExecutionDenyGlobs = [
     "amp orb*"
     "amp * orb*"
@@ -47,18 +44,7 @@ let
     "amp.skills.disableClaudeCodeSkills" = true;
   };
 
-  # Every key, not `amp.permissions` alone. A merge preserves whatever amp last
-  # wrote for a key whose value this repository states outright, so before this
-  # the other five drifted silently: `amp mcp add` would survive a switch, and so
-  # would amp turning update checking back on.
-  #
-  # `amp.mcpServers` is safe to enforce because the Nix value is the complete set
-  # for this host. That is the opposite of goose's `extensions`, where the file
-  # holds live servers Nix never declared and enforcing the parent would delete
-  # them.
-  #
-  # Nothing here is an owner runtime preference. Amp writes its theme, model, and
-  # thread state elsewhere, not into settings.json.
+  # Every key, not `amp.permissions` alone.
   ampEnforced = builtins.attrNames ampSettings;
 in
 {

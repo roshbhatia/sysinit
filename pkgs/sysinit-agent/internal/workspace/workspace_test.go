@@ -199,10 +199,7 @@ func TestChangesSkipsCleanRepositories(t *testing.T) {
 	}
 }
 
-// TestChangesReadsARenameRecord pins the `-z` layout. A rename arrives as
-// `R  new\0old\0`, the new path first with the original in a field carrying no
-// status, so a parser assuming every field has a prefix returns `old` with three
-// bytes cut off.
+// TestChangesReadsARenameRecord pins the `-z` layout.
 func TestChangesReadsARenameRecord(t *testing.T) {
 	work := isolate(t)
 	ws := filepath.Join(work, "ws")

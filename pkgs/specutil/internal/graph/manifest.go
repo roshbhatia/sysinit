@@ -17,14 +17,8 @@ import (
 // dependency model stays framework-agnostic.
 const ManifestFile = "openspec/specutil.yaml"
 
-// Manifest is the hand-editable, repo-level dependency DAG. It accepts two
-// equivalent spellings of the same edge set, because both appear in the wild:
-//
-//   - changes.<name>.depends_on — each change lists its prerequisites, so
-//     `add-auth.depends_on: [add-db]` yields edge add-db -> add-auth.
-//   - edges — an explicit from/to list, where from is the prerequisite.
-//
-// Both are merged and deduplicated by edges().
+// Manifest is the hand-editable, repo-level dependency DAG. It accepts two equivalent
+// spellings of the same edge set, because both appear in the wild:
 type Manifest struct {
 	Changes map[string]ManifestEntry `yaml:"changes"`
 	Edges   []Edge                   `yaml:"edges"`
@@ -38,9 +32,9 @@ type Manifest struct {
 }
 
 // CheckConfig returns the effective rubric for a repository, following the same
-// precedence as ExtractConfig: an explicit `check:` block wins, otherwise the
-// spec framework's declared schema selects a matching built-in preset, and an
-// unrecognized name enforces nothing.
+// precedence as ExtractConfig: an explicit `check:` block wins, otherwise the spec
+// framework's declared schema selects a matching built-in preset, and an unrecognized
+// name enforces nothing.
 func (m *Manifest) CheckConfig(repoRoot string) (check.Config, error) {
 	if m != nil && !m.Check.IsZero() {
 		return m.Check, nil
@@ -57,9 +51,6 @@ func (m *Manifest) CheckConfig(repoRoot string) (check.Config, error) {
 const schemaConfigFile = "openspec/config.yaml"
 
 // ExtractConfig returns the effective extraction declaration for a repository.
-// An explicit `extract:` block wins. Otherwise the spec framework's declared
-// schema name selects a matching built-in preset, and an unrecognized name
-// extracts nothing rather than guessing.
 func (m *Manifest) ExtractConfig(repoRoot string) (extract.Config, error) {
 	if m != nil && !m.Extract.IsZero() {
 		return extract.Resolve(m.Extract)

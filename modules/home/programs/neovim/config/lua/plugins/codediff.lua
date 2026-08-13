@@ -15,10 +15,7 @@ return {
         keymaps = {
           view = {
             toggle_explorer = "<leader>dt",
-            -- Off the bare letters. Inline mode puts the real file on the modified
-            -- side, listed and modifiable, so codediff's defaults took `q` from macro
-            -- recording and `t` from the till motion in a buffer the owner edits.
-            -- The explorer's own single letters stay: that buffer is not a file.
+            -- Off the bare letters.
             quit = "<leader>dq",
             toggle_layout = "<leader>dl",
           },
@@ -32,15 +29,8 @@ return {
         diff = {
           compute_moves = true,
 
-          -- One pane with deletions rendered as virtual lines, which is what a
-          -- reader wants for the common case of reading a change in the buffer it
-          -- lands in. Set here rather than passed per call site, so `:CodeDiff`
-          -- typed by hand behaves the same way. `<leader>dl` toggles to side-by-side
-          -- for the case inline is bad at, a file whose every line changed, and
-          -- `--side-by-side` overrides one invocation.
-          --
-          -- The three-pane conflict view is unaffected: `session.layout` gates only
-          -- the two-pane path (`lua/codediff/ui/layout.lua:47`).
+          -- One pane with deletions rendered as virtual lines, which is what a reader
+          -- wants for the common case of reading a change in the buffer it lands in.
           layout = "inline",
         },
       })

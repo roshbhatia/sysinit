@@ -20,10 +20,8 @@ end
 return {
   name = "atomic",
   label = "󰬛  Atomic",
-  -- Every flag read off `atomic --help` from the built store path. The three
-  -- extension flags come from the packages this repository loads: `--fast` from
+  -- Every flag read off `atomic --help` from the built store path.
   -- @benvargas/pi-openai-fast, `--plan` from @plannotator/pi-extension, and
-  -- `--mcp-config` from atomic's bundled @bastani/mcp.
   options_schema = {
     { name = "no_tools", flag = "--no-tools", kind = "toggle" },
     { name = "no_builtin_tools", flag = "--no-builtin-tools", kind = "toggle" },
@@ -84,10 +82,7 @@ return {
       vim.notify("atomic: pi.nvim not loadable", vim.log.levels.WARN)
       return
     end
-    -- pi.nvim spawns whatever `cmd` names, so it drives atomic unchanged. It
-    -- holds one module-level `active_session` though, so a send while pi is
-    -- mid-run is refused with pi.nvim's own "already running" notice. The pane
-    -- routes above are keyed on the adapter name and stay independent.
+    -- pi.nvim spawns whatever `cmd` names, so it drives atomic unchanged.
     pi.run({
       message = text,
       bufnr = vim.api.nvim_get_current_buf(),

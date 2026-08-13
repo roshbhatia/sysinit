@@ -25,11 +25,7 @@ func repoRoot(t *testing.T) string {
 	}
 }
 
-// examplesRepo returns the getting-started fixture root. The test binds to a
-// committed fixture rather than to this repository's own live changes, which
-// move in and out of openspec/changes/ as work is archived. The fixture is
-// shared with the cli tests, so it lives under their testdata/ rather than
-// being duplicated here.
+// examplesRepo returns the getting-started fixture root.
 func examplesRepo(t *testing.T) string {
 	t.Helper()
 	return filepath.Join(repoRoot(t), "internal", "cli", "testdata", "getting-started")

@@ -45,15 +45,8 @@ func init() {
 			if !ok {
 				return nil
 			}
-			// A heading with nothing under it passes `required-sections`, because that
-			// rule asks only whether the author typed the heading. For a section that
-			// carries the acceptance criteria, presence is not the property worth
-			// checking: an empty `## Behavior` is indistinguishable from a change
-			// nobody wrote criteria for, and it is what a template leaves behind.
-			//
-			// The section ends at the next h2, so bullets under an h3 subsection still
-			// count. Indented bullets count too: nesting is a way of grouping
-			// criteria, not a way of demoting them.
+			// A heading with nothing under it passes `required-sections`, because that rule asks
+			// only whether the author typed the heading.
 			var found, counting int
 			for _, raw := range strings.Split(text, "\n") {
 				line := strings.TrimSpace(raw)
@@ -290,13 +283,6 @@ func init() {
 				return nil
 			}
 			// A task line is the plan; the indented block under it is the record.
-			// They have opposite update rules, so merging them means every new fact
-			// rewrites a prior conclusion in place. Left alone, one task line grows
-			// into an incident log carrying its own strikethroughs and corrections,
-			// and no reader can tell what is still true from what was superseded.
-			//
-			// The indented block is not counted, because that is where the evidence
-			// is supposed to go.
 			var out []Finding
 			for _, ph := range c.Tasks.Phases {
 				for _, it := range ph.Items {
@@ -634,11 +620,8 @@ func init() {
 						rec.Decision, strings.Join(accept, ", ")),
 				})
 			}
-			// Staleness is defined once, in review.Build, so this rule and
-			// `specutil review status` can never disagree about whether a decision
-			// still stands. Build also grandfathers a record written before the
-			// current ChangeHash algorithm, which reports nothing here: that
-			// mismatch is a fact about the tool version, not about the artifacts.
+			// Staleness is defined once, in review.Build, so this rule and `specutil review
+			// status` can never disagree about whether a decision still stands.
 			if st := review.Build(c, rec); st.Stale {
 				out = append(out, Finding{
 					File: review.RecordFile,
@@ -745,10 +728,7 @@ func firstWords(text string, n int) string {
 	return strings.Join(words[:n], " ") + " ..."
 }
 
-// findProseLine returns the 1-based number of the first line holding r in prose,
-// or 0. Code spans and fenced blocks carry captured output, a command, or a
-// quoted string, so a character there is evidence rather than authored prose and
-// rewriting it would falsify the record.
+// findProseLine returns the 1-based number of the first line holding r in prose, or 0.
 func findProseLine(text string, r rune) int {
 	fenced := false
 	for i, line := range strings.Split(text, "\n") {

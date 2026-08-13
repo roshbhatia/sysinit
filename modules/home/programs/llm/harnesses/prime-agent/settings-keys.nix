@@ -22,10 +22,5 @@
   ];
 
   # Deleted from the file on every activation.
-  #
-  # `externalEditor`, `enableInstallTelemetry`, and `enableAnalytics` are NOT
-  # retired here even though pi and atomic declare them: prime-agent's Settings
-  # interface has no such key, so it never wrote one and there is nothing to
-  # delete. Retiring a key the harness cannot produce is noise.
   retired = [ ];
 }

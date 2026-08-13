@@ -1,14 +1,8 @@
 { inputs, ... }:
 
-# `minimal` rather than `default`: `default` is `minimal` plus 20 extras
-# including `voice`, which pulls faster-whisper and its wheel-only
-# ctranslate2/onnxruntime transitives. `extraDependencyGroups` only adds groups,
-# so `default` cannot be reduced back down. Upstream's own `overlays.default` is
-# an alias for `default`, so it carries the same problem.
-#
-# `anthropic` is added back because upstream keeps provider extras out of `[all]`
-# for `tools/lazy_deps.py` to install at first use, and a lazy install cannot
-# write into a read-only store path.
+# `minimal` rather than `default`: `default` is `minimal` plus 20 extras including
+# `voice`, which pulls faster-whisper and its wheel-only ctranslate2/onnxruntime
+# transitives.
 
 final: _prev:
 let

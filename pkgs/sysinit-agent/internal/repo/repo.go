@@ -74,23 +74,14 @@ func EditLogFile(root string) string {
 	return keyed(paths.AgentEdits(), root) + ".jsonl"
 }
 
-// WorkerDir returns the directory holding one workspace's worker state: the pane
-// id, its mux generation, the run counter, and every run's log and exit code.
-//
-// A directory rather than a file, because a workspace has many runs and one
-// pane. The name is the same keyed shape the note and the edit log use, so a
-// prune can tell a current key from the superseded `pane-N` shape by matching the
-// name alone.
+// WorkerDir returns the directory holding one workspace's worker state: the pane id,
+// its mux generation, the run counter, and every run's log and exit code.
 func WorkerDir(root string) string {
 	return keyed(paths.AgentWorker(), root)
 }
 
-// WorkerKeyed reports whether name is a current-shape worker key: a basename, a
-// hyphen, and the 16 hex characters keyed appends.
-//
-// Checked before the superseded `pane-N` shape, never after. A workspace whose
-// basename is literally `pane-3` keys to `pane-3-<16 hex>`, which an unanchored
-// `pane-*` test would claim.
+// WorkerKeyed reports whether name is a current-shape worker key: a basename, a hyphen,
+// and the 16 hex characters keyed appends.
 func WorkerKeyed(name string) bool {
 	cut := strings.LastIndex(name, "-")
 	if cut <= 0 || len(name)-cut-1 != 16 {
@@ -113,14 +104,9 @@ func keyed(dir, root string) string {
 	return fmt.Sprintf("%s/%s-%s", dir, filepath.Base(root), digest)
 }
 
-// DeclaredWorkspace returns the workspace boundary the environment states, or ""
-// when it states none, names something that is not a directory, or names a
-// directory that does not contain dir.
-//
-// The variable is read instead of a session manager's state directory being
-// recognised by path, so whatever put the caller in a workspace is what states
-// where it ends. It answers only for a directory it contains, because an explicit
-// path outside it is the caller meaning that path.
+// DeclaredWorkspace returns the workspace boundary the environment states, or "" when
+// it states none, names something that is not a directory, or names a directory that
+// does not contain dir.
 func DeclaredWorkspace(dir string) string {
 	root := strings.TrimRight(strings.TrimSpace(os.Getenv("SYSINIT_WORKSPACE")), "/")
 	if root == "" {
@@ -135,14 +121,8 @@ func DeclaredWorkspace(dir string) string {
 	return ""
 }
 
-// Workspace resolves dir to the directory a state file should be keyed on: what
-// the environment declares, else the git top level, else dir itself.
-//
-// The git step is what makes a subdirectory agree with its repository root, so a
-// hook firing from `src/` and an editor opened at the top key the same file.
-//
-// It runs no `git status`, since a hook on the edit path should not pay for a
-// working-tree scan it does not read.
+// Workspace resolves dir to the directory a state file should be keyed on: what the
+// environment declares, else the git top level, else dir itself.
 func Workspace(dir string) string {
 	if dir == "" {
 		if here, err := os.Getwd(); err == nil {

@@ -28,10 +28,8 @@ let
     else
       "";
 
-  # `neovimAdapter` is declared on every entry and read by no Nix code, so
-  # nothing but this check stops an entry naming an adapter that was never
-  # written. `harness/registry.lua` requires each adapter under `pcall`, so the
-  # runtime failure is a silent skip: the harness just never appears.
+  # `neovimAdapter` is declared on every entry and read by no Nix code, so nothing but
+  # this check stops an entry naming an adapter that was never written.
   adapterDir = ../../neovim/config/lua/harness/adapters;
 
   missingAdapters = lib.mapAttrsToList (_name: h: h.neovimAdapter) (

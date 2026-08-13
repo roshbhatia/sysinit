@@ -1,28 +1,4 @@
 # One entry per harness.
-#
-# `openspecTool` names this harness in `openspec init --tools`, which the seshy
-# postCreate hook runs in every new session. A list, not a string, because
-# `gemini` here is antigravity-cli, which reads both `~/.agents` and
-# `~/.gemini/config`, so both of openspec's adapters land in a tree it reads.
-#
-# Empty means openspec 1.6.0 ships no adapter for that harness: amp, atomic,
-# devin, goose, hermes, and prime-agent. Six of the fourteen, and the loss is
-# smaller than it looks. openspec's adapters install the four opsx skills
-# repo-locally, and every one of these six is pointed at `~/.claude/skills`,
-# where the same skills are installed for the machine. What they lose is the
-# repo-local `opsx-*` prompt or command entry, not the skills.
-#
-# `modules/home/programs/seshy/default.nix` checks each name against the enum
-# `openspec init --help` prints.
-#
-# `editBus` says the harness writes `agent-edit-event` from a post-edit hook, so
-# Neovim learns which files it wrote instead of noticing on the next 1s
-# `checktime`. Deliberately its own field rather than derived from
-# `notify == "hook"`: a notification hook and a post-edit hook are different
-# surfaces, and a harness can expose the first without the second. False is the
-# honest value for a harness whose surface has not been established, and
-# `runtime/default.nix` rejects true on a `notify = "scrape"` entry, which has no
-# hook surface at all.
 {
   amp = {
     label = "Amp";

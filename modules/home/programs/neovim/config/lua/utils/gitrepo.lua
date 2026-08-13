@@ -1,11 +1,4 @@
 -- Repository discovery for a workspace that may hold several of them.
---
--- Three sources answer the same question, in falling order of what they know:
--- the `sysinit-agent workspace` subcommand, an `fd` scan, and `git` alone. None is
--- required. This config is deployed where the binary predates the subcommand, and
--- a review surface that fails there is the coupling this module exists to avoid.
---
--- The contract with every caller is a list of absolute paths and nothing richer.
 local M = {}
 
 local SCAN_DEPTH = 5
@@ -85,15 +78,6 @@ function M.scan(dir, cb)
 end
 
 --- The workspace boundary the environment states, or nil when it states none.
----
---- `$SYSINIT_WORKSPACE` is read rather than a session manager's state directory
---- being recognised by path, so whatever put the owner in a workspace is what says
---- where it ends: a shell function, direnv, or a `cd` wrapper, none of which this
---- code has to know about.
----
---- It answers only for a directory it contains. An explicit path outside it is the
---- caller meaning that path, so hijacking it would make the variable a global
---- override rather than a boundary.
 ---@param dir string
 ---@return string|nil
 local function declared_workspace(dir)
@@ -118,12 +102,6 @@ local workspace_cache = {}
 
 -- The workspace is the directory the roots are counted under: what the environment
 -- declares, else the repository the cwd sits in, else the cwd itself.
---
--- The git step is what makes a subdirectory of one repository agree with the
--- repository root, so an editor opened in `src/` and an agent writing from the top
--- resolve the same workspace and therefore the same edit-event log.
---
--- This mirrors `repo.Workspace` in `sysinit-agent` so both ends agree.
 function M.workspace()
   local cwd = vim.fs.normalize(vim.uv.cwd() or ".")
   local declared = declared_workspace(cwd)
@@ -137,9 +115,6 @@ function M.workspace()
 end
 
 -- Every repository under the workspace, including one nested inside another.
---
--- Cached against the workspace directory, because `fd` over a twenty-repository
--- tree is paid on every review open otherwise. `DirChanged` drops the cache below.
 function M.workspace_roots(cb)
   local dir = M.workspace()
   if cache[dir] then
@@ -174,16 +149,8 @@ function M.workspace_roots(cb)
   end)
 end
 
--- The repositories under the workspace that have something to review, each with
--- its changed files. A clean repository is absent rather than listed as empty.
---
--- Falls back to `git status` per root when the subcommand is missing, which is the
--- same question asked the same way, one process per repository instead of one.
---
--- Calls `cb(groups, roots)`. The root set is passed on because an empty `groups`
--- means two different things: a workspace with no repository in it, and a workspace
--- whose repositories are all clean. A caller that cannot tell them apart reports
--- the wrong one.
+-- The repositories under the workspace that have something to review, each with its
+-- changed files.
 function M.workspace_changes(cb)
   M.workspace_roots(function(roots)
     if #roots == 0 then
@@ -290,11 +257,8 @@ function M.owning_root(path, roots)
   return best
 end
 
--- Resolve one repo root for a command that needs one, preferring the repo the
--- current buffer lives in so a workspace holding several repos does not prompt.
---
--- The buffer's repository is preferred over the workspace's own root even when the
--- workspace is a repository, because a nested checkout is what the buffer means.
+-- Resolve one repo root for a command that needs one, preferring the repo the current
+-- buffer lives in so a workspace holding several repos does not prompt.
 function M.resolve(cb)
   M.workspace_roots(function(roots)
     if #roots == 0 then

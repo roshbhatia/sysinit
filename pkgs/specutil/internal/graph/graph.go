@@ -1,7 +1,6 @@
 // Package graph builds the cross-change dependency DAG from the repo-level
-// specutil.yaml manifest and the loaded changes, and projects it to the
-// renderer-independent json feed plus mermaid and dot. Everything here is pure
-// and deterministic: identical inputs yield byte-identical output.
+// specutil.yaml manifest and the loaded changes, and projects it to the renderer-
+// independent json feed plus mermaid and dot.
 package graph
 
 import (
@@ -38,10 +37,7 @@ type Diagnostic struct {
 	Msg  string `json:"msg"`
 }
 
-// Build assembles the DAG from the known changes and the manifest. It returns
-// the graph plus diagnostics for dangling references and dependency cycles.
-// Dangling edges are dropped from the graph but reported; cycles are reported
-// but their edges are retained so the projection still reflects the manifest.
+// Build assembles the DAG from the known changes and the manifest.
 func Build(changes []*ir.Change, m *Manifest) (*Graph, []Diagnostic) {
 	known := make(map[string]bool, len(changes))
 	for _, c := range changes {

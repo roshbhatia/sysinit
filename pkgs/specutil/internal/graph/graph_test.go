@@ -128,10 +128,8 @@ func TestJSONStable(t *testing.T) {
 }
 
 func TestJSONFeedStaysPureDependencyContract(t *testing.T) {
-	// The graph feed must carry only the dependency DAG — nodes (id/label) and
-	// edges (from/to) — and MUST NOT leak task-level detail. Detail lives in the
-	// separate detail.json projection; consumers derive dependsOn/blocks from
-	// these edges client-side.
+	// The graph feed must carry only the dependency DAG — nodes (id/label) and edges
+	// (from/to) — and MUST NOT leak task-level detail.
 	m := &Manifest{Changes: map[string]ManifestEntry{"B": {DependsOn: []string{"A"}}}}
 	g, _ := Build(changes("B", "A"), m)
 	out, err := g.Project("json")

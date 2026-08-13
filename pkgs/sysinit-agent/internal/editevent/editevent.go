@@ -1,10 +1,5 @@
-// Package editevent implements `edit-event`: one append-only log per workspace
-// naming the files an agent wrote, for an editor that wants to know without
-// polling.
-//
-// Nothing in this package knows what reads the log, and nothing that reads it
-// knows which harness wrote a line. That is the point: a hook writes whether or
-// not an editor is running, and the reader is optional.
+// Package editevent implements `edit-event`: one append-only log per workspace naming
+// the files an agent wrote, for an editor that wants to know without polling.
 package editevent
 
 import (
@@ -24,20 +19,7 @@ const Summary = "record the files an agent wrote, for an editor watching the log
 // SchemaVersion is the event line's schema version.
 const SchemaVersion = 1
 
-// The log's bound. Past maxBytes the writer keeps the newest keepLines and drops
-// the rest, which is the same truncation the reader must already survive.
-//
-// Measured, not guessed: one session of ordinary work on this repository wrote
-// 52 events naming 18 files over 90 minutes, at 233 bytes a line and 263 at the
-// longest. Segmented on a two-minute gap, a turn ran 1 to 29 events, mean 6.
-//
-// The two numbers answer different questions. maxBytes decides how often a trim
-// happens, and 512 KiB is roughly 2200 events, so a workspace at the measured
-// rate trims about once every 40 sessions. keepLines decides what a trim costs,
-// because a reader whose offset is now past the file re-reads what survived and
-// counts those files as touched again: 200 events is the smallest window that
-// still holds a whole session's own edits, with a turn's worst case of 29 well
-// inside it.
+// The log's bound.
 const (
 	maxBytes  = 512 * 1024
 	keepLines = 200
@@ -56,11 +38,6 @@ type event struct {
 }
 
 // Run appends one event per named file and ALWAYS returns 0.
-//
-// Every failure is silent. This runs on a harness's edit path, so a non-zero
-// exit or a word on stdout would surface inside the agent's loop as though the
-// tool call itself had failed. There is nothing the agent could do about it
-// either way.
 func Run(args []string) int {
 	opts, err := parse(args)
 	if err != nil {
@@ -71,10 +48,7 @@ func Run(args []string) int {
 		return 0
 	}
 
-	// The reader asks for the path rather than deriving it. Two implementations of
-	// the keying rule, one in Go and one in Lua, would agree until the day they
-	// did not, and the failure would be a watcher silently tailing a file nothing
-	// writes.
+	// The reader asks for the path rather than deriving it.
 	if opts.printLog {
 		dir := opts.cwd
 		if dir == "" {
@@ -113,11 +87,8 @@ func Run(args []string) int {
 		dir = workingDir()
 	}
 
-	// The tool's own name, lowercased, so a reader can tell a file that was
-	// created from one that was modified. Claude's `Write` on an existing path
-	// still means "this file was replaced wholesale", which is a different thing
-	// to show than a hunk. `edit` is the fallback rather than the default,
-	// because a harness whose payload names no tool still produced an edit.
+	// The tool's own name, lowercased, so a reader can tell a file that was created from
+	// one that was modified.
 	kind := opts.kind
 	if kind == "" {
 		kind = strings.ToLower(dig(payload, "tool_name"))
@@ -173,12 +144,6 @@ var patchTextKeys = []string{
 }
 
 // applyPatchChanges reads the file markers out of an apply-patch envelope.
-//
-// This is a parse of a documented format rather than a guess at one: the envelope
-// declares one marker per file, and the marker's verb is the only place the
-// difference between a created and a rewritten file is stated. A harness that
-// edits through a shell redirect instead names no file anywhere, and correctly
-// produces nothing here.
 func applyPatchChanges(text string) []change {
 	if text == "" {
 		return nil
@@ -270,10 +235,8 @@ func parse(args []string) (options, error) {
 	return opts, nil
 }
 
-// append1 writes one line in one Write call, so two harnesses writing at the
-// same moment produce two intact lines rather than one interleaved pair. O_APPEND
-// is what makes the offset safe; the single call is what keeps the bytes
-// contiguous.
+// append1 writes one line in one Write call, so two harnesses writing at the same
+// moment produce two intact lines rather than one interleaved pair.
 func append1(log string, e event) {
 	encoded, err := json.Marshal(e)
 	if err != nil {

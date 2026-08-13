@@ -20,24 +20,10 @@ end
 return {
   name = "prime-agent",
   label = "󰙨  Prime Agent",
-  -- Every flag was probed against the built store path rather than read off
-  -- `--help`: prime-agent errors with `Unknown option: <flag>` on anything it
-  -- does not take, so each entry here is a flag that a real run accepted.
-  --
-  -- Two differences from pi's and atomic's schemas, both measured:
-  --   --resume is a value, not a toggle. Bare, it errors "requires a session
-  --     id or path", so the toggle spelling the other two use would only ever
-  --     produce a failed launch here.
-  --   --approve and --exclude-tools are absent from this fork entirely.
-  --
-  -- `--fast` comes from @benvargas/pi-openai-fast and `--plan` from
+  -- Every flag was probed against the built store path rather than read off `--help`:
+  -- prime-agent errors with `Unknown option: <flag>` on anything it does not take, so
+  -- each entry here is a flag that a real run accepted.
   -- @plannotator/pi-extension; both are packages this repository loads, and
-  -- neither appears in `--help` because prime-agent prints help before it loads
-  -- extensions.
-  --
-  -- `--goal-token-budget` is deliberately omitted: it errors unless `--goal` is
-  -- also passed, and the options schema has no way to express that dependency,
-  -- so offering it alone would only ever produce a failed launch.
   options_schema = {
     { name = "no_tools", flag = "--no-tools", kind = "toggle" },
     { name = "no_builtin_tools", flag = "--no-builtin-tools", kind = "toggle" },
@@ -99,9 +85,6 @@ return {
       return
     end
     -- pi.nvim spawns whatever `cmd` names, so it drives prime-agent unchanged.
-    -- It holds one module-level `active_session` though, so a send while pi or
-    -- atomic is mid-run is refused with pi.nvim's own "already running" notice.
-    -- The pane routes above are keyed on the adapter name and stay independent.
     pi.run({
       message = text,
       bufnr = vim.api.nvim_get_current_buf(),

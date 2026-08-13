@@ -20,9 +20,7 @@ import (
 )
 
 // state points the paths manifest at a temporary tree and returns the directory
-// `worker` keys its records under. Both keys are set: seshySessions has to be a
-// path the temporary workspace is NOT inside, or Workspace would key on a session
-// prefix instead of on the directory under test.
+// `worker` keys its records under.
 func state(t *testing.T) string {
 	t.Helper()
 	home := t.TempDir()
@@ -150,10 +148,7 @@ func (f *fakeMux) splits() int {
 	return n
 }
 
-// typed returns the line sent to a pane, and the pane it was sent to. Every
-// declared output line and the sent line itself are parity contracts, so they are
-// asserted rather than assumed: without this the target could be hardcoded and the
-// suite stayed green.
+// typed returns the line sent to a pane, and the pane it was sent to.
 func (f *fakeMux) typed(t *testing.T) (target, line string) {
 	t.Helper()
 	for _, action := range f.actions {
@@ -209,13 +204,8 @@ func fast(t *testing.T) {
 	pollInterval, settle = time.Millisecond, 0
 }
 
-// The reason this package exists: a live worker recorded by ANOTHER pane is
-// reused, and the command goes to it.
-//
-// This is the whole reuse contract, and it had no test. Every other test that
-// called `start` drove a failure path or the errSelf split, so an implementation
-// that split a second worker beside a live one, or that sent every command to a
-// hardcoded pane, passed the suite.
+// The reason this package exists: a live worker recorded by ANOTHER pane is reused, and
+// the command goes to it.
 func TestALiveWorkerRecordedByAnotherPaneIsReused(t *testing.T) {
 	state(t)
 	fast(t)
@@ -255,12 +245,8 @@ func TestALiveWorkerRecordedByAnotherPaneIsReused(t *testing.T) {
 	}
 }
 
-// The first run in a workspace splits a pane beside a worker the owner can see, so
-// that pane is explained on one line rather than appearing unannounced.
-//
-// The report is a report. A test that only matched the wording would pass an
-// implementation that adopted the old worker or killed it, so both are asserted:
-// nothing is sent to the old pane and nothing kills it.
+// The first run in a workspace splits a pane beside a worker the owner can see, so that
+// pane is explained on one line rather than appearing unannounced.
 func TestASupersededWorkerIsReportedAndLeftAlone(t *testing.T) {
 	state(t)
 	fast(t)
@@ -771,10 +757,7 @@ func TestANameInFlightIsRefusedAndReleasableAlone(t *testing.T) {
 	}
 }
 
-// A run queued in the tty input buffer is not releasable. Its marker still names
-// its predecessor, because the body writes the marker when the PREVIOUS command
-// finishes, so keying the refusal on the marker released it and deleted the body
-// the pane was about to run.
+// A run queued in the tty input buffer is not releasable.
 func TestAQueuedRunIsNotReleasable(t *testing.T) {
 	state(t)
 	mux := &fakeMux{panes: []int{7, 12}}
@@ -800,10 +783,7 @@ func TestAQueuedRunIsNotReleasable(t *testing.T) {
 		t.Errorf("marker = %q, want it untouched at \"a\"", got)
 	}
 
-	// And --force is the way back. The default refusal above cannot tell a queued run
-	// from one abandoned by a caller that died between writing the log and the send, so
-	// refusing outright left the name unrecoverable for as long as the worker lived,
-	// which is the property that got prune-as-release rejected in the design.
+	// And --force is the way back.
 	if code := ws.release("7", "b", true); code != 0 {
 		t.Errorf("forced release of an ambiguous name = %d, want 0", code)
 	}
@@ -812,10 +792,7 @@ func TestAQueuedRunIsNotReleasable(t *testing.T) {
 	}
 }
 
-// --force still refuses a run the marker names. That run is not "could be
-// running", it IS running, and unlinking its log while `tee` writes to the inode
-// is the harm the refusal exists for: forcing it would be that harm with an extra
-// step.
+// --force still refuses a run the marker names.
 func TestForceDoesNotReleaseARunThatIsActuallyRunning(t *testing.T) {
 	state(t)
 	mux := &fakeMux{panes: []int{7, 12}}
@@ -995,10 +972,8 @@ func TestAFailedSendDoesNotBurnTheName(t *testing.T) {
 	}
 }
 
-// A caller with no mux generation of its own refuses, rather than splitting a
-// worker it will refuse again next time. The record it would write is equally
-// unverifiable, so accepting the split means one new pane per invocation and no
-// way for --close to reach any of them.
+// A caller with no mux generation of its own refuses, rather than splitting a worker it
+// will refuse again next time.
 func TestACallerWithNoGenerationRefusesInsteadOfSplittingForever(t *testing.T) {
 	state(t)
 	t.Setenv("WEZTERM_UNIX_SOCKET", "/tmp/not-a-gui-sock")
@@ -1125,10 +1100,8 @@ func TestTheReuseRaceHandsTheNameToOneCaller(t *testing.T) {
 	state(t)
 	ws := workspaceIn(t, t.TempDir())
 
-	// The window is between the exclusive create failing and the replacement being
-	// made, so the callers have to arrive inside it. A plain `go` for each is not
-	// enough: without the barrier this test passed against the very mutation it
-	// exists to catch, over three runs.
+	// The window is between the exclusive create failing and the replacement being made,
+	// so the callers have to arrive inside it.
 	const rounds = 2000
 	const callers = 4
 	for round := range rounds {
@@ -1195,10 +1168,7 @@ func TestEachWorkspaceKeysItsOwnRecord(t *testing.T) {
 	}
 }
 
-// The explicit key override takes a private worker under a name the caller
-// chooses. A value it cannot honour FAILS: the caller asked for a worker of its
-// own, and handing back the shared record would aim --close at another pane's
-// worker and --release at another run's name.
+// The explicit key override takes a private worker under a name the caller chooses.
 func TestTheSessionOverrideTakesAPrivateWorker(t *testing.T) {
 	root := state(t)
 	dir := t.TempDir()
@@ -1300,18 +1270,8 @@ func readRC(t *testing.T, ws *workspace, name string) string {
 	return strings.TrimSpace(string(body))
 }
 
-// The exit code is published LAST, so a name is never reusable while the previous
-// run's body still exists.
-//
-// This is the ordering defect, and it is the one that could ship silently. The rc
-// appearing is what tells every other process the name is free: claimExact's
-// refusal names the rc to wait for, and so does the wait timeout. While the body
-// was deleted after the rc, a successor reusing the name had already written its
-// own body to the same path and the predecessor's trap deleted it. The pane was
-// then told to run a file that no longer existed, so nothing ran and no trap fired,
-// which means no exit code was ever written: the caller printed a start line, exited
-// 0, and burned the name for the whole workspace. Reproduced in 20 of 20 rounds, with
-// a window measured up to 19.7ms, before the order was reversed.
+// The exit code is published LAST, so a name is never reusable while the previous run's
+// body still exists.
 func TestAReusedNameNeverLosesItsBodyToThePreviousRunsTrap(t *testing.T) {
 	if _, err := exec.LookPath("zsh"); err != nil {
 		t.Skip("no zsh")
@@ -1372,10 +1332,9 @@ func TestABodyDoesNotRemoveAnotherRunsMarker(t *testing.T) {
 	dir := t.TempDir()
 	ws := workspaceIn(t, dir)
 
-	// The command stands in for the other pane: the body claims the marker on the way
-	// in, as every body does, and by the time it exits the marker names a run that
-	// started elsewhere. Writing the marker before the body starts would not test
-	// anything, because the body's first act is to overwrite it with its own name.
+	// The command stands in for the other pane: the body claims the marker on the way in,
+	// as every body does, and by the time it exits the marker names a run that started
+	// elsewhere.
 	body := ws.bodyFile("mine")
 	if err := ws.writeBody(body, "mine", dir, "print -r -- theirs > "+shellQuote(ws.runningFile())); err != nil {
 		t.Fatal(err)
@@ -1388,13 +1347,8 @@ func TestABodyDoesNotRemoveAnotherRunsMarker(t *testing.T) {
 	}
 }
 
-// A replacement split replaces the WHOLE record, marker included, and records an
-// exit code for the run the gone pane can no longer finish.
-//
-// Leaving the marker behind made a fresh pane inherit a run it never had: the start
-// line said "queued behind run1", `--status` reported "running run1" on a pane that
-// had run one command, and run1's name stayed burned because nothing would ever
-// write its exit code.
+// A replacement split replaces the WHOLE record, marker included, and records an exit
+// code for the run the gone pane can no longer finish.
 func TestAReplacementSplitDoesNotInheritTheDeadPanesRun(t *testing.T) {
 	state(t)
 	fast(t)
@@ -1422,10 +1376,7 @@ func TestAReplacementSplitDoesNotInheritTheDeadPanesRun(t *testing.T) {
 	}
 }
 
-// Handing the role over is not the same as losing it. The outgoing pane is the
-// caller, it is alive, and its run keeps executing, so its exit code stays its own
-// trap's to write: recording one here would report a code for a live run and the
-// trap would later overwrite it, so one run would report two exit codes.
+// Handing the role over is not the same as losing it.
 func TestHandingOverTheRoleDoesNotRecordACodeForTheCallersRun(t *testing.T) {
 	state(t)
 	fast(t)
@@ -1599,14 +1550,8 @@ func TestStatusReportsTheThreeStatesItDeclares(t *testing.T) {
 	}
 }
 
-// The guard against running outside WezTerm splits nothing and never reaches the
-// real mux.
-//
-// Without a fake installed this test passed for the wrong reason: dropping the
-// guard let the call fall through to the real `wezterm`, which failed on an empty
-// --pane-id and returned the same exit 2 the test asserted. A guard that no test
-// protects, satisfied by an unrelated failure, in a test that shelled out to the
-// owner's live mux during `go test`.
+// The guard against running outside WezTerm splits nothing and never reaches the real
+// mux.
 func TestRefusesOutsideWezTermWithoutTouchingTheMux(t *testing.T) {
 	state(t)
 	t.Setenv("WEZTERM_PANE", "")
@@ -1651,10 +1596,6 @@ func TestARemovedWorkingDirectoryStopsTheCallAndSplitsNothing(t *testing.T) {
 }
 
 // A run name is validated before a pane exists, not after.
-//
-// It used to be checked inside `claim`, which runs once the worker has been
-// resolved or split, so `-n ../escape` cost a pane on screen before the refusal.
-// The numeric flags have always been checked at parse time; this is the same rule.
 func TestABadRunNameIsRefusedBeforeAPaneIsCreated(t *testing.T) {
 	state(t)
 	t.Setenv("WEZTERM_PANE", "7")
@@ -1676,12 +1617,6 @@ func TestABadRunNameIsRefusedBeforeAPaneIsCreated(t *testing.T) {
 }
 
 // The bound on a mux call is real, and it is proved against a real process.
-//
-// The two functions that carry it, muxOutputCmd and muxRunCmd, were executed by no
-// test: the unresponsive-mux test replaces them with a fake that returns an error,
-// which proves the error is classified as errProbe and nothing about the timeout.
-// A mux that stops answering is the failure the bash version had, which piped
-// `wezterm cli list` into `jq` with no bound at all.
 func TestAMuxCallIsBoundedByARealTimeout(t *testing.T) {
 	stub := t.TempDir()
 	script := filepath.Join(stub, "wezterm")
@@ -1715,13 +1650,8 @@ func TestAMuxCallIsBoundedByARealTimeout(t *testing.T) {
 	}
 }
 
-// A pane whose socket is not a gui-sock is refused, and the refusal quotes the
-// value rather than asserting the variable is unset.
-//
-// Measured against an isolated wezterm-mux-server: a mux-server or unix-domain
-// pane carries a well-formed socket path that MuxID does not accept, so every
-// operation is refused for a caller whose `wezterm cli` works. Saying "unset or
-// malformed" there is a false statement of cause and leaves no next step.
+// A pane whose socket is not a gui-sock is refused, and the refusal quotes the value
+// rather than asserting the variable is unset.
 func TestASocketThatIsNotAGuiSockIsNamedInTheRefusal(t *testing.T) {
 	state(t)
 	mux := &fakeMux{panes: []int{7, 12}}
@@ -1766,12 +1696,8 @@ func declare(t *testing.T, pane, status, reason string) {
 	}
 }
 
-// `waiting` is reported only for the run the marker names, and every other shape
-// of the same state reads as something else.
-//
-// The pane record carries no run identifier, so it answers for the PANE. Reading
-// it alone would report the owner's own harness, started by hand in the worker
-// pane, as a blocked run of this command.
+// `waiting` is reported only for the run the marker names, and every other shape of the
+// same state reads as something else.
 func TestStatusReportsWaitingOnlyForTheRunTheMarkerNames(t *testing.T) {
 	state(t)
 	mux := &fakeMux{panes: []int{7, 12}}
@@ -1873,12 +1799,8 @@ func TestTheTwoWaitsCannotBePassedTogether(t *testing.T) {
 	}
 }
 
-// The trap clears a `waiting` the run published, and creates nothing when there
-// was nothing to clear.
-//
-// The second half is the load-bearing one. Writing `idle` unconditionally would
-// register the worker pane as an agent pane on every run, putting a row for a pane
-// that declared nothing on all five surfaces.
+// The trap clears a `waiting` the run published, and creates nothing when there was
+// nothing to clear.
 func TestTheBodyClearsADeclaredWaitingAndNothingElse(t *testing.T) {
 	if _, err := exec.LookPath("zsh"); err != nil {
 		t.Skip("no zsh")
@@ -1980,11 +1902,6 @@ func record(t *testing.T, key, workerPane string) string {
 }
 
 // The prune reads liveness from the recorded worker pane, never from the key.
-//
-// The construction is the point, and 3.5 requires it: the surviving record is keyed
-// on a directory whose BASENAME is `pane-99`, so its key contains a dead pane id
-// while its worker pane is alive. A prune that read the key would delete a record
-// whose worker is on screen, which is what the superseded per-pane layout invited.
 func TestPruneReadsTheWorkerPaneAndNotTheKey(t *testing.T) {
 	root := state(t)
 	mux := &fakeMux{panes: []int{7, 12}}

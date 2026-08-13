@@ -14,14 +14,9 @@ let
     platformInfo.${final.stdenv.hostPlatform.system}
       or (throw "atomic-coding-agent: Unsupported platform ${final.stdenv.hostPlatform.system}");
 
-  # The `PI_*` names atomic honours as legacy aliases for its own variables,
-  # taken from its `docs/environment-variables.md` rather than from a grep, so
-  # this list is what upstream says it reads and not what a string happens to
-  # match. Seven configuration names and the five session names it overlays onto
-  # a bash tool call.
-  #
-  # `PI_CACHE_RETENTION` is deliberately absent: atomic documents it as a
-  # provider option with no atomic-prefixed alias, so it is shared on purpose.
+  # The `PI_*` names atomic honours as legacy aliases for its own variables, taken from
+  # its `docs/environment-variables.md` rather than from a grep, so this list is what
+  # upstream says it reads and not what a string happens to match.
   legacyPiAliases = [
     "PI_CODING_AGENT_DIR"
     "PI_CODING_AGENT_SESSION_DIR"
@@ -46,19 +41,8 @@ in
 
     nativeBuildInputs = [ final.makeWrapper ];
 
-    # Wrapped rather than symlinked, because two pi-lineage agents share one
-    # environment on this machine and precedence alone does not separate them.
-    # Atomic prefers its own `ATOMIC_*` name when both are set, so an alias only
-    # bites where the owner set the pi spelling and not the atomic one: then pi's
-    # model, provider, session, or agent directory silently steers atomic.
-    # Unsetting the aliases here closes that channel for every name at once.
-    #
-    # The two defaults repeat what `harnesses/atomic/default.nix` declares in
-    # `sessionVariables`, on purpose. A shell that was already open when the
-    # switch ran returns early from `hm-session-vars.sh` and never sees a new
-    # session variable, which is how atomic came to read pi's whole agent
-    # directory in the first place. A wrapper cannot be missed that way, and
-    # `:-` keeps a deliberate override from the caller working.
+    # Wrapped rather than symlinked, because two pi-lineage agents share one environment
+    # on this machine and precedence alone does not separate them.
     installPhase = ''
       runHook preInstall
       mkdir -p $out/bin

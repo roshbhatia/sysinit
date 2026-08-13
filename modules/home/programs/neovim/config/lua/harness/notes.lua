@@ -1,17 +1,4 @@
 --- The agent's diff notes, drawn inline in the diff.
----
---- `sysinit-agent note add` has always written notes. Nothing rendered them: the
---- export it publishes is shaped for `hunk`'s `--agent-context`, and that viewer was
---- removed, so a note reached a JSON file and stopped. This module is the missing
---- half, and it is a layer rather than a feature of one diff plugin:
----
---- - It reads through `sysinit-agent note list --json` rather than the keyed path, so
----   the note record's location and schema stay owned by the tool that writes them.
---- - It owns its own extmark namespace, so it composes with review.nvim's comment
----   layer instead of sharing a store with it. An agent note is not an owner comment
----   and must not be sent back to the agent as one.
---- - It knows nothing about codediff. It annotates a buffer whose file has notes,
----   which is why the full `<leader>dd` diff shows them as well as `<leader>dR`.
 local M = {}
 
 --- The command that owns the note record. Named once, so the health check reports on
@@ -26,8 +13,7 @@ local augroup = "harness_agent_notes"
 local by_root = {}
 
 --- Which roots the current review covers, longest first, so a file is matched to the
---- innermost repository that contains it. The same rule the review itself uses: a
---- workspace that is itself a repository contains every nested one.
+--- innermost repository that contains it.
 ---@type string[]
 local roots = {}
 
@@ -38,11 +24,6 @@ local attached = false
 local rule = "\1"
 
 --- One box holding every note on a line.
----
---- One box rather than one per note, because two notes on a line drew two frames and
---- two signs, and the owner read the pair as the same note twice. A line's notes are
---- one annotation of that line: they share a frame, a rule between them, and a count
---- in the header saying how many there are.
 ---@param entries string[]
 ---@param hl string
 ---@return table[]
@@ -80,9 +61,6 @@ local function box(entries, hl)
 end
 
 --- The note's own text: the summary, the rationale under it, and who wrote it.
----
---- The author is on the header line rather than in the box body because it is the
---- one field that answers "is this mine or the agent's" at a glance.
 ---@param note table
 ---@return string
 local function render(note)
@@ -163,17 +141,10 @@ function M.place(bufnr)
 end
 
 --- Read one repository's notes, then place them in every buffer already open.
----
---- Through the CLI rather than the file, so this module holds no copy of the keyed
---- path or the record schema. One process per repository, at open, not per buffer.
 ---@param root string
 ---@param done? fun(count: integer)
 local function load(root, done)
-  -- The tool is checked for rather than assumed. `vim.system` raises `ENOENT` for a
-  -- command that is not on PATH, and this runs inside the review's open path, so a
-  -- machine without `sysinit-agent` would fail the diff itself rather than lose its
-  -- notes. Measured: `pcall(vim.system, {"missing"})` returns false, not a result with
-  -- a non-zero code.
+  -- The tool is checked for rather than assumed.
   if vim.fn.executable(M.tool) ~= 1 then
     by_root[root] = {}
     if done then
@@ -209,9 +180,6 @@ local function load(root, done)
 end
 
 --- Show the notes for a set of repository roots for as long as the review is open.
----
---- `on_ready` is called once with the total, so the caller can say how many notes the
---- review carries in the same message that says what it opened.
 ---@param review_roots string[]
 ---@param on_ready? fun(count: integer)
 function M.attach(review_roots, on_ready)
@@ -256,10 +224,6 @@ function M.attach(review_roots, on_ready)
 end
 
 --- Re-read the notes for the roots already attached.
----
---- The note record changes outside the editor, from an agent writing while the review
---- is open, and `sysinit-agent note`'s own help says a running viewer picks up nothing
---- on its own. This is how it does.
 ---@param on_ready? fun(count: integer)
 function M.refresh(on_ready)
   if #roots == 0 then

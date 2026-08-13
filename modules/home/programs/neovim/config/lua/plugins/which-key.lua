@@ -24,8 +24,7 @@ return {
         { "<leader>d", group = "Diff" },
         -- No group on `<leader>dd`: it is an action, and declaring it a group made
         -- which-key present the review as a prefix waiting for another key while
-        -- `<leader>dR` sat under it as a sibling. A group and a mapping cannot share a
-        -- sequence.
+        -- `<leader>dR` sat under it as a sibling.
         { "<leader>e", group = "Explorer" },
         { "<leader>f", group = "Find" },
         { "<leader>g", group = "Git" },

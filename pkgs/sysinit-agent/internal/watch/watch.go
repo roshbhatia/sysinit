@@ -209,13 +209,6 @@ func lastLines(body string, n int) string {
 }
 
 // newWorker resolves one run's log inside the worker record for a DIRECTORY.
-//
-// It takes a directory rather than a session name because the worker is keyed on
-// the workspace now, not on the pane that asked for it. The argument therefore has
-// the same meaning it has for `bus`, and `worker.RecordDir` does the keying, so this
-// reader cannot drift from the writer. The old form took a key and joined it into a
-// path, which meant the path separator guard applied to the ARGUMENT; the guard now
-// belongs to the derived name, which the caller does not choose.
 func newWorker(args []string, logName string) (renderer, error) {
 	dir := ""
 	switch len(args) {

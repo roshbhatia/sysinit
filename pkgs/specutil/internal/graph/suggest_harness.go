@@ -14,10 +14,8 @@ import (
 // works; this list is for documentation and flag completion hints only.
 var SupportedHarnesses = []string{"claude", "gemini", "codex", "openai", "pi"}
 
-// HarnessSuggest sends change metadata to an AI harness CLI subprocess and
-// returns the suggested dependency edges. The harness must write a JSON object
-// to stdout with a "suggestions" array; each element needs "from" and "to"
-// string fields (both must be known change names) and an optional "reason".
+// HarnessSuggest sends change metadata to an AI harness CLI subprocess and returns the
+// suggested dependency edges.
 func HarnessSuggest(changes []*ir.Change, harness string) ([]Candidate, error) {
 	if harness == "" {
 		return nil, fmt.Errorf("harness name is required")

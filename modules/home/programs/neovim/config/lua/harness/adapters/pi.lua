@@ -20,12 +20,8 @@ end
 return {
   name = "pi",
   label = "󰏿  Pi",
-  -- Every flag was probed against the installed binary, which answers
-  -- `Unknown option: <flag>` on anything it does not take. Do not re-add
-  -- `--mcp-config`: pi rejects it. It comes from atomic's bundled
-  -- `@bastani/mcp`, so it belongs in atomic's schema alone.
-  --
-  -- `--fast` comes from @benvargas/pi-openai-fast and `--plan` from
+  -- Every flag was probed against the installed binary, which answers `Unknown option:
+  -- <flag>` on anything it does not take.
   -- @plannotator/pi-extension, both packages this repository loads.
   options_schema = {
     { name = "no_tools", flag = "--no-tools", kind = "toggle" },

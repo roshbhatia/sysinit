@@ -1,14 +1,4 @@
 # The pi extension package set, shared by every harness in the pi lineage.
-#
-# Two harnesses read this file: `harnesses/pi` and `harnesses/atomic`. Each one
-# picks its own subset and its own load order, because the two agents ship
-# different builtins and an extension that duplicates a builtin tool name makes
-# the agent refuse to start. Nothing here decides which packages a harness
-# loads; the harness module does.
-#
-# Every version and hash in this file is a pin. `hack/update-pi.sh` greps it for
-# the pinned versions and compares them against the npm registry, so a bump
-# belongs here rather than in a harness module.
 { lib, pkgs }:
 let
   fetchNpmPkg =

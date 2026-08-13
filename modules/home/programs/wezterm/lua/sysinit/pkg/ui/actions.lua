@@ -4,9 +4,7 @@ local utils = require("sysinit.pkg.utils")
 local M = {}
 
 -- `s` is a zsh function, not an executable, so the only way to reach it is an
--- interactive shell that has sourced .zshrc. The trailing `exec` is the
--- fallback: if `s` is undefined, or its `command -v sy`/`command -v zmx` guards
--- decline, the workspace still opens as a plain shell in the same directory.
+-- interactive shell that has sourced .zshrc.
 local function seshy_spawn_args(name)
   local zsh = utils.get_nix_binary("zsh")
   local quoted = "'" .. name:gsub("'", "'\\''") .. "'"

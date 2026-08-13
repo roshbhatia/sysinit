@@ -1,21 +1,4 @@
 // Package extract pulls schema-specific structure out of already-parsed IR.
-//
-// Spec frameworks layer conventions on top of plain markdown: a bullet that
-// declares a fact about its block, or an inline key that references sibling
-// tasks. specutil does not hard-code any one framework's conventions. Instead a
-// repository declares them in openspec/specutil.yaml, and this package applies
-// that declaration as a pure IR-to-IR pass.
-//
-// Two primitives cover the conventions seen in practice:
-//
-//	marker  a bullet of the form "- **NAME** value" that states a fact about
-//	        the block it opens (a scenario's polarity, a phase's shape)
-//	field   an inline "`key:` value" inside a task line (the tasks it depends
-//	        on, an estimate, an owner)
-//
-// Running as a post-parse pass rather than inside the parser keeps every
-// provider free of schema knowledge: openspec, bmad, plan, and script adapters
-// all benefit without changes.
 package extract
 
 import (
@@ -134,10 +117,7 @@ func HasPreset(name string) bool {
 	return ok
 }
 
-// Resolve expands cfg's preset and validates the result. A declaration that
-// names an unknown preset, scope, or type is an error rather than a silent
-// no-op, because a typo in a marker name would otherwise look like a schema
-// that simply never uses that marker.
+// Resolve expands cfg's preset and validates the result.
 func Resolve(cfg Config) (Config, error) {
 	out := Config{Preset: cfg.Preset}
 	if cfg.Preset != "" {
@@ -228,13 +208,7 @@ var markerRe = regexp.MustCompile(`^-?\s*\*\*([A-Za-z][A-Za-z0-9_-]*)\*\*\s*:?\s
 // valueSplitRe splits a list value on commas, backticks, and whitespace.
 var valueSplitRe = regexp.MustCompile("[,`\\s]+")
 
-// Apply runs the extraction over a change in place. It removes every consumed
-// marker bullet and inline field from the prose it was embedded in, so a
-// renderer never shows a reader the raw convention. Warnings report a declared
-// dependency that names no sibling task.
-//
-// Apply is idempotent: running it twice yields the same IR, because the markers
-// it consumes are gone after the first pass.
+// Apply runs the extraction over a change in place.
 func Apply(cfg Config, c *ir.Change) []ir.Warning {
 	if c == nil || cfg.IsZero() {
 		return nil
@@ -380,9 +354,8 @@ func liftMarkers(markers []Marker, lines []string) (map[string]string, []string)
 }
 
 // liftFields pulls every declared inline field out of a task line, returning the
-// values, the cleaned text, and the flattened task references from any
-// taskRefs-typed field. The literal "none" declares an explicit absence and
-// yields no references.
+// values, the cleaned text, and the flattened task references from any taskRefs-typed
+// field.
 func liftFields(fields []Field, text string) (map[string][]string, string, []string) {
 	var found map[string][]string
 	var refs []string
@@ -414,10 +387,8 @@ func liftFields(fields []Field, text string) (map[string][]string, string, []str
 // taskRefRe matches a dotted task identifier (1.2) or the literal none.
 var taskRefRe = regexp.MustCompile(`^(?:\d+(?:\.\d+)+|none)$`)
 
-// fieldValue reads a field's value from the text following its label and
-// reports how many bytes it consumed. A string field takes the rest of the
-// line; list and taskRefs fields take the leading run of value tokens, so
-// trailing prose after the value survives.
+// fieldValue reads a field's value from the text following its label and reports how
+// many bytes it consumed.
 func fieldValue(f Field, rest string) ([]string, int) {
 	if f.Type == FieldString {
 		return []string{strings.TrimSpace(rest)}, len(rest)
@@ -455,11 +426,7 @@ func fieldValue(f Field, rest string) ([]string, int) {
 	return out, consumed
 }
 
-// aliases map retired schema names onto a live preset key. Archived changes pin
-// a schema in their .openspec.yaml and are history: rewriting them to chase a
-// rename would falsify the record, so the rename carries its old name forward
-// instead. Resolution consults aliases only after a direct hit fails, so an
-// alias can never shadow a real preset.
+// aliases map retired schema names onto a live preset key.
 var aliases = map[string]string{
 	"rosh-spec-driven": "spec-driven",
 }

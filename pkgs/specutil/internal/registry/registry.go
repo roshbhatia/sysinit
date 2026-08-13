@@ -15,13 +15,7 @@ import (
 	openspecprovider "github.com/roshbhatia/specutil/internal/provider/openspec"
 )
 
-// SelectProvider returns the provider for repo. OpenSpec is the only input
-// format: the BMAD, plan.md, stdin, and script adapters were removed once no
-// repository on this host used them, and the `--from` flag went with them.
-//
-// The returned provider applies the repository's extraction declaration to every
-// change it loads, so the parser needs no knowledge of a schema's marker
-// conventions.
+// SelectProvider returns the provider for repo.
 func SelectProvider(repo string) (provider.Provider, error) {
 	if _, err := os.Stat(filepath.Join(repo, "openspec", "changes")); err != nil {
 		return nil, fmt.Errorf("no openspec/changes directory in %s", repo)

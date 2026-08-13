@@ -10,10 +10,7 @@ let
     hash = "sha256-AwffzL8lbYLJ6KNXJr2PBLGhd2Wv0cOjziU8fNENEMQ="; # autoupdate:src-hash
   };
 
-  # The upstream ships no lockfile, and `fetchNpmDeps` needs one. This copy was
-  # generated from its `package.json` and is vendored for the same reason the
-  # claude-code overlay vendors one: without it the dependency set is whatever npm
-  # resolves on the day of the build.
+  # The upstream ships no lockfile, and `fetchNpmDeps` needs one.
   lock = ./pretty-mermaid-package-lock.json;
 in
 {

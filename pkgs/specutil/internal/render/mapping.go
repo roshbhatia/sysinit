@@ -1,8 +1,4 @@
-// Package render projects a change's IR into target artifacts (rfc, design,
-// tickets). Rendering is two-layer: a declarative semantic mapping routes IR
-// sections into named target sections, then a Go text/template lays them out.
-// The mapping (what content goes where) is separable from the template (layout
-// and ordering), so a target can be retargeted without rewriting the skeleton.
+// Package render projects a change's IR into target artifacts (rfc, design, tickets).
 package render
 
 import (
@@ -167,11 +163,8 @@ func guideLevel(c *ir.Change) string {
 	return strings.TrimRight(b.String(), "\n")
 }
 
-// specsMarkdown renders the requirements and their scenarios as the
-// reference-level explanation. It goes through the export projection, so the
-// output carries no spec delta keywords and no slugs: a reader outside the
-// repository sees requirement names and Given/When/Then acceptance criteria.
-// Output is deterministic, sorted by capability then document order.
+// specsMarkdown renders the requirements and their scenarios as the reference-level
+// explanation.
 func specsMarkdown(c *ir.Change) string {
 	specs := append([]*ir.Spec{}, c.Specs...)
 	sort.SliceStable(specs, func(i, j int) bool { return specs[i].Capability < specs[j].Capability })

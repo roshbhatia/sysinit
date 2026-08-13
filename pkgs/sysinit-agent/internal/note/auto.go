@@ -1,16 +1,5 @@
-// Auto-derived notes: `note auto <harness>` reads a PostToolUse payload and
-// writes one note from what the harness had already said about the edit.
-//
-// The alternative was to ask the model to run `note add` itself. That was tried
-// and it does not hold: the instruction competes with the task for attention, a
-// note appears for the edits the model happens to narrate, and a review then
-// shows notes on three files out of nine and reads as though the other six were
-// unexamined. Reading the words the model already wrote needs nothing from the
-// model at all.
-//
-// Nothing here invents a note. When the transcript holds no narration for the
-// turn, this writes nothing, because a box that says less than the diff is worse
-// than no box.
+// Auto-derived notes: `note auto <harness>` reads a PostToolUse payload and writes one
+// note from what the harness had already said about the edit.
 package note
 
 import (
@@ -28,11 +17,6 @@ import (
 )
 
 // How much of the transcript's tail to read.
-//
-// A transcript grows without bound: this session's own file is 21k lines. The
-// narration for the edit that just fired the hook is the last assistant text in
-// the file, so only the tail can matter, and 1 MiB holds the last several turns
-// even when one of them wrote a whole file through a single tool call.
 const transcriptTail = 1 << 20
 
 // What a note carries. The summary is one line under a diff hunk, so it holds a
@@ -44,11 +28,6 @@ const (
 )
 
 // autoRun writes one note and ALWAYS returns 0.
-//
-// Every failure is silent, for the reason editevent's is: this runs on a
-// harness's edit path, so a non-zero exit or a word on stdout surfaces inside the
-// agent's loop as though the tool call had failed. `--explain` is the debugging
-// route, and it is the only mode that prints or reports a reason.
 func autoRun(args []string, stdin io.Reader) int {
 	harness := ""
 	explain := false
@@ -84,10 +63,6 @@ func autoRun(args []string, stdin io.Reader) int {
 }
 
 // autoPayload is the subset of a PostToolUse payload this reads.
-//
-// `tool_response` is held raw because its type is the tool's, not the hook's: an
-// edit answers with an object and other tools answer with a string, and a typed
-// field would fail the whole decode on the string and lose the file path with it.
 type autoPayload struct {
 	ToolName       string `json:"tool_name"`
 	Cwd            string `json:"cwd"`
@@ -110,17 +85,6 @@ type hunk struct {
 }
 
 // firstChangedLine returns the line the edit actually changed.
-//
-// Not `newStart`: a hunk opens with three lines of context, so anchoring on it put
-// the note three lines above the change. Measured on a live edit that appended to
-// a README, where the note landed on line 38 and the new text was on line 41.
-//
-// A deletion does not advance the modified side, so a hunk that only removes lines
-// anchors on the line that now sits where they were.
-//
-// A blank added line is skipped when the hunk adds anything else, because an
-// append usually opens with one and a note rendered above an empty line points at
-// nothing.
 func (h hunk) firstChangedLine() int64 {
 	line := h.NewStart
 	var firstChanged int64
@@ -244,15 +208,8 @@ func autoWrite(harness string, stdin io.Reader, explain bool) (string, error) {
 	return fmt.Sprintf("note: %s:%d", note.File, note.Line), nil
 }
 
-// anchor returns the first changed region on the modified side, as a line and the
-// last line of that region.
-//
-// The patch the tool reports is the authority, because it counts the lines the
-// edit actually moved. Searching the file for the replacement text is the
-// fallback for a harness that reports no patch, and it can only find the first
-// occurrence: an edit that inserts a line already present elsewhere anchors to
-// the earlier copy. That is wrong by a hunk rather than wrong by a file, and the
-// note still lands in the diff.
+// anchor returns the first changed region on the modified side, as a line and the last
+// line of that region.
 func anchor(event autoPayload, file string) (int64, int64) {
 	var response struct {
 		StructuredPatch []hunk `json:"structuredPatch"`
@@ -302,17 +259,6 @@ func anchor(event autoPayload, file string) (int64, int64) {
 }
 
 // narration returns the harness's own words about the tool call it just made.
-//
-// The text and the tool call usually arrive in one assistant message, with the
-// text first, so the search starts at the message that made this call and walks
-// back to the nearest text. Walking back matters: a harness that narrates a plan
-// and then makes three calls writes the text once, and all three edits belong to
-// it.
-//
-// The shape read here is one JSON object per line with `type` and
-// `message.content`, which is claude's. A harness that writes a different shape
-// decodes to nothing and files no note, so wiring this hook into one is a
-// no-op rather than a wrong note.
 func narration(path, toolName, file string) string {
 	if path == "" {
 		return ""
@@ -393,10 +339,6 @@ func narration(path, toolName, file string) string {
 }
 
 // tailLines returns the transcript's last whole lines, newest last.
-//
-// The first line of the window is dropped whenever the file is longer than the
-// window, because a read that starts mid-file starts mid-line and a half-decoded
-// record is not a record.
 func tailLines(path string) ([]string, error) {
 	handle, err := os.Open(path)
 	if err != nil {
@@ -428,11 +370,6 @@ func tailLines(path string) ([]string, error) {
 }
 
 // split turns narration into a one-line summary and the rest.
-//
-// The first sentence is the summary because that is where a harness states what
-// it did; the paragraphs after it are why. Markdown decoration is stripped rather
-// than rendered: the note is drawn as virtual lines in a buffer, and a literal
-// `**` there is noise.
 func split(text string) (string, string) {
 	cleaned := undecorate(text)
 	head, tail := firstSentence(cleaned)
@@ -511,11 +448,6 @@ func clip(text string, limit int) string {
 
 // dropOverlapping removes this author's earlier notes on the same file inside the
 // region the new note covers.
-//
-// Anchored on the region rather than on the file, so two edits far apart in one
-// file keep two notes and two passes over the same lines keep one. A file edited
-// in ten places during a change is reviewed better with ten notes than with the
-// last one.
 func dropOverlapping(notes []json.RawMessage, file, author string, start, end int64) ([]json.RawMessage, error) {
 	kept := make([]json.RawMessage, 0, len(notes))
 	for _, raw := range notes {

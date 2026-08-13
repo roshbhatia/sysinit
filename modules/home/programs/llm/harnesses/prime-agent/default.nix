@@ -13,15 +13,6 @@ let
   inherit (piPkgs) packages;
 
   # Which of the shared pi packages prime-agent can actually load.
-  #
-  # Decided by running the built `prime-agent-0.7.1` against a scratch
-  # PRIME_AGENT_CODING_AGENT_DIR, one package at a time and then all 19
-  # together. The per-package verdicts and the combined run agree, so nothing
-  # here fails only in company.
-  #
-  # prime-agent is a far more permissive host than atomic: it hands an extension
-  # `@earendil-works/pi-coding-agent` as a virtual module, so the seven packages
-  # atomic rejects for failing to resolve that name all load here.
   loaded = [
     "piPermissionSystem"
     "openaiFast"
@@ -48,10 +39,9 @@ let
     # extension throws on load. Not a collision, a missing API.
     toolDisplay = "calls createReadTool, which prime-agent does not export because it has no read tool";
 
-    # `@earendil-works/pi-ai` in this fork is the renamed `prime-agent-ai`
-    # tarball, and its package.json `exports` has no `./compat` subpath, so
-    # vendoring the dependency would not fix the import either. prime-agent has
-    # no web tool of its own, so this harness has no web access at all.
+    # `@earendil-works/pi-ai` in this fork is the renamed `prime-agent-ai` tarball, and
+    # its package.json `exports` has no `./compat` subpath, so vendoring the dependency
+    # would not fix the import either.
     webAccess = "imports @earendil-works/pi-ai/compat, a subpath prime-agent-ai 0.7.1 does not export";
   };
 
@@ -115,9 +105,6 @@ let
       true;
 
   # Only the four keys prime-agent's `interface Settings` actually carries.
-  # pi and atomic also declare `externalEditor`, `enableInstallTelemetry`, and
-  # `enableAnalytics`; none of the three exists in prime-agent 0.7.1, so this
-  # harness installs no external-editor wrapper.
   primeManagedSettings = {
     packages = primePackagePaths;
 
@@ -199,19 +186,14 @@ in
       };
 
     sessionVariables = {
-      # `getAgentDir()` in prime-agent reads this name and returns one directory,
-      # with no legacy fallback list, so unlike atomic there is no risk of it
-      # loading pi's loose extensions. It is pinned anyway: the default is
-      # derived from `package.json`'s `piConfig.configDir`, so an upstream rename
-      # would silently move the whole config tree out from under this module.
+      # `getAgentDir()` in prime-agent reads this name and returns one directory, with
+      # no legacy fallback list, so unlike atomic there is no risk of it loading pi's
+      # loose extensions.
       PRIME_AGENT_CODING_AGENT_DIR = "$HOME/.prime/agent";
 
-      # No PRIME_AGENT_SKIP_VERSION_CHECK is set here because prime-agent does
-      # not derive that one from its app name: the fork still reads the literal
-      # `PI_SKIP_VERSION_CHECK`. That name is set in `overlays/prime-agent.nix`,
-      # in the wrapper, rather than borrowed from the pi harness's session
-      # variable. The wrapper also carries this directory as a default, so a
-      # shell open across a switch cannot start prime-agent without it.
+      # No PRIME_AGENT_SKIP_VERSION_CHECK is set here because prime-agent does not
+      # derive that one from its app name: the fork still reads the literal
+      # `PI_SKIP_VERSION_CHECK`.
     };
   };
 }

@@ -7,10 +7,8 @@
 let
   registry = import ../llm/harnesses/registry.nix;
 
-  # The names `openspec init --tools` accepts, from `openspec init --help` on
-  # openspec 1.6.0. Re-read that after an openspec upgrade: openspec rejects the
-  # whole `--tools` argument when one name is unknown, so a rename upstream stops
-  # `openspec init` for every new session rather than dropping one adapter.
+  # The names `openspec init --tools` accepts, from `openspec init --help` on openspec
+  # 1.6.0.
   supportedTools = [
     "amazon-q"
     "antigravity"

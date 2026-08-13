@@ -66,10 +66,8 @@ return {
     },
     { name = "no_ide", flag = "--no-ide", kind = "toggle" },
     { name = "no_notifications", flag = "--no-notifications", kind = "toggle" },
-    -- `--no-fast` is the per-run form of `amp.agent.speed`, which amp documents
-    -- only by saying "fast" is billed at a premium. The settings key is not
-    -- declared in amp.nix because amp accepts any string there without
-    -- complaint, so the non-fast value cannot be measured; the flag can.
+    -- `--no-fast` is the per-run form of `amp.agent.speed`, which amp documents only by
+    -- saying "fast" is billed at a premium.
     { name = "fast", flag = "--fast", kind = "toggle" },
     { name = "no_fast", flag = "--no-fast", kind = "toggle" },
     -- The run-time half of `sysinit.llm.amp.remoteExecution`. Exposed as an

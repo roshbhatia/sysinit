@@ -1,11 +1,5 @@
-// Package vcs reads the working tree's diff so a reviewer can annotate the code
-// a change produced, not just the plan that described it.
-//
-// It shells out to the local git binary and parses the unified diff it prints.
-// That is a local read, the same class of operation as reading a file: no
-// network, no credentials, no remote. Nothing here fetches, pushes, or contacts
-// a forge, and a repository that is not a git working tree degrades to an empty
-// diff with a stated reason rather than an error.
+// Package vcs reads the working tree's diff so a reviewer can annotate the code a
+// change produced, not just the plan that described it.
 package vcs
 
 import (
@@ -47,11 +41,6 @@ type Line struct {
 }
 
 // Hunk is one contiguous run of changed lines with its surrounding context.
-//
-// Identity is computed from the file path and the changed lines only. Line
-// numbers are deliberately excluded: an edit elsewhere in the file shifts every
-// number below it, and a comment written about this hunk is still about this
-// hunk. Excluding them is what lets the comment survive.
 type Hunk struct {
 	Identity string `json:"identity"`
 	Header   string `json:"header"`
@@ -166,10 +155,7 @@ func dropToolState(files []File) []File {
 	return out
 }
 
-// untracked returns the new files git does not yet know about. `git diff` omits
-// them, but a file the agent just wrote is exactly the code a reviewer needs to
-// see, so it would be the wrong thing to leave out. Each is diffed against
-// /dev/null, which reads the file and writes nothing.
+// untracked returns the new files git does not yet know about.
 func untracked(repo string, paths []string) []File {
 	args := []string{"-C", repo, "ls-files", "--others", "--exclude-standard"}
 	if len(paths) > 0 {

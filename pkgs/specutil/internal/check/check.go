@@ -1,14 +1,4 @@
 // Package check validates a change against a declared rubric.
-//
-// Rules are generic and parameterized, not tied to any spec framework: a rule
-// says "this artifact must contain these sections" or "every requirement needs
-// a scenario carrying this marker", and the repository supplies the specifics
-// in openspec/specutil.yaml. A framework ships as a preset, which is nothing
-// more than a named bundle of rule parameters.
-//
-// Every rule reads only facts the author stated: a heading that is present, a
-// marker that is declared, a bullet that follows another. None infers intent
-// from prose, so two runs over the same input always agree.
 package check
 
 import (
@@ -329,11 +319,8 @@ func (p params) Int(key string) int {
 	return 0
 }
 
-// artifactText returns an artifact's retained raw markdown and the filename to
-// report against it. An absent artifact yields ok=false, which every rule
-// treats as "nothing to check" rather than a violation: an optional artifact
-// that was not written is the author's choice, and a rule that requires it
-// says so through required-sections instead.
+// artifactText returns an artifact's retained raw markdown and the filename to report
+// against it.
 func artifactText(c *ir.Change, artifact string) (text, file string, ok bool) {
 	switch artifact {
 	case "proposal":

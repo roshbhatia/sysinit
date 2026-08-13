@@ -50,9 +50,6 @@ end
 
 -- What to render after "on" for a pane: its branch, or the repository count when the
 -- pane sits on a multi-repo session root, which has no single branch to name.
---
--- Returns nil when there is nothing to say, so a call site can skip the label
--- entirely rather than print "on ".
 function M.scope_label(rec)
   if not rec then
     return nil
@@ -111,11 +108,7 @@ function M.normalize_proc(raw)
   return (raw:gsub("^%.", ""):gsub("%-wrapped$", ""))
 end
 
--- Processes that hold a pane's pty without doing the work in it. wezterm reports
--- the pane's own foreground process, and a multiplexer client is that process,
--- so the shell and the agent running inside are invisible from the pane alone.
--- Every zmx-backed session read as `zmx` and told you nothing about what it was
--- running, while every other pane named its real process.
+-- Processes that hold a pane's pty without doing the work in it.
 local passthrough_procs = {
   zmx = true,
   -- `caffeinate -- <cmd>` holds the pty exactly the way a multiplexer client does, so
@@ -125,11 +118,6 @@ local passthrough_procs = {
 }
 
 -- Whether a process name is a wrapper rather than the work.
---
--- Exported because three renderers see only a name: the tab title formatter gets a
--- table rather than a Pane and cannot walk the tree, and `tab_label` reads a title
--- wezterm already derived from one of these names. Each of them needs to know the name
--- is worthless even when it cannot find the better one itself.
 ---@param name string|nil
 ---@return boolean
 function M.is_passthrough(name)
@@ -140,12 +128,6 @@ function M.is_passthrough(name)
 end
 
 -- Deepest descendant of a passthrough process, by pid order at each level.
---
--- Within one wrapper's subtree the highest pid is the newest process, which is
--- what the pane is showing: `zmx attach` re-execs itself before spawning the
--- shell, so the chain is zmx -> zmx -> zsh -> whatever the shell started.
--- The depth cap is a loop guard, not a semantic limit; the real chains are 3
--- deep and a cycle in this tree would otherwise hang the switcher render.
 local function deepest_proc_name(info, depth)
   if depth <= 0 or type(info) ~= "table" then
     return nil
@@ -197,12 +179,6 @@ function M.pane_proc(p, agent)
     return agent
   end
   -- The pane's own OSC title, and only when it reads like a process name.
-  --
-  -- An agent sets it to a sentence describing the session, which the tab line above
-  -- already shows, so accepting it printed `in ✳ Identify explicit steps to launch FRA
-  -- this week` under a tab of that same name. Returning nothing instead drops the
-  -- segment: the switcher omits `in …` for an empty title, and a line that says less
-  -- says it once.
   local ok2, title = pcall(function()
     return M.normalize_proc(p:get_title() or "")
   end)

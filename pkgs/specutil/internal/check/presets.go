@@ -1,15 +1,9 @@
 package check
 
-// presets are built-in rubrics, keyed by the spec-framework schema name they
-// describe. A preset is data: a bundle of built-in rules with the parameters
-// that framework expects. Nothing in the rule implementations knows a framework
-// name, so a new framework is a new entry here and nothing else.
+// presets are built-in rubrics, keyed by the spec-framework schema name they describe.
 var presets = map[string][]RuleConfig{
-	// spec-driven mirrors the rubric the specreview shell lint enforced, rule for
-	// rule, so a repository can drop that script and get the same verdicts from
-	// specutil. The key is openspec's own default schema name, so a repository
-	// that overrides the built-in `spec-driven` schema keeps its rubric without
-	// naming anything: config.yaml's `schema:` is the selector.
+	// spec-driven mirrors the rubric the specreview shell lint enforced, rule for rule, so
+	// a repository can drop that script and get the same verdicts from specutil.
 	"spec-driven": {
 		{
 			ID:   "required-sections",
@@ -20,12 +14,7 @@ var presets = map[string][]RuleConfig{
 			},
 		},
 		{
-			// `openspec validate` cannot check this. It validates the delta model:
-			// specs/<capability>/spec.md with `## ADDED Requirements` headers and a
-			// `#### Scenario:` under each requirement. This schema has no spec
-			// corpus, so validate reports "no delta" on every change and its exit
-			// code carries no information. The criteria this schema does have live in
-			// the proposal, which makes them specutil's to check or nobody's.
+			// `openspec validate` cannot check this.
 			ID:   "section-min-bullets",
 			Name: "behavior-has-criteria",
 			Params: map[string]any{
@@ -85,22 +74,16 @@ var presets = map[string][]RuleConfig{
 			Params: map[string]any{
 				"marker": "stop",
 				"when":   map[string]any{"marker": "shape", "value": "loop"},
-				// Any backtick span is too weak: a stop that says "`lib/x.nix` passes
-				// fixtures" names a file, not something to run, and passed. Require the
-				// span to open with a command. The vocabulary lives here, in the
-				// framework's preset, so the rule itself stays framework-agnostic.
+				// Any backtick span is too weak: a stop that says "`lib/x.nix` passes fixtures"
+				// names a file, not something to run, and passed.
 				"pattern":  "`(nix|nh|task|specutil|openspec|citelock|loop-gate|git|jq|go|python3?|bash|sh|shellcheck|shfmt|pytest|npm|bun|cargo|make)\\b[^`]*`",
 				"describe": "open a backtick span with a command",
 			},
 		},
 		{ID: "task-deps-resolve"},
 		{
-			// A graph models fan-out, and its subtasks MAY carry a `deps:`, so a
-			// zero-edge graph is legal. It is still worth saying: the schema's own
-			// position is that N one-shot steps are "a graph with a dependency
-			// chain", and with no chain nothing states the order. Warn rather than
-			// error, because the fix is per-change judgment and a guessed edge is
-			// worse than an unstated one.
+			// A graph models fan-out, and its subtasks MAY carry a `deps:`, so a zero-edge graph
+			// is legal.
 			ID:       "phase-edges-declared",
 			Severity: SeverityWarn,
 			Params: map[string]any{
@@ -112,10 +95,8 @@ var presets = map[string][]RuleConfig{
 		{ID: "task-id-matches-phase"},
 		{ID: "task-deps-acyclic"},
 		{
-			// 60 words is roughly four sentences: enough to state an outcome and
-			// its gate, not enough to hold a history. It warns rather than fails,
-			// because the fix is to move prose and an in-flight change should not
-			// be blocked from recording what it just learned.
+			// 60 words is roughly four sentences: enough to state an outcome and its gate, not
+			// enough to hold a history.
 			ID:       "task-text-max-words",
 			Severity: SeverityWarn,
 			Params:   map[string]any{"max": 60},
@@ -133,11 +114,8 @@ var presets = map[string][]RuleConfig{
 			},
 		},
 		{
-			// A change nobody approved is not ready, and an approval given before
-			// the artifacts moved is not an approval of what is there now. Both
-			// read as a pass to every other rule in this preset, so the gate has
-			// to state it. A repository that reviews out of band drops this with
-			// `disable: [review-decision-current]`.
+			// A change nobody approved is not ready, and an approval given before the artifacts
+			// moved is not an approval of what is there now.
 			ID: "review-decision-current",
 			Params: map[string]any{
 				"accept": []string{"approved"},
@@ -146,11 +124,7 @@ var presets = map[string][]RuleConfig{
 	},
 }
 
-// aliases map retired schema names onto a live preset key. Archived changes pin
-// a schema in their .openspec.yaml and are history: rewriting them to chase a
-// rename would falsify the record, so the rename carries its old name forward
-// instead. Resolution consults aliases only after a direct hit fails, so an
-// alias can never shadow a real preset.
+// aliases map retired schema names onto a live preset key.
 var aliases = map[string]string{
 	"rosh-spec-driven": "spec-driven",
 }

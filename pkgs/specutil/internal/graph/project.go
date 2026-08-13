@@ -99,10 +99,7 @@ type Candidate struct {
 	Capability string `json:"capability"`
 }
 
-// Suggest infers candidate dependency edges from capabilities shared between
-// changes. When two changes both declare the same capability, the change that
-// only modifies it is suggested to depend on the change that adds it (the
-// likely producer). Results are sorted and never mutate the manifest.
+// Suggest infers candidate dependency edges from capabilities shared between changes.
 func Suggest(changes []*ir.Change) []Candidate {
 	type owner struct{ adds, mods []string }
 	byCap := make(map[string]*owner)

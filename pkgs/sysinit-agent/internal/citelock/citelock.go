@@ -332,18 +332,7 @@ func liveChecks(url, doi string) error {
 		logf("CITELOCK_OFFLINE=1: skipping live checks (advisory)")
 		return nil
 	}
-	// A GET of the URL, with the bytes discarded. This asks whether the cited
-	// document resolves, which is the only question liveness is about.
-	//
-	// lychee was the primary oracle here and answered a different question. Given a
-	// URL, lychee reads that document and checks every link inside it, so a cited
-	// README fails the moment it links to anything that 404s for a bot. A herdr
-	// README returning 200 was rejected because one shields.io badge target did.
-	// That is a false negative with no upper bound: the more thorough the cited
-	// page, the likelier it is to fail.
-	//
-	// HEAD is not used because too many hosts answer it with 403 or 405 while
-	// serving the same URL to a GET.
+	// A GET of the URL, with the bytes discarded.
 	if run("curl", "-fsSL", "--max-time", "20", "-o", os.DevNull, "--", url) != nil {
 		if have("pplx") && run("pplx", "content", "fetch", url) == nil {
 			logf("live: curl could not confirm %s; pplx fetched it, treating as live", url)

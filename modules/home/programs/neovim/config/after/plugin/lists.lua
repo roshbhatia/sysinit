@@ -30,11 +30,7 @@ local function is_loc_win()
   return wininfo and wininfo.loclist == 1
 end
 
--- A list with entries is steppable whether or not a window shows it. Requiring the
--- window made these keys depend on screen space: a diff review fills the quickfix
--- list, `copen` failed with `E36: Not enough room` in a short terminal, and `]q` then
--- refused to move through a list that was right there. `:cnext` never needed the
--- window, so neither does this.
+-- A list with entries is steppable whether or not a window shows it.
 local function has_qf_entries()
   return vim.fn.getqflist({ size = 0 }).size > 0
 end

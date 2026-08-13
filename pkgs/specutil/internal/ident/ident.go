@@ -1,8 +1,5 @@
-// Package ident computes the stable, content-addressed handles every other
-// package uses to talk about the same task without agreeing on its position in
-// a file. Identity survives renumbering and minor edits; ContentHash flips on
-// any byte change. Both are pure functions of their input, so a review record
-// and the rendered web page name a task identically without coordinating.
+// Package ident computes the stable, content-addressed handles every other package uses
+// to talk about the same task without agreeing on its position in a file.
 package ident
 
 import (
@@ -23,10 +20,8 @@ var wsRe = regexp.MustCompile(`\s+`)
 // drop without changing meaning.
 var trailingPunctRe = regexp.MustCompile(`[.,;:!?\s]+$`)
 
-// Normalize produces the position-independent, edit-tolerant key used for
-// identity: lowercased, emphasis-stripped, whitespace-collapsed, trailing
-// punctuation removed. It deliberately discards leading task numbers (the
-// caller passes already number-free text) so renumbering preserves identity.
+// Normalize produces the position-independent, edit-tolerant key used for identity:
+// lowercased, emphasis-stripped, whitespace-collapsed, trailing punctuation removed.
 func Normalize(s string) string {
 	s = strings.ToLower(s)
 	s = emphasisRe.ReplaceAllString(s, "")
@@ -36,11 +31,7 @@ func Normalize(s string) string {
 	return s
 }
 
-// Identity is the stable key for an item. It is built from the normalized phase
-// name and normalized item text, so it survives task renumbering and minor text
-// edits (which the normalization absorbs) while still distinguishing genuinely
-// different items. The phase name disambiguates identically-worded tasks living
-// in different phases.
+// Identity is the stable key for an item.
 func Identity(phaseName, text string) string {
 	return Hash(Normalize(phaseName) + "\n" + Normalize(text))
 }

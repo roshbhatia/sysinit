@@ -28,13 +28,7 @@ in
         # 400. 65536 clears that without the KV cost of the model's full 131072.
         OLLAMA_CONTEXT_LENGTH = "65536";
 
-        # The runner holds the prefix cache, so unloading the model throws it
-        # away. Measured on a 33222-token system prompt against
-        # muse-glimmer:30b-mlx: 336.6s cold, 0.4s repeated, 5.4s with the same
-        # system and a new user turn. The 5-minute default put every session
-        # that resumed after a break back on the 336s path. -1 keeps the runner
-        # up so the cache survives idle; the model is 22G of the 48G here, and
-        # only one stays loaded at a time.
+        # The runner holds the prefix cache, so unloading the model throws it away.
         OLLAMA_KEEP_ALIVE = "-1";
       };
     };

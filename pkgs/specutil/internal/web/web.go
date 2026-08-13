@@ -1,7 +1,5 @@
-// Package web renders the cross-change dependency graph and per-workstream
-// detail into a single static HTML file. The data feeds are baked in as JSON
-// literals; the graph itself is rendered client-side by Cytoscape.js. The
-// binary performs zero network I/O — only the rendered page loads CDN assets.
+// Package web renders the cross-change dependency graph and per-workstream detail into
+// a single static HTML file.
 package web
 
 import (
@@ -28,14 +26,8 @@ type page struct {
 	SuggestJSON string // graph --suggest candidates, embedded as a JS literal (may be [])
 }
 
-// Render returns a self-contained HTML document visualizing g, drilling into the
-// detail feed d for per-workstream ticket content. Both feeds use the same
-// renderer-independent schemas as graph.json / detail.json, so the data contract
-// is shared with every other consumer. diags surfaces manifest problems (cycles,
-// dangling references) in a health banner so a broken manifest is visible rather
-// than discarded. candidates are the auto-inferred suggest edges shown in the UI
-// so users don't have to run graph --suggest manually. d may be nil; diags and
-// candidates may be empty.
+// Render returns a self-contained HTML document visualizing g, drilling into the detail
+// feed d for per-workstream ticket content.
 func Render(g *graph.Graph, d *detail.Feed, diags []graph.Diagnostic, candidates []graph.Candidate) ([]byte, error) {
 	if g == nil {
 		g = &graph.Graph{Nodes: []graph.Node{}, Edges: []graph.Edge{}}

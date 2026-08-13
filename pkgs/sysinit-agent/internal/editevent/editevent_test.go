@@ -353,10 +353,8 @@ func captureStdout(t *testing.T, run func()) string {
 	return captured
 }
 
-// A declared workspace keys one log for every repository under it, which is what
-// makes a session of several checkouts reviewable as one thing. The declaration is
-// the mechanism: this used to be inferred from seshy's state directory, and is now
-// stated by whoever put the shell there.
+// A declared workspace keys one log for every repository under it, which is what makes
+// a session of several checkouts reviewable as one thing.
 func TestDeclaredWorkspaceKeysOneLogForSeveralRepositories(t *testing.T) {
 	root := t.TempDir()
 	manifest := filepath.Join(root, "paths.json")

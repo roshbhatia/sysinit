@@ -380,10 +380,8 @@ func runCheck(cmd *cobra.Command, args []string) error {
 	return nil
 }
 
-// changeDirTarget maps a path like <repo>/openspec/changes/<name> to its
-// repository root and change name. It reports false for anything that is not a
-// change directory in that layout, so the argument falls through to being
-// treated as a change name.
+// changeDirTarget maps a path like <repo>/openspec/changes/<name> to its repository
+// root and change name.
 func changeDirTarget(arg string) (repo, name string, ok bool) {
 	info, err := os.Stat(arg)
 	if err != nil || !info.IsDir() {
@@ -539,10 +537,7 @@ func runWeb(cmd *cobra.Command, args []string) error {
 	return nil
 }
 
-// openInBrowser launches the platform's default handler for path. This shells out
-// to a local opener; it performs no network I/O itself (the browser it spawns is
-// what later fetches the page's pinned CDN assets), so it stays within the
-// binary's determinism boundary.
+// openInBrowser launches the platform's default handler for path.
 func openInBrowser(path string) error {
 	var bin string
 	var args []string

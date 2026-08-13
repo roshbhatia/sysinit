@@ -5,10 +5,7 @@ import (
 	"strings"
 )
 
-// Markdown renders a status as the brief an agent acts on. It leads with the
-// verdict, then the work the verdict implies, in the order the author should
-// deal with it: removals first (a task the reviewer wants gone should not be
-// started), then comments, then what moved after the review.
+// Markdown renders a status as the brief an agent acts on.
 func Markdown(st *Status) string {
 	var b strings.Builder
 	fmt.Fprintf(&b, "# Review: %s\n\n", st.Change)

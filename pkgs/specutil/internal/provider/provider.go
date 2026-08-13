@@ -1,7 +1,5 @@
-// Package provider defines the inbound port: a source of spec changes that the
-// rest of specutil consumes as normalized IR. OpenSpec is the only adapter. The
-// port survives its siblings because registry decorates the provider with the
-// extraction pass, and a decorator needs an interface to sit behind.
+// Package provider defines the inbound port: a source of spec changes that the rest of
+// specutil consumes as normalized IR. OpenSpec is the only adapter.
 package provider
 
 import "github.com/roshbhatia/specutil/internal/ir"

@@ -1,9 +1,5 @@
 // Package detail projects the loaded IR into detail.json: a per-change feed of
-// lifecycle, progress, and task content that powers the visualizers' ticket
-// drill-down. It is a renderer-independent projection alongside graph.json,
-// which stays the pure dependency feed — dependsOn/blocks are derived by
-// consumers from graph edges, not duplicated here. Everything is pure and
-// deterministic: identical inputs yield byte-identical output.
+// lifecycle, progress, and task content that powers the visualizers' ticket drill-down.
 package detail
 
 import (
@@ -80,13 +76,7 @@ type Phase struct {
 	Markers map[string]string `json:"markers,omitempty"`
 }
 
-// Item is one checkbox task. Level is the 0-based dependency rank: the length of
-// the longest chain of work that must finish before this task can start. Every
-// item sharing a level can be worked in parallel. When a change declares no
-// task dependencies the rank falls back to the phase ordinal, since phases run
-// in sequence. Key disambiguates siblings within a level with a letter (0a, 0b,
-// 1a, …), giving each task a short stable handle that reads as "what blocks
-// what".
+// Item is one checkbox task.
 type Item struct {
 	// ID is the source task identifier (e.g. "1.2"). It is the join key for
 	// DependsOn and is internal to these tools; it never reaches a tracker.
@@ -159,17 +149,8 @@ func levelKey(level, idx int) string {
 // depending on the source ID being present or unique.
 func taskKey(phaseIndex, itemIndex int) [2]int { return [2]int{phaseIndex, itemIndex} }
 
-// taskLevels computes each task's 0-based dependency rank: the length of the
-// longest chain that must finish before it can start.
-//
-// Two edge sources combine. Phases are sequential, so every task in a phase
-// waits on every task in the phase before it. On top of that, a task may name
-// sibling tasks explicitly, which is what lets a phase express real parallelism
-// instead of a flat list. Without any explicit dependency the result is exactly
-// the phase ordinal, so a change that declares none is unaffected.
-//
-// A dependency cycle cannot lengthen a path here: the walk marks nodes in
-// progress and stops descending when it meets one, so the rank stays finite.
+// taskLevels computes each task's 0-based dependency rank: the length of the longest
+// chain that must finish before it can start.
 func taskLevels(phases []ir.Phase) map[[2]int]int {
 	type node struct{ pi, ii int }
 	byID := map[string]node{}

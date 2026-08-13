@@ -7,10 +7,7 @@ import (
 	"strings"
 )
 
-// Node is one ATX-heading section and everything nested beneath it. Raw retains
-// the verbatim source (heading line included) so renderers can pass prose
-// through untouched; Body is just the text owned directly by this heading,
-// before its first child heading.
+// Node is one ATX-heading section and everything nested beneath it.
 type Node struct {
 	Level     int
 	Title     string

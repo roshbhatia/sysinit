@@ -74,11 +74,8 @@ func TestPhasesOrderNumericallyNotLexically(t *testing.T) {
 	}
 }
 
-// A loop re-runs the same tasks, so its next iteration reads what this one wrote
-// and the ready set must not be split across workers.
-// A graph phase may legally declare no edges, but then nothing states the order.
-// Claiming concurrency there would send a verify task out alongside the tasks it
-// verifies, which is how every seshy session's changes are written today.
+// A loop re-runs the same tasks, so its next iteration reads what this one wrote and
+// the ready set must not be split across workers.
 func TestGraphWithNoDeclaredEdgesIsNotConcurrent(t *testing.T) {
 	n := ComputeNext(change(phase("1", "Toolchain", "graph",
 		item("1.1", false), item("1.2", false), item("1.3", false))))

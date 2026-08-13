@@ -157,11 +157,8 @@ func TestTaskLevelsFollowDeclaredDependencies(t *testing.T) {
 }
 
 func TestTaskLevelsCombineSequentialPhasesAndDeclaredDeps(t *testing.T) {
-	// Phase 1 has an internal chain (1.2 waits on 1.1), so phase 1's deepest
-	// task sits at level 1. Phase 2's task declares a dependency only on the
-	// shallow 1.1, but the phase-sequential edge still makes it wait on all of
-	// phase 1 — its level must reflect the deeper requirement, not the looser
-	// declared one.
+	// Phase 1 has an internal chain (1.2 waits on 1.1), so phase 1's deepest task sits at
+	// level 1.
 	c := &ir.Change{
 		Name: "demo",
 		Tasks: &ir.Tasks{Phases: []ir.Phase{

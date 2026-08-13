@@ -8,10 +8,7 @@
 let
   skills = import ./skills/render.nix { inherit pkgs; };
 
-  # specutil's agent skills, from the vendored source tree rather than a flake
-  # input. The directory is read instead of the names being listed, so adding a
-  # skill under pkgs/specutil/skills is one edit rather than two, and a skill
-  # directory without a SKILL.md cannot render a broken home.file entry.
+  # specutil's agent skills, from the vendored source tree rather than a flake input.
   specutilSkillRoot = ../../../../pkgs/specutil/skills;
   specutilSkills = lib.mapAttrs (name: _: specutilSkillRoot + "/${name}/SKILL.md") (
     lib.filterAttrs (
@@ -62,11 +59,7 @@ let
         cp -r .claude/commands/opsx $out/commands
       '';
 
-  # Linked as directories rather than enumerated. Reading the directory at
-  # evaluation time would force `openspecSkills` to build, and a linux home
-  # configuration then cannot evaluate on a darwin machine. home-manager links a
-  # recursive entry with `lndir` at build time, so the other `.claude/skills`
-  # entries still land beside these.
+  # Linked as directories rather than enumerated.
   openspecSkillFiles = {
     ".claude/skills" = {
       source = "${openspecSkills}/skills";

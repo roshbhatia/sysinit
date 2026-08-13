@@ -44,10 +44,6 @@
   };
 
   # `mkDefault` so a host can hand the machine name back to whatever manages it.
-  # nix-darwin turns this one option into both `scutil --set HostName` and
-  # `scutil --set LocalHostName`, and its own default is null, which emits
-  # neither. A managed work Mac whose name comes from MDM sets this to null; see
-  # `networking.hostName` in sysinit.laurel.
   networking.hostName = lib.mkDefault hostname;
 
   users.users.${config.sysinit.user.username}.home = "/Users/${config.sysinit.user.username}";

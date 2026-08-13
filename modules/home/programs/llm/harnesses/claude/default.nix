@@ -228,10 +228,8 @@ in
             ];
           }
         ];
-        # The same matcher the pre-edit guard uses, because the two hooks are
-        # interested in exactly the same tool calls. Claude passes
-        # `tool_input.file_path` on stdin, which is where the command reads it
-        # from; `async` because nothing in the turn waits on the result.
+        # The same matcher the pre-edit guard uses, because the two hooks are interested
+        # in exactly the same tool calls.
         PostToolUse = [
           {
             matcher = "Edit|Write|NotebookEdit";
@@ -241,14 +239,8 @@ in
                 command = "${profileBin}/agent-edit-event claude";
                 async = true;
               }
-              # Files a review note from the words the model already wrote about
-              # the edit, so the notes exist whether or not it was asked for one.
-              # Nothing is added to the prompt: an instruction to run `note add`
-              # competes with the task, and the notes then appear for the edits
-              # the model happened to narrate rather than for the change.
-              #
-              # It reads the transcript this hook's own payload names, prints
-              # nothing, and always exits 0.
+              # Files a review note from the words the model already wrote about the
+              # edit, so the notes exist whether or not it was asked for one.
               {
                 type = "command";
                 command = "${profileBin}/agent-note-auto claude";

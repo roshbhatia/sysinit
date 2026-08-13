@@ -1,11 +1,4 @@
 -- The two markdown previews, as a module rather than as a lazy plugin spec.
---
--- This was `lua/plugins/markdown-preview.lua`, which declared no plugin: it returned
--- an empty spec and did its work as a load side effect, so lazy.nvim carried it for
--- nothing and the keymap existed in every filetype. The keymaps now live in
--- `after/ftplugin/markdown.lua`, where they apply to the buffers they mean something
--- in, and the state lives here, where `require` caches it once instead of rebuilding
--- it per markdown buffer.
 local M = {}
 
 local state = { job = nil, path = nil }
@@ -22,9 +15,6 @@ function M.stop()
 end
 
 --- Toggle the go-grip browser preview of the current buffer.
----
---- go-grip renders through a local server, so it needs a file on disk rather than the
---- buffer's lines.
 function M.toggle_browser()
   if vim.fn.executable("go-grip") == 0 then
     vim.notify("go-grip is not on PATH", vim.log.levels.ERROR)
@@ -53,10 +43,6 @@ function M.toggle_browser()
 end
 
 --- Toggle the glow terminal preview of the current buffer.
----
---- `harness.preview` rather than a bare `Snacks.terminal.toggle`, because it renders
---- into a wezterm split when nvim runs in one and falls back to snacks otherwise. It
---- was reachable only as `<leader>jp`, a global key for a markdown-only action.
 function M.toggle_glow()
   local path = vim.api.nvim_buf_get_name(0)
   if path == "" then

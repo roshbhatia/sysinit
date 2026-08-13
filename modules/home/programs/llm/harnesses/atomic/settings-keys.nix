@@ -21,10 +21,7 @@
     "lastChangelogVersion"
 
     # atomic's onboarding marker, the counterpart of prime-agent's
-    # `onboardingCompleted`. Found in the live settings.json while auditing which
-    # keys neither list accounted for, which is the only thing that catches one:
-    # the assertions below check `declared` against what gets rendered, so a key
-    # only the harness writes is invisible to them.
+    # `onboardingCompleted`.
     "onboardedVersion"
   ];
 

@@ -55,9 +55,8 @@ let
   extensions = import ./vendored-extensions.nix;
 
   # A build rather than `builtins.pathExists`, because probing a store path at
-  # evaluation time forces `pi-coding-agent` to build, and a linux home config
-  # then cannot evaluate on a darwin machine. Every extension file is copied
-  # here, so the check cannot be skipped while the files are still installed.
+  # evaluation time forces `pi-coding-agent` to build, and a linux home config then
+  # cannot evaluate on a darwin machine.
   vendoredExtensions = pkgs.runCommand "pi-vendored-extensions" { } ''
     mkdir -p "$out"
     missing=""
@@ -478,13 +477,7 @@ in
       };
 
     sessionVariables = {
-      # A flag, not a path. Pi reads it as `if (getEnvValue(...)) return`, so the
-      # old `$HOME/.pi` value skipped the check too, by being non-empty rather
-      # than by meaning anything. `1` is what pi itself writes when `--offline`
-      # sets the same flag.
-      #
-      # The value mattered beyond pi: atomic reads the `PI_` spelling of each of
-      # its own variables as a fallback, so this name reaches both harnesses.
+      # A flag, not a path.
       PI_SKIP_VERSION_CHECK = "1";
     };
   };

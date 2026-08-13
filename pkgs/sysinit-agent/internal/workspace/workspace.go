@@ -1,14 +1,5 @@
-// Package workspace implements `workspace`: which repositories a workspace holds
-// and which paths inside them have changed.
-//
-// It answers on stdout as one absolute path per line, so a shell, an editor, or a
-// harness hook can consume it without a parser:
-//
-//	sysinit-agent workspace changes | fzf --multi | xargs -o nvim
-//
-// Nothing here knows an editor exists, and nothing needs any state this repository
-// writes. It needs `git` and a directory. That is what makes it usable on a box
-// where the editor integration is not working: the question survives its consumer.
+// Package workspace implements `workspace`: which repositories a workspace holds and
+// which paths inside them have changed.
 package workspace
 
 import (
@@ -28,11 +19,6 @@ import (
 const Summary = "list the repositories under a workspace, and the changes in them"
 
 // scanDepth bounds the walk, in path segments below the workspace root.
-//
-// Five matches the editor-side scan this replaces
-// (`utils/gitrepo.lua`, `fd --max-depth 5`), so the two sources cannot disagree
-// about which repositories exist. A repository nested deeper is invisible to both,
-// which is why the count is reported rather than assumed complete.
 const scanDepth = 5
 
 // Run dispatches the subcommands. It returns 2 for a usage error and 0 otherwise,
@@ -88,12 +74,8 @@ func Run(args []string) int {
 	return 0
 }
 
-// writeHealth reports what this layer can see, as `key=value` lines so a shell can
-// read one field with `grep` and an editor can read them all without a parser.
-//
-// It reports rather than judges. A count of zero is not an error here: whether it
-// means the workspace is clean or that the wrong directory was asked is something
-// only the caller knows.
+// writeHealth reports what this layer can see, as `key=value` lines so a shell can read
+// one field with `grep` and an editor can read them all without a parser.
 func writeHealth(w io.Writer, dir string, roots []string, groups []Group) {
 	changed := 0
 	for _, group := range groups {
@@ -167,11 +149,8 @@ func resolveDir(args []string) (string, int) {
 	return abs, 0
 }
 
-// Roots returns every repository root at or under the workspace holding dir,
-// sorted, so a parent always precedes the repositories nested inside it.
-//
-// A directory holding a `.git` entry is a root whether that entry is a directory
-// or a file, because a worktree and a submodule both carry a `.git` file.
+// Roots returns every repository root at or under the workspace holding dir, sorted, so
+// a parent always precedes the repositories nested inside it.
 func Roots(dir string) ([]string, error) {
 	root := repo.Workspace(dir)
 	base := strings.Count(filepath.Clean(root), string(os.PathSeparator))
@@ -216,15 +195,6 @@ type Group struct {
 }
 
 // Changes returns the changed paths per root, in the order the roots were given.
-//
-// Each root is asked concurrently, because a wide workspace is the case that
-// matters and a serial scan over twenty repositories is what makes a caller give
-// up and assume one repository.
-//
-// A path belonging to a nested root is excluded from its parent's answer. Without
-// that, a workspace holding two repositories reports each of them as one untracked
-// directory in the parent, and the same change is then counted twice under two
-// different names.
 func Changes(roots []string) []Group {
 	groups := make([]Group, len(roots))
 	var wg sync.WaitGroup
@@ -263,11 +233,6 @@ func nested(root string, roots []string) []string {
 }
 
 // changedIn lists the changed paths in root as absolute paths.
-//
-// `--untracked-files=all` names real files rather than the collapsed directory
-// `-unormal` reports, because a caller opening a diff needs a path it can open.
-// The nested roots are excluded by pathspec rather than filtered afterwards, so
-// git never walks a repository that answers for itself.
 func changedIn(root string, exclude []string) []string {
 	args := []string{"-C", root, "status", "--porcelain", "--untracked-files=all", "-z", "--"}
 	args = append(args, ".")
@@ -282,11 +247,7 @@ func changedIn(root string, exclude []string) []string {
 		return nil
 	}
 
-	// A record is two status characters, a space, then the path. A rename or a copy
-	// is `R  new\0old\0`: the new path first, then the original in a field of its
-	// own carrying no status. Measured, because the order is the opposite of what
-	// the human-readable `R  old -> new` suggests, and a parser that assumes the
-	// prefix is always present takes `old` and returns it with three bytes cut off.
+	// A record is two status characters, a space, then the path.
 	var files []string
 	records := strings.Split(string(out), "\x00")
 	for i := 0; i < len(records); i++ {

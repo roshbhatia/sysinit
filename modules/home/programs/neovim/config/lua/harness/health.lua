@@ -1,25 +1,13 @@
 -- One report of what the diff review surface can see: which layer answered the
 -- repository query, which repositories it found, whether the edit-event watcher is
--- running, the log it resolved, how many events it read, and whether each plugin
--- the review needs is loaded.
---
--- Reachable as `:checkhealth harness` and as `require("harness.health").show()`.
--- Both read the same findings, so the terminal answer and the buffer answer cannot
--- drift apart.
---
--- Every input here is optional at runtime, and a missing one narrows the review
--- rather than breaking it. So this reports what each one degraded to and names the
--- consequence, which is the difference between "the scope looks wrong" and "the
--- watcher is not running, so the scope is the full diff".
+-- running, the log it resolved, how many events it read, and whether each plugin the
+-- review needs is loaded.
 local M = {}
 
 --- One finding: `level` is a `vim.health` function name, `text` is the whole line.
 ---@alias HarnessFinding { level: "ok"|"warn"|"error", text: string }
 
 --- Whether a plugin is loaded, installed but not yet loaded, or absent.
----
---- "Not yet loaded" is not a fault: these plugins load on their command or their
---- keymap, so before the first review they are all in that state.
 ---@return string
 local function plugin_state(module, lazy_name)
   if package.loaded[module] then

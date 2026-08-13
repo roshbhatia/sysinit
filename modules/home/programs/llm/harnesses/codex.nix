@@ -159,14 +159,7 @@ in
             ];
           }
         ];
-        # Codex names no file in a structured field. It edits through `apply_patch`
-        # and passes the envelope as `tool_input.command`, so the path is only
-        # inside the patch text, which `--apply-patch` parses. An edit codex makes
-        # through a shell redirect names no file anywhere and records nothing.
-        #
-        # Codex will not run a hook until its command is trusted, and trust is keyed
-        # on the hook's position as well as its text, so this entry needs accepting
-        # once in an interactive session before it fires.
+        # Codex names no file in a structured field.
         PostToolUse = [
           {
             hooks = [

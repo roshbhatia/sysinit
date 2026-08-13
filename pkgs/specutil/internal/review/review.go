@@ -1,16 +1,4 @@
-// Package review carries a human verdict on a change back to the agent that
-// wrote it.
-//
-// The browser page emits Feedback: a decision, a note, and per-task comments.
-// `specutil review ingest` folds that into a Record stored next to the change,
-// which fingerprints what was reviewed. Comparing the record's fingerprints to
-// the current artifacts answers the two questions a reviewer always asks next:
-// is this verdict still about the text I read, and which tasks did the agent
-// touch since?
-//
-// Nothing here is time-based. Staleness is decided by content hash, so a repeat
-// run over unchanged inputs produces byte-identical output, and a record stays
-// meaningful after a checkout, a rebase, or a clone.
+// Package review carries a human verdict on a change back to the agent that wrote it.
 package review
 
 import (
@@ -29,21 +17,11 @@ import (
 // field. Ingest rejects anything else rather than guessing at an unknown shape.
 const Schema = "specutil.review/v1"
 
-// RecordVersion is the on-disk schema version of the review record. Bump it
-// whenever ChangeHash changes what it covers, because a stored hash is only
-// meaningful to the algorithm that produced it.
-//
-// 1: ChangeHash folded in the raw bytes of tasks.md.
-// 2: ChangeHash covers the phase structure and task identities instead, so
-// progress and evidence no longer restale a decision.
+// RecordVersion is the on-disk schema version of the review record.
 const RecordVersion = 2
 
-// hashComparableFrom is the lowest record version whose stored ChangeHash this
-// build can compare against a freshly computed one. A record below it is
-// grandfathered rather than reported stale: its hash was produced by a retired
-// algorithm, so a mismatch says nothing about whether the artifacts moved.
-// Reporting one anyway would demand a re-stamp that carries no judgement, which
-// is the exact treadmill version 2 exists to end.
+// hashComparableFrom is the lowest record version whose stored ChangeHash this build
+// can compare against a freshly computed one.
 const hashComparableFrom = 2
 
 // RecordFile is the review record's filename inside a change directory.
@@ -243,19 +221,8 @@ func ChangeHash(c *ir.Change) string {
 	return ident.Hash(b.String())
 }
 
-// tasksScope projects tasks.md down to the part a verdict is about: the phase
-// structure and the identity of each task. It drops the raw bytes, the checkbox
-// state, and every line indented under a task.
-//
-// Those are the record of the work rather than its scope, and they change on
-// every step of it. Folding in the raw bytes made a verdict go stale for ticking
-// a box or appending a finding, so the author had to re-stamp the decision to
-// record progress. That re-stamp carries no judgement, and a gate that fires
-// where no judgement is needed teaches people to clear it without reading.
-//
-// What still goes stale is what a reviewer would want to see again: adding a
-// task, dropping one, resequencing phases, or rewording a task past what
-// ident.Normalize absorbs.
+// tasksScope projects tasks.md down to the part a verdict is about: the phase structure
+// and the identity of each task.
 func tasksScope(t *ir.Tasks) string {
 	if t == nil {
 		return ""
@@ -311,16 +278,6 @@ type Match struct {
 }
 
 // MatchTasks aligns every current task against rec.
-//
-// An exact identity hit is the common case. When it misses, the task was either
-// added or reworded past what the identity normalization absorbs, and those two
-// are not the same event to a reviewer: a reworded task still carries the
-// comment that was written about it. So an unmatched task is re-matched against
-// the unclaimed baseline entries by token similarity, the same way the sync
-// diff re-matches an edited item against an orphaned lock entry.
-//
-// A nil record yields an empty map. With no baseline, every task would classify
-// as new, which says nothing.
 func MatchTasks(c *ir.Change, rec *Record) map[string]Match {
 	out := map[string]Match{}
 	if rec == nil {
@@ -404,10 +361,9 @@ type Status struct {
 	Decision Decision `json:"decision,omitempty"`
 	Note     string   `json:"note,omitempty"`
 	Stale    bool     `json:"stale"`
-	// HashRetired means the record was written by an older build whose ChangeHash
-	// covered different ground, so Stale is reported false because it cannot be
-	// computed rather than because the artifacts held still. The next real
-	// decision rewrites the record at the current version and clears this.
+	// HashRetired means the record was written by an older build whose ChangeHash covered
+	// different ground, so Stale is reported false because it cannot be computed rather
+	// than because the artifacts held still.
 	HashRetired bool         `json:"hashRetired,omitempty"`
 	ChangeHash  string       `json:"changeHash"`
 	ReviewHash  string       `json:"reviewHash,omitempty"`
@@ -495,10 +451,6 @@ func Build(c *ir.Change, rec *Record) *Status {
 }
 
 // Apply folds feedback into a record describing the change as it reads now.
-// The fingerprints come from the current artifacts, not from the feedback, so
-// an author who edits between exporting and ingesting gets a record that is
-// immediately reported as stale rather than one that silently blesses text
-// nobody read. baseCommit may be empty outside a git working tree.
 func ApplyAt(c *ir.Change, fb *Feedback, baseCommit string) *Record {
 	rec := Apply(c, fb)
 	rec.BaseCommit = baseCommit
@@ -506,10 +458,6 @@ func ApplyAt(c *ir.Change, fb *Feedback, baseCommit string) *Record {
 }
 
 // Apply folds feedback into a record describing the change as it reads now.
-// The fingerprints come from the current artifacts, not from the feedback, so
-// an author who edits between exporting and ingesting gets a record that is
-// immediately reported as stale rather than one that silently blesses text
-// nobody read.
 func Apply(c *ir.Change, fb *Feedback) *Record {
 	anns := make([]Annotation, 0, len(fb.Annotations))
 	for _, a := range fb.Annotations {

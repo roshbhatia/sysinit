@@ -10,20 +10,6 @@ local ui_sessions = require("sysinit.pkg.ui.sessions")
 local M = {}
 
 --- What `^x` does to a row, decided from the pane list alone.
----
---- Separated from the killing because this is the part with the edge cases and the part
---- worth testing: which panes go, whether the window has to move first, whether one pane
---- has to stay, and whether the selector may reopen afterwards. It runs no process and
---- touches no window, so a test can hand it a pane list and read the plan.
----
---- `opts` is `{ panes, match, label, here, self_pane_id, fallback, target_workspace }`.
---- `panes` is the shape `wezterm cli list --format=json` returns, `match` says which of
---- them the row names, `here` is the workspace the selector was opened from, `fallback` is
---- the session to move to when the close would empty the current one, and
---- `target_workspace` is set only when the row names a whole session.
----
---- Returns `{ targets, label, verb, switch_to, reopen, refusal }`. A plan with a `refusal`
---- has no targets and is reported to the owner as it stands.
 ---@param opts table
 ---@return table
 function M.close_plan(opts)
@@ -47,15 +33,8 @@ function M.close_plan(opts)
     return { targets = {}, label = opts.label, refusal = "nothing open in " .. opts.label }
   end
 
-  -- Emptying the workspace the owner is in leaves the window with nothing to show, so the
-  -- window moves to the fallback session first.
-  --
-  -- The fallback session is never closed, only reset: one pane stays. It is where every
-  -- other close falls back to, so closing it outright is the one close that can leave a
-  -- window with nowhere to go. The pane kept is the selector's own when the selector is
-  -- running in it, and the first one otherwise. This is keyed on the row rather than on
-  -- where the owner is sitting, because `^x` on the fallback row means the same thing from
-  -- anywhere.
+  -- Emptying the workspace the owner is in leaves the window with nothing to show, so
+  -- the window moves to the fallback session first.
   local empties_here = opts.here ~= nil and here_targets > 0 and here_targets == here_panes
   local resetting = opts.target_workspace ~= nil and opts.target_workspace == opts.fallback
   if resetting then
@@ -468,22 +447,6 @@ function M.setup(config, wm, ctx)
   }
 
   -- `^x` closes the row under the cursor, at the level that row is on.
-  --
-  -- Every row carries a workspace field, so keying the close on that field alone made one
-  -- key mean three things: `^x` on a pane row killed the whole session the pane belonged
-  -- to, and `^x` on any row of the session you were sitting in refused outright. The kind
-  -- prefix in the row id is what says which level the cursor is on, so read it the way
-  -- session_tree_dispatch does and close exactly that.
-  --
-  -- Nothing refuses now, including the pane the selector runs in. Refusing was the wrong
-  -- answer to a real problem: closing every pane of the current workspace leaves the
-  -- window with nothing to show, and killing the selector's own pane leaves the reopen
-  -- below running against a dead pane. So the close answers both first. It moves the
-  -- window to `default` when the close would empty the current workspace, it keeps one
-  -- pane when the workspace being emptied is `default` itself, since that is the session
-  -- there is nowhere to fall back from, and it reports whether the selector may reopen.
-  --
-  -- Returns `notice, reopen`.
   local function close_session_target(win, pane, id, by_id)
     local rec = by_id[id]
     if type(rec) ~= "table" then
@@ -672,9 +635,7 @@ function M.setup(config, wm, ctx)
 
   -- `^[` and `^]` step back and forward through the sessions, in the plugin's own cycle
   -- order, which is the same order the switcher lists and which saves the workspace it
-  -- leaves. Both were stripped for a real cost: `^[` is how a terminal sends ESC, so a
-  -- pane never sees that keypress again. Locked mode is the way back to it, and is why
-  -- these are callbacks rather than the plugin's actions bound directly.
+  -- leaves.
   for _, cycle in ipairs({
     { key = "]", step = wm.next_workspace },
     { key = "[", step = wm.previous_workspace },

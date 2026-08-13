@@ -36,10 +36,8 @@ type state struct {
 	Branch   string `json:"branch"`
 	Dirty    bool   `json:"dirty"`
 	Worktree string `json:"worktree"`
-	// Repos is the repositories a multi-repo session root holds, and is empty for a
-	// pane sitting inside one repository, where Repo says it. Names only: the
-	// per-repository branch and dirty flag cost a subprocess each and this record is
-	// written on every tool call.
+	// Repos is the repositories a multi-repo session root holds, and is empty for a pane
+	// sitting inside one repository, where Repo says it.
 	Repos  []string `json:"repos,omitempty"`
 	Agent  string   `json:"agent"`
 	Status string   `json:"status"`
@@ -107,23 +105,15 @@ func Run(args []string) int {
 	return 0
 }
 
-// PaneRecord returns the two files the bus keeps for a pane: the record itself
-// and the submit-time sidecar. Exported because `worker --close` disposes of a
-// pane and has to dispose of its state with it, and a second spelling of these
-// paths would leave a killed pane listed on five surfaces.
+// PaneRecord returns the two files the bus keeps for a pane: the record itself and the
+// submit-time sidecar.
 func PaneRecord(pane string) (record, start string) {
 	dir := paths.AgentPanes()
 	return filepath.Join(dir, pane+".json"), filepath.Join(dir, pane+".start")
 }
 
-// PaneStatus returns the ranked status and reason recorded for a pane, or two
-// empty strings when there is nothing this generation can vouch for.
-//
-// A record whose mux is a DIFFERENT live generation is read as absent. Pane ids
-// restart at 0 when the mux restarts, so an old record's id can name a pane this
-// generation allocated for something else, and reporting its word would attribute
-// one pane's state to another. A recorded 0 is not a mismatch but an unclassified
-// writer, which `reapDeadMuxes` also declines to judge, so it is read as written.
+// PaneStatus returns the ranked status and reason recorded for a pane, or two empty
+// strings when there is nothing this generation can vouch for.
 func PaneStatus(pane string) (status, reason string) {
 	if pane == "" {
 		return "", ""
@@ -274,10 +264,8 @@ func writeUserVar(encoded string) {
 	fmt.Fprintf(tty, "\033]1337;SetUserVar=agent_state=%s\007", encoded)
 }
 
-// MuxID is the pane record's generation marker: the pid of the wezterm mux the
-// pane belongs to. Exported because `worker` records it too, and a second
-// definition of what a generation is would let the two disagree about whether a
-// recorded pane id is stale.
+// MuxID is the pane record's generation marker: the pid of the wezterm mux the pane
+// belongs to.
 func MuxID() int {
 	socket := os.Getenv("WEZTERM_UNIX_SOCKET")
 	if socket == "" {
@@ -396,14 +384,8 @@ func identify(dir string) identity {
 
 	toplevel := gitOut(dir, "rev-parse", "--show-toplevel")
 	if toplevel == "" {
-		// A multi-repo session root is not itself a repository, so git answers
-		// nothing and every surface showed the session name with no repository at
-		// all. That is the case the whole feature exists for: measured on
-		// `fra-region-spin-up`, 20 repositories reported as none.
-		//
-		// The children are read with one directory listing and one stat each, not
-		// with git, because this runs on every PreToolUse. Branch and dirty stay out
-		// for the same reason: they cost a subprocess per repository.
+		// A multi-repo session root is not itself a repository, so git answers nothing and
+		// every surface showed the session name with no repository at all.
 		id.repos = childRepos(dir)
 		return id
 	}
@@ -417,9 +399,6 @@ func identify(dir string) identity {
 }
 
 // childRepos returns the names of the git repositories directly under dir.
-//
-// Sorted, so two calls over an unchanged directory produce the same record and the
-// surfaces do not redraw on a reordering that means nothing.
 func childRepos(dir string) []string {
 	entries, err := os.ReadDir(dir)
 	if err != nil {

@@ -1,10 +1,5 @@
--- Reads the edit-event log a harness hook writes, so a buffer reloads when an
--- agent writes the file instead of on the next `file_refresh` tick.
---
--- Nothing here names a harness. The log carries a label, and this module does no
--- more with it than show it. That is what lets the writing end stay ignorant of
--- the editor: a harness with no hook surface produces no events and this module
--- simply never fires, which is the behaviour that existed before it.
+-- Reads the edit-event log a harness hook writes, so a buffer reloads when an agent
+-- writes the file instead of on the next `file_refresh` tick.
 local M = {}
 
 ---@type userdata|nil
@@ -25,10 +20,7 @@ local touched = {}
 ---@type table<string, boolean>
 local touched_seen = {}
 
---- Resolve the log by asking the writer for it. Deriving the path here would mean
---- a second implementation of the workspace and digest rule, and the two would
---- agree until they did not: the symptom would be a watcher tailing a file
---- nothing writes, which looks exactly like an idle agent.
+--- Resolve the log by asking the writer for it.
 ---@return string|nil
 local function resolve_log()
   if vim.fn.executable("agent-edit-event") ~= 1 then
@@ -72,9 +64,7 @@ local function remember(path)
   table.insert(touched, path)
 end
 
---- React to one event. A modified buffer is never reloaded: the owner's unsaved
---- work is the one thing in this flow that cannot be reconstructed, so the
---- conflict is surfaced and the decision left to them.
+--- React to one event.
 ---@param entry table
 local function apply(entry)
   local path = entry.file
@@ -106,11 +96,6 @@ local function apply(entry)
 end
 
 --- Read whatever arrived since the last read.
----
---- A file shorter than the offset means the writer truncated it past its size
---- bound, which replaces the file wholesale. Resetting to 0 re-reads what
---- survived; a handful of repeated reloads costs nothing, where holding a stale
---- offset would silently consume nothing ever again.
 local function drain()
   if not log_path then
     return
@@ -207,10 +192,6 @@ function M.is_active()
 end
 
 --- The files an agent has written since this Neovim started, oldest first.
----
---- Incomplete rather than wrong: an event evicted by the writer's size bound, or
---- written before this Neovim started, is absent. Those files are still in the
---- working diff, which is why a caller must keep the full diff reachable.
 ---@return string[]
 function M.touched_files()
   local present = {}

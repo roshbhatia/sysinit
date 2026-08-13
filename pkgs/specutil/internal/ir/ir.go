@@ -1,7 +1,5 @@
-// Package ir defines the normalized, framework-agnostic intermediate
-// representation that every specutil projection (render, plan, graph, web)
-// consumes. The model is hybrid: each section carries both structured fields
-// and its retained raw markdown block for lossless round-trip.
+// Package ir defines the normalized, framework-agnostic intermediate representation
+// that every specutil projection (render, plan, graph, web) consumes.
 package ir
 
 // Section is the common base for any parsed artifact section. Raw holds the

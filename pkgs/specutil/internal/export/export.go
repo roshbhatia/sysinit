@@ -1,10 +1,4 @@
-// Package export projects a change into the vocabulary an external tracker
-// uses. It is the boundary where spec-framework convention stops: phase
-// numbers, task identifiers like "1.2", sibling keys like "1a", and spec delta
-// keywords never cross it. Requirements and scenarios are translated into
-// acceptance criteria that a reader outside the repository can act on.
-//
-// Everything here is pure: identical input yields byte-identical output.
+// Package export projects a change into the vocabulary an external tracker uses.
 package export
 
 import (
@@ -84,11 +78,8 @@ type Criterion struct {
 	// Steps holds any step that carried no Given/When/Then keyword, so nothing
 	// the author wrote is dropped.
 	Steps []string
-	// Negative reports that the criterion describes a rejection or failure path
-	// rather than a success path. It is read from the scenario's declared
-	// polarity marker when the repository extracts one, and inferred from the
-	// scenario name otherwise. Trackers group on it so a reviewer can see at a
-	// glance whether the error cases were specified.
+	// Negative reports that the criterion describes a rejection or failure path rather
+	// than a success path.
 	Negative bool
 }
 

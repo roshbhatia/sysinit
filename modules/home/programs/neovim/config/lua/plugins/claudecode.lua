@@ -39,15 +39,8 @@ return {
           split_width_percentage = 0.4,
         },
         -- `"unified"` selects `lua/claudecode/diff_inline.lua`, which upstream
-        -- describes as a VS Code-style inline diff: one buffer with the deleted
-        -- lines struck through and the added lines interleaved. The default is
-        -- `"vertical"`, a split, and a split is the only reason a tab per edit was
-        -- tolerable. Inline needs no room, so the tab goes too and reviewing several
-        -- edits stops accumulating tabs.
-        --
-        -- The view is read-only either way: accept and reject stay on
-        -- `ClaudeCodeDiffAccept` and `ClaudeCodeDiffDeny`. Editing the proposal
-        -- before accepting it is what the working diff is for.
+        -- describes as a VS Code-style inline diff: one buffer with the deleted lines
+        -- struck through and the added lines interleaved.
         diff_opts = {
           layout = "unified",
           open_in_new_tab = false,

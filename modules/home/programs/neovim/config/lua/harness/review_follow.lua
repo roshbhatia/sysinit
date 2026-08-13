@@ -1,21 +1,9 @@
 -- Make the open review follow the file the owner lands on.
---
--- The review covers a set of repositories and shows one at a time. So when the owner
--- opens a file that belongs to a different reviewed repository, the review moves
--- there. That is what makes the quickfix list a usable index: `]q` walks the whole
--- workspace and the diff underneath it keeps up.
---
--- Written as a buffer event rather than as a quickfix command wrapper, so `]q`, a
--- picker, `:cdo`, and a plain `:edit` all reach it. Nothing here knows about the
--- quickfix list, which is the point: the list is one caller, not the mechanism.
 local M = {}
 
 local group = nil
 
 --- Ask the review to move to `path`, if a review is open and the path is elsewhere.
----
---- The decision of whether the path is in scope belongs to `harness.api`, which holds
---- the review's group list. This only decides that the question is worth asking.
 ---@param path string
 local function follow(path)
   if path == "" then
