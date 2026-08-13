@@ -47,10 +47,20 @@ function M.read_pane_record(pane_id)
   if not ok or type(data) ~= "table" then
     return nil
   end
+  -- A multi-repo session root is not a repository, so `repo` and `branch` are empty
+  -- for exactly the pane that has the most to say. `repos` carries what it holds, and
+  -- `repo_count` is what the surfaces render in place of a branch they cannot have.
+  local repo_count = 0
+  if type(data.repos) == "table" then
+    repo_count = #data.repos
+  end
+
   return {
     session = type(data.session) == "string" and data.session or "",
+    repo = type(data.repo) == "string" and data.repo or "",
     branch = type(data.branch) == "string" and data.branch ~= "" and data.branch or nil,
     dirty = data.dirty == true,
+    repo_count = repo_count,
   }
 end
 

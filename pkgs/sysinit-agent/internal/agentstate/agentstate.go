@@ -9,6 +9,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"sort"
 	"strconv"
 	"strings"
 	"syscall"
@@ -35,10 +36,15 @@ type state struct {
 	Branch   string `json:"branch"`
 	Dirty    bool   `json:"dirty"`
 	Worktree string `json:"worktree"`
-	Agent    string `json:"agent"`
-	Status   string `json:"status"`
-	Reason   string `json:"reason"`
-	Since    int64  `json:"since"`
+	// Repos is the repositories a multi-repo session root holds, and is empty for a
+	// pane sitting inside one repository, where Repo says it. Names only: the
+	// per-repository branch and dirty flag cost a subprocess each and this record is
+	// written on every tool call.
+	Repos  []string `json:"repos,omitempty"`
+	Agent  string   `json:"agent"`
+	Status string   `json:"status"`
+	Reason string   `json:"reason"`
+	Since  int64    `json:"since"`
 }
 
 // Run records the status and always returns 0.
@@ -95,6 +101,7 @@ func Run(args []string) int {
 	record.Branch = id.branch
 	record.Dirty = id.dirty
 	record.Worktree = id.worktree
+	record.Repos = id.repos
 
 	publish(stateFile, record)
 	return 0
@@ -372,6 +379,7 @@ type identity struct {
 	branch   string
 	dirty    bool
 	worktree string
+	repos    []string
 }
 
 func identify(dir string) identity {
@@ -388,6 +396,15 @@ func identify(dir string) identity {
 
 	toplevel := gitOut(dir, "rev-parse", "--show-toplevel")
 	if toplevel == "" {
+		// A multi-repo session root is not itself a repository, so git answers
+		// nothing and every surface showed the session name with no repository at
+		// all. That is the case the whole feature exists for: measured on
+		// `fra-region-spin-up`, 20 repositories reported as none.
+		//
+		// The children are read with one directory listing and one stat each, not
+		// with git, because this runs on every PreToolUse. Branch and dirty stay out
+		// for the same reason: they cost a subprocess per repository.
+		id.repos = childRepos(dir)
 		return id
 	}
 	id.worktree = toplevel
@@ -397,6 +414,30 @@ func identify(dir string) identity {
 	}
 	id.dirty = gitOut(dir, "status", "--porcelain") != ""
 	return id
+}
+
+// childRepos returns the names of the git repositories directly under dir.
+//
+// Sorted, so two calls over an unchanged directory produce the same record and the
+// surfaces do not redraw on a reordering that means nothing.
+func childRepos(dir string) []string {
+	entries, err := os.ReadDir(dir)
+	if err != nil {
+		return nil
+	}
+	var out []string
+	for _, entry := range entries {
+		if !entry.IsDir() || strings.HasPrefix(entry.Name(), ".") {
+			continue
+		}
+		// A worktree checkout carries `.git` as a file, so this tests for presence
+		// rather than for a directory.
+		if _, err := os.Stat(filepath.Join(dir, entry.Name(), ".git")); err == nil {
+			out = append(out, entry.Name())
+		}
+	}
+	sort.Strings(out)
+	return out
 }
 
 // zmxSession reads the current zmx session with the namespace removed.

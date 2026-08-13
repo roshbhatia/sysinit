@@ -198,10 +198,11 @@ function M.setup(config, wm, ctx)
       r:append(nil, colors.age, "at ")
       r:append(nil, colors.name, attn_dp)
     end
-    if rec.branch then
+    local scope = ui_format.scope_label(rec)
+    if scope then
       r:append(nil, colors.chrome, "  ")
       r:append(nil, colors.age, "on ")
-      r:append(nil, colors.age, rec.branch)
+      r:append(nil, colors.age, scope)
       if rec.dirty then
         r:append(nil, colors.working, " *")
       end
@@ -367,10 +368,11 @@ function M.setup(config, wm, ctx)
             pane_r:append(nil, colors.age, "at ")
             pane_r:append(nil, colors.name, pane_dp)
           end
-          if rec.branch then
+          local pane_scope = ui_format.scope_label(rec)
+          if pane_scope then
             pane_r:append(nil, colors.chrome, "  ")
             pane_r:append(nil, colors.age, "on ")
-            pane_r:append(nil, colors.age, rec.branch)
+            pane_r:append(nil, colors.age, pane_scope)
             if rec.dirty then
               pane_r:append(nil, colors.working, " *")
             end

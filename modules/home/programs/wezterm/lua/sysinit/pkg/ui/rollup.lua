@@ -24,11 +24,18 @@ function M.collect(deck_states)
               tab_id = tab_id,
               workspace = workspace,
               session = rec and rec.session or "",
+              -- The record's own repo first, because it comes from `git rev-parse` and
+              -- so names the repository rather than the directory the pane happens to
+              -- sit in. The cwd basename is the fallback for a pane with no record.
               repo = (function()
+                if rec and rec.repo ~= "" then
+                  return rec.repo
+                end
                 local r, _ = panes_mod.pane_repo(p)
                 return r
               end)(),
               branch = rec and rec.branch or "",
+              repo_count = rec and rec.repo_count or 0,
               agent = agent or "",
               status = status,
               reason = reason or "",

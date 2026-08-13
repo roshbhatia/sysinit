@@ -48,6 +48,25 @@ function M.status_label(status, reason)
   return table.concat(parts, " · ")
 end
 
+-- What to render after "on" for a pane: its branch, or the repository count when the
+-- pane sits on a multi-repo session root, which has no single branch to name.
+--
+-- Returns nil when there is nothing to say, so a call site can skip the label
+-- entirely rather than print "on ".
+function M.scope_label(rec)
+  if not rec then
+    return nil
+  end
+  if rec.branch and rec.branch ~= "" then
+    return rec.branch
+  end
+  local count = rec.repo_count or 0
+  if count > 0 then
+    return string.format("%d repo%s", count, count == 1 and "" or "s")
+  end
+  return nil
+end
+
 function M.age(secs)
   if not secs or secs < 0 then
     return ""

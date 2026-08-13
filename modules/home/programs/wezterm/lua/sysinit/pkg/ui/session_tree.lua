@@ -60,6 +60,7 @@ function M.build(deck_states)
             repo = repo,
             cwd = cwd,
             branch = git and git.branch or nil,
+            repo_count = git and git.repo_count or 0,
             dirty = git and git.dirty or false,
             title = ui_format.pane_proc(p, agent),
             agent = agent or "",
