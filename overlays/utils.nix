@@ -13,6 +13,7 @@ final: _prev: {
         "bash-guard"
         "citelock"
         "exit-code-guard"
+        "firefox-tabs"
         "loop-gate"
         "nix-guard"
         "note"

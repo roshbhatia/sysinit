@@ -12,6 +12,7 @@ import (
 	"github.com/roshbhatia/sysinit/pkgs/utils/internal/agentstate"
 	"github.com/roshbhatia/sysinit/pkgs/utils/internal/citelock"
 	"github.com/roshbhatia/sysinit/pkgs/utils/internal/editevent"
+	"github.com/roshbhatia/sysinit/pkgs/utils/internal/fftabs"
 	"github.com/roshbhatia/sysinit/pkgs/utils/internal/guard"
 	"github.com/roshbhatia/sysinit/pkgs/utils/internal/loopgate"
 	"github.com/roshbhatia/sysinit/pkgs/utils/internal/note"
@@ -38,6 +39,7 @@ var commands = map[string]command{
 	"citelock":        {name: "citelock", summary: citelock.Summary, run: citelock.Run},
 	"edit-event":      {name: "edit-event", summary: editevent.Summary, run: editevent.Run},
 	"exit-code-guard": {name: "exit-code-guard", summary: guard.ExitCodeSummary, run: guard.RunExitCode},
+	"firefox-tabs":    {name: "firefox-tabs", summary: fftabs.Summary, run: fftabs.Run},
 	"loop-gate":       {name: "loop-gate", summary: loopgate.Summary, run: loopgate.Run},
 	"nix-guard":       {name: "nix-guard", summary: guard.NixSummary, run: guard.RunNix},
 	"note":            {name: "note", summary: note.Summary, run: note.Run},
@@ -68,6 +70,7 @@ var links = map[string]link{
 	"bash-guard":       {command: "bash-guard"},
 	"citelock":         {command: "citelock"},
 	"exit-code-guard":  {command: "exit-code-guard"},
+	"firefox-tabs":     {command: "firefox-tabs"},
 	"loop-gate":        {command: "loop-gate"},
 	"nix-guard":        {command: "nix-guard"},
 	"note":             {command: "note"},
