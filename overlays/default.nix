@@ -21,6 +21,7 @@
   (import ./meat.nix { inherit inputs; })
   (import ./hermes-agent.nix { inherit inputs; })
   (import ./utils.nix)
+  (import ./ask.nix)
   (import ./specutil.nix)
   (import ./python313.nix)
   (import ./kubernetes-zeitgeist.nix)
