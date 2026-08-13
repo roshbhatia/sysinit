@@ -22,6 +22,7 @@ return {
         { "<leader>c", group = "Code" },
         { "<leader>cf", group = "Find" },
         { "<leader>d", group = "Diff" },
+        { "<leader>dn", group = "Notes" },
         -- No group on `<leader>dd`: a group and a mapping cannot share a sequence, and
         -- declaring one made which-key present the review as a prefix waiting for a key.
         { "<leader>e", group = "Explorer" },

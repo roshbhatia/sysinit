@@ -97,6 +97,8 @@ return {
         end,
         desc = "Review: pick, all, scope, base, refresh",
       })
+
+      require("harness.notes_list").setup()
     end,
     keys = {
       {
@@ -112,7 +114,31 @@ return {
         function()
           require("harness.review").history()
         end,
-        desc = "History of this file, or this repo",
+        desc = "History of this file",
+        mode = "n",
+      },
+      {
+        "<leader>dH",
+        function()
+          require("harness.history").open()
+        end,
+        desc = "History of this repo, or of every repo by time",
+        mode = "n",
+      },
+      {
+        "<leader>dnq",
+        function()
+          require("harness.notes_list").quickfix()
+        end,
+        desc = "Notes in the quickfix, kept current",
+        mode = "n",
+      },
+      {
+        "<leader>dnf",
+        function()
+          require("harness.notes_list").pick()
+        end,
+        desc = "Find a note",
         mode = "n",
       },
       -- `]r`, not `]d`: the LSP attaches `]d` per buffer for diagnostics, and a global

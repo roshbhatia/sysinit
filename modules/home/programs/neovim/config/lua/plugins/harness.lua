@@ -92,7 +92,10 @@ return {
         mode = "v",
       },
       {
-        "<leader>dn",
+        -- `<leader>dna`, not `<leader>dn`: the note list and the note picker sit under
+        -- `dn` too, and a mapping that is also a prefix waits out `timeoutlen` on every
+        -- press before it fires.
+        "<leader>dna",
         function()
           require("harness.notes").add()
         end,
