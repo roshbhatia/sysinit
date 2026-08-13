@@ -307,6 +307,18 @@ function M.add()
   end)
 end
 
+--- Which files under root carry notes, and how many each carries, for a list that shows
+--- a count per row. Keyed the way a note records its file, relative to the root.
+---@param root string
+---@return table<string, integer>
+function M.files_in(root)
+  local counts = {}
+  for relative, notes in pairs(by_root[root] or {}) do
+    counts[relative] = #notes
+  end
+  return counts
+end
+
 --- How many notes are drawn, for the health report.
 ---@return integer
 function M.count()
