@@ -19,7 +19,6 @@ return {
       })
 
       wk.add({
-        { "<leader>b", group = "Buffer" },
         { "<leader>c", group = "Code" },
         { "<leader>cf", group = "Find" },
         { "<leader>d", group = "Diff" },
