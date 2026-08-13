@@ -15,6 +15,41 @@ return {
     config = function()
       local actions = require("diffview.actions")
 
+      -- Everything diffview binds inside a review lives under `<localleader>d`: `d` for
+      -- the diff, and a local leader because `<leader>e`, `<leader>b`, and `<leader>c*`
+      -- are the explorer and the code group everywhere else in this config.
+      local function panel_keys(conflicts)
+        local made = {
+          { "n", "q", actions.close, { desc = "Close the review" } },
+          { "n", "<leader>e", false },
+          { "n", "<leader>b", false },
+          { "n", "<localleader>de", actions.focus_files, { desc = "Focus the file panel" } },
+          { "n", "<localleader>db", actions.toggle_files, { desc = "Toggle the file panel" } },
+        }
+        for _, key in ipairs({ "o", "t", "b", "a" }) do
+          local which = ({ o = "ours", t = "theirs", b = "base", a = "all" })[key]
+          if conflicts == "hunk" or conflicts == "both" then
+            made[#made + 1] = { "n", "<leader>c" .. key, false }
+            made[#made + 1] = {
+              "n",
+              "<localleader>dc" .. key,
+              actions.conflict_choose(which),
+              { desc = "Take " .. which },
+            }
+          end
+          if conflicts == "file" or conflicts == "both" then
+            made[#made + 1] = { "n", "<leader>c" .. key:upper(), false }
+            made[#made + 1] = {
+              "n",
+              "<localleader>dc" .. key:upper(),
+              actions.conflict_choose_all(which),
+              { desc = "Take " .. which .. " for the whole file" },
+            }
+          end
+        end
+        return made
+      end
+
       require("diffview").setup({
         enhanced_diff_hl = true,
         show_help_hints = false,
@@ -50,17 +85,9 @@ return {
           end,
         },
         keymaps = {
-          -- `q` closes the review from anywhere inside it, the way every other panel in
-          -- this config closes.
-          view = {
-            { "n", "q", actions.close, { desc = "Close the review" } },
-          },
-          file_panel = {
-            { "n", "q", actions.close, { desc = "Close the review" } },
-          },
-          file_history_panel = {
-            { "n", "q", actions.close, { desc = "Close the review" } },
-          },
+          view = panel_keys("both"),
+          file_panel = panel_keys("file"),
+          file_history_panel = panel_keys("none"),
         },
       })
 
