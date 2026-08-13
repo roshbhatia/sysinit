@@ -6,7 +6,10 @@
 
     gitCredentialHelper.enable = true;
 
-    extensions = [ pkgs.gh-stack ];
+    extensions = [
+      pkgs.gh-dash
+      pkgs.gh-stack
+    ];
 
     settings = {
       git_protocol = "https";
