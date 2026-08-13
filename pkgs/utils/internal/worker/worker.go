@@ -1027,7 +1027,12 @@ func livePanes() (map[string]bool, error) {
 func muxOutputCmd(args []string) (string, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), muxTimeout)
 	defer cancel()
-	out, err := exec.CommandContext(ctx, "wezterm", args...).Output()
+	cmd := exec.CommandContext(ctx, "wezterm", args...)
+	// The deadline kills wezterm, and this bounds the wait for the output pipes a
+	// grandchild it left behind still holds open. Without it the call outlives its
+	// own deadline by however long that grandchild lives.
+	cmd.WaitDelay = muxTimeout
+	out, err := cmd.Output()
 	if ctx.Err() != nil {
 		return "", fmt.Errorf("no answer in %s", muxTimeout)
 	}
@@ -1038,6 +1043,7 @@ func muxRunCmd(args []string, stdin string) error {
 	ctx, cancel := context.WithTimeout(context.Background(), muxTimeout)
 	defer cancel()
 	cmd := exec.CommandContext(ctx, "wezterm", args...)
+	cmd.WaitDelay = muxTimeout
 	if stdin != "" {
 		cmd.Stdin = strings.NewReader(stdin)
 	}
