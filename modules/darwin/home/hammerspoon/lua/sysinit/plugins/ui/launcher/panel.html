@@ -447,9 +447,9 @@
       // so the page says when it is ready rather than the caller guessing.
       send({ action: "loaded" });
 
-      function open(placeholder) {
+      function open(opts) {
         armed = false;
-        el.q.placeholder = placeholder;
+        el.q.placeholder = opts.placeholder;
         el.q.value = "";
         sel = 0;
         el.q.focus();

@@ -189,7 +189,9 @@ function M.show(all, placeholder, cb)
     end
     ready(function()
       push()
-      view:evaluateJavaScript("open(" .. hs.json.encode(placeholder) .. ")")
+      -- Wrapped in a table, because `hs.json.encode` takes only a table and a bare string
+      -- raises rather than quoting itself.
+      view:evaluateJavaScript("open(" .. hs.json.encode({ placeholder = placeholder }) .. ")")
     end)
   end)
   outside()
