@@ -73,6 +73,10 @@ let
       path = ./hunk.nix;
     }
     {
+      tier = "minimal";
+      path = ./hushlogin.nix;
+    }
+    {
       tier = "dev";
       path = ./k9s.nix;
     }
