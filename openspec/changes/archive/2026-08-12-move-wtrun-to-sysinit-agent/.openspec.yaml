@@ -1,6 +1,0 @@
-schema: spec-driven
-created: 2026-08-11
-goal: One Go implementation of the worker pane, sharing the keying and manifest
-  reader the rest of sysinit-agent already uses, so a worker survives its parent
-  pane closing and an agent can wait until another is blocked rather than only
-  until a command exits.

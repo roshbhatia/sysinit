@@ -71,25 +71,4 @@ if [ "$scope" = all ] || [ -n "$(files_matching '^bootstrap/(tools|mise|mise-edi
   run bootstrap/gen-mise-toml.sh --check
 fi
 
-# --------------------------------------------------------- the openspec linters
-
-if command -v citelock > /dev/null 2>&1; then
-  while IFS= read -r lock; do
-    [ -z "$lock" ] && continue
-    run citelock verify "$(dirname "$lock")"
-  done < <(find openspec/changes -name citations.lock 2> /dev/null)
-fi
-
-if command -v spec-preflight > /dev/null 2>&1; then
-  while IFS= read -r change; do
-    [ -z "$change" ] && continue
-    run spec-preflight all "$change"
-  done < <(
-    files_matching '^openspec/changes/' |
-      sed -n 's|^openspec/changes/\([^/]*\)/.*|\1|p' |
-      grep -v '^archive$' |
-      sort -u
-  )
-fi
-
 exit "$status"

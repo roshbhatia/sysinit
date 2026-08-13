@@ -100,9 +100,8 @@ subcommands: `feature-based-session-manager`, `openspec-workflow`, `specutil`.
   `ast-grep-nix-rules` check carries a known-bad fixture for exactly this,
   because a scan that loaded no rules is indistinguishable from a clean one.
 - `~/.config/git/ignore` excludes `**/sgconfig.yml` and `ast-grep/`. This repo's
-  `.gitignore` negates both, alongside the existing `!openspec/`. An untracked
-  file is absent from the flake source, so forgetting the negation presents as a
-  check that cannot find its own rules.
+  `.gitignore` negates both. An untracked file is absent from the flake source, so
+  forgetting the negation presents as a check that cannot find its own rules.
 - Overlays apply to every host. Gate a Darwin-only workaround on `isDarwin` or
   the Linux build breaks.
 - An overlay added to work around a broken build goes stale silently. A
