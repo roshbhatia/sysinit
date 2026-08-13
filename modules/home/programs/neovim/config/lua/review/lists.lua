@@ -22,6 +22,20 @@ local function stat(entry)
   return string.format("+%d -%d", entry.added or 0, entry.removed or 0)
 end
 
+--- Pad to a width. Not `%-<n>s`, because `string.format` takes at most two digits of
+--- width and a renamed file deep in a tree makes a label longer than 99 characters.
+---@param text string
+---@param width integer
+---@param left boolean|nil pad on the left instead
+---@return string
+local function pad(text, width, left)
+  if #text >= width then
+    return text
+  end
+  local fill = string.rep(" ", width - #text)
+  return left and fill .. text or text .. fill
+end
+
 --- The row's own text: a path, its counts, and its note count.
 ---@param entry table
 ---@param width table
@@ -35,13 +49,11 @@ local function row(entry, width)
   if (entry.notes or 0) > 0 then
     marks = string.format("  %d note%s", entry.notes, entry.notes == 1 and "" or "s")
   end
-  return string.format(
-    "%-" .. width.status .. "s %-" .. width.label .. "s %8s%s",
-    entry.status,
-    label,
-    stat(entry),
-    marks
-  )
+  return table.concat({
+    pad(entry.status, width.status),
+    pad(label, width.label),
+    pad(stat(entry), 8, true),
+  }, " ") .. marks
 end
 
 --- The widest status and label in a set, so one section's rows align with each other.

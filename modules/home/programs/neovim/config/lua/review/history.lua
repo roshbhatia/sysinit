@@ -47,6 +47,18 @@ local function parse(out)
   return commits
 end
 
+--- Pad to a width. Not `%-<n>s`, because `string.format` takes at most two digits of
+--- width, and an author name or a date phrase is not bounded by two digits.
+---@param text string
+---@param width integer
+---@return string
+local function pad(text, width)
+  if #text >= width then
+    return text
+  end
+  return text .. string.rep(" ", width - #text)
+end
+
 --- The quickfix items for a set of commits, aligned so the subjects start in one column.
 ---@param root string
 ---@param commits table[]
@@ -65,13 +77,12 @@ local function items(root, commits)
       filename = root,
       lnum = 1,
       col = 1,
-      text = string.format(
-        "%s  %-" .. width.when .. "s  %-" .. width.who .. "s  %s",
+      text = table.concat({
         commit.short,
-        commit.when,
-        commit.who,
-        commit.subject
-      ),
+        pad(commit.when, width.when),
+        pad(commit.who, width.who),
+        commit.subject,
+      }, "  "),
       user_data = vim.tbl_extend("force", commit, { root = root }),
     }
   end
