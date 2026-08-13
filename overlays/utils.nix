@@ -19,6 +19,7 @@ final: _prev: {
         "transcript-link"
         "wezspawn"
         "worker"
+        "worklog"
         "ws"
       ];
 

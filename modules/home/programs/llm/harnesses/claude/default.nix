@@ -15,20 +15,6 @@ let
     skillsRoot = "~/.claude/skills";
   };
 
-  worklogScript = pkgs.writeShellApplication {
-    name = "claude-worklog";
-    runtimeInputs = [
-      pkgs.uv
-      pkgs.python3
-      pkgs.git
-    ];
-    text = ''
-      export UV_PYTHON=${pkgs.python3}/bin/python3
-      export UV_PYTHON_DOWNLOADS=never
-      exec uv run --script ${./worklog-hook.py}
-    '';
-  };
-
   bashGuardScript = llmLib.guards.mkBashGuard {
     inherit pkgs;
     name = "claude-bash-guard";
@@ -251,7 +237,7 @@ in
             hooks = [
               {
                 type = "command";
-                command = "${lib.getExe worklogScript}";
+                command = "${profileBin}/worklog";
                 async = true;
               }
               {

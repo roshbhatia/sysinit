@@ -18,6 +18,7 @@ const (
 	AgentWtrunKey       = "agentWtrun"
 	AgentWorkerKey      = "agentWorker"
 	AgentTranscriptsKey = "agentTranscripts"
+	AgentWorklogKey     = "agentWorklog"
 	SeshySessionsKey    = "seshySessions"
 )
 
@@ -129,4 +130,13 @@ func AgentTranscripts() string {
 		return value
 	}
 	return filepath.Join(fallbackStateHome(), "agents", "transcripts")
+}
+
+// AgentWorklog is the file each session appends one record to. A file rather
+// than a directory, so the fallback names it.
+func AgentWorklog() string {
+	if value, ok := Get(AgentWorklogKey); ok {
+		return value
+	}
+	return filepath.Join(fallbackStateHome(), "agents", "worklog.jsonl")
 }

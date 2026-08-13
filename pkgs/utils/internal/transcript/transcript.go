@@ -78,7 +78,7 @@ func Run(args []string) int {
 		return 0
 	}
 
-	native := resolveTranscript(event.TranscriptPath, session)
+	native := Resolve(event.TranscriptPath, session)
 	if native == "" {
 		return 0
 	}
@@ -114,8 +114,8 @@ func sanitize(id string) string {
 	return strings.TrimSuffix(id, ".jsonl")
 }
 
-// resolveTranscript prefers the payload's own path and falls back to the session
-func resolveTranscript(hint, session string) string {
+// Resolve prefers the payload's own path and falls back to the session
+func Resolve(hint, session string) string {
 	if hint != "" {
 		if info, err := os.Stat(hint); err == nil && info.Mode().IsRegular() {
 			return hint
