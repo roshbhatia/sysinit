@@ -257,9 +257,14 @@ function M.owning_root(path, roots)
   return best
 end
 
--- Resolve one repo root for a command that needs one, preferring the repo the current
--- buffer lives in so a workspace holding several repos does not prompt.
-function M.resolve(cb)
+-- Resolve one repo root for a command that needs one. `opts.ask` picks between the two
+-- things a caller can want: the current file's repo, which is what a file-scoped command
+-- means, or a choice, which is what a repo-scoped command means in a workspace holding
+-- several. Without it a buffer open anywhere silently answers for every command.
+---@param cb fun(root: string)
+---@param opts? { ask?: boolean }
+function M.resolve(cb, opts)
+  local ask = (opts or {}).ask == true
   M.workspace_roots(function(roots)
     if #roots == 0 then
       vim.notify("No git repository under " .. vim.fn.fnamemodify(M.workspace(), ":~"), vim.log.levels.WARN)
@@ -269,7 +274,7 @@ function M.resolve(cb)
       return cb(roots[1])
     end
 
-    local buffer = M.buffer_root()
+    local buffer = not ask and M.buffer_root() or nil
     if buffer then
       local owner = M.owning_root(buffer, roots) or buffer
       return cb(owner)

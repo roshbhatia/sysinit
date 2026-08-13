@@ -95,10 +95,12 @@ return {
         "<leader>gg",
         function()
           -- Neogit resolves its root from nvim's cwd, not from the buffer, so a
-          -- workspace holding several repos needs the root passed in.
+          -- workspace holding several repos needs the root passed in. Asked rather
+          -- than inferred: a status is about a repository, and the file that
+          -- happens to be open is a poor guess at which one.
           require("utils.gitrepo").resolve(function(root)
             require("neogit").open({ cwd = root })
-          end)
+          end, { ask = true })
         end,
         desc = "Toggle",
         mode = "n",
