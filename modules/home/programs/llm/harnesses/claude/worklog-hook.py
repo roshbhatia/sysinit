@@ -1,5 +1,8 @@
 #!/usr/bin/env -S uv run --script
 # /// script
+# requires-python = ">=3.11"
+# dependencies = []
+# ///
 """Append one best-effort Claude Code SessionEnd record to the worklog."""
 
 from __future__ import annotations
