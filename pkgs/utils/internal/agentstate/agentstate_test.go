@@ -10,7 +10,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/roshbhatia/sysinit/pkgs/sysinit-agent/internal/paths"
+	"github.com/roshbhatia/sysinit/pkgs/utils/internal/paths"
 )
 
 func TestTidyFoldsEverySeparatorItOwns(t *testing.T) {

@@ -28,11 +28,11 @@ const SPLIT_PERCENT = "45";
 // `review` is the whole working-tree changeset in one view.
 const VIEWER_COMMAND = ["review"];
 
-// Notes go to `sysinit-agent note`, which writes one record per repository and
+// Notes go to `utils note`, which writes one record per repository and
 const ANNOTATE_PROMPT = [
 	"A `review` of the working tree is now open beside this session.",
-	"Annotate it with `sysinit-agent note`: read the diff, then leave the notes in one",
-	"`sysinit-agent note apply --stdin` batch, whose payload is",
+	"Annotate it with `utils note`: read the diff, then leave the notes in one",
+	"`utils note apply --stdin` batch, whose payload is",
 	'`{"notes":[{"file":"<repo-relative path>","line":<n>,"summary":"...","rationale":"...","author":"pi"}]}`',
 	"where `line` is 1-based on the MODIFIED side of the diff, never the original side.",
 	"Comment on intent, risk, and anything I would not spot myself.",

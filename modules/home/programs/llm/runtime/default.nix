@@ -130,12 +130,12 @@ let
     name = "agent-state";
     runtimeInputs = [
       pkgs.git
-      pkgs.sysinit-agent
+      pkgs.utils
       pkgs.wezterm
     ];
     bashOptions = [ ];
     text = ''
-      exec sysinit-agent agent-state "$@"
+      exec utils agent-state "$@"
     '';
   };
 
@@ -145,11 +145,11 @@ let
     name = "agent-edit-event";
     runtimeInputs = [
       pkgs.git
-      pkgs.sysinit-agent
+      pkgs.utils
     ];
     bashOptions = [ ];
     text = ''
-      exec sysinit-agent edit-event "$@"
+      exec utils edit-event "$@"
     '';
   };
 
@@ -160,11 +160,11 @@ let
     name = "agent-note-auto";
     runtimeInputs = [
       pkgs.git
-      pkgs.sysinit-agent
+      pkgs.utils
     ];
     bashOptions = [ ];
     text = ''
-      exec sysinit-agent note auto "$@"
+      exec utils note auto "$@"
     '';
   };
 
@@ -235,7 +235,7 @@ let
       pkgs.coreutils
       pkgs.git
       pkgs.hunk
-      pkgs.sysinit-agent
+      pkgs.utils
     ];
     text = builtins.readFile ./review.sh;
   };

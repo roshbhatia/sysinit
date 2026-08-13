@@ -13,7 +13,7 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/roshbhatia/sysinit/pkgs/sysinit-agent/internal/repo"
+	"github.com/roshbhatia/sysinit/pkgs/utils/internal/repo"
 )
 
 const Summary = "list the repositories under a workspace, and the changes in them"
@@ -93,12 +93,12 @@ func writeHealth(w io.Writer, dir string, roots []string, groups []Group) {
 }
 
 func usage(w io.Writer) {
-	fmt.Fprint(w, `sysinit-agent workspace: what a workspace holds
+	fmt.Fprint(w, `utils workspace: what a workspace holds
 
 Usage:
-  sysinit-agent workspace roots   [dir]   repository roots, one absolute path per line
-  sysinit-agent workspace changes [dir]   changed paths in those repositories
-  sysinit-agent workspace health  [dir]   what this layer sees, as key=value lines
+  utils workspace roots   [dir]   repository roots, one absolute path per line
+  utils workspace changes [dir]   changed paths in those repositories
+  utils workspace health  [dir]   what this layer sees, as key=value lines
 
 dir defaults to the working directory. The workspace is the seshy session holding
 dir when there is one, and otherwise dir's own repository root or dir itself, which

@@ -14,9 +14,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/roshbhatia/sysinit/pkgs/sysinit-agent/internal/agentstate"
-	"github.com/roshbhatia/sysinit/pkgs/sysinit-agent/internal/paths"
-	"github.com/roshbhatia/sysinit/pkgs/sysinit-agent/internal/repo"
+	"github.com/roshbhatia/sysinit/pkgs/utils/internal/agentstate"
+	"github.com/roshbhatia/sysinit/pkgs/utils/internal/paths"
+	"github.com/roshbhatia/sysinit/pkgs/utils/internal/repo"
 )
 
 // state points the paths manifest at a temporary tree and returns the directory

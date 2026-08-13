@@ -13,7 +13,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/roshbhatia/sysinit/pkgs/sysinit-agent/internal/store"
+	"github.com/roshbhatia/sysinit/pkgs/utils/internal/store"
 )
 
 const Summary = "offline gate over a change's citations.lock"

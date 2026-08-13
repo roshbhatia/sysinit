@@ -209,7 +209,7 @@ local function watch_keybind(key, describe, build_args)
         win:toast_notification("sysinit", "nothing to watch: " .. describe, nil, 3000)
         return
       end
-      table.insert(args, 1, utils.get_nix_binary("sysinit-agent"))
+      table.insert(args, 1, utils.get_nix_binary("utils"))
       table.insert(args, 2, "watch")
       win:perform_action(act.SplitPane({ direction = "Right", command = { args = args } }), pane)
     end),

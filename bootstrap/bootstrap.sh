@@ -7,7 +7,7 @@ branch=${SYSINIT_BRANCH:-main}
 checkout=${SYSINIT_CHECKOUT:-$HOME/.local/share/sysinit}
 
 # `--editor` installs the neovim config and nothing else: no zsh, no
-# sysinit-agent, and only the tools the config shells out to. It is the mode for
+# utils, and only the tools the config shells out to. It is the mode for
 # a box that is not yours, where replacing the shell would be rude.
 mode=full
 case ${1:-} in
@@ -47,7 +47,7 @@ else
     modules/home/programs/neovim/config \
     modules/home/programs/zsh \
     modules/shared/options \
-    pkgs/sysinit-agent
+    pkgs/utils
 fi
 # `read-tree -mu HEAD` rather than `checkout "$branch"`.
 git -C "$checkout" read-tree -mu HEAD
@@ -162,8 +162,8 @@ zsh_dir="$checkout/modules/home/programs/zsh"
 # --------------------------------------------------------- 6.
 
 # `go install` rather than a release binary: this is the repository's own tool
-log "go install ./pkgs/sysinit-agent"
+log "go install ./pkgs/utils"
 mkdir -p "$HOME/.local/bin"
-(cd "$checkout/pkgs/sysinit-agent" && GOBIN="$HOME/.local/bin" go install .)
+(cd "$checkout/pkgs/utils" && GOBIN="$HOME/.local/bin" go install .)
 
 log "done. Open a new shell, or: exec zsh"

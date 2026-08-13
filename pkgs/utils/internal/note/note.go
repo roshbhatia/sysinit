@@ -10,8 +10,8 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/roshbhatia/sysinit/pkgs/sysinit-agent/internal/repo"
-	"github.com/roshbhatia/sysinit/pkgs/sysinit-agent/internal/store"
+	"github.com/roshbhatia/sysinit/pkgs/utils/internal/repo"
+	"github.com/roshbhatia/sysinit/pkgs/utils/internal/store"
 )
 
 const Summary = "agent review notes on a working-tree diff"

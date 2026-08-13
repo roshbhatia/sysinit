@@ -7,14 +7,14 @@ import (
 	"os"
 	"strconv"
 
-	"github.com/roshbhatia/sysinit/pkgs/sysinit-agent/internal/repo"
-	"github.com/roshbhatia/sysinit/pkgs/sysinit-agent/internal/store"
+	"github.com/roshbhatia/sysinit/pkgs/utils/internal/repo"
+	"github.com/roshbhatia/sysinit/pkgs/utils/internal/store"
 )
 
 // The export is the record rendered in the viewer's own schema.
 
 // derivedMarker tells an owner who opens this file that editing it is pointless.
-const derivedMarker = "Derived from the sysinit note record. Every note write rewrites this file, so edit the record instead: sysinit-agent note path"
+const derivedMarker = "Derived from the sysinit note record. Every note write rewrites this file, so edit the record instead: utils note path"
 
 // exportDoc is the sidecar root.
 type exportDoc struct {

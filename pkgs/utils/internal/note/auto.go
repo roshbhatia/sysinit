@@ -12,8 +12,8 @@ import (
 	"strings"
 	"unicode"
 
-	"github.com/roshbhatia/sysinit/pkgs/sysinit-agent/internal/repo"
-	"github.com/roshbhatia/sysinit/pkgs/sysinit-agent/internal/store"
+	"github.com/roshbhatia/sysinit/pkgs/utils/internal/repo"
+	"github.com/roshbhatia/sysinit/pkgs/utils/internal/store"
 )
 
 // How much of the transcript's tail to read.

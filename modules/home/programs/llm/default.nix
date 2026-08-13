@@ -251,7 +251,7 @@ in
     packages = [
       pkgs.meat
       # On PATH under its own name, because the skill and the allowlist both
-      pkgs.sysinit-agent
+      pkgs.utils
       capture
       notify.script
       notify.agentRefine

@@ -202,17 +202,17 @@ let
     "specutil --help"
     "specutil --version"
 
-    "sysinit-agent note list *"
-    "sysinit-agent note list"
-    "sysinit-agent note path"
+    "utils note list *"
+    "utils note list"
+    "utils note path"
 
     "hunk skill path"
   ];
 
   tierB = [
-    "sysinit-agent note add *"
-    "sysinit-agent note apply *"
-    "sysinit-agent note rebuild"
+    "utils note add *"
+    "utils note apply *"
+    "utils note rebuild"
 
     "git add"
     "git add *"

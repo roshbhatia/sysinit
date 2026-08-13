@@ -3,7 +3,7 @@ description: Owner documentation for `worker`. This is NOT a rendered skill; ski
 ---
 
 > `worker` is an owner command, not an agent skill. It is on the owner's PATH
-> through `skill-tools.nix`, which wraps `sysinit-agent worker`. Nothing renders
+> through `skill-tools.nix`, which wraps `utils worker`. Nothing renders
 > this file into a harness skill directory, and there is no `allowed-tools`
 > grant, so an agent that types `worker` gets whatever its allowlist default is
 > rather than a pre-approval. The defect this removes was never the pane. It was

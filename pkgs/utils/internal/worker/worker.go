@@ -15,9 +15,9 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/roshbhatia/sysinit/pkgs/sysinit-agent/internal/agentstate"
-	"github.com/roshbhatia/sysinit/pkgs/sysinit-agent/internal/paths"
-	"github.com/roshbhatia/sysinit/pkgs/sysinit-agent/internal/repo"
+	"github.com/roshbhatia/sysinit/pkgs/utils/internal/agentstate"
+	"github.com/roshbhatia/sysinit/pkgs/utils/internal/paths"
+	"github.com/roshbhatia/sysinit/pkgs/utils/internal/repo"
 )
 
 const Summary = "run a command in one reused WezTerm pane and report the result"
@@ -493,7 +493,7 @@ func executable() string {
 	if err != nil {
 		// A PATH lookup is worse and it is still better than nothing: the alternative is
 		// a body with no clear at all, which leaves a declared `waiting` on screen.
-		return "sysinit-agent"
+		return "utils"
 	}
 	return path
 }

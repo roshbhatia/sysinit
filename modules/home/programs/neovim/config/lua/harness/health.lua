@@ -73,14 +73,14 @@ function M.findings()
   -- Which tiers are available decides what the next query can use, which is why
   -- both are reported even when the last query succeeded.
   if repos.agent then
-    add("ok", "`sysinit-agent` is on PATH")
+    add("ok", "`utils` is on PATH")
   else
-    add("warn", "`sysinit-agent` is not on PATH, so the repository query falls back to the `fd` scan")
+    add("warn", "`utils` is not on PATH, so the repository query falls back to the `fd` scan")
   end
   if not repos.fd then
     add(
       "warn",
-      "`fd` is not on PATH, so with `sysinit-agent` absent the query falls back to `git rev-parse`, which sees one repository"
+      "`fd` is not on PATH, so with `utils` absent the query falls back to `git rev-parse`, which sees one repository"
     )
   end
 
@@ -97,10 +97,7 @@ function M.findings()
     if watch.log then
       add("ok", "edit-event log: " .. watch.log .. string.format(" (read to byte %d)", watch.offset))
     else
-      add(
-        "warn",
-        "edit-event log: not resolved. `sysinit-agent edit-event --print-log` did not answer, so no event can arrive"
-      )
+      add("warn", "edit-event log: not resolved. `utils edit-event --print-log` did not answer, so no event can arrive")
     end
     add("ok", string.format("agent edits recorded this session: %d", watch.touched))
   end

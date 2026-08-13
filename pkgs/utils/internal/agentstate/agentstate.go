@@ -15,7 +15,7 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/roshbhatia/sysinit/pkgs/sysinit-agent/internal/paths"
+	"github.com/roshbhatia/sysinit/pkgs/utils/internal/paths"
 )
 
 const Summary = "record this pane's agent status for the wezterm surfaces"

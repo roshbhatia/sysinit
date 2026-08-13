@@ -11,7 +11,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/roshbhatia/sysinit/pkgs/sysinit-agent/internal/paths"
+	"github.com/roshbhatia/sysinit/pkgs/utils/internal/paths"
 )
 
 // ErrOutsideRoot is returned for a path that does not name a file inside the

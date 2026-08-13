@@ -1,4 +1,4 @@
-// sysinit-agent is one binary hosting the agent runtime commands that used to
+// utils is one binary hosting the agent runtime commands that used to
 package main
 
 import (
@@ -6,16 +6,16 @@ import (
 	"os"
 	"sort"
 
-	"github.com/roshbhatia/sysinit/pkgs/sysinit-agent/internal/agentstate"
-	"github.com/roshbhatia/sysinit/pkgs/sysinit-agent/internal/citelock"
-	"github.com/roshbhatia/sysinit/pkgs/sysinit-agent/internal/editevent"
-	"github.com/roshbhatia/sysinit/pkgs/sysinit-agent/internal/guard"
-	"github.com/roshbhatia/sysinit/pkgs/sysinit-agent/internal/note"
-	"github.com/roshbhatia/sysinit/pkgs/sysinit-agent/internal/statusline"
-	"github.com/roshbhatia/sysinit/pkgs/sysinit-agent/internal/transcript"
-	"github.com/roshbhatia/sysinit/pkgs/sysinit-agent/internal/watch"
-	"github.com/roshbhatia/sysinit/pkgs/sysinit-agent/internal/worker"
-	"github.com/roshbhatia/sysinit/pkgs/sysinit-agent/internal/workspace"
+	"github.com/roshbhatia/sysinit/pkgs/utils/internal/agentstate"
+	"github.com/roshbhatia/sysinit/pkgs/utils/internal/citelock"
+	"github.com/roshbhatia/sysinit/pkgs/utils/internal/editevent"
+	"github.com/roshbhatia/sysinit/pkgs/utils/internal/guard"
+	"github.com/roshbhatia/sysinit/pkgs/utils/internal/note"
+	"github.com/roshbhatia/sysinit/pkgs/utils/internal/statusline"
+	"github.com/roshbhatia/sysinit/pkgs/utils/internal/transcript"
+	"github.com/roshbhatia/sysinit/pkgs/utils/internal/watch"
+	"github.com/roshbhatia/sysinit/pkgs/utils/internal/worker"
+	"github.com/roshbhatia/sysinit/pkgs/utils/internal/workspace"
 )
 
 // command is one subcommand.
@@ -41,7 +41,7 @@ var commands = map[string]command{
 }
 
 func usage(w *os.File) {
-	fmt.Fprintf(w, "sysinit-agent: agent runtime commands\n\nUsage:\n  sysinit-agent <command> [args...]\n\nCommands:\n")
+	fmt.Fprintf(w, "utils: agent runtime commands\n\nUsage:\n  utils <command> [args...]\n\nCommands:\n")
 	if len(commands) == 0 {
 		fmt.Fprintf(w, "  (none registered)\n")
 		return
@@ -68,7 +68,7 @@ func main() {
 	}
 	cmd, ok := commands[os.Args[1]]
 	if !ok {
-		fmt.Fprintf(os.Stderr, "sysinit-agent: unknown command %q\n", os.Args[1])
+		fmt.Fprintf(os.Stderr, "utils: unknown command %q\n", os.Args[1])
 		usage(os.Stderr)
 		os.Exit(2)
 	}

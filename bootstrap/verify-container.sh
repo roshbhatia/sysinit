@@ -51,7 +51,7 @@ echo "--- bootstrap --editor"
 SYSINIT_CHECKOUT=/root/.local/share/sysinit-editor /src/bootstrap/bootstrap.sh --editor
 PATH="$HOME/.local/share/mise/shims:$HOME/.local/bin:$PATH" nvim --headless +qa
 test -L /root/.config/nvim
-test ! -e /root/.local/share/sysinit-editor/pkgs/sysinit-agent
+test ! -e /root/.local/share/sysinit-editor/pkgs/utils
 test ! -e /root/.local/share/sysinit-editor/modules/home/programs/zsh
 test ! -f /root/.zshrc
 rm -rf /root/.config/nvim /root/.config/mise /root/.local/share/sysinit-editor
@@ -64,8 +64,8 @@ export PATH="$HOME/.local/share/mise/shims:$HOME/.local/bin:$PATH"
 echo "--- nvim"
 nvim --headless +qa
 
-echo "--- sysinit-agent"
-sysinit-agent --help >/dev/null
+echo "--- utils"
+utils --help >/dev/null
 
 echo "--- the paths manifest"
 # The gate asserts the manifest is AT the bootstrap constant, so it names it
@@ -90,9 +90,9 @@ cd /tmp && git init -q noterepo && cd noterepo
 git config user.email t@example.com && git config user.name t
 echo hello >file.txt && git add file.txt && git commit -qm init
 echo changed >file.txt
-sysinit-agent note add --file file.txt --line 1 --summary "from the container"
+utils note add --file file.txt --line 1 --summary "from the container"
 
-note_path=$(sysinit-agent note path)
+note_path=$(utils note path)
 echo "note path: ${note_path}"
 case "$note_path" in
 /opt/elsewhere/diff-notes/*) ;;

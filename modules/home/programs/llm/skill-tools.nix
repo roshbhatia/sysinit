@@ -6,11 +6,11 @@ let
   worker = pkgs.writeShellApplication {
     name = "worker";
     runtimeInputs = [
-      pkgs.sysinit-agent
+      pkgs.utils
       pkgs.wezterm
     ];
     text = ''
-      exec sysinit-agent worker "$@"
+      exec utils worker "$@"
     '';
   };
 
@@ -20,10 +20,10 @@ let
     name = "citelock";
     runtimeInputs = [
       pkgs.curl
-      pkgs.sysinit-agent
+      pkgs.utils
     ];
     text = ''
-      exec sysinit-agent citelock "$@"
+      exec utils citelock "$@"
     '';
   };
 in

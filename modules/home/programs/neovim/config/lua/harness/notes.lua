@@ -3,7 +3,7 @@ local M = {}
 
 --- The command that owns the note record. Named once, so the health check reports on
 --- the same binary this reads through and a rename is one edit.
-M.tool = "sysinit-agent"
+M.tool = "utils"
 
 local ns = vim.api.nvim_create_namespace("harness_agent_notes")
 local augroup = "harness_agent_notes"

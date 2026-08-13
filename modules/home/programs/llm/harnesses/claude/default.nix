@@ -19,11 +19,11 @@ let
     name = "claude-statusline";
     runtimeInputs = [
       pkgs.git
-      pkgs.sysinit-agent
+      pkgs.utils
     ];
     bashOptions = [ ];
     text = ''
-      exec sysinit-agent statusline "$@"
+      exec utils statusline "$@"
     '';
   };
 
@@ -198,7 +198,7 @@ in
               # On every prompt rather than at SessionEnd, because the point is
               {
                 type = "command";
-                command = "${profileBin}/sysinit-agent transcript-link claude";
+                command = "${profileBin}/utils transcript-link claude";
                 async = true;
               }
             ];

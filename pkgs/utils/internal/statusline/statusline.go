@@ -11,7 +11,7 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/roshbhatia/sysinit/pkgs/sysinit-agent/internal/paths"
+	"github.com/roshbhatia/sysinit/pkgs/utils/internal/paths"
 )
 
 const Summary = "render the claude status line"

@@ -1,9 +1,9 @@
 final: _prev: {
-  sysinit-agent = final.buildGoModule {
-    pname = "sysinit-agent";
+  utils = final.buildGoModule {
+    pname = "utils";
     version = "0.1.0";
 
-    src = ../pkgs/sysinit-agent;
+    src = ../pkgs/utils;
 
     # null, not a hash.
     vendorHash = null;
@@ -17,7 +17,7 @@ final: _prev: {
 
     meta = {
       description = "Agent runtime commands that used to be shell scripts";
-      mainProgram = "sysinit-agent";
+      mainProgram = "utils";
       platforms = final.lib.platforms.unix;
     };
   };

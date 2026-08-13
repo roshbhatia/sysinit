@@ -14,9 +14,9 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/roshbhatia/sysinit/pkgs/sysinit-agent/internal/paths"
-	"github.com/roshbhatia/sysinit/pkgs/sysinit-agent/internal/transcript"
-	"github.com/roshbhatia/sysinit/pkgs/sysinit-agent/internal/worker"
+	"github.com/roshbhatia/sysinit/pkgs/utils/internal/paths"
+	"github.com/roshbhatia/sysinit/pkgs/utils/internal/transcript"
+	"github.com/roshbhatia/sysinit/pkgs/utils/internal/worker"
 )
 
 const Summary = "render and tail a worker log, the agent-state bus, or a transcript"

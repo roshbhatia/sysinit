@@ -38,10 +38,10 @@ end
 -- exits 2 on a usage error, which is how an older binary answers, so the exit code
 -- distinguishes "no repositories" from "does not know the question".
 local function agent_roots(dir, cb)
-  if vim.fn.executable("sysinit-agent") ~= 1 then
+  if vim.fn.executable("utils") ~= 1 then
     return cb(nil)
   end
-  vim.system({ "sysinit-agent", "workspace", "roots", dir }, { text = true }, function(res)
+  vim.system({ "utils", "workspace", "roots", dir }, { text = true }, function(res)
     if res.code ~= 0 then
       return cb(nil)
     end
@@ -135,7 +135,7 @@ function M.workspace_roots(cb)
 
   agent_roots(dir, function(roots)
     if roots then
-      return finish("sysinit-agent workspace", roots)
+      return finish("utils workspace", roots)
     end
     M.scan(dir, function(scanned)
       if scanned then
@@ -178,8 +178,8 @@ function M.workspace_changes(cb)
       return groups
     end
 
-    if vim.fn.executable("sysinit-agent") == 1 then
-      vim.system({ "sysinit-agent", "workspace", "changes", M.workspace() }, { text = true }, function(res)
+    if vim.fn.executable("utils") == 1 then
+      vim.system({ "utils", "workspace", "changes", M.workspace() }, { text = true }, function(res)
         if res.code == 0 then
           local files = {}
           for line in (res.stdout or ""):gmatch("[^\n]+") do
@@ -294,7 +294,7 @@ function M.status()
     source = last.source,
     workspace = last.workspace or M.workspace(),
     roots = last.roots,
-    agent = vim.fn.executable("sysinit-agent") == 1,
+    agent = vim.fn.executable("utils") == 1,
     fd = vim.fn.executable("fd") == 1,
   }
 end

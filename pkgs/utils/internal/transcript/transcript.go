@@ -10,8 +10,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/roshbhatia/sysinit/pkgs/sysinit-agent/internal/paths"
-	"github.com/roshbhatia/sysinit/pkgs/sysinit-agent/internal/repo"
+	"github.com/roshbhatia/sysinit/pkgs/utils/internal/paths"
+	"github.com/roshbhatia/sysinit/pkgs/utils/internal/repo"
 )
 
 const Summary = "publish a harness transcript under a stable name"

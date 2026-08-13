@@ -34,7 +34,7 @@ _seshy_session_name() {
 # State the workspace boundary for whatever reads it: the seshy session directory
 # when the cwd is inside one, and nothing otherwise.
 #
-# The variable, not the path, is the contract. Neovim and `sysinit-agent` read
+# The variable, not the path, is the contract. Neovim and `utils` read
 # `$SYSINIT_WORKSPACE` and fall back to the git top level, so they need no rule of
 # their own about where a session manager keeps its checkouts. Set from `chpwd`
 # rather than only from `s`, because a shell can arrive in a session by `cd`, by a

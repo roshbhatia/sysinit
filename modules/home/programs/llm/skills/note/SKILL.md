@@ -1,11 +1,11 @@
 ---
-description: Leaves review notes on a working-tree diff with `sysinit-agent note`, so a non-obvious change carries its reason to whoever reads the diff later. Notes are read back with `review`, which is the `hunk` diff viewer with this repository's notes attached. Use when making a change a reader would question: a hidden constraint, a workaround for a specific bug, a rejected alternative, or an edit whose reason is not visible in the diff. Do NOT use for routine edits, which the diff already explains.
-allowed-tools: Bash(sysinit-agent:*)
+description: Leaves review notes on a working-tree diff with `utils note`, so a non-obvious change carries its reason to whoever reads the diff later. Notes are read back with `review`, which is the `hunk` diff viewer with this repository's notes attached. Use when making a change a reader would question: a hidden constraint, a workaround for a specific bug, a rejected alternative, or an edit whose reason is not visible in the diff. Do NOT use for routine edits, which the diff already explains.
+allowed-tools: Bash(utils:*)
 ---
 
 > Normative keywords follow [RFC 2119](https://datatracker.ietf.org/doc/html/rfc2119); "never" is MUST NOT, "always" is MUST.
 
-`sysinit-agent note` writes one JSON record per repository and one export derived
+`utils note` writes one JSON record per repository and one export derived
 from it. It is a pure writer: it never opens, launches, or nudges anything. The
 owner reads the notes back by running `review`, which is `hunk` with the export
 attached, and a note written while nothing is open is there whenever `review`
@@ -27,24 +27,24 @@ costs the reader attention on every later review.
 
 ```bash
 # good — names a constraint the changed lines do not show
-sysinit-agent note add --file overlays/lima.nix --line 12 \
+utils note add --file overlays/lima.nix --line 12 \
   --summary 'Pinned to the old nixpkgs rev because cctools ld is broken on darwin' \
   --rationale 'Building against current nixpkgs fails at link time; drop the pin once upstream fixes it.'
 
 # bad — restates the diff
-sysinit-agent note add --file overlays/lima.nix --line 12 \
+utils note add --file overlays/lima.nix --line 12 \
   --summary 'Changed the nixpkgs revision'
 ```
 
 ## Writing
 
 ```bash
-sysinit-agent note add --file <path> --line <n> --summary <text> [--rationale <text>] [--author <name>] [--replace]
-sysinit-agent note apply --stdin
-sysinit-agent note list [--file <path>] [--json]
-sysinit-agent note clear [--file <path>] [--yes]
-sysinit-agent note path
-sysinit-agent note rebuild
+utils note add --file <path> --line <n> --summary <text> [--rationale <text>] [--author <name>] [--replace]
+utils note apply --stdin
+utils note list [--file <path>] [--json]
+utils note clear [--file <path>] [--yes]
+utils note path
+utils note rebuild
 ```
 
 `apply` reads one batch from stdin and accepts either shape:

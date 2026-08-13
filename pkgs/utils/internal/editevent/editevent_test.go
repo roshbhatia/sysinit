@@ -9,7 +9,7 @@ import (
 	"sync"
 	"testing"
 
-	"github.com/roshbhatia/sysinit/pkgs/sysinit-agent/internal/repo"
+	"github.com/roshbhatia/sysinit/pkgs/utils/internal/repo"
 )
 
 // isolate points the state root at a temporary directory and returns a working

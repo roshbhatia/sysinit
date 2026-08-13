@@ -10,15 +10,15 @@ die() {
 }
 
 # Loud, not silent.
-command -v sysinit-agent > /dev/null 2>&1 ||
-  die "sysinit-agent is not on PATH, so the note record cannot be located"
+command -v utils > /dev/null 2>&1 ||
+  die "utils is not on PATH, so the note record cannot be located"
 
-record=$(sysinit-agent note path)
-export_file=$(sysinit-agent note path --export)
+record=$(utils note path)
+export_file=$(utils note path --export)
 
 # The record without its export is the state every box is in the moment this
 if [ -s "$record" ] && [ ! -s "$export_file" ]; then
-  die "$record holds notes but $export_file is missing. Run: sysinit-agent note rebuild"
+  die "$record holds notes but $export_file is missing. Run: utils note rebuild"
 fi
 
 # Neither file is the ordinary state of a clean repository, not an error.

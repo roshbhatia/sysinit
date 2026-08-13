@@ -133,7 +133,7 @@ editor = true
 
 [[tool]]
 nix = "go-grip"
-none = "installs through `go install` only, which the bootstrap does for sysinit-agent alone"
+none = "installs through `go install` only, which the bootstrap does for utils alone"
 
 # Dropped from the ephemeral set, which is the outcome this phase's TERMINAL
 [[tool]]
@@ -205,7 +205,7 @@ name = "neovim"
 mise = "aqua:neovim/neovim"
 editor = true
 
-# Not an editor tool but the compiler the bootstrap needs: `sysinit-agent` is
+# Not an editor tool but the compiler the bootstrap needs: `utils` is
 [[program]]
 name = "go"
 mise = "core:go"

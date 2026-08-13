@@ -11,10 +11,10 @@ let
     { pkgs, name }:
     pkgs.writeShellApplication {
       inherit name;
-      runtimeInputs = [ pkgs.sysinit-agent ];
+      runtimeInputs = [ pkgs.utils ];
       bashOptions = [ ];
       text = ''
-        exec sysinit-agent ${subcommand} --rules ${rulesFile pkgs} "$@"
+        exec utils ${subcommand} --rules ${rulesFile pkgs} "$@"
       '';
     };
 in

@@ -11,7 +11,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/roshbhatia/sysinit/pkgs/sysinit-agent/internal/repo"
+	"github.com/roshbhatia/sysinit/pkgs/utils/internal/repo"
 )
 
 const Summary = "record the files an agent wrote, for an editor watching the log"
