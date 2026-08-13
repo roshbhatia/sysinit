@@ -5,6 +5,7 @@ return {
       "nvim-lua/plenary.nvim",
     },
     cmd = {
+      "Review",
       "DiffviewOpen",
       "DiffviewClose",
       "DiffviewToggleFiles",
@@ -49,94 +50,74 @@ return {
           end,
         },
         keymaps = {
+          -- `q` closes the review from anywhere inside it, the way every other panel in
+          -- this config closes.
           view = {
-            { "n", "<leader>dq", actions.close, { desc = "Close the review" } },
+            { "n", "q", actions.close, { desc = "Close the review" } },
           },
           file_panel = {
-            { "n", "<leader>dq", actions.close, { desc = "Close the review" } },
+            { "n", "q", actions.close, { desc = "Close the review" } },
           },
           file_history_panel = {
-            { "n", "<leader>dq", actions.close, { desc = "Close the review" } },
+            { "n", "q", actions.close, { desc = "Close the review" } },
           },
         },
+      })
+
+      -- The rest of the review under one command rather than one key each: these are asked
+      -- for a few times a week, and `<leader>d` had grown a key for every one of them.
+      local jobs = {
+        pick = function()
+          require("harness.review").pick()
+        end,
+        all = function()
+          require("harness.review").all()
+        end,
+        scope = function()
+          require("harness.scopes").open()
+        end,
+        base = function()
+          require("harness.review").set_base()
+        end,
+        refresh = function()
+          require("harness.review").refresh()
+        end,
+      }
+      vim.api.nvim_create_user_command("Review", function(cmd)
+        local job = jobs[cmd.args ~= "" and cmd.args or "pick"]
+        if job == nil then
+          vim.notify("Review: no such subcommand " .. cmd.args, vim.log.levels.WARN)
+          return
+        end
+        job()
+      end, {
+        nargs = "?",
+        complete = function()
+          return vim.tbl_keys(jobs)
+        end,
+        desc = "Review: pick, all, scope, base, refresh",
       })
     end,
     keys = {
       {
-        "<leader>dr",
+        "<leader>dd",
         function()
           require("harness.review").toggle()
         end,
-        desc = "Toggle the review",
-        mode = "n",
-      },
-      {
-        "<leader>dd",
-        function()
-          require("harness.review").pick()
-        end,
-        desc = "Review a repo, picked from those with changes",
-        mode = "n",
-      },
-      {
-        "<leader>da",
-        function()
-          require("harness.review").all()
-        end,
-        desc = "Review every changed repo at once",
-        mode = "n",
-      },
-      {
-        "<leader>ds",
-        function()
-          require("harness.scopes").open()
-        end,
-        desc = "Pick the review scope",
-        mode = "n",
-      },
-      {
-        "<leader>dq",
-        function()
-          require("harness.review").close()
-        end,
-        desc = "Close the review",
-        mode = "n",
-      },
-      {
-        "<leader>db",
-        function()
-          require("harness.review").set_base()
-        end,
-        desc = "Compare the working tree back to a commit",
-        mode = "n",
-      },
-      {
-        "<leader>dH",
-        function()
-          require("harness.review").repo_history()
-        end,
-        desc = "Repo history, as a list of commits",
+        desc = "Review: the repo you are in, or a pick",
         mode = "n",
       },
       {
         "<leader>dh",
         function()
-          require("harness.review").file_history()
+          require("harness.review").history()
         end,
-        desc = "Current file history",
+        desc = "History of this file, or this repo",
         mode = "n",
       },
+      -- `]r`, not `]d`: the LSP attaches `]d` per buffer for diagnostics, and a global
+      -- mapping under it would answer only in the buffers the LSP never reached.
       {
-        "<leader>dR",
-        function()
-          require("harness.review").refresh()
-        end,
-        desc = "Reload the review and its notes",
-        mode = "n",
-      },
-      {
-        -- `]r`, not `]d`: the LSP attaches `]d` per buffer for diagnostics, and a global
-        -- mapping under it would answer only in the buffers the LSP never reached.
         "]r",
         function()
           require("harness.review").cycle(1)

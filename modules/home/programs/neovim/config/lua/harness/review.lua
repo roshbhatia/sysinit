@@ -234,13 +234,35 @@ function M.here()
   return false
 end
 
---- Close the review if it is open, and pick one to open if it is not.
+--- The one review key. Closes an open review, opens the repository the reader is standing
+--- in when that repository has something to show, and asks only when neither is true: in a
+--- workspace of eighteen repositories a picker on every press is a question already
+--- answered by where the cursor is.
 function M.toggle()
   if M.is_open() then
-    M.close()
-  else
-    M.pick()
+    return M.close()
   end
+
+  local gitrepo = require("utils.gitrepo")
+  local here = gitrepo.buffer_root() or gitrepo.cwd_root()
+  if here == nil then
+    return M.pick()
+  end
+
+  gitrepo.workspace_changes(function(groups)
+    for _, group in ipairs(groups) do
+      if group.root == here then
+        return M.open({ here })
+      end
+    end
+    -- The repository underfoot is clean, so the question is which of the others to read,
+    -- and that is worth asking rather than guessing.
+    if #groups > 0 then
+      return M.pick()
+    end
+    vim.notify(string.format("Review: %s is clean", name(here)), vim.log.levels.INFO)
+    M.open({ here })
+  end)
 end
 
 --- Re-read the diff and the notes, for a review left open while the tree moved under it.
@@ -288,21 +310,17 @@ local function target(cb)
   require("utils.gitrepo").resolve(cb, { ask = true })
 end
 
---- The commits of one repository, as a list.
-function M.repo_history()
+--- The commits behind what is on screen: this file's when a file is open, the repository's
+--- otherwise. One key for both, since the reader wants the history of whatever they are
+--- looking at and only a panel has no file to name.
+function M.history()
+  local path = vim.api.nvim_buf_get_name(0)
+  if path ~= "" and vim.bo.buftype == "" then
+    return vim.cmd(string.format("DiffviewFileHistory %s", vim.fn.fnameescape(path)))
+  end
   target(function(root)
     vim.cmd(string.format("DiffviewFileHistory -C%s", vim.fn.fnameescape(root)))
   end)
-end
-
---- The commits that touched the current file.
-function M.file_history()
-  local path = vim.api.nvim_buf_get_name(0)
-  if path == "" or vim.bo.buftype ~= "" then
-    vim.notify("Review: no file here to trace", vim.log.levels.WARN)
-    return
-  end
-  vim.cmd(string.format("DiffviewFileHistory %s", vim.fn.fnameescape(path)))
 end
 
 --- Open every changed repository at once, without asking.
