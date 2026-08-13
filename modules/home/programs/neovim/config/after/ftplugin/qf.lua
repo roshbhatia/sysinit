@@ -21,6 +21,10 @@ vim.schedule(function()
     if has_review and review.activate() then
       return
     end
+    local has_history, history = pcall(require, "review.history")
+    if has_history and history.activate() then
+      return
+    end
     -- What bqf's own map calls, so a file entry opens the way it does everywhere else.
     if not pcall(function()
       require("bqf.qfwin.handler").open(false)

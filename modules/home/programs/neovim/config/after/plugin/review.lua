@@ -20,6 +20,14 @@ Snacks.keymap.set("n", "<leader>dR", function()
   review().refresh()
 end, { desc = "Reload the review" })
 
+Snacks.keymap.set("n", "<leader>dH", function()
+  require("review.history").repo()
+end, { desc = "Repo history, as a list of commits" })
+
+Snacks.keymap.set("n", "<leader>dh", function()
+  require("review.history").file()
+end, { desc = "Current file history" })
+
 Snacks.keymap.set("n", "<leader>db", function()
   vim.ui.input({ prompt = "Compare the working tree back to: " }, function(base)
     if base ~= nil then
