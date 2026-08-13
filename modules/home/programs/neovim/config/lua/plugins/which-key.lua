@@ -22,29 +22,24 @@ return {
         { "<leader>c", group = "Code" },
         { "<leader>cf", group = "Find" },
         { "<leader>d", group = "Diff" },
-        -- No group on `<leader>dd`: it is an action, and declaring it a group made
-        -- which-key present the review as a prefix waiting for another key while
-        -- `<leader>dR` sat under it as a sibling.
+        -- No group on `<leader>dd`: a group and a mapping cannot share a sequence, and
+        -- declaring one made which-key present the review as a prefix waiting for a key.
         { "<leader>e", group = "Explorer" },
         { "<leader>f", group = "Find" },
         { "<leader>g", group = "Git" },
         { "<leader>gb", group = "Buffer" },
-        { "<leader>gf", group = "Find" },
         { "<leader>gh", group = "Hunk" },
         { "<leader>j", group = "Agents" },
         { "<leader>q", group = "Force Quit" },
-        { "<leader>t", group = "Terminal" },
         { "[", group = "Prev" },
         { "]", group = "Next" },
         { "gr", group = "LSP" },
-        { "v<leader>", group = "Extras" },
-        { "v<leader>c", group = "Code" },
-        { "v<leader>g", group = "Git" },
-        { "v<leader>j", group = "Agents" },
-        { "vg", group = "Extras" },
-        { "vgr", group = "Code" },
-        { "vv", group = "AST" },
-        { "vz", group = "Fold" },
+        -- Visual mode is `mode`, not a `v` prefix on the sequence. Written as `v<leader>c`
+        -- these named a normal-mode `v` then `<leader>c`, which nothing maps.
+        { "<leader>f", group = "Find", mode = "v" },
+        { "<leader>g", group = "Git", mode = "v" },
+        { "<leader>gh", group = "Hunk", mode = "v" },
+        { "<leader>j", group = "Agents", mode = "v" },
       })
     end,
   },
