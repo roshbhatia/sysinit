@@ -92,16 +92,12 @@ return {
         mode = "v",
       },
       {
-        -- `<leader>dna`, not `<leader>dn`: the note list and the note picker sit under
-        -- `dn` too, and a mapping that is also a prefix waits out `timeoutlen` on every
-        -- press before it fires.
-        "<leader>dna",
+        "<leader>ji",
         function()
           require("harness.notes").add()
         end,
-        desc = "Note on this line",
+        desc = "Harness: add note",
       },
-      -- The glow preview moved to `<localleader>xp` in `after/ftplugin/markdown.lua`.
     },
   },
 }
