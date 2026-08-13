@@ -35,10 +35,34 @@ return {
         },
       })
 
+      -- `foldsign`, which is what the plugin registers; under its own name this cleared
+      -- nothing, so an indicator drawn before the diff opened stayed. It is placed at
+      -- `virt_text_win_col = -2 - numberwidth`, and nvim clamps a position the gutter
+      -- cannot hold onto the text, which ate the first character of `func main() {`.
       local function clear_foldsign(buf)
-        local ns = vim.api.nvim_get_namespaces()["nvim-foldsign"]
+        local ns = vim.api.nvim_get_namespaces()["foldsign"]
         if ns then
           vim.api.nvim_buf_clear_namespace(buf, ns, 0, -1)
+        end
+      end
+
+      -- Every loaded buffer, not the diff windows' alone: the diff opens in a new tab, so
+      -- at `CodeDiffOpen` the window holding the annotated file may not exist yet.
+      local function clear_foldsign_everywhere()
+        for _, buf in ipairs(vim.api.nvim_list_bufs()) do
+          if vim.api.nvim_buf_is_loaded(buf) then
+            clear_foldsign(buf)
+          end
+        end
+      end
+
+      -- The field `foldsign()` tests, rather than `setup()`: each `setup` call appends
+      -- another copy of its six autocmds to the default group, so toggling through it
+      -- left one more CursorMoved handler behind per diff session.
+      local function foldsign_enabled(on)
+        local ok, foldsign = pcall(require, "nvim-foldsign")
+        if ok then
+          foldsign.enabled = on
         end
       end
 
@@ -54,7 +78,9 @@ return {
             vim.wo[win].relativenumber = false
             vim.wo[win].foldenable = false
             vim.wo[win].foldcolumn = "0"
-            vim.wo[win].signcolumn = "no"
+            -- One column, not "no". A gutter of zero is what let a clamped virt_text land
+            -- on the text, and the review's note sign needs somewhere to draw.
+            vim.wo[win].signcolumn = "yes:1"
             clear_foldsign(vim.api.nvim_win_get_buf(win))
           end
         end
@@ -65,12 +91,11 @@ return {
         callback = function(ev)
           for _, win in ipairs(vim.api.nvim_tabpage_list_wins(0)) do
             vim.wo[win].foldcolumn = "0"
-            vim.wo[win].signcolumn = "no"
-            clear_foldsign(vim.api.nvim_win_get_buf(win))
           end
+          clear_foldsign_everywhere()
           vim.g.codediff_saved_showtabline = vim.o.showtabline
           vim.o.showtabline = 0
-          require("nvim-foldsign").setup({ enabled = false })
+          foldsign_enabled(false)
           local tabpage = (ev.data or {}).tabpage or vim.api.nvim_get_current_tabpage()
           vim.schedule(function()
             apply_diff_winopts(tabpage)
@@ -98,7 +123,7 @@ return {
             vim.o.showtabline = vim.g.codediff_saved_showtabline
             vim.g.codediff_saved_showtabline = nil
           end
-          require("nvim-foldsign").setup({ enabled = true })
+          foldsign_enabled(true)
         end,
       })
     end,
