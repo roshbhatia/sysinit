@@ -261,12 +261,4 @@
       sha256 = "sha256-1oYSyDI5yq+rcsx2xVrFcr/QegWeqPvSo92+HytV3Ns=";
     };
   };
-  tinycast = {
-    pname = "tinycast";
-    version = "0.7.5";
-    src = fetchurl {
-      url = "https://github.com/abue-ammar/tinycast/releases/download/v0.7.5/Tinycast-0.7.5.dmg";
-      sha256 = "sha256-XLxxdnRrWYvJ+9ulwD+yrhGtCSzFl00EAjZoFCnR86g=";
-    };
-  };
 }

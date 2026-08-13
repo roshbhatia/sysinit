@@ -178,9 +178,3 @@ fetch.url = "https://github.com/block/goose/releases/download/v$ver/goose-aarch6
 src.github = "block/goose"
 src.prefix = "v"
 fetch.url = "https://github.com/block/goose/releases/download/v$ver/goose-x86_64-unknown-linux-gnu.tar.gz"
-
-# macOS app bundles shipped as release archives, universal (no per-platform assets)
-[tinycast]
-src.github = "abue-ammar/tinycast"
-src.prefix = "v"
-fetch.url = "https://github.com/abue-ammar/tinycast/releases/download/v$ver/Tinycast-$ver.dmg"

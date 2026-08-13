@@ -46,7 +46,6 @@
   (import ./pplx.nix)
   (import ./alerter.nix)
   (import ./sheets.nix)
-  (import ./tinycast.nix)
   (_final: prev: {
     _1password-gui =
       if prev.stdenv.hostPlatform.isDarwin then
