@@ -91,6 +91,13 @@ return {
         desc = "Harness: send selection",
         mode = "v",
       },
+      {
+        "<leader>dn",
+        function()
+          require("harness.notes").add()
+        end,
+        desc = "Note on this line",
+      },
       -- The glow preview moved to `<localleader>xp` in `after/ftplugin/markdown.lua`.
     },
   },

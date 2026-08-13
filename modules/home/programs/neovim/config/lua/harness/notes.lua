@@ -45,7 +45,8 @@ local function box(entries, hl)
     end
   end
 
-  local header = #entries > 1 and string.format("[AGENT ×%d]", #entries) or "[AGENT]"
+  -- `[NOTE]`, not `[AGENT]`: `M.add` lets the owner write into the same record.
+  local header = #entries > 1 and string.format("[NOTE ×%d]", #entries) or "[NOTE]"
   local lines = {
     { { "╭─" .. header .. string.rep("─", width - vim.fn.strdisplaywidth(header) + 1) .. "╮", hl } },
   }
@@ -246,6 +247,64 @@ function M.detach()
   end
   by_root = {}
   roots = {}
+end
+
+--- Write a note on the current line, then redraw it.
+function M.add()
+  local buf = vim.api.nvim_get_current_buf()
+  local path = vim.api.nvim_buf_get_name(buf)
+  if path == "" or vim.bo[buf].buftype ~= "" then
+    vim.notify("Notes: this window holds no file to annotate", vim.log.levels.WARN)
+    return
+  end
+  if vim.fn.executable(M.tool) ~= 1 then
+    vim.notify("Notes: " .. M.tool .. " is not on PATH", vim.log.levels.ERROR)
+    return
+  end
+
+  path = vim.fs.normalize(path)
+  local line = vim.api.nvim_win_get_cursor(0)[1]
+  -- The review's root when one is open, so a note lands in the same record the review
+  -- reads; otherwise the repository holding the file, so annotating works with no review.
+  local root = owner(path)
+  if root == nil then
+    root = vim.fs.root(path, ".git")
+    if root == nil then
+      vim.notify("Notes: " .. path .. " is in no repository", vim.log.levels.WARN)
+      return
+    end
+  end
+
+  vim.ui.input({ prompt = string.format("Note on %s:%d: ", vim.fn.fnamemodify(path, ":t"), line) }, function(summary)
+    if summary == nil or summary == "" then
+      return
+    end
+    vim.system({
+      M.tool,
+      "note",
+      "add",
+      "--file",
+      path,
+      "--line",
+      tostring(line),
+      "--summary",
+      summary,
+      "--author",
+      vim.env.USER or "owner",
+    }, { cwd = root, text = true }, function(result)
+      vim.schedule(function()
+        if result.code ~= 0 then
+          vim.notify("Notes: " .. (result.stderr or "note add failed"), vim.log.levels.ERROR)
+          return
+        end
+        if #roots == 0 then
+          M.attach({ root })
+        else
+          M.refresh()
+        end
+      end)
+    end)
+  end)
 end
 
 --- How many notes are drawn, for the health report.
