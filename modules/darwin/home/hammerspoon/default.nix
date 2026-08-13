@@ -7,6 +7,7 @@ let
     wezterm = "${pkgs.wezterm}/bin/wezterm";
     sy = "/etc/profiles/per-user/roshan/bin/sy";
     fftabs = "${pkgs.utils}/bin/firefox-tabs";
+    bat = "${pkgs.bat}/bin/bat";
     appDirs = [
       "/Applications"
       "/System/Applications"

@@ -99,11 +99,46 @@
         color: var(--faint);
       }
 
-      #list {
+      #body {
         flex: 1;
         min-height: 0;
+        display: flex;
+      }
+
+      #list {
+        flex: 1;
+        min-width: 0;
         overflow-y: auto;
         padding: 6px;
+      }
+
+      /* The preview pane, shown only for a list that has something to preview. */
+      #preview {
+        display: none;
+        flex: 0 0 57%;
+        overflow: auto;
+        padding: 12px 14px;
+        border-left: 1px solid var(--line);
+        font:
+          12px ui-monospace,
+          SFMono-Regular,
+          Menlo,
+          monospace;
+        line-height: 1.45;
+        white-space: pre;
+        color: var(--text);
+      }
+
+      #panel.split #preview {
+        display: block;
+      }
+
+      #panel.split #list {
+        flex: 0 0 43%;
+      }
+
+      #preview::-webkit-scrollbar {
+        width: 0;
       }
 
       #list::-webkit-scrollbar {
@@ -231,29 +266,42 @@
           </svg>
           <input id="q" placeholder="Search" spellcheck="false" autocomplete="off" />
         </div>
-        <div id="list"></div>
+        <div id="body">
+          <div id="list"></div>
+          <div id="preview"></div>
+        </div>
         <div id="footer">
           <span id="action"></span>
           <span id="hints">
-            <kbd>&#8629;</kbd> Open <kbd>&#8679;J</kbd> <kbd>&#8679;K</kbd> Move <kbd>esc</kbd> Close
+            <kbd>&#8629;</kbd> <span id="verb">Open</span> <kbd>&#8679;J</kbd> <kbd>&#8679;K</kbd> Move
+            <kbd>esc</kbd> <span id="leave">Close</span>
           </span>
         </div>
       </div>
     </div>
 
     <script>
-      const HEIGHT = { chrome: 96 + 52, row: 40, list: 12, visible: 9, empty: 74 };
+      const HEIGHT = { chrome: 96 + 52, row: 40, list: 12, visible: 9, floor: 7, empty: 74 };
 
       let rows = [];
       let shown = [];
       let sel = 0;
       let armed = false;
       let icons = {};
+      // Whether this list previews its selection, and whether escape leaves it for the list
+      // it was opened from rather than closing the panel.
+      let split = false;
+      let nested = false;
+      let asked = null;
 
       const el = {
         q: document.getElementById("q"),
         list: document.getElementById("list"),
         action: document.getElementById("action"),
+        panel: document.getElementById("panel"),
+        preview: document.getElementById("preview"),
+        verb: document.getElementById("verb"),
+        leave: document.getElementById("leave"),
       };
 
       function send(message) {
@@ -319,6 +367,7 @@
         if (shown.length === 0) {
           el.list.innerHTML = '<div id="empty">No results</div>';
           el.action.textContent = "";
+          el.preview.textContent = "";
           resize();
           return;
         }
@@ -347,15 +396,46 @@
         });
         el.list.innerHTML = parts.join("");
         el.action.textContent = shown[sel].kind || "";
+        ask();
         resize();
       }
 
       // The window is only as tall as the rows it has, so a two-hit search is not a panel of
-      // empty space.
+      // empty space. A split list keeps a floor, because the preview beside it needs room.
       function resize() {
-        const count = Math.min(shown.length, HEIGHT.visible);
-        const body = shown.length === 0 ? HEIGHT.empty : HEIGHT.list + 24 + count * HEIGHT.row;
+        let count = Math.min(shown.length, HEIGHT.visible);
+        if (split) {
+          count = Math.max(count, HEIGHT.floor);
+        }
+        const body = shown.length === 0 && !split ? HEIGHT.empty : HEIGHT.list + 24 + count * HEIGHT.row;
         send({ action: "height", height: HEIGHT.chrome + body });
+      }
+
+      // The preview is drawn by a tool that takes a moment, so it is asked for once the
+      // selection settles rather than on every key of a held-down move.
+      function ask() {
+        if (!split) {
+          return;
+        }
+        const row = shown[sel];
+        if (asked !== null) {
+          clearTimeout(asked);
+        }
+        asked = setTimeout(() => {
+          asked = null;
+          if (row) {
+            send({ action: "preview", index: row.index });
+          }
+        }, 70);
+      }
+
+      function setPreview(answer) {
+        const row = shown[sel];
+        // Only if the selection has not moved on while the tool was running.
+        if (row && row.index === answer.index) {
+          el.preview.innerHTML = answer.html;
+          el.preview.scrollTop = 0;
+        }
       }
 
       function move(step) {
@@ -369,6 +449,7 @@
         if (rows[sel]) {
           rows[sel].scrollIntoView({ block: "nearest" });
         }
+        ask();
       }
 
       function choose(index) {
@@ -391,7 +472,7 @@
           choose(sel);
         } else if (key === "Escape") {
           event.preventDefault();
-          send({ action: "close" });
+          send({ action: nested ? "back" : "close" });
         }
       });
 
@@ -447,11 +528,21 @@
       // so the page says when it is ready rather than the caller guessing.
       send({ action: "loaded" });
 
+      // Shown for a list the panel has just moved to, whether that is the first list or one
+      // opened from inside it.
       function open(opts) {
         armed = false;
+        split = opts.split === true;
+        nested = opts.nested === true;
+        el.panel.classList.toggle("split", split);
+        el.preview.innerHTML = "";
         el.q.placeholder = opts.placeholder;
         el.q.value = "";
+        el.verb.textContent = opts.verb || "Open";
+        el.leave.textContent = nested ? "Back" : "Close";
         sel = 0;
+        filter();
+        draw();
         el.q.focus();
         setTimeout(() => {
           armed = true;

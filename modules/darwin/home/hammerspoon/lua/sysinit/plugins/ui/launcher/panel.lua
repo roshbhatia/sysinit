@@ -15,8 +15,9 @@ local top = 0.16
 
 local view = nil
 local watch = nil
-local rows = {}
-local chosen = nil
+-- The lists the panel is showing, innermost last. A submenu pushes one and escape pops it,
+-- so leaving the clipboard history returns to the list it was opened from.
+local stack = {}
 -- Whether the page has finished loading. Rows handed over before it has are dropped, so
 -- what the first open wants to do waits in `waiting` until the page says it is ready.
 local loaded = false
@@ -74,22 +75,45 @@ local function transport(all)
   return out, fresh
 end
 
+--- The list being shown.
+---@return table|nil
+local function current()
+  return stack[#stack]
+end
+
 --- Hand the current rows to the page.
 local function push()
-  if view == nil or not loaded then
+  local list = current()
+  if view == nil or not loaded or list == nil then
     return
   end
-  local out, fresh = transport(rows)
+  local out, fresh = transport(list.rows)
   if next(fresh) ~= nil then
     view:evaluateJavaScript("setIcons(" .. hs.json.encode(fresh) .. ")")
   end
   view:evaluateJavaScript("setRows(" .. hs.json.encode(out) .. ")")
 end
 
+--- Draw the list the panel has just moved to, rows and all.
+local function present()
+  local list = current()
+  if view == nil or list == nil then
+    return
+  end
+  push()
+  view:evaluateJavaScript("open(" .. hs.json.encode({
+    placeholder = list.placeholder or "Search",
+    verb = list.verb or "Open",
+    split = list.preview ~= nil,
+    nested = #stack > 1,
+  }) .. ")")
+end
+
 --- Handle one message from the page.
 ---@param message table
 local function received(message)
   local body = message and message.body or {}
+  local list = current()
   if body.action == "loaded" then
     loaded = true
     if waiting then
@@ -103,11 +127,26 @@ local function received(message)
     end
   elseif body.action == "close" then
     M.hide()
+  elseif body.action == "back" then
+    if #stack > 1 then
+      table.remove(stack)
+      present()
+    else
+      M.hide()
+    end
+  elseif body.action == "preview" then
+    local row = list and list.rows[body.index]
+    if row and list.preview then
+      list.preview(row, function(html)
+        if view and current() == list then
+          view:evaluateJavaScript("setPreview(" .. hs.json.encode({ index = body.index, html = html }) .. ")")
+        end
+      end)
+    end
   elseif body.action == "open" then
-    local row = rows[body.index]
-    M.hide()
-    if row and chosen then
-      chosen(row)
+    local row = list and list.rows[body.index]
+    if row and list.choose then
+      list.choose(row)
     end
   end
 end
@@ -162,23 +201,25 @@ function M.visible()
   return view ~= nil and view:isVisible()
 end
 
---- Replace the rows while the panel is up, for a source that has just answered.
+--- Replace the rows of the list on top while the panel is up, for a source that has just
+--- answered. A submenu is left alone, since its rows are its own.
 ---@param all table[]
 function M.rows(all)
-  rows = all
-  push()
+  local list = current()
+  if list and #stack == 1 then
+    list.rows = all
+    push()
+  end
 end
 
---- Show the panel with these rows, calling `cb` with the row that is opened.
----@param all table[]
----@param placeholder string
----@param cb fun(row: table)
-function M.show(all, placeholder, cb)
+--- Show the panel on `list`, which names its rows, its placeholder, what enter does, and
+--- optionally how to preview the selection.
+---@param list table
+function M.show(list)
   if view == nil then
     build()
   end
-  rows = all
-  chosen = cb
+  stack = { list }
   view:show()
   -- Focus is taken a beat after showing, because focusing a window blocks until the system
   -- answers and doing it inline stalls whatever asked for the panel.
@@ -187,14 +228,16 @@ function M.show(all, placeholder, cb)
     if window then
       window:focus()
     end
-    ready(function()
-      push()
-      -- Wrapped in a table, because `hs.json.encode` takes only a table and a bare string
-      -- raises rather than quoting itself.
-      view:evaluateJavaScript("open(" .. hs.json.encode({ placeholder = placeholder }) .. ")")
-    end)
+    ready(present)
   end)
   outside()
+end
+
+--- Open a list from inside the one showing, which escape returns from.
+---@param list table
+function M.enter(list)
+  stack[#stack + 1] = list
+  present()
 end
 
 --- Hide the panel and stop watching for clicks.

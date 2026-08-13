@@ -93,17 +93,25 @@ function M.start()
   record()
 end
 
---- The history as launcher rows, newest first.
+--- How much is held, for the row that opens the history.
+---@return number
+function M.depth()
+  return #history
+end
+
+--- The history as launcher rows, newest first. Its own list rather than rows mixed into the
+--- root one, because a clipboard entry is read before it is chosen and reading it needs the
+--- whole of it, not a line.
 ---@return table[]
 function M.rows()
   local rows = {}
-  for _, entry in ipairs(history) do
+  for index, entry in ipairs(history) do
     rows[#rows + 1] = {
       text = entry.label,
-      detail = "",
-      label = "Clipboard",
+      detail = os.date("%H:%M", entry.at),
+      label = string.format("%d", index),
       badge = "C",
-      kind = "clipboard",
+      kind = "clip-entry",
       entry = entry,
       at = entry.at,
     }

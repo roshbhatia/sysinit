@@ -2,6 +2,7 @@
 -- sessions, the clipboard, and a set of declared commands. It replaces Spotlight on
 -- cmd+space, so it has to answer instantly and to index only what is asked for rather than
 -- the whole disk.
+local ansi = require("sysinit.plugins.ui.launcher.ansi")
 local json_loader = require("sysinit.pkg.utils.json_loader")
 local clipboard = require("sysinit.plugins.ui.launcher.clipboard")
 local panel = require("sysinit.plugins.ui.launcher.panel")
@@ -230,6 +231,75 @@ local function tab_rows(cb)
   end)
 end
 
+--- The one row that opens the clipboard history, rather than sixty rows of it in the list
+--- everything else is in.
+---@return table[]
+local function clipboard_rows()
+  local held = clipboard.depth()
+  if held == 0 then
+    return {}
+  end
+  return {
+    {
+      text = "Clipboard History",
+      detail = string.format("%d held", held),
+      label = "Clipboard",
+      badge = "C",
+      kind = "clipboard",
+    },
+  }
+end
+
+--- What `bat` should call the language of a clipboard entry. It reads the text from a pipe
+--- and so has no file name to guess from, and a wrong guess is only a dull preview.
+---@param text string
+---@return string
+local function language(text)
+  local head = text:sub(1, 400)
+  if head:match("^%s*[{%[]") then
+    return "json"
+  end
+  if head:match("^diff %-%-git") or head:match("\ndiff %-%-git") then
+    return "diff"
+  end
+  if head:match("^#!") or head:match("^%s*[%w%-_/]+%s+%-%-?%w") or head:match("|") then
+    return "bash"
+  end
+  if head:match("^https?://") then
+    return "log"
+  end
+  return "txt"
+end
+
+--- Draw one clipboard entry the way a terminal would, by running it through `bat` and
+--- turning the colour escapes into markup. Through a pipe, never a file, because the
+--- history is held in memory for a reason.
+---@param row table
+---@param cb fun(html: string)
+local function preview(row, cb)
+  local text = row.entry and row.entry.text or ""
+  local tool = settings().bat
+  if tool == nil then
+    return cb("<span></span>")
+  end
+  local task = hs.task.new(tool, function(_, out)
+    cb(ansi.html(out or ""))
+  end, {
+    "--color=always",
+    "--paging=never",
+    "--style=numbers",
+    "--wrap=character",
+    "--terminal-width=64",
+    "--line-range=:200",
+    "--language=" .. language(text),
+  })
+  if task == nil then
+    return cb("<span></span>")
+  end
+  task:setInput(text)
+  task:start()
+end
+
 --- The declared commands, each one a shell line or a URL. Declared in Nix rather than
 --- here, so a new command is a configuration change and not a code change.
 ---@return table[]
@@ -249,12 +319,35 @@ local function command_rows()
   return rows
 end
 
+--- The clipboard history as its own list, previewed beside itself.
+---@return table
+local function history()
+  return {
+    rows = clipboard.rows(),
+    placeholder = "Search the clipboard history",
+    verb = "Copy",
+    preview = preview,
+    choose = function(row)
+      panel.hide()
+      clipboard.restore(row.entry)
+    end,
+  }
+end
+
 --- Open one row, and record that it was opened, so the next list puts it near the top.
 ---@param choice table|nil
 local function activate(choice)
   if choice == nil then
     return
   end
+  -- The clipboard row opens a list rather than doing something, so the panel stays up.
+  if choice.kind == "clipboard" then
+    recency.touch(choice)
+    panel.enter(history())
+    return
+  end
+
+  panel.hide()
   recency.touch(choice)
 
   if choice.kind == "app" then
@@ -275,8 +368,6 @@ local function activate(choice)
       run({ wezterm, "cli", "spawn", "--new-window", "--workspace", choice.text, "--cwd", choice.path })
       hs.application.launchOrFocus("WezTerm")
     end
-  elseif choice.kind == "clipboard" then
-    clipboard.restore(choice.entry)
   elseif choice.kind == "tab" then
     if choice.url then
       hs.urlevent.openURL(choice.url)
@@ -303,7 +394,11 @@ function M.toggle()
   M.gather(function(rows)
     if first then
       first = false
-      panel.show(rows, "Search apps, panes, sessions, tabs, clipboard", activate)
+      panel.show({
+        rows = rows,
+        placeholder = "Search apps, panes, sessions, tabs, clipboard",
+        choose = activate,
+      })
     else
       panel.rows(rows)
     end
@@ -325,7 +420,7 @@ function M.gather(cb)
 
   fold(app_rows())
   fold(command_rows())
-  fold(clipboard.rows())
+  fold(clipboard_rows())
   pane_rows(fold)
   session_rows(fold)
   tab_rows(fold)
