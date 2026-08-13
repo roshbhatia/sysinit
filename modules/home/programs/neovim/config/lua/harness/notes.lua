@@ -173,6 +173,9 @@ local function load(root, done)
       for _, bufnr in ipairs(vim.api.nvim_list_bufs()) do
         M.place(bufnr)
       end
+      -- Announced rather than pushed: a note list, a picker, and the diff panel all want
+      -- to know the record moved, and none of them should have to poll for it.
+      vim.api.nvim_exec_autocmds("User", { pattern = "HarnessNotesChanged", modeline = false })
       if done then
         done(count)
       end
@@ -247,6 +250,7 @@ function M.detach()
   end
   by_root = {}
   roots = {}
+  vim.api.nvim_exec_autocmds("User", { pattern = "HarnessNotesChanged", modeline = false })
 end
 
 --- Write a note on the current line, then redraw it.
@@ -305,6 +309,32 @@ function M.add()
       end)
     end)
   end)
+end
+
+--- Every note under every attached root, newest root order, each carrying the absolute
+--- path it belongs to. For a list or a picker, which needs one flat set rather than the
+--- per-buffer view `place` draws.
+---@return table[]
+function M.all()
+  local found = {}
+  for _, root in ipairs(roots) do
+    for relative, notes in pairs(by_root[root] or {}) do
+      for _, note in ipairs(notes) do
+        found[#found + 1] = vim.tbl_extend("keep", {
+          root = root,
+          relative = relative,
+          path = root .. "/" .. relative,
+        }, note)
+      end
+    end
+  end
+  table.sort(found, function(a, b)
+    if a.path ~= b.path then
+      return a.path < b.path
+    end
+    return (tonumber(a.line) or 0) < (tonumber(b.line) or 0)
+  end)
+  return found
 end
 
 --- Which files under root carry notes, and how many each carries, for a list that shows

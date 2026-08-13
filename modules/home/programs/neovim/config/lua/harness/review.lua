@@ -91,15 +91,18 @@ local function open_one(root, args)
 end
 
 --- Open a review over these repositories, and attach the notes to all of them at once.
+--- `args` is one rev for every repository, or a rev per repository keyed by root, which
+--- is what a review "since last Tuesday" needs: the same moment resolves to a different
+--- commit in each repository.
 ---@param roots string[]
----@param args string|nil
+---@param args string|table<string, string>|nil
 function M.open(roots, args)
   if #roots == 0 then
     return
   end
   for _, root in ipairs(roots) do
     if not alive(session.tabs[root]) then
-      open_one(root, args)
+      open_one(root, type(args) == "table" and args[root] or args)
     end
   end
   prune()
@@ -266,18 +269,26 @@ function M.toggle()
 end
 
 --- Re-read the diff and the notes, for a review left open while the tree moved under it.
-function M.refresh()
+--- Every open view, not only the one in front, and through diffview's own debounced
+--- update rather than through `:DiffviewRefresh`, which would need the tab in front and
+--- so would move the reader on every save.
+---@param opts? { quiet?: boolean }
+function M.refresh(opts)
   prune()
-  local here = vim.api.nvim_get_current_tabpage()
-  for _, root in ipairs(session.roots) do
-    vim.api.nvim_set_current_tabpage(session.tabs[root])
-    pcall(vim.cmd, "DiffviewRefresh")
-  end
-  if vim.api.nvim_tabpage_is_valid(here) then
-    pcall(vim.api.nvim_set_current_tabpage, here)
+  local ok, lib = pcall(require, "diffview.lib")
+  if ok then
+    for _, view in ipairs(lib.views or {}) do
+      if type(view.update_files) == "function" then
+        pcall(function()
+          view:update_files()
+        end)
+      end
+    end
   end
   require("harness.notes").refresh(function(count)
-    vim.notify(string.format("Review: reloaded, %d notes", count), vim.log.levels.INFO)
+    if not (opts and opts.quiet) then
+      vim.notify(string.format("Review: reloaded, %d notes", count), vim.log.levels.INFO)
+    end
   end)
 end
 
