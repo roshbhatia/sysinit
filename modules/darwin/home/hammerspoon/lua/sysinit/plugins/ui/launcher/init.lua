@@ -223,25 +223,31 @@ function M.toggle()
     chooser:hide()
     return
   end
-  -- The instant sources first, so the list is up and typeable before either tool has
-  -- answered, and the live ones are folded in as they land.
+  M.gather(function(rows)
+    chooser:choices(rows)
+  end)
+  chooser:query(nil)
+  chooser:show()
+end
+
+--- Every row, handed over as soon as there is something to show and again as each live
+--- source answers. The instant sources go first, so the list is up and typeable before
+--- either tool has replied.
+---@param cb fun(rows: table[])
+function M.gather(cb)
   local rows = {}
   for _, source in ipairs({ app_rows, command_rows }) do
     for _, row in ipairs(source()) do
       rows[#rows + 1] = row
     end
   end
-  chooser:choices(rows)
-  chooser:query(nil)
-  chooser:show()
+  cb(rows)
 
   local function fold(found)
     for _, row in ipairs(found) do
       rows[#rows + 1] = row
     end
-    if chooser:isVisible() then
-      chooser:choices(rows)
-    end
+    cb(rows)
   end
   pane_rows(fold)
   session_rows(fold)
