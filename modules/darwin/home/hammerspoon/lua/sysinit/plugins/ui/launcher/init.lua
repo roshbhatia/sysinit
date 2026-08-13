@@ -1,17 +1,22 @@
 -- The launcher: one fuzzy list over the applications, the open WezTerm panes, the seshy
--- sessions, and a set of declared commands. It replaces Spotlight on cmd+space, so it has
--- to answer instantly and to index only what is asked for rather than the whole disk.
-local theme = require("sysinit.pkg.theme")
+-- sessions, the clipboard, and a set of declared commands. It replaces Spotlight on
+-- cmd+space, so it has to answer instantly and to index only what is asked for rather than
+-- the whole disk.
 local json_loader = require("sysinit.pkg.utils.json_loader")
+local clipboard = require("sysinit.plugins.ui.launcher.clipboard")
+local recency = require("sysinit.plugins.ui.launcher.recency")
 
 local M = {}
 
--- Every source's rows, rebuilt when the launcher opens. Apps are cached across opens,
--- because scanning five directories on every keystroke is the cost Spotlight is disliked
--- for; the live sources are cheap enough to ask again each time.
+-- The applications, cached across opens, because scanning the directories on every open is
+-- the cost Spotlight is disliked for. The live sources are cheap enough to ask again.
 local apps = nil
 local chooser = nil
 local config = nil
+
+-- The keys that move the selection, live only while the panel is up. A modal rather than an
+-- `hs.eventtap`, so shift+j reaches the query field as a `J` everywhere else.
+local keys = nil
 
 --- The absolute paths and the declared commands, from Nix. Hammerspoon runs with a
 --- minimal PATH, so a tool is named by its full path or it is not found at all.
@@ -56,22 +61,25 @@ local function json(args, cb)
   end)
 end
 
---- Every `.app` under the directories worth scanning, with its icon.
----@return table[]
-local function app_rows()
-  if apps ~= nil then
-    return apps
+--- Every `.app` directly under `dir`, and under one level of subdirectory, because the Nix
+--- and home-manager apps sit in a folder of their own inside `/Applications` and
+--- `~/Applications` and a one-level scan never reaches them.
+---@param dir string
+---@param into table[]
+---@param seen table<string, boolean>
+local function scan(dir, into, seen)
+  local ok, iter, state = pcall(hs.fs.dir, dir)
+  if not ok or not iter then
+    return
   end
-  local dirs = settings().appDirs or {}
-  local found, seen = {}, {}
-  for _, dir in ipairs(dirs) do
-    local ok, iter, state = pcall(hs.fs.dir, dir)
-    if ok and iter then
-      for name in iter, state do
-        if name:sub(-4) == ".app" and not seen[name] then
+  local nested = {}
+  for name in iter, state do
+    if name ~= "." and name ~= ".." then
+      local path = dir .. "/" .. name
+      if name:sub(-4) == ".app" then
+        if not seen[name] then
           seen[name] = true
-          local path = dir .. "/" .. name
-          found[#found + 1] = {
+          into[#into + 1] = {
             text = name:sub(1, #name - 4),
             subText = dir,
             image = hs.image.iconForFile(path),
@@ -79,12 +87,43 @@ local function app_rows()
             path = path,
           }
         end
+      else
+        nested[#nested + 1] = path
       end
     end
   end
-  table.sort(found, function(a, b)
-    return a.text < b.text
-  end)
+  for _, path in ipairs(nested) do
+    local attrs = hs.fs.attributes(path)
+    if attrs and attrs.mode == "directory" then
+      local sub_ok, sub_iter, sub_state = pcall(hs.fs.dir, path)
+      if sub_ok and sub_iter then
+        for name in sub_iter, sub_state do
+          if name:sub(-4) == ".app" and not seen[name] then
+            seen[name] = true
+            into[#into + 1] = {
+              text = name:sub(1, #name - 4),
+              subText = path,
+              image = hs.image.iconForFile(path .. "/" .. name),
+              kind = "app",
+              path = path .. "/" .. name,
+            }
+          end
+        end
+      end
+    end
+  end
+end
+
+--- Every application worth listing, with its icon.
+---@return table[]
+local function app_rows()
+  if apps ~= nil then
+    return apps
+  end
+  local found, seen = {}, {}
+  for _, dir in ipairs(settings().appDirs or {}) do
+    scan(dir, found, seen)
+  end
   apps = found
   return apps
 end
@@ -136,6 +175,27 @@ local function session_rows(cb)
   end)
 end
 
+--- The open Firefox tabs, read by the helper that can decompress the session store.
+---@param cb fun(rows: table[])
+local function tab_rows(cb)
+  local tool = settings().fftabs
+  if tool == nil then
+    return cb({})
+  end
+  json({ tool }, function(tabs)
+    local rows = {}
+    for _, tab in ipairs(tabs) do
+      rows[#rows + 1] = {
+        text = tab.title or tab.url or "",
+        subText = tab.url or "Firefox tab",
+        kind = "tab",
+        url = tab.url,
+      }
+    end
+    cb(rows)
+  end)
+end
+
 --- The declared commands, each one a shell line or a URL. Declared in Nix rather than
 --- here, so a new command is a configuration change and not a code change.
 ---@return table[]
@@ -153,12 +213,14 @@ local function command_rows()
   return rows
 end
 
---- Open one row.
+--- Open one row, and record that it was opened, so the next list puts it near the top.
 ---@param choice table|nil
 local function activate(choice)
   if choice == nil then
     return
   end
+  recency.touch(choice)
+
   if choice.kind == "app" then
     hs.application.launchOrFocus(choice.path)
   elseif choice.kind == "pane" then
@@ -170,24 +232,18 @@ local function activate(choice)
     -- which is the half `activate-pane` does not do.
     hs.application.launchOrFocus("WezTerm")
   elseif choice.kind == "session" then
-    local sy = settings().sy
     local wezterm = settings().wezterm
     if wezterm and choice.path then
       -- A window in that session's workspace and directory, which is what opening a
       -- session means. `sy` names the path; wezterm holds the workspace.
-      run({
-        wezterm,
-        "cli",
-        "spawn",
-        "--new-window",
-        "--workspace",
-        choice.text,
-        "--cwd",
-        choice.path,
-      })
+      run({ wezterm, "cli", "spawn", "--new-window", "--workspace", choice.text, "--cwd", choice.path })
       hs.application.launchOrFocus("WezTerm")
-    elseif sy then
-      hs.execute(sy .. " path " .. choice.text)
+    end
+  elseif choice.kind == "clipboard" then
+    clipboard.restore(choice.entry)
+  elseif choice.kind == "tab" then
+    if choice.url then
+      hs.urlevent.openURL(choice.url)
     end
   elseif choice.kind == "command" then
     if choice.url then
@@ -200,16 +256,53 @@ local function activate(choice)
   end
 end
 
---- Build the chooser, themed like the rest of this config.
+--- Move the selection by posting the arrow key the panel already handles, rather than
+--- setting the selected row, so the list scrolls and stops at its ends on its own.
+---@param key string
+local function step(key)
+  hs.eventtap.keyStroke({}, key, 0)
+end
+
+--- Build the chooser. No colours of its own: `hs.chooser` is an AppKit panel, and left
+--- alone it takes the system's own vibrant appearance, which is what makes it read as a
+--- native window rather than a themed one.
 local function build()
   chooser = hs.chooser.new(activate)
-  local colors = theme.getColors()
-  chooser:bgDark(true)
-  chooser:fgColor(colors.foreground)
-  chooser:subTextColor(colors.foregroundSecondary or colors.foreground)
-  chooser:rows(12)
-  chooser:width(30)
+  chooser:rows(10)
+  chooser:width(28)
   chooser:searchSubText(true)
+  chooser:placeholderText("Search apps, panes, sessions, tabs, clipboard")
+
+  keys = hs.hotkey.modal.new()
+  keys:bind(
+    { "shift" },
+    "j",
+    function()
+      step("down")
+    end,
+    nil,
+    function()
+      step("down")
+    end
+  )
+  keys:bind(
+    { "shift" },
+    "k",
+    function()
+      step("up")
+    end,
+    nil,
+    function()
+      step("up")
+    end
+  )
+  chooser:showCallback(function()
+    keys:enter()
+  end)
+  chooser:hideCallback(function()
+    keys:exit()
+  end)
+
   return chooser
 end
 
@@ -230,41 +323,41 @@ function M.toggle()
   chooser:show()
 end
 
---- Every row, handed over as soon as there is something to show and again as each live
---- source answers. The instant sources go first, so the list is up and typeable before
---- either tool has replied.
+--- Every row, ordered by how recently it was opened, handed over as soon as there is
+--- something to show and again as each live source answers. The instant sources go first,
+--- so the list is up and typeable before any tool has replied.
 ---@param cb fun(rows: table[])
 function M.gather(cb)
   local rows = {}
-  for _, source in ipairs({ app_rows, command_rows }) do
-    for _, row in ipairs(source()) do
-      rows[#rows + 1] = row
-    end
-  end
-  cb(rows)
-
   local function fold(found)
     for _, row in ipairs(found) do
       rows[#rows + 1] = row
     end
-    cb(rows)
+    cb(recency.sort(rows))
   end
+
+  fold(app_rows())
+  fold(command_rows())
+  fold(clipboard.rows())
   pane_rows(fold)
   session_rows(fold)
+  tab_rows(fold)
 end
 
---- Forget the cached applications, for a caller that has just installed one.
+--- Forget the cached applications and settings, for a caller that has just installed one.
 function M.reindex()
   apps = nil
   config = nil
 end
 
 function M.setup()
+  clipboard.start()
+
   hs.hotkey.bind({ "cmd" }, "space", function()
     M.toggle()
   end)
 
-  -- The applications are cached, so a new one installed while Hammerspoon is up would not
+  -- The applications are cached, so one installed while Hammerspoon is up would not
   -- appear. Watching the directories costs nothing and keeps the list honest.
   for _, dir in ipairs(settings().appDirs or {}) do
     local watcher = hs.pathwatcher.new(dir, function()

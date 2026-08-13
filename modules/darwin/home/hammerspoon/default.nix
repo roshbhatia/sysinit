@@ -6,12 +6,17 @@ let
   launcherConfig = {
     wezterm = "${pkgs.wezterm}/bin/wezterm";
     sy = "/etc/profiles/per-user/roshan/bin/sy";
+    fftabs = "${pkgs.utils}/bin/firefox-tabs";
     appDirs = [
       "/Applications"
       "/System/Applications"
       "/Applications/Utilities"
       "/System/Applications/Utilities"
       "/Users/roshan/Applications"
+      # Where a Nix-installed GUI application lands. Named, because the launcher scans one
+      # level into each directory and these two are what hold WezTerm and its kin.
+      "/Applications/Nix Apps"
+      "/Users/roshan/Applications/Home Manager Apps"
     ];
     commands = [
       {
