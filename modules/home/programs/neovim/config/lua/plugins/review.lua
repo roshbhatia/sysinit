@@ -38,7 +38,7 @@ return {
       -- it hands one to `vim.filetype.match`, which throws inside `normalize_path`.
       -- The throw aborts `on_session_created` before it creates its augroup or its
       -- keymaps, so the diff opens with no comment layer and looks like a plain diff.
-      -- It breaks `<leader>dr` and `<leader>dR` identically, which is why the guard
+      -- It breaks `<leader>dd` and `<leader>dR` identically, which is why the guard
       -- sits here rather than beside the scoped open.
       --
       -- The record's own `absolute` field is what the caller meant, so detection still
@@ -84,25 +84,20 @@ return {
     end,
     keys = {
       {
+        -- Declared on this spec, not on codediff's, because lazy loads only the spec
+        -- the key belongs to. review.nvim lists codediff as a dependency, so this
+        -- loads both and the diff arrives with its comment layer; the same key on the
+        -- codediff spec loaded codediff alone and opened a diff nothing could annotate.
+        --
         -- Was a bare `<Cmd>Review<CR>`, which made review.nvim resolve its own root
         -- with `git rev-parse` in the process cwd (`lua/review/storage.lua:18`) and
         -- so review exactly one repository. It now takes the same path the scoped
         -- review takes, so the two agree about what is under review.
-        "<leader>dr",
+        "<leader>dd",
         function()
           require("harness.api").review_workspace()
         end,
         desc = "Review: annotate workspace diff",
-      },
-      {
-        -- Declared here rather than beside the watcher so lazy loads this plugin
-        -- first: the scoped open attaches review.nvim to a codediff session, and a
-        -- keymap that ran before the plugin existed would open a plain diff.
-        "<leader>dR",
-        function()
-          require("harness.api").review_touched()
-        end,
-        desc = "Review: annotate only the files an agent wrote",
       },
       {
         "<leader>jR",

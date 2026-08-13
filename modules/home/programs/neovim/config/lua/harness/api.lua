@@ -163,7 +163,7 @@ function M.send_review()
   local ok_store, store = pcall(require, "review.store")
   local ok_export, export = pcall(require, "review.export")
   if not (ok_store and ok_export) then
-    vim.notify("Harness: review.nvim not loaded — open a review with <leader>dr", vim.log.levels.WARN)
+    vim.notify("Harness: review.nvim not loaded — open a review with <leader>dd", vim.log.levels.WARN)
     return
   end
   local count = store.count()
@@ -400,16 +400,12 @@ local function open_one(group, on_open)
   end)
 end
 
---- Put the review's changed files in the quickfix list, most changed repository
---- first, and open nothing.
+--- Put the review's changed files in the quickfix list and open it along the bottom.
 ---
---- The list is the cross-repository index, because a changed file's path is absolute
---- and so a list of them does not care how many repositories they came from. It is
---- the quickfix list rather than a buffer of this feature's own so that `:cdo`, `]q`,
---- and any quickfix renderer already read it, knowing nothing about reviews.
----
---- Within a repository codediff's explorer stays the index. The two do not compete:
---- this one crosses roots, that one crosses files in one root.
+--- The list is the cross-repository index: a changed file's path is absolute, so a
+--- list of them does not care how many repositories they came from, and codediff's
+--- tree on the left is rooted in one. It is the quickfix list rather than a buffer of
+--- this feature's own so `:cdo`, `]q`, and any quickfix renderer already read it.
 ---@param groups table[]
 ---@param title string
 local function fill_changed_list(groups, title)
@@ -432,6 +428,25 @@ local function fill_changed_list(groups, title)
     return
   end
   vim.fn.setqflist({}, " ", { title = title, items = items })
+end
+
+--- Open the changed-file list along the bottom of the current tab.
+---
+--- Called after the diff opens, not with the list is filled: `:CodeDiff` creates its
+--- own tab, so a window opened first lands in the tab the owner is leaving.
+---
+--- `botright` so it spans the full width under both the tree and the diff, and the
+--- cursor returns to where it was, because the list is an index rather than the thing
+--- to read.
+local function show_changed_list()
+  if #vim.fn.getqflist() == 0 then
+    return
+  end
+  local back = vim.api.nvim_get_current_win()
+  pcall(vim.cmd, "botright copen 10")
+  if vim.api.nvim_win_is_valid(back) then
+    pcall(vim.api.nvim_set_current_win, back)
+  end
 end
 
 --- What the open review covers: every group it was given, and which one is open.
@@ -488,6 +503,7 @@ local function open_review(groups, said)
   end
 
   open_one(first, function()
+    show_changed_list()
     vim.notify(said, vim.log.levels.INFO)
   end)
 end
@@ -585,9 +601,6 @@ function M.review_repo(where)
 end
 
 --- Open a review of the workspace's changes, over every repository that has any.
----
---- This is the full path. `review_touched` is the same code with a narrower file
---- set, which is the point: a missing edit bus lands here instead of failing.
 function M.review_workspace()
   local gitrepo = require("utils.gitrepo")
   gitrepo.workspace_changes(function(groups, roots)
@@ -608,10 +621,18 @@ function M.review_workspace()
       -- the cwd is the workspace itself and holds several. A clean workspace has no
       -- "most changed" repository to prefer, so the cwd is the only signal left.
       local here = gitrepo.owning_root(vim.fs.normalize(vim.uv.cwd() or "."), roots) or roots[1]
-      open_review(
-        { { root = here, files = {}, scoped = false, empty = true } },
-        string.format("Harness: %s is clean", vim.fn.fnamemodify(here, ":t"))
-      )
+      -- The count, not only the repository the explorer landed on. Measured on
+      -- `fra-region-spin-up`, 18 clean repositories: the message read
+      -- "agent-infra is clean", which names the alphabetically first of eighteen and
+      -- reads as a review that looked at one repository and stopped.
+      local said = #roots == 1 and string.format("Harness: %s is clean", vim.fn.fnamemodify(here, ":t"))
+        or string.format(
+          "Harness: no changes in %d repositories under %s. Showing %s",
+          #roots,
+          vim.fn.fnamemodify(gitrepo.workspace(), ":t"),
+          vim.fn.fnamemodify(here, ":t")
+        )
+      open_review({ { root = here, files = {}, scoped = false, empty = true } }, said)
       return
     end
     -- Not scoped: each repository's whole working diff, which is what the full
@@ -624,94 +645,6 @@ function M.review_workspace()
     end
     open_review(whole, string.format("Harness: reviewing %d repositor%s", #groups, #groups == 1 and "y" or "ies"))
   end)
-end
-
---- Open a review of only the files an agent wrote since this Neovim started.
----
---- Every way this can fail to narrow falls through to the full review rather than
---- warning and opening nothing: no watcher, no events, or events naming nothing
---- inside the workspace.
----
---- The scope is a floor, never the whole truth. An edit made by a shell command
---- rather than by an edit tool writes no event, and an event older than this Neovim
---- is not in the set. So this never silently stands in for the full diff, and every
---- path out of here says which one it took.
-function M.review_touched()
-  local ok_events, events = pcall(require, "harness.edit_events")
-  local files = ok_events and events.touched_files() or {}
-
-  local why = nil
-  if not ok_events then
-    why = "the edit-event watcher is not loaded"
-  elseif #files == 0 then
-    why = "no agent edits recorded this session"
-  end
-  if why then
-    vim.notify("Harness: " .. why .. ", reviewing the full workspace diff", vim.log.levels.INFO)
-    return M.review_workspace()
-  end
-
-  local gitrepo = require("utils.gitrepo")
-  gitrepo.workspace_roots(function(roots)
-    local groups, index, outside = {}, {}, 0
-    for _, path in ipairs(files) do
-      local owner = gitrepo.owning_root(path, roots)
-      if owner then
-        if not index[owner] then
-          index[owner] = { root = owner, files = {}, scoped = true }
-          table.insert(groups, index[owner])
-        end
-        table.insert(index[owner].files, path)
-      else
-        outside = outside + 1
-      end
-    end
-
-    if #groups == 0 then
-      vim.notify(
-        string.format(
-          "Harness: all %d agent edit(s) are outside this workspace, reviewing the full workspace diff",
-          outside
-        ),
-        vim.log.levels.INFO
-      )
-      return M.review_workspace()
-    end
-
-    table.sort(groups, function(a, b)
-      if #a.files ~= #b.files then
-        return #a.files > #b.files
-      end
-      return a.root < b.root
-    end)
-
-    local scoped = 0
-    for _, group in ipairs(groups) do
-      scoped = scoped + #group.files
-    end
-    local said = string.format(
-      "Harness: review scoped to %d file(s) an agent wrote across %d repositor%s",
-      scoped,
-      #groups,
-      #groups == 1 and "y" or "ies"
-    )
-    if outside > 0 then
-      said = said .. string.format(", %d outside the workspace omitted", outside)
-    end
-    open_review(groups, said)
-  end)
-end
-
-function M.preview_spec()
-  local path = vim.api.nvim_buf_get_name(0)
-  if path == "" then
-    vim.notify("Harness: current buffer has no file", vim.log.levels.WARN)
-    return
-  end
-  local res = require("harness.preview").open(path, { focus = false })
-  if not res.ok then
-    vim.notify("Harness: " .. tostring(res.error), vim.log.levels.WARN)
-  end
 end
 
 function M.setup()

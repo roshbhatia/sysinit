@@ -4,11 +4,12 @@ if vim.treesitter.highlighter.active[vim.api.nvim_get_current_buf()] then
 end
 
 Snacks.keymap.set("n", "<localleader>xp", function()
-  local file = vim.fn.expand("%:p")
-  Snacks.terminal.toggle({ "glow", "-p", file }, {
-    win = { position = "right", width = 0.4 },
-  })
+  require("utils.markdown_preview").toggle_glow()
 end, { ft = "markdown", desc = "Preview with glow" })
+
+Snacks.keymap.set("n", "<localleader>xP", function()
+  require("utils.markdown_preview").toggle_browser()
+end, { ft = "markdown", desc = "Preview in browser (go-grip)" })
 
 vim.b.semantic_tokens = true
 

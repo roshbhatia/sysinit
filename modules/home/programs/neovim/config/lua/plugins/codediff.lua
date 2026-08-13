@@ -6,7 +6,10 @@ return {
     config = function()
       require("codediff").setup({
         explorer = {
-          position = "bottom",
+          -- Left, with the changed-file list along the bottom: the file tree and the
+          -- diff sit side by side, and the list under both crosses repositories the
+          -- tree cannot, since codediff's tree is rooted in one repository.
+          position = "left",
           view_mode = "tree",
         },
         keymaps = {
@@ -110,16 +113,6 @@ return {
       })
     end,
     keys = {
-      {
-        -- The workspace, not one repository. `harness.api` owns the fan-out because
-        -- the scoped review needs the same bound and the same message, and two
-        -- copies of that would drift.
-        "<leader>dd",
-        function()
-          require("harness.api").review_workspace()
-        end,
-        desc = "Open workspace diff",
-      },
       {
         -- History is per repository by nature: a commit list spanning several
         -- repositories is a fiction, so this one still resolves to one.

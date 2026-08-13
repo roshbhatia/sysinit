@@ -22,7 +22,7 @@ return {
         { "<leader>c", group = "Code" },
         { "<leader>cf", group = "Find" },
         { "<leader>d", group = "Diff" },
-        -- No group on `<leader>dr`: it is an action, and declaring it a group made
+        -- No group on `<leader>dd`: it is an action, and declaring it a group made
         -- which-key present the review as a prefix waiting for another key while
         -- `<leader>dR` sat under it as a sibling. A group and a mapping cannot share a
         -- sequence.

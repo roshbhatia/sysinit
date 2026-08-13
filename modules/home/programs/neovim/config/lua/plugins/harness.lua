@@ -91,23 +91,13 @@ return {
         desc = "Harness: send selection",
         mode = "v",
       },
-      {
-        "<leader>jp",
-        function()
-          require("harness.api").preview_spec()
-        end,
-        desc = "Harness: preview current file (glow)",
-      },
-      {
-        -- Declared on this plugin rather than beside the diff keymaps because it
-        -- has to answer when a diff plugin is exactly what did not load. `harness`
-        -- is not lazy, so this key exists from startup.
-        "<leader>d?",
-        function()
-          require("harness.health").show()
-        end,
-        desc = "Diff: health of the review surface",
-      },
+      -- The glow preview moved to `<localleader>xp` in `after/ftplugin/markdown.lua`.
+      -- It renders markdown, so a global key made it reachable from every filetype
+      -- that it cannot render.
+      --
+      -- The review surface's health check has no keymap. It is a health check, so
+      -- `:checkhealth harness` is where a reader already looks for it, and
+      -- `harness/health.lua` registers both spellings against the same findings.
       -- The review's changed-file list needs no keymaps of its own. `after/plugin/
       -- lists.lua` already maps `]q`, `[q`, `]Q`, `[Q`, and `<leader>eq` over the
       -- quickfix list, and being generic is the point: the review is one more

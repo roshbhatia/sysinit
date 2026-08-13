@@ -11,7 +11,7 @@
 ---   layer instead of sharing a store with it. An agent note is not an owner comment
 ---   and must not be sent back to the agent as one.
 --- - It knows nothing about codediff. It annotates a buffer whose file has notes,
----   which is why the plain `<leader>dd` diff shows them as well as `<leader>dr`.
+---   which is why the full `<leader>dd` diff shows them as well as `<leader>dR`.
 local M = {}
 
 --- The command that owns the note record. Named once, so the health check reports on
