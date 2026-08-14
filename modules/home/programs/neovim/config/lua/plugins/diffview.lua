@@ -14,6 +14,7 @@ return {
     },
     config = function()
       local actions = require("diffview.actions")
+      local layout = require("harness.diff_layout")
 
       local function panel_keys(conflicts)
         local made = {
@@ -55,10 +56,10 @@ return {
         },
         file_panel = {
           listing_style = "tree",
-          win_config = { position = "left", width = 32 },
+          win_config = layout.file_panel,
         },
         file_history_panel = {
-          win_config = { position = "bottom", height = 14 },
+          win_config = layout.file_history_panel,
         },
         hooks = {
           diff_buf_read = function(bufnr)
@@ -117,6 +118,7 @@ return {
       })
 
       require("harness.notes_list").setup()
+      layout.setup()
     end,
     keys = {
       {
