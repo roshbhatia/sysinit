@@ -221,13 +221,6 @@ in
                 command = "${profileBin}/agent-edit-event claude";
                 async = true;
               }
-              # Files a review note from the words the model already wrote about the
-              # edit, so the notes exist whether or not it was asked for one.
-              {
-                type = "command";
-                command = "${profileBin}/agent-note-auto claude";
-                async = true;
-              }
             ];
           }
         ];

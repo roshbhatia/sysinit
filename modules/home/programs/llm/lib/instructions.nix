@@ -41,6 +41,7 @@ let
           - Conventional commits, title-only, no body; one concern per commit, and no formatting-only change mixed with a behavioral one
           - Get dependencies from `nix-shell` or `nix develop`, not from a global installer
           - On an unexpected error: stop, preserve the evidence, fix the root cause
+          - Note a non-obvious change as you make it, answer a note the owner left you, and replace your own note once the code outgrows it; the `note` skill holds the rules
           - Skills hold the domain rules and the tool routing; load the skill from `${skillsRoot}/` instead of working from memory
           - Pick a {{agent}} by reading its own definition; the definitions carry the use-when and avoid-when rules
           - openspec and seshy are machine-wide: check `openspec/changes/` and `sy list` before you scope new work

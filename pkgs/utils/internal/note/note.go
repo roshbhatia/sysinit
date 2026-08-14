@@ -19,20 +19,20 @@ const Summary = "agent review notes on a working-tree diff"
 const usageText = `Agent review notes on a working-tree diff. Read them with ` + "`review`" + `.
 
 Usage:
-  note add --file <path> --line <n> --summary <text> [--rationale <text>] [--author <name>] [--replace]
+  note add --file <path> --line <n> --summary <text> [--rationale <text>] [--author <name>] [--origin agent|user] [--replace]
   note apply --stdin
-  note auto <harness> [--explain]
   note list [--file <path>] [--json]
-  note clear [--file <path>] [--yes]
+  note clear [--file <path>] [--line <n>] [--yes]
   note path [--export]
   note rebuild
 
-` + "`auto`" + ` is for a PostToolUse hook, not for an agent to call. It reads the hook
-payload on stdin and files one note from what the harness had already written
-about the edit, so a review shows every edit's reasoning without the agent being
-asked for any of it. It writes nothing when the transcript holds no narration,
-prints nothing, and always exits 0; ` + "`--explain`" + ` prints the note it would file
-and the reason it would not.
+` + "`--origin`" + ` says who wrote the note rather than what they are called: an agent
+writes ` + "`agent`" + `, which is the default, and a person writes ` + "`user`" + `. A reader
+draws the two differently, so it is not inferred from the author's name.
+
+` + "`clear --line`" + ` removes the notes on one line and needs ` + "`--file`" + `. Without
+` + "`--line`" + ` it removes every note in that file, and without ` + "`--file`" + ` it removes
+every note in the repository, which needs ` + "`--yes`" + `.
 
 A write never opens a viewer. It publishes the record and the viewer-shaped
 export derived from it, so the next ` + "`review`" + ` shows the note. A ` + "`review`" + ` that
@@ -48,6 +48,27 @@ type Note struct {
 	Summary   string  `json:"summary"`
 	Rationale *string `json:"rationale"`
 	Author    string  `json:"author"`
+	// Origin is `agent` or `user`. Recorded rather than inferred from the author,
+	// because a reader draws an agent's note and a person's note differently and an
+	// author name is free text that cannot be told apart reliably.
+	Origin string `json:"origin"`
+}
+
+const (
+	originAgent = "agent"
+	originUser  = "user"
+)
+
+// cleanOrigin folds a written origin to one of the two the record holds.
+func cleanOrigin(value string) (string, error) {
+	switch strings.TrimSpace(value) {
+	case "", originAgent:
+		return originAgent, nil
+	case originUser:
+		return originUser, nil
+	default:
+		return "", die("--origin takes agent or user, got '%s'", value)
+	}
 }
 
 // document is the store.
@@ -86,10 +107,6 @@ func Run(args []string) int {
 		return 0
 	case "add":
 		err = cmdAdd(args[1:])
-	case "auto":
-		// Returns its own code, because this one runs from a hook and the error
-		// path below writes to stderr and exits 1.
-		return autoRun(args[1:], os.Stdin)
 	case "apply":
 		err = cmdApply(args[1:], os.Stdin)
 	case "list":
@@ -198,7 +215,7 @@ func cmdPath(args []string) error {
 }
 
 func cmdAdd(args []string) error {
-	var file, line, summary, rationale string
+	var file, line, summary, rationale, origin string
 	author := "agent"
 	replace := false
 
@@ -208,6 +225,8 @@ func cmdAdd(args []string) error {
 		case "--replace":
 			replace, i = true, i+1
 			continue
+		case "--origin":
+			origin, i, err = takeValue(args, i, "--origin")
 		case "--file":
 			file, i, err = takeValue(args, i, "--file")
 		case "--line":
@@ -243,6 +262,10 @@ func cmdAdd(args []string) error {
 	if err != nil {
 		return err
 	}
+	written, err := cleanOrigin(origin)
+	if err != nil {
+		return err
+	}
 
 	s, root, err := openStore()
 	if err != nil {
@@ -253,7 +276,13 @@ func cmdAdd(args []string) error {
 		return die("%s does not name a file inside %s", file, root)
 	}
 
-	note := Note{File: relative, Line: parsed, Summary: cleanSummary, Author: store.OneLine(author)}
+	note := Note{
+		File:    relative,
+		Line:    parsed,
+		Summary: cleanSummary,
+		Author:  store.OneLine(author),
+		Origin:  written,
+	}
 	if rationale != "" {
 		cleaned := store.Clean(rationale)
 		note.Rationale = &cleaned
@@ -489,6 +518,18 @@ func normalizeItem(fields map[string]any) (Note, error) {
 		note.Rationale = &cleaned
 	}
 
+	origin := ""
+	if value, present := fields["origin"]; present && value != nil {
+		origin, ok = value.(string)
+		if !ok {
+			return note, die(fieldContract)
+		}
+	}
+	written, err := cleanOrigin(origin)
+	if err != nil {
+		return note, err
+	}
+
 	if store.HasControlBytes(file) {
 		return note, die("a note's file contains a control byte")
 	}
@@ -497,6 +538,7 @@ func normalizeItem(fields map[string]any) (Note, error) {
 	note.Line = line
 	note.Summary = store.OneLine(summary)
 	note.Author = store.OneLine(author)
+	note.Origin = written
 	return note, nil
 }
 
@@ -611,6 +653,7 @@ func keepFile(notes []json.RawMessage, relative string) ([]json.RawMessage, erro
 
 func cmdClear(args []string) error {
 	filter := ""
+	line := ""
 	confirmed := false
 	for i := 0; i < len(args); {
 		var err error
@@ -620,12 +663,26 @@ func cmdClear(args []string) error {
 			continue
 		case "--file":
 			filter, i, err = takeValue(args, i, "--file")
+		case "--line":
+			line, i, err = takeValue(args, i, "--line")
 		default:
 			return die("unknown argument for clear: %s", args[i])
 		}
 		if err != nil {
 			return err
 		}
+	}
+
+	var only int64
+	if line != "" {
+		if filter == "" {
+			return die("clearing one line needs --file")
+		}
+		parsed, err := parseLineArg(line)
+		if err != nil {
+			return err
+		}
+		only = parsed
 	}
 
 	s, root, err := openStore()
@@ -669,7 +726,13 @@ func cmdClear(args []string) error {
 			if err := json.Unmarshal(raw, &cur); err != nil {
 				return die("the store holds a note that is not an object; move it aside to start over")
 			}
-			if cur.File == nil || *cur.File != relative {
+			match := cur.File != nil && *cur.File == relative
+			if match && only != 0 {
+				// A note whose line is missing or unreadable is kept: this removes what
+				// was named, and a line that cannot be read was not named.
+				match = cur.Line != nil && cur.Line.String() == strconv.FormatInt(only, 10)
+			}
+			if !match {
 				kept = append(kept, raw)
 			}
 		}
@@ -686,7 +749,9 @@ func cmdClear(args []string) error {
 	beforeRelease()
 	release()
 
-	if relative != "" {
+	if relative != "" && only != 0 {
+		fmt.Printf("note: cleared notes on %s:%d\n", relative, only)
+	} else if relative != "" {
 		fmt.Printf("note: cleared notes on %s\n", relative)
 	} else {
 		fmt.Println("note: cleared every note")

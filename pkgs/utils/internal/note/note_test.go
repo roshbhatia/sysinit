@@ -218,6 +218,57 @@ func TestAddReplaceDropsOnlyTheSameFileLineAuthor(t *testing.T) {
 	}
 }
 
+func TestAddRecordsWhoWroteTheNote(t *testing.T) {
+	newRepo(t)
+	mustAdd(t, "--file", "src/app.ts", "--line", "1", "--summary", "theirs")
+	mustAdd(t, "--file", "src/app.ts", "--line", "2", "--summary", "mine", "--origin", "user")
+
+	got := notes(t)
+	if got[0]["origin"] != "agent" {
+		t.Fatalf("a note written with no --origin is not an agent's: %v", got[0]["origin"])
+	}
+	if got[1]["origin"] != "user" {
+		t.Fatalf("--origin user was not recorded: %v", got[1]["origin"])
+	}
+}
+
+func TestAddRejectsAnOriginThatIsNeither(t *testing.T) {
+	newRepo(t)
+	code, _ := run(t, "add", "--file", "src/app.ts", "--line", "1", "--summary", "x", "--origin", "robot")
+	if code == 0 {
+		t.Fatal("add accepted an origin that is neither agent nor user")
+	}
+	if got := len(notes(t)); got != 0 {
+		t.Fatalf("a rejected origin still wrote %d note(s)", got)
+	}
+}
+
+func TestClearLineRemovesOnlyThatLine(t *testing.T) {
+	newRepo(t)
+	mustAdd(t, "--file", "src/app.ts", "--line", "1", "--summary", "one")
+	mustAdd(t, "--file", "src/app.ts", "--line", "1", "--summary", "one again", "--author", "pi")
+	mustAdd(t, "--file", "src/app.ts", "--line", "2", "--summary", "two")
+
+	if code, _ := run(t, "clear", "--file", "src/app.ts", "--line", "1"); code != 0 {
+		t.Fatalf("clear --line exited %d", code)
+	}
+	got := notes(t)
+	if len(got) != 1 || got[0]["summary"] != "two" {
+		t.Fatalf("clear --line did not leave exactly the other line: %v", got)
+	}
+}
+
+func TestClearLineNeedsAFile(t *testing.T) {
+	newRepo(t)
+	mustAdd(t, "--file", "src/app.ts", "--line", "1", "--summary", "one")
+	if code, _ := run(t, "clear", "--line", "1", "--yes"); code == 0 {
+		t.Fatal("clear accepted --line with no --file")
+	}
+	if got := len(notes(t)); got != 1 {
+		t.Fatalf("the refused clear removed notes anyway: %d left", got)
+	}
+}
+
 func TestApplyAcceptsBothPayloadShapes(t *testing.T) {
 	newRepo(t)
 	if code := apply(t, `{"comments":[{"filePath":"src/app.ts","newLine":2,"summary":"hunk shape"}]}`); code != 0 {

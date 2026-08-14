@@ -6,7 +6,6 @@ final: _prev: {
       # multiplexer's usage text.
       links = [
         "agent-edit-event"
-        "agent-note-auto"
         "agent-state"
         "agent-statusline"
         "agent-watch"
