@@ -195,6 +195,24 @@ func run(args []string) error {
 		return show(opts.show)
 	}
 
+	// Everything the arguments alone can settle is settled first, so a typo is a message
+	// rather than a run: reading stdin drains a pipe the caller cannot refill, and saving
+	// the run overwrites the last one `--replay` would have used.
+	var shape map[string]any
+	switch {
+	case opts.spec != "":
+		if shape, err = schema.Resolve(opts.spec); err != nil {
+			return err
+		}
+	case opts.json:
+		shape = schema.Any()
+	}
+
+	agent, err := provider.Find(opts.provider)
+	if err != nil {
+		return err
+	}
+
 	// The input: what is piped in, or what the last run was given.
 	var input []byte
 	switch {
@@ -223,23 +241,8 @@ func run(args []string) error {
 		return errors.New("nothing on stdin; pipe something in")
 	}
 
-	var shape map[string]any
-	switch {
-	case opts.spec != "":
-		if shape, err = schema.Resolve(opts.spec); err != nil {
-			return err
-		}
-	case opts.json:
-		shape = schema.Any()
-	}
-
 	// Saved before the run, so a run that dies still leaves the input to try again with.
 	if err := store.SaveRun(input, prompt); err != nil {
-		return err
-	}
-
-	agent, err := provider.Find(opts.provider)
-	if err != nil {
 		return err
 	}
 
