@@ -3,37 +3,21 @@ let
   version = "1.9.0";
 
   pnpm22 = final.pnpm.override { nodejs-slim = final.nodejs-slim_22; };
-
-  pnpmLock = final.fetchurl {
-    url = "https://raw.githubusercontent.com/Fission-AI/OpenSpec/v${version}/pnpm-lock.yaml";
-    hash = "sha256-P7NIBR4092b5KRPhElNN54C4pQ5g9VsQFBZcQ42v50s=";
-  };
-
-  pnpmDeps = final.fetchPnpmDeps {
-    pname = "openspec";
-    inherit version;
-    pnpm = pnpm22;
-    src = final.fetchurl {
-      url = "https://registry.npmjs.org/@fission-ai/openspec/-/openspec-${version}.tgz";
-      hash = "sha256-qAR3dn6Ypi6VZGStCaRLKMrMT8v94jdl97S6WY7hOFk=";
-    };
-    sourceRoot = "package";
-    prePatch = "cp ${pnpmLock} pnpm-lock.yaml";
-    fetcherVersion = 4;
-    hash = "sha256-dSZs+yWyLDbY8k5lizLa8W/ZAOWzgi88ysnyZiA7yTA=";
-  };
 in
 {
-  openspec = final.stdenvNoCC.mkDerivation {
+  # Built from the git tag, not the npm tarball. Publish strips pnpm.overrides from
+  # the manifest while every lockfile carries them, so --frozen-lockfile rejects the
+  # tarball against any real lockfile. One tree keeps the two in agreement.
+  openspec = final.stdenvNoCC.mkDerivation (finalAttrs: {
     pname = "openspec";
     inherit version;
 
-    src = final.fetchurl {
-      url = "https://registry.npmjs.org/@fission-ai/openspec/-/openspec-${version}.tgz";
-      hash = "sha256-qAR3dn6Ypi6VZGStCaRLKMrMT8v94jdl97S6WY7hOFk=";
+    src = final.fetchFromGitHub {
+      owner = "Fission-AI";
+      repo = "OpenSpec";
+      tag = "v${version}";
+      hash = "sha256-4Sc0MUZu7pP/Pi189Kg6lsXtU5ZXEab5c1d/vkvnYrM=";
     };
-
-    sourceRoot = "package";
 
     nativeBuildInputs = [
       final.nodejs
@@ -42,20 +26,25 @@ in
       final.makeWrapper
     ];
 
-    inherit pnpmDeps;
+    pnpmDeps = final.fetchPnpmDeps {
+      inherit (finalAttrs) pname version src;
+      pnpm = pnpm22;
+      fetcherVersion = 4;
+      hash = "sha256-HuVltL2c+acN1KHDSRD1lZu+Rn92jO7yp1np1g0oQRw=";
+    };
 
-    prePatch = "cp ${pnpmLock} pnpm-lock.yaml";
-
+    # The build needs the dev dependencies; what ships does not, and they are 100M.
     buildPhase = ''
       runHook preBuild
-      pnpm install --frozen-lockfile --prod
+      pnpm run build
+      pnpm prune --prod --ignore-scripts
       runHook postBuild
     '';
 
     installPhase = ''
       runHook preInstall
       mkdir -p $out/lib/openspec $out/bin
-      cp -r . $out/lib/openspec/
+      cp -r bin dist schemas package.json node_modules $out/lib/openspec/
       makeWrapper ${final.nodejs}/bin/node $out/bin/openspec \
         --add-flags "$out/lib/openspec/bin/openspec.js"
       runHook postInstall
@@ -67,5 +56,5 @@ in
       license = licenses.mit;
       mainProgram = "openspec";
     };
-  };
+  });
 }
