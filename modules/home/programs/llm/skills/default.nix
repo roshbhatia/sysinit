@@ -6,7 +6,6 @@ let
   root = ./.;
   sharedDir = root + "/_shared";
 
-  # Directories here that are NOT skills.
   notSkills = [ "worker" ];
 
   skillDirs = lib.filterAttrs (

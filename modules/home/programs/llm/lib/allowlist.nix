@@ -190,9 +190,6 @@ let
     "specutil render *"
     "specutil check"
     "specutil check *"
-    # `next` is the entry point the spec-driven schema tells an agent to drive
-    # from, and `review show|diff` is how it reads the recorded verdict. Both
-    # only read, so withholding them bought a prompt per phase and no safety.
     "specutil next"
     "specutil next *"
     "specutil review show *"

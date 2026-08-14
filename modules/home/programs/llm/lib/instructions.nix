@@ -13,8 +13,6 @@ let
     else
       "Available: " + builtins.concatStringsSep ", " (map (n: "`${n}`") names);
 
-  # A harness cannot be configured without a skill-loader answer, because the
-  # registry entry that configures it supplies one.
   registry = import ../harnesses/registry.nix;
 
   harnessesWithoutSkillLoader = builtins.attrNames (

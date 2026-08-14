@@ -55,7 +55,6 @@ let
     tom = true;
   };
 
-  # Servers this host stopped declaring, which goose's own rewrite kept on disk.
   retiredExtensions = [
     "cocoindex"
     "incident-io"
@@ -126,9 +125,6 @@ in
         "extensions"
         name
       ]) (builtins.attrNames bundledExtensions);
-      # goose rewrites config.yaml at runtime, so dropping a server from the catalog is
-      # not enough: the on-disk entry is absent from the recorded base and the merge
-      # keeps it.
       retire =
         map (name: [
           "extensions"

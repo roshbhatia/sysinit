@@ -8,7 +8,6 @@
 }:
 
 let
-  # The palette, read through one accessor rather than reached for directly.
   themeLib = import ../../shared/theme-colors.nix { inherit lib; };
   themeColors = themeLib.colorsOf config;
   colors = themeColors;

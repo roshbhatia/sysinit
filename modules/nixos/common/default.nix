@@ -79,10 +79,10 @@
     git
     zsh
     vim
-    playerctl # media key support
-    trash-cli # safe rm alternative
-    pciutils # lspci
-    usbutils # lsusb
+    playerctl
+    trash-cli
+    pciutils
+    usbutils
   ];
 
   programs.zsh.enable = true;
@@ -143,7 +143,7 @@
     noto-fonts
     noto-fonts-cjk-sans
     noto-fonts-color-emoji
-    liberation_ttf # Microsoft metric-compatible
+    liberation_ttf
   ];
 
   console = {

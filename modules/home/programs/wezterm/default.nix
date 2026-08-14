@@ -6,15 +6,12 @@
 }:
 
 let
-  # The palette, read through one accessor rather than reached for directly.
   themeLib = import ../../../shared/theme-colors.nix { inherit lib; };
   themeColors = themeLib.colorsOf config;
   paths = import ../../../lib/paths.nix { inherit lib; };
   themeConfig = config.sysinit.theme;
   c = themeColors;
 
-  # libssh cannot expand `~`, and the GUI's own $SSH_AUTH_SOCK is wezterm's empty
-  # agent proxy, so the ssh domains need this path spelled out.
   sshCfg = config.sysinit.git.ssh;
   sshAgentSocket =
     if lib.hasPrefix "~/" sshCfg.agentSocket then
@@ -126,8 +123,6 @@ in
         cursor_border = "#${c.base05}";
         selection_bg = "#${c.base02}";
         selection_fg = "#${c.base05}";
-        # The accent, not wezterm's default grey, so the line between two panes is
-        # visible against a dimmed inactive pane rather than lost in it.
         split = "#${c.base0D}";
         ansi = [
           "#${c.base00}"

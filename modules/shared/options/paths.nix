@@ -4,14 +4,11 @@
   pkgs,
   ...
 }:
-# One owner for every sysinit state path.
 let
   inherit (lib) mkOption types;
 
   layout = builtins.fromJSON (builtins.readFile ./paths-layout.json);
 
-  # The only substitution the template permits, so that the shell expander on a no-Nix
-  # box can be a substitution rather than a program.
   expand = builtins.replaceStrings [ "$HOME" ] [ config.home.homeDirectory ];
 
   resolved = builtins.mapAttrs (_name: value: expand value) layout.paths;
@@ -23,7 +20,6 @@ let
     }
   );
 
-  # `manifest` is the one path a consumer cannot learn from the manifest, so it
   manifestRelative = lib.removePrefix "${config.home.homeDirectory}/" resolved.manifest;
 in
 {
@@ -50,6 +46,5 @@ in
     };
   };
 
-  # Absolute, not a variable to expand.
   config.home.file.${manifestRelative}.source = manifest;
 }

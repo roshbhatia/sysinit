@@ -1,5 +1,3 @@
-# The module list is the registry, so a harness added there is imported here
-# without a second edit.
 let
   registry = import ./registry.nix;
 in

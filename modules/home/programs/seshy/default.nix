@@ -7,8 +7,6 @@
 let
   registry = import ../llm/harnesses/registry.nix;
 
-  # The names `openspec init --tools` accepts, from `openspec init --help` on openspec
-  # 1.6.0.
   supportedTools = [
     "amazon-q"
     "antigravity"
@@ -43,16 +41,12 @@ let
     "windsurf"
   ];
 
-  # Sorted so the rendered hook is stable: an attribute-order change in the
-  # registry must not rewrite config.yaml and dirty the switch diff.
   declaredTools = lib.naturalSort (
     lib.unique (lib.concatMap (h: h.openspecTool) (lib.attrValues registry))
   );
 
   unknownTools = lib.subtractLists supportedTools declaredTools;
 
-  # The throw sits in the value the hook uses, so an unsupported name fails the
-  # build rather than the session.
   openspecTools =
     if unknownTools != [ ] then
       throw "seshy/default.nix: registry openspecTool names ${lib.concatStringsSep ", " unknownTools}, which `openspec init --tools` does not accept. openspec rejects the whole argument on one unknown name, so every new session would fail its postCreate hook."
@@ -72,9 +66,7 @@ let
   };
 in
 {
-  # Generated rather than templated: the `--tools` list now comes from the
-  # harness registry, and a substituted `config.yaml` could only carry it as one
-  # opaque string.
   xdg.configFile."seshy/config.yaml".source =
-    (pkgs.formats.yaml { }).generate "seshy-config.yaml" settings;
+    (pkgs.formats.yaml { }).generate "seshy-config.yaml"
+      settings;
 }

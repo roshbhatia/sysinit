@@ -14,7 +14,6 @@ let
 in
 {
   stylix = {
-    # The owner's choice, not a constant.
     enable = themeConfig.enable;
     autoEnable = true;
     enableReleaseChecks = false;

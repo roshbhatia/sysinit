@@ -1,7 +1,5 @@
 { lib }:
-# Reading the active palette without requiring stylix to be there.
 let
-  # Base16 default dark, written down rather than fetched: the fallback exists for a
   hex = {
     base00 = "181818";
     base01 = "282828";
@@ -21,7 +19,6 @@ let
     base0F = "a16946";
   };
 
-  # The key shape stylix hands out.
   channel = value: offset: lib.fromHexString (lib.substring offset 2 value);
 
   expand = name: value: {
@@ -32,18 +29,13 @@ let
   };
 
   fallback = lib.foldl' (acc: name: acc // expand name hex.${name}) {
-    # `fastfetch.nix` prints the scheme name, so the fallback needs one of its own.
     scheme = "Base16 Default Dark";
   } (lib.attrNames hex);
 in
 {
   inherit fallback;
 
-  # `or` catches a missing level anywhere in the path: stylix disabled, `lib.stylix`
-  # undefined, or the module never imported.
   colorsOf = config: config.lib.stylix.colors or fallback;
 
-  # Two conditions: `sysinit.theme.enable` is the owner's choice, `stylix.enable` is
-  # whether anything computes a palette.
   enabled = config: (config.sysinit.theme.enable or true) && (config.stylix.enable or false);
 }

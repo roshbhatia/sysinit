@@ -1,16 +1,13 @@
 final: prev:
 let
-  # Pinned by rev because the upstream publishes no tags. `hack/update-pretty-mermaid.sh`
-  # moves the pin and both hashes, so drift is a diff rather than a silent upgrade.
-  rev = "e33f086d3b5bcec9f28632e4bd9c348b02bb2278"; # autoupdate:rev
+  rev = "e33f086d3b5bcec9f28632e4bd9c348b02bb2278";
   src = prev.fetchFromGitHub {
     owner = "imxv";
     repo = "Pretty-mermaid-skills";
     inherit rev;
-    hash = "sha256-AwffzL8lbYLJ6KNXJr2PBLGhd2Wv0cOjziU8fNENEMQ="; # autoupdate:src-hash
+    hash = "sha256-AwffzL8lbYLJ6KNXJr2PBLGhd2Wv0cOjziU8fNENEMQ=";
   };
 
-  # The upstream ships no lockfile, and `fetchNpmDeps` needs one.
   lock = ./pretty-mermaid-package-lock.json;
 in
 {
@@ -29,7 +26,7 @@ in
       postPatch = ''
         cp ${lock} package-lock.json
       '';
-      hash = "sha256-FsXptq/nC82o854MoVszQPjzBYvNuh1WxF4+OiA2SPk="; # autoupdate:npm-deps-hash
+      hash = "sha256-FsXptq/nC82o854MoVszQPjzBYvNuh1WxF4+OiA2SPk=";
     };
 
     dontNpmBuild = true;

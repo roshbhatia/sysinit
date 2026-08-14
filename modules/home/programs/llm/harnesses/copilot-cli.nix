@@ -8,7 +8,6 @@ let
   llmLib = import ../lib { inherit lib; };
   kit = llmLib.harnessKit.mkKit { inherit lib pkgs config; };
 
-  # `~/.copilot/settings.json`, not `config.json`.
   copilotSettings = {
     banner = "never";
     renderMarkdown = true;
@@ -28,12 +27,8 @@ in
     format = "json";
     content = copilotSettings;
 
-    # `autoUpdate` alone.
     enforce = [ "autoUpdate" ];
   };
-
-  # `~/.copilot/config.json` is deliberately not managed here, and a `retire` entry for
-  # it does not work.
 
   home.file = {
     ".copilot/mcp-config.json" = {

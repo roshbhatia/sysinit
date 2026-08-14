@@ -3,19 +3,17 @@ let
   sources = final.nvfetcherSources;
   inherit (sources.prime-agent) version;
 
-  # prime-agent's release asset is an npm tarball, not the per-platform prebuilt binary
-  # that `pi-coding-agent.nix` and `atomic-coding-agent.nix` extract.
   nodeDeps = {
     zeromq = {
-      version = "6.5.0"; # prime-agent asks for ^6.1.2
+      version = "6.5.0";
       hash = "sha256-Mwq6wkLDp7hndz7CAFb45ZAso5C0Bc6z1gDaG4L9uBw=";
     };
     cmake-ts = {
-      version = "1.0.2"; # zeromq pins this exactly
+      version = "1.0.2";
       hash = "sha256-5hZnCu06bdnM+Sm3lB9oEI4cmlLkl52gqsfred+niIU=";
     };
     undici = {
-      version = "7.29.0"; # prime-agent asks for ^7.28.0
+      version = "7.29.0";
       hash = "sha256-7CAF2CJzR2X8CMPuXVCx9yC/HD/GI1qwKOXMYchaOnA=";
     };
   };
@@ -39,14 +37,10 @@ in
     inherit version;
     inherit (sources.prime-agent) src;
 
-    # The tarball unpacks to `package/`, which is where every path below is
-    # relative to.
     sourceRoot = "package";
 
     nativeBuildInputs = [ final.makeWrapper ];
 
-    # The payload is bundled JavaScript plus zeromq's prebuilt `addon.node` for every
-    # platform it ships.
     dontStrip = true;
     dontPatchELF = true;
 
@@ -103,9 +97,6 @@ in
       runHook postInstall
     '';
 
-    # Proves the wrapper resolves node, the bundle, and all three vendored
-    # dependencies. A missing one fails here rather than on first use, which is
-    # the whole reason the set above was measured instead of guessed.
     doInstallCheck = true;
     installCheckPhase = ''
       runHook preInstallCheck

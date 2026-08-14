@@ -1,4 +1,3 @@
-# The pi extension package set, shared by every harness in the pi lineage.
 { lib, pkgs }:
 let
   fetchNpmPkg =

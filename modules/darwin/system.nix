@@ -43,7 +43,6 @@
     connect-timeout = 10;
   };
 
-  # `mkDefault` so a host can hand the machine name back to whatever manages it.
   networking.hostName = lib.mkDefault hostname;
 
   users.users.${config.sysinit.user.username}.home = "/Users/${config.sysinit.user.username}";

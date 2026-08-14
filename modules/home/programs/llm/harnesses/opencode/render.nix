@@ -172,9 +172,6 @@ in
         options = {
           baseURL = "http://localhost:11434/v1";
         };
-        # context matches OLLAMA_CONTEXT_LENGTH in modules/darwin/ollama.nix.
-        # Claiming more than the server allows gets the request rejected, not
-        # truncated.
         models = {
           "muse-glimmer:30b-mlx" = {
             name = "Muse Glimmer 30B (MLX)";

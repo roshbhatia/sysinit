@@ -12,7 +12,6 @@ let
   piPkgs = import ../shared/pi-packages.nix { inherit lib pkgs; };
   inherit (piPkgs) packages;
 
-  # Which of the shared pi packages prime-agent can actually load.
   loaded = [
     "piPermissionSystem"
     "openaiFast"
@@ -34,33 +33,22 @@ let
   ];
 
   excluded = {
-    # prime-agent's built-in tools are bash, edit, and ipython alone: there is no
-    # read tool and `createReadTool` is exported nowhere in the package, so the
-    # extension throws on load. Not a collision, a missing API.
     toolDisplay = "calls createReadTool, which prime-agent does not export because it has no read tool";
 
-    # `@earendil-works/pi-ai` in this fork is the renamed `prime-agent-ai` tarball, and
-    # its package.json `exports` has no `./compat` subpath, so vendoring the dependency
-    # would not fix the import either.
     webAccess = "imports @earendil-works/pi-ai/compat, a subpath prime-agent-ai 0.7.1 does not export";
   };
 
   primePackageList = map (name: packages.${name}) loaded;
   primePackagePaths = map (p: "${p}") primePackageList;
 
-  # pi's own order, minus the two excluded packages. toolDisplay sat between
-  # piReverseLast and diff, and webAccess between diff and context.
   contextHookOrder = [
-    "pi-vcc" # compaction, earliest: everything downstream sees compacted input
-    "pi-subagents" # delegation
-    "plannotator/pi-extension" # plan annotations
-    "pi-btw" # side conversations
-    "pi-context" # context management, last
+    "pi-vcc"
+    "pi-subagents"
+    "plannotator/pi-extension"
+    "pi-btw"
+    "pi-context"
   ];
 
-  # Read from the declaration, not from the built package's `package.json`.
-  # Probing a store path at evaluation time forces the package to build, and a
-  # linux home config then cannot evaluate on a darwin machine.
   installedNames = map (p: p.npmName or "") primePackageList;
 
   contextHookActual = lib.filter (name: name != null) (
@@ -80,9 +68,6 @@ let
     else
       true;
 
-  # An excluded package MUST NOT reach the rendered list. `loaded` and
-  # `excluded` are written by hand, so nothing but this stops a name appearing
-  # in both and the exclusion reading as decorative.
   bothLists = lib.intersectLists loaded (builtins.attrNames excluded);
   assertExclusionsHold =
     if bothLists != [ ] then
@@ -90,9 +75,6 @@ let
     else
       true;
 
-  # The two lists MUST cover the shared package set exactly. A package added to
-  # `shared/pi-packages.nix` for pi would otherwise be silently absent from
-  # prime-agent with no record of whether anyone ran the loader against it.
   sharedNames = builtins.attrNames packages;
   unaccounted = lib.subtractLists (loaded ++ builtins.attrNames excluded) sharedNames;
   strayNames = lib.subtractLists sharedNames (loaded ++ builtins.attrNames excluded);
@@ -104,7 +86,6 @@ let
     else
       true;
 
-  # Only the four keys prime-agent's `interface Settings` actually carries.
   primeManagedSettings = {
     packages = primePackagePaths;
 
@@ -186,14 +167,8 @@ in
       };
 
     sessionVariables = {
-      # `getAgentDir()` in prime-agent reads this name and returns one directory, with
-      # no legacy fallback list, so unlike atomic there is no risk of it loading pi's
-      # loose extensions.
       PRIME_AGENT_CODING_AGENT_DIR = "$HOME/.prime/agent";
 
-      # No PRIME_AGENT_SKIP_VERSION_CHECK is set here because prime-agent does not
-      # derive that one from its app name: the fork still reads the literal
-      # `PI_SKIP_VERSION_CHECK`.
     };
   };
 }

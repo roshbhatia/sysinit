@@ -5,7 +5,6 @@
   ...
 }:
 let
-  # The palette, read through one accessor rather than reached for directly.
   themeLib = import ../../../../../shared/theme-colors.nix { inherit lib; };
   themeColors = themeLib.colorsOf config;
   llmLib = import ../../lib { inherit lib; };
@@ -40,8 +39,6 @@ let
     '';
   };
 
-  # The entrypoint check is here rather than a `builtins.pathExists`, for the
-  # reason `vendoredExtensions` states below.
   piGeminiAuth = pkgs.runCommand "pi-gemini-auth" { } ''
     if [ ! -f ${piGeminiAuthSrc}/src/index.ts ]; then
       echo "pi.nix: pi-gemini-auth no longer ships src/index.ts; re-pin and check its package.json \`pi.extensions\`." >&2
@@ -54,9 +51,6 @@ let
 
   extensions = import ./vendored-extensions.nix;
 
-  # A build rather than `builtins.pathExists`, because probing a store path at
-  # evaluation time forces `pi-coding-agent` to build, and a linux home config then
-  # cannot evaluate on a darwin machine.
   vendoredExtensions = pkgs.runCommand "pi-vendored-extensions" { } ''
     mkdir -p "$out"
     missing=""
@@ -200,14 +194,10 @@ let
       };
     };
 
-  # Every pin lives in the shared file, because atomic pins the same versions
-  # from the same registry and a bump has to reach both harnesses at once.
   piPkgs = import ../shared/pi-packages.nix { inherit lib pkgs; };
   inherit (piPkgs) fetchNpmPkg;
   piPackages = piPkgs.packages;
 
-  # Order matters: pi loads the packages in this order, and `contextHookOrder`
-  # below asserts against it.
   piPackageList = with piPackages; [
     piPermissionSystem
     openaiFast
@@ -233,17 +223,14 @@ let
   piPackagePaths = map (p: "${p}") piPackageList;
 
   contextHookOrder = [
-    "pi-vcc" # compaction, earliest: everything downstream sees compacted input
-    "pi-subagents" # delegation
-    "plannotator/pi-extension" # plan annotations
-    "pi-btw" # side conversations
-    "pi-tool-display" # display only; its context hook sets thinking labels
-    "pi-context" # context management, last
+    "pi-vcc"
+    "pi-subagents"
+    "plannotator/pi-extension"
+    "pi-btw"
+    "pi-tool-display"
+    "pi-context"
   ];
 
-  # Read from the declaration, not from the built package's `package.json`.
-  # Probing a store path at evaluation time forces the package to build, and a
-  # linux home config then cannot evaluate on a darwin machine.
   installedPiPackageNames = map (p: p.npmName or "") piPackageList;
 
   contextHookActual = lib.filter (name: name != null) (
@@ -477,7 +464,6 @@ in
       };
 
     sessionVariables = {
-      # A flag, not a path.
       PI_SKIP_VERSION_CHECK = "1";
     };
   };

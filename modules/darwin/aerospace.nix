@@ -204,9 +204,6 @@ in
 
       mode = {
         main.binding = {
-          # `wezspawn` rather than `wezterm cli spawn`, which names the new window's
-          # workspace "default" and starts it in the home directory whichever session is
-          # focused. The path is passed, because aerospace runs with its own PATH.
           alt-enter = "exec-and-forget ${pkgs.utils}/bin/wezspawn --wezterm ${pkgs.wezterm}/bin/wezterm";
 
           alt-t = "layout tiles horizontal vertical";

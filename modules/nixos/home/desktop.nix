@@ -6,11 +6,10 @@
 }:
 
 let
-  # The palette, read through one accessor rather than reached for directly.
   themeLib = import ../../shared/theme-colors.nix { inherit lib; };
   themeColors = themeLib.colorsOf config;
   c = themeColors;
-  mod = "Mod1"; # Alt key
+  mod = "Mod1";
 
   rofi1password = pkgs.writeShellScript "rofi-1password" ''
     set -euo pipefail

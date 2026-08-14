@@ -1,10 +1,8 @@
-# Host configurations
 {
   overrides ? { },
 }:
 
 let
-  # Default values shared across hosts
   defaults = {
     username = "yourusername";
 
@@ -15,11 +13,9 @@ let
     };
   };
 
-  # Merge overrides into defaults
   common = defaults // overrides;
 in
 {
-  # yourhostname - Primary macOS workstation
   yourhostname = {
     system = "aarch64-darwin";
     platform = "darwin";
@@ -30,7 +26,6 @@ in
       user.username = common.username;
       hostname = "yourhostname";
 
-      # Customize theme, transparency, and other settings here
       theme = {
         appearance = "dark";
         colorscheme = "everforest";
@@ -42,7 +37,6 @@ in
         };
       };
 
-      # Darwin-specific settings
       darwin = {
         homebrew.additionalPackages = {
           taps = [ ];

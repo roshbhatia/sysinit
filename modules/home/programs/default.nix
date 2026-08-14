@@ -4,11 +4,9 @@
   theme ? true,
   ...
 }:
-# Which program modules this host imports, chosen by what the host is for.
 let
   profiles = import ../../shared/profile-tiers.nix { inherit lib; };
 
-  # The lowest tier that needs each module.
   modules = [
     {
       tier = "dev";
@@ -58,8 +56,6 @@ let
       tier = "minimal";
       path = ./git;
     }
-    # The editor a minimal box gets: one binary, no plugin tree, so it works on a
-    # machine this repository was pulled onto ten minutes ago.
     {
       tier = "minimal";
       path = ./helix.nix;
@@ -157,6 +153,5 @@ in
 {
   imports =
     map (module: module.path) (lib.filter (module: profiles.atLeast profile module.tier) modules)
-    # Every stylix target this repository overrides.
     ++ lib.optional theme ../stylix-targets.nix;
 }

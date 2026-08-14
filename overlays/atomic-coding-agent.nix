@@ -14,9 +14,6 @@ let
     platformInfo.${final.stdenv.hostPlatform.system}
       or (throw "atomic-coding-agent: Unsupported platform ${final.stdenv.hostPlatform.system}");
 
-  # The `PI_*` names atomic honours as legacy aliases for its own variables, taken from
-  # its `docs/environment-variables.md` rather than from a grep, so this list is what
-  # upstream says it reads and not what a string happens to match.
   legacyPiAliases = [
     "PI_CODING_AGENT_DIR"
     "PI_CODING_AGENT_SESSION_DIR"
@@ -41,8 +38,6 @@ in
 
     nativeBuildInputs = [ final.makeWrapper ];
 
-    # Wrapped rather than symlinked, because two pi-lineage agents share one environment
-    # on this machine and precedence alone does not separate them.
     installPhase = ''
       runHook preInstall
       mkdir -p $out/bin
@@ -54,9 +49,6 @@ in
       runHook postInstall
     '';
 
-    # Proves the wrapper runs the payload rather than only existing. A wrapper
-    # that unsets the wrong thing, or a `--run` line with a quoting error, fails
-    # here instead of on the owner's next atomic session.
     doInstallCheck = true;
     installCheckPhase = ''
       runHook preInstallCheck
@@ -74,8 +66,6 @@ in
     meta = with final.lib; {
       description = "Coding agent runtime with stages, checks, and approval gates";
       homepage = "https://github.com/bastani-inc/atomic";
-      # `package.json` says MIT; GitHub reports NOASSERTION because the tarball
-      # ships no LICENSE file. Taking the declaration in the package metadata.
       license = licenses.mit;
       mainProgram = "atomic";
     };

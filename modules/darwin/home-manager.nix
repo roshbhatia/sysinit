@@ -10,7 +10,6 @@
   home-manager = {
     useGlobalPkgs = true;
     useUserPackages = true;
-    # Delete the file in the way rather than renaming it to `<name>.backup`.
     backupCommand = "rm -f";
     extraSpecialArgs = {
       inherit

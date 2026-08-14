@@ -2,11 +2,8 @@
   description = "Host-specific configuration consuming roshbhatia/sysinit";
 
   inputs = {
-    # Point to sysinit (use local path for development, remote for production)
-    # sysinit.url = "path:/path/to/sysinit";
     sysinit.url = "github:roshbhatia/sysinit";
 
-    # Follow all inputs from sysinit for consistency
     darwin.follows = "sysinit/darwin";
     determinate.follows = "sysinit/determinate";
     firefox-addons.follows = "sysinit/firefox-addons";
@@ -30,7 +27,6 @@
       inherit (sysinit.inputs) nixpkgs;
       inherit (nixpkgs) lib;
 
-      # Re-instantiate sysinit lib with host inputs
       sysinitLib = import (sysinit + /lib) {
         inherit lib nixpkgs inputs;
       };
@@ -39,7 +35,6 @@
       inherit (sysinitLib) builders;
       inherit (sysinitLib) outputBuilders;
 
-      # Add host-specific overlays
       mkHostOverlays =
         system: (builders.mkOverlays system) ++ (import ./overlays { inherit inputs system; });
 

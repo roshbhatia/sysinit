@@ -159,7 +159,6 @@ in
             ];
           }
         ];
-        # Codex names no file in a structured field.
         PostToolUse = [
           {
             hooks = [

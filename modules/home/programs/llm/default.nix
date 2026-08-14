@@ -8,7 +8,6 @@
 let
   skills = import ./skills/render.nix { inherit pkgs; };
 
-  # specutil's agent skills, from the vendored source tree rather than a flake input.
   specutilSkillRoot = ../../../../pkgs/specutil/skills;
   specutilSkills = lib.mapAttrs (name: _: specutilSkillRoot + "/${name}/SKILL.md") (
     lib.filterAttrs (
@@ -59,7 +58,6 @@ let
         cp -r .claude/commands/opsx $out/commands
       '';
 
-  # Linked as directories rather than enumerated.
   openspecSkillFiles = {
     ".claude/skills" = {
       source = "${openspecSkills}/skills";
@@ -250,7 +248,6 @@ in
 
     packages = [
       pkgs.meat
-      # On PATH under its own name, because the skill and the allowlist both
       pkgs.utils
       capture
       notify.script

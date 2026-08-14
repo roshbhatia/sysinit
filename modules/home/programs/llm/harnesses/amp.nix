@@ -10,7 +10,6 @@ let
 
   inherit (config.sysinit.llm.amp) remoteExecution;
 
-  # `amp orb` is a whole command tree, so one glob covers every subcommand.
   remoteExecutionDenyGlobs = [
     "amp orb*"
     "amp * orb*"
@@ -35,16 +34,12 @@ let
         }
       ];
 
-    # Amp's own read of this key is "let ampcode.com create new threads that open
-    # in the interactive Amp TUI on this machine". Declared rather than left to
-    # amp's default so the posture is visible in the file the owner reads.
     "amp.remoteThreadCreation.enabled" = remoteExecution;
 
     "amp.updates.mode" = "disabled";
     "amp.skills.disableClaudeCodeSkills" = true;
   };
 
-  # Every key, not `amp.permissions` alone.
   ampEnforced = builtins.attrNames ampSettings;
 in
 {

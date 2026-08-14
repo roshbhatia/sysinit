@@ -6,7 +6,6 @@
   ...
 }:
 let
-  # The palette, read through one accessor rather than reached for directly.
   themeLib = import ../../../shared/theme-colors.nix { inherit lib; };
   themeColors = themeLib.colorsOf config;
   shellUtils = import ../../../lib/shell.nix { inherit lib; };
@@ -33,9 +32,6 @@ in
 
     dotDir = "${config.xdg.configHome}/zsh";
 
-    # .zshenv, not initContent. An agent's shell is `zsh -c`, which reads this
-    # file and never reads .zshrc, so a glob rule set in initContent would miss
-    # exactly the shells that need it.
     envExtra = coreAgentGlob;
 
     autocd = true;

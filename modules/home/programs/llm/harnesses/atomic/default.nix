@@ -12,7 +12,6 @@ let
   piPkgs = import ../shared/pi-packages.nix { inherit lib pkgs; };
   inherit (piPkgs) packages;
 
-  # Which of the shared pi packages atomic can actually load.
   loaded = [
     "piPermissionSystem"
     "openaiFast"
@@ -25,12 +24,8 @@ let
   ];
 
   excluded = {
-    # The only genuine tool collision. It takes `web_search`, `fetch_content`,
-    # and `get_search_content` from atomic's own bundled `@bastani/web-access`,
-    # which then fails to load. Atomic keeps its integrated web tools instead.
     webAccess = "conflicts with the bundled @bastani/web-access on web_search, fetch_content, and get_search_content";
 
-    # Cannot resolve `@earendil-works/pi-coding-agent`.
     piRetry = "imports @earendil-works/pi-coding-agent, which atomic does not provide";
     piVcc = "imports @earendil-works/pi-coding-agent, which atomic does not provide";
     subagents = "imports @earendil-works/pi-coding-agent, which atomic does not provide; atomic bundles @bastani/subagents anyway";
@@ -39,7 +34,6 @@ let
     threads = "imports @earendil-works/pi-coding-agent, which atomic does not provide";
     askUser = "imports @earendil-works/pi-coding-agent, which atomic does not provide; atomic has a builtin ask_user_question";
 
-    # Cannot resolve `@mariozechner/pi-coding-agent`.
     toolDisplay = "imports @mariozechner/pi-coding-agent, which atomic does not provide";
     context = "its second entry point src/context.ts imports @mariozechner/pi-coding-agent";
 
@@ -49,13 +43,8 @@ let
   atomicPackageList = map (name: packages.${name}) loaded;
   atomicPackagePaths = map (p: "${p}") atomicPackageList;
 
-  # Of the six packages that install a context hook in pi, only plannotator
-  # loads here, so the order has one entry rather than six.
   contextHookOrder = [ "plannotator/pi-extension" ];
 
-  # Read from the declaration, not from the built package's `package.json`.
-  # Probing a store path at evaluation time forces the package to build, and a
-  # linux home config then cannot evaluate on a darwin machine.
   installedNames = map (p: p.npmName or "") atomicPackageList;
 
   contextHookActual = lib.filter (name: name != null) (
@@ -75,9 +64,6 @@ let
     else
       true;
 
-  # An excluded package MUST NOT reach the rendered list. `loaded` and
-  # `excluded` are written by hand, so nothing but this stops a name appearing
-  # in both and the exclusion reading as decorative.
   bothLists = lib.intersectLists loaded (builtins.attrNames excluded);
   assertExclusionsHold =
     if bothLists != [ ] then
@@ -85,9 +71,6 @@ let
     else
       true;
 
-  # The two lists MUST cover the shared package set exactly. A package added to
-  # `shared/pi-packages.nix` for pi would otherwise be silently absent from
-  # atomic with no record of whether anyone ran the loader against it.
   sharedNames = builtins.attrNames packages;
   unaccounted = lib.subtractLists (loaded ++ builtins.attrNames excluded) sharedNames;
   strayNames = lib.subtractLists sharedNames (loaded ++ builtins.attrNames excluded);
@@ -190,22 +173,11 @@ in
         };
       };
 
-    # Atomic builds every variable name from its own app name (`ENV_PREFIX =
-    # APP_NAME.toUpperCase()`), and falls back to the `PI_` spelling of the same name
-    # when the `ATOMIC_` one is unset.
     sessionVariables = {
-      # Without this, `getAgentDirs()` returns `[~/.atomic/agent, ~/.pi/agent]`, because
-      # atomic carries `.pi` as its legacy config dir.
       ATOMIC_CODING_AGENT_DIR = "$HOME/.atomic/agent";
 
-      # Set explicitly rather than inherited. Atomic would otherwise fall back
-      # to pi's `PI_SKIP_VERSION_CHECK`, so atomic's startup behaviour would
-      # depend on a variable the pi module owns.
       ATOMIC_SKIP_VERSION_CHECK = "1";
 
-      # Both names above are declared here and defaulted again in the wrapper in
-      # `overlays/atomic-coding-agent.nix`, which also unsets the twelve `PI_*` aliases
-      # atomic honours.
     };
   };
 }

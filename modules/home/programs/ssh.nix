@@ -43,8 +43,6 @@ in
         User = "rosh";
       };
 
-      # The tailnet FQDNs match no alias above, and completion offers them from
-      # known_hosts, so without these the local username is used and auth fails.
       "*.stork-eel.ts.net" = {
         User = "rshnbhatia";
       };

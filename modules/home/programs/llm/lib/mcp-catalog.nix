@@ -94,15 +94,9 @@ let
   };
 
   allPermissions = flattenPermissions (builtins.attrValues permissions);
-  # Suppression has to land here, not at the call site: every harness renders
-  # from this catalog, so a filter applied anywhere else is one the harnesses
-  # never see.
   allServers = lib.filterAttrs (name: _: !(builtins.elem name suppressedServers)) (
     defaultServers // additionalServers
   );
-  # Throws rather than skipping an unknown name. A silent no-op is how
-  # suppressedServers sat dead for five days: the option was set, read by
-  # nobody, and nothing said so.
   serversFor =
     harness:
     let

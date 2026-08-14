@@ -5,7 +5,6 @@
   ...
 }:
 let
-  # The palette, read through one accessor rather than reached for directly.
   themeLib = import ../../shared/theme-colors.nix { inherit lib; };
   themeColors = themeLib.colorsOf config;
   themeEnabled = themeLib.enabled config;
@@ -15,7 +14,7 @@ in
   programs.fzf = {
     enable = true;
     enableFishIntegration = true;
-    enableZshIntegration = false; # zsh vi mode messes with ZLE, so we manually source it
+    enableZshIntegration = false;
 
     defaultCommand = "${pkgs.fd}/bin/fd --type f --hidden --follow --exclude .git --exclude node_modules";
 

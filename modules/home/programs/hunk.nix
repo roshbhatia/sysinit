@@ -6,14 +6,12 @@
 }:
 
 let
-  # The palette, read through one accessor rather than reached for directly.
   themeLib = import ../../shared/theme-colors.nix { inherit lib; };
   themeColors = themeLib.colorsOf config;
   themeEnabled = themeLib.enabled config;
   stylixEnabled = themeEnabled;
   c = themeColors;
 
-  # Map semantic Base16 roles onto Hunk's custom_theme fields.
   stylixTheme = {
     base = if config.stylix.polarity == "light" then "github-light-default" else "github-dark-default";
 
@@ -49,10 +47,8 @@ in
   programs.hunk = {
     enable = true;
 
-    # Deliberately NOT enableGitIntegration.
     enableGitIntegration = false;
 
-    # Link the hunk-review skill under ~/.claude/skills for live-session review.
     enableClaudeIntegration = true;
     settings = {
       transparent_background = true;
@@ -65,8 +61,6 @@ in
         }
       else
         {
-          # "auto" queries the terminal background and selects a light or dark github
-          # theme, with a dark fallback.
           theme = "auto";
         }
     );

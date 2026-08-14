@@ -4,11 +4,9 @@
   profile ? "workstation",
   ...
 }:
-# Every package this host installs, grouped by the lowest tier that needs it.
 let
   profiles = import ../shared/profile-tiers.nix { inherit lib; };
 
-  # The `minimal` group, read from `bootstrap/tools.toml` rather than written
   manifest = builtins.fromTOML (builtins.readFile ../../bootstrap/tools.toml);
   minimalPackages = map (entry: pkgs.${entry.nix}) manifest.tool;
 in
@@ -16,10 +14,8 @@ in
   home.packages =
     with pkgs;
     profiles.forProfile profile {
-      # What a box reached over ssh needs to be usable at all: the core CLI and git.
       minimal = minimalPackages;
 
-      # Toolchains, language servers, and the infrastructure tools.
       dev = [
         nixd
         nil
@@ -149,14 +145,12 @@ in
         yaml-language-server
         yamllint
       ]
-      # The harness CLIs come from the registry, so adding a harness does not
       ++ map (name: pkgs.${name}) (
         lib.filter (name: name != null) (
           lib.mapAttrsToList (_name: h: h.package) (import ./programs/llm/harnesses/registry.nix)
         )
       );
 
-      # What only makes sense in front of a screen.
       workstation = lib.optionals pkgs.stdenv.hostPlatform.isLinux [ hyprpicker ];
     };
 }

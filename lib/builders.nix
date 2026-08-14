@@ -40,10 +40,8 @@ in
         isDesktop = hostConfig.desktop or false;
       };
 
-      # What the host is for, in one word.
       profile = hostConfig.profile or "workstation";
 
-      # Whether stylix computes this host's palette.
       theme = hostConfig.theme or true;
 
       commonArgs = {

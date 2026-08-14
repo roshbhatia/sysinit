@@ -72,15 +72,11 @@
       flake = false;
     };
 
-    # Terminal-first diff reviewer.
     hunk = {
       url = "github:modem-dev/hunk";
       inputs.nixpkgs.url = "github:NixOS/nixpkgs/549bd84d6279f9852cae6225e372cc67fb91a4c1";
     };
 
-    # Pinned to upstream's own nixpkgs rather than following ours: the package is
-    # a uv2nix venv, and resolving it against a different nixpkgs rebuilds every
-    # wheel against a revision upstream never tested.
     hermes-agent = {
       url = "github:NousResearch/hermes-agent";
       inputs.nixpkgs.url = "github:NixOS/nixpkgs/0954f7ee2f6bb3dc7d4e3d0d8bcb8fd4bde4cfc5";
@@ -148,7 +144,6 @@
         inherit buildConfig;
       };
 
-      # The home tree without a host under it, for a box this repository does
       homeModules = {
         default = ./modules/home;
         options = {
@@ -160,7 +155,6 @@
         };
       };
 
-      # `dev` and `minimal` across `cacheSystems`, so six.
       homeConfigurations =
         let
           buildHome = builders.mkHome {
@@ -176,7 +170,6 @@
                 name = "${profile}-${system}";
                 value = buildHome {
                   inherit system profile;
-                  # The owner's identity, read from `hosts/default.nix` rather
                   inherit (hostConfigs.lv426) username;
                   hostname = "standalone";
                   values = {
@@ -253,8 +246,6 @@
               pkgs.lua5_4
               pkgs.jq
               pkgs.fd
-              # `hack/lint.sh` skips a tool that is absent, so the shell has to
-              # carry them or CI lints nothing.
               pkgs.ast-grep
               pkgs.stylua
             ];

@@ -3,7 +3,6 @@
   lib,
 }:
 let
-  # Every harness fact here comes from the registry, so the four assertions that
   registry = import ../harnesses/registry.nix;
 
   svgs = builtins.mapAttrs (name: _h: ./icons/${name}.svg) (
@@ -16,8 +15,6 @@ let
 
   bridgePresent = p: builtins.pathExists p && builtins.stringLength (builtins.readFile p) > 0;
 
-  # The one property the registry cannot make unrepresentable: a declared bridge whose
-  # file is empty or absent leaves that harness with no notifier at all.
   missingBridges = builtins.attrNames (
     lib.filterAttrs (_name: src: !(bridgePresent src)) bridgeArtifacts
   );
@@ -28,8 +25,6 @@ let
     else
       "";
 
-  # `neovimAdapter` is declared on every entry and read by no Nix code, so nothing but
-  # this check stops an entry naming an adapter that was never written.
   adapterDir = ../../neovim/config/lua/harness/adapters;
 
   missingAdapters = lib.mapAttrsToList (_name: h: h.neovimAdapter) (
@@ -42,9 +37,6 @@ let
     else
       "";
 
-  # `editBus` is read by no Nix code either, and the one way to get it wrong is to
-  # claim it on a harness that has no hook surface to write from. That entry would
-  # look supported and emit nothing.
   busWithoutHook = builtins.attrNames (
     lib.filterAttrs (_name: h: h.editBus && h.notify != "hook") registry
   );
@@ -63,7 +55,6 @@ let
     </svg>
   '';
 
-  # Generated from the registry rather than written twice.
   labels = ''
     agent_label() {
       case "$1" in
@@ -77,7 +68,6 @@ let
     }
   '';
 
-  # Prepended wherever a script needs a state path, so no script composes one.
   paths = builtins.readFile ./paths.sh;
 
   identity = builtins.readFile ./agent-identity.sh;
@@ -176,7 +166,6 @@ let
     text = paths + "\n" + busyPanes + "\n" + builtins.readFile ./agent-review.sh;
   };
 
-  # The reader half.
   noteReview = pkgs.writeShellApplication {
     name = "review";
     runtimeInputs = [

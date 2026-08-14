@@ -4,15 +4,14 @@
   ...
 }:
 let
-  # The palette, read through one accessor rather than reached for directly.
   themeLib = import ../../shared/theme-colors.nix { inherit lib; };
   themeColors = themeLib.colorsOf config;
   ompColors = {
-    primary = "#${themeColors.base0D}"; # Blue (accent primary)
-    muted = "#${themeColors.base03}"; # Comments (accent dim)
-    error = "#${themeColors.base08}"; # Red
-    accent = "#${themeColors.base0E}"; # Purple (accent tertiary)
-    info = "#${themeColors.base0D}"; # Blue
+    primary = "#${themeColors.base0D}";
+    muted = "#${themeColors.base03}";
+    error = "#${themeColors.base08}";
+    accent = "#${themeColors.base0E}";
+    info = "#${themeColors.base0D}";
   };
 in
 {

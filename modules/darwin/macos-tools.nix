@@ -6,7 +6,7 @@
 
 {
   environment.systemPackages = with pkgs; [
-    lima # ad-hoc VM manager, driven by hand; nothing auto-starts it
+    lima
   ];
 
   home-manager.users.${config.sysinit.user.username} = {

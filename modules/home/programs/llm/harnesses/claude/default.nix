@@ -137,8 +137,6 @@ in
 
       disabledMcpServers = disabledBuiltinServers;
 
-      # The marketplace name must equal the `name` in the repository's
-      # `.claude-plugin/marketplace.json`, which Claude Code enforces.
       extraKnownMarketplaces = {
         openai-codex = {
           source = {
@@ -162,14 +160,10 @@ in
                 command = "${profileBin}/agent-state claude working submit";
                 async = true;
               }
-              # The notes the owner is waiting on, read at the top of the turn. Not
-              # async: an async hook's output never reaches the model, and this one
-              # exists to be read. It prints nothing when nothing is waiting.
               {
                 type = "command";
                 command = "${profileBin}/agent-note-open";
               }
-              # On every prompt rather than at SessionEnd, because the point is
               {
                 type = "command";
                 command = "${profileBin}/utils transcript-link claude";
@@ -217,8 +211,6 @@ in
             ];
           }
         ];
-        # The same matcher the pre-edit guard uses, because the two hooks are interested
-        # in exactly the same tool calls.
         PostToolUse = [
           {
             matcher = "Edit|Write|NotebookEdit";

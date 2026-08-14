@@ -3,7 +3,6 @@
   profile ? "workstation",
   ...
 }:
-# What a host is FOR, in one word.
 let
   inherit (lib) mkOption types;
 
@@ -13,7 +12,6 @@ let
     "workstation"
   ];
 
-  # A position comparison, so adding a tier is one list entry.
   index = name: lib.lists.findFirstIndex (t: t == name) null tiers;
 
   selected =

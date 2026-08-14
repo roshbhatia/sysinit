@@ -17,7 +17,6 @@ final: _prev: {
 
   inherit (inputs.cupcake.packages.${final.stdenv.hostPlatform.system}) cupcake-cli;
 
-  # The overlay entry is what gives `checks/` a route to hunk.
   hunk = inputs.hunk.packages.${final.stdenv.hostPlatform.system}.hunk;
 
   seshy = inputs.seshy.packages.${final.stdenv.hostPlatform.system}.default;

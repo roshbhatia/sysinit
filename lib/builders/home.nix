@@ -1,5 +1,4 @@
 { lib, inputs }:
-# A home-manager configuration with no host underneath it.
 {
   mkHome =
     {
@@ -47,7 +46,6 @@
         values = resolved;
       };
 
-      # The same list the two host wrappers import, minus the platform trees.
       modules = [
         ../../modules/shared/options/theme.nix
         ../../modules/home/programs/llm/options.nix
