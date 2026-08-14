@@ -16,21 +16,14 @@ type mux struct {
 func stub(t *testing.T, clients, panes string) *mux {
 	t.Helper()
 	dir := t.TempDir()
-	write := func(name, body string) {
-		if err := os.WriteFile(filepath.Join(dir, name), []byte(body), 0o600); err != nil {
-			t.Fatal(err)
-		}
-	}
-	write("clients.json", clients)
-	write("panes.json", panes)
 
 	script := fmt.Sprintf(`#!/bin/sh
 case "$2" in
-  list-clients) /bin/cat %[1]s/clients.json ;;
-  list)         /bin/cat %[1]s/panes.json ;;
+  list-clients) printf '%%s' '%[2]s' ;;
+  list)         printf '%%s' '%[3]s' ;;
   spawn)        echo "$@" > %[1]s/spawn.txt; echo 42 ;;
 esac
-`, dir)
+`, dir, clients, panes)
 	path := filepath.Join(dir, "wezterm")
 	if err := os.WriteFile(path, []byte(script), 0o700); err != nil {
 		t.Fatal(err)
