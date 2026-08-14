@@ -1,16 +1,3 @@
-/**
- * Diff Review Extension
- *
- * Opens the working-tree diff in `review`, in a terminal split beside pi. `ctrl+b`,
- * or `/review`.
- *
- * The split is native, through the WezTerm CLI. Outside WezTerm there is no pane
- * to open, so the command is reported instead of being launched into pi's own
- * terminal, which the TUI owns.
- *
- * ctrl+b shadows pi's `tui.editor.cursorLeft`, which is also bound to `left`. That
- * is the owner's choice; `left` still moves the cursor.
- */
 
 import type { ExtensionAPI, ExtensionContext } from "@earendil-works/pi-coding-agent";
 
@@ -25,10 +12,8 @@ interface RuntimeContext {
 
 const SPLIT_PERCENT = "45";
 
-// `review` is the whole working-tree changeset in one view.
 const VIEWER_COMMAND = ["review"];
 
-// Notes go to `utils note`, which writes one record per repository and
 const ANNOTATE_PROMPT = [
 	"A `review` of the working tree is now open beside this session.",
 	"Annotate it with `utils note`: read the diff, then leave the notes in one",
@@ -56,7 +41,6 @@ function splitCommand(command: string[], cwd: string): string[] | undefined {
 
 type TreeState = "no-repo" | "clean" | "dirty";
 
-// `pi.exec` takes no cwd, so a command that must run in the session's repository
 async function treeState(pi: ExtensionAPI, cwd: string): Promise<TreeState> {
 	const inRepo = await pi.exec("git", ["-C", cwd, "rev-parse", "--git-dir"]);
 	if (inRepo.code !== 0) return "no-repo";

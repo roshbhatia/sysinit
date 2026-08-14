@@ -1,12 +1,6 @@
-/** Bridges pi lifecycle events onto the shared agent notifier. */
 
 import type { ExtensionAPI } from "@earendil-works/pi-coding-agent";
 
-// Resolve a command the way a shell would, rather than naming a directory.
-// `~/.nix-profile/bin` was hardcoded here and holds none of these commands on a
-// nix-darwin machine, where they land in `/etc/profiles/per-user/$USER/bin`. Every
-// spawn failed with ENOENT into `spawnQuiet`'s empty catch, so the bridge looked
-// installed and did nothing.
 function resolve(exe: string): string {
 	const { existsSync } = require("node:fs");
 	for (const dir of (process.env.PATH ?? "").split(":")) {
@@ -49,11 +43,6 @@ export default function (pi: ExtensionAPI) {
 		state("working", reason);
 	});
 
-	// `tool_result` is the post-edit surface: it carries the tool name, the input
-	// that produced it, and whether it failed, all in one event, so no correlation
-	// with `tool_call` is needed. `input.path` is relative to pi's working
-	// directory, which is this process's too, so `--cwd` pins the resolution rather
-	// than leaving it to wherever the spawned command happens to land.
 	pi.on("tool_result", (event) => {
 		const name = event?.toolName ?? "";
 		if (name !== "write" && name !== "edit") return;

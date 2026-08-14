@@ -1,15 +1,6 @@
-/** Bridges prime-agent lifecycle events onto the shared agent notifier. */
 
-// A type-only import, so the bundler erases it. prime-agent does provide
-// `@earendil-works/pi-coding-agent` to an extension at runtime as a virtual
-// module, but nothing here needs a value from it.
 import type { ExtensionAPI } from "@earendil-works/pi-coding-agent";
 
-// Resolve a command the way a shell would, rather than naming a directory.
-// `~/.nix-profile/bin` was hardcoded here and holds none of these commands on a
-// nix-darwin machine, where they land in `/etc/profiles/per-user/$USER/bin`. Every
-// spawn failed with ENOENT into `spawnQuiet`'s empty catch, so the bridge looked
-// installed and did nothing.
 function resolve(exe: string): string {
 	const { existsSync } = require("node:fs");
 	for (const dir of (process.env.PATH ?? "").split(":")) {
@@ -49,12 +40,6 @@ export default function (agent: ExtensionAPI) {
 	agent.on("tool_call", (event) => {
 		const name = event?.toolName ?? "";
 		const args = (event?.input ?? {}) as Record<string, unknown>;
-		// prime-agent's three built-in tools are bash, edit, and ipython, keyed
-		// `command`, `path`, and `code` respectively (see ToolCallEvent in
-		// dist/core/extensions/types.d.ts). There is no read, grep, or find tool:
-		// prime-agent reaches files through bash and ipython instead, so the pi
-		// and atomic spellings of those arguments are not worth carrying. The
-		// trailing keys cover a custom tool contributed by a loaded package.
 		const detail =
 			args.command ??
 			args.code ??
@@ -67,9 +52,6 @@ export default function (agent: ExtensionAPI) {
 		state("working", String(reason));
 	});
 
-	// `agent_end`, not `turn_end`: turn_end fires once per turn, so it would
-	// notify repeatedly while the agent is still working. prime-agent has no
-	// `agent_settled` event, which is the name pi and atomic use for this.
 	agent.on("agent_end", () => {
 		state("done", "your move");
 		spawnQuiet("agent-notify", ["prime-agent", "done", resolve("agent-focus")], "{}");

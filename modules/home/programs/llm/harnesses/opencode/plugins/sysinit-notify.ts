@@ -1,10 +1,4 @@
-/** Bridges OpenCode events onto the shared agent notifier. */
 
-// Resolve a command the way a shell would, rather than naming a directory.
-// `~/.nix-profile/bin` was hardcoded here and holds none of these commands on a
-// nix-darwin machine, where they land in `/etc/profiles/per-user/$USER/bin`. Every
-// spawn failed with ENOENT into `spawnQuiet`'s empty catch, so the bridge looked
-// installed and did nothing.
 function resolve(exe: string): string {
 	const { existsSync } = require("node:fs");
 	for (const dir of (process.env.PATH ?? "").split(":")) {
@@ -29,7 +23,6 @@ function spawnQuiet(exe: string, args: string[], input?: string): void {
 	}
 }
 
-// child sessions share this bus, so only root transitions represent the user's turn
 let rootSession: string | undefined;
 
 export const SysinitNotify = () => ({
@@ -48,10 +41,6 @@ export const SysinitNotify = () => ({
 		try {
 			const sid = event?.properties?.sessionID;
 
-			// `file.edited` is a purpose-built post-edit event carrying one absolute
-			// path, so this needs no tool name and no correlation. It fires for every
-			// editing tool, `apply_patch` included, which is why the patch envelope
-			// codex has to parse is irrelevant here.
 			if (event?.type === "file.edited") {
 				const file = event?.properties?.file;
 				if (file) {
