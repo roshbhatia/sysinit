@@ -2,8 +2,6 @@ agent=${1:-agent}
 reason=${2:-attention}
 focus_exe=${3:-}
 
-# The one fallback in this file, reached only when the paths manifest is
-# sysinit:documented-default
 an_agents="${XDG_STATE_HOME:-$HOME/.local/state}/agents"
 
 notifier=$(command -v alerter 2> /dev/null) || exit 0

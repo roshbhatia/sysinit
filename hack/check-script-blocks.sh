@@ -1,9 +1,4 @@
 #!/usr/bin/env bash
-# Checks the PEP 723 block in a `uv run --script` file. That block is code, not
-# commentary: `uv` refuses the whole file when it is unterminated, and a comment
-# sweep that read `# requires-python` as prose left the SessionEnd worklog hook
-# dead for three days without one error reaching anybody. This fails the commit
-# instead.
 set -uo pipefail
 
 status=0

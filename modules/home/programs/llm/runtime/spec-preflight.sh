@@ -1,7 +1,3 @@
-# This script reports every failing section and exits once at the end, so a
-# section that finds a problem must not abort it. `writeShellApplication` adds
-# `set -o errexit`, and with `pipefail` that turns a `diff` or `grep` finding
-# nothing into a silent early exit part-way through the report.
 set +o errexit
 set -uo pipefail
 
@@ -157,9 +153,6 @@ if [ "$stage" = "review" ] || [ "$stage" = "tasks" ] || [ "$stage" = "all" ]; th
     state=$(sed -n 's/^State:[[:space:]]*//p' "$review" | head -1)
     case "$state" in
       CAPPED | STALLED | CHURNING)
-        # Bounded to the section, not to end of file. `Logged, not fixed` sits
-        # after this heading and holds findings the review deliberately did not
-        # act on, so an unbounded read would count one as an open objection.
         if awk '/^## Open objections/ { inside = 1; next } /^## / { inside = 0 } inside' "$review" |
           grep -qE '^- \S'; then
           note "pass open-objections: $state lists them"

@@ -1,7 +1,4 @@
 #!/usr/bin/env bash
-# Generate `bootstrap/mise.toml` and `bootstrap/mise-editor.toml` from
-# `bootstrap/tools.toml`. Both are checked in so the bootstrap can read them on a
-# box with no python.
 set -euo pipefail
 
 here=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)

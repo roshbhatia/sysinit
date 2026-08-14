@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-# Run the bootstrap in a clean Ubuntu container and check what came up.
 set -euo pipefail
 
 repo_root=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)
@@ -16,7 +15,6 @@ if ! "$runtime" info > /dev/null 2>&1; then
   exit 1
 fi
 
-# Under $HOME rather than $TMPDIR: the container runtime on macOS shares the
 mkdir -p "$HOME/.cache"
 snapshot=$(mktemp -d "$HOME/.cache/sysinit-verify.XXXXXX")
 trap 'rm -rf "$snapshot"' EXIT
@@ -25,13 +23,11 @@ git -C "$repo_root" ls-files -z --cached --others --exclude-standard |
   tar -C "$repo_root" --null -T - -cf - | tar -C "$snapshot" -xf -
 git -C "$snapshot" init -q
 git -C "$snapshot" add -A
-# `core.hooksPath` is set globally in this checkout, so a plain commit in the
 git -C "$snapshot" \
   -c core.hooksPath= \
   -c user.email=gate@example.com -c user.name=gate \
   commit -qm "working tree snapshot"
 
-# `git clone` from a mount refuses when the directory is owned by another uid,
 script=$(
   cat << 'INNER'
 set -euo pipefail
@@ -104,7 +100,6 @@ esac
 INNER
 )
 
-# mise fetches release assets through the GitHub API, and an unauthenticated
 github_token=${GITHUB_TOKEN:-}
 if [ -z "$github_token" ] && command -v gh > /dev/null 2>&1; then
   github_token=$(gh auth token 2> /dev/null || true)
@@ -121,14 +116,12 @@ trap 'rm -rf "$snapshot" "$out"' EXIT
   "$image" \
   bash -euo pipefail -c "$script"
 
-# --------------------------------------------------- the two producers are one
 if ! command -v nix > /dev/null 2>&1; then
   echo "verify-container: no nix on PATH, so the nix-side manifest was NOT compared" >&2
   exit 0
 fi
 
 echo "--- the nix producer and the shell producer agree"
-# Through `homeConfigurations`, not through a host.
 nix_home=$(nix eval --raw --no-warn-dirty \
   "${repo_root}#homeConfigurations.minimal-aarch64-darwin.config.home.homeDirectory")
 nix_paths=$(

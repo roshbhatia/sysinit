@@ -13,7 +13,6 @@ agent_identity() {
   ai_cwd=${1:-$PWD}
   ai_pane=${2:-}
 
-  # sysinit:documented-default
   ai_seshy_root=$(sysinit_path seshySessions) || ai_seshy_root="$HOME/.local/state/seshy/sessions"
   AI_SESSION=""
   case "$ai_cwd/" in
@@ -23,8 +22,6 @@ agent_identity() {
       ;;
   esac
 
-  # The prefix is a namespace, not part of the name, and the joins downstream
-  # compare against unprefixed seshy names.
   if [ -z "$AI_SESSION" ] && [ -n "${ZMX_SESSION:-}" ]; then
     AI_SESSION=${ZMX_SESSION#"${ZMX_SESSION_PREFIX:-}"}
   fi

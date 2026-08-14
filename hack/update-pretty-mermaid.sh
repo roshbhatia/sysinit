@@ -6,8 +6,6 @@ OVERLAY_FILE="overlays/pretty-mermaid.nix"
 LOCK_FILE="overlays/pretty-mermaid-package-lock.json"
 REPO="imxv/Pretty-mermaid-skills"
 
-# Pinned by rev, not by tag: the upstream publishes no releases, so the default
-# branch head is the only thing there is to compare against.
 CURRENT=$(grep -oE '"[0-9a-f]{40}"; # autoupdate:rev' "${OVERLAY_FILE}" | grep -oE '[0-9a-f]{40}')
 LATEST=$(git ls-remote "https://github.com/${REPO}" HEAD | cut -f1)
 
@@ -27,8 +25,6 @@ echo "  Computing src hash..."
 RAW_HASH=$(nix-prefetch-url --type sha256 --unpack "https://github.com/${REPO}/archive/${LATEST}.tar.gz" 2> /dev/null)
 SRC_HASH=$(nix hash convert --hash-algo sha256 --from nix32 --to sri "${RAW_HASH}")
 
-# The upstream ships no lockfile, so one is generated here and vendored. Without
-# it the dependency set is whatever npm resolves on the day of the build.
 echo "  Generating package-lock.json..."
 WORKDIR=$(mktemp -d)
 trap 'rm -rf "${WORKDIR}"' EXIT

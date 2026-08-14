@@ -1,4 +1,3 @@
-# sysinit:documented-default
 ar_agents="$HOME/.local/state/agents"
 STATE_DIR="${AGENT_REFINE_STATE_DIR:-$(sysinit_path agentRefine || printf %s "$ar_agents/refine")}"
 WORKLOG="${CLAUDE_WORKLOG_FILE:-$(sysinit_path agentWorklog || printf %s "$ar_agents/worklog.jsonl")}"

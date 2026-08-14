@@ -4,9 +4,6 @@ set -euo pipefail
 
 HARNESSES="modules/home/programs/llm/harnesses"
 
-# Two files carry pins, and two directories carry lock files. The shared package
-# set holds everything the pi lineage installs as an extension; pi's own module
-# keeps the pins that only pi uses, `pi-acp` and `pi-gemini-auth`.
 declare -a PIN_FILES=(
   "${HARNESSES}/shared/pi-packages.nix"
   "${HARNESSES}/pi/default.nix"

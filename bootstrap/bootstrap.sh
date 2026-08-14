@@ -1,14 +1,10 @@
 #!/usr/bin/env bash
-# Bring this configuration up on a box with no Nix.
 set -euo pipefail
 
 remote=${SYSINIT_REMOTE:-https://github.com/roshbhatia/sysinit.git}
 branch=${SYSINIT_BRANCH:-main}
 checkout=${SYSINIT_CHECKOUT:-$HOME/.local/share/sysinit}
 
-# `--editor` installs the neovim config and nothing else: no zsh, no
-# utils, and only the tools the config shells out to. It is the mode for
-# a box that is not yours, where replacing the shell would be rude.
 mode=full
 case ${1:-} in
   --editor) mode=editor ;;
@@ -21,9 +17,6 @@ esac
 
 log() { printf '\033[1msysinit:\033[0m %s\n' "$*"; }
 
-# ---------------------------------------------------------------- 1.
-
-# `--no-checkout` first, so the working tree is never fully materialized.
 if [ ! -d "$checkout/.git" ]; then
   log "sparse checkout of ${remote} into ${checkout}"
   mkdir -p "$(dirname "$checkout")"
@@ -49,7 +42,6 @@ else
     modules/shared/options \
     pkgs/utils
 fi
-# `read-tree -mu HEAD` rather than `checkout "$branch"`.
 git -C "$checkout" read-tree -mu HEAD
 
 test -f "$checkout/bootstrap/tools.toml" || {
@@ -57,12 +49,7 @@ test -f "$checkout/bootstrap/tools.toml" || {
   exit 1
 }
 
-# ------------------------------------------------------- 2.
-
-# Written from `modules/shared/options/paths-layout.json` by substituting $HOME
 layout="$checkout/modules/shared/options/paths-layout.json"
-# The one path no consumer can learn from the manifest, because it IS the
-# sysinit:documented-default
 manifest="$HOME/.local/state/sysinit/paths.json"
 
 log "writing ${manifest}"
@@ -70,10 +57,6 @@ mkdir -p "$(dirname "$manifest")"
 sed "s#\$HOME#${HOME}#g" "$layout" > "$manifest.tmp"
 mv "$manifest.tmp" "$manifest"
 
-# --------------------------------------------------------- 3.
-
-# The `system` entries in the manifest. In editor mode only the entries the
-# neovim config needs, which is what `editor = true` marks.
 if command -v apt-get > /dev/null 2>&1; then
   if [ "$mode" = editor ]; then
     packages=$(
@@ -100,15 +83,12 @@ else
   log "no apt-get; skipping the distribution packages"
 fi
 
-# ------------------------------------------------------------------- 4.
-
 if ! command -v mise > /dev/null 2>&1 && [ ! -x "$HOME/.local/bin/mise" ]; then
   log "installing mise"
   curl -fsSL https://mise.run | sh
 fi
 export PATH="$HOME/.local/bin:$PATH"
 
-# The generated file becomes mise's GLOBAL config, by symlink, rather than
 log "mise install"
 mkdir -p "$HOME/.config/mise"
 if [ "$mode" = editor ]; then
@@ -122,9 +102,6 @@ mise reshim > /dev/null 2>&1 || true
 
 export PATH="$HOME/.local/share/mise/shims:$PATH"
 
-# ---------------------------------------------------------------- 5.
-
-# neovim is a symlink to the checkout, which is what the Nix side does too
 log "linking the neovim config"
 mkdir -p "$HOME/.config"
 rm -rf "$HOME/.config/nvim"
@@ -136,7 +113,6 @@ if [ "$mode" = editor ]; then
   exit 0
 fi
 
-# zsh cannot be a symlink: the Nix side assembles `initContent` from fragments
 log "writing the zsh config"
 zsh_dir="$checkout/modules/home/programs/zsh"
 {
@@ -159,9 +135,6 @@ zsh_dir="$checkout/modules/home/programs/zsh"
   done
 } > "$HOME/.zshrc"
 
-# --------------------------------------------------------- 6.
-
-# `go install` rather than a release binary: this is the repository's own tool
 log "go install ./pkgs/utils"
 mkdir -p "$HOME/.local/bin"
 (cd "$checkout/pkgs/utils" && GOBIN="$HOME/.local/bin" go install .)

@@ -1,14 +1,10 @@
-# sysinit:documented-default
 state_dir=$(sysinit_path agents) || state_dir="${XDG_STATE_HOME:-$HOME/.local/state}/agents"
-# Pane records.
 panes_dir=$(sysinit_path agentPanes) || panes_dir="$state_dir/panes"
 selected_file="$state_dir/selected.json"
 cache_file="$state_dir/sessions.json"
 lock_dir="$state_dir/sessions.lock"
 
 STALE_AFTER=${AGENT_SESSIONS_STALE_AFTER:-10}
-# Every external call is bounded: a status line runs this on a timer, so an unbounded
-# call stacks processes rather than merely running slow.
 PROBE_TIMEOUT=${AGENT_SESSIONS_PROBE_TIMEOUT:-2}
 LOCK_STALE_AFTER=${AGENT_SESSIONS_LOCK_STALE_AFTER:-30}
 
@@ -17,7 +13,6 @@ emit_empty() {
   exit 0
 }
 
-# Answer from the last good run rather than computing a second one.
 emit_cached() {
   if [ -s "$cache_file" ]; then
     cat "$cache_file"
@@ -30,7 +25,6 @@ command -v jq > /dev/null 2>&1 || emit_empty
 
 mkdir -p "$state_dir" 2> /dev/null || true
 
-# One instance at a time.
 now=$(date +%s)
 
 if [ -d "$lock_dir" ]; then
@@ -38,7 +32,6 @@ if [ -d "$lock_dir" ]; then
   case "$born" in
     '' | *[!0-9]*) born=0 ;;
   esac
-  # A lock with no readable birth time is stale, or a kill mid-stamp wedges the timer.
   if [ "$born" -eq 0 ] || [ "$((now - born))" -ge "$LOCK_STALE_AFTER" ]; then
     rm -rf "$lock_dir" 2> /dev/null || true
   fi
@@ -71,14 +64,12 @@ have_live=0
 pane_ws=""
 active_pane=""
 if command -v wezterm > /dev/null 2>&1; then
-  # Bounded: an unresponsive mux makes `wezterm cli list` block with no timeout of its
   pane_ws=$(timeout "$PROBE_TIMEOUT" wezterm cli list --format json 2> /dev/null |
     jq -r '.[] | "\(.pane_id) \(.workspace // "") \(.is_active)"' 2> /dev/null)
   live=$(printf '%s\n' "$pane_ws" | awk 'NF { print $1 }' | tr '\n' ' ')
   [ -n "$live" ] && have_live=1
 fi
 
-# The liveness rule from SCHEMA.md: a record counts while its pane exists.
 pane_is_live() {
   [ "$have_live" -eq 0 ] && return 0
   case " $live " in
@@ -87,20 +78,17 @@ pane_is_live() {
   esac
 }
 
-# Which workspace owns this pane, resolved live rather than recorded: pane ids are
 workspace_of() {
   [ -n "$pane_ws" ] || return 0
   printf '%s\n' "$pane_ws" | awk -v p="$1" '$1 == p { print $2; exit }'
 }
 
-# The record session of a pane, or empty.
 session_of_pane() {
   [ -n "$1" ] || return 0
   [ -f "$panes_dir/$1.json" ] || return 0
   jq -r '.session // ""' "$panes_dir/$1.json" 2> /dev/null
 }
 
-# Reconcile `selected` into the SESSION namespace.
 if [ -n "$pane_ws" ]; then
   active_pane=$(printf '%s\n' "$pane_ws" | awk '$3 == "true" { print $1; exit }')
 fi
@@ -126,8 +114,6 @@ rollup=$(
       [ -n "$pane" ] || continue
       pane_is_live "$pane" || continue
       sess=$(jq -r '.session // ""' "$f" 2> /dev/null)
-      # Record session, then live workspace, then "default", treating a workspace
-      # literally named "default" as no workspace at all.
       [ -n "$sess" ] || sess=$(workspace_of "$pane")
       [ -n "$sess" ] || sess="default"
       status=$(jq -r '.status // ""' "$f" 2> /dev/null)
@@ -168,7 +154,6 @@ out=$(printf '%s' "$rollup" | jq -R -s --arg sel "$selected_file" --argjson sele
 
 [ -n "$out" ] || emit_cached
 
-# Cached by rename, so a reader never sees a half-written document.
 printf '%s\n' "$out" > "$cache_file.tmp" 2> /dev/null &&
   mv -f "$cache_file.tmp" "$cache_file" 2> /dev/null
 printf '%s\n' "$out"
