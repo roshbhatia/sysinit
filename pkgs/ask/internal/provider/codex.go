@@ -185,7 +185,9 @@ func (c Codex) Run(ctx context.Context, req Request) (<-chan Event, error) {
 		}
 		args = append(args, "--output-schema", schemaPath)
 	}
-	args = append(args, req.Prompt)
+	// After a separator, or a prompt that opens with a dash is read by codex as a flag of
+	// its own and the run dies before the model ever sees it.
+	args = append(args, "--", req.Prompt)
 
 	discard := func() {
 		if schemaPath != "" {

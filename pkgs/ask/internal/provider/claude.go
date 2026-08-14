@@ -146,7 +146,9 @@ func (c Claude) Run(ctx context.Context, req Request) (<-chan Event, error) {
 		}
 		args = append(args, "--json-schema", string(encoded))
 	}
-	args = append(args, req.Prompt)
+	// After a separator, or a prompt that opens with a dash is read by claude as a flag of
+	// its own and the run dies before the model ever sees it.
+	args = append(args, "--", req.Prompt)
 
 	cmd := exec.CommandContext(ctx, binary, args...)
 	cmd.Dir = req.Dir

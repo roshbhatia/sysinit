@@ -77,9 +77,13 @@ func TestAClaudeRunReachesTheBinaryAndReadsItBack(t *testing.T) {
 		t.Fatal(err)
 	}
 	args := strings.Split(strings.TrimRight(string(raw), "\n"), "\n")
-	// The prompt is last, so a prompt that opens with a dash is still a prompt.
+	// Last, and behind a separator: a prompt that opens with a dash is otherwise read by
+	// claude as a flag of its own, and the run dies before the model sees it.
 	if args[len(args)-1] != "summarise this" {
 		t.Errorf("the prompt is not the last argument: %v", args)
+	}
+	if args[len(args)-2] != "--" {
+		t.Errorf("the prompt is not behind a separator: %v", args)
 	}
 	for _, want := range []string{"--print", "stream-json", "--dangerously-skip-permissions", "opus"} {
 		if !has(args, want) {
@@ -151,6 +155,10 @@ func TestACodexRunReachesTheBinaryAndReadsItBack(t *testing.T) {
 		if !has(args, want) {
 			t.Errorf("the arguments %v do not carry %q", args, want)
 		}
+	}
+	// Last, and behind a separator, for the same reason claude's is.
+	if args[len(args)-1] != "summarise this" || args[len(args)-2] != "--" {
+		t.Errorf("the prompt is not behind a separator at the end: %v", args)
 	}
 }
 
