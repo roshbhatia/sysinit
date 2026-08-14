@@ -54,7 +54,7 @@ in
             then {}
             else .
             end
-          )' "${pkgs.opencode}/share/opencode/$f.json" > "$out/$f.json"
+          )' "${pkgs.opencode}/share/$f.json" > "$out/$f.json"
     done
 
     jq -e '.["$defs"].Config.additionalProperties == false' "$out/config.json" > /dev/null \
