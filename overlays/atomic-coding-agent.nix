@@ -36,7 +36,27 @@ in
 
     sourceRoot = ".";
 
-    nativeBuildInputs = [ final.makeWrapper ];
+    nativeBuildInputs = [
+      final.makeWrapper
+    ]
+    ++ final.lib.optional final.stdenv.hostPlatform.isLinux final.autoPatchelfHook;
+
+    buildInputs = final.lib.optionals final.stdenv.hostPlatform.isLinux [
+      (final.lib.getLib final.stdenv.cc.cc)
+      final.zlib
+    ];
+
+    autoPatchelfIgnoreMissingDeps = [
+      "libecpg.so.6"
+      "libicudata.so.60"
+      "libicui18n.so.60"
+      "libicuuc.so.60"
+      "libperl.so.5.26"
+      "libpgtypes.so.3"
+      "libpq.so.5"
+      "libpython3.6m.so.1.0"
+      "libtcl8.6.so"
+    ];
 
     installPhase = ''
       runHook preInstall
