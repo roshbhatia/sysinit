@@ -309,6 +309,56 @@ function M.setup(config)
     return ui_statusbar.session_chips(window, agent_session_states(), session_slots(), tree_colors(window))
   end
 
+  local function activate_slot(win, pane, slot)
+    local target
+    for name, s in pairs(session_slots()) do
+      if s == slot then
+        target = name
+        break
+      end
+    end
+    if not target then
+      return
+    end
+    local live = false
+    pcall(function()
+      for _, w in ipairs(wezterm.mux.all_windows()) do
+        if w:get_workspace() == target then
+          live = true
+        end
+      end
+    end)
+    local spawn_cwd = nil
+    if not live and target ~= DEFAULT_WORKSPACE then
+      spawn_cwd = seshy_dir .. "/" .. target
+    end
+    switch_to_workspace(win, pane, target, spawn_cwd)
+  end
+
+  -- Stepping by slot rather than by workspace name walks the same order the
+  -- session chips are drawn in, and wraps at both ends.
+  local function step_session(win, pane, step)
+    local taken = {}
+    for _, slot in pairs(session_slots()) do
+      taken[#taken + 1] = slot
+    end
+    table.sort(taken)
+    if #taken < 2 then
+      return
+    end
+
+    local here = session_slots()[win:active_workspace()]
+    local at = 1
+    for index, slot in ipairs(taken) do
+      if slot == here then
+        at = index
+        break
+      end
+    end
+
+    activate_slot(win, pane, taken[(at - 1 + step) % #taken + 1])
+  end
+
   config.keys = config.keys or {}
   for slot = DEFAULT_SLOT, MAX_SLOT do
     table.insert(config.keys, {
@@ -319,29 +369,24 @@ function M.setup(config)
           win:perform_action({ SendKey = { key = tostring(slot), mods = "CTRL|SHIFT" } }, pane)
           return
         end
-        local target
-        for name, s in pairs(session_slots()) do
-          if s == slot then
-            target = name
-            break
-          end
-        end
-        if not target then
+        activate_slot(win, pane, slot)
+      end),
+    })
+  end
+
+  for _, one in ipairs({
+    { key = "phys:LeftBracket", send = "[", step = -1 },
+    { key = "phys:RightBracket", send = "]", step = 1 },
+  }) do
+    table.insert(config.keys, {
+      key = one.key,
+      mods = "CTRL|SHIFT",
+      action = wezterm.action_callback(function(win, pane)
+        if keybindings.locked_mode then
+          win:perform_action({ SendKey = { key = one.send, mods = "CTRL|SHIFT" } }, pane)
           return
         end
-        local live = false
-        pcall(function()
-          for _, w in ipairs(wezterm.mux.all_windows()) do
-            if w:get_workspace() == target then
-              live = true
-            end
-          end
-        end)
-        local spawn_cwd = nil
-        if not live and target ~= DEFAULT_WORKSPACE then
-          spawn_cwd = seshy_dir .. "/" .. target
-        end
-        switch_to_workspace(win, pane, target, spawn_cwd)
+        step_session(win, pane, one.step)
       end),
     })
   end
@@ -377,7 +422,7 @@ function M.setup(config)
         tabline_c = {},
         tabline_x = { agent_status, session_chips, "ResetAttributes" },
         tabline_y = {},
-        tabline_z = {},
+        tabline_z = { "domain" },
         tab_active = {
           "index",
           { "parent", padding = 0 },
