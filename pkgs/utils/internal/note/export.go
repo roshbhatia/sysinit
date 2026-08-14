@@ -116,9 +116,11 @@ func buildExport(notes []json.RawMessage) *exportDoc {
 	return doc
 }
 
-// publishExport writes the export for root from notes.
+// publishExport writes the export for root from notes. Re-anchored first, so the
+// viewer opens on the line each note is on now rather than the line it was written
+// against.
 func publishExport(root string, notes []json.RawMessage) error {
-	data, err := marshalExport(buildExport(notes))
+	data, err := marshalExport(buildExport(reanchor(root, notes)))
 	if err != nil {
 		return err
 	}
@@ -150,6 +152,21 @@ func cmdRebuild(args []string) error {
 			return die("%s is not a valid note store", s.Path)
 		}
 		notes = doc.Notes
+		// A note written by hand, or written before the record carried ids and
+		// anchors, has neither. Filling them in is repair, which is what this
+		// command is for, and it is the only route that writes them after the fact.
+		filled, changed, err := backfill(root, notes)
+		if err != nil {
+			return err
+		}
+		if changed > 0 {
+			doc.Notes = filled
+			notes = filled
+			if err := publishDoc(s, doc); err != nil {
+				return err
+			}
+			fmt.Printf("note: named %d note(s) that carried no id\n", changed)
+		}
 	}
 	if err := publishExport(root, notes); err != nil {
 		return err
@@ -157,4 +174,57 @@ func cmdRebuild(args []string) error {
 	release()
 	fmt.Printf("note: rebuilt %s\n", repo.ExportFile(root))
 	return nil
+}
+
+// backfill gives every note an id, and an anchor read from the line it currently
+// names. Returns the notes and how many it had to touch.
+func backfill(root string, notes []json.RawMessage) ([]json.RawMessage, int, error) {
+	filled := make([]json.RawMessage, 0, len(notes))
+	changed := 0
+	for _, raw := range notes {
+		var cur existing
+		var fields map[string]json.RawMessage
+		// A note this cannot read crosses untouched. Repair is not the place to
+		// refuse a record: `rebuild` is what the owner runs when the record is
+		// already in a state nothing else accepts.
+		if json.Unmarshal(raw, &cur) != nil || json.Unmarshal(raw, &fields) != nil {
+			filled = append(filled, raw)
+			continue
+		}
+		if cur.ID != nil && *cur.ID != "" && cur.Anchor != nil {
+			filled = append(filled, raw)
+			continue
+		}
+		if cur.ID == nil || *cur.ID == "" {
+			id, err := newID()
+			if err != nil {
+				return nil, 0, err
+			}
+			encoded, err := json.Marshal(id)
+			if err != nil {
+				return nil, 0, err
+			}
+			fields["id"] = encoded
+		}
+		if cur.Anchor == nil && cur.File != nil && cur.Line != nil {
+			line, err := cur.Line.Int64()
+			if err == nil {
+				anchor := captureAnchor(root, *cur.File, line)
+				if anchor != "" {
+					encoded, err := json.Marshal(anchor)
+					if err != nil {
+						return nil, 0, err
+					}
+					fields["anchor"] = encoded
+				}
+			}
+		}
+		rewritten, err := json.Marshal(fields)
+		if err != nil {
+			return nil, 0, err
+		}
+		filled = append(filled, rewritten)
+		changed++
+	}
+	return filled, changed, nil
 }

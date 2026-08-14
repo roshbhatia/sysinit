@@ -95,6 +95,21 @@ func notes(t *testing.T) []map[string]any {
 	return doc.Notes
 }
 
+func openNotes(t *testing.T) []map[string]any {
+	t.Helper()
+	code, out := run(t, "list", "--open", "--json")
+	if code != 0 {
+		t.Fatalf("list --open --json exited %d", code)
+	}
+	var doc struct {
+		Notes []map[string]any `json:"notes"`
+	}
+	if err := json.Unmarshal([]byte(out), &doc); err != nil {
+		t.Fatalf("list --open --json is not valid JSON: %v: %s", err, out)
+	}
+	return doc.Notes
+}
+
 func mustAdd(t *testing.T, args ...string) {
 	t.Helper()
 	if code, _ := run(t, append([]string{"add"}, args...)...); code != 0 {
@@ -266,6 +281,152 @@ func TestClearLineNeedsAFile(t *testing.T) {
 	}
 	if got := len(notes(t)); got != 1 {
 		t.Fatalf("the refused clear removed notes anyway: %d left", got)
+	}
+}
+
+// rewrite replaces a file under the repository root, for the tests that move a note's
+// line out from under it.
+func rewrite(t *testing.T, root, relative, body string) {
+	t.Helper()
+	if err := os.WriteFile(filepath.Join(root, relative), []byte(body), 0o644); err != nil {
+		t.Fatal(err)
+	}
+}
+
+func lineOf(t *testing.T, summary string) int64 {
+	t.Helper()
+	for _, note := range notes(t) {
+		if note["summary"] == summary {
+			line, ok := note["line"].(float64)
+			if !ok {
+				t.Fatalf("the note %q carries no line", summary)
+			}
+			return int64(line)
+		}
+	}
+	t.Fatalf("no note reads %q", summary)
+	return 0
+}
+
+func TestANoteFollowsItsLineThroughAnEdit(t *testing.T) {
+	root := newRepo(t)
+	mustAdd(t, "--file", "src/app.ts", "--line", "2", "--summary", "about two")
+	rewrite(t, root, "src/app.ts", "zero\nhalf\none\ntwo\nthree\n")
+
+	if got := lineOf(t, "about two"); got != 4 {
+		t.Fatalf("the note did not follow its line: expected 4, got %d", got)
+	}
+}
+
+func TestANoteStaysPutWhenItsLineIsNotUnique(t *testing.T) {
+	root := newRepo(t)
+	rewrite(t, root, "src/app.ts", "end\nend\nend\n")
+	mustAdd(t, "--file", "src/app.ts", "--line", "2", "--summary", "the middle end")
+	rewrite(t, root, "src/app.ts", "added\nend\nend\nend\n")
+
+	if got := lineOf(t, "the middle end"); got != 2 {
+		t.Fatalf("an ambiguous anchor moved the note to %d", got)
+	}
+}
+
+func TestAnAnchoredNoteIsNotRenumberedInTheRecord(t *testing.T) {
+	root := newRepo(t)
+	mustAdd(t, "--file", "src/app.ts", "--line", "2", "--summary", "about two")
+	rewrite(t, root, "src/app.ts", "zero\nhalf\none\ntwo\nthree\n")
+	if got := lineOf(t, "about two"); got != 4 {
+		t.Fatalf("expected the reader to see line 4, got %d", got)
+	}
+
+	body, err := os.ReadFile(storePath(t))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !strings.Contains(string(body), `"line": 2`) {
+		t.Fatalf("the record was renumbered rather than re-anchored on read:\n%s", body)
+	}
+}
+
+func TestAnswerMarksTheQuestionAndFilesTheReply(t *testing.T) {
+	newRepo(t)
+	mustAdd(t, "--file", "src/app.ts", "--line", "2", "--summary", "why this here", "--origin", "user")
+	asked := notes(t)[0]
+	id, _ := asked["id"].(string)
+	if id == "" {
+		t.Fatal("a note was written with no id")
+	}
+	if asked["state"] != "open" {
+		t.Fatalf("a note the owner wrote is not open: %v", asked["state"])
+	}
+
+	if code, _ := run(t, "answer", "--id", id, "--summary", "it pins the old rev", "--author", "claude"); code != 0 {
+		t.Fatal("answer exited non-zero")
+	}
+
+	got := notes(t)
+	if len(got) != 2 {
+		t.Fatalf("expected the question and its reply, got %d note(s)", len(got))
+	}
+	if got[0]["state"] != "answered" {
+		t.Fatalf("the question is still %v", got[0]["state"])
+	}
+	if got[1]["reply_to"] != id || got[1]["line"] != got[0]["line"] {
+		t.Fatalf("the reply does not sit on the question: %v", got[1])
+	}
+	if len(openNotes(t)) != 0 {
+		t.Fatal("an answered question is still listed as open")
+	}
+}
+
+func TestAnswerRefusesAnIDTheRecordDoesNotHold(t *testing.T) {
+	newRepo(t)
+	mustAdd(t, "--file", "src/app.ts", "--line", "1", "--summary", "seed", "--origin", "user")
+	if code, _ := run(t, "answer", "--id", "deadbeef", "--summary", "into the void"); code == 0 {
+		t.Fatal("answer accepted an id no note carries")
+	}
+	if got := len(notes(t)); got != 1 {
+		t.Fatalf("the refused answer wrote a note anyway: %d", got)
+	}
+}
+
+func TestClearByIDRemovesExactlyOneNote(t *testing.T) {
+	newRepo(t)
+	mustAdd(t, "--file", "src/app.ts", "--line", "1", "--summary", "first")
+	mustAdd(t, "--file", "src/app.ts", "--line", "1", "--summary", "second")
+	id, _ := notes(t)[0]["id"].(string)
+
+	if code, _ := run(t, "clear", "--id", id); code != 0 {
+		t.Fatal("clear --id exited non-zero")
+	}
+	got := notes(t)
+	if len(got) != 1 || got[0]["summary"] != "second" {
+		t.Fatalf("clear --id removed the wrong note: %v", got)
+	}
+}
+
+func TestRebuildNamesTheNotesThatCarryNoID(t *testing.T) {
+	root := newRepo(t)
+	handWritten := `{"version":1,"repo":"` + root + `","notes":[` +
+		`{"file":"src/app.ts","line":2,"summary":"older than ids","rationale":null,"author":"pi"}]}`
+	path := storePath(t)
+	if err := os.MkdirAll(filepath.Dir(path), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(path, []byte(handWritten), 0o644); err != nil {
+		t.Fatal(err)
+	}
+
+	if code, _ := run(t, "rebuild"); code != 0 {
+		t.Fatal("rebuild exited non-zero")
+	}
+	got := notes(t)
+	if len(got) != 1 {
+		t.Fatalf("rebuild changed the note count: %d", len(got))
+	}
+	if id, _ := got[0]["id"].(string); id == "" {
+		t.Fatalf("rebuild left the note unnamed: %v", got[0])
+	}
+	if got[0]["anchor"] != "two" {
+		t.Fatalf("rebuild did not anchor the note on its line: %v", got[0]["anchor"])
 	}
 }
 

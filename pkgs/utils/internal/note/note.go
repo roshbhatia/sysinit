@@ -20,15 +20,25 @@ const usageText = `Agent review notes on a working-tree diff. Read them with ` +
 
 Usage:
   note add --file <path> --line <n> --summary <text> [--rationale <text>] [--author <name>] [--origin agent|user] [--replace]
+  note answer --id <id> --summary <text> [--rationale <text>] [--author <name>]
   note apply --stdin
-  note list [--file <path>] [--json]
-  note clear [--file <path>] [--line <n>] [--yes]
+  note list [--file <path>] [--open] [--json]
+  note clear [--id <id>] [--file <path>] [--line <n>] [--yes]
   note path [--export]
   note rebuild
 
 ` + "`--origin`" + ` says who wrote the note rather than what they are called: an agent
 writes ` + "`agent`" + `, which is the default, and a person writes ` + "`user`" + `. A reader
 draws the two differently, so it is not inferred from the author's name.
+
+A note the owner writes is ` + "`open`" + ` until it is answered. ` + "`answer`" + ` files the
+reply beside it and marks it answered in one write, and ` + "`list --open`" + ` is what
+is still waiting.
+
+Every note carries an id and the text of the line it was written against. A
+reader re-anchors on that text, so a note follows its line through later edits;
+the record itself is never renumbered. Name the id to remove or answer exactly
+one note.
 
 ` + "`clear --line`" + ` removes the notes on one line and needs ` + "`--file`" + `. Without
 ` + "`--line`" + ` it removes every note in that file, and without ` + "`--file`" + ` it removes
@@ -43,6 +53,9 @@ record, which is the one route that changes it without going through a write.
 
 // Note is one anchored annotation.
 type Note struct {
+	// ID names one note for as long as it exists. A line number cannot: it is what
+	// moves when the file moves, so removing and answering both go through this.
+	ID        string  `json:"id"`
 	File      string  `json:"file"`
 	Line      int64   `json:"line"`
 	Summary   string  `json:"summary"`
@@ -52,11 +65,23 @@ type Note struct {
 	// because a reader draws an agent's note and a person's note differently and an
 	// author name is free text that cannot be told apart reliably.
 	Origin string `json:"origin"`
+	// Anchor is the annotated line as it read when the note was written. A later edit
+	// moves the line and nothing renumbers the record, so this is what a reader
+	// re-anchors on.
+	Anchor string `json:"anchor,omitempty"`
+	// State is `open` until a note the owner wrote is answered, and empty on a note
+	// nobody is waiting on.
+	State string `json:"state,omitempty"`
+	// ReplyTo names the note this one answers.
+	ReplyTo string `json:"reply_to,omitempty"`
 }
 
 const (
 	originAgent = "agent"
 	originUser  = "user"
+
+	stateOpen     = "open"
+	stateAnswered = "answered"
 )
 
 // cleanOrigin folds a written origin to one of the two the record holds.
@@ -80,10 +105,14 @@ type document struct {
 
 // existing is the lenient view of a stored note, for the operations that do
 type existing struct {
+	ID      *string      `json:"id"`
 	File    *string      `json:"file"`
 	Line    *json.Number `json:"line"`
 	Summary *string      `json:"summary"`
 	Author  *string      `json:"author"`
+	Origin  *string      `json:"origin"`
+	Anchor  *string      `json:"anchor"`
+	State   *string      `json:"state"`
 }
 
 type fail struct{ msg string }
@@ -107,6 +136,8 @@ func Run(args []string) int {
 		return 0
 	case "add":
 		err = cmdAdd(args[1:])
+	case "answer":
+		err = cmdAnswer(args[1:])
 	case "apply":
 		err = cmdApply(args[1:], os.Stdin)
 	case "list":
@@ -276,12 +307,23 @@ func cmdAdd(args []string) error {
 		return die("%s does not name a file inside %s", file, root)
 	}
 
+	id, err := newID()
+	if err != nil {
+		return err
+	}
 	note := Note{
+		ID:      id,
 		File:    relative,
 		Line:    parsed,
 		Summary: cleanSummary,
 		Author:  store.OneLine(author),
 		Origin:  written,
+		Anchor:  captureAnchor(root, relative, parsed),
+	}
+	// Only the owner's note waits on anything. An agent's note explains a change it
+	// already made, so nobody owes it an answer.
+	if written == originUser {
+		note.State = stateOpen
 	}
 	if rationale != "" {
 		cleaned := store.Clean(rationale)
@@ -391,6 +433,14 @@ func cmdApply(args []string, stdin io.Reader) error {
 			return die("a note names a path that is not a file inside %s", root)
 		}
 		notes[i].File = relative
+		notes[i].ID, err = newID()
+		if err != nil {
+			return err
+		}
+		notes[i].Anchor = captureAnchor(root, relative, notes[i].Line)
+		if notes[i].Origin == originUser {
+			notes[i].State = stateOpen
+		}
 	}
 
 	release, err := s.Lock()
@@ -548,11 +598,22 @@ const fieldContract = "every item needs a string file, an integral line of 1 or 
 func cmdList(args []string) error {
 	filter := ""
 	asJSON := false
+	openOnly := false
+	forHook := false
 	for i := 0; i < len(args); {
 		var err error
 		switch args[i] {
 		case "--json":
 			asJSON, i = true, i+1
+			continue
+		case "--open":
+			openOnly, i = true, i+1
+			continue
+		case "--hook":
+			// A hook runs on every prompt, in whatever directory the harness was
+			// started in. It reports what is waiting and stays out of the way
+			// otherwise, so this implies `--open` and swallows every error below.
+			forHook, openOnly, i = true, true, i+1
 			continue
 		case "--file":
 			filter, i, err = takeValue(args, i, "--file")
@@ -566,6 +627,9 @@ func cmdList(args []string) error {
 
 	s, root, err := openStore()
 	if err != nil {
+		if forHook {
+			return nil
+		}
 		return err
 	}
 
@@ -583,21 +647,33 @@ func cmdList(args []string) error {
 
 	doc, err := readDoc(s)
 	if err != nil {
+		if forHook {
+			return nil
+		}
 		return die("%s is not a valid note store", s.Path)
 	}
 
-	notes := doc.Notes
+	// Re-anchored before anything is filtered or printed, so every reader sees the
+	// line the note is on now rather than the line it was written against.
+	notes := reanchor(root, doc.Notes)
 	if filter != "" {
 		relative, err := repo.RelativeToRoot(root, filter)
 		if err != nil {
 			return die("%s does not name a file inside %s", filter, root)
 		}
-		notes, err = keepFile(doc.Notes, relative)
+		notes, err = keepFile(notes, relative)
 		if err != nil {
 			return err
 		}
 	}
+	if openOnly {
+		notes = keepOpen(notes)
+	}
 
+	if forHook {
+		reportOpen(notes)
+		return nil
+	}
 	if asJSON {
 		data, err := marshal(&document{Version: 1, Repo: root, Notes: notes})
 		if err != nil {
@@ -614,6 +690,40 @@ func cmdList(args []string) error {
 		fmt.Printf("%s:%s  %s\n", orNull(cur.File), numberOrNull(cur.Line), store.OneLine(deref(cur.Summary)))
 	}
 	return nil
+}
+
+// keepOpen returns the notes still waiting for an answer.
+func keepOpen(notes []json.RawMessage) []json.RawMessage {
+	kept := make([]json.RawMessage, 0, len(notes))
+	for _, raw := range notes {
+		var cur existing
+		if err := json.Unmarshal(raw, &cur); err != nil {
+			continue
+		}
+		if cur.State != nil && *cur.State == stateOpen {
+			kept = append(kept, raw)
+		}
+	}
+	return kept
+}
+
+// reportOpen writes what the owner is waiting on, for a harness to read at the top of
+// a turn. Silent when nothing is waiting: a hook that speaks every turn is ignored by
+// the third one.
+func reportOpen(notes []json.RawMessage) {
+	if len(notes) == 0 {
+		return
+	}
+	fmt.Printf("The owner left %d note(s) on the diff waiting for an answer.\n", len(notes))
+	for _, raw := range notes {
+		var cur existing
+		if err := json.Unmarshal(raw, &cur); err != nil {
+			continue
+		}
+		fmt.Printf("  [%s] %s:%s  %s\n",
+			orNull(cur.ID), orNull(cur.File), numberOrNull(cur.Line), store.OneLine(deref(cur.Summary)))
+	}
+	fmt.Print("Read the code each one names, then answer it with `utils note answer --id <id> --summary <text>`.\n")
 }
 
 func orNull(s *string) string {
@@ -654,6 +764,7 @@ func keepFile(notes []json.RawMessage, relative string) ([]json.RawMessage, erro
 func cmdClear(args []string) error {
 	filter := ""
 	line := ""
+	id := ""
 	confirmed := false
 	for i := 0; i < len(args); {
 		var err error
@@ -665,12 +776,21 @@ func cmdClear(args []string) error {
 			filter, i, err = takeValue(args, i, "--file")
 		case "--line":
 			line, i, err = takeValue(args, i, "--line")
+		case "--id":
+			id, i, err = takeValue(args, i, "--id")
 		default:
 			return die("unknown argument for clear: %s", args[i])
 		}
 		if err != nil {
 			return err
 		}
+	}
+
+	if id != "" {
+		if filter != "" || line != "" {
+			return die("--id names one note on its own; drop --file and --line")
+		}
+		return clearOne(id)
 	}
 
 	var only int64

@@ -40,9 +40,10 @@ utils note add --file overlays/lima.nix --line 12 \
 
 ```bash
 utils note add --file <path> --line <n> --summary <text> [--rationale <text>] [--author <name>] [--origin agent|user] [--replace]
+utils note answer --id <id> --summary <text> [--rationale <text>] [--author <name>]
 utils note apply --stdin
-utils note list [--file <path>] [--json]
-utils note clear [--file <path>] [--line <n>] [--yes]
+utils note list [--file <path>] [--open] [--json]
+utils note clear [--id <id>] [--file <path>] [--line <n>] [--yes]
 utils note path
 utils note rebuild
 ```
@@ -63,7 +64,9 @@ Rules:
   before appending. Always pass it when re-noting a line you already noted, or
   repeated passes stack.
 - `--line` anchors on the MODIFIED side. A batch naming only `oldLine` is
-  refused rather than silently anchored at the wrong place.
+  refused rather than silently anchored at the wrong place. The write also records
+  the text of that line, and a reader re-anchors on the text, so a note follows
+  its line through later edits.
 - `--origin` says who wrote the note, not what they are called. Leave it alone:
   it defaults to `agent`, and `user` belongs to the owner's editor, which draws
   the two differently.
@@ -72,25 +75,44 @@ Rules:
 that changes it without going through a write. Every `add`, `apply`, and `clear`
 republishes the export on its own.
 
-`clear` is the only verb here that is not on the allowlist, so it prompts. That is
+`clear --id` removes exactly one note, which is the only removal that cannot hit
+the wrong one after a file has moved. `clear` is the only verb here that is not
+on the allowlist, so it prompts. That is
 deliberate: it is the owner's kill switch and it deletes their notes as well as
 yours. Do not reach for it to tidy up. A note of your own that the code has
 outgrown is superseded with `add --replace`, which needs no prompt and leaves the
 owner's notes alone.
 
-## Reading the owner's notes
+## Answering the owner
 
 The record carries both directions. A note with `"origin": "user"` is the owner
-writing to you: a question about a change, or an inline suggestion. Read them
-before you continue the work they are about.
+writing to you: a question about a change, or an inline suggestion. It stays
+`"state": "open"` until it is answered, and a hook puts the open ones in front of
+you at the start of every turn.
 
 ```bash
-utils note list --json
+utils note list --open --json
 ```
 
-Answer one by noting the same line with your own reasoning, and say in the chat
-what you did about it. Never delete the owner's note to mark it handled: it is
-theirs, and `<leader>dnd` in their editor is how it goes.
+Read the code the note names before you reply to it. Then answer by id:
+
+```bash
+utils note answer --id 3fb3cee3 --author claude \
+  --summary 'It pins the old rev because cctools ld fails at link time' \
+  --rationale 'Dropping the pin fails the darwin build; the upstream issue is #1841.'
+```
+
+`answer` files your reply on the same line and marks the question answered in one
+write. Rules:
+
+- Answer the question. A reply that restates the code the owner is looking at
+  reads as an evasion, because the owner already read it.
+- Say in the chat what you answered and what you changed, if anything. The note
+  is the record; the chat is where the owner finds out it moved.
+- Never delete the owner's note to mark it handled. It is theirs, and answering
+  is what closes it.
+- An open note you cannot answer is a question for the chat, not a note to leave
+  waiting.
 
 ## Reading
 
@@ -124,10 +146,15 @@ useful in the list the viewer builds.
 
 ## Anchoring
 
-A note stores a line number and nothing re-anchors it when a later edit shifts
-the file.
+A note stores a line number and the text of that line. A reader looks for the
+text and shows the note wherever it is now. The record is never renumbered, so a
+wrong guess is undone by the next read.
+
+The text has to be unique in the file for this to work. A note on a line reading
+`end` moves nowhere, because nothing can tell that `end` from the other forty.
 
 Two consequences:
 
-- write the note close in time to the edit it describes
-- prefer `--replace` over accumulating notes on a line you keep editing
+- prefer a line with something on it. A note anchored on `}` stays where the
+  line number left it.
+- prefer `--replace` over accumulating notes on a line you keep editing.
