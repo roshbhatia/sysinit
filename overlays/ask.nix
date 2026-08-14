@@ -25,7 +25,7 @@ final: _prev: {
       '';
 
       meta = {
-        description = "Pipe something into a coding agent and print the answer, and only the answer";
+        description = "Agents in your shell!";
         mainProgram = "ask";
         platforms = final.lib.platforms.unix;
       };

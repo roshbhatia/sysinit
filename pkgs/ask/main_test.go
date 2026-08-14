@@ -2,6 +2,8 @@ package main
 
 import (
 	"io"
+	"os"
+	"path/filepath"
 	"strings"
 	"testing"
 	"time"
@@ -262,8 +264,48 @@ func TestNothingToReplayIsSaidRatherThanRun(t *testing.T) {
 func TestAPromptIsRequired(t *testing.T) {
 	t.Setenv("XDG_STATE_HOME", t.TempDir())
 	err := run(options{})
-	if err == nil || !strings.Contains(err.Error(), "say what to do") {
+	if err == nil || !strings.Contains(err.Error(), "say what to ask") {
 		t.Errorf("a run with no prompt gave %v", err)
+	}
+}
+
+func TestAPromptWithNothingPipedInStillRuns(t *testing.T) {
+	t.Setenv("XDG_STATE_HOME", t.TempDir())
+
+	null, err := os.Open(os.DevNull)
+	if err != nil {
+		t.Fatal(err)
+	}
+	was := os.Stdin
+	os.Stdin = null
+	t.Cleanup(func() { os.Stdin = was; null.Close() })
+
+	dir := t.TempDir()
+	script := "#!/bin/sh\ncat > " + filepath.Join(dir, "stdin") + "\n" +
+		`echo '{"type":"result","subtype":"success","result":"the answer","num_turns":1}'` + "\n"
+	if err := os.WriteFile(filepath.Join(dir, "claude"), []byte(script), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	t.Setenv("PATH", dir+string(os.PathListSeparator)+os.Getenv("PATH"))
+
+	if err := run(options{prompt: "what does git rebase do", quiet: true, timeout: time.Minute}); err != nil {
+		t.Fatalf("a run with nothing piped in failed: %v", err)
+	}
+
+	out, err := store.Output()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if string(out) != "the answer" {
+		t.Errorf("the saved answer is %q", out)
+	}
+
+	stdin, err := os.ReadFile(filepath.Join(dir, "stdin"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(stdin) != 0 {
+		t.Errorf("the agent was given %q on stdin", stdin)
 	}
 }
 

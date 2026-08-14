@@ -20,9 +20,11 @@ import (
 	"github.com/roshbhatia/sysinit/pkgs/ask/internal/ui"
 )
 
-const about = `Pipes stdin into a coding agent and prints the answer on stdout. Everything else,
-the spinner and what the model is doing, goes to stderr.
+const about = `Agents in your shell!
 
+Anything on stdin goes to the agent along with the prompt, so a pipe is optional.
+
+  %[1]s what does git rebase --onto do
   cat main.go | %[1]s summarise this file
   cat log.txt | %[1]s -o --schema 'level:error|warn|info, message:string' -- classify this
   %[1]s --show-input | pbcopy
@@ -73,7 +75,7 @@ func command(opts *options) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   name + " [flags] [prompt...]",
-		Short: "Pipe something into a coding agent and print the answer, and only the answer",
+		Short: "Agents in your shell!",
 		Long:  fmt.Sprintf(about, name),
 		Args:  cobra.ArbitraryArgs,
 
@@ -205,10 +207,7 @@ func run(opts options) error {
 		prompt = string(saved)
 	}
 	if prompt == "" {
-		return errors.New("say what to do with the input, or pass --help")
-	}
-	if len(input) == 0 && !opts.replay {
-		return errors.New("nothing on stdin; pipe something in")
+		return errors.New("say what to ask, or pass --help")
 	}
 
 	if err := store.SaveRun(input, prompt); err != nil {
