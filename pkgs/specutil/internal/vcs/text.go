@@ -5,8 +5,6 @@ import (
 	"strings"
 )
 
-// Text renders a diff for a terminal reader. It leads with the summary, because
-// the first thing a reviewer needs is the size of what they are about to read.
 func (d *Diff) Text() string {
 	var b strings.Builder
 	files, added, deleted := d.Stats()

@@ -1,5 +1,3 @@
-// Package detail projects the loaded IR into detail.json: a per-change feed of
-// lifecycle, progress, and task content that powers the visualizers' ticket drill-down.
 package detail
 
 import (
@@ -15,13 +13,10 @@ import (
 	"github.com/roshbhatia/specutil/internal/vcs"
 )
 
-// Feed is the whole detail projection: one entry per change, sorted by name for
-// deterministic output.
 type Feed struct {
 	Changes []Change `json:"changes"`
 }
 
-// Change is the per-workstream ticket content.
 type Change struct {
 	Name        string          `json:"name"`
 	Lifecycle   string          `json:"lifecycle"`
@@ -31,29 +26,20 @@ type Change struct {
 	WhatChanges string          `json:"whatChanges,omitempty"`
 	Design      *DesignSections `json:"design,omitempty"`
 	Phases      []Phase         `json:"phases"`
-	// Review is the standing of the recorded human verdict, when one exists.
-	// Absent when the change has never been reviewed.
+
 	Review *ReviewState `json:"review,omitempty"`
-	// Diff is the working-tree diff a reviewer annotates alongside the plan.
-	// Absent unless the caller asked for it: collecting it runs git, which the
-	// default read-only projection has no reason to do.
+
 	Diff *vcs.Diff `json:"diff,omitempty"`
-	// Notes are the reviewer's standing remarks for this change, keyed by the
-	// identity they were written against. It covers tasks and diff hunks alike,
-	// so a renderer seeds its annotation state from one place.
+
 	Notes map[string]Note `json:"notes,omitempty"`
 }
 
-// ReviewState is the recorded verdict on a change, flattened for renderers.
-// Stale means the artifacts moved after the verdict was recorded, so the
-// verdict no longer describes the text on screen.
 type ReviewState struct {
 	Decision string `json:"decision,omitempty"`
 	Stale    bool   `json:"stale"`
 	Note     string `json:"note,omitempty"`
 }
 
-// DesignSections surfaces design.md content for visualizers.
 type DesignSections struct {
 	Context       string `json:"context,omitempty"`
 	Goals         string `json:"goals,omitempty"`
@@ -65,57 +51,40 @@ type DesignSections struct {
 	OpenQuestions string `json:"openQuestions,omitempty"`
 }
 
-// Phase mirrors a tasks.md phase with its checkbox items.
 type Phase struct {
 	Number string `json:"number"`
 	Name   string `json:"name"`
 	Items  []Item `json:"items"`
-	// Markers carries the schema-declared facts about this phase lifted by the
-	// extract pass (e.g. "shape": "loop", "stop": "…"). Absent when the
-	// repository declares no extraction.
+
 	Markers map[string]string `json:"markers,omitempty"`
 }
 
-// Item is one checkbox task.
 type Item struct {
-	// ID is the source task identifier (e.g. "1.2"). It is the join key for
-	// DependsOn and is internal to these tools; it never reaches a tracker.
 	ID   string `json:"id,omitempty"`
 	Text string `json:"text"`
 	Done bool   `json:"done"`
-	// Kind is the verify/apply/confirm discipline classification carried from the
-	// IR ("task" for plain items), so visualizers can mark impactful and
-	// confirmation steps without re-parsing the source markdown.
+
 	Kind  string `json:"kind"`
 	Level int    `json:"level"`
 	Key   string `json:"key"`
-	// DependsOn lists the source IDs of sibling tasks this task waits on, as
-	// declared through a taskRefs field. Empty when none are declared.
+
 	DependsOn  []string `json:"dependsOn,omitempty"`
 	Tags       []string `json:"tags,omitempty"`
 	InlineRefs []string `json:"inlineRefs,omitempty"`
-	// Identity is the content-addressed task handle. It is what an annotation
-	// written in a browser names, so a comment survives the renumbering that
-	// follows almost every edit to the source.
+
 	Identity string `json:"identity,omitempty"`
-	// Drift classifies this task against the last recorded review: "new",
-	// "changed", or "unchanged". Empty when the change was never reviewed.
+
 	Drift string `json:"drift,omitempty"`
-	// Comment and Action carry the reviewer's standing remark on this task, so a
-	// reader sees prior feedback without re-opening the record.
+
 	Comment string `json:"comment,omitempty"`
 	Action  string `json:"action,omitempty"`
 }
 
-// Note is a reviewer's standing remark on one task or diff hunk.
 type Note struct {
 	Comment string `json:"comment,omitempty"`
 	Action  string `json:"action,omitempty"`
 }
 
-// Options carries the per-change facts that live outside the IR: review drift
-// and recorded verdicts. The caller assembles them from the review records so
-// this package stays free of a review dependency. Every field is optional.
 type Options struct {
 	Drift  DriftByKey
 	Notes  NotesByKey
@@ -123,21 +92,14 @@ type Options struct {
 	Diff   DiffByChange
 }
 
-// DiffByChange maps a change name to the working-tree diff shown against it.
 type DiffByChange map[string]*vcs.Diff
 
-// DriftByKey maps changeName + "\x00" + identity to a drift class.
 type DriftByKey map[string]string
 
-// NotesByKey maps changeName + "\x00" + identity to the reviewer's remark.
 type NotesByKey map[string]Note
 
-// ReviewByChange maps a change name to its recorded verdict.
 type ReviewByChange map[string]ReviewState
 
-// levelKey renders the (level, sibling-index) pair as a compact handle: the
-// 0-based level followed by a letter (a..z), falling back to the raw index past
-// 26 siblings so it never collides or runs out of letters.
 func levelKey(level, idx int) string {
 	if idx < 26 {
 		return fmt.Sprintf("%d%c", level, 'a'+idx)
@@ -145,12 +107,8 @@ func levelKey(level, idx int) string {
 	return strconv.Itoa(level) + "x" + strconv.Itoa(idx)
 }
 
-// taskKey identifies a task by its position, so levels can be looked up without
-// depending on the source ID being present or unique.
 func taskKey(phaseIndex, itemIndex int) [2]int { return [2]int{phaseIndex, itemIndex} }
 
-// taskLevels computes each task's 0-based dependency rank: the length of the longest
-// chain that must finish before it can start.
 func taskLevels(phases []ir.Phase) map[[2]int]int {
 	type node struct{ pi, ii int }
 	byID := map[string]node{}
@@ -177,7 +135,7 @@ func taskLevels(phases []ir.Phase) map[[2]int]int {
 		visiting[key] = true
 
 		best := 0
-		// Every task in the previous phase must finish first.
+
 		if n.pi > 0 {
 			prev := phases[n.pi-1]
 			for pii := range prev.Items {
@@ -185,7 +143,7 @@ func taskLevels(phases []ir.Phase) map[[2]int]int {
 					best = d
 				}
 			}
-			// A phase with no items still advances the sequence.
+
 			if len(prev.Items) == 0 {
 				if d := depth(node{n.pi - 1, 0}); d >= best {
 					best = d
@@ -215,13 +173,8 @@ func taskLevels(phases []ir.Phase) map[[2]int]int {
 	return levels
 }
 
-// Build assembles the detail feed with no annotations. Its callers are the
-// tests, which read it a dozen times; inlining it would repeat the zero Options
-// at every one.
 func Build(changes []*ir.Change) *Feed { return BuildWith(changes, Options{}) }
 
-// BuildWith assembles the detail feed and annotates it with every optional fact
-// in opts.
 func BuildWith(changes []*ir.Change, opts Options) *Feed {
 	out := make([]Change, 0, len(changes))
 	for _, c := range changes {
@@ -248,7 +201,7 @@ func BuildWith(changes []*ir.Change, opts Options) *Feed {
 				Migration:     c.Design.Migration,
 				OpenQuestions: c.Design.OpenQuestions,
 			}
-			// Only attach when at least one section is non-empty.
+
 			if ds.Context != "" || ds.Goals != "" || ds.NonGoals != "" || ds.Decisions != "" ||
 				ds.Risks != "" || ds.Rollout != "" || ds.Migration != "" || ds.OpenQuestions != "" {
 				dc.Design = ds
@@ -311,7 +264,6 @@ func BuildWith(changes []*ir.Change, opts Options) *Feed {
 	return &Feed{Changes: out}
 }
 
-// JSON renders the feed as indented, deterministic JSON.
 func (f *Feed) JSON() ([]byte, error) {
 	b, err := json.MarshalIndent(f, "", "  ")
 	if err != nil {

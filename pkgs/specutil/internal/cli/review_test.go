@@ -12,8 +12,6 @@ import (
 	"github.com/roshbhatia/specutil/internal/cli"
 )
 
-// runStdin is run() with a stdin body, which is how a clipboard paste reaches
-// `review ingest`.
 func runStdin(stdin string, args ...string) (stdout, stderr string, err error) {
 	var outBuf, errBuf bytes.Buffer
 	root := cli.NewRootCmd()
@@ -25,8 +23,6 @@ func runStdin(stdin string, args ...string) (stdout, stderr string, err error) {
 	return outBuf.String(), errBuf.String(), err
 }
 
-// taskIdentity reads an identity out of the detail feed, which is the same
-// handle the web page writes into an annotation.
 func taskIdentity(t *testing.T, repo, changeName, taskText string) string {
 	t.Helper()
 	out, _, err := run("-C", repo, "graph", "--as", "detail")
@@ -141,7 +137,6 @@ func TestReviewSetThenDriftAppearsInTheDetailFeed(t *testing.T) {
 		t.Fatalf("review set: %v", err)
 	}
 
-	// Nothing moved yet, so every task reads as unchanged.
 	out, _, err := run("-C", dir, "graph", "--as", "detail")
 	if err != nil {
 		t.Fatalf("graph --as detail: %v", err)
@@ -150,7 +145,6 @@ func TestReviewSetThenDriftAppearsInTheDetailFeed(t *testing.T) {
 		t.Errorf("a just-reviewed change must report unchanged tasks: %s", out)
 	}
 
-	// Add a task; it must read as new against the reviewed baseline.
 	tasks := filepath.Join(dir, "openspec", "changes", "widget", "tasks.md")
 	if werr := os.WriteFile(tasks,
 		[]byte("## 1. Build\n\n- [ ] 1.1 Do the thing\n- [ ] 1.2 Do a second unrelated thing\n"), 0o644); werr != nil {
@@ -229,8 +223,6 @@ func TestReviewShowJSON(t *testing.T) {
 	}
 }
 
-// gitInit turns a directory into a git working tree with one commit, so the
-// diff verb has a base to compare against.
 func gitInit(t *testing.T, dir string) {
 	t.Helper()
 	for _, args := range [][]string{
@@ -305,8 +297,6 @@ func TestReviewDiffDefaultsToTheReviewedCommit(t *testing.T) {
 	}
 }
 
-// The review record is specutil's own bookkeeping. A reviewer looking at what a
-// change did should never be shown the record of their own last review.
 func TestReviewDiffHidesSpecutilsOwnState(t *testing.T) {
 	dir := setupMinimalOpenspec(t, "widget")
 	gitInit(t, dir)

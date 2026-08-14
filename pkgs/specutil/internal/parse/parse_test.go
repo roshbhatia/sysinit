@@ -59,7 +59,7 @@ func TestParseProposal(t *testing.T) {
 	if len(p.Capabilities.Modified) != 0 {
 		t.Errorf("expected 0 modified capabilities, got %+v", p.Capabilities.Modified)
 	}
-	// Hybrid IR: raw is retained verbatim.
+
 	if p.Raw != sampleProposal {
 		t.Errorf("Raw not retained verbatim")
 	}
@@ -127,7 +127,6 @@ func TestParseSpec(t *testing.T) {
 }
 
 func TestParseSpecWarnsOnMisnestedScenario(t *testing.T) {
-	// Scenario authored at level 3 instead of 4 — must be recovered with a warning.
 	misnested := `## ADDED Requirements
 
 ### Requirement: A req
@@ -141,8 +140,7 @@ Text.
 	if len(spec.Requirements) != 1 {
 		t.Fatalf("expected 1 requirement (stray scenario should not become one), got %d", len(spec.Requirements))
 	}
-	// Lenient recovery: the misnested level-3 scenario is reattached to the
-	// preceding requirement, with a loud wrong-depth warning.
+
 	if len(spec.Requirements[0].Scenarios) != 1 {
 		t.Errorf("expected the stray scenario reattached, got %d scenarios", len(spec.Requirements[0].Scenarios))
 	}
@@ -158,9 +156,6 @@ Text.
 }
 
 func TestParseSpecScenarioWarningSkipsRemovedAndRenamed(t *testing.T) {
-	// ADDED/MODIFIED requirements describe behavior via scenarios, so absent
-	// scenarios there warn. REMOVED/RENAMED blocks carry Reason/Migration prose
-	// instead and must NOT warn for lacking scenarios.
 	src := `## ADDED Requirements
 
 ### Requirement: Has scenarios
@@ -188,7 +183,6 @@ Text.
 		}
 	}
 
-	// Sanity: an ADDED requirement with no scenarios still warns.
 	_, warns = ParseSpec("specs/x/spec.md", "x", "## ADDED Requirements\n\n### Requirement: Empty\nText.\n")
 	found := false
 	for _, w := range warns {
@@ -301,7 +295,7 @@ func TestExtractInlineRefs(t *testing.T) {
 		{"do the thing (INF-2345)", []string{"INF-2345"}},
 		{"INF-2149 and INF-2154 — two deps", []string{"INF-2149", "INF-2154"}},
 		{"merged PR #219 into main", []string{"#219"}},
-		{"INF-2345 twice, INF-2345 again", []string{"INF-2345"}}, // deduped
+		{"INF-2345 twice, INF-2345 again", []string{"INF-2345"}},
 		{"no refs here at all", nil},
 		{"**bold** `code` plain", nil},
 	}

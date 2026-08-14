@@ -1,4 +1,3 @@
-// Package agentstate implements `agent-state`: the per-pane status the wezterm
 package agentstate
 
 import (
@@ -20,13 +19,10 @@ import (
 
 const Summary = "record this pane's agent status for the wezterm surfaces"
 
-// reasonLimit is the width the surfaces render.
 const reasonLimit = 60
 
-// SchemaVersion is the pane record's schema version.
 const SchemaVersion = 1
 
-// state is the file-bus record.
 type state struct {
 	Version  int    `json:"version"`
 	Mux      int    `json:"mux"`
@@ -36,8 +32,7 @@ type state struct {
 	Branch   string `json:"branch"`
 	Dirty    bool   `json:"dirty"`
 	Worktree string `json:"worktree"`
-	// Repos is the repositories a multi-repo session root holds, and is empty for a pane
-	// sitting inside one repository, where Repo says it.
+
 	Repos  []string `json:"repos,omitempty"`
 	Agent  string   `json:"agent"`
 	Status string   `json:"status"`
@@ -45,7 +40,6 @@ type state struct {
 	Since  int64    `json:"since"`
 }
 
-// Run records the status and always returns 0.
 func Run(args []string) int {
 	agent := arg(args, 0, "agent")
 	status := arg(args, 1, "working")
@@ -105,15 +99,11 @@ func Run(args []string) int {
 	return 0
 }
 
-// PaneRecord returns the two files the bus keeps for a pane: the record itself and the
-// submit-time sidecar.
 func PaneRecord(pane string) (record, start string) {
 	dir := paths.AgentPanes()
 	return filepath.Join(dir, pane+".json"), filepath.Join(dir, pane+".start")
 }
 
-// PaneStatus returns the ranked status and reason recorded for a pane, or two empty
-// strings when there is nothing this generation can vouch for.
 func PaneStatus(pane string) (status, reason string) {
 	if pane == "" {
 		return "", ""
@@ -133,7 +123,6 @@ func PaneStatus(pane string) (status, reason string) {
 	return record.Status, record.Reason
 }
 
-// userVar renders the OSC payload from the record, so the two encodings cannot
 func userVar(r state) string {
 	return fmt.Sprintf("%s|%s|%d|%s", r.Status, r.Reason, r.Since, r.Agent)
 }
@@ -153,7 +142,6 @@ func cwd() string {
 	return dir
 }
 
-// readStdin returns the hook payload, or nothing when stdin is a terminal.
 func readStdin() map[string]any {
 	info, err := os.Stdin.Stat()
 	if err != nil || info.Mode()&os.ModeCharDevice != 0 {
@@ -170,7 +158,6 @@ func readStdin() map[string]any {
 	return parsed
 }
 
-// dig walks a dotted path and returns the first non-empty string it finds.
 func dig(doc map[string]any, paths ...string) string {
 	for _, path := range paths {
 		var cur any = doc
@@ -232,7 +219,6 @@ func deriveReason(src, status string, input map[string]any, stateDir, pane strin
 	}
 }
 
-// tidy folds the separators the payload uses into spaces, then squeezes runs.
 func tidy(reason string) string {
 	replaced := strings.Map(func(r rune) rune {
 		switch r {
@@ -252,7 +238,6 @@ func truncate(s string, limit int) string {
 	return string(runes[:limit])
 }
 
-// writeUserVar emits the OSC 1337 sequence wezterm reads.
 var emitUserVar = writeUserVar
 
 func writeUserVar(encoded string) {
@@ -264,8 +249,6 @@ func writeUserVar(encoded string) {
 	fmt.Fprintf(tty, "\033]1337;SetUserVar=agent_state=%s\007", encoded)
 }
 
-// MuxID is the pane record's generation marker: the pid of the wezterm mux the pane
-// belongs to.
 func MuxID() int {
 	socket := os.Getenv("WEZTERM_UNIX_SOCKET")
 	if socket == "" {
@@ -283,7 +266,6 @@ func MuxID() int {
 	return pid
 }
 
-// muxAlive reports whether a mux pid is still running.
 func muxAlive(pid int) bool {
 	if pid <= 0 {
 		return false
@@ -291,7 +273,6 @@ func muxAlive(pid int) bool {
 	return syscall.Kill(pid, 0) == nil
 }
 
-// reapDeadMuxes removes records left by a mux that is no longer running.
 func reapDeadMuxes(stateDir string, mux int) {
 	if mux <= 0 {
 		return
@@ -332,7 +313,6 @@ func reapDeadMuxes(stateDir string, mux int) {
 	}
 }
 
-// paneValue keeps a numeric pane id a JSON number and anything else a string,
 func paneValue(pane string) any {
 	if n, err := strconv.ParseInt(pane, 10, 64); err == nil && pane != "" {
 		return n
@@ -340,7 +320,6 @@ func paneValue(pane string) any {
 	return pane
 }
 
-// publish writes through a temp file in the same directory.
 func publish(path string, record state) {
 	data, err := json.Marshal(record)
 	if err != nil {
@@ -384,8 +363,6 @@ func identify(dir string) identity {
 
 	toplevel := gitOut(dir, "rev-parse", "--show-toplevel")
 	if toplevel == "" {
-		// A multi-repo session root is not itself a repository, so git answers nothing and
-		// every surface showed the session name with no repository at all.
 		id.repos = childRepos(dir)
 		return id
 	}
@@ -398,7 +375,6 @@ func identify(dir string) identity {
 	return id
 }
 
-// childRepos returns the names of the git repositories directly under dir.
 func childRepos(dir string) []string {
 	entries, err := os.ReadDir(dir)
 	if err != nil {
@@ -409,8 +385,7 @@ func childRepos(dir string) []string {
 		if !entry.IsDir() || strings.HasPrefix(entry.Name(), ".") {
 			continue
 		}
-		// A worktree checkout carries `.git` as a file, so this tests for presence
-		// rather than for a directory.
+
 		if _, err := os.Stat(filepath.Join(dir, entry.Name(), ".git")); err == nil {
 			out = append(out, entry.Name())
 		}
@@ -419,7 +394,6 @@ func childRepos(dir string) []string {
 	return out
 }
 
-// zmxSession reads the current zmx session with the namespace removed.
 func zmxSession() string {
 	name := os.Getenv("ZMX_SESSION")
 	if name == "" {

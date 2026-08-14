@@ -2,8 +2,6 @@ package check
 
 import "testing"
 
-// The rename from rosh-spec-driven to spec-driven has to keep resolving the old
-// name: archived changes pin it in .openspec.yaml and are not rewritten.
 func TestRetiredSchemaNameStillResolves(t *testing.T) {
 	if !HasPreset("rosh-spec-driven") {
 		t.Fatal("retired name rosh-spec-driven no longer resolves")
@@ -24,7 +22,6 @@ func TestRetiredSchemaNameStillResolves(t *testing.T) {
 	}
 }
 
-// An alias must never shadow a real preset.
 func TestAliasesDoNotShadowPresets(t *testing.T) {
 	for name := range aliases {
 		if _, ok := presets[name]; ok {

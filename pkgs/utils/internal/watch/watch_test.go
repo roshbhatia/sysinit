@@ -32,8 +32,6 @@ func TestLastLinesKeepsTheTrailingN(t *testing.T) {
 	}
 }
 
-// workerState points the paths manifest at a temporary tree, so resolving a record
-// does not read the owner's real state root.
 func workerState(t *testing.T) string {
 	t.Helper()
 	home := t.TempDir()
@@ -56,9 +54,6 @@ func workerState(t *testing.T) string {
 	return filepath.Join(home, "worker")
 }
 
-// The worker source resolves by DIRECTORY, and the viewer's own pane no longer
-// enters into it. The pane number was the key before, so a viewer in a different
-// pane from the one that ran the command watched the wrong record, or nothing.
 func TestTheWorkerSourceResolvesByDirectoryNotByPane(t *testing.T) {
 	root := workerState(t)
 	t.Setenv("WEZTERM_PANE", "99")
@@ -83,7 +78,6 @@ func TestTheWorkerSourceResolvesByDirectoryNotByPane(t *testing.T) {
 		}
 	}
 
-	// No argument means the working directory, the same default `bus` has.
 	here := t.TempDir()
 	t.Chdir(here)
 	implicit, err := newWorker(nil, "last")
@@ -100,9 +94,6 @@ func TestTheWorkerSourceResolvesByDirectoryNotByPane(t *testing.T) {
 	}
 }
 
-// The override reaches the watcher too, which is what makes a private worker
-// watchable. It is the same variable the worker itself reads, so there is one key
-// rule rather than two: honouring a second name resolved to a path nothing writes.
 func TestTheWorkerSourceHonoursTheSessionOverride(t *testing.T) {
 	workerState(t)
 	dir := t.TempDir()
@@ -124,8 +115,6 @@ func TestTheWorkerSourceHonoursTheSessionOverride(t *testing.T) {
 		t.Errorf("override path = %q, want it under the chosen name", overridden.(*fileTail).path)
 	}
 
-	// A value the worker would refuse to write under is refused here too, rather than
-	// silently falling back to the shared record.
 	t.Setenv("SYSINIT_WORKER_SESSION", "../escape")
 	if _, err := newWorker([]string{dir}, "last"); err == nil {
 		t.Error("an unusable override resolved anyway")
@@ -134,8 +123,7 @@ func TestTheWorkerSourceHonoursTheSessionOverride(t *testing.T) {
 
 func TestTheLogNameAndTranscriptRejectPathSeparators(t *testing.T) {
 	workerState(t)
-	// The directory argument is a PATH now, so a separator in it is ordinary. The guard
-	// moved to the derived key, which the caller does not choose, and to the log name.
+
 	if _, err := newWorker([]string{t.TempDir()}, "../etc/passwd"); err == nil {
 		t.Error("a log name with a separator was accepted")
 	}
@@ -307,7 +295,6 @@ func TestLivenessRejectsAndNeverConfirms(t *testing.T) {
 	}
 }
 
-// writeManifest builds a paths manifest holding the given keys and returns its
 func writeManifest(t *testing.T, entries map[string]string) string {
 	t.Helper()
 	body, err := json.Marshal(map[string]any{"version": 1, "paths": entries})

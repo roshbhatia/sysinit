@@ -1,6 +1,3 @@
-// The two operations that name one note by its id: answering it, and removing it.
-// Both need the note found and the record rewritten under a single lock, because a
-// half-answered question is worse than an unanswered one.
 package note
 
 import (
@@ -10,12 +7,10 @@ import (
 	"github.com/roshbhatia/sysinit/pkgs/utils/internal/store"
 )
 
-// findID returns the position of the note named by id.
 func findID(notes []json.RawMessage, id string) (int, *existing, error) {
 	for at, raw := range notes {
 		var cur existing
-		// A note this cannot read is a note that carries no id, so it is passed
-		// over rather than made into an error the caller cannot act on.
+
 		if json.Unmarshal(raw, &cur) != nil {
 			continue
 		}
@@ -26,7 +21,6 @@ func findID(notes []json.RawMessage, id string) (int, *existing, error) {
 	return 0, nil, die("no note is named %s. `note list --json` prints every id", id)
 }
 
-// setState rewrites one note's state, leaving every other field of it byte-identical.
 func setState(raw json.RawMessage, state string) (json.RawMessage, error) {
 	var fields map[string]json.RawMessage
 	if err := json.Unmarshal(raw, &fields); err != nil {
@@ -112,8 +106,7 @@ func cmdAnswer(args []string) error {
 		Summary: cleanSummary,
 		Author:  store.OneLine(author),
 		Origin:  originAgent,
-		// The question's own anchor, not the file's line as it reads now: the answer
-		// belongs beside the question wherever the question ends up.
+
 		Anchor:  deref(asked.Anchor),
 		ReplyTo: id,
 	}
@@ -146,8 +139,6 @@ func cmdAnswer(args []string) error {
 	return nil
 }
 
-// clearOne removes the note named by id, which is the only removal that cannot hit
-// the wrong note when a file has moved under the record.
 func clearOne(id string) error {
 	s, root, err := openStore()
 	if err != nil {

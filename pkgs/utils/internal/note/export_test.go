@@ -31,7 +31,6 @@ func readExport(t *testing.T) *exportDoc {
 	return &doc
 }
 
-// rebuiltFromRecord renders the export a rebuild would publish right now,
 func rebuiltFromRecord(t *testing.T) []byte {
 	t.Helper()
 	data, err := os.ReadFile(storePath(t))
@@ -49,7 +48,6 @@ func rebuiltFromRecord(t *testing.T) []byte {
 	return rendered
 }
 
-// assertExportLeadsRelease binds the seam that fires immediately before each
 func assertExportLeadsRelease(t *testing.T) {
 	t.Helper()
 	fired := false
@@ -95,7 +93,6 @@ func TestClearPublishesTheExportBeforeReleasingTheLock(t *testing.T) {
 	}
 }
 
-// TestClearEmptiesTheExportBeforeTheRecord pins the one command whose order is
 func TestClearEmptiesTheExportBeforeTheRecord(t *testing.T) {
 	newRepo(t)
 	mustAdd(t, "--file", "src/app.ts", "--line", "2", "--summary", "one")
@@ -144,7 +141,6 @@ func TestExportCarriesRationaleAndAuthorIntact(t *testing.T) {
 	}
 }
 
-// TestExportIsMarkedAsDerived covers the marker riding in a field the viewer's
 func TestExportIsMarkedAsDerived(t *testing.T) {
 	newRepo(t)
 	mustAdd(t, "--file", "src/app.ts", "--line", "1", "--summary", "one")
@@ -171,7 +167,6 @@ func TestExportGroupsNotesByFileInRecordOrder(t *testing.T) {
 	}
 }
 
-// TestRebuildRepairsAHandEditedRecord is the reason the verb exists.
 func TestRebuildRepairsAHandEditedRecord(t *testing.T) {
 	newRepo(t)
 	mustAdd(t, "--file", "src/app.ts", "--line", "1", "--summary", "one")
@@ -194,7 +189,6 @@ func TestRebuildRepairsAHandEditedRecord(t *testing.T) {
 	}
 }
 
-// TestRebuildAfterClearLeavesAnEmptyExport covers the state clear strands.
 func TestRebuildAfterClearLeavesAnEmptyExport(t *testing.T) {
 	newRepo(t)
 	mustAdd(t, "--file", "src/app.ts", "--line", "1", "--summary", "one")
@@ -220,7 +214,6 @@ func TestRebuildRefusesAMalformedRecord(t *testing.T) {
 	}
 }
 
-// TestExportSurvivesAMalformedNote keeps one bad note from making the whole
 func TestExportSurvivesAMalformedNote(t *testing.T) {
 	newRepo(t)
 	mustAdd(t, "--file", "src/app.ts", "--line", "1", "--summary", "seed")
@@ -242,7 +235,6 @@ func TestExportSurvivesAMalformedNote(t *testing.T) {
 	}
 }
 
-// TestConcurrentAddsLeaveTheExportCurrent adds real detection and is not the
 func TestConcurrentAddsLeaveTheExportCurrent(t *testing.T) {
 	newRepo(t)
 	mustAdd(t, "--file", "src/app.ts", "--line", "1", "--summary", "seed")

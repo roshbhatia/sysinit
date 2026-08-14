@@ -12,9 +12,6 @@ import (
 	"github.com/roshbhatia/sysinit/pkgs/utils/internal/repo"
 )
 
-// isolate points the state root at a temporary directory and returns a working
-// directory outside any git repository, so `Workspace` resolves to that
-// directory and the log path is predictable.
 func isolate(t *testing.T) string {
 	t.Helper()
 	root := t.TempDir()
@@ -29,7 +26,6 @@ func isolate(t *testing.T) string {
 	return work
 }
 
-// logFor is the path Run writes for a working directory.
 func logFor(t *testing.T, work string) string {
 	t.Helper()
 	return repo.EditLogFile(repo.Workspace(work))
@@ -85,8 +81,6 @@ func TestWritesOneEventPerFile(t *testing.T) {
 	}
 }
 
-// The line MUST NOT carry file contents. A reader that found them there would
-// use them, and they go stale the moment the agent writes again.
 func TestLineCarriesNoFileContents(t *testing.T) {
 	work := isolate(t)
 	target := filepath.Join(work, "secret.txt")
@@ -105,11 +99,9 @@ func TestLineCarriesNoFileContents(t *testing.T) {
 	}
 }
 
-// The proposal's "the hook cannot write at all" scenario: exit 0, silently.
 func TestUnwritableLogDirectoryStillExitsZero(t *testing.T) {
 	work := isolate(t)
 
-	// A regular file where the log directory belongs, so MkdirAll cannot succeed.
 	editsDir := filepath.Dir(logFor(t, work))
 	if err := os.MkdirAll(filepath.Dir(editsDir), 0o700); err != nil {
 		t.Fatalf("mkdir parent: %v", err)
@@ -141,7 +133,6 @@ func TestNoFileWritesNothing(t *testing.T) {
 	}
 }
 
-// Two harnesses writing at the same moment MUST each produce an intact line.
 func TestConcurrentWritersProduceIntactLines(t *testing.T) {
 	work := isolate(t)
 
@@ -154,8 +145,6 @@ func TestConcurrentWritersProduceIntactLines(t *testing.T) {
 		go func(w int) {
 			defer wg.Done()
 			for i := 0; i < each; i++ {
-				// A long path, so a line is wide enough that an interleaved
-				// write would be visible rather than lucky.
 				name := filepath.Join(work, strings.Repeat("deep/", 12), "file.go")
 				Run([]string{"harness", "--cwd", work, "--file", name})
 			}
@@ -169,8 +158,6 @@ func TestConcurrentWritersProduceIntactLines(t *testing.T) {
 	}
 }
 
-// Past the bound the newest events survive and the file gets shorter, which is
-// the same replacement the reader has to survive anyway.
 func TestBoundKeepsNewestAndShortensFile(t *testing.T) {
 	work := isolate(t)
 	log := logFor(t, work)
@@ -178,7 +165,6 @@ func TestBoundKeepsNewestAndShortensFile(t *testing.T) {
 		t.Fatalf("mkdir log dir: %v", err)
 	}
 
-	// A log past maxBytes whose lines are identifiable by index.
 	var builder strings.Builder
 	total := 0
 	for i := 0; builder.Len() <= maxBytes; i++ {
@@ -234,9 +220,6 @@ func TestKindOverridesTheDefault(t *testing.T) {
 	}
 }
 
-// A live run against claude produced four events all reading `edit`, three of
-// which were Writes, so the field carried nothing. The tool name is what makes
-// a created file distinguishable from a modified one.
 func TestStdinToolNameBecomesTheKind(t *testing.T) {
 	work := isolate(t)
 
@@ -259,7 +242,6 @@ func TestStdinToolNameBecomesTheKind(t *testing.T) {
 	}
 }
 
-// An explicit --kind still wins, for a bridge that knows better than the payload.
 func TestFlagKindBeatsTheToolName(t *testing.T) {
 	work := isolate(t)
 
@@ -282,7 +264,6 @@ func TestFlagKindBeatsTheToolName(t *testing.T) {
 	}
 }
 
-// No tool name and no flag still records the edit rather than dropping it.
 func TestKindFallsBackToEdit(t *testing.T) {
 	work := isolate(t)
 
@@ -294,8 +275,6 @@ func TestKindFallsBackToEdit(t *testing.T) {
 	}
 }
 
-// The reader gets its path from here, so this must agree with what a write
-// produces and must not create the log as a side effect.
 func TestPrintLogAgreesWithTheWriteAndCreatesNothing(t *testing.T) {
 	work := isolate(t)
 
@@ -319,7 +298,6 @@ func TestPrintLogAgreesWithTheWriteAndCreatesNothing(t *testing.T) {
 	}
 }
 
-// captureStdout replaces os.Stdout with a pipe for the duration of run.
 func captureStdout(t *testing.T, run func()) string {
 	t.Helper()
 	reader, writer, err := os.Pipe()
@@ -353,8 +331,6 @@ func captureStdout(t *testing.T, run func()) string {
 	return captured
 }
 
-// A declared workspace keys one log for every repository under it, which is what makes
-// a session of several checkouts reviewable as one thing.
 func TestDeclaredWorkspaceKeysOneLogForSeveralRepositories(t *testing.T) {
 	root := t.TempDir()
 	manifest := filepath.Join(root, "paths.json")
@@ -411,8 +387,7 @@ func TestDeclaredWorkspaceAnswersOnlyForWhatItContains(t *testing.T) {
 	if got := repo.DeclaredWorkspace(inside); got != declared {
 		t.Fatalf("a directory inside the declaration resolved to %q, want %q", got, declared)
 	}
-	// An explicit path outside the declaration is the caller meaning that path, so
-	// the variable must not act as a global override.
+
 	if got := repo.DeclaredWorkspace(outside); got != "" {
 		t.Fatalf("a directory outside the declaration resolved to %q, want no answer", got)
 	}
@@ -422,8 +397,6 @@ func TestDeclaredWorkspaceAnswersOnlyForWhatItContains(t *testing.T) {
 		t.Fatalf("a declaration naming a missing directory resolved to %q, want no answer", got)
 	}
 
-	// A file is not a workspace, and answering with one would key state under a path
-	// that cannot hold it.
 	file := filepath.Join(root, "a-file")
 	if err := os.WriteFile(file, []byte("x"), 0o600); err != nil {
 		t.Fatalf("write file: %v", err)
@@ -455,7 +428,6 @@ func TestStdinSuppliesTheFileWhenNoFlagDoes(t *testing.T) {
 	}
 }
 
-// withStdin replaces os.Stdin with a pipe holding body for the duration of run.
 func withStdin(t *testing.T, body []byte, run func()) {
 	t.Helper()
 	reader, writer, err := os.Pipe()

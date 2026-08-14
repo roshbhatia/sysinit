@@ -94,8 +94,6 @@ func TestParseCountsLinesAndNumbersThem(t *testing.T) {
 	}
 }
 
-// A hunk's identity must not move when unrelated edits shift its line numbers,
-// or every comment written against it would be orphaned by the next save.
 func TestHunkIdentityIgnoresLineNumbersAndContext(t *testing.T) {
 	base := vcs.Parse(sample)[0].Hunks[0].Identity
 

@@ -1,6 +1,3 @@
-// Package loopgate holds a Stop hook to a declared condition: it runs the armed command
-// and blocks the stop until that command exits 0, gives identical output twice, or the
-// iteration cap is reached.
 package loopgate
 
 import (
@@ -21,7 +18,6 @@ const Summary = "hold a Stop hook until a declared command passes"
 
 const usage = "usage: loop-gate arm --until '<command>' [--max n] [--stall n] | status | clear | check"
 
-// state is the armed gate, as it is written between iterations.
 type state struct {
 	Until     string `json:"until"`
 	Max       int    `json:"max"`
@@ -31,13 +27,10 @@ type state struct {
 	LastHash  string `json:"lastHash"`
 }
 
-// stopEvent is the part of the Stop payload that matters: a hook already stopping once
-// must not block again, or the harness never returns.
 type stopEvent struct {
 	StopHookActive bool `json:"stop_hook_active"`
 }
 
-// blockDecision is the Stop answer shape.
 type blockDecision struct {
 	Decision string `json:"decision"`
 	Reason   string `json:"reason"`
@@ -141,8 +134,6 @@ func clear() int {
 	return 0
 }
 
-// shell is what the armed command is run by. bash when there is one, because a command
-// armed by hand may hold a bash-only test.
 func shell() string {
 	if path, err := exec.LookPath("bash"); err == nil {
 		return path
@@ -150,8 +141,6 @@ func shell() string {
 	return "sh"
 }
 
-// run executes the armed command and returns its combined output with trailing newlines
-// dropped, so the hash is over the text a reader sees.
 func run(command string) (string, int) {
 	cmd := exec.Command(shell(), "-c", command)
 	out, err := cmd.CombinedOutput()
@@ -239,7 +228,6 @@ Fix the cause and continue. Do not report this phase as done while the command f
 	return 0
 }
 
-// Run dispatches the subcommand.
 func Run(args []string) int {
 	if len(args) == 0 {
 		fmt.Fprintln(os.Stderr, usage)

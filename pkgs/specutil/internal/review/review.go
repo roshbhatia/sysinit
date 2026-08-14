@@ -1,4 +1,3 @@
-// Package review carries a human verdict on a change back to the agent that wrote it.
 package review
 
 import (
@@ -13,38 +12,28 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-// Schema is the value the browser writes into a feedback document's schema
-// field. Ingest rejects anything else rather than guessing at an unknown shape.
 const Schema = "specutil.review/v1"
 
-// RecordVersion is the on-disk schema version of the review record.
 const RecordVersion = 2
 
-// hashComparableFrom is the lowest record version whose stored ChangeHash this build
-// can compare against a freshly computed one.
 const hashComparableFrom = 2
 
-// RecordFile is the review record's filename inside a change directory.
 const RecordFile = "specutil.review.yaml"
 
-// Decision is the reviewer's verdict on a change.
 type Decision string
 
 const (
-	// DecisionApproved means the reviewer accepts the change as written.
 	DecisionApproved Decision = "approved"
-	// DecisionChangesRequested means the reviewer wants edits before it proceeds.
+
 	DecisionChangesRequested Decision = "changes-requested"
-	// DecisionCommented means the reviewer left notes without gating anything.
+
 	DecisionCommented Decision = "commented"
 )
 
-// Decisions returns every accepted decision value, sorted.
 func Decisions() []Decision {
 	return []Decision{DecisionApproved, DecisionChangesRequested, DecisionCommented}
 }
 
-// Valid reports whether d is a decision this package accepts.
 func (d Decision) Valid() bool {
 	for _, v := range Decisions() {
 		if d == v {
@@ -54,19 +43,14 @@ func (d Decision) Valid() bool {
 	return false
 }
 
-// Action is what the reviewer asked for on an annotated target.
 type Action string
 
 const (
-	// ActionComment is a remark the author should read.
 	ActionComment Action = "comment"
-	// ActionDrop asks for the annotated task to be removed.
+
 	ActionDrop Action = "drop"
 )
 
-// Annotation is one comment attached to a change, a task, or a diff hunk.
-// Identity is the content-addressed handle of whatever it is attached to, which
-// is what lets a comment survive the renumbering that follows almost every edit.
 type Annotation struct {
 	Scope    string `json:"scope"              yaml:"scope"`
 	Phase    string `json:"phase,omitempty"    yaml:"phase,omitempty"`
@@ -77,16 +61,12 @@ type Annotation struct {
 	Comment  string `json:"comment"            yaml:"comment"`
 }
 
-// The annotation scopes. A change annotation is the overall remark, a task
-// annotation names a checkbox in tasks.md, and a hunk annotation names a run of
-// changed lines in the working tree.
 const (
 	ScopeChange = "change"
 	ScopeTask   = "task"
 	ScopeHunk   = "hunk"
 )
 
-// Feedback is the document the browser page exports and `review ingest` reads.
 type Feedback struct {
 	Schema      string       `json:"schema"`
 	Change      string       `json:"change"`
@@ -95,36 +75,27 @@ type Feedback struct {
 	Annotations []Annotation `json:"annotations"`
 }
 
-// ItemState fingerprints one task as it read at review time.
 type ItemState struct {
 	Hash string `yaml:"hash"`
 	Text string `yaml:"text,omitempty"`
 }
 
-// Record is the persisted verdict. Items is keyed by task identity so a task
-// that was renumbered still matches, while Hash still flips when its wording
-// changes.
 type Record struct {
 	Version    int      `yaml:"version"`
 	Change     string   `yaml:"change"`
 	Decision   Decision `yaml:"decision"`
 	Note       string   `yaml:"note,omitempty"`
 	ChangeHash string   `yaml:"change_hash"`
-	// BaseCommit is the commit the working tree sat on when the decision was
-	// recorded. It is what `review diff` compares against to show everything
-	// that moved since, code included. Empty outside a git working tree.
+
 	BaseCommit  string               `yaml:"base_commit,omitempty"`
 	Items       map[string]ItemState `yaml:"items,omitempty"`
 	Annotations []Annotation         `yaml:"annotations,omitempty"`
 }
 
-// RecordPath returns the review record path for a change.
 func RecordPath(repoRoot, change string) string {
 	return filepath.Join(repoRoot, "openspec", "changes", change, RecordFile)
 }
 
-// LoadRecord reads a change's review record. An absent file yields nil with no
-// error: never having been reviewed is a state, not a failure.
 func LoadRecord(repoRoot, change string) (*Record, error) {
 	path := RecordPath(repoRoot, change)
 	b, err := os.ReadFile(path)
@@ -139,16 +110,11 @@ func LoadRecord(repoRoot, change string) (*Record, error) {
 		return nil, fmt.Errorf("parsing %s: %w", path, err)
 	}
 	if r.Version == 0 {
-		// Predates versioning, so it is version 1 rather than the current one.
-		// Defaulting to RecordVersion would claim a retired hash is comparable.
 		r.Version = 1
 	}
 	return &r, nil
 }
 
-// LoadForChange reads the record sitting in a loaded change's own directory.
-// It is the path a consumer holding an ir.Change (a check rule) can reach
-// without knowing the repository layout. An absent record yields nil, nil.
 func LoadForChange(c *ir.Change) (*Record, error) {
 	if c == nil || c.Root == "" {
 		return nil, nil
@@ -166,15 +132,11 @@ func LoadForChange(c *ir.Change) (*Record, error) {
 		return nil, fmt.Errorf("parsing %s: %w", path, err)
 	}
 	if r.Version == 0 {
-		// Predates versioning, so it is version 1 rather than the current one.
-		// Defaulting to RecordVersion would claim a retired hash is comparable.
 		r.Version = 1
 	}
 	return &r, nil
 }
 
-// Save writes the record back deterministically. yaml.v3 emits map keys sorted,
-// so identical state produces identical bytes.
 func (r *Record) Save(repoRoot, change string) error {
 	path := RecordPath(repoRoot, change)
 	b, err := yaml.Marshal(r)
@@ -187,9 +149,6 @@ func (r *Record) Save(repoRoot, change string) error {
 	return os.WriteFile(path, b, 0o644)
 }
 
-// ChangeHash fingerprints what a reviewer actually approved: the raw markdown of
-// the artifacts that carry scope and intent, plus the shape of the task list. It
-// deliberately does not fold in the raw bytes of tasks.md; see tasksScope.
 func ChangeHash(c *ir.Change) string {
 	if c == nil {
 		return ""
@@ -221,8 +180,6 @@ func ChangeHash(c *ir.Change) string {
 	return ident.Hash(b.String())
 }
 
-// tasksScope projects tasks.md down to the part a verdict is about: the phase structure
-// and the identity of each task.
 func tasksScope(t *ir.Tasks) string {
 	if t == nil {
 		return ""
@@ -239,9 +196,6 @@ func tasksScope(t *ir.Tasks) string {
 	return b.String()
 }
 
-// Snapshot fingerprints every task in a change, keyed by identity. A duplicate
-// identity (the same wording twice in one phase) keeps its first occurrence,
-// which is the same item as far as every other consumer is concerned.
 func Snapshot(c *ir.Change) map[string]ItemState {
 	out := map[string]ItemState{}
 	if c == nil || c.Tasks == nil {
@@ -259,25 +213,19 @@ func Snapshot(c *ir.Change) map[string]ItemState {
 	return out
 }
 
-// Drift classifies one task against the reviewed record.
 const (
-	// DriftNew means the task did not exist when the change was reviewed.
 	DriftNew = "new"
-	// DriftChanged means the task was reworded since it was reviewed.
+
 	DriftChanged = "changed"
-	// DriftUnchanged means the task reads exactly as it did at review time.
+
 	DriftUnchanged = "unchanged"
 )
 
-// Match is how one current task lines up with the reviewed baseline. Prior is
-// the baseline identity it was re-matched to after a reword, which is what lets
-// a comment follow its task instead of vanishing when the author edits it.
 type Match struct {
 	Drift string
 	Prior string
 }
 
-// MatchTasks aligns every current task against rec.
 func MatchTasks(c *ir.Change, rec *Record) map[string]Match {
 	out := map[string]Match{}
 	if rec == nil {
@@ -307,8 +255,7 @@ func MatchTasks(c *ir.Change, rec *Record) map[string]Match {
 			orphans = append(orphans, id)
 		}
 	}
-	// Sorting both sides makes the greedy pairing a function of the inputs alone,
-	// so two runs over the same repository agree.
+
 	sort.Strings(unmatched)
 	sort.Strings(orphans)
 
@@ -333,7 +280,6 @@ func MatchTasks(c *ir.Change, rec *Record) map[string]Match {
 	return out
 }
 
-// ItemStatus is one task's standing against the review record.
 type ItemStatus struct {
 	Identity string `json:"identity"`
 	Phase    string `json:"phase"`
@@ -343,7 +289,6 @@ type ItemStatus struct {
 	Action   Action `json:"action,omitempty"`
 }
 
-// HunkStatus is one standing comment on a run of changed lines.
 type HunkStatus struct {
 	Identity string `json:"identity"`
 	File     string `json:"file"`
@@ -352,18 +297,13 @@ type HunkStatus struct {
 	Action   Action `json:"action,omitempty"`
 }
 
-// Status is the full standing of a change against its review record: the
-// verdict, whether that verdict still describes the current text, what drifted,
-// and which comments are still attached.
 type Status struct {
 	Change   string   `json:"change"`
 	Reviewed bool     `json:"reviewed"`
 	Decision Decision `json:"decision,omitempty"`
 	Note     string   `json:"note,omitempty"`
 	Stale    bool     `json:"stale"`
-	// HashRetired means the record was written by an older build whose ChangeHash covered
-	// different ground, so Stale is reported false because it cannot be computed rather
-	// than because the artifacts held still.
+
 	HashRetired bool         `json:"hashRetired,omitempty"`
 	ChangeHash  string       `json:"changeHash"`
 	ReviewHash  string       `json:"reviewHash,omitempty"`
@@ -374,14 +314,10 @@ type Status struct {
 	Dropped     []ItemStatus `json:"dropped,omitempty"`
 }
 
-// Gated reports whether the record blocks the change from proceeding: it was
-// never reviewed, the verdict asked for edits, or the artifacts moved after the
-// verdict was recorded.
 func (s *Status) Gated() bool {
 	return !s.Reviewed || s.Stale || s.Decision != DecisionApproved
 }
 
-// Build computes a change's standing against rec. rec may be nil.
 func Build(c *ir.Change, rec *Record) *Status {
 	st := &Status{
 		Change:     c.Name,
@@ -426,8 +362,7 @@ func Build(c *ir.Change, rec *Record) *Status {
 				seen[id] = true
 				m := matches[id]
 				is := ItemStatus{Identity: id, Phase: p.Name, Text: it.Text, Drift: m.Drift}
-				// A comment written against the pre-edit wording still applies to the
-				// task it was written about, so it follows the re-match.
+
 				a, ok := comments[id]
 				if !ok && m.Prior != "" {
 					a, ok = comments[m.Prior]
@@ -440,8 +375,6 @@ func Build(c *ir.Change, rec *Record) *Status {
 		}
 	}
 
-	// A task the reviewer asked to drop, that is still present, is the one
-	// unresolved item a summary must not bury.
 	for _, is := range st.Items {
 		if is.Action == ActionDrop {
 			st.Dropped = append(st.Dropped, is)
@@ -450,14 +383,12 @@ func Build(c *ir.Change, rec *Record) *Status {
 	return st
 }
 
-// Apply folds feedback into a record describing the change as it reads now.
 func ApplyAt(c *ir.Change, fb *Feedback, baseCommit string) *Record {
 	rec := Apply(c, fb)
 	rec.BaseCommit = baseCommit
 	return rec
 }
 
-// Apply folds feedback into a record describing the change as it reads now.
 func Apply(c *ir.Change, fb *Feedback) *Record {
 	anns := make([]Annotation, 0, len(fb.Annotations))
 	for _, a := range fb.Annotations {
@@ -489,7 +420,6 @@ func Apply(c *ir.Change, fb *Feedback) *Record {
 	}
 }
 
-// Validate reports what is wrong with a feedback document before it is applied.
 func (f *Feedback) Validate() error {
 	if f.Schema != Schema {
 		return fmt.Errorf("unsupported feedback schema %q; want %q", f.Schema, Schema)

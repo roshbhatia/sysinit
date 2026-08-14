@@ -10,14 +10,10 @@ import (
 	"github.com/roshbhatia/specutil/internal/review"
 )
 
-// reviewRubric runs only the review rule, so a finding can come from nothing
-// else.
 func reviewRubric(params map[string]any) Config {
 	return Config{Rules: []RuleConfig{{ID: "review-decision-current", Params: params}}}
 }
 
-// rooted gives a change the on-disk change directory the review rule reads its
-// record from, and returns the repository root above it.
 func rooted(t *testing.T) (*ir.Change, string) {
 	t.Helper()
 	repo := t.TempDir()

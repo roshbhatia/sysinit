@@ -1,6 +1,3 @@
-// Package registry resolves the one provider this binary reads changes from and
-// decorates it with the repository's extraction declaration. It lives outside
-// the provider package to avoid an import cycle with graph.
 package registry
 
 import (
@@ -15,7 +12,6 @@ import (
 	openspecprovider "github.com/roshbhatia/specutil/internal/provider/openspec"
 )
 
-// SelectProvider returns the provider for repo.
 func SelectProvider(repo string) (provider.Provider, error) {
 	if _, err := os.Stat(filepath.Join(repo, "openspec", "changes")); err != nil {
 		return nil, fmt.Errorf("no openspec/changes directory in %s", repo)
@@ -24,9 +20,6 @@ func SelectProvider(repo string) (provider.Provider, error) {
 
 	manifest, merr := graph.LoadManifest(repo)
 	if merr != nil {
-		// A malformed manifest is surfaced by the caller that loads it for the
-		// dependency graph; extraction degrades to none rather than failing the
-		// load twice for the same reason.
 		return p, nil
 	}
 	cfg, cerr := manifest.ExtractConfig(repo)
@@ -39,7 +32,6 @@ func SelectProvider(repo string) (provider.Provider, error) {
 	return &extracting{Provider: p, cfg: cfg}, nil
 }
 
-// extracting decorates a provider with the post-parse extraction pass.
 type extracting struct {
 	provider.Provider
 	cfg extract.Config

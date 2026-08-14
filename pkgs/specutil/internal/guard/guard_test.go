@@ -1,5 +1,3 @@
-// Package guard hosts the determinism guard: a test asserting that no non-test code
-// path in the binary imports a network package.
 package guard
 
 import (
@@ -13,8 +11,6 @@ import (
 	"testing"
 )
 
-// networkPackages are stdlib import paths that perform outbound network I/O.
-// net/url is intentionally excluded: it is pure parsing with no I/O.
 var networkPackages = map[string]bool{
 	"net":           true,
 	"net/http":      true,
@@ -35,8 +31,6 @@ func TestNoNetworkImportsInBinary(t *testing.T) {
 			return err
 		}
 		if d.IsDir() {
-			// Skip vendored, hidden, and the guard package's own dir is fine to scan
-			// (this file is a _test.go and is excluded below).
 			base := d.Name()
 			if base == ".git" || base == "vendor" {
 				return filepath.SkipDir
@@ -46,7 +40,7 @@ func TestNoNetworkImportsInBinary(t *testing.T) {
 		if !strings.HasSuffix(path, ".go") {
 			return nil
 		}
-		// The determinism boundary governs binary code paths, not tests.
+
 		if strings.HasSuffix(path, "_test.go") {
 			return nil
 		}
@@ -74,21 +68,14 @@ func TestNoNetworkImportsInBinary(t *testing.T) {
 	}
 }
 
-// cdnTag matches any <script src="https://…"> or <link href="https://…"> tag in
-// the page template, capturing the whole tag (group 0) and its URL (group 1).
 var cdnTag = regexp.MustCompile(`(?s)<(?:script|link)\b[^>]*?(?:src|href)="(https://[^"]+)"[^>]*>`)
 
-// versionPin matches a jsdelivr/npm-style exact semver pin (@1.2.3) and rejects
-// a floating @latest or bare major.
 var versionPin = regexp.MustCompile(`@\d+\.\d+\.\d+`)
 
-// TestWebRuntimeIsPinnedCDN guards the *presentation* half of the web viewer's trust
-// boundary.
 func TestWebRuntimeIsPinnedCDN(t *testing.T) {
 	root := moduleRoot(t)
 	assets := filepath.Join(root, "internal", "web", "assets")
 
-	// The previously-vendored client runtime must no longer ship on disk.
 	for _, gone := range []string{"cytoscape.min.js", "dagre.min.js", "cytoscape-dagre.min.js", "system.css", "SYSTEM_CSS_VERSION"} {
 		if _, err := os.Stat(filepath.Join(assets, gone)); err == nil {
 			t.Errorf("vendored asset %s still on disk: the web viewer now loads its runtime from a pinned CDN, not vendored bundles", gone)
@@ -101,21 +88,18 @@ func TestWebRuntimeIsPinnedCDN(t *testing.T) {
 	}
 	src := string(tmpl)
 
-	// The old inline-runtime fields must be gone from the template.
 	for _, gone := range []string{"{{.CytoscapeJS}}", "{{.DagreJS}}", "{{.CytoscapeDagreJS}}", "{{.SystemCSS}}"} {
 		if strings.Contains(src, gone) {
 			t.Errorf("page template still inlines %s; the runtime now loads from a CDN", gone)
 		}
 	}
 
-	// The data feeds must still be inlined as JS literals (no data files fetched).
 	for _, want := range []string{"{{.GraphJSON}}", "{{.DetailJSON}}"} {
 		if !strings.Contains(src, want) {
 			t.Errorf("page template must inline %s; the data feeds are never fetched at view time", want)
 		}
 	}
 
-	// Every CDN tag must be pinned + integrity-checked + cross-origin + guarded.
 	tags := cdnTag.FindAllStringSubmatch(src, -1)
 	if len(tags) == 0 {
 		t.Fatal("no CDN <script>/<link> tags found; expected pinned Pico CSS and Chart.js references")
@@ -137,7 +121,6 @@ func TestWebRuntimeIsPinnedCDN(t *testing.T) {
 	}
 }
 
-// TestWebFeedbackIsExportedNotPosted guards the annotation return path.
 func TestWebFeedbackIsExportedNotPosted(t *testing.T) {
 	root := moduleRoot(t)
 	tmpl, err := os.ReadFile(filepath.Join(root, "internal", "web", "assets", "page.html.tmpl"))
@@ -155,8 +138,6 @@ func TestWebFeedbackIsExportedNotPosted(t *testing.T) {
 		}
 	}
 
-	// The export path itself must still be there, or the review loop has no
-	// return leg at all.
 	for _, want := range []string{"createObjectURL", "specutil.review/v1", "specutil review ingest"} {
 		if !strings.Contains(src, want) {
 			t.Errorf("page template is missing %q; the annotation export is the review loop's return path", want)
@@ -164,7 +145,6 @@ func TestWebFeedbackIsExportedNotPosted(t *testing.T) {
 	}
 }
 
-// moduleRoot walks up from the test's working directory until it finds go.mod.
 func moduleRoot(t *testing.T) string {
 	t.Helper()
 	dir, err := os.Getwd()

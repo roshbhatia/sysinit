@@ -8,7 +8,6 @@ import (
 	"github.com/roshbhatia/sysinit/pkgs/ask/internal/provider"
 )
 
-// stream sends the events and closes, as a provider does when its run ends.
 func stream(events ...provider.Event) <-chan provider.Event {
 	out := make(chan provider.Event, len(events))
 	for _, event := range events {
@@ -36,8 +35,6 @@ func TestDrainReturnsNothingForARunThatNeverAnswered(t *testing.T) {
 	}
 }
 
-// A caller whose stderr is a file gets the tool lines as plain text, since that is the part
-// worth keeping and prose is not.
 func TestDrainWritesTheToolLinesAndNothingElse(t *testing.T) {
 	var out strings.Builder
 	Drain(stream(
@@ -52,7 +49,6 @@ func TestDrainWritesTheToolLinesAndNothingElse(t *testing.T) {
 	}
 }
 
-// A quiet run gets nothing at all, which is what makes ask safe inside a pipe.
 func TestAQuietDrainWritesNothing(t *testing.T) {
 	events := stream(
 		provider.Event{Kind: provider.Tool, Tool: "Bash", Text: "ls"},
@@ -82,8 +78,6 @@ func TestThereIsNoSummaryForARunThatNeverAnswered(t *testing.T) {
 	}
 }
 
-// A paragraph in a progress view pushes the rest of it off the screen, so only the opening
-// line is shown.
 func TestOnlyTheOpeningLineOfABlockIsShown(t *testing.T) {
 	if got := first("  one\ntwo\nthree"); got != "one" {
 		t.Errorf("the line is %q", got)
@@ -94,7 +88,6 @@ func TestOnlyTheOpeningLineOfABlockIsShown(t *testing.T) {
 	}
 }
 
-// The view keeps a fixed number of lines, or a long run scrolls the caller's terminal away.
 func TestTheViewKeepsOnlyItsMostRecentLines(t *testing.T) {
 	var m model
 	for at := 0; at < depth+5; at++ {

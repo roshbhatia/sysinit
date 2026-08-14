@@ -9,9 +9,6 @@ import (
 	"time"
 )
 
-// fake puts a script on PATH under the name a provider looks for, so a run can be exercised
-// end to end without a model behind it. The script writes its arguments and its stdin to
-// files the test reads back.
 func fake(t *testing.T, name, body string) string {
 	t.Helper()
 	dir := t.TempDir()
@@ -27,7 +24,6 @@ func fake(t *testing.T, name, body string) string {
 	return dir
 }
 
-// drain reads a run to its end and returns the result it finished with.
 func drain(t *testing.T, events <-chan Event) *Result {
 	t.Helper()
 	var result *Result
@@ -63,7 +59,6 @@ func TestAClaudeRunReachesTheBinaryAndReadsItBack(t *testing.T) {
 		t.Errorf("the result is %+v", result)
 	}
 
-	// What is piped in has to reach the model, since that is the whole point of the command.
 	stdin, err := os.ReadFile(filepath.Join(dir, "stdin"))
 	if err != nil {
 		t.Fatal(err)
@@ -77,8 +72,7 @@ func TestAClaudeRunReachesTheBinaryAndReadsItBack(t *testing.T) {
 		t.Fatal(err)
 	}
 	args := strings.Split(strings.TrimRight(string(raw), "\n"), "\n")
-	// Last, and behind a separator: a prompt that opens with a dash is otherwise read by
-	// claude as a flag of its own, and the run dies before the model sees it.
+
 	if args[len(args)-1] != "summarise this" {
 		t.Errorf("the prompt is not the last argument: %v", args)
 	}
@@ -92,8 +86,6 @@ func TestAClaudeRunReachesTheBinaryAndReadsItBack(t *testing.T) {
 	}
 }
 
-// A run that dies has only what it wrote to stderr to say why, so that is reported rather
-// than swallowed behind an empty answer.
 func TestAClaudeRunThatDiesReportsWhatItWroteToStderr(t *testing.T) {
 	fake(t, "claude", "echo 'the credentials expired' >&2\nexit 1\n")
 
@@ -111,8 +103,6 @@ func TestAClaudeRunThatDiesReportsWhatItWroteToStderr(t *testing.T) {
 	}
 }
 
-// A run that says nothing at all still has to end in a failure rather than a silence the
-// caller has to interpret.
 func TestAClaudeRunThatSaysNothingStillEnds(t *testing.T) {
 	fake(t, "claude", "exit 0\n")
 
@@ -150,20 +140,18 @@ func TestACodexRunReachesTheBinaryAndReadsItBack(t *testing.T) {
 		t.Fatal(err)
 	}
 	args := strings.Split(strings.TrimRight(string(raw), "\n"), "\n")
-	// A caller pipes from wherever they are, and codex otherwise refuses to leave a repo.
+
 	for _, want := range []string{"exec", "--json", "--skip-git-repo-check"} {
 		if !has(args, want) {
 			t.Errorf("the arguments %v do not carry %q", args, want)
 		}
 	}
-	// Last, and behind a separator, for the same reason claude's is.
+
 	if args[len(args)-1] != "summarise this" || args[len(args)-2] != "--" {
 		t.Errorf("the prompt is not behind a separator at the end: %v", args)
 	}
 }
 
-// The schema goes to codex as a path, and the file has to be gone once the run is over
-// rather than left in the temp directory for every run ever made.
 func TestACodexRunRemovesItsSchemaFileWhenItEnds(t *testing.T) {
 	dir := fake(t, "codex", `echo '{"type":"item.completed","item":{"id":"a","type":"agent_message","text":"{\"a\":1}"}}'`+"\n")
 
@@ -193,8 +181,6 @@ func TestACodexRunRemovesItsSchemaFileWhenItEnds(t *testing.T) {
 	}
 }
 
-// Prose where a shape was asked for is a failed run, so a caller reading stdout never gets
-// something that is not the shape they asked for.
 func TestACodexRunThatAnswersOutsideTheShapeFails(t *testing.T) {
 	fake(t, "codex", `echo '{"type":"item.completed","item":{"id":"a","type":"agent_message","text":"just prose"}}'`+"\n")
 
@@ -212,8 +198,6 @@ func TestACodexRunThatAnswersOutsideTheShapeFails(t *testing.T) {
 	}
 }
 
-// A missing binary is said plainly and at once, rather than as a failure inside a run that
-// looked like it had started.
 func TestAMissingBinaryIsReportedBeforeAnythingStarts(t *testing.T) {
 	t.Setenv("PATH", t.TempDir())
 

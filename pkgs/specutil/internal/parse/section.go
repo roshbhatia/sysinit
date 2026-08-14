@@ -1,32 +1,24 @@
-// Package parse turns provider markdown into the normalized IR. It is lenient
-// by design: malformed structure produces a Warning and a best-effort result
-// rather than a hard failure, so a single bad section never blocks a render.
 package parse
 
 import (
 	"strings"
 )
 
-// Node is one ATX-heading section and everything nested beneath it.
 type Node struct {
 	Level     int
 	Title     string
 	Body      string
 	Raw       string
-	StartLine int // 1-based line of the heading
+	StartLine int
 	Children  []*Node
 }
 
-// heading is an intermediate record of an ATX heading found during the scan.
 type heading struct {
 	level int
 	title string
-	line  int // 0-based index into lines
+	line  int
 }
 
-// SplitSections parses src into a forest of heading sections. Headings inside
-// fenced code blocks are ignored. Content before the first heading is returned
-// as preamble. The scan is fence-aware for both ``` and ~~~ fences.
 func SplitSections(src string) (preamble string, roots []*Node) {
 	lines := strings.Split(src, "\n")
 	var headings []heading
@@ -60,13 +52,10 @@ func SplitSections(src string) (preamble string, roots []*Node) {
 		return src, nil
 	}
 
-	// Preamble is everything before the first heading.
 	if first := headings[0].line; first > 0 {
 		preamble = strings.Join(lines[:first], "\n")
 	}
 
-	// Build each heading's full raw range: from its line to the line before the
-	// next heading of equal-or-shallower level.
 	nodes := make([]*Node, len(headings))
 	for idx, h := range headings {
 		end := len(lines)
@@ -78,9 +67,6 @@ func SplitSections(src string) (preamble string, roots []*Node) {
 		}
 		raw := strings.Join(lines[h.line:end], "\n")
 
-		// Body is the text owned directly by this heading: from the line after
-		// the heading to the line before its first child heading (any deeper
-		// heading), or to end if it has no children.
 		bodyEnd := end
 		for j := idx + 1; j < len(headings); j++ {
 			if headings[j].line >= end {
@@ -105,7 +91,6 @@ func SplitSections(src string) (preamble string, roots []*Node) {
 		}
 	}
 
-	// Assemble the tree using a stack keyed by heading level.
 	var stack []*Node
 	for _, n := range nodes {
 		for len(stack) > 0 && stack[len(stack)-1].Level >= n.Level {
@@ -122,9 +107,6 @@ func SplitSections(src string) (preamble string, roots []*Node) {
 	return preamble, roots
 }
 
-// atxHeading reports whether ln is an ATX heading and returns its level and
-// title text (closing #'s and surrounding whitespace stripped). Up to three
-// leading spaces of indentation are tolerated per CommonMark.
 func atxHeading(ln string) (level int, title string, ok bool) {
 	i := 0
 	for i < len(ln) && i < 3 && ln[i] == ' ' {
@@ -139,7 +121,7 @@ func atxHeading(ln string) (level int, title string, ok bool) {
 		return 0, "", false
 	}
 	after := rest[hashes:]
-	// A valid ATX heading requires a space (or end of line) after the #'s.
+
 	if after != "" && after[0] != ' ' && after[0] != '\t' {
 		return 0, "", false
 	}
@@ -149,8 +131,6 @@ func atxHeading(ln string) (level int, title string, ok bool) {
 	return hashes, title, true
 }
 
-// findChild returns the first direct child whose title matches (case-insensitive,
-// trimmed), or nil.
 func findChild(n *Node, title string) *Node {
 	for _, c := range n.Children {
 		if strings.EqualFold(strings.TrimSpace(c.Title), title) {
@@ -160,7 +140,6 @@ func findChild(n *Node, title string) *Node {
 	return nil
 }
 
-// findRoot returns the first root section whose title matches, or nil.
 func findRoot(roots []*Node, title string) *Node {
 	for _, r := range roots {
 		if strings.EqualFold(strings.TrimSpace(r.Title), title) {

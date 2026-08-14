@@ -10,9 +10,6 @@ import (
 	"testing"
 )
 
-// isolate points the state root at a temporary directory so `repo.Workspace` does
-// not resolve a real seshy session, and returns a directory outside any git
-// repository to build a workspace under.
 func isolate(t *testing.T) string {
 	t.Helper()
 	root := t.TempDir()
@@ -20,8 +17,6 @@ func isolate(t *testing.T) string {
 	t.Setenv("XDG_STATE_HOME", filepath.Join(root, "state"))
 	t.Setenv("ZMX_SESSION", "")
 
-	// macOS hands out /var/folders, a symlink to /private/var/folders. git reports
-	// the resolved form, so an unresolved fixture path never prefix-matches a root.
 	work, err := filepath.EvalSymlinks(root)
 	if err != nil {
 		t.Fatalf("resolve temp dir: %v", err)
@@ -52,7 +47,6 @@ func write(t *testing.T, path, body string) {
 	}
 }
 
-// captureStdout runs fn with os.Stdout replaced by a pipe and returns what it wrote.
 func captureStdout(t *testing.T, fn func() int) string {
 	t.Helper()
 	read, write, err := os.Pipe()
@@ -76,7 +70,6 @@ func captureStdout(t *testing.T, fn func() int) string {
 	return string(body)
 }
 
-// commitRepo initialises dir as a repository with one committed file.
 func commitRepo(t *testing.T, dir string) {
 	t.Helper()
 	if err := os.MkdirAll(dir, 0o755); err != nil {
@@ -88,9 +81,6 @@ func commitRepo(t *testing.T, dir string) {
 	git(t, dir, "commit", "-qm", "init")
 }
 
-// TestRootsFindsNestedRepositories is the case the editor got wrong: the workspace
-// is itself a repository, so a single `rev-parse` answers with the outer root and
-// the nested ones are never seen.
 func TestRootsFindsNestedRepositories(t *testing.T) {
 	work := isolate(t)
 	ws := filepath.Join(work, "ws")
@@ -125,9 +115,6 @@ func TestRootsEmptyWorkspaceIsNotAnError(t *testing.T) {
 	}
 }
 
-// TestRootsStopsAtScanDepth records the bound rather than leaving it implied. A
-// repository deeper than scanDepth is invisible, which is why callers report the
-// count they found instead of claiming the set is complete.
 func TestRootsStopsAtScanDepth(t *testing.T) {
 	work := isolate(t)
 	ws := filepath.Join(work, "ws")
@@ -149,9 +136,6 @@ func TestRootsStopsAtScanDepth(t *testing.T) {
 	}
 }
 
-// TestChangesExcludesNestedRepositories is why the parent's answer is filtered by
-// pathspec: without it the parent reports `repoA/` as one untracked directory and
-// the same work is counted twice, under a directory name and under a file name.
 func TestChangesExcludesNestedRepositories(t *testing.T) {
 	work := isolate(t)
 	ws := filepath.Join(work, "ws")
@@ -199,7 +183,6 @@ func TestChangesSkipsCleanRepositories(t *testing.T) {
 	}
 }
 
-// TestChangesReadsARenameRecord pins the `-z` layout.
 func TestChangesReadsARenameRecord(t *testing.T) {
 	work := isolate(t)
 	ws := filepath.Join(work, "ws")
@@ -215,8 +198,6 @@ func TestChangesReadsARenameRecord(t *testing.T) {
 	}
 }
 
-// TestChangesNamesUntrackedFiles proves `-uall` rather than the default: a caller
-// opening a diff needs a file path, and `-unormal` would answer with the directory.
 func TestChangesNamesUntrackedFiles(t *testing.T) {
 	work := isolate(t)
 	ws := filepath.Join(work, "ws")
@@ -254,9 +235,6 @@ func TestRunHelpExitsZero(t *testing.T) {
 	}
 }
 
-// TestRunHealthReportsWhatItSees pins the field names, because the report is read
-// by a shell with `grep` and by the editor's health check. Renaming a key here
-// silently empties both.
 func TestRunHealthReportsWhatItSees(t *testing.T) {
 	work := isolate(t)
 	ws := filepath.Join(work, "ws")
@@ -279,8 +257,6 @@ func TestRunHealthReportsWhatItSees(t *testing.T) {
 	}
 }
 
-// TestRunOnACleanWorkspaceExitsZero: an empty answer is an answer. A non-zero exit
-// here would make every caller treat "nothing changed" as a failure.
 func TestRunOnACleanWorkspaceExitsZero(t *testing.T) {
 	work := isolate(t)
 	ws := filepath.Join(work, "ws")
@@ -307,7 +283,7 @@ func TestLogReportsOneRowPerCommitNewestFirst(t *testing.T) {
 	if commits[0].Parent != commits[1].SHA {
 		t.Errorf("parent of the newest = %q, want %q", commits[0].Parent, commits[1].SHA)
 	}
-	// The root commit has no parent, and the empty tree is what it diffs against.
+
 	if commits[1].Parent != emptyTree {
 		t.Errorf("parent of the root commit = %q, want the empty tree", commits[1].Parent)
 	}

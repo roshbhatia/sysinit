@@ -45,8 +45,7 @@ func init() {
 			if !ok {
 				return nil
 			}
-			// A heading with nothing under it passes `required-sections`, because that rule asks
-			// only whether the author typed the heading.
+
 			var found, counting int
 			for _, raw := range strings.Split(text, "\n") {
 				line := strings.TrimSpace(raw)
@@ -62,8 +61,6 @@ func init() {
 				}
 			}
 			if counting == 0 || found >= min {
-				// An absent section is `required-sections`' finding to report, not this
-				// rule's. Two rules naming one defect reads as two defects.
 				return nil
 			}
 			return []Finding{{
@@ -131,8 +128,6 @@ func init() {
 				}
 				file := "specs/" + s.Capability + "/spec.md"
 				for _, r := range s.Requirements {
-					// A removed or renamed requirement carries migration prose,
-					// not behavior, so it has no scenarios to cover.
 					if r.Delta == ir.DeltaRemoved || r.Delta == ir.DeltaRenamed {
 						continue
 					}
@@ -165,8 +160,7 @@ func init() {
 			if marker == "" || c.Tasks == nil {
 				return nil
 			}
-			// Presence alone lets a phase declare a value the framework does not
-			// define, which reads as a pass to every rule keyed on the marker.
+
 			allowed := p.Strings("allowedValues")
 			skip := compile(p.String("skipPhasePattern"))
 			var out []Finding
@@ -224,7 +218,6 @@ func init() {
 				}
 				got, ok := ph.Markers[marker]
 				if !ok {
-					// Presence is phase-marker-conditional's job, not this rule's.
 					continue
 				}
 				if !re.MatchString(got) {
@@ -246,9 +239,7 @@ func init() {
 			if c.Tasks == nil {
 				return nil
 			}
-			// A task numbered for another phase reads as that phase's task to
-			// anything keyed on the id, so a dependency map silently merges the two
-			// and an edge resolves against the wrong subtask.
+
 			var out []Finding
 			for _, ph := range c.Tasks.Phases {
 				if ph.Number == "" {
@@ -282,7 +273,7 @@ func init() {
 			if max <= 0 || c.Tasks == nil {
 				return nil
 			}
-			// A task line is the plan; the indented block under it is the record.
+
 			var out []Finding
 			for _, ph := range c.Tasks.Phases {
 				for _, it := range ph.Items {
@@ -326,7 +317,7 @@ func init() {
 				if !ok || !strings.EqualFold(got, value) {
 					continue
 				}
-				// One subtask is a phase, not a graph; there is nothing to order.
+
 				if len(ph.Items) < 2 {
 					continue
 				}
@@ -357,9 +348,7 @@ func init() {
 			if c.Tasks == nil {
 				return nil
 			}
-			// The parser leaves ID empty when the line does not match N.M. Such a
-			// task cannot be a dependency target and cannot be tracked by the
-			// apply phase, so it drops out of the graph without saying so.
+
 			var out []Finding
 			for _, ph := range c.Tasks.Phases {
 				for _, it := range ph.Items {
@@ -518,7 +507,7 @@ func init() {
 				stack = append(stack, id)
 				for _, dep := range deps[id] {
 					if _, known := deps[dep]; !known {
-						continue // task-deps-resolve already reports the dangling edge
+						continue
 					}
 					switch state[dep] {
 					case unvisited:
@@ -601,8 +590,6 @@ func init() {
 				accept = []string{string(review.DecisionApproved)}
 			}
 			if rec == nil {
-				// A repository that reviews only some changes sets requireRecord false
-				// and still gets the staleness check on the ones it does review.
 				if v, ok := p["requireRecord"].(bool); ok && !v {
 					return nil
 				}
@@ -620,8 +607,7 @@ func init() {
 						rec.Decision, strings.Join(accept, ", ")),
 				})
 			}
-			// Staleness is defined once, in review.Build, so this rule and `specutil review
-			// status` can never disagree about whether a decision still stands.
+
 			if st := review.Build(c, rec); st.Stale {
 				out = append(out, Finding{
 					File: review.RecordFile,
@@ -634,7 +620,6 @@ func init() {
 	})
 }
 
-// containsString reports whether list holds want.
 func containsString(list []string, want string) bool {
 	for _, s := range list {
 		if s == want {
@@ -644,12 +629,8 @@ func containsString(list []string, want string) bool {
 	return false
 }
 
-// boldLeadRe matches a list bullet whose first token is bolded.
 var boldLeadRe = regexp.MustCompile(`^\s*[-*]\s+\*\*([A-Za-z][A-Za-z0-9 _-]*)\*\*`)
 
-// compile returns a compiled pattern, or nil when the pattern is empty or
-// invalid. An invalid pattern disables its rule rather than aborting the run,
-// and Resolve is where a malformed rubric should be caught.
 func compile(pattern string) *regexp.Regexp {
 	if pattern == "" {
 		return nil
@@ -661,12 +642,10 @@ func compile(pattern string) *regexp.Regexp {
 	return re
 }
 
-// skipped reports whether a phase is exempt from a rule.
 func skipped(skip *regexp.Regexp, ph ir.Phase) bool {
 	return skip != nil && skip.MatchString(ph.Name)
 }
 
-// phaseLabel names a phase for a message, preferring its number and name.
 func phaseLabel(ph ir.Phase) string {
 	if ph.Number != "" {
 		return ph.Number + ". " + ph.Name
@@ -674,8 +653,6 @@ func phaseLabel(ph ir.Phase) string {
 	return ph.Name
 }
 
-// taskLabel names a task for a message. It prefers the id, and falls back to the
-// phase plus a truncated opening so an unnumbered task is still findable.
 func taskLabel(it ir.TaskItem, ph ir.Phase) string {
 	if it.ID != "" {
 		return it.ID
@@ -687,8 +664,6 @@ func taskLabel(it ir.TaskItem, ph ir.Phase) string {
 	return fmt.Sprintf("%q in phase %s", opening, phaseLabel(ph))
 }
 
-// cycleFrom returns the suffix of stack beginning at id, naming the cycle a
-// back-edge to id closes.
 func cycleFrom(stack []string, id string) []string {
 	for i, s := range stack {
 		if s == id {
@@ -698,7 +673,6 @@ func cycleFrom(stack []string, id string) []string {
 	return append([]string(nil), stack...)
 }
 
-// findLine returns the 1-based number of the first line satisfying match, or 0.
 func findLine(text string, match func(string) bool) int {
 	for i, line := range strings.Split(text, "\n") {
 		if match(line) {
@@ -708,7 +682,6 @@ func findLine(text string, match func(string) bool) int {
 	return 0
 }
 
-// containsFold reports whether want appears in list, ignoring case.
 func containsFold(list []string, want string) bool {
 	for _, got := range list {
 		if strings.EqualFold(got, want) {
@@ -718,8 +691,6 @@ func containsFold(list []string, want string) bool {
 	return false
 }
 
-// firstWords returns at most n words of text, marking a truncation. A finding is
-// one line, and an untruncated task body can run to several hundred characters.
 func firstWords(text string, n int) string {
 	words := strings.Fields(text)
 	if len(words) <= n {
@@ -728,7 +699,6 @@ func firstWords(text string, n int) string {
 	return strings.Join(words[:n], " ") + " ..."
 }
 
-// findProseLine returns the 1-based number of the first line holding r in prose, or 0.
 func findProseLine(text string, r rune) int {
 	fenced := false
 	for i, line := range strings.Split(text, "\n") {
@@ -746,9 +716,6 @@ func findProseLine(text string, r rune) int {
 	return 0
 }
 
-// stripCodeSpans drops every backtick-delimited span from a line. A span left
-// open runs to the end of the line, which keeps the rule from reporting text the
-// author may have meant as code.
 func stripCodeSpans(line string) string {
 	var prose strings.Builder
 	code := false

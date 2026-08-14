@@ -1,4 +1,3 @@
-// Package check validates a change against a declared rubric.
 package check
 
 import (
@@ -9,8 +8,6 @@ import (
 	"github.com/roshbhatia/specutil/internal/ir"
 )
 
-// Severity ranks a finding. An error fails the run; a warning is reported and
-// does not.
 type Severity string
 
 const (
@@ -18,7 +15,6 @@ const (
 	SeverityWarn  Severity = "warn"
 )
 
-// Finding is one rule violation.
 type Finding struct {
 	Rule     string   `json:"rule"`
 	Severity Severity `json:"severity"`
@@ -28,13 +24,11 @@ type Finding struct {
 	Msg      string   `json:"msg"`
 }
 
-// Report is the outcome of checking one or more changes.
 type Report struct {
 	Findings []Finding `json:"findings"`
 	Checked  []string  `json:"checked"`
 }
 
-// Errors counts the findings that fail the run.
 func (r *Report) Errors() int {
 	n := 0
 	for _, f := range r.Findings {
@@ -45,61 +39,44 @@ func (r *Report) Errors() int {
 	return n
 }
 
-// Warnings counts the findings that do not fail the run.
 func (r *Report) Warnings() int { return len(r.Findings) - r.Errors() }
 
-// OK reports whether the run passed.
 func (r *Report) OK() bool { return r.Errors() == 0 }
 
-// RuleConfig selects a built-in rule and supplies its parameters.
 type RuleConfig struct {
-	// ID names a built-in rule. An unknown ID is an error, not a silent skip.
 	ID string `yaml:"id"`
-	// Name identifies this instance. It defaults to ID, and is what Disable and
-	// a local override match on. A rubric that applies the same rule twice with
-	// different parameters gives each instance its own name.
+
 	Name string `yaml:"name"`
-	// Severity overrides the rule's default. Empty means error.
+
 	Severity Severity `yaml:"severity"`
-	// Params are the rule's parameters. Their shape is per-rule and documented
-	// on each built-in.
+
 	Params map[string]any `yaml:",inline"`
 }
 
-// Config is the repository's rubric declaration.
 type Config struct {
-	// Preset names a built-in rubric to start from.
 	Preset string `yaml:"preset"`
-	// Rules are appended to the preset's. A rule sharing a name with a preset
-	// rule replaces it, which is how a repository retunes one check without
-	// restating the rest.
+
 	Rules []RuleConfig `yaml:"rules"`
-	// Disable removes rules by name after the preset and Rules are merged.
+
 	Disable []string `yaml:"disable"`
 }
 
-// IsZero reports whether the config declares no rubric.
 func (c Config) IsZero() bool {
 	return c.Preset == "" && len(c.Rules) == 0 && len(c.Disable) == 0
 }
 
-// ruleFn evaluates one rule against one change.
 type ruleFn func(p params, c *ir.Change) []Finding
 
-// rule is a built-in rule's implementation and documentation.
 type rule struct {
 	id   string
 	doc  string
 	eval ruleFn
 }
 
-// registry holds every built-in rule, keyed by ID. Adding a check means adding
-// an entry here and, if a framework needs it, referencing it from a preset.
 var registry = map[string]rule{}
 
 func register(r rule) { registry[r.id] = r }
 
-// RuleIDs returns every built-in rule ID, sorted.
 func RuleIDs() []string {
 	out := make([]string, 0, len(registry))
 	for id := range registry {
@@ -109,10 +86,8 @@ func RuleIDs() []string {
 	return out
 }
 
-// RuleDoc returns a rule's one-line description.
 func RuleDoc(id string) string { return registry[id].doc }
 
-// Presets returns the built-in preset names, sorted.
 func Presets() []string {
 	out := make([]string, 0, len(presets))
 	for name := range presets {
@@ -122,13 +97,11 @@ func Presets() []string {
 	return out
 }
 
-// HasPreset reports whether name is a built-in preset.
 func HasPreset(name string) bool {
 	_, ok := presets[resolvePresetName(name)]
 	return ok
 }
 
-// resolved is a rule ready to run.
 type resolved struct {
 	name     string
 	severity Severity
@@ -136,7 +109,6 @@ type resolved struct {
 	eval     ruleFn
 }
 
-// instanceName is a rule config's identity: its explicit name, or its rule ID.
 func (rc RuleConfig) instanceName() string {
 	if rc.Name != "" {
 		return rc.Name
@@ -144,9 +116,6 @@ func (rc RuleConfig) instanceName() string {
 	return rc.ID
 }
 
-// Resolve expands the preset, merges local rules, applies Disable, and
-// validates every ID. An unknown rule or preset is an error rather than a
-// silent no-op, because a typo would otherwise read as a check that passes.
 func Resolve(cfg Config) ([]resolved, error) {
 	var merged []RuleConfig
 	if cfg.Preset != "" {
@@ -211,9 +180,6 @@ func Resolve(cfg Config) ([]resolved, error) {
 	return out, nil
 }
 
-// Run evaluates the rubric over every change and returns a sorted report.
-// Findings are ordered by change, then rule, then message, so output is stable
-// across runs and diffable in CI.
 func Run(cfg Config, changes []*ir.Change) (*Report, error) {
 	rules, err := Resolve(cfg)
 	if err != nil {
@@ -226,9 +192,6 @@ func Run(cfg Config, changes []*ir.Change) (*Report, error) {
 		}
 		rep.Checked = append(rep.Checked, c.Name)
 
-		// Every rule treats an absent artifact as nothing to check, so a change
-		// with no artifacts at all would satisfy the whole rubric vacuously.
-		// That is the one failure a gate must never report as a pass.
 		if !hasAnyArtifact(c) {
 			rep.Findings = append(rep.Findings, Finding{
 				Rule: "change-has-artifacts", Severity: SeverityError, Change: c.Name,
@@ -260,15 +223,10 @@ func Run(cfg Config, changes []*ir.Change) (*Report, error) {
 	return rep, nil
 }
 
-// hasAnyArtifact reports whether a change carries anything to check. A change
-// with a single artifact is legitimately minimal; one with none is an empty
-// directory.
 func hasAnyArtifact(c *ir.Change) bool {
 	return c.Proposal != nil || c.Design != nil || c.Tasks != nil || len(c.Specs) > 0
 }
 
-// params is a rule's parameter bag with typed readers. A missing parameter
-// yields the zero value; each rule documents which it requires.
 type params map[string]any
 
 func (p params) String(key string) string {
@@ -280,8 +238,6 @@ func (p params) String(key string) string {
 	return ""
 }
 
-// Strings reads a list parameter, tolerating a single scalar so a one-element
-// list can be written without list syntax.
 func (p params) Strings(key string) []string {
 	v, ok := p[key]
 	if !ok {
@@ -304,9 +260,6 @@ func (p params) Strings(key string) []string {
 	return nil
 }
 
-// Int reads a whole-number parameter. YAML decodes an integer as int, and JSON
-// as float64, so both are accepted. A missing or non-numeric value yields 0,
-// which each rule reads as "unset" and skips on.
 func (p params) Int(key string) int {
 	switch t := p[key].(type) {
 	case int:
@@ -319,8 +272,6 @@ func (p params) Int(key string) int {
 	return 0
 }
 
-// artifactText returns an artifact's retained raw markdown and the filename to report
-// against it.
 func artifactText(c *ir.Change, artifact string) (text, file string, ok bool) {
 	switch artifact {
 	case "proposal":
@@ -342,8 +293,6 @@ func artifactText(c *ir.Change, artifact string) (text, file string, ok bool) {
 	return "", "", false
 }
 
-// allArtifacts returns every artifact's raw text paired with its filename,
-// including one entry per spec, in a deterministic order.
 func allArtifacts(c *ir.Change) []struct{ Text, File string } {
 	var out []struct{ Text, File string }
 	for _, name := range []string{"proposal", "design", "tasks"} {

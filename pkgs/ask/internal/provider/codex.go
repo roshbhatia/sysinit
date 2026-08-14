@@ -13,15 +13,10 @@ import (
 	"time"
 )
 
-// Codex drives the Codex CLI in exec mode. It asks for `--json` for the reason Claude is asked
-// for `stream-json`: a spinner that cannot say what the model is doing only says the program
-// has not died.
 type Codex struct{}
 
-// Name is what a caller writes to pick it.
 func (Codex) Name() string { return "codex" }
 
-// One item of a `codex exec --json` stream, to the depth this reads it.
 type codexItem struct {
 	ID      string `json:"id"`
 	Type    string `json:"type"`
@@ -36,7 +31,6 @@ type codexItem struct {
 	} `json:"changes"`
 }
 
-// One line of `codex exec --json`.
 type codexLine struct {
 	Type     string `json:"type"`
 	ThreadID string `json:"thread_id"`
@@ -47,7 +41,6 @@ type codexLine struct {
 	Item codexItem `json:"item"`
 }
 
-// clip is the opening line of a description, since a one-line event has no room for the rest.
 func clip(text string) string {
 	line := strings.TrimSpace(strings.SplitN(strings.TrimSpace(text), "\n", 2)[0])
 	if len(line) > 90 {
@@ -56,7 +49,6 @@ func clip(text string) string {
 	return line
 }
 
-// toolOf names the item as a tool, or reports that it is not one.
 func toolOf(item codexItem) (string, string, bool) {
 	switch item.Type {
 	case "command_execution":
@@ -79,7 +71,6 @@ func toolOf(item codexItem) (string, string, bool) {
 	return "", "", false
 }
 
-// schemaFile writes the shape out, because codex takes it as a path rather than as a string.
 func schemaFile(shape map[string]any) (string, error) {
 	encoded, err := json.Marshal(shape)
 	if err != nil {
@@ -97,7 +88,6 @@ func schemaFile(shape map[string]any) (string, error) {
 	return file.Name(), file.Close()
 }
 
-// codexRun is what one stream said, read back once it has ended.
 type codexRun struct {
 	Answer  string
 	Session string
@@ -105,11 +95,9 @@ type codexRun struct {
 	Turns   int
 }
 
-// scanCodex turns one `codex exec --json` stream into events. It takes a reader rather than
-// the command, so the shape of the stream can be exercised without a model behind it.
 func scanCodex(from io.Reader, model string, events chan<- Event) codexRun {
 	var run codexRun
-	// A tool arrives twice, as started and as completed, and is worth one line.
+
 	announced := map[string]bool{}
 
 	reader := lines(from)
@@ -131,8 +119,6 @@ func scanCodex(from io.Reader, model string, events chan<- Event) codexRun {
 			switch {
 			case item.Type == "agent_message" && done:
 				if text := strings.TrimSpace(item.Text); text != "" {
-					// The last message is the answer; the earlier ones are the model thinking
-					// out loud.
 					run.Answer = text
 					events <- Event{Kind: Text, Text: text}
 				}
@@ -159,7 +145,6 @@ func scanCodex(from io.Reader, model string, events chan<- Event) codexRun {
 	return run
 }
 
-// Run starts one exec session and turns its stream into events.
 func (c Codex) Run(ctx context.Context, req Request) (<-chan Event, error) {
 	binary, err := exec.LookPath("codex")
 	if err != nil {
@@ -169,10 +154,9 @@ func (c Codex) Run(ctx context.Context, req Request) (<-chan Event, error) {
 	args := []string{
 		"exec",
 		"--json",
-		// Every run, without asking: this is a pipe, and an approval prompt on a pipe is a hang
-		// that no one is watching.
+
 		"--dangerously-bypass-approvals-and-sandbox",
-		// A caller pipes from wherever they are, and codex otherwise refuses to leave a repo.
+
 		"--skip-git-repo-check",
 	}
 	if req.Model != "" {
@@ -185,8 +169,7 @@ func (c Codex) Run(ctx context.Context, req Request) (<-chan Event, error) {
 		}
 		args = append(args, "--output-schema", schemaPath)
 	}
-	// After a separator, or a prompt that opens with a dash is read by codex as a flag of
-	// its own and the run dies before the model ever sees it.
+
 	args = append(args, "--", req.Prompt)
 
 	discard := func() {
@@ -197,7 +180,7 @@ func (c Codex) Run(ctx context.Context, req Request) (<-chan Event, error) {
 
 	cmd := exec.CommandContext(ctx, binary, args...)
 	cmd.Dir = req.Dir
-	// With a prompt in the arguments, codex reads stdin and appends it to the prompt.
+
 	cmd.Stdin = bytes.NewReader(req.Input)
 
 	out, err := cmd.StdoutPipe()
@@ -222,7 +205,7 @@ func (c Codex) Run(ctx context.Context, req Request) (<-chan Event, error) {
 		run := scanCodex(out, req.Model, events)
 
 		err := cmd.Wait()
-		// Codex reports no cost, so the summary carries the turns and the time and nothing else.
+
 		result := &Result{
 			Text:     run.Answer,
 			Duration: time.Since(started),
@@ -233,8 +216,6 @@ func (c Codex) Run(ctx context.Context, req Request) (<-chan Event, error) {
 		case run.Failure != "":
 			result.Failed, result.Reason = true, run.Failure
 		case run.Answer == "":
-			// No message at all: what codex wrote to stderr is the only account of why, so it is
-			// reported rather than swallowed.
 			reason := strings.TrimSpace(problems.String())
 			if reason == "" && err != nil {
 				reason = err.Error()
@@ -244,8 +225,6 @@ func (c Codex) Run(ctx context.Context, req Request) (<-chan Event, error) {
 			}
 			result.Failed, result.Reason = true, reason
 		case req.Schema != nil:
-			// A shape was asked for, so prose in its place is a failed run rather than an answer
-			// the caller has to notice is the wrong kind.
 			if result.Structured = structured(run.Answer); result.Structured == nil {
 				result.Failed, result.Reason = true, offShape
 			}

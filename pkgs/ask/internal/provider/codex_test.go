@@ -42,8 +42,6 @@ func TestACodexStreamBecomesOneEventPerThingThatHappened(t *testing.T) {
 	}
 }
 
-// A tool arrives twice, as started and as completed, and is worth one line. Announcing both
-// would fill the progress view with each command written twice.
 func TestACodexToolIsAnnouncedOnceThoughItArrivesTwice(t *testing.T) {
 	events, _ := collect(t, func(out chan<- Event) {
 		scanCodex(strings.NewReader(codexStream), "", out)
@@ -99,8 +97,6 @@ func TestACodexStreamSurvivesALineItCannotRead(t *testing.T) {
 	}
 }
 
-// One line carries a whole command's output, which is larger than a scanner's own limit. A
-// stream cut short there would lose the answer that follows it.
 func TestACodexLineLongerThanTheDefaultLimitIsStillRead(t *testing.T) {
 	huge, err := json.Marshal(map[string]any{
 		"type": "item.completed",
@@ -175,8 +171,6 @@ func TestTheShapeIsFoundWhereverTheModelPutIt(t *testing.T) {
 	}
 }
 
-// Codex takes the shape as a path rather than as a string, so the file has to hold the schema
-// and has to be removed once the run is over.
 func TestTheSchemaIsWrittenOutForCodexToRead(t *testing.T) {
 	path, err := schemaFile(map[string]any{"type": "object"})
 	if err != nil {

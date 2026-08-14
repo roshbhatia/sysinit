@@ -10,12 +10,8 @@ import (
 	"github.com/roshbhatia/specutil/internal/ir"
 )
 
-// SupportedHarnesses lists the known AI harness names. Any binary on PATH also
-// works; this list is for documentation and flag completion hints only.
 var SupportedHarnesses = []string{"claude", "gemini", "codex", "openai", "pi"}
 
-// HarnessSuggest sends change metadata to an AI harness CLI subprocess and returns the
-// suggested dependency edges.
 func HarnessSuggest(changes []*ir.Change, harness string) ([]Candidate, error) {
 	if harness == "" {
 		return nil, fmt.Errorf("harness name is required")
@@ -66,8 +62,6 @@ Changes to analyze:
 	return b.String()
 }
 
-// runHarness invokes the harness binary with the prompt. Tries -p flag first
-// (claude/gemini convention), falls back to piping via stdin.
 func runHarness(harness, prompt string) ([]byte, error) {
 	cmd := exec.Command(harness, "-p", prompt) //nolint:gosec
 	var stdout, stderr bytes.Buffer
@@ -77,7 +71,6 @@ func runHarness(harness, prompt string) ([]byte, error) {
 		return stdout.Bytes(), nil
 	}
 
-	// Fallback: pipe prompt via stdin (codex, openai, pi, etc.)
 	cmd2 := exec.Command(harness) //nolint:gosec
 	cmd2.Stdin = strings.NewReader(prompt)
 	stdout.Reset()
@@ -100,9 +93,6 @@ type harnessOutput struct {
 	Suggestions []harnessSuggestion `json:"suggestions"`
 }
 
-// parseHarnessOutput extracts Candidate edges from the harness JSON output.
-// Strips markdown code fences if the harness wrapped the response. Unknown
-// change names are silently dropped — the harness may hallucinate.
 func parseHarnessOutput(raw []byte, known map[string]bool) ([]Candidate, error) {
 	trimmed := bytes.TrimSpace(raw)
 	if bytes.HasPrefix(trimmed, []byte("```")) {

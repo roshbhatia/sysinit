@@ -7,7 +7,6 @@ import (
 	"testing"
 )
 
-// field is one property of a built schema, or the test fails saying which one is missing.
 func field(t *testing.T, built map[string]any, name string) map[string]any {
 	t.Helper()
 	properties, ok := built["properties"].(map[string]any)
@@ -69,8 +68,6 @@ func TestABarBecomesAClosedSetOfStrings(t *testing.T) {
 	}
 }
 
-// The comma inside the enum is the whole point: splitting on every comma would cut this
-// field in half and lose the type.
 func TestAnEnumIsNotCutInHalfByItsOwnComma(t *testing.T) {
 	built, err := Build("tags:[]string, level:error|warn")
 	if err != nil {
@@ -106,7 +103,7 @@ func TestATypeNoOneKnowsIsRejected(t *testing.T) {
 	if err == nil {
 		t.Fatal("an unknown type was accepted")
 	}
-	// The message has to name the field, because a spec holds several.
+
 	if want := `field "name"`; err.Error()[:len(want)] != want {
 		t.Errorf("the error is %q, want it to open by naming the field", err)
 	}

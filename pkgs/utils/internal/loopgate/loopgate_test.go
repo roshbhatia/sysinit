@@ -9,8 +9,6 @@ import (
 	"testing"
 )
 
-// gate points the state at a temporary directory, so a test never writes into the
-// repository it runs from.
 func gate(t *testing.T) string {
 	t.Helper()
 	dir := t.TempDir()
@@ -18,7 +16,6 @@ func gate(t *testing.T) string {
 	return filepath.Join(dir, "loop-gate.json")
 }
 
-// capture redirects stdout and returns a function giving back what was written.
 func capture(t *testing.T) func() string {
 	t.Helper()
 	read, write, err := os.Pipe()
@@ -88,8 +85,6 @@ func TestAPassingConditionDisarmsTheGate(t *testing.T) {
 	}
 }
 
-// The reason carries the command's own output, which is what the harness reads to know
-// what to fix.
 func TestAFailingConditionBlocksAndCountsTheIteration(t *testing.T) {
 	path := gate(t)
 	Run([]string{"arm", "--until", "echo still broken; exit 3", "--max", "9", "--stall", "9"})
@@ -123,8 +118,6 @@ func TestAFailingConditionBlocksAndCountsTheIteration(t *testing.T) {
 	}
 }
 
-// A stop already running the hook must not be blocked again, or the harness never
-// returns.
 func TestAnActiveStopHookIsNotBlockedTwice(t *testing.T) {
 	gate(t)
 	Run([]string{"arm", "--until", "exit 1", "--max", "9", "--stall", "9"})
@@ -150,8 +143,7 @@ func TestIdenticalOutputStallsTheGate(t *testing.T) {
 
 func TestTheIterationCapDisarmsTheGate(t *testing.T) {
 	path := gate(t)
-	// Output that changes every run, so the cap is what ends this rather than the
-	// stall counter.
+
 	Run([]string{"arm", "--until", "echo $RANDOM; exit 1", "--max", "2", "--stall", "99"})
 	for i := 0; i < 2; i++ {
 		restore := capture(t)
@@ -185,7 +177,7 @@ func TestClearDisarms(t *testing.T) {
 	if _, err := os.Stat(path); !os.IsNotExist(err) {
 		t.Error("clear left the state behind")
 	}
-	// Twice, because a hook clears a gate it may never have armed.
+
 	if code := Run([]string{"clear"}); code != 0 {
 		t.Errorf("clear on a disarmed gate exited %d", code)
 	}

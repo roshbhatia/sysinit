@@ -10,9 +10,6 @@ import (
 	"github.com/roshbhatia/specutil/internal/review"
 )
 
-// good builds a change that satisfies every rule in the spec-driven
-// preset. Each test then breaks exactly one thing, so a finding can only come
-// from the rule under test.
 func good() *ir.Change {
 	return &ir.Change{
 		Name: "demo",
@@ -42,8 +39,7 @@ func good() *ir.Change {
 					Markers: map[string]string{"shape": "graph"},
 					Items: []ir.TaskItem{
 						{ID: "1.1", Text: "Do it"},
-						// The graph phase declares an edge, so the fixture satisfies
-						// phase-edges-declared alongside every other preset rule.
+
 						{ID: "1.2", Text: "Adversarial review (skill)", DependsOn: []string{"1.1"}},
 					},
 				},
@@ -56,9 +52,6 @@ func good() *ir.Change {
 	}
 }
 
-// roshRun runs the preset over one change. The preset gates on a current review
-// decision, so it records one first: these tests are about the other rules, and
-// review-decision-current has its own tests in review_rule_test.go.
 func roshRun(t *testing.T, c *ir.Change) *Report {
 	t.Helper()
 	approve(t, c)
@@ -69,8 +62,6 @@ func roshRun(t *testing.T, c *ir.Change) *Report {
 	return rep
 }
 
-// approve gives a change an on-disk change directory holding an approved review
-// record that describes it exactly as it stands.
 func approve(t *testing.T, c *ir.Change) {
 	t.Helper()
 	repo := t.TempDir()
@@ -86,7 +77,6 @@ func approve(t *testing.T, c *ir.Change) {
 	}
 }
 
-// rules returns the set of rule names that fired.
 func firedRules(r *Report) map[string]bool {
 	out := map[string]bool{}
 	for _, f := range r.Findings {
@@ -126,7 +116,6 @@ func TestDecisionWithoutRejectedAlternativeFails(t *testing.T) {
 	}
 }
 
-// Two alternatives under one decision must not cover a bare decision elsewhere.
 func TestPairedBulletCountsPerBlockNotInAggregate(t *testing.T) {
 	c := good()
 	c.Design.Raw = "## Decisions\n\n" +
@@ -138,9 +127,6 @@ func TestPairedBulletCountsPerBlockNotInAggregate(t *testing.T) {
 	}
 }
 
-// scenarioRun exercises scenario-marker-coverage on its own. The rule remains a
-// built-in for a framework that keeps a requirement spec, but no shipped preset
-// selects it: spec-driven states its acceptance criteria in the proposal.
 func scenarioRun(t *testing.T, c *ir.Change) *Report {
 	t.Helper()
 	rep, err := Run(Config{Rules: []RuleConfig{{
@@ -214,7 +200,6 @@ func TestTaskWithoutIdentifierFails(t *testing.T) {
 }
 
 func TestRolloutPhaseIsExemptFromShape(t *testing.T) {
-	// The Rollout phase in good() declares no shape and must still pass.
 	if !roshRun(t, good()).OK() {
 		t.Error("a rollout phase must not be required to declare a shape")
 	}
@@ -257,7 +242,6 @@ func TestLoopStopMustNameACommand(t *testing.T) {
 	}
 }
 
-// The rule is scoped to loops; a graph phase has no STOP to evaluate.
 func TestGraphPhaseIsExemptFromStopPattern(t *testing.T) {
 	c := good()
 	c.Tasks.Phases[0].Markers = map[string]string{"shape": "graph", "stop": "prose"}
@@ -274,8 +258,6 @@ func TestPhaseWithoutAdversarialReviewTaskFails(t *testing.T) {
 	}
 }
 
-// A slice titled "Adversarial review" must not satisfy its own review gate; the
-// rule reads task text, never the phase heading.
 func TestPhaseTitleDoesNotSatisfyTaskPattern(t *testing.T) {
 	c := good()
 	c.Tasks.Phases[0].Name = "Adversarial review"
@@ -320,8 +302,6 @@ func TestSelfTaskDependencyFails(t *testing.T) {
 	}
 }
 
-// A dangling edge is task-deps-resolve's to report. Following it here would
-// either crash or invent a cycle that the author never wrote.
 func TestDanglingDependencyDoesNotFireAcyclic(t *testing.T) {
 	c := good()
 	c.Tasks.Phases[0].Items[0].Fields = map[string][]string{"deps": {"9.9"}}
@@ -330,7 +310,6 @@ func TestDanglingDependencyDoesNotFireAcyclic(t *testing.T) {
 	}
 }
 
-// A diamond is not a cycle: two paths reconverging on one task must pass.
 func TestDiamondTaskDependenciesPass(t *testing.T) {
 	c := good()
 	c.Tasks.Phases[0].Items = []ir.TaskItem{
@@ -494,8 +473,6 @@ func TestReportOrderIsStable(t *testing.T) {
 }
 
 func TestAbsentOptionalArtifactIsNotAViolation(t *testing.T) {
-	// A change with no design.md must not fail the design rules: whether the
-	// artifact is required at all is the schema's call, not this rule's.
 	c := good()
 	c.Design = nil
 	rep := roshRun(t, c)
@@ -504,9 +481,6 @@ func TestAbsentOptionalArtifactIsNotAViolation(t *testing.T) {
 	}
 }
 
-// A change with no artifacts satisfies every rule vacuously, because each rule
-// treats an absent artifact as nothing to check. A gate must never report that
-// as a pass.
 func TestChangeWithNoArtifactsFails(t *testing.T) {
 	rep, err := Run(Config{Preset: "spec-driven"}, []*ir.Change{{Name: "empty"}})
 	if err != nil {
@@ -520,7 +494,6 @@ func TestChangeWithNoArtifactsFails(t *testing.T) {
 	}
 }
 
-// One artifact is a legitimately minimal change, not an empty directory.
 func TestChangeWithOnlyOneArtifactIsChecked(t *testing.T) {
 	c := &ir.Change{Name: "minimal", Proposal: &ir.Proposal{
 		Section: ir.Section{Raw: "## Why\n\nA reason.\n"},
@@ -534,7 +507,7 @@ func TestChangeWithOnlyOneArtifactIsChecked(t *testing.T) {
 			t.Error("a change with a proposal must be checked, not rejected as empty")
 		}
 	}
-	// It still fails the rubric, on the real rule: no Non-goals block.
+
 	if rep.OK() {
 		t.Error("expected the proposal-sections rule to fire")
 	}
@@ -551,7 +524,6 @@ func TestGraphPhaseWithoutEdgesWarns(t *testing.T) {
 	}
 }
 
-// One subtask is a phase, not a graph; there is no order to state.
 func TestSingleSubtaskGraphPhaseIsExempt(t *testing.T) {
 	c := good()
 	c.Tasks.Phases[0].Items = []ir.TaskItem{{ID: "1.1", Text: "Adversarial review (skill)"}}

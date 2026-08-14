@@ -1,5 +1,3 @@
-// Package editevent implements `edit-event`: one append-only log per workspace naming
-// the files an agent wrote, for an editor that wants to know without polling.
 package editevent
 
 import (
@@ -16,18 +14,13 @@ import (
 
 const Summary = "record the files an agent wrote, for an editor watching the log"
 
-// SchemaVersion is the event line's schema version.
 const SchemaVersion = 1
 
-// The log's bound.
 const (
 	maxBytes  = 512 * 1024
 	keepLines = 200
 )
 
-// event is one line of the log. It carries no file contents on purpose: the file
-// on disk is the content, and a copy here would go stale the moment it is
-// written.
 type event struct {
 	Version int    `json:"version"`
 	TS      int64  `json:"ts"`
@@ -37,18 +30,13 @@ type event struct {
 	CWD     string `json:"cwd"`
 }
 
-// Run appends one event per named file and ALWAYS returns 0.
 func Run(args []string) int {
 	opts, err := parse(args)
 	if err != nil {
-		// The one loud failure, and only for a caller that is malformed rather
-		// than unlucky. A hook's arguments come from a Nix expression, so a
-		// mistake here is a build-time mistake worth seeing once.
 		fmt.Fprintf(os.Stderr, "edit-event: %v\n", err)
 		return 0
 	}
 
-	// The reader asks for the path rather than deriving it.
 	if opts.printLog {
 		dir := opts.cwd
 		if dir == "" {
@@ -60,9 +48,6 @@ func Run(args []string) int {
 
 	payload := readStdin()
 
-	// A change is one file and the verb that touched it. Most harnesses name one
-	// file per call, so this list usually holds a single entry; an apply-patch
-	// envelope is the case that names several, each with its own verb.
 	var changes []change
 	for _, file := range opts.files {
 		changes = append(changes, change{file: file})
@@ -87,8 +72,6 @@ func Run(args []string) int {
 		dir = workingDir()
 	}
 
-	// The tool's own name, lowercased, so a reader can tell a file that was created from
-	// one that was modified.
 	kind := opts.kind
 	if kind == "" {
 		kind = strings.ToLower(dig(payload, "tool_name"))
@@ -109,8 +92,7 @@ func Run(args []string) int {
 		if err != nil {
 			continue
 		}
-		// A verb the envelope named beats the tool name, because `apply_patch` says
-		// nothing about whether a file was created or rewritten.
+
 		fileKind := kind
 		if c.kind != "" && opts.kind == "" {
 			fileKind = c.kind
@@ -127,15 +109,11 @@ func Run(args []string) int {
 	return 0
 }
 
-// change is one file and, when the source named it, the verb that touched it.
 type change struct {
 	file string
 	kind string
 }
 
-// Where a harness conventionally puts the text of an apply-patch envelope. The
-// package knows the format, not the harness: codex passes it as a shell command,
-// and opencode as a named tool argument.
 var patchTextKeys = []string{
 	"tool_input.command",
 	"tool_input.patchText",
@@ -143,7 +121,6 @@ var patchTextKeys = []string{
 	"output.args.patchText",
 }
 
-// applyPatchChanges reads the file markers out of an apply-patch envelope.
 func applyPatchChanges(text string) []change {
 	if text == "" {
 		return nil
@@ -161,8 +138,7 @@ func applyPatchChanges(text string) []change {
 			if !found {
 				continue
 			}
-			// `*** Move to: ` follows a rename's Update marker; the destination is
-			// what exists afterwards, so it is what a reader should be told about.
+
 			if path = strings.TrimSpace(path); path != "" {
 				out = append(out, change{file: path, kind: kind})
 			}
@@ -172,9 +148,6 @@ func applyPatchChanges(text string) []change {
 	return out
 }
 
-// absoluteIn resolves file against dir rather than the process working directory.
-// A hook runs wherever the harness happened to spawn it, which is not always the
-// directory the relative path in its payload was written against.
 func absoluteIn(dir, file string) (string, error) {
 	if filepath.IsAbs(file) {
 		return filepath.Clean(file), nil
@@ -228,15 +201,13 @@ func parse(args []string) (options, error) {
 			opts.harness = args[i]
 		}
 	}
-	// A reader asking for the path is not writing, so it names no harness.
+
 	if opts.harness == "" && !opts.printLog {
 		return opts, fmt.Errorf("the first argument names the harness")
 	}
 	return opts, nil
 }
 
-// append1 writes one line in one Write call, so two harnesses writing at the same
-// moment produce two intact lines rather than one interleaved pair.
 func append1(log string, e event) {
 	encoded, err := json.Marshal(e)
 	if err != nil {
@@ -250,9 +221,6 @@ func append1(log string, e event) {
 	handle.Write(append(encoded, '\n'))
 }
 
-// trim enforces the bound before an append rather than after, so the log is never
-// observed past it. Rewriting through a temporary file and renaming means a
-// reader either sees the old file or the new one, never a half-written log.
 func trim(log string) {
 	info, err := os.Stat(log)
 	if err != nil || info.Size() <= maxBytes {
@@ -285,7 +253,6 @@ func workingDir() string {
 	return dir
 }
 
-// readStdin returns the hook payload, or nothing when stdin is a terminal.
 func readStdin() map[string]any {
 	info, err := os.Stdin.Stat()
 	if err != nil || info.Mode()&os.ModeCharDevice != 0 {
@@ -302,7 +269,6 @@ func readStdin() map[string]any {
 	return parsed
 }
 
-// dig walks a dotted path and returns the first non-empty string it finds.
 func dig(doc map[string]any, keys ...string) string {
 	for _, key := range keys {
 		var cur any = doc

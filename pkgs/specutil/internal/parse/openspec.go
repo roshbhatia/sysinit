@@ -7,22 +7,18 @@ import (
 	"github.com/roshbhatia/specutil/internal/ir"
 )
 
-// Regexes for the lenient structural recovery. None are anchored to exact
-// whitespace so minor authoring drift still parses.
 var (
 	taskLineRe    = regexp.MustCompile(`^(\d+(?:\.\d+)*)\s+(.*)$`)
 	deltaTitleRe  = regexp.MustCompile(`(?i)^(ADDED|MODIFIED|REMOVED|RENAMED)\s+Requirements?$`)
 	capNameRe     = regexp.MustCompile("^[*`]*\\s*([^*`:]+?)\\s*[*`]*\\s*:\\s*(.*)$")
 	phaseNumberRe = regexp.MustCompile(`^(\d+)\.?\s*`)
 	bracketTagRe  = regexp.MustCompile(`^\[([^\]]+)\]\s*`)
-	// ticketRefRe matches Jira/Linear-style IDs (INF-2345, PR-123, etc.)
+
 	ticketRefRe = regexp.MustCompile(`\b([A-Z]{2,10}-\d+)\b`)
-	// prRefRe matches GitHub PR/issue refs (#219); no leading \b since # is non-word
+
 	prRefRe = regexp.MustCompile(`#(\d+)\b`)
 )
 
-// extractBracketTags peels leading [TAG] tokens from text, returning the tags
-// and the cleaned text with those tokens removed.
 func extractBracketTags(text string) ([]string, string) {
 	text = strings.TrimSpace(text)
 	var tags []string
@@ -37,8 +33,6 @@ func extractBracketTags(text string) ([]string, string) {
 	return tags, strings.TrimSpace(text)
 }
 
-// extractInlineRefs finds ticket/PR identifiers embedded in text, deduped and
-// in order of first appearance.
 func extractInlineRefs(text string) []string {
 	seen := make(map[string]bool)
 	var out []string
@@ -60,7 +54,6 @@ func extractInlineRefs(text string) []string {
 	return out
 }
 
-// ParseProposal maps a proposal.md section forest into ir.Proposal.
 func ParseProposal(file, src string) (*ir.Proposal, []ir.Warning) {
 	var warns []ir.Warning
 	_, roots := SplitSections(src)
@@ -93,7 +86,6 @@ func ParseProposal(file, src string) (*ir.Proposal, []ir.Warning) {
 	return p, warns
 }
 
-// parseCapabilityChild extracts capability bullets from a named child section.
 func parseCapabilityChild(parent *Node, title string) []ir.Capability {
 	child := findChild(parent, title)
 	if child == nil {
@@ -110,8 +102,6 @@ func parseCapabilityChild(parent *Node, title string) []ir.Capability {
 	return caps
 }
 
-// ParseSpec maps a specs/<capability>/spec.md into ir.Spec. capability is the
-// directory name the spec was discovered under.
 func ParseSpec(file, capability, src string) (*ir.Spec, []ir.Warning) {
 	var warns []ir.Warning
 	_, roots := SplitSections(src)
@@ -125,9 +115,7 @@ func ParseSpec(file, capability, src string) (*ir.Spec, []ir.Warning) {
 		delta := ir.DeltaOp(strings.ToUpper(m[1]))
 		for _, child := range deltaSection.Children {
 			title := strings.TrimSpace(child.Title)
-			// Lenient recovery: a `### Scenario:` authored at requirement depth
-			// becomes a sibling of the requirement. Attach it to the preceding
-			// requirement instead of treating it as a bogus requirement.
+
 			if scName, isScenario := strings.CutPrefix(title, "Scenario:"); isScenario {
 				warns = append(warns, ir.Warning{
 					File: file, Line: child.StartLine,
@@ -162,9 +150,6 @@ func ParseSpec(file, capability, src string) (*ir.Spec, []ir.Warning) {
 	}
 
 	for _, r := range spec.Requirements {
-		// Only ADDED/MODIFIED requirements describe behavior via scenarios.
-		// REMOVED and RENAMED blocks carry Reason/Migration prose instead, so
-		// absent scenarios there are expected, not malformed.
 		if len(r.Scenarios) == 0 && (r.Delta == ir.DeltaAdded || r.Delta == ir.DeltaModified) {
 			warns = append(warns, ir.Warning{File: file, Msg: "requirement '" + r.Name + "' has no scenarios"})
 		}
@@ -176,9 +161,6 @@ func ParseSpec(file, capability, src string) (*ir.Spec, []ir.Warning) {
 	return spec, warns
 }
 
-// parseScenarios recovers scenarios from a requirement node. OpenSpec mandates
-// 4-hashtag scenarios (children of the 3-hashtag requirement); we also recover
-// scenarios authored at the wrong depth, warning loudly.
 func parseScenarios(file string, reqNode *Node, warns []ir.Warning) ([]ir.Scenario, []ir.Warning) {
 	var scenarios []ir.Scenario
 	for _, child := range reqNode.Children {
@@ -198,8 +180,6 @@ func parseScenarios(file string, reqNode *Node, warns []ir.Warning) ([]ir.Scenar
 	return scenarios, warns
 }
 
-// scenarioFromNode builds an ir.Scenario from a heading node, extracting its
-// WHEN/THEN bullet steps.
 func scenarioFromNode(child *Node, name string) ir.Scenario {
 	sc := ir.Scenario{Section: ir.Section{Raw: child.Raw}, Name: strings.TrimSpace(name)}
 	for _, it := range extractListItems(child.Body) {
@@ -210,8 +190,6 @@ func scenarioFromNode(child *Node, name string) ir.Scenario {
 	return sc
 }
 
-// ParseDesign maps design.md into ir.Design. Section titles tolerate the common
-// "Goals / Non-Goals" and "Risks / Trade-offs" combined headings.
 func ParseDesign(file, src string) (*ir.Design, []ir.Warning) {
 	_, roots := SplitSections(src)
 	d := &ir.Design{Section: ir.Section{Raw: src}}
@@ -240,8 +218,6 @@ func ParseDesign(file, src string) (*ir.Design, []ir.Warning) {
 	return d, nil
 }
 
-// ParseTasks maps tasks.md into ir.Tasks, classifying each item's kind and
-// preserving phase grouping.
 func ParseTasks(file, src string) (*ir.Tasks, []ir.Warning) {
 	var warns []ir.Warning
 	_, roots := SplitSections(src)
@@ -255,9 +231,6 @@ func ParseTasks(file, src string) (*ir.Tasks, []ir.Warning) {
 		}
 		for _, it := range extractListItems(phaseNode.Body) {
 			if !it.hasBox {
-				// Retain the bullet verbatim. A spec framework may state a fact
-				// about the phase here (its shape, a loop bound); the extract
-				// pass decides, not the parser.
 				if t := strings.TrimSpace(it.text); t != "" {
 					phase.Notes = append(phase.Notes, t)
 				}
@@ -286,8 +259,6 @@ func ParseTasks(file, src string) (*ir.Tasks, []ir.Warning) {
 	return t, warns
 }
 
-// classifyTask tags a task by its leading keyword per the verify/apply/confirm
-// discipline.
 func classifyTask(text string) ir.TaskKind {
 	lower := strings.ToLower(text)
 	switch {
@@ -301,7 +272,6 @@ func classifyTask(text string) ir.TaskKind {
 	return ir.KindPlain
 }
 
-// itoa is a tiny helper to avoid importing strconv just for warning messages.
 func itoa(n int) string {
 	if n == 0 {
 		return "0"

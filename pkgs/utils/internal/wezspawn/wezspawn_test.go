@@ -9,8 +9,6 @@ import (
 	"time"
 )
 
-// mux installs a stub wezterm on PATH that answers the two probes from files and records
-// the spawn it is asked for.
 type mux struct {
 	dir string
 }
@@ -26,7 +24,6 @@ func stub(t *testing.T, clients, panes string) *mux {
 	write("clients.json", clients)
 	write("panes.json", panes)
 
-	// Absolute paths, because one test empties PATH to prove the named binary is driven.
 	script := fmt.Sprintf(`#!/bin/sh
 case "$2" in
   list-clients) /bin/cat %[1]s/clients.json ;;
@@ -42,7 +39,6 @@ esac
 	return &mux{dir: dir}
 }
 
-// spawned returns the spawn call the stub recorded.
 func (m *mux) spawned(t *testing.T) string {
 	t.Helper()
 	data, err := os.ReadFile(filepath.Join(m.dir, "spawn.txt"))
@@ -73,8 +69,6 @@ func TestTheWindowJoinsTheFocusedWorkspaceAndDirectory(t *testing.T) {
 	}
 }
 
-// A pane on a remote domain names a path this host does not have, and a spawn carrying it
-// would fail rather than open a window.
 func TestADirectoryThatIsNotHereIsLeftOff(t *testing.T) {
 	m := stub(t, clientsFor("laurel", 4), panesFor(4, "/not/a/directory/here"))
 	if code := Run(nil); code != 0 {
@@ -89,8 +83,6 @@ func TestADirectoryThatIsNotHereIsLeftOff(t *testing.T) {
 	}
 }
 
-// A file whose pane is not in the list leaves the directory unknown, and the window still
-// opens in the right workspace.
 func TestAnUnlistedFocusedPaneStillPicksTheWorkspace(t *testing.T) {
 	m := stub(t, clientsFor("default", 99), panesFor(23, t.TempDir()))
 	if code := Run(nil); code != 0 {
@@ -105,7 +97,6 @@ func TestAnUnlistedFocusedPaneStillPicksTheWorkspace(t *testing.T) {
 	}
 }
 
-// No client at all still has to produce a terminal, because this is bound to a key.
 func TestNoClientStillSpawnsAWindow(t *testing.T) {
 	m := stub(t, "[]", "[]")
 	if code := Run(nil); code != 0 {
@@ -140,8 +131,6 @@ func TestHelpIsNotASpawn(t *testing.T) {
 	}
 }
 
-// A window manager passes its own store path, because it has no wezterm on PATH and no
-// shell to prepend one.
 func TestANamedBinaryIsDrivenInsteadOfThePathOne(t *testing.T) {
 	m := stub(t, clientsFor("laurel", 3), "[]")
 	named := filepath.Join(m.dir, "wezterm")
@@ -158,7 +147,6 @@ func TestANamedBinaryIsDrivenInsteadOfThePathOne(t *testing.T) {
 	}
 }
 
-// The bound is real, and it is proved against a process that never answers.
 func TestAMuxCallIsBounded(t *testing.T) {
 	dir := t.TempDir()
 	if err := os.WriteFile(filepath.Join(dir, "wezterm"), []byte("#!/bin/sh\nsleep 30\n"), 0o700); err != nil {

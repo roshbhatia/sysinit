@@ -1,6 +1,3 @@
-// utils is one binary hosting the commands that used to be shell scripts. Each command
-// is also installed under a name of its own, and the binary dispatches on `argv[0]` when
-// it is called through one.
 package main
 
 import (
@@ -25,14 +22,12 @@ import (
 	"github.com/roshbhatia/sysinit/pkgs/utils/internal/workspace"
 )
 
-// command is one subcommand.
 type command struct {
 	name    string
 	summary string
 	run     func(args []string) int
 }
 
-// Registered subcommands.
 var commands = map[string]command{
 	"agent-state":     {name: "agent-state", summary: agentstate.Summary, run: agentstate.Run},
 	"bash-guard":      {name: "bash-guard", summary: guard.BashSummary, run: guard.RunBash},
@@ -52,15 +47,11 @@ var commands = map[string]command{
 	"workspace":       {name: "workspace", summary: workspace.Summary, run: workspace.Run},
 }
 
-// link is one installed name: the command it runs, and the arguments the name already
-// implies. A hook calls the name, so the harness never spells a subcommand.
 type link struct {
 	command string
 	args    []string
 }
 
-// Mirrored in `overlays/utils.nix`, which creates one wrapper per name. Add to both, or
-// the name exists and nothing installs it.
 var links = map[string]link{
 	"agent-edit-event": {command: "edit-event"},
 	"agent-note-open":  {command: "note", args: []string{"list", "--open", "--hook"}},
@@ -109,8 +100,6 @@ func usage(w *os.File) {
 }
 
 func main() {
-	// `argv[0]` first: a name installed for one command carries no subcommand word, so
-	// the first argument is already that command's own.
 	if l, ok := links[filepath.Base(os.Args[0])]; ok {
 		args := make([]string, 0, len(l.args)+len(os.Args)-1)
 		args = append(args, l.args...)

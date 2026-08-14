@@ -12,14 +12,10 @@ import (
 	"time"
 )
 
-// Claude drives Claude Code in print mode. It asks for `stream-json`, because a spinner that
-// cannot say what the model is doing is a spinner that only says the program has not died.
 type Claude struct{}
 
-// Name is what a caller writes to pick it.
 func (Claude) Name() string { return "claude" }
 
-// One line of `--output-format stream-json`, to the depth this reads it.
 type line struct {
 	Type    string `json:"type"`
 	Subtype string `json:"subtype"`
@@ -43,13 +39,12 @@ type line struct {
 	NumTurns         int            `json:"num_turns"`
 }
 
-// The first line of a tool's arguments, which is all a one-line event has room for.
 func summarize(args json.RawMessage) string {
 	var fields map[string]any
 	if json.Unmarshal(args, &fields) != nil {
 		return ""
 	}
-	// The keys worth showing, in the order a reader would want them.
+
 	for _, key := range []string{"command", "file_path", "pattern", "path", "url", "prompt", "description"} {
 		if value, ok := fields[key].(string); ok && value != "" {
 			value = strings.TrimSpace(strings.SplitN(value, "\n", 2)[0])
@@ -62,9 +57,6 @@ func summarize(args json.RawMessage) string {
 	return ""
 }
 
-// scanClaude turns one stream-json stream into events and reports the result line it carried,
-// or nil when it carried none. It takes a reader rather than the command, so the shape of the
-// stream can be exercised without a model behind it.
 func scanClaude(from io.Reader, wanted map[string]any, events chan<- Event) *Result {
 	var result *Result
 
@@ -106,10 +98,7 @@ func scanClaude(from io.Reader, wanted map[string]any, events chan<- Event) *Res
 				Turns:      event.NumTurns,
 				Session:    event.SessionID,
 			}
-			// A shape was asked for and the harness reported none, so the answer's own text is
-			// the last place it can be: a model can write the object into prose. Prose with no
-			// object in it is a failed run, as it is for codex, rather than an answer the caller
-			// has to notice is the wrong kind.
+
 			if wanted != nil && !result.Failed && result.Structured == nil {
 				if result.Structured = structured(result.Text); result.Structured == nil {
 					result.Failed, result.Reason = true, offShape
@@ -121,7 +110,6 @@ func scanClaude(from io.Reader, wanted map[string]any, events chan<- Event) *Res
 	return result
 }
 
-// Run starts one print-mode session and turns its stream into events.
 func (c Claude) Run(ctx context.Context, req Request) (<-chan Event, error) {
 	binary, err := exec.LookPath("claude")
 	if err != nil {
@@ -132,8 +120,7 @@ func (c Claude) Run(ctx context.Context, req Request) (<-chan Event, error) {
 		"--print",
 		"--output-format", "stream-json",
 		"--verbose",
-		// Every run, without asking: this is a pipe, and a permission prompt on a pipe is a
-		// hang that no one is watching.
+
 		"--dangerously-skip-permissions",
 	}
 	if req.Model != "" {
@@ -146,8 +133,7 @@ func (c Claude) Run(ctx context.Context, req Request) (<-chan Event, error) {
 		}
 		args = append(args, "--json-schema", string(encoded))
 	}
-	// After a separator, or a prompt that opens with a dash is read by claude as a flag of
-	// its own and the run dies before the model ever sees it.
+
 	args = append(args, "--", req.Prompt)
 
 	cmd := exec.CommandContext(ctx, binary, args...)
@@ -176,8 +162,7 @@ func (c Claude) Run(ctx context.Context, req Request) (<-chan Event, error) {
 		if answered != nil {
 			return
 		}
-		// No result line: the run died, and what it wrote to stderr is the only account of
-		// why, so it is reported rather than swallowed.
+
 		reason := strings.TrimSpace(problems.String())
 		if reason == "" && err != nil {
 			reason = err.Error()

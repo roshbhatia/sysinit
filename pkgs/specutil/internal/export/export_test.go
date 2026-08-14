@@ -133,11 +133,11 @@ func TestCriteriaTranslateGherkinSteps(t *testing.T) {
 	if !reflect.DeepEqual(cr.When, []string{"the caller posts it"}) {
 		t.Errorf("When = %v", cr.When)
 	}
-	// The continuation keyword joins the bucket the previous step opened.
+
 	if !reflect.DeepEqual(cr.Then, []string{"a token is returned", "the expiry is set"}) {
 		t.Errorf("Then = %v", cr.Then)
 	}
-	// A keywordless step is retained rather than dropped.
+
 	if !reflect.DeepEqual(cr.Steps, []string{"the response is logged"}) {
 		t.Errorf("Steps = %v", cr.Steps)
 	}

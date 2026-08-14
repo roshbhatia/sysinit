@@ -23,7 +23,6 @@ func TestRenderInlinesFeeds(t *testing.T) {
 	}
 	html := string(out)
 
-	// Both feeds are inlined as JS literals; no data file is ever fetched.
 	for _, want := range []string{
 		"<!doctype html>",
 		"const GRAPH =",
@@ -36,8 +35,6 @@ func TestRenderInlinesFeeds(t *testing.T) {
 		}
 	}
 
-	// The presentation layer loads from a pinned CDN — the page must reference it,
-	// not inline a vendored bundle. (Pinning/SRI/onerror is asserted in the guard.)
 	if !strings.Contains(html, "cdn.jsdelivr.net") {
 		t.Error("page should reference the pinned CDN for its presentation layer")
 	}
@@ -50,8 +47,6 @@ func TestRenderNilArgs(t *testing.T) {
 }
 
 func TestRenderInlinesDiagnostics(t *testing.T) {
-	// Manifest diagnostics must reach the page as an inlined literal so the
-	// health banner can surface a broken manifest instead of discarding it.
 	g := &graph.Graph{Nodes: []graph.Node{{ID: "a"}, {ID: "b"}}}
 	diags := []graph.Diagnostic{{Kind: "cycle", Msg: "dependency cycle: a -> b -> a"}}
 	out, err := Render(g, &detail.Feed{}, diags, nil)
@@ -93,8 +88,6 @@ func TestRenderSuggestedEdgeSnippetMatchesManifest(t *testing.T) {
 }
 
 func TestRenderEscapesScriptBreakout(t *testing.T) {
-	// A label that tries to close the script block must be escaped so it can't
-	// break out of the inlined <script> data island. json.Marshal escapes < > &.
 	g := &graph.Graph{Nodes: []graph.Node{{ID: "x", Label: "</script><b>"}}}
 	d := &detail.Feed{Changes: []detail.Change{{Name: "</script><b>", Lifecycle: "proposed"}}}
 	out, err := Render(g, d, nil, nil)
@@ -107,8 +100,6 @@ func TestRenderEscapesScriptBreakout(t *testing.T) {
 }
 
 func TestRenderInlinesTicketRefs(t *testing.T) {
-	// detail.Item.InlineRefs must reach the page as part of the inlined detail
-	// JSON so the template can render "INF-42" chips next to task keys.
 	d := &detail.Feed{Changes: []detail.Change{
 		{Name: "db", Lifecycle: "active", Phases: []detail.Phase{
 			{Number: "1", Name: "Setup", Items: []detail.Item{

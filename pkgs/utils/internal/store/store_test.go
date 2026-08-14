@@ -27,7 +27,6 @@ func newStore(t *testing.T) *Store {
 	}
 }
 
-// A zero-byte file is what an interrupted first write leaves behind.
 func TestReadTreatsZeroByteAsAbsent(t *testing.T) {
 	s := newStore(t)
 	if err := os.MkdirAll(filepath.Dir(s.Path), 0o755); err != nil {
@@ -45,7 +44,6 @@ func TestReadTreatsZeroByteAsAbsent(t *testing.T) {
 	}
 }
 
-// A non-empty store that does not parse holds the owner's data.
 func TestReadRefusesMalformed(t *testing.T) {
 	s := newStore(t)
 	if err := os.MkdirAll(filepath.Dir(s.Path), 0o755); err != nil {
@@ -69,7 +67,6 @@ func TestPublishRefusesMalformed(t *testing.T) {
 	}
 }
 
-// A symlinked store is the owner's layout choice.
 func TestPublishRefusesSymlink(t *testing.T) {
 	s := newStore(t)
 	dir := filepath.Dir(s.Path)
@@ -95,7 +92,6 @@ func TestPublishRefusesSymlink(t *testing.T) {
 	}
 }
 
-// Read-modify-write with no lock was last-write-wins, and the losing run still
 func TestLockSerializesWriters(t *testing.T) {
 	s := newStore(t)
 	const writers = 8
@@ -146,7 +142,6 @@ func TestLockSerializesWriters(t *testing.T) {
 	}
 }
 
-// Releasing twice must not remove a lock another holder has since taken.
 func TestReleaseIsIdempotent(t *testing.T) {
 	s := newStore(t)
 	release, err := s.Lock()
@@ -165,7 +160,6 @@ func TestReleaseIsIdempotent(t *testing.T) {
 	other()
 }
 
-// Only the control byte is removed, which is what defangs an escape sequence:
 func TestCleanKeepsNewlinesAndDropsControls(t *testing.T) {
 	got := Clean("a\x07b\nc\x1b[31md")
 	want := "ab\nc[31md"
@@ -174,7 +168,6 @@ func TestCleanKeepsNewlinesAndDropsControls(t *testing.T) {
 	}
 }
 
-// Non-ASCII must survive.
 func TestCleanKeepsUnicode(t *testing.T) {
 	got := Clean("héllo → wörld\x07")
 	want := "héllo → wörld"
@@ -191,7 +184,6 @@ func TestOneLineFoldsNewlines(t *testing.T) {
 	}
 }
 
-// grep matches within a line, so a newline is a separator it can never match.
 func TestHasControlBytesDetectsNewline(t *testing.T) {
 	if !HasControlBytes("a\nb") {
 		t.Fatal("newline not reported as a control byte")

@@ -12,29 +12,17 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-// ManifestFile is the repo-relative path of the cross-change dependency
-// manifest. It is deliberately separate from OpenSpec's .openspec.yaml so the
-// dependency model stays framework-agnostic.
 const ManifestFile = "openspec/specutil.yaml"
 
-// Manifest is the hand-editable, repo-level dependency DAG. It accepts two equivalent
-// spellings of the same edge set, because both appear in the wild:
 type Manifest struct {
 	Changes map[string]ManifestEntry `yaml:"changes"`
 	Edges   []Edge                   `yaml:"edges"`
-	// Extract declares the schema-specific markers and inline fields to lift
-	// out of parsed artifacts. Absent means "detect from the spec framework's
-	// own config, and extract nothing if that is unrecognized".
+
 	Extract extract.Config `yaml:"extract"`
-	// Check declares the rubric `specutil check` enforces. Absent follows the
-	// same detection rule as Extract.
+
 	Check check.Config `yaml:"check"`
 }
 
-// CheckConfig returns the effective rubric for a repository, following the same
-// precedence as ExtractConfig: an explicit `check:` block wins, otherwise the spec
-// framework's declared schema selects a matching built-in preset, and an unrecognized
-// name enforces nothing.
 func (m *Manifest) CheckConfig(repoRoot string) (check.Config, error) {
 	if m != nil && !m.Check.IsZero() {
 		return m.Check, nil
@@ -46,11 +34,8 @@ func (m *Manifest) CheckConfig(repoRoot string) (check.Config, error) {
 	return check.Config{Preset: name}, nil
 }
 
-// schemaConfigFile is the spec framework's own config, read only to detect
-// which extraction preset applies when specutil.yaml does not say.
 const schemaConfigFile = "openspec/config.yaml"
 
-// ExtractConfig returns the effective extraction declaration for a repository.
 func (m *Manifest) ExtractConfig(repoRoot string) (extract.Config, error) {
 	if m != nil && !m.Extract.IsZero() {
 		return extract.Resolve(m.Extract)
@@ -62,9 +47,6 @@ func (m *Manifest) ExtractConfig(repoRoot string) (extract.Config, error) {
 	return extract.Resolve(extract.Config{Preset: name})
 }
 
-// detectSchemaName reads the `schema:` key from the spec framework's config.
-// An absent or unreadable file yields an empty name, never an error: detection
-// is a convenience, and a repository without one simply extracts nothing.
 func detectSchemaName(repoRoot string) string {
 	b, err := os.ReadFile(filepath.Join(repoRoot, schemaConfigFile))
 	if err != nil {
@@ -79,14 +61,10 @@ func detectSchemaName(repoRoot string) string {
 	return strings.TrimSpace(cfg.Schema)
 }
 
-// ManifestEntry is one change's manifest record.
 type ManifestEntry struct {
 	DependsOn []string `yaml:"depends_on"`
 }
 
-// LoadManifest reads <repoRoot>/openspec/specutil.yaml. An absent file is not an
-// error — it yields an empty manifest so a repo with no declared dependencies
-// still produces a valid (edgeless) graph.
 func LoadManifest(repoRoot string) (*Manifest, error) {
 	path := filepath.Join(repoRoot, ManifestFile)
 	b, err := os.ReadFile(path)
@@ -103,8 +81,6 @@ func LoadManifest(repoRoot string) (*Manifest, error) {
 	return &m, nil
 }
 
-// edges flattens both manifest spellings into a deterministic, deduplicated
-// directed edge list (prerequisite -> dependent).
 func (m *Manifest) edges() []Edge {
 	if m == nil {
 		return nil

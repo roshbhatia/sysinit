@@ -20,7 +20,6 @@ func changes(names ...string) []*ir.Change {
 }
 
 func TestManifestEdgeBuildsDAG(t *testing.T) {
-	// B depends on A => edge A -> B.
 	m := &Manifest{Changes: map[string]ManifestEntry{"B": {DependsOn: []string{"A"}}}}
 	g, diags := Build(changes("A", "B"), m)
 	if len(diags) != 0 {
@@ -32,7 +31,6 @@ func TestManifestEdgeBuildsDAG(t *testing.T) {
 }
 
 func TestManifestEdgesListBuildsDAG(t *testing.T) {
-	// The explicit `edges:` spelling must produce the same DAG as depends_on.
 	m := &Manifest{Edges: []Edge{{From: "A", To: "B"}}}
 	g, diags := Build(changes("A", "B"), m)
 	if len(diags) != 0 {
@@ -44,7 +42,6 @@ func TestManifestEdgesListBuildsDAG(t *testing.T) {
 }
 
 func TestManifestSpellingsDeduplicate(t *testing.T) {
-	// The same edge declared both ways must appear once.
 	m := &Manifest{
 		Changes: map[string]ManifestEntry{"B": {DependsOn: []string{"A"}}},
 		Edges:   []Edge{{From: "A", To: "B"}},
@@ -121,15 +118,13 @@ func TestJSONStable(t *testing.T) {
 	if !bytes.Equal(a, b) {
 		t.Error("json projection is not byte-stable")
 	}
-	// Nodes must be sorted regardless of input order.
+
 	if !strings.Contains(string(a), `"id": "A"`) || strings.Index(string(a), `"A"`) > strings.Index(string(a), `"B"`) {
 		t.Errorf("nodes not sorted: %s", a)
 	}
 }
 
 func TestJSONFeedStaysPureDependencyContract(t *testing.T) {
-	// The graph feed must carry only the dependency DAG — nodes (id/label) and edges
-	// (from/to) — and MUST NOT leak task-level detail.
 	m := &Manifest{Changes: map[string]ManifestEntry{"B": {DependsOn: []string{"A"}}}}
 	g, _ := Build(changes("B", "A"), m)
 	out, err := g.Project("json")
@@ -171,7 +166,7 @@ func TestMermaidAndDot(t *testing.T) {
 	if !strings.HasPrefix(string(mer), "graph TD") {
 		t.Errorf("mermaid should start with graph TD: %q", mer)
 	}
-	// Hyphenated change names must be sanitized into valid Mermaid IDs.
+
 	if !strings.Contains(string(mer), "add_db --> add_auth") {
 		t.Errorf("mermaid missing sanitized edge: %q", mer)
 	}

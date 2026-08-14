@@ -22,8 +22,6 @@ func TestOpenSpecRepoResolves(t *testing.T) {
 }
 
 func TestRepoWithoutOpenSpecIsAnError(t *testing.T) {
-	// A bare directory is the common mistake: running specutil from the wrong
-	// place. Naming the missing directory beats a nil provider panicking later.
 	_, err := registry.SelectProvider(t.TempDir())
 	if err == nil {
 		t.Error("expected an error when openspec/changes is absent")
@@ -31,8 +29,6 @@ func TestRepoWithoutOpenSpecIsAnError(t *testing.T) {
 }
 
 func TestExtractionDecoratesTheProvider(t *testing.T) {
-	// A repo declaring a schema gets the extracting decorator, which is what
-	// applies the marker grammar. Without it the phase shapes never parse.
 	dir := t.TempDir()
 	os.MkdirAll(filepath.Join(dir, "openspec", "changes"), 0o755)
 	if err := os.WriteFile(filepath.Join(dir, "openspec", "config.yaml"),

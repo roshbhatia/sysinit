@@ -95,7 +95,7 @@ func TestApplyLiftsPhaseMarkers(t *testing.T) {
 	if !reflect.DeepEqual(p.Markers, want) {
 		t.Errorf("markers = %v, want %v", p.Markers, want)
 	}
-	// A bullet nobody declared belongs to the prose and must survive.
+
 	if !reflect.DeepEqual(p.Notes, []string{"a plain note that is not a marker"}) {
 		t.Errorf("undeclared notes should be retained, got %v", p.Notes)
 	}
@@ -126,7 +126,7 @@ func TestApplyLiftsScenarioPolarity(t *testing.T) {
 	if sc.Markers["polarity"] != "negative" {
 		t.Errorf("polarity = %q, want negative", sc.Markers["polarity"])
 	}
-	// The marker must not remain as a step, or it reaches a tracker as prose.
+
 	want := []string{"**WHEN** the input is malformed", "**THEN** it is rejected"}
 	if !reflect.DeepEqual(sc.Steps, want) {
 		t.Errorf("steps = %v, want %v", sc.Steps, want)

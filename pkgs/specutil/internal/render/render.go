@@ -17,22 +17,14 @@ import (
 //go:embed templates/*.tmpl
 var embeddedTemplates embed.FS
 
-// placeholder marks a mapped target section whose IR source was absent. The
-// section is still emitted (so the canonical skeleton stays intact) but flagged.
 const placeholder = "_None provided._"
 
-// Options controls a render invocation.
 type Options struct {
-	// OverrideDir, if non-empty, is searched for `<target>.md.tmpl` before the
-	// embedded default. A missing file there falls back to embedded with a warning.
 	OverrideDir string
-	// Title overrides the document title; defaults to the change name.
+
 	Title string
 }
 
-// templateData is the value passed to the Go template. Change is the raw IR for
-// templates that need source fidelity; Export is the same change projected into
-// tracker vocabulary, with no phase numbers or task identifiers.
 type templateData struct {
 	Title   string
 	Change  *ir.Change
@@ -41,9 +33,6 @@ type templateData struct {
 	Ticket  export.Ticket
 }
 
-// Render projects change into the named target, returning the rendered bytes and
-// any warnings (e.g. absent source sections, override fallback). An unknown
-// target is an error naming the supported set.
 func Render(change *ir.Change, target string, opts Options) ([]byte, []ir.Warning, error) {
 	mapping, ok := mappings[target]
 	if !ok {
@@ -96,17 +85,12 @@ func Render(change *ir.Change, target string, opts Options) ([]byte, []ir.Warnin
 	return buf.Bytes(), warns, nil
 }
 
-// templateFuncs merges Sprig with the helpers the shipped templates use. A
-// local helper takes precedence on any name conflict.
 func templateFuncs() template.FuncMap {
 	funcs := sprig.FuncMap()
 	funcs["section"] = func(m map[string]string, key string) string { return m[key] }
 	return funcs
 }
 
-// loadTemplate returns the template text for target, preferring an override file
-// and falling back to the embedded default with a warning if the override dir is
-// set but lacks the file.
 func loadTemplate(target, overrideDir string) (string, *ir.Warning, error) {
 	name := target + ".md.tmpl"
 	if overrideDir != "" {

@@ -1,6 +1,3 @@
-// Package graph builds the cross-change dependency DAG from the repo-level
-// specutil.yaml manifest and the loaded changes, and projects it to the renderer-
-// independent json feed plus mermaid and dot.
 package graph
 
 import (
@@ -10,34 +7,26 @@ import (
 	"github.com/roshbhatia/specutil/internal/ir"
 )
 
-// Node is one change in the dependency DAG.
 type Node struct {
 	ID    string `json:"id"`
 	Label string `json:"label"`
 }
 
-// Edge is a directed dependency edge: From is the prerequisite, To the
-// dependent (i.e. To depends on From). It doubles as the manifest's `edges:`
-// entry shape, hence the yaml tags.
 type Edge struct {
 	From string `json:"from" yaml:"from"`
 	To   string `json:"to"   yaml:"to"`
 }
 
-// Graph is the canonical, sorted dependency DAG and the feed for visualizers.
 type Graph struct {
 	Nodes []Node `json:"nodes"`
 	Edges []Edge `json:"edges"`
 }
 
-// Diagnostic reports a manifest problem (dangling reference, cycle) without
-// aborting graph construction — the caller decides how loudly to surface it.
 type Diagnostic struct {
-	Kind string `json:"kind"` // "dangling" | "cycle"
+	Kind string `json:"kind"`
 	Msg  string `json:"msg"`
 }
 
-// Build assembles the DAG from the known changes and the manifest.
 func Build(changes []*ir.Change, m *Manifest) (*Graph, []Diagnostic) {
 	known := make(map[string]bool, len(changes))
 	for _, c := range changes {
@@ -92,8 +81,6 @@ func Build(changes []*ir.Change, m *Manifest) (*Graph, []Diagnostic) {
 	return g, diags
 }
 
-// cycles returns each detected cycle as an ordered list of node IDs. It walks
-// the graph with a deterministic DFS so the reported cycles are stable.
 func (g *Graph) cycles() [][]string {
 	adj := make(map[string][]string)
 	for _, e := range g.Edges {
@@ -101,9 +88,9 @@ func (g *Graph) cycles() [][]string {
 	}
 
 	const (
-		white = 0 // unvisited
-		gray  = 1 // on the current stack
-		black = 2 // fully explored
+		white = 0
+		gray  = 1
+		black = 2
 	)
 	color := make(map[string]int)
 	var stack []string
@@ -118,7 +105,6 @@ func (g *Graph) cycles() [][]string {
 			case white:
 				visit(to)
 			case gray:
-				// Back-edge: extract the cycle from the stack.
 				for i := len(stack) - 1; i >= 0; i-- {
 					if stack[i] == to {
 						cyc := append([]string(nil), stack[i:]...)

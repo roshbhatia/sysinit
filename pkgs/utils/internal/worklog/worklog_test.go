@@ -10,10 +10,8 @@ import (
 	"time"
 )
 
-// stamp is the one clock every test builds against, so a record is comparable.
 var stamp = time.Date(2026, 8, 13, 19, 4, 0, 0, time.UTC)
 
-// isolate points the paths manifest and the log at a temporary directory.
 func isolate(t *testing.T) string {
 	t.Helper()
 	dir := t.TempDir()
@@ -25,7 +23,6 @@ func isolate(t *testing.T) string {
 	return log
 }
 
-// repoIn builds a worktree with an origin, a base branch, and one commit ahead.
 func repoIn(t *testing.T, dir string) string {
 	t.Helper()
 	upstream := filepath.Join(dir, "upstream.git")
@@ -40,7 +37,6 @@ func repoIn(t *testing.T, dir string) string {
 	runGit(t, work, "push", "--quiet", "origin", "main")
 	runGit(t, work, "remote", "set-head", "origin", "main")
 
-	// One commit ahead of origin/main, plus one dirty file.
 	write(t, filepath.Join(work, "added.txt"), "two\nthree\n")
 	runGit(t, work, "add", "-A")
 	runGit(t, work, "commit", "--quiet", "-m", "add a file")
@@ -70,7 +66,6 @@ func write(t *testing.T, path, body string) {
 	}
 }
 
-// transcriptIn writes a transcript holding two user turns and one model name.
 func transcriptIn(t *testing.T, session string) string {
 	t.Helper()
 	dir := filepath.Join(os.Getenv("HOME"), ".claude", "projects", "probe")
@@ -112,7 +107,7 @@ func TestARepoSessionRecordsTheBranchesWorkAndTheIntent(t *testing.T) {
 	if len(repo.Files) != 1 || repo.Files[0].Status != "A" || !strings.HasSuffix(repo.Files[0].Path, "added.txt") {
 		t.Errorf("files = %+v", repo.Files)
 	}
-	// The working tree is dirty, and that is a separate fact from the branch's work.
+
 	if repo.Dirty == "" {
 		t.Error("a dirty worktree reported no shortstat")
 	}
@@ -120,7 +115,7 @@ func TestARepoSessionRecordsTheBranchesWorkAndTheIntent(t *testing.T) {
 	if record.UserTurns != 2 {
 		t.Errorf("user_turns = %d, want 2", record.UserTurns)
 	}
-	// Runs of whitespace collapse, so a pasted prompt reads as one line.
+
 	if record.FirstPrompt != "first prompt with breaks" {
 		t.Errorf("first_prompt = %q", record.FirstPrompt)
 	}
@@ -135,7 +130,6 @@ func TestARepoSessionRecordsTheBranchesWorkAndTheIntent(t *testing.T) {
 	}
 }
 
-// A seshy session spans several worktrees, so every one of them is reported.
 func TestASeshySessionRecordsEveryWorktreeUnderIt(t *testing.T) {
 	isolate(t)
 	dir := t.TempDir()
@@ -150,7 +144,7 @@ func TestASeshySessionRecordsEveryWorktreeUnderIt(t *testing.T) {
 			t.Fatal(err)
 		}
 	}
-	// A plain directory alongside them is not a repository and is skipped.
+
 	write(t, filepath.Join(sessions, "notes", "todo.md"), "x\n")
 
 	record, ok := build(event{SessionID: "s2", CWD: filepath.Join(sessions, "alpha")}, stamp)
@@ -163,7 +157,7 @@ func TestASeshySessionRecordsEveryWorktreeUnderIt(t *testing.T) {
 	if len(record.Repos) != 2 {
 		t.Fatalf("repos = %d, want 2", len(record.Repos))
 	}
-	// Sorted, so two runs of the same session produce comparable records.
+
 	if record.Repos[0].Name != "alpha" || record.Repos[1].Name != "zeta" {
 		t.Errorf("order = %s, %s", record.Repos[0].Name, record.Repos[1].Name)
 	}
@@ -186,8 +180,6 @@ func TestNothingWorthALineIsNotRecorded(t *testing.T) {
 	}
 }
 
-// A directory that is not a repository still earns a line when the session had a
-// prompt, because the intent is the record's point.
 func TestADirectorySessionWithAPromptIsRecorded(t *testing.T) {
 	isolate(t)
 	transcriptIn(t, "s5")
@@ -213,8 +205,6 @@ func TestARemoteBecomesABrowsableURL(t *testing.T) {
 	}
 }
 
-// A prompt is cut to 200 characters, not 200 bytes, so a multi-byte character is
-// never cut through the middle.
 func TestAPromptIsCutByCharacter(t *testing.T) {
 	if got := truncate(strings.Repeat("é", 300), promptChars); len([]rune(got)) != promptChars {
 		t.Errorf("cut to %d runes, want %d", len([]rune(got)), promptChars)
@@ -224,8 +214,6 @@ func TestAPromptIsCutByCharacter(t *testing.T) {
 	}
 }
 
-// The written line is the record, and every field the reader expects is present
-// with the absent ones as null rather than missing.
 func TestTheWrittenLineCarriesEveryFieldTheReaderExpects(t *testing.T) {
 	log := isolate(t)
 	transcriptIn(t, "s6")
@@ -236,7 +224,7 @@ func TestTheWrittenLineCarriesEveryFieldTheReaderExpects(t *testing.T) {
 	if err := appendLine(log, record); err != nil {
 		t.Fatal(err)
 	}
-	// Twice, because the log is append-only across sessions.
+
 	if err := appendLine(log, record); err != nil {
 		t.Fatal(err)
 	}
@@ -281,7 +269,6 @@ func TestHelpWritesNoRecord(t *testing.T) {
 	}
 }
 
-// A SessionEnd hook must never fail the session, whatever it is handed.
 func TestUnreadableInputStillExitsZero(t *testing.T) {
 	isolate(t)
 	if code := Run(nil); code != 0 {

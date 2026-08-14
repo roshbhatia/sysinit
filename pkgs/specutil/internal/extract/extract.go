@@ -1,4 +1,3 @@
-// Package extract pulls schema-specific structure out of already-parsed IR.
 package extract
 
 import (
@@ -10,7 +9,6 @@ import (
 	"github.com/roshbhatia/specutil/internal/ir"
 )
 
-// Scope names the IR block a marker or field attaches to.
 type Scope string
 
 const (
@@ -20,74 +18,53 @@ const (
 	ScopeRequirement Scope = "requirement"
 )
 
-// Scopes lists every recognized scope, sorted, for error messages.
 func Scopes() []string {
 	return []string{string(ScopePhase), string(ScopeRequirement), string(ScopeScenario), string(ScopeTask)}
 }
 
-// FieldType selects how a field's value is interpreted.
 type FieldType string
 
 const (
-	// FieldString keeps the raw remainder of the line as a single value.
 	FieldString FieldType = "string"
-	// FieldList splits the value on commas and whitespace.
+
 	FieldList FieldType = "list"
-	// FieldTaskRefs is FieldList plus meaning: each value names another task in
-	// the same change, and the pair becomes a dependency edge. The literal
-	// "none" declares an explicit absence of dependencies.
+
 	FieldTaskRefs FieldType = "taskRefs"
 )
 
-// FieldTypes lists every recognized field type, sorted, for error messages.
 func FieldTypes() []string {
 	return []string{string(FieldList), string(FieldString), string(FieldTaskRefs)}
 }
 
-// Marker declares a "- **NAME** value" bullet to lift out of a block.
 type Marker struct {
-	// Key is the name the extracted value is stored under.
 	Key string `yaml:"key"`
-	// Scope is the block the bullet attaches to.
+
 	Scope Scope `yaml:"scope"`
-	// Bullet is the bold token to match, without asterisks (e.g. "POLARITY").
+
 	Bullet string `yaml:"bullet"`
 }
 
-// Field declares an inline "`key:` value" to lift out of a task line.
 type Field struct {
-	// Key is the name the extracted value is stored under.
 	Key string `yaml:"key"`
-	// Scope is the block the field attaches to. Only task is supported today.
+
 	Scope Scope `yaml:"scope"`
-	// Label is the inline key to match, without the colon (e.g. "deps").
+
 	Label string `yaml:"label"`
-	// Type selects how the value is interpreted. Empty means string.
+
 	Type FieldType `yaml:"type"`
 }
 
-// Config is the repository's extraction declaration. An empty Config extracts
-// nothing, which is the correct default for a repository using plain markdown.
 type Config struct {
-	// Preset names a built-in declaration to start from. Markers and Fields
-	// declared alongside it are appended, and a later entry with the same key
-	// and scope replaces the preset's.
 	Preset  string   `yaml:"preset"`
 	Markers []Marker `yaml:"markers"`
 	Fields  []Field  `yaml:"fields"`
 }
 
-// IsZero reports whether the config declares nothing.
 func (c Config) IsZero() bool {
 	return c.Preset == "" && len(c.Markers) == 0 && len(c.Fields) == 0
 }
 
-// presets are the built-in declarations, keyed by the spec-framework schema
-// name they describe. They are data, not behavior: nothing else in specutil
-// branches on a schema name.
 var presets = map[string]Config{
-	// spec-driven declares scenario polarity, phase shape with its loop bounds,
-	// and intra-phase task dependencies.
 	"spec-driven": {
 		Markers: []Marker{
 			{Key: "polarity", Scope: ScopeScenario, Bullet: "POLARITY"},
@@ -101,7 +78,6 @@ var presets = map[string]Config{
 	},
 }
 
-// Presets returns the built-in preset names, sorted.
 func Presets() []string {
 	out := make([]string, 0, len(presets))
 	for name := range presets {
@@ -111,13 +87,11 @@ func Presets() []string {
 	return out
 }
 
-// HasPreset reports whether name is a built-in preset.
 func HasPreset(name string) bool {
 	_, ok := presets[resolvePresetName(name)]
 	return ok
 }
 
-// Resolve expands cfg's preset and validates the result.
 func Resolve(cfg Config) (Config, error) {
 	out := Config{Preset: cfg.Preset}
 	if cfg.Preset != "" {
@@ -200,15 +174,10 @@ func validFieldType(t FieldType) bool {
 	return false
 }
 
-// markerRe matches a declared marker bullet, capturing the bold token and the
-// remainder. Leading "- " is already stripped by the list parser for task and
-// scenario bullets, so it is optional here.
 var markerRe = regexp.MustCompile(`^-?\s*\*\*([A-Za-z][A-Za-z0-9_-]*)\*\*\s*:?\s*(.*)$`)
 
-// valueSplitRe splits a list value on commas, backticks, and whitespace.
 var valueSplitRe = regexp.MustCompile("[,`\\s]+")
 
-// Apply runs the extraction over a change in place.
 func Apply(cfg Config, c *ir.Change) []ir.Warning {
 	if c == nil || cfg.IsZero() {
 		return nil
@@ -219,8 +188,6 @@ func Apply(cfg Config, c *ir.Change) []ir.Warning {
 	return warns
 }
 
-// applyPhases lifts phase markers out of the retained non-checkbox bullets and
-// task fields out of each task's text, then resolves dependency references.
 func applyPhases(cfg Config, c *ir.Change, warns *[]ir.Warning) {
 	if c.Tasks == nil {
 		return
@@ -228,7 +195,6 @@ func applyPhases(cfg Config, c *ir.Change, warns *[]ir.Warning) {
 	phaseMarkers := markersFor(cfg, ScopePhase)
 	taskFields := cfg.Fields
 
-	// Every task id in the change, so a dependency reference can be checked.
 	known := map[string]bool{}
 	for _, p := range c.Tasks.Phases {
 		for _, it := range p.Items {
@@ -277,7 +243,6 @@ func applyPhases(cfg Config, c *ir.Change, warns *[]ir.Warning) {
 	}
 }
 
-// applySpecs lifts requirement and scenario markers out of their bullet lists.
 func applySpecs(cfg Config, c *ir.Change) {
 	reqMarkers := markersFor(cfg, ScopeRequirement)
 	scMarkers := markersFor(cfg, ScopeScenario)
@@ -309,7 +274,6 @@ func applySpecs(cfg Config, c *ir.Change) {
 	}
 }
 
-// markersFor returns the markers declared for one scope.
 func markersFor(cfg Config, scope Scope) []Marker {
 	var out []Marker
 	for _, m := range cfg.Markers {
@@ -320,9 +284,6 @@ func markersFor(cfg Config, scope Scope) []Marker {
 	return out
 }
 
-// liftMarkers pulls every declared marker out of lines, returning the extracted
-// values and the lines that remain. A line that looks like a marker but names an
-// undeclared token is left in place: it belongs to the prose, not to us.
 func liftMarkers(markers []Marker, lines []string) (map[string]string, []string) {
 	byBullet := make(map[string]string, len(markers))
 	for _, m := range markers {
@@ -353,17 +314,12 @@ func liftMarkers(markers []Marker, lines []string) (map[string]string, []string)
 	return found, kept
 }
 
-// liftFields pulls every declared inline field out of a task line, returning the
-// values, the cleaned text, and the flattened task references from any taskRefs-typed
-// field.
 func liftFields(fields []Field, text string) (map[string][]string, string, []string) {
 	var found map[string][]string
 	var refs []string
 	cleaned := text
 
 	for _, f := range fields {
-		// The label is conventionally written as `deps:` in backticks, but a
-		// plain deps: must match too so the convention survives reformatting.
 		re := regexp.MustCompile("`?\\b" + regexp.QuoteMeta(f.Label) + ":`?\\s*")
 		loc := re.FindStringIndex(cleaned)
 		if loc == nil {
@@ -384,11 +340,8 @@ func liftFields(fields []Field, text string) (map[string][]string, string, []str
 	return found, strings.TrimSpace(cleaned), refs
 }
 
-// taskRefRe matches a dotted task identifier (1.2) or the literal none.
 var taskRefRe = regexp.MustCompile(`^(?:\d+(?:\.\d+)+|none)$`)
 
-// fieldValue reads a field's value from the text following its label and reports how
-// many bytes it consumed.
 func fieldValue(f Field, rest string) ([]string, int) {
 	if f.Type == FieldString {
 		return []string{strings.TrimSpace(rest)}, len(rest)
@@ -426,12 +379,10 @@ func fieldValue(f Field, rest string) ([]string, int) {
 	return out, consumed
 }
 
-// aliases map retired schema names onto a live preset key.
 var aliases = map[string]string{
 	"rosh-spec-driven": "spec-driven",
 }
 
-// resolvePresetName returns the live preset key for name.
 func resolvePresetName(name string) string {
 	if _, ok := presets[name]; ok {
 		return name

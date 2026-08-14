@@ -39,7 +39,6 @@ func TestSeshySessionNamesOnlyDirectoriesInsideASession(t *testing.T) {
 	}
 }
 
-// openspecTree builds a repository with an openspec config and named changes.
 func openspecTree(t *testing.T, changes ...string) string {
 	t.Helper()
 	root := t.TempDir()

@@ -1,4 +1,3 @@
-// Package guard implements the two deny-path commands: `bash-guard`, which
 package guard
 
 import (
@@ -19,7 +18,6 @@ const (
 
 const fallbackReason = "blocked by sysinit destructive-command guard"
 
-// Rule is one deny pattern and the sentence shown when it fires.
 type Rule struct {
 	Regex  string `json:"regex"`
 	Reason string `json:"reason"`
@@ -30,7 +28,6 @@ type compiled struct {
 	reason  string
 }
 
-// event is the hook payload.
 type event struct {
 	ToolInput struct {
 		Command      string `json:"command"`
@@ -39,7 +36,6 @@ type event struct {
 	} `json:"tool_input"`
 }
 
-// decision is the PreToolUse answer shape.
 type decision struct {
 	HookSpecificOutput struct {
 		HookEventName            string `json:"hookEventName"`
@@ -48,7 +44,6 @@ type decision struct {
 	} `json:"hookSpecificOutput"`
 }
 
-// loadRules reads the rule file the packaging generated.
 func loadRules(path string) ([]compiled, error) {
 	if path == "" {
 		return nil, fmt.Errorf("no --rules given; refusing to run with no deny rules")
@@ -75,7 +70,6 @@ func loadRules(path string) ([]compiled, error) {
 	return out, nil
 }
 
-// Decide returns the reason the command is refused, if any.
 func Decide(command string, rules []compiled) (string, bool) {
 	for _, rule := range rules {
 		if rule.pattern.MatchString(command) {
@@ -89,7 +83,6 @@ func Decide(command string, rules []compiled) (string, bool) {
 	return "", false
 }
 
-// parseArgs pulls --rules out of the argument list.
 func parseArgs(args []string) (string, error) {
 	rules := ""
 	for i := 0; i < len(args); i++ {
@@ -105,7 +98,6 @@ func parseArgs(args []string) (string, error) {
 	return rules, nil
 }
 
-// readCommand returns the command under review, and whether there is one.
 func readCommand(stdin io.Reader) (string, bool) {
 	data, err := io.ReadAll(stdin)
 	if err != nil {
@@ -121,7 +113,6 @@ func readCommand(stdin io.Reader) (string, bool) {
 	return ev.ToolInput.Command, true
 }
 
-// RunBash answers a PreToolUse hook on stdout.
 func RunBash(args []string) int {
 	rulesPath, err := parseArgs(args)
 	if err != nil {
@@ -154,10 +145,8 @@ func RunBash(args []string) int {
 	return 0
 }
 
-// storePrefix is the one directory an edit must never land in.
 const storePrefix = "/nix/store/"
 
-// readPath returns the file the tool is about to write, and whether there is one.
 func readPath(stdin io.Reader) (string, bool) {
 	data, err := io.ReadAll(stdin)
 	if err != nil {
@@ -177,8 +166,6 @@ func readPath(stdin io.Reader) (string, bool) {
 	return path, true
 }
 
-// resolve follows symlinks, falling back to the parent directory. A new file under a
-// linked directory does not exist yet, and its directory is what decides where it lands.
 func resolve(path string) (string, bool) {
 	if resolved, err := filepath.EvalSymlinks(path); err == nil {
 		return resolved, true
@@ -190,7 +177,6 @@ func resolve(path string) (string, bool) {
 	return resolved, true
 }
 
-// RunNix denies an edit whose path resolves into the store.
 func RunNix(args []string) int {
 	if len(args) > 0 {
 		fmt.Fprintf(os.Stderr, "nix-guard: unknown argument: %s\n", args[0])
@@ -224,7 +210,6 @@ func RunNix(args []string) int {
 	return 0
 }
 
-// RunExitCode carries the same decision to a harness that reads exit codes.
 func RunExitCode(args []string) int {
 	rulesPath, err := parseArgs(args)
 	if err != nil {

@@ -1,4 +1,3 @@
-// Package note implements the `note` command: agent review notes on a
 package note
 
 import (
@@ -51,28 +50,20 @@ is already running does not: it was measured and it picks up nothing on its own,
 record, which is the one route that changes it without going through a write.
 `
 
-// Note is one anchored annotation.
 type Note struct {
-	// ID names one note for as long as it exists. A line number cannot: it is what
-	// moves when the file moves, so removing and answering both go through this.
 	ID        string  `json:"id"`
 	File      string  `json:"file"`
 	Line      int64   `json:"line"`
 	Summary   string  `json:"summary"`
 	Rationale *string `json:"rationale"`
 	Author    string  `json:"author"`
-	// Origin is `agent` or `user`. Recorded rather than inferred from the author,
-	// because a reader draws an agent's note and a person's note differently and an
-	// author name is free text that cannot be told apart reliably.
+
 	Origin string `json:"origin"`
-	// Anchor is the annotated line as it read when the note was written. A later edit
-	// moves the line and nothing renumbers the record, so this is what a reader
-	// re-anchors on.
+
 	Anchor string `json:"anchor,omitempty"`
-	// State is `open` until a note the owner wrote is answered, and empty on a note
-	// nobody is waiting on.
+
 	State string `json:"state,omitempty"`
-	// ReplyTo names the note this one answers.
+
 	ReplyTo string `json:"reply_to,omitempty"`
 }
 
@@ -84,7 +75,6 @@ const (
 	stateAnswered = "answered"
 )
 
-// cleanOrigin folds a written origin to one of the two the record holds.
 func cleanOrigin(value string) (string, error) {
 	switch strings.TrimSpace(value) {
 	case "", originAgent:
@@ -96,14 +86,12 @@ func cleanOrigin(value string) (string, error) {
 	}
 }
 
-// document is the store.
 type document struct {
 	Version int               `json:"version"`
 	Repo    string            `json:"repo"`
 	Notes   []json.RawMessage `json:"notes"`
 }
 
-// existing is the lenient view of a stored note, for the operations that do
 type existing struct {
 	ID      *string      `json:"id"`
 	File    *string      `json:"file"`
@@ -123,7 +111,6 @@ func die(format string, args ...any) error {
 	return &fail{msg: fmt.Sprintf(format, args...)}
 }
 
-// Run dispatches the subcommand and returns the process exit code.
 func Run(args []string) int {
 	if len(args) == 0 {
 		fmt.Print(usageText)
@@ -158,7 +145,6 @@ func Run(args []string) int {
 	return 0
 }
 
-// takeValue reads the value of a flag that requires one.
 func takeValue(args []string, i int, name string) (string, int, error) {
 	if i+1 >= len(args) {
 		return "", 0, die("%s needs a value", name)
@@ -174,7 +160,6 @@ func marshal(doc *document) ([]byte, error) {
 	return append(out, '\n'), nil
 }
 
-// newStore builds the guarded store for root.
 func newStore(path, root string) *store.Store {
 	return &store.Store{
 		Path: path,
@@ -320,8 +305,7 @@ func cmdAdd(args []string) error {
 		Origin:  written,
 		Anchor:  captureAnchor(root, relative, parsed),
 	}
-	// Only the owner's note waits on anything. An agent's note explains a change it
-	// already made, so nobody owes it an answer.
+
 	if written == originUser {
 		note.State = stateOpen
 	}
@@ -364,7 +348,6 @@ func cmdAdd(args []string) error {
 	return nil
 }
 
-// parseLineArg accepts only a bare positive integer.
 func parseLineArg(line string) (int64, error) {
 	if line == "" {
 		return 0, die("add requires --line")
@@ -472,7 +455,6 @@ func cmdApply(args []string, stdin io.Reader) error {
 	return nil
 }
 
-// normalizeBatch accepts both payload shapes and validates every item.
 func normalizeBatch(payload []byte) ([]Note, error) {
 	decoder := json.NewDecoder(strings.NewReader(string(payload)))
 	decoder.UseNumber()
@@ -508,7 +490,6 @@ func normalizeBatch(payload []byte) ([]Note, error) {
 	return notes, nil
 }
 
-// pick returns the first key present with a value that is neither null nor
 func pick(m map[string]any, keys ...string) (any, bool) {
 	for _, key := range keys {
 		value, ok := m[key]
@@ -610,9 +591,6 @@ func cmdList(args []string) error {
 			openOnly, i = true, i+1
 			continue
 		case "--hook":
-			// A hook runs on every prompt, in whatever directory the harness was
-			// started in. It reports what is waiting and stays out of the way
-			// otherwise, so this implies `--open` and swallows every error below.
 			forHook, openOnly, i = true, true, i+1
 			continue
 		case "--file":
@@ -653,8 +631,6 @@ func cmdList(args []string) error {
 		return die("%s is not a valid note store", s.Path)
 	}
 
-	// Re-anchored before anything is filtered or printed, so every reader sees the
-	// line the note is on now rather than the line it was written against.
 	notes := reanchor(root, doc.Notes)
 	if filter != "" {
 		relative, err := repo.RelativeToRoot(root, filter)
@@ -692,7 +668,6 @@ func cmdList(args []string) error {
 	return nil
 }
 
-// keepOpen returns the notes still waiting for an answer.
 func keepOpen(notes []json.RawMessage) []json.RawMessage {
 	kept := make([]json.RawMessage, 0, len(notes))
 	for _, raw := range notes {
@@ -707,9 +682,6 @@ func keepOpen(notes []json.RawMessage) []json.RawMessage {
 	return kept
 }
 
-// reportOpen writes what the owner is waiting on, for a harness to read at the top of
-// a turn. Silent when nothing is waiting: a hook that speaks every turn is ignored by
-// the third one.
 func reportOpen(notes []json.RawMessage) {
 	if len(notes) == 0 {
 		return
@@ -848,8 +820,6 @@ func cmdClear(args []string) error {
 			}
 			match := cur.File != nil && *cur.File == relative
 			if match && only != 0 {
-				// A note whose line is missing or unreadable is kept: this removes what
-				// was named, and a line that cannot be read was not named.
 				match = cur.Line != nil && cur.Line.String() == strconv.FormatInt(only, 10)
 			}
 			if !match {

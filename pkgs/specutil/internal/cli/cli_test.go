@@ -12,9 +12,6 @@ import (
 	"github.com/roshbhatia/specutil/internal/cli"
 )
 
-// fixture resolves a repository under testdata/. The trees are real change
-// artifacts rather than generated ones, so a parser regression shows up as a
-// diff a reader can follow instead of as a mismatch against a builder.
 func fixture(name string) string {
 	_, file, _, _ := runtime.Caller(0)
 	return filepath.Join(filepath.Dir(file), "testdata", name)
@@ -62,7 +59,7 @@ func TestRenderTickets(t *testing.T) {
 	if !strings.Contains(out, "Add auth layer") {
 		t.Error("render tickets output missing the reader-facing title")
 	}
-	// Tickets are what reaches a tracker, so the source numbering must be gone.
+
 	for _, leak := range []string{"1.1 ", "## 1. ", "### 1.1"} {
 		if strings.Contains(out, leak) {
 			t.Errorf("render tickets leaked source numbering %q", leak)
@@ -104,7 +101,6 @@ func TestGraphDot(t *testing.T) {
 	}
 }
 
-// setupMinimalOpenspec creates a temp dir with a minimal openspec change and returns the root.
 func setupMinimalOpenspec(t *testing.T, changeName string) string {
 	t.Helper()
 	dir := t.TempDir()
@@ -123,8 +119,6 @@ func setupMinimalOpenspec(t *testing.T, changeName string) string {
 	return dir
 }
 
-// writeSchema declares the spec framework's schema so check and extract detect
-// their presets without an explicit specutil.yaml block.
 func writeSchema(t *testing.T, repo, schema string) {
 	t.Helper()
 	path := filepath.Join(repo, "openspec", "config.yaml")
@@ -215,8 +209,6 @@ func TestCheckUnknownFormatIsAnError(t *testing.T) {
 	}
 }
 
-// The verb accepts a change directory so it is a drop-in for a lint that took a
-// path; the repository root and change name are derived from the layout.
 func TestCheckAcceptsAChangeDirectory(t *testing.T) {
 	dir := setupMinimalOpenspec(t, "rough")
 	writeSchema(t, dir, "spec-driven")

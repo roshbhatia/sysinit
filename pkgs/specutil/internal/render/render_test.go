@@ -122,7 +122,6 @@ func TestRenderUnknownTarget(t *testing.T) {
 }
 
 func TestRenderAbsentSectionWarnsAndPlaceholders(t *testing.T) {
-	// A change with no design → RFC drawbacks/alternatives/unresolved are absent.
 	c := &ir.Change{Name: "bare", Proposal: &ir.Proposal{Why: "x"}}
 	out, warns, err := Render(c, "rfc", Options{})
 	if err != nil {
@@ -151,7 +150,7 @@ func TestRenderOverrideTemplate(t *testing.T) {
 }
 
 func TestRenderOverrideMissingFallsBackLoudly(t *testing.T) {
-	dir := t.TempDir() // empty override dir
+	dir := t.TempDir()
 	out, warns, err := Render(sampleChange(), "design", Options{OverrideDir: dir})
 	if err != nil {
 		t.Fatal(err)

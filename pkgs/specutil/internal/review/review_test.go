@@ -9,7 +9,6 @@ import (
 	"github.com/roshbhatia/specutil/internal/review"
 )
 
-// change builds a minimal change whose one phase holds the given task texts.
 func change(name string, tasks ...string) *ir.Change {
 	items := make([]ir.TaskItem, 0, len(tasks))
 	for _, t := range tasks {
@@ -42,8 +41,6 @@ func TestChangeHashIsStableAndSensitive(t *testing.T) {
 	}
 }
 
-// The hash covers the shape of the task list, not its bytes. Recording progress
-// or evidence must not move it, or every step of the work restales the verdict.
 func TestChangeHashIgnoresTaskProgressAndEvidence(t *testing.T) {
 	base := review.ChangeHash(change("c", "do the thing"))
 
@@ -110,7 +107,6 @@ func TestAddedTaskMakesTheDecisionStale(t *testing.T) {
 	}
 }
 
-// The counterpart to the test above: doing the approved work must not gate it.
 func TestFinishingTasksLeavesTheDecisionCurrent(t *testing.T) {
 	c := change("c", "do the thing")
 	rec := review.Apply(c, &review.Feedback{
@@ -237,9 +233,6 @@ func TestMarkdownLeadsWithTheVerdict(t *testing.T) {
 }
 
 func TestRetiredHashIsGrandfatheredRatherThanStale(t *testing.T) {
-	// A record written by an older build carries a hash computed over different
-	// ground, so comparing it says nothing about whether the artifacts moved.
-	// Reporting stale there demands a re-stamp that carries no judgement.
 	c := change("c", "do the thing")
 	rec := review.Apply(c, &review.Feedback{
 		Schema: review.Schema, Change: "c", Decision: review.DecisionApproved,
@@ -260,7 +253,6 @@ func TestRetiredHashIsGrandfatheredRatherThanStale(t *testing.T) {
 }
 
 func TestCurrentRecordStillGoesStaleOnAScopeChange(t *testing.T) {
-	// Grandfathering must not swallow a real drift on a current record.
 	c := change("c", "do the thing")
 	rec := review.Apply(c, &review.Feedback{
 		Schema: review.Schema, Change: "c", Decision: review.DecisionApproved,

@@ -6,7 +6,6 @@ import (
 	"testing"
 )
 
-// repoRoot walks up from the test directory to the module root (where go.mod is).
 func repoRoot(t *testing.T) string {
 	t.Helper()
 	dir, err := os.Getwd()
@@ -25,7 +24,6 @@ func repoRoot(t *testing.T) string {
 	}
 }
 
-// examplesRepo returns the getting-started fixture root.
 func examplesRepo(t *testing.T) string {
 	t.Helper()
 	return filepath.Join(repoRoot(t), "internal", "cli", "testdata", "getting-started")
@@ -63,7 +61,6 @@ func TestLoadRealChange(t *testing.T) {
 		t.Errorf("expected 1 spec, got %d", len(c.Specs))
 	}
 
-	// Every spec should have at least one requirement with at least one scenario.
 	for _, s := range c.Specs {
 		if len(s.Requirements) == 0 {
 			t.Errorf("spec %q has no requirements", s.Capability)
@@ -75,8 +72,6 @@ func TestLoadRealChange(t *testing.T) {
 		}
 	}
 
-	// A well-formed change parses without warnings. The fixture has no design.md,
-	// which is optional, so it must not produce one either.
 	if len(c.Warnings) != 0 {
 		t.Errorf("expected no warnings on the fixture change, got %d:", len(c.Warnings))
 		for _, w := range c.Warnings {
@@ -84,15 +79,12 @@ func TestLoadRealChange(t *testing.T) {
 		}
 	}
 
-	// Internal structure graph: change -> capability edges exist.
 	edges := c.Edges()
 	if len(edges) == 0 {
 		t.Error("expected internal edges")
 	}
 }
 
-// The provider must discover every change in a multi-change repo, so a repo
-// whose changes are all archived reports none rather than erroring.
 func TestListDiscoversAllChanges(t *testing.T) {
 	names, err := New(examplesRepo(t)).List()
 	if err != nil {

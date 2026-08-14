@@ -46,7 +46,6 @@ func TestTaskTextMaxWordsPassesAtTheBudgetAndWhenUnset(t *testing.T) {
 		t.Errorf("a task exactly at the budget must pass: %+v", rep.Findings)
 	}
 
-	// No max means the repository has not opted in, which must not fail anything.
 	rep, err = Run(Config{Rules: []RuleConfig{{ID: "task-text-max-words"}}},
 		[]*ir.Change{wordsChange(strings.Repeat("word ", 500))})
 	if err != nil {

@@ -13,7 +13,6 @@ import (
 	"time"
 )
 
-// capturedRecord writes a lock, a snapshot, and a provenance sidecar that all
 func capturedRecord(t *testing.T, dir string, rec Record, body string) {
 	t.Helper()
 	if err := os.MkdirAll(filepath.Join(dir, snapDirName), 0o755); err != nil {
@@ -65,7 +64,6 @@ func goodRecord() Record {
 	}
 }
 
-// stderr captures the diagnostics, which are the gate's whole output.
 func stderr(t *testing.T, fn func() error) (error, string) {
 	t.Helper()
 	old := os.Stderr
@@ -413,8 +411,6 @@ func TestRecheckRefusesAnUnsafeSourceBeforeFetching(t *testing.T) {
 	}
 }
 
-// stubRun records the probe commands and answers each from a lookup keyed on the
-// program name, so liveness can be exercised with no network.
 func stubRun(t *testing.T, answers map[string]error) *[][]string {
 	t.Helper()
 	var seen [][]string
@@ -439,8 +435,7 @@ func TestLivenessProbesTheURLItselfNotTheLinksInsideIt(t *testing.T) {
 	if probe[0] != "curl" {
 		t.Errorf("probed with %q, want curl", probe[0])
 	}
-	// The defect this guards: lychee reads the document and checks every link in
-	// it, so a cited README fails on any embedded link that 404s for a bot.
+
 	for _, arg := range probe {
 		if arg == "lychee" {
 			t.Fatal("liveness asked lychee to walk the document")

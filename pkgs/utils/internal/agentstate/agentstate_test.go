@@ -211,7 +211,6 @@ func TestPaneDirFallsBackToHomeLocalState(t *testing.T) {
 	}
 }
 
-// TestBothEncodingsAgree pins the property SCHEMA.md states: the OSC user
 func TestBothEncodingsAgree(t *testing.T) {
 	dir := t.TempDir()
 	t.Setenv("XDG_STATE_HOME", dir)
@@ -293,7 +292,6 @@ func TestMuxIDReadsTheGenerationMarkerOrNothing(t *testing.T) {
 	}
 }
 
-// A pid that is certainly not running: start a process, wait for it, then reuse
 func deadPid(t *testing.T) int {
 	t.Helper()
 	cmd := exec.Command(os.Args[0], "-test.run=^$")

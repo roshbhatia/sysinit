@@ -35,8 +35,6 @@ func TestARunIsReadBackAsItWasSaved(t *testing.T) {
 	}
 }
 
-// What is piped into a model is as sensitive as the thing it was piped from, so neither the
-// files nor the directory holding them may be readable by anyone else.
 func TestTheLastRunIsReadableOnlyByItsOwner(t *testing.T) {
 	base := t.TempDir()
 	t.Setenv("XDG_STATE_HOME", base)
@@ -69,8 +67,6 @@ func TestNothingSavedIsAnErrorRatherThanAnEmptyAnswer(t *testing.T) {
 	}
 }
 
-// The state directory rather than the cache one, because a rerun is worth surviving a cache
-// sweep.
 func TestTheRunIsKeptUnderTheStateDirectory(t *testing.T) {
 	t.Setenv("XDG_STATE_HOME", "/somewhere/state")
 	if got, want := Dir(), filepath.Join("/somewhere/state", "ask"); got != want {

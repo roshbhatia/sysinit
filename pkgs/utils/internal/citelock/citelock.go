@@ -1,4 +1,3 @@
-// Package citelock implements the `citelock` command: an offline gate over a
 package citelock
 
 import (
@@ -37,7 +36,6 @@ Claim classes and their freshness windows:
   anything else          180 days
 `
 
-// Record is one citation.
 type Record struct {
 	ID         string `json:"id"`
 	Source     string `json:"source"`
@@ -65,7 +63,6 @@ func die(format string, args ...any) error {
 	return &fail{msg: fmt.Sprintf(format, args...)}
 }
 
-// Run dispatches the subcommand and returns the process exit code.
 func Run(args []string) int {
 	cmd := "verify"
 	if len(args) > 0 {
@@ -106,7 +103,6 @@ func firstOr(args []string, fallback string) string {
 
 func lockPath(dir string) string { return filepath.Join(dir, lockfileName) }
 
-// freshnessDays is the age a claim of this class may reach before it has to be
 func freshnessDays(class string) int {
 	switch class {
 	case "pricing", "availability":
@@ -129,7 +125,6 @@ func sha256File(path string) (string, error) {
 	return hex.EncodeToString(sum[:]), nil
 }
 
-// anchored reports whether the verbatim quote appears in the snapshot.
 func anchored(path, quote string) (bool, error) {
 	data, err := os.ReadFile(path)
 	if err != nil {
@@ -252,7 +247,6 @@ func verifyRecord(raw json.RawMessage, lockdir string, now time.Time) bool {
 	return true
 }
 
-// assertSafeURL refuses a source the capture path must never fetch.
 func assertSafeURL(rawURL string) error {
 	if !strings.HasPrefix(rawURL, "https://") {
 		return die("refusing non-https source (scheme allowlist): %s", rawURL)
@@ -315,8 +309,6 @@ func have(tool string) bool {
 	return err == nil
 }
 
-// run is a package variable so a test can watch which probe commands liveChecks
-// issues without reaching the network. Production never reassigns it.
 var run = runCommand
 
 func runCommand(name string, args ...string) error {
@@ -326,13 +318,12 @@ func runCommand(name string, args ...string) error {
 	return cmd.Run()
 }
 
-// liveChecks confirms the source is still reachable and, for a DOI, not
 func liveChecks(url, doi string) error {
 	if os.Getenv("CITELOCK_OFFLINE") == "1" {
 		logf("CITELOCK_OFFLINE=1: skipping live checks (advisory)")
 		return nil
 	}
-	// A GET of the URL, with the bytes discarded.
+
 	if run("curl", "-fsSL", "--max-time", "20", "-o", os.DevNull, "--", url) != nil {
 		if have("pplx") && run("pplx", "content", "fetch", url) == nil {
 			logf("live: curl could not confirm %s; pplx fetched it, treating as live", url)
@@ -482,7 +473,6 @@ func capture(url string, args []string) error {
 	return nil
 }
 
-// upsert replaces any record with the same id and appends the new one.
 func upsert(lockdir string, rec Record) error {
 	path := lockPath(lockdir)
 	s := &store.Store{

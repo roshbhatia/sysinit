@@ -1,5 +1,3 @@
-// Package ui shows what the model is doing while it does it. Everything here is written to
-// stderr, because stdout carries the answer and a spinner in a pipe is corruption.
 package ui
 
 import (
@@ -16,8 +14,6 @@ import (
 	"github.com/roshbhatia/sysinit/pkgs/ask/internal/provider"
 )
 
-// How many recent lines stay on screen. Enough to see what the model is working through,
-// short enough that a long run does not scroll the caller's terminal away.
 const depth = 8
 
 var (
@@ -37,13 +33,11 @@ type model struct {
 	failed  string
 }
 
-// tick is one event lifted out of the provider's channel.
 type tick struct {
 	event provider.Event
 	open  bool
 }
 
-// next waits for one event, so the loop and the provider stay on their own goroutines.
 func next(events <-chan provider.Event) tea.Cmd {
 	return func() tea.Msg {
 		event, open := <-events
@@ -71,8 +65,6 @@ func (m model) Update(message tea.Msg) (tea.Model, tea.Cmd) {
 		m.spin, cmd = m.spin.Update(message)
 		return m, cmd
 	case tea.KeyMsg:
-		// Interrupting is the caller's business, and the provider is killed by the context
-		// the caller cancels, so this only stops drawing.
 		if message.Type == tea.KeyCtrlC {
 			return m, tea.Quit
 		}
@@ -80,7 +72,6 @@ func (m model) Update(message tea.Msg) (tea.Model, tea.Cmd) {
 	return m, nil
 }
 
-// take folds one event into what is shown.
 func (m *model) take(event provider.Event) {
 	switch event.Kind {
 	case provider.Started:
@@ -106,8 +97,6 @@ func (m *model) push(line string) {
 	}
 }
 
-// first is the opening line of a block, since a paragraph in a progress view pushes the rest
-// of it off the screen.
 func first(text string) string {
 	line := strings.TrimSpace(strings.SplitN(text, "\n", 2)[0])
 	if len(line) > 100 {
@@ -137,15 +126,13 @@ func (m model) View() string {
 	return out.String()
 }
 
-// Run draws the events until the run ends, and returns what it answered.
 func Run(events <-chan provider.Event) (*provider.Result, error) {
 	spin := spinner.New()
 	spin.Spinner = spinner.Dot
 	spin.Style = accent
 
 	start := model{spin: spin, events: events, started: time.Now()}
-	// Output to stderr and no input at all: stdin is the caller's piped data, and reading it
-	// here would take the model's own input away.
+
 	program := tea.NewProgram(start, tea.WithOutput(os.Stderr), tea.WithInput(nil))
 	final, err := program.Run()
 	if err != nil {
@@ -155,8 +142,6 @@ func Run(events <-chan provider.Event) (*provider.Result, error) {
 	return done.result, nil
 }
 
-// Drain reads the events without drawing, for a caller whose stderr is a file or who asked
-// for quiet.
 func Drain(events <-chan provider.Event, to io.Writer) *provider.Result {
 	var result *provider.Result
 	for event := range events {
@@ -170,7 +155,6 @@ func Drain(events <-chan provider.Event, to io.Writer) *provider.Result {
 	return result
 }
 
-// Summary is the line printed after a run, so the cost of a pipe is visible.
 func Summary(result *provider.Result) string {
 	if result == nil {
 		return ""

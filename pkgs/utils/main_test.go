@@ -10,8 +10,6 @@ func TestEveryLinkNamesARegisteredCommand(t *testing.T) {
 	}
 }
 
-// The overlay installs one wrapper per link, so a command reachable only by spelling a
-// subcommand is one a hook cannot call without a shell.
 func TestEveryCommandIsReachableByAName(t *testing.T) {
 	reached := map[string]bool{}
 	for _, l := range links {

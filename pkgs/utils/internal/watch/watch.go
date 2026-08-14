@@ -1,4 +1,3 @@
-// Package watch implements the `watch` command: one viewer for the three
 package watch
 
 import (
@@ -47,7 +46,6 @@ This command reads. It never opens an editor, never spawns a pane, and never
 signals a producer.
 `
 
-// pollDefault is how often a followed source is re-read.
 const pollDefault = 500 * time.Millisecond
 
 func Run(args []string) int {
@@ -105,13 +103,11 @@ func Run(args []string) int {
 	return follow(source, *history, !*noFollow, *interval)
 }
 
-// renderer is one source.
 type renderer interface {
 	Title() string
 	Render(w io.Writer, history int) error
 }
 
-// follow renders once, then re-renders on a tick until interrupted.
 func follow(source renderer, history int, tail bool, interval time.Duration) int {
 	fmt.Fprintf(os.Stdout, "%s\n", source.Title())
 
@@ -141,7 +137,6 @@ func follow(source renderer, history int, tail bool, interval time.Duration) int
 	}
 }
 
-// fileTail is the shared body of the two line-oriented sources.
 type fileTail struct {
 	path    string
 	title   string
@@ -193,7 +188,6 @@ func (f *fileTail) Render(w io.Writer, history int) error {
 	return err
 }
 
-// lastLines returns the trailing n lines of body, keeping the final newline
 func lastLines(body string, n int) string {
 	if body == "" || n <= 0 {
 		return ""
@@ -208,7 +202,6 @@ func lastLines(body string, n int) string {
 	return strings.Join(lines, "")
 }
 
-// newWorker resolves one run's log inside the worker record for a DIRECTORY.
 func newWorker(args []string, logName string) (renderer, error) {
 	dir := ""
 	switch len(args) {
@@ -244,7 +237,6 @@ func newWorker(args []string, logName string) (renderer, error) {
 	return &fileTail{path: path, title: fmt.Sprintf("worker %s/%s", filepath.Base(root), logName)}, nil
 }
 
-// newTranscript resolves a mirrored harness transcript.
 func newTranscript(args []string) (renderer, error) {
 	var harness, session string
 	switch len(args) {
@@ -278,7 +270,6 @@ func newTranscript(args []string) (renderer, error) {
 	return &fileTail{path: path, title: fmt.Sprintf("transcript %s/%s", harness, session)}, nil
 }
 
-// busRecord is the subset of the pane record this viewer shows.
 type busRecord struct {
 	Mux      int             `json:"mux"`
 	Pane     json.RawMessage `json:"pane"`
@@ -292,7 +283,6 @@ type busRecord struct {
 	Since    int64           `json:"since"`
 }
 
-// bus renders the pane records whose worktree is the directory being watched.
 type bus struct {
 	dir  string
 	last string
@@ -356,7 +346,6 @@ func (b *bus) Render(w io.Writer, _ int) error {
 	return b.emit(w, frame)
 }
 
-// emit writes a frame only when it differs from the last one, so a followed bus
 func (b *bus) emit(w io.Writer, frame string) error {
 	if frame == b.last {
 		return nil
@@ -375,7 +364,6 @@ func formatRow(pane string, record busRecord) string {
 		pane, record.Agent, record.Status, age, liveness(record), record.Reason)
 }
 
-// liveness is deliberately weak, and says so in its output.
 func liveness(record busRecord) string {
 	if record.Mux <= 0 {
 		return "unverified"

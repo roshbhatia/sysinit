@@ -1,6 +1,3 @@
-// Package worklog appends one SessionEnd record describing what a session
-// touched: the repositories under it, the work each one is ahead by, and the
-// intent read off the transcript.
 package worklog
 
 import (
@@ -37,32 +34,26 @@ Exits 0 whether or not a record was written, because a SessionEnd hook must not
 fail a session that has already ended.
 `
 
-// schemaVersion is the record shape readers match on. Bump it when a field
-// changes meaning, never when one is added.
 const schemaVersion = 2
 
 const (
 	maxCommits  = 30
 	maxFiles    = 50
 	promptChars = 200
-	// gitTimeout bounds one git call, so a repository with a stuck index cannot
-	// hold the session's last hook open.
+
 	gitTimeout = 15 * time.Second
 )
 
-// Commit is one commit the branch is ahead by.
 type Commit struct {
 	SHA     string `json:"sha"`
 	Subject string `json:"subject"`
 }
 
-// File is one path the branch changed, with git's own status letters.
 type File struct {
 	Status string `json:"status"`
 	Path   string `json:"path"`
 }
 
-// Repo describes one worktree at the moment the session ended.
 type Repo struct {
 	Name         string   `json:"name"`
 	Branch       string   `json:"branch"`
@@ -78,8 +69,6 @@ type Repo struct {
 	Dirty        string   `json:"dirty"`
 }
 
-// Record is one worklog line. The pointer fields are the ones a reader must be
-// able to tell "absent" from "empty" for.
 type Record struct {
 	V              int     `json:"v"`
 	TS             string  `json:"ts"`
@@ -99,7 +88,6 @@ type Record struct {
 	Summary        *string `json:"summary"`
 }
 
-// event is the part of the SessionEnd payload this reads.
 type event struct {
 	SessionID      string `json:"session_id"`
 	CWD            string `json:"cwd"`
@@ -107,16 +95,13 @@ type event struct {
 	TranscriptPath string `json:"transcript_path"`
 }
 
-// git runs one git command in repo and returns its trimmed stdout. Every failure
-// is the same answer, because this record is best-effort by contract.
 func git(repo string, args ...string) (string, bool) {
 	ctx, cancel := context.WithTimeout(context.Background(), gitTimeout)
 	defer cancel()
 
 	cmd := exec.CommandContext(ctx, "git", append([]string{"-C", repo}, args...)...)
 	cmd.Env = append(os.Environ(), "GIT_OPTIONAL_LOCKS=0")
-	// The deadline kills git, and this bounds the wait for the pipes a child it
-	// left behind still holds open.
+
 	cmd.WaitDelay = gitTimeout
 	out, err := cmd.Output()
 	if err != nil {
@@ -125,13 +110,11 @@ func git(repo string, args ...string) (string, bool) {
 	return strings.TrimSpace(string(out)), true
 }
 
-// isGit reports whether path is inside a work tree.
 func isGit(path string) bool {
 	out, ok := git(path, "rev-parse", "--is-inside-work-tree")
 	return ok && out == "true"
 }
 
-// normalizeRemote turns a git remote into a URL a browser can open.
 func normalizeRemote(url string) string {
 	u := strings.TrimSuffix(url, ".git")
 	if rest, found := strings.CutPrefix(u, "git@"); found {
@@ -147,9 +130,6 @@ func normalizeRemote(url string) string {
 	return u
 }
 
-// comparisonRef names the remote ref that exposes this branch's local work. A
-// branch off the base compares against the base, so work on a topic branch is
-// still counted rather than reported as nothing.
 func comparisonRef(repo, branch, base string) (string, bool) {
 	if branch == "" || base == "" {
 		return "", false
@@ -164,7 +144,6 @@ func comparisonRef(repo, branch, base string) (string, bool) {
 	return ref, true
 }
 
-// describe reads the worktree at path, or reports false when it is not one.
 func describe(path string) (Repo, bool) {
 	toplevel, ok := git(path, "rev-parse", "--show-toplevel")
 	if !ok || toplevel == "" {
@@ -208,9 +187,7 @@ func describe(path string) (Repo, bool) {
 			repo.CommitsAhead = parsed
 		}
 	}
-	// Three dots for the stats and the file list, so a base that moved on does
-	// not read as this session's work. Two for the commits, which are this
-	// branch's own.
+
 	repo.Diffstat, _ = git(path, "diff", "--shortstat", ref+"...HEAD")
 
 	if log, found := git(path, "log", "--format=%h%x09%s", ref+"..HEAD"); found {
@@ -225,8 +202,7 @@ func describe(path string) (Repo, bool) {
 			fields := strings.Split(line, "\t")
 			repo.Files = append(repo.Files, File{
 				Status: fields[0],
-				// A rename carries two paths, joined the way the record has always
-				// spelled it.
+
 				Path: strings.Join(fields[1:], " -> "),
 			})
 		}
@@ -238,7 +214,7 @@ func describe(path string) (Repo, bool) {
 			if len(cols) < 2 {
 				continue
 			}
-			// A binary file reports "-", which is not a count.
+
 			if n, err := strconv.Atoi(cols[0]); err == nil {
 				repo.Insertions += n
 			}
@@ -251,8 +227,6 @@ func describe(path string) (Repo, bool) {
 	return repo, true
 }
 
-// lines splits text and drops the empty ones, keeping at most limit. A limit of
-// zero keeps them all.
 func lines(text string, limit int) []string {
 	var kept []string
 	for _, line := range strings.Split(text, "\n") {
@@ -267,7 +241,6 @@ func lines(text string, limit int) []string {
 	return kept
 }
 
-// intent is what one pass over the transcript yields.
 type intent struct {
 	TSStart     string
 	Model       string
@@ -276,7 +249,6 @@ type intent struct {
 	UserTurns   int
 }
 
-// entry is the part of a transcript line this reads.
 type entry struct {
 	Type      string `json:"type"`
 	Timestamp string `json:"timestamp"`
@@ -286,14 +258,11 @@ type entry struct {
 	} `json:"message"`
 }
 
-// block is one content block of an assistant or user message.
 type block struct {
 	Type string `json:"type"`
 	Text string `json:"text"`
 }
 
-// text collapses a message's content to its plain text, whether the harness
-// wrote a string or an array of blocks.
 func text(raw json.RawMessage) string {
 	if len(raw) == 0 {
 		return ""
@@ -315,8 +284,6 @@ func text(raw json.RawMessage) string {
 	return strings.Join(parts, " ")
 }
 
-// truncate cuts to n characters rather than n bytes, so a prompt holding one
-// multi-byte character is not cut through the middle of it.
 func truncate(s string, n int) string {
 	runes := []rune(s)
 	if len(runes) <= n {
@@ -325,7 +292,6 @@ func truncate(s string, n int) string {
 	return string(runes[:n])
 }
 
-// readContext reads intent and scale in one pass over the transcript.
 func readContext(path string) intent {
 	file, err := os.Open(path)
 	if err != nil {
@@ -336,7 +302,7 @@ func readContext(path string) intent {
 	var found intent
 	var prompts []string
 	scanner := bufio.NewScanner(file)
-	// A transcript line holds a whole message, which outgrows the default 64KB.
+
 	scanner.Buffer(make([]byte, 0, 64*1024), 8*1024*1024)
 
 	for scanner.Scan() {
@@ -371,7 +337,6 @@ func readContext(path string) intent {
 	return found
 }
 
-// parseISO reads a transcript timestamp, which carries Z rather than an offset.
 func parseISO(value string) (time.Time, bool) {
 	for _, layout := range []string{time.RFC3339Nano, time.RFC3339} {
 		if parsed, err := time.Parse(layout, value); err == nil {
@@ -381,8 +346,6 @@ func parseISO(value string) (time.Time, bool) {
 	return time.Time{}, false
 }
 
-// seshySession returns the session name holding dir, when dir is under the seshy
-// sessions root.
 func seshySession(dir string) (string, bool) {
 	root := paths.SeshySessions()
 	rel, err := filepath.Rel(root, dir)
@@ -396,7 +359,6 @@ func seshySession(dir string) (string, bool) {
 	return name, true
 }
 
-// logFile is where the line is appended.
 func logFile() string {
 	if override := os.Getenv("CLAUDE_WORKLOG_FILE"); override != "" {
 		return override
@@ -404,12 +366,11 @@ func logFile() string {
 	return paths.AgentWorklog()
 }
 
-// build assembles the record, or reports false when there is nothing to record.
 func build(ev event, now time.Time) (Record, bool) {
 	if ev.SessionID == "" {
 		return Record{}, false
 	}
-	// A resume starts a session, so it has no finished work to report.
+
 	if ev.Reason == "resume" {
 		return Record{}, false
 	}
@@ -418,8 +379,6 @@ func build(ev event, now time.Time) (Record, bool) {
 	repos := []Repo{}
 
 	if name, inSeshy := seshySession(ev.CWD); inSeshy {
-		// One seshy session spans several worktrees, so every one of them is
-		// reported rather than only the directory the session ended in.
 		kind, sessionName = "seshy-session", name
 		dir := filepath.Join(paths.SeshySessions(), name)
 		children, err := os.ReadDir(dir)
@@ -452,8 +411,6 @@ func build(ev event, now time.Time) (Record, bool) {
 		found = readContext(path)
 	}
 
-	// Neither a repository nor a prompt means the session left no trace worth a
-	// line.
 	if len(repos) == 0 && found.FirstPrompt == "" {
 		return Record{}, false
 	}
@@ -487,7 +444,6 @@ func build(ev event, now time.Time) (Record, bool) {
 	return record, true
 }
 
-// appendLine writes one record, creating the directory the log sits in.
 func appendLine(path string, record Record) error {
 	encoded, err := json.Marshal(record)
 	if err != nil {
@@ -505,7 +461,6 @@ func appendLine(path string, record Record) error {
 	return err
 }
 
-// Run reads the payload and appends the record.
 func Run(args []string) int {
 	if len(args) > 0 {
 		switch args[0] {

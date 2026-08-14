@@ -1,6 +1,3 @@
-// Package openspec implements the Provider port against an on-disk OpenSpec
-// layout: openspec/changes/<name>/{proposal.md,design.md,tasks.md,specs/<cap>/spec.md}.
-// It only reads the local filesystem; it never touches the network.
 package openspec
 
 import (
@@ -15,26 +12,20 @@ import (
 	"github.com/roshbhatia/specutil/internal/provider"
 )
 
-// Provider loads OpenSpec changes rooted at a repository directory.
 type Provider struct {
-	// Root is the repository root containing the openspec/ directory.
 	Root string
 }
 
-// New returns an OpenSpec provider rooted at repoRoot.
 func New(repoRoot string) *Provider { return &Provider{Root: repoRoot} }
 
 var _ provider.Provider = (*Provider)(nil)
 
 func (p *Provider) Name() string { return "openspec" }
 
-// changesDir is the directory holding per-change folders.
 func (p *Provider) changesDir() string {
 	return filepath.Join(p.Root, "openspec", "changes")
 }
 
-// List returns the sorted names of every change directory that contains a
-// proposal.md (the minimal marker of an OpenSpec change).
 func (p *Provider) List() ([]string, error) {
 	dir := p.changesDir()
 	entries, err := os.ReadDir(dir)
@@ -57,7 +48,6 @@ func (p *Provider) List() ([]string, error) {
 	return names, nil
 }
 
-// Load reads one change by name.
 func (p *Provider) Load(name string) (*ir.Change, error) {
 	root := filepath.Join(p.changesDir(), name)
 	if _, err := os.Stat(root); err != nil {
@@ -93,7 +83,6 @@ func (p *Provider) Load(name string) (*ir.Change, error) {
 	return c, nil
 }
 
-// loadSpecs discovers specs/<capability>/spec.md files in sorted order.
 func (p *Provider) loadSpecs(changeRoot string) ([]*ir.Spec, []ir.Warning, error) {
 	specsDir := filepath.Join(changeRoot, "specs")
 	entries, err := os.ReadDir(specsDir)
@@ -130,7 +119,6 @@ func (p *Provider) loadSpecs(changeRoot string) ([]*ir.Spec, []ir.Warning, error
 	return specs, warns, nil
 }
 
-// LoadAll loads every discoverable change.
 func (p *Provider) LoadAll() ([]*ir.Change, error) {
 	names, err := p.List()
 	if err != nil {
@@ -147,7 +135,6 @@ func (p *Provider) LoadAll() ([]*ir.Change, error) {
 	return changes, nil
 }
 
-// readFile returns the file contents and true, or ("", false) if absent.
 func readFile(path string) (string, bool) {
 	b, err := os.ReadFile(path)
 	if err != nil {

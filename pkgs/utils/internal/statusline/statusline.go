@@ -1,4 +1,3 @@
-// Package statusline implements `statusline`: the one line claude renders
 package statusline
 
 import (
@@ -16,7 +15,6 @@ import (
 
 const Summary = "render the claude status line"
 
-// separator is a middle dot with spaces, matching what the shell original
 const separator = " · "
 
 type payload struct {
@@ -32,7 +30,6 @@ type payload struct {
 	} `json:"context_window"`
 }
 
-// Run renders the line on stdout and always returns 0.
 func Run(_ []string) int {
 	data, err := io.ReadAll(os.Stdin)
 	if err != nil {
@@ -75,7 +72,6 @@ func Run(_ []string) int {
 	return 0
 }
 
-// wholePercent drops the fraction, as `cut -d.
 func wholePercent(raw string) string {
 	if raw == "" {
 		return ""
@@ -94,7 +90,6 @@ func gitBranch(dir string) string {
 	return strings.TrimRight(string(out), "\n")
 }
 
-// seshySession names the session when the directory sits inside one.
 func seshySession(dir string) string {
 	root := paths.SeshySessions()
 	rest := strings.TrimPrefix(dir, root+"/")
@@ -104,7 +99,6 @@ func seshySession(dir string) string {
 	return strings.SplitN(rest, "/", 2)[0]
 }
 
-// openspecChange returns the most recently touched change and how many others
 func openspecChange(dir string) (string, int) {
 	root := dir
 	for root != "" && root != "/" {

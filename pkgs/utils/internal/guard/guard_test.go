@@ -8,7 +8,6 @@ import (
 	"testing"
 )
 
-// realRules mirrors modules/home/programs/llm/lib/allowlist.nix verbatim.
 var realRules = []Rule{
 	{`git[[:space:]]+push\b[^;&|]*([[:space:]]-f([[:space:]]|$)|--force)`, "Force-pushing is prohibited (global CLAUDE.md: no force-push)."},
 	{`(--no-verify|--no-gpg-sign)\b`, "Hook-bypass flags are prohibited (global CLAUDE.md: no --no-verify / --no-gpg-sign)."},
@@ -31,7 +30,6 @@ func compileReal(t *testing.T) []compiled {
 	return out
 }
 
-// denied is every command the guard must refuse, plus two compound forms where
 var denied = []string{
 	"git push --force",
 	"git push --force-with-lease origin main",
@@ -47,7 +45,6 @@ var denied = []string{
 	"git reset --hard HEAD~1; echo done",
 }
 
-// allowed is every fixture that must produce no decision at all.
 var allowed = []string{
 	"git push",
 	"git push origin main",
@@ -204,7 +201,6 @@ func TestAPathUnderALinkedDirectoryResolvesThroughIt(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	// The file does not exist, which is the case a new write presents.
 	resolved, ok := resolve(filepath.Join(link, "new.txt"))
 	if !ok {
 		t.Fatal("resolve gave up on a path under a linked directory")

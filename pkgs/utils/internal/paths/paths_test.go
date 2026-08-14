@@ -6,7 +6,6 @@ import (
 	"testing"
 )
 
-// writeManifest points SYSINIT_PATHS_MANIFEST at a manifest holding body, and
 func writeManifest(t *testing.T, body string) string {
 	t.Helper()
 	path := filepath.Join(t.TempDir(), "paths.json")

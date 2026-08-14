@@ -5,8 +5,6 @@ import (
 	"testing"
 )
 
-// collect runs one stream past the scanner and returns the events and the result together, so
-// a test can assert on both without wiring a goroutine each time.
 func collect(t *testing.T, scan func(chan<- Event)) ([]Event, *Result) {
 	t.Helper()
 	events := make(chan Event, 64)
@@ -31,12 +29,10 @@ func collect(t *testing.T, scan func(chan<- Event)) ([]Event, *Result) {
 	return seen, result
 }
 
-// wanted is any shape at all, for a test that only cares that one was asked for.
 func wanted() map[string]any {
 	return map[string]any{"type": "object"}
 }
 
-// kinds are the events of one kind, in the order they arrived.
 func kinds(events []Event, want Kind) []Event {
 	var picked []Event
 	for _, event := range events {
@@ -63,8 +59,7 @@ func TestAClaudeStreamBecomesOneEventPerThingThatHappened(t *testing.T) {
 	if len(started) != 1 || started[0].Text != "claude-opus-5, 2 tools" {
 		t.Errorf("the opening line is %v, want the model and its tool count", started)
 	}
-	// Whole, not clipped: shortening a block for the screen is the progress view's job, and
-	// a caller draining to a file wants all of it.
+
 	if text := kinds(events, Text); len(text) != 1 || text[0].Text != "Reading the file.\nThen the rest." {
 		t.Errorf("the prose is %v", text)
 	}
@@ -87,8 +82,6 @@ func TestAClaudeStreamBecomesOneEventPerThingThatHappened(t *testing.T) {
 	}
 }
 
-// A stream that stops before its result line is a run that died, and the caller has to be
-// told rather than handed an empty answer.
 func TestAClaudeStreamWithNoResultReportsNone(t *testing.T) {
 	_, result := collect(t, func(out chan<- Event) {
 		if got := scanClaude(strings.NewReader(`{"type":"system","subtype":"init"}`), nil, out); got != nil {
@@ -100,8 +93,6 @@ func TestAClaudeStreamWithNoResultReportsNone(t *testing.T) {
 	}
 }
 
-// A line this cannot read is skipped rather than ending the stream, because one bad line
-// would otherwise throw away the answer that follows it.
 func TestAClaudeStreamSurvivesALineItCannotRead(t *testing.T) {
 	stream := "not json at all\n" + `{"type":"result","result":"still here"}` + "\n"
 	_, result := collect(t, func(out chan<- Event) {
@@ -125,8 +116,6 @@ func TestClaudeAnswersTheShapeThatWasAskedFor(t *testing.T) {
 	}
 }
 
-// The harness reports no structured output for a model that wrote the object into its prose,
-// so the prose is the last place to look before calling the run a failure.
 func TestClaudeFindsTheShapeInsideProse(t *testing.T) {
 	stream := `{"type":"result","result":"Here it is:\n{\"level\":\"warn\"}\nThat is all."}` + "\n"
 	_, result := collect(t, func(out chan<- Event) {
@@ -140,8 +129,6 @@ func TestClaudeFindsTheShapeInsideProse(t *testing.T) {
 	}
 }
 
-// Prose where a shape was asked for is a failed run rather than an answer the caller has to
-// notice is the wrong kind. Codex already worked this way; claude has to agree.
 func TestClaudeFailsWhenNoShapeCameBack(t *testing.T) {
 	stream := `{"type":"result","result":"no object anywhere"}` + "\n"
 	_, result := collect(t, func(out chan<- Event) {
@@ -155,8 +142,6 @@ func TestClaudeFailsWhenNoShapeCameBack(t *testing.T) {
 	}
 }
 
-// A run the harness already called a failure keeps its own reason, since that reason says
-// more than the shape check would.
 func TestAFailedClaudeRunKeepsItsOwnReason(t *testing.T) {
 	stream := `{"type":"result","subtype":"error_max_turns","is_error":true,"result":""}` + "\n"
 	_, result := collect(t, func(out chan<- Event) {

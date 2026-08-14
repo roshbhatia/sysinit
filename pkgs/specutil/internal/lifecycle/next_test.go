@@ -4,7 +4,6 @@ import "testing"
 
 import "github.com/roshbhatia/specutil/internal/ir"
 
-// phase builds a phase whose items carry the given ids, done flags, and deps.
 func phase(number, name, shape string, items ...ir.TaskItem) ir.Phase {
 	p := ir.Phase{Number: number, Name: name, Items: items}
 	if shape != "" {
@@ -51,8 +50,6 @@ func TestReadySetIsTasksWhoseDepsAreDone(t *testing.T) {
 	}
 }
 
-// A phase is a boundary between runs, so a later phase's work is never offered
-// alongside an earlier phase's.
 func TestReadinessNeverCrossesAPhase(t *testing.T) {
 	n := ComputeNext(change(
 		phase("1", "First", "graph", item("1.1", false)),
@@ -74,8 +71,6 @@ func TestPhasesOrderNumericallyNotLexically(t *testing.T) {
 	}
 }
 
-// A loop re-runs the same tasks, so its next iteration reads what this one wrote and
-// the ready set must not be split across workers.
 func TestGraphWithNoDeclaredEdgesIsNotConcurrent(t *testing.T) {
 	n := ComputeNext(change(phase("1", "Toolchain", "graph",
 		item("1.1", false), item("1.2", false), item("1.3", false))))
@@ -90,8 +85,6 @@ func TestGraphWithNoDeclaredEdgesIsNotConcurrent(t *testing.T) {
 	}
 }
 
-// One declared edge is enough: the author engaged with ordering, so a subtask
-// carrying none is genuinely independent.
 func TestOneDeclaredEdgeEnablesConcurrency(t *testing.T) {
 	n := ComputeNext(change(phase("1", "Build", "graph",
 		item("1.1", true), item("1.2", false), item("1.3", false, "1.1"))))
@@ -130,8 +123,6 @@ func TestEveryTaskDoneReportsDone(t *testing.T) {
 	}
 }
 
-// A dep naming nothing in the change is task-deps-resolve's finding. Treating it
-// as blocking would stall the phase on a typo with no way to proceed.
 func TestUnknownDependencyDoesNotBlock(t *testing.T) {
 	n := ComputeNext(change(phase("1", "Build", "graph", item("1.1", false, "9.9"))))
 	eq(t, "ready", ids(n.Ready), []string{"1.1"})

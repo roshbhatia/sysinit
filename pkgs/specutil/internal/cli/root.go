@@ -1,6 +1,3 @@
-// Package cli wires the cobra command tree. Verbs: render, graph, check, next,
-// review, web. Nothing here writes to a remote: the binary is pure and offline,
-// and internal/guard has a test that keeps it that way.
 package cli
 
 import (
@@ -25,7 +22,6 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// NewRootCmd builds the specutil root command and registers every verb.
 func NewRootCmd(version ...string) *cobra.Command {
 	v := "dev"
 	if len(version) > 0 && version[0] != "" {
@@ -42,7 +38,6 @@ func NewRootCmd(version ...string) *cobra.Command {
 		SilenceErrors: false,
 	}
 
-	// Global flags inherited by all subcommands.
 	root.PersistentFlags().StringP("repo", "C", ".", "repository root containing the openspec/ directory")
 
 	root.AddCommand(
@@ -102,7 +97,6 @@ func runRender(cmd *cobra.Command, args []string) error {
 	return writeOut(cmd, out)
 }
 
-// resolveChange loads the change named by --change or the first positional arg.
 func resolveChange(cmd *cobra.Command, args []string) (*ir.Change, error) {
 	repo, _ := cmd.Flags().GetString("repo")
 	name, _ := cmd.Flags().GetString("change")
@@ -132,8 +126,6 @@ func resolveChange(cmd *cobra.Command, args []string) (*ir.Change, error) {
 	return p.Load(name)
 }
 
-// emitWarnings prints parse/render warnings to stderr; the binary stays silent
-// on stdout so rendered output is clean and pipeable.
 func emitWarnings(cmd *cobra.Command, warns []ir.Warning) {
 	for _, w := range warns {
 		loc := w.File
@@ -148,7 +140,6 @@ func emitWarnings(cmd *cobra.Command, warns []ir.Warning) {
 	}
 }
 
-// loadAllChanges loads every change for graph and web.
 func loadAllChanges(cmd *cobra.Command) ([]*ir.Change, error) {
 	repo, _ := cmd.Flags().GetString("repo")
 	p, err := registry.SelectProvider(repo)
@@ -231,9 +222,7 @@ func runGraph(cmd *cobra.Command, args []string) error {
 	}
 
 	format, _ := cmd.Flags().GetString("as")
-	// The detail feed is the per-change ticket projection the visualizers drill
-	// into. It shares graph's loader but is its own renderer-independent schema,
-	// so it is dispatched here rather than through Graph.Project.
+
 	if format == "detail" {
 		out, err := detail.BuildWith(changes, reviewOptions(repo, changes)).JSON()
 		if err != nil {
@@ -248,7 +237,6 @@ func runGraph(cmd *cobra.Command, args []string) error {
 	return writeOut(cmd, out)
 }
 
-// writeOut sends bytes to --out if set, otherwise stdout.
 func writeOut(cmd *cobra.Command, b []byte) error {
 	if outPath, _ := cmd.Flags().GetString("out"); outPath != "" {
 		return os.WriteFile(outPath, b, 0o644)
@@ -300,9 +288,6 @@ func runCheck(cmd *cobra.Command, args []string) error {
 	repo, _ := cmd.Flags().GetString("repo")
 	name, _ := cmd.Flags().GetString("change")
 
-	// A positional argument naming an existing change directory is accepted so
-	// this verb is a drop-in for a lint that took a path. The repository root
-	// and change name are derived from the standard layout.
 	if len(args) > 0 && name == "" {
 		if derivedRepo, derivedName, ok := changeDirTarget(args[0]); ok {
 			repo, name = derivedRepo, derivedName
@@ -372,16 +357,12 @@ func runCheck(cmd *cobra.Command, args []string) error {
 	}
 
 	if !report.OK() {
-		// The findings are already on stdout, so silence cobra's error line and
-		// signal the failure through the exit code alone.
 		cmd.SilenceErrors = true
 		return errCheckFailed
 	}
 	return nil
 }
 
-// changeDirTarget maps a path like <repo>/openspec/changes/<name> to its repository
-// root and change name.
 func changeDirTarget(arg string) (repo, name string, ok bool) {
 	info, err := os.Stat(arg)
 	if err != nil || !info.IsDir() {
@@ -403,16 +384,10 @@ func changeDirTarget(arg string) (repo, name string, ok bool) {
 	return filepath.Dir(openspecDir), filepath.Base(abs), true
 }
 
-// errCheckFailed reports a rubric violation. It reaches main only to set the
-// exit code; runCheck silences its printing because the findings are already
-// on stdout.
 var errCheckFailed = errors.New("check: rubric violated")
 
-// IsCheckFailed reports whether err is the rubric-violation sentinel.
 func IsCheckFailed(err error) bool { return errors.Is(err, errCheckFailed) }
 
-// checkText renders a report for a human reader: findings grouped by change,
-// then a one-line verdict.
 func checkText(r *check.Report) string {
 	var b strings.Builder
 	change := ""
@@ -530,14 +505,12 @@ func runWeb(cmd *cobra.Command, args []string) error {
 
 	if open, _ := cmd.Flags().GetBool("open"); open {
 		if err := openInBrowser(outPath); err != nil {
-			// Non-fatal: the file is written, so degrade to a hint rather than failing.
 			fmt.Fprintf(cmd.ErrOrStderr(), "could not open a browser (%v); open %s yourself\n", err, outPath)
 		}
 	}
 	return nil
 }
 
-// openInBrowser launches the platform's default handler for path.
 func openInBrowser(path string) error {
 	var bin string
 	var args []string

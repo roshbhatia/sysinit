@@ -1,4 +1,3 @@
-// Package transcript implements the `transcript-link` command: make a harness's
 package transcript
 
 import (
@@ -33,10 +32,8 @@ that blocks a prompt to report a bookkeeping problem is worse than no
 bookkeeping.
 `
 
-// SidecarVersion is the sidecar's schema version.
 const SidecarVersion = 1
 
-// sidecar records what a session id cannot: which worktree it belongs to.
 type sidecar struct {
 	Version    int    `json:"version"`
 	Harness    string `json:"harness"`
@@ -47,7 +44,6 @@ type sidecar struct {
 	Updated    int64  `json:"updated"`
 }
 
-// payload is the subset of a hook payload this reads.
 type payload struct {
 	SessionID      string `json:"session_id"`
 	TranscriptPath string `json:"transcript_path"`
@@ -106,7 +102,6 @@ func Run(args []string) int {
 	return 0
 }
 
-// sanitize keeps a session id usable as one path element.
 func sanitize(id string) string {
 	if strings.ContainsAny(id, "/\\") || id == "." || id == ".." {
 		return ""
@@ -114,7 +109,6 @@ func sanitize(id string) string {
 	return strings.TrimSuffix(id, ".jsonl")
 }
 
-// Resolve prefers the payload's own path and falls back to the session
 func Resolve(hint, session string) string {
 	if hint != "" {
 		if info, err := os.Stat(hint); err == nil && info.Mode().IsRegular() {
@@ -143,7 +137,6 @@ func modTime(path string) time.Time {
 	return info.ModTime()
 }
 
-// worktree is the repository root holding cwd, or cwd itself outside one.
 func worktree(cwd string) string {
 	if cwd == "" {
 		return ""
@@ -162,10 +155,8 @@ func repoName(cwd string) string {
 	return filepath.Base(root)
 }
 
-// rootOf answers for cwd rather than for this process's directory.
 var rootOf = repo.RootAt
 
-// publishSidecar writes through a temporary file, so a reader never sees half a
 func publishSidecar(path string, record sidecar) {
 	body, err := json.Marshal(record)
 	if err != nil {
@@ -186,7 +177,6 @@ func publishSidecar(path string, record sidecar) {
 	}
 }
 
-// FindByWorktree returns the newest published session for a worktree, so a
 func FindByWorktree(harness, dir string) (session string, ok bool) {
 	dir = strings.TrimRight(dir, "/")
 	if dir == "" {

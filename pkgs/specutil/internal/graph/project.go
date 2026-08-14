@@ -10,14 +10,10 @@ import (
 	"github.com/roshbhatia/specutil/internal/ir"
 )
 
-// SupportedFormats lists the graph projection formats, sorted.
 func SupportedFormats() []string {
 	return []string{"dot", "json", "mermaid"}
 }
 
-// Project renders the graph in the named format. The json projection is the
-// canonical, byte-stable feed; an unknown format is an error naming the
-// supported set.
 func (g *Graph) Project(format string) ([]byte, error) {
 	switch format {
 	case "json":
@@ -32,8 +28,6 @@ func (g *Graph) Project(format string) ([]byte, error) {
 	}
 }
 
-// json emits the canonical feed: indented, trailing newline, fields in struct
-// order, nodes/edges already sorted by Build. Byte-identical across runs.
 func (g *Graph) json() ([]byte, error) {
 	var buf bytes.Buffer
 	enc := json.NewEncoder(&buf)
@@ -71,8 +65,6 @@ func (g *Graph) dot() []byte {
 	return []byte(b.String())
 }
 
-// mermaidID makes a change name safe as a Mermaid node identifier by replacing
-// any character outside [A-Za-z0-9_] with an underscore.
 func mermaidID(s string) string {
 	var b strings.Builder
 	for _, r := range s {
@@ -86,20 +78,16 @@ func mermaidID(s string) string {
 	return b.String()
 }
 
-// SuggestReport is the JSON envelope for `graph --suggest` output.
 type SuggestReport struct {
 	Candidates []Candidate `json:"candidates"`
 }
 
-// Candidate is a suggested dependency edge inferred from a shared capability,
-// reported for review by `graph --suggest` and never written automatically.
 type Candidate struct {
 	From       string `json:"from"`
 	To         string `json:"to"`
 	Capability string `json:"capability"`
 }
 
-// Suggest infers candidate dependency edges from capabilities shared between changes.
 func Suggest(changes []*ir.Change) []Candidate {
 	type owner struct{ adds, mods []string }
 	byCap := make(map[string]*owner)

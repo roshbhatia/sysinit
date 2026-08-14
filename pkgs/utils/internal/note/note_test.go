@@ -11,7 +11,6 @@ import (
 	"testing"
 )
 
-// newRepo builds a real git working tree and points the store at a private
 func newRepo(t *testing.T) string {
 	t.Helper()
 	dir := t.TempDir()
@@ -41,7 +40,6 @@ func newRepo(t *testing.T) string {
 	return resolved
 }
 
-// run executes a subcommand and returns its exit code and stdout.
 func run(t *testing.T, args ...string) (int, string) {
 	t.Helper()
 	old := os.Stdout
@@ -284,8 +282,6 @@ func TestClearLineNeedsAFile(t *testing.T) {
 	}
 }
 
-// rewrite replaces a file under the repository root, for the tests that move a note's
-// line out from under it.
 func rewrite(t *testing.T, root, relative, body string) {
 	t.Helper()
 	if err := os.WriteFile(filepath.Join(root, relative), []byte(body), 0o644); err != nil {

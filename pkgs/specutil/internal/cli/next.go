@@ -62,23 +62,18 @@ func runNext(cmd *cobra.Command, args []string) error {
 		return werr
 	}
 
-	// Pending work with an empty ready set is a cycle. It is a distinct exit code
-	// so a runner loop halts instead of spinning on an empty answer.
 	if !n.Done && len(n.Ready) == 0 {
 		return errDependencyCycle{change: n.Change}
 	}
 	return nil
 }
 
-// errDependencyCycle signals pending work with an empty ready set. main maps it
-// to exit code 2 so a runner loop halts instead of spinning on an empty answer.
 type errDependencyCycle struct{ change string }
 
 func (e errDependencyCycle) Error() string {
 	return fmt.Sprintf("%s: work remains but no subtask is runnable, so its dependencies form a cycle", e.change)
 }
 
-// IsDependencyCycle reports that `next` found pending work it cannot schedule.
 func IsDependencyCycle(err error) bool {
 	_, ok := err.(errDependencyCycle)
 	return ok
@@ -138,7 +133,6 @@ func label(t lifecycle.Task) string {
 	}
 }
 
-// firstWords keeps a listing to one line per subtask.
 func firstWords(text string, n int) string {
 	words := strings.Fields(text)
 	if len(words) <= n {

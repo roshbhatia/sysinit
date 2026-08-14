@@ -40,8 +40,6 @@ func TestSectionMinBulletsFlagsAnEmptySection(t *testing.T) {
 }
 
 func TestSectionMinBulletsCountsNestedBulletsAndSubsections(t *testing.T) {
-	// Nesting groups criteria, so an indented bullet is still a criterion. An h3
-	// inside the section does not end it either; only the next h2 does.
 	rep, err := Run(behaviorRubric(), []*ir.Change{proposalChange(
 		"## Behavior\n\nMust do:\n\n### Group\n\n- outer\n  - inner\n\n## Impact\n")})
 	if err != nil {
@@ -53,8 +51,6 @@ func TestSectionMinBulletsCountsNestedBulletsAndSubsections(t *testing.T) {
 }
 
 func TestSectionMinBulletsIgnoresBulletsOutsideTheSection(t *testing.T) {
-	// The bullet belongs to Impact. Counting it would let a change pass on
-	// criteria it never wrote.
 	rep, err := Run(behaviorRubric(), []*ir.Change{proposalChange(
 		"## Behavior\n\n## Impact\n\n- a file\n")})
 	if err != nil {
@@ -66,8 +62,6 @@ func TestSectionMinBulletsIgnoresBulletsOutsideTheSection(t *testing.T) {
 }
 
 func TestSectionMinBulletsStaysSilentWhenTheSectionIsAbsent(t *testing.T) {
-	// `required-sections` reports the missing heading. Two rules naming one
-	// defect reads as two defects.
 	rep, err := Run(behaviorRubric(), []*ir.Change{proposalChange("## Why\n\n- a reason\n")})
 	if err != nil {
 		t.Fatalf("Run: %v", err)

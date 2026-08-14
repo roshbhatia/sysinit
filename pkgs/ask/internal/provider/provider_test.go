@@ -26,7 +26,6 @@ func TestAProviderIsFoundByEitherNameItGoesBy(t *testing.T) {
 	}
 }
 
-// The message names what is known, because the caller's next move is to write one of them.
 func TestAProviderNoOneKnowsIsRejectedByName(t *testing.T) {
 	_, err := Find("bogus")
 	if err == nil {

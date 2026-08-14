@@ -1,5 +1,3 @@
-// Package workspace implements `workspace`: which repositories a workspace holds and
-// which paths inside them have changed.
 package workspace
 
 import (
@@ -19,17 +17,12 @@ import (
 
 const Summary = "list the repositories under a workspace, and the changes in them"
 
-// scanDepth bounds the walk, in path segments below the workspace root.
 const scanDepth = 5
 
-// logCount is how many commits per repository `log` reports without being told.
 const logCount = 10
 
-// emptyTree is git's empty tree, reported as the parent of a root commit so every row
-// names something a caller can diff against.
 const emptyTree = "4b825dc642cb6eb9a060e54bf8d69288fbee4904"
 
-// takeCount pulls `-n <count>` out of the arguments and returns the rest.
 func takeCount(args []string, count *int) ([]string, int) {
 	rest := make([]string, 0, len(args))
 	for i := 0; i < len(args); i++ {
@@ -52,7 +45,6 @@ func takeCount(args []string, count *int) ([]string, int) {
 	return rest, 0
 }
 
-// readRoots reads one absolute path per line, keeping the order they arrive in.
 func readRoots(r io.Reader) []string {
 	var roots []string
 	scanner := bufio.NewScanner(r)
@@ -64,9 +56,6 @@ func readRoots(r io.Reader) []string {
 	return roots
 }
 
-// Run dispatches the subcommands. It returns 2 for a usage error and 0 otherwise,
-// including when the answer is empty: a workspace with no repository and a
-// workspace whose repositories are clean are both answers, not failures.
 func Run(args []string) int {
 	if len(args) == 0 {
 		usage(os.Stderr)
@@ -91,8 +80,6 @@ func Run(args []string) int {
 		return usageCode
 	}
 
-	// `-` reads the roots from stdin, so a caller that already holds a set of them, in an
-	// order of its own, does not get the workspace's instead.
 	fromStdin := len(rest) == 1 && rest[0] == "-"
 	if fromStdin && action == "health" {
 		fmt.Fprintln(os.Stderr, "workspace: health reports on a directory, not on roots from stdin")
@@ -148,8 +135,6 @@ func Run(args []string) int {
 	return 0
 }
 
-// writeHealth reports what this layer can see, as `key=value` lines so a shell can read
-// one field with `grep` and an editor can read them all without a parser.
 func writeHealth(w io.Writer, dir string, roots []string, groups []Group) {
 	changed := 0
 	for _, group := range groups {
@@ -180,7 +165,6 @@ dir when there is one, and otherwise dir's own repository root or dir itself, wh
 is the same rule the edit-event log is keyed on.
 
 `+"`-`"+` reads the roots from stdin instead, one per line, keeping their order:
-
   ws roots | ws log -n 5 -
 
 log writes tab-separated fields, and -n bounds the commits per repository (10).
@@ -190,9 +174,6 @@ a usage error.
 `)
 }
 
-// resolveDir takes at most one positional argument and requires it to name a
-// directory that exists. A path typed wrong is worth an error, because the empty
-// output it would otherwise produce reads as "nothing changed".
 func resolveDir(args []string) (string, int) {
 	if len(args) > 1 {
 		fmt.Fprintf(os.Stderr, "workspace: expected at most one directory, got %d\n", len(args))
@@ -230,8 +211,6 @@ func resolveDir(args []string) (string, int) {
 	return abs, 0
 }
 
-// Roots returns every repository root at or under the workspace holding dir, sorted, so
-// a parent always precedes the repositories nested inside it.
 func Roots(dir string) ([]string, error) {
 	root := repo.Workspace(dir)
 	base := strings.Count(filepath.Clean(root), string(os.PathSeparator))
@@ -239,9 +218,6 @@ func Roots(dir string) ([]string, error) {
 	var found []string
 	err := filepath.WalkDir(root, func(path string, entry os.DirEntry, err error) error {
 		if err != nil {
-			// An unreadable directory is skipped rather than fatal. A workspace
-			// routinely holds one, and failing the whole answer over it would make
-			// the command useless exactly where it is most wanted.
 			if entry != nil && entry.IsDir() {
 				return filepath.SkipDir
 			}
@@ -269,7 +245,6 @@ func Roots(dir string) ([]string, error) {
 	return found, nil
 }
 
-// Commit is one commit, as `log` reports it.
 type Commit struct {
 	Root    string
 	SHA     string
@@ -278,7 +253,6 @@ type Commit struct {
 	Subject string
 }
 
-// Log returns the recent commits per root, grouped in the order the roots were given.
 func Log(roots []string, count int) []Commit {
 	perRoot := make([][]Commit, len(roots))
 	var wg sync.WaitGroup
@@ -300,8 +274,6 @@ func Log(roots []string, count int) []Commit {
 	return all
 }
 
-// logIn reads one repository's recent commits, newest first. A repository with no commits
-// yet reports none, which is an answer rather than a failure.
 func logIn(root string, count int) []Commit {
 	cmd := exec.Command("git", "-C", root, "log",
 		"--max-count="+strconv.Itoa(count), "--format=%H%x1f%h%x1f%P%x1f%s")
@@ -317,7 +289,7 @@ func logIn(root string, count int) []Commit {
 		if len(fields) != 4 || fields[0] == "" {
 			continue
 		}
-		// The first parent, so a merge reads as what it brought in.
+
 		parent := emptyTree
 		if parents := strings.Fields(fields[2]); len(parents) > 0 {
 			parent = parents[0]
@@ -333,13 +305,11 @@ func logIn(root string, count int) []Commit {
 	return commits
 }
 
-// Group is one repository's changed paths.
 type Group struct {
 	Root  string
 	Files []string
 }
 
-// Changes returns the changed paths per root, in the order the roots were given.
 func Changes(roots []string) []Group {
 	groups := make([]Group, len(roots))
 	var wg sync.WaitGroup
@@ -363,7 +333,6 @@ func Changes(roots []string) []Group {
 	return kept
 }
 
-// nested returns the roots strictly inside root, relative to it.
 func nested(root string, roots []string) []string {
 	var inside []string
 	for _, other := range roots {
@@ -377,7 +346,6 @@ func nested(root string, roots []string) []string {
 	return inside
 }
 
-// changedIn lists the changed paths in root as absolute paths.
 func changedIn(root string, exclude []string) []string {
 	args := []string{"-C", root, "status", "--porcelain", "--untracked-files=all", "-z", "--"}
 	args = append(args, ".")
@@ -392,7 +360,6 @@ func changedIn(root string, exclude []string) []string {
 		return nil
 	}
 
-	// A record is two status characters, a space, then the path.
 	var files []string
 	records := strings.Split(string(out), "\x00")
 	for i := 0; i < len(records); i++ {

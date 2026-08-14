@@ -12,8 +12,6 @@ import (
 	"github.com/roshbhatia/sysinit/pkgs/ask/internal/store"
 )
 
-// parse reads the arguments the way the command does, stopping before the run itself so a
-// test can see what the flags said.
 func parse(args []string) (options, error) {
 	var opts options
 	cmd := command(&opts)
@@ -27,7 +25,6 @@ func parse(args []string) (options, error) {
 	return opts, cmd.Execute()
 }
 
-// read parses the arguments or fails the test saying which ones.
 func read(t *testing.T, args ...string) options {
 	t.Helper()
 	opts, err := parse(args)
@@ -37,7 +34,6 @@ func read(t *testing.T, args ...string) options {
 	return opts
 }
 
-// The prompt is bare words after the flags, so the common case needs no quoting and no `--`.
 func TestThePromptIsTheBareWordsAfterTheFlags(t *testing.T) {
 	if got := read(t, "summarise", "this", "file").prompt; got != "summarise this file" {
 		t.Errorf("the prompt is %q", got)
@@ -47,8 +43,6 @@ func TestThePromptIsTheBareWordsAfterTheFlags(t *testing.T) {
 	}
 }
 
-// Everything after a bare `--` is the prompt, whatever it looks like, or a prompt about
-// flags could never be written.
 func TestEverythingAfterADoubleDashIsThePrompt(t *testing.T) {
 	opts := read(t, "--", "what", "does", "--json", "do")
 	if opts.prompt != "what does --json do" {
@@ -91,8 +85,6 @@ func TestAProviderIsPickedByItsLetterOrItsName(t *testing.T) {
 	}
 }
 
-// A name spelled out wins over a letter, since the letter is the shorthand for a default
-// and the name is a choice.
 func TestASpelledProviderWinsOverALetter(t *testing.T) {
 	if got := read(t, "-c", "--provider", "codex", "hi").pick(); got != "codex" {
 		t.Errorf("the provider is %q, want codex", got)
@@ -113,8 +105,6 @@ func TestATimeoutThatIsNotADurationIsRejected(t *testing.T) {
 	}
 }
 
-// A leading flag no one knows is a typo, and running the prompt anyway would spend a model
-// call on it.
 func TestAFlagNoOneKnowsIsRejected(t *testing.T) {
 	_, err := parse([]string{"--nope", "hi"})
 	if err == nil {
@@ -125,8 +115,6 @@ func TestAFlagNoOneKnowsIsRejected(t *testing.T) {
 	}
 }
 
-// Once the prompt has started, a word that looks like a flag belongs to it: `ask what does -v
-// mean` is a question, not a mistake.
 func TestAFlagInsideThePromptStaysInThePrompt(t *testing.T) {
 	if got := read(t, "what", "does", "-v", "mean").prompt; got != "what does -v mean" {
 		t.Errorf("the prompt is %q", got)
@@ -157,8 +145,6 @@ func TestEachSavedPieceIsAskedForByName(t *testing.T) {
 	}
 }
 
-// The command is installed under more than one name, and help that spells a name the caller
-// did not type is help they have to translate.
 func TestTheHelpSpellsTheNameTheCommandWasCalledBy(t *testing.T) {
 	var opts options
 	cmd := command(&opts)
@@ -170,8 +156,6 @@ func TestTheHelpSpellsTheNameTheCommandWasCalledBy(t *testing.T) {
 	}
 }
 
-// Completions come with cobra, and a prompt is words rather than filenames, so completing
-// one with the contents of the directory is noise.
 func TestAPromptIsNotCompletedWithFilenames(t *testing.T) {
 	var opts options
 	cmd := command(&opts)
@@ -205,7 +189,6 @@ func TestTheProvidersCompleteByName(t *testing.T) {
 	}
 }
 
-// Indented, because the common next step is a person reading it and `jq` does not mind.
 func TestAStructuredAnswerIsPrintedAsIndentedJSON(t *testing.T) {
 	got, err := answer(&provider.Result{
 		Text:       "ignored",
@@ -219,8 +202,6 @@ func TestAStructuredAnswerIsPrintedAsIndentedJSON(t *testing.T) {
 	}
 }
 
-// The answer is the only thing on stdout, so the trailing newline of a prose answer is cut:
-// the one from Println is the only one wanted.
 func TestAProseAnswerLosesItsTrailingNewlines(t *testing.T) {
 	got, err := answer(&provider.Result{Text: "the answer\n\n"}, false)
 	if err != nil {
@@ -231,8 +212,6 @@ func TestAProseAnswerLosesItsTrailingNewlines(t *testing.T) {
 	}
 }
 
-// A shape was asked for and none came back: the prose is printed rather than nothing at all,
-// since the caller can still read it.
 func TestAnAnswerWithNoShapeFallsBackToItsProse(t *testing.T) {
 	got, err := answer(&provider.Result{Text: "no object here"}, true)
 	if err != nil {
@@ -243,8 +222,6 @@ func TestAnAnswerWithNoShapeFallsBackToItsProse(t *testing.T) {
 	}
 }
 
-// A run that never starts must not overwrite the last one that did, or `--replay` loses the
-// input a caller was about to try again with.
 func TestAProviderNoOneKnowsLeavesTheLastRunAlone(t *testing.T) {
 	t.Setenv("XDG_STATE_HOME", t.TempDir())
 	if err := store.SaveRun([]byte("the run that worked"), "the prompt that worked"); err != nil {

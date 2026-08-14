@@ -23,7 +23,6 @@ func mkChange(name string, done, total int) *ir.Change {
 }
 
 func TestBuildIsDeterministic(t *testing.T) {
-	// Input order is intentionally unsorted to prove output is stable regardless.
 	changes := []*ir.Change{mkChange("gamma", 2, 2), mkChange("alpha", 0, 3), mkChange("beta", 1, 2)}
 
 	a, err := Build(changes).JSON()
@@ -38,7 +37,6 @@ func TestBuildIsDeterministic(t *testing.T) {
 		t.Fatalf("detail feed not byte-identical on repeat:\n%s\n---\n%s", a, b)
 	}
 
-	// And the entries are sorted by name regardless of input order.
 	f := Build(changes)
 	if f.Changes[0].Name != "alpha" || f.Changes[1].Name != "beta" || f.Changes[2].Name != "gamma" {
 		t.Errorf("changes not sorted by name: %v", []string{f.Changes[0].Name, f.Changes[1].Name, f.Changes[2].Name})
@@ -46,8 +44,6 @@ func TestBuildIsDeterministic(t *testing.T) {
 }
 
 func TestLifecycleParityWithSharedClassifier(t *testing.T) {
-	// The detail feed must report the same lifecycle/progress the shared
-	// classifier produces — the guarantee both surfaces rely on.
 	cases := []*ir.Change{mkChange("p", 0, 2), mkChange("a", 1, 2), mkChange("d", 3, 3)}
 	feed := Build(cases)
 	byName := map[string]Change{}
@@ -68,7 +64,6 @@ func TestLifecycleParityWithSharedClassifier(t *testing.T) {
 }
 
 func TestItemLevelKeyTracksPhaseAndSibling(t *testing.T) {
-	// Two phases: phase 1 (level 0) has two parallel items, phase 2 (level 1) one.
 	c := &ir.Change{
 		Name: "x",
 		Tasks: &ir.Tasks{Phases: []ir.Phase{
@@ -104,8 +99,6 @@ func TestBuildCarriesTaskContent(t *testing.T) {
 }
 
 func TestTaskLevelsFallBackToPhaseOrdinal(t *testing.T) {
-	// No task declares a dependency, so every task's level is just its phase's
-	// ordinal — the pre-existing behavior a repo with no extraction still gets.
 	c := &ir.Change{
 		Name: "demo",
 		Tasks: &ir.Tasks{Phases: []ir.Phase{
@@ -126,8 +119,6 @@ func TestTaskLevelsFallBackToPhaseOrdinal(t *testing.T) {
 }
 
 func TestTaskLevelsFollowDeclaredDependencies(t *testing.T) {
-	// A single phase with a real DAG: 1.1 has no deps, 1.2 and 1.3 both wait on
-	// 1.1 (so they share a level and can run in parallel), and 1.4 waits on both.
 	c := &ir.Change{
 		Name: "demo",
 		Tasks: &ir.Tasks{Phases: []ir.Phase{{
@@ -157,8 +148,6 @@ func TestTaskLevelsFollowDeclaredDependencies(t *testing.T) {
 }
 
 func TestTaskLevelsCombineSequentialPhasesAndDeclaredDeps(t *testing.T) {
-	// Phase 1 has an internal chain (1.2 waits on 1.1), so phase 1's deepest task sits at
-	// level 1.
 	c := &ir.Change{
 		Name: "demo",
 		Tasks: &ir.Tasks{Phases: []ir.Phase{
@@ -176,8 +165,6 @@ func TestTaskLevelsCombineSequentialPhasesAndDeclaredDeps(t *testing.T) {
 }
 
 func TestTaskLevelsIgnoreCycles(t *testing.T) {
-	// A cycle must not hang the walk or produce an unbounded level; it simply
-	// stops descending when it meets a node already being visited.
 	c := &ir.Change{
 		Name: "demo",
 		Tasks: &ir.Tasks{Phases: []ir.Phase{{

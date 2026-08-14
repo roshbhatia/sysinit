@@ -8,7 +8,6 @@ import (
 	"testing"
 )
 
-// setup points the paths resolver at a temporary directory and makes the
 func setup(t *testing.T) string {
 	t.Helper()
 	published := t.TempDir()
@@ -33,7 +32,6 @@ func setup(t *testing.T) string {
 	return published
 }
 
-// run feeds a payload to the command the way a hook does.
 func run(t *testing.T, harness, body string) int {
 	t.Helper()
 	stdin, err := os.CreateTemp(t.TempDir(), "payload-*")
