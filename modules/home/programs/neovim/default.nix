@@ -1,4 +1,4 @@
-{ ... }:
+{ pkgs, ... }:
 
 {
   imports = [ ./sysinit-nvim.nix ];
@@ -10,4 +10,15 @@
     viAlias = true;
     sideloadInitLua = true;
   };
+
+  home.packages = [
+    (pkgs.writeShellApplication {
+      name = "rnvim";
+      runtimeInputs = [
+        pkgs.coreutils
+        pkgs.openssh
+      ];
+      text = builtins.readFile ./scripts/rnvim.sh;
+    })
+  ];
 }
