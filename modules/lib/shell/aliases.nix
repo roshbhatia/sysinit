@@ -1,8 +1,5 @@
 let
   commonAliases = {
-    # One keystroke, because ask is written at the end of a pipe rather than at the start
-    # of a line: `cat log | _ classify this`.
-    "_" = "ask";
     c = "claude --dangerously-skip-permissions";
     cat = "bat -pp";
     f = "yazi";
