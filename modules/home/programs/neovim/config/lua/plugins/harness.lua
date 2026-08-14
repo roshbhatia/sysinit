@@ -91,12 +91,56 @@ return {
         desc = "Harness: send selection",
         mode = "v",
       },
+      -- The notes are their own tool: they are drawn on a file whether or not a diff is
+      -- open, so nothing here loads the diff viewer.
       {
-        "<leader>ji",
+        "<leader>dna",
         function()
           require("harness.notes").add()
         end,
-        desc = "Harness: add note",
+        desc = "Notes: add one on this line",
+      },
+      {
+        "<leader>dnt",
+        function()
+          require("harness.notes").toggle()
+        end,
+        desc = "Notes: show or hide",
+      },
+      {
+        "<leader>dnd",
+        function()
+          require("harness.notes").remove_line()
+        end,
+        desc = "Notes: remove the ones on this line",
+      },
+      {
+        "<leader>dnD",
+        function()
+          require("harness.notes").remove_file()
+        end,
+        desc = "Notes: remove every one in this file",
+      },
+      {
+        "<leader>dnX",
+        function()
+          require("harness.notes").remove_project()
+        end,
+        desc = "Notes: remove every one in this project",
+      },
+      {
+        "<leader>dnq",
+        function()
+          require("harness.notes_list").quickfix()
+        end,
+        desc = "Notes: list in the quickfix",
+      },
+      {
+        "<leader>dnf",
+        function()
+          require("harness.notes_list").pick()
+        end,
+        desc = "Notes: find one",
       },
     },
   },

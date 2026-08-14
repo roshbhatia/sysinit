@@ -152,22 +152,6 @@ return {
         desc = "Diff: project history",
         mode = "n",
       },
-      {
-        "<leader>dnq",
-        function()
-          require("harness.notes_list").quickfix()
-        end,
-        desc = "Diff: quickfix notes",
-        mode = "n",
-      },
-      {
-        "<leader>dnf",
-        function()
-          require("harness.notes_list").pick()
-        end,
-        desc = "Diff: find notes",
-        mode = "n",
-      },
       -- `]r`, not `]d`: the LSP attaches `]d` per buffer for diagnostics, and a global
       -- mapping under it would answer only in the buffers the LSP never reached.
       {

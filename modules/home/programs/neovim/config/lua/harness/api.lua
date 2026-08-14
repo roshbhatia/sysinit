@@ -197,6 +197,12 @@ function M.setup()
   pcall(function()
     require("harness.edit_events").start()
   end)
+
+  -- Set up here rather than with the diff viewer: a note is drawn on the file it
+  -- annotates whether or not a review is open, so nothing about it waits on diffview.
+  pcall(function()
+    require("harness.notes").setup()
+  end)
 end
 
 return M

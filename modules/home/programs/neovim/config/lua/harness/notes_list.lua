@@ -11,7 +11,8 @@ local augroup = "harness_note_list"
 -- file list someone else put there alone.
 local qf_id = nil
 
---- The roots to read notes for: the review's when one is open, the notes' own otherwise.
+--- Every note in the project: the repositories under review, or the ones the open files
+--- needed.
 ---@return table[]
 local function notes()
   return require("harness.notes").all()
@@ -39,7 +40,7 @@ local function fill()
     }
   end
 
-  local what = { title = string.format("Agent notes (%d)", #items), items = items }
+  local what = { title = string.format("Notes (%d)", #items), items = items }
   local exists = qf_id ~= nil and vim.fn.getqflist({ id = qf_id, items = 0 }).id == qf_id
   if exists then
     vim.fn.setqflist({}, "r", vim.tbl_extend("force", what, { id = qf_id }))
@@ -78,7 +79,7 @@ function M.quickfix()
   })
 
   if count == 0 then
-    vim.notify("Notes: none in the open review", vim.log.levels.INFO)
+    vim.notify("Notes: this project carries none", vim.log.levels.INFO)
   end
 end
 
@@ -86,7 +87,7 @@ end
 function M.pick()
   local found = notes()
   if #found == 0 then
-    vim.notify("Notes: none in the open review", vim.log.levels.INFO)
+    vim.notify("Notes: this project carries none", vim.log.levels.INFO)
     return
   end
 
@@ -184,7 +185,7 @@ function M.mark_panel(bufnr)
       -- line is checked rather than trusted.
       if count and comp.lstart >= 0 and comp.lstart < lines then
         pcall(vim.api.nvim_buf_set_extmark, bufnr, ns, comp.lstart, 0, {
-          virt_text = { { string.format("  󰚩 %d", count), "DiagnosticInfo" } },
+          virt_text = { { string.format("  󰦢 %d", count), "DiagnosticInfo" } },
           virt_text_pos = "eol",
           hl_mode = "combine",
         })

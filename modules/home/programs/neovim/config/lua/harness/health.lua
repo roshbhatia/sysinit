@@ -104,14 +104,14 @@ function M.findings()
 
   local ok_notes, notes = pcall(require, "harness.notes")
   if not ok_notes then
-    add("error", "the agent-note module did not load, so a review shows the diff and none of the reasoning")
+    add("error", "the note module did not load, so a review shows the diff and none of the reasoning")
   elseif vim.fn.executable(notes.tool) ~= 1 then
     add(
       "warn",
-      string.format("agent notes: `%s` is not on PATH, so a review draws no notes and does not fail either", notes.tool)
+      string.format("notes: `%s` is not on PATH, so a file draws no notes and does not fail either", notes.tool)
     )
   else
-    add("ok", string.format("agent notes: %d drawn for the open review", notes.count()))
+    add("ok", string.format("notes: %d loaded for this project", notes.count()))
   end
 
   for _, plugin in ipairs({
