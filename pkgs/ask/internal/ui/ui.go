@@ -1,12 +1,15 @@
 package ui
 
 import (
+	"errors"
 	"fmt"
 	"io"
 	"os"
 	"strings"
 	"time"
 
+	"github.com/charmbracelet/bubbles/help"
+	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/spinner"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
@@ -16,21 +19,39 @@ import (
 
 const depth = 8
 
-var (
-	dim    = lipgloss.NewStyle().Foreground(lipgloss.Color("245"))
-	accent = lipgloss.NewStyle().Foreground(lipgloss.Color("111"))
-	bad    = lipgloss.NewStyle().Foreground(lipgloss.Color("203"))
-	tool   = lipgloss.NewStyle().Foreground(lipgloss.Color("150"))
-)
+// ErrStopped says the run ended because the keyboard asked it to.
+var ErrStopped = errors.New("stopped")
+
+type runKeys struct {
+	stop key.Binding
+}
+
+func (k runKeys) ShortHelp() []key.Binding  { return []key.Binding{k.stop} }
+func (k runKeys) FullHelp() [][]key.Binding { return [][]key.Binding{k.ShortHelp()} }
+
+var running = runKeys{
+	stop: key.NewBinding(key.WithKeys("ctrl+c", "esc"), key.WithHelp("ctrl+c", "stop")),
+}
+
+type row struct {
+	name string
+	text string
+
+	gutter lipgloss.Style
+	body   lipgloss.Style
+}
 
 type model struct {
 	spin    spinner.Model
+	help    help.Model
 	events  <-chan provider.Event
-	lines   []string
+	stop    func()
+	rows    []row
 	status  string
+	width   int
 	started time.Time
 	result  *provider.Result
-	failed  string
+	stopped bool
 }
 
 type tick struct {
@@ -64,8 +85,15 @@ func (m model) Update(message tea.Msg) (tea.Model, tea.Cmd) {
 		var cmd tea.Cmd
 		m.spin, cmd = m.spin.Update(message)
 		return m, cmd
+	case tea.WindowSizeMsg:
+		m.width = message.Width
+		return m, nil
 	case tea.KeyMsg:
-		if message.Type == tea.KeyCtrlC {
+		if key.Matches(message, running.stop) {
+			m.stopped = true
+			if m.stop != nil {
+				m.stop()
+			}
 			return m, tea.Quit
 		}
 	}
@@ -77,68 +105,107 @@ func (m *model) take(event provider.Event) {
 	case provider.Started:
 		m.status = event.Text
 	case provider.Text:
-		m.push(dim.Render(first(event.Text)))
+		m.push(row{text: first(event.Text), gutter: dim, body: dim})
 	case provider.Tool:
-		m.push(tool.Render(event.Tool) + " " + dim.Render(event.Text))
+		m.push(row{name: event.Tool, text: first(event.Text), gutter: tool, body: dim})
 	case provider.Notice:
-		m.push(bad.Render(event.Text))
+		m.push(row{name: "!", text: first(event.Text), gutter: bad, body: bad})
 	case provider.Done:
 		m.result = event.Result
-		if event.Result != nil && event.Result.Failed {
-			m.failed = event.Result.Reason
+	}
+}
+
+func (m *model) push(line row) {
+	m.rows = append(m.rows, line)
+	if len(m.rows) > depth {
+		m.rows = m.rows[len(m.rows)-depth:]
+	}
+}
+
+// first keeps the opening line of a block, since a whole block will not fit a row.
+func first(text string) string {
+	return clip(strings.TrimSpace(strings.SplitN(text, "\n", 2)[0]), 200)
+}
+
+// clock reads as a stopwatch, so a long run stays legible past a minute.
+func clock(since time.Duration) string {
+	whole := int(since.Seconds())
+	return fmt.Sprintf("%d:%02d", whole/60, whole%60)
+}
+
+// column sizes the tool name gutter to the widest name on screen.
+func column(rows []row) int {
+	width := 0
+	for _, one := range rows {
+		if size := lipgloss.Width(one.name); size > width {
+			width = size
 		}
 	}
-}
-
-func (m *model) push(line string) {
-	m.lines = append(m.lines, line)
-	if len(m.lines) > depth {
-		m.lines = m.lines[len(m.lines)-depth:]
+	if width > 12 {
+		width = 12
 	}
-}
-
-func first(text string) string {
-	line := strings.TrimSpace(strings.SplitN(text, "\n", 2)[0])
-	if len(line) > 100 {
-		line = line[:100] + "…"
-	}
-	return line
+	return width
 }
 
 func (m model) View() string {
-	if m.result != nil {
+	if m.result != nil || m.stopped {
 		return ""
 	}
-	var out strings.Builder
-	for _, line := range m.lines {
-		out.WriteString("  " + line + "\n")
-	}
+
+	width := inner(m.width)
 	status := m.status
 	if status == "" {
 		status = "starting"
 	}
-	out.WriteString(fmt.Sprintf(
-		"%s %s %s\n",
-		m.spin.View(),
-		accent.Render(status),
-		dim.Render(time.Since(m.started).Round(time.Second).String()),
-	))
-	return out.String()
+
+	shown := frame{
+		title: "ask",
+		width: width,
+		head: split(
+			m.spin.View()+accent.Render(clip(status, width-8)),
+			dim.Render(clock(time.Since(m.started))),
+			width,
+		),
+	}
+
+	gutter := column(m.rows)
+	for _, one := range m.rows {
+		name := one.gutter.Render(pad(clip(one.name, gutter), gutter))
+		text := one.body.Render(clip(one.text, width-gutter-3))
+		shown.rows = append(shown.rows, " "+name+"  "+text)
+	}
+
+	return shown.String() + "\n" + dim.Render("  "+m.help.ShortHelpView(running.ShortHelp())) + "\n"
 }
 
-func Run(events <-chan provider.Event) (*provider.Result, error) {
+// Run watches a live run and answers with what it ended on. stop is called when
+// the keyboard asks the run to end, so the agent stops rather than only the view.
+func Run(events <-chan provider.Event, stop func()) (*provider.Result, error) {
 	spin := spinner.New()
 	spin.Spinner = spinner.Dot
 	spin.Style = accent
 
-	start := model{spin: spin, events: events, started: time.Now()}
+	guide := help.New()
+	guide.ShowAll = false
 
-	program := tea.NewProgram(start, tea.WithOutput(os.Stderr), tea.WithInput(nil))
-	final, err := program.Run()
+	start := model{spin: spin, help: guide, events: events, stop: stop, started: time.Now()}
+
+	options := []tea.ProgramOption{tea.WithOutput(os.Stderr)}
+	if keyboard := console(); keyboard != nil {
+		defer keyboard.Close()
+		options = append(options, tea.WithInput(keyboard))
+	} else {
+		options = append(options, tea.WithInput(nil))
+	}
+
+	final, err := tea.NewProgram(start, options...).Run()
 	if err != nil {
 		return nil, err
 	}
 	done, _ := final.(model)
+	if done.stopped {
+		return nil, ErrStopped
+	}
 	return done.result, nil
 }
 
@@ -153,16 +220,4 @@ func Drain(events <-chan provider.Event, to io.Writer) *provider.Result {
 		}
 	}
 	return result
-}
-
-func Summary(result *provider.Result) string {
-	if result == nil {
-		return ""
-	}
-	return dim.Render(fmt.Sprintf(
-		"%s · %d turns · $%.4f",
-		result.Duration.Round(time.Millisecond*100),
-		result.Turns,
-		result.CostUSD,
-	))
 }

@@ -14,6 +14,7 @@ import (
 	"github.com/spf13/cobra"
 	"golang.org/x/term"
 
+	"github.com/roshbhatia/sysinit/pkgs/ask/internal/config"
 	"github.com/roshbhatia/sysinit/pkgs/ask/internal/provider"
 	"github.com/roshbhatia/sysinit/pkgs/ask/internal/schema"
 	"github.com/roshbhatia/sysinit/pkgs/ask/internal/store"
@@ -26,16 +27,27 @@ Anything on stdin goes to the agent along with the prompt, so a pipe is optional
 
   %[1]s what does git rebase --onto do
   cat main.go | %[1]s summarise this file
-  cat log.txt | %[1]s -o --schema 'level:error|warn|info, message:string' -- classify this
+  cat log.txt | %[1]s -p cdx --schema 'level:error|warn|info, message:string' -- classify this
   %[1]s --show-input | pbcopy
 
 The prompt is the bare words after the flags, so the -- is only needed when a flag
 comes first. Quote a prompt that holds shell metacharacters, as in
-%[1]s -c 'what does the | operator do', or the shell reads them before %[1]s does.
+%[1]s -p cld 'what does the | operator do', or the shell reads them before %[1]s does.
 
-Both providers answer --json and --schema in the shape asked for, and a run that
-answers outside it is reported as a failure. Codex reports no cost, so the line
-after a codex run says $0.0000.`
+No agent is the default one. %[1]s takes the first of these that says which to run:
+the -p flag, the name it was called by, $ASK_PROVIDER, then provider.default from
+the settings. With none of them it opens a picker.
+
+  %[1]s --set-config provider.default=cld
+  %[1]s --get-config provider.default
+  %[1]s --list-config
+
+The short names are wrappers on PATH: _cld is claude, _cdx is codex, and a
+trailing j asks for JSON, so _cldj is claude with --json. Bare _ picks the agent
+the settings name.
+
+Both agents answer --json and --schema in the shape asked for, and a run that
+answers outside it is reported as a failure.`
 
 type options struct {
 	prompt   string
@@ -43,8 +55,6 @@ type options struct {
 	spec     string
 	model    string
 	provider string
-	claude   bool
-	codex    bool
 	replay   bool
 	quiet    bool
 	timeout  time.Duration
@@ -52,6 +62,10 @@ type options struct {
 	showInput  bool
 	showPrompt bool
 	showOutput bool
+
+	setConfig  string
+	getConfig  string
+	listConfig bool
 }
 
 func (o options) show() string {
@@ -68,6 +82,39 @@ func (o options) show() string {
 
 func called() string {
 	return filepath.Base(os.Args[0])
+}
+
+// wrapper reads the name the binary was called by. _cld is claude, _cldj is
+// claude answering JSON, and bare _ names no agent at all.
+func wrapper(name string) (short string, asJSON bool, known bool) {
+	rest, is := strings.CutPrefix(name, "_")
+	if !is {
+		return "", false, false
+	}
+	if rest == "" {
+		return "", false, true
+	}
+	if _, found := provider.Lookup(rest); found {
+		return rest, false, true
+	}
+	if trimmed, cut := strings.CutSuffix(rest, "j"); cut {
+		if trimmed == "" {
+			return "", true, true
+		}
+		if _, found := provider.Lookup(trimmed); found {
+			return trimmed, true, true
+		}
+	}
+	return "", false, false
+}
+
+// wrappers lists every name the binary answers to besides ask itself.
+func wrappers() []string {
+	names := []string{"_", "_j"}
+	for _, one := range provider.Known() {
+		names = append(names, "_"+one.Short, "_"+one.Short+"j")
+	}
+	return names
 }
 
 func command(opts *options) *cobra.Command {
@@ -96,36 +143,82 @@ func command(opts *options) *cobra.Command {
 	flags.BoolVarP(&opts.json, "json", "j", false, "answer in JSON, shape unspecified")
 	flags.StringVarP(&opts.spec, "schema", "s", "", "answer in JSON, in this shape: a field spec such as 'name:string, tags:[]string, count:int?', where a trailing question mark makes a field optional and a bar makes an enum, or @path to a JSON Schema file")
 	flags.StringVarP(&opts.model, "model", "m", "", "model alias, such as opus or sonnet")
-	flags.BoolVarP(&opts.claude, "claude", "c", false, "run claude, which is the default")
-	flags.BoolVarP(&opts.codex, "codex", "o", false, "run codex")
-	flags.StringVar(&opts.provider, "provider", "", "which agent to run by name, claude or codex")
+	flags.StringVarP(&opts.provider, "provider", "p", "", "which agent to run: "+strings.Join(provider.Names(), ", "))
 	flags.BoolVar(&opts.replay, "replay", false, "rerun the last input, with this prompt or the last one")
 	flags.BoolVarP(&opts.quiet, "quiet", "q", false, "no progress output at all")
 	flags.DurationVar(&opts.timeout, "timeout", 10*time.Minute, "give up after this long")
 	flags.BoolVar(&opts.showInput, "show-input", false, "print the last input and exit")
 	flags.BoolVar(&opts.showPrompt, "show-prompt", false, "print the last prompt and exit")
 	flags.BoolVar(&opts.showOutput, "show-output", false, "print the last answer and exit")
+	flags.StringVar(&opts.setConfig, "set-config", "", "write one setting, as KEY=VALUE, and exit")
+	flags.StringVar(&opts.getConfig, "get-config", "", "print one setting and exit")
+	flags.BoolVar(&opts.listConfig, "list-config", false, "print every setting and exit")
 
 	_ = cmd.RegisterFlagCompletionFunc("provider", func(*cobra.Command, []string, string) ([]string, cobra.ShellCompDirective) {
-		return []string{"claude", "codex"}, cobra.ShellCompDirectiveNoFileComp
+		return provider.Names(), cobra.ShellCompDirectiveNoFileComp
 	})
 	_ = cmd.RegisterFlagCompletionFunc("model", func(*cobra.Command, []string, string) ([]string, cobra.ShellCompDirective) {
 		return []string{"opus", "sonnet", "haiku"}, cobra.ShellCompDirectiveNoFileComp
+	})
+	_ = cmd.RegisterFlagCompletionFunc("get-config", func(*cobra.Command, []string, string) ([]string, cobra.ShellCompDirective) {
+		return config.Keys(), cobra.ShellCompDirectiveNoFileComp
+	})
+	_ = cmd.RegisterFlagCompletionFunc("set-config", func(_ *cobra.Command, _ []string, typed string) ([]string, cobra.ShellCompDirective) {
+		return pairs(typed), cobra.ShellCompDirectiveNoSpace | cobra.ShellCompDirectiveNoFileComp
 	})
 
 	return cmd
 }
 
-func (o options) pick() string {
-	switch {
-	case o.provider != "":
-		return o.provider
-	case o.codex:
-		return "codex"
-	case o.claude:
-		return "claude"
+// pairs completes --set-config on both halves: the keys first, then that key's values.
+func pairs(typed string) []string {
+	key, _, is := strings.Cut(typed, "=")
+	if !is {
+		offer := make([]string, 0, len(config.Keys()))
+		for _, one := range config.Keys() {
+			offer = append(offer, one+"=")
+		}
+		return offer
 	}
-	return ""
+	for _, setting := range config.Settings() {
+		if setting.Key != key || setting.Values == nil {
+			continue
+		}
+		offer := make([]string, 0)
+		for _, value := range setting.Values() {
+			offer = append(offer, key+"="+value)
+		}
+		return offer
+	}
+	return nil
+}
+
+// chosen walks the ways to name an agent, most explicit first, and asks only when
+// none of them says anything.
+func chosen(opts options) (provider.Provider, error) {
+	short, _, _ := wrapper(called())
+	for _, named := range []string{opts.provider, short, os.Getenv("ASK_PROVIDER")} {
+		if named != "" {
+			return provider.Find(named)
+		}
+	}
+
+	settled, err := config.Get(config.ProviderDefault)
+	if err != nil {
+		return nil, err
+	}
+	if settled != "" {
+		return provider.Find(settled)
+	}
+
+	if !term.IsTerminal(int(os.Stderr.Fd())) {
+		return nil, fmt.Errorf("say which agent to run with -p, or set %s", config.ProviderDefault)
+	}
+	picked, err := ui.Pick(provider.Known())
+	if err != nil {
+		return nil, err
+	}
+	return picked.New(), nil
 }
 
 func piped() bool {
@@ -157,6 +250,40 @@ func printSaved(which string) error {
 	return nil
 }
 
+// settings answers true when the run was about the settings rather than an agent.
+func settings(opts options) (bool, error) {
+	switch {
+	case opts.setConfig != "":
+		key, value, err := config.Set(opts.setConfig)
+		if err != nil {
+			return true, err
+		}
+		if value == "" {
+			fmt.Printf("%s is now unset\n", key)
+			return true, nil
+		}
+		fmt.Printf("%s=%s\n", key, value)
+		return true, nil
+	case opts.getConfig != "":
+		value, err := config.Get(opts.getConfig)
+		if err != nil {
+			return true, err
+		}
+		fmt.Println(value)
+		return true, nil
+	case opts.listConfig:
+		lines, err := config.List()
+		if err != nil {
+			return true, err
+		}
+		for _, line := range lines {
+			fmt.Println(line)
+		}
+		return true, nil
+	}
+	return false, nil
+}
+
 func answer(result *provider.Result, structured bool) ([]byte, error) {
 	if structured && result.Structured != nil {
 		return json.MarshalIndent(result.Structured, "", "  ")
@@ -166,8 +293,15 @@ func answer(result *provider.Result, structured bool) ([]byte, error) {
 }
 
 func run(opts options) error {
+	if handled, err := settings(opts); handled {
+		return err
+	}
 	if which := opts.show(); which != "" {
 		return printSaved(which)
+	}
+
+	if _, asJSON, _ := wrapper(called()); asJSON {
+		opts.json = true
 	}
 
 	var shape map[string]any
@@ -181,7 +315,7 @@ func run(opts options) error {
 		shape = schema.Any()
 	}
 
-	agent, err := provider.Find(opts.pick())
+	agent, err := chosen(opts)
 	if err != nil {
 		return err
 	}
@@ -231,14 +365,14 @@ func run(opts options) error {
 	}
 
 	var result *provider.Result
-	watching := !opts.quiet && term.IsTerminal(int(os.Stderr.Fd()))
-	if watching {
-		if result, err = ui.Run(events); err != nil {
+	switch {
+	case !opts.quiet && term.IsTerminal(int(os.Stderr.Fd())):
+		if result, err = ui.Run(events, stop); err != nil {
 			return err
 		}
-	} else if opts.quiet {
+	case opts.quiet:
 		result = ui.Drain(events, nil)
-	} else {
+	default:
 		result = ui.Drain(events, os.Stderr)
 	}
 
@@ -257,16 +391,18 @@ func run(opts options) error {
 		return err
 	}
 	fmt.Println(string(out))
-
-	if watching {
-		fmt.Fprintln(os.Stderr, ui.Summary(result))
-	}
 	return nil
 }
 
 func main() {
 	var opts options
-	if err := command(&opts).Execute(); err != nil {
+	err := command(&opts).Execute()
+	switch {
+	case err == nil:
+		return
+	case errors.Is(err, ui.ErrStopped):
+		os.Exit(130)
+	default:
 		fmt.Fprintln(os.Stderr, called()+": "+err.Error())
 		os.Exit(1)
 	}

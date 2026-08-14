@@ -4,8 +4,11 @@ import (
 	"bufio"
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
+	"os/exec"
+	"slices"
 	"strings"
 	"time"
 )
@@ -90,12 +93,55 @@ func structured(text string) map[string]any {
 	return shape
 }
 
-func Find(name string) (Provider, error) {
-	switch name {
-	case "", "claude", "c":
-		return Claude{}, nil
-	case "codex", "o":
-		return Codex{}, nil
+type Info struct {
+	Name string
+
+	Short string
+
+	Blurb string
+
+	Binary string
+
+	build func() Provider
+}
+
+var known = []Info{
+	{Name: "claude", Short: "cld", Blurb: "Claude Code", Binary: "claude", build: func() Provider { return Claude{} }},
+	{Name: "codex", Short: "cdx", Blurb: "the Codex CLI", Binary: "codex", build: func() Provider { return Codex{} }},
+}
+
+func (i Info) New() Provider { return i.build() }
+
+func (i Info) Ready() bool {
+	_, err := exec.LookPath(i.Binary)
+	return err == nil
+}
+
+func Known() []Info { return slices.Clone(known) }
+
+func Lookup(name string) (Info, bool) {
+	for _, one := range known {
+		if name == one.Name || name == one.Short {
+			return one, true
+		}
 	}
-	return nil, fmt.Errorf("unknown provider %q, known: claude, codex", name)
+	return Info{}, false
+}
+
+func Names() []string {
+	names := make([]string, 0, len(known)*2)
+	for _, one := range known {
+		names = append(names, one.Name, one.Short)
+	}
+	return names
+}
+
+func Find(name string) (Provider, error) {
+	if name == "" {
+		return nil, errors.New("say which agent to run, with -p")
+	}
+	if one, ok := Lookup(name); ok {
+		return one.New(), nil
+	}
+	return nil, fmt.Errorf("unknown provider %q, known: %s", name, strings.Join(Names(), ", "))
 }

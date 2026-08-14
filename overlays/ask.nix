@@ -1,7 +1,11 @@
 final: _prev: {
   ask =
     let
-      short = "_";
+      # pkgs/ask/wrappers.txt is the one list; a Go test fails when it and the
+      # provider registry disagree.
+      wrappers = final.lib.filter (name: name != "") (
+        final.lib.splitString "\n" (builtins.readFile ../pkgs/ask/wrappers.txt)
+      );
     in
     final.buildGoModule {
       pname = "ask";
@@ -9,15 +13,17 @@ final: _prev: {
 
       src = ../pkgs/ask;
 
-      vendorHash = "sha256-7Z/dVJWGXN3ZN5Me37gUbj67kE11vF6MfFJGIylTt8g=";
+      vendorHash = "sha256-GTJxlZNc+yfQN9RncGWfAKfoSmVasKgyS6ycCy7nDZU=";
 
       nativeBuildInputs = [ final.installShellFiles ];
 
       postInstall = ''
-        ln -s ask "$out/bin/${short}"
+        for name in ${final.lib.escapeShellArgs wrappers}; do
+          ln -s ask "$out/bin/$name"
+        done
       ''
       + final.lib.optionalString (final.stdenv.buildPlatform.canExecute final.stdenv.hostPlatform) ''
-        for name in ask ${short}; do
+        for name in ask ${final.lib.escapeShellArgs wrappers}; do
           installShellCompletion --cmd "$name" \
             --bash <("$out/bin/$name" completion bash) \
             --zsh <("$out/bin/$name" completion zsh)

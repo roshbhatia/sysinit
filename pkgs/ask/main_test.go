@@ -4,12 +4,14 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"slices"
 	"strings"
 	"testing"
 	"time"
 
 	"github.com/spf13/cobra"
 
+	"github.com/roshbhatia/sysinit/pkgs/ask/internal/config"
 	"github.com/roshbhatia/sysinit/pkgs/ask/internal/provider"
 	"github.com/roshbhatia/sysinit/pkgs/ask/internal/store"
 )
@@ -40,7 +42,7 @@ func TestThePromptIsTheBareWordsAfterTheFlags(t *testing.T) {
 	if got := read(t, "summarise", "this", "file").prompt; got != "summarise this file" {
 		t.Errorf("the prompt is %q", got)
 	}
-	if got := read(t, "-o", "--", "classify", "this").prompt; got != "classify this" {
+	if got := read(t, "-p", "cdx", "--", "classify", "this").prompt; got != "classify this" {
 		t.Errorf("after a flag the prompt is %q", got)
 	}
 }
@@ -56,11 +58,11 @@ func TestEverythingAfterADoubleDashIsThePrompt(t *testing.T) {
 }
 
 func TestEveryFlagIsRead(t *testing.T) {
-	opts := read(t, "-j", "-q", "--replay", "-m", "opus", "-s", "a:string", "--timeout", "30s", "hi")
+	opts := read(t, "-j", "-q", "--replay", "-m", "opus", "-s", "a:string", "-p", "cdx", "--timeout", "30s", "hi")
 	if !opts.json || !opts.quiet || !opts.replay {
 		t.Errorf("the switches are %+v", opts)
 	}
-	if opts.model != "opus" || opts.spec != "a:string" {
+	if opts.model != "opus" || opts.spec != "a:string" || opts.provider != "cdx" {
 		t.Errorf("the values are %+v", opts)
 	}
 	if opts.timeout != 30*time.Second {
@@ -71,30 +73,31 @@ func TestEveryFlagIsRead(t *testing.T) {
 	}
 }
 
-func TestAProviderIsPickedByItsLetterOrItsName(t *testing.T) {
+func TestAProviderIsNamedByTheOneFlagThatNamesOne(t *testing.T) {
 	for _, one := range []struct {
 		args []string
 		want string
 	}{
 		{[]string{"hi"}, ""},
-		{[]string{"-c", "hi"}, "claude"},
-		{[]string{"-o", "hi"}, "codex"},
+		{[]string{"-p", "cld", "hi"}, "cld"},
 		{[]string{"--provider", "codex", "hi"}, "codex"},
 	} {
-		if got := read(t, one.args...).pick(); got != one.want {
-			t.Errorf("%v picked %q, want %q", one.args, got, one.want)
+		if got := read(t, one.args...).provider; got != one.want {
+			t.Errorf("%v named %q, want %q", one.args, got, one.want)
 		}
 	}
 }
 
-func TestASpelledProviderWinsOverALetter(t *testing.T) {
-	if got := read(t, "-c", "--provider", "codex", "hi").pick(); got != "codex" {
-		t.Errorf("the provider is %q, want codex", got)
+func TestTheDroppedProviderLettersAreGone(t *testing.T) {
+	for _, flag := range []string{"-c", "-o"} {
+		if _, err := parse([]string{flag, "hi"}); err == nil {
+			t.Errorf("%s is still a flag", flag)
+		}
 	}
 }
 
 func TestAFlagWithNoValueIsRejected(t *testing.T) {
-	for _, flag := range []string{"-m", "-s", "--provider", "--timeout"} {
+	for _, flag := range []string{"-m", "-s", "-p", "--provider", "--timeout", "--set-config", "--get-config"} {
 		if _, err := parse([]string{flag}); err == nil {
 			t.Errorf("%s was accepted with no value", flag)
 		}
@@ -170,7 +173,7 @@ func TestAPromptIsNotCompletedWithFilenames(t *testing.T) {
 	}
 }
 
-func TestTheProvidersCompleteByName(t *testing.T) {
+func TestTheProvidersCompleteByEitherNameTheyGoBy(t *testing.T) {
 	var opts options
 	cmd := command(&opts)
 	for _, one := range []struct {
@@ -178,7 +181,10 @@ func TestTheProvidersCompleteByName(t *testing.T) {
 		want string
 	}{
 		{"provider", "codex"},
+		{"provider", "cdx"},
+		{"provider", "cld"},
 		{"model", "opus"},
+		{"get-config", config.ProviderDefault},
 	} {
 		complete, ok := cmd.GetFlagCompletionFunc(one.flag)
 		if !ok {
@@ -188,6 +194,22 @@ func TestTheProvidersCompleteByName(t *testing.T) {
 		if !hasString(values, one.want) {
 			t.Errorf("--%s completes to %v, want it to offer %q", one.flag, values, one.want)
 		}
+	}
+}
+
+func TestSetConfigCompletesTheKeyFirstAndThenItsValues(t *testing.T) {
+	keys := pairs("")
+	if !hasString(keys, config.ProviderDefault+"=") {
+		t.Errorf("the keys complete to %v", keys)
+	}
+	values := pairs(config.ProviderDefault + "=")
+	for _, want := range []string{config.ProviderDefault + "=claude", config.ProviderDefault + "=cdx"} {
+		if !hasString(values, want) {
+			t.Errorf("the values complete to %v, want them to offer %q", values, want)
+		}
+	}
+	if got := pairs("provider.nope="); got != nil {
+		t.Errorf("an unknown key completed to %v", got)
 	}
 }
 
@@ -252,7 +274,7 @@ func TestAProviderNoOneKnowsLeavesTheLastRunAlone(t *testing.T) {
 
 func TestNothingToReplayIsSaidRatherThanRun(t *testing.T) {
 	t.Setenv("XDG_STATE_HOME", t.TempDir())
-	err := run(options{prompt: "do it", replay: true})
+	err := run(options{prompt: "do it", provider: "claude", replay: true})
 	if err == nil {
 		t.Fatal("a replay with nothing saved was accepted")
 	}
@@ -263,7 +285,7 @@ func TestNothingToReplayIsSaidRatherThanRun(t *testing.T) {
 
 func TestAPromptIsRequired(t *testing.T) {
 	t.Setenv("XDG_STATE_HOME", t.TempDir())
-	err := run(options{})
+	err := run(options{provider: "claude"})
 	if err == nil || !strings.Contains(err.Error(), "say what to ask") {
 		t.Errorf("a run with no prompt gave %v", err)
 	}
@@ -288,7 +310,7 @@ func TestAPromptWithNothingPipedInStillRuns(t *testing.T) {
 	}
 	t.Setenv("PATH", dir+string(os.PathListSeparator)+os.Getenv("PATH"))
 
-	if err := run(options{prompt: "what does git rebase do", quiet: true, timeout: time.Minute}); err != nil {
+	if err := run(options{prompt: "what does git rebase do", provider: "cld", quiet: true, timeout: time.Minute}); err != nil {
 		t.Fatalf("a run with nothing piped in failed: %v", err)
 	}
 
@@ -314,6 +336,211 @@ func TestASpecThatWillNotBuildStopsTheRun(t *testing.T) {
 	err := run(options{prompt: "do it", spec: "name:notatype", replay: true})
 	if err == nil || !strings.Contains(err.Error(), "notatype") {
 		t.Errorf("a bad spec gave %v", err)
+	}
+}
+
+// answerTo runs the rest of the test as though the binary were called by name.
+func answerTo(t *testing.T, name string) {
+	t.Helper()
+	was := os.Args[0]
+	os.Args[0] = filepath.Join(t.TempDir(), name)
+	t.Cleanup(func() { os.Args[0] = was })
+}
+
+func TestAWrapperNameNamesItsAgentAndItsShape(t *testing.T) {
+	for _, one := range []struct {
+		called string
+		short  string
+		asJSON bool
+		known  bool
+	}{
+		{"ask", "", false, false},
+		{"_", "", false, true},
+		{"_j", "", true, true},
+		{"_cld", "cld", false, true},
+		{"_cldj", "cld", true, true},
+		{"_cdx", "cdx", false, true},
+		{"_cdxj", "cdx", true, true},
+		{"_nope", "", false, false},
+	} {
+		short, asJSON, known := wrapper(one.called)
+		if short != one.short || asJSON != one.asJSON || known != one.known {
+			t.Errorf("%s read as (%q, %v, %v), want (%q, %v, %v)",
+				one.called, short, asJSON, known, one.short, one.asJSON, one.known)
+		}
+	}
+}
+
+// The overlay makes one symlink per line of wrappers.txt, so a provider added to
+// the registry without a line there ships with no wrapper on PATH.
+func TestTheWrappersOnPathMatchTheListTheOverlayReads(t *testing.T) {
+	raw, err := os.ReadFile("wrappers.txt")
+	if err != nil {
+		t.Fatal(err)
+	}
+	listed := strings.Fields(string(raw))
+
+	if got := wrappers(); !slices.Equal(got, listed) {
+		t.Errorf("the binary answers to %v, and wrappers.txt lists %v", got, listed)
+	}
+	for _, name := range listed {
+		if _, _, known := wrapper(name); !known {
+			t.Errorf("wrappers.txt lists %q, which the binary does not answer to", name)
+		}
+	}
+}
+
+func TestTheNameTheBinaryWasCalledByPicksTheAgent(t *testing.T) {
+	t.Setenv("XDG_CONFIG_HOME", t.TempDir())
+	t.Setenv("ASK_PROVIDER", "")
+	answerTo(t, "_cdx")
+
+	agent, err := chosen(options{})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if agent.Name() != "codex" {
+		t.Errorf("_cdx ran %s", agent.Name())
+	}
+}
+
+func TestTheFlagBeatsTheNameTheEnvironmentAndTheSetting(t *testing.T) {
+	t.Setenv("XDG_CONFIG_HOME", t.TempDir())
+	t.Setenv("ASK_PROVIDER", "codex")
+	answerTo(t, "_cdx")
+
+	if _, _, err := config.Set(config.ProviderDefault + "=codex"); err != nil {
+		t.Fatal(err)
+	}
+
+	agent, err := chosen(options{provider: "cld"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if agent.Name() != "claude" {
+		t.Errorf("-p cld ran %s", agent.Name())
+	}
+}
+
+func TestTheEnvironmentBeatsTheSetting(t *testing.T) {
+	t.Setenv("XDG_CONFIG_HOME", t.TempDir())
+	t.Setenv("ASK_PROVIDER", "cdx")
+	answerTo(t, "ask")
+
+	if _, _, err := config.Set(config.ProviderDefault + "=claude"); err != nil {
+		t.Fatal(err)
+	}
+
+	agent, err := chosen(options{})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if agent.Name() != "codex" {
+		t.Errorf("$ASK_PROVIDER ran %s", agent.Name())
+	}
+}
+
+func TestTheSettingIsUsedWhenNothingElseSaysAnything(t *testing.T) {
+	t.Setenv("XDG_CONFIG_HOME", t.TempDir())
+	t.Setenv("ASK_PROVIDER", "")
+	answerTo(t, "ask")
+
+	if _, _, err := config.Set(config.ProviderDefault + "=cdx"); err != nil {
+		t.Fatal(err)
+	}
+
+	agent, err := chosen(options{})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if agent.Name() != "codex" {
+		t.Errorf("the setting ran %s", agent.Name())
+	}
+}
+
+// The picker needs a terminal, so a run with no terminal has to say what to pass
+// rather than hang or open one.
+func TestWithNoAgentAndNoTerminalTheRunSaysWhatToPass(t *testing.T) {
+	t.Setenv("XDG_CONFIG_HOME", t.TempDir())
+	t.Setenv("ASK_PROVIDER", "")
+	answerTo(t, "ask")
+
+	was := os.Stderr
+	quiet, err := os.OpenFile(os.DevNull, os.O_WRONLY, 0)
+	if err != nil {
+		t.Fatal(err)
+	}
+	os.Stderr = quiet
+	t.Cleanup(func() { os.Stderr = was; quiet.Close() })
+
+	_, err = chosen(options{})
+	if err == nil {
+		t.Fatal("a run with no agent named was accepted")
+	}
+	if !strings.Contains(err.Error(), config.ProviderDefault) {
+		t.Errorf("the error %q does not say what to set", err)
+	}
+}
+
+func TestAJSONWrapperAsksForJSONWithNoFlag(t *testing.T) {
+	t.Setenv("XDG_STATE_HOME", t.TempDir())
+	answerTo(t, "_cldj")
+
+	dir := t.TempDir()
+	script := "#!/bin/sh\n" +
+		"printf '%s\\n' \"$@\" > " + filepath.Join(dir, "args") + "\n" +
+		`echo '{"type":"result","subtype":"success","result":"{\"a\":1}","num_turns":1}'` + "\n"
+	if err := os.WriteFile(filepath.Join(dir, "claude"), []byte(script), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	t.Setenv("PATH", dir+string(os.PathListSeparator)+os.Getenv("PATH"))
+
+	if err := run(options{prompt: "count them", quiet: true, timeout: time.Minute}); err != nil {
+		t.Fatal(err)
+	}
+
+	args, err := os.ReadFile(filepath.Join(dir, "args"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !strings.Contains(string(args), "--json-schema") {
+		t.Errorf("_cldj ran claude with %q", args)
+	}
+}
+
+func TestASettingIsWrittenAndReadBackThroughTheFlags(t *testing.T) {
+	t.Setenv("XDG_CONFIG_HOME", t.TempDir())
+
+	handled, err := settings(options{setConfig: config.ProviderDefault + "=cdx"})
+	if !handled || err != nil {
+		t.Fatalf("the write was handled %v, %v", handled, err)
+	}
+	if got, _ := config.Get(config.ProviderDefault); got != "codex" {
+		t.Errorf("the setting is %q", got)
+	}
+
+	if handled, err := settings(options{getConfig: config.ProviderDefault}); !handled || err != nil {
+		t.Errorf("the read was handled %v, %v", handled, err)
+	}
+	if handled, err := settings(options{listConfig: true}); !handled || err != nil {
+		t.Errorf("the list was handled %v, %v", handled, err)
+	}
+	if handled, err := settings(options{prompt: "hi"}); handled || err != nil {
+		t.Errorf("a plain run was taken as a settings run: %v, %v", handled, err)
+	}
+}
+
+func TestASettingsRunNeverReachesAnAgent(t *testing.T) {
+	t.Setenv("XDG_CONFIG_HOME", t.TempDir())
+	t.Setenv("XDG_STATE_HOME", t.TempDir())
+	t.Setenv("PATH", t.TempDir())
+	answerTo(t, "ask")
+
+	if err := run(options{setConfig: config.ProviderDefault + "=cld"}); err != nil {
+		t.Fatalf("a settings run failed: %v", err)
+	}
+	if _, err := store.Prompt(); err == nil {
+		t.Error("a settings run was saved as a run")
 	}
 }
 
