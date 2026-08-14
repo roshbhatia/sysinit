@@ -1,12 +1,12 @@
 package provider
 
 import (
-	"bufio"
 	"bytes"
 	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
 	"os"
 	"os/exec"
 	"strings"
@@ -79,21 +79,6 @@ func toolOf(item codexItem) (string, string, bool) {
 	return "", "", false
 }
 
-// structured is the JSON object inside an answer, since a model told to answer in a shape can
-// still wrap it in a fence or a sentence.
-func structured(text string) map[string]any {
-	start := strings.Index(text, "{")
-	end := strings.LastIndex(text, "}")
-	if start < 0 || end < start {
-		return nil
-	}
-	var shape map[string]any
-	if json.Unmarshal([]byte(text[start:end+1]), &shape) != nil {
-		return nil
-	}
-	return shape
-}
-
 // schemaFile writes the shape out, because codex takes it as a path rather than as a string.
 func schemaFile(shape map[string]any) (string, error) {
 	encoded, err := json.Marshal(shape)
@@ -110,6 +95,68 @@ func schemaFile(shape map[string]any) (string, error) {
 		return "", err
 	}
 	return file.Name(), file.Close()
+}
+
+// codexRun is what one stream said, read back once it has ended.
+type codexRun struct {
+	Answer  string
+	Session string
+	Failure string
+	Turns   int
+}
+
+// scanCodex turns one `codex exec --json` stream into events. It takes a reader rather than
+// the command, so the shape of the stream can be exercised without a model behind it.
+func scanCodex(from io.Reader, model string, events chan<- Event) codexRun {
+	var run codexRun
+	// A tool arrives twice, as started and as completed, and is worth one line.
+	announced := map[string]bool{}
+
+	reader := lines(from)
+	for reader.Scan() {
+		var event codexLine
+		if json.Unmarshal(reader.Bytes(), &event) != nil {
+			continue
+		}
+		switch event.Type {
+		case "thread.started":
+			run.Session = event.ThreadID
+			if model == "" {
+				model = "default model"
+			}
+			events <- Event{Kind: Started, Text: model}
+		case "item.started", "item.completed":
+			done := event.Type == "item.completed"
+			item := event.Item
+			switch {
+			case item.Type == "agent_message" && done:
+				if text := strings.TrimSpace(item.Text); text != "" {
+					// The last message is the answer; the earlier ones are the model thinking
+					// out loud.
+					run.Answer = text
+					events <- Event{Kind: Text, Text: text}
+				}
+			case item.Type == "reasoning" && done:
+				if text := strings.TrimSpace(item.Text); text != "" {
+					events <- Event{Kind: Text, Text: text}
+				}
+			case item.Type == "error" && done:
+				events <- Event{Kind: Notice, Text: clip(item.Message)}
+			case !announced[item.ID]:
+				if name, text, ok := toolOf(item); ok {
+					announced[item.ID] = true
+					events <- Event{Kind: Tool, Tool: name, Text: text}
+				}
+			}
+		case "turn.completed":
+			run.Turns++
+		case "turn.failed":
+			run.Failure = event.Error.Message
+		case "error":
+			events <- Event{Kind: Notice, Text: clip(event.Message)}
+		}
+	}
+	return run
 }
 
 // Run starts one exec session and turns its stream into events.
@@ -170,73 +217,20 @@ func (c Codex) Run(ctx context.Context, req Request) (<-chan Event, error) {
 		defer discard()
 		started := time.Now()
 
-		var answered, session, failure string
-		turns := 0
-		// A tool arrives twice, as started and as completed, and is worth one line.
-		announced := map[string]bool{}
-
-		reader := bufio.NewScanner(out)
-		// A single line carries a whole message or a whole command's output, which is larger
-		// than the scanner's default limit.
-		reader.Buffer(make([]byte, 0, 64*1024), 8*1024*1024)
-
-		for reader.Scan() {
-			var event codexLine
-			if json.Unmarshal(reader.Bytes(), &event) != nil {
-				continue
-			}
-			switch event.Type {
-			case "thread.started":
-				session = event.ThreadID
-				model := req.Model
-				if model == "" {
-					model = "default model"
-				}
-				events <- Event{Kind: Started, Text: model}
-			case "item.started", "item.completed":
-				done := event.Type == "item.completed"
-				item := event.Item
-				switch {
-				case item.Type == "agent_message" && done:
-					if text := strings.TrimSpace(item.Text); text != "" {
-						// The last message is the answer; the earlier ones are the model thinking
-						// out loud.
-						answered = text
-						events <- Event{Kind: Text, Text: text}
-					}
-				case item.Type == "reasoning" && done:
-					if text := strings.TrimSpace(item.Text); text != "" {
-						events <- Event{Kind: Text, Text: text}
-					}
-				case item.Type == "error" && done:
-					events <- Event{Kind: Notice, Text: clip(item.Message)}
-				case !announced[item.ID]:
-					if name, text, ok := toolOf(item); ok {
-						announced[item.ID] = true
-						events <- Event{Kind: Tool, Tool: name, Text: text}
-					}
-				}
-			case "turn.completed":
-				turns++
-			case "turn.failed":
-				failure = event.Error.Message
-			case "error":
-				events <- Event{Kind: Notice, Text: clip(event.Message)}
-			}
-		}
+		run := scanCodex(out, req.Model, events)
 
 		err := cmd.Wait()
 		// Codex reports no cost, so the summary carries the turns and the time and nothing else.
 		result := &Result{
-			Text:     answered,
+			Text:     run.Answer,
 			Duration: time.Since(started),
-			Turns:    turns,
-			Session:  session,
+			Turns:    run.Turns,
+			Session:  run.Session,
 		}
 		switch {
-		case failure != "":
-			result.Failed, result.Reason = true, failure
-		case answered == "":
+		case run.Failure != "":
+			result.Failed, result.Reason = true, run.Failure
+		case run.Answer == "":
 			// No message at all: what codex wrote to stderr is the only account of why, so it is
 			// reported rather than swallowed.
 			reason := strings.TrimSpace(problems.String())
@@ -250,9 +244,8 @@ func (c Codex) Run(ctx context.Context, req Request) (<-chan Event, error) {
 		case req.Schema != nil:
 			// A shape was asked for, so prose in its place is a failed run rather than an answer
 			// the caller has to notice is the wrong kind.
-			if result.Structured = structured(answered); result.Structured == nil {
-				result.Failed = true
-				result.Reason = "answered outside the shape --schema asked for"
+			if result.Structured = structured(run.Answer); result.Structured == nil {
+				result.Failed, result.Reason = true, offShape
 			}
 		}
 		events <- Event{Kind: Done, Result: result}

@@ -4,8 +4,12 @@
 package provider
 
 import (
+	"bufio"
 	"context"
+	"encoding/json"
 	"fmt"
+	"io"
+	"strings"
 	"time"
 )
 
@@ -76,6 +80,33 @@ type Provider interface {
 	// Run starts the question and returns the events it produces. The channel closes when
 	// the run is over, whether it answered or not.
 	Run(ctx context.Context, req Request) (<-chan Event, error)
+}
+
+// offShape is what a run is called when a shape was asked for and something else came back.
+// One wording for both providers, because the caller cannot act on the difference.
+const offShape = "answered outside the shape --schema asked for"
+
+// lines reads a provider's stream. The buffer is raised because one line carries a whole
+// message or a whole command's output, which is larger than the scanner's own limit.
+func lines(from io.Reader) *bufio.Scanner {
+	reader := bufio.NewScanner(from)
+	reader.Buffer(make([]byte, 0, 64*1024), 8*1024*1024)
+	return reader
+}
+
+// structured is the JSON object inside an answer, since a model told to answer in a shape can
+// still wrap it in a fence or a sentence.
+func structured(text string) map[string]any {
+	start := strings.Index(text, "{")
+	end := strings.LastIndex(text, "}")
+	if start < 0 || end < start {
+		return nil
+	}
+	var shape map[string]any
+	if json.Unmarshal([]byte(text[start:end+1]), &shape) != nil {
+		return nil
+	}
+	return shape
 }
 
 // Find returns the provider a caller named, by its name or by the letter its flag uses.

@@ -1,12 +1,12 @@
 package provider
 
 import (
-	"bufio"
 	"bytes"
 	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
 	"os/exec"
 	"strings"
 	"time"
@@ -62,6 +62,56 @@ func summarize(args json.RawMessage) string {
 	return ""
 }
 
+// scanClaude turns one stream-json stream into events and reports the result line it carried,
+// or nil when it carried none. It takes a reader rather than the command, so the shape of the
+// stream can be exercised without a model behind it.
+func scanClaude(from io.Reader, events chan<- Event) *Result {
+	var result *Result
+
+	reader := lines(from)
+	for reader.Scan() {
+		var event line
+		if json.Unmarshal(reader.Bytes(), &event) != nil {
+			continue
+		}
+		switch event.Type {
+		case "system":
+			if event.Subtype == "init" {
+				events <- Event{
+					Kind: Started,
+					Text: fmt.Sprintf("%s, %d tools", event.Model, len(event.Tools)),
+				}
+			}
+		case "assistant":
+			for _, block := range event.Message.Content {
+				switch block.Type {
+				case "text":
+					if text := strings.TrimSpace(block.Text); text != "" {
+						events <- Event{Kind: Text, Text: text}
+					}
+				case "tool_use":
+					events <- Event{Kind: Tool, Tool: block.Name, Text: summarize(block.Args)}
+				}
+			}
+		case "rate_limit_event":
+			events <- Event{Kind: Notice, Text: "rate limited, waiting"}
+		case "result":
+			result = &Result{
+				Text:       event.Result,
+				Structured: event.StructuredOutput,
+				Failed:     event.IsError,
+				Reason:     event.Subtype,
+				CostUSD:    event.TotalCostUSD,
+				Duration:   time.Duration(event.DurationMS) * time.Millisecond,
+				Turns:      event.NumTurns,
+				Session:    event.SessionID,
+			}
+			events <- Event{Kind: Done, Result: result}
+		}
+	}
+	return result
+}
+
 // Run starts one print-mode session and turns its stream into events.
 func (c Claude) Run(ctx context.Context, req Request) (<-chan Event, error) {
 	binary, err := exec.LookPath("claude")
@@ -108,56 +158,11 @@ func (c Claude) Run(ctx context.Context, req Request) (<-chan Event, error) {
 	go func() {
 		defer close(events)
 		started := time.Now()
-		answered := false
 
-		reader := bufio.NewScanner(out)
-		// A single streamed line carries a whole assistant message, which is larger than the
-		// scanner's default limit.
-		reader.Buffer(make([]byte, 0, 64*1024), 8*1024*1024)
-
-		for reader.Scan() {
-			var event line
-			if json.Unmarshal(reader.Bytes(), &event) != nil {
-				continue
-			}
-			switch event.Type {
-			case "system":
-				if event.Subtype == "init" {
-					events <- Event{
-						Kind: Started,
-						Text: fmt.Sprintf("%s, %d tools", event.Model, len(event.Tools)),
-					}
-				}
-			case "assistant":
-				for _, block := range event.Message.Content {
-					switch block.Type {
-					case "text":
-						if text := strings.TrimSpace(block.Text); text != "" {
-							events <- Event{Kind: Text, Text: text}
-						}
-					case "tool_use":
-						events <- Event{Kind: Tool, Tool: block.Name, Text: summarize(block.Args)}
-					}
-				}
-			case "rate_limit_event":
-				events <- Event{Kind: Notice, Text: "rate limited, waiting"}
-			case "result":
-				answered = true
-				events <- Event{Kind: Done, Result: &Result{
-					Text:       event.Result,
-					Structured: event.StructuredOutput,
-					Failed:     event.IsError,
-					Reason:     event.Subtype,
-					CostUSD:    event.TotalCostUSD,
-					Duration:   time.Duration(event.DurationMS) * time.Millisecond,
-					Turns:      event.NumTurns,
-					Session:    event.SessionID,
-				}}
-			}
-		}
+		answered := scanClaude(out, events)
 
 		err := cmd.Wait()
-		if answered {
+		if answered != nil {
 			return
 		}
 		// No result line: the run died, and what it wrote to stderr is the only account of
