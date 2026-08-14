@@ -5,8 +5,8 @@ local lifecycle = require("harness.lifecycle")
 ---@param def { name: string, label: string, cmd: string, args?: string[], percent?: number, side?: "left"|"right", options_schema?: table }
 ---@return table adapter
 function M.raw_cli_adapter(def)
-  local lc -- lazy-built per (cmd+options) combo
-  local lc_signature -- cached signature of options that produced lc
+  local lc
+  local lc_signature
 
   local function escape_args(args)
     local out = {}

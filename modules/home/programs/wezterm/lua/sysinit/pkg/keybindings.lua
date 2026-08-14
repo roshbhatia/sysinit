@@ -105,8 +105,6 @@ end
 
 local function ssh_key_options()
   local opts = {}
-  -- The nix-declared agent first: under the GUI $SSH_AUTH_SOCK is wezterm's own
-  -- proxy, which holds no identities, so trusting it denies every key.
   local config_data = utils.load_json_file(utils.get_config_path("config.json"))
   local agent = config_data and config_data.ssh and config_data.ssh.agent_socket
   if agent then
@@ -120,8 +118,6 @@ local function ssh_key_options()
   end
   if agent and agent ~= "" then
     opts.identityagent = agent
-    -- wezterm defaults identitiesonly to yes, which skips agent auth outright and
-    -- leaves only its default id_* list, none of which exists here.
     opts.identitiesonly = "no"
   end
   local home = utils.get_home_dir()
@@ -140,8 +136,8 @@ end
 local function build_ssh_domains()
   local key_options = ssh_key_options()
   local domains = {}
-  local seen = {} -- host part of ssh:<host> ids already emitted
-  local resolved_hostnames = {} -- HostName values behind enumerated aliases
+  local seen = {}
+  local resolved_hostnames = {}
 
   local function add(host)
     host = host:lower()
@@ -177,7 +173,6 @@ local function build_ssh_domains()
   return domains
 end
 
--- The viewer chords.
 local function pane_cwd(pane)
   local ok, path = pcall(function()
     local url = pane:get_current_working_dir()
@@ -257,7 +252,6 @@ local function get_system_keys()
     create_smart_keybind("v", "SUPER", act.PasteFrom("Clipboard")),
     create_smart_keybind("v", "CTRL|SHIFT", act.PasteFrom("Clipboard")),
     watch_keybind("w", "no working directory", function(pane)
-      -- The worker is keyed on the workspace, so this passes the same thing `bus` does.
       local cwd = pane_cwd(pane)
       if not cwd then
         return nil

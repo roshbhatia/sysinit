@@ -2,8 +2,6 @@ return require("harness.adapters._shared").raw_cli_adapter({
   name = "hermes",
   label = "󱙺  Hermes",
   cmd = "hermes",
-  -- Bare `hermes` opens the interactive session; `chat` names it, so the
-  -- command line reads the same as the one the docs give.
   args = { "chat" },
   options_schema = {
     { name = "tui", flag = "--tui", kind = "toggle" },

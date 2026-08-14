@@ -1,22 +1,15 @@
--- What was opened, and when. The launcher sorts by it, because the row a reader wants is
--- almost always one they have opened before, and alphabetical order buries it.
 local M = {}
 
--- Written to disk, unlike the clipboard, because a row's name and the time it was opened
--- is not a secret and a launcher that forgets its order on every reload is not one.
 local store = os.getenv("HOME") .. "/.local/state/sysinit/launcher_recency.json"
 
 local opened = nil
 
---- What identifies a row across opens. The kind as well as the text, because a session and
---- a pane can carry the same name and are not the same row.
 ---@param row table
 ---@return string
 local function key(row)
   return (row.kind or "?") .. ":" .. (row.text or "")
 end
 
---- Read the store once.
 ---@return table<string, number>
 local function load()
   if opened ~= nil then
@@ -35,7 +28,6 @@ local function load()
   return opened
 end
 
---- Write the store, creating its directory the first time.
 local function save()
   hs.fs.mkdir(os.getenv("HOME") .. "/.local/state/sysinit")
   local file = io.open(store, "w")
@@ -45,7 +37,6 @@ local function save()
   end
 end
 
---- Record that a row was opened now.
 ---@param row table
 function M.touch(row)
   local all = load()
@@ -53,9 +44,6 @@ function M.touch(row)
   save()
 end
 
---- Sort rows: the ones opened before in the order they were last opened, then the rest.
---- The clipboard keeps its own order, since a clipboard row's recency is when it was
---- copied and not when it was chosen.
 ---@param rows table[]
 ---@return table[]
 function M.sort(rows)
@@ -64,10 +52,7 @@ function M.sort(rows)
   for index, row in ipairs(rows) do
     ranked[index] = {
       row = row,
-      -- A clipboard row ranks by when it was copied, which is already a recency.
       at = row.at or all[key(row)] or 0,
-      -- The original position, so the sort is stable for rows that tie at zero and the
-      -- list does not reshuffle between two draws of the same set.
       index = index,
     }
   end

@@ -35,9 +35,6 @@ function M.setup(config)
     config.colors = config_data.colors
   end
 
-  -- Inactive panes are dimmed, because a split with every pane at full brightness gives
-  -- the reader nothing to find the focused one by. Set before `lantern.rekindle`, so the
-  -- Inactive pane opacity light still overrides it.
   config.inactive_pane_hsb = {
     saturation = 0.8,
     brightness = 0.65,

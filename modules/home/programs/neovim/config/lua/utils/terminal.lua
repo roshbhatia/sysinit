@@ -10,7 +10,6 @@ local TRANSPARENT_TERMINALS = {
   rio = true,
 }
 
---- @return boolean
 function M.is_transparent()
   if not vim.env.LS_COLORS or vim.env.LS_COLORS == "" then
     return false
@@ -39,8 +38,6 @@ function M.is_transparent()
   return false
 end
 
---- @param rgb_str string
---- @return string|nil
 local function parse_osc_rgb(rgb_str)
   local r, g, b = rgb_str:match("rgb:(%x+)/(%x+)/(%x+)")
   if not r then
@@ -63,7 +60,6 @@ local function parse_osc_rgb(rgb_str)
   return string.format("#%s%s%s", to_byte(r), to_byte(g), to_byte(b))
 end
 
---- @param callback fun(colors: table<number, string>, bg: string|nil)
 function M.query_colors(callback)
   local colors = {}
   local bg_color = nil
@@ -75,7 +71,7 @@ function M.query_colors(callback)
     return
   end
 
-  local fd, open_err = vim.uv.fs_open("/dev/tty", "r+", 438) -- 0o666
+  local fd, open_err = vim.uv.fs_open("/dev/tty", "r+", 438)
   if not fd then
     vim.schedule(function()
       callback(colors, bg_color)

@@ -48,8 +48,6 @@ function M.status_label(status, reason)
   return table.concat(parts, " · ")
 end
 
--- What to render after "on" for a pane: its branch, or the repository count when the
--- pane sits on a multi-repo session root, which has no single branch to name.
 function M.scope_label(rec)
   if not rec then
     return nil
@@ -108,16 +106,11 @@ function M.normalize_proc(raw)
   return (raw:gsub("^%.", ""):gsub("%-wrapped$", ""))
 end
 
--- Processes that hold a pane's pty without doing the work in it.
 local passthrough_procs = {
   zmx = true,
-  -- `caffeinate -- <cmd>` holds the pty exactly the way a multiplexer client does, so
-  -- a pane running an agent under it read `caffeinate` and named the wrapper instead
-  -- of the work.
   caffeinate = true,
 }
 
--- Whether a process name is a wrapper rather than the work.
 ---@param name string|nil
 ---@return boolean
 function M.is_passthrough(name)
@@ -127,7 +120,6 @@ function M.is_passthrough(name)
   return passthrough_procs[M.normalize_proc(name):lower()] == true
 end
 
--- Deepest descendant of a passthrough process, by pid order at each level.
 local function deepest_proc_name(info, depth)
   if depth <= 0 or type(info) ~= "table" then
     return nil
@@ -139,8 +131,6 @@ local function deepest_proc_name(info, depth)
     end
   end
   if best_child == nil then
-    -- A leaf. `name` is a bare command on macOS, but a login shell arrives as
-    -- `-zsh`, so strip the leading dash the same way normalize_proc does.
     local name = info.name
     if type(name) ~= "string" or name == "" then
       return nil
@@ -159,9 +149,6 @@ function M.pane_proc(p, agent)
     return nil
   end)
   if ok and proc_name and proc_name ~= "" and passthrough_procs[proc_name] then
-    -- Only descend for a wrapper. For every other pane wezterm already reports
-    -- the right process, and walking the tree there would replace a correct
-    -- answer with the newest background child.
     local ok_info, inner = pcall(function()
       return deepest_proc_name(p:get_foreground_process_info(), 8)
     end)
@@ -169,16 +156,12 @@ function M.pane_proc(p, agent)
       return inner
     end
   end
-  -- A wrapper name is not an answer. When the descent above found nothing, say what the
-  -- agent is instead, and let the caller fall back to the directory rather than print
-  -- the name of the thing holding the pty.
   if ok and proc_name and proc_name ~= "" and not passthrough_procs[proc_name] then
     return proc_name
   end
   if agent and agent ~= "" then
     return agent
   end
-  -- The pane's own OSC title, and only when it reads like a process name.
   local ok2, title = pcall(function()
     return M.normalize_proc(p:get_title() or "")
   end)
@@ -192,9 +175,6 @@ function M.tab_label(tab, index, active_pane)
   local ok, title = pcall(function()
     return tab:get_title() or ""
   end)
-  -- wezterm derives an unset tab title from the pane's own, so a wrapper's name arrives
-  -- here as the tab's title and the switcher listed a tab called `zmx`. Rejecting it
-  -- here reaches `pane_proc` below, which is the one path that can walk the tree.
   if ok and title and title ~= "" and not M.is_passthrough(title) then
     return title
   end

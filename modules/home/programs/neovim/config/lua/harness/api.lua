@@ -155,7 +155,6 @@ function M.send_selection()
   adapter.send(text, { submit = false })
 end
 
---- Close the review, and the notes it attached.
 function M.review_close()
   pcall(function()
     require("harness.review").close()
@@ -165,8 +164,6 @@ function M.review_close()
   end)
 end
 
---- The repositories the open review is on, for a caller that lists commits per repository.
---- Empty when no review is open.
 ---@return string[]
 function M.review_roots()
   local ok, review = pcall(require, "harness.review")
@@ -176,14 +173,12 @@ function M.review_roots()
   return review.roots()
 end
 
---- Whether a review is open.
 ---@return boolean
 function M.review_is_open()
   local ok, review = pcall(require, "harness.review")
   return ok and review.is_open()
 end
 
---- Pick a repository to review and open it.
 function M.review_pick()
   require("harness.review").pick()
 end
@@ -191,15 +186,10 @@ end
 function M.setup()
   require("harness.completion").setup()
 
-  -- Started here rather than from `session.set_active`, because the harness whose edits
-  -- matter most is usually the one in its own WezTerm pane, which this Neovim never
-  -- launched and cannot know about.
   pcall(function()
     require("harness.edit_events").start()
   end)
 
-  -- Set up here rather than with the diff viewer: a note is drawn on the file it
-  -- annotates whether or not a review is open, so nothing about it waits on diffview.
   pcall(function()
     require("harness.notes").setup()
   end)

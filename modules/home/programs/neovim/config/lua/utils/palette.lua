@@ -94,7 +94,6 @@ local function clamp_channel(value)
   return math.floor(value + 0.5)
 end
 
---- @param c1 string "#rrggbb"
 function M.interpolate(c1, c2, t)
   local r1, g1, b1 = hex_to_rgb(c1)
   local r2, g2, b2 = hex_to_rgb(c2)
@@ -104,8 +103,6 @@ function M.interpolate(c1, c2, t)
   return string.format("#%02x%02x%02x", r, g, b)
 end
 
---- @param bg string "#rrggbb"
---- @return "dark"|"light"
 function M.detect_dark_light(bg)
   local r, g, b = hex_to_rgb(bg)
   local lum = 0.2126 * r / 255 + 0.7152 * g / 255 + 0.0722 * b / 255
@@ -327,7 +324,6 @@ local function pick_accent_color(candidates, target_hue, used)
   return best and best.hex or nil
 end
 
---- @param terminal_colors table<number, string>  ANSI index → "#rrggbb" (from OSC 4)
 function M.build(terminal_colors, ls_palette, bg)
   terminal_colors = terminal_colors or {}
   local has_terminal = not vim.tbl_isempty(terminal_colors)

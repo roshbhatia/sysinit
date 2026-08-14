@@ -14,8 +14,6 @@ return {
         return ""
       end
 
-      -- A file with notes says so whether or not they are drawn, because a hidden note is
-      -- the one case where the buffer itself shows nothing and the owner would not know.
       local function get_notes_status()
         local ok, notes = pcall(require, "harness.notes")
         if not ok then

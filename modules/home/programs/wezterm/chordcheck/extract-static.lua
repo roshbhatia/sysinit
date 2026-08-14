@@ -14,7 +14,6 @@ local function read(path)
   return body
 end
 
--- A chord written inside a comment is usually one the code deliberately does NOT bind.
 local function uncomment(body)
   local out = {}
   for line in (body .. "\n"):gmatch("([^\n]*)\n") do

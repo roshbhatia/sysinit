@@ -20,10 +20,6 @@ end
 return {
   name = "prime-agent",
   label = "󰙨  Prime Agent",
-  -- Every flag was probed against the built store path rather than read off `--help`:
-  -- prime-agent errors with `Unknown option: <flag>` on anything it does not take, so
-  -- each entry here is a flag that a real run accepted.
-  -- @plannotator/pi-extension; both are packages this repository loads, and
   options_schema = {
     { name = "no_tools", flag = "--no-tools", kind = "toggle" },
     { name = "no_builtin_tools", flag = "--no-builtin-tools", kind = "toggle" },
@@ -84,7 +80,6 @@ return {
       vim.notify("prime-agent: pi.nvim not loadable", vim.log.levels.WARN)
       return
     end
-    -- pi.nvim spawns whatever `cmd` names, so it drives prime-agent unchanged.
     pi.run({
       message = text,
       bufnr = vim.api.nvim_get_current_buf(),

@@ -15,9 +15,6 @@ return {
     config = function()
       local actions = require("diffview.actions")
 
-      -- Everything diffview binds inside a review lives under `<localleader>d`: `d` for
-      -- the diff, and a local leader because `<leader>e`, `<leader>b`, and `<leader>c*`
-      -- are the explorer and the code group everywhere else in this config.
       local function panel_keys(conflicts)
         local made = {
           { "n", "q", actions.close, { desc = "Close the review" } },
@@ -64,15 +61,11 @@ return {
           win_config = { position = "bottom", height = 14 },
         },
         hooks = {
-          -- The notes are drawn per buffer as it is shown, and diffview loads its buffers
-          -- after the view opens, so they are placed here rather than at open time.
           diff_buf_read = function(bufnr)
             pcall(function()
               require("harness.notes").place(bufnr)
             end)
           end,
-          -- A view closed by `q` or `:DiffviewClose` never went through the driver, so the
-          -- notes would stay attached to a review that is no longer on screen.
           view_closed = function()
             vim.schedule(function()
               local ok, review = pcall(require, "harness.review")
@@ -91,8 +84,6 @@ return {
         },
       })
 
-      -- The rest of the review under one command rather than one key each: these are asked
-      -- for a few times a week, and `<leader>d` had grown a key for every one of them.
       local jobs = {
         pick = function()
           require("harness.review").pick()
@@ -152,8 +143,6 @@ return {
         desc = "Diff: project history",
         mode = "n",
       },
-      -- `]r`, not `]d`: the LSP attaches `]d` per buffer for diagnostics, and a global
-      -- mapping under it would answer only in the buffers the LSP never reached.
       {
         "]r",
         function()

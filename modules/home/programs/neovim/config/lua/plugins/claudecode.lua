@@ -38,9 +38,6 @@ return {
           split_side = "right",
           split_width_percentage = 0.4,
         },
-        -- `"unified"` selects `lua/claudecode/diff_inline.lua`, which upstream
-        -- describes as a VS Code-style inline diff: one buffer with the deleted lines
-        -- struck through and the added lines interleaved.
         diff_opts = {
           layout = "unified",
           open_in_new_tab = false,

@@ -1,10 +1,7 @@
--- Repository discovery for a workspace that may hold several of them.
 local M = {}
 
 local SCAN_DEPTH = 5
 
--- Which source answered the last query, for the health report. A stall or a wrong
--- answer is then readable rather than inferred.
 ---@type { source: string, roots: string[], workspace: string|nil }
 local last = { source = "none", roots = {}, workspace = nil }
 
@@ -34,9 +31,6 @@ function M.cwd_root()
   return toplevel(vim.uv.cwd())
 end
 
--- The subcommand, when this box has one new enough to carry it. `workspace roots`
--- exits 2 on a usage error, which is how an older binary answers, so the exit code
--- distinguishes "no repositories" from "does not know the question".
 local function agent_roots(dir, cb)
   if vim.fn.executable("utils") ~= 1 then
     return cb(nil)
@@ -53,8 +47,6 @@ local function agent_roots(dir, cb)
   end)
 end
 
--- The scan this module has always used. Kept as the fallback rather than deleted,
--- because it needs nothing this repository builds.
 function M.scan(dir, cb)
   if vim.fn.executable("fd") ~= 1 then
     return cb(nil)
@@ -77,7 +69,6 @@ function M.scan(dir, cb)
   )
 end
 
---- The workspace boundary the environment states, or nil when it states none.
 ---@param dir string
 ---@return string|nil
 local function declared_workspace(dir)
@@ -96,12 +87,8 @@ local function declared_workspace(dir)
   return nil
 end
 
--- Memoised per cwd: the git fallback spawns a process, and this is read on every
--- roots query, every message, and every health report.
 local workspace_cache = {}
 
--- The workspace is the directory the roots are counted under: what the environment
--- declares, else the repository the cwd sits in, else the cwd itself.
 function M.workspace()
   local cwd = vim.fs.normalize(vim.uv.cwd() or ".")
   local declared = declared_workspace(cwd)
@@ -114,12 +101,9 @@ function M.workspace()
   return workspace_cache[cwd]
 end
 
--- Every repository under the workspace, including one nested inside another.
 function M.workspace_roots(cb)
   local dir = M.workspace()
   if cache[dir] then
-    -- The source is recorded without appending, because a label built by appending
-    -- to the previous one reads as "fd scan (cached) (cached)" by the third open.
     last = { source = last.source, roots = cache[dir], workspace = dir, cached = true }
     return cb(cache[dir])
   end
@@ -141,16 +125,12 @@ function M.workspace_roots(cb)
       if scanned then
         return finish("fd scan", scanned)
       end
-      -- Last resort: git knows one repository, which is better than none and is
-      -- the answer a single-repository checkout wanted anyway.
       local root = M.cwd_root()
       finish("git rev-parse", root and { root } or {})
     end)
   end)
 end
 
--- The repositories under the workspace that have something to review, each with its
--- changed files.
 function M.workspace_changes(cb)
   M.workspace_roots(function(roots)
     if #roots == 0 then
@@ -198,8 +178,6 @@ function M.workspace_changes(cb)
   end)
 end
 
--- The fallback for `workspace_changes`. Named rather than inlined so the health
--- report can say which path ran.
 function M._changes_via_git(roots, cb)
   local groups, pending = {}, #roots
   for i, root in ipairs(roots) do
@@ -209,8 +187,6 @@ function M._changes_via_git(roots, cb)
         for line in (res.stdout or ""):gmatch("[^\n]+") do
           local rel = line:sub(4)
           local path = vim.fs.normalize(root .. "/" .. rel)
-          -- A nested repository answers for itself, so its paths are dropped
-          -- from the parent here the way the subcommand drops them by pathspec.
           if M.owning_root(path, roots) == root then
             files[#files + 1] = path
           end
@@ -221,8 +197,6 @@ function M._changes_via_git(roots, cb)
       end
       pending = pending - 1
       if pending == 0 then
-        -- Indexed by root position, so a clean repository leaves a hole and
-        -- `ipairs` would stop at the first one. Walked by index instead.
         local kept = {}
         for index = 1, #roots do
           if groups[index] then
@@ -243,8 +217,6 @@ function M._changes_via_git(roots, cb)
   end
 end
 
--- The repository a path belongs to: the longest root that prefixes it, which is
--- what makes a nested repository win over the parent it sits in.
 function M.owning_root(path, roots)
   local best = nil
   for _, root in ipairs(roots) do
@@ -257,10 +229,6 @@ function M.owning_root(path, roots)
   return best
 end
 
--- Resolve one repo root for a command that needs one. `opts.ask` picks between the two
--- things a caller can want: the current file's repo, which is what a file-scoped command
--- means, or a choice, which is what a repo-scoped command means in a workspace holding
--- several. Without it a buffer open anywhere silently answers for every command.
 ---@param cb fun(root: string)
 ---@param opts? { ask?: boolean }
 function M.resolve(cb, opts)
@@ -293,7 +261,6 @@ function M.resolve(cb, opts)
   end)
 end
 
--- What answered last, for `:checkhealth`.
 function M.status()
   return {
     source = last.source,

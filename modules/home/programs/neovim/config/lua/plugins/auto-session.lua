@@ -18,7 +18,6 @@ return {
     cwd_change_handling = true,
     continue_restore_on_error = true,
     log_level = "info",
-    -- A diff review is a view over the working tree, not a layout to restore.
     pre_save_cmds = {
       function()
         pcall(function()

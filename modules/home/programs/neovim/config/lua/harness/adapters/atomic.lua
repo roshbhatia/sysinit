@@ -20,8 +20,6 @@ end
 return {
   name = "atomic",
   label = "󰬛  Atomic",
-  -- Every flag read off `atomic --help` from the built store path.
-  -- @benvargas/pi-openai-fast, `--plan` from @plannotator/pi-extension, and
   options_schema = {
     { name = "no_tools", flag = "--no-tools", kind = "toggle" },
     { name = "no_builtin_tools", flag = "--no-builtin-tools", kind = "toggle" },
@@ -82,7 +80,6 @@ return {
       vim.notify("atomic: pi.nvim not loadable", vim.log.levels.WARN)
       return
     end
-    -- pi.nvim spawns whatever `cmd` names, so it drives atomic unchanged.
     pi.run({
       message = text,
       bufnr = vim.api.nvim_get_current_buf(),

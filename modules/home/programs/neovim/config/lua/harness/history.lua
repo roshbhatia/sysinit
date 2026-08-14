@@ -1,25 +1,17 @@
--- The commit history behind a review. diffview shows one repository's log in its own
--- panel; this exists for the other question, which is what happened across the workspace,
--- in the order it happened, when eighteen repositories moved together.
 local M = {}
 
--- Deep enough to reach last week, short enough that the picker opens at once.
 local PER_REPO = 40
 
--- git's empty tree: the only left side a repository with no commit before the chosen
--- moment can have.
 local EMPTY_TREE = "4b825dc642cb6eb9a060e54bf8d69288fbee4904"
 
 local FORMAT = "%H%x1f%h%x1f%ct%x1f%an%x1f%s"
 
---- The short name a reader knows a repository by.
 ---@param root string
 ---@return string
 local function name(root)
   return vim.fn.fnamemodify(root, ":t")
 end
 
---- How long ago, in the units a reader thinks in.
 ---@param stamp number
 ---@return string
 local function ago(stamp)
@@ -36,9 +28,6 @@ local function ago(stamp)
   return os.date("%b %d", stamp)
 end
 
---- Every repository's recent commits in one list, newest first. Interleaved by commit
---- time rather than grouped by repository, because a day's work crosses repositories and
---- reading it repository by repository loses the order it happened in.
 ---@param roots string[]
 ---@param cb fun(commits: table[])
 local function log(roots, cb)
@@ -89,8 +78,6 @@ local function log(roots, cb)
   end
 end
 
---- The last commit in each repository at or before `stamp`, which is what "since this
---- commit" means in every repository other than the one the commit came from.
 ---@param roots string[]
 ---@param stamp number
 ---@param cb fun(revs: table<string, string>)
@@ -103,8 +90,6 @@ local function revs_at(roots, stamp, cb)
   for _, root in ipairs(roots) do
     vim.system({ "git", "-C", root, "rev-list", "-1", "--before=" .. when, "HEAD" }, { text = true }, function(res)
       local sha = (res.stdout or ""):match("%x+")
-      -- No commit that old means every commit in this repository is inside the window,
-      -- so the left side is the empty tree rather than a commit that does not exist.
       revs[root] = sha or EMPTY_TREE
       pending = pending - 1
       if pending == 0 then
@@ -116,8 +101,6 @@ local function revs_at(roots, stamp, cb)
   end
 end
 
---- Open a review of everything in `roots` since `commit`, using the commit itself in the
---- repository it came from and the same moment in the others.
 ---@param roots string[]
 ---@param commit table
 local function since(roots, commit)
@@ -133,8 +116,6 @@ local function since(roots, commit)
   end)
 end
 
---- The commits of these repositories, in a picker. Enter reads one commit; `<C-o>` takes
---- the commit as a starting point and reviews everything since.
 ---@param roots string[]
 ---@param title string
 local function browse(roots, title)
@@ -192,8 +173,6 @@ local function browse(roots, title)
   end)
 end
 
---- The repositories a history should cover: the review's when one is open, the
---- workspace's otherwise.
 ---@param cb fun(roots: string[])
 local function scope(cb)
   local roots = require("harness.review").roots()
@@ -203,8 +182,6 @@ local function scope(cb)
   require("utils.gitrepo").workspace_roots(cb)
 end
 
---- Repository history. One repository answers for itself; several ask which, with the
---- whole workspace as the first answer.
 function M.open()
   scope(function(roots)
     if #roots == 0 then

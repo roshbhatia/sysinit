@@ -66,13 +66,8 @@ return {
     },
     { name = "no_ide", flag = "--no-ide", kind = "toggle" },
     { name = "no_notifications", flag = "--no-notifications", kind = "toggle" },
-    -- `--no-fast` is the per-run form of `amp.agent.speed`, which amp documents only by
-    -- saying "fast" is billed at a premium.
     { name = "fast", flag = "--fast", kind = "toggle" },
     { name = "no_fast", flag = "--no-fast", kind = "toggle" },
-    -- The run-time half of `sysinit.llm.amp.remoteExecution`. Exposed as an
-    -- explicit off switch rather than left to the default so a pane started on
-    -- the work machine can be seen to refuse terminal access from ampcode.com.
     {
       name = "no_remote_control_terminal",
       flag = "--no-remote-control-terminal",

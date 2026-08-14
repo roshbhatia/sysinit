@@ -4,11 +4,11 @@ local base_config = {
   settings = {
     python = {
       analysis = {
-        typeCheckingMode = "basic", -- Can be "off", "basic", or "strict"
+        typeCheckingMode = "basic",
 
         autoImportCompletions = true,
 
-        diagnosticMode = "workspace", -- "openFilesOnly" or "workspace"
+        diagnosticMode = "workspace",
         useLibraryCodeForTypes = true,
 
         inlayHints = {

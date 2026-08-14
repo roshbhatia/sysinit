@@ -1,15 +1,9 @@
--- The review's scope list: the workspace diff, then each repository's recent commits.
 local M = {}
 
--- Ten per repository: far enough back to reach the change under review, short enough
--- that the list still fits under a diff.
 local PER_REPO = 10
 
--- git's empty tree, which is the only left side a root commit has.
 local EMPTY_TREE = "4b825dc642cb6eb9a060e54bf8d69288fbee4904"
 
--- `id` is what tells a step whether the quickfix still shows the scopes or has been
--- replaced by a file list, since both live in the same stack.
 local state = { id = nil, said = "workspace" }
 
 local function qf_winid()
@@ -21,18 +15,15 @@ local function qf_winid()
   return nil
 end
 
---- Whether the quickfix currently shows the scope list.
 ---@return boolean
 function M.is_shown()
   return state.id ~= nil and vim.fn.getqflist({ id = 0 }).id == state.id
 end
 
---- Forget the chosen scope, for a caller that opened the workspace diff itself.
 function M.reset()
   state.said = "workspace"
 end
 
---- The repositories to list commits for: the open review's, else the workspace's.
 ---@param cb fun(roots: string[])
 local function scope_roots(cb)
   local roots = require("harness.api").review_roots()
@@ -42,7 +33,6 @@ local function scope_roots(cb)
   require("utils.gitrepo").workspace_roots(cb)
 end
 
---- Parse one `ws log` row: root, sha, short sha, first parent, subject.
 ---@param line string
 ---@return table|nil
 local function row(line)
@@ -53,8 +43,6 @@ local function row(line)
   return { kind = "commit", root = root, sha = sha, short = short, parent = parent, subject = subject }
 end
 
---- Every root's commits in one call, from the same command that answers `ws roots`. The
---- roots go in on stdin, so the review's order survives.
 ---@param roots string[]
 ---@param cb fun(commits: table[]|nil)
 local function commits_via_ws(roots, cb)
@@ -80,7 +68,6 @@ local function commits_via_ws(roots, cb)
   end)
 end
 
---- One repository's recent commits, newest first.
 ---@param root string
 ---@param cb fun(commits: table[])
 local function commits(root, cb)
@@ -102,8 +89,6 @@ local function commits(root, cb)
             root = root,
             sha = sha,
             short = short,
-            -- The first parent, so a merge reads as what it brought in, and the empty
-            -- tree when there is none, since `<sha>^` does not resolve on a root commit.
             parent = parents:match("^(%S+)") or EMPTY_TREE,
             subject = subject,
           }
@@ -116,7 +101,6 @@ local function commits(root, cb)
   end)
 end
 
---- One `git log` per repository, for a box with no `ws` on PATH.
 ---@param roots string[]
 ---@param cb fun(commits: table[])
 local function all_commits_via_git(roots, cb)
@@ -138,8 +122,6 @@ local function all_commits_via_git(roots, cb)
   end
 end
 
---- Every repository's commits, grouped in the order the roots were given. `ws` answers
---- for all of them in one process, and the fan-out is what runs without it.
 ---@param roots string[]
 ---@param cb fun(commits: table[])
 local function all_commits(roots, cb)
@@ -151,7 +133,6 @@ local function all_commits(roots, cb)
   end)
 end
 
---- `repo | sha | subject`, in three columns wide enough for every row.
 ---@param scopes table[]
 ---@return table[] items
 local function render(scopes)
@@ -178,14 +159,11 @@ local function render(scopes)
   return items
 end
 
---- Put the scopes in the quickfix, open it along the bottom, and stand in it.
 ---@param items table[]
 local function show(items)
   vim.fn.setqflist({}, " ", {
     title = "Review scopes: " .. state.said,
     items = items,
-    -- Per list, because `nvim-pqf` sets the global one, and a row naming no file comes
-    -- back from it as a bare `||` with the columns gone.
     quickfixtextfunc = function(info)
       local got = vim.fn.getqflist({ id = info.id, items = 1 }).items
       local lines = {}
@@ -203,7 +181,6 @@ local function show(items)
   end
 end
 
---- Open one scope, replacing whatever session is open.
 ---@param scope table
 local function open(scope)
   local api = require("harness.api")
@@ -225,8 +202,6 @@ local function open(scope)
   vim.notify(string.format("Harness: %s %s %s", label, scope.short, scope.subject), vim.log.levels.INFO)
 end
 
---- Open the scope on the cursor's row. False when the quickfix holds something else, so
---- a caller can fall back to opening a file.
 ---@return boolean handled
 function M.activate()
   if not M.is_shown() then
@@ -245,7 +220,6 @@ function M.activate()
   return true
 end
 
---- Step to the next or previous scope and open it.
 ---@param delta integer
 ---@return boolean handled
 function M.step(delta)
@@ -259,8 +233,6 @@ function M.step(delta)
   local size = vim.fn.getqflist({ id = state.id, size = 1 }).size
   local at = vim.api.nvim_win_get_cursor(win)[1]
   local row = math.min(math.max(at + delta, 1), size)
-  -- A step off either end moves nowhere, and re-opening the scope already open would
-  -- tear down the session and rebuild it for no change.
   if row == at then
     return true
   end
@@ -268,7 +240,6 @@ function M.step(delta)
   return M.activate()
 end
 
---- Build the scope list from the review's repositories and show it.
 function M.open()
   scope_roots(function(roots)
     if #roots == 0 then

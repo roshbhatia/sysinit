@@ -91,8 +91,6 @@ return {
         desc = "Harness: send selection",
         mode = "v",
       },
-      -- The notes are their own tool: they are drawn on a file whether or not a diff is
-      -- open, so nothing here loads the diff viewer.
       {
         "<leader>dna",
         function()

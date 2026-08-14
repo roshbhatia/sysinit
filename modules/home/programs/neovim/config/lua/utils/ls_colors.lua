@@ -43,15 +43,13 @@ do
   end
 end
 
-local SGR_FG = {} -- 30-37 → 0-7
-local SGR_FG_BRIGHT = {} -- 90-97 → 8-15
+local SGR_FG = {}
+local SGR_FG_BRIGHT = {}
 for i = 0, 7 do
   SGR_FG[30 + i] = i
   SGR_FG_BRIGHT[90 + i] = i + 8
 end
 
---- @param attr string semicolon-separated SGR codes
---- @return { fg: string|nil, bg: string|nil, bold: boolean }
 local function parse_sgr(attr)
   local result = { bold = false }
   local codes = {}
@@ -101,7 +99,6 @@ local function parse_sgr(attr)
   return result
 end
 
---- @return table<string, { fg: string|nil, bg: string|nil, bold: boolean }>
 function M.parse()
   local raw = vim.env.LS_COLORS
   if not raw or raw == "" then
@@ -119,19 +116,17 @@ function M.parse()
 end
 
 local TYPE_TO_SLOT = {
-  di = "blue", -- directories
-  ln = "teal", -- symlinks
-  so = "mauve", -- sockets
-  pi = "yellow", -- FIFOs
-  ex = "green", -- executables
-  bd = "peach", -- block devices
-  cd = "peach", -- char devices
-  ["or"] = "red", -- orphan symlinks
-  mi = "maroon", -- missing targets
+  di = "blue",
+  ln = "teal",
+  so = "mauve",
+  pi = "yellow",
+  ex = "green",
+  bd = "peach",
+  cd = "peach",
+  ["or"] = "red",
+  mi = "maroon",
 }
 
---- @param entries table<string, { fg: string|nil }> output of M.parse()
---- @return table<string, string> slot→hex
 function M.extract_palette(entries)
   local palette = {}
   for ftype, slot in pairs(TYPE_TO_SLOT) do

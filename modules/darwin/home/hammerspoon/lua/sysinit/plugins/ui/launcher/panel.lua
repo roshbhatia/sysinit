@@ -1,28 +1,16 @@
--- The window the launcher draws in: a borderless `hs.webview` holding `panel.html`. Not
--- `hs.chooser`, which is an AppKit list panel and takes no search field, no footer, and no
--- row shape of its own.
 local M = {}
 
--- The page, installed beside this file by home-manager.
 local page = hs.configdir .. "/lua/sysinit/plugins/ui/launcher/panel.html"
 
--- The panel's width and where its top edge sits, as a fraction of the screen. The window is
--- the panel exactly: it carries no transparent margin, because a shadow drawn into one is
--- clipped square at the window edge.
 local width = 750
 local top = 0.16
 
 local view = nil
 local watch = nil
--- The lists the panel is showing, innermost last. A submenu pushes one and escape pops it,
--- so leaving the clipboard history returns to the list it was opened from.
 local stack = {}
--- Whether the page has finished loading. Rows handed over before it has are dropped, so
--- what the first open wants to do waits in `waiting` until the page says it is ready.
 local loaded = false
 local waiting = nil
 
---- Run `work` once the page can take it.
 ---@param work fun()
 local function ready(work)
   if loaded then
@@ -31,11 +19,8 @@ local function ready(work)
     waiting = work
   end
 end
--- The icons already handed to the page, keyed by the row that carries one. A data URI is
--- twelve kilobytes, so they are sent once and referenced by key afterwards.
 local sent = {}
 
---- Where the window sits, given the height the page asked for.
 ---@param height number
 ---@return table
 local function frame(height)
@@ -48,7 +33,6 @@ local function frame(height)
   }
 end
 
---- What the page needs to draw one row, and any icon it has not been given yet.
 ---@param all table[]
 ---@return table[], table<string, string>
 local function transport(all)
@@ -74,13 +58,11 @@ local function transport(all)
   return out, fresh
 end
 
---- The list being shown.
 ---@return table|nil
 local function current()
   return stack[#stack]
 end
 
---- Hand the current rows to the page.
 local function push()
   local list = current()
   if view == nil or not loaded or list == nil then
@@ -93,7 +75,6 @@ local function push()
   view:evaluateJavaScript("setRows(" .. hs.json.encode(out) .. ")")
 end
 
---- Draw the list the panel has just moved to, rows and all.
 local function present()
   local list = current()
   if view == nil or list == nil then
@@ -108,7 +89,6 @@ local function present()
   }) .. ")")
 end
 
---- Handle one message from the page.
 ---@param message table
 local function received(message)
   local body = message and message.body or {}
@@ -150,14 +130,11 @@ local function received(message)
   end
 end
 
---- Build the window once and keep it, because loading the page costs more than showing it.
 local function build()
   local controller = hs.webview.usercontent.new("launcher")
   controller:setCallback(received)
 
   view = hs.webview.new(frame(400), { developerExtrasEnabled = false }, controller)
-  -- Borderless without `nonactivating`: a nonactivating window never becomes key, and the
-  -- search field would take no typing at all.
   view:windowStyle({ "borderless", "fullSizeContentView" })
   view:allowTextEntry(true)
   view:transparent(true)
@@ -172,8 +149,6 @@ local function build()
   end
 end
 
---- Close the panel when a click lands outside it, which is the other half of closing on a
---- lost focus.
 local function outside()
   if watch then
     watch:stop()
@@ -193,14 +168,11 @@ local function outside()
   watch:start()
 end
 
---- Whether the panel is up.
 ---@return boolean
 function M.visible()
   return view ~= nil and view:isVisible()
 end
 
---- Replace the rows of the list on top while the panel is up, for a source that has just
---- answered. A submenu is left alone, since its rows are its own.
 ---@param all table[]
 function M.rows(all)
   local list = current()
@@ -210,8 +182,6 @@ function M.rows(all)
   end
 end
 
---- Show the panel on `list`, which names its rows, its placeholder, what enter does, and
---- optionally how to preview the selection.
 ---@param list table
 function M.show(list)
   if view == nil then
@@ -219,8 +189,6 @@ function M.show(list)
   end
   stack = { list }
   view:show()
-  -- Focus is taken a beat after showing, because focusing a window blocks until the system
-  -- answers and doing it inline stalls whatever asked for the panel.
   hs.timer.doAfter(0, function()
     local window = view:hswindow()
     if window then
@@ -231,14 +199,12 @@ function M.show(list)
   outside()
 end
 
---- Open a list from inside the one showing, which escape returns from.
 ---@param list table
 function M.enter(list)
   stack[#stack + 1] = list
   present()
 end
 
---- Hide the panel and stop watching for clicks.
 function M.hide()
   if watch then
     watch:stop()

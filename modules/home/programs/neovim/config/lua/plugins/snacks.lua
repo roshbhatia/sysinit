@@ -19,7 +19,7 @@ return {
             files = {
               hidden = true,
               ignored = false,
-              follow = true, -- follow symlinks by default for files picker
+              follow = true,
               layout = {
                 layout = {
                   width = 0.95,
@@ -30,7 +30,7 @@ return {
             grep = {
               hidden = true,
               ignored = false,
-              follow = true, -- follow symlinks by default for files picker
+              follow = true,
               layout = {
                 layout = {
                   width = 0.95,
@@ -198,9 +198,6 @@ return {
             then
               return false
             end
-            -- A diff pair is scroll-bound. Snacks animates only the current
-            -- window of a bound pair, so the other one jumps and the two
-            -- halves drift apart mid-animation.
             for _, win in ipairs(vim.fn.win_findbuf(buf)) do
               if vim.wo[win].diff then
                 return false

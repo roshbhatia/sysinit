@@ -1,13 +1,7 @@
--- One report of what the diff review surface can see: which layer answered the
--- repository query, which repositories it found, whether the edit-event watcher is
--- running, the log it resolved, how many events it read, and whether each plugin the
--- review needs is loaded.
 local M = {}
 
---- One finding: `level` is a `vim.health` function name, `text` is the whole line.
 ---@alias HarnessFinding { level: "ok"|"warn"|"error", text: string }
 
---- Whether a plugin is loaded, installed but not yet loaded, or absent.
 ---@return string
 local function plugin_state(module, lazy_name)
   if package.loaded[module] then
@@ -32,9 +26,6 @@ function M.findings()
 
   add("ok", "workspace: " .. tostring(repos.workspace))
 
-  -- Which rule produced that directory, because the wrong workspace is the failure
-  -- that looks like every other one: the roots are wrong, so the review is wrong, and
-  -- the path alone does not say whether it was declared or inferred.
   local declared = vim.env.SYSINIT_WORKSPACE
   if declared == nil or declared == "" then
     add("ok", "workspace source: inferred, from the git top level or the cwd. `$SYSINIT_WORKSPACE` is unset")
@@ -70,8 +61,6 @@ function M.findings()
     end
   end
 
-  -- Which tiers are available decides what the next query can use, which is why
-  -- both are reported even when the last query succeeded.
   if repos.agent then
     add("ok", "`utils` is on PATH")
   else
@@ -125,7 +114,6 @@ function M.findings()
   return out
 end
 
---- `:checkhealth harness`.
 function M.check()
   vim.health.start("harness: the diff review surface")
   for _, finding in ipairs(M.findings()) do
@@ -133,7 +121,6 @@ function M.check()
   end
 end
 
---- The same findings as one notification, for reading without leaving the diff.
 function M.show()
   local lines = {}
   for _, finding in ipairs(M.findings()) do

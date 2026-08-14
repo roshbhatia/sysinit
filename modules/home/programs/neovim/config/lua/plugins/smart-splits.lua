@@ -5,9 +5,6 @@ end
 
 local nav_seq = 0
 
--- A deliberate resize becomes the layout bufresize keeps in proportion on the next
--- terminal resize. Without this the split is restored to the size it had before the
--- keypress.
 local function keep(resize)
   return function()
     resize()

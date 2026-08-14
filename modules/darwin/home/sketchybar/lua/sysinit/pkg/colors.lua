@@ -18,48 +18,48 @@ local colors = {
   base05 = color(config.base16.base05),
   base06 = color(config.base16.base06),
   base07 = color(config.base16.base07),
-  base08 = color(config.base16.base08), -- Red
-  base09 = color(config.base16.base09), -- Orange
-  base0A = color(config.base16.base0A), -- Yellow
-  base0B = color(config.base16.base0B), -- Green
-  base0C = color(config.base16.base0C), -- Cyan
-  base0D = color(config.base16.base0D), -- Blue
-  base0E = color(config.base16.base0E), -- Magenta
-  base0F = color(config.base16.base0F), -- Brown
+  base08 = color(config.base16.base08),
+  base09 = color(config.base16.base09),
+  base0A = color(config.base16.base0A),
+  base0B = color(config.base16.base0B),
+  base0C = color(config.base16.base0C),
+  base0D = color(config.base16.base0D),
+  base0E = color(config.base16.base0E),
+  base0F = color(config.base16.base0F),
 
-  foreground_primary = color(config.base16.base05), -- Normal text
-  foreground_muted = color(config.base16.base03), -- Muted text / comments
+  foreground_primary = color(config.base16.base05),
+  foreground_muted = color(config.base16.base03),
 
-  background_primary = color(config.base16.base00, alpha), -- Primary background
-  background_secondary = color(config.base16.base01, alpha), -- Secondary background
+  background_primary = color(config.base16.base00, alpha),
+  background_secondary = color(config.base16.base01, alpha),
 
-  accent_primary = color(config.base16.base0D), -- Blue
+  accent_primary = color(config.base16.base0D),
 
-  semantic_error = color(config.base16.base08), -- Red
-  semantic_success = color(config.base16.base0B), -- Green
-  semantic_warning = color(config.base16.base0A), -- Yellow
+  semantic_error = color(config.base16.base08),
+  semantic_success = color(config.base16.base0B),
+  semantic_warning = color(config.base16.base0A),
 
-  syntax_builtin = color(config.base16.base0C), -- Cyan
-  syntax_function = color(config.base16.base0D), -- Blue
-  syntax_keyword = color(config.base16.base0E), -- Magenta
-  syntax_string = color(config.base16.base0B), -- Green
-  syntax_type = color(config.base16.base0A), -- Yellow
-  syntax_variable = color(config.base16.base08), -- Red
-  syntax_comment = color(config.base16.base03), -- Muted
-  syntax_constant = color(config.base16.base09), -- Orange
-  syntax_number = color(config.base16.base09), -- Orange
-  syntax_operator = color(config.base16.base05), -- Normal text
+  syntax_builtin = color(config.base16.base0C),
+  syntax_function = color(config.base16.base0D),
+  syntax_keyword = color(config.base16.base0E),
+  syntax_string = color(config.base16.base0B),
+  syntax_type = color(config.base16.base0A),
+  syntax_variable = color(config.base16.base08),
+  syntax_comment = color(config.base16.base03),
+  syntax_constant = color(config.base16.base09),
+  syntax_number = color(config.base16.base09),
+  syntax_operator = color(config.base16.base05),
 
   blur_radius = blur,
 }
 
 colors.popup = {
-  bg = colors.background_primary, -- base00 with alpha
-  border = colors.base0D, -- Blue
+  bg = colors.background_primary,
+  border = colors.base0D,
 }
 
 colors.white = colors.foreground_primary
 colors.bg = colors.background_primary
-colors.workspace_focused = colors.base08 -- Red for focused workspace
+colors.workspace_focused = colors.base08
 
 return colors

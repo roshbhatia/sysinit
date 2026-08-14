@@ -9,7 +9,6 @@ local ui_sessions = require("sysinit.pkg.ui.sessions")
 
 local M = {}
 
---- What `^x` does to a row, decided from the pane list alone.
 ---@param opts table
 ---@return table
 function M.close_plan(opts)
@@ -33,8 +32,6 @@ function M.close_plan(opts)
     return { targets = {}, label = opts.label, refusal = "nothing open in " .. opts.label }
   end
 
-  -- Emptying the workspace the owner is in leaves the window with nothing to show, so
-  -- the window moves to the fallback session first.
   local empties_here = opts.here ~= nil and here_targets > 0 and here_targets == here_panes
   local resetting = opts.target_workspace ~= nil and opts.target_workspace == opts.fallback
   if resetting then
@@ -61,8 +58,6 @@ function M.close_plan(opts)
     label = opts.label,
     verb = "closed",
     switch_to = empties_here and opts.fallback or nil,
-    -- The selector cannot reopen against a pane that is gone, and after a move it would
-    -- reopen over the session the owner has just landed in.
     reopen = not self_targeted and not empties_here,
   }
 end
@@ -446,7 +441,6 @@ function M.setup(config, wm, ctx)
     },
   }
 
-  -- `^x` closes the row under the cursor, at the level that row is on.
   local function close_session_target(win, pane, id, by_id)
     local rec = by_id[id]
     if type(rec) ~= "table" then
@@ -507,8 +501,6 @@ function M.setup(config, wm, ctx)
     if plan.refusal then
       return plan.refusal, true
     end
-    -- Moved before the kill, not after: a window whose every pane is about to go has to be
-    -- showing something else first, or wezterm closes it.
     if plan.switch_to then
       ui_actions.switch_to_workspace(win, pane, plan.switch_to)
     end
@@ -600,9 +592,6 @@ function M.setup(config, wm, ctx)
   wm.workspace_switcher_sort = "recency"
 
   wm.apply_to_config(config)
-  -- The plugin's own user-facing bindings are removed and re-stated below, so this file
-  -- says what every key does rather than inheriting it. The switcher key tables it also
-  -- installs are kept: they drive the plugin's own UI.
   local wm_injected_keys = {
     { key = "s", mods = "LEADER" },
     { key = "S", mods = "LEADER" },
@@ -633,15 +622,10 @@ function M.setup(config, wm, ctx)
     end),
   })
 
-  -- `^[` and `^]` step back and forward through the sessions, in the plugin's own cycle
-  -- order, which is the same order the switcher lists and which saves the workspace it
-  -- leaves.
   for _, cycle in ipairs({
     { key = "]", step = wm.next_workspace },
     { key = "[", step = wm.previous_workspace },
   }) do
-    -- Built once, not per keypress: each call registers an event handler, so building it
-    -- inside the callback would add one every time the key is pressed.
     local step = type(cycle.step) == "function" and cycle.step() or nil
     if step then
       table.insert(config.keys, {

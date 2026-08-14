@@ -34,7 +34,6 @@ function M.pane_repo(p)
   return repo or "", cwd or ""
 end
 
--- Liveness is pane existence: every id here came from `tab:panes_with_info()`.
 function M.read_pane_record(pane_id)
   local path = utils.state_path("agentPanes", "agents/panes") .. "/" .. tostring(pane_id) .. ".json"
   local f = io.open(path, "r")
@@ -47,9 +46,6 @@ function M.read_pane_record(pane_id)
   if not ok or type(data) ~= "table" then
     return nil
   end
-  -- A multi-repo session root is not a repository, so `repo` and `branch` are empty
-  -- for exactly the pane that has the most to say. `repos` carries what it holds, and
-  -- `repo_count` is what the surfaces render in place of a branch they cannot have.
   local repo_count = 0
   if type(data.repos) == "table" then
     repo_count = #data.repos

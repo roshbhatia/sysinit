@@ -1,43 +1,26 @@
---- The notes on a working-tree diff, drawn inline: an agent's reasoning about a change,
---- and the owner's questions back to it.
 local M = {}
 
---- The command that owns the note record. Named once, so the health check reports on
---- the same binary this reads through and a rename is one edit.
 M.tool = "utils"
 
 local ns = vim.api.nvim_create_namespace("harness_agent_notes")
 local augroup = "harness_agent_notes"
 
---- Notes for the loaded projects, by repository root, then by path relative to it.
 ---@type table<string, table<string, table[]>>
 local by_root = {}
 
---- Which roots are loaded, longest first, so a file is matched to the innermost
---- repository that contains it.
 ---@type string[]
 local roots = {}
 
---- Whether the boxes are drawn. The record is read either way, so the statusline can
---- still say a file carries notes while they are hidden.
 local shown = true
 
---- The marker for a rule between two notes sharing one box. A control byte, so no
---- note's own text can produce it.
 local rule = "\1"
 
---- The value of a field the record may have written as JSON null, which `vim.json.decode`
---- turns into `vim.NIL`, which is truthy. A note added with no rationale printed a line
---- reading `vim.NIL` before this was tested for being a string.
 ---@param value any
 ---@return string|nil
 local function said(value)
   return type(value) == "string" and value ~= "" and value or nil
 end
 
---- The glyph each harness is drawn with, keyed by both the adapter's name and the name a
---- note's author carries. Taken from the adapters rather than copied, so a harness that
---- changes its icon changes it here too.
 ---@type table<string, string>|nil
 local marks = nil
 
@@ -60,9 +43,6 @@ local function glyph_for(author)
   return marks[author:lower()]
 end
 
---- Who wrote a note. Recorded since the record grew an origin; inferred from the author
---- for a note written before it, where an address is the only thing a person's name has
---- that an agent's does not.
 ---@param note table
 ---@return "agent"|"user"
 local function origin_of(note)
@@ -73,9 +53,6 @@ local function origin_of(note)
   return (said(note.author) or ""):find("@", 1, true) and "user" or "agent"
 end
 
---- What the box says about a note's author: the person's address, or the agent's own
---- icon. The name of an agent this config does not know is spelled out beside a generic
---- one, because an unnamed note is worse than an ugly one.
 ---@param note table
 ---@return string
 local function title(note)
@@ -89,7 +66,6 @@ local function title(note)
   return glyph_for(author) or ("󰚩 " .. author)
 end
 
---- One box holding every note on a line, each under its own author.
 ---@param entries { title: string, body: string }[]
 ---@param hl string
 ---@return table[]
@@ -119,7 +95,6 @@ local function box(entries, hl)
     width = math.max(width, vim.fn.strdisplaywidth(header))
   end
 
-  --- A border carrying the author of the note that starts under it.
   local function edge(left, header, right)
     return left .. "─" .. header .. string.rep("─", width - vim.fn.strdisplaywidth(header) + 1) .. right
   end
@@ -138,8 +113,6 @@ local function box(entries, hl)
   return lines
 end
 
---- The note's own text: the summary and the rationale under it. Not the author, which
---- the box draws in its frame.
 ---@param note table
 ---@return string
 local function render(note)
@@ -151,7 +124,6 @@ local function render(note)
   return text
 end
 
---- Which loaded root contains `path`, innermost first.
 ---@param path string
 ---@return string|nil root
 ---@return string|nil relative
@@ -164,7 +136,6 @@ local function owner(path)
   return nil, nil
 end
 
---- The file a buffer holds, or nil for a buffer that holds none.
 ---@param bufnr number
 ---@return string|nil
 local function file_of(bufnr)
@@ -178,7 +149,6 @@ local function file_of(bufnr)
   return vim.fs.normalize(name)
 end
 
---- The notes on the file a buffer holds.
 ---@param bufnr number
 ---@return table[]
 local function notes_for(bufnr)
@@ -193,7 +163,6 @@ local function notes_for(bufnr)
   return (by_root[root] or {})[relative] or {}
 end
 
---- Draw every note that belongs to `bufnr`, replacing what is already drawn.
 ---@param bufnr number
 function M.place(bufnr)
   local path = file_of(bufnr)
@@ -209,14 +178,8 @@ function M.place(bufnr)
     return
   end
   local last = vim.api.nvim_buf_line_count(bufnr)
-  -- Grouped by row before anything is drawn, so a line's notes share one extmark and
-  -- therefore one frame. `rows` keeps the record's order, since the store is append-only
-  -- and the oldest note on a line is the first thing written about it.
   local rows, order, waiting = {}, {}, {}
   for _, note in ipairs(notes) do
-    -- The record's line is 1-based on the new side. A note on a line the file no
-    -- longer has still shows, on the last line, because a note the owner cannot see
-    -- is worse than a note in the wrong place.
     local row = math.max(0, math.min(tonumber(note.line) or 1, last) - 1)
     if rows[row] == nil then
       rows[row] = {}
@@ -226,8 +189,6 @@ function M.place(bufnr)
     waiting[row] = waiting[row] or said(note.state) == "open"
   end
   for _, row in ipairs(order) do
-    -- A box holding a question nobody has answered is drawn as a warning. It is the
-    -- one note the owner is owed something for, and it should not read like the rest.
     pcall(vim.api.nvim_buf_set_extmark, bufnr, ns, row, 0, {
       virt_lines = box(rows[row], waiting[row] and "DiagnosticWarn" or "DiagnosticInfo"),
       virt_lines_above = false,
@@ -235,18 +196,14 @@ function M.place(bufnr)
   end
 end
 
---- Say the record moved. A note list, a picker, the diff panel, and the statusline all
---- want to know, and none of them should have to poll for it.
 local function announce()
   vim.api.nvim_exec_autocmds("User", { pattern = "HarnessNotesChanged", modeline = false })
   pcall(vim.cmd.redrawstatus, { bang = true })
 end
 
---- Read one repository's notes, then place them in every buffer already open.
 ---@param root string
 ---@param done? fun(count: integer)
 local function load(root, done)
-  -- The tool is checked for rather than assumed.
   if vim.fn.executable(M.tool) ~= 1 then
     by_root[root] = {}
     if done then
@@ -282,15 +239,12 @@ local function load(root, done)
   end)
 end
 
---- Keep the roots innermost-first, which is the order `owner` reads them in.
 local function order_roots()
   table.sort(roots, function(a, b)
     return #a > #b
   end)
 end
 
---- Load the repository holding `path` if nothing loaded covers it. This is what makes a
---- file carry its notes with no review open: the boxes are the record, not a mode.
 ---@param path string
 local function ensure(path)
   if owner(path) ~= nil then
@@ -310,13 +264,8 @@ local function ensure(path)
   load(root)
 end
 
---- Draw the notes in every buffer as it is shown, loading a repository the first time a
---- file under it is opened.
 function M.setup()
   local group = vim.api.nvim_create_augroup(augroup, { clear = true })
-  -- A diff plugin loads the annotated file after the session opens, and a step to
-  -- another file loads another. Both are this event, so neither needs a hook of its
-  -- own here.
   vim.api.nvim_create_autocmd({ "BufWinEnter", "BufReadPost" }, {
     group = group,
     callback = function(args)
@@ -330,7 +279,6 @@ function M.setup()
   })
 end
 
---- Load a set of repository roots at once, for a review that opens several.
 ---@param review_roots string[]
 ---@param on_ready? fun(count: integer)
 function M.attach(review_roots, on_ready)
@@ -360,7 +308,6 @@ function M.attach(review_roots, on_ready)
   end
 end
 
---- Re-read the notes for every loaded root.
 ---@param on_ready? fun(count: integer)
 function M.refresh(on_ready)
   if #roots == 0 then
@@ -372,8 +319,6 @@ function M.refresh(on_ready)
   M.attach(roots, on_ready)
 end
 
---- End a review: drop the repositories it opened. This is not the off switch, which is
---- `toggle`; the notes on a file the owner still has open stay drawn.
 function M.detach()
   for _, bufnr in ipairs(vim.api.nvim_list_bufs()) do
     if vim.api.nvim_buf_is_valid(bufnr) then
@@ -382,8 +327,6 @@ function M.detach()
   end
   by_root = {}
   roots = {}
-  -- The repositories the open files need are loaded again: a file the owner is still
-  -- looking at keeps its notes, and only the rest of the review's repositories go.
   for _, bufnr in ipairs(vim.api.nvim_list_bufs()) do
     local path = file_of(bufnr)
     if path then
@@ -393,7 +336,6 @@ function M.detach()
   announce()
 end
 
---- Show or hide every box, leaving the record loaded either way.
 function M.toggle()
   shown = not shown
   for _, bufnr in ipairs(vim.api.nvim_list_bufs()) do
@@ -402,16 +344,12 @@ function M.toggle()
   announce()
 end
 
---- What the statusline says about the file in `bufnr`: how many notes it carries, and
---- whether they are on screen.
 ---@param bufnr? number
 ---@return { count: integer, shown: boolean }
 function M.status(bufnr)
   return { count = #notes_for(bufnr or vim.api.nvim_get_current_buf()), shown = shown }
 end
 
---- The address git commits under, which is who a note the owner writes is from. Read
---- once per root: it is a file read behind a process, and this runs on every note.
 ---@type table<string, string>
 local emails = {}
 
@@ -426,8 +364,6 @@ local function email(root)
   return emails[root]
 end
 
---- The repositories a project-wide command covers: every loaded root, or the one holding
---- the current file when nothing is loaded yet.
 ---@return string[]
 function M.project_roots()
   if #roots > 0 then
@@ -438,7 +374,6 @@ function M.project_roots()
   return root and { vim.fs.normalize(root) } or {}
 end
 
---- The file the cursor is in, as a root and a path, or nil with the reason said out loud.
 ---@return string|nil root
 ---@return string|nil path
 local function here()
@@ -460,9 +395,6 @@ local function here()
   return root, path
 end
 
---- Run `utils note` writes one after another, then reload the repository once. In
---- sequence, not at once: they take the record's lock in turn, and a batch that reloaded
---- per write would read the record while the next write still held it.
 ---@param root string
 ---@param jobs string[][]
 ---@param said_done string
@@ -500,7 +432,6 @@ local function write(root, jobs, said_done)
   next_job()
 end
 
---- Write a note on the current line, then redraw it.
 function M.add()
   local root, path = here()
   if root == nil then
@@ -530,8 +461,6 @@ function M.add()
   end)
 end
 
---- Take the notes off the current line. By id, not by line: a reader is shown the line a
---- note re-anchored to, and the record still holds the line it was written against.
 function M.remove_line()
   local root = here()
   if root == nil then
@@ -551,7 +480,6 @@ function M.remove_line()
   write(root, jobs, string.format("Notes: removed %d on line %d", #jobs, line))
 end
 
---- Take every note off the current file.
 function M.remove_file()
   local root, path = here()
   if root == nil then
@@ -573,7 +501,6 @@ function M.remove_file()
   )
 end
 
---- Take every note off every repository in the project.
 function M.remove_project()
   local covered = M.project_roots()
   if #covered == 0 then
@@ -595,9 +522,6 @@ function M.remove_project()
   vim.notify(string.format("Notes: removed %d across the project", count), vim.log.levels.INFO)
 end
 
---- Every note under every loaded root, each carrying the absolute path it belongs to. For
---- a list or a picker, which needs one flat set rather than the per-buffer view `place`
---- draws.
 ---@return table[]
 function M.all()
   local found = {}
@@ -621,8 +545,6 @@ function M.all()
   return found
 end
 
---- Which files under root carry notes, and how many each carries, for a list that shows
---- a count per row. Keyed the way a note records its file, relative to the root.
 ---@param root string
 ---@return table<string, integer>
 function M.files_in(root)
@@ -633,7 +555,6 @@ function M.files_in(root)
   return counts
 end
 
---- How many notes are loaded, for the health report and the project-wide prompt.
 ---@return integer
 function M.count()
   local total = 0

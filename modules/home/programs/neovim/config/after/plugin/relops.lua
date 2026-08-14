@@ -13,11 +13,11 @@ local function refresh_line_numbers()
 
   if vim.g.RELOPS_ACTIVE then
     local targeting_modes = {
-      ["no"] = true, -- Operator-pending
-      ["v"] = true, -- Visual
-      ["V"] = true, -- Visual Line
-      ["\22"] = true, -- Visual Block
-      ["c"] = true, -- Command-line
+      ["no"] = true,
+      ["v"] = true,
+      ["V"] = true,
+      ["\22"] = true,
+      ["c"] = true,
     }
     vim.opt_local.relativenumber = targeting_modes[mode] or false
   else

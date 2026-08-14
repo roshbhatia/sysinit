@@ -81,7 +81,6 @@ local function render(payload)
   end)
 end
 
--- One poll at a time.
 local in_flight = false
 
 local function poll()

@@ -83,7 +83,6 @@ function M.active_names()
   return names
 end
 
--- A workspace keeps its digit while it exists, so the chords do not move.
 local function compute_slots()
   local prev = wezterm.GLOBAL.workspace_slots
   if type(prev) ~= "table" then

@@ -1,17 +1,9 @@
--- The clipboard history. Held in memory only and never written to disk, because what
--- passes through a clipboard includes passwords, and a file of them outliving the session
--- is a worse trade than losing the history on a reload.
 local M = {}
 
--- How far back the history reaches. Enough to find what was copied a few minutes ago,
--- short enough that the list stays readable.
 local depth = 60
 
--- The width a row shows. A copied paragraph is identified by its opening, not its whole.
 local preview = 90
 
--- The pasteboard types a password manager marks its copies with. An entry carrying one is
--- never recorded, so a password does not end up in a list bound to cmd+space.
 local concealed = {
   ["org.nspasteboard.ConcealedType"] = true,
   ["org.nspasteboard.TransientType"] = true,
@@ -21,7 +13,6 @@ local concealed = {
 local history = {}
 local watcher = nil
 
---- Whether the pasteboard is marked as holding something that must not be recorded.
 ---@return boolean
 local function is_concealed()
   local ok, types = pcall(hs.pasteboard.contentTypes)
@@ -36,8 +27,6 @@ local function is_concealed()
   return false
 end
 
---- One line, with the whitespace collapsed, so a copied block reads as a row rather than
---- pushing the rest of the list off the panel.
 ---@param text string
 ---@return string
 local function oneline(text)
@@ -48,7 +37,6 @@ local function oneline(text)
   return flat:sub(1, preview) .. "…"
 end
 
---- Record what is on the pasteboard now, unless it is concealed, empty, or already on top.
 local function record()
   if is_concealed() then
     return
@@ -64,8 +52,6 @@ local function record()
   if history[1] and history[1].text == text then
     return
   end
-  -- Moved to the front rather than added again, so copying the same thing twice leaves one
-  -- row where it belongs instead of two.
   for index, entry in ipairs(history) do
     if entry.text == text then
       table.remove(history, index)
@@ -78,7 +64,6 @@ local function record()
   end
 end
 
---- Start watching. Idempotent: a second call replaces the watcher rather than adding one.
 function M.start()
   if watcher then
     watcher:stop()
@@ -89,19 +74,14 @@ function M.start()
   if watcher then
     watcher:start()
   end
-  -- Whatever is already on the pasteboard, so the first open is not an empty section.
   record()
 end
 
---- How much is held, for the row that opens the history.
 ---@return number
 function M.depth()
   return #history
 end
 
---- The history as launcher rows, newest first. Its own list rather than rows mixed into the
---- root one, because a clipboard entry is read before it is chosen and reading it needs the
---- whole of it, not a line.
 ---@return table[]
 function M.rows()
   local rows = {}
@@ -119,7 +99,6 @@ function M.rows()
   return rows
 end
 
---- Put one entry back on the pasteboard, which is the whole of what choosing it means.
 ---@param entry table|nil
 function M.restore(entry)
   if entry == nil or entry.text == nil then

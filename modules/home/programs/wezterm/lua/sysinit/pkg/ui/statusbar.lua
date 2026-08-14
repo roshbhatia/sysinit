@@ -29,7 +29,6 @@ end
 local CHIP_NAME_MAX = 16
 local CHIP_SESSIONS_MAX = 20
 
--- Empty when the chip label already says it.
 local function chip_sessions(st, workspace)
   local names = st and st.names or nil
   if not names or #names == 0 then

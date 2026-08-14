@@ -30,20 +30,15 @@ local function is_loc_win()
   return wininfo and wininfo.loclist == 1
 end
 
--- A list with entries is steppable whether or not a window shows it.
 local function has_qf_entries()
   return vim.fn.getqflist({ size = 0 }).size > 0
 end
 
--- The review's scope list answers a step itself: its rows hold no file to jump to, and
--- stepping one means opening another scope.
 local function stepped_scope(delta)
   local ok, scopes = pcall(require, "harness.scopes")
   return ok and scopes.step(delta)
 end
 
--- The review answers its own step too, because a row opens two diffed windows rather
--- than one file, and `:cnext` would put the file in whichever window is current.
 local function stepped_review(delta)
   local ok, review = pcall(require, "review")
   return ok and review.step(delta)

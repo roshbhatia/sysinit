@@ -24,7 +24,7 @@ return {
       end
 
       vim.g.opencode_opts = {
-        server = server_opts, -- nil → use default (snacks)
+        server = server_opts,
         events = { reload = true },
       }
     end,

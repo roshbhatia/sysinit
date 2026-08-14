@@ -1,26 +1,19 @@
--- Reads the edit-event log a harness hook writes, so a buffer reloads when an agent
--- writes the file instead of on the next `file_refresh` tick.
 local M = {}
 
 ---@type userdata|nil
 local watcher = nil
 
---- Byte offset already consumed. Starting at the log's current size rather than
---- at 0 is what keeps a late-starting Neovim from replaying a whole session as a
---- burst of reloads.
 local offset = 0
 
 ---@type string|nil
 local log_path = nil
 
---- Absolute paths an agent has written since this Neovim started, newest last.
 ---@type string[]
 local touched = {}
 
 ---@type table<string, boolean>
 local touched_seen = {}
 
---- Resolve the log by asking the writer for it.
 ---@return string|nil
 local function resolve_log()
   if vim.fn.executable("agent-edit-event") ~= 1 then
@@ -44,7 +37,6 @@ local function size_of(path)
   return (stat and stat.size) or 0
 end
 
---- The buffer holding path, if any is loaded.
 ---@param path string
 ---@return integer|nil
 local function loaded_buffer(path)
@@ -64,7 +56,6 @@ local function remember(path)
   table.insert(touched, path)
 end
 
---- React to one event.
 ---@param entry table
 local function apply(entry)
   local path = entry.file
@@ -95,7 +86,6 @@ local function apply(entry)
   end)
 end
 
---- Read whatever arrived since the last read.
 local function drain()
   if not log_path then
     return
@@ -119,9 +109,6 @@ local function drain()
     return
   end
 
-  -- A partial trailing line means the writer is mid-append. Leave it in place by
-  -- advancing only past what ended in a newline, so the rest arrives whole on the
-  -- next event.
   local consumed = 0
   for line in body:gmatch("([^\n]*)\n") do
     consumed = consumed + #line + 1
@@ -135,9 +122,6 @@ local function drain()
   offset = offset + consumed
 end
 
---- Watch the directory, not the file. Truncation replaces the log through a
---- rename, so a handle on the file would be left holding an unlinked inode and no
---- further event would ever arrive.
 function M.start()
   if watcher then
     return
@@ -191,7 +175,6 @@ function M.is_active()
   return watcher ~= nil
 end
 
---- The files an agent has written since this Neovim started, oldest first.
 ---@return string[]
 function M.touched_files()
   local present = {}
@@ -208,7 +191,6 @@ function M.forget_touched()
   touched_seen = {}
 end
 
---- For `:checkhealth` and for answering "is this thing even on".
 ---@return table
 function M.status()
   return {

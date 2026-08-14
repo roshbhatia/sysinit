@@ -1,9 +1,5 @@
--- Colour escapes to markup. `bat` writes its highlighting as ANSI sequences and the preview
--- pane is a web page, so one has to be translated into the other.
 local M = {}
 
---- One xterm palette entry as a hex colour. The first sixteen are the terminal's own, then
---- a six by six by six cube, then twenty-four greys.
 ---@param index number
 ---@return string
 local function palette(index)
@@ -40,16 +36,12 @@ local function palette(index)
   return string.format("#%02x%02x%02x", grey, grey, grey)
 end
 
---- The text a page can hold without reading it as markup.
 ---@param text string
 ---@return string
 local function escape(text)
   return (text:gsub("[&<>]", { ["&"] = "&amp;", ["<"] = "&lt;", [">"] = "&gt;" }))
 end
 
---- Read one SGR sequence into the style it sets. Only the foreground colours and bold are
---- kept: a background from `bat` would fight the panel's own, and the rest do not survive
---- the trip to a page anyway.
 ---@param codes string
 ---@param style table
 local function apply(codes, style)
@@ -88,7 +80,6 @@ local function apply(codes, style)
   end
 end
 
---- Translate a stretch of coloured terminal output into markup.
 ---@param text string
 ---@return string
 function M.html(text)

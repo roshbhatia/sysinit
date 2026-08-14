@@ -79,7 +79,6 @@ local START_SCREENS = {
   ministarter = true,
 }
 
--- Close a floating start screen so the preview split does not open behind it.
 local function dismiss_start_screen()
   for _, win in ipairs(vim.api.nvim_tabpage_list_wins(0)) do
     if vim.api.nvim_win_get_config(win).relative ~= "" then

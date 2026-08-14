@@ -1,42 +1,23 @@
--- Review across repositories. diffview.nvim owns the diff, the file panel, and every key
--- inside it; this owns the part diffview has no notion of, which is that a workspace holds
--- eighteen repositories and a review spans several of them.
---
--- One diffview per repository, each in its own tab, because `-C` points diffview at one
--- repository and a tab is what it opens into. The illusion of a single review is held here:
--- one command opens them all, one key moves between them, and the notes attach to every
--- root at once rather than to whichever one is in front.
 local M = {}
 
--- The repositories under review, and the tab each one was opened into.
 local session = { roots = {}, tabs = {} }
 
--- Past this many changed files a review switches from the two-window diff to the single
--- window one. Two windows cost two buffers per file, and a review that large is read by
--- scrolling the list rather than by studying each file side by side.
 local INLINE_ABOVE = 40
 
--- The revision the working tree is compared against, when the reader has asked for one.
--- Held across repositories, since a review spanning several of them is read against one
--- base, and passed to diffview as the git-rev argument it already understands.
 local base = nil
 
---- The short name a reader knows a repository by.
 ---@param root string
 ---@return string
 local function name(root)
   return vim.fn.fnamemodify(root, ":t")
 end
 
---- Whether a recorded tab is still there. A tab closed by hand is not an error, it is a
---- repository the reader is finished with.
 ---@param tab number|nil
 ---@return boolean
 local function alive(tab)
   return tab ~= nil and vim.api.nvim_tabpage_is_valid(tab)
 end
 
---- Forget the repositories whose tabs have gone.
 local function prune()
   local roots, tabs = {}, {}
   for _, root in ipairs(session.roots) do
@@ -48,21 +29,18 @@ local function prune()
   session.roots, session.tabs = roots, tabs
 end
 
---- Whether any repository is still open for review.
 ---@return boolean
 function M.is_open()
   prune()
   return #session.roots > 0
 end
 
---- The repositories under review, for a caller that lists commits or notes per repository.
 ---@return string[]
 function M.roots()
   prune()
   return vim.deepcopy(session.roots)
 end
 
---- The repository whose tab is in front, or nil.
 ---@return string|nil
 function M.root()
   prune()
@@ -75,9 +53,6 @@ function M.root()
   return session.roots[1]
 end
 
---- Choose the layout for the views about to open. diffview reads this from its config
---- when a view is built, so it is set here rather than passed, and set back afterwards so
---- a later small review is side by side again.
 ---@param files integer
 local function layout_for(files)
   local ok, config = pcall(require, "diffview.config")
@@ -94,9 +69,6 @@ local function layout_for(files)
   end
 end
 
---- How many files the review is about to hold, so the layout can be chosen before the
---- first view is built. Counted with one `git` call per repository, since the answer is
---- needed now and `ws changes` is asynchronous.
 ---@param roots string[]
 ---@return integer
 local function changed_count(roots)
@@ -110,7 +82,6 @@ local function changed_count(roots)
   return total
 end
 
---- Open one repository, recording the tab diffview opened it into.
 ---@param root string
 ---@param args string|nil
 local function open_one(root, args)
@@ -125,15 +96,9 @@ local function open_one(root, args)
     session.roots[#session.roots + 1] = root
   end
   session.tabs[root] = tab
-  -- Named on the tab itself, so a tabline or a statusline can say which repository this is
-  -- without asking this module.
   vim.t[tab].review_repo = name(root)
 end
 
---- Open a review over these repositories, and attach the notes to all of them at once.
---- `args` is one rev for every repository, or a rev per repository keyed by root, which
---- is what a review "since last Tuesday" needs: the same moment resolves to a different
---- commit in each repository.
 ---@param roots string[]
 ---@param args string|table<string, string>|nil
 function M.open(roots, args)
@@ -147,8 +112,6 @@ function M.open(roots, args)
     end
   end
   prune()
-  -- The first repository, because opening several leaves the reader in the last one and the
-  -- order they were asked for is the order they should be read in.
   if alive(session.tabs[session.roots[1]]) then
     vim.api.nvim_set_current_tabpage(session.tabs[session.roots[1]])
   end
@@ -160,7 +123,6 @@ function M.open(roots, args)
   end)
 end
 
---- Open one commit of one repository, for a caller that has picked one out of a log.
 ---@param root string
 ---@param commit table
 function M.open_revision(root, commit)
@@ -168,12 +130,9 @@ function M.open_revision(root, commit)
   if sha == nil then
     return
   end
-  -- `sha^!` is the commit against its own parent, which is what picking a commit means.
   M.open({ root }, sha .. "^!")
 end
 
---- Move to the next repository under review, wrapping, so several repositories read as one
---- list rather than as several windows to find.
 ---@param step number
 function M.cycle(step)
   prune()
@@ -193,7 +152,6 @@ function M.cycle(step)
   vim.notify(string.format("Review: %s (%d of %d)", name(root), next_at, #session.roots), vim.log.levels.INFO)
 end
 
---- Close every repository under review, and the notes with them.
 function M.close()
   prune()
   local here = vim.api.nvim_get_current_tabpage()
@@ -213,15 +171,9 @@ function M.close()
   end)
 end
 
---- Ask which repository to review. Every repository under the workspace that has a change
---- is offered, most changed first, because a workspace holding eighteen of them has no
---- single answer and the file that happens to be open is a poor guess at one.
 function M.pick()
   local gitrepo = require("utils.gitrepo")
   gitrepo.workspace_changes(function(groups, roots)
-    -- Two different empty answers, reported as two different messages. "Nothing changed" in
-    -- a directory holding no repository sends the reader looking for a diff that was never
-    -- possible.
     if #roots == 0 then
       vim.notify("Review: no git repository under " .. gitrepo.workspace(), vim.log.levels.WARN)
       return
@@ -265,7 +217,6 @@ function M.pick()
   end)
 end
 
---- Whether the tab in front belongs to the review.
 ---@return boolean
 function M.here()
   prune()
@@ -278,10 +229,6 @@ function M.here()
   return false
 end
 
---- The one review key. Closes an open review, opens the repository the reader is standing
---- in when that repository has something to show, and asks only when neither is true: in a
---- workspace of eighteen repositories a picker on every press is a question already
---- answered by where the cursor is.
 function M.toggle()
   if M.is_open() then
     return M.close()
@@ -299,8 +246,6 @@ function M.toggle()
         return M.open({ here })
       end
     end
-    -- The repository underfoot is clean, so the question is which of the others to read,
-    -- and that is worth asking rather than guessing.
     if #groups > 0 then
       return M.pick()
     end
@@ -309,10 +254,6 @@ function M.toggle()
   end)
 end
 
---- Re-read the diff and the notes, for a review left open while the tree moved under it.
---- Every open view, not only the one in front, and through diffview's own debounced
---- update rather than through `:DiffviewRefresh`, which would need the tab in front and
---- so would move the reader on every save.
 ---@param opts? { quiet?: boolean }
 function M.refresh(opts)
   prune()
@@ -333,9 +274,6 @@ function M.refresh(opts)
   end)
 end
 
---- Compare the working tree back to a commit rather than to HEAD, in every repository
---- under review at once. Reopened rather than adjusted, because the rev is an argument
---- diffview reads when a view opens.
 function M.set_base()
   vim.ui.input({ prompt = "Compare the working tree back to: ", default = base or "" }, function(rev)
     if rev == nil then
@@ -351,8 +289,6 @@ function M.set_base()
   end)
 end
 
---- The repository this command should answer for: the one under review, else the one the
---- current file belongs to.
 ---@param cb fun(root: string)
 local function target(cb)
   local root = M.root()
@@ -362,9 +298,6 @@ local function target(cb)
   require("utils.gitrepo").resolve(cb, { ask = true })
 end
 
---- The commits behind what is on screen: this file's when a file is open, the repository's
---- otherwise. One key for both, since the reader wants the history of whatever they are
---- looking at and only a panel has no file to name.
 function M.history()
   local path = vim.api.nvim_buf_get_name(0)
   if path ~= "" and vim.bo.buftype == "" then
@@ -375,7 +308,6 @@ function M.history()
   end)
 end
 
---- Open every changed repository at once, without asking.
 function M.all()
   local gitrepo = require("utils.gitrepo")
   gitrepo.workspace_changes(function(groups, roots)

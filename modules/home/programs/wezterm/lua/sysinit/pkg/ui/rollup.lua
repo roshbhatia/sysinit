@@ -1,10 +1,8 @@
 local wezterm = require("wezterm")
 local panes_mod = require("sysinit.pkg.ui.panes")
 
--- `collect` needs a live mux; `reduce` is pure, so the precedence rule is testable.
 local M = {}
 
--- Returns nil if the walk raised.
 function M.collect(deck_states)
   local observations = {}
   local ok = pcall(function()
@@ -24,9 +22,6 @@ function M.collect(deck_states)
               tab_id = tab_id,
               workspace = workspace,
               session = rec and rec.session or "",
-              -- The record's own repo first, because it comes from `git rev-parse` and
-              -- so names the repository rather than the directory the pane happens to
-              -- sit in. The cwd basename is the fallback for a pane with no record.
               repo = (function()
                 if rec and rec.repo ~= "" then
                   return rec.repo
@@ -53,7 +48,6 @@ function M.collect(deck_states)
   return observations
 end
 
--- Higher rank wins; on a tie the older `since` wins, and a nil `since` never displaces.
 function M.reduce(observations)
   local sessions = {}
   for _, o in ipairs(observations) do
@@ -99,7 +93,6 @@ end
 
 local cache = { at = -1, sessions = {}, panes = {} }
 
--- A function, not a table, so the deck is not queried on a cache hit.
 function M.states(get_deck_states)
   local now = os.time()
   if now ~= cache.at then

@@ -4,7 +4,7 @@ local schemastore = require("schemastore")
 local base_config = {
   settings = {
     yaml = {
-      schemaStore = { enable = false, url = "" }, -- Disable built-in, use schemastore plugin
+      schemaStore = { enable = false, url = "" },
       schemas = vim.tbl_extend("force", schemastore.yaml.schemas(), {
         Kubernetes = "globPattern",
       }),

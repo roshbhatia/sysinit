@@ -2,12 +2,10 @@ local M = {}
 
 local STATE_DIR = vim.fn.stdpath("state") .. "/harness"
 
--- -@param name string  filename without extension (e.g.
 function M.path(name)
   return STATE_DIR .. "/" .. name .. ".json"
 end
 
--- -@param path string -@return table|nil
 function M.load(path)
   local fd = io.open(path, "r")
   if not fd then
@@ -25,7 +23,6 @@ function M.load(path)
   return nil
 end
 
--- -@param path string -@param data table
 function M.save(path, data)
   vim.fn.mkdir(STATE_DIR, "p")
   local ok, encoded = pcall(vim.json.encode, data)

@@ -1,4 +1,3 @@
--- The two markdown previews, as a module rather than as a lazy plugin spec.
 local M = {}
 
 local state = { job = nil, path = nil }
@@ -14,7 +13,6 @@ function M.stop()
   state.job, state.path = nil, nil
 end
 
---- Toggle the go-grip browser preview of the current buffer.
 function M.toggle_browser()
   if vim.fn.executable("go-grip") == 0 then
     vim.notify("go-grip is not on PATH", vim.log.levels.ERROR)
@@ -42,7 +40,6 @@ function M.toggle_browser()
   state.path = path
 end
 
---- Toggle the glow terminal preview of the current buffer.
 function M.toggle_glow()
   local path = vim.api.nvim_buf_get_name(0)
   if path == "" then
@@ -55,8 +52,6 @@ function M.toggle_glow()
   end
 end
 
--- Registered once, at require time, so a second markdown buffer does not add a
--- second teardown for the same job.
 vim.api.nvim_create_autocmd("VimLeavePre", {
   group = vim.api.nvim_create_augroup("SysinitGoGrip", { clear = true }),
   callback = M.stop,

@@ -59,12 +59,9 @@ function M.get_config_path(filename)
   return M.get_home_dir() .. "/.config/wezterm/" .. filename
 end
 
--- The paths manifest, read once per config load.
 local paths_cache = nil
 
--- The single fallback of the wezterm tree.
 local function state_root()
-  -- sysinit:documented-default
   return os.getenv("XDG_STATE_HOME") or (M.get_home_dir() .. "/.local/state")
 end
 
@@ -77,7 +74,6 @@ local function paths_manifest()
   return paths_cache
 end
 
--- Resolve one state path by key.
 function M.state_path(key, fallback_suffix)
   local value = paths_manifest()[key]
   if type(value) == "string" and value ~= "" then

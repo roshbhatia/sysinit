@@ -1,6 +1,5 @@
 local M = {}
 
---- @param hl_name string The name of the highlight group
 function M.get_hl_raw_safe(hl_name, attr, fallback)
   attr = attr or "fg"
 
@@ -18,18 +17,14 @@ function M.get_hl_raw_safe(hl_name, attr, fallback)
   return fallback
 end
 
---- @param hl_name string The name of the highlight group
 function M.get_fg(hl_name, fallback)
   return M.get_hl_raw_safe(hl_name, "fg", fallback)
 end
 
---- @param hl_name string The name of the highlight group
 function M.get_bg(hl_name, fallback)
   return M.get_hl_raw_safe(hl_name, "bg", fallback)
 end
 
---- @param hl_name string The name of the highlight group
---- @return table Table with fg, bg, sp (special) fields as hex colors or nil
 function M.get_colors(hl_name)
   local hl = vim.api.nvim_get_hl(0, { name = hl_name, link = false })
 
