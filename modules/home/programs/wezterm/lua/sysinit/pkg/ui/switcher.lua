@@ -90,16 +90,19 @@ function M.setup(config, wm, ctx)
       end
     end
 
-    local default_choice = { name = "default", path = ctx.home, label = "default" }
+    -- Every seshy session this switcher can reach is local, so the tag is fixed
+    -- here; it stays present so a row is never silently host-ambiguous.
+    local host = ui_format.host_tag(nil)
+    local default_choice = { name = "default", path = ctx.home, label = host .. " default" }
     local rows = {}
 
     for _, name in ipairs(ui_sessions.list_names(ui_sessions.sy_bin)) do
       if name ~= "default" then
         local st = sessions[name]
-        local label = name
+        local label = host .. " " .. name
         if st then
           local icon = ui_format.state_icons[st.status] or "●"
-          label = icon .. " " .. name
+          label = icon .. " " .. host .. " " .. name
           local a = agg[name]
           if a then
             if a.repo ~= "" then
@@ -145,6 +148,15 @@ function M.setup(config, wm, ctx)
     return choices
   end
 
+  local function append_host(r, colors, domain)
+    if domain == false then
+      return
+    end
+    local tag, is_local = ui_format.host_tag(domain)
+    r:append(nil, is_local and colors.chrome or colors.dir_ic, tag)
+    r:append(nil, colors.chrome, " ")
+  end
+
   local function attn_row(rec, now, colors)
     local sc = ui_format.status_color(rec.status, colors) or colors.idle
     local icon = ui_format.state_icons[rec.status] or "●"
@@ -158,6 +170,7 @@ function M.setup(config, wm, ctx)
       r:append(nil, nil, "  ")
     end
     r:append(nil, sc, icon .. " ")
+    append_host(r, colors, rec.domain)
     local crumb = rec.workspace
     if rec.tab_title ~= "" then
       crumb = crumb .. " · " .. rec.tab_title
@@ -247,7 +260,9 @@ function M.setup(config, wm, ctx)
       for _, ws in ipairs(tree.workspaces) do
         if ws.dormant then
           local r = ctx.ribbon.new("dormant")
-          r:append(nil, colors.ws_dorm, ctx.icons.dormant .. " " .. ws.name)
+          r:append(nil, colors.ws_dorm, ctx.icons.dormant .. " ")
+          append_host(r, colors, ws.domain)
+          r:append(nil, colors.ws_dorm, ws.name)
           add("ws:" .. ws.name, r:format(), { workspace = ws.name, dormant = true })
         end
       end
@@ -270,6 +285,7 @@ function M.setup(config, wm, ctx)
         local r = ctx.ribbon.new("ws")
         r:append(nil, colors.chrome, qs .. "  ")
         r:append(nil, sc or colors.ws_live, ctx.icons.session .. " ")
+        append_host(r, colors, ws.domain)
         r:append(nil, colors.name, ws.name, "Bold")
         if ws.status then
           r:append(nil, sc or colors.working, "  " .. (ui_format.state_icons[ws.status] or "●"))
@@ -297,6 +313,7 @@ function M.setup(config, wm, ctx)
       local sc = ui_format.status_color(ws.status, colors)
       local ws_r = ctx.ribbon.new("ws")
       ws_r:append(nil, sc or colors.ws_live, ctx.icons.session .. " ")
+      append_host(ws_r, colors, ws.domain)
       ws_r:append(nil, colors.name, ws.name, { "Bold", "Single" })
       if ws.status then
         local ws_lbl = ui_format.state_labels[ws.status] or ""
@@ -316,6 +333,7 @@ function M.setup(config, wm, ctx)
         tab_r:append(nil, colors.ws_live, ctx.icons.tab)
         tab_r:append(nil, colors.chrome, " [" .. tostring(ti) .. "]")
         tab_r:append(nil, colors.chrome, "  ")
+        append_host(tab_r, colors, tnode.domain)
         tab_r:append(nil, colors.name, tnode.title)
         add(
           "tab:" .. tnode.tab_id,
@@ -331,8 +349,9 @@ function M.setup(config, wm, ctx)
           if bc then
             pane_r:append(nil, colors.chrome, "<")
             pane_r:append(nil, bc, ui_badges.name(rec.pane_id))
-            pane_r:append(nil, colors.chrome, ">")
+            pane_r:append(nil, colors.chrome, "> ")
           end
+          append_host(pane_r, colors, rec.domain)
           local pane_dp = ui_format.smart_path(rec.cwd)
           if pane_dp == "" then
             pane_dp = rec.repo

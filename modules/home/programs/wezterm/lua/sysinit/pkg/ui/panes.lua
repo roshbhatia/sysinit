@@ -10,6 +10,16 @@ M.state_rank = {
   idle = 1,
 }
 
+function M.pane_domain(p)
+  local ok, name = pcall(function()
+    return p:get_domain_name()
+  end)
+  if not ok or type(name) ~= "string" then
+    return ""
+  end
+  return name
+end
+
 function M.pane_repo(p)
   local ok, repo, cwd = pcall(function()
     local url = p:get_current_working_dir()

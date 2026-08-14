@@ -21,6 +21,21 @@ M.state_labels = {
 
 M.suppressed_reasons = { ["your move"] = true, ["submit"] = true, ["message"] = true }
 
+M.local_domains = { ["local"] = true, unix = true, TermWizTerminalDomain = true }
+
+-- A pane in a WezTerm-multiplexed ssh domain reports either the configured
+-- `ssh:<host>` or the inner `SSHMUX:ssh:<host>`, so strip both prefixes.
+---@param domain string|nil
+---@return string tag
+---@return boolean is_local
+function M.host_tag(domain)
+  local name = (domain or ""):gsub("^SSHMUX:", "")
+  if name == "" or M.local_domains[name] then
+    return "@localhost", true
+  end
+  return "@" .. (name:gsub("^ssh:", "")), false
+end
+
 function M.status_color(status, colors)
   if status == "waiting" then
     return colors.waiting

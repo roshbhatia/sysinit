@@ -5,6 +5,18 @@ local ui_sessions = require("sysinit.pkg.ui.sessions")
 
 local M = {}
 
+-- nil is "no pane seen yet", false is "panes disagree", so a tab or workspace
+-- claims a host only when every pane under it is on that one host.
+local function merge_domain(current, domain)
+  if current == nil then
+    return domain
+  end
+  if current == false or current ~= domain then
+    return false
+  end
+  return current
+end
+
 function M.build(deck_states)
   local workspaces = {}
   local ws_index = {}
@@ -51,11 +63,15 @@ function M.build(deck_states)
           local pid = p:pane_id()
           local repo, cwd = ui_panes.pane_repo(p)
           local git = ui_panes.read_pane_record(pid)
+          local domain = ui_panes.pane_domain(p)
+          tnode.domain = merge_domain(tnode.domain, domain)
+          ws.domain = merge_domain(ws.domain, domain)
           local rec = {
             pane_id = pid,
             window_id = window_id,
             tab_id = tnode.tab_id,
             workspace = workspace,
+            domain = domain,
             tab_title = tnode.title,
             repo = repo,
             cwd = cwd,
