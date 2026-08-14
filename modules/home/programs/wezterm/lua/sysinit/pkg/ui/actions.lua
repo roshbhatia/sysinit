@@ -3,8 +3,9 @@ local utils = require("sysinit.pkg.utils")
 
 local M = {}
 
-local function seshy_spawn_args(name)
-  local zsh = utils.get_nix_binary("zsh")
+-- A remote host has its own nix profile, so its zsh is never at the local path.
+local function seshy_spawn_args(name, shell)
+  local zsh = (shell and shell ~= "") and shell or utils.get_nix_binary("zsh")
   local quoted = "'" .. name:gsub("'", "'\\''") .. "'"
   return { zsh, "-i", "-c", string.format("s %s; exec %s -i", quoted, zsh) }
 end
@@ -33,7 +34,8 @@ function M.gui_window_for_workspace(workspace)
   return nil
 end
 
-function M.switch_to_workspace(win, pane, name, spawn_cwd)
+---@param opts table|string|nil A spawn cwd, or { cwd, domain, shell, session }
+function M.switch_to_workspace(win, pane, name, opts)
   if not name or name == "" then
     return
   end
@@ -50,12 +52,22 @@ function M.switch_to_workspace(win, pane, name, spawn_cwd)
     end)
     return
   end
-  local act = spawn_cwd
-      and wezterm.action.SwitchToWorkspace({
-        name = name,
-        spawn = { cwd = spawn_cwd, args = seshy_spawn_args(name) },
-      })
-    or wezterm.action.SwitchToWorkspace({ name = name })
+  if type(opts) == "string" then
+    opts = { cwd = opts }
+  end
+  local act
+  if type(opts) == "table" and (opts.cwd or opts.domain) then
+    local spawn = {
+      cwd = opts.cwd,
+      args = seshy_spawn_args(opts.session or name, opts.shell),
+    }
+    if opts.domain and opts.domain ~= "" then
+      spawn.domain = { DomainName = opts.domain }
+    end
+    act = wezterm.action.SwitchToWorkspace({ name = name, spawn = spawn })
+  else
+    act = wezterm.action.SwitchToWorkspace({ name = name })
+  end
   win:perform_action(act, pane)
 end
 

@@ -26,14 +26,22 @@ M.local_domains = { ["local"] = true, unix = true, TermWizTerminalDomain = true 
 -- A pane in a WezTerm-multiplexed ssh domain reports either the configured
 -- `ssh:<host>` or the inner `SSHMUX:ssh:<host>`, so strip both prefixes.
 ---@param domain string|nil
+---@return string host
+---@return boolean is_local
+function M.domain_host(domain)
+  local name = (domain or ""):gsub("^SSHMUX:", "")
+  if name == "" or M.local_domains[name] then
+    return "localhost", true
+  end
+  return (name:gsub("^ssh:", "")), false
+end
+
+---@param domain string|nil
 ---@return string tag
 ---@return boolean is_local
 function M.host_tag(domain)
-  local name = (domain or ""):gsub("^SSHMUX:", "")
-  if name == "" or M.local_domains[name] then
-    return "@localhost", true
-  end
-  return "@" .. (name:gsub("^ssh:", "")), false
+  local host, is_local = M.domain_host(domain)
+  return "@" .. host, is_local
 end
 
 function M.status_color(status, colors)

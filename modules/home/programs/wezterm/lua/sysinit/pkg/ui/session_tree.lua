@@ -21,6 +21,7 @@ function M.build(deck_states)
   local workspaces = {}
   local ws_index = {}
   local attention = {}
+  local remote = ui_sessions.remote_cached()
 
   pcall(function()
     for _, win in ipairs(wezterm.mux.all_windows()) do
@@ -28,8 +29,10 @@ function M.build(deck_states)
       local window_id = win:window_id()
       local ws = ws_index[workspace]
       if not ws then
+        local _, bare = ui_sessions.split(workspace, remote)
         ws = {
           name = workspace,
+          display_name = bare,
           dormant = false,
           rank = 0,
           since = nil,
@@ -103,9 +106,42 @@ function M.build(deck_states)
 
   for _, name in ipairs(ui_sessions.names_cached()) do
     if not ws_index[name] then
-      local ws = { name = name, dormant = true, rank = 0, since = nil, status = nil, tabs = {} }
+      local ws = { name = name, display_name = name, dormant = true, rank = 0, since = nil, status = nil, tabs = {} }
       ws_index[name] = ws
       workspaces[#workspaces + 1] = ws
+    end
+  end
+
+  -- A remote session is host-qualified so WezTerm's flat workspace namespace
+  -- cannot merge `foo` on two hosts into one workspace.
+  local unreachable = {}
+  for _, entry in ipairs(remote) do
+    if entry.ok then
+      for _, session in ipairs(entry.sessions) do
+        local name = ui_sessions.qualify(entry.host, session.name)
+        if type(session.name) == "string" and session.name ~= "" and not ws_index[name] then
+          local ws = {
+            name = name,
+            display_name = session.name,
+            dormant = true,
+            domain = entry.domain,
+            path = session.path,
+            shell = entry.shell,
+            rank = 0,
+            since = nil,
+            status = nil,
+            tabs = {},
+          }
+          ws_index[name] = ws
+          workspaces[#workspaces + 1] = ws
+        end
+      end
+    else
+      unreachable[#unreachable + 1] = {
+        host = entry.host,
+        domain = entry.domain,
+        reason = entry.reason or "unavailable",
+      }
     end
   end
 
@@ -117,7 +153,7 @@ function M.build(deck_states)
     return (a.since or now) < (b.since or now)
   end)
 
-  return { workspaces = workspaces, attention = attention }
+  return { workspaces = workspaces, attention = attention, unreachable = unreachable }
 end
 
 function M.colors(win, config_data)

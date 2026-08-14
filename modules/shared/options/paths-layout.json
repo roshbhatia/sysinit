@@ -16,6 +16,7 @@
     "seshySessions": "$HOME/.local/state/seshy/sessions",
     "zmxSessions": "$HOME/.local/state/zmx",
     "weztermWorkspaceState": "$HOME/.local/state/wezterm/workspace_state",
+    "weztermRemoteSessions": "$HOME/.local/state/wezterm/remote_sessions",
     "llmSkills": "$HOME/.local/state/sysinit/llm/skills",
     "manifest": "$HOME/.local/state/sysinit/paths.json"
   }

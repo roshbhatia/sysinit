@@ -90,8 +90,10 @@ function M.setup(config, wm, ctx)
       end
     end
 
-    -- Every seshy session this switcher can reach is local, so the tag is fixed
-    -- here; it stays present so a row is never silently host-ambiguous.
+    -- Local sessions only: workspace-manager spawns without a domain, so a
+    -- remote session offered here would open on the wrong host. The tag is
+    -- fixed rather than omitted so a row is never silently host-ambiguous.
+    -- Remote sessions live in the session tree, which does set the domain.
     local host = ui_format.host_tag(nil)
     local default_choice = { name = "default", path = ctx.home, label = host .. " default" }
     local rows = {}
@@ -262,9 +264,18 @@ function M.setup(config, wm, ctx)
           local r = ctx.ribbon.new("dormant")
           r:append(nil, colors.ws_dorm, ctx.icons.dormant .. " ")
           append_host(r, colors, ws.domain)
-          r:append(nil, colors.ws_dorm, ws.name)
+          r:append(nil, colors.ws_dorm, ws.display_name or ws.name)
           add("ws:" .. ws.name, r:format(), { workspace = ws.name, dormant = true })
         end
+      end
+      -- An attached host that cannot be listed gets a row saying why, because a
+      -- silently absent host reads as a host with no sessions.
+      for _, entry in ipairs(tree.unreachable or {}) do
+        local r = ctx.ribbon.new("dormant")
+        r:append(nil, colors.chrome, ctx.icons.dormant .. " ")
+        append_host(r, colors, entry.domain)
+        r:append(nil, colors.reason, entry.reason)
+        add("host:" .. entry.host, r:format(), nil)
       end
       return choices
     end
@@ -286,7 +297,7 @@ function M.setup(config, wm, ctx)
         r:append(nil, colors.chrome, qs .. "  ")
         r:append(nil, sc or colors.ws_live, ctx.icons.session .. " ")
         append_host(r, colors, ws.domain)
-        r:append(nil, colors.name, ws.name, "Bold")
+        r:append(nil, colors.name, ws.display_name or ws.name, "Bold")
         if ws.status then
           r:append(nil, sc or colors.working, "  " .. (ui_format.state_icons[ws.status] or "●"))
         end
@@ -314,7 +325,7 @@ function M.setup(config, wm, ctx)
       local ws_r = ctx.ribbon.new("ws")
       ws_r:append(nil, sc or colors.ws_live, ctx.icons.session .. " ")
       append_host(ws_r, colors, ws.domain)
-      ws_r:append(nil, colors.name, ws.name, { "Bold", "Single" })
+      ws_r:append(nil, colors.name, ws.display_name or ws.name, { "Bold", "Single" })
       if ws.status then
         local ws_lbl = ui_format.state_labels[ws.status] or ""
         ws_r:append(nil, colors.chrome, "  ")
@@ -413,7 +424,8 @@ function M.setup(config, wm, ctx)
     end
     local kind = id:match("^([^:]+):")
     if kind == "ws" and rec.dormant then
-      ui_actions.switch_to_workspace(win, pane, rec.workspace, ui_sessions.seshy_dir .. "/" .. rec.workspace)
+      local spawn = ui_sessions.remote_spawn(rec.workspace) or { cwd = ui_sessions.seshy_dir .. "/" .. rec.workspace }
+      ui_actions.switch_to_workspace(win, pane, rec.workspace, spawn)
     elseif kind == "ws" then
       ui_actions.switch_to_workspace(win, pane, rec.workspace)
     else
@@ -542,6 +554,7 @@ function M.setup(config, wm, ctx)
   local function open_session_tree(win, pane, filter, notice)
     filter = filter or "all"
     tree_state.current_filter = filter
+    ui_sessions.refresh_remote()
     local tree = ctx.tree()
     local colors = ctx.colors(win)
     local by_id = {}

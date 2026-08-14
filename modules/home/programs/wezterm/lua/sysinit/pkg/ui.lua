@@ -292,6 +292,7 @@ function M.setup(config)
         touch_workspace(window:active_workspace())
       end)
     end
+    ui_sessions.refresh_remote()
   end)
 
   local function session_tree()
@@ -328,11 +329,11 @@ function M.setup(config)
         end
       end
     end)
-    local spawn_cwd = nil
+    local spawn = nil
     if not live and target ~= DEFAULT_WORKSPACE then
-      spawn_cwd = seshy_dir .. "/" .. target
+      spawn = ui_sessions.remote_spawn(target) or { cwd = seshy_dir .. "/" .. target }
     end
-    switch_to_workspace(win, pane, target, spawn_cwd)
+    switch_to_workspace(win, pane, target, spawn)
   end
 
   -- Stepping by slot rather than by workspace name walks the same order the

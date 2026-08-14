@@ -12,6 +12,18 @@ let
   themeConfig = config.sysinit.theme;
   c = themeColors;
 
+  # WezTerm's lua runs on the GUI thread, so it spawns this in the background
+  # rather than making the ssh call itself. jq and ssh are baked in because the
+  # GUI's own PATH is whatever launchd handed the .app.
+  seshyRemoteList = pkgs.writeShellApplication {
+    name = "wezterm-seshy-remote-list";
+    runtimeInputs = [
+      pkgs.jq
+      pkgs.openssh
+    ];
+    text = builtins.readFile ./scripts/seshy-remote-list.sh;
+  };
+
   sshCfg = config.sysinit.git.ssh;
   sshAgentSocket =
     if lib.hasPrefix "~/" sshCfg.agentSocket then
@@ -167,6 +179,9 @@ in
             fg_color = "#${c.base05}";
           };
         };
+      };
+      scripts = {
+        seshy_remote_list = "${seshyRemoteList}/bin/wezterm-seshy-remote-list";
       };
       plugins = {
         tabline = "${weztermPlugins.tabline}";
