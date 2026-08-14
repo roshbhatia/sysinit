@@ -42,23 +42,10 @@
   (import ./wumpusMono.nix)
   (import ./bookerly.nix)
   (import ./codex-acp.nix)
-  (import ./obsidian.nix)
   (import ./localias.nix)
   (import ./pplx.nix)
   (import ./alerter.nix)
   (import ./sheets.nix)
-  (_final: prev: {
-    _1password-gui =
-      if prev.stdenv.hostPlatform.isDarwin then
-        prev._1password-gui.overrideAttrs (old: {
-          src = prev.fetchurl {
-            url = "https://downloads.1password.com/mac/1Password-${old.version}-aarch64.zip";
-            hash = "sha256-utESL4dUIe/jD9gu3YIF+HWnGUlWr54tSI1Jtrruxsc=";
-          };
-        })
-      else
-        prev._1password-gui;
-  })
   (
     final: prev:
     let
