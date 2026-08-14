@@ -212,7 +212,7 @@ function M.place(bufnr)
   -- Grouped by row before anything is drawn, so a line's notes share one extmark and
   -- therefore one frame. `rows` keeps the record's order, since the store is append-only
   -- and the oldest note on a line is the first thing written about it.
-  local rows, order = {}, {}
+  local rows, order, waiting = {}, {}, {}
   for _, note in ipairs(notes) do
     -- The record's line is 1-based on the new side. A note on a line the file no
     -- longer has still shows, on the last line, because a note the owner cannot see
@@ -223,10 +223,13 @@ function M.place(bufnr)
       table.insert(order, row)
     end
     table.insert(rows[row], { title = title(note), body = render(note) })
+    waiting[row] = waiting[row] or said(note.state) == "open"
   end
   for _, row in ipairs(order) do
+    -- A box holding a question nobody has answered is drawn as a warning. It is the
+    -- one note the owner is owed something for, and it should not read like the rest.
     pcall(vim.api.nvim_buf_set_extmark, bufnr, ns, row, 0, {
-      virt_lines = box(rows[row], "DiagnosticInfo"),
+      virt_lines = box(rows[row], waiting[row] and "DiagnosticWarn" or "DiagnosticInfo"),
       virt_lines_above = false,
     })
   end
@@ -457,21 +460,21 @@ local function here()
   return root, path
 end
 
---- Run one `utils note` write and reload what it changed.
+--- Run `utils note` writes one after another, then reload the repository once. In
+--- sequence, not at once: they take the record's lock in turn, and a batch that reloaded
+--- per write would read the record while the next write still held it.
 ---@param root string
----@param args string[]
+---@param jobs string[][]
 ---@param said_done string
-local function write(root, args, said_done)
+local function write(root, jobs, said_done)
   if vim.fn.executable(M.tool) ~= 1 then
     vim.notify("Notes: " .. M.tool .. " is not on PATH", vim.log.levels.ERROR)
     return
   end
-  vim.system(vim.list_extend({ M.tool, "note" }, args), { cwd = root, text = true }, function(result)
-    vim.schedule(function()
-      if result.code ~= 0 then
-        vim.notify("Notes: " .. (result.stderr or "the write failed"), vim.log.levels.ERROR)
-        return
-      end
+  local at = 0
+  local function next_job()
+    at = at + 1
+    if at > #jobs then
       if by_root[root] == nil then
         by_root[root] = {}
         table.insert(roots, root)
@@ -481,8 +484,20 @@ local function write(root, args, said_done)
       if said_done ~= "" then
         vim.notify(said_done, vim.log.levels.INFO)
       end
+      return
+    end
+    local args = vim.list_extend({ M.tool, "note" }, jobs[at])
+    vim.system(args, { cwd = root, text = true }, function(result)
+      vim.schedule(function()
+        if result.code ~= 0 then
+          vim.notify("Notes: " .. (result.stderr or "the write failed"), vim.log.levels.ERROR)
+          return
+        end
+        next_job()
+      end)
     end)
-  end)
+  end
+  next_job()
 end
 
 --- Write a note on the current line, then redraw it.
@@ -498,43 +513,42 @@ function M.add()
       return
     end
     write(root, {
-      "add",
-      "--file",
-      path,
-      "--line",
-      tostring(line),
-      "--summary",
-      summary,
-      "--author",
-      email(root),
-      "--origin",
-      "user",
+      {
+        "add",
+        "--file",
+        path,
+        "--line",
+        tostring(line),
+        "--summary",
+        summary,
+        "--author",
+        email(root),
+        "--origin",
+        "user",
+      },
     }, "")
   end)
 end
 
---- Take the notes off the current line.
+--- Take the notes off the current line. By id, not by line: a reader is shown the line a
+--- note re-anchored to, and the record still holds the line it was written against.
 function M.remove_line()
-  local root, path = here()
+  local root = here()
   if root == nil then
     return
   end
   local line = vim.api.nvim_win_get_cursor(0)[1]
-  local on_line = 0
+  local jobs = {}
   for _, note in ipairs(notes_for(vim.api.nvim_get_current_buf())) do
-    if (tonumber(note.line) or 0) == line then
-      on_line = on_line + 1
+    if (tonumber(note.line) or 0) == line and said(note.id) then
+      jobs[#jobs + 1] = { "clear", "--id", note.id }
     end
   end
-  if on_line == 0 then
+  if #jobs == 0 then
     vim.notify("Notes: nothing noted on line " .. line, vim.log.levels.INFO)
     return
   end
-  write(
-    root,
-    { "clear", "--file", path, "--line", tostring(line) },
-    string.format("Notes: removed %d on line %d", on_line, line)
-  )
+  write(root, jobs, string.format("Notes: removed %d on line %d", #jobs, line))
 end
 
 --- Take every note off the current file.
@@ -554,7 +568,7 @@ function M.remove_file()
   end
   write(
     root,
-    { "clear", "--file", path },
+    { { "clear", "--file", path } },
     string.format("Notes: removed %d in %s", count, vim.fn.fnamemodify(path, ":t"))
   )
 end
@@ -576,7 +590,7 @@ function M.remove_project()
     return
   end
   for _, root in ipairs(covered) do
-    write(root, { "clear", "--yes" }, "")
+    write(root, { { "clear", "--yes" } }, "")
   end
   vim.notify(string.format("Notes: removed %d across the project", count), vim.log.levels.INFO)
 end
