@@ -1,13 +1,31 @@
 package main
 
 import (
+	"io"
 	"strings"
 	"testing"
 	"time"
 
+	"github.com/spf13/cobra"
+
 	"github.com/roshbhatia/sysinit/pkgs/ask/internal/provider"
 	"github.com/roshbhatia/sysinit/pkgs/ask/internal/store"
 )
+
+// parse reads the arguments the way the command does, stopping before the run itself so a
+// test can see what the flags said.
+func parse(args []string) (options, error) {
+	var opts options
+	cmd := command(&opts)
+	cmd.RunE = func(_ *cobra.Command, rest []string) error {
+		opts.prompt = strings.Join(rest, " ")
+		return nil
+	}
+	cmd.SetArgs(args)
+	cmd.SetOut(io.Discard)
+	cmd.SetErr(io.Discard)
+	return opts, cmd.Execute()
+}
 
 // read parses the arguments or fails the test saying which ones.
 func read(t *testing.T, args ...string) options {
@@ -67,9 +85,17 @@ func TestAProviderIsPickedByItsLetterOrItsName(t *testing.T) {
 		{[]string{"-o", "hi"}, "codex"},
 		{[]string{"--provider", "codex", "hi"}, "codex"},
 	} {
-		if got := read(t, one.args...).provider; got != one.want {
+		if got := read(t, one.args...).pick(); got != one.want {
 			t.Errorf("%v picked %q, want %q", one.args, got, one.want)
 		}
+	}
+}
+
+// A name spelled out wins over a letter, since the letter is the shorthand for a default
+// and the name is a choice.
+func TestASpelledProviderWinsOverALetter(t *testing.T) {
+	if got := read(t, "-c", "--provider", "codex", "hi").pick(); got != "codex" {
+		t.Errorf("the provider is %q, want codex", got)
 	}
 }
 
@@ -113,12 +139,6 @@ func TestTheTimeoutHasADefault(t *testing.T) {
 	}
 }
 
-func TestHelpEndsTheParseWhereverItAppears(t *testing.T) {
-	if got := read(t, "-o", "--help", "ignored").show; got != "help" {
-		t.Errorf("--help set show to %q", got)
-	}
-}
-
 func TestEachSavedPieceIsAskedForByName(t *testing.T) {
 	for _, one := range []struct {
 		flag string
@@ -128,8 +148,59 @@ func TestEachSavedPieceIsAskedForByName(t *testing.T) {
 		{"--show-prompt", "prompt"},
 		{"--show-output", "output"},
 	} {
-		if got := read(t, one.flag).show; got != one.want {
-			t.Errorf("%s set show to %q, want %q", one.flag, got, one.want)
+		if got := read(t, one.flag).show(); got != one.want {
+			t.Errorf("%s asked for %q, want %q", one.flag, got, one.want)
+		}
+	}
+	if got := read(t, "hi").show(); got != "" {
+		t.Errorf("a plain run asked for %q", got)
+	}
+}
+
+// The command is installed under more than one name, and help that spells a name the caller
+// did not type is help they have to translate.
+func TestTheHelpSpellsTheNameTheCommandWasCalledBy(t *testing.T) {
+	var opts options
+	cmd := command(&opts)
+	if !strings.Contains(cmd.Long, called()) {
+		t.Errorf("the help does not name %q", called())
+	}
+	if !strings.HasPrefix(cmd.Use, called()) {
+		t.Errorf("the usage line is %q, want it to open with %q", cmd.Use, called())
+	}
+}
+
+// Completions come with cobra, and a prompt is words rather than filenames, so completing
+// one with the contents of the directory is noise.
+func TestAPromptIsNotCompletedWithFilenames(t *testing.T) {
+	var opts options
+	cmd := command(&opts)
+	if cmd.ValidArgsFunction == nil {
+		t.Fatal("the prompt has no completion of its own")
+	}
+	_, directive := cmd.ValidArgsFunction(cmd, nil, "")
+	if directive != cobra.ShellCompDirectiveNoFileComp {
+		t.Errorf("the directive is %v", directive)
+	}
+}
+
+func TestTheProvidersCompleteByName(t *testing.T) {
+	var opts options
+	cmd := command(&opts)
+	for _, one := range []struct {
+		flag string
+		want string
+	}{
+		{"provider", "codex"},
+		{"model", "opus"},
+	} {
+		complete, ok := cmd.GetFlagCompletionFunc(one.flag)
+		if !ok {
+			t.Fatalf("--%s has no completion", one.flag)
+		}
+		values, _ := complete(cmd, nil, "")
+		if !hasString(values, one.want) {
+			t.Errorf("--%s completes to %v, want it to offer %q", one.flag, values, one.want)
 		}
 	}
 }
@@ -180,7 +251,7 @@ func TestAProviderNoOneKnowsLeavesTheLastRunAlone(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	if err := run([]string{"--provider", "bogus", "--replay", "do it"}); err == nil {
+	if err := run(options{prompt: "do it", provider: "bogus", replay: true}); err == nil {
 		t.Fatal("an unknown provider was accepted")
 	}
 
@@ -202,7 +273,7 @@ func TestAProviderNoOneKnowsLeavesTheLastRunAlone(t *testing.T) {
 
 func TestNothingToReplayIsSaidRatherThanRun(t *testing.T) {
 	t.Setenv("XDG_STATE_HOME", t.TempDir())
-	err := run([]string{"--replay", "do it"})
+	err := run(options{prompt: "do it", replay: true})
 	if err == nil {
 		t.Fatal("a replay with nothing saved was accepted")
 	}
@@ -213,7 +284,7 @@ func TestNothingToReplayIsSaidRatherThanRun(t *testing.T) {
 
 func TestAPromptIsRequired(t *testing.T) {
 	t.Setenv("XDG_STATE_HOME", t.TempDir())
-	err := run(nil)
+	err := run(options{})
 	if err == nil || !strings.Contains(err.Error(), "say what to do") {
 		t.Errorf("a run with no prompt gave %v", err)
 	}
@@ -221,8 +292,17 @@ func TestAPromptIsRequired(t *testing.T) {
 
 func TestASpecThatWillNotBuildStopsTheRun(t *testing.T) {
 	t.Setenv("XDG_STATE_HOME", t.TempDir())
-	err := run([]string{"-s", "name:notatype", "--replay", "do it"})
+	err := run(options{prompt: "do it", spec: "name:notatype", replay: true})
 	if err == nil || !strings.Contains(err.Error(), "notatype") {
 		t.Errorf("a bad spec gave %v", err)
 	}
+}
+
+func hasString(values []string, want string) bool {
+	for _, value := range values {
+		if value == want {
+			return true
+		}
+	}
+	return false
 }

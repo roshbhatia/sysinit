@@ -11,9 +11,11 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"path/filepath"
 	"strings"
 	"time"
 
+	"github.com/spf13/cobra"
 	"golang.org/x/term"
 
 	"github.com/roshbhatia/sysinit/pkgs/ask/internal/provider"
@@ -22,42 +24,23 @@ import (
 	"github.com/roshbhatia/sysinit/pkgs/ask/internal/ui"
 )
 
-const usage = `usage: ask [flags] -- <prompt...>
-       ask <prompt...>
-
-Pipes stdin into a coding agent and prints the answer on stdout. Everything else,
+// The long help, with %[1]s standing in for the name the command was called by: it is
+// installed under more than one, and help that spells a name the caller did not type is
+// help they have to translate.
+const about = `Pipes stdin into a coding agent and prints the answer on stdout. Everything else,
 the spinner and what the model is doing, goes to stderr.
 
-  cat main.go | ask summarise this file
-  cat log.txt | ask -o --schema 'level:error|warn|info, message:string' -- classify this
-  ask --show-input | pbcopy
+  cat main.go | %[1]s summarise this file
+  cat log.txt | %[1]s -o --schema 'level:error|warn|info, message:string' -- classify this
+  %[1]s --show-input | pbcopy
 
 The prompt is the bare words after the flags, so the -- is only needed when a flag
 comes first. Quote a prompt that holds shell metacharacters, as in
-ask -c 'what does the | operator do', or the shell reads them before ask does.
+%[1]s -c 'what does the | operator do', or the shell reads them before %[1]s does.
 
-Both providers answer --json and --schema in the shape asked for, and a codex run
-that answers outside it is reported as a failure. Codex reports no cost, so the
-line after a codex run says $0.0000.
-
-flags:
-  -j, --json            answer in JSON, shape unspecified
-  -s, --schema SPEC     answer in JSON, in this shape. A field spec such as
-                        'name:string, tags:[]string, count:int?', where a trailing
-                        question mark makes a field optional and a bar makes an
-                        enum, or @path to a JSON Schema file
-  -m, --model NAME      model alias, such as opus or sonnet
-  -c                    run claude, which is the default
-  -o                    run codex
-      --provider NAME   which agent to run by name, claude or codex
-      --replay          rerun the last input, with this prompt or the last one
-      --show-input      print the last input and exit
-      --show-prompt     print the last prompt and exit
-      --show-output     print the last answer and exit
-  -q, --quiet           no progress output at all
-      --timeout DUR     give up after this long (default 10m)
-  -h, --help            this
-`
+Both providers answer --json and --schema in the shape asked for, and a run that
+answers outside it is reported as a failure. Codex reports no cost, so the line
+after a codex run says $0.0000.`
 
 // options are what the flags said.
 type options struct {
@@ -66,77 +49,98 @@ type options struct {
 	spec     string
 	model    string
 	provider string
+	claude   bool
+	codex    bool
 	replay   bool
 	quiet    bool
 	timeout  time.Duration
-	show     string
+
+	showInput  bool
+	showPrompt bool
+	showOutput bool
 }
 
-// parse reads the arguments by hand rather than through `flag`, so a prompt can be written
-// as bare words after the flags without quoting and without a mandatory `--`.
-func parse(args []string) (options, error) {
-	opts := options{timeout: 10 * time.Minute}
-	var words []string
+// show is which piece of the last run to print instead of making a new one, or empty for a
+// run of its own.
+func (o options) show() string {
+	switch {
+	case o.showInput:
+		return "input"
+	case o.showPrompt:
+		return "prompt"
+	case o.showOutput:
+		return "output"
+	}
+	return ""
+}
 
-	for at := 0; at < len(args); at++ {
-		arg := args[at]
-		// Everything after a bare `--` is the prompt, whatever it looks like.
-		if arg == "--" {
-			words = append(words, args[at+1:]...)
-			break
-		}
-		value := func() (string, error) {
-			if at+1 >= len(args) {
-				return "", fmt.Errorf("%s wants a value", arg)
-			}
-			at++
-			return args[at], nil
-		}
+// called is the name the command was invoked by, which is the name to print in its own help
+// and in its own errors.
+func called() string {
+	return filepath.Base(os.Args[0])
+}
 
-		var err error
-		switch arg {
-		case "-h", "--help":
-			return options{show: "help"}, nil
-		case "-j", "--json":
-			opts.json = true
-		case "-q", "--quiet":
-			opts.quiet = true
-		case "--replay":
-			opts.replay = true
-		case "--show-input":
-			opts.show = "input"
-		case "--show-prompt":
-			opts.show = "prompt"
-		case "--show-output":
-			opts.show = "output"
-		case "-c":
-			opts.provider = "claude"
-		case "-o":
-			opts.provider = "codex"
-		case "-s", "--schema":
-			opts.spec, err = value()
-		case "-m", "--model":
-			opts.model, err = value()
-		case "--provider":
-			opts.provider, err = value()
-		case "--timeout":
-			var text string
-			if text, err = value(); err == nil {
-				opts.timeout, err = time.ParseDuration(text)
-			}
-		default:
-			if strings.HasPrefix(arg, "-") && opts.show == "" && len(words) == 0 {
-				return opts, fmt.Errorf("unknown flag %s", arg)
-			}
-			words = append(words, arg)
-		}
-		if err != nil {
-			return opts, err
-		}
+// command builds the root command. The prompt is bare words, so flag parsing stops at the
+// first of them: `ask what does -v mean` is a question rather than an unknown flag.
+func command(opts *options) *cobra.Command {
+	name := called()
+
+	cmd := &cobra.Command{
+		Use:   name + " [flags] [prompt...]",
+		Short: "Pipe something into a coding agent and print the answer, and only the answer",
+		Long:  fmt.Sprintf(about, name),
+		Args:  cobra.ArbitraryArgs,
+		// The error is printed by main, in the same shape every other message takes, and a
+		// wall of usage after it buries the one line that matters.
+		SilenceUsage:  true,
+		SilenceErrors: true,
+		RunE: func(_ *cobra.Command, args []string) error {
+			opts.prompt = strings.Join(args, " ")
+			return run(*opts)
+		},
+		// A prompt is words, so completing it with the names of files in the directory is
+		// noise rather than help.
+		ValidArgsFunction: func(*cobra.Command, []string, string) ([]string, cobra.ShellCompDirective) {
+			return nil, cobra.ShellCompDirectiveNoFileComp
+		},
 	}
 
-	opts.prompt = strings.Join(words, " ")
-	return opts, nil
+	flags := cmd.Flags()
+	flags.SetInterspersed(false)
+	flags.BoolVarP(&opts.json, "json", "j", false, "answer in JSON, shape unspecified")
+	flags.StringVarP(&opts.spec, "schema", "s", "", "answer in JSON, in this shape: a field spec such as 'name:string, tags:[]string, count:int?', where a trailing question mark makes a field optional and a bar makes an enum, or @path to a JSON Schema file")
+	flags.StringVarP(&opts.model, "model", "m", "", "model alias, such as opus or sonnet")
+	flags.BoolVarP(&opts.claude, "claude", "c", false, "run claude, which is the default")
+	flags.BoolVarP(&opts.codex, "codex", "o", false, "run codex")
+	flags.StringVar(&opts.provider, "provider", "", "which agent to run by name, claude or codex")
+	flags.BoolVar(&opts.replay, "replay", false, "rerun the last input, with this prompt or the last one")
+	flags.BoolVarP(&opts.quiet, "quiet", "q", false, "no progress output at all")
+	flags.DurationVar(&opts.timeout, "timeout", 10*time.Minute, "give up after this long")
+	flags.BoolVar(&opts.showInput, "show-input", false, "print the last input and exit")
+	flags.BoolVar(&opts.showPrompt, "show-prompt", false, "print the last prompt and exit")
+	flags.BoolVar(&opts.showOutput, "show-output", false, "print the last answer and exit")
+
+	_ = cmd.RegisterFlagCompletionFunc("provider", func(*cobra.Command, []string, string) ([]string, cobra.ShellCompDirective) {
+		return []string{"claude", "codex"}, cobra.ShellCompDirectiveNoFileComp
+	})
+	_ = cmd.RegisterFlagCompletionFunc("model", func(*cobra.Command, []string, string) ([]string, cobra.ShellCompDirective) {
+		return []string{"opus", "sonnet", "haiku"}, cobra.ShellCompDirectiveNoFileComp
+	})
+
+	return cmd
+}
+
+// pick reads which provider the flags asked for, since there are three ways to say it.
+func (o options) pick() string {
+	switch {
+	case o.provider != "":
+		return o.provider
+	case o.codex:
+		return "codex"
+	case o.claude:
+		return "claude"
+	}
+	return ""
 }
 
 // piped is whether something is on the other end of stdin, since a terminal on stdin means
@@ -149,8 +153,8 @@ func piped() bool {
 	return info.Mode()&os.ModeCharDevice == 0
 }
 
-// show prints one of the saved pieces of the last run.
-func show(which string) error {
+// printSaved prints one of the saved pieces of the last run.
+func printSaved(which string) error {
 	var read func() ([]byte, error)
 	switch which {
 	case "input":
@@ -182,23 +186,16 @@ func answer(result *provider.Result, structured bool) ([]byte, error) {
 	return []byte(text), nil
 }
 
-func run(args []string) error {
-	opts, err := parse(args)
-	if err != nil {
-		return err
-	}
-	if opts.show == "help" {
-		fmt.Fprint(os.Stderr, usage)
-		return nil
-	}
-	if opts.show != "" {
-		return show(opts.show)
+func run(opts options) error {
+	if which := opts.show(); which != "" {
+		return printSaved(which)
 	}
 
 	// Everything the arguments alone can settle is settled first, so a typo is a message
 	// rather than a run: reading stdin drains a pipe the caller cannot refill, and saving
 	// the run overwrites the last one `--replay` would have used.
 	var shape map[string]any
+	var err error
 	switch {
 	case opts.spec != "":
 		if shape, err = schema.Resolve(opts.spec); err != nil {
@@ -208,7 +205,7 @@ func run(args []string) error {
 		shape = schema.Any()
 	}
 
-	agent, err := provider.Find(opts.provider)
+	agent, err := provider.Find(opts.pick())
 	if err != nil {
 		return err
 	}
@@ -299,8 +296,9 @@ func run(args []string) error {
 }
 
 func main() {
-	if err := run(os.Args[1:]); err != nil {
-		fmt.Fprintln(os.Stderr, "ask: "+err.Error())
+	var opts options
+	if err := command(&opts).Execute(); err != nil {
+		fmt.Fprintln(os.Stderr, called()+": "+err.Error())
 		os.Exit(1)
 	}
 }
