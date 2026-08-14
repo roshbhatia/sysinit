@@ -15,7 +15,7 @@ let
       }
       ''
         mkdir -p "$out/bin"
-        makeWrapper ${pkgs.utils}/bin/${subcommand} "$out/bin/${name}" \
+        makeWrapper ${pkgs.sysinit-utils}/bin/${subcommand} "$out/bin/${name}" \
           --add-flags "--rules ${rulesFile pkgs}"
       '';
 in

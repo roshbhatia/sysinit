@@ -172,7 +172,7 @@ let
       pkgs.coreutils
       pkgs.git
       pkgs.hunk
-      pkgs.utils
+      pkgs.sysinit-utils
     ];
     text = builtins.readFile ./review.sh;
   };

@@ -126,7 +126,7 @@ in
 
       statusLine = {
         type = "command";
-        command = "${pkgs.utils}/bin/agent-statusline";
+        command = "${pkgs.sysinit-utils}/bin/agent-statusline";
       };
 
       tui = "fullscreen";
@@ -187,7 +187,7 @@ in
             hooks = [
               {
                 type = "command";
-                command = "${pkgs.utils}/bin/nix-guard";
+                command = "${pkgs.sysinit-utils}/bin/nix-guard";
               }
             ];
           }

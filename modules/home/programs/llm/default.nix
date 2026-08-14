@@ -248,7 +248,7 @@ in
 
     packages = [
       pkgs.meat
-      pkgs.utils
+      pkgs.sysinit-utils
       capture
       notify.script
       notify.agentRefine

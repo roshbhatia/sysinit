@@ -1,7 +1,7 @@
 { pkgs, ... }:
 {
   home.packages = [
-    pkgs.utils
+    pkgs.sysinit-utils
     pkgs.ask
   ];
 }

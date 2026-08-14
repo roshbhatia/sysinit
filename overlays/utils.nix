@@ -1,5 +1,5 @@
 final: _prev: {
-  utils =
+  sysinit-utils =
     let
       links = [
         "agent-edit-event"
