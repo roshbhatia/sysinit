@@ -14,6 +14,16 @@ local M = {}
 local live_secs = 8
 local files_secs = 300
 
+-- Showing the panel makes its window key, and that activation is a wait on the
+-- window server. Measured on this machine it usually costs under 100ms but
+-- intermittently blocks for up to 4.9 seconds while the window server is busy,
+-- with Hammerspoon burning no CPU. The hotkey cannot fire during that wait, so
+-- the presses queue and then all run at once, and the panel flickers through one
+-- activation per press. A press inside this window is dropped instead: the first
+-- press always acts, and a queued burst arrives inside 5ms so only its first
+-- press survives. Deliberate presses are further apart than this.
+local settle_secs = 0.12
+
 local apps = nil
 local config = nil
 
@@ -458,7 +468,14 @@ local function rescan()
   compose()
 end
 
+local settled_at = 0
+
 function M.toggle()
+  local now = hs.timer.secondsSinceEpoch()
+  if now - settled_at < settle_secs then
+    return
+  end
+  settled_at = now
   if panel.visible() then
     panel.hide()
     return

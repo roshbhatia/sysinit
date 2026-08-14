@@ -230,7 +230,13 @@ local function build()
   controller:setCallback(received)
 
   view = hs.webview.new(frame(400), { developerExtrasEnabled = false }, controller)
-  view:windowStyle({ "borderless", "fullSizeContentView" })
+  -- `nonactivating` lets the panel become the key window without activating
+  -- Hammerspoon. That activation is a synchronous wait on the window server:
+  -- usually under 100ms, but measured here blocking for up to 4.9 seconds while
+  -- the window server was busy, with Hammerspoon using no CPU. The hotkey cannot
+  -- fire during that wait, so the launcher appeared frozen. Without activation
+  -- there is no such wait, and the app the user was in stays frontmost.
+  view:windowStyle({ "borderless", "fullSizeContentView", "nonactivating" })
   view:allowTextEntry(true)
   view:transparent(true)
   view:level(hs.drawing.windowLevels.modalPanel)
@@ -307,12 +313,9 @@ function M.show(list)
   end
   view:show()
   ready(present)
-  hs.timer.doAfter(0, function()
-    local window = view and view:hswindow()
-    if window then
-      window:focus()
-    end
-  end)
+  -- No focus call: a nonactivating panel becomes key on its own, and asking for
+  -- focus here is what triggered the activation wait. Measured with the real page,
+  -- typing reached the search field only in the variant that does not ask.
   outside()
 end
 
