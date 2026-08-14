@@ -90,7 +90,7 @@ function M.rows()
       text = entry.label,
       detail = os.date("%H:%M", entry.at),
       label = string.format("%d", index),
-      badge = "C",
+      glyph = "clipboard",
       kind = "clip-entry",
       entry = entry,
       at = entry.at,

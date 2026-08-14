@@ -1,13 +1,34 @@
 local ansi = require("sysinit.plugins.ui.launcher.ansi")
 local json_loader = require("sysinit.pkg.utils.json_loader")
 local clipboard = require("sysinit.plugins.ui.launcher.clipboard")
+local files = require("sysinit.plugins.ui.launcher.files")
+local fzf = require("sysinit.plugins.ui.launcher.fzf")
 local panel = require("sysinit.plugins.ui.launcher.panel")
 local recency = require("sysinit.plugins.ui.launcher.recency")
 
 local M = {}
 
+-- How often the sources that change on their own are re-read. A pane opens or a
+-- tab closes without telling anyone, so they are polled; apps and files are
+-- watched or rebuilt far less often.
+local live_secs = 8
+local files_secs = 300
+
 local apps = nil
 local config = nil
+
+-- Every source keeps its rows here, and the base list is composed from whatever
+-- is present. Nothing is gathered when the hotkey is pressed.
+local held = {
+  apps = {},
+  commands = {},
+  entries = {},
+  panes = {},
+  sessions = {},
+  tabs = {},
+}
+
+local order = { "apps", "commands", "entries", "panes", "sessions", "tabs" }
 
 ---@return table
 local function settings()
@@ -207,20 +228,47 @@ local function tab_rows(cb)
 end
 
 ---@return table[]
-local function clipboard_rows()
-  local held = clipboard.depth()
-  if held == 0 then
-    return {}
+local function command_rows()
+  local rows = {}
+  for _, command in ipairs(settings().commands or {}) do
+    rows[#rows + 1] = {
+      text = command.label or "",
+      detail = "",
+      label = "Command",
+      glyph = "command",
+      kind = "command",
+      run = command.run,
+      url = command.url,
+    }
   end
-  return {
-    {
+  return rows
+end
+
+-- The two rows that open a list of their own rather than doing something.
+---@return table[]
+local function entry_rows()
+  local rows = {}
+  local depth = clipboard.depth()
+  if depth > 0 then
+    rows[#rows + 1] = {
       text = "Clipboard History",
-      detail = string.format("%d held", held),
+      detail = string.format("%d held", depth),
       label = "Clipboard",
-      badge = "C",
+      glyph = "clipboard",
       kind = "clipboard",
-    },
-  }
+    }
+  end
+  local count = files.count()
+  if count > 0 then
+    rows[#rows + 1] = {
+      text = "File Search",
+      detail = string.format("%d paths", count),
+      label = "Files",
+      glyph = "folder",
+      kind = "files",
+    }
+  end
+  return rows
 end
 
 ---@param text string
@@ -268,33 +316,51 @@ local function preview(row, cb)
   task:start()
 end
 
----@return table[]
-local function command_rows()
-  local rows = {}
-  for _, command in ipairs(settings().commands or {}) do
-    rows[#rows + 1] = {
-      text = command.label or "",
-      detail = "",
-      label = "Command",
-      badge = "\u{2318}",
-      kind = "command",
-      run = command.run,
-      url = command.url,
-    }
-  end
-  return rows
-end
-
 ---@return table
 local function history()
   return {
+    name = "clipboard",
     rows = clipboard.rows(),
     placeholder = "Search the clipboard history",
     verb = "Copy",
     preview = preview,
+    hints = { { "&#8629;", "Copy" }, { "esc", "Back" } },
     choose = function(row)
       panel.hide()
       clipboard.restore(row.entry)
+    end,
+  }
+end
+
+---@return table
+local function search()
+  return {
+    name = "files",
+    -- The walk writes this list's fzf index itself and hands back one path per
+    -- entry, so a row is built only for the few the panel draws.
+    indexed = true,
+    count = files.count,
+    row = files.row,
+    placeholder = "Search files and folders by path",
+    verb = "Open",
+    hints = {
+      { "&#8629;", "Open" },
+      { "&#8679;&#8629;", "Reveal" },
+      { "&#8984;C", "Copy path" },
+      { "esc", "Back" },
+    },
+    choose = function(row, mods)
+      if mods.cmd then
+        files.copy(row.path)
+        panel.hide()
+        return
+      end
+      panel.hide()
+      if mods.shift then
+        files.reveal(row.path)
+      else
+        files.open(row.path)
+      end
     end,
   }
 end
@@ -307,6 +373,11 @@ local function activate(choice)
   if choice.kind == "clipboard" then
     recency.touch(choice)
     panel.enter(history())
+    return
+  end
+  if choice.kind == "files" then
+    recency.touch(choice)
+    panel.enter(search())
     return
   end
 
@@ -340,62 +411,108 @@ local function activate(choice)
   end
 end
 
+---@return table
+local function base()
+  local rows = {}
+  for _, source in ipairs(order) do
+    for _, row in ipairs(held[source]) do
+      rows[#rows + 1] = row
+    end
+  end
+  return {
+    name = "base",
+    rows = recency.sort(rows),
+    placeholder = "Search apps, panes, sessions, tabs, files",
+    choose = activate,
+  }
+end
+
+-- Composes the base list and hands it to the panel, so a hidden panel already
+-- holds the rows and the index the next open will use.
+local function compose()
+  panel.stage(base())
+end
+
+-- Polled because a pane, a session, or a tab comes and goes without an event.
+-- The three run at once and the list is composed when the last one lands, so a
+-- cycle costs one sort and one index write rather than three.
+local function refresh()
+  local left = 3
+  local function done(source)
+    return function(rows)
+      held[source] = rows
+      left = left - 1
+      if left == 0 then
+        compose()
+      end
+    end
+  end
+  pane_rows(done("panes"))
+  session_rows(done("sessions"))
+  tab_rows(done("tabs"))
+end
+
+local function rescan()
+  apps = nil
+  held.apps = app_rows()
+  compose()
+end
+
 function M.toggle()
   if panel.visible() then
     panel.hide()
     return
   end
-  local first = true
-  M.gather(function(rows)
-    if first then
-      first = false
-      panel.show({
-        rows = rows,
-        placeholder = "Search apps, panes, sessions, tabs, clipboard",
-        choose = activate,
-      })
-    else
-      panel.rows(rows)
-    end
-  end)
-end
-
----@param cb fun(rows: table[])
-function M.gather(cb)
-  local rows = {}
-  local function fold(found)
-    for _, row in ipairs(found) do
-      rows[#rows + 1] = row
-    end
-    cb(recency.sort(rows))
-  end
-
-  fold(app_rows())
-  fold(command_rows())
-  fold(clipboard_rows())
-  pane_rows(fold)
-  session_rows(fold)
-  tab_rows(fold)
-end
-
-function M.reindex()
-  apps = nil
-  config = nil
+  panel.show()
 end
 
 function M.setup()
   clipboard.start()
 
+  fzf.bin = settings().fzf
+  files.fd = settings().fd
+  files.roots = settings().fileRoots or {}
+  files.excludes = settings().fileExcludes or {}
+  files.cap = settings().fileCap or files.cap
+  files.index = fzf.index_path("files")
+  fzf.ensure()
+
+  panel.prewarm()
+
   hs.hotkey.bind({ "cmd" }, "space", function()
     M.toggle()
   end)
 
-  hs.timer.doAfter(2, app_rows)
+  held.commands = command_rows()
+  held.apps = app_rows()
+  held.entries = entry_rows()
+  compose()
+
+  refresh()
+  hs.timer.doEvery(live_secs, function()
+    if panel.visible() then
+      return
+    end
+    held.entries = entry_rows()
+    refresh()
+  end)
+
+  files.build(function()
+    held.entries = entry_rows()
+    compose()
+  end)
+  hs.timer.doEvery(files_secs, function()
+    -- Never under an open panel: the page holds each row's position in the
+    -- index, and a rebuild renumbers it.
+    if panel.visible() then
+      return
+    end
+    files.build()
+  end)
 
   for _, dir in ipairs(settings().appDirs or {}) do
     local watcher = hs.pathwatcher.new(dir, function()
-      apps = nil
-      hs.timer.doAfter(2, app_rows)
+      hs.timer.doAfter(2, rescan)
     end)
     if watcher then
       watcher:start()

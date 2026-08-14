@@ -6,6 +6,39 @@ let
     sy = "/etc/profiles/per-user/roshan/bin/sy";
     fftabs = "${pkgs.sysinit-utils}/bin/firefox-tabs";
     bat = "${pkgs.bat}/bin/bat";
+    fzf = "${pkgs.fzf}/bin/fzf";
+    fd = "${pkgs.fd}/bin/fd";
+    fileRoots = [
+      "/Users/roshan"
+    ];
+    # The walk is bounded by what it skips rather than by a depth, because real
+    # source sits 14 levels below home and a depth that reaches it is no cheaper
+    # than no depth at all. These trees hold 530k of the 620k paths under home,
+    # and none of them is a path anybody searches for by name.
+    fileExcludes = [
+      ".cache"
+      ".cargo"
+      ".direnv"
+      ".git"
+      ".gradle"
+      ".local"
+      ".next"
+      ".npm"
+      ".ollama"
+      ".pytest_cache"
+      ".rustup"
+      ".terraform"
+      ".venv"
+      "Library"
+      "__pycache__"
+      "build"
+      "dist"
+      "go"
+      "node_modules"
+      "target"
+      "venv"
+    ];
+    fileCap = 150000;
     appDirs = [
       "/Applications"
       "/System/Applications"
