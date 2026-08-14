@@ -8,9 +8,16 @@ let
     bat = "${pkgs.bat}/bin/bat";
     fzf = "${pkgs.fzf}/bin/fzf";
     fd = "${pkgs.fd}/bin/fd";
+    timeout = "${pkgs.coreutils}/bin/timeout";
     fileRoots = [
       "/Users/roshan"
     ];
+    # ~/Desktop, ~/Documents and ~/Downloads are TCC-protected. Hammerspoon holds
+    # no grant for them, and tccd will not prompt for the walk, so readdir blocks
+    # there until something kills it. Without this bound the walk never finishes
+    # and the index it was writing is never published. Grant Hammerspoon Full
+    # Disk Access and the walk finishes in about 4 seconds instead.
+    fileDeadline = 15;
     # The walk is bounded by what it skips rather than by a depth, because real
     # source sits 14 levels below home and a depth that reaches it is no cheaper
     # than no depth at all. These trees hold 530k of the 620k paths under home,

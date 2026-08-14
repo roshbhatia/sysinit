@@ -10,9 +10,14 @@ local paths = {}
 local building = false
 
 M.fd = nil
+M.timeout = nil
 M.roots = {}
 M.excludes = {}
 M.cap = 150000
+-- Seconds the walk may run before it is killed. A TCC-protected directory that
+-- Hammerspoon holds no grant for blocks readdir with no prompt anybody can
+-- answer, so an unbounded walk hangs and publishes nothing at all.
+M.deadline = 15
 -- Where the walk writes its index. fzf reads this file, and so does this module.
 M.index = nil
 
@@ -29,7 +34,19 @@ end
 
 ---@return string
 local function command()
-  local args = { quote(M.fd), "--type", "f", "--type", "d", "--hidden" }
+  -- The kill lands on fd, so head and awk read a clean end of input and exit 0.
+  -- That is what lets the rename below publish the part of the walk that did
+  -- finish rather than throwing it away.
+  local args = {
+    quote(M.timeout),
+    tostring(M.deadline),
+    quote(M.fd),
+    "--type",
+    "f",
+    "--type",
+    "d",
+    "--hidden",
+  }
   for _, name in ipairs(M.excludes) do
     args[#args + 1] = "--exclude"
     args[#args + 1] = quote(name)
@@ -79,7 +96,7 @@ end
 
 ---@param cb fun()|nil
 function M.build(cb)
-  if M.fd == nil or M.index == nil or building then
+  if M.fd == nil or M.timeout == nil or M.index == nil or building then
     if cb then
       cb()
     end

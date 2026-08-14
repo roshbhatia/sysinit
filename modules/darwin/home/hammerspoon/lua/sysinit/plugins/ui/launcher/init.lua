@@ -471,9 +471,11 @@ function M.setup()
 
   fzf.bin = settings().fzf
   files.fd = settings().fd
+  files.timeout = settings().timeout
   files.roots = settings().fileRoots or {}
   files.excludes = settings().fileExcludes or {}
   files.cap = settings().fileCap or files.cap
+  files.deadline = settings().fileDeadline or files.deadline
   files.index = fzf.index_path("files")
   fzf.ensure()
 
