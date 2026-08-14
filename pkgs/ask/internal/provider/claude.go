@@ -65,7 +65,7 @@ func summarize(args json.RawMessage) string {
 // scanClaude turns one stream-json stream into events and reports the result line it carried,
 // or nil when it carried none. It takes a reader rather than the command, so the shape of the
 // stream can be exercised without a model behind it.
-func scanClaude(from io.Reader, events chan<- Event) *Result {
+func scanClaude(from io.Reader, wanted map[string]any, events chan<- Event) *Result {
 	var result *Result
 
 	reader := lines(from)
@@ -105,6 +105,15 @@ func scanClaude(from io.Reader, events chan<- Event) *Result {
 				Duration:   time.Duration(event.DurationMS) * time.Millisecond,
 				Turns:      event.NumTurns,
 				Session:    event.SessionID,
+			}
+			// A shape was asked for and the harness reported none, so the answer's own text is
+			// the last place it can be: a model can write the object into prose. Prose with no
+			// object in it is a failed run, as it is for codex, rather than an answer the caller
+			// has to notice is the wrong kind.
+			if wanted != nil && !result.Failed && result.Structured == nil {
+				if result.Structured = structured(result.Text); result.Structured == nil {
+					result.Failed, result.Reason = true, offShape
+				}
 			}
 			events <- Event{Kind: Done, Result: result}
 		}
@@ -159,7 +168,7 @@ func (c Claude) Run(ctx context.Context, req Request) (<-chan Event, error) {
 		defer close(events)
 		started := time.Now()
 
-		answered := scanClaude(out, events)
+		answered := scanClaude(out, req.Schema, events)
 
 		err := cmd.Wait()
 		if answered != nil {
