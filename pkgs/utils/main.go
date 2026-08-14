@@ -63,6 +63,7 @@ type link struct {
 // the name exists and nothing installs it.
 var links = map[string]link{
 	"agent-edit-event": {command: "edit-event"},
+	"agent-note-open":  {command: "note", args: []string{"list", "--open", "--hook"}},
 	"agent-state":      {command: "agent-state"},
 	"agent-statusline": {command: "statusline"},
 	"agent-watch":      {command: "watch"},

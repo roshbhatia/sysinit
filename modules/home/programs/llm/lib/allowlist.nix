@@ -211,6 +211,7 @@ let
 
   tierB = [
     "utils note add *"
+    "utils note answer *"
     "utils note apply *"
     "utils note rebuild"
 
