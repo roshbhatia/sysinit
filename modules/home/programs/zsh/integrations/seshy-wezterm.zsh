@@ -17,10 +17,8 @@ _seshy_names() {
   sy list 2> /dev/null | awk 'NR > 1 { print $1 }'
 }
 
-# The seshy session name a directory belongs to: the first path component under
 _seshy_session_name() {
   local dir=$1 root
-  # sysinit:documented-default
   root=$(sysinit_path seshySessions 2> /dev/null) || root="$HOME/.local/state/seshy/sessions"
   case "$dir/" in
     "$root"/*)
@@ -31,14 +29,6 @@ _seshy_session_name() {
   esac
 }
 
-# State the workspace boundary for whatever reads it: the seshy session directory
-# when the cwd is inside one, and nothing otherwise.
-#
-# The variable, not the path, is the contract. Neovim and `utils` read
-# `$SYSINIT_WORKSPACE` and fall back to the git top level, so they need no rule of
-# their own about where a session manager keeps its checkouts. Set from `chpwd`
-# rather than only from `s`, because a shell can arrive in a session by `cd`, by a
-# multiplexer reattaching, or by a pane opening there.
 _seshy_export_workspace() {
   local session root
   session=$(_seshy_session_name "$PWD")
@@ -46,7 +36,6 @@ _seshy_export_workspace() {
     unset SYSINIT_WORKSPACE
     return 0
   fi
-  # sysinit:documented-default
   root=$(sysinit_path seshySessions 2> /dev/null) || root="$HOME/.local/state/seshy/sessions"
   export SYSINIT_WORKSPACE="$root/$session"
   _seshy_debug "workspace $SYSINIT_WORKSPACE"
@@ -71,7 +60,6 @@ function s() {
   _seshy_debug "resolved \"$1\" -> $target"
   cd "$target" || return
 
-  # A zmx session named for the seshy session, so a command survives closing the
   if ! command -v zmx > /dev/null 2>&1; then
     _seshy_debug "zmx not found; stayed in $target"
     return 0
@@ -84,7 +72,6 @@ function s() {
     return 0
   fi
 
-  # Already inside the session this would attach to.
   if [[ ${ZMX_SESSION:-} == "${ZMX_SESSION_PREFIX:-}${session}" ]]; then
     _seshy_debug "already attached to $ZMX_SESSION"
     return 0

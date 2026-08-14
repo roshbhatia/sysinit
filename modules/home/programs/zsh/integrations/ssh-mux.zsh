@@ -1,8 +1,6 @@
 #!/usr/bin/env zsh
 # shellcheck disable=all
 
-# A bare `ssh <host>` inside the wezterm GUI opens the host's mux domain instead
-# of a plain session, so the remote side keeps running when the tab goes away.
 function ssh() {
   local host=$1
 
