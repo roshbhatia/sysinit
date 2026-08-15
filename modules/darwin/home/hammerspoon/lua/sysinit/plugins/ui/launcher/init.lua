@@ -253,9 +253,43 @@ local function tab_rows(cb)
   end)
 end
 
+-- The sleep kinds an assertion holds off, which together are what `caffeinate
+-- -di` holds off. `displayIdle` alone is what the status reads, because the two
+-- are only ever set together.
+local awake = { "displayIdle", "systemIdle" }
+
+---@return boolean
+local function caffeinated()
+  return hs.caffeinate.get("displayIdle") == true
+end
+
+---@param on boolean
+local function caffeinate(on)
+  for _, kind in ipairs(awake) do
+    hs.caffeinate.set(kind, on, true)
+  end
+end
+
 ---@return table[]
 local function command_rows()
-  local rows = {}
+  local rows = {
+    {
+      text = "Start Caffeinate",
+      detail = "Hold off display and system sleep",
+      label = "Command",
+      glyph = "awake",
+      kind = "caffeinate",
+      on = true,
+    },
+    {
+      text = "Stop Caffeinate",
+      detail = "Let the display and the system sleep",
+      label = "Command",
+      glyph = "awake",
+      kind = "caffeinate",
+      on = false,
+    },
+  }
   for _, command in ipairs(settings().commands or {}) do
     rows[#rows + 1] = {
       text = command.label or "",
@@ -392,6 +426,33 @@ local function search()
   }
 end
 
+-- Declared here because toggling caffeinate rebuilds the base list, and the list
+-- is composed further down.
+local compose
+
+-- Runs a `!` command in a WezTerm window of its own. The shell is re-exec'd
+-- after the command so the window stays with its output rather than closing on
+-- the last line of it.
+---@param command string
+local function terminal(command)
+  local wezterm = settings().wezterm
+  local shell = settings().shell
+  if wezterm == nil or shell == nil or command == "" then
+    return
+  end
+  run({
+    wezterm,
+    "start",
+    "--cwd",
+    os.getenv("HOME"),
+    "--",
+    shell,
+    "-lc",
+    command .. "; exec " .. shell .. " -l",
+  })
+  hs.application.launchOrFocus("WezTerm")
+end
+
 ---@param choice table|nil
 local function activate(choice)
   if choice == nil then
@@ -429,6 +490,9 @@ local function activate(choice)
     if choice.url then
       hs.urlevent.openURL(choice.url)
     end
+  elseif choice.kind == "caffeinate" then
+    caffeinate(choice.on == true)
+    compose()
   elseif choice.kind == "command" then
     if choice.url then
       hs.urlevent.openURL(choice.url)
@@ -449,14 +513,17 @@ local function base()
   return {
     name = "base",
     rows = recency.sort(rows),
-    placeholder = "Search apps, panes, sessions, tabs, files",
+    placeholder = "Search apps, panes, tabs, files, or ! to run a command",
     choose = activate,
+    shell = terminal,
   }
 end
 
 -- Composes the base list and hands it to the panel, so a hidden panel already
 -- holds the rows and the index the next open will use.
-local function compose()
+function compose()
+  local on = caffeinated()
+  panel.status(on and "Caffeinate on" or "Caffeinate off", on)
   panel.stage(base())
 end
 
@@ -492,6 +559,9 @@ local function refresh()
         signature(held.sessions),
         signature(held.tabs),
         signature(held.entries),
+        -- So the footer catches an assertion taken by something other than this
+        -- launcher, such as `caffeinate` run in a shell.
+        tostring(caffeinated()),
       }, "\3")
       if now == mark then
         return

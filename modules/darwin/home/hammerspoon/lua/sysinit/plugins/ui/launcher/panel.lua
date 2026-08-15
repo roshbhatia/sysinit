@@ -33,6 +33,7 @@ local height = 0
 local pushed = nil
 local prepared = nil
 local warming = false
+local status = nil
 
 -- The window is on screen during the warm-up below without anything being drawn
 -- into it, so `isVisible` alone would report an open panel to a hotkey that has
@@ -210,7 +211,11 @@ local function prepare()
     split = list.preview ~= nil,
     nested = #stack > 1,
     inpage = not list.indexed,
+    shell = list.shell ~= nil,
     hints = list.hints,
+    -- Carried on every open rather than pushed when it changes, because it only
+    -- ever changes while the panel is hidden.
+    status = status or { text = "", on = false },
   }) .. ")")
   prepared = list
 end
@@ -305,6 +310,11 @@ local function received(message)
           view:evaluateJavaScript("setPreview(" .. hs.json.encode({ index = body.index, html = html }) .. ")")
         end
       end)
+    end
+  elseif body.action == "shell" then
+    M.hide()
+    if list and list.shell then
+      list.shell(body.cmd or "")
     end
   elseif body.action == "open" then
     local row = list and row_at(list, body.index, body.text)
@@ -403,6 +413,13 @@ function M.prewarm()
       view:hide()
     end)
   end)
+end
+
+-- What the footer says about the machine rather than about the selected row.
+---@param text string
+---@param on boolean
+function M.status(text, on)
+  status = { text = text, on = on == true }
 end
 
 ---@return boolean

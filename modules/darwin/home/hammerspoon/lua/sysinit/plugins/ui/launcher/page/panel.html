@@ -156,9 +156,21 @@
         color: var(--faint);
       }
 
-      #q {
+      /* The field is a box of its own so the completion can be drawn behind the typed text
+         at the same place. */
+      #field {
+        position: relative;
+        display: flex;
         flex: 1;
         min-width: 0;
+      }
+
+      #q {
+        position: relative;
+        z-index: 1;
+        flex: 1;
+        min-width: 0;
+        padding: 0;
         border: 0;
         outline: 0;
         background: transparent;
@@ -168,6 +180,27 @@
 
       #q::placeholder {
         color: var(--faint);
+      }
+
+      /* The rest of the top match, drawn where the typing would carry on. The typed part is
+         held here too and painted transparent, because that is what puts the rest in the
+         right place without measuring a string. The real text is the input's, drawn over
+         this one. */
+      #ghost {
+        position: absolute;
+        z-index: 0;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        overflow: hidden;
+        white-space: pre;
+        pointer-events: none;
+        color: var(--faint);
+        font: 19px -apple-system, BlinkMacSystemFont, sans-serif;
+      }
+
+      #typed {
+        color: transparent;
       }
 
       #body {
@@ -346,6 +379,35 @@
         text-overflow: ellipsis;
       }
 
+      /* What the machine is doing, as against what the selected row is. */
+      #status {
+        display: none;
+        align-items: center;
+        gap: 6px;
+        padding-left: 10px;
+        white-space: nowrap;
+        color: var(--faint);
+      }
+
+      #status.set {
+        display: flex;
+      }
+
+      #status.lit {
+        color: var(--text);
+      }
+
+      #status .dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: var(--faint);
+      }
+
+      #status.lit .dot {
+        background: var(--accent);
+      }
+
       #hints {
         margin-left: auto;
         display: flex;
@@ -388,6 +450,14 @@
         <g id="g-sum" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
           <path d="M3.2 5.4h9.6M3.2 10.6h9.6" />
         </g>
+        <g id="g-awake" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
+          <circle cx="8" cy="8" r="3" />
+          <path d="M8 1.2v1.6M8 13.2v1.6M1.2 8h1.6M13.2 8h1.6M3.2 3.2l1.1 1.1M11.7 11.7l1.1 1.1M12.8 3.2l-1.1 1.1M4.3 11.7l-1.1 1.1" />
+        </g>
+        <g id="g-terminal" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round">
+          <rect x="1.8" y="2.8" width="12.4" height="10.4" rx="1.6" />
+          <path d="M4.6 6.4 6.8 8.4 4.6 10.4M8.6 10.6h3" stroke-linecap="round" />
+        </g>
       </defs>
     </svg>
 
@@ -397,7 +467,10 @@
           <circle cx="6.8" cy="6.8" r="4.6" />
           <path d="M10.4 10.4 L14 14" stroke-linecap="round" />
         </svg>
-        <input id="q" placeholder="Search" spellcheck="false" autocomplete="off" />
+        <div id="field">
+          <input id="q" placeholder="Search" spellcheck="false" autocomplete="off" />
+          <div id="ghost"><span id="typed"></span><span id="rest"></span></div>
+        </div>
       </div>
       <div id="body">
         <div id="list"><div id="rows"></div></div>
@@ -405,6 +478,7 @@
       </div>
       <div id="footer">
         <span id="action"></span>
+        <span id="status"><span class="dot"></span><span id="state"></span></span>
         <span id="hints"></span>
       </div>
     </div>
@@ -442,6 +516,8 @@
       let split = false;
       let nested = false;
       let inpage = true;
+      // Whether a query starting with `!` is a command for this list to run.
+      let shell = false;
       let asked = null;
       // fzf replies out of order, so a query is stamped and a reply that comes back after a
       // newer keystroke is dropped rather than drawn.
@@ -465,6 +541,10 @@
         panel: document.getElementById("panel"),
         preview: document.getElementById("preview"),
         hints: document.getElementById("hints"),
+        status: document.getElementById("status"),
+        state: document.getElementById("state"),
+        typed: document.getElementById("typed"),
+        rest: document.getElementById("rest"),
       };
 
       function send(message) {
@@ -518,6 +598,49 @@
         ];
       }
 
+      // A query that opens with `!` is a command rather than a search, so the only row is the
+      // one thing that can be done with it.
+      function command(query) {
+        const cmd = query.slice(1).trim();
+        if (cmd === "") {
+          return [];
+        }
+        return [
+          {
+            title: cmd,
+            sub: "new WezTerm window",
+            kind: "Run",
+            glyph: "terminal",
+            shell: true,
+            cmd: cmd,
+          },
+        ];
+      }
+
+      // The rest of the selected row's title, drawn after what was typed. Only when the query
+      // is the head of that title, because a completion that rewrites what is already on
+      // screen reads as the field correcting the typing rather than finishing it.
+      function complete() {
+        const value = el.q.value;
+        const row = shown[sel];
+        let rest = "";
+        if (
+          value !== "" &&
+          row &&
+          !row.sum &&
+          !row.shell &&
+          el.q.scrollWidth <= el.q.clientWidth &&
+          String(row.title || "")
+            .toLowerCase()
+            .startsWith(value.toLowerCase()) &&
+          String(row.title).length > value.length
+        ) {
+          rest = String(row.title).slice(value.length);
+        }
+        el.typed.textContent = rest === "" ? "" : value;
+        el.rest.textContent = rest;
+      }
+
       function art(row) {
         if (row.icon) {
           return '<img class="icon" src="' + icons[row.icon] + '">';
@@ -539,6 +662,7 @@
           el.rows.innerHTML = '<div id="empty">No results</div>';
           el.action.textContent = "";
           el.preview.textContent = "";
+          complete();
           resize(instant);
           return;
         }
@@ -547,7 +671,13 @@
         const count = Math.min(shown.length, DRAW_CAP);
         for (let index = 0; index < count; index++) {
           const row = shown[index];
-          const wanted = row.sum ? "Calculator" : el.q.value.trim() === "" ? "Recent" : "Results";
+          const wanted = row.sum
+            ? "Calculator"
+            : row.shell
+              ? "Command"
+              : el.q.value.trim() === ""
+                ? "Recent"
+                : "Results";
           if (wanted !== heading) {
             heading = wanted;
             parts.push('<div class="head">' + heading + "</div>");
@@ -574,6 +704,7 @@
         el.rows.innerHTML = parts.join("");
         el.action.textContent = shown[sel].kind || "";
         showHints();
+        complete();
         preview();
         resize(instant);
       }
@@ -647,6 +778,7 @@
         drawn.forEach((row, index) => row.classList.toggle("sel", index === sel));
         el.action.textContent = shown[sel].kind || "";
         showHints();
+        complete();
         if (drawn[sel]) {
           drawn[sel].scrollIntoView({ block: "nearest" });
         }
@@ -662,6 +794,10 @@
           send({ action: "copy", text: row.copy });
           return;
         }
+        if (row.shell) {
+          send({ action: "shell", cmd: row.cmd });
+          return;
+        }
         // The row's own text goes back with it, because a list too large to hold
         // cannot look up a row by index alone.
         send({ action: "open", index: row.index, text: row.sub, mods: mods || {} });
@@ -671,6 +807,19 @@
       // on the keystroke rather than debounced and sent away.
       function refine() {
         const query = el.q.value.trim();
+        if (shell && query.charAt(0) === "!") {
+          // A reply to the keystroke before the `!` must not land on top of the command.
+          if (pending !== null) {
+            clearTimeout(pending);
+            pending = null;
+          }
+          seq += 1;
+          settled = seq;
+          shown = command(query);
+          sel = 0;
+          draw();
+          return;
+        }
         if (query === "") {
           // An emptied field returns to the handed-over order, which matching cannot
           // reproduce: it is by how recently each row was opened.
@@ -696,12 +845,21 @@
 
       document.addEventListener("keydown", (event) => {
         const key = event.key;
-        if (key === "ArrowDown" || (event.shiftKey && (key === "J" || key === "j"))) {
+        if (key === "Tab") {
+          event.preventDefault();
+          move(event.shiftKey ? -1 : 1);
+        } else if (key === "ArrowDown" || (event.shiftKey && (key === "J" || key === "j"))) {
           event.preventDefault();
           move(1);
         } else if (key === "ArrowUp" || (event.shiftKey && (key === "K" || key === "k"))) {
           event.preventDefault();
           move(-1);
+        } else if (key === "ArrowRight" && el.rest.textContent !== "" && el.q.selectionStart === el.q.value.length) {
+          // Right at the end of the typing takes the completion, which is the only thing
+          // there is to move right into.
+          event.preventDefault();
+          el.q.value = el.q.value + el.rest.textContent;
+          refine();
         } else if (key === "Enter") {
           event.preventDefault();
           choose(sel, { shift: event.shiftKey, alt: event.altKey });
@@ -763,6 +921,13 @@
         refine();
       }
 
+      function setStatus(status) {
+        const text = (status && status.text) || "";
+        el.state.textContent = text;
+        el.status.classList.toggle("set", text !== "");
+        el.status.classList.toggle("lit", !!(status && status.on));
+      }
+
       function setHints(list) {
         hints = Array.isArray(list) && list.length > 0 ? list : DEFAULT_HINTS;
         showHints();
@@ -796,11 +961,15 @@
         split = opts.split === true;
         nested = opts.nested === true;
         inpage = opts.inpage === true;
+        shell = opts.shell === true;
         el.panel.classList.toggle("split", split);
         el.panel.classList.remove("closing");
         el.preview.innerHTML = "";
         el.q.placeholder = opts.placeholder;
         el.q.value = "";
+        el.typed.textContent = "";
+        el.rest.textContent = "";
+        setStatus(opts.status);
         setHints(opts.hints);
         sel = 0;
         settled = seq;

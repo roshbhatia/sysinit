@@ -7,6 +7,8 @@ let
     sy = "/etc/profiles/per-user/${config.home.username}/bin/sy";
     fftabs = "${pkgs.sysinit-utils}/bin/firefox-tabs";
     bat = "${pkgs.bat}/bin/bat";
+    # What a `!` command in the launcher is run by.
+    shell = "${pkgs.zsh}/bin/zsh";
     fzf = "${pkgs.fzf}/bin/fzf";
     fd = "${pkgs.fd}/bin/fd";
     timeout = "${pkgs.coreutils}/bin/timeout";
