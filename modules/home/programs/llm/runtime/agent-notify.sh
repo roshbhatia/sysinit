@@ -1,6 +1,9 @@
 agent=${1:-agent}
 reason=${2:-attention}
 focus_exe=${3:-}
+# wezterm calls this from its own process: no hook JSON, no WEZTERM_PANE, cwd is /.
+arg_pane=${4:-}
+arg_cwd=${5:-}
 
 an_agents="${XDG_STATE_HOME:-$HOME/.local/state}/agents"
 
@@ -17,11 +20,12 @@ json() {
 }
 
 cwd=$(json '.cwd')
+[ -n "$cwd" ] || cwd=$arg_cwd
 [ -n "$cwd" ] || cwd=$PWD
 msg=$(json '.message')
 notif_type=$(json '.notification_type')
 
-pane=${WEZTERM_PANE:-}
+pane=${WEZTERM_PANE:-$arg_pane}
 agent_identity "$cwd" "$pane"
 session=$AI_SESSION
 repo=$AI_REPO
@@ -58,9 +62,9 @@ if [ "$reason" = "attention" ]; then
   esac
 fi
 
-if [ "$reason" = "done" ] && [ -n "${WEZTERM_PANE:-}" ]; then
+if [ "$reason" = "done" ] && [ -n "$pane" ]; then
   an_panes=$(sysinit_path agentPanes) || an_panes="$an_agents/panes"
-  start_file="$an_panes/$WEZTERM_PANE.start"
+  start_file="$an_panes/$pane.start"
   if [ -f "$start_file" ]; then
     start=$(cat "$start_file" 2> /dev/null) || start=0
     now=$(date +%s 2> /dev/null) || now=0
@@ -114,11 +118,14 @@ case "$reason" in
 esac
 
 title="$label · $what"
-body=${msg:-$what}
-
-if [ -n "$pane" ]; then
-  body="$body$(agent_review_suffix "$pane")"
+suffix=""
+[ -n "$pane" ] && suffix=$(agent_review_suffix "$pane")
+if [ -n "$msg" ]; then
+  body="$msg$suffix"
+else
+  body=${suffix# — } # the title already says what happened; do not repeat it
 fi
+[ -n "$body" ] || body=$what
 group=$(agent_group "$agent" "$context" "$pane")
 
 args=(

@@ -164,6 +164,9 @@ function M.setup(config)
     })
 
     local notified = {}
+    -- A pane that never worked has nothing to wait on; without this a fresh agent
+    -- pane reads as "waiting" the moment it opens and notifies on every session start.
+    local worked = {}
     wezterm.on("update-status", function()
       local ok, deck_states = pcall(agent_deck.get_all_agent_states)
       if not ok or type(deck_states) ~= "table" then
@@ -177,19 +180,26 @@ function M.setup(config)
             if deck and (deck.status == "waiting" or deck.status == "done") then
               local uv = p:get_user_vars()
               if not (uv and uv.agent_state and uv.agent_state ~= "") then
-                if notified[id] ~= deck.status then
+                if worked[id] and notified[id] ~= deck.status then
                   notified[id] = deck.status
                   local reason = deck.status == "waiting" and "idle" or "done"
+                  local _, cwd = ui_panes.pane_repo(p)
                   wezterm.background_child_process({
                     utils.get_nix_binary("agent-notify"),
                     deck.agent or "agent",
                     reason,
                     utils.get_nix_binary("agent-focus"),
+                    tostring(id),
+                    cwd or "",
                   })
                 end
               end
-            elseif deck == nil or deck.status == "working" then
+            elseif deck == nil then
               notified[id] = nil
+              worked[id] = nil
+            elseif deck.status == "working" then
+              notified[id] = nil
+              worked[id] = true
             end
           end
         end
