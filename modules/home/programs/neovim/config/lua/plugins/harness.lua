@@ -16,14 +16,14 @@ return {
         function()
           require("harness.api").toggle()
         end,
-        desc = "Harness: pick / toggle active agent",
+        desc = "Pick or toggle agent",
       },
       {
         "<leader>ja",
         function()
           require("harness.api").ask()
         end,
-        desc = "Harness: ask",
+        desc = "Ask",
         mode = { "n", "v" },
       },
       {
@@ -31,7 +31,7 @@ return {
         function()
           require("harness.api").comment()
         end,
-        desc = "Harness: comment",
+        desc = "Comment",
         mode = { "n", "v" },
       },
       {
@@ -39,56 +39,56 @@ return {
         function()
           require("harness.api").fix()
         end,
-        desc = "Harness: fix diagnostics",
+        desc = "Fix diagnostics",
       },
       {
         "<leader>jr",
         function()
           require("harness.api").resend()
         end,
-        desc = "Harness: resend last prompt",
+        desc = "Resend last prompt",
       },
       {
         "<leader>jx",
         function()
           require("harness.api").kill()
         end,
-        desc = "Harness: kill active session",
+        desc = "Kill agent",
       },
       {
         "<leader>jJ",
         function()
           require("harness.api").kill_and_pick()
         end,
-        desc = "Harness: kill and re-pick",
+        desc = "Kill agent and pick again",
       },
       {
         "<leader>jo",
         function()
           require("harness.api").options()
         end,
-        desc = "Harness: configure options for active agent",
+        desc = "Agent options",
       },
       {
         "<leader>j?",
         function()
           require("harness.api").status()
         end,
-        desc = "Harness: show active agent + options",
+        desc = "Agent status",
       },
       {
         "<leader>jb",
         function()
           require("harness.api").add_buffer()
         end,
-        desc = "Harness: add current buffer",
+        desc = "Add buffer",
       },
       {
         "<leader>js",
         function()
           require("harness.api").send_selection()
         end,
-        desc = "Harness: send selection",
+        desc = "Send selection",
         mode = "v",
       },
       {
@@ -96,49 +96,49 @@ return {
         function()
           require("harness.notes").add()
         end,
-        desc = "Notes: add one on this line",
+        desc = "Add note on this line",
       },
       {
         "<leader>dnt",
         function()
           require("harness.notes").toggle()
         end,
-        desc = "Notes: show or hide",
+        desc = "Toggle notes",
       },
       {
         "<leader>dnd",
         function()
           require("harness.notes").remove_line()
         end,
-        desc = "Notes: remove the ones on this line",
+        desc = "Delete notes on this line",
       },
       {
         "<leader>dnD",
         function()
           require("harness.notes").remove_file()
         end,
-        desc = "Notes: remove every one in this file",
+        desc = "Delete notes in this file",
       },
       {
         "<leader>dnX",
         function()
           require("harness.notes").remove_all()
         end,
-        desc = "Notes: remove every one, in every repository",
+        desc = "Delete every note",
       },
       {
         "<leader>dnq",
         function()
           require("harness.notes_list").quickfix()
         end,
-        desc = "Notes: list in the quickfix",
+        desc = "Quickfix notes",
       },
       {
         "<leader>dnf",
         function()
           require("harness.notes_list").pick()
         end,
-        desc = "Notes: find one",
+        desc = "Find note",
       },
     },
   },

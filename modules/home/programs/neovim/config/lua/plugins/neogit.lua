@@ -96,7 +96,7 @@ return {
             require("neogit").open({ cwd = root })
           end, { ask = true })
         end,
-        desc = "Toggle",
+        desc = "Toggle Neogit",
         mode = "n",
       },
     },

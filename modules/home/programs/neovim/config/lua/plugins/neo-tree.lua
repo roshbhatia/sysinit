@@ -179,7 +179,7 @@ return {
           vim.cmd("Neotree toggle")
           vim.cmd("wincmd p")
         end,
-        desc = "Toggle explorer tree",
+        desc = "Toggle side tree",
       },
       {
         "<leader>ee",
@@ -187,7 +187,7 @@ return {
           vim.cmd("Neotree toggle position=bottom")
           vim.cmd("wincmd p")
         end,
-        desc = "Toggle explorer tree (bottom)",
+        desc = "Toggle bottom tree",
       },
     },
   },

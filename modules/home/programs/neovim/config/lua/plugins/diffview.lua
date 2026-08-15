@@ -116,7 +116,7 @@ return {
         function()
           require("harness.review").toggle()
         end,
-        desc = "Diff: toggle",
+        desc = "Toggle diff",
         mode = "n",
       },
       {
@@ -124,7 +124,7 @@ return {
         function()
           require("harness.changes").quickfix()
         end,
-        desc = "Diff: every change, in every repository",
+        desc = "Changed files",
         mode = "n",
       },
       {
@@ -132,7 +132,7 @@ return {
         function()
           require("harness.changes").pick()
         end,
-        desc = "Diff: find a change, in any repository",
+        desc = "Find changed file",
         mode = "n",
       },
       {
@@ -140,7 +140,7 @@ return {
         function()
           require("harness.review").history()
         end,
-        desc = "Diff: file history",
+        desc = "File history",
         mode = "n",
       },
       {
@@ -148,7 +148,7 @@ return {
         function()
           require("harness.history").open()
         end,
-        desc = "Diff: project history",
+        desc = "Project history",
         mode = "n",
       },
       {
@@ -156,7 +156,7 @@ return {
         function()
           require("harness.review").cycle(1)
         end,
-        desc = "Diff: next repo",
+        desc = "Next repo",
         mode = "n",
       },
       {
@@ -164,7 +164,7 @@ return {
         function()
           require("harness.review").cycle(-1)
         end,
-        desc = "Diff: previous repo",
+        desc = "Previous repo",
         mode = "n",
       },
     },

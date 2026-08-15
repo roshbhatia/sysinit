@@ -53,8 +53,8 @@ return {
       })
     end,
     keys = {
-      { "<leader>ef", "<cmd>Oil --float<cr>", desc = "Explore current directory" },
-      { "<leader>eF", "<cmd>Oil . --float<cr>", desc = "Explore project root" },
+      { "<leader>ef", "<cmd>Oil --float<cr>", desc = "Open current directory" },
+      { "<leader>eF", "<cmd>Oil . --float<cr>", desc = "Open project root" },
     },
   },
 }

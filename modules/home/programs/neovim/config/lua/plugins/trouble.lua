@@ -86,7 +86,7 @@ return {
           vim.fn.setqflist(items)
           vim.cmd("Trouble qflist toggle")
         end,
-        desc = "Qflist diagnostics",
+        desc = "Quickfix diagnostics",
       },
     },
   },

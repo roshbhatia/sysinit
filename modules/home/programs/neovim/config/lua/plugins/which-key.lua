@@ -20,7 +20,7 @@ return {
 
       wk.add({
         { "<leader>c", group = "Code" },
-        { "<leader>cf", group = "Find" },
+        { "<leader>cf", group = "Search" },
         { "<leader>d", group = "Diff" },
         { "<leader>dn", group = "Notes" },
         { "<leader>e", group = "Explorer" },
@@ -29,7 +29,6 @@ return {
         { "<leader>gb", group = "Buffer" },
         { "<leader>gh", group = "Hunk" },
         { "<leader>j", group = "Agents" },
-        { "<leader>q", group = "Force Quit" },
         { "[", group = "Prev" },
         { "]", group = "Next" },
         { "gr", group = "LSP" },

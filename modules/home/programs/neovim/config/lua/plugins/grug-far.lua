@@ -24,7 +24,7 @@ return {
             prefills = { search = vim.fn.expand("<cword>"), filesFilter = "*" },
           })
         end,
-        desc = "Grep (alt.)",
+        desc = "Search and replace",
         mode = { "n", "v" },
       },
     },

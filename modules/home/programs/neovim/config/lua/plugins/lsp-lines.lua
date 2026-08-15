@@ -33,7 +33,7 @@ return {
         function()
           require("lsp_lines").toggle()
         end,
-        desc = "Toggle lsp lines",
+        desc = "Toggle LSP lines",
       },
     },
   },

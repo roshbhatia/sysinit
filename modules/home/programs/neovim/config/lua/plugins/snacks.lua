@@ -254,7 +254,7 @@ return {
             },
           })
         end,
-        desc = "Files (accross all projects)",
+        desc = "Files in every project",
       },
       {
         "<leader>fg",
@@ -361,7 +361,7 @@ return {
       },
       {
         "<leader>cft",
-        desc = "AST Grep",
+        desc = "AST grep",
         function()
           Snacks.picker.pick({
             title = "AST Grep",
