@@ -16,6 +16,7 @@
         --sel: rgba(255, 255, 255, 0.1);
         --badge: rgba(255, 255, 255, 0.1);
         --cap: rgba(255, 255, 255, 0.09);
+        --accent: #7aa2f7;
       }
 
       /* The window follows the system appearance, so the panel does too. */
@@ -30,6 +31,7 @@
           --sel: rgba(0, 0, 0, 0.07);
           --badge: rgba(0, 0, 0, 0.08);
           --cap: rgba(0, 0, 0, 0.07);
+          --accent: #3b5bdb;
         }
       }
 
@@ -52,37 +54,57 @@
         user-select: none;
       }
 
-      #frame {
-        height: 100%;
-      }
-
       /* No shadow of its own: a blur drawn here is clipped at the window edge and reads as a
          square smudge around the rounded panel. The window's shadow follows this shape,
          because a transparent window is shadowed by the part of it that is opaque. */
       #panel {
-        height: 100%;
         display: flex;
         flex-direction: column;
+        overflow: hidden;
         background: var(--bg);
         border: 1px solid var(--edge);
         border-radius: 14px;
-        overflow: hidden;
+        transform-origin: 50% 12%;
+
+        /* Invisible until the page is told to reveal it. The window is shown before this
+           page has reset itself, and painting the panel in between is what made a press of
+           the hotkey flash the previous search before showing the new one. Nothing is drawn
+           until there is something correct to draw. */
+        opacity: 0;
+
+        /* The window is resized to fit its rows, and the panel animates to the same height
+           so the two arrive together instead of the window snapping first. */
+        transition: height 190ms cubic-bezier(0.22, 1, 0.36, 1);
+      }
+
+      /* The resting visible state. It is a plain class rather than the end of an animation
+         with a fill mode, so a webview that never advances the animation still shows a
+         finished panel rather than an invisible one. */
+      #panel.shown {
+        opacity: 1;
       }
 
       /* Only transform and opacity are animated, so the whole open runs on the compositor
-         and never relayouts the list underneath it.
-
-         No fill mode anywhere in the open: the resting style is the visible one, so a webview
-         that never advances the animation shows a plain panel. Held at the start state by
-         `both`, the same webview would show nothing at all. */
+         and never relayouts the list underneath it. */
       #panel.opening {
-        animation: rise 210ms cubic-bezier(0.16, 1.02, 0.3, 1);
+        animation: rise 200ms cubic-bezier(0.16, 1, 0.3, 1);
+      }
+
+      #panel.closing {
+        animation: sink 110ms cubic-bezier(0.4, 0, 1, 1) both;
+      }
+
+      /* Height is the one thing not animated during the open or the close: it is being set
+         to its starting value, and easing it from whatever the last search left behind
+         would read as the panel growing out of the previous one. */
+      #panel.instant {
+        transition: none;
       }
 
       @keyframes rise {
         from {
           opacity: 0;
-          transform: translateY(-14px) scale(0.965);
+          transform: translateY(-6px) scale(0.975);
         }
         to {
           opacity: 1;
@@ -90,34 +112,32 @@
         }
       }
 
+      @keyframes sink {
+        from {
+          opacity: 1;
+          transform: scale(1);
+        }
+        to {
+          opacity: 0;
+          transform: scale(0.985);
+        }
+      }
+
       /* The list arrives just behind the panel, which is what reads as motion rather than a
          jump. It moves as one block: a per-row delay would need a fill mode to hold each row
          back, and without one every delayed row shows, hides, then slides. */
       #panel.opening #list {
-        animation: settle 260ms cubic-bezier(0.2, 0.9, 0.25, 1);
+        animation: settle 240ms cubic-bezier(0.2, 0.9, 0.25, 1);
       }
 
       @keyframes settle {
         from {
           opacity: 0;
-          transform: translateY(6px);
+          transform: translateY(5px);
         }
         to {
           opacity: 1;
           transform: translateY(0);
-        }
-      }
-
-      #panel.opening #search {
-        animation: fade 150ms ease-out;
-      }
-
-      @keyframes fade {
-        from {
-          opacity: 0;
-        }
-        to {
-          opacity: 1;
         }
       }
 
@@ -196,7 +216,7 @@
         width: 0;
       }
 
-      #head {
+      .head {
         padding: 6px 10px 5px;
         font-size: 11px;
         font-weight: 600;
@@ -283,6 +303,25 @@
         color: var(--faint);
       }
 
+      /* The answer is the point of the row, so it is set like one rather than like a name
+         that happens to be a number. */
+      .row.sum .title {
+        max-width: none;
+        font-size: 17px;
+        font-variant-numeric: tabular-nums;
+        color: var(--accent);
+      }
+
+      .row.sum .glyph {
+        color: var(--accent);
+      }
+
+      /* The right-to-left trick that keeps the tail of a long path visible would show a sum
+         back to front. */
+      .row.sum .sub {
+        direction: ltr;
+      }
+
       #empty {
         padding: 26px 12px;
         text-align: center;
@@ -346,31 +385,44 @@
             d="M6 6h4v4H6ZM6 6a2 2 0 1 0-2-2 2 2 0 0 1 2 2Zm4 0a2 2 0 1 1 2-2 2 2 0 0 0-2 2Zm0 4a2 2 0 1 0 2 2 2 2 0 0 1-2-2Zm-4 0a2 2 0 1 1-2 2 2 2 0 0 0 2-2Z"
           />
         </g>
+        <g id="g-sum" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
+          <path d="M3.2 5.4h9.6M3.2 10.6h9.6" />
+        </g>
       </defs>
     </svg>
 
-    <div id="frame">
-      <div id="panel">
-        <div id="search">
-          <svg width="17" height="17" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6">
-            <circle cx="6.8" cy="6.8" r="4.6" />
-            <path d="M10.4 10.4 L14 14" stroke-linecap="round" />
-          </svg>
-          <input id="q" placeholder="Search" spellcheck="false" autocomplete="off" />
-        </div>
-        <div id="body">
-          <div id="list"></div>
-          <div id="preview"></div>
-        </div>
-        <div id="footer">
-          <span id="action"></span>
-          <span id="hints"></span>
-        </div>
+    <div id="panel">
+      <div id="search">
+        <svg width="17" height="17" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6">
+          <circle cx="6.8" cy="6.8" r="4.6" />
+          <path d="M10.4 10.4 L14 14" stroke-linecap="round" />
+        </svg>
+        <input id="q" placeholder="Search" spellcheck="false" autocomplete="off" />
+      </div>
+      <div id="body">
+        <div id="list"><div id="rows"></div></div>
+        <div id="preview"></div>
+      </div>
+      <div id="footer">
+        <span id="action"></span>
+        <span id="hints"></span>
       </div>
     </div>
 
     <script>
-      const HEIGHT = { chrome: 98 + 52, row: 40, list: 12, visible: 10, floor: 8, empty: 74 };
+      /* INCLUDE match.js */
+      /* INCLUDE calc.js */
+
+      // Ten rows and a heading, above the panel's own 58px search field and 40px footer.
+      const CHROME = 100;
+      const LIST_MAX = 436;
+      const LIST_FLOOR = 356;
+      // The padding around the rows, which their own wrapper does not carry.
+      const LIST_PAD = 12;
+      // Only ever a screenful and a bit is drawn. Matching can return hundreds of rows, and
+      // building a node for each one costs more than every other part of a keystroke put
+      // together, for rows nobody scrolls to.
+      const DRAW_CAP = 100;
       const DEFAULT_HINTS = [
         ["&#8629;", "Open"],
         ["&#8679;J", ""],
@@ -378,23 +430,26 @@
         ["esc", "Close"],
       ];
 
-      // What the panel shows for an empty query, and what it shows now. Lua holds the whole
-      // list and sends only the rows to be drawn, so neither of these is ever the full set.
+      // What the panel shows for an empty query, and what it shows now.
       let base = [];
       let shown = [];
       let sel = 0;
       let armed = false;
       let icons = {};
-      // Whether this list previews its selection, and whether escape leaves it for the list
-      // it was opened from rather than closing the panel.
+      // Whether this list previews its selection, whether escape leaves it for the list it
+      // was opened from, and whether the page holds all of its rows. A list too large to
+      // hold is matched by fzf out of process instead.
       let split = false;
       let nested = false;
+      let inpage = true;
       let asked = null;
-      // Matching is done by fzf out of process, so a query is stamped and a reply that comes
-      // back after a newer keystroke is dropped rather than drawn.
+      // fzf replies out of order, so a query is stamped and a reply that comes back after a
+      // newer keystroke is dropped rather than drawn.
       let seq = 0;
       let settled = 0;
       let pending = null;
+      let height = 0;
+      let hints = DEFAULT_HINTS;
 
       // An empty Lua table encodes as an object, so a list arriving from Lua is only trusted
       // to be a list once it says so.
@@ -405,6 +460,7 @@
       const el = {
         q: document.getElementById("q"),
         list: document.getElementById("list"),
+        rows: document.getElementById("rows"),
         action: document.getElementById("action"),
         panel: document.getElementById("panel"),
         preview: document.getElementById("preview"),
@@ -431,7 +487,7 @@
         pending = setTimeout(() => {
           pending = null;
           send({ action: "filter", query: query, seq: mine });
-        }, 30);
+        }, 24);
       }
 
       function setMatches(answer) {
@@ -439,42 +495,71 @@
           return;
         }
         settled = answer.seq;
-        shown = listed(answer.rows);
+        shown = prelude(el.q.value.trim()).concat(listed(answer.rows));
         sel = 0;
         draw();
       }
 
-      function draw() {
+      // The row above the search results, for a query that is a sum rather than a name.
+      function prelude(query) {
+        const sum = calculate(query);
+        if (sum === null) {
+          return [];
+        }
+        return [
+          {
+            title: sum.result,
+            sub: sum.expression,
+            kind: "Calculator",
+            glyph: "sum",
+            sum: true,
+            copy: sum.result.replace(/,/g, ""),
+          },
+        ];
+      }
+
+      function art(row) {
+        if (row.icon) {
+          return '<img class="icon" src="' + icons[row.icon] + '">';
+        }
+        if (row.glyph) {
+          return '<div class="glyph"><svg viewBox="0 0 16 16"><use href="#g-' + escape(row.glyph) + '"/></svg></div>';
+        }
+        return '<div class="badge">' + escape(row.badge || "") + "</div>";
+      }
+
+      // `instant` is for a list that is opening: it is being drawn at its starting size, and
+      // easing to that from whatever the last search left behind would read as this panel
+      // growing out of the previous one.
+      function draw(instant) {
         if (sel >= shown.length) {
           sel = Math.max(0, shown.length - 1);
         }
         if (shown.length === 0) {
-          el.list.innerHTML = '<div id="empty">No results</div>';
+          el.rows.innerHTML = '<div id="empty">No results</div>';
           el.action.textContent = "";
           el.preview.textContent = "";
-          resize();
+          resize(instant);
           return;
         }
-        const parts = ['<div id="head">Results</div>'];
-        shown.forEach((row, index) => {
-          let art;
-          if (row.icon) {
-            art = '<img class="icon" src="' + icons[row.icon] + '">';
-          } else if (row.glyph) {
-            art =
-              '<div class="glyph"><svg viewBox="0 0 16 16"><use href="#g-' +
-              escape(row.glyph) +
-              '"/></svg></div>';
-          } else {
-            art = '<div class="badge">' + escape(row.badge || "") + "</div>";
+        const parts = [];
+        let heading = null;
+        const count = Math.min(shown.length, DRAW_CAP);
+        for (let index = 0; index < count; index++) {
+          const row = shown[index];
+          const wanted = row.sum ? "Calculator" : el.q.value.trim() === "" ? "Recent" : "Results";
+          if (wanted !== heading) {
+            heading = wanted;
+            parts.push('<div class="head">' + heading + "</div>");
           }
           parts.push(
             '<div class="row' +
+              (row.sum ? " sum" : "") +
               (index === sel ? " sel" : "") +
               '" data-index="' +
               index +
               '">' +
-              art +
+              art(row) +
               '<span class="title">' +
               escape(row.title) +
               "</span>" +
@@ -485,22 +570,44 @@
               escape(row.kind) +
               "</span></div>",
           );
-        });
-        el.list.innerHTML = parts.join("");
+        }
+        el.rows.innerHTML = parts.join("");
         el.action.textContent = shown[sel].kind || "";
+        showHints();
         preview();
-        resize();
+        resize(instant);
       }
 
       // The window is only as tall as the rows it has, so a two-hit search is not a panel of
-      // empty space. A split list keeps a floor, because the preview beside it needs room.
-      function resize() {
-        let count = Math.min(shown.length, HEIGHT.visible);
+      // empty space. Measured rather than counted, because a heading is not a row and the
+      // number of headings depends on what matched. The rows are measured through their own
+      // wrapper: the scrolling box around them never reports less than its own height, so
+      // asking it would let the panel grow and never shrink.
+      function resize(instant) {
+        let body = Math.min(el.rows.offsetHeight + LIST_PAD, LIST_MAX);
         if (split) {
-          count = Math.max(count, HEIGHT.floor);
+          body = Math.max(body, LIST_FLOOR);
         }
-        const body = shown.length === 0 && !split ? HEIGHT.empty : HEIGHT.list + 24 + count * HEIGHT.row;
-        send({ action: "height", height: HEIGHT.chrome + body });
+        setHeight(CHROME + body, instant === true);
+      }
+
+      // The panel eases to its new height and tells Lua the same number, so the window and
+      // what it holds move together. Growing needs the window first or the panel is drawn
+      // clipped; shrinking needs it last, for the same reason.
+      function setHeight(px, instant) {
+        if (px === height) {
+          return;
+        }
+        height = px;
+        if (instant) {
+          el.panel.classList.add("instant");
+        }
+        el.panel.style.height = px + "px";
+        if (instant) {
+          void el.panel.offsetWidth;
+          el.panel.classList.remove("instant");
+        }
+        send({ action: "height", height: px, instant: instant === true });
       }
 
       // The preview is drawn by a tool that takes a moment, so it is asked for once the
@@ -515,7 +622,7 @@
         }
         asked = setTimeout(() => {
           asked = null;
-          if (row) {
+          if (row && row.index !== undefined) {
             send({ action: "preview", index: row.index });
           }
         }, 70);
@@ -534,10 +641,12 @@
         if (shown.length === 0) {
           return;
         }
-        sel = Math.min(shown.length - 1, Math.max(0, sel + step));
+        const cap = Math.min(shown.length, DRAW_CAP);
+        sel = Math.min(cap - 1, Math.max(0, sel + step));
         const drawn = el.list.querySelectorAll(".row");
         drawn.forEach((row, index) => row.classList.toggle("sel", index === sel));
         el.action.textContent = shown[sel].kind || "";
+        showHints();
         if (drawn[sel]) {
           drawn[sel].scrollIntoView({ block: "nearest" });
         }
@@ -546,9 +655,43 @@
 
       function choose(index, mods) {
         const row = shown[index];
-        if (row) {
-          send({ action: "open", index: row.index, mods: mods || {} });
+        if (!row) {
+          return;
         }
+        if (row.sum) {
+          send({ action: "copy", text: row.copy });
+          return;
+        }
+        // The row's own text goes back with it, because a list too large to hold
+        // cannot look up a row by index alone.
+        send({ action: "open", index: row.index, text: row.sub, mods: mods || {} });
+      }
+
+      // Matching for a list the page holds costs nothing but the work itself, so it is done
+      // on the keystroke rather than debounced and sent away.
+      function refine() {
+        const query = el.q.value.trim();
+        if (query === "") {
+          // An emptied field returns to the handed-over order, which matching cannot
+          // reproduce: it is by how recently each row was opened.
+          if (pending !== null) {
+            clearTimeout(pending);
+            pending = null;
+          }
+          seq += 1;
+          settled = seq;
+          shown = base.slice();
+          sel = 0;
+          draw();
+          return;
+        }
+        if (inpage) {
+          shown = prelude(query).concat(rank(query, base));
+          sel = 0;
+          draw();
+          return;
+        }
+        ask(query);
       }
 
       document.addEventListener("keydown", (event) => {
@@ -571,23 +714,7 @@
         }
       });
 
-      el.q.addEventListener("input", () => {
-        const query = el.q.value.trim();
-        if (query === "") {
-          // An emptied field returns to the handed-over order, which fzf cannot reproduce.
-          if (pending !== null) {
-            clearTimeout(pending);
-            pending = null;
-          }
-          seq += 1;
-          settled = seq;
-          shown = base.slice();
-          sel = 0;
-          draw();
-          return;
-        }
-        ask(query);
-      });
+      el.q.addEventListener("input", refine);
 
       el.list.addEventListener("mousemove", (event) => {
         const row = event.target.closest(".row");
@@ -625,21 +752,30 @@
         });
       }
 
+      // Matching reads these on every keystroke, so each row carries its prepared fields
+      // rather than having them rebuilt per query.
       function setRows(fresh) {
         base = listed(fresh);
-        // An empty query is the order handed over, which is by how recently each row was
-        // opened. fzf is only asked once there is something to match.
-        if (el.q.value.trim() === "") {
-          shown = base.slice();
-          draw();
-        } else {
-          ask(el.q.value.trim());
+        for (const row of base) {
+          row.f_title = prepare(row.title || "");
+          row.f_sub = row.sub ? prepare(row.sub) : null;
         }
+        refine();
       }
 
       function setHints(list) {
-        el.hints.innerHTML = (Array.isArray(list) && list.length > 0 ? list : DEFAULT_HINTS)
-          .map(([cap, label]) => "<kbd>" + cap + "</kbd>" + (label ? " " + escape(label) : ""))
+        hints = Array.isArray(list) && list.length > 0 ? list : DEFAULT_HINTS;
+        showHints();
+      }
+
+      // Enter copies a sum and opens everything else, so the footer says which.
+      function showHints() {
+        const copying = shown[sel] && shown[sel].sum === true;
+        el.hints.innerHTML = hints
+          .map(([cap, label], index) => {
+            const text = copying && index === 0 ? "Copy" : label;
+            return "<kbd>" + cap + "</kbd>" + (text ? " " + escape(text) : "");
+          })
           .join(" ");
       }
 
@@ -647,8 +783,9 @@
       // so the page says when it is ready rather than the caller guessing.
       send({ action: "loaded" });
 
-      // Shown for a list the panel has just moved to, whether that is the first list or one
-      // opened from inside it.
+      // Everything a list needs before it can be seen. Called while the window is hidden, so
+      // the reset costs nothing visible and the window is already the right size when it is
+      // shown.
       function open(opts) {
         armed = false;
         // A keystroke from the list being left must not filter the list being entered.
@@ -658,7 +795,9 @@
         }
         split = opts.split === true;
         nested = opts.nested === true;
+        inpage = opts.inpage === true;
         el.panel.classList.toggle("split", split);
+        el.panel.classList.remove("closing");
         el.preview.innerHTML = "";
         el.q.placeholder = opts.placeholder;
         el.q.value = "";
@@ -666,18 +805,33 @@
         sel = 0;
         settled = seq;
         shown = base.slice();
-        draw();
-        el.q.focus();
+        draw(true);
+      }
 
-        el.panel.classList.remove("opening");
+      // Split from `open` so the window can be shown in between: the panel is only painted
+      // once it holds the right rows at the right size.
+      function reveal() {
+        el.q.focus();
+        el.panel.classList.add("shown");
         // Reading the layout between the remove and the add restarts the animation rather
         // than letting the class change coalesce into no change at all.
+        el.panel.classList.remove("opening");
         void el.panel.offsetWidth;
         el.panel.classList.add("opening");
-
         setTimeout(() => {
           armed = true;
         }, 500);
+      }
+
+      function dismiss() {
+        armed = false;
+        el.panel.classList.remove("opening");
+        el.panel.classList.add("closing");
+      }
+
+      // Back to the invisible resting state, once the window is hidden.
+      function reset() {
+        el.panel.classList.remove("shown", "opening", "closing");
       }
     </script>
   </body>

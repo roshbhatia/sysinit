@@ -26,6 +26,11 @@ local settle_secs = 0.12
 
 local apps = nil
 local config = nil
+-- Drawing an app's icon and encoding it costs a millisecond or two, and a
+-- rescan re-reads every directory to find the one app that changed. Both are
+-- keyed by path, so a rescan pays only for what is new.
+local drawn = {}
+local by_name = nil
 
 -- Every source keeps its rows here, and the base list is composed from whatever
 -- is present. Nothing is gathered when the hotkey is pressed.
@@ -80,14 +85,22 @@ end
 ---@param path string
 ---@return string|nil
 local function icon(path)
-  local image = hs.image.iconForFile(path)
-  if image == nil then
-    return nil
+  local held = drawn[path]
+  if held ~= nil then
+    return held or nil
   end
-  local ok, encoded = pcall(function()
-    return image:setSize({ w = 24, h = 24 }):encodeAsURLString()
-  end)
-  return ok and encoded or nil
+  local encoded = nil
+  local image = hs.image.iconForFile(path)
+  if image ~= nil then
+    local ok, made = pcall(function()
+      return image:setSize({ w = 24, h = 24 }):encodeAsURLString()
+    end)
+    encoded = ok and made or nil
+  end
+  -- `false` rather than nil, so an app whose icon cannot be read is not tried
+  -- again on every rescan.
+  drawn[path] = encoded or false
+  return encoded
 end
 
 ---@param path string
@@ -156,15 +169,18 @@ local function app_rows()
   return apps
 end
 
+-- Looked up once per pane, session and tab, and those are rebuilt every few
+-- seconds, so the apps are indexed by name rather than scanned each time.
 ---@param name string
 ---@return string|nil
 local function app_icon(name)
-  for _, row in ipairs(app_rows()) do
-    if row.text == name then
-      return row.icon
+  if by_name == nil then
+    by_name = {}
+    for _, row in ipairs(app_rows()) do
+      by_name[row.text] = row.icon
     end
   end
-  return nil
+  return by_name[name]
 end
 
 ---@param cb fun(rows: table[])
@@ -346,10 +362,11 @@ end
 local function search()
   return {
     name = "files",
-    -- The walk writes this list's fzf index itself and hands back one path per
-    -- entry, so a row is built only for the few the panel draws.
+    -- The walk writes this list's fzf index itself, and a match comes back with
+    -- the line it matched, so a row is built only for the few the panel draws
+    -- and nothing holds the tree in between.
     indexed = true,
-    count = files.count,
+    head = files.head,
     row = files.row,
     placeholder = "Search files and folders by path",
     verb = "Open",
@@ -443,18 +460,44 @@ local function compose()
   panel.stage(base())
 end
 
+---@param rows table[]
+---@return string
+local function signature(rows)
+  local parts = {}
+  for index, row in ipairs(rows) do
+    parts[index] = (row.text or "") .. "\1" .. (row.detail or "")
+  end
+  return table.concat(parts, "\2")
+end
+
+local mark = nil
+
 -- Polled because a pane, a session, or a tab comes and goes without an event.
 -- The three run at once and the list is composed when the last one lands, so a
--- cycle costs one sort and one index write rather than three.
+-- cycle costs one sort and one index write rather than three. Most cycles find
+-- nothing new, and those cost neither: the rows are composed only once they
+-- differ from the ones the panel is already holding.
 local function refresh()
   local left = 3
   local function done(source)
     return function(rows)
       held[source] = rows
       left = left - 1
-      if left == 0 then
-        compose()
+      if left > 0 then
+        return
       end
+      held.entries = entry_rows()
+      local now = table.concat({
+        signature(held.panes),
+        signature(held.sessions),
+        signature(held.tabs),
+        signature(held.entries),
+      }, "\3")
+      if now == mark then
+        return
+      end
+      mark = now
+      compose()
     end
   end
   pane_rows(done("panes"))
@@ -464,6 +507,7 @@ end
 
 local function rescan()
   apps = nil
+  by_name = nil
   held.apps = app_rows()
   compose()
 end
@@ -512,7 +556,6 @@ function M.setup()
     if panel.visible() then
       return
     end
-    held.entries = entry_rows()
     refresh()
   end)
 

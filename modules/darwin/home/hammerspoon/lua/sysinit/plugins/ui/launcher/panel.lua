@@ -2,15 +2,22 @@ local fzf = require("sysinit.plugins.ui.launcher.fzf")
 
 local M = {}
 
-local page = hs.configdir .. "/lua/sysinit/plugins/ui/launcher/panel.html"
+local dir = hs.configdir .. "/lua/sysinit/plugins/ui/launcher/page"
 
 local width = 920
 local top = 0.24
 
--- The page is only ever handed the rows it draws. A list can hold tens of
--- thousands of entries, and encoding all of them as JSON costs more than the
--- search it feeds.
+-- A list too large to hold in the page is matched by fzf, and only this many of
+-- its matches are carried back. The page draws a fraction of them; the rest are
+-- there so the list can be scrolled.
 local carry = 300
+
+-- How long the closing animation runs before the window is taken away. Kept in
+-- step with the `sink` keyframes in the page.
+local closing_secs = 0.11
+-- How long the panel takes to ease to a new height, after which the window can
+-- safely shrink to match. Kept in step with the `height` transition.
+local settle_secs = 0.2
 
 local view = nil
 local watch = nil
@@ -20,6 +27,20 @@ local waiting = nil
 local sent = {}
 local written = {}
 local queued = nil
+local closing = nil
+local shrinking = nil
+local height = 0
+local pushed = nil
+local prepared = nil
+local warming = false
+
+-- The window is on screen during the warm-up below without anything being drawn
+-- into it, so `isVisible` alone would report an open panel to a hotkey that has
+-- not opened one yet.
+---@return boolean
+local function onscreen()
+  return view ~= nil and view:isVisible() and not warming
+end
 
 ---@param work fun()
 local function ready(work)
@@ -30,20 +51,44 @@ local function ready(work)
   end
 end
 
----@param height number
+---@param path string
+---@return string
+local function slurp(path)
+  local file = io.open(path, "r")
+  if file == nil then
+    return ""
+  end
+  local text = file:read("*all")
+  file:close()
+  return text
+end
+
+-- The page is one document by the time it is loaded, because `view:html` takes
+-- markup and not a directory, and a relative <script src> in it resolves against
+-- nothing. Splitting the source is for whoever reads it.
+---@return string
+local function document()
+  local html = slurp(dir .. "/panel.html")
+  local built = html:gsub("/%* INCLUDE ([%w_.%-]+) %*/", function(name)
+    return slurp(dir .. "/" .. name)
+  end)
+  return built
+end
+
+---@param h number
 ---@return table
-local function frame(height)
+local function frame(h)
   local screen = hs.screen.mainScreen():frame()
   return {
     x = screen.x + (screen.w - width) / 2,
     y = screen.y + screen.h * top,
     w = width,
-    h = height,
+    h = h,
   }
 end
 
--- `at` carries the true position of each row in its list, because the page is
--- given a subset and hands an index back when a row is chosen.
+-- `at` carries the true position of each row in its list, because a list matched
+-- by fzf hands the page a subset and gets an index back when a row is chosen.
 ---@param rows table[]
 ---@param at number[]|nil
 ---@return table[], table<string, string>
@@ -82,30 +127,35 @@ local function index_name(list)
   return list.name or "list"
 end
 
--- A list either hands over its rows outright or builds one on demand. The
--- second shape is for a list too large to hold as a table per row.
+-- A list either hands over its rows outright or builds one on demand. The second
+-- shape is for a list too large to hold as a table per row, and its rows arrive
+-- with the text fzf matched, so nothing has to be held to look them up.
 ---@param list table
 ---@param index number
+---@param text string|nil
 ---@return table|nil
-local function row_at(list, index)
+local function row_at(list, index, text)
   if list.row then
-    return list.row(index)
+    return list.row(index, text)
   end
   return list.rows and list.rows[index] or nil
 end
 
+-- What the page is given when a list opens. An indexed list is capped, because
+-- its rows run to six figures; every other list is handed over whole so the page
+-- can match it without asking.
 ---@param list table
----@return number
-local function size(list)
-  if list.count then
-    return list.count()
+---@return table[]
+local function opening_rows(list)
+  if list.indexed then
+    return list.head and list.head(carry) or {}
   end
-  return list.rows and #list.rows or 0
+  return list.rows or {}
 end
 
--- fzf reads the rows from a file, so it is rewritten when the rows change
--- rather than once per keystroke. A list marked `indexed` writes that file
--- itself, and one that stamps its rows is only rewritten when the stamp moves.
+-- fzf reads the rows from a file, so it is rewritten when the rows change rather
+-- than once per keystroke. A list marked `indexed` writes that file itself, and
+-- one that stamps its rows is only rewritten when the stamp moves.
 ---@param list table
 local function reindex(list)
   if list.indexed then
@@ -135,48 +185,85 @@ local function push()
   if view == nil or not loaded or list == nil then
     return
   end
-  local head = {}
-  for index = 1, math.min(size(list), carry) do
-    head[index] = row_at(list, index)
-  end
-  local out, fresh = transport(head, nil)
+  local out, fresh = transport(opening_rows(list), nil)
   icons(fresh)
   view:evaluateJavaScript("setRows(" .. hs.json.encode(out) .. ")")
+  pushed = list
 end
 
-local function present()
+-- Resets the page for the list it is about to show. Called while the window is
+-- hidden, so the rows, the height and the query are all already right by the
+-- time anything is drawn.
+local function prepare()
   local list = current()
   if view == nil or list == nil then
     return
   end
-  push()
+  -- Staging already sent these rows in the usual case, and they run to a few
+  -- hundred, so they are not encoded again for every open.
+  if pushed ~= list then
+    push()
+  end
   view:evaluateJavaScript("open(" .. hs.json.encode({
     placeholder = list.placeholder or "Search",
     verb = list.verb or "Open",
     split = list.preview ~= nil,
     nested = #stack > 1,
+    inpage = not list.indexed,
     hints = list.hints,
   }) .. ")")
+  prepared = list
 end
 
 ---@param list table
 ---@param body table
 local function matched(list, body)
-  fzf.filter({ name = index_name(list), query = body.query, limit = carry }, function(indices)
+  fzf.filter({ name = index_name(list), query = body.query, limit = carry }, function(hits)
     if view == nil or current() ~= list then
       return
     end
     local rows, at = {}, {}
-    for _, index in ipairs(indices or {}) do
-      local row = row_at(list, index)
+    for _, hit in ipairs(hits or {}) do
+      local row = row_at(list, hit.index, hit.text)
       if row then
         rows[#rows + 1] = row
-        at[#at + 1] = index
+        at[#at + 1] = hit.index
       end
     end
     local out, fresh = transport(rows, at)
     icons(fresh)
     view:evaluateJavaScript("setMatches(" .. hs.json.encode({ seq = body.seq, rows = out }) .. ")")
+  end)
+end
+
+-- Growing has to reach the window before the panel is drawn into the new space,
+-- and shrinking has to reach it after, or the panel is clipped while it eases.
+--
+-- The frame is set whether or not the window is on screen. Staging fits the
+-- window to its rows while the panel is still hidden, which is what leaves
+-- nothing to resize when the hotkey is pressed; skipping the hidden case left
+-- every open at the size the window was first built with.
+---@param wanted number
+---@param instant boolean
+local function resize(wanted, instant)
+  if shrinking then
+    shrinking:stop()
+    shrinking = nil
+  end
+  if view == nil then
+    return
+  end
+  local was = height
+  height = wanted
+  if instant or wanted >= was then
+    view:frame(frame(wanted))
+    return
+  end
+  shrinking = hs.timer.doAfter(settle_secs, function()
+    shrinking = nil
+    if view then
+      view:frame(frame(height))
+    end
   end)
 end
 
@@ -192,15 +279,17 @@ local function received(message)
       work()
     end
   elseif body.action == "height" then
-    if view and view:hswindow() then
-      view:frame(frame(body.height))
-    end
+    resize(body.height, body.instant == true)
   elseif body.action == "close" then
+    M.hide()
+  elseif body.action == "copy" then
+    hs.pasteboard.setContents(body.text or "")
     M.hide()
   elseif body.action == "back" then
     if #stack > 1 then
       table.remove(stack)
-      present()
+      prepare()
+      view:evaluateJavaScript("reveal()")
     else
       M.hide()
     end
@@ -218,7 +307,7 @@ local function received(message)
       end)
     end
   elseif body.action == "open" then
-    local row = list and row_at(list, body.index)
+    local row = list and row_at(list, body.index, body.text)
     if row and list.choose then
       list.choose(row, body.mods or {})
     end
@@ -241,13 +330,7 @@ local function build()
   view:transparent(true)
   view:level(hs.drawing.windowLevels.modalPanel)
   view:shadow(true)
-
-  local file = io.open(page, "r")
-  if file then
-    local html = file:read("*all")
-    file:close()
-    view:html(html)
-  end
+  view:html(document())
 end
 
 local function outside()
@@ -269,17 +352,62 @@ local function outside()
   watch:start()
 end
 
+-- Takes the window away and puts the page back to its resting state. Split from
+-- `M.hide` so the closing animation has somewhere to finish, and so a hotkey
+-- pressed during that animation can finish it early rather than wait it out.
+local function withdraw()
+  if closing then
+    closing:stop()
+    closing = nil
+  end
+  if view == nil then
+    return
+  end
+  view:hide()
+  view:evaluateJavaScript("reset()")
+  -- The next hotkey starts at the base list, not wherever this one was left.
+  if #stack > 1 then
+    stack = { stack[1] }
+  end
+  -- Everything the next open needs is done here, with nothing on screen to see
+  -- it: the rows, the query, and the window's size. That leaves the hotkey with
+  -- one small call to make, which is why the panel appears rather than assembles.
+  local held = queued
+  queued = nil
+  if held ~= nil then
+    M.stage(held)
+  else
+    prepare()
+  end
+end
+
 -- The window and its page are built and loaded before the first hotkey, so
 -- showing the panel is a show and a focus rather than a page load.
 function M.prewarm()
-  if view == nil then
-    build()
+  if view ~= nil then
+    return
   end
+  build()
+  -- A webview that has never been on screen has no layers to draw with, and
+  -- builds them during the first show, which is the one open that has to be
+  -- quick. Showing it once costs nothing to look at, because the panel is
+  -- invisible until it is revealed.
+  ready(function()
+    warming = true
+    view:show()
+    hs.timer.doAfter(0.4, function()
+      if not warming then
+        return
+      end
+      warming = false
+      view:hide()
+    end)
+  end)
 end
 
 ---@return boolean
 function M.visible()
-  return view ~= nil and view:isVisible()
+  return onscreen() and closing == nil
 end
 
 -- Keeps a hidden list's rows current so the next show has nothing to compute.
@@ -287,7 +415,7 @@ end
 function M.stage(list)
   -- The page holds each row's position in the list it was handed, so swapping
   -- the list under a visible panel would open the wrong row. It waits.
-  if M.visible() then
+  if onscreen() then
     queued = list
     return
   end
@@ -301,51 +429,56 @@ function M.stage(list)
   stack = { list }
   if view ~= nil and loaded then
     push()
+    prepare()
   end
 end
 
 ---@param list table|nil
 function M.show(list)
   M.prewarm()
+  -- A hotkey during the closing animation is an open, so the close is finished
+  -- now rather than left to land on top of it.
+  if closing ~= nil then
+    withdraw()
+  end
+  warming = false
   if list ~= nil then
     stack = { list }
     reindex(list)
   end
-  view:show()
-  ready(present)
-  -- No focus call: a nonactivating panel becomes key on its own, and asking for
-  -- focus here is what triggered the activation wait. Measured with the real page,
-  -- typing reached the search field only in the variant that does not ask.
-  outside()
+  ready(function()
+    -- Staging and the last close leave the page already reset, so the usual open
+    -- is a show and a reveal. Preparing here is the fallback for the first one.
+    if prepared ~= current() then
+      prepare()
+    end
+    view:show()
+    view:evaluateJavaScript("reveal()")
+    -- No focus call from here: a nonactivating panel becomes key on its own, and
+    -- asking for focus is what triggered the activation wait. The page focuses
+    -- its own field, which is what typing needs.
+    outside()
+  end)
 end
 
 ---@param list table
 function M.enter(list)
   stack[#stack + 1] = list
   reindex(list)
-  present()
+  prepare()
+  view:evaluateJavaScript("reveal()")
 end
 
 function M.hide()
+  if not M.visible() then
+    return
+  end
   if watch then
     watch:stop()
     watch = nil
   end
-  if view then
-    view:hide()
-  end
-  -- The next hotkey starts at the base list, not wherever this one was left.
-  if #stack > 1 then
-    stack = { stack[1] }
-  end
-  local held = queued
-  queued = nil
-  if held ~= nil then
-    -- After the hide has settled, so the staging does not see a visible panel.
-    hs.timer.doAfter(0, function()
-      M.stage(held)
-    end)
-  end
+  view:evaluateJavaScript("dismiss()")
+  closing = hs.timer.doAfter(closing_secs, withdraw)
 end
 
 return M

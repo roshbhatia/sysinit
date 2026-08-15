@@ -2,11 +2,15 @@ local M = {}
 
 local home = os.getenv("HOME") or ""
 
--- One display path per entry, in the same order as the lines of the fzf index.
--- A row is built from this only for the handful the panel draws, because the
--- home tree holds tens of thousands of paths and a table for each one would
--- cost more to allocate than the search that reads them.
-local paths = {}
+-- Only what the panel shows before a query is typed, and how many there are in
+-- all. The index file is the list; matching reads it out of process and hands
+-- back the lines it matched, so nothing here has to hold the home tree. Reading
+-- it into Lua cost a fifth of a second on the main thread every rebuild, for a
+-- table that every search then ignored.
+local HEAD = 300
+
+local head = {}
+local total = 0
 local building = false
 
 M.fd = nil
@@ -29,7 +33,7 @@ end
 
 ---@return number
 function M.count()
-  return #paths
+  return total
 end
 
 ---@return string
@@ -78,6 +82,20 @@ local function command()
     .. quote(M.index)
 end
 
+-- The walk numbers its own lines, so the number on the last one is how many
+-- there are. Read from the end of the file rather than by counting, because
+-- counting means reading all of it.
+---@param file file*
+---@return number
+local function written(file)
+  local size = file:seek("end")
+  local back = math.min(size, 4096)
+  file:seek("set", size - back)
+  local chunk = file:read(back) or ""
+  local last = chunk:match(".*\n(%d+)\t") or chunk:match("^(%d+)\t")
+  return tonumber(last) or 0
+end
+
 local function reload()
   local file = io.open(M.index, "r")
   if file == nil then
@@ -85,13 +103,17 @@ local function reload()
   end
   local found = {}
   for line in file:lines() do
+    if #found >= HEAD then
+      break
+    end
     local short = line:match("^%d+\t(.*)$")
     if short then
       found[#found + 1] = short
     end
   end
+  head = found
+  total = written(file)
   file:close()
-  paths = found
 end
 
 ---@param cb fun()|nil
@@ -134,11 +156,13 @@ local function expand(short)
   return short
 end
 
--- Built on demand, for a row the panel is about to draw.
+-- Built on demand, for a row the panel is about to draw. The text is the line
+-- matching handed back; without one, only the head of the list can be resolved.
 ---@param index number
+---@param text string|nil
 ---@return table|nil
-function M.row(index)
-  local short = paths[index]
+function M.row(index, text)
+  local short = text or head[index]
   if short == nil then
     return nil
   end
@@ -150,6 +174,17 @@ function M.row(index)
     kind = "file-entry",
     path = expand(short),
   }
+end
+
+-- What the panel shows before anything is typed.
+---@param limit number
+---@return table[]
+function M.head(limit)
+  local rows = {}
+  for index = 1, math.min(#head, limit) do
+    rows[index] = M.row(index, head[index])
+  end
+  return rows
 end
 
 ---@param path string

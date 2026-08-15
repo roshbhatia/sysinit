@@ -49,8 +49,10 @@ function M.write_index(name, haystacks)
   return path
 end
 
+-- Each hit carries the line fzf matched as well as its number, so a list whose
+-- rows are the index itself has nothing left to look up.
 ---@param opts table { name, query, limit }
----@param cb fun(indices: number[]|nil)
+---@param cb fun(hits: table[]|nil)
 function M.filter(opts, cb)
   if M.bin == nil then
     return cb(nil)
@@ -64,14 +66,14 @@ function M.filter(opts, cb)
   )
   -- fzf exits 1 when nothing matched, which is an empty result and not a failure.
   local task = hs.task.new("/bin/sh", function(_, out)
-    local indices = {}
+    local hits = {}
     for line in tostring(out or ""):gmatch("[^\n]+") do
-      local at = tonumber(line:match("^(%d+)\t"))
+      local at, text = line:match("^(%d+)\t(.*)$")
       if at then
-        indices[#indices + 1] = at
+        hits[#hits + 1] = { index = tonumber(at), text = text }
       end
     end
-    cb(indices)
+    cb(hits)
   end, { "-c", command })
   if task == nil then
     return cb(nil)
