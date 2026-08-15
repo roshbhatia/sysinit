@@ -230,12 +230,6 @@ in
     specPreflight
     ;
 
-  exe = lib.getExe script;
-  promptExe = lib.getExe promptScript;
-  focusExe = lib.getExe focusScript;
-  reviewExe = lib.getExe reviewScript;
-  sessionsExe = lib.getExe sessionsScript;
-
   iconFiles = lib.listToAttrs (
     map (
       name:

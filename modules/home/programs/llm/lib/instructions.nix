@@ -248,7 +248,6 @@ let
 in
 {
   inherit makeInstructions makeInstructionsWithStyle outputStyleRules;
-  inherit subagents;
   inherit (subagents) formatSubagentAsMarkdown;
   subagentDefs = builtins.removeAttrs subagents [ "formatSubagentAsMarkdown" ];
 }

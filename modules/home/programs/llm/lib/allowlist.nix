@@ -251,8 +251,6 @@ let
     }
   ];
 
-  destructiveDenyRegexes = builtins.map (r: r.regex) destructiveDenyRules;
-
   destructiveDenyGlobs = [
     "git push --force*"
     "git push * --force*"
@@ -309,32 +307,6 @@ let
 
   formatForClaude = tier: builtins.map (cmd: "Bash(${cmd})") tier;
 
-  formatForCursor = tier: builtins.map (cmd: "Shell(${cmd})") tier;
-
-  formatForAmp =
-    tier:
-    builtins.map (cmd: {
-      tool = "Bash";
-      matches = {
-        inherit cmd;
-      };
-      action = "allow";
-    }) tier;
-
-  formatForOpencodeWithAction =
-    action: tier:
-    let
-      toKey =
-        cmd:
-        if lib.hasSuffix " *" cmd then
-          (lib.substring 0 (lib.stringLength cmd - 2) cmd) + "*"
-        else
-          cmd + "*";
-    in
-    lib.listToAttrs (builtins.map (cmd: lib.nameValuePair (toKey cmd) action) tier);
-
-  formatForOpencode = formatForOpencodeWithAction "allow";
-
   formatDestructiveForCursor = patterns: builtins.map (cmd: "Shell(${cmd})") patterns;
 
   stripTrailingGlob =
@@ -380,14 +352,9 @@ in
     tierMcp
     slackSendTools
     destructiveDenyRules
-    destructiveDenyRegexes
     destructiveDenyGlobs
     formatForClaude
     formatForPi
-    formatForCursor
-    formatForAmp
-    formatForOpencodeWithAction
-    formatForOpencode
     formatForDevin
     formatDestructiveForOpencode
     formatDestructiveForAmp
