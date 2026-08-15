@@ -39,13 +39,8 @@ local function stepped_scope(delta)
   return ok and scopes.step(delta)
 end
 
-local function stepped_review(delta)
-  local ok, review = pcall(require, "review")
-  return ok and review.step(delta)
-end
-
 local function next_item()
-  if stepped_scope(1) or stepped_review(1) then
+  if stepped_scope(1) then
     return
   end
   if is_qf_win() or (get_qf_winid() and not get_loc_winid()) then
@@ -60,7 +55,7 @@ local function next_item()
 end
 
 local function prev_item()
-  if stepped_scope(-1) or stepped_review(-1) then
+  if stepped_scope(-1) then
     return
   end
   if is_qf_win() or (get_qf_winid() and not get_loc_winid()) then
