@@ -43,10 +43,6 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    nixpkgs-mozilla = {
-      url = "github:mozilla/nixpkgs-mozilla";
-    };
-
     cupcake = {
       url = "github:eqtylab/cupcake";
       inputs.nixpkgs.follows = "nixpkgs";

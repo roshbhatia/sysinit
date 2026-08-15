@@ -680,21 +680,6 @@
         "type": "github"
       }
     },
-    "nixpkgs-mozilla": {
-      "locked": {
-        "lastModified": 1783941145,
-        "narHash": "sha256-WXGFkdoYqOX9mjJaSfN5+rAH7eFe/1F6LmYb/Rs360g=",
-        "owner": "mozilla",
-        "repo": "nixpkgs-mozilla",
-        "rev": "16ab32eeb8390de633eb336eb4910efbbe0091e6",
-        "type": "github"
-      },
-      "original": {
-        "owner": "mozilla",
-        "repo": "nixpkgs-mozilla",
-        "type": "github"
-      }
-    },
     "nixpkgs-regression": {
       "locked": {
         "lastModified": 1643052045,
@@ -922,7 +907,6 @@
         "nix-claude-code": "nix-claude-code",
         "nix-gaming": "nix-gaming",
         "nixpkgs": "nixpkgs_4",
-        "nixpkgs-mozilla": "nixpkgs-mozilla",
         "nur": "nur",
         "onepassword-shell-plugins": "onepassword-shell-plugins",
         "seshy": "seshy",
