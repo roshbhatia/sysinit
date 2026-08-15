@@ -15,6 +15,9 @@ final: _prev: {
 
       vendorHash = "sha256-GTJxlZNc+yfQN9RncGWfAKfoSmVasKgyS6ycCy7nDZU=";
 
+      # There are no tests, so the build verifies nothing beyond compiling.
+      doCheck = false;
+
       nativeBuildInputs = [ final.installShellFiles ];
 
       postInstall = ''

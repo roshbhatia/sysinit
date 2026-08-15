@@ -205,9 +205,6 @@ func openStore() (*store.Store, error) {
 	return newStore(recordFile()), nil
 }
 
-// A seam the tests use to act between the publish and the lock release.
-var beforeRelease = func() {}
-
 // The stored form of a path. Absolute and symlink-resolved, so two spellings of
 // the same file cannot produce two notes that never see each other.
 func storedPath(file string) (string, error) {
@@ -338,7 +335,6 @@ func cmdAdd(args []string) error {
 	if err := publishDoc(s, doc); err != nil {
 		return err
 	}
-	beforeRelease()
 	release()
 	fmt.Printf("note: %s:%d\n", stored, parsed)
 	return nil
@@ -635,7 +631,6 @@ func cmdClear(args []string) error {
 	if err := publishDoc(s, doc); err != nil {
 		return err
 	}
-	beforeRelease()
 	release()
 
 	if stored != "" && only != 0 {

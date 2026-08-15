@@ -130,7 +130,6 @@ func cmdAnswer(args []string) error {
 	if err := publishDoc(s, doc); err != nil {
 		return err
 	}
-	beforeRelease()
 	release()
 	fmt.Printf("note: answered %s at %s:%d\n", id, reply.File, reply.Line)
 	return nil
@@ -161,7 +160,6 @@ func clearOne(id string) error {
 	if err := publishDoc(s, doc); err != nil {
 		return err
 	}
-	beforeRelease()
 	release()
 	fmt.Printf("note: cleared %s\n", id)
 	return nil

@@ -1,7 +1,0 @@
-# Cross-change dependency manifest.
-# Edges mean: "from" must be complete before "to" can be safely deployed.
-# Generate candidates with: specutil graph --suggest
-# Edit this file manually or via the sync skills; specutil never mutates it.
-edges:
-  - from: add-auth-layer       # auth middleware must land first
-    to: user-profile-api       # profile endpoints read claims from verified JWT

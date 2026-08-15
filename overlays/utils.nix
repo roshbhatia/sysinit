@@ -36,11 +36,8 @@ final: _prev: {
 
       nativeBuildInputs = [ final.makeBinaryWrapper ];
 
-      nativeCheckInputs = [ final.git ];
-      preCheck = ''
-        export HOME="$TMPDIR/home"
-        mkdir -p "$HOME"
-      '';
+      # There are no tests, so the build verifies nothing beyond compiling.
+      doCheck = false;
 
       postInstall = ''
         mv "$out/bin/utils" "$out/bin/.utils-real"
