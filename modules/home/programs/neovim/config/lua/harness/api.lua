@@ -170,12 +170,6 @@ function M.review_roots()
   return review.roots()
 end
 
----@return boolean
-function M.review_is_open()
-  local ok, review = pcall(require, "harness.review")
-  return ok and review.is_open()
-end
-
 function M.review_pick()
   require("harness.review").pick()
 end

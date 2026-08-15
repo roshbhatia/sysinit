@@ -216,31 +216,6 @@ function M.refresh()
   M.open(state.path, { focus = false })
 end
 
-function M.close()
-  vim.api.nvim_clear_autocmds({ group = AUGROUP })
-  if pane_alive(state.pane) then
-    vim.fn.jobstart({ "wezterm", "cli", "kill-pane", "--pane-id", tostring(state.pane) }, { detach = true })
-  end
-  if state.snacks and state.snacks:valid() then
-    pcall(function()
-      state.snacks:close()
-    end)
-  end
-  if win_valid() then
-    vim.api.nvim_win_close(state.win, true)
-  end
-  state.win, state.buf, state.path, state.pane, state.snacks = nil, nil, nil, nil, nil
-end
-
-function M.is_open()
-  return pane_alive(state.pane) or (state.snacks ~= nil and state.snacks:valid()) or win_valid()
-end
-
----@return string|nil  path currently shown, if any
-function M.current()
-  return M.is_open() and state.path or nil
-end
-
 vim.api.nvim_create_autocmd("VimLeavePre", {
   group = AUGROUP,
   callback = function()

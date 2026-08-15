@@ -115,12 +115,4 @@ function M.check()
   end
 end
 
-function M.show()
-  local lines = {}
-  for _, finding in ipairs(M.findings()) do
-    lines[#lines + 1] = string.format("%-5s %s", finding.level, finding.text)
-  end
-  vim.notify(table.concat(lines, "\n"), vim.log.levels.INFO, { title = "Harness health" })
-end
-
 return M

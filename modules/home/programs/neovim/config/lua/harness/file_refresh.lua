@@ -9,10 +9,6 @@ local function tick()
   pcall(vim.cmd, "silent! checktime")
 end
 
-function M.is_active()
-  return timer ~= nil
-end
-
 function M.start()
   if timer then
     return

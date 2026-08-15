@@ -162,33 +162,8 @@ function M.start()
   end
 end
 
-function M.stop()
-  if not watcher then
-    return
-  end
-  pcall(watcher.stop, watcher)
-  pcall(watcher.close, watcher)
-  watcher = nil
-end
-
 function M.is_active()
   return watcher ~= nil
-end
-
----@return string[]
-function M.touched_files()
-  local present = {}
-  for _, path in ipairs(touched) do
-    if vim.uv.fs_stat(path) then
-      table.insert(present, path)
-    end
-  end
-  return present
-end
-
-function M.forget_touched()
-  touched = {}
-  touched_seen = {}
 end
 
 ---@return table

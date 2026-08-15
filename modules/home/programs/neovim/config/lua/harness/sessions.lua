@@ -131,14 +131,4 @@ function M.list(source, on_select)
   })
 end
 
----@param source string
----@return harness.SessionListResult
-function M._probe(source)
-  local lister = LISTERS[source]
-  if not lister then
-    return { ok = false, error = "no lister" }
-  end
-  return lister()
-end
-
 return M
