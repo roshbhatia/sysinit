@@ -36,7 +36,10 @@ final: _prev: {
 
       nativeBuildInputs = [ final.makeBinaryWrapper ];
 
-      # There are no tests, so the build verifies nothing beyond compiling.
+      # There are no tests to run. This package is first-party and absent from
+      # nixpkgs, so Hydra never caches it and skipping the check phase costs
+      # nothing: the cache concern in AGENTS.md applies to overridden nixpkgs
+      # derivations, not to this one.
       doCheck = false;
 
       postInstall = ''
