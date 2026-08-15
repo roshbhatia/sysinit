@@ -16,9 +16,20 @@ return {
       local actions = require("diffview.actions")
       local layout = require("harness.diff_layout")
 
+      -- q closes the whole review, the same as <leader>dd, so it cannot leave the
+      -- other repositories' tabs open. A file-history tab is not part of a review,
+      -- so it still closes on its own.
+      local function close_here()
+        local ok, review = pcall(require, "harness.review")
+        if ok and review.here() then
+          return review.close()
+        end
+        actions.close()
+      end
+
       local function panel_keys(conflicts)
         local made = {
-          { "n", "q", actions.close, { desc = "Close the review" } },
+          { "n", "q", close_here, { desc = "Close the review" } },
           { "n", "<leader>e", false },
           { "n", "<leader>b", false },
           { "n", "<localleader>de", actions.focus_files, { desc = "Focus the file panel" } },

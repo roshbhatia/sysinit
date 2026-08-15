@@ -1,6 +1,6 @@
 local M = {}
 
-local session = { roots = {}, tabs = {} }
+local session = { roots = {}, tabs = {}, origin = nil }
 
 local INLINE_ABOVE = 40
 
@@ -114,6 +114,11 @@ function M.open(roots, args)
   if #roots == 0 then
     return
   end
+  -- Where to land on close. Taken before the first tab opens, because closing
+  -- from inside a review tab leaves the tab you were on invalid.
+  if not alive(session.origin) then
+    session.origin = vim.api.nvim_get_current_tabpage()
+  end
   layout_for(changed_count(roots))
   for _, root in ipairs(roots) do
     if not alive(session.tabs[root]) then
@@ -161,9 +166,11 @@ function M.cycle(step)
   vim.notify(string.format("Review: %s (%d of %d)", name(root), next_at, #session.roots), vim.log.levels.INFO)
 end
 
+-- Closes every repository at once. A review is one thing across several tabs, so
+-- closing one tab at a time leaves the rest open and the session half torn down.
 function M.close()
   prune()
-  local here = vim.api.nvim_get_current_tabpage()
+  local origin = session.origin
   for _, root in ipairs(session.roots) do
     local tab = session.tabs[root]
     if alive(tab) then
@@ -171,9 +178,9 @@ function M.close()
       pcall(vim.cmd, "DiffviewClose")
     end
   end
-  session.roots, session.tabs = {}, {}
-  if vim.api.nvim_tabpage_is_valid(here) then
-    pcall(vim.api.nvim_set_current_tabpage, here)
+  session.roots, session.tabs, session.origin = {}, {}, nil
+  if alive(origin) then
+    pcall(vim.api.nvim_set_current_tabpage, origin)
   end
 end
 
