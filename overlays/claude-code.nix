@@ -1,6 +1,6 @@
 _final: prev:
 let
-  version = "2.1.232";
+  version = "2.1.233";
   src = prev.fetchzip {
     url = "https://registry.npmjs.org/@anthropic-ai/claude-code/-/claude-code-${version}.tgz";
     hash = "sha256-sV/PWPzTmHLfwjHo5QR24Djzb3TsGHAE7myJ8SBxqks=";
