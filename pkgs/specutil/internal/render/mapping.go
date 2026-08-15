@@ -15,13 +15,11 @@ type Field struct {
 }
 
 type Mapping struct {
-	Target string
 	Fields []Field
 }
 
 var mappings = map[string]Mapping{
 	"rfc": {
-		Target: "rfc",
 		Fields: []Field{
 			{"summary", proposalWhy},
 			{"motivation", proposalWhatChanges},
@@ -34,7 +32,6 @@ var mappings = map[string]Mapping{
 		},
 	},
 	"design": {
-		Target: "design",
 		Fields: []Field{
 			{"context", designContext},
 			{"goals", designGoals},
@@ -46,7 +43,6 @@ var mappings = map[string]Mapping{
 		},
 	},
 	"tickets": {
-		Target: "tickets",
 
 		Fields: []Field{
 			{"summary", proposalWhy},

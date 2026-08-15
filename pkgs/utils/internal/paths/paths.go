@@ -59,13 +59,6 @@ func Get(key string) (string, bool) {
 	return strings.TrimRight(value, "/"), true
 }
 
-func StateHome() string {
-	if value, ok := Get(StateHomeKey); ok {
-		return value
-	}
-	return fallbackStateHome()
-}
-
 func SeshySessions() string {
 	if value, ok := Get(SeshySessionsKey); ok {
 		return value

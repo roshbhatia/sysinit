@@ -13,10 +13,6 @@ import (
 	"github.com/roshbhatia/sysinit/pkgs/utils/internal/paths"
 )
 
-func Root() (string, error) {
-	return RootAt("")
-}
-
 func RootAt(dir string) (string, error) {
 	cmd := exec.Command("git", "rev-parse", "--show-toplevel")
 	cmd.Dir = dir

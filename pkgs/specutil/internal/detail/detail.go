@@ -173,8 +173,6 @@ func taskLevels(phases []ir.Phase) map[[2]int]int {
 	return levels
 }
 
-func Build(changes []*ir.Change) *Feed { return BuildWith(changes, Options{}) }
-
 func BuildWith(changes []*ir.Change, opts Options) *Feed {
 	out := make([]Change, 0, len(changes))
 	for _, c := range changes {

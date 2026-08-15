@@ -1,8 +1,8 @@
 final: _prev: {
   ask =
     let
-      # pkgs/ask/wrappers.txt is the one list; a Go test fails when it and the
-      # provider registry disagree.
+      # pkgs/ask/wrappers.txt is the one list of the names the binary answers
+      # to; pkgs/ask/main.go dispatches on the same names.
       wrappers = final.lib.filter (name: name != "") (
         final.lib.splitString "\n" (builtins.readFile ../pkgs/ask/wrappers.txt)
       );

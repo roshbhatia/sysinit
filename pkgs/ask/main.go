@@ -108,15 +108,6 @@ func wrapper(name string) (short string, asJSON bool, known bool) {
 	return "", false, false
 }
 
-// wrappers lists every name the binary answers to besides ask itself.
-func wrappers() []string {
-	names := []string{"_", "_j"}
-	for _, one := range provider.Known() {
-		names = append(names, "_"+one.Short, "_"+one.Short+"j")
-	}
-	return names
-}
-
 func command(opts *options) *cobra.Command {
 	name := called()
 
@@ -353,12 +344,11 @@ func run(opts options) error {
 
 	here, _ := os.Getwd()
 	events, err := agent.Run(ctx, provider.Request{
-		Prompt:  prompt,
-		Input:   input,
-		Model:   opts.model,
-		Schema:  shape,
-		Timeout: opts.timeout,
-		Dir:     here,
+		Prompt: prompt,
+		Input:  input,
+		Model:  opts.model,
+		Schema: shape,
+		Dir:    here,
 	})
 	if err != nil {
 		return err

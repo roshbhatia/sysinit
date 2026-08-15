@@ -26,8 +26,7 @@ type runKeys struct {
 	stop key.Binding
 }
 
-func (k runKeys) ShortHelp() []key.Binding  { return []key.Binding{k.stop} }
-func (k runKeys) FullHelp() [][]key.Binding { return [][]key.Binding{k.ShortHelp()} }
+func (k runKeys) ShortHelp() []key.Binding { return []key.Binding{k.stop} }
 
 var running = runKeys{
 	stop: key.NewBinding(key.WithKeys("ctrl+c", "esc"), key.WithHelp("ctrl+c", "stop")),

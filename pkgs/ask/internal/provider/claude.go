@@ -9,7 +9,6 @@ import (
 	"io"
 	"os/exec"
 	"strings"
-	"time"
 )
 
 type Claude struct{}
@@ -93,10 +92,6 @@ func scanClaude(from io.Reader, wanted map[string]any, events chan<- Event) *Res
 				Structured: event.StructuredOutput,
 				Failed:     event.IsError,
 				Reason:     event.Subtype,
-				CostUSD:    event.TotalCostUSD,
-				Duration:   time.Duration(event.DurationMS) * time.Millisecond,
-				Turns:      event.NumTurns,
-				Session:    event.SessionID,
 			}
 
 			if wanted != nil && !result.Failed && result.Structured == nil {
@@ -154,7 +149,6 @@ func (c Claude) Run(ctx context.Context, req Request) (<-chan Event, error) {
 	events := make(chan Event, 64)
 	go func() {
 		defer close(events)
-		started := time.Now()
 
 		answered := scanClaude(out, req.Schema, events)
 
@@ -171,9 +165,8 @@ func (c Claude) Run(ctx context.Context, req Request) (<-chan Event, error) {
 			reason = "claude exited without an answer"
 		}
 		events <- Event{Kind: Done, Result: &Result{
-			Failed:   true,
-			Reason:   reason,
-			Duration: time.Since(started),
+			Failed: true,
+			Reason: reason,
 		}}
 	}()
 

@@ -79,10 +79,6 @@ func ParseProposal(file, src string) (*ir.Proposal, []ir.Warning) {
 		p.Capabilities.Modified = parseCapabilityChild(n, "Modified Capabilities")
 	}
 
-	if n := findRoot(roots, "Impact"); n != nil {
-		p.Impact = strings.TrimSpace(n.Body)
-	}
-
 	return p, warns
 }
 

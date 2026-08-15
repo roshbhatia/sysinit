@@ -10,7 +10,6 @@ import (
 	"os/exec"
 	"slices"
 	"strings"
-	"time"
 )
 
 type Request struct {
@@ -21,8 +20,6 @@ type Request struct {
 	Model string
 
 	Schema map[string]any
-
-	Timeout time.Duration
 
 	Dir string
 }
@@ -59,11 +56,6 @@ type Result struct {
 	Failed bool
 
 	Reason string
-
-	CostUSD  float64
-	Duration time.Duration
-	Turns    int
-	Session  string
 }
 
 type Provider interface {

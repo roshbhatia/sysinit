@@ -10,7 +10,6 @@ import (
 	"os"
 	"os/exec"
 	"strings"
-	"time"
 )
 
 type Codex struct{}
@@ -200,17 +199,12 @@ func (c Codex) Run(ctx context.Context, req Request) (<-chan Event, error) {
 	go func() {
 		defer close(events)
 		defer discard()
-		started := time.Now()
-
 		run := scanCodex(out, req.Model, events)
 
 		err := cmd.Wait()
 
 		result := &Result{
-			Text:     run.Answer,
-			Duration: time.Since(started),
-			Turns:    run.Turns,
-			Session:  run.Session,
+			Text: run.Answer,
 		}
 		switch {
 		case run.Failure != "":

@@ -25,8 +25,6 @@ func (k pickKeys) ShortHelp() []key.Binding {
 	return []key.Binding{k.up, k.down, k.number, k.take, k.quit}
 }
 
-func (k pickKeys) FullHelp() [][]key.Binding { return [][]key.Binding{k.ShortHelp()} }
-
 var picking = pickKeys{
 	up:     key.NewBinding(key.WithKeys("up", "k"), key.WithHelp("↑/k", "up")),
 	down:   key.NewBinding(key.WithKeys("down", "j"), key.WithHelp("↓/j", "down")),

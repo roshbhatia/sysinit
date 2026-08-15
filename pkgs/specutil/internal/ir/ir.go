@@ -20,7 +20,6 @@ type Proposal struct {
 	WhatChanges  string
 	NonGoals     string
 	Capabilities Capabilities
-	Impact       string
 }
 
 type Capabilities struct {

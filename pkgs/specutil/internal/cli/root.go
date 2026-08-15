@@ -386,8 +386,6 @@ func changeDirTarget(arg string) (repo, name string, ok bool) {
 
 var errCheckFailed = errors.New("check: rubric violated")
 
-func IsCheckFailed(err error) bool { return errors.Is(err, errCheckFailed) }
-
 func checkText(r *check.Report) string {
 	var b strings.Builder
 	change := ""

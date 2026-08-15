@@ -26,13 +26,12 @@ type Next struct {
 }
 
 type Task struct {
-	ID       string   `json:"id"`
-	Kind     string   `json:"kind"`
-	Text     string   `json:"text"`
-	WaitsOn  []string `json:"waitsOn,omitempty"`
-	Gate     bool     `json:"gate"`
-	Adverse  bool     `json:"adversarialReview,omitempty"`
-	PhaseNum string   `json:"-"`
+	ID      string   `json:"id"`
+	Kind    string   `json:"kind"`
+	Text    string   `json:"text"`
+	WaitsOn []string `json:"waitsOn,omitempty"`
+	Gate    bool     `json:"gate"`
+	Adverse bool     `json:"adversarialReview,omitempty"`
 }
 
 func ComputeNext(c *ir.Change) Next {
@@ -90,13 +89,12 @@ func ComputeNext(c *ir.Change) Next {
 			}
 		}
 		t := Task{
-			ID:       it.ID,
-			Kind:     string(it.Kind),
-			Text:     strings.Join(strings.Fields(it.Text), " "),
-			WaitsOn:  waits,
-			Gate:     it.Kind == ir.KindApply || it.Kind == ir.KindConfirm,
-			Adverse:  strings.Contains(strings.ToLower(it.Text), "adversarial review"),
-			PhaseNum: current.Number,
+			ID:      it.ID,
+			Kind:    string(it.Kind),
+			Text:    strings.Join(strings.Fields(it.Text), " "),
+			WaitsOn: waits,
+			Gate:    it.Kind == ir.KindApply || it.Kind == ir.KindConfirm,
+			Adverse: strings.Contains(strings.ToLower(it.Text), "adversarial review"),
 		}
 		if len(waits) == 0 {
 			out.Ready = append(out.Ready, t)
