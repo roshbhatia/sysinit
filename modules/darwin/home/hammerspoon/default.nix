@@ -1,16 +1,17 @@
-{ pkgs, ... }:
+{ config, pkgs, ... }:
 
 let
+  home = config.home.homeDirectory;
   launcherConfig = {
     wezterm = "${pkgs.wezterm}/bin/wezterm";
-    sy = "/etc/profiles/per-user/roshan/bin/sy";
+    sy = "/etc/profiles/per-user/${config.home.username}/bin/sy";
     fftabs = "${pkgs.sysinit-utils}/bin/firefox-tabs";
     bat = "${pkgs.bat}/bin/bat";
     fzf = "${pkgs.fzf}/bin/fzf";
     fd = "${pkgs.fd}/bin/fd";
     timeout = "${pkgs.coreutils}/bin/timeout";
     fileRoots = [
-      "/Users/roshan"
+      home
     ];
     # ~/Desktop, ~/Documents and ~/Downloads are TCC-protected. Hammerspoon holds
     # no grant for them, and tccd will not prompt for the walk, so readdir blocks
@@ -51,9 +52,9 @@ let
       "/System/Applications"
       "/Applications/Utilities"
       "/System/Applications/Utilities"
-      "/Users/roshan/Applications"
+      "${home}/Applications"
       "/Applications/Nix Apps"
-      "/Users/roshan/Applications/Home Manager Apps"
+      "${home}/Applications/Home Manager Apps"
     ];
     commands = [
       {
