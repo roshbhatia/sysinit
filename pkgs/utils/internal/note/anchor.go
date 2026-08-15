@@ -5,7 +5,6 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"os"
-	"path/filepath"
 	"strconv"
 	"strings"
 
@@ -24,16 +23,16 @@ func newID() (string, error) {
 
 type lineCache map[string][]string
 
-func (c lineCache) lines(root, relative string) []string {
-	if found, seen := c[relative]; seen {
+func (c lineCache) lines(path string) []string {
+	if found, seen := c[path]; seen {
 		return found
 	}
 	var lines []string
-	body, err := os.ReadFile(filepath.Join(root, relative))
+	body, err := os.ReadFile(path)
 	if err == nil {
 		lines = strings.Split(strings.ReplaceAll(string(body), "\r\n", "\n"), "\n")
 	}
-	c[relative] = lines
+	c[path] = lines
 	return lines
 }
 
@@ -49,8 +48,8 @@ func clipRunes(text string, limit int) string {
 	return string(runes[:limit])
 }
 
-func captureAnchor(root, relative string, line int64) string {
-	lines := lineCache{}.lines(root, relative)
+func captureAnchor(path string, line int64) string {
+	lines := lineCache{}.lines(path)
 	if line < 1 || int(line) > len(lines) {
 		return ""
 	}
@@ -74,7 +73,7 @@ func findAnchor(lines []string, anchor string) int64 {
 	return found
 }
 
-func reanchor(root string, notes []json.RawMessage) []json.RawMessage {
+func reanchor(notes []json.RawMessage) []json.RawMessage {
 	cache := lineCache{}
 	moved := make([]json.RawMessage, 0, len(notes))
 	for _, raw := range notes {
@@ -88,7 +87,7 @@ func reanchor(root string, notes []json.RawMessage) []json.RawMessage {
 			moved = append(moved, raw)
 			continue
 		}
-		lines := cache.lines(root, *cur.File)
+		lines := cache.lines(*cur.File)
 
 		if recorded >= 1 && int(recorded) <= len(lines) && anchorText(lines[recorded-1]) == *cur.Anchor {
 			moved = append(moved, raw)

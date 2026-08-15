@@ -1,6 +1,7 @@
 package workspace
 
 import (
+	"encoding/json"
 	"io"
 	"os"
 	"os/exec"
@@ -155,12 +156,20 @@ func TestChangesExcludesNestedRepositories(t *testing.T) {
 	if len(groups) != 2 {
 		t.Fatalf("Changes returned %d groups, want 2: %+v", len(groups), groups)
 	}
-	if want := []string{filepath.Join(ws, "tracked.txt")}; !reflect.DeepEqual(groups[0].Files, want) {
-		t.Fatalf("outer files = %v, want %v", groups[0].Files, want)
+	if want := []string{filepath.Join(ws, "tracked.txt")}; !reflect.DeepEqual(paths(groups[0].Files), want) {
+		t.Fatalf("outer files = %v, want %v", paths(groups[0].Files), want)
 	}
-	if want := []string{filepath.Join(repoA, "tracked.txt")}; !reflect.DeepEqual(groups[1].Files, want) {
-		t.Fatalf("repoA files = %v, want %v", groups[1].Files, want)
+	if want := []string{filepath.Join(repoA, "tracked.txt")}; !reflect.DeepEqual(paths(groups[1].Files), want) {
+		t.Fatalf("repoA files = %v, want %v", paths(groups[1].Files), want)
 	}
+}
+
+func paths(files []File) []string {
+	found := make([]string, 0, len(files))
+	for _, file := range files {
+		found = append(found, file.Path)
+	}
+	return found
 }
 
 func TestChangesSkipsCleanRepositories(t *testing.T) {
@@ -193,7 +202,8 @@ func TestChangesReadsARenameRecord(t *testing.T) {
 	if len(groups) != 1 {
 		t.Fatalf("Changes = %+v, want one group", groups)
 	}
-	if want := []string{filepath.Join(ws, "renamed.txt")}; !reflect.DeepEqual(groups[0].Files, want) {
+	want := []File{{Path: filepath.Join(ws, "renamed.txt"), Status: "R "}}
+	if !reflect.DeepEqual(groups[0].Files, want) {
 		t.Fatalf("files = %v, want %v", groups[0].Files, want)
 	}
 }
@@ -208,7 +218,8 @@ func TestChangesNamesUntrackedFiles(t *testing.T) {
 	if len(groups) != 1 {
 		t.Fatalf("Changes = %+v, want one group", groups)
 	}
-	if want := []string{filepath.Join(ws, "fresh", "new.txt")}; !reflect.DeepEqual(groups[0].Files, want) {
+	want := []File{{Path: filepath.Join(ws, "fresh", "new.txt"), Status: "??"}}
+	if !reflect.DeepEqual(groups[0].Files, want) {
 		t.Fatalf("files = %v, want %v", groups[0].Files, want)
 	}
 }
@@ -254,6 +265,56 @@ func TestRunHealthReportsWhatItSees(t *testing.T) {
 		if !strings.Contains(out, want) {
 			t.Errorf("health output missing %q:\n%s", want, out)
 		}
+	}
+}
+
+// The reason --json exists: a reader that draws one list over several
+// repositories gets the workspace, every root, and every changed file from one
+// call, and reads a folder of repositories exactly as it reads a single one.
+func TestRunChangesJSONCarriesEveryRepository(t *testing.T) {
+	work := isolate(t)
+	ws := filepath.Join(work, "ws")
+	commitRepo(t, ws)
+	repoA := filepath.Join(ws, "repoA")
+	commitRepo(t, repoA)
+	commitRepo(t, filepath.Join(ws, "clean"))
+	write(t, filepath.Join(ws, "tracked.txt"), "outer changed\n")
+	write(t, filepath.Join(repoA, "fresh.txt"), "new\n")
+
+	out := captureStdout(t, func() int { return Run([]string{"changes", "--json", ws}) })
+
+	var report Report
+	if err := json.Unmarshal([]byte(out), &report); err != nil {
+		t.Fatalf("decode %q: %v", out, err)
+	}
+	if report.Workspace != ws {
+		t.Errorf("workspace = %q, want %q", report.Workspace, ws)
+	}
+	if len(report.Roots) != 3 {
+		t.Errorf("roots = %v, want all 3", report.Roots)
+	}
+	if len(report.Groups) != 2 {
+		t.Fatalf("groups = %+v, want the 2 dirty repositories", report.Groups)
+	}
+
+	found := map[string]string{}
+	for _, group := range report.Groups {
+		for _, file := range group.Files {
+			found[file.Path] = file.Status
+		}
+	}
+	if status := found[filepath.Join(ws, "tracked.txt")]; status != " M" {
+		t.Errorf("outer tracked.txt status = %q, want \" M\"", status)
+	}
+	if status := found[filepath.Join(repoA, "fresh.txt")]; status != "??" {
+		t.Errorf("repoA fresh.txt status = %q, want \"??\"", status)
+	}
+}
+
+func TestRunRejectsJSONOnEveryOtherAction(t *testing.T) {
+	work := isolate(t)
+	if code := Run([]string{"roots", "--json", work}); code != 2 {
+		t.Fatalf("Run roots --json returned %d, want 2", code)
 	}
 }
 

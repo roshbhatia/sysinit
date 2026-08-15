@@ -65,10 +65,6 @@ let
       path = ./htop.nix;
     }
     {
-      tier = "dev";
-      path = ./hunk.nix;
-    }
-    {
       tier = "minimal";
       path = ./hushlogin.nix;
     }

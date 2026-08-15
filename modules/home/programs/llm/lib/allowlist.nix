@@ -202,15 +202,11 @@ let
     "utils note list *"
     "utils note list"
     "utils note path"
-
-    "hunk skill path"
   ];
 
   tierB = [
     "utils note add *"
     "utils note answer *"
-    "utils note apply *"
-    "utils note rebuild"
 
     "git add"
     "git add *"

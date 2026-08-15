@@ -68,7 +68,7 @@ func cmdAnswer(args []string) error {
 		return die("--summary is empty once control bytes are removed")
 	}
 
-	s, root, err := openStore()
+	s, err := openStore()
 	if err != nil {
 		return err
 	}
@@ -130,9 +130,6 @@ func cmdAnswer(args []string) error {
 	if err := publishDoc(s, doc); err != nil {
 		return err
 	}
-	if err := publishExport(root, doc.Notes); err != nil {
-		return err
-	}
 	beforeRelease()
 	release()
 	fmt.Printf("note: answered %s at %s:%d\n", id, reply.File, reply.Line)
@@ -140,7 +137,7 @@ func cmdAnswer(args []string) error {
 }
 
 func clearOne(id string) error {
-	s, root, err := openStore()
+	s, err := openStore()
 	if err != nil {
 		return err
 	}
@@ -161,9 +158,6 @@ func clearOne(id string) error {
 	}
 	doc.Notes = append(doc.Notes[:at], doc.Notes[at+1:]...)
 
-	if err := publishExport(root, doc.Notes); err != nil {
-		return err
-	}
 	if err := publishDoc(s, doc); err != nil {
 		return err
 	}

@@ -69,14 +69,23 @@ local function layout_for(files)
   end
 end
 
+-- Read from the last scan rather than running git again, so the layout and the
+-- file list are decided by one count and cannot disagree.
 ---@param roots string[]
 ---@return integer
 local function changed_count(roots)
-  local total = 0
+  local report = require("utils.gitrepo").cached()
+  if report == nil then
+    return 0
+  end
+  local wanted = {}
   for _, root in ipairs(roots) do
-    local out = vim.fn.systemlist({ "git", "-C", root, "status", "--porcelain", "--untracked-files=all" })
-    if vim.v.shell_error == 0 then
-      total = total + #out
+    wanted[root] = true
+  end
+  local total = 0
+  for _, group in ipairs(report.groups) do
+    if wanted[group.root] then
+      total = total + #group.files
     end
   end
   return total
@@ -116,7 +125,7 @@ function M.open(roots, args)
     vim.api.nvim_set_current_tabpage(session.tabs[session.roots[1]])
   end
   local roots_open = M.roots()
-  require("harness.notes").attach(roots_open, function(count)
+  require("harness.notes").refresh(function(count)
     if count > 0 then
       vim.notify(string.format("Review: %d repositories, %d notes", #roots_open, count), vim.log.levels.INFO)
     end
@@ -166,9 +175,6 @@ function M.close()
   if vim.api.nvim_tabpage_is_valid(here) then
     pcall(vim.api.nvim_set_current_tabpage, here)
   end
-  pcall(function()
-    require("harness.notes").detach()
-  end)
 end
 
 function M.pick()

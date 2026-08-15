@@ -67,16 +67,6 @@ return {
               require("harness.notes").place(bufnr)
             end)
           end,
-          view_closed = function()
-            vim.schedule(function()
-              local ok, review = pcall(require, "harness.review")
-              if ok and not review.is_open() then
-                pcall(function()
-                  require("harness.notes").detach()
-                end)
-              end
-            end)
-          end,
         },
         keymaps = {
           view = panel_keys("both"),
@@ -127,6 +117,22 @@ return {
           require("harness.review").toggle()
         end,
         desc = "Diff: toggle",
+        mode = "n",
+      },
+      {
+        "<leader>dc",
+        function()
+          require("harness.changes").quickfix()
+        end,
+        desc = "Diff: every change, in every repository",
+        mode = "n",
+      },
+      {
+        "<leader>dC",
+        function()
+          require("harness.changes").pick()
+        end,
+        desc = "Diff: find a change, in any repository",
         mode = "n",
       },
       {

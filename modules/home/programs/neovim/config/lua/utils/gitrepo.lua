@@ -1,13 +1,30 @@
 local M = {}
 
-local SCAN_DEPTH = 5
+local TOOL = "utils"
 
----@type { source: string, roots: string[], workspace: string|nil }
-local last = { source = "none", roots = {}, workspace = nil }
+---@class Change
+---@field path string
+---@field status string  git's own two-character porcelain code
 
----@type table<string, string[]>
-local cache = {}
+---@class Group
+---@field root string
+---@field files Change[]
 
+---@class Report
+---@field workspace string
+---@field roots string[]
+---@field groups Group[]
+
+---@type Report|nil
+local last = nil
+
+---@return string
+local function here()
+  return vim.fs.normalize(vim.uv.cwd() or ".")
+end
+
+---@param dir string|nil
+---@return string|nil
 local function toplevel(dir)
   if not dir or dir == "" then
     return nil
@@ -19,6 +36,8 @@ local function toplevel(dir)
   return vim.fs.normalize(out[1])
 end
 
+---@param buf? number
+---@return string|nil
 function M.buffer_root(buf)
   local file = vim.api.nvim_buf_get_name(buf or 0)
   if file == "" or not vim.uv.fs_stat(file) then
@@ -27,196 +46,100 @@ function M.buffer_root(buf)
   return toplevel(vim.fn.fnamemodify(file, ":h"))
 end
 
-function M.cwd_root()
-  return toplevel(vim.uv.cwd())
-end
-
-local function agent_roots(dir, cb)
-  if vim.fn.executable("utils") ~= 1 then
-    return cb(nil)
-  end
-  vim.system({ "utils", "workspace", "roots", dir }, { text = true }, function(res)
-    if res.code ~= 0 then
-      return cb(nil)
-    end
-    local roots = {}
-    for line in (res.stdout or ""):gmatch("[^\n]+") do
-      roots[#roots + 1] = vim.fs.normalize(line)
-    end
-    cb(roots)
-  end)
-end
-
-function M.scan(dir, cb)
-  if vim.fn.executable("fd") ~= 1 then
-    return cb(nil)
-  end
-  vim.system(
-    { "fd", "-H", "-I", "-t", "d", "-t", "f", "--max-depth", tostring(SCAN_DEPTH), "^[.]git$", dir },
-    { text = true },
-    function(res)
-      local roots, seen = {}, {}
-      for line in (res.stdout or ""):gmatch("[^\n]+") do
-        local root = line:match("^(.+)/%.git/?$")
-        if root and not seen[root] then
-          seen[root] = true
-          roots[#roots + 1] = vim.fs.normalize(root)
-        end
-      end
-      table.sort(roots)
-      cb(roots)
-    end
-  )
-end
-
----@param dir string
 ---@return string|nil
-local function declared_workspace(dir)
-  local value = vim.env.SYSINIT_WORKSPACE
-  if value == nil or value == "" then
-    return nil
-  end
-  local root = vim.fs.normalize(vim.fn.expand(value)):gsub("/+$", "")
-  local stat = vim.uv.fs_stat(root)
-  if not stat or stat.type ~= "directory" then
-    return nil
-  end
-  if dir == root or dir:sub(1, #root + 1) == root .. "/" then
-    return root
-  end
-  return nil
+function M.cwd_root()
+  return toplevel(here())
 end
 
-local workspace_cache = {}
-
-function M.workspace()
-  local cwd = vim.fs.normalize(vim.uv.cwd() or ".")
-  local declared = declared_workspace(cwd)
-  if declared then
-    return declared
+---@param report Report
+---@return Report
+local function normalized(report)
+  local roots = {}
+  for _, root in ipairs(report.roots or {}) do
+    roots[#roots + 1] = vim.fs.normalize(root)
   end
-  if workspace_cache[cwd] == nil then
-    workspace_cache[cwd] = M.cwd_root() or cwd
+  local groups = {}
+  for _, group in ipairs(report.groups or {}) do
+    local files = {}
+    for _, file in ipairs(group.files or {}) do
+      files[#files + 1] = { path = vim.fs.normalize(file.path), status = file.status or "  " }
+    end
+    groups[#groups + 1] = { root = vim.fs.normalize(group.root), files = files }
   end
-  return workspace_cache[cwd]
+  table.sort(groups, function(a, b)
+    if #a.files ~= #b.files then
+      return #a.files > #b.files
+    end
+    return a.root < b.root
+  end)
+  return { workspace = vim.fs.normalize(report.workspace or here()), roots = roots, groups = groups }
 end
 
-function M.workspace_roots(cb)
-  local dir = M.workspace()
-  if cache[dir] then
-    last = { source = last.source, roots = cache[dir], workspace = dir, cached = true }
-    return cb(cache[dir])
+-- One call answers what the workspace is, which repositories are under it, and
+-- what changed in each. Neovim owns no second rule for any of the three, so a
+-- folder of repositories and a single repository cannot read differently here.
+---@param cb fun(report: Report)
+function M.report(cb)
+  if vim.fn.executable(TOOL) ~= 1 then
+    vim.notify("Workspace: " .. TOOL .. " is not on PATH", vim.log.levels.ERROR)
+    return cb({ workspace = here(), roots = {}, groups = {} })
   end
-
-  local function finish(source, roots)
-    roots = roots or {}
-    cache[dir] = roots
-    last = { source = source, roots = roots, workspace = dir }
+  vim.system({ TOOL, "workspace", "changes", "--json", here() }, { text = true }, function(result)
+    local found = nil
+    if result.code == 0 then
+      local ok, decoded = pcall(vim.json.decode, result.stdout or "")
+      if ok and type(decoded) == "table" then
+        found = normalized(decoded)
+      end
+    end
     vim.schedule(function()
-      cb(roots)
-    end)
-  end
-
-  agent_roots(dir, function(roots)
-    if roots then
-      return finish("utils workspace", roots)
-    end
-    M.scan(dir, function(scanned)
-      if scanned then
-        return finish("fd scan", scanned)
+      if found == nil then
+        vim.notify("Workspace: " .. vim.trim(result.stderr or "the scan failed"), vim.log.levels.ERROR)
+        found = { workspace = here(), roots = {}, groups = {} }
       end
-      local root = M.cwd_root()
-      finish("git rev-parse", root and { root } or {})
+      last = found
+      cb(found)
     end)
   end)
 end
 
+-- What the last scan saw, for a caller that must answer without waiting. It is
+-- nil until a scan has run, and never a second scan of its own.
+---@return Report|nil
+function M.cached()
+  return last
+end
+
+---@return string
+function M.workspace()
+  if last then
+    return last.workspace
+  end
+  return M.cwd_root() or here()
+end
+
+-- Roots move when a repository is cloned or removed, so the last answer stands
+-- until the directory changes. Changes move on every write, so they are re-read.
+---@param cb fun(roots: string[])
+function M.workspace_roots(cb)
+  if last then
+    return cb(last.roots)
+  end
+  M.report(function(report)
+    cb(report.roots)
+  end)
+end
+
+---@param cb fun(groups: Group[], roots: string[])
 function M.workspace_changes(cb)
-  M.workspace_roots(function(roots)
-    if #roots == 0 then
-      return cb({}, roots)
-    end
-
-    local function group_by_root(files)
-      local groups, index = {}, {}
-      for _, path in ipairs(files) do
-        local owner = M.owning_root(path, roots)
-        if owner then
-          if not index[owner] then
-            index[owner] = { root = owner, files = {} }
-            groups[#groups + 1] = index[owner]
-          end
-          table.insert(index[owner].files, path)
-        end
-      end
-      table.sort(groups, function(a, b)
-        if #a.files ~= #b.files then
-          return #a.files > #b.files
-        end
-        return a.root < b.root
-      end)
-      return groups
-    end
-
-    if vim.fn.executable("utils") == 1 then
-      vim.system({ "utils", "workspace", "changes", M.workspace() }, { text = true }, function(res)
-        if res.code == 0 then
-          local files = {}
-          for line in (res.stdout or ""):gmatch("[^\n]+") do
-            files[#files + 1] = vim.fs.normalize(line)
-          end
-          return vim.schedule(function()
-            cb(group_by_root(files), roots)
-          end)
-        end
-        M._changes_via_git(roots, cb)
-      end)
-      return
-    end
-
-    M._changes_via_git(roots, cb)
+  M.report(function(report)
+    cb(report.groups, report.roots)
   end)
 end
 
-function M._changes_via_git(roots, cb)
-  local groups, pending = {}, #roots
-  for i, root in ipairs(roots) do
-    vim.system({ "git", "-C", root, "status", "--porcelain", "--untracked-files=all" }, { text = true }, function(res)
-      local files = {}
-      if res.code == 0 then
-        for line in (res.stdout or ""):gmatch("[^\n]+") do
-          local rel = line:sub(4)
-          local path = vim.fs.normalize(root .. "/" .. rel)
-          if M.owning_root(path, roots) == root then
-            files[#files + 1] = path
-          end
-        end
-      end
-      if #files > 0 then
-        groups[i] = { root = root, files = files }
-      end
-      pending = pending - 1
-      if pending == 0 then
-        local kept = {}
-        for index = 1, #roots do
-          if groups[index] then
-            kept[#kept + 1] = groups[index]
-          end
-        end
-        table.sort(kept, function(a, b)
-          if #a.files ~= #b.files then
-            return #a.files > #b.files
-          end
-          return a.root < b.root
-        end)
-        vim.schedule(function()
-          cb(kept, roots)
-        end)
-      end
-    end)
-  end
-end
-
+---@param path string
+---@param roots string[]
+---@return string|nil
 function M.owning_root(path, roots)
   local best = nil
   for _, root in ipairs(roots) do
@@ -244,14 +167,13 @@ function M.resolve(cb, opts)
 
     local buffer = not ask and M.buffer_root() or nil
     if buffer then
-      local owner = M.owning_root(buffer, roots) or buffer
-      return cb(owner)
+      return cb(M.owning_root(buffer, roots) or buffer)
     end
 
     vim.ui.select(roots, {
       prompt = "Select git repo",
-      format_item = function(r)
-        return vim.fn.fnamemodify(r, ":~:.")
+      format_item = function(root)
+        return vim.fn.fnamemodify(root, ":~:.")
       end,
     }, function(choice)
       if choice then
@@ -261,20 +183,20 @@ function M.resolve(cb, opts)
   end)
 end
 
+---@return { source: string, workspace: string, roots: string[], agent: boolean }
 function M.status()
   return {
-    source = last.source,
-    workspace = last.workspace or M.workspace(),
-    roots = last.roots,
-    agent = vim.fn.executable("utils") == 1,
-    fd = vim.fn.executable("fd") == 1,
+    source = last and (TOOL .. " workspace") or "none",
+    workspace = M.workspace(),
+    roots = last and last.roots or {},
+    agent = vim.fn.executable(TOOL) == 1,
   }
 end
 
 vim.api.nvim_create_autocmd("DirChanged", {
   group = vim.api.nvim_create_augroup("gitrepo_cache", { clear = true }),
   callback = function()
-    cache = {}
+    last = nil
   end,
 })
 

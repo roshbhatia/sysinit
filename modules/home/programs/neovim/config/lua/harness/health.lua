@@ -64,13 +64,7 @@ function M.findings()
   if repos.agent then
     add("ok", "`utils` is on PATH")
   else
-    add("warn", "`utils` is not on PATH, so the repository query falls back to the `fd` scan")
-  end
-  if not repos.fd then
-    add(
-      "warn",
-      "`fd` is not on PATH, so with `utils` absent the query falls back to `git rev-parse`, which sees one repository"
-    )
+    add("error", "`utils` is not on PATH, so no repository, change, or note can be read")
   end
 
   local ok_events, events = pcall(require, "harness.edit_events")

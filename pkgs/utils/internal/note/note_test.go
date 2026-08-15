@@ -115,25 +115,7 @@ func mustAdd(t *testing.T, args ...string) {
 	}
 }
 
-func apply(t *testing.T, payload string) int {
-	t.Helper()
-	old := os.Stdout
-	r, w, _ := os.Pipe()
-	os.Stdout = w
-	code := cmdApplyCode(strings.NewReader(payload))
-	w.Close()
-	io := make([]byte, 4096)
-	r.Read(io)
-	os.Stdout = old
-	return code
-}
 
-func cmdApplyCode(stdin *strings.Reader) int {
-	if err := cmdApply([]string{"--stdin"}, stdin); err != nil {
-		return 1
-	}
-	return 0
-}
 
 func TestPathIsStableAndHonoursStateHome(t *testing.T) {
 	root := newRepo(t)
@@ -169,14 +151,6 @@ func TestAddRejectsLineWithLeadingZero(t *testing.T) {
 	}
 }
 
-func TestAddRejectsPathOutsideTheRepoRoot(t *testing.T) {
-	newRepo(t)
-	for _, file := range []string{"../outside.txt", "/etc/hosts", ".", "../"} {
-		if code, _ := run(t, "add", "--file", file, "--line", "1", "--summary", "x"); code == 0 {
-			t.Errorf("add accepted --file %q", file)
-		}
-	}
-}
 
 func TestAddRejectsControlBytesInThePath(t *testing.T) {
 	newRepo(t)
@@ -399,94 +373,9 @@ func TestClearByIDRemovesExactlyOneNote(t *testing.T) {
 	}
 }
 
-func TestRebuildNamesTheNotesThatCarryNoID(t *testing.T) {
-	root := newRepo(t)
-	handWritten := `{"version":1,"repo":"` + root + `","notes":[` +
-		`{"file":"src/app.ts","line":2,"summary":"older than ids","rationale":null,"author":"pi"}]}`
-	path := storePath(t)
-	if err := os.MkdirAll(filepath.Dir(path), 0o755); err != nil {
-		t.Fatal(err)
-	}
-	if err := os.WriteFile(path, []byte(handWritten), 0o644); err != nil {
-		t.Fatal(err)
-	}
 
-	if code, _ := run(t, "rebuild"); code != 0 {
-		t.Fatal("rebuild exited non-zero")
-	}
-	got := notes(t)
-	if len(got) != 1 {
-		t.Fatalf("rebuild changed the note count: %d", len(got))
-	}
-	if id, _ := got[0]["id"].(string); id == "" {
-		t.Fatalf("rebuild left the note unnamed: %v", got[0])
-	}
-	if got[0]["anchor"] != "two" {
-		t.Fatalf("rebuild did not anchor the note on its line: %v", got[0]["anchor"])
-	}
-}
 
-func TestApplyAcceptsBothPayloadShapes(t *testing.T) {
-	newRepo(t)
-	if code := apply(t, `{"comments":[{"filePath":"src/app.ts","newLine":2,"summary":"hunk shape"}]}`); code != 0 {
-		t.Fatal("apply rejected the hunk payload shape")
-	}
-	if code := apply(t, `{"notes":[{"file":"src/app.ts","line":1,"summary":"native shape"}]}`); code != 0 {
-		t.Fatal("apply rejected the native payload shape")
-	}
-	if got := len(notes(t)); got != 2 {
-		t.Fatalf("expected 2 notes after both shapes, got %d", got)
-	}
-}
 
-func TestApplyRejectionsLeaveTheStoreByteIdentical(t *testing.T) {
-	newRepo(t)
-	mustAdd(t, "--file", "src/app.ts", "--line", "1", "--summary", "seed")
-	path := storePath(t)
-
-	cases := map[string]string{
-		"path escaping with ..":       `{"comments":[{"filePath":"../outside.txt","newLine":1,"summary":"escape"}]}`,
-		"absolute path outside":       `{"comments":[{"filePath":"/etc/hosts","newLine":1,"summary":"outside"}]}`,
-		"non-integral line":           `{"notes":[{"file":"src/app.ts","line":2.5,"summary":"float"}]}`,
-		"line below one":              `{"notes":[{"file":"src/app.ts","line":0,"summary":"zero"}]}`,
-		"missing summary":             `{"comments":[{"filePath":"src/app.ts","newLine":1}]}`,
-		"oldLine only":                `{"comments":[{"filePath":"src/app.ts","oldLine":3,"summary":"removed"}]}`,
-		"one good beside one bad":     `{"comments":[{"filePath":"src/app.ts","newLine":1,"summary":"ok"},{"filePath":"../out.txt","newLine":1,"summary":"bad"}]}`,
-		"control byte in filePath":    `{"comments":[{"filePath":"src/[2Jhax.ts","newLine":1,"summary":"x"}]}`,
-		"carriage return in filePath": `{"comments":[{"filePath":"src/app.ts\rsrc/other.ts:9  approved","newLine":1,"summary":"x"}]}`,
-		"non-string author":           `{"notes":[{"file":"src/app.ts","line":1,"summary":"s","author":{"nested":true}}]}`,
-		"numeric rationale":           `{"notes":[{"file":"src/app.ts","line":1,"summary":"s","rationale":123}]}`,
-		"empty batch":                 `{"notes":[]}`,
-		"not JSON at all":             `not json`,
-	}
-	for label, payload := range cases {
-		before, err := os.ReadFile(path)
-		if err != nil {
-			t.Fatal(err)
-		}
-		if code := apply(t, payload); code == 0 {
-			t.Errorf("apply accepted a batch it must reject: %s", label)
-		}
-		after, err := os.ReadFile(path)
-		if err != nil {
-			t.Fatal(err)
-		}
-		if string(before) != string(after) {
-			t.Errorf("a rejected batch mutated the store (%s)", label)
-		}
-	}
-}
-
-func TestApplyRejectionDoesNotCreateAStore(t *testing.T) {
-	newRepo(t)
-	path := storePath(t)
-	if code := apply(t, `{"comments":[{"filePath":"../out.txt","newLine":1,"summary":"bad"}]}`); code == 0 {
-		t.Fatal("apply accepted an escaping path")
-	}
-	if _, err := os.Stat(path); err == nil {
-		t.Fatalf("a rejected batch created a store at %s", path)
-	}
-}
 
 func TestZeroByteStoreIsNotAbsorbing(t *testing.T) {
 	newRepo(t)
@@ -669,7 +558,7 @@ func TestListJSONCarriesTheSameKeysWithNoStore(t *testing.T) {
 	if err := json.Unmarshal([]byte(out), &doc); err != nil {
 		t.Fatalf("not valid JSON: %v", err)
 	}
-	for _, key := range []string{"version", "repo", "notes"} {
+	for _, key := range []string{"version", "notes"} {
 		if _, ok := doc[key]; !ok {
 			t.Errorf("list --json on an absent store is missing %q", key)
 		}
@@ -694,7 +583,7 @@ func TestListFiltersByFile(t *testing.T) {
 	if err := json.Unmarshal([]byte(out), &doc); err != nil {
 		t.Fatal(err)
 	}
-	if len(doc.Notes) != 1 || doc.Notes[0]["file"] != "README.md" {
+	if len(doc.Notes) != 1 || doc.Notes[0]["file"] != filepath.Join(root, "README.md") {
 		t.Fatalf("expected only the README note, got %v", doc.Notes)
 	}
 }
@@ -741,5 +630,61 @@ func TestUnknownSubcommandFails(t *testing.T) {
 	}
 	if code, _ := run(t, "add", "--nope", "x"); code == 0 {
 		t.Fatal("an unknown add argument exited zero")
+	}
+}
+
+// The reason the record is keyed by absolute path: work spanning several
+// repositories has to read back as one list, from anywhere, including from a
+// directory that is not a repository at all.
+func TestNotesSpanRepositories(t *testing.T) {
+	first := newRepo(t)
+	state := os.Getenv("XDG_STATE_HOME")
+	mustAdd(t, "--file", "src/app.ts", "--line", "1", "--summary", "in the first repo")
+
+	second := t.TempDir()
+	resolved, err := filepath.EvalSymlinks(second)
+	if err != nil {
+		t.Fatal(err)
+	}
+	cmd := exec.Command("git", "init", "--quiet", "-b", "main")
+	cmd.Dir = resolved
+	if out, err := cmd.CombinedOutput(); err != nil {
+		t.Fatalf("git init: %v: %s", err, out)
+	}
+	if err := os.WriteFile(filepath.Join(resolved, "other.go"), []byte("alpha\nbeta\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+
+	// Same record, because the state home is what locates it, not the repository.
+	t.Setenv("XDG_STATE_HOME", state)
+	t.Chdir(resolved)
+	mustAdd(t, "--file", "other.go", "--line", "2", "--summary", "in the second repo")
+
+	found := notes(t)
+	if len(found) != 2 {
+		t.Fatalf("expected both repositories' notes, got %d", len(found))
+	}
+	want := map[string]bool{
+		filepath.Join(first, "src", "app.ts"): false,
+		filepath.Join(resolved, "other.go"):   false,
+	}
+	for _, note := range found {
+		path, _ := note["file"].(string)
+		if _, ok := want[path]; !ok {
+			t.Fatalf("a note names %q, which is neither repository", path)
+		}
+		want[path] = true
+	}
+	for path, seen := range want {
+		if !seen {
+			t.Errorf("no note came back for %s", path)
+		}
+	}
+
+	// And from a directory that is not a repository, where the old per-repo
+	// record could not even be located.
+	t.Chdir(t.TempDir())
+	if len(notes(t)) != 2 {
+		t.Error("listing from outside any repository lost notes")
 	}
 }

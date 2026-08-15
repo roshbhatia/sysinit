@@ -13,8 +13,6 @@ import (
 	"github.com/roshbhatia/sysinit/pkgs/utils/internal/paths"
 )
 
-var ErrOutsideRoot = errors.New("path is not inside the repository")
-
 func Root() (string, error) {
 	return RootAt("")
 }
@@ -49,18 +47,6 @@ func filterEnv(env []string, drop ...string) []string {
 		}
 	}
 	return kept
-}
-
-func NoteFile(root string) string {
-	return noteBase(root) + ".json"
-}
-
-func ExportFile(root string) string {
-	return noteBase(root) + ".hunk.json"
-}
-
-func noteBase(root string) string {
-	return keyed(paths.AgentDiffNotes(), root)
 }
 
 func EditLogFile(root string) string {
@@ -120,65 +106,4 @@ func Workspace(dir string) string {
 		return root
 	}
 	return dir
-}
-
-func normalizeAbsolute(path string) (string, error) {
-	rest := strings.TrimPrefix(path, "/")
-	result := ""
-	for rest != "" {
-		var segment string
-		if i := strings.Index(rest, "/"); i < 0 {
-			segment, rest = rest, ""
-		} else {
-			segment, rest = rest[:i], rest[i+1:]
-		}
-		switch segment {
-		case "", ".":
-		case "..":
-			if result == "" {
-				return "", ErrOutsideRoot
-			}
-			result = result[:strings.LastIndex(result, "/")]
-		default:
-			result += "/" + segment
-		}
-	}
-	if result == "" {
-		return "/", nil
-	}
-	return result, nil
-}
-
-func physicalWD() (string, error) {
-	wd, err := os.Getwd()
-	if err != nil {
-		return "", err
-	}
-	resolved, err := filepath.EvalSymlinks(wd)
-	if err != nil {
-		return wd, nil
-	}
-	return resolved, nil
-}
-
-func RelativeToRoot(root, path string) (string, error) {
-	absolute := path
-	if !strings.HasPrefix(path, "/") {
-		base, err := physicalWD()
-		if err != nil {
-			return "", err
-		}
-		absolute = base + "/" + path
-	}
-	normalized, err := normalizeAbsolute(absolute)
-	if err != nil {
-		return "", err
-	}
-	if normalized == root {
-		return "", ErrOutsideRoot
-	}
-	if !strings.HasPrefix(normalized, root+"/") {
-		return "", ErrOutsideRoot
-	}
-	return strings.TrimPrefix(normalized, root+"/"), nil
 }

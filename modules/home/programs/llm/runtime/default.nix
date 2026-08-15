@@ -166,17 +166,6 @@ let
     text = paths + "\n" + busyPanes + "\n" + builtins.readFile ./agent-review.sh;
   };
 
-  noteReview = pkgs.writeShellApplication {
-    name = "review";
-    runtimeInputs = [
-      pkgs.coreutils
-      pkgs.git
-      pkgs.hunk
-      pkgs.sysinit-utils
-    ];
-    text = builtins.readFile ./review.sh;
-  };
-
   specPreflight = pkgs.writeShellApplication {
     name = "spec-preflight";
     runtimeInputs = [
@@ -237,7 +226,6 @@ in
     reviewScript
     sessionsScript
     syGate
-    noteReview
     agentRefine
     specPreflight
     ;
@@ -247,7 +235,6 @@ in
   focusExe = lib.getExe focusScript;
   reviewExe = lib.getExe reviewScript;
   sessionsExe = lib.getExe sessionsScript;
-  noteReviewExe = lib.getExe noteReview;
 
   iconFiles = lib.listToAttrs (
     map (

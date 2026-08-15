@@ -72,11 +72,6 @@
       flake = false;
     };
 
-    hunk = {
-      url = "github:modem-dev/hunk";
-      inputs.nixpkgs.url = "github:NixOS/nixpkgs/549bd84d6279f9852cae6225e372cc67fb91a4c1";
-    };
-
     hermes-agent = {
       url = "github:NousResearch/hermes-agent";
       inputs.nixpkgs.url = "github:NixOS/nixpkgs/0954f7ee2f6bb3dc7d4e3d0d8bcb8fd4bde4cfc5";

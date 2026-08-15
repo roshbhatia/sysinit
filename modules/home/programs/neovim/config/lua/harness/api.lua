@@ -159,9 +159,6 @@ function M.review_close()
   pcall(function()
     require("harness.review").close()
   end)
-  pcall(function()
-    require("harness.notes").detach()
-  end)
 end
 
 ---@return string[]

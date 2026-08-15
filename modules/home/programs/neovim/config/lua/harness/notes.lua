@@ -5,11 +5,11 @@ M.tool = "utils"
 local ns = vim.api.nvim_create_namespace("harness_agent_notes")
 local augroup = "harness_agent_notes"
 
----@type table<string, table<string, table[]>>
-local by_root = {}
-
----@type string[]
-local roots = {}
+-- A note is addressed by the absolute path of the file it annotates, which is
+-- the same key the record uses. There is no repository or workspace to resolve,
+-- so one repository and a folder holding several read through one code path.
+---@type table<string, table[]>
+local by_file = {}
 
 local shown = true
 
@@ -124,18 +124,6 @@ local function render(note)
   return text
 end
 
----@param path string
----@return string|nil root
----@return string|nil relative
-local function owner(path)
-  for _, root in ipairs(roots) do
-    if path:sub(1, #root + 1) == root .. "/" then
-      return root, path:sub(#root + 2)
-    end
-  end
-  return nil, nil
-end
-
 ---@param bufnr number
 ---@return string|nil
 local function file_of(bufnr)
@@ -149,20 +137,22 @@ local function file_of(bufnr)
   return vim.fs.normalize(name)
 end
 
+---@param path string
+---@return table[]
+function M.for_file(path)
+  return by_file[vim.fs.normalize(path)] or {}
+end
+
 ---@param bufnr number
 ---@return table[]
 local function notes_for(bufnr)
   local path = file_of(bufnr)
-  if path == nil then
-    return {}
-  end
-  local root, relative = owner(path)
-  if root == nil then
-    return {}
-  end
-  return (by_root[root] or {})[relative] or {}
+  return path and M.for_file(path) or {}
 end
 
+-- The extmark carries the note after it is placed, so a note stays on its line
+-- while the buffer is edited. The record is re-read only on refresh, and the
+-- writer re-anchors on the line's own text, so the two never fight.
 ---@param bufnr number
 function M.place(bufnr)
   local path = file_of(bufnr)
@@ -173,7 +163,7 @@ function M.place(bufnr)
   if not shown then
     return
   end
-  local notes = notes_for(bufnr)
+  local notes = M.for_file(path)
   if #notes == 0 then
     return
   end
@@ -201,33 +191,32 @@ local function announce()
   pcall(vim.cmd.redrawstatus, { bang = true })
 end
 
----@param root string
 ---@param done? fun(count: integer)
-local function load(root, done)
+function M.refresh(done)
   if vim.fn.executable(M.tool) ~= 1 then
-    by_root[root] = {}
+    by_file = {}
     if done then
       done(0)
     end
     return
   end
-  vim.system({ M.tool, "note", "list", "--json" }, { cwd = root, text = true }, function(result)
-    local notes = {}
-    local count = 0
+  vim.system({ M.tool, "note", "list", "--json" }, { text = true }, function(result)
+    local found, count = {}, 0
     if result.code == 0 and result.stdout and result.stdout ~= "" then
       local ok, doc = pcall(vim.json.decode, result.stdout)
       if ok and type(doc) == "table" and type(doc.notes) == "table" then
         for _, note in ipairs(doc.notes) do
           if type(note) == "table" and type(note.file) == "string" then
-            notes[note.file] = notes[note.file] or {}
-            table.insert(notes[note.file], note)
+            local path = vim.fs.normalize(note.file)
+            found[path] = found[path] or {}
+            table.insert(found[path], note)
             count = count + 1
           end
         end
       end
     end
     vim.schedule(function()
-      by_root[root] = notes
+      by_file = found
       for _, bufnr in ipairs(vim.api.nvim_list_bufs()) do
         M.place(bufnr)
       end
@@ -239,101 +228,15 @@ local function load(root, done)
   end)
 end
 
-local function order_roots()
-  table.sort(roots, function(a, b)
-    return #a > #b
-  end)
-end
-
----@param path string
-local function ensure(path)
-  if owner(path) ~= nil then
-    return
-  end
-  local root = vim.fs.root(path, ".git")
-  if root == nil then
-    return
-  end
-  root = vim.fs.normalize(root)
-  if by_root[root] ~= nil then
-    return
-  end
-  by_root[root] = {}
-  table.insert(roots, root)
-  order_roots()
-  load(root)
-end
-
 function M.setup()
   local group = vim.api.nvim_create_augroup(augroup, { clear = true })
   vim.api.nvim_create_autocmd({ "BufWinEnter", "BufReadPost" }, {
     group = group,
     callback = function(args)
-      local path = file_of(args.buf)
-      if path == nil then
-        return
-      end
-      ensure(path)
       M.place(args.buf)
     end,
   })
-end
-
----@param review_roots string[]
----@param on_ready? fun(count: integer)
-function M.attach(review_roots, on_ready)
-  roots = vim.deepcopy(review_roots)
-  for index, root in ipairs(roots) do
-    roots[index] = vim.fs.normalize(root)
-  end
-  order_roots()
-  by_root = {}
-
-  local pending = #roots
-  local total = 0
-  if pending == 0 then
-    if on_ready then
-      on_ready(0)
-    end
-    return
-  end
-  for _, root in ipairs(roots) do
-    load(root, function(count)
-      total = total + count
-      pending = pending - 1
-      if pending == 0 and on_ready then
-        on_ready(total)
-      end
-    end)
-  end
-end
-
----@param on_ready? fun(count: integer)
-function M.refresh(on_ready)
-  if #roots == 0 then
-    if on_ready then
-      on_ready(0)
-    end
-    return
-  end
-  M.attach(roots, on_ready)
-end
-
-function M.detach()
-  for _, bufnr in ipairs(vim.api.nvim_list_bufs()) do
-    if vim.api.nvim_buf_is_valid(bufnr) then
-      pcall(vim.api.nvim_buf_clear_namespace, bufnr, ns, 0, -1)
-    end
-  end
-  by_root = {}
-  roots = {}
-  for _, bufnr in ipairs(vim.api.nvim_list_bufs()) do
-    local path = file_of(bufnr)
-    if path then
-      ensure(path)
-    end
-  end
-  announce()
+  M.refresh()
 end
 
 function M.toggle()
@@ -364,41 +267,25 @@ local function email(root)
   return emails[root]
 end
 
----@return string[]
-function M.project_roots()
-  if #roots > 0 then
-    return vim.deepcopy(roots)
-  end
-  local path = file_of(vim.api.nvim_get_current_buf())
-  local root = path and vim.fs.root(path, ".git")
-  return root and { vim.fs.normalize(root) } or {}
+---@param path string
+---@return string|nil
+local function repo_of(path)
+  local root = vim.fs.root(path, ".git")
+  return root and vim.fs.normalize(root) or nil
 end
 
----@return string|nil root
----@return string|nil path
+---@return string|nil
 local function here()
-  local buf = vim.api.nvim_get_current_buf()
-  local path = file_of(buf)
+  local path = file_of(vim.api.nvim_get_current_buf())
   if path == nil then
     vim.notify("Notes: this window holds no file to annotate", vim.log.levels.WARN)
-    return nil, nil
   end
-  local root = owner(path)
-  if root == nil then
-    root = vim.fs.root(path, ".git")
-    if root == nil then
-      vim.notify("Notes: " .. path .. " is in no repository", vim.log.levels.WARN)
-      return nil, nil
-    end
-    root = vim.fs.normalize(root)
-  end
-  return root, path
+  return path
 end
 
----@param root string
 ---@param jobs string[][]
 ---@param said_done string
-local function write(root, jobs, said_done)
+local function write(jobs, said_done)
   if vim.fn.executable(M.tool) ~= 1 then
     vim.notify("Notes: " .. M.tool .. " is not on PATH", vim.log.levels.ERROR)
     return
@@ -407,19 +294,14 @@ local function write(root, jobs, said_done)
   local function next_job()
     at = at + 1
     if at > #jobs then
-      if by_root[root] == nil then
-        by_root[root] = {}
-        table.insert(roots, root)
-        order_roots()
-      end
-      load(root)
+      M.refresh()
       if said_done ~= "" then
         vim.notify(said_done, vim.log.levels.INFO)
       end
       return
     end
     local args = vim.list_extend({ M.tool, "note" }, jobs[at])
-    vim.system(args, { cwd = root, text = true }, function(result)
+    vim.system(args, { text = true }, function(result)
       vim.schedule(function()
         if result.code ~= 0 then
           vim.notify("Notes: " .. (result.stderr or "the write failed"), vim.log.levels.ERROR)
@@ -433,37 +315,25 @@ local function write(root, jobs, said_done)
 end
 
 function M.add()
-  local root, path = here()
-  if root == nil then
+  local path = here()
+  if path == nil then
     return
   end
   local line = vim.api.nvim_win_get_cursor(0)[1]
+  local author = email(repo_of(path) or vim.fs.dirname(path))
 
   vim.ui.input({ prompt = string.format("Note on %s:%d: ", vim.fn.fnamemodify(path, ":t"), line) }, function(summary)
     if summary == nil or summary == "" then
       return
     end
-    write(root, {
-      {
-        "add",
-        "--file",
-        path,
-        "--line",
-        tostring(line),
-        "--summary",
-        summary,
-        "--author",
-        email(root),
-        "--origin",
-        "user",
-      },
+    write({
+      { "add", "--file", path, "--line", tostring(line), "--summary", summary, "--author", author, "--origin", "user" },
     }, "")
   end)
 end
 
 function M.remove_line()
-  local root = here()
-  if root == nil then
+  if here() == nil then
     return
   end
   local line = vim.api.nvim_win_get_cursor(0)[1]
@@ -477,63 +347,51 @@ function M.remove_line()
     vim.notify("Notes: nothing noted on line " .. line, vim.log.levels.INFO)
     return
   end
-  write(root, jobs, string.format("Notes: removed %d on line %d", #jobs, line))
+  write(jobs, string.format("Notes: removed %d on line %d", #jobs, line))
 end
 
 function M.remove_file()
-  local root, path = here()
-  if root == nil then
+  local path = here()
+  if path == nil then
     return
   end
-  local count = #notes_for(vim.api.nvim_get_current_buf())
+  local short = vim.fn.fnamemodify(path, ":t")
+  local count = #M.for_file(path)
   if count == 0 then
-    vim.notify("Notes: nothing noted in " .. vim.fn.fnamemodify(path, ":t"), vim.log.levels.INFO)
+    vim.notify("Notes: nothing noted in " .. short, vim.log.levels.INFO)
     return
   end
-  local ask = string.format("Remove %d note(s) in %s?", count, vim.fn.fnamemodify(path, ":t"))
-  if vim.fn.confirm(ask, "&Yes\n&No", 2) ~= 1 then
+  if vim.fn.confirm(string.format("Remove %d note(s) in %s?", count, short), "&Yes\n&No", 2) ~= 1 then
     return
   end
-  write(
-    root,
-    { { "clear", "--file", path } },
-    string.format("Notes: removed %d in %s", count, vim.fn.fnamemodify(path, ":t"))
-  )
+  write({ { "clear", "--file", path } }, string.format("Notes: removed %d in %s", count, short))
 end
 
-function M.remove_project()
-  local covered = M.project_roots()
-  if #covered == 0 then
-    vim.notify("Notes: this project has no repository loaded", vim.log.levels.WARN)
-    return
-  end
+function M.remove_all()
   local count = M.count()
   if count == 0 then
-    vim.notify("Notes: this project carries none", vim.log.levels.INFO)
+    vim.notify("Notes: there are none", vim.log.levels.INFO)
     return
   end
-  local ask = string.format("Remove all %d note(s) across %d repositor(y/ies)?", count, #covered)
-  if vim.fn.confirm(ask, "&Yes\n&No", 2) ~= 1 then
+  if vim.fn.confirm(string.format("Remove all %d note(s), in every repository?", count), "&Yes\n&No", 2) ~= 1 then
     return
   end
-  for _, root in ipairs(covered) do
-    write(root, { { "clear", "--yes" } }, "")
-  end
-  vim.notify(string.format("Notes: removed %d across the project", count), vim.log.levels.INFO)
+  write({ { "clear", "--yes" } }, string.format("Notes: removed all %d", count))
 end
 
+-- Every note, newest repository grouping computed from the file's own git root
+-- so a reader can label a row without the note carrying a repository key.
 ---@return table[]
 function M.all()
   local found = {}
-  for _, root in ipairs(roots) do
-    for relative, notes in pairs(by_root[root] or {}) do
-      for _, note in ipairs(notes) do
-        found[#found + 1] = vim.tbl_extend("keep", {
-          root = root,
-          relative = relative,
-          path = root .. "/" .. relative,
-        }, note)
-      end
+  for path, notes in pairs(by_file) do
+    local root = repo_of(path)
+    for _, note in ipairs(notes) do
+      found[#found + 1] = vim.tbl_extend("keep", {
+        path = path,
+        root = root or vim.fs.dirname(path),
+        relative = root and path:sub(#root + 2) or path,
+      }, note)
     end
   end
   table.sort(found, function(a, b)
@@ -548,9 +406,12 @@ end
 ---@param root string
 ---@return table<string, integer>
 function M.files_in(root)
+  root = vim.fs.normalize(root)
   local counts = {}
-  for relative, notes in pairs(by_root[root] or {}) do
-    counts[relative] = #notes
+  for path, notes in pairs(by_file) do
+    if path:sub(1, #root + 1) == root .. "/" then
+      counts[path:sub(#root + 2)] = #notes
+    end
   end
   return counts
 end
@@ -558,10 +419,8 @@ end
 ---@return integer
 function M.count()
   local total = 0
-  for _, files in pairs(by_root) do
-    for _, notes in pairs(files) do
-      total = total + #notes
-    end
+  for _, notes in pairs(by_file) do
+    total = total + #notes
   end
   return total
 end

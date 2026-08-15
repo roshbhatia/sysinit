@@ -122,9 +122,9 @@ return {
       {
         "<leader>dnX",
         function()
-          require("harness.notes").remove_project()
+          require("harness.notes").remove_all()
         end,
-        desc = "Notes: remove every one in this project",
+        desc = "Notes: remove every one, in every repository",
       },
       {
         "<leader>dnq",

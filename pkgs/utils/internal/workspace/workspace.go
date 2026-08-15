@@ -2,6 +2,7 @@ package workspace
 
 import (
 	"bufio"
+	"encoding/json"
 	"fmt"
 	"io"
 	"os"
@@ -45,6 +46,18 @@ func takeCount(args []string, count *int) ([]string, int) {
 	return rest, 0
 }
 
+func takeJSON(args []string, asJSON *bool) []string {
+	rest := make([]string, 0, len(args))
+	for _, arg := range args {
+		if arg == "--json" {
+			*asJSON = true
+			continue
+		}
+		rest = append(rest, arg)
+	}
+	return rest
+}
+
 func readRoots(r io.Reader) []string {
 	var roots []string
 	scanner := bufio.NewScanner(r)
@@ -78,6 +91,13 @@ func Run(args []string) int {
 	rest, usageCode := takeCount(rest, &count)
 	if usageCode != 0 {
 		return usageCode
+	}
+
+	asJSON := false
+	rest = takeJSON(rest, &asJSON)
+	if asJSON && action != "changes" {
+		fmt.Fprintf(os.Stderr, "workspace: --json is only for changes, not %s\n", action)
+		return 2
 	}
 
 	fromStdin := len(rest) == 1 && rest[0] == "-"
@@ -129,9 +149,44 @@ func Run(args []string) int {
 		return 0
 	}
 
-	for _, group := range groups {
-		writeLines(out, group.Files)
+	if asJSON {
+		return writeReport(out, dir, roots, groups)
 	}
+
+	for _, group := range groups {
+		for _, file := range group.Files {
+			fmt.Fprintln(out, file.Path)
+		}
+	}
+	return 0
+}
+
+// Everything a reader needs to draw one list over several repositories: the
+// workspace it read, every root under it, and the changed files grouped by root.
+type Report struct {
+	Workspace string   `json:"workspace"`
+	Roots     []string `json:"roots"`
+	Groups    []Group  `json:"groups"`
+}
+
+func writeReport(w io.Writer, dir string, roots []string, groups []Group) int {
+	report := Report{Roots: roots, Groups: groups}
+	if dir != "" {
+		report.Workspace = repo.Workspace(dir)
+	}
+	if report.Roots == nil {
+		report.Roots = []string{}
+	}
+	if report.Groups == nil {
+		report.Groups = []Group{}
+	}
+
+	body, err := json.Marshal(report)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "workspace: %v\n", err)
+		return 1
+	}
+	fmt.Fprintf(w, "%s\n", body)
 	return 0
 }
 
@@ -157,6 +212,7 @@ func usage(w io.Writer) {
 Usage:
   ws roots   [dir]        repository roots, one absolute path per line
   ws changes [dir|-]      changed paths in those repositories
+  ws changes --json [dir] the same changes as one object, grouped by root
   ws log     [dir|-] [-n] recent commits, as root, sha, short sha, parent, subject
   ws health  [dir]        what this layer sees, as key=value lines
 
@@ -168,6 +224,10 @@ is the same rule the edit-event log is keyed on.
   ws roots | ws log -n 5 -
 
 log writes tab-separated fields, and -n bounds the commits per repository (10).
+
+`+"`--json`"+` writes {workspace, roots, groups}, where a group is a root and its
+changed files, each carrying git's two-character porcelain status. It is one call
+for a reader that draws every repository's changes in a single list.
 
 Exits 0 with no output when there is nothing to report, 1 when git fails, and 2 on
 a usage error.
@@ -305,9 +365,16 @@ func logIn(root string, count int) []Commit {
 	return commits
 }
 
+// A changed path, carrying git's own two-character porcelain code rather than a
+// word of our own, so a reader maps it once and never has to guess what we meant.
+type File struct {
+	Path   string `json:"path"`
+	Status string `json:"status"`
+}
+
 type Group struct {
-	Root  string
-	Files []string
+	Root  string `json:"root"`
+	Files []File `json:"files"`
 }
 
 func Changes(roots []string) []Group {
@@ -346,7 +413,7 @@ func nested(root string, roots []string) []string {
 	return inside
 }
 
-func changedIn(root string, exclude []string) []string {
+func changedIn(root string, exclude []string) []File {
 	args := []string{"-C", root, "status", "--porcelain", "--untracked-files=all", "-z", "--"}
 	args = append(args, ".")
 	for _, path := range exclude {
@@ -360,20 +427,20 @@ func changedIn(root string, exclude []string) []string {
 		return nil
 	}
 
-	var files []string
+	var files []File
 	records := strings.Split(string(out), "\x00")
 	for i := 0; i < len(records); i++ {
 		record := records[i]
 		if len(record) < 4 || record[2] != ' ' {
 			continue
 		}
-		files = append(files, filepath.Join(root, record[3:]))
+		files = append(files, File{Path: filepath.Join(root, record[3:]), Status: record[:2]})
 		if record[0] == 'R' || record[0] == 'C' {
 			i++
 		}
 	}
 
-	sort.Strings(files)
+	sort.Slice(files, func(a, b int) bool { return files[a].Path < files[b].Path })
 	return files
 }
 

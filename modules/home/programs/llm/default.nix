@@ -258,7 +258,6 @@ in
       notify.reviewScript
       notify.sessionsScript
       notify.syGate
-      notify.noteReview
     ];
   };
 
