@@ -12,4 +12,5 @@
     lib.concatStringsSep "\n" nonHeaderLines;
 
   inherit (import ./shell/aliases.nix) commonAliases;
+  aliases = (import ./shell/aliases.nix).allAliases;
 }
