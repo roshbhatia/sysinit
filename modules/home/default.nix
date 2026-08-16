@@ -14,6 +14,7 @@ in
   imports = [
     ../shared/options/paths.nix
     ../shared/options/profiles.nix
+    ./codesign.nix
     ./programs
     ./packages.nix
   ];

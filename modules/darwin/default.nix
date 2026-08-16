@@ -10,6 +10,7 @@
     ./aerospace.nix
     ./clamshell.nix
     ./borders.nix
+    ./codesign.nix
     ./desktop.nix
     ./homebrew.nix
     ./keybindings.nix
