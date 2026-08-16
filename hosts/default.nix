@@ -45,7 +45,9 @@ let
 
 in
 {
-  lv426 = darwinHost personal { };
+  lv426 = darwinHost personal {
+    theme.base16Scheme = "rose-pine";
+  };
 
   arrakis = {
     system = "x86_64-linux";
