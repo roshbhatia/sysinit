@@ -35,4 +35,10 @@ in
 
   services.jankyborders.package = lib.mkForce (stable "borders" pkgs.jankyborders);
   services.sketchybar.package = lib.mkForce (stable "sketchybar" pkgs.sketchybar);
+
+  # Runs last, after nix-darwin has rewritten /Applications/Nix Apps from the
+  # store and dropped whatever signature was on it.
+  system.activationScripts.postActivation.text = ''
+    ${lib.getExe config.home-manager.users.${user}.sysinit.codesign.package} system || true
+  '';
 }

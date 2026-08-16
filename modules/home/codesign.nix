@@ -26,7 +26,14 @@ let
       SIGNED_BIN=${lib.escapeShellArg signedBinDir}
       IDENTITY=${lib.escapeShellArg paths.identity}
 
-      mkdir -p "$(dirname "$PW_FILE")" "$SIGNED_BIN"
+      # nix-darwin rewrites /Applications/Nix Apps from the store after
+      # home-manager has run, which drops any signature written before it. Root
+      # signs that directory afterwards, in system mode.
+      MODE="''${1:-user}"
+
+      if [ "$MODE" = "user" ]; then
+        mkdir -p "$(dirname "$PW_FILE")" "$SIGNED_BIN"
+      fi
 
       # The certificate lasts 20 years. Replacing it invalidates every grant it
       # ever earned, so the whole script is written to never re-create one that
@@ -68,7 +75,14 @@ let
         security list-keychains -d user -s $(security list-keychains -d user | tr -d ' "') "$KEYCHAIN"
       }
 
-      ensure_identity
+      # Only the owner creates the identity. Root would create it owned by root,
+      # and the user could then never unlock it.
+      if [ "$MODE" = "user" ]; then
+        ensure_identity
+      elif [ ! -f "$PW_FILE" ]; then
+        echo "sysinit-codesign: no identity yet; the next switch signs these" >&2
+        exit 0
+      fi
       security unlock-keychain -p "$(cat "$PW_FILE")" "$KEYCHAIN"
 
       LEAF="$(security find-identity -v -p codesigning "$KEYCHAIN" \
@@ -118,19 +132,16 @@ let
         sign "$dest"
       }
 
+      if [ "$MODE" = "system" ]; then
+        for app in "/Applications/Nix Apps"/*.app; do
+          sign_app "$app"
+        done
+        exit 0
+      fi
+
       for app in "$HOME/Applications/Home Manager Apps"/*.app; do
         sign_app "$app"
       done
-
-      # /Applications/Nix Apps is a root-owned copy that nix-darwin rewrites on
-      # every switch. Skip rather than prompt when sudo needs a password.
-      if sudo -n true 2>/dev/null; then
-        for app in "/Applications/Nix Apps"/*.app; do
-          sign_app "$app" "sudo -n"
-        done
-      else
-        echo "sysinit-codesign: sudo needs a password; left /Applications/Nix Apps unsigned" >&2
-      fi
 
       ${lib.concatMapStringsSep "\n" (name: ''
         stage ${lib.escapeShellArg name} ${lib.escapeShellArg cfg.binaries.${name}}
@@ -160,6 +171,13 @@ in
       readOnly = true;
       default = signedBinDir;
       description = "Where the staged, signed copies live. Point launchd here.";
+    };
+
+    package = lib.mkOption {
+      type = lib.types.package;
+      readOnly = true;
+      default = signer;
+      description = "The signer. Run it with `system` from a root activation step.";
     };
   };
 
