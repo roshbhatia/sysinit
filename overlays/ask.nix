@@ -15,11 +15,11 @@ final: _prev: {
 
       vendorHash = "sha256-GTJxlZNc+yfQN9RncGWfAKfoSmVasKgyS6ycCy7nDZU=";
 
-      # There are no tests to run. This package is first-party and absent from
-      # nixpkgs, so Hydra never caches it and skipping the check phase costs
-      # nothing: the cache concern in AGENTS.md applies to overridden nixpkgs
-      # derivations, not to this one.
-      doCheck = false;
+      # pkgs/ask/wrappers_test.go asserts that wrappers.txt still matches the
+      # provider registry the binary dispatches on, so the build is what catches
+      # a provider added without its `_xxx` symlink. The tests take under a
+      # second.
+      doCheck = true;
 
       nativeBuildInputs = [ final.installShellFiles ];
 

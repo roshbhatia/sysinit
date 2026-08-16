@@ -43,8 +43,9 @@ the settings. With none of them it opens a picker.
   %[1]s --list-config
 
 The short names are wrappers on PATH: _cld is claude, _cdx is codex, and a
-trailing j asks for JSON, so _cldj is claude with --json. Bare _ picks the agent
-the settings name.
+trailing j asks for JSON, so _cldj is claude with --json. Bare _ and _j name no
+agent, so they run whichever $ASK_PROVIDER or the settings name; %[1]s --list-config
+prints which one that is and where it came from.
 
 Both agents answer --json and --schema in the shape asked for, and a run that
 answers outside it is reported as a failure.`
@@ -184,6 +185,22 @@ func pairs(typed string) []string {
 	return nil
 }
 
+// source names the agent that will run and which of the four ways named it. The
+// settings file is the last of the four, so --set-config can report a value that
+// nothing reads; this is what lets the settings output say so.
+func source() (named string, from string) {
+	if short, _, _ := wrapper(called()); short != "" {
+		return short, "the name it was called by"
+	}
+	if named := os.Getenv("ASK_PROVIDER"); named != "" {
+		return named, "$ASK_PROVIDER"
+	}
+	if settled, err := config.Get(config.ProviderDefault); err == nil && settled != "" {
+		return settled, config.ProviderDefault
+	}
+	return "", ""
+}
+
 // chosen walks the ways to name an agent, most explicit first, and asks only when
 // none of them says anything.
 func chosen(opts options) (provider.Provider, error) {
@@ -203,7 +220,7 @@ func chosen(opts options) (provider.Provider, error) {
 	}
 
 	if !term.IsTerminal(int(os.Stderr.Fd())) {
-		return nil, fmt.Errorf("say which agent to run with -p, or set %s", config.ProviderDefault)
+		return nil, fmt.Errorf("say which agent to run with -p, set $ASK_PROVIDER, or set %s", config.ProviderDefault)
 	}
 	picked, err := ui.Pick(provider.Known())
 	if err != nil {
@@ -254,6 +271,9 @@ func settings(opts options) (bool, error) {
 			return true, nil
 		}
 		fmt.Printf("%s=%s\n", key, value)
+		if outer := os.Getenv("ASK_PROVIDER"); key == config.ProviderDefault && outer != "" {
+			fmt.Fprintf(os.Stderr, "note: $ASK_PROVIDER=%s outranks %s, so nothing reads this until that is unset\n", outer, key)
+		}
 		return true, nil
 	case opts.getConfig != "":
 		value, err := config.Get(opts.getConfig)
@@ -269,6 +289,9 @@ func settings(opts options) (bool, error) {
 		}
 		for _, line := range lines {
 			fmt.Println(line)
+		}
+		if named, from := source(); named != "" {
+			fmt.Printf("\neffective provider: %s (from %s)\n", named, from)
 		}
 		return true, nil
 	}
