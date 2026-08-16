@@ -235,6 +235,15 @@ in
               }
             ];
           }
+          {
+            matcher = "Edit|Write|MultiEdit";
+            hooks = [
+              {
+                type = "command";
+                command = "${profileBin}/lint-gate";
+              }
+            ];
+          }
         ];
         SessionStart = [
           {

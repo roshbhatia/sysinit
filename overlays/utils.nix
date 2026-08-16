@@ -11,6 +11,7 @@ final: _prev: {
         "citelock"
         "exit-code-guard"
         "firefox-tabs"
+        "lint-gate"
         "loop-gate"
         "nix-guard"
         "note"
