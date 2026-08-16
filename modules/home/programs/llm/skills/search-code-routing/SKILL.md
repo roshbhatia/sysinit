@@ -1,5 +1,5 @@
 ---
-description: Decides which code-search tool a query needs, in preference order: `ast-grep outline` to map structure before reading (mainstream languages only, silent on Nix and Lua), `ast-grep`/`sg` for code shapes in any language, `rg`/`grep`/Glob only for literal text, `gh search` for repos not cloned locally. Use when starting a search and the right tool is not obvious. Dispatches to the `ast-grep-outline` and `ast-grep` skills.
+description: Routes a code search to the right tool: `ast-grep outline` to map structure, `ast-grep`/`sg` for code shapes and for every find-and-replace that spans more than one site, `rg`/Glob for literal text, `gh search` for repos not cloned here. Use when starting a search, and whenever renaming or replacing a construct across files.
 allowed-tools: Bash(rg:*) Bash(grep:*) Bash(ast-grep:*) Bash(sg:*) Bash(gh:*) Read Glob
 model: haiku
 effort: low
@@ -12,11 +12,13 @@ Picking the right one per query is the whole skill. The default reflex of
 reaching for `grep` is usually wrong here: ast-grep is the preferred tool for
 finding code, and `rg` is the fallback for literal text.
 
-This skill routes. It does not teach ast-grep. Two upstream skills own that
-depth, and you should load them rather than guess at syntax:
+This skill routes. Two upstream skills own the pattern syntax, and you should
+load them rather than guess at it:
 
 - `ast-grep-outline` — how to read a structural map of files and directories
 - `ast-grep` — how to write ast-grep rules and patterns
+
+Neither upstream skill covers rewriting, so section 2a below owns that.
 
 ## Decision routing
 
@@ -30,6 +32,11 @@ Literal string, exact identifier, file path, or "every occurrence"?
     -> builtin: rg / grep / Glob / Read
 Across repos — org-wide, not cloned locally, prior art on GitHub?
     -> gh search (code / repos / issues / prs / commits)
+
+Replacing the same construct at two or more sites?
+    -> ast-grep -p ... -r ...   (section 2a below; never Edit site by site)
+Replacing one site, or a literal string?
+    -> Edit
 ```
 
 Order matters. Outline before reading a whole file, because it costs a fraction
@@ -83,6 +90,43 @@ Two surfaces, same engine: the **CLI** (`sg run` / `sg scan`; `sg` aliases
 `ast-grep`) for ad-hoc text output, and the **ast-grep MCP server** when you want
 structured tool output instead of parsing CLI text.
 
+## 2a. Find and replace — ast-grep drives it, not Edit
+
+A rename or a construct swap that touches two or more sites belongs to ast-grep.
+Edit is for one site. Editing site by site misses the wrapped occurrence, hits the
+one inside a comment, and costs one tool call per site.
+
+`-r/--rewrite` alone writes nothing. It prints a unified diff and exits, so it is
+the review step, and `-U` is the apply step:
+
+```bash
+# 1. preview — prints a diff, changes no file
+ast-grep run -p 'foo($A, $$$REST)' -r 'bar($A, $$$REST)' -l ts
+
+# 2. read every hunk it printed, then apply
+ast-grep run -p 'foo($A, $$$REST)' -r 'bar($A, $$$REST)' -l ts -U
+```
+
+Rules:
+
+- Always run step 1 and read its diff before step 2. `-U` writes every file with
+  no further output, so a pattern that was one metavariable too broad lands as a
+  silent multi-file change nothing shows you afterwards.
+- Never pass `-i/--interactive`. It waits on a keypress that no agent session can
+  send, and the command hangs.
+- Scope the run to a path when the pattern is general. Without one it walks the
+  whole tree.
+- A rewrite that cannot be written as a pattern, such as one that needs different
+  replacement text per site, is not a find-and-replace. Do those with Edit.
+
+```
+# good — the shape is the same at every site, the text differs
+ast-grep run -p 'lib.mkIf $C $B' -r 'lib.optionalAttrs $C $B' -l nix modules/
+
+# bad — regex over a code shape, then Edit per hit
+rg -l 'lib\.mkIf' | xargs ...     # misses wrapped args, hits comments and strings
+```
+
 ### Authoring a non-trivial pattern or rule — iterate, don't guess
 
 A pattern that misses is worse than no pattern: it reads as "no matches" when the
@@ -132,6 +176,6 @@ complete, and they see uncommitted work.
   pattern is the most common mistake; ast-grep for a literal string is the second.
 - `gh search` is for what is not in the working tree -> stay local for the current
   repo; gh search misses uncommitted changes and non-default branches.
-- ast-grep mutations are off-limits from an agent session: read-only `sg run` /
-  `sg scan` only. `sg --rewrite` / `--update-all` change files and are user-driven.
+- A multi-site replace goes through `-r` then `-U`, never through Edit per site.
+  Read the `-r` diff first: `-U` prints nothing and writes everything.
 - Need *all* occurrences of a token -> use grep; the ranking tools may cap results.
