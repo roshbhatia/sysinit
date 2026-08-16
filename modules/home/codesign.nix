@@ -107,6 +107,13 @@ let
         echo "sysinit-codesign: no identity yet; the next switch signs these" >&2
         exit 0
       fi
+      # codesign searches the calling user's own keychain list, and root's does
+      # not hold the owner's keychain. Append rather than replace: -s takes the
+      # whole list, so passing only ours would drop the login keychain.
+      if ! security list-keychains -d user | tr -d ' "' | grep -qx "$KEYCHAIN"; then
+        # shellcheck disable=SC2046
+        security list-keychains -d user -s $(security list-keychains -d user | tr -d ' "') "$KEYCHAIN"
+      fi
       security unlock-keychain -p "$(cat "$PW_FILE")" "$KEYCHAIN"
 
       LEAF="$(security find-identity -v -p codesigning "$KEYCHAIN" \
