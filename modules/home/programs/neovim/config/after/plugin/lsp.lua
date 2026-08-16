@@ -35,9 +35,19 @@ local servers = {
 
 vim.lsp.enable(servers)
 
-vim.schedule(function()
-  vim.lsp.inlay_hint.enable(true)
+-- diffview names its buffers diffview://<gitdir>/<rev>/<path> and sets the real
+-- filetype on them, so a server starts and is then asked about a path that does
+-- not exist on disk. nixd builds on clangd's LSP layer and answers
+--   -32602: ... clangd only supports 'file' URI scheme for workspace files
+-- on every inlay hint. The same holds for fugitive:// and any other scheme.
+local function on_disk(buf)
+  if vim.api.nvim_buf_get_name(buf) == "" then
+    return false
+  end
+  return vim.startswith(vim.uri_from_bufnr(buf), "file://")
+end
 
+vim.schedule(function()
   vim.diagnostic.config({
     severity_sort = true,
     virtual_text = false,
@@ -102,6 +112,17 @@ vim.schedule(function()
     callback = function(args)
       local bufnr = args.buf
       local client = vim.lsp.get_client_by_id(args.data.client_id)
+
+      -- Detach rather than only skipping the hints, so no request carries a
+      -- non-file URI. A read-only diff side has nothing for a server to do.
+      if not on_disk(bufnr) then
+        if client then
+          vim.lsp.buf_detach_client(bufnr, client.id)
+        end
+        return
+      end
+
+      vim.lsp.inlay_hint.enable(true, { bufnr = bufnr })
 
       if client and client.name == "eslint" then
         vim.api.nvim_create_autocmd("BufWritePre", {
