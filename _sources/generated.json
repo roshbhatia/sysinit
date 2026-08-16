@@ -8,11 +8,11 @@
         "pinned": false,
         "src": {
             "name": null,
-            "sha256": "sha256-LhrYCsD4xnDLvpmeAKu4YbTv2LtAGlI1tHf4IFIgDws=",
+            "sha256": "sha256-FAvZAs4LH1Nm5qWD8dtLb71RxtpNPvWq1rbmrDd8LAM=",
             "type": "url",
-            "url": "https://static.ampcode.com/cli/0.0.1786809683-g406e31/amp-darwin-arm64.gz"
+            "url": "https://static.ampcode.com/cli/0.0.1786838506-ge65dd2/amp-darwin-arm64.gz"
         },
-        "version": "0.0.1786809683-g406e31"
+        "version": "0.0.1786838506-ge65dd2"
     },
     "amp-cli-aarch64-linux": {
         "cargoLock": null,
@@ -23,11 +23,11 @@
         "pinned": false,
         "src": {
             "name": null,
-            "sha256": "sha256-XTfA9x9UTJ1ufW138wxmybJgfR2spJOYsU6TZryyg3M=",
+            "sha256": "sha256-qfGdftwT2+zAYjT+wg4WVmykOE3k9kQQHOhE7VLqGPg=",
             "type": "url",
-            "url": "https://static.ampcode.com/cli/0.0.1786809683-g406e31/amp-linux-arm64.gz"
+            "url": "https://static.ampcode.com/cli/0.0.1786838506-ge65dd2/amp-linux-arm64.gz"
         },
-        "version": "0.0.1786809683-g406e31"
+        "version": "0.0.1786838506-ge65dd2"
     },
     "amp-cli-x86_64-linux": {
         "cargoLock": null,
@@ -38,11 +38,11 @@
         "pinned": false,
         "src": {
             "name": null,
-            "sha256": "sha256-Dxjw78GgFgziS1hPsXaNRX2Kn8TVBbQrSSBsqwJrFr8=",
+            "sha256": "sha256-awwm6SovC8x/O/q+2yOW/cYl5n3pLnBboQsvU1QjS/g=",
             "type": "url",
-            "url": "https://static.ampcode.com/cli/0.0.1786809683-g406e31/amp-linux-x64-baseline.gz"
+            "url": "https://static.ampcode.com/cli/0.0.1786838506-ge65dd2/amp-linux-x64-baseline.gz"
         },
-        "version": "0.0.1786809683-g406e31"
+        "version": "0.0.1786838506-ge65dd2"
     },
     "atomic-coding-agent": {
         "cargoLock": null,
