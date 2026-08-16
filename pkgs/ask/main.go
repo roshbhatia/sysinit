@@ -57,6 +57,12 @@ cost more than asking. With a terminal it asks and waits, up to three times. Wit
 no terminal it prints the question and exits 3, so a script can tell a question
 from a failure.
 
+Press tab after --schema and the shell writes the spec for you: a whole example
+when nothing is typed, and the list of types after a name and a colon.
+
+  %[1]s --schema <tab>
+  %[1]s --schema 'files:<tab>
+
 --last sends what the previous command printed, so a pipe is not needed to hand
 an agent an error you have just read.
 
@@ -152,7 +158,7 @@ func command(opts *options) *cobra.Command {
 	flags.SetInterspersed(false)
 	flags.BoolVarP(&opts.json, "json", "j", false, "answer in JSON, shape unspecified")
 	flags.StringVarP(&opts.spec, "schema", "s", "", "answer in JSON, in this shape: a field spec such as 'name:string, tags:[]string, count:int?', where a trailing question mark makes a field optional and a bar makes an enum, or @path to a JSON Schema file")
-	flags.StringVarP(&opts.model, "model", "m", "", "model alias, such as opus or sonnet")
+	flags.StringVarP(&opts.model, "model", "m", "", "which model to run; press tab for the ones this agent names")
 	flags.StringVarP(&opts.provider, "provider", "p", "", "which agent to run: "+strings.Join(provider.Names(), ", "))
 	flags.BoolVar(&opts.replay, "replay", false, "rerun the last input, with this prompt or the last one")
 	flags.BoolVarP(&opts.last, "last", "l", false, "send what the previous command printed, instead of stdin")
@@ -171,10 +177,10 @@ func command(opts *options) *cobra.Command {
 	flags.BoolVar(&opts.listConfig, "list-config", false, "print every setting and exit")
 
 	_ = cmd.RegisterFlagCompletionFunc("provider", func(*cobra.Command, []string, string) ([]string, cobra.ShellCompDirective) {
-		return provider.Names(), cobra.ShellCompDirectiveNoFileComp
+		return agents(), cobra.ShellCompDirectiveNoFileComp
 	})
 	_ = cmd.RegisterFlagCompletionFunc("model", func(*cobra.Command, []string, string) ([]string, cobra.ShellCompDirective) {
-		return []string{"opus", "sonnet", "haiku"}, cobra.ShellCompDirectiveNoFileComp
+		return models(*opts), cobra.ShellCompDirectiveNoFileComp
 	})
 	_ = cmd.RegisterFlagCompletionFunc("get-config", func(*cobra.Command, []string, string) ([]string, cobra.ShellCompDirective) {
 		return config.Keys(), cobra.ShellCompDirectiveNoFileComp
@@ -182,8 +188,57 @@ func command(opts *options) *cobra.Command {
 	_ = cmd.RegisterFlagCompletionFunc("set-config", func(_ *cobra.Command, _ []string, typed string) ([]string, cobra.ShellCompDirective) {
 		return pairs(typed), cobra.ShellCompDirectiveNoSpace | cobra.ShellCompDirectiveNoFileComp
 	})
+	_ = cmd.RegisterFlagCompletionFunc("schema", func(_ *cobra.Command, _ []string, typed string) ([]string, cobra.ShellCompDirective) {
+		offer, paths := schema.Complete(typed)
+		if paths {
+			return nil, cobra.ShellCompDirectiveDefault
+		}
+		return offer, cobra.ShellCompDirectiveNoSpace | cobra.ShellCompDirectiveNoFileComp
+	})
+	_ = cmd.RegisterFlagCompletionFunc("timeout", func(*cobra.Command, []string, string) ([]string, cobra.ShellCompDirective) {
+		return []string{
+			"30s\ta quick question",
+			"2m\tone file",
+			"10m\tthe default",
+			"30m\ta whole repository",
+		}, cobra.ShellCompDirectiveNoFileComp
+	})
 
 	return cmd
+}
+
+// models offers the models the agent about to run accepts, read from that CLI's
+// own help. Nothing here names a model, so a list cannot go stale; a CLI that
+// names none of its models offers nothing.
+func models(opts options) []string {
+	named, _ := source()
+	if opts.provider != "" {
+		named = opts.provider
+	}
+	one, found := provider.Lookup(named)
+	if !found {
+		return nil
+	}
+
+	offer := one.Models()
+	for at, name := range offer {
+		offer[at] = name + "\t" + one.Blurb
+	}
+	return offer
+}
+
+// agents offers every name an agent answers to, long and short, with a word
+// saying which agent it is and whether it is installed.
+func agents() []string {
+	offer := make([]string, 0, len(provider.Known())*2)
+	for _, one := range provider.Known() {
+		says := one.Blurb
+		if !one.Ready() {
+			says = one.Binary + " is not on PATH"
+		}
+		offer = append(offer, one.Name+"\t"+says, one.Short+"\t"+says)
+	}
+	return offer
 }
 
 // pairs completes --set-config on both halves: the keys first, then that key's values.

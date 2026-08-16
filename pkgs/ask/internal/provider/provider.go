@@ -95,10 +95,14 @@ type Info struct {
 	Binary string
 
 	build func() Provider
+
+	// models is nil for a CLI that names none of its models anywhere, which is
+	// where the Codex CLI stands today.
+	models func() []string
 }
 
 var known = []Info{
-	{Name: "claude", Short: "cld", Blurb: "Claude Code", Binary: "claude", build: func() Provider { return Claude{} }},
+	{Name: "claude", Short: "cld", Blurb: "Claude Code", Binary: "claude", build: func() Provider { return Claude{} }, models: claudeModels},
 	{Name: "codex", Short: "cdx", Blurb: "the Codex CLI", Binary: "codex", build: func() Provider { return Codex{} }},
 }
 
