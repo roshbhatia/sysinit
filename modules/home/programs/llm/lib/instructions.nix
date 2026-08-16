@@ -34,7 +34,6 @@ let
 
           - Normative keywords (MUST/SHOULD/MAY) here and in skills follow RFC 2119 (https://datatracker.ietf.org/doc/html/rfc2119); "never"/"always" rules are MUST-level
           - Read the repository's own context before authoring: `AGENTS.md`, `openspec/`, `.sysinit/lessons.md`
-          - Write code that reads like the code around it: match its comment density, naming, and idiom
           - Edit an existing file; create a new file only when no existing file can hold the change
           - Conventional commits, title-only, no body; one concern per commit, and no formatting-only change mixed with a behavioral one
           - Get dependencies from `nix-shell` or `nix develop`, not from a global installer
@@ -65,7 +64,6 @@ let
 
         prohibitions = ''
 
-          - Never commit unless directed; stage the change and propose a message instead
           - Never use `--no-verify`, `--no-gpg-sign`, or other hook-bypass flags; fix the failing hook instead
           - Never use `any` or type suppressions without explicit permission
           - Never add emojis to code or generated files
@@ -166,6 +164,9 @@ let
     - Use one instruction per sentence. Keep procedure sentences to 20 words or
       fewer and descriptive sentences to 25 or fewer. Keep paragraphs to 6
       sentences or fewer.
+    - Spend at most 3 prose paragraphs and 180 words on a reply. A list, a table
+      and a code block cost nothing against either, so use one when it carries
+      the answer better than a sentence. A Stop hook enforces this.
     - Use active voice and simple present, past, future, or imperative verbs.
       Avoid gerund chains and stacked auxiliaries.
     - One word, one meaning: pick a single term for a concept and reuse it. Do

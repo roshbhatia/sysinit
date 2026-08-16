@@ -17,8 +17,8 @@ Usage:
   prose-gate check     Stop hook. Reads the event on stdin, blocks a reply that
                        is over budget or carries the tells.
   prose-gate remind    UserPromptSubmit hook. Prints the shape and the budget.
-  prose-gate session   SessionStart hook. Prints the style rule and the context
-                       rules, which a fresh or compacted session has just lost.
+  prose-gate session   SessionStart hook. Prints the context rules, which a fresh
+                       or compacted session has just lost.
   prose-gate subagent  SubagentStop hook. Blocks a teammate report that returns
                        the material instead of the conclusion.
   prose-gate lint      Reads text on stdin, prints the findings, exits 1 on any.
@@ -227,30 +227,21 @@ func remind() int {
 		maxParagraphs, maxWords))
 }
 
-// A session starts, resumes, or comes back from a compaction with the system
-// prompt intact and nothing else. These are the two rules that a fresh window
-// otherwise has to rediscover: how to write, and what not to read.
+// The output style is already loaded at this point and sits in the same position
+// in the window, so restating it here buys nothing. These four rules are not
+// stated anywhere else, and a fresh or compacted session has no other way to
+// learn them.
 func session() int {
 	if os.Getenv("SYSINIT_PROSE_GATE") == "off" {
 		return 0
 	}
-	return inject("SessionStart", fmt.Sprintf(`IMPORTANT: the sysinit-ste output style governs every reply. YOU MUST hold it for
-the whole session, not only the first answer.
-
-  - Lead with the answer. What changed, why, the next concrete action.
-  - ASD-STE100: one instruction per sentence, active voice, one term per concept.
-  - At most %d prose paragraphs and %d words. A list or a table costs nothing, so
-    use one when it carries the answer better than a sentence.
-  - Numbers, not adjectives. No em-dash, no preamble, no recap, no closing summary.
-
-Context is the budget that runs out first, so spend it on purpose:
+	return inject("SessionStart", `IMPORTANT: context is the budget that runs out first. YOU MUST spend it on purpose.
 
   - Grep or Glob to find the lines. Read the range, not the file.
   - Delegate a search that spans many files to a subagent, which reads in its own
     window and reports back the conclusion.
   - Never re-read a file to confirm an edit that Edit or Write already reported.
-  - Give any command that can print without bound a limit: head, -n, --max-count.`,
-		maxParagraphs, maxWords))
+  - Give any command that can print without bound a limit: head, -n, --max-count.`)
 }
 
 // A teammate's report is the entire cost of delegating: the caller pays for it

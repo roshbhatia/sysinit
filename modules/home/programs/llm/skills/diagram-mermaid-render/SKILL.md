@@ -1,5 +1,5 @@
 ---
-description: Renders Mermaid diagrams so they live where they are read. Render EVERY mermaid diagram you write or read as ASCII in the terminal first: `mermaid-ascii` for flowcharts, `pretty-mermaid --format ascii --use-ascii` for sequence and ER. Themed SVG comes from `pretty-mermaid` offline; the Kroki API is the last resort. Per-diagram-type syntax is sourced from the Agents365 mermaid-skill, the SVG and ASCII renderer from imxv/Pretty-mermaid-skills. Use when a diagram clarifies more than prose: capability flow, state transitions, sequence-of-calls, option trees, dependency graphs, decision points, architecture sketches.
+description: Renders Mermaid diagrams as ASCII in the terminal and as themed SVG. Use when a diagram clarifies more than prose: capability flow, state transitions, sequence of calls, option trees, dependency graphs, architecture sketches.
 allowed-tools: Bash(mermaid-ascii:*) Bash(pretty-mermaid:*) Bash(pretty-mermaid-batch:*) Bash(pretty-mermaid-themes:*) Bash(curl:*) Read Write Edit
 ---
 

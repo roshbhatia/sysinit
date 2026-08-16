@@ -1,5 +1,5 @@
 ---
-description: Operates stacked pull requests with `gh stack` (github/gh-stack). Stacked PRs are the default shape for a change that carries more than one reviewable concern: one branch and one PR per concern, each based on the one below. Use when opening a PR for a multi-concern change, when a PR is growing past one concern, when a reviewer asks for a change to be split, or when the user says 'stack', 'stacked PR', 'split this PR', or 'rebase the stack'. Submitting and merging reach GitHub and stay owner-gated.
+description: Operates stacked pull requests with `gh stack`, one branch and one PR per reviewable concern. Use when opening a PR for a multi-concern change, when a PR grows past one concern, or when the user says 'stack', 'split this PR', or 'rebase the stack'.
 allowed-tools: Bash(gh:*) Bash(git:*)
 model: haiku
 effort: low
