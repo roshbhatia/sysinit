@@ -11,6 +11,7 @@ let
   home = config.home.homeDirectory;
   keychain = "${home}/Library/Keychains/${paths.keychainName}";
   passwordFile = "${home}/${paths.passwordFile}";
+  certFile = "${home}/${paths.certFile}";
   signedBinDir = "${home}/${paths.signedBinDir}";
 
   signer = pkgs.writeShellApplication {
@@ -23,6 +24,7 @@ let
 
       KEYCHAIN=${lib.escapeShellArg keychain}
       PW_FILE=${lib.escapeShellArg passwordFile}
+      CERT_FILE=${lib.escapeShellArg certFile}
       SIGNED_BIN=${lib.escapeShellArg signedBinDir}
       IDENTITY=${lib.escapeShellArg paths.identity}
 
@@ -71,14 +73,36 @@ let
         security import "$work/id.p12" -k "$KEYCHAIN" -P "$pw" -A -T /usr/bin/codesign >/dev/null
         security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "$pw" "$KEYCHAIN" >/dev/null 2>&1
         security add-trusted-cert -r trustRoot -p codeSign -k "$KEYCHAIN" "$work/cert.pem" >/dev/null
+        install -m 644 "$work/cert.pem" "$CERT_FILE"
         # shellcheck disable=SC2046
         security list-keychains -d user -s $(security list-keychains -d user | tr -d ' "') "$KEYCHAIN"
+      }
+
+      # `add-trusted-cert -k <keychain>` records trust for this user only, and the
+      # system signing step runs as root. Without trust in the admin domain root
+      # sees no valid identity and signs nothing.
+      ensure_system_trust() {
+        if [ ! -s "$CERT_FILE" ]; then
+          security find-certificate -c "$IDENTITY" -p "$KEYCHAIN" > "$CERT_FILE" 2>/dev/null || return 0
+        fi
+        if sudo -n security find-certificate -c "$IDENTITY" \
+          /Library/Keychains/System.keychain >/dev/null 2>&1; then
+          return 0
+        fi
+        if ! sudo -n true 2>/dev/null; then
+          echo "sysinit-codesign: sudo needs a password; /Applications/Nix Apps stays unsigned" >&2
+          return 0
+        fi
+        echo "sysinit-codesign: trusting the certificate for every user" >&2
+        sudo -n security add-trusted-cert -d -r trustRoot -p codeSign \
+          -k /Library/Keychains/System.keychain "$CERT_FILE" >/dev/null
       }
 
       # Only the owner creates the identity. Root would create it owned by root,
       # and the user could then never unlock it.
       if [ "$MODE" = "user" ]; then
         ensure_identity
+        ensure_system_trust
       elif [ ! -f "$PW_FILE" ]; then
         echo "sysinit-codesign: no identity yet; the next switch signs these" >&2
         exit 0
