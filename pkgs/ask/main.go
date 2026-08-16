@@ -15,6 +15,7 @@ import (
 	"golang.org/x/term"
 
 	"github.com/roshbhatia/sysinit/pkgs/ask/internal/config"
+	"github.com/roshbhatia/sysinit/pkgs/ask/internal/pane"
 	"github.com/roshbhatia/sysinit/pkgs/ask/internal/provider"
 	"github.com/roshbhatia/sysinit/pkgs/ask/internal/schema"
 	"github.com/roshbhatia/sysinit/pkgs/ask/internal/store"
@@ -48,7 +49,13 @@ agent, so they run whichever $ASK_PROVIDER or the settings name; %[1]s --list-co
 prints which one that is and where it came from.
 
 Both agents answer --json and --schema in the shape asked for, and a run that
-answers outside it is reported as a failure.`
+answers outside it is reported as a failure.
+
+--last sends what the previous command printed, so a pipe is not needed to hand
+an agent an error you have just read.
+
+  cargo build; %[1]s --last why did this fail
+  %[1]s --show-last | head`
 
 type options struct {
 	prompt   string
@@ -57,12 +64,15 @@ type options struct {
 	model    string
 	provider string
 	replay   bool
+	last     bool
 	quiet    bool
 	timeout  time.Duration
 
 	showInput  bool
 	showPrompt bool
 	showOutput bool
+	showLast   bool
+	capture    bool
 
 	setConfig  string
 	getConfig  string
@@ -77,6 +87,8 @@ func (o options) show() string {
 		return "prompt"
 	case o.showOutput:
 		return "output"
+	case o.showLast:
+		return "last"
 	}
 	return ""
 }
@@ -137,11 +149,17 @@ func command(opts *options) *cobra.Command {
 	flags.StringVarP(&opts.model, "model", "m", "", "model alias, such as opus or sonnet")
 	flags.StringVarP(&opts.provider, "provider", "p", "", "which agent to run: "+strings.Join(provider.Names(), ", "))
 	flags.BoolVar(&opts.replay, "replay", false, "rerun the last input, with this prompt or the last one")
+	flags.BoolVarP(&opts.last, "last", "l", false, "send what the previous command printed, instead of stdin")
 	flags.BoolVarP(&opts.quiet, "quiet", "q", false, "no progress output at all")
 	flags.DurationVar(&opts.timeout, "timeout", 10*time.Minute, "give up after this long")
 	flags.BoolVar(&opts.showInput, "show-input", false, "print the last input and exit")
 	flags.BoolVar(&opts.showPrompt, "show-prompt", false, "print the last prompt and exit")
 	flags.BoolVar(&opts.showOutput, "show-output", false, "print the last answer and exit")
+	flags.BoolVar(&opts.showLast, "show-last", false, "print what --last would send and exit")
+	// A hidden flag rather than a subcommand, because the root command takes a
+	// bare prompt, so a `capture` subcommand would eat `ask capture the flag`.
+	flags.BoolVar(&opts.capture, "capture", false, "snapshot the terminal and exit")
+	_ = flags.MarkHidden("capture")
 	flags.StringVar(&opts.setConfig, "set-config", "", "write one setting, as KEY=VALUE, and exit")
 	flags.StringVar(&opts.getConfig, "get-config", "", "print one setting and exit")
 	flags.BoolVar(&opts.listConfig, "list-config", false, "print every setting and exit")
@@ -246,9 +264,14 @@ func printSaved(which string) error {
 		read = store.Prompt
 	case "output":
 		read = store.Output
+	case "last":
+		read = pane.Last
 	}
 	saved, err := read()
-	if err != nil {
+	switch {
+	case err != nil && which == "last":
+		return err
+	case err != nil:
 		return fmt.Errorf("no saved %s: %w", which, err)
 	}
 	os.Stdout.Write(saved)
@@ -307,6 +330,9 @@ func answer(result *provider.Result, structured bool) ([]byte, error) {
 }
 
 func run(opts options) error {
+	if opts.capture {
+		return pane.Capture()
+	}
 	if handled, err := settings(opts); handled {
 		return err
 	}
@@ -336,6 +362,10 @@ func run(opts options) error {
 
 	var input []byte
 	switch {
+	case opts.last:
+		if input, err = pane.Last(); err != nil {
+			return err
+		}
 	case opts.replay && !piped():
 		if input, err = store.Input(); err != nil {
 			return fmt.Errorf("nothing to replay: %w", err)
