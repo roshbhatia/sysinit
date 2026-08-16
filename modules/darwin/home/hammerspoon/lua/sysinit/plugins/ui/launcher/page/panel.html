@@ -35,6 +35,11 @@
         }
       }
 
+      /* Overwritten with the host's base16 scheme when one is written out. Last,
+         so it wins over the appearance query above: the scheme decides the
+         polarity, not the system. */
+      /* THEME */
+
       * {
         box-sizing: border-box;
       }
@@ -917,6 +922,7 @@
         for (const row of base) {
           row.f_title = prepare(row.title || "");
           row.f_sub = row.sub ? prepare(row.sub) : null;
+          row.f_terms = row.terms ? prepare(row.terms) : null;
         }
         refine();
       }

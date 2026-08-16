@@ -1,7 +1,51 @@
-{ config, pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 
 let
   home = config.home.homeDirectory;
+  themeLib = import ../../../shared/theme-colors.nix { inherit lib; };
+  c = themeLib.colorsOf config;
+  slots = [
+    "base00"
+    "base01"
+    "base02"
+    "base03"
+    "base04"
+    "base05"
+    "base06"
+    "base07"
+    "base08"
+    "base09"
+    "base0A"
+    "base0B"
+    "base0C"
+    "base0D"
+    "base0E"
+    "base0F"
+  ];
+  themeConfig = {
+    # The eight roles `pkg/theme` reads. Kept as roles rather than slots because
+    # the window switcher and the workspace overlay ask for a background or an
+    # accent, not for base01.
+    palette = {
+      bg_primary = "#${c.base00}";
+      bg_secondary = "#${c.base01}";
+      bg_tertiary = "#${c.base02}";
+      bg_overlay = "#${c.base03}";
+      fg_primary = "#${c.base05}";
+      fg_muted = "#${c.base04}";
+      primary = "#${c.base0D}";
+      accent = "#${c.base0E}";
+    };
+    # The launcher page composes its own rgba() per CSS variable, so it gets the
+    # whole scheme rather than the eight roles above.
+    base16 = lib.listToAttrs (map (name: lib.nameValuePair name "#${c.${name}}") slots);
+    inherit (config.sysinit.theme) transparency;
+  };
   launcherConfig = {
     wezterm = "${pkgs.wezterm}/bin/wezterm";
     sy = "/etc/profiles/per-user/${config.home.username}/bin/sy";
@@ -82,6 +126,7 @@ in
     ".hammerspoon/init.lua".source = ./init.lua;
     ".hammerspoon/lua".source = ./lua;
     ".config/sysinit/launcher_config.json".text = builtins.toJSON launcherConfig;
+    ".config/sysinit/theme_config.json".text = builtins.toJSON themeConfig;
     ".hammerspoon/Spoons/VimMode.spoon" = {
       source = pkgs.fetchFromGitHub {
         owner = "dbalatero";

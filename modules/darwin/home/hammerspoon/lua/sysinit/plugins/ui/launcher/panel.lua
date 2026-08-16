@@ -1,4 +1,5 @@
 local fzf = require("sysinit.plugins.ui.launcher.fzf")
+local json_loader = require("sysinit.pkg.utils.json_loader")
 
 local M = {}
 
@@ -64,6 +65,63 @@ local function slurp(path)
   return text
 end
 
+---@param hex string
+---@param alpha number
+---@return string
+local function rgba(hex, alpha)
+  local r, g, b = tostring(hex):match("^#?(%x%x)(%x%x)(%x%x)$")
+  if r == nil then
+    return "transparent"
+  end
+  return string.format("rgba(%d, %d, %d, %g)", tonumber(r, 16), tonumber(g, 16), tonumber(b, 16), alpha)
+end
+
+-- Each variable the page draws with, as a slot and the alpha it is laid over the
+-- panel at. The alphas are the ones the stylesheet was tuned with; only the
+-- colour underneath them comes from the scheme.
+--
+-- `bg` does not follow `theme.transparency.opacity`. That setting is 0.9, tuned
+-- for a terminal sitting over a desktop, and the panel sits over whatever window
+-- was in front: at 0.9 a browser page behind it is legible straight through the
+-- rows. 0.96 is what the stylesheet shipped with and what the panel needs.
+local paints = {
+  { "bg", "base00", 0.96 },
+  { "edge", "base02", 0.9 },
+  { "line", "base02", 0.7 },
+  { "text", "base05", 1 },
+  { "muted", "base04", 0.85 },
+  -- base03 is the scheme's dim slot and reads at 2.5:1 on gruvbox, which is too
+  -- faint for a subtitle, so the faint role is base04 held back instead.
+  { "faint", "base04", 0.6 },
+  -- Solid, so the selected row reads as a block rather than as a tint over
+  -- whatever shows through the panel.
+  { "sel", "base02", 1 },
+  { "badge", "base02", 0.9 },
+  { "cap", "base02", 0.8 },
+  { "accent", "base0D", 1 },
+}
+
+-- The stylesheet carries a dark default, so a host with no scheme written out
+-- still draws. This overrides it, and is empty when there is nothing to override
+-- it with.
+---@return string
+local function palette()
+  local config = json_loader.load_json_file(json_loader.get_config_path("theme_config.json"))
+  local scheme = config and config.base16
+  if scheme == nil then
+    return ""
+  end
+  -- The scheme decides the colours and the table above decides the alphas, so
+  -- the only thing left to read is whether the host wants transparency at all.
+  local opaque = (config.transparency or {}).enable == false
+  local lines = {}
+  for _, paint in ipairs(paints) do
+    local name, slot, alpha = paint[1], paint[2], paint[3]
+    lines[#lines + 1] = string.format("--%s: %s;", name, rgba(scheme[slot], opaque and 1 or alpha))
+  end
+  return ":root {\n" .. table.concat(lines, "\n") .. "\n}"
+end
+
 -- The page is one document by the time it is loaded, because `view:html` takes
 -- markup and not a directory, and a relative <script src> in it resolves against
 -- nothing. Splitting the source is for whoever reads it.
@@ -73,7 +131,7 @@ local function document()
   local built = html:gsub("/%* INCLUDE ([%w_.%-]+) %*/", function(name)
     return slurp(dir .. "/" .. name)
   end)
-  return built
+  return (built:gsub("/%* THEME %*/", palette))
 end
 
 ---@param h number
@@ -112,6 +170,7 @@ local function transport(rows, at)
       icon = key,
       badge = row.badge,
       glyph = row.glyph,
+      terms = row.terms,
     }
   end
   return out, fresh
