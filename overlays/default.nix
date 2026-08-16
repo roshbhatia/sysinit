@@ -22,6 +22,7 @@
   (import ./hermes-agent.nix { inherit inputs; })
   (import ./utils.nix)
   (import ./ask.nix)
+  (import ./calldiff.nix)
   (import ./specutil.nix)
   (import ./python313.nix)
   (import ./kubernetes-zeitgeist.nix)

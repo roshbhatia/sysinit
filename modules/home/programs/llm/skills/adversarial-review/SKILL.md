@@ -107,6 +107,12 @@ it needs current state:
 When a critic reports a defect as unfixed, the author MUST verify against the
 file before acting. Re-fixing an already-fixed defect is how a loop churns.
 
+Give the critic the call diff for the same revision when the change is not
+Nix-only: `calldiff diff <base> --max-depth 3`. A line diff shows a critic which
+lines moved; the call diff shows it which paths moved, which is where a defect
+of this kind lives. A path that appeared and is absent from the change's own
+description is the objection to raise.
+
 <examples>
 <example>
 <bad>Review the recent changes to the wezterm lua tree and find defects.</bad>

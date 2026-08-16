@@ -155,6 +155,38 @@ spanning many distinct areas, group bullets under area subheads with a trailing
 colon (`Schema:` / `Permissions:` / `Testing:`) rather than a flat list of
 multi-sentence bullets.
 
+## Show a rerouted call path, do not describe it
+
+When a change moves control flow — a new call path, a dropped one, a caller
+rerouted — run `calldiff diff <base> --max-depth 3` and put the plain tree in a
+fenced block under `## Summary`, below the bullets. The tree is shorter than the
+paragraph, and a reviewer can check it. Then delete the bullet that was
+describing the same thing in prose.
+
+This is a block inside `## Summary`, not a new section. Do not add a
+`## Call graph` heading; the rule against invented sections still holds. Skip it
+for a Nix-only change, which calldiff cannot parse, and for a change that only
+edits bodies without moving edges. Load the `calldiff` skill for the flags.
+
+````markdown
+<!-- good — the tree carries the claim -->
+## Summary
+
+- Routes clipboard restore through `panel.hide()` so the panel closes before the paste lands.
+
+```
+  activate(choice)
++ ├─ panel.hide()
+  └─ clipboard.restore(row.entry)
+```
+
+<!-- bad — a paragraph doing the tree's job, and an invented section -->
+## Call graph
+
+Previously `activate` called `clipboard.restore` directly, but now it first
+calls `panel.hide()`, which changes the ordering such that...
+````
+
 ## Validating Changes section
 
 Optional. Use only when behavior was hand-verified rather than covered by tests.

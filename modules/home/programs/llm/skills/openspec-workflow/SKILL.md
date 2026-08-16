@@ -26,6 +26,20 @@ Use the Explore planning {{agent}} for discovery and planning work. Explore is r
 
 When there is no active change, explore freely and offer to create a proposal once the problem is clear. Do not run `openspec init` just to make commands or skills available; this sysinit configuration provides the global OpenSpec workflow. Use `openspec init` only when the user wants to initialize OpenSpec artifacts in a repository that does not already have them.
 
+Ground the proposal in the call graph the code has, not the one you assume it
+has. Before you name an approach in `design.md`, run `calldiff tree -e <entry>`
+over the subsystem the change touches, and `calldiff reach -e <entry> --to
+<symbol>` for each edge the design depends on. A design that assumes an edge the
+tool cannot find is wrong at the first task, not at review. calldiff does not
+parse Nix; load the `calldiff` skill for what it does cover.
+
+<examples>
+<example>
+<bad>`design.md` says the launcher can reuse the existing preview path, because both lists show rows.</bad>
+<good>`calldiff reach -e M.toggle --to preview` finds no path, so `design.md` states that the preview path has to be lifted out of `history()` first, as task 1.</good>
+</example>
+</examples>
+
 ## Implement
 
 - Keep edits tied to a named OpenSpec change when one exists.

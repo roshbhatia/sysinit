@@ -12,13 +12,18 @@ Picking the right one per query is the whole skill. The default reflex of
 reaching for `grep` is usually wrong here: ast-grep is the preferred tool for
 finding code, and `rg` is the fallback for literal text.
 
-This skill routes. Two upstream skills own the pattern syntax, and you should
-load them rather than guess at it:
+This skill routes. Three other skills own the syntax, and you should load them
+rather than guess at it:
 
 - `ast-grep-outline` — how to read a structural map of files and directories
 - `ast-grep` — how to write ast-grep rules and patterns
+- `calldiff` — how to read a call graph, and how to diff one across two trees
 
-Neither upstream skill covers rewriting, so section 2a below owns that.
+Neither ast-grep skill covers rewriting, so section 2a below owns that.
+
+Outline and calldiff answer different questions and are not substitutes. Outline
+names what a file declares. calldiff names what those declarations call. Reach
+for outline to orient; reach for calldiff once you need the edges.
 
 ## Decision routing
 
@@ -32,6 +37,8 @@ Literal string, exact identifier, file path, or "every occurrence"?
     -> builtin: rg / grep / Glob / Read
 Across repos — org-wide, not cloned locally, prior art on GitHub?
     -> gh search (code / repos / issues / prs / commits)
+Who calls this, what does it reach, what call paths did a diff move?
+    -> calldiff   (load the `calldiff` skill; it cannot parse Nix)
 
 Replacing the same construct at two or more sites?
     -> ast-grep -p ... -r ...   (section 2a below; never Edit site by site)
@@ -161,14 +168,37 @@ Caveats: GitHub code search only indexes default branches and has its own syntax
 and rate limits. For the current repo, stay with builtin / ast-grep — faster,
 complete, and they see uncommitted work.
 
+## 4. calldiff — call edges
+
+Parses the repository with tree-sitter and prints who calls whom. `calldiff
+diff` marks what one git tree added or dropped against another, which is the
+question a line diff cannot answer: what call paths did this change move?
+
+```bash
+# good — the call paths this working tree changed
+calldiff diff --max-depth 3
+
+# good — every path from an entrypoint to a symbol the repo defines
+calldiff reach -e M.setup --to compose modules/darwin/home/hammerspoon
+
+# bad — calldiff on Nix; it does not index .nix and answers "file not found"
+calldiff tree --file overlays/ask.nix
+```
+
+Load the `calldiff` skill for the rules. Note that it covers the Lua, Go, and
+shell here and none of the Nix, which is most of this repo.
+
 ## Typical flow
 
 1. Classify the query against the routing table before searching.
-2. Run the matching tool; for structural questions, write the ast-grep pattern
+2. Map before you read. `ast-grep outline` on the file or directory costs a
+   fraction of the context a `Read` costs, and usually answers the question on
+   its own. Read a whole file only after outline has named the symbol you want.
+3. Run the matching tool; for structural questions, write the ast-grep pattern
    rather than approximating it with a regex.
-3. `Read` the top hits in full file context before concluding — ranked tools
+4. `Read` the top hits in full file context before concluding — ranked tools
    return slices.
-4. Cite `file:line` for every source you used.
+5. Cite `file:line` for every source you used.
 
 ## Guardrails — and what to do instead
 
@@ -179,3 +209,8 @@ complete, and they see uncommitted work.
 - A multi-site replace goes through `-r` then `-U`, never through Edit per site.
   Read the `-r` diff first: `-U` prints nothing and writes everything.
 - Need *all* occurrences of a token -> use grep; the ranking tools may cap results.
+- Reading a whole file to find out what is in it is the third common mistake.
+  `ast-grep outline` on it first: it names every symbol for a fraction of the
+  context, and only then do you know which range is worth reading.
+- Describing in prose how a change reroutes control flow -> run `calldiff diff`
+  and show the tree. The tree is shorter than the paragraph and it is checkable.
