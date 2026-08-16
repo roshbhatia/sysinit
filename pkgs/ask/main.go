@@ -48,8 +48,14 @@ trailing j asks for JSON, so _cldj is claude with --json. Bare _ and _j name no
 agent, so they run whichever $ASK_PROVIDER or the settings name; %[1]s --list-config
 prints which one that is and where it came from.
 
-Both agents answer --json and --schema in the shape asked for, and a run that
-answers outside it is reported as a failure.
+Both agents answer --json and --schema in the shape asked for. The answer is
+checked against that shape here, so a run that answers outside it is a failure
+rather than a wrongly shaped success.
+
+An agent given a shape may answer with one question instead, when guessing would
+cost more than asking. With a terminal it asks and waits, up to three times. With
+no terminal it prints the question and exits 3, so a script can tell a question
+from a failure.
 
 --last sends what the previous command printed, so a pipe is not needed to hand
 an agent an error you have just read.
@@ -329,6 +335,88 @@ func answer(result *provider.Result, structured bool) ([]byte, error) {
 	return []byte(text), nil
 }
 
+// once runs the agent through to one result, drawing whichever view the terminal
+// allows.
+func once(req provider.Request, opts options, agent provider.Provider) (*provider.Result, error) {
+	ctx, stop := context.WithTimeout(context.Background(), opts.timeout)
+	defer stop()
+
+	events, err := agent.Run(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+
+	var result *provider.Result
+	switch {
+	case !opts.quiet && term.IsTerminal(int(os.Stderr.Fd())):
+		if result, err = ui.Run(events, stop); err != nil {
+			return nil, err
+		}
+	case opts.quiet:
+		result = ui.Drain(events, nil)
+	default:
+		result = ui.Drain(events, os.Stderr)
+	}
+
+	if result == nil {
+		return nil, errors.New("the run ended without an answer")
+	}
+	if result.Failed {
+		return nil, fmt.Errorf("%s: %s", agent.Name(), result.Reason)
+	}
+	return result, nil
+}
+
+// converse runs the agent and keeps the exchange going until the answer fits.
+// It carries a reply back when the agent asks a question rather than guessing,
+// and carries the reason back when the answer is outside the shape. Only a
+// person can answer a question, so a run with no terminal reports it and stops.
+func converse(req provider.Request, strict map[string]any, opts options, agent provider.Provider) (*provider.Result, error) {
+	human := !opts.quiet && term.IsTerminal(int(os.Stderr.Fd()))
+
+	for round := 1; ; round++ {
+		result, err := once(req, opts, agent)
+		if err != nil {
+			return nil, err
+		}
+		if strict == nil {
+			return result, nil
+		}
+
+		if question := schema.Question(result.Structured); question != "" {
+			if !human || round == rounds {
+				return nil, asked{question}
+			}
+			reply, err := ui.Answer(question)
+			if err != nil {
+				return nil, err
+			}
+			req.Prompt += fmt.Sprintf("\n\nYou asked: %s\nThe answer: %s", question, reply)
+			continue
+		}
+
+		wrong := schema.Check(strict, result.Structured)
+		if wrong == nil {
+			return result, nil
+		}
+		if round == rounds {
+			return nil, fmt.Errorf("%s: %s", agent.Name(), wrong)
+		}
+		req.Prompt += "\n\nYour last answer was rejected. " + wrong.Error() +
+			"\nAnswer again, in the shape asked for."
+	}
+}
+
+// rounds is how many times an agent may ask before it has to answer. Three is
+// enough for a real ambiguity and short enough that a loop cannot run away.
+const rounds = 3
+
+// asked reports a question nobody was there to answer. It leaves by its own exit
+// code, so a script can tell "I need to know something" from "I failed".
+type asked struct{ question string }
+
+func (a asked) Error() string { return "the agent needs to know: " + a.question }
+
 func run(opts options) error {
 	if opts.capture {
 		return pane.Capture()
@@ -392,38 +480,22 @@ func run(opts options) error {
 		return err
 	}
 
-	ctx, stop := context.WithTimeout(context.Background(), opts.timeout)
-	defer stop()
-
 	here, _ := os.Getwd()
-	events, err := agent.Run(ctx, provider.Request{
+	loose, mayAsk := schema.Relaxed(shape)
+	req := provider.Request{
 		Prompt: prompt,
 		Input:  input,
 		Model:  opts.model,
-		Schema: shape,
+		Schema: loose,
 		Dir:    here,
-	})
+	}
+	if mayAsk {
+		req.Prompt += "\n\n" + schema.Rule
+	}
+
+	result, err := converse(req, shape, opts, agent)
 	if err != nil {
 		return err
-	}
-
-	var result *provider.Result
-	switch {
-	case !opts.quiet && term.IsTerminal(int(os.Stderr.Fd())):
-		if result, err = ui.Run(events, stop); err != nil {
-			return err
-		}
-	case opts.quiet:
-		result = ui.Drain(events, nil)
-	default:
-		result = ui.Drain(events, os.Stderr)
-	}
-
-	if result == nil {
-		return errors.New("the run ended without an answer")
-	}
-	if result.Failed {
-		return fmt.Errorf("%s: %s", agent.Name(), result.Reason)
 	}
 
 	out, err := answer(result, shape != nil)
@@ -440,11 +512,15 @@ func run(opts options) error {
 func main() {
 	var opts options
 	err := command(&opts).Execute()
+	var question asked
 	switch {
 	case err == nil:
 		return
 	case errors.Is(err, ui.ErrStopped):
 		os.Exit(130)
+	case errors.As(err, &question):
+		fmt.Fprintln(os.Stderr, called()+": "+question.Error())
+		os.Exit(3)
 	default:
 		fmt.Fprintln(os.Stderr, called()+": "+err.Error())
 		os.Exit(1)

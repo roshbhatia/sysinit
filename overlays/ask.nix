@@ -13,7 +13,7 @@ final: _prev: {
 
       src = ../pkgs/ask;
 
-      vendorHash = "sha256-GTJxlZNc+yfQN9RncGWfAKfoSmVasKgyS6ycCy7nDZU=";
+      vendorHash = "sha256-3zYTk+IoCyZ6vAGgq4Fd3uSVPfKkIl8x/NFbK32G5mk=";
 
       # pkgs/ask/wrappers_test.go asserts that wrappers.txt still matches the
       # provider registry the binary dispatches on, so the build is what catches
