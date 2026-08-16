@@ -142,6 +142,15 @@ function rank(query, rows) {
         best = sub;
       }
     }
+    // Words a row is findable by but never shows, such as the index terms Apple
+    // ships with each System Settings pane. A hit here is a weaker signal than a
+    // hit on text the person can see, so it is held back below both.
+    if (row.f_terms) {
+      const terms = score(needle, row.f_terms);
+      if (terms !== null && (best === null || terms - 16 > best)) {
+        best = terms - 16;
+      }
+    }
     if (best !== null) {
       hits.push({ row: row, at: best, order: i });
     }

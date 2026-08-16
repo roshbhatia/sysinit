@@ -5,6 +5,7 @@ local files = require("sysinit.plugins.ui.launcher.files")
 local fzf = require("sysinit.plugins.ui.launcher.fzf")
 local panel = require("sysinit.plugins.ui.launcher.panel")
 local recency = require("sysinit.plugins.ui.launcher.recency")
+local settings_panes = require("sysinit.plugins.ui.launcher.settings")
 
 local M = {}
 
@@ -39,11 +40,12 @@ local held = {
   commands = {},
   entries = {},
   panes = {},
+  prefs = {},
   sessions = {},
   tabs = {},
 }
 
-local order = { "apps", "commands", "entries", "panes", "sessions", "tabs" }
+local order = { "apps", "commands", "entries", "panes", "prefs", "sessions", "tabs" }
 
 ---@return table
 local function settings()
@@ -486,7 +488,7 @@ local function activate(choice)
       run({ wezterm, "cli", "spawn", "--new-window", "--workspace", choice.text, "--cwd", choice.path })
       hs.application.launchOrFocus("WezTerm")
     end
-  elseif choice.kind == "tab" then
+  elseif choice.kind == "tab" or choice.kind == "pref" then
     if choice.url then
       hs.urlevent.openURL(choice.url)
     end
@@ -620,6 +622,14 @@ function M.setup()
   held.apps = app_rows()
   held.entries = entry_rows()
   compose()
+
+  -- Reading the panes costs about 700ms, because it parses a plist and an index
+  -- of search terms per pane, so it runs after the list the hotkey already has.
+  -- The panes change only with an OS update, so it runs once.
+  hs.timer.doAfter(0, function()
+    held.prefs = settings_panes.rows()
+    compose()
+  end)
 
   refresh()
   hs.timer.doEvery(live_secs, function()
