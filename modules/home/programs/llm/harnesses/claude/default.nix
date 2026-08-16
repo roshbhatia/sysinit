@@ -196,6 +196,15 @@ in
             ];
           }
           {
+            matcher = "Read";
+            hooks = [
+              {
+                type = "command";
+                command = "${pkgs.sysinit-utils}/bin/read-guard";
+              }
+            ];
+          }
+          {
             matcher = slackToolMatcher;
             hooks = [
               {

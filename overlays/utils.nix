@@ -15,6 +15,7 @@ final: _prev: {
         "nix-guard"
         "note"
         "prose-gate"
+        "read-guard"
         "transcript-link"
         "wezspawn"
         "worker"
