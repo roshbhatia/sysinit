@@ -138,10 +138,16 @@ let
         codesign -d -r- "$1" 2>&1 | grep -q "certificate leaf = H\"$LEAF\""
       }
 
-      # A notarized app already has a stable, identity-based requirement. Re-signing
-      # it would strip that and break the app, so only ad-hoc builds are touched.
-      is_adhoc() {
-        codesign -dv "$1" 2>&1 | grep -q "^Signature=adhoc"
+      # A vendor-signed app carries a Team ID and already has a stable,
+      # identity-based requirement. Re-signing it would strip its notarization,
+      # so it is the one thing left alone.
+      #
+      # The test is the Team ID rather than Signature=adhoc because a bundle this
+      # script has already signed reports neither adhoc nor a Team ID. Both the
+      # signed and unsigned states of a managed app answer the same way, so a
+      # stale read cannot turn into a skip.
+      managed() {
+        ! codesign -dv "$1" 2>&1 | grep -qE "^TeamIdentifier=[A-Z0-9]"
       }
 
       sign() {
@@ -152,15 +158,13 @@ let
           --timestamp=none "$target" 2>&1 | grep -v "replacing existing signature" || true
       }
 
-      # No already_ours check here. home-manager rsyncs these bundles from the
-      # store on every activation, and codesign reports the signature it saw
-      # before that copy, so a skip decision made from it silently leaves the
-      # unsigned version in place. Signing an already-signed bundle costs
-      # seconds; skipping one wrongly costs a permission prompt.
+      # Both rsyncs restore these bundles from the store on every activation, so
+      # signing runs every time. Signing an already-signed bundle costs seconds;
+      # skipping one wrongly costs a permission prompt.
       sign_app() {
         local app="$1" sudo_prefix="''${2:-}"
         if [ ! -d "$app" ]; then return 0; fi
-        if ! is_adhoc "$app"; then return 0; fi
+        if ! managed "$app"; then return 0; fi
         sign "$app" "$sudo_prefix"
       }
 
