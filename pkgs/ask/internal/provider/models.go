@@ -8,18 +8,15 @@ import (
 	"time"
 )
 
-// patience bounds the help run behind a completion. `claude --help` takes about
-// 150ms; anything past a second means the CLI is wedged and a shell waiting on
-// a tab press should not wait with it.
+// patience bounds the help run behind a tab press; `claude --help` takes 150ms.
 const patience = time.Second
 
-// named matches a quoted alias. It allows no spaces, which is what keeps the
-// apostrophe in "a model's full name" from pairing with a real quote.
+// named allows no spaces, so the apostrophe in "a model's full name" cannot pair
+// with a real quote.
 var named = regexp.MustCompile(`'([A-Za-z0-9][A-Za-z0-9.\[\]-]*)'`)
 
-// Models answers the model names this agent accepts, or nil when the CLI says
-// nothing about them. They are read from the installed CLI rather than listed
-// here, so a model released tomorrow needs no change to this repository.
+// Models answers the model names this agent accepts, read from the installed
+// CLI so no list here can go stale.
 func (i Info) Models() []string {
 	if i.models == nil || !i.Ready() {
 		return nil
@@ -27,7 +24,6 @@ func (i Info) Models() []string {
 	return i.models()
 }
 
-// help runs a CLI's own help and answers what it printed.
 func help(binary string, args ...string) string {
 	found, err := exec.LookPath(binary)
 	if err != nil {
@@ -43,18 +39,13 @@ func help(binary string, args ...string) string {
 	return string(out)
 }
 
-// claudeModels reads the aliases out of `claude --help`. The CLI has no command
-// that lists models, and its --model paragraph names them in quotes:
-//
-//	--model <model>   Model for the current session. Provide an alias for the
-//	                  latest model (e.g. 'fable', 'opus', or 'sonnet') or a
-//	                  model's full name (e.g. 'claude-fable-5').
+// claudeModels parses `claude --help`, as the CLI has no command that lists
+// models. `TestAliases` pins the help shape it reads.
 func claudeModels() []string {
 	return aliases(help("claude", "--help"), "--model <model>")
 }
 
-// aliases pulls the quoted names out of the one help paragraph that starts at
-// header. Reading the whole help would collect every quoted word in it.
+// aliases pulls the quoted names out of the one help paragraph under header.
 func aliases(text string, header string) []string {
 	at := strings.Index(text, header)
 	if at < 0 {

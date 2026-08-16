@@ -35,11 +35,9 @@ local servers = {
 
 vim.lsp.enable(servers)
 
--- diffview names its buffers diffview://<gitdir>/<rev>/<path> and sets the real
--- filetype on them, so a server starts and is then asked about a path that does
--- not exist on disk. nixd builds on clangd's LSP layer and answers
---   -32602: ... clangd only supports 'file' URI scheme for workspace files
--- on every inlay hint. The same holds for fugitive:// and any other scheme.
+-- diffview:// and fugitive:// buffers carry a real filetype, so a server starts
+-- and is then asked about a path that is not on disk. nixd answers every inlay
+-- hint on one with "-32602: clangd only supports 'file' URI scheme".
 local function on_disk(buf)
   if vim.api.nvim_buf_get_name(buf) == "" then
     return false
@@ -113,8 +111,7 @@ vim.schedule(function()
       local bufnr = args.buf
       local client = vim.lsp.get_client_by_id(args.data.client_id)
 
-      -- Detach rather than only skipping the hints, so no request carries a
-      -- non-file URI. A read-only diff side has nothing for a server to do.
+      -- Detach, not just skip the hints, so no request carries a non-file URI.
       if not on_disk(bufnr) then
         if client then
           vim.lsp.buf_detach_client(bufnr, client.id)

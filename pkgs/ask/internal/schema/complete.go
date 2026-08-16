@@ -2,9 +2,7 @@ package schema
 
 import "strings"
 
-// offered are the types the completion puts in front of you, each with what it
-// holds. typeOf parses more spellings than these (str, text, integer, float),
-// but one spelling per type is what makes the list readable.
+// offered lists one spelling per type; typeOf parses more (str, text, integer).
 var offered = []struct {
 	kind string
 	says string
@@ -22,7 +20,6 @@ var offered = []struct {
 	{"[]object", "a list of objects"},
 }
 
-// starters are whole specs to begin from, for the spec nobody has typed yet.
 var starters = []struct {
 	spec string
 	says string
@@ -33,12 +30,8 @@ var starters = []struct {
 	{"name:string, count:int?", "a trailing ? makes a field optional"},
 }
 
-// Complete offers the rest of a --schema spec.
-//
-// The spec is a comma-separated list of name:type. A name is free text, so the
-// type is the only half worth offering, and an empty spec gets a whole example
-// to start from. The second answer says the shell should complete a path
-// instead, which is what @ asks for.
+// Complete offers the rest of a --schema spec. A field name is free text, so
+// only the type is offered. The second answer asks the shell to complete a path.
 func Complete(typed string) (offer []string, paths bool) {
 	if strings.HasPrefix(typed, "@") {
 		return nil, true
@@ -64,8 +57,7 @@ func Complete(typed string) (offer []string, paths bool) {
 	return offer, false
 }
 
-// lastField cuts the spec at the last comma, so only the field being typed is
-// completed and the ones already written are carried through unchanged.
+// lastField cuts the spec at the last comma, so earlier fields carry through.
 func lastField(typed string) (head string, last string) {
 	at := strings.LastIndex(typed, ",")
 	if at < 0 {

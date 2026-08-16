@@ -56,9 +56,8 @@ func (a asker) View() string {
 	return shown.String() + "\n" + dim.Render("  enter answers, esc gives up") + "\n"
 }
 
-// Answer puts the agent's question to the keyboard and carries the reply back.
-// It draws on the terminal itself, because stdin is usually the pipe holding the
-// input the agent is asking about.
+// Answer puts the agent's question to the keyboard. It draws on the terminal
+// itself, as stdin is usually the pipe holding the input in question.
 func Answer(question string) (string, error) {
 	keyboard := console()
 	if keyboard == nil {

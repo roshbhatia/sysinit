@@ -25,9 +25,8 @@ func TestFreeOnlyForAnUnconstrainedShape(t *testing.T) {
 	}
 }
 
-// The stringified array is the answer that started this: a run asked for
-// []string and was handed a JSON string holding a JSON array, which read as a
-// success because nothing looked past the opening brace.
+// A JSON string holding a JSON array once read as a success, as nothing looked
+// past the opening brace.
 func TestCheckRejectsAStringifiedArray(t *testing.T) {
 	built, err := Build("files:[]string")
 	if err != nil {

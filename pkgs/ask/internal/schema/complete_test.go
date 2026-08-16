@@ -5,9 +5,8 @@ import (
 	"testing"
 )
 
-// The completion offers a type list of its own, so the parser has to accept
-// every entry on it. Without this a renamed type keeps being offered and only
-// fails when somebody picks it.
+// The completion keeps its own type list, so drift only shows when somebody
+// picks a type the parser no longer accepts.
 func TestEveryOfferedTypeParses(t *testing.T) {
 	for _, one := range offered {
 		if _, err := typeOf(one.kind); err != nil {
@@ -16,7 +15,6 @@ func TestEveryOfferedTypeParses(t *testing.T) {
 	}
 }
 
-// The same holds for the whole specs offered to an empty --schema.
 func TestEveryStarterBuilds(t *testing.T) {
 	for _, one := range starters {
 		if _, err := Build(one.spec); err != nil {

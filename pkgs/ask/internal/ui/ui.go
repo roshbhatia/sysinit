@@ -18,7 +18,7 @@ import (
 )
 
 // chrome is the rows a frame spends on itself: two borders, the head, the rule
-// under it, the help line, and one row of slack so the view never scrolls.
+// under it, the help line, and one row of slack.
 const (
 	chrome  = 6
 	deepest = 24
@@ -26,8 +26,7 @@ const (
 	unsized = 8
 )
 
-// depth answers how many event rows fit a terminal of this height. Zero means
-// the size has not arrived yet, so it holds the old fixed count.
+// depth answers how many event rows fit a terminal of this height.
 func depth(height int) int {
 	if height <= 0 {
 		return unsized
@@ -144,9 +143,8 @@ func (m *model) push(line row) {
 	m.trim()
 }
 
-// trim drops the oldest rows past what the window holds. It runs on a resize as
-// well as a push, so shrinking the terminal cuts the view down at once instead
-// of waiting for the next event.
+// trim runs on a resize as well as a push, so shrinking the terminal cuts the
+// view down at once.
 func (m *model) trim() {
 	if keep := depth(m.height); len(m.rows) > keep {
 		m.rows = m.rows[len(m.rows)-keep:]

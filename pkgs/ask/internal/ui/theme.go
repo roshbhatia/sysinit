@@ -9,9 +9,8 @@ import (
 	"github.com/charmbracelet/lipgloss"
 )
 
-// theme_config.json is written by modules/darwin/home/hammerspoon/default.nix
-// from the host's stylix scheme. Reading it is what makes this frame the same
-// colour as the shell around it; every other reader of the file is Lua.
+// Written by `modules/darwin/home/hammerspoon/default.nix` from the host's
+// stylix scheme; every other reader of it is Lua.
 const themeFile = "sysinit/theme_config.json"
 
 var hex = regexp.MustCompile(`^#[0-9a-fA-F]{6}$`)
@@ -46,9 +45,8 @@ func scheme() map[string]string {
 	return read.Base16
 }
 
-// paint answers the scheme's colour for a slot, or the fallback when the file is
-// missing a slot or absent. The fallbacks are the 256-colour numbers this frame
-// used before the scheme existed, so an unthemed machine looks unchanged.
+// paint falls back to the 256-colour number this frame used before the scheme
+// existed, so an unthemed machine looks unchanged.
 func paint(slots map[string]string, slot string, fallback string) lipgloss.Style {
 	if found, ok := slots[slot]; ok && hex.MatchString(found) {
 		return lipgloss.NewStyle().Foreground(lipgloss.Color(found))

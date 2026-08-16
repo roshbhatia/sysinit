@@ -168,8 +168,8 @@ func command(opts *options) *cobra.Command {
 	flags.BoolVar(&opts.showPrompt, "show-prompt", false, "print the last prompt and exit")
 	flags.BoolVar(&opts.showOutput, "show-output", false, "print the last answer and exit")
 	flags.BoolVar(&opts.showLast, "show-last", false, "print what --last would send and exit")
-	// A hidden flag rather than a subcommand, because the root command takes a
-	// bare prompt, so a `capture` subcommand would eat `ask capture the flag`.
+	// A flag, not a subcommand, as the root takes a bare prompt and a `capture`
+	// subcommand would eat `ask capture the flag`.
 	flags.BoolVar(&opts.capture, "capture", false, "snapshot the terminal and exit")
 	_ = flags.MarkHidden("capture")
 	flags.StringVar(&opts.setConfig, "set-config", "", "write one setting, as KEY=VALUE, and exit")
@@ -207,9 +207,7 @@ func command(opts *options) *cobra.Command {
 	return cmd
 }
 
-// models offers the models the agent about to run accepts, read from that CLI's
-// own help. Nothing here names a model, so a list cannot go stale; a CLI that
-// names none of its models offers nothing.
+// models offers what the agent about to run accepts, read from that CLI's help.
 func models(opts options) []string {
 	named, _ := source()
 	if opts.provider != "" {
@@ -227,8 +225,7 @@ func models(opts options) []string {
 	return offer
 }
 
-// agents offers every name an agent answers to, long and short, with a word
-// saying which agent it is and whether it is installed.
+// agents offers every name an agent answers to, long and short.
 func agents() []string {
 	offer := make([]string, 0, len(provider.Known())*2)
 	for _, one := range provider.Known() {
@@ -390,8 +387,7 @@ func answer(result *provider.Result, structured bool) ([]byte, error) {
 	return []byte(text), nil
 }
 
-// once runs the agent through to one result, drawing whichever view the terminal
-// allows.
+// once runs the agent to one result, drawing whichever view the terminal allows.
 func once(req provider.Request, opts options, agent provider.Provider) (*provider.Result, error) {
 	ctx, stop := context.WithTimeout(context.Background(), opts.timeout)
 	defer stop()
@@ -422,10 +418,8 @@ func once(req provider.Request, opts options, agent provider.Provider) (*provide
 	return result, nil
 }
 
-// converse runs the agent and keeps the exchange going until the answer fits.
-// It carries a reply back when the agent asks a question rather than guessing,
-// and carries the reason back when the answer is outside the shape. Only a
-// person can answer a question, so a run with no terminal reports it and stops.
+// converse runs the agent until the answer fits, carrying back either a reply to
+// its question or the reason its answer was rejected.
 func converse(req provider.Request, strict map[string]any, opts options, agent provider.Provider) (*provider.Result, error) {
 	human := !opts.quiet && term.IsTerminal(int(os.Stderr.Fd()))
 
@@ -462,12 +456,10 @@ func converse(req provider.Request, strict map[string]any, opts options, agent p
 	}
 }
 
-// rounds is how many times an agent may ask before it has to answer. Three is
-// enough for a real ambiguity and short enough that a loop cannot run away.
 const rounds = 3
 
-// asked reports a question nobody was there to answer. It leaves by its own exit
-// code, so a script can tell "I need to know something" from "I failed".
+// asked leaves by its own exit code, so a script can tell "I need to know
+// something" from "I failed".
 type asked struct{ question string }
 
 func (a asked) Error() string { return "the agent needs to know: " + a.question }

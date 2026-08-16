@@ -11,9 +11,6 @@ import (
 	"cuelang.org/go/encoding/jsonschema"
 )
 
-// keywords are the ways a schema can constrain something. A shape holding none
-// of them is the one --json asks for, which names no fields and so has nothing
-// to check; validating it would pass anything and cost a compile.
 var keywords = []string{"properties", "oneOf", "anyOf", "allOf", "items", "required", "enum", "$ref"}
 
 func Free(shape map[string]any) bool {
@@ -28,18 +25,9 @@ func Free(shape map[string]any) bool {
 	return true
 }
 
-// most is the number of reasons reported. Past a handful the answer is wrong in
-// a way one more line will not explain.
 const most = 6
 
-// Check answers with nil when the reply satisfies the schema, and with every
-// reason it does not otherwise. Without this the only test a reply faced was
-// whether it held a `{` at all, so an agent could answer `{"tags": "[\"a\"]"}`
-// for a `tags:[]string` field and be reported as a success.
-//
-// CUE does the checking. The schema goes out as JSON Schema, because that is
-// what both agents take, and comes back here as CUE constraints, which unify
-// with the answer and name the field that broke.
+// Check answers with every reason the reply is outside the shape, or nil.
 func Check(shape map[string]any, reply map[string]any) error {
 	if Free(shape) {
 		return nil
@@ -56,8 +44,8 @@ func Check(shape map[string]any, reply map[string]any) error {
 		return fmt.Errorf("the answer will not encode: %w", err)
 	}
 
-	// Concrete insists every field holds a value rather than only a type, which
-	// is what catches a missing required field.
+	// Concrete is what catches a missing required field, as a schema alone
+	// unifies with a type.
 	if err := constraint.Unify(given).Validate(cue.Concrete(true)); err != nil {
 		return fmt.Errorf("the answer is outside the shape: %s", reasons(err))
 	}
@@ -71,8 +59,7 @@ func compile(ctx *cue.Context, shape map[string]any) (cue.Value, error) {
 		return cue.Value{}, fmt.Errorf("the schema will not encode: %w", err)
 	}
 
-	// The shapes this builds carry no $schema, so the version has to be named
-	// here or Extract reads them as the oldest draft.
+	// Build emits no $schema, so Extract would otherwise read the oldest draft.
 	file, err := jsonschema.Extract(written, &jsonschema.Config{
 		DefaultVersion: jsonschema.VersionDraft2020_12,
 	})
@@ -87,9 +74,7 @@ func compile(ctx *cue.Context, shape map[string]any) (cue.Value, error) {
 	return built, nil
 }
 
-// value reads Go data into CUE through JSON, which is the only encoding both
-// sides agree on. Build hands out Go types such as []string that CUE would
-// otherwise read as something else.
+// value reads Go data into CUE through JSON, as CUE misreads a Go []string.
 func value(ctx *cue.Context, from any) (cue.Value, error) {
 	encoded, err := json.Marshal(from)
 	if err != nil {
@@ -99,9 +84,7 @@ func value(ctx *cue.Context, from any) (cue.Value, error) {
 	return read, read.Err()
 }
 
-// reasons flattens the failure into one line per broken rule. CUE renders a
-// multi-line tree by default, and this string is read back to the agent as the
-// reason to answer again, so it has to stay on one line.
+// reasons flattens the failure onto one line, as it is read back to the agent.
 func reasons(err error) string {
 	broken := cueerrors.Errors(err)
 	if len(broken) == 0 {
@@ -114,9 +97,8 @@ func reasons(err error) string {
 		format, args := one.Msg()
 		said := fmt.Sprintf(format, args...)
 
-		// An enum is a CUE disjunction, so a wrong value reports one conflict per
-		// branch under a header counting them. The header says nothing the
-		// branches do not.
+		// An enum is a disjunction, so this header only counts the branch
+		// conflicts reported beside it.
 		if strings.Contains(said, "in empty disjunction") {
 			continue
 		}

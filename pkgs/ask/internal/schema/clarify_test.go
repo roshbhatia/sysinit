@@ -6,8 +6,6 @@ import (
 	"testing"
 )
 
-// The wire shape has to hold a whole answer and a lone question, because the
-// agent picks between them and only one schema goes out.
 func TestRelaxedHoldsBothAnswerAndQuestion(t *testing.T) {
 	built, err := Build("files:[]string, count:int")
 	if err != nil {
@@ -29,8 +27,7 @@ func TestRelaxedHoldsBothAnswerAndQuestion(t *testing.T) {
 	}
 }
 
-// The Anthropic API rejects anyOf, oneOf and allOf at the top level of a tool
-// schema, so the wire shape must not grow one.
+// The Anthropic API rejects a top-level anyOf in a tool schema.
 func TestRelaxedKeepsNoTopLevelUnion(t *testing.T) {
 	built, err := Build("files:[]string")
 	if err != nil {
@@ -47,8 +44,7 @@ func TestRelaxedKeepsNoTopLevelUnion(t *testing.T) {
 	}
 }
 
-// Relaxing must not reach back into the shape the answer is checked against, or
-// every field silently becomes optional.
+// Reaching back would make every field of the strict shape optional.
 func TestRelaxedLeavesTheStrictShapeAlone(t *testing.T) {
 	built, err := Build("files:[]string")
 	if err != nil {

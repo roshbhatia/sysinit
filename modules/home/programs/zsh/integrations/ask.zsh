@@ -1,16 +1,10 @@
 #!/usr/bin/env zsh
 # shellcheck disable=all
 
-# `ask --last` hands an agent whatever the previous command printed. WezTerm
-# marks command boundaries with OSC 133, but `wezterm cli` does not expose the
-# zones, so the boundary is recorded here instead: one snapshot of the pane
-# before every command, and the text between two snapshots is one command's
-# output.
-#
-# This costs about 25ms per prompt, all of it inside `wezterm cli get-text`. It
-# runs in preexec rather than precmd so a bare enter does not rotate the
-# snapshots and throw away the output you were about to ask about. Set
-# ASK_CAPTURE=0 to turn it off.
+# Snapshots the pane for `ask --last`, as `wezterm cli` does not expose the
+# OSC 133 zones that mark where one command's output starts. Costs 25ms per
+# prompt; set ASK_CAPTURE=0 to turn it off. preexec, not precmd, so a bare enter
+# does not rotate the snapshots away.
 _ask_capture() {
   [[ ${ASK_CAPTURE:-1} == 1 ]] || return 0
   [[ -n $WEZTERM_PANE ]] || return 0

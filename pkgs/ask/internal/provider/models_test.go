@@ -5,9 +5,8 @@ import (
 	"testing"
 )
 
-// The shape of `claude --help` as of 2026-08-16. The parse reads a paragraph of
-// prose, so this pins what it is reading; a help reformat breaks this test
-// rather than silently offering nothing.
+// `claude --help` as of 2026-08-16. The parse reads prose, so a help reformat
+// must break this test rather than silently offer nothing.
 const claudeHelp = `  --fallback-model <model>              Enable automatic fallback to specified
                                         model(s) when overloaded.
   --model <model>                       Model for the current session. Provide
@@ -27,8 +26,7 @@ func TestAliases(t *testing.T) {
 	}
 }
 
-// The apostrophe in "a model's full name" sits between two real aliases. It
-// must not pair with either, or the list grows a phrase.
+// The apostrophe in "a model's full name" sits between two real aliases.
 func TestAliasesRejectsAPhrase(t *testing.T) {
 	for _, one := range aliases(claudeHelp, "--model <model>") {
 		if strings.ContainsAny(one, " )(.") {
@@ -37,8 +35,6 @@ func TestAliasesRejectsAPhrase(t *testing.T) {
 	}
 }
 
-// Reading the whole help would collect every quoted word in it, including the
-// fallback-model paragraph above the one that matters.
 func TestAliasesStopsAtTheNextFlag(t *testing.T) {
 	for _, one := range aliases(claudeHelp, "--model <model>") {
 		if one == "name" {
@@ -53,8 +49,6 @@ func TestAliasesOnHelpWithoutTheHeader(t *testing.T) {
 	}
 }
 
-// Codex names none of its models, so it must offer none rather than borrow
-// another agent's list.
 func TestCodexOffersNoModels(t *testing.T) {
 	one, found := Lookup("codex")
 	if !found {
