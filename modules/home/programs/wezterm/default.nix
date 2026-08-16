@@ -24,6 +24,11 @@ let
     text = builtins.readFile ./scripts/seshy-remote-list.sh;
   };
 
+  # The GUI attaches to this server rather than owning its own mux, so the
+  # supervisor has to restart it whenever the wezterm store path moves: a client
+  # refuses to attach to a server built from a different codec version.
+  muxServer = "${pkgs.wezterm}/bin/wezterm-mux-server";
+
   sshCfg = config.sysinit.git.ssh;
   sshAgentSocket =
     if lib.hasPrefix "~/" sshCfg.agentSocket then
@@ -199,6 +204,30 @@ in
       PATH = paths.getPathString config.home.username config.home.homeDirectory;
       TERMINFO_DIRS = "${pkgs.wezterm.terminfo}/share/terminfo";
     };
+  };
+
+  # Both are declared on both hosts. home-manager gates each on its own
+  # `enable`, which already defaults to the platform that owns it, so the one
+  # that does not apply writes nothing.
+  launchd.agents.wezterm-mux-server = {
+    enable = true;
+    config = {
+      ProgramArguments = [ muxServer ];
+      RunAtLoad = true;
+      KeepAlive = true;
+      StandardOutPath = "/tmp/wezterm-mux-server.log";
+      StandardErrorPath = "/tmp/wezterm-mux-server.error.log";
+    };
+  };
+
+  systemd.user.services.wezterm-mux-server = {
+    Unit.Description = "WezTerm multiplexer server";
+    Service = {
+      ExecStart = muxServer;
+      Restart = "always";
+      RestartSec = 2;
+    };
+    Install.WantedBy = [ "default.target" ];
   };
 
 }

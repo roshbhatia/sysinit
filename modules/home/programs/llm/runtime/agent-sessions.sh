@@ -64,7 +64,7 @@ have_live=0
 pane_ws=""
 active_pane=""
 if command -v wezterm > /dev/null 2>&1; then
-  pane_ws=$(timeout "$PROBE_TIMEOUT" wezterm cli list --format json 2> /dev/null |
+  pane_ws=$(timeout "$PROBE_TIMEOUT" wezterm cli --no-auto-start list --format json 2> /dev/null |
     jq -r '.[] | "\(.pane_id) \(.workspace // "") \(.is_active)"' 2> /dev/null)
   live=$(printf '%s\n' "$pane_ws" | awk 'NF { print $1 }' | tr '\n' ' ')
   [ -n "$live" ] && have_live=1

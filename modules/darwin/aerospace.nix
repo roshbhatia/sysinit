@@ -204,7 +204,7 @@ in
 
       mode = {
         main.binding = {
-          alt-enter = "exec-and-forget ${pkgs.sysinit-utils}/bin/wezspawn --wezterm ${pkgs.wezterm}/bin/wezterm";
+          alt-enter = "exec-and-forget ${pkgs.sysinit-utils}/bin/wezspawn --wezterm ${pkgs.wezterm}/bin/wezterm --gui-app ${pkgs.wezterm}/Applications/WezTerm.app";
 
           alt-t = "layout tiles horizontal vertical";
           alt-a = "layout accordion horizontal vertical";

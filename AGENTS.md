@@ -168,6 +168,12 @@ them errors; the code no longer carries a comment saying so.
   `send_composed_key_when_left_alt_is_pressed` to true, so left-alt composes.
   `modules/darwin/lib/chords.nix` is the shared vocabulary the collision check
   reads; two layers binding one chord means one wins and the other never fires.
+- `wezterm cli` starts a headless `wezterm-mux-server` when it finds no GUI, so
+  `wezterm cli spawn` with WezTerm closed prints a pane id, exits 0, and draws
+  nothing. The window is real and lives in the daemon until something attaches.
+  Every `wezterm cli` call from a window manager, a poller, or a hook therefore
+  passes `--no-auto-start`, and `wezspawn` opens a GUI on the `unix` domain
+  rather than spawning when `list-clients` is empty.
 - A zero-byte state file is what an interrupted first write leaves behind.
   Testing only for existence makes it absorbing: jq on an empty file exits 0 with
   no output, so every later write reports success and stores nothing.

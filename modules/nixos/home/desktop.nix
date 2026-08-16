@@ -180,7 +180,7 @@ in
         ];
 
         keybindings = lib.mkForce {
-          "${mod}+Return" = "exec ${pkgs.wezterm}/bin/wezterm start";
+          "${mod}+Return" = "exec ${pkgs.sysinit-utils}/bin/wezspawn --wezterm ${pkgs.wezterm}/bin/wezterm";
 
           "Mod4+space" = "exec ${pkgs.rofi}/bin/rofi -show drun";
 

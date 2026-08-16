@@ -2,7 +2,7 @@ local wezterm = require("wezterm")
 
 local M = {}
 
-local OPTIONAL = { "events", "keybindings", "ui" }
+local OPTIONAL = { "events", "keybindings", "mux", "ui" }
 
 local function report(failures)
   for _, f in ipairs(failures) do
@@ -14,9 +14,16 @@ local function report(failures)
     summary = summary .. (i > 1 and ", " or "") .. f.module
   end
 
+  -- `gui-startup` never fires for a GUI that connects to the mux instead of
+  -- starting its own, so the toast rides the first status update instead.
+  local toasted = false
   pcall(function()
-    wezterm.on("gui-startup", function()
-      wezterm.toast_notification("sysinit config degraded", summary, nil, 10000)
+    wezterm.on("update-status", function(window)
+      if toasted then
+        return
+      end
+      toasted = true
+      window:toast_notification("sysinit config degraded", summary, nil, 10000)
     end)
   end)
 end
