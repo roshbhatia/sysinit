@@ -336,10 +336,12 @@ let
   tierMcp = [
     "mcp__ast-grep__*"
     "mcp__basic-memory__*"
+    "mcp__cua__*"
     "mcp__playwright__*"
 
     "mcp__plugin_claude-code-home-manager_ast-grep__*"
     "mcp__plugin_claude-code-home-manager_basic-memory__*"
+    "mcp__plugin_claude-code-home-manager_cua__*"
     "mcp__plugin_claude-code-home-manager_playwright__*"
 
     "mcp__plugin_claude-code-home-manager_agentgateway__*"
