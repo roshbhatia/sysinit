@@ -432,6 +432,7 @@ in
            while leaving its last workspace behind, and hiding it would be
            indistinguishable from having no sessions at all. Mirrors the
            foreground_muted the sketchybar widget uses for the same state. */
+        #custom-agent-sessions.stale {
           color: #${c.base03};
         }
 
@@ -442,45 +443,57 @@ in
           border-radius: 0;
         }
 
+        #custom-logo {
           padding: 0 12px;
           color: #${c.base0D};
           font-size: 15px;
         }
 
+        #mode {
           padding: 0 10px;
           color: #${c.base00};
           background-color: #${c.base0A};
           font-weight: bold;
         }
 
+        #window {
           padding: 0 10px;
           color: #${c.base04};
           font-style: italic;
         }
 
+        #workspaces button {
           padding: 0 8px;
           color: #${c.base03};
           background: transparent;
         }
 
+        #workspaces button.focused {
           color: #${c.base05};
           font-weight: bold;
           border-bottom: 2px solid #${c.base0D};
         }
 
+        #workspaces button.urgent {
           color: #${c.base00};
           background-color: #${c.base08};
         }
 
+        #workspaces button:hover {
           color: #${c.base05};
           background: alpha(#${c.base02}, 0.5);
         }
 
+        #clock, #battery, #pulseaudio {
           padding: 0 10px;
           color: #${c.base05};
           border-left: 1px solid alpha(#${c.base02}, 0.5);
         }
 
+        #battery.warning { color: #${c.base0A}; }
+        #battery.critical { color: #${c.base08}; }
+        #battery.charging { color: #${c.base0B}; }
+        #pulseaudio.muted { color: #${c.base03}; }
       '';
     };
     rofi = {

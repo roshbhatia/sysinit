@@ -59,10 +59,12 @@ let
     }
 
     /* ========== TOOLBAR ========== */
+    #navigator-toolbox {
       background-color: var(--bg) !important;
       border: 0px !important;
     }
 
+    #navigator-toolbox::after {
       display: none !important;
     }
 
@@ -78,6 +80,7 @@ let
       -moz-box-pack: center;
     }
 
+    #nav-bar .toolbarbutton-1 {
       padding-top: 6px !important;
     }
 
@@ -116,6 +119,9 @@ let
 
     .tab-background:not([selected=true]),
     .tab-background[selected="true"],
+    #titlebar-buttonbox,
+    #TabsToolbar,
+    #nav-bar {
       background: var(--bg) !important;
     }
 
@@ -135,6 +141,7 @@ let
       color: var(--fg) !important;
     }
 
+    #TabsToolbar .tabbrowser-tab[selected] .tab-label {
       color: var(--fg) !important;
       font-weight: bold !important;
       font-size: 10px !important;
@@ -167,37 +174,46 @@ let
     }
 
     /* ========== URL BAR ========== */
+    #urlbar-container {
       min-width: 600px !important;
       flex: 1 !important;
       padding-top: 6px !important;
       margin-top: 2px !important;
     }
 
+    #urlbar {
       background: transparent !important;
       border: none !important;
       box-shadow: none !important;
     }
 
+    #urlbar-background {
       background: var(--bg-alt) !important;
       border: 1px solid var(--bg-sel) !important;
       border-radius: 4px !important;
       transition: border-color 150ms ease !important;
     }
 
+    #urlbar:focus-within > #urlbar-background {
       border-color: var(--accent) !important;
     }
 
+    #page-action-buttons { display: none !important; }
 
+    #urlbar .urlbar-input,
+    #urlbar .urlbar-input-box input {
       color: var(--fg) !important;
       caret-color: var(--accent) !important;
     }
 
+    #urlbar .urlbar-input::selection {
       background-color: var(--accent) !important;
       color: var(--bg) !important;
     }
 
     .urlbar-input-box > .urlbar-input::placeholder { opacity: 0 !important; }
 
+    #urlbar-results { background-color: var(--bg-alt) !important; }
 
     .urlbarView-row {
       background-color: var(--bg-alt) !important;
@@ -215,25 +231,45 @@ let
     .urlbarView-url { color: var(--fg-dim) !important; }
 
     /* ========== HIDE CLUTTER ========== */
+    #identity-box.extensionPage #identity-icon-labels,
+    #identity-box.extensionPage #identity-icon-label {
       visibility: collapse !important;
     }
+    #tracking-protection-icon-container { visibility: collapse !important; }
+    #identity-icon { visibility: visible !important; }
+    #home-button, #reload-button { display: none !important; }
+    #alltabs-button { display: none !important; }
+    #identity-permission-box,
+    #star-button-box,
+    #identity-icon-box,
+    #picture-in-picture-button,
+    #reader-mode-button,
+    #translations-button { display: none !important; }
+    #urlbar .search-one-offs { display: none !important; }
 
     .bookmark-item > .toolbarbutton-icon { display: none !important; }
 
     /* ========== FIND BAR ========== */
+    #findbar {
       background-color: var(--bg-alt) !important;
       color: var(--fg) !important;
       border-color: var(--bg-sel) !important;
     }
 
+    #findbar-textbox, #findbar input {
       background-color: var(--bg) !important;
       color: var(--fg) !important;
       border-color: var(--bg-sel) !important;
     }
 
+    #findbar button:hover { background-color: var(--bg-sel) !important; }
+    #findbar .found { background-color: var(--success) !important; color: var(--bg) !important; }
+    #findbar .notfound { background-color: var(--error) !important; color: var(--bg) !important; }
 
     /* ========== CONTEXT MENUS ========== */
     menupopup,
+    #main-menubar > menu > menupopup,
+    #context-navigation {
       color: var(--fg) !important;
       padding: 2px !important;
       background-color: var(--bg-alt) !important;
@@ -276,6 +312,7 @@ let
     /* ========== CONTENT AREA ========== */
     .browserContainer { background-color: var(--bg) !important; }
 
+    #nav-bar toolbarspring { display: none !important; }
   '';
 
   userContentCSS = ''
