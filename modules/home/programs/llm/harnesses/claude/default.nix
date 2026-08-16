@@ -166,6 +166,10 @@ in
               }
               {
                 type = "command";
+                command = "${profileBin}/prose-gate remind";
+              }
+              {
+                type = "command";
                 command = "${profileBin}/utils transcript-link claude";
                 async = true;
               }
@@ -259,6 +263,10 @@ in
               {
                 type = "command";
                 command = "${profileBin}/loop-gate check";
+              }
+              {
+                type = "command";
+                command = "${profileBin}/prose-gate check";
               }
               {
                 type = "command";

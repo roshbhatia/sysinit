@@ -13,6 +13,7 @@ import (
 	"github.com/roshbhatia/sysinit/pkgs/utils/internal/guard"
 	"github.com/roshbhatia/sysinit/pkgs/utils/internal/loopgate"
 	"github.com/roshbhatia/sysinit/pkgs/utils/internal/note"
+	"github.com/roshbhatia/sysinit/pkgs/utils/internal/prosegate"
 	"github.com/roshbhatia/sysinit/pkgs/utils/internal/statusline"
 	"github.com/roshbhatia/sysinit/pkgs/utils/internal/transcript"
 	"github.com/roshbhatia/sysinit/pkgs/utils/internal/watch"
@@ -38,6 +39,7 @@ var commands = map[string]command{
 	"loop-gate":       {name: "loop-gate", summary: loopgate.Summary, run: loopgate.Run},
 	"nix-guard":       {name: "nix-guard", summary: guard.NixSummary, run: guard.RunNix},
 	"note":            {name: "note", summary: note.Summary, run: note.Run},
+	"prose-gate":      {name: "prose-gate", summary: prosegate.Summary, run: prosegate.Run},
 	"statusline":      {name: "statusline", summary: statusline.Summary, run: statusline.Run},
 	"transcript-link": {name: "transcript-link", summary: transcript.Summary, run: transcript.Run},
 	"watch":           {name: "watch", summary: watch.Summary, run: watch.Run},
@@ -65,6 +67,7 @@ var links = map[string]link{
 	"loop-gate":        {command: "loop-gate"},
 	"nix-guard":        {command: "nix-guard"},
 	"note":             {command: "note"},
+	"prose-gate":       {command: "prose-gate"},
 	"transcript-link":  {command: "transcript-link"},
 	"wezspawn":         {command: "wezspawn"},
 	"worker":           {command: "worker"},
