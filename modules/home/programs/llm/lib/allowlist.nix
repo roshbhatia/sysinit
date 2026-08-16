@@ -230,7 +230,9 @@ let
       reason = "Force-pushing is prohibited (global CLAUDE.md: no force-push).";
     }
     {
-      regex = "(--no-verify|--no-gpg-sign)\\b";
+      # Anchored on a git verb like its siblings. Unanchored, the flag name inside
+      # a quoted grep pattern denied a read-only search.
+      regex = "git[[:space:]]+[a-z-]+\\b[^;&|]*(--no-verify|--no-gpg-sign)\\b";
       reason = "Hook-bypass flags are prohibited (global CLAUDE.md: no --no-verify / --no-gpg-sign).";
     }
     {
