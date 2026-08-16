@@ -17,6 +17,10 @@ Usage:
   prose-gate check     Stop hook. Reads the event on stdin, blocks a reply that
                        is over budget or carries the tells.
   prose-gate remind    UserPromptSubmit hook. Prints the shape and the budget.
+  prose-gate session   SessionStart hook. Prints the style rule and the context
+                       rules, which a fresh or compacted session has just lost.
+  prose-gate subagent  SubagentStop hook. Blocks a teammate report that returns
+                       the material instead of the conclusion.
   prose-gate lint      Reads text on stdin, prints the findings, exits 1 on any.
 
 The budget counts prose only: fenced code, headings, lists, tables and quotes are
@@ -29,11 +33,16 @@ const (
 	// One tell is a slip. Two is the register the reply was written in, and only
 	// the register is worth a turn to fix.
 	maxTells = 1
+	// A teammate reports into the caller's context, so its report is the whole
+	// cost of delegating. Anthropic sizes a useful one at 1,000 to 2,000 tokens;
+	// 6 KiB is the top of that range.
+	maxReportBytes = 6 * 1024
 )
 
 type stopEvent struct {
 	LastAssistantMessage string `json:"last_assistant_message"`
 	StopHookActive       bool   `json:"stop_hook_active"`
+	AgentType            string `json:"agent_type"`
 }
 
 type blockDecision struct {
@@ -41,13 +50,22 @@ type blockDecision struct {
 	Reason   string `json:"reason"`
 }
 
-type promptOutput struct {
-	HookSpecificOutput promptContext `json:"hookSpecificOutput"`
+type contextOutput struct {
+	HookSpecificOutput injectedContext `json:"hookSpecificOutput"`
 }
 
-type promptContext struct {
+type injectedContext struct {
 	HookEventName     string `json:"hookEventName"`
 	AdditionalContext string `json:"additionalContext"`
+}
+
+func inject(event, text string) int {
+	encoded, err := json.Marshal(contextOutput{injectedContext{event, text}})
+	if err != nil {
+		return 0
+	}
+	fmt.Println(string(encoded))
+	return 0
 }
 
 type tell struct {
@@ -204,10 +222,70 @@ func remind() int {
 	if os.Getenv("SYSINIT_PROSE_GATE") == "off" {
 		return 0
 	}
-	text := fmt.Sprintf(
+	return inject("UserPromptSubmit", fmt.Sprintf(
 		"Answer shape: what changed, why, next action. ASD-STE100, at most %d prose paragraphs and %d words, lists and tables excluded. No em-dash, no preamble, no closing summary.",
-		maxParagraphs, maxWords)
-	encoded, err := json.Marshal(promptOutput{promptContext{"UserPromptSubmit", text}})
+		maxParagraphs, maxWords))
+}
+
+// A session starts, resumes, or comes back from a compaction with the system
+// prompt intact and nothing else. These are the two rules that a fresh window
+// otherwise has to rediscover: how to write, and what not to read.
+func session() int {
+	if os.Getenv("SYSINIT_PROSE_GATE") == "off" {
+		return 0
+	}
+	return inject("SessionStart", fmt.Sprintf(`IMPORTANT: the sysinit-ste output style governs every reply. YOU MUST hold it for
+the whole session, not only the first answer.
+
+  - Lead with the answer. What changed, why, the next concrete action.
+  - ASD-STE100: one instruction per sentence, active voice, one term per concept.
+  - At most %d prose paragraphs and %d words. A list or a table costs nothing, so
+    use one when it carries the answer better than a sentence.
+  - Numbers, not adjectives. No em-dash, no preamble, no recap, no closing summary.
+
+Context is the budget that runs out first, so spend it on purpose:
+
+  - Grep or Glob to find the lines. Read the range, not the file.
+  - Delegate a search that spans many files to a subagent, which reads in its own
+    window and reports back the conclusion.
+  - Never re-read a file to confirm an edit that Edit or Write already reported.
+  - Give any command that can print without bound a limit: head, -n, --max-count.`,
+		maxParagraphs, maxWords))
+}
+
+// A teammate's report is the entire cost of delegating: the caller pays for it
+// in the window the delegation was meant to protect. Size is the only thing
+// worth gating here, because a report is data and the style rules are not.
+func subagent(stdin io.Reader) int {
+	if os.Getenv("SYSINIT_PROSE_GATE") == "off" {
+		return 0
+	}
+	data, err := io.ReadAll(stdin)
+	if err != nil {
+		return 0
+	}
+	var ev stopEvent
+	if json.Unmarshal(data, &ev) != nil {
+		return 0
+	}
+	if ev.StopHookActive || len(ev.LastAssistantMessage) <= maxReportBytes {
+		return 0
+	}
+
+	encoded, err := json.Marshal(blockDecision{
+		Decision: "block",
+		Reason: fmt.Sprintf(`That report is %d KiB and the budget is %d KiB. It lands whole in the caller's
+context window, so it has to carry the conclusion, not the material.
+
+Send it again with:
+
+  1. The answer, in one or two sentences.
+  2. The evidence as file:line pointers. The caller can read what it needs.
+  3. What you could not determine, and where you stopped.
+
+Quote a file only where the exact text is the finding.`,
+			len(ev.LastAssistantMessage)/1024, maxReportBytes/1024),
+	})
 	if err != nil {
 		return 0
 	}
@@ -245,6 +323,10 @@ func Run(args []string) int {
 		return check(os.Stdin)
 	case "remind":
 		return remind()
+	case "session":
+		return session()
+	case "subagent":
+		return subagent(os.Stdin)
 	case "lint":
 		return lint(os.Stdin)
 	case "-h", "--help", "help":

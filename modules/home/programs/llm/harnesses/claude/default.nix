@@ -236,6 +236,28 @@ in
             ];
           }
         ];
+        SessionStart = [
+          {
+            matcher = "";
+            hooks = [
+              {
+                type = "command";
+                command = "${profileBin}/prose-gate session";
+              }
+            ];
+          }
+        ];
+        SubagentStop = [
+          {
+            matcher = "";
+            hooks = [
+              {
+                type = "command";
+                command = "${profileBin}/prose-gate subagent";
+              }
+            ];
+          }
+        ];
         SessionEnd = [
           {
             matcher = "";
