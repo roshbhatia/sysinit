@@ -17,6 +17,10 @@ let
     name = "sysinit-codesign";
     runtimeInputs = [ pkgs.openssl ];
     text = ''
+      # security, codesign and sudo are Apple's and live outside the Nix path,
+      # which home-manager activation does not inherit.
+      export PATH="/usr/bin:/bin:/usr/sbin:$PATH"
+
       KEYCHAIN=${lib.escapeShellArg keychain}
       PW_FILE=${lib.escapeShellArg passwordFile}
       SIGNED_BIN=${lib.escapeShellArg signedBinDir}
