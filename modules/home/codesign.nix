@@ -22,6 +22,11 @@ let
       # which home-manager activation does not inherit.
       export PATH="/usr/bin:/bin:/usr/sbin:$PATH"
 
+      # nh swallows activation output, and a signature that silently fails to
+      # apply reads exactly like one that was never attempted.
+      exec 2> >(tee -a /tmp/sysinit-codesign.log >&2)
+      echo "--- $(date '+%Y-%m-%d %H:%M:%S') mode=''${1:-user} uid=$(id -u)" >&2
+
       KEYCHAIN=${lib.escapeShellArg keychain}
       PW_FILE=${lib.escapeShellArg passwordFile}
       CERT_FILE=${lib.escapeShellArg certFile}
