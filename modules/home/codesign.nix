@@ -113,11 +113,17 @@ let
         exit 0
       fi
       # codesign searches the calling user's own keychain list, and root's does
-      # not hold the owner's keychain. Append rather than replace: -s takes the
-      # whole list, so passing only ours would drop the login keychain.
+      # not hold the owner's keychain. `-s` replaces the whole list, so the login
+      # keychain is named explicitly: dropping it costs the user every saved
+      # credential, git's included.
       if ! security list-keychains -d user | tr -d ' "' | grep -qx "$KEYCHAIN"; then
+        local_login="$HOME/Library/Keychains/login.keychain-db"
         # shellcheck disable=SC2046
-        security list-keychains -d user -s $(security list-keychains -d user | tr -d ' "') "$KEYCHAIN"
+        security list-keychains -d user -s \
+          $(security list-keychains -d user | tr -d ' "') \
+          $([ -f "$local_login" ] && echo "$local_login") \
+          /Library/Keychains/System.keychain "$KEYCHAIN" \
+          2>/dev/null || true
       fi
       security unlock-keychain -p "$(cat "$PW_FILE")" "$KEYCHAIN"
 
@@ -146,11 +152,15 @@ let
           --timestamp=none "$target" 2>&1 | grep -v "replacing existing signature" || true
       }
 
+      # No already_ours check here. home-manager rsyncs these bundles from the
+      # store on every activation, and codesign reports the signature it saw
+      # before that copy, so a skip decision made from it silently leaves the
+      # unsigned version in place. Signing an already-signed bundle costs
+      # seconds; skipping one wrongly costs a permission prompt.
       sign_app() {
         local app="$1" sudo_prefix="''${2:-}"
         if [ ! -d "$app" ]; then return 0; fi
         if ! is_adhoc "$app"; then return 0; fi
-        if already_ours "$app"; then return 0; fi
         sign "$app" "$sudo_prefix"
       }
 
