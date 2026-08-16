@@ -13,12 +13,14 @@ const (
 )
 
 var (
-	dim    = lipgloss.NewStyle().Foreground(lipgloss.Color("245"))
-	accent = lipgloss.NewStyle().Foreground(lipgloss.Color("111"))
-	bad    = lipgloss.NewStyle().Foreground(lipgloss.Color("203"))
-	tool   = lipgloss.NewStyle().Foreground(lipgloss.Color("150"))
-	edge   = lipgloss.NewStyle().Foreground(lipgloss.Color("238"))
-	chosen = lipgloss.NewStyle().Foreground(lipgloss.Color("111")).Bold(true)
+	slots = scheme()
+
+	dim    = paint(slots, "base04", "245")
+	accent = paint(slots, "base0D", "111")
+	bad    = paint(slots, "base08", "203")
+	tool   = paint(slots, "base0B", "150")
+	edge   = paint(slots, "base02", "238")
+	chosen = accent.Bold(true)
 )
 
 // inner answers with the room a frame leaves for content, given the whole terminal.

@@ -17,7 +17,30 @@ import (
 	"github.com/roshbhatia/sysinit/pkgs/ask/internal/provider"
 )
 
-const depth = 8
+// chrome is the rows a frame spends on itself: two borders, the head, the rule
+// under it, the help line, and one row of slack so the view never scrolls.
+const (
+	chrome  = 6
+	deepest = 24
+	shallow = 3
+	unsized = 8
+)
+
+// depth answers how many event rows fit a terminal of this height. Zero means
+// the size has not arrived yet, so it holds the old fixed count.
+func depth(height int) int {
+	if height <= 0 {
+		return unsized
+	}
+	room := height - chrome
+	if room < shallow {
+		return shallow
+	}
+	if room > deepest {
+		return deepest
+	}
+	return room
+}
 
 // ErrStopped says the run ended because the keyboard asked it to.
 var ErrStopped = errors.New("stopped")
@@ -48,6 +71,7 @@ type model struct {
 	rows    []row
 	status  string
 	width   int
+	height  int
 	started time.Time
 	result  *provider.Result
 	stopped bool
@@ -85,7 +109,8 @@ func (m model) Update(message tea.Msg) (tea.Model, tea.Cmd) {
 		m.spin, cmd = m.spin.Update(message)
 		return m, cmd
 	case tea.WindowSizeMsg:
-		m.width = message.Width
+		m.width, m.height = message.Width, message.Height
+		m.trim()
 		return m, nil
 	case tea.KeyMsg:
 		if key.Matches(message, running.stop) {
@@ -116,8 +141,15 @@ func (m *model) take(event provider.Event) {
 
 func (m *model) push(line row) {
 	m.rows = append(m.rows, line)
-	if len(m.rows) > depth {
-		m.rows = m.rows[len(m.rows)-depth:]
+	m.trim()
+}
+
+// trim drops the oldest rows past what the window holds. It runs on a resize as
+// well as a push, so shrinking the terminal cuts the view down at once instead
+// of waiting for the next event.
+func (m *model) trim() {
+	if keep := depth(m.height); len(m.rows) > keep {
+		m.rows = m.rows[len(m.rows)-keep:]
 	}
 }
 
