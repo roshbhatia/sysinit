@@ -6,10 +6,11 @@ operating procedure; read this file for the WHY and the exact loop.
 
 ## The loop
 
-A generator proposes an artifact; independent adversaries try to break it; the
-generator revises against surviving objections; repeat until the loop reaches a
-terminal state: no objection survives, the owner halts it, the scaled round cap
-is hit, or it stops early on non-convergence or churn. Each step below names its source.
+A generator proposes an artifact. Independent adversaries try to break it, and
+the generator revises against surviving objections. Repeat until the loop
+reaches a terminal state. That state is one of four. No objection survives. The
+owner halts it. The scaled round cap is hit. It stops early on non-convergence
+or churn. Each step below names its source.
 
 1. **Propose.** The generator produces the artifact (plan, spec, design, code).
    Source: Self-Refine (Madaan et al., 2023, arXiv:2303.17651).
@@ -21,8 +22,8 @@ is hit, or it stops early on non-convergence or churn. Each step below names its
    instance or a different model, with the artifact's authorship hidden. Each is
    prompted to REFUTE: "Produce a concrete scenario in which this artifact fails.
    Name the rubric item it violates. If you cannot, reply `NO SURVIVING
-   OBJECTION`." Source: Multiagent Debate (Du et al., 2023, arXiv:2305.14325) for
-   independence; anti-bias sourcing in the failure-modes section.
+   OBJECTION`." Source: Multiagent Debate (Du et al., 2023, arXiv:2305.14325)
+   for independence. Anti-bias sourcing is in the failure-modes section.
 4. **Require a concrete failing scenario.** An objection is valid only with
    reproducible conditions or a verification question answered in isolation,
    never prose vibes. Source: Chain-of-Verification (Dhuliawala et al., 2023,
@@ -30,9 +31,9 @@ is hit, or it stops early on non-convergence or churn. Each step below names its
    al., 2024, arXiv:2407.00215).
 5. **Revise against surviving objections only.** The generator rewrites to remove
    upheld defects. The same instance MUST NOT both bless and rewrite an artifact
-   unaided. Source: Constitutional AI critique→revise (arXiv:2212.08073); the
-   external-signal requirement of "LLMs Cannot Self-Correct Reasoning Yet" (Huang
-   et al., 2023, arXiv:2310.01798).
+   unaided. Source: Constitutional AI critique→revise (arXiv:2212.08073). Also
+   the external-signal requirement of "LLMs Cannot Self-Correct Reasoning Yet"
+   (Huang et al., 2023, arXiv:2310.01798).
 6. **Rotate lenses each round.** Assign one lens per critic per round, e.g.
    correctness, security, ops/rollback, cost, data-migration. Source:
    Constitutional AI principle sampling (arXiv:2212.08073).
@@ -42,9 +43,9 @@ is hit, or it stops early on non-convergence or churn. Each step below names its
 
 - STOP when a full round yields `NO SURVIVING OBJECTION` from all N critics.
   Generalizes Self-Refine's stop indicator (arXiv:2303.17651) to N critics.
-- ROUND CAP scaled to blast radius: K=2 for one file or one phase, K=4 for a
-  single-capability change, K=6 for a cross-capability change or one that mutates
-  the live system.
+- ROUND CAP scaled to blast radius. K=2 for one file or one phase. K=4 for a
+  single-capability change. K=6 for a cross-capability change, or one that
+  mutates the live system.
 
   Earlier versions of this skill used a flat K=4 and cited Self-Refine's
   max-4-iterations (arXiv:2303.17651) as the source. That citation was an
@@ -61,26 +62,26 @@ is hit, or it stops early on non-convergence or churn. Each step below names its
   introduced by round 2's fixes. A flat K=4 stopped that loop mid-flight with no
   clean round, which is the failure this scaling exists to make visible.
 - STOP EARLY on non-convergence. Stop before K when the surviving-objection
-  count fails to decline across two consecutive rounds, or when every surviving
-  objection in a round was caused by the previous round's fixes. Both indicate
+  count fails to decline across two consecutive rounds. Stop too when the
+  previous round's fixes caused every surviving objection. Both indicate
   churn rather than progress. These are hand-back conditions: report the trend
   and let the owner decide. No paper backs these thresholds; they are engineering
   choices motivated by the observation above.
 - Objection survival tie-break. Inside a round, an objection "survives" if a
   majority of critics uphold it on re-examination. Majority voting is a common
   extension of Multiagent Debate, NOT Du et al.'s stated organic-convergence
-  mechanism, treat it as an engineering choice, not a paper result.
-- ELICIT AT EVERY ROUND BOUNDARY. Ask whether to continue before spawning
-  the next round, and carry the decision inputs into the question: the round
-  reached, the cap, the per-round objection trend, and what remains open. The
+  mechanism. Treat it as an engineering choice, not a paper result.
+- ELICIT AT EVERY ROUND BOUNDARY. Ask whether to continue before spawning the
+  next round. Carry the decision inputs into the question: the round reached,
+  the cap, the per-round objection trend, and what remains open. The
   owner should not have to interrupt to end a loop. Recommend halting when the
   count is flat or rising, or when a round produced only fix-induced
-  regressions, rather than spending the round and reporting it afterward.
+  regressions. Do not spend the round and report it afterward.
 - OWNER HALT. The owner may stop the loop at any transition and go straight
   to the gate. Honor it at the next transition, apply nothing further, and
   report the open objections rather than dropping them. A halt is a decision
-  made with the objection list visible, which is different from a waiver made
-  before the loop ran and different from a cap hit, which nobody chose.
+  made with the objection list visible. A waiver is made before the loop ran,
+  and a cap hit is chosen by nobody.
 - A cap hit is not a pass. An artifact that never reached a clean round
   carries known-unreviewed state. The report MUST name the terminal state
   explicitly rather than presenting a cap hit as completion.
@@ -109,9 +110,10 @@ mandatory for this skill.
    (arXiv:2407.00215). → Force a concrete defect; run N independent critics;
    require survival across the panel.
 
-Consolidated: (a) separate/independent critic; (b) hide authorship; (c) prompt
-for refutation + a concrete failing scenario; (d) rotate lenses; (e) N critics,
-require survival; (f) bound with a blast-radius-scaled K, early stops on churn, and an owner halt.
+Consolidated: (a) separate, independent critic. (b) Hide authorship. (c) Prompt
+for refutation plus a concrete failing scenario. (d) Rotate lenses. (e) Run N
+critics and require survival. (f) Bound with a blast-radius-scaled K, early
+stops on churn, and an owner halt.
 
 ## Mapping to spec-driven OpenSpec artifacts
 
@@ -119,14 +121,14 @@ require survival; (f) bound with a blast-radius-scaled K, early stops on churn, 
   and `Rollout & Gating`, and the proposal `Non-goals` ARE the rubric. The critic
   cites which criterion, decision, or gate the plan violates. The schema carries
   no separate requirement spec: acceptance criteria live in the proposal.
-- What the critic breaks. For a plan, "fails" means: a `Behavior` criterion
-  the plan cannot satisfy, a criterion no command or observation can decide, a
-  decision whose rejected alternative was actually better, a rollout step that
-  mutates shared state with no verification gate, or a non-goal the plan silently
-  crosses.
+- What the critic breaks. For a plan, "fails" means any one of five things. A
+  `Behavior` criterion the plan cannot satisfy. A criterion no command or
+  observation can decide. A decision whose rejected alternative was actually
+  better. A rollout step that mutates shared state with no verification gate. A
+  non-goal the plan silently crosses.
 - Where it runs. The `tasks.md` review-loop gate per phase references this
-  skill, and the findings land in the change's `review.md`; the skill decides
-  in-process vs spawned execution.
+  skill, and the findings land in the change's `review.md`. The skill decides
+  between in-process and spawned execution.
 
 ## Citation index
 
