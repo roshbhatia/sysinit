@@ -26,7 +26,7 @@ runnable when a prerequisite is still open.
 specutil graph --suggest
 ```
 
-This finds changes that share capabilities — where one change adds a capability
+This finds changes that share capabilities, where one change adds a capability
 and another modifies it, a dependency is implied. Review the output.
 
 ### 2. AI-powered discovery (optional, recommended)
@@ -48,7 +48,7 @@ modes output a `SuggestReport` JSON with `candidates`; each candidate has `from`
 
 ### 3. Review with user
 
-Summarize the candidates — group by: edges not already in `openspec/specutil.yaml`,
+Summarize the candidates, group by: edges not already in `openspec/specutil.yaml`,
 show from → to with reason. Use AskUserQuestion to confirm before writing.
 
 ### 4. Apply accepted edges
@@ -84,7 +84,7 @@ Confirm the new edges appear and there are no cycles (reported as warnings).
 ## Guardrails
 
 - Never add a self-edge (from == to).
-- Never add an edge that creates a cycle — `specutil graph` reports cycles as
+- Never add an edge that creates a cycle, `specutil graph` reports cycles as
   warnings; if you see one after applying, remove the offending edge.
 - Always confirm with the user before writing to `openspec/specutil.yaml`.
 - Show the `capability` field (reason string) to help users evaluate each edge.

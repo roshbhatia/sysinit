@@ -15,7 +15,7 @@ is hit, or it stops early on non-convergence or churn. Each step below names its
    Source: Self-Refine (Madaan et al., 2023, arXiv:2303.17651).
 2. **Bind a rubric.** Collect the artifact's acceptance criteria, invariants, and
    non-goals into a written rubric. A critic MUST cite a specific rubric item it
-   believes is violated — not give a global score. Source: Constitutional AI
+   believes is violated, not give a global score. Source: Constitutional AI
    (Bai et al., 2022, arXiv:2212.08073), principle anchoring.
 3. **Spawn N independent adversaries (default N=3).** Each critic is a fresh
    instance or a different model, with the artifact's authorship hidden. Each is
@@ -24,7 +24,7 @@ is hit, or it stops early on non-convergence or churn. Each step below names its
    OBJECTION`." Source: Multiagent Debate (Du et al., 2023, arXiv:2305.14325) for
    independence; anti-bias sourcing in the failure-modes section.
 4. **Require a concrete failing scenario.** An objection is valid only with
-   reproducible conditions or a verification question answered in isolation —
+   reproducible conditions or a verification question answered in isolation,
    never prose vibes. Source: Chain-of-Verification (Dhuliawala et al., 2023,
    arXiv:2309.11495); LLM Critics Help Catch LLM Bugs / "CriticGPT" (McAleese et
    al., 2024, arXiv:2407.00215).
@@ -40,9 +40,9 @@ is hit, or it stops early on non-convergence or churn. Each step below names its
 
 ## Stop criterion (hybrid)
 
-- **STOP** when a full round yields `NO SURVIVING OBJECTION` from all N critics.
+- STOP when a full round yields `NO SURVIVING OBJECTION` from all N critics.
   Generalizes Self-Refine's stop indicator (arXiv:2303.17651) to N critics.
-- **ROUND CAP** scaled to blast radius: K=2 for one file or one phase, K=4 for a
+- ROUND CAP scaled to blast radius: K=2 for one file or one phase, K=4 for a
   single-capability change, K=6 for a cross-capability change or one that mutates
   the live system.
 
@@ -60,28 +60,28 @@ is hit, or it stops early on non-convergence or churn. Each step below names its
   never declined monotonically, and round 3 consisted entirely of defects
   introduced by round 2's fixes. A flat K=4 stopped that loop mid-flight with no
   clean round, which is the failure this scaling exists to make visible.
-- **STOP EARLY on non-convergence.** Stop before K when the surviving-objection
+- STOP EARLY on non-convergence. Stop before K when the surviving-objection
   count fails to decline across two consecutive rounds, or when every surviving
   objection in a round was caused by the previous round's fixes. Both indicate
   churn rather than progress. These are hand-back conditions: report the trend
   and let the owner decide. No paper backs these thresholds; they are engineering
   choices motivated by the observation above.
-- **Objection survival tie-break.** Inside a round, an objection "survives" if a
+- Objection survival tie-break. Inside a round, an objection "survives" if a
   majority of critics uphold it on re-examination. Majority voting is a common
   extension of Multiagent Debate, NOT Du et al.'s stated organic-convergence
-  mechanism — treat it as an engineering choice, not a paper result.
-- **ELICIT AT EVERY ROUND BOUNDARY.** Ask whether to continue before spawning
+  mechanism, treat it as an engineering choice, not a paper result.
+- ELICIT AT EVERY ROUND BOUNDARY. Ask whether to continue before spawning
   the next round, and carry the decision inputs into the question: the round
   reached, the cap, the per-round objection trend, and what remains open. The
   owner should not have to interrupt to end a loop. Recommend halting when the
   count is flat or rising, or when a round produced only fix-induced
   regressions, rather than spending the round and reporting it afterward.
-- **OWNER HALT.** The owner may stop the loop at any transition and go straight
+- OWNER HALT. The owner may stop the loop at any transition and go straight
   to the gate. Honor it at the next transition, apply nothing further, and
   report the open objections rather than dropping them. A halt is a decision
   made with the objection list visible, which is different from a waiver made
   before the loop ran and different from a cap hit, which nobody chose.
-- **A cap hit is not a pass.** An artifact that never reached a clean round
+- A cap hit is not a pass. An artifact that never reached a clean round
   carries known-unreviewed state. The report MUST name the terminal state
   explicitly rather than presenting a cap hit as completion.
 
@@ -115,16 +115,16 @@ require survival; (f) bound with a blast-radius-scaled K, early stops on churn, 
 
 ## Mapping to spec-driven OpenSpec artifacts
 
-- **Rubric source.** The proposal's `Behavior` criteria, the design `Decisions`
+- Rubric source. The proposal's `Behavior` criteria, the design `Decisions`
   and `Rollout & Gating`, and the proposal `Non-goals` ARE the rubric. The critic
   cites which criterion, decision, or gate the plan violates. The schema carries
   no separate requirement spec: acceptance criteria live in the proposal.
-- **What the critic breaks.** For a plan, "fails" means: a `Behavior` criterion
+- What the critic breaks. For a plan, "fails" means: a `Behavior` criterion
   the plan cannot satisfy, a criterion no command or observation can decide, a
   decision whose rejected alternative was actually better, a rollout step that
   mutates shared state with no verification gate, or a non-goal the plan silently
   crosses.
-- **Where it runs.** The `tasks.md` review-loop gate per phase references this
+- Where it runs. The `tasks.md` review-loop gate per phase references this
   skill, and the findings land in the change's `review.md`; the skill decides
   in-process vs spawned execution.
 

@@ -34,7 +34,7 @@ of one is just a PR.
 
 A PR title is a commit subject: compose it with the `writing-commit-message`
 skill (`<type>(<scope>): <TICKET>: <description>`, ticket after the scope and
-before the description — never a trailing suffix). PR-specific addition:
+before the description, never a trailing suffix). PR-specific addition:
 multiple tickets join with `/` (`INF-2291/INF-2493`).
 
 ## First, read the repo's contribution docs
@@ -85,7 +85,7 @@ The template's structure is canonical. Fill its sections; leave its structure al
 Only check or leave the existing `- [ ]` items; never append new ones, even when
 the change seems to warrant one.
 
-## How to create the PR — exact form
+## How to create the PR: exact form
 
 ```bash
 gh pr create --web \
@@ -135,19 +135,19 @@ https://linear.app/<workspace>/issue/PROJECT-NNN/<slug>
 
 Use only `## Summary` and at most `## Validating Changes (ad-hoc, if logic is not
 covered by automated tests)`. Do not invent `## Risks`, `## Test plan`,
-`## Description`, `## Motivation and context`, or `## Types of changes` — those
+`## Description`, `## Motivation and context`, or `## Types of changes`, those
 are auto-template defaults or post-corpus inventions.
 
-## Summary bullets — good vs bad
+## Summary bullets: good vs bad
 
 ```
-# good — one sentence per bullet, identifiers backticked, causal `so`/`as`/`because`
+# good, one sentence per bullet, identifiers backticked, causal `so`/`as`/`because`
 - Removes the `aws-knowledge` MCP server as it is no longer used.
 - Defaults structural search to `ast-grep` so agents stop approximating code shapes with regex.
 
 # bad
-- This PR adds a bunch of changes — it removes the server and also...   <- preamble + em-dash + multi-clause
-- **Search**: now uses ast-grep                                         <- bolded list row
+- This PR adds a bunch of changes, it removes the server and also...   <- preamble + em-dash + multi-clause
+- Search: now uses ast-grep                                         <- bolded list row
 ```
 
 The shortest acceptable bullet for a self-evident PR is `See title.`. For a PR
@@ -157,8 +157,8 @@ multi-sentence bullets.
 
 ## Show a rerouted call path, do not describe it
 
-When a change moves control flow — a new call path, a dropped one, a caller
-rerouted — run `calldiff diff <base> --max-depth 3` and put the plain tree in a
+When a change moves control flow, a new call path, a dropped one, a caller
+rerouted, run `calldiff diff <base> --max-depth 3` and put the plain tree in a
 fenced block under `## Summary`, below the bullets. The tree is shorter than the
 paragraph, and a reviewer can check it. Then delete the bullet that was
 describing the same thing in prose.
@@ -169,7 +169,7 @@ for a Nix-only change, which calldiff cannot parse, and for a change that only
 edits bodies without moving edges. Load the `calldiff` skill for the flags.
 
 ````markdown
-<!-- good — the tree carries the claim -->
+<!-- good, the tree carries the claim -->
 ## Summary
 
 - Routes clipboard restore through `panel.hide()` so the panel closes before the paste lands.
@@ -180,7 +180,7 @@ edits bodies without moving edges. Load the `calldiff` skill for the flags.
   └─ clipboard.restore(row.entry)
 ```
 
-<!-- bad — a paragraph doing the tree's job, and an invented section -->
+<!-- bad, a paragraph doing the tree's job, and an invented section -->
 ## Call graph
 
 Previously `activate` called `clipboard.restore` directly, but now it first
@@ -192,13 +192,13 @@ calls `panel.hide()`, which changes the ordering such that...
 Optional. Use only when behavior was hand-verified rather than covered by tests.
 Header is literally `## Validating Changes (ad-hoc, if logic is not covered by
 automated tests)`. Bullets are past tense, describing what was actually done. If
-nothing was hand-verified, omit the section — do not leave an empty placeholder.
+nothing was hand-verified, omit the section, do not leave an empty placeholder.
 
 ## Never
 
 - Paste a generic GitHub template over an existing repo template.
-- Preamble (`This PR adds…`, `In this change…`) — lead with the action.
+- Preamble (`This PR adds…`, `In this change…`), lead with the action.
 - Tool-attribution / `Co-authored-by Claude` trailers unless the user opted in.
 - Architecture overviews, which belong in the change's `design.md`.
-- Em-dashes for elaboration — use `so`, `as`, `because`.
+- Em-dashes for elaboration, use `so`, `as`, `because`.
 - Emojis, anywhere.

@@ -23,7 +23,7 @@ Window empty?                         -> say so plainly and stop; do not invent 
 
 A `SessionEnd` hook (a PEP-723 Python script, `harnesses/claude/worklog-hook.py`, run via uv)
 appends one JSON line per session to `~/.local/state/agents/worklog.jsonl` (override:
-`$CLAUDE_WORKLOG_FILE`). The hook is dumb — it records pointers and cheap facts,
+`$CLAUDE_WORKLOG_FILE`). The hook is dumb, it records pointers and cheap facts,
 never a summary. It skips `resume` and bare directories with no prompt, so every
 line carries real work. A **schema v2** line:
 
@@ -63,14 +63,14 @@ line carries real work. A **schema v2** line:
 }
 ```
 
-Git context **always** lives in `repos[]` — there is no scalar `repo`/`branch`/
+Git context **always** lives in `repos[]`, there is no scalar `repo`/`branch`/
 `head`. `kind` only selects grouping:
 
-- **`repo`** — `cwd` was a single git worktree; `repos[]` has one entry.
-- **`seshy-session`** — `cwd` was under a seshy session (see the
+- `repo`, `cwd` was a single git worktree; `repos[]` has one entry.
+- `seshy-session`, `cwd` was under a seshy session (see the
   `feature-based-session-manager` skill) spanning many repos. Identity is
   `session_name`; `repos[]` holds one entry per nested git child.
-- **`dir`** — neither; `repos[]` is empty (survived only because it had a `first_prompt`).
+- `dir`, neither; `repos[]` is empty (survived only because it had a `first_prompt`).
 
 **Session signal** (v2): `duration_min`, `user_turns`, and `model` size the
 effort; `first_prompt`/`last_prompt` bracket the intent (where it started, where
@@ -79,11 +79,11 @@ it ended). **Per-repo signal**: `commits[]` (subjects, ≤30, newest-first) and
 `insertions`/`deletions` + `diffstat` are *how much*, measured against `base`
 (`origin/<base>` for a feature branch, `origin/<branch>` when on the base branch,
 so work committed straight to main still registers). `dirty` is the uncommitted
-remainder; `url` is the branch-tree link. The raw diff is **not** stored — read
+remainder; `url` is the branch-tree link. The raw diff is **not** stored, read
 the transcript or follow `url` when you need it.
 
 The log spans schema generations (v0/v1/v2), but the query script below
-normalizes every line to the v2 shape — older lines simply lack the rich
+normalizes every line to the v2 shape, older lines simply lack the rich
 arrays (`commits[]`/`files[]`/`insertions`/`deletions`/`base`). Never read or
 write `worklog.jsonl` with hand-rolled `jq`; all I/O goes through the script.
 
@@ -107,18 +107,18 @@ bash "$Q" pending --since 2026-06-09                             # the subset st
 The script skips malformed lines, dedups by `session_id` (latest `ts` wins),
 and normalizes old schema generations. If the window is empty, say so and stop.
 
-### 2. Drain — generate summaries, cache them back
+### 2. Drain: generate summaries, cache them back
 
 For each `pending` entry, produce a 1–3 sentence "what was done" plus concrete
-artifacts (files, commits, tickets). Read `transcript_path` (JSONL) — prefer it
+artifacts (files, commits, tickets). Read `transcript_path` (JSONL), prefer it
 over `first_prompt`. If the path is empty or missing, recover by `session_id`
 via `~/.claude/projects/*/<session_id>.jsonl` (Glob) before degrading. Only
-when no transcript exists anywhere, synthesize from the line itself —
+when no transcript exists anywhere, synthesize from the line itself,
 `first_prompt`/`last_prompt` for intent, `commits[]`/`files[]` (or `diffstat`
-on older lines) for the change — and prefix the summary with `~`. For many
+on older lines) for the change, and prefix the summary with `~`. For many
 entries, fan out one {{agent}} per session via the Agent tool.
 
-Cache summaries back through the script — it fills only null summaries and
+Cache summaries back through the script, it fills only null summaries and
 rewrites via temp-file + atomic `mv`:
 
 ```bash
@@ -152,7 +152,7 @@ names to `url`.
 ```
 
 Mark inferred entries with `~`. End with a one-line tally (N sessions across M
-repos). Do not pad thin days — terseness is the point.
+repos). Do not pad thin days, terseness is the point.
 
 ### 4. Outcomes (only when asked, or when an MCP is connected)
 
@@ -166,15 +166,15 @@ ENG-1234 -> In Progress; branch `rb/no-ticket-fix` has no linked ticket
 ENG-1234 -> Done   (asserted with no Linear lookup)
 ```
 
-- **Linear** — branch names usually carry the ticket id (`rb/ENG-1234-…`); the
+- Linear, branch names usually carry the ticket id (`rb/ENG-1234-…`); the
   `linear-cli` skill or Linear MCP resolves status.
-- **Notion / Slack** — via their MCP tools, correlate by repo + day.
+- Notion / Slack, via their MCP tools, correlate by repo + day.
 
 ## Guardrails
 
 - Read-mostly. The only write is caching summaries back via `worklog-query.sh apply`.
-- Never read or write `worklog.jsonl` directly — the query script is the only I/O path.
+- Never read or write `worklog.jsonl` directly, the query script is the only I/O path.
 - Never delete or reorder existing log entries.
-- Never block on a missing transcript or absent MCP — degrade and note it.
+- Never block on a missing transcript or absent MCP, degrade and note it.
 - Never fabricate accomplishments, commits, or ticket links.
 - Keep summaries factual and terse; this is a work record, not a changelog ad.

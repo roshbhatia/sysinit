@@ -1,5 +1,5 @@
 ---
-description: Uses the Perplexity CLI (`pplx`) for general external web research: live web search and page-content fetch returning structured JSON. Auth-conditional: use pplx only when authenticated (`PERPLEXITY_API_KEY` set or a `pplx auth login` credentials file), otherwise fall back to the built-in WebSearch/WebFetch. Never send internal, private, or in-repo content to pplx. Use when doing external/public web research, not for internal docs or private data.
+description: 'Uses the Perplexity CLI (`pplx`) for general external web research: live web search and page-content fetch returning structured JSON. Auth-conditional: use pplx only when authenticated (`PERPLEXITY_API_KEY` set or a `pplx auth login` credentials file), otherwise fall back to the built-in WebSearch/WebFetch. Never send internal, private, or in-repo content to pplx. Use when doing external/public web research, not for internal docs or private data.'
 allowed-tools: Bash(pplx:*)
 ---
 

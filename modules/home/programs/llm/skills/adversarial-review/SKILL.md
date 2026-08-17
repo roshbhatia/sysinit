@@ -1,5 +1,5 @@
 ---
-description: Runs an adversarial review loop: independent critics try to break an artifact and the author revises against surviving objections. Use at the spec-driven review gate, before marking a tasks.md phase done, or when asked to red-team a plan, spec, or design.
+description: 'Runs an adversarial review loop: independent critics try to break an artifact and the author revises against surviving objections. Use at the spec-driven review gate, before marking a tasks.md phase done, or when asked to red-team a plan, spec, or design.'
 allowed-tools: Agent Read Grep Glob Bash(printenv:*) Bash(env:*) Bash(openspec:*)
 ---
 
@@ -7,7 +7,7 @@ Run an adversarial review: independent critics try to BREAK an artifact
 (plan, spec, design, or code), the author revises against surviving
 objections, and the loop repeats until nothing survives. This is the
 refutation loop, not a politeness pass. The full methodology and its
-citations live in `references/adversarial-review-methodology.md` — read it
+citations live in `references/adversarial-review-methodology.md`, read it
 before running the loop the first time.
 
 ## When to run
@@ -57,23 +57,23 @@ actions still apply. A critic result never represents owner or peer approval.
 Route on what the review needs, not on what the harness offers. Fresh context
 is the point of the exercise, so the capability question is only a fallback.
 
-1. **Already a critic** — your instructions carry the `ADVERSARIAL-CRITIC-ROLE`
+1. **Already a critic**, your instructions carry the `ADVERSARIAL-CRITIC-ROLE`
    sentinel. You are a {{agent}} spawned for review. Do NOT spawn more critics
    (recursion guard). Produce your own objection and return.
-2. **Fresh-context {{agents}} — THE DEFAULT.** A Task/Agent mechanism exists.
+2. **Fresh-context {{agents}}, THE DEFAULT.** A Task/Agent mechanism exists.
    Spawn N critic {{agents}}, one per lens, each with its own context.
-3. **Shared-context {{agents}}** — use ONLY when a critic must observe live
+3. **Shared-context {{agents}}**, use ONLY when a critic must observe live
    session state that is not on disk: an unsaved buffer, a running process, a
    value that exists solely in this conversation. Name that reason in the
    round record. If the work is on disk, this path is wrong.
-4. **No {{agent}} capability** — run N sequential critique passes, each in a
+4. **No {{agent}} capability**, run N sequential critique passes, each in a
    fresh reasoning context with authorship hidden.
 
 Prefer path 2 over path 3 for correctness, not cost. A critic that shares the
 author's context inherits the author's reasoning, and a critic that has read
 the argument for why the code is right is measurably worse at finding the way
 it is wrong. The strongest published result on this is the Bun Rust port,
-where the reviewer "gets the diff and nothing else — none of the implementer's
+where the reviewer "gets the diff and nothing else, none of the implementer's
 reasoning". Context starvation is the mechanism that makes the review
 adversarial; sharing context defeats it.
 
@@ -160,7 +160,7 @@ N and lens set, temperature 0, structured verdict, majority vote) but NOT
 bit-deterministic: two runs converge but are not identical. Do not claim
 otherwise. Fix every violation before the critic loop.
 
-## The loop (summary — reference has the sourced detail)
+## The loop (summary: reference has the sourced detail)
 
 1. **Bind the rubric.** For an OpenSpec change, the rubric is the proposal's
    `Behavior` criteria, the design `Decisions` and `Rollout & Gating`, and the
@@ -178,7 +178,7 @@ otherwise. Fix every violation before the critic loop.
    Each critic contract: "Produce a concrete scenario in which this artifact
    fails. Name the violated rubric item. If you cannot, reply `NO SURVIVING
    OBJECTION`."
-3. **Keep only objections with a concrete failing scenario** — reproducible
+3. **Keep only objections with a concrete failing scenario**, reproducible
    conditions or an isolated verification question. Reject prose-only comments.
 4. **Revise** the artifact against surviving objections only. The author
    revises; a critic never both blesses and rewrites unaided.
@@ -322,7 +322,7 @@ objection`, `not run`, `halted by owner at round <n> with <m> open`,
 `hit K=<n> with <m> open objections`, `stopped on non-convergence after <n>
 rounds`, or `stopped on fix-induced churn after <n> rounds`.
 
-Do not pad a clean result with invented objections — a critic that finds
+Do not pad a clean result with invented objections, a critic that finds
 nothing MUST say so. Do not report a cap hit as if it were a clean pass: an
 artifact that never reached a clean round has known-unreviewed state, and the
 report MUST say so plainly.

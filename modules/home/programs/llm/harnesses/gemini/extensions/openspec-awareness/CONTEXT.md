@@ -13,16 +13,16 @@ openspec validate "<name>"                    # syntax/structure check
 openspec show "<name>"                        # rendered summary
 ```
 
-When the user mentions a change name, OpenSpec workflow, or spec-driven work, prefer these CLI calls over guessing. The schema's rules — Non-goals, alternatives in Decisions, negative scenarios, phased tasks with verify/apply/confirm gates — are enforced by the instruction text returned from `openspec instructions`.
+When the user mentions a change name, OpenSpec workflow, or spec-driven work, prefer these CLI calls over guessing. The schema's rules, Non-goals, alternatives in Decisions, negative scenarios, phased tasks with verify/apply/confirm gates, are enforced by the instruction text returned from `openspec instructions`.
 
 ## Workflow
 
 The four canonical phases (matching Claude Code's `/opsx:*` slash commands and Pi's recipe set):
 
-- **propose** — draft a new change with proposal, design, specs, tasks
-- **apply** — implement the tasks, marking `[x]` as you go
-- **explore** — thinking-partner mode, no implementation
-- **archive** — finalize a completed change, merging delta specs
+- propose, draft a new change with proposal, design, specs, tasks
+- apply, implement the tasks, marking `[x]` as you go
+- explore, thinking-partner mode, no implementation
+- archive, finalize a completed change, merging delta specs
 
 Run `openspec --help` for the full command list.
 

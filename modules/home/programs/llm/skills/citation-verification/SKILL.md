@@ -1,5 +1,5 @@
 ---
-description: Verify external-factual claims (pricing, availability, external API behavior, cited papers) deterministically with `citelock`: pin each claim into a citations.lock against a tool-captured snapshot, so the offline gate is a pure function and `citelock capture` fails closed on a quote a live source does not state. Use when authoring a spec-driven change with external-factual claims; the schema makes an unanchored claim a default-reject.
+description: 'Verify external-factual claims (pricing, availability, external API behavior, cited papers) deterministically with `citelock`: pin each claim into a citations.lock against a tool-captured snapshot, so the offline gate is a pure function and `citelock capture` fails closed on a quote a live source does not state. Use when authoring a spec-driven change with external-factual claims; the schema makes an unanchored claim a default-reject.'
 allowed-tools: Bash(citelock:*) Read
 ---
 
@@ -20,7 +20,7 @@ this" becomes an exit code, not a review opinion.
 ## The two tiers
 
 Tier 0, offline gate (`citelock verify <change-dir>`): a pure function of
-(artifact + `citations.lock`) — format lint, capture-provenance, quote-anchor
+(artifact + `citations.lock`), format lint, capture-provenance, quote-anchor
 (`grep -F`), snapshot sha256, freshness. No network, no MCP tool. This is what
 the pre-commit hook and the `citelock` flake check run. It is deterministic;
 it only REPRODUCES the verdict capture recorded.
@@ -30,7 +30,7 @@ Tier 1, capture (`citelock capture <url> --id <id> --quote <text> --class
 CLOSED unless the verbatim quote is a literal substring of the fetched bytes,
 then writes the snapshot plus a provenance sidecar and runs the live-web
 checks (`lychee` liveness, Crossref DOI existence and retraction). This is
-where an agent hallucination — a real URL that does not state the claim — is
+where an agent hallucination, a real URL that does not state the claim, is
 caught, because the quote is checked against bytes the author did not write.
 
 ## Authoring loop

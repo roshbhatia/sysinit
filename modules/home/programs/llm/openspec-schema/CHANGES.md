@@ -15,11 +15,11 @@ upstream drift.
 
 ## Active divergences
 
-### schema.yaml — `name`, `description`
+### schema.yaml: `name`, `description`
 - Upstream: `name: spec-driven`, `description: Default OpenSpec workflow ...`
 - Fork: `name: spec-driven`, opinionated description.
 
-### schema.yaml — `artifacts[id=proposal].instruction`
+### schema.yaml: `artifacts[id=proposal].instruction`
 - Adds a `Non-goals` bullet directing the agent to fill in a `### Non-goals`
   block when the change touches more than one capability. Mirrors the
   template addition in `templates/proposal.md`.
@@ -30,13 +30,13 @@ upstream drift.
   human-verification checkpoints in `tasks.md`; (4) name the gating signal
   (default for dotfiles: `nh os build` before `nh os switch`).
 
-### schema.yaml — `artifacts[id=specs].instruction`
+### schema.yaml: `artifacts[id=specs].instruction`
 - Adds a `spec-driven rule` bullet requiring at least one negative
   scenario per requirement.
 - Adds a negative-scenario example block under the existing positive-scenario
   example so the format is unambiguous.
 
-### schema.yaml — `artifacts[id=design].instruction`
+### schema.yaml: `artifacts[id=design].instruction`
 - Adds a `spec-driven rule` clause to the Decisions bullet requiring
   each entry to list at least one alternative considered and the reason
   it was rejected.
@@ -56,7 +56,7 @@ upstream drift.
   optional evidence when requested or justified by a concrete risk. A critic
   result never represents owner or peer approval.
 
-### schema.yaml — `artifacts[id=tasks].instruction`
+### schema.yaml: `artifacts[id=tasks].instruction`
 - Adds a `spec-driven rule` bullet requiring multi-capability changes
   to group tasks under phase headings, each phase independently reviewable.
 - Adds a `spec-driven rule` requiring impactful actions (`nh os switch`,
@@ -117,31 +117,31 @@ a hermetic behavioral flake check.
 
 Patched sites (openspec 1.6.0), all `'spec-driven'` → `'spec-driven'`, via
 `substituteInPlace ... --replace-fail` so a missed site fails the build:
-- `dist/core/openspec-root.js` — `DEFAULT_OPENSPEC_SCHEMA`
-- `dist/core/init.js` — `DEFAULT_SCHEMA`
-- `dist/commands/workflow/shared.js` — `DEFAULT_SCHEMA`
-- `dist/utils/change-utils.js` — `DEFAULT_SCHEMA`
-- `dist/core/planning-home.js` — `REPO_DEFAULT_SCHEMA`
-- `dist/core/root-selection.js` — inline `defaultSchema:` (read by `openspec new change`)
+- `dist/core/openspec-root.js`, `DEFAULT_OPENSPEC_SCHEMA`
+- `dist/core/init.js`, `DEFAULT_SCHEMA`
+- `dist/commands/workflow/shared.js`, `DEFAULT_SCHEMA`
+- `dist/utils/change-utils.js`, `DEFAULT_SCHEMA`
+- `dist/core/planning-home.js`, `REPO_DEFAULT_SCHEMA`
+- `dist/core/root-selection.js`, inline `defaultSchema:` (read by `openspec new change`)
 
 On a version bump, re-check these site names; `--replace-fail` fails the build on
 a rename/removal, and the flake check fails on a newly added or moved site.
 
 ## add-citation-verification divergences
 
-### schema.yaml — `artifacts[id=proposal].instruction`
+### schema.yaml: `artifacts[id=proposal].instruction`
 - Adds spec-driven rule 5: external-factual claims require a passing
   `citations.lock` with anchored records; an unanchored claim is a default-reject.
   Bare version identifiers pinned by sha256/lockfile are excluded; prose about a
   version's behavior is not.
 
-### schema.yaml — `artifacts[id=specs].instruction`
+### schema.yaml: `artifacts[id=specs].instruction`
 - Adds a rule requiring each scenario to declare polarity on a body line
   (`- **POLARITY** positive|negative`), keeping the canonical `#### Scenario:`
   heading so openspec's archive parser does not drop it. `specreview` reads the
   declared marker instead of inferring polarity from prose.
 
-### schema.yaml — `artifacts[id=design].instruction`
+### schema.yaml: `artifacts[id=design].instruction`
 - Requires each Decisions entry's rejected alternative to be on a line beginning
   `- Alternative rejected:` so `specreview` can read it.
 
@@ -150,7 +150,7 @@ a rename/removal, and the flake check fails on a newly added or moved site.
 
 ## drop-requirement-spec-layer divergences
 
-### schema.yaml — `artifacts[id=specs]` removed
+### schema.yaml: `artifacts[id=specs]` removed
 - The fork no longer produces a requirement spec. Upstream keeps a `specs`
   artifact that emits `specs/**/*.md` deltas, which `openspec archive` promotes
   into `openspec/specs/`. The fork drops the artifact, so a change carries a
@@ -166,7 +166,7 @@ a rename/removal, and the flake check fails on a newly added or moved site.
   history, not as active divergences.
 - `artifacts[id=tasks].requires` drops `specs` and now names `design` only.
 
-### schema.yaml — `artifacts[id=proposal].instruction`
+### schema.yaml: `artifacts[id=proposal].instruction`
 - Replaces the `Capabilities` bullet with a `Behavior` bullet. `Capabilities`
   existed only to name the spec files the next artifact would create, so it had
   no purpose once that artifact was gone. `Behavior` states the acceptance
@@ -189,7 +189,7 @@ a rename/removal, and the flake check fails on a newly added or moved site.
   shipped preset selects it. `POLARITY` stays on the `bolded-bullet-lead`
   allowlist so archived spec files still lint clean.
 
-### schema.yaml — `apply.instruction`
+### schema.yaml: `apply.instruction`
 - Upstream tells the agent to read the tasks and work through them. The fork
   drives the loop from `specutil next` instead: ask which subtasks are runnable,
   do that set, mark them, repeat.
@@ -201,7 +201,7 @@ a rename/removal, and the flake check fails on a newly added or moved site.
   or a review), the owner-gate stop, the cycle exit code, and the instruction to
   arm a loop's `STOP` with `loop-gate` before iterating.
 
-### schema.yaml — `apply.instruction`, diff narration
+### schema.yaml: `apply.instruction`, diff narration
 - Adds a narration step: before a ready set is marked done, read `git diff` and
   tell the owner what changed, which `Behavior` criterion each edit serves, what
   the diff does that no criterion asked for, and what a criterion asked for that
@@ -212,7 +212,7 @@ a rename/removal, and the flake check fails on a newly added or moved site.
   on a diff too large to read, but it never sees the proposal, so it cannot name
   a criterion. See `overlays/meat.nix`.
 
-### schema.yaml — `version: 2`, two new artifacts
+### schema.yaml: `version: 2`, two new artifacts
 
 Bumped from 1. Two artifacts added and one section removed, so a change authored
 under version 1 does not satisfy version 2 without generating them.
@@ -253,7 +253,7 @@ under version 1 does not satisfy version 2 without generating them.
 - `apply.requires` is now `[tasks, review]`, so implementation cannot start
   while the owner decision is `pending`.
 
-#### `runtime/spec-preflight.sh` — citations as ordered, named stages
+#### `runtime/spec-preflight.sh`: citations as ordered, named stages
 
 - The version 1 citations check was one branch: lock present and `citelock
   verify` passes, with an absent lock treated as silence. That contradicts the
@@ -274,7 +274,7 @@ under version 1 does not satisfy version 2 without generating them.
   `codify-responsible-llm-workflow` lock, which correctly reports its one record
   as uncited under the new convention.
 
-#### `artifacts[id=proposal|design].instruction` — voice contract and linked citations
+#### `artifacts[id=proposal|design].instruction`: voice contract and linked citations
 
 - Both now load the `writing-doc-design` skill for voice rather than restating
   it. A proposal and a design doc are design documents, so they take the same
@@ -296,7 +296,7 @@ under version 1 does not satisfy version 2 without generating them.
 - Record ids MUST read as what they back (`rfd576-responsibility`), not as a
   number (`claim-3`), because the id is the thing the prose cites.
 
-#### `apply.instruction` — teammate vs {{agent}} routing
+#### `apply.instruction`: teammate vs {{agent}} routing
 
 - Version 1 said "MAY fan out independent subtasks" without naming a mechanism.
   Now routed on what the work needs: implementation subtasks sharing this
@@ -311,7 +311,7 @@ under version 1 does not satisfy version 2 without generating them.
 
 ## graph-shaped-task-execution divergences
 
-### schema.yaml — `artifacts[id=tasks].instruction`
+### schema.yaml: `artifacts[id=tasks].instruction`
 - Upstream: "Order tasks by dependency (what must be done first?)".
 - Fork: an edge exists only when the downstream task reads the upstream task's
   output. Sequencing and data flow are different questions, and the upstream
@@ -328,7 +328,7 @@ under version 1 does not satisfy version 2 without generating them.
 - Removes the note that `TERMINAL` stays unbolded pending an allowlist change.
   The allowlist now carries it and the template emits `- **TERMINAL**`.
 
-### schema.yaml — `apply.instruction`
+### schema.yaml: `apply.instruction`
 - Upstream, and the previous fork text: fan out "when parallel work materially
   helps", a permission with no negative case.
 - Fork: a ready set whose declared write sets intersect MUST run in one context.
@@ -347,7 +347,7 @@ under version 1 does not satisfy version 2 without generating them.
   already stated the refutation loop is its own artifact (`review.md`), so the
   template contradicted the instruction on every change.
 
-### specutil.yaml — new file
+### specutil.yaml: new file
 - The rubric ships with the schema rather than per repository, appended to the
   `spec-driven` preset: `graph-declares-merge`, a `bolded-bullet-lead` allowlist
   carrying MERGE and TERMINAL, and a `design-sections` override that drops the

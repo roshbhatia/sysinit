@@ -25,6 +25,10 @@ Usage:
   prose-gate subagent  SubagentStop hook. Blocks a teammate report that returns
                        the material instead of the conclusion.
   prose-gate lint      Reads text on stdin, prints the findings, exits 1 on any.
+  prose-gate fix       Rewrites the .md files under the given paths in place,
+                       applying every rule that carries an action. --dry-run
+                       counts without writing. A chat reply cannot be fixed this
+                       way: a Stop hook has no field to rewrite one.
 
 Vale reads the reply as markdown and carries the rule set, so fenced code is
 skipped and a list is read as a list. SYSINIT_PROSE_STYLE names the vale config;
@@ -376,6 +380,8 @@ func Run(args []string) int {
 		return subagent(os.Stdin)
 	case "lint":
 		return lint(os.Stdin)
+	case "fix":
+		return fix(args[1:])
 	case "-h", "--help", "help":
 		fmt.Print(usage)
 		return 0

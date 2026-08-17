@@ -1,5 +1,5 @@
 ---
-description: Writes git commit messages in a terse, conventional-commit-shaped style. Lowercase preferred but not absolute, title-only by default, no body, no period. Supports the historical `<type>: <TICKET-ID>: <subject>` variant when a tracker ticket is in scope. Use when drafting a commit message or when the user says 'commit this' / 'propose a commit message' / 'write commit'.
+description: 'Writes git commit messages in a terse, conventional-commit-shaped style. Lowercase preferred but not absolute, title-only by default, no body, no period. Supports the historical `<type>: <TICKET-ID>: <subject>` variant when a tracker ticket is in scope. Use when drafting a commit message or when the user says ''commit this'' / ''propose a commit message'' / ''write commit''.'
 model: haiku
 effort: low
 ---
@@ -56,7 +56,7 @@ When a repo has no contribution docs, apply the defaults below unmodified.
 - Lowercase is preferred (~80% of the corpus). Capitalize only when an identifier
   or proper noun opens the subject; do not force lowercase onto one.
 
-## Subject shape — good vs bad
+## Subject shape: good vs bad
 
 ```
 # good — imperative, single clause, scoped, identifiers backticked
@@ -81,7 +81,7 @@ expansion. The `!` after the type marks a breaking change (`feat(auth)!:`).
 
 ## Ticket-id prefix inside the subject (standard when a ticket applies)
 
-This is the **default** whenever a tracker ticket is in scope — it mirrors the
+This is the **default** whenever a tracker ticket is in scope, it mirrors the
 global PR-title convention `<type>(<scope>): <TICKET>: <description>`, so a
 squash-merge title stays consistent. In the grounding corpus, 83% of subjects
 carried a tracker ticket ID:
@@ -90,17 +90,17 @@ carried a tracker ticket ID:
 <type>(<scope>): <PROJECT-NNN>: <subject>   # PROJECT-NNN matches [A-Z]{2,}[0-9]*-[0-9]+
 ```
 
-The ticket goes **after the scope, before the subject** — never as a trailing
+The ticket goes **after the scope, before the subject**, never as a trailing
 `(TICKET)` suffix. Omit it only for genuinely ad-hoc chores with no ticket.
 
 ```
-# good — the standard form when a ticket is in scope
+# good, the standard form when a ticket is in scope
 fix: OWL-1381: make healthcheck failure threshold configurable
 feat(auth)!: OWL-1326: use new permissions token key
 TO-291: fixup monitor type for activity/batch alert and elevated 5xx
 
 # bad
-fix: PROJ-123: tidy things        # invented ticket id — never fabricate one
+fix: PROJ-123: tidy things        # invented ticket id, never fabricate one
 ```
 
 The conv-commit type may appear with the ticket (`fix: PROJECT-NNN: <subject>`)
@@ -108,7 +108,7 @@ or the ticket may stand alone (`PROJECT-NNN: <subject>`). Bare subjects without
 a ticket are equally acceptable. The project codes above are historical, not
 vocabulary for new work.
 
-## What to avoid — and what to do instead
+## What to avoid: and what to do instead
 
 - Two-clause subject joined with `;` or em-dash -> split into two commits.
 - Multi-paragraph body to explain a big change -> the change is too big; split it.

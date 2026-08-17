@@ -1,5 +1,5 @@
 ---
-description: Uses specutil (on PATH) to decide what to work on next in an OpenSpec change, and to visualize, gate, and render changes. Run `specutil next` before starting or resuming work on a change: it reads the declared phase shape and dependency edges and reports which subtasks are runnable now. Also use when the user asks about openspec change status, wants a dependency graph, explores spec-driven work, or renders a change as an RFC, a design doc, or a ticket list.
+description: 'Uses specutil (on PATH) to decide what to work on next in an OpenSpec change, and to visualize, gate, and render changes. Run `specutil next` before starting or resuming work on a change: it reads the declared phase shape and dependency edges and reports which subtasks are runnable now. Also use when the user asks about openspec change status, wants a dependency graph, explores spec-driven work, or renders a change as an RFC, a design doc, or a ticket list.'
 allowed-tools: Bash(specutil:*) Bash(mermaid-ascii:*)
 ---
 

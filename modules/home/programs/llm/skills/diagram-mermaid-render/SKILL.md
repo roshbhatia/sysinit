@@ -1,5 +1,5 @@
 ---
-description: Renders Mermaid diagrams as ASCII in the terminal and as themed SVG. Use when a diagram clarifies more than prose: capability flow, state transitions, sequence of calls, option trees, dependency graphs, architecture sketches.
+description: 'Renders Mermaid diagrams as ASCII in the terminal and as themed SVG. Use when a diagram clarifies more than prose: capability flow, state transitions, sequence of calls, option trees, dependency graphs, architecture sketches.'
 allowed-tools: Bash(mermaid-ascii:*) Bash(pretty-mermaid:*) Bash(pretty-mermaid-batch:*) Bash(pretty-mermaid-themes:*) Read Write Edit
 ---
 
@@ -18,13 +18,13 @@ Provenance: per-diagram-type syntax below is distilled from the Agents365
 `mermaid-skill` (`Agents365-ai/mermaid-skill`). The themed SVG and multi-type ASCII
 renderer is `imxv/Pretty-mermaid-skills` (MIT), packaged as `pretty-mermaid` and
 pinned by rev in `overlays/pretty-mermaid.nix`; `hack/update-pretty-mermaid.sh`
-surfaces drift. The opinions on top — ASCII-first, local-only, the per-type routing
-below — are this repository's own.
+surfaces drift. The opinions on top, ASCII-first, local-only, the per-type routing
+below, are this repository's own.
 
 Every render runs on this machine. No path in this skill sends diagram source to a
 network service.
 
-## Decision routing — pick the render target first
+## Decision routing: pick the render target first
 
 ```
 Flowchart or graph?                                     -> ASCII via mermaid-ascii (Path A)
@@ -56,7 +56,7 @@ transitions, sequence-of-calls (openspec proposals/design.md); option trees,
 dependency graphs, decision points (exploration); what-happens-vs-should (bugs);
 component boundaries (architecture sketches); small inline visuals (README).
 
-## Path A — ASCII inline (default)
+## Path A: ASCII inline (default)
 
 Binary: `mermaid-ascii` (on PATH via the Nix overlay). Use `-f -` with a heredoc
 so the source stays visible in the transcript.
@@ -68,7 +68,7 @@ mermaid-ascii -f - -a          # ASCII-only (no extended box chars)
 mermaid-ascii -f - -x 8 -y 3   # tighten horizontal / vertical padding
 ```
 
-### Stay inside the supported subset — good vs bad
+### Stay inside the supported subset: good vs bad
 
 `mermaid-ascii` parses a small subset. Author defensively:
 
@@ -106,7 +106,7 @@ flowchart LR
 ```
 ````
 
-## Path A2 — ASCII for sequence and ER
+## Path A2: ASCII for sequence and ER
 
 `pretty-mermaid` renders five types; two of them beat having no ASCII at all.
 
@@ -118,7 +118,7 @@ pretty-mermaid --input diagram.mmd --format ascii --use-ascii --padding-x 3
 It reads a file, not stdin, so write the block to a `.mmd` file first. Embed the
 source and the render together exactly as Path A does.
 
-## Path B — themed SVG, offline
+## Path B: themed SVG, offline
 
 `pretty-mermaid` renders SVG locally, with no network call and no
 Puppeteer/headless-Chrome toolchain. This is the default for an image.
@@ -157,16 +157,16 @@ renderer never made.
 
 Pick the type that matches the relationship, then take the path named beside it.
 
-- **flowchart** — process/decision flow. `flowchart LR|TD`; `A[rect]`, `A(round)`,
+- flowchart, process/decision flow. `flowchart LR|TD`; `A[rect]`, `A(round)`,
   `A{diamond}`; edges `-->`, `-->|label|`, `-.->`. Path A.
-- **sequenceDiagram** — ordered messages. `participant A`; `A->>B: call`;
+- sequenceDiagram, ordered messages. `participant A`; `A->>B: call`;
   `B-->>A: reply`; `loop`/`alt`/`opt` blocks. Path A2.
-- **erDiagram** — data model. `CUSTOMER ||--o{ ORDER : places`. Path A2.
-- **stateDiagram-v2** — lifecycle. `[*] --> Idle`; `Idle --> Running: start`. Path B.
-- **classDiagram** — types. `class Foo { +field; +method() }`; `Foo <|-- Bar`. Path B.
-- **gantt** — schedule. `dateFormat YYYY-MM-DD`; sections; `task :id, start, dur`. Path B.
-- **pie** — proportions. `pie title T` then `"Label" : value` rows. Path B.
-- **mindmap** — hierarchical brainstorm. `mindmap` then indented nodes. Path B.
+- erDiagram, data model. `CUSTOMER ||--o{ ORDER : places`. Path A2.
+- stateDiagram-v2, lifecycle. `[*] --> Idle`; `Idle --> Running: start`. Path B.
+- classDiagram, types. `class Foo { +field; +method() }`; `Foo <|-- Bar`. Path B.
+- gantt, schedule. `dateFormat YYYY-MM-DD`; sections; `task :id, start, dur`. Path B.
+- pie, proportions. `pie title T` then `"Label" : value` rows. Path B.
+- mindmap, hierarchical brainstorm. `mindmap` then indented nodes. Path B.
 
 Across types: short labels; quote labels with spaces/punctuation when a parser
 complains; one relationship per line; render early and iterate.
@@ -180,7 +180,7 @@ complains; one relationship per line; render early and iterate.
 
 ## Guardrails
 
-- The diagram is for human comprehension — if it does not help a reader, omit.
+- The diagram is for human comprehension, if it does not help a reader, omit.
 - Always render before pasting; never hand-draw ASCII boxes or paste stale ASCII.
 - Keep the Mermaid source in the file. A render alone is write-only.
 - Stay inside the `mermaid-ascii` subset for Path A; take Path A2 or B rather than

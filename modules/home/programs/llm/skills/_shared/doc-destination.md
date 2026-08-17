@@ -1,4 +1,4 @@
-## Step 0 — pick the destination
+## Step 0: pick the destination
 
 Decide where the doc lands before writing a line:
 

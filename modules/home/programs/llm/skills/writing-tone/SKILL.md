@@ -1,5 +1,5 @@
 ---
-description: Rewrites longer-form prose into Roshan's working voice: scope-bounded, contract-shaped, plain, with no bolded prefixes and no callout boxes. Use for audit docs, proposals, design notes, RFCs, status posts, and review comments written in his name.
+description: 'Rewrites longer-form prose into Roshan''s working voice: scope-bounded, contract-shaped, plain, with no bolded prefixes and no callout boxes. Use for audit docs, proposals, design notes, RFCs, status posts, and review comments written in his name.'
 model: haiku
 effort: low
 ---
@@ -109,7 +109,9 @@ These are the markers of the polished-RFC voice that is NOT Roshan's. Suppress t
 - Bolded prefixes. `**Schedule.** The rewrite touches 50 services.` and `**The problem:** X` are the pattern to kill. Roshan's words: "that only results in confusion." Bold the operative word inside the sentence, or carry the force with an RFC 2119 keyword in a doc that declares them. Do not label a paragraph with a bolded noun phrase.
 - Callouts, admonition boxes, and highlighted panels. In Notion these are `<callout>`; elsewhere they are tip/warning/note blocks. Roshan reads them as confusing rather than emphatic. If the content matters, it belongs in the prose; if it does not, cut it.
 - Emojis, anywhere.
+<!-- vale Sysinit.MarketingVerb = NO -->
 - Marketing adjectives ("robust", "seamless", "powerful", "comprehensive") standing in for a concrete claim.
+<!-- vale Sysinit.MarketingVerb = YES -->
 
 <examples>
 <example>

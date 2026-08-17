@@ -1,5 +1,5 @@
 ---
-description: Routes a code search to the right tool: `ast-grep outline` to map structure, `ast-grep`/`sg` for code shapes and for every find-and-replace that spans more than one site, `rg`/Glob for literal text, `gh search` for repos not cloned here. Use when starting a search, and whenever renaming or replacing a construct across files.
+description: 'Routes a code search to the right tool: `ast-grep outline` to map structure, `ast-grep`/`sg` for code shapes and for every find-and-replace that spans more than one site, `rg`/Glob for literal text, `gh search` for repos not cloned here. Use when starting a search, and whenever renaming or replacing a construct across files.'
 allowed-tools: Bash(rg:*) Bash(grep:*) Bash(ast-grep:*) Bash(sg:*) Bash(gh:*) Read Glob
 model: haiku
 effort: low
@@ -15,9 +15,9 @@ finding code, and `rg` is the fallback for literal text.
 This skill routes. Three other skills own the syntax, and you should load them
 rather than guess at it:
 
-- `ast-grep-outline` — how to read a structural map of files and directories
-- `ast-grep` — how to write ast-grep rules and patterns
-- `calldiff` — how to read a call graph, and how to diff one across two trees
+- `ast-grep-outline`, how to read a structural map of files and directories
+- `ast-grep`, how to write ast-grep rules and patterns
+- `calldiff`, how to read a call graph, and how to diff one across two trees
 
 Neither ast-grep skill covers rewriting, so section 2a below owns that.
 
@@ -50,7 +50,7 @@ Order matters. Outline before reading a whole file, because it costs a fraction
 of the context and usually answers the question. ast-grep before `rg`, because a
 shape query written as a regex silently misses wrapped lines and hits comments.
 
-## Language note — outline is narrower than ast-grep
+## Language note: outline is narrower than ast-grep
 
 `ast-grep outline` covers the mainstream languages (TypeScript, JavaScript,
 Python, Go, Rust, and similar). It prints `nothing found` for **Nix** and
@@ -59,9 +59,9 @@ Python, Go, Rust, and similar). It prints `nothing found` for **Nix** and
 `ast-grep` pattern search *does* parse Nix and Lua. So in this repo's Nix and in
 sysinit.nvim's Lua, skip step one and go straight to `ast-grep run -p ... -l nix`
 (or `-l lua`). A `nothing found` from outline on those files means the language
-is unsupported, not that the file is empty — do not conclude anything from it.
+is unsupported, not that the file is empty, do not conclude anything from it.
 
-## 1. Builtin — `rg` / `grep` / `Glob` / `Read`
+## 1. Builtin: `rg` / `grep` / `Glob` / `Read`
 
 The right tool when the query is **lexical**, not structural: a literal string, a
 known symbol to locate, an exact or glob path (`Glob` for `**/*.test.ts`), or when
@@ -76,7 +76,7 @@ rg -n "func ResolveTrust"
 rg "foo\(.*,.*\)"        # misses wrapped args, false-hits on strings and comments
 ```
 
-## 2. ast-grep (`sg`) — structural / AST search
+## 2. ast-grep (`sg`): structural / AST search
 
 Parses to an AST and matches by tree shape, so it is immune to whitespace, line
 breaks, and incidental formatting that defeat regex. Language-aware via
@@ -97,7 +97,7 @@ Two surfaces, same engine: the **CLI** (`sg run` / `sg scan`; `sg` aliases
 `ast-grep`) for ad-hoc text output, and the **ast-grep MCP server** when you want
 structured tool output instead of parsing CLI text.
 
-## 2a. Find and replace — ast-grep drives it, not Edit
+## 2a. Find and replace: ast-grep drives it, not Edit
 
 A rename or a construct swap that touches two or more sites belongs to ast-grep.
 Edit is for one site. Editing site by site misses the wrapped occurrence, hits the
@@ -134,7 +134,7 @@ ast-grep run -p 'lib.mkIf $C $B' -r 'lib.optionalAttrs $C $B' -l nix modules/
 rg -l 'lib\.mkIf' | xargs ...     # misses wrapped args, hits comments and strings
 ```
 
-### Authoring a non-trivial pattern or rule — iterate, don't guess
+### Authoring a non-trivial pattern or rule: iterate, don't guess
 
 A pattern that misses is worse than no pattern: it reads as "no matches" when the
 syntax was just wrong. For anything past a one-liner, drive the ast-grep MCP loop
@@ -147,10 +147,10 @@ instead of hand-writing YAML blind:
    (`all`, `any`, `not`) rules rather than one over-specified pattern.
 4. **Test** each candidate against a known-good and known-bad snippet
    (`test_match_code_rule`) before running it across the tree.
-5. **Revise** off the AST output when a match is empty or over-broad — a miss is a
+5. **Revise** off the AST output when a match is empty or over-broad, a miss is a
    wrong node kind or a missing metavariable, not "the code isn't there."
 
-## 3. gh search — repo-wide / org-wide / not-cloned
+## 3. gh search: repo-wide / org-wide / not-cloned
 
 When the answer is not in the working tree. Searches GitHub's index, so it reaches
 code you have not cloned.
@@ -165,10 +165,10 @@ gh search code 'ResolveTrust' --owner me   # misses uncommitted work + non-defau
 ```
 
 Caveats: GitHub code search only indexes default branches and has its own syntax
-and rate limits. For the current repo, stay with builtin / ast-grep — faster,
+and rate limits. For the current repo, stay with builtin / ast-grep, faster,
 complete, and they see uncommitted work.
 
-## 4. calldiff — call edges
+## 4. calldiff: call edges
 
 Parses the repository with tree-sitter and prints who calls whom. `calldiff
 diff` marks what one git tree added or dropped against another, which is the
@@ -196,11 +196,11 @@ shell here and none of the Nix, which is most of this repo.
    its own. Read a whole file only after outline has named the symbol you want.
 3. Run the matching tool; for structural questions, write the ast-grep pattern
    rather than approximating it with a regex.
-4. `Read` the top hits in full file context before concluding — ranked tools
+4. `Read` the top hits in full file context before concluding, ranked tools
    return slices.
 5. Cite `file:line` for every source you used.
 
-## Guardrails — and what to do instead
+## Guardrails: and what to do instead
 
 - Match the tool to the query shape, not to habit. Plain `grep` for a structural
   pattern is the most common mistake; ast-grep for a literal string is the second.

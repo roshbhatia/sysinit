@@ -14,7 +14,7 @@ create, remove, or reroute?** A line diff shows that a function body changed. A
 call diff shows that the function now reaches the network, or no longer reaches
 the cache.
 
-## Language support — it does not read Nix
+## Language support: it does not read Nix
 
 22 languages, including TypeScript, JavaScript, Python, Go, Rust, Java, Ruby,
 C, C++, C#, Swift, Kotlin, Lua, Elixir, Bash, and Zig.

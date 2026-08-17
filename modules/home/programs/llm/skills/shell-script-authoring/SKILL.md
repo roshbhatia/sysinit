@@ -4,7 +4,7 @@ description: Use when writing or modifying shell scripts, particularly in the ha
 
 # Shell Scripting
 
-Bash automation in this repo — `hack/` scripts, Taskfile commands, git hooks.
+Bash automation in this repo, `hack/` scripts, Taskfile commands, git hooks.
 These rules are prescriptive: each pairs the correct form with the failure it
 prevents. Apply them to every line you write or touch. When editing an existing
 script, match its surrounding style and apply these rules only to lines you change.
@@ -18,7 +18,7 @@ Need output?                  -> diagnostics to stderr, data to stdout (see Outp
 Before reporting done?        -> run the validate loop until it passes (see Validate)
 ```
 
-## Boilerplate — every script starts with exactly this
+## Boilerplate: every script starts with exactly this
 
 ```bash
 #!/usr/bin/env bash
@@ -29,7 +29,7 @@ set -euo pipefail
   catches failures mid-pipe. Do not drop any of the three; each closes a class
   of silent failure.
 
-## Quote every expansion — unquoted expansions word-split and glob
+## Quote every expansion: unquoted expansions word-split and glob
 
 ```bash
 # good
@@ -44,7 +44,7 @@ rm -rf ${build_dir}/           # if build_dir is empty this is `rm -rf /`
 Use `"${var:-default}"` for defaults. The `:?` and `:-` guards are why `set -u`
 alone is not enough.
 
-## Use `local` for every variable inside a function — globals leak across calls
+## Use `local` for every variable inside a function: globals leak across calls
 
 ```bash
 # good
@@ -60,10 +60,10 @@ process() {
 }
 ```
 
-Declare and assign on separate lines when the value comes from a command — a
+Declare and assign on separate lines when the value comes from a command, a
 combined `local x="$(cmd)"` swallows the command's exit status.
 
-## Output streams — diagnostics to stderr, data to stdout
+## Output streams: diagnostics to stderr, data to stdout
 
 ```bash
 # good
@@ -77,7 +77,7 @@ echo "starting operation"                # progress on stdout pollutes $(...) ca
 A script whose stdout is consumed (`$(...)`, pipes, Taskfile deps) must keep
 stdout pure data; prefix errors with `ERROR:` so failures grep out of CI logs.
 
-## Clean up with a trap — manual cleanup is skipped on error exit
+## Clean up with a trap: manual cleanup is skipped on error exit
 
 ```bash
 # good
@@ -89,7 +89,7 @@ do_work
 rm -f "${tmpfile}"             # never reached if do_work fails under set -e
 ```
 
-## Formatting — `shfmt`, settings are fixed
+## Formatting: `shfmt`, settings are fixed
 
 Run `nix fmt` (writes) or `nix fmt -- --check` (verifies). The settings are
 `shfmt -i 2 -ci -sr -s`: 2-space indent, indented case bodies, redirect operators
@@ -105,11 +105,11 @@ executable (`chmod +x`).
 | Utility scripts | `hack/*.sh`    |
 | Git hooks       | `.githooks/`   |
 
-## Validate before done — loop until clean
+## Validate before done: loop until clean
 
-1. `nix fmt` — format.
-2. `nix fmt -- --check` — verify formatting.
-3. `nix flake check` — shellcheck runs over every script in the flake source.
+1. `nix fmt`, format.
+2. `nix fmt -- --check`, verify formatting.
+3. `nix flake check`, shellcheck runs over every script in the flake source.
 4. Run the script and confirm it behaves.
 5. Only report done once the check passes. Do not hand back unformatted or
    unrun scripts.

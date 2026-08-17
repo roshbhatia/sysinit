@@ -7,8 +7,8 @@ effort: low
 
 # Seshy
 
-Minimalist, multi-repo session manager built on **git worktrees** — not tmux.
-The binary is `sy`, not `seshy` — the project name is seshy but the CLI is short.
+Minimalist, multi-repo session manager built on **git worktrees**, not tmux.
+The binary is `sy`, not `seshy`, the project name is seshy but the CLI is short.
 
 ## Mental model
 
@@ -21,21 +21,21 @@ of work. For each repo, seshy creates a **git worktree** on a generated branch.
 - Repos come from zoxide history (interactive) or are passed as arguments.
 
 A session is a coherent multi-repo, multi-worktree checkout you switch into as a
-whole — not a terminal multiplexer layout. No tmux involved.
+whole, not a terminal multiplexer layout. No tmux involved.
 
 ## Decision routing
 
 ```
 Have the repo paths?                          -> pass them explicitly to `sy new`/`sy add` (non-interactive)
 Need a session's path / contents?              -> `sy path <name>` / `sy status <name>`
-About to run bare `sy` with no args?           -> do not — it launches an interactive picker and hangs
+About to run bare `sy` with no args?           -> do not, it launches an interactive picker and hangs
 About to `sy delete` / `sy remove`?            -> confirm with the user first (discards worktrees)
 ```
 
-## Invocation — good vs bad
+## Invocation: good vs bad
 
 ```bash
-# good — explicit args stay non-interactive and safe for agent use
+# good, explicit args stay non-interactive and safe for agent use
 sy new auth-refactor ~/github/work/api ~/github/work/web
 cd "$(sy path auth-refactor)"
 sy add auth-refactor ~/github/work/shared
@@ -75,12 +75,12 @@ sessionsDir: "~/.local/state/seshy/sessions"
 ```
 
 Read effective values with `sy config`; do not parse or edit the file. It is
-owned by the user — do not modify it without explicit instruction.
+owned by the user, do not modify it without explicit instruction.
 
 ## Guardrails
 
-- Never invoke bare `sy` in a non-interactive context — it starts a picker.
+- Never invoke bare `sy` in a non-interactive context, it starts a picker.
 - Pass explicit repo paths to `new`/`add` to stay non-interactive.
-- Confirm before `sy delete` / `sy remove` — they clean up worktrees and may
+- Confirm before `sy delete` / `sy remove`, they clean up worktrees and may
   discard unmerged work on the session branches.
 - Distinguish "seshy" (project name, conversation) from "sy" (binary, commands).

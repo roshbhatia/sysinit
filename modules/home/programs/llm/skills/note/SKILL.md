@@ -1,5 +1,5 @@
 ---
-description: Leaves review notes on a working-tree diff with `utils note`, so a non-obvious change carries its reason to whoever reads the diff later. The owner reads the notes back in Neovim, drawn on the line each one annotates. Use when making a change a reader would question: a hidden constraint, a workaround for a specific bug, a rejected alternative, or an edit whose reason is not visible in the diff. Do NOT use for routine edits, which the diff already explains.
+description: 'Leaves review notes on a working-tree diff with `utils note`, so a non-obvious change carries its reason to whoever reads the diff later. The owner reads the notes back in Neovim, drawn on the line each one annotates. Use when making a change a reader would question: a hidden constraint, a workaround for a specific bug, a rejected alternative, or an edit whose reason is not visible in the diff. Do NOT use for routine edits, which the diff already explains.'
 allowed-tools: Bash(utils:*)
 ---
 

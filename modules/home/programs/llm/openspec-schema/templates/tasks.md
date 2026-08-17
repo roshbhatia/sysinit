@@ -18,15 +18,15 @@
         Only use `loop` if the same tasks re-run on iteration 2. If every step
         happens once, this is a graph with a dependency chain. -->
 
-- **SHAPE** loop
-- **STOP** `nix flake check` exits 0
+- SHAPE loop
+- STOP `nix flake check` exits 0
         <!-- Replace the command above with this phase's real exit. It MUST name a
              command, or a predicate over one, e.g. `nix flake check` exits 0 and
              each new check fails on an injected defect. Not "it looks right":
              nothing can evaluate that, so the loop would never terminate, and
              `specutil check` rejects it. -->
-- **MAX-ITERS** <!-- integer cap; 1 is the valid single-pass case -->
-- **TERMINAL** <!-- how this ends WITHOUT success: CAPPED at MAX-ITERS,
+- MAX-ITERS <!-- integer cap; 1 is the valid single-pass case -->
+- TERMINAL <!-- how this ends WITHOUT success: CAPPED at MAX-ITERS,
                    STALLED after <n> iterations with no change in the STOP
                    metric, or CHURNING. See the `adversarial-review` skill. -->
 
@@ -37,8 +37,8 @@
 
 ## 2. <!-- Graph-shaped phase: subtasks with dependency edges -->
 
-- **SHAPE** graph
-- **MERGE** 2.2
+- SHAPE graph
+- MERGE 2.2
         <!-- Name the ONE subtask that reads every sibling's output and owns the
              merged result. A real id, never a comment: the lint checks that the
              marker is present, not that it names a task, so a placeholder
