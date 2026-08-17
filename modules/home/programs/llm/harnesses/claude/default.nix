@@ -247,7 +247,11 @@ in
         ];
         SessionStart = [
           {
-            matcher = "";
+            # Not the empty matcher. `resume` and `fork` replay a transcript that
+            # already carries this injection, so matching them states the same
+            # four rules twice. `startup`, `clear` and `compact` are the three
+            # starts that genuinely have no copy of them.
+            matcher = "startup|clear|compact";
             hooks = [
               {
                 type = "command";

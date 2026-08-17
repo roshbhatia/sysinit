@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"path/filepath"
 	"regexp"
 	"strings"
 )
@@ -16,7 +17,9 @@ const usage = `prose-gate: send a reply back when it reads like agent prose
 Usage:
   prose-gate check     Stop hook. Reads the event on stdin, blocks a reply that
                        is over budget or carries the tells.
-  prose-gate remind    UserPromptSubmit hook. Prints the shape and the budget.
+  prose-gate remind    UserPromptSubmit hook. Prints the shape and the budget on
+                       the first prompt of a session, and again after the gate
+                       has blocked a reply. Silent otherwise.
   prose-gate session   SessionStart hook. Prints the context rules, which a fresh
                        or compacted session has just lost.
   prose-gate subagent  SubagentStop hook. Blocks a teammate report that returns
@@ -43,6 +46,7 @@ type stopEvent struct {
 	LastAssistantMessage string `json:"last_assistant_message"`
 	StopHookActive       bool   `json:"stop_hook_active"`
 	AgentType            string `json:"agent_type"`
+	SessionID            string `json:"session_id"`
 }
 
 type blockDecision struct {
@@ -66,6 +70,72 @@ func inject(event, text string) int {
 	}
 	fmt.Println(string(encoded))
 	return 0
+}
+
+// The reminder used to go in on every prompt. That is the one injection here
+// that grows without bound: 210 bytes times the turn count, restating a rule the
+// Stop gate already enforces deterministically. A rule stated twice is worse
+// than a rule stated once, because the model spends tokens reconciling the two
+// (OpenAI, GPT-5 prompting guide). So the reminder is armed rather than
+// constant: it goes in on the first prompt of a session, and again only after
+// the gate has actually blocked a reply.
+func armDir() string {
+	if dir := os.Getenv("SYSINIT_PROSE_GATE_DIR"); dir != "" {
+		return dir
+	}
+	base := os.Getenv("XDG_STATE_HOME")
+	if base == "" {
+		home, err := os.UserHomeDir()
+		if err != nil {
+			return ""
+		}
+		base = filepath.Join(home, ".local", "state")
+	}
+	return filepath.Join(base, "sysinit", "prose-gate")
+}
+
+func armPath(session string) string {
+	dir := armDir()
+	if dir == "" || session == "" || strings.ContainsAny(session, `/\`) {
+		return ""
+	}
+	return filepath.Join(dir, session)
+}
+
+// arm records that this session's last reply was blocked, so the next prompt
+// carries the reminder again.
+func arm(session string) {
+	path := armPath(session)
+	if path == "" {
+		return
+	}
+	if os.MkdirAll(filepath.Dir(path), 0o755) != nil {
+		return
+	}
+	_ = os.WriteFile(path, []byte("armed\n"), 0o644)
+}
+
+// disarm reports whether the reminder is due, and clears the arming if it is.
+// An unknown session is always due: injecting 210 bytes costs less than a
+// blocked reply.
+func disarm(session string) bool {
+	path := armPath(session)
+	if path == "" {
+		return true
+	}
+	if _, err := os.Stat(path); err == nil {
+		_ = os.Remove(path)
+		return true
+	}
+	seen := path + ".seen"
+	if _, err := os.Stat(seen); err == nil {
+		return false
+	}
+	if os.MkdirAll(filepath.Dir(seen), 0o755) != nil {
+		return true
+	}
+	_ = os.WriteFile(seen, []byte("seen\n"), 0o644)
+	return true
 }
 
 type tell struct {
@@ -214,12 +284,20 @@ func check(stdin io.Reader) int {
 	if err != nil {
 		return 0
 	}
+	arm(ev.SessionID)
 	fmt.Println(string(encoded))
 	return 0
 }
 
-func remind() int {
+func remind(stdin io.Reader) int {
 	if os.Getenv("SYSINIT_PROSE_GATE") == "off" {
+		return 0
+	}
+	var ev stopEvent
+	if data, err := io.ReadAll(stdin); err == nil {
+		_ = json.Unmarshal(data, &ev)
+	}
+	if !disarm(ev.SessionID) {
 		return 0
 	}
 	return inject("UserPromptSubmit", fmt.Sprintf(
@@ -313,7 +391,7 @@ func Run(args []string) int {
 	case "check":
 		return check(os.Stdin)
 	case "remind":
-		return remind()
+		return remind(os.Stdin)
 	case "session":
 		return session()
 	case "subagent":
