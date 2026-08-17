@@ -16,7 +16,8 @@ const usage = `prose-gate: send a reply back when it reads like agent prose
 
 Usage:
   prose-gate check     Stop hook. Reads the event on stdin, blocks a reply that
-                       carries the tells.
+                       carries the tells. The block carries the corrected lines,
+                       so only a fault with no mechanical rewrite costs thought.
   prose-gate remind    UserPromptSubmit hook. Prints the shape on the first
                        prompt of a session, and again after the gate has blocked
                        a reply. Silent otherwise.
@@ -27,8 +28,7 @@ Usage:
   prose-gate lint      Reads text on stdin, prints the findings, exits 1 on any.
   prose-gate fix       Rewrites the .md files under the given paths in place,
                        applying every rule that carries an action. --dry-run
-                       counts without writing. A chat reply cannot be fixed this
-                       way: a Stop hook has no field to rewrite one.
+                       counts without writing.
 
 Vale reads the reply as markdown and carries the rule set, so fenced code is
 skipped and a list is read as a list. SYSINIT_PROSE_STYLE names the vale config;
@@ -194,30 +194,51 @@ func alerts(text string) []valeAlert {
 	return all
 }
 
-func findings(text string) []string {
+// findings decides whether the reply is sent back. It is separate from the fix
+// list, because the block is judged on the raw reply and the fix list is built
+// from what the applier could not repair.
+func findings(text string) []valeAlert {
 	found := alerts(text)
 	// One tell is a slip, and spending the user's turn on a slip is worse than
 	// letting it through.
 	if len(found) <= maxTells {
 		return nil
 	}
-	var lines []string
-	for _, a := range found {
-		if a.Match == "" {
-			lines = append(lines, fmt.Sprintf("%s (line %d)", a.Message, a.Line))
-			continue
-		}
-		lines = append(lines, fmt.Sprintf("%s: %q (line %d)", a.Message, a.Match, a.Line))
-	}
-	return lines
+	return found
 }
 
-func reason(found []string) string {
-	return fmt.Sprintf(`That reply reads like agent prose. What the gate found:
+// reason is the whole message the model gets back. It leads with the lines the
+// gate already rewrote, because those need no judgement and reading them is
+// cheaper than deriving them again. What is left needs a person's decision, so
+// it is listed second and the shape rules come last.
+func reason(fixes []correction, manual []valeAlert) string {
+	var b strings.Builder
+	b.WriteString("That reply reads like agent prose.\n")
 
-  - %s
+	if len(fixes) > 0 {
+		b.WriteString("\nThese lines are already rewritten. Send them exactly as they are:\n\n")
+		for i, f := range fixes {
+			if i == maxCorrections {
+				fmt.Fprintf(&b, "  ... and %d more line(s), same rules\n", len(fixes)-maxCorrections)
+				break
+			}
+			fmt.Fprintf(&b, "  line %d: %s\n", f.Line, f.Text)
+		}
+	}
 
-Send it again in ASD-STE100, in this shape and nothing else:
+	if len(manual) > 0 {
+		b.WriteString("\nThese have no mechanical rewrite. Fix each one yourself:\n\n")
+		for _, a := range manual {
+			if a.Match == "" {
+				fmt.Fprintf(&b, "  - line %d: %s\n", a.Line, a.Message)
+				continue
+			}
+			fmt.Fprintf(&b, "  - line %d: %s: %q\n", a.Line, a.Message, a.Match)
+		}
+	}
+
+	b.WriteString(`
+Send the whole reply again in ASD-STE100, in this shape and nothing else:
 
   1. What changed, in one sentence per change.
   2. Why, only where the change is not self-explaining.
@@ -225,8 +246,8 @@ Send it again in ASD-STE100, in this shape and nothing else:
 
 One instruction per sentence, active voice, one term per concept. Numbers, not
 adjectives. Keep a sentence under 25 words. Use a list or a table when it
-carries the answer better than a sentence.`,
-		strings.Join(found, "\n  - "))
+carries the answer better than a sentence.`)
+	return b.String()
 }
 
 func check(stdin io.Reader) int {
@@ -248,12 +269,16 @@ func check(stdin io.Reader) int {
 		return 0
 	}
 
-	found := findings(ev.LastAssistantMessage)
-	if len(found) == 0 {
+	if len(findings(ev.LastAssistantMessage)) == 0 {
 		return 0
 	}
 
-	encoded, err := json.Marshal(blockDecision{Decision: "block", Reason: reason(found)})
+	// The gate cannot rewrite the reply, so it rewrites what it can and hands
+	// the result back. Every mechanical fault comes back already corrected, and
+	// only the ones needing a decision cost the model any thought.
+	fixes, manual := corrections(stylePath(), ev.LastAssistantMessage)
+
+	encoded, err := json.Marshal(blockDecision{Decision: "block", Reason: reason(fixes, manual)})
 	if err != nil {
 		return 0
 	}

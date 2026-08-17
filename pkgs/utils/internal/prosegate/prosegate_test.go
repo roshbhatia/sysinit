@@ -147,6 +147,50 @@ func TestMissingStyleFailsOpen(t *testing.T) {
 	}
 }
 
+// The gate cannot rewrite the reply, so the block has to carry the rewrite. A
+// fault with an action comes back done; one without it comes back named.
+func TestCorrectionsSplitDoneFromManual(t *testing.T) {
+	useStyle(t)
+	const reply = "The overlay — the one on PATH — leverages the wrapper.\n"
+
+	fixes, manual := corrections(stylePath(), reply)
+	if len(fixes) != 1 {
+		t.Fatalf("want one rewritten line, got %v", fixes)
+	}
+	if want := "The overlay, the one on PATH, leverages the wrapper."; fixes[0].Text != want {
+		t.Fatalf("line %d reads %q, want %q", fixes[0].Line, fixes[0].Text, want)
+	}
+	if len(manual) != 1 || !strings.Contains(manual[0].Match, "leverages") {
+		t.Fatalf("want the marketing verb left for the model, got %v", manual)
+	}
+}
+
+func TestReasonCarriesTheRewrittenLine(t *testing.T) {
+	useStyle(t)
+	fixes, manual := corrections(stylePath(), "The overlay — the one on PATH — leverages the wrapper.\n")
+
+	got := reason(fixes, manual)
+	if !strings.Contains(got, "The overlay, the one on PATH,") {
+		t.Fatalf("block did not carry the rewrite:\n%s", got)
+	}
+	if !strings.Contains(got, "leverages") {
+		t.Fatalf("block did not name the fault with no rewrite:\n%s", got)
+	}
+	if strings.Contains(got, " — ") {
+		t.Fatalf("block quoted the em-dash back instead of the fix:\n%s", got)
+	}
+}
+
+// A rewrite that reads the same as the original is noise, so an unchanged line
+// never reaches the block.
+func TestCorrectionsSkipAnUnchangedLine(t *testing.T) {
+	useStyle(t)
+	fixes, _ := corrections(stylePath(), "Line one is clean.\nThe overlay — the wrapper.\n")
+	if len(fixes) != 1 || fixes[0].Line != 2 {
+		t.Fatalf("want only line 2, got %v", fixes)
+	}
+}
+
 // A bad Span silently destroyed prose before `locate` existed. Vale reports a
 // default-scope span against markdown-stripped text and a raw-scope span
 // against the line as written, so the two disagree on a line carrying both.

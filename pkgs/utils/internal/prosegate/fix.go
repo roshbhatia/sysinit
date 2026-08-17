@@ -119,12 +119,24 @@ func splice(runes []rune, start, end int, replacement string) ([]rune, int) {
 	return append(out, tail...), start
 }
 
-func lintFile(config, path string) ([]fileAlert, error) {
+// lintAlerts runs vale over one source and returns every alert with its span
+// and action. A path lints that file; an empty path lints text on stdin, which
+// is the only way to reach a chat reply that was never written to disk.
+func lintAlerts(config, path, text string) ([]fileAlert, error) {
 	binary, err := exec.LookPath("vale")
 	if err != nil {
 		return nil, err
 	}
-	cmd := exec.Command(binary, "--config="+config, "--output=JSON", "--no-exit", path)
+	args := []string{"--config=" + config, "--output=JSON", "--no-exit"}
+	if path == "" {
+		args = append(args, "--ext=.md")
+	} else {
+		args = append(args, path)
+	}
+	cmd := exec.Command(binary, args...)
+	if path == "" {
+		cmd.Stdin = strings.NewReader(text)
+	}
 	out, err := cmd.Output()
 	if err != nil {
 		return nil, err
@@ -140,22 +152,17 @@ func lintFile(config, path string) ([]fileAlert, error) {
 	return all, nil
 }
 
-// fixFile rewrites path in place and reports how many alerts it applied.
+// pass applies every placeable action once and returns the rewritten lines.
 //
 // Edits run last-first within each line so an earlier span keeps its offsets.
 // Two alerts that overlap would corrupt each other, so the second one is left
 // for the next pass rather than applied on top of a shifted line.
 //
-// It also reports how many alerts carried an action it could not place. Vale's
-// Line is approximate for a default-scope alert inside a list, and `locate`
-// refuses to write when the reported line does not hold the match. Those are
-// real edits left undone, so they are counted rather than swallowed.
-func fixFile(config, path string, dry bool) (int, int, error) {
-	found, err := lintFile(config, path)
-	if err != nil {
-		return 0, 0, err
-	}
-
+// unplaced counts an action this could not place at all. Vale's Line is
+// approximate for a default-scope alert inside a list, and `locate` refuses to
+// write when the reported line does not hold the match. Those are real edits
+// left undone, so they are counted rather than swallowed.
+func pass(lines []string, found []fileAlert) (out []string, applied, unplaced int) {
 	byLine := map[int][]fileAlert{}
 	for _, a := range found {
 		if a.Action.Name == "" || len(a.Span) != 2 {
@@ -164,16 +171,9 @@ func fixFile(config, path string, dry bool) (int, int, error) {
 		byLine[a.Line] = append(byLine[a.Line], a)
 	}
 	if len(byLine) == 0 {
-		return 0, 0, nil
+		return lines, 0, 0
 	}
 
-	raw, err := os.ReadFile(path)
-	if err != nil {
-		return 0, 0, err
-	}
-	lines := strings.Split(string(raw), "\n")
-
-	applied, unplaced := 0, 0
 	for lineNo, list := range byLine {
 		if lineNo < 1 || lineNo > len(lines) {
 			unplaced += len(list)
@@ -214,7 +214,102 @@ func fixFile(config, path string, dry bool) (int, int, error) {
 		}
 		lines[lineNo-1] = string(runes)
 	}
+	return lines, applied, unplaced
+}
 
+// Two alerts on one line make the second one's offsets stale as soon as the
+// first is applied, so a pass leaves work behind. Re-linting after each pass is
+// what converges, and maxPasses stops a rule that fights itself.
+const maxPasses = 10
+
+// fixText applies every mechanical rule to text and returns the rewritten text.
+//
+// This is the whole applier, and both callers reach the same code: `fix` writes
+// the result back to a file, and `check` shows it to the model, because a Stop
+// hook has no field that rewrites a reply.
+func fixText(config, text string) (fixed string, applied, unplaced int) {
+	lines := strings.Split(text, "\n")
+	for range maxPasses {
+		found, err := lintAlerts(config, "", strings.Join(lines, "\n"))
+		if err != nil {
+			break
+		}
+		var round int
+		lines, round, unplaced = pass(lines, found)
+		applied += round
+		if round == 0 {
+			break
+		}
+	}
+	return strings.Join(lines, "\n"), applied, unplaced
+}
+
+// correction is one whole line, already rewritten, that the model can paste
+// over the line it replaces.
+type correction struct {
+	Line int
+	Text string
+}
+
+// A blocked reply is read once and acted on once, so the list has to fit on a
+// screen. Past these bounds the gate reports the count instead, because a wall
+// of corrections is not a fix list, it is the reply again.
+const (
+	maxCorrections = 12
+	maxLineBytes   = 300
+)
+
+// corrections rewrites the mechanical faults in text and returns the lines that
+// changed, plus the alerts that survive and need a person.
+//
+// A Stop hook has no field that replaces a reply, so this is the closest thing:
+// hand back the exact line to paste. A whole line is returned rather than a
+// "replace X with Y" pair, because the same token can appear twice on one line
+// and a pair would not say which one moved.
+func corrections(config, text string) ([]correction, []valeAlert) {
+	fixed, applied, _ := fixText(config, text)
+
+	var changed []correction
+	if applied > 0 {
+		before, after := strings.Split(text, "\n"), strings.Split(fixed, "\n")
+		for i := range after {
+			if i >= len(before) || before[i] == after[i] {
+				continue
+			}
+			line := after[i]
+			if len(line) > maxLineBytes {
+				continue // too long to hand back; the alert still names it
+			}
+			changed = append(changed, correction{Line: i + 1, Text: line})
+		}
+	}
+
+	// The manual list is read off the FIXED text, so a fault the rewrite
+	// already removed is never reported back as still outstanding.
+	var manual []valeAlert
+	if found, err := lintAlerts(config, "", fixed); err == nil {
+		for _, a := range found {
+			if a.Action.Name == "" {
+				manual = append(manual, a.valeAlert)
+			}
+		}
+	}
+	sort.SliceStable(manual, func(i, j int) bool { return manual[i].Line < manual[j].Line })
+	return changed, manual
+}
+
+// fixFile rewrites path in place and reports how many alerts it applied.
+func fixFile(config, path string, dry bool) (int, int, error) {
+	found, err := lintAlerts(config, path, "")
+	if err != nil {
+		return 0, 0, err
+	}
+	raw, err := os.ReadFile(path)
+	if err != nil {
+		return 0, 0, err
+	}
+
+	lines, applied, unplaced := pass(strings.Split(string(raw), "\n"), found)
 	if applied == 0 || dry {
 		return applied, unplaced, nil
 	}
@@ -279,11 +374,6 @@ func fix(args []string) int {
 		fmt.Fprintf(os.Stderr, "prose-gate fix: %v\n", err)
 		return 2
 	}
-
-	// Two alerts on one line make the second one's offsets stale as soon as the
-	// first is applied, so a pass leaves work behind. Re-linting after each
-	// pass is what converges, and maxPasses stops a rule that fights itself.
-	const maxPasses = 10
 
 	total, stuck := 0, 0
 	perFile := map[string]int{}
