@@ -197,6 +197,16 @@ in
           Suppresses the "N servers need authentication" startup warning
           for integrations the user never uses.
           Names must match exactly (e.g. "claude.ai Airtable").
+
+          This does NOT remove the connector or its tools. Verified against
+          Claude Code 2.1.233: with 43 names listed here,
+          `claude mcp get "claude.ai Gmail"` still reports Connected and
+          Gmail's tools still reach the session. The connector fetch has only
+          two kill switches, both all-or-nothing: the
+          `disableClaudeAiConnectors` setting and the
+          `ENABLE_CLAUDEAI_MCP_SERVERS` env var. Per-connector opt-out is an
+          open request, not a shipped feature:
+          anthropics/claude-code issues 26625, 45158 and 58453.
         '';
       };
 
