@@ -10,8 +10,6 @@ A style guide for longer-form prose written in Roshan's name. Preserve the
 thesis, decisions, and beliefs that Roshan supplied. Never invent a position or
 claim personal experience on his behalf.
 
-Provenance, two corpora. The first is Roshan's work-breakdown, scope-enforcement, feedback, and planning notes in `~/orgfiles` tagged `company/nike/*` and the related work-* project files. The second is the Laurel multi-cloud topology RFC, confirmed by Roshan in 2026-08 as "exactly how i like things to be written".
-
 The anti-pattern is the *rhetorical* register, not long-form docs as such. A doc can be long, structured, and table-heavy and still be in voice. What puts it out of voice is reaching for effect: aphorisms, named rhetorical devices, and bolded labels doing work that a plain sentence should do. See "What to avoid".
 
 When the prompt supplies no thesis, ask for one or produce an outline that

@@ -12,7 +12,7 @@
         needs no switch.
 
         Deliberately NOT derived from `programs.nh.flake`. That option names the
-        flake which defines the host, and a consuming flake (sysinit.laurel)
+        flake which defines the host, and a consuming flake
         overrides it to its own checkout, which does not carry this repository's
         module tree. Following it would make activation fail on exactly the host
         that consumes this repository rather than being it.
