@@ -18,7 +18,7 @@ A rule earns a place here only if all three hold.
 2. No dedicated linter already covers it. shellcheck, tsc, golangci-lint, and
    ruff run in their own gates; a rule that restates one of them just doubles
    the noise.
-3. It is worth having in every repository, not just one.
+3. It is worth having in every repository.
 
 A rule that carries `fix:` must produce compiling code. A `fix` that deletes the
 thing it replaces is worse than no rule.
@@ -66,9 +66,9 @@ none had been tested. On review most were wrong rather than merely unused.
 ## Symlinks: rules that install but never load
 
 A `ruleDirs` walk skips a rule file that is itself a symlink. `default.nix`
-therefore installs this whole directory as one `xdg.configFile` entry, so
-`~/.config/ast-grep/rules` is a single symlink to a store directory of real
-files. A per-file entry, or `recursive = true`, installs all eleven rules and
+therefore installs this whole directory as one `xdg.configFile` entry.
+`~/.config/ast-grep/rules` is then a single symlink to a store directory of
+real files. A per-file entry, or `recursive = true`, installs all eleven rules and
 loads zero, reporting nothing and exiting 0.
 
 There is no signal when this happens: a scan that loaded no rules and a scan that

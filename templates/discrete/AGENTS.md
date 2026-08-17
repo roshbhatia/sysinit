@@ -37,11 +37,11 @@ nix-collect-garbage -d        # Cleanup old generations
 
 ## Always-Followed Rules
 
-- **No Emojis**: Strictly enforced in all code and documentation
-- **DRY**: Extract repeated patterns to shared utilities
-- **Comments**: Use for complex logic only
-- **Testing**: Run `nix flake check` before commits
-- **Pre-Commit**: `nix fmt` then `nix flake check` then `nh os build`
+- No Emojis: Strictly enforced in all code and documentation
+- DRY: Extract repeated patterns to shared utilities
+- Comments: Use for complex logic only
+- Testing: Run `nix flake check` before commits
+- Pre-Commit: `nix fmt` then `nix flake check` then `nh os build`
 
 ## Inheriting from sysinit
 

@@ -47,9 +47,10 @@ a package is listed once at the lowest profile that needs it.
 
 ### Installing on a Box With No Nix
 
-`bootstrap/bootstrap.sh` brings the configuration up without Nix. It sparse-clones
-this repository into `~/.local/share/sysinit`, installs the tools through mise,
-symlinks the neovim config, and writes a `.zshrc` that sources the shell fragments.
+`bootstrap/bootstrap.sh` brings the configuration up without Nix. It
+sparse-clones this repository into `~/.local/share/sysinit` and installs the
+tools through mise. It symlinks the neovim config, and writes a `.zshrc` that
+sources the shell fragments.
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/roshbhatia/sysinit/main/bootstrap/bootstrap.sh | bash
