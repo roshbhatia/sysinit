@@ -39,6 +39,12 @@ let
     "NEVER"
   ];
 
+  # Name and description are the one level of a skill that is always in the system
+  # prompt, so this budget is spent on every session that never loads the skill.
+  # The largest description here is 489 chars, so the cap binds on the next one
+  # that grows rather than after it has already shipped.
+  maxDescriptionChars = 512;
+
   allowedExtraKeys = [
     "description"
     "content"
@@ -96,8 +102,8 @@ let
     in
     if len < 1 then
       throw "skill '${name}': description is empty"
-    else if len > 1024 then
-      throw "skill '${name}': description exceeds 1024 chars (got ${toString len})"
+    else if len > maxDescriptionChars then
+      throw "skill '${name}': description exceeds ${toString maxDescriptionChars} chars (got ${toString len}). Every session pays for this string whether or not the skill is ever loaded. Move the detail into the body, which is read only on load."
     else if startViolations != [ ] then
       throw "skill '${name}': description must not start with first-person voice (${builtins.concatStringsSep ", " startViolations})"
     else if substringViolations != [ ] then
