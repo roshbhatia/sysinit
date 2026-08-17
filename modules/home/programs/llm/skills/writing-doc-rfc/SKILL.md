@@ -9,10 +9,10 @@ decision* from a broad audience before commitment. An RFC teaches the idea,
 specifies it precisely, surfaces what is still open, and records the
 discussion. The skill owns the section skeleton and the prose voice.
 
-Provenance: the section skeleton is sourced from the Rust RFC template
-(`rust-lang/rfcs`, `0000-template.md`), stripped of Rust-specific references
-(the compiler, the language, Rust teams, the rust-lang issue tracker) and tuned
-to Roshan's working voice.
+Provenance: the section skeleton comes from the Rust RFC template,
+`rust-lang/rfcs`, `0000-template.md`. It drops the Rust-specific references,
+meaning the compiler, the language, Rust teams, and the rust-lang issue
+tracker. It is tuned to Roshan's working voice.
 
 ## Decision routing
 
@@ -38,9 +38,10 @@ Unresolved — auth model for private docs. Owner: @rosh · By: review · Done w
 We could maybe add some kind of sharing, and there might be some auth concerns to think about.
 ```
 
-RFC-specific bindings: the out-list lives in Future possibilities; validation
-pairing matters most in Reference-level explanation; pre-answer the reader in
-Drawbacks and Unresolved questions; decision contracts go in Unresolved questions.
+RFC-specific bindings. The out-list lives in Future possibilities. Validation
+pairing matters most in Reference-level explanation. Pre-answer the reader in
+Drawbacks and Unresolved questions. Decision contracts go in Unresolved
+questions.
 
 ## The skeleton
 

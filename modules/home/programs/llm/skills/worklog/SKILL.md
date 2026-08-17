@@ -21,9 +21,10 @@ Window empty?                         -> say so plainly and stop; do not invent 
 
 ## Data source
 
-A `SessionEnd` hook (a PEP-723 Python script, `harnesses/claude/worklog-hook.py`, run via uv)
-appends one JSON line per session to `~/.local/state/agents/worklog.jsonl` (override:
-`$CLAUDE_WORKLOG_FILE`). The hook is dumb, it records pointers and cheap facts,
+A `SessionEnd` hook appends one JSON line per session to
+`~/.local/state/agents/worklog.jsonl`. The hook is a PEP-723 Python script,
+`harnesses/claude/worklog-hook.py`, run via uv. `$CLAUDE_WORKLOG_FILE`
+overrides the path. The hook is dumb, it records pointers and cheap facts,
 never a summary. It skips `resume` and bare directories with no prompt, so every
 line carries real work. A **schema v2** line:
 
@@ -74,17 +75,18 @@ Git context **always** lives in `repos[]`, there is no scalar `repo`/`branch`/
 
 **Session signal** (v2): `duration_min`, `user_turns`, and `model` size the
 effort; `first_prompt`/`last_prompt` bracket the intent (where it started, where
-it ended). **Per-repo signal**: `commits[]` (subjects, ≤30, newest-first) and
-`files[]` (name-status, ≤50) are *what changed in words*; `commits_ahead` +
-`insertions`/`deletions` + `diffstat` are *how much*, measured against `base`
-(`origin/<base>` for a feature branch, `origin/<branch>` when on the base branch,
-so work committed straight to main still registers). `dirty` is the uncommitted
+it ended). **Per-repo signal**. `commits[]` holds subjects, at most 30, newest
+first, and `files[]` holds name-status, at most 50. Those two are *what changed
+in words*. `commits_ahead`, `insertions`, `deletions`, and `diffstat` are *how
+much*. All are measured against `base`, which is `origin/<base>` for a feature
+branch and `origin/<branch>` when on the base branch. So work committed
+straight to main still registers. `dirty` is the uncommitted
 remainder; `url` is the branch-tree link. The raw diff is **not** stored, read
 the transcript or follow `url` when you need it.
 
-The log spans schema generations (v0/v1/v2), but the query script below
-normalizes every line to the v2 shape, older lines simply lack the rich
-arrays (`commits[]`/`files[]`/`insertions`/`deletions`/`base`). Never read or
+The log spans schema generations v0, v1, and v2. The query script below
+normalizes every line to the v2 shape. Older lines simply lack the rich fields:
+`commits[]`, `files[]`, `insertions`, `deletions`, and `base`. Never read or
 write `worklog.jsonl` with hand-rolled `jq`; all I/O goes through the script.
 
 The transcript is the source of truth; the log line is just the index.
@@ -113,9 +115,9 @@ For each `pending` entry, produce a 1–3 sentence "what was done" plus concrete
 artifacts (files, commits, tickets). Read `transcript_path` (JSONL), prefer it
 over `first_prompt`. If the path is empty or missing, recover by `session_id`
 via `~/.claude/projects/*/<session_id>.jsonl` (Glob) before degrading. Only
-when no transcript exists anywhere, synthesize from the line itself,
-`first_prompt`/`last_prompt` for intent, `commits[]`/`files[]` (or `diffstat`
-on older lines) for the change, and prefix the summary with `~`. For many
+when no transcript exists anywhere, synthesize from the line itself. Read
+`first_prompt` and `last_prompt` for intent. Read `commits[]` and `files[]`, or
+`diffstat` on older lines, for the change. Prefix the summary with `~`. For many
 entries, fan out one {{agent}} per session via the Agent tool.
 
 Cache summaries back through the script, it fills only null summaries and

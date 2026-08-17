@@ -12,8 +12,8 @@ nothing expires it. Two kinds go stale:
 1. Test-disabling: `doCheck = false` or `disabledTests`, added when a fresh
    nixpkgs revision built from source and hit a flaky test.
 2. Tahoe `cctools-ld` fixes: an `overrideAttrs` adding `ld64.lld`, or a swap to
-   a GitHub binary, added when a local Darwin build crashed at link time on
-   macOS 26.
+   a GitHub binary. Both were added when a local Darwin build crashed at link
+   time on macOS 26.
 
 Both become waste once Hydra catches up. Hydra builds Darwin on an older macOS
 and its binary runs on Tahoe, so the pristine package gets cached. The override
@@ -70,9 +70,9 @@ curl -sf https://cache.nixos.org/<hash>.narinfo > /dev/null && echo CACHED || ec
 
 ## Keep list
 
-These are MISSING pristine and stay: `cargo-watch` (Tahoe, absent from Hydra),
-`_1password-gui` (unfree, never cached), `future` (a functional
-`disabled = false` force-enable, not a workaround), and the platform-guarded
+These are MISSING pristine and stay. `cargo-watch` is Tahoe and absent from
+Hydra. `_1password-gui` is unfree and never cached. `future` is a functional
+`disabled = false` force-enable, not a workaround. So are the platform-guarded
 `sunshine`, `sdl3`, and `electron`.
 
 ## Traps

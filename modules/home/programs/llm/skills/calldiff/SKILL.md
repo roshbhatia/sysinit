@@ -9,7 +9,7 @@ allowed-tools: Bash(calldiff:*) Read Glob
 tree. `calldiff diff` prints the same tree twice over and marks what one git
 tree added or dropped against another.
 
-It answers the question a line diff cannot: **what call paths did this change
+It answers the question a line diff cannot. **What call paths did this change
 create, remove, or reroute?** A line diff shows that a function body changed. A
 call diff shows that the function now reaches the network, or no longer reaches
 the cache.
@@ -25,8 +25,8 @@ exactly like a typo. It is not one: the file is unindexed. Do not conclude that
 the file is empty, and do not retry with a different path.
 
 What calldiff does reach in this repo: the Lua under
-`modules/darwin/home/hammerspoon/` and `sysinit.nvim`, the Go under `pkgs/`, and
-the shell under `hack/`.
+`modules/darwin/home/hammerspoon/` and `sysinit.nvim`. It also reaches the Go
+under `pkgs/` and the shell under `hack/`.
 
 ## The three commands
 
@@ -45,11 +45,12 @@ calldiff reach -e M.setup --to compose modules/darwin/home/hammerspoon
 ```
 
 `--to` takes a symbol the repository defines. A call into a library, such as
-`hs.execute` or `fmt.Println`, is a leaf in the tree and not a reachable target,
-so `reach --to` on one answers `Target not found`.
+`hs.execute` or `fmt.Println`, is a leaf in the tree and not a reachable
+target. `reach --to` on one answers `Target not found`.
 
-Argument order matches `git diff`: no ref is HEAD against the working tree, one
-ref is that ref against the working tree, two refs compare those two trees.
+Argument order matches `git diff`. No ref means HEAD against the working tree.
+One ref means that ref against the working tree. Two refs compare those two
+trees.
 
 ## Rules
 
@@ -84,7 +85,7 @@ calldiff diff main
 
 The default tree is colored on a terminal and plain when piped, so it pastes
 into a fenced block as-is. `--format md` puts the multi-line tree inside one
-markdown table cell and prints `[object Object]` for the tree column, which
+markdown table cell and prints `[object Object]` for the tree column. It
 renders as neither a table nor a tree. `--format json` and `--format yaml` are
 sound; use one of those when a script reads the output.
 
@@ -115,15 +116,15 @@ calldiff skills add claude
 
 ### The first run is slow
 
-`calldiff` here is a wrapper over `npx calldiff@0.5.0`, so the first run in a
+`calldiff` here is a wrapper over `npx calldiff@0.5.0`. The first run in a
 fresh npm cache needs network and takes about 20 seconds. Later runs take about
 2 seconds. Do not read a slow first run as a hang.
 
 ## Where this fits the other skills
 
-- Planning a change: `calldiff tree` and `calldiff reach` before you propose an
-  approach, so the design rests on the call graph the code has rather than the
-  one you assume.
+- Planning a change: run `calldiff tree` and `calldiff reach` before you
+  propose an approach. The design then rests on the call graph the code has,
+  not the one you assume.
 - Reviewing a diff: `calldiff diff` alongside the line diff. A call path that
   appeared and is not mentioned in the description is the finding.
 - Writing the PR body: `calldiff diff` in a fenced block when the change moved

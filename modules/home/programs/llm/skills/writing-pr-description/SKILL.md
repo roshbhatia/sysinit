@@ -32,9 +32,9 @@ of one is just a PR.
 
 ## PR title
 
-A PR title is a commit subject: compose it with the `writing-commit-message`
-skill (`<type>(<scope>): <TICKET>: <description>`, ticket after the scope and
-before the description, never a trailing suffix). PR-specific addition:
+A PR title is a commit subject, so compose it with the `writing-commit-message`
+skill. The shape is `<type>(<scope>): <TICKET>: <description>`, with the ticket
+after the scope and before the description, never as a trailing suffix. PR-specific addition:
 multiple tickets join with `/` (`INF-2291/INF-2493`).
 
 ## First, read the repo's contribution docs
@@ -47,9 +47,10 @@ ls .github/CODEOWNERS CODEOWNERS DCO .github/DCO 2>/dev/null
 grep -l "Signed-off-by\\|DCO" CONTRIBUTING.md .github/* 2>/dev/null
 ```
 
-Extract: required commit format / issue-link syntax, branch naming, whether an
-issue link or a "How to test" section is mandatory, which CI checks gate merge,
-CODEOWNERS reviewers, and DCO/`--signoff` requirements. When `CONTRIBUTING.md`
+Extract the required commit format and issue-link syntax, plus branch naming.
+Extract whether an issue link or a "How to test" section is mandatory. Extract
+which CI checks gate merge, the CODEOWNERS reviewers, and any DCO or
+`--signoff` requirement. When `CONTRIBUTING.md`
 conflicts with the defaults below, the repo wins.
 
 ## Use the repo PR template verbatim when one exists
@@ -152,13 +153,13 @@ are auto-template defaults or post-corpus inventions.
 
 The shortest acceptable bullet for a self-evident PR is `See title.`. For a PR
 spanning many distinct areas, group bullets under area subheads with a trailing
-colon (`Schema:` / `Permissions:` / `Testing:`) rather than a flat list of
-multi-sentence bullets.
+colon, such as `Schema:`, `Permissions:`, and `Testing:`. Do not use a flat
+list of multi-sentence bullets.
 
 ## Show a rerouted call path, do not describe it
 
-When a change moves control flow, a new call path, a dropped one, a caller
-rerouted, run `calldiff diff <base> --max-depth 3` and put the plain tree in a
+A change moves control flow when it adds a call path, drops one, or reroutes a
+caller. Run `calldiff diff <base> --max-depth 3` and put the plain tree in a
 fenced block under `## Summary`, below the bullets. The tree is shorter than the
 paragraph, and a reviewer can check it. Then delete the bullet that was
 describing the same thing in prose.

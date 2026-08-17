@@ -5,8 +5,8 @@ allowed-tools: Bash(citelock:*) Read
 
 Verify external-factual claims deterministically with `citelock`
 (the `citelock` command). Pin each claim into a `citations.lock` and check it
-against a tool-captured snapshot, so "is this source real and does it say
-this" becomes an exit code, not a review opinion.
+against a tool-captured snapshot. "Is this source real and does it say this"
+then becomes an exit code, not a review opinion.
 
 ## When to use
 
@@ -19,19 +19,21 @@ this" becomes an exit code, not a review opinion.
 
 ## The two tiers
 
-Tier 0, offline gate (`citelock verify <change-dir>`): a pure function of
-(artifact + `citations.lock`), format lint, capture-provenance, quote-anchor
-(`grep -F`), snapshot sha256, freshness. No network, no MCP tool. This is what
+Tier 0, offline gate (`citelock verify <change-dir>`). It is a pure function of
+the artifact plus `citations.lock`. It runs the format lint,
+capture-provenance, quote-anchor (`grep -F`), snapshot sha256, and freshness
+checks. No network, no MCP tool. This is what
 the pre-commit hook and the `citelock` flake check run. It is deterministic;
 it only REPRODUCES the verdict capture recorded.
 
 Tier 1, capture (`citelock capture <url> --id <id> --quote <text> --class
 <class> [--doi <doi>]`): the truth-check. It fetches the URL live and FAILS
-CLOSED unless the verbatim quote is a literal substring of the fetched bytes,
-then writes the snapshot plus a provenance sidecar and runs the live-web
-checks (`lychee` liveness, Crossref DOI existence and retraction). This is
-where an agent hallucination, a real URL that does not state the claim, is
-caught, because the quote is checked against bytes the author did not write.
+CLOSED unless the verbatim quote is a literal substring of the fetched bytes.
+It then writes the snapshot plus a provenance sidecar. Last it runs the
+live-web checks: `lychee` liveness, and Crossref DOI existence and
+retraction. This is
+where an agent hallucination is caught, meaning a real URL that does not state
+the claim. The quote is checked against bytes the author did not write.
 
 ## Authoring loop
 
@@ -58,7 +60,7 @@ caught, because the quote is checked against bytes the author did not write.
   capture does not run JS, so the quote will not anchor. Cite a stable or
   archived URL (a Wayback snapshot) or the underlying JSON API instead.
 - The offline gate cannot tell a genuine capture from a hand-forged provenance
-  sidecar; a determined author who bypasses `citelock capture` is out of the
+  sidecar. A determined author who bypasses `citelock capture` is out of the
   threat model. The gate defends against agent hallucination and accidental
   paraphrase, not a hostile author. State this; do not overclaim.
 - `CITELOCK_OFFLINE=1` skips the live checks so a commit succeeds offline
@@ -70,18 +72,18 @@ caught, because the quote is checked against bytes the author did not write.
 Prefer the original source for each claim. Use a secondary source only when the
 original is unavailable, and record that reason in the artifact.
 
-To find a source for an assumption, use the harness's own web search and fetch
-(WebSearch / WebFetch): no dedicated tool, MCP, or API key is needed. Once you
+To find a source for an assumption, use the harness's own web search and fetch,
+WebSearch and WebFetch. No dedicated tool, MCP, or API key is needed. Once you
 have a candidate URL, `citelock capture` pins and verifies it. Verification is
 entirely keyless: lychee, the Crossref REST API, and monolith all work without
 credentials. There is no LLM-engine dependency in this loop.
 
-`citelock capture` also uses `pplx content fetch` as its second liveness
-oracle when lychee declines, so an authenticated `pplx` removes a class of
+`citelock capture` also uses `pplx content fetch` as its second liveness oracle
+when lychee declines. An authenticated `pplx` therefore removes a class of
 false-negative capture failures on hosts that redirect heavily. Liveness still
 fails closed: both oracles must decline.
 
-When `pplx` is authenticated (see the `pplx-cli` skill), you MAY use
-`pplx search web` to find candidate sources and `pplx content fetch` as the
-snapshot fetcher for `citelock capture`. The quote-anchor semantics are
+When `pplx` is authenticated, see the `pplx-cli` skill, you MAY use `pplx
+search web` to find candidate sources. You MAY also use `pplx content fetch` as
+the snapshot fetcher for `citelock capture`. The quote-anchor semantics are
 unchanged. When `pplx` is not authenticated, use WebSearch / WebFetch as above.

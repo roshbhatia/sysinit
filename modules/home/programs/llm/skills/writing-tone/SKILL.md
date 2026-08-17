@@ -29,7 +29,10 @@ Scope does not include:
 - <thing out>
 ```
 
-Variants seen in the corpus: "Our scope of enforcement includes: / does not include:", "In scope: / Out of scope:", "Claim under test: ...". Pick the phrasing that fits, but always draw the line, and always name the out-of-scope items, since silent omission reads as oversight while an explicit out-list reads as a decision.
+Variants seen in the corpus: "Our scope of enforcement includes: / does not include:", "In scope: / Out of scope:", "Claim under test: ...". Pick the
+phrasing that fits, but always draw the line and always name the out-of-scope
+items. Silent omission reads as oversight, and an explicit out-list reads as a
+decision.
 
 ## Pair every claim with how it's validated, and with its inverse
 
@@ -75,7 +78,10 @@ Close with `**Bottom line:**` or a one-line restatement of what must happen. Do 
 
 ## Corrections go in a log, not in the body
 
-A document that has been through review accumulates corrections, and each one is tempting to confess where it happened. Do not. An inline "an earlier draft said X, which was wrong" discredits the surrounding evidence at the exact moment the reader needs to trust it, and a dozen of them make the whole document read as unreliable.
+A document that has been through review accumulates corrections, and each one is tempting to confess where it happened. Do not. An inline "an earlier draft
+said X, which was wrong" discredits the surrounding evidence at the moment the
+reader needs to trust it. A dozen of them make the whole document read as
+unreliable.
 
 Keep a dated log at the bottom instead, one line per correction, and state the current position plainly in the body:
 
@@ -84,7 +90,10 @@ Keep a dated log at the bottom instead, one line per correction, and state the c
 - <YYYY-MM-DD> <what changed and why it was wrong before> — <who>
 ```
 
-Two exceptions, both narrow. Note the correction inline when the old claim is still circulating and a reader may act on it, or when the *direction* of error matters to how much the reader should trust the current number. One sentence, then move on.
+Two exceptions, both narrow. Note the correction inline when the old claim is
+still circulating and a reader may act on it. Note it too when the *direction*
+of error matters to how far the reader should trust the current number. One
+sentence, then move on.
 
 ## Prose mechanics
 
@@ -106,7 +115,11 @@ These are the markers of the polished-RFC voice that is NOT Roshan's. Suppress t
 - Cost-of-ownership poetry / abstract meditations on systems. Stay concrete: what is broken, where, how it's confirmed, what closes it.
 - Em-dashes for dramatic elaboration. Use `so`, `as`, `because`, or a period.
 - Throat-clearing preamble and section-summarizing meta-sentences ("In this section we will...").
-- Bolded prefixes. `**Schedule.** The rewrite touches 50 services.` and `**The problem:** X` are the pattern to kill. Roshan's words: "that only results in confusion." Bold the operative word inside the sentence, or carry the force with an RFC 2119 keyword in a doc that declares them. Do not label a paragraph with a bolded noun phrase.
+- Bolded prefixes. `**Schedule.** The rewrite touches 50 services.` and
+  `**The problem:** X` are the pattern to kill. Roshan's words: "that only
+  results in confusion." Bold the operative word inside the sentence. In a doc
+  that declares RFC 2119 keywords, carry the force with one of those instead.
+  Do not label a paragraph with a bolded noun phrase.
 - Callouts, admonition boxes, and highlighted panels. In Notion these are `<callout>`; elsewhere they are tip/warning/note blocks. Roshan reads them as confusing rather than emphatic. If the content matters, it belongs in the prose; if it does not, cut it.
 - Emojis, anywhere.
 <!-- vale Sysinit.MarketingVerb = NO -->
@@ -139,7 +152,9 @@ These are the markers of the polished-RFC voice that is NOT Roshan's. Suppress t
 ## Negative scenarios
 
 - WHEN drafting an audit or findings doc
-- THEN open with in-scope / out-of-scope, state the claim under test, and pair each finding with where it was confirmed and its inverse where one exists.
+- THEN open with in-scope and out-of-scope, and state the claim under test.
+  Pair each finding with where it was confirmed, and with its inverse where one
+  exists.
 
 - WHEN tempted to end a section with a memorable line ("the irony is the config says otherwise")
 - THEN cut the rhetorical label and state the mechanism plainly: "Every app-monitor resource is hardcoded `count = 0`, so the per-service baseline is inert."

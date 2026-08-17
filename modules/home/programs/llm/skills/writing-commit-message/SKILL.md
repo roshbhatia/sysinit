@@ -10,8 +10,9 @@ A terse, prescriptive style guide for commit subjects. Each rule pairs the
 correct shape with the form it replaces. The defaults describe a single voice;
 repo conventions always override.
 
-Provenance: derived from a personal-OSS corpus of 295 PRs and 504 commits
-authored before 2024-06-01, plus the standing rules in `~/.claude/CLAUDE.md`.
+Provenance: derived from a personal-OSS corpus of 295 PRs and 504 commits, all
+authored before 2024-06-01. It also uses the standing rules in
+`~/.claude/CLAUDE.md`.
 
 ## Decision routing
 
@@ -73,15 +74,15 @@ feat: add allowlist; also bump pi           # two clauses — that is two commit
 feat: just a small tweak to the allowlist   # padding words
 ```
 
-Rationale for the imperative + single-clause rule: the subject completes "this
-commit will ___"; a second clause means a second logical change that belongs in
-its own commit. Length: prefer under 72 chars, tolerate ~100 when trimming would
+Rationale for the imperative and single-clause rule. The subject completes
+"this commit will ___". A second clause means a second logical change, which
+belongs in its own commit. Length: prefer under 72 chars, tolerate ~100 when trimming would
 lose meaning. Domain abbreviations (sqlite, MCP, OAuth, npm, TUI, CLI) need no
 expansion. The `!` after the type marks a breaking change (`feat(auth)!:`).
 
 ## Ticket-id prefix inside the subject (standard when a ticket applies)
 
-This is the **default** whenever a tracker ticket is in scope, it mirrors the
+This is the **default** whenever a tracker ticket is in scope. It mirrors the
 global PR-title convention `<type>(<scope>): <TICKET>: <description>`, so a
 squash-merge title stays consistent. In the grounding corpus, 83% of subjects
 carried a tracker ticket ID:

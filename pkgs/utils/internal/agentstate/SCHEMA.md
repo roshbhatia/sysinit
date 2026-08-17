@@ -47,8 +47,8 @@ that lookup forks git and the variable is the half the owner sees.
 
 `paneValue` parses the id and emits a JSON number when it parses, a string when
 it does not. A reader must accept both. `jq`'s `.pane` yields either without
-complaint; lua's `json_parse` yields a number or a string, so a reader comparing
-it to a pane id must convert first.
+complaint. lua's `json_parse` yields a number or a string, so a reader
+comparing it to a pane id must convert first.
 
 ### `reason` never contains `|`
 
@@ -56,9 +56,9 @@ it to a pane id must convert first.
 so one inside a reason forges a field. Newlines fold for the same reason on the
 file bus.
 
-The rule applies to both encodings even though only the OSC form needs it,
-because the two are rendered from one value and a reason that differed between
-them would be a second fact.
+The rule applies to both encodings even though only the OSC form needs it. The
+two are rendered from one value, and a reason that differed between them would
+be a second fact.
 
 `reason` is truncated to 60 characters at write time rather than at read time,
 so every surface renders the same string.
@@ -91,10 +91,10 @@ Every reader already answers pane existence, and each read site says so:
 
 ### `mux` is the generation marker
 
-Pane ids restart at 0 in each mux, confirmed by reading `WEZTERM_PANE` in a
+Pane ids restart at 0 in each mux. Confirmed by reading `WEZTERM_PANE` in a
 running instance and in two freshly started ones: all three reported pane 0. So
-a pane id alone cannot tell yesterday's record from today's, and pane existence
-answers "is there a pane 0" rather than "is it the same pane 0".
+a pane id alone cannot tell yesterday's record from today's. Pane existence
+answers "is there a pane 0", never "is it the same pane 0".
 
 `mux` is the pid of the wezterm mux the pane belongs to, parsed from the
 `gui-sock-<pid>` socket path wezterm sets in every pane. It is 0 outside
@@ -103,16 +103,16 @@ before this field existed. A reader treats 0 as "no marker", never as a
 mismatch.
 
 The marker is enforced by deletion rather than at read time. `agent-state`
-removes the records of any mux that is no longer running, once per mux, gated on
-a `.mux-<pid>` marker file so the check costs one stat on the hot path. This is
-the routine trigger, not an edge case: the state directory outlives the mux,
-nothing else clears it, and the first pane of a restarted terminal takes the id
-the last one had.
+removes the records of any mux that is no longer running, once per mux. A
+`.mux-<pid>` marker file gates it, so the check costs one stat on the hot path.
+This is the routine trigger, not an edge case. The state directory outlives the
+mux and nothing else clears it. The first pane of a restarted terminal takes
+the id the last one had.
 
 Doing it by deletion rather than in each reader is what lets `ui.lua` benefit.
 The wezterm GUI process carries neither `WEZTERM_UNIX_SOCKET` nor
-`WEZTERM_PANE`, confirmed with `ps -Eww` on a running GUI, so `ui.lua` cannot
-work out which mux it is and cannot evaluate the marker itself.
+`WEZTERM_PANE`, confirmed with `ps -Eww` on a running GUI. So `ui.lua` cannot
+work out which mux it is, and cannot evaluate the marker itself.
 
 Three holes remain, all real:
 

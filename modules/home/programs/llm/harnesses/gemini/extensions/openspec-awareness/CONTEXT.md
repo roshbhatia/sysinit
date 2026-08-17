@@ -13,7 +13,10 @@ openspec validate "<name>"                    # syntax/structure check
 openspec show "<name>"                        # rendered summary
 ```
 
-When the user mentions a change name, OpenSpec workflow, or spec-driven work, prefer these CLI calls over guessing. The schema's rules, Non-goals, alternatives in Decisions, negative scenarios, phased tasks with verify/apply/confirm gates, are enforced by the instruction text returned from `openspec instructions`.
+When the user mentions a change name, OpenSpec workflow, or spec-driven work, prefer these CLI calls over guessing. The instruction text returned from
+`openspec instructions` enforces the schema's rules. Those are Non-goals,
+alternatives in Decisions, negative scenarios, and phased tasks with verify,
+apply, and confirm gates.
 
 ## Workflow
 

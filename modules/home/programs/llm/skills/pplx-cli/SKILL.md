@@ -10,15 +10,17 @@ search and page-content fetch that return structured JSON.
 
 `pplx` only works when authenticated. Decide the tool at runtime:
 
-1. Check auth: `PERPLEXITY_API_KEY` is set, OR a credentials file exists from a
-   prior `pplx auth login` (`${XDG_CONFIG_HOME:-$HOME/.config}/perplexity/credentials.json`,
-   or the macOS Application Support path). There is no `pplx auth status`
+1. Check auth. Either `PERPLEXITY_API_KEY` is set, or a credentials file exists
+   from a prior `pplx auth login`. That file is
+   `${XDG_CONFIG_HOME:-$HOME/.config}/perplexity/credentials.json`, or the
+   macOS Application Support path. There is no `pplx auth status`
    subcommand; the only auth subcommand is `login`.
 2. If authed AND the target is external, public information: use `pplx`.
 3. If NOT authed: fall back to the built-in WebSearch/WebFetch. Do not call
    `pplx`; do not block on a login prompt.
-4. NEVER send internal, private, or in-repo content to `pplx`: use local
-   tools (grep, Read, ast-grep) for anything in this repo or on this machine.
+4. NEVER send internal, private, or in-repo content to `pplx`. Use local tools
+   such as grep, Read, and ast-grep for anything in this repo or on this
+   machine.
 
 ```bash
 # good — a public question, no repo content in the query

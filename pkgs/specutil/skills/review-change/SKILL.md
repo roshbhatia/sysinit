@@ -12,7 +12,7 @@ metadata:
 # Review a change with a human in the loop
 
 Everything specutil renders is a projection of what you wrote. This is the one
-path that goes the other way: a person annotates the change in a browser, and
+path that goes the other way. A person annotates the change in a browser, and
 their decision comes back as a document you act on.
 
 The binary never opens a socket. The page has nowhere to post to. The loop
@@ -22,8 +22,8 @@ connects.
 ## When to run this
 
 Run it before you start building a change, and again after you revise. A review
-that predates your edits is reported as stale rather than counted as approval,
-so re-running is cheap and never silently blesses unread text.
+that predates your edits is reported as stale, never counted as approval.
+Re-running is cheap and never silently blesses unread text.
 
 ## Flow
 

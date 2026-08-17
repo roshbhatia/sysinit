@@ -3,9 +3,9 @@ description: 'Uses specutil (on PATH) to decide what to work on next in an OpenS
 allowed-tools: Bash(specutil:*) Bash(mermaid-ascii:*)
 ---
 
-specutil is a Go CLI that reads the repo's `openspec/changes/` tree and produces
-dependency graphs, rendered documents, and review records without any network
-I/O.
+specutil is a Go CLI that reads the repo's `openspec/changes/` tree. It
+produces dependency graphs, rendered documents, and review records, with no
+network I/O.
 
 ## When to use
 
@@ -25,7 +25,9 @@ I/O.
 - Before planning multi-change work: run `specutil graph --as mermaid` to see the cross-change DAG and discover blockers.
 - During an explore session: run `specutil web` to open the work graph (levels, readiness, critical path) in a browser.
 - Before marking a phase done: run `specutil check <change-dir>` as the deterministic rubric gate.
-- To render a change as an RFC, design doc, or ticket list: `specutil render --as rfc|design|tickets --change <name>`. `--as tickets` is also what to hand a tracker: it carries no phase numbers or task identifiers, so a reader outside the repository can act on it.
+- To render a change as an RFC, design doc, or ticket list: `specutil render --as rfc|design|tickets --change <name>`. . `--as tickets` is also what to hand
+  a tracker. It carries no phase numbers or task identifiers, so a reader
+  outside the repository can act on it.
 
 ## Key commands
 

@@ -8,11 +8,11 @@ A structure and voice guide for technical design docs, documents that describe
 *how* something will be built once the direction is broadly agreed. The skill
 owns the section skeleton and the prose voice; the author owns the content.
 
-Provenance: the section skeleton is sourced from the Kubernetes KEP template
-(`kubernetes/enhancements`, `keps/NNNN-kep-template`), stripped of
-Kubernetes-specific machinery (release signoff, graduation criteria, version
-skew, production-readiness questionnaire, feature gates) and tuned to Roshan's
-working voice.
+Provenance: the section skeleton comes from the Kubernetes KEP template,
+`kubernetes/enhancements`, `keps/NNNN-kep-template`. It drops the
+Kubernetes-specific machinery: release signoff, graduation criteria, version
+skew, the production-readiness questionnaire, and feature gates. It is tuned to
+Roshan's working voice.
 
 ## Decision routing
 
@@ -51,9 +51,9 @@ would surprise a reader.
    - Risks and mitigations, what could go wrong and the answer to each.
 4. **Design Details**, The technical core: data shapes, interfaces, control
    flow, edge cases. Diagrams here earn their place (use the diagram skill).
-   - Validation, how each claim is checked: tests, manual steps, and the
-     inverse case that proves the boundary holds. Generalized from the KEP
-     "Test Plan"; no unit/integration/e2e ceremony unless it fits.
+   - Validation, how each claim is checked. Give the tests, the manual steps,
+     and the inverse case that proves the boundary holds. Generalized from the
+     KEP "Test Plan"; no unit/integration/e2e ceremony unless it fits.
    - Rollout / migration *(optional)*, how it ships and how it rolls back.
 5. **Drawbacks**, Honest reasons not to do this. If you cannot name one, the
    analysis is incomplete.

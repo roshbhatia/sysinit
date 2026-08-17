@@ -5,9 +5,9 @@ allowed-tools: Bash(utils:*)
 
 > Normative keywords follow [RFC 2119](https://datatracker.ietf.org/doc/html/rfc2119); "never" is MUST NOT, "always" is MUST.
 
-`utils note` writes one JSON record. A note is addressed by the absolute path of
-the file it annotates, so work spanning several repositories reads back as one
-list and a note can be written from anywhere, including a folder that is not a
+`utils note` writes one JSON record. A note is addressed by the absolute path
+of the file it annotates. So work spanning several repositories reads back as
+one list. A note can be written from anywhere, including a folder that is not a
 repository. It is a pure writer: it never opens, launches, or nudges anything.
 The owner reads the notes back in Neovim, and a note written while nothing is
 open is there the next time Neovim refreshes.
@@ -58,9 +58,9 @@ Rules:
 - `--replace` drops any existing note with the same file, line, and author
   before appending. Always pass it when re-noting a line you already noted, or
   repeated passes stack.
-- `--line` anchors on the MODIFIED side. The write also records the text of that
-  line, and a reader re-anchors on the text, so a note follows its line through
-  later edits.
+- `--line` anchors on the MODIFIED side. The write also records the text of
+  that line. A reader re-anchors on the text, so a note follows its line
+  through later edits.
 - `--file` takes any path you can name. It is stored as an absolute,
   symlink-resolved path, so two spellings of one file cannot produce two notes
   that never see each other.
@@ -72,9 +72,9 @@ Rules:
 the wrong one after a file has moved. `clear` is the only verb here that is not
 on the allowlist, so it prompts. That is
 deliberate: it is the owner's kill switch and it deletes their notes as well as
-yours, in every repository. Do not reach for it to tidy up. A note of your own that the code has
-outgrown is superseded with `add --replace`, which needs no prompt and leaves the
-owner's notes alone.
+yours, in every repository. Do not reach for it to tidy up. Supersede a note of
+your own that the code has outgrown with `add --replace`. It needs no prompt
+and leaves the owner's notes alone.
 
 ## Answering the owner
 
@@ -109,9 +109,9 @@ write. Rules:
 
 ## Reading
 
-The reader is the owner's Neovim. It draws the summary on the annotated line and
-the rationale under it, in a box titled with your icon, or with the owner's git
-address for a note they wrote. The summary MUST stand alone: a summary of "see
+The reader is the owner's Neovim. It draws the summary on the annotated line
+and the rationale under it, in a box titled with your icon. A note the owner
+wrote is titled with their git address. The summary MUST stand alone: a summary of "see
 rationale" reads as nothing useful in the list Neovim builds.
 
 Neovim reads the record on refresh, so a note you write now appears there without

@@ -7,9 +7,9 @@ effort: low
 
 # Stacked pull requests
 
-`gh stack` is a GitHub CLI extension. One concern per branch, one PR per branch,
-each PR based on the one below it, so a reviewer reads a small diff instead of a
-large one. It owns the branch chain, the rebases, and each PR's base branch.
+`gh stack` is a GitHub CLI extension. One concern per branch, one PR per
+branch, each PR based on the one below it. A reviewer then reads a small diff
+instead of a large one. It owns the branch chain, the rebases, and each PR's base branch.
 
 The house rule this serves already exists: one concern per commit. A stack is
 that rule carried through to review.

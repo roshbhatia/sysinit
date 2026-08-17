@@ -4,8 +4,8 @@ Read this before changing anything under `pkgs/specutil/`.
 
 ## What this is
 
-A pure, local Go CLI. It reads OpenSpec change artifacts from the filesystem and
-projects them into rendered documents, a dependency graph, a browser view, a
+A pure, local Go CLI. It reads OpenSpec change artifacts from the filesystem.
+It projects them into rendered documents, a dependency graph, a browser view, a
 rubric lint, and a review record. It performs no network I/O.
 
 It was a standalone repository (`roshbhatia/specutil`) until 2026-08-11, when it
@@ -60,10 +60,11 @@ silently reports stale.
 
 ## Schema conventions are declared, never branched on
 
-specutil supports plain OpenSpec. A schema that layers extra convention on
-markdown (a scenario's polarity, a phase's shape, an inline task-dependency
-field) declares it under `extract:` in `openspec/specutil.yaml`, or gets it from a
-built-in preset keyed on the schema name in its own `openspec/config.yaml`.
+specutil supports plain OpenSpec. A schema can layer extra convention on
+markdown: a scenario's polarity, a phase's shape, an inline task-dependency
+field. It declares that under `extract:` in `openspec/specutil.yaml`. Otherwise
+it comes from a built-in preset, keyed on the schema name in its own
+`openspec/config.yaml`.
 
 If you write `if schema == "..."` anywhere outside `internal/extract` or
 `internal/check`, stop: that knowledge belongs in a preset. The same rule governs
@@ -73,9 +74,9 @@ live only in `internal/check/presets.go`.
 ## Identity has one definition
 
 `internal/ident` defines identity (normalized, edit-tolerant), content hash
-(exact), and similarity (token Jaccard). `review` and `vcs` both call it, and a
-hunk's handle comes from its changed lines alone so an edit elsewhere in the file
-does not orphan a comment. Call `ident`; never re-derive a handle.
+(exact), and similarity (token Jaccard). `review` and `vcs` both call it. A
+hunk's handle comes from its changed lines alone, so an edit elsewhere in the
+file does not orphan a comment. Call `ident`; never re-derive a handle.
 
 ## Making changes
 
@@ -104,9 +105,9 @@ go test -race ./...    # before committing
 ```
 
 The nix derivation runs the full suite as its check phase, so a failing test
-fails `nix flake check`. Do not set `subPackages` in `overlays/specutil.nix`: it
-narrows the check phase as well as the build, and `cmd/specutil` holds no tests,
-so the build would pass having run nothing.
+fails `nix flake check`. Do not set `subPackages` in `overlays/specutil.nix`.
+It narrows the check phase as well as the build, and `cmd/specutil` holds no
+tests. The build would pass having run nothing.
 
 Integration tests call `cli.NewRootCmd()` and `Execute()` directly, never
 `os/exec`. Fixtures live in `internal/cli/testdata/`; use `setupMinimalOpenspec`
@@ -114,9 +115,9 @@ for a bare tree and `fixture("getting-started")` for a realistic one.
 
 ## What not to do
 
-Do not add a sync verb, a tracker lockfile, or a second input provider. All three
-existed and were removed on 2026-08-11 because nothing on this host used them; a
-`git log` on this directory has the reasoning. To file work in a tracker, run
+Do not add a sync verb, a tracker lockfile, or a second input provider. All
+three existed and were removed on 2026-08-11, because nothing on this host used
+them. A `git log` on this directory has the reasoning. To file work in a tracker, run
 `specutil render --as tickets` and write it with the tracker's own MCP tools.
 
 Do not write source numbering into anything a tracker or an outside reader sees.

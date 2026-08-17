@@ -10,9 +10,10 @@ A prescriptive style guide for inline comments and docstrings. The default is to
 write no comment. Each rule below pairs the comment that earns its place with the
 noise it replaces.
 
-Provenance: derived from the standing rule in `~/.claude/CLAUDE.md` ("Default to
-writing no comments…"), reinforced by the terse, lowercase-preferred voice in a
-personal-OSS corpus of 295 PRs and 504 commits authored before 2024-06-01.
+Provenance: derived from the standing rule in `~/.claude/CLAUDE.md`, "Default
+to writing no comments…". It is reinforced by the terse, lowercase-preferred
+voice in a personal-OSS corpus. That corpus is 295 PRs and 504 commits, all
+authored before 2024-06-01.
 
 ## Decision routing
 

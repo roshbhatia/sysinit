@@ -5,21 +5,22 @@ allowed-tools: Bash(mermaid-ascii:*) Bash(pretty-mermaid:*) Bash(pretty-mermaid-
 
 # Diagramming
 
-Diagrams live where they are read. Render **every** mermaid diagram as ASCII in the
-terminal, including one you only read: a mermaid block in a file, a PR, or a spec is
-text a reader has to simulate in their head, and one command turns it into a picture.
-An ASCII render also survives in markdown, openspec artifacts, and chat with no asset
-pipeline. Reach for an image only when fidelity earns it.
+Diagrams live where they are read. Render **every** mermaid diagram as ASCII in
+the terminal, including one you only read. A mermaid block in a file, a PR, or
+a spec is text a reader has to simulate in their head. One command turns it
+into a picture. An ASCII render also survives in markdown, openspec artifacts,
+and chat with no asset pipeline. Reach for an image only when fidelity earns
+it.
 
 Mermaid is always the source of truth; ASCII or image is the render. Keep the
 Mermaid alongside the render so it can be edited and re-rendered later.
 
 Provenance: per-diagram-type syntax below is distilled from the Agents365
-`mermaid-skill` (`Agents365-ai/mermaid-skill`). The themed SVG and multi-type ASCII
-renderer is `imxv/Pretty-mermaid-skills` (MIT), packaged as `pretty-mermaid` and
-pinned by rev in `overlays/pretty-mermaid.nix`; `hack/update-pretty-mermaid.sh`
-surfaces drift. The opinions on top, ASCII-first, local-only, the per-type routing
-below, are this repository's own.
+`mermaid-skill` (`Agents365-ai/mermaid-skill`). The themed SVG and multi-type
+ASCII renderer is `imxv/Pretty-mermaid-skills` (MIT). It is packaged as
+`pretty-mermaid` and pinned by rev in `overlays/pretty-mermaid.nix`.
+`hack/update-pretty-mermaid.sh` surfaces drift. The opinions on top are this
+repository's own: ASCII-first, local-only, and the per-type routing below.
 
 Every render runs on this machine. No path in this skill sends diagram source to a
 network service.
@@ -51,10 +52,11 @@ Prefer ASCII; escalate only when the target or the type genuinely needs it.
 
 ## When a diagram earns its place
 
-Reach for one when it clarifies more than prose: capability flow, state
-transitions, sequence-of-calls (openspec proposals/design.md); option trees,
-dependency graphs, decision points (exploration); what-happens-vs-should (bugs);
-component boundaries (architecture sketches); small inline visuals (README).
+Reach for one when it clarifies more than prose. In an openspec proposal or
+`design.md`: capability flow, state transitions, sequence-of-calls. In
+exploration: option trees, dependency graphs, decision points. In a bug:
+what-happens against what-should. In an architecture sketch: component
+boundaries. In a README: small inline visuals.
 
 ## Path A: ASCII inline (default)
 
@@ -135,8 +137,8 @@ there too.
 
 One caveat: the emitted SVG `@import`s Inter from Google Fonts, so a viewer fetches
 a font when the file is opened. For a diagram that must not phone home, pass
-`--font` with a local family, or accept that the render itself was offline and the
-view is not.
+`--font` with a local family. Otherwise accept that the render itself was
+offline and the view is not.
 
 ## When no local renderer parses the type
 

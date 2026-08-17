@@ -9,9 +9,9 @@
      true. The indented block is also invisible to the review fingerprint, so
      recording evidence there does not restale an approved decision.
 
-     State the outcome, not the mechanism. A task written before any measurement
-     that names the package, flag, or assertion to use has guessed, and every
-     guess later has to be defended or renegotiated. Name what must be true;
+     State the outcome, not the mechanism. A task written before any
+     measurement, that already names the package, flag, or assertion to use,
+     has guessed. Every guess later has to be defended or renegotiated. Name what must be true;
      let the implementer choose how. -->
 
 ## 1. <!-- Loop-shaped phase: gather, act, verify, repeat to a stop condition.
@@ -40,8 +40,8 @@
 - SHAPE graph
 - MERGE 2.2
         <!-- Name the ONE subtask that reads every sibling's output and owns the
-             merged result. A real id, never a comment: the lint checks that the
-             marker is present, not that it names a task, so a placeholder
+             merged result. A real id, never a comment. The lint checks that
+             the marker is present, not that it names a task. A placeholder
              comment here passes while naming nothing. -->
 
 <!-- Fanning out to more than five siblings? Name a pilot subtask that runs the
@@ -53,7 +53,9 @@
 
 - [ ] 2.1 <!-- root subtask --> `deps:` none `writes:` <!-- paths, or none -->
 - [ ] 2.2 Merge: <!-- reads 2.1 and every other sibling --> `deps:` 2.1 `writes:` <!-- paths, or none -->
-- [ ] 2.3 Adversarial review (`adversarial-review` skill): run deterministic lint; run optional critics only when requested or risk-justified `deps:` 2.2 `writes:` <!-- this change's review.md -->
+- [ ] 2.3 Adversarial review (`adversarial-review` skill): run deterministic
+  lint. Run optional critics only when requested or risk-justified `deps:` 2.2
+  `writes:` <!-- this change's review.md -->
 
 ## 3. Rollout
 

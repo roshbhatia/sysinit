@@ -28,7 +28,7 @@ When there is no active change, explore freely and offer to create a proposal on
 
 Ground the proposal in the call graph the code has, not the one you assume it
 has. Before you name an approach in `design.md`, run `calldiff tree -e <entry>`
-over the subsystem the change touches, and `calldiff reach -e <entry> --to
+over the subsystem the change touches. Run `calldiff reach -e <entry> --to
 <symbol>` for each edge the design depends on. A design that assumes an edge the
 tool cannot find is wrong at the first task, not at review. calldiff does not
 parse Nix; load the `calldiff` skill for what it does cover.
@@ -36,7 +36,7 @@ parse Nix; load the `calldiff` skill for what it does cover.
 <examples>
 <example>
 <bad>`design.md` says the launcher can reuse the existing preview path, because both lists show rows.</bad>
-<good>`calldiff reach -e M.toggle --to preview` finds no path, so `design.md` states that the preview path has to be lifted out of `history()` first, as task 1.</good>
+<good>`calldiff reach -e M.toggle --to preview` finds no path. So `design.md` states that task 1 lifts the preview path out of `history()`.</good>
 </example>
 </examples>
 
@@ -75,6 +75,6 @@ For DAG visualization, rendering a change as RFC/design/tickets, and
 Linear/Notion sync planning, load the `specutil` skill; its commands are not
 restated here.
 
-For general external web research during a change (not internal or in-repo
-content), prefer the `pplx` CLI when it is authenticated, and fall back to the
-built-in WebSearch otherwise. See the `pplx-cli` skill for the routing rule.
+For general external web research during a change, prefer the `pplx` CLI when
+it is authenticated, and fall back to the built-in WebSearch. Never send
+internal or in-repo content. See the `pplx-cli` skill for the routing rule.
