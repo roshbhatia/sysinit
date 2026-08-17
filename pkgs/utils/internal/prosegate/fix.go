@@ -230,8 +230,16 @@ func markdown(paths []string) ([]string, error) {
 	var found []string
 	for _, root := range paths {
 		err := filepath.Walk(root, func(p string, info os.FileInfo, err error) error {
+			// A repository root holds directories this cannot read, and one of
+			// them must not stop the walk before it reaches the docs.
 			if err != nil {
-				return err
+				if info != nil && info.IsDir() {
+					return filepath.SkipDir
+				}
+				return nil
+			}
+			if info.IsDir() && strings.HasPrefix(filepath.Base(p), ".") && p != root {
+				return filepath.SkipDir
 			}
 			if !info.IsDir() && strings.EqualFold(filepath.Ext(p), ".md") {
 				found = append(found, p)
