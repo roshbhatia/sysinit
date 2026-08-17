@@ -306,9 +306,15 @@ func remind(stdin io.Reader) int {
 }
 
 // The output style is already loaded at this point and sits in the same position
-// in the window, so restating it here buys nothing. These four rules are not
+// in the window, so restating it here buys nothing. These three rules are not
 // stated anywhere else, and a fresh or compacted session has no other way to
 // learn them.
+//
+// A fourth rule used to sit here: give any command that can print without bound a
+// limit. bash-guard now rewrites such a command through `updatedInput`, so the
+// bound holds whether or not the rule is read. A stated rule the model may skip
+// is strictly worse than a hook that cannot be skipped, and it costs bytes on
+// every session start.
 func session() int {
 	if os.Getenv("SYSINIT_PROSE_GATE") == "off" {
 		return 0
@@ -318,8 +324,7 @@ func session() int {
   - Grep or Glob to find the lines. Read the range, not the file.
   - Delegate a search that spans many files to a subagent, which reads in its own
     window and reports back the conclusion.
-  - Never re-read a file to confirm an edit that Edit or Write already reported.
-  - Give any command that can print without bound a limit: head, -n, --max-count.`)
+  - Never re-read a file to confirm an edit that Edit or Write already reported.`)
 }
 
 // A teammate's report is the entire cost of delegating: the caller pays for it

@@ -11,7 +11,7 @@ import (
 )
 
 const (
-	BashSummary     = "deny destructive Bash commands via a PreToolUse decision"
+	BashSummary     = "deny destructive Bash commands, and bound one that prints without a limit"
 	ExitCodeSummary = "deny destructive commands via a non-zero exit code"
 	NixSummary      = "deny an edit that resolves into the Nix store"
 	ReadSummary     = "clip an unbounded Read of a large file to a byte budget"
@@ -114,6 +114,135 @@ func readCommand(stdin io.Reader) (string, bool) {
 	return ev.ToolInput.Command, true
 }
 
+// bashBudget bounds what one Bash call can print into the window. read-guard
+// clips a Read at 12 KiB, but it gets to stat the file first. A command has no
+// file to stat, so the bound has to ride on the command itself.
+const bashBudget = 16 * 1024
+
+// The rewrite only applies to a single simple command. Any of these characters
+// means the caller composed something, and appending a pipe would bound the last
+// stage alone or change precedence. A quote is not here on purpose: `rg "a b" .`
+// is still one simple command.
+const shellOperators = "|&;<>()$`\\\n"
+
+// Commands that print all of what they are pointed at. None has a natural
+// stopping point, so the output size is the input size.
+var unboundedCommands = map[string]bool{
+	"cat": true, "fd": true, "find": true, "grep": true, "jq": true,
+	"printenv": true, "rg": true, "tree": true, "yq": true,
+}
+
+// git subcommands with the same property. `git status` and `git branch` are
+// bounded by the working tree, so they are not here.
+var unboundedGitSubcommands = map[string]bool{
+	"blame": true, "diff": true, "log": true, "reflog": true, "shortlog": true,
+}
+
+// find actions that write instead of print. A bound would not help them and the
+// rewrite has no business touching a command that deletes.
+var findWriteActions = map[string]bool{
+	"-delete": true, "-exec": true, "-execdir": true, "-ok": true, "-okdir": true,
+}
+
+func isAllDigits(s string) bool {
+	if s == "" {
+		return false
+	}
+	for _, r := range s {
+		if r < '0' || r > '9' {
+			return false
+		}
+	}
+	return true
+}
+
+// alreadyBounded reports whether the caller picked a limit. It matches exact
+// flags rather than prefixes: `-n` as a prefix also matches find's `-name`, which
+// would exempt every `find . -name '*.go'` from the bound.
+func alreadyBounded(args []string) bool {
+	for _, arg := range args {
+		switch {
+		case arg == "-n" || arg == "-m" || arg == "--max-count" || arg == "--limit":
+			return true
+		case strings.HasPrefix(arg, "--max-count=") || strings.HasPrefix(arg, "--limit="):
+			return true
+		case strings.HasPrefix(arg, "-") && isAllDigits(arg[1:]):
+			return true
+		case len(arg) > 2 && arg[0] == '-' && (arg[1] == 'n' || arg[1] == 'm') && isAllDigits(arg[2:]):
+			return true
+		}
+	}
+	return false
+}
+
+// boundCommand rewrites a command that can print without a limit so that it
+// cannot. It returns false whenever the command is anything other than one plain
+// invocation of a known-unbounded tool with no limit of its own.
+func boundCommand(command string) (string, bool) {
+	trimmed := strings.TrimSpace(command)
+	if trimmed == "" || strings.ContainsAny(trimmed, shellOperators) {
+		return "", false
+	}
+	fields := strings.Fields(trimmed)
+	name := filepath.Base(fields[0])
+	args := fields[1:]
+	switch {
+	case name == "git":
+		if len(args) == 0 || !unboundedGitSubcommands[args[0]] {
+			return "", false
+		}
+	case unboundedCommands[name]:
+		// No argument means the command reads stdin, and there is no stdin here:
+		// a pipe would have failed the operator check above.
+		if len(args) == 0 {
+			return "", false
+		}
+		if name == "find" {
+			for _, arg := range args {
+				if findWriteActions[arg] {
+					return "", false
+				}
+			}
+		}
+	default:
+		return "", false
+	}
+	if alreadyBounded(args) {
+		return "", false
+	}
+	// A subshell, so pipefail does not leak into the shell the Bash tool reuses
+	// across calls. `cat >/dev/null` drains the remainder instead of letting head
+	// close the pipe, so the command still reports its own exit status rather
+	// than 141 from SIGPIPE.
+	return fmt.Sprintf(
+		"( set -o pipefail; %s | { head -c %d; cat >/dev/null; } )",
+		trimmed, bashBudget,
+	), true
+}
+
+type bashEvent struct {
+	ToolInput map[string]any `json:"tool_input"`
+}
+
+type bashDecision struct {
+	HookSpecificOutput struct {
+		HookEventName            string         `json:"hookEventName"`
+		PermissionDecision       string         `json:"permissionDecision"`
+		PermissionDecisionReason string         `json:"permissionDecisionReason"`
+		UpdatedInput             map[string]any `json:"updatedInput"`
+	} `json:"hookSpecificOutput"`
+}
+
+func emit(v any, name string) int {
+	encoded, err := json.Marshal(v)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "%s: %s\n", name, err)
+		return 1
+	}
+	fmt.Println(string(encoded))
+	return 0
+}
+
 func RunBash(args []string) int {
 	rulesPath, err := parseArgs(args)
 	if err != nil {
@@ -125,25 +254,54 @@ func RunBash(args []string) int {
 		fmt.Fprintf(os.Stderr, "bash-guard: %s\n", err)
 		return 1
 	}
-	command, ok := readCommand(os.Stdin)
-	if !ok {
-		return 0
-	}
-	reason, denied := Decide(command, rules)
-	if !denied {
-		return 0
-	}
-	var out decision
-	out.HookSpecificOutput.HookEventName = "PreToolUse"
-	out.HookSpecificOutput.PermissionDecision = "deny"
-	out.HookSpecificOutput.PermissionDecisionReason = reason
-	encoded, err := json.Marshal(out)
+	raw, err := io.ReadAll(os.Stdin)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "bash-guard: %s\n", err)
-		return 1
+		return 0
 	}
-	fmt.Println(string(encoded))
-	return 0
+	var ev bashEvent
+	if json.Unmarshal(raw, &ev) != nil {
+		return 0
+	}
+	command, _ := ev.ToolInput["command"].(string)
+	if command == "" {
+		return 0
+	}
+
+	if reason, denied := Decide(command, rules); denied {
+		var out decision
+		out.HookSpecificOutput.HookEventName = "PreToolUse"
+		out.HookSpecificOutput.PermissionDecision = "deny"
+		out.HookSpecificOutput.PermissionDecisionReason = reason
+		return emit(out, "bash-guard")
+	}
+
+	// A backgrounded command writes to a log file, not into the window, so the
+	// bound would buy nothing and would hide the tail from the log too.
+	if background, ok := ev.ToolInput["run_in_background"].(bool); ok && background {
+		return 0
+	}
+	bounded, rewritten := boundCommand(command)
+	if !rewritten {
+		return 0
+	}
+	// The whole tool_input is carried forward with only the command replaced.
+	// updatedInput substitutes the input rather than merging into it, so dropping
+	// the map would drop the timeout the caller chose.
+	updated := make(map[string]any, len(ev.ToolInput))
+	for key, value := range ev.ToolInput {
+		updated[key] = value
+	}
+	updated["command"] = bounded
+
+	var out bashDecision
+	out.HookSpecificOutput.HookEventName = "PreToolUse"
+	out.HookSpecificOutput.PermissionDecision = "allow"
+	out.HookSpecificOutput.PermissionDecisionReason = fmt.Sprintf(
+		"This command can print without a limit, so its output was capped at %d KiB. Narrow it with a filter, a path, or a flag such as -n or --max-count if you need the part that was cut.",
+		bashBudget/1024,
+	)
+	out.HookSpecificOutput.UpdatedInput = updated
+	return emit(out, "bash-guard")
 }
 
 const storePrefix = "/nix/store/"
