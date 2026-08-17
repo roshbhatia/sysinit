@@ -9,9 +9,24 @@ let
   skills = import ./skills/render.nix { inherit pkgs; };
 
   specutilSkillRoot = ../../../../pkgs/specutil/skills;
+
+  # specutil skills this machine does not install. The source stays in
+  # pkgs/specutil/skills, because the commands behind them still exist and
+  # pkgs/specutil/AGENTS.md still points at them; only the install is dropped. A
+  # skill's name and description sit in the system prompt of every session whether
+  # or not it is ever loaded, and these two were invoked 0 times across 86 sessions
+  # between 2026-05-02 and 2026-08-17. To take one back, delete its line.
+  specutilSkipSkills = [
+    "discover-deps"
+    "review-change"
+  ];
+
   specutilSkills = lib.mapAttrs (name: _: specutilSkillRoot + "/${name}/SKILL.md") (
     lib.filterAttrs (
-      name: type: type == "directory" && builtins.pathExists (specutilSkillRoot + "/${name}/SKILL.md")
+      name: type:
+      type == "directory"
+      && !(builtins.elem name specutilSkipSkills)
+      && builtins.pathExists (specutilSkillRoot + "/${name}/SKILL.md")
     ) (builtins.readDir specutilSkillRoot)
   );
 
