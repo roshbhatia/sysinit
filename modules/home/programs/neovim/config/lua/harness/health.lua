@@ -73,7 +73,7 @@ function M.findings()
   else
     local watch = events.status()
     if watch.active then
-      add("ok", "edit-event watcher: running, with no consumer since the scoped review was removed")
+      add("ok", "edit-event watcher: running, and it reloads the buffer an agent wrote")
     else
       add("warn", "edit-event watcher: not running")
     end
@@ -83,6 +83,18 @@ function M.findings()
       add("warn", "edit-event log: not resolved. `utils edit-event --print-log` did not answer, so no event can arrive")
     end
     add("ok", string.format("agent edits recorded this session: %d", watch.touched))
+  end
+
+  local ok_deltas, deltas = pcall(require, "harness.deltas")
+  if not ok_deltas then
+    add("error", "the delta module did not load, so no line can name the prompt that wrote it")
+  else
+    local delta = deltas.status()
+    if delta.dir then
+      add("ok", string.format("delta store: %s (%d deltas)", delta.dir, delta.deltas))
+    else
+      add("warn", "delta store: absent. No agent has written here yet, or `utils edit-event` did not answer")
+    end
   end
 
   local ok_notes, notes = pcall(require, "harness.notes")

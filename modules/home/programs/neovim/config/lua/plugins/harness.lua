@@ -140,6 +140,27 @@ return {
         end,
         desc = "Find note",
       },
+      {
+        "<leader>dw",
+        function()
+          require("harness.deltas").why()
+        end,
+        desc = "Which prompt wrote this line",
+      },
+      {
+        "<leader>dl",
+        function()
+          require("harness.deltas").pick()
+        end,
+        desc = "Find agent delta",
+      },
+      {
+        "<leader>dL",
+        function()
+          require("harness.deltas").pick({ file = true })
+        end,
+        desc = "Find agent delta in this file",
+      },
     },
   },
 }
