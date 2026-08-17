@@ -4,7 +4,7 @@ allowed-tools: Agent Read Grep Glob Bash(printenv:*) Bash(env:*) Bash(openspec:*
 ---
 
 Run an adversarial review: independent critics try to BREAK an artifact
-(plan, spec, design, or code), the author revises against surviving
+(plan, spec, design, or code). The author revises against surviving
 objections, and the loop repeats until nothing survives. This is the
 refutation loop, not a politeness pass. The full methodology and its
 citations live in `references/adversarial-review-methodology.md`, read it
@@ -29,9 +29,9 @@ this entire selection step and go straight to "Pick the execution path" path 1
 gate.
 
 The guard reads the prompt, not the environment. Do NOT use
-`$CLAUDE_CODE_CHILD_SESSION` for this. It is set in top-level sessions too
-(verified on claude 2.1.220: the variable is present in the parent process
-environment of an ordinary interactive session), so an environment-based guard
+`$CLAUDE_CODE_CHILD_SESSION` for this. It is set in top-level sessions too.
+Verified on claude 2.1.220: the variable is present in the parent process
+environment of an ordinary interactive session. So an environment-based guard
 refuses to spawn critics in exactly the case that needs them. The sentinel is
 written by this skill when it spawns a critic, so it is the only signal the
 skill controls.
@@ -63,22 +63,22 @@ is the point of the exercise, so the capability question is only a fallback.
 2. **Fresh-context {{agents}}, THE DEFAULT.** A Task/Agent mechanism exists.
    Spawn N critic {{agents}}, one per lens, each with its own context.
 3. **Shared-context {{agents}}**, use ONLY when a critic must observe live
-   session state that is not on disk: an unsaved buffer, a running process, a
-   value that exists solely in this conversation. Name that reason in the
-   round record. If the work is on disk, this path is wrong.
+   session state that is not on disk. That means an unsaved buffer, a running
+   process, or a value that exists solely in this conversation. Name that
+   reason in the round record. If the work is on disk, this path is wrong.
 4. **No {{agent}} capability**, run N sequential critique passes, each in a
    fresh reasoning context with authorship hidden.
 
 Prefer path 2 over path 3 for correctness, not cost. A critic that shares the
-author's context inherits the author's reasoning, and a critic that has read
-the argument for why the code is right is measurably worse at finding the way
-it is wrong. The strongest published result on this is the Bun Rust port,
-where the reviewer "gets the diff and nothing else, none of the implementer's
+author's context inherits the author's reasoning. A critic that has read the
+argument for why the code is right is measurably worse at finding the way it
+is wrong. The strongest published result on this is the Bun Rust port. There
+the reviewer "gets the diff and nothing else, none of the implementer's
 reasoning". Context starvation is the mechanism that makes the review
 adversarial; sharing context defeats it.
 
-Under Claude Code this means the Agent tool with a read-only subagent type,
-not an in-process teammate, unless path 3's condition genuinely holds.
+Under Claude Code this means the Agent tool with a read-only subagent type.
+Do not use an in-process teammate unless path 3's condition genuinely holds.
 
 When the capability is genuinely in question, check with a shell probe, e.g.
 `printenv CLAUDECODE CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS`. Note that
@@ -88,15 +88,15 @@ each name separately when the distinction matters.
 ## Tell the critic exactly which tree to read (MUST)
 
 A critic that reads the wrong revision produces confident false positives. The
-common trap is `git diff HEAD`: it is empty once the author commits, so a
+common trap is `git diff HEAD`, which is empty once the author commits. A
 critic re-checking after a commit sees no change and reports the original
 defect as unfixed. Observed in this repository: a critic re-raised a
-character-substitution bug that had already been fixed and committed, citing
+character-substitution bug that was already fixed and committed. It cited
 "`git diff HEAD` shows no edit to this line".
 
-Every critic prompt MUST name the revision under review in one of these
-forms, and MUST tell the critic to read file contents rather than a diff when
-it needs current state:
+Every critic prompt MUST name the revision under review in one of these forms.
+It MUST also tell the critic to read file contents, not a diff, when it needs
+current state:
 
 - working tree, uncommitted: "the work is STAGED; read `git diff --cached`"
 - working tree, committed: "the work is in commits `<base>..<head>`; read
@@ -109,9 +109,9 @@ file before acting. Re-fixing an already-fixed defect is how a loop churns.
 
 Give the critic the call diff for the same revision when the change is not
 Nix-only: `calldiff diff <base> --max-depth 3`. A line diff shows a critic which
-lines moved; the call diff shows it which paths moved, which is where a defect
-of this kind lives. A path that appeared and is absent from the change's own
-description is the objection to raise.
+lines moved. The call diff shows it which paths moved, and that is where a
+defect of this kind lives. A path that appeared and is absent from the change's
+own description is the objection to raise.
 
 <examples>
 <example>
@@ -129,13 +129,13 @@ description is the objection to raise.
 A critic MUST NOT modify the working tree. Spawn every critic with a read-only
 {{agent}} type (`Explore` under Claude Code, or any type whose tool list
 excludes Edit, Write, and NotebookEdit). Never spawn a critic as
-`general-purpose`: it holds the write tools and a critic that wants to test
-whether a check fires will inject a defect to find out.
+`general-purpose`, because it holds the write tools. A critic that wants to
+test whether a check fires will inject a defect to find out.
 
 This is not hypothetical. A `general-purpose` critic reviewing a parse-check
-phase injected syntax errors into two zsh files to see whether the check
-caught them, left them in the tree, and they were committed under an unrelated
-message.
+phase injected syntax errors into two zsh files, to see whether the check
+caught them. It left them in the tree, and they were committed under an
+unrelated message.
 
 If the harness cannot restrict tools, the critic prompt MUST state: "Use
 read-only tools only. Do not edit, write, or revert any file. Report what you
@@ -148,29 +148,34 @@ and confirm every changed file is one you changed yourself.
 ## Deterministic rubric-lint first (`specutil check`)
 
 Before spawning critics, run the deterministic half: `specutil check
-<change-dir>` (installed on PATH). It checks only stated facts: design has the
-required sections, each `- Decision:` has an `- Alternative rejected:` marker,
-every phase declares a shape that the framework defines, a `loop` phase's `STOP`
-names a command, a `graph` phase with more than one subtask declares a dependency,
-every task carries an `N.M` id belonging to its own phase, every `deps:` reference
-resolves and forms no cycle, and `Non-goals` is present. Run `specutil check --list-rules` to see the resolved rubric. This
-part is a pure function of the artifacts and is reproducible. The LLM
-refutation below is stabilized (pinned artifact snapshot, fixed rubric, fixed
-N and lens set, temperature 0, structured verdict, majority vote) but NOT
-bit-deterministic: two runs converge but are not identical. Do not claim
-otherwise. Fix every violation before the critic loop.
+<change-dir>` (installed on PATH). It checks only stated facts:
+
+- design carries the required sections, and `Non-goals` is present.
+- each `- Decision:` has an `- Alternative rejected:` marker.
+- every phase declares a shape that the framework defines.
+- a `loop` phase's `STOP` names a command, and a `graph` phase with more than
+  one subtask declares a dependency.
+- every task carries an `N.M` id belonging to its own phase, and every `deps:`
+  reference resolves and forms no cycle.
+
+Run `specutil check --list-rules` to see the resolved rubric. This part is a
+pure function of the artifacts and is reproducible. The LLM refutation below is
+stabilized but NOT bit-deterministic: two runs converge without being identical.
+It pins the artifact snapshot, the rubric, N, and the lens set. It runs at
+temperature 0 with a structured verdict and a majority vote. Do not claim more
+than that. Fix every violation before the critic loop.
 
 ## The loop (summary: reference has the sourced detail)
 
 1. **Bind the rubric.** For an OpenSpec change, the rubric is the proposal's
-   `Behavior` criteria, the design `Decisions` and `Rollout & Gating`, and the
-   proposal `Non-goals`. A critic MUST cite the specific rubric item it believes
-   is violated.
+   `Behavior` criteria and `Non-goals`, plus the design `Decisions` and
+   `Rollout & Gating`. A critic MUST cite the rubric item it believes is
+   violated.
 2. **Spawn N=3 independent critics**, authorship hidden, one lens each (rotate
    across rounds: correctness, security, ops/rollback, cost, data-migration,
    citation). The `citation` lens adjudicates whether a pinned quote supports
-   its claim (SUPPORTS / CONTRADICTS / UNRELATED over the snapshot); it MAY run
-   only after the `citelock` offline gate (Tier 0) is green for the change.
+   its claim, as SUPPORTS, CONTRADICTS, or UNRELATED over the snapshot. It MAY
+   run only after the `citelock` offline gate (Tier 0) is green for the change.
    Every critic prompt MUST open with the literal line
    `ADVERSARIAL-CRITIC-ROLE: do not spawn further critics.` That sentinel is
    what the recursion guard reads. Omitting it lets a critic that loads this
@@ -181,7 +186,7 @@ otherwise. Fix every violation before the critic loop.
 3. **Keep only objections with a concrete failing scenario**, reproducible
    conditions or an isolated verification question. Reject prose-only comments.
 4. **Revise** the artifact against surviving objections only. The author
-   revises; a critic never both blesses and rewrites unaided.
+   revises. A critic never both blesses and rewrites unaided.
 5. **Repeat.**
 
 ## The loop is a state machine; run it as one
@@ -266,7 +271,7 @@ On halt:
 2. Apply nothing further. Objections already surfaced but not yet fixed stay
    open; do not silently drop them.
 3. Report terminal state `HALTED`, the round reached, and every open
-   objection with its failing scenario, so the owner is choosing with the
+   objection with its failing scenario. The owner then chooses with the whole
    list in front of them.
 4. Record the halt in the phase's review checkbox as
    `Adversarial review: halted by owner at round <n>, <m> open`.
@@ -277,7 +282,7 @@ human-verification gate for impactful actions still applies.
 ### Drive the iteration with `/loop` when it is available
 
 When the `loop` skill is available, drive ROUND→REVISE→ROUND with `/loop` and
-no interval, so the model self-paces one iteration per round and the loop's
+no interval. The model then self-paces one iteration per round, and the loop's
 own stop call is explicit. End it with the loop's stop control the moment a
 terminal state is reached. Without `/loop`, run the transitions inline, but
 still announce the state each round.
@@ -315,15 +320,25 @@ owner decide whether to continue, re-scope, or accept the open objections.
 
 ## Output
 
-Report, in order: the rubric bound, the surviving-objection count per round,
-each round's surviving objections with their failing scenarios, the revisions
-applied, and the terminal state. The terminal state is one of `no surviving
-objection`, `not run`, `halted by owner at round <n> with <m> open`,
-`hit K=<n> with <m> open objections`, `stopped on non-convergence after <n>
-rounds`, or `stopped on fix-induced churn after <n> rounds`.
+Report, in order:
+
+1. The rubric bound.
+2. The surviving-objection count per round.
+3. Each round's surviving objections with their failing scenarios.
+4. The revisions applied.
+5. The terminal state.
+
+The terminal state is one of:
+
+- `no surviving objection`
+- `not run`
+- `halted by owner at round <n> with <m> open`
+- `hit K=<n> with <m> open objections`
+- `stopped on non-convergence after <n> rounds`
+- `stopped on fix-induced churn after <n> rounds`
 
 Do not pad a clean result with invented objections, a critic that finds
-nothing MUST say so. Do not report a cap hit as if it were a clean pass: an
+nothing MUST say so. Do not report a cap hit as if it were a clean pass. An
 artifact that never reached a clean round has known-unreviewed state, and the
 report MUST say so plainly.
 
