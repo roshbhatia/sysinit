@@ -1,6 +1,6 @@
 ---
 description: Renders Mermaid diagrams as ASCII in the terminal and as themed SVG. Use when a diagram clarifies more than prose: capability flow, state transitions, sequence of calls, option trees, dependency graphs, architecture sketches.
-allowed-tools: Bash(mermaid-ascii:*) Bash(pretty-mermaid:*) Bash(pretty-mermaid-batch:*) Bash(pretty-mermaid-themes:*) Bash(curl:*) Read Write Edit
+allowed-tools: Bash(mermaid-ascii:*) Bash(pretty-mermaid:*) Bash(pretty-mermaid-batch:*) Bash(pretty-mermaid-themes:*) Read Write Edit
 ---
 
 # Diagramming
@@ -18,8 +18,11 @@ Provenance: per-diagram-type syntax below is distilled from the Agents365
 `mermaid-skill` (`Agents365-ai/mermaid-skill`). The themed SVG and multi-type ASCII
 renderer is `imxv/Pretty-mermaid-skills` (MIT), packaged as `pretty-mermaid` and
 pinned by rev in `overlays/pretty-mermaid.nix`; `hack/update-pretty-mermaid.sh`
-surfaces drift. The opinions on top — ASCII-first, offline before network, the
-per-type routing below — are this repository's own.
+surfaces drift. The opinions on top — ASCII-first, local-only, the per-type routing
+below — are this repository's own.
+
+Every render runs on this machine. No path in this skill sends diagram source to a
+network service.
 
 ## Decision routing — pick the render target first
 
@@ -28,7 +31,7 @@ Flowchart or graph?                                     -> ASCII via mermaid-asc
 Sequence or ER?                                         -> ASCII via pretty-mermaid (Path A2)
 State, class, gantt, pie, mindmap?                      -> themed SVG via pretty-mermaid (Path B)
 Shipping to a rendering surface (published page, slide)? -> themed SVG via pretty-mermaid (Path B)
-A type pretty-mermaid does not parse?                    -> Kroki (Path C, network)
+A type pretty-mermaid does not parse?                    -> no render; keep the source, say so
 Trivial two-box flow shorter as prose?                   -> skip the diagram
 ```
 
@@ -135,19 +138,20 @@ a font when the file is opened. For a diagram that must not phone home, pass
 `--font` with a local family, or accept that the render itself was offline and the
 view is not.
 
-## Path C — Kroki (last resort, network)
+## When no local renderer parses the type
 
-Only for a type `pretty-mermaid` cannot parse.
+`pretty-mermaid` and `mermaid-ascii` are the only renderers. A type neither one
+parses gets no render at all. There is no network fallback.
 
-```bash
-curl -s -X POST https://kroki.io/mermaid/svg --data-binary @diagram.mmd -o diagram.svg
-curl -s -X POST https://kroki.io/mermaid/png --data-binary @diagram.mmd -o diagram.png
-```
+Do three things instead:
 
-Kroki is a network call to an external service, which is why it moved below the
-local renderer. State that the diagram source is being sent off-box before doing
-it, never send Laurel code or customer data in the diagram text, and keep the
-`.mmd` source in the repo next to the exported asset.
+1. Keep the Mermaid source in the file, fenced as ` ```mermaid `.
+2. Say in one line that the type has no local render, and name the type.
+3. Offer the reader a supported type. A `classDiagram` that will not render often
+   works as a flowchart, and a `journey` often works as a `sequenceDiagram`.
+
+Never hand-draw the boxes to fill the gap. A hand-drawn render is a claim the
+renderer never made.
 
 ## Per-diagram-type syntax (distilled from mermaid-skill)
 
