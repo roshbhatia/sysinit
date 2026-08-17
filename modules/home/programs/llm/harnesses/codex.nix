@@ -176,6 +176,10 @@ in
                 type = "command";
                 command = "${profileBin}/agent-state codex working submit";
               }
+              {
+                type = "command";
+                command = "${profileBin}/agent-edit-event codex --prompt";
+              }
             ];
           }
         ];

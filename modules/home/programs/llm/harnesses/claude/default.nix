@@ -183,6 +183,11 @@ in
               }
               {
                 type = "command";
+                command = "${profileBin}/agent-edit-event claude --prompt";
+                async = true;
+              }
+              {
+                type = "command";
                 command = "${profileBin}/agent-note-open";
               }
               {
