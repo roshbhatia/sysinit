@@ -144,10 +144,31 @@ in
             repo = "openai/codex-plugin-cc";
           };
         };
+        claude-plugins-official = {
+          source = {
+            source = "github";
+            repo = "anthropics/claude-plugins-official";
+          };
+        };
       };
 
+      # A language server answers "where is this defined" and "what calls this"
+      # from a real index, in one call. The alternative is a grep sweep that reads
+      # whole files to reach the same answer, so this trades a variable read bill
+      # for a fixed one.
+      #
+      # These four plugins carry no skill, agent or command: each is an
+      # `lspServers` entry and nothing else, so the always-on prompt cost is zero
+      # and the server only starts when a file with a matching extension is
+      # touched. Every binary below already comes from modules/home/packages.nix.
+      # rust-analyzer and clangd are on this machine too, but no Rust or C work
+      # runs here, so they stay off until it does.
       enabledPlugins = {
         "codex@openai-codex" = true;
+        "gopls-lsp@claude-plugins-official" = true; # gopls
+        "typescript-lsp@claude-plugins-official" = true; # typescript-language-server
+        "pyright-lsp@claude-plugins-official" = true; # pyright-langserver
+        "lua-lsp@claude-plugins-official" = true; # lua-language-server
       };
 
       hooks = {
