@@ -28,6 +28,7 @@
   (import ./kubernetes-zeitgeist.nix)
   (import ./go-enum.nix)
   (import ./gomvp.nix)
+  (import ./vale-styles.nix)
   (import ./mermaid-ascii.nix)
   (import ./pretty-mermaid.nix)
   (import ./hererocks.nix)

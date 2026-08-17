@@ -27,7 +27,13 @@ final: _prev: {
       runtimePath = final.lib.makeBinPath [
         final.git
         final.curl
+        # prose-gate shells out to vale for the whole rule set. Without it on
+        # PATH the gate passes every reply, so it belongs in the closure rather
+        # than in the user's profile.
+        final.vale
       ];
+
+      proseStyle = "${final.vale-styles}/vale.ini";
     in
     final.buildGoModule {
       pname = "utils";
@@ -48,11 +54,13 @@ final: _prev: {
       postInstall = ''
         mv "$out/bin/utils" "$out/bin/.utils-real"
         makeWrapper "$out/bin/.utils-real" "$out/bin/utils" \
-          --prefix PATH : "${runtimePath}"
+          --prefix PATH : "${runtimePath}" \
+          --set-default SYSINIT_PROSE_STYLE "${proseStyle}"
         ${final.lib.concatMapStringsSep "\n" (name: ''
           makeWrapper "$out/bin/.utils-real" "$out/bin/${name}" \
             --argv0 "${name}" \
-            --prefix PATH : "${runtimePath}"
+            --prefix PATH : "${runtimePath}" \
+            --set-default SYSINIT_PROSE_STYLE "${proseStyle}"
         '') links}
       '';
 

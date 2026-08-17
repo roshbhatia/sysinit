@@ -239,7 +239,12 @@
               pkgs.fd
               pkgs.ast-grep
               pkgs.stylua
+              pkgs.cue
+              pkgs.vale
             ];
+            # prose-gate's tests read the rule set through this, the same way
+            # the installed wrapper does. Without it they skip.
+            SYSINIT_PROSE_STYLE = "${pkgs.vale-styles}/vale.ini";
           };
         }
       );

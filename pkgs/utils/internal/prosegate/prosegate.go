@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"os/exec"
 	"path/filepath"
-	"regexp"
 	"strings"
 )
 
@@ -16,23 +16,23 @@ const usage = `prose-gate: send a reply back when it reads like agent prose
 
 Usage:
   prose-gate check     Stop hook. Reads the event on stdin, blocks a reply that
-                       is over budget or carries the tells.
-  prose-gate remind    UserPromptSubmit hook. Prints the shape and the budget on
-                       the first prompt of a session, and again after the gate
-                       has blocked a reply. Silent otherwise.
+                       carries the tells.
+  prose-gate remind    UserPromptSubmit hook. Prints the shape on the first
+                       prompt of a session, and again after the gate has blocked
+                       a reply. Silent otherwise.
   prose-gate session   SessionStart hook. Prints the context rules, which a fresh
                        or compacted session has just lost.
   prose-gate subagent  SubagentStop hook. Blocks a teammate report that returns
                        the material instead of the conclusion.
   prose-gate lint      Reads text on stdin, prints the findings, exits 1 on any.
 
-The budget counts prose only: fenced code, headings, lists, tables and quotes are
-not counted and are not read for tells. Off with SYSINIT_PROSE_GATE=off.
+Vale reads the reply as markdown and carries the rule set, so fenced code is
+skipped and a list is read as a list. SYSINIT_PROSE_STYLE names the vale config;
+without it, or without vale on PATH, the gate passes everything.
+Off with SYSINIT_PROSE_GATE=off.
 `
 
 const (
-	maxParagraphs = 3
-	maxWords      = 180
 	// One tell is a slip. Two is the register the reply was written in, and only
 	// the register is worth a turn to fix.
 	maxTells = 1
@@ -138,104 +138,74 @@ func disarm(session string) bool {
 	return true
 }
 
-type tell struct {
-	name    string
-	pattern *regexp.Regexp
+// One alert as vale reports it. The rule set lives in pkgs/prose-style, not
+// here, so a rule change is a cue edit and a regenerate rather than a rebuild
+// of this binary.
+type valeAlert struct {
+	Check    string `json:"Check"`
+	Message  string `json:"Message"`
+	Severity string `json:"Severity"`
+	Match    string `json:"Match"`
+	Line     int    `json:"Line"`
 }
 
-// Every entry is a rule the sysinit-ste output style already states. The
-// patterns stay narrow on purpose: a false positive spends a whole turn.
-var tells = []tell{
-	{"em-dash", regexp.MustCompile(`—`)},
-	{"bold-first-term bullet", regexp.MustCompile(`(?m)^\s*[-*+]\s+\*\*`)},
-	{"negative parallelism", regexp.MustCompile(`(?i)\b(not just|not only|isn't just|is not just|rather than a)\b`)},
-	{"hedge before the claim", regexp.MustCompile(`(?i)(it'?s worth noting|it is worth noting|this is nuanced|it could be argued|i should note that)`)},
-	{"filler opener", regexp.MustCompile(`(?i)^(great question|certainly|of course|absolutely)[,!.]`)},
-	{"significance inflation", regexp.MustCompile(`(?i)\b(pivotal|a significant shift|a broader movement|game.changer)\b`)},
-	{"marketing verb", regexp.MustCompile(`(?i)\b(seamless(ly)?|effortless(ly)?|leverage[sd]?|unlock(s|ed)?|empower(s|ed)?|streamline[sd]?|delve[sd]?|showcase[sd]?|foster(s|ed)?)\b`)},
-	{"trailing -ing analysis", regexp.MustCompile(`(?i),\s+(reflecting|underscoring|highlighting|showcasing|demonstrating)\s+[^.]*\.`)},
+// stylePath names the vale config. The Nix wrapper sets it; a developer running
+// the binary from a checkout can point it at pkgs/prose-style/vale.ini.
+func stylePath() string {
+	return os.Getenv("SYSINIT_PROSE_STYLE")
 }
 
-var fence = regexp.MustCompile("(?s)```.*?(```|$)")
-
-func isProse(block string) bool {
-	lines := strings.Split(block, "\n")
-	for _, line := range lines {
-		trimmed := strings.TrimSpace(line)
-		if trimmed == "" {
-			continue
-		}
-		switch {
-		case strings.HasPrefix(trimmed, "#"),
-			strings.HasPrefix(trimmed, ">"),
-			strings.HasPrefix(trimmed, "|"),
-			strings.HasPrefix(trimmed, "- "),
-			strings.HasPrefix(trimmed, "* "),
-			strings.HasPrefix(trimmed, "+ "):
-			continue
-		}
-		if regexp.MustCompile(`^\d+[.)]\s`).MatchString(trimmed) {
-			continue
-		}
-		return true
+// vale parses the reply as markdown, so a fenced block is skipped and a list is
+// read as a list. The old hand-rolled matcher stripped every bullet before it
+// looked for tells, which made a bullet the one place a tell could hide and
+// made the bold-first-term rule unreachable.
+//
+// Every failure here returns no alerts. A gate that blocks because vale is
+// missing costs the user a turn for a fault that is not in their reply.
+func alerts(text string) []valeAlert {
+	config := stylePath()
+	if config == "" {
+		return nil
 	}
-	return false
-}
-
-// Prose is what the reader has to read as sentences. A list, a heading, a table
-// and a code block all carry their own shape, so counting them as prose would
-// make a well-shaped reply look like a wall of text.
-func prose(text string) []string {
-	stripped := fence.ReplaceAllString(text, "")
-	var kept []string
-	for _, block := range strings.Split(stripped, "\n\n") {
-		if strings.TrimSpace(block) == "" {
-			continue
-		}
-		if isProse(block) {
-			kept = append(kept, strings.TrimSpace(block))
-		}
+	binary, err := exec.LookPath("vale")
+	if err != nil {
+		return nil
 	}
-	return kept
-}
 
-func words(blocks []string) int {
-	n := 0
-	for _, block := range blocks {
-		n += len(strings.Fields(block))
+	cmd := exec.Command(binary, "--config="+config, "--output=JSON", "--ext=.md", "--no-exit")
+	cmd.Stdin = strings.NewReader(text)
+	out, err := cmd.Output()
+	if err != nil {
+		return nil
 	}
-	return n
+
+	var byFile map[string][]valeAlert
+	if json.Unmarshal(out, &byFile) != nil {
+		return nil
+	}
+	var all []valeAlert
+	for _, list := range byFile {
+		all = append(all, list...)
+	}
+	return all
 }
 
 func findings(text string) []string {
-	blocks := prose(text)
-	body := strings.Join(blocks, "\n\n")
-
-	var found []string
-	if len(blocks) > maxParagraphs {
-		found = append(found, fmt.Sprintf("%d prose paragraphs, budget is %d", len(blocks), maxParagraphs))
-	}
-	if n := words(blocks); n > maxWords {
-		found = append(found, fmt.Sprintf("%d words of prose, budget is %d", n, maxWords))
-	}
-
-	tellCount := 0
-	for _, t := range tells {
-		hits := t.pattern.FindAllString(body, -1)
-		if len(hits) == 0 {
-			continue
-		}
-		tellCount += len(hits)
-		found = append(found, fmt.Sprintf("%s: %s", t.name, strings.Join(hits, ", ")))
-	}
-
-	// A size finding alone blocks. Tells block only once there are enough of them
-	// to be the register rather than one slip.
-	sized := len(found) > tellCount
-	if !sized && tellCount <= maxTells {
+	found := alerts(text)
+	// One tell is a slip, and spending the user's turn on a slip is worse than
+	// letting it through.
+	if len(found) <= maxTells {
 		return nil
 	}
-	return found
+	var lines []string
+	for _, a := range found {
+		if a.Match == "" {
+			lines = append(lines, fmt.Sprintf("%s (line %d)", a.Message, a.Line))
+			continue
+		}
+		lines = append(lines, fmt.Sprintf("%s: %q (line %d)", a.Message, a.Match, a.Line))
+	}
+	return lines
 }
 
 func reason(found []string) string {
@@ -250,10 +220,9 @@ Send it again in ASD-STE100, in this shape and nothing else:
   3. The next concrete action.
 
 One instruction per sentence, active voice, one term per concept. Numbers, not
-adjectives. No em-dash, no preamble, no recap, no closing summary. At most %d
-prose paragraphs and %d words; a list or a table does not count against either,
-so use one when it carries the answer better than a sentence.`,
-		strings.Join(found, "\n  - "), maxParagraphs, maxWords)
+adjectives. Keep a sentence under 25 words. Use a list or a table when it
+carries the answer better than a sentence.`,
+		strings.Join(found, "\n  - "))
 }
 
 func check(stdin io.Reader) int {
@@ -300,9 +269,8 @@ func remind(stdin io.Reader) int {
 	if !disarm(ev.SessionID) {
 		return 0
 	}
-	return inject("UserPromptSubmit", fmt.Sprintf(
-		"Answer shape: what changed, why, next action. ASD-STE100, at most %d prose paragraphs and %d words, lists and tables excluded. No em-dash, no preamble, no closing summary.",
-		maxParagraphs, maxWords))
+	return inject("UserPromptSubmit",
+		"Answer shape: what changed, why, next action. ASD-STE100, one sentence under 25 words per instruction. No em-dash, no preamble, no closing summary. Use a list when it carries the answer better.")
 }
 
 // The output style is already loaded at this point and sits in the same position
@@ -373,17 +341,22 @@ func lint(stdin io.Reader) int {
 		fmt.Fprintf(os.Stderr, "prose-gate: %v\n", err)
 		return 2
 	}
-	blocks := prose(string(data))
-	fmt.Printf("prose paragraphs: %d/%d\nprose words: %d/%d\n",
-		len(blocks), maxParagraphs, words(blocks), maxWords)
-	found := findings(string(data))
-	if len(found) == 0 {
-		fmt.Println("clean")
+	if stylePath() == "" {
+		fmt.Fprintln(os.Stderr, "prose-gate: SYSINIT_PROSE_STYLE is unset, so nothing was checked")
+		return 2
+	}
+	// lint reports every alert. check spends the user's turn on what it reports,
+	// so it stays quiet until there is more than one, and the two counts differ
+	// on purpose.
+	all := alerts(string(data))
+	for _, a := range all {
+		fmt.Printf("  - %s: %q (line %d) [%s]\n", a.Message, a.Match, a.Line, a.Check)
+	}
+	if len(all) <= maxTells {
+		fmt.Printf("%d alerts; check blocks above %d, so this passes\n", len(all), maxTells)
 		return 0
 	}
-	for _, f := range found {
-		fmt.Printf("  - %s\n", f)
-	}
+	fmt.Printf("%d alerts; check blocks above %d, so this is sent back\n", len(all), maxTells)
 	return 1
 }
 

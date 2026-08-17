@@ -164,9 +164,9 @@ let
     - Use one instruction per sentence. Keep procedure sentences to 20 words or
       fewer and descriptive sentences to 25 or fewer. Keep paragraphs to 6
       sentences or fewer.
-    - Spend at most 3 prose paragraphs and 180 words on a reply. A list, a table
-      and a code block cost nothing against either, so use one when it carries
-      the answer better than a sentence. A Stop hook enforces this.
+    - Keep every sentence under 25 words. A Stop hook enforces this, and it
+      reads the reply as markdown, so a list, a table and a code block are read
+      as themselves. Use one when it carries the answer better than a sentence.
     - Use active voice and simple present, past, future, or imperative verbs.
       Avoid gerund chains and stacked auxiliaries.
     - One word, one meaning: pick a single term for a concept and reuse it. Do
