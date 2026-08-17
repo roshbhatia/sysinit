@@ -142,6 +142,7 @@ in
         taplo
         alerter
         textlint
+        vale
         yaml-language-server
         yamllint
       ]
