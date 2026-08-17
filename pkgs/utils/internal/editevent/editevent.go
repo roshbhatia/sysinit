@@ -12,7 +12,7 @@ import (
 	"github.com/roshbhatia/sysinit/pkgs/utils/internal/repo"
 )
 
-const Summary = "record the files an agent wrote, for an editor watching the log"
+const Summary = "record every agent write as an ordered delta, with the prompt that asked for it"
 
 const SchemaVersion = 1
 
@@ -28,6 +28,8 @@ type event struct {
 	Kind    string `json:"kind"`
 	File    string `json:"file"`
 	CWD     string `json:"cwd"`
+	Session string `json:"session,omitempty"`
+	Delta   string `json:"delta,omitempty"`
 }
 
 func Run(args []string) int {
@@ -37,16 +39,41 @@ func Run(args []string) int {
 		return 0
 	}
 
-	if opts.printLog {
+	if opts.printLog || opts.printDelta || opts.printTree {
 		dir := opts.cwd
 		if dir == "" {
 			dir = workingDir()
 		}
-		fmt.Println(repo.EditLogFile(repo.Workspace(dir)))
+		root := repo.Workspace(dir)
+		switch {
+		case opts.printDelta:
+			fmt.Println(repo.DeltaDir(root))
+		case opts.printTree:
+			fmt.Println(root)
+		default:
+			fmt.Println(repo.EditLogFile(root))
+		}
 		return 0
 	}
 
 	payload := readStdin()
+
+	if opts.savePrompt {
+		dir := opts.cwd
+		if dir == "" {
+			dir = dig(payload, "cwd")
+		}
+		if dir == "" {
+			dir = workingDir()
+		}
+		savePrompt(
+			repo.Workspace(dir),
+			opts.harness,
+			dig(payload, "session_id", "sessionId", "session"),
+			dig(payload, "prompt", "user_prompt", "message", "text"),
+		)
+		return 0
+	}
 
 	var changes []change
 	for _, file := range opts.files {
@@ -80,12 +107,19 @@ func Run(args []string) int {
 		kind = "edit"
 	}
 
-	log := repo.EditLogFile(repo.Workspace(dir))
+	tree := repo.Workspace(dir)
+	log := repo.EditLogFile(tree)
 	if os.MkdirAll(filepath.Dir(log), 0o700) != nil {
 		return 0
 	}
 	trim(log)
 
+	session := dig(payload, "session_id", "sessionId", "session")
+	asked := loadPrompt(tree)
+	if asked.Harness != opts.harness {
+		// Another harness asked for that one. Attributing this write to it would lie.
+		asked = prompt{}
+	}
 	now := time.Now().UnixMilli()
 	for _, c := range changes {
 		absolute, err := absoluteIn(dir, c.file)
@@ -104,6 +138,14 @@ func Run(args []string) int {
 			Kind:    fileKind,
 			File:    absolute,
 			CWD:     dir,
+			Session: session,
+			Delta: recordDelta(tree, deltaMeta{
+				harness: opts.harness,
+				session: session,
+				kind:    fileKind,
+				file:    absolute,
+				prompt:  asked,
+			}),
 		})
 	}
 	return 0
@@ -164,7 +206,10 @@ type options struct {
 	cwd        string
 	files      []string
 	printLog   bool
+	printDelta bool
+	printTree  bool
 	applyPatch bool
+	savePrompt bool
 }
 
 func parse(args []string) (options, error) {
@@ -173,8 +218,14 @@ func parse(args []string) (options, error) {
 		switch args[i] {
 		case "--print-log":
 			opts.printLog = true
+		case "--print-delta":
+			opts.printDelta = true
+		case "--print-workspace":
+			opts.printTree = true
 		case "--apply-patch":
 			opts.applyPatch = true
+		case "--prompt":
+			opts.savePrompt = true
 		case "--file", "--kind", "--cwd":
 			name := args[i]
 			if i+1 >= len(args) {
@@ -202,7 +253,7 @@ func parse(args []string) (options, error) {
 		}
 	}
 
-	if opts.harness == "" && !opts.printLog {
+	if opts.harness == "" && !opts.printLog && !opts.printDelta && !opts.printTree {
 		return opts, fmt.Errorf("the first argument names the harness")
 	}
 	return opts, nil

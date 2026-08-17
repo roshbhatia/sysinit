@@ -49,6 +49,29 @@ func EditLogFile(root string) string {
 	return keyed(paths.AgentEdits(), root) + ".jsonl"
 }
 
+func DeltaDir(root string) string {
+	return keyed(paths.AgentEdits(), root) + ".delta"
+}
+
+func PromptFile(root string) string {
+	return keyed(paths.AgentEdits(), root) + ".prompt"
+}
+
+// CleanEnv drops the git location variables, so a git call decides its own target.
+func CleanEnv() []string {
+	return filterEnv(os.Environ(), "GIT_DIR", "GIT_WORK_TREE", "GIT_INDEX_FILE")
+}
+
+// GitEnv points git at a shadow repository: the history lives in gitDir, the files
+// it reads live in workTree. An inherited GIT_DIR would silently retarget both.
+func GitEnv(gitDir, workTree string) []string {
+	return append(CleanEnv(),
+		"GIT_DIR="+gitDir,
+		"GIT_WORK_TREE="+workTree,
+		"GIT_TERMINAL_PROMPT=0",
+	)
+}
+
 func WorkerDir(root string) string {
 	return keyed(paths.AgentWorker(), root)
 }
