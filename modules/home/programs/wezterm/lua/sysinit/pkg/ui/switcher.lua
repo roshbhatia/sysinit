@@ -288,7 +288,10 @@ function M.setup(config, wm, ctx)
         end
       end
       table.sort(live, function(a, b)
-        return (a.last_active or 0) > (b.last_active or 0)
+        if (a.last_active or 0) ~= (b.last_active or 0) then
+          return (a.last_active or 0) > (b.last_active or 0)
+        end
+        return a.name < b.name
       end)
       for i, ws in ipairs(live) do
         local sc = ui_format.status_color(ws.status, colors)
@@ -317,7 +320,10 @@ function M.setup(config, wm, ctx)
       end
     end
     table.sort(live_sorted, function(a, b)
-      return (a.last_active or 0) > (b.last_active or 0)
+      if (a.last_active or 0) ~= (b.last_active or 0) then
+        return (a.last_active or 0) > (b.last_active or 0)
+      end
+      return a.name < b.name
     end)
 
     for _, ws in ipairs(live_sorted) do
@@ -342,14 +348,21 @@ function M.setup(config, wm, ctx)
         local tab_r = ctx.ribbon.new("tab")
         tab_r:append(nil, colors.chrome, tbranch)
         tab_r:append(nil, colors.ws_live, ctx.icons.tab)
-        tab_r:append(nil, colors.chrome, " [" .. tostring(ti) .. "]")
+        -- tnode.index is the tab's number inside its own window, which is the
+        -- number ActivateTab answers to. A workspace with two windows also needs
+        -- the window said out loud, or two rows both read [1].
+        local tab_ref = tostring(tnode.index)
+        if (ws.window_count or 1) > 1 then
+          tab_ref = "w" .. tostring(tnode.window_index) .. ":" .. tab_ref
+        end
+        tab_r:append(nil, colors.chrome, " [" .. tab_ref .. "]")
         tab_r:append(nil, colors.chrome, "  ")
         append_host(tab_r, colors, tnode.domain)
         tab_r:append(nil, colors.name, tnode.title)
         add(
           "tab:" .. tnode.tab_id,
           tab_r:format(),
-          { pane_id = tnode.active_pane_id, workspace = ws.name, tab_index = ti }
+          { pane_id = tnode.active_pane_id, workspace = ws.name, tab_index = tab_ref }
         )
 
         for pi, rec in ipairs(tnode.panes) do

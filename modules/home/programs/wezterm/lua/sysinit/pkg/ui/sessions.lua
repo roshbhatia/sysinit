@@ -185,7 +185,10 @@ function M.remote_spawn(workspace)
     if entry.host == host then
       for _, session in ipairs(entry.sessions) do
         if session.name == name then
-          return { domain = entry.domain, path = session.path, shell = entry.shell, session = name }
+          -- `cwd`, not `path`: this table is read by switch_to_workspace, whose
+          -- spawn takes a cwd. Named `path` it type-checked and silently landed
+          -- every remote session in the login home instead of the session dir.
+          return { domain = entry.domain, cwd = session.path, shell = entry.shell, session = name }
         end
       end
       return { domain = entry.domain, shell = entry.shell, session = name }

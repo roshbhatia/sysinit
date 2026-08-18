@@ -36,6 +36,8 @@ function M.build(deck_states)
           dormant = false,
           rank = 0,
           since = nil,
+          -- Only real focus counts. Folding an agent's `since` in here made a
+          -- workspace you never visited outrank the one you just left.
           last_active = ui_sessions.last_active(workspace),
           status = nil,
           tabs = {},
@@ -43,6 +45,15 @@ function M.build(deck_states)
         ws_index[workspace] = ws
         workspaces[#workspaces + 1] = ws
       end
+      -- Two mux windows can share one workspace, and each numbers its own tabs
+      -- from 1. Carrying the window ordinal keeps the tree's [n] the same n that
+      -- ActivateTab uses instead of a position in the flattened list.
+      ws.window_ids = ws.window_ids or {}
+      if not ws.window_ids[window_id] then
+        ws.window_count = (ws.window_count or 0) + 1
+        ws.window_ids[window_id] = ws.window_count
+      end
+      local window_index = ws.window_ids[window_id]
       for ti, tab in ipairs(win:tabs()) do
         local infos = tab:panes_with_info()
         local active_pane
@@ -55,6 +66,8 @@ function M.build(deck_states)
         local tnode = {
           tab_id = tab:tab_id(),
           index = ti,
+          window_id = window_id,
+          window_index = window_index,
           title = ui_format.tab_label(tab, ti, resolved_active),
           active_pane_id = resolved_active and resolved_active:pane_id() or nil,
           panes = {},
@@ -89,9 +102,6 @@ function M.build(deck_states)
             rank = rank,
           }
           tnode.panes[#tnode.panes + 1] = rec
-          if since and (not ws.last_active or since > ws.last_active) then
-            ws.last_active = since
-          end
           if rank >= ui_panes.state_rank.working then
             attention[#attention + 1] = rec
             if rank > ws.rank or (rank == ws.rank and since and (not ws.since or since < ws.since)) then
@@ -125,8 +135,6 @@ function M.build(deck_states)
             display_name = session.name,
             dormant = true,
             domain = entry.domain,
-            path = session.path,
-            shell = entry.shell,
             rank = 0,
             since = nil,
             status = nil,
