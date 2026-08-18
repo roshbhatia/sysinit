@@ -196,22 +196,23 @@ in
         "GOOSE_PROVIDER"
         "GOOSE_MODEL"
       ]
-      ++ map (name: [
-        "extensions"
-        name
-      ]) (builtins.attrNames bundledExtensions)
       ++
         map
           (name: [
             "extensions"
             name
-            "enabled"
           ])
-          (
-            builtins.attrNames kit.mcpServers.servers
-            ++ builtins.attrNames localExtensions
-            ++ builtins.attrNames platformExtensions
-          );
+          # The whole object for these, not the `enabled` leaf. `codex-mcp` was
+          # added to the live file by hand with `cmd: codex`, and a bare name does
+          # not resolve under a GUI launch. Two independent additions of a
+          # different value at one path is a conflict that refuses the whole file,
+          # so Nix owns every key of an extension it defines outright.
+          (builtins.attrNames bundledExtensions ++ builtins.attrNames localExtensions)
+      ++ map (name: [
+        "extensions"
+        name
+        "enabled"
+      ]) (builtins.attrNames kit.mcpServers.servers ++ builtins.attrNames platformExtensions);
       retire =
         map (name: [
           "extensions"
