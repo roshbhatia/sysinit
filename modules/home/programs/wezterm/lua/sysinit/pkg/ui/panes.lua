@@ -67,27 +67,50 @@ function M.read_pane_record(pane_id)
     branch = type(data.branch) == "string" and data.branch ~= "" and data.branch or nil,
     dirty = data.dirty == true,
     repo_count = repo_count,
+    worktree = type(data.worktree) == "string" and data.worktree ~= "" and data.worktree or nil,
+    status = type(data.status) == "string" and M.state_rank[data.status] and data.status or nil,
+    reason = type(data.reason) == "string" and data.reason or "",
+    since = tonumber(data.since),
+    agent = type(data.agent) == "string" and data.agent or "",
   }
 end
 
-function M.agent_state(p, deck_states)
-  local status, reason, since, agent
+-- The OSC user var and the pane record carry the same four fields over two
+-- channels. Only the record survives a VT that does not forward OSC (zmx, and
+-- any ssh mux), so the fresher of the two wins rather than the user var always.
+---@return string|nil status
+---@return string reason
+---@return number|nil since
+---@return string|nil agent
+---@return string source one of "record", "uservar", "deck", or ""
+---@param record table|false|nil pass the already-read record, false for none, nil to read here
+function M.agent_state(p, deck_states, record)
+  local status, reason, since, agent, source
+
   local uv = p:get_user_vars()
   local raw = uv and uv.agent_state
   if raw and raw ~= "" then
     local s, r, ts, a = raw:match("^([^|]*)|([^|]*)|([^|]*)|(.*)$")
     if s and M.state_rank[s] then
-      status, reason, since, agent = s, r, tonumber(ts), a
+      status, reason, since, agent, source = s, r, tonumber(ts), a, "uservar"
     end
   end
+
+  if record == nil then
+    record = M.read_pane_record(p:pane_id())
+  end
+  if record and record.status and (since == nil or (record.since or 0) > since) then
+    status, reason, since, agent, source = record.status, record.reason, record.since, record.agent, "record"
+  end
+
   if not status then
     local deck = deck_states[p:pane_id()]
     if deck and M.state_rank[deck.status] then
-      status = deck.status
-      agent = deck.agent
+      status, agent, source = deck.status, deck.agent, "deck"
     end
   end
-  return status, reason, since, agent
+
+  return status, reason, since, agent, source or ""
 end
 
 return M

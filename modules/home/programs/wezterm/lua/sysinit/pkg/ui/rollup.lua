@@ -12,26 +12,25 @@ function M.collect(deck_states)
       for _, tab in ipairs(win:tabs()) do
         local tab_id = tab:tab_id()
         for _, p in ipairs(tab:panes()) do
-          local status, reason, since, agent = panes_mod.agent_state(p, deck_states)
+          local pane_id = p:pane_id()
+          local rec = panes_mod.read_pane_record(pane_id)
+          local status, reason, since, agent, source = panes_mod.agent_state(p, deck_states, rec or false)
           if status then
-            local pane_id = p:pane_id()
-            local rec = panes_mod.read_pane_record(pane_id)
+            -- A VT that eats OSC 7 leaves the pane reporting its wrapper's cwd,
+            -- so the record's git toplevel is the more trustworthy of the two.
+            local pane_repo_name, pane_cwd = panes_mod.pane_repo(p)
             observations[#observations + 1] = {
               pane_id = pane_id,
               window_id = window_id,
               tab_id = tab_id,
               workspace = workspace,
               session = rec and rec.session or "",
-              repo = (function()
-                if rec and rec.repo ~= "" then
-                  return rec.repo
-                end
-                local r, _ = panes_mod.pane_repo(p)
-                return r
-              end)(),
+              repo = (rec and rec.repo ~= "" and rec.repo) or pane_repo_name,
+              cwd = (rec and rec.worktree) or pane_cwd,
               branch = rec and rec.branch or "",
               repo_count = rec and rec.repo_count or 0,
               agent = agent or "",
+              source = source,
               status = status,
               reason = reason or "",
               since = since,

@@ -8,8 +8,8 @@ Version 1.
 
 ## Two encodings, one value
 
-The same fact is published twice, because the two surfaces that read it cannot
-read the same thing.
+The same fact is published twice over two channels, and neither channel reaches
+everywhere.
 
 | | OSC user variable | JSON file |
 |---|---|---|
@@ -18,6 +18,19 @@ read the same thing.
 | Encoding | base64 of `status\|reason\|since\|agent` | one JSON object |
 | Lifetime | dies with the pane | outlives the pane |
 | Liveness rule | none needed | pane existence, see below |
+| Fails when | anything between the writer and wezterm eats OSC | the pane id is not the writer's |
+
+### OSC does not cross a VT that snapshots
+
+Measured against `zmx` 0.7.0, which holds terminal state in `libghostty-vt` and
+hands the client a grid snapshot: a pane wrapped in `zmx attach` delivers neither
+OSC 1337 `SetUserVar` nor OSC 7. A control pane in the same GUI delivered both.
+So inside such a wrapper the user variable is not merely stale, it never arrives,
+and wezterm reads the wrapper's own cwd rather than the shell's.
+
+This is why the file is a co-authority and not a fallback. `ui.lua` reads both
+and takes whichever carries the greater `since`, so a channel that cannot deliver
+loses rather than winning with nothing.
 
 Both are rendered from one `state` value in `Run`. `userVar` takes that value
 rather than the variables it was built from, so the four shared fields cannot
@@ -138,11 +151,12 @@ Three holes remain, all real:
 
 | Reader | Reads | Authority |
 |---|---|---|
-| `wezterm/lua/sysinit/pkg/ui.lua` `pane_agent_state` | the user variable, falling back to the agent-deck plugin | the variable, because it is live and pane-scoped |
-| `wezterm/lua/sysinit/pkg/ui.lua` `read_pane_record` | the JSON file, `session`, `branch`, and `dirty` only | the file, because the variable does not carry them |
+| `wezterm/lua/sysinit/pkg/ui/panes.lua` `agent_state` | both encodings, falling back to the agent-deck plugin | the greater `since`, because either channel can fail to arrive |
+| `wezterm/lua/sysinit/pkg/ui/panes.lua` `read_pane_record` | the JSON file, every field | the file, and it is the only source of identity |
 | `llm/runtime/agent-sessions.sh` | the JSON file | the file, because it runs outside the pane |
 | `llm/runtime/agent-busy-panes.sh` | the JSON file | the file |
 | `llm/runtime/agent-review-suffix.sh` | the JSON file | the file |
 
-`ui.lua` is both a variable reader and a file reader. Describing it as one is
-describing half the file.
+`agent_state` returns which channel it used as a fifth value. `ui.lua` notifies
+only on a `deck` state, because a `record` or `uservar` state means a harness
+hook is already firing its own notification for that pane.

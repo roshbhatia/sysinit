@@ -61,11 +61,11 @@ function M.build(deck_states)
         }
         for _, info in ipairs(infos) do
           local p = info.pane
-          local status, reason, since, agent = ui_panes.agent_state(p, deck_states)
-          local rank = status and ui_panes.state_rank[status] or 0
           local pid = p:pane_id()
-          local repo, cwd = ui_panes.pane_repo(p)
           local git = ui_panes.read_pane_record(pid)
+          local status, reason, since, agent = ui_panes.agent_state(p, deck_states, git or false)
+          local rank = status and ui_panes.state_rank[status] or 0
+          local repo, cwd = ui_panes.pane_repo(p)
           local domain = ui_panes.pane_domain(p)
           tnode.domain = merge_domain(tnode.domain, domain)
           ws.domain = merge_domain(ws.domain, domain)
