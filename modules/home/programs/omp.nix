@@ -83,6 +83,16 @@ in
               template = "󱄅 ({{ .Type }}) ";
               type = "nix-shell";
             }
+            # Same job as the nix-shell segment: name the thing wrapping this
+            # shell. It matters more here, because zmx is a VT boundary that OSC
+            # does not cross, so wezterm's agent and cwd surfaces go quiet for
+            # any pane showing this.
+            {
+              foreground = "p:error";
+              style = "plain";
+              template = "{{ if .Env.ZMX_SESSION }}zmx({{ trimPrefix .Env.ZMX_SESSION_PREFIX .Env.ZMX_SESSION }}) {{ end }}";
+              type = "text";
+            }
           ];
           type = "prompt";
         }
