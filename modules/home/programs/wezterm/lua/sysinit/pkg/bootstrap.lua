@@ -2,7 +2,7 @@ local wezterm = require("wezterm")
 
 local M = {}
 
-local OPTIONAL = { "events", "keybindings", "mux", "ui" }
+local OPTIONAL = { "events", "keybindings", "ui" }
 
 local function report(failures)
   for _, f in ipairs(failures) do
@@ -14,8 +14,8 @@ local function report(failures)
     summary = summary .. (i > 1 and ", " or "") .. f.module
   end
 
-  -- `gui-startup` never fires for a GUI that connects to the mux instead of
-  -- starting its own, so the toast rides the first status update instead.
+  -- The toast rides the first status update rather than `gui-startup`, because
+  -- a config reload re-runs build() without firing startup again.
   local toasted = false
   pcall(function()
     wezterm.on("update-status", function(window)

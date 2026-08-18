@@ -21,9 +21,9 @@ The new window joins the workspace the GUI has focused and starts in the focused
 pane's directory, so a spawn from a window manager lands in the session the user is
 looking at rather than in the default one. prog runs instead of the shell.
 
-With no GUI attached, a spawn lands in the headless mux server and is never drawn,
-so wezspawn starts a GUI on the unix domain instead and lets it adopt the windows
-the mux already holds.
+With no GUI attached, a spawn lands in the headless mux server that wezterm cli
+starts on demand and is never drawn, so wezspawn opens a GUI instead and leaves the
+spawn to the next call.
 
 --wezterm names the binary to drive, for a caller with none on PATH. A window manager
 is one, so it passes its own store path rather than relying on a shell to prepend it.
@@ -91,13 +91,13 @@ func hasGUI(clientsJSON string) bool {
 	return len(clients) > 0
 }
 
-// The GUI is started detached: `wezterm connect` runs for as long as the window
-// does, and a window manager's exec is not a place to hold that open.
+// The GUI is started detached: it runs for as long as the window does, and a
+// window manager's exec is not a place to hold that open.
 func launch(bin, app string) error {
 	if app != "" {
-		return exec.Command("open", "-n", "-a", app, "--args", "connect", "unix").Start()
+		return exec.Command("open", "-n", "-a", app).Start()
 	}
-	return exec.Command(bin, "connect", "unix").Start()
+	return exec.Command(bin, "start").Start()
 }
 
 func spawnArgs(found target, prog []string) []string {
