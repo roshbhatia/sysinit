@@ -46,7 +46,7 @@ let
 in
 {
   lv426 = darwinHost personal {
-    theme.base16Scheme = "gruvbox-dark-hard";
+    theme.base16Scheme = "catppuccin-macchiato";
   };
 
   arrakis = {
