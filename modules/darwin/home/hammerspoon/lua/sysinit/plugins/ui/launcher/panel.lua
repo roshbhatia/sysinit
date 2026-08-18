@@ -22,6 +22,8 @@ local settle_secs = 0.2
 
 local view = nil
 local watch = nil
+-- Held at module scope: a watcher only Lua-local is collected and stops firing.
+local screens = nil
 local stack = {}
 local loaded = false
 local waiting = nil
@@ -134,16 +136,44 @@ local function document()
   return (built:gsub("/%* THEME %*/", palette))
 end
 
+-- Where the panel goes. The mouse's screen rather than `mainScreen`, because
+-- mainScreen follows the focused window: with a browser focused on the laptop
+-- and the mouse on the external display, the panel opened on the laptop.
+---@return table
+local function stage_screen()
+  local screen = hs.mouse.getCurrentScreen() or hs.screen.mainScreen()
+  return screen and screen:frame() or { x = 0, y = 0, w = 1440, h = 900 }
+end
+
+-- The screen the panel is currently placed in. Pinned while the panel is open, so
+-- a row growing the list does not throw the window onto whichever display the
+-- mouse has since wandered to.
+local placed = nil
+
 ---@param h number
 ---@return table
 local function frame(h)
-  local screen = hs.screen.mainScreen():frame()
+  local screen = placed or stage_screen()
+  -- Clamped, because a display narrower than the panel is a real display: an
+  -- iPad over Sidecar is 1024 wide, and a fixed 920 left no margin at all.
+  local w = math.min(width, math.max(360, screen.w - 80))
   return {
-    x = screen.x + (screen.w - width) / 2,
+    x = screen.x + (screen.w - w) / 2,
     y = screen.y + screen.h * top,
-    w = width,
+    w = w,
     h = h,
   }
+end
+
+-- Puts the window back where the current screen wants it, at whatever height it
+-- already has. Called on every open and whenever the screen layout changes, so a
+-- resolution change or an unplugged display does not leave the panel off screen.
+local function reframe()
+  if view == nil then
+    return
+  end
+  placed = stage_screen()
+  view:frame(frame(height > 0 and height or view:frame().h))
 end
 
 -- `at` carries the true position of each row in its list, because a list matched
@@ -457,6 +487,15 @@ function M.prewarm()
     return
   end
   build()
+  -- A resolution change, a display plugged in, or one unplugged all move the
+  -- rect the panel is centered in, and the window keeps the old one until it is
+  -- told. Reframing on the event costs nothing and keeps a hidden panel correct.
+  if screens == nil then
+    screens = hs.screen.watcher.new(function()
+      reframe()
+    end)
+    screens:start()
+  end
   -- A webview that has never been on screen has no layers to draw with, and
   -- builds them during the first show, which is the one open that has to be
   -- quick. Showing it once costs nothing to look at, because the panel is
@@ -528,6 +567,9 @@ function M.show(list)
     if prepared ~= current() then
       prepare()
     end
+    -- Last, because staging framed the window on whichever screen the mouse was
+    -- on then, and the mouse has moved since.
+    reframe()
     view:show()
     view:evaluateJavaScript("reveal()")
     -- No focus call from here: a nonactivating panel becomes key on its own, and
