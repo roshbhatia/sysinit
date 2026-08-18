@@ -14,6 +14,17 @@ local M = {}
 -- watched or rebuilt far less often.
 local live_secs = 8
 local files_secs = 300
+-- The app list is watched, and also rescanned on this cadence. FSEvents on
+-- /Applications is not something to rely on alone: the watcher misses a drag
+-- landed while Hammerspoon was reloading, and a Nix Apps or Home Manager Apps
+-- directory is a symlink whose target changes without an event on the path
+-- watched. A rescan re-reads directory entries only, because every icon is
+-- already cached by path, so it costs a few milliseconds.
+local apps_secs = 45
+-- How long after a watcher event the rescan runs. Installing an app writes
+-- hundreds of files inside the bundle, and each write is an event; one rescan is
+-- wanted, after the writes stop.
+local settle_apps = 2
 
 -- Showing the panel makes its window key, and that activation is a wait on the
 -- window server. Measured on this machine it usually costs under 100ms but
@@ -27,6 +38,10 @@ local settle_secs = 0.12
 
 local apps = nil
 local config = nil
+-- Held at module scope: a path watcher only Lua-local is garbage collected and
+-- silently stops firing, which is why a newly dragged app never appeared.
+local watchers = {}
+local pending = nil
 -- Drawing an app's icon and encoding it costs a millisecond or two, and a
 -- rescan re-reads every directory to find the one app that changed. Both are
 -- keyed by path, so a rescan pays only for what is new.
@@ -577,11 +592,32 @@ local function refresh()
   tab_rows(done("tabs"))
 end
 
+local apps_mark = nil
+
+-- Re-reads the app directories and composes only when the list actually differs,
+-- so the cadence below is free on the cycles that find nothing new.
 local function rescan()
   apps = nil
   by_name = nil
-  held.apps = app_rows()
+  local rows = app_rows()
+  local now = signature(rows)
+  if now == apps_mark then
+    return
+  end
+  apps_mark = now
+  held.apps = rows
   compose()
+end
+
+-- Coalesces a burst of watcher events into one rescan.
+local function rescan_soon()
+  if pending then
+    pending:stop()
+  end
+  pending = hs.timer.doAfter(settle_apps, function()
+    pending = nil
+    rescan()
+  end)
 end
 
 local settled_at = 0
@@ -620,6 +656,7 @@ function M.setup()
 
   held.commands = command_rows()
   held.apps = app_rows()
+  apps_mark = signature(held.apps)
   held.entries = entry_rows()
   compose()
 
@@ -653,13 +690,19 @@ function M.setup()
   end)
 
   for _, dir in ipairs(settings().appDirs or {}) do
-    local watcher = hs.pathwatcher.new(dir, function()
-      hs.timer.doAfter(2, rescan)
-    end)
+    local watcher = hs.pathwatcher.new(dir, rescan_soon)
     if watcher then
+      watchers[#watchers + 1] = watcher
       watcher:start()
     end
   end
+
+  hs.timer.doEvery(apps_secs, function()
+    if panel.visible() then
+      return
+    end
+    rescan()
+  end)
 end
 
 return M
