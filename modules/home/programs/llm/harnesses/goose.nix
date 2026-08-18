@@ -42,6 +42,38 @@ let
     type = "stdio";
   };
 
+  # Declared here rather than in mcp-servers.nix, which every harness reads: a
+  # tool that delegates coding to Codex earns its tokens from goose and is noise
+  # inside Codex itself. Absolute path because goose desktop launches with no
+  # PATH, and a bare `codex` did not resolve there.
+  localExtensions = {
+    codex-mcp = {
+      enabled = true;
+      description = "Codex CLI as MCP server, to delegate a coding task to Codex";
+      cmd = "${lib.getExe pkgs.codex}";
+      args = [ "mcp-server" ];
+    };
+  };
+
+  # Goose capitalizes an extension's display name and rewrites the file if it
+  # disagrees, so it is written the way goose would write it.
+  gooseName = name: (lib.toUpper (builtins.substring 0 1 name)) + builtins.substring 1 (-1) name;
+
+  mkLocalExtension = name: ext: {
+    inherit (ext)
+      args
+      cmd
+      description
+      enabled
+      ;
+    bundled = null;
+    env_keys = [ ];
+    envs = { };
+    name = gooseName name;
+    timeout = 300;
+    type = "stdio";
+  };
+
   platformExtensions = {
     analyze = true;
     apps = true;
@@ -49,15 +81,28 @@ let
     code_execution = false;
     developer = true;
     extensionmanager = false;
+    orchestrator = false;
+    scheduler = true;
+    skills = true;
     summarize = true;
     summon = true;
     todo = true;
     tom = true;
   };
 
+  # Dropped from the file rather than left disabled. `work-graph` pointed at a
+  # store path the collector had already taken, and the rest were clicked in
+  # through the Goose UI for a tool this host no longer reaches.
   retiredExtensions = [
     "cocoindex"
+    "figma"
     "incident-io"
+    "launchdarkly-ai-configs"
+    "laurel-ask"
+    "lucidchart"
+    "supabase"
+    "wiz"
+    "work-graph"
   ];
 
   platformName = name: if name == "extensionmanager" then "Extension Manager" else name;
@@ -76,12 +121,30 @@ let
     GOOSE_MODE = "auto";
     GOOSE_PROVIDER = "claude-acp";
     GOOSE_MODEL = "opus";
+
+    # goose 1.28 carries two ACP bridges, `claude-acp` and `codex-acp`, and both
+    # binaries are already on PATH from `home.packages`. Declared, not enforced:
+    # `active_provider` is how the desktop switches between them, and that choice
+    # is the app's to make. GOOSE_PROVIDER above is the CLI default.
+    providers = {
+      claude-acp = {
+        configured = true;
+        enabled = true;
+        model = "opus";
+      };
+      codex-acp = {
+        configured = true;
+        enabled = true;
+        model = "gpt-5.2-codex";
+      };
+    };
     GOOSE_TOOLSHIM = false;
     GOOSE_TELEMETRY_ENABLED = false;
 
     extensions =
       llmLib.mcp.formatForGoose kit.mcpServers.servers
       // lib.mapAttrs mkBundledExtension bundledExtensions
+      // lib.mapAttrs mkLocalExtension localExtensions
       // lib.mapAttrs mkPlatformExtension platformExtensions;
   };
 
@@ -117,14 +180,38 @@ in
       path = ".config/goose/config.yaml";
       format = "yaml";
       content = gooseSettings;
+      # Only the `enabled` leaf for a server, not the whole object: goose adds
+      # `display_name` and `available_tools` of its own, and enforcing the object
+      # would delete them on every switch.
+      #
+      # The gateway is here because it did not work in goose for want of this.
+      # Something rewrote every extension in the file to `enabled: false` on
+      # 2026-08-18, and the merge keeps a live edit whose Nix value matches the
+      # base, so `true` never came back and every MCP tool stayed dark. This is a
+      # switch-time repair, not a lock: whatever shares this file can disable it
+      # again between switches.
       enforce = [
         "GOOSE_MODE"
         "GOOSE_CLI_THEME"
+        "GOOSE_PROVIDER"
+        "GOOSE_MODEL"
       ]
       ++ map (name: [
         "extensions"
         name
-      ]) (builtins.attrNames bundledExtensions);
+      ]) (builtins.attrNames bundledExtensions)
+      ++
+        map
+          (name: [
+            "extensions"
+            name
+            "enabled"
+          ])
+          (
+            builtins.attrNames kit.mcpServers.servers
+            ++ builtins.attrNames localExtensions
+            ++ builtins.attrNames platformExtensions
+          );
       retire =
         map (name: [
           "extensions"
