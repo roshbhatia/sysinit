@@ -8,26 +8,26 @@
 {
   amp-cli = {
     pname = "amp-cli";
-    version = "0.0.1786968161-gdd03ae";
+    version = "0.0.1787011334-gcb0a91";
     src = fetchurl {
-      url = "https://static.ampcode.com/cli/0.0.1786968161-gdd03ae/amp-darwin-arm64.gz";
-      sha256 = "sha256-uVG3UJ8lzClpKqec/DrQaQu/Mui2ke3zNnXV8MP4jj0=";
+      url = "https://static.ampcode.com/cli/0.0.1787011334-gcb0a91/amp-darwin-arm64.gz";
+      sha256 = "sha256-sPET++Ua9/VG8CjPlgkiPVIQoxXyZO7KRq15hM4QkOY=";
     };
   };
   amp-cli-aarch64-linux = {
     pname = "amp-cli-aarch64-linux";
-    version = "0.0.1786968161-gdd03ae";
+    version = "0.0.1787011334-gcb0a91";
     src = fetchurl {
-      url = "https://static.ampcode.com/cli/0.0.1786968161-gdd03ae/amp-linux-arm64.gz";
-      sha256 = "sha256-AQdZwa92aQOFCnmL/sNMlrLKF4zFVXFI9ZFBm9SRC+M=";
+      url = "https://static.ampcode.com/cli/0.0.1787011334-gcb0a91/amp-linux-arm64.gz";
+      sha256 = "sha256-/t3p2Xqptv8sunjMrn7QeukNlvDPvdLctuPymwtl9FM=";
     };
   };
   amp-cli-x86_64-linux = {
     pname = "amp-cli-x86_64-linux";
-    version = "0.0.1786968161-gdd03ae";
+    version = "0.0.1787011334-gcb0a91";
     src = fetchurl {
-      url = "https://static.ampcode.com/cli/0.0.1786968161-gdd03ae/amp-linux-x64-baseline.gz";
-      sha256 = "sha256-G4YKqWYvCVzF+zNvyyk9IWUJF5JF6i8df87HdcTevoo=";
+      url = "https://static.ampcode.com/cli/0.0.1787011334-gcb0a91/amp-linux-x64-baseline.gz";
+      sha256 = "sha256-Jw4HVg9Nd7qXRcJR+aa5aLftVgaK6Lu2pI727Z2gnBg=";
     };
   };
   atomic-coding-agent = {
@@ -255,10 +255,10 @@
   };
   prime-agent = {
     pname = "prime-agent";
-    version = "0.7.2";
+    version = "0.7.3";
     src = fetchurl {
-      url = "https://github.com/PrimeIntellect-ai/prime-agent/releases/download/v0.7.2/prime-agent-0.7.2.tgz";
-      sha256 = "sha256-vFRx8qYm1ye4ikXrdF//k7EMVUo8T8WRLyXYxkuYf14=";
+      url = "https://github.com/PrimeIntellect-ai/prime-agent/releases/download/v0.7.3/prime-agent-0.7.3.tgz";
+      sha256 = "sha256-KhiHODGLkf+R6ne4oLIVxBVDzwSD/LGKU0ddxOcDJ4Q=";
     };
   };
 }
