@@ -86,7 +86,7 @@ func Run(args []string) int {
 	if os.MkdirAll(stateDir, 0o755) != nil {
 		return 0
 	}
-	reapDeadMuxes(stateDir, record.Mux)
+	reapDeadMuxes(stateDir, record.Mux, pane)
 	id := identify(cwd())
 	record.Session = id.session
 	record.Repo = id.repo
@@ -273,11 +273,13 @@ func muxAlive(pid int) bool {
 	return syscall.Kill(pid, 0) == nil
 }
 
-func reapDeadMuxes(stateDir string, mux int) {
+const markerPrefix = ".mux-"
+
+func reapDeadMuxes(stateDir string, mux int, self string) {
 	if mux <= 0 {
 		return
 	}
-	marker := filepath.Join(stateDir, fmt.Sprintf(".mux-%d", mux))
+	marker := filepath.Join(stateDir, fmt.Sprintf("%s%d", markerPrefix, mux))
 	if _, err := os.Stat(marker); err == nil {
 		return
 	}
@@ -286,11 +288,20 @@ func reapDeadMuxes(stateDir string, mux int) {
 	if err != nil {
 		return
 	}
+	live := map[string]bool{}
 	for _, entry := range entries {
 		name := entry.Name()
+		if strings.HasPrefix(name, markerPrefix) {
+			pid, convErr := strconv.Atoi(strings.TrimPrefix(name, markerPrefix))
+			if convErr == nil && pid != mux && !muxAlive(pid) {
+				os.Remove(filepath.Join(stateDir, name))
+			}
+			continue
+		}
 		if !strings.HasSuffix(name, ".json") {
 			continue
 		}
+		pane := strings.TrimSuffix(name, ".json")
 		body, err := os.ReadFile(filepath.Join(stateDir, name))
 		if err != nil {
 			continue
@@ -298,14 +309,31 @@ func reapDeadMuxes(stateDir string, mux int) {
 		var record struct {
 			Mux int `json:"mux"`
 		}
-		if json.Unmarshal(body, &record) != nil {
-			continue
-		}
-		if record.Mux == 0 || record.Mux == mux || muxAlive(record.Mux) {
+		// A record with no mux id cannot be attributed to a GUI that is still
+		// running, so it is unverifiable rather than current. Keeping it made
+		// every record from a mux-server GUI immortal.
+		if json.Unmarshal(body, &record) == nil && (record.Mux == mux || muxAlive(record.Mux)) {
+			live[pane] = true
 			continue
 		}
 		os.Remove(filepath.Join(stateDir, name))
-		os.Remove(filepath.Join(stateDir, strings.TrimSuffix(name, ".json")+".start"))
+		os.Remove(filepath.Join(stateDir, pane+".start"))
+	}
+
+	// A turn that starts and never reports leaves a lone .start behind, which
+	// the pass above never sees because it walks records.
+	for _, entry := range entries {
+		name := entry.Name()
+		if !strings.HasSuffix(name, ".start") {
+			continue
+		}
+		// self is skipped because a `working submit` writes .start before it
+		// publishes the record this pass would look for.
+		if pane := strings.TrimSuffix(name, ".start"); !live[pane] && pane != self {
+			if _, err := os.Stat(filepath.Join(stateDir, pane+".json")); os.IsNotExist(err) {
+				os.Remove(filepath.Join(stateDir, name))
+			}
+		}
 	}
 
 	if f, err := os.Create(marker); err == nil {

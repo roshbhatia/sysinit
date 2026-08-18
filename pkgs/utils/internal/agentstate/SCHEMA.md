@@ -97,14 +97,22 @@ a pane id alone cannot tell yesterday's record from today's. Pane existence
 answers "is there a pane 0", never "is it the same pane 0".
 
 `mux` is the pid of the wezterm mux the pane belongs to, parsed from the
-`gui-sock-<pid>` socket path wezterm sets in every pane. It is 0 outside
-wezterm, when the socket path is shaped differently, and in records written
-before this field existed. A reader treats 0 as "no marker", never as a
-mismatch.
+`gui-sock-<pid>` socket path wezterm sets in every pane. It is 0 outside wezterm
+and in records written before this field existed.
+
+A GUI attached to a `wezterm-mux-server` also produced 0, because the server's
+socket is named `sock` and carries no pid. That configuration is gone, and it is
+the reason the reap treats 0 as unverifiable and deletes the record rather than
+reading it as "no marker". Sixteen records survived that way, the oldest by four
+weeks, until the reap was corrected.
 
 The marker is enforced by deletion rather than at read time. `agent-state`
-removes the records of any mux that is no longer running, once per mux. A
-`.mux-<pid>` marker file gates it, so the check costs one stat on the hot path.
+removes the records of any mux that is no longer running, and any record it
+cannot attribute to a live mux at all, once per mux. The same pass drops markers
+for dead muxes and `.start` files no record claims, skipping the calling pane's
+own: `working submit` writes `.start` before it publishes the record the pass
+looks for. A `.mux-<pid>` marker file gates the whole pass, so the check costs
+one stat on the hot path.
 This is the routine trigger, not an edge case. The state directory outlives the
 mux and nothing else clears it. The first pane of a restarted terminal takes
 the id the last one had.
