@@ -109,6 +109,7 @@ in
         tofu-ls
         upbound
 
+        acp-amp
         claude-agent-acp
         codex-acp
         copilot-language-server

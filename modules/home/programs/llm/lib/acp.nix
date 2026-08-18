@@ -1,6 +1,23 @@
 { lib }:
 {
   servers = {
+    # Amp ships no ACP mode of its own, so this is the acp-amp bridge, packaged in
+    # overlays/acp-amp.nix. `run` is the subcommand that speaks ACP on stdio;
+    # without it the bridge prints help and exits.
+    #
+    # The driver is pinned to python. The default is `auto`, which falls back to a
+    # Node shim and a bare `node`, and this bridge is launched by clients that
+    # carry no PATH. The python driver answered `initialize` with protocolVersion
+    # 1 here, so the fallback buys nothing.
+    amp = {
+      command = "acp-amp";
+      args = [
+        "run"
+        "--driver"
+        "python"
+      ];
+    };
+
     claude = {
       command = "claude-agent-acp";
       args = [ ];
