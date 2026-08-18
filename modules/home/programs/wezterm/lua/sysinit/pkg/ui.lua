@@ -4,9 +4,6 @@ local keybindings = require("sysinit.pkg.keybindings")
 local utils = require("sysinit.pkg.utils")
 local plugin_loader = require("sysinit.pkg.plugin_loader")
 local ui_actions = require("sysinit.pkg.ui.actions")
-local ui_badges = require("sysinit.pkg.ui.badges")
-local ui_format = require("sysinit.pkg.ui.format")
-local ui_panes = require("sysinit.pkg.ui.panes")
 local ui_session_tree = require("sysinit.pkg.ui.session_tree")
 local ui_sessions = require("sysinit.pkg.ui.sessions")
 local ui_statusbar = require("sysinit.pkg.ui.statusbar")
@@ -162,107 +159,9 @@ function M.setup(config)
         },
       },
     })
-
-    local notified = {}
-    -- A pane that never worked has nothing to wait on; without this a fresh agent
-    -- pane reads as "waiting" the moment it opens and notifies on every session start.
-    local worked = {}
-    wezterm.on("update-status", function()
-      local ok, deck_states = pcall(agent_deck.get_all_agent_states)
-      if not ok or type(deck_states) ~= "table" then
-        return
-      end
-      for _, win in ipairs(wezterm.mux.all_windows()) do
-        for _, tab in ipairs(win:tabs()) do
-          for _, p in ipairs(tab:panes()) do
-            local id = p:pane_id()
-            local deck = deck_states[id]
-            if deck and (deck.status == "waiting" or deck.status == "done") then
-              local uv = p:get_user_vars()
-              if not (uv and uv.agent_state and uv.agent_state ~= "") then
-                if worked[id] and notified[id] ~= deck.status then
-                  notified[id] = deck.status
-                  local reason = deck.status == "waiting" and "idle" or "done"
-                  local _, cwd = ui_panes.pane_repo(p)
-                  wezterm.background_child_process({
-                    utils.get_nix_binary("agent-notify"),
-                    deck.agent or "agent",
-                    reason,
-                    utils.get_nix_binary("agent-focus"),
-                    tostring(id),
-                    cwd or "",
-                  })
-                end
-              end
-            elseif deck == nil then
-              notified[id] = nil
-              worked[id] = nil
-            elseif deck.status == "working" then
-              notified[id] = nil
-              worked[id] = true
-            end
-          end
-        end
-      end
-    end)
-
-    local function publish_selection()
-      local ok_ws, ws = pcall(wezterm.mux.get_active_workspace)
-      if not ok_ws or type(ws) ~= "string" or ws == "" then
-        return
-      end
-      local state = utils.state_path("agents", "agents")
-      pcall(function()
-        os.execute("mkdir -p " .. ("%q"):format(state))
-      end)
-      pcall(function()
-        local f = io.open(state .. "/selected.json", "w")
-        if not f then
-          return
-        end
-        f:write(string.format('{"selected":%s,"heartbeat":%d}\n', wezterm.json_encode(ws), os.time()))
-        f:close()
-      end)
-    end
-
-    wezterm.on("update-status", function(_window, _pane)
-      publish_selection()
-      local all_states = agent_deck.get_all_agent_states()
-      local active_ids = {}
-      local ok = pcall(function()
-        for _, win in ipairs(wezterm.mux.all_windows()) do
-          for _, tab in ipairs(win:tabs()) do
-            for _, p in ipairs(tab:panes()) do
-              active_ids[p:pane_id()] = true
-            end
-          end
-        end
-      end)
-      if not ok then
-        return
-      end
-      for pane_id in pairs(all_states) do
-        if not active_ids[pane_id] then
-          all_states[pane_id] = nil
-        end
-      end
-    end)
   end
 
   local nf = wezterm.nerdfonts or {}
-  local agent_state_icons = ui_format.state_icons
-  local agent_state_labels = ui_format.state_labels
-  local agent_state_rank = ui_panes.state_rank
-  local status_color = ui_format.status_color
-  local format_status_label = ui_format.status_label
-  local format_age = ui_format.age
-
-  local pane_repo = ui_panes.pane_repo
-  local read_pane_record = ui_panes.read_pane_record
-
-  local smart_path = ui_format.smart_path
-
-  local pane_agent_state = ui_panes.agent_state
 
   local function deck_states()
     return agent_deck_ok and agent_deck.get_all_agent_states() or {}
@@ -272,38 +171,123 @@ function M.setup(config)
     return ui_rollup.states(deck_states)
   end
 
-  local gui_window_for_workspace = ui_actions.gui_window_for_workspace
+  -- One walk per tick, over the rollup's per-second cache. Three separate
+  -- `update-status` handlers each used to walk every window, tab and pane at
+  -- the 150ms status interval, and one of them shelled out to mkdir every time.
+  local notified = {}
+  -- A pane that never worked has nothing to wait on; without this a fresh agent
+  -- pane reads as "waiting" the moment it opens and notifies on every session start.
+  local worked = {}
+  local selection_at = -1
+  local selection_dir = utils.state_path("agents", "agents")
+  wezterm.background_child_process({ "/bin/mkdir", "-p", selection_dir })
+
+  -- The pane the user is looking at right now, or nil when no window has focus.
+  local function focused_pane_id()
+    local ok, id = pcall(function()
+      for _, win in ipairs(wezterm.mux.all_windows()) do
+        local gui = win:gui_window()
+        if gui and gui:is_focused() then
+          local p = win:active_pane()
+          return p and p:pane_id() or nil
+        end
+      end
+      return nil
+    end)
+    return ok and id or nil
+  end
+
+  local function publish_selection(now)
+    if now - selection_at < 5 then
+      return
+    end
+    selection_at = now
+    local ok_ws, ws = pcall(wezterm.mux.get_active_workspace)
+    if not ok_ws or type(ws) ~= "string" or ws == "" then
+      return
+    end
+    pcall(function()
+      local f = io.open(selection_dir .. "/selected.json", "w")
+      if not f then
+        return
+      end
+      f:write(string.format('{"selected":%s,"heartbeat":%d}\n', wezterm.json_encode(ws), now))
+      f:close()
+    end)
+  end
+
+  wezterm.on("update-status", function(window)
+    local now = os.time()
+    publish_selection(now)
+
+    local ok_focus, focused = pcall(function()
+      return window:is_focused()
+    end)
+    if (not ok_focus) or focused then
+      pcall(function()
+        ui_sessions.touch(window:active_workspace())
+      end)
+    end
+    ui_sessions.refresh_remote()
+
+    local _, panes = agent_session_states()
+    local live = {}
+    -- Resolved at most once per tick, and only when something is actually
+    -- pending, so an idle mux does no window walk at all.
+    local on_screen, on_screen_known = nil, false
+
+    for _, rec in ipairs(panes) do
+      local id = rec.pane_id
+      live[id] = true
+      -- A harness hook owns its own notification, so only a screen-scraped
+      -- state gets one from here. Notifying on both double-fires.
+      if rec.source == "deck" then
+        if rec.status == "working" then
+          notified[id] = nil
+          worked[id] = true
+        elseif (rec.status == "waiting" or rec.status == "done") and worked[id] and notified[id] ~= rec.status then
+          if not on_screen_known then
+            on_screen, on_screen_known = focused_pane_id(), true
+          end
+          -- Recorded either way. Suppressing a state you already watched happen
+          -- is the point; leaving it unrecorded would just fire it the moment
+          -- you looked somewhere else.
+          notified[id] = rec.status
+          if id ~= on_screen then
+            local reason = rec.status == "waiting" and "idle" or "done"
+            wezterm.background_child_process({
+              utils.get_nix_binary("agent-notify"),
+              rec.agent ~= "" and rec.agent or "agent",
+              reason,
+              utils.get_nix_binary("agent-focus"),
+              tostring(id),
+              rec.cwd or "",
+            })
+          end
+        end
+      end
+    end
+
+    for id in pairs(notified) do
+      if not live[id] then
+        notified[id] = nil
+      end
+    end
+    for id in pairs(worked) do
+      if not live[id] then
+        worked[id] = nil
+      end
+    end
+  end)
+
   local switch_to_workspace = ui_actions.switch_to_workspace
-  local activate_agent_pane = ui_actions.activate_agent_pane
 
-  local normalize_proc = ui_format.normalize_proc
-  local pane_proc = ui_format.pane_proc
-  local tab_label = ui_format.tab_label
-
-  local seshy_session_names = ui_sessions.list_names
-  local seshy_names_cached = ui_sessions.names_cached
-  local active_session_names = ui_sessions.active_names
   local session_slots = ui_sessions.slots
-  local touch_workspace = ui_sessions.touch
-  local workspace_last_active = ui_sessions.last_active
   local seshy_dir = ui_sessions.seshy_dir
-  local sy_bin = ui_sessions.sy_bin
   local DEFAULT_WORKSPACE = ui_sessions.DEFAULT_WORKSPACE
   local DEFAULT_SLOT = ui_sessions.DEFAULT_SLOT
   local MAX_SLOT = ui_sessions.MAX_SLOT
   local home = os.getenv("HOME") or ""
-
-  wezterm.on("update-status", function(window, _pane)
-    local ok, focused = pcall(function()
-      return window:is_focused()
-    end)
-    if (not ok) or focused then
-      pcall(function()
-        touch_workspace(window:active_workspace())
-      end)
-    end
-    ui_sessions.refresh_remote()
-  end)
 
   local function session_tree()
     return ui_session_tree.build(deck_states())
@@ -504,9 +488,6 @@ function M.setup(config)
     attn = nf.md_alert or "󰀪",
     branch = nf.cod_git_branch or "⎇",
   }
-
-  local pane_badge = ui_badges.name
-  local pane_badge_color = ui_badges.color
 
   wezterm.GLOBAL = wezterm.GLOBAL or {}
   wezterm.GLOBAL.__lantern_plugin_dir = config_data.plugins and config_data.plugins.lantern
