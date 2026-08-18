@@ -468,6 +468,11 @@ in
         "browser.theme.content-theme" = 2;
         "browser.theme.toolbar-theme" = 2;
         "layout.css.prefers-color-scheme.content-override" = 0;
+
+        # Restore the last session. The default is 1, the homepage, which drops
+        # every open tab on a clean quit and keeps the session only after a crash.
+        "browser.startup.page" = 3;
+
         "browser.search.suggest.enabled" = false;
         "browser.urlbar.suggest.searches" = false;
         "browser.urlbar.showSearchSuggestionsFirst" = false;
