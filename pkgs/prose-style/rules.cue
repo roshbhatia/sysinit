@@ -188,10 +188,19 @@ rules: {
 	// four hits in this repository were plain comparisons, as in "prints nothing
 	// rather than a blank line". The frame this rule is after always negates
 	// first, so only the negating forms stay.
+	//
+	// The pattern is Slop.NegativeParallelism, ported so the message stays this
+	// repository's. It asks for the whole frame: a negation, then a pivot to
+	// "it's", "but" or "rather". The five bare tokens it replaces were wrong in
+	// both directions. They missed "This isn't a refactor. It's a rewrite.",
+	// which crosses a sentence boundary, and they fired on "do not just print
+	// nothing rather than a blank line", which is a plain comparison.
+	//
+	// Five alternations in one entry, because `raw` concatenates its entries.
 	NegativeParallelism: #Existence & {
 		message: "negative parallelism: state only the thing you mean"
 		level:   "error"
-		raw: ["(?i)\\b(not just|not only|isn'?t just|is not just|it'?s not that)\\b"]
+		raw: ["(?i)(\\b(?:(?:is|are|was|were|it.s|they.re)\\s+not|isn.t|aren.t|wasn.t|weren.t)\\s+(?:just|only|merely|simply)\\b[^.!?]{0,80}[—–,;:]\\s*(?:it.s|they.re|it\\s+is|they\\s+are|but|rather)\\b|\\b(?:isn.t|aren.t|wasn.t|weren.t|is\\s+not|are\\s+not)\\b[^.!?]{0,60}\\.\\s+(?:it.s|they.re|it\\s+is|they\\s+are)\\b|\\bnot\\s+only\\b[^.!?]{0,80}\\bbut\\s+also\\b|\\bnot\\s+(?:just|merely|simply)\\s+(?:about|a|an|the)\\b[^.!?]{0,60}[—–,]\\s*but\\b|\\bless\\s+about\\b[^.!?]{0,60}\\band\\s+more\\s+about\\b)"]
 	}
 
 	HedgeBeforeClaim: #Existence & {
@@ -200,6 +209,11 @@ rules: {
 		raw: ["(?i)(it'?s worth noting|it is worth noting|this is nuanced|it could be argued|i should note that)"]
 	}
 
+	// Slop.Assistant covers the same ground and is switched on in `ini`, but it
+	// does not replace this rule. Measured against the four openers here it
+	// caught one: its tokens want `certainly!` and `of course!` with the
+	// exclamation mark, and this rule wants the comma that a reply actually
+	// uses. Both run.
 	FillerOpener: #Existence & {
 		message: "filler opener: start with the substance"
 		level:   "error"
@@ -245,19 +259,51 @@ rules: {
 // Borrowed styles carry the rules this repository has no reason to restate.
 // They are vendored by `overlays/vale-styles.nix`, because `vale sync` needs
 // network and a Nix build has none.
-borrowed: ["proselint", "write-good", "alex"]
+//
+// This is the audit config's BasedOnStyles, not the vendor list. The overlay
+// vendors STE as well, and STE never appears here: at suggestion level it is
+// 1015 alerts against Slop's 38 on the same 41 files. Only the two STE rules in
+// `promoted` run, which needs the style on disk and not in BasedOnStyles.
+auditStyles: ["proselint", "write-good", "alex", "Slop"]
+
+// Rules borrowed one at a time rather than a style at a time. Vale runs a rule
+// named here even when its style is absent from BasedOnStyles, which is what
+// lets the hook take six rules out of two noisy styles.
+//
+// Slop as a whole is 38 alerts across the 41 tracked .md files, low enough for
+// the audit config. STE as a whole is 1015 on the same files and never goes in:
+// STE.Gerunds alone is 363, and it flags a skill titled "Writing".
+promoted: {
+	// 12 tokens of chat-assistant voice. FillerOpener stays alongside it.
+	"Slop.Assistant": "error"
+	// Three parallel modifiers where one would do. The output style names this
+	// pattern and nothing here implemented it. 0 hits on the tracked files.
+	"Slop.Tricolon": "error"
+	// A virtue the reader cannot check: "ensures correctness", "gracefully".
+	"Slop.SelfPraise": "error"
+	// "this is by design", standing in for the reason. 0 hits.
+	"Slop.VagueReasons": "error"
+	// ASD-STE100 caps a paragraph at six sentences. 11 hits.
+	"STE.ParagraphLength": "error"
+	// One instruction per sentence, scoped to list items. 5 hits.
+	"STE.OneInstruction": "error"
+}
+
+promotedIni: strings.Join([for k, v in promoted {"\(k) = \(v)"}], "\n")
 
 // Two configs, because the two jobs want different noise floors.
 //
-// The hook config is Sysinit alone. prose-gate spends the user's turn on what
-// it reports, so a rule here has to be one this repository actually decided.
-// proselint and write-good are advisory by design and would block most replies.
+// The hook config is Sysinit plus the six rules in `promoted`. prose-gate spends
+// the user's turn on what it reports, so a rule here has to be one this
+// repository actually decided. proselint and write-good are advisory by design
+// and would block most replies, so neither style goes in wholesale.
 ini: """
 	StylesPath = styles
 	MinAlertLevel = error
 
 	[*.md]
 	BasedOnStyles = Sysinit
+	\(promotedIni)
 	"""
 
 // The audit config adds the borrowed styles and drops the floor to suggestion.
@@ -269,5 +315,5 @@ auditIni: """
 	MinAlertLevel = suggestion
 
 	[*.md]
-	BasedOnStyles = Sysinit, \(strings.Join(borrowed, ", "))
+	BasedOnStyles = Sysinit, \(strings.Join(auditStyles, ", "))
 	"""

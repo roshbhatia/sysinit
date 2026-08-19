@@ -13,25 +13,49 @@ let
   borrowed = [
     {
       name = "proselint";
+      repo = "vale-cli/proselint";
       version = "v0.3.4";
       hash = "sha256-SLH7SBukT2UF1ENGsoP2zcdO/SNPkTu9sJvzRCD6uBw=";
     }
     {
       name = "write-good";
+      repo = "vale-cli/write-good";
       version = "v0.4.1";
       hash = "sha256-KWDvEIYd3H3HYpKkln6zeJvwXKJPhiBC9tFfUzMoh/A=";
     }
     {
       name = "alex";
+      repo = "vale-cli/alex";
       version = "v0.2.3";
       hash = "sha256-RAFMf2PUqLzoZ4jgdO24AzOptuugfl3SeySCO2nu1Qs=";
+    }
+    # Two styles out of one repository, so the asset name and the repository
+    # name differ here and `repo` has to be stated rather than derived.
+    #
+    # Slop is the closer fit to this repository's own rule set: 17 rules against
+    # the tells, 38 alerts across the 41 tracked .md files. STE ships 12
+    # ASD-STE100 rules and 1015 alerts on the same files, so only the two rules
+    # named in `ini` are switched on. The rest conflicts: `STE.Modals` rewrites
+    # `should` and `may`, which RFC 2119 gives a fixed meaning, and
+    # `STE.Contractions` bans the contractions `writing-tone` keeps on purpose.
+    {
+      name = "Slop";
+      repo = "Syntaf/vale-llm-slop";
+      version = "v0.1.0";
+      hash = "sha256-vFzWon9ujpAoV4e5kIpZekx3nxv3XbqfBxhy/ewvh00=";
+    }
+    {
+      name = "STE";
+      repo = "Syntaf/vale-llm-slop";
+      version = "v0.1.0";
+      hash = "sha256-bqfOSNIFA4q0ftuwsoazJOe3Niypl2gUKAHb5OAhZqw=";
     }
   ];
 
   fetch =
     style:
     final.fetchurl {
-      url = "https://github.com/vale-cli/${style.name}/releases/download/${style.version}/${style.name}.zip";
+      url = "https://github.com/${style.repo}/releases/download/${style.version}/${style.name}.zip";
       inherit (style) hash;
     };
 in
