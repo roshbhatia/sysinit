@@ -16,6 +16,4 @@ final: _prev: {
   };
 
   inherit (inputs.cupcake.packages.${final.stdenv.hostPlatform.system}) cupcake-cli;
-
-  seshy = inputs.seshy.packages.${final.stdenv.hostPlatform.system}.default;
 }

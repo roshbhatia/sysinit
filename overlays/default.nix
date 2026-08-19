@@ -24,6 +24,7 @@
   (import ./ask.nix)
   (import ./calldiff.nix)
   (import ./specutil.nix)
+  (import ./seshy.nix)
   (import ./python313.nix)
   (import ./kubernetes-zeitgeist.nix)
   (import ./go-enum.nix)

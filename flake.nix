@@ -58,11 +58,6 @@
       flake = false;
     };
 
-    seshy = {
-      url = "github:roshbhatia/seshy";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-
     ast-grep-skills = {
       url = "github:ast-grep/agent-skill";
       flake = false;
