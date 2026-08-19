@@ -27,6 +27,15 @@ import "strings"
 // `raw` takes the pattern verbatim. `tokens` would wrap each entry in word
 // boundaries, which breaks a pattern that is already anchored or that has to
 // match punctuation.
+//
+// One entry per rule, always. Vale concatenates the entries of `raw`; it does
+// not alternate them. Two complete patterns therefore compile into one that
+// matches nothing, and vale reports no error. Alternate inside a single entry.
+// A rule that wants many independent patterns should use `tokens` with
+// `nonword: true` instead, because `tokens` IS joined with `|`.
+//
+// Vale is not limited to RE2 here: `(?!...)` and `(?<!...)` both work, which is
+// how BoldPseudoHeading carries an allowlist.
 #Existence: {
 	extends: "existence"
 	message: string
@@ -92,21 +101,85 @@ rules: {
 	// Markdown markup is stripped in the default scope, so this one reads the
 	// file as written. The old gate matched this against prose with every
 	// bullet already removed, so it could never fire.
-	BoldFirstTerm: #Existence & {
-		message: "bold first term in a bullet: use a sub-bullet for the detail"
+	//
+	// This replaces an earlier BoldFirstTerm that required `**` right after the
+	// marker. It caught 1 of the 4 shapes: `- *x*`, `- __x__` and `1. **x**` all
+	// passed. Measured 43 hits across 5 tracked files at the wider pattern.
+	EmphasisInBullet: #Existence & {
+		message: "emphasis on a bullet's first term: use a sub-bullet for the detail"
 		level:   "error"
-		scope: "raw"
-		// The match spans both `**` pairs so the fix can drop them together.
+		scope:   "raw"
+		// The match spans both delimiter pairs so the fix drops them together.
 		// Matching only the opening pair would leave the closing one behind and
 		// produce broken markdown.
+		//
+		// `*` is left out of the marker class deliberately. The match has to
+		// include the marker, and the action strips every `*` and `_` inside the
+		// match, so a `*` bullet would lose its own marker. A `*` bullet is
+		// therefore not checked. Nothing in this repository uses one.
 		//
 		// `\s` would swallow the preceding newline, which reports the match on
 		// the line above and prints a literal "\n" back at the reader.
 		action: {
 			name: "edit"
-			params: ["regex", "\\*\\*", ""]
+			params: ["regex", "[*_]", ""]
 		}
-		raw: ["(?m)^[ \\t]*[-*+][ \\t]+\\*\\*[^*\\n]+\\*\\*"]
+		raw: ["(?m)^[ \\t]*([-+]|\\d+[.)])[ \\t]+([*_]{1,2})[^*_\\n]+([*_]{1,2})"]
+	}
+
+	// Bold marks a real exception. A regex cannot judge whether one span earns
+	// its place, so this counts instead. `scope: raw` makes the whole reply one
+	// instance, which is what bounds a reply rather than a paragraph.
+	//
+	// 2 is close to current practice: 10 hits across the 41 tracked .md files.
+	//
+	// The backtick guard keeps an immediately-wrapped literal out of the count,
+	// as in "the `**SHAPE**` marker", where the bold is the thing being quoted.
+	// It only inspects the one character on each side, so a span that holds more
+	// than the bold still counts: "`- **SHAPE** loop|graph`" does.
+	//
+	// `TokenIgnores` is the general answer to that and does not apply here. It
+	// runs in the markup pipeline, and `scope: raw` is defined as bypassing it.
+	// openspec-schema/CHANGES.md quotes these markers throughout and keeps one
+	// standing alert for the reason.
+	//
+	// `max` must stay above 0. Vale cannot tell `max: 0` from an unset field, so
+	// it drops the bound and the rule goes silent.
+	BoldBudget: #Occurrence & {
+		message: "more than 2 bold spans: bold marks a real exception, not emphasis"
+		level:   "error"
+		scope:   "raw"
+		max:     2
+		token:   "(?<!`)(\\*\\*|__)[^*_\\n]+(\\*\\*|__)(?!`)"
+	}
+
+	// A bold label opening a line is a heading that refused to be one. Use a
+	// real heading, or drop the label and write the sentence.
+	//
+	// `**Why:**` and `**How to apply:**` are exempt: the memory format requires
+	// them. The gate reads `last_assistant_message` and never a file, so the
+	// exemption only matters when vale is pointed at the memory directory by
+	// hand. It is stated anyway, because the cost is one lookahead.
+	BoldPseudoHeading: #Existence & {
+		message: "bold label as a heading: use a real heading or plain prose"
+		level:   "error"
+		scope:   "raw"
+		raw: ["(?m)^[ \\t]*\\*\\*(?!Why:|How to apply:)[^*\\n]+\\*\\*:?([ \\t]*$|[ \\t]+\\S)"]
+	}
+
+	// Self-dramatising escalation: the reply announces that the state is worse
+	// than the last one said, instead of giving the new fact and its size.
+	//
+	// "3 more call sites, not 1" carries the same news and is checkable. The
+	// frame is banned even when the state really did get worse, because the
+	// number says it better.
+	//
+	// 0 hits across the 41 tracked .md files. This fires in replies, which is
+	// where the Stop hook reads, and never in committed prose.
+	Escalation: #Existence & {
+		message: "escalation frame: give the new fact and its size, not that it is worse"
+		level:   "error"
+		raw: ["(?i)\\b(and it gets worse|even worse|worse still|worse than (we|i) (thought|expected|said|reported)|worse than (stated|reported|described|first appeared)|far worse|much worse|significantly worse|actually worse|objection \\d+ (upheld|sustained|overruled|withdrawn))\\b"]
 	}
 
 	// State the thing you mean and drop the half you dismissed.
