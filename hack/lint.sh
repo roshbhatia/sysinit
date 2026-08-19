@@ -56,8 +56,4 @@ if [ -n "$py_files" ]; then
   run hack/check-script-blocks.sh $py_files
 fi
 
-if [ "$scope" = all ] || [ -n "$(files_matching '^bootstrap/(tools|mise|mise-editor)\.toml$')" ]; then
-  run bootstrap/gen-mise-toml.sh --check
-fi
-
 exit "$status"

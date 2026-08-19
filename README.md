@@ -45,25 +45,19 @@ a package is listed once at the lowest profile that needs it.
 | `dev` | a box you build on | the above plus toolchains and the agent runtime |
 | `workstation` | a box you sit in front of | the above plus the GUI |
 
-### Installing on a Box With No Nix
+### Installing the Editor on a Box With No Nix
 
-`bootstrap/bootstrap.sh` brings the configuration up without Nix. It
-sparse-clones this repository into `~/.local/share/sysinit` and installs the
-tools through mise. It symlinks the neovim config, and writes a `.zshrc` that
-sources the shell fragments.
+`bootstrap/bootstrap.sh` installs the neovim config alone. It sparse-clones
+this repository into `~/.local/share/sysinit` and symlinks the config to
+`~/.config/nvim`. It installs no tools, so neovim, git, and a C compiler have to
+be on PATH already.
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/roshbhatia/sysinit/main/bootstrap/bootstrap.sh | bash
 ```
 
-Pass `--editor` for the editor alone.
-```bash
-curl -fsSL https://raw.githubusercontent.com/roshbhatia/sysinit/main/bootstrap/bootstrap.sh | bash -s -- --editor
-```
-
-Both modes are re-runnable and both honor `SYSINIT_REMOTE`, `SYSINIT_BRANCH`, and
-`SYSINIT_CHECKOUT`. `bootstrap/verify-container.sh` runs both in a clean Ubuntu
-container.
+It is re-runnable and honors `SYSINIT_REMOTE`, `SYSINIT_BRANCH`, and
+`SYSINIT_CHECKOUT`.
 
 ### Creating a Discrete Host Repository
 

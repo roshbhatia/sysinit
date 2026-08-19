@@ -1,117 +1,84 @@
-# The `minimal` profile, named once.
+# The `minimal` profile, named once. Read by modules/home/packages.nix.
 
 # ---------------------------------------------------------------- core unix
 
 [[tool]]
 nix = "coreutils"
-system = "coreutils"
 
 [[tool]]
 nix = "curl"
-system = "curl"
-editor = true
 
 [[tool]]
 nix = "wget"
-system = "wget"
 
 [[tool]]
 nix = "findutils"
-system = "findutils"
 
 [[tool]]
 nix = "gettext"
-system = "gettext"
 
 [[tool]]
 nix = "gnugrep"
-system = "grep"
 
 [[tool]]
 nix = "gnused"
-system = "sed"
 
 [[tool]]
 nix = "gnumake"
-system = "make"
-editor = true
 
 [[tool]]
 nix = "pkg-config"
-system = "pkg-config"
-editor = true
 
 [[tool]]
 nix = "which"
-system = "debianutils"
 
 [[tool]]
 nix = "tree"
-system = "tree"
 
 [[tool]]
 nix = "unzip"
-system = "unzip"
-editor = true
 
 [[tool]]
 nix = "zip"
-system = "zip"
 
 [[tool]]
 nix = "watch"
-system = "procps"
 
 [[tool]]
 nix = "socat"
-system = "socat"
 
 [[tool]]
 nix = "sshpass"
-system = "sshpass"
 
 [[tool]]
 nix = "openssh"
-system = "openssh-client"
 
 [[tool]]
 nix = "gnupg"
-system = "gnupg"
 
 [[tool]]
 nix = "bat"
-mise = "aqua:sharkdp/bat"
 
 [[tool]]
 nix = "eza"
-mise = "ubi:eza-community/eza"
 
 [[tool]]
 nix = "fd"
-mise = "aqua:sharkdp/fd"
-editor = true
 
 [[tool]]
 nix = "ripgrep"
-mise = "aqua:BurntSushi/ripgrep"
-editor = true
 
 [[tool]]
 nix = "jq"
-mise = "aqua:jqlang/jq"
-editor = true
 
 [[tool]]
 nix = "jqp"
-mise = "aqua:noahgorstein/jqp"
 
 [[tool]]
 nix = "yq-go"
-mise = "aqua:mikefarah/yq"
 
 [[tool]]
 nix = "lychee"
-mise = "aqua:lycheeverse/lychee"
 
 # Bundles a page and its assets into one HTML file.
 [[tool]]
@@ -120,16 +87,12 @@ none = "no release binary and no distribution package"
 
 [[tool]]
 nix = "duf"
-mise = "aqua:muesli/duf"
 
 [[tool]]
 nix = "htop"
-system = "htop"
 
 [[tool]]
 nix = "glow"
-mise = "aqua:charmbracelet/glow"
-editor = true
 
 [[tool]]
 nix = "go-grip"
@@ -142,15 +105,12 @@ none = "no arm64 release asset, and every mise backend for it routes through car
 
 [[tool]]
 nix = "scc"
-mise = "ubi:boyter/scc"
 
 [[tool]]
 nix = "chafa"
-system = "chafa"
 
 [[tool]]
 nix = "imagemagick"
-system = "imagemagick"
 
 # The desktop app pairs with it and neither belongs on an ephemeral box.
 [[tool]]
@@ -161,51 +121,31 @@ none = "vendor apt repository only, and an ephemeral box holds no vault"
 
 [[tool]]
 nix = "git"
-system = "git"
-editor = true
 
 [[tool]]
 nix = "gh"
-mise = "aqua:cli/cli"
 
 [[tool]]
 nix = "delta"
-mise = "aqua:dandavison/delta"
 
 [[tool]]
 nix = "git-crypt"
-system = "git-crypt"
 
 [[tool]]
 nix = "git-filter-repo"
-system = "git-filter-repo"
 
 [[tool]]
 nix = "libgit2"
-system = "libgit2-dev"
 
 # ------------------------------------------------------------------- session
 
 # Session persistence, added by phase 10.
 [[tool]]
 nix = "zmx"
-mise = "github:neurosnap/zmx"
 
 # --------------------------------------------------- beyond the package list
 
 # Three things the Nix side installs through `modules/home/programs/` rather
 
-[[program]]
-name = "zsh"
-system = "zsh"
-
 # `dev` tier under Nix, where a `minimal` box gets helix instead.
-[[program]]
-name = "neovim"
-mise = "aqua:neovim/neovim"
-editor = true
-
 # Not an editor tool but the compiler the bootstrap needs: `utils` is
-[[program]]
-name = "go"
-mise = "core:go"
