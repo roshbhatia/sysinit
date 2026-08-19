@@ -7,9 +7,9 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/roshbhatia/specutil/internal/ir"
-	"github.com/roshbhatia/specutil/internal/parse"
-	"github.com/roshbhatia/specutil/internal/provider"
+	"github.com/roshbhatia/sysinit/pkgs/specutil/internal/ir"
+	"github.com/roshbhatia/sysinit/pkgs/specutil/internal/parse"
+	"github.com/roshbhatia/sysinit/pkgs/specutil/internal/provider"
 )
 
 type Provider struct {

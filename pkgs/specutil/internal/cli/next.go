@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/roshbhatia/specutil/internal/lifecycle"
+	"github.com/roshbhatia/sysinit/pkgs/specutil/internal/lifecycle"
 	"github.com/spf13/cobra"
 )
 

@@ -8,8 +8,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/roshbhatia/seshy/internal/config"
-	"github.com/roshbhatia/seshy/internal/tmpl"
+	"github.com/roshbhatia/sysinit/pkgs/seshy/internal/config"
+	"github.com/roshbhatia/sysinit/pkgs/seshy/internal/tmpl"
 )
 
 // Session represents a seshy session.

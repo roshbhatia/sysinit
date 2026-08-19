@@ -7,11 +7,11 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/roshbhatia/seshy/internal/config"
-	"github.com/roshbhatia/seshy/internal/hook"
-	"github.com/roshbhatia/seshy/internal/session"
-	"github.com/roshbhatia/seshy/internal/tmpl"
-	"github.com/roshbhatia/seshy/internal/ui"
+	"github.com/roshbhatia/sysinit/pkgs/internal/ui"
+	"github.com/roshbhatia/sysinit/pkgs/seshy/internal/config"
+	"github.com/roshbhatia/sysinit/pkgs/seshy/internal/hook"
+	"github.com/roshbhatia/sysinit/pkgs/seshy/internal/session"
+	"github.com/roshbhatia/sysinit/pkgs/seshy/internal/tmpl"
 	"github.com/spf13/cobra"
 )
 

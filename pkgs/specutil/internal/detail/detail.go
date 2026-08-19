@@ -7,10 +7,10 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/roshbhatia/specutil/internal/ident"
-	"github.com/roshbhatia/specutil/internal/ir"
-	"github.com/roshbhatia/specutil/internal/lifecycle"
-	"github.com/roshbhatia/specutil/internal/vcs"
+	"github.com/roshbhatia/sysinit/pkgs/specutil/internal/ident"
+	"github.com/roshbhatia/sysinit/pkgs/specutil/internal/ir"
+	"github.com/roshbhatia/sysinit/pkgs/specutil/internal/lifecycle"
+	"github.com/roshbhatia/sysinit/pkgs/specutil/internal/vcs"
 )
 
 type Feed struct {

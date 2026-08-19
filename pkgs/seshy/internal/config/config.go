@@ -8,6 +8,8 @@ import (
 	"strings"
 
 	"gopkg.in/yaml.v3"
+
+	"github.com/roshbhatia/sysinit/pkgs/internal/paths"
 )
 
 // HooksConfig holds lifecycle hook commands.
@@ -42,11 +44,7 @@ func defaults() Config {
 
 // ConfigDir returns the seshy config directory.
 func ConfigDir() string {
-	if xdg := os.Getenv("XDG_CONFIG_HOME"); xdg != "" {
-		return filepath.Join(xdg, "seshy")
-	}
-	home, _ := os.UserHomeDir()
-	return filepath.Join(home, ".config", "seshy")
+	return filepath.Join(paths.ConfigHome(), "seshy")
 }
 
 // ConfigPath returns the path to config.yaml.
@@ -113,8 +111,8 @@ func WriteDefault() error {
 	return os.WriteFile(ConfigPath(), data, 0644)
 }
 
-// GetSessionsRoot returns the sessions directory.
-// Respects sessionsDir in config if set, otherwise falls back to XDG_STATE_HOME.
+// GetSessionsRoot returns the sessions directory. config.yaml wins, then the
+// sysinit paths manifest, which is the value nix wrote into config.yaml anyway.
 func GetSessionsRoot() string {
 	if data, err := os.ReadFile(ConfigPath()); err == nil {
 		var cfg Config
@@ -122,14 +120,7 @@ func GetSessionsRoot() string {
 			return expandTilde(cfg.SessionsDir)
 		}
 	}
-	var base string
-	if xdg := os.Getenv("XDG_STATE_HOME"); xdg != "" {
-		base = xdg
-	} else {
-		home, _ := os.UserHomeDir()
-		base = filepath.Join(home, ".local", "state")
-	}
-	return filepath.Join(base, "seshy", "sessions")
+	return paths.SeshySessions()
 }
 
 // EnsureSessionsRoot creates the sessions directory if it doesn't exist.

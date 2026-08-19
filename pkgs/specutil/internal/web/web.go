@@ -7,8 +7,8 @@ import (
 	"fmt"
 	"text/template"
 
-	"github.com/roshbhatia/specutil/internal/detail"
-	"github.com/roshbhatia/specutil/internal/graph"
+	"github.com/roshbhatia/sysinit/pkgs/specutil/internal/detail"
+	"github.com/roshbhatia/sysinit/pkgs/specutil/internal/graph"
 )
 
 //go:embed assets/page.html.tmpl

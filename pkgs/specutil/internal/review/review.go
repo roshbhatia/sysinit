@@ -7,8 +7,8 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/roshbhatia/specutil/internal/ident"
-	"github.com/roshbhatia/specutil/internal/ir"
+	"github.com/roshbhatia/sysinit/pkgs/specutil/internal/ident"
+	"github.com/roshbhatia/sysinit/pkgs/specutil/internal/ir"
 	"gopkg.in/yaml.v3"
 )
 

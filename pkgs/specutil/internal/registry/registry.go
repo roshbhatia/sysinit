@@ -5,11 +5,11 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/roshbhatia/specutil/internal/extract"
-	"github.com/roshbhatia/specutil/internal/graph"
-	"github.com/roshbhatia/specutil/internal/ir"
-	"github.com/roshbhatia/specutil/internal/provider"
-	openspecprovider "github.com/roshbhatia/specutil/internal/provider/openspec"
+	"github.com/roshbhatia/sysinit/pkgs/specutil/internal/extract"
+	"github.com/roshbhatia/sysinit/pkgs/specutil/internal/graph"
+	"github.com/roshbhatia/sysinit/pkgs/specutil/internal/ir"
+	"github.com/roshbhatia/sysinit/pkgs/specutil/internal/provider"
+	openspecprovider "github.com/roshbhatia/sysinit/pkgs/specutil/internal/provider/openspec"
 )
 
 func SelectProvider(repo string) (provider.Provider, error) {

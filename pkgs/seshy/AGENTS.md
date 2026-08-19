@@ -21,8 +21,11 @@ internal/
   hook/           runs the postCreate, postAdd, and preDelete commands
   session/        session directory, repo attachment, worktrees, archive
   tmpl/           branch-name template, over {{.Session}} {{.Repo}} {{.User}}
-  ui/             ANSI colors and stderr messages, no dependencies
 ```
+
+Shared code lives one level up, in `pkgs/internal/`. `paths` resolves XDG and
+the sysinit manifest, `git` runs git, and `ui` holds the ANSI output this tool
+used to own. Read `pkgs/AGENTS.md` before changing any of them.
 
 ## Mental model
 
@@ -63,17 +66,17 @@ Nix owns the config. `modules/home/programs/seshy/default.nix` generates
 opens a file home-manager overwrites on the next switch.
 
 `sessionsDir` comes from `config.sysinit.paths.resolved.seshySessions`, which
-is the same value `pkgs/utils/internal/paths` reads back under
+is the same value `pkgs/internal/paths` reads back under
 `SeshySessionsKey`. Change one and change the other.
 
 ## Version
 
-`cmd/root.go` holds `const version`. `overlays/seshy.nix` reads that constant
-rather than repeating it, and throws if the declaration moves. Bump the
-constant; do not add a second copy.
+`cmd/root.go` holds `const version`, which `sy --version` prints. The store
+path no longer carries it, because `overlays/gotools.nix` builds every tool
+under one version.
 
 ## Build
 
-`overlays/seshy.nix` renames the binary to `sy` and keeps `seshy` as a symlink,
-because every caller invokes `sy`. The check phase runs, and the unit tests
-shell out to `git`, so `git` stays in `nativeCheckInputs`.
+`overlays/gotools.nix` builds the binary as `seshy` and exposes it as `sy`,
+because every caller invokes `sy`. The unit tests shell out to `git`, so `git`
+stays in that derivation's `nativeCheckInputs`.

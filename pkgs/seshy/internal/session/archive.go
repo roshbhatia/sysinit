@@ -7,7 +7,7 @@ import (
 	"path/filepath"
 	"syscall"
 
-	"github.com/roshbhatia/seshy/internal/config"
+	"github.com/roshbhatia/sysinit/pkgs/seshy/internal/config"
 )
 
 // ArchivedExists checks if an archived session exists.

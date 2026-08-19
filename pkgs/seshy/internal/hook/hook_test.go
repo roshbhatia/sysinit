@@ -5,7 +5,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/roshbhatia/seshy/internal/tmpl"
+	"github.com/roshbhatia/sysinit/pkgs/seshy/internal/tmpl"
 )
 
 func testData(dir string) tmpl.TemplateData {

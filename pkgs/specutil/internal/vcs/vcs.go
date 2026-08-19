@@ -11,7 +11,8 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/roshbhatia/specutil/internal/ident"
+	"github.com/roshbhatia/sysinit/pkgs/internal/git"
+	"github.com/roshbhatia/sysinit/pkgs/specutil/internal/ident"
 )
 
 const (
@@ -75,17 +76,16 @@ func (d *Diff) Stats() (files, added, deleted int) {
 }
 
 func IsRepo(repo string) bool {
-	cmd := exec.Command("git", "-C", repo, "rev-parse", "--is-inside-work-tree")
-	out, err := cmd.Output()
-	return err == nil && strings.TrimSpace(string(out)) == "true"
+	out, err := git.Output(repo, "rev-parse", "--is-inside-work-tree")
+	return err == nil && out == "true"
 }
 
 func HeadCommit(repo string) string {
-	out, err := exec.Command("git", "-C", repo, "rev-parse", "HEAD").Output()
+	out, err := git.Head(repo)
 	if err != nil {
 		return ""
 	}
-	return strings.TrimSpace(string(out))
+	return out
 }
 
 func Collect(repo, base string, paths []string) (*Diff, error) {

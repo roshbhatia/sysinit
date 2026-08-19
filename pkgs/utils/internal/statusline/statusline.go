@@ -10,7 +10,7 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/roshbhatia/sysinit/pkgs/utils/internal/paths"
+	"github.com/roshbhatia/sysinit/pkgs/internal/paths"
 )
 
 const Summary = "render the claude status line"

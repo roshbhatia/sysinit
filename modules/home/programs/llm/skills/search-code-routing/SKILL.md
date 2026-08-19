@@ -183,7 +183,7 @@ calldiff diff --max-depth 3
 calldiff reach -e M.setup --to compose modules/darwin/home/hammerspoon
 
 # bad — calldiff on Nix; it does not index .nix and answers "file not found"
-calldiff tree --file overlays/ask.nix
+calldiff tree --file overlays/gotools.nix
 ```
 
 Load the `calldiff` skill for the rules. Note that it covers the Lua, Go, and

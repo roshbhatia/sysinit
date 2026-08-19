@@ -3,47 +3,16 @@ package repo
 import (
 	"crypto/sha256"
 	"encoding/hex"
-	"errors"
 	"fmt"
 	"os"
-	"os/exec"
 	"path/filepath"
 	"strings"
 
-	"github.com/roshbhatia/sysinit/pkgs/utils/internal/paths"
+	"github.com/roshbhatia/sysinit/pkgs/internal/git"
+	"github.com/roshbhatia/sysinit/pkgs/internal/paths"
 )
 
-func RootAt(dir string) (string, error) {
-	cmd := exec.Command("git", "rev-parse", "--show-toplevel")
-	cmd.Dir = dir
-	cmd.Env = filterEnv(os.Environ(), "GIT_DIR", "GIT_WORK_TREE", "GIT_INDEX_FILE")
-	out, err := cmd.Output()
-	if err != nil {
-		return "", errors.New("not inside a git repository")
-	}
-	root := strings.TrimRight(string(out), "\n")
-	if root == "" {
-		return "", errors.New("not inside a git repository")
-	}
-	return root, nil
-}
-
-func filterEnv(env []string, drop ...string) []string {
-	kept := make([]string, 0, len(env))
-	for _, entry := range env {
-		skip := false
-		for _, name := range drop {
-			if strings.HasPrefix(entry, name+"=") {
-				skip = true
-				break
-			}
-		}
-		if !skip {
-			kept = append(kept, entry)
-		}
-	}
-	return kept
-}
+func RootAt(dir string) (string, error) { return git.Root(dir) }
 
 func EditLogFile(root string) string {
 	return keyed(paths.AgentEdits(), root) + ".jsonl"
@@ -57,20 +26,9 @@ func PromptFile(root string) string {
 	return keyed(paths.AgentEdits(), root) + ".prompt"
 }
 
-// CleanEnv drops the git location variables, so a git call decides its own target.
-func CleanEnv() []string {
-	return filterEnv(os.Environ(), "GIT_DIR", "GIT_WORK_TREE", "GIT_INDEX_FILE")
-}
+func CleanEnv() []string { return git.CleanEnv() }
 
-// GitEnv points git at a shadow repository: the history lives in gitDir, the files
-// it reads live in workTree. An inherited GIT_DIR would silently retarget both.
-func GitEnv(gitDir, workTree string) []string {
-	return append(CleanEnv(),
-		"GIT_DIR="+gitDir,
-		"GIT_WORK_TREE="+workTree,
-		"GIT_TERMINAL_PROMPT=0",
-	)
-}
+func GitEnv(gitDir, workTree string) []string { return git.ShadowEnv(gitDir, workTree) }
 
 func WorkerDir(root string) string {
 	return keyed(paths.AgentWorker(), root)

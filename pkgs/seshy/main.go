@@ -3,8 +3,8 @@ package main
 import (
 	"os"
 
-	"github.com/roshbhatia/seshy/cmd"
-	"github.com/roshbhatia/seshy/internal/config"
+	"github.com/roshbhatia/sysinit/pkgs/seshy/cmd"
+	"github.com/roshbhatia/sysinit/pkgs/seshy/internal/config"
 )
 
 func main() {

@@ -5,8 +5,8 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/roshbhatia/specutil/internal/ir"
-	"github.com/roshbhatia/specutil/internal/review"
+	"github.com/roshbhatia/sysinit/pkgs/specutil/internal/ir"
+	"github.com/roshbhatia/sysinit/pkgs/specutil/internal/review"
 )
 
 func init() {

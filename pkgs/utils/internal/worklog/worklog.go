@@ -13,7 +13,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/roshbhatia/sysinit/pkgs/utils/internal/paths"
+	"github.com/roshbhatia/sysinit/pkgs/internal/paths"
 	"github.com/roshbhatia/sysinit/pkgs/utils/internal/transcript"
 )
 

@@ -3,7 +3,7 @@ package main
 import (
 	"os"
 
-	"github.com/roshbhatia/specutil/internal/cli"
+	"github.com/roshbhatia/sysinit/pkgs/specutil/internal/cli"
 )
 
 var version = "dev"

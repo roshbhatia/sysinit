@@ -31,12 +31,31 @@ func manifestFile() string {
 	return filepath.Join(fallbackStateHome(), "sysinit", "paths.json")
 }
 
-func fallbackStateHome() string {
+func fallbackStateHome() string { return StateHome() }
+
+func StateHome() string {
 	if home := strings.TrimRight(os.Getenv("XDG_STATE_HOME"), "/"); home != "" {
 		return home
 	}
+	return filepath.Join(home(), ".local", "state")
+}
 
-	return filepath.Join(os.Getenv("HOME"), ".local", "state")
+func ConfigHome() string {
+	if dir := strings.TrimRight(os.Getenv("XDG_CONFIG_HOME"), "/"); dir != "" {
+		return dir
+	}
+	return filepath.Join(home(), ".config")
+}
+
+func home() string {
+	if dir := os.Getenv("HOME"); dir != "" {
+		return dir
+	}
+	dir, err := os.UserHomeDir()
+	if err != nil {
+		return ""
+	}
+	return dir
 }
 
 func load() map[string]string {

@@ -8,10 +8,10 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/roshbhatia/specutil/internal/detail"
-	"github.com/roshbhatia/specutil/internal/ir"
-	"github.com/roshbhatia/specutil/internal/review"
-	"github.com/roshbhatia/specutil/internal/vcs"
+	"github.com/roshbhatia/sysinit/pkgs/specutil/internal/detail"
+	"github.com/roshbhatia/sysinit/pkgs/specutil/internal/ir"
+	"github.com/roshbhatia/sysinit/pkgs/specutil/internal/review"
+	"github.com/roshbhatia/sysinit/pkgs/specutil/internal/vcs"
 	"github.com/spf13/cobra"
 )
 

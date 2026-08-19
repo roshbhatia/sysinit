@@ -3,7 +3,7 @@ package cmd
 import (
 	"fmt"
 
-	"github.com/roshbhatia/seshy/internal/config"
+	"github.com/roshbhatia/sysinit/pkgs/seshy/internal/config"
 	"github.com/spf13/cobra"
 	"gopkg.in/yaml.v3"
 )

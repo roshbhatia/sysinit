@@ -7,7 +7,7 @@ import (
 	"os/exec"
 	"strings"
 
-	"github.com/roshbhatia/seshy/internal/session"
+	"github.com/roshbhatia/sysinit/pkgs/seshy/internal/session"
 	"github.com/spf13/cobra"
 )
 

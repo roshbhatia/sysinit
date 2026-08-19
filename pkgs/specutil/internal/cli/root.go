@@ -12,13 +12,13 @@ import (
 	"runtime"
 	"strings"
 
-	"github.com/roshbhatia/specutil/internal/check"
-	"github.com/roshbhatia/specutil/internal/detail"
-	"github.com/roshbhatia/specutil/internal/graph"
-	"github.com/roshbhatia/specutil/internal/ir"
-	"github.com/roshbhatia/specutil/internal/registry"
-	"github.com/roshbhatia/specutil/internal/render"
-	"github.com/roshbhatia/specutil/internal/web"
+	"github.com/roshbhatia/sysinit/pkgs/specutil/internal/check"
+	"github.com/roshbhatia/sysinit/pkgs/specutil/internal/detail"
+	"github.com/roshbhatia/sysinit/pkgs/specutil/internal/graph"
+	"github.com/roshbhatia/sysinit/pkgs/specutil/internal/ir"
+	"github.com/roshbhatia/sysinit/pkgs/specutil/internal/registry"
+	"github.com/roshbhatia/sysinit/pkgs/specutil/internal/render"
+	"github.com/roshbhatia/sysinit/pkgs/specutil/internal/web"
 	"github.com/spf13/cobra"
 )
 

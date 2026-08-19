@@ -7,7 +7,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/roshbhatia/seshy/internal/config"
+	"github.com/roshbhatia/sysinit/pkgs/seshy/internal/config"
 )
 
 func defaultOpts() CreateOpts {

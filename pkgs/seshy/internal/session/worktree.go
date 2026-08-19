@@ -1,48 +1,27 @@
 package session
 
 import (
-	"bytes"
 	"errors"
 	"fmt"
 	"os"
-	"os/exec"
 	"path/filepath"
 	"strings"
+
+	"github.com/roshbhatia/sysinit/pkgs/internal/git"
 )
 
-// gitExec runs a git command and returns its stdout. If the command fails,
-// the error wraps the subcommand name, repo path, and stderr content.
 func gitExec(repoPath string, args ...string) (string, error) {
-	fullArgs := append([]string{"-C", repoPath}, args...)
-	cmd := exec.Command("git", fullArgs...)
-	var stdout, stderr bytes.Buffer
-	cmd.Stdout = &stdout
-	cmd.Stderr = &stderr
-	err := cmd.Run()
-	if err != nil {
-		subcmd := ""
-		if len(args) > 0 {
-			subcmd = args[0]
-		}
-		return "", fmt.Errorf("git %s failed for %s: %s: %w", subcmd, repoPath, strings.TrimSpace(stderr.String()), err)
-	}
-	return strings.TrimSpace(stdout.String()), nil
+	return git.Output(repoPath, args...)
 }
 
-// IsGitRepo checks if a path is a git repository.
-func IsGitRepo(path string) bool {
-	_, err := gitExec(path, "rev-parse", "--git-dir")
-	return err == nil
-}
+func IsGitRepo(path string) bool { return git.IsRepo(path) }
 
-// GetRepoBasename returns the basename of a repository path.
 func GetRepoBasename(path string) string {
 	return filepath.Base(path)
 }
 
-// GetCurrentBranch returns the current branch name for a git repo or worktree.
 func GetCurrentBranch(path string) (string, error) {
-	return gitExec(path, "rev-parse", "--abbrev-ref", "HEAD")
+	return git.Branch(path)
 }
 
 // disambiguatedName generates a unique worktree directory name using bare basename.

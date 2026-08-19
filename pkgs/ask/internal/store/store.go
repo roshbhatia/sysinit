@@ -3,6 +3,8 @@ package store
 import (
 	"os"
 	"path/filepath"
+
+	"github.com/roshbhatia/sysinit/pkgs/internal/paths"
 )
 
 const (
@@ -12,11 +14,7 @@ const (
 )
 
 func Dir() string {
-	base := os.Getenv("XDG_STATE_HOME")
-	if base == "" {
-		base = filepath.Join(os.Getenv("HOME"), ".local", "state")
-	}
-	return filepath.Join(base, "ask")
+	return filepath.Join(paths.StateHome(), "ask")
 }
 
 func write(name string, data []byte) error {

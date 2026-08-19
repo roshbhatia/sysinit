@@ -104,10 +104,10 @@ go test ./...          # 19 packages
 go test -race ./...    # before committing
 ```
 
-The nix derivation runs the full suite as its check phase, so a failing test
-fails `nix flake check`. Do not set `subPackages` in `overlays/specutil.nix`.
-It narrows the check phase as well as the build, and `cmd/specutil` holds no
-tests. The build would pass having run nothing.
+`overlays/gotools.nix` runs `go test ./...` over the whole `pkgs/` module as
+its check phase, so a failing test here fails every tool's build. Do not set
+`subPackages` there. It narrows the check phase as well as the build, and the
+`main` packages hold no tests, so the build would pass having run nothing.
 
 Integration tests call `cli.NewRootCmd()` and `Execute()` directly, never
 `os/exec`. Fixtures live in `internal/cli/testdata/`; use `setupMinimalOpenspec`

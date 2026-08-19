@@ -9,9 +9,9 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/roshbhatia/seshy/internal/config"
-	"github.com/roshbhatia/seshy/internal/tmpl"
-	"github.com/roshbhatia/seshy/internal/ui"
+	"github.com/roshbhatia/sysinit/pkgs/internal/ui"
+	"github.com/roshbhatia/sysinit/pkgs/seshy/internal/config"
+	"github.com/roshbhatia/sysinit/pkgs/seshy/internal/tmpl"
 )
 
 // Run executes hook commands for the given event.

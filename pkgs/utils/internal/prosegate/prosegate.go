@@ -8,6 +8,8 @@ import (
 	"os/exec"
 	"path/filepath"
 	"strings"
+
+	"github.com/roshbhatia/sysinit/pkgs/internal/paths"
 )
 
 const Summary = "hold a Stop hook until the reply is short and in ASD-STE100"
@@ -87,15 +89,7 @@ func armDir() string {
 	if dir := os.Getenv("SYSINIT_PROSE_GATE_DIR"); dir != "" {
 		return dir
 	}
-	base := os.Getenv("XDG_STATE_HOME")
-	if base == "" {
-		home, err := os.UserHomeDir()
-		if err != nil {
-			return ""
-		}
-		base = filepath.Join(home, ".local", "state")
-	}
-	return filepath.Join(base, "sysinit", "prose-gate")
+	return filepath.Join(paths.StateHome(), "sysinit", "prose-gate")
 }
 
 func armPath(session string) string {

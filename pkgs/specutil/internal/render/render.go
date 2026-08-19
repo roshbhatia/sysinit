@@ -10,8 +10,8 @@ import (
 	"text/template"
 
 	sprig "github.com/Masterminds/sprig/v3"
-	"github.com/roshbhatia/specutil/internal/export"
-	"github.com/roshbhatia/specutil/internal/ir"
+	"github.com/roshbhatia/sysinit/pkgs/specutil/internal/export"
+	"github.com/roshbhatia/sysinit/pkgs/specutil/internal/ir"
 )
 
 //go:embed templates/*.tmpl

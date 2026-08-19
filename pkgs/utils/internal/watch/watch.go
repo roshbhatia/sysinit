@@ -13,7 +13,7 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/roshbhatia/sysinit/pkgs/utils/internal/paths"
+	"github.com/roshbhatia/sysinit/pkgs/internal/paths"
 	"github.com/roshbhatia/sysinit/pkgs/utils/internal/transcript"
 	"github.com/roshbhatia/sysinit/pkgs/utils/internal/worker"
 )

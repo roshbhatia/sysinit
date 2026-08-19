@@ -147,8 +147,8 @@ func TestGitExecErrorIncludesStderr(t *testing.T) {
 		t.Fatal("expected error for non-git directory")
 	}
 	errStr := err.Error()
-	if !strings.Contains(errStr, "git rev-parse failed for") {
-		t.Errorf("expected error to contain 'git rev-parse failed for', got: %s", errStr)
+	if !strings.Contains(errStr, "git rev-parse failed in") {
+		t.Errorf("expected error to contain 'git rev-parse failed in', got: %s", errStr)
 	}
 	// Should contain some git stderr content (e.g., "fatal: not a git repository")
 	if !strings.Contains(strings.ToLower(errStr), "fatal") && !strings.Contains(strings.ToLower(errStr), "not a git") {

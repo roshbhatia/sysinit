@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"sort"
 
-	"github.com/roshbhatia/specutil/internal/ir"
+	"github.com/roshbhatia/sysinit/pkgs/specutil/internal/ir"
 )
 
 type Node struct {

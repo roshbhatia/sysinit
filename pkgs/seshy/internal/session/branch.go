@@ -5,7 +5,7 @@ import (
 	"os/user"
 	"strings"
 
-	"github.com/roshbhatia/seshy/internal/tmpl"
+	"github.com/roshbhatia/sysinit/pkgs/seshy/internal/tmpl"
 )
 
 // RenderBranchName evaluates a Go template string with the given session and repo names.

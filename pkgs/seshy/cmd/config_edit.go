@@ -5,7 +5,7 @@ import (
 	"os"
 	"os/exec"
 
-	"github.com/roshbhatia/seshy/internal/config"
+	"github.com/roshbhatia/sysinit/pkgs/seshy/internal/config"
 	"github.com/spf13/cobra"
 )
 
