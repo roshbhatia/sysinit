@@ -207,11 +207,6 @@
               name = "sysinit-cache-bundle-${system}";
               paths = builtins.filter (p: p != null) (map (name: pkgs.${name} or null) cacheAttrs);
             };
-
-            # The first-party tools that used to be their own repositories, so
-            # `nix run github:roshbhatia/sysinit#seshy` still works now that the
-            # upstreams are archived.
-            inherit (pkgs) seshy specutil;
           }
         );
 
