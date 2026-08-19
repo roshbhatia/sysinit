@@ -134,7 +134,6 @@ in
         markdown-oxide
         meld
         mermaid-ascii
-        pplx
         pretty-mermaid
         proselint
         sad

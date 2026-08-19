@@ -44,7 +44,6 @@
   (import ./acp-amp.nix)
   (import ./codex-acp.nix)
   (import ./localias.nix)
-  (import ./pplx.nix)
   (import ./alerter.nix)
   (import ./sheets.nix)
   (

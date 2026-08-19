@@ -325,12 +325,8 @@ func liveChecks(url, doi string) error {
 	}
 
 	if run("curl", "-fsSL", "--max-time", "20", "-o", os.DevNull, "--", url) != nil {
-		if have("pplx") && run("pplx", "content", "fetch", url) == nil {
-			logf("live: curl could not confirm %s; pplx fetched it, treating as live", url)
-		} else {
-			logf("live: %s did not resolve (dead link or transient); treat as fail at capture", url)
-			return errors.New("not live")
-		}
+		logf("live: %s did not resolve (dead link or transient); treat as fail at capture", url)
+		return errors.New("not live")
 	}
 
 	if doi == "" {
