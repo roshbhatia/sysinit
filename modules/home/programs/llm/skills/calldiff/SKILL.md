@@ -19,7 +19,7 @@ the cache.
 22 languages, including TypeScript, JavaScript, Python, Go, Rust, Java, Ruby,
 C, C++, C#, Swift, Kotlin, Lua, Elixir, Bash, and Zig.
 
-**Nix is not one of them.** In `sysinit`, that rules out most of the tree.
+Nix is not one of them. In `sysinit`, that rules out most of the tree.
 calldiff answers `Entrypoint file not found` for a `.nix` path, which reads
 exactly like a typo. It is not one: the file is unindexed. Do not conclude that
 the file is empty, and do not retry with a different path.

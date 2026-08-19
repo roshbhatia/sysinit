@@ -70,8 +70,8 @@ upstream drift.
 - Adds the per-phase adversarial-review gate rule. The checkbox is required,
   and `specutil check` is mandatory. The model critic loop is optional. A
   skipped loop records `not run` without waiver language.
-- Adds the phase-shape rule. Each non-Rollout phase declares `- **SHAPE**
-  loop|graph`. A `loop` also declares `- **STOP**` and `- **MAX-ITERS**`. A
+- Adds the phase-shape rule. Each non-Rollout phase declares
+  `- **SHAPE** loop|graph`. A `loop` also declares `- **STOP**` and `- **MAX-ITERS**`. A
   `graph` subtask may carry a trailing `` `deps:` `` whose ids resolve to
   sibling subtasks. `specreview` enforces the markers. (`spec-driven-workflow-upgrades`.)
 - Adds the artifact-writing-standard rule: every artifact is written in
@@ -137,8 +137,8 @@ on a rename or removal, and the flake check fails on an added or moved site.
   version's behavior is not.
 
 ### schema.yaml: `artifacts[id=specs].instruction`
-- Adds a rule that each scenario declares polarity on a body line, as `-
-  **POLARITY** positive|negative`. The canonical `#### Scenario:` heading
+- Adds a rule that each scenario declares polarity on a body line, as
+  `- **POLARITY** positive|negative`. The canonical `#### Scenario:` heading
   stays, so openspec's archive parser does not drop it. `specreview` reads the
   declared marker instead of inferring polarity from prose.
 

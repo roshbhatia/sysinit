@@ -82,7 +82,7 @@ expansion. The `!` after the type marks a breaking change (`feat(auth)!:`).
 
 ## Ticket-id prefix inside the subject (standard when a ticket applies)
 
-This is the **default** whenever a tracker ticket is in scope. It mirrors the
+This is the default whenever a tracker ticket is in scope. It mirrors the
 global PR-title convention `<type>(<scope>): <TICKET>: <description>`, so a
 squash-merge title stays consistent. In the grounding corpus, 83% of subjects
 carried a tracker ticket ID:

@@ -7,7 +7,7 @@ effort: low
 
 # Code Search
 
-Four ways to search code on this machine, and they are **not** interchangeable.
+Four ways to search code on this machine, and they are not interchangeable.
 Picking the right one per query is the whole skill. The default reflex of
 reaching for `grep` is usually wrong here. ast-grep is the preferred tool for
 finding code, and `rg` is the fallback for literal text.
@@ -53,8 +53,8 @@ shape query written as a regex silently misses wrapped lines and hits comments.
 ## Language note: outline is narrower than ast-grep
 
 `ast-grep outline` covers the mainstream languages (TypeScript, JavaScript,
-Python, Go, Rust, and similar). It prints `nothing found` for **Nix** and
-**Lua**, which is most of `sysinit` and all of `sysinit.nvim`.
+Python, Go, Rust, and similar). It prints `nothing found` for Nix and
+Lua, which is most of `sysinit` and all of `sysinit.nvim`.
 
 `ast-grep` pattern search *does* parse Nix and Lua. So in this repo's Nix and in
 sysinit.nvim's Lua, skip step one and go straight to `ast-grep run -p ... -l nix`
@@ -63,7 +63,7 @@ is unsupported, not that the file is empty, do not conclude anything from it.
 
 ## 1. Builtin: `rg` / `grep` / `Glob` / `Read`
 
-The right tool when the query is **lexical**, not structural. That means a
+The right tool when the query is lexical, not structural. That means a
 literal string, a known symbol to locate, or an exact or glob path, with `Glob`
 for `**/*.test.ts`. It is also right when you need *every* hit: grep
 enumerates, and ast-grep and gh search rank.
@@ -94,9 +94,9 @@ sg scan                       # run the configured rule set
 sg run -p 'TODO' -l ts        # slower and clumsier than `rg TODO` — that is grep's job
 ```
 
-Two surfaces, one engine. The **CLI** is `sg run` and `sg scan`, where `sg`
-aliases `ast-grep`, and it gives ad-hoc text output. The **ast-grep MCP
-server** gives structured tool output instead of CLI text to parse.
+Two surfaces, one engine. The CLI is `sg run` and `sg scan`, where `sg`
+aliases `ast-grep`, and it gives ad-hoc text output. The ast-grep MCP
+server gives structured tool output instead of CLI text to parse.
 
 ## 2a. Find and replace: ast-grep drives it, not Edit
 
@@ -141,14 +141,14 @@ A pattern that misses is worse than no pattern: it reads as "no matches" when th
 syntax was just wrong. For anything past a one-liner, drive the ast-grep MCP loop
 instead of hand-writing YAML blind:
 
-1. **Dump the AST** of a representative snippet (`dump_syntax_tree`) so you match
+1. Dump the AST of a representative snippet (`dump_syntax_tree`) so you match
    real node kinds, not guessed ones.
-2. **Decompose** the query into the smallest sub-patterns that must hold.
-3. **Compose** them with relational (`inside`, `has`, `follows`) / composite
+2. Decompose the query into the smallest sub-patterns that must hold.
+3. Compose them with relational (`inside`, `has`, `follows`) / composite
    (`all`, `any`, `not`) rules rather than one over-specified pattern.
-4. **Test** each candidate against a known-good and known-bad snippet
+4. Test each candidate against a known-good and known-bad snippet
    (`test_match_code_rule`) before running it across the tree.
-5. **Revise** off the AST output when a match is empty or over-broad. A miss is
+5. Revise off the AST output when a match is empty or over-broad. A miss is
    a wrong node kind or a missing metavariable, never "the code isn't there."
 
 ## 3. gh search: repo-wide / org-wide / not-cloned

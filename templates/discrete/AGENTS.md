@@ -4,7 +4,7 @@ Nix-flakes configuration for discrete host setup consuming `roshbhatia/sysinit`.
 
 ## Repository Structure
 
-**Minimal Nix flake layout:**
+## Minimal Nix flake layout
 - `flake.nix` - Entry point consuming sysinit as input
 - `hosts/` - Host configuration (update `default.nix` for your system)
 - `modules/` - Host-specific module overrides (darwin, nixos, overlays)

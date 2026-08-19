@@ -57,16 +57,16 @@ actions still apply. A critic result never represents owner or peer approval.
 Route on what the review needs, not on what the harness offers. Fresh context
 is the point of the exercise, so the capability question is only a fallback.
 
-1. **Already a critic**, your instructions carry the `ADVERSARIAL-CRITIC-ROLE`
+1. Already a critic, your instructions carry the `ADVERSARIAL-CRITIC-ROLE`
    sentinel. You are a {{agent}} spawned for review. Do NOT spawn more critics
    (recursion guard). Produce your own objection and return.
-2. **Fresh-context {{agents}}, THE DEFAULT.** A Task/Agent mechanism exists.
+2. Fresh-context {{agents}}: THE DEFAULT. A Task/Agent mechanism exists.
    Spawn N critic {{agents}}, one per lens, each with its own context.
-3. **Shared-context {{agents}}**, use ONLY when a critic must observe live
+3. Shared-context {{agents}}, use ONLY when a critic must observe live
    session state that is not on disk. That means an unsaved buffer, a running
    process, or a value that exists solely in this conversation. Name that
    reason in the round record. If the work is on disk, this path is wrong.
-4. **No {{agent}} capability**, run N sequential critique passes, each in a
+4. No {{agent}} capability, run N sequential critique passes, each in a
    fresh reasoning context with authorship hidden.
 
 Prefer path 2 over path 3 for correctness, not cost. A critic that shares the
@@ -167,11 +167,11 @@ than that. Fix every violation before the critic loop.
 
 ## The loop (summary: reference has the sourced detail)
 
-1. **Bind the rubric.** For an OpenSpec change, the rubric is the proposal's
+1. Bind the rubric. For an OpenSpec change, the rubric is the proposal's
    `Behavior` criteria and `Non-goals`, plus the design `Decisions` and
    `Rollout & Gating`. A critic MUST cite the rubric item it believes is
    violated.
-2. **Spawn N=3 independent critics**, authorship hidden, one lens each (rotate
+2. Spawn N=3 independent critics, authorship hidden, one lens each (rotate
    across rounds: correctness, security, ops/rollback, cost, data-migration,
    citation). The `citation` lens adjudicates whether a pinned quote supports
    its claim, as SUPPORTS, CONTRADICTS, or UNRELATED over the snapshot. It MAY
@@ -183,11 +183,11 @@ than that. Fix every violation before the critic loop.
    Each critic contract: "Produce a concrete scenario in which this artifact
    fails. Name the violated rubric item. If you cannot, reply `NO SURVIVING
    OBJECTION`."
-3. **Keep only objections with a concrete failing scenario**, reproducible
+3. Keep only objections with a concrete failing scenario, reproducible
    conditions or an isolated verification question. Reject prose-only comments.
-4. **Revise** the artifact against surviving objections only. The author
+4. Revise the artifact against surviving objections only. The author
    revises. A critic never both blesses and rewrites unaided.
-5. **Repeat.**
+5. Repeat.
 
 ## The loop is a state machine; run it as one
 

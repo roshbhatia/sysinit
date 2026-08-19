@@ -5,8 +5,8 @@ allowed-tools: Read Write Edit Glob Bash(bash:*) Bash(jq:*) Bash(git:*) Agent
 
 # Worklog
 
-Turns the append-only worklog into a human report: **"what did we accomplish
-today"** across every Claude Code session, spanning all repos. Sessions are
+Turns the append-only worklog into a human report: "what did we accomplish
+today" across every Claude Code session, spanning all repos. Sessions are
 otherwise isolated; this is the one place their work is collated.
 
 ## Decision routing
@@ -26,7 +26,7 @@ A `SessionEnd` hook appends one JSON line per session to
 `harnesses/claude/worklog-hook.py`, run via uv. `$CLAUDE_WORKLOG_FILE`
 overrides the path. The hook is dumb, it records pointers and cheap facts,
 never a summary. It skips `resume` and bare directories with no prompt, so every
-line carries real work. A **schema v2** line:
+line carries real work. A schema v2 line:
 
 ```json
 {
@@ -64,7 +64,7 @@ line carries real work. A **schema v2** line:
 }
 ```
 
-Git context **always** lives in `repos[]`, there is no scalar `repo`/`branch`/
+Git context always lives in `repos[]`, there is no scalar `repo`/`branch`/
 `head`. `kind` only selects grouping:
 
 - `repo`, `cwd` was a single git worktree; `repos[]` has one entry.
@@ -73,9 +73,9 @@ Git context **always** lives in `repos[]`, there is no scalar `repo`/`branch`/
   `session_name`; `repos[]` holds one entry per nested git child.
 - `dir`, neither; `repos[]` is empty (survived only because it had a `first_prompt`).
 
-**Session signal** (v2): `duration_min`, `user_turns`, and `model` size the
+Session signal (v2): `duration_min`, `user_turns`, and `model` size the
 effort; `first_prompt`/`last_prompt` bracket the intent (where it started, where
-it ended). **Per-repo signal**. `commits[]` holds subjects, at most 30, newest
+it ended). Per-repo signal: `commits[]` holds subjects, at most 30, newest
 first, and `files[]` holds name-status, at most 50. Those two are *what changed
 in words*. `commits_ahead`, `insertions`, `deletions`, and `diffstat` are *how
 much*. All are measured against `base`, which is `origin/<base>` for a feature
@@ -133,7 +133,7 @@ sed -i 's/"summary":null/"summary":"..."/' ~/.local/state/agents/worklog.jsonl
 
 ### 3. Compose
 
-Markdown grouped **by date, then unit of work**, newest first. The unit is
+Markdown grouped by date, then unit of work, newest first. The unit is
 `repos[0].name` for `kind: repo`, and `session_name` for `kind: seshy-session`
 (one heading spanning its `repos[]`, not one per repo). Within a unit, order
 repos by signal (`commits_ahead`, then `insertions` + `deletions`); link repo
@@ -158,7 +158,7 @@ repos). Do not pad thin days, terseness is the point.
 
 ### 4. Outcomes (only when asked, or when an MCP is connected)
 
-Map activity to tracked work; join key is **time window + repo + branch**.
+Map activity to tracked work; join key is time window plus repo plus branch.
 
 ```
 # good — resolve real status, flag the gaps

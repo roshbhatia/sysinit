@@ -7,7 +7,7 @@ effort: low
 
 # Seshy
 
-Minimalist, multi-repo session manager built on **git worktrees**, not tmux.
+Minimalist, multi-repo session manager built on git worktrees, not tmux.
 The binary is `sy`, not `seshy`, the project name is seshy but the CLI is short.
 
 ## Mental model

@@ -47,26 +47,26 @@ questions.
 
 Sections in order.
 
-1. **Summary**, One paragraph. The proposal in a sentence or two.
-2. **Motivation**, The problem and concrete use cases. Why now, why this is
+1. Summary: One paragraph. The proposal in a sentence or two.
+2. Motivation: The problem and concrete use cases. Why now, why this is
    worth a decision. Generalized from the Rust template; no "Rust users".
-3. **Guide-level explanation**, Teach the idea *as if it already shipped*:
+3. Guide-level explanation: Teach the idea *as if it already shipped*:
    examples, the mental model, how someone encounters it day to day. This pass
    is the RFC's distinctive value, if you cannot teach it cleanly, the design
    is not ready. Replace "the language / Rust" with the system or product.
-4. **Reference-level explanation**, The precise technical design: interfaces,
+4. Reference-level explanation: The precise technical design: interfaces,
    interactions with existing parts, edge cases, failure modes. This is the
    spec a builder would implement from. Pair claims with validation here.
-5. **Drawbacks**, Honest reasons not to do this.
-6. **Rationale and alternatives**, Why *this* design; what other designs were
+5. Drawbacks: Honest reasons not to do this.
+6. Rationale and alternatives: Why *this* design; what other designs were
    considered and why they lose; the cost of doing nothing.
-7. **Prior art**, How others (other teams, products, languages, papers) solved
+7. Prior art: How others (other teams, products, languages, papers) solved
    the same problem, and what was learned. Distinct from Alternatives: prior
    art is what exists elsewhere, alternatives are designs you weighed yourself.
-8. **Unresolved questions**, What this RFC deliberately leaves open for review
+8. Unresolved questions: What this RFC deliberately leaves open for review
    to settle, and what is out of scope for it entirely. Frame the asks as
    decision contracts.
-9. **Future possibilities**, Natural extensions noted but explicitly not in
+9. Future possibilities: Natural extensions noted but explicitly not in
    scope now. This is the out-list, naming it reads as a decision, not a gap.
 
 ## Doc frontmatter
