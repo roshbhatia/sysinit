@@ -41,7 +41,7 @@ Call `git.Output` rather than `exec.Command("git", ...)`.
 
 ## Build
 
-`overlays/gotools.nix` builds the whole module once as `sysinit-gotools`, then
+`overlays/sysinit-gotools.nix` builds the whole module once as `sysinit-gotools`, then
 publishes `seshy`, `specutil`, `ask`, and `sysinit-utils` as symlink or wrapper
 selections over its `bin/`. A change to any tool rebuilds all four, which takes
 seconds.
@@ -49,12 +49,12 @@ seconds.
 Do not set `subPackages`. It narrows the check phase as well as the build, and
 the `main` packages hold no tests, so the build would pass having run nothing.
 
-`go test ./...` covers every tool, and `overlays/gotools.nix` runs it as the
+`go test ./...` covers every tool, and `overlays/sysinit-gotools.nix` runs it as the
 check phase. A test that shells out to `git` works, because `git` is in
 `nativeCheckInputs`.
 
 ## Adding a tool
 
 Add `pkgs/<name>/` with a `main` package, add its requires to `pkgs/go.mod`,
-refresh the vendor hash, and add a `select` entry in `overlays/gotools.nix`.
+refresh the vendor hash, and add a `select` entry in `overlays/sysinit-gotools.nix`.
 The binary is named after the directory holding `package main`.

@@ -1,6 +1,8 @@
 final: _prev:
 let
-  gotools = final.buildGoModule {
+  # Not `gotools`. That name is taken by the nixpkgs package holding goimports
+  # and godoc, which modules/home/packages.nix installs.
+  sysinit-gotools = final.buildGoModule {
     pname = "sysinit-gotools";
     version = "0.1.0";
 
@@ -22,20 +24,20 @@ let
       names,
       meta,
     }:
-    final.runCommand "${pname}-${gotools.version}"
+    final.runCommand "${pname}-${sysinit-gotools.version}"
       {
         inherit meta;
-        passthru = { inherit gotools; };
+        passthru = { inherit sysinit-gotools; };
       }
       ''
         mkdir -p "$out/bin"
         ${final.lib.concatMapStringsSep "\n" (name: ''
-          ln -s "${gotools}/bin/${binary}" "$out/bin/${name}"
+          ln -s "${sysinit-gotools}/bin/${binary}" "$out/bin/${name}"
         '') names}
       '';
 in
 {
-  inherit gotools;
+  inherit sysinit-gotools;
 
   seshy = select {
     pname = "seshy";
@@ -70,7 +72,7 @@ in
         final.lib.splitString "\n" (builtins.readFile ../pkgs/ask/wrappers.txt)
       );
     in
-    final.runCommand "ask-${gotools.version}"
+    final.runCommand "ask-${sysinit-gotools.version}"
       {
         nativeBuildInputs = [ final.installShellFiles ];
         meta = {
@@ -83,7 +85,7 @@ in
         ''
           mkdir -p "$out/bin"
           for name in ask ${final.lib.escapeShellArgs wrappers}; do
-            ln -s "${gotools}/bin/ask" "$out/bin/$name"
+            ln -s "${sysinit-gotools}/bin/ask" "$out/bin/$name"
           done
         ''
         + final.lib.optionalString (final.stdenv.buildPlatform.canExecute final.stdenv.hostPlatform) ''
@@ -130,7 +132,7 @@ in
 
       proseStyle = "${final.vale-styles}/vale.ini";
     in
-    final.runCommand "utils-${gotools.version}"
+    final.runCommand "utils-${sysinit-gotools.version}"
       {
         nativeBuildInputs = [ final.makeBinaryWrapper ];
         meta = {
@@ -141,11 +143,11 @@ in
       }
       ''
         mkdir -p "$out/bin"
-        makeWrapper "${gotools}/bin/utils" "$out/bin/utils" \
+        makeWrapper "${sysinit-gotools}/bin/utils" "$out/bin/utils" \
           --prefix PATH : "${runtimePath}" \
           --set-default SYSINIT_PROSE_STYLE "${proseStyle}"
         ${final.lib.concatMapStringsSep "\n" (name: ''
-          makeWrapper "${gotools}/bin/utils" "$out/bin/${name}" \
+          makeWrapper "${sysinit-gotools}/bin/utils" "$out/bin/${name}" \
             --argv0 "${name}" \
             --prefix PATH : "${runtimePath}" \
             --set-default SYSINIT_PROSE_STYLE "${proseStyle}"

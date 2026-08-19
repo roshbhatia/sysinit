@@ -104,7 +104,7 @@ go test ./...          # 19 packages
 go test -race ./...    # before committing
 ```
 
-`overlays/gotools.nix` runs `go test ./...` over the whole `pkgs/` module as
+`overlays/sysinit-gotools.nix` runs `go test ./...` over the whole `pkgs/` module as
 its check phase, so a failing test here fails every tool's build. Do not set
 `subPackages` there. It narrows the check phase as well as the build, and the
 `main` packages hold no tests, so the build would pass having run nothing.

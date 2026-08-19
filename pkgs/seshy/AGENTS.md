@@ -72,11 +72,11 @@ is the same value `pkgs/internal/paths` reads back under
 ## Version
 
 `cmd/root.go` holds `const version`, which `sy --version` prints. The store
-path no longer carries it, because `overlays/gotools.nix` builds every tool
+path no longer carries it, because `overlays/sysinit-gotools.nix` builds every tool
 under one version.
 
 ## Build
 
-`overlays/gotools.nix` builds the binary as `seshy` and exposes it as `sy`,
+`overlays/sysinit-gotools.nix` builds the binary as `seshy` and exposes it as `sy`,
 because every caller invokes `sy`. The unit tests shell out to `git`, so `git`
 stays in that derivation's `nativeCheckInputs`.

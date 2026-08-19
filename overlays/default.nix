@@ -20,7 +20,7 @@
   (import ./inputs.nix { inherit inputs; })
   (import ./meat.nix { inherit inputs; })
   (import ./hermes-agent.nix { inherit inputs; })
-  (import ./gotools.nix)
+  (import ./sysinit-gotools.nix)
   (import ./calldiff.nix)
   (import ./python313.nix)
   (import ./kubernetes-zeitgeist.nix)
