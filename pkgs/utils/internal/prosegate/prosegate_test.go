@@ -11,6 +11,11 @@ import (
 
 func runRemind(t *testing.T, session string) string {
 	t.Helper()
+	return runRemindPrompt(t, session, "")
+}
+
+func runRemindPrompt(t *testing.T, session, prompt string) string {
+	t.Helper()
 	var out bytes.Buffer
 	stdout := os.Stdout
 	r, w, err := os.Pipe()
@@ -18,7 +23,7 @@ func runRemind(t *testing.T, session string) string {
 		t.Fatalf("pipe: %v", err)
 	}
 	os.Stdout = w
-	event, err := json.Marshal(map[string]string{"session_id": session})
+	event, err := json.Marshal(map[string]string{"session_id": session, "prompt": prompt})
 	if err != nil {
 		t.Fatalf("marshal: %v", err)
 	}
@@ -65,6 +70,38 @@ func TestRemindHonoursTheOffSwitch(t *testing.T) {
 	t.Setenv("SYSINIT_PROSE_GATE", "off")
 	if out := runRemind(t, "s2"); strings.TrimSpace(out) != "" {
 		t.Fatalf("SYSINIT_PROSE_GATE=off must silence the reminder, got %q", out)
+	}
+}
+
+func TestNotersePromptExemptsTheTurn(t *testing.T) {
+	t.Setenv("SYSINIT_PROSE_GATE_DIR", t.TempDir())
+	const session = "s3"
+
+	if out := runRemindPrompt(t, session, "explain the overlay NOTERSE"); strings.TrimSpace(out) != "" {
+		t.Fatalf("the escape word must silence the reminder, got %q", out)
+	}
+	if !release(session) {
+		t.Fatal("the escape must reach the Stop hook")
+	}
+	if release(session) {
+		t.Fatal("the escape must last one turn only")
+	}
+}
+
+func TestNotersePromptDoesNotSpendTheArming(t *testing.T) {
+	t.Setenv("SYSINIT_PROSE_GATE_DIR", t.TempDir())
+	const session = "s4"
+
+	runRemindPrompt(t, session, "explain the overlay noterse")
+	if out := runRemind(t, session); !strings.Contains(out, "Answer shape") {
+		t.Fatalf("the next ordinary prompt must still carry the reminder, got %q", out)
+	}
+}
+
+func TestNoterseMustBeTheLastWord(t *testing.T) {
+	t.Setenv("SYSINIT_PROSE_GATE_DIR", t.TempDir())
+	if out := runRemindPrompt(t, "s5", "why does noterse exist"); !strings.Contains(out, "Answer shape") {
+		t.Fatalf("the word mid-prompt must not exempt the turn, got %q", out)
 	}
 }
 

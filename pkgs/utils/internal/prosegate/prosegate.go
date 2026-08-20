@@ -22,7 +22,8 @@ Usage:
                        so only a fault with no mechanical rewrite costs thought.
   prose-gate remind    UserPromptSubmit hook. Prints the shape on the first
                        prompt of a session, and again after the gate has blocked
-                       a reply. Silent otherwise.
+                       a reply. Silent otherwise. A prompt ending in "noterse"
+                       skips the reminder and the next check.
   prose-gate session   SessionStart hook. Prints the context rules, which a fresh
                        or compacted session has just lost.
   prose-gate subagent  SubagentStop hook. Blocks a teammate report that returns
@@ -53,6 +54,7 @@ type stopEvent struct {
 	StopHookActive       bool   `json:"stop_hook_active"`
 	AgentType            string `json:"agent_type"`
 	SessionID            string `json:"session_id"`
+	Prompt               string `json:"prompt"`
 }
 
 type blockDecision struct {
@@ -111,6 +113,52 @@ func arm(session string) {
 		return
 	}
 	_ = os.WriteFile(path, []byte("armed\n"), 0o644)
+}
+
+// The escape word comes from bigskysoftware/be-terse, which drops its injection
+// when a prompt ends in "noterse". Here the injection is only half the gate, so
+// the word has to reach the Stop hook as well: a reminder the user opted out of,
+// followed by a block for the style they opted out of, is worse than neither.
+// remind writes the marker and check spends it, so the escape lasts one turn.
+func escapePath(session string) string {
+	path := armPath(session)
+	if path == "" {
+		return ""
+	}
+	return path + ".noterse"
+}
+
+// noterse reports whether the prompt's last word is the escape word.
+func noterse(prompt string) bool {
+	fields := strings.Fields(prompt)
+	if len(fields) == 0 {
+		return false
+	}
+	return strings.EqualFold(fields[len(fields)-1], "noterse")
+}
+
+func escape(session string) {
+	path := escapePath(session)
+	if path == "" {
+		return
+	}
+	if os.MkdirAll(filepath.Dir(path), 0o755) != nil {
+		return
+	}
+	_ = os.WriteFile(path, []byte("noterse\n"), 0o644)
+}
+
+// release reports whether this reply is exempt, and spends the exemption.
+func release(session string) bool {
+	path := escapePath(session)
+	if path == "" {
+		return false
+	}
+	if _, err := os.Stat(path); err != nil {
+		return false
+	}
+	_ = os.Remove(path)
+	return true
 }
 
 // disarm reports whether the reminder is due, and clears the arming if it is.
@@ -262,6 +310,9 @@ func check(stdin io.Reader) int {
 	if ev.StopHookActive || ev.LastAssistantMessage == "" {
 		return 0
 	}
+	if release(ev.SessionID) {
+		return 0
+	}
 
 	if len(findings(ev.LastAssistantMessage)) == 0 {
 		return 0
@@ -288,6 +339,10 @@ func remind(stdin io.Reader) int {
 	var ev stopEvent
 	if data, err := io.ReadAll(stdin); err == nil {
 		_ = json.Unmarshal(data, &ev)
+	}
+	if noterse(ev.Prompt) {
+		escape(ev.SessionID)
+		return 0
 	}
 	if !disarm(ev.SessionID) {
 		return 0
