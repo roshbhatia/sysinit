@@ -209,6 +209,20 @@ rules: {
 		raw: ["(?i)(it'?s worth noting|it is worth noting|this is nuanced|it could be argued|i should note that)"]
 	}
 
+	// Announcing the plan instead of reporting the result. Claude Code's built-in
+	// Concise style names this and the output style now carries it, so this rule
+	// is what makes it hold.
+	//
+	// The verbs after "let me" are enumerated rather than matched as `\w+`,
+	// because "let me know" is Slop.Assistant's and a phrase caught twice trips
+	// maxTells on a single slip. Vale's regexes are RE2, so a negative lookahead
+	// is not available to exclude it.
+	Narration: #Existence & {
+		message: "narration: report the outcome, not the plan"
+		level:   "error"
+		raw: ["(?i)(\\blet me\\s+(?:check|look|read|start|first|now|run|see|search|find|fix|update|add|verify|confirm|trace|inspect|dig|grep|scan|open|write|create|make|try|walk|explain)\\b|\\b(?:now|first|next|then),?\\s+(?:i'?ll|i\\s+will|let\\s+me)\\b|\\bi'?ll\\s+(?:now|go\\s+ahead|start\\s+by|begin\\s+by)\\b|\\bi'?m\\s+going\\s+to\\b)"]
+	}
+
 	// Slop.Assistant covers the same ground and is switched on in `ini`, but it
 	// does not replace this rule. Measured against the four openers here it
 	// caught one: its tokens want `certainly!` and `of course!` with the
