@@ -23,7 +23,6 @@ let
   integrationsCompletions = shellUtils.stripHeaders ./integrations/completions.zsh;
   integrationsExtras = shellUtils.stripHeaders ./integrations/extras.zsh;
   seshyWezterm = shellUtils.stripHeaders ./integrations/seshy-wezterm.zsh;
-  sshMux = shellUtils.stripHeaders ./integrations/ssh-mux.zsh;
   askCapture = shellUtils.stripHeaders ./integrations/ask.zsh;
   libCache = shellUtils.stripHeaders ./lib/cache.zsh;
 in
@@ -150,7 +149,6 @@ in
 
       (lib.mkOrder 700 ''
         ${seshyWezterm}
-        ${sshMux}
         ${askCapture}
       '')
     ];
