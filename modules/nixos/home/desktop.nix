@@ -11,40 +11,6 @@ let
   c = themeColors;
   mod = "Mod1";
 
-  rofi1password = pkgs.writeShellScript "rofi-1password" ''
-    set -euo pipefail
-
-    if ! ${pkgs._1password-cli}/bin/op account list &>/dev/null; then
-      ${pkgs.libnotify}/bin/notify-send "1Password" "Not signed in. Run: op signin" --urgency=critical
-      exit 1
-    fi
-
-    ITEM=$(${pkgs._1password-cli}/bin/op item list --format=json 2>/dev/null \
-      | ${pkgs.jq}/bin/jq -r '.[] | "\(.title) [\(.category)]"' \
-      | ${pkgs.rofi}/bin/rofi -dmenu -p "  1Password" -i) || exit 0
-
-    [ -z "$ITEM" ] && exit 0
-
-    TITLE=$(echo "$ITEM" | ${pkgs.gnused}/bin/sed 's/ \[.*\]$//')
-
-    FIELD=$(printf "password\nusername\notp" | ${pkgs.rofi}/bin/rofi -dmenu -p "Copy field") || exit 0
-
-    [ -z "$FIELD" ] && exit 0
-
-    if [ "$FIELD" = "otp" ]; then
-      VALUE=$(${pkgs._1password-cli}/bin/op item get "$TITLE" --otp 2>/dev/null)
-    else
-      VALUE=$(${pkgs._1password-cli}/bin/op item get "$TITLE" --fields "$FIELD" 2>/dev/null)
-    fi
-
-    if [ -n "$VALUE" ]; then
-      echo -n "$VALUE" | ${pkgs.wl-clipboard}/bin/wl-copy
-      ${pkgs.libnotify}/bin/notify-send "1Password" "Copied $FIELD for $TITLE"
-    else
-      ${pkgs.libnotify}/bin/notify-send "1Password" "No $FIELD found for $TITLE" --urgency=critical
-    fi
-  '';
-
   wallpaper = pkgs.fetchurl {
     url = "https://wallpapercave.com/wp/wp12329549.png";
     sha256 = "sha256-9R3cDgd1VslCF6mG6jBO64MEdRjCGzWE4m/dAjEixzk=";
@@ -60,7 +26,7 @@ in
       config = {
         modifier = mod;
         terminal = "${pkgs.wezterm}/bin/wezterm start";
-        menu = "${pkgs.rofi}/bin/rofi -show drun";
+        menu = "${pkgs.walker}/bin/walker";
 
         fonts = {
           names = lib.mkForce [ "${config.sysinit.theme.font.monospace}" ];
@@ -115,7 +81,6 @@ in
           { command = "dbus-update-activation-environment --systemd --all"; }
           { command = "systemctl --user import-environment WAYLAND_DISPLAY XDG_CURRENT_DESKTOP"; }
           { command = "${pkgs.polkit_gnome}/libexec/polkit-gnome-authentication-agent-1"; }
-          { command = "${pkgs.wl-clipboard}/bin/wl-paste --watch ${pkgs.cliphist}/bin/cliphist store"; }
           { command = "nm-applet --indicator"; }
           {
             command = "sh -c 'if [ -f ${config.home.homeDirectory}/.background-image ]; then swaymsg output \\* bg ${config.home.homeDirectory}/.background-image fill; else swaymsg output \\* bg ${wallpaper} fill; fi'";
@@ -182,9 +147,9 @@ in
         keybindings = lib.mkForce {
           "${mod}+Return" = "exec ${pkgs.sysinit-utils}/bin/wezspawn --wezterm ${pkgs.wezterm}/bin/wezterm";
 
-          "Mod4+space" = "exec ${pkgs.rofi}/bin/rofi -show drun";
+          "Mod4+space" = "exec ${pkgs.walker}/bin/walker";
 
-          "Mod4+Shift+space" = "exec ${rofi1password}";
+          "Mod4+Shift+space" = "exec ${pkgs.walker}/bin/walker -m 1password";
 
           "Mod4+q" = "kill";
           "Mod4+Control+q" = "exec swaymsg exit";
@@ -227,11 +192,10 @@ in
 
           "${mod}+g" = "mode locked";
 
-          "Mod4+Tab" = "exec ${pkgs.rofi}/bin/rofi -show window";
-          "Mod4+Shift+Tab" = "exec ${pkgs.rofi}/bin/rofi -show window";
+          "Mod4+Tab" = "exec ${pkgs.walker}/bin/walker -m menus:windows";
+          "Mod4+Shift+Tab" = "exec ${pkgs.walker}/bin/walker -m menus:windows";
 
-          "${mod}+Shift+v" =
-            "exec ${pkgs.cliphist}/bin/cliphist list | ${pkgs.rofi}/bin/rofi -dmenu | ${pkgs.cliphist}/bin/cliphist decode | ${pkgs.wl-clipboard}/bin/wl-copy";
+          "${mod}+Shift+v" = "exec ${pkgs.walker}/bin/walker -m clipboard";
 
           "Mod4+Shift+c" =
             "exec ${pkgs.hyprpicker}/bin/hyprpicker -a -n && ${pkgs.libnotify}/bin/notify-send \"Color Picker\" \"Hex code copied to clipboard\" -i color-management";
@@ -495,10 +459,6 @@ in
         #battery.charging { color: #${c.base0B}; }
         #pulseaudio.muted { color: #${c.base03}; }
       '';
-    };
-    rofi = {
-      enable = true;
-      terminal = "${pkgs.wezterm}/bin/wezterm start";
     };
   };
 
