@@ -332,6 +332,12 @@ func check(stdin io.Reader) int {
 	return 0
 }
 
+// Claude Code re-states a built-in output style on every turn, from that style's
+// `turnReminder` field. It does not do this for a custom style: the renderer
+// looks the active style up in the built-in table and returns nothing when the
+// name is absent, so `sysinit-ste` is stated once at session start and never
+// again. This reminder is that missing per-turn line, which is why it names the
+// style rather than only its rules.
 func remind(stdin io.Reader) int {
 	if os.Getenv("SYSINIT_PROSE_GATE") == "off" {
 		return 0
@@ -348,7 +354,7 @@ func remind(stdin io.Reader) int {
 		return 0
 	}
 	return inject("UserPromptSubmit",
-		"Answer shape: what changed, why, next action. ASD-STE100, one sentence under 25 words per instruction. No em-dash, no preamble, no closing summary. Use a list when it carries the answer better.")
+		"The sysinit-ste output style is active. Follow it. Answer shape: what changed, why, next action. One sentence under 25 words per instruction. No em-dash, no preamble, no plan announcement, no closing summary. Keep an error, a failing test, or a destructive-action confirmation whole.")
 }
 
 // The output style is already loaded at this point and sits in the same position
