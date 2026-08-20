@@ -55,6 +55,15 @@ in
           User = "rshnbhatia";
         };
 
+        # The work Mac. Its tailnet name is set with `tailscale set --hostname`
+        # rather than derived from the macOS name, which is a serial this public
+        # repo should not carry. nix-darwin's tailscale module exposes no
+        # hostname option, so that rename lives on the machine, not here.
+        "urth" = beforeStork {
+          HostName = "urth.stork-eel.ts.net";
+          User = "roshan";
+        };
+
         "huey" = beforeTaila {
           HostName = "huey.taila415c.ts.net";
           User = "rosh";
