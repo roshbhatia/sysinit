@@ -301,6 +301,10 @@ local function prepare()
     nested = #stack > 1,
     inpage = not list.indexed,
     shell = list.shell ~= nil,
+    -- Whether `:` opens the emoji list, and how recently each was picked. The
+    -- emoji themselves went over once, at setup.
+    emoji = list.pick ~= nil,
+    recent = list.recent or {},
     hints = list.hints,
     -- Carried on every open rather than pushed when it changes, because it only
     -- ever changes while the panel is hidden.
@@ -399,6 +403,11 @@ local function received(message)
           view:evaluateJavaScript("setPreview(" .. hs.json.encode({ index = body.index, html = html }) .. ")")
         end
       end)
+    end
+  elseif body.action == "pick" then
+    M.hide()
+    if list and list.pick then
+      list.pick({ cp = body.cp or "", code = body.code or "" })
     end
   elseif body.action == "shell" then
     M.hide()
@@ -510,6 +519,19 @@ function M.prewarm()
       warming = false
       view:hide()
     end)
+  end)
+end
+
+-- The emoji dataset, sent once. It is about a megabyte and never changes while
+-- Hammerspoon is running, so it does not ride along with every open the way the
+-- pick counts do.
+---@param rows table[]
+function M.emoji(rows)
+  if #rows == 0 then
+    return
+  end
+  ready(function()
+    view:evaluateJavaScript("setEmoji(" .. hs.json.encode(rows) .. ")")
   end)
 end
 

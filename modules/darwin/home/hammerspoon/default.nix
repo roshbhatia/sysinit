@@ -7,6 +7,7 @@
 
 let
   home = config.home.homeDirectory;
+  emojiData = import ./emoji.nix { inherit pkgs; };
   themeLib = import ../../../shared/theme-colors.nix { inherit lib; };
   c = themeLib.colorsOf config;
   slots = [
@@ -51,6 +52,9 @@ let
     sy = "/etc/profiles/per-user/${config.home.username}/bin/sy";
     fftabs = "${pkgs.sysinit-utils}/bin/firefox-tabs";
     bat = "${pkgs.bat}/bin/bat";
+    # Read by the launcher's `:` mode. Built from the same CLDR annotations
+    # arrakis reads through elephant, so a shortcode resolves the same on both.
+    emoji = "${emojiData}";
     # What a `!` command in the launcher is run by.
     shell = "${pkgs.zsh}/bin/zsh";
     fzf = "${pkgs.fzf}/bin/fzf";

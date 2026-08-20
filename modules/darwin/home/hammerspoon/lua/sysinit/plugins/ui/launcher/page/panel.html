@@ -283,6 +283,17 @@
         border-radius: 4px;
       }
 
+      /* The emoji is the row's mark, so it is drawn at the size of an app icon and
+         without the badge's chip behind it. */
+      .row .emoji {
+        flex: 0 0 20px;
+        width: 20px;
+        height: 20px;
+        font-size: 17px;
+        line-height: 20px;
+        text-align: center;
+      }
+
       .row .badge {
         flex: 0 0 20px;
         width: 20px;
@@ -523,6 +534,11 @@
       let inpage = true;
       // Whether a query starting with `!` is a command for this list to run.
       let shell = false;
+      // Whether a query starting with `:` is an emoji search. `emoji` is the whole dataset,
+      // pushed once; `recent` is when each was last picked and arrives with every open.
+      let emojiOn = false;
+      let emoji = [];
+      let recent = {};
       let asked = null;
       // fzf replies out of order, so a query is stamped and a reply that comes back after a
       // newer keystroke is dropped rather than drawn.
@@ -603,6 +619,50 @@
         ];
       }
 
+      // A query that opens with `:` searches emoji by shortcode and by CLDR keyword. An
+      // exact shortcode wins, then a prefix, then a substring; within a tier the more
+      // recently picked comes first. Nothing is scored when the query is bare `:`, so the
+      // list opens on what was picked before and nothing else.
+      const EMOJI_CAP = 200;
+
+      function emojiRows(query) {
+        const term = query.slice(1).trim().toLowerCase().replace(/:$/, "");
+        const hits = [];
+        for (let index = 0; index < emoji.length; index++) {
+          const row = emoji[index];
+          let tier;
+          if (term === "") {
+            // Recency is the only ranking an empty query has, so an emoji never picked
+            // has nothing to sort by and is left out rather than listed arbitrarily.
+            if (!recent[row.code]) {
+              continue;
+            }
+            tier = 0;
+          } else if (row.code === term) {
+            tier = 0;
+          } else if (row.code.startsWith(term)) {
+            tier = 1;
+          } else {
+            const at = row.search.indexOf(term);
+            if (at < 0) {
+              continue;
+            }
+            // A term that starts a word beats one that lands mid-word.
+            tier = at === 0 || row.search.charAt(at - 1) === " " ? 2 : 3;
+          }
+          hits.push({ row: row, tier: tier, at: recent[row.code] || 0 });
+        }
+        hits.sort((a, b) => (a.tier !== b.tier ? a.tier - b.tier : b.at !== a.at ? b.at - a.at : a.row.code < b.row.code ? -1 : 1));
+        return hits.slice(0, EMOJI_CAP).map((hit) => ({
+          title: hit.row.name,
+          sub: ":" + hit.row.code + ":",
+          kind: "Copy",
+          emoji: true,
+          cp: hit.row.cp,
+          code: hit.row.code,
+        }));
+      }
+
       // A query that opens with `!` is a command rather than a search, so the only row is the
       // one thing that can be done with it.
       function command(query) {
@@ -634,6 +694,7 @@
           row &&
           !row.sum &&
           !row.shell &&
+          !row.emoji &&
           el.q.scrollWidth <= el.q.clientWidth &&
           String(row.title || "")
             .toLowerCase()
@@ -652,6 +713,9 @@
         }
         if (row.glyph) {
           return '<div class="glyph"><svg viewBox="0 0 16 16"><use href="#g-' + escape(row.glyph) + '"/></svg></div>';
+        }
+        if (row.emoji) {
+          return '<div class="emoji">' + escape(row.cp) + "</div>";
         }
         return '<div class="badge">' + escape(row.badge || "") + "</div>";
       }
@@ -680,9 +744,13 @@
             ? "Calculator"
             : row.shell
               ? "Command"
-              : el.q.value.trim() === ""
-                ? "Recent"
-                : "Results";
+              : row.emoji
+                ? el.q.value.trim() === ":"
+                  ? "Recent"
+                  : "Emoji"
+                : el.q.value.trim() === ""
+                  ? "Recent"
+                  : "Results";
           if (wanted !== heading) {
             heading = wanted;
             parts.push('<div class="head">' + heading + "</div>");
@@ -803,6 +871,10 @@
           send({ action: "shell", cmd: row.cmd });
           return;
         }
+        if (row.emoji) {
+          send({ action: "pick", cp: row.cp, code: row.code });
+          return;
+        }
         // The row's own text goes back with it, because a list too large to hold
         // cannot look up a row by index alone.
         send({ action: "open", index: row.index, text: row.sub, mods: mods || {} });
@@ -812,6 +884,18 @@
       // on the keystroke rather than debounced and sent away.
       function refine() {
         const query = el.q.value.trim();
+        if (emojiOn && query.charAt(0) === ":") {
+          if (pending !== null) {
+            clearTimeout(pending);
+            pending = null;
+          }
+          seq += 1;
+          settled = seq;
+          shown = emojiRows(query);
+          sel = 0;
+          draw();
+          return;
+        }
         if (shell && query.charAt(0) === "!") {
           // A reply to the keystroke before the `!` must not land on top of the command.
           if (pending !== null) {
@@ -952,6 +1036,12 @@
 
       // Loading the page is asynchronous, and rows handed over before it finishes are lost,
       // so the page says when it is ready rather than the caller guessing.
+      // About 4300 rows, sent once. Each carries a flat `search` string rather than a
+      // keyword array, so matching a keystroke is one indexOf per row.
+      function setEmoji(rows) {
+        emoji = Array.isArray(rows) ? rows : [];
+      }
+
       send({ action: "loaded" });
 
       // Everything a list needs before it can be seen. Called while the window is hidden, so
@@ -968,6 +1058,8 @@
         nested = opts.nested === true;
         inpage = opts.inpage === true;
         shell = opts.shell === true;
+        emojiOn = opts.emoji === true && emoji.length > 0;
+        recent = opts.recent && !Array.isArray(opts.recent) ? opts.recent : {};
         el.panel.classList.toggle("split", split);
         el.panel.classList.remove("closing");
         el.preview.innerHTML = "";

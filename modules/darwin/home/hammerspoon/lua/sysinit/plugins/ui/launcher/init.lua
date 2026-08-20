@@ -1,6 +1,7 @@
 local ansi = require("sysinit.plugins.ui.launcher.ansi")
 local json_loader = require("sysinit.pkg.utils.json_loader")
 local clipboard = require("sysinit.plugins.ui.launcher.clipboard")
+local emoji = require("sysinit.plugins.ui.launcher.emoji")
 local files = require("sysinit.plugins.ui.launcher.files")
 local fzf = require("sysinit.plugins.ui.launcher.fzf")
 local panel = require("sysinit.plugins.ui.launcher.panel")
@@ -530,9 +531,16 @@ local function base()
   return {
     name = "base",
     rows = recency.sort(rows),
-    placeholder = "Search apps, panes, tabs, files, or ! to run a command",
+    placeholder = "Search apps, panes, tabs, files, : for emoji, or ! to run",
     choose = activate,
     shell = terminal,
+    -- The dataset itself is pushed once, at setup. Only the pick counts ride
+    -- along here, because they change on every pick and the dataset does not.
+    recent = emoji.recent(),
+    pick = function(row)
+      emoji.touch(row.code)
+      emoji.copy(row.cp)
+    end,
   }
 end
 
@@ -649,6 +657,7 @@ function M.setup()
   fzf.ensure()
 
   panel.prewarm()
+  panel.emoji(emoji.rows(settings().emoji))
 
   hs.hotkey.bind({ "cmd" }, "space", function()
     M.toggle()
