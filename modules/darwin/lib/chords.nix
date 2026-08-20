@@ -176,7 +176,8 @@ rec {
     "cmd+space" = "hammerspoon launcher";
     "cmd+tab" = "hammerspoon window switcher";
     "cmd+shift+tab" = "hammerspoon window switcher";
-    "cmd+]" = "hammerspoon vim-mode";
+    "cmd+[" = "wezterm session step back";
+    "cmd+]" = "wezterm session step forward";
     "cmd+enter" = "claude desktop quick entry";
     "cmd+shift+enter" = "claude desktop quick entry dictation";
     "cmd+alt+enter" = "goose desktop quick launcher";

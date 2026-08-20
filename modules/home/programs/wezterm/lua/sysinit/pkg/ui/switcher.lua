@@ -667,27 +667,11 @@ function M.setup(config, wm, ctx)
     end),
   })
 
-  for _, cycle in ipairs({
-    { key = "]", step = wm.next_workspace },
-    { key = "[", step = wm.previous_workspace },
-  }) do
-    local step = type(cycle.step) == "function" and cycle.step() or nil
-    if step then
-      table.insert(config.keys, {
-        key = cycle.key,
-        mods = "CTRL",
-        action = wezterm.action_callback(function(win, pane)
-          if keybindings.locked_mode then
-            win:perform_action({ SendKey = { key = cycle.key, mods = "CTRL" } }, pane)
-            return
-          end
-          win:perform_action(step, pane)
-        end),
-      })
-    else
-      wezterm.log_warn("workspace-manager has no " .. cycle.key .. " cycle action; CTRL-" .. cycle.key .. " unbound")
-    end
-  end
+  -- Nothing rebinds CTRL-[ or CTRL-]. CTRL-[ is the escape character, so a
+  -- binding on it takes Escape away from vim, readline and every other TUI.
+  -- The wm_injected_keys removal above is what frees it. Session stepping is
+  -- SUPER-[ and SUPER-] in ui.lua, and the command palette still carries the
+  -- recency and relative workspace actions.
 
   wezterm.on("augment-command-palette", function(_window, _pane)
     return {

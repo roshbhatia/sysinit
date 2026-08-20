@@ -369,16 +369,24 @@ function M.setup(config)
     })
   end
 
+  -- SUPER, and the two earlier homes for this were both wrong.
+  --
+  -- CTRL-[ is the escape character, so a binding there costs Escape in every
+  -- TUI. c70f54052 did that on 2026-08-12 and this replaces it.
+  --
+  -- f25aed814 dropped a SUPER bracket cycle on 2026-07-28 because hammerspoon
+  -- held cmd+] for VimMode, and a hammerspoon hotkey is consumed before wezterm
+  -- sees the key. VimMode is gone, so SUPER is free and chords.nix reserves it.
   for _, one in ipairs({
     { key = "phys:LeftBracket", send = "[", step = -1 },
     { key = "phys:RightBracket", send = "]", step = 1 },
   }) do
     table.insert(config.keys, {
       key = one.key,
-      mods = "CTRL|SHIFT",
+      mods = "SUPER",
       action = wezterm.action_callback(function(win, pane)
         if keybindings.locked_mode then
-          win:perform_action({ SendKey = { key = one.send, mods = "CTRL|SHIFT" } }, pane)
+          win:perform_action({ SendKey = { key = one.send, mods = "SUPER" } }, pane)
           return
         end
         step_session(win, pane, one.step)
