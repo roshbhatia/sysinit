@@ -14,6 +14,13 @@ let
     };
   };
 
+  # The only key the 1Password agent holds, `homelab.ssh.key`. The same string
+  # authorizes arrakis in modules/nixos/common/default.nix, so one key reaches
+  # every host on the tailnet.
+  personalSshKeys = [
+    "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIIWYK84u+ZlSasw3Z7LwsA2eT9S7xDXKVj61xOqAubKe rshnbhatia@lv426"
+  ];
+
   # Rosé Pine, corrected. base16-schemes ships `rose-pine`, but that port maps
   # base07 to Rosé Pine's `highlightHigh` (#524f67), inverting base16's rule that
   # base07 is the lightest tier. wezterm.nix feeds base07 to ANSI 15, so bright
@@ -108,6 +115,10 @@ in
 {
   lv426 = darwinHost personal {
     theme.base16Scheme = rosePine;
+    darwin.openssh = {
+      enable = true;
+      authorizedKeys = personalSshKeys;
+    };
   };
 
   arrakis = {

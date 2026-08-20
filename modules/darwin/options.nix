@@ -28,6 +28,26 @@ in
       };
     };
 
+    openssh = {
+      enable = mkOption {
+        type = types.bool;
+        default = false;
+        description = ''
+          Whether to run Apple's built-in sshd, reachable over the tailnet.
+          Off by default: a host opts in, because turning it on opens a listener.
+        '';
+      };
+
+      authorizedKeys = mkOption {
+        type = types.listOf types.str;
+        default = [ ];
+        description = ''
+          Public keys that may log in as `sysinit.user.username`. These land in
+          /etc/ssh/nix_authorized_keys.d/, not ~/.ssh/authorized_keys.
+        '';
+      };
+    };
+
     keybindings = {
       symbolicHotkeys = mkOption {
         type = types.attrsOf (

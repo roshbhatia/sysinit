@@ -27,29 +27,47 @@ in
         IdentitiesOnly = true;
       };
     }
-    // {
-      "vorgossos" = {
-        HostName = "vorgossos.stork-eel.ts.net";
-        User = "rshnbhatia";
-      };
+    // (
+      let
+        # `settings` is a home-manager DAG, and an entry with no stated position
+        # sorts by attribute name. That puts `*.stork-eel.ts.net` ahead of every
+        # host it covers, because `*` is 42 in ASCII and a letter is 97. ssh
+        # keeps the first value it obtains for a keyword, so the wildcard's User
+        # wins over a host block that needs a different one. The hosts below all
+        # happened to share the wildcard's user, which hid this. entryBefore
+        # pins each host ahead of the wildcard that would otherwise answer for it.
+        beforeStork = lib.hm.dag.entryBefore [ "*.stork-eel.ts.net" ];
+        beforeTaila = lib.hm.dag.entryBefore [ "*.taila415c.ts.net" ];
+      in
+      {
+        "vorgossos" = beforeStork {
+          HostName = "vorgossos.stork-eel.ts.net";
+          User = "rshnbhatia";
+        };
 
-      "arrakis" = {
-        HostName = "arrakis.stork-eel.ts.net";
-        User = "rshnbhatia";
-      };
+        "arrakis" = beforeStork {
+          HostName = "arrakis.stork-eel.ts.net";
+          User = "rshnbhatia";
+        };
 
-      "huey" = {
-        HostName = "huey.taila415c.ts.net";
-        User = "rosh";
-      };
+        "lv426" = beforeStork {
+          HostName = "lv426.stork-eel.ts.net";
+          User = "rshnbhatia";
+        };
 
-      "*.stork-eel.ts.net" = {
-        User = "rshnbhatia";
-      };
+        "huey" = beforeTaila {
+          HostName = "huey.taila415c.ts.net";
+          User = "rosh";
+        };
 
-      "*.taila415c.ts.net" = {
-        User = "rosh";
-      };
-    };
+        "*.stork-eel.ts.net" = {
+          User = "rshnbhatia";
+        };
+
+        "*.taila415c.ts.net" = {
+          User = "rosh";
+        };
+      }
+    );
   };
 }

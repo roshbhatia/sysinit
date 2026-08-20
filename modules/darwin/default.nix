@@ -16,6 +16,7 @@
     ./keybindings.nix
     ./macos-tools.nix
     ./ollama.nix
+    ./openssh.nix
     ./security.nix
     ./sketchybar.nix
     ./stylix.nix
