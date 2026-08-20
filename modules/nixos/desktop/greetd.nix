@@ -8,33 +8,24 @@
 let
   themeLib = import ../../shared/theme-colors.nix { inherit lib; };
   themeColors = themeLib.colorsOf config;
-  colorToTuigreetTheme =
-    color:
-    let
-      colorMap = {
-        "000000" = "black";
-        "ffffff" = "white";
-        "ff0000" = "red";
-        "00ff00" = "green";
-        "0000ff" = "blue";
-        "ffff00" = "yellow";
-        "ff00ff" = "magenta";
-        "00ffff" = "cyan";
-      };
-      cleanHex = lib.toLower (lib.removePrefix "#" color);
-    in
-    colorMap.${cleanHex} or cleanHex;
+  c = themeColors;
 
-  tuigreetTheme =
-    "text=${colorToTuigreetTheme "#${themeColors.base05}"};"
-    + "container=${colorToTuigreetTheme "#${themeColors.base00}"};"
-    + "border=${colorToTuigreetTheme "#${themeColors.base0D}"};"
-    + "title=${colorToTuigreetTheme "#${themeColors.base0D}"};"
-    + "prompt=${colorToTuigreetTheme "#${themeColors.base04}"};"
-    + "input=${colorToTuigreetTheme "#${themeColors.base0D}"};"
-    + "action=${colorToTuigreetTheme "#${themeColors.base03}"};"
-    + "button=${colorToTuigreetTheme "#${themeColors.base0C}"};"
-    + "greet=${colorToTuigreetTheme "#${themeColors.base05}"}";
+  # Every directive is `key=#rrggbb`. tuigreet hands the value to ratatui's
+  # `Color::from_str`, which requires the leading `#` and a length of exactly 7,
+  # and tuigreet drops any directive that fails to parse. A bare hex therefore
+  # made the greeter fall back to its own colours with no error.
+  tuigreetTheme = lib.concatStringsSep ";" [
+    "container=#${c.base00}"
+    "text=#${c.base05}"
+    "time=#${c.base04}"
+    "greet=#${c.base05}"
+    "border=#${c.base0D}"
+    "title=#${c.base0D}"
+    "prompt=#${c.base04}"
+    "input=#${c.base05}"
+    "action=#${c.base04}"
+    "button=#${c.base0C}"
+  ];
 in
 {
   services.greetd = {
