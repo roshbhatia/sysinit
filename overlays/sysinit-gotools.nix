@@ -8,7 +8,7 @@ let
 
     src = ../pkgs;
 
-    vendorHash = "sha256-DO7IxIK3RU9KPLgVrxoCdBRMek/71PZex63HNxXoPhU=";
+    vendorHash = "sha256-V7U2KE4pt8Q4Lk+F0ekDkgV4pUM/yK6myiOmG0FWLHQ=";
 
     doCheck = true;
 

@@ -10,7 +10,6 @@ import (
 
 	"github.com/charmbracelet/bubbles/help"
 	"github.com/charmbracelet/bubbles/key"
-	"github.com/charmbracelet/bubbles/spinner"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 
@@ -24,6 +23,9 @@ const (
 	deepest = 24
 	shallow = 3
 	unsized = 8
+	// The prose is what the watcher is here for, so the tool calls keep three
+	// rows and the agent's text takes the rest of the frame.
+	recent = 3
 )
 
 // depth answers how many event rows fit a terminal of this height.
@@ -63,11 +65,13 @@ type row struct {
 }
 
 type model struct {
-	spin    spinner.Model
+	strip   strip
 	help    help.Model
 	events  <-chan provider.Event
 	stop    func()
 	rows    []row
+	body    string
+	shown   []string
 	status  string
 	width   int
 	height  int
@@ -89,7 +93,7 @@ func next(events <-chan provider.Event) tea.Cmd {
 }
 
 func (m model) Init() tea.Cmd {
-	return tea.Batch(m.spin.Tick, next(m.events))
+	return tea.Batch(tock(), next(m.events))
 }
 
 func (m model) Update(message tea.Msg) (tea.Model, tea.Cmd) {
@@ -103,13 +107,12 @@ func (m model) Update(message tea.Msg) (tea.Model, tea.Cmd) {
 			return m, tea.Quit
 		}
 		return m, next(m.events)
-	case spinner.TickMsg:
-		var cmd tea.Cmd
-		m.spin, cmd = m.spin.Update(message)
-		return m, cmd
+	case stripTick:
+		m.strip.step()
+		return m, tock()
 	case tea.WindowSizeMsg:
 		m.width, m.height = message.Width, message.Height
-		m.trim()
+		m.reflow()
 		return m, nil
 	case tea.KeyMsg:
 		if key.Matches(message, running.stop) {
@@ -128,7 +131,7 @@ func (m *model) take(event provider.Event) {
 	case provider.Started:
 		m.status = event.Text
 	case provider.Text:
-		m.push(row{text: first(event.Text), gutter: dim, body: dim})
+		m.say(event.Text)
 	case provider.Tool:
 		m.push(row{name: event.Tool, text: first(event.Text), gutter: tool, body: dim})
 	case provider.Notice:
@@ -143,11 +146,28 @@ func (m *model) push(line row) {
 	m.trim()
 }
 
-// trim runs on a resize as well as a push, so shrinking the terminal cuts the
-// view down at once.
+// say adds a block of the agent's markdown and lays it out again. The render
+// runs here rather than in View, which the strip redraws eleven times a second.
+func (m *model) say(text string) {
+	if text = strings.TrimSpace(text); text == "" {
+		return
+	}
+	if m.body != "" {
+		m.body += "\n\n"
+	}
+	m.body += text
+	m.reflow()
+}
+
+func (m *model) reflow() {
+	m.shown = render(m.body, inner(m.width))
+}
+
+// trim holds the tool rows to a fixed few, whatever the terminal height, so the
+// prose below them keeps the same room as the run goes on.
 func (m *model) trim() {
-	if keep := depth(m.height); len(m.rows) > keep {
-		m.rows = m.rows[len(m.rows)-keep:]
+	if len(m.rows) > recent {
+		m.rows = m.rows[len(m.rows)-recent:]
 	}
 }
 
@@ -191,7 +211,7 @@ func (m model) View() string {
 		title: "ask",
 		width: width,
 		head: split(
-			m.spin.View()+accent.Render(clip(status, width-8)),
+			m.strip.View()+" "+accent.Render(clip(status, width-cells-8)),
 			dim.Render(clock(time.Since(m.started))),
 			width,
 		),
@@ -204,20 +224,29 @@ func (m model) View() string {
 		shown.rows = append(shown.rows, " "+name+"  "+text)
 	}
 
+	// The prose takes whatever the tool rows leave, and the tail of it is the
+	// part still being written.
+	if room := depth(m.height) - len(shown.rows); room > 0 && len(m.shown) > 0 {
+		lines := m.shown
+		if len(lines) > room {
+			lines = lines[len(lines)-room:]
+		}
+		fit := lipgloss.NewStyle().MaxWidth(width)
+		for _, line := range lines {
+			shown.rows = append(shown.rows, fit.Render(line))
+		}
+	}
+
 	return shown.String() + "\n" + dim.Render("  "+m.help.ShortHelpView(running.ShortHelp())) + "\n"
 }
 
 // Run watches a live run and answers with what it ended on. stop is called when
 // the keyboard asks the run to end, so the agent stops rather than only the view.
 func Run(events <-chan provider.Event, stop func()) (*provider.Result, error) {
-	spin := spinner.New()
-	spin.Spinner = spinner.Dot
-	spin.Style = accent
-
 	guide := help.New()
 	guide.ShowAll = false
 
-	start := model{spin: spin, help: guide, events: events, stop: stop, started: time.Now()}
+	start := model{strip: newStrip(), help: guide, events: events, stop: stop, started: time.Now()}
 
 	options := []tea.ProgramOption{tea.WithOutput(os.Stderr)}
 	if keyboard := console(); keyboard != nil {
