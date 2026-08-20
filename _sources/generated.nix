@@ -8,90 +8,90 @@
 {
   amp-cli = {
     pname = "amp-cli";
-    version = "0.0.1787155755-g62ff24";
+    version = "0.0.1787227443-g56d703";
     src = fetchurl {
-      url = "https://static.ampcode.com/cli/0.0.1787155755-g62ff24/amp-darwin-arm64.gz";
-      sha256 = "sha256-PUCri/19vKsChz4Ra+imZna8kGYubq7ShhsL6pJrgAA=";
+      url = "https://static.ampcode.com/cli/0.0.1787227443-g56d703/amp-darwin-arm64.gz";
+      sha256 = "sha256-+2+UVN8fO9Ltjg3noey+vYejFusujjPtIHQLJaGM73s=";
     };
   };
   amp-cli-aarch64-linux = {
     pname = "amp-cli-aarch64-linux";
-    version = "0.0.1787155755-g62ff24";
+    version = "0.0.1787227443-g56d703";
     src = fetchurl {
-      url = "https://static.ampcode.com/cli/0.0.1787155755-g62ff24/amp-linux-arm64.gz";
-      sha256 = "sha256-+lja7iqqMI7aV7CwriAUBxL3JDXRjI9e8BjThaGNl0E=";
+      url = "https://static.ampcode.com/cli/0.0.1787227443-g56d703/amp-linux-arm64.gz";
+      sha256 = "sha256-6/UvJkoetGX+c3VESBEpEeyY3FQv3+NYmUcsVdNKPc4=";
     };
   };
   amp-cli-x86_64-linux = {
     pname = "amp-cli-x86_64-linux";
-    version = "0.0.1787155755-g62ff24";
+    version = "0.0.1787227443-g56d703";
     src = fetchurl {
-      url = "https://static.ampcode.com/cli/0.0.1787155755-g62ff24/amp-linux-x64-baseline.gz";
-      sha256 = "sha256-oLPHHOsL9cxtJum2A+8gFo0V6g6MKDStMAUwap4o4Yw=";
+      url = "https://static.ampcode.com/cli/0.0.1787227443-g56d703/amp-linux-x64-baseline.gz";
+      sha256 = "sha256-Nc/O0H3nWWMaMwDIHrNoAlF51zrNrb69Eca+R2qnikM=";
     };
   };
   atomic-coding-agent = {
     pname = "atomic-coding-agent";
-    version = "0.9.13";
+    version = "0.9.14";
     src = fetchurl {
-      url = "https://github.com/bastani-inc/atomic/releases/download/0.9.13/atomic-darwin-arm64.tar.gz";
-      sha256 = "sha256-wSGsNe+duSM/F/STL8LzmdmdzjH4h9ICBQAJ+I/GMuw=";
+      url = "https://github.com/bastani-inc/atomic/releases/download/0.9.14/atomic-darwin-arm64.tar.gz";
+      sha256 = "sha256-3FZneTnN8yyCqpHIOCYVvPy1xZVPTdGlfzJUBSYaH5M=";
     };
   };
   atomic-coding-agent-aarch64-linux = {
     pname = "atomic-coding-agent-aarch64-linux";
-    version = "0.9.13";
+    version = "0.9.14";
     src = fetchurl {
-      url = "https://github.com/bastani-inc/atomic/releases/download/0.9.13/atomic-linux-arm64.tar.gz";
-      sha256 = "sha256-3Wm0e9KgdUgrmEkgihFMj5ekOR+VnlE3xvMU0xUMYGk=";
+      url = "https://github.com/bastani-inc/atomic/releases/download/0.9.14/atomic-linux-arm64.tar.gz";
+      sha256 = "sha256-v3q+Ikuluv28J65NoIkViwLiV9G4fJmneoj6xZlJygg=";
     };
   };
   atomic-coding-agent-x86_64-darwin = {
     pname = "atomic-coding-agent-x86_64-darwin";
-    version = "0.9.13";
+    version = "0.9.14";
     src = fetchurl {
-      url = "https://github.com/bastani-inc/atomic/releases/download/0.9.13/atomic-darwin-x64.tar.gz";
-      sha256 = "sha256-Uidipb/EbM5tz61QFJkpku4UJ0g0E1X2Wa9pPKXJ6Rc=";
+      url = "https://github.com/bastani-inc/atomic/releases/download/0.9.14/atomic-darwin-x64.tar.gz";
+      sha256 = "sha256-DhZoOPg4iPl/A1NUN53yScIIM61PHoueGWRE7m84lZs=";
     };
   };
   atomic-coding-agent-x86_64-linux = {
     pname = "atomic-coding-agent-x86_64-linux";
-    version = "0.9.13";
+    version = "0.9.14";
     src = fetchurl {
-      url = "https://github.com/bastani-inc/atomic/releases/download/0.9.13/atomic-linux-x64.tar.gz";
-      sha256 = "sha256-9LM7HQI9BxMYkF8OnVEIr4aSplA11fyceDTQnyW9QXU=";
+      url = "https://github.com/bastani-inc/atomic/releases/download/0.9.14/atomic-linux-x64.tar.gz";
+      sha256 = "sha256-q+dyJ0JgsrMcKtm3lAsyyOEaZNKaBrUtgE25kOICrDA=";
     };
   };
   crush = {
     pname = "crush";
-    version = "0.89.0";
+    version = "0.90.0";
     src = fetchurl {
-      url = "https://github.com/charmbracelet/crush/releases/download/v0.89.0/crush_0.89.0_Darwin_arm64.tar.gz";
-      sha256 = "sha256-7FzBRnRp3avZcLRHFWMNrBDeXTWvNNyWePYzTFAaUA0=";
+      url = "https://github.com/charmbracelet/crush/releases/download/v0.90.0/crush_0.90.0_Darwin_arm64.tar.gz";
+      sha256 = "sha256-/NlW8F2z5X6Kct4wrVQai9wJ1xG/ul09V78BkmqZM6g=";
     };
   };
   crush-aarch64-linux = {
     pname = "crush-aarch64-linux";
-    version = "0.89.0";
+    version = "0.90.0";
     src = fetchurl {
-      url = "https://github.com/charmbracelet/crush/releases/download/v0.89.0/crush_0.89.0_Linux_arm64.tar.gz";
-      sha256 = "sha256-/foux1HTS+BEP9KpLCsh14RCu1jBoqPRQUGSrYV93fU=";
+      url = "https://github.com/charmbracelet/crush/releases/download/v0.90.0/crush_0.90.0_Linux_arm64.tar.gz";
+      sha256 = "sha256-WwgwHJ8RJ0JzUKwRuk+piClFPDjh2T5w7vjvDp1tu/E=";
     };
   };
   crush-x86_64-darwin = {
     pname = "crush-x86_64-darwin";
-    version = "0.89.0";
+    version = "0.90.0";
     src = fetchurl {
-      url = "https://github.com/charmbracelet/crush/releases/download/v0.89.0/crush_0.89.0_Darwin_x86_64.tar.gz";
-      sha256 = "sha256-h5czVMzrK1Al0HRa8efkrHuHAfS9XQk31xCZD9zOvXo=";
+      url = "https://github.com/charmbracelet/crush/releases/download/v0.90.0/crush_0.90.0_Darwin_x86_64.tar.gz";
+      sha256 = "sha256-glFABI3sRlG2JKaRMDwqs9kMbe8DTeAhWn6eHqU9ak0=";
     };
   };
   crush-x86_64-linux = {
     pname = "crush-x86_64-linux";
-    version = "0.89.0";
+    version = "0.90.0";
     src = fetchurl {
-      url = "https://github.com/charmbracelet/crush/releases/download/v0.89.0/crush_0.89.0_Linux_x86_64.tar.gz";
-      sha256 = "sha256-0Tw+2BC7KtSQiii59RoN7QoKhvEk2ftCoSzPf+nyZnM=";
+      url = "https://github.com/charmbracelet/crush/releases/download/v0.90.0/crush_0.90.0_Linux_x86_64.tar.gz";
+      sha256 = "sha256-Tuu5zho2VVYLrgPGS+vMVG9rJLqfnr0ejqhEuMOzfqA=";
     };
   };
   go-enum = {
@@ -255,10 +255,10 @@
   };
   prime-agent = {
     pname = "prime-agent";
-    version = "0.7.3";
+    version = "0.7.4";
     src = fetchurl {
-      url = "https://github.com/PrimeIntellect-ai/prime-agent/releases/download/v0.7.3/prime-agent-0.7.3.tgz";
-      sha256 = "sha256-KhiHODGLkf+R6ne4oLIVxBVDzwSD/LGKU0ddxOcDJ4Q=";
+      url = "https://github.com/PrimeIntellect-ai/prime-agent/releases/download/v0.7.4/prime-agent-0.7.4.tgz";
+      sha256 = "sha256-3qBF18FwRmoQLgMOlA9FnME/LBE0ZfQL4cdQXYBAXS4=";
     };
   };
 }
