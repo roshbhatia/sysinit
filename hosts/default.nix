@@ -14,27 +14,6 @@ let
     };
   };
 
-  rosefine = {
-    scheme = "rosefine";
-    author = "Roshan Bhatia";
-    base00 = "1A0F14";
-    base01 = "23202E";
-    base02 = "2E2A3C";
-    base03 = "9692AB";
-    base04 = "A8A5B5";
-    base05 = "C0BCD0";
-    base06 = "D0CCDF";
-    base07 = "E1DDEC";
-    base08 = "D19DA9";
-    base09 = "C49B7A";
-    base0A = "D5C497";
-    base0B = "8FB5A8";
-    base0C = "97ADC2";
-    base0D = "94A8D0";
-    base0E = "B0A0CC";
-    base0F = "B4939F";
-  };
-
   # Rosé Pine, corrected. base16-schemes ships `rose-pine`, but that port maps
   # base07 to Rosé Pine's `highlightHigh` (#524f67), inverting base16's rule that
   # base07 is the lightest tier. wezterm.nix feeds base07 to ANSI 15, so bright
@@ -93,7 +72,7 @@ in
     inherit (personal) username;
     values = personal.values // {
       theme = {
-        base16Scheme = rosefine;
+        base16Scheme = rosePine;
         font.monospace = "WumpusMono Nerd Font Mono";
       };
     };
