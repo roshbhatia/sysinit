@@ -87,8 +87,12 @@ func mix(from, to string, at, of int) string {
 
 // sweep builds a band that climbs to the accent and falls back, so cycling it
 // reads as one bright spot travelling rather than a hard edge wrapping around.
+// A blend needs two hex ends, so a host with no scheme gets three ANSI indices
+// instead: those are the terminal's own colours, and it keeps its palette.
 func sweep(width int) []lipgloss.Style {
-	from, to := hexOf("base03", "#585b70"), hexOf("base0D", "#89b4fa")
+	from, to := slots["base03"], slots["base0D"]
+	blend := hex.MatchString(from) && hex.MatchString(to)
+
 	half := width / 2
 	band := make([]lipgloss.Style, 0, width)
 	for at := range width {
@@ -96,11 +100,17 @@ func sweep(width int) []lipgloss.Style {
 		if at >= half {
 			step = width - at - 1
 		}
-		colour := mix(from, to, step, max(half, 1))
+		colour := steps[min(step*len(steps)/max(half, 1), len(steps)-1)]
+		if blend {
+			colour = mix(from, to, step, max(half, 1))
+		}
 		band = append(band, lipgloss.NewStyle().Foreground(lipgloss.Color(colour)))
 	}
 	return band
 }
+
+// the dim, the mid and the bright of the terminal's own blue.
+var steps = []string{"8", "4", "12"}
 
 // dark reads the scheme's background, so the markdown style matches the frame
 // without asking the terminal anything.
