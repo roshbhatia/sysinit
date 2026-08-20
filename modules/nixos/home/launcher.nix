@@ -160,19 +160,45 @@ in
     # elephant ships a `windows` provider, but its only implementation is niri,
     # and on sway it returns an empty list rather than an error. This menu is
     # what makes Super+Tab work here.
+    #
+    # The socket is found rather than read from SWAYSOCK. elephant is started by
+    # graphical-session.target, which wins the race against the
+    # `dbus-update-activation-environment` sway runs from its own startup list:
+    # measured on arrakis, `systemctl --user show-environment` has SWAYSOCK and
+    # the running elephant process does not, so every window query came back
+    # empty.
     "elephant/menus/windows.lua".text = ''
       Name = "windows"
       NamePretty = "Windows"
       Icon = "preferences-system-windows"
-      Action = "${swaymsg} '[con_id=%VALUE%] focus'"
+      Action = "lua:Focus"
       SearchName = true
       History = true
 
       ${splitter}
 
+      local function socket()
+        local held = os.getenv("SWAYSOCK")
+        if held ~= nil and held ~= "" then
+          return held
+        end
+        local runtime = os.getenv("XDG_RUNTIME_DIR") or ("/run/user/" .. (os.getenv("UID") or "1000"))
+        local handle = io.popen("${pkgs.coreutils}/bin/ls -t " .. runtime .. "/sway-ipc.*.sock 2>/dev/null | ${pkgs.coreutils}/bin/head -1")
+        if handle == nil then
+          return nil
+        end
+        local found = handle:read("*line")
+        handle:close()
+        return found
+      end
+
       function GetEntries()
         local entries = {}
-        local cmd = "${swaymsg} -t get_tree | ${jq} -r '[recurse(.nodes[]?, .floating_nodes[]?) | select(.type == \"con\" or .type == \"floating_con\") | select(.name != null)] | .[] | [.id, .name, (.app_id // .window_properties.class // \"\")] | @tsv'"
+        local sock = socket()
+        if sock == nil or sock == "" then
+          return entries
+        end
+        local cmd = "${swaymsg} --socket " .. sock .. " -t get_tree | ${jq} -r '[recurse(.nodes[]?, .floating_nodes[]?) | select(.type == \"con\" or .type == \"floating_con\") | select(.name != null)] | .[] | [.id, .name, (.app_id // .window_properties.class // \"\")] | @tsv'"
         for _, row in ipairs(lines(cmd)) do
           if row[1] ~= nil and row[1] ~= "" then
             entries[#entries + 1] = {
@@ -183,6 +209,14 @@ in
           end
         end
         return entries
+      end
+
+      function Focus(value)
+        local sock = socket()
+        if sock == nil or sock == "" then
+          return
+        end
+        os.execute("${swaymsg} --socket " .. sock .. " '[con_id=" .. value .. "] focus'")
       end
     '';
 
