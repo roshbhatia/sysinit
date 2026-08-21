@@ -80,6 +80,13 @@ local function get_pane_keys()
     create_smart_keybind("v", "CTRL", act.SplitHorizontal({ domain = "CurrentPaneDomain" }), {
       passthrough = EDITORS,
     }),
+
+    create_smart_keybind("s", "CTRL|SHIFT", act.SplitVertical({ domain = "CurrentPaneDomain", args = { "top" } }), {
+      passthrough = EDITORS,
+    }),
+    create_smart_keybind("v", "CTRL|SHIFT", act.SplitHorizontal({ domain = "CurrentPaneDomain", args = { "top" } }), {
+      passthrough = EDITORS,
+    }),
     -- CTRL-m is a carriage return, but nothing types it instead of Enter, and a
     -- passthrough would cost pane zoom inside an editor. Left bound on purpose.
     create_smart_keybind("m", "CTRL", act.TogglePaneZoomState),
