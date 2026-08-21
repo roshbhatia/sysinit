@@ -406,8 +406,13 @@ end
 
 local function get_scroll_keys()
   return {
-    create_smart_keybind("u", "CTRL", { ScrollByLine = -40 }, { passthrough = EDITORS }),
-    create_smart_keybind("d", "CTRL", { ScrollByLine = 40 }, { passthrough = EDITORS }),
+    -- CTRL-u is kill-line and CTRL-d is EOF, and a shell prompt needs both far
+    -- more than it needs a half-page scroll. SUPER-u and SUPER-d keep the scroll
+    -- reachable from the prompt, so the passthrough costs nothing.
+    create_smart_keybind("u", "CTRL", { ScrollByLine = -40 }, { passthrough = READLINE }),
+    create_smart_keybind("d", "CTRL", { ScrollByLine = 40 }, { passthrough = READLINE }),
+    create_smart_keybind("u", "SUPER", { ScrollByLine = -40 }),
+    create_smart_keybind("d", "SUPER", { ScrollByLine = 40 }),
     create_smart_keybind("u", "CTRL|SHIFT", act.ScrollToTop, { passthrough = EDITORS }),
     create_smart_keybind("d", "CTRL|SHIFT", act.ScrollToBottom, { passthrough = EDITORS }),
     create_smart_keybind("UpArrow", "CTRL|SHIFT", act.ScrollToPrompt(-1), { passthrough = EDITORS }),
