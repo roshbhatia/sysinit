@@ -46,6 +46,7 @@
   (import ./localias.nix)
   (import ./alerter.nix)
   (import ./sheets.nix)
+  (import ./zoetrope.nix)
   (
     final: prev:
     let

@@ -1,0 +1,81 @@
+--- a/src/state/graph.rs
++++ b/src/state/graph.rs
+@@ -16,7 +16,68 @@
+ /// The concrete `Flow` type zoetrope uses: agent-card nodes, step-routed parent
+ /// edges (no labels — liveness reads from color alone).
+ pub type AgentFlow = Flow<AgentNode, AgentEdge>;
++
++/// Map the host base16 scheme onto the rataflow palette, when a scheme exists.
++///
++/// Carried as a local patch by the sysinit overlay. Upstream zoetrope has no
++/// theme configuration: every surface resolves from one palette built in
++/// `new_flow`, so it stays on rataflow's stock dark colours whatever the
++/// terminal is themed to. This reads the same file the rest of the host reads.
++///
++/// A missing, unreadable or malformed file leaves the palette untouched, so an
++/// unthemed host looks exactly as it did before. base07 is deliberately unread:
++/// some schemes invert it, which makes it unusable as a foreground.
++#[cfg(feature = "native")]
++fn base16_palette(mut palette: rataflow::Palette) -> rataflow::Palette {
++    let path = match std::env::var_os("XDG_CONFIG_HOME") {
++        Some(dir) => std::path::PathBuf::from(dir).join("sysinit/theme_config.json"),
++        None => match std::env::var_os("HOME") {
++            Some(home) => {
++                std::path::PathBuf::from(home).join(".config/sysinit/theme_config.json")
++            }
++            None => return palette,
++        },
++    };
++    let Ok(raw) = std::fs::read_to_string(&path) else {
++        return palette;
++    };
++    let Ok(parsed) = serde_json::from_str::<serde_json::Value>(&raw) else {
++        return palette;
++    };
++
++    let slot = |name: &str| -> Option<Color> {
++        let hex = parsed.get("base16")?.get(name)?.as_str()?;
++        let body = hex.strip_prefix('#')?;
++        if body.len() != 6 {
++            return None;
++        }
++        let byte = |at: usize| u8::from_str_radix(&body[at..at + 2], 16).ok();
++        Some(Color::Rgb(byte(0)?, byte(2)?, byte(4)?))
++    };
+ 
++    for (name, field) in [
++        ("base00", &mut palette.canvas_bg),
++        ("base01", &mut palette.surface),
++        ("base02", &mut palette.subtle),
++        ("base03", &mut palette.muted),
++        ("base05", &mut palette.text),
++        ("base08", &mut palette.error),
++        ("base0A", &mut palette.accent),
++        ("base0B", &mut palette.success),
++    ] {
++        if let Some(colour) = slot(name) {
++            *field = colour;
++        }
++    }
++    palette
++}
++
++/// The wasm frontend has no filesystem, so it keeps the stock palette.
++#[cfg(not(feature = "native"))]
++fn base16_palette(palette: rataflow::Palette) -> rataflow::Palette {
++    palette
++}
++
+ /// Build an empty, fully-configured `Flow` for zoetrope.
+ ///
+ /// Config: `with_deselect_on_pane_click(false)`, `deselect_on_drag = false`
+@@ -29,6 +90,9 @@
+     // flow.theme, so this one assignment brands the whole app.
+     let mut palette = Theme::Dark.palette();
+     palette.accent = Color::Indexed(178);
++    // The host scheme wins over the stock gold when one is configured, so the
++    // graph matches the terminal it is drawn in.
++    let palette = base16_palette(palette);
+     let mut flow = Flow::new()
+         .with_theme(Theme::Custom(palette))
+         .with_deselect_on_pane_click(false)

@@ -145,6 +145,7 @@ in
         vale
         yaml-language-server
         yamllint
+        zoetrope
       ]
       ++ map (name: pkgs.${name}) (
         lib.filter (name: name != null) (
