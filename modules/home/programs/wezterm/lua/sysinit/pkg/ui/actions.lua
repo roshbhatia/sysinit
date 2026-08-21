@@ -1,4 +1,5 @@
 local wezterm = require("wezterm")
+local ui_sessions = require("sysinit.pkg.ui.sessions")
 local utils = require("sysinit.pkg.utils")
 
 local M = {}
@@ -69,6 +70,58 @@ function M.switch_to_workspace(win, pane, name, opts)
     act = wezterm.action.SwitchToWorkspace({ name = name })
   end
   win:perform_action(act, pane)
+end
+
+-- The slot is what the session chips are numbered with, so a slot jump and a
+-- chip read the same order. A dormant session spawns on the way in.
+function M.activate_slot(win, pane, slot)
+  local target
+  for name, s in pairs(ui_sessions.slots()) do
+    if s == slot then
+      target = name
+      break
+    end
+  end
+  if not target then
+    return
+  end
+  local live = false
+  pcall(function()
+    for _, w in ipairs(wezterm.mux.all_windows()) do
+      if w:get_workspace() == target then
+        live = true
+      end
+    end
+  end)
+  local spawn = nil
+  if not live and target ~= ui_sessions.DEFAULT_WORKSPACE then
+    spawn = ui_sessions.remote_spawn(target) or { cwd = ui_sessions.seshy_dir .. "/" .. target }
+  end
+  M.switch_to_workspace(win, pane, target, spawn)
+end
+
+-- Stepping by slot rather than by workspace name walks the same order the
+-- session chips are drawn in, and wraps at both ends.
+function M.step_session(win, pane, step)
+  local taken = {}
+  for _, slot in pairs(ui_sessions.slots()) do
+    taken[#taken + 1] = slot
+  end
+  table.sort(taken)
+  if #taken < 2 then
+    return
+  end
+
+  local here = ui_sessions.slots()[win:active_workspace()]
+  local at = 1
+  for index, slot in ipairs(taken) do
+    if slot == here then
+      at = index
+      break
+    end
+  end
+
+  M.activate_slot(win, pane, taken[(at - 1 + step) % #taken + 1])
 end
 
 function M.activate_agent_pane(win, gui_pane, rec)

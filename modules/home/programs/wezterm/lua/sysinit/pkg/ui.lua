@@ -280,11 +280,7 @@ function M.setup(config)
     end
   end)
 
-  local switch_to_workspace = ui_actions.switch_to_workspace
-
   local session_slots = ui_sessions.slots
-  local seshy_dir = ui_sessions.seshy_dir
-  local DEFAULT_WORKSPACE = ui_sessions.DEFAULT_WORKSPACE
   local DEFAULT_SLOT = ui_sessions.DEFAULT_SLOT
   local MAX_SLOT = ui_sessions.MAX_SLOT
   local home = os.getenv("HOME") or ""
@@ -304,95 +300,32 @@ function M.setup(config)
     return ui_statusbar.session_chips(window, agent_session_states(), session_slots(), tree_colors(window))
   end
 
-  local function activate_slot(win, pane, slot)
-    local target
-    for name, s in pairs(session_slots()) do
-      if s == slot then
-        target = name
-        break
-      end
-    end
-    if not target then
-      return
-    end
-    local live = false
-    pcall(function()
-      for _, w in ipairs(wezterm.mux.all_windows()) do
-        if w:get_workspace() == target then
-          live = true
-        end
-      end
-    end)
-    local spawn = nil
-    if not live and target ~= DEFAULT_WORKSPACE then
-      spawn = ui_sessions.remote_spawn(target) or { cwd = seshy_dir .. "/" .. target }
-    end
-    switch_to_workspace(win, pane, target, spawn)
-  end
-
-  -- Stepping by slot rather than by workspace name walks the same order the
-  -- session chips are drawn in, and wraps at both ends.
-  local function step_session(win, pane, step)
-    local taken = {}
-    for _, slot in pairs(session_slots()) do
-      taken[#taken + 1] = slot
-    end
-    table.sort(taken)
-    if #taken < 2 then
-      return
-    end
-
-    local here = session_slots()[win:active_workspace()]
-    local at = 1
-    for index, slot in ipairs(taken) do
-      if slot == here then
-        at = index
-        break
-      end
-    end
-
-    activate_slot(win, pane, taken[(at - 1 + step) % #taken + 1])
-  end
-
   config.keys = config.keys or {}
+  -- Sessions sit one SHIFT above tabs: a tab is CTRL or SUPER plus a digit, and
+  -- a session is the same chord plus SHIFT. Both mods carry it, the way the tab
+  -- digits already do.
   for slot = DEFAULT_SLOT, MAX_SLOT do
-    table.insert(config.keys, {
-      key = "phys:" .. tostring(slot),
-      mods = "CTRL|SHIFT",
-      action = wezterm.action_callback(function(win, pane)
-        if keybindings.locked_mode then
-          win:perform_action({ SendKey = { key = tostring(slot), mods = "CTRL|SHIFT" } }, pane)
-          return
-        end
-        activate_slot(win, pane, slot)
-      end),
-    })
+    for _, mods in ipairs({ "CTRL|SHIFT", "SUPER|SHIFT" }) do
+      table.insert(config.keys, {
+        key = "phys:" .. tostring(slot),
+        mods = mods,
+        action = wezterm.action_callback(function(win, pane)
+          if keybindings.locked_mode then
+            win:perform_action({ SendKey = { key = tostring(slot), mods = mods } }, pane)
+            return
+          end
+          ui_actions.activate_slot(win, pane, slot)
+        end),
+      })
+    end
   end
 
-  -- SUPER, and the two earlier homes for this were both wrong.
-  --
-  -- CTRL-[ is the escape character, so a binding there costs Escape in every
-  -- TUI. c70f54052 did that on 2026-08-12 and this replaces it.
-  --
-  -- f25aed814 dropped a SUPER bracket cycle on 2026-07-28 because hammerspoon
-  -- held cmd+] for VimMode, and a hammerspoon hotkey is consumed before wezterm
-  -- sees the key. VimMode is gone, so SUPER is free and chords.nix reserves it.
-  for _, one in ipairs({
-    { key = "phys:LeftBracket", send = "[", step = -1 },
-    { key = "phys:RightBracket", send = "]", step = 1 },
-  }) do
-    table.insert(config.keys, {
-      key = one.key,
-      mods = "SUPER",
-      action = wezterm.action_callback(function(win, pane)
-        if keybindings.locked_mode then
-          win:perform_action({ SendKey = { key = one.send, mods = "SUPER" } }, pane)
-          return
-        end
-        step_session(win, pane, one.step)
-      end),
-    })
-  end
+  -- No SUPER bracket cycle, and this is the third and last home for one. cmd+[
+  -- and cmd+] are back and forward in Finder, in every browser and in most
+  -- macOS apps, so a wezterm binding costs the chord everywhere. Stepping is
+  -- now [ and ] inside the session tree, where a session step is already the
+  -- obvious next key. c70f54052 put it on CTRL and lost Escape; f25aed814 put
+  -- it on SUPER and lost it to hammerspoon.
 
   local tabline_ok, tabline = plugin_loader.load("tabline")
   if not tabline_ok then

@@ -459,10 +459,28 @@ function M.setup(config, wm, ctx)
       end),
     }
   end
+  -- [ and ] step to the previous or next session and leave the tree. They live
+  -- here and not on a SUPER chord because cmd+[ and cmd+] are back and forward
+  -- in most macOS apps, and the tree is where a session step is already the
+  -- obvious next key.
+  local function tree_step_key(key, step)
+    return {
+      key = key,
+      mods = "NONE",
+      action = wezterm.action_callback(function(win, pane)
+        tree_state.pending_action = "step:" .. tostring(step)
+        tree_state.key_table_active = false
+        win:perform_action(wezterm.action.PopKeyTable, pane)
+        win:perform_action(wezterm.action.SendKey({ key = "Enter" }), pane)
+      end),
+    }
+  end
   config.key_tables = config.key_tables or {}
   config.key_tables.session_tree_actions = {
     tree_close_key("Enter"),
     tree_close_key("Escape"),
+    tree_step_key("[", -1),
+    tree_step_key("]", 1),
     {
       key = "d",
       mods = "CTRL",
@@ -583,9 +601,9 @@ function M.setup(config, wm, ctx)
     end
     local title
     if filter == "dormant" then
-      title = "Sessions  [dormant · ^d all · ^x close]"
+      title = "Sessions  [dormant · ^d all · [ ] step · ^x close]"
     else
-      title = "Sessions  [^d dormant · ^x close]"
+      title = "Sessions  [^d dormant · [ ] step · ^x close]"
     end
     if notice then
       title = title .. "  · " .. notice
@@ -598,7 +616,7 @@ function M.setup(config, wm, ctx)
         title = title,
         choices = choices,
         fuzzy = false,
-        description = "  j/k nav  1-9 jump  / filter  ^d dormant  ^x close  Esc quit",
+        description = "  j/k nav  1-9 jump  [ ] step  / filter  ^d dormant  ^x close  Esc quit",
         fuzzy_description = "  filter (Esc to leave):  ",
         action = wezterm.action_callback(function(inner_win, inner_pane, id, _label)
           if tree_state.key_table_active then
@@ -609,6 +627,11 @@ function M.setup(config, wm, ctx)
           tree_state.pending_action = nil
           local pf = tree_state.pending_filter
           tree_state.pending_filter = nil
+          local step = type(pa) == "string" and pa:match("^step:(-?%d+)$")
+          if step then
+            ui_actions.step_session(inner_win, inner_pane, tonumber(step))
+            return
+          end
           if pa == "delete" and id then
             local close_notice, reopen = close_session_target(inner_win, inner_pane, id, by_id)
             if reopen then
@@ -670,7 +693,7 @@ function M.setup(config, wm, ctx)
   -- Nothing rebinds CTRL-[ or CTRL-]. CTRL-[ is the escape character, so a
   -- binding on it takes Escape away from vim, readline and every other TUI.
   -- The wm_injected_keys removal above is what frees it. Session stepping is
-  -- SUPER-[ and SUPER-] in ui.lua, and the command palette still carries the
+  -- [ and ] inside the session tree, and the command palette still carries the
   -- recency and relative workspace actions.
 
   wezterm.on("augment-command-palette", function(_window, _pane)
