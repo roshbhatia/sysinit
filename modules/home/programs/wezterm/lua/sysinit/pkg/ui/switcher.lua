@@ -704,21 +704,24 @@ function M.setup(config, wm, ctx)
           open_session_tree(win, pane)
         end),
       },
+      -- The tree is the one session picker. wm.workspace_switcher() used to be
+      -- here too, and it listed live wezterm workspaces, which is a different
+      -- set from the seshy sessions every other route shows.
       {
-        brief = "Switch seshy session / workspace",
-        action = wm.workspace_switcher(),
+        brief = "Session: step forward",
+        action = wezterm.action_callback(function(win, pane)
+          ui_actions.step_session(win, pane, 1)
+        end),
       },
       {
-        brief = "Switch to previous workspace",
+        brief = "Session: step back",
+        action = wezterm.action_callback(function(win, pane)
+          ui_actions.step_session(win, pane, -1)
+        end),
+      },
+      {
+        brief = "Session: last visited",
         action = wm.switch_to_previous_workspace(),
-      },
-      {
-        brief = "Next workspace",
-        action = wezterm.action.SwitchWorkspaceRelative(1),
-      },
-      {
-        brief = "Previous workspace",
-        action = wezterm.action.SwitchWorkspaceRelative(-1),
       },
     }
   end)
