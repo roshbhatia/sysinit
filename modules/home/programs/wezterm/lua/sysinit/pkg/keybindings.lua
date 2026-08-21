@@ -7,6 +7,24 @@ local M = {}
 M.locked_mode = false
 
 local EDITORS = { "nvim", "vim", "hx" }
+
+-- A ctrl chord that readline or an editor already owns is passed to the app.
+-- READLINE is for the chords that also have a SUPER twin, so the wezterm action
+-- stays reachable from a shell prompt; the rest get EDITORS only, because in a
+-- terminal the pane is nearly always a shell and a shell passthrough would make
+-- the chord unreachable.
+local SHELLS = { "zsh", "bash", "fish", "sh" }
+local READLINE = (function()
+  local both = {}
+  for _, name in ipairs(EDITORS) do
+    both[#both + 1] = name
+  end
+  for _, name in ipairs(SHELLS) do
+    both[#both + 1] = name
+  end
+  return both
+end)()
+
 local COMMON_MODS = { "CTRL", "SUPER" }
 
 local function create_smart_keybind(key, mods, wezterm_action, opts)
@@ -39,10 +57,13 @@ local function create_smart_keybind(key, mods, wezterm_action, opts)
   }
 end
 
-local function create_multi_mod_bindings(key, action_fn, mod_list)
+local function create_multi_mod_bindings(key, action_fn, mod_list, opts)
   local bindings = {}
   for _, mods in ipairs(mod_list or COMMON_MODS) do
-    table.insert(bindings, create_smart_keybind(key, mods, action_fn(mods)))
+    -- Only the CTRL half can collide with a terminal convention, so only it
+    -- carries the passthrough. The SUPER half must always reach wezterm.
+    local per = mods == "CTRL" and opts or nil
+    table.insert(bindings, create_smart_keybind(key, mods, action_fn(mods), per))
   end
   return bindings
 end
@@ -50,10 +71,19 @@ end
 local function get_pane_keys()
   local DIRECTION_KEYS = { h = "Left", j = "Down", k = "Up", l = "Right" }
   local keys = {
-    create_smart_keybind("s", "CTRL", act.SplitVertical({ domain = "CurrentPaneDomain" })),
-    create_smart_keybind("v", "CTRL", act.SplitHorizontal({ domain = "CurrentPaneDomain" })),
+    -- CTRL-s is XOFF and CTRL-v is blockwise visual; CTRL-n is next-completion.
+    -- Editors get them back. A shell keeps the split, because a shell pane is
+    -- where you split from.
+    create_smart_keybind("s", "CTRL", act.SplitVertical({ domain = "CurrentPaneDomain" }), {
+      passthrough = EDITORS,
+    }),
+    create_smart_keybind("v", "CTRL", act.SplitHorizontal({ domain = "CurrentPaneDomain" }), {
+      passthrough = EDITORS,
+    }),
+    -- CTRL-m is a carriage return, but nothing types it instead of Enter, and a
+    -- passthrough would cost pane zoom inside an editor. Left bound on purpose.
     create_smart_keybind("m", "CTRL", act.TogglePaneZoomState),
-    create_smart_keybind("n", "CTRL", act.RotatePanes("Clockwise")),
+    create_smart_keybind("n", "CTRL", act.RotatePanes("Clockwise"), { passthrough = EDITORS }),
   }
 
   for _, key in ipairs({ "h", "j", "k", "l" }) do
@@ -66,9 +96,11 @@ local function get_pane_keys()
   end
 
   for _, binding in
+    -- CTRL-w is the editor window prefix and readline's kill-word. SUPER-w
+    -- closes the pane, so the chord loses nothing by passing through.
     ipairs(create_multi_mod_bindings("w", function()
       return act.CloseCurrentPane({ confirm = true })
-    end))
+    end, nil, { passthrough = READLINE }))
   do
     table.insert(keys, binding)
   end
@@ -295,7 +327,9 @@ local function get_tab_keys()
     create_smart_keybind("o", "CTRL|SHIFT", act.ActivateLastTab),
   }
 
-  table.insert(keys, create_smart_keybind("t", "CTRL", act.SpawnTab("CurrentPaneDomain")))
+  -- CTRL-t is fzf's file widget and readline's transpose. SUPER-t spawns the
+  -- tab, so the chord loses nothing by passing through.
+  table.insert(keys, create_smart_keybind("t", "CTRL", act.SpawnTab("CurrentPaneDomain"), { passthrough = READLINE }))
 
   table.insert(keys, create_smart_keybind("t", "SUPER", act.SpawnTab("CurrentPaneDomain")))
 
@@ -361,8 +395,11 @@ end
 local function get_search_keys()
   return {
     create_smart_keybind("Escape", "CTRL", act.ActivateCopyMode),
-    create_smart_keybind("/", "CTRL", act.Search("CurrentSelectionOrEmptyString")),
-    create_smart_keybind("f", "CTRL", act.QuickSelect),
+    -- CTRL-/ is readline undo and CTRL-f is page-forward in an editor.
+    create_smart_keybind("/", "CTRL", act.Search("CurrentSelectionOrEmptyString"), {
+      passthrough = EDITORS,
+    }),
+    create_smart_keybind("f", "CTRL", act.QuickSelect, { passthrough = EDITORS }),
     create_smart_keybind("f", "CTRL|SHIFT", act.PaneSelect),
   }
 end
@@ -401,6 +438,8 @@ function M.setup(config)
     get_window_keys()
   )
 
+  -- CTRL-g is readline's abort, and it stays bound: it is the switch that turns
+  -- every other binding into a passthrough, so it cannot itself pass through.
   table.insert(keys, {
     key = "g",
     mods = "CTRL",
