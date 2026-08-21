@@ -8,11 +8,11 @@
         "pinned": false,
         "src": {
             "name": null,
-            "sha256": "sha256-x5T6G/xb8RS04BBuyiK/w9ptdGp3cSQOxUYNzxWj2CY=",
+            "sha256": "sha256-1QBOYcTMFnccOJv2+emsydXikCUKYfkvsgdiL+MS15c=",
             "type": "url",
-            "url": "https://static.ampcode.com/cli/0.0.1787299749-g1ad2d8/amp-darwin-arm64.gz"
+            "url": "https://static.ampcode.com/cli/0.0.1787328285-g05ea44/amp-darwin-arm64.gz"
         },
-        "version": "0.0.1787299749-g1ad2d8"
+        "version": "0.0.1787328285-g05ea44"
     },
     "amp-cli-aarch64-linux": {
         "cargoLock": null,
@@ -23,11 +23,11 @@
         "pinned": false,
         "src": {
             "name": null,
-            "sha256": "sha256-JaHir70EqtUdwUsWKcH5oM/zvblB6Iplq3yC+KVF/9A=",
+            "sha256": "sha256-T9QcXmY9UgePdEdjKxV0okD7k19AmpekKtpGzfHdWGA=",
             "type": "url",
-            "url": "https://static.ampcode.com/cli/0.0.1787299749-g1ad2d8/amp-linux-arm64.gz"
+            "url": "https://static.ampcode.com/cli/0.0.1787328285-g05ea44/amp-linux-arm64.gz"
         },
-        "version": "0.0.1787299749-g1ad2d8"
+        "version": "0.0.1787328285-g05ea44"
     },
     "amp-cli-x86_64-linux": {
         "cargoLock": null,
@@ -38,11 +38,11 @@
         "pinned": false,
         "src": {
             "name": null,
-            "sha256": "sha256-a1hN3E4yWEGWYyD+ghoBM1mA5wZ9xBcbLRIYhf6hd50=",
+            "sha256": "sha256-tUDId8bZsjrC+gREZ96cOWRxCa/tumA4FCrveLB6mzo=",
             "type": "url",
-            "url": "https://static.ampcode.com/cli/0.0.1787299749-g1ad2d8/amp-linux-x64-baseline.gz"
+            "url": "https://static.ampcode.com/cli/0.0.1787328285-g05ea44/amp-linux-x64-baseline.gz"
         },
-        "version": "0.0.1787299749-g1ad2d8"
+        "version": "0.0.1787328285-g05ea44"
     },
     "atomic-coding-agent": {
         "cargoLock": null,
@@ -215,11 +215,11 @@
         "pinned": false,
         "src": {
             "name": null,
-            "sha256": "sha256-aQU0gZ8v6CQhce7BaFFE8vVfaJdWjBSaImvAfDsvUnw=",
+            "sha256": "sha256-89Y5OriLlvA3IUoSxkLOvwRsxWwJEH/9rLN8+JeXZyI=",
             "type": "url",
-            "url": "https://github.com/block/goose/releases/download/v1.46.0/goose-aarch64-apple-darwin.tar.gz"
+            "url": "https://github.com/block/goose/releases/download/v1.47.0/goose-aarch64-apple-darwin.tar.gz"
         },
-        "version": "1.46.0"
+        "version": "1.47.0"
     },
     "goose-cli-bin-aarch64-linux": {
         "cargoLock": null,
@@ -230,11 +230,11 @@
         "pinned": false,
         "src": {
             "name": null,
-            "sha256": "sha256-6MBx73XB2NA2s8Snkfsr6ecA9hpD5obFgeAnuT6X3M8=",
+            "sha256": "sha256-1RwZ0Ot9l8GRbTmlrgGvLPiidmUWW1CCGQq3beZJFNE=",
             "type": "url",
-            "url": "https://github.com/block/goose/releases/download/v1.46.0/goose-aarch64-unknown-linux-gnu.tar.gz"
+            "url": "https://github.com/block/goose/releases/download/v1.47.0/goose-aarch64-unknown-linux-gnu.tar.gz"
         },
-        "version": "1.46.0"
+        "version": "1.47.0"
     },
     "goose-cli-bin-x86_64-darwin": {
         "cargoLock": null,
@@ -245,11 +245,11 @@
         "pinned": false,
         "src": {
             "name": null,
-            "sha256": "sha256-Dn6cYtOzOqx2vzrIRSUdmV1mgd1kmZ7L7UqgvglwGbM=",
+            "sha256": "sha256-A6m9vcNhoCMWbT7/SvcBgW/f77ZhkOv5duuo2FsPgDE=",
             "type": "url",
-            "url": "https://github.com/block/goose/releases/download/v1.46.0/goose-x86_64-apple-darwin.tar.gz"
+            "url": "https://github.com/block/goose/releases/download/v1.47.0/goose-x86_64-apple-darwin.tar.gz"
         },
-        "version": "1.46.0"
+        "version": "1.47.0"
     },
     "goose-cli-bin-x86_64-linux": {
         "cargoLock": null,
@@ -260,11 +260,11 @@
         "pinned": false,
         "src": {
             "name": null,
-            "sha256": "sha256-I/DzdxdAbME7tVIy9oky4VLuxZZkPSapL5shQQvOQzE=",
+            "sha256": "sha256-RG4BS9BBL87b6y3uhF1tW/ytYwlEsBKA+zX25P6xESo=",
             "type": "url",
-            "url": "https://github.com/block/goose/releases/download/v1.46.0/goose-x86_64-unknown-linux-gnu.tar.gz"
+            "url": "https://github.com/block/goose/releases/download/v1.47.0/goose-x86_64-unknown-linux-gnu.tar.gz"
         },
-        "version": "1.46.0"
+        "version": "1.47.0"
     },
     "hererocks": {
         "cargoLock": null,
