@@ -8,26 +8,26 @@
 {
   amp-cli = {
     pname = "amp-cli";
-    version = "0.0.1787328285-g05ea44";
+    version = "0.0.1787342526-gc11bfb";
     src = fetchurl {
-      url = "https://static.ampcode.com/cli/0.0.1787328285-g05ea44/amp-darwin-arm64.gz";
-      sha256 = "sha256-1QBOYcTMFnccOJv2+emsydXikCUKYfkvsgdiL+MS15c=";
+      url = "https://static.ampcode.com/cli/0.0.1787342526-gc11bfb/amp-darwin-arm64.gz";
+      sha256 = "sha256-Nz0AnaPfoqfoD7rLEC9vD+8c4X10Nuj4ywXuqSwoAxg=";
     };
   };
   amp-cli-aarch64-linux = {
     pname = "amp-cli-aarch64-linux";
-    version = "0.0.1787328285-g05ea44";
+    version = "0.0.1787342526-gc11bfb";
     src = fetchurl {
-      url = "https://static.ampcode.com/cli/0.0.1787328285-g05ea44/amp-linux-arm64.gz";
-      sha256 = "sha256-T9QcXmY9UgePdEdjKxV0okD7k19AmpekKtpGzfHdWGA=";
+      url = "https://static.ampcode.com/cli/0.0.1787342526-gc11bfb/amp-linux-arm64.gz";
+      sha256 = "sha256-kJzUdQOXpxxSRz+eA8YL/LgKa5qDTNYE/0GOmb1UiUk=";
     };
   };
   amp-cli-x86_64-linux = {
     pname = "amp-cli-x86_64-linux";
-    version = "0.0.1787328285-g05ea44";
+    version = "0.0.1787342526-gc11bfb";
     src = fetchurl {
-      url = "https://static.ampcode.com/cli/0.0.1787328285-g05ea44/amp-linux-x64-baseline.gz";
-      sha256 = "sha256-tUDId8bZsjrC+gREZ96cOWRxCa/tumA4FCrveLB6mzo=";
+      url = "https://static.ampcode.com/cli/0.0.1787342526-gc11bfb/amp-linux-x64-baseline.gz";
+      sha256 = "sha256-33SmH06EJw32vcB1IV/1Bk+U52XYDe/QRFdXW1lI2PY=";
     };
   };
   atomic-coding-agent = {
@@ -255,10 +255,10 @@
   };
   prime-agent = {
     pname = "prime-agent";
-    version = "0.7.4";
+    version = "0.8.0";
     src = fetchurl {
-      url = "https://github.com/PrimeIntellect-ai/prime-agent/releases/download/v0.7.4/prime-agent-0.7.4.tgz";
-      sha256 = "sha256-3qBF18FwRmoQLgMOlA9FnME/LBE0ZfQL4cdQXYBAXS4=";
+      url = "https://github.com/PrimeIntellect-ai/prime-agent/releases/download/v0.8.0/prime-agent-0.8.0.tgz";
+      sha256 = "sha256-9bAJPH4P3bc/lHc9dDg1hUVq36hPEqQILTCY8ju4+rY=";
     };
   };
 }

@@ -8,11 +8,11 @@
         "pinned": false,
         "src": {
             "name": null,
-            "sha256": "sha256-1QBOYcTMFnccOJv2+emsydXikCUKYfkvsgdiL+MS15c=",
+            "sha256": "sha256-Nz0AnaPfoqfoD7rLEC9vD+8c4X10Nuj4ywXuqSwoAxg=",
             "type": "url",
-            "url": "https://static.ampcode.com/cli/0.0.1787328285-g05ea44/amp-darwin-arm64.gz"
+            "url": "https://static.ampcode.com/cli/0.0.1787342526-gc11bfb/amp-darwin-arm64.gz"
         },
-        "version": "0.0.1787328285-g05ea44"
+        "version": "0.0.1787342526-gc11bfb"
     },
     "amp-cli-aarch64-linux": {
         "cargoLock": null,
@@ -23,11 +23,11 @@
         "pinned": false,
         "src": {
             "name": null,
-            "sha256": "sha256-T9QcXmY9UgePdEdjKxV0okD7k19AmpekKtpGzfHdWGA=",
+            "sha256": "sha256-kJzUdQOXpxxSRz+eA8YL/LgKa5qDTNYE/0GOmb1UiUk=",
             "type": "url",
-            "url": "https://static.ampcode.com/cli/0.0.1787328285-g05ea44/amp-linux-arm64.gz"
+            "url": "https://static.ampcode.com/cli/0.0.1787342526-gc11bfb/amp-linux-arm64.gz"
         },
-        "version": "0.0.1787328285-g05ea44"
+        "version": "0.0.1787342526-gc11bfb"
     },
     "amp-cli-x86_64-linux": {
         "cargoLock": null,
@@ -38,11 +38,11 @@
         "pinned": false,
         "src": {
             "name": null,
-            "sha256": "sha256-tUDId8bZsjrC+gREZ96cOWRxCa/tumA4FCrveLB6mzo=",
+            "sha256": "sha256-33SmH06EJw32vcB1IV/1Bk+U52XYDe/QRFdXW1lI2PY=",
             "type": "url",
-            "url": "https://static.ampcode.com/cli/0.0.1787328285-g05ea44/amp-linux-x64-baseline.gz"
+            "url": "https://static.ampcode.com/cli/0.0.1787342526-gc11bfb/amp-linux-x64-baseline.gz"
         },
-        "version": "0.0.1787328285-g05ea44"
+        "version": "0.0.1787342526-gc11bfb"
     },
     "atomic-coding-agent": {
         "cargoLock": null,
@@ -473,10 +473,10 @@
         "pinned": false,
         "src": {
             "name": null,
-            "sha256": "sha256-3qBF18FwRmoQLgMOlA9FnME/LBE0ZfQL4cdQXYBAXS4=",
+            "sha256": "sha256-9bAJPH4P3bc/lHc9dDg1hUVq36hPEqQILTCY8ju4+rY=",
             "type": "url",
-            "url": "https://github.com/PrimeIntellect-ai/prime-agent/releases/download/v0.7.4/prime-agent-0.7.4.tgz"
+            "url": "https://github.com/PrimeIntellect-ai/prime-agent/releases/download/v0.8.0/prime-agent-0.8.0.tgz"
         },
-        "version": "0.7.4"
+        "version": "0.8.0"
     }
 }
