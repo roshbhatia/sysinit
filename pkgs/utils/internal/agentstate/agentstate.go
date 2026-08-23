@@ -40,10 +40,94 @@ type state struct {
 	Since  int64    `json:"since"`
 }
 
+// toolKeys names where one harness puts the tool and its detail in the hook
+// payload it pipes to stdin. Only the `tool` and `message` reason sources read
+// them, and the shape is the harness's, not this tool's.
+type toolKeys struct {
+	Name    []string
+	Detail  []string
+	Message []string
+}
+
+// orElse fills each field the caller left unset, so overriding one key does not
+// silently blank the others.
+func (k toolKeys) orElse(fallback toolKeys) toolKeys {
+	if len(k.Name) == 0 {
+		k.Name = fallback.Name
+	}
+	if len(k.Detail) == 0 {
+		k.Detail = fallback.Detail
+	}
+	if len(k.Message) == 0 {
+		k.Message = fallback.Message
+	}
+	return k
+}
+
+// claudeKeys is also the fallback. Every harness that reports a tool today
+// sends Claude Code's shape, so an unlisted one is read as that rather than as
+// nothing, and --tool-key overrides it without a code change.
+var claudeKeys = toolKeys{
+	Name: []string{"tool_name"},
+	Detail: []string{
+		"tool_input.command",
+		"tool_input.file_path",
+		"tool_input.path",
+		"tool_input.description",
+		"tool_input.pattern",
+	},
+	Message: []string{"message"},
+}
+
+var byHarness = map[string]toolKeys{
+	"claude": claudeKeys,
+}
+
+func keysFor(agent string) toolKeys {
+	if keys, ok := byHarness[agent]; ok {
+		return keys
+	}
+	return claudeKeys
+}
+
+// parseArgs splits the positional agent/status/reason from the key overrides.
+// Each --tool-key, --detail-key, and --message-key is a dotted path into the
+// payload, and may repeat; the first one that answers wins.
+func parseArgs(args []string) ([]string, toolKeys, error) {
+	var positional []string
+	var keys toolKeys
+	for i := 0; i < len(args); i++ {
+		var into *[]string
+		switch args[i] {
+		case "--tool-key":
+			into = &keys.Name
+		case "--detail-key":
+			into = &keys.Detail
+		case "--message-key":
+			into = &keys.Message
+		default:
+			positional = append(positional, args[i])
+			continue
+		}
+		if i+1 >= len(args) {
+			return nil, toolKeys{}, fmt.Errorf("%s needs a value", args[i])
+		}
+		*into = append(*into, args[i+1])
+		i++
+	}
+	return positional, keys, nil
+}
+
 func Run(args []string) int {
-	agent := arg(args, 0, "agent")
-	status := arg(args, 1, "working")
-	reasonSrc := arg(args, 2, "")
+	positional, keys, err := parseArgs(args)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "agent-state: %s\n", err)
+		return 1
+	}
+	agent := arg(positional, 0, "agent")
+	status := arg(positional, 1, "working")
+	reasonSrc := arg(positional, 2, "")
+	keys = keys.orElse(keysFor(agent))
 
 	pane := os.Getenv("WEZTERM_PANE")
 	if pane == "" {
@@ -62,7 +146,7 @@ func Run(args []string) int {
 	input := readStdin()
 	since := time.Now().Unix()
 
-	reason := deriveReason(reasonSrc, status, input, stateDir, pane, since)
+	reason := deriveReason(reasonSrc, status, input, keys, stateDir, pane, since)
 	reason = tidy(reason)
 	if reason == "" {
 		reason = status
@@ -183,7 +267,7 @@ func dig(doc map[string]any, paths ...string) string {
 	return ""
 }
 
-func deriveReason(src, status string, input map[string]any, stateDir, pane string, since int64) string {
+func deriveReason(src, status string, input map[string]any, keys toolKeys, stateDir, pane string, since int64) string {
 	switch src {
 	case "submit":
 		if os.MkdirAll(stateDir, 0o755) == nil {
@@ -192,13 +276,8 @@ func deriveReason(src, status string, input map[string]any, stateDir, pane strin
 		}
 		return "thinking"
 	case "tool":
-		tool := dig(input, "tool_name")
-		detail := dig(input,
-			"tool_input.command",
-			"tool_input.file_path",
-			"tool_input.path",
-			"tool_input.description",
-			"tool_input.pattern")
+		tool := dig(input, keys.Name...)
+		detail := dig(input, keys.Detail...)
 		switch {
 		case tool != "" && detail != "":
 			return tool + ": " + detail
@@ -208,7 +287,7 @@ func deriveReason(src, status string, input map[string]any, stateDir, pane strin
 			return status
 		}
 	case "message":
-		if text := dig(input, "message"); text != "" {
+		if text := dig(input, keys.Message...); text != "" {
 			return text
 		}
 		return status

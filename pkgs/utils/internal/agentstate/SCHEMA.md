@@ -82,9 +82,9 @@ so every surface renders the same string.
 
 ## Liveness
 
-A record outlives the process that wrote it. `claude` and `pi` wire
-`agent-state ... exit`; `codex` and `opencode` do not, so a crashed or exited
-one leaves its last record behind.
+A record outlives the process that wrote it. `claude`, `atomic`, `pi`, and
+`prime-agent` wire `agent-state ... exit`; `codex` and `opencode` do not, so a
+crashed or exited one leaves its last record behind.
 
 The rule is pane existence, not an age bound. `since` is republished on every
 tool call, so it is a heartbeat only while tool calls happen, and `waiting` and

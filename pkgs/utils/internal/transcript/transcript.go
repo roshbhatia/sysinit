@@ -9,6 +9,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/roshbhatia/sysinit/pkgs/internal/agents"
 	"github.com/roshbhatia/sysinit/pkgs/internal/paths"
 	"github.com/roshbhatia/sysinit/pkgs/utils/internal/repo"
 )
@@ -74,7 +75,7 @@ func Run(args []string) int {
 		return 0
 	}
 
-	native := Resolve(event.TranscriptPath, session)
+	native := Resolve(harness, event.TranscriptPath, session)
 	if native == "" {
 		return 0
 	}
@@ -109,17 +110,22 @@ func sanitize(id string) string {
 	return strings.TrimSuffix(id, ".jsonl")
 }
 
-func Resolve(hint, session string) string {
+// Resolve finds the harness's own transcript file. The hook payload names it
+// where the harness sends one; otherwise the search is under that harness's
+// transcriptRoot from agents.json. The root used to be Claude Code's for every
+// harness, so the search answered for one of the fourteen and the other
+// thirteen published nothing for `watch transcript` to read.
+func Resolve(harness, hint, session string) string {
 	if hint != "" {
 		if info, err := os.Stat(hint); err == nil && info.Mode().IsRegular() {
 			return hint
 		}
 	}
-	home, err := os.UserHomeDir()
-	if err != nil {
+	root := transcriptRoot(harness)
+	if root == "" {
 		return ""
 	}
-	matches, err := filepath.Glob(filepath.Join(home, ".claude", "projects", "*", session+".jsonl"))
+	matches, err := filepath.Glob(filepath.Join(root, "*", session+".jsonl"))
 	if err != nil || len(matches) == 0 {
 		return ""
 	}
@@ -127,6 +133,20 @@ func Resolve(hint, session string) string {
 		return modTime(matches[i]).After(modTime(matches[j]))
 	})
 	return matches[0]
+}
+
+// transcriptRoot falls back to Claude Code's directory, which is what every
+// harness searched before the field existed. A registry with no transcriptRoot
+// therefore behaves exactly as it did.
+func transcriptRoot(harness string) string {
+	if root := agents.TranscriptRoot(harness); root != "" {
+		return root
+	}
+	home, err := os.UserHomeDir()
+	if err != nil {
+		return ""
+	}
+	return filepath.Join(home, ".claude", "projects")
 }
 
 func modTime(path string) time.Time {

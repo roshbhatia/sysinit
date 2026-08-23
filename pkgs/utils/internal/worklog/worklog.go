@@ -406,7 +406,9 @@ func build(ev event, now time.Time) (Record, bool) {
 
 	ts := now.UTC().Format("2006-01-02T15:04:05Z")
 	found := intent{}
-	path := transcript.Resolve(ev.TranscriptPath, ev.SessionID)
+	// No harness in the payload, so the search stays on the default root. The
+	// hook that writes this log always names the transcript anyway.
+	path := transcript.Resolve("", ev.TranscriptPath, ev.SessionID)
 	if path != "" {
 		found = readContext(path)
 	}
