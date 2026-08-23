@@ -14,6 +14,35 @@ local function plugin_state(module, lazy_name)
   return "absent"
 end
 
+---The registry is the one list of who the agents are, so the split between the
+---agents the edit-event log covers and the ones left to the poll is read from it
+---rather than stated here.
+---@return string
+local function edit_bus_coverage(launch)
+  if not launch then
+    return "edit-event log coverage: unknown, because the launch module did not load to read the registry"
+  end
+  local bus, poll = {}, {}
+  for _, agent in ipairs(launch.all()) do
+    local name = tostring(agent.name or agent.label or "?")
+    if agent.editBus == true then
+      bus[#bus + 1] = name
+    elseif agent.editBus == false then
+      poll[#poll + 1] = name
+    end
+  end
+  if #bus == 0 and #poll == 0 then
+    return "edit-event log coverage: the registry declares no `editBus` field, so the poll above is the only refresh"
+  end
+  return string.format(
+    "edit-event log feeds the %d editBus harness(es): %s. The other %d rely on the poll above: %s",
+    #bus,
+    table.concat(bus, ", "),
+    #poll,
+    #poll > 0 and table.concat(poll, ", ") or "none"
+  )
+end
+
 ---@return HarnessFinding[]
 function M.findings()
   local out = {}
@@ -67,9 +96,6 @@ function M.findings()
     add("error", "`utils` is not on PATH, so no repository, change, or note can be read")
   end
 
-  -- First, because it is the only refresh that covers all fourteen agents, and
-  -- because it silently did not run for months. It used to start from
-  -- session.set_active, which only the deleted in-editor spawn picker called.
   local ok_refresh, refresh = pcall(require, "harness.file_refresh")
   if not ok_refresh then
     add("error", "the file-refresh poll did not load, so no agent's write reloads a buffer")
@@ -109,7 +135,7 @@ function M.findings()
     else
       add("warn", "edit-event watcher: not running")
     end
-    add("ok", "edit-event log feeds the 5 editBus harnesses; the other 9 rely on the poll above")
+    add("ok", edit_bus_coverage(ok_launch and launch or nil))
     if watch.log then
       add("ok", "edit-event log: " .. watch.log .. string.format(" (read to byte %d)", watch.offset))
     else
