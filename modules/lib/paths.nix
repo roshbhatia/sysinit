@@ -2,7 +2,9 @@
 
 let
   # wezterm imports this file with `lib` alone, so Darwin is read off the home
-  # directory rather than a `pkgs` the three call sites do not pass.
+  # directory rather than a `pkgs` the three call sites do not pass. This is a
+  # string test, not a platform test: a Linux host with a `/Users/` home would
+  # read as Darwin here.
   isDarwin = home: lib.hasPrefix "/Users/" home;
 
   getSystemPaths = username: home: {

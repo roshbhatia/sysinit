@@ -195,8 +195,9 @@ them errors; the code no longer carries a comment saying so.
 
 - `left-alt` chords cannot fire on macOS: WezTerm defaults
   `send_composed_key_when_left_alt_is_pressed` to true, so left-alt composes.
-  `modules/darwin/lib/chords.nix` is the shared vocabulary the collision check
-  reads. Two layers binding one chord means one wins and the other never fires.
+  `modules/darwin/lib/chords.nix` is the shared vocabulary. Two layers binding
+  one chord means one wins and the other never fires, and nothing checks for it:
+  the eval-time collision check was removed with the rest of the assertions.
 - `wezterm cli` starts a headless `wezterm-mux-server` when it finds no GUI. So
   `wezterm cli spawn` with WezTerm closed prints a pane id, exits 0, and draws
   nothing. The window is real and lives in the daemon until something attaches.

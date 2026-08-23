@@ -29,8 +29,6 @@ in
 {
   sysinit.darwin.keybindings.symbolicHotkeys = chords.baseSymbolicHotkeys;
 
-  sysinit.darwin.keybindings.reservedChords = chords.reservedChords;
-
   system.defaults.CustomUserPreferences = lib.recursiveUpdate appShortcutPrefs hotkeyPrefs;
 
   system.activationScripts.postActivation.text = ''

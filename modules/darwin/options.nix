@@ -75,20 +75,6 @@ in
         '';
       };
 
-      reservedChords = mkOption {
-        type = types.attrsOf types.str;
-        default = { };
-        example = {
-          "cmd+space" = "raycast";
-        };
-        description = ''
-          Chords owned by a layer this repo cannot read, keyed by chord with the
-          owner as the value. Written as modifiers in cmd, ctrl, alt, shift order
-          then the key, e.g. "cmd+shift+enter". Symbolic hotkeys and aerospace
-          bindings are checked against this set at eval time.
-        '';
-      };
-
       appShortcuts = mkOption {
         type = types.attrsOf (types.attrsOf types.str);
         default = { };

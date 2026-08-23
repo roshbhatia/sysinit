@@ -6,7 +6,15 @@ let
     "workstation"
   ];
 
-  index = name: lib.lists.findFirstIndex (t: t == name) null tiers;
+  index =
+    name:
+    let
+      found = lib.lists.findFirstIndex (t: t == name) null tiers;
+    in
+    if found == null then
+      throw "sysinit: unknown profile ${name}, expected one of ${lib.concatStringsSep ", " tiers}"
+    else
+      found;
 in
 {
   inherit tiers;
@@ -15,5 +23,11 @@ in
 
   forProfile =
     profile: groups:
-    lib.concatMap (tier: groups.${tier} or [ ]) (lib.filter (tier: index tier <= index profile) tiers);
+    let
+      unknown = lib.subtractLists tiers (builtins.attrNames groups);
+    in
+    if unknown != [ ] then
+      throw "sysinit: profile group ${lib.concatStringsSep ", " unknown} names no tier"
+    else
+      lib.concatMap (tier: groups.${tier} or [ ]) (lib.filter (tier: index tier <= index profile) tiers);
 }

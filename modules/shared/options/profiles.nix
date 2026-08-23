@@ -14,7 +14,11 @@ let
 
   index = name: lib.lists.findFirstIndex (t: t == name) null tiers;
 
-  selected = index profile;
+  selected =
+    if index profile == null then
+      throw "sysinit: unknown profile ${profile}, expected one of ${lib.concatStringsSep ", " tiers}"
+    else
+      index profile;
 
   enabled = name: index name <= selected;
 in

@@ -58,24 +58,6 @@ rec {
 
   mkChord = mods: key: lib.concatStringsSep "+" ((map (m: m.name) mods) ++ [ (canonicalKey key) ]);
 
-  chordOfHotkey =
-    keys:
-    let
-      code = builtins.elemAt keys 1;
-      bits = builtins.elemAt keys 2;
-      present = lib.filter (m: lib.bitAnd bits m.bit != 0) modNames;
-    in
-    mkChord present (keyNames.${toString code} or "kc${toString code}");
-
-  chordOfBindingName =
-    name:
-    let
-      parts = lib.splitString "-" name;
-      given = lib.init parts;
-      present = lib.filter (m: lib.elem m.name given) modNames;
-    in
-    mkChord present (lib.last parts);
-
   disabled = {
     enable = false;
   };
