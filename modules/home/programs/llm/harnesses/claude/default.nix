@@ -96,6 +96,17 @@ in
       env = {
         CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS = "1";
         DISABLE_AUTOUPDATER = "1";
+
+        # Traces need the beta flag on top of the telemetry switch; the switch
+        # alone emits logs and metrics only. A run with no collector listening
+        # on 4318 costs nothing measurable and prints no error, so these stay on.
+        CLAUDE_CODE_ENABLE_TELEMETRY = "1";
+        CLAUDE_CODE_ENHANCED_TELEMETRY_BETA = "1";
+        OTEL_TRACES_EXPORTER = "otlp";
+        OTEL_METRICS_EXPORTER = "otlp";
+        OTEL_LOGS_EXPORTER = "otlp";
+        OTEL_EXPORTER_OTLP_PROTOCOL = "http/json";
+        OTEL_EXPORTER_OTLP_ENDPOINT = "http://127.0.0.1:4318";
       };
 
       teammateMode = "in-process";
