@@ -19,9 +19,7 @@ let
       sha256 = "sha256-AGqk0NeysNV7ZmuTxWZZYNISZkCgt/Qei8NkcLTUSGA=";
     };
   };
-  contextiveSource =
-    contextiveSources.${final.stdenv.hostPlatform.system}
-      or (throw "contextive: Unsupported platform ${final.stdenv.hostPlatform.system}");
+  contextiveSource = contextiveSources.${final.stdenv.hostPlatform.system};
 in
 {
   contextive = final.stdenv.mkDerivation {

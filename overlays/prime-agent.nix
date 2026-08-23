@@ -72,14 +72,7 @@ in
       # version-matched `prime-agent-runtime`, and whatever python packages a
       # session installs, so it is session state like `auth.json`, not config.
       #
-      # The last two lines are the isolation from the other two pi-lineage
-      # agents. Unlike atomic, prime-agent publishes no prefixed alias for
-      # `PI_SKIP_VERSION_CHECK`: the fork reads that literal name, so unsetting
-      # the pi spelling would take a knob away rather than separate anything.
-      # Setting it here instead ends the cross-module dependency, where
-      # prime-agent's startup behaviour came from a session variable the pi module
-      # owns and could change without prime-agent noticing. `:-` leaves both an
-      # owner override and the agent directory's own default reachable.
+      # prime-agent reads pi's literal `PI_SKIP_VERSION_CHECK`, not an alias.
       makeWrapper ${final.nodejs_22}/bin/node $out/bin/prime-agent \
         --add-flags $out/lib/prime-agent/dist/bundle/cli.js \
         --prefix PATH : ${

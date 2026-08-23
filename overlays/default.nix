@@ -37,7 +37,6 @@
   (import ./amp-cli.nix)
   (import ./crush.nix)
   (import ./contextive.nix)
-  (import ./opa.nix)
   (import ./ioskeleyMono.nix)
   (import ./wumpusMono.nix)
   (import ./bookerly.nix)
@@ -50,7 +49,10 @@
   (
     final: prev:
     let
-      pristine = import inputs.nixpkgs { inherit (final.stdenv.hostPlatform) system; };
+      pristine = import inputs.nixpkgs {
+        inherit (final.stdenv.hostPlatform) system;
+        inherit (final) config;
+      };
     in
     {
       cargo-watch =

@@ -10,6 +10,7 @@ in
 
     build-system = [ final.python3Packages.setuptools ];
 
+    # nixpkgs ships no such package, so this skip displaces no cached build.
     doCheck = false;
 
     meta = with final.lib; {

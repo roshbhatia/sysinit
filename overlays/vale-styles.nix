@@ -32,12 +32,10 @@ let
     # Two styles out of one repository, so the asset name and the repository
     # name differ here and `repo` has to be stated rather than derived.
     #
-    # Slop is the closer fit to this repository's own rule set: 17 rules against
-    # the tells, 38 alerts across the 41 tracked .md files. STE ships 12
-    # ASD-STE100 rules and 1015 alerts on the same files, so only the two rules
-    # named in `ini` are switched on. The rest conflicts: `STE.Modals` rewrites
-    # `should` and `may`, which RFC 2119 gives a fixed meaning, and
-    # `STE.Contractions` bans the contractions `writing-tone` keeps on purpose.
+    # Only the two STE rules named in `ini` are switched on. The rest conflicts:
+    # `STE.Modals` rewrites `should` and `may`, which RFC 2119 gives a fixed
+    # meaning, and `STE.Contractions` bans the contractions `writing-tone` keeps
+    # on purpose.
     {
       name = "Slop";
       repo = "Syntaf/vale-llm-slop";

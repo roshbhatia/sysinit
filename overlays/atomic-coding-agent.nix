@@ -10,9 +10,7 @@ let
     "x86_64-linux" = sources.atomic-coding-agent-x86_64-linux.src;
   };
 
-  src =
-    platformInfo.${final.stdenv.hostPlatform.system}
-      or (throw "atomic-coding-agent: Unsupported platform ${final.stdenv.hostPlatform.system}");
+  src = platformInfo.${final.stdenv.hostPlatform.system};
 
   legacyPiAliases = [
     "PI_CODING_AGENT_DIR"

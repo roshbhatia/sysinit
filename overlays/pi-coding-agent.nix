@@ -10,9 +10,7 @@ let
     "x86_64-linux" = sources.pi-coding-agent-x86_64-linux.src;
   };
 
-  src =
-    platformInfo.${final.stdenv.hostPlatform.system}
-      or (throw "pi-coding-agent: Unsupported platform ${final.stdenv.hostPlatform.system}");
+  src = platformInfo.${final.stdenv.hostPlatform.system};
 in
 {
   pi-coding-agent = final.stdenv.mkDerivation {

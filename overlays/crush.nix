@@ -22,7 +22,7 @@ let
     };
   };
 
-  info = platformInfo.${final.stdenv.hostPlatform.system} or (throw "Unsupported platform");
+  info = platformInfo.${final.stdenv.hostPlatform.system};
 in
 {
   crush = final.stdenv.mkDerivation {

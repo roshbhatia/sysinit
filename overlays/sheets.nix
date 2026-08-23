@@ -12,6 +12,7 @@ final: _prev: {
 
     vendorHash = "sha256-WWtAt0+W/ewLNuNgrqrgho5emntw3rZL9JTTbNo4GsI=";
 
+    # nixpkgs ships no such package, so this skip displaces no cached build.
     doCheck = false;
 
     meta = with final.lib; {
