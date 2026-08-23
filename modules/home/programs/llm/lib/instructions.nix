@@ -41,7 +41,8 @@ let
           - Note a non-obvious change as you make it, answer a note the owner left you, and replace your own note once the code outgrows it; the `note` skill holds the rules
           - Skills hold the domain rules and the tool routing; load the skill from `${skillsRoot}/` instead of working from memory
           - Pick a {{agent}} by reading its own definition; the definitions carry the use-when and avoid-when rules
-          - openspec and seshy are machine-wide: check `openspec/changes/` and `sy list` before you scope new work
+          - Before scoping new work, check `sy list` for a session already covering it, and `openspec/changes/` for a change already in flight
+          - OpenSpec is a planning tool the owner reaches for, not the default route into work; never author a change unless asked
           - When compacting, keep the decisions, the open work, the file paths and the commands that worked; drop the tool output that produced them
         '';
 
