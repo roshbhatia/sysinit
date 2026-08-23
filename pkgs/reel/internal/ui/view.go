@@ -52,7 +52,7 @@ func (m Model) header() string {
 		state = live.Render("live")
 	}
 	left := title.Render("reel") + " " + accent.Render(service) + dim.Render(" · ") + plain.Render(name)
-	right := fmt.Sprintf("%s %s", dim.Render(fmt.Sprintf("%d spans", count)), state)
+	right := fmt.Sprintf("%s %s", dim.Render(fmt.Sprintf("%d %s", count, plural(count, "span"))), state)
 
 	gap := m.width - lipgloss.Width(left) - lipgloss.Width(right)
 	if gap < 1 {
@@ -260,7 +260,7 @@ func (m Model) viewPick() string {
 			mark, index,
 			accent.Render(clip(one.Service, 12)),
 			plain.Render(clip(one.Title(), 38)),
-			dim.Render(fmt.Sprintf("%4d spans", one.Count)),
+			dim.Render(fmt.Sprintf("%4d %-5s", one.Count, plural(one.Count, "span"))),
 			dim.Render(ago(one.Last, m.now)),
 		)
 		lines = append(lines, line)

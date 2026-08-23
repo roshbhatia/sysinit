@@ -66,6 +66,13 @@ func clip(text string, width int) string {
 	return string(runes[:width-1]) + "…"
 }
 
+func plural(n int, word string) string {
+	if n == 1 {
+		return word
+	}
+	return word + "s"
+}
+
 func duration(d time.Duration) string {
 	switch {
 	case d <= 0:
