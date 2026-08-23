@@ -100,7 +100,9 @@
     command = "copilot";
     acp = true;
     openspecTool = [ "github-copilot" ];
-    guard = "none";
+    # "hook" by way of a JS shim: copilot has no declarative shell hook, so a
+    # user-scoped extension calls the same guard binary the other hooks call.
+    guard = "hook";
     projectDir = ".copilot/";
     transcriptRoot = null;
     exitHook = false;

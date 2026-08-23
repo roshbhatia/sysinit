@@ -19,6 +19,21 @@ let
   copilotMcpConfig = builtins.toJSON {
     mcpServers = llmLib.mcp.formatForCopilot kit.mcpServers.servers;
   };
+
+  exitCodeGuardScript = llmLib.guards.mkExitCodeGuard {
+    inherit pkgs;
+    name = "copilot-exit-code-guard";
+  };
+
+  # The store path is substituted rather than resolved from PATH, so a shadowed
+  # binary cannot disarm the guard.
+  copilotGuardExtension =
+    builtins.replaceStrings
+      [ "@guard@" ]
+      [
+        (lib.getExe exitCodeGuardScript)
+      ]
+      (builtins.readFile ./copilot/extensions/sysinit-guard/extension.mjs);
 in
 {
 
@@ -31,6 +46,14 @@ in
   };
 
   home.file = {
+    # A user-scoped extension. Copilot scans this directory for immediate
+    # subdirectories holding an extension.mjs, so the name of the directory is
+    # the name of the extension.
+    ".copilot/extensions/sysinit-guard/extension.mjs" = {
+      text = copilotGuardExtension;
+      force = true;
+    };
+
     ".copilot/mcp-config.json" = {
       text = copilotMcpConfig;
       force = true;
