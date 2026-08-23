@@ -55,6 +55,12 @@ in
       mkdir -p $out/lib/calldiff
       cp -r node_modules package.json $out/lib/calldiff/
 
+      # calldiff maps .sh and .bash but not .zsh, and the bash grammar parses this
+      # repo's zsh, including its dotted function names. Twelve files here were
+      # unreadable for want of one extension.
+      substituteInPlace $out/lib/calldiff/node_modules/calldiff/dist/languages/bash.js \
+        --replace-fail '[".sh", ".bash"]' '[".sh", ".bash", ".zsh"]'
+
     ''
     + prev.lib.optionalString (keepPrebuild != null) ''
       find $out/lib/calldiff/node_modules -type d -path '*/prebuilds/*' \

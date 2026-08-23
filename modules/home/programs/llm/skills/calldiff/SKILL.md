@@ -28,6 +28,11 @@ What calldiff does reach in this repo: the Lua under
 `modules/darwin/home/hammerspoon/` and `sysinit.nvim`. It also reaches the Go
 under `pkgs/` and the shell under `hack/`.
 
+It reaches `.zsh` too, which upstream does not. `overlays/calldiff.nix` adds the
+extension to the bash extractor, and the bash grammar parses this repo's zsh
+including its dotted function names. Nushell has no extractor at all, so the
+five `.nu` files stay unread.
+
 ## The three commands
 
 ```bash
