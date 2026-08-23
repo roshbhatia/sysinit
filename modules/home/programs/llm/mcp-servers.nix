@@ -65,6 +65,16 @@ in
       description = "AST-based structural code search and analysis";
     };
 
+    # Four meta tools, not three real ones: calldiff hides diff, reach and tree
+    # behind search_tools and call_read_tool. That caps the context cost at four
+    # slots, and costs three round trips where `Bash(calldiff:*)` costs one. It is
+    # here for the harnesses that reach a tool more readily than a shell.
+    calldiff = {
+      command = "${lib.getExe pkgs.calldiff}";
+      args = [ "--mcp" ];
+      description = "Call graphs: diff them across git trees, walk one, or find every path to a symbol";
+    };
+
     playwright = {
       command = "npx";
       args = [
