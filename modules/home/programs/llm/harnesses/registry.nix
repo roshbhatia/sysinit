@@ -9,7 +9,9 @@
     editBus = false;
     bridge = null;
     package = "amp-cli";
-    neovimAdapter = "amp";
+    glyph = "󰫤";
+    command = "amp";
+    acp = true;
     openspecTool = [ ];
   };
 
@@ -23,7 +25,9 @@
     editBus = true;
     bridge = ./atomic/extensions/sysinit-notify.ts;
     package = "atomic-coding-agent";
-    neovimAdapter = "atomic";
+    glyph = "󰬛";
+    command = "atomic";
+    acp = false;
     openspecTool = [ ];
   };
 
@@ -37,7 +41,9 @@
     editBus = true;
     bridge = null;
     package = null;
-    neovimAdapter = "claudecode";
+    glyph = "";
+    command = "claude";
+    acp = true;
     openspecTool = [ "claude" ];
   };
 
@@ -51,7 +57,9 @@
     editBus = true;
     bridge = null;
     package = null;
-    neovimAdapter = "codex";
+    glyph = "󱗿";
+    command = "codex";
+    acp = true;
     openspecTool = [ "codex" ];
   };
 
@@ -65,7 +73,9 @@
     editBus = false;
     bridge = null;
     package = "github-copilot-cli";
-    neovimAdapter = "copilot";
+    glyph = "";
+    command = "copilot";
+    acp = true;
     openspecTool = [ "github-copilot" ];
   };
 
@@ -79,7 +89,9 @@
     editBus = false;
     bridge = null;
     package = "crush";
-    neovimAdapter = "crush";
+    glyph = "";
+    command = "crush";
+    acp = false;
     openspecTool = [ "crush" ];
   };
 
@@ -93,7 +105,9 @@
     editBus = false;
     bridge = null;
     package = "cursor-cli";
-    neovimAdapter = "cursor";
+    glyph = "";
+    command = "cursor-agent";
+    acp = false;
     openspecTool = [ "cursor" ];
   };
 
@@ -107,7 +121,9 @@
     editBus = false;
     bridge = null;
     package = "devin-cli";
-    neovimAdapter = "devin";
+    glyph = "󰚩";
+    command = "devin";
+    acp = true;
     openspecTool = [ ];
   };
 
@@ -121,7 +137,9 @@
     editBus = false;
     bridge = null;
     package = "antigravity-cli";
-    neovimAdapter = "antigravity";
+    glyph = "󰊭";
+    command = "agy";
+    acp = false;
     openspecTool = [
       "antigravity"
       "gemini"
@@ -138,7 +156,9 @@
     editBus = false;
     bridge = null;
     package = "goose-cli";
-    neovimAdapter = "goose";
+    glyph = "";
+    command = "goose";
+    acp = true;
     openspecTool = [ ];
   };
 
@@ -152,7 +172,9 @@
     editBus = false;
     bridge = null;
     package = "hermes-agent";
-    neovimAdapter = "hermes";
+    glyph = "󱙺";
+    command = "hermes";
+    acp = true;
     openspecTool = [ ];
   };
 
@@ -166,7 +188,9 @@
     editBus = true;
     bridge = ./opencode/plugins/sysinit-notify.ts;
     package = "opencode";
-    neovimAdapter = "opencode";
+    glyph = "";
+    command = "opencode";
+    acp = true;
     openspecTool = [ "opencode" ];
   };
 
@@ -180,7 +204,9 @@
     editBus = false;
     bridge = ./prime-agent/extensions/sysinit-notify.ts;
     package = "prime-agent";
-    neovimAdapter = "primeagent";
+    glyph = "󰙨";
+    command = "prime-agent";
+    acp = false;
     openspecTool = [ ];
   };
 
@@ -194,7 +220,9 @@
     editBus = true;
     bridge = ./pi/extensions/sysinit-notify.ts;
     package = "pi-coding-agent";
-    neovimAdapter = "pi";
+    glyph = "󰏿";
+    command = "pi";
+    acp = true;
     openspecTool = [ "pi" ];
   };
 }

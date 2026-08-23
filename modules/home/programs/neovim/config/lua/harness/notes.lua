@@ -29,12 +29,14 @@ local marks = nil
 local function glyph_for(author)
   if marks == nil then
     marks = {}
-    local ok, registry = pcall(require, "harness.registry")
-    if ok then
-      for _, adapter in ipairs(registry.get_all()) do
-        local glyph, word = tostring(adapter.label or ""):match("^(%S+)%s+(%S+)")
-        if glyph then
-          marks[adapter.name] = glyph
+    -- Every agent, not only the ones on PATH: a note outlives the agent that
+    -- wrote it, and an uninstalled agent's notes still need their mark.
+    for _, agent in ipairs(require("harness.launch").all()) do
+      local glyph = tostring(agent.glyph or "")
+      if glyph ~= "" then
+        marks[agent.name] = glyph
+        local word = tostring(agent.label or ""):match("^(%S+)")
+        if word then
           marks[word:lower()] = glyph
         end
       end

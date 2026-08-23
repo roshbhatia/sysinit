@@ -16,7 +16,7 @@ return {
         function()
           require("harness.api").toggle()
         end,
-        desc = "Pick or toggle agent",
+        desc = "Start or focus the agent pane",
       },
       {
         "<leader>ja",
@@ -53,28 +53,14 @@ return {
         function()
           require("harness.api").kill()
         end,
-        desc = "Kill agent",
-      },
-      {
-        "<leader>jJ",
-        function()
-          require("harness.api").kill_and_pick()
-        end,
-        desc = "Kill agent and pick again",
-      },
-      {
-        "<leader>jo",
-        function()
-          require("harness.api").options()
-        end,
-        desc = "Agent options",
+        desc = "Kill the agent pane",
       },
       {
         "<leader>j?",
         function()
           require("harness.api").status()
         end,
-        desc = "Agent status",
+        desc = "Agent pane status",
       },
       {
         "<leader>jb",

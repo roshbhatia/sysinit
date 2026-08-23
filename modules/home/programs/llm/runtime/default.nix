@@ -25,15 +25,27 @@ let
     else
       "";
 
-  adapterDir = ../../neovim/config/lua/harness/adapters;
-
-  missingAdapters = lib.mapAttrsToList (_name: h: h.neovimAdapter) (
-    lib.filterAttrs (_name: h: !(builtins.pathExists (adapterDir + "/${h.neovimAdapter}.lua"))) registry
+  commandless = builtins.attrNames (
+    lib.filterAttrs (_name: h: h.command == null || h.command == "") registry
   );
 
-  assertNeovimAdaptersExist =
-    if missingAdapters != [ ] then
-      throw "runtime/default.nix: ${lib.concatStringsSep ", " missingAdapters} is named by a registry neovimAdapter but no such file exists under neovim/config/lua/harness/adapters. registry.lua would skip it silently."
+  assertCommandsNamed =
+    if commandless != [ ] then
+      throw "runtime/default.nix: ${lib.concatStringsSep ", " commandless} names no command, so agents.json would offer a launch entry that runs nothing."
+    else
+      "";
+
+  # Every acp = true harness must have an entry in lib/acp.nix, or agents.json
+  # advertises an ACP capability with no server behind it.
+  acpServers = builtins.attrNames (import ../lib/acp.nix { inherit lib; }).servers;
+
+  acpWithoutServer = builtins.attrNames (
+    lib.filterAttrs (name: h: h.acp && !(builtins.elem name acpServers)) registry
+  );
+
+  assertAcpServersExist =
+    if acpWithoutServer != [ ] then
+      throw "runtime/default.nix: ${lib.concatStringsSep ", " acpWithoutServer} sets acp but lib/acp.nix declares no server for it."
     else
       "";
 
@@ -80,7 +92,8 @@ let
 
   icons = pkgs.runCommand "agent-notify-icons" { nativeBuildInputs = [ pkgs.librsvg ]; } (
     assertBridgesExist
-    + assertNeovimAdaptersExist
+    + assertCommandsNamed
+    + assertAcpServersExist
     + assertBusHarnessesHook
     + "mkdir -p $out\n"
     + lib.concatStringsSep "\n" (
