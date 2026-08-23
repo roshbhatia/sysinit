@@ -104,13 +104,9 @@
       ];
       pkgsFor =
         system:
-        import nixpkgs {
+        builders.mkPkgs {
           inherit system;
-          config = {
-            allowUnfree = true;
-            allowUnsupportedSystem = true;
-          };
-          overlays = [ (lib.composeManyExtensions (import ./overlays/default.nix { inherit inputs; })) ];
+          overlays = builders.mkOverlays;
         };
     in
     {

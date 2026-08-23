@@ -29,10 +29,9 @@ in
       hostname,
     }:
     let
-      overlays = mkOverlays hostConfig.system;
       pkgs = mkPkgs {
         inherit (hostConfig) system;
-        inherit overlays;
+        overlays = mkOverlays;
       };
       values = (hostConfig.values or { }) // {
         inherit hostname;

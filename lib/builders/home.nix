@@ -17,7 +17,7 @@
     let
       pkgs = mkPkgs {
         inherit system;
-        overlays = mkOverlays system;
+        overlays = mkOverlays;
       };
 
       homeDirectory = if lib.hasSuffix "darwin" system then "/Users/${username}" else "/home/${username}";
@@ -57,9 +57,11 @@
           };
 
           sysinit = {
-            git = resolved.git;
-            llm = resolved.llm;
-            theme = resolved.theme;
+            inherit (resolved)
+              git
+              llm
+              theme
+              ;
           };
         }
       ];
