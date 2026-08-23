@@ -146,10 +146,11 @@ function M.pick()
     return
   end
 
+  -- No acp marker. This picker starts a TUI in a pane, and nine of the fourteen
+  -- carry the flag, so it labelled most of the list without changing any of it.
   local function label(agent)
     local glyph = tostring(agent.glyph or "")
-    local text = glyph ~= "" and (glyph .. "  " .. agent.label) or agent.label
-    return text .. (agent.acp and "  (acp)" or "")
+    return glyph ~= "" and (glyph .. "  " .. agent.label) or agent.label
   end
 
   local ok, snacks = pcall(require, "snacks")
