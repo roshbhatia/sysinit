@@ -71,8 +71,15 @@
       # Cache audit: the pristine output is on neither cache.nixos.org nor
       # roshbhatia.cachix.org, so this builds from source either way and the
       # override costs no substitution.
+      #
+      # Upstream gates cmake, nss-cacert, git and rust-bindgen-hook on doCheck,
+      # but libz-ng-sys needs cmake in buildPhase too. mise uses the finalAttrs
+      # pattern, so overrideAttrs re-reads that list under the new doCheck and
+      # `old.nativeBuildInputs` returns the reduced one. Read it off the
+      # unoverridden package instead, which names no input by hand.
       mise = pristine.mise.overrideAttrs (_: {
         doCheck = false;
+        inherit (pristine.mise) nativeBuildInputs;
       });
       electron_41 = if prev.stdenv.hostPlatform.isDarwin then prev.electron_41 else pristine.electron_41;
       electron = if prev.stdenv.hostPlatform.isDarwin then prev.electron else pristine.electron;
