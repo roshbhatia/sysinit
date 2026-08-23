@@ -100,7 +100,10 @@ in
       webfetch = "allow";
       grep = "allow";
       read = "allow";
-      write = "allow";
+      # `edit`, not `write`. opencode 1.18.18 asks under `edit` for all three of
+      # write, edit and patch; it never queries a permission id named `write`.
+      # The schema accepts any key, so the dead one failed silently.
+      edit = "allow";
       bash = {
         "*" = "allow";
       }
