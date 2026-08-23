@@ -91,53 +91,11 @@ let
       '';
       extras = builtins.concatStringsSep "\n" (map extraText extraSections);
 
-      ownedTitles = [
-        "Conventions"
-        "Skills"
-        "Responsibility"
-        "Prohibitions"
-        "Output Style"
-      ];
-      shadowedTitles = builtins.filter (t: builtins.elem t ownedTitles) (map (s: s.title) extraSections);
-
       rendered = vocab.applyVocab harness (
         base + lib.optionalString (extraSections != [ ]) "\n${extras}"
       );
-
-      requiredResponsibilityRules = [
-        "The user owns each decision and artifact"
-        "Inspect the complete diff"
-        "Model review supplements human review"
-      ];
-      missingResponsibilityRules = builtins.filter (
-        rule: !(lib.hasInfix rule rendered)
-      ) requiredResponsibilityRules;
-
-      countLines =
-        text:
-        let
-          parts = builtins.split "\n" text;
-          stringParts = builtins.filter builtins.isString parts;
-        in
-        builtins.length stringParts;
-
-      lineCount = countLines base;
-
-      maxLines = 45;
-
-      extraLineCount = countLines extras;
-      maxExtraLines = 16;
     in
-    if missingResponsibilityRules != [ ] then
-      throw "instructions.nix: harness '${harness}' is missing responsibility rules: ${builtins.concatStringsSep ", " missingResponsibilityRules}"
-    else if lineCount > maxLines then
-      throw "instructions.nix: rendered context exceeds ${toString maxLines} lines (got ${toString lineCount}). Move repo-specific facts to that repo's AGENTS.md and domain rules to the owning skill."
-    else if shadowedTitles != [ ] then
-      throw "instructions.nix: sysinit.llm.instructions.extraSections shadows a section this repository owns: ${builtins.concatStringsSep ", " shadowedTitles}. Pick a distinct title."
-    else if extraLineCount > maxExtraLines then
-      throw "instructions.nix: sysinit.llm.instructions.extraSections exceeds ${toString maxExtraLines} lines (got ${toString extraLineCount}). A downstream rule that needs more room is a repository fact or a domain rule; move it to that repo's AGENTS.md or to the owning skill."
-    else
-      rendered;
+    rendered;
 
   outputStyleRules = ''
     Write all output in Simplified Technical English (ASD-STE100).

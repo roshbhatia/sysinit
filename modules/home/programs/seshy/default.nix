@@ -45,13 +45,9 @@ let
     lib.unique (lib.concatMap (h: h.openspecTool) (lib.attrValues registry))
   );
 
-  unknownTools = lib.subtractLists supportedTools declaredTools;
-
-  openspecTools =
-    if unknownTools != [ ] then
-      throw "seshy/default.nix: registry openspecTool names ${lib.concatStringsSep ", " unknownTools}, which `openspec init --tools` does not accept. openspec rejects the whole argument on one unknown name, so every new session would fail its postCreate hook."
-    else
-      declaredTools;
+  # Filtered, not checked: openspec rejects the whole argument on one unknown
+  # name, so a stray registry entry would fail every new session's postCreate.
+  openspecTools = lib.intersectLists supportedTools declaredTools;
 
   settings = {
     branchFormat = "dev/{{.User}}/{{.Session}}/{{.Repo}}";

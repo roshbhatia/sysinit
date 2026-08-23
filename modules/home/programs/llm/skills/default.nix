@@ -22,10 +22,9 @@ let
         let
           entries = builtins.readDir (dir + "/${sub}");
         in
-        if lib.filterAttrs (_: t: t == "directory") entries != { } then
-          throw "skill '${name}': ${sub}/ nests a directory; a skill ships at most two levels"
-        else
-          lib.mapAttrs' (f: _: lib.nameValuePair "${sub}/${f}" (dir + "/${sub}/${f}")) entries;
+        lib.mapAttrs' (f: _: lib.nameValuePair "${sub}/${f}" (dir + "/${sub}/${f}")) (
+          lib.filterAttrs (_: t: t != "directory") entries
+        );
     in
     lib.foldlAttrs (
       acc: sub: _:

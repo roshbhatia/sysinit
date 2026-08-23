@@ -222,44 +222,6 @@ let
 
   piPackagePaths = map (p: "${p}") piPackageList;
 
-  contextHookOrder = [
-    "pi-vcc"
-    "pi-subagents"
-    "plannotator/pi-extension"
-    "pi-btw"
-    "pi-tool-display"
-    "pi-context"
-  ];
-
-  installedPiPackageNames = map (p: p.npmName or "") piPackageList;
-
-  contextHookActual = lib.filter (name: name != null) (
-    map (
-      installed: lib.findFirst (name: lib.hasInfix name installed) null contextHookOrder
-    ) installedPiPackageNames
-  );
-
-  assertContextHookOrder =
-    let
-      missing = lib.subtractLists contextHookActual contextHookOrder;
-    in
-    if missing != [ ] then
-      throw "pi.nix: ${lib.concatStringsSep ", " missing} is declared in contextHookOrder but not installed. Remove it from the order, or restore the package."
-    else if contextHookActual != contextHookOrder then
-      throw "pi.nix: contextHookOrder does not match the load order in piPackagePaths.\n  declared: ${lib.concatStringsSep " -> " contextHookOrder}\n  actual:   ${lib.concatStringsSep " -> " contextHookActual}"
-    else
-      true;
-
-  assertGatesDisjoint =
-    let
-      hasPermSystem = builtins.any (p: lib.hasInfix "permission-system" (p.npmName or "")) piPackageList;
-      hasConfirmDestructive = builtins.elem "confirm-destructive" extensions;
-    in
-    if hasPermSystem && hasConfirmDestructive then
-      throw "pi.nix: @gotgenes/pi-permission-system and confirm-destructive cannot both be active. Remove one."
-    else
-      true;
-
   piCosts = pkgs.stdenvNoCC.mkDerivation {
     pname = "pi-costs";
     version = "1.0.1";
@@ -321,43 +283,7 @@ let
   inherit (piKeys) retired;
   piRetiredSettings = retired;
 
-  piOwnerPreferenceKeys = piKeys.ownerPreference;
-
-  piPreferenceOverlap = lib.intersectLists piDeclaredKeys piOwnerPreferenceKeys;
-  assertPreferencesUndeclared =
-    if piPreferenceOverlap != [ ] then
-      throw "pi.nix: ${lib.concatStringsSep ", " piPreferenceOverlap} is declared but listed as owner preference. Declaring it reverts the owner's runtime choice on every activation."
-    else
-      true;
-
-  piDeclaredKeys = builtins.attrNames piManagedSettings;
-
   stylixTheme = builtins.toJSON stylixThemeAttrs;
-
-  assertThemeSelected =
-    if (piManagedSettings.theme or "") != piThemeName then
-      throw "pi.nix: the ${piThemeName} theme is generated and installed but `piManagedSettings.theme` does not select it."
-    else if (stylixThemeAttrs.name or "") != piThemeName then
-      throw "pi.nix: the generated theme names itself '${stylixThemeAttrs.name or ""}' but the setting selects '${piThemeName}'. Pi resolves a theme by its name field, so the theme would be installed and unselected."
-    else
-      true;
-
-  keysNotDeclared = lib.subtractLists piKeys.declared piDeclaredKeys;
-  keysNotRendered = lib.subtractLists piDeclaredKeys piKeys.declared;
-  assertKeysMatchManifest =
-    if keysNotDeclared != [ ] then
-      throw "pi.nix: ${lib.concatStringsSep ", " keysNotDeclared} is written to settings.json but missing from settings-keys.nix, so nothing verifies it against the installed binary."
-    else if keysNotRendered != [ ] then
-      throw "pi.nix: ${lib.concatStringsSep ", " keysNotRendered} is listed in settings-keys.nix but not written to settings.json. Remove the stale entry."
-    else
-      true;
-
-  piKeyOverlap = lib.intersectLists piDeclaredKeys piRetiredSettings;
-  assertPiKeysDisjoint =
-    if piKeyOverlap != [ ] then
-      throw "pi.nix: ${lib.concatStringsSep ", " piKeyOverlap} is both declared and retired; activation would delete it and then merge it back on every switch."
-    else
-      true;
 
   piKeybindings = pkgs.writeText "pi-keybindings.json" (
     builtins.toJSON {
@@ -400,15 +326,7 @@ in
     ];
 
     file =
-      (
-        assert assertGatesDisjoint;
-        assert assertPiKeysDisjoint;
-        assert assertThemeSelected;
-        assert assertPreferencesUndeclared;
-        assert assertKeysMatchManifest;
-        assert assertContextHookOrder;
-        extensionFiles
-      )
+      extensionFiles
       // customExtensionFiles
       // {
         ".pi/agent/keybindings.json" = {

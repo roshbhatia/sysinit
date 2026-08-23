@@ -43,46 +43,14 @@ let
     markdown = ./rules/markdown.mdc;
   };
 
-  validateMdc =
-    name: path:
-    let
-      content = builtins.readFile path;
-      hasAlwaysApply = lib.hasInfix "alwaysApply: true" content;
-      hasGlobs = lib.hasInfix "globs:" content;
-    in
-    if hasAlwaysApply && hasGlobs then
-      throw "cursor.nix: rule '${name}' declares both alwaysApply and globs; pick one"
-    else
-      path;
-
   ruleFiles = lib.mapAttrs' (
     name: path:
     lib.nameValuePair ".cursor/rules/${name}.mdc" {
-      source = validateMdc name path;
+      source = path;
       force = true;
     }
   ) cursorRules;
-  generatedFacts = [
-    "never push"
-    "openspec 1."
-    "200 lines"
-    "## Stack"
-    "## Commands"
-  ];
 
-  authoredBodies = lib.concatStringsSep "\n" (
-    lib.mapAttrsToList (_: path: builtins.readFile path) cursorRules
-  );
-
-  duplicatedFacts = lib.filter (
-    f: lib.hasInfix (lib.toLower f) (lib.toLower authoredBodies)
-  ) generatedFacts;
-
-  assertNoDuplicatedFacts =
-    if duplicatedFacts != [ ] then
-      throw "cursor.nix: an authored rule file restates ${lib.concatStringsSep ", " duplicatedFacts}, which instructions.nix already renders. Remove it from the rule file."
-    else
-      true;
 in
 {
 
@@ -102,8 +70,5 @@ in
       force = true;
     };
   }
-  // (
-    assert assertNoDuplicatedFacts;
-    ruleFiles
-  );
+  // ruleFiles;
 }

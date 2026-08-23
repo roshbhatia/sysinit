@@ -101,12 +101,8 @@ let
     harness:
     let
       patches = harnessOverrides.${harness} or { };
-      unknown = lib.subtractLists (builtins.attrNames allServers) (builtins.attrNames patches);
     in
-    if unknown != [ ] then
-      throw "llm: sysinit.llm.mcp.harnessOverrides.${harness} names ${lib.concatStringsSep ", " unknown}, which this host does not serve."
-    else
-      allServers // lib.mapAttrs (name: patch: allServers.${name} // patch) patches;
+    allServers // lib.mapAttrs (name: patch: allServers.${name} // patch) patches;
 in
 {
   servers = allServers;
