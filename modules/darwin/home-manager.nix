@@ -39,14 +39,7 @@
         sysinit = {
           git = values.git or { };
           llm = values.llm or { };
-          theme =
-            if (values ? theme) then
-              values.theme
-              // {
-                font = builtins.removeAttrs (values.theme.font or { }) [ "symbols" ];
-              }
-            else
-              { };
+          theme = values.theme or { };
         };
       };
   };

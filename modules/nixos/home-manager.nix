@@ -46,16 +46,7 @@
         sysinit = {
           git = values.git or { };
           llm = values.llm or { };
-          theme =
-            if (values ? theme) then
-              {
-                base16Scheme = values.theme.base16Scheme or "catppuccin-mocha";
-                appearance = values.theme.appearance or "dark";
-                font.monospace = values.theme.font.monospace or "TX-02";
-                transparency = values.theme.transparency or { };
-              }
-            else
-              { };
+          theme = values.theme or { };
         };
       };
   };

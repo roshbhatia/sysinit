@@ -1,6 +1,10 @@
 { lib, ... }:
 
-rec {
+let
+  # wezterm imports this file with `lib` alone, so Darwin is read off the home
+  # directory rather than a `pkgs` the three call sites do not pass.
+  isDarwin = home: lib.hasPrefix "/Users/" home;
+
   getSystemPaths = username: home: {
     nix = [
       "/nix/var/nix/profiles/default/bin"
@@ -8,14 +12,15 @@ rec {
       "/run/wrappers/bin"
       "/run/current-system/sw/bin"
     ];
-    system = [
-      "/opt/homebrew/bin"
-      "/opt/homebrew/opt/libgit2@1.8/bin"
-      "/opt/homebrew/sbin"
-      "/usr/bin"
-      "/usr/local/opt/cython/bin"
-      "/usr/sbin"
-    ];
+    system =
+      lib.optionals (isDarwin home) [
+        "/opt/homebrew/bin"
+        "/opt/homebrew/opt/libgit2@1.8/bin"
+        "/opt/homebrew/sbin"
+      ]
+      ++ [ "/usr/bin" ]
+      ++ lib.optionals (isDarwin home) [ "/usr/local/opt/cython/bin" ]
+      ++ [ "/usr/sbin" ];
     user = [
       "${home}/.cargo/bin"
       "${home}/.krew/bin"
@@ -36,12 +41,15 @@ rec {
       "${home}/.local/share/.npm-packages/bin"
     ];
   };
+
   getAllPaths =
     username: home:
     let
       paths = getSystemPaths username home;
     in
     paths.nix ++ paths.system ++ paths.user ++ paths.xdg;
+in
+{
+  inherit getAllPaths;
   getPathString = username: home: lib.concatStringsSep ":" (getAllPaths username home);
-  getPathArray = username: home: getAllPaths username home;
 }

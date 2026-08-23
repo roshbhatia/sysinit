@@ -140,13 +140,13 @@ in
         sheets
         simple-completion-language-server
         taplo
-        alerter
         textlint
         vale
         yaml-language-server
         yamllint
         zoetrope
       ]
+      ++ lib.optionals pkgs.stdenv.hostPlatform.isDarwin [ alerter ]
       ++ map (name: pkgs.${name}) (
         lib.filter (name: name != null) (
           lib.mapAttrsToList (_name: h: h.package) (import ./programs/llm/harnesses/registry.nix)
