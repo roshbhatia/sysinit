@@ -164,6 +164,66 @@
         },
         "version": "0.91.0"
     },
+    "fx": {
+        "cargoLock": null,
+        "date": null,
+        "extract": null,
+        "name": "fx",
+        "passthru": null,
+        "pinned": false,
+        "src": {
+            "name": null,
+            "sha256": "sha256-K5jMGoXBz16iE/Hfccynn3y/9leT0qhygsBMoBnL0cE=",
+            "type": "url",
+            "url": "https://github.com/vercel-labs/fx/releases/download/v0.0.5/fx-macos-aarch64.tar.gz"
+        },
+        "version": "0.0.5"
+    },
+    "fx-aarch64-linux": {
+        "cargoLock": null,
+        "date": null,
+        "extract": null,
+        "name": "fx-aarch64-linux",
+        "passthru": null,
+        "pinned": false,
+        "src": {
+            "name": null,
+            "sha256": "sha256-i7zeakElbE+sTgoCIpHPAnQEGeJ6+r3juPReek45Pts=",
+            "type": "url",
+            "url": "https://github.com/vercel-labs/fx/releases/download/v0.0.5/fx-linux-aarch64.tar.gz"
+        },
+        "version": "0.0.5"
+    },
+    "fx-x86_64-darwin": {
+        "cargoLock": null,
+        "date": null,
+        "extract": null,
+        "name": "fx-x86_64-darwin",
+        "passthru": null,
+        "pinned": false,
+        "src": {
+            "name": null,
+            "sha256": "sha256-DaSpADTBr80lGhossjfqOgATyWWtjCpFt3E2lLUwrYo=",
+            "type": "url",
+            "url": "https://github.com/vercel-labs/fx/releases/download/v0.0.5/fx-macos-x86_64.tar.gz"
+        },
+        "version": "0.0.5"
+    },
+    "fx-x86_64-linux": {
+        "cargoLock": null,
+        "date": null,
+        "extract": null,
+        "name": "fx-x86_64-linux",
+        "passthru": null,
+        "pinned": false,
+        "src": {
+            "name": null,
+            "sha256": "sha256-1WOdFzJnd0qoIopHS69hmnB2rEGpECORUAfIZRQ0KbE=",
+            "type": "url",
+            "url": "https://github.com/vercel-labs/fx/releases/download/v0.0.5/fx-linux-x86_64.tar.gz"
+        },
+        "version": "0.0.5"
+    },
     "go-enum": {
         "cargoLock": null,
         "date": null,

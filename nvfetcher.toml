@@ -178,3 +178,28 @@ fetch.url = "https://github.com/block/goose/releases/download/v$ver/goose-aarch6
 src.github = "block/goose"
 src.prefix = "v"
 fetch.url = "https://github.com/block/goose/releases/download/v$ver/goose-x86_64-unknown-linux-gnu.tar.gz"
+
+# Binary release packages - fx (one entry per platform asset)
+# Asset names carry no version, so every URL is the same shape per platform.
+# Git tags run ahead of releases (v0.4.5 exists as a tag, v0.0.5 is the latest
+# release), so this tracks `src.github` releases, not `src.github_tag`.
+# https://releases.fx.sh/latest.txt agrees with the release tag.
+[fx]
+src.github = "vercel-labs/fx"
+src.prefix = "v"
+fetch.url = "https://github.com/vercel-labs/fx/releases/download/v$ver/fx-macos-aarch64.tar.gz"
+
+[fx-x86_64-darwin]
+src.github = "vercel-labs/fx"
+src.prefix = "v"
+fetch.url = "https://github.com/vercel-labs/fx/releases/download/v$ver/fx-macos-x86_64.tar.gz"
+
+[fx-aarch64-linux]
+src.github = "vercel-labs/fx"
+src.prefix = "v"
+fetch.url = "https://github.com/vercel-labs/fx/releases/download/v$ver/fx-linux-aarch64.tar.gz"
+
+[fx-x86_64-linux]
+src.github = "vercel-labs/fx"
+src.prefix = "v"
+fetch.url = "https://github.com/vercel-labs/fx/releases/download/v$ver/fx-linux-x86_64.tar.gz"

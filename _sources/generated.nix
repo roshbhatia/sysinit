@@ -94,6 +94,38 @@
       sha256 = "sha256-dK/EHQMkOJS1Ih8DsbvEAy8aIZZx7JEWFIlG3Cr0xwg=";
     };
   };
+  fx = {
+    pname = "fx";
+    version = "0.0.5";
+    src = fetchurl {
+      url = "https://github.com/vercel-labs/fx/releases/download/v0.0.5/fx-macos-aarch64.tar.gz";
+      sha256 = "sha256-K5jMGoXBz16iE/Hfccynn3y/9leT0qhygsBMoBnL0cE=";
+    };
+  };
+  fx-aarch64-linux = {
+    pname = "fx-aarch64-linux";
+    version = "0.0.5";
+    src = fetchurl {
+      url = "https://github.com/vercel-labs/fx/releases/download/v0.0.5/fx-linux-aarch64.tar.gz";
+      sha256 = "sha256-i7zeakElbE+sTgoCIpHPAnQEGeJ6+r3juPReek45Pts=";
+    };
+  };
+  fx-x86_64-darwin = {
+    pname = "fx-x86_64-darwin";
+    version = "0.0.5";
+    src = fetchurl {
+      url = "https://github.com/vercel-labs/fx/releases/download/v0.0.5/fx-macos-x86_64.tar.gz";
+      sha256 = "sha256-DaSpADTBr80lGhossjfqOgATyWWtjCpFt3E2lLUwrYo=";
+    };
+  };
+  fx-x86_64-linux = {
+    pname = "fx-x86_64-linux";
+    version = "0.0.5";
+    src = fetchurl {
+      url = "https://github.com/vercel-labs/fx/releases/download/v0.0.5/fx-linux-x86_64.tar.gz";
+      sha256 = "sha256-1WOdFzJnd0qoIopHS69hmnB2rEGpECORUAfIZRQ0KbE=";
+    };
+  };
   go-enum = {
     pname = "go-enum";
     version = "v0.9.4";
