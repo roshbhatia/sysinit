@@ -121,6 +121,14 @@ in
       # Generated from the harness registry, so the deck cannot fall behind it.
       # ui.lua used to hold this table inline, and hermes was never added.
       agents = import ../llm/harnesses/deck-patterns.nix;
+      # Identity for the same fourteen, so the status bar stops carrying its own
+      # partial copy. sigil.setup used to name claude and codex and nothing else.
+      agentIdentity = lib.mapAttrs (_n: h: {
+        inherit (h) label glyph;
+      }) (import ../llm/harnesses/registry.nix);
+      # Absolute, because utils.lua hardcoded the nix-darwin profile path, which
+      # does not exist under standalone home-manager on Linux.
+      bin = "${config.home.profileDirectory}/bin";
       ssh = lib.optionalAttrs sshCfg.use1PasswordAgent { agent_socket = sshAgentSocket; };
       font = {
         inherit (themeConfig.font) monospace;

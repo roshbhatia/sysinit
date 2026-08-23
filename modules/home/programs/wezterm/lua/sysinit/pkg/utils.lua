@@ -21,7 +21,13 @@ function M.get_home_dir()
   return "/Users/" .. M.get_username()
 end
 
+-- config.json carries the absolute profile bin. The old literal was the
+-- nix-darwin path, which does not exist under standalone home-manager on Linux.
 function M.get_nix_user_bin()
+  local data = M.load_json_file(M.get_config_path("config.json"))
+  if data and data.bin and data.bin ~= "" then
+    return data.bin
+  end
   return "/etc/profiles/per-user/" .. M.get_username() .. "/bin"
 end
 

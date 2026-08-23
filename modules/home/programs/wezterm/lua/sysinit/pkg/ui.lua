@@ -122,16 +122,13 @@ function M.setup(config)
     return ui_rollup.states(deck_states)
   end
 
-  -- One walk per tick, over the rollup's per-second cache. Three separate
-  -- `update-status` handlers each used to walk every window, tab and pane at
-  -- the 150ms status interval, and one of them shelled out to mkdir every time.
+  -- One walk per tick, over the rollup's per-second cache, not one walk per handler.
   local notified = {}
   -- A pane that never worked has nothing to wait on; without this a fresh agent
   -- pane reads as "waiting" the moment it opens and notifies on every session start.
   local worked = {}
   local selection_at = -1
   local selection_dir = utils.state_path("agents", "agents")
-  wezterm.background_child_process({ "/bin/mkdir", "-p", selection_dir })
 
   -- The pane the user is looking at right now, or nil when no window has focus.
   local function focused_pane_id()
@@ -271,12 +268,9 @@ function M.setup(config)
     end
   end
 
-  -- No SUPER bracket cycle, and this is the third and last home for one. cmd+[
-  -- and cmd+] are back and forward in Finder, in every browser and in most
-  -- macOS apps, so a wezterm binding costs the chord everywhere. Stepping is
-  -- now [ and ] inside the session tree, where a session step is already the
-  -- obvious next key. c70f54052 put it on CTRL and lost Escape; f25aed814 put
-  -- it on SUPER and lost it to hammerspoon.
+  -- No SUPER bracket cycle: cmd+[ and cmd+] are back and forward in Finder and
+  -- in every browser, so a wezterm binding costs the chord everywhere. Stepping
+  -- is [ and ] inside the session tree instead.
 
   local tabline_ok, tabline = plugin_loader.load("tabline")
   if not tabline_ok then
@@ -354,22 +348,20 @@ function M.setup(config)
     wezterm.log_warn("Failed to load sigil.wz: " .. tostring(sigil))
   end
   if sigil_ok then
-    sigil.setup({
-      overrides = {
-        claude = {
-          name = "Claude",
-          icon = "✳",
-          color = "#D97757",
-          aliases = { ".claude-wrapped", "claude-code", "claude-wrapped" },
-        },
-        codex = {
-          name = "Codex",
-          icon = nf.md_robot or "C",
-          color = "#10A37F",
-          aliases = { ".codex-wrapped", "codex-wrapped", "codex" },
-        },
-      },
-    })
+    -- Generated for all fourteen. This table used to name claude and codex only,
+    -- so every other agent fell back to a bare process name in the status bar.
+    -- Brand colour is not registry data, so it stays here.
+    local brand = { claude = "#D97757", codex = "#10A37F" }
+    local overrides = {}
+    for name, identity in pairs(config_data.agentIdentity or {}) do
+      overrides[name] = {
+        name = identity.label,
+        icon = identity.glyph ~= "" and identity.glyph or (nf.md_robot or "A"),
+        color = brand[name],
+        aliases = (config_data.agents[name] or {}).patterns,
+      }
+    end
+    sigil.setup({ overrides = overrides })
   end
 
   local tree_icons = {

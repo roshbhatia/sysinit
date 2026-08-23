@@ -704,8 +704,7 @@ function M.setup(config, wm, ctx)
           open_session_tree(win, pane)
         end),
       },
-      -- The tree is the one session picker. wm.workspace_switcher() used to be
-      -- here too, and it listed live wezterm workspaces, which is a different
+      -- The tree is the one session picker; wezterm workspaces are a different
       -- set from the seshy sessions every other route shows.
       {
         brief = "Session: step forward",
