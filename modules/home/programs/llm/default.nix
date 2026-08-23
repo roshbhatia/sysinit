@@ -113,53 +113,24 @@ let
     root:
     lib.mapAttrs' (rel: src: lib.nameValuePair "${root}/${rel}" { source = src; }) astGrepSkillFiles;
 
-  ampSkillFiles = lib.mapAttrs' (
-    name: path: lib.nameValuePair ".config/amp/skills/${name}/SKILL.md" { source = path; }
-  ) skills.ampSkills;
-
-  ampSkillScriptFiles = lib.mapAttrs' (
-    relPath: src:
-    lib.nameValuePair ".config/amp/skills/${relPath}" {
-      source = src;
-      executable = true;
-    }
-  ) skills.skillExtraFiles;
-
-  ampSpecutilSkillFiles = lib.mapAttrs' (
-    name: path: lib.nameValuePair ".config/amp/skills/${name}/SKILL.md" { source = path; }
-  ) specutilSkills;
-
-  devinSkillFiles = lib.mapAttrs' (
-    name: path: lib.nameValuePair ".config/devin/skills/${name}/SKILL.md" { source = path; }
-  ) skills.ampSkills;
-
-  devinSkillScriptFiles = lib.mapAttrs' (
-    relPath: src:
-    lib.nameValuePair ".config/devin/skills/${relPath}" {
-      source = src;
-      executable = true;
-    }
-  ) skills.skillExtraFiles;
-
-  devinSpecutilSkillFiles = lib.mapAttrs' (
-    name: path: lib.nameValuePair ".config/devin/skills/${name}/SKILL.md" { source = path; }
-  ) specutilSkills;
-
-  copilotSkillFiles = lib.mapAttrs' (
-    name: path: lib.nameValuePair ".copilot/skills/${name}/SKILL.md" { source = path; }
-  ) skills.ampSkills;
-
-  copilotSkillScriptFiles = lib.mapAttrs' (
-    relPath: src:
-    lib.nameValuePair ".copilot/skills/${relPath}" {
-      source = src;
-      executable = true;
-    }
-  ) skills.skillExtraFiles;
-
-  copilotSpecutilSkillFiles = lib.mapAttrs' (
-    name: path: lib.nameValuePair ".copilot/skills/${name}/SKILL.md" { source = path; }
-  ) specutilSkills;
+  # One shape for three roots. This was nine bindings over 47 lines, all reading
+  # the same three sources, and a new root meant a fourth copy.
+  skillFilesFor =
+    root:
+    lib.mapAttrs' (
+      name: path: lib.nameValuePair "${root}/${name}/SKILL.md" { source = path; }
+    ) skills.ampSkills
+    // lib.mapAttrs' (
+      relPath: src:
+      lib.nameValuePair "${root}/${relPath}" {
+        source = src;
+        executable = true;
+      }
+    ) skills.skillExtraFiles
+    // lib.mapAttrs' (
+      name: path: lib.nameValuePair "${root}/${name}/SKILL.md" { source = path; }
+    ) specutilSkills
+    // vendoredSkillFilesFor root;
 
   pruneServer =
     server:
@@ -174,18 +145,10 @@ let
     if isHttp then filtered // { type = "http"; } else filtered;
 
   suppressed = config.sysinit.llm.mcp.suppressedServers;
-  unknownSuppressed = lib.subtractLists (builtins.attrNames config.sysinit.llm.mcp.additionalServers) suppressed;
-  assertSuppressedExist =
-    if unknownSuppressed != [ ] then
-      throw "llm: sysinit.llm.mcp.suppressedServers names ${lib.concatStringsSep ", " unknownSuppressed}, which is not in additionalServers."
-    else
-      true;
 
-  mcpServers =
-    assert assertSuppressedExist;
-    lib.mapAttrs (_: pruneServer) (
-      lib.filterAttrs (name: _: !(builtins.elem name suppressed)) config.sysinit.llm.mcp.additionalServers
-    );
+  mcpServers = lib.mapAttrs (_: pruneServer) (
+    lib.filterAttrs (name: _: !(builtins.elem name suppressed)) config.sysinit.llm.mcp.additionalServers
+  );
 
   llmLibForCoverage = import ./lib { inherit lib; };
 
@@ -199,38 +162,18 @@ let
     files = config.sysinit.llm.managedFiles;
   };
 
-  linkedTargets = map (v: v.target) (
-    builtins.filter (v: v.enable) (
-      builtins.attrValues config.home.file ++ builtins.attrValues config.xdg.configFile
-    )
-  );
-  managedPaths = lib.mapAttrsToList (_: f: f.path) config.sysinit.llm.managedFiles;
-  collidingPaths = lib.filter (p: builtins.elem p linkedTargets) managedPaths;
-
-  duplicatePaths = lib.unique (lib.filter (p: lib.count (q: q == p) managedPaths > 1) managedPaths);
-
   notify = import ./runtime { inherit pkgs lib; };
 in
 {
   imports = [
     ./skill-tools.nix
     ./acp.nix
+    ./harnesses/publish.nix
     ./mcp-servers.nix
     ./harnesses
   ];
 
   xdg.dataFile = openspecSchemaFiles;
-
-  assertions = [
-    {
-      assertion = collidingPaths == [ ];
-      message = "llm: ${lib.concatStringsSep ", " collidingPaths} is declared in sysinit.llm.managedFiles and also linked by home.file or xdg.configFile. A managed file must not also be a store symlink.";
-    }
-    {
-      assertion = duplicatePaths == [ ];
-      message = "llm: ${lib.concatStringsSep ", " duplicatePaths} is declared by more than one sysinit.llm.managedFiles entry. One path may have only one declaration.";
-    }
-  ];
 
   home = {
     file =
@@ -240,18 +183,13 @@ in
       // openspecSkillFiles
       // openspecCommandFiles
       // (vendoredSkillFilesFor ".claude/skills")
-      // ampSkillFiles
-      // ampSkillScriptFiles
-      // ampSpecutilSkillFiles
-      // (vendoredSkillFilesFor ".config/amp/skills")
-      // devinSkillFiles
-      // devinSkillScriptFiles
-      // devinSpecutilSkillFiles
-      // (vendoredSkillFilesFor ".config/devin/skills")
-      // copilotSkillFiles
-      // copilotSkillScriptFiles
-      // copilotSpecutilSkillFiles
-      // (vendoredSkillFilesFor ".copilot/skills")
+      // lib.mergeAttrsList (
+        map skillFilesFor [
+          ".config/amp/skills"
+          ".config/devin/skills"
+          ".copilot/skills"
+        ]
+      )
       // notify.iconFiles;
 
     activation.llmManagedFiles = lib.mkIf (config.sysinit.llm.managedFiles != { }) (

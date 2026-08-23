@@ -183,13 +183,8 @@ in
       # Only the `enabled` leaf for a server, not the whole object: goose adds
       # `display_name` and `available_tools` of its own, and enforcing the object
       # would delete them on every switch.
-      #
-      # The gateway is here because it did not work in goose for want of this.
-      # Something rewrote every extension in the file to `enabled: false` on
-      # 2026-08-18, and the merge keeps a live edit whose Nix value matches the
-      # base, so `true` never came back and every MCP tool stayed dark. This is a
-      # switch-time repair, not a lock: whatever shares this file can disable it
-      # again between switches.
+      # Enforcing the leaf repairs it at switch time; it does not lock it, so
+      # whatever rewrote every extension to `enabled: false` can do so again.
       enforce = [
         "GOOSE_MODE"
         "GOOSE_CLI_THEME"
@@ -224,7 +219,7 @@ in
         ]) retiredExtensions;
     };
   }
-  // lib.optionalAttrs pkgs.stdenv.isDarwin {
+  // lib.optionalAttrs pkgs.stdenv.hostPlatform.isDarwin {
     goose-desktop = {
       path = "Library/Application Support/Goose/settings.json";
       format = "json";

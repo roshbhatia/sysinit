@@ -55,19 +55,6 @@ let
     "toml"
   ];
 
-  fileDefaults = {
-    enable = true;
-    content = { };
-    contentFile = null;
-    format = "json";
-    schema = null;
-    enforce = [ ];
-    retire = [ ];
-    createIfMissing = true;
-  };
-
-  mkTestFile = attrs: fileDefaults // attrs;
-
   nixRender = ''
     def nixkey: if test("^[a-zA-Z_][a-zA-Z0-9_'-]*$") then . else tojson end;
     def nixval($ind):
@@ -465,8 +452,6 @@ in
   inherit
     mergeProgram
     formats
-    fileDefaults
-    mkTestFile
     mkCapture
     mkReconciler
     ;
