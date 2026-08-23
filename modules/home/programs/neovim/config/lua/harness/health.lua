@@ -67,6 +67,38 @@ function M.findings()
     add("error", "`utils` is not on PATH, so no repository, change, or note can be read")
   end
 
+  -- First, because it is the only refresh that covers all fourteen agents, and
+  -- because it silently did not run for months. It used to start from
+  -- session.set_active, which only the deleted in-editor spawn picker called.
+  local ok_refresh, refresh = pcall(require, "harness.file_refresh")
+  if not ok_refresh then
+    add("error", "the file-refresh poll did not load, so no agent's write reloads a buffer")
+  elseif refresh.is_active() then
+    add("ok", "file-refresh poll: running every 1s, and it covers every agent")
+  else
+    add("error", "file-refresh poll: STOPPED. No agent's write will reload a buffer. api.setup should have started it")
+  end
+
+  local ok_launch, launch = pcall(require, "harness.launch")
+  if not ok_launch then
+    add("error", "the launch module did not load, so no agent can be started from here")
+  else
+    local state = launch.status()
+    if state.agent then
+      add("ok", string.format("agent pane: %s in wezterm pane %s", state.agent, state.pane))
+    else
+      add("ok", "agent pane: none open. <leader>jj starts one")
+    end
+    if state.available == 0 then
+      add(
+        "warn",
+        string.format("agent registry: %s lists no agent that is on PATH. Run a switch to write it", state.registry)
+      )
+    else
+      add("ok", string.format("agent registry: %d of %d agents on PATH", state.available, #launch.all()))
+    end
+  end
+
   local ok_events, events = pcall(require, "harness.edit_events")
   if not ok_events then
     add("error", "the edit-event watcher module did not load")
@@ -77,6 +109,7 @@ function M.findings()
     else
       add("warn", "edit-event watcher: not running")
     end
+    add("ok", "edit-event log feeds the 5 editBus harnesses; the other 9 rely on the poll above")
     if watch.log then
       add("ok", "edit-event log: " .. watch.log .. string.format(" (read to byte %d)", watch.offset))
     else
@@ -110,7 +143,6 @@ function M.findings()
   end
 
   for _, plugin in ipairs({
-    { module = "claudecode", lazy = "claudecode.nvim", need = "an agent's own inline edit" },
     { module = "diffview", lazy = "diffview.nvim", need = "the diff itself" },
   }) do
     local state = plugin_state(plugin.module, plugin.lazy)
