@@ -6,148 +6,52 @@
 }:
 let
   profiles = import ../../shared/profile-tiers.nix { inherit lib; };
-
-  modules = [
-    {
-      tier = "dev";
-      path = ./ast-grep;
-    }
-    {
-      tier = "minimal";
-      path = ./bash.nix;
-    }
-    {
-      tier = "minimal";
-      path = ./bat.nix;
-    }
-    {
-      tier = "dev";
-      path = ./bottom.nix;
-    }
-    {
-      tier = "minimal";
-      path = ./direnv.nix;
-    }
-    {
-      tier = "minimal";
-      path = ./editorconfig.nix;
-    }
-    {
-      tier = "minimal";
-      path = ./eza.nix;
-    }
-    {
-      tier = "workstation";
-      path = ./fastfetch.nix;
-    }
-    {
-      tier = "minimal";
-      path = ./fd.nix;
-    }
-    {
-      tier = "minimal";
-      path = ./fzf.nix;
-    }
-    {
-      tier = "dev";
-      path = ./gh.nix;
-    }
-    {
-      tier = "minimal";
-      path = ./git;
-    }
-    {
-      tier = "minimal";
-      path = ./helix.nix;
-    }
-    {
-      tier = "dev";
-      path = ./htop.nix;
-    }
-    {
-      tier = "minimal";
-      path = ./hushlogin.nix;
-    }
-    {
-      tier = "dev";
-      path = ./k9s.nix;
-    }
-    {
-      tier = "dev";
-      path = ./kubectl.nix;
-    }
-    {
-      tier = "dev";
-      path = ./mise.nix;
-    }
-    {
-      tier = "dev";
-      path = ./llm;
-    }
-    {
-      tier = "dev";
-      path = ./neovim;
-    }
-    {
-      tier = "dev";
-      path = ./nh.nix;
-    }
-    {
-      tier = "minimal";
-      path = ./nix.nix;
-    }
-    {
-      tier = "minimal";
-      path = ./nix-your-shell.nix;
-    }
-    {
-      tier = "dev";
-      path = ./nushell.nix;
-    }
-    {
-      tier = "minimal";
-      path = ./omp.nix;
-    }
-    {
-      tier = "dev";
-      path = ./seshy;
-    }
-    {
-      tier = "minimal";
-      path = ./ssh.nix;
-    }
-    {
-      tier = "minimal";
-      path = ./utils;
-    }
-    {
-      tier = "minimal";
-      path = ./vivid.nix;
-    }
-    {
-      tier = "workstation";
-      path = ./wezterm;
-    }
-    {
-      tier = "dev";
-      path = ./yazi;
-    }
-    {
-      tier = "minimal";
-      path = ./zmx;
-    }
-    {
-      tier = "minimal";
-      path = ./zoxide.nix;
-    }
-    {
-      tier = "minimal";
-      path = ./zsh;
-    }
-  ];
 in
 {
   imports =
-    map (module: module.path) (lib.filter (module: profiles.atLeast profile module.tier) modules)
+    profiles.forProfile profile {
+      minimal = [
+        ./bash.nix
+        ./bat.nix
+        ./direnv.nix
+        ./editorconfig.nix
+        ./eza.nix
+        ./fd.nix
+        ./fzf.nix
+        ./git
+        ./helix.nix
+        ./hushlogin.nix
+        ./nix.nix
+        ./nix-your-shell.nix
+        ./omp.nix
+        ./ssh.nix
+        ./utils
+        ./vivid.nix
+        ./zmx
+        ./zoxide.nix
+        ./zsh
+      ];
+
+      dev = [
+        ./ast-grep
+        ./bottom.nix
+        ./gh.nix
+        ./htop.nix
+        ./k9s.nix
+        ./kubectl.nix
+        ./llm
+        ./mise.nix
+        ./neovim
+        ./nh.nix
+        ./nushell.nix
+        ./seshy
+        ./yazi
+      ];
+
+      workstation = [
+        ./fastfetch.nix
+        ./wezterm
+      ];
+    }
     ++ lib.optional theme ../stylix-targets.nix;
 }

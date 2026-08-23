@@ -11,7 +11,7 @@ let
 
   expand = builtins.replaceStrings [ "$HOME" ] [ config.home.homeDirectory ];
 
-  resolved = builtins.mapAttrs (_name: value: expand value) layout.paths;
+  resolved = builtins.mapAttrs (_name: expand) layout.paths;
 
   manifest = pkgs.writeText "sysinit-paths.json" (
     builtins.toJSON {

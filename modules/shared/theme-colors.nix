@@ -28,9 +28,10 @@ let
     "${name}-rgb-b" = channel value 4;
   };
 
-  fallback = lib.foldl' (acc: name: acc // expand name hex.${name}) {
+  fallback = {
     scheme = "Base16 Default Dark";
-  } (lib.attrNames hex);
+  }
+  // lib.concatMapAttrs expand hex;
 in
 {
   inherit fallback;
