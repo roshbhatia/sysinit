@@ -4,14 +4,31 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+
+	"github.com/roshbhatia/sysinit/pkgs/internal/agents"
 )
 
-// coordinationArtifacts are files/dirs that live in the session root and must
-// remain trackable even when the user's global gitignore excludes them.
-var coordinationArtifacts = []string{
+// sharedArtifacts live in the session root and must remain trackable even when
+// the user's global gitignore excludes them. They belong to no one agent.
+var sharedArtifacts = []string{
 	"AGENTS.md",
 	"openspec/",
-	".claude/",
+}
+
+// fallbackAgentDirs is what the list was before agents.json carried a context
+// dir per agent. It stands in when the registry is unreadable, so an unwritten
+// or malformed file loses no artifact that was kept before.
+var fallbackAgentDirs = []string{".claude/"}
+
+// coordinationArtifacts is the shared set plus one directory per declared
+// agent. Naming only Claude Code's here is what silently dropped a session's
+// atomic, pi, or hermes config from git.
+func coordinationArtifacts() []string {
+	dirs := agents.ContextDirs()
+	if len(dirs) == 0 {
+		dirs = fallbackAgentDirs
+	}
+	return append(append([]string{}, sharedArtifacts...), dirs...)
 }
 
 // isSessionGitRepo reports whether the session directory has been initialised
@@ -31,9 +48,8 @@ func sessionIgnorePath(sessionPath string) string {
 // session root. It is a no-op when the session is not a git repository.
 //
 // The file ignores every repo entry by name so they don't clutter git status,
-// then negates the global ignores for coordination artifacts (AGENTS.md,
-// openspec/, .claude/) so those remain trackable despite the user's global
-// excludes.
+// then negates the global ignores for the coordination artifacts so those
+// remain trackable despite the user's global excludes.
 func syncSessionIgnore(sessionPath string, repos []RepoInfo) error {
 	if !isSessionGitRepo(sessionPath) {
 		return nil
@@ -44,7 +60,7 @@ func syncSessionIgnore(sessionPath string, repos []RepoInfo) error {
 	for _, r := range repos {
 		lines = append(lines, r.Name)
 	}
-	for _, a := range coordinationArtifacts {
+	for _, a := range coordinationArtifacts() {
 		lines = append(lines, "!"+a)
 	}
 
