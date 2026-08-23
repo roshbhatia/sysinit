@@ -63,6 +63,17 @@ in
     };
   };
 
+  reel = select {
+    pname = "reel";
+    binary = "reel";
+    names = [ "reel" ];
+    meta = {
+      description = "Agent trace view over the local OTLP collector's spans";
+      mainProgram = "reel";
+      platforms = final.lib.platforms.unix;
+    };
+  };
+
   ask =
     let
       # pkgs/ask/wrappers.txt is the one list of the names the binary answers

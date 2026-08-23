@@ -18,6 +18,7 @@ const (
 	AgentTranscriptsKey = "agentTranscripts"
 	AgentWorklogKey     = "agentWorklog"
 	SeshySessionsKey    = "seshySessions"
+	OtelTelemetryKey    = "otelTelemetry"
 )
 
 type document struct {
@@ -132,4 +133,11 @@ func AgentWorklog() string {
 		return value
 	}
 	return filepath.Join(fallbackStateHome(), "agents", "worklog.jsonl")
+}
+
+func OtelTelemetry() string {
+	if value, ok := Get(OtelTelemetryKey); ok {
+		return value
+	}
+	return filepath.Join(fallbackStateHome(), "sysinit", "otel", "telemetry.jsonl")
 }
