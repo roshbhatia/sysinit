@@ -166,6 +166,27 @@
     exitHook = false;
   };
 
+  fx = {
+    label = "fx";
+    module = ./fx.nix;
+    context = "~/.fx/AGENTS.md";
+    # fx scans ~/.claude/skills itself, so it needs no copy of the skill tree.
+    skillLoader = true;
+    ownIcon = false;
+    notify = "scrape";
+    editBus = false;
+    bridge = null;
+    package = "fx";
+    glyph = "▲";
+    command = "fx";
+    acp = true;
+    openspecTool = [ ];
+    guard = "globs";
+    projectDir = ".fx/";
+    transcriptRoot = "~/.fx/sessions";
+    exitHook = false;
+  };
+
   gemini = {
     label = "Gemini";
     module = ./gemini;

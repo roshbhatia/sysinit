@@ -100,6 +100,16 @@
     status_patterns = [ ];
   };
 
+  # "fx" is two characters, so every pattern here is anchored, as for "pi".
+  # Unanchored it matches "fx" inside any /nix/store path.
+  fx = {
+    patterns = [ "^fx$" ];
+    executable_patterns = [ "/fx$" ];
+    argv_patterns = [ "^fx%s*$" ];
+    title_patterns = [ "^fx$" ];
+    status_patterns = [ ];
+  };
+
   gemini = {
     patterns = [
       "antigravity"
