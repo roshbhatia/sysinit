@@ -37,7 +37,7 @@ local function pane_alive(pane)
     return false
   end
   local wezterm = require("utils.wezterm_terminal")
-  return wezterm.pane_alive_sync(pane)
+  return wezterm.pane_alive(pane)
 end
 
 ---@param full string
@@ -50,7 +50,7 @@ local function render_in_wezterm(full)
   local wezterm = require("utils.wezterm_terminal")
 
   if pane_alive(state.pane) then
-    return wezterm.send_text(state.pane, render_cmd(full), true)
+    return wezterm.send_text(state.pane, render_cmd(full), { submit = true, paste = false })
   end
 
   local cmd = ("%s; exec ${SHELL:-sh}"):format(render_cmd(full))
