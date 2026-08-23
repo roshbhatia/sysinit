@@ -63,7 +63,17 @@
           })
         else
           prev.cargo-watch;
-      inherit (pristine) mise;
+      # mise's test suite shares a mutex across parallel tests. One Range-header
+      # assertion in src/http.rs fails and poisons it, and 31 more tests then die
+      # with PoisonError. The tests only re-ran because a usage 4.0.0 -> 5.1.0
+      # bump changed the drv hash; mise's own source did not move.
+      #
+      # Cache audit: the pristine output is on neither cache.nixos.org nor
+      # roshbhatia.cachix.org, so this builds from source either way and the
+      # override costs no substitution.
+      mise = pristine.mise.overrideAttrs (_: {
+        doCheck = false;
+      });
       electron_41 = if prev.stdenv.hostPlatform.isDarwin then prev.electron_41 else pristine.electron_41;
       electron = if prev.stdenv.hostPlatform.isDarwin then prev.electron else pristine.electron;
     }
