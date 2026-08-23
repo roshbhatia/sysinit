@@ -115,14 +115,11 @@ in
 
       fileCheckpointingEnabled = true;
       effortLevel = "high";
-      fallbackModel = [ "claude-sonnet-5" ];
       alwaysThinkingEnabled = true;
       autoMemoryEnabled = true;
       outputStyle = "sysinit-ste";
 
       editorMode = "vim";
-
-      includeCoAuthoredBy = false;
 
       statusLine = {
         type = "command";
@@ -132,8 +129,7 @@ in
       tui = "fullscreen";
 
       autoCompactEnabled = true;
-
-      autoCompactWindow = 300000;
+      autoCompactWindow = 100000;
 
       disabledMcpServers = disabledBuiltinServers;
 

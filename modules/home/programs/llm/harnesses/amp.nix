@@ -17,7 +17,6 @@ let
 
   ampSettings = {
     "amp.git.commit.ampThread.enabled" = false;
-    "amp.git.commit.coauthor.enabled" = false;
     "amp.mcpServers" = llmLib.mcp.formatForAmp kit.mcpServers.servers;
     "amp.permissions" =
       builtins.map (tool: {
