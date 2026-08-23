@@ -108,56 +108,7 @@ function M.setup(config)
         on_waiting = false,
         backend = "native",
       },
-      agents = {
-        claude = {
-          patterns = { ".claude%-wrapped", "claude", "claude%-code" },
-          executable_patterns = { "@anthropic%-ai/claude%-code", "/claude%-code/", "/claude$", "claude" },
-          argv_patterns = { "@anthropic%-ai/claude%-code", "claude%-code", "^claude%s*$" },
-          title_patterns = { "claude code", "claude", ".claude%-wrapped" },
-        },
-        goose = {
-          patterns = { "goose", "goosed" },
-          executable_patterns = { "/goose$", "/goosed$" },
-          argv_patterns = { "^goose%s*$" },
-          title_patterns = { "goose" },
-        },
-        amp = {
-          patterns = { "amp" },
-          executable_patterns = { "/amp$" },
-          argv_patterns = { "^amp%s*$" },
-          title_patterns = { "amp" },
-        },
-        copilot = {
-          patterns = { "copilot" },
-          executable_patterns = { "/copilot$", "copilot%-language%-server" },
-          argv_patterns = { "^copilot%s*$" },
-          title_patterns = { "copilot" },
-        },
-        cursor = {
-          patterns = { "cursor%-agent", "cursor" },
-          executable_patterns = { "/cursor%-agent$" },
-          argv_patterns = { "cursor%-agent" },
-          title_patterns = { "cursor" },
-        },
-        crush = {
-          patterns = { "crush" },
-          executable_patterns = { "/crush$" },
-          argv_patterns = { "^crush%s*$" },
-          title_patterns = { "crush" },
-        },
-        gemini = {
-          patterns = { "antigravity", "agy", "gemini" },
-          executable_patterns = { "/agy$", "antigravity%-cli" },
-          argv_patterns = { "^agy%s*$" },
-          title_patterns = { "antigravity", "gemini" },
-        },
-        devin = {
-          patterns = { "devin" },
-          executable_patterns = { "/devin$" },
-          argv_patterns = { "^devin%s*$" },
-          title_patterns = { "devin" },
-        },
-      },
+      agents = config_data.agents or {},
     })
   end
 

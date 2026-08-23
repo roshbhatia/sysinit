@@ -118,6 +118,9 @@ in
   xdg.configFile = {
     "wezterm/lua".source = ./lua;
     "wezterm/config.json".text = builtins.toJSON {
+      # Generated from the harness registry, so the deck cannot fall behind it.
+      # ui.lua used to hold this table inline, and hermes was never added.
+      agents = import ../llm/harnesses/deck-patterns.nix;
       ssh = lib.optionalAttrs sshCfg.use1PasswordAgent { agent_socket = sshAgentSocket; };
       font = {
         inherit (themeConfig.font) monospace;

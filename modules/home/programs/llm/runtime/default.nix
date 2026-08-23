@@ -49,6 +49,29 @@ let
     else
       "";
 
+  # The deck is the only status source a "scrape" harness has, so a missing entry
+  # leaves it with no status on any channel and nothing says so. hermes shipped
+  # that way.
+  deckPatterns = import ../harnesses/deck-patterns.nix;
+
+  undecked = builtins.attrNames (lib.filterAttrs (name: _h: !(deckPatterns ? ${name})) registry);
+
+  strayDeck = builtins.filter (name: !(registry ? ${name})) (builtins.attrNames deckPatterns);
+
+  emptyDeck = builtins.attrNames (
+    lib.filterAttrs (_name: p: p.patterns == [ ] || p.executable_patterns == [ ]) deckPatterns
+  );
+
+  assertDeckCoversRegistry =
+    if undecked != [ ] then
+      throw "runtime/default.nix: ${lib.concatStringsSep ", " undecked} has no entry in harnesses/deck-patterns.nix, so the wezterm deck cannot recognise it in a pane."
+    else if strayDeck != [ ] then
+      throw "runtime/default.nix: harnesses/deck-patterns.nix names ${lib.concatStringsSep ", " strayDeck}, which the harness registry does not."
+    else if emptyDeck != [ ] then
+      throw "runtime/default.nix: ${lib.concatStringsSep ", " emptyDeck} declares empty deck patterns, which match nothing."
+    else
+      "";
+
   busWithoutHook = builtins.attrNames (
     lib.filterAttrs (_name: h: h.editBus && h.notify != "hook") registry
   );
@@ -94,6 +117,7 @@ let
     assertBridgesExist
     + assertCommandsNamed
     + assertAcpServersExist
+    + assertDeckCoversRegistry
     + assertBusHarnessesHook
     + "mkdir -p $out\n"
     + lib.concatStringsSep "\n" (
