@@ -12,7 +12,9 @@ let
     "${final.opencode}/bin"
     "${final.github-copilot-cli}/bin"
     "${final.gh}/bin"
-    "${final.gemini-cli}/bin"
+    # antigravity-cli, not gemini-cli: nixpkgs marks gemini-cli 0.47.0 removed
+    # upstream, and every other site in this repo already uses `agy`.
+    "${final.antigravity-cli}/bin"
   ];
 in
 {
