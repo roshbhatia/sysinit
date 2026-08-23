@@ -24,7 +24,22 @@ not restate any of those here.
   hook executes: notifier, state bus, gates, guard bodies. `skills/` is the
   scanned skill registry, and `subagents/` is the teammate definitions
 - ACP adapter commands live in one registry, `lib/acp.nix`, rendered to
-  `~/.config/acp/agents.json`. No ACP client is installed yet.
+  `~/.config/acp/agents.json`. No ACP client is installed yet. Each of the nine
+  answered `initialize` at protocol version 1 over newline-delimited JSON on
+  stdio, probed 2026-08-22. `hermes-acp` took about ten seconds to answer; every
+  other server took under one
+- `harnesses/deck-patterns.nix` is how the wezterm agent-deck plugin recognises
+  an agent in a pane, and it renders into `wezterm/config.json` as `agents`.
+  `ui.lua` held that table inline and covered 8 agents. hermes was never added,
+  so it declared `notify = "scrape"` and had no status on any channel.
+  `runtime/default.nix` now asserts the file covers the registry exactly
+- The harness registry is the one list of who the agents are. It renders to
+  `~/.config/sysinit/agents.json`, and Neovim's `harness/launch.lua` reads that
+  rather than keeping its own copy. Neovim starts an agent in a wezterm split and
+  talks to it with `wezterm cli send-text`; it never runs one in an editor
+  terminal, and it holds no per-agent code. Either half works alone: with no
+  pane the editor is still a diff viewer, with no editor the agent is still an
+  agent
 - `hack/` scripts are bash with `set -euo pipefail`, formatted by
   `shfmt -i 2 -ci -sr -s`
 - Nix formatter is `nixfmt-rfc-style`
@@ -183,5 +198,12 @@ them errors; the code no longer carries a comment saying so.
 - `git rev-parse --show-toplevel` answers physically, so a relative path reached
   through a symlink reads as outside the repository it is inside. macOS `/tmp` is
   such a symlink, so this is the ordinary case there.
+- Neovim's `harness/file_refresh.lua` is the only refresh that covers every
+  agent: a one-second `checktime` over loaded buffers. It used to start from
+  `session.set_active`, whose only caller was the picker that spawned an agent
+  inside the editor. Running the agent in a wezterm pane, which is the ordinary
+  case, therefore started no poll at all, and the only surviving refresh was
+  `edit_events`, which five of fourteen harnesses feed. `api.setup` now starts it
+  unconditionally. Nothing reported the gap; buffers simply went stale
 - An unreferenced `let` binding is dropped silently, so a derivation that exists
   only to be checked must be forced from something that ships.
