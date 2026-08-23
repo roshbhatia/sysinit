@@ -169,7 +169,7 @@
   gemini = {
     label = "Gemini";
     module = ./gemini;
-    context = "~/.agents/AGENTS.md";
+    context = "~/.gemini/config/AGENTS.md";
     skillLoader = true;
     ownIcon = true;
     notify = "scrape";
