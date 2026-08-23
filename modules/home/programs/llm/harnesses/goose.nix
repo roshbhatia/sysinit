@@ -151,6 +151,26 @@ let
   gooseDesktopSettings = {
     keyboardShortcuts.quickLauncher = "CommandOrControl+Alt+Enter";
   };
+  # goose's own approval file. It denies whole tools, never command globs, so it
+  # cannot carry this repo's destructive deny list. Declared to make the policy
+  # reproducible, not to tighten it.
+  goosePermissions = {
+    user = {
+      always_allow = [ "shell" ];
+      ask_before = [ ];
+      never_allow = [ ];
+    };
+    smart_approve = {
+      always_allow = [ ];
+      ask_before = [
+        "edit"
+        "shell"
+        "todo__todo_write"
+        "write"
+      ];
+      never_allow = [ ];
+    };
+  };
 in
 {
   xdg.configFile."goose/.goosehints" = {
@@ -217,6 +237,16 @@ in
           "extensions"
           name
         ]) retiredExtensions;
+    };
+    # goose's real approval file, which was hand-made and unmanaged until now.
+    # goose denies whole tools, never command globs, so this cannot carry the
+    # repo's destructive deny list and `guard` stays "none". Declared to keep the
+    # policy reproducible, not to tighten it: `shell` stays in always_allow.
+    goose-permission = {
+      path = ".config/goose/permission.yaml";
+      format = "yaml";
+      content = goosePermissions;
+      enforce = [ "user" ];
     };
   }
   // lib.optionalAttrs pkgs.stdenv.hostPlatform.isDarwin {
