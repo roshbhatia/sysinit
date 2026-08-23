@@ -18,8 +18,8 @@ in
       # Access, so a switch never prompts for it.
       enable = true;
 
-      # /etc/ssh/sshd_config includes sshd_config.d/* on line 19, ahead of its
-      # own AuthorizedKeysFile and defaults, and sshd keeps the first value it
+      # /etc/ssh/sshd_config includes sshd_config.d/* ahead of its own
+      # AuthorizedKeysFile and defaults, and sshd keeps the first value it
       # obtains for a keyword. The glob is lexical, so Apple's 100-macos.conf is
       # read before 100-nix-darwin.conf; nothing below restates what Apple sets.
       #

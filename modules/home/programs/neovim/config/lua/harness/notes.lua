@@ -381,8 +381,8 @@ function M.remove_all()
   write({ { "clear", "--yes" } }, string.format("Notes: removed all %d", count))
 end
 
--- Every note, newest repository grouping computed from the file's own git root
--- so a reader can label a row without the note carrying a repository key.
+-- Every note, sorted by path then line. The repository is computed from the
+-- file's own git root, so a note carries no repository key of its own.
 ---@return table[]
 function M.all()
   local found = {}

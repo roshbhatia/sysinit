@@ -17,9 +17,8 @@ local function letter(status)
   return tree:lower()
 end
 
--- Every changed file in every repository under the workspace, in one list. The
--- repository is a column, not a separate list, so a folder holding several reads
--- exactly like a single one.
+-- The repository is a column, not a separate list, so a folder holding several
+-- reads exactly like a single one.
 ---@param cb fun(rows: table[], roots: string[])
 local function collect(cb)
   require("utils.gitrepo").workspace_changes(function(groups, roots)

@@ -166,8 +166,8 @@ function M.cycle(step)
   vim.notify(string.format("Review: %s (%d of %d)", name(root), next_at, #session.roots), vim.log.levels.INFO)
 end
 
--- Closes every repository at once. A review is one thing across several tabs, so
--- closing one tab at a time leaves the rest open and the session half torn down.
+-- A review is one thing across several tabs, so closing one tab at a time leaves
+-- the rest open and the session half torn down.
 function M.close()
   prune()
   local origin = session.origin

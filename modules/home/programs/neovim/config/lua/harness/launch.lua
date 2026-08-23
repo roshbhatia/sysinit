@@ -1,13 +1,4 @@
 -- The agent runs in a wezterm pane beside this editor, never inside it.
---
--- That is the whole reason this file replaced fifteen adapter modules. An
--- adapter existed to run one agent's CLI in an editor split and had to know that
--- agent's flags to do it. A wezterm pane needs the command and nothing else, so
--- the per-agent knowledge collapses into one generated list and the editor stops
--- being a terminal multiplexer.
---
--- Either half stands alone. With no pane, this editor is still a diff viewer.
--- With no editor, the agent is still an agent.
 local M = {}
 
 local REGISTRY = vim.fs.normalize(vim.env.XDG_CONFIG_HOME or "~/.config") .. "/sysinit/agents.json"
@@ -146,8 +137,6 @@ function M.pick()
     return
   end
 
-  -- No acp marker. This picker starts a TUI in a pane, and nine of the fourteen
-  -- carry the flag, so it labelled most of the list without changing any of it.
   local function label(agent)
     local glyph = tostring(agent.glyph or "")
     return glyph ~= "" and (glyph .. "  " .. agent.label) or agent.label

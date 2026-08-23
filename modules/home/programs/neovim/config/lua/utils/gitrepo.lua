@@ -75,9 +75,9 @@ local function normalized(report)
   return { workspace = vim.fs.normalize(report.workspace or here()), roots = roots, groups = groups }
 end
 
--- One call answers what the workspace is, which repositories are under it, and
--- what changed in each. Neovim owns no second rule for any of the three, so a
--- folder of repositories and a single repository cannot read differently here.
+-- Neovim owns no second rule for the workspace, its repositories, or their
+-- changes, so a folder of repositories and a single repository cannot read
+-- differently here.
 ---@param cb fun(report: Report)
 function M.report(cb)
   if vim.fn.executable(TOOL) ~= 1 then

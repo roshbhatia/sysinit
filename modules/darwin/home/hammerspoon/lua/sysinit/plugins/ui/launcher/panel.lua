@@ -22,7 +22,7 @@ local settle_secs = 0.2
 
 local view = nil
 local watch = nil
--- Held at module scope: a watcher only Lua-local is collected and stops firing.
+-- Held at module scope for the reason launcher/init.lua gives above `watchers`.
 local screens = nil
 local stack = {}
 local loaded = false
@@ -428,11 +428,8 @@ local function build()
 
   view = hs.webview.new(frame(400), { developerExtrasEnabled = false }, controller)
   -- `nonactivating` lets the panel become the key window without activating
-  -- Hammerspoon. That activation is a synchronous wait on the window server:
-  -- usually under 100ms, but measured here blocking for up to 4.9 seconds while
-  -- the window server was busy, with Hammerspoon using no CPU. The hotkey cannot
-  -- fire during that wait, so the launcher appeared frozen. Without activation
-  -- there is no such wait, and the app the user was in stays frontmost.
+  -- Hammerspoon, which avoids the window-server wait that launcher/init.lua
+  -- measures above `settle_secs`. The app the user was in also stays frontmost.
   view:windowStyle({ "borderless", "fullSizeContentView", "nonactivating" })
   view:allowTextEntry(true)
   view:transparent(true)

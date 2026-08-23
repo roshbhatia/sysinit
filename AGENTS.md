@@ -15,10 +15,21 @@ not restate any of those here.
   home-manager installs it to openspec's XDG user schema directory, where it
   shadows the built-in. Editing a template rebuilds nothing
 - Harness configs all generate from `modules/home/programs/llm/harnesses/`, one
-  module per harness. Those are claude-code, codex, copilot, gemini, cursor,
-  opencode, amp, crush, devin, goose, and pi. A harness owning assets is a
-  directory holding its `default.nix` beside them; one with no asset is a
-  single file
+  module per entry in `registry.nix`. Do not keep a second list here; the last
+  one named eleven of the fourteen and called the `claude` attr `claude-code`.
+  A harness owning assets is a directory holding its `default.nix` beside them;
+  one with no asset is a single file
+- `registry.nix` carries what each harness can do, not just who it is: `guard`,
+  `notify`, `editBus`, `acp`, `exitHook`, `projectDir`, `transcriptRoot`.
+  `harnesses/assertions.nix` rejects a null on the ones that must be answered,
+  so a new harness cannot inherit a capability gap in silence
+- `harnesses/publish.nix` renders the whole registry to
+  `~/.config/sysinit/agents.json`. Publish the entry, not a chosen subset: the
+  subset is what let neovim, wezterm and seshy each keep a private copy
+- Four harnesses have no destructive-command guard, recorded as `guard = "none"`:
+  copilot, crush, goose, hermes. None of the four exposes a deny mechanism this
+  repo knows how to drive. Eleven declare `status_patterns = [ ]`, meaning the
+  deck plugin's shared default strings, which have not been observed per agent
 - The rest of `modules/home/programs/llm/` splits by role. `lib/` is
   evaluation-time helpers. `runtime/` is the agent-agnostic runtime a harness
   hook executes: notifier, state bus, gates, guard bodies. `skills/` is the
@@ -205,5 +216,7 @@ them errors; the code no longer carries a comment saying so.
   case, therefore started no poll at all, and the only surviving refresh was
   `edit_events`, which five of fourteen harnesses feed. `api.setup` now starts it
   unconditionally. Nothing reported the gap; buffers simply went stale
-- An unreferenced `let` binding is dropped silently, so a derivation that exists
-  only to be checked must be forced from something that ships.
+- An unreferenced `let` binding is dropped silently. Use `config.assertions`
+  for a registry invariant rather than forcing a `throw` from something that
+  ships; five of these were concatenated into an unrelated rsvg `runCommand`
+  and read as stray identifiers prepended to a shell script.

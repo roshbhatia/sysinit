@@ -1,9 +1,4 @@
 -- The five wezterm pane calls this config makes, in one place.
---
--- It used to also carry a terminal provider for claudecode.nvim and a server
--- callback pair for opencode.nvim, each about 80 lines and each serving one
--- agent. Those plugins are gone, and harness/launch.lua now opens every agent
--- the same way, so what is left is the shared primitive set.
 local M = {}
 
 ---@param args string[]
