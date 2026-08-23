@@ -107,6 +107,10 @@ in
         OTEL_LOGS_EXPORTER = "otlp";
         OTEL_EXPORTER_OTLP_PROTOCOL = "http/json";
         OTEL_EXPORTER_OTLP_ENDPOINT = "http://127.0.0.1:4318";
+
+        # Without this, every prompt attribute reads <REDACTED> and a turn row
+        # carries no text. The collector writes to a local file only.
+        OTEL_LOG_USER_PROMPTS = "1";
       };
 
       teammateMode = "in-process";
