@@ -2,19 +2,8 @@ local M = {}
 
 local RESEND_MAX_BYTES = 8192
 
----@type table<string,string>  adapter name → last prompt
+---@type table<string,string>  agent name → last prompt
 local last_prompts = {}
-
-local function get_active_adapter()
-  local session = require("harness.session")
-  local registry = require("harness.registry")
-  local name = session.get_active()
-  if not name then
-    vim.notify("Harness: no active agent — pick one with <leader>jj", vim.log.levels.WARN)
-    return nil
-  end
-  return registry.get_by_name(name)
-end
 
 ---@param buf integer
 ---@return {from: integer[], to: integer[], kind: string}|nil
@@ -35,26 +24,42 @@ local function visual_marks(buf)
   }
 end
 
+---@return string|nil
+local function active()
+  local _, name = require("harness.launch").pane()
+  if not name then
+    vim.notify("Harness: no agent pane - start one with <leader>jj", vim.log.levels.WARN)
+    return nil
+  end
+  return name
+end
+
 local function input_for_active(action, default_text)
-  local adapter = get_active_adapter()
-  if not adapter then
+  local name = active()
+  if not name then
     return
   end
   local marks = visual_marks(vim.api.nvim_get_current_buf())
+  local label = name
+  for _, agent in ipairs(require("harness.launch").all()) do
+    if agent.name == name then
+      label = agent.label
+    end
+  end
   require("harness.input").create_input({
-    agent_name = adapter.label or adapter.name,
+    agent_name = label,
     action = action,
     default = default_text,
     selection_marks = marks,
     on_confirm = function(text)
-      last_prompts[adapter.name] = text
-      adapter.send(text, { submit = false })
+      last_prompts[name] = text
+      require("harness.launch").send(text, { submit = false })
     end,
   })
 end
 
 function M.toggle()
-  require("harness.picker").pick_agent()
+  require("harness.launch").pick()
 end
 
 function M.ask()
@@ -74,13 +79,13 @@ function M.fix()
 end
 
 function M.resend()
-  local adapter = get_active_adapter()
-  if not adapter then
+  local name = active()
+  if not name then
     return
   end
-  local last = last_prompts[adapter.name]
+  local last = last_prompts[name]
   if not last or last == "" then
-    vim.notify("Harness: no previous prompt for " .. adapter.name, vim.log.levels.WARN)
+    vim.notify("Harness: no previous prompt for " .. name, vim.log.levels.WARN)
     return
   end
   if #last > RESEND_MAX_BYTES then
@@ -90,40 +95,24 @@ function M.resend()
     )
     return
   end
-  adapter.send(last, { submit = false })
+  require("harness.launch").send(last, { submit = false })
 end
 
 function M.kill()
-  require("harness.picker").kill_active()
-end
-
-function M.kill_and_pick()
-  require("harness.picker").kill_and_pick()
-end
-
-function M.options()
-  local name = require("harness.session").get_active()
-  if not name then
-    vim.notify("Harness: no active agent — pick one with <leader>jj", vim.log.levels.WARN)
-    return
-  end
-  require("harness.options").configure(name)
+  require("harness.launch").kill()
 end
 
 function M.status()
-  local name = require("harness.session").get_active()
-  if not name then
-    vim.notify("Harness: no active agent", vim.log.levels.INFO)
+  local state = require("harness.launch").status()
+  if not state.agent then
+    vim.notify(string.format("Harness: no agent pane, %d available", state.available), vim.log.levels.INFO)
     return
   end
-  local summary = require("harness.options").summary(name)
-  local msg = summary ~= "" and (name .. "  " .. summary) or name
-  vim.notify("Harness: " .. msg, vim.log.levels.INFO)
+  vim.notify(string.format("Harness: %s in pane %s", state.agent, state.pane), vim.log.levels.INFO)
 end
 
 function M.add_buffer()
-  local adapter = get_active_adapter()
-  if not adapter then
+  if not active() then
     return
   end
   local placeholders = require("harness.placeholders")
@@ -132,12 +121,11 @@ function M.add_buffer()
     vim.notify("Harness: current buffer has no file", vim.log.levels.WARN)
     return
   end
-  adapter.send(text, { submit = false })
+  require("harness.launch").send(text, { submit = false })
 end
 
 function M.send_selection()
-  local adapter = get_active_adapter()
-  if not adapter then
+  if not active() then
     return
   end
   local marks = visual_marks(vim.api.nvim_get_current_buf())
@@ -152,7 +140,7 @@ function M.send_selection()
   if not text or text == "" then
     return
   end
-  adapter.send(text, { submit = false })
+  require("harness.launch").send(text, { submit = false })
 end
 
 function M.review_close()
@@ -176,6 +164,13 @@ end
 
 function M.setup()
   require("harness.completion").setup()
+
+  -- Unconditional, because the agent usually runs in a wezterm pane rather than
+  -- a split this editor spawned. Keying it to a spawn meant the poll never ran
+  -- in the ordinary case, and only the five edit-bus harnesses refreshed at all.
+  pcall(function()
+    require("harness.file_refresh").start()
+  end)
 
   pcall(function()
     require("harness.edit_events").start()

@@ -23,6 +23,11 @@ function M.start()
   timer:start(INTERVAL_MS, INTERVAL_MS, vim.schedule_wrap(tick))
 end
 
+---@return boolean
+function M.is_active()
+  return timer ~= nil
+end
+
 function M.stop()
   if not timer then
     return
