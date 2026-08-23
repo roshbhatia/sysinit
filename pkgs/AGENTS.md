@@ -46,12 +46,9 @@ publishes `seshy`, `specutil`, `ask`, and `sysinit-utils` as symlink or wrapper
 selections over its `bin/`. A change to any tool rebuilds all four, which takes
 seconds.
 
-Do not set `subPackages`. It narrows the check phase as well as the build, and
-the `main` packages hold no tests, so the build would pass having run nothing.
-
-`go test ./...` covers every tool, and `overlays/sysinit-gotools.nix` runs it as the
-check phase. A test that shells out to `git` works, because `git` is in
-`nativeCheckInputs`.
+This repository has no Go tests. `overlays/sysinit-gotools.nix` sets
+`doCheck = false`, so `go build` is the only gate. `hack/lint.sh` does not run
+`go test` either.
 
 ## Adding a tool
 
