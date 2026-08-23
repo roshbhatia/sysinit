@@ -32,10 +32,28 @@ files_matching() {
   fi | grep -E "$1" || true
 }
 
-nix_files=$(files_matching '\.nix$')
+# nvfetcher writes _sources/generated.nix, so linting it reports drift nobody
+# can fix in place.
+nix_files=$(files_matching '\.nix$' | grep -v '^_sources/generated\.nix$')
 if [ -n "$nix_files" ] && command -v ast-grep > /dev/null 2>&1; then
   # shellcheck disable=SC2086 # one path per argument is the point
   run ast-grep scan -c sgconfig.yml $nix_files
+fi
+
+# statix takes one target per invocation, so the file list needs a loop.
+if [ -n "$nix_files" ] && command -v statix > /dev/null 2>&1; then
+  echo "==> statix"
+  for nix_file in $nix_files; do
+    if ! statix check "$nix_file"; then
+      echo "FAIL: statix $nix_file" >&2
+      status=1
+    fi
+  done
+fi
+
+if [ -n "$nix_files" ] && command -v deadnix > /dev/null 2>&1; then
+  # shellcheck disable=SC2086
+  run deadnix --fail $nix_files
 fi
 
 lua_files=$(files_matching '\.lua$')

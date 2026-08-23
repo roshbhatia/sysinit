@@ -14,7 +14,7 @@ let
 in
 {
   stylix = {
-    enable = themeConfig.enable;
+    inherit (themeConfig) enable;
     autoEnable = true;
 
     polarity = themeConfig.appearance;
