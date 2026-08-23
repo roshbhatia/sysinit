@@ -44,7 +44,6 @@ let
       ask = [ ];
     };
 
-    mcpServers = llmLib.mcp.formatForCursor kit.mcpServers.servers;
   };
 in
 {
@@ -54,6 +53,18 @@ in
     format = "json";
     content = devinSettings;
     enforce = [ "permissions" ];
+  };
+
+  # devin reads MCP from its own mcp_config.json, not from config.json. It
+  # rewrites config.json on start and drops any mcpServers block there, so this
+  # repo's catalog silently stopped reaching devin.
+  sysinit.llm.managedFiles.devin-mcp = {
+    path = ".config/devin/mcp_config.json";
+    format = "json";
+    content = {
+      mcpServers = llmLib.mcp.formatForCursor kit.mcpServers.servers;
+    };
+    enforce = [ "mcpServers" ];
   };
 
   xdg.configFile = {
