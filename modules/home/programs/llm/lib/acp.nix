@@ -43,6 +43,15 @@
       args = [ "acp" ];
     };
 
+    # `hermes acp` and `hermes-acp` are the same adapter. The dedicated binary is
+    # the one overlays/hermes-agent.nix wraps with the subagent PATH, so a
+    # spawned helper resolves. It is also slow to answer `initialize`: about ten
+    # seconds here, against under one for every other server in this list.
+    hermes = {
+      command = "hermes-acp";
+      args = [ ];
+    };
+
     opencode = {
       command = "opencode";
       args = [ "acp" ];
