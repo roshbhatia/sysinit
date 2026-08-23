@@ -1,0 +1,14 @@
+{
+  "name": "calldiff-bundle",
+  "private": true,
+  "version": "0.5.0",
+  "description": "calldiff pinned with the tree-sitter grammars this repo parses, so it never installs one at runtime",
+  "dependencies": {
+    "@tree-sitter-grammars/tree-sitter-lua": "0.2.0",
+    "calldiff": "0.5.0",
+    "tree-sitter-bash": "0.25.1",
+    "tree-sitter-go": "0.25.0",
+    "tree-sitter-python": "0.25.0",
+    "tree-sitter-rust": "0.24.0"
+  }
+}

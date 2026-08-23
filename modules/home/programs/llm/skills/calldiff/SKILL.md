@@ -114,11 +114,17 @@ calldiff diff --format md
 calldiff skills add claude
 ```
 
-### The first run is slow
+### It never installs a grammar, so a slow run is a real one
 
-`calldiff` here is a wrapper over `npx calldiff@0.5.0`. The first run in a
-fresh npm cache needs network and takes about 20 seconds. Later runs take about
-2 seconds. Do not read a slow first run as a hang.
+Upstream calldiff runs `npm install` into `~/.cache/calldiff/grammars` the first
+time it meets a language. The build here bundles bash, go, lua, python, rust and
+typescript into the package itself, and calldiff prefers its own `node_modules`
+over that cache. A run over those languages needs no network and takes about
+0.3 seconds.
+
+A language outside that list still falls back to the cache and still installs.
+`overlays/calldiff.nix` names the bundled set; add to it rather than letting the
+fallback fire on a language this machine parses often.
 
 ## Where this fits the other skills
 

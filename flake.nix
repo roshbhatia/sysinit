@@ -170,6 +170,7 @@
         let
           cacheAttrs = [
             "openspec"
+            "calldiff"
             "localias"
             "mermaid-ascii"
             "pretty-mermaid"
