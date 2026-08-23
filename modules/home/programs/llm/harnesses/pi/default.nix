@@ -365,6 +365,36 @@ in
           force = true;
         };
 
+        # Both extensions are declared in `packages`, so these are live config,
+        # not leftovers. They were the only hand-made files among the extension
+        # configs here, which is how they drifted out of view.
+        ".pi/agent/extensions/pi-openai-fast.json" = {
+          text = builtins.toJSON {
+            persistState = true;
+            active = false;
+            supportedModels = [
+              "openai/gpt-5.4"
+              "openai-codex/gpt-5.4"
+            ];
+          };
+          force = true;
+        };
+
+        ".pi/agent/extensions/pi-openai-verbosity.json" = {
+          text = builtins.toJSON {
+            models = {
+              "openai-codex/gpt-5.4" = "low";
+              "openai-codex/gpt-5.5" = "low";
+              "openai-codex/gpt-5.4-mini" = "low";
+              "openai-codex/gpt-5.3-codex" = "low";
+              "openai-codex/gpt-5.3-codex-spark" = "low";
+              "openai-codex/gpt-5.2" = "low";
+              "openai-codex/codex-auto-review" = "low";
+            };
+          };
+          force = true;
+        };
+
         ".pi/agent/extensions/pi-tool-display/config.json" = {
           text = builtins.toJSON {
             registerToolOverrides = {

@@ -31,6 +31,10 @@ in
     force = true;
   };
 
+  # _config_version is deliberately not declared here. hermes owns it: a
+  # migration moves keys as well as bumping the number, so pinning 38 in Nix
+  # would mark a config migrated that Nix never migrated, and would fight the
+  # next bump. The reconciler preserves it as an undeclared key.
   sysinit.llm.managedFiles.hermes = {
     path = ".hermes/config.yaml";
     format = "yaml";
