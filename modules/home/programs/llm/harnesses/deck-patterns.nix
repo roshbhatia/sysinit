@@ -8,12 +8,17 @@
 # These are Lua patterns, and the deck matches them against the full executable
 # path, the basename, the argv string, and the pane title. An unanchored pattern
 # therefore matches anywhere in a /nix/store path. Anchor every short name.
+#
+# status_patterns = [ ] means "use the plugin's shared default strings". Eleven
+# agents declare that, because their busy and idle strings have not been observed
+# in a pane. Declaring it makes the choice visible instead of a silent fallback.
 {
   amp = {
     patterns = [ "amp" ];
     executable_patterns = [ "/amp$" ];
     argv_patterns = [ "^amp%s*$" ];
     title_patterns = [ "amp" ];
+    status_patterns = [ ];
   };
 
   atomic = {
@@ -21,6 +26,7 @@
     executable_patterns = [ "/atomic$" ];
     argv_patterns = [ "^atomic%s*$" ];
     title_patterns = [ "atomic" ];
+    status_patterns = [ ];
   };
 
   claude = {
@@ -45,6 +51,7 @@
       "claude"
       ".claude%-wrapped"
     ];
+    status_patterns = [ "esc to interrupt" ];
   };
 
   codex = {
@@ -52,6 +59,7 @@
     executable_patterns = [ "/codex$" ];
     argv_patterns = [ "^codex%s*$" ];
     title_patterns = [ "codex" ];
+    status_patterns = [ "esc to interrupt" ];
   };
 
   copilot = {
@@ -62,6 +70,7 @@
     ];
     argv_patterns = [ "^copilot%s*$" ];
     title_patterns = [ "copilot" ];
+    status_patterns = [ ];
   };
 
   crush = {
@@ -69,6 +78,7 @@
     executable_patterns = [ "/crush$" ];
     argv_patterns = [ "^crush%s*$" ];
     title_patterns = [ "crush" ];
+    status_patterns = [ ];
   };
 
   cursor = {
@@ -79,6 +89,7 @@
     executable_patterns = [ "/cursor%-agent$" ];
     argv_patterns = [ "cursor%-agent" ];
     title_patterns = [ "cursor" ];
+    status_patterns = [ ];
   };
 
   devin = {
@@ -86,6 +97,7 @@
     executable_patterns = [ "/devin$" ];
     argv_patterns = [ "^devin%s*$" ];
     title_patterns = [ "devin" ];
+    status_patterns = [ ];
   };
 
   gemini = {
@@ -103,6 +115,7 @@
       "antigravity"
       "gemini"
     ];
+    status_patterns = [ ];
   };
 
   goose = {
@@ -116,6 +129,7 @@
     ];
     argv_patterns = [ "^goose%s*$" ];
     title_patterns = [ "goose" ];
+    status_patterns = [ ];
   };
 
   hermes = {
@@ -126,6 +140,7 @@
     ];
     argv_patterns = [ "^hermes%s*$" ];
     title_patterns = [ "hermes" ];
+    status_patterns = [ ];
   };
 
   opencode = {
@@ -143,6 +158,11 @@
       "/opencode$"
     ];
     title_patterns = [ "opencode" ];
+    status_patterns = [
+      "enter confirm"
+      "esc dismiss"
+      "type your own answer"
+    ];
   };
 
   # "pi" is two characters, so every pattern here is anchored. Unanchored it
@@ -155,6 +175,7 @@
     ];
     argv_patterns = [ "^pi%s*$" ];
     title_patterns = [ "^pi$" ];
+    status_patterns = [ ];
   };
 
   prime-agent = {
@@ -162,5 +183,6 @@
     executable_patterns = [ "/prime%-agent$" ];
     argv_patterns = [ "^prime%-agent%s*$" ];
     title_patterns = [ "prime agent" ];
+    status_patterns = [ ];
   };
 }

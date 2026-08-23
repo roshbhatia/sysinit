@@ -1,3 +1,10 @@
+# Who the agents are, and what each one can do.
+#
+# guard says which destructive-command mechanism a harness has. "hook" is a
+# regex the guard binary evaluates at PreToolUse, "globs" is a deny list the
+# harness's own permission engine evaluates, "both" is both, and "none" means
+# the harness exposes no deny mechanism this repo knows how to drive. null is
+# rejected, so a new harness has to make the choice rather than inherit a gap.
 {
   amp = {
     label = "Amp";
@@ -13,6 +20,10 @@
     command = "amp";
     acp = true;
     openspecTool = [ ];
+    guard = "globs";
+    projectDir = ".agents/";
+    transcriptRoot = null;
+    exitHook = false;
   };
 
   atomic = {
@@ -29,6 +40,10 @@
     command = "atomic";
     acp = false;
     openspecTool = [ ];
+    guard = "globs";
+    projectDir = ".atomic/";
+    transcriptRoot = null;
+    exitHook = true;
   };
 
   claude = {
@@ -45,6 +60,10 @@
     command = "claude";
     acp = true;
     openspecTool = [ "claude" ];
+    guard = "hook";
+    projectDir = ".claude/";
+    transcriptRoot = "~/.claude/projects";
+    exitHook = true;
   };
 
   codex = {
@@ -61,6 +80,10 @@
     command = "codex";
     acp = true;
     openspecTool = [ "codex" ];
+    guard = "hook";
+    projectDir = ".codex/";
+    transcriptRoot = null;
+    exitHook = false;
   };
 
   copilot = {
@@ -77,6 +100,10 @@
     command = "copilot";
     acp = true;
     openspecTool = [ "github-copilot" ];
+    guard = "none";
+    projectDir = ".copilot/";
+    transcriptRoot = null;
+    exitHook = false;
   };
 
   crush = {
@@ -93,6 +120,10 @@
     command = "crush";
     acp = false;
     openspecTool = [ "crush" ];
+    guard = "none";
+    projectDir = ".crush/";
+    transcriptRoot = null;
+    exitHook = false;
   };
 
   cursor = {
@@ -109,6 +140,10 @@
     command = "cursor-agent";
     acp = false;
     openspecTool = [ "cursor" ];
+    guard = "globs";
+    projectDir = ".cursor/";
+    transcriptRoot = null;
+    exitHook = false;
   };
 
   devin = {
@@ -125,6 +160,10 @@
     command = "devin";
     acp = true;
     openspecTool = [ ];
+    guard = "both";
+    projectDir = ".devin/";
+    transcriptRoot = null;
+    exitHook = false;
   };
 
   gemini = {
@@ -144,6 +183,10 @@
       "antigravity"
       "gemini"
     ];
+    guard = "hook";
+    projectDir = ".gemini/";
+    transcriptRoot = null;
+    exitHook = false;
   };
 
   goose = {
@@ -160,6 +203,10 @@
     command = "goose";
     acp = true;
     openspecTool = [ ];
+    guard = "none";
+    projectDir = ".goose/";
+    transcriptRoot = null;
+    exitHook = false;
   };
 
   hermes = {
@@ -176,6 +223,10 @@
     command = "hermes";
     acp = true;
     openspecTool = [ ];
+    guard = "none";
+    projectDir = ".hermes/";
+    transcriptRoot = null;
+    exitHook = false;
   };
 
   opencode = {
@@ -192,6 +243,10 @@
     command = "opencode";
     acp = true;
     openspecTool = [ "opencode" ];
+    guard = "globs";
+    projectDir = ".opencode/";
+    transcriptRoot = null;
+    exitHook = false;
   };
 
   prime-agent = {
@@ -208,6 +263,10 @@
     command = "prime-agent";
     acp = false;
     openspecTool = [ ];
+    guard = "globs";
+    projectDir = ".prime/";
+    transcriptRoot = null;
+    exitHook = true;
   };
 
   pi = {
@@ -224,5 +283,9 @@
     command = "pi";
     acp = true;
     openspecTool = [ "pi" ];
+    guard = "globs";
+    projectDir = ".pi/";
+    transcriptRoot = null;
+    exitHook = true;
   };
 }
