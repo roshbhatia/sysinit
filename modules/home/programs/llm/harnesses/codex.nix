@@ -15,6 +15,11 @@ let
     name = "codex-bash-guard";
   };
 
+  otlpHttp = {
+    endpoint = "http://127.0.0.1:4318";
+    protocol = "json";
+  };
+
   compactPrompt = ''
     Compact this Codex session for continuation. Preserve only context needed to keep working correctly.
 
@@ -119,6 +124,15 @@ in
       approval_policy = "never";
 
       sandbox_mode = "danger-full-access";
+
+      # `exporter` is a serde externally-tagged enum, so the variant name is the
+      # table key. Codex keeps a separate key per signal and does not fall back
+      # from one to another, so all three name the same collector.
+      otel = {
+        exporter."otlp-http" = otlpHttp;
+        trace_exporter."otlp-http" = otlpHttp;
+        metrics_exporter."otlp-http" = otlpHttp;
+      };
 
       shell_environment_policy = {
         experimental_use_profile = true;

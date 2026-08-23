@@ -139,7 +139,9 @@ let
       };
     };
     GOOSE_TOOLSHIM = false;
-    GOOSE_TELEMETRY_ENABLED = false;
+    # The collector on 4318 is the sink; the Rust SDK reads OTEL_EXPORTER_OTLP_ENDPOINT
+    # from the process environment, which modules/home/programs/otel-collector.nix sets.
+    GOOSE_TELEMETRY_ENABLED = true;
 
     extensions =
       llmLib.mcp.formatForGoose kit.mcpServers.servers
