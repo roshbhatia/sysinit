@@ -22,28 +22,15 @@ plain_notify() {
   printf '%s' "$input" | "$NOTIFY_EXE" "$agent" "$reason" "$focus_exe" 2> /dev/null || true
 }
 
-eff_reason=$reason
-if [ "$eff_reason" = "attention" ]; then
-  case "$notif_type" in
-    permission_prompt | agent_needs_input) eff_reason="approval" ;;
-    idle_prompt) eff_reason="idle" ;;
-    agent_completed) eff_reason="done" ;;
-    auth_success | elicitation_complete | elicitation_response)
-      plain_notify
-      exit 0
-      ;;
-    "")
-      case "$msg" in
-        *[Pp]ermission* | *[Aa]pprov* | *[Cc]onfirm*) eff_reason="approval" ;;
-        *idle* | *[Ww]aiting* | *[Ii]nput*) eff_reason="idle" ;;
-      esac
-      ;;
-    *)
-      plain_notify
-      exit 0
-      ;;
-  esac
-fi
+# 1 is a type this repo never routes, so fall back to a plain notification.
+# 2 is an unclassified message, which still carries the original reason on.
+eff_reason=$(agent_classify "$reason" "$notif_type" "$msg")
+case $? in
+  1)
+    plain_notify
+    exit 0
+    ;;
+esac
 
 pane=${WEZTERM_PANE:-}
 alerter=$(command -v alerter 2> /dev/null || true)

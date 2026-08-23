@@ -45,22 +45,9 @@ label=$(agent_label "$agent")
 icon="$icons/$agent.png"
 [ -f "$icon" ] || icon="$icons/agent.png"
 
-if [ "$reason" = "attention" ]; then
-  case "$notif_type" in
-    permission_prompt | agent_needs_input) reason="approval" ;;
-    idle_prompt) reason="idle" ;;
-    agent_completed) reason="done" ;;
-    auth_success | elicitation_complete | elicitation_response) exit 0 ;;
-    "")
-      case "$msg" in
-        *[Pp]ermission* | *[Aa]pprov* | *[Cc]onfirm*) reason="approval" ;;
-        *idle* | *[Ww]aiting* | *[Ii]nput*) reason="idle" ;;
-        *) exit 0 ;; # Unclassified — suppress rather than spam
-      esac
-      ;;
-    *) exit 0 ;; # Unknown notification_type — suppress
-  esac
-fi
+# Any non-zero is unclassified, and this path suppresses rather than spams.
+classified=$(agent_classify "$reason" "$notif_type" "$msg") || exit 0
+reason=$classified
 
 if [ "$reason" = "done" ] && [ -n "$pane" ]; then
   an_panes=$(sysinit_path agentPanes) || an_panes="$an_agents/panes"
