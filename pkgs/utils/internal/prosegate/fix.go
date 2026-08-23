@@ -11,14 +11,8 @@ import (
 	"strings"
 )
 
-// Vale carries an action through --output=JSON but never applies one: the CLI
-// has no fix flag, and only editor integrations consume them. This is the
-// applier. A rule without an action is reported and left alone, which is why
-// only the mechanical rewrites carry one in pkgs/prose-style/rules.cue.
-//
-// A chat reply cannot be fixed this way. A Stop hook fires after the text is
-// already on screen and has no field to rewrite it, so `check` still sends a
-// reply back rather than repairing it.
+// Vale carries an action through --output=JSON but never applies one, so this
+// file is the applier. A rule with no action is reported and left alone.
 
 type fileAlert struct {
 	valeAlert
@@ -59,14 +53,9 @@ func apply(match string, action valeAlertAction) (string, bool) {
 }
 
 // locate returns the 1-based inclusive rune range on the line that holds the
-// alert's matched text.
-//
-// Span alone is not trustworthy. Vale reports it against the text the rule saw,
-// and a default-scope rule sees markdown-stripped text while a `scope: raw`
-// rule sees the line as written. On a line carrying both kinds of alert the two
-// coordinate systems disagree, and writing at the wrong offset silently
-// destroys prose. So Span is only a hint: the match text has to be there, or
-// the alert is skipped and reported by lint instead.
+// alert's matched text. Span is only a hint: a default-scope and a `scope: raw`
+// alert measure the same line differently, and writing at the wrong offset
+// silently destroys prose, so the match text has to be there.
 func locate(runes []rune, a fileAlert) (int, int, bool) {
 	match := []rune(a.Match)
 	if len(match) == 0 {
@@ -90,13 +79,9 @@ func locate(runes []rune, a fileAlert) (int, int, bool) {
 }
 
 // splice writes replacement over the 1-based inclusive range [start, end] and
-// returns the new line with the new start offset.
-//
-// Vale's match does not always take the whole gap with it. `[ \t]*—[ \t]*`
-// against `foo — bar` in a heading can report ` —` and leave the trailing space
-// on the line, so a bare ": " replacement writes `foo:  bar`. So a replacement
-// that carries its own spacing eats the space next to it, on whichever side it
-// supplies one.
+// returns the new line with the new start offset. Vale's match does not always
+// take the whole gap with it, so a replacement carrying its own spacing eats
+// the space next to it on whichever side it supplies one.
 func splice(runes []rune, start, end int, replacement string) ([]rune, int) {
 	head, tail := runes[:start-1], runes[end:]
 	if r := []rune(replacement); len(r) > 0 {
@@ -153,15 +138,9 @@ func lintAlerts(config, path, text string) ([]fileAlert, error) {
 }
 
 // pass applies every placeable action once and returns the rewritten lines.
-//
-// Edits run last-first within each line so an earlier span keeps its offsets.
-// Two alerts that overlap would corrupt each other, so the second one is left
-// for the next pass rather than applied on top of a shifted line.
-//
-// unplaced counts an action this could not place at all. Vale's Line is
-// approximate for a default-scope alert inside a list, and `locate` refuses to
-// write when the reported line does not hold the match. Those are real edits
-// left undone, so they are counted rather than swallowed.
+// Edits run last-first within each line so an earlier span keeps its offsets,
+// and two overlapping alerts leave the second for the next pass. unplaced
+// counts an action `locate` refused to place, which is a real edit left undone.
 func pass(lines []string, found []fileAlert) (out []string, applied, unplaced int) {
 	byLine := map[int][]fileAlert{}
 	for _, a := range found {
@@ -223,10 +202,8 @@ func pass(lines []string, found []fileAlert) (out []string, applied, unplaced in
 const maxPasses = 10
 
 // fixText applies every mechanical rule to text and returns the rewritten text.
-//
-// This is the whole applier, and both callers reach the same code: `fix` writes
-// the result back to a file, and `check` shows it to the model, because a Stop
-// hook has no field that rewrites a reply.
+// `fix` writes the result back to a file; `check` shows it to the model,
+// because a Stop hook has no field that rewrites a reply.
 func fixText(config, text string) (fixed string, applied, unplaced int) {
 	lines := strings.Split(text, "\n")
 	for range maxPasses {
@@ -260,12 +237,9 @@ const (
 )
 
 // corrections rewrites the mechanical faults in text and returns the lines that
-// changed, plus the alerts that survive and need a person.
-//
-// A Stop hook has no field that replaces a reply, so this is the closest thing:
-// hand back the exact line to paste. A whole line is returned rather than a
-// "replace X with Y" pair, because the same token can appear twice on one line
-// and a pair would not say which one moved.
+// changed, plus the alerts that survive and need a person. A whole line is
+// returned rather than a "replace X with Y" pair, because the same token can
+// appear twice on one line and a pair would not say which one moved.
 func corrections(config, text string) ([]correction, []valeAlert) {
 	fixed, applied, _ := fixText(config, text)
 

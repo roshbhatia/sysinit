@@ -10,6 +10,7 @@ import (
 	"strings"
 
 	"github.com/roshbhatia/sysinit/pkgs/internal/paths"
+	"github.com/roshbhatia/sysinit/pkgs/utils/internal/hookfmt"
 )
 
 const Summary = "hold a Stop hook until the reply is short and in ASD-STE100"
@@ -32,6 +33,9 @@ Usage:
   prose-gate fix       Rewrites the .md files under the given paths in place,
                        applying every rule that carries an action. --dry-run
                        counts without writing.
+
+check, remind, session, and subagent take --format claude|exit-code|json. It
+defaults to claude, which is the shape Claude Code's hook runner reads.
 
 Vale reads the reply as markdown and carries the rule set, so fenced code is
 skipped and a list is read as a list. SYSINIT_PROSE_STYLE names the vale config;
@@ -57,27 +61,8 @@ type stopEvent struct {
 	Prompt               string `json:"prompt"`
 }
 
-type blockDecision struct {
-	Decision string `json:"decision"`
-	Reason   string `json:"reason"`
-}
-
-type contextOutput struct {
-	HookSpecificOutput injectedContext `json:"hookSpecificOutput"`
-}
-
-type injectedContext struct {
-	HookEventName     string `json:"hookEventName"`
-	AdditionalContext string `json:"additionalContext"`
-}
-
-func inject(event, text string) int {
-	encoded, err := json.Marshal(contextOutput{injectedContext{event, text}})
-	if err != nil {
-		return 0
-	}
-	fmt.Println(string(encoded))
-	return 0
+func inject(event, text string) hookfmt.Outcome {
+	return hookfmt.Outcome{Kind: hookfmt.Context, Event: event, Message: text}
 }
 
 // The reminder used to go in on every prompt. That is the one injection here
@@ -292,44 +277,40 @@ carries the answer better than a sentence.`)
 	return b.String()
 }
 
-func check(stdin io.Reader) int {
+// Check decides whether the reply is sent back. It is the whole prose-gate
+// decision, with no harness in it.
+func Check(stdin io.Reader) hookfmt.Outcome {
 	if os.Getenv("SYSINIT_PROSE_GATE") == "off" {
-		return 0
+		return hookfmt.PassOutcome()
 	}
 
 	data, err := io.ReadAll(stdin)
 	if err != nil {
-		return 0
+		return hookfmt.PassOutcome()
 	}
 	var ev stopEvent
 	if json.Unmarshal(data, &ev) != nil {
-		return 0
+		return hookfmt.PassOutcome()
 	}
 	// The rewrite gets one pass. A gate that fires on its own correction is a
 	// loop the user cannot interrupt.
 	if ev.StopHookActive || ev.LastAssistantMessage == "" {
-		return 0
+		return hookfmt.PassOutcome()
 	}
 	if release(ev.SessionID) {
-		return 0
+		return hookfmt.PassOutcome()
 	}
 
 	if len(findings(ev.LastAssistantMessage)) == 0 {
-		return 0
+		return hookfmt.PassOutcome()
 	}
 
 	// The gate cannot rewrite the reply, so it rewrites what it can and hands
 	// the result back. Every mechanical fault comes back already corrected, and
 	// only the ones needing a decision cost the model any thought.
 	fixes, manual := corrections(stylePath(), ev.LastAssistantMessage)
-
-	encoded, err := json.Marshal(blockDecision{Decision: "block", Reason: reason(fixes, manual)})
-	if err != nil {
-		return 0
-	}
 	arm(ev.SessionID)
-	fmt.Println(string(encoded))
-	return 0
+	return hookfmt.Outcome{Kind: hookfmt.Block, Event: "Stop", Message: reason(fixes, manual)}
 }
 
 // Claude Code re-states a built-in output style on every turn, from that style's
@@ -338,9 +319,9 @@ func check(stdin io.Reader) int {
 // name is absent, so `sysinit-ste` is stated once at session start and never
 // again. This reminder is that missing per-turn line, which is why it names the
 // style rather than only its rules.
-func remind(stdin io.Reader) int {
+func remind(stdin io.Reader) hookfmt.Outcome {
 	if os.Getenv("SYSINIT_PROSE_GATE") == "off" {
-		return 0
+		return hookfmt.PassOutcome()
 	}
 	var ev stopEvent
 	if data, err := io.ReadAll(stdin); err == nil {
@@ -348,10 +329,10 @@ func remind(stdin io.Reader) int {
 	}
 	if noterse(ev.Prompt) {
 		escape(ev.SessionID)
-		return 0
+		return hookfmt.PassOutcome()
 	}
 	if !disarm(ev.SessionID) {
-		return 0
+		return hookfmt.PassOutcome()
 	}
 	return inject("UserPromptSubmit",
 		"The sysinit-ste output style is active. Follow it. Answer shape: what changed, why, next action. One sentence under 25 words per instruction. No em-dash, no preamble, no plan announcement, no closing summary. Keep an error, a failing test, or a destructive-action confirmation whole.")
@@ -367,9 +348,9 @@ func remind(stdin io.Reader) int {
 // bound holds whether or not the rule is read. A stated rule the model may skip
 // is strictly worse than a hook that cannot be skipped, and it costs bytes on
 // every session start.
-func session() int {
+func session() hookfmt.Outcome {
 	if os.Getenv("SYSINIT_PROSE_GATE") == "off" {
-		return 0
+		return hookfmt.PassOutcome()
 	}
 	return inject("SessionStart", `IMPORTANT: context is the budget that runs out first. YOU MUST spend it on purpose.
 
@@ -382,25 +363,26 @@ func session() int {
 // A teammate's report is the entire cost of delegating: the caller pays for it
 // in the window the delegation was meant to protect. Size is the only thing
 // worth gating here, because a report is data and the style rules are not.
-func subagent(stdin io.Reader) int {
+func subagent(stdin io.Reader) hookfmt.Outcome {
 	if os.Getenv("SYSINIT_PROSE_GATE") == "off" {
-		return 0
+		return hookfmt.PassOutcome()
 	}
 	data, err := io.ReadAll(stdin)
 	if err != nil {
-		return 0
+		return hookfmt.PassOutcome()
 	}
 	var ev stopEvent
 	if json.Unmarshal(data, &ev) != nil {
-		return 0
+		return hookfmt.PassOutcome()
 	}
 	if ev.StopHookActive || len(ev.LastAssistantMessage) <= maxReportBytes {
-		return 0
+		return hookfmt.PassOutcome()
 	}
 
-	encoded, err := json.Marshal(blockDecision{
-		Decision: "block",
-		Reason: fmt.Sprintf(`That report is %d KiB and the budget is %d KiB. It lands whole in the caller's
+	return hookfmt.Outcome{
+		Kind:  hookfmt.Block,
+		Event: "SubagentStop",
+		Message: fmt.Sprintf(`That report is %d KiB and the budget is %d KiB. It lands whole in the caller's
 context window, so it has to carry the conclusion, not the material.
 
 Send it again with:
@@ -411,12 +393,7 @@ Send it again with:
 
 Quote a file only where the exact text is the finding.`,
 			len(ev.LastAssistantMessage)/1024, maxReportBytes/1024),
-	})
-	if err != nil {
-		return 0
 	}
-	fmt.Println(string(encoded))
-	return 0
 }
 
 func lint(stdin io.Reader) int {
@@ -449,15 +426,8 @@ func Run(args []string) int {
 		fmt.Fprint(os.Stderr, usage)
 		return 2
 	}
+	// lint and fix write for a person, not for a hook, so they take no --format.
 	switch args[0] {
-	case "check":
-		return check(os.Stdin)
-	case "remind":
-		return remind(os.Stdin)
-	case "session":
-		return session()
-	case "subagent":
-		return subagent(os.Stdin)
 	case "lint":
 		return lint(os.Stdin)
 	case "fix":
@@ -465,6 +435,26 @@ func Run(args []string) int {
 	case "-h", "--help", "help":
 		fmt.Print(usage)
 		return 0
+	}
+
+	format, rest, err := hookfmt.ParseFormat(args[1:], hookfmt.Claude)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "prose-gate: %s\n", err)
+		return 1
+	}
+	if len(rest) > 0 {
+		fmt.Fprintf(os.Stderr, "prose-gate: unknown argument: %s\n", rest[0])
+		return 1
+	}
+	switch args[0] {
+	case "check":
+		return hookfmt.Emit(format, Check(os.Stdin))
+	case "remind":
+		return hookfmt.Emit(format, remind(os.Stdin))
+	case "session":
+		return hookfmt.Emit(format, session())
+	case "subagent":
+		return hookfmt.Emit(format, subagent(os.Stdin))
 	default:
 		fmt.Fprint(os.Stderr, usage)
 		return 2

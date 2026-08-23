@@ -8,6 +8,8 @@ import (
 	"path/filepath"
 	"regexp"
 	"strings"
+
+	"github.com/roshbhatia/sysinit/pkgs/utils/internal/hookfmt"
 )
 
 const (
@@ -35,14 +37,6 @@ type event struct {
 		FilePath     string `json:"file_path"`
 		NotebookPath string `json:"notebook_path"`
 	} `json:"tool_input"`
-}
-
-type decision struct {
-	HookSpecificOutput struct {
-		HookEventName            string `json:"hookEventName"`
-		PermissionDecision       string `json:"permissionDecision"`
-		PermissionDecisionReason string `json:"permissionDecisionReason"`
-	} `json:"hookSpecificOutput"`
 }
 
 func loadRules(path string) ([]compiled, error) {
@@ -84,19 +78,23 @@ func Decide(command string, rules []compiled) (string, bool) {
 	return "", false
 }
 
-func parseArgs(args []string) (string, error) {
+func parseArgs(args []string, fallback hookfmt.Format) (string, hookfmt.Format, error) {
+	format, rest, err := hookfmt.ParseFormat(args, fallback)
+	if err != nil {
+		return "", "", err
+	}
 	rules := ""
-	for i := 0; i < len(args); i++ {
-		if args[i] != "--rules" {
-			return "", fmt.Errorf("unknown argument: %s", args[i])
+	for i := 0; i < len(rest); i++ {
+		if rest[i] != "--rules" {
+			return "", "", fmt.Errorf("unknown argument: %s", rest[i])
 		}
-		if i+1 >= len(args) {
-			return "", fmt.Errorf("--rules needs a value")
+		if i+1 >= len(rest) {
+			return "", "", fmt.Errorf("--rules needs a value")
 		}
-		rules = args[i+1]
+		rules = rest[i+1]
 		i++
 	}
-	return rules, nil
+	return rules, format, nil
 }
 
 func readCommand(stdin io.Reader) (string, bool) {
@@ -224,27 +222,47 @@ type bashEvent struct {
 	ToolInput map[string]any `json:"tool_input"`
 }
 
-type bashDecision struct {
-	HookSpecificOutput struct {
-		HookEventName            string         `json:"hookEventName"`
-		PermissionDecision       string         `json:"permissionDecision"`
-		PermissionDecisionReason string         `json:"permissionDecisionReason"`
-		UpdatedInput             map[string]any `json:"updatedInput"`
-	} `json:"hookSpecificOutput"`
-}
-
-func emit(v any, name string) int {
-	encoded, err := json.Marshal(v)
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "%s: %s\n", name, err)
-		return 1
+// DecideBash is the whole bash-guard decision, with no harness in it.
+func DecideBash(input map[string]any, rules []compiled) hookfmt.Outcome {
+	command, _ := input["command"].(string)
+	if command == "" {
+		return hookfmt.PassOutcome()
 	}
-	fmt.Println(string(encoded))
-	return 0
+	if reason, denied := Decide(command, rules); denied {
+		return hookfmt.Outcome{Kind: hookfmt.Deny, Event: "PreToolUse", Message: reason}
+	}
+
+	// A backgrounded command writes to a log file, not into the window, so the
+	// bound would buy nothing and would hide the tail from the log too.
+	if background, ok := input["run_in_background"].(bool); ok && background {
+		return hookfmt.PassOutcome()
+	}
+	bounded, rewritten := boundCommand(command)
+	if !rewritten {
+		return hookfmt.PassOutcome()
+	}
+	// The whole tool_input is carried forward with only the command replaced.
+	// updatedInput substitutes the input rather than merging into it, so dropping
+	// the map would drop the timeout the caller chose.
+	updated := make(map[string]any, len(input))
+	for key, value := range input {
+		updated[key] = value
+	}
+	updated["command"] = bounded
+
+	return hookfmt.Outcome{
+		Kind:  hookfmt.Allow,
+		Event: "PreToolUse",
+		Message: fmt.Sprintf(
+			"This command can print without a limit, so its output was capped at %d KiB. Narrow it with a filter, a path, or a flag such as -n or --max-count if you need the part that was cut.",
+			bashBudget/1024,
+		),
+		UpdatedInput: updated,
+	}
 }
 
 func RunBash(args []string) int {
-	rulesPath, err := parseArgs(args)
+	rulesPath, format, err := parseArgs(args, hookfmt.Claude)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "bash-guard: %s\n", err)
 		return 1
@@ -262,46 +280,7 @@ func RunBash(args []string) int {
 	if json.Unmarshal(raw, &ev) != nil {
 		return 0
 	}
-	command, _ := ev.ToolInput["command"].(string)
-	if command == "" {
-		return 0
-	}
-
-	if reason, denied := Decide(command, rules); denied {
-		var out decision
-		out.HookSpecificOutput.HookEventName = "PreToolUse"
-		out.HookSpecificOutput.PermissionDecision = "deny"
-		out.HookSpecificOutput.PermissionDecisionReason = reason
-		return emit(out, "bash-guard")
-	}
-
-	// A backgrounded command writes to a log file, not into the window, so the
-	// bound would buy nothing and would hide the tail from the log too.
-	if background, ok := ev.ToolInput["run_in_background"].(bool); ok && background {
-		return 0
-	}
-	bounded, rewritten := boundCommand(command)
-	if !rewritten {
-		return 0
-	}
-	// The whole tool_input is carried forward with only the command replaced.
-	// updatedInput substitutes the input rather than merging into it, so dropping
-	// the map would drop the timeout the caller chose.
-	updated := make(map[string]any, len(ev.ToolInput))
-	for key, value := range ev.ToolInput {
-		updated[key] = value
-	}
-	updated["command"] = bounded
-
-	var out bashDecision
-	out.HookSpecificOutput.HookEventName = "PreToolUse"
-	out.HookSpecificOutput.PermissionDecision = "allow"
-	out.HookSpecificOutput.PermissionDecisionReason = fmt.Sprintf(
-		"This command can print without a limit, so its output was capped at %d KiB. Narrow it with a filter, a path, or a flag such as -n or --max-count if you need the part that was cut.",
-		bashBudget/1024,
-	)
-	out.HookSpecificOutput.UpdatedInput = updated
-	return emit(out, "bash-guard")
+	return hookfmt.Emit(format, DecideBash(ev.ToolInput, rules))
 }
 
 const storePrefix = "/nix/store/"
@@ -336,37 +315,37 @@ func resolve(path string) (string, bool) {
 	return resolved, true
 }
 
+// DecideNix reports whether the path resolves into the Nix store.
+func DecideNix(path string) hookfmt.Outcome {
+	resolved, ok := resolve(path)
+	if !ok || !strings.HasPrefix(resolved, storePrefix) {
+		return hookfmt.PassOutcome()
+	}
+	return hookfmt.Outcome{
+		Kind:  hookfmt.Deny,
+		Event: "PreToolUse",
+		Message: fmt.Sprintf(
+			"%s resolves to %s, which is Nix-managed and read-only. Edit the Nix source that generates it (under modules/), then run: nh darwin switch. Editing the store path directly is discarded on the next switch.",
+			path, resolved,
+		),
+	}
+}
+
 func RunNix(args []string) int {
-	if len(args) > 0 {
-		fmt.Fprintf(os.Stderr, "nix-guard: unknown argument: %s\n", args[0])
+	format, rest, err := hookfmt.ParseFormat(args, hookfmt.Claude)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "nix-guard: %s\n", err)
+		return 1
+	}
+	if len(rest) > 0 {
+		fmt.Fprintf(os.Stderr, "nix-guard: unknown argument: %s\n", rest[0])
 		return 1
 	}
 	path, ok := readPath(os.Stdin)
 	if !ok {
 		return 0
 	}
-	resolved, ok := resolve(path)
-	if !ok {
-		return 0
-	}
-	if !strings.HasPrefix(resolved, storePrefix) {
-		return 0
-	}
-
-	var out decision
-	out.HookSpecificOutput.HookEventName = "PreToolUse"
-	out.HookSpecificOutput.PermissionDecision = "deny"
-	out.HookSpecificOutput.PermissionDecisionReason = fmt.Sprintf(
-		"%s resolves to %s, which is Nix-managed and read-only. Edit the Nix source that generates it (under modules/), then run: nh darwin switch. Editing the store path directly is discarded on the next switch.",
-		path, resolved,
-	)
-	encoded, err := json.Marshal(out)
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "nix-guard: %s\n", err)
-		return 1
-	}
-	fmt.Println(string(encoded))
-	return 0
+	return hookfmt.Emit(format, DecideNix(path))
 }
 
 // 23 of this repository's 647 tracked files are over 16 KiB, so the trigger
@@ -396,15 +375,6 @@ type readInput struct {
 	Limit    int    `json:"limit"`
 }
 
-type readDecision struct {
-	HookSpecificOutput struct {
-		HookEventName            string    `json:"hookEventName"`
-		PermissionDecision       string    `json:"permissionDecision"`
-		PermissionDecisionReason string    `json:"permissionDecisionReason"`
-		UpdatedInput             readInput `json:"updatedInput"`
-	} `json:"hookSpecificOutput"`
-}
-
 // clipLines is the number of leading lines that fit in the budget. It counts
 // bytes rather than lines because a 538-line Nix module and a 184-line Markdown
 // file can both weigh 17 KB: line count does not predict what a read costs.
@@ -423,9 +393,44 @@ func clipLines(data []byte) int {
 	return count
 }
 
+// DecideRead clips an unbounded Read of a large file to the byte budget.
+func DecideRead(ev readEvent) hookfmt.Outcome {
+	// An explicit range is the caller having already decided what it needs.
+	if ev.ToolInput.FilePath == "" || ev.ToolInput.Offset != nil || ev.ToolInput.Limit != nil {
+		return hookfmt.PassOutcome()
+	}
+	if opaqueToLineLimits[strings.ToLower(filepath.Ext(ev.ToolInput.FilePath))] {
+		return hookfmt.PassOutcome()
+	}
+	info, err := os.Stat(ev.ToolInput.FilePath)
+	if err != nil || info.IsDir() || info.Size() <= readTrigger {
+		return hookfmt.PassOutcome()
+	}
+	data, err := os.ReadFile(ev.ToolInput.FilePath)
+	if err != nil {
+		return hookfmt.PassOutcome()
+	}
+	limit := clipLines(data)
+
+	return hookfmt.Outcome{
+		Kind:  hookfmt.Allow,
+		Event: "PreToolUse",
+		Message: fmt.Sprintf(
+			"%s is %d KiB. This read was clipped to its first %d lines to hold the context window. Read the rest with offset and limit, or use Grep to find the lines you need.",
+			filepath.Base(ev.ToolInput.FilePath), info.Size()/1024, limit,
+		),
+		UpdatedInput: map[string]any{"file_path": ev.ToolInput.FilePath, "limit": limit},
+	}
+}
+
 func RunRead(args []string) int {
-	if len(args) > 0 {
-		fmt.Fprintf(os.Stderr, "read-guard: unknown argument: %s\n", args[0])
+	format, rest, err := hookfmt.ParseFormat(args, hookfmt.Claude)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "read-guard: %s\n", err)
+		return 1
+	}
+	if len(rest) > 0 {
+		fmt.Fprintf(os.Stderr, "read-guard: unknown argument: %s\n", rest[0])
 		return 1
 	}
 	raw, err := io.ReadAll(os.Stdin)
@@ -436,42 +441,13 @@ func RunRead(args []string) int {
 	if json.Unmarshal(raw, &ev) != nil {
 		return 0
 	}
-	// An explicit range is the caller having already decided what it needs.
-	if ev.ToolInput.FilePath == "" || ev.ToolInput.Offset != nil || ev.ToolInput.Limit != nil {
-		return 0
-	}
-	if opaqueToLineLimits[strings.ToLower(filepath.Ext(ev.ToolInput.FilePath))] {
-		return 0
-	}
-	info, err := os.Stat(ev.ToolInput.FilePath)
-	if err != nil || info.IsDir() || info.Size() <= readTrigger {
-		return 0
-	}
-	data, err := os.ReadFile(ev.ToolInput.FilePath)
-	if err != nil {
-		return 0
-	}
-	limit := clipLines(data)
-
-	var out readDecision
-	out.HookSpecificOutput.HookEventName = "PreToolUse"
-	out.HookSpecificOutput.PermissionDecision = "allow"
-	out.HookSpecificOutput.PermissionDecisionReason = fmt.Sprintf(
-		"%s is %d KiB. This read was clipped to its first %d lines to hold the context window. Read the rest with offset and limit, or use Grep to find the lines you need.",
-		filepath.Base(ev.ToolInput.FilePath), info.Size()/1024, limit,
-	)
-	out.HookSpecificOutput.UpdatedInput = readInput{FilePath: ev.ToolInput.FilePath, Limit: limit}
-	encoded, err := json.Marshal(out)
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "read-guard: %s\n", err)
-		return 1
-	}
-	fmt.Println(string(encoded))
-	return 0
+	return hookfmt.Emit(format, DecideRead(ev))
 }
 
+// RunExitCode is bash-guard's deny half. It defaults to the exit-code format
+// because that is the channel its callers read; --format still overrides.
 func RunExitCode(args []string) int {
-	rulesPath, err := parseArgs(args)
+	rulesPath, format, err := parseArgs(args, hookfmt.ExitCode)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "exit-code-guard: %s\n", err)
 		return 1
@@ -489,6 +465,7 @@ func RunExitCode(args []string) int {
 	if !denied {
 		return 0
 	}
-	fmt.Fprintln(os.Stderr, reason)
-	return 2
+	return hookfmt.Emit(format, hookfmt.Outcome{
+		Kind: hookfmt.Deny, Event: "PreToolUse", Message: reason,
+	})
 }

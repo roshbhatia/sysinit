@@ -12,11 +12,13 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
+
+	"github.com/roshbhatia/sysinit/pkgs/utils/internal/hookfmt"
 )
 
 const Summary = "hold a Stop hook until a declared command passes"
 
-const usage = "usage: loop-gate arm --until '<command>' [--max n] [--stall n] | status | clear | check"
+const usage = "usage: loop-gate arm --until '<command>' [--max n] [--stall n] | status | clear | check [--format claude|exit-code|json]"
 
 type state struct {
 	Until     string `json:"until"`
@@ -29,11 +31,6 @@ type state struct {
 
 type stopEvent struct {
 	StopHookActive bool `json:"stop_hook_active"`
-}
-
-type blockDecision struct {
-	Decision string `json:"decision"`
-	Reason   string `json:"reason"`
 }
 
 func stateDir() string {
@@ -155,11 +152,14 @@ func run(command string) (string, int) {
 	return text, 1
 }
 
-func check(stdin io.Reader) int {
+// Decide advances the loop by one iteration and reports what the caller owes.
+// It is the whole loop-gate decision, with no harness in it: the state file is
+// removed on a pass, a stall, or a cap, and written back otherwise.
+func Decide(stdin io.Reader) hookfmt.Outcome {
 	path := stateFile()
 	s, ok := read(path)
 	if !ok {
-		return 0
+		return hookfmt.PassOutcome()
 	}
 
 	stopActive := false
@@ -174,7 +174,7 @@ func check(stdin io.Reader) int {
 	if code == 0 {
 		os.Remove(path)
 		fmt.Fprintf(os.Stderr, "loop-gate: CLEAN after %d iteration(s) — `%s` exited 0.\n", s.Iter, s.Until)
-		return 0
+		return hookfmt.PassOutcome()
 	}
 
 	s.Iter++
@@ -191,25 +191,28 @@ func check(stdin io.Reader) int {
 		os.Remove(path)
 		fmt.Fprintf(os.Stderr, "loop-gate: STALLED — %d iterations produced identical output from `%s`. Open work, not a pass.\n",
 			s.SameCount, s.Until)
-		return 0
+		return hookfmt.PassOutcome()
 	}
 	if s.Iter >= s.Max {
 		os.Remove(path)
 		fmt.Fprintf(os.Stderr, "loop-gate: CAPPED at %d iterations; `%s` still failing. Open work, not a pass.\n",
 			s.Max, s.Until)
-		return 0
+		return hookfmt.PassOutcome()
 	}
 
 	if err := write(path, s); err != nil {
 		fmt.Fprintf(os.Stderr, "loop-gate: %s\n", err)
-		return 1
+		return hookfmt.PassOutcome()
 	}
 
 	if stopActive {
-		return 0
+		return hookfmt.PassOutcome()
 	}
 
-	reason := fmt.Sprintf(`The declared STOP condition is not met (iteration %d/%d).
+	return hookfmt.Outcome{
+		Kind:  hookfmt.Block,
+		Event: "Stop",
+		Message: fmt.Sprintf(`The declared STOP condition is not met (iteration %d/%d).
 
 Command: %s
 Exit code: %d
@@ -218,14 +221,21 @@ Output:
 %s
 
 Fix the cause and continue. Do not report this phase as done while the command fails.`,
-		s.Iter, s.Max, s.Until, code, out)
-	encoded, err := json.Marshal(blockDecision{Decision: "block", Reason: reason})
+			s.Iter, s.Max, s.Until, code, out),
+	}
+}
+
+func check(args []string) int {
+	format, rest, err := hookfmt.ParseFormat(args, hookfmt.Claude)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "loop-gate: %s\n", err)
 		return 1
 	}
-	fmt.Println(string(encoded))
-	return 0
+	if len(rest) > 0 {
+		fmt.Fprintf(os.Stderr, "loop-gate: unknown argument: %s\n", rest[0])
+		return 1
+	}
+	return hookfmt.Emit(format, Decide(os.Stdin))
 }
 
 func Run(args []string) int {
@@ -241,7 +251,7 @@ func Run(args []string) int {
 	case "clear":
 		return clear()
 	case "check":
-		return check(os.Stdin)
+		return check(args[1:])
 	default:
 		fmt.Fprintln(os.Stderr, usage)
 		return 2

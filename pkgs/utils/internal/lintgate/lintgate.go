@@ -17,6 +17,8 @@ import (
 	"regexp"
 	"strings"
 	"time"
+
+	"github.com/roshbhatia/sysinit/pkgs/utils/internal/hookfmt"
 )
 
 const Summary = "run the edited file's linter and hand the failures back"
@@ -43,15 +45,14 @@ var byExtension = map[string][]checker{
 	".toml": {{binary: "taplo", args: []string{"lint"}}},
 }
 
-func Run(_ []string) int {
-	payload := readStdin()
-	input, _ := payload["tool_input"].(map[string]any)
-	path, _ := input["file_path"].(string)
+// Inspect runs every checker registered for the path's extension and returns
+// what they reported. It is the whole lint-gate decision, with no harness in it.
+func Inspect(path string) hookfmt.Outcome {
 	if path == "" {
-		return 0
+		return hookfmt.PassOutcome()
 	}
 	if info, err := os.Stat(path); err != nil || info.IsDir() {
-		return 0
+		return hookfmt.PassOutcome()
 	}
 
 	var found []string
@@ -61,11 +62,31 @@ func Run(_ []string) int {
 		}
 	}
 	if len(found) == 0 {
-		return 0
+		return hookfmt.PassOutcome()
 	}
-	return tell(fmt.Sprintf(
-		"lint-gate: %s does not pass its own checker. Fix this before you move on.\n\n%s",
-		filepath.Base(path), clip(strings.Join(found, "\n\n"))))
+	return hookfmt.Outcome{
+		Kind:  hookfmt.Context,
+		Event: "PostToolUse",
+		Message: fmt.Sprintf(
+			"lint-gate: %s does not pass its own checker. Fix this before you move on.\n\n%s",
+			filepath.Base(path), clip(strings.Join(found, "\n\n"))),
+	}
+}
+
+func Run(args []string) int {
+	format, rest, err := hookfmt.ParseFormat(args, hookfmt.Claude)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "lint-gate: %s\n", err)
+		return 1
+	}
+	if len(rest) > 0 {
+		fmt.Fprintf(os.Stderr, "lint-gate: unknown argument: %s\n", rest[0])
+		return 1
+	}
+	payload := readStdin()
+	input, _ := payload["tool_input"].(map[string]any)
+	path, _ := input["file_path"].(string)
+	return hookfmt.Emit(format, Inspect(path))
 }
 
 // A checker writes for a terminal, and the escape codes only cost the agent tokens.
@@ -104,24 +125,6 @@ func clip(text string) string {
 		return text
 	}
 	return text[:widest] + "\n[the rest is cut]"
-}
-
-type contextOutput struct {
-	HookSpecificOutput injectedContext `json:"hookSpecificOutput"`
-}
-
-type injectedContext struct {
-	HookEventName     string `json:"hookEventName"`
-	AdditionalContext string `json:"additionalContext"`
-}
-
-func tell(text string) int {
-	encoded, err := json.Marshal(contextOutput{injectedContext{"PostToolUse", text}})
-	if err != nil {
-		return 0
-	}
-	fmt.Println(string(encoded))
-	return 0
 }
 
 func readStdin() map[string]any {
