@@ -18,6 +18,7 @@
     "weztermWorkspaceState": "$HOME/.local/state/wezterm/workspace_state",
     "weztermRemoteSessions": "$HOME/.local/state/wezterm/remote_sessions",
     "llmSkills": "$HOME/.local/state/sysinit/llm/skills",
+    "otelTelemetry": "$HOME/.local/state/sysinit/otel/telemetry.jsonl",
     "manifest": "$HOME/.local/state/sysinit/paths.json"
   }
 }

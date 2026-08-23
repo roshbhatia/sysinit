@@ -44,6 +44,7 @@ in
         ./neovim
         ./nh.nix
         ./nushell.nix
+        ./otel-collector.nix
         ./otel-tui.nix
         ./seshy
         ./yazi
