@@ -444,7 +444,35 @@ rules: {
 // vendors STE as well, and STE never appears here: at suggestion level it is
 // 1015 alerts against Slop's 38 on the same 41 files. Only the two STE rules in
 // `promoted` run, which needs the style on disk and not in BasedOnStyles.
-auditStyles: ["proselint", "write-good", "alex", "Slop"]
+auditStyles: ["proselint", "write-good", "alex", "Slop", "STE"]
+
+// STE ships 12 rules and the hook runs 2 of them. Every count below is over the
+// 41 tracked .md files at suggestion level, which is why none of the other 10 is
+// promoted. They are reachable through the audit config, which blocks nothing.
+//
+// Four are too noisy to price a turn on:
+//   Gerunds 371, ProcedureLength 247, PassiveVoice 216, NounClusters 39.
+// STE bans a gerund outright and this repository's prose is full of legitimate
+// ones, starting with the skill titled "Writing".
+//
+// Three fight a rule this repository already decided:
+//   Modals 45 swaps `shall` to `must` and `may` to `can`. CLAUDE.md cites
+//   RFC 2119 and the openspec specs use SHALL on purpose.
+//   Contractions 13 bans every contraction. The output style uses them.
+//   SentenceLength 10 duplicates Sysinit.SentenceLength, which owns the 25-word
+//   ceiling and states it in this repository's own message.
+//
+// Two are real candidates and neither is the author's call:
+//   Ambiguity 34 bans `and/or`, `etc.`, `e.g.` and `i.e.` outright. Promoting it
+//   changes how every reply and every rule comment here is written.
+//   Dictionary 42 is plain-English substitution, not the ASD dictionary, which is
+//   copyrighted and absent upstream. It overlaps Latinate, InOrderTo and
+//   DueToTheFactThat, and it swaps words that are correct here: `component`,
+//   `implement`, `monitor`, `provide`, `require`, `maintain`, `operate`.
+//   `monitor` is a Laurel domain term with a skill named after it.
+//
+// Articles 13 is the remainder: a warning about a missing article, correct but
+// not worth a blocked turn.
 
 // Rules borrowed one at a time rather than a style at a time. Vale runs a rule
 // named here even when its style is absent from BasedOnStyles, which is what
