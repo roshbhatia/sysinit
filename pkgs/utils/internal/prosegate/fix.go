@@ -112,7 +112,10 @@ func lintAlerts(config, path, text string) ([]fileAlert, error) {
 	if err != nil {
 		return nil, err
 	}
-	args := []string{"--config=" + config, "--output=JSON", "--no-exit"}
+	// --no-global for the same reason as the check path: a user config at
+	// ~/.vale.ini merges into every vale run and can replace the whole rule
+	// set, and the fixer writes files.
+	args := []string{"--config=" + config, "--no-global", "--output=JSON", "--no-exit"}
 	if path == "" {
 		args = append(args, "--ext=.md")
 	} else {

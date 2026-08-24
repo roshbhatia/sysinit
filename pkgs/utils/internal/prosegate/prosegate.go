@@ -225,7 +225,12 @@ func alerts(text string) []valeAlert {
 		return nil
 	}
 
-	cmd := exec.Command(binary, "--config="+config, "--output=JSON", "--ext=.md", "--no-exit")
+	// --no-global is what makes the rule set this repository's. Vale merges the
+	// user config at ~/.vale.ini into every run, and a hand-written Sysinit
+	// style under ~/.local/share/vale/styles then replaced these rules
+	// wholesale: the gate ran 12 foreign rules and reported their messages.
+	// Nothing in the output said the rule set had changed.
+	cmd := exec.Command(binary, "--config="+config, "--no-global", "--output=JSON", "--ext=.md", "--no-exit")
 	cmd.Stdin = strings.NewReader(undirect(text))
 	// A malformed rule makes vale lint nothing, which read as "no alerts"
 	// silently disabled every check: one invalid key on one rule turned the
