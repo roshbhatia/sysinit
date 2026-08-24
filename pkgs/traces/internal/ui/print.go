@@ -11,7 +11,7 @@ import (
 // columns and no colour, because its reader is a pipe or a scrollback rather
 // than a pane that can be scrolled.
 func Print(out io.Writer, one *session.Session) {
-	fmt.Fprintf(out, "%s %s  %d spans\n", one.Service, one.Title(), one.Count)
+	fmt.Fprintf(out, "%s %s  %d %s\n", one.Service, one.Title(), one.Count, plural(one.Count, "span"))
 	for _, root := range one.Roots {
 		fmt.Fprintf(out, "%d. %s  %s%s\n", root.Turn, root.Label, duration(root.Duration()), ask(root.Prompt))
 		printKids(out, root, "   ")

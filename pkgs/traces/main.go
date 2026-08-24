@@ -14,6 +14,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"strconv"
 	"strings"
 	"time"
 
@@ -191,10 +192,7 @@ func show(batch otlp.Batch, from, which string, scope []string, listing bool) in
 
 	if listing {
 		fmt.Fprintf(os.Stderr, "traces: %d spans and %d records from %s\n", len(batch.Spans), len(batch.Records), from)
-		for _, one := range store.Sessions() {
-			fmt.Printf("%-12s %-40s %5d spans  %s\n",
-				one.Service, one.Title(), one.Count, one.Last.Format("15:04:05"))
-		}
+		list(os.Stdout, store.Sessions())
 		return 0
 	}
 
@@ -232,6 +230,35 @@ func failed(one *session.Session) bool {
 		}
 	}
 	return false
+}
+
+// list sizes every column to the rows it holds. The widths were fixed at 12 and
+// 40 before this, and `github-copilot` and a 47 character trace key both
+// overran theirs, so each long row shifted the two columns after it.
+//
+// The name column prints the short name rather than the whole key, because the
+// key is up to 47 characters of hex and --session takes the short name.
+func list(w io.Writer, all []*session.Session) {
+	service, name, count := 0, 0, 0
+	for _, one := range all {
+		service = max(service, len(one.Service))
+		name = max(name, len(one.Short()))
+		count = max(count, len(strconv.Itoa(one.Count)))
+	}
+	for _, one := range all {
+		fmt.Fprintf(w, "%-*s  %-*s  %*d %-5s  %s\n",
+			service, one.Service,
+			name, one.Short(),
+			count, one.Count, plural(one.Count, "span"),
+			one.Last.Format("15:04:05"))
+	}
+}
+
+func plural(n int, word string) string {
+	if n == 1 {
+		return word
+	}
+	return word + "s"
 }
 
 func pick(store *session.Store, which string) *session.Session {
