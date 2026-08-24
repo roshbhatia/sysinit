@@ -255,7 +255,7 @@ rules: {
 	MarketingVerb: #Existence & {
 		message: "marketing verb: use a concrete verb"
 		level:   "error"
-		raw: ["(?i)\\b(seamless(ly)?|effortless(ly)?|leverage[sd]?|unlock(s|ed)?|empower(s|ed)?|robust(ly)?|comprehensive(ly)?|powerful|best.in.class|game.chang(er|ing)|streamline[sd]?|delve[sd]?|showcase[sd]?|foster(s|ed)?)\\b"]
+		raw: ["(?i)\\b(seamless(ly)?|effortless(ly)?|leverage[sd]?|unlock(s|ed)?|empower(s|ed)?|robust(ly)?|comprehensive(ly)?|powerful|best.in.class|game.chang(er|ing)|streamline[sd]?|delve[sd]?|showcase[sd]?|foster(s|ed)?|boasts?|serves as)\\b"]
 	}
 
 	// The rule's own instruction is to delete the clause, so the whole match
@@ -294,7 +294,7 @@ rules: {
 	FrequencyMarker: #Existence & {
 		message: "AI frequency marker: name the thing plainly"
 		level:   "error"
-		raw: ["(?i)\\b(tapestry|paradigm|embark(s|ed|ing)?|beacon|testament to|cutting.edge|watershed moment|nestled|vibrant|thriving|bustling|ever.evolving|thought leader|synergy|symphony|deep dive|learnings|holistic|at its core|meticulous(ly)?|daunting|intricate|interplay)\\b"]
+		raw: ["(?i)\\b(tapestry|paradigm|embark(s|ed|ing)?|beacon|testament to|cutting.edge|watershed moment|nestled|vibrant|thriving|bustling|ever.evolving|thought leader|synergy|symphony|deep dive|learnings|holistic|at its core|meticulous(ly)?|daunting|intricate|interplay|load.bearing|hit differently|landscape|enduring|actionable|best practices|complexities|keen|underscores the)\\b"]
 	}
 
 	// ASD-STE100 caps a procedure sentence at 20 words and a descriptive one at
@@ -467,6 +467,32 @@ rules: {
 		raw: ["(?i)\\b(approximately|cease[sd]?|demonstrate[sd]?|desire[sd]?|discontinue[sd]?|eliminate[sd]?|employ(s|ed)?|expedite[sd]?|facilitate[sd]?|frequently|furnish(es|ed)?|numerous|optimum|possess(es|ed)?|prior to|procure[sd]?|purchase[sd]?|regarding|adjacent to|exhibit(s|ed)?|in the event that|in the vicinity of)\\b"]
 	}
 
+	// The rest of avoid-ai-writing's Tier 2 and Tier 3, as a plain existence rule.
+	// An earlier revision made Tier 2 a per-paragraph density rule and deleted
+	// it: vale makes each list item and each table cell its own paragraph, so
+	// five inflated words in a bulleted reply gave 0 alerts. A flat token list
+	// has no such hole.
+	//
+	// Every token measures 0 over the tracked .md, .nix, .go and .lua files.
+	// The ones left out were measured too: `harness` 39 and `verbatim` 8 are this
+	// repository's own terms, `impactful` 8 is a term of art in the openspec
+	// schema's human-verification rule, and `significant`, `effective`,
+	// `dynamic` and `scalable` are ordinary technical words here. `navigate` and
+	// `elevate` are pane and latency verbs. `nuanced` is HedgeBeforeClaim's.
+	InflatedWord: #Existence & {
+		message: "inflated word: use a plainer one"
+		level:   "error"
+		raw: ["(?i)\\b(unleash(es|ed)?|bolster(s|ed)?|spearhead(s|ed)?|resonate[sd]?|revolutionize[sd]?|multifaceted|myriad|plethora|catalyze[sd]?|reimagine[sd]?|galvanize[sd]?|elucidate[sd]?|juxtapose[sd]?|poised|burgeoning|nascent|quintessential|overarching|innovative|compelling|unprecedented|exceptional|remarkable|sophisticated|instrumental|world.class|crucial)\\b"]
+	}
+
+	// avoid-ai-writing's phrase clusters. Each names a relationship without
+	// naming either side of it, so the sentence survives deleting the phrase.
+	PhraseCluster: #Existence & {
+		message: "empty phrase: name the two things and the relation"
+		level:   "error"
+		raw: ["(?i)\\b(the integration of|the intersection of|community.driven|long.term sustainability|user engagement|emerging (sector|space)|designed for long.term)\\b"]
+	}
+
 	SentenceLength: #Occurrence & {
 		message: "sentence over 25 words: split it"
 		level:   "error"
@@ -535,6 +561,27 @@ promoted: {
 	"Slop.SelfPraise": "error"
 	// "this is by design", standing in for the reason. 0 hits.
 	"Slop.VagueReasons": "error"
+	// Metaphor standing in for mechanism. This is the rule that would have caught
+	// "the period is load bearing" and "reads as the provenance". 19 hits, all in
+	// the writing skills, which quote the pattern they ban.
+	"Slop.Metaphor": "error"
+	// Code given intentions: "the parser wants", "vale decides to". 9 hits.
+	"Slop.Anthropomorphism": "error"
+	// Slop.Overused is deliberately NOT promoted. Its token list is nearly this
+	// file's own: robust, seamless, comprehensive, meticulous, intricate,
+	// multifaceted, nuanced, pivotal, crucial, elevate, empower, foster,
+	// facilitate, leverage, utilize, showcase, spearhead, streamline, bolster.
+	// It also holds `utilization`, which is the CloudWatch metric this
+	// repository queries and which Utilize drops for that reason. The corpus
+	// check caught it on good.md.
+	// Ceremony around the answer instead of the answer. 4 hits.
+	"Slop.Ceremony": "error"
+	// "very", "quite", "rather": a qualifier carrying no quantity. 2 hits.
+	"Slop.EmptyQualifiers": "error"
+	// A comment restating the line below it. 0 hits.
+	"Slop.RestatesCode": "error"
+	// A header that announces rather than names. 0 hits.
+	"Slop.Headers": "error"
 	// ASD-STE100 caps a paragraph at six sentences. 11 hits.
 	"STE.ParagraphLength": "error"
 	// One instruction per sentence, scoped to list items. 5 hits.
@@ -563,6 +610,7 @@ covered: [
 	"FillerOpener",
 	"FrequencyMarker",
 	"HedgeStacking",
+	"InflatedWord",
 	"InOrderTo",
 	"InToday",
 	"Latinate",
@@ -570,6 +618,7 @@ covered: [
 	"MarketingVerb",
 	"Narration",
 	"NegativeParallelism",
+	"PhraseCluster",
 	"RhetoricalLabel",
 	"SentenceLength",
 	"SignificanceInflation",

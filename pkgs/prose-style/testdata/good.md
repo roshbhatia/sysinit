@@ -19,11 +19,9 @@ The nvim keymaps navigate the buffer list, and the wezterm keymaps navigate pane
 
 The 401 carries a realm of laurel and no scope.
 
-The reply is nuanced and crucial to the gate.
-
 - The keymaps navigate buffers.
 - The keymaps navigate panes.
-- A third row is poised to navigate.
+- A third row can navigate too.
 
 The CPU utilization is 40 percent in us-west-2.
 
