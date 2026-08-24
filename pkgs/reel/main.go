@@ -12,7 +12,9 @@ import (
 	"context"
 	"flag"
 	"fmt"
+	"io"
 	"os"
+	"strings"
 	"time"
 
 	tea "github.com/charmbracelet/bubbletea"
@@ -29,12 +31,14 @@ func main() {
 	file := flag.String("file", "", "OTLP JSON file to read (default: the collector's)")
 	pinned := flag.String("session", "", "attach to this session, by id or prefix")
 	list := flag.Bool("list", false, "list the sessions and exit")
-	once := flag.Bool("once", false, "print the tree once and exit")
+	once := flag.Bool("once", false, "print the tree once and exit; status 2 when a span failed")
 	asked := flag.String("provider", "", "read this provider as well as the collector file (default: $"+source.Env+")")
 	back := flag.Duration("since", 2*time.Hour, "with a provider, how far back the first read reaches")
 	every := flag.Duration("poll", 15*time.Second, "with a provider, how often to re-read")
 	lag := flag.Duration("lag", 90*time.Second, "with a provider, how much every poll overlaps the last")
 	all := flag.Bool("all", false, "show every run on this machine, not only this directory's")
+	asJSON := flag.Bool("json", false, "print the spans as newline delimited JSON and exit")
+	service := flag.String("service", "", "keep only this service, by name or prefix")
 	flag.Parse()
 
 	// reel opens on the work in front of the reader. Inside an agent session
@@ -61,16 +65,21 @@ func main() {
 	if path == "" {
 		path = paths.OtelTelemetry()
 	}
+	// A dash is the shell's own name for standard input, so a provider or a
+	// saved capture pipes straight in: `reel-observe --since 1h | reel --once`.
+	if path == "-" {
+		path = ""
+	}
 
 	// A provider adds to the collector's file rather than replacing it. Only
 	// one harness on this machine needs a provider, and goose, codex, opencode
 	// and copilot all reach the collector directly: reading one source meant
 	// `reel` showed the redirected harness and none of the others, and every
 	// look at the rest needed the variable unset by hand.
-	src := sources{path: path, provider: provider, back: *back, every: *every, lag: *lag}
+	src := sources{path: path, provider: provider, back: *back, every: *every, lag: *lag, service: *service}
 
-	if *list || *once {
-		os.Exit(src.report(which, scope, *list))
+	if *asJSON || *list || *once {
+		os.Exit(src.report(which, scope, *list, *asJSON))
 	}
 	os.Exit(src.watch(which, scope))
 }
@@ -94,19 +103,56 @@ type sources struct {
 	back     time.Duration
 	every    time.Duration
 	lag      time.Duration
+	service  string
 }
 
 // name says what the frame is reading, so an empty view names the source that
 // was empty rather than leaving the reader to guess which one.
 func (s sources) name() string {
-	if s.provider == nil {
-		return s.path
+	where := s.path
+	if where == "" {
+		where = "standard input"
 	}
-	return s.path + " and " + s.provider.Name
+	if s.provider == nil {
+		return where
+	}
+	return where + " and " + s.provider.Name
 }
 
-func (s sources) report(which string, scope []string, listing bool) int {
-	batch, err := otlp.ReadAll(s.path)
+// read pulls every source into one batch. An empty path means standard input.
+func (s sources) read() (otlp.Batch, error) {
+	if s.path == "" {
+		blob, err := io.ReadAll(os.Stdin)
+		if err != nil {
+			return otlp.Batch{}, err
+		}
+		return source.DecodeAny(blob), nil
+	}
+	return otlp.ReadAll(s.path)
+}
+
+// keep drops the services the reader did not ask for. A prefix matches, because
+// `codex` is what a reader types for `codex_exec`.
+func (s sources) keep(in otlp.Batch) otlp.Batch {
+	if s.service == "" {
+		return in
+	}
+	out := otlp.Batch{}
+	for _, one := range in.Spans {
+		if strings.HasPrefix(one.Service, s.service) {
+			out.Spans = append(out.Spans, one)
+		}
+	}
+	for _, one := range in.Records {
+		if strings.HasPrefix(one.Service, s.service) {
+			out.Records = append(out.Records, one)
+		}
+	}
+	return out
+}
+
+func (s sources) report(which string, scope []string, listing, asJSON bool) int {
+	batch, err := s.read()
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "reel: %v\n", err)
 		return 1
@@ -123,6 +169,14 @@ func (s sources) report(which string, scope []string, listing bool) int {
 			batch.Spans = append(batch.Spans, read.Spans...)
 			batch.Records = append(batch.Records, read.Records...)
 		}
+	}
+	batch = s.keep(batch)
+	if asJSON {
+		if err := source.Encode(os.Stdout, batch); err != nil {
+			fmt.Fprintf(os.Stderr, "reel: %v\n", err)
+			return 1
+		}
+		return 0
 	}
 	return show(batch, s.name(), which, scope, listing)
 }
@@ -150,7 +204,34 @@ func show(batch otlp.Batch, from, which string, scope []string, listing bool) in
 		return 1
 	}
 	ui.Print(os.Stdout, found)
+	// 2 for a run that holds a failed span, so a script can gate on it without
+	// reading the tree. 1 stays "reel could not answer", which is the ordinary
+	// meaning of 1 and the one a caller already handles.
+	if failed(found) {
+		return 2
+	}
 	return 0
+}
+
+func failed(one *session.Session) bool {
+	var walk func(*session.Node) bool
+	walk = func(n *session.Node) bool {
+		if n.Span.Failed {
+			return true
+		}
+		for _, kid := range n.Children {
+			if walk(kid) {
+				return true
+			}
+		}
+		return false
+	}
+	for _, root := range one.Roots {
+		if walk(root) {
+			return true
+		}
+	}
+	return false
 }
 
 func pick(store *session.Store, which string) *session.Session {
@@ -172,7 +253,18 @@ func (s sources) watch(which string, scope []string) int {
 	batches := make(chan otlp.Batch, 32)
 
 	fromFile := make(chan otlp.Batch, 32)
-	go otlp.Follow(s.path, 400*time.Millisecond, fromFile, stop)
+	if s.path != "" {
+		go otlp.Follow(s.path, 400*time.Millisecond, fromFile, stop)
+	} else {
+		// Standard input is read once and ends. Following it would block the
+		// view on a pipe that is already closed.
+		go func() {
+			defer close(fromFile)
+			if batch, err := s.read(); err == nil && !batch.Empty() {
+				fromFile <- batch
+			}
+		}()
+	}
 
 	var fromProvider chan otlp.Batch
 	if s.provider != nil {
@@ -189,13 +281,13 @@ func (s sources) watch(which string, scope []string) int {
 					fromFile = nil
 					continue
 				}
-				batches <- one
+				batches <- s.keep(one)
 			case one, ok := <-fromProvider:
 				if !ok {
 					fromProvider = nil
 					continue
 				}
-				batches <- one
+				batches <- s.keep(one)
 			}
 		}
 	}()

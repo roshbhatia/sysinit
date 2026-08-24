@@ -35,9 +35,11 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"io"
 	"os"
 	"os/exec"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"time"
 
@@ -105,18 +107,87 @@ type line struct {
 	// event marks the line as a log record rather than a span. A harness puts
 	// on a log what it cannot put on a span, and the prompt is the one reel
 	// needs.
-	Event    string            `json:"event"`
-	TraceID  string            `json:"traceId"`
-	SpanID   string            `json:"spanId"`
-	ParentID string            `json:"parentId"`
-	Name     string            `json:"name"`
-	Service  string            `json:"service"`
-	Session  string            `json:"session"`
-	Start    string            `json:"startUnixNano"`
-	End      string            `json:"endUnixNano"`
-	Attrs    map[string]string `json:"attrs"`
-	Failed   bool              `json:"failed"`
-	Error    string            `json:"error"`
+	Event    string            `json:"event,omitempty"`
+	TraceID  string            `json:"traceId,omitempty"`
+	SpanID   string            `json:"spanId,omitempty"`
+	ParentID string            `json:"parentId,omitempty"`
+	Name     string            `json:"name,omitempty"`
+	Service  string            `json:"service,omitempty"`
+	Session  string            `json:"session,omitempty"`
+	Start    string            `json:"startUnixNano,omitempty"`
+	End      string            `json:"endUnixNano,omitempty"`
+	Attrs    map[string]string `json:"attrs,omitempty"`
+	Failed   bool              `json:"failed,omitempty"`
+	Error    string            `json:"error,omitempty"`
+}
+
+// Encode writes a batch in the same shape a provider prints, so reel's own
+// output is valid provider input. `reel --json | jq ... | reel` is the loop
+// that makes reel a pipe stage rather than an application.
+func Encode(w io.Writer, batch otlp.Batch) error {
+	enc := json.NewEncoder(w)
+	for _, one := range batch.Spans {
+		if err := enc.Encode(line{
+			TraceID:  one.TraceID,
+			SpanID:   one.SpanID,
+			ParentID: one.ParentID,
+			Name:     one.Name,
+			Service:  one.Service,
+			Session:  one.Session,
+			Start:    stampOf(one.Start),
+			End:      stampOf(one.End),
+			Attrs:    one.Attrs,
+			Failed:   one.Failed,
+			Error:    one.Error,
+		}); err != nil {
+			return err
+		}
+	}
+	for _, one := range batch.Records {
+		if err := enc.Encode(line{
+			Event:   one.Event,
+			Name:    one.Body,
+			Service: one.Service,
+			Session: one.Session,
+			Start:   stampOf(one.At),
+			Attrs:   one.Attrs,
+		}); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func stampOf(at time.Time) string {
+	if at.IsZero() {
+		return ""
+	}
+	return strconv.FormatInt(at.UnixNano(), 10)
+}
+
+// DecodeAny reads either shape. A line naming resourceSpans is one OTLP export
+// request, which is what the collector's file holds; anything else is one flat
+// span or record. Sniffing beats a flag: a reader piping a file in should not
+// have to say which file it is.
+func DecodeAny(blob []byte) otlp.Batch {
+	out := otlp.Batch{}
+	rows := bufio.NewScanner(bytes.NewReader(blob))
+	rows.Buffer(make([]byte, 1<<20), 1<<26)
+	for rows.Scan() {
+		text := strings.TrimSpace(rows.Text())
+		if text == "" || text[0] != '{' {
+			continue
+		}
+		var one otlp.Batch
+		if strings.Contains(text, `"resourceSpans"`) || strings.Contains(text, `"resourceLogs"`) {
+			one = otlp.Decode([]byte(text))
+		} else {
+			one = Decode([]byte(text))
+		}
+		out.Spans = append(out.Spans, one.Spans...)
+		out.Records = append(out.Records, one.Records...)
+	}
+	return out
 }
 
 func Decode(blob []byte) otlp.Batch {
