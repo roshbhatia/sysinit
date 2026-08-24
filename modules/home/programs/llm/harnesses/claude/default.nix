@@ -144,7 +144,13 @@ in
       tui = "fullscreen";
 
       autoCompactEnabled = true;
-      autoCompactWindow = 100000;
+
+      # No autoCompactWindow. The CLI reads it as a hard token ceiling, not a
+      # headroom margin, and its schema floor is 1e5. That floor is a tenth of
+      # Opus 5's 1M window, so auto-compact fired about ten times per session.
+      # Unset is the CLI's "auto" state: it resolves the window from the model.
+      # The same value also binds every in-process subagent, so a literal 1e6
+      # here would overshoot on any Sonnet or Haiku teammate.
 
       disabledMcpServers = disabledBuiltinServers;
 
