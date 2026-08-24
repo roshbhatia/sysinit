@@ -149,7 +149,13 @@ func preview(node *session.Node) string {
 	if node.Span.Error != "" {
 		return oneLine(node.Span.Error)
 	}
-	return node.Span.Name
+	// The label already carries what the span name says, and for a tool row it
+	// says more: the tool's own name. Repeating claude_code.tool on every row
+	// filled the column with one string and told the reader nothing.
+	if node.Label == node.Span.Name {
+		return node.Span.Name
+	}
+	return ""
 }
 
 func oneLine(text string) string {
@@ -173,4 +179,16 @@ func matches(node *session.Node, query string) bool {
 		}
 	}
 	return false
+}
+
+// prompt is the whole text that opened this turn, for the inspector. The row
+// itself carries a one line version of the same thing.
+func (r row) prompt() string {
+	if r.node == nil {
+		return ""
+	}
+	if r.node.Prompt != "" {
+		return r.node.Prompt
+	}
+	return r.preview
 }

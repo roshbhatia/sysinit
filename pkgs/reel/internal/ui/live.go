@@ -699,7 +699,7 @@ func (m Model) yank() Model {
 	r := m.rows[m.at(m.cursor)]
 	src := r.preview
 	if r.kind == kindTurn {
-		src = turnPrompt
+		src = r.prompt()
 	}
 	m.status = fmt.Sprintf("yanked %d bytes verbatim", len(src))
 	return m
@@ -1599,7 +1599,9 @@ func (m Model) tabBody(r row) string {
 	fmt.Fprintf(b, "## %s\n\n", r.label)
 	switch r.kind {
 	case kindTurn:
-		fmt.Fprintf(b, "%s\n", turnPrompt)
+		// A turn's text is its prompt, whole and unclipped: the row above it
+		// already showed the one line that fits there.
+		fmt.Fprintf(b, "%s\n", r.prompt())
 	case kindPrompt, kindThink, kindSub, kindTeam:
 		fmt.Fprintf(b, "%s\n", r.preview)
 	case kindHook:
@@ -1940,11 +1942,6 @@ func (m Model) View() string {
 	}
 	return strings.Join([]string{m.head(), main, bottom}, "\n")
 }
-
-const turnPrompt = "detail should be shown by default. there should b mre info. and i should be able " +
-	"to see the **prompt inlined** / thought whatever / tool use specifics previewed on the left.\n\n" +
-	"- keybindings should match my nvim bindings\n- space as leader, `zx`, etc\n" +
-	"- display the prompt with `glamour`\n- select multiple with shift, like a folder"
 
 // A span with no end has not returned yet, so its row wears
 // the spinner in place of a leaf glyph.
