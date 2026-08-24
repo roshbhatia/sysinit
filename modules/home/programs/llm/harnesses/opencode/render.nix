@@ -68,6 +68,15 @@ in
     autoupdate = false;
     share = "disabled";
 
+    # opencode speaks OTLP over HTTP with a JSON body and appends /v1/traces and
+    # /v1/logs itself, so the endpoint from otel-collector.nix is enough. No
+    # metrics path exists in the binary.
+    #
+    # Undocumented upstream: this key is in the shipped JSON schema and in the
+    # binary, and nothing in the opencode docs names it. Log export fires on the
+    # endpoint variable alone; traces need the flag, so both are set.
+    experimental.openTelemetry = true;
+
     model = "openai/gpt-5.5";
     small_model = "openai/gpt-5.4-mini";
 
