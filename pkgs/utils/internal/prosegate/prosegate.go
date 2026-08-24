@@ -2,11 +2,13 @@ package prosegate
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"os"
 	"os/exec"
 	"path/filepath"
+	"regexp"
 	"strings"
 
 	"github.com/roshbhatia/sysinit/pkgs/internal/paths"
@@ -204,25 +206,30 @@ func alerts(text string) []valeAlert {
 	}
 
 	cmd := exec.Command(binary, "--config="+config, "--output=JSON", "--ext=.md", "--no-exit")
-	cmd.Stdin = strings.NewReader(text)
-	out, err := cmd.Output()
-	if err != nil {
-		return nil
-	}
-
-	// A malformed rule makes vale print one E-code line and lint nothing, and
-	// `--no-exit` keeps its status 0. Read as "no alerts" that silently
-	// disabled every check: one invalid key on one rule turned the whole gate
-	// into a pass. Measured on vale 3.17.1 with an unsupported `tokenIgnores`
-	// key, which printed `E201:has invalid keys` and zero alerts.
+	cmd.Stdin = strings.NewReader(undirect(text))
+	// A malformed rule makes vale lint nothing, which read as "no alerts"
+	// silently disabled every check: one invalid key on one rule turned the
+	// whole gate into a pass. Measured on vale 3.17.1 with an unsupported
+	// `tokenIgnores` key.
+	//
+	// `--no-exit` suppresses only the alert-driven status. A config error still
+	// exits 2, so the exit code is the signal and not the body. An earlier
+	// revision warned on an unparseable body instead, which is a path vale
+	// never takes.
 	//
 	// The reply still goes through, because a broken rule set is the
 	// repository's fault and not the reader's. The warning is what makes it
 	// visible instead of silent.
+	out, err := cmd.Output()
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "prose-gate: vale could not run, so nothing was checked: %s\n", valeError(err, out))
+		return nil
+	}
+
 	var byFile map[string][]valeAlert
 	if json.Unmarshal(out, &byFile) != nil {
 		fmt.Fprintf(os.Stderr, "prose-gate: vale returned no alert set, so nothing was checked: %s\n",
-			strings.TrimSpace(firstLine(string(out))))
+			firstLine(strings.TrimSpace(string(out))))
 		return nil
 	}
 	var all []valeAlert
@@ -479,4 +486,39 @@ func firstLine(text string) string {
 		return text[:at]
 	}
 	return text
+}
+
+// valeError reads the reason out of vale's own error object. On a config error
+// vale writes one JSON object to stderr, whose Text field carries the E-code
+// and the explanation over several lines. The first line of that field is the
+// one the operator needs.
+func valeError(err error, stdout []byte) string {
+	body := stdout
+	var exit *exec.ExitError
+	if errors.As(err, &exit) && len(exit.Stderr) > 0 {
+		body = exit.Stderr
+	}
+	// Text already opens with the code, so the Code field would only repeat it.
+	var held struct {
+		Text string `json:"Text"`
+	}
+	if json.Unmarshal(body, &held) == nil && held.Text != "" {
+		return firstLine(strings.TrimSpace(held.Text))
+	}
+	return fmt.Sprintf("%v: %s", err, firstLine(strings.TrimSpace(string(body))))
+}
+
+// undirect removes vale's own inline control comments. The gate reads the text
+// the model wrote, and vale obeys a directive it finds there: one
+// `<!-- vale off -->` at the top of a reply took 4 alerts to 0, and an HTML
+// comment renders invisibly, so nothing showed. A gate the governed party can
+// switch off is not a gate.
+//
+// The comment is dropped rather than escaped, because a reply that names a
+// directive on purpose does so in a fence, and a fence is not what vale reads
+// a directive from.
+var valeDirective = regexp.MustCompile(`(?is)<!--\s*vale\b.*?-->`)
+
+func undirect(text string) string {
+	return valeDirective.ReplaceAllString(text, "")
 }
