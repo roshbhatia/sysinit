@@ -427,6 +427,46 @@ rules: {
 		raw: ["(?i)\\b(this document (describes|outlines|covers|presents)|this (section|page) (describes|outlines|will)|in this section|as (we|you) can see|it is important to (note|understand)|in order to better)\\b"]
 	}
 
+	// STE.Ambiguity's true half. Upstream bans `and/or`, `etc.`, `and so on`,
+	// `e.g.` and `i.e.` together. The first three hand the reader an unfinished
+	// list; the last two are compact and exact, and this file's own comments use
+	// `e.g.` on purpose, so they stay.
+	//
+	// The period on `etc.` is load bearing. Upstream matches `\betc\.?`, and the
+	// 13 hits of `etc` on this tree are all `/etc/` paths in Nix.
+	Unfinished: #Existence & {
+		message: "unfinished list: name the alternatives"
+		level:   "error"
+		raw: ["(?i)(\\band\\s*/\\s*or\\b|\\betc\\.|\\band so (on|forth)\\b)"]
+	}
+
+	// STE.Dictionary's safe half, as this repository's own rule rather than a
+	// promotion. Upstream swaps roughly 60 words and about a third of them are
+	// correct here: `component`, `implement`, `monitor`, `provide`, `require`,
+	// `maintain`, `operate`, `request`, `objective`. `monitor` names a Laurel
+	// skill. Its own header says it is plain-language advice and not the ASD
+	// dictionary, which is copyrighted and absent upstream.
+	//
+	// Every token below measures 0 over the tracked .md, .nix and .go files, so
+	// none is part of this repository's vocabulary. The ones that measured 1 to 9
+	// are deliberately out: `attempt` and `additional` were nouns, `identical`
+	// read correctly, and `fabricate` is a rule word meaning invent, which
+	// upstream would swap to `make`.
+	//
+	// Three more came out after the first build measured them: `advised` is right
+	// for a linter's advice, and `comprises` and `retained` both read correctly
+	// where this repository uses them. An inflection is what my first count
+	// missed, so the measurement now runs against the built rule.
+	//
+	// `ascertain`, `commence`, `endeavor`, `utilize` and `in order to` are not
+	// repeated here. Latinate, Utilize and InOrderTo already own them, and a
+	// second rule on one span would spend two tells on one slip.
+	LongWord: #Existence & {
+		message: "long word: use the short one"
+		level:   "error"
+		raw: ["(?i)\\b(approximately|cease[sd]?|demonstrate[sd]?|desire[sd]?|discontinue[sd]?|eliminate[sd]?|employ(s|ed)?|expedite[sd]?|facilitate[sd]?|frequently|furnish(es|ed)?|numerous|optimum|possess(es|ed)?|prior to|procure[sd]?|purchase[sd]?|regarding|adjacent to|exhibit(s|ed)?|in the event that|in the vicinity of)\\b"]
+	}
+
 	SentenceLength: #Occurrence & {
 		message: "sentence over 25 words: split it"
 		level:   "error"
@@ -526,6 +566,7 @@ covered: [
 	"InOrderTo",
 	"InToday",
 	"Latinate",
+	"LongWord",
 	"MarketingVerb",
 	"Narration",
 	"NegativeParallelism",
@@ -533,6 +574,7 @@ covered: [
 	"SentenceLength",
 	"SignificanceInflation",
 	"Transition",
+	"Unfinished",
 	"Utilize",
 ]
 

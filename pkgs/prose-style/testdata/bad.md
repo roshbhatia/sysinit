@@ -41,3 +41,7 @@ This document describes the plan. In this section, as we can see, the result hol
 > A callout block.
 
 A rocket 🚀 shipped.
+
+We can ship this and/or that, plus logs, etc. and so on.
+
+Approximately numerous parts comprise it, so cease and desire to procure them.

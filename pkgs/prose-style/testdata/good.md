@@ -29,4 +29,6 @@ The CPU utilization is 40 percent in us-west-2.
 
 Pin the hash, e.g. additionally naming the release tag.
 
+The wrapper resolves /etc/profiles and /etc/ssh without alerting.
+
 The overlay uses `robust` and `comprehensive` as tokens, and names `delve` too.
