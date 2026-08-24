@@ -292,13 +292,9 @@ func reason(fixes []correction, manual []valeAlert) string {
 	}
 
 	if len(manual) > 0 {
-		b.WriteString("\nThese have no mechanical rewrite. Fix each one yourself:\n\n")
-		for _, a := range manual {
-			if a.Match == "" {
-				fmt.Fprintf(&b, "  - line %d: %s\n", a.Line, a.Message)
-				continue
-			}
-			fmt.Fprintf(&b, "  - line %d: %s: %q\n", a.Line, a.Message, a.Match)
+		fmt.Fprintf(&b, "\n%d faults have no mechanical rewrite. Fix every one before sending:\n\n", len(manual))
+		for _, g := range groupByRule(manual) {
+			fmt.Fprintf(&b, "  - %s\n", g)
 		}
 	}
 
@@ -564,6 +560,41 @@ func oneAlertPerSpan(in []valeAlert) []valeAlert {
 		}
 		seen[one.at()] = true
 		out = append(out, one)
+	}
+	return out
+}
+
+// groupByRule folds the manual list to one line per rule, with every match on
+// it. Seventeen faults over nine rules printed seventeen lines, and only the
+// first three survived the trip back to the model, so a rewrite fixed three and
+// the next attempt blocked on the rest. One line per rule is the whole set in a
+// third of the bytes, and it reads as one instruction rather than as a list of
+// incidents.
+//
+// Rule order follows first appearance, so the reply is fixed top down.
+func groupByRule(in []valeAlert) []string {
+	order := []string{}
+	byRule := map[string][]string{}
+	message := map[string]string{}
+	for _, a := range in {
+		if _, seen := byRule[a.Check]; !seen {
+			order = append(order, a.Check)
+			message[a.Check] = a.Message
+		}
+		hit := a.Match
+		if hit == "" {
+			hit = fmt.Sprintf("line %d", a.Line)
+		}
+		byRule[a.Check] = append(byRule[a.Check], fmt.Sprintf("%q", hit))
+	}
+	out := make([]string, 0, len(order))
+	for _, rule := range order {
+		hits := byRule[rule]
+		line := message[rule]
+		if len(hits) > 1 {
+			line = fmt.Sprintf("%s (%d)", line, len(hits))
+		}
+		out = append(out, line+": "+strings.Join(hits, ", "))
 	}
 	return out
 }
