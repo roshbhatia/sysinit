@@ -38,10 +38,13 @@ var delegateTools = map[string]bool{
 }
 
 type Node struct {
-	Span     otlp.Span
-	Role     Role
-	Label    string
-	Note     string
+	Span  otlp.Span
+	Role  Role
+	Label string
+	Note  string
+	// Prompt is the text that opened this turn. It arrives as a log record
+	// rather than as a span attribute, so only a turn carries one.
+	Prompt   string
 	Children []*Node
 	Facets   []otlp.Span
 	Pending  bool
@@ -68,8 +71,9 @@ type Session struct {
 	Count   int
 	Roots   []*Node
 
-	spans map[string]otlp.Span
-	dirty bool
+	spans   map[string]otlp.Span
+	prompts []otlp.Record
+	dirty   bool
 }
 
 func (s *Session) Title() string {
@@ -164,6 +168,67 @@ func (s *Store) Session(id string) *Session {
 	return nil
 }
 
+// AddRecords keeps the log records a row can carry. Only the prompt is kept:
+// every other event this harness logs is already a span, and a second copy of
+// it would double every row.
+func (s *Store) AddRecords(records []otlp.Record) {
+	for _, one := range records {
+		if !strings.HasSuffix(one.Event, "user_prompt") {
+			continue
+		}
+		text := one.Attrs["prompt"]
+		if text == "" {
+			continue
+		}
+		id := recordKey(one)
+		found, ok := s.sessions[id]
+		if !ok {
+			// The prompt reaches the collector before the turn span closes, so
+			// a session can be prompt first. Holding it costs one string and
+			// saves the first turn from reading as untitled.
+			found = &Session{Key: id, Service: one.Service, ID: one.Session, First: one.At, spans: map[string]otlp.Span{}}
+			s.sessions[id] = found
+		}
+		found.prompts = append(found.prompts, one)
+		found.dirty = true
+	}
+}
+
+// recordKey matches key(), so a log record and a span of the same run land in
+// the same session.
+func recordKey(one otlp.Record) string {
+	if one.Session != "" {
+		return one.Service + "/" + one.Session
+	}
+	return one.Service + "/log"
+}
+
+// A prompt is logged when it is submitted and the turn span starts a moment
+// later, so the turn takes the newest prompt at or before its own start. The
+// slack covers the other order, which a clock that is not monotonic across two
+// exporters can produce.
+const promptSlack = 2 * time.Second
+
+func (s *Session) attachPrompts() {
+	if len(s.prompts) == 0 {
+		return
+	}
+	sort.Slice(s.prompts, func(a, b int) bool { return s.prompts[a].At.Before(s.prompts[b].At) })
+	// One prompt belongs to one turn. Taking the newest prompt before each turn
+	// instead gave three turns the same text, because a run holds more turn
+	// spans than prompts: a parentless child stands in for its own turn.
+	next := 0
+	for _, root := range s.Roots {
+		for next < len(s.prompts) && s.prompts[next].At.After(root.Span.Start.Add(promptSlack)) {
+			break
+		}
+		if next < len(s.prompts) && !s.prompts[next].At.After(root.Span.Start.Add(promptSlack)) {
+			root.Prompt = s.prompts[next].Attrs["prompt"]
+			next++
+		}
+	}
+}
+
 func (s *Session) rebuild() {
 	if !s.dirty {
 		return
@@ -240,6 +305,7 @@ func (s *Session) rebuild() {
 		}
 	}
 	s.Roots = roots
+	s.attachPrompts()
 }
 
 func sortKids(node *Node) {

@@ -2,8 +2,8 @@
 // collector's file is the default, and a provider binary is the escape hatch
 // for a machine whose harness exports somewhere reel cannot reach.
 //
-// A provider is any executable that prints spans as newline delimited JSON on
-// stdout and exits. One line is one span:
+// A provider is any executable that prints newline delimited JSON on stdout and
+// exits. One line is one span:
 //
 //	{"traceId":"…","spanId":"…","parentId":"…","name":"…",
 //	 "startUnixNano":"…","endUnixNano":"…",
@@ -11,9 +11,16 @@
 //
 // Only traceId, spanId, name and the two stamps are required. service and
 // session come off the attributes when the line omits them, so a provider that
-// forwards the attributes it already has needs no extra fields. A line reel
-// cannot parse is skipped rather than fatal, because a provider that prints a
-// warning should not take the view down with it.
+// forwards the attributes it already has needs no extra fields.
+//
+// A line carrying an event is a log record instead, which is how a harness
+// reports what it cannot put on a span:
+//
+//	{"event":"user_prompt","startUnixNano":"…",
+//	 "attrs":{"service.name":"…","session.id":"…","prompt":"…"}}
+//
+// A line reel cannot parse is skipped rather than fatal, because a provider
+// that prints a warning should not take the view down with it.
 //
 // reel runs the provider once per poll with a --since window, and deduplicates
 // by span id. A provider is therefore stateless: it answers "which spans ended
@@ -75,7 +82,7 @@ func Resolve(ask string) (*Provider, error) {
 }
 
 // Fetch runs the provider once over the window ending now.
-func (p Provider) Fetch(ctx context.Context, window time.Duration) ([]otlp.Span, error) {
+func (p Provider) Fetch(ctx context.Context, window time.Duration) (otlp.Batch, error) {
 	args := []string{"--since", window.Round(time.Second).String()}
 	if p.Session != "" {
 		args = append(args, "--session", p.Session)
@@ -85,7 +92,7 @@ func (p Provider) Fetch(ctx context.Context, window time.Duration) ([]otlp.Span,
 	cmd.Stderr = stderr
 	out, err := cmd.Output()
 	if err != nil {
-		return nil, fmt.Errorf("%s: %w: %s", p.Name, err, strings.TrimSpace(stderr.String()))
+		return otlp.Batch{}, fmt.Errorf("%s: %w: %s", p.Name, err, strings.TrimSpace(stderr.String()))
 	}
 	return Decode(out), nil
 }
@@ -94,6 +101,10 @@ func (p Provider) Fetch(ctx context.Context, window time.Duration) ([]otlp.Span,
 // wire format, because a provider is often a shell script and the keyValue
 // lists are what makes that painful to emit.
 type line struct {
+	// event marks the line as a log record rather than a span. A harness puts
+	// on a log what it cannot put on a span, and the prompt is the one reel
+	// needs.
+	Event    string            `json:"event"`
 	TraceID  string            `json:"traceId"`
 	SpanID   string            `json:"spanId"`
 	ParentID string            `json:"parentId"`
@@ -107,8 +118,8 @@ type line struct {
 	Error    string            `json:"error"`
 }
 
-func Decode(blob []byte) []otlp.Span {
-	var out []otlp.Span
+func Decode(blob []byte) otlp.Batch {
+	out := otlp.Batch{}
 	rows := bufio.NewScanner(bytes.NewReader(blob))
 	rows.Buffer(make([]byte, 1<<20), 1<<26)
 	for rows.Scan() {
@@ -120,12 +131,23 @@ func Decode(blob []byte) []otlp.Span {
 		if json.Unmarshal([]byte(text), &one) != nil {
 			continue
 		}
-		if one.SpanID == "" {
-			continue
-		}
 		attrs := one.Attrs
 		if attrs == nil {
 			attrs = map[string]string{}
+		}
+		if one.Event != "" {
+			out.Records = append(out.Records, otlp.Record{
+				Event:   one.Event,
+				Body:    one.Name,
+				Service: orAttr(one.Service, attrs, "service.name"),
+				Session: orAttr(one.Session, attrs, "session.id"),
+				At:      otlp.Stamp(one.Start),
+				Attrs:   attrs,
+			})
+			continue
+		}
+		if one.SpanID == "" {
+			continue
 		}
 		span := otlp.Span{
 			TraceID:  one.TraceID,
@@ -146,7 +168,7 @@ func Decode(blob []byte) []otlp.Span {
 				span.Error = attrs["error"]
 			}
 		}
-		out = append(out, span)
+		out.Spans = append(out.Spans, span)
 	}
 	return out
 }
@@ -162,26 +184,37 @@ func orAttr(given string, attrs map[string]string, key string) string {
 // The window overlaps every poll by lag, because a span is written when it ends
 // and a queried source indexes it a moment later; the span id set is what keeps
 // the overlap from arriving twice.
-func Follow(p Provider, every, back, lag time.Duration, out chan<- []otlp.Span, stop <-chan struct{}) {
+func Follow(p Provider, every, back, lag time.Duration, out chan<- otlp.Batch, stop <-chan struct{}) {
 	defer close(out)
 
 	seen := map[string]bool{}
 	window := back
 	for {
 		ctx, cancel := context.WithTimeout(context.Background(), 2*time.Minute)
-		spans, err := p.Fetch(ctx, window)
+		read, err := p.Fetch(ctx, window)
 		cancel()
 
 		if err == nil {
-			var batch []otlp.Span
-			for _, one := range spans {
+			batch := otlp.Batch{}
+			for _, one := range read.Spans {
 				if seen[one.SpanID] {
 					continue
 				}
 				seen[one.SpanID] = true
-				batch = append(batch, one)
+				batch.Spans = append(batch.Spans, one)
 			}
-			if len(batch) > 0 {
+			// A log record has no id of its own, so its own time and event
+			// stand in. Two records of one event at one instant are the same
+			// record read twice.
+			for _, one := range read.Records {
+				key := one.Session + "/" + one.Event + "/" + one.At.Format(time.RFC3339Nano)
+				if seen[key] {
+					continue
+				}
+				seen[key] = true
+				batch.Records = append(batch.Records, one)
+			}
+			if !batch.Empty() {
 				select {
 				case out <- batch:
 				case <-stop:

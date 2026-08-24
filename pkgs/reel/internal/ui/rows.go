@@ -109,6 +109,11 @@ func rowOf(node *session.Node, depth int, first time.Time, span time.Duration) r
 		fail:    node.Span.Failed,
 		parent:  len(node.Children) > 0,
 	}
+	// A turn's text is its prompt, which arrives as a log record. Without it a
+	// turn row reads "open" and says nothing about what was asked.
+	if node.Prompt != "" {
+		out.preview = oneLine(node.Prompt)
+	}
 	if out.preview == "" {
 		out.preview = preview(node)
 	}
@@ -158,7 +163,7 @@ func matches(node *session.Node, query string) bool {
 	if query == "" {
 		return true
 	}
-	hay := strings.ToLower(node.Label + " " + node.Note + " " + node.Span.Name)
+	hay := strings.ToLower(node.Label + " " + node.Note + " " + node.Span.Name + " " + node.Prompt)
 	if strings.Contains(hay, query) {
 		return true
 	}

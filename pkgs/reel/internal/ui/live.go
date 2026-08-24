@@ -157,8 +157,14 @@ type Model struct {
 	status  string
 	picking bool
 	pickAt  int
-	filter  bool
-	now     time.Time
+	// visual holds a range selection anchored where it started. The marks it
+	// paints are recomputed on every move, so backing off shrinks the range
+	// rather than leaving a trail.
+	visual   bool
+	anchorAt int
+	before   map[string]bool
+	filter   bool
+	now      time.Time
 
 	tab  int
 	spin spinner.Model
@@ -203,8 +209,9 @@ func New(store *session.Store, pinned, source string) Model {
 	return m
 }
 
-// SpansMsg carries a batch of newly read spans into the program.
-type SpansMsg []otlp.Span
+// BatchMsg carries a newly read batch of spans and log records into the
+// program.
+type BatchMsg otlp.Batch
 
 // reload re-groups every span and keeps the attached session attached. A
 // session named on the command line wins, so a reader who asked for one run is
@@ -271,9 +278,10 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case tickMsg:
 		m.now = msg.t
 		return m, tick()
-	case SpansMsg:
+	case BatchMsg:
 		before := len(m.rows)
-		m.store.Add([]otlp.Span(msg))
+		m.store.Add(msg.Spans)
+		m.store.AddRecords(msg.Records)
 		m.reload()
 		if m.follow && len(m.rows) > before {
 			if vis := m.visible(); len(vis) > 0 {
@@ -578,6 +586,13 @@ func (m Model) key(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 			m.help = false
 			return m, nil
 		}
+		if m.visual {
+			// Cancelling a range restores what was marked before it started, so
+			// an accidental v costs nothing.
+			m.visual, m.marks = false, m.before
+			m.before = nil
+			return m.clamp(), nil
+		}
 		m.marks = map[string]bool{}
 		return m.clamp(), nil
 	case " ":
@@ -601,8 +616,10 @@ func (m Model) key(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 		return m, nil
 	case "j", "down":
 		m.cursor, m.follow = m.cursor+1, false
+		m.paintRange()
 	case "k", "up":
 		m.cursor, m.follow = m.cursor-1, false
+		m.paintRange()
 	case "d", "ctrl+d":
 		return m.halfPage(1), nil
 	case "u", "ctrl+u":
@@ -629,6 +646,23 @@ func (m Model) key(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 		m.jump(1)
 	case "p":
 		m.jump(-1)
+	case "v":
+		if m.visual {
+			m.visual, m.before = false, nil
+			m.status = "range kept"
+			return m.clamp(), nil
+		}
+		if m.at(m.cursor) < 0 {
+			return m, nil
+		}
+		m.visual, m.anchorAt = true, m.cursor
+		m.before = copyMarks(m.marks)
+		m.paintRange()
+		m.status = "visual: j k extend, enter or v keep, esc cancel"
+		return m.clamp(), nil
+	case "A":
+		m.markAll()
+		return m.clamp(), nil
 	case "m":
 		m.markSubtree(m.at(m.cursor))
 	case "h":
@@ -636,11 +670,20 @@ func (m Model) key(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 	case "l":
 		m.expand()
 	case "enter":
+		if m.visual {
+			m.visual, m.before = false, nil
+			m.status = "range kept"
+			return m.clamp(), nil
+		}
+		// markSubtree reads the root's own state, so a second press turns the
+		// whole turn back off.
 		m.markTurn(m.at(m.cursor))
-	// shift+enter only reaches a v1 app over the kitty keyboard protocol, so
-	// "M" carries the same binding for every other terminal.
-	case "shift+enter", "M":
+	case "M":
 		m.markRow(m.at(m.cursor))
+	// shift+enter only reaches a v1 app over the kitty keyboard protocol, so
+	// "A" carries the same binding for every other terminal.
+	case "shift+enter":
+		m.markAll()
 	case "o":
 		m.anchor = !m.anchor
 	case "Y":
@@ -1763,7 +1806,10 @@ func (m Model) footer() string {
 	if m.filter {
 		return fit(accent.Render("/"+m.query)+dim.Render("   enter keep   esc clear"), m.width)
 	}
-	hint := "j k move   d u page   D U inspector   J K size   tab pane   n p turn   M row   m subtree   s session   / filter   Y yank   ? help"
+	if m.visual {
+		return fit(accent.Render("visual")+dim.Render("   j k extend   enter keep   esc cancel"), m.width)
+	}
+	hint := "j k move   d u page   D U inspector   J K size   tab pane   n p turn   enter turn   v range   A all   s session   / filter   ? help"
 	return fit(dim.Render(hint), m.width)
 }
 
@@ -1786,10 +1832,12 @@ var helpTable = [][2]string{
 	{"zR / zM", "open every fold / close every fold  (vim)"},
 	{"zx", "close all, then open the path to the cursor  (vim)"},
 	{"Z", "expand every node  (neo-tree)"},
-	{"enter", "mark the whole turn the cursor sits in"},
-	{"M", "mark the one span under the cursor  (shift+enter also works)"},
-	{"m", "mark the span and its whole subtree"},
-	{"esc", "clear every mark"},
+	{"enter", "toggle the whole turn the cursor sits in"},
+	{"M", "toggle the one span under the cursor"},
+	{"m", "toggle the span and its whole subtree"},
+	{"v", "range: j k extend, enter or v keep, esc cancel"},
+	{"A", "toggle every row  (shift+enter also works)"},
+	{"esc", "cancel a range, or clear every mark"},
 	{"n / p", "next turn / previous turn  (]t and [t also work)"},
 	{"Y", "yank the verbatim bytes behind the row"},
 	{"o", "anchor newest at bottom, or scroll free"},
@@ -2107,4 +2155,50 @@ func (m Model) viewPick() string {
 	}
 	b.WriteString("\n" + faint.Render("j k move   enter attach   esc cancel   q quit"))
 	return b.String()
+}
+
+func copyMarks(in map[string]bool) map[string]bool {
+	out := make(map[string]bool, len(in))
+	for key, held := range in {
+		out[key] = held
+	}
+	return out
+}
+
+// paintRange rewrites the marks as everything marked before the range opened,
+// plus every visible row between the anchor and the cursor. Recomputing beats
+// marking as you go: a reader who overshoots and comes back expects the range
+// to shrink.
+func (m *Model) paintRange() {
+	if !m.visual {
+		return
+	}
+	m.marks = copyMarks(m.before)
+	vis := m.visible()
+	if len(vis) == 0 {
+		return
+	}
+	lo, hi := m.anchorAt, m.cursor
+	if lo > hi {
+		lo, hi = hi, lo
+	}
+	lo, hi = max(0, lo), min(len(vis)-1, hi)
+	for i := lo; i <= hi; i++ {
+		m.marks[m.idOf(vis[i])] = true
+	}
+}
+
+// markAll is a toggle, because the reader who marked everything to read it in
+// the inspector is the same reader who wants it all off again.
+func (m *Model) markAll() {
+	if len(m.marks) >= len(m.rows) && len(m.rows) > 0 {
+		m.marks = map[string]bool{}
+		m.status = "marks cleared"
+		return
+	}
+	m.marks = make(map[string]bool, len(m.rows))
+	for i := range m.rows {
+		m.marks[m.idOf(i)] = true
+	}
+	m.status = fmt.Sprintf("%d rows marked", len(m.rows))
 }

@@ -30,6 +30,28 @@ type Span struct {
 
 func (s Span) Duration() time.Duration { return s.End.Sub(s.Start) }
 
+// Record is one log record. A harness puts on a log what it cannot put on a
+// span: Claude Code emits the prompt text as claude_code.user_prompt rather
+// than as an attribute of the turn, so the turn row has no text without this.
+type Record struct {
+	Event   string
+	Body    string
+	Service string
+	Session string
+	At      time.Time
+	Attrs   map[string]string
+}
+
+// Batch is one read from a source. Metrics are decoded by nothing here: a
+// counter says how much happened, and every row in reel is a thing that
+// happened at a time.
+type Batch struct {
+	Spans   []Span
+	Records []Record
+}
+
+func (b Batch) Empty() bool { return len(b.Spans) == 0 && len(b.Records) == 0 }
+
 type value struct {
 	StringValue *string  `json:"stringValue"`
 	IntValue    *string  `json:"intValue"`
@@ -82,7 +104,25 @@ type wireSpan struct {
 	} `json:"status"`
 }
 
+type wireRecord struct {
+	Time      string `json:"timeUnixNano"`
+	Observed  string `json:"observedTimeUnixNano"`
+	EventName string `json:"eventName"`
+	Body      struct {
+		StringValue string `json:"stringValue"`
+	} `json:"body"`
+	Attributes []keyValue `json:"attributes"`
+}
+
 type request struct {
+	ResourceLogs []struct {
+		Resource struct {
+			Attributes []keyValue `json:"attributes"`
+		} `json:"resource"`
+		ScopeLogs []struct {
+			LogRecords []wireRecord `json:"logRecords"`
+		} `json:"scopeLogs"`
+	} `json:"resourceLogs"`
 	ResourceSpans []struct {
 		Resource struct {
 			Attributes []keyValue `json:"attributes"`
@@ -105,15 +145,49 @@ func stamp(nanos string) time.Time {
 	return time.Unix(0, count)
 }
 
-// Decode turns one exported request into flat spans. A line the collector
-// wrote for logs or metrics carries no resourceSpans, so it yields nothing.
-func Decode(line []byte) []Span {
+// Decode turns one exported request into flat spans and log records. The
+// collector writes one request per line and a request carries one signal, so a
+// line answers with one or the other.
+func Decode(line []byte) Batch {
 	var req request
 	if err := json.Unmarshal(line, &req); err != nil {
-		return nil
+		return Batch{}
 	}
 
-	var out []Span
+	out := Batch{}
+	for _, resource := range req.ResourceLogs {
+		shared := map[string]string{}
+		for _, one := range resource.Resource.Attributes {
+			shared[one.Key] = one.Value.String()
+		}
+		for _, scope := range resource.ScopeLogs {
+			for _, raw := range scope.LogRecords {
+				attrs := map[string]string{}
+				for key, held := range shared {
+					attrs[key] = held
+				}
+				for _, one := range raw.Attributes {
+					attrs[one.Key] = one.Value.String()
+				}
+				at := stamp(raw.Time)
+				if at.IsZero() {
+					at = stamp(raw.Observed)
+				}
+				event := attrs["event.name"]
+				if event == "" {
+					event = raw.EventName
+				}
+				out.Records = append(out.Records, Record{
+					Event:   event,
+					Body:    raw.Body.StringValue,
+					Service: attrs["service.name"],
+					Session: attrs["session.id"],
+					At:      at,
+					Attrs:   attrs,
+				})
+			}
+		}
+	}
 	for _, resource := range req.ResourceSpans {
 		shared := map[string]string{}
 		for _, one := range resource.Resource.Attributes {
@@ -148,7 +222,7 @@ func Decode(line []byte) []Span {
 						span.Error = attrs["error"]
 					}
 				}
-				out = append(out, span)
+				out.Spans = append(out.Spans, span)
 			}
 		}
 	}
@@ -159,7 +233,7 @@ func Decode(line []byte) []Span {
 // batch per read so the caller redraws once per poll rather than once per span.
 // The collector rotates the file at 64 MB; a size that went backwards means the
 // rotation happened, so reopen from the start of the new file.
-func Follow(path string, every time.Duration, out chan<- []Span, stop <-chan struct{}) {
+func Follow(path string, every time.Duration, out chan<- Batch, stop <-chan struct{}) {
 	defer close(out)
 
 	var (
@@ -189,7 +263,7 @@ func Follow(path string, every time.Duration, out chan<- []Span, stop <-chan str
 		}
 
 		if reader != nil {
-			var batch []Span
+			var batch Batch
 			for {
 				chunk, err := reader.ReadBytes('\n')
 				offset += int64(len(chunk))
@@ -208,9 +282,11 @@ func Follow(path string, every time.Duration, out chan<- []Span, stop <-chan str
 					full = append(rest, chunk...)
 					rest = nil
 				}
-				batch = append(batch, Decode(full)...)
+				one := Decode(full)
+				batch.Spans = append(batch.Spans, one.Spans...)
+				batch.Records = append(batch.Records, one.Records...)
 			}
-			if len(batch) > 0 {
+			if !batch.Empty() {
 				select {
 				case out <- batch:
 				case <-stop:
@@ -228,18 +304,20 @@ func Follow(path string, every time.Duration, out chan<- []Span, stop <-chan str
 }
 
 // ReadAll decodes the whole file once, for the non-interactive paths.
-func ReadAll(path string) ([]Span, error) {
+func ReadAll(path string) (Batch, error) {
 	file, err := os.Open(path)
 	if err != nil {
-		return nil, err
+		return Batch{}, err
 	}
 	defer file.Close()
 
-	var out []Span
+	out := Batch{}
 	lines := bufio.NewScanner(file)
 	lines.Buffer(make([]byte, 1<<20), 1<<26)
 	for lines.Scan() {
-		out = append(out, Decode(lines.Bytes())...)
+		one := Decode(lines.Bytes())
+		out.Spans = append(out.Spans, one.Spans...)
+		out.Records = append(out.Records, one.Records...)
 	}
 	return out, lines.Err()
 }

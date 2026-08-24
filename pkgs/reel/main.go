@@ -59,34 +59,35 @@ func main() {
 }
 
 func report(path, which string, listing bool) int {
-	spans, err := otlp.ReadAll(path)
+	batch, err := otlp.ReadAll(path)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "reel: %v\n", err)
 		return 1
 	}
-	return show(spans, path, which, listing)
+	return show(batch, path, which, listing)
 }
 
 func reportProvider(p source.Provider, back time.Duration, which string, listing bool) int {
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Minute)
 	defer cancel()
 
-	spans, err := p.Fetch(ctx, back)
+	batch, err := p.Fetch(ctx, back)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "reel: %v\n", err)
 		return 1
 	}
-	return show(spans, p.Name, which, listing)
+	return show(batch, p.Name, which, listing)
 }
 
 // show is the non-interactive half of both sources, so a provider prints the
 // same list and the same tree the file does.
-func show(spans []otlp.Span, from, which string, listing bool) int {
+func show(batch otlp.Batch, from, which string, listing bool) int {
 	store := session.NewStore()
-	store.Add(spans)
+	store.Add(batch.Spans)
+	store.AddRecords(batch.Records)
 
 	if listing {
-		fmt.Fprintf(os.Stderr, "reel: %d spans from %s\n", len(spans), from)
+		fmt.Fprintf(os.Stderr, "reel: %d spans and %d records from %s\n", len(batch.Spans), len(batch.Records), from)
 		for _, one := range store.Sessions() {
 			fmt.Printf("%-12s %-40s %5d spans  %s\n",
 				one.Service, one.Title(), one.Count, one.Last.Format("15:04:05"))
@@ -116,28 +117,28 @@ func pick(store *session.Store, which string) *session.Session {
 
 func watch(path, which string) int {
 	stop := make(chan struct{})
-	batches := make(chan []otlp.Span, 32)
+	batches := make(chan otlp.Batch, 32)
 	go otlp.Follow(path, 400*time.Millisecond, batches, stop)
 	return run(batches, stop, which, path)
 }
 
 func watchProvider(p source.Provider, which string, every, back, lag time.Duration) int {
 	stop := make(chan struct{})
-	batches := make(chan []otlp.Span, 32)
+	batches := make(chan otlp.Batch, 32)
 	go source.Follow(p, every, back, lag, batches, stop)
 	return run(batches, stop, which, p.Name)
 }
 
 // run owns the program either way. Follow owns its own goroutine, so the spans
 // arrive as messages rather than as a blocking read inside Update.
-func run(batches chan []otlp.Span, stop chan struct{}, which, from string) int {
+func run(batches chan otlp.Batch, stop chan struct{}, which, from string) int {
 	program := tea.NewProgram(
 		ui.New(session.NewStore(), which, from),
 		tea.WithAltScreen(),
 	)
 	go func() {
 		for batch := range batches {
-			program.Send(ui.SpansMsg(batch))
+			program.Send(ui.BatchMsg(batch))
 		}
 	}()
 
