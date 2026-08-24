@@ -113,18 +113,26 @@ rules: {
 		// Matching only the opening pair would leave the closing one behind and
 		// produce broken markdown.
 		//
-		// `*` is left out of the marker class deliberately. The match has to
-		// include the marker, and the action strips every `*` and `_` inside the
+		// `*` is left out of the bullet-marker class deliberately. The match has
+		// to include the marker, and the action strips every `*` inside the
 		// match, so a `*` bullet would lose its own marker. A `*` bullet is
 		// therefore not checked. Nothing in this repository uses one.
+		//
+		// `_` is out of the emphasis class for a harder reason: it corrupted
+		// content. The interior class excludes the delimiter, so an underscore
+		// inside the term ended the match early and the action then deleted it.
+		// Measured: `- __snake_case__ is the identifier` was rewritten to
+		// `- snakecase__ is the identifier`, on disk, and `check` handed that
+		// line back as finished. A `__bold__` bullet is now unchecked, which is
+		// the cheaper of the two.
 		//
 		// `\s` would swallow the preceding newline, which reports the match on
 		// the line above and prints a literal "\n" back at the reader.
 		action: {
 			name: "edit"
-			params: ["regex", "[*_]", ""]
+			params: ["regex", "[*]", ""]
 		}
-		raw: ["(?m)^[ \\t]*([-+]|\\d+[.)])[ \\t]+([*_]{1,2})[^*_\\n]+([*_]{1,2})"]
+		raw: ["(?m)^[ \\t]*([-+]|\\d+[.)])[ \\t]+(\\*{1,2})[^*\\n]+(\\*{1,2})"]
 	}
 
 	// Bold marks a real exception. A regex cannot judge whether one span earns
@@ -213,14 +221,18 @@ rules: {
 	// Concise style names this and the output style now carries it, so this rule
 	// is what makes it hold.
 	//
-	// The verbs after "let me" are enumerated rather than matched as `\w+`,
-	// because "let me know" is Slop.Assistant's and a phrase caught twice trips
-	// maxTells on a single slip. Vale's regexes are RE2, so a negative lookahead
-	// is not available to exclude it.
+	// One lookahead replaces a 25-verb enumeration. The enumeration existed
+	// because this file claimed vale is RE2 and cannot express `(?!know\b)`.
+	// That claim was wrong, and the enumeration leaked: over 1805 real replies
+	// `let me <word>` appeared 24 times and the list caught 14. The 10 misses
+	// included `investigate`, `review`, `show` and `raise`.
+	//
+	// The double count it was built to avoid never happened either.
+	// Slop.Assistant asks for "let me know if you have any", not "let me know".
 	Narration: #Existence & {
 		message: "narration: report the outcome, not the plan"
 		level:   "error"
-		raw: ["(?i)(\\blet me\\s+(?:check|look|read|start|first|now|run|see|search|find|fix|update|add|verify|confirm|trace|inspect|dig|grep|scan|open|write|create|make|try|walk|explain)\\b|\\b(?:now|first|next|then),?\\s+(?:i'?ll|i\\s+will|let\\s+me)\\b|\\bi'?ll\\s+(?:now|go\\s+ahead|start\\s+by|begin\\s+by)\\b|\\bi'?m\\s+going\\s+to\\b)"]
+		raw: ["(?i)(\\blet me\\s+(?!know\\b)\\w+\\b|\\b(?:now|first|next|then),?\\s+(?:i'?ll|i\\s+will|let\\s+me)\\b|\\bi'?ll\\s+(?:now|go\\s+ahead|start\\s+by|begin\\s+by)\\b|\\bi'?m\\s+going\\s+to\\b)"]
 	}
 
 	// Slop.Assistant covers the same ground and is switched on in `ini`, but it
@@ -259,16 +271,16 @@ rules: {
 	}
 
 	// Ported from conorbronsdon/avoid-ai-writing's Tier 1A frequency markers.
-	// That list holds 44 tokens. This is the 23 with no technical sense in this
-	// repository's domains: Nix, Go, OTLP tracing, agent harnesses, git,
-	// Kubernetes and Vale itself.
+	// The source list is not vendored, so no count here is checkable offline and
+	// none is stated: an earlier version of this comment claimed a subset of 44
+	// and got both the kept count and four of its named exclusions wrong.
 	//
-	// Six are named here because they were argued over. `harness` is this
-	// repository's own domain term at 39 hits, and `verbatim` is one at 8.
-	// `realm` is RFC 7235's protection space, which the OAuth work touches.
-	// `ecosystem`, `unpack` and `embrace` read as plain English in a technical
-	// sentence. `robust` and `comprehensive` moved to MarketingVerb, which is
-	// where the output style already states them.
+	// What is stated instead is why a token is absent, which stays true whatever
+	// the source list holds. `harness` is this repository's own domain term, and
+	// `verbatim` is one. `realm` is RFC 7235's protection space, which the OAuth
+	// work touches. `ecosystem`, `unpack` and `embrace` read as plain English in
+	// a technical sentence. `robust` and `comprehensive` moved to MarketingVerb,
+	// which is where the output style already states them.
 	//
 	// The rule fires on its own token list quoted as words, as MarketingVerb has
 	// always done. Backtick a token to name it: an inline code span is out of
@@ -354,10 +366,14 @@ rules: {
 		raw: ["(?i)(?<=^|[.!?][\"')\\]]?\\s)(moreover|furthermore|additionally),"]
 	}
 
+	// Anchored on the nouns the opener actually takes. A bare `in today.s`
+	// matched any possessive: "errors I introduced in today's rewrite" alerted,
+	// and at maxTells = 1 that one false positive spent a clean reply's whole
+	// budget.
 	InToday: #Existence & {
 		message: "dateline filler: say when, or drop it"
 		level:   "error"
-		raw: ["(?i)\\bin today.s\\b"]
+		raw: ["(?i)\\bin today.s (fast.paced|world|climate|landscape|market|environment)\\b"]
 	}
 
 	// A hedging modal already hedges. A hedge adverb on top of it says the
@@ -402,8 +418,12 @@ auditStyles: ["proselint", "write-good", "alex", "Slop"]
 promoted: {
 	// 12 tokens of chat-assistant voice. FillerOpener stays alongside it.
 	"Slop.Assistant": "error"
-	// Three parallel modifiers where one would do. The output style names this
-	// pattern and nothing here implemented it. 0 hits on the tracked files.
+	// Adverb, comparative and more/less triples only. Its own header says a
+	// plain three-item list is out of scope, so the output style's own example,
+	// "fast, robust, and comprehensive", is not caught by it: that line blocks
+	// on two MarketingVerb hits instead. The adjective triple the style names is
+	// unimplemented, here and upstream. 0 hits on the tracked files and 0 over
+	// 1805 real replies.
 	"Slop.Tricolon": "error"
 	// A virtue the reader cannot check: "ensures correctness", "gracefully".
 	"Slop.SelfPraise": "error"
