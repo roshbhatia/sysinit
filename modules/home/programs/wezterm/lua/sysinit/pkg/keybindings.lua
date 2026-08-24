@@ -81,7 +81,7 @@ local function get_pane_keys()
       passthrough = EDITORS,
     }),
 
-    recreate_smart_keybind("s", "CTRL|SHIFT", act.SplitVertical({ domain = "CurrentPaneDomain", args = { "top" } }), {
+    create_smart_keybind("s", "CTRL|SHIFT", act.SplitVertical({ domain = "CurrentPaneDomain", args = { "top" } }), {
       passthrough = EDITORS,
     }),
     create_smart_keybind("v", "CTRL|SHIFT", act.SplitHorizontal({ domain = "CurrentPaneDomain", args = { "top" } }), {
