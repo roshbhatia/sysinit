@@ -3,7 +3,14 @@
 final: _prev:
 let
   base = inputs.hermes-agent.packages.${final.stdenv.hostPlatform.system}.minimal.override {
-    extraDependencyGroups = [ "anthropic" ];
+    # otlp carries the OpenTelemetry SDK. Without it `hermes monitoring status`
+    # reports "OTel SDK: not installed" and the monitoring.export.otlp keys are
+    # inert. Only the gateway daemon emits, so a plain `hermes chat` still
+    # produces nothing.
+    extraDependencyGroups = [
+      "anthropic"
+      "otlp"
+    ];
   };
 
   subagentBins = [
