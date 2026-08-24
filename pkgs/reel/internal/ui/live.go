@@ -1908,8 +1908,13 @@ func (m Model) View() string {
 	}
 	if len(m.rows) == 0 {
 		waiting := "waiting for spans in " + m.source
-		if m.query != "" {
+		switch {
+		case m.query != "":
 			waiting = "no row matches /" + m.query
+		case m.store.Scoped() && len(m.list) == 0:
+			// The scope is the reason, and without saying so the frame reads as
+			// a broken source rather than as a directory with no run in view.
+			waiting = "no run from this directory in " + m.source + "; -all shows every run"
 		}
 		return m.head() + "\n\n" + faint.Render(waiting) + "\n\n" + m.footer()
 	}

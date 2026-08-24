@@ -20,7 +20,8 @@ pkgs/
   ask/              main package + ask/internal/
   changes/          main package + changes/internal/
   reel/             main package + reel/internal/  (source/ holds the provider
-                    contract, ui/live.go the whole layout)
+                    contract, attach/ the cwd to session mapping, ui/live.go
+                    the whole layout)
   seshy/            main package + seshy/internal/
   specutil/         cmd/specutil + specutil/internal/
   utils/            main package + utils/internal/

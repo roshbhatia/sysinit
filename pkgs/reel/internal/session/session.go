@@ -93,9 +93,36 @@ func (s *Session) Short() string {
 
 type Store struct {
 	sessions map[string]*Session
+	scope    map[string]bool
 }
 
 func NewStore() *Store { return &Store{sessions: map[string]*Session{}} }
+
+// Scope narrows the store to a set of session ids, which is how reel opens on
+// the runs that belong to the reader's working directory rather than on
+// whichever run happens to be newest across the machine. An empty set is no
+// scope at all.
+func (s *Store) Scope(ids []string) {
+	if len(ids) == 0 {
+		s.scope = nil
+		return
+	}
+	s.scope = make(map[string]bool, len(ids))
+	for _, id := range ids {
+		s.scope[id] = true
+	}
+}
+
+// Scoped reports whether a scope is in force, so a caller can say why the view
+// is empty rather than leaving the reader to guess.
+func (s *Store) Scoped() bool { return len(s.scope) > 0 }
+
+func (s *Store) inScope(one *Session) bool {
+	if len(s.scope) == 0 {
+		return true
+	}
+	return s.scope[one.ID]
+}
 
 // key puts every span of one agent run together. opencode emits no session id,
 // so its trace id stands in and each trace reads as its own run.
@@ -142,6 +169,9 @@ func (s *Store) Sessions() []*Session {
 	out := make([]*Session, 0, len(s.sessions))
 	for _, one := range s.sessions {
 		one.rebuild()
+		if !s.inScope(one) {
+			continue
+		}
 		out = append(out, one)
 	}
 	// A harness without a session.id gets one fallback session per trace, and
