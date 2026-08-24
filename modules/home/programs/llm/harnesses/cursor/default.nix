@@ -43,6 +43,9 @@ let
     markdown = ./rules/markdown.mdc;
   };
 
+  # managedFiles paths are relative to the home directory.
+  cursorConfigDir = "${lib.removePrefix "${config.home.homeDirectory}/" config.xdg.configHome}/cursor";
+
   ruleFiles = lib.mapAttrs' (
     name: path:
     lib.nameValuePair ".cursor/rules/${name}.mdc" {
@@ -54,8 +57,14 @@ let
 in
 {
 
+  # cursor-agent resolves its config dir as CURSOR_CONFIG_DIR, then
+  # $XDG_CONFIG_HOME/cursor, then ~/.cursor, with no platform gate. This repo
+  # exports XDG_CONFIG_HOME, so the second branch always wins and a file under
+  # ~/.cursor is never read: the deny list here was inert. `rules/` and
+  # `mcp.json` stay below, because cursor reads those from the home directory
+  # rather than from the config dir.
   sysinit.llm.managedFiles.cursor = {
-    path = ".cursor/cli-config.json";
+    path = "${cursorConfigDir}/cli-config.json";
     format = "json";
     content = cursorSettings;
     enforce = [ "permissions" ];
