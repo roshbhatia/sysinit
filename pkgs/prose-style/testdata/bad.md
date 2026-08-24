@@ -16,3 +16,19 @@ Furthermore, the build passed.
 In today's fast-paced world, the switch is quick.
 
 The retry could potentially fail.
+
+The design is robust and comprehensive.
+
+It is not a refactor. It is a rewrite.
+
+Let me check the overlay.
+
+Certainly, the build passed.
+
+The pivotal change is a game-changer.
+
+Fixed it — the overlay is clean.
+
+- **label** the detail
+
+This sentence is deliberately long enough to trip the sentence length rule because it keeps adding clauses well past the twenty five word ceiling that the gate enforces.

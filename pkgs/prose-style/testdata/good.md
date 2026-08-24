@@ -25,4 +25,8 @@ The reply is nuanced and crucial to the gate.
 - The keymaps navigate panes.
 - A third row is poised to navigate.
 
+The CPU utilization is 40 percent in us-west-2.
+
+Pin the hash, e.g. additionally naming the release tag.
+
 The overlay uses `robust` and `comprehensive` as tokens, and names `delve` too.

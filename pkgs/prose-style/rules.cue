@@ -296,10 +296,15 @@ rules: {
 	// overlay use cue.", and a sentence-initial "Utilize" became "use". The
 	// `check` path is worse, because it hands those lines back to the model as
 	// finished. The message names the replacement instead.
+	//
+	// `utilization` and `utilizing` are out of the pattern. CPUUtilization is
+	// the CloudWatch metric this repository queries, and "use" is the wrong
+	// word for either inflection, so a rule whose only output is that message
+	// would be telling the reader something false.
 	Utilize: #Existence & {
 		message: "utilize: use"
 		level:   "error"
-		raw: ["(?i)\\butiliz(e|es|ed|ing|ation)\\b"]
+		raw: ["(?i)\\butiliz(e|es|ed)\\b"]
 	}
 
 	InOrderTo: #Existence & {
@@ -338,10 +343,15 @@ rules: {
 	//
 	// A mid-sentence ", moreover," is missed on purpose. Opening a sentence the
 	// word is always filler, and inside one it sometimes is not.
+	//
+	// The trailing comma is load bearing. Without it the lookbehind cannot tell
+	// an abbreviation's period from a sentence end, and "Pin the hash, e.g.
+	// additionally naming the release tag" alerted. The filler shape always
+	// takes the comma.
 	Transition: #Existence & {
 		message: "transition filler: delete it and state the fact"
 		level:   "error"
-		raw: ["(?i)(?<=^|[.!?][\"')\\]]?\\s)(moreover|furthermore|additionally)\\b"]
+		raw: ["(?i)(?<=^|[.!?][\"')\\]]?\\s)(moreover|furthermore|additionally),"]
 	}
 
 	InToday: #Existence & {
@@ -406,6 +416,40 @@ promoted: {
 }
 
 promotedIni: strings.Join([for k, v in promoted {"\(k) = \(v)"}], "\n")
+
+// The rules that testdata/bad.md is expected to trip, one line each. The build
+// asserts every name here appears in vale's output for that file.
+//
+// A total alert count cannot do this job. The first version of the check
+// required 8 alerts, bad.md produced 12, and deleting a whole rule still
+// passed. Worse, a rule can go dead without any error: adding a second entry to
+// a `raw` list concatenates the two into a pattern that matches nothing, and
+// vale reports that as a clean file.
+//
+// A rule absent from this list is untested. Add the line and the case together.
+covered: [
+	"DueToTheFactThat",
+	"EmDash",
+	"EmphasisInBullet",
+	"FillerOpener",
+	"FrequencyMarker",
+	"HedgeStacking",
+	"InOrderTo",
+	"InToday",
+	"Latinate",
+	"MarketingVerb",
+	"Narration",
+	"NegativeParallelism",
+	"SentenceLength",
+	"SignificanceInflation",
+	"Transition",
+	"Utilize",
+]
+
+coveredList: strings.Join(covered, "\n")
+
+// The promoted rule names, for the build's existence check.
+promotedList: strings.Join([for k, _ in promoted {k}], "\n")
 
 // Two configs, because the two jobs want different noise floors.
 //

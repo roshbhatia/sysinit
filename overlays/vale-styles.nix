@@ -110,16 +110,45 @@ in
         cd "$out"
         good=$(vale --config="$out/vale.ini" --output=line --no-exit \
           ${../pkgs/prose-style/testdata/good.md} | wc -l | tr -d ' ')
-        bad=$(vale --config="$out/vale.ini" --output=line --no-exit \
-          ${../pkgs/prose-style/testdata/bad.md} | wc -l | tr -d ' ')
         if [ "$good" != "0" ]; then
           echo "vale-styles: good.md must be clean, got $good alerts:" >&2
           vale --config="$out/vale.ini" --output=line --no-exit \
             ${../pkgs/prose-style/testdata/good.md} >&2
           exit 1
         fi
-        if [ "$bad" -lt 8 ]; then
-          echo "vale-styles: bad.md must alert on every rule it names, got $bad" >&2
+
+        # Per rule, not a total. A count cannot tell a rule that fired from a
+        # rule that went dead: bad.md produced 12 alerts against a floor of 8,
+        # so deleting a whole rule passed.
+        vale --config="$out/vale.ini" --output=line --no-exit \
+          ${../pkgs/prose-style/testdata/bad.md} > bad.out || true
+        cue export -e 'coveredList' --out text "$rules" > covered.txt
+        missing=0
+        while read -r rule; do
+          [ -n "$rule" ] || continue
+          if ! grep -q "Sysinit.$rule:" bad.out; then
+            echo "vale-styles: $rule did not fire on bad.md" >&2
+            missing=1
+          fi
+        done < covered.txt
+        if [ "$missing" != "0" ]; then
+          echo "vale-styles: every rule in the covered list must trip bad.md" >&2
+          exit 1
+        fi
+
+        # Each promoted rule is named by string in the ini. A borrowed style that
+        # renames one drops it with no error from vale, so the file has to exist.
+        # The names come from rules.cue, so the two can never disagree.
+        cue export -e 'promotedList' --out text "$rules" > promoted.txt
+        gone=0
+        while read -r key; do
+          [ -n "$key" ] || continue
+          if [ ! -f "$out/styles/$(echo "$key" | tr '.' '/').yml" ]; then
+            echo "vale-styles: promoted rule $key is missing from the styles tree" >&2
+            gone=1
+          fi
+        done < promoted.txt
+        if [ "$gone" != "0" ]; then
           exit 1
         fi
       '';
