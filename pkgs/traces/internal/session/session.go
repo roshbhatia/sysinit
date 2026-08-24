@@ -280,10 +280,23 @@ func (s *Store) Sessions() []*Session {
 
 func notable(one *Session) bool { return one.ID != "" || one.Count >= 3 }
 
+// Session selects out of Sessions rather than out of the raw map, because the
+// raw map holds one entry per trace and mergeRuns is what joins the traces of a
+// harness that emits no run id. Reading the map returned one fragment: --list
+// advertised an opencode run of 734 spans and --session opened 1 of them.
+//
+// The suffix arm is what makes the name --list prints a usable selector: a
+// trace-keyed run is named by the last 8 of its trace, which prefix-matches
+// nothing. Without it, half the listed runs could not be opened by their name.
 func (s *Store) Session(id string) *Session {
-	for _, one := range s.sessions {
-		if one.ID == id || one.Key == id || strings.HasPrefix(one.ID, id) {
-			one.rebuild()
+	if id == "" {
+		return nil
+	}
+	for _, one := range s.Sessions() {
+		switch {
+		case one.ID == id, one.Key == id,
+			one.ID != "" && strings.HasPrefix(one.ID, id),
+			strings.HasSuffix(one.Key, id):
 			return one
 		}
 	}
