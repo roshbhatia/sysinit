@@ -2027,6 +2027,38 @@ var fixtureCalls = map[string]string{
 ` + "```\n",
 }
 
+// ast-grep outline names what a file declares, git diff names which lines
+// moved, and calldiff names which call edges the move added or removed. All
+// three carry a file and a line, so a symbol range is the join key: a hunk
+// belongs to the symbol whose range holds its first new line, and so does a
+// call site. A language outline cannot read, such as Nix or markdown, has no
+// entry here, and its file then renders as a flat list of hunks.
+type outlineItem struct {
+	kind     string
+	name     string
+	from, to int
+}
+
+// The line is the call site in the new file, which is what calldiff reports.
+type callEdge struct {
+	line  int
+	added bool
+}
+
+var fixtureOutline = map[string][]outlineItem{
+	"pkgs/reel/internal/ui/mockup.go": {
+		{"func", "(m mockModel) hunkHead(name string, h diffHunk, width int) string", 62, 80},
+		{"func", "(m mockModel) tabDiff() string", 104, 138},
+	},
+}
+
+var fixtureEdges = map[string][]callEdge{
+	"pkgs/reel/internal/ui/mockup.go": {
+		{71, true},  // strings.TrimRight
+		{112, true}, // fmt.Sprintf
+	},
+}
+
 // ---------------------------------------------------------------------------
 // diff tab
 //
@@ -2324,6 +2356,82 @@ func (m mockModel) emitTree(b *strings.Builder, n *treeNode, prefix string, widt
 	}
 }
 
+// A group is one outline symbol with the hunks that landed inside it. A hunk
+// no symbol claims keeps a nil item and renders bare, so a file with no
+// outline reads exactly as it did before the symbol layer existed.
+type symGroup struct {
+	item     *outlineItem
+	hunks    []diffHunk
+	add, del int
+	up, down int
+}
+
+func ownerOf(items []outlineItem, line int) *outlineItem {
+	for i := range items {
+		if line >= items[i].from && line <= items[i].to {
+			return &items[i]
+		}
+	}
+	return nil
+}
+
+// Walking the hunks in order rather than the symbols keeps the patch order the
+// reader already saw in the terminal, and folds consecutive hunks that share a
+// symbol into one heading.
+func symGroups(f *diffFile) []symGroup {
+	items, edges := fixtureOutline[f.path], fixtureEdges[f.path]
+	out, cur := []symGroup{}, -1
+	for _, h := range f.hunks {
+		it := ownerOf(items, h.newAt)
+		if cur < 0 || out[cur].item != it {
+			out = append(out, symGroup{item: it})
+			cur = len(out) - 1
+			if it != nil {
+				for _, e := range edges {
+					switch {
+					case e.line < it.from || e.line > it.to:
+					case e.added:
+						out[cur].up++
+					default:
+						out[cur].down++
+					}
+				}
+			}
+		}
+		out[cur].hunks = append(out[cur].hunks, h)
+		for _, d := range h.lines {
+			switch d.kind {
+			case '+':
+				out[cur].add++
+			case '-':
+				out[cur].del++
+			}
+		}
+	}
+	return out
+}
+
+// The churn says how much moved and the call count says how far the move
+// reaches, so a one line edit that rewires the graph does not read the same as
+// a fifty line edit that rewires nothing.
+func symRow(g symGroup, width int) string {
+	right := live.Render(fmt.Sprintf("+%d", g.add)) + "  " + bad.Render(fmt.Sprintf("-%d", g.del))
+	if g.up > 0 {
+		right += "  " + live.Render(fmt.Sprintf("+%d %s", g.up, plural(g.up, "call")))
+	}
+	if g.down > 0 {
+		right += "  " + bad.Render(fmt.Sprintf("-%d %s", g.down, plural(g.down, "call")))
+	}
+	room := width - lipgloss.Width(right) - len(g.item.kind) - 3
+	name := strings.TrimRight(clip(g.item.name, max(8, room)), " ")
+	head := faint.Render(g.item.kind+" ") + accent.Render(name)
+	gap := width - lipgloss.Width(head) - lipgloss.Width(right)
+	if gap < 2 {
+		gap = 2
+	}
+	return head + strings.Repeat(" ", gap) + right
+}
+
 // The file line carries the name on the left and the churn on the right, so a
 // column of files compares at a glance. The body hangs off a rail that starts
 // under the name, which keeps a hunk attached to its file when the pane is
@@ -2339,29 +2447,36 @@ func (m mockModel) emitFile(b *strings.Builder, f *diffFile, conn, guide string,
 	b.WriteString(head + strings.Repeat(" ", gap) + churn + "\n")
 
 	rail := rule.Render(guide + "│ ")
+	deep := rule.Render(guide + "│ ╎ ")
 	body := width - lipgloss.Width(guide) - 2
-	for _, h := range f.hunks {
-		b.WriteString(rail + m.hunkHead(name, h, body) + "\n")
-		if half := (body - 3) / 2; half-numWidth-1 >= sbsMinText {
-			for _, r := range sbsRows(h) {
-				b.WriteString(rail + sbsLine(r, half) + "\n")
-			}
-			continue
+	for _, g := range symGroups(f) {
+		r, w := rail, body
+		if g.item != nil {
+			b.WriteString(rail + symRow(g, body) + "\n")
+			r, w = deep, body-2
 		}
-		for _, d := range unifiedRows(h) {
-			b.WriteString(rail + d + "\n")
+		for _, h := range g.hunks {
+			b.WriteString(r + m.hunkHead(name, h, w, g.item != nil) + "\n")
+			if half := (w - 3) / 2; half-numWidth-1 >= sbsMinText {
+				for _, row := range sbsRows(h) {
+					b.WriteString(r + sbsLine(row, half) + "\n")
+				}
+				continue
+			}
+			for _, d := range unifiedRows(h) {
+				b.WriteString(r + d + "\n")
+			}
 		}
 	}
 	b.WriteString(rail + "\n")
 }
 
-// The header names the file, the line, and the enclosing symbol the unified
-// header already carries, so the reader never has to scroll back for any of
-// the three.
-func (m mockModel) hunkHead(name string, h diffHunk, width int) string {
+// The header names the file and the line. It repeats the enclosing symbol only
+// when no symbol row sits above it, because the outline already said it there.
+func (m mockModel) hunkHead(name string, h diffHunk, width int, named bool) string {
 	at := fmt.Sprintf("%s:%d", name, h.newAt)
 	label := at
-	if h.sym != "" {
+	if h.sym != "" && !named {
 		label += " · " + h.sym
 	}
 	// clip pads to its width, and a padded label would eat the rule, so the
