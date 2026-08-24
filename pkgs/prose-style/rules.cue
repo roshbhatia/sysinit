@@ -206,7 +206,7 @@ rules: {
 	HedgeBeforeClaim: #Existence & {
 		message: "hedge before the claim: make the claim and defend it"
 		level:   "error"
-		raw: ["(?i)(it'?s worth noting|it is worth noting|this is nuanced|it could be argued|i should note that)"]
+		raw: ["(?i)(it'?s worth (noting|considering|mentioning|remembering)|it is worth (noting|considering|mentioning|remembering)|this is nuanced|it could be argued|i should note that)"]
 	}
 
 	// Announcing the plan instead of reporting the result. Claude Code's built-in
@@ -261,6 +261,119 @@ rules: {
 	// ASD-STE100 caps a procedure sentence at 20 words and a descriptive one at
 	// 25. Vale cannot tell the two apart, so the ceiling is the looser of them
 	// and a long procedure sentence is left to the reader.
+	// Ported from conorbronsdon/avoid-ai-writing's Tier 1A frequency markers.
+	// Its list is 44 tokens; this is the subset with no legitimate use in this
+	// repository, measured over the 41 tracked .md files.
+	//
+	// Five of its tokens are deliberately absent. `harness` is this repository's
+	// own domain term, at 39 hits. `verbatim` is one too, at 8. `ecosystem`,
+	// `unpack` and `embrace` each read as plain English in a technical sentence,
+	// so a bare token would fire on prose that is already fine.
+	//
+	// `robust` and `comprehensive` are named by the output style and were never
+	// enforced. Their 4 hits are all inside the writing skills, which list them
+	// as words to avoid; the gate reads a reply and never a file, so no tracked
+	// file is affected.
+	FrequencyMarker: #Existence & {
+		message: "AI frequency marker: name the thing plainly"
+		level:   "error"
+		raw: ["(?i)\\b(tapestry|realm|paradigm|embark(s|ed|ing)?|beacon|testament to|cutting.edge|watershed moment|nestled|vibrant|thriving|bustling|ever.evolving|thought leader|synergy|symphony|deep dive|learnings|holistic|at its core|meticulous(ly)?|daunting|intricate|interplay|robust|comprehensive)\\b"]
+	}
+
+	// Tier 1B, the three with one right answer each. A rule carries one
+	// replacement for every match it makes, so a shared rule could not fix
+	// these; each gets its own so `prose-gate fix` can apply it.
+	Utilize: #Existence & {
+		message: "utilize: use"
+		level:   "error"
+		action: {
+			name: "replace"
+			params: ["use"]
+		}
+		raw: ["(?i)\\butilize[sd]?\\b"]
+	}
+
+	InOrderTo: #Existence & {
+		message: "in order to: to"
+		level:   "error"
+		action: {
+			name: "replace"
+			params: ["to"]
+		}
+		raw: ["(?i)\\bin order to\\b"]
+	}
+
+	DueToTheFactThat: #Existence & {
+		message: "due to the fact that: because"
+		level:   "error"
+		action: {
+			name: "replace"
+			params: ["because"]
+		}
+		raw: ["(?i)\\bdue to the fact that\\b"]
+	}
+
+	// The rest of Tier 1B. No action: the right replacement depends on the
+	// sentence, and a wrong mechanical fix costs more than a message.
+	Latinate: #Existence & {
+		message: "latinate verb: use the plain one"
+		level:   "error"
+		raw: ["(?i)\\b(commence[sd]?|ascertain(s|ed)?|endeavou?r(s|ed)?)\\b"]
+	}
+
+	// A transition that carries no argument. The reader already knows the next
+	// sentence follows this one.
+	//
+	// Scoped to a sentence so `^` means the sentence's own start. Reaching back
+	// for the previous full stop instead reported the same word twice, once
+	// with the punctuation and once without, and a line anchor cannot work:
+	// vale joins a paragraph into one line before a rule sees it.
+	//
+	// A mid-sentence ", moreover," is missed on purpose. Opening a sentence the
+	// word is always filler, and inside one it sometimes is not.
+	Transition: #Existence & {
+		message: "transition filler: delete it and state the fact"
+		level:   "error"
+		scope:   "sentence"
+		raw: ["(?i)^\\s*(moreover|furthermore|additionally)\\b"]
+	}
+
+	InToday: #Existence & {
+		message: "dateline filler: say when, or drop it"
+		level:   "error"
+		raw: ["(?i)\\bin today.s\\b"]
+	}
+
+	// A modal already hedges. A hedge adverb on top of it says the writer does
+	// not know, twice.
+	HedgeStacking: #Existence & {
+		message: "stacked hedge: make the claim, or drop it"
+		level:   "error"
+		raw: ["(?i)\\b(could|may|might|can|would)\\s+(potentially|possibly|eventually|conceivably|arguably)\\b"]
+	}
+
+	// The template opener of a marketing page, which addresses two readers to
+	// avoid choosing one.
+	TemplatePhrase: #Existence & {
+		message: "template phrase: write to the one reader you have"
+		level:   "error"
+		raw: ["(?i)\\bwhether you('?re| are)\\b[^.!?]{0,60}\\bor\\b"]
+	}
+
+	// Tier 2 made deterministic. avoid-ai-writing says to flag these in
+	// clusters of two or more per paragraph, which is an occurrence rule with a
+	// max of one. A single one of these words is usually the right word; two in
+	// one paragraph is the register slipping.
+	//
+	// `harness` and `ecosystem` are absent for the reason FrequencyMarker gives.
+	InflatedVerbDensity: #Occurrence & {
+		message: "two inflated words in one paragraph: pick plainer ones"
+		level:   "error"
+		scope:   "paragraph"
+		max:     1
+		token:   "(?i)\\b(navigate[sd]?|elevate[sd]?|unleash(es|ed)?|bolster(s|ed)?|spearhead(s|ed)?|resonate[sd]?|revolutionize[sd]?|facilitate[sd]?|underpin(s|ned)?|nuanced|crucial|multifaceted|myriad|plethora|encompass(es|ed)?|catalyze[sd]?|reimagine[sd]?|galvanize[sd]?|augment(s|ed)?|cultivate[sd]?|illuminate[sd]?|elucidate[sd]?|juxtapose[sd]?|poised|burgeoning|nascent|quintessential|overarching)\\b"
+	}
+
 	SentenceLength: #Occurrence & {
 		message: "sentence over 25 words: split it"
 		level:   "error"
