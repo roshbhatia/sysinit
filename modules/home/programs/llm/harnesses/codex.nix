@@ -15,8 +15,11 @@ let
     name = "codex-bash-guard";
   };
 
-  otlpHttp = {
-    endpoint = "http://127.0.0.1:4318";
+  # codex sends to the endpoint verbatim and appends no signal path, unlike
+  # every other OTLP client here. A bare 4318 makes it POST to `/`, which the
+  # collector answers with 404, so nothing codex emitted ever reached reel.
+  otlpHttp = signal: {
+    endpoint = "http://127.0.0.1:4318/v1/${signal}";
     protocol = "json";
   };
 
@@ -129,16 +132,19 @@ in
       # table key. Codex keeps a separate key per signal and does not fall back
       # from one to another, so all three name the same collector.
       otel = {
-        exporter."otlp-http" = otlpHttp;
-        trace_exporter."otlp-http" = otlpHttp;
-        metrics_exporter."otlp-http" = otlpHttp;
+        # `exporter` is the logs signal; the other two are named for theirs.
+        exporter."otlp-http" = otlpHttp "logs";
+        trace_exporter."otlp-http" = otlpHttp "traces";
+        metrics_exporter."otlp-http" = otlpHttp "metrics";
+
+        # A prompt attribute reads <REDACTED> without this, so a turn row
+        # carries no text. The collector is loopback only.
+        log_user_prompt = true;
       };
 
       shell_environment_policy = {
         experimental_use_profile = true;
       };
-
-      experimental_use_rmcp_client = true;
 
       tools = {
         web_search = true;
