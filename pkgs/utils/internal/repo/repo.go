@@ -4,12 +4,12 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"fmt"
-	"os"
 	"path/filepath"
 	"strings"
 
 	"github.com/roshbhatia/sysinit/pkgs/internal/git"
 	"github.com/roshbhatia/sysinit/pkgs/internal/paths"
+	"github.com/roshbhatia/sysinit/pkgs/internal/workspace"
 )
 
 func RootAt(dir string) (string, error) { return git.Root(dir) }
@@ -53,34 +53,8 @@ func keyed(dir, root string) string {
 	return fmt.Sprintf("%s/%s-%s", dir, filepath.Base(root), digest)
 }
 
-func DeclaredWorkspace(dir string) string {
-	root := strings.TrimRight(strings.TrimSpace(os.Getenv("SYSINIT_WORKSPACE")), "/")
-	if root == "" {
-		return ""
-	}
-	if info, err := os.Stat(root); err != nil || !info.IsDir() {
-		return ""
-	}
-	if dir == root || strings.HasPrefix(dir, root+"/") {
-		return root
-	}
-	return ""
-}
+// pkgs/internal/workspace owns the boundary rule, because changes reads it too
+// and two copies would drift.
+func DeclaredWorkspace(dir string) string { return workspace.Declared(dir) }
 
-func Workspace(dir string) string {
-	if dir == "" {
-		if here, err := os.Getwd(); err == nil {
-			dir = here
-		}
-	}
-	dir = strings.TrimRight(dir, "/")
-
-	if declared := DeclaredWorkspace(dir); declared != "" {
-		return declared
-	}
-
-	if root, err := RootAt(dir); err == nil {
-		return root
-	}
-	return dir
-}
+func Workspace(dir string) string { return workspace.Root(dir) }

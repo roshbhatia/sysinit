@@ -13,12 +13,13 @@ import (
 	"strings"
 	"sync"
 
+	wsroot "github.com/roshbhatia/sysinit/pkgs/internal/workspace"
 	"github.com/roshbhatia/sysinit/pkgs/utils/internal/repo"
 )
 
 const Summary = "list the repositories under a workspace, and the changes in them"
 
-const scanDepth = 5
+const scanDepth = wsroot.ScanDepth
 
 const logCount = 10
 
@@ -271,39 +272,8 @@ func resolveDir(args []string) (string, int) {
 	return abs, 0
 }
 
-func Roots(dir string) ([]string, error) {
-	root := repo.Workspace(dir)
-	base := strings.Count(filepath.Clean(root), string(os.PathSeparator))
-
-	var found []string
-	err := filepath.WalkDir(root, func(path string, entry os.DirEntry, err error) error {
-		if err != nil {
-			if entry != nil && entry.IsDir() {
-				return filepath.SkipDir
-			}
-			return nil
-		}
-		if !entry.IsDir() {
-			return nil
-		}
-		if entry.Name() == ".git" {
-			return filepath.SkipDir
-		}
-		if _, statErr := os.Lstat(filepath.Join(path, ".git")); statErr == nil {
-			found = append(found, path)
-		}
-		if strings.Count(filepath.Clean(path), string(os.PathSeparator))-base >= scanDepth {
-			return filepath.SkipDir
-		}
-		return nil
-	})
-	if err != nil {
-		return nil, err
-	}
-
-	sort.Strings(found)
-	return found, nil
-}
+// The walk itself lives in pkgs/internal/workspace, which changes reads too.
+func Roots(dir string) ([]string, error) { return wsroot.Roots(dir) }
 
 type Commit struct {
 	Root    string
