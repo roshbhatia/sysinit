@@ -16,6 +16,7 @@ pkgs/
     git/            one git exec wrapper, with the env scrub
     ui/             ANSI colors and stderr messages
     diffview/       a diff drawn as a symbol tree, with call edges
+    workspace/      the declared boundary, and the repositories under it
   ask/              main package + ask/internal/
   changes/          main package + changes/internal/
   reel/             main package + reel/internal/
@@ -47,6 +48,11 @@ each carry a file and a line: git for the moved lines, an outline for the
 symbol ranges, and a call graph for the edges the edit added or removed. It
 reads no tool itself, so `changes` feeds it ast-grep and calldiff while reel's
 mockup feeds it fixtures.
+
+`workspace` owns the boundary rule: `$SYSINIT_WORKSPACE` when the directory sits
+inside it, then the git top level, then the directory. `Roots` lists every
+repository under it. `utils` and `changes` both read it, so a seshy session means
+the same thing to both.
 
 ## Build
 

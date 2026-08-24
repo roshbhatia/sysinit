@@ -39,6 +39,13 @@ type Options struct {
 	Width   int
 	Symbols map[string][]Symbol
 	Edges   map[string][]Edge
+	// Pins names the directory prefixes the tree must keep as their own line,
+	// one per repository when the render spans several.
+	Pins map[string]bool
+	// Stat draws the tree and the churn and stops there. A render spanning
+	// several repositories reaches thousands of lines of body, which is more
+	// than a reader takes in at once.
+	Stat bool
 }
 
 func Render(o Options) string {
@@ -49,7 +56,7 @@ func Render(o Options) string {
 	root := &treeNode{}
 	add, del := 0, 0
 	for i := range o.Files {
-		root.insert(&o.Files[i])
+		root.insert(&o.Files[i], o.Pins)
 		add, del = add+o.Files[i].Add, del+o.Files[i].Del
 	}
 	// The root carries no name, so it never merges. Its children do.
@@ -66,7 +73,7 @@ func Render(o Options) string {
 	// gets none either.
 	for _, k := range root.kids {
 		if k.file == nil {
-			b.WriteString(accent.Render(k.name+"/") + "\n")
+			b.WriteString(dirLine(k, "", width) + "\n")
 			o.emitTree(b, k, "", width)
 			continue
 		}
@@ -82,7 +89,7 @@ func (o Options) emitTree(b *strings.Builder, n *treeNode, prefix string, width 
 			conn, guide = treeEnd, treeGap
 		}
 		if k.file == nil {
-			b.WriteString(rule.Render(prefix+conn) + accent.Render(k.name+"/") + "\n")
+			b.WriteString(dirLine(k, prefix+conn, width) + "\n")
 			o.emitTree(b, k, prefix+guide, width)
 			continue
 		}
@@ -179,6 +186,9 @@ func (o Options) emitFile(b *strings.Builder, f *File, conn, guide string, width
 		gap = 2
 	}
 	b.WriteString(head + strings.Repeat(" ", gap) + churn + "\n")
+	if o.Stat {
+		return
+	}
 
 	rail := rule.Render(guide + "│ ")
 	deep := rule.Render(guide + "│ ╎ ")
@@ -203,6 +213,26 @@ func (o Options) emitFile(b *strings.Builder, f *File, conn, guide string, width
 		}
 	}
 	b.WriteString(rail + "\n")
+}
+
+// A pinned directory carries its own totals on the right, so a render spanning
+// several repositories compares them without the reader adding up the files.
+// An unpinned directory is only a path segment, and a total there would repeat
+// what the files below it already say.
+func dirLine(n *treeNode, conn string, width int) string {
+	head := rule.Render(conn) + accent.Render(n.name+"/")
+	if !n.pinned {
+		return head
+	}
+	files, add, del := n.churn()
+	right := faint.Render(fmt.Sprintf("%d %s", files, plural(files, "file"))) +
+		"  " + live.Render(fmt.Sprintf("+%d", add)) +
+		"  " + bad.Render(fmt.Sprintf("-%d", del))
+	gap := width - lipgloss.Width(head) - lipgloss.Width(right)
+	if gap < 2 {
+		gap = 2
+	}
+	return head + strings.Repeat(" ", gap) + right
 }
 
 // The header names the file and the line. It repeats the enclosing symbol only

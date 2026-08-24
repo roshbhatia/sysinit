@@ -190,15 +190,25 @@ func sbsRows(h Hunk) []sbsRow {
 }
 
 type treeNode struct {
-	name string
-	file *File
-	kids []*treeNode
+	name   string
+	file   *File
+	kids   []*treeNode
+	pinned bool
 }
 
-func (n *treeNode) insert(f *File) {
-	parts, cur := strings.Split(f.Path, "/"), n
+// pins names the directories the reader has to see, which is one per repository
+// when the caller spans several. Without the pin the collapse folds a
+// repository into the first directory below it, and the reader loses which
+// repository a file came from.
+func (n *treeNode) insert(f *File, pins map[string]bool) {
+	parts, cur, at := strings.Split(f.Path, "/"), n, ""
 	for i, p := range parts {
 		leaf, found := i == len(parts)-1, (*treeNode)(nil)
+		if at == "" {
+			at = p
+		} else {
+			at += "/" + p
+		}
 		for _, k := range cur.kids {
 			if k.name == p && (k.file != nil) == leaf {
 				found = k
@@ -206,7 +216,7 @@ func (n *treeNode) insert(f *File) {
 			}
 		}
 		if found == nil {
-			found = &treeNode{name: p}
+			found = &treeNode{name: p, pinned: pins[at]}
 			if leaf {
 				found.file = f
 			}
@@ -223,8 +233,21 @@ func (n *treeNode) collapse() {
 	for _, k := range n.kids {
 		k.collapse()
 	}
-	if n.file == nil && len(n.kids) == 1 && n.kids[0].file == nil {
+	if n.file == nil && len(n.kids) == 1 && n.kids[0].file == nil && !n.pinned && !n.kids[0].pinned {
 		k := n.kids[0]
 		n.name, n.kids = n.name+"/"+k.name, k.kids
 	}
+}
+
+// churn totals a directory, so a pinned line says how much of the render
+// belongs to it without the reader adding up the files under it.
+func (n *treeNode) churn() (files, add, del int) {
+	if n.file != nil {
+		return 1, n.file.Add, n.file.Del
+	}
+	for _, k := range n.kids {
+		f, a, d := k.churn()
+		files, add, del = files+f, add+a, del+d
+	}
+	return files, add, del
 }
