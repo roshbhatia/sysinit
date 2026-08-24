@@ -90,13 +90,13 @@ in
           --prefix PATH : "${runtimePath}"
       '';
 
-  reel = select {
-    pname = "reel";
-    binary = "reel";
-    names = [ "reel" ];
+  traces = select {
+    pname = "traces";
+    binary = "traces";
+    names = [ "traces" ];
     meta = {
       description = "Agent trace view over the local OTLP collector's spans";
-      mainProgram = "reel";
+      mainProgram = "traces";
       platforms = final.lib.platforms.unix;
     };
   };

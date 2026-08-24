@@ -11,7 +11,7 @@ import (
 	"time"
 )
 
-// Span is the flattened shape the rest of reel works in. The OTLP wire types
+// Span is the flattened shape the rest of traces works in. The OTLP wire types
 // nest resource, scope, and span attributes in three separate lists; every
 // consumer here wants them as one map keyed by attribute name.
 type Span struct {
@@ -43,7 +43,7 @@ type Record struct {
 }
 
 // Batch is one read from a source. Metrics are decoded by nothing here: a
-// counter says how much happened, and every row in reel is a thing that
+// counter says how much happened, and every row in traces is a thing that
 // happened at a time.
 type Batch struct {
 	Spans   []Span

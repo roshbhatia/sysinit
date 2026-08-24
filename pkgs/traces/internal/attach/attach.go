@@ -1,5 +1,5 @@
-// Package attach answers which run reel opens, without being told. A reader
-// who runs reel in a repository means the work happening in that repository,
+// Package attach answers which run traces opens, without being told. A reader
+// who runs traces in a repository means the work happening in that repository,
 // and a reader who runs it inside an agent session means that session.
 //
 // zoetrope reads the same directory for the same reason. The convention is
@@ -16,7 +16,7 @@ import (
 	"github.com/roshbhatia/sysinit/pkgs/internal/workspace"
 )
 
-// Env is the session id Claude Code exports to everything it runs, so a reel
+// Env is the session id Claude Code exports to everything it runs, so a traces
 // started from inside a session knows which one without a flag.
 const Env = "CLAUDE_CODE_SESSION_ID"
 
@@ -98,7 +98,7 @@ func idsIn(dir string) []string {
 		}
 		id := strings.TrimSuffix(name, ".jsonl")
 		// A session id is a uuid. Anything else in here is not one, and a
-		// prefix match on a stray name would scope reel to nothing.
+		// prefix match on a stray name would scope traces to nothing.
 		if len(id) != len("00000000-0000-0000-0000-000000000000") {
 			continue
 		}

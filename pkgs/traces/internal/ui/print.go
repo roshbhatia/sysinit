@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/roshbhatia/sysinit/pkgs/reel/internal/session"
+	"github.com/roshbhatia/sysinit/pkgs/traces/internal/session"
 )
 
 // Print writes the tree once, for the non-interactive paths. It draws no

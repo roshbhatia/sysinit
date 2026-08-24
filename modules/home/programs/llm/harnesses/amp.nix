@@ -55,7 +55,7 @@ in
   #
   # It exports traces only: the NodeSDK is built with no metric reader and no
   # log processor. Its root span `main` ends inside a process exit handler,
-  # after the last batch flush, so reel usually never receives it and draws the
+  # after the last batch flush, so traces usually never receives it and draws the
   # fetch spans under a synthesized turn instead.
   home.sessionVariables.AMP_ENABLE_TRACING = "1";
 

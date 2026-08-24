@@ -5,7 +5,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/roshbhatia/sysinit/pkgs/reel/internal/session"
+	"github.com/roshbhatia/sysinit/pkgs/traces/internal/session"
 )
 
 // The layout reads a flat row list, and the session holds a tree. rows walks

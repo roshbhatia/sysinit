@@ -19,7 +19,7 @@ pkgs/
     workspace/      the declared boundary, and the repositories under it
   ask/              main package + ask/internal/
   changes/          main package + changes/internal/
-  reel/             main package + reel/internal/  (source/ holds the provider
+  traces/             main package + traces/internal/  (source/ holds the provider
                     contract, attach/ the cwd to session mapping, ui/live.go
                     the whole layout)
   seshy/            main package + seshy/internal/
@@ -48,7 +48,7 @@ Call `git.Output` rather than `exec.Command("git", ...)`.
 `diffview` renders a unified diff. It owns the join between three layers that
 each carry a file and a line: git for the moved lines, an outline for the
 symbol ranges, and a call graph for the edges the edit added or removed. It
-reads no tool itself, so `changes` feeds it ast-grep and calldiff while reel's
+reads no tool itself, so `changes` feeds it ast-grep and calldiff while traces's
 mockup feeds it fixtures.
 
 `workspace` owns the boundary rule: `$SYSINIT_WORKSPACE` when the directory sits

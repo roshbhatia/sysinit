@@ -1,6 +1,6 @@
 // Package source reads spans from wherever this machine keeps them. The
 // collector's file is always read, and a provider binary is the escape hatch
-// for the harness whose export is redirected somewhere reel cannot reach. Both
+// for the harness whose export is redirected somewhere traces cannot reach. Both
 // are read together, because one machine can have both kinds at once.
 //
 // A provider is any executable that prints newline delimited JSON on stdout and
@@ -20,12 +20,12 @@
 //	{"event":"user_prompt","startUnixNano":"…",
 //	 "attrs":{"service.name":"…","session.id":"…","prompt":"…"}}
 //
-// A line reel cannot parse is skipped rather than fatal, because a provider
+// A line traces cannot parse is skipped rather than fatal, because a provider
 // that prints a warning should not take the view down with it.
 //
-// reel runs the provider once per poll with a --since window, and deduplicates
+// traces runs the provider once per poll with a --since window, and deduplicates
 // by span id. A provider is therefore stateless: it answers "which spans ended
-// in the last N", and reel decides what is new. That suits a source that has to
+// in the last N", and traces decides what is new. That suits a source that has to
 // be queried, which is the case this exists for.
 package source
 
@@ -43,23 +43,23 @@ import (
 	"strings"
 	"time"
 
-	"github.com/roshbhatia/sysinit/pkgs/reel/internal/otlp"
+	"github.com/roshbhatia/sysinit/pkgs/traces/internal/otlp"
 )
 
 // Env names the provider without a flag, so a machine can carry the choice in
 // its own configuration rather than in every command line.
-const Env = "REEL_PROVIDER"
+const Env = "TRACES_PROVIDER"
 
 // A name resolves to this prefix on PATH. A value holding a separator is taken
 // as the path itself, which is what a provider outside PATH needs.
-const prefix = "reel-"
+const prefix = "traces-"
 
 type Provider struct {
 	// Binary is the resolved executable.
 	Binary string
 	// Name is what the caller asked for, for error text and the header.
 	Name string
-	// Session narrows the read when the provider can do it. reel resolves a
+	// Session narrows the read when the provider can do it. traces resolves a
 	// prefix itself, so a provider may ignore this.
 	Session string
 }
@@ -105,7 +105,7 @@ func (p Provider) Fetch(ctx context.Context, window time.Duration) (otlp.Batch, 
 // lists are what makes that painful to emit.
 type line struct {
 	// event marks the line as a log record rather than a span. A harness puts
-	// on a log what it cannot put on a span, and the prompt is the one reel
+	// on a log what it cannot put on a span, and the prompt is the one traces
 	// needs.
 	Event    string            `json:"event,omitempty"`
 	TraceID  string            `json:"traceId,omitempty"`
@@ -121,9 +121,9 @@ type line struct {
 	Error    string            `json:"error,omitempty"`
 }
 
-// Encode writes a batch in the same shape a provider prints, so reel's own
-// output is valid provider input. `reel --json | jq ... | reel` is the loop
-// that makes reel a pipe stage rather than an application.
+// Encode writes a batch in the same shape a provider prints, so traces's own
+// output is valid provider input. `traces --json | jq ... | traces` is the loop
+// that makes traces a pipe stage rather than an application.
 func Encode(w io.Writer, batch otlp.Batch) error {
 	enc := json.NewEncoder(w)
 	for _, one := range batch.Spans {

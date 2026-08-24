@@ -116,7 +116,7 @@ in
         copilot-language-server
         lsp-ai
         openspec
-        reel
+        traces
         specutil
 
         cupcake-cli

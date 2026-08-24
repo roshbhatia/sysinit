@@ -16,8 +16,8 @@ import (
 	"github.com/charmbracelet/x/ansi"
 	"github.com/muesli/termenv"
 
-	"github.com/roshbhatia/sysinit/pkgs/reel/internal/otlp"
-	"github.com/roshbhatia/sysinit/pkgs/reel/internal/session"
+	"github.com/roshbhatia/sysinit/pkgs/traces/internal/otlp"
+	"github.com/roshbhatia/sysinit/pkgs/traces/internal/session"
 )
 
 // The layout came out of four variations judged against a fixed fixture. The
@@ -1789,7 +1789,7 @@ func (m Model) head() string {
 	if m.current != nil {
 		who = m.current.Service + " " + m.current.Short()
 	}
-	left := title.Render("reel") + dim.Render("  "+who)
+	left := title.Render("traces") + dim.Render("  "+who)
 	if m.query != "" {
 		left += accent.Render("  /" + m.query)
 	}
@@ -1890,9 +1890,9 @@ func viewHelp(width, height int) string {
 	for _, h := range helpTable {
 		lines = append(lines, accent.Render(fit(h[0], 18))+plain.Render(h[1]))
 	}
-	// m is bound to mark here and to move in neo-tree. reel has no move, so the
+	// m is bound to mark here and to move in neo-tree. traces has no move, so the
 	// key is free; v stays open because neo-tree uses it for a vertical split.
-	lines = append(lines, "", dim.Render("m marks here and moves in neo-tree; reel has no move, so the key is free."))
+	lines = append(lines, "", dim.Render("m marks here and moves in neo-tree; traces has no move, so the key is free."))
 	for len(lines) < height-2 {
 		lines = append(lines, "")
 	}
@@ -1915,7 +1915,7 @@ func viewTooSmall(w, h int) string {
 		out[i] = strings.Repeat(" ", w)
 	}
 	msgs := []string{
-		fmt.Sprintf("reel needs %dx%d", minWidth, minHeight),
+		fmt.Sprintf("traces needs %dx%d", minWidth, minHeight),
 		fmt.Sprintf("this pane is %dx%d", w, h),
 	}
 	for i, msg := range msgs {
@@ -2178,7 +2178,7 @@ func (m Model) filterKey(msg tea.KeyMsg, k string) (tea.Model, tea.Cmd) {
 // competing with a tree for the same rows reads as neither.
 func (m Model) viewPick() string {
 	b := &strings.Builder{}
-	b.WriteString(title.Render("reel") + dim.Render("  attach to a session") + "\n\n")
+	b.WriteString(title.Render("traces") + dim.Render("  attach to a session") + "\n\n")
 	for i, one := range m.list {
 		mark := "  "
 		style := plain

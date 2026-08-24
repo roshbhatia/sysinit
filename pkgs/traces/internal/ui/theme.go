@@ -5,11 +5,11 @@ import (
 	"time"
 
 	"github.com/charmbracelet/lipgloss"
-	"github.com/roshbhatia/sysinit/pkgs/reel/internal/session"
+	"github.com/roshbhatia/sysinit/pkgs/traces/internal/session"
 )
 
 // Every colour is an ANSI slot, so the terminal palette decides the hue and
-// reel matches the rest of the session instead of fighting it.
+// traces matches the rest of the session instead of fighting it.
 var (
 	dim     = lipgloss.NewStyle().Foreground(lipgloss.Color("8"))
 	faint   = lipgloss.NewStyle().Faint(true).Foreground(lipgloss.Color("8"))

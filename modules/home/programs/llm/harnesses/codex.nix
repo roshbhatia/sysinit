@@ -17,7 +17,7 @@ let
 
   # codex sends to the endpoint verbatim and appends no signal path, unlike
   # every other OTLP client here. A bare 4318 makes it POST to `/`, which the
-  # collector answers with 404, so nothing codex emitted ever reached reel.
+  # collector answers with 404, so nothing codex emitted ever reached traces.
   otlpHttp = signal: {
     endpoint = "http://127.0.0.1:4318/v1/${signal}";
     protocol = "json";

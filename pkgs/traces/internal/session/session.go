@@ -10,7 +10,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/roshbhatia/sysinit/pkgs/reel/internal/otlp"
+	"github.com/roshbhatia/sysinit/pkgs/traces/internal/otlp"
 )
 
 type Role string
@@ -26,7 +26,7 @@ const (
 
 // Claude Code closes a turn's own span only when the turn ends, so its tool and
 // model children reach the collector first and stay parentless for minutes. The
-// parent id they carry is still a stable turn key, so reel groups on that id and
+// parent id they carry is still a stable turn key, so traces groups on that id and
 // fills in the real span later. These two spans say how a tool call went, which
 // belongs on the tool row rather than under it.
 var foldedInto = map[string]bool{
@@ -110,7 +110,7 @@ type Store struct {
 
 func NewStore() *Store { return &Store{sessions: map[string]*Session{}} }
 
-// Scope narrows the store to a set of session ids, which is how reel opens on
+// Scope narrows the store to a set of session ids, which is how traces opens on
 // the runs that belong to the reader's working directory rather than on
 // whichever run happens to be newest across the machine. An empty set is no
 // scope at all.

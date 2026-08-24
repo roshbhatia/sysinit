@@ -1,7 +1,7 @@
 // changes prints a diff the way a reviewer reads one: an eza shaped tree of
 // the touched files, each file's hunks grouped under the outline symbol that
 // owns them, and each symbol annotated with the call edges the edit added or
-// removed. It is the same renderer reel draws in its inspector, over git
+// removed. It is the same renderer traces draws in its inspector, over git
 // instead of over a trace.
 package main
 

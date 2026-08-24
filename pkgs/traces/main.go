@@ -1,9 +1,9 @@
-// reel shows an agent run as a folding trace tree, live, from the OTLP JSON
+// traces shows an agent run as a folding trace tree, live, from the OTLP JSON
 // the local collector writes. It attaches to a session that is already running,
 // the way you would attach to a log.
 //
 // A harness that cannot reach the local collector gets a provider, named by
-// REEL_PROVIDER or --provider. A provider is read as well as the file, not
+// TRACES_PROVIDER or --provider. A provider is read as well as the file, not
 // instead of it: on this machine one harness is redirected and four reach the
 // collector directly. See internal/source for what a provider has to print.
 package main
@@ -20,11 +20,11 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 
 	"github.com/roshbhatia/sysinit/pkgs/internal/paths"
-	"github.com/roshbhatia/sysinit/pkgs/reel/internal/attach"
-	"github.com/roshbhatia/sysinit/pkgs/reel/internal/otlp"
-	"github.com/roshbhatia/sysinit/pkgs/reel/internal/session"
-	"github.com/roshbhatia/sysinit/pkgs/reel/internal/source"
-	"github.com/roshbhatia/sysinit/pkgs/reel/internal/ui"
+	"github.com/roshbhatia/sysinit/pkgs/traces/internal/attach"
+	"github.com/roshbhatia/sysinit/pkgs/traces/internal/otlp"
+	"github.com/roshbhatia/sysinit/pkgs/traces/internal/session"
+	"github.com/roshbhatia/sysinit/pkgs/traces/internal/source"
+	"github.com/roshbhatia/sysinit/pkgs/traces/internal/ui"
 )
 
 func main() {
@@ -41,7 +41,7 @@ func main() {
 	service := flag.String("service", "", "keep only this service, by name or prefix")
 	flag.Parse()
 
-	// reel opens on the work in front of the reader. Inside an agent session
+	// traces opens on the work in front of the reader. Inside an agent session
 	// that is the session itself, and outside one it is whatever ran in this
 	// directory, which Claude Code already records per directory.
 	which := attached(*pinned, *all)
@@ -54,7 +54,7 @@ func main() {
 
 	provider, err := source.Resolve(*asked)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "reel: %v\n", err)
+		fmt.Fprintf(os.Stderr, "traces: %v\n", err)
 		os.Exit(1)
 	}
 	if provider != nil {
@@ -66,7 +66,7 @@ func main() {
 		path = paths.OtelTelemetry()
 	}
 	// A dash is the shell's own name for standard input, so a provider or a
-	// saved capture pipes straight in: `reel-observe --since 1h | reel --once`.
+	// saved capture pipes straight in: `traces-observe --since 1h | traces --once`.
 	if path == "-" {
 		path = ""
 	}
@@ -74,7 +74,7 @@ func main() {
 	// A provider adds to the collector's file rather than replacing it. Only
 	// one harness on this machine needs a provider, and goose, codex, opencode
 	// and copilot all reach the collector directly: reading one source meant
-	// `reel` showed the redirected harness and none of the others, and every
+	// `traces` showed the redirected harness and none of the others, and every
 	// look at the rest needed the variable unset by hand.
 	src := sources{path: path, provider: provider, back: *back, every: *every, lag: *lag, service: *service}
 
@@ -154,7 +154,7 @@ func (s sources) keep(in otlp.Batch) otlp.Batch {
 func (s sources) report(which string, scope []string, listing, asJSON bool) int {
 	batch, err := s.read()
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "reel: %v\n", err)
+		fmt.Fprintf(os.Stderr, "traces: %v\n", err)
 		return 1
 	}
 	if s.provider != nil {
@@ -164,7 +164,7 @@ func (s sources) report(which string, scope []string, listing, asJSON bool) int 
 		if err != nil {
 			// The file already answered, so a provider that cannot run costs
 			// its own harness and not the whole view.
-			fmt.Fprintf(os.Stderr, "reel: %v\n", err)
+			fmt.Fprintf(os.Stderr, "traces: %v\n", err)
 		} else {
 			batch.Spans = append(batch.Spans, read.Spans...)
 			batch.Records = append(batch.Records, read.Records...)
@@ -173,7 +173,7 @@ func (s sources) report(which string, scope []string, listing, asJSON bool) int 
 	batch = s.keep(batch)
 	if asJSON {
 		if err := source.Encode(os.Stdout, batch); err != nil {
-			fmt.Fprintf(os.Stderr, "reel: %v\n", err)
+			fmt.Fprintf(os.Stderr, "traces: %v\n", err)
 			return 1
 		}
 		return 0
@@ -190,7 +190,7 @@ func show(batch otlp.Batch, from, which string, scope []string, listing bool) in
 	store.AddRecords(batch.Records)
 
 	if listing {
-		fmt.Fprintf(os.Stderr, "reel: %d spans and %d records from %s\n", len(batch.Spans), len(batch.Records), from)
+		fmt.Fprintf(os.Stderr, "traces: %d spans and %d records from %s\n", len(batch.Spans), len(batch.Records), from)
 		for _, one := range store.Sessions() {
 			fmt.Printf("%-12s %-40s %5d spans  %s\n",
 				one.Service, one.Title(), one.Count, one.Last.Format("15:04:05"))
@@ -200,12 +200,12 @@ func show(batch otlp.Batch, from, which string, scope []string, listing bool) in
 
 	found := pick(store, which)
 	if found == nil {
-		fmt.Fprintln(os.Stderr, "reel: no session in "+from)
+		fmt.Fprintln(os.Stderr, "traces: no session in "+from)
 		return 1
 	}
 	ui.Print(os.Stdout, found)
 	// 2 for a run that holds a failed span, so a script can gate on it without
-	// reading the tree. 1 stays "reel could not answer", which is the ordinary
+	// reading the tree. 1 stays "traces could not answer", which is the ordinary
 	// meaning of 1 and the one a caller already handles.
 	if failed(found) {
 		return 2
@@ -313,7 +313,7 @@ func run(batches chan otlp.Batch, stop chan struct{}, which string, scope []stri
 	_, err := program.Run()
 	close(stop)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "reel: %v\n", err)
+		fmt.Fprintf(os.Stderr, "traces: %v\n", err)
 		return 1
 	}
 	return 0

@@ -13,7 +13,7 @@ const ellipsis = "…"
 
 // Every colour is an ANSI slot, so the terminal palette decides the hue and
 // the pane matches the rest of the session instead of fighting it. These
-// mirror reel's own theme, which is where this renderer came from.
+// mirror traces's own theme, which is where this renderer came from.
 var (
 	faint  = lipgloss.NewStyle().Faint(true).Foreground(lipgloss.Color("8"))
 	plain  = lipgloss.NewStyle().Foreground(lipgloss.Color("7"))
