@@ -124,13 +124,89 @@ func (s *Store) inScope(one *Session) bool {
 	return s.scope[one.ID]
 }
 
-// key puts every span of one agent run together. opencode emits no session id,
-// so its trace id stands in and each trace reads as its own run.
+// key puts every span of one agent run together. opencode and codex emit no
+// session id, so the trace id stands in and mergeRuns folds the pieces back.
 func key(span otlp.Span) string {
 	if span.Session != "" {
 		return span.Service + "/" + span.Session
 	}
 	return span.Service + "/trace/" + span.TraceID
+}
+
+// A harness with no run identity is recovered from the shape a run has: a
+// burst. Measured on codex 0.149.0, one `codex exec` produced 350 spans over 14
+// traces, and nothing tied them together. `thread_id` was on 2 spans of the
+// 350, `turn.id` on 3, and the resource carried no service.instance.id, so no
+// attribute could do it.
+//
+// 30s is longer than any gap inside the measured run and shorter than the time
+// between two runs a reader would call separate.
+const runGap = 30 * time.Second
+
+// mergeRuns folds the trace-keyed sessions of one service into runs. A session
+// that carries its own id is never touched: claude and goose both name the run
+// themselves, and guessing over a stated fact would be worse than not guessing.
+func mergeRuns(in []*Session) []*Session {
+	loose := map[string][]*Session{}
+	out := []*Session{}
+	for _, one := range in {
+		if one.ID != "" {
+			out = append(out, one)
+			continue
+		}
+		loose[one.Service] = append(loose[one.Service], one)
+	}
+
+	for service, list := range loose {
+		sort.Slice(list, func(a, b int) bool { return list[a].First.Before(list[b].First) })
+		var run *Session
+		for _, one := range list {
+			if run != nil && one.First.Sub(run.Last) <= runGap {
+				run.absorb(one)
+				continue
+			}
+			run = one.clone(service)
+			out = append(out, run)
+		}
+	}
+	return out
+}
+
+// clone copies a session so a merge never mutates what the store holds. The
+// store is read again on the next poll, and a merged session would otherwise
+// keep growing across polls.
+func (s *Session) clone(service string) *Session {
+	out := &Session{
+		Key:     s.Key,
+		Service: service,
+		First:   s.First,
+		Last:    s.Last,
+		Count:   s.Count,
+		spans:   make(map[string]otlp.Span, len(s.spans)),
+		prompts: append([]otlp.Record{}, s.prompts...),
+		dirty:   true,
+	}
+	for id, span := range s.spans {
+		out.spans[id] = span
+	}
+	return out
+}
+
+func (s *Session) absorb(other *Session) {
+	for id, span := range other.spans {
+		if _, seen := s.spans[id]; !seen {
+			s.Count++
+		}
+		s.spans[id] = span
+	}
+	s.prompts = append(s.prompts, other.prompts...)
+	if other.First.Before(s.First) {
+		s.First = other.First
+	}
+	if other.Last.After(s.Last) {
+		s.Last = other.Last
+	}
+	s.dirty = true
 }
 
 func (s *Store) Add(spans []otlp.Span) {
@@ -173,6 +249,10 @@ func (s *Store) Sessions() []*Session {
 			continue
 		}
 		out = append(out, one)
+	}
+	out = mergeRuns(out)
+	for _, one := range out {
+		one.rebuild()
 	}
 	// A harness without a session.id gets one fallback session per trace, and
 	// opencode emits dozens of 1-span traces per run. Rank those below the real
