@@ -82,9 +82,8 @@ func number(attrs map[string]string, keys ...string) int {
 	return 0
 }
 
-// rowOf derives one row. at and took are percentages of the whole run, so the
-// waterfall stays comparable when the run grows.
-func rowOf(node *session.Node, depth int, first time.Time, span time.Duration) row {
+// rowOf derives one row.
+func rowOf(node *session.Node, depth int) row {
 	k := kindOf(node)
 	attrs := node.Span.Attrs
 
@@ -126,21 +125,7 @@ func rowOf(node *session.Node, depth int, first time.Time, span time.Duration) r
 	if out.preview == out.label || strings.HasPrefix(out.preview, out.label) {
 		out.preview = strings.TrimSpace(strings.TrimPrefix(out.preview, out.label))
 	}
-	if span > 0 {
-		out.at = clampPct(int(node.Span.Start.Sub(first) * 100 / span))
-		out.took = max(1, clampPct(int(node.Duration()*100/span)))
-	}
 	return out
-}
-
-func clampPct(n int) int {
-	if n < 0 {
-		return 0
-	}
-	if n > 100 {
-		return 100
-	}
-	return n
 }
 
 // preview is the one line of text under the label. The attribute that carries

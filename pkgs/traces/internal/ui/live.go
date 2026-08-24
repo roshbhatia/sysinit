@@ -98,9 +98,7 @@ const (
 	metaTight = tokenCol + timeCol + 2
 	actorCol  = 12
 	minTextW  = 26
-	minTrackW = 12
-	maxTextW  = 104
-	maxTrackW = 72
+	maxTextW  = 148
 )
 
 // Every field is named at the call site below. The first draft used positional
@@ -115,8 +113,6 @@ type row struct {
 	in      int    // input tokens billed to this span, cache reads included
 	out     int    // output tokens
 	ms      int    // wall time of this span alone
-	at      int    // start, as a percent of the trace
-	took    int    // width, as a percent of the trace
 	src     string // where a hook is configured; empty on every other kind
 	add     int    // lines added by this span
 	del     int    // lines removed
@@ -262,7 +258,7 @@ func (m *Model) walk(node *session.Node, depth int, first time.Time, span time.D
 	if query != "" {
 		at = 0
 	}
-	m.rows = append(m.rows, rowOf(node, at, first, span))
+	m.rows = append(m.rows, rowOf(node, at))
 	for _, kid := range node.Children {
 		m.walk(kid, depth+1, first, span, query)
 	}
@@ -1035,63 +1031,48 @@ func clipWord(s string, width int) string {
 	return strings.TrimRight(head, " ") + gl.ell
 }
 
-// columns holds the text column still and gives the leftover to the track,
-// which is the inverse of the first draft. Jaeger and otel-tui both fix the
-// label column and let the timeline stretch; the other way round opens a dead
-// band that grows with the terminal.
+// columns splits the row between the label, the preview and the numbers. A
+// gantt track stood to the right of the numbers through several drafts. It
+// measured the same thing as the time column beside it, and it cost up to 72
+// cells to say it, so the preview is where those cells went instead.
 // The actor column is the first thing dropped when the pane narrows. The guide
 // tree still carries the nesting, so a narrow frame loses the least here.
-func columns(width int) (actor, text, meta, track int) {
+func (m Model) columns(width int) (actor, text, meta int) {
 	if width < 1 {
-		return 0, 0, 0, 0
+		return 0, 0, 0
 	}
-	if width < minTextW+minTrackW+metaTight+2 {
-		return 0, width, 0, 0
+	if width < minTextW+metaTight+1 {
+		return 0, width, 0
 	}
-	if width >= actorCol+1+minTextW+minTrackW+metaCol+2+20 {
+	if width >= actorCol+1+minTextW+metaCol+2+20 {
 		actor = actorCol
 	}
 	// The diff cell is the first of the three to go. Tokens and time answer a
-	// question every row has an answer to; churn only applies to a write.
+	// question every row has an answer to; churn only applies to a write, and a
+	// Claude Code trace carries none at all: 11 columns of header over 11
+	// columns of blank, on every row.
 	meta = metaTight
-	if width >= minTextW+minTrackW+metaCol+2+actor {
+	if m.churny() && width >= minTextW+metaCol+2+actor {
 		meta = metaCol
 	}
-	rest := width - actor - meta - 2
+	text = width - actor - meta - 1
 	if actor > 0 {
-		rest--
+		text--
 	}
-	text = rest * 3 / 5
 	if text > maxTextW {
 		text = maxTextW
-	}
-	track = rest - text
-	if track > maxTrackW {
-		track = maxTrackW
-		text = rest - track
-	}
-	if track < minTrackW {
-		track = minTrackW
-		text = rest - track
-	}
-	if text < minTextW {
-		text = minTextW
-		track = rest - text
 	}
 	if text < 1 {
 		text = 1
 	}
-	if track < 0 {
-		track = 0
-	}
-	return actor, text, meta, track
+	return actor, text, meta
 }
 
 // prefixWidth is the cell count before the label starts: the cursor bar, the
 // state gutter, one space, and the actor column when it is on screen. rowLines,
 // treeHead and onWedge all have to agree on it.
-func prefixWidth(width int) int {
-	actor, _, _, _ := columns(width)
+func (m Model) prefixWidth(width int) int {
+	actor, _, _ := m.columns(width)
 	if actor > 0 {
 		return 3 + actor + 1
 	}
@@ -1107,6 +1088,19 @@ func prefixWidth(width int) int {
 // a run of bare span names spends nothing on an empty column and a run of shell
 // commands still reads. Both are computed from the visible rows, so the split
 // is stable while the reader scrolls and moves only when the content does.
+// churny reports whether any visible row moved a line. The diff cell is drawn
+// for the whole tree or for none of it, because a column that appears when the
+// filter changes moves every other column with it.
+func (m Model) churny() bool {
+	for _, idx := range m.visible() {
+		r := m.rows[idx]
+		if r.add > 0 || r.del > 0 || r.files > 0 {
+			return true
+		}
+	}
+	return false
+}
+
 func (m Model) textSplit(text int) (label, preview int) {
 	floor := 10
 	switch {
@@ -1204,10 +1198,9 @@ func (m Model) diffCell(idx, width int) string {
 	return rightFit(cell, width)
 }
 
-// Left to right the three cells read as one sentence about the row: what it
-// changed, what it cost, how long it took. Time sits last because the gantt
-// track to its right measures the same thing, and a number next to the bar it
-// scales is one glance, not two.
+// Left to right the cells read as one sentence about the row: what it changed,
+// what it cost, how long it took. Time sits last because it is the fact a
+// reader scans down the column for, and the column ends at the frame edge.
 func (m Model) metaCell(idx, width int) string {
 	r := m.rows[idx]
 	tok := tokens(m.rollup(idx))
@@ -1226,54 +1219,6 @@ func (m Model) metaCell(idx, width int) string {
 	}
 	return cell + rightFit(style.Render(tok), tokenCol) + "  " +
 		rightFit(style.Render(span), max(0, width-tokenCol-2))
-}
-
-// gantt inks only the run itself. Drawing the off portion as dashes cost more
-// glyphs than the row's own text carried, and read as a horizontal rule.
-func gantt(width, at, took int, style lipgloss.Style) string {
-	if width < 1 {
-		return ""
-	}
-	if took <= 0 {
-		return strings.Repeat(" ", width)
-	}
-	start := at * width / 100
-	if start >= width {
-		start = width - 1
-	}
-	length := took * width / 100
-	body := ""
-	if length < 1 {
-		// Below one cell the bar cannot be proportional, so it says "a point
-		// here" rather than pretending to a length it does not have.
-		body, length = style.Render(gl.tick), 1
-	} else {
-		if start+length > width {
-			length = width - start
-		}
-		body = style.Render(strings.Repeat(gl.fill, length))
-	}
-	return strings.Repeat(" ", start) + body + strings.Repeat(" ", width-start-length)
-}
-
-func axis(width int, total string) string {
-	if width < 1 {
-		return ""
-	}
-	cells := make([]string, width)
-	for i := range cells {
-		cells[i] = " "
-	}
-	for i := 0; i < width; i += 10 {
-		cells[i] = gl.tick
-	}
-	cells[0] = "0"
-	if lbl := []rune(total); len(lbl)+2 <= width {
-		for i, r := range lbl {
-			cells[width-len(lbl)+i] = string(r)
-		}
-	}
-	return strings.Join(cells, "")
 }
 
 // The gutter marks a span that is still open. A failure needs no glyph here: the
@@ -1383,26 +1328,11 @@ func actorStyle(actor string) lipgloss.Style {
 	}
 }
 
-// Colour answers one question only: red failed, cyan is still going, green
-// finished clean. It rides the gutter and the gantt bar, and takes over the
-// label too on a failure, so a failed row reads as failed end to end.
-func (m Model) outcome(idx int, r row) lipgloss.Style {
-	switch {
-	case r.fail:
-		return bad
-	case m.running(idx):
-		return accent
-	default:
-		return live
-	}
-}
-
 func (m Model) rowLines(vi, idx, width int) []string {
 	r := m.rows[idx]
-	actorW, textW, metaW, trackW := columns(width)
+	actorW, textW, metaW := m.columns(width)
 	labelW, prevW := m.textSplit(textW)
 	style := roleStyle(roleOf[r.kind])
-	stat := m.outcome(idx, r)
 	if r.fail {
 		style = bad
 	}
@@ -1425,15 +1355,6 @@ func (m Model) rowLines(vi, idx, width int) []string {
 	if metaW > 0 {
 		line += " " + m.metaCell(idx, metaW)
 	}
-	if trackW > 0 {
-		track := strings.Repeat(" ", trackW)
-		// A turn always spans its own whole duration, so a full width bar on
-		// every turn row carries no information and outshouts the real ones.
-		if r.kind != kindTurn {
-			track = gantt(trackW, r.at, r.took, stat)
-		}
-		line += " " + track
-	}
 
 	if vi == m.cursor {
 		rule := m.cursorRule(width)
@@ -1449,7 +1370,7 @@ func (m Model) cursorRule(width int) string {
 }
 
 func (m Model) treeHead(width int) string {
-	actorW, textW, metaW, trackW := columns(width)
+	actorW, textW, metaW := m.columns(width)
 	labelW, prevW := m.textSplit(textW)
 	line := "   "
 	if actorW > 0 {
@@ -1464,9 +1385,6 @@ func (m Model) treeHead(width int) string {
 			"  " + rightFit("time", timeCol)
 	} else if metaW > 0 {
 		line += " " + rightFit("tokens", tokenCol) + "  " + rightFit("time", metaW-tokenCol-2)
-	}
-	if trackW > 0 {
-		line += " " + axis(trackW, m.runFor())
 	}
 	return faint.Render(fit(line, width))
 }
@@ -1632,7 +1550,9 @@ func (m Model) tabBody(r row) string {
 		// A turn's text is its prompt, whole and unclipped: the row above it
 		// already showed the one line that fits there.
 		fmt.Fprintf(b, "%s\n", r.prompt())
-	case kindPrompt, kindThink, kindSub, kindTeam:
+	case kindPrompt, kindThink:
+		b.WriteString(modelBody(r))
+	case kindSub, kindTeam:
 		fmt.Fprintf(b, "%s\n", r.preview)
 	case kindHook:
 		cmd, out, _ := strings.Cut(r.preview, "  ->  ")
@@ -1655,6 +1575,61 @@ func (m Model) tabBody(r row) string {
 		fmt.Fprintf(b, "\n> **failed** after %s\n", duration(time.Duration(r.ms)*time.Millisecond))
 	}
 	return b.String()
+}
+
+// modelBody answers the question a model row raises and cannot answer with a
+// preview line: what did this call produce? No harness exports the reply text,
+// so the honest answer is the stop reason plus the shape of the call, and the
+// tool rows that follow in the tree are the reply's visible half.
+func modelBody(r row) string {
+	attrs := map[string]string{}
+	if r.node != nil {
+		attrs = r.node.Span.Attrs
+	}
+	b := &strings.Builder{}
+	if r.preview != "" {
+		fmt.Fprintf(b, "%s\n\n", r.preview)
+	}
+	b.WriteString("| what | value |\n| --- | --- |\n")
+	row := func(k, v string) {
+		if v != "" {
+			fmt.Fprintf(b, "| %s | %s |\n", k, v)
+		}
+	}
+	row("model", first(attrs, "gen_ai.request.model", "model"))
+	row("stop reason", first(attrs, "stop_reason", "gen_ai.response.finish_reasons"))
+	// The three input counters are one number in the row's token column, and
+	// that number is misleading on its own: a 900k input is almost all cache.
+	row("fresh input", num(attrs, "input_tokens"))
+	row("cached input", num(attrs, "cache_read_tokens"))
+	row("cache written", num(attrs, "cache_creation_tokens"))
+	row("output", num(attrs, "output_tokens"))
+	if ms := number(attrs, "ttft_ms"); ms > 0 {
+		row("first token", duration(time.Duration(ms)*time.Millisecond))
+	}
+	if r.ms > 0 {
+		row("total", duration(time.Duration(r.ms)*time.Millisecond))
+	}
+	row("request", first(attrs, "request_id", "gen_ai.response.id"))
+	b.WriteString("\nClaude Code exports no response text, so the reply itself is not here.\n" +
+		"On a `tool_use` stop the tool rows below this one are what the call asked for.\n")
+	return b.String()
+}
+
+func first(attrs map[string]string, keys ...string) string {
+	for _, k := range keys {
+		if v := attrs[k]; v != "" {
+			return v
+		}
+	}
+	return ""
+}
+
+func num(attrs map[string]string, key string) string {
+	if attrs[key] == "" {
+		return ""
+	}
+	return fmt.Sprintf("%d", number(attrs, key))
 }
 
 func (m Model) tabAttrs(r row) string {
@@ -1952,7 +1927,7 @@ func (m Model) View() string {
 		return m.head() + "\n\n" + faint.Render(waiting) + "\n\n" + m.footer()
 	}
 	inner := max(1, m.treeWidth()-2)
-	tree := box(fmt.Sprintf("trace  %d shown of %d", len(m.visible()), len(m.rows)),
+	tree := box(fmt.Sprintf("trace  %d shown of %d  \u00b7  %s", len(m.visible()), len(m.rows), m.runFor()),
 		inner, m.treeHead(inner)+"\n"+m.treeBody(inner, m.bodyHeight()))
 
 	main := tree
@@ -2016,7 +1991,7 @@ func (m Model) onWedge(vi, x int) bool {
 	if !m.rows[idx].parent {
 		return false
 	}
-	wedge := m.treeLeft() + 1 + prefixWidth(m.treeWidth()) + 2*m.rows[idx].depth
+	wedge := m.treeLeft() + 1 + m.prefixWidth(m.treeWidth()) + 2*m.rows[idx].depth
 	return x >= wedge && x <= wedge+1
 }
 
@@ -2238,9 +2213,8 @@ func (m *Model) markAll() {
 	m.status = fmt.Sprintf("%d rows marked", len(m.rows))
 }
 
-// runFor is the attached run's own length, which the waterfall is scaled to.
-// The axis printed a literal "7m42s" until this existed: the fixture's duration,
-// shown over every session whatever its length.
+// runFor is the attached run's own length. It titles the tree box, which is the
+// one place the whole run is described; every row's own time is its own column.
 func (m Model) runFor() string {
 	if m.current == nil {
 		return "0s"

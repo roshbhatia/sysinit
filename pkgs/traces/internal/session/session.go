@@ -450,7 +450,7 @@ func describe(span otlp.Span) *Node {
 		node.Role, node.Label = RoleTurn, "turn"
 	case "claude_code.llm_request":
 		node.Role, node.Label = RoleModel, model(span.Attrs)
-		node.Note = tokens(span.Attrs)
+		node.Note = produced(span.Attrs)
 	case "claude_code.tool":
 		node.Label = span.Attrs["tool_name"]
 		if node.Label == "" {
@@ -491,6 +491,56 @@ func model(attrs map[string]string) string {
 		parts = parts[:len(parts)-1]
 	}
 	return strings.Join(parts, "-")
+}
+
+// produced says what the call did, because no harness exports the reply text
+// and a token pair does not answer the reader's question. The stop reason does:
+// it separates the call that answered the reader from the call that went off to
+// run a tool. ttft is the wait the reader actually felt; duration_ms is already
+// its own column.
+func produced(attrs map[string]string) string {
+	stop := attrs["stop_reason"]
+	if stop == "" {
+		stop = attrs["gen_ai.response.finish_reasons"]
+	}
+	parts := []string{}
+	switch stop {
+	case "tool_use":
+		parts = append(parts, "called a tool")
+	case "end_turn":
+		parts = append(parts, "replied")
+	case "max_tokens":
+		parts = append(parts, "hit the output cap")
+	case "stop_sequence":
+		parts = append(parts, "hit a stop sequence")
+	case "refusal":
+		parts = append(parts, "refused")
+	case "":
+	default:
+		parts = append(parts, stop)
+	}
+	if ms := count(attrs["ttft_ms"]); ms > 0 {
+		parts = append(parts, fmt.Sprintf("first token %s", brief(time.Duration(ms)*time.Millisecond)))
+	}
+	// An attempt above the first means the call was retried, which shows up
+	// nowhere else: the retry and the original share a span name and a model.
+	if n := count(attrs["attempt"]); n > 1 {
+		parts = append(parts, fmt.Sprintf("attempt %d", n))
+	}
+	return strings.Join(parts, " \u00b7 ")
+}
+
+// brief is the duration format the note uses. The row's own time column has a
+// wider one; here the string shares a cell with two other facts.
+func brief(d time.Duration) string {
+	switch {
+	case d >= time.Minute:
+		return fmt.Sprintf("%dm%ds", int(d.Minutes()), int(d.Seconds())%60)
+	case d >= time.Second:
+		return fmt.Sprintf("%.1fs", d.Seconds())
+	default:
+		return fmt.Sprintf("%dms", d.Milliseconds())
+	}
 }
 
 // Claude Code reports input_tokens as 2 on a model call and puts the real read
