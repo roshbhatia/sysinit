@@ -8,7 +8,7 @@ let
 
     src = ../pkgs;
 
-    vendorHash = "sha256-V7U2KE4pt8Q4Lk+F0ekDkgV4pUM/yK6myiOmG0FWLHQ=";
+    vendorHash = "sha256-EOg+81XREEckJekm0YePGZsrPbuP8EZnCknP1p+Oacc=";
 
     # No tests in this repository, so the check phase would run nothing.
     doCheck = false;
