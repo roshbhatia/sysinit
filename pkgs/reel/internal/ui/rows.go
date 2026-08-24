@@ -38,10 +38,11 @@ func kindOf(node *session.Node) kind {
 		return kindMCP
 	case strings.HasPrefix(node.Label, "/") || strings.Contains(name, "skill"):
 		return kindSkill
-	case node.Role == session.RoleTool:
-		return kindTool
 	}
-	return kindHook
+	// Anything left is a plain step. It was kindHook, which made every amp HTTP
+	// fetch read as `@hook` in the actor column and print "configured in ``" in
+	// the inspector.
+	return kindTool
 }
 
 // actorOf names who ran the row. A hook and a delegated subagent are the two
@@ -99,15 +100,17 @@ func rowOf(node *session.Node, depth int, first time.Time, span time.Duration) r
 		actor:   actorOf(node, k),
 		label:   label,
 		preview: node.Note,
-		in:      number(attrs, "input_tokens", "gen_ai.usage.input_tokens"),
-		out:     number(attrs, "output_tokens", "gen_ai.usage.output_tokens"),
-		ms:      int(node.Duration() / time.Millisecond),
-		src:     attrs["hook.source"],
-		add:     number(attrs, "lines_added", "add"),
-		del:     number(attrs, "lines_removed", "del"),
-		files:   number(attrs, "files_changed", "files"),
-		fail:    node.Span.Failed,
-		parent:  len(node.Children) > 0,
+		in: number(attrs, "input_tokens", "gen_ai.usage.input_tokens") +
+			number(attrs, "cache_read_tokens") +
+			number(attrs, "cache_creation_tokens"),
+		out:    number(attrs, "output_tokens", "gen_ai.usage.output_tokens"),
+		ms:     int(node.Duration() / time.Millisecond),
+		src:    attrs["hook.source"],
+		add:    number(attrs, "lines_added", "add"),
+		del:    number(attrs, "lines_removed", "del"),
+		files:  number(attrs, "files_changed", "files"),
+		fail:   node.Span.Failed,
+		parent: len(node.Children) > 0,
 	}
 	// A turn's text is its prompt, which arrives as a log record. Without it a
 	// turn row reads "open" and says nothing about what was asked.
@@ -116,6 +119,12 @@ func rowOf(node *session.Node, depth int, first time.Time, span time.Duration) r
 	}
 	if out.preview == "" {
 		out.preview = preview(node)
+	}
+	// The span column already carries the label, so a preview that repeats it
+	// spends the widest column on a second copy. Every codex row read `auth`
+	// beside `auth`, and every amp row read `fetch /api/…` beside the same URL.
+	if out.preview == out.label || strings.HasPrefix(out.preview, out.label) {
+		out.preview = strings.TrimSpace(strings.TrimPrefix(out.preview, out.label))
 	}
 	if span > 0 {
 		out.at = clampPct(int(node.Span.Start.Sub(first) * 100 / span))

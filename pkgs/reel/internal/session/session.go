@@ -4,7 +4,9 @@
 package session
 
 import (
+	"fmt"
 	"sort"
+	"strconv"
 	"strings"
 	"time"
 
@@ -83,8 +85,18 @@ func (s *Session) Title() string {
 	return s.Key
 }
 
+// Short names the run in a header. A session that carries its own id is cut to
+// 8 characters of it. A trace-keyed one is cut to the last 8 of the trace: the
+// first 8 are the service name repeated, which read as "amp.cli amp.cli/".
 func (s *Session) Short() string {
 	title := s.Title()
+	if at := strings.LastIndex(title, "/"); at >= 0 {
+		title = title[at+1:]
+		if len(title) > 8 {
+			return title[len(title)-8:]
+		}
+		return title
+	}
 	if len(title) > 8 {
 		return title[:8]
 	}
@@ -481,16 +493,29 @@ func model(attrs map[string]string) string {
 	return strings.Join(parts, "-")
 }
 
+// Claude Code reports input_tokens as 2 on a model call and puts the real read
+// in the cache counters: one measured call read 914181 cached tokens against an
+// input_tokens of 2. Reporting the bare field said the turn read 2 tokens.
 func tokens(attrs map[string]string) string {
-	in, out := attrs["input_tokens"], attrs["output_tokens"]
-	if in == "" && out == "" {
+	in := count(attrs["input_tokens"]) + count(attrs["cache_read_tokens"]) + count(attrs["cache_creation_tokens"])
+	out := count(attrs["output_tokens"])
+	if in == 0 && out == 0 {
 		return ""
 	}
-	if in == "" {
-		in = "0"
+	return fmt.Sprintf("%d in / %d out", in, out)
+}
+
+func count(text string) int {
+	if text == "" {
+		return 0
 	}
-	if out == "" {
-		out = "0"
+	if n, err := strconv.Atoi(text); err == nil {
+		return n
 	}
-	return in + " in / " + out + " out"
+	// A count arrives as a float when the source is Observe, because JSON has
+	// one number type.
+	if f, err := strconv.ParseFloat(text, 64); err == nil {
+		return int(f)
+	}
+	return 0
 }

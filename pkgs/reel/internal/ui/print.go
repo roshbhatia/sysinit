@@ -24,13 +24,26 @@ func printKids(out io.Writer, node *session.Node, prefix string) {
 		if at == len(node.Children)-1 {
 			branch, tail = "└─ ", "   "
 		}
-		note := kid.Note
-		if note != "" {
-			note = "  " + note
-		}
-		fmt.Fprintf(out, "%s%s%s  %s%s\n", prefix, branch, kid.Label, duration(kid.Duration()), note)
+		fmt.Fprintf(out, "%s%s%s  %s%s\n", prefix, branch, kid.Label, duration(kid.Duration()), say(kid))
 		printKids(out, kid, prefix+tail)
 	}
+}
+
+// say is the one line of text under a row, cut to fit a terminal beside the
+// label and the duration. The printed tree carried only Note, so every Bash row
+// read as a bare "Bash" while the TUI showed the command it ran.
+func say(node *session.Node) string {
+	text := oneLine(node.Note)
+	if arg := preview(node); arg != "" && arg != node.Label {
+		text = arg
+	}
+	if text == "" {
+		return ""
+	}
+	if len(text) > 64 {
+		text = text[:63] + "…"
+	}
+	return "  " + text
 }
 
 // ask is the turn's prompt, cut to one line. A whole prompt would bury the

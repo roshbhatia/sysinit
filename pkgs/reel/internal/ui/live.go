@@ -254,7 +254,15 @@ func (m *Model) walk(node *session.Node, depth int, first time.Time, span time.D
 	if !matches(node, query) {
 		return
 	}
-	m.rows = append(m.rows, rowOf(node, depth, first, span))
+	// A filter hides the ancestors that gave a depth its meaning, and the guide
+	// column then eats the label: a depth-8 row rendered as `╎ ╎    ╎  …` with
+	// no name in it. A filtered row is drawn flat, because what is left is a
+	// list of hits rather than a tree.
+	at := depth
+	if query != "" {
+		at = 0
+	}
+	m.rows = append(m.rows, rowOf(node, at, first, span))
 	for _, kid := range node.Children {
 		m.walk(kid, depth+1, first, span, query)
 	}
@@ -1090,22 +1098,46 @@ func prefixWidth(width int) int {
 	return 3
 }
 
-// The label column is fixed so the preview always starts at the same screen
-// column. Letting the label run free makes the preview budget a residual, and
-// at 120 columns that shrank one preview to 14 characters.
-func labelWidth(text int) int {
+// The two text columns are measured, not shared by a constant. The label was a
+// fixed 22 whatever the rows held, so `list_tools_for_client_uncached` clipped
+// to `list_tools_for_clie…` beside a preview column that was empty on all 27
+// rows.
+//
+// The preview takes what its widest row needs and the label takes the rest, so
+// a run of bare span names spends nothing on an empty column and a run of shell
+// commands still reads. Both are computed from the visible rows, so the split
+// is stable while the reader scrolls and moves only when the content does.
+func (m Model) textSplit(text int) (label, preview int) {
+	floor := 10
 	switch {
 	case text >= 56:
-		return 22
+		floor = 22
 	case text >= 40:
-		return 16
-	default:
-		return 10
+		floor = 16
 	}
-}
 
-func previewWidth(text int) int {
-	return max(0, text-labelWidth(text)-4)
+	wantLabel, wantPreview := 0, 0
+	for _, idx := range m.visible() {
+		r := m.rows[idx]
+		if w := lipgloss.Width(r.label) + lipgloss.Width(m.guide(idx)); w > wantLabel {
+			wantLabel = w
+		}
+		if w := lipgloss.Width(r.preview); w > wantPreview {
+			wantPreview = w
+		}
+	}
+
+	preview = min(wantPreview, max(0, text-floor-4))
+	label = max(floor, text-preview-4)
+	if label > text-4 {
+		label = max(1, text-4)
+	}
+	// A label wider than it needs pushes the preview off the right edge for no
+	// gain, so it never takes more than its widest row.
+	if wantLabel > 0 && label > wantLabel {
+		label = max(floor, wantLabel)
+	}
+	return label, max(0, text-label-4)
 }
 
 // tokens reads at a glance down a column, so it trades exactness for a fixed
@@ -1368,8 +1400,7 @@ func (m Model) outcome(idx int, r row) lipgloss.Style {
 func (m Model) rowLines(vi, idx, width int) []string {
 	r := m.rows[idx]
 	actorW, textW, metaW, trackW := columns(width)
-	labelW := labelWidth(textW)
-	prevW := previewWidth(textW)
+	labelW, prevW := m.textSplit(textW)
 	style := roleStyle(roleOf[r.kind])
 	stat := m.outcome(idx, r)
 	if r.fail {
@@ -1419,8 +1450,7 @@ func (m Model) cursorRule(width int) string {
 
 func (m Model) treeHead(width int) string {
 	actorW, textW, metaW, trackW := columns(width)
-	labelW := labelWidth(textW)
-	prevW := previewWidth(textW)
+	labelW, prevW := m.textSplit(textW)
 	line := "   "
 	if actorW > 0 {
 		line += fit("actor", actorW) + " "
@@ -1436,7 +1466,7 @@ func (m Model) treeHead(width int) string {
 		line += " " + rightFit("tokens", tokenCol) + "  " + rightFit("time", metaW-tokenCol-2)
 	}
 	if trackW > 0 {
-		line += " " + axis(trackW, "7m42s")
+		line += " " + axis(trackW, m.runFor())
 	}
 	return faint.Render(fit(line, width))
 }
@@ -1606,7 +1636,10 @@ func (m Model) tabBody(r row) string {
 		fmt.Fprintf(b, "%s\n", r.preview)
 	case kindHook:
 		cmd, out, _ := strings.Cut(r.preview, "  ->  ")
-		fmt.Fprintf(b, "configured in `%s`\n\n```sh\n%s\n```\n", r.src, cmd)
+		if r.src != "" {
+			fmt.Fprintf(b, "configured in `%s`\n\n", r.src)
+		}
+		fmt.Fprintf(b, "```sh\n%s\n```\n", cmd)
 		if out != "" {
 			fmt.Fprintf(b, "\n```text\n%s\n```\n", out)
 		}
@@ -2203,4 +2236,14 @@ func (m *Model) markAll() {
 		m.marks[m.idOf(i)] = true
 	}
 	m.status = fmt.Sprintf("%d rows marked", len(m.rows))
+}
+
+// runFor is the attached run's own length, which the waterfall is scaled to.
+// The axis printed a literal "7m42s" until this existed: the fixture's duration,
+// shown over every session whatever its length.
+func (m Model) runFor() string {
+	if m.current == nil {
+		return "0s"
+	}
+	return duration(m.current.Last.Sub(m.current.First))
 }
