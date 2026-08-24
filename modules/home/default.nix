@@ -46,9 +46,14 @@ in
       GIT_DISCOVERY_ACROSS_FILESYSTEM = "1";
       BUILDX_EXPERIMENTAL = "1";
 
-      # prose-gate gets this from its own wrapper. It is here so a bare `vale`
-      # finds the same rule set, and so the audit config next to it is reachable
-      # as "$(dirname "$SYSINIT_PROSE_STYLE")/vale-audit.ini".
+      # prose-gate gets this from its own wrapper. It is here so the audit
+      # config next to it is reachable as
+      # "$(dirname "$SYSINIT_PROSE_STYLE")/vale-audit.ini".
+      #
+      # It does NOT make a bare `vale` find the rule set, which an earlier
+      # comment here claimed: vale reads ~/.vale.ini and never this variable.
+      # That gap is why another session wrote its own Sysinit style by hand.
+      # `home.file.".vale.ini"` below closes it.
       SYSINIT_PROSE_STYLE = "${pkgs.vale-styles}/vale.ini";
       NODE_NO_WARNINGS = 1;
       NODE_TLS_REJECT_UNAUTHORIZED = 0;
@@ -56,6 +61,20 @@ in
     // (values.environment or { });
 
     shellAliases = shellLib.aliases;
+
+    # A bare `vale` reads this and nothing else, so without it the rule set this
+    # repository states was unreachable outside the hook. It points at the audit
+    # config: a person linting a doc by hand wants the suggestion floor and the
+    # borrowed styles, where the hook wants the error floor and neither.
+    #
+    # The hook passes --no-global, so this file can never redefine the gate. That
+    # separation is deliberate: a hand-written Sysinit style under
+    # ~/.local/share/vale/styles once replaced all 22 rules with 12 of its own,
+    # and the hook reported their messages with no sign the set had changed.
+    file.".vale.ini" = {
+      source = "${pkgs.vale-styles}/vale-audit.ini";
+      force = true;
+    };
 
     activation.setBash = lib.hm.dag.entryBefore [ "checkLinkTargets" ] ''
       export PATH="${pkgs.bashInteractive}/bin:$PATH"

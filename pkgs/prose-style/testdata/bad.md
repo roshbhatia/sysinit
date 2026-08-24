@@ -32,3 +32,12 @@ Fixed it — the overlay is clean.
 - **label** the detail
 
 This sentence is deliberately long enough to trip the sentence length rule because it keeps adding clauses well past the twenty five word ceiling that the gate enforces.
+
+The real question is whether it ships. Make no mistake, here's the thing.
+
+This document describes the plan. In this section, as we can see, the result holds.
+
+> [!NOTE]
+> A callout block.
+
+A rocket 🚀 shipped.

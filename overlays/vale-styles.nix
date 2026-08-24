@@ -78,8 +78,13 @@ in
         for name in $(cue export -e 'strings.Join([for k, _ in rules {k}], "\n")' --out text "$rules"); do
           cue export -e "rules.$name" --out yaml "$rules" > "$out/styles/Sysinit/$name.yml"
         done
-        cue export -e 'ini' --out text "$rules" > "$out/vale.ini"
-        cue export -e 'auditIni' --out text "$rules" > "$out/vale-audit.ini"
+        # The placeholder becomes this derivation's own styles directory. Only
+        # the build knows $out, and only an absolute path survives a hook that
+        # runs from an arbitrary working directory.
+        cue export -e 'ini' --out text "$rules" \
+          | sed "s|@STYLES@|$out/styles|" > "$out/vale.ini"
+        cue export -e 'auditIni' --out text "$rules" \
+          | sed "s|@STYLES@|$out/styles|" > "$out/vale-audit.ini"
 
         ${lib.concatMapStringsSep "\n" (style: ''
           unzip -q ${fetch style} -d "$out/styles"

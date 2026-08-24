@@ -75,7 +75,7 @@ rules: {
 			name: "replace"
 			params: [": "]
 		}
-		raw: ["[ \\t]*—[ \\t]*"]
+		raw: ["[ \\t]*[—–][ \\t]*"]
 	}
 
 	// A comma, a colon, or a new sentence carries the same break without the
@@ -95,7 +95,7 @@ rules: {
 			name: "replace"
 			params: [", "]
 		}
-		raw: ["[ \\t]*—[ \\t]*"]
+		raw: ["[ \\t]*[—–][ \\t]*"]
 	}
 
 	// Markdown markup is stripped in the default scope, so this one reads the
@@ -214,7 +214,7 @@ rules: {
 	HedgeBeforeClaim: #Existence & {
 		message: "hedge before the claim: make the claim and defend it"
 		level:   "error"
-		raw: ["(?i)(it'?s worth (noting|considering|mentioning|remembering)|it is worth (noting|considering|mentioning|remembering)|this is nuanced|it could be argued|i should note that)"]
+		raw: ["(?i)(it'?s worth (noting|considering|mentioning|remembering)|it is worth (noting|considering|mentioning|remembering)|this is nuanced|it could be argued|i should note that|it seems|\\bperhaps\\b|\\bsomewhat\\b|more or less|in some sense)"]
 	}
 
 	// Announcing the plan instead of reporting the result. Claude Code's built-in
@@ -249,13 +249,13 @@ rules: {
 	SignificanceInflation: #Existence & {
 		message: "significance inflation: say what happened, and when"
 		level:   "error"
-		raw: ["(?i)\\b(pivotal|a significant shift|a broader movement|game.changer)\\b"]
+		raw: ["(?i)\\b(pivotal|a significant shift|a broader movement|a paradigm shift|fundamentally (changes|transforms)|sea change|watershed)\\b"]
 	}
 
 	MarketingVerb: #Existence & {
 		message: "marketing verb: use a concrete verb"
 		level:   "error"
-		raw: ["(?i)\\b(seamless(ly)?|effortless(ly)?|leverage[sd]?|unlock(s|ed)?|empower(s|ed)?|robust(ly)?|comprehensive(ly)?|streamline[sd]?|delve[sd]?|showcase[sd]?|foster(s|ed)?)\\b"]
+		raw: ["(?i)\\b(seamless(ly)?|effortless(ly)?|leverage[sd]?|unlock(s|ed)?|empower(s|ed)?|robust(ly)?|comprehensive(ly)?|powerful|best.in.class|game.chang(er|ing)|streamline[sd]?|delve[sd]?|showcase[sd]?|foster(s|ed)?)\\b"]
 	}
 
 	// The rule's own instruction is to delete the clause, so the whole match
@@ -267,7 +267,7 @@ rules: {
 			name: "edit"
 			params: ["regex", "^.*$", "."]
 		}
-		raw: ["(?i),\\s+(reflecting|underscoring|highlighting|showcasing|demonstrating)\\s+[^.]*\\."]
+		raw: ["(?i),\\s+(reflecting|underscoring|highlighting|showcasing|demonstrating|signaling|cementing)\\s+[^.]*\\."]
 	}
 
 	// Ported from conorbronsdon/avoid-ai-writing's Tier 1A frequency markers.
@@ -389,6 +389,44 @@ rules: {
 		raw: ["(?i)\\b(could|may|might|would)\\s+(potentially|possibly|conceivably|arguably)\\b"]
 	}
 
+	// The four rules below came from a hand-written Sysinit style another session
+	// wrote under ~/.local/share/vale/styles, because a bare `vale` on this
+	// machine found no config at all. It derived them from the writing-tone
+	// skill and the output style, which is the same source this file has, and it
+	// covered four patterns this file did not.
+	//
+	// A callout box and an emoji are both stated bans that nothing enforced.
+	CalloutBox: #Existence & {
+		message: "callout block: put the content in the prose, or cut it"
+		level:   "error"
+		scope:   "raw"
+		raw: ["(?m)<callout|^> \\[!(NOTE|TIP|WARNING|IMPORTANT|CAUTION)\\]"]
+	}
+
+	Emoji: #Existence & {
+		message: "emoji: remove it"
+		level:   "error"
+		scope:   "raw"
+		raw: ["[\\x{1F300}-\\x{1FAFF}\\x{2600}-\\x{27BF}\\x{2B00}-\\x{2BFF}\\x{FE0F}]"]
+	}
+
+	// A label announcing the shape of the next clause, in place of the clause.
+	// The output style names the sandwich ending and the hedge before the claim;
+	// this is the same move at the head of a sentence.
+	RhetoricalLabel: #Existence & {
+		message: "rhetorical label: delete the label and state the thing"
+		level:   "error"
+		raw: ["(?i)\\b(the asymmetry(:| is)|the irony (is|here)|what this really means|the real question|the thing is|here.s the (thing|rub|kicker)|make no mistake|let.s be clear|the bottom line is that)\\b"]
+	}
+
+	// FillerOpener covers the chat openers. This covers the document ones, which
+	// a doc or a PR body reaches for instead.
+	DocPreamble: #Existence & {
+		message: "preamble: start with the substance"
+		level:   "error"
+		raw: ["(?i)\\b(this document (describes|outlines|covers|presents)|this (section|page) (describes|outlines|will)|in this section|as (we|you) can see|it is important to (note|understand)|in order to better)\\b"]
+	}
+
 	SentenceLength: #Occurrence & {
 		message: "sentence over 25 words: split it"
 		level:   "error"
@@ -448,8 +486,11 @@ promotedIni: strings.Join([for k, v in promoted {"\(k) = \(v)"}], "\n")
 //
 // A rule absent from this list is untested. Add the line and the case together.
 covered: [
+	"CalloutBox",
+	"DocPreamble",
 	"DueToTheFactThat",
 	"EmDash",
+	"Emoji",
 	"EmphasisInBullet",
 	"FillerOpener",
 	"FrequencyMarker",
@@ -460,6 +501,7 @@ covered: [
 	"MarketingVerb",
 	"Narration",
 	"NegativeParallelism",
+	"RhetoricalLabel",
 	"SentenceLength",
 	"SignificanceInflation",
 	"Transition",
@@ -471,6 +513,17 @@ coveredList: strings.Join(covered, "\n")
 // The promoted rule names, for the build's existence check.
 promotedList: strings.Join([for k, _ in promoted {k}], "\n")
 
+// Both configs carry a placeholder for the styles directory, which the
+// derivation replaces with its own absolute `$out/styles`.
+//
+// A relative `StylesPath = styles` was silently wrong. Vale resolves it against
+// the working directory, and the hook runs from wherever the session is, so the
+// path never existed and vale fell back to its user default at
+// ~/.local/share/vale/styles. A hand-written Sysinit style left there by another
+// session then won, and the hook ran 12 foreign rules instead of these. The
+// build's own check missed it because the derivation does `cd "$out"` first.
+stylesPlaceholder: "@STYLES@"
+
 // Two configs, because the two jobs want different noise floors.
 //
 // The hook config is Sysinit plus the six rules in `promoted`. prose-gate spends
@@ -478,7 +531,7 @@ promotedList: strings.Join([for k, _ in promoted {k}], "\n")
 // repository actually decided. proselint and write-good are advisory by design
 // and would block most replies, so neither style goes in wholesale.
 ini: """
-	StylesPath = styles
+	StylesPath = \(stylesPlaceholder)
 	MinAlertLevel = error
 
 	[*.md]
@@ -491,7 +544,7 @@ ini: """
 //   vale --config=$(dirname "$SYSINIT_PROSE_STYLE")/vale-audit.ini <path>
 // which is where a slow, chatty, advisory pass belongs.
 auditIni: """
-	StylesPath = styles
+	StylesPath = \(stylesPlaceholder)
 	MinAlertLevel = suggestion
 
 	[*.md]
