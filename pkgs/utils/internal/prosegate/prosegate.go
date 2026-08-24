@@ -210,8 +210,19 @@ func alerts(text string) []valeAlert {
 		return nil
 	}
 
+	// A malformed rule makes vale print one E-code line and lint nothing, and
+	// `--no-exit` keeps its status 0. Read as "no alerts" that silently
+	// disabled every check: one invalid key on one rule turned the whole gate
+	// into a pass. Measured on vale 3.17.1 with an unsupported `tokenIgnores`
+	// key, which printed `E201:has invalid keys` and zero alerts.
+	//
+	// The reply still goes through, because a broken rule set is the
+	// repository's fault and not the reader's. The warning is what makes it
+	// visible instead of silent.
 	var byFile map[string][]valeAlert
 	if json.Unmarshal(out, &byFile) != nil {
+		fmt.Fprintf(os.Stderr, "prose-gate: vale returned no alert set, so nothing was checked: %s\n",
+			strings.TrimSpace(firstLine(string(out))))
 		return nil
 	}
 	var all []valeAlert
@@ -459,4 +470,13 @@ func Run(args []string) int {
 		fmt.Fprint(os.Stderr, usage)
 		return 2
 	}
+}
+
+// firstLine keeps the warning to one line. Vale's config errors are one line
+// each and the first names the rule.
+func firstLine(text string) string {
+	if at := strings.IndexByte(text, '\n'); at >= 0 {
+		return text[:at]
+	}
+	return text
 }
