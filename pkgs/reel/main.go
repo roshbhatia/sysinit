@@ -1,16 +1,17 @@
 // reel shows an agent run as a folding trace tree, live, from the OTLP JSON
 // the local collector writes. It attaches to a session that is already running,
 // the way you would attach to a log.
+//
+// A machine whose harness cannot reach the local collector points reel at a
+// provider instead, with REEL_PROVIDER or --provider. See internal/source for
+// what a provider has to print.
 package main
 
 import (
 	"context"
-	"encoding/json"
 	"flag"
 	"fmt"
 	"os"
-	"path/filepath"
-	"strings"
 	"time"
 
 	tea "github.com/charmbracelet/bubbletea"
@@ -18,6 +19,7 @@ import (
 	"github.com/roshbhatia/sysinit/pkgs/internal/paths"
 	"github.com/roshbhatia/sysinit/pkgs/reel/internal/otlp"
 	"github.com/roshbhatia/sysinit/pkgs/reel/internal/session"
+	"github.com/roshbhatia/sysinit/pkgs/reel/internal/source"
 	"github.com/roshbhatia/sysinit/pkgs/reel/internal/ui"
 )
 
@@ -27,10 +29,10 @@ func main() {
 	list := flag.Bool("list", false, "list the sessions and exit")
 	once := flag.Bool("once", false, "print the tree once and exit")
 	mock := flag.Bool("mockup", false, "browse the candidate layouts over a fixed fixture")
-	fromObserve := flag.Bool("observe", false, "read spans back from Observe instead of the collector file")
-	email := flag.String("email", "", "with -observe, whose spans to read (default: git user.email)")
-	back := flag.Duration("since", 2*time.Hour, "with -observe, how far back the first read reaches")
-	every := flag.Duration("poll", 15*time.Second, "with -observe, how often to re-read")
+	asked := flag.String("provider", "", "read spans from this provider instead of the file (default: $"+source.Env+")")
+	back := flag.Duration("since", 2*time.Hour, "with a provider, how far back the first read reaches")
+	every := flag.Duration("poll", 15*time.Second, "with a provider, how often to re-read")
+	lag := flag.Duration("lag", 90*time.Second, "with a provider, how much every poll overlaps the last")
 	flag.Parse()
 
 	if *mock {
@@ -40,15 +42,18 @@ func main() {
 		}
 		return
 	}
-	if *fromObserve {
-		src := otlp.Observe{
-			Email:   accountEmail(*email),
-			Session: *which,
-		}
+
+	provider, err := source.Resolve(*asked)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "reel: %v\n", err)
+		os.Exit(1)
+	}
+	if provider != nil {
+		provider.Session = *which
 		if *list || *once {
-			os.Exit(reportObserve(src, *back, *list))
+			os.Exit(reportProvider(*provider, *back, *which, *list))
 		}
-		os.Exit(watchObserve(src, *which, *every, *back))
+		os.Exit(watchProvider(*provider, *which, *every, *back, *lag))
 	}
 
 	path := *file
@@ -68,10 +73,29 @@ func report(path, which string, listing bool) int {
 		fmt.Fprintf(os.Stderr, "reel: %v\n", err)
 		return 1
 	}
+	return show(spans, path, which, listing)
+}
+
+func reportProvider(p source.Provider, back time.Duration, which string, listing bool) int {
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Minute)
+	defer cancel()
+
+	spans, err := p.Fetch(ctx, back)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "reel: %v\n", err)
+		return 1
+	}
+	return show(spans, p.Name, which, listing)
+}
+
+// show is the non-interactive half of both sources, so a provider prints the
+// same list and the same tree the file does.
+func show(spans []otlp.Span, from, which string, listing bool) int {
 	store := session.NewStore()
 	store.Add(spans)
 
 	if listing {
+		fmt.Fprintf(os.Stderr, "reel: %d spans from %s\n", len(spans), from)
 		for _, one := range store.Sessions() {
 			fmt.Printf("%-12s %-40s %5d spans  %s\n",
 				one.Service, one.Title(), one.Count, one.Last.Format("15:04:05"))
@@ -81,7 +105,7 @@ func report(path, which string, listing bool) int {
 
 	found := pick(store, which)
 	if found == nil {
-		fmt.Fprintln(os.Stderr, "reel: no session in "+path)
+		fmt.Fprintln(os.Stderr, "reel: no session in "+from)
 		return 1
 	}
 	ui.Print(os.Stdout, found)
@@ -103,92 +127,21 @@ func watch(path, which string) int {
 	stop := make(chan struct{})
 	batches := make(chan []otlp.Span, 32)
 	go otlp.Follow(path, 400*time.Millisecond, batches, stop)
-
-	program := tea.NewProgram(
-		ui.New(session.NewStore(), which, path),
-		tea.WithAltScreen(),
-	)
-	// Follow owns its own goroutine, so the spans arrive as messages rather
-	// than as a blocking read inside Update.
-	go func() {
-		for batch := range batches {
-			program.Send(ui.SpansMsg(batch))
-		}
-	}()
-
-	_, err := program.Run()
-	close(stop)
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "reel: %v\n", err)
-		return 1
-	}
-	return 0
+	return run(batches, stop, which, path)
 }
 
-// The datastream is shared across the organization, so a read with no owner
-// would draw other people's sessions. The spans carry the Claude Code account's
-// email, which ~/.claude.json already records; the git email is a different
-// identity and in a personal repository it is the wrong one.
-func accountEmail(given string) string {
-	if given != "" {
-		return given
-	}
-	home, err := os.UserHomeDir()
-	if err != nil {
-		return ""
-	}
-	blob, err := os.ReadFile(filepath.Join(home, ".claude.json"))
-	if err != nil {
-		return ""
-	}
-	var held struct {
-		OAuthAccount struct {
-			EmailAddress string `json:"emailAddress"`
-		} `json:"oauthAccount"`
-	}
-	if json.Unmarshal(blob, &held) != nil {
-		return ""
-	}
-	return strings.TrimSpace(held.OAuthAccount.EmailAddress)
-}
-
-func reportObserve(src otlp.Observe, back time.Duration, listing bool) int {
-	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Minute)
-	defer cancel()
-
-	spans, err := src.Fetch(ctx, back)
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "reel: %v\n", err)
-		return 1
-	}
-	store := session.NewStore()
-	store.Add(spans)
-
-	if listing {
-		fmt.Fprintf(os.Stderr, "reel: %d spans from %s\n", len(spans), otlp.ObserveDataset)
-		for _, one := range store.Sessions() {
-			fmt.Printf("%-12s %-40s %5d spans  %s\n",
-				one.Service, one.Title(), one.Count, one.Last.Format("15:04:05"))
-		}
-		return 0
-	}
-
-	found := pick(store, src.Session)
-	if found == nil {
-		fmt.Fprintln(os.Stderr, "reel: no session in "+otlp.ObserveDataset)
-		return 1
-	}
-	ui.Print(os.Stdout, found)
-	return 0
-}
-
-func watchObserve(src otlp.Observe, which string, every, back time.Duration) int {
+func watchProvider(p source.Provider, which string, every, back, lag time.Duration) int {
 	stop := make(chan struct{})
 	batches := make(chan []otlp.Span, 32)
-	go otlp.FollowObserve(src, every, back, batches, stop)
+	go source.Follow(p, every, back, lag, batches, stop)
+	return run(batches, stop, which, p.Name)
+}
 
+// run owns the program either way. Follow owns its own goroutine, so the spans
+// arrive as messages rather than as a blocking read inside Update.
+func run(batches chan []otlp.Span, stop chan struct{}, which, from string) int {
 	program := tea.NewProgram(
-		ui.New(session.NewStore(), which, otlp.ObserveDataset),
+		ui.New(session.NewStore(), which, from),
 		tea.WithAltScreen(),
 	)
 	go func() {

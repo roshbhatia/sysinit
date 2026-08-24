@@ -19,7 +19,7 @@ pkgs/
     workspace/      the declared boundary, and the repositories under it
   ask/              main package + ask/internal/
   changes/          main package + changes/internal/
-  reel/             main package + reel/internal/
+  reel/             main package + reel/internal/  (source/ holds the provider contract)
   seshy/            main package + seshy/internal/
   specutil/         cmd/specutil + specutil/internal/
   utils/            main package + utils/internal/

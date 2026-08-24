@@ -93,6 +93,10 @@ type request struct {
 	} `json:"resourceSpans"`
 }
 
+// Stamp is exported because a provider source parses the same nanosecond
+// strings, and two copies of this would drift.
+func Stamp(nanos string) time.Time { return stamp(nanos) }
+
 func stamp(nanos string) time.Time {
 	count, err := strconv.ParseInt(nanos, 10, 64)
 	if err != nil {
