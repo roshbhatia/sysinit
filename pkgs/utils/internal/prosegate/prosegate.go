@@ -180,6 +180,20 @@ type valeAlert struct {
 	Severity string `json:"Severity"`
 	Match    string `json:"Match"`
 	Line     int    `json:"Line"`
+	Span     []int  `json:"Span"`
+}
+
+// at is the alert's position, for deduplication. Two rules that own one span
+// are one fault.
+func (a valeAlert) at() [3]int {
+	from, to := 0, 0
+	if len(a.Span) > 0 {
+		from = a.Span[0]
+	}
+	if len(a.Span) > 1 {
+		to = a.Span[1]
+	}
+	return [3]int{a.Line, from, to}
 }
 
 // stylePath names the vale config. The Nix wrapper sets it; a developer running
@@ -243,7 +257,7 @@ func alerts(text string) []valeAlert {
 // list, because the block is judged on the raw reply and the fix list is built
 // from what the applier could not repair.
 func findings(text string) []valeAlert {
-	found := alerts(text)
+	found := oneAlertPerSpan(alerts(text))
 	// One tell is a slip, and spending the user's turn on a slip is worse than
 	// letting it through.
 	if len(found) <= maxTells {
@@ -427,7 +441,10 @@ func lint(stdin io.Reader) int {
 	// lint reports every alert. check spends the user's turn on what it reports,
 	// so it stays quiet until there is more than one, and the two counts differ
 	// on purpose.
-	all := alerts(string(data))
+	// The same dedupe `findings` applies, so `lint` reports the number that
+	// actually decides the block. Without it the operator-facing command and
+	// the gate disagreed: a heading em-dash read as 2 in lint and 1 in check.
+	all := oneAlertPerSpan(alerts(string(data)))
 	for _, a := range all {
 		fmt.Printf("  - %s: %q (line %d) [%s]\n", a.Message, a.Match, a.Line, a.Check)
 	}
@@ -521,4 +538,26 @@ var valeDirective = regexp.MustCompile(`(?is)<!--\s*vale\b.*?-->`)
 
 func undirect(text string) string {
 	return valeDirective.ReplaceAllString(text, "")
+}
+
+// oneAlertPerSpan keeps the first alert on each span. Two rules can own one
+// slip, and counting both spent two tells on one fault: every em-dash in a
+// heading matched DashInHeading and EmDash on the same span, so it always
+// reached maxTells and always blocked. Measured over 1805 real replies, all 81
+// heading-dash alerts were such a pair.
+//
+// The first alert wins because `alerts` returns vale's order, and
+// `prose-gate fix` already breaks a same-span tie by rule name for the same
+// reason.
+func oneAlertPerSpan(in []valeAlert) []valeAlert {
+	seen := make(map[[3]int]bool, len(in))
+	out := make([]valeAlert, 0, len(in))
+	for _, one := range in {
+		if seen[one.at()] {
+			continue
+		}
+		seen[one.at()] = true
+		out = append(out, one)
+	}
+	return out
 }
