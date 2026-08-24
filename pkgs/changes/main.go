@@ -37,6 +37,7 @@ Flags:
 
 func main() {
 	staged := flag.Bool("staged", false, "compare the index rather than the working tree")
+	since := flag.String("since", "", "compare against the tree as of a time or a revision, e.g. \"2 hours ago\" or HEAD~3")
 	watch := flag.Bool("watch", false, "reprint whenever the diff changes")
 	flag.BoolVar(watch, "w", false, "shorthand for -watch")
 	every := flag.Duration("interval", 700*time.Millisecond, "how often -watch re-reads the diff")
@@ -83,6 +84,15 @@ func main() {
 	// to mean one thing across the whole render.
 	root := roots[0]
 	from, to, paths := split(root, flag.Args())
+	if *since != "" {
+		if from != "" {
+			fail(fmt.Errorf("-since and a revision argument both name the left side"))
+		}
+		from = source.Revision(root, *since)
+		if from == "" {
+			fail(fmt.Errorf("-since %q resolves to no commit before HEAD: it is not a revision, and git read it as now", *since))
+		}
+	}
 	// git resolves a pathspec against the process cwd, and every command here
 	// runs at the repository root, so a relative path from a subdirectory would
 	// silently match nothing.

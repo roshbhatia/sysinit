@@ -65,3 +65,34 @@ func IsRev(dir, s string) bool {
 	}
 	return git.Succeeds(dir, "rev-parse", "--verify", "--quiet", s+"^{object}")
 }
+
+// Revision resolves the left side of a comparison from either a revision or a
+// time. git already reads both, so this asks git rather than parsing: a name it
+// knows as a tree wins, and anything else goes to `rev-list -1 --before`, which
+// takes "2 hours ago", "yesterday" and "2026-08-01" alike.
+//
+// The two are one flag because a reader asking "what changed since lunch" and
+// one asking "what changed since that commit" want the same answer shape, and
+// making them pick the right flag first is friction with no payoff.
+func Revision(dir, since string) string {
+	if IsRev(dir, since) {
+		return since
+	}
+	// --before with no committish walks nothing, so HEAD names the branch to
+	// walk back along.
+	out, err := git.Output(dir, "rev-list", "-1", "--before="+since, "HEAD")
+	if err != nil {
+		return ""
+	}
+	at := strings.TrimSpace(out)
+
+	// git reads an unparseable date as "now" rather than failing, so
+	// `--since "not a thing"` resolved to HEAD and quietly became the default
+	// comparison. A window that lands on HEAD carries no window, whether the
+	// value was garbage or a second ago, so both are refused here.
+	head, err := git.Output(dir, "rev-parse", "HEAD")
+	if err == nil && at == strings.TrimSpace(head) {
+		return ""
+	}
+	return at
+}
