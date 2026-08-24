@@ -110,6 +110,7 @@ in
         upbound
 
         acp-amp
+        changes
         claude-agent-acp
         codex-acp
         copilot-language-server

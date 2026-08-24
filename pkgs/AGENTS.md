@@ -2,7 +2,7 @@
 
 Read this before changing anything under `pkgs/`.
 
-## One module, four tools
+## One module, six tools
 
 `pkgs/go.mod` declares `github.com/roshbhatia/sysinit/pkgs`. Every Go tool here
 is a directory inside it, not a module of its own. There is one `go.sum` and one
@@ -15,7 +15,10 @@ pkgs/
     paths/          XDG homes and the sysinit paths manifest
     git/            one git exec wrapper, with the env scrub
     ui/             ANSI colors and stderr messages
+    diffview/       a diff drawn as a symbol tree, with call edges
   ask/              main package + ask/internal/
+  changes/          main package + changes/internal/
+  reel/             main package + reel/internal/
   seshy/            main package + seshy/internal/
   specutil/         cmd/specutil + specutil/internal/
   utils/            main package + utils/internal/
@@ -39,12 +42,22 @@ that is what produced four copies of the same fallback.
 inherited one silently retargets a command that already names its repository.
 Call `git.Output` rather than `exec.Command("git", ...)`.
 
+`diffview` renders a unified diff. It owns the join between three layers that
+each carry a file and a line: git for the moved lines, an outline for the
+symbol ranges, and a call graph for the edges the edit added or removed. It
+reads no tool itself, so `changes` feeds it ast-grep and calldiff while reel's
+mockup feeds it fixtures.
+
 ## Build
 
-`overlays/sysinit-gotools.nix` builds the whole module once as `sysinit-gotools`, then
-publishes `seshy`, `specutil`, `ask`, and `sysinit-utils` as symlink or wrapper
-selections over its `bin/`. A change to any tool rebuilds all four, which takes
-seconds.
+`overlays/sysinit-gotools.nix` builds the whole module once as `sysinit-gotools`,
+then publishes each tool as a symlink or wrapper selection over its `bin/`. A
+change to any tool rebuilds every one of them, which takes seconds.
+
+A tool that shells out to another binary is wrapped rather than symlinked, so
+its PATH is declared instead of inherited. `changes` needs git, ast-grep and
+calldiff; without them its layers drop out silently, which is the worst kind of
+missing dependency.
 
 This repository has no Go tests. `overlays/sysinit-gotools.nix` sets
 `doCheck = false`, so `go build` is the only gate. `hack/lint.sh` does not run

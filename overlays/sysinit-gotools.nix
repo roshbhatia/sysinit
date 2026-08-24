@@ -63,6 +63,33 @@ in
     };
   };
 
+  changes =
+    let
+      # Each of the three is one layer of the view. Without ast-grep the hunks
+      # stop grouping under their symbol, and without calldiff the symbol rows
+      # lose their call counts, both silently. The wrapper is what keeps a
+      # caller's PATH from deciding how much of the view renders.
+      runtimePath = final.lib.makeBinPath [
+        final.git
+        final.ast-grep
+        final.calldiff
+      ];
+    in
+    final.runCommand "changes-${sysinit-gotools.version}"
+      {
+        nativeBuildInputs = [ final.makeBinaryWrapper ];
+        meta = {
+          description = "A diff read as a symbol tree, with the call edges the edit moved";
+          mainProgram = "changes";
+          platforms = final.lib.platforms.unix;
+        };
+      }
+      ''
+        mkdir -p "$out/bin"
+        makeWrapper "${sysinit-gotools}/bin/changes" "$out/bin/changes" \
+          --prefix PATH : "${runtimePath}"
+      '';
+
   reel = select {
     pname = "reel";
     binary = "reel";
