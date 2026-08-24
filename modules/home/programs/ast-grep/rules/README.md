@@ -11,7 +11,7 @@ repository-only rules live in `.ast-grep/rules/`.
 
 ## Admission rules
 
-A rule earns a place here only if all three hold.
+A rule belongs here only if all three hold.
 
 1. It is correct. The pattern was run against a fixture that should match and
    one that should not.

@@ -51,3 +51,7 @@ The period is load bearing, and the keen landscape of best practices is actionab
 A myriad of crucial, compelling parts unleash an unprecedented result.
 
 The integration of the intersection of community-driven user engagement.
+
+The period on etc. is load bearing.
+
+Three existing rules own them, and a second rule on one span spends two tells.

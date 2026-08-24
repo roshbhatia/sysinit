@@ -62,7 +62,7 @@
 <!-- A Rollout phase is exempt from the shape and adversarial-review rules. It
      sequences the impactful actions behind their gates.
 
-     Gate on judgment, not on distrust. A precondition a command decides is not
+     Gate on judgment, not on distrust. A precondition a command resolves is not
      a gate: name the command on the Apply line. A Confirm task states the
      judgment only a human can make, and there is normally one per action. -->
 

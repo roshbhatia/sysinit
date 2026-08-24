@@ -65,7 +65,7 @@ in
     # A bare `vale` reads this and nothing else, so without it the rule set this
     # repository states was unreachable outside the hook. It points at the audit
     # config: a person linting a doc by hand wants the suggestion floor and the
-    # borrowed styles, where the hook wants the error floor and neither.
+    # borrowed styles. The hook runs at the error floor with neither.
     #
     # The hook passes --no-global, so this file can never redefine the gate. That
     # separation is deliberate: a hand-written Sysinit style under

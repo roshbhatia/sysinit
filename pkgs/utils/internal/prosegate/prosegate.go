@@ -106,7 +106,7 @@ func arm(session string) {
 // when a prompt ends in "noterse". Here the injection is only half the gate, so
 // the word has to reach the Stop hook as well: a reminder the user opted out of,
 // followed by a block for the style they opted out of, is worse than neither.
-// remind writes the marker and check spends it, so the escape lasts one turn.
+// remind writes the marker and check clears it, so the escape lasts one turn.
 func escapePath(session string) string {
 	path := armPath(session)
 	if path == "" {
@@ -316,7 +316,7 @@ carries the answer better than a sentence.`)
 	return b.String()
 }
 
-// Check decides whether the reply is sent back. It is the whole prose-gate
+// Check reports whether the reply is sent back. It is the whole prose-gate
 // decision, with no harness in it.
 func Check(stdin io.Reader) hookfmt.Outcome {
 	if os.Getenv("SYSINIT_PROSE_GATE") == "off" {
@@ -445,9 +445,8 @@ func lint(stdin io.Reader) int {
 		fmt.Fprintln(os.Stderr, "prose-gate: SYSINIT_PROSE_STYLE is unset, so nothing was checked")
 		return 2
 	}
-	// lint reports every alert. check spends the user's turn on what it reports,
-	// so it stays quiet until there is more than one, and the two counts differ
-	// on purpose.
+	// lint reports every alert. A block costs the user a turn, so check stays
+	// quiet until there is more than one, and the two counts differ on purpose.
 	// The same dedupe `findings` applies, so `lint` reports the number that
 	// actually decides the block. Without it the operator-facing command and
 	// the gate disagreed: a heading em-dash read as 2 in lint and 1 in check.

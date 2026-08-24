@@ -493,6 +493,20 @@ rules: {
 		raw: ["(?i)\\b(the integration of|the intersection of|community.driven|long.term sustainability|user engagement|emerging (sector|space)|designed for long.term)\\b"]
 	}
 
+	// Code given intentions or possessions. Slop.Anthropomorphism covers the
+	// obvious half, "the parser wants a newline" and "vale decides to", and
+	// misses the half this repository writes: a rule that owns a token, a check
+	// that spends a turn, a rule that earns its line.
+	//
+	// Measured 6 hits over the tracked files and every one is mine, in a comment
+	// I wrote. `reader` and `writer` are deliberately absent from the subject
+	// list, because both are people and a person may want something.
+	CodeAgency: #Existence & {
+		message: "code has no intent: state the behaviour"
+		level:   "error"
+		raw: ["(?i)\\b(rules?|parsers?|gates?|hooks?|checks?|linters?|derivations?|overlays?|binar(y|ies)|commands?|tools?|configs?|styles?|regexe?s?|patterns?|spans?|builds?|scripts?|wrappers?|exporters?|collectors?|providers?)\\s+(owns?|wants?|prefers?|decides?|knows?|likes?|cares?|refuses?|insists?|earns?|buys?|spends?|chooses?|expects?)\\b"]
+	}
+
 	SentenceLength: #Occurrence & {
 		message: "sentence over 25 words: split it"
 		level:   "error"
@@ -602,6 +616,7 @@ promotedIni: strings.Join([for k, v in promoted {"\(k) = \(v)"}], "\n")
 // A rule absent from this list is untested. Add the line and the case together.
 covered: [
 	"CalloutBox",
+	"CodeAgency",
 	"DocPreamble",
 	"DueToTheFactThat",
 	"EmDash",
