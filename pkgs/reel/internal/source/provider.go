@@ -1,6 +1,7 @@
 // Package source reads spans from wherever this machine keeps them. The
-// collector's file is the default, and a provider binary is the escape hatch
-// for a machine whose harness exports somewhere reel cannot reach.
+// collector's file is always read, and a provider binary is the escape hatch
+// for the harness whose export is redirected somewhere reel cannot reach. Both
+// are read together, because one machine can have both kinds at once.
 //
 // A provider is any executable that prints newline delimited JSON on stdout and
 // exits. One line is one span:

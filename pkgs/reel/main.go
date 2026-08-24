@@ -2,9 +2,10 @@
 // the local collector writes. It attaches to a session that is already running,
 // the way you would attach to a log.
 //
-// A machine whose harness cannot reach the local collector points reel at a
-// provider instead, with REEL_PROVIDER or --provider. See internal/source for
-// what a provider has to print.
+// A harness that cannot reach the local collector gets a provider, named by
+// REEL_PROVIDER or --provider. A provider is read as well as the file, not
+// instead of it: on this machine one harness is redirected and four reach the
+// collector directly. See internal/source for what a provider has to print.
 package main
 
 import (
@@ -29,7 +30,7 @@ func main() {
 	pinned := flag.String("session", "", "attach to this session, by id or prefix")
 	list := flag.Bool("list", false, "list the sessions and exit")
 	once := flag.Bool("once", false, "print the tree once and exit")
-	asked := flag.String("provider", "", "read spans from this provider instead of the file (default: $"+source.Env+")")
+	asked := flag.String("provider", "", "read this provider as well as the collector file (default: $"+source.Env+")")
 	back := flag.Duration("since", 2*time.Hour, "with a provider, how far back the first read reaches")
 	every := flag.Duration("poll", 15*time.Second, "with a provider, how often to re-read")
 	lag := flag.Duration("lag", 90*time.Second, "with a provider, how much every poll overlaps the last")
@@ -54,10 +55,6 @@ func main() {
 	}
 	if provider != nil {
 		provider.Session = which
-		if *list || *once {
-			os.Exit(reportProvider(*provider, *back, which, scope, *list))
-		}
-		os.Exit(watchProvider(*provider, which, scope, *every, *back, *lag))
 	}
 
 	path := *file
@@ -65,10 +62,17 @@ func main() {
 		path = paths.OtelTelemetry()
 	}
 
+	// A provider adds to the collector's file rather than replacing it. Only
+	// one harness on this machine needs a provider, and goose, codex, opencode
+	// and copilot all reach the collector directly: reading one source meant
+	// `reel` showed the redirected harness and none of the others, and every
+	// look at the rest needed the variable unset by hand.
+	src := sources{path: path, provider: provider, back: *back, every: *every, lag: *lag}
+
 	if *list || *once {
-		os.Exit(report(path, which, scope, *list))
+		os.Exit(src.report(which, scope, *list))
 	}
-	os.Exit(watch(path, which, scope))
+	os.Exit(src.watch(which, scope))
 }
 
 // attached names the run to open. A flag wins, then the session this process
@@ -83,25 +87,44 @@ func attached(pinned string, all bool) string {
 	return attach.Current()
 }
 
-func report(path, which string, scope []string, listing bool) int {
-	batch, err := otlp.ReadAll(path)
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "reel: %v\n", err)
-		return 1
-	}
-	return show(batch, path, which, scope, listing)
+// sources is every place this machine keeps spans.
+type sources struct {
+	path     string
+	provider *source.Provider
+	back     time.Duration
+	every    time.Duration
+	lag      time.Duration
 }
 
-func reportProvider(p source.Provider, back time.Duration, which string, scope []string, listing bool) int {
-	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Minute)
-	defer cancel()
+// name says what the frame is reading, so an empty view names the source that
+// was empty rather than leaving the reader to guess which one.
+func (s sources) name() string {
+	if s.provider == nil {
+		return s.path
+	}
+	return s.path + " and " + s.provider.Name
+}
 
-	batch, err := p.Fetch(ctx, back)
+func (s sources) report(which string, scope []string, listing bool) int {
+	batch, err := otlp.ReadAll(s.path)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "reel: %v\n", err)
 		return 1
 	}
-	return show(batch, p.Name, which, scope, listing)
+	if s.provider != nil {
+		ctx, cancel := context.WithTimeout(context.Background(), 3*time.Minute)
+		read, err := s.provider.Fetch(ctx, s.back)
+		cancel()
+		if err != nil {
+			// The file already answered, so a provider that cannot run costs
+			// its own harness and not the whole view.
+			fmt.Fprintf(os.Stderr, "reel: %v\n", err)
+		} else {
+			batch.Spans = append(batch.Spans, read.Spans...)
+			batch.Records = append(batch.Records, read.Records...)
+		}
+	}
+	return show(batch, s.name(), which, scope, listing)
 }
 
 // show is the non-interactive half of both sources, so a provider prints the
@@ -141,18 +164,43 @@ func pick(store *session.Store, which string) *session.Session {
 	return all[0]
 }
 
-func watch(path, which string, scope []string) int {
+// watch follows every source at once. Each writes into the same channel, and
+// the file's own closer is the one that ends it: a provider poll is slow and
+// the file is the source that is always present.
+func (s sources) watch(which string, scope []string) int {
 	stop := make(chan struct{})
 	batches := make(chan otlp.Batch, 32)
-	go otlp.Follow(path, 400*time.Millisecond, batches, stop)
-	return run(batches, stop, which, scope, path)
-}
 
-func watchProvider(p source.Provider, which string, scope []string, every, back, lag time.Duration) int {
-	stop := make(chan struct{})
-	batches := make(chan otlp.Batch, 32)
-	go source.Follow(p, every, back, lag, batches, stop)
-	return run(batches, stop, which, scope, p.Name)
+	fromFile := make(chan otlp.Batch, 32)
+	go otlp.Follow(s.path, 400*time.Millisecond, fromFile, stop)
+
+	var fromProvider chan otlp.Batch
+	if s.provider != nil {
+		fromProvider = make(chan otlp.Batch, 32)
+		go source.Follow(*s.provider, s.every, s.back, s.lag, fromProvider, stop)
+	}
+
+	go func() {
+		defer close(batches)
+		for fromFile != nil || fromProvider != nil {
+			select {
+			case one, ok := <-fromFile:
+				if !ok {
+					fromFile = nil
+					continue
+				}
+				batches <- one
+			case one, ok := <-fromProvider:
+				if !ok {
+					fromProvider = nil
+					continue
+				}
+				batches <- one
+			}
+		}
+	}()
+
+	return run(batches, stop, which, scope, s.name())
 }
 
 // run owns the program either way. Follow owns its own goroutine, so the spans
