@@ -66,6 +66,8 @@ in
         nativeBuildInputs = [
           final.cue
           final.unzip
+          # The build lints its own fixtures, so it needs the linter.
+          final.vale
         ];
         rules = ../pkgs/prose-style/rules.cue;
       }
@@ -95,5 +97,30 @@ in
             exit 1
           fi
         done
+
+        # The regression corpus. A rule set that parses is not a rule set that
+        # works: an unsupported key on one rule made vale print one E-code line
+        # and lint nothing, and the hook read that as a clean reply. So the
+        # build lints two fixtures and requires the alert counts to disagree.
+        #
+        # good.md is every sentence an earlier revision blocked wrongly, so it
+        # must produce zero alerts. bad.md exercises one rule per paragraph, so
+        # it must produce some. A config error fails both at once, which is what
+        # makes this catch the class rather than one instance.
+        cd "$out"
+        good=$(vale --config="$out/vale.ini" --output=line --no-exit \
+          ${../pkgs/prose-style/testdata/good.md} | wc -l | tr -d ' ')
+        bad=$(vale --config="$out/vale.ini" --output=line --no-exit \
+          ${../pkgs/prose-style/testdata/bad.md} | wc -l | tr -d ' ')
+        if [ "$good" != "0" ]; then
+          echo "vale-styles: good.md must be clean, got $good alerts:" >&2
+          vale --config="$out/vale.ini" --output=line --no-exit \
+            ${../pkgs/prose-style/testdata/good.md} >&2
+          exit 1
+        fi
+        if [ "$bad" -lt 8 ]; then
+          echo "vale-styles: bad.md must alert on every rule it names, got $bad" >&2
+          exit 1
+        fi
       '';
 }
