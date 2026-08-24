@@ -15,6 +15,7 @@ import (
 	"github.com/charmbracelet/lipgloss"
 	"github.com/charmbracelet/x/ansi"
 
+	"github.com/roshbhatia/sysinit/pkgs/internal/diffview"
 	"github.com/roshbhatia/sysinit/pkgs/reel/internal/session"
 )
 
@@ -2027,501 +2028,46 @@ var fixtureCalls = map[string]string{
 ` + "```\n",
 }
 
-// ast-grep outline names what a file declares, git diff names which lines
-// moved, and calldiff names which call edges the move added or removed. All
-// three carry a file and a line, so a symbol range is the join key: a hunk
-// belongs to the symbol whose range holds its first new line, and so does a
-// call site. A language outline cannot read, such as Nix or markdown, has no
+// The join key is a symbol range: a hunk belongs to the symbol whose range
+// holds its first new line, and so does a call site. diffview owns the join;
+// the mockup only supplies the two layers a real run reads from ast-grep and
+// calldiff. A language outline cannot read, such as Nix or markdown, has no
 // entry here, and its file then renders as a flat list of hunks.
-type outlineItem struct {
-	kind     string
-	name     string
-	from, to int
-}
-
-// The line is the call site in the new file, which is what calldiff reports.
-type callEdge struct {
-	line  int
-	added bool
-}
-
-var fixtureOutline = map[string][]outlineItem{
+var fixtureOutline = map[string][]diffview.Symbol{
 	"pkgs/reel/internal/ui/mockup.go": {
-		{"func", "(m mockModel) hunkHead(name string, h diffHunk, width int) string", 62, 80},
-		{"func", "(m mockModel) tabDiff() string", 104, 138},
+		{Kind: "func", Name: "(m mockModel) hunkHead(name string, h diffHunk, width int) string", From: 62, To: 80},
+		{Kind: "func", Name: "(m mockModel) tabDiff() string", From: 104, To: 138},
 	},
 }
 
-var fixtureEdges = map[string][]callEdge{
+var fixtureEdges = map[string][]diffview.Edge{
 	"pkgs/reel/internal/ui/mockup.go": {
-		{71, true},  // strings.TrimRight
-		{112, true}, // fmt.Sprintf
+		{Line: 71, Added: true},  // strings.TrimRight
+		{Line: 112, Added: true}, // fmt.Sprintf
 	},
 }
 
-// ---------------------------------------------------------------------------
-// diff tab
-//
-// The tab answers three questions in the order a reader asks them. What
-// changed: an eza shaped tree of the touched files, with the churn on each
-// file line. How it changed: the hunks inlined under their own file, side by
-// side where the pane is wide enough. Why: every hunk repeats the enclosing
-// symbol from the unified header, so a hunk read halfway down the pane still
-// names the function it belongs to.
-//
-// It renders its own ANSI rather than going through glamour, because the tree
-// rail has to survive on the same line as a coloured diff body, and a chroma
-// diff lexer only colours a line that starts with a plus or a minus.
-
-const (
-	// eza draws a tree in four columns per level. Matching it keeps the pane
-	// consistent with the shell the reader just came from.
-	treeGuide = "│   "
-	treeGap   = "    "
-	treeTee   = "├── "
-	treeEnd   = "└── "
-	// A side by side half narrower than this wraps every second line, which
-	// costs more than the alignment buys. Below it the tab falls back to
-	// unified.
-	sbsMinText = 32
-	numWidth   = 4
-)
-
-type diffLine struct {
-	kind byte // ' ' carried, '+' added, '-' removed
-	text string
-}
-
-type diffHunk struct {
-	oldAt, newAt int
-	sym          string
-	lines        []diffLine
-}
-
-type diffFile struct {
-	path     string
-	add, del int
-	hunks    []diffHunk
-}
-
-// A patch can touch several files, so the path comes off each +++ header
-// rather than off the map key. The tree then matches the patch, not the row
-// that produced it.
-func parseDiff(src string) []diffFile {
-	out := []diffFile{}
-	var f *diffFile
-	var h *diffHunk
-	closeHunk := func() {
-		if f != nil && h != nil {
-			f.hunks = append(f.hunks, *h)
-		}
-		h = nil
-	}
-	closeFile := func() {
-		closeHunk()
-		if f != nil {
-			out = append(out, *f)
-		}
-		f = nil
-	}
-	for _, ln := range strings.Split(src, "\n") {
-		switch {
-		case strings.HasPrefix(ln, "--- "):
-		case strings.HasPrefix(ln, "+++ "):
-			closeFile()
-			path := strings.TrimSpace(strings.TrimPrefix(ln, "+++ "))
-			path = strings.TrimPrefix(path, "b/")
-			f = &diffFile{path: path}
-		case strings.HasPrefix(ln, "@@"):
-			closeHunk()
-			nh := diffHunk{oldAt: 1, newAt: 1}
-			head, sym, _ := strings.Cut(strings.TrimPrefix(ln, "@@"), "@@")
-			nh.sym = strings.TrimSpace(sym)
-			for _, part := range strings.Fields(head) {
-				n := lineStart(part)
-				if strings.HasPrefix(part, "-") {
-					nh.oldAt = n
-				} else if strings.HasPrefix(part, "+") {
-					nh.newAt = n
-				}
-			}
-			h = &nh
-		case h != nil && ln != "":
-			d := diffLine{kind: ln[0], text: expandTabs(ln[1:])}
-			switch d.kind {
-			case '+':
-				f.add++
-			case '-':
-				f.del++
-			default:
-				d.kind = ' '
-			}
-			h.lines = append(h.lines, d)
-		case h != nil:
-			h.lines = append(h.lines, diffLine{kind: ' '})
-		}
-	}
-	closeFile()
-	return out
-}
-
-// lineStart reads the first number out of a -66,6 or +66,13 range.
-// A terminal renders a tab over 4 columns, and lipgloss counts it as 1, so a
-// Go patch tears the side by side divider unless the tabs come out first.
-func expandTabs(s string) string {
-	if !strings.Contains(s, "\t") {
-		return s
-	}
-	b := &strings.Builder{}
-	col := 0
-	for _, r := range s {
-		if r != '\t' {
-			b.WriteRune(r)
-			col++
-			continue
-		}
-		n := 4 - col%4
-		b.WriteString(strings.Repeat(" ", n))
-		col += n
-	}
-	return b.String()
-}
-
-func lineStart(part string) int {
-	digits, n := strings.TrimLeft(part, "-+"), 0
-	if i := strings.IndexByte(digits, ','); i >= 0 {
-		digits = digits[:i]
-	}
-	for _, c := range digits {
-		if c < '0' || c > '9' {
-			return 1
-		}
-		n = n*10 + int(c-'0')
-	}
-	if n < 1 {
-		return 1
-	}
-	return n
-}
-
-// sbsRow is one printed line of the side by side view. A row with only one
-// side filled is a pure insert or a pure delete, and the blank opposite half
-// says so without a marker glyph.
-type sbsRow struct {
-	oldNo, newNo int
-	oldTx, newTx string
-	oldOn, newOn bool
-	carried      bool
-}
-
-func sbsRows(h diffHunk) []sbsRow {
-	out, o, n, i := []sbsRow{}, h.oldAt, h.newAt, 0
-	for i < len(h.lines) {
-		if h.lines[i].kind == ' ' {
-			t := h.lines[i].text
-			out = append(out, sbsRow{oldNo: o, newNo: n, oldTx: t, newTx: t, carried: true})
-			o, n, i = o+1, n+1, i+1
-			continue
-		}
-		dels, adds := []string{}, []string{}
-		for i < len(h.lines) && h.lines[i].kind == '-' {
-			dels = append(dels, h.lines[i].text)
-			i++
-		}
-		for i < len(h.lines) && h.lines[i].kind == '+' {
-			adds = append(adds, h.lines[i].text)
-			i++
-		}
-		for k := 0; k < max(len(dels), len(adds)); k++ {
-			r := sbsRow{}
-			if k < len(dels) {
-				r.oldNo, r.oldTx, r.oldOn = o, dels[k], true
-				o++
-			}
-			if k < len(adds) {
-				r.newNo, r.newTx, r.newOn = n, adds[k], true
-				n++
-			}
-			out = append(out, r)
-		}
-	}
-	return out
-}
-
-type treeNode struct {
-	name string
-	file *diffFile
-	kids []*treeNode
-}
-
-func (n *treeNode) insert(f *diffFile) {
-	parts, cur := strings.Split(f.path, "/"), n
-	for i, p := range parts {
-		leaf, found := i == len(parts)-1, (*treeNode)(nil)
-		for _, k := range cur.kids {
-			if k.name == p && (k.file != nil) == leaf {
-				found = k
-				break
-			}
-		}
-		if found == nil {
-			found = &treeNode{name: p}
-			if leaf {
-				found.file = f
-			}
-			cur.kids = append(cur.kids, found)
-		}
-		cur = found
-	}
-}
-
-// A chain of directories with one child each spends a level of indent per
-// segment and says nothing. Merging the chain into one label gives that indent
-// back to the diff body.
-func (n *treeNode) collapse() {
-	for _, k := range n.kids {
-		k.collapse()
-	}
-	if n.file == nil && len(n.kids) == 1 && n.kids[0].file == nil {
-		k := n.kids[0]
-		n.name, n.kids = n.name+"/"+k.name, k.kids
-	}
-}
-
-func (m mockModel) diffFiles() []diffFile {
-	out, seen := []diffFile{}, map[string]bool{}
+// The tab reads the marked rows, so a patch a row names is parsed once per
+// render and the tree matches whatever is marked right now.
+func (m mockModel) tabDiff() string {
+	files, seen := []diffview.File{}, map[string]bool{}
 	for _, idx := range m.marked() {
 		src, ok := fixtureDiff[m.rows[idx].preview]
 		if !ok {
 			continue
 		}
-		for _, f := range parseDiff(src) {
-			if seen[f.path] {
+		for _, f := range diffview.Parse(src) {
+			if seen[f.Path] {
 				continue
 			}
-			seen[f.path] = true
-			out = append(out, f)
+			seen[f.Path] = true
+			files = append(files, f)
 		}
 	}
-	return out
-}
-
-func (m mockModel) tabDiff() string {
-	files := m.diffFiles()
-	if len(files) == 0 {
-		return ""
-	}
-	width := max(20, m.pane.Width)
-	root := &treeNode{}
-	add, del := 0, 0
-	for i := range files {
-		root.insert(&files[i])
-		add, del = add+files[i].add, del+files[i].del
-	}
-	// The root carries no name, so it never merges. Its children do.
-	for _, k := range root.kids {
-		k.collapse()
-	}
-
-	b := &strings.Builder{}
-	fmt.Fprintf(b, "%s   %s  %s\n\n",
-		title.Render(fmt.Sprintf("%d %s", len(files), plural(len(files), "file"))),
-		live.Render(fmt.Sprintf("+%d", add)),
-		bad.Render(fmt.Sprintf("-%d", del)))
-	// eza prints the root of a tree with no connector, so the first level here
-	// gets none either.
-	for _, k := range root.kids {
-		if k.file == nil {
-			b.WriteString(accent.Render(k.name+"/") + "\n")
-			m.emitTree(b, k, "", width)
-			continue
-		}
-		m.emitFile(b, k.file, "", "", width)
-	}
-	return strings.TrimRight(b.String(), "\n")
-}
-
-func (m mockModel) emitTree(b *strings.Builder, n *treeNode, prefix string, width int) {
-	for i, k := range n.kids {
-		conn, guide := treeTee, treeGuide
-		if i == len(n.kids)-1 {
-			conn, guide = treeEnd, treeGap
-		}
-		if k.file == nil {
-			b.WriteString(rule.Render(prefix+conn) + accent.Render(k.name+"/") + "\n")
-			m.emitTree(b, k, prefix+guide, width)
-			continue
-		}
-		m.emitFile(b, k.file, prefix+conn, prefix+guide, width)
-	}
-}
-
-// A group is one outline symbol with the hunks that landed inside it. A hunk
-// no symbol claims keeps a nil item and renders bare, so a file with no
-// outline reads exactly as it did before the symbol layer existed.
-type symGroup struct {
-	item     *outlineItem
-	hunks    []diffHunk
-	add, del int
-	up, down int
-}
-
-func ownerOf(items []outlineItem, line int) *outlineItem {
-	for i := range items {
-		if line >= items[i].from && line <= items[i].to {
-			return &items[i]
-		}
-	}
-	return nil
-}
-
-// Walking the hunks in order rather than the symbols keeps the patch order the
-// reader already saw in the terminal, and folds consecutive hunks that share a
-// symbol into one heading.
-func symGroups(f *diffFile) []symGroup {
-	items, edges := fixtureOutline[f.path], fixtureEdges[f.path]
-	out, cur := []symGroup{}, -1
-	for _, h := range f.hunks {
-		it := ownerOf(items, h.newAt)
-		if cur < 0 || out[cur].item != it {
-			out = append(out, symGroup{item: it})
-			cur = len(out) - 1
-			if it != nil {
-				for _, e := range edges {
-					switch {
-					case e.line < it.from || e.line > it.to:
-					case e.added:
-						out[cur].up++
-					default:
-						out[cur].down++
-					}
-				}
-			}
-		}
-		out[cur].hunks = append(out[cur].hunks, h)
-		for _, d := range h.lines {
-			switch d.kind {
-			case '+':
-				out[cur].add++
-			case '-':
-				out[cur].del++
-			}
-		}
-	}
-	return out
-}
-
-// The churn says how much moved and the call count says how far the move
-// reaches, so a one line edit that rewires the graph does not read the same as
-// a fifty line edit that rewires nothing.
-func symRow(g symGroup, width int) string {
-	right := live.Render(fmt.Sprintf("+%d", g.add)) + "  " + bad.Render(fmt.Sprintf("-%d", g.del))
-	if g.up > 0 {
-		right += "  " + live.Render(fmt.Sprintf("+%d %s", g.up, plural(g.up, "call")))
-	}
-	if g.down > 0 {
-		right += "  " + bad.Render(fmt.Sprintf("-%d %s", g.down, plural(g.down, "call")))
-	}
-	room := width - lipgloss.Width(right) - len(g.item.kind) - 3
-	name := strings.TrimRight(clip(g.item.name, max(8, room)), " ")
-	head := faint.Render(g.item.kind+" ") + accent.Render(name)
-	gap := width - lipgloss.Width(head) - lipgloss.Width(right)
-	if gap < 2 {
-		gap = 2
-	}
-	return head + strings.Repeat(" ", gap) + right
-}
-
-// The file line carries the name on the left and the churn on the right, so a
-// column of files compares at a glance. The body hangs off a rail that starts
-// under the name, which keeps a hunk attached to its file when the pane is
-// scrolled past the file line.
-func (m mockModel) emitFile(b *strings.Builder, f *diffFile, conn, guide string, width int) {
-	churn := live.Render(fmt.Sprintf("+%d", f.add)) + "  " + bad.Render(fmt.Sprintf("-%d", f.del))
-	name := f.path[strings.LastIndexByte(f.path, '/')+1:]
-	head := rule.Render(conn) + plain.Render(name)
-	gap := width - lipgloss.Width(head) - lipgloss.Width(churn)
-	if gap < 2 {
-		gap = 2
-	}
-	b.WriteString(head + strings.Repeat(" ", gap) + churn + "\n")
-
-	rail := rule.Render(guide + "│ ")
-	deep := rule.Render(guide + "│ ╎ ")
-	body := width - lipgloss.Width(guide) - 2
-	for _, g := range symGroups(f) {
-		r, w := rail, body
-		if g.item != nil {
-			b.WriteString(rail + symRow(g, body) + "\n")
-			r, w = deep, body-2
-		}
-		for _, h := range g.hunks {
-			b.WriteString(r + m.hunkHead(name, h, w, g.item != nil) + "\n")
-			if half := (w - 3) / 2; half-numWidth-1 >= sbsMinText {
-				for _, row := range sbsRows(h) {
-					b.WriteString(r + sbsLine(row, half) + "\n")
-				}
-				continue
-			}
-			for _, d := range unifiedRows(h) {
-				b.WriteString(r + d + "\n")
-			}
-		}
-	}
-	b.WriteString(rail + "\n")
-}
-
-// The header names the file and the line. It repeats the enclosing symbol only
-// when no symbol row sits above it, because the outline already said it there.
-func (m mockModel) hunkHead(name string, h diffHunk, width int, named bool) string {
-	at := fmt.Sprintf("%s:%d", name, h.newAt)
-	label := at
-	if h.sym != "" && !named {
-		label += " · " + h.sym
-	}
-	// clip pads to its width, and a padded label would eat the rule, so the
-	// padding comes straight back off.
-	label = strings.TrimRight(clip(label, max(4, width-6)), " ")
-	pad := width - lipgloss.Width(label) - 4
-	if pad < 1 {
-		pad = 1
-	}
-	return rule.Render("── ") + accent.Render(label) + rule.Render(" "+strings.Repeat("─", pad))
-}
-
-func sbsLine(r sbsRow, half int) string {
-	text := half - numWidth - 1
-	left, right := plain, plain
-	if !r.carried {
-		left, right = bad, live
-	}
-	l := numCell(r.oldNo, r.oldOn || r.carried) + left.Render(fit(clip(r.oldTx, text), text))
-	rt := numCell(r.newNo, r.newOn || r.carried) + right.Render(fit(clip(r.newTx, text), text))
-	return l + rule.Render(" │ ") + rt
-}
-
-func numCell(n int, on bool) string {
-	if !on {
-		return strings.Repeat(" ", numWidth+1)
-	}
-	return faint.Render(fmt.Sprintf("%*d ", numWidth, n))
-}
-
-// The narrow fallback keeps the plus and the minus, because without two
-// columns the marker is the only thing that says which side a line is on.
-func unifiedRows(h diffHunk) []string {
-	out, o, n := []string{}, h.oldAt, h.newAt
-	for _, d := range h.lines {
-		style, no := plain, n
-		switch d.kind {
-		case '+':
-			style, n = live, n+1
-		case '-':
-			style, no, o = bad, o, o+1
-		default:
-			o, n = o+1, n+1
-		}
-		out = append(out, numCell(no, true)+style.Render(string(d.kind)+" "+d.text))
-	}
-	return out
+	return diffview.Render(diffview.Options{
+		Files:   files,
+		Width:   max(20, m.pane.Width),
+		Symbols: fixtureOutline,
+		Edges:   fixtureEdges,
+	})
 }
