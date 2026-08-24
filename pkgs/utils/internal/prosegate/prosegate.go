@@ -210,12 +210,18 @@ func stylePath() string {
 // Every failure here returns no alerts. A gate that blocks because vale is
 // missing costs the user a turn for a fault that is not in their reply.
 func alerts(text string) []valeAlert {
+	// Every path out of this function that is not "vale ran and found nothing"
+	// says so. A gate that opens quietly is worse than no gate, because it is
+	// trusted: one unsupported key on one rule already turned the whole check
+	// into a pass with no sign of it.
 	config := stylePath()
 	if config == "" {
+		fmt.Fprintln(os.Stderr, "prose-gate: $SYSINIT_PROSE_STYLE is unset, so nothing was checked")
 		return nil
 	}
 	binary, err := exec.LookPath("vale")
 	if err != nil {
+		fmt.Fprintln(os.Stderr, "prose-gate: vale is not on PATH, so nothing was checked")
 		return nil
 	}
 
