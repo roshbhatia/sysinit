@@ -22,8 +22,16 @@ func main() {
 	which := flag.String("session", "", "attach to this session, by id or prefix")
 	list := flag.Bool("list", false, "list the sessions and exit")
 	once := flag.Bool("once", false, "print the tree once and exit")
+	mock := flag.Bool("mockup", false, "browse the candidate layouts over a fixed fixture")
 	flag.Parse()
 
+	if *mock {
+		if _, err := tea.NewProgram(ui.Mockup(), tea.WithAltScreen(), tea.WithMouseCellMotion()).Run(); err != nil {
+			fmt.Fprintf(os.Stderr, "reel: %v\n", err)
+			os.Exit(1)
+		}
+		return
+	}
 	path := *file
 	if path == "" {
 		path = paths.OtelTelemetry()
