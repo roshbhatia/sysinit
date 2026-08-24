@@ -28,20 +28,11 @@ func main() {
 	which := flag.String("session", "", "attach to this session, by id or prefix")
 	list := flag.Bool("list", false, "list the sessions and exit")
 	once := flag.Bool("once", false, "print the tree once and exit")
-	mock := flag.Bool("mockup", false, "browse the candidate layouts over a fixed fixture")
 	asked := flag.String("provider", "", "read spans from this provider instead of the file (default: $"+source.Env+")")
 	back := flag.Duration("since", 2*time.Hour, "with a provider, how far back the first read reaches")
 	every := flag.Duration("poll", 15*time.Second, "with a provider, how often to re-read")
 	lag := flag.Duration("lag", 90*time.Second, "with a provider, how much every poll overlaps the last")
 	flag.Parse()
-
-	if *mock {
-		if _, err := tea.NewProgram(ui.Mockup(), tea.WithAltScreen(), tea.WithMouseCellMotion()).Run(); err != nil {
-			fmt.Fprintf(os.Stderr, "reel: %v\n", err)
-			os.Exit(1)
-		}
-		return
-	}
 
 	provider, err := source.Resolve(*asked)
 	if err != nil {

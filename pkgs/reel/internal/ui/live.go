@@ -14,20 +14,16 @@ import (
 	"github.com/charmbracelet/glamour"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/charmbracelet/x/ansi"
+	"github.com/muesli/termenv"
 
-	"github.com/roshbhatia/sysinit/pkgs/internal/diffview"
+	"github.com/roshbhatia/sysinit/pkgs/reel/internal/otlp"
 	"github.com/roshbhatia/sysinit/pkgs/reel/internal/session"
 )
 
-// Mockup renders one candidate layout over a fixed fixture so the layout can be
-// judged before any of it reaches the live view. The fixture is real content
-// pulled from the collector file and the matching transcript, with one
-// exception noted in the detail pane.
-//
-// Four earlier variations collapsed into this one. The density comes from the
-// one-line variant, the inline second line from the two-line variant, the
-// gutter cursor and the tail anchor from the waterfall variant, and the fused
-// error row from the transcript variant.
+// The layout came out of four variations judged against a fixed fixture. The
+// density comes from the one-line variant, the inline second line from the
+// two-line variant, the gutter cursor and the tail anchor from the waterfall
+// variant, and the fused error row from the transcript variant.
 
 // x/ansi measures East Asian Ambiguous glyphs as narrow unless
 // RUNEWIDTH_EASTASIAN is set, and a terminal that disagrees tears every frame.
@@ -68,10 +64,10 @@ func init() {
 // The kind picks the role colour and the detail tags. It is never drawn as a
 // glyph: the actor and the label already spell out what ran, and a symbol
 // column would ask the reader to hold a legend in their head.
-type mockKind int
+type kind int
 
 const (
-	kindTurn mockKind = iota
+	kindTurn kind = iota
 	kindPrompt
 	kindThink
 	kindTool
@@ -82,7 +78,7 @@ const (
 	kindHook
 )
 
-var roleOf = map[mockKind]session.Role{
+var roleOf = map[kind]session.Role{
 	kindTurn:   session.RoleTurn,
 	kindPrompt: session.RoleModel,
 	kindThink:  session.RoleModel,
@@ -109,9 +105,10 @@ const (
 
 // Every field is named at the call site below. The first draft used positional
 // literals, and adding one field then rewrote all forty rows by hand.
-type mockRow struct {
+type row struct {
+	node    *session.Node
 	depth   int
-	kind    mockKind
+	kind    kind
 	actor   string
 	label   string
 	preview string
@@ -128,13 +125,21 @@ type mockRow struct {
 	parent  bool
 }
 
-type mockModel struct {
-	rows   []mockRow
-	next   int
+type Model struct {
+	store   *session.Store
+	current *session.Session
+	list    []*session.Session
+	pinned  string
+	source  string
+	query   string
+
+	rows   []row
 	cursor int
 	offset int
-	marks  map[int]bool
-	folded map[int]bool
+	// Both are keyed on span id, not on row index: every batch of spans
+	// rebuilds the row list, and an index would then point at another row.
+	marks  map[string]bool
+	folded map[string]bool
 
 	width  int
 	height int
@@ -150,6 +155,10 @@ type mockModel struct {
 
 	pending string
 	status  string
+	picking bool
+	pickAt  int
+	filter  bool
+	now     time.Time
 
 	tab  int
 	spin spinner.Model
@@ -163,11 +172,21 @@ type mockModel struct {
 // inspector box on every frame.
 const paneChrome = 3
 
-func Mockup() mockModel {
-	m := mockModel{
-		rows:   append([]mockRow{}, fixture...),
-		marks:  map[int]bool{},
-		folded: map[int]bool{},
+func New(store *session.Store, pinned, source string) Model {
+	// lipgloss asks the terminal for its background on first render, and Bubble
+	// Tea v1 reads the reply as a burst of keys: a hex digit `d` in the answer
+	// paged the view and cleared follow before anyone touched the keyboard.
+	// Every colour here is an ANSI slot, so nothing is lost by deciding both up
+	// front and never asking.
+	lipgloss.SetColorProfile(termenv.ANSI)
+	lipgloss.SetHasDarkBackground(true)
+
+	m := Model{
+		store:  store,
+		pinned: pinned,
+		source: source,
+		marks:  map[string]bool{},
+		folded: map[string]bool{},
 		width:  120,
 		height: 40,
 		follow: true,
@@ -177,9 +196,61 @@ func Mockup() mockModel {
 		split:  50,
 		pane:   viewport.New(52, 20),
 		spin:   spinner.New(spinner.WithSpinner(spinner.MiniDot), spinner.WithStyle(live)),
+		now:    time.Now(),
 	}
-	m.cursor = len(m.rows) - 1
+	m.reload()
+	m.cursor = max(0, len(m.rows)-1)
 	return m
+}
+
+// SpansMsg carries a batch of newly read spans into the program.
+type SpansMsg []otlp.Span
+
+// reload re-groups every span and keeps the attached session attached. A
+// session named on the command line wins, so a reader who asked for one run is
+// not moved off it when a newer run appears.
+func (m *Model) reload() {
+	m.list = m.store.Sessions()
+	switch {
+	case m.pinned != "":
+		if found := m.store.Session(m.pinned); found != nil {
+			m.current = found
+		}
+	case m.current != nil:
+		for _, one := range m.list {
+			if one.Key == m.current.Key {
+				m.current = one
+			}
+		}
+	}
+	if m.current == nil && len(m.list) > 0 {
+		m.current = m.list[0]
+	}
+	m.rebuild()
+}
+
+// rebuild flattens the session tree into the row list the layout draws.
+func (m *Model) rebuild() {
+	m.rows = nil
+	if m.current == nil {
+		return
+	}
+	first := m.current.First
+	span := m.current.Last.Sub(first)
+	query := strings.ToLower(strings.TrimSpace(m.query))
+	for _, root := range m.current.Roots {
+		m.walk(root, 0, first, span, query)
+	}
+}
+
+func (m *Model) walk(node *session.Node, depth int, first time.Time, span time.Duration, query string) {
+	if !matches(node, query) {
+		return
+	}
+	m.rows = append(m.rows, rowOf(node, depth, first, span))
+	for _, kid := range node.Children {
+		m.walk(kid, depth+1, first, span, query)
+	}
 }
 
 type tickMsg struct{ t time.Time }
@@ -188,9 +259,9 @@ func tick() tea.Cmd {
 	return tea.Tick(900*time.Millisecond, func(t time.Time) tea.Msg { return tickMsg{t} })
 }
 
-func (m mockModel) Init() tea.Cmd { return tea.Batch(tick(), m.spin.Tick) }
+func (m Model) Init() tea.Cmd { return tea.Batch(tick(), m.spin.Tick) }
 
-func (m mockModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.WindowSizeMsg:
 		m.width, m.height = msg.Width, msg.Height
@@ -198,16 +269,18 @@ func (m mockModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		// the end and the tree pane renders blank until the next keypress.
 		return m.sized().clamp(), nil
 	case tickMsg:
-		if m.next < len(stream) {
-			m.rows = append(m.rows, stream[m.next])
-			m.next++
-		}
-		if m.follow {
+		m.now = msg.t
+		return m, tick()
+	case SpansMsg:
+		before := len(m.rows)
+		m.store.Add([]otlp.Span(msg))
+		m.reload()
+		if m.follow && len(m.rows) > before {
 			if vis := m.visible(); len(vis) > 0 {
 				m.cursor = len(vis) - 1
 			}
 		}
-		return m.clamp(), tick()
+		return m.clamp(), nil
 	case spinner.TickMsg:
 		var cmd tea.Cmd
 		m.spin, cmd = m.spin.Update(msg)
@@ -233,7 +306,7 @@ const (
 	placeHidden
 )
 
-func (m mockModel) placeAt() placement {
+func (m Model) placeAt() placement {
 	switch m.place {
 	case placeBottom, placeTop:
 		if m.height >= 24 {
@@ -249,17 +322,17 @@ func (m mockModel) placeAt() placement {
 
 // vertical is true when the inspector stacks with the tree and owns the full
 // width. horizontal is true when it sits beside the tree and owns full height.
-func (m mockModel) vertical() bool {
+func (m Model) vertical() bool {
 	p := m.placeAt()
 	return p == placeBottom || p == placeTop
 }
 
-func (m mockModel) horizontal() bool {
+func (m Model) horizontal() bool {
 	p := m.placeAt()
 	return p == placeLeft || p == placeRight
 }
 
-func (m mockModel) placeName() string {
+func (m Model) placeName() string {
 	switch m.placeAt() {
 	case placeBottom:
 		return "along the bottom"
@@ -276,7 +349,7 @@ func (m mockModel) placeName() string {
 // detailLines is the whole screen cost of a bottom pane, border rows included.
 // The divider is dragged, so the size is held as the inspector's percent of the
 // content rows. The clamp keeps four tree rows and one pane row alive.
-func (m mockModel) detailLines() int {
+func (m Model) detailLines() int {
 	if !m.vertical() {
 		return 0
 	}
@@ -286,11 +359,11 @@ func (m mockModel) detailLines() int {
 
 // The tree box bottom border is the divider, and the drag reads that row. The
 // inspector top border sits one below it, and the tab bar one below that.
-func (m mockModel) dividerY() int { return m.treeRows() + 2 }
+func (m Model) dividerY() int { return m.treeRows() + 2 }
 
 // The split is a percent, so it round trips through two floors and lands the
 // divider one row above the pointer. Rounding the percent up cancels that.
-func (m mockModel) resizeTo(y int) mockModel {
+func (m Model) resizeTo(y int) Model {
 	rows := max(1, m.height-4)
 	lines := rows - max(1, y-2)
 	m.split = min(85, max(15, (lines*100+rows-1)/rows))
@@ -300,7 +373,7 @@ func (m mockModel) resizeTo(y int) mockModel {
 // dock moves the inspector to an edge. Asking for the edge it already holds
 // hides it, so <leader>ij is both "put it at the bottom" and "put it away",
 // and <leader>ii toggles whichever edge it last had.
-func (m mockModel) dock(to placement) mockModel {
+func (m Model) dock(to placement) Model {
 	switch {
 	case to == placeHidden && m.place == placeHidden:
 		m.place = m.last
@@ -314,25 +387,25 @@ func (m mockModel) dock(to placement) mockModel {
 	return m.clamp()
 }
 
-func (m mockModel) resize(by int) mockModel {
+func (m Model) resize(by int) Model {
 	m.split = min(85, max(15, m.split+by))
 	m.status = fmt.Sprintf("inspector %d%% of the frame", m.split)
 	return m.sized().clamp()
 }
 
-func (m mockModel) treeWidth() int { return m.width - m.detailCols() }
+func (m Model) treeWidth() int { return m.width - m.detailCols() }
 
 // detailCols is the whole screen cost of a side pane, border columns included.
 // The clamp keeps 44 columns of tree alive, which is the narrowest frame that
 // still fits an actor, a label and a preview.
-func (m mockModel) detailCols() int {
+func (m Model) detailCols() int {
 	if !m.horizontal() {
 		return 0
 	}
 	return min(max(m.width*m.split/100, 34), max(34, m.width-44))
 }
 
-func (m mockModel) treeRows() int {
+func (m Model) treeRows() int {
 	rows := max(1, m.height-4)
 	if m.vertical() {
 		rows = max(3, rows-m.detailLines())
@@ -342,14 +415,14 @@ func (m mockModel) treeRows() int {
 
 // treeTop is the screen row of the tree's first body line, and treeLeft the
 // screen column of its first inner cell. Every mouse hit test starts here.
-func (m mockModel) treeTop() int {
+func (m Model) treeTop() int {
 	if m.placeAt() == placeTop {
 		return m.detailLines() + 3
 	}
 	return 3
 }
 
-func (m mockModel) treeLeft() int {
+func (m Model) treeLeft() int {
 	if m.placeAt() == placeLeft {
 		return m.detailCols()
 	}
@@ -370,7 +443,7 @@ func (m mockModel) treeLeft() int {
 //go:embed ansi16.json
 var ansi16Style []byte
 
-func (m mockModel) sized() mockModel {
+func (m Model) sized() Model {
 	inner := m.detailWidth() - 2
 	if inner < 1 {
 		inner = 1
@@ -398,7 +471,7 @@ func (m mockModel) sized() mockModel {
 	return m
 }
 
-func (m mockModel) detailWidth() int {
+func (m Model) detailWidth() int {
 	if m.vertical() {
 		return m.width
 	}
@@ -407,7 +480,7 @@ func (m mockModel) detailWidth() int {
 
 // The side pane is as tall as the tree box, so its viewport takes the same
 // inner rows less the three chrome lines paneView always draws.
-func (m mockModel) detailRows() int {
+func (m Model) detailRows() int {
 	if m.horizontal() {
 		return m.treeRows()
 	}
@@ -423,12 +496,19 @@ func isTerminalReply(k string) bool {
 		strings.HasPrefix(k, "10;rgb:") || strings.HasPrefix(k, "11;rgb:")
 }
 
-func (m mockModel) key(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
+func (m Model) key(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 	k := msg.String()
 	if isTerminalReply(k) {
 		return m, nil
 	}
 	m.status = ""
+
+	if m.picking {
+		return m.pickKey(k)
+	}
+	if m.filter {
+		return m.filterKey(msg, k)
+	}
 
 	if m.leader {
 		m.leader = false
@@ -458,7 +538,7 @@ func (m mockModel) key(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 		case "za":
 			m.toggleFold()
 		case "zR", "ZZ":
-			m.folded = map[int]bool{}
+			m.folded = map[string]bool{}
 		case "zM":
 			m.foldAll()
 		case "zx":
@@ -498,7 +578,7 @@ func (m mockModel) key(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 			m.help = false
 			return m, nil
 		}
-		m.marks = map[int]bool{}
+		m.marks = map[string]bool{}
 		return m.clamp(), nil
 	case " ":
 		m.leader = true
@@ -508,8 +588,17 @@ func (m mockModel) key(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 		return m, nil
 	case "Z":
 		// neo-tree parity: bare Z expands every node.
-		m.folded = map[int]bool{}
+		m.folded = map[string]bool{}
 		return m.clamp(), nil
+	case "s":
+		if len(m.list) > 1 {
+			m.picking = true
+			m.pickAt = m.currentAt()
+		}
+		return m, nil
+	case "/":
+		m.filter = true
+		return m, nil
 	case "j", "down":
 		m.cursor, m.follow = m.cursor+1, false
 	case "k", "up":
@@ -563,7 +652,7 @@ func (m mockModel) key(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 // yank reports the verbatim bytes behind the cursor row. glamour is always on
 // and has no toggle, so this is the only way to recover text it reflowed
 // or that the tree pane truncated.
-func (m mockModel) yank() mockModel {
+func (m Model) yank() Model {
 	r := m.rows[m.at(m.cursor)]
 	src := r.preview
 	if r.kind == kindTurn {
@@ -576,7 +665,7 @@ func (m mockModel) yank() mockModel {
 // halfPage moves the cursor and the view by the same step, which is what vim
 // ctrl+d and ctrl+u do. Moving the cursor alone left the offset behind, so the
 // page never turned and the cursor only slid down the same screen.
-func (m mockModel) halfPage(dir int) mockModel {
+func (m Model) halfPage(dir int) Model {
 	step := max(1, m.bodyHeight()/2)
 	m.follow = false
 	m.cursor += dir * step
@@ -587,10 +676,13 @@ func (m mockModel) halfPage(dir int) mockModel {
 	return m.clamp()
 }
 
-func (m mockModel) at(i int) int {
+// at maps a cursor position to a row index, and returns -1 when there is no
+// row at all. The fixture always had rows; a live run starts empty, and every
+// caller that indexes m.rows has to survive that.
+func (m Model) at(i int) int {
 	vis := m.visible()
 	if len(vis) == 0 {
-		return 0
+		return -1
 	}
 	if i < 0 {
 		i = 0
@@ -603,13 +695,16 @@ func (m mockModel) at(i int) int {
 
 // markSubtree marks the row and every descendant, so "select a folder" is true
 // rather than advertised. The footer claims the detail pane shows all of them.
-func (m *mockModel) markSubtree(idx int) {
-	on := !m.marks[idx]
+func (m *Model) markSubtree(idx int) {
+	if idx < 0 {
+		return
+	}
+	on := !m.marks[m.idOf(idx)]
 	set := func(i int) {
 		if on {
-			m.marks[i] = true
+			m.marks[m.idOf(i)] = true
 		} else {
-			delete(m.marks, i)
+			delete(m.marks, m.idOf(i))
 		}
 	}
 	set(idx)
@@ -620,7 +715,10 @@ func (m *mockModel) markSubtree(idx int) {
 
 // markTurn marks the whole turn the cursor sits in, which is the unit a
 // reader thinks in: one thing asked, everything it caused.
-func (m *mockModel) markTurn(idx int) {
+func (m *Model) markTurn(idx int) {
+	if idx < 0 {
+		return
+	}
 	for m.rows[idx].depth > 0 {
 		a := m.ancestorOf(idx)
 		if a < 0 {
@@ -631,47 +729,65 @@ func (m *mockModel) markTurn(idx int) {
 	m.markSubtree(idx)
 }
 
-func (m *mockModel) markRow(idx int) {
-	if m.marks[idx] {
-		delete(m.marks, idx)
+func (m *Model) markRow(idx int) {
+	if idx < 0 {
 		return
 	}
-	m.marks[idx] = true
+	if m.marks[m.idOf(idx)] {
+		delete(m.marks, m.idOf(idx))
+		return
+	}
+	m.marks[m.idOf(idx)] = true
 }
 
-func (m *mockModel) toggleFold() {
+// idOf is the row's span id, which survives a rebuild. A row with no node
+// cannot happen once the tree is built, and an empty key is harmless.
+func (m Model) idOf(idx int) string {
+	if idx < 0 || idx >= len(m.rows) || m.rows[idx].node == nil {
+		return ""
+	}
+	return m.rows[idx].node.Span.SpanID
+}
+
+func (m *Model) toggleFold() {
 	idx := m.at(m.cursor)
+	if idx < 0 {
+		return
+	}
 	if !m.rows[idx].parent {
 		return
 	}
-	if m.folded[idx] {
-		delete(m.folded, idx)
+	if m.folded[m.idOf(idx)] {
+		delete(m.folded, m.idOf(idx))
 	} else {
-		m.folded[idx] = true
+		m.folded[m.idOf(idx)] = true
 	}
 }
 
-func (m *mockModel) foldAll() {
+func (m *Model) foldAll() {
 	for i, r := range m.rows {
 		if r.parent {
-			m.folded[i] = true
+			m.folded[m.idOf(i)] = true
 		}
 	}
 }
 
-func (m *mockModel) openPath() {
-	for i := m.at(m.cursor); i >= 0; i = m.ancestorOf(i) {
-		delete(m.folded, i)
+func (m *Model) openPath() {
+	for i := m.at(m.cursor); i >= 0 && i < len(m.rows); i = m.ancestorOf(i) {
+		delete(m.folded, m.idOf(i))
 		if m.rows[i].depth == 0 {
 			break
 		}
 	}
 }
 
-func (m *mockModel) collapse() {
+func (m *Model) collapse() {
 	idx := m.at(m.cursor)
-	if m.rows[idx].parent && !m.folded[idx] {
-		m.folded[idx] = true
+	if idx < 0 {
+		return
+	}
+	if m.rows[idx].parent && !m.folded[m.idOf(idx)] {
+		m.folded[m.idOf(idx)] = true
 		return
 	}
 	if a := m.ancestorOf(idx); a >= 0 {
@@ -679,14 +795,17 @@ func (m *mockModel) collapse() {
 	}
 }
 
-func (m *mockModel) expand() {
+func (m *Model) expand() {
 	idx := m.at(m.cursor)
+	if idx < 0 {
+		return
+	}
 	if m.rows[idx].parent {
-		delete(m.folded, idx)
+		delete(m.folded, m.idOf(idx))
 	}
 }
 
-func (m *mockModel) jump(d int) {
+func (m *Model) jump(d int) {
 	vis := m.visible()
 	for i := m.cursor + d; i >= 0 && i < len(vis); i += d {
 		if m.rows[vis[i]].depth == 0 {
@@ -696,7 +815,7 @@ func (m *mockModel) jump(d int) {
 	}
 }
 
-func (m mockModel) clamp() mockModel {
+func (m Model) clamp() Model {
 	vis := m.visible()
 	if len(vis) == 0 {
 		m.cursor, m.offset = 0, 0
@@ -737,7 +856,7 @@ func (m mockModel) clamp() mockModel {
 
 // tailOffset is the smallest offset whose remaining rows still fit, so the last
 // row lands on the last line and no blank row opens under it.
-func (m mockModel) tailOffset(vis []int, h int) int {
+func (m Model) tailOffset(vis []int, h int) int {
 	o := len(vis) - 1
 	for o > 0 && m.linesFrom(vis, o-1, len(vis)) <= h {
 		o--
@@ -745,7 +864,7 @@ func (m mockModel) tailOffset(vis []int, h int) int {
 	return o
 }
 
-func (m mockModel) linesFrom(vis []int, a, b int) int {
+func (m Model) linesFrom(vis []int, a, b int) int {
 	n := 0
 	for i := a; i < b && i < len(vis); i++ {
 		n += m.rowHeight(i)
@@ -755,7 +874,7 @@ func (m mockModel) linesFrom(vis []int, a, b int) int {
 
 // The cursor row is the only row that costs two lines. Two lines for every row
 // caps an 87 row terminal near 40 spans, and a real session logged 857.
-func (m mockModel) rowHeight(i int) int {
+func (m Model) rowHeight(i int) int {
 	if i == m.cursor {
 		return 2
 	}
@@ -764,11 +883,11 @@ func (m mockModel) rowHeight(i int) int {
 
 // The tree box spends one inner line on the column strip, so the scroll math
 // and treeBody have to read the same number or the cursor walks off the pane.
-func (m mockModel) bodyHeight() int {
+func (m Model) bodyHeight() int {
 	return max(1, m.treeRows()-1)
 }
 
-func (m mockModel) visible() []int {
+func (m Model) visible() []int {
 	out := []int{}
 	hide := -1
 	for i, r := range m.rows {
@@ -777,14 +896,14 @@ func (m mockModel) visible() []int {
 		}
 		hide = -1
 		out = append(out, i)
-		if r.parent && m.folded[i] {
+		if r.parent && m.folded[m.idOf(i)] {
 			hide = i
 		}
 	}
 	return out
 }
 
-func (m mockModel) indexOf(idx int) int {
+func (m Model) indexOf(idx int) int {
 	for i, v := range m.visible() {
 		if v == idx {
 			return i
@@ -793,7 +912,7 @@ func (m mockModel) indexOf(idx int) int {
 	return 0
 }
 
-func (m mockModel) ancestorOf(idx int) int {
+func (m Model) ancestorOf(idx int) int {
 	for i := idx - 1; i >= 0; i-- {
 		if m.rows[i].depth < m.rows[idx].depth {
 			return i
@@ -802,15 +921,17 @@ func (m mockModel) ancestorOf(idx int) int {
 	return -1
 }
 
-func (m mockModel) marked() []int {
+func (m Model) marked() []int {
 	out := []int{}
 	for i := range m.rows {
-		if m.marks[i] {
+		if m.marks[m.idOf(i)] {
 			out = append(out, i)
 		}
 	}
 	if len(out) == 0 {
-		out = append(out, m.at(m.cursor))
+		if idx := m.at(m.cursor); idx >= 0 {
+			out = append(out, idx)
+		}
 	}
 	return out
 }
@@ -963,7 +1084,7 @@ func tokens(n int) string {
 // question a turn row answers: what did this cost. Time never rolls up. Child
 // spans overlap, so summing them double counts, and the parent already carries
 // its own wall clock, which is the honest number.
-func (m mockModel) rollup(idx int) int {
+func (m Model) rollup(idx int) int {
 	total := m.rows[idx].in + m.rows[idx].out
 	for i := idx + 1; i < len(m.rows) && m.rows[i].depth > m.rows[idx].depth; i++ {
 		total += m.rows[i].in + m.rows[i].out
@@ -973,7 +1094,7 @@ func (m mockModel) rollup(idx int) int {
 
 // churn rolls up the same way tokens do, and for the same reason: a turn row is
 // asked what it changed, not what its last child changed.
-func (m mockModel) churn(idx int) (add, del, files int) {
+func (m Model) churn(idx int) (add, del, files int) {
 	r := m.rows[idx]
 	add, del, files = r.add, r.del, r.files
 	for i := idx + 1; i < len(m.rows) && m.rows[i].depth > m.rows[idx].depth; i++ {
@@ -987,7 +1108,7 @@ func (m mockModel) churn(idx int) (add, del, files int) {
 // The diff cell keeps its own colours: added is always green and removed always
 // red, on a failed row too, because those two numbers are not about the outcome.
 // The file count only appears once a span touched more than one.
-func (m mockModel) diffCell(idx, width int) string {
+func (m Model) diffCell(idx, width int) string {
 	add, del, files := m.churn(idx)
 	if add == 0 && del == 0 && files == 0 {
 		return strings.Repeat(" ", width)
@@ -1012,7 +1133,7 @@ func (m mockModel) diffCell(idx, width int) string {
 // changed, what it cost, how long it took. Time sits last because the gantt
 // track to its right measures the same thing, and a number next to the bar it
 // scales is one glance, not two.
-func (m mockModel) metaCell(idx, width int) string {
+func (m Model) metaCell(idx, width int) string {
 	r := m.rows[idx]
 	tok := tokens(m.rollup(idx))
 	span := ""
@@ -1082,7 +1203,7 @@ func axis(width int, total string) string {
 
 // The gutter marks a span that is still open. A failure needs no glyph here: the
 // whole row is already red, which reads from further away than a symbol does.
-func (m mockModel) state(idx int, r mockRow) string {
+func (m Model) state(idx int, r row) string {
 	if m.running(idx) {
 		return accent.Render("\u00b7")
 	}
@@ -1091,15 +1212,15 @@ func (m mockModel) state(idx int, r mockRow) string {
 
 // A gutter rule rather than a background colour row: lipgloss v1.1.0 resets a
 // nested style before the outer background closes, so a filled cursor row tears.
-func (m mockModel) bar(idx int) string {
+func (m Model) bar(idx int) string {
 	switch {
-	case idx == m.at(m.cursor) && m.marks[idx]:
+	case idx == m.at(m.cursor) && m.marks[m.idOf(idx)]:
 		// Both states on one column. Without this arm the cursor arm won, so
 		// marking the row under the cursor changed no pixel at all.
 		return accent.Render(gl.mark)
 	case idx == m.at(m.cursor):
 		return accent.Render(gl.point)
-	case m.marks[idx]:
+	case m.marks[m.idOf(idx)]:
 		return live.Render(gl.mark)
 	default:
 		return " "
@@ -1108,14 +1229,14 @@ func (m mockModel) bar(idx int) string {
 
 // The wedges are reserved for fold state only. Reusing them for role collided
 // with the expander the owner already reads as "expand this" in neo-tree.
-func (m mockModel) glyph(idx int, r mockRow) string {
+func (m Model) glyph(idx int, r row) string {
 	if m.running(idx) {
 		return m.spin.View() + " "
 	}
 	if !r.parent {
 		return gl.leaf + " "
 	}
-	if m.folded[idx] {
+	if m.folded[m.idOf(idx)] {
 		return gl.unfold + " "
 	}
 	return gl.fold + " "
@@ -1125,7 +1246,7 @@ func (m mockModel) glyph(idx int, r mockRow) string {
 // closes. The earlier draft asked "does the next row go shallower", which is
 // "has no children", so every leaf drew the last-child elbow and the tree read
 // as a flat list.
-func hasSibling(rows []mockRow, idx, d int) bool {
+func hasSibling(rows []row, idx, d int) bool {
 	for i := idx + 1; i < len(rows); i++ {
 		if rows[i].depth < d {
 			return false
@@ -1140,7 +1261,7 @@ func hasSibling(rows []mockRow, idx, d int) bool {
 // guide draws one column per ancestor level: a rule where that ancestor still
 // has siblings below, blank where it does not, and a tee or elbow at the row's
 // own level. Folding does not change it, because a folded sibling still exists.
-func (m mockModel) guide(idx int) string {
+func (m Model) guide(idx int) string {
 	d := m.rows[idx].depth
 	if d == 0 {
 		return ""
@@ -1190,7 +1311,7 @@ func actorStyle(actor string) lipgloss.Style {
 // Colour answers one question only: red failed, cyan is still going, green
 // finished clean. It rides the gutter and the gantt bar, and takes over the
 // label too on a failure, so a failed row reads as failed end to end.
-func (m mockModel) outcome(idx int, r mockRow) lipgloss.Style {
+func (m Model) outcome(idx int, r row) lipgloss.Style {
 	switch {
 	case r.fail:
 		return bad
@@ -1201,7 +1322,7 @@ func (m mockModel) outcome(idx int, r mockRow) lipgloss.Style {
 	}
 }
 
-func (m mockModel) rowLines(vi, idx, width int) []string {
+func (m Model) rowLines(vi, idx, width int) []string {
 	r := m.rows[idx]
 	actorW, textW, metaW, trackW := columns(width)
 	labelW := labelWidth(textW)
@@ -1249,11 +1370,11 @@ func (m mockModel) rowLines(vi, idx, width int) []string {
 
 // A rule above and below brackets the cursor row without repainting it, so the
 // row keeps its own outcome colour.
-func (m mockModel) cursorRule(width int) string {
+func (m Model) cursorRule(width int) string {
 	return faint.Render(strings.Repeat("\u2500", width))
 }
 
-func (m mockModel) treeHead(width int) string {
+func (m Model) treeHead(width int) string {
 	actorW, textW, metaW, trackW := columns(width)
 	labelW := labelWidth(textW)
 	prevW := previewWidth(textW)
@@ -1277,7 +1398,7 @@ func (m mockModel) treeHead(width int) string {
 	return faint.Render(fit(line, width))
 }
 
-func (m mockModel) treeBody(width, height int) string {
+func (m Model) treeBody(width, height int) string {
 	vis := m.visible()
 	body := []string{}
 	for i := m.offset; i < len(vis) && len(body) < height; i++ {
@@ -1303,7 +1424,7 @@ func orDash(s string) string {
 	return s
 }
 
-func (m mockModel) detailTags(r mockRow) [][2]string {
+func (m Model) detailTags(r row) [][2]string {
 	if r.kind == kindHook {
 		event, matcher, _ := strings.Cut(r.label, ":")
 		cmd, out, _ := strings.Cut(r.preview, "  ->  ")
@@ -1387,20 +1508,21 @@ type paneTab struct {
 	// re render the diff colour, so refresh sends a raw body straight to the
 	// viewport.
 	raw  bool
-	body func(mockModel, mockRow) string
+	body func(Model, row) string
 	// A tab that has to see the whole selection at once, like the file tree,
 	// sets all instead of body. all wins where both are set.
-	all func(mockModel) string
+	all func(Model) string
 }
 
+// A diff tab and a call-graph tab both stood here while the layout was judged
+// against a fixture. No harness puts a patch or a call edge on a span, so both
+// had no live source; the `changes` command reads a diff from git instead.
 var paneTabs = []paneTab{
-	{name: "body", body: mockModel.tabBody},
-	{name: "diff", raw: true, all: mockModel.tabDiff},
-	{name: "calls", body: mockModel.tabCalls},
-	{name: "attrs", body: mockModel.tabAttrs},
+	{name: "body", body: Model.tabBody},
+	{name: "attrs", body: Model.tabAttrs},
 }
 
-func (m mockModel) tabsFor() []paneTab {
+func (m Model) tabsFor() []paneTab {
 	out := []paneTab{}
 	for _, t := range paneTabs {
 		if t.all != nil {
@@ -1421,7 +1543,7 @@ func (m mockModel) tabsFor() []paneTab {
 
 // The tab set changes as the cursor moves, so the index is normalised on read
 // instead of clamped on write. A negative index wraps to the last tab.
-func (m mockModel) tabAt() int {
+func (m Model) tabAt() int {
 	n := len(m.tabsFor())
 	if n < 1 {
 		return 0
@@ -1429,7 +1551,7 @@ func (m mockModel) tabAt() int {
 	return ((m.tab % n) + n) % n
 }
 
-func (m mockModel) tabBody(r mockRow) string {
+func (m Model) tabBody(r row) string {
 	b := &strings.Builder{}
 	fmt.Fprintf(b, "## %s\n\n", r.label)
 	switch r.kind {
@@ -1457,18 +1579,7 @@ func (m mockModel) tabBody(r mockRow) string {
 	return b.String()
 }
 
-// calldiff answers a question the unified diff cannot: which calls the edit
-// added or removed. Its output is already a plus and minus tree, so the same
-// diff fence colours it.
-func (m mockModel) tabCalls(r mockRow) string {
-	c, ok := fixtureCalls[r.preview]
-	if !ok {
-		return ""
-	}
-	return fmt.Sprintf("## %s\n\n%s", r.label+" · call graph delta", c)
-}
-
-func (m mockModel) tabAttrs(r mockRow) string {
+func (m Model) tabAttrs(r row) string {
 	b := &strings.Builder{}
 	fmt.Fprintf(b, "## %s · attributes\n\n", r.label)
 	b.WriteString("| attribute | value |\n| --- | --- |\n")
@@ -1478,7 +1589,7 @@ func (m mockModel) tabAttrs(r mockRow) string {
 	return b.String()
 }
 
-func (m mockModel) rendered(src string) string {
+func (m Model) rendered(src string) string {
 	if m.md == nil {
 		return src
 	}
@@ -1489,7 +1600,7 @@ func (m mockModel) rendered(src string) string {
 	return strings.TrimRight(out, "\n")
 }
 
-func (m mockModel) paneSource() string {
+func (m Model) paneSource() string {
 	tabs := m.tabsFor()
 	if len(tabs) < 1 {
 		return ""
@@ -1509,7 +1620,7 @@ func (m mockModel) paneSource() string {
 
 // The viewport was constructed and sized in the earlier drafts but never fed,
 // so a multi mark preview cut silently at the pane height with no way to scroll.
-func (m mockModel) refresh() mockModel {
+func (m Model) refresh() Model {
 	src := m.paneSource()
 	tabs := m.tabsFor()
 	if len(tabs) > 0 && tabs[m.tabAt()].raw {
@@ -1522,7 +1633,7 @@ func (m mockModel) refresh() mockModel {
 
 // The bar names every reading available for the selection and marks the live
 // one. tabCols reports where each name starts, so a click can pick one.
-func (m mockModel) tabCols() []int {
+func (m Model) tabCols() []int {
 	cols, x := []int{}, 0
 	for _, t := range m.tabsFor() {
 		cols = append(cols, x)
@@ -1531,7 +1642,7 @@ func (m mockModel) tabCols() []int {
 	return cols
 }
 
-func (m mockModel) tabBar(width int) string {
+func (m Model) tabBar(width int) string {
 	tabs := m.tabsFor()
 	at := m.tabAt()
 	parts := []string{}
@@ -1547,7 +1658,7 @@ func (m mockModel) tabBar(width int) string {
 
 // The attribute block has its own tab, but the four facts a reader checks most
 // stay pinned under the pane, so switching tabs never hides them.
-func (m mockModel) paneStrip(width int) string {
+func (m Model) paneStrip(width int) string {
 	tags := m.detailTags(m.rows[m.at(m.cursor)])
 	parts := []string{}
 	for i, kv := range tags {
@@ -1561,7 +1672,7 @@ func (m mockModel) paneStrip(width int) string {
 
 // Three inner lines are chrome: the tab bar, the rule and the pinned strip.
 // sized subtracts the same three from the viewport height.
-func (m mockModel) paneView(inner int) string {
+func (m Model) paneView(inner int) string {
 	return strings.Join([]string{
 		m.tabBar(inner),
 		m.pane.View(),
@@ -1593,8 +1704,17 @@ func box(name string, inner int, body string) string {
 
 // State is spelled out, never carried by colour alone. A saved frame has no
 // escape bytes, so a green "follow" flag and a grey one read identically.
-func (m mockModel) head() string {
-	left := title.Render("reel") + dim.Render("  agent trace")
+func (m Model) head() string {
+	// The session and its source are the two facts a reader needs to know what
+	// they are looking at, so they sit ahead of the view's own flags.
+	who := "no session"
+	if m.current != nil {
+		who = m.current.Service + " " + m.current.Short()
+	}
+	left := title.Render("reel") + dim.Render("  "+who)
+	if m.query != "" {
+		left += accent.Render("  /" + m.query)
+	}
 	flags := []string{}
 	if m.follow {
 		flags = append(flags, live.Render("follow on"))
@@ -1633,18 +1753,21 @@ func withGrip(tree string, inner int) string {
 	return strings.Join(lines, "\n")
 }
 
-func (m mockModel) footer() string {
+func (m Model) footer() string {
 	if m.status != "" {
 		return fit(accent.Render(m.status), m.width)
 	}
 	if m.pending != "" {
 		return fit(accent.Render(m.pending+"…")+dim.Render("  a fold  R open all  M close all  x focus"), m.width)
 	}
-	hint := "j k move   d u page   D U inspector   J K size   tab pane   n p turn   enter turn   M row   m subtree   esc clear   Y yank   ? help"
+	if m.filter {
+		return fit(accent.Render("/"+m.query)+dim.Render("   enter keep   esc clear"), m.width)
+	}
+	hint := "j k move   d u page   D U inspector   J K size   tab pane   n p turn   M row   m subtree   s session   / filter   Y yank   ? help"
 	return fit(dim.Render(hint), m.width)
 }
 
-func (m mockModel) leaderBar() string {
+func (m Model) leaderBar() string {
 	keys := []string{"f follow", "o anchor", "i inspector", "y yank raw", "? help"}
 	if m.pending == "i" {
 		keys = []string{"i toggle", "h left", "j bottom", "k top", "l right"}
@@ -1652,7 +1775,7 @@ func (m mockModel) leaderBar() string {
 	return fit(accent.Render("<space>")+dim.Render("  "+strings.Join(keys, "   ")), m.width)
 }
 
-var mockHelp = [][2]string{
+var helpTable = [][2]string{
 	{"j / k", "move one span"},
 	{"d / u", "page the trace half a screen  (ctrl+d and ctrl+u also work)"},
 	{"D / U", "page the inspector  (ctrl+f and ctrl+b also work)"},
@@ -1674,12 +1797,14 @@ var mockHelp = [][2]string{
 	{"click / wheel", "select a row, fold on the wedge, pick a tab, scroll either pane"},
 	{"<space> i", "inspector: i toggle, h left, j bottom, k top, l right"},
 	{"<space>", "leader: f follow, o anchor, i inspector, y yank, ? help"},
+	{"s", "attach to another session"},
+	{"/", "filter the tree by text  (esc clears it)"},
 	{"q", "quit"},
 }
 
-func viewMockHelp(width, height int) string {
+func viewHelp(width, height int) string {
 	lines := []string{}
-	for _, h := range mockHelp {
+	for _, h := range helpTable {
 		lines = append(lines, accent.Render(fit(h[0], 18))+plain.Render(h[1]))
 	}
 	// m is bound to mark here and to move in neo-tree. reel has no move, so the
@@ -1721,12 +1846,22 @@ func viewTooSmall(w, h int) string {
 	return strings.Join(out, "\n")
 }
 
-func (m mockModel) View() string {
+func (m Model) View() string {
 	if m.width < minWidth || m.height < minHeight {
 		return viewTooSmall(m.width, m.height)
 	}
 	if m.help {
-		return viewMockHelp(m.width, m.height)
+		return viewHelp(m.width, m.height)
+	}
+	if m.picking {
+		return m.viewPick()
+	}
+	if len(m.rows) == 0 {
+		waiting := "waiting for spans in " + m.source
+		if m.query != "" {
+			waiting = "no row matches /" + m.query
+		}
+		return m.head() + "\n\n" + faint.Render(waiting) + "\n\n" + m.footer()
 	}
 	inner := max(1, m.treeWidth()-2)
 	tree := box(fmt.Sprintf("trace  %d shown of %d", len(m.visible()), len(m.rows)),
@@ -1763,15 +1898,19 @@ const turnPrompt = "detail should be shown by default. there should b mre info. 
 	"- keybindings should match my nvim bindings\n- space as leader, `zx`, etc\n" +
 	"- display the prompt with `glamour`\n- select multiple with shift, like a folder"
 
-// The newest row is still open while the stream has more to append, so it wears
+// A span with no end has not returned yet, so its row wears
 // the spinner in place of a leaf glyph.
-func (m mockModel) running(idx int) bool {
-	return m.next < len(stream) && idx == len(m.rows)-1
+func (m Model) running(idx int) bool {
+	if idx < 0 || idx >= len(m.rows) || m.rows[idx].node == nil {
+		return false
+	}
+	node := m.rows[idx].node
+	return node.Pending || node.Span.End.IsZero() || node.Span.End.Before(node.Span.Start)
 }
 
 // The tree's first body line sits at treeTop, which is Y=3 unless the inspector
 // took the top. A cursor row is two lines tall, which rowHeight knows.
-func (m mockModel) rowAtY(y int) int {
+func (m Model) rowAtY(y int) int {
 	vis := m.visible()
 	line := y - m.treeTop()
 	if line < 0 || line >= m.treeRows() {
@@ -1789,7 +1928,7 @@ func (m mockModel) rowAtY(y int) int {
 // The label starts at prefixWidth, and the guide spends two cells per depth
 // level. So the fold wedge of a row at depth d sits at that offset plus 2*d,
 // and the box border adds one more on screen.
-func (m mockModel) onWedge(vi, x int) bool {
+func (m Model) onWedge(vi, x int) bool {
 	idx := m.at(vi)
 	if !m.rows[idx].parent {
 		return false
@@ -1800,7 +1939,7 @@ func (m mockModel) onWedge(vi, x int) bool {
 
 // inPane is the complement of the tree box on whichever edge the inspector
 // took, so a wheel event lands in exactly one of the two.
-func (m mockModel) inPane(msg tea.MouseMsg) bool {
+func (m Model) inPane(msg tea.MouseMsg) bool {
 	switch m.placeAt() {
 	case placeBottom:
 		return msg.Y > m.dividerY()
@@ -1816,21 +1955,21 @@ func (m mockModel) inPane(msg tea.MouseMsg) bool {
 
 // paneTop is the screen row of the inspector's tab bar, the first inner row
 // below its top border.
-func (m mockModel) paneTop() int {
+func (m Model) paneTop() int {
 	if m.placeAt() == placeBottom {
 		return m.dividerY() + 2
 	}
 	return 2
 }
 
-func (m mockModel) paneLeft() int {
+func (m Model) paneLeft() int {
 	if m.placeAt() == placeRight {
 		return m.treeWidth()
 	}
 	return 0
 }
 
-func (m mockModel) mouse(msg tea.MouseMsg) (tea.Model, tea.Cmd) {
+func (m Model) mouse(msg tea.MouseMsg) (tea.Model, tea.Cmd) {
 	// A press on the divider grabs it, and the grab outranks both panes until
 	// the button comes back up. Without the grab, one fast drag past the row
 	// drops the resize and selects a span instead.
@@ -1885,189 +2024,87 @@ func (m mockModel) mouse(msg tea.MouseMsg) (tea.Model, tea.Cmd) {
 	return m.clamp(), nil
 }
 
-// Real spans from the collector file, joined to the matching transcript for the
-// tool bodies. The thinking text is the one gap: every thinking block in all 25
-// transcripts carries an empty string, so no preview can show reasoning.
-var fixture = []mockRow{
-	{depth: 0, kind: kindTurn, actor: "@user", label: "turn 1", preview: "i would love an otel trace view that we build with bubbletea/charm/etc that's for our agents that support otel", ms: 252000, at: 0, took: 100, parent: true},
-	{depth: 1, kind: kindHook, actor: "@hook", label: "SessionStart", preview: "~/.claude/hooks/context.sh  ->  loaded MEMORY.md, 14 pointers", src: "~/.claude/settings.json", ms: 212, at: 0, took: 1},
-	{depth: 1, kind: kindHook, actor: "@hook", label: "UserPromptSubmit", preview: "~/.claude/hooks/steer.sh  ->  injected 2 reminders", src: "~/.claude/settings.json", ms: 96, at: 0, took: 1},
-	{depth: 1, kind: kindThink, actor: "@main", label: "Thinking", preview: "Two shapes fit. A flat span list is cheap but loses the turn. A tree keeps it, so the tree wins.", in: 11200, out: 310, ms: 4100, at: 0, took: 2},
-	{depth: 1, kind: kindPrompt, actor: "@main", label: "Prompt", preview: "Facts first, then one fork. Claude Code emits real spans: claude_code.interaction, .llm_request, .tool", in: 12400, out: 486, ms: 9200, at: 2, took: 4},
-	{depth: 1, kind: kindTool, actor: "@main", label: "Bash", preview: `ls && echo "--- pkgs ---" && ls pkgs 2>/dev/null | head -50`, ms: 117, at: 6, took: 1},
-	{depth: 1, kind: kindTool, actor: "@main", label: "Bash", preview: `grep -ril "otel|opentelemetry|OTEL_EXPORTER" --include=*.nix --include=*.go .`, ms: 240, at: 7, took: 2},
-	{depth: 1, kind: kindTool, actor: "@main", label: "Read", preview: "pkgs/go.mod  (42 lines)", ms: 9, at: 9, took: 1},
-	{depth: 1, kind: kindSub, actor: "@sub-explore", label: "Task: Explore", preview: "find every otel reference under modules/ and hosts/, report paths only", ms: 31204, at: 10, took: 18, parent: true},
-	{depth: 2, kind: kindThink, actor: "@sub-explore", label: "Thinking", preview: "modules/ first. hosts/ only imports it, so a hosts hit without a modules hit would be the surprise.", in: 7400, out: 190, ms: 2600, at: 10, took: 2},
-	{depth: 2, kind: kindPrompt, actor: "@sub-explore", label: "Prompt", preview: "I will sweep modules/ first, then hosts/, and return a deduplicated path list.", in: 8100, out: 220, ms: 3900, at: 12, took: 3},
-	{depth: 2, kind: kindTool, actor: "@sub-explore", label: "Grep", preview: "OTEL_EXPORTER_OTLP  path=modules/  glob=*.nix", ms: 64, at: 15, took: 1},
-	{depth: 2, kind: kindTool, actor: "@sub-explore", label: "Bash", preview: "fd -e nix . modules/home/programs/llm | head -40", ms: 88, at: 17, took: 1},
-	{depth: 2, kind: kindHook, actor: "@hook", label: "SubagentStop", preview: "report-shape.sh  ->  allow, paths only", src: "~/.claude/settings.json", ms: 57, at: 26, took: 1},
-	{depth: 1, kind: kindMCP, actor: "@main", label: "ast-grep:find_code", preview: "pattern=$ENV.$KEY  lang=nix  path=modules/home/programs/llm", ms: 1840, at: 28, took: 3},
-	{depth: 1, kind: kindPrompt, actor: "@main", label: "Prompt", preview: "Now the Claude env block. I will add OTEL_LOG_USER_PROMPTS so the prompt lands on the span.", in: 29700, out: 1200, ms: 11400, at: 31, took: 6},
-	{depth: 1, kind: kindHook, actor: "@hook", label: "PreToolUse:Edit", preview: "guard-nix-managed.sh  ->  allow, path is nix source", src: "plugin:hm-guardrails", ms: 34, at: 36, took: 1},
-	{depth: 1, kind: kindTool, actor: "@main", label: "Edit", preview: "modules/home/programs/llm/harnesses/claude/default.nix", add: 8, files: 1, ms: 14, at: 37, took: 1},
-	{depth: 1, kind: kindHook, actor: "@hook", label: "PostToolUse:Edit", preview: "nix fmt --  ->  reformatted 1 file", src: "~/.claude/settings.json", ms: 1930, at: 37, took: 3},
-	{depth: 1, kind: kindTool, actor: "@main", label: "Bash", preview: "nix build .#reel  ->  ShellError: flake output 'reel' not found", ms: 2140, at: 38, took: 4, fail: true},
-	{depth: 1, kind: kindTool, actor: "@main", label: "Bash", preview: "nh darwin switch < /dev/null > /tmp/switch.log 2>&1", ms: 181000, at: 43, took: 52},
-	{depth: 0, kind: kindTurn, actor: "@user", label: "turn 2", preview: "commit push switch and test", ms: 108000, at: 0, took: 100, parent: true},
-	{depth: 1, kind: kindPrompt, actor: "@main", label: "Prompt", preview: "Built clean on lv426. Three files changed, 30 lines added.", in: 31100, out: 640, ms: 7800, at: 0, took: 5},
-	{depth: 1, kind: kindSkill, actor: "@main", label: "/writing-commit-message", preview: "one concern per commit, conventional prefix, title only, no body", ms: 3100, at: 5, took: 4, parent: true},
-	{depth: 2, kind: kindTool, actor: "@main", label: "Bash", preview: "git diff --cached --stat", ms: 41, at: 5, took: 1},
-	{depth: 2, kind: kindPrompt, actor: "@main", label: "Prompt", preview: "One concern here: the collector service. The reel changes go in a second commit.", in: 33800, out: 120, ms: 2600, at: 6, took: 3},
-	{depth: 1, kind: kindHook, actor: "@hook", label: "PreToolUse:Bash", preview: "guard-hooks.sh  ->  deny: hook-bypass flags are never allowed, fix the hook", src: "plugin:hm-guardrails", ms: 28, at: 8, took: 1, fail: true},
-	{depth: 1, kind: kindTool, actor: "@main", label: "Bash", preview: `git add -A && git commit -m "feat(otel): run an otel collector service"`, ms: 310, at: 10, took: 2},
-	{depth: 1, kind: kindTool, actor: "@main", label: "Bash", preview: "git push origin main", ms: 1400, at: 13, took: 4},
-	{depth: 0, kind: kindTurn, actor: "@user", label: "turn 3", preview: "detail should be shown by default. there should b mre info. and i should be able to see the prompt inlined", at: 0, took: 100, parent: true},
-	{depth: 1, kind: kindThink, actor: "@main", label: "Thinking", preview: "The inspector is already built. The gap is that nothing marks a row on load, so it opens empty.", in: 40100, out: 420, ms: 5200, at: 0, took: 3},
-	{depth: 1, kind: kindPrompt, actor: "@main", label: "Prompt", preview: "Surveying your nvim keymap so the mockups propose bindings you already know.", in: 42000, out: 890, ms: 9300, at: 3, took: 9},
-	{depth: 1, kind: kindTool, actor: "@main", label: "Read", preview: "neovim/config/lua/plugins/neo-tree.lua  (195 lines)", ms: 11, at: 12, took: 1},
-	{depth: 1, kind: kindHook, actor: "@hook", label: "Stop", preview: "ste-line-length.sh  ->  block: 2 sentences over 25 words", src: "~/.claude/settings.json", ms: 143, at: 13, took: 1, fail: true},
-}
-
-// Appended one per tick so the autorefresh, the follow and the tail anchor can
-// all be judged from a still frame taken a few seconds apart.
-var stream = []mockRow{
-	{depth: 1, kind: kindTool, actor: "@main", label: "Bash", preview: "python3 - <<EOF   survey span attribute keys across 857 spans", ms: 430, at: 13, took: 3},
-	{depth: 1, kind: kindPrompt, actor: "@main", label: "Prompt", preview: "The gantt track now stretches, so the dead band on the right closes.", in: 44200, out: 1100, ms: 12600, at: 16, took: 7},
-	{depth: 1, kind: kindTool, actor: "@main", label: "Edit", preview: "pkgs/reel/internal/ui/mockup.go", add: 180, del: 96, files: 1, ms: 22, at: 24, took: 1},
-	{depth: 1, kind: kindTool, actor: "@main", label: "Bash", preview: "go build ./...", ms: 3400, at: 26, took: 9},
-	{depth: 1, kind: kindSub, actor: "@sub-explore", label: "Task: Explore", preview: "check every charm component we already vendor in the nix store", ms: 18700, at: 36, took: 12, parent: true},
-	{depth: 2, kind: kindTool, actor: "@sub-explore", label: "Grep", preview: "charmbracelet/bubbles  path=/nix/store  glob=*.go", ms: 1200, at: 37, took: 3},
-	{depth: 2, kind: kindPrompt, actor: "@sub-explore", label: "Prompt", preview: "viewport, table, list and help are all present at v1.0.0.", in: 6400, out: 180, ms: 4300, at: 41, took: 5},
-	{depth: 1, kind: kindTeam, actor: "@team-doc", label: "Teammate: doc", preview: "write the key table into pkgs/reel/README.md, keys only, no prose", ms: 22400, at: 49, took: 14, parent: true},
-	{depth: 2, kind: kindTool, actor: "@team-doc", label: "Read", preview: "pkgs/reel/README.md  (61 lines)", ms: 7, at: 49, took: 1},
-	{depth: 2, kind: kindMCP, actor: "@team-doc", label: "basic-memory:search_notes", preview: "query=reel key bindings  project=sysinit", ms: 940, at: 51, took: 2},
-	{depth: 2, kind: kindTool, actor: "@team-doc", label: "Edit", preview: "pkgs/reel/README.md", add: 19, del: 4, files: 1, ms: 16, at: 55, took: 1},
-	{depth: 1, kind: kindTool, actor: "@main", label: "Bash", preview: "wezterm cli get-text --pane-id 19 > /tmp/frame.txt", ms: 64, at: 64, took: 1},
-	{depth: 1, kind: kindTool, actor: "@main", label: "Bash", preview: "wezterm cli get-text | head -8  ->  Broken pipe (os error 32)", ms: 18, at: 66, took: 1, fail: true},
-	{depth: 1, kind: kindPrompt, actor: "@main", label: "Prompt", preview: "Never pipe get-text. Redirect it, then read the file.", in: 45900, out: 210, ms: 6100, at: 68, took: 4},
-}
-
-// Both fixtures are real hunks, taken from the two commits this mockup was
-// written against, so the pane is exercised over content the renderer will
-// actually meet.
-var fixtureDiff = map[string]string{
-	"modules/home/programs/llm/harnesses/claude/default.nix": `--- a/modules/home/programs/llm/harnesses/claude/default.nix
-+++ b/modules/home/programs/llm/harnesses/claude/default.nix
-@@ -107,6 +107,10 @@ in
-         OTEL_LOGS_EXPORTER = "otlp";
-         OTEL_EXPORTER_OTLP_PROTOCOL = "http/json";
-         OTEL_EXPORTER_OTLP_ENDPOINT = "http://127.0.0.1:4318";
-+
-+        # Without this, every prompt attribute reads <REDACTED> and a turn row
-+        # carries no text. The collector writes to a local file only.
-+        OTEL_LOG_USER_PROMPTS = "1";
-       };
-`,
-	"pkgs/reel/internal/ui/mockup.go": `--- a/pkgs/reel/internal/ui/mockup.go
-+++ b/pkgs/reel/internal/ui/mockup.go
-@@ -66,6 +66,13 @@ func (m mockModel) hunkHead(name string, h diffHunk, width int) string {
- 	if h.sym != "" {
- 		label += " · " + h.sym
- 	}
--	label = clip(label, max(4, width-6))
-+	// clip pads to its width, and a padded label would eat the rule, so the
-+	// padding comes straight back off.
-+	label = strings.TrimRight(clip(label, max(4, width-6)), " ")
- 	pad := width - lipgloss.Width(label) - 4
-@@ -104,7 +111,7 @@ func (m mockModel) tabDiff() string {
--		title.Render(plural(len(files), "file")),
-+		title.Render(fmt.Sprintf("%d %s", len(files), plural(len(files), "file"))),
- 		live.Render(fmt.Sprintf("+%d", add)),
- 		bad.Render(fmt.Sprintf("-%d", del)))
-`,
-	"pkgs/reel/README.md": `--- a/pkgs/reel/README.md
-+++ b/pkgs/reel/README.md
-@@ -18,10 +18,25 @@ reel reads the traces the local collector writes to disk.
--## Keys
--
--Arrow keys move. Enter opens. q quits.
-+## Keys
-+
-+| key | what it does |
-+| --- | --- |
-+| j k | move the cursor one row |
-+| d u | page the trace |
-+| D U | scroll the inspector |
-+| J K | resize the split |
-+| enter | mark the enclosing turn |
-+| M | mark one row |
-+| <space> i | dock the inspector: i toggle, h j k l edge |
-+
-+## Inspector
-+
-+The inspector reads the marked rows. It has one tab per way of reading a
-+span: the body, the unified diff, the call graph delta, and the raw
-+attributes. A tab with nothing to say is dropped from the bar.
-`,
-}
-
-// calldiff walks the call graph, so its answer is which calls the edit added or
-// removed. A plus and minus tree reads as a diff, so the same fence colours it.
-// A path whose language has no bundled grammar is absent here, and tabsFor then
-// drops the tab, so the reader never opens a pane that apologises.
-var fixtureCalls = map[string]string{
-	"pkgs/reel/internal/ui/mockup.go": "```diff\n" + `  Model.View()
-  ├─ if m.quitted
-  ├─ case modePick
-     └─ Model.viewPick()
-        ├─ Model.Render()
-        ├─ span(count, ch)
-        ├─ clip(text, width)
-        │  ├─ if width <= 0
-        │  ├─ if len(runes) <= width
-        │  ├─ if width == 1
-        │  └─ string()
-        ├─ Model.Title()
-        ├─ Model.Sprintf()
-+       ├─ plural(n, word)
-+       │  └─ if n == 1
-        ├─ Model.Render()
-        ├─ ago(at, now)
-` + "```\n",
-}
-
-// The join key is a symbol range: a hunk belongs to the symbol whose range
-// holds its first new line, and so does a call site. diffview owns the join;
-// the mockup only supplies the two layers a real run reads from ast-grep and
-// calldiff. A language outline cannot read, such as Nix or markdown, has no
-// entry here, and its file then renders as a flat list of hunks.
-var fixtureOutline = map[string][]diffview.Symbol{
-	"pkgs/reel/internal/ui/mockup.go": {
-		{Kind: "func", Name: "(m mockModel) hunkHead(name string, h diffHunk, width int) string", From: 62, To: 80},
-		{Kind: "func", Name: "(m mockModel) tabDiff() string", From: 104, To: 138},
-	},
-}
-
-var fixtureEdges = map[string][]diffview.Edge{
-	"pkgs/reel/internal/ui/mockup.go": {
-		{Line: 71, Added: true},  // strings.TrimRight
-		{Line: 112, Added: true}, // fmt.Sprintf
-	},
-}
-
-// The tab reads the marked rows, so a patch a row names is parsed once per
-// render and the tree matches whatever is marked right now.
-func (m mockModel) tabDiff() string {
-	files, seen := []diffview.File{}, map[string]bool{}
-	for _, idx := range m.marked() {
-		src, ok := fixtureDiff[m.rows[idx].preview]
-		if !ok {
-			continue
-		}
-		for _, f := range diffview.Parse(src) {
-			if seen[f.Path] {
-				continue
-			}
-			seen[f.Path] = true
-			files = append(files, f)
+// currentAt is where the attached session sits in the list, so the picker opens
+// on the run the reader is already watching.
+func (m Model) currentAt() int {
+	for i, one := range m.list {
+		if m.current != nil && one.Key == m.current.Key {
+			return i
 		}
 	}
-	return diffview.Render(diffview.Options{
-		Files:   files,
-		Width:   max(20, m.pane.Width),
-		Symbols: fixtureOutline,
-		Edges:   fixtureEdges,
-	})
+	return 0
+}
+
+// The picker is a list, not a pane: a reader reaches for it to change what they
+// are watching, then leaves. Attaching resets the cursor, because a row index
+// means nothing in another run.
+func (m Model) pickKey(k string) (tea.Model, tea.Cmd) {
+	switch k {
+	case "q", "ctrl+c":
+		return m, tea.Quit
+	case "esc", "s":
+		m.picking = false
+		return m, nil
+	case "j", "down":
+		m.pickAt = min(len(m.list)-1, m.pickAt+1)
+	case "k", "up":
+		m.pickAt = max(0, m.pickAt-1)
+	case "enter":
+		if m.pickAt < len(m.list) {
+			m.current = m.list[m.pickAt]
+			// A pin names one run. Attaching to another is the reader
+			// overriding that, so the pin has to go or reload would undo it.
+			m.pinned = ""
+			m.marks = map[string]bool{}
+			m.folded = map[string]bool{}
+			m.rebuild()
+			m.cursor, m.offset, m.follow = max(0, len(m.rows)-1), 0, true
+		}
+		m.picking = false
+		return m.clamp(), nil
+	}
+	return m, nil
+}
+
+// The filter reads text a keystroke at a time rather than through a textinput,
+// because one line of query does not earn a component and its own focus rules.
+func (m Model) filterKey(msg tea.KeyMsg, k string) (tea.Model, tea.Cmd) {
+	switch k {
+	case "esc":
+		m.filter, m.query = false, ""
+		m.rebuild()
+		return m.clamp(), nil
+	case "enter":
+		m.filter = false
+		return m.clamp(), nil
+	case "backspace":
+		if m.query != "" {
+			m.query = m.query[:len(m.query)-1]
+			m.rebuild()
+		}
+		return m.clamp(), nil
+	}
+	if len(msg.Runes) > 0 {
+		m.query += string(msg.Runes)
+		m.rebuild()
+	}
+	return m.clamp(), nil
+}
+
+// viewPick is the whole frame while the picker is open, because a list of runs
+// competing with a tree for the same rows reads as neither.
+func (m Model) viewPick() string {
+	b := &strings.Builder{}
+	b.WriteString(title.Render("reel") + dim.Render("  attach to a session") + "\n\n")
+	for i, one := range m.list {
+		mark := "  "
+		style := plain
+		if i == m.pickAt {
+			mark, style = accent.Render(gl.point)+" ", accent
+		}
+		b.WriteString(fit(mark+style.Render(fmt.Sprintf("%-12s %-40s %5d spans  %s",
+			one.Service, one.Title(), one.Count, ago(one.Last, m.now))), m.width) + "\n")
+	}
+	b.WriteString("\n" + faint.Render("j k move   enter attach   esc cancel   q quit"))
+	return b.String()
 }
