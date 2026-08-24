@@ -139,7 +139,7 @@ func (m Model) line(one row, here bool, width int) string {
 
 	line := strings.Join(cells, "")
 	if here {
-		return lipgloss.NewStyle().Background(lipgloss.Color("236")).Render(line)
+		return lipgloss.NewStyle().Reverse(true).Render(line)
 	}
 	return line
 }
