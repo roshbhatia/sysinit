@@ -19,9 +19,9 @@ pkgs/
     workspace/      the declared boundary, and the repositories under it
   ask/              main package + ask/internal/
   changes/          main package + changes/internal/
-  traces/             main package + traces/internal/  (source/ holds the provider
-                    contract, attach/ the cwd to session mapping, ui/live.go
-                    the whole layout)
+  traces/           main package + traces/internal/  (source/ holds the provider
+                    contract, transcript/ what Claude Code writes to disk,
+                    attach/ the cwd to session mapping, ui/live.go the layout)
   seshy/            main package + seshy/internal/
   specutil/         cmd/specutil + specutil/internal/
   utils/            main package + utils/internal/

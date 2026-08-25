@@ -16,6 +16,7 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 
 	tea "github.com/charmbracelet/bubbletea"
@@ -33,7 +34,7 @@ func main() {
 	pinned := flag.String("session", "", "attach to this session, by id or prefix")
 	list := flag.Bool("list", false, "list the sessions and exit")
 	once := flag.Bool("once", false, "print the tree once and exit; status 2 when a span failed")
-	asked := flag.String("provider", "", "read this provider as well as the collector file (default: $"+source.Env+")")
+	asked := flag.String("provider", "", "comma separated providers to read beside the collector file; `transcript` reads what Claude Code writes to disk (default: $"+source.Env+")")
 	back := flag.Duration("since", 2*time.Hour, "with a provider, how far back the first read reaches")
 	every := flag.Duration("poll", 15*time.Second, "with a provider, how often to re-read")
 	lag := flag.Duration("lag", 90*time.Second, "with a provider, how much every poll overlaps the last")
@@ -53,13 +54,13 @@ func main() {
 		}
 	}
 
-	provider, err := source.Resolve(*asked)
+	providers, err := source.Resolve(*asked)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "traces: %v\n", err)
 		os.Exit(1)
 	}
-	if provider != nil {
-		provider.Session = which
+	for _, one := range providers {
+		one.Session = which
 	}
 
 	path := *file
@@ -77,7 +78,7 @@ func main() {
 	// and copilot all reach the collector directly: reading one source meant
 	// `traces` showed the redirected harness and none of the others, and every
 	// look at the rest needed the variable unset by hand.
-	src := sources{path: path, provider: provider, back: *back, every: *every, lag: *lag, service: *service}
+	src := sources{path: path, providers: providers, back: *back, every: *every, lag: *lag, service: *service}
 
 	if *asJSON || *list || *once {
 		os.Exit(src.report(which, scope, *list, *asJSON))
@@ -99,12 +100,12 @@ func attached(pinned string, all bool) string {
 
 // sources is every place this machine keeps spans.
 type sources struct {
-	path     string
-	provider *source.Provider
-	back     time.Duration
-	every    time.Duration
-	lag      time.Duration
-	service  string
+	path      string
+	providers []*source.Provider
+	back      time.Duration
+	every     time.Duration
+	lag       time.Duration
+	service   string
 }
 
 // name says what the frame is reading, so an empty view names the source that
@@ -114,10 +115,27 @@ func (s sources) name() string {
 	if where == "" {
 		where = "standard input"
 	}
-	if s.provider == nil {
-		return where
+	for _, one := range s.providers {
+		where += " and " + one.Name
 	}
-	return where + " and " + s.provider.Name
+	return where
+}
+
+// fetch runs every provider over the same window and folds the answers into one
+// batch. A provider that fails is named and skipped: the others already
+// answered, and one unreachable source should not empty the view.
+func (s sources) fetch(ctx context.Context) otlp.Batch {
+	out := otlp.Batch{}
+	for _, one := range s.providers {
+		read, err := one.Fetch(ctx, s.back)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "traces: %v\n", err)
+			continue
+		}
+		out.Spans = append(out.Spans, read.Spans...)
+		out.Records = append(out.Records, read.Records...)
+	}
+	return out
 }
 
 // read pulls every source into one batch. An empty path means standard input.
@@ -158,18 +176,14 @@ func (s sources) report(which string, scope []string, listing, asJSON bool) int 
 		fmt.Fprintf(os.Stderr, "traces: %v\n", err)
 		return 1
 	}
-	if s.provider != nil {
+	if len(s.providers) > 0 {
+		// The file already answered, so a provider that cannot run costs its
+		// own harness and not the whole view.
 		ctx, cancel := context.WithTimeout(context.Background(), 3*time.Minute)
-		read, err := s.provider.Fetch(ctx, s.back)
+		read := s.fetch(ctx)
 		cancel()
-		if err != nil {
-			// The file already answered, so a provider that cannot run costs
-			// its own harness and not the whole view.
-			fmt.Fprintf(os.Stderr, "traces: %v\n", err)
-		} else {
-			batch.Spans = append(batch.Spans, read.Spans...)
-			batch.Records = append(batch.Records, read.Records...)
-		}
+		batch.Spans = append(batch.Spans, read.Spans...)
+		batch.Records = append(batch.Records, read.Records...)
 	}
 	batch = s.keep(batch)
 	if asJSON {
@@ -293,10 +307,30 @@ func (s sources) watch(which string, scope []string) int {
 		}()
 	}
 
+	// One channel per provider would need one select arm per provider, so each
+	// follower writes into a shared channel and a counter closes it once.
 	var fromProvider chan otlp.Batch
-	if s.provider != nil {
+	if len(s.providers) > 0 {
 		fromProvider = make(chan otlp.Batch, 32)
-		go source.Follow(*s.provider, s.every, s.back, s.lag, fromProvider, stop)
+		each := make([]chan otlp.Batch, len(s.providers))
+		for i, one := range s.providers {
+			each[i] = make(chan otlp.Batch, 32)
+			go source.Follow(*one, s.every, s.back, s.lag, each[i], stop)
+		}
+		var wg sync.WaitGroup
+		for _, in := range each {
+			wg.Add(1)
+			go func() {
+				defer wg.Done()
+				for batch := range in {
+					fromProvider <- batch
+				}
+			}()
+		}
+		go func() {
+			wg.Wait()
+			close(fromProvider)
+		}()
 	}
 
 	go func() {

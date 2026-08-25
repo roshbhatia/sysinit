@@ -27,6 +27,11 @@
 // by span id. A provider is therefore stateless: it answers "which spans ended
 // in the last N", and traces decides what is new. That suits a source that has to
 // be queried, which is the case this exists for.
+//
+// TRACES_PROVIDER takes a comma separated list, because two sources answer
+// different questions about the same run. On the machine this was built for,
+// `observe,transcript` reads the spans an org redirects to Observe and the reply
+// text Claude Code writes to disk, and neither one alone draws a whole run.
 package source
 
 import (
@@ -44,6 +49,7 @@ import (
 	"time"
 
 	"github.com/roshbhatia/sysinit/pkgs/traces/internal/otlp"
+	"github.com/roshbhatia/sysinit/pkgs/traces/internal/transcript"
 )
 
 // Env names the provider without a flag, so a machine can carry the choice in
@@ -62,16 +68,52 @@ type Provider struct {
 	// Session narrows the read when the provider can do it. traces resolves a
 	// prefix itself, so a provider may ignore this.
 	Session string
+	// read is set on a builtin, and Binary is empty there.
+	read func(time.Duration) otlp.Batch
 }
 
-// Resolve turns a name or a path into a provider. An empty ask, with nothing in
-// the environment either, means the caller wants the collector file.
-func Resolve(ask string) (*Provider, error) {
+// Builtin names the providers this binary implements itself. transcript reads
+// what Claude Code writes under ~/.claude/projects, which is a local file rather
+// than a queryable service, so a separate executable would only add a fork.
+var builtin = map[string]func(time.Duration) otlp.Batch{
+	"transcript": func(window time.Duration) otlp.Batch {
+		return otlp.Batch{Records: transcript.Read(transcript.Root(), window)}
+	},
+}
+
+// Resolve turns a comma separated list of names or paths into providers. Two
+// sources answer different questions on the same machine: Observe holds the
+// spans an org redirects there, and the transcript holds the text no span
+// carries. Asking for one used to mean giving up the other.
+//
+// An empty ask, with nothing in the environment either, means the caller wants
+// the collector file alone.
+func Resolve(ask string) ([]*Provider, error) {
 	if ask == "" {
 		ask = strings.TrimSpace(os.Getenv(Env))
 	}
-	if ask == "" {
-		return nil, nil
+	out := []*Provider{}
+	seen := map[string]bool{}
+	for _, one := range strings.Split(ask, ",") {
+		one = strings.TrimSpace(one)
+		// A trailing comma, or a variable set to the empty string, is a list of
+		// nothing rather than a provider named "".
+		if one == "" || seen[one] {
+			continue
+		}
+		seen[one] = true
+		found, err := resolveOne(one)
+		if err != nil {
+			return nil, err
+		}
+		out = append(out, found)
+	}
+	return out, nil
+}
+
+func resolveOne(ask string) (*Provider, error) {
+	if run, ok := builtin[ask]; ok {
+		return &Provider{Name: ask, read: run}, nil
 	}
 	binary := ask
 	if !strings.ContainsRune(ask, filepath.Separator) {
@@ -86,6 +128,9 @@ func Resolve(ask string) (*Provider, error) {
 
 // Fetch runs the provider once over the window ending now.
 func (p Provider) Fetch(ctx context.Context, window time.Duration) (otlp.Batch, error) {
+	if p.read != nil {
+		return p.read(window), nil
+	}
 	args := []string{"--since", window.Round(time.Second).String()}
 	if p.Session != "" {
 		args = append(args, "--session", p.Session)
