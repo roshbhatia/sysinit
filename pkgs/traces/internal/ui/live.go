@@ -35,6 +35,10 @@ type glyphSet struct {
 	vert, tee, elbow, gap string
 	fold, unfold, leaf    string
 	fill, dot, tick, ell  string
+	// The strip's own two: a cell that holds a row, and the playhead. Both are
+	// one cell wide in the Narrow block, which every other strip cell has to
+	// match or the run's position drifts as the cursor moves.
+	block, playhead string
 }
 
 var narrowGlyphs = glyphSet{
@@ -43,6 +47,7 @@ var narrowGlyphs = glyphSet{
 	vert: "╎ ", tee: "├╌", elbow: "╰╌", gap: "  ",
 	fold: "▾", unfold: "▸", leaf: " ",
 	fill: "╍", dot: "╌", tick: "·", ell: "…",
+	block: "▄", playhead: "▮",
 }
 
 var asciiGlyphs = glyphSet{
@@ -51,6 +56,7 @@ var asciiGlyphs = glyphSet{
 	vert: ": ", tee: "+-", elbow: "\\-", gap: "  ",
 	fold: "v", unfold: ">", leaf: " ",
 	fill: "=", dot: "-", tick: ".", ell: "...",
+	block: "#", playhead: "|",
 }
 
 var gl = narrowGlyphs
@@ -418,7 +424,9 @@ func (m Model) detailCols() int {
 }
 
 func (m Model) treeRows() int {
-	rows := max(1, m.height-4)
+	// 4 for the header, the footer and the tree box's own two borders, and 1
+	// more for the strip that sits under the header.
+	rows := max(1, m.height-5)
 	if m.vertical() {
 		rows = max(3, rows-m.detailLines())
 	}
@@ -429,9 +437,9 @@ func (m Model) treeRows() int {
 // screen column of its first inner cell. Every mouse hit test starts here.
 func (m Model) treeTop() int {
 	if m.placeAt() == placeTop {
-		return m.detailLines() + 3
+		return m.detailLines() + 4
 	}
-	return 3
+	return 4
 }
 
 func (m Model) treeLeft() int {
@@ -1570,6 +1578,11 @@ func (m Model) tabBody(r row) string {
 			lang = "text"
 		}
 		fmt.Fprintf(b, "```%s\n%s\n```\n", lang, r.preview)
+		// The output is what the row was run for, and no span carries it. It is
+		// here only when the transcript was read.
+		if out := r.output(); out != "" {
+			fmt.Fprintf(b, "\n```text\n%s\n```\n", out)
+		}
 	}
 	if r.fail {
 		fmt.Fprintf(b, "\n> **failed** after %s\n", duration(time.Duration(r.ms)*time.Millisecond))
@@ -1583,11 +1596,19 @@ func (m Model) tabBody(r row) string {
 // tool rows that follow in the tree are the reply's visible half.
 func modelBody(r row) string {
 	attrs := map[string]string{}
+	text, thinking := "", ""
 	if r.node != nil {
 		attrs = r.node.Span.Attrs
+		text, thinking = r.node.Text, r.node.Thinking
 	}
 	b := &strings.Builder{}
-	if r.preview != "" {
+	if thinking != "" {
+		fmt.Fprintf(b, "### reasoning\n\n%s\n\n", thinking)
+	}
+	if text != "" {
+		fmt.Fprintf(b, "### reply\n\n%s\n\n", text)
+	}
+	if text == "" && thinking == "" && r.preview != "" {
 		fmt.Fprintf(b, "%s\n\n", r.preview)
 	}
 	b.WriteString("| what | value |\n| --- | --- |\n")
@@ -1611,8 +1632,12 @@ func modelBody(r row) string {
 		row("total", duration(time.Duration(r.ms)*time.Millisecond))
 	}
 	row("request", first(attrs, "request_id", "gen_ai.response.id"))
-	b.WriteString("\nClaude Code exports no response text, so the reply itself is not here.\n" +
-		"On a `tool_use` stop the tool rows below this one are what the call asked for.\n")
+	// The reply is on disk and never on a span, so its absence is a fact about
+	// the source rather than about the call, and the reader has to be told which.
+	if text == "" && thinking == "" {
+		b.WriteString("\nNo transcript was read, so the reply text is not here.\n" +
+			"Add `transcript` to `TRACES_PROVIDER` to join it in.\n")
+	}
 	return b.String()
 }
 
@@ -1953,7 +1978,82 @@ func (m Model) View() string {
 	if m.leader || m.pending == "i" {
 		bottom = m.leaderBar()
 	}
-	return strings.Join([]string{m.head(), main, bottom}, "\n")
+	return strings.Join([]string{m.head(), m.strip(m.width), main, bottom}, "\n")
+}
+
+// strip is the whole run on one line, above the tree. A gantt column stood to
+// the right of every row before this and was removed: it was indexed by wall
+// clock, so one 3 minute Bash call in a 54 minute run left every other span a
+// sliver, and it cost up to 72 cells of preview to say it.
+//
+// This is indexed by row instead, which is what zoetrope calls event indexing:
+// a busy minute gets room rather than collapsing. Each cell takes the colour of
+// the strongest thing inside it, and the bar is where the cursor sits, so the
+// reader can see their position in a run that is 200 rows longer than the pane.
+func (m Model) strip(width int) string {
+	vis := m.visible()
+	if width < 1 {
+		return ""
+	}
+	if len(vis) == 0 {
+		return faint.Render(strings.Repeat(gl.dot, width))
+	}
+	// A cell holds the strongest row in its slice, so one failure in forty rows
+	// still shows. Without the rank a later row simply overwrote an earlier one
+	// and the mark a reader is scanning for was a coin flip.
+	rank := make([]int, width)
+	ink := make([]lipgloss.Style, width)
+	for at, idx := range vis {
+		col := at * width / len(vis)
+		if col >= width {
+			col = width - 1
+		}
+		r := m.rows[idx]
+		if got := stripRank(r); got > rank[col] {
+			rank[col], ink[col] = got, roleStyle(roleOf[r.kind])
+			if r.fail {
+				ink[col] = bad
+			}
+		}
+	}
+	here := m.cursor * width / len(vis)
+	if here >= width {
+		here = width - 1
+	}
+	cells := make([]string, width)
+	for i := range cells {
+		switch {
+		case i == here:
+			cells[i] = cursor.Render(gl.playhead)
+		case rank[i] == 0:
+			cells[i] = faint.Render(gl.dot)
+		case rank[i] <= 2:
+			// A run alternates model call and tool call, so drawing those as
+			// blocks made the strip one solid bar and the landmarks a reader
+			// scans for vanished into it. They are the baseline instead, and
+			// only a turn, a delegate and a failure rise off it.
+			cells[i] = ink[i].Render(gl.dot)
+		default:
+			cells[i] = ink[i].Render(gl.block)
+		}
+	}
+	return strings.Join(cells, "")
+}
+
+// The order is what a reader scans the strip for: a failure first, then the
+// turn boundaries that divide the run, then the model calls that shape it.
+func stripRank(r row) int {
+	switch {
+	case r.fail:
+		return 5
+	case r.kind == kindTurn:
+		return 4
+	case r.kind == kindSub, r.kind == kindTeam:
+		return 3
+	case r.kind == kindPrompt, r.kind == kindThink:
+		return 2
+	}
+	return 1
 }
 
 // A span with no end has not returned yet, so its row wears
