@@ -1,38 +1,51 @@
-// Package transcript reads what Claude Code writes to disk, which is the half
-// of a run its OTLP export leaves out.
+// Package transcript reads what Claude Code writes to disk and builds the whole
+// run from it: the turns, the model calls, the tool calls under the call that
+// asked for them, and the text of all three.
 //
-// A span says a model call happened, how long it took and what it cost. It does
-// not say what the model wrote, and no attribute on claude_code.llm_request
-// carries it: 346 spans were checked for one. The transcript under
-// ~/.claude/projects does carry it, along with every tool's real output, and it
-// carries the two ids that join it back to the spans: requestId matches a model
-// span's request_id, and a tool_result's tool_use_id matches a tool span's.
+// It used to emit records only. A record decorates a span, so a session with no
+// OTLP span had nothing to decorate and `traces --session <id>` printed "0
+// items" over a 9.8MB transcript. The spans are here now, which is what the
+// codex reader already did, so the tree stands up from disk alone and OTLP adds
+// timing to it rather than being required for it.
 //
-// The reader emits log records rather than spans, because the transcript adds
-// text to a run the collector already described. A record with no span to land
-// on is dropped, so reading a session traces never saw costs nothing.
+// The shape on disk is a linked list, not a tree: every entry carries
+// parentUuid. The tree a reader wants is coarser than that list, because one
+// assistant message is written as several entries sharing a requestId, one per
+// content block. Grouping by requestId is what turns the list back into
+//
+//	turn        the prompt
+//	└─ model    the reasoning and the reply
+//	   └─ tool  what the reply asked to run, and what came back
+//
+// which is the shape the tool calls actually have: they belong to the model call
+// that requested them, not to the turn as siblings of it.
 package transcript
 
 import (
 	"bufio"
 	"encoding/json"
+	"maps"
 	"os"
 	"path/filepath"
+	"sort"
+	"strconv"
 	"strings"
 	"time"
 
 	"github.com/roshbhatia/sysinit/pkgs/traces/internal/otlp"
 )
 
-// The two events this package emits. session.AddRecords matches on them.
+// The events this package emits. session.AddRecords matches on the suffix, so
+// every harness reader shares one vocabulary.
 const (
 	EventText   = "transcript.assistant"
 	EventResult = "transcript.tool_result"
+	EventPrompt = "transcript.user_prompt"
 )
 
-// Service names the records so they key into the same session the spans did.
-// Claude Code's own service.name is claude-code, and a record that named itself
-// anything else would open a second session beside the real one.
+// Service names the records and spans so they key into the same session Claude
+// Code's own OTLP export does. Its service.name is claude-code, and anything
+// else would open a second session beside the real one.
 const Service = "claude-code"
 
 // Root is where Claude Code keeps one directory per project and one file per
@@ -45,19 +58,18 @@ func Root() string {
 	return filepath.Join(home, ".claude", "projects")
 }
 
-// Read walks every transcript touched inside the window and returns the records
-// its entries carry. A file is opened only when its own mtime is inside the
-// window, because a project directory holds every session ever run and the
-// current one is a few of them.
-func Read(root string, window time.Duration, session string) []otlp.Record {
+// Read walks every transcript touched inside the window. A file is opened only
+// when its own mtime is inside it, because a project directory holds every
+// session ever run and the current one is a few of them.
+func Read(root string, window time.Duration, session string) otlp.Batch {
+	out := otlp.Batch{}
 	if root == "" {
-		return nil
+		return out
 	}
 	since := time.Now().Add(-window)
-	out := []otlp.Record{}
 	dirs, err := os.ReadDir(root)
 	if err != nil {
-		return nil
+		return out
 	}
 	for _, dir := range dirs {
 		if !dir.IsDir() {
@@ -78,7 +90,9 @@ func Read(root string, window time.Duration, session string) []otlp.Record {
 			if err != nil || info.ModTime().Before(since) {
 				continue
 			}
-			out = append(out, ReadFile(filepath.Join(root, dir.Name(), f.Name()))...)
+			one := ReadFile(filepath.Join(root, dir.Name(), f.Name()))
+			out.Spans = append(out.Spans, one.Spans...)
+			out.Records = append(out.Records, one.Records...)
 		}
 	}
 	return out
@@ -88,19 +102,48 @@ func Read(root string, window time.Duration, session string) []otlp.Record {
 // writes a dozen record types and adds more between versions, so an unknown
 // type decodes to a zero entry and is skipped rather than failing the file.
 type entry struct {
-	Type      string `json:"type"`
-	SessionID string `json:"sessionId"`
-	RequestID string `json:"requestId"`
-	Timestamp string `json:"timestamp"`
-	Message   struct {
-		Content json.RawMessage `json:"content"`
+	Type       string          `json:"type"`
+	UUID       string          `json:"uuid"`
+	ParentUUID string          `json:"parentUuid"`
+	SessionID  string          `json:"sessionId"`
+	RequestID  string          `json:"requestId"`
+	Timestamp  string          `json:"timestamp"`
+	CWD        string          `json:"cwd"`
+	GitBranch  string          `json:"gitBranch"`
+	AITitle    string          `json:"aiTitle"`
+	Sidechain  bool            `json:"isSidechain"`
+	Meta       bool            `json:"isMeta"`
+	AgentID    string          `json:"agentId"`
+	Subtype    string          `json:"subtype"`
+	Level      string          `json:"level"`
+	Content    json.RawMessage `json:"content"`
+	ToolResult json.RawMessage `json:"toolUseResult"`
+	Message    struct {
+		Model      string          `json:"model"`
+		StopReason string          `json:"stop_reason"`
+		Content    json.RawMessage `json:"content"`
+		Usage      usage           `json:"usage"`
 	} `json:"message"`
+
+	at     time.Time
+	blocks []block
+	text   string
+}
+
+type usage struct {
+	Input      int `json:"input_tokens"`
+	Output     int `json:"output_tokens"`
+	CacheRead  int `json:"cache_read_input_tokens"`
+	CacheWrite int `json:"cache_creation_input_tokens"`
 }
 
 type block struct {
 	Type      string          `json:"type"`
 	Text      string          `json:"text"`
 	Thinking  string          `json:"thinking"`
+	ID        string          `json:"id"`
+	Name      string          `json:"name"`
+	Input     json.RawMessage `json:"input"`
 	ToolUseID string          `json:"tool_use_id"`
 	Content   json.RawMessage `json:"content"`
 	IsError   bool            `json:"is_error"`
@@ -110,76 +153,408 @@ type block struct {
 // bufio.Scanner's default 64k limit silently ended the file at the first one.
 const maxLine = 8 << 20
 
-func ReadFile(path string) []otlp.Record {
+// A turn holds every model call made while answering one prompt, and a model
+// call holds every tool it asked for. Both need an end time, and both learn it
+// only from their last child, so the file is read whole before any span is
+// emitted.
+type node struct {
+	id         string
+	parent     string
+	start, end time.Time
+	attrs      map[string]string
+	name       string
+}
+
+func ReadFile(path string) otlp.Batch {
+	entries, session, title := parse(path)
+	if len(entries) == 0 {
+		return otlp.Batch{}
+	}
+	return build(entries, session, title)
+}
+
+func parse(path string) ([]entry, string, string) {
 	f, err := os.Open(path)
 	if err != nil {
-		return nil
+		return nil, "", ""
 	}
 	defer f.Close()
 
-	out := []otlp.Record{}
+	out := []entry{}
+	sessionID, title := "", ""
 	scan := bufio.NewScanner(f)
 	scan.Buffer(make([]byte, 0, 64<<10), maxLine)
 	for scan.Scan() {
 		var e entry
-		if err := json.Unmarshal(scan.Bytes(), &e); err != nil {
+		if json.Unmarshal(scan.Bytes(), &e) != nil {
 			continue
 		}
-		if e.Type != "assistant" && e.Type != "user" {
+		if e.SessionID != "" {
+			sessionID = e.SessionID
+		}
+		// The harness writes a human title for the run and traces named every
+		// session by 8 characters of a uuid instead.
+		if e.Type == "ai-title" && e.AITitle != "" {
+			title = e.AITitle
+		}
+		if e.Type != "assistant" && e.Type != "user" && e.Type != "system" {
 			continue
 		}
-		var blocks []block
-		if json.Unmarshal(e.Message.Content, &blocks) != nil {
-			continue
+		e.at, _ = time.Parse(time.RFC3339Nano, e.Timestamp)
+		// A message's content is a string on a typed prompt and a block list
+		// everywhere else, and both carry text a reader wants.
+		if json.Unmarshal(e.Message.Content, &e.blocks) != nil {
+			_ = json.Unmarshal(e.Message.Content, &e.text)
 		}
-		at, _ := time.Parse(time.RFC3339Nano, e.Timestamp)
-		out = append(out, e.records(blocks, at)...)
+		out = append(out, e)
 	}
-	return out
+	if err := scan.Err(); err != nil {
+		// A read error mid file leaves a partial run rather than none: the
+		// entries already parsed are still the truth about what ran.
+		return out, sessionID, title
+	}
+	return out, sessionID, title
 }
 
-func (e entry) records(blocks []block, at time.Time) []otlp.Record {
-	out := []otlp.Record{}
+// build walks the entries in order, opening a turn on each prompt and a model
+// call on each new requestId. Order is the tree here: the harness appends, so an
+// entry always belongs to the most recent open parent of its kind.
+func build(entries []entry, sessionID, title string) otlp.Batch {
+	batch := otlp.Batch{}
+	base := attrsOf(entries, title)
+
+	turns := []*node{}
+	models := map[string]*node{}
+	tools := map[string]*node{}
+	order := []*node{}
+	var turn, model *node
+	seq := 0
+
+	for _, e := range entries {
+		switch {
+		case e.isPrompt():
+			seq++
+			turn = &node{
+				id:    e.UUID,
+				start: e.at,
+				end:   e.at,
+				name:  "agent.turn",
+				attrs: with(base, map[string]string{
+					"interaction.sequence": strconv.Itoa(seq),
+					"user_prompt":          e.prompt(),
+					"user_prompt_length":   strconv.Itoa(len(e.prompt())),
+				}),
+			}
+			model = nil
+			turns = append(turns, turn)
+			order = append(order, turn)
+			batch.Records = append(batch.Records, otlp.Record{
+				Event: EventPrompt, Service: Service, Session: sessionID, At: e.at,
+				Body: e.prompt(), Attrs: map[string]string{"prompt": e.prompt()},
+			})
+
+		case e.Type == "assistant":
+			// Every content block of one reply is its own line, all sharing the
+			// request id, so the id is what groups them back into one call.
+			if turn == nil {
+				turn = openTurn(&turns, &order, base, e, &seq)
+			}
+			id := e.RequestID
+			if id == "" {
+				id = e.UUID
+			}
+			found, ok := models[id]
+			if !ok {
+				found = &node{
+					id: id, parent: turn.id, start: e.at, end: e.at, name: "agent.model",
+					attrs: with(base, map[string]string{"request_id": id}),
+				}
+				models[id] = found
+				order = append(order, found)
+			}
+			model = found
+			e.foldInto(found)
+			stretch(turn, e.at)
+			batch.Records = append(batch.Records, e.reply(sessionID, id)...)
+			for _, one := range e.calls(found) {
+				tools[one.id] = one
+				order = append(order, one)
+			}
+
+		case e.Type == "system":
+			if turn == nil {
+				continue
+			}
+			note := &node{
+				id: e.UUID, parent: turn.id, start: e.at, end: e.at, name: "agent.note",
+				attrs: with(base, map[string]string{
+					"note.kind": orDash(e.Subtype), "note.level": orDash(e.Level),
+					"note.text": flatten(e.Content),
+				}),
+			}
+			order = append(order, note)
+			stretch(turn, e.at)
+
+		default:
+			// A user entry that is not a prompt carries the results of the
+			// tools the last reply asked for.
+			for _, b := range e.blocks {
+				if b.Type != "tool_result" || b.ToolUseID == "" {
+					continue
+				}
+				batch.Records = append(batch.Records, otlp.Record{
+					Event: EventResult, Service: Service, Session: sessionID, At: e.at,
+					Body: first(flatten(b.Content), flatten(e.ToolResult)),
+					Attrs: map[string]string{
+						"tool_use_id": b.ToolUseID,
+						"is_error":    boolText(b.IsError),
+					},
+				})
+				if found, ok := tools[b.ToolUseID]; ok {
+					found.end = e.at
+					if b.IsError {
+						found.attrs["success"] = "false"
+					}
+					if model != nil {
+						stretch(model, e.at)
+					}
+					stretch(turn, e.at)
+				}
+			}
+		}
+	}
+
+	for _, one := range order {
+		if one.end.Before(one.start) {
+			one.end = one.start
+		}
+		batch.Spans = append(batch.Spans, otlp.Span{
+			TraceID: sessionID, SpanID: one.id, ParentID: one.parent, Name: one.name,
+			Service: Service, Session: sessionID,
+			Start: one.start, End: one.end, Attrs: one.attrs,
+			Failed: one.attrs["success"] == "false",
+		})
+	}
+	sort.SliceStable(batch.Spans, func(a, b int) bool {
+		return batch.Spans[a].Start.Before(batch.Spans[b].Start)
+	})
+	return batch
+}
+
+// A reply can arrive before any prompt: a resumed session opens mid turn, and a
+// compaction writes one with no prompt of its own. A stand-in turn keeps those
+// replies in the tree instead of dropping them.
+func openTurn(turns *[]*node, order *[]*node, base map[string]string, e entry, seq *int) *node {
+	*seq++
+	one := &node{
+		id: "turn-" + e.UUID, start: e.at, end: e.at, name: "agent.turn",
+		attrs: with(base, map[string]string{
+			"interaction.sequence": strconv.Itoa(*seq),
+			"user_prompt":          "",
+		}),
+	}
+	*turns = append(*turns, one)
+	*order = append(*order, one)
+	return one
+}
+
+func (e entry) isPrompt() bool {
+	// A meta entry is a system reminder the harness injected, not something the
+	// reader typed, and counting one as a turn split the run at every hook.
+	if e.Type != "user" || e.Meta {
+		return false
+	}
+	for _, b := range e.blocks {
+		if b.Type == "tool_result" {
+			return false
+		}
+	}
+	return e.prompt() != ""
+}
+
+func (e entry) prompt() string {
+	if e.text != "" {
+		return e.text
+	}
+	parts := []string{}
+	for _, b := range e.blocks {
+		if b.Type == "text" && b.Text != "" {
+			parts = append(parts, b.Text)
+		}
+	}
+	return strings.Join(parts, "\n\n")
+}
+
+// foldInto adds one entry's facts to the model call it belongs to. The token
+// counts are on the entry that carries the reply, and the stop reason on the one
+// that ends it, so both arrive later than the call's own first line.
+func (e entry) foldInto(one *node) {
+	stretch(one, e.at)
+	if e.Message.Model != "" {
+		one.attrs["gen_ai.request.model"] = e.Message.Model
+		one.attrs["model"] = e.Message.Model
+	}
+	if e.Message.StopReason != "" {
+		one.attrs["stop_reason"] = e.Message.StopReason
+	}
+	u := e.Message.Usage
+	if u.Output > 0 {
+		one.attrs["output_tokens"] = strconv.Itoa(u.Output)
+	}
+	if u.Input > 0 {
+		one.attrs["input_tokens"] = strconv.Itoa(u.Input)
+	}
+	if u.CacheRead > 0 {
+		one.attrs["cache_read_tokens"] = strconv.Itoa(u.CacheRead)
+	}
+	if u.CacheWrite > 0 {
+		one.attrs["cache_creation_tokens"] = strconv.Itoa(u.CacheWrite)
+	}
+}
+
+func (e entry) reply(sessionID, requestID string) []otlp.Record {
 	text, thinking := []string{}, []string{}
-	for _, b := range blocks {
+	for _, b := range e.blocks {
 		switch b.Type {
 		case "text":
 			text = append(text, b.Text)
 		case "thinking":
 			thinking = append(thinking, b.Thinking)
-		case "tool_result":
-			if b.ToolUseID == "" {
-				continue
-			}
-			out = append(out, otlp.Record{
-				Event:   EventResult,
-				Service: Service,
-				Session: e.SessionID,
-				At:      at,
-				Body:    flatten(b.Content),
-				Attrs: map[string]string{
-					"tool_use_id": b.ToolUseID,
-					"is_error":    boolText(b.IsError),
-				},
-			})
 		}
 	}
-	// The join key is the request, so an assistant entry with no requestId has
-	// no span to reach and is dropped here rather than carried and dropped later.
-	if e.RequestID == "" || (len(text) == 0 && len(thinking) == 0) {
-		return out
+	if len(text) == 0 && len(thinking) == 0 {
+		return nil
 	}
-	return append(out, otlp.Record{
-		Event:   EventText,
-		Service: Service,
-		Session: e.SessionID,
-		At:      at,
-		Body:    strings.Join(text, "\n\n"),
+	return []otlp.Record{{
+		Event: EventText, Service: Service, Session: sessionID, At: e.at,
+		Body: strings.Join(text, "\n\n"),
 		Attrs: map[string]string{
-			"request_id": e.RequestID,
+			"request_id": requestID,
 			"thinking":   strings.Join(thinking, "\n\n"),
 		},
-	})
+	}}
+}
+
+// calls turns the reply's tool_use blocks into spans under it. The name and the
+// arguments live only here: no OTLP attribute carries a tool's input, so a run
+// read from spans alone shows a tool row with nothing in it.
+func (e entry) calls(parent *node) []*node {
+	out := []*node{}
+	for _, b := range e.blocks {
+		if b.Type != "tool_use" || b.ID == "" {
+			continue
+		}
+		name := "agent.tool"
+		if editors[b.Name] {
+			name = "agent.edit"
+		}
+		attrs := with(parent.attrs, map[string]string{
+			"tool_name":   b.Name,
+			"tool_use_id": b.ID,
+		})
+		delete(attrs, "request_id")
+		delete(attrs, "stop_reason")
+		delete(attrs, "output_tokens")
+		maps.Copy(attrs, argsOf(b.Name, b.Input))
+		// The call is requested when the reply ends, and the result stamps the
+		// end. Until it arrives the span is a point, which is what an open tool
+		// call is.
+		out = append(out, &node{
+			id: b.ID, parent: parent.id, start: e.at, end: e.at,
+			name: name, attrs: attrs,
+		})
+	}
+	return out
+}
+
+// A write is drawn as a diff rather than as a blob of arguments, so it is named
+// apart from the tools that only read.
+var editors = map[string]bool{"Edit": true, "Write": true, "NotebookEdit": true}
+
+// argsOf lifts the arguments a reader actually reads onto the span. full_command
+// and file_path are the two keys the rest of traces already looks for, so a
+// transcript-built row reads the same as an OTLP-built one.
+func argsOf(tool string, raw json.RawMessage) map[string]string {
+	out := map[string]string{}
+	if len(raw) == 0 {
+		return out
+	}
+	var args map[string]json.RawMessage
+	if json.Unmarshal(raw, &args) != nil {
+		return out
+	}
+	text := func(key string) string {
+		var s string
+		if raw, ok := args[key]; ok && json.Unmarshal(raw, &s) == nil {
+			return s
+		}
+		return ""
+	}
+	for _, key := range []string{"command", "pattern", "prompt", "query", "url", "description"} {
+		if v := text(key); v != "" {
+			out["full_command"] = v
+			break
+		}
+	}
+	if v := text("file_path"); v != "" {
+		out["file_path"] = v
+		if out["full_command"] == "" {
+			out["full_command"] = v
+		}
+	}
+	if v := text("old_string"); v != "" {
+		out["edit.before"] = v
+		out["edit.after"] = text("new_string")
+	}
+	if v := text("content"); v != "" && out["edit.before"] == "" {
+		out["edit.after"] = v
+	}
+	// Whatever is left is still worth keeping: a reader who opens the attrs tab
+	// on a tool they do not recognise should see what it was handed.
+	if out["full_command"] == "" {
+		out["full_command"] = compact(raw)
+	}
+	out["tool_input_size_bytes"] = strconv.Itoa(len(raw))
+	_ = tool
+	return out
+}
+
+func attrsOf(entries []entry, title string) map[string]string {
+	out := map[string]string{"service.name": Service}
+	if title != "" {
+		out["session.title"] = title
+	}
+	for _, e := range entries {
+		if e.CWD != "" {
+			out["cwd"] = e.CWD
+		}
+		if e.GitBranch != "" {
+			out["git.branch"] = e.GitBranch
+		}
+		if out["cwd"] != "" && out["git.branch"] != "" {
+			break
+		}
+	}
+	return out
+}
+
+func with(base, extra map[string]string) map[string]string {
+	out := make(map[string]string, len(base)+len(extra))
+	maps.Copy(out, base)
+	maps.Copy(out, extra)
+	return out
+}
+
+func stretch(one *node, at time.Time) {
+	if one == nil || at.IsZero() {
+		return
+	}
+	if one.start.IsZero() || at.Before(one.start) {
+		one.start = at
+	}
+	if at.After(one.end) {
+		one.end = at
+	}
 }
 
 // A tool result is a string on the cheap tools and a content block list on the
@@ -193,16 +568,53 @@ func flatten(raw json.RawMessage) string {
 		return text
 	}
 	var blocks []block
-	if json.Unmarshal(raw, &blocks) != nil {
+	if json.Unmarshal(raw, &blocks) == nil {
+		parts := []string{}
+		for _, b := range blocks {
+			if b.Text != "" {
+				parts = append(parts, b.Text)
+			}
+		}
+		return strings.Join(parts, "\n")
+	}
+	// A structured result, which is what a file tool returns. stdout is the
+	// field a reader wants; the rest is metadata traces already has.
+	var fields struct {
+		Stdout string `json:"stdout"`
+		Stderr string `json:"stderr"`
+	}
+	if json.Unmarshal(raw, &fields) == nil && (fields.Stdout != "" || fields.Stderr != "") {
+		return strings.TrimRight(fields.Stdout+"\n"+fields.Stderr, "\n")
+	}
+	return compact(raw)
+}
+
+func compact(raw json.RawMessage) string {
+	var value any
+	if json.Unmarshal(raw, &value) != nil {
 		return ""
 	}
-	parts := []string{}
-	for _, b := range blocks {
-		if b.Text != "" {
-			parts = append(parts, b.Text)
+	out, err := json.Marshal(value)
+	if err != nil {
+		return ""
+	}
+	return string(out)
+}
+
+func first(values ...string) string {
+	for _, one := range values {
+		if one != "" {
+			return one
 		}
 	}
-	return strings.Join(parts, "\n")
+	return ""
+}
+
+func orDash(s string) string {
+	if s == "" {
+		return "-"
+	}
+	return s
 }
 
 func boolText(b bool) string {

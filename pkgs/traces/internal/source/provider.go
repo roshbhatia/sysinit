@@ -90,7 +90,7 @@ var aliases = map[string][]string{
 
 var builtin = map[string]func(context.Context, Query) (otlp.Batch, error){
 	"claude": func(_ context.Context, query Query) (otlp.Batch, error) {
-		return otlp.Batch{Records: transcript.Read(transcript.Root(), query.Window, query.Session)}, nil
+		return transcript.Read(transcript.Root(), query.Window, query.Session), nil
 	},
 	"codex": func(_ context.Context, query Query) (otlp.Batch, error) {
 		return rollout.Read(rollout.Root(), query.Window, query.Session), nil
