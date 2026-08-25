@@ -2,6 +2,7 @@ package ui
 
 import (
 	_ "embed"
+	"encoding/json"
 	"fmt"
 	"os"
 	"os/exec"
@@ -11,6 +12,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/alecthomas/chroma/v2/lexers"
 	"github.com/charmbracelet/bubbles/spinner"
 	"github.com/charmbracelet/bubbles/viewport"
 	tea "github.com/charmbracelet/bubbletea"
@@ -1987,7 +1989,7 @@ func (m Model) tabBody(r row) string {
 	parts := r.sections()
 	for i, one := range parts {
 		last := i == len(parts)-1 && len(m.kidLines(r)) == 0
-		out = append(out, section(one, last, inner))
+		out = append(out, m.section(one, last, inner))
 	}
 	out = append(out, m.kidLines(r)...)
 	if len(parts) == 0 && len(out) == 1 {
@@ -2016,54 +2018,118 @@ func (m Model) bodyHead(r row, width int) string {
 	return fit(head, width)
 }
 
-// A part is one branch of the row: a name, the text under it, and whether the
-// text is code. A reply is prose and reflows; a command is not and must not.
+// A part is one branch of the row. Syntax identifies code that can use the
+// terminal palette, while code keeps unknown output from prose reflow.
 type part struct {
-	name string
-	text string
-	code bool
+	name   string
+	text   string
+	code   bool
+	syntax string
 }
 
 func (r row) sections() []part {
 	out := []part{}
-	add := func(name, text string, code bool) {
+	add := func(name, text string, code bool, fallback string) {
 		if strings.TrimSpace(text) != "" {
-			out = append(out, part{name: name, text: text, code: code})
+			out = append(out, part{name: name, text: text, code: code, syntax: detectSyntax(text, fallback)})
 		}
 	}
 	if r.node != nil {
-		add("prompt", r.node.Prompt, false)
-		add("reasoning", r.node.Thinking, false)
-		add("response", r.node.Text, false)
+		add("prompt", r.node.Prompt, false, "")
+		add("reasoning", r.node.Thinking, false, "")
+		add("response", r.node.Text, false, "")
 	}
 	// The input is the row's argument wherever nothing above claimed it: a
 	// tool's command, a hook's command, a delegate's task.
 	if len(out) == 0 || r.kind == kindTool || r.kind == kindMCP || r.kind == kindSkill || r.kind == kindHook {
 		cmd, hookOut, _ := strings.Cut(r.command(), "  ->  ")
-		add("input", cmd, true)
-		add("stderr", hookOut, true)
+		add("input", cmd, true, r.inputSyntax())
+		add("stderr", hookOut, true, "")
 	}
-	add("output", r.output(), true)
+	add("output", r.output(), true, "")
 	return out
 }
 
-// section draws one branch and hangs its text under the rail, so the reader can
-// see at a glance where one part of the row ends and the next begins.
-func section(one part, last bool, width int) string {
+func (r row) inputSyntax() string {
+	name := strings.ToLower(r.label)
+	for _, shell := range []string{"bash", "shell", "sh", "zsh", "fish", "exec_command"} {
+		if r.kind == kindHook || strings.Contains(name, shell) {
+			return "bash"
+		}
+	}
+	return ""
+}
+
+// detectSyntax handles formats that Chroma identifies weakly in short output.
+// Chroma detects source code and structured formats beyond these cases.
+func detectSyntax(text, fallback string) string {
+	if strings.Contains(text, "\x1b[") {
+		return ""
+	}
+	trimmed := strings.TrimSpace(text)
+	if json.Valid([]byte(trimmed)) || validJSONLines(trimmed) {
+		return "json"
+	}
+	if strings.HasPrefix(trimmed, "diff --git ") || strings.Contains(trimmed, "\n@@ ") ||
+		(strings.HasPrefix(trimmed, "--- ") && strings.Contains(trimmed, "\n+++ ")) {
+		return "diff"
+	}
+	if fallback != "" {
+		return fallback
+	}
+	// Lexer analysis checks every registered format, so a bounded sample keeps
+	// large command output from delaying inspector navigation.
+	sample := trimmed[:min(len(trimmed), 8192)]
+	if lexer := lexers.Analyse(sample); lexer != nil && len(lexer.Config().Aliases) > 0 {
+		return lexer.Config().Aliases[0]
+	}
+	return ""
+}
+
+func validJSONLines(text string) bool {
+	lines := strings.Split(text, "\n")
+	if len(lines) < 2 {
+		return false
+	}
+	for _, line := range lines {
+		if strings.TrimSpace(line) != "" && !json.Valid([]byte(line)) {
+			return false
+		}
+	}
+	return true
+}
+
+// section draws one branch and hangs its text under the rail. Highlighting runs
+// before ANSI-aware wrapping, so escape sequences do not count as visible cells.
+func (m Model) section(one part, last bool, width int) string {
 	elbow, rail := gl.tee, gl.vert
 	if last {
 		elbow, rail = gl.elbow, gl.gap
 	}
 	head := rule.Render(elbow) + " " + tagKey.Render(one.name)
 	body := []string{head}
-	style := plain
+	lineWidth := max(8, width-lipgloss.Width(rail)-2)
+	lines := bodyLines(one.text, lineWidth)
 	if one.code {
-		style = dim
+		lines = m.codeLines(one.text, one.syntax, lineWidth)
 	}
-	for _, ln := range bodyLines(one.text, max(8, width-len(rail)-2)) {
-		body = append(body, rule.Render(rail)+" "+style.Render(ln))
+	for _, ln := range lines {
+		body = append(body, rule.Render(rail)+" "+ln)
 	}
 	return strings.Join(body, "\n")
+}
+
+func (m Model) codeLines(text, language string, width int) []string {
+	colored := text
+	if language != "" && m.md != nil {
+		fence := "```"
+		for strings.Contains(text, fence) {
+			fence += "`"
+		}
+		colored = m.rendered(fence + language + "\n" + text + "\n" + fence)
+	}
+	wrapped := ansi.Wrap(strings.TrimRight(colored, "\n"), width, " /,;")
+	return strings.Split(wrapped, "\n")
 }
 
 // bodyLines wraps prose and leaves code alone but for the width, because a
