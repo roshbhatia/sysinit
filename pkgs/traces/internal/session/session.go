@@ -406,15 +406,64 @@ func (s *Store) Sessions() []*Session {
 	// opencode emits dozens of 1-span traces per run. Rank those below the real
 	// runs so the picker opens on something worth attaching to.
 	sort.Slice(out, func(a, b int) bool {
-		if notable(out[a]) != notable(out[b]) {
-			return notable(out[a])
+		if rankOf(out[a]) != rankOf(out[b]) {
+			return rankOf(out[a]) > rankOf(out[b])
 		}
 		return out[a].Last.After(out[b].Last)
 	})
 	return out
 }
 
-func notable(one *Session) bool { return one.ID != "" || one.Count >= 3 }
+// notable ranks a run above a fragment. A harness with no run id leaves one
+// trace-keyed session per trace, and a trace can hold three copies of one
+// runtime span: `codex_cli_rs e1210620  3 items` opened to "auth 12µs" three
+// times, which is not a run and cost a listing row that a real one wanted.
+//
+// The test is variety rather than a count. A run does more than one thing; a
+// fragment repeats one span. It stays name-agnostic on purpose, because goose
+// and amp name their work nothing traces knows in advance.
+// rankOf sorts a run above telemetry about a run. A codex process exports its
+// own runtime spans as well as writing a rollout, and the two never join, so a
+// listing carried the real run beside four unnamed fragments of the same
+// process and ranked them all the same.
+func rankOf(one *Session) int {
+	switch {
+	case one.ID != "" || one.activity():
+		return 2
+	case notable(one):
+		return 1
+	default:
+		return 0
+	}
+}
+
+// activity is true when a harness reader supplied this tree, rather than the
+// harness's own runtime exporter.
+func (s *Session) activity() bool {
+	for _, span := range s.spans {
+		if span.Attrs["traces.view"] == "activity" {
+			return true
+		}
+	}
+	return false
+}
+
+func notable(one *Session) bool {
+	if one.ID != "" {
+		return true
+	}
+	if one.Count < 3 {
+		return false
+	}
+	seen := map[string]bool{}
+	for _, span := range one.spans {
+		seen[span.Name] = true
+		if len(seen) > 1 {
+			return true
+		}
+	}
+	return false
+}
 
 // Session selects out of Sessions rather than out of the raw map, because the
 // raw map holds one entry per trace and mergeRuns is what joins the traces of a

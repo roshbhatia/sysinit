@@ -289,8 +289,17 @@ func list(w io.Writer, all []*session.Session) {
 			id, one.Short(),
 			count, shown, plural(shown, "item"),
 			one.Last.Format("15:04:05"),
-			clip(one.Name(), 56))
+			// A run with no title and no prompt has no name, and printing the
+			// id again put the same 8 characters in two columns.
+			clip(named(one), 56))
 	}
+}
+
+func named(one *session.Session) string {
+	if name := one.Name(); name != one.Short() {
+		return name
+	}
+	return ""
 }
 
 // A title runs as long as the harness wants, and a wrapped listing row loses
