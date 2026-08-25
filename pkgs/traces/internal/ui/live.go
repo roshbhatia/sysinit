@@ -133,6 +133,8 @@ type row struct {
 	files   int    // files this span touched
 	fail    bool
 	parent  bool
+	sibling bool
+	guide   string
 }
 
 type Model struct {
@@ -143,9 +145,13 @@ type Model struct {
 	source  string
 	query   string
 
-	rows   []row
-	cursor int
-	offset int
+	rows        []row
+	visibleRows []int
+	cursor      int
+	offset      int
+	wantLabel   int
+	wantPreview int
+	hasChurn    bool
 	// Both are keyed on span id, not on row index: every batch of spans
 	// rebuilds the row list, and an index would then point at another row.
 	marks  map[string]bool
@@ -258,6 +264,8 @@ func (m *Model) reload() {
 func (m *Model) rebuild() {
 	m.rows = nil
 	if m.current == nil {
+		m.visibleRows = nil
+		m.wantLabel, m.wantPreview, m.hasChurn = 0, 0, false
 		return
 	}
 	first := m.current.First
@@ -265,6 +273,75 @@ func (m *Model) rebuild() {
 	query := strings.ToLower(strings.TrimSpace(m.query))
 	for _, root := range m.current.Roots {
 		m.walk(root, 0, first, span, query)
+	}
+	m.buildGuides()
+	m.updateVisibility()
+}
+
+func (m *Model) buildGuides() {
+	last := []int{}
+	for i := range m.rows {
+		depth := m.rows[i].depth
+		for len(last) <= depth {
+			last = append(last, -1)
+		}
+		for level := depth + 1; level < len(last); level++ {
+			last[level] = -1
+		}
+		if last[depth] >= 0 {
+			m.rows[last[depth]].sibling = true
+		}
+		last[depth] = i
+	}
+
+	ancestors := []int{}
+	for i := range m.rows {
+		depth := m.rows[i].depth
+		for len(ancestors) <= depth {
+			ancestors = append(ancestors, -1)
+		}
+		if depth > 0 {
+			cols := make([]string, depth)
+			for level := 1; level < depth; level++ {
+				cols[level-1] = gl.gap
+				if ancestor := ancestors[level]; ancestor >= 0 && m.rows[ancestor].sibling {
+					cols[level-1] = gl.vert
+				}
+			}
+			cols[depth-1] = gl.elbow
+			if m.rows[i].sibling {
+				cols[depth-1] = gl.tee
+			}
+			m.rows[i].guide = strings.Join(cols, "")
+		}
+		ancestors[depth] = i
+	}
+}
+
+func (m *Model) updateVisibility() {
+	m.visibleRows = nil
+	hide := -1
+	for i, r := range m.rows {
+		if hide >= 0 && r.depth > m.rows[hide].depth {
+			continue
+		}
+		hide = -1
+		m.visibleRows = append(m.visibleRows, i)
+		if r.parent && m.folded[m.idOf(i)] {
+			hide = i
+		}
+	}
+
+	m.wantLabel, m.wantPreview, m.hasChurn = 0, 0, false
+	for _, idx := range m.visibleRows {
+		r := m.rows[idx]
+		if width := lipgloss.Width(r.label) + lipgloss.Width(r.guide); width > m.wantLabel {
+			m.wantLabel = width
+		}
+		if width := lipgloss.Width(r.preview); width > m.wantPreview {
+			m.wantPreview = width
+		}
+		m.hasChurn = m.hasChurn || r.add > 0 || r.del > 0 || r.files > 0
 	}
 }
 
@@ -1023,6 +1100,7 @@ func (m *Model) jump(d int) {
 }
 
 func (m Model) clamp() Model {
+	m.updateVisibility()
 	vis := m.visible()
 	if len(vis) == 0 {
 		m.cursor, m.offset = 0, 0
@@ -1095,19 +1173,7 @@ func (m Model) bodyHeight() int {
 }
 
 func (m Model) visible() []int {
-	out := []int{}
-	hide := -1
-	for i, r := range m.rows {
-		if hide >= 0 && r.depth > m.rows[hide].depth {
-			continue
-		}
-		hide = -1
-		out = append(out, i)
-		if r.parent && m.folded[m.idOf(i)] {
-			hide = i
-		}
-	}
-	return out
+	return m.visibleRows
 }
 
 func (m Model) indexOf(idx int) int {
@@ -1129,6 +1195,12 @@ func (m Model) ancestorOf(idx int) int {
 }
 
 func (m Model) marked() []int {
+	if len(m.marks) == 0 {
+		if idx := m.at(m.cursor); idx >= 0 {
+			return []int{idx}
+		}
+		return nil
+	}
 	out := []int{}
 	for i := range m.rows {
 		if m.marks[m.idOf(i)] {
@@ -1258,13 +1330,7 @@ func (m Model) prefixWidth(width int) int {
 // for the whole tree or for none of it, because a column that appears when the
 // filter changes moves every other column with it.
 func (m Model) churny() bool {
-	for _, idx := range m.visible() {
-		r := m.rows[idx]
-		if r.add > 0 || r.del > 0 || r.files > 0 {
-			return true
-		}
-	}
-	return false
+	return m.hasChurn
 }
 
 func (m Model) textSplit(text int) (label, preview int) {
@@ -1276,26 +1342,15 @@ func (m Model) textSplit(text int) (label, preview int) {
 		floor = 16
 	}
 
-	wantLabel, wantPreview := 0, 0
-	for _, idx := range m.visible() {
-		r := m.rows[idx]
-		if w := lipgloss.Width(r.label) + lipgloss.Width(m.guide(idx)); w > wantLabel {
-			wantLabel = w
-		}
-		if w := lipgloss.Width(r.preview); w > wantPreview {
-			wantPreview = w
-		}
-	}
-
-	preview = min(wantPreview, max(0, text-floor-4))
+	preview = min(m.wantPreview, max(0, text-floor-4))
 	label = max(floor, text-preview-4)
 	if label > text-4 {
 		label = max(1, text-4)
 	}
 	// A label wider than it needs pushes the preview off the right edge for no
 	// gain, so it never takes more than its widest row.
-	if wantLabel > 0 && label > wantLabel {
-		label = max(floor, wantLabel)
+	if m.wantLabel > 0 && label > m.wantLabel {
+		label = max(floor, m.wantLabel)
 	}
 	return label, max(0, text-label-4)
 }
@@ -1428,52 +1483,11 @@ func (m Model) glyph(idx int, r row) string {
 	return gl.fold + " "
 }
 
-// hasSibling reports whether a later row sits at depth d before the parent
-// closes. The earlier draft asked "does the next row go shallower", which is
-// "has no children", so every leaf drew the last-child elbow and the tree read
-// as a flat list.
-func hasSibling(rows []row, idx, d int) bool {
-	for i := idx + 1; i < len(rows); i++ {
-		if rows[i].depth < d {
-			return false
-		}
-		if rows[i].depth == d {
-			return true
-		}
-	}
-	return false
-}
-
 // guide draws one column per ancestor level: a rule where that ancestor still
 // has siblings below, blank where it does not, and a tee or elbow at the row's
 // own level. Folding does not change it, because a folded sibling still exists.
 func (m Model) guide(idx int) string {
-	d := m.rows[idx].depth
-	if d == 0 {
-		return ""
-	}
-	cols := make([]string, d)
-	cols[d-1] = gl.elbow
-	if hasSibling(m.rows, idx, d) {
-		cols[d-1] = gl.tee
-	}
-	want := d - 1
-	for i := idx - 1; i >= 0 && want > 0; i-- {
-		if m.rows[i].depth != want {
-			continue
-		}
-		cols[want-1] = gl.gap
-		if hasSibling(m.rows, i, want) {
-			cols[want-1] = gl.vert
-		}
-		want--
-	}
-	for i := range cols {
-		if cols[i] == "" {
-			cols[i] = gl.gap
-		}
-	}
-	return strings.Join(cols, "")
+	return m.rows[idx].guide
 }
 
 // Five actors, five colours, and the prefix is the whole rule: @user is the
