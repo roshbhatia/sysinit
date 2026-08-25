@@ -106,6 +106,7 @@ func TestInspectorRefreshPreservesScrollAndDetectsReplacement(t *testing.T) {
 	}
 
 	m.rows[0].node.Output = strings.Repeat("x", len(m.rows[0].node.Output))
+	m.dataRev++
 	replaced := m.refresh()
 	if replaced.paneVersion == m.paneVersion {
 		t.Fatal("same-size replacement kept stale pane version")
@@ -130,6 +131,7 @@ func TestInspectorSharesLoadBudgetAcrossMarkedRows(t *testing.T) {
 	m := inspectorWithOutputs(31*1024, 2)
 	m.rows[1].node.Output = strings.Repeat("B", 31*1024)
 	m.marks = map[string]bool{"0": true, "1": true}
+	m.marksChanged()
 	m.paneKey, m.paneSelect = "", ""
 	m = m.refresh()
 	src, shown, total := m.paneSource()
@@ -208,6 +210,7 @@ func benchmarkInspectorMarkedRows(b *testing.B, count int) {
 	for i := range m.rows {
 		m.marks[m.idOf(i)] = true
 	}
+	m.marksChanged()
 	m.paneKey, m.paneSelect = "", ""
 	m = m.refresh()
 	b.ReportAllocs()
@@ -225,4 +228,30 @@ func BenchmarkInspectorRefresh1000MarkedRows(b *testing.B) {
 
 func BenchmarkInspectorRefresh35000MarkedRows(b *testing.B) {
 	benchmarkInspectorMarkedRows(b, 35000)
+}
+
+func BenchmarkTraceView35000MarkedRows(b *testing.B) {
+	m := inspectorWithOutputs(32*1024, 35000)
+	m.marks = make(map[string]bool, len(m.rows))
+	for i := range m.rows {
+		m.marks[m.idOf(i)] = true
+	}
+	m.marksChanged()
+	m = m.refresh()
+	b.ReportAllocs()
+	b.ResetTimer()
+	for range b.N {
+		_ = m.View()
+	}
+}
+
+func BenchmarkInspectorMarkAll35000Rows(b *testing.B) {
+	m := inspectorWithOutputs(32*1024, 35000)
+	b.ReportAllocs()
+	b.ResetTimer()
+	for range b.N {
+		one := m
+		one.markAll()
+		_ = one.refresh()
+	}
 }

@@ -243,6 +243,9 @@ type Model struct {
 	paneTotal   int
 	dataRev     uint64
 	marksRev    uint64
+	markedRows  []int
+	markedTabs  []paneTab
+	markTabsSet bool
 }
 
 // The tab bar, the rule and the pinned strip cost three inner lines of the
@@ -330,6 +333,7 @@ func (m *Model) rebuild() {
 	if m.current == nil {
 		m.visibleRows = nil
 		m.wantLabel, m.wantPreview, m.hasChurn = 0, 0, false
+		m.reindexMarks()
 		return
 	}
 	first := m.current.First
@@ -340,6 +344,7 @@ func (m *Model) rebuild() {
 	}
 	m.buildGuides()
 	m.updateVisibility()
+	m.reindexMarks()
 }
 
 func (m *Model) buildGuides() {
@@ -831,12 +836,12 @@ func (m Model) key(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 			// Cancelling a range restores what was marked before it started, so
 			// an accidental v costs nothing.
 			m.visual, m.marks = false, m.before
-			m.marksRev++
+			m.marksChanged()
 			m.before = nil
 			return m.clamp(), nil
 		}
 		m.marks = map[string]bool{}
-		m.marksRev++
+		m.marksChanged()
 		return m.clamp(), nil
 	case " ":
 		m.leader = true
@@ -1142,7 +1147,7 @@ func (m *Model) markSubtree(idx int) {
 	for i := idx + 1; i < len(m.rows) && m.rows[i].depth > m.rows[idx].depth; i++ {
 		set(i)
 	}
-	m.marksRev++
+	m.marksChanged()
 }
 
 // markTurn marks the whole turn the cursor sits in, which is the unit a
@@ -1167,11 +1172,30 @@ func (m *Model) markRow(idx int) {
 	}
 	if m.marks[m.idOf(idx)] {
 		delete(m.marks, m.idOf(idx))
-		m.marksRev++
+		m.marksChanged()
 		return
 	}
 	m.marks[m.idOf(idx)] = true
+	m.marksChanged()
+}
+
+func (m *Model) marksChanged() {
 	m.marksRev++
+	m.reindexMarks()
+}
+
+func (m *Model) reindexMarks() {
+	rows := make([]int, 0, len(m.marks))
+	for i := range m.rows {
+		if m.marks[m.idOf(i)] {
+			rows = append(rows, i)
+		}
+	}
+	m.markedRows = rows
+	m.markedTabs, m.markTabsSet = nil, len(rows) > 0
+	if m.markTabsSet {
+		m.markedTabs = m.tabsForRows(rows)
+	}
 }
 
 // idOf is the row's span id, which survives a rebuild. A row with no node
@@ -1361,24 +1385,13 @@ func (m Model) ancestorOf(idx int) int {
 }
 
 func (m Model) marked() []int {
-	if len(m.marks) == 0 {
-		if idx := m.at(m.cursor); idx >= 0 {
-			return []int{idx}
-		}
-		return nil
+	if len(m.markedRows) > 0 {
+		return m.markedRows
 	}
-	out := []int{}
-	for i := range m.rows {
-		if m.marks[m.idOf(i)] {
-			out = append(out, i)
-		}
+	if idx := m.at(m.cursor); idx >= 0 {
+		return []int{idx}
 	}
-	if len(out) == 0 {
-		if idx := m.at(m.cursor); idx >= 0 {
-			out = append(out, idx)
-		}
-	}
-	return out
+	return nil
 }
 
 // fit pads or truncates to an exact cell width. ansi.Truncate is the only safe
@@ -2050,9 +2063,16 @@ func normalizePatch(patch string) string {
 }
 
 func (m Model) tabsFor() []paneTab {
+	if m.markTabsSet {
+		return m.markedTabs
+	}
+	return m.tabsForRows(m.marked())
+}
+
+func (m Model) tabsForRows(rows []int) []paneTab {
 	out := []paneTab{}
 	for _, t := range paneTabs {
-		for _, idx := range m.marked() {
+		for _, idx := range rows {
 			if t.size(m, m.rows[idx]) > 0 {
 				out = append(out, t)
 				break
@@ -2457,8 +2477,8 @@ func (m Model) paneSource() (string, int, int) {
 }
 
 func (m Model) paneSelection() string {
-	if len(m.marks) > 0 {
-		return fmt.Sprintf("tab/%d/marks/%d/%d", m.tab, m.marksRev, len(m.marks))
+	if len(m.markedRows) > 0 {
+		return fmt.Sprintf("tab/%d/marks/%d/%d", m.tab, m.marksRev, len(m.markedRows))
 	}
 	return fmt.Sprintf("tab/%d/row/%s", m.tab, m.idOf(m.at(m.cursor)))
 }
@@ -3210,9 +3230,9 @@ func (m Model) pickKey(k string) (tea.Model, tea.Cmd) {
 			m.current = m.list[m.pickAt]
 			// A pin names one run. Attaching to another is the reader
 			// overriding that, so the pin has to go or reload would undo it.
-				m.pinned = ""
-				m.marks = map[string]bool{}
-				m.marksRev++
+			m.pinned = ""
+			m.marks = map[string]bool{}
+			m.marksChanged()
 			m.folded = map[string]bool{}
 			m.updateVisibility()
 			m.rebuild()
@@ -3301,9 +3321,9 @@ func (m *Model) paintRange() {
 		return
 	}
 	m.marks = copyMarks(m.before)
-	m.marksRev++
 	vis := m.visible()
 	if len(vis) == 0 {
+		m.marksChanged()
 		return
 	}
 	lo, hi := m.anchorAt, m.cursor
@@ -3314,6 +3334,7 @@ func (m *Model) paintRange() {
 	for i := lo; i <= hi; i++ {
 		m.marks[m.idOf(vis[i])] = true
 	}
+	m.marksChanged()
 }
 
 // markAll is a toggle, because the reader who marked everything to read it in
@@ -3321,7 +3342,7 @@ func (m *Model) paintRange() {
 func (m *Model) markAll() {
 	if len(m.marks) >= len(m.rows) && len(m.rows) > 0 {
 		m.marks = map[string]bool{}
-		m.marksRev++
+		m.marksChanged()
 		m.status = "marks cleared"
 		return
 	}
@@ -3329,7 +3350,7 @@ func (m *Model) markAll() {
 	for i := range m.rows {
 		m.marks[m.idOf(i)] = true
 	}
-	m.marksRev++
+	m.marksChanged()
 	m.status = fmt.Sprintf("%d rows marked", len(m.rows))
 }
 
