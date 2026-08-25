@@ -73,7 +73,7 @@ func Parse(src string) []File {
 		// git marks a file with no trailing newline with a backslash line. It
 		// is not a diff line, and read as one it prints as a blank carried row.
 		case strings.HasPrefix(ln, "\\ "):
-		case strings.HasPrefix(ln, "@@"):
+		case f != nil && strings.HasPrefix(ln, "@@"):
 			closeHunk()
 			nh := Hunk{OldAt: 1, NewAt: 1}
 			head, sym, _ := strings.Cut(strings.TrimPrefix(ln, "@@"), "@@")

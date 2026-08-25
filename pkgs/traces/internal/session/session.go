@@ -61,12 +61,11 @@ type Node struct {
 	// Prompt is the text that opened this turn. It arrives as a log record
 	// rather than as a span attribute, so only a turn carries one.
 	Prompt string
-	// Text, Thinking and Output are what the harness wrote to disk and never
-	// exported. They come from the transcript package, joined on the request or
-	// the tool use id, and stay empty when no transcript was read.
+	// These fields join provider detail onto the matching activity span.
 	Text     string
 	Thinking string
 	Output   string
+	Patch    string
 	Children []*Node
 	Facets   []otlp.Span
 	Pending  bool
@@ -631,7 +630,7 @@ func sortKids(node *Node) {
 // stands in for the span name. A span name reads as <subject>.<operation>, so
 // the operation carries the meaning and the subject rarely does.
 func describe(span otlp.Span) *Node {
-	node := &Node{Span: span, Role: RoleSystem, Label: span.Name}
+	node := &Node{Span: span, Role: RoleSystem, Label: span.Name, Patch: span.Attrs["traces.patch"]}
 
 	switch span.Name {
 	case "claude_code.interaction", "agent.turn":

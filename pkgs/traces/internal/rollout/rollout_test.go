@@ -3,6 +3,7 @@ package rollout
 import (
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 )
 
@@ -61,6 +62,9 @@ func TestReadFileNormalizesCodexActivity(t *testing.T) {
 	}
 	if edit.Attrs["traces.action"] != "edit" {
 		t.Errorf("edit action = %q", edit.Attrs["traces.action"])
+	}
+	if !strings.Contains(edit.Attrs["traces.patch"], "+++ /work/two/file.go") {
+		t.Errorf("edit patch = %q", edit.Attrs["traces.patch"])
 	}
 	if batch.Records[0].Event != EventPrompt || batch.Records[0].Attrs["prompt"] != "fix it" {
 		t.Errorf("prompt = %#v", batch.Records[0])

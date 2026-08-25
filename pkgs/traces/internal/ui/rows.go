@@ -230,6 +230,7 @@ func (r row) raw() string {
 	add("Prompt", r.node.Prompt)
 	add("Reasoning", r.node.Thinking)
 	add("Response", r.node.Text)
+	add("Changes", r.node.Patch)
 	if r.node.Prompt == "" && r.node.Text == "" && r.node.Thinking == "" {
 		add("Input", r.preview)
 	}

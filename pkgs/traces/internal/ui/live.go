@@ -19,6 +19,7 @@ import (
 	"github.com/charmbracelet/x/ansi"
 	"github.com/muesli/termenv"
 
+	"github.com/roshbhatia/sysinit/pkgs/internal/diffview"
 	"github.com/roshbhatia/sysinit/pkgs/traces/internal/otlp"
 	"github.com/roshbhatia/sysinit/pkgs/traces/internal/session"
 )
@@ -1814,14 +1815,42 @@ type paneTab struct {
 	all func(Model) string
 }
 
-// A diff tab and a call-graph tab both stood here while the layout was judged
-// against a fixture. No harness puts a patch or a call edge on a span, so both
-// had no live source; the `changes` command reads a diff from git instead.
 var paneTabs = []paneTab{
+	{name: "changes", raw: true, body: Model.tabChanges},
 	{name: "body", body: Model.tabBody},
 	// raw, because the table is already laid out to the pane and glamour would
 	// reflow it back to markdown's own idea of a table.
 	{name: "attrs", raw: true, body: Model.tabAttrs},
+}
+
+func (m Model) tabChanges(r row) string {
+	if r.node == nil {
+		return ""
+	}
+	patch := r.node.Patch
+	if patch == "" && r.label == "Edit" && strings.Contains(r.node.Output, "@@") {
+		patch = r.node.Output
+	}
+	files := diffview.Parse(normalizePatch(patch))
+	if len(files) == 0 {
+		return ""
+	}
+	return diffview.Render(diffview.Options{Files: files, Width: m.pane.Width})
+}
+
+func normalizePatch(patch string) string {
+	if len(diffview.Parse(patch)) > 0 || !strings.Contains(patch, "@@") {
+		return patch
+	}
+	b := &strings.Builder{}
+	for _, line := range strings.Split(patch, "\n") {
+		if path := strings.TrimSpace(strings.TrimPrefix(line, "## ")); strings.HasPrefix(line, "## ") && path != "" {
+			fmt.Fprintf(b, "--- %s\n+++ %s\n", path, path)
+			continue
+		}
+		b.WriteString(line + "\n")
+	}
+	return b.String()
 }
 
 func (m Model) tabsFor() []paneTab {

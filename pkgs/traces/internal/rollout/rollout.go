@@ -315,12 +315,13 @@ func addItem(batch *otlp.Batch, sessionID string, parent *turn, start, end time.
 		span.Attrs["tool_name"] = "apply_patch"
 		span.Attrs["traces.action"] = "edit"
 		span.Attrs["tool_use_id"] = one.ID
-		paths, added, removed, body := changes(one.Changes)
+		paths, added, removed, patch := changes(one.Changes, parent.cwd)
 		span.Attrs["tool_input"] = strings.Join(paths, "\n")
 		span.Attrs["files_changed"] = strconv.Itoa(len(paths))
 		span.Attrs["lines_added"] = strconv.Itoa(added)
 		span.Attrs["lines_removed"] = strconv.Itoa(removed)
-		output := first(body, one.Stdout, one.Stderr)
+		span.Attrs["traces.patch"] = patch
+		output := first(one.Stdout, one.Stderr)
 		span.Failed = one.Status == "failed" || one.Stderr != ""
 		batch.Records = append(batch.Records, result(sessionID, parent, end, one.ID, output, span.Failed))
 	case "Extension":
@@ -379,7 +380,7 @@ func command(parts []string) string {
 	return strings.Join(parts, " ")
 }
 
-func changes(in map[string]change) ([]string, int, int, string) {
+func changes(in map[string]change, cwd string) ([]string, int, int, string) {
 	paths := make([]string, 0, len(in))
 	for path := range in {
 		paths = append(paths, path)
@@ -397,13 +398,30 @@ func changes(in map[string]change) ([]string, int, int, string) {
 				removed++
 			}
 		}
-		body := one.UnifiedDiff
-		if one.MovePath != nil && *one.MovePath != "" {
-			body = fmt.Sprintf("moved to %s\n%s", *one.MovePath, body)
+		oldPath, newPath := relative(cwd, path), relative(cwd, path)
+		switch one.Type {
+		case "add", "create":
+			oldPath = "/dev/null"
+		case "delete":
+			newPath = "/dev/null"
 		}
-		parts = append(parts, "## "+path+"\n\n"+body)
+		if one.MovePath != nil && *one.MovePath != "" {
+			newPath = relative(cwd, *one.MovePath)
+		}
+		body := one.UnifiedDiff
+		if !strings.Contains(body, "\n+++ ") {
+			body = fmt.Sprintf("--- %s\n+++ %s\n%s", oldPath, newPath, body)
+		}
+		parts = append(parts, body)
 	}
-	return paths, added, removed, strings.Join(parts, "\n\n")
+	return paths, added, removed, strings.Join(parts, "\n")
+}
+
+func relative(cwd, path string) string {
+	if rel, err := filepath.Rel(cwd, path); err == nil && rel != ".." && !strings.HasPrefix(rel, ".."+string(filepath.Separator)) {
+		return rel
+	}
+	return path
 }
 
 func flatten(raw json.RawMessage) string {
