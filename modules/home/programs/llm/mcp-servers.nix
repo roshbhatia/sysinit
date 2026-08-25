@@ -56,8 +56,6 @@ in
     ast-grep = {
       command = "uvx";
       args = [
-        "--with"
-        "mcp<2"
         "--from"
         "git+https://github.com/ast-grep/ast-grep-mcp"
         "ast-grep-server"
