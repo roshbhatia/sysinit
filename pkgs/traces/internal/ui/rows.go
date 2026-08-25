@@ -175,7 +175,7 @@ func kidNames(node *session.Node) string {
 // Claude Code puts a tool's real argument.
 func preview(node *session.Node) string {
 	for _, key := range []string{
-		"full_command", "command", "prompt", "user_prompt",
+		"note.text", "full_command", "command", "prompt", "user_prompt",
 		"tool_input", "input", "file_path", "gen_ai.request.model", "error",
 	} {
 		if text := node.Span.Attrs[key]; text != "" {

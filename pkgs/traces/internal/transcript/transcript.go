@@ -573,7 +573,15 @@ func argsOf(tool string, raw json.RawMessage) map[string]string {
 }
 
 func attrsOf(entries []entry, title string) map[string]string {
-	out := map[string]string{"service.name": Service}
+	// The activity marker is what tells the session builder that this tree is
+	// the authoritative one. Without it the Claude Code OTLP spans for the same
+	// run stood beside these, so one model call was two rows: 731 request ids
+	// carried two spans each in one measured session.
+	out := map[string]string{
+		"service.name":  Service,
+		"traces.view":   "activity",
+		"traces.source": "claude-transcript",
+	}
 	if title != "" {
 		out["session.title"] = title
 	}

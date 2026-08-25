@@ -515,6 +515,46 @@ func (s *Session) attachText(nodes map[string]*Node) {
 	}
 }
 
+// The two ids a harness and its exporter agree on. A model call is keyed by the
+// request it made, a tool call by the id the model gave it.
+var joinKeys = []string{"request_id", "tool_use_id"}
+
+// The measurements only the runtime span carries. Anything the activity span
+// already states wins, because the activity tree is what a reader is reading.
+var liftKeys = []string{"ttft_ms", "duration_ms", "speed", "attempt", "status_code", "llm_request.context"}
+
+func lift(span otlp.Span, from map[string]otlp.Span) otlp.Span {
+	if len(from) == 0 {
+		return span
+	}
+	for _, key := range joinKeys {
+		id := span.Attrs[key]
+		if id == "" {
+			continue
+		}
+		other, ok := from[key+"="+id]
+		if !ok {
+			continue
+		}
+		for _, want := range liftKeys {
+			if span.Attrs[want] == "" && other.Attrs[want] != "" {
+				span.Attrs[want] = other.Attrs[want]
+			}
+		}
+		// The exporter stamps a span when the work ends and the transcript
+		// stamps it when the line was written, so the exporter's end is the
+		// later and truer one.
+		if other.End.After(span.End) {
+			span.End = other.End
+		}
+		if !other.Start.IsZero() && other.Start.Before(span.Start) {
+			span.Start = other.Start
+		}
+		break
+	}
+	return span
+}
+
 // recordKey matches key(), so a log record and a span of the same run land in
 // the same session.
 func recordKey(one otlp.Record) string {
@@ -568,6 +608,23 @@ func (s *Session) rebuild() {
 			break
 		}
 	}
+	// A runtime span is dropped from the tree, but not before what only it knows
+	// is folded onto the activity span for the same work. The transcript has no
+	// time to first token and no wall clock for a model call; the exported span
+	// has both and nothing else worth a row.
+	lifted := map[string]otlp.Span{}
+	if preferActivity {
+		for _, span := range s.spans {
+			if span.Attrs["traces.view"] == "activity" {
+				continue
+			}
+			for _, key := range joinKeys {
+				if id := span.Attrs[key]; id != "" {
+					lifted[key+"="+id] = span
+				}
+			}
+		}
+	}
 	for id, span := range s.spans {
 		if preferActivity && span.Attrs["traces.view"] != "activity" {
 			continue
@@ -575,7 +632,7 @@ func (s *Session) rebuild() {
 		if foldedInto[span.Name] {
 			continue
 		}
-		nodes[id] = describe(span)
+		nodes[id] = describe(lift(span, lifted))
 	}
 
 	for _, span := range s.spans {
@@ -645,6 +702,15 @@ func (s *Session) rebuild() {
 	s.attachPrompts()
 }
 
+func first(values ...string) string {
+	for _, one := range values {
+		if one != "" {
+			return one
+		}
+	}
+	return ""
+}
+
 func sortKids(node *Node) {
 	sort.Slice(node.Children, func(a, b int) bool {
 		return node.Children[a].Span.Start.Before(node.Children[b].Span.Start)
@@ -666,6 +732,15 @@ func describe(span otlp.Span) *Node {
 	case "claude_code.llm_request", "agent.model":
 		node.Role, node.Label = RoleModel, model(span.Attrs)
 		node.Note = produced(span.Attrs)
+	// A note is what the harness told the reader outside the conversation: a
+	// hook's verdict, a warning, an API error. The default branch split the span
+	// name and every one of them rendered as "note — agent".
+	case "agent.note":
+		node.Role, node.Label = RoleSystem, first(span.Attrs["note.kind"], "note")
+		node.Note = first(span.Attrs["note.text"], span.Attrs["note.level"])
+		if span.Attrs["note.level"] == "error" {
+			node.Role = RoleError
+		}
 	case "claude_code.tool", "agent.tool", "agent.edit":
 		raw := span.Attrs["tool_name"]
 		action := span.Attrs["traces.action"]

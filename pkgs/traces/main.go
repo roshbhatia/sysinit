@@ -207,7 +207,10 @@ func (s sources) report(which string, scope []string, directory string, listing,
 	}
 	batch = s.keep(batch)
 	if asJSON {
-		if err := source.Encode(os.Stdout, batch); err != nil {
+		// --json ignored --session, so `traces --session X --json` printed every
+		// span on the machine: 17447 codex runtime spans over a Claude run of
+		// 350. A filter the reader gave has to reach every output.
+		if err := source.Encode(os.Stdout, only(batch, which, scope, directory)); err != nil {
 			fmt.Fprintf(os.Stderr, "traces: %v\n", err)
 			return 1
 		}
@@ -304,6 +307,53 @@ func plural(n int, word string) string {
 		return word
 	}
 	return word + "s"
+}
+
+// only narrows a batch to the run the reader named, by building the same store
+// the tree is drawn from and reading back the spans that survived. Filtering the
+// spans directly would need session grouping in two places, and the two would
+// disagree the first time either changed.
+func only(batch otlp.Batch, which string, scope []string, directory string) otlp.Batch {
+	if which == "" && len(scope) == 0 {
+		return batch
+	}
+	store := session.NewStore()
+	store.Scope(scope, directory)
+	store.Add(batch.Spans)
+	store.AddRecords(batch.Records)
+	found := pick(store, which)
+	if found == nil {
+		return otlp.Batch{}
+	}
+	keep := map[string]bool{}
+	var walk func(*session.Node)
+	walk = func(node *session.Node) {
+		keep[node.Span.SpanID] = true
+		for _, facet := range node.Facets {
+			keep[facet.SpanID] = true
+		}
+		for _, kid := range node.Children {
+			walk(kid)
+		}
+	}
+	for _, root := range found.Roots {
+		walk(root)
+	}
+	out := otlp.Batch{}
+	for _, span := range batch.Spans {
+		if keep[span.SpanID] {
+			out.Spans = append(out.Spans, span)
+		}
+	}
+	for _, one := range batch.Records {
+		// A record with no session of its own belongs to this run only when its
+		// service does. Keeping every session-less record let 149 opencode and
+		// codex records into a Claude run's own output.
+		if one.Session == found.ID || (one.Session == "" && one.Service == found.Service) {
+			out.Records = append(out.Records, one)
+		}
+	}
+	return out
 }
 
 func pick(store *session.Store, which string) *session.Session {
