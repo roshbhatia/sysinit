@@ -104,11 +104,14 @@ var roleOf = map[kind]session.Role{
 }
 
 const (
-	tokenCol  = 6
+	// One cost column, not two. Tokens and churn never appear on the same row:
+	// a tool call costs no tokens and a model call changes no lines. Two columns
+	// meant one of them was blank on every row, and the diff column was blank on
+	// all of them for the length of a run with no edit in view.
+	costCol   = 11
 	timeCol   = 6
-	diffCol   = 11
-	metaCol   = diffCol + tokenCol + timeCol + 4
-	metaTight = tokenCol + timeCol + 2
+	metaCol   = costCol + timeCol + 2
+	metaTight = 6 + timeCol + 2
 	actorCol  = 12
 	minTextW  = 26
 	maxTextW  = 148
@@ -1297,7 +1300,7 @@ func (m Model) columns(width int) (actor, text, meta, track int) {
 	// Claude Code trace carries none at all: 11 columns of header over 11
 	// columns of blank, on every row.
 	meta = metaTight
-	if m.churny() && width >= minTextW+metaCol+2+actor {
+	if width >= minTextW+metaCol+2+actor {
 		meta = metaCol
 	}
 	text = width - actor - meta - 1
@@ -1339,13 +1342,6 @@ func (m Model) prefixWidth(width int) int {
 // a run of bare span names spends nothing on an empty column and a run of shell
 // commands still reads. Both are computed from the visible rows, so the split
 // is stable while the reader scrolls and moves only when the content does.
-// churny reports whether any visible row moved a line. The diff cell is drawn
-// for the whole tree or for none of it, because a column that appears when the
-// filter changes moves every other column with it.
-func (m Model) churny() bool {
-	return m.hasChurn
-}
-
 func (m Model) textSplit(text int) (label, preview int) {
 	floor := 10
 	switch {
@@ -1416,18 +1412,22 @@ func (m Model) diffCell(idx, width int) string {
 	if add == 0 && del == 0 && files == 0 {
 		return strings.Repeat(" ", width)
 	}
+	// The counts are abbreviated the way tokens are, and the file count is the
+	// first thing dropped. A turn that changed 11 files and 1056 lines needs 14
+	// cells spelled out and the column has 11, so the deletions were clipped
+	// away: the half of a churn figure a reader most wants to see.
 	cell := ""
-	if files > 1 {
-		cell = dim.Render(fmt.Sprintf("%d\u0192 ", files))
-	}
 	if add > 0 {
-		cell += live.Render(fmt.Sprintf("+%d", add))
+		cell = live.Render("+" + tokens(add))
 	}
 	if del > 0 {
 		if add > 0 {
 			cell += " "
 		}
-		cell += bad.Render(fmt.Sprintf("-%d", del))
+		cell += bad.Render("-" + tokens(del))
+	}
+	if files > 1 && lipgloss.Width(cell)+3 <= width {
+		cell = dim.Render(fmt.Sprintf("%d\u0192 ", files)) + cell
 	}
 	return rightFit(cell, width)
 }
@@ -1452,13 +1452,11 @@ func (m Model) metaCell(idx, width int) string {
 	if r.fail {
 		style = bad
 	}
-	cell := ""
-	if width >= metaCol {
-		cell = m.diffCell(idx, diffCol) + "  "
-		width -= diffCol + 2
+	cost := m.diffCell(idx, width-timeCol-2)
+	if strings.TrimSpace(cost) == "" {
+		cost = rightFit(style.Render(tok), width-timeCol-2)
 	}
-	return cell + rightFit(style.Render(tok), tokenCol) + "  " +
-		rightFit(style.Render(span), max(0, width-tokenCol-2))
+	return cost + "  " + rightFit(style.Render(span), timeCol)
 }
 
 // The gutter marks a span that is still open. A failure needs no glyph here: the
@@ -1589,11 +1587,8 @@ func (m Model) treeHead(width int) string {
 	if prevW > 0 {
 		line += " " + fit("preview", prevW)
 	}
-	if metaW >= metaCol {
-		line += " " + rightFit("diff", diffCol) + "  " + rightFit("tokens", tokenCol) +
-			"  " + rightFit("time", timeCol)
-	} else if metaW > 0 {
-		line += " " + rightFit("tokens", tokenCol) + "  " + rightFit("time", metaW-tokenCol-2)
+	if metaW > 0 {
+		line += " " + rightFit("cost", metaW-timeCol-2) + "  " + rightFit("time", timeCol)
 	}
 	if trackW > 0 {
 		_, span := m.window()
