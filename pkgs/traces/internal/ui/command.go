@@ -87,6 +87,7 @@ func (m Model) commandKey(msg tea.KeyMsg, k string) (tea.Model, tea.Cmd) {
 		if m.cmdText != "" {
 			m.cmdText = m.cmdText[:len(m.cmdText)-1]
 		}
+		m.cmdCands = nil
 		return m, nil
 	case "up", "ctrl+p":
 		return m.recall(1), nil
@@ -97,6 +98,7 @@ func (m Model) commandKey(msg tea.KeyMsg, k string) (tea.Model, tea.Cmd) {
 	}
 	if len(msg.Runes) > 0 {
 		m.cmdText += string(msg.Runes)
+		m.cmdCands = nil
 	}
 	return m, nil
 }
@@ -119,31 +121,80 @@ func (m Model) recall(back int) Model {
 	return m
 }
 
-// complete fills in the rest of the one command the text can still be. With more
-// than one left it says which, rather than guessing.
+// complete works the way a shell and vim both do: grow the text to the longest
+// prefix every candidate shares, and where that adds nothing, cycle through the
+// candidates on each further press. The first version refused to complete "se"
+// at all, because set and session both start with it, which is exactly the case
+// completion exists for.
 func (m Model) complete() Model {
-	head, rest, hasArgs := strings.Cut(m.cmdText, " ")
-	if hasArgs {
+	// An argument is being typed, so the name is settled and there is nothing
+	// here to complete. A trailing space alone is not an argument: it is what
+	// completing a name that takes one leaves behind.
+	if _, rest, cut := strings.Cut(m.cmdText, " "); cut && rest != "" {
 		return m
 	}
-	found := []string{}
-	for _, one := range commands {
-		if strings.HasPrefix(one.name, head) {
-			found = append(found, one.name)
-		}
+	// A second tab continues the cycle the first one started.
+	if len(m.cmdCands) > 1 {
+		m.cmdCand = (m.cmdCand + 1) % len(m.cmdCands)
+		m.cmdText = m.cmdCands[m.cmdCand]
+		return m
 	}
+	head := strings.TrimSpace(m.cmdText)
+	found := candidates(head)
 	switch len(found) {
 	case 0:
+		m.status = "no command starts with " + head
+		return m
 	case 1:
-		m.cmdText = found[0]
-		if one, _ := lookup(found[0]); one != nil && one.args != "" {
-			m.cmdText += " "
-		}
-	default:
-		m.status = strings.Join(found, "  ")
+		m.cmdText = withSpace(found[0])
+		m.cmdCands = nil
+		return m
 	}
-	_ = rest
+	if common := shared(found); len(common) > len(head) {
+		m.cmdText = common
+		m.cmdCands = nil
+		return m
+	}
+	// Nothing left to grow, so the presses become a walk through the names.
+	// Each stays bare: a trailing space would read as an argument and stop the
+	// walk after one step.
+	m.cmdCands, m.cmdCand = found, 0
+	m.cmdText = found[0]
 	return m
+}
+
+// A name that takes an argument gets the space that separates them, so the
+// reader types the argument rather than the space.
+func withSpace(name string) string {
+	if one, _ := lookup(name); one != nil && one.args != "" {
+		return name + " "
+	}
+	return name
+}
+
+func candidates(head string) []string {
+	out := []string{}
+	for _, one := range commands {
+		if strings.HasPrefix(one.name, head) {
+			out = append(out, one.name)
+		}
+	}
+	return out
+}
+
+// shared is the longest prefix every candidate holds. Growing the text to it is
+// free progress: no candidate is ruled out by it.
+func shared(in []string) string {
+	if len(in) == 0 {
+		return ""
+	}
+	out := in[0]
+	for _, one := range in[1:] {
+		for !strings.HasPrefix(one, out) {
+			out = out[:len(out)-1]
+		}
+	}
+	return out
 }
 
 func lookup(head string) (*command, int) {
@@ -282,21 +333,53 @@ func (m Model) writeRow(args string) (Model, tea.Cmd) {
 	return m, nil
 }
 
-// commandBar is the footer while the line is open. It shows what the text
-// resolves to, so a reader learns the names by typing a prefix of one.
-func (m Model) commandBar() string {
-	line := accent.Render(":"+m.cmdText) + cursor.Render(" ")
-	hint := ""
-	head, _, hasArgs := strings.Cut(m.cmdText, " ")
-	if one, hits := lookup(head); one != nil {
-		switch {
-		case hits > 1 && !hasArgs:
-			hint = "  " + one.name + "  and " + strconv.Itoa(hits-1) + " more, tab to complete"
-		default:
-			hint = "  " + one.name + " " + one.args + "  " + one.help
+// commandBar draws the line with the rest of the one matching name as ghost text
+// after the cursor, so a reader sees where a prefix is going before they commit
+// to it. With several names still possible it lists them and marks the part
+// already typed, which is what tab will grow.
+func (m Model) commandBar(width int) string {
+	head, args, hasArgs := strings.Cut(m.cmdText, " ")
+	line := accent.Render(":") + plain.Render(m.cmdText)
+
+	found := candidates(head)
+	switch {
+	case hasArgs:
+		if one, _ := lookup(head); one != nil {
+			if args == "" {
+				line += faint.Render(one.args)
+			}
+			line += cursor.Render(" ") + dim.Render("  "+one.help)
+		} else {
+			line += cursor.Render(" ")
 		}
-	} else if m.cmdText == "" {
-		hint = "  <n> a turn   /text a filter   tab completes   up recalls"
+	case len(found) == 1:
+		// The ghost is the rest of the name, then what it takes. Tab accepts it.
+		line += faint.Render(strings.TrimPrefix(found[0], head))
+		if one, _ := lookup(found[0]); one != nil {
+			if one.args != "" {
+				line += faint.Render(" " + one.args)
+			}
+			line += cursor.Render(" ") + dim.Render("  "+one.help)
+		}
+	case len(found) > 1:
+		grown := shared(found)
+		line += faint.Render(strings.TrimPrefix(grown, head)) + cursor.Render(" ") + dim.Render("  ")
+		marks := []string{}
+		for i, one := range found {
+			style := dim
+			if len(m.cmdCands) > 1 && i == m.cmdCand {
+				style = cursor
+			}
+			marks = append(marks, accent.Render(grown)+style.Render(strings.TrimPrefix(one, grown)))
+		}
+		line += strings.Join(marks, dim.Render("  "))
+	default:
+		line += cursor.Render(" ")
+		if m.cmdText == "" {
+			line += dim.Render("  <n> a turn   /text a filter   tab completes   up recalls")
+		} else {
+			line += dim.Render("  no command starts with " + m.cmdText)
+		}
 	}
-	return fit(line+dim.Render(hint), m.width)
+	return fit(line, width)
 }

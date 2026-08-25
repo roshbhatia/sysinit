@@ -104,3 +104,85 @@ func TestEscapeLeavesNoText(t *testing.T) {
 		t.Errorf("cmd=%v text=%q", m.cmd, m.cmdText)
 	}
 }
+
+// "se" is the case completion exists for: two names share it, and the first
+// version refused to complete at all there.
+func TestTabCyclesAnAmbiguousPrefix(t *testing.T) {
+	m := typeIn(Model{}, "se")
+	seen := []string{}
+	for range 3 {
+		next, _ := m.Update(tea.KeyMsg{Type: tea.KeyTab})
+		m = next.(Model)
+		seen = append(seen, strings.TrimSpace(m.cmdText))
+	}
+	if seen[0] != "session" && seen[0] != "set" {
+		t.Fatalf("first tab = %q", seen[0])
+	}
+	if seen[1] == seen[0] {
+		t.Errorf("second tab did not move: %v", seen)
+	}
+	// Three presses over two candidates comes back to the first.
+	if seen[2] != seen[0] {
+		t.Errorf("cycle did not wrap: %v", seen)
+	}
+}
+
+// A prefix every candidate shares is free progress, so tab takes it.
+func TestTabGrowsToTheSharedPrefix(t *testing.T) {
+	m := typeIn(Model{}, "v")
+	next, _ := m.Update(tea.KeyMsg{Type: tea.KeyTab})
+	if got := next.(Model).cmdText; got != "vsplit" {
+		t.Errorf("completion = %q", got)
+	}
+}
+
+func TestTypingClearsTheCycle(t *testing.T) {
+	m := typeIn(Model{}, "se")
+	next, _ := m.Update(tea.KeyMsg{Type: tea.KeyTab})
+	m = next.(Model)
+	if len(m.cmdCands) < 2 {
+		t.Fatalf("no cycle opened: %v", m.cmdCands)
+	}
+	m = typeIn(m, "t")
+	if m.cmdCands != nil {
+		t.Errorf("cycle survived a keystroke: %v", m.cmdCands)
+	}
+}
+
+func TestSharedPrefix(t *testing.T) {
+	for _, one := range []struct {
+		in   []string
+		want string
+	}{
+		{[]string{"set", "session"}, "se"},
+		{[]string{"split"}, "split"},
+		{[]string{"split", "session", "set"}, "s"},
+		{nil, ""},
+	} {
+		if got := shared(one.in); got != one.want {
+			t.Errorf("shared(%v) = %q, want %q", one.in, got, one.want)
+		}
+	}
+}
+
+// The bar has to show where a prefix is going before the reader commits.
+func TestBarShowsTheGhost(t *testing.T) {
+	m := typeIn(Model{width: 120}, "vs")
+	bar := m.commandBar(120)
+	if !strings.Contains(bar, "plit") {
+		t.Errorf("no ghost in %q", bar)
+	}
+	if !strings.Contains(bar, "inspector down the right") {
+		t.Errorf("no help in %q", bar)
+	}
+}
+
+func TestBarListsSeveralCandidates(t *testing.T) {
+	m := typeIn(Model{width: 120}, "s")
+	bar := m.commandBar(120)
+	for _, want := range []string{"set", "session", "split"} {
+		if !strings.Contains(bar, want) {
+			t.Errorf("%q missing from %q", want, bar)
+		}
+	}
+}

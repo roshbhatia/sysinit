@@ -179,6 +179,10 @@ type Model struct {
 	cmdText string
 	cmdHist []string
 	cmdAt   int
+	// The candidate list a tab opened, and where the cycle sits in it. Any key
+	// but tab clears it, so a cycle never applies to text typed since.
+	cmdCands []string
+	cmdCand  int
 	// typed is what the reader has entered; query is what the tree is built
 	// against. They differ for one filterPause, and tag is what tells a stale
 	// tick from the current one.
@@ -254,7 +258,9 @@ func (m *Model) reload() {
 	m.list = m.store.Sessions()
 	switch {
 	case m.pinned != "":
-		if found := m.store.Session(m.pinned); found != nil {
+		// Session() calls Sessions() again, and Sessions() rebuilds every run
+		// it returns. The list in hand is that same list.
+		if found := pickFrom(m.list, m.pinned); found != nil {
 			m.current = found
 		}
 	case m.current != nil:
@@ -268,6 +274,20 @@ func (m *Model) reload() {
 		m.current = m.list[0]
 	}
 	m.rebuild()
+}
+
+// pickFrom matches the same way session.Session does, over a list already in
+// hand. It exists so reload does not rebuild every run a second time.
+func pickFrom(list []*session.Session, want string) *session.Session {
+	for _, one := range list {
+		switch {
+		case one.ID == want, one.Key == want,
+			one.ID != "" && strings.HasPrefix(one.ID, want),
+			strings.HasSuffix(one.Key, want):
+			return one
+		}
+	}
+	return nil
 }
 
 // rebuild flattens the session tree into the row list the layout draws.
@@ -328,6 +348,10 @@ func (m *Model) buildGuides() {
 	}
 }
 
+// updateVisibility is called when the rows or the folds change, and never on a
+// cursor move. It measures every visible label and preview, which is three
+// lipgloss.Width calls over 35870 rows: 10ms, and clamp used to call it on every
+// keystroke and every wheel notch.
 func (m *Model) updateVisibility() {
 	m.visibleRows = nil
 	hide := -1
@@ -404,6 +428,12 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.rebuild()
 		return m.clamp(), nil
 	case BatchMsg:
+		// A poll that found nothing still rebuilt every session and every row:
+		// 135ms of frozen frame, once per provider, every 15 seconds. Four
+		// providers made that half a second of stall on a loop.
+		if otlp.Batch(msg).Empty() {
+			return m, nil
+		}
 		before := len(m.rows)
 		m.store.AddBatch(otlp.Batch(msg))
 		m.reload()
@@ -539,7 +569,7 @@ func (m Model) detailCols() int {
 
 func (m Model) treeRows() int {
 	// 4 for the header, the footer and the tree box's own two borders, and 1
-	// more for the strip that sits under the header.
+	// more for the strip that sits under the tree.
 	rows := max(1, m.height-5)
 	if m.vertical() {
 		rows = max(3, rows-m.detailLines())
@@ -549,11 +579,16 @@ func (m Model) treeRows() int {
 
 // treeTop is the screen row of the tree's first body line, and treeLeft the
 // screen column of its first inner cell. Every mouse hit test starts here.
+// The strip moved from above the tree to below it, so the tree's own first body
+// line moved up a row. A mouse hit test off by one row selects the wrong span on
+// every click.
 func (m Model) treeTop() int {
 	if m.placeAt() == placeTop {
+		// Above the tree: the pane, then the strip, then the tree's border and
+		// its column header.
 		return m.detailLines() + 4
 	}
-	return 4
+	return 3
 }
 
 func (m Model) treeLeft() int {
@@ -693,6 +728,7 @@ func (m Model) key(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 			m.collapse()
 		case "zR":
 			m.folded = map[string]bool{}
+			m.updateVisibility()
 		case "zM":
 			m.foldAll()
 		case "zx":
@@ -1062,6 +1098,7 @@ func (m *Model) toggleFold() {
 	} else {
 		m.folded[m.idOf(idx)] = true
 	}
+	m.updateVisibility()
 }
 
 func (m *Model) foldAll() {
@@ -1070,6 +1107,7 @@ func (m *Model) foldAll() {
 			m.folded[m.idOf(i)] = true
 		}
 	}
+	m.updateVisibility()
 }
 
 func (m *Model) openPath() {
@@ -1079,6 +1117,7 @@ func (m *Model) openPath() {
 			break
 		}
 	}
+	m.updateVisibility()
 }
 
 func (m *Model) collapse() {
@@ -1093,6 +1132,7 @@ func (m *Model) collapse() {
 	if a := m.ancestorOf(idx); a >= 0 {
 		m.cursor, m.follow = m.indexOf(a), false
 	}
+	m.updateVisibility()
 }
 
 func (m *Model) expand() {
@@ -1103,6 +1143,7 @@ func (m *Model) expand() {
 	if m.rows[idx].parent {
 		delete(m.folded, m.idOf(idx))
 	}
+	m.updateVisibility()
 }
 
 func (m *Model) jump(d int) {
@@ -1116,7 +1157,6 @@ func (m *Model) jump(d int) {
 }
 
 func (m Model) clamp() Model {
-	m.updateVisibility()
 	vis := m.visible()
 	if len(vis) == 0 {
 		m.cursor, m.offset = 0, 0
@@ -1130,9 +1170,8 @@ func (m Model) clamp() Model {
 	}
 
 	h := m.bodyHeight()
-	total := m.linesFrom(vis, 0, len(vis))
 	switch {
-	case total <= h:
+	case m.fits(vis, h):
 		// Sparse content is always top anchored. Padding blank rows above a
 		// short list is dead space, not a tail view.
 		m.offset = 0
@@ -1163,6 +1202,20 @@ func (m Model) tailOffset(vis []int, h int) int {
 		o--
 	}
 	return o
+}
+
+// fits answers whether the whole list is on one screen, which is all the anchor
+// rule needs. Summing every row's height to find out was O(rows) on a path that
+// runs on every keypress.
+func (m Model) fits(vis []int, h int) bool {
+	n := 0
+	for i := range vis {
+		n += m.rowHeight(i)
+		if n > h {
+			return false
+		}
+	}
+	return true
 }
 
 func (m Model) linesFrom(vis []int, a, b int) int {
@@ -2336,7 +2389,7 @@ func (m Model) footer() string {
 		return fit(accent.Render(m.pending+"…")+dim.Render("  a fold  R open all  M close all  x focus"), m.width)
 	}
 	if m.cmd {
-		return m.commandBar()
+		return m.commandBar(m.width)
 	}
 	if m.filter {
 		return fit(accent.Render("/"+m.typed)+cursor.Render(" ")+dim.Render("   enter keep   esc clear"), m.width)
@@ -2457,19 +2510,22 @@ func (m Model) View() string {
 	tree := box(fmt.Sprintf("trace  %d shown of %d  \u00b7  %s", len(m.visible()), len(m.rows), m.runFor()),
 		inner, m.treeHead(inner)+"\n"+m.treeBody(inner, m.bodyHeight()))
 
-	main := tree
+	// The strip belongs to the tree and reads as its scale, so it sits against
+	// it. With the inspector below, that puts it between the two, which is
+	// where a scrubber belongs: at the boundary, not off at the frame's top.
+	main := tree + "\n" + m.strip(m.width)
 	if p := m.placeAt(); p != placeHidden {
 		pw := max(1, m.detailWidth()-2)
 		pane := boxWith(m.tabTop(pw), pw, m.paneView(pw))
 		switch p {
 		case placeBottom:
-			main = withGrip(tree, inner) + "\n" + pane
+			main = withGrip(tree, inner) + "\n" + m.strip(m.width) + "\n" + pane
 		case placeTop:
-			main = pane + "\n" + tree
+			main = pane + "\n" + m.strip(m.width) + "\n" + tree
 		case placeLeft:
-			main = lipgloss.JoinHorizontal(lipgloss.Top, pane, tree)
+			main = lipgloss.JoinHorizontal(lipgloss.Top, pane, tree) + "\n" + m.strip(m.width)
 		case placeRight:
-			main = lipgloss.JoinHorizontal(lipgloss.Top, tree, pane)
+			main = lipgloss.JoinHorizontal(lipgloss.Top, tree, pane) + "\n" + m.strip(m.width)
 		}
 	}
 
@@ -2477,7 +2533,7 @@ func (m Model) View() string {
 	if m.leader || m.pending == "i" {
 		bottom = m.leaderBar()
 	}
-	return strings.Join([]string{m.head(), m.strip(m.width), main, bottom}, "\n")
+	return strings.Join([]string{m.head(), main, bottom}, "\n")
 }
 
 // strip is the whole run on one line, above the tree. A gantt column stood to
@@ -2714,6 +2770,7 @@ func (m Model) pickKey(k string) (tea.Model, tea.Cmd) {
 			m.pinned = ""
 			m.marks = map[string]bool{}
 			m.folded = map[string]bool{}
+			m.updateVisibility()
 			m.rebuild()
 			m.cursor, m.offset, m.follow = max(0, len(m.rows)-1), 0, true
 		}
