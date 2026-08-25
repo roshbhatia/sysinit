@@ -30,8 +30,9 @@
 //
 // TRACES_PROVIDER takes a comma separated list, because two sources answer
 // different questions about the same run. On the machine this was built for,
-// `observe,transcript` reads the spans an org redirects to Observe and the reply
-// text Claude Code writes to disk, and neither one alone draws a whole run.
+// `observe,transcript` reads remote spans and each harness activity stream.
+// The provider output is one shared contract, so either source can add spans,
+// messages, tool output, edits, or another event without changing the UI.
 package source
 
 import (
@@ -49,6 +50,7 @@ import (
 	"time"
 
 	"github.com/roshbhatia/sysinit/pkgs/traces/internal/otlp"
+	"github.com/roshbhatia/sysinit/pkgs/traces/internal/rollout"
 	"github.com/roshbhatia/sysinit/pkgs/traces/internal/transcript"
 )
 
@@ -68,16 +70,33 @@ type Provider struct {
 	// Session narrows the read when the provider can do it. traces resolves a
 	// prefix itself, so a provider may ignore this.
 	Session string
+	// Directory lets providers find workspace-scoped sources such as Git commits.
+	Directory string
 	// read is set on a builtin, and Binary is empty there.
-	read func(time.Duration) otlp.Batch
+	read func(Query) otlp.Batch
 }
 
-// Builtin names the providers this binary implements itself. transcript reads
-// what Claude Code writes under ~/.claude/projects, which is a local file rather
-// than a queryable service, so a separate executable would only add a fork.
-var builtin = map[string]func(time.Duration) otlp.Batch{
-	"transcript": func(window time.Duration) otlp.Batch {
-		return otlp.Batch{Records: transcript.Read(transcript.Root(), window)}
+// Query scopes every provider read to the same session, workspace, and window.
+type Query struct {
+	Window    time.Duration
+	Session   string
+	Directory string
+}
+
+// Builtins stay independently selectable; transcript preserves the old aggregate.
+var builtin = map[string]func(Query) otlp.Batch{
+	"claude": func(query Query) otlp.Batch {
+		return otlp.Batch{Records: transcript.Read(transcript.Root(), query.Window, query.Session)}
+	},
+	"codex": func(query Query) otlp.Batch {
+		return rollout.Read(rollout.Root(), query.Window, query.Session)
+	},
+	"transcript": func(query Query) otlp.Batch {
+		out := otlp.Batch{Records: transcript.Read(transcript.Root(), query.Window, query.Session)}
+		codex := rollout.Read(rollout.Root(), query.Window, query.Session)
+		out.Spans = append(out.Spans, codex.Spans...)
+		out.Records = append(out.Records, codex.Records...)
+		return out
 	},
 }
 
@@ -129,13 +148,15 @@ func resolveOne(ask string) (*Provider, error) {
 // Fetch runs the provider once over the window ending now.
 func (p Provider) Fetch(ctx context.Context, window time.Duration) (otlp.Batch, error) {
 	if p.read != nil {
-		return p.read(window), nil
+		return p.read(Query{Window: window, Session: p.Session, Directory: p.Directory}), nil
 	}
 	args := []string{"--since", window.Round(time.Second).String()}
 	if p.Session != "" {
 		args = append(args, "--session", p.Session)
 	}
 	cmd := exec.CommandContext(ctx, p.Binary, args...)
+	// Environment variables add context without breaking existing provider flags.
+	cmd.Env = append(os.Environ(), "TRACES_SESSION="+p.Session, "TRACES_DIRECTORY="+p.Directory)
 	stderr := &strings.Builder{}
 	cmd.Stderr = stderr
 	out, err := cmd.Output()
@@ -336,11 +357,10 @@ func Follow(p Provider, every, back, lag time.Duration, out chan<- otlp.Batch, s
 				seen[one.SpanID] = true
 				batch.Spans = append(batch.Spans, one)
 			}
-			// A log record has no id of its own, so its own time and event
-			// stand in. Two records of one event at one instant are the same
-			// record read twice.
+			// Join IDs separate tool results that share one millisecond.
 			for _, one := range read.Records {
-				key := one.Session + "/" + one.Event + "/" + one.At.Format(time.RFC3339Nano)
+				joinID := first(one.SpanID, one.Attrs["request_id"], one.Attrs["tool_use_id"])
+				key := one.Session + "/" + one.Event + "/" + joinID + "/" + one.At.Format(time.RFC3339Nano)
 				if seen[key] {
 					continue
 				}
@@ -365,4 +385,13 @@ func Follow(p Provider, every, back, lag time.Duration, out chan<- otlp.Batch, s
 		case <-time.After(every):
 		}
 	}
+}
+
+func first(parts ...string) string {
+	for _, one := range parts {
+		if one != "" {
+			return one
+		}
+	}
+	return ""
 }

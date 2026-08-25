@@ -49,7 +49,7 @@ func Root() string {
 // its entries carry. A file is opened only when its own mtime is inside the
 // window, because a project directory holds every session ever run and the
 // current one is a few of them.
-func Read(root string, window time.Duration) []otlp.Record {
+func Read(root string, window time.Duration, session string) []otlp.Record {
 	if root == "" {
 		return nil
 	}
@@ -69,6 +69,9 @@ func Read(root string, window time.Duration) []otlp.Record {
 		}
 		for _, f := range files {
 			if !strings.HasSuffix(f.Name(), ".jsonl") {
+				continue
+			}
+			if session != "" && !strings.Contains(f.Name(), session) {
 				continue
 			}
 			info, err := f.Info()

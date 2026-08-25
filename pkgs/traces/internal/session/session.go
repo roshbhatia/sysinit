@@ -37,9 +37,20 @@ var foldedInto = map[string]bool{
 	"claude_code.tool.blocked_on_user": true,
 }
 
-var delegateTools = map[string]bool{
-	"Agent": true,
-	"Task":  true,
+var actionAliases = map[string]string{
+	"agent":       "delegate",
+	"apply_patch": "edit",
+	"bash":        "shell",
+	"edit":        "edit",
+	"glob":        "search",
+	"grep":        "search",
+	"read":        "read",
+	"shell":       "shell",
+	"task":        "delegate",
+	"update_plan": "plan",
+	"web.search":  "search",
+	"websearch":   "search",
+	"write":       "edit",
 }
 
 type Node struct {
@@ -113,6 +124,23 @@ func (s *Session) Short() string {
 		return title[:8]
 	}
 	return title
+}
+
+// ViewCount excludes runtime spans when an activity provider supplies the tree.
+func (s *Session) ViewCount() int {
+	s.rebuild()
+	total := 0
+	var walk func(*Node)
+	walk = func(node *Node) {
+		total++
+		for _, child := range node.Children {
+			walk(child)
+		}
+	}
+	for _, root := range s.Roots {
+		walk(root)
+	}
+	return total
 }
 
 type Store struct {
@@ -400,7 +428,7 @@ func (s *Store) AddRecords(records []otlp.Record) {
 			found := s.hold(one)
 			found.prompts = append(found.prompts, one)
 			found.dirty = true
-		case one.Event == transcript.EventText:
+		case one.Event == transcript.EventText || strings.HasSuffix(one.Event, ".assistant"):
 			id := one.Attrs["request_id"]
 			if id == "" {
 				continue
@@ -408,7 +436,7 @@ func (s *Store) AddRecords(records []otlp.Record) {
 			found := s.hold(one)
 			found.texts[id] = one
 			found.dirty = true
-		case one.Event == transcript.EventResult:
+		case one.Event == transcript.EventResult || strings.HasSuffix(one.Event, ".tool_result"):
 			id := one.Attrs["tool_use_id"]
 			if id == "" {
 				continue
@@ -505,7 +533,18 @@ func (s *Session) rebuild() {
 	s.dirty = false
 
 	nodes := make(map[string]*Node, len(s.spans))
+	// Prefer activity spans so runtime internals cannot bury the session actions.
+	preferActivity := false
+	for _, span := range s.spans {
+		if span.Attrs["traces.view"] == "activity" {
+			preferActivity = true
+			break
+		}
+	}
 	for id, span := range s.spans {
+		if preferActivity && span.Attrs["traces.view"] != "activity" {
+			continue
+		}
 		if foldedInto[span.Name] {
 			continue
 		}
@@ -595,20 +634,24 @@ func describe(span otlp.Span) *Node {
 	node := &Node{Span: span, Role: RoleSystem, Label: span.Name}
 
 	switch span.Name {
-	case "claude_code.interaction":
+	case "claude_code.interaction", "agent.turn":
 		node.Role, node.Label = RoleTurn, "turn"
-	case "claude_code.llm_request":
+	case "claude_code.llm_request", "agent.model":
 		node.Role, node.Label = RoleModel, model(span.Attrs)
 		node.Note = produced(span.Attrs)
-	case "claude_code.tool":
-		node.Label = span.Attrs["tool_name"]
-		if node.Label == "" {
-			node.Label = "tool"
+	case "claude_code.tool", "agent.tool", "agent.edit":
+		raw := span.Attrs["tool_name"]
+		action := span.Attrs["traces.action"]
+		if action == "" {
+			action = actionAliases[strings.ToLower(raw)]
 		}
+		node.Label = actionLabel(action, raw)
 		node.Role = RoleTool
-		if delegateTools[node.Label] {
+		if action == "delegate" {
 			node.Role = RoleDelegate
 		}
+	case "agent.compact":
+		node.Role, node.Label = RoleSystem, "compact"
 	default:
 		parts := strings.Split(span.Name, ".")
 		node.Label = parts[len(parts)-1]
@@ -624,6 +667,16 @@ func describe(span otlp.Span) *Node {
 		}
 	}
 	return node
+}
+
+func actionLabel(action, fallback string) string {
+	if action == "" {
+		if fallback != "" {
+			return fallback
+		}
+		return "tool"
+	}
+	return strings.ToUpper(action[:1]) + action[1:]
 }
 
 func model(attrs map[string]string) string {

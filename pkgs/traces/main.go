@@ -34,7 +34,7 @@ func main() {
 	pinned := flag.String("session", "", "attach to this session, by id or prefix")
 	list := flag.Bool("list", false, "list the sessions and exit")
 	once := flag.Bool("once", false, "print the tree once and exit; status 2 when a span failed")
-	asked := flag.String("provider", "", "comma separated providers to read beside the collector file; `transcript` reads what Claude Code writes to disk (default: $"+source.Env+")")
+	asked := flag.String("provider", "", "comma separated providers to read beside the collector file; `transcript` reads harness activity streams (default: $"+source.Env+")")
 	back := flag.Duration("since", 2*time.Hour, "with a provider, how far back the first read reaches")
 	every := flag.Duration("poll", 15*time.Second, "with a provider, how often to re-read")
 	lag := flag.Duration("lag", 90*time.Second, "with a provider, how much every poll overlaps the last")
@@ -63,6 +63,7 @@ func main() {
 	}
 	for _, one := range providers {
 		one.Session = which
+		one.Directory = directory
 	}
 
 	path := *file
@@ -127,15 +128,27 @@ func (s sources) name() string {
 // batch. A provider that fails is named and skipped: the others already
 // answered, and one unreachable source should not empty the view.
 func (s sources) fetch(ctx context.Context) otlp.Batch {
-	out := otlp.Batch{}
+	type answer struct {
+		batch otlp.Batch
+		err   error
+	}
+	answers := make(chan answer, len(s.providers))
 	for _, one := range s.providers {
-		read, err := one.Fetch(ctx, s.back)
-		if err != nil {
-			fmt.Fprintf(os.Stderr, "traces: %v\n", err)
+		go func() {
+			read, err := one.Fetch(ctx, s.back)
+			answers <- answer{batch: read, err: err}
+		}()
+	}
+
+	out := otlp.Batch{}
+	for range s.providers {
+		one := <-answers
+		if one.err != nil {
+			fmt.Fprintf(os.Stderr, "traces: %v\n", one.err)
 			continue
 		}
-		out.Spans = append(out.Spans, read.Spans...)
-		out.Records = append(out.Records, read.Records...)
+		out.Spans = append(out.Spans, one.batch.Spans...)
+		out.Records = append(out.Records, one.batch.Records...)
 	}
 	return out
 }
@@ -258,13 +271,14 @@ func list(w io.Writer, all []*session.Session) {
 	for _, one := range all {
 		service = max(service, len(one.Service))
 		name = max(name, len(one.Short()))
-		count = max(count, len(strconv.Itoa(one.Count)))
+		count = max(count, len(strconv.Itoa(one.ViewCount())))
 	}
 	for _, one := range all {
+		shown := one.ViewCount()
 		fmt.Fprintf(w, "%-*s  %-*s  %*d %-5s  %s\n",
 			service, one.Service,
 			name, one.Short(),
-			count, one.Count, plural(one.Count, "span"),
+			count, shown, plural(shown, "item"),
 			one.Last.Format("15:04:05"))
 	}
 }

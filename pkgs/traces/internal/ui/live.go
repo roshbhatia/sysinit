@@ -2644,8 +2644,8 @@ func (m Model) viewPick() string {
 		if i == m.pickAt {
 			mark, style = accent.Render(gl.point)+" ", accent
 		}
-		b.WriteString(fit(mark+style.Render(fmt.Sprintf("%-12s %-40s %5d spans  %s",
-			one.Service, one.Title(), one.Count, ago(one.Last, m.now))), m.width) + "\n")
+		b.WriteString(fit(mark+style.Render(fmt.Sprintf("%-12s %-40s %5d items  %s",
+			one.Service, one.Title(), one.ViewCount(), ago(one.Last, m.now))), m.width) + "\n")
 	}
 	b.WriteString("\n" + faint.Render("j k move   enter attach   esc cancel   q quit"))
 	return b.String()

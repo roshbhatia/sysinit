@@ -82,7 +82,7 @@
     openspecTool = [ "codex" ];
     guard = "hook";
     projectDir = ".codex/";
-    transcriptRoot = null;
+    transcriptRoot = "~/.codex/sessions";
     exitHook = false;
   };
 
