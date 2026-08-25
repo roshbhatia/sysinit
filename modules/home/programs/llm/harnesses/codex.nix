@@ -15,6 +15,30 @@ let
     name = "codex-bash-guard";
   };
 
+  tracePane = pkgs.writeShellApplication {
+    name = "codex-trace-pane";
+    runtimeInputs = [
+      pkgs.jq
+      pkgs.wezterm
+    ];
+    text = ''
+      input="$(/bin/cat)"
+      session_id="$(jq -r '.session_id // empty' <<< "''${input}")"
+      cwd="$(jq -r '.cwd // empty' <<< "''${input}")"
+
+      if [ -z "''${WEZTERM_PANE:-}" ] || [ -z "''${session_id}" ] || [ -z "''${cwd}" ]; then
+        exit 0
+      fi
+
+      wezterm cli --no-auto-start split-pane \
+        --pane-id "''${WEZTERM_PANE}" \
+        --bottom \
+        --percent 40 \
+        --cwd "''${cwd}" \
+        -- "${profileBin}/traces" -session "''${session_id}" > /dev/null
+    '';
+  };
+
   # codex sends to the endpoint verbatim and appends no signal path, unlike
   # every other OTLP client here. A bare 4318 makes it POST to `/`, which the
   # collector answers with 404, so nothing codex emitted ever reached traces.
@@ -169,6 +193,18 @@ in
       };
 
       hooks = {
+        SessionStart = [
+          {
+            matcher = "^(startup|resume)$";
+            hooks = [
+              {
+                type = "command";
+                command = lib.getExe tracePane;
+                timeout = 5;
+              }
+            ];
+          }
+        ];
         PreToolUse = [
           {
             hooks = [
