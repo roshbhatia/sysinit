@@ -227,7 +227,7 @@ func build(entries []entry, sessionID, title string) otlp.Batch {
 	models := map[string]*node{}
 	tools := map[string]*node{}
 	order := []*node{}
-	var turn, model *node
+	var turn *node
 	seq := 0
 
 	for _, e := range entries {
@@ -245,7 +245,6 @@ func build(entries []entry, sessionID, title string) otlp.Batch {
 					"user_prompt_length":   strconv.Itoa(len(e.prompt())),
 				}),
 			}
-			model = nil
 			turns = append(turns, turn)
 			order = append(order, turn)
 			batch.Records = append(batch.Records, otlp.Record{
@@ -263,8 +262,17 @@ func build(entries []entry, sessionID, title string) otlp.Batch {
 			if id == "" {
 				id = e.UUID
 			}
-			found, ok := models[id]
-			if !ok {
+			stretch(turn, e.at)
+			batch.Records = append(batch.Records, e.reply(sessionID, id)...)
+
+			// A model call is a row only when it said something. A call that
+			// only asked for a tool carried no text and no reasoning, so the
+			// tree read "claude-opus-5 → Shell" above "Shell <command>": two
+			// rows for one fact, on half the rows in the run. Its tools hang
+			// off the turn instead, and its numbers ride the tool they asked
+			// for, so nothing is lost and the tree reads as a conversation.
+			found := models[id]
+			if found == nil && e.said() {
 				found = &node{
 					id: id, parent: turn.id, start: e.at, end: e.at, name: "agent.model",
 					attrs: with(base, map[string]string{"request_id": id}),
@@ -272,11 +280,13 @@ func build(entries []entry, sessionID, title string) otlp.Batch {
 				models[id] = found
 				order = append(order, found)
 			}
-			model = found
-			e.foldInto(found)
-			stretch(turn, e.at)
-			batch.Records = append(batch.Records, e.reply(sessionID, id)...)
-			for _, one := range e.calls(found) {
+			under := turn
+			if found != nil {
+				found.attrs["request_id"] = id
+				e.foldInto(found)
+				under = found
+			}
+			for _, one := range e.calls(under, e.usageAttrs()) {
 				tools[one.id] = one
 				order = append(order, one)
 			}
@@ -310,16 +320,21 @@ func build(entries []entry, sessionID, title string) otlp.Batch {
 						"is_error":    boolText(b.IsError),
 					},
 				})
-				if found, ok := tools[b.ToolUseID]; ok {
-					found.end = e.at
-					if b.IsError {
-						found.attrs["success"] = "false"
-					}
-					if model != nil {
-						stretch(model, e.at)
-					}
-					stretch(turn, e.at)
+				found, ok := tools[b.ToolUseID]
+				if !ok {
+					continue
 				}
+				found.end = e.at
+				if b.IsError {
+					found.attrs["success"] = "false"
+				}
+				// Only the call that owns this tool grows. Stretching whichever
+				// model call was last seen gave a 2 second reply a duration of
+				// 2m42s, which was the whole turn it opened.
+				if owner := models[found.attrs["request_id"]]; owner != nil {
+					stretch(owner, e.at)
+				}
+				stretch(turn, e.at)
 			}
 		}
 	}
@@ -438,7 +453,43 @@ func (e entry) reply(sessionID, requestID string) []otlp.Record {
 // calls turns the reply's tool_use blocks into spans under it. The name and the
 // arguments live only here: no OTLP attribute carries a tool's input, so a run
 // read from spans alone shows a tool row with nothing in it.
-func (e entry) calls(parent *node) []*node {
+// said reports whether this line carried anything a reader would read. A line
+// holding only tool_use blocks is the API's half of a tool call, not a message.
+func (e entry) said() bool {
+	for _, b := range e.blocks {
+		if (b.Type == "text" && strings.TrimSpace(b.Text) != "") ||
+			(b.Type == "thinking" && strings.TrimSpace(b.Thinking) != "") {
+			return true
+		}
+	}
+	return false
+}
+
+// usageAttrs is what the collapsed model call was carrying. It rides the tool
+// span so the tokens a request cost stay attached to the work it did.
+func (e entry) usageAttrs() map[string]string {
+	out := map[string]string{}
+	u := e.Message.Usage
+	for key, n := range map[string]int{
+		"output_tokens":         u.Output,
+		"input_tokens":          u.Input,
+		"cache_read_tokens":     u.CacheRead,
+		"cache_creation_tokens": u.CacheWrite,
+	} {
+		if n > 0 {
+			out[key] = strconv.Itoa(n)
+		}
+	}
+	if e.Message.Model != "" {
+		out["gen_ai.request.model"] = e.Message.Model
+	}
+	if e.RequestID != "" {
+		out["request_id"] = e.RequestID
+	}
+	return out
+}
+
+func (e entry) calls(parent *node, extra map[string]string) []*node {
 	out := []*node{}
 	for _, b := range e.blocks {
 		if b.Type != "tool_use" || b.ID == "" {
@@ -452,9 +503,11 @@ func (e entry) calls(parent *node) []*node {
 			"tool_name":   b.Name,
 			"tool_use_id": b.ID,
 		})
-		delete(attrs, "request_id")
 		delete(attrs, "stop_reason")
-		delete(attrs, "output_tokens")
+		delete(attrs, "user_prompt")
+		delete(attrs, "user_prompt_length")
+		delete(attrs, "interaction.sequence")
+		maps.Copy(attrs, extra)
 		maps.Copy(attrs, argsOf(b.Name, b.Input))
 		// The call is requested when the reply ends, and the result stamps the
 		// end. Until it arrives the span is a point, which is what an open tool

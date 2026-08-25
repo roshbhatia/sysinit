@@ -107,6 +107,31 @@ func (s *Session) Title() string {
 	return s.Key
 }
 
+// Name is what a person calls this run. Claude Code writes a title for every
+// session and traces named them all by 8 characters of a uuid, so a list of six
+// sessions read as six hex strings and told the reader nothing about which was
+// which. The id stays available under Short, which is what --session takes.
+func (s *Session) Name() string {
+	s.rebuild()
+	for _, root := range s.Roots {
+		if title := root.Span.Attrs["session.title"]; title != "" {
+			return title
+		}
+	}
+	// The first prompt is the next best name: it is what the reader typed to
+	// start the run, so they recognise it.
+	for _, root := range s.Roots {
+		if root.Prompt != "" {
+			return oneLine(root.Prompt)
+		}
+	}
+	return s.Short()
+}
+
+func oneLine(text string) string {
+	return strings.Join(strings.Fields(strings.ReplaceAll(text, "\n", " ")), " ")
+}
+
 // Short names the run in a header. A session that carries its own id is cut to
 // 8 characters of it. A trace-keyed one is cut to the last 8 of the trace: the
 // first 8 are the service name repeated, which read as "amp.cli amp.cli/".
@@ -478,7 +503,10 @@ func (s *Store) hold(one otlp.Record) *Session {
 // result was written under, so both are a map lookup rather than a time match.
 func (s *Session) attachText(nodes map[string]*Node) {
 	for _, node := range nodes {
-		if found, ok := s.texts[node.Span.Attrs["request_id"]]; ok {
+		// Only the model call may claim the reply. A tool span carries the
+		// request id of the call that asked for it, so without the role test
+		// every tool row printed the reply text of its own caller.
+		if found, ok := s.texts[node.Span.Attrs["request_id"]]; ok && node.Role == RoleModel {
 			node.Text, node.Thinking = found.Body, found.Attrs["thinking"]
 		}
 		if found, ok := s.results[node.Span.Attrs["tool_use_id"]]; ok {

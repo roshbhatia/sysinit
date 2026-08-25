@@ -264,23 +264,34 @@ func failed(one *session.Session) bool {
 // 40 before this, and `github-copilot` and a 47 character trace key both
 // overran theirs, so each long row shifted the two columns after it.
 //
-// The name column prints the short name rather than the whole key, because the
-// key is up to 47 characters of hex and --session takes the short name.
+// The id column prints the short id, because that is what --session takes, and
+// the name beside it is what the harness itself called the run. A list of six
+// sessions used to read as six hex strings.
 func list(w io.Writer, all []*session.Session) {
-	service, name, count := 0, 0, 0
+	service, id, count := 0, 0, 0
 	for _, one := range all {
 		service = max(service, len(one.Service))
-		name = max(name, len(one.Short()))
+		id = max(id, len(one.Short()))
 		count = max(count, len(strconv.Itoa(one.ViewCount())))
 	}
 	for _, one := range all {
 		shown := one.ViewCount()
-		fmt.Fprintf(w, "%-*s  %-*s  %*d %-5s  %s\n",
+		fmt.Fprintf(w, "%-*s  %-*s  %*d %-5s  %s  %s\n",
 			service, one.Service,
-			name, one.Short(),
+			id, one.Short(),
 			count, shown, plural(shown, "item"),
-			one.Last.Format("15:04:05"))
+			one.Last.Format("15:04:05"),
+			clip(one.Name(), 56))
 	}
+}
+
+// A title runs as long as the harness wants, and a wrapped listing row loses
+// the column alignment that makes the listing readable at all.
+func clip(s string, width int) string {
+	if len(s) <= width {
+		return s
+	}
+	return s[:width-1] + "\u2026"
 }
 
 func plural(n int, word string) string {

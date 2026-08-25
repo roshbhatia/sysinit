@@ -137,6 +137,11 @@ func Line(node *session.Node) string {
 		return oneLine(node.Text)
 	case node.Thinking != "":
 		return oneLine(node.Thinking)
+	// A model call whose tools are its own children said "called a tool" beside
+	// the tool it called, one row below. Naming them is the same width spent on
+	// something the reader cannot already see, and it survives folding.
+	case len(node.Children) > 0 && node.Role == session.RoleModel:
+		return "\u2192 " + kidNames(node)
 	case node.Note != "":
 		if arg := preview(node); arg != "" && arg != node.Label {
 			return arg
@@ -144,6 +149,25 @@ func Line(node *session.Node) string {
 		return oneLine(node.Note)
 	}
 	return preview(node)
+}
+
+func kidNames(node *session.Node) string {
+	seen, names := map[string]bool{}, []string{}
+	for _, kid := range node.Children {
+		if kid.Label == "" || seen[kid.Label] {
+			continue
+		}
+		seen[kid.Label] = true
+		names = append(names, kid.Label)
+		if len(names) == 4 {
+			break
+		}
+	}
+	out := strings.Join(names, ", ")
+	if len(node.Children) > len(names) {
+		out += ", \u2026"
+	}
+	return out
 }
 
 // preview is the one line of text under the label. The attribute that carries
@@ -181,7 +205,13 @@ func matches(node *session.Node, query string) bool {
 	if query == "" {
 		return true
 	}
-	hay := strings.ToLower(node.Label + " " + node.Note + " " + node.Span.Name + " " + node.Prompt)
+	// The filter searched the label and the note only, so /goroutine matched
+	// nothing in a run that discussed goroutines for an hour: the words are in
+	// the reply and in the tool output, which is what the transcript carries.
+	hay := strings.ToLower(strings.Join([]string{
+		node.Label, node.Note, node.Span.Name, node.Prompt,
+		node.Text, node.Thinking, node.Output,
+	}, " "))
 	if strings.Contains(hay, query) {
 		return true
 	}

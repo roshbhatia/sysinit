@@ -1817,7 +1817,9 @@ type paneTab struct {
 
 var paneTabs = []paneTab{
 	{name: "changes", raw: true, body: Model.tabChanges},
-	{name: "body", body: Model.tabBody},
+	// raw, because the body draws its own tree and glamour would strip the rail
+	// and reflow the code under it.
+	{name: "body", raw: true, body: Model.tabBody},
 	// raw, because the table is already laid out to the pane and glamour would
 	// reflow it back to markdown's own idea of a table.
 	{name: "attrs", raw: true, body: Model.tabAttrs},
@@ -1889,76 +1891,145 @@ func (m Model) tabAt() int {
 //
 // No attribute appears here. The attrs tab holds all of them, and the table
 // this used to print restated eight of them one tab away.
+// tabBody draws the row as a tree of what it holds, not as a run of markdown
+// headings. The headings version concatenated whatever was marked, so two marked
+// rows rendered as "Prompt / open / --- / Response / -20251001", which is two
+// placeholders and a separator and no content at all.
+//
+// A section is a branch. Its own text hangs under it, indented to the rail, so a
+// long reply and a long tool output stay told apart while both scroll in one
+// pane. The children are one line each: the tree above already holds them, and
+// what a reader wants here is to see that they exist.
 func (m Model) tabBody(r row) string {
-	b := &strings.Builder{}
-	switch r.kind {
-	case kindTurn:
-		// A turn's text is its prompt, whole and unclipped: the row above it
-		// already showed the one line that fits there.
-		fmt.Fprintf(b, "## Prompt\n\n%s\n", r.prompt())
-	case kindPrompt, kindThink:
-		b.WriteString(modelBody(r))
-	case kindSub, kindTeam:
-		fmt.Fprintf(b, "## Task\n\n%s\n", r.preview)
-	case kindHook:
-		cmd, out, _ := strings.Cut(r.preview, "  ->  ")
-		fmt.Fprintf(b, "## Command\n\n```sh\n%s\n```\n", cmd)
-		if out != "" {
-			fmt.Fprintf(b, "\n## Output\n\n```text\n%s\n```\n", out)
+	inner := max(24, m.detailWidth()-2)
+	out := []string{m.bodyHead(r, inner)}
+	parts := r.sections()
+	for i, one := range parts {
+		last := i == len(parts)-1 && len(m.kidLines(r)) == 0
+		out = append(out, section(one, last, inner))
+	}
+	out = append(out, m.kidLines(r)...)
+	if len(parts) == 0 && len(out) == 1 {
+		out = append(out, faint.Render("  nothing recorded on this row"))
+		if r.kind == kindPrompt || r.kind == kindThink {
+			out = append(out, faint.Render("  add `transcript` to TRACES_PROVIDER to join the reply text"))
 		}
-	default:
-		lang := "sh"
-		switch r.label {
-		case "Read", "Edit", "Grep":
-			lang = "text"
-		}
-		fmt.Fprintf(b, "## Input\n\n```%s\n%s\n```\n", lang, r.preview)
-		// The output is what the row was run for, and no span carries it. It is
-		// here only when the transcript was read.
-		if out := r.output(); out != "" {
-			fmt.Fprintf(b, "\n## Output\n\n```text\n%s\n```\n", out)
-		}
+	}
+	return strings.Join(out, "\n")
+}
+
+// bodyHead names the row once, at the root of its own tree, with the two facts
+// that frame everything under it.
+func (m Model) bodyHead(r row, width int) string {
+	head := roleStyle(roleOf[r.kind]).Render(r.label)
+	facts := []string{}
+	if r.ms > 0 {
+		facts = append(facts, duration(time.Duration(r.ms)*time.Millisecond))
 	}
 	if r.fail {
-		fmt.Fprintf(b, "\n> **failed** after %s\n", duration(time.Duration(r.ms)*time.Millisecond))
+		facts = append(facts, bad.Render("failed"))
 	}
-	return b.String()
+	if len(facts) > 0 {
+		head += dim.Render("  "+gl.tick+"  ") + dim.Render(strings.Join(facts, dim.Render("  "+gl.tick+"  ")))
+	}
+	return fit(head, width)
 }
 
-// modelBody is the reply and the reasoning behind it, and nothing else. The
-// call's own numbers moved to the attrs tab: a reader opening a model row wants
-// to know what the model said, and a token table stood between them and it.
-func modelBody(r row) string {
-	text, thinking := "", ""
+// A part is one branch of the row: a name, the text under it, and whether the
+// text is code. A reply is prose and reflows; a command is not and must not.
+type part struct {
+	name string
+	text string
+	code bool
+}
+
+func (r row) sections() []part {
+	out := []part{}
+	add := func(name, text string, code bool) {
+		if strings.TrimSpace(text) != "" {
+			out = append(out, part{name: name, text: text, code: code})
+		}
+	}
 	if r.node != nil {
-		text, thinking = r.node.Text, r.node.Thinking
+		add("prompt", r.node.Prompt, false)
+		add("reasoning", r.node.Thinking, false)
+		add("response", r.node.Text, false)
 	}
-	b := &strings.Builder{}
-	if thinking != "" {
-		fmt.Fprintf(b, "## Reasoning\n\n%s\n\n", thinking)
+	// The preview is the row's input wherever nothing above claimed it: a tool's
+	// command, a hook's command, a delegate's task.
+	if len(out) == 0 || r.kind == kindTool || r.kind == kindMCP || r.kind == kindSkill || r.kind == kindHook {
+		cmd, hookOut, _ := strings.Cut(r.preview, "  ->  ")
+		add("input", cmd, true)
+		add("stderr", hookOut, true)
 	}
-	if text != "" {
-		fmt.Fprintf(b, "## Response\n\n%s\n", text)
-	}
-	if text != "" || thinking != "" {
-		return b.String()
-	}
-	// The reply is on disk and never on a span, so its absence is a fact about
-	// the source rather than about the call, and the reader has to be told which.
-	b.WriteString("## Response\n\n")
-	if r.preview != "" {
-		fmt.Fprintf(b, "%s\n\n", r.preview)
-	}
-	b.WriteString("No transcript was read, so the reply text is not here.\n" +
-		"Add `transcript` to `TRACES_PROVIDER` to join it in.\n")
-	return b.String()
+	add("output", r.output(), true)
+	return out
 }
 
-// tabAttrs draws its own table rather than handing markdown to glamour. A
-// markdown table is laid out to the widest cell and then clipped to the pane,
-// so a 64 character trace id took half the width and every value after it was
-// cut. Here the key column is sized to the keys, the value column takes the
-// rest, and a value too long for it wraps under itself instead of vanishing.
+// section draws one branch and hangs its text under the rail, so the reader can
+// see at a glance where one part of the row ends and the next begins.
+func section(one part, last bool, width int) string {
+	elbow, rail := gl.tee, gl.vert
+	if last {
+		elbow, rail = gl.elbow, gl.gap
+	}
+	head := rule.Render(elbow) + " " + tagKey.Render(one.name)
+	body := []string{head}
+	style := plain
+	if one.code {
+		style = dim
+	}
+	for _, ln := range bodyLines(one.text, max(8, width-len(rail)-2)) {
+		body = append(body, rule.Render(rail)+" "+style.Render(ln))
+	}
+	return strings.Join(body, "\n")
+}
+
+// bodyLines wraps prose and leaves code alone but for the width, because a
+// reflowed command is a command that no longer runs.
+func bodyLines(text string, width int) []string {
+	out := []string{}
+	for _, raw := range strings.Split(strings.TrimRight(text, "\n"), "\n") {
+		raw = strings.ReplaceAll(raw, "\t", "    ")
+		if raw == "" {
+			out = append(out, "")
+			continue
+		}
+		out = append(out, wrapTo(raw, width)...)
+	}
+	return out
+}
+
+// kidLines names the row's children, one line each. A folded turn is the case
+// this exists for: the pane says what is inside without the reader unfolding it.
+func (m Model) kidLines(r row) []string {
+	if r.node == nil || len(r.node.Children) == 0 {
+		return nil
+	}
+	width := max(24, m.detailWidth()-2)
+	kids := len(r.node.Children)
+	head := fmt.Sprintf("%d children", kids)
+	if kids == 1 {
+		head = "1 child"
+	}
+	out := []string{rule.Render(gl.elbow) + " " + tagKey.Render(head)}
+	for i, kid := range r.node.Children {
+		if i == bodyKids {
+			out = append(out, rule.Render(gl.gap)+" "+
+				faint.Render(fmt.Sprintf("%d more", kids-bodyKids)))
+			break
+		}
+		text := Line(kid)
+		out = append(out, rule.Render(gl.gap)+" "+
+			fit(roleStyle(kid.Role).Render(kid.Label)+dim.Render("  "+text), width-3))
+	}
+	return out
+}
+
+// Ten is what fits beside a section without pushing it off the pane. A turn with
+// forty children is read in the tree, which is where forty rows belong.
+const bodyKids = 10
+
 func (m Model) tabAttrs(r row) string {
 	tags := m.detailTags(r)
 	if len(tags) == 0 {
@@ -2053,7 +2124,10 @@ func (m Model) paneSource() string {
 			parts = append(parts, s)
 		}
 	}
-	return strings.Join(parts, "\n\n---\n\n")
+	// A markdown rule between marked rows rendered as a bare "---" once the body
+	// stopped being markdown. Each marked row is its own tree, so a blank line
+	// is the whole separator they need.
+	return strings.Join(parts, "\n\n")
 }
 
 // The viewport was constructed and sized in the earlier drafts but never fed,
@@ -2177,6 +2251,9 @@ func (m Model) head() string {
 	who := "no session"
 	if m.current != nil {
 		who = m.current.Service + " " + m.current.Short()
+		if name := m.current.Name(); name != "" && name != m.current.Short() {
+			who += "  " + clipWord(name, 44)
+		}
 	}
 	left := title.Render("traces") + dim.Render("  "+who)
 	// The typed text shows the moment it is typed, and the applied query is
