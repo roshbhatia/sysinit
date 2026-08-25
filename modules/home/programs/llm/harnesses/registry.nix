@@ -268,7 +268,7 @@
     openspecTool = [ "opencode" ];
     guard = "globs";
     projectDir = ".opencode/";
-    transcriptRoot = null;
+    transcriptRoot = "~/.local/share/opencode";
     exitHook = false;
   };
 

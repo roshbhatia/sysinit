@@ -49,6 +49,7 @@ import (
 	"strings"
 	"time"
 
+	opencodeactivity "github.com/roshbhatia/sysinit/pkgs/traces/internal/opencode"
 	"github.com/roshbhatia/sysinit/pkgs/traces/internal/otlp"
 	"github.com/roshbhatia/sysinit/pkgs/traces/internal/rollout"
 	"github.com/roshbhatia/sysinit/pkgs/traces/internal/transcript"
@@ -73,7 +74,7 @@ type Provider struct {
 	// Directory lets providers find workspace-scoped sources such as Git commits.
 	Directory string
 	// read is set on a builtin, and Binary is empty there.
-	read func(Query) otlp.Batch
+	read func(context.Context, Query) (otlp.Batch, error)
 }
 
 // Query scopes every provider read to the same session, workspace, and window.
@@ -83,20 +84,19 @@ type Query struct {
 	Directory string
 }
 
-// Builtins stay independently selectable; transcript preserves the old aggregate.
-var builtin = map[string]func(Query) otlp.Batch{
-	"claude": func(query Query) otlp.Batch {
-		return otlp.Batch{Records: transcript.Read(transcript.Root(), query.Window, query.Session)}
+var aliases = map[string][]string{
+	"transcript": {"claude", "codex", "opencode"},
+}
+
+var builtin = map[string]func(context.Context, Query) (otlp.Batch, error){
+	"claude": func(_ context.Context, query Query) (otlp.Batch, error) {
+		return otlp.Batch{Records: transcript.Read(transcript.Root(), query.Window, query.Session)}, nil
 	},
-	"codex": func(query Query) otlp.Batch {
-		return rollout.Read(rollout.Root(), query.Window, query.Session)
+	"codex": func(_ context.Context, query Query) (otlp.Batch, error) {
+		return rollout.Read(rollout.Root(), query.Window, query.Session), nil
 	},
-	"transcript": func(query Query) otlp.Batch {
-		out := otlp.Batch{Records: transcript.Read(transcript.Root(), query.Window, query.Session)}
-		codex := rollout.Read(rollout.Root(), query.Window, query.Session)
-		out.Spans = append(out.Spans, codex.Spans...)
-		out.Records = append(out.Records, codex.Records...)
-		return out
+	"opencode": func(ctx context.Context, query Query) (otlp.Batch, error) {
+		return opencodeactivity.Read(ctx, "opencode", query.Window, query.Session, query.Directory)
 	},
 }
 
@@ -113,8 +113,16 @@ func Resolve(ask string) ([]*Provider, error) {
 	}
 	out := []*Provider{}
 	seen := map[string]bool{}
+	requested := []string{}
 	for _, one := range strings.Split(ask, ",") {
 		one = strings.TrimSpace(one)
+		if expanded := aliases[one]; len(expanded) > 0 {
+			requested = append(requested, expanded...)
+		} else {
+			requested = append(requested, one)
+		}
+	}
+	for _, one := range requested {
 		// A trailing comma, or a variable set to the empty string, is a list of
 		// nothing rather than a provider named "".
 		if one == "" || seen[one] {
@@ -148,7 +156,7 @@ func resolveOne(ask string) (*Provider, error) {
 // Fetch runs the provider once over the window ending now.
 func (p Provider) Fetch(ctx context.Context, window time.Duration) (otlp.Batch, error) {
 	if p.read != nil {
-		return p.read(Query{Window: window, Session: p.Session, Directory: p.Directory}), nil
+		return p.read(ctx, Query{Window: window, Session: p.Session, Directory: p.Directory})
 	}
 	args := []string{"--since", window.Round(time.Second).String()}
 	if p.Session != "" {
