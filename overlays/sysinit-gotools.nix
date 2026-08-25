@@ -21,19 +21,37 @@ let
       pname,
       binary,
       names,
+      completionNames ? [ ],
       meta,
     }:
     final.runCommand "${pname}-${sysinit-gotools.version}"
       {
         inherit meta;
+        nativeBuildInputs = final.lib.optional (completionNames != [ ]) final.installShellFiles;
         passthru = { inherit sysinit-gotools; };
       }
-      ''
-        mkdir -p "$out/bin"
-        ${final.lib.concatMapStringsSep "\n" (name: ''
-          ln -s "${sysinit-gotools}/bin/${binary}" "$out/bin/${name}"
-        '') names}
-      '';
+      (
+        ''
+          mkdir -p "$out/bin"
+          ${final.lib.concatMapStringsSep "\n" (name: ''
+            ln -s "${sysinit-gotools}/bin/${binary}" "$out/bin/${name}"
+          '') names}
+        ''
+        +
+          final.lib.optionalString
+            (completionNames != [ ] && final.stdenv.buildPlatform.canExecute final.stdenv.hostPlatform)
+            ''
+              for name in ${final.lib.escapeShellArgs completionNames}; do
+                bash_completion="$TMPDIR/$name.bash"
+                zsh_completion="$TMPDIR/_$name"
+                HOME="$TMPDIR" "${sysinit-gotools}/bin/${binary}" completion bash > "$bash_completion"
+                HOME="$TMPDIR" "${sysinit-gotools}/bin/${binary}" completion zsh > "$zsh_completion"
+                installShellCompletion --cmd "$name" \
+                  --bash "$bash_completion" \
+                  --zsh "$zsh_completion"
+              done
+            ''
+      );
 in
 {
   inherit sysinit-gotools;
@@ -45,6 +63,7 @@ in
       "sy"
       "seshy"
     ];
+    completionNames = [ "sy" ];
     meta = {
       description = "Minimal session manager for multi-repo, worktree-based work";
       mainProgram = "sy";
@@ -56,6 +75,7 @@ in
     pname = "specutil";
     binary = "specutil";
     names = [ "specutil" ];
+    completionNames = [ "specutil" ];
     meta = {
       description = "Project spec-framework change artifacts into other artifacts and visualizations";
       mainProgram = "specutil";
@@ -127,9 +147,13 @@ in
         ''
         + final.lib.optionalString (final.stdenv.buildPlatform.canExecute final.stdenv.hostPlatform) ''
           for name in ask ${final.lib.escapeShellArgs wrappers}; do
+            bash_completion="$TMPDIR/$name.bash"
+            zsh_completion="$TMPDIR/_$name"
+            "$out/bin/$name" completion bash > "$bash_completion"
+            "$out/bin/$name" completion zsh > "$zsh_completion"
             installShellCompletion --cmd "$name" \
-              --bash <("$out/bin/$name" completion bash) \
-              --zsh <("$out/bin/$name" completion zsh)
+              --bash "$bash_completion" \
+              --zsh "$zsh_completion"
           done
         ''
       );
