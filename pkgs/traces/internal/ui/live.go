@@ -302,7 +302,7 @@ func (m *Model) rebuild() {
 	span := m.current.Last.Sub(first)
 	query := strings.ToLower(strings.TrimSpace(m.query))
 	for _, root := range m.current.Roots {
-		m.walk(root, 0, first, span, query)
+		m.walk(root, 0, first, span, query, "main")
 	}
 	m.buildGuides()
 	m.updateVisibility()
@@ -379,7 +379,7 @@ func (m *Model) updateVisibility() {
 	}
 }
 
-func (m *Model) walk(node *session.Node, depth int, first time.Time, span time.Duration, query string) {
+func (m *Model) walk(node *session.Node, depth int, first time.Time, span time.Duration, query, lane string) {
 	if !matches(node, query) {
 		return
 	}
@@ -391,9 +391,12 @@ func (m *Model) walk(node *session.Node, depth int, first time.Time, span time.D
 	if query != "" {
 		at = 0
 	}
-	m.rows = append(m.rows, rowOf(node, at))
+	m.rows = append(m.rows, rowOf(node, at, lane))
+	// The lane a delegate opens applies to its children, not to itself: the
+	// call was made from the lane above it.
+	under := laneUnder(node, kindOf(node), lane)
 	for _, kid := range node.Children {
-		m.walk(kid, depth+1, first, span, query)
+		m.walk(kid, depth+1, first, span, query, under)
 	}
 }
 
@@ -795,9 +798,9 @@ func (m Model) key(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 		m.cmd, m.cmdAt = true, 0
 		return m, nil
 
-	// The tree takes j k and the page keys; the inspector takes d u and the
+	// The trace takes j k and the arrows; the inspector takes d u and the vim
 	// scroll pair. Each window owns its own keys, so no press depends on where
-	// a focus flag last landed and both panes move without a mode in between.
+	// a focus flag last landed and neither pane needs a mode.
 	case "j", "down":
 		m.cursor, m.follow = m.cursor+1, false
 		m.paintRange()
@@ -1578,16 +1581,18 @@ func (m Model) guide(idx int) string {
 // Five actors, five colours, and the prefix is the whole rule: @user is the
 // person, @main is the session thread, @sub-* is a subagent it spawned,
 // @team-* is a teammate running beside it, and @hook is the harness itself.
+// The person, the main thread, and anything delegated. A slash in the lane means
+// a subagent, and a lane that is neither main nor a path is a teammate.
 func actorStyle(actor string) lipgloss.Style {
 	switch {
 	case actor == "@user":
 		return roleStyle(session.RoleTurn)
-	case strings.HasPrefix(actor, "@sub-"):
+	case strings.Contains(actor, "/"):
 		return roleStyle(session.RoleDelegate)
-	case strings.HasPrefix(actor, "@team-"):
+	case actor == "+main":
+		return plain
+	case strings.HasPrefix(actor, "+"):
 		return accent
-	case actor == "@hook":
-		return roleStyle(session.RoleSystem)
 	default:
 		return plain
 	}
@@ -2410,7 +2415,7 @@ func (m Model) footer() string {
 		return fit(accent.Render("/"+m.typed)+cursor.Render(" ")+dim.Render("   enter keep   esc clear"), m.width)
 	}
 	if m.visual {
-		return fit(accent.Render("visual")+dim.Render("   j k extend   enter keep   esc cancel"), m.width)
+		return fit(accent.Render("visual")+dim.Render("   up down extend   enter keep   esc cancel"), m.width)
 	}
 	// The bar names the focused window first, because every motion below it
 	// lands there and a reader who has moved focus has no other way to tell.
@@ -2427,7 +2432,7 @@ func (m Model) leaderBar() string {
 }
 
 var helpTable = [][2]string{
-	{"j / k", "move one row in the trace"},
+	{"j / k", "move one row in the trace  (the arrows do the same)"},
 	{"ctrl+d / ctrl+u", "half page the trace  (ctrl+f and ctrl+b page it whole)"},
 	{"d / u", "half page the inspector  (ctrl+e and ctrl+y scroll it one line)"},
 	{"gg / G", "first row / last row and resume follow"},
@@ -2439,7 +2444,7 @@ var helpTable = [][2]string{
 	{"za / zo / zc", "toggle, open or close the fold under the cursor"},
 	{"zR / zM", "open every fold / close every fold"},
 	{"zx", "close all, then open the path to the cursor"},
-	{"v", "range: j k extend, enter or v keep, esc cancel"},
+	{"v", "range: up down extend, enter or v keep, esc cancel"},
 	{"V / enter", "toggle the whole turn the cursor sits in"},
 	{"m", "toggle the row and its whole subtree"},
 	{"esc", "cancel a range, or clear every mark"},
@@ -2460,9 +2465,7 @@ func viewHelp(width, height int) string {
 	for _, h := range helpTable {
 		lines = append(lines, accent.Render(fit(h[0], 18))+plain.Render(h[1]))
 	}
-	// m is bound to mark here and to move in neo-tree. traces has no move, so the
-	// key is free; v stays open because neo-tree uses it for a vertical split.
-	lines = append(lines, "", dim.Render("The trace takes j k; the inspector takes d u. Neither needs a focus mode."))
+	lines = append(lines, "", dim.Render("The trace takes up/down; the inspector takes j/k. Neither needs a focus mode."))
 	for len(lines) < height-2 {
 		lines = append(lines, "")
 	}

@@ -1,11 +1,18 @@
 package ui
 
 import (
+	"regexp"
 	"strings"
 	"testing"
 
 	tea "github.com/charmbracelet/bubbletea"
 )
+
+var escapes = regexp.MustCompile(`\x1b\[[0-9;]*m`)
+
+// plain2 drops the styling, so a test asserts what a reader sees rather than how
+// it was coloured.
+func plain2(s string) string { return escapes.ReplaceAllString(s, "") }
 
 func typeIn(m Model, text string) Model {
 	m.cmd = true
@@ -168,7 +175,7 @@ func TestSharedPrefix(t *testing.T) {
 // The bar has to show where a prefix is going before the reader commits.
 func TestBarShowsTheGhost(t *testing.T) {
 	m := typeIn(Model{width: 120}, "vs")
-	bar := m.commandBar(120)
+	bar := plain2(m.commandBar(120))
 	if !strings.Contains(bar, "plit") {
 		t.Errorf("no ghost in %q", bar)
 	}
@@ -179,7 +186,9 @@ func TestBarShowsTheGhost(t *testing.T) {
 
 func TestBarListsSeveralCandidates(t *testing.T) {
 	m := typeIn(Model{width: 120}, "s")
-	bar := m.commandBar(120)
+	// The typed part is highlighted apart from the rest, so each name arrives as
+	// two styled runs and no name is contiguous in the raw bytes.
+	bar := plain2(m.commandBar(120))
 	for _, want := range []string{"set", "session", "split"} {
 		if !strings.Contains(bar, want) {
 			t.Errorf("%q missing from %q", want, bar)

@@ -47,21 +47,58 @@ func kindOf(node *session.Node) kind {
 
 // actorOf names who ran the row. A hook and a delegated subagent are the two
 // that a reader has to tell apart from the main loop at a glance.
-func actorOf(node *session.Node, k kind) string {
-	if who := node.Span.Attrs["agent.name"]; who != "" {
-		return "@" + who
-	}
-	switch k {
-	case kindTurn:
+// actorOf names the lane a row ran in. @ is the person and + is an agent, so a
+// glance down the column separates what was asked from what was done:
+//
+//	@user            the person, on a turn
+//	+main            the main thread
+//	+reviewer        a teammate
+//	+main/Explore    a subagent the main thread spawned
+//	+reviewer/oracle a subagent a teammate spawned
+//
+// It read @main, @sub and @team before, which said the kind of thing that ran
+// and not which one, so two subagents in one turn were one name.
+//
+// lane is the path the caller walked to reach this node. A row keeps its
+// caller's lane: the Agent call itself was made by whoever called it, and its
+// work is what belongs to the new lane.
+func actorOf(node *session.Node, k kind, lane string) string {
+	if k == kindTurn {
 		return "@user"
-	case kindHook:
-		return "@hook"
-	case kindSub:
-		return "@sub"
-	case kindTeam:
-		return "@team"
 	}
-	return "@main"
+	if lane == "" {
+		lane = "main"
+	}
+	return "+" + lane
+}
+
+// laneUnder is the lane a delegate's children run in. A teammate is a named
+// agent and replaces the lane; a subagent extends it, because it was spawned
+// from inside the lane above it.
+func laneUnder(node *session.Node, k kind, lane string) string {
+	if k != kindSub && k != kindTeam {
+		return lane
+	}
+	if who := node.Span.Attrs["agent.name"]; who != "" {
+		return who
+	}
+	name := firstOf(node.Span.Attrs["subagent_type"], node.Span.Attrs["agent_id"], node.Label)
+	if name == "" {
+		return lane
+	}
+	if lane == "" {
+		lane = "main"
+	}
+	return lane + "/" + name
+}
+
+func firstOf(values ...string) string {
+	for _, one := range values {
+		if one != "" {
+			return one
+		}
+	}
+	return ""
 }
 
 func number(attrs map[string]string, keys ...string) int {
@@ -83,7 +120,7 @@ func number(attrs map[string]string, keys ...string) int {
 }
 
 // rowOf derives one row.
-func rowOf(node *session.Node, depth int) row {
+func rowOf(node *session.Node, depth int, lane string) row {
 	k := kindOf(node)
 	attrs := node.Span.Attrs
 
@@ -96,7 +133,7 @@ func rowOf(node *session.Node, depth int) row {
 		node:    node,
 		depth:   depth,
 		kind:    k,
-		actor:   actorOf(node, k),
+		actor:   actorOf(node, k, lane),
 		label:   label,
 		preview: node.Note,
 		in: number(attrs, "input_tokens", "gen_ai.usage.input_tokens") +

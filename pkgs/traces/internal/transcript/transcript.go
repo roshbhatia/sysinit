@@ -572,6 +572,15 @@ func argsOf(tool string, raw json.RawMessage, cwd string) map[string]string {
 			break
 		}
 	}
+	// A delegate names the lane its work runs in, and the name is only in the
+	// call's own arguments. Without it a subagent's rows read "+main/Agent",
+	// which is the tool's name and not the agent's.
+	for _, key := range []string{"subagent_type", "agent_type", "agent", "name"} {
+		if v := text(key); v != "" {
+			out["subagent_type"] = v
+			break
+		}
+	}
 	if v := text("file_path"); v != "" {
 		// The repository relative path is what a reader recognises. The absolute
 		// one spent 45 of the preview's columns on a prefix every row shared.
