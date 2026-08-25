@@ -454,6 +454,7 @@ func run(batches chan otlp.Batch, stop chan struct{}, which string, scope []stri
 	program := tea.NewProgram(
 		ui.New(store, which, from),
 		tea.WithAltScreen(),
+		tea.WithMouseCellMotion(),
 	)
 	go func() {
 		for batch := range batches {

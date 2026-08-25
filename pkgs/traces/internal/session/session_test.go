@@ -52,3 +52,21 @@ func TestToolNamesShareActionLabels(t *testing.T) {
 		})
 	}
 }
+
+func TestSessionsReturnsStableSnapshots(t *testing.T) {
+	now := time.Now()
+	store := NewStore()
+	store.Add([]otlp.Span{{
+		SpanID: "one", Name: "agent.turn", Service: "claude-code", Session: "run",
+		Start: now, End: now, Attrs: map[string]string{"traces.view": "activity"},
+	}})
+	first := store.Sessions()[0]
+	store.Add([]otlp.Span{{
+		SpanID: "two", ParentID: "one", Name: "agent.tool", Service: "claude-code", Session: "run",
+		Start: now, End: now, Attrs: map[string]string{"traces.view": "activity"},
+	}})
+	second := store.Sessions()[0]
+	if first == second || first.Count != 1 || second.Count != 2 {
+		t.Fatalf("snapshots share state: same %v, counts %d and %d", first == second, first.Count, second.Count)
+	}
+}

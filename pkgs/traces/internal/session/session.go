@@ -275,13 +275,12 @@ func mergeRuns(in []*Session) []*Session {
 	return out
 }
 
-// clone copies a session so a merge never mutates what the store holds. The
-// store is read again on the next poll, and a merged session would otherwise
-// keep growing across polls.
-func (s *Session) clone(service string) *Session {
+// snapshot isolates UI readers from the store state that live updates mutate.
+func (s *Session) snapshot() *Session {
 	out := &Session{
 		Key:     s.Key,
-		Service: service,
+		Service: s.Service,
+		ID:      s.ID,
 		First:   s.First,
 		Last:    s.Last,
 		Count:   s.Count,
@@ -301,6 +300,12 @@ func (s *Session) clone(service string) *Session {
 	for id, span := range s.spans {
 		out.spans[id] = span
 	}
+	return out
+}
+
+func (s *Session) clone(service string) *Session {
+	out := s.snapshot()
+	out.Service = service
 	return out
 }
 
@@ -391,7 +396,8 @@ func (s *Store) Add(spans []otlp.Span) {
 // Sessions returns every run, newest activity first.
 func (s *Store) Sessions() []*Session {
 	out := make([]*Session, 0, len(s.sessions))
-	for _, one := range s.sessions {
+	for _, stored := range s.sessions {
+		one := stored.snapshot()
 		one.rebuild()
 		if !s.inScope(one) {
 			continue

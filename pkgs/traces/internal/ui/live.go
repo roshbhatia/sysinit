@@ -4,6 +4,7 @@ import (
 	_ "embed"
 	"encoding/json"
 	"fmt"
+	"hash/fnv"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -224,11 +225,12 @@ type Model struct {
 	// rather than leaving a trail.
 	visual   bool
 	anchorAt int
+	anchorID string
 	before   map[string]bool
 	filter   bool
 	now      time.Time
 
-	tab  int
+	tab  string
 	spin spinner.Model
 
 	pane viewport.Model
@@ -243,9 +245,12 @@ type Model struct {
 	paneTotal   int
 	dataRev     uint64
 	marksRev    uint64
+	markedSig   uint64
 	markedRows  []int
 	markedTabs  []paneTab
 	markTabsSet bool
+	batchBusy   bool
+	batchNext   otlp.Batch
 }
 
 // The tab bar, the rule and the pinned strip cost three inner lines of the
@@ -287,15 +292,29 @@ func New(store *session.Store, pinned, source string) Model {
 // program.
 type BatchMsg otlp.Batch
 
+type batchReadyMsg struct {
+	list []*session.Session
+}
+
+func buildBatch(store *session.Store, batch otlp.Batch) tea.Cmd {
+	return func() tea.Msg {
+		store.AddBatch(batch)
+		return batchReadyMsg{list: store.Sessions()}
+	}
+}
+
 // reload re-groups every span and keeps the attached session attached. A
 // session named on the command line wins, so a reader who asked for one run is
 // not moved off it when a newer run appears.
 func (m *Model) reload() {
-	m.list = m.store.Sessions()
+	m.installSessions(m.store.Sessions())
+}
+
+func (m *Model) installSessions(list []*session.Session) {
+	m.list = list
 	switch {
 	case m.pinned != "":
-		// Session() calls Sessions() again, and Sessions() rebuilds every run
-		// it returns. The list in hand is that same list.
+		// Reuse the completed snapshot so the UI loop never reads the mutable store.
 		if found := pickFrom(m.list, m.pinned); found != nil {
 			m.current = found
 		}
@@ -333,6 +352,7 @@ func (m *Model) rebuild() {
 	if m.current == nil {
 		m.visibleRows = nil
 		m.wantLabel, m.wantPreview, m.hasChurn = 0, 0, false
+		m.rebaseVisualAnchor()
 		m.reindexMarks()
 		return
 	}
@@ -344,7 +364,21 @@ func (m *Model) rebuild() {
 	}
 	m.buildGuides()
 	m.updateVisibility()
+	m.rebaseVisualAnchor()
 	m.reindexMarks()
+}
+
+func (m *Model) rebaseVisualAnchor() {
+	if !m.visual {
+		return
+	}
+	for at, idx := range m.visibleRows {
+		if m.idOf(idx) == m.anchorID {
+			m.anchorAt = at
+			return
+		}
+	}
+	m.anchorAt = min(max(0, m.anchorAt), max(0, len(m.visibleRows)-1))
 }
 
 func (m *Model) buildGuides() {
@@ -470,16 +504,21 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.rebuild()
 		return m.clamp(), nil
 	case BatchMsg:
-		// A poll that found nothing still rebuilt every session and every row:
-		// 135ms of frozen frame, once per provider, every 15 seconds. Four
-		// providers made that half a second of stall on a loop.
-		if otlp.Batch(msg).Empty() {
+		batch := otlp.Batch(msg)
+		if batch.Empty() {
 			return m, nil
 		}
+		if m.batchBusy {
+			m.batchNext.Spans = append(m.batchNext.Spans, batch.Spans...)
+			m.batchNext.Records = append(m.batchNext.Records, batch.Records...)
+			return m, nil
+		}
+		m.batchBusy = true
+		return m, buildBatch(m.store, batch)
+	case batchReadyMsg:
 		before := len(m.rows)
 		selected, screenRow := m.idOf(m.at(m.cursor)), m.cursor-m.offset
-		m.store.AddBatch(otlp.Batch(msg))
-		m.reload()
+		m.installSessions(msg.list)
 		if m.follow && len(m.rows) > before {
 			if vis := m.visible(); len(vis) > 0 {
 				m.cursor = len(vis) - 1
@@ -493,7 +532,15 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				}
 			}
 		}
-		return m.clamp(), nil
+		m.paintRange()
+		m.batchBusy = false
+		if m.batchNext.Empty() {
+			return m.clamp(), nil
+		}
+		next := m.batchNext
+		m.batchNext = otlp.Batch{}
+		m.batchBusy = true
+		return m.clamp(), buildBatch(m.store, next)
 	case spinner.TickMsg:
 		var cmd tea.Cmd
 		m.spin, cmd = m.spin.Update(msg)
@@ -835,7 +882,7 @@ func (m Model) key(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 		if m.visual {
 			// Cancelling a range restores what was marked before it started, so
 			// an accidental v costs nothing.
-			m.visual, m.marks = false, m.before
+			m.visual, m.marks, m.anchorID = false, m.before, ""
 			m.marksChanged()
 			m.before = nil
 			return m.clamp(), nil
@@ -908,11 +955,9 @@ func (m Model) key(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 		m.nextMatch(-1)
 
 	case "tab":
-		m.tab = m.tabAt() + 1
-		return m.clamp(), nil
+		return m.moveTab(1).clamp(), nil
 	case "shift+tab":
-		m.tab = m.tabAt() - 1
-		return m.clamp(), nil
+		return m.moveTab(-1).clamp(), nil
 	case "-", "_":
 		return m.resize(-6), nil
 	case "=", "+":
@@ -920,14 +965,15 @@ func (m Model) key(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 
 	case "v":
 		if m.visual {
-			m.visual, m.before = false, nil
+			m.visual, m.before, m.anchorID = false, nil, ""
 			m.status = "range kept"
 			return m.clamp(), nil
 		}
 		if m.at(m.cursor) < 0 {
 			return m, nil
 		}
-		m.visual, m.anchorAt = true, m.cursor
+		m.visual, m.anchorAt, m.anchorID = true, m.cursor, m.idOf(m.at(m.cursor))
+		m.focus = winTree
 		m.before = copyMarks(m.marks)
 		m.paintRange()
 		m.status = "visual: up down extend, enter or v keep, esc cancel"
@@ -943,7 +989,7 @@ func (m Model) key(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 	// reaches for it first.
 	case "V", "enter":
 		if m.visual {
-			m.visual, m.before = false, nil
+			m.visual, m.before, m.anchorID = false, nil, ""
 			m.status = "range kept"
 			return m.clamp(), nil
 		}
@@ -1186,12 +1232,16 @@ func (m *Model) marksChanged() {
 
 func (m *Model) reindexMarks() {
 	rows := make([]int, 0, len(m.marks))
+	signature := fnv.New64a()
 	for i := range m.rows {
 		if m.marks[m.idOf(i)] {
 			rows = append(rows, i)
+			_, _ = signature.Write([]byte(m.idOf(i)))
+			_, _ = signature.Write([]byte{0})
 		}
 	}
 	m.markedRows = rows
+	m.markedSig = signature.Sum64()
 	m.markedTabs, m.markTabsSet = nil, len(rows) > 0
 	if m.markTabsSet {
 		m.markedTabs = m.tabsForRows(rows)
@@ -2082,14 +2132,32 @@ func (m Model) tabsForRows(rows []int) []paneTab {
 	return out
 }
 
-// The tab set changes as the cursor moves, so the index is normalised on read
-// instead of clamped on write. A negative index wraps to the last tab.
 func (m Model) tabAt() int {
-	n := len(m.tabsFor())
-	if n < 1 {
-		return 0
+	for i, tab := range m.tabsFor() {
+		if tab.name == m.tab {
+			return i
+		}
 	}
-	return ((m.tab % n) + n) % n
+	return 0
+}
+
+func (m Model) tabName() string {
+	tabs := m.tabsFor()
+	if len(tabs) == 0 {
+		return ""
+	}
+	return tabs[m.tabAt()].name
+}
+
+func (m Model) moveTab(by int) Model {
+	tabs := m.tabsFor()
+	if len(tabs) == 0 {
+		m.tab = ""
+		return m
+	}
+	at := ((m.tabAt()+by)%len(tabs) + len(tabs)) % len(tabs)
+	m.tab = tabs[at].name
+	return m
 }
 
 // tabBody is the content half of the pane: what was asked, what was written,
@@ -2477,10 +2545,16 @@ func (m Model) paneSource() (string, int, int) {
 }
 
 func (m Model) paneSelection() string {
-	if len(m.markedRows) > 0 {
-		return fmt.Sprintf("tab/%d/marks/%d/%d", m.tab, m.marksRev, len(m.markedRows))
+	sessionKey := ""
+	if m.current != nil {
+		sessionKey = m.current.Key
 	}
-	return fmt.Sprintf("tab/%d/row/%s", m.tab, m.idOf(m.at(m.cursor)))
+	tab := m.tabName()
+	if len(m.markedRows) > 0 {
+		return fmt.Sprintf("session/%s/tab/%s/marks/%d/%d/%x",
+			sessionKey, tab, m.marksRev, len(m.markedRows), m.markedSig)
+	}
+	return fmt.Sprintf("session/%s/tab/%s/row/%s", sessionKey, tab, m.idOf(m.at(m.cursor)))
 }
 
 func (m Model) paneIdentity() string {
@@ -2528,7 +2602,7 @@ func (m Model) renderPane(key, version string, reset bool) Model {
 // miss on the press that changed it. With the inspector hidden there is one pane
 // and the focus stays on it.
 func (m Model) refocus(to window) Model {
-	if m.placeAt() == placeHidden {
+	if m.visual || m.placeAt() == placeHidden {
 		to = winTree
 	}
 	m.focus = to
@@ -2573,7 +2647,10 @@ func (m Model) pageBy(dir int, half bool) Model {
 
 func (m Model) toEnd() Model {
 	if m.onPane() {
-		return m.scrollPane(max(1, m.paneTotal))
+		m.paneLoaded = max(inspectorChunkBytes, m.paneTotal)
+		m = m.renderPane(m.paneIdentity(), m.currentPaneVersion(), false)
+		m.pane.GotoBottom()
+		return m
 	}
 	m.cursor, m.follow = len(m.visible())-1, true
 	m.paintRange()
@@ -2825,10 +2902,12 @@ func (m Model) footer() string {
 		}
 		return fit(dim.Render("up down trace   inspector needs "+requirement+"   ? help"), m.width)
 	}
-	// The bar names the focused window first, because every motion below it
-	// lands there and a reader who has moved focus has no other way to tell.
-	// The bar names the focused pane first and then what the motions do there,
-	// because every motion below it lands in that pane.
+	if m.width < 100 {
+		if m.onPane() {
+			return fit(title.Render("inspector")+dim.Render("  ctrl+k trace  ? help  j/k line"), m.width)
+		}
+		return fit(title.Render("trace")+dim.Render("  ctrl+j inspector  ? help  j/k row"), m.width)
+	}
 	if m.onPane() {
 		hint := title.Render("inspector") +
 			dim.Render("   j k line   ctrl+d u page   gg G ends   ctrl+k trace   tab pane   ? help")
@@ -2854,7 +2933,7 @@ var helpTable = [][2]string{
 	{"ctrl+d / ctrl+u", "half page the focused pane  (ctrl+f and ctrl+b page it whole)"},
 	{"d / u", "half page the inspector without moving the focus"},
 	{"ctrl+e / ctrl+y", "scroll the inspector one line, cursor unmoved"},
-	{"gg / G", "first row / last row and resume follow"},
+	{"gg / G", "start / end of the focused pane  (trace G resumes follow)"},
 	{"H / M / L", "cursor to the top, middle or bottom of the view"},
 	{"{ / }", "previous turn / next turn  ([t and ]t also work)"},
 	{"n / N", "next row / previous row of the current filter"},
@@ -2966,22 +3045,23 @@ func (m Model) View() string {
 	inner := max(1, m.treeWidth()-2)
 	tree := boxNamed(fmt.Sprintf("trace  %d shown of %d  \u00b7  %s", len(m.visible()), len(m.rows), m.runFor()),
 		inner, m.treeHead(inner)+"\n"+m.treeBody(inner, m.bodyHeight()), !m.onPane())
+	timeline := m.strip(m.width)
 
 	// A blank row separates the timeline from each box. The timeline remains
 	// between the trace and a vertical inspector.
-	main := tree + "\n\n" + m.strip(m.width)
+	main := tree + "\n\n" + timeline
 	if p := m.placeAt(); p != placeHidden {
 		pw := max(1, m.detailWidth()-2)
 		pane := boxLive(m.tabTop(pw), pw, m.paneView(pw), m.onPane())
 		switch p {
 		case placeBottom:
-			main = withGrip(tree, inner) + "\n\n" + m.strip(m.width) + "\n\n" + pane
+			main = withGrip(tree, inner) + "\n\n" + timeline + "\n\n" + pane
 		case placeTop:
-			main = pane + "\n\n" + m.strip(m.width) + "\n\n" + tree
+			main = pane + "\n\n" + timeline + "\n\n" + tree
 		case placeLeft:
-			main = lipgloss.JoinHorizontal(lipgloss.Top, pane, tree) + "\n\n" + m.strip(m.width)
+			main = lipgloss.JoinHorizontal(lipgloss.Top, pane, tree) + "\n\n" + timeline
 		case placeRight:
-			main = lipgloss.JoinHorizontal(lipgloss.Top, tree, pane) + "\n\n" + m.strip(m.width)
+			main = lipgloss.JoinHorizontal(lipgloss.Top, tree, pane) + "\n\n" + timeline
 		}
 	}
 
@@ -3164,9 +3244,10 @@ func (m Model) mouse(msg tea.MouseMsg) (tea.Model, tea.Cmd) {
 		// inner row, one below the inspector top border.
 		if msg.Action == tea.MouseActionPress && msg.Button == tea.MouseButtonLeft && msg.Y == m.paneTop() {
 			x := msg.X - m.paneLeft() - 1
+			tabs := m.tabsFor()
 			for i, col := range m.tabCols() {
 				if x >= col {
-					m.tab = i
+					m.tab = tabs[i].name
 				}
 			}
 			return m.clamp(), nil

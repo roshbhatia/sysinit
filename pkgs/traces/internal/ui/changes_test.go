@@ -157,6 +157,65 @@ func TestInspectorResizePreservesLoadedOutputAndScroll(t *testing.T) {
 	}
 }
 
+func TestInspectorMarkedFilterChangeResetsState(t *testing.T) {
+	m := inspectorWithOutputs(128*1024, 2)
+	m.marks = map[string]bool{"0": true, "1": true}
+	m.marksChanged()
+	m = m.refresh()
+	m.paneLoaded = m.paneTotal
+	m = m.renderPane(m.paneIdentity(), m.currentPaneVersion(), false)
+	m.pane.SetYOffset(20)
+	before := m.paneSelect
+	m.rows, m.visibleRows = m.rows[1:], []int{0}
+	m.reindexMarks()
+	m.dataRev++
+	m = m.refresh()
+	if m.paneSelect == before {
+		t.Fatal("different marked filter result kept the same pane selection")
+	}
+	if m.paneLoaded != inspectorChunkBytes || m.pane.YOffset != 0 {
+		t.Fatalf("filtered selection kept %d loaded bytes and offset %d", m.paneLoaded, m.pane.YOffset)
+	}
+}
+
+func TestInspectorTabNameSurvivesAvailabilityChange(t *testing.T) {
+	m := inspectorWithOutput(64 * 1024)
+	m.tab = "body"
+	m = m.refresh()
+	m.pane.SetYOffset(10)
+	before := m.paneSelect
+	m.rows[0].node.Patch = "--- old\n+++ new\n@@ -1 +1 @@\n-old\n+new\n"
+	m.dataRev++
+	m = m.refresh()
+	if m.tabName() != "body" || m.paneSelect != before || m.pane.YOffset != 10 {
+		t.Fatalf("added tab selected %q with identity %q and offset %d", m.tabName(), m.paneSelect, m.pane.YOffset)
+	}
+}
+
+func TestInspectorSessionChangeResetsState(t *testing.T) {
+	m := inspectorWithOutput(128 * 1024)
+	m.current = &session.Session{Key: "service/one"}
+	m = m.refresh()
+	m.paneLoaded = m.paneTotal
+	m = m.renderPane(m.paneIdentity(), m.currentPaneVersion(), false)
+	m.pane.SetYOffset(20)
+	m.current = &session.Session{Key: "service/two"}
+	m.dataRev++
+	m = m.refresh()
+	if m.paneLoaded != inspectorChunkBytes || m.pane.YOffset != 0 {
+		t.Fatalf("new session kept %d loaded bytes and offset %d", m.paneLoaded, m.pane.YOffset)
+	}
+}
+
+func TestInspectorEndLoadsAllOutput(t *testing.T) {
+	m := inspectorWithOutput(128 * 1024)
+	m.focus = winPane
+	m = m.toEnd()
+	if m.paneShown != m.paneTotal || !m.pane.AtBottom() {
+		t.Fatalf("inspector end showed %d of %d bytes at offset %d", m.paneShown, m.paneTotal, m.pane.YOffset)
+	}
+}
+
 func TestWrapToPreservesUnicode(t *testing.T) {
 	input := "a界b🙂c界d"
 	wrapped := strings.Join(wrapTo(input, 3), "")
@@ -173,7 +232,7 @@ func benchmarkInspectorRefresh(b *testing.B, size int) {
 	if m.pane.TotalLineCount() > 2000 {
 		b.Fatalf("initial inspector rendered %d lines", m.pane.TotalLineCount())
 	}
-	b.SetBytes(int64(size))
+	b.SetBytes(int64(m.paneShown))
 	b.ReportAllocs()
 	b.ResetTimer()
 	for range b.N {
@@ -201,6 +260,32 @@ func BenchmarkInspectorSelectionAfter1MiBLoaded(b *testing.B) {
 		one := m
 		one.cursor = 1
 		_ = one.refresh()
+	}
+}
+
+func BenchmarkInspectorRender1MiB(b *testing.B) {
+	m := inspectorWithOutput(1024 * 1024)
+	b.SetBytes(int64(m.paneTotal))
+	b.ReportAllocs()
+	b.ResetTimer()
+	for range b.N {
+		one := m
+		one.paneLoaded = one.paneTotal
+		_ = one.renderPane(one.paneIdentity(), one.currentPaneVersion(), false)
+	}
+}
+
+func BenchmarkInspectorLoad1MiBProgressively(b *testing.B) {
+	m := inspectorWithOutput(1024 * 1024)
+	b.SetBytes(int64(m.paneTotal - m.paneShown))
+	b.ReportAllocs()
+	b.ResetTimer()
+	for range b.N {
+		one := m
+		for one.paneShown < one.paneTotal {
+			one.pane.GotoBottom()
+			one = one.scrollPane(1)
+		}
 	}
 }
 

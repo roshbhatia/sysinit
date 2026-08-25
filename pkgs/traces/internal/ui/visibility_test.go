@@ -1,12 +1,14 @@
 package ui
 
 import (
+	"strconv"
 	"strings"
 	"testing"
 	"time"
 
 	"github.com/charmbracelet/bubbles/viewport"
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/charmbracelet/x/ansi"
 
 	"github.com/roshbhatia/sysinit/pkgs/traces/internal/otlp"
 	"github.com/roshbhatia/sysinit/pkgs/traces/internal/session"
@@ -29,6 +31,19 @@ func foldable(t *testing.T) Model {
 	m := New(store, "one", "test")
 	mm, _ := m.Update(tea.WindowSizeMsg{Width: 120, Height: 20})
 	return mm.(Model)
+}
+
+func applyBatch(t *testing.T, m Model, batch otlp.Batch) Model {
+	t.Helper()
+	next, cmd := m.Update(BatchMsg(batch))
+	if cmd == nil {
+		t.Fatal("non-empty batch returned no rebuild command")
+	}
+	next, follow := next.(Model).Update(cmd())
+	if follow != nil {
+		t.Fatal("single batch scheduled an unexpected follow-up command")
+	}
+	return next.(Model)
 }
 
 // clamp no longer recomputes the visible list, because that walk measured every
@@ -160,6 +175,39 @@ func TestFocusStaysOnTheTreeWithNoInspector(t *testing.T) {
 	}
 }
 
+func TestVisualRangeKeepsTraceFocus(t *testing.T) {
+	m := foldable(t)
+	m.focus = winPane
+	next, _ := m.Update(tea.KeyMsg{Type: tea.KeyRunes, Runes: []rune{'v'}})
+	m = next.(Model)
+	if m.onPane() || !m.visual {
+		t.Fatalf("visual start left focus %s and visual %v", m.focus, m.visual)
+	}
+	next, _ = m.Update(tea.KeyMsg{Type: tea.KeyCtrlJ})
+	if next.(Model).onPane() {
+		t.Fatal("ctrl+j moved a visual range into the inspector")
+	}
+}
+
+func TestNarrowFooterKeepsFocusAndHelpHints(t *testing.T) {
+	m := foldable(t)
+	m.width = 80
+	footer := ansi.Strip(m.footer())
+	if !strings.Contains(footer, "ctrl+j inspector") || !strings.Contains(footer, "? help") {
+		t.Fatalf("narrow trace footer = %q", footer)
+	}
+	m.focus = winPane
+	footer = ansi.Strip(m.footer())
+	if !strings.Contains(footer, "ctrl+k trace") || !strings.Contains(footer, "? help") {
+		t.Fatalf("narrow inspector footer = %q", footer)
+	}
+	for _, entry := range helpTable {
+		if entry[0] == "gg / G" && !strings.Contains(entry[1], "focused pane") {
+			t.Fatalf("end-motion help = %q", entry[1])
+		}
+	}
+}
+
 func TestFrameMatchesTerminalHeight(t *testing.T) {
 	for _, height := range []int{8, 15, 16, 23, 30} {
 		for _, place := range []placement{placeBottom, placeTop, placeLeft, placeRight, placeHidden} {
@@ -277,14 +325,81 @@ func TestLiveReloadKeepsSelectedSpan(t *testing.T) {
 	}
 	m.follow = false
 	root := m.rows[0].node
-	next, _ := m.Update(BatchMsg(otlp.Batch{Spans: []otlp.Span{{
+	m = applyBatch(t, m, otlp.Batch{Spans: []otlp.Span{{
 		SpanID: "before", ParentID: "turn", Name: "agent.tool", Service: "claude-code", Session: "one",
 		Start: root.Start().Add(time.Nanosecond), End: root.Start().Add(2 * time.Nanosecond),
 		Attrs: map[string]string{"traces.view": "activity", "tool_name": "Read"},
-	}}}))
-	m = next.(Model)
+	}}})
 	if got := m.idOf(m.at(m.cursor)); got != "b" {
 		t.Fatalf("selected span = %q, want b", got)
+	}
+}
+
+func TestLiveReloadRebasesVisualAnchor(t *testing.T) {
+	m := foldable(t)
+	for i := range m.rows {
+		if m.idOf(i) == "b" {
+			m.cursor = m.indexOf(i)
+		}
+	}
+	next, _ := m.Update(tea.KeyMsg{Type: tea.KeyRunes, Runes: []rune{'v'}})
+	m = next.(Model)
+	root := m.rows[0].node
+	m = applyBatch(t, m, otlp.Batch{Spans: []otlp.Span{{
+		SpanID: "before", ParentID: "turn", Name: "agent.tool", Service: "claude-code", Session: "one",
+		Start: root.Start().Add(-time.Nanosecond), End: root.Start(),
+		Attrs: map[string]string{"traces.view": "activity", "tool_name": "Read"},
+	}}})
+	if got := m.idOf(m.at(m.anchorAt)); got != "b" {
+		t.Fatalf("visual anchor = %q, want b", got)
+	}
+}
+
+func TestLiveBatchRebuildRunsInCommand(t *testing.T) {
+	m := foldable(t)
+	root := m.rows[0].node
+	batch := otlp.Batch{Spans: []otlp.Span{{
+		SpanID: "later", ParentID: "turn", Name: "agent.tool", Service: "claude-code", Session: "one",
+		Start: root.Start().Add(time.Millisecond), End: root.Start().Add(2 * time.Millisecond),
+		Attrs: map[string]string{"traces.view": "activity", "tool_name": "Read"},
+	}}}
+	next, cmd := m.Update(BatchMsg(batch))
+	queued := next.(Model)
+	if cmd == nil || !queued.batchBusy || len(queued.rows) != len(m.rows) {
+		t.Fatalf("queued batch: cmd %v, busy %v, rows %d", cmd != nil, queued.batchBusy, len(queued.rows))
+	}
+	next, _ = queued.Update(cmd())
+	ready := next.(Model)
+	if ready.batchBusy || len(ready.rows) != len(m.rows)+1 {
+		t.Fatalf("ready batch: busy %v, rows %d", ready.batchBusy, len(ready.rows))
+	}
+}
+
+func TestLiveBatchRebuildSerializesPendingBatches(t *testing.T) {
+	m := foldable(t)
+	root := m.rows[0].node
+	batch := func(id string, offset time.Duration) BatchMsg {
+		return BatchMsg(otlp.Batch{Spans: []otlp.Span{{
+			SpanID: id, ParentID: "turn", Name: "agent.tool", Service: "claude-code", Session: "one",
+			Start: root.Start().Add(offset), End: root.Start().Add(offset + time.Nanosecond),
+			Attrs: map[string]string{"traces.view": "activity", "tool_name": "Read"},
+		}}})
+	}
+	next, first := m.Update(batch("first", time.Millisecond))
+	queued := next.(Model)
+	next, second := queued.Update(batch("second", 2*time.Millisecond))
+	queued = next.(Model)
+	if first == nil || second != nil || queued.batchNext.Empty() {
+		t.Fatalf("pending batch: first %v, second %v, empty %v", first != nil, second != nil, queued.batchNext.Empty())
+	}
+	next, second = queued.Update(first())
+	if second == nil || !next.(Model).batchBusy {
+		t.Fatal("first snapshot did not start the pending batch")
+	}
+	next, follow := next.(Model).Update(second())
+	if follow != nil || next.(Model).batchBusy || len(next.(Model).rows) != len(m.rows)+2 {
+		t.Fatalf("serialized batches ended with follow %v, busy %v, rows %d",
+			follow != nil, next.(Model).batchBusy, len(next.(Model).rows))
 	}
 }
 
@@ -297,6 +412,52 @@ func TestEmptyBatchChangesNothing(t *testing.T) {
 	out := next.(Model)
 	if len(out.rows) != rows || cmd != nil {
 		t.Errorf("rows %d -> %d, cmd %v", rows, len(out.rows), cmd)
+	}
+}
+
+func liveModelWithRows(b *testing.B, count int) Model {
+	b.Helper()
+	now := time.Now()
+	attrs := map[string]string{"traces.view": "activity"}
+	spans := make([]otlp.Span, count)
+	for i := range spans {
+		spans[i] = otlp.Span{
+			SpanID: strconv.Itoa(i), ParentID: "0", Name: "agent.tool",
+			Service: "claude-code", Session: "one", Start: now.Add(time.Duration(i)), End: now.Add(time.Duration(i)), Attrs: attrs,
+		}
+	}
+	spans[0].ParentID, spans[0].Name = "", "agent.turn"
+	store := session.NewStore()
+	store.Add(spans)
+	return New(store, "one", "benchmark")
+}
+
+func BenchmarkLiveBatchQueue35000Rows(b *testing.B) {
+	m := liveModelWithRows(b, 35000)
+	batch := otlp.Batch{Spans: []otlp.Span{{
+		SpanID: "new", ParentID: "0", Name: "agent.tool", Service: "claude-code", Session: "one",
+		Start: time.Now(), End: time.Now(), Attrs: map[string]string{"traces.view": "activity"},
+	}}}
+	b.ReportAllocs()
+	b.ResetTimer()
+	for range b.N {
+		one := m
+		if _, cmd := one.Update(BatchMsg(batch)); cmd == nil {
+			b.Fatal("live batch returned no command")
+		}
+	}
+}
+
+func BenchmarkLiveBatchBuild35000Rows(b *testing.B) {
+	m := liveModelWithRows(b, 35000)
+	batch := otlp.Batch{Spans: []otlp.Span{{
+		SpanID: "new", ParentID: "0", Name: "agent.tool", Service: "claude-code", Session: "one",
+		Start: time.Now(), End: time.Now(), Attrs: map[string]string{"traces.view": "activity"},
+	}}}
+	b.ReportAllocs()
+	b.ResetTimer()
+	for range b.N {
+		_ = buildBatch(m.store, batch)()
 	}
 }
 
