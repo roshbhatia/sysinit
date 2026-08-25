@@ -25,6 +25,15 @@ local READLINE = (function()
   return both
 end)()
 
+local TRACE_NAV = (function()
+  local both = {}
+  for _, name in ipairs(EDITORS) do
+    both[#both + 1] = name
+  end
+  both[#both + 1] = "traces"
+  return both
+end)()
+
 local COMMON_MODS = { "CTRL", "SUPER" }
 
 local function create_smart_keybind(key, mods, wezterm_action, opts)
@@ -95,7 +104,11 @@ local function get_pane_keys()
 
   for _, key in ipairs({ "h", "j", "k", "l" }) do
     local dir = DIRECTION_KEYS[key]
-    table.insert(keys, create_smart_keybind(key, "CTRL", { ActivatePaneDirection = dir }, { passthrough = EDITORS }))
+    local passthrough = (key == "j" or key == "k") and TRACE_NAV or EDITORS
+    table.insert(
+      keys,
+      create_smart_keybind(key, "CTRL", { ActivatePaneDirection = dir }, { passthrough = passthrough })
+    )
     table.insert(
       keys,
       create_smart_keybind(key, "CTRL|SHIFT", { AdjustPaneSize = { dir, 3 } }, { passthrough = EDITORS })

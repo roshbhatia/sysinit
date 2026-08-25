@@ -61,8 +61,7 @@ func TestFoldingUpdatesVisibility(t *testing.T) {
 	}
 }
 
-// The two windows own separate keys, so neither needs a focus mode: the trace
-// takes j k and the arrows, the inspector takes d u and the vim scroll pair.
+// Separate keys keep both panes available without a focus mode.
 func TestTraceAndInspectorNavigationUseSeparateKeys(t *testing.T) {
 	m := foldable(t)
 	m.cursor = 1
@@ -82,9 +81,9 @@ func TestTraceAndInspectorNavigationUseSeparateKeys(t *testing.T) {
 	if m.cursor != 2 || m.pane.YOffset != 0 {
 		t.Fatalf("down: cursor = %d, inspector offset = %d", m.cursor, m.pane.YOffset)
 	}
-	press(rune_('k'))
+	press(tea.KeyMsg{Type: tea.KeyUp})
 	if m.cursor != 1 || m.pane.YOffset != 0 {
-		t.Fatalf("k: cursor = %d, inspector offset = %d", m.cursor, m.pane.YOffset)
+		t.Fatalf("up: cursor = %d, inspector offset = %d", m.cursor, m.pane.YOffset)
 	}
 
 	// A trace motion refreshes the pane from the row it landed on, so the long
@@ -93,25 +92,23 @@ func TestTraceAndInspectorNavigationUseSeparateKeys(t *testing.T) {
 	m.pane.SetContent(strings.Repeat("line\n", 40))
 
 	// The inspector moves and the trace holds still.
-	press(rune_('d'))
+	press(rune_('j'))
 	if m.cursor != 1 || m.pane.YOffset == 0 {
-		t.Fatalf("d: cursor = %d, inspector offset = %d", m.cursor, m.pane.YOffset)
+		t.Fatalf("j: cursor = %d, inspector offset = %d", m.cursor, m.pane.YOffset)
 	}
 	down := m.pane.YOffset
-	press(rune_('u'))
+	press(rune_('k'))
 	if m.cursor != 1 || m.pane.YOffset >= down {
-		t.Fatalf("u: cursor = %d, inspector offset = %d", m.cursor, m.pane.YOffset)
+		t.Fatalf("k: cursor = %d, inspector offset = %d", m.cursor, m.pane.YOffset)
 	}
 
-	// vim scrolls a view a line at a time on these two, cursor unmoved.
-	before := m.pane.YOffset
-	press(tea.KeyMsg{Type: tea.KeyCtrlE})
-	if m.cursor != 1 || m.pane.YOffset != before+1 {
-		t.Fatalf("ctrl+e: cursor = %d, inspector offset = %d", m.cursor, m.pane.YOffset)
+	press(tea.KeyMsg{Type: tea.KeyCtrlJ})
+	if m.cursor != 1 || m.pane.YOffset <= 1 {
+		t.Fatalf("ctrl+j: cursor = %d, inspector offset = %d", m.cursor, m.pane.YOffset)
 	}
-	press(tea.KeyMsg{Type: tea.KeyCtrlY})
-	if m.cursor != 1 || m.pane.YOffset != before {
-		t.Fatalf("ctrl+y: cursor = %d, inspector offset = %d", m.cursor, m.pane.YOffset)
+	press(tea.KeyMsg{Type: tea.KeyCtrlK})
+	if m.cursor != 1 || m.pane.YOffset != 0 {
+		t.Fatalf("ctrl+k: cursor = %d, inspector offset = %d", m.cursor, m.pane.YOffset)
 	}
 }
 

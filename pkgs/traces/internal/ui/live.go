@@ -798,13 +798,11 @@ func (m Model) key(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 		m.cmd, m.cmdAt = true, 0
 		return m, nil
 
-	// The trace takes j k and the arrows; the inspector takes d u and the vim
-	// scroll pair. Each window owns its own keys, so no press depends on where
-	// a focus flag last landed and neither pane needs a mode.
-	case "j", "down":
+	// Arrow keys move the trace while Vim motions scroll the inspector.
+	case "down":
 		m.cursor, m.follow = m.cursor+1, false
 		m.paintRange()
-	case "k", "up":
+	case "up":
 		m.cursor, m.follow = m.cursor-1, false
 		m.paintRange()
 	case "ctrl+d":
@@ -817,18 +815,16 @@ func (m Model) key(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 		return m.halfPage(-2), nil
 	case "G":
 		m.cursor, m.follow = len(m.visible())-1, true
-	case "d":
+	case "ctrl+j":
 		m.pane.HalfPageDown()
 		return m, nil
-	case "u":
+	case "ctrl+k":
 		m.pane.HalfPageUp()
 		return m, nil
-	// vim scrolls a view without moving the cursor on these two, and the
-	// inspector is the window here with a view to scroll that way.
-	case "ctrl+e":
+	case "j", "ctrl+e":
 		m.pane.ScrollDown(1)
 		return m, nil
-	case "ctrl+y":
+	case "k", "ctrl+y":
 		m.pane.ScrollUp(1)
 		return m, nil
 	case "H":
@@ -872,7 +868,7 @@ func (m Model) key(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 		m.visual, m.anchorAt = true, m.cursor
 		m.before = copyMarks(m.marks)
 		m.paintRange()
-		m.status = "visual: j k extend, enter or v keep, esc cancel"
+		m.status = "visual: up down extend, enter or v keep, esc cancel"
 		return m.clamp(), nil
 	case "m":
 		m.markSubtree(m.at(m.cursor))
@@ -2419,7 +2415,7 @@ func (m Model) footer() string {
 	}
 	// The bar names the focused window first, because every motion below it
 	// lands there and a reader who has moved focus has no other way to tell.
-	hint := "j k trace   d u inspector   { } turn   v range   V turn   m subtree   / filter   : command   - = size   ? help"
+	hint := "up down trace   j k inspector   { } turn   v range   V turn   m subtree   / filter   : command   - = size   ? help"
 	return fit(dim.Render(hint), m.width)
 }
 
@@ -2432,9 +2428,9 @@ func (m Model) leaderBar() string {
 }
 
 var helpTable = [][2]string{
-	{"j / k", "move one row in the trace  (the arrows do the same)"},
+	{"up / down", "move one row in the trace"},
 	{"ctrl+d / ctrl+u", "half page the trace  (ctrl+f and ctrl+b page it whole)"},
-	{"d / u", "half page the inspector  (ctrl+e and ctrl+y scroll it one line)"},
+	{"j / k", "scroll the inspector  (ctrl+j and ctrl+k half page it)"},
 	{"gg / G", "first row / last row and resume follow"},
 	{"H / M / L", "cursor to the top, middle or bottom of the view"},
 	{"{ / }", "previous turn / next turn  ([t and ]t also work)"},
