@@ -4,6 +4,7 @@ import (
 	_ "embed"
 	"fmt"
 	"os"
+	"sort"
 	"strconv"
 	"strings"
 	"time"
@@ -127,6 +128,14 @@ type row struct {
 	parent  bool
 }
 
+// The two windows a motion can drive.
+type window int
+
+const (
+	winTree window = iota
+	winPane
+)
+
 type Model struct {
 	store   *session.Store
 	current *session.Session
@@ -155,6 +164,10 @@ type Model struct {
 	split  int
 	drag   bool
 
+	// focus is the window the motions drive, the way a vim split works. Before
+	// it, the tree had j k and the pane had D U, so the same movement wore two
+	// names and neither was vim's.
+	focus   window
 	pending string
 	status  string
 	picking bool
@@ -537,8 +550,16 @@ func (m Model) key(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 			m.follow = !m.follow
 		case "o":
 			m.anchor = !m.anchor
-		case "d":
-			return m.dock(placeHidden), nil
+		case "a":
+			m.markAll()
+		case "m":
+			m.markRow(m.at(m.cursor))
+		case "s":
+			if len(m.list) > 1 {
+				m.picking = true
+				m.pickAt = m.currentAt()
+			}
+			return m, nil
 		case "i":
 			m.pending = "i"
 			m.status = "i again to toggle, h j k l to dock"
@@ -557,13 +578,21 @@ func (m Model) key(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 		switch p + k {
 		case "za":
 			m.toggleFold()
-		case "zR", "ZZ":
+		case "zo":
+			m.expand()
+		case "zc":
+			m.collapse()
+		case "zR":
 			m.folded = map[string]bool{}
 		case "zM":
 			m.foldAll()
 		case "zx":
 			m.foldAll()
 			m.openPath()
+		case "ZZ", "ZQ":
+			return m, tea.Quit
+		case "gg":
+			return m.top(), nil
 		case "ii":
 			return m.dock(placeHidden), nil
 		case "ih":
@@ -574,12 +603,21 @@ func (m Model) key(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 			return m.dock(placeTop), nil
 		case "il":
 			return m.dock(placeRight), nil
-		case "gg":
-			m.cursor, m.follow = 0, false
 		case "]t":
 			m.jump(1)
 		case "[t":
 			m.jump(-1)
+		// ctrl+w is vim's window prefix. w cycles, and h j k l pick a side the
+		// way they pick a split there.
+		case "ctrl+ww", "ctrl+wctrl+w":
+			m.focus = 1 - m.focus
+			m.status = "focus " + m.focusName()
+		case "ctrl+wk", "ctrl+wh":
+			m.focus = winTree
+			m.status = "focus trace"
+		case "ctrl+wj", "ctrl+wl":
+			m.focus = winPane
+			m.status = "focus inspector"
 		default:
 			// Any unmatched key cancels the prefix instead of vanishing.
 			m.status = "no binding for " + p + k
@@ -610,54 +648,66 @@ func (m Model) key(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 	case " ":
 		m.leader = true
 		return m, nil
-	case "z", "g", "]", "[":
+	case "z", "g", "]", "[", "Z", "ctrl+w":
 		m.pending = k
-		return m, nil
-	case "Z":
-		// neo-tree parity: bare Z expands every node.
-		m.folded = map[string]bool{}
-		return m.clamp(), nil
-	case "s":
-		if len(m.list) > 1 {
-			m.picking = true
-			m.pickAt = m.currentAt()
-		}
 		return m, nil
 	case "/":
 		m.filter = true
 		return m, nil
+
+	// The motions. Each drives the focused window, so j is one line in whichever
+	// pane the reader is in, which is the whole point of a vim split.
 	case "j", "down":
-		m.cursor, m.follow = m.cursor+1, false
-		m.paintRange()
+		return m.move(1), nil
 	case "k", "up":
-		m.cursor, m.follow = m.cursor-1, false
+		return m.move(-1), nil
+	case "ctrl+d":
+		return m.page(1, true), nil
+	case "ctrl+u":
+		return m.page(-1, true), nil
+	case "ctrl+f":
+		return m.page(1, false), nil
+	case "ctrl+b":
+		return m.page(-1, false), nil
+	case "G":
+		return m.bottom(), nil
+	// vim scrolls the view without moving the cursor on these two, and the
+	// inspector is the only window here with a view to scroll that way.
+	case "ctrl+e":
+		m.pane.ScrollDown(1)
+		return m, nil
+	case "ctrl+y":
+		m.pane.ScrollUp(1)
+		return m, nil
+	case "H":
+		m.cursor, m.follow = m.offset, false
 		m.paintRange()
-	case "d", "ctrl+d":
-		return m.halfPage(1), nil
-	case "u", "ctrl+u":
-		return m.halfPage(-1), nil
-	case "D", "ctrl+f":
-		m.pane.HalfPageDown()
-		return m, nil
-	case "U", "ctrl+b":
-		m.pane.HalfPageUp()
-		return m, nil
-	case "-", "_", "J":
-		return m.resize(-6), nil
-	case "=", "+", "K":
-		return m.resize(6), nil
+	case "M":
+		m.cursor, m.follow = m.offset+m.treeRows()/2, false
+		m.paintRange()
+	case "L":
+		m.cursor, m.follow = m.offset+m.treeRows()-1, false
+		m.paintRange()
+	case "}":
+		m.jump(1)
+	case "{":
+		m.jump(-1)
+	case "n":
+		m.step(1)
+	case "N":
+		m.step(-1)
+
 	case "tab":
 		m.tab = m.tabAt() + 1
 		return m.clamp(), nil
 	case "shift+tab":
 		m.tab = m.tabAt() - 1
 		return m.clamp(), nil
-	case "G":
-		m.cursor, m.follow = len(m.visible())-1, true
-	case "n":
-		m.jump(1)
-	case "p":
-		m.jump(-1)
+	case "-", "_":
+		return m.resize(-6), nil
+	case "=", "+":
+		return m.resize(6), nil
+
 	case "v":
 		if m.visual {
 			m.visual, m.before = false, nil
@@ -672,36 +722,102 @@ func (m Model) key(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 		m.paintRange()
 		m.status = "visual: j k extend, enter or v keep, esc cancel"
 		return m.clamp(), nil
-	case "A":
-		m.markAll()
-		return m.clamp(), nil
 	case "m":
 		m.markSubtree(m.at(m.cursor))
 	case "h":
 		m.collapse()
 	case "l":
 		m.expand()
-	case "enter":
+	// V is vim's linewise visual, and a turn is this tree's line: the whole
+	// block a prompt owns. enter does the same, because a terminal reader
+	// reaches for it first.
+	case "V", "enter":
 		if m.visual {
 			m.visual, m.before = false, nil
 			m.status = "range kept"
 			return m.clamp(), nil
 		}
-		// markSubtree reads the root's own state, so a second press turns the
+		// markTurn reads the root's own state, so a second press turns the
 		// whole turn back off.
 		m.markTurn(m.at(m.cursor))
-	case "M":
-		m.markRow(m.at(m.cursor))
-	// shift+enter only reaches a v1 app over the kitty keyboard protocol, so
-	// "A" carries the same binding for every other terminal.
-	case "shift+enter":
-		m.markAll()
-	case "o":
-		m.anchor = !m.anchor
 	case "Y":
 		return m.yank(), nil
 	}
 	return m.clamp(), nil
+}
+
+func (m Model) focusName() string {
+	if m.focus == winPane {
+		return "inspector"
+	}
+	return "trace"
+}
+
+// move, page, top and bottom are the four motions, each aimed at the focused
+// window. The inspector has no cursor, so a motion there scrolls it.
+func (m Model) move(by int) Model {
+	if m.focus == winPane {
+		m.pane.ScrollDown(by)
+		if by < 0 {
+			m.pane.ScrollUp(-by)
+		}
+		return m
+	}
+	m.cursor, m.follow = m.cursor+by, false
+	m.paintRange()
+	return m.clamp()
+}
+
+func (m Model) page(dir int, half bool) Model {
+	if m.focus == winPane {
+		switch {
+		case half && dir > 0:
+			m.pane.HalfPageDown()
+		case half:
+			m.pane.HalfPageUp()
+		case dir > 0:
+			m.pane.PageDown()
+		default:
+			m.pane.PageUp()
+		}
+		return m
+	}
+	if half {
+		return m.halfPage(dir)
+	}
+	return m.halfPage(dir * 2)
+}
+
+func (m Model) top() Model {
+	if m.focus == winPane {
+		m.pane.GotoTop()
+		return m
+	}
+	m.cursor, m.follow = 0, false
+	m.paintRange()
+	return m.clamp()
+}
+
+func (m Model) bottom() Model {
+	if m.focus == winPane {
+		m.pane.GotoBottom()
+		return m
+	}
+	m.cursor, m.follow = len(m.visible())-1, true
+	m.paintRange()
+	return m.clamp()
+}
+
+// step moves to the next row the filter matched. / filters rather than
+// searches, so every visible row is a match and n is a plain move; without the
+// binding n was a second name for the turn jump and vim's n did nothing.
+func (m Model) step(dir int) {
+	if m.query == "" {
+		m.jump(dir)
+		return
+	}
+	m.cursor, m.follow = m.cursor+dir, false
+	m.paintRange()
 }
 
 // yank reports the verbatim bytes behind the cursor row. glamour is always on
@@ -1423,79 +1539,136 @@ func orDash(s string) string {
 	return s
 }
 
+// Every value here was a literal until now: the attribute pane printed
+// tool_use_id "toolu_01Qk3mPd8Rax" and input_tokens "42,013" over every row,
+// left from the fixture the layout was judged against. It read as real data and
+// was not. Everything below comes off the span.
+
+// sessionKeys are the attributes that describe the machine and the account
+// rather than the span. Every span of a run carries the same values, so listing
+// them beside the span's own attributes buries the four that differ.
+var sessionKeys = map[string]bool{
+	"host.arch": true, "os.type": true, "os.version": true,
+	"service.name": true, "service.version": true, "service.namespace": true,
+	"organization.id": true, "terminal.type": true,
+	"user.id": true, "user.email": true, "user.account_id": true, "user.account_uuid": true,
+	"telemetry.sdk.language": true, "telemetry.sdk.name": true, "telemetry.sdk.version": true,
+}
+
+// detailTags is the whole attribute list, span first and session last, for the
+// attrs tab. Sorted, because a map has no order and a pane that reshuffles
+// between frames cannot be read.
 func (m Model) detailTags(r row) [][2]string {
-	if r.kind == kindHook {
-		event, matcher, _ := strings.Cut(r.label, ":")
-		cmd, out, _ := strings.Cut(r.preview, "  ->  ")
-		decision, code := "allow", "0"
-		if r.fail {
-			decision, code = "deny", "2"
-		}
-		tags := [][2]string{
-			{"hook.event", event}, {"hook.matcher", orDash(matcher)},
-			{"hook.source", r.src}, {"hook.command", cmd},
-			{"hook.decision", decision}, {"exit_code", code},
-			{"duration_ms", fmt.Sprintf("%d", r.ms)},
-		}
-		if out != "" {
-			tags = append(tags, [2]string{"stderr", out})
-		}
-		return tags
+	out := [][2]string{}
+	if r.node == nil {
+		return out
 	}
-	if r.fail {
-		return [][2]string{
-			{"tool_name", r.label}, {"tool_use_id", "toolu_01Qk3mPd8Rax"},
-			{"duration_ms", fmt.Sprintf("%d", r.ms)}, {"success", "False"},
-			{"error", r.preview},
+	span := r.node.Span
+	out = append(out,
+		[2]string{"name", span.Name},
+		[2]string{"span.id", orDash(span.SpanID)},
+		[2]string{"trace.id", orDash(span.TraceID)},
+	)
+	if span.ParentID != "" {
+		out = append(out, [2]string{"parent.id", span.ParentID})
+	}
+	if !span.Start.IsZero() {
+		out = append(out, [2]string{"start", span.Start.Format("15:04:05.000")})
+	}
+	if r.ms > 0 {
+		out = append(out, [2]string{"duration", duration(time.Duration(r.ms) * time.Millisecond)})
+	}
+	if span.Error != "" {
+		out = append(out, [2]string{"error", span.Error})
+	}
+	own, shared := []string{}, []string{}
+	for key := range span.Attrs {
+		if sessionKeys[key] {
+			shared = append(shared, key)
+			continue
+		}
+		own = append(own, key)
+	}
+	sort.Strings(own)
+	sort.Strings(shared)
+	for _, key := range own {
+		out = append(out, [2]string{key, span.Attrs[key]})
+	}
+	for _, key := range shared {
+		out = append(out, [2]string{"session/" + key, span.Attrs[key]})
+	}
+	return out
+}
+
+// pinned is the handful of facts that stay under the pane whatever tab is open,
+// so switching to the body never hides them. They are chosen per kind rather
+// than taken off the front of detailTags, which is alphabetical and would pin
+// whatever sorts first.
+func (m Model) strip4(r row) [][2]string {
+	attrs := map[string]string{}
+	if r.node != nil {
+		attrs = r.node.Span.Attrs
+	}
+	out := [][2]string{}
+	add := func(k, v string) {
+		if v != "" {
+			out = append(out, [2]string{k, v})
 		}
 	}
 	switch r.kind {
 	case kindTurn:
-		return [][2]string{
-			{"span.id", "a1f39c2e77b04d81"}, {"trace.id", "6b2f…c904"},
-			{"prompt.id", "c106e261-96a2-4c73"}, {"interaction.sequence", "3"},
-			{"interaction.duration_ms", "live · 48.2s so far"}, {"user_prompt_length", "412"},
-			{"terminal.type", "WezTerm"}, {"children", "1 model · 2 tool · 0 delegate"},
+		if r.node != nil && r.node.Turn > 0 {
+			add("turn", strconv.Itoa(r.node.Turn))
 		}
+		add("spans", count(m.subtreeSize(r), "span"))
+		add("prompt", count(len(r.prompt()), "char"))
 	case kindPrompt, kindThink:
-		return [][2]string{
-			{"gen_ai.request.model", "claude-opus-5[1m]"}, {"gen_ai.system", "anthropic"},
-			{"effort", "high"}, {"input_tokens", "42,013"}, {"output_tokens", "890"},
-			{"cache_read_tokens", "31,402"}, {"cache_creation_tokens", "29,747"},
-			{"ttft_ms", "831"}, {"duration_ms", "9,214"}, {"stop_reason", "end_turn"},
-			{"cost_usd_micros", "186,029"}, {"request_id", "req_011CeLRZ6wbf"},
-			{"attempt", "1"}, {"success", "True"},
+		add("stop", first(attrs, "stop_reason", "gen_ai.response.finish_reasons"))
+		add("out", num(attrs, "output_tokens"))
+		if ms := number(attrs, "ttft_ms"); ms > 0 {
+			add("first token", duration(time.Duration(ms)*time.Millisecond))
 		}
-	case kindSub, kindTeam:
-		return [][2]string{
-			{"tool_name", "Task"}, {"tool_use_id", "toolu_01SaNEb2U5ts"},
-			{"subagent_type", strings.TrimPrefix(strings.TrimPrefix(r.actor, "@sub-"), "@team-")},
-			{"actor", r.actor}, {"duration_ms", fmt.Sprintf("%d", r.ms)},
-			{"child spans", "14"}, {"decision", "accept · source config"},
-		}
-	case kindMCP:
-		server, tool, _ := strings.Cut(r.label, ":")
-		return [][2]string{
-			{"tool_name", "mcp__plugin_hm_" + server + "__" + tool},
-			{"mcp.server", server}, {"mcp.tool", tool},
-			{"tool_use_id", "toolu_01Mc9pQr4Vzt"},
-			{"duration_ms", fmt.Sprintf("%d", r.ms)}, {"success", "True"},
-		}
-	case kindSkill:
-		return [][2]string{
-			{"tool_name", "Skill"}, {"skill.name", strings.TrimPrefix(r.label, "/")},
-			{"skill.source", "~/.claude/skills"}, {"tool_use_id", "toolu_01Sk5tYb3Nqw"},
-			{"duration_ms", fmt.Sprintf("%d", r.ms)}, {"success", "True"},
-		}
+	case kindHook:
+		event, matcher, _ := strings.Cut(r.label, ":")
+		add("event", event)
+		add("matcher", orDash(matcher))
+		add("source", r.src)
 	default:
-		return [][2]string{
-			{"tool_name", r.label}, {"tool_use_id", "toolu_01Wg7hV2nKpz"},
-			{"duration_ms", "430"}, {"success", "True"},
-			{"decision", "accept"}, {"source", "config"},
-			{"tool_input_size_bytes", "118  (from transcript)"},
-			{"tool_result_size_bytes", "9,204  (from transcript)"},
+		// tool_name is the row's own label, and the strip already prints that.
+		add("use id", first(attrs, "tool_use_id", "gen_ai.tool.call.id"))
+		if out := r.output(); out != "" {
+			add("output", count(len(out), "byte"))
 		}
 	}
+	if r.ms > 0 {
+		add("took", duration(time.Duration(r.ms)*time.Millisecond))
+	}
+	if r.fail {
+		add("state", "failed")
+	}
+	return out
+}
+
+// plural names the unit; count says how many of it. Passing plural alone where
+// count was meant printed "output bytes" with no number in front of it.
+func count(n int, word string) string {
+	return strconv.Itoa(n) + " " + plural(n, word)
+}
+
+func (m Model) subtreeSize(r row) int {
+	if r.node == nil {
+		return 0
+	}
+	n := 0
+	var walk func(*session.Node)
+	walk = func(node *session.Node) {
+		n++
+		for _, kid := range node.Children {
+			walk(kid)
+		}
+	}
+	walk(r.node)
+	return n
 }
 
 // One tab per way of reading a span. A span the tab has nothing to say about
@@ -1550,26 +1723,29 @@ func (m Model) tabAt() int {
 	return ((m.tab % n) + n) % n
 }
 
+// tabBody is the content half of the pane: what was asked, what was written,
+// what came back. It names the section rather than the row, because the row's
+// own name is in the tree, in the pane title and in the pinned strip, and a
+// fourth copy of "claude-opus-5" told the reader nothing they had not read.
+//
+// No attribute appears here. The attrs tab holds all of them, and the table
+// this used to print restated eight of them one tab away.
 func (m Model) tabBody(r row) string {
 	b := &strings.Builder{}
-	fmt.Fprintf(b, "## %s\n\n", r.label)
 	switch r.kind {
 	case kindTurn:
 		// A turn's text is its prompt, whole and unclipped: the row above it
 		// already showed the one line that fits there.
-		fmt.Fprintf(b, "%s\n", r.prompt())
+		fmt.Fprintf(b, "## Prompt\n\n%s\n", r.prompt())
 	case kindPrompt, kindThink:
 		b.WriteString(modelBody(r))
 	case kindSub, kindTeam:
-		fmt.Fprintf(b, "%s\n", r.preview)
+		fmt.Fprintf(b, "## Task\n\n%s\n", r.preview)
 	case kindHook:
 		cmd, out, _ := strings.Cut(r.preview, "  ->  ")
-		if r.src != "" {
-			fmt.Fprintf(b, "configured in `%s`\n\n", r.src)
-		}
-		fmt.Fprintf(b, "```sh\n%s\n```\n", cmd)
+		fmt.Fprintf(b, "## Command\n\n```sh\n%s\n```\n", cmd)
 		if out != "" {
-			fmt.Fprintf(b, "\n```text\n%s\n```\n", out)
+			fmt.Fprintf(b, "\n## Output\n\n```text\n%s\n```\n", out)
 		}
 	default:
 		lang := "sh"
@@ -1577,11 +1753,11 @@ func (m Model) tabBody(r row) string {
 		case "Read", "Edit", "Grep":
 			lang = "text"
 		}
-		fmt.Fprintf(b, "```%s\n%s\n```\n", lang, r.preview)
+		fmt.Fprintf(b, "## Input\n\n```%s\n%s\n```\n", lang, r.preview)
 		// The output is what the row was run for, and no span carries it. It is
 		// here only when the transcript was read.
 		if out := r.output(); out != "" {
-			fmt.Fprintf(b, "\n```text\n%s\n```\n", out)
+			fmt.Fprintf(b, "\n## Output\n\n```text\n%s\n```\n", out)
 		}
 	}
 	if r.fail {
@@ -1590,55 +1766,71 @@ func (m Model) tabBody(r row) string {
 	return b.String()
 }
 
-// modelBody answers the question a model row raises and cannot answer with a
-// preview line: what did this call produce? No harness exports the reply text,
-// so the honest answer is the stop reason plus the shape of the call, and the
-// tool rows that follow in the tree are the reply's visible half.
+// modelBody is the reply and the reasoning behind it, and nothing else. The
+// call's own numbers moved to the attrs tab: a reader opening a model row wants
+// to know what the model said, and a token table stood between them and it.
 func modelBody(r row) string {
-	attrs := map[string]string{}
 	text, thinking := "", ""
 	if r.node != nil {
-		attrs = r.node.Span.Attrs
 		text, thinking = r.node.Text, r.node.Thinking
 	}
 	b := &strings.Builder{}
 	if thinking != "" {
-		fmt.Fprintf(b, "### reasoning\n\n%s\n\n", thinking)
+		fmt.Fprintf(b, "## Reasoning\n\n%s\n\n", thinking)
 	}
 	if text != "" {
-		fmt.Fprintf(b, "### reply\n\n%s\n\n", text)
+		fmt.Fprintf(b, "## Response\n\n%s\n", text)
 	}
-	if text == "" && thinking == "" && r.preview != "" {
-		fmt.Fprintf(b, "%s\n\n", r.preview)
+	if text != "" || thinking != "" {
+		return b.String()
 	}
-	b.WriteString("| what | value |\n| --- | --- |\n")
-	row := func(k, v string) {
-		if v != "" {
-			fmt.Fprintf(b, "| %s | %s |\n", k, v)
-		}
-	}
-	row("model", first(attrs, "gen_ai.request.model", "model"))
-	row("stop reason", first(attrs, "stop_reason", "gen_ai.response.finish_reasons"))
-	// The three input counters are one number in the row's token column, and
-	// that number is misleading on its own: a 900k input is almost all cache.
-	row("fresh input", num(attrs, "input_tokens"))
-	row("cached input", num(attrs, "cache_read_tokens"))
-	row("cache written", num(attrs, "cache_creation_tokens"))
-	row("output", num(attrs, "output_tokens"))
-	if ms := number(attrs, "ttft_ms"); ms > 0 {
-		row("first token", duration(time.Duration(ms)*time.Millisecond))
-	}
-	if r.ms > 0 {
-		row("total", duration(time.Duration(r.ms)*time.Millisecond))
-	}
-	row("request", first(attrs, "request_id", "gen_ai.response.id"))
 	// The reply is on disk and never on a span, so its absence is a fact about
 	// the source rather than about the call, and the reader has to be told which.
-	if text == "" && thinking == "" {
-		b.WriteString("\nNo transcript was read, so the reply text is not here.\n" +
-			"Add `transcript` to `TRACES_PROVIDER` to join it in.\n")
+	b.WriteString("## Response\n\n")
+	if r.preview != "" {
+		fmt.Fprintf(b, "%s\n\n", r.preview)
+	}
+	b.WriteString("No transcript was read, so the reply text is not here.\n" +
+		"Add `transcript` to `TRACES_PROVIDER` to join it in.\n")
+	return b.String()
+}
+
+func (m Model) tabAttrs(r row) string {
+	b := &strings.Builder{}
+	b.WriteString("| attribute | value |\n| --- | --- |\n")
+	for _, kv := range m.detailTags(r) {
+		fmt.Fprintf(b, "| %s | %s |\n", kv[0], fence(kv[1]))
 	}
 	return b.String()
+}
+
+// Every value is fenced as code. A raw one is markdown to glamour: a pipe opens
+// a third column and shifts every row after it, and an email is auto-linked, so
+// user.email rendered as an empty cell and a footnote at the foot of the pane.
+func fence(s string) string {
+	s = strings.ReplaceAll(s, "\n", " ")
+	if s == "" {
+		return ""
+	}
+	// A backtick inside the value has to be fenced by a longer run than it
+	// holds, which is CommonMark's own rule for a code span.
+	longest := 0
+	for run := 0; ; {
+		run = 0
+		for _, r := range s {
+			if r == '`' {
+				run++
+				if run > longest {
+					longest = run
+				}
+				continue
+			}
+			run = 0
+		}
+		break
+	}
+	tick := strings.Repeat("`", longest+1)
+	return tick + " " + s + " " + tick
 }
 
 func first(attrs map[string]string, keys ...string) string {
@@ -1655,16 +1847,6 @@ func num(attrs map[string]string, key string) string {
 		return ""
 	}
 	return fmt.Sprintf("%d", number(attrs, key))
-}
-
-func (m Model) tabAttrs(r row) string {
-	b := &strings.Builder{}
-	fmt.Fprintf(b, "## %s · attributes\n\n", r.label)
-	b.WriteString("| attribute | value |\n| --- | --- |\n")
-	for _, kv := range m.detailTags(r) {
-		fmt.Fprintf(b, "| %s | %s |\n", kv[0], kv[1])
-	}
-	return b.String()
 }
 
 func (m Model) rendered(src string) string {
@@ -1734,18 +1916,20 @@ func (m Model) tabBar(width int) string {
 	return fit(strings.Join(parts, faint.Render(gl.v)), width)
 }
 
-// The attribute block has its own tab, but the four facts a reader checks most
-// stay pinned under the pane, so switching tabs never hides them.
+// The attribute block has its own tab; the few facts a reader checks most stay
+// pinned under the pane, so switching tabs never hides them. It names the row
+// first, because the body tab no longer does.
 func (m Model) paneStrip(width int) string {
-	tags := m.detailTags(m.rows[m.at(m.cursor)])
-	parts := []string{}
-	for i, kv := range tags {
-		if i == 4 {
-			break
-		}
+	at := m.at(m.cursor)
+	if at < 0 {
+		return strings.Repeat(" ", max(0, width))
+	}
+	r := m.rows[at]
+	parts := []string{roleStyle(roleOf[r.kind]).Render(r.label)}
+	for _, kv := range m.strip4(r) {
 		parts = append(parts, tagKey.Render(kv[0])+" "+tagText.Render(clipWord(kv[1], 22)))
 	}
-	return fit(strings.Join(parts, dim.Render("  ·  ")), width)
+	return fit(strings.Join(parts, dim.Render("  \u00b7  ")), width)
 }
 
 // Three inner lines are chrome: the tab bar, the rule and the pinned strip.
@@ -1844,12 +2028,14 @@ func (m Model) footer() string {
 	if m.visual {
 		return fit(accent.Render("visual")+dim.Render("   j k extend   enter keep   esc cancel"), m.width)
 	}
-	hint := "j k move   d u page   D U inspector   J K size   tab pane   n p turn   enter turn   v range   A all   s session   / filter   ? help"
+	// The bar names the focused window first, because every motion below it
+	// lands there and a reader who has moved focus has no other way to tell.
+	hint := m.focusName() + "   j k move   ctrl+d u page   ctrl+w w focus   { } turn   v range   V turn   / filter   - = size   ? help"
 	return fit(dim.Render(hint), m.width)
 }
 
 func (m Model) leaderBar() string {
-	keys := []string{"f follow", "o anchor", "i inspector", "y yank raw", "? help"}
+	keys := []string{"f follow", "o anchor", "s session", "a all", "m one row", "i inspector", "y yank raw", "? help"}
 	if m.pending == "i" {
 		keys = []string{"i toggle", "h left", "j bottom", "k top", "l right"}
 	}
@@ -1857,32 +2043,31 @@ func (m Model) leaderBar() string {
 }
 
 var helpTable = [][2]string{
-	{"j / k", "move one span"},
-	{"d / u", "page the trace half a screen  (ctrl+d and ctrl+u also work)"},
-	{"D / U", "page the inspector  (ctrl+f and ctrl+b also work)"},
-	{"tab / shift+tab", "next inspector tab / previous"},
-	{"gg / G", "first span / last span and resume follow"},
+	{"j / k", "move one line in the focused window"},
+	{"ctrl+d / ctrl+u", "half page"},
+	{"ctrl+f / ctrl+b", "full page"},
+	{"gg / G", "first row / last row and resume follow"},
+	{"H / M / L", "cursor to the top, middle or bottom of the view"},
+	{"ctrl+w w", "focus the other window  (ctrl+w k tree, ctrl+w j inspector)"},
+	{"ctrl+e / ctrl+y", "scroll the inspector one line, cursor unmoved"},
+	{"{ / }", "previous turn / next turn  ([t and ]t also work)"},
+	{"n / N", "next row / previous row of the current filter"},
+	{"/", "filter the tree by text  (esc clears it)"},
 	{"h / l", "collapse or step out / expand"},
-	{"za", "toggle fold under the cursor  (vim)"},
-	{"zR / zM", "open every fold / close every fold  (vim)"},
-	{"zx", "close all, then open the path to the cursor  (vim)"},
-	{"Z", "expand every node  (neo-tree)"},
-	{"enter", "toggle the whole turn the cursor sits in"},
-	{"M", "toggle the one span under the cursor"},
-	{"m", "toggle the span and its whole subtree"},
+	{"za / zo / zc", "toggle, open or close the fold under the cursor"},
+	{"zR / zM", "open every fold / close every fold"},
+	{"zx", "close all, then open the path to the cursor"},
 	{"v", "range: j k extend, enter or v keep, esc cancel"},
-	{"A", "toggle every row  (shift+enter also works)"},
+	{"V / enter", "toggle the whole turn the cursor sits in"},
+	{"m", "toggle the row and its whole subtree"},
 	{"esc", "cancel a range, or clear every mark"},
-	{"n / p", "next turn / previous turn  (]t and [t also work)"},
 	{"Y", "yank the verbatim bytes behind the row"},
-	{"o", "anchor newest at bottom, or scroll free"},
-	{"- / = , J / K", "move the divider  (dragging it does the same)"},
+	{"tab / shift+tab", "next inspector tab / previous"},
+	{"- / =", "move the divider  (dragging it does the same)"},
 	{"click / wheel", "select a row, fold on the wedge, pick a tab, scroll either pane"},
 	{"<space> i", "inspector: i toggle, h left, j bottom, k top, l right"},
-	{"<space>", "leader: f follow, o anchor, i inspector, y yank, ? help"},
-	{"s", "attach to another session"},
-	{"/", "filter the tree by text  (esc clears it)"},
-	{"q", "quit"},
+	{"<space>", "leader: f follow, o anchor, s session, a all, m one row, y yank, ? help"},
+	{"ZZ / q", "quit"},
 }
 
 func viewHelp(width, height int) string {
@@ -1892,7 +2077,7 @@ func viewHelp(width, height int) string {
 	}
 	// m is bound to mark here and to move in neo-tree. traces has no move, so the
 	// key is free; v stays open because neo-tree uses it for a vertical split.
-	lines = append(lines, "", dim.Render("m marks here and moves in neo-tree; traces has no move, so the key is free."))
+	lines = append(lines, "", dim.Render("Every motion drives the focused window, the way it does in a vim split."))
 	for len(lines) < height-2 {
 		lines = append(lines, "")
 	}
