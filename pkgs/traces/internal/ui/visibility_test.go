@@ -63,53 +63,100 @@ func TestFoldingUpdatesVisibility(t *testing.T) {
 }
 
 // Separate keys keep both panes available without a focus mode.
-func TestTraceAndInspectorNavigationUseSeparateKeys(t *testing.T) {
+// One set of motions, aimed by the focus. ctrl+j and ctrl+k move the focus, and
+// the frame draws the focused pane's border in the accent so no key depends on
+// state the reader cannot see.
+func TestFocusAimsTheMotions(t *testing.T) {
 	m := foldable(t)
 	m.cursor = 1
-	m.pane.Height = 4
-	m.pane.SetContent(strings.Repeat("line\n", 40))
 
 	press := func(key tea.KeyMsg) {
 		next, _ := m.Update(key)
 		m = next.(Model)
 	}
-	rune_ := func(r rune) tea.KeyMsg {
+	letter := func(r rune) tea.KeyMsg {
 		return tea.KeyMsg{Type: tea.KeyRunes, Runes: []rune{r}}
 	}
+	longPane := func() {
+		m.pane.Height = 4
+		m.pane.SetContent(strings.Repeat("line\n", 40))
+	}
 
-	// The trace moves and the inspector holds still.
-	press(tea.KeyMsg{Type: tea.KeyDown})
+	// The trace holds the focus to begin with.
+	if m.onPane() {
+		t.Fatal("the inspector holds the focus on open")
+	}
+	press(letter('j'))
 	if m.cursor != 2 || m.pane.YOffset != 0 {
-		t.Fatalf("down: cursor = %d, inspector offset = %d", m.cursor, m.pane.YOffset)
+		t.Fatalf("j on the trace: cursor = %d, inspector offset = %d", m.cursor, m.pane.YOffset)
 	}
-	press(tea.KeyMsg{Type: tea.KeyUp})
-	if m.cursor != 1 || m.pane.YOffset != 0 {
-		t.Fatalf("up: cursor = %d, inspector offset = %d", m.cursor, m.pane.YOffset)
-	}
-
-	// A trace motion refreshes the pane from the row it landed on, so the long
-	// content has to be put back before the inspector is driven.
-	m.pane.Height = 4
-	m.pane.SetContent(strings.Repeat("line\n", 40))
-
-	// The inspector moves and the trace holds still.
-	press(rune_('j'))
-	if m.cursor != 1 || m.pane.YOffset == 0 {
-		t.Fatalf("j: cursor = %d, inspector offset = %d", m.cursor, m.pane.YOffset)
-	}
-	down := m.pane.YOffset
-	press(rune_('k'))
-	if m.cursor != 1 || m.pane.YOffset >= down {
-		t.Fatalf("k: cursor = %d, inspector offset = %d", m.cursor, m.pane.YOffset)
+	press(letter('k'))
+	if m.cursor != 1 {
+		t.Fatalf("k on the trace: cursor = %d, want 1", m.cursor)
 	}
 
+	// ctrl+j hands the focus to the inspector, and j follows it there.
 	press(tea.KeyMsg{Type: tea.KeyCtrlJ})
-	if m.cursor != 1 || m.pane.YOffset <= 1 {
-		t.Fatalf("ctrl+j: cursor = %d, inspector offset = %d", m.cursor, m.pane.YOffset)
+	if !m.onPane() {
+		t.Fatal("ctrl+j did not focus the inspector")
 	}
-	press(tea.KeyMsg{Type: tea.KeyCtrlK})
+	longPane()
+	press(letter('j'))
+	if m.cursor != 1 || m.pane.YOffset != 1 {
+		t.Fatalf("j on the inspector: cursor = %d, inspector offset = %d", m.cursor, m.pane.YOffset)
+	}
+	press(letter('k'))
 	if m.cursor != 1 || m.pane.YOffset != 0 {
-		t.Fatalf("ctrl+k: cursor = %d, inspector offset = %d", m.cursor, m.pane.YOffset)
+		t.Fatalf("k on the inspector: cursor = %d, inspector offset = %d", m.cursor, m.pane.YOffset)
+	}
+
+	// ctrl+k hands it back.
+	press(tea.KeyMsg{Type: tea.KeyCtrlK})
+	if m.onPane() {
+		t.Fatal("ctrl+k did not focus the trace")
+	}
+	press(letter('j'))
+	if m.cursor != 2 {
+		t.Fatalf("j after ctrl+k: cursor = %d, want 2", m.cursor)
+	}
+
+	// d and u reach the inspector without taking the focus, so the next j is
+	// still a row.
+	longPane()
+	press(letter('d'))
+	if m.pane.YOffset == 0 {
+		t.Fatal("d did not page the inspector")
+	}
+	if m.onPane() {
+		t.Fatal("d moved the focus")
+	}
+	press(letter('u'))
+	if m.pane.YOffset != 0 {
+		t.Fatalf("u: inspector offset = %d, want 0", m.pane.YOffset)
+	}
+
+	// vim scrolls a view a line at a time on these two, cursor unmoved.
+	longPane()
+	at := m.cursor
+	press(tea.KeyMsg{Type: tea.KeyCtrlE})
+	if m.cursor != at || m.pane.YOffset != 1 {
+		t.Fatalf("ctrl+e: cursor = %d, inspector offset = %d", m.cursor, m.pane.YOffset)
+	}
+	press(tea.KeyMsg{Type: tea.KeyCtrlY})
+	if m.cursor != at || m.pane.YOffset != 0 {
+		t.Fatalf("ctrl+y: cursor = %d, inspector offset = %d", m.cursor, m.pane.YOffset)
+	}
+}
+
+// With no inspector there is one pane, and the focus cannot leave it.
+func TestFocusStaysOnTheTreeWithNoInspector(t *testing.T) {
+	m := foldable(t)
+	next, _ := m.Update(tea.KeyMsg{Type: tea.KeyRunes, Runes: []rune{'i'}})
+	m = next.(Model)
+	m = m.dock(placeHidden)
+	next, _ = m.Update(tea.KeyMsg{Type: tea.KeyCtrlJ})
+	if next.(Model).onPane() {
+		t.Error("the focus reached a hidden inspector")
 	}
 }
 

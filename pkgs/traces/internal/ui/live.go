@@ -144,6 +144,21 @@ type row struct {
 	guide   string
 }
 
+// The two panes a motion can drive.
+type window int
+
+const (
+	winTree window = iota
+	winPane
+)
+
+func (w window) String() string {
+	if w == winPane {
+		return "inspector"
+	}
+	return "trace"
+}
+
 type Model struct {
 	store   *session.Store
 	current *session.Session
@@ -171,6 +186,11 @@ type Model struct {
 	anchor bool
 	help   bool
 	helpAt int
+	// focus is the pane the motions drive, the way a vim split works. ctrl+j
+	// and ctrl+k move it. Before it, one set of motions was split across two
+	// panes by hand, so j scrolled the inspector and only an arrow moved the
+	// trace, and nothing on screen said which key went where.
+	focus  window
 	leader bool
 	place  placement
 	last   placement
@@ -216,10 +236,13 @@ type Model struct {
 	mdW  int
 
 	paneKey     string
+	paneSelect  string
 	paneVersion string
 	paneLoaded  int
 	paneShown   int
 	paneTotal   int
+	dataRev     uint64
+	marksRev    uint64
 }
 
 // The tab bar, the rule and the pinned strip cost three inner lines of the
@@ -302,6 +325,7 @@ func pickFrom(list []*session.Session, want string) *session.Session {
 
 // rebuild flattens the session tree into the row list the layout draws.
 func (m *Model) rebuild() {
+	m.dataRev++
 	m.rows = nil
 	if m.current == nil {
 		m.visibleRows = nil
@@ -763,6 +787,10 @@ func (m Model) key(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 		case "ZZ", "ZQ":
 			return m, tea.Quit
 		case "gg":
+			if m.onPane() {
+				m.pane.GotoTop()
+				break
+			}
 			m.cursor, m.follow = 0, false
 			m.paintRange()
 		case "ii":
@@ -803,10 +831,12 @@ func (m Model) key(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 			// Cancelling a range restores what was marked before it started, so
 			// an accidental v costs nothing.
 			m.visual, m.marks = false, m.before
+			m.marksRev++
 			m.before = nil
 			return m.clamp(), nil
 		}
 		m.marks = map[string]bool{}
+		m.marksRev++
 		return m.clamp(), nil
 	case " ":
 		m.leader = true
@@ -821,31 +851,37 @@ func (m Model) key(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 		m.cmd, m.cmdAt = true, 0
 		return m, nil
 
-	// Arrow keys move the trace while Vim motions scroll the inspector.
-	case "down":
-		m.cursor, m.follow = m.cursor+1, false
-		m.paintRange()
-	case "up":
-		m.cursor, m.follow = m.cursor-1, false
-		m.paintRange()
-	case "ctrl+d":
-		return m.halfPage(1), nil
-	case "ctrl+u":
-		return m.halfPage(-1), nil
-	case "ctrl+f":
-		return m.halfPage(2), nil
-	case "ctrl+b":
-		return m.halfPage(-2), nil
-	case "G":
-		m.cursor, m.follow = len(m.visible())-1, true
+	// ctrl+j and ctrl+k move the focus between panes, and every motion below
+	// drives whichever pane holds it. The focused pane wears the accent border,
+	// so no key depends on a state the frame does not show.
 	case "ctrl+j":
-		return m.scrollPane(max(1, m.pane.Height/2)), nil
+		return m.refocus(winPane), nil
 	case "ctrl+k":
+		return m.refocus(winTree), nil
+	case "j", "down":
+		return m.lineBy(1), nil
+	case "k", "up":
+		return m.lineBy(-1), nil
+	case "ctrl+d":
+		return m.pageBy(1, true), nil
+	case "ctrl+u":
+		return m.pageBy(-1, true), nil
+	case "ctrl+f":
+		return m.pageBy(1, false), nil
+	case "ctrl+b":
+		return m.pageBy(-1, false), nil
+	case "G":
+		return m.toEnd(), nil
+	// d and u reach the inspector without taking the focus with them, so the
+	// next j is still a row. vim's own scroll pair moves a view by a line.
+	case "d":
+		return m.scrollPane(max(1, m.pane.Height/2)), nil
+	case "u":
 		m.pane.HalfPageUp()
 		return m, nil
-	case "j", "ctrl+e":
+	case "ctrl+e":
 		return m.scrollPane(1), nil
-	case "k", "ctrl+y":
+	case "ctrl+y":
 		m.pane.ScrollUp(1)
 		return m, nil
 	case "H":
@@ -862,9 +898,9 @@ func (m Model) key(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 	case "{":
 		m.jump(-1)
 	case "n":
-		m.step(1)
+		m.nextMatch(1)
 	case "N":
-		m.step(-1)
+		m.nextMatch(-1)
 
 	case "tab":
 		m.tab = m.tabAt() + 1
@@ -959,7 +995,7 @@ func (m Model) helpLast() int {
 // step moves to the next row the filter matched. / filters rather than
 // searches, so every visible row is a match and n is a plain move; without the
 // binding n was a second name for the turn jump and vim's n did nothing.
-func (m Model) step(dir int) {
+func (m Model) nextMatch(dir int) {
 	if m.query == "" {
 		m.jump(dir)
 		return
@@ -1106,6 +1142,7 @@ func (m *Model) markSubtree(idx int) {
 	for i := idx + 1; i < len(m.rows) && m.rows[i].depth > m.rows[idx].depth; i++ {
 		set(i)
 	}
+	m.marksRev++
 }
 
 // markTurn marks the whole turn the cursor sits in, which is the unit a
@@ -1130,9 +1167,11 @@ func (m *Model) markRow(idx int) {
 	}
 	if m.marks[m.idOf(idx)] {
 		delete(m.marks, m.idOf(idx))
+		m.marksRev++
 		return
 	}
 	m.marks[m.idOf(idx)] = true
+	m.marksRev++
 }
 
 // idOf is the row's span id, which survives a rebuild. A row with no node
@@ -2374,7 +2413,10 @@ func (m Model) rendered(src string) string {
 const inspectorChunkBytes = 32 * 1024
 
 func (m Model) inspectorLimit() int {
-	return max(inspectorChunkBytes, m.paneLoaded)
+	if m.paneLoaded > 0 {
+		return m.paneLoaded
+	}
+	return inspectorChunkBytes
 }
 
 func (m Model) paneSource() (string, int, int) {
@@ -2414,97 +2456,35 @@ func (m Model) paneSource() (string, int, int) {
 	return strings.Join(parts, "\n\n"), shown, total
 }
 
+func (m Model) paneSelection() string {
+	if len(m.marks) > 0 {
+		return fmt.Sprintf("tab/%d/marks/%d/%d", m.tab, m.marksRev, len(m.marks))
+	}
+	return fmt.Sprintf("tab/%d/row/%s", m.tab, m.idOf(m.at(m.cursor)))
+}
+
 func (m Model) paneIdentity() string {
-	tabs := m.tabsFor()
-	if len(tabs) == 0 {
-		return fmt.Sprintf("empty/%d", m.pane.Width)
-	}
-	t := tabs[m.tabAt()]
-	key := &strings.Builder{}
-	fmt.Fprintf(key, "%s/%d", t.name, m.pane.Width)
-	for _, idx := range m.marked() {
-		fmt.Fprintf(key, "/%s", m.idOf(idx))
-	}
-	return key.String()
+	return fmt.Sprintf("%s/%d", m.paneSelection(), m.pane.Width)
 }
 
 func (m Model) currentPaneVersion() string {
-	tabs := m.tabsFor()
-	if len(tabs) == 0 {
-		return ""
-	}
-	t := tabs[m.tabAt()]
-	version := &strings.Builder{}
-	for _, idx := range m.marked() {
-		r := m.rows[idx]
-		fmt.Fprintf(version, "/%d/%x/%d/%t", t.size(m, r), m.paneRevision(t, r), r.ms, r.fail)
-		if r.node != nil {
-			fmt.Fprintf(version, "/%d", r.node.End().UnixNano())
-		}
-	}
-	return version.String()
-}
-
-// paneRevision hashes the loaded prefix. Unloaded output cannot make cursor
-// movement slower, and loading another chunk expands the checked prefix.
-func (m Model) paneRevision(tab paneTab, r row) uint64 {
-	const (
-		offset = uint64(14695981039346656037)
-		prime  = uint64(1099511628211)
-	)
-	hash := offset
-	remaining := m.inspectorLimit()
-	mix := func(text string, shown int) {
-		for i := range shown {
-			hash ^= uint64(text[i])
-			hash *= prime
-		}
-		hash ^= uint64(len(text))
-		hash *= prime
-	}
-	add := func(text string) {
-		shown := min(len(text), remaining)
-		mix(text, shown)
-		remaining -= shown
-	}
-	meta := func(text string) { mix(text, min(len(text), 64)) }
-	switch tab.name {
-	case "changes":
-		add(patchOf(r))
-	case "attrs":
-		for _, kv := range m.detailTags(r) {
-			meta(kv[0])
-			add(kv[1])
-		}
-	default:
-		for _, one := range r.sections() {
-			meta(one.name)
-			add(one.text)
-		}
-		if r.node != nil {
-			for i, child := range r.node.Children {
-				if i == bodyKids {
-					break
-				}
-				meta(child.Label)
-				meta(Line(child))
-			}
-		}
-	}
-	return hash
+	return strconv.FormatUint(m.dataRev, 10)
 }
 
 func (m Model) refresh() Model {
-	key := m.paneIdentity()
-	reset := key != m.paneKey
+	selection := m.paneSelection()
+	key := fmt.Sprintf("%s/%d", selection, m.pane.Width)
+	changed := key != m.paneKey
+	reset := selection != m.paneSelect
 	if reset {
 		m.paneLoaded = inspectorChunkBytes
 	}
 	version := m.currentPaneVersion()
 	target := min(m.paneLoaded, m.paneTotal)
-	if !reset && version == m.paneVersion && m.paneShown >= target {
+	if !changed && version == m.paneVersion && m.paneShown >= target {
 		return m
 	}
+	m.paneSelect = selection
 	return m.renderPane(key, version, reset)
 }
 
@@ -2522,6 +2502,62 @@ func (m Model) renderPane(key, version string, reset bool) Model {
 	m.paneKey, m.paneVersion = key, version
 	m.paneShown, m.paneTotal = shown, total
 	return m
+}
+
+// refocus moves the focus and says so, because a border colour alone is easy to
+// miss on the press that changed it. With the inspector hidden there is one pane
+// and the focus stays on it.
+func (m Model) refocus(to window) Model {
+	if m.placeAt() == placeHidden {
+		to = winTree
+	}
+	m.focus = to
+	m.status = "focus " + to.String()
+	return m
+}
+
+func (m Model) onPane() bool {
+	return m.focus == winPane && m.placeAt() != placeHidden
+}
+
+func (m Model) lineBy(by int) Model {
+	if m.onPane() {
+		if by > 0 {
+			return m.scrollPane(by)
+		}
+		m.pane.ScrollUp(-by)
+		return m
+	}
+	m.cursor, m.follow = m.cursor+by, false
+	m.paintRange()
+	return m.clamp()
+}
+
+func (m Model) pageBy(dir int, half bool) Model {
+	if m.onPane() {
+		step := max(1, m.pane.Height/2)
+		if !half {
+			step = max(1, m.pane.Height)
+		}
+		if dir > 0 {
+			return m.scrollPane(step)
+		}
+		m.pane.ScrollUp(step)
+		return m
+	}
+	if half {
+		return m.halfPage(dir)
+	}
+	return m.halfPage(dir * 2)
+}
+
+func (m Model) toEnd() Model {
+	if m.onPane() {
+		return m.scrollPane(max(1, m.paneTotal))
+	}
+	m.cursor, m.follow = len(m.visible())-1, true
+	m.paintRange()
+	return m.clamp()
 }
 
 func (m Model) scrollPane(lines int) Model {
@@ -2618,21 +2654,34 @@ func (m Model) paneView(inner int) string {
 	}, "\n")
 }
 
-// boxWith is box, with the top border already drawn by the caller. The tab row
-// is that border, so it cannot be handed in as a title string.
-func boxWith(top string, inner int, body string) string {
+// boxLive is box with the top border already drawn by the caller: the tab row is
+// that border, so it cannot be handed in as a title string.
+//
+// It draws the frame in the accent when the pane holds the
+// focus. The focus decides where every motion lands, so the frame has to say
+// where it is: a keymap that depends on invisible state is a keymap a reader
+// has to remember instead of read.
+func boxLive(top string, inner int, body string, live bool) string {
 	if inner < 1 {
 		return body
 	}
+	edge := rule
+	if live {
+		edge = title
+	}
 	out := []string{fit(top, inner+2)}
 	for _, ln := range strings.Split(body, "\n") {
-		out = append(out, rule.Render(gl.v)+fit(ln, inner)+rule.Render(gl.v))
+		out = append(out, edge.Render(gl.v)+fit(ln, inner)+edge.Render(gl.v))
 	}
-	out = append(out, rule.Render(gl.bl+strings.Repeat(gl.h, inner)+gl.br))
+	out = append(out, edge.Render(gl.bl+strings.Repeat(gl.h, inner)+gl.br))
 	return strings.Join(out, "\n")
 }
 
 func box(name string, inner int, body string) string {
+	return boxNamed(name, inner, body, false)
+}
+
+func boxNamed(name string, inner int, body string, live bool) string {
 	if inner < 1 {
 		return body
 	}
@@ -2643,13 +2692,17 @@ func box(name string, inner int, body string) string {
 	// The dash count is inner-3-width, not inner-4: the fixed parts are corner,
 	// rule, space, name, space, corner. The earlier draft ran one column short
 	// on every frame, so the top border never met the body wall.
-	top := rule.Render(gl.tl+gl.h+" ") + title.Render(name) +
-		rule.Render(" "+strings.Repeat(gl.h, dashes)+gl.tr)
+	edge := rule
+	if live {
+		edge = title
+	}
+	top := edge.Render(gl.tl+gl.h+" ") + title.Render(name) +
+		edge.Render(" "+strings.Repeat(gl.h, dashes)+gl.tr)
 	out := []string{fit(top, inner+2)}
 	for _, ln := range strings.Split(body, "\n") {
-		out = append(out, rule.Render(gl.v)+fit(ln, inner)+rule.Render(gl.v))
+		out = append(out, edge.Render(gl.v)+fit(ln, inner)+edge.Render(gl.v))
 	}
-	out = append(out, rule.Render(gl.bl+strings.Repeat(gl.h, inner)+gl.br))
+	out = append(out, edge.Render(gl.bl+strings.Repeat(gl.h, inner)+gl.br))
 	return strings.Join(out, "\n")
 }
 
@@ -2754,8 +2807,17 @@ func (m Model) footer() string {
 	}
 	// The bar names the focused window first, because every motion below it
 	// lands there and a reader who has moved focus has no other way to tell.
-	hint := "up down trace   j k inspector   { } turn   v range   V turn   m subtree   / filter   : command   - = size   ? help"
-	return fit(dim.Render(hint), m.width)
+	// The bar names the focused pane first and then what the motions do there,
+	// because every motion below it lands in that pane.
+	if m.onPane() {
+		hint := title.Render("inspector") +
+			dim.Render("   j k line   ctrl+d u page   gg G ends   ctrl+k trace   tab pane   ? help")
+		return fit(hint, m.width)
+	}
+	hint := title.Render("trace") +
+		dim.Render("   j k row   ctrl+d u page   { } turn   v range   V turn   m subtree   "+
+			"d u inspector   ctrl+j inspector   / filter   : command   ? help")
+	return fit(hint, m.width)
 }
 
 func (m Model) leaderBar() string {
@@ -2767,9 +2829,11 @@ func (m Model) leaderBar() string {
 }
 
 var helpTable = [][2]string{
-	{"up / down", "move one row in the trace"},
-	{"ctrl+d / ctrl+u", "half page the trace  (ctrl+f and ctrl+b page it whole)"},
-	{"j / k", "scroll the inspector  (ctrl+j and ctrl+k half page it)"},
+	{"ctrl+j / ctrl+k", "focus the inspector / focus the trace"},
+	{"j / k", "one line in the focused pane  (the arrows do the same)"},
+	{"ctrl+d / ctrl+u", "half page the focused pane  (ctrl+f and ctrl+b page it whole)"},
+	{"d / u", "half page the inspector without moving the focus"},
+	{"ctrl+e / ctrl+y", "scroll the inspector one line, cursor unmoved"},
 	{"gg / G", "first row / last row and resume follow"},
 	{"H / M / L", "cursor to the top, middle or bottom of the view"},
 	{"{ / }", "previous turn / next turn  ([t and ]t also work)"},
@@ -2880,15 +2944,15 @@ func (m Model) View() string {
 		return m.head() + "\n\n" + faint.Render(waiting) + "\n\n" + m.footer()
 	}
 	inner := max(1, m.treeWidth()-2)
-	tree := box(fmt.Sprintf("trace  %d shown of %d  \u00b7  %s", len(m.visible()), len(m.rows), m.runFor()),
-		inner, m.treeHead(inner)+"\n"+m.treeBody(inner, m.bodyHeight()))
+	tree := boxNamed(fmt.Sprintf("trace  %d shown of %d  \u00b7  %s", len(m.visible()), len(m.rows), m.runFor()),
+		inner, m.treeHead(inner)+"\n"+m.treeBody(inner, m.bodyHeight()), !m.onPane())
 
 	// A blank row separates the timeline from each box. The timeline remains
 	// between the trace and a vertical inspector.
 	main := tree + "\n\n" + m.strip(m.width)
 	if p := m.placeAt(); p != placeHidden {
 		pw := max(1, m.detailWidth()-2)
-		pane := boxWith(m.tabTop(pw), pw, m.paneView(pw))
+		pane := boxLive(m.tabTop(pw), pw, m.paneView(pw), m.onPane())
 		switch p {
 		case placeBottom:
 			main = withGrip(tree, inner) + "\n\n" + m.strip(m.width) + "\n\n" + pane
@@ -3146,8 +3210,9 @@ func (m Model) pickKey(k string) (tea.Model, tea.Cmd) {
 			m.current = m.list[m.pickAt]
 			// A pin names one run. Attaching to another is the reader
 			// overriding that, so the pin has to go or reload would undo it.
-			m.pinned = ""
-			m.marks = map[string]bool{}
+				m.pinned = ""
+				m.marks = map[string]bool{}
+				m.marksRev++
 			m.folded = map[string]bool{}
 			m.updateVisibility()
 			m.rebuild()
@@ -3236,6 +3301,7 @@ func (m *Model) paintRange() {
 		return
 	}
 	m.marks = copyMarks(m.before)
+	m.marksRev++
 	vis := m.visible()
 	if len(vis) == 0 {
 		return
@@ -3255,6 +3321,7 @@ func (m *Model) paintRange() {
 func (m *Model) markAll() {
 	if len(m.marks) >= len(m.rows) && len(m.rows) > 0 {
 		m.marks = map[string]bool{}
+		m.marksRev++
 		m.status = "marks cleared"
 		return
 	}
@@ -3262,6 +3329,7 @@ func (m *Model) markAll() {
 	for i := range m.rows {
 		m.marks[m.idOf(i)] = true
 	}
+	m.marksRev++
 	m.status = fmt.Sprintf("%d rows marked", len(m.rows))
 }
 

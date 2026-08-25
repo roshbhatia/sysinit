@@ -126,6 +126,35 @@ func TestInspectorRowChangeResetsLoadedBudget(t *testing.T) {
 	}
 }
 
+func TestInspectorSharesLoadBudgetAcrossMarkedRows(t *testing.T) {
+	m := inspectorWithOutputs(31*1024, 2)
+	m.rows[1].node.Output = strings.Repeat("B", 31*1024)
+	m.marks = map[string]bool{"0": true, "1": true}
+	m.paneKey, m.paneSelect = "", ""
+	m = m.refresh()
+	src, shown, total := m.paneSource()
+	if shown != inspectorChunkBytes || total != 62*1024 {
+		t.Fatalf("marked bytes = %d of %d", shown, total)
+	}
+	if got := strings.Count(ansi.Strip(src), "B"); got > 2048 {
+		t.Fatalf("second row rendered %d bytes beyond the shared budget", got)
+	}
+}
+
+func TestInspectorResizePreservesLoadedOutputAndScroll(t *testing.T) {
+	m := inspectorWithOutput(128 * 1024)
+	m.paneLoaded = m.paneTotal
+	m = m.renderPane(m.paneIdentity(), m.currentPaneVersion(), false)
+	m.pane.SetYOffset(20)
+	loaded, offset := m.paneLoaded, m.pane.YOffset
+	m.width += 20
+	m = m.sized().clamp()
+	if m.paneLoaded != loaded || m.pane.YOffset != offset {
+		t.Fatalf("resize changed loaded bytes %d -> %d or offset %d -> %d",
+			loaded, m.paneLoaded, offset, m.pane.YOffset)
+	}
+}
+
 func TestWrapToPreservesUnicode(t *testing.T) {
 	input := "a界b🙂c界d"
 	wrapped := strings.Join(wrapTo(input, 3), "")
@@ -171,4 +200,29 @@ func BenchmarkInspectorSelectionAfter1MiBLoaded(b *testing.B) {
 		one.cursor = 1
 		_ = one.refresh()
 	}
+}
+
+func benchmarkInspectorMarkedRows(b *testing.B, count int) {
+	m := inspectorWithOutputs(32*1024, count)
+	m.marks = make(map[string]bool, len(m.rows))
+	for i := range m.rows {
+		m.marks[m.idOf(i)] = true
+	}
+	m.paneKey, m.paneSelect = "", ""
+	m = m.refresh()
+	b.ReportAllocs()
+	b.ResetTimer()
+	for range b.N {
+		one := m
+		one.paneKey = ""
+		_ = one.refresh()
+	}
+}
+
+func BenchmarkInspectorRefresh1000MarkedRows(b *testing.B) {
+	benchmarkInspectorMarkedRows(b, 1000)
+}
+
+func BenchmarkInspectorRefresh35000MarkedRows(b *testing.B) {
+	benchmarkInspectorMarkedRows(b, 35000)
 }
