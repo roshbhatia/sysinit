@@ -11,6 +11,7 @@ import (
 	"strconv"
 	"strings"
 	"time"
+	"unicode/utf8"
 
 	"github.com/alecthomas/chroma/v2/lexers"
 	"github.com/charmbracelet/bubbles/spinner"
@@ -169,6 +170,7 @@ type Model struct {
 	follow bool
 	anchor bool
 	help   bool
+	helpAt int
 	leader bool
 	place  placement
 	last   placement
@@ -212,6 +214,12 @@ type Model struct {
 	pane viewport.Model
 	md   *glamour.TermRenderer
 	mdW  int
+
+	paneKey     string
+	paneVersion string
+	paneLoaded  int
+	paneShown   int
+	paneTotal   int
 }
 
 // The tab bar, the rule and the pinned strip cost three inner lines of the
@@ -440,11 +448,20 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m, nil
 		}
 		before := len(m.rows)
+		selected, screenRow := m.idOf(m.at(m.cursor)), m.cursor-m.offset
 		m.store.AddBatch(otlp.Batch(msg))
 		m.reload()
 		if m.follow && len(m.rows) > before {
 			if vis := m.visible(); len(vis) > 0 {
 				m.cursor = len(vis) - 1
+			}
+		} else if selected != "" {
+			for i := range m.rows {
+				if m.idOf(i) == selected {
+					m.cursor = m.indexOf(i)
+					m.offset = max(0, m.cursor-screenRow)
+					break
+				}
 			}
 		}
 		return m.clamp(), nil
@@ -453,6 +470,9 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.spin, cmd = m.spin.Update(msg)
 		return m, cmd
 	case tea.MouseMsg:
+		if m.help {
+			return m.helpMouse(msg)
+		}
 		return m.mouse(msg)
 	case tea.KeyMsg:
 		return m.key(msg)
@@ -476,11 +496,11 @@ const (
 func (m Model) placeAt() placement {
 	switch m.place {
 	case placeBottom, placeTop:
-		if m.height >= 24 {
+		if m.height >= 16 {
 			return m.place
 		}
 	case placeLeft, placeRight:
-		if m.width >= 120 {
+		if m.width >= 120 && m.height >= 9 {
 			return m.place
 		}
 	}
@@ -524,8 +544,7 @@ func (m Model) detailLines() int {
 	return min(max(rows*m.split/100, paneChrome+3), max(paneChrome+3, rows-4))
 }
 
-// The tree box bottom border is the divider, and the drag reads that row. The
-// inspector top border sits one below it, and the tab bar one below that.
+// The tree box bottom border is the divider, and the drag reads that row.
 func (m Model) dividerY() int { return m.treeRows() + 2 }
 
 // The split is a percent, so it round trips through two floors and lands the
@@ -573,11 +592,10 @@ func (m Model) detailCols() int {
 }
 
 func (m Model) treeRows() int {
-	// 4 for the header, the footer and the tree box's own two borders, and 1
-	// more for the strip that sits under the tree.
-	rows := max(1, m.height-5)
+	// The timeline has one blank row between it and the adjacent pane.
+	rows := max(1, m.height-6)
 	if m.vertical() {
-		rows = max(3, rows-m.detailLines())
+		rows = max(4, rows-m.detailLines())
 	}
 	return rows
 }
@@ -591,7 +609,7 @@ func (m Model) treeTop() int {
 	if m.placeAt() == placeTop {
 		// Above the tree: the pane, then the strip, then the tree's border and
 		// its column header.
-		return m.detailLines() + 4
+		return m.detailLines() + 5
 	}
 	return 3
 }
@@ -679,6 +697,9 @@ func (m Model) key(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 
 	if m.picking {
 		return m.pickKey(k)
+	}
+	if m.help {
+		return m.helpKey(k)
 	}
 	if m.filter {
 		return m.filterKey(msg, k)
@@ -771,7 +792,7 @@ func (m Model) key(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 	case "q", "ctrl+c":
 		return m, tea.Quit
 	case "?":
-		m.help = !m.help
+		m.help, m.helpAt = true, 0
 		return m, nil
 	case "esc":
 		if m.help {
@@ -818,14 +839,12 @@ func (m Model) key(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 	case "G":
 		m.cursor, m.follow = len(m.visible())-1, true
 	case "ctrl+j":
-		m.pane.HalfPageDown()
-		return m, nil
+		return m.scrollPane(max(1, m.pane.Height/2)), nil
 	case "ctrl+k":
 		m.pane.HalfPageUp()
 		return m, nil
 	case "j", "ctrl+e":
-		m.pane.ScrollDown(1)
-		return m, nil
+		return m.scrollPane(1), nil
 	case "k", "ctrl+y":
 		m.pane.ScrollUp(1)
 		return m, nil
@@ -896,6 +915,45 @@ func (m Model) key(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 		return m.edit()
 	}
 	return m.clamp(), nil
+}
+
+func (m Model) helpKey(k string) (tea.Model, tea.Cmd) {
+	page := max(1, m.height-3)
+	switch k {
+	case "?", "esc", "q":
+		m.help, m.helpAt = false, 0
+	case "j", "down":
+		m.helpAt++
+	case "k", "up":
+		m.helpAt--
+	case "ctrl+d", "ctrl+f":
+		m.helpAt += page
+	case "ctrl+u", "ctrl+b":
+		m.helpAt -= page
+	case "g":
+		m.helpAt = 0
+	case "G":
+		m.helpAt = m.helpLast()
+	}
+	m.helpAt = min(m.helpLast(), max(0, m.helpAt))
+	return m, nil
+}
+
+func (m Model) helpMouse(msg tea.MouseMsg) (tea.Model, tea.Cmd) {
+	delta := max(1, m.pane.MouseWheelDelta)
+	switch msg.Button {
+	case tea.MouseButtonWheelDown:
+		m.helpAt += delta
+	case tea.MouseButtonWheelUp:
+		m.helpAt -= delta
+	}
+	m.helpAt = min(m.helpLast(), max(0, m.helpAt))
+	return m, nil
+}
+
+func (m Model) helpLast() int {
+	page := max(1, m.height-3)
+	return max(0, len(helpLines(max(1, m.width-2)))-page)
 }
 
 // step moves to the next row the filter matched. / filters rather than
@@ -1227,11 +1285,10 @@ func (m Model) linesFrom(vis []int, a, b int) int {
 	return n
 }
 
-// The cursor row is the only row that costs two lines. Two lines for every row
-// caps an 87 row terminal near 40 spans, and a real session logged 857.
+// The cursor row is the only row that costs three lines.
 func (m Model) rowHeight(i int) int {
 	if i == m.cursor {
-		return 2
+		return 3
 	}
 	return 1
 }
@@ -1893,22 +1950,20 @@ type paneTab struct {
 	// viewport.
 	raw  bool
 	body func(Model, row) string
-	// A tab that has to see the whole selection at once, like the file tree,
-	// sets all instead of body. all wins where both are set.
-	all func(Model) string
+	size func(Model, row) int
 }
 
 var paneTabs = []paneTab{
-	{name: "changes", raw: true, body: Model.tabChanges},
+	{name: "changes", raw: true, body: Model.tabChanges, size: Model.changesSize},
 	// raw, because the body draws its own tree and glamour would strip the rail
 	// and reflow the code under it.
-	{name: "body", raw: true, body: Model.tabBody},
+	{name: "body", raw: true, body: Model.tabBody, size: Model.bodySize},
 	// raw, because the table is already laid out to the pane and glamour would
 	// reflow it back to markdown's own idea of a table.
-	{name: "attrs", raw: true, body: Model.tabAttrs},
+	{name: "attrs", raw: true, body: Model.tabAttrs, size: Model.attrsSize},
 }
 
-func (m Model) tabChanges(r row) string {
+func patchOf(r row) string {
 	if r.node == nil {
 		return ""
 	}
@@ -1916,11 +1971,28 @@ func (m Model) tabChanges(r row) string {
 	if patch == "" && r.label == "Edit" && strings.Contains(r.node.Output, "@@") {
 		patch = r.node.Output
 	}
+	return patch
+}
+
+func (m Model) changesSize(r row) int {
+	patch := patchOf(r)
+	if !strings.Contains(patch, "@@") {
+		return 0
+	}
+	return len(patch)
+}
+
+func (m Model) tabChanges(r row) string {
+	patch, more := limitedText(patchOf(r), m.inspectorLimit())
 	files := diffview.Parse(normalizePatch(patch))
 	if len(files) == 0 {
 		return ""
 	}
-	return diffview.Render(diffview.Options{Files: files, Width: m.pane.Width})
+	out := diffview.Render(diffview.Options{Files: files, Width: m.pane.Width})
+	if more > 0 {
+		out += "\n" + faint.Render(fmt.Sprintf("%s more; scroll down to load it", byteSize(more)))
+	}
+	return out
 }
 
 func normalizePatch(patch string) string {
@@ -1941,14 +2013,8 @@ func normalizePatch(patch string) string {
 func (m Model) tabsFor() []paneTab {
 	out := []paneTab{}
 	for _, t := range paneTabs {
-		if t.all != nil {
-			if strings.TrimSpace(t.all(m)) != "" {
-				out = append(out, t)
-			}
-			continue
-		}
 		for _, idx := range m.marked() {
-			if strings.TrimSpace(t.body(m, m.rows[idx])) != "" {
+			if t.size(m, m.rows[idx]) > 0 {
 				out = append(out, t)
 				break
 			}
@@ -1987,11 +2053,19 @@ func (m Model) tabBody(r row) string {
 	inner := max(24, m.detailWidth()-2)
 	out := []string{m.bodyHead(r, inner)}
 	parts := r.sections()
+	remaining := m.inspectorLimit()
 	for i, one := range parts {
 		last := i == len(parts)-1 && len(m.kidLines(r)) == 0
-		out = append(out, m.section(one, last, inner))
+		section, used, truncated := m.section(one, last, inner, remaining)
+		out = append(out, section)
+		remaining = max(0, remaining-used)
+		if truncated || remaining == 0 {
+			break
+		}
 	}
-	out = append(out, m.kidLines(r)...)
+	if remaining > 0 {
+		out = append(out, m.kidLines(r)...)
+	}
 	if len(parts) == 0 && len(out) == 1 {
 		out = append(out, faint.Render("  nothing recorded on this row"))
 		if r.kind == kindPrompt || r.kind == kindThink {
@@ -1999,6 +2073,17 @@ func (m Model) tabBody(r row) string {
 		}
 	}
 	return strings.Join(out, "\n")
+}
+
+func (m Model) bodySize(r row) int {
+	total := 0
+	for _, one := range r.sections() {
+		total += len(one.text)
+	}
+	if r.node != nil {
+		total += len(r.node.Children)
+	}
+	return total
 }
 
 // bodyHead names the row once, at the root of its own tree, with the two facts
@@ -2021,17 +2106,17 @@ func (m Model) bodyHead(r row, width int) string {
 // A part is one branch of the row. Syntax identifies code that can use the
 // terminal palette, while code keeps unknown output from prose reflow.
 type part struct {
-	name   string
-	text   string
-	code   bool
-	syntax string
+	name     string
+	text     string
+	code     bool
+	fallback string
 }
 
 func (r row) sections() []part {
 	out := []part{}
 	add := func(name, text string, code bool, fallback string) {
 		if strings.TrimSpace(text) != "" {
-			out = append(out, part{name: name, text: text, code: code, syntax: detectSyntax(text, fallback)})
+			out = append(out, part{name: name, text: text, code: code, fallback: fallback})
 		}
 	}
 	if r.node != nil {
@@ -2101,7 +2186,7 @@ func validJSONLines(text string) bool {
 
 // section draws one branch and hangs its text under the rail. Highlighting runs
 // before ANSI-aware wrapping, so escape sequences do not count as visible cells.
-func (m Model) section(one part, last bool, width int) string {
+func (m Model) section(one part, last bool, width, limit int) (string, int, bool) {
 	elbow, rail := gl.tee, gl.vert
 	if last {
 		elbow, rail = gl.elbow, gl.gap
@@ -2109,14 +2194,37 @@ func (m Model) section(one part, last bool, width int) string {
 	head := rule.Render(elbow) + " " + tagKey.Render(one.name)
 	body := []string{head}
 	lineWidth := max(8, width-lipgloss.Width(rail)-2)
-	lines := bodyLines(one.text, lineWidth)
+	text, more := limitedText(one.text, limit)
+	lines := bodyLines(text, lineWidth)
 	if one.code {
-		lines = m.codeLines(one.text, one.syntax, lineWidth)
+		lines = m.codeLines(text, detectSyntax(text, one.fallback), lineWidth)
 	}
 	for _, ln := range lines {
 		body = append(body, rule.Render(rail)+" "+ln)
 	}
-	return strings.Join(body, "\n")
+	if more > 0 {
+		body = append(body, rule.Render(rail)+" "+faint.Render(
+			fmt.Sprintf("%s more; scroll down to load it", byteSize(more))))
+	}
+	return strings.Join(body, "\n"), len(text), more > 0
+}
+
+func limitedText(text string, limit int) (string, int) {
+	if limit <= 0 {
+		return "", len(text)
+	}
+	if len(text) <= limit {
+		return text, 0
+	}
+	cut := min(limit, len(text))
+	for cut > 0 && cut < len(text) && !utf8.RuneStart(text[cut]) {
+		cut--
+	}
+	shown := text[:cut]
+	if strings.Contains(shown, "\x1b[") {
+		shown += "\x1b[0m"
+	}
+	return shown, len(text) - cut
 }
 
 func (m Model) codeLines(text, language string, width int) []string {
@@ -2191,22 +2299,38 @@ func (m Model) tabAttrs(r row) string {
 	valW := max(8, inner-keyW-2)
 
 	out := []string{}
+	remaining := m.inspectorLimit()
 	for _, kv := range tags {
+		value, more := limitedText(kv[1], remaining)
 		// A session attribute is the same on every span of the run, so it is
 		// dimmed rather than dropped: it is context, not a fact about this row.
 		key, style := kv[0], tagText
 		if rest, ok := strings.CutPrefix(key, "session/"); ok {
 			key, style = rest, faint
 		}
-		for i, ln := range wrapTo(kv[1], valW) {
+		for i, ln := range wrapTo(value, valW) {
 			gutter := tagKey.Render(fit(key, keyW))
 			if i > 0 {
 				gutter = strings.Repeat(" ", keyW)
 			}
 			out = append(out, gutter+"  "+style.Render(ln))
 		}
+		remaining = max(0, remaining-len(value))
+		if more > 0 || remaining == 0 {
+			left := max(0, m.attrsSize(r)-m.inspectorLimit()+remaining)
+			out = append(out, faint.Render(fmt.Sprintf("%s more; scroll down to load it", byteSize(left))))
+			break
+		}
 	}
 	return strings.Join(out, "\n")
+}
+
+func (m Model) attrsSize(r row) int {
+	total := 0
+	for _, kv := range m.detailTags(r) {
+		total += len(kv[1])
+	}
+	return total
 }
 
 // wrapTo breaks on width, and on a word where one is near enough the edge. A
@@ -2217,16 +2341,7 @@ func wrapTo(s string, width int) []string {
 	if s == "" {
 		return []string{""}
 	}
-	out := []string{}
-	for lipgloss.Width(s) > width {
-		cut := width
-		if at := strings.LastIndexAny(s[:min(len(s), width)], " /,;"); at > width/2 {
-			cut = at + 1
-		}
-		out = append(out, strings.TrimRight(s[:cut], " "))
-		s = strings.TrimLeft(s[cut:], " ")
-	}
-	return append(out, s)
+	return strings.Split(ansi.Wrap(s, width, " /,;"), "\n")
 }
 
 func first(attrs map[string]string, keys ...string) string {
@@ -2256,38 +2371,185 @@ func (m Model) rendered(src string) string {
 	return strings.TrimRight(out, "\n")
 }
 
-func (m Model) paneSource() string {
+const inspectorChunkBytes = 32 * 1024
+
+func (m Model) inspectorLimit() int {
+	return max(inspectorChunkBytes, m.paneLoaded)
+}
+
+func (m Model) paneSource() (string, int, int) {
 	tabs := m.tabsFor()
 	if len(tabs) < 1 {
-		return ""
+		return "", 0, 0
 	}
 	t := tabs[m.tabAt()]
-	if t.all != nil {
-		return t.all(m)
+	marked := m.marked()
+	total := 0
+	for _, idx := range marked {
+		total += t.size(m, m.rows[idx])
 	}
+	remaining := min(max(1, m.paneLoaded), max(1, total))
+	shown := 0
 	parts := []string{}
-	for _, idx := range m.marked() {
-		if s := strings.TrimSpace(t.body(m, m.rows[idx])); s != "" {
+	for _, idx := range marked {
+		size := t.size(m, m.rows[idx])
+		if size == 0 {
+			continue
+		}
+		one := m
+		one.paneLoaded = remaining
+		if s := strings.TrimSpace(t.body(one, m.rows[idx])); s != "" {
 			parts = append(parts, s)
+		}
+		used := min(size, remaining)
+		shown += used
+		remaining -= used
+		if remaining <= 0 {
+			break
 		}
 	}
 	// A markdown rule between marked rows rendered as a bare "---" once the body
 	// stopped being markdown. Each marked row is its own tree, so a blank line
 	// is the whole separator they need.
-	return strings.Join(parts, "\n\n")
+	return strings.Join(parts, "\n\n"), shown, total
 }
 
-// The viewport was constructed and sized in the earlier drafts but never fed,
-// so a multi mark preview cut silently at the pane height with no way to scroll.
+func (m Model) paneIdentity() string {
+	tabs := m.tabsFor()
+	if len(tabs) == 0 {
+		return fmt.Sprintf("empty/%d", m.pane.Width)
+	}
+	t := tabs[m.tabAt()]
+	key := &strings.Builder{}
+	fmt.Fprintf(key, "%s/%d", t.name, m.pane.Width)
+	for _, idx := range m.marked() {
+		fmt.Fprintf(key, "/%s", m.idOf(idx))
+	}
+	return key.String()
+}
+
+func (m Model) currentPaneVersion() string {
+	tabs := m.tabsFor()
+	if len(tabs) == 0 {
+		return ""
+	}
+	t := tabs[m.tabAt()]
+	version := &strings.Builder{}
+	for _, idx := range m.marked() {
+		r := m.rows[idx]
+		fmt.Fprintf(version, "/%d/%x/%d/%t", t.size(m, r), m.paneRevision(t, r), r.ms, r.fail)
+		if r.node != nil {
+			fmt.Fprintf(version, "/%d", r.node.End().UnixNano())
+		}
+	}
+	return version.String()
+}
+
+// paneRevision hashes the loaded prefix. Unloaded output cannot make cursor
+// movement slower, and loading another chunk expands the checked prefix.
+func (m Model) paneRevision(tab paneTab, r row) uint64 {
+	const (
+		offset = uint64(14695981039346656037)
+		prime  = uint64(1099511628211)
+	)
+	hash := offset
+	remaining := m.inspectorLimit()
+	mix := func(text string, shown int) {
+		for i := range shown {
+			hash ^= uint64(text[i])
+			hash *= prime
+		}
+		hash ^= uint64(len(text))
+		hash *= prime
+	}
+	add := func(text string) {
+		shown := min(len(text), remaining)
+		mix(text, shown)
+		remaining -= shown
+	}
+	meta := func(text string) { mix(text, min(len(text), 64)) }
+	switch tab.name {
+	case "changes":
+		add(patchOf(r))
+	case "attrs":
+		for _, kv := range m.detailTags(r) {
+			meta(kv[0])
+			add(kv[1])
+		}
+	default:
+		for _, one := range r.sections() {
+			meta(one.name)
+			add(one.text)
+		}
+		if r.node != nil {
+			for i, child := range r.node.Children {
+				if i == bodyKids {
+					break
+				}
+				meta(child.Label)
+				meta(Line(child))
+			}
+		}
+	}
+	return hash
+}
+
 func (m Model) refresh() Model {
-	src := m.paneSource()
+	key := m.paneIdentity()
+	reset := key != m.paneKey
+	if reset {
+		m.paneLoaded = inspectorChunkBytes
+	}
+	version := m.currentPaneVersion()
+	target := min(m.paneLoaded, m.paneTotal)
+	if !reset && version == m.paneVersion && m.paneShown >= target {
+		return m
+	}
+	return m.renderPane(key, version, reset)
+}
+
+func (m Model) renderPane(key, version string, reset bool) Model {
+	src, shown, total := m.paneSource()
 	tabs := m.tabsFor()
 	if len(tabs) > 0 && tabs[m.tabAt()].raw {
 		m.pane.SetContent(src)
+	} else {
+		m.pane.SetContent(m.rendered(src))
+	}
+	if reset {
+		m.pane.GotoTop()
+	}
+	m.paneKey, m.paneVersion = key, version
+	m.paneShown, m.paneTotal = shown, total
+	return m
+}
+
+func (m Model) scrollPane(lines int) Model {
+	m.pane.ScrollDown(lines)
+	if !m.pane.AtBottom() || m.paneShown >= m.paneTotal {
 		return m
 	}
-	m.pane.SetContent(m.rendered(src))
+	return m.loadPane(lines)
+}
+
+func (m Model) loadPane(lines int) Model {
+	offset := m.pane.YOffset
+	m.paneLoaded = min(m.paneTotal, max(inspectorChunkBytes, m.paneLoaded*2))
+	key, version := m.paneIdentity(), m.currentPaneVersion()
+	m = m.renderPane(key, version, false)
+	m.pane.SetYOffset(offset + lines)
 	return m
+}
+
+func byteSize(n int) string {
+	switch {
+	case n < 1024:
+		return fmt.Sprintf("%d B", n)
+	case n < 1024*1024:
+		return fmt.Sprintf("%.0f KiB", float64(n)/1024)
+	default:
+		return fmt.Sprintf("%.1f MiB", float64(n)/(1024*1024))
+	}
 }
 
 // The bar names every reading available for the selection and marks the live
@@ -2317,9 +2579,10 @@ func (m Model) tabTop(inner int) string {
 		parts = append(parts, rule.Render(gl.h+" ")+dim.Render(t.name)+rule.Render(" "+gl.h))
 	}
 	head := rule.Render(gl.tl+gl.h) + strings.Join(parts, rule.Render(gl.h))
-	// The percent earns its place only when the pane can actually scroll.
 	tail := ""
-	if m.pane.TotalLineCount() > m.pane.Height {
+	if m.paneShown < m.paneTotal {
+		tail = " " + dim.Render(byteSize(m.paneShown)+" of "+byteSize(m.paneTotal)) + " "
+	} else if m.pane.TotalLineCount() > m.pane.Height {
 		tail = " " + dim.Render(fmt.Sprintf("%.0f%%", m.pane.ScrollPercent()*100)) + " "
 	}
 	fill := inner + 2 - lipgloss.Width(head) - lipgloss.Width(tail) - 1
@@ -2479,6 +2742,16 @@ func (m Model) footer() string {
 	if m.visual {
 		return fit(accent.Render("visual")+dim.Render("   up down extend   enter keep   esc cancel"), m.width)
 	}
+	if m.placeAt() == placeHidden && m.place != placeHidden {
+		requirement := "16 rows"
+		if m.place == placeLeft || m.place == placeRight {
+			requirement = "120 columns"
+			if m.width >= 120 {
+				requirement = "9 rows"
+			}
+		}
+		return fit(dim.Render("up down trace   inspector needs "+requirement+"   ? help"), m.width)
+	}
 	// The bar names the focused window first, because every motion below it
 	// lands there and a reader who has moved focus has no other way to tell.
 	hint := "up down trace   j k inspector   { } turn   v range   V turn   m subtree   / filter   : command   - = size   ? help"
@@ -2522,23 +2795,43 @@ var helpTable = [][2]string{
 	{"ZZ / q", "quit"},
 }
 
-func viewHelp(width, height int) string {
+func helpLines(width int) []string {
+	keyWidth := min(18, max(8, width/3))
+	descriptionWidth := max(1, width-keyWidth)
 	lines := []string{}
 	for _, h := range helpTable {
-		lines = append(lines, accent.Render(fit(h[0], 18))+plain.Render(h[1]))
+		wrapped := wrapTo(h[1], descriptionWidth)
+		for i, line := range wrapped {
+			key := ""
+			if i == 0 {
+				key = h[0]
+			}
+			lines = append(lines, accent.Render(fit(key, keyWidth))+plain.Render(line))
+		}
 	}
-	lines = append(lines, "", dim.Render("The trace takes up/down; the inspector takes j/k. Neither needs a focus mode."))
-	for len(lines) < height-2 {
-		lines = append(lines, "")
-	}
-	return box("keys", width-2, strings.Join(lines[:max(0, height-2)], "\n"))
+	return lines
 }
 
-// The cursor row costs two lines, so a tree body under two lines can never
-// hold it. Below this the frame either clips the cursor or overruns the pane.
+func viewHelp(width, height, offset int) string {
+	inner := max(1, width-2)
+	rows := max(1, height-3)
+	all := helpLines(inner)
+	offset = min(max(0, len(all)-rows), max(0, offset))
+	end := min(len(all), offset+rows)
+	lines := append([]string{}, all[offset:end]...)
+	for len(lines) < rows {
+		lines = append(lines, "")
+	}
+	position := fmt.Sprintf("j/k scroll  esc close  %d-%d/%d", min(len(all), offset+1), end, len(all))
+	lines = append(lines, dim.Render(fit(position, inner)))
+	return box("keys", inner, strings.Join(lines, "\n"))
+}
+
+// The cursor row costs three lines. A smaller frame clips its preview or the
+// pane below it.
 const (
 	minWidth  = 40
-	minHeight = 8
+	minHeight = 10
 )
 
 func viewTooSmall(w, h int) string {
@@ -2569,7 +2862,7 @@ func (m Model) View() string {
 		return viewTooSmall(m.width, m.height)
 	}
 	if m.help {
-		return viewHelp(m.width, m.height)
+		return viewHelp(m.width, m.height, m.helpAt)
 	}
 	if m.picking {
 		return m.viewPick()
@@ -2590,22 +2883,21 @@ func (m Model) View() string {
 	tree := box(fmt.Sprintf("trace  %d shown of %d  \u00b7  %s", len(m.visible()), len(m.rows), m.runFor()),
 		inner, m.treeHead(inner)+"\n"+m.treeBody(inner, m.bodyHeight()))
 
-	// The strip belongs to the tree and reads as its scale, so it sits against
-	// it. With the inspector below, that puts it between the two, which is
-	// where a scrubber belongs: at the boundary, not off at the frame's top.
-	main := tree + "\n" + m.strip(m.width)
+	// A blank row separates the timeline from each box. The timeline remains
+	// between the trace and a vertical inspector.
+	main := tree + "\n\n" + m.strip(m.width)
 	if p := m.placeAt(); p != placeHidden {
 		pw := max(1, m.detailWidth()-2)
 		pane := boxWith(m.tabTop(pw), pw, m.paneView(pw))
 		switch p {
 		case placeBottom:
-			main = withGrip(tree, inner) + "\n" + m.strip(m.width) + "\n" + pane
+			main = withGrip(tree, inner) + "\n\n" + m.strip(m.width) + "\n\n" + pane
 		case placeTop:
-			main = pane + "\n" + m.strip(m.width) + "\n" + tree
+			main = pane + "\n\n" + m.strip(m.width) + "\n\n" + tree
 		case placeLeft:
-			main = lipgloss.JoinHorizontal(lipgloss.Top, pane, tree) + "\n" + m.strip(m.width)
+			main = lipgloss.JoinHorizontal(lipgloss.Top, pane, tree) + "\n\n" + m.strip(m.width)
 		case placeRight:
-			main = lipgloss.JoinHorizontal(lipgloss.Top, tree, pane) + "\n" + m.strip(m.width)
+			main = lipgloss.JoinHorizontal(lipgloss.Top, tree, pane) + "\n\n" + m.strip(m.width)
 		}
 	}
 
@@ -2702,7 +2994,7 @@ func (m Model) running(idx int) bool {
 }
 
 // The tree's first body line sits at treeTop, which is Y=3 unless the inspector
-// took the top. A cursor row is two lines tall, which rowHeight knows.
+// took the top. rowHeight accounts for the cursor's extra lines.
 func (m Model) rowAtY(y int) int {
 	vis := m.visible()
 	line := y - m.treeTop()
@@ -2730,29 +3022,33 @@ func (m Model) onWedge(vi, x int) bool {
 	return x >= wedge && x <= wedge+1
 }
 
-// inPane is the complement of the tree box on whichever edge the inspector
-// took, so a wheel event lands in exactly one of the two.
+// inPane excludes the timeline, spacing rows, and footer. A wheel event then
+// reaches the pane under the pointer.
 func (m Model) inPane(msg tea.MouseMsg) bool {
+	insideRows := msg.Y >= m.paneTop() && msg.Y < m.paneBottom()
 	switch m.placeAt() {
 	case placeBottom:
-		return msg.Y > m.dividerY()
+		return insideRows
 	case placeTop:
-		return msg.Y < m.detailLines()+1
+		return insideRows
 	case placeLeft:
-		return msg.X < m.detailCols()
+		return insideRows && msg.X < m.detailCols()
 	case placeRight:
-		return msg.X >= m.treeWidth()
+		return insideRows && msg.X >= m.treeWidth()
 	}
 	return false
 }
 
-// paneTop is the screen row of the inspector's tab bar, the first inner row
-// below its top border.
+// paneTop is the screen row of the inspector's tab bar and top border.
 func (m Model) paneTop() int {
 	if m.placeAt() == placeBottom {
-		return m.dividerY() + 2
+		return m.dividerY() + 4
 	}
-	return 2
+	return 1
+}
+
+func (m Model) paneBottom() int {
+	return m.paneTop() + m.pane.Height + 4
 }
 
 func (m Model) paneLeft() int {
@@ -2795,6 +3091,9 @@ func (m Model) mouse(msg tea.MouseMsg) (tea.Model, tea.Cmd) {
 		// whole implementation for the pane.
 		var cmd tea.Cmd
 		m.pane, cmd = m.pane.Update(msg)
+		if msg.Button == tea.MouseButtonWheelDown && m.pane.AtBottom() && m.paneShown < m.paneTotal {
+			m = m.loadPane(m.pane.MouseWheelDelta)
+		}
 		return m, cmd
 	}
 
