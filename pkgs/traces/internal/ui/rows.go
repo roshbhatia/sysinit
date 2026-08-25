@@ -213,3 +213,29 @@ func (r row) output() string {
 	}
 	return r.node.Output
 }
+
+// raw is everything behind the row, unreflowed: the prompt, the reply and the
+// reasoning, or the tool's input and its output. The pane wraps and colours all
+// of it, and yank and $EDITOR are what recover the bytes.
+func (r row) raw() string {
+	if r.node == nil {
+		return r.preview
+	}
+	parts := []string{}
+	add := func(head, body string) {
+		if body != "" {
+			parts = append(parts, "## "+head+"\n\n"+body)
+		}
+	}
+	add("Prompt", r.node.Prompt)
+	add("Reasoning", r.node.Thinking)
+	add("Response", r.node.Text)
+	if r.node.Prompt == "" && r.node.Text == "" && r.node.Thinking == "" {
+		add("Input", r.preview)
+	}
+	add("Output", r.node.Output)
+	if len(parts) == 0 {
+		return r.preview
+	}
+	return strings.Join(parts, "\n\n")
+}

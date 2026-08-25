@@ -4,6 +4,8 @@ import (
 	_ "embed"
 	"fmt"
 	"os"
+	"os/exec"
+	"path/filepath"
 	"sort"
 	"strconv"
 	"strings"
@@ -35,6 +37,7 @@ type glyphSet struct {
 	point, mark           string
 	vert, tee, elbow, gap string
 	fold, unfold, leaf    string
+	tabL, tabR            string
 	fill, dot, tick, ell  string
 	// The strip's own two: a cell that holds a row, and the playhead. Both are
 	// one cell wide in the Narrow block, which every other strip cell has to
@@ -47,6 +50,7 @@ var narrowGlyphs = glyphSet{
 	point: "▌", mark: "┃",
 	vert: "╎ ", tee: "├╌", elbow: "╰╌", gap: "  ",
 	fold: "▾", unfold: "▸", leaf: " ",
+	tabL: "┤", tabR: "├",
 	fill: "╍", dot: "╌", tick: "·", ell: "…",
 	block: "▄", playhead: "▮",
 }
@@ -56,6 +60,7 @@ var asciiGlyphs = glyphSet{
 	point: "|", mark: "#",
 	vert: ": ", tee: "+-", elbow: "\\-", gap: "  ",
 	fold: "v", unfold: ">", leaf: " ",
+	tabL: "[", tabR: "]",
 	fill: "=", dot: "-", tick: ".", ell: "...",
 	block: "#", playhead: "|",
 }
@@ -106,6 +111,8 @@ const (
 	actorCol  = 12
 	minTextW  = 26
 	maxTextW  = 148
+	minTrackW = 14
+	maxTrackW = 40
 )
 
 // Every field is named at the call site below. The first draft used positional
@@ -127,14 +134,6 @@ type row struct {
 	fail    bool
 	parent  bool
 }
-
-// The two windows a motion can drive.
-type window int
-
-const (
-	winTree window = iota
-	winPane
-)
 
 type Model struct {
 	store   *session.Store
@@ -164,14 +163,18 @@ type Model struct {
 	split  int
 	drag   bool
 
-	// focus is the window the motions drive, the way a vim split works. Before
-	// it, the tree had j k and the pane had D U, so the same movement wore two
-	// names and neither was vim's.
-	focus   window
-	pending string
-	status  string
-	picking bool
-	pickAt  int
+	// typed is what the reader has entered; query is what the tree is built
+	// against. They differ for one filterPause, and tag is what tells a stale
+	// tick from the current one.
+	typed string
+	tag   int
+	// timeline draws the run's shape beside every row. It was a permanent
+	// column until it cost more width than it earned, so now it is a toggle.
+	timeline bool
+	pending  string
+	status   string
+	picking  bool
+	pickAt   int
 	// visual holds a range selection anchored where it started. The marks it
 	// paints are recomputed on every move, so backing off shrinks the range
 	// rather than leaving a trail.
@@ -298,9 +301,21 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		// Resize has to reclamp. Without it a shrink can leave the offset past
 		// the end and the tree pane renders blank until the next keypress.
 		return m.sized().clamp(), nil
+	case statusMsg:
+		m.status = string(msg)
+		return m, nil
 	case tickMsg:
 		m.now = msg.t
 		return m, tick()
+	case filterMsg:
+		// A stale tick means another keystroke followed it, so the query it
+		// would apply is already out of date.
+		if int(msg) != m.tag || m.query == m.typed {
+			return m, nil
+		}
+		m.query = m.typed
+		m.rebuild()
+		return m.clamp(), nil
 	case BatchMsg:
 		before := len(m.rows)
 		m.store.Add(msg.Spans)
@@ -552,6 +567,9 @@ func (m Model) key(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 			m.anchor = !m.anchor
 		case "a":
 			m.markAll()
+		case "t":
+			m.timeline = !m.timeline
+			m.status = "timeline " + onOff(m.timeline)
 		case "m":
 			m.markRow(m.at(m.cursor))
 		case "s":
@@ -565,7 +583,9 @@ func (m Model) key(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 			m.status = "i again to toggle, h j k l to dock"
 			return m.clamp(), nil
 		case "y":
-			return m.yank(), nil
+			return m.yank()
+		case "e":
+			return m.edit()
 		case "?":
 			m.help = true
 		}
@@ -592,7 +612,8 @@ func (m Model) key(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 		case "ZZ", "ZQ":
 			return m, tea.Quit
 		case "gg":
-			return m.top(), nil
+			m.cursor, m.follow = 0, false
+			m.paintRange()
 		case "ii":
 			return m.dock(placeHidden), nil
 		case "ih":
@@ -609,15 +630,6 @@ func (m Model) key(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 			m.jump(-1)
 		// ctrl+w is vim's window prefix. w cycles, and h j k l pick a side the
 		// way they pick a split there.
-		case "ctrl+ww", "ctrl+wctrl+w":
-			m.focus = 1 - m.focus
-			m.status = "focus " + m.focusName()
-		case "ctrl+wk", "ctrl+wh":
-			m.focus = winTree
-			m.status = "focus trace"
-		case "ctrl+wj", "ctrl+wl":
-			m.focus = winPane
-			m.status = "focus inspector"
 		default:
 			// Any unmatched key cancels the prefix instead of vanishing.
 			m.status = "no binding for " + p + k
@@ -648,31 +660,40 @@ func (m Model) key(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 	case " ":
 		m.leader = true
 		return m, nil
-	case "z", "g", "]", "[", "Z", "ctrl+w":
+	case "z", "g", "]", "[", "Z":
 		m.pending = k
 		return m, nil
 	case "/":
 		m.filter = true
 		return m, nil
 
-	// The motions. Each drives the focused window, so j is one line in whichever
-	// pane the reader is in, which is the whole point of a vim split.
+	// The tree takes j k and the page keys; the inspector takes d u and the
+	// scroll pair. Each window owns its own keys, so no press depends on where
+	// a focus flag last landed and both panes move without a mode in between.
 	case "j", "down":
-		return m.move(1), nil
+		m.cursor, m.follow = m.cursor+1, false
+		m.paintRange()
 	case "k", "up":
-		return m.move(-1), nil
+		m.cursor, m.follow = m.cursor-1, false
+		m.paintRange()
 	case "ctrl+d":
-		return m.page(1, true), nil
+		return m.halfPage(1), nil
 	case "ctrl+u":
-		return m.page(-1, true), nil
+		return m.halfPage(-1), nil
 	case "ctrl+f":
-		return m.page(1, false), nil
+		return m.halfPage(2), nil
 	case "ctrl+b":
-		return m.page(-1, false), nil
+		return m.halfPage(-2), nil
 	case "G":
-		return m.bottom(), nil
-	// vim scrolls the view without moving the cursor on these two, and the
-	// inspector is the only window here with a view to scroll that way.
+		m.cursor, m.follow = len(m.visible())-1, true
+	case "d":
+		m.pane.HalfPageDown()
+		return m, nil
+	case "u":
+		m.pane.HalfPageUp()
+		return m, nil
+	// vim scrolls a view without moving the cursor on these two, and the
+	// inspector is the window here with a view to scroll that way.
 	case "ctrl+e":
 		m.pane.ScrollDown(1)
 		return m, nil
@@ -741,71 +762,11 @@ func (m Model) key(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 		// whole turn back off.
 		m.markTurn(m.at(m.cursor))
 	case "Y":
-		return m.yank(), nil
+		return m.yank()
+	case "e":
+		return m.edit()
 	}
 	return m.clamp(), nil
-}
-
-func (m Model) focusName() string {
-	if m.focus == winPane {
-		return "inspector"
-	}
-	return "trace"
-}
-
-// move, page, top and bottom are the four motions, each aimed at the focused
-// window. The inspector has no cursor, so a motion there scrolls it.
-func (m Model) move(by int) Model {
-	if m.focus == winPane {
-		m.pane.ScrollDown(by)
-		if by < 0 {
-			m.pane.ScrollUp(-by)
-		}
-		return m
-	}
-	m.cursor, m.follow = m.cursor+by, false
-	m.paintRange()
-	return m.clamp()
-}
-
-func (m Model) page(dir int, half bool) Model {
-	if m.focus == winPane {
-		switch {
-		case half && dir > 0:
-			m.pane.HalfPageDown()
-		case half:
-			m.pane.HalfPageUp()
-		case dir > 0:
-			m.pane.PageDown()
-		default:
-			m.pane.PageUp()
-		}
-		return m
-	}
-	if half {
-		return m.halfPage(dir)
-	}
-	return m.halfPage(dir * 2)
-}
-
-func (m Model) top() Model {
-	if m.focus == winPane {
-		m.pane.GotoTop()
-		return m
-	}
-	m.cursor, m.follow = 0, false
-	m.paintRange()
-	return m.clamp()
-}
-
-func (m Model) bottom() Model {
-	if m.focus == winPane {
-		m.pane.GotoBottom()
-		return m
-	}
-	m.cursor, m.follow = len(m.visible())-1, true
-	m.paintRange()
-	return m.clamp()
 }
 
 // step moves to the next row the filter matched. / filters rather than
@@ -823,14 +784,90 @@ func (m Model) step(dir int) {
 // yank reports the verbatim bytes behind the cursor row. glamour is always on
 // and has no toggle, so this is the only way to recover text it reflowed
 // or that the tree pane truncated.
-func (m Model) yank() Model {
-	r := m.rows[m.at(m.cursor)]
-	src := r.preview
-	if r.kind == kindTurn {
-		src = r.prompt()
+// yank puts the row's whole text on the system clipboard. It used to report a
+// byte count and copy nothing, so the one escape from a reflowed pane did not
+// work. The copier is a plain Cmd rather than ExecProcess: pbcopy needs no
+// terminal, and handing it one would blank the frame for the length of a pipe.
+func (m Model) yank() (Model, tea.Cmd) {
+	at := m.at(m.cursor)
+	if at < 0 {
+		return m, nil
 	}
-	m.status = fmt.Sprintf("yanked %d bytes verbatim", len(src))
-	return m
+	src := m.rows[at].raw()
+	if src == "" {
+		m.status = "nothing to yank on this row"
+		return m, nil
+	}
+	name, args := copier()
+	if name == "" {
+		m.status = "no clipboard command on this machine"
+		return m, nil
+	}
+	m.status = fmt.Sprintf("yanked %s", count(len(src), "byte"))
+	return m, func() tea.Msg {
+		cmd := exec.Command(name, args...)
+		cmd.Stdin = strings.NewReader(src)
+		if err := cmd.Run(); err != nil {
+			return statusMsg("clipboard: " + err.Error())
+		}
+		return nil
+	}
+}
+
+type statusMsg string
+
+// The first command that exists wins. Wayland before X11, because a Wayland
+// session usually still carries xclip and it writes to a clipboard nothing on
+// that session reads.
+func copier() (string, []string) {
+	for _, try := range [][]string{
+		{"pbcopy"}, {"wl-copy"}, {"xclip", "-selection", "clipboard"}, {"xsel", "-ib"},
+	} {
+		if _, err := exec.LookPath(try[0]); err == nil {
+			return try[0], try[1:]
+		}
+	}
+	return "", nil
+}
+
+// edit hands the row's text to $EDITOR. A tool result runs to thousands of
+// bytes and the pane reflows it; this is the way out to a reader's own pager,
+// search and yank.
+func (m Model) edit() (Model, tea.Cmd) {
+	at := m.at(m.cursor)
+	if at < 0 {
+		return m, nil
+	}
+	r := m.rows[at]
+	src := r.raw()
+	if src == "" {
+		m.status = "nothing to open on this row"
+		return m, nil
+	}
+	f, err := os.CreateTemp("", "traces-*.md")
+	if err != nil {
+		m.status = "temp file: " + err.Error()
+		return m, nil
+	}
+	if _, err := f.WriteString(src); err != nil {
+		f.Close()
+		m.status = "temp file: " + err.Error()
+		return m, nil
+	}
+	f.Close()
+	editor := os.Getenv("EDITOR")
+	if editor == "" {
+		editor = "vi"
+	}
+	// The file is left behind on purpose. The editor may fork, and deleting it
+	// on return would empty a buffer the reader is still in.
+	m.status = "opened " + f.Name()
+	return m, tea.ExecProcess(exec.Command(editor, f.Name()), func(err error) tea.Msg {
+		if err != nil {
+			return statusMsg("editor: " + err.Error())
+		}
+		return statusMsg("closed " + filepath.Base(f.Name()))
+	})
 }
 
 // halfPage moves the cursor and the view by the same step, which is what vim
@@ -1161,12 +1198,12 @@ func clipWord(s string, width int) string {
 // cells to say it, so the preview is where those cells went instead.
 // The actor column is the first thing dropped when the pane narrows. The guide
 // tree still carries the nesting, so a narrow frame loses the least here.
-func (m Model) columns(width int) (actor, text, meta int) {
+func (m Model) columns(width int) (actor, text, meta, track int) {
 	if width < 1 {
-		return 0, 0, 0
+		return 0, 0, 0, 0
 	}
 	if width < minTextW+metaTight+1 {
-		return 0, width, 0
+		return 0, width, 0, 0
 	}
 	if width >= actorCol+1+minTextW+metaCol+2+20 {
 		actor = actorCol
@@ -1183,20 +1220,26 @@ func (m Model) columns(width int) (actor, text, meta int) {
 	if actor > 0 {
 		text--
 	}
+	// The track is off by default and takes its cells from the preview when it
+	// is on, so the reader chooses which of the two the width buys.
+	if m.timeline && text >= minTextW+minTrackW+1 {
+		track = min(maxTrackW, text/3)
+		text -= track + 1
+	}
 	if text > maxTextW {
 		text = maxTextW
 	}
 	if text < 1 {
 		text = 1
 	}
-	return actor, text, meta
+	return actor, text, meta, track
 }
 
 // prefixWidth is the cell count before the label starts: the cursor bar, the
 // state gutter, one space, and the actor column when it is on screen. rowLines,
 // treeHead and onWedge all have to agree on it.
 func (m Model) prefixWidth(width int) int {
-	actor, _, _ := m.columns(width)
+	actor, _, _, _ := m.columns(width)
 	if actor > 0 {
 		return 3 + actor + 1
 	}
@@ -1454,7 +1497,7 @@ func actorStyle(actor string) lipgloss.Style {
 
 func (m Model) rowLines(vi, idx, width int) []string {
 	r := m.rows[idx]
-	actorW, textW, metaW := m.columns(width)
+	actorW, textW, metaW, trackW := m.columns(width)
 	labelW, prevW := m.textSplit(textW)
 	style := roleStyle(roleOf[r.kind])
 	if r.fail {
@@ -1479,6 +1522,16 @@ func (m Model) rowLines(vi, idx, width int) []string {
 	if metaW > 0 {
 		line += " " + m.metaCell(idx, metaW)
 	}
+	if trackW > 0 {
+		style := live
+		switch {
+		case r.fail:
+			style = bad
+		case m.running(idx):
+			style = accent
+		}
+		line += " " + m.gantt(idx, trackW, style)
+	}
 
 	if vi == m.cursor {
 		rule := m.cursorRule(width)
@@ -1494,7 +1547,7 @@ func (m Model) cursorRule(width int) string {
 }
 
 func (m Model) treeHead(width int) string {
-	actorW, textW, metaW := m.columns(width)
+	actorW, textW, metaW, trackW := m.columns(width)
 	labelW, prevW := m.textSplit(textW)
 	line := "   "
 	if actorW > 0 {
@@ -1509,6 +1562,11 @@ func (m Model) treeHead(width int) string {
 			"  " + rightFit("time", timeCol)
 	} else if metaW > 0 {
 		line += " " + rightFit("tokens", tokenCol) + "  " + rightFit("time", metaW-tokenCol-2)
+	}
+	if trackW > 0 {
+		_, span := m.window()
+		label := duration(span)
+		line += " " + fit("on screen", max(0, trackW-len(label))) + label
 	}
 	return faint.Render(fit(line, width))
 }
@@ -1655,6 +1713,63 @@ func count(n int, word string) string {
 	return strconv.Itoa(n) + " " + plural(n, word)
 }
 
+// gantt draws one row's span against the rows on screen, not against the whole
+// run. The first version scaled every bar to the run: a 54 minute run put a 30ms
+// grep and a 3 minute build in the same cell, and scrolling changed nothing
+// because the scale never moved. Scoped to the window, the bars answer the
+// question a reader actually has here, which is what took the time in what they
+// are looking at. The strip above the tree is what holds the whole run.
+func (m Model) gantt(idx, width int, style lipgloss.Style) string {
+	r := m.rows[idx]
+	from, span := m.window()
+	if width < 1 || r.node == nil || span <= 0 {
+		return strings.Repeat(" ", max(0, width))
+	}
+	at := func(t time.Time) int {
+		col := int(t.Sub(from) * time.Duration(width) / span)
+		return min(width, max(0, col))
+	}
+	start, end := at(r.node.Start()), at(r.node.End())
+	if end <= start {
+		// Below one cell the bar cannot be proportional, so it says "a point
+		// here" rather than claiming a length it does not have.
+		end = start + 1
+	}
+	if end > width {
+		start, end = width-1, width
+	}
+	body := style.Render(strings.Repeat(gl.fill, end-start))
+	return strings.Repeat(" ", start) + body + strings.Repeat(" ", width-end)
+}
+
+// window is the time the rows on screen cover: the earliest start and the
+// latest end among them. Both the bars and the track's own header read it, so
+// the axis always names the scale the bars were drawn to.
+func (m Model) window() (time.Time, time.Duration) {
+	vis := m.visible()
+	var from, to time.Time
+	for i := m.offset; i < len(vis) && i < m.offset+m.treeRows(); i++ {
+		node := m.rows[vis[i]].node
+		if node == nil {
+			continue
+		}
+		if from.IsZero() || node.Start().Before(from) {
+			from = node.Start()
+		}
+		if to.IsZero() || node.End().After(to) {
+			to = node.End()
+		}
+	}
+	return from, to.Sub(from)
+}
+
+func onOff(b bool) string {
+	if b {
+		return "on"
+	}
+	return "off"
+}
+
 func (m Model) subtreeSize(r row) int {
 	if r.node == nil {
 		return 0
@@ -1691,7 +1806,9 @@ type paneTab struct {
 // had no live source; the `changes` command reads a diff from git instead.
 var paneTabs = []paneTab{
 	{name: "body", body: Model.tabBody},
-	{name: "attrs", body: Model.tabAttrs},
+	// raw, because the table is already laid out to the pane and glamour would
+	// reflow it back to markdown's own idea of a table.
+	{name: "attrs", raw: true, body: Model.tabAttrs},
 }
 
 func (m Model) tabsFor() []paneTab {
@@ -1795,42 +1912,61 @@ func modelBody(r row) string {
 	return b.String()
 }
 
+// tabAttrs draws its own table rather than handing markdown to glamour. A
+// markdown table is laid out to the widest cell and then clipped to the pane,
+// so a 64 character trace id took half the width and every value after it was
+// cut. Here the key column is sized to the keys, the value column takes the
+// rest, and a value too long for it wraps under itself instead of vanishing.
 func (m Model) tabAttrs(r row) string {
-	b := &strings.Builder{}
-	b.WriteString("| attribute | value |\n| --- | --- |\n")
-	for _, kv := range m.detailTags(r) {
-		fmt.Fprintf(b, "| %s | %s |\n", kv[0], fence(kv[1]))
-	}
-	return b.String()
-}
-
-// Every value is fenced as code. A raw one is markdown to glamour: a pipe opens
-// a third column and shifts every row after it, and an email is auto-linked, so
-// user.email rendered as an empty cell and a footnote at the foot of the pane.
-func fence(s string) string {
-	s = strings.ReplaceAll(s, "\n", " ")
-	if s == "" {
+	tags := m.detailTags(r)
+	if len(tags) == 0 {
 		return ""
 	}
-	// A backtick inside the value has to be fenced by a longer run than it
-	// holds, which is CommonMark's own rule for a code span.
-	longest := 0
-	for run := 0; ; {
-		run = 0
-		for _, r := range s {
-			if r == '`' {
-				run++
-				if run > longest {
-					longest = run
-				}
-				continue
-			}
-			run = 0
-		}
-		break
+	inner := max(20, m.detailWidth()-2)
+	keyW := 0
+	for _, kv := range tags {
+		keyW = max(keyW, lipgloss.Width(kv[0]))
 	}
-	tick := strings.Repeat("`", longest+1)
-	return tick + " " + s + " " + tick
+	keyW = min(keyW, inner/3)
+	valW := max(8, inner-keyW-2)
+
+	out := []string{}
+	for _, kv := range tags {
+		// A session attribute is the same on every span of the run, so it is
+		// dimmed rather than dropped: it is context, not a fact about this row.
+		key, style := kv[0], tagText
+		if rest, ok := strings.CutPrefix(key, "session/"); ok {
+			key, style = rest, faint
+		}
+		for i, ln := range wrapTo(kv[1], valW) {
+			gutter := tagKey.Render(fit(key, keyW))
+			if i > 0 {
+				gutter = strings.Repeat(" ", keyW)
+			}
+			out = append(out, gutter+"  "+style.Render(ln))
+		}
+	}
+	return strings.Join(out, "\n")
+}
+
+// wrapTo breaks on width, and on a word where one is near enough the edge. A
+// value is usually an id with no spaces in it, so a hard break has to work.
+func wrapTo(s string, width int) []string {
+	s = strings.ReplaceAll(s, "\t", "    ")
+	s = strings.ReplaceAll(s, "\n", " ")
+	if s == "" {
+		return []string{""}
+	}
+	out := []string{}
+	for lipgloss.Width(s) > width {
+		cut := width
+		if at := strings.LastIndexAny(s[:min(len(s), width)], " /,;"); at > width/2 {
+			cut = at + 1
+		}
+		out = append(out, strings.TrimRight(s[:cut], " "))
+		s = strings.TrimLeft(s[cut:], " ")
+	}
+	return append(out, s)
 }
 
 func first(attrs map[string]string, keys ...string) string {
@@ -1902,18 +2038,32 @@ func (m Model) tabCols() []int {
 	return cols
 }
 
-func (m Model) tabBar(width int) string {
+// tabTop draws the tab row into the pane's own top border, the way the charm
+// tabs example seats a tab on the window frame. It was a separate line inside
+// the box, which cost one row of content and printed the word "inspector" over
+// a pane whose only possible identity was the inspector.
+func (m Model) tabTop(inner int) string {
 	tabs := m.tabsFor()
 	at := m.tabAt()
 	parts := []string{}
 	for i, t := range tabs {
-		style := dim
 		if i == at {
-			style = cursor
+			parts = append(parts, rule.Render(gl.tabL+" ")+title.Render(t.name)+rule.Render(" "+gl.tabR))
+			continue
 		}
-		parts = append(parts, style.Render(" "+t.name+" "))
+		parts = append(parts, rule.Render(gl.h+" ")+dim.Render(t.name)+rule.Render(" "+gl.h))
 	}
-	return fit(strings.Join(parts, faint.Render(gl.v)), width)
+	head := rule.Render(gl.tl+gl.h) + strings.Join(parts, rule.Render(gl.h))
+	// The percent earns its place only when the pane can actually scroll.
+	tail := ""
+	if m.pane.TotalLineCount() > m.pane.Height {
+		tail = " " + dim.Render(fmt.Sprintf("%.0f%%", m.pane.ScrollPercent()*100)) + " "
+	}
+	fill := inner + 2 - lipgloss.Width(head) - lipgloss.Width(tail) - 1
+	if fill < 0 {
+		fill = 0
+	}
+	return head + rule.Render(strings.Repeat(gl.h, fill)) + tail + rule.Render(gl.tr)
 }
 
 // The attribute block has its own tab; the few facts a reader checks most stay
@@ -1936,11 +2086,24 @@ func (m Model) paneStrip(width int) string {
 // sized subtracts the same three from the viewport height.
 func (m Model) paneView(inner int) string {
 	return strings.Join([]string{
-		m.tabBar(inner),
 		m.pane.View(),
 		rule.Render(strings.Repeat(gl.h, max(0, inner))),
 		m.paneStrip(inner),
 	}, "\n")
+}
+
+// boxWith is box, with the top border already drawn by the caller. The tab row
+// is that border, so it cannot be handed in as a title string.
+func boxWith(top string, inner int, body string) string {
+	if inner < 1 {
+		return body
+	}
+	out := []string{fit(top, inner+2)}
+	for _, ln := range strings.Split(body, "\n") {
+		out = append(out, rule.Render(gl.v)+fit(ln, inner)+rule.Render(gl.v))
+	}
+	out = append(out, rule.Render(gl.bl+strings.Repeat(gl.h, inner)+gl.br))
+	return strings.Join(out, "\n")
 }
 
 func box(name string, inner int, body string) string {
@@ -1974,8 +2137,17 @@ func (m Model) head() string {
 		who = m.current.Service + " " + m.current.Short()
 	}
 	left := title.Render("traces") + dim.Render("  "+who)
-	if m.query != "" {
-		left += accent.Render("  /" + m.query)
+	// The typed text shows the moment it is typed, and the applied query is
+	// what the tree is drawn from. While they differ the header carries a
+	// caret, so a pause never reads as a dropped keystroke.
+	if m.typed != "" || m.filter {
+		left += accent.Render("  /" + m.typed)
+		if m.filter {
+			left += cursor.Render(" ")
+		}
+		if m.typed != m.query {
+			left += faint.Render(gl.ell)
+		}
 	}
 	flags := []string{}
 	if m.follow {
@@ -2030,12 +2202,12 @@ func (m Model) footer() string {
 	}
 	// The bar names the focused window first, because every motion below it
 	// lands there and a reader who has moved focus has no other way to tell.
-	hint := m.focusName() + "   j k move   ctrl+d u page   ctrl+w w focus   { } turn   v range   V turn   / filter   - = size   ? help"
+	hint := "j k trace   d u inspector   { } turn   v range   V turn   m subtree   / filter   - = size   <space> t timeline   ? help"
 	return fit(dim.Render(hint), m.width)
 }
 
 func (m Model) leaderBar() string {
-	keys := []string{"f follow", "o anchor", "s session", "a all", "m one row", "i inspector", "y yank raw", "? help"}
+	keys := []string{"f follow", "o anchor", "t timeline", "s session", "a all", "m one row", "i inspector", "y yank raw", "? help"}
 	if m.pending == "i" {
 		keys = []string{"i toggle", "h left", "j bottom", "k top", "l right"}
 	}
@@ -2043,13 +2215,11 @@ func (m Model) leaderBar() string {
 }
 
 var helpTable = [][2]string{
-	{"j / k", "move one line in the focused window"},
-	{"ctrl+d / ctrl+u", "half page"},
-	{"ctrl+f / ctrl+b", "full page"},
+	{"j / k", "move one row in the trace"},
+	{"ctrl+d / ctrl+u", "half page the trace  (ctrl+f and ctrl+b page it whole)"},
+	{"d / u", "half page the inspector  (ctrl+e and ctrl+y scroll it one line)"},
 	{"gg / G", "first row / last row and resume follow"},
 	{"H / M / L", "cursor to the top, middle or bottom of the view"},
-	{"ctrl+w w", "focus the other window  (ctrl+w k tree, ctrl+w j inspector)"},
-	{"ctrl+e / ctrl+y", "scroll the inspector one line, cursor unmoved"},
 	{"{ / }", "previous turn / next turn  ([t and ]t also work)"},
 	{"n / N", "next row / previous row of the current filter"},
 	{"/", "filter the tree by text  (esc clears it)"},
@@ -2061,12 +2231,14 @@ var helpTable = [][2]string{
 	{"V / enter", "toggle the whole turn the cursor sits in"},
 	{"m", "toggle the row and its whole subtree"},
 	{"esc", "cancel a range, or clear every mark"},
-	{"Y", "yank the verbatim bytes behind the row"},
+	{"Y", "yank the row's whole text to the clipboard"},
+	{"e", "open the row's whole text in $EDITOR"},
 	{"tab / shift+tab", "next inspector tab / previous"},
 	{"- / =", "move the divider  (dragging it does the same)"},
 	{"click / wheel", "select a row, fold on the wedge, pick a tab, scroll either pane"},
+	{"<space> t", "timeline: draw each row's span beside it"},
 	{"<space> i", "inspector: i toggle, h left, j bottom, k top, l right"},
-	{"<space>", "leader: f follow, o anchor, s session, a all, m one row, y yank, ? help"},
+	{"<space>", "leader: f follow, o anchor, s session, a all, m one row, e edit, y yank, ? help"},
 	{"ZZ / q", "quit"},
 }
 
@@ -2077,7 +2249,7 @@ func viewHelp(width, height int) string {
 	}
 	// m is bound to mark here and to move in neo-tree. traces has no move, so the
 	// key is free; v stays open because neo-tree uses it for a vertical split.
-	lines = append(lines, "", dim.Render("Every motion drives the focused window, the way it does in a vim split."))
+	lines = append(lines, "", dim.Render("The trace takes j k; the inspector takes d u. Neither needs a focus mode."))
 	for len(lines) < height-2 {
 		lines = append(lines, "")
 	}
@@ -2143,10 +2315,7 @@ func (m Model) View() string {
 	main := tree
 	if p := m.placeAt(); p != placeHidden {
 		pw := max(1, m.detailWidth()-2)
-		// A bare percent next to a resizable pane reads as its size, so the
-		// title says what the number measures.
-		name := fmt.Sprintf("inspector  %.0f%% scrolled", m.pane.ScrollPercent()*100)
-		pane := box(name, pw, m.paneView(pw))
+		pane := boxWith(m.tabTop(pw), pw, m.paneView(pw))
 		switch p {
 		case placeBottom:
 			main = withGrip(tree, inner) + "\n" + pane
@@ -2411,27 +2580,44 @@ func (m Model) pickKey(k string) (tea.Model, tea.Cmd) {
 
 // The filter reads text a keystroke at a time rather than through a textinput,
 // because one line of query does not earn a component and its own focus rules.
+// A rebuild walks every span in the run, and typing a six letter filter ran six
+// of them over 900 spans while the reader was still on the second letter. The
+// query is applied after a pause instead: each keystroke stamps a tag and
+// schedules a tick carrying it, and only the tick whose tag is still current
+// does the work. This is the debounce pattern from the charm example.
+const filterPause = 120 * time.Millisecond
+
+type filterMsg int
+
 func (m Model) filterKey(msg tea.KeyMsg, k string) (tea.Model, tea.Cmd) {
 	switch k {
 	case "esc":
-		m.filter, m.query = false, ""
+		m.filter, m.typed, m.query = false, "", ""
 		m.rebuild()
 		return m.clamp(), nil
 	case "enter":
 		m.filter = false
+		// Enter commits at once. Waiting out the pause after an explicit
+		// commit would show the reader the previous query's tree.
+		m.query = m.typed
+		m.rebuild()
 		return m.clamp(), nil
 	case "backspace":
-		if m.query != "" {
-			m.query = m.query[:len(m.query)-1]
-			m.rebuild()
+		if m.typed != "" {
+			m.typed = m.typed[:len(m.typed)-1]
 		}
-		return m.clamp(), nil
+		return m.debounce()
 	}
 	if len(msg.Runes) > 0 {
-		m.query += string(msg.Runes)
-		m.rebuild()
+		m.typed += string(msg.Runes)
 	}
-	return m.clamp(), nil
+	return m.debounce()
+}
+
+func (m Model) debounce() (tea.Model, tea.Cmd) {
+	m.tag++
+	tag := m.tag
+	return m, tea.Tick(filterPause, func(time.Time) tea.Msg { return filterMsg(tag) })
 }
 
 // viewPick is the whole frame while the picker is open, because a list of runs
