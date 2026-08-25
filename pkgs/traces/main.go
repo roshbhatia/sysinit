@@ -48,9 +48,11 @@ func main() {
 	// directory, which Claude Code already records per directory.
 	which := attached(*pinned, *all)
 	scope := []string{}
+	directory := ""
 	if !*all && *pinned == "" {
 		if here, err := os.Getwd(); err == nil {
 			scope = attach.Scope(here)
+			directory = here
 		}
 	}
 
@@ -81,9 +83,9 @@ func main() {
 	src := sources{path: path, providers: providers, back: *back, every: *every, lag: *lag, service: *service}
 
 	if *asJSON || *list || *once {
-		os.Exit(src.report(which, scope, *list, *asJSON))
+		os.Exit(src.report(which, scope, directory, *list, *asJSON))
 	}
-	os.Exit(src.watch(which, scope))
+	os.Exit(src.watch(which, scope, directory))
 }
 
 // attached names the run to open. A flag wins, then the session this process
@@ -170,7 +172,7 @@ func (s sources) keep(in otlp.Batch) otlp.Batch {
 	return out
 }
 
-func (s sources) report(which string, scope []string, listing, asJSON bool) int {
+func (s sources) report(which string, scope []string, directory string, listing, asJSON bool) int {
 	batch, err := s.read()
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "traces: %v\n", err)
@@ -193,16 +195,15 @@ func (s sources) report(which string, scope []string, listing, asJSON bool) int 
 		}
 		return 0
 	}
-	return show(batch, s.name(), which, scope, listing)
+	return show(batch, s.name(), which, scope, directory, listing)
 }
 
 // show is the non-interactive half of both sources, so a provider prints the
 // same list and the same tree the file does.
-func show(batch otlp.Batch, from, which string, scope []string, listing bool) int {
+func show(batch otlp.Batch, from, which string, scope []string, directory string, listing bool) int {
 	store := session.NewStore()
-	store.Scope(scope)
-	store.Add(batch.Spans)
-	store.AddRecords(batch.Records)
+	store.Scope(scope, directory)
+	store.AddBatch(batch)
 
 	if listing {
 		fmt.Fprintf(os.Stderr, "traces: %d spans and %d records from %s\n", len(batch.Spans), len(batch.Records), from)
@@ -289,7 +290,7 @@ func pick(store *session.Store, which string) *session.Session {
 // watch follows every source at once. Each writes into the same channel, and
 // the file's own closer is the one that ends it: a provider poll is slow and
 // the file is the source that is always present.
-func (s sources) watch(which string, scope []string) int {
+func (s sources) watch(which string, scope []string, directory string) int {
 	stop := make(chan struct{})
 	batches := make(chan otlp.Batch, 32)
 
@@ -353,14 +354,14 @@ func (s sources) watch(which string, scope []string) int {
 		}
 	}()
 
-	return run(batches, stop, which, scope, s.name())
+	return run(batches, stop, which, scope, directory, s.name())
 }
 
 // run owns the program either way. Follow owns its own goroutine, so the spans
 // arrive as messages rather than as a blocking read inside Update.
-func run(batches chan otlp.Batch, stop chan struct{}, which string, scope []string, from string) int {
+func run(batches chan otlp.Batch, stop chan struct{}, which string, scope []string, directory, from string) int {
 	store := session.NewStore()
-	store.Scope(scope)
+	store.Scope(scope, directory)
 	program := tea.NewProgram(
 		ui.New(store, which, from),
 		tea.WithAltScreen(),

@@ -190,6 +190,8 @@ func Encode(w io.Writer, batch otlp.Batch) error {
 	}
 	for _, one := range batch.Records {
 		if err := enc.Encode(line{
+			TraceID: one.TraceID,
+			SpanID:  one.SpanID,
 			Event:   one.Event,
 			Name:    one.Body,
 			Service: one.Service,
@@ -254,10 +256,12 @@ func Decode(blob []byte) otlp.Batch {
 		}
 		if one.Event != "" {
 			out.Records = append(out.Records, otlp.Record{
+				TraceID: one.TraceID,
+				SpanID:  one.SpanID,
 				Event:   one.Event,
 				Body:    one.Name,
 				Service: orAttr(one.Service, attrs, "service.name"),
-				Session: orAttr(one.Session, attrs, "session.id"),
+				Session: sessionOf(one.Session, attrs),
 				At:      otlp.Stamp(one.Start),
 				Attrs:   attrs,
 			})
@@ -272,7 +276,7 @@ func Decode(blob []byte) otlp.Batch {
 			ParentID: one.ParentID,
 			Name:     one.Name,
 			Service:  orAttr(one.Service, attrs, "service.name"),
-			Session:  orAttr(one.Session, attrs, "session.id"),
+			Session:  sessionOf(one.Session, attrs),
 			Start:    otlp.Stamp(one.Start),
 			End:      otlp.Stamp(one.End),
 			Attrs:    attrs,
@@ -295,6 +299,18 @@ func orAttr(given string, attrs map[string]string, key string) string {
 		return given
 	}
 	return attrs[key]
+}
+
+func sessionOf(given string, attrs map[string]string) string {
+	if given != "" {
+		return given
+	}
+	for _, key := range []string{"session.id", "conversation.id", "thread_id", "ai.telemetry.metadata.sessionId"} {
+		if attrs[key] != "" {
+			return attrs[key]
+		}
+	}
+	return ""
 }
 
 // Follow polls the provider and sends only the spans it has not sent before.

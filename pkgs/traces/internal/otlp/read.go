@@ -34,6 +34,8 @@ func (s Span) Duration() time.Duration { return s.End.Sub(s.Start) }
 // span: Claude Code emits the prompt text as claude_code.user_prompt rather
 // than as an attribute of the turn, so the turn row has no text without this.
 type Record struct {
+	TraceID string
+	SpanID  string
 	Event   string
 	Body    string
 	Service string
@@ -105,6 +107,8 @@ type wireSpan struct {
 }
 
 type wireRecord struct {
+	TraceID   string `json:"traceId"`
+	SpanID    string `json:"spanId"`
 	Time      string `json:"timeUnixNano"`
 	Observed  string `json:"observedTimeUnixNano"`
 	EventName string `json:"eventName"`
@@ -178,10 +182,12 @@ func Decode(line []byte) Batch {
 					event = raw.EventName
 				}
 				out.Records = append(out.Records, Record{
+					TraceID: raw.TraceID,
+					SpanID:  raw.SpanID,
 					Event:   event,
 					Body:    raw.Body.StringValue,
 					Service: attrs["service.name"],
-					Session: attrs["session.id"],
+					Session: sessionID(attrs),
 					At:      at,
 					Attrs:   attrs,
 				})
@@ -210,7 +216,7 @@ func Decode(line []byte) Batch {
 					ParentID: raw.ParentSpanID,
 					Name:     raw.Name,
 					Service:  attrs["service.name"],
-					Session:  attrs["session.id"],
+					Session:  sessionID(attrs),
 					Start:    stamp(raw.Start),
 					End:      stamp(raw.End),
 					Attrs:    attrs,
@@ -227,6 +233,15 @@ func Decode(line []byte) Batch {
 		}
 	}
 	return out
+}
+
+func sessionID(attrs map[string]string) string {
+	for _, key := range []string{"session.id", "conversation.id", "thread_id", "ai.telemetry.metadata.sessionId"} {
+		if attrs[key] != "" {
+			return attrs[key]
+		}
+	}
+	return ""
 }
 
 // Follow reads path to its end, then keeps watching for new lines. It sends one

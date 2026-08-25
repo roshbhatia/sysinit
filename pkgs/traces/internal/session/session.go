@@ -6,6 +6,7 @@ package session
 import (
 	"fmt"
 	"maps"
+	"path/filepath"
 	"sort"
 	"strconv"
 	"strings"
@@ -85,6 +86,7 @@ type Session struct {
 	prompts []otlp.Record
 	texts   map[string]otlp.Record
 	results map[string]otlp.Record
+	dirs    map[string]bool
 	dirty   bool
 }
 
@@ -114,17 +116,22 @@ func (s *Session) Short() string {
 }
 
 type Store struct {
-	sessions map[string]*Session
-	scope    map[string]bool
+	sessions      map[string]*Session
+	scope         map[string]bool
+	scopeDir      string
+	traceSessions map[string]string
 }
 
-func NewStore() *Store { return &Store{sessions: map[string]*Session{}} }
+func NewStore() *Store {
+	return &Store{sessions: map[string]*Session{}, traceSessions: map[string]string{}}
+}
 
 // Scope narrows the store to a set of session ids, which is how traces opens on
 // the runs that belong to the reader's working directory rather than on
 // whichever run happens to be newest across the machine. An empty set is no
 // scope at all.
-func (s *Store) Scope(ids []string) {
+func (s *Store) Scope(ids []string, dir string) {
+	s.scopeDir = cleanDir(dir)
 	if len(ids) == 0 {
 		s.scope = nil
 		return
@@ -137,13 +144,35 @@ func (s *Store) Scope(ids []string) {
 
 // Scoped reports whether a scope is in force, so a caller can say why the view
 // is empty rather than leaving the reader to guess.
-func (s *Store) Scoped() bool { return len(s.scope) > 0 }
+func (s *Store) Scoped() bool { return len(s.scope) > 0 || s.scopeDir != "" }
 
 func (s *Store) inScope(one *Session) bool {
-	if len(s.scope) == 0 {
+	if len(s.scope) == 0 && s.scopeDir == "" {
 		return true
 	}
-	return s.scope[one.ID]
+	if s.scope[one.ID] {
+		return true
+	}
+	for dir := range one.dirs {
+		if s.scopeDir == dir || strings.HasPrefix(s.scopeDir, dir+string(filepath.Separator)) {
+			return true
+		}
+	}
+	return false
+}
+
+func cleanDir(dir string) string {
+	if dir == "" {
+		return ""
+	}
+	abs, err := filepath.Abs(dir)
+	if err != nil {
+		abs = dir
+	}
+	if real, err := filepath.EvalSymlinks(abs); err == nil {
+		abs = real
+	}
+	return filepath.Clean(abs)
 }
 
 // key puts every span of one agent run together. opencode and codex emit no
@@ -208,6 +237,7 @@ func (s *Session) clone(service string) *Session {
 		prompts: append([]otlp.Record{}, s.prompts...),
 		texts:   maps.Clone(s.texts),
 		results: maps.Clone(s.results),
+		dirs:    maps.Clone(s.dirs),
 		dirty:   true,
 	}
 	if out.texts == nil {
@@ -232,6 +262,10 @@ func (s *Session) absorb(other *Session) {
 	s.prompts = append(s.prompts, other.prompts...)
 	maps.Copy(s.texts, other.texts)
 	maps.Copy(s.results, other.results)
+	if s.dirs == nil {
+		s.dirs = map[string]bool{}
+	}
+	maps.Copy(s.dirs, other.dirs)
 	if other.First.Before(s.First) {
 		s.First = other.First
 	}
@@ -239,6 +273,32 @@ func (s *Session) absorb(other *Session) {
 		s.Last = other.Last
 	}
 	s.dirty = true
+}
+
+// AddBatch joins Codex's `conversation.id` logs to spans that share their trace.
+func (s *Store) AddBatch(batch otlp.Batch) {
+	for _, one := range batch.Spans {
+		if one.TraceID != "" && one.Session != "" {
+			s.traceSessions[one.TraceID] = one.Session
+		}
+	}
+	for _, one := range batch.Records {
+		if one.TraceID != "" && one.Session != "" {
+			s.traceSessions[one.TraceID] = one.Session
+		}
+	}
+	for i := range batch.Spans {
+		if batch.Spans[i].Session == "" {
+			batch.Spans[i].Session = s.traceSessions[batch.Spans[i].TraceID]
+		}
+	}
+	for i := range batch.Records {
+		if batch.Records[i].Session == "" {
+			batch.Records[i].Session = s.traceSessions[batch.Records[i].TraceID]
+		}
+	}
+	s.Add(batch.Spans)
+	s.AddRecords(batch.Records)
 }
 
 func (s *Store) Add(spans []otlp.Span) {
@@ -255,6 +315,7 @@ func (s *Store) Add(spans []otlp.Span) {
 				ID:      span.Session,
 				First:   span.Start,
 				spans:   map[string]otlp.Span{},
+				dirs:    map[string]bool{},
 			}
 			s.sessions[id] = found
 		}
@@ -262,6 +323,9 @@ func (s *Store) Add(spans []otlp.Span) {
 			found.Count++
 		}
 		found.spans[span.SpanID] = span
+		if dir := cleanDir(span.Attrs["cwd"]); dir != "" {
+			found.dirs[dir] = true
+		}
 		found.dirty = true
 		if span.Start.Before(found.First) {
 			found.First = span.Start
@@ -364,8 +428,14 @@ func (s *Store) hold(one otlp.Record) *Session {
 	id := recordKey(one)
 	found, ok := s.sessions[id]
 	if !ok {
-		found = &Session{Key: id, Service: one.Service, ID: one.Session, First: one.At, spans: map[string]otlp.Span{}}
+		found = &Session{
+			Key: id, Service: one.Service, ID: one.Session, First: one.At,
+			spans: map[string]otlp.Span{}, dirs: map[string]bool{},
+		}
 		s.sessions[id] = found
+	}
+	if dir := cleanDir(one.Attrs["cwd"]); dir != "" {
+		found.dirs[dir] = true
 	}
 	if found.texts == nil {
 		found.texts = map[string]otlp.Record{}
@@ -395,6 +465,9 @@ func (s *Session) attachText(nodes map[string]*Node) {
 func recordKey(one otlp.Record) string {
 	if one.Session != "" {
 		return one.Service + "/" + one.Session
+	}
+	if one.TraceID != "" {
+		return one.Service + "/trace/" + one.TraceID
 	}
 	return one.Service + "/log"
 }

@@ -318,8 +318,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		return m.clamp(), nil
 	case BatchMsg:
 		before := len(m.rows)
-		m.store.Add(msg.Spans)
-		m.store.AddRecords(msg.Records)
+		m.store.AddBatch(otlp.Batch(msg))
 		m.reload()
 		if m.follow && len(m.rows) > before {
 			if vis := m.visible(); len(vis) > 0 {

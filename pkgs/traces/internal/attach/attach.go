@@ -16,11 +16,16 @@ import (
 	"github.com/roshbhatia/sysinit/pkgs/internal/workspace"
 )
 
-// Env is the session id Claude Code exports to everything it runs, so a traces
-// started from inside a session knows which one without a flag.
-const Env = "CLAUDE_CODE_SESSION_ID"
+var sessionEnvs = []string{"CLAUDE_CODE_SESSION_ID", "CODEX_SESSION_ID", "CODEX_THREAD_ID"}
 
-func Current() string { return strings.TrimSpace(os.Getenv(Env)) }
+func Current() string {
+	for _, name := range sessionEnvs {
+		if id := strings.TrimSpace(os.Getenv(name)); id != "" {
+			return id
+		}
+	}
+	return ""
+}
 
 // dirName is Claude Code's encoding: every character that is not a letter or a
 // digit becomes a dash. /Users/x/work reads as -Users-x-work.
