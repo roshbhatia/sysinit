@@ -24,6 +24,7 @@ package transcript
 import (
 	"bufio"
 	"encoding/json"
+	"fmt"
 	"maps"
 	"os"
 	"path/filepath"
@@ -295,8 +296,15 @@ func build(entries []entry, sessionID, title string) otlp.Batch {
 			if turn == nil {
 				continue
 			}
+			// A compaction is not a note. It is where the run lost its own
+			// history, which is the single most useful landmark in a long one,
+			// and traces already draws it as its own kind.
+			name := "agent.note"
+			if strings.Contains(e.Subtype, "compact") {
+				name = "agent.compact"
+			}
 			note := &node{
-				id: e.UUID, parent: turn.id, start: e.at, end: e.at, name: "agent.note",
+				id: e.UUID, parent: turn.id, start: e.at, end: e.at, name: name,
 				attrs: with(base, map[string]string{
 					"note.kind": orDash(e.Subtype), "note.level": orDash(e.Level),
 					"note.text": flatten(e.Content),
@@ -508,7 +516,7 @@ func (e entry) calls(parent *node, extra map[string]string) []*node {
 		delete(attrs, "user_prompt_length")
 		delete(attrs, "interaction.sequence")
 		maps.Copy(attrs, extra)
-		maps.Copy(attrs, argsOf(b.Name, b.Input))
+		maps.Copy(attrs, argsOf(b.Name, b.Input, attrs["cwd"]))
 		// The call is requested when the reply ends, and the result stamps the
 		// end. Until it arrives the span is a point, which is what an open tool
 		// call is.
@@ -527,7 +535,7 @@ var editors = map[string]bool{"Edit": true, "Write": true, "NotebookEdit": true}
 // argsOf lifts the arguments a reader actually reads onto the span. full_command
 // and file_path are the two keys the rest of traces already looks for, so a
 // transcript-built row reads the same as an OTLP-built one.
-func argsOf(tool string, raw json.RawMessage) map[string]string {
+func argsOf(tool string, raw json.RawMessage, cwd string) map[string]string {
 	out := map[string]string{}
 	if len(raw) == 0 {
 		return out
@@ -550,17 +558,26 @@ func argsOf(tool string, raw json.RawMessage) map[string]string {
 		}
 	}
 	if v := text("file_path"); v != "" {
-		out["file_path"] = v
+		// The repository relative path is what a reader recognises. The absolute
+		// one spent 45 of the preview's columns on a prefix every row shared.
+		out["file_path"] = relative(cwd, v)
 		if out["full_command"] == "" {
-			out["full_command"] = v
+			out["full_command"] = out["file_path"]
 		}
 	}
-	if v := text("old_string"); v != "" {
-		out["edit.before"] = v
-		out["edit.after"] = text("new_string")
+	// An edit is drawn as a diff, and Claude Code records a replacement rather
+	// than a diff, so the diff is built here. Codex hands over a unified diff
+	// already; without this a Claude edit rendered as a wall of arguments.
+	before, after := text("old_string"), text("new_string")
+	if before == "" && after == "" {
+		after = text("content")
 	}
-	if v := text("content"); v != "" && out["edit.before"] == "" {
-		out["edit.after"] = v
+	if before != "" || after != "" {
+		patch, added, removed := unified(out["file_path"], before, after)
+		out["traces.patch"] = patch
+		out["lines_added"] = strconv.Itoa(added)
+		out["lines_removed"] = strconv.Itoa(removed)
+		out["files_changed"] = "1"
 	}
 	// Whatever is left is still worth keeping: a reader who opens the attrs tab
 	// on a tool they do not recognise should see what it was handed.
@@ -570,6 +587,51 @@ func argsOf(tool string, raw json.RawMessage) map[string]string {
 	out["tool_input_size_bytes"] = strconv.Itoa(len(raw))
 	_ = tool
 	return out
+}
+
+// unified turns one replacement into one hunk. An Edit swaps a contiguous block,
+// so every old line is a deletion and every new line an addition: no line
+// matching is needed, and inventing a smarter diff here would only disagree with
+// the editor about what actually changed.
+func unified(path, before, after string) (string, int, int) {
+	if path == "" {
+		path = "edit"
+	}
+	oldPath, newPath := path, path
+	if before == "" {
+		oldPath = "/dev/null"
+	}
+	if after == "" {
+		newPath = "/dev/null"
+	}
+	del := lines(before)
+	add := lines(after)
+	b := &strings.Builder{}
+	fmt.Fprintf(b, "--- %s\n+++ %s\n", oldPath, newPath)
+	fmt.Fprintf(b, "@@ -1,%d +1,%d @@\n", len(del), len(add))
+	for _, one := range del {
+		fmt.Fprintf(b, "-%s\n", one)
+	}
+	for _, one := range add {
+		fmt.Fprintf(b, "+%s\n", one)
+	}
+	return b.String(), len(add), len(del)
+}
+
+// relative trims the working directory off a path inside it. A path elsewhere is
+// left absolute, because that is the fact worth seeing about it.
+func relative(cwd, path string) string {
+	if cwd == "" || !strings.HasPrefix(path, cwd) {
+		return path
+	}
+	return strings.TrimPrefix(strings.TrimPrefix(path, cwd), "/")
+}
+
+func lines(text string) []string {
+	if text == "" {
+		return nil
+	}
+	return strings.Split(strings.TrimRight(text, "\n"), "\n")
 }
 
 func attrsOf(entries []entry, title string) map[string]string {
