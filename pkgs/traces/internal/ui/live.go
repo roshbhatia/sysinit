@@ -1437,9 +1437,24 @@ func tokens(n int) string {
 // spans overlap, so summing them double counts, and the parent already carries
 // its own wall clock, which is the honest number.
 func (m Model) rollup(idx int) int {
-	total := m.rows[idx].in + m.rows[idx].out
+	// One request's tokens can sit on more than one span: a tool call carries
+	// the request that asked for it. Summing them said a turn spent 1.5m tokens
+	// against a model that holds 1m, which is the arithmetic of counting the
+	// same request once per row it touched.
+	seen := map[string]bool{}
+	total := 0
+	add := func(r row) {
+		if id := r.request(); id != "" {
+			if seen[id] {
+				return
+			}
+			seen[id] = true
+		}
+		total += r.in + r.out
+	}
+	add(m.rows[idx])
 	for i := idx + 1; i < len(m.rows) && m.rows[i].depth > m.rows[idx].depth; i++ {
-		total += m.rows[i].in + m.rows[i].out
+		add(m.rows[i])
 	}
 	return total
 }

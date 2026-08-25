@@ -332,3 +332,13 @@ func (r row) command() string {
 	}
 	return r.preview
 }
+
+// request names the model call this row belongs to. A tool row carries the id of
+// the call that asked for it, which is what lets a rollup count one request's
+// tokens once rather than once per row it touched.
+func (r row) request() string {
+	if r.node == nil {
+		return ""
+	}
+	return r.node.Span.Attrs["request_id"]
+}

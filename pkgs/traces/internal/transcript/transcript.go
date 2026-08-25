@@ -281,13 +281,19 @@ func build(entries []entry, sessionID, title string) otlp.Batch {
 				models[id] = found
 				order = append(order, found)
 			}
-			under := turn
+			// The request's counts ride the tool only when the model call was
+			// collapsed and has no row of its own. Putting them on both put one
+			// request's tokens on two spans, and a turn that summed its subtree
+			// then reported more context than the model can hold: 317 of 1237
+			// requests in one session were counted twice.
+			under, usage := turn, e.usageAttrs()
 			if found != nil {
 				found.attrs["request_id"] = id
 				e.foldInto(found)
 				under = found
+				usage = map[string]string{"request_id": id}
 			}
-			for _, one := range e.calls(under, e.usageAttrs()) {
+			for _, one := range e.calls(under, usage) {
 				tools[one.id] = one
 				order = append(order, one)
 			}

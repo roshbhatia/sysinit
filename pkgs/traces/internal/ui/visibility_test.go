@@ -71,3 +71,40 @@ func TestEmptyBatchChangesNothing(t *testing.T) {
 		t.Errorf("rows %d -> %d, cmd %v", rows, len(out.rows), cmd)
 	}
 }
+
+// Tristan read a turn's cost as 1.5m against a model that holds 1m. One request
+// had its counts on both the model span and the tool span it asked for, so the
+// rollup counted it twice.
+func TestRollupCountsARequestOnce(t *testing.T) {
+	now := time.Now()
+	usage := map[string]string{
+		"traces.view": "activity", "request_id": "req_1",
+		"cache_read_tokens": "900000", "output_tokens": "100",
+	}
+	tool := map[string]string{"traces.view": "activity", "tool_name": "Bash"}
+	for key, value := range usage {
+		tool[key] = value
+	}
+	store := session.NewStore()
+	store.Add([]otlp.Span{
+		{SpanID: "turn", Name: "agent.turn", Service: "claude-code", Session: "one",
+			Start: now, End: now.Add(time.Second),
+			Attrs: map[string]string{"traces.view": "activity", "user_prompt": "go"}},
+		{SpanID: "req_1", ParentID: "turn", Name: "agent.model", Service: "claude-code", Session: "one",
+			Start: now, End: now, Attrs: usage},
+		{SpanID: "t1", ParentID: "req_1", Name: "agent.tool", Service: "claude-code", Session: "one",
+			Start: now, End: now, Attrs: tool},
+	})
+	m := New(store, "one", "test")
+	mm, _ := m.Update(tea.WindowSizeMsg{Width: 120, Height: 20})
+	v := mm.(Model)
+
+	want := 900100
+	for i, r := range v.rows {
+		if r.kind == kindTurn || r.kind == kindPrompt {
+			if got := v.rollup(i); got != want {
+				t.Errorf("%s rollup = %d, want %d", r.label, got, want)
+			}
+		}
+	}
+}
