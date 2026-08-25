@@ -75,6 +75,10 @@ type Provider struct {
 	Directory string
 	// read is set on a builtin, and Binary is empty there.
 	read func(context.Context, Query) (otlp.Batch, error)
+	// harnesses are the services this source answers for. It is empty on a
+	// source the caller named directly, which is a deliberate escape hatch and
+	// is never scoped.
+	harnesses []string
 }
 
 // Query scopes every provider read to the same session, workspace, and window.
@@ -100,16 +104,19 @@ var builtin = map[string]func(context.Context, Query) (otlp.Batch, error){
 	},
 }
 
-// Resolve turns a comma separated list of names or paths into providers. Two
-// sources answer different questions on the same machine: Observe holds the
-// spans an org redirects there, and the transcript holds the text no span
-// carries. Asking for one used to mean giving up the other.
+// Resolve picks the sources to read. An explicit ask, from the flag or from the
+// environment, is taken as given and never scoped: it is the escape hatch for a
+// one-off read. With no ask, the per-harness table decides, and a source whose
+// harness the reader filtered out is not fetched at all.
 //
-// An empty ask, with nothing in the environment either, means the caller wants
-// the collector file alone.
-func Resolve(ask string) ([]*Provider, error) {
+// The collector file is read either way. Only one harness on a machine usually
+// needs a source beyond it.
+func Resolve(ask, service string) ([]*Provider, error) {
 	if ask == "" {
 		ask = strings.TrimSpace(os.Getenv(Env))
+	}
+	if ask == "" {
+		return declared(service)
 	}
 	out := []*Provider{}
 	seen := map[string]bool{}
@@ -133,6 +140,24 @@ func Resolve(ask string) ([]*Provider, error) {
 		if err != nil {
 			return nil, err
 		}
+		out = append(out, found)
+	}
+	return out, nil
+}
+
+// declared resolves the config table. A source the table names but the machine
+// does not carry is dropped with a warning rather than failing the read: the
+// table is shared configuration, and a harness that is not installed here is
+// the normal case rather than an error.
+func declared(service string) ([]*Provider, error) {
+	out := []*Provider{}
+	for _, one := range wanted(Config(), service) {
+		found, err := resolveOne(one.Name)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "traces: skipped %v\n", err)
+			continue
+		}
+		found.harnesses = one.harnesses
 		out = append(out, found)
 	}
 	return out, nil

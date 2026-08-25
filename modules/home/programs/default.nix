@@ -47,6 +47,7 @@ in
         ./otel-collector.nix
         ./otel-tui.nix
         ./seshy
+        ./traces.nix
         ./yazi
       ];
 

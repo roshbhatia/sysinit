@@ -34,7 +34,7 @@ func main() {
 	pinned := flag.String("session", "", "attach to this session, by id or prefix")
 	list := flag.Bool("list", false, "list the sessions and exit")
 	once := flag.Bool("once", false, "print the tree once and exit; status 2 when a span failed")
-	asked := flag.String("provider", "", "comma separated providers to read beside the collector file; `transcript` reads harness activity streams (default: $"+source.Env+")")
+	asked := flag.String("provider", "", "read exactly these sources, comma separated, instead of the ones declared per harness in "+source.ConfigFile())
 	back := flag.Duration("since", 2*time.Hour, "with a provider, how far back the first read reaches")
 	every := flag.Duration("poll", 15*time.Second, "with a provider, how often to re-read")
 	lag := flag.Duration("lag", 90*time.Second, "with a provider, how much every poll overlaps the last")
@@ -56,7 +56,7 @@ func main() {
 		}
 	}
 
-	providers, err := source.Resolve(*asked)
+	providers, err := source.Resolve(*asked, *service)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "traces: %v\n", err)
 		os.Exit(1)
@@ -120,6 +120,11 @@ func (s sources) name() string {
 	}
 	for _, one := range s.providers {
 		where += " and " + one.Name
+		// A source declared for one harness is read for that harness only, and
+		// a header saying only "and observe" hides which run it answered for.
+		if who := one.For(); who != "" {
+			where += "(" + who + ")"
+		}
 	}
 	return where
 }
