@@ -111,14 +111,7 @@ func rowOf(node *session.Node, depth int) row {
 		fail:   node.Span.Failed,
 		parent: len(node.Children) > 0,
 	}
-	// A turn's text is its prompt, which arrives as a log record. Without it a
-	// turn row reads "open" and says nothing about what was asked.
-	if node.Prompt != "" {
-		out.preview = oneLine(node.Prompt)
-	}
-	if out.preview == "" {
-		out.preview = preview(node)
-	}
+	out.preview = Line(node)
 	// The span column already carries the label, so a preview that repeats it
 	// spends the widest column on a second copy. Every codex row read `auth`
 	// beside `auth`, and every amp row read `fetch /api/…` beside the same URL.
@@ -126,6 +119,31 @@ func rowOf(node *session.Node, depth int) row {
 		out.preview = strings.TrimSpace(strings.TrimPrefix(out.preview, out.label))
 	}
 	return out
+}
+
+// Line is the one line of text under a row's label. Both the pane and the
+// printed tree call it, because they disagreed for a release: the printed tree
+// read Note alone, so every Bash row said "Bash" while the pane showed the
+// command.
+//
+// The order is what the reader most wants to know first. A reply the transcript
+// carries beats a stop reason derived from the span, and a turn's prompt beats
+// both, because a turn row with no prompt says only "open".
+func Line(node *session.Node) string {
+	switch {
+	case node.Prompt != "":
+		return oneLine(node.Prompt)
+	case node.Text != "":
+		return oneLine(node.Text)
+	case node.Thinking != "":
+		return oneLine(node.Thinking)
+	case node.Note != "":
+		if arg := preview(node); arg != "" && arg != node.Label {
+			return arg
+		}
+		return oneLine(node.Note)
+	}
+	return preview(node)
 }
 
 // preview is the one line of text under the label. The attribute that carries
@@ -185,4 +203,13 @@ func (r row) prompt() string {
 		return r.node.Prompt
 	}
 	return r.preview
+}
+
+// output is what the tool actually printed. It comes from the transcript, so it
+// is empty on a run traces read from spans alone.
+func (r row) output() string {
+	if r.node == nil {
+		return ""
+	}
+	return r.node.Output
 }

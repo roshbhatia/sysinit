@@ -30,13 +30,9 @@ func printKids(out io.Writer, node *session.Node, prefix string) {
 }
 
 // say is the one line of text under a row, cut to fit a terminal beside the
-// label and the duration. The printed tree carried only Note, so every Bash row
-// read as a bare "Bash" while the TUI showed the command it ran.
+// label and the duration.
 func say(node *session.Node) string {
-	text := oneLine(node.Note)
-	if arg := preview(node); arg != "" && arg != node.Label {
-		text = arg
-	}
+	text := Line(node)
 	if text == "" {
 		return ""
 	}

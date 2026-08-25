@@ -5,12 +5,14 @@ package session
 
 import (
 	"fmt"
+	"maps"
 	"sort"
 	"strconv"
 	"strings"
 	"time"
 
 	"github.com/roshbhatia/sysinit/pkgs/traces/internal/otlp"
+	"github.com/roshbhatia/sysinit/pkgs/traces/internal/transcript"
 )
 
 type Role string
@@ -46,7 +48,13 @@ type Node struct {
 	Note  string
 	// Prompt is the text that opened this turn. It arrives as a log record
 	// rather than as a span attribute, so only a turn carries one.
-	Prompt   string
+	Prompt string
+	// Text, Thinking and Output are what the harness wrote to disk and never
+	// exported. They come from the transcript package, joined on the request or
+	// the tool use id, and stay empty when no transcript was read.
+	Text     string
+	Thinking string
+	Output   string
 	Children []*Node
 	Facets   []otlp.Span
 	Pending  bool
@@ -75,6 +83,8 @@ type Session struct {
 
 	spans   map[string]otlp.Span
 	prompts []otlp.Record
+	texts   map[string]otlp.Record
+	results map[string]otlp.Record
 	dirty   bool
 }
 
@@ -196,7 +206,15 @@ func (s *Session) clone(service string) *Session {
 		Count:   s.Count,
 		spans:   make(map[string]otlp.Span, len(s.spans)),
 		prompts: append([]otlp.Record{}, s.prompts...),
+		texts:   maps.Clone(s.texts),
+		results: maps.Clone(s.results),
 		dirty:   true,
+	}
+	if out.texts == nil {
+		out.texts = map[string]otlp.Record{}
+	}
+	if out.results == nil {
+		out.results = map[string]otlp.Record{}
 	}
 	for id, span := range s.spans {
 		out.spans[id] = span
@@ -212,6 +230,8 @@ func (s *Session) absorb(other *Session) {
 		s.spans[id] = span
 	}
 	s.prompts = append(s.prompts, other.prompts...)
+	maps.Copy(s.texts, other.texts)
+	maps.Copy(s.results, other.results)
 	if other.First.Before(s.First) {
 		s.First = other.First
 	}
@@ -303,29 +323,70 @@ func (s *Store) Session(id string) *Session {
 	return nil
 }
 
-// AddRecords keeps the log records a row can carry. Only the prompt is kept:
-// every other event this harness logs is already a span, and a second copy of
-// it would double every row.
+// AddRecords keeps the log records a row can carry: the prompt that opened a
+// turn, and the reply and tool output the transcript holds. Every other event a
+// harness logs is already a span, and a second copy of it would double the row.
 func (s *Store) AddRecords(records []otlp.Record) {
 	for _, one := range records {
-		if !strings.HasSuffix(one.Event, "user_prompt") {
-			continue
+		switch {
+		case strings.HasSuffix(one.Event, "user_prompt"):
+			if one.Attrs["prompt"] == "" {
+				continue
+			}
+			found := s.hold(one)
+			found.prompts = append(found.prompts, one)
+			found.dirty = true
+		case one.Event == transcript.EventText:
+			id := one.Attrs["request_id"]
+			if id == "" {
+				continue
+			}
+			found := s.hold(one)
+			found.texts[id] = one
+			found.dirty = true
+		case one.Event == transcript.EventResult:
+			id := one.Attrs["tool_use_id"]
+			if id == "" {
+				continue
+			}
+			found := s.hold(one)
+			found.results[id] = one
+			found.dirty = true
 		}
-		text := one.Attrs["prompt"]
-		if text == "" {
-			continue
+	}
+}
+
+// hold finds the session a record belongs to, opening one when the record
+// arrived first. A prompt reaches the collector before the turn span closes, so
+// a session can be prompt first, and holding it saves the first turn from
+// reading as untitled.
+func (s *Store) hold(one otlp.Record) *Session {
+	id := recordKey(one)
+	found, ok := s.sessions[id]
+	if !ok {
+		found = &Session{Key: id, Service: one.Service, ID: one.Session, First: one.At, spans: map[string]otlp.Span{}}
+		s.sessions[id] = found
+	}
+	if found.texts == nil {
+		found.texts = map[string]otlp.Record{}
+	}
+	if found.results == nil {
+		found.results = map[string]otlp.Record{}
+	}
+	return found
+}
+
+// attachText joins the transcript back to the spans. A model span carries the
+// request id the reply was written under, and a tool span the tool use id its
+// result was written under, so both are a map lookup rather than a time match.
+func (s *Session) attachText(nodes map[string]*Node) {
+	for _, node := range nodes {
+		if found, ok := s.texts[node.Span.Attrs["request_id"]]; ok {
+			node.Text, node.Thinking = found.Body, found.Attrs["thinking"]
 		}
-		id := recordKey(one)
-		found, ok := s.sessions[id]
-		if !ok {
-			// The prompt reaches the collector before the turn span closes, so
-			// a session can be prompt first. Holding it costs one string and
-			// saves the first turn from reading as untitled.
-			found = &Session{Key: id, Service: one.Service, ID: one.Session, First: one.At, spans: map[string]otlp.Span{}}
-			s.sessions[id] = found
+		if found, ok := s.results[node.Span.Attrs["tool_use_id"]]; ok {
+			node.Output = found.Body
 		}
-		found.prompts = append(found.prompts, one)
-		found.dirty = true
 	}
 }
 
@@ -425,6 +486,8 @@ func (s *Session) rebuild() {
 		}
 		stand.Children = append(stand.Children, node)
 	}
+
+	s.attachText(nodes)
 
 	for _, node := range nodes {
 		sortKids(node)
