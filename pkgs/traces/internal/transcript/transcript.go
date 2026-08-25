@@ -293,7 +293,7 @@ func build(entries []entry, sessionID, title string) otlp.Batch {
 			}
 
 		case e.Type == "system":
-			if turn == nil {
+			if turn == nil || quietNotes[e.Subtype] {
 				continue
 			}
 			// A compaction is not a note. It is where the run lost its own
@@ -526,6 +526,15 @@ func (e entry) calls(parent *node, extra map[string]string) []*node {
 		})
 	}
 	return out
+}
+
+// The harness writes its own bookkeeping as system entries. A row saying
+// "turn_duration -" tells a reader nothing they cannot read in the time column,
+// and there is one per turn.
+var quietNotes = map[string]bool{
+	"turn_duration": true,
+	"token_usage":   true,
+	"atis_latch":    true,
 }
 
 // A write is drawn as a diff rather than as a blob of arguments, so it is named

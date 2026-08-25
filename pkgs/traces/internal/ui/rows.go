@@ -174,8 +174,11 @@ func kidNames(node *session.Node) string {
 // it differs per harness, so the first one present wins; full_command is where
 // Claude Code puts a tool's real argument.
 func preview(node *session.Node) string {
+	if text := node.Span.Attrs["full_command"]; text != "" {
+		return oneLine(trimLead(text))
+	}
 	for _, key := range []string{
-		"note.text", "full_command", "command", "prompt", "user_prompt",
+		"note.text", "command", "prompt", "user_prompt",
 		"tool_input", "input", "file_path", "gen_ai.request.model", "error",
 	} {
 		if text := node.Span.Attrs[key]; text != "" {
@@ -197,6 +200,50 @@ func preview(node *session.Node) string {
 func oneLine(text string) string {
 	text = strings.ReplaceAll(text, "\n", "  ")
 	return strings.TrimSpace(strings.Join(strings.Fields(text), " "))
+}
+
+// lead is the run of a command that says nothing about what it does: a variable
+// assignment, and a cd into the directory every command in the run shares. Eight
+// rows read "R=/Users/roshan/github/persona…" and the eight commands under that
+// prefix were invisible.
+//
+// The whole command is still on the row's own body, so nothing is lost here.
+func trimLead(text string) string {
+	for {
+		trimmed := strings.TrimLeft(text, " \t;&")
+		rest, cut := dropOne(trimmed)
+		if !cut {
+			return trimmed
+		}
+		text = rest
+	}
+}
+
+func dropOne(text string) (string, bool) {
+	// A cd is dropped only when something follows it, or the row would go blank
+	// on the command whose whole point was the directory.
+	if rest, ok := strings.CutPrefix(text, "cd "); ok {
+		if at := strings.IndexAny(rest, ";&|\n"); at >= 0 {
+			return rest[at:], true
+		}
+		return text, false
+	}
+	// VAR=value, with the value quoted or bare. An assignment is a prefix only
+	// while it is the first word, which is what the space check enforces.
+	head, rest, ok := strings.Cut(text, " ")
+	if !ok {
+		return text, false
+	}
+	name, _, isAssign := strings.Cut(head, "=")
+	if !isAssign || name == "" {
+		return text, false
+	}
+	for _, r := range name {
+		if !(r == '_' || r >= 'A' && r <= 'Z' || r >= 'a' && r <= 'z' || r >= '0' && r <= '9') {
+			return text, false
+		}
+	}
+	return rest, true
 }
 
 // matches keeps a row whose own text matches, and keeps a parent whose subtree
@@ -269,4 +316,19 @@ func (r row) raw() string {
 		return r.preview
 	}
 	return strings.Join(parts, "\n\n")
+}
+
+// command is the row's argument as it was written, newlines and all. The row's
+// preview is one line by necessity and the body was reading that, so a heredoc
+// arrived in the pane as one unreadable paragraph.
+func (r row) command() string {
+	if r.node == nil {
+		return r.preview
+	}
+	for _, key := range []string{"full_command", "command", "tool_input", "note.text", "file_path"} {
+		if text := r.node.Span.Attrs[key]; text != "" {
+			return text
+		}
+	}
+	return r.preview
 }

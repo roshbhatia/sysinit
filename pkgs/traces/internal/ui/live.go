@@ -170,6 +170,12 @@ type Model struct {
 	split  int
 	drag   bool
 
+	// The colon line: what is typed, the history behind it, and where a recall
+	// currently sits in that history.
+	cmd     bool
+	cmdText string
+	cmdHist []string
+	cmdAt   int
 	// typed is what the reader has entered; query is what the tree is built
 	// against. They differ for one filterPause, and tag is what tells a stale
 	// tick from the current one.
@@ -634,6 +640,9 @@ func (m Model) key(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 	if m.filter {
 		return m.filterKey(msg, k)
 	}
+	if m.cmd {
+		return m.commandKey(msg, k)
+	}
 
 	if m.leader {
 		m.leader = false
@@ -742,6 +751,9 @@ func (m Model) key(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 		return m, nil
 	case "/":
 		m.filter = true
+		return m, nil
+	case ":":
+		m.cmd, m.cmdAt = true, 0
 		return m, nil
 
 	// The tree takes j k and the page keys; the inspector takes d u and the
@@ -1425,8 +1437,14 @@ func (m Model) diffCell(idx, width int) string {
 // reader scans down the column for, and the column ends at the frame edge.
 func (m Model) metaCell(idx, width int) string {
 	r := m.rows[idx]
-	tok := tokens(m.rollup(idx))
-	span := ""
+	// A tool call costs no tokens. It carries the request's counts so a turn can
+	// sum them, and printing them per row said every Shell call read 440k: the
+	// same cached input, restated on twenty rows.
+	tok := ""
+	if r.kind != kindTool && r.kind != kindMCP && r.kind != kindSkill && r.kind != kindHook {
+		tok = tokens(m.rollup(idx))
+	}
+	span := gl.dot
 	if r.ms > 0 {
 		span = duration(time.Duration(r.ms) * time.Millisecond)
 	}
@@ -1689,10 +1707,9 @@ func (m Model) strip4(r row) [][2]string {
 	}
 	switch r.kind {
 	case kindTurn:
-		if r.node != nil && r.node.Turn > 0 {
-			add("turn", strconv.Itoa(r.node.Turn))
-		}
-		add("spans", count(m.subtreeSize(r), "span"))
+		// The label beside this already says "turn 55", and the unit is in the
+		// value: "spans 1 span" and "turn 55 · turn 55" were both in one strip.
+		add("spans", strconv.Itoa(m.subtreeSize(r)))
 		add("prompt", count(len(r.prompt()), "char"))
 	case kindPrompt, kindThink:
 		add("stop", first(attrs, "stop_reason", "gen_ai.response.finish_reasons"))
@@ -1955,10 +1972,10 @@ func (r row) sections() []part {
 		add("reasoning", r.node.Thinking, false)
 		add("response", r.node.Text, false)
 	}
-	// The preview is the row's input wherever nothing above claimed it: a tool's
-	// command, a hook's command, a delegate's task.
+	// The input is the row's argument wherever nothing above claimed it: a
+	// tool's command, a hook's command, a delegate's task.
 	if len(out) == 0 || r.kind == kindTool || r.kind == kindMCP || r.kind == kindSkill || r.kind == kindHook {
-		cmd, hookOut, _ := strings.Cut(r.preview, "  ->  ")
+		cmd, hookOut, _ := strings.Cut(r.command(), "  ->  ")
 		add("input", cmd, true)
 		add("stderr", hookOut, true)
 	}
@@ -2246,14 +2263,31 @@ func box(name string, inner int, body string) string {
 // State is spelled out, never carried by colour alone. A saved frame has no
 // escape bytes, so a green "follow" flag and a grey one read identically.
 func (m Model) head() string {
-	// The session and its source are the two facts a reader needs to know what
-	// they are looking at, so they sit ahead of the view's own flags.
+	// Built right to left. The flags are fixed facts about what the view is
+	// doing and the name is elastic, so the name is what gives way. Growing the
+	// left side first truncated the flags instead, and the header read
+	// "1632 shown …" with no follow state on it at all.
+	flags := []string{}
+	if m.follow {
+		flags = append(flags, live.Render("follow"))
+	} else {
+		flags = append(flags, faint.Render("no follow"))
+	}
+	if m.anchor {
+		flags = append(flags, plain.Render("newest last"))
+	} else {
+		flags = append(flags, plain.Render("scroll free"))
+	}
+	if m.timeline {
+		flags = append(flags, plain.Render("timeline"))
+	}
+	// The shown and total counts moved to the tree box title, which is the box
+	// they count. Two copies of one number cost the name its room.
+	right := strings.Join(flags, dim.Render("  \u00b7  "))
+
 	who := "no session"
 	if m.current != nil {
 		who = m.current.Service + " " + m.current.Short()
-		if name := m.current.Name(); name != "" && name != m.current.Short() {
-			who += "  " + clipWord(name, 44)
-		}
 	}
 	left := title.Render("traces") + dim.Render("  "+who)
 	// The typed text shows the moment it is typed, and the applied query is
@@ -2268,21 +2302,14 @@ func (m Model) head() string {
 			left += faint.Render(gl.ell)
 		}
 	}
-	flags := []string{}
-	if m.follow {
-		flags = append(flags, live.Render("follow on"))
-	} else {
-		flags = append(flags, faint.Render("follow off"))
+	if m.current != nil {
+		if name := m.current.Name(); name != "" && name != m.current.Short() {
+			room := m.width - lipgloss.Width(left) - lipgloss.Width(right) - 6
+			if room > 12 {
+				left += dim.Render("  " + clipWord(name, room))
+			}
+		}
 	}
-	if m.anchor {
-		flags = append(flags, plain.Render("newest at bottom"))
-	} else {
-		flags = append(flags, plain.Render("scroll free"))
-	}
-	flags = append(flags,
-		dim.Render(fmt.Sprintf("%d shown", len(m.visible()))),
-		dim.Render(fmt.Sprintf("%d total", len(m.rows))))
-	right := strings.Join(flags, dim.Render("  ·  "))
 	gap := m.width - lipgloss.Width(left) - lipgloss.Width(right)
 	if gap < 1 {
 		gap = 1
@@ -2313,15 +2340,18 @@ func (m Model) footer() string {
 	if m.pending != "" {
 		return fit(accent.Render(m.pending+"…")+dim.Render("  a fold  R open all  M close all  x focus"), m.width)
 	}
+	if m.cmd {
+		return m.commandBar()
+	}
 	if m.filter {
-		return fit(accent.Render("/"+m.query)+dim.Render("   enter keep   esc clear"), m.width)
+		return fit(accent.Render("/"+m.typed)+cursor.Render(" ")+dim.Render("   enter keep   esc clear"), m.width)
 	}
 	if m.visual {
 		return fit(accent.Render("visual")+dim.Render("   j k extend   enter keep   esc cancel"), m.width)
 	}
 	// The bar names the focused window first, because every motion below it
 	// lands there and a reader who has moved focus has no other way to tell.
-	hint := "j k trace   d u inspector   { } turn   v range   V turn   m subtree   / filter   - = size   <space> t timeline   ? help"
+	hint := "j k trace   d u inspector   { } turn   v range   V turn   m subtree   / filter   : command   - = size   ? help"
 	return fit(dim.Render(hint), m.width)
 }
 
@@ -2358,6 +2388,7 @@ var helpTable = [][2]string{
 	{"<space> t", "timeline: draw each row's span beside it"},
 	{"<space> i", "inspector: i toggle, h left, j bottom, k top, l right"},
 	{"<space>", "leader: f follow, o anchor, s session, a all, m one row, e edit, y yank, ? help"},
+	{":", "command line: :w <path>, :turn 40, :set notimeline, :session <id>"},
 	{"ZZ / q", "quit"},
 }
 
