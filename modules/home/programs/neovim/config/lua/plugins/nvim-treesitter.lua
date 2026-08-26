@@ -88,30 +88,26 @@ return {
     dependencies = { "nvim-treesitter/nvim-treesitter" },
     config = function()
       require("nvim-treesitter-textobjects").setup({
-        move = {
-          enable = true,
-          goto_next_start = {
-            ["]m"] = "@function.outer",
-            ["]c"] = "@class.outer",
-            ["]a"] = "@parameter.inner",
-          },
-          goto_next_end = {
-            ["]M"] = "@function.outer",
-            ["]C"] = "@class.outer",
-            ["]A"] = "@parameter.inner",
-          },
-          goto_previous_start = {
-            ["[m"] = "@function.outer",
-            ["[c"] = "@class.outer",
-            ["[a"] = "@parameter.inner",
-          },
-          goto_previous_end = {
-            ["[M"] = "@function.outer",
-            ["[C"] = "@class.outer",
-            ["[A"] = "@parameter.inner",
-          },
-        },
+        move = { set_jumps = true },
       })
+
+      local move = require("nvim-treesitter-textobjects.move")
+      local function map(lhs, method, capture, description)
+        vim.keymap.set({ "n", "x", "o" }, lhs, function()
+          move[method](capture, "textobjects")
+        end, { desc = description })
+      end
+
+      map("]m", "goto_next_start", "@function.outer", "Next function start")
+      map("]M", "goto_next_end", "@function.outer", "Next function end")
+      map("[m", "goto_previous_start", "@function.outer", "Previous function start")
+      map("[M", "goto_previous_end", "@function.outer", "Previous function end")
+      map("]C", "goto_next_start", "@class.outer", "Next class start")
+      map("[C", "goto_previous_start", "@class.outer", "Previous class start")
+      map("]a", "goto_next_start", "@parameter.inner", "Next parameter start")
+      map("]A", "goto_next_end", "@parameter.inner", "Next parameter end")
+      map("[a", "goto_previous_start", "@parameter.inner", "Previous parameter start")
+      map("[A", "goto_previous_end", "@parameter.inner", "Previous parameter end")
     end,
   },
 }

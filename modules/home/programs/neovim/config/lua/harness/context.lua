@@ -12,6 +12,20 @@ end
 
 local git_root_cache = {}
 
+local function physical_path(path)
+  local normalized = vim.fs.normalize(path)
+  local resolved = vim.uv.fs_realpath(normalized)
+  if resolved then
+    return resolved
+  end
+  local parent = vim.fn.fnamemodify(normalized, ":h")
+  local physical_parent = vim.uv.fs_realpath(parent)
+  if physical_parent then
+    return vim.fs.joinpath(physical_parent, vim.fn.fnamemodify(normalized, ":t"))
+  end
+  return normalized
+end
+
 local function prewarm_git_root(cwd)
   if git_root_cache[cwd] ~= nil then
     return
@@ -48,8 +62,8 @@ vim.api.nvim_create_autocmd("BufEnter", {
   end,
 })
 
-function M.get_git_root()
-  local cwd = vim.fn.getcwd()
+function M.get_git_root(cwd)
+  cwd = physical_path(cwd or vim.fn.getcwd())
   if git_root_cache[cwd] ~= nil then
     return git_root_cache[cwd] or nil
   end
@@ -65,11 +79,17 @@ function M.get_git_root()
   return git_root_cache[cwd] or nil
 end
 
-function M.strip_git_root(path)
-  local root = M.get_git_root()
-  if root and path:sub(1, #root) == root then
-    local remainder = path:sub(#root + 1)
-    return remainder:match("^/(.*)$") or remainder
+function M.strip_git_root(path, root)
+  root = root or M.get_git_root(vim.fn.fnamemodify(path, ":h"))
+  if root then
+    root = physical_path(root)
+    local physical = physical_path(path)
+    if physical == root then
+      return "."
+    end
+    if vim.startswith(physical, root .. "/") then
+      return physical:sub(#root + 2)
+    end
   end
   return path
 end
