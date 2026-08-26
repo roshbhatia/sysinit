@@ -10,8 +10,7 @@ let
 
     vendorHash = "sha256-EOg+81XREEckJekm0YePGZsrPbuP8EZnCknP1p+Oacc=";
 
-    # No tests in this repository, so the check phase would run nothing.
-    doCheck = false;
+    nativeCheckInputs = [ final.git ];
 
     meta.platforms = final.lib.platforms.unix;
   };

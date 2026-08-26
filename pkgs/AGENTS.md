@@ -67,9 +67,8 @@ its PATH is declared instead of inherited. `changes` needs git, ast-grep and
 calldiff; without them its layers drop out silently, which is the worst kind of
 missing dependency.
 
-This repository has no Go tests. `overlays/sysinit-gotools.nix` sets
-`doCheck = false`, so `go build` is the only gate. `hack/lint.sh` does not run
-`go test` either.
+The utility packages and traces packages have Go tests. `buildGoModule` runs
+them during its check phase. The `go-tests` flake check builds that package.
 
 ## Adding a tool
 

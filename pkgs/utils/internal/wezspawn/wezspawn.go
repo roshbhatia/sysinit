@@ -34,6 +34,8 @@ Prints the new pane's id. Exits 1 when the mux cannot be reached.
 `
 
 var muxTimeout = 5 * time.Second
+var queryMux = muxOutput
+var startGUI = launch
 
 type client struct {
 	Workspace     string `json:"workspace"`
@@ -151,18 +153,18 @@ func Run(args []string) int {
 		}
 	}
 
-	clients, _ := muxOutput(bin, "cli", "--no-auto-start", "list-clients", "--format", "json")
+	clients, _ := queryMux(bin, "cli", "--no-auto-start", "list-clients", "--format", "json")
 	if !hasGUI(clients) {
-		if err := launch(bin, app); err != nil {
+		if err := startGUI(bin, app); err != nil {
 			fmt.Fprintf(os.Stderr, "wezspawn: %v\n", err)
 			return 1
 		}
 		return 0
 	}
 
-	panes, _ := muxOutput(bin, "cli", "--no-auto-start", "list", "--format", "json")
+	panes, _ := queryMux(bin, "cli", "--no-auto-start", "list", "--format", "json")
 
-	out, err := muxOutput(bin, spawnArgs(focus(clients, panes), args)...)
+	out, err := queryMux(bin, spawnArgs(focus(clients, panes), args)...)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "wezspawn: %v\n", err)
 		return 1
