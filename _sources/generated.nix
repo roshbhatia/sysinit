@@ -8,26 +8,26 @@
 {
   amp-cli = {
     pname = "amp-cli";
-    version = "0.0.1787702575-g2427cf";
+    version = "0.0.1787717482-gaaf55c";
     src = fetchurl {
-      url = "https://static.ampcode.com/cli/0.0.1787702575-g2427cf/amp-darwin-arm64.gz";
-      sha256 = "sha256-gqbOn20PlBcgqIwEn4kXXgryIgfhMNosqC9byTpj830=";
+      url = "https://static.ampcode.com/cli/0.0.1787717482-gaaf55c/amp-darwin-arm64.gz";
+      sha256 = "sha256-vjAJJFiHybcJf/20zag3PTDzqe/TE1weIAqgrJT7GpQ=";
     };
   };
   amp-cli-aarch64-linux = {
     pname = "amp-cli-aarch64-linux";
-    version = "0.0.1787702575-g2427cf";
+    version = "0.0.1787717482-gaaf55c";
     src = fetchurl {
-      url = "https://static.ampcode.com/cli/0.0.1787702575-g2427cf/amp-linux-arm64.gz";
-      sha256 = "sha256-f0TCWFnSx1VP2bNYfqjDYIcYtZYH+TXkXxZVOe4EBVE=";
+      url = "https://static.ampcode.com/cli/0.0.1787717482-gaaf55c/amp-linux-arm64.gz";
+      sha256 = "sha256-jaQyaqBr/hh4/PtzIhHvdQdGJHAzX94i6Khf3Et27Jg=";
     };
   };
   amp-cli-x86_64-linux = {
     pname = "amp-cli-x86_64-linux";
-    version = "0.0.1787702575-g2427cf";
+    version = "0.0.1787717482-gaaf55c";
     src = fetchurl {
-      url = "https://static.ampcode.com/cli/0.0.1787702575-g2427cf/amp-linux-x64-baseline.gz";
-      sha256 = "sha256-t8LdSPKpt8jo8I8PxsfExhZi7Z9J4S2fSXFAX0Dortk=";
+      url = "https://static.ampcode.com/cli/0.0.1787717482-gaaf55c/amp-linux-x64-baseline.gz";
+      sha256 = "sha256-a0GgYQtCw0qA2RUx/iJ1V6jCsxRi3pLAyrmRV+k0/dY=";
     };
   };
   atomic-coding-agent = {
@@ -287,10 +287,10 @@
   };
   prime-agent = {
     pname = "prime-agent";
-    version = "0.8.0";
+    version = "0.8.1";
     src = fetchurl {
-      url = "https://github.com/PrimeIntellect-ai/prime-agent/releases/download/v0.8.0/prime-agent-0.8.0.tgz";
-      sha256 = "sha256-9bAJPH4P3bc/lHc9dDg1hUVq36hPEqQILTCY8ju4+rY=";
+      url = "https://github.com/PrimeIntellect-ai/prime-agent/releases/download/v0.8.1/prime-agent-0.8.1.tgz";
+      sha256 = "sha256-RsJNsXgt0xrcNdXGy8x1Vk+rps7TvyzPA9g27ncTRHU=";
     };
   };
 }
