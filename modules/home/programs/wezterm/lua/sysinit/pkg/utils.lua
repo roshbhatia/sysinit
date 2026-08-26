@@ -62,7 +62,8 @@ function M.load_json_file(filepath)
 end
 
 function M.get_config_path(filename)
-  return M.get_home_dir() .. "/.config/wezterm/" .. filename
+  local root = os.getenv("XDG_CONFIG_HOME") or (M.get_home_dir() .. "/.config")
+  return root .. "/wezterm/" .. filename
 end
 
 local paths_cache = nil

@@ -90,10 +90,10 @@ local function get_pane_keys()
       passthrough = EDITORS,
     }),
 
-    create_smart_keybind("s", "CTRL|SHIFT", act.SplitVertical({ domain = "CurrentPaneDomain", args = { "top" } }), {
+    create_smart_keybind("s", "SUPER|SHIFT", act.SplitVertical({ domain = "CurrentPaneDomain", args = { "top" } }), {
       passthrough = EDITORS,
     }),
-    create_smart_keybind("v", "CTRL|SHIFT", act.SplitHorizontal({ domain = "CurrentPaneDomain", args = { "top" } }), {
+    create_smart_keybind("v", "SUPER|SHIFT", act.SplitHorizontal({ domain = "CurrentPaneDomain", args = { "top" } }), {
       passthrough = EDITORS,
     }),
     -- CTRL-m is a carriage return, but nothing types it instead of Enter, and a
