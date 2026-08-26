@@ -746,7 +746,12 @@ func (s *Session) rebuild() {
 	for _, node := range pending {
 		sortKids(node)
 	}
-	sort.Slice(roots, func(a, b int) bool { return roots[a].Span.Start.Before(roots[b].Span.Start) })
+	sort.Slice(roots, func(a, b int) bool {
+		if roots[a].Span.Start.Equal(roots[b].Span.Start) {
+			return roots[a].Span.SpanID < roots[b].Span.SpanID
+		}
+		return roots[a].Span.Start.Before(roots[b].Span.Start)
+	})
 	for at, root := range roots {
 		root.Turn = at + 1
 		if sequence := root.Span.Attrs["interaction.sequence"]; sequence != "" {
@@ -768,9 +773,15 @@ func first(values ...string) string {
 
 func sortKids(node *Node) {
 	sort.Slice(node.Children, func(a, b int) bool {
+		if node.Children[a].Span.Start.Equal(node.Children[b].Span.Start) {
+			return node.Children[a].Span.SpanID < node.Children[b].Span.SpanID
+		}
 		return node.Children[a].Span.Start.Before(node.Children[b].Span.Start)
 	})
 	sort.Slice(node.Facets, func(a, b int) bool {
+		if node.Facets[a].Start.Equal(node.Facets[b].Start) {
+			return node.Facets[a].SpanID < node.Facets[b].SpanID
+		}
 		return node.Facets[a].Start.Before(node.Facets[b].Start)
 	})
 }
