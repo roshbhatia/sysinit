@@ -1,0 +1,19 @@
+{
+  "agentIdentity": {},
+  "agents": {},
+  "bin": "/bin",
+  "colors": {},
+  "font": {
+    "monospace": "monospace",
+    "symbols": "monospace"
+  },
+  "plugins": {},
+  "scripts": {
+    "seshy_remote_list": "/bin/false"
+  },
+  "ssh": {},
+  "transparency": {
+    "blur": 0,
+    "opacity": 1
+  }
+}

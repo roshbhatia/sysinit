@@ -85,9 +85,10 @@ nh darwin switch                # apply config to system (use deliberately)
 `nh` reaches PATH only after a switch, so run it from `nix develop` on a clean
 checkout. `README.md` bootstraps the first switch with `nix run nixpkgs#nh`.
 
-There is no `checks` flake output. `hack/lint.sh` is the one list of formatters
-and linters. It runs ast-grep over the nix source, then `stylua`, `shellcheck`,
-`citelock verify`, and `spec-preflight`.
+The `checks` flake output runs the Go suite and editor behavior tests.
+`hack/lint.sh` is the one list of formatters and linters. It runs ast-grep over
+the nix source, then `stylua`, `shellcheck`, `citelock verify`, and
+`spec-preflight`.
 `.githooks/pre-commit` calls it on the staged files, so a violation is a
 rejected commit rather than a broken switch. CI calls it with `--all` over the
 whole tree. Each tool is skipped when it is absent, so the `nix develop`

@@ -206,6 +206,14 @@
           }
         );
 
+      checks = lib.genAttrs cacheSystems (
+        system:
+        import ./checks {
+          inherit system;
+          pkgs = pkgsFor system;
+        }
+      );
+
       lib = {
         inherit
           builders
