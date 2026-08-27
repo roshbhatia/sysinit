@@ -13,6 +13,8 @@
 
 local M = {}
 
+local augroup = "harness_context"
+
 function M.is_file(buf)
   buf = buf or vim.api.nvim_get_current_buf()
   local name = vim.api.nvim_buf_get_name(buf)
@@ -58,22 +60,6 @@ local function prewarm_git_root(cwd)
     end)
   )
 end
-
-vim.api.nvim_create_autocmd("DirChanged", {
-  callback = function()
-    git_root_cache = {}
-    prewarm_git_root(vim.fn.getcwd())
-  end,
-})
-
-vim.api.nvim_create_autocmd("BufEnter", {
-  callback = function()
-    local ok, cwd = pcall(vim.fn.getcwd)
-    if ok and cwd and cwd ~= "" then
-      prewarm_git_root(cwd)
-    end
-  end,
-})
 
 function M.get_git_root(cwd)
   cwd = physical_path(cwd or vim.fn.getcwd())
@@ -183,14 +169,35 @@ local function is_source_window(win)
   return bt == "" or bt == "help" or bt == "acwrite"
 end
 
-vim.api.nvim_create_autocmd({ "WinEnter", "BufEnter" }, {
-  callback = function()
-    local win = vim.api.nvim_get_current_win()
-    if is_source_window(win) then
-      last_source_win = win
-    end
-  end,
-})
+function M.setup()
+  local group = vim.api.nvim_create_augroup(augroup, { clear = true })
+  vim.api.nvim_create_autocmd("DirChanged", {
+    group = group,
+    callback = function()
+      git_root_cache = {}
+      prewarm_git_root(vim.fn.getcwd())
+    end,
+  })
+  vim.api.nvim_create_autocmd("BufEnter", {
+    group = group,
+    callback = function()
+      local ok, cwd = pcall(vim.fn.getcwd)
+      if ok and cwd and cwd ~= "" then
+        prewarm_git_root(cwd)
+      end
+    end,
+  })
+  vim.api.nvim_create_autocmd({ "WinEnter", "BufEnter" }, {
+    group = group,
+    callback = function()
+      local win = vim.api.nvim_get_current_win()
+      if is_source_window(win) then
+        last_source_win = win
+      end
+    end,
+  })
+  prewarm_git_root(vim.fn.getcwd())
+end
 
 ---@return harness.EditorState
 function M.capture()

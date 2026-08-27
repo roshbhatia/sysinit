@@ -59,7 +59,12 @@ package.loaded["sysinit.pkg.utils"] = {
     return "zsh"
   end,
   load_json_file = function()
-    return { plugins = { fixture = plugin_fixture } }
+    return {
+      plugins = {
+        fixture = plugin_fixture,
+        missing = plugin_fixture .. "/missing",
+      },
+    }
   end,
 }
 
@@ -80,16 +85,28 @@ require("sysinit.pkg.validate").setup(key_config)
 
 local duplicate_config = {
   keys = {
-    { mods = "CTRL", key = "x" },
-    { mods = "CTRL", key = "x" },
+    { mods = "CTRL|SHIFT", key = "x" },
+    { mods = "SHIFT|CTRL", key = "x" },
   },
 }
-assert(not pcall(require("sysinit.pkg.validate").setup, duplicate_config), "duplicate keys passed validation")
+assert(not pcall(require("sysinit.pkg.validate").setup, duplicate_config), "reordered duplicate keys passed validation")
+local alias_config = {
+  keys = {
+    { mods = "SUPER", key = "x" },
+    { mods = "CMD", key = "x" },
+  },
+}
+assert(not pcall(require("sysinit.pkg.validate").setup, alias_config), "modifier aliases passed validation")
 
 local loader = require("sysinit.pkg.plugin_loader")
+local missing = loader.load("missing")
+assert(not missing, "a missing plugin loaded")
+assert(#wezterm.plugin.list() == 0, "a failed plugin registered as loaded")
 local loaded, plugin = loader.load("fixture")
 assert(loaded, "the local plugin did not load")
 assert(plugin.value == "dependency", "the plugin dependency did not use its local scope")
+local loaded_again, cached_plugin = loader.load("fixture")
+assert(loaded_again and cached_plugin == plugin, "the plugin loader did not reuse a loaded plugin")
 local plugin_list = wezterm.plugin.list()
 assert(#plugin_list == 1, "the local plugin did not register")
 assert(plugin_list[1].component == "fixture", "the plugin registered under the wrong name")
@@ -125,5 +142,19 @@ assert(
   "one optional failure stopped later composition"
 )
 assert(handlers["update-status"], "an optional failure registered no report")
+
+package.loaded["sysinit.pkg.ui"] = {
+  setup = function(config)
+    config.ui = true
+  end,
+}
+package.loaded["sysinit.pkg.validate"] = {
+  setup = function()
+    error("invalid final config")
+  end,
+}
+local valid, validation_error = pcall(require("sysinit.pkg.bootstrap").build)
+assert(not valid, "final validation could not fail the configuration")
+assert(tostring(validation_error):find("invalid final config", 1, true), "validation failure lost its cause")
 
 print("WezTerm modules, plugins, and chords passed")

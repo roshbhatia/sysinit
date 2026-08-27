@@ -2,7 +2,7 @@ local wezterm = require("wezterm")
 
 local M = {}
 
-local OPTIONAL = { "events", "keybindings", "ui", "validate" }
+local OPTIONAL = { "events", "keybindings", "ui" }
 
 local function report(failures)
   for _, f in ipairs(failures) do
@@ -49,6 +49,8 @@ function M.build()
   if #failures > 0 then
     report(failures)
   end
+
+  require("sysinit.pkg.validate").setup(config)
 
   return config
 end

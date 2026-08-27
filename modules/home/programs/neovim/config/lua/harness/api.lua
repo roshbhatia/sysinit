@@ -162,23 +162,32 @@ function M.review_pick()
   require("harness.review").pick()
 end
 
+local subsystems = {
+  { module = "context", method = "setup" },
+  { module = "completion", method = "setup" },
+  { module = "file_refresh", method = "start" },
+  { module = "edit_events", method = "start" },
+  { module = "notes", method = "setup" },
+}
+
+local function start_subsystem(spec)
+  local ok, err = pcall(function()
+    local subsystem = require("harness." .. spec.module)
+    local start = subsystem[spec.method]
+    if type(start) ~= "function" then
+      error(spec.module .. " has no " .. spec.method .. " method")
+    end
+    start()
+  end)
+  if not ok then
+    vim.notify("Harness: " .. spec.module .. " setup failed: " .. tostring(err), vim.log.levels.ERROR)
+  end
+end
+
 function M.setup()
-  require("harness.completion").setup()
-
-  -- Unconditional, because the agent usually runs in a wezterm pane rather than
-  -- a split this editor spawned. Keying it to a spawn meant the poll never ran
-  -- in the ordinary case, and only the five edit-bus harnesses refreshed at all.
-  pcall(function()
-    require("harness.file_refresh").start()
-  end)
-
-  pcall(function()
-    require("harness.edit_events").start()
-  end)
-
-  pcall(function()
-    require("harness.notes").setup()
-  end)
+  for _, spec in ipairs(subsystems) do
+    start_subsystem(spec)
+  end
 end
 
 return M

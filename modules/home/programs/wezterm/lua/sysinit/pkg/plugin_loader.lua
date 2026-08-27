@@ -7,6 +7,7 @@ local config_data = utils.load_json_file(utils.get_config_path("config.json"))
 local plugins_config = config_data and config_data.plugins or {}
 
 local loaded_plugins = {}
+local loaded_by_name = {}
 
 local original_list = wezterm.plugin.list
 wezterm.plugin.list = function()
@@ -32,19 +33,16 @@ local function load_chunk(path, env)
 end
 
 function M.load(name)
+  local cached = loaded_by_name[name]
+  if cached then
+    return true, cached.result
+  end
+
   local nix_path = plugins_config[name]
   if not nix_path then
     wezterm.log_warn("No path configured for plugin: " .. name)
     return false, nil
   end
-
-  table.insert(loaded_plugins, {
-    url = "file://" .. nix_path,
-    component = name,
-    plugin_dir = nix_path,
-  })
-
-  package.path = nix_path .. "/plugin/?.lua;" .. nix_path .. "/plugin/?/init.lua;" .. package.path
 
   local plugin_cache = {}
   local plugin_base = nix_path .. "/plugin/"
@@ -88,8 +86,15 @@ function M.load(name)
   local ok, result = pcall(init_chunk)
   if not ok then
     wezterm.log_warn("Failed to load " .. name .. ": " .. tostring(result))
+    return false, result
   end
-  return ok, result
+  loaded_by_name[name] = { result = result }
+  table.insert(loaded_plugins, {
+    url = "file://" .. nix_path,
+    component = name,
+    plugin_dir = nix_path,
+  })
+  return true, result
 end
 
 return M

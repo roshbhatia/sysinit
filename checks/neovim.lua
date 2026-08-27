@@ -55,6 +55,12 @@ local placeholders = require("harness.placeholders").providers
 equal(context.get_git_root(repo_a), assert(vim.uv.fs_realpath(repo_a)), "explicit Git root")
 equal(context.strip_git_root(repo_a .. "/tracked.txt"), "tracked.txt", "repository-relative path")
 
+context.setup()
+local context_autocmds = vim.api.nvim_get_autocmds({ group = "harness_context" })
+equal(#context_autocmds, 4, "context autocmd count")
+context.setup()
+equal(#vim.api.nvim_get_autocmds({ group = "harness_context" }), #context_autocmds, "idempotent context setup")
+
 local status = assert(placeholders.git(editor), "Git status was empty")
 assert(status:find("tracked.txt", 1, true), "Git status used the editor working directory")
 local diff = assert(placeholders.diff(editor), "Git diff was empty")
@@ -90,17 +96,74 @@ equal(movement_calls[1].method, "goto_next_start", "next class method")
 equal(movement_calls[1].capture, "@class.outer", "next class capture")
 equal(movement_calls[1].group, "textobjects", "next class query group")
 
+local plugin_files = 0
+local plugin_ids = {}
 local lazy_keys = {}
-for _, path in ipairs({ "gitsigns.lua", "snacks.lua" }) do
-  local specs = dofile(config_root .. "/lua/plugins/" .. path)
-  for _, spec in ipairs(specs) do
-    for _, binding in ipairs(spec.keys or {}) do
-      lazy_keys[binding[1]] = true
+for name, kind in vim.fs.dir(config_root .. "/lua/plugins") do
+  if kind == "file" and name:match("%.lua$") then
+    plugin_files = plugin_files + 1
+    local ok, specs = pcall(dofile, config_root .. "/lua/plugins/" .. name)
+    assert(ok, name .. " did not load: " .. tostring(specs))
+    assert(type(specs) == "table", name .. " returned no plugin specs")
+    if type(specs[1]) == "string" then
+      specs = { specs }
+    end
+    for _, spec in ipairs(specs) do
+      if type(spec) == "table" then
+        local id = spec.name or spec[1]
+        if type(id) == "string" then
+          assert(not plugin_ids[id], string.format("duplicate plugin %s in %s and %s", id, plugin_ids[id], name))
+          plugin_ids[id] = name
+        end
+        local bindings = type(spec.keys) == "table" and spec.keys or {}
+        for _, binding in ipairs(bindings) do
+          local modes = type(binding.mode) == "table" and binding.mode or { binding.mode or "n" }
+          for _, mode in ipairs(modes) do
+            local chord = mode .. "\0" .. tostring(binding[1])
+            assert(
+              not lazy_keys[chord],
+              string.format("duplicate lazy key %s in %s and %s", binding[1], lazy_keys[chord], name)
+            )
+            lazy_keys[chord] = name
+          end
+        end
+      end
     end
   end
 end
+assert(plugin_files > 0, "no plugin specs were checked")
+assert(plugin_ids.harness == "harness.lua", "the harness is not a registered plugin")
 for key in pairs(movement_maps) do
-  assert(not lazy_keys[key], key .. " collides with a lazy key binding")
+  assert(not lazy_keys["n\0" .. key], key .. " collides with a lazy key binding")
 end
+
+local subsystem_calls = {}
+for _, spec in ipairs({
+  { name = "context", method = "setup" },
+  { name = "completion", method = "setup" },
+  { name = "file_refresh", method = "start" },
+  { name = "edit_events", method = "start" },
+  { name = "notes", method = "setup" },
+}) do
+  package.loaded["harness." .. spec.name] = {
+    [spec.method] = function()
+      subsystem_calls[#subsystem_calls + 1] = spec.name
+      if spec.name == "edit_events" then
+        error("expected subsystem failure")
+      end
+    end,
+  }
+end
+local notifications = {}
+local notify = vim.notify
+vim.notify = function(message)
+  notifications[#notifications + 1] = message
+end
+package.loaded["harness.api"] = nil
+require("harness.api").setup()
+vim.notify = notify
+equal(table.concat(subsystem_calls, ","), "context,completion,file_refresh,edit_events,notes", "subsystem order")
+equal(#notifications, 1, "subsystem failure count")
+assert(notifications[1]:find("edit_events", 1, true), "subsystem failure omitted its name")
 
 print("Neovim context and key integration passed")

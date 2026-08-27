@@ -1,5 +1,6 @@
 local M = {}
 local registered = false
+local augroup = "harness_completion"
 
 local function register_source()
   if registered then
@@ -21,7 +22,9 @@ local function register_source()
 end
 
 function M.setup()
+  local group = vim.api.nvim_create_augroup(augroup, { clear = true })
   vim.api.nvim_create_autocmd("FileType", {
+    group = group,
     pattern = "ai_terminals_input",
     once = true,
     callback = register_source,
