@@ -20,7 +20,8 @@ pkgs.runCommand "editor-config-check"
     lua ${./hammerspoon.lua} \
       ${../modules/darwin/home/hammerspoon}
     node ${./launcher-actions.mjs} \
-      ${../modules/darwin/home/hammerspoon/lua/sysinit/plugins/ui/launcher/page/actions.js}
+      ${../modules/darwin/home/hammerspoon/lua/sysinit/plugins/ui/launcher/page/actions.js} \
+      ${../modules/darwin/home/hammerspoon/lua/sysinit/plugins/ui/launcher/page/panel.html}
     export XDG_CONFIG_HOME="$TMPDIR/config"
     mkdir -p "$XDG_CONFIG_HOME/wezterm"
     cp ${./fixtures/wezterm/config.json} "$XDG_CONFIG_HOME/wezterm/config.json"

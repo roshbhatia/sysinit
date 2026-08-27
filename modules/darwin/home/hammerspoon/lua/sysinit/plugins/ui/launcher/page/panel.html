@@ -629,8 +629,8 @@
 
       // A query that opens with `:` searches emoji by shortcode and by CLDR keyword. An
       // exact shortcode wins, then a prefix, then a substring; within a tier the more
-      // recently picked comes first. Nothing is scored when the query is bare `:`, so the
-      // list opens on what was picked before and nothing else.
+      // recently picked comes first. A bare `:` lists the complete dataset, with recent
+      // picks first and the remaining emoji ordered by shortcode.
       const EMOJI_CAP = 200;
 
       function emojiRows(query) {
@@ -640,11 +640,6 @@
           const row = emoji[index];
           let tier;
           if (term === "") {
-            // Recency is the only ranking an empty query has, so an emoji never picked
-            // has nothing to sort by and is left out rather than listed arbitrarily.
-            if (!recent[row.code]) {
-              continue;
-            }
             tier = 0;
           } else if (row.code === term) {
             tier = 0;
@@ -661,7 +656,8 @@
           hits.push({ row: row, tier: tier, at: recent[row.code] || 0 });
         }
         hits.sort((a, b) => (a.tier !== b.tier ? a.tier - b.tier : b.at !== a.at ? b.at - a.at : a.row.code < b.row.code ? -1 : 1));
-        return hits.slice(0, EMOJI_CAP).map((hit) => ({
+        const visible = term === "" ? hits : hits.slice(0, EMOJI_CAP);
+        return visible.map((hit) => ({
           title: hit.row.name,
           sub: ":" + hit.row.code + ":",
           kind: "Copy",
@@ -778,9 +774,7 @@
               : row.shell
               ? "Command"
               : row.emoji
-                ? el.q.value.trim() === ":"
-                  ? "Recent"
-                  : "Emoji"
+                ? "Emoji"
                 : el.q.value.trim() === ""
                   ? "Recent"
                   : "Results";

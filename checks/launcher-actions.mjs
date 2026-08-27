@@ -7,6 +7,22 @@ assert(path, "actions.js path is required");
 const context = {};
 vm.runInNewContext(fs.readFileSync(path, "utf8"), context);
 
+const panelPath = process.argv[3];
+assert(panelPath, "panel.html path is required");
+const panelSource = fs.readFileSync(panelPath, "utf8");
+const emojiStart = panelSource.indexOf("const EMOJI_CAP");
+const emojiEnd = panelSource.indexOf("const PREFIX_CAP", emojiStart);
+assert(emojiStart >= 0 && emojiEnd > emojiStart, "emoji search source is required");
+const emojiContext = {
+  emoji: [
+    { code: "alpha", cp: "a", name: "Alpha", search: "alpha first" },
+    { code: "beta", cp: "b", name: "Beta", search: "beta second" },
+    { code: "gamma", cp: "g", name: "Gamma", search: "gamma third" },
+  ],
+  recent: { beta: 10 },
+};
+vm.runInNewContext(panelSource.slice(emojiStart, emojiEnd), emojiContext);
+
 const actions = [
   {
     name: "terminal",
@@ -41,3 +57,12 @@ assert.equal(parse("+terminal open extra").length, 0);
 assert.equal(parse("+browser open")[0].action, undefined);
 assert.equal(parse("+browser open example.com")[0].arg, "example.com");
 assert.equal(parse("+unknown ").length, 0);
+
+assert.deepEqual(
+  Array.from(emojiContext.emojiRows(":"), (row) => row.code),
+  ["beta", "alpha", "gamma"],
+);
+assert.deepEqual(
+  Array.from(emojiContext.emojiRows(":third"), (row) => row.code),
+  ["gamma"],
+);
