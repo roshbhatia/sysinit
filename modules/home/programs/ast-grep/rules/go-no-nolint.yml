@@ -8,5 +8,8 @@ note: |
   nobody had enabled when it was written. If a suppression is genuinely right,
   name the linter and the reason: `//nolint:errcheck // <why>`.
 rule:
-  kind: comment
-  regex: "//\\s*nolint"
+  all:
+    - kind: comment
+    - regex: "//\\s*nolint"
+    - not:
+        regex: "^//\\s*nolint:[a-z0-9_-]+(?:,[a-z0-9_-]+)*\\s+//\\s+\\S.*$"

@@ -1,0 +1,9 @@
+{
+  "compilerOptions": {
+    "module": "preserve",
+    "noCheck": true,
+    "noEmit": true,
+    "target": "ES2022"
+  },
+  "include": ["modules/**/*.ts"]
+}

@@ -9,7 +9,11 @@ note: |
   matches. `%v` on a non-error argument is fine, which is why this is a warning
   and not a gate.
 rule:
-  pattern: fmt.Errorf($FMT, $$$ARGS)
-  has:
-    field: arguments
-    regex: "%v"
+  all:
+    - pattern: fmt.Errorf($FMT, $$$ARGS)
+    - has:
+        field: arguments
+        regex: "%v"
+    - has:
+        field: arguments
+        regex: "[(,]\\s*(?:err\\d*|[A-Za-z][A-Za-z0-9_]*(?:Err|Error)\\d*)\\s*[,)]"

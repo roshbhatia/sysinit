@@ -231,14 +231,28 @@
             name = "sysinit-dev";
             packages = [
               pkgs.nh
+              pkgs.actionlint
+              pkgs.clang
+              pkgs.go
+              pkgs.golangci-lint
               pkgs.shfmt
               pkgs.shellcheck
+              pkgs.zsh
+              pkgs.nushell
               pkgs.lua5_4
+              pkgs.lua-language-server
               pkgs.jq
+              pkgs.libxml2
               pkgs.fd
               pkgs.ast-grep
+              pkgs.statix
+              pkgs.deadnix
               pkgs.stylua
               pkgs.cue
+              pkgs.taplo
+              pkgs.typescript
+              pkgs.eslint
+              pkgs.yamllint
               pkgs.vale
             ];
             # prose-gate's tests read the rule set through this, the same way

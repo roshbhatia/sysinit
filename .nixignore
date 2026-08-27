@@ -38,10 +38,7 @@ result-*
 # Development
 .editorconfig
 .gitignore
-.luarc.json
 .nixignore
-.stylua.toml
 hack/
 README.md
 Taskfile.yml
-

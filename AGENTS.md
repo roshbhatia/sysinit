@@ -70,7 +70,7 @@ not restate any of those here.
 ## Commands
 
 ```bash
-nix develop                     # dev shell: nh, shfmt, shellcheck, lua, jq, fd
+nix develop                     # dev shell: every tool used by hack/lint.sh
 nix flake check                 # validate flake (run before commits)
 nix fmt                         # format all Nix and .sh files
 nix fmt -- --check              # verify formatting, no writes
@@ -86,14 +86,14 @@ nh darwin switch                # apply config to system (use deliberately)
 checkout. `README.md` bootstraps the first switch with `nix run nixpkgs#nh`.
 
 The `checks` flake output runs the Go suite and editor behavior tests.
-`hack/lint.sh` is the one list of formatters and linters. It runs ast-grep over
-the nix source, then `stylua`, `shellcheck`, `citelock verify`, and
-`spec-preflight`.
+`hack/lint.sh` is the one list of formatters and linters. It covers Go, Lua,
+Nix, shell, YAML, JSON, TOML, CUE, C, SVG, TypeScript, and JavaScript.
+It also checks Nushell and Python script blocks.
 `.githooks/pre-commit` calls it on the staged files, so a violation is a
 rejected commit rather than a broken switch. CI calls it with `--all` over the
 whole tree. Each tool is skipped when it is absent, so the `nix develop`
-shell has to carry `ast-grep`, `stylua`, and `shellcheck`. `hack/` holds nothing
-else but the update scripts for the sources nvfetcher does not cover.
+shell carries every external linter. `hack/` also holds update scripts for the
+sources nvfetcher does not cover.
 
 The OpenSpec schema, the citation locks, the destructive-command guard
 fixtures, and the parse of every authored fragment are evaluation-time
