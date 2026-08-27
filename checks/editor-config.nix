@@ -12,8 +12,11 @@ pkgs.runCommand "editor-config-check"
   ''
     export XDG_STATE_HOME="$TMPDIR/state"
     mkdir -p "$XDG_STATE_HOME"
-    nvim --headless --clean -u NONE -l ${./neovim.lua} \
-      ${../modules/home/programs/neovim/config}
+    export SYSINIT_NVIM_CONFIG=${../modules/home/programs/neovim/config}
+    nvim --headless --clean -u NONE \
+      --cmd 'set runtimepath^=${pkgs.vimPlugins.plenary-nvim}' \
+      -c 'runtime plugin/plenary.vim' \
+      -c "PlenaryBustedDirectory ${./neovim} { minimal_init = '${./neovim.lua}', sequential = true }"
     lua ${./wezterm.lua} \
       ${../modules/home/programs/wezterm/lua} \
       ${./fixtures/wezterm-plugin}
