@@ -70,10 +70,9 @@ curl -sf https://cache.nixos.org/<hash>.narinfo > /dev/null && echo CACHED || ec
 
 ## Keep list
 
-These are MISSING pristine and stay. `cargo-watch` is Tahoe and absent from
-Hydra. `_1password-gui` is unfree and never cached. `future` is a functional
-`disabled = false` force-enable, not a workaround. So are the platform-guarded
-`sunshine`, `sdl3`, and `electron`.
+These are MISSING pristine and stay. `_1password-gui` is unfree and never
+cached. `future` is a functional `disabled = false` force-enable, not a
+workaround. So are the platform-guarded `sunshine`, `sdl3`, and `electron`.
 
 ## Traps
 

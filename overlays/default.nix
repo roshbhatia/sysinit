@@ -56,14 +56,6 @@
       };
     in
     {
-      cargo-watch =
-        if prev.stdenv.hostPlatform.isDarwin then
-          prev.cargo-watch.overrideAttrs (old: {
-            nativeBuildInputs = (old.nativeBuildInputs or [ ]) ++ [ final.llvmPackages_latest.lld ];
-            RUSTFLAGS = "${old.RUSTFLAGS or ""} -C link-arg=-fuse-ld=${final.llvmPackages_latest.lld}/bin/ld64.lld";
-          })
-        else
-          prev.cargo-watch;
       # mise's test suite shares a mutex across parallel tests. One Range-header
       # assertion in src/http.rs fails and poisons it, and 31 more tests then die
       # with PoisonError. The tests only re-ran because a usage 4.0.0 -> 5.1.0
