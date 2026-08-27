@@ -142,10 +142,3 @@ nix = "libgit2"
 # Session persistence, added by phase 10.
 [[tool]]
 nix = "zmx"
-
-# --------------------------------------------------- beyond the package list
-
-# Three things the Nix side installs through `modules/home/programs/` rather
-
-# `dev` tier under Nix, where a `minimal` box gets helix instead.
-# Not an editor tool but the compiler the bootstrap needs: `utils` is

@@ -30,9 +30,9 @@ This comprises most of my dotfiles, managed (mostly) by `nix`.
 ### Build and Apply Configuration
 
 ```bash
-# First run needs the nix run, then can be ommited
+# The first run needs `nix run`.
 nix run nixpkgs#nh -- darwin switch .
-nh -- darwin switch .
+nh darwin switch .
 ```
 ### Profiles
 
@@ -66,4 +66,3 @@ To create a separate repository that consumes this flake for host-specific confi
 ```bash
 nix flake init -t github:roshbhatia/sysinit#discrete
 ```
-
