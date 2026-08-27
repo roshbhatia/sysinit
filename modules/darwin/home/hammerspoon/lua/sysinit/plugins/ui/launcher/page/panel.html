@@ -1025,6 +1025,11 @@
       el.q.addEventListener("input", refine);
 
       el.list.addEventListener("mousemove", (event) => {
+        // WebKit emits a zero-distance move when filtering shifts rows under a
+        // stationary pointer. Keep the first keyboard result selected then.
+        if (event.movementX === 0 && event.movementY === 0) {
+          return;
+        }
         const row = event.target.closest(".row");
         if (row) {
           const index = Number(row.dataset.index);
