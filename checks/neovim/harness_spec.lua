@@ -75,7 +75,7 @@ busted.describe("WezTerm terminal bridge", function()
 
   busted.it("keeps every pane command on the existing GUI server", function()
     local calls = {}
-    vim.system = function(command, options)
+    rawset(vim, "system", function(command, options)
       calls[#calls + 1] = { command = vim.deepcopy(command), options = vim.deepcopy(options or {}) }
       local stdout = command[4] == "split-pane" and "42\n" or ""
       if command[4] == "list" then
@@ -86,7 +86,7 @@ busted.describe("WezTerm terminal bridge", function()
           return { code = 0, stdout = stdout, stderr = "" }
         end,
       }
-    end
+    end)
 
     local terminal = require("utils.wezterm_terminal")
     local pane_id = terminal.split({
