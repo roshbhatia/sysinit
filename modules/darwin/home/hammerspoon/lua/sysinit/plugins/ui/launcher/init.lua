@@ -604,6 +604,7 @@ local function activate(choice)
       hs.urlevent.openURL(choice.url)
     end
   elseif choice.kind == "caffeinate" then
+    panel.hide()
     caffeinate(choice.on == true)
     held.commands = command_rows()
     compose()
