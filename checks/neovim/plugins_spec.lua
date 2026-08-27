@@ -82,6 +82,29 @@ busted.describe("plugin specifications", function()
     assert.are.same({ method = "goto_next_start", capture = "@class.outer", group = "textobjects" }, movement_calls[1])
   end)
 
+  busted.it("registers the quit key group", function()
+    local original = package.loaded["which-key"]
+    local groups
+    package.loaded["which-key"] = {
+      setup = function() end,
+      add = function(entries)
+        groups = entries
+      end,
+    }
+
+    local spec = dofile(config_root .. "/lua/plugins/which-key.lua")[1]
+    spec.config()
+    package.loaded["which-key"] = original
+
+    local quit
+    for _, entry in ipairs(groups) do
+      if entry[1] == "<leader>q" then
+        quit = entry
+      end
+    end
+    assert.are.equal("Quit", quit.group)
+  end)
+
   busted.it("emits the WezTerm navigation protocol at editor boundaries", function()
     local chansend = vim.fn.chansend
     local create_autocmd = vim.api.nvim_create_autocmd

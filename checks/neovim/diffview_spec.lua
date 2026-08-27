@@ -35,13 +35,25 @@ local function buffer_map(bufnr, lhs)
   end
 end
 
+local function diff_windows()
+  local found = {}
+  for _, winid in ipairs(vim.api.nvim_list_wins()) do
+    if vim.wo[winid].diff then
+      found[#found + 1] = winid
+    end
+  end
+  return found
+end
+
 busted.describe("Diffview integration", function()
   local loaded
   local original_cwd
+  local original_system
   local temporary
 
   busted.before_each(function()
     original_cwd = assert(vim.uv.cwd())
+    original_system = vim.system
     temporary = nil
     loaded = {}
     for _, name in ipairs({
@@ -49,6 +61,7 @@ busted.describe("Diffview integration", function()
       "diffview.actions",
       "harness.diff_layout",
       "harness.diffview",
+      "harness.notes",
       "harness.notes_list",
       "harness.review",
       "harness.scopes",
@@ -64,6 +77,7 @@ busted.describe("Diffview integration", function()
       vim.fn.delete(temporary, "rf")
     end
     pcall(vim.api.nvim_del_user_command, "Review")
+    vim.system = original_system
     for name, module in pairs(loaded) do
       if module == missing then
         package.loaded[name] = nil
@@ -96,12 +110,15 @@ busted.describe("Diffview integration", function()
       conflict_choose_all = function(name)
         return "file:" .. name
       end,
+      scroll_view = function(distance)
+        return "scroll:" .. distance
+      end,
     }
     package.loaded["harness.diffview"] = nil
     local integration = require("harness.diffview")
     local view = integration.keymaps(actions, "both")
-    local files = integration.keymaps(actions, "file")
-    local history = integration.keymaps(actions, "none")
+    local files = integration.keymaps(actions, "file", true)
+    local history = integration.keymaps(actions, "none", true)
 
     assert.are.equal("hunk:ours", map_for(view, "<localleader>dco")[3])
     assert.are.equal("file:ours", map_for(view, "<localleader>dcO")[3])
@@ -109,6 +126,9 @@ busted.describe("Diffview integration", function()
     assert.are.equal("file:ours", map_for(files, "<localleader>dcO")[3])
     assert.is_nil(map_for(history, "<localleader>dco"))
     assert.is_nil(map_for(history, "<localleader>dcO"))
+    assert.are.equal("Toggle agent notes", map_for(view, "<localleader>dn")[4].desc)
+    assert.are.equal("scroll:0.5", map_for(files, "<C-d>")[3])
+    assert.are.equal("scroll:-0.5", map_for(history, "<C-u>")[3])
   end)
 
   busted.it("registers setup and commands idempotently", function()
@@ -124,6 +144,9 @@ busted.describe("Diffview integration", function()
         return function() end
       end,
       conflict_choose_all = function()
+        return function() end
+      end,
+      scroll_view = function()
         return function() end
       end,
     }
@@ -181,17 +204,23 @@ busted.describe("Diffview integration", function()
     vim.o.lines = lines
   end)
 
-  busted.it("opens and closes a real Diffview with its buffer mappings", function()
+  busted.it("keeps notes compact and toggleable in a real Diffview", function()
     temporary = vim.fn.tempname()
     vim.fn.mkdir(temporary, "p")
     run_git(temporary, "init", "--quiet")
     run_git(temporary, "config", "user.name", "editor check")
     run_git(temporary, "config", "user.email", "editor-check@localhost")
     run_git(temporary, "config", "commit.gpgsign", "false")
-    vim.fn.writefile({ "old" }, temporary .. "/tracked.txt")
+    local original = {}
+    for line = 1, 120 do
+      original[line] = "line " .. line
+    end
+    vim.fn.writefile(original, temporary .. "/tracked.txt")
     run_git(temporary, "add", "tracked.txt")
     run_git(temporary, "commit", "--quiet", "-m", "seed")
-    vim.fn.writefile({ "new" }, temporary .. "/tracked.txt")
+    local changed = vim.deepcopy(original)
+    changed[60] = "changed line 60"
+    vim.fn.writefile(changed, temporary .. "/tracked.txt")
     vim.fn.chdir(temporary)
 
     package.loaded["harness.diffview"] = nil
@@ -205,6 +234,88 @@ busted.describe("Diffview integration", function()
     end))
     assert.are.equal("Close the review", buffer_map(panel, "q").desc)
     assert.are.equal("Toggle the file panel", buffer_map(panel, ",db").desc)
+    assert.are.equal("Toggle agent notes", buffer_map(panel, ",dn").desc)
+    local scroll_down = buffer_map(panel, "<C-D>")
+    assert.are.equal("Scroll the diff down", scroll_down.desc)
+
+    local sources
+    assert.is_true(vim.wait(2000, function()
+      sources = diff_windows()
+      return #sources == 2
+    end))
+    for _, winid in ipairs(sources) do
+      assert.is_true(vim.wo[winid].scrollbind)
+      assert.is_true(vim.wo[winid].cursorbind)
+    end
+
+    local before = vim.fn.line("w0", sources[1])
+    scroll_down.callback()
+    assert.is_true(vim.wait(1000, function()
+      return vim.fn.line("w0", sources[1]) > before
+    end))
+    assert.are.equal(vim.fn.line("w0", sources[1]), vim.fn.line("w0", sources[2]))
+
+    local path = vim.fs.normalize(temporary .. "/tracked.txt")
+    local notes = require("harness.notes")
+    notes.tool = "git"
+    rawset(vim, "system", function(_, _, callback)
+      callback({
+        code = 0,
+        stdout = vim.json.encode({
+          notes = {
+            {
+              file = path,
+              line = 60,
+              summary = "check this change",
+              rationale = "this detail stays outside the diff",
+              author = "agent",
+              origin = "agent",
+              state = "open",
+            },
+          },
+        }),
+        stderr = "",
+      })
+      return {}
+    end)
+    local refreshed = false
+    notes.refresh(function()
+      refreshed = true
+    end)
+    assert.is_true(vim.wait(1000, function()
+      return refreshed
+    end))
+
+    local working = vim.fn.bufnr(path)
+    local namespace = vim.api.nvim_get_namespaces().harness_agent_notes
+    local extmarks = vim.api.nvim_buf_get_extmarks(working, namespace, 0, -1, { details = true })
+    assert.are.equal(1, #extmarks)
+    assert.is_table(extmarks[1][4].virt_text)
+    assert.is_nil(extmarks[1][4].virt_lines)
+    local rendered = vim
+      .iter(extmarks[1][4].virt_text)
+      :map(function(chunk)
+        return chunk[1]
+      end)
+      :join("")
+    assert.is_truthy(rendered:find("check this change", 1, true))
+    assert.is_nil(rendered:find("this detail stays outside the diff", 1, true))
+
+    local marker_namespace = vim.api.nvim_get_namespaces().harness_note_markers
+    assert.is_true(vim.wait(1000, function()
+      return #vim.api.nvim_buf_get_extmarks(panel, marker_namespace, 0, -1, {}) == 1
+    end))
+    vim.api.nvim_set_current_win(sources[1])
+    notes.toggle()
+    assert.are.equal(0, #vim.api.nvim_buf_get_extmarks(working, namespace, 0, -1, {}))
+    assert.is_true(vim.wait(1000, function()
+      return #vim.api.nvim_buf_get_extmarks(panel, marker_namespace, 0, -1, {}) == 0
+    end))
+    notes.toggle()
+    assert.are.equal(1, #vim.api.nvim_buf_get_extmarks(working, namespace, 0, -1, {}))
+    assert.is_true(vim.wait(1000, function()
+      return #vim.api.nvim_buf_get_extmarks(panel, marker_namespace, 0, -1, {}) == 1
+    end))
 
     local panel_window = vim.fn.bufwinid(panel)
     assert.are.equal(vim.o.columns, vim.api.nvim_win_get_width(panel_window))

@@ -37,15 +37,28 @@ end
 
 ---@param actions table
 ---@param conflicts "none"|"hunk"|"file"|"both"
+---@param panel? boolean
 ---@return table[]
-function M.keymaps(actions, conflicts)
+function M.keymaps(actions, conflicts, panel)
   local maps = {
     { "n", "q", close_here(actions), { desc = "Close the review" } },
     { "n", "<leader>e", false },
     { "n", "<leader>b", false },
     { "n", "<localleader>de", actions.focus_files, { desc = "Focus the file panel" } },
     { "n", "<localleader>db", actions.toggle_files, { desc = "Toggle the file panel" } },
+    {
+      "n",
+      "<localleader>dn",
+      function()
+        require("harness.notes").toggle()
+      end,
+      { desc = "Toggle agent notes" },
+    },
   }
+  if panel then
+    maps[#maps + 1] = { "n", "<C-d>", actions.scroll_view(0.5), { desc = "Scroll the diff down" } }
+    maps[#maps + 1] = { "n", "<C-u>", actions.scroll_view(-0.5), { desc = "Scroll the diff up" } }
+  end
   local names = { o = "ours", t = "theirs", b = "base", a = "all" }
   for _, key in ipairs({ "o", "t", "b", "a" }) do
     local name = names[key]
@@ -110,16 +123,24 @@ function M.setup()
       win_config = layout.file_history_panel,
     },
     hooks = {
-      diff_buf_read = function(bufnr)
+      diff_buf_win_enter = function(bufnr)
         pcall(function()
           require("harness.notes").place(bufnr)
+        end)
+      end,
+      view_closed = function()
+        vim.schedule(function()
+          local notes = require("harness.notes")
+          for _, bufnr in ipairs(vim.api.nvim_list_bufs()) do
+            notes.place(bufnr)
+          end
         end)
       end,
     },
     keymaps = {
       view = M.keymaps(actions, "both"),
-      file_panel = M.keymaps(actions, "file"),
-      file_history_panel = M.keymaps(actions, "none"),
+      file_panel = M.keymaps(actions, "file", true),
+      file_history_panel = M.keymaps(actions, "none", true),
     },
   })
 

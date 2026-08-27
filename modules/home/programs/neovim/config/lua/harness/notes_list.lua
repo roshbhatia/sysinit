@@ -145,6 +145,9 @@ function M.mark_panel(bufnr)
   local counts = counts_for(vim.fs.normalize(root))
 
   vim.api.nvim_buf_clear_namespace(bufnr, ns, 0, -1)
+  if not require("harness.notes").status().shown then
+    return
+  end
   local lines = vim.api.nvim_buf_line_count(bufnr)
 
   pcall(function()
@@ -175,9 +178,10 @@ function M.setup()
     pending = true
     vim.defer_fn(function()
       pending = false
-      local buf = vim.api.nvim_get_current_buf()
-      if vim.bo[buf].filetype == "DiffviewFiles" then
-        M.mark_panel(buf)
+      for _, bufnr in ipairs(vim.api.nvim_list_bufs()) do
+        if vim.bo[bufnr].filetype == "DiffviewFiles" and vim.fn.bufwinid(bufnr) ~= -1 then
+          M.mark_panel(bufnr)
+        end
       end
     end, 40)
   end

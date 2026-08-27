@@ -29,6 +29,7 @@ return {
         { "<leader>gb", group = "Buffer" },
         { "<leader>gh", group = "Hunk" },
         { "<leader>j", group = "Agents" },
+        { "<leader>q", group = "Quit" },
         { "[", group = "Prev" },
         { "]", group = "Next" },
         { "gr", group = "LSP" },

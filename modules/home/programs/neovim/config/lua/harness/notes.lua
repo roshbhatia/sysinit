@@ -152,6 +152,31 @@ local function notes_for(bufnr)
   return path and M.for_file(path) or {}
 end
 
+---@param bufnr number
+---@return boolean
+local function in_diff_window(bufnr)
+  for _, winid in ipairs(vim.api.nvim_list_wins()) do
+    if vim.api.nvim_win_get_buf(winid) == bufnr and vim.wo[winid].diff then
+      return true
+    end
+  end
+  return false
+end
+
+---@param entries { title: string, summary: string }[]
+---@param hl string
+---@return table[]
+local function inline(entries, hl)
+  local chunks = {}
+  for index, entry in ipairs(entries) do
+    if index > 1 then
+      chunks[#chunks + 1] = { "  ·  ", hl }
+    end
+    chunks[#chunks + 1] = { "[" .. entry.title .. "] " .. entry.summary, hl }
+  end
+  return chunks
+end
+
 -- The extmark carries the note after it is placed, so a note stays on its line
 -- while the buffer is edited. The record is re-read only on refresh, and the
 -- writer re-anchors on the line's own text, so the two never fight.
@@ -165,26 +190,41 @@ function M.place(bufnr)
   if not shown then
     return
   end
-  local notes = M.for_file(path)
-  if #notes == 0 then
+  local found = M.for_file(path)
+  if #found == 0 then
     return
   end
+  local compact = in_diff_window(bufnr)
   local last = vim.api.nvim_buf_line_count(bufnr)
   local rows, order, waiting = {}, {}, {}
-  for _, note in ipairs(notes) do
+  for _, note in ipairs(found) do
     local row = math.max(0, math.min(tonumber(note.line) or 1, last) - 1)
     if rows[row] == nil then
       rows[row] = {}
       table.insert(order, row)
     end
-    table.insert(rows[row], { title = title(note), body = render(note) })
+    table.insert(rows[row], {
+      title = title(note),
+      body = render(note),
+      summary = (said(note.summary) or ""):gsub("%s+", " "),
+    })
     waiting[row] = waiting[row] or said(note.state) == "open"
   end
   for _, row in ipairs(order) do
-    pcall(vim.api.nvim_buf_set_extmark, bufnr, ns, row, 0, {
-      virt_lines = box(rows[row], waiting[row] and "DiagnosticWarn" or "DiagnosticInfo"),
-      virt_lines_above = false,
-    })
+    local hl = waiting[row] and "DiagnosticWarn" or "DiagnosticInfo"
+    if compact then
+      -- Virtual rows change screen-line counts and break scrollbind alignment.
+      pcall(vim.api.nvim_buf_set_extmark, bufnr, ns, row, 0, {
+        virt_text = inline(rows[row], hl),
+        virt_text_pos = "eol",
+        hl_mode = "combine",
+      })
+    else
+      pcall(vim.api.nvim_buf_set_extmark, bufnr, ns, row, 0, {
+        virt_lines = box(rows[row], hl),
+        virt_lines_above = false,
+      })
+    end
   end
 end
 
@@ -247,6 +287,7 @@ function M.toggle()
     M.place(bufnr)
   end
   announce()
+  vim.notify("Notes: " .. (shown and "shown" or "hidden"), vim.log.levels.INFO)
 end
 
 ---@param bufnr? number
