@@ -186,6 +186,7 @@
             "direnv"
             "hererocks"
             "helix"
+            "helix-file-watcher"
             "sheets"
             "alerter"
             "kvazaar"
