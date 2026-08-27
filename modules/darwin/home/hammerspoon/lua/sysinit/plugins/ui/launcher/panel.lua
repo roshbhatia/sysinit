@@ -26,7 +26,7 @@ local watch = nil
 local screens = nil
 local stack = {}
 local loaded = false
-local waiting = nil
+local waiting = {}
 local sent = {}
 local written = {}
 local queued = nil
@@ -51,7 +51,7 @@ local function ready(work)
   if loaded then
     work()
   else
-    waiting = work
+    waiting[#waiting + 1] = work
   end
 end
 
@@ -373,9 +373,9 @@ local function received(message)
   local list = current()
   if body.action == "loaded" then
     loaded = true
-    if waiting then
-      local work = waiting
-      waiting = nil
+    local pending_work = waiting
+    waiting = {}
+    for _, work in ipairs(pending_work) do
       work()
     end
   elseif body.action == "height" then

@@ -16,6 +16,8 @@ pkgs.runCommand "editor-config-check"
     lua ${./wezterm.lua} \
       ${../modules/home/programs/wezterm/lua} \
       ${./fixtures/wezterm-plugin}
+    lua ${./hammerspoon.lua} \
+      ${../modules/darwin/home/hammerspoon}
     export XDG_CONFIG_HOME="$TMPDIR/config"
     mkdir -p "$XDG_CONFIG_HOME/wezterm"
     cp ${./fixtures/wezterm/config.json} "$XDG_CONFIG_HOME/wezterm/config.json"
