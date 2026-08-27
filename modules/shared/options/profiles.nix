@@ -6,21 +6,8 @@
 let
   inherit (lib) mkOption types;
 
-  tiers = [
-    "minimal"
-    "dev"
-    "workstation"
-  ];
-
-  index = name: lib.lists.findFirstIndex (t: t == name) null tiers;
-
-  selected =
-    if index profile == null then
-      throw "sysinit: unknown profile ${profile}, expected one of ${lib.concatStringsSep ", " tiers}"
-    else
-      index profile;
-
-  enabled = name: index name <= selected;
+  profiles = import ../profile-tiers.nix { inherit lib; };
+  inherit (profiles) tiers;
 in
 {
   options.sysinit.profiles = lib.listToAttrs (
@@ -30,7 +17,7 @@ in
         enable = mkOption {
           type = types.bool;
           readOnly = true;
-          default = enabled name;
+          default = profiles.atLeast profile name;
           description = "Whether this host is at least a ${name} host. Derived from the `profile` argument, never set directly.";
         };
       }
