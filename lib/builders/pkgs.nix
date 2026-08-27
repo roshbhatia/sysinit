@@ -39,7 +39,6 @@
             "steam-unwrapped"
             "upbound"
           ];
-        allowInsecurePredicate = pkg: lib.hasPrefix "electron" (lib.getName pkg);
       };
     };
 
