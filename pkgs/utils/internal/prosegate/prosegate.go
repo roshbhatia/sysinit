@@ -46,8 +46,7 @@ Off with SYSINIT_PROSE_GATE=off.
 `
 
 const (
-	// One tell is a slip. Two is the register the reply was written in, and only
-	// the register is worth a turn to fix.
+	// One style tell is a slip; `blocks` exempts tool fingerprints from this threshold.
 	maxTells = 1
 	// A teammate reports into the caller's context, so its report is the whole
 	// cost of delegating. Anthropic sizes a useful one at 1,000 to 2,000 tokens;
@@ -269,12 +268,23 @@ func alerts(text string) []valeAlert {
 // from what the applier could not repair.
 func findings(text string) []valeAlert {
 	found := oneAlertPerSpan(alerts(text))
-	// One tell is a slip, and spending the user's turn on a slip is worse than
-	// letting it through.
-	if len(found) <= maxTells {
+	if !blocks(found) {
 		return nil
 	}
 	return found
+}
+
+func blocks(found []valeAlert) bool {
+	if len(found) > maxTells {
+		return true
+	}
+	for _, alert := range found {
+		// Tool fingerprints block on one hit because a second occurrence adds no evidence.
+		if alert.Check == "Sysinit.CitationMarkup" {
+			return true
+		}
+	}
+	return false
 }
 
 // reason is the whole message the model gets back. It leads with the lines the
@@ -454,11 +464,11 @@ func lint(stdin io.Reader) int {
 	for _, a := range all {
 		fmt.Printf("  - %s: %q (line %d) [%s]\n", a.Message, a.Match, a.Line, a.Check)
 	}
-	if len(all) <= maxTells {
+	if !blocks(all) {
 		fmt.Printf("%d alerts; check blocks above %d, so this passes\n", len(all), maxTells)
 		return 0
 	}
-	fmt.Printf("%d alerts; check blocks above %d, so this is sent back\n", len(all), maxTells)
+	fmt.Printf("%d alerts; check sends this back\n", len(all))
 	return 1
 }
 

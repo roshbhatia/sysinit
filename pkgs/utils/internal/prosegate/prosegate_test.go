@@ -101,3 +101,16 @@ func TestFindingsUsesConfiguredStyle(t *testing.T) {
 		}
 	}
 }
+
+func TestBlocksCitationMarkupOnFirstAlert(t *testing.T) {
+	citation := []valeAlert{{Check: "Sysinit.CitationMarkup"}}
+	if !blocks(citation) {
+		t.Fatal("citation markup did not block on its first alert")
+	}
+	if blocks([]valeAlert{{Check: "Sysinit.MarketingVerb"}}) {
+		t.Fatal("ordinary style alert blocked before the threshold")
+	}
+	if !blocks([]valeAlert{{Check: "Sysinit.MarketingVerb"}, {Check: "Sysinit.FillerOpener"}}) {
+		t.Fatal("two ordinary style alerts did not block")
+	}
+}
