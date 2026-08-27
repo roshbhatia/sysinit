@@ -268,8 +268,8 @@ func append1(log string, e event) {
 	if err != nil {
 		return
 	}
-	defer handle.Close()
-	handle.Write(append(encoded, '\n'))
+	defer func() { _ = handle.Close() }()
+	_, _ = handle.Write(append(encoded, '\n'))
 }
 
 func trim(log string) {
@@ -292,7 +292,7 @@ func trim(log string) {
 		return
 	}
 	if os.Rename(temporary, log) != nil {
-		os.Remove(temporary)
+		_ = os.Remove(temporary)
 	}
 }
 

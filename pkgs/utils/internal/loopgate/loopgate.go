@@ -172,7 +172,7 @@ func Decide(stdin io.Reader) hookfmt.Outcome {
 
 	out, code := run(s.Until)
 	if code == 0 {
-		os.Remove(path)
+		_ = os.Remove(path)
 		fmt.Fprintf(os.Stderr, "loop-gate: CLEAN after %d iteration(s) — `%s` exited 0.\n", s.Iter, s.Until)
 		return hookfmt.PassOutcome()
 	}
@@ -188,13 +188,13 @@ func Decide(stdin io.Reader) hookfmt.Outcome {
 	s.LastHash = hash
 
 	if s.SameCount >= s.Stall {
-		os.Remove(path)
+		_ = os.Remove(path)
 		fmt.Fprintf(os.Stderr, "loop-gate: STALLED — %d iterations produced identical output from `%s`. Open work, not a pass.\n",
 			s.SameCount, s.Until)
 		return hookfmt.PassOutcome()
 	}
 	if s.Iter >= s.Max {
-		os.Remove(path)
+		_ = os.Remove(path)
 		fmt.Fprintf(os.Stderr, "loop-gate: CAPPED at %d iterations; `%s` still failing. Open work, not a pass.\n",
 			s.Max, s.Until)
 		return hookfmt.PassOutcome()

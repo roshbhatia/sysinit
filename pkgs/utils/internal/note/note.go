@@ -416,7 +416,8 @@ func cmdList(args []string) error {
 			if err != nil {
 				return err
 			}
-			os.Stdout.Write(data)
+			_, err = os.Stdout.Write(data)
+			return err
 		}
 		return nil
 	}
@@ -453,8 +454,8 @@ func cmdList(args []string) error {
 		if err != nil {
 			return err
 		}
-		os.Stdout.Write(data)
-		return nil
+		_, err = os.Stdout.Write(data)
+		return err
 	}
 	for _, raw := range notes {
 		var cur existing

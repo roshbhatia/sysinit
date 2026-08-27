@@ -12,9 +12,9 @@ import (
 // than a pane that can be scrolled.
 func Print(out io.Writer, one *session.Session) {
 	count := one.ViewCount()
-	fmt.Fprintf(out, "%s %s  %d %s\n", one.Service, one.Title(), count, plural(count, "item"))
+	_, _ = fmt.Fprintf(out, "%s %s  %d %s\n", one.Service, one.Title(), count, plural(count, "item"))
 	for _, root := range one.Roots {
-		fmt.Fprintf(out, "%d. %s  %s%s\n", root.Turn, root.Label, duration(root.Duration()), ask(root.Prompt))
+		_, _ = fmt.Fprintf(out, "%d. %s  %s%s\n", root.Turn, root.Label, duration(root.Duration()), ask(root.Prompt))
 		printKids(out, root, "   ")
 	}
 }
@@ -25,7 +25,7 @@ func printKids(out io.Writer, node *session.Node, prefix string) {
 		if at == len(node.Children)-1 {
 			branch, tail = "└─ ", "   "
 		}
-		fmt.Fprintf(out, "%s%s%s  %s%s\n", prefix, branch, kid.Label, duration(kid.Duration()), say(kid))
+		_, _ = fmt.Fprintf(out, "%s%s%s  %s%s\n", prefix, branch, kid.Label, duration(kid.Duration()), say(kid))
 		printKids(out, kid, prefix+tail)
 	}
 }

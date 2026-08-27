@@ -58,7 +58,9 @@ func Run(args []string) int {
 		if len(args) == 1 {
 			out, code = os.Stdout, 0
 		}
-		fmt.Fprint(out, usageText)
+		if _, err := fmt.Fprint(out, usageText); err != nil {
+			return 1
+		}
 		return code
 	}
 	harness := args[0]
@@ -86,7 +88,7 @@ func Run(args []string) int {
 	}
 
 	link := filepath.Join(dir, session+".jsonl")
-	os.Remove(link)
+	_ = os.Remove(link)
 	if os.Symlink(native, link) != nil {
 		return 0
 	}
@@ -188,12 +190,12 @@ func publishSidecar(path string, record sidecar) {
 	}
 	name := tmp.Name()
 	if _, err := tmp.Write(append(body, '\n')); err != nil {
-		tmp.Close()
-		os.Remove(name)
+		_ = tmp.Close()
+		_ = os.Remove(name)
 		return
 	}
 	if tmp.Close() != nil || os.Rename(name, path) != nil {
-		os.Remove(name)
+		_ = os.Remove(name)
 	}
 }
 

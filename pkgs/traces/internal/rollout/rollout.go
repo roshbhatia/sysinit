@@ -136,7 +136,7 @@ func ReadFile(path string) otlp.Batch {
 	if err != nil {
 		return otlp.Batch{}
 	}
-	defer f.Close()
+	defer func() { _ = f.Close() }()
 
 	batch := otlp.Batch{}
 	sessionID, sessionCWD := "", ""

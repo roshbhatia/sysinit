@@ -30,9 +30,13 @@ func capture(t *testing.T) func() string {
 	}()
 	return func() string {
 		os.Stdout = saved
-		write.Close()
+		if err := write.Close(); err != nil {
+			t.Fatal(err)
+		}
 		out := <-done
-		read.Close()
+		if err := read.Close(); err != nil {
+			t.Fatal(err)
+		}
 		return out
 	}
 }

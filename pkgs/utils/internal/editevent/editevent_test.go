@@ -325,9 +325,13 @@ func captureStdout(t *testing.T, run func()) string {
 
 	run()
 	os.Stdout = original
-	writer.Close()
+	if err := writer.Close(); err != nil {
+		t.Fatal(err)
+	}
 	captured := <-done
-	reader.Close()
+	if err := reader.Close(); err != nil {
+		t.Fatal(err)
+	}
 	return captured
 }
 
@@ -438,12 +442,14 @@ func withStdin(t *testing.T, body []byte, run func()) {
 	os.Stdin = reader
 	defer func() {
 		os.Stdin = original
-		reader.Close()
+		if err := reader.Close(); err != nil {
+			t.Error(err)
+		}
 	}()
 
 	go func() {
-		writer.Write(body)
-		writer.Close()
+		_, _ = writer.Write(body)
+		_ = writer.Close()
 	}()
 	run()
 }

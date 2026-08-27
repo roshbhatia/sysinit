@@ -63,7 +63,9 @@ func run(t *testing.T, args ...string) (int, string) {
 		}
 	}()
 	code := Run(args)
-	w.Close()
+	if err := w.Close(); err != nil {
+		t.Fatal(err)
+	}
 	wg.Wait()
 	os.Stdout = old
 	return code, out.String()
@@ -464,7 +466,7 @@ func TestWriteIsRefusedWhileTheLockIsHeld(t *testing.T) {
 	if err := os.Mkdir(path+".lock", 0o755); err != nil {
 		t.Fatal(err)
 	}
-	defer os.Remove(path + ".lock")
+	defer func() { _ = os.Remove(path + ".lock") }()
 	if code, _ := run(t, "add", "--file", "src/app.ts", "--line", "2", "--summary", "should not land"); code == 0 {
 		t.Fatal("add wrote while the store lock was held")
 	}
@@ -602,7 +604,7 @@ func TestConcurrentAddsLoseNoNote(t *testing.T) {
 		wg.Add(1)
 		go func(n int) {
 			defer wg.Done()
-			cmdAdd([]string{
+			_ = cmdAdd([]string{
 				"--file", "src/app.ts",
 				"--line", "2",
 				"--summary", "concurrent " + strconv.Itoa(n),

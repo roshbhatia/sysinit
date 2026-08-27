@@ -13,10 +13,10 @@ import (
 )
 
 var statusCmd = &cobra.Command{
-	Use:     "status [name]",
-	Short:   "Show session details",
-	Aliases: []string{"info"},
-	Args:    cobra.MaximumNArgs(1),
+	Use:               "status [name]",
+	Short:             "Show session details",
+	Aliases:           []string{"info"},
+	Args:              cobra.MaximumNArgs(1),
 	ValidArgsFunction: completeSessionNames,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		var name string

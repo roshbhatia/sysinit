@@ -195,9 +195,13 @@ func Run(args []string) int {
 
 	out, err := json.Marshal(found)
 	if err != nil {
-		fmt.Fprintln(os.Stdout, "[]")
+		if _, writeErr := fmt.Fprintln(os.Stdout, "[]"); writeErr != nil {
+			return 1
+		}
 		return 0
 	}
-	fmt.Fprintln(os.Stdout, string(out))
+	if _, err := fmt.Fprintln(os.Stdout, string(out)); err != nil {
+		return 1
+	}
 	return 0
 }

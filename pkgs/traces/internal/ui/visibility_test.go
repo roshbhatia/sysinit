@@ -275,9 +275,10 @@ func TestTimelineWheelDoesNotScrollInspector(t *testing.T) {
 		m.pane.SetYOffset(10)
 		before := m.pane.YOffset
 		timelineY := m.treeRows() + 4
-		if place == placeBottom {
+		switch place {
+		case placeBottom:
 			timelineY = m.dividerY() + 2
-		} else if place == placeTop {
+		case placeTop:
 			timelineY = m.detailLines() + 1
 		}
 		next, _ := m.mouse(tea.MouseMsg{

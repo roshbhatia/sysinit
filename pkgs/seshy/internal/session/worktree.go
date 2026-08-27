@@ -61,7 +61,7 @@ func CreateWorktree(repoPath, sessionPath, branchName string) (string, error) {
 		// Fallback: branch already exists, reuse it
 		_, err2 := gitExec(repoPath, "worktree", "add", worktreePath, branchName)
 		if err2 != nil {
-			return "", fmt.Errorf("failed to create worktree (primary: %w) (fallback: %v)", err, err2)
+			return "", fmt.Errorf("failed to create worktree (primary: %w) (fallback: %w)", err, err2)
 		}
 	}
 
@@ -113,7 +113,7 @@ func removeWorktree(mainRepoPath, worktreePath string, force bool) error {
 	// prune clears registrations whose directory is already gone, which is the
 	// common reason remove fails. It exits 0 even when it clears nothing, so
 	// confirm the registration actually went away rather than trusting it.
-	gitExec(mainRepoPath, "worktree", "prune")
+	_, _ = gitExec(mainRepoPath, "worktree", "prune")
 	if worktreeRegistered(mainRepoPath, worktreePath) {
 		return removeErr
 	}
@@ -195,7 +195,9 @@ func CleanupWorktrees(sessionPath string, force bool) error {
 		if branchName != "" && branchName != "HEAD" {
 			mainBranch, _ := gitExec(mainRepoPath, "rev-parse", "--abbrev-ref", "HEAD")
 			if mainBranch != branchName {
-				gitExec(mainRepoPath, "branch", "-D", branchName)
+				if _, err := gitExec(mainRepoPath, "branch", "-D", branchName); err != nil {
+					errs = append(errs, fmt.Errorf("failed to delete branch %s: %w", branchName, err))
+				}
 			}
 		}
 	}
@@ -246,7 +248,9 @@ func RemoveRepoEntry(sessionPath, repoName string, force bool) error {
 	if branchName != "" && branchName != "HEAD" {
 		mainBranch, _ := gitExec(mainRepoPath, "rev-parse", "--abbrev-ref", "HEAD")
 		if mainBranch != branchName {
-			gitExec(mainRepoPath, "branch", "-D", branchName)
+			if _, err := gitExec(mainRepoPath, "branch", "-D", branchName); err != nil {
+				return fmt.Errorf("failed to delete branch %s: %w", branchName, err)
+			}
 		}
 	}
 

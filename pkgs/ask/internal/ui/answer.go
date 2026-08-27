@@ -63,7 +63,7 @@ func Answer(question string) (string, error) {
 	if keyboard == nil {
 		return "", errors.New("there is no terminal to ask on")
 	}
-	defer keyboard.Close()
+	defer func() { _ = keyboard.Close() }()
 
 	field := textinput.New()
 	field.Placeholder = "your answer"

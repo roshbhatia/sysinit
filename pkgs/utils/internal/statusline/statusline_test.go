@@ -117,8 +117,12 @@ func TestMalformedPayloadRendersNothingRatherThanFailing(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
-		w.WriteString(body)
-		w.Close()
+		if _, err := w.WriteString(body); err != nil {
+			t.Fatal(err)
+		}
+		if err := w.Close(); err != nil {
+			t.Fatal(err)
+		}
 		old := os.Stdin
 		os.Stdin = r
 		code := Run(nil)

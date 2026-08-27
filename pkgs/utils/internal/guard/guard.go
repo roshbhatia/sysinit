@@ -370,11 +370,6 @@ type readEvent struct {
 	} `json:"tool_input"`
 }
 
-type readInput struct {
-	FilePath string `json:"file_path"`
-	Limit    int    `json:"limit"`
-}
-
 // clipLines is the number of leading lines that fit in the budget. It counts
 // bytes rather than lines because a 538-line Nix module and a 184-line Markdown
 // file can both weigh 17 KB: line count does not predict what a read costs.

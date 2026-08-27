@@ -51,7 +51,7 @@ func main() {
 	stat := flag.Bool("stat", false, "draw the tree and the churn, without the hunks")
 	flag.BoolVar(stat, "s", false, "shorthand for -stat")
 	flag.Usage = func() {
-		fmt.Fprint(flag.CommandLine.Output(), usage)
+		_, _ = fmt.Fprint(flag.CommandLine.Output(), usage)
 		flag.PrintDefaults()
 	}
 	flag.Parse()
@@ -64,7 +64,7 @@ func main() {
 		dir = *scan
 	}
 
-	roots := []string{}
+	var roots []string
 	if *recurse {
 		roots, err = workspace.Roots(dir)
 		if err != nil {

@@ -254,7 +254,9 @@ func runReviewIngest(cmd *cobra.Command, args []string) error {
 		if err := rec.Save(repo, c.Name); err != nil {
 			return err
 		}
-		fmt.Fprintf(cmd.ErrOrStderr(), "wrote %s\n", review.RecordPath(repo, c.Name))
+		if _, err := fmt.Fprintf(cmd.ErrOrStderr(), "wrote %s\n", review.RecordPath(repo, c.Name)); err != nil {
+			return err
+		}
 	}
 	return writeOut(cmd, []byte(review.Markdown(review.Build(c, rec))))
 }
@@ -334,7 +336,9 @@ func runReviewSet(cmd *cobra.Command, args []string) error {
 	if err := rec.Save(repo, c.Name); err != nil {
 		return err
 	}
-	fmt.Fprintf(cmd.ErrOrStderr(), "wrote %s\n", review.RecordPath(repo, c.Name))
+	if _, err := fmt.Fprintf(cmd.ErrOrStderr(), "wrote %s\n", review.RecordPath(repo, c.Name)); err != nil {
+		return err
+	}
 	return writeOut(cmd, []byte(review.Markdown(review.Build(c, rec))))
 }
 
@@ -411,7 +415,9 @@ func attachDiff(cmd *cobra.Command, repo string, changes []*ir.Change, opts *det
 		return err
 	}
 	if d.Note != "" {
-		fmt.Fprintf(cmd.ErrOrStderr(), "warning: no diff collected: %s\n", d.Note)
+		if _, err := fmt.Fprintf(cmd.ErrOrStderr(), "warning: no diff collected: %s\n", d.Note); err != nil {
+			return err
+		}
 	}
 	if opts.Diff == nil {
 		opts.Diff = detail.DiffByChange{}

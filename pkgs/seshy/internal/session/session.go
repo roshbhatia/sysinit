@@ -53,8 +53,8 @@ func ValidateSessionName(name string) error {
 		return fmt.Errorf("session name cannot be empty")
 	}
 	for _, c := range name {
-		if !((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') ||
-			(c >= '0' && c <= '9') || c == '-' || c == '_') {
+		if (c < 'a' || c > 'z') && (c < 'A' || c > 'Z') &&
+			(c < '0' || c > '9') && c != '-' && c != '_' {
 			return fmt.Errorf("session name must contain only letters, numbers, hyphens, and underscores")
 		}
 	}
@@ -119,7 +119,7 @@ func Create(name string, repoPaths []string, opts CreateOpts) ([]RepoInfo, error
 
 	if opts.GitEnabled {
 		if _, err := gitExec(sessionPath, "init"); err != nil {
-			os.RemoveAll(sessionPath)
+			_ = os.RemoveAll(sessionPath)
 			return nil, fmt.Errorf("failed to init session git repo: %w", err)
 		}
 	}
@@ -136,11 +136,11 @@ func Create(name string, repoPaths []string, opts CreateOpts) ([]RepoInfo, error
 		for i := len(createdList) - 1; i >= 0; i-- {
 			c := createdList[i]
 			if IsGitRepo(c.repoPath) && c.branchName != "" {
-				removeWorktree(c.repoPath, c.worktreePath, true)
-				gitExec(c.repoPath, "branch", "-D", c.branchName)
+				_ = removeWorktree(c.repoPath, c.worktreePath, true)
+				_, _ = gitExec(c.repoPath, "branch", "-D", c.branchName)
 			}
 		}
-		os.RemoveAll(sessionPath)
+		_ = os.RemoveAll(sessionPath)
 	}
 
 	for _, repoPath := range repoPaths {
@@ -423,7 +423,7 @@ func repairWorktreeRegistrations(sessionPath string) {
 	}
 	for mainRepo, worktrees := range mainToWorktrees {
 		args := append([]string{"worktree", "repair"}, worktrees...)
-		gitExec(mainRepo, args...)
+		_, _ = gitExec(mainRepo, args...)
 	}
 }
 
@@ -456,7 +456,7 @@ func deleteAt(sessionPath string, force bool) error {
 	}
 
 	if cleanupErr != nil {
-		return fmt.Errorf("%w: %v", ErrCleanupIncomplete, cleanupErr)
+		return fmt.Errorf("%w: %w", ErrCleanupIncomplete, cleanupErr)
 	}
 	return nil
 }

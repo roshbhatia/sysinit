@@ -74,7 +74,7 @@ var removeCmd = &cobra.Command{
 		allRepos := session.GetSessionRepoInfos(sessionPath)
 		data := session.BuildTemplateData(name, sessionPath, allRepos)
 		sessionTmplDir := filepath.Join(config.ConfigDir(), "templates", "session")
-		tmpl.RenderSessionDir(sessionTmplDir, sessionPath, data)
+		_ = tmpl.RenderSessionDir(sessionTmplDir, sessionPath, data)
 
 		fmt.Fprintln(os.Stderr, ui.Successf("Removed %s from session %s", ui.AccentBold(repoName), ui.AccentBold(name)))
 		return nil

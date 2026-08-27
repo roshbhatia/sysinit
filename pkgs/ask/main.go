@@ -332,7 +332,9 @@ func printSaved(which string) error {
 	case err != nil:
 		return fmt.Errorf("no saved %s: %w", which, err)
 	}
-	os.Stdout.Write(saved)
+	if _, err := os.Stdout.Write(saved); err != nil {
+		return err
+	}
 	if len(saved) > 0 && saved[len(saved)-1] != '\n' {
 		fmt.Println()
 	}

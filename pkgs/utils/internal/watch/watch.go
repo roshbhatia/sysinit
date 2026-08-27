@@ -61,11 +61,11 @@ func Run(args []string) int {
 	for {
 		if err := fs.Parse(remaining); err != nil {
 			if err == flag.ErrHelp {
-				fmt.Fprint(os.Stdout, usageText)
+				_, _ = fmt.Fprint(os.Stdout, usageText)
 				return 0
 			}
 			fmt.Fprintf(os.Stderr, "watch: %v\n", err)
-			fmt.Fprint(os.Stderr, usageText)
+			_, _ = fmt.Fprint(os.Stderr, usageText)
 			return 2
 		}
 		if fs.NArg() == 0 {
@@ -76,7 +76,7 @@ func Run(args []string) int {
 	}
 
 	if len(rest) == 0 {
-		fmt.Fprint(os.Stderr, usageText)
+		_, _ = fmt.Fprint(os.Stderr, usageText)
 		return 2
 	}
 
@@ -90,7 +90,7 @@ func Run(args []string) int {
 	case "transcript":
 		source, err = newTranscript(rest[1:])
 	case "help", "-h", "--help":
-		fmt.Fprint(os.Stdout, usageText)
+		_, _ = fmt.Fprint(os.Stdout, usageText)
 		return 0
 	default:
 		err = fmt.Errorf("unknown source %q, want worker, bus, or transcript", rest[0])
@@ -109,7 +109,9 @@ type renderer interface {
 }
 
 func follow(source renderer, history int, tail bool, interval time.Duration) int {
-	fmt.Fprintf(os.Stdout, "%s\n", source.Title())
+	if _, err := fmt.Fprintf(os.Stdout, "%s\n", source.Title()); err != nil {
+		return 1
+	}
 
 	if err := source.Render(os.Stdout, history); err != nil {
 		fmt.Fprintf(os.Stderr, "watch: %v\n", err)
@@ -150,7 +152,9 @@ func (f *fileTail) Render(w io.Writer, history int) error {
 	info, err := os.Stat(f.path)
 	if err != nil {
 		if !f.missing {
-			fmt.Fprintf(w, "(nothing at %s yet)\n", f.path)
+			if _, writeErr := fmt.Fprintf(w, "(nothing at %s yet)\n", f.path); writeErr != nil {
+				return writeErr
+			}
 			f.missing = true
 		}
 		return nil
@@ -166,7 +170,9 @@ func (f *fileTail) Render(w io.Writer, history int) error {
 		if err != nil {
 			return err
 		}
-		fmt.Fprint(w, lastLines(string(body), history))
+		if _, err := fmt.Fprint(w, lastLines(string(body), history)); err != nil {
+			return err
+		}
 		f.offset = int64(len(body))
 		return nil
 	}
@@ -179,7 +185,7 @@ func (f *fileTail) Render(w io.Writer, history int) error {
 	if err != nil {
 		return err
 	}
-	defer handle.Close()
+	defer func() { _ = handle.Close() }()
 	if _, err := handle.Seek(f.offset, io.SeekStart); err != nil {
 		return err
 	}

@@ -133,9 +133,9 @@ func emitWarnings(cmd *cobra.Command, warns []ir.Warning) {
 			loc = fmt.Sprintf("%s:%d", w.File, w.Line)
 		}
 		if loc != "" {
-			fmt.Fprintf(cmd.ErrOrStderr(), "warning: %s: %s\n", loc, w.Msg)
+			_, _ = fmt.Fprintf(cmd.ErrOrStderr(), "warning: %s: %s\n", loc, w.Msg)
 		} else {
-			fmt.Fprintf(cmd.ErrOrStderr(), "warning: %s\n", w.Msg)
+			_, _ = fmt.Fprintf(cmd.ErrOrStderr(), "warning: %s\n", w.Msg)
 		}
 	}
 }
@@ -193,7 +193,9 @@ func runGraph(cmd *cobra.Command, args []string) error {
 		harness, _ := cmd.Flags().GetString("harness")
 		var cands []graph.Candidate
 		if harness != "" {
-			fmt.Fprintf(cmd.ErrOrStderr(), "running %s harness for dependency suggestions...\n", harness)
+			if _, err := fmt.Fprintf(cmd.ErrOrStderr(), "running %s harness for dependency suggestions...\n", harness); err != nil {
+				return err
+			}
 			var herr error
 			cands, herr = graph.HarnessSuggest(changes, harness)
 			if herr != nil {
@@ -218,7 +220,9 @@ func runGraph(cmd *cobra.Command, args []string) error {
 	}
 	g, diags := graph.Build(changes, manifest)
 	for _, d := range diags {
-		fmt.Fprintf(cmd.ErrOrStderr(), "warning: %s: %s\n", d.Kind, d.Msg)
+		if _, err := fmt.Fprintf(cmd.ErrOrStderr(), "warning: %s: %s\n", d.Kind, d.Msg); err != nil {
+			return err
+		}
 	}
 
 	format, _ := cmd.Flags().GetString("as")
@@ -310,9 +314,11 @@ func runCheck(cmd *cobra.Command, args []string) error {
 		return err
 	}
 	if cfg.IsZero() {
-		fmt.Fprintf(cmd.ErrOrStderr(),
+		if _, err := fmt.Fprintf(cmd.ErrOrStderr(),
 			"no rubric declared: add a `check:` block to %s or name a known schema in openspec/config.yaml\n",
-			graph.ManifestFile)
+			graph.ManifestFile); err != nil {
+			return err
+		}
 		return nil
 	}
 
@@ -499,11 +505,15 @@ func runWeb(cmd *cobra.Command, args []string) error {
 	if err := os.WriteFile(outPath, html, 0o644); err != nil {
 		return err
 	}
-	fmt.Fprintf(cmd.ErrOrStderr(), "wrote %s\n", outPath)
+	if _, err := fmt.Fprintf(cmd.ErrOrStderr(), "wrote %s\n", outPath); err != nil {
+		return err
+	}
 
 	if open, _ := cmd.Flags().GetBool("open"); open {
 		if err := openInBrowser(outPath); err != nil {
-			fmt.Fprintf(cmd.ErrOrStderr(), "could not open a browser (%v); open %s yourself\n", err, outPath)
+			if _, writeErr := fmt.Fprintf(cmd.ErrOrStderr(), "could not open a browser (%v); open %s yourself\n", err, outPath); writeErr != nil {
+				return writeErr
+			}
 		}
 	}
 	return nil

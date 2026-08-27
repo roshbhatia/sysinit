@@ -324,7 +324,6 @@ func ReadAll(path string) (Batch, error) {
 	if err != nil {
 		return Batch{}, err
 	}
-	defer file.Close()
 
 	out := Batch{}
 	lines := bufio.NewScanner(file)
@@ -334,5 +333,9 @@ func ReadAll(path string) (Batch, error) {
 		out.Spans = append(out.Spans, one.Spans...)
 		out.Records = append(out.Records, one.Records...)
 	}
-	return out, lines.Err()
+	err = lines.Err()
+	if closeErr := file.Close(); err == nil {
+		err = closeErr
+	}
+	return out, err
 }

@@ -81,17 +81,17 @@ var links = map[string]link{
 }
 
 func usage(w *os.File) {
-	fmt.Fprintf(w, "utils: the commands that used to be shell scripts\n\nUsage:\n  utils <command> [args...]\n\nCommands:\n")
+	_, _ = fmt.Fprintf(w, "utils: the commands that used to be shell scripts\n\nUsage:\n  utils <command> [args...]\n\nCommands:\n")
 	names := make([]string, 0, len(commands))
 	for name := range commands {
 		names = append(names, name)
 	}
 	sort.Strings(names)
 	for _, name := range names {
-		fmt.Fprintf(w, "  %-16s %s\n", name, commands[name].summary)
+		_, _ = fmt.Fprintf(w, "  %-16s %s\n", name, commands[name].summary)
 	}
 
-	fmt.Fprintf(w, "\nEach of these names runs one command directly:\n")
+	_, _ = fmt.Fprintf(w, "\nEach of these names runs one command directly:\n")
 	installed := make([]string, 0, len(links))
 	for name := range links {
 		installed = append(installed, name)
@@ -103,7 +103,7 @@ func usage(w *os.File) {
 		for _, arg := range l.args {
 			spelled += " " + arg
 		}
-		fmt.Fprintf(w, "  %-16s utils %s\n", name, spelled)
+		_, _ = fmt.Fprintf(w, "  %-16s utils %s\n", name, spelled)
 	}
 }
 

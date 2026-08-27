@@ -368,7 +368,7 @@ func fieldValue(f Field, rest string) ([]string, int) {
 		if f.Type == FieldTaskRefs && !taskRefRe.MatchString(tok) {
 			break
 		}
-		if !(f.Type == FieldTaskRefs && tok == "none") {
+		if f.Type != FieldTaskRefs || tok != "none" {
 			out = append(out, tok)
 		}
 		consumed = sepEnd

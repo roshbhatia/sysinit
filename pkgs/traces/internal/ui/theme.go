@@ -43,31 +43,6 @@ func roleStyle(role session.Role) lipgloss.Style {
 	return lipgloss.NewStyle().Foreground(color)
 }
 
-func span(count int, ch string) string {
-	if count <= 0 {
-		return ""
-	}
-	out := make([]byte, 0, count*len(ch))
-	for range count {
-		out = append(out, ch...)
-	}
-	return string(out)
-}
-
-func clip(text string, width int) string {
-	if width <= 0 {
-		return ""
-	}
-	runes := []rune(text)
-	if len(runes) <= width {
-		return text + span(width-len(runes), " ")
-	}
-	if width == 1 {
-		return "…"
-	}
-	return string(runes[:width-1]) + "…"
-}
-
 func plural(n int, word string) string {
 	if n == 1 {
 		return word

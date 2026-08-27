@@ -167,14 +167,18 @@ func captured(t *testing.T, fn func()) string {
 	done := make(chan string, 1)
 	go func() {
 		var collected strings.Builder
-		io.Copy(&collected, read)
+		_, _ = io.Copy(&collected, read)
 		done <- collected.String()
 	}()
 	fn()
-	write.Close()
+	if err := write.Close(); err != nil {
+		t.Fatal(err)
+	}
 	os.Stdout = real
 	out := <-done
-	read.Close()
+	if err := read.Close(); err != nil {
+		t.Fatal(err)
+	}
 	return out
 }
 
@@ -391,8 +395,12 @@ func TestRejectsAPaneFromAnEarlierMuxGeneration(t *testing.T) {
 	mux.install(t)
 
 	ws := workspaceIn(t, t.TempDir())
-	os.WriteFile(ws.paneFile(), []byte("1\n"), 0o600)
-	os.WriteFile(ws.muxFile(), []byte("99\n"), 0o600)
+	if err := os.WriteFile(ws.paneFile(), []byte("1\n"), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(ws.muxFile(), []byte("99\n"), 0o600); err != nil {
+		t.Fatal(err)
+	}
 
 	_, err := ws.pane("7")
 	if err == nil || !strings.Contains(err.Error(), "mux 99") {
@@ -411,13 +419,17 @@ func TestAnUnverifiableGenerationIsNotTreatedAsCurrent(t *testing.T) {
 	mux.install(t)
 
 	ws := workspaceIn(t, t.TempDir())
-	os.WriteFile(ws.paneFile(), []byte("1\n"), 0o600)
+	if err := os.WriteFile(ws.paneFile(), []byte("1\n"), 0o600); err != nil {
+		t.Fatal(err)
+	}
 
 	if _, err := ws.pane("7"); err == nil {
 		t.Error("a record with no generation marker was accepted")
 	}
 
-	os.WriteFile(ws.muxFile(), []byte("0\n"), 0o600)
+	if err := os.WriteFile(ws.muxFile(), []byte("0\n"), 0o600); err != nil {
+		t.Fatal(err)
+	}
 	if _, err := ws.pane("7"); err == nil {
 		t.Error("a record marked with generation 0 was accepted")
 	}
@@ -499,8 +511,12 @@ func TestTheGeneratedBodyChecksItsDirectoryAndQuotesIt(t *testing.T) {
 		t.Error("the body survived its own run")
 	}
 
-	os.RemoveAll(awkward)
-	os.Remove(ws.rcFile("run1"))
+	if err := os.RemoveAll(awkward); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.Remove(ws.rcFile("run1")); err != nil {
+		t.Fatal(err)
+	}
 	if err := ws.writeBody(body, "run1", awkward, "pwd"); err != nil {
 		t.Fatal(err)
 	}
@@ -550,7 +566,7 @@ func TestAnInterruptedRunStillRecordsAnExitCode(t *testing.T) {
 	if err := ws.writeBody(body, "run1", t.TempDir(), "kill -INT $$; sleep 5"); err != nil {
 		t.Fatal(err)
 	}
-	exec.Command("zsh", body).Run()
+	_ = exec.Command("zsh", body).Run()
 
 	if code := readRC(t, ws, "run1"); code != "130" {
 		t.Errorf("interrupted run recorded %q, want 130", code)
@@ -640,9 +656,15 @@ func TestANameInFlightIsRefusedAndReleasableAlone(t *testing.T) {
 	mux.install(t)
 	ws := workspaceIn(t, t.TempDir())
 
-	os.WriteFile(ws.logFile("build"), []byte("half a log\n"), 0o600)
-	os.WriteFile(ws.logFile("other"), []byte("someone else's log\n"), 0o600)
-	os.WriteFile(ws.rcFile("other"), []byte("0\n"), 0o600)
+	if err := os.WriteFile(ws.logFile("build"), []byte("half a log\n"), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(ws.logFile("other"), []byte("someone else's log\n"), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(ws.rcFile("other"), []byte("0\n"), 0o600); err != nil {
+		t.Fatal(err)
+	}
 
 	if !ws.inFlight("build") {
 		t.Fatal("a log with no exit code did not read as in flight")
@@ -672,8 +694,12 @@ func TestANameInFlightIsRefusedAndReleasableAlone(t *testing.T) {
 
 	ws.live(t, "12")
 	mux.panes = append(mux.panes, 12)
-	os.WriteFile(ws.logFile("live"), []byte("running\n"), 0o600)
-	os.WriteFile(ws.runningFile(), []byte("live\n"), 0o600)
+	if err := os.WriteFile(ws.logFile("live"), []byte("running\n"), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(ws.runningFile(), []byte("live\n"), 0o600); err != nil {
+		t.Fatal(err)
+	}
 	if code := ws.release("7", "live", false); code != 2 {
 		t.Errorf("release of the running run = %d, want 2", code)
 	}
@@ -690,10 +716,18 @@ func TestAQueuedRunIsNotReleasable(t *testing.T) {
 	ws := workspaceIn(t, t.TempDir())
 	ws.live(t, "12")
 
-	os.WriteFile(ws.logFile("a"), []byte("a's output\n"), 0o600)
-	os.WriteFile(ws.runningFile(), []byte("a\n"), 0o600)
-	os.WriteFile(ws.logFile("b"), []byte("=== b\n"), 0o600)
-	os.WriteFile(ws.bodyFile("b"), []byte("#!/usr/bin/env zsh\ntrue\n"), 0o700)
+	if err := os.WriteFile(ws.logFile("a"), []byte("a's output\n"), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(ws.runningFile(), []byte("a\n"), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(ws.logFile("b"), []byte("=== b\n"), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(ws.bodyFile("b"), []byte("#!/usr/bin/env zsh\ntrue\n"), 0o700); err != nil {
+		t.Fatal(err)
+	}
 
 	if code := ws.release("7", "b", false); code != 2 {
 		t.Errorf("release of a queued run = %d, want 2", code)
@@ -720,8 +754,12 @@ func TestForceDoesNotReleaseARunThatIsActuallyRunning(t *testing.T) {
 
 	ws := workspaceIn(t, t.TempDir())
 	ws.live(t, "12")
-	os.WriteFile(ws.logFile("a"), []byte("a's output\n"), 0o600)
-	os.WriteFile(ws.runningFile(), []byte("a\n"), 0o600)
+	if err := os.WriteFile(ws.logFile("a"), []byte("a's output\n"), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(ws.runningFile(), []byte("a\n"), 0o600); err != nil {
+		t.Fatal(err)
+	}
 
 	if code := ws.release("7", "a", true); code != 2 {
 		t.Errorf("forced release of a running run = %d, want 2", code)
@@ -747,8 +785,12 @@ func TestAMarkerWithNoOwnerIsReclaimable(t *testing.T) {
 
 	ws := workspaceIn(t, t.TempDir())
 	ws.live(t, "404")
-	os.WriteFile(ws.logFile("build"), []byte("half a log\n"), 0o600)
-	os.WriteFile(ws.runningFile(), []byte("build\n"), 0o600)
+	if err := os.WriteFile(ws.logFile("build"), []byte("half a log\n"), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(ws.runningFile(), []byte("build\n"), 0o600); err != nil {
+		t.Fatal(err)
+	}
 
 	if code := ws.release("7", "build", false); code != 0 {
 		t.Fatalf("release with a dead owner = %d, want 0", code)
@@ -762,7 +804,9 @@ func TestAMarkerWithNoOwnerIsReclaimable(t *testing.T) {
 
 	other := workspaceIn(t, t.TempDir())
 	other.live(t, "404")
-	os.WriteFile(other.runningFile(), []byte("build\n"), 0o600)
+	if err := os.WriteFile(other.runningFile(), []byte("build\n"), 0o600); err != nil {
+		t.Fatal(err)
+	}
 	if code := other.closePane("7"); code != 0 {
 		t.Fatalf("close with a dead pane = %d, want 0", code)
 	}
@@ -831,10 +875,16 @@ func TestAnAllocatedNameNeverTakesAFinishedRunsLog(t *testing.T) {
 	state(t)
 	ws := workspaceIn(t, t.TempDir())
 
-	os.WriteFile(ws.logFile("run1"), []byte("run1's output\n"), 0o600)
-	os.WriteFile(ws.rcFile("run1"), []byte("0\n"), 0o600)
+	if err := os.WriteFile(ws.logFile("run1"), []byte("run1's output\n"), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(ws.rcFile("run1"), []byte("0\n"), 0o600); err != nil {
+		t.Fatal(err)
+	}
 
-	os.WriteFile(ws.counterFile(), []byte("0\n"), 0o600)
+	if err := os.WriteFile(ws.counterFile(), []byte("0\n"), 0o600); err != nil {
+		t.Fatal(err)
+	}
 
 	name, err := ws.claim("")
 	if err != nil {
@@ -879,8 +929,12 @@ func TestACallerWithNoGenerationRefusesInsteadOfSplittingForever(t *testing.T) {
 	mux.install(t)
 
 	ws := workspaceIn(t, t.TempDir())
-	os.WriteFile(ws.paneFile(), []byte("12\n"), 0o600)
-	os.WriteFile(ws.muxFile(), []byte("0\n"), 0o600)
+	if err := os.WriteFile(ws.paneFile(), []byte("12\n"), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(ws.muxFile(), []byte("0\n"), 0o600); err != nil {
+		t.Fatal(err)
+	}
 
 	if code := ws.start("7", t.TempDir(), options{tail: 20}); code != 2 {
 		t.Errorf("start with no generation = %d, want 2", code)
@@ -919,8 +973,12 @@ func TestARecordNamingTheCallerIsNotAbsence(t *testing.T) {
 		}
 	}
 
-	os.WriteFile(ws.logFile("live"), []byte("running\n"), 0o600)
-	os.WriteFile(ws.runningFile(), []byte("live\n"), 0o600)
+	if err := os.WriteFile(ws.logFile("live"), []byte("running\n"), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(ws.runningFile(), []byte("live\n"), 0o600); err != nil {
+		t.Fatal(err)
+	}
 	if code := ws.release("12", "live", false); code != 2 {
 		t.Errorf("release from the worker pane = %d, want 2", code)
 	}
@@ -940,8 +998,12 @@ func TestCloseRecordsACodeForTheRunItKilled(t *testing.T) {
 
 	ws := workspaceIn(t, t.TempDir())
 	ws.live(t, "12")
-	os.WriteFile(ws.logFile("build"), []byte("half a build\n"), 0o600)
-	os.WriteFile(ws.runningFile(), []byte("build\n"), 0o600)
+	if err := os.WriteFile(ws.logFile("build"), []byte("half a build\n"), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(ws.runningFile(), []byte("build\n"), 0o600); err != nil {
+		t.Fatal(err)
+	}
 
 	if code := ws.closePane("7"); code != 0 {
 		t.Fatalf("close = %d, want 0", code)
@@ -984,8 +1046,12 @@ func TestTheReuseRaceHandsTheNameToOneCaller(t *testing.T) {
 	const rounds = 2000
 	const callers = 4
 	for round := range rounds {
-		os.WriteFile(ws.logFile("build"), []byte("a finished run\n"), 0o600)
-		os.WriteFile(ws.rcFile("build"), []byte("0\n"), 0o600)
+		if err := os.WriteFile(ws.logFile("build"), []byte("a finished run\n"), 0o600); err != nil {
+			t.Fatal(err)
+		}
+		if err := os.WriteFile(ws.rcFile("build"), []byte("0\n"), 0o600); err != nil {
+			t.Fatal(err)
+		}
 
 		release := make(chan struct{})
 		var ready, done sync.WaitGroup
@@ -1015,8 +1081,12 @@ func TestTheReuseRaceHandsTheNameToOneCaller(t *testing.T) {
 		if holders != 1 {
 			t.Fatalf("round %d: %d of %d callers held the name build, want exactly 1", round, holders, callers)
 		}
-		os.Remove(ws.logFile("build"))
-		os.Remove(ws.rcFile("build"))
+		if err := os.Remove(ws.logFile("build")); err != nil {
+			t.Fatal(err)
+		}
+		if err := os.Remove(ws.rcFile("build")); err != nil && !errors.Is(err, os.ErrNotExist) {
+			t.Fatal(err)
+		}
 	}
 }
 
@@ -1087,13 +1157,19 @@ func TestWaitReturnsTheRunsCodeOrTheTimeoutCode(t *testing.T) {
 	fast(t)
 	ws := workspaceIn(t, t.TempDir())
 
-	os.WriteFile(ws.logFile("run1"), []byte("output\n"), 0o600)
-	os.WriteFile(ws.rcFile("run1"), []byte("3\n"), 0o600)
+	if err := os.WriteFile(ws.logFile("run1"), []byte("output\n"), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(ws.rcFile("run1"), []byte("3\n"), 0o600); err != nil {
+		t.Fatal(err)
+	}
 	if code := ws.waitForExit("run1", 1, 5); code != 3 {
 		t.Errorf("wait = %d, want the run's own code 3", code)
 	}
 
-	os.WriteFile(ws.logFile("run2"), []byte("output\n"), 0o600)
+	if err := os.WriteFile(ws.logFile("run2"), []byte("output\n"), 0o600); err != nil {
+		t.Fatal(err)
+	}
 	if code := ws.waitForExit("run2", 1, 5); code != timedOut {
 		t.Errorf("expired wait = %d, want %d", code, timedOut)
 	}
@@ -1104,11 +1180,15 @@ func TestAnEnormousWaitDoesNotExpireImmediately(t *testing.T) {
 	fast(t)
 	ws := workspaceIn(t, t.TempDir())
 
-	os.WriteFile(ws.logFile("run1"), []byte("output\n"), 0o600)
+	if err := os.WriteFile(ws.logFile("run1"), []byte("output\n"), 0o600); err != nil {
+		t.Fatal(err)
+	}
 	done := make(chan int, 1)
 	go func() {
 		time.Sleep(20 * time.Millisecond)
-		os.WriteFile(ws.rcFile("run1"), []byte("0\n"), 0o600)
+		if err := os.WriteFile(ws.rcFile("run1"), []byte("0\n"), 0o600); err != nil {
+			t.Error(err)
+		}
 	}()
 	go func() { done <- ws.waitForExit("run1", 1<<62, 1) }()
 
@@ -1143,7 +1223,7 @@ func TestAReusedNameNeverLosesItsBodyToThePreviousRunsTrap(t *testing.T) {
 	const rounds = 20
 	for round := 0; round < rounds; round++ {
 		for _, path := range []string{ws.logFile("build"), ws.rcFile("build"), ws.bodyFile("build")} {
-			os.Remove(path)
+			_ = os.Remove(path)
 		}
 		if _, err := ws.claim("build"); err != nil {
 			t.Fatal(err)
@@ -1169,7 +1249,9 @@ func TestAReusedNameNeverLosesItsBodyToThePreviousRunsTrap(t *testing.T) {
 		if err := ws.writeBody(body, "build", dir, "echo second"); err != nil {
 			t.Fatal(err)
 		}
-		run.Wait()
+		if err := run.Wait(); err != nil {
+			t.Fatal(err)
+		}
 		if _, err := os.Stat(body); err != nil {
 			lost++
 		}
@@ -1207,8 +1289,12 @@ func TestAReplacementSplitDoesNotInheritTheDeadPanesRun(t *testing.T) {
 
 	ws := workspaceIn(t, t.TempDir())
 	ws.live(t, "404")
-	os.WriteFile(ws.logFile("run1"), []byte("=== run1\n"), 0o600)
-	os.WriteFile(ws.runningFile(), []byte("run1\n"), 0o600)
+	if err := os.WriteFile(ws.logFile("run1"), []byte("=== run1\n"), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(ws.runningFile(), []byte("run1\n"), 0o600); err != nil {
+		t.Fatal(err)
+	}
 
 	out := captured(t, func() { ws.start("7", t.TempDir(), options{tail: 20, command: "true"}) })
 	if strings.Contains(out, "queued behind") {
@@ -1234,8 +1320,12 @@ func TestHandingOverTheRoleDoesNotRecordACodeForTheCallersRun(t *testing.T) {
 
 	ws := workspaceIn(t, t.TempDir())
 	ws.live(t, "12")
-	os.WriteFile(ws.logFile("run1"), []byte("=== run1\n"), 0o600)
-	os.WriteFile(ws.runningFile(), []byte("run1\n"), 0o600)
+	if err := os.WriteFile(ws.logFile("run1"), []byte("=== run1\n"), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(ws.runningFile(), []byte("run1\n"), 0o600); err != nil {
+		t.Fatal(err)
+	}
 
 	captured(t, func() { ws.start("12", t.TempDir(), options{tail: 20, command: "true"}) })
 
@@ -1255,8 +1345,12 @@ func TestCloseDoesNotRecordACodeForAnotherPanesRun(t *testing.T) {
 
 	ws := workspaceIn(t, t.TempDir())
 	ws.live(t, "12")
-	os.WriteFile(ws.logFile("run1"), []byte("=== run1\n"), 0o600)
-	os.WriteFile(ws.runningFile(), []byte("run1\n"), 0o600)
+	if err := os.WriteFile(ws.logFile("run1"), []byte("=== run1\n"), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(ws.runningFile(), []byte("run1\n"), 0o600); err != nil {
+		t.Fatal(err)
+	}
 
 	captured(t, func() { ws.start("12", t.TempDir(), options{tail: 20, command: "true"}) })
 
@@ -1276,14 +1370,18 @@ func TestReleaseTakesTheAllocationLock(t *testing.T) {
 	mux.install(t)
 
 	ws := workspaceIn(t, t.TempDir())
-	os.WriteFile(ws.logFile("build"), []byte("=== build\n"), 0o600)
-	os.WriteFile(ws.rcFile("build"), []byte("0\n"), 0o600)
+	if err := os.WriteFile(ws.logFile("build"), []byte("=== build\n"), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(ws.rcFile("build"), []byte("0\n"), 0o600); err != nil {
+		t.Fatal(err)
+	}
 
 	held, err := os.OpenFile(ws.lockFile(), os.O_CREATE|os.O_RDWR, 0o600)
 	if err != nil {
 		t.Fatal(err)
 	}
-	defer held.Close()
+	defer func() { _ = held.Close() }()
 	if err := syscall.Flock(int(held.Fd()), syscall.LOCK_EX); err != nil {
 		t.Fatal(err)
 	}
@@ -1299,7 +1397,9 @@ func TestReleaseTakesTheAllocationLock(t *testing.T) {
 	case <-time.After(200 * time.Millisecond):
 		blocked = true
 	}
-	syscall.Flock(int(held.Fd()), syscall.LOCK_UN)
+	if err := syscall.Flock(int(held.Fd()), syscall.LOCK_UN); err != nil {
+		t.Fatal(err)
+	}
 	if blocked {
 		code = <-done
 	}
@@ -1317,12 +1417,14 @@ func TestTheRollbackTakesTheAllocationLock(t *testing.T) {
 	ws := workspaceIn(t, t.TempDir())
 	ws.live(t, "12")
 
-	os.WriteFile(ws.logFile("run1"), []byte("=== run1\n"), 0o600)
+	if err := os.WriteFile(ws.logFile("run1"), []byte("=== run1\n"), 0o600); err != nil {
+		t.Fatal(err)
+	}
 	held, err := os.OpenFile(ws.lockFile(), os.O_CREATE|os.O_RDWR, 0o600)
 	if err != nil {
 		t.Fatal(err)
 	}
-	defer held.Close()
+	defer func() { _ = held.Close() }()
 	if err := syscall.Flock(int(held.Fd()), syscall.LOCK_EX); err != nil {
 		t.Fatal(err)
 	}
@@ -1334,7 +1436,9 @@ func TestTheRollbackTakesTheAllocationLock(t *testing.T) {
 		t.Error("the rollback ran while another caller held the allocation lock")
 	case <-time.After(200 * time.Millisecond):
 	}
-	syscall.Flock(int(held.Fd()), syscall.LOCK_UN)
+	if err := syscall.Flock(int(held.Fd()), syscall.LOCK_UN); err != nil {
+		t.Fatal(err)
+	}
 	<-done
 	if _, err := os.Stat(ws.logFile("run1")); err == nil {
 		t.Error("the name stayed burned after the rollback")
@@ -1369,7 +1473,9 @@ func TestStatusReportsTheThreeStatesItDeclares(t *testing.T) {
 		t.Errorf("--status on an idle worker = %d, %q", code, out)
 	}
 
-	os.WriteFile(ws.runningFile(), []byte("build\n"), 0o600)
+	if err := os.WriteFile(ws.runningFile(), []byte("build\n"), 0o600); err != nil {
+		t.Fatal(err)
+	}
 	out = captured(t, func() { code = ws.reportStatus("7") })
 	if code != 0 || !strings.Contains(out, "pane 12  running build  log "+ws.logFile("build")) {
 		t.Errorf("--status on a busy worker = %d, %q", code, out)
@@ -1518,7 +1624,9 @@ func TestStatusReportsWaitingOnlyForTheRunTheMarkerNames(t *testing.T) {
 	ws := workspaceIn(t, t.TempDir())
 	ws.live(t, "12")
 
-	os.WriteFile(ws.runningFile(), []byte("build\n"), 0o600)
+	if err := os.WriteFile(ws.runningFile(), []byte("build\n"), 0o600); err != nil {
+		t.Fatal(err)
+	}
 	declare(t, "12", "waiting", "needs input")
 	var code int
 	out := captured(t, func() { code = ws.reportStatus("7") })
@@ -1527,13 +1635,17 @@ func TestStatusReportsWaitingOnlyForTheRunTheMarkerNames(t *testing.T) {
 		t.Errorf("--status on a blocked run = %d, %q; want %q", code, out, want)
 	}
 
-	os.Remove(ws.runningFile())
+	if err := os.Remove(ws.runningFile()); err != nil {
+		t.Fatal(err)
+	}
 	out = captured(t, func() { code = ws.reportStatus("7") })
 	if code != 0 || !strings.Contains(out, "pane 12  idle  in "+ws.root) {
 		t.Errorf("--status on a hand-started harness = %d, %q; want the idle line", code, out)
 	}
 
-	os.WriteFile(ws.runningFile(), []byte("build\n"), 0o600)
+	if err := os.WriteFile(ws.runningFile(), []byte("build\n"), 0o600); err != nil {
+		t.Fatal(err)
+	}
 	declare(t, "12", "working", "Bash: nix build")
 	out = captured(t, func() { code = ws.reportStatus("7") })
 	if !strings.Contains(out, "pane 12  running build") {
@@ -1545,8 +1657,12 @@ func TestTheBlockedWaitReturnsOnBlockedAndStillLosesToAnExit(t *testing.T) {
 	state(t)
 	fast(t)
 	ws := workspaceIn(t, t.TempDir())
-	os.WriteFile(ws.logFile("build"), []byte("Continue? [y/N]\n"), 0o600)
-	os.WriteFile(ws.runningFile(), []byte("build\n"), 0o600)
+	if err := os.WriteFile(ws.logFile("build"), []byte("Continue? [y/N]\n"), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(ws.runningFile(), []byte("build\n"), 0o600); err != nil {
+		t.Fatal(err)
+	}
 	declare(t, "12", "waiting", "needs input")
 
 	var code int
@@ -1563,7 +1679,9 @@ func TestTheBlockedWaitReturnsOnBlockedAndStillLosesToAnExit(t *testing.T) {
 		t.Errorf("-w on a blocked run = %d, want the timeout code %d", code, timedOut)
 	}
 
-	os.WriteFile(ws.rcFile("build"), []byte("0\n"), 0o600)
+	if err := os.WriteFile(ws.rcFile("build"), []byte("0\n"), 0o600); err != nil {
+		t.Fatal(err)
+	}
 	captured(t, func() { code = ws.waitForBlocked("build", "12", 1, 0) })
 	if code != 0 {
 		t.Errorf("wait on a run that blocked and then exited = %d, want its own code 0", code)
@@ -1574,17 +1692,23 @@ func TestABlockedWaitDoesNotReturnForAnotherRunsState(t *testing.T) {
 	state(t)
 	fast(t)
 	ws := workspaceIn(t, t.TempDir())
-	os.WriteFile(ws.logFile("mine"), []byte("\n"), 0o600)
+	if err := os.WriteFile(ws.logFile("mine"), []byte("\n"), 0o600); err != nil {
+		t.Fatal(err)
+	}
 	declare(t, "12", "waiting", "needs input")
 
-	os.WriteFile(ws.runningFile(), []byte("theirs\n"), 0o600)
+	if err := os.WriteFile(ws.runningFile(), []byte("theirs\n"), 0o600); err != nil {
+		t.Fatal(err)
+	}
 	var code int
 	captured(t, func() { code = ws.waitForBlocked("mine", "12", 1, 0) })
 	if code != timedOut {
 		t.Errorf("wait while another run is blocked = %d, want the timeout %d", code, timedOut)
 	}
 
-	os.Remove(ws.runningFile())
+	if err := os.Remove(ws.runningFile()); err != nil {
+		t.Fatal(err)
+	}
 	captured(t, func() { code = ws.waitForBlocked("mine", "12", 1, 0) })
 	if code != timedOut {
 		t.Errorf("wait before the run started = %d, want the timeout %d", code, timedOut)
@@ -1734,7 +1858,7 @@ func TestPruneLeavesHeldOverrideAndFlatStateAlone(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	defer handle.Close()
+	defer func() { _ = handle.Close() }()
 	if err := syscall.Flock(int(handle.Fd()), syscall.LOCK_EX); err != nil {
 		t.Fatal(err)
 	}
@@ -1765,7 +1889,9 @@ func TestPruneLeavesHeldOverrideAndFlatStateAlone(t *testing.T) {
 	if !strings.Contains(line, "kept 4, of which 1 override-keyed and 1 legacy") {
 		t.Errorf("report = %q, want the untouched count split by class", line)
 	}
-	syscall.Flock(int(handle.Fd()), syscall.LOCK_UN)
+	if err := syscall.Flock(int(handle.Fd()), syscall.LOCK_UN); err != nil {
+		t.Fatal(err)
+	}
 }
 
 func TestPruneRemovesNothingWhenTheMuxCannotAnswer(t *testing.T) {

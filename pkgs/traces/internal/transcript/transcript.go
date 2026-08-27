@@ -179,7 +179,7 @@ func parse(path string) ([]entry, string, string) {
 	if err != nil {
 		return nil, "", ""
 	}
-	defer f.Close()
+	defer func() { _ = f.Close() }()
 
 	out := []entry{}
 	sessionID, title := "", ""

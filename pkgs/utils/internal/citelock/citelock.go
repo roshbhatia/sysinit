@@ -398,8 +398,10 @@ func capture(url string, args []string) error {
 		return err
 	}
 	tmpName := tmp.Name()
-	tmp.Close()
-	defer os.Remove(tmpName)
+	if err := tmp.Close(); err != nil {
+		return err
+	}
+	defer func() { _ = os.Remove(tmpName) }()
 
 	engine := "curl"
 	if have("monolith") {

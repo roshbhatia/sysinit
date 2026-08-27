@@ -638,9 +638,6 @@ func (s *Session) attachPrompts() {
 	// spans than prompts: a parentless child stands in for its own turn.
 	next := 0
 	for _, root := range s.Roots {
-		for next < len(s.prompts) && s.prompts[next].At.After(root.Span.Start.Add(promptSlack)) {
-			break
-		}
 		if next < len(s.prompts) && !s.prompts[next].At.After(root.Span.Start.Add(promptSlack)) {
 			root.Prompt = s.prompts[next].Attrs["prompt"]
 			next++
@@ -911,18 +908,6 @@ func brief(d time.Duration) string {
 	default:
 		return fmt.Sprintf("%dms", d.Milliseconds())
 	}
-}
-
-// Claude Code reports input_tokens as 2 on a model call and puts the real read
-// in the cache counters: one measured call read 914181 cached tokens against an
-// input_tokens of 2. Reporting the bare field said the turn read 2 tokens.
-func tokens(attrs map[string]string) string {
-	in := count(attrs["input_tokens"]) + count(attrs["cache_read_tokens"]) + count(attrs["cache_creation_tokens"])
-	out := count(attrs["output_tokens"])
-	if in == 0 && out == 0 {
-		return ""
-	}
-	return fmt.Sprintf("%d in / %d out", in, out)
 }
 
 func count(text string) int {

@@ -250,7 +250,7 @@ func Run(events <-chan provider.Event, stop func()) (*provider.Result, error) {
 
 	options := []tea.ProgramOption{tea.WithOutput(os.Stderr)}
 	if keyboard := console(); keyboard != nil {
-		defer keyboard.Close()
+		defer func() { _ = keyboard.Close() }()
 		options = append(options, tea.WithInput(keyboard))
 	} else {
 		options = append(options, tea.WithInput(nil))
@@ -274,7 +274,7 @@ func Drain(events <-chan provider.Event, to io.Writer) *provider.Result {
 			result = event.Result
 		}
 		if to != nil && event.Kind == provider.Tool {
-			fmt.Fprintf(to, "%s %s\n", event.Tool, event.Text)
+			_, _ = fmt.Fprintf(to, "%s %s\n", event.Tool, event.Text)
 		}
 	}
 	return result

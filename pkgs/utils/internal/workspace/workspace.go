@@ -70,7 +70,7 @@ func readRoots(r io.Reader) []string {
 	return roots
 }
 
-func Run(args []string) int {
+func Run(args []string) (code int) {
 	if len(args) == 0 {
 		usage(os.Stderr)
 		return 2
@@ -128,7 +128,11 @@ func Run(args []string) int {
 	}
 
 	out := bufio.NewWriter(os.Stdout)
-	defer out.Flush()
+	defer func() {
+		if out.Flush() != nil {
+			code = 1
+		}
+	}()
 
 	if action == "roots" {
 		writeLines(out, roots)
@@ -137,7 +141,7 @@ func Run(args []string) int {
 
 	if action == "log" {
 		for _, commit := range Log(roots, count) {
-			fmt.Fprintf(out, "%s\t%s\t%s\t%s\t%s\n",
+			_, _ = fmt.Fprintf(out, "%s\t%s\t%s\t%s\t%s\n",
 				commit.Root, commit.SHA, commit.Short, commit.Parent, commit.Subject)
 		}
 		return 0
@@ -156,7 +160,7 @@ func Run(args []string) int {
 
 	for _, group := range groups {
 		for _, file := range group.Files {
-			fmt.Fprintln(out, file.Path)
+			_, _ = fmt.Fprintln(out, file.Path)
 		}
 	}
 	return 0
@@ -187,7 +191,9 @@ func writeReport(w io.Writer, dir string, roots []string, groups []Group) int {
 		fmt.Fprintf(os.Stderr, "workspace: %v\n", err)
 		return 1
 	}
-	fmt.Fprintf(w, "%s\n", body)
+	if _, err := fmt.Fprintf(w, "%s\n", body); err != nil {
+		return 1
+	}
 	return 0
 }
 
@@ -196,19 +202,19 @@ func writeHealth(w io.Writer, dir string, roots []string, groups []Group) {
 	for _, group := range groups {
 		changed += len(group.Files)
 	}
-	fmt.Fprintf(w, "dir=%s\n", dir)
-	fmt.Fprintf(w, "workspace=%s\n", repo.Workspace(dir))
-	fmt.Fprintf(w, "roots=%d\n", len(roots))
-	fmt.Fprintf(w, "dirty_roots=%d\n", len(groups))
-	fmt.Fprintf(w, "changed_files=%d\n", changed)
-	fmt.Fprintf(w, "scan_depth=%d\n", scanDepth)
+	_, _ = fmt.Fprintf(w, "dir=%s\n", dir)
+	_, _ = fmt.Fprintf(w, "workspace=%s\n", repo.Workspace(dir))
+	_, _ = fmt.Fprintf(w, "roots=%d\n", len(roots))
+	_, _ = fmt.Fprintf(w, "dirty_roots=%d\n", len(groups))
+	_, _ = fmt.Fprintf(w, "changed_files=%d\n", changed)
+	_, _ = fmt.Fprintf(w, "scan_depth=%d\n", scanDepth)
 	for _, group := range groups {
-		fmt.Fprintf(w, "dirty=%s %d\n", group.Root, len(group.Files))
+		_, _ = fmt.Fprintf(w, "dirty=%s %d\n", group.Root, len(group.Files))
 	}
 }
 
 func usage(w io.Writer) {
-	fmt.Fprint(w, `ws: what a workspace holds
+	_, _ = fmt.Fprint(w, `ws: what a workspace holds
 
 Usage:
   ws roots   [dir]        repository roots, one absolute path per line
@@ -416,6 +422,6 @@ func changedIn(root string, exclude []string) []File {
 
 func writeLines(w io.Writer, lines []string) {
 	for _, line := range lines {
-		fmt.Fprintln(w, line)
+		_, _ = fmt.Fprintln(w, line)
 	}
 }

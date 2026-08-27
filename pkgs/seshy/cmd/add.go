@@ -21,9 +21,9 @@ var (
 )
 
 var addCmd = &cobra.Command{
-	Use:   "add <name> [repos...]",
-	Short: "Add repositories to a session",
-	Args:  cobra.MinimumNArgs(1),
+	Use:               "add <name> [repos...]",
+	Short:             "Add repositories to a session",
+	Args:              cobra.MinimumNArgs(1),
 	ValidArgsFunction: completeSessionNames,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		name := args[0]

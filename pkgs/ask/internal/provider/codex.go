@@ -80,8 +80,8 @@ func schemaFile(shape map[string]any) (string, error) {
 		return "", err
 	}
 	if _, err := file.Write(encoded); err != nil {
-		file.Close()
-		os.Remove(file.Name())
+		_ = file.Close()
+		_ = os.Remove(file.Name())
 		return "", err
 	}
 	return file.Name(), file.Close()
@@ -173,7 +173,7 @@ func (c Codex) Run(ctx context.Context, req Request) (<-chan Event, error) {
 
 	discard := func() {
 		if schemaPath != "" {
-			os.Remove(schemaPath)
+			_ = os.Remove(schemaPath)
 		}
 	}
 

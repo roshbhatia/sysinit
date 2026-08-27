@@ -133,7 +133,7 @@ func Pick(offer []provider.Info) (provider.Info, error) {
 	if keyboard == nil {
 		return provider.Info{}, errors.New("there is no terminal to ask on")
 	}
-	defer keyboard.Close()
+	defer func() { _ = keyboard.Close() }()
 
 	start := picker{help: help.New(), offer: offer, at: ready(offer)}
 	final, err := tea.NewProgram(start, tea.WithOutput(os.Stderr), tea.WithInput(keyboard)).Run()

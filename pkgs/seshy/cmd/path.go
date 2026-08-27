@@ -9,9 +9,9 @@ import (
 )
 
 var pathCmd = &cobra.Command{
-	Use:   "path <name>",
-	Short: "Print session path",
-	Args:  cobra.ExactArgs(1),
+	Use:               "path <name>",
+	Short:             "Print session path",
+	Args:              cobra.ExactArgs(1),
 	ValidArgsFunction: completeSessionNames,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		name := args[0]

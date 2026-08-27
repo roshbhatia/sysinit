@@ -284,7 +284,7 @@ func list(w io.Writer, all []*session.Session) {
 	}
 	for _, one := range all {
 		shown := one.ViewCount()
-		fmt.Fprintf(w, "%-*s  %-*s  %*d %-5s  %s  %s\n",
+		_, _ = fmt.Fprintf(w, "%-*s  %-*s  %*d %-5s  %s  %s\n",
 			service, one.Service,
 			id, one.Short(),
 			count, shown, plural(shown, "item"),

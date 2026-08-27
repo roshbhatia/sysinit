@@ -68,7 +68,7 @@ func savePrompt(tree, harness, session, text string) {
 		return
 	}
 	if os.Rename(temporary, path) != nil {
-		os.Remove(temporary)
+		_ = os.Remove(temporary)
 	}
 }
 
@@ -78,7 +78,9 @@ func loadPrompt(tree string) prompt {
 	if err != nil {
 		return record
 	}
-	json.Unmarshal(body, &record)
+	if json.Unmarshal(body, &record) != nil {
+		return prompt{}
+	}
 	return record
 }
 
@@ -149,7 +151,7 @@ func seed(store, tree, relative string) {
 	if _, err := git(store, tree, nil, "update-index", "--add", "--cacheinfo", entry); err != nil {
 		return
 	}
-	git(store, tree, strings.NewReader("seed "+relative+"\n"),
+	_, _ = git(store, tree, strings.NewReader("seed "+relative+"\n"),
 		"commit", "--quiet", "--cleanup=whitespace", "--file=-")
 }
 
@@ -233,7 +235,9 @@ func ensureStore(store, tree string) bool {
 		{"core.bare", "false"},
 		{"core.hooksPath", filepath.Join(store, "hooks")},
 	} {
-		git(store, tree, nil, "config", setting[0], setting[1])
+		if _, err := git(store, tree, nil, "config", setting[0], setting[1]); err != nil {
+			return false
+		}
 	}
 	return true
 }
@@ -244,11 +248,11 @@ func lockStore(store string) (func(), bool) {
 	for {
 		handle, err := os.OpenFile(path, os.O_CREATE|os.O_EXCL|os.O_WRONLY, 0o600)
 		if err == nil {
-			handle.Close()
-			return func() { os.Remove(path) }, true
+			_ = handle.Close()
+			return func() { _ = os.Remove(path) }, true
 		}
 		if info, statErr := os.Stat(path); statErr == nil && time.Since(info.ModTime()) > lockStale {
-			os.Remove(path)
+			_ = os.Remove(path)
 			continue
 		}
 		if time.Now().After(deadline) {

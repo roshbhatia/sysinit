@@ -123,11 +123,15 @@ func EmitTo(stdout, stderr io.Writer, format Format, out Outcome) int {
 func emitExitCode(stderr io.Writer, out Outcome) int {
 	switch out.Kind {
 	case Deny, Block:
-		fmt.Fprintln(stderr, out.Message)
+		if _, err := fmt.Fprintln(stderr, out.Message); err != nil {
+			return 1
+		}
 		return 2
 	case Context:
 		if out.Message != "" {
-			fmt.Fprintln(stderr, out.Message)
+			if _, err := fmt.Fprintln(stderr, out.Message); err != nil {
+				return 1
+			}
 		}
 		return 0
 	default:
@@ -157,9 +161,11 @@ func emitClaude(stdout, stderr io.Writer, out Outcome) int {
 func write(stdout, stderr io.Writer, v any) int {
 	encoded, err := json.Marshal(v)
 	if err != nil {
-		fmt.Fprintln(stderr, err)
+		_, _ = fmt.Fprintln(stderr, err)
 		return 1
 	}
-	fmt.Fprintln(stdout, string(encoded))
+	if _, err := fmt.Fprintln(stdout, string(encoded)); err != nil {
+		return 1
+	}
 	return 0
 }

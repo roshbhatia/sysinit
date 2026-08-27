@@ -84,7 +84,9 @@ func TestPublishesALinkNotACopy(t *testing.T) {
 	if _, err := handle.WriteString("{\"a\":2}\n"); err != nil {
 		t.Fatal(err)
 	}
-	handle.Close()
+	if err := handle.Close(); err != nil {
+		t.Fatal(err)
+	}
 	through, err := os.ReadFile(link)
 	if err != nil {
 		t.Fatal(err)

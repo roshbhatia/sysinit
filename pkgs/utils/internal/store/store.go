@@ -45,7 +45,7 @@ func (s *Store) Lock() (func(), error) {
 					return
 				}
 				released = true
-				os.Remove(s.lockPath())
+				_ = os.Remove(s.lockPath())
 			}, nil
 		}
 		if !os.IsExist(err) {
@@ -89,13 +89,13 @@ func (s *Store) Publish(data []byte) error {
 		return err
 	}
 	name := tmp.Name()
-	defer os.Remove(name)
+	defer func() { _ = os.Remove(name) }()
 	if _, err := tmp.Write(data); err != nil {
-		tmp.Close()
+		_ = tmp.Close()
 		return err
 	}
 	if err := tmp.Sync(); err != nil {
-		tmp.Close()
+		_ = tmp.Close()
 		return err
 	}
 	if err := tmp.Close(); err != nil {

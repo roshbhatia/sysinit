@@ -138,8 +138,8 @@ func Run(args []string) int {
 	stateFile := filepath.Join(stateDir, pane+".json")
 
 	if status == "exit" {
-		os.Remove(stateFile)
-		os.Remove(filepath.Join(stateDir, pane+".start"))
+		_ = os.Remove(stateFile)
+		_ = os.Remove(filepath.Join(stateDir, pane+".start"))
 		return 0
 	}
 
@@ -271,7 +271,7 @@ func deriveReason(src, status string, input map[string]any, keys toolKeys, state
 	switch src {
 	case "submit":
 		if os.MkdirAll(stateDir, 0o755) == nil {
-			os.WriteFile(filepath.Join(stateDir, pane+".start"),
+			_ = os.WriteFile(filepath.Join(stateDir, pane+".start"),
 				[]byte(strconv.FormatInt(since, 10)), 0o644)
 		}
 		return "thinking"
@@ -324,8 +324,8 @@ func writeUserVar(encoded string) {
 	if err != nil {
 		return
 	}
-	defer tty.Close()
-	fmt.Fprintf(tty, "\033]1337;SetUserVar=agent_state=%s\007", encoded)
+	defer func() { _ = tty.Close() }()
+	_, _ = fmt.Fprintf(tty, "\033]1337;SetUserVar=agent_state=%s\007", encoded)
 }
 
 func MuxID() int {
@@ -373,7 +373,7 @@ func reapDeadMuxes(stateDir string, mux int, self string) {
 		if strings.HasPrefix(name, markerPrefix) {
 			pid, convErr := strconv.Atoi(strings.TrimPrefix(name, markerPrefix))
 			if convErr == nil && pid != mux && !muxAlive(pid) {
-				os.Remove(filepath.Join(stateDir, name))
+				_ = os.Remove(filepath.Join(stateDir, name))
 			}
 			continue
 		}
@@ -395,8 +395,8 @@ func reapDeadMuxes(stateDir string, mux int, self string) {
 			live[pane] = true
 			continue
 		}
-		os.Remove(filepath.Join(stateDir, name))
-		os.Remove(filepath.Join(stateDir, pane+".start"))
+		_ = os.Remove(filepath.Join(stateDir, name))
+		_ = os.Remove(filepath.Join(stateDir, pane+".start"))
 	}
 
 	// A turn that starts and never reports leaves a lone .start behind, which
@@ -410,13 +410,13 @@ func reapDeadMuxes(stateDir string, mux int, self string) {
 		// publishes the record this pass would look for.
 		if pane := strings.TrimSuffix(name, ".start"); !live[pane] && pane != self {
 			if _, err := os.Stat(filepath.Join(stateDir, pane+".json")); os.IsNotExist(err) {
-				os.Remove(filepath.Join(stateDir, name))
+				_ = os.Remove(filepath.Join(stateDir, name))
 			}
 		}
 	}
 
 	if f, err := os.Create(marker); err == nil {
-		f.Close()
+		_ = f.Close()
 	}
 }
 
@@ -438,12 +438,12 @@ func publish(path string, record state) {
 	}
 	name := tmp.Name()
 	if _, err := tmp.Write(append(data, '\n')); err != nil {
-		tmp.Close()
-		os.Remove(name)
+		_ = tmp.Close()
+		_ = os.Remove(name)
 		return
 	}
 	if tmp.Close() != nil || os.Rename(name, path) != nil {
-		os.Remove(name)
+		_ = os.Remove(name)
 	}
 }
 

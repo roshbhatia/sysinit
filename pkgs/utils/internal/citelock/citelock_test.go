@@ -64,7 +64,7 @@ func goodRecord() Record {
 	}
 }
 
-func stderr(t *testing.T, fn func() error) (error, string) {
+func stderr(t *testing.T, fn func() error) (string, error) {
 	t.Helper()
 	old := os.Stderr
 	r, w, err := os.Pipe()
@@ -87,15 +87,17 @@ func stderr(t *testing.T, fn func() error) (error, string) {
 		}
 	}()
 	callErr := fn()
-	w.Close()
+	if err := w.Close(); err != nil {
+		t.Fatal(err)
+	}
 	wg.Wait()
 	os.Stderr = old
-	return callErr, out.String()
+	return out.String(), callErr
 }
 
 func TestVerifyIsANoOpWithNoLockfile(t *testing.T) {
 	dir := t.TempDir()
-	err, out := stderr(t, func() error { return verify(dir) })
+	out, err := stderr(t, func() error { return verify(dir) })
 	if err != nil {
 		t.Fatalf("verify on a lockless directory failed: %v", err)
 	}
@@ -107,7 +109,7 @@ func TestVerifyIsANoOpWithNoLockfile(t *testing.T) {
 func TestVerifyAcceptsAWellFormedRecord(t *testing.T) {
 	dir := t.TempDir()
 	capturedRecord(t, dir, goodRecord(), "prelude the verbatim quote postlude")
-	err, out := stderr(t, func() error { return verify(dir) })
+	out, err := stderr(t, func() error { return verify(dir) })
 	if err != nil {
 		t.Fatalf("verify rejected a good record: %v: %s", err, out)
 	}
@@ -121,7 +123,7 @@ func TestVerifyRejectsARecordMissingEveryField(t *testing.T) {
 	if err := os.WriteFile(lockPath(dir), []byte(`{"records":[{"id":"unanchored"}]}`), 0o644); err != nil {
 		t.Fatal(err)
 	}
-	err, out := stderr(t, func() error { return verify(dir) })
+	out, err := stderr(t, func() error { return verify(dir) })
 	if err == nil {
 		t.Fatal("verify accepted a record with no source, quote, snapshot, or sha256")
 	}
@@ -135,7 +137,7 @@ func TestVerifyRejectsAMissingSnapshot(t *testing.T) {
 	rec := goodRecord()
 	rec.SHA256 = strings.Repeat("a", 64)
 	writeLock(t, dir, rec)
-	err, out := stderr(t, func() error { return verify(dir) })
+	out, err := stderr(t, func() error { return verify(dir) })
 	if err == nil {
 		t.Fatal("verify accepted a record whose snapshot is absent")
 	}
@@ -151,7 +153,7 @@ func TestVerifyRejectsAHandAuthoredSnapshot(t *testing.T) {
 	if err := os.Remove(filepath.Join(dir, goodRecord().Snapshot+".prov.json")); err != nil {
 		t.Fatal(err)
 	}
-	err, out := stderr(t, func() error { return verify(dir) })
+	out, err := stderr(t, func() error { return verify(dir) })
 	if err == nil {
 		t.Fatal("verify accepted a snapshot with no capture provenance")
 	}
@@ -167,7 +169,7 @@ func TestVerifyRejectsAnEditedSnapshot(t *testing.T) {
 	if err := os.WriteFile(filepath.Join(dir, rec.Snapshot), []byte("the verbatim quote, edited"), 0o644); err != nil {
 		t.Fatal(err)
 	}
-	err, out := stderr(t, func() error { return verify(dir) })
+	out, err := stderr(t, func() error { return verify(dir) })
 	if err == nil {
 		t.Fatal("verify accepted a snapshot whose hash no longer matches")
 	}
@@ -185,7 +187,7 @@ func TestVerifyRejectsASidecarThatDisagreesWithTheRecord(t *testing.T) {
 	if err := os.WriteFile(filepath.Join(dir, rec.Snapshot+".prov.json"), []byte(sidecar), 0o644); err != nil {
 		t.Fatal(err)
 	}
-	err, out := stderr(t, func() error { return verify(dir) })
+	out, err := stderr(t, func() error { return verify(dir) })
 	if err == nil {
 		t.Fatal("verify accepted a provenance sidecar that disagrees with the record")
 	}
@@ -197,7 +199,7 @@ func TestVerifyRejectsASidecarThatDisagreesWithTheRecord(t *testing.T) {
 func TestVerifyRejectsAQuoteThatDoesNotAnchor(t *testing.T) {
 	dir := t.TempDir()
 	capturedRecord(t, dir, goodRecord(), "prelude a similar but different quote postlude")
-	err, out := stderr(t, func() error { return verify(dir) })
+	out, err := stderr(t, func() error { return verify(dir) })
 	if err == nil {
 		t.Fatal("verify accepted a quote that is not in the snapshot")
 	}
@@ -229,7 +231,7 @@ func TestVerifyEnforcesTheFreshnessWindowPerClass(t *testing.T) {
 		rec.Accessed = time.Now().AddDate(0, 0, -tc.ageDays).Format("2006-01-02")
 		capturedRecord(t, dir, rec, body)
 
-		err, out := stderr(t, func() error { return verify(dir) })
+		out, err := stderr(t, func() error { return verify(dir) })
 		if tc.stale && err == nil {
 			t.Errorf("%s at %dd should be stale", tc.class, tc.ageDays)
 		}
@@ -244,7 +246,7 @@ func TestVerifyRejectsAnUnparseableAccessedDate(t *testing.T) {
 	rec := goodRecord()
 	rec.Accessed = "last tuesday"
 	capturedRecord(t, dir, rec, "prelude the verbatim quote postlude")
-	err, out := stderr(t, func() error { return verify(dir) })
+	out, err := stderr(t, func() error { return verify(dir) })
 	if err == nil {
 		t.Fatal("verify accepted an unparseable accessed date")
 	}
@@ -259,7 +261,7 @@ func TestVerifyReportsEveryBadRecordNotJustTheFirst(t *testing.T) {
 		`{"records":[{"id":"one"},{"source":"https://example.com"},{"id":"three"}]}`), 0o644); err != nil {
 		t.Fatal(err)
 	}
-	err, out := stderr(t, func() error { return verify(dir) })
+	out, err := stderr(t, func() error { return verify(dir) })
 	if err == nil {
 		t.Fatal("verify accepted three malformed records")
 	}
@@ -385,14 +387,14 @@ func TestVerifyRefusesALockThatDoesNotParse(t *testing.T) {
 	if err := os.WriteFile(lockPath(dir), []byte("not json"), 0o644); err != nil {
 		t.Fatal(err)
 	}
-	if err, _ := stderr(t, func() error { return verify(dir) }); err == nil {
+	if _, err := stderr(t, func() error { return verify(dir) }); err == nil {
 		t.Fatal("verify accepted a lock that does not parse")
 	}
 }
 
 func TestRecheckIsANoOpWithNoLockfile(t *testing.T) {
 	dir := t.TempDir()
-	err, out := stderr(t, func() error { return recheck(dir) })
+	out, err := stderr(t, func() error { return recheck(dir) })
 	if err != nil {
 		t.Fatalf("recheck on a lockless directory failed: %v", err)
 	}
@@ -406,7 +408,7 @@ func TestRecheckRefusesAnUnsafeSourceBeforeFetching(t *testing.T) {
 	rec := goodRecord()
 	rec.Source = "https://169.254.169.254/latest/meta-data/"
 	writeLock(t, dir, rec)
-	if err, _ := stderr(t, func() error { return recheck(dir) }); err == nil {
+	if _, err := stderr(t, func() error { return recheck(dir) }); err == nil {
 		t.Fatal("recheck fetched a link-local source")
 	}
 }

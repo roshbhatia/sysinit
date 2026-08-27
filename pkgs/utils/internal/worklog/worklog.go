@@ -297,7 +297,7 @@ func readContext(path string) intent {
 	if err != nil {
 		return intent{}
 	}
-	defer file.Close()
+	defer func() { _ = file.Close() }()
 
 	var found intent
 	var prompts []string
@@ -458,9 +458,11 @@ func appendLine(path string, record Record) error {
 	if err != nil {
 		return err
 	}
-	defer file.Close()
-	_, err = file.Write(append(encoded, '\n'))
-	return err
+	if _, err := file.Write(append(encoded, '\n')); err != nil {
+		_ = file.Close()
+		return err
+	}
+	return file.Close()
 }
 
 func Run(args []string) int {

@@ -63,7 +63,7 @@ Changes to analyze:
 }
 
 func runHarness(harness, prompt string) ([]byte, error) {
-	cmd := exec.Command(harness, "-p", prompt) //nolint:gosec
+	cmd := exec.Command(harness, "-p", prompt) //nolint:gosec // the configured harness path is trusted
 	var stdout, stderr bytes.Buffer
 	cmd.Stdout = &stdout
 	cmd.Stderr = &stderr
@@ -71,7 +71,7 @@ func runHarness(harness, prompt string) ([]byte, error) {
 		return stdout.Bytes(), nil
 	}
 
-	cmd2 := exec.Command(harness) //nolint:gosec
+	cmd2 := exec.Command(harness) //nolint:gosec // the configured harness path is trusted
 	cmd2.Stdin = strings.NewReader(prompt)
 	stdout.Reset()
 	stderr.Reset()

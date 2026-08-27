@@ -96,7 +96,8 @@ func Run(args []string) int {
 	case opts.release != "":
 		return ws.release(pane, opts.release, opts.force)
 	case opts.command == "":
-		return fail(errors.New("no command\n\n" + usage))
+		_, _ = fmt.Fprint(os.Stderr, usage)
+		return fail(errors.New("no command"))
 	}
 	return ws.start(pane, dir, opts)
 }
@@ -253,7 +254,7 @@ func (w *workspace) start(caller, dir string, opts options) int {
 	if err := w.writeHeader(name, dir, opts.command); err != nil {
 		return fail(err)
 	}
-	os.Remove(w.rcFile(name))
+	_ = os.Remove(w.rcFile(name))
 
 	if err := w.send(target, name, body); err != nil {
 		return fail(err)
@@ -312,19 +313,18 @@ func (w *workspace) underLock(fn func() error) error {
 	if err != nil {
 		return err
 	}
-	defer handle.Close()
+	defer func() { _ = handle.Close() }()
 	if err := syscall.Flock(int(handle.Fd()), syscall.LOCK_EX); err != nil {
 		return fmt.Errorf("could not lock %s: %w", w.lockFile(), err)
 	}
-	defer syscall.Flock(int(handle.Fd()), syscall.LOCK_UN)
+	defer func() { _ = syscall.Flock(int(handle.Fd()), syscall.LOCK_UN) }()
 	return fn()
 }
 
 func (w *workspace) claimExact(name string, reuse bool) error {
 	created, err := os.OpenFile(w.logFile(name), os.O_CREATE|os.O_EXCL|os.O_WRONLY, 0o600)
 	if err == nil {
-		created.Close()
-		return nil
+		return created.Close()
 	}
 	if !errors.Is(err, os.ErrExist) {
 		return err
@@ -339,18 +339,17 @@ func (w *workspace) claimExact(name string, reuse bool) error {
 		return fmt.Errorf("the name %s is taken by a finished run", name)
 	}
 
-	os.Remove(w.rcFile(name))
-	os.Remove(w.logFile(name))
+	_ = os.Remove(w.rcFile(name))
+	_ = os.Remove(w.logFile(name))
 	created, err = os.OpenFile(w.logFile(name), os.O_CREATE|os.O_EXCL|os.O_WRONLY, 0o600)
 	if err != nil {
 		return fmt.Errorf("another caller took the name %s", name)
 	}
-	created.Close()
-	return nil
+	return created.Close()
 }
 
 func (w *workspace) rollback(name string) {
-	w.underLock(func() error {
+	_ = w.underLock(func() error {
 		w.discard(name)
 		return nil
 	})
@@ -358,7 +357,7 @@ func (w *workspace) rollback(name string) {
 
 func (w *workspace) discard(name string) {
 	for _, path := range []string{w.logFile(name), w.rcFile(name), w.bodyFile(name)} {
-		os.Remove(path)
+		_ = os.Remove(path)
 	}
 }
 
@@ -451,12 +450,12 @@ func (w *workspace) retire(caller string) {
 		return
 	}
 	outgoing := w.recordedID()
-	os.Remove(w.runningFile())
+	_ = os.Remove(w.runningFile())
 	if outgoing == caller {
 		return
 	}
 	if w.inFlight(marker) {
-		writeAtomic(w.rcFile(marker), strconv.Itoa(paneClosed))
+		_ = writeAtomic(w.rcFile(marker), strconv.Itoa(paneClosed))
 	}
 }
 
@@ -543,11 +542,11 @@ func removeDead(dir string) bool {
 	if err != nil {
 		return false
 	}
-	defer handle.Close()
+	defer func() { _ = handle.Close() }()
 	if syscall.Flock(int(handle.Fd()), syscall.LOCK_EX|syscall.LOCK_NB) != nil {
 		return false
 	}
-	defer syscall.Flock(int(handle.Fd()), syscall.LOCK_UN)
+	defer func() { _ = syscall.Flock(int(handle.Fd()), syscall.LOCK_UN) }()
 	return os.RemoveAll(dir) == nil
 }
 
@@ -572,7 +571,7 @@ func (w *workspace) split(caller string) (string, error) {
 	}
 
 	time.Sleep(time.Second)
-	muxRun([]string{"cli", "activate-pane", "--pane-id", caller}, "")
+	_ = muxRun([]string{"cli", "activate-pane", "--pane-id", caller}, "")
 	return id, nil
 }
 
@@ -581,8 +580,8 @@ func (w *workspace) linkLast(name string) {
 		{w.logFile(name), filepath.Join(w.dir, "last.log")},
 		{w.rcFile(name), filepath.Join(w.dir, "last.rc")},
 	} {
-		os.Remove(pair[1])
-		os.Symlink(pair[0], pair[1])
+		_ = os.Remove(pair[1])
+		_ = os.Symlink(pair[0], pair[1])
 	}
 }
 
@@ -592,7 +591,7 @@ func (w *workspace) bumpCounter() int {
 		n, _ = strconv.Atoi(strings.TrimSpace(string(body)))
 	}
 	n++
-	writeAtomic(w.counterFile(), strconv.Itoa(n))
+	_ = writeAtomic(w.counterFile(), strconv.Itoa(n))
 	return n
 }
 
@@ -644,7 +643,7 @@ func (w *workspace) release(caller, name string, force bool) int {
 		}
 
 		if w.runningRun() == name {
-			os.Remove(w.runningFile())
+			_ = os.Remove(w.runningFile())
 		}
 		w.discard(name)
 		return nil
@@ -716,15 +715,15 @@ func clearState(target string) string {
 	if _, err := os.Stat(record); err != nil {
 		return ""
 	}
-	os.Remove(record)
-	os.Remove(start)
+	_ = os.Remove(record)
+	_ = os.Remove(start)
 	return "; its state record is removed"
 }
 
 func (w *workspace) forget() string {
 	marker := w.runningRun()
 	for _, path := range []string{w.paneFile(), w.muxFile(), w.runningFile()} {
-		os.Remove(path)
+		_ = os.Remove(path)
 	}
 	if marker == "" {
 		return ""
@@ -861,13 +860,13 @@ func paneAlive(id string) (bool, error) {
 func livePanes() (map[string]bool, error) {
 	out, err := muxOutput([]string{"cli", "list", "--format", "json"})
 	if err != nil {
-		return nil, fmt.Errorf("%w: %v", errProbe, err)
+		return nil, fmt.Errorf("%w: %w", errProbe, err)
 	}
 	var panes []struct {
 		PaneID int `json:"pane_id"`
 	}
 	if err := json.Unmarshal([]byte(out), &panes); err != nil {
-		return nil, fmt.Errorf("%w: could not read the pane list: %v", errProbe, err)
+		return nil, fmt.Errorf("%w: could not read the pane list: %w", errProbe, err)
 	}
 	live := make(map[string]bool, len(panes))
 	for _, p := range panes {

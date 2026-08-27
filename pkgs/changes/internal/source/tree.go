@@ -29,7 +29,7 @@ func (s Spec) Tree(paths []string) (dir string, kept []string, done func()) {
 	if err != nil {
 		return s.Dir, nil, func() {}
 	}
-	done = func() { os.RemoveAll(tmp) }
+	done = func() { _ = os.RemoveAll(tmp) }
 	for _, p := range paths {
 		// A deleted path has no after side, and git show fails on it. That is
 		// the signal to leave it out rather than an error to report.

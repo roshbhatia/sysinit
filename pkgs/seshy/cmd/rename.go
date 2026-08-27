@@ -10,9 +10,9 @@ import (
 )
 
 var renameCmd = &cobra.Command{
-	Use:   "rename <old-name> <new-name>",
-	Short: "Rename a session",
-	Args:  cobra.ExactArgs(2),
+	Use:               "rename <old-name> <new-name>",
+	Short:             "Rename a session",
+	Args:              cobra.ExactArgs(2),
 	ValidArgsFunction: completeSessionNames,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		oldName, newName := args[0], args[1]

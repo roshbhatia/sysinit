@@ -1124,11 +1124,14 @@ func (m Model) edit() (Model, tea.Cmd) {
 		return m, nil
 	}
 	if _, err := f.WriteString(src); err != nil {
-		f.Close()
+		_ = f.Close()
 		m.status = "temp file: " + err.Error()
 		return m, nil
 	}
-	f.Close()
+	if err := f.Close(); err != nil {
+		m.status = "temp file: " + err.Error()
+		return m, nil
+	}
 	editor := os.Getenv("EDITOR")
 	if editor == "" {
 		editor = "vi"
