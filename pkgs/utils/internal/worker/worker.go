@@ -875,10 +875,19 @@ func livePanes() (map[string]bool, error) {
 	return live, nil
 }
 
+func muxArgs(args []string) []string {
+	if len(args) == 0 || args[0] != "cli" {
+		return append([]string(nil), args...)
+	}
+	guarded := make([]string, 0, len(args)+1)
+	guarded = append(guarded, "cli", "--no-auto-start")
+	return append(guarded, args[1:]...)
+}
+
 func muxOutputCmd(args []string) (string, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), muxTimeout)
 	defer cancel()
-	cmd := exec.CommandContext(ctx, "wezterm", args...)
+	cmd := exec.CommandContext(ctx, "wezterm", muxArgs(args)...)
 
 	cmd.WaitDelay = muxTimeout
 	out, err := cmd.Output()
@@ -891,7 +900,7 @@ func muxOutputCmd(args []string) (string, error) {
 func muxRunCmd(args []string, stdin string) error {
 	ctx, cancel := context.WithTimeout(context.Background(), muxTimeout)
 	defer cancel()
-	cmd := exec.CommandContext(ctx, "wezterm", args...)
+	cmd := exec.CommandContext(ctx, "wezterm", muxArgs(args)...)
 	cmd.WaitDelay = muxTimeout
 	if stdin != "" {
 		cmd.Stdin = strings.NewReader(stdin)

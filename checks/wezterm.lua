@@ -1,6 +1,13 @@
 local lua_root = assert(arg[1], "WezTerm Lua path is required")
 local plugin_fixture = assert(arg[2], "plugin fixture path is required")
 
+local switcher_file = assert(io.open(lua_root .. "/sysinit/pkg/ui/switcher.lua", "r"))
+local switcher_source = switcher_file:read("*a")
+switcher_file:close()
+local cli_calls = select(2, switcher_source:gsub('wezterm_bin,%s*"cli"', ""))
+local guarded_calls = select(2, switcher_source:gsub('wezterm_bin,%s*"cli",%s*"%-%-no%-auto%-start"', ""))
+assert(cli_calls == guarded_calls, "a switcher wezterm cli call can start a headless mux")
+
 package.path = table.concat({
   lua_root .. "/?.lua",
   lua_root .. "/?/init.lua",

@@ -545,7 +545,7 @@ function M.setup(config, wm, ctx)
     end)
 
     local wezterm_bin = (wezterm.executable_dir or "") .. "/wezterm"
-    local ok, stdout = wezterm.run_child_process({ wezterm_bin, "cli", "list", "--format=json" })
+    local ok, stdout = wezterm.run_child_process({ wezterm_bin, "cli", "--no-auto-start", "list", "--format=json" })
     if not ok then
       wezterm.log_error("wezterm cli list failed; " .. label .. " left open")
       return "close failed: " .. label, true
@@ -569,7 +569,15 @@ function M.setup(config, wm, ctx)
 
     local killed = 0
     for _, pane_id in ipairs(plan.targets) do
-      if wezterm.run_child_process({ wezterm_bin, "cli", "kill-pane", "--pane-id=" .. tostring(pane_id) }) then
+      if
+        wezterm.run_child_process({
+          wezterm_bin,
+          "cli",
+          "--no-auto-start",
+          "kill-pane",
+          "--pane-id=" .. tostring(pane_id),
+        })
+      then
         killed = killed + 1
       end
     end

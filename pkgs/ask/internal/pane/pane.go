@@ -34,11 +34,15 @@ func read() ([]byte, error) {
 	if err != nil {
 		return nil, errors.New("wezterm is not on PATH")
 	}
-	out, err := exec.Command(binary, "cli", "get-text", "--start-line", scrollback).Output()
+	out, err := exec.Command(binary, weztermArgs()...).Output()
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
+}
+
+func weztermArgs() []string {
+	return []string{"cli", "--no-auto-start", "get-text", "--start-line", scrollback}
 }
 
 // Capture rotates the snapshots and takes a new one.

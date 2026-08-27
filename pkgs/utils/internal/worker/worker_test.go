@@ -7,6 +7,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"slices"
 	"strconv"
 	"strings"
 	"sync"
@@ -1572,6 +1573,14 @@ func TestAMuxCallIsBoundedByARealTimeout(t *testing.T) {
 		if elapsed > 3*time.Second {
 			t.Errorf("%s: took %s, so the call was not bounded", probe.name, elapsed)
 		}
+	}
+}
+
+func TestEveryMuxCLICommandDisablesAutostart(t *testing.T) {
+	got := muxArgs([]string{"cli", "list", "--format", "json"})
+	want := []string{"cli", "--no-auto-start", "list", "--format", "json"}
+	if !slices.Equal(got, want) {
+		t.Fatalf("muxArgs() = %q, want %q", got, want)
 	}
 }
 
