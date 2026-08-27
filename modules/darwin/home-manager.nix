@@ -1,4 +1,5 @@
 {
+  pkgs,
   values,
   profile ? "workstation",
   theme ? true,
@@ -10,7 +11,7 @@
   home-manager = {
     useGlobalPkgs = true;
     useUserPackages = true;
-    backupCommand = "rm -f";
+    backupCommand = "${pkgs.trash-cli}/bin/trash-put";
     extraSpecialArgs = {
       inherit
         values
