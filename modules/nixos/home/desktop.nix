@@ -468,6 +468,7 @@ in
       pbpaste = "wl-paste";
     };
     pointerCursor = {
+      enable = true;
       name = "macOS";
       package = pkgs.apple-cursor;
       size = 16;
