@@ -139,7 +139,7 @@ if [ "${#go_files[@]}" -gt 0 ] && command -v gofmt > /dev/null 2>&1; then
   run_without_output gofmt gofmt -l "${go_files[@]}"
 fi
 if [ "${#go_files[@]}" -gt 0 ] && command -v golangci-lint > /dev/null 2>&1; then
-  run_at golangci-lint pkgs env GOPROXY=off golangci-lint run --config ../.golangci.yml ./...
+  run_at golangci-lint pkgs golangci-lint run --config ../.golangci.yml ./...
 fi
 
 sh_files=()
@@ -236,7 +236,7 @@ while IFS= read -r file; do
   [ -n "${file}" ] && c_files+=("${file}")
 done < <(files_for '\.(c|h)$')
 if [ "${#c_files[@]}" -gt 0 ] && [ "$(uname -s)" = Darwin ] && command -v clang > /dev/null 2>&1; then
-  run "C syntax" clang -fsyntax-only "${c_files[@]}"
+  run "C syntax" clang -Wno-unused-command-line-argument -fsyntax-only "${c_files[@]}"
 fi
 
 svg_files=()
