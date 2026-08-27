@@ -205,14 +205,14 @@ in
         keepBackup = false;
         prompt = false;
         nvim = {
-          cmd = ''nvim "MERGED" -c "CodeDiff merge $MERGED"'';
+          cmd = ''nvim -d "$LOCAL" "$MERGED" "$REMOTE"'';
         };
       };
 
       difftool = {
         prompt = false;
         nvim = {
-          cmd = ''nvim "$LOCAL" "$REMOTE" +"CodeDiff file $LOCAL $REMOTE"'';
+          cmd = ''nvim -d "$LOCAL" "$REMOTE"'';
         };
       };
 
