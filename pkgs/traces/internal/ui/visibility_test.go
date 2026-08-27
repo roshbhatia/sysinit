@@ -33,6 +33,14 @@ func foldable(t *testing.T) Model {
 	return mm.(Model)
 }
 
+func TestViewWaitsForTerminalSize(t *testing.T) {
+	m := foldable(t)
+	m.width, m.height = 0, 0
+	if got := m.View(); got != "" {
+		t.Fatalf("view before WindowSizeMsg = %q, want empty", got)
+	}
+}
+
 func applyBatch(t *testing.T, m Model, batch otlp.Batch) Model {
 	t.Helper()
 	next, cmd := m.Update(BatchMsg(batch))
