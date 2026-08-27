@@ -605,6 +605,7 @@ local function activate(choice)
     end
   elseif choice.kind == "caffeinate" then
     caffeinate(choice.on == true)
+    held.commands = command_rows()
     compose()
   elseif choice.kind == "command" then
     if choice.url then
