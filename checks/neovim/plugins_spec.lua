@@ -81,4 +81,55 @@ busted.describe("plugin specifications", function()
     movement_maps["]C"].callback()
     assert.are.same({ method = "goto_next_start", capture = "@class.outer", group = "textobjects" }, movement_calls[1])
   end)
+
+  busted.it("emits the WezTerm navigation protocol at editor boundaries", function()
+    local chansend = vim.fn.chansend
+    local create_autocmd = vim.api.nvim_create_autocmd
+    local original_splits = package.loaded["smart-splits"]
+    local messages = {}
+    local autocmds = {}
+    local split_options
+
+    vim.fn.chansend = function(_, value)
+      messages[#messages + 1] = value
+    end
+    rawset(vim.api, "nvim_create_autocmd", function(events, options)
+      autocmds[#autocmds + 1] = { events = events, callback = options.callback }
+      return #autocmds
+    end)
+    package.loaded["smart-splits"] = {
+      setup = function(options)
+        split_options = options
+      end,
+    }
+
+    local spec = dofile(config_root .. "/lua/plugins/smart-splits.lua")[1]
+    spec.init()
+    spec.config()
+    split_options.at_edge({ direction = "left" })
+    autocmds[1].callback()
+    autocmds[2].callback()
+
+    vim.fn.chansend = chansend
+    rawset(vim.api, "nvim_create_autocmd", create_autocmd)
+    package.loaded["smart-splits"] = original_splits
+
+    local function user_var(message)
+      local name, encoded = message:match("SetUserVar=([^=]+)=([^\7]+)")
+      return name, vim.base64.decode(encoded)
+    end
+
+    local name, value = user_var(messages[1])
+    assert.are.equal("IS_NVIM", name)
+    assert.are.equal("true", value)
+    name, value = user_var(messages[2])
+    assert.are.equal("SYSINIT_NAV", name)
+    assert.are.equal("left:1", value)
+    name, value = user_var(messages[3])
+    assert.are.equal("IS_NVIM", name)
+    assert.are.equal("true", value)
+    name, value = user_var(messages[4])
+    assert.are.equal("IS_NVIM", name)
+    assert.are.equal("false", value)
+  end)
 end)

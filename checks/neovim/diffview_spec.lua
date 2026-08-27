@@ -2,6 +2,7 @@ local busted = require("plenary.busted")
 local assert = require("luassert")
 
 local config_root = assert(vim.env.SYSINIT_NVIM_CONFIG)
+local missing = {}
 
 local function map_for(maps, lhs)
   for _, map in ipairs(maps) do
@@ -11,10 +12,37 @@ local function map_for(maps, lhs)
   end
 end
 
+local function run_git(cwd, ...)
+  local command = { "git", "-C", cwd }
+  vim.list_extend(command, { ... })
+  local result = vim.system(command, { text = true }):wait()
+  assert.are.equal(0, result.code, result.stderr or table.concat(command, " "))
+end
+
+local function buffer_with_filetype(filetype)
+  for _, bufnr in ipairs(vim.api.nvim_list_bufs()) do
+    if vim.bo[bufnr].filetype == filetype and vim.fn.bufwinid(bufnr) ~= -1 then
+      return bufnr
+    end
+  end
+end
+
+local function buffer_map(bufnr, lhs)
+  for _, map in ipairs(vim.api.nvim_buf_get_keymap(bufnr, "n")) do
+    if map.lhs == lhs then
+      return map
+    end
+  end
+end
+
 busted.describe("Diffview integration", function()
   local loaded
+  local original_cwd
+  local temporary
 
   busted.before_each(function()
+    original_cwd = assert(vim.uv.cwd())
+    temporary = nil
     loaded = {}
     for _, name in ipairs({
       "diffview",
@@ -25,14 +53,23 @@ busted.describe("Diffview integration", function()
       "harness.review",
       "harness.scopes",
     }) do
-      loaded[name] = package.loaded[name]
+      loaded[name] = package.loaded[name] == nil and missing or package.loaded[name]
     end
   end)
 
   busted.after_each(function()
+    if temporary ~= nil then
+      pcall(vim.cmd, "DiffviewClose")
+      vim.fn.chdir(original_cwd)
+      vim.fn.delete(temporary, "rf")
+    end
     pcall(vim.api.nvim_del_user_command, "Review")
     for name, module in pairs(loaded) do
-      package.loaded[name] = module
+      if module == missing then
+        package.loaded[name] = nil
+      else
+        package.loaded[name] = module
+      end
     end
   end)
 
@@ -142,5 +179,38 @@ busted.describe("Diffview integration", function()
 
     vim.o.columns = columns
     vim.o.lines = lines
+  end)
+
+  busted.it("opens and closes a real Diffview with its buffer mappings", function()
+    temporary = vim.fn.tempname()
+    vim.fn.mkdir(temporary, "p")
+    run_git(temporary, "init", "--quiet")
+    run_git(temporary, "config", "user.name", "editor check")
+    run_git(temporary, "config", "user.email", "editor-check@localhost")
+    run_git(temporary, "config", "commit.gpgsign", "false")
+    vim.fn.writefile({ "old" }, temporary .. "/tracked.txt")
+    run_git(temporary, "add", "tracked.txt")
+    run_git(temporary, "commit", "--quiet", "-m", "seed")
+    vim.fn.writefile({ "new" }, temporary .. "/tracked.txt")
+    vim.fn.chdir(temporary)
+
+    package.loaded["harness.diffview"] = nil
+    require("harness.diffview").setup()
+    vim.cmd("DiffviewOpen")
+
+    local panel
+    assert.is_true(vim.wait(2000, function()
+      panel = buffer_with_filetype("DiffviewFiles")
+      return panel ~= nil
+    end))
+    assert.are.equal("Close the review", buffer_map(panel, "q").desc)
+    assert.are.equal("Toggle the file panel", buffer_map(panel, ",db").desc)
+
+    local panel_window = vim.fn.bufwinid(panel)
+    assert.are.equal(vim.o.columns, vim.api.nvim_win_get_width(panel_window))
+    vim.cmd("DiffviewClose")
+    assert.is_true(vim.wait(1000, function()
+      return vim.fn.bufwinid(panel) == -1
+    end))
   end)
 end)

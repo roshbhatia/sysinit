@@ -18,9 +18,9 @@ busted.describe("Lua module lifecycle", function()
     local create_autocmd = vim.api.nvim_create_autocmd
     local create_augroup = vim.api.nvim_create_augroup
     local calls = 0
-    vim.api.nvim_create_autocmd = function()
+    rawset(vim.api, "nvim_create_autocmd", function()
       calls = calls + 1
-    end
+    end)
     vim.api.nvim_create_augroup = function()
       calls = calls + 1
       return 1
@@ -31,7 +31,7 @@ busted.describe("Lua module lifecycle", function()
       require(name)
     end
 
-    vim.api.nvim_create_autocmd = create_autocmd
+    rawset(vim.api, "nvim_create_autocmd", create_autocmd)
     vim.api.nvim_create_augroup = create_augroup
     assert.are.equal(0, calls)
   end)

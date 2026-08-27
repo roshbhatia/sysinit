@@ -8,6 +8,7 @@ package.path = table.concat({
 }, ";")
 
 local handlers = {}
+local current_process = "zsh"
 local action = setmetatable({}, {
   __index = function(_, name)
     return function(value)
@@ -56,7 +57,7 @@ package.loaded["sysinit.pkg.utils"] = {
     return name
   end,
   get_process_name = function()
-    return "zsh"
+    return current_process
   end,
   load_json_file = function()
     return {
@@ -82,6 +83,80 @@ for _, binding in ipairs(key_config.keys) do
   seen[chord] = true
 end
 require("sysinit.pkg.validate").setup(key_config)
+
+local function key_binding(key, mods)
+  for _, binding in ipairs(key_config.keys) do
+    if binding.key == key and binding.mods == mods then
+      return binding
+    end
+  end
+  error("missing WezTerm chord: " .. mods .. "+" .. key)
+end
+
+local performed = {}
+local pane_vars = { IS_NVIM = "true" }
+local window = {
+  perform_action = function(_, value)
+    performed[#performed + 1] = value
+  end,
+}
+local pane = {
+  get_user_vars = function()
+    return pane_vars
+  end,
+}
+
+key_binding("h", "CTRL").action(window, pane)
+assert(performed[1].SendKey.key == "h", "CTRL-h did not pass through to Neovim")
+pane_vars = {}
+current_process = "zsh"
+key_binding("h", "CTRL").action(window, pane)
+assert(performed[2].ActivatePaneDirection == "Left", "CTRL-h did not move from a shell pane")
+keybindings.locked_mode = true
+key_binding("h", "CTRL").action(window, pane)
+assert(performed[3].SendKey.mods == "CTRL", "locked mode consumed CTRL-h")
+keybindings.locked_mode = false
+
+local event_config = {}
+require("sysinit.pkg.events").setup(event_config)
+assert(event_config.enable_scroll_bar, "event setup did not enable the scroll bar")
+
+local clipboard
+local overrides
+local event_action
+local event_window = {
+  copy_to_clipboard = function(_, value, target)
+    clipboard = { value = value, target = target }
+  end,
+  perform_action = function(_, value)
+    event_action = value
+  end,
+  get_config_overrides = function()
+    return { preserved = true }
+  end,
+  set_config_overrides = function(_, value)
+    overrides = value
+  end,
+}
+local alt_screen = false
+local event_pane = {
+  get_dimensions = function()
+    return { scrollback_rows = 100, viewport_rows = 20 }
+  end,
+  is_alt_screen_active = function()
+    return alt_screen
+  end,
+}
+
+handlers["user-var-changed"](event_window, event_pane, "wez_copy", "copied text")
+assert(clipboard.value == "copied text" and clipboard.target == "Clipboard", "wez_copy missed the clipboard")
+handlers["user-var-changed"](event_window, event_pane, "SYSINIT_NAV", "left:editor")
+assert(event_action.ActivatePaneDirection == "Left", "SYSINIT_NAV did not activate the left pane")
+handlers["update-status"](event_window, event_pane)
+assert(overrides.preserved and overrides.enable_scroll_bar, "scrollback did not show the scroll bar")
+alt_screen = true
+handlers["update-status"](event_window, event_pane)
+assert(not overrides.enable_scroll_bar, "the alternate screen kept the scroll bar")
 
 local duplicate_config = {
   keys = {
