@@ -36,7 +36,7 @@ jobs:
             echo "enabled=true" >> "$GITHUB_OUTPUT"
           else
             echo "enabled=false" >> "$GITHUB_OUTPUT"
-            echo "::notice::CACHIX_AUTH_TOKEN not set — reading cache without pushing."
+            echo "::notice::CACHIX_AUTH_TOKEN not set; reading cache without pushing."
           fi
 
       - uses: cachix/cachix-action@v17
@@ -45,7 +45,7 @@ jobs:
           name: roshbhatia
           authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
 
-      # `nix fmt -- --check` is not reachable from `nix flake check`, so without
+      # `nix fmt -- --check` is not reachable from `nix flake check`.
       - name: nix fmt -- --check
         env:
           NIX_CONFIG: "access-tokens = github.com=${{ secrets.GITHUB_TOKEN }}"
@@ -64,8 +64,20 @@ jobs:
           NIX_CONFIG: "access-tokens = github.com=${{ secrets.GITHUB_TOKEN }}"
         run: nix flake check --print-build-logs
 
-      # Evaluation-time assertions (the cross-layer keybinding chord check, the
-      - name: Evaluate host configuration (lv426)
+      # Evaluate every host because the current runner cannot build Linux outputs.
+      - name: Evaluate host configurations
         env:
           NIX_CONFIG: "access-tokens = github.com=${{ secrets.GITHUB_TOKEN }}"
-        run: nix eval --raw ".#darwinConfigurations.lv426.system.drvPath"
+        run: |
+          nix eval --raw ".#darwinConfigurations.lv426.system.drvPath"
+          nix eval --raw ".#nixosConfigurations.arrakis.config.system.build.toplevel.drvPath"
+
+      - name: Evaluate standalone home configurations
+        env:
+          NIX_CONFIG: "access-tokens = github.com=${{ secrets.GITHUB_TOKEN }}"
+        run: |
+          for profile in dev minimal; do
+            for system in aarch64-darwin x86_64-linux aarch64-linux; do
+              nix eval --raw ".#homeConfigurations.${profile}-${system}.activationPackage.drvPath"
+            done
+          done

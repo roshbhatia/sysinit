@@ -105,10 +105,9 @@ also asserts that specific subtrees still contribute files, so moving one fails
 loudly instead of dropping coverage.
 
 CI runs `nix fmt -- --check`, `hack/lint.sh --all`, and `nix flake check` on
-every push to `main` and every pull request. It also runs a `nix eval` of the
-`lv426` host, so the evaluation-time assertions fire. It evaluates rather than
-builds: that closure is 17.9 GiB and a hosted macOS runner has about 14 GB
-free.
+every push to `main` and every pull request. It evaluates every host and each
+standalone Home Manager profile. The explicit evaluations fire module
+assertions without building host closures that exceed hosted runner storage.
 
 `sy`, `openspec`, and `specutil` are machine-wide. Their own skills carry the
 subcommands: `feature-based-session-manager`, `openspec-workflow`, `specutil`.
