@@ -295,22 +295,16 @@ end
 
 ---@return table[]
 local function command_rows()
+  local on = caffeinated()
   local rows = {
     {
-      text = "Start Caffeinate",
-      detail = "Hold off display and system sleep",
+      text = "Toggle Caffeinate",
+      detail = on and "Currently on; let the display and system sleep"
+        or "Currently off; hold off display and system sleep",
       label = "Command",
       glyph = "awake",
       kind = "caffeinate",
-      on = true,
-    },
-    {
-      text = "Stop Caffeinate",
-      detail = "Let the display and the system sleep",
-      label = "Command",
-      glyph = "awake",
-      kind = "caffeinate",
-      on = false,
+      on = not on,
     },
   }
   for _, command in ipairs(settings().commands or {}) do
