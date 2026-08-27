@@ -506,6 +506,7 @@
     <script>
       /* INCLUDE match.js */
       /* INCLUDE calc.js */
+      /* INCLUDE actions.js */
 
       // Ten rows and a heading, above the panel's own 58px search field and 40px footer.
       const CHROME = 100;
@@ -714,46 +715,13 @@
         return rows.slice(0, PREFIX_CAP);
       }
 
-      function actionRows(query) {
-        const value = query.slice(1);
-        const splitAt = value.indexOf(" ");
-        const name = (splitAt < 0 ? value : value.slice(0, splitAt)).trim().toLowerCase();
-        const arg = splitAt < 0 ? "" : value.slice(splitAt + 1).trim();
-        if (splitAt >= 0) {
-          const action = actions.find((candidate) => candidate.name === name);
-          if (!action) {
-            return [];
-          }
-          return [
-            {
-              title: "+" + action.name + (arg === "" ? "" : " " + arg),
-              sub: action.detail || "",
-              kind: action.label || "Run",
-              glyph: action.glyph || "command",
-              action: action.name,
-              arg: arg,
-            },
-          ];
-        }
-        return actions
-          .filter((action) => action.name.startsWith(name))
-          .slice(0, PREFIX_CAP)
-          .map((action) => ({
-            title: "+" + action.name,
-            sub: action.detail || "",
-            kind: action.label || "Run",
-            glyph: action.glyph || "command",
-            action: action.name,
-            arg: "",
-          }));
-      }
-
       // The rest of the selected row's title, drawn after what was typed. Only when the query
       // is the head of that title, because a completion that rewrites what is already on
       // screen reads as the field correcting the typing rather than finishing it.
       function complete() {
         const value = el.q.value;
         const row = shown[sel];
+        const completion = String((row && row.completion) || (row && row.title) || "");
         let rest = "";
         if (
           value !== "" &&
@@ -761,12 +729,10 @@
           !row.sum &&
           !row.emoji &&
           el.q.scrollWidth <= el.q.clientWidth &&
-          String(row.title || "")
-            .toLowerCase()
-            .startsWith(value.toLowerCase()) &&
-          String(row.title).length > value.length
+          completion.toLowerCase().startsWith(value.toLowerCase()) &&
+          completion.length > value.length
         ) {
-          rest = String(row.title).slice(value.length);
+          rest = completion.slice(value.length);
         }
         el.typed.textContent = rest === "" ? "" : value;
         el.rest.textContent = rest;
@@ -807,7 +773,7 @@
           const row = shown[index];
           const wanted = row.sum
             ? "Calculator"
-            : row.action
+            : row.action || row.completion
               ? "Actions"
               : row.shell
               ? "Command"
@@ -938,8 +904,14 @@
           send({ action: "shell", cmd: row.cmd });
           return;
         }
+        if (row.completion) {
+          el.q.value = row.completion;
+          refine();
+          el.q.focus();
+          return;
+        }
         if (row.action) {
-          send({ action: "invoke", name: row.action, arg: row.arg || "" });
+          send({ action: "invoke", name: row.action, command: row.command, arg: row.arg || "" });
           return;
         }
         if (row.emoji) {
@@ -954,7 +926,8 @@
       // Matching for a list the page holds costs nothing but the work itself, so it is done
       // on the keystroke rather than debounced and sent away.
       function refine() {
-        const query = el.q.value.trim();
+        const rawQuery = el.q.value;
+        const query = rawQuery.trim();
         const settleLocal = (rows) => {
           if (pending !== null) {
             clearTimeout(pending);
@@ -967,7 +940,7 @@
           draw();
         };
         if (actions.length > 0 && query.charAt(0) === "+") {
-          settleLocal(actionRows(query));
+          settleLocal(actionRows(rawQuery, actions, PREFIX_CAP));
           return;
         }
         if (emojiOn && query.charAt(0) === ":") {

@@ -469,25 +469,33 @@ local function terminal(command)
   run(args)
 end
 
----@param value string
-local function browser(value)
+local function browser_focus()
   local name = settings().browser or "Firefox"
-  local query = value:match("^%s*(.-)%s*$") or ""
-  if query == "" then
-    hs.application.launchOrFocus(name)
+  hs.application.launchOrFocus(name)
+end
+
+---@param value string
+local function browser_open(value)
+  local url = value:match("^%s*(.-)%s*$") or ""
+  if url == "" then
     return
   end
-  local url = query
-  if not query:match("^[%a][%w+.-]*://") then
-    if query:match("^[%w][%w.-]+%.[%a][%a]+[%w/%?#&=._~+%%-]*$") then
-      url = "https://" .. query
-    else
-      local template = settings().searchURL or "https://www.google.com/search?q=%s"
-      url = template:gsub("%%s", function()
-        return hs.http.encodeForQuery(query)
-      end, 1)
-    end
+  if not url:match("^[%a][%w+.-]*://") then
+    url = "https://" .. url
   end
+  hs.urlevent.openURL(url)
+end
+
+---@param value string
+local function browser_search(value)
+  local query = value:match("^%s*(.-)%s*$") or ""
+  if query == "" then
+    return
+  end
+  local template = settings().searchURL or "https://www.google.com/search?q=%s"
+  local url = template:gsub("%%s", function()
+    return hs.http.encodeForQuery(query)
+  end, 1)
   hs.urlevent.openURL(url)
 end
 
@@ -495,50 +503,123 @@ local actions = {
   {
     name = "terminal",
     label = "Terminal",
-    detail = "Open WezTerm or run the command after the action",
+    detail = "Open WezTerm or run a shell command",
     glyph = "terminal",
-    run = function(arg)
-      panel.hide()
-      terminal(arg)
-    end,
+    commands = {
+      {
+        name = "open",
+        detail = "Open a WezTerm window",
+        run = function(_)
+          panel.hide()
+          terminal("")
+        end,
+      },
+      {
+        name = "run",
+        argument = "command",
+        detail = "Run a shell command in a new WezTerm window",
+        run = function(arg)
+          panel.hide()
+          terminal(arg)
+        end,
+      },
+    },
   },
   {
     name = "browser",
     label = "Browser",
-    detail = "Open a URL or search Google",
+    detail = "Focus the browser, open a URL, or search the web",
     glyph = "browser",
-    run = function(arg)
-      panel.hide()
-      browser(arg)
-    end,
+    commands = {
+      {
+        name = "focus",
+        detail = "Focus the configured browser",
+        run = function(_)
+          panel.hide()
+          browser_focus()
+        end,
+      },
+      {
+        name = "open",
+        argument = "url",
+        detail = "Open a URL",
+        run = function(arg)
+          panel.hide()
+          browser_open(arg)
+        end,
+      },
+      {
+        name = "search",
+        argument = "query",
+        detail = "Search the web",
+        run = function(arg)
+          panel.hide()
+          browser_search(arg)
+        end,
+      },
+    },
   },
   {
     name = "files",
     label = "Files",
     detail = "Open file search",
     glyph = "folder",
-    run = function()
-      panel.enter(search())
-    end,
+    commands = {
+      {
+        name = "search",
+        detail = "Open file search",
+        run = function(_)
+          panel.enter(search())
+        end,
+      },
+    },
   },
   {
     name = "clipboard",
     label = "Clipboard",
     detail = "Open clipboard history",
     glyph = "clipboard",
-    run = function()
-      panel.enter(history())
-    end,
+    commands = {
+      {
+        name = "history",
+        detail = "Open clipboard history",
+        run = function(_)
+          panel.enter(history())
+        end,
+      },
+    },
   },
   {
     name = "screenshot",
     label = "Screenshot",
-    detail = "Capture an area, window, or screen; area is the default",
+    detail = "Capture an area, window, or screen",
     glyph = "command",
-    run = function(arg)
-      panel.hide()
-      screenshots.capture(arg)
-    end,
+    commands = {
+      {
+        name = "area",
+        detail = "Capture a selected area",
+        run = function(_)
+          panel.hide()
+          screenshots.area()
+        end,
+      },
+      {
+        name = "window",
+        detail = "Capture a selected window",
+        run = function(_)
+          panel.hide()
+          screenshots.window()
+        end,
+      },
+      {
+        name = "screen",
+        detail = "Capture every screen",
+        run = function(_)
+          panel.hide()
+          screenshots.screen()
+        end,
+      },
+    },
   },
 }
 
@@ -546,22 +627,37 @@ local actions = {
 local function action_rows()
   local rows = {}
   for index, action in ipairs(actions) do
+    local commands = {}
+    for command_index, command in ipairs(action.commands) do
+      commands[command_index] = {
+        name = command.name,
+        detail = command.detail,
+        argument = command.argument,
+      }
+    end
     rows[index] = {
       name = action.name,
       label = action.label,
       detail = action.detail,
       glyph = action.glyph,
+      commands = commands,
     }
   end
   return rows
 end
 
 ---@param name string
+---@param command_name string
 ---@param arg string
-local function invoke(name, arg)
+local function invoke(name, command_name, arg)
   for _, action in ipairs(actions) do
     if action.name == name then
-      action.run(arg)
+      for _, command in ipairs(action.commands) do
+        if command.name == command_name then
+          command.run(arg)
+          return
+        end
+      end
       return
     end
   end

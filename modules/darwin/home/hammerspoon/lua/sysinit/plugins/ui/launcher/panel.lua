@@ -418,7 +418,7 @@ local function received(message)
     end
   elseif body.action == "invoke" then
     if list and list.invoke then
-      list.invoke(body.name or "", body.arg or "")
+      list.invoke(body.name or "", body.command or "", body.arg or "")
     end
   elseif body.action == "open" then
     local row = list and row_at(list, body.index, body.text)

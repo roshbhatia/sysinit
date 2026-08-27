@@ -5,6 +5,7 @@ pkgs.runCommand "editor-config-check"
       pkgs.git
       pkgs.lua5_4
       pkgs.neovim
+      pkgs.nodejs_22
       pkgs.wezterm
     ];
   }
@@ -18,6 +19,8 @@ pkgs.runCommand "editor-config-check"
       ${./fixtures/wezterm-plugin}
     lua ${./hammerspoon.lua} \
       ${../modules/darwin/home/hammerspoon}
+    node ${./launcher-actions.mjs} \
+      ${../modules/darwin/home/hammerspoon/lua/sysinit/plugins/ui/launcher/page/actions.js}
     export XDG_CONFIG_HOME="$TMPDIR/config"
     mkdir -p "$XDG_CONFIG_HOME/wezterm"
     cp ${./fixtures/wezterm/config.json} "$XDG_CONFIG_HOME/wezterm/config.json"
