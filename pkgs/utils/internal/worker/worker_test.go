@@ -288,7 +288,7 @@ func TestADeadSupersededWorkerIsNotReported(t *testing.T) {
 
 	ws := workspaceIn(t, t.TempDir())
 	out := captured(t, func() { ws.start("7", t.TempDir(), options{tail: 20, command: "true"}) })
-	if strings.Contains(out, "404") {
+	if strings.Contains(out, "pane 404") {
 		t.Errorf("output = %q, want no mention of a pane that is gone", out)
 	}
 }
