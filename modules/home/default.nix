@@ -55,8 +55,6 @@ in
       # That gap is why another session wrote its own Sysinit style by hand.
       # `home.file.".vale.ini"` below closes it.
       SYSINIT_PROSE_STYLE = "${pkgs.vale-styles}/vale.ini";
-      NODE_NO_WARNINGS = 1;
-      NODE_TLS_REJECT_UNAUTHORIZED = 0;
     }
     // (values.environment or { });
 
