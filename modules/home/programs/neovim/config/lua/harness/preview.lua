@@ -1,8 +1,7 @@
 local M = {}
 
 local state = { win = nil, buf = nil, path = nil, pane = nil, snacks = nil }
-
-local AUGROUP = vim.api.nvim_create_augroup("SysinitPreview", { clear = true })
+local augroup = nil
 
 local function win_valid()
   return state.win ~= nil and vim.api.nvim_win_is_valid(state.win)
@@ -158,9 +157,9 @@ local function render_with_glow(full)
 end
 
 local function watch(full)
-  vim.api.nvim_clear_autocmds({ group = AUGROUP })
+  vim.api.nvim_clear_autocmds({ group = augroup })
   vim.api.nvim_create_autocmd("BufWritePost", {
-    group = AUGROUP,
+    group = augroup,
     pattern = full,
     callback = function()
       M.refresh()
@@ -170,6 +169,7 @@ end
 
 ---@param path string
 function M.open(path, opts)
+  M.setup()
   opts = opts or {}
   local full = vim.fn.fnamemodify(vim.fn.expand(path), ":p")
   if vim.fn.filereadable(full) == 0 then
@@ -216,13 +216,19 @@ function M.refresh()
   M.open(state.path, { focus = false })
 end
 
-vim.api.nvim_create_autocmd("VimLeavePre", {
-  group = AUGROUP,
-  callback = function()
-    if pane_alive(state.pane) then
-      vim.fn.system({ "wezterm", "cli", "kill-pane", "--pane-id", tostring(state.pane) })
-    end
-  end,
-})
+function M.setup()
+  if augroup ~= nil then
+    return
+  end
+  augroup = vim.api.nvim_create_augroup("SysinitPreview", { clear = true })
+  vim.api.nvim_create_autocmd("VimLeavePre", {
+    group = augroup,
+    callback = function()
+      if pane_alive(state.pane) then
+        vim.fn.system({ "wezterm", "cli", "kill-pane", "--pane-id", tostring(state.pane) })
+      end
+    end,
+  })
+end
 
 return M

@@ -1,6 +1,7 @@
 local M = {}
 
 local state = { job = nil, path = nil }
+local configured = false
 
 local function running()
   return state.job ~= nil and vim.fn.jobwait({ state.job }, 0)[1] == -1
@@ -14,6 +15,7 @@ function M.stop()
 end
 
 function M.toggle_browser()
+  M.setup()
   if vim.fn.executable("go-grip") == 0 then
     vim.notify("go-grip is not on PATH", vim.log.levels.ERROR)
     return
@@ -52,9 +54,15 @@ function M.toggle_glow()
   end
 end
 
-vim.api.nvim_create_autocmd("VimLeavePre", {
-  group = vim.api.nvim_create_augroup("SysinitGoGrip", { clear = true }),
-  callback = M.stop,
-})
+function M.setup()
+  if configured then
+    return
+  end
+  configured = true
+  vim.api.nvim_create_autocmd("VimLeavePre", {
+    group = vim.api.nvim_create_augroup("SysinitGoGrip", { clear = true }),
+    callback = M.stop,
+  })
+end
 
 return M

@@ -80,6 +80,7 @@ end
 -- differently here.
 ---@param cb fun(report: Report)
 function M.report(cb)
+  M.setup()
   if vim.fn.executable(TOOL) ~= 1 then
     vim.notify("Workspace: " .. TOOL .. " is not on PATH", vim.log.levels.ERROR)
     return cb({ workspace = here(), roots = {}, groups = {} })
@@ -193,11 +194,19 @@ function M.status()
   }
 end
 
-vim.api.nvim_create_autocmd("DirChanged", {
-  group = vim.api.nvim_create_augroup("gitrepo_cache", { clear = true }),
-  callback = function()
-    last = nil
-  end,
-})
+local configured = false
+
+function M.setup()
+  if configured then
+    return
+  end
+  configured = true
+  vim.api.nvim_create_autocmd("DirChanged", {
+    group = vim.api.nvim_create_augroup("gitrepo_cache", { clear = true }),
+    callback = function()
+      last = nil
+    end,
+  })
+end
 
 return M
