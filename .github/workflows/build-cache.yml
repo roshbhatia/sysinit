@@ -1,6 +1,6 @@
 name: Build cache
 
-# Builds the custom-package bundle (packages.<system>.cacheBundle) on each
+# Builds every custom package for each supported system.
 
 on:
   push:
@@ -8,7 +8,9 @@ on:
     paths:
       - "flake.lock"
       - "flake.nix"
+      - "lib/**"
       - "overlays/**"
+      - "pkgs/**"
       - "_sources/**"
       - "nvfetcher.toml"
   workflow_dispatch: {}
@@ -33,7 +35,7 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
-      # ubuntu runners ship with ~14GB free on /; building the whole custom
+      # Linux runners lack space for the full custom-package closure.
       - name: Free disk space
         if: runner.os == 'Linux'
         run: |
@@ -44,8 +46,7 @@ jobs:
 
       - uses: DeterminateSystems/nix-installer-action@v22
 
-      # Gate the push on the secret so the job still builds (green) before the
-      # Cachix cache/token is set up, and on forks that lack the secret.
+      # Missing secrets disable uploads while preserving build verification.
       - name: Detect Cachix token
         id: cachix
         run: |
@@ -53,7 +54,7 @@ jobs:
             echo "enabled=true" >> "$GITHUB_OUTPUT"
           else
             echo "enabled=false" >> "$GITHUB_OUTPUT"
-            echo "::notice::CACHIX_AUTH_TOKEN not set — building without pushing."
+            echo "::notice::CACHIX_AUTH_TOKEN not set; building without pushing."
           fi
 
       - uses: cachix/cachix-action@v17
