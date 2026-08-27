@@ -14,6 +14,7 @@ require("sysinit.pkg.theme")
 
 local function bindHotkeys()
   require("sysinit.pkg.core").setup()
+  require("sysinit.plugins.ui.screenshots").setup()
   require("sysinit.plugins.ui.launcher").setup()
 end
 

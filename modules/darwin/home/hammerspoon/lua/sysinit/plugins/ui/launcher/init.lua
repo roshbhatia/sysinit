@@ -7,6 +7,7 @@ local fzf = require("sysinit.plugins.ui.launcher.fzf")
 local panel = require("sysinit.plugins.ui.launcher.panel")
 local recency = require("sysinit.plugins.ui.launcher.recency")
 local settings_panes = require("sysinit.plugins.ui.launcher.settings")
+local screenshots = require("sysinit.plugins.ui.screenshots")
 
 local M = {}
 
@@ -533,6 +534,16 @@ local actions = {
     glyph = "clipboard",
     run = function()
       panel.enter(history())
+    end,
+  },
+  {
+    name = "screenshot",
+    label = "Screenshot",
+    detail = "Capture an area, window, or screen; area is the default",
+    glyph = "command",
+    run = function(arg)
+      panel.hide()
+      screenshots.capture(arg)
     end,
   },
 }
