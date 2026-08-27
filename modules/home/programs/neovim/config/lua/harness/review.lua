@@ -122,7 +122,8 @@ function M.open(roots, args)
   layout_for(changed_count(roots))
   for _, root in ipairs(roots) do
     if not alive(session.tabs[root]) then
-      open_one(root, type(args) == "table" and args[root] or args)
+      local selected = type(args) == "table" and args[root] or nil
+      open_one(root, selected or (type(args) == "string" and args or nil))
     end
   end
   prune()

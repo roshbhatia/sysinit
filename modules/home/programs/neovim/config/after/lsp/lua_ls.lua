@@ -3,30 +3,6 @@ local neoconf = require("neoconf")
 local base_config = {
   settings = {
     Lua = {
-      runtime = {
-        version = "LuaJIT",
-        path = {
-          "?.lua",
-          "?/init.lua",
-        },
-      },
-
-      workspace = {
-        checkThirdParty = false,
-        library = {
-          vim.env.VIMRUNTIME,
-          "${3rd}/luv/library",
-        },
-      },
-
-      diagnostics = {
-        globals = { "vim" },
-        disable = {
-          "missing-fields",
-          "incomplete-signature-doc",
-        },
-      },
-
       completion = {
         callSnippet = "Replace",
         keywordSnippet = "Replace",

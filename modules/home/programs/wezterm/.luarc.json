@@ -1,0 +1,11 @@
+{
+  "runtime": {
+    "version": "Lua 5.4"
+  },
+  "diagnostics": {
+    "disable": ["need-check-nil"]
+  },
+  "workspace": {
+    "checkThirdParty": false
+  }
+}

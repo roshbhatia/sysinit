@@ -66,7 +66,8 @@ local order = { "apps", "commands", "entries", "panes", "prefs", "sessions", "ta
 ---@return table
 local function settings()
   if config == nil then
-    config = json_loader.load_json_file(json_loader.get_config_path("launcher_config.json")) or {}
+    local loaded = json_loader.load_json_file(json_loader.get_config_path("launcher_config.json"))
+    config = type(loaded) == "table" and loaded or {}
   end
   return config
 end

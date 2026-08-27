@@ -218,7 +218,7 @@ return {
           if ok then
             return true
           end
-          if err and err:find("No such group") then
+          if type(err) == "string" and err:find("No such group") then
             return true
           end
           return false

@@ -1,0 +1,16 @@
+{
+  "runtime": {
+    "version": "LuaJIT"
+  },
+  "diagnostics": {
+    "globals": ["Snacks", "vim"],
+    "disable": ["incomplete-signature-doc", "missing-fields"]
+  },
+  "workspace": {
+    "checkThirdParty": false,
+    "library": ["${3rd}/luv/library"]
+  },
+  "completion": {
+    "autoRequire": false
+  }
+}

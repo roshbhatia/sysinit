@@ -1,3 +1,16 @@
+---@class harness.SelectionRange
+---@field from integer[]
+---@field to integer[]
+---@field kind string
+
+---@class harness.EditorState
+---@field win integer
+---@field buf integer
+---@field cwd string
+---@field row integer
+---@field col integer
+---@field range harness.SelectionRange?
+
 local M = {}
 
 function M.is_file(buf)
@@ -179,6 +192,7 @@ vim.api.nvim_create_autocmd({ "WinEnter", "BufEnter" }, {
   end,
 })
 
+---@return harness.EditorState
 function M.capture()
   local win, buf
 
@@ -264,6 +278,7 @@ end
 M.Context = Context
 M.new = Context.new
 
+---@return harness.EditorState
 function M.from_marks(buf, marks)
   local cur_buf = vim.api.nvim_get_current_buf()
   local cur_win = vim.api.nvim_get_current_win()

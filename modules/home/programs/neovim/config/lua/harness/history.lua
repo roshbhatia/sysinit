@@ -25,7 +25,7 @@ local function ago(stamp)
   if seconds < 86400 * 14 then
     return string.format("%dd", math.floor(seconds / 86400))
   end
-  return os.date("%b %d", stamp)
+  return tostring(os.date("%b %d", stamp))
 end
 
 ---@param roots string[]

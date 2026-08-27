@@ -2,7 +2,7 @@ local M = {}
 
 local INTERVAL_MS = 1000
 
----@type userdata|nil
+---@type uv.uv_timer_t|nil
 local timer = nil
 
 local function tick()

@@ -135,7 +135,7 @@ function M.rows()
       local info = plist(bundle .. "/Contents/Info.plist")
       local attributes = type(info) == "table" and info.EXAppExtensionAttributes or nil
       local declared = type(attributes) == "table" and attributes.EXExtensionPointIdentifier or nil
-      if declared == point and info.CFBundleIdentifier then
+      if declared == point and type(info) == "table" and info.CFBundleIdentifier then
         local title = name(bundle, info)
         local index = terms(bundle)
         found[#found + 1] = {
