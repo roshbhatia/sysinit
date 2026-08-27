@@ -75,6 +75,18 @@ in
         '';
       };
 
+      reservedChords = mkOption {
+        type = types.attrsOf types.str;
+        default = { };
+        example = {
+          "cmd+space" = "hammerspoon launcher";
+        };
+        description = ''
+          Global chords owned by a layer outside the readable Nix configuration.
+          Keys use cmd, ctrl, alt, shift order, followed by the key name.
+        '';
+      };
+
       appShortcuts = mkOption {
         type = types.attrsOf (types.attrsOf types.str);
         default = { };
