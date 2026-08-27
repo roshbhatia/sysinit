@@ -44,7 +44,7 @@ func Read(root string, window time.Duration, session string) otlp.Batch {
 		if err != nil || entry.IsDir() || !strings.HasSuffix(entry.Name(), ".jsonl") {
 			return nil
 		}
-		if session != "" && !strings.Contains(entry.Name(), session) {
+		if session != "" && !fileMatchesSession(path, session) {
 			return nil
 		}
 		info, err := entry.Info()
@@ -59,6 +59,35 @@ func Read(root string, window time.Duration, session string) otlp.Batch {
 	return out
 }
 
+func fileMatchesSession(path, session string) bool {
+	if strings.Contains(filepath.Base(path), session) {
+		return true
+	}
+	f, err := os.Open(path)
+	if err != nil {
+		return false
+	}
+	defer func() { _ = f.Close() }()
+
+	scan := bufio.NewScanner(f)
+	scan.Buffer(make([]byte, 0, 64<<10), maxLine)
+	for scan.Scan() {
+		var row envelope
+		if json.Unmarshal(scan.Bytes(), &row) != nil {
+			continue
+		}
+		if row.Type != "session_meta" {
+			return false
+		}
+		var one meta
+		if json.Unmarshal(row.Payload, &one) == nil &&
+			(strings.Contains(one.SessionID, session) || strings.Contains(one.ID, session)) {
+			return true
+		}
+	}
+	return false
+}
+
 type envelope struct {
 	Type      string          `json:"type"`
 	Timestamp string          `json:"timestamp"`
@@ -66,9 +95,11 @@ type envelope struct {
 }
 
 type meta struct {
-	ID        string `json:"id"`
-	SessionID string `json:"session_id"`
-	CWD       string `json:"cwd"`
+	ID           string `json:"id"`
+	SessionID    string `json:"session_id"`
+	CWD          string `json:"cwd"`
+	ThreadSource string `json:"thread_source"`
+	AgentPath    string `json:"agent_path"`
 }
 
 type turnContext struct {
@@ -116,6 +147,8 @@ type item struct {
 	Action           json.RawMessage   `json:"action"`
 	Results          json.RawMessage   `json:"results"`
 	Changes          map[string]change `json:"changes"`
+	AgentThreadID    string            `json:"agent_thread_id"`
+	AgentPath        string            `json:"agent_path"`
 }
 
 type turn struct {
@@ -124,6 +157,7 @@ type turn struct {
 	cwd           string
 	model         string
 	collaboration string
+	agentPath     string
 	start         time.Time
 	end           time.Time
 }
@@ -140,6 +174,7 @@ func ReadFile(path string) otlp.Batch {
 
 	batch := otlp.Batch{}
 	sessionID, sessionCWD := "", ""
+	subagentThreadID, subagentPath := "", ""
 	turns := map[string]*turn{}
 	order := []string{}
 
@@ -169,6 +204,9 @@ func ReadFile(path string) otlp.Batch {
 			if json.Unmarshal(row.Payload, &one) == nil {
 				sessionID = first(one.SessionID, one.ID)
 				sessionCWD = cleanCWD(one.CWD)
+				if one.ThreadSource == "subagent" && one.AgentPath != "" {
+					subagentThreadID, subagentPath = one.ID, one.AgentPath
+				}
 			}
 		case "turn_context":
 			var one turnContext
@@ -183,10 +221,13 @@ func ReadFile(path string) otlp.Batch {
 			if json.Unmarshal(row.Payload, &one) != nil {
 				continue
 			}
-			if one.ThreadID != "" {
+			if one.ThreadID != "" && sessionID == "" {
 				sessionID = one.ThreadID
 			}
 			found := ensureTurn(one.TurnID)
+			if found != nil && one.ThreadID == subagentThreadID {
+				found.agentPath = subagentPath
+			}
 			switch one.Type {
 			case "task_started":
 				if found == nil {
@@ -247,7 +288,7 @@ func ReadFile(path string) otlp.Batch {
 		if one.end.IsZero() || one.end.Before(one.start) {
 			one.end = one.start
 		}
-		attrs := activityAttrs(one.cwd)
+		attrs := activityAttrs(one.cwd, one.agentPath)
 		attrs["interaction.sequence"] = strconv.Itoa(index + 1)
 		attrs["model"] = one.model
 		attrs["collaboration.mode"] = one.collaboration
@@ -264,7 +305,7 @@ func addItem(batch *otlp.Batch, sessionID string, parent *turn, start, end time.
 	if json.Unmarshal(raw, &one) != nil || one.ID == "" {
 		return
 	}
-	attrs := activityAttrs(first(cleanCWD(one.CWD), parent.cwd))
+	attrs := activityAttrs(first(cleanCWD(one.CWD), parent.cwd), parent.agentPath)
 	attrs["model"] = parent.model
 	span := otlp.Span{
 		TraceID: parent.trace, SpanID: one.ID, ParentID: parent.id,
@@ -333,6 +374,15 @@ func addItem(batch *otlp.Batch, sessionID string, parent *turn, start, end time.
 		batch.Records = append(batch.Records, result(sessionID, parent, end, one.ID, compact(one.Results), false))
 	case "ContextCompaction":
 		span.Name = "agent.compact"
+	case "SubAgentActivity":
+		span.Name = "agent.tool"
+		span.Attrs["tool_name"] = "Agent"
+		span.Attrs["traces.action"] = "delegate"
+		span.Attrs["tool_use_id"] = one.ID
+		span.Attrs["subagent_type"] = agentLane(one.AgentPath)
+		span.Attrs["agent.thread_id"] = one.AgentThreadID
+		span.Attrs["subagent.status"] = one.Kind
+		span.Attrs["tool_input"] = one.AgentPath
 	default:
 		span.Name = "agent.event"
 		span.Attrs["tool_name"] = one.Type
@@ -341,8 +391,23 @@ func addItem(batch *otlp.Batch, sessionID string, parent *turn, start, end time.
 	batch.Spans = append(batch.Spans, span)
 }
 
-func activityAttrs(cwd string) map[string]string {
-	return map[string]string{"traces.view": "activity", "traces.source": "codex-rollout", "cwd": cwd}
+func activityAttrs(cwd, agentPath string) map[string]string {
+	out := map[string]string{"traces.view": "activity", "traces.source": "codex-rollout", "cwd": cwd}
+	if lane := agentLane(agentPath); lane != "" {
+		out["agent.path"] = lane
+	}
+	return out
+}
+
+func agentLane(path string) string {
+	path = strings.Trim(path, "/")
+	if path == "root" {
+		return "main"
+	}
+	if strings.HasPrefix(path, "root/") {
+		return "main/" + strings.TrimPrefix(path, "root/")
+	}
+	return path
 }
 
 func actionOf(name string) string {

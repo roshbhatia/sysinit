@@ -5,6 +5,7 @@ import (
 	"path/filepath"
 	"strings"
 	"testing"
+	"time"
 )
 
 func TestReadFileNormalizesCodexActivity(t *testing.T) {
@@ -68,5 +69,70 @@ func TestReadFileNormalizesCodexActivity(t *testing.T) {
 	}
 	if batch.Records[0].Event != EventPrompt || batch.Records[0].Attrs["prompt"] != "fix it" {
 		t.Errorf("prompt = %#v", batch.Records[0])
+	}
+}
+
+func TestReadFilePreservesSubagentActor(t *testing.T) {
+	path := filepath.Join(t.TempDir(), "rollout-subagent.jsonl")
+	fixture := `{"type":"session_meta","timestamp":"2026-08-27T15:03:46Z","payload":{"session_id":"root-session","id":"child-session","cwd":"/work/one","thread_source":"subagent","agent_path":"/root/reviewer"}}
+{"type":"session_meta","timestamp":"2026-08-27T15:03:46Z","payload":{"session_id":"root-session","id":"root-session","cwd":"/work/one","thread_source":"user"}}
+{"type":"event_msg","timestamp":"2026-08-27T15:03:47Z","payload":{"type":"task_started","turn_id":"child-turn","trace_id":"trace-1","started_at":1787843027}}
+{"type":"event_msg","timestamp":"2026-08-27T15:03:48Z","payload":{"type":"item_completed","thread_id":"child-session","turn_id":"child-turn","item":{"type":"CommandExecution","id":"command-1","command":["git","status"],"exit_code":0}}}
+`
+	if err := os.WriteFile(path, []byte(fixture), 0o600); err != nil {
+		t.Fatal(err)
+	}
+
+	batch := ReadFile(path)
+	for _, span := range batch.Spans {
+		if span.Session != "root-session" {
+			t.Errorf("span %q session = %q, want root-session", span.SpanID, span.Session)
+		}
+		if got := span.Attrs["agent.path"]; got != "main/reviewer" {
+			t.Errorf("span %q agent.path = %q, want main/reviewer", span.SpanID, got)
+		}
+	}
+}
+
+func TestReadFileRecognizesSubagentActivity(t *testing.T) {
+	path := filepath.Join(t.TempDir(), "rollout-parent.jsonl")
+	fixture := `{"type":"session_meta","timestamp":"2026-08-27T15:03:46Z","payload":{"id":"root-session","cwd":"/work/one"}}
+{"type":"event_msg","timestamp":"2026-08-27T15:03:46Z","payload":{"type":"task_started","turn_id":"root-turn","trace_id":"trace-1","started_at":1787843026}}
+{"type":"event_msg","timestamp":"2026-08-27T15:03:47Z","payload":{"type":"item_completed","thread_id":"root-session","turn_id":"root-turn","item":{"type":"SubAgentActivity","id":"call-1","kind":"started","agent_thread_id":"child-session","agent_path":"/root/reviewer"}}}
+`
+	if err := os.WriteFile(path, []byte(fixture), 0o600); err != nil {
+		t.Fatal(err)
+	}
+
+	batch := ReadFile(path)
+	if got, want := len(batch.Spans), 2; got != want {
+		t.Fatalf("spans = %d, want %d", got, want)
+	}
+	activity := batch.Spans[0]
+	if activity.SpanID != "call-1" {
+		activity = batch.Spans[1]
+	}
+	if activity.Name != "agent.tool" || activity.Attrs["traces.action"] != "delegate" {
+		t.Errorf("subagent activity = %#v", activity)
+	}
+	if got := activity.Attrs["subagent_type"]; got != "main/reviewer" {
+		t.Errorf("subagent_type = %q, want main/reviewer", got)
+	}
+}
+
+func TestReadFindsSubagentFileByRootSession(t *testing.T) {
+	dir := t.TempDir()
+	path := filepath.Join(dir, "rollout-child-session.jsonl")
+	fixture := `{"type":"session_meta","timestamp":"2026-08-27T15:03:46Z","payload":{"session_id":"root-session","id":"child-session","cwd":"/work/one","thread_source":"subagent","agent_path":"/root/reviewer"}}
+{"type":"event_msg","timestamp":"2026-08-27T15:03:47Z","payload":{"type":"task_started","turn_id":"child-turn","trace_id":"trace-1","started_at":1787843027}}
+{"type":"event_msg","timestamp":"2026-08-27T15:03:48Z","payload":{"type":"item_completed","thread_id":"child-session","turn_id":"child-turn","item":{"type":"CommandExecution","id":"command-1","command":["git","status"],"exit_code":0}}}
+`
+	if err := os.WriteFile(path, []byte(fixture), 0o600); err != nil {
+		t.Fatal(err)
+	}
+
+	batch := Read(dir, time.Hour, "root-session")
+	if got, want := len(batch.Spans), 2; got != want {
+		t.Fatalf("spans = %d, want %d", got, want)
 	}
 }

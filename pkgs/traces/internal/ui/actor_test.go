@@ -75,3 +75,25 @@ func TestActorLanes(t *testing.T) {
 		}
 	}
 }
+
+func TestActorUsesRolloutAgentPath(t *testing.T) {
+	now := time.Now()
+	store := session.NewStore()
+	store.Add([]otlp.Span{
+		{SpanID: "turn", Name: "agent.turn", Service: "codex_cli_rs", Session: "one",
+			Start: now, End: now.Add(time.Minute),
+			Attrs: activity(map[string]string{"agent.path": "main/reviewer"})},
+		{SpanID: "shell", ParentID: "turn", Name: "agent.tool", Service: "codex_cli_rs", Session: "one",
+			Start: now, End: now,
+			Attrs: activity(map[string]string{"tool_name": "Shell", "agent.path": "main/reviewer"})},
+	})
+	m := New(store, "one", "test")
+	mm, _ := m.Update(tea.WindowSizeMsg{Width: 140, Height: 30})
+	v := mm.(Model)
+
+	for _, r := range v.rows {
+		if r.node != nil && r.actor != "+main/reviewer" {
+			t.Errorf("%s actor = %q, want +main/reviewer", r.node.Span.SpanID, r.actor)
+		}
+	}
+}

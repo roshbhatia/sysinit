@@ -63,6 +63,9 @@ func kindOf(node *session.Node) kind {
 // caller's lane: the Agent call itself was made by whoever called it, and its
 // work is what belongs to the new lane.
 func actorOf(node *session.Node, k kind, lane string) string {
+	if agentPath := node.Span.Attrs["agent.path"]; agentPath != "" {
+		return "+" + agentPath
+	}
 	if k == kindTurn {
 		return "@user"
 	}
