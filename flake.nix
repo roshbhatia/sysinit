@@ -185,8 +185,6 @@
             "open-policy-agent"
             "direnv"
             "hererocks"
-            "helix"
-            "helix-file-watcher"
             "sheets"
             "alerter"
             "kvazaar"
