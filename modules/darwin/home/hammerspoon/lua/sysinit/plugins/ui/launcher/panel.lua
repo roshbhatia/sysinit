@@ -301,6 +301,8 @@ local function prepare()
     nested = #stack > 1,
     inpage = not list.indexed,
     shell = list.shell ~= nil,
+    shellHistory = list.shellHistory or {},
+    actions = list.actions or {},
     -- Whether `:` opens the emoji list, and how recently each was picked. The
     -- emoji themselves went over once, at setup.
     emoji = list.pick ~= nil,
@@ -413,6 +415,10 @@ local function received(message)
     M.hide()
     if list and list.shell then
       list.shell(body.cmd or "")
+    end
+  elseif body.action == "invoke" then
+    if list and list.invoke then
+      list.invoke(body.name or "", body.arg or "")
     end
   elseif body.action == "open" then
     local row = list and row_at(list, body.index, body.text)
@@ -529,6 +535,13 @@ function M.emoji(rows)
   end
   ready(function()
     view:evaluateJavaScript("setEmoji(" .. hs.json.encode(rows) .. ")")
+  end)
+end
+
+---@param commands string[]
+function M.shell_commands(commands)
+  ready(function()
+    view:evaluateJavaScript("setCommands(" .. hs.json.encode(commands) .. ")")
   end)
 end
 

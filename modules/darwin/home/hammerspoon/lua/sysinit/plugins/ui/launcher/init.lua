@@ -10,10 +10,11 @@ local settings_panes = require("sysinit.plugins.ui.launcher.settings")
 
 local M = {}
 
--- How often the sources that change on their own are re-read. A pane opens or a
--- tab closes without telling anyone, so they are polled; apps and files are
--- watched or rebuilt far less often.
+-- How often the sources that change on their own are re-read. Panes and
+-- sessions are polled; Firefox tabs, apps, and files also have slower paths.
 local live_secs = 8
+-- Fallback for Firefox events missed during a Hammerspoon reload.
+local tabs_secs = 60
 local files_secs = 300
 -- The app list is watched, and also rescanned on this cadence. FSEvents on
 -- /Applications is not something to rely on alone: the watcher misses a drag
@@ -26,6 +27,7 @@ local apps_secs = 45
 -- hundreds of files inside the bundle, and each write is an event; one rescan is
 -- wanted, after the writes stop.
 local settle_apps = 2
+local settle_tabs = 1
 
 -- Showing the panel makes its window key, and that activation is a wait on the
 -- window server. Measured on this machine it usually costs under 100ms but
@@ -43,6 +45,7 @@ local config = nil
 -- silently stops firing, which is why a newly dragged app never appeared.
 local watchers = {}
 local pending = nil
+local tabs_pending = nil
 -- Drawing an app's icon and encoding it costs a millisecond or two, and a
 -- rescan re-reads every directory to find the one app that changed. Both are
 -- keyed by path, so a rescan pays only for what is new.
@@ -208,7 +211,7 @@ local function pane_rows(cb)
   if wezterm == nil then
     return cb({})
   end
-  json({ wezterm, "cli", "list", "--format", "json" }, function(panes)
+  json({ wezterm, "cli", "--no-auto-start", "list", "--format", "json" }, function(panes)
     local rows = {}
     for _, pane in ipairs(panes) do
       local title = pane.title or ""
@@ -456,20 +459,107 @@ local compose
 local function terminal(command)
   local wezterm = settings().wezterm
   local shell = settings().shell
-  if wezterm == nil or shell == nil or command == "" then
+  if wezterm == nil or shell == nil then
     return
   end
-  run({
-    wezterm,
-    "start",
-    "--cwd",
-    os.getenv("HOME"),
-    "--",
-    shell,
-    "-lc",
-    command .. "; exec " .. shell .. " -l",
-  })
-  hs.application.launchOrFocus("WezTerm")
+  local args = { wezterm, "start", "--cwd", os.getenv("HOME") }
+  if command ~= "" then
+    recency.touch({ kind = "shell", text = command })
+    compose()
+    args[#args + 1] = "--"
+    args[#args + 1] = shell
+    args[#args + 1] = "-lc"
+    args[#args + 1] = command .. "\nexec " .. string.format("%q", shell) .. " -l"
+  end
+  run(args)
+end
+
+---@param value string
+local function browser(value)
+  local name = settings().browser or "Firefox"
+  local query = value:match("^%s*(.-)%s*$") or ""
+  if query == "" then
+    hs.application.launchOrFocus(name)
+    return
+  end
+  local url = query
+  if not query:match("^[%a][%w+.-]*://") then
+    if query:match("^[%w][%w.-]+%.[%a][%a]+[%w/%?#&=._~+%%-]*$") then
+      url = "https://" .. query
+    else
+      local template = settings().searchURL or "https://www.google.com/search?q=%s"
+      url = template:gsub("%%s", function()
+        return hs.http.encodeForQuery(query)
+      end, 1)
+    end
+  end
+  hs.urlevent.openURL(url)
+end
+
+local actions = {
+  {
+    name = "terminal",
+    label = "Terminal",
+    detail = "Open WezTerm or run the command after the action",
+    glyph = "terminal",
+    run = function(arg)
+      panel.hide()
+      terminal(arg)
+    end,
+  },
+  {
+    name = "browser",
+    label = "Browser",
+    detail = "Open a URL or search Google",
+    glyph = "browser",
+    run = function(arg)
+      panel.hide()
+      browser(arg)
+    end,
+  },
+  {
+    name = "files",
+    label = "Files",
+    detail = "Open file search",
+    glyph = "folder",
+    run = function()
+      panel.enter(search())
+    end,
+  },
+  {
+    name = "clipboard",
+    label = "Clipboard",
+    detail = "Open clipboard history",
+    glyph = "clipboard",
+    run = function()
+      panel.enter(history())
+    end,
+  },
+}
+
+---@return table[]
+local function action_rows()
+  local rows = {}
+  for index, action in ipairs(actions) do
+    rows[index] = {
+      name = action.name,
+      label = action.label,
+      detail = action.detail,
+      glyph = action.glyph,
+    }
+  end
+  return rows
+end
+
+---@param name string
+---@param arg string
+local function invoke(name, arg)
+  for _, action in ipairs(actions) do
+    if action.name == name then
+      action.run(arg)
+      return
+    end
+  end
 end
 
 ---@param choice table|nil
@@ -496,14 +586,13 @@ local function activate(choice)
   elseif choice.kind == "pane" then
     local wezterm = settings().wezterm
     if wezterm then
-      run({ wezterm, "cli", "activate-pane", "--pane-id", tostring(choice.pane_id) })
+      run({ wezterm, "cli", "--no-auto-start", "activate-pane", "--pane-id", tostring(choice.pane_id) })
     end
     hs.application.launchOrFocus("WezTerm")
   elseif choice.kind == "session" then
     local wezterm = settings().wezterm
     if wezterm and choice.path then
-      run({ wezterm, "cli", "spawn", "--new-window", "--workspace", choice.text, "--cwd", choice.path })
-      hs.application.launchOrFocus("WezTerm")
+      run({ wezterm, "start", "--workspace", choice.text, "--cwd", choice.path })
     end
   elseif choice.kind == "tab" or choice.kind == "pref" then
     if choice.url then
@@ -532,9 +621,12 @@ local function base()
   return {
     name = "base",
     rows = recency.sort(rows),
-    placeholder = "Search apps, panes, tabs, files, : for emoji, or ! to run",
+    placeholder = "Search, + for actions, : for emoji, or ! for shell",
     choose = activate,
     shell = terminal,
+    shellHistory = recency.recent("shell", 30),
+    actions = action_rows(),
+    invoke = invoke,
     -- The dataset itself is pushed once, at setup. Only the pick counts ride
     -- along here, because they change on every pick and the dataset does not.
     recent = emoji.recent(),
@@ -565,13 +657,28 @@ end
 
 local mark = nil
 
--- Polled because a pane, a session, or a tab comes and goes without an event.
--- The three run at once and the list is composed when the last one lands, so a
--- cycle costs one sort and one index write rather than three. Most cycles find
--- nothing new, and those cost neither: the rows are composed only once they
--- differ from the ones the panel is already holding.
-local function refresh()
-  local left = 3
+-- Panes and sessions have no event source, so both polls run together. The list
+-- is composed when the second result lands and only when its signature changed.
+local function changed()
+  held.entries = entry_rows()
+  local now = table.concat({
+    signature(held.panes),
+    signature(held.sessions),
+    signature(held.tabs),
+    signature(held.entries),
+    -- So the footer catches an assertion taken by something other than this
+    -- launcher, such as `caffeinate` run in a shell.
+    tostring(caffeinated()),
+  }, "\3")
+  if now == mark then
+    return
+  end
+  mark = now
+  compose()
+end
+
+local function refresh_live()
+  local left = 2
   local function done(source)
     return function(rows)
       held[source] = rows
@@ -579,26 +686,28 @@ local function refresh()
       if left > 0 then
         return
       end
-      held.entries = entry_rows()
-      local now = table.concat({
-        signature(held.panes),
-        signature(held.sessions),
-        signature(held.tabs),
-        signature(held.entries),
-        -- So the footer catches an assertion taken by something other than this
-        -- launcher, such as `caffeinate` run in a shell.
-        tostring(caffeinated()),
-      }, "\3")
-      if now == mark then
-        return
-      end
-      mark = now
-      compose()
+      changed()
     end
   end
   pane_rows(done("panes"))
   session_rows(done("sessions"))
-  tab_rows(done("tabs"))
+end
+
+local function refresh_tabs()
+  tab_rows(function(rows)
+    held.tabs = rows
+    changed()
+  end)
+end
+
+local function refresh_tabs_soon()
+  if tabs_pending then
+    tabs_pending:stop()
+  end
+  tabs_pending = hs.timer.doAfter(settle_tabs, function()
+    tabs_pending = nil
+    refresh_tabs()
+  end)
 end
 
 local apps_mark = nil
@@ -659,6 +768,19 @@ function M.setup()
 
   panel.prewarm()
   panel.emoji(emoji.rows(settings().emoji))
+  local shell = settings().shell
+  if shell then
+    run({ shell, "-fc", "print -rl -- ${(ok)commands}" }, function(out)
+      local commands, seen = {}, {}
+      for command in (out or ""):gmatch("[^\r\n]+") do
+        if command:match("^[%w_][%w_.+%-]*$") and not seen[command] then
+          seen[command] = true
+          commands[#commands + 1] = command
+        end
+      end
+      panel.shell_commands(commands)
+    end)
+  end
 
   hs.hotkey.bind({ "cmd" }, "space", function()
     M.toggle()
@@ -678,12 +800,19 @@ function M.setup()
     compose()
   end)
 
-  refresh()
+  refresh_live()
+  refresh_tabs()
   hs.timer.doEvery(live_secs, function()
     if panel.visible() then
       return
     end
-    refresh()
+    refresh_live()
+  end)
+  hs.timer.doEvery(tabs_secs, function()
+    if panel.visible() then
+      return
+    end
+    refresh_tabs()
   end)
 
   files.build(function()
@@ -701,6 +830,15 @@ function M.setup()
 
   for _, dir in ipairs(settings().appDirs or {}) do
     local watcher = hs.pathwatcher.new(dir, rescan_soon)
+    if watcher then
+      watchers[#watchers + 1] = watcher
+      watcher:start()
+    end
+  end
+
+  local firefox = settings().firefoxProfileRoot
+  if firefox then
+    local watcher = hs.pathwatcher.new(firefox, refresh_tabs_soon)
     if watcher then
       watchers[#watchers + 1] = watcher
       watcher:start()

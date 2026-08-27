@@ -474,6 +474,10 @@
           <rect x="1.8" y="2.8" width="12.4" height="10.4" rx="1.6" />
           <path d="M4.6 6.4 6.8 8.4 4.6 10.4M8.6 10.6h3" stroke-linecap="round" />
         </g>
+        <g id="g-browser" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
+          <circle cx="8" cy="8" r="6.2" />
+          <path d="M1.8 8h12.4M8 1.8c2 1.8 3 3.9 3 6.2s-1 4.4-3 6.2M8 1.8C6 3.6 5 5.7 5 8s1 4.4 3 6.2" />
+        </g>
       </defs>
     </svg>
 
@@ -534,6 +538,9 @@
       let inpage = true;
       // Whether a query starting with `!` is a command for this list to run.
       let shell = false;
+      let shellCommands = [];
+      let shellHistory = [];
+      let actions = [];
       // Whether a query starting with `:` is an emoji search. `emoji` is the whole dataset,
       // pushed once; `recent` is when each was last picked and arrives with every open.
       let emojiOn = false;
@@ -663,23 +670,82 @@
         }));
       }
 
-      // A query that opens with `!` is a command rather than a search, so the only row is the
-      // one thing that can be done with it.
-      function command(query) {
+      const PREFIX_CAP = 100;
+
+      function shellRows(query) {
         const cmd = query.slice(1).trim();
-        if (cmd === "") {
-          return [];
+        const rows = [];
+        const seen = new Set();
+        const add = (candidate, detail) => {
+          if (candidate === "" || seen.has(candidate) || !candidate.toLowerCase().startsWith(cmd.toLowerCase())) {
+            return;
+          }
+          seen.add(candidate);
+          rows.push({
+            title: "!" + candidate,
+            sub: detail,
+            kind: "Run",
+            glyph: "terminal",
+            shell: true,
+            cmd: candidate,
+          });
+        };
+        for (const candidate of shellHistory) {
+          add(candidate, "recent command");
         }
-        return [
-          {
-            title: cmd,
+        if (!cmd.includes(" ")) {
+          for (const candidate of shellCommands) {
+            add(candidate, "new WezTerm window");
+            if (rows.length >= PREFIX_CAP) {
+              break;
+            }
+          }
+        }
+        if (cmd !== "" && !seen.has(cmd) && (cmd.includes(" ") || rows.length === 0)) {
+          rows.unshift({
+            title: "!" + cmd,
             sub: "new WezTerm window",
             kind: "Run",
             glyph: "terminal",
             shell: true,
             cmd: cmd,
-          },
-        ];
+          });
+        }
+        return rows.slice(0, PREFIX_CAP);
+      }
+
+      function actionRows(query) {
+        const value = query.slice(1);
+        const splitAt = value.indexOf(" ");
+        const name = (splitAt < 0 ? value : value.slice(0, splitAt)).trim().toLowerCase();
+        const arg = splitAt < 0 ? "" : value.slice(splitAt + 1).trim();
+        if (splitAt >= 0) {
+          const action = actions.find((candidate) => candidate.name === name);
+          if (!action) {
+            return [];
+          }
+          return [
+            {
+              title: "+" + action.name + (arg === "" ? "" : " " + arg),
+              sub: action.detail || "",
+              kind: action.label || "Run",
+              glyph: action.glyph || "command",
+              action: action.name,
+              arg: arg,
+            },
+          ];
+        }
+        return actions
+          .filter((action) => action.name.startsWith(name))
+          .slice(0, PREFIX_CAP)
+          .map((action) => ({
+            title: "+" + action.name,
+            sub: action.detail || "",
+            kind: action.label || "Run",
+            glyph: action.glyph || "command",
+            action: action.name,
+            arg: "",
+          }));
       }
 
       // The rest of the selected row's title, drawn after what was typed. Only when the query
@@ -693,7 +759,6 @@
           value !== "" &&
           row &&
           !row.sum &&
-          !row.shell &&
           !row.emoji &&
           el.q.scrollWidth <= el.q.clientWidth &&
           String(row.title || "")
@@ -742,7 +807,9 @@
           const row = shown[index];
           const wanted = row.sum
             ? "Calculator"
-            : row.shell
+            : row.action
+              ? "Actions"
+              : row.shell
               ? "Command"
               : row.emoji
                 ? el.q.value.trim() === ":"
@@ -871,6 +938,10 @@
           send({ action: "shell", cmd: row.cmd });
           return;
         }
+        if (row.action) {
+          send({ action: "invoke", name: row.action, arg: row.arg || "" });
+          return;
+        }
         if (row.emoji) {
           send({ action: "pick", cp: row.cp, code: row.code });
           return;
@@ -884,43 +955,33 @@
       // on the keystroke rather than debounced and sent away.
       function refine() {
         const query = el.q.value.trim();
-        if (emojiOn && query.charAt(0) === ":") {
+        const settleLocal = (rows) => {
           if (pending !== null) {
             clearTimeout(pending);
             pending = null;
           }
           seq += 1;
           settled = seq;
-          shown = emojiRows(query);
+          shown = rows;
           sel = 0;
           draw();
+        };
+        if (actions.length > 0 && query.charAt(0) === "+") {
+          settleLocal(actionRows(query));
+          return;
+        }
+        if (emojiOn && query.charAt(0) === ":") {
+          settleLocal(emojiRows(query));
           return;
         }
         if (shell && query.charAt(0) === "!") {
-          // A reply to the keystroke before the `!` must not land on top of the command.
-          if (pending !== null) {
-            clearTimeout(pending);
-            pending = null;
-          }
-          seq += 1;
-          settled = seq;
-          shown = command(query);
-          sel = 0;
-          draw();
+          settleLocal(shellRows(query));
           return;
         }
         if (query === "") {
           // An emptied field returns to the handed-over order, which matching cannot
           // reproduce: it is by how recently each row was opened.
-          if (pending !== null) {
-            clearTimeout(pending);
-            pending = null;
-          }
-          seq += 1;
-          settled = seq;
-          shown = base.slice();
-          sel = 0;
-          draw();
+          settleLocal(base.slice());
           return;
         }
         if (inpage) {
@@ -1042,6 +1103,10 @@
         emoji = Array.isArray(rows) ? rows : [];
       }
 
+      function setCommands(commands) {
+        shellCommands = listed(commands);
+      }
+
       send({ action: "loaded" });
 
       // Everything a list needs before it can be seen. Called while the window is hidden, so
@@ -1058,6 +1123,8 @@
         nested = opts.nested === true;
         inpage = opts.inpage === true;
         shell = opts.shell === true;
+        shellHistory = listed(opts.shellHistory);
+        actions = listed(opts.actions);
         emojiOn = opts.emoji === true && emoji.length > 0;
         recent = opts.recent && !Array.isArray(opts.recent) ? opts.recent : {};
         el.panel.classList.toggle("split", split);

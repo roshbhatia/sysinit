@@ -51,12 +51,15 @@ let
     wezterm = "${pkgs.wezterm}/bin/wezterm";
     sy = "/etc/profiles/per-user/${config.home.username}/bin/sy";
     fftabs = "${pkgs.sysinit-utils}/bin/firefox-tabs";
+    firefoxProfileRoot = "${home}/Library/Application Support/Firefox/Profiles";
     bat = "${pkgs.bat}/bin/bat";
     # Read by the launcher's `:` mode. Built from the same CLDR annotations
     # arrakis reads through elephant, so a shortcode resolves the same on both.
     emoji = "${emojiData}";
     # What a `!` command in the launcher is run by.
     shell = "${pkgs.zsh}/bin/zsh";
+    browser = "Firefox";
+    searchURL = "https://www.google.com/search?q=%s";
     fzf = "${pkgs.fzf}/bin/fzf";
     fd = "${pkgs.fd}/bin/fd";
     timeout = "${pkgs.coreutils}/bin/timeout";

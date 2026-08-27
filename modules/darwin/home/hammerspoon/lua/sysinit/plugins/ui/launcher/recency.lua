@@ -75,4 +75,25 @@ function M.sort(rows)
   return sorted
 end
 
+---@param kind string
+---@param limit number
+---@return string[]
+function M.recent(kind, limit)
+  local prefix = kind .. ":"
+  local found = {}
+  for stored, at in pairs(load()) do
+    if stored:sub(1, #prefix) == prefix then
+      found[#found + 1] = { text = stored:sub(#prefix + 1), at = at }
+    end
+  end
+  table.sort(found, function(a, b)
+    return a.at > b.at
+  end)
+  local rows = {}
+  for index = 1, math.min(limit, #found) do
+    rows[index] = found[index].text
+  end
+  return rows
+end
+
 return M
