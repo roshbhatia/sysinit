@@ -53,20 +53,17 @@ local function render_in_wezterm(full)
   end
 
   local cmd = ("%s; exec ${SHELL:-sh}"):format(render_cmd(full))
-  local spawn = ("wezterm cli split-pane --pane-id %d --right --percent 42 -- sh -c %s 2>/dev/null"):format(
-    parent,
-    vim.fn.shellescape(cmd)
-  )
-  local out = vim.fn.system(spawn)
-  if vim.v.shell_error ~= 0 then
-    return false
-  end
-  local id = tonumber(vim.trim(out))
+  local id = wezterm.split({
+    parent = parent,
+    percent = 42,
+    side = "right",
+    argv = { "sh", "-c", cmd },
+  })
   if not id then
     return false
   end
   state.pane = id
-  vim.fn.jobstart({ "wezterm", "cli", "activate-pane", "--pane-id", tostring(parent) }, { detach = true })
+  wezterm.activate(parent)
   return true
 end
 
@@ -157,7 +154,7 @@ local function render_with_glow(full)
 end
 
 local function watch(full)
-  vim.api.nvim_clear_autocmds({ group = augroup })
+  vim.api.nvim_clear_autocmds({ group = augroup, event = "BufWritePost" })
   vim.api.nvim_create_autocmd("BufWritePost", {
     group = augroup,
     pattern = full,
@@ -225,7 +222,7 @@ function M.setup()
     group = augroup,
     callback = function()
       if pane_alive(state.pane) then
-        vim.fn.system({ "wezterm", "cli", "kill-pane", "--pane-id", tostring(state.pane) })
+        require("utils.wezterm_terminal").kill(state.pane)
       end
     end,
   })
