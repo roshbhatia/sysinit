@@ -235,6 +235,24 @@ rules: {
 		raw: ["(?i)(\\blet me\\s+(?!know\\b)\\w+\\b|\\b(?:now|first|next|then),?\\s+(?:i'?ll|i\\s+will|let\\s+me)\\b|\\bi'?ll\\s+(?:now|go\\s+ahead|start\\s+by|begin\\s+by)\\b|\\bi'?m\\s+going\\s+to\\b)"]
 	}
 
+	ReasoningArtifact: #Existence & {
+		message: "reasoning narration: state the conclusion and its evidence"
+		level:   "error"
+		raw: ["(?i)\\b(breaking this down|to approach this systematically|here.s my thought process|working through this logically)\\b"]
+	}
+
+	LetsConstruction: #Existence & {
+		message: "false collaboration: start with the point"
+		level:   "error"
+		raw: ["(?i)\\blet.s (explore|take a look|break this down|examine|consider|discuss|delve|unpack|walk through)\\b"]
+	}
+
+	AcknowledgmentLoop: #Existence & {
+		message: "prompt recap: answer without restating the question"
+		level:   "error"
+		raw: ["(?i)\\b(you.re asking about|to answer your question)\\b"]
+	}
+
 	// Slop.Assistant covers the same ground and is switched on in `ini`, but it
 	// does not replace this rule. Measured against the four openers here it
 	// caught one: its tokens want `certainly!` and `of course!` with the
@@ -244,6 +262,25 @@ rules: {
 		message: "filler opener: start with the substance"
 		level:   "error"
 		raw: ["(?i)^(great question|certainly|of course|absolutely)[,!.]"]
+	}
+
+	ReaderCue: #Existence & {
+		message: "reader cue: state why the fact matters"
+		level:   "error"
+		raw: ["(?i)\\b(here.s what.s interesting|this is the interesting part|here.s where it gets clever)\\b"]
+	}
+
+	GenericEnding: #Existence & {
+		message: "generic ending: end with the next fact or action"
+		level:   "error"
+		raw: ["(?i)\\b(one thing is certain|as we move forward)\\b"]
+	}
+
+	// Internal citation tokens identify a broken rendered reply, so one match blocks it.
+	CitationMarkup: #Existence & {
+		message: "internal citation markup: replace it with a usable source link"
+		level:   "error"
+		raw: ["(?i)(\\bcite(?:turn|news|search|navigation)\\d+(?:search|turn|news|navigation)\\d+\\b|contentReference\\s*\\[oaicite:[^]]+\\]\\s*\\{[^}]*\\}|\\boai_citation\\b|\\[attached_file:\\d+\\]|\\bgrok_card\\b)"]
 	}
 
 	SignificanceInflation: #Existence & {
@@ -615,7 +652,9 @@ promotedIni: strings.Join([for k, v in promoted {"\(k) = \(v)"}], "\n")
 //
 // A rule absent from this list is untested. Add the line and the case together.
 covered: [
+	"AcknowledgmentLoop",
 	"CalloutBox",
+	"CitationMarkup",
 	"CodeAgency",
 	"DocPreamble",
 	"DueToTheFactThat",
@@ -624,16 +663,20 @@ covered: [
 	"EmphasisInBullet",
 	"FillerOpener",
 	"FrequencyMarker",
+	"GenericEnding",
 	"HedgeStacking",
 	"InflatedWord",
 	"InOrderTo",
 	"InToday",
 	"Latinate",
+	"LetsConstruction",
 	"LongWord",
 	"MarketingVerb",
 	"Narration",
 	"NegativeParallelism",
 	"PhraseCluster",
+	"ReaderCue",
+	"ReasoningArtifact",
 	"RhetoricalLabel",
 	"SentenceLength",
 	"SignificanceInflation",

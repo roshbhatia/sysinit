@@ -161,7 +161,8 @@ let
     These rules win over any other communication or formatting guidance you
     carry, in this harness or in a skill.
 
-    Cut these patterns on sight. Each one marks the text as model-written.
+    Cut these patterns on sight. Each one reduces clarity or makes the text read
+    like model output.
 
     - Negative parallelism, the strongest tell: "it is not X, it is Y", "not
       just X but Y", "X rather than Y" used as a frame. Delete the dismissed

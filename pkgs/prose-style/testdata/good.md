@@ -30,3 +30,5 @@ Pin the hash, e.g. additionally naming the release tag.
 The wrapper resolves /etc/profiles and /etc/ssh without alerting.
 
 The overlay uses `robust` and `comprehensive` as tokens, and names `delve` too.
+
+The parser treats `oai_citation` and `citeturn0search1` as literal fixture names.
