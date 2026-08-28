@@ -46,6 +46,12 @@
     cupcake = {
       url = "github:eqtylab/cupcake";
       inputs.nixpkgs.follows = "nixpkgs";
+      inputs.rust-overlay.follows = "rust-overlay";
+    };
+
+    rust-overlay = {
+      url = "github:oxalica/rust-overlay";
+      inputs.nixpkgs.follows = "nixpkgs";
     };
 
     nix-claude-code = {

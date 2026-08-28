@@ -106,7 +106,9 @@
         "nixpkgs": [
           "nixpkgs"
         ],
-        "rust-overlay": "rust-overlay"
+        "rust-overlay": [
+          "rust-overlay"
+        ]
       },
       "locked": {
         "lastModified": 1772471178,
@@ -913,6 +915,7 @@
         "nixpkgs": "nixpkgs_4",
         "nur": "nur",
         "onepassword-shell-plugins": "onepassword-shell-plugins",
+        "rust-overlay": "rust-overlay",
         "stylix": "stylix",
         "swayfx": "swayfx"
       }
@@ -920,16 +923,15 @@
     "rust-overlay": {
       "inputs": {
         "nixpkgs": [
-          "cupcake",
           "nixpkgs"
         ]
       },
       "locked": {
-        "lastModified": 1762223900,
-        "narHash": "sha256-caxpESVH71mdrdihYvQZ9rTZPZqW0GyEG9un7MgpyRM=",
+        "lastModified": 1787834454,
+        "narHash": "sha256-jXSvqn04IOecJCvSvl8+g3PsbDVNP6qKs6dKUs/b16k=",
         "owner": "oxalica",
         "repo": "rust-overlay",
-        "rev": "cfe1598d69a42a5edb204770e71b8df77efef2c3",
+        "rev": "dc2fd1acc537f3583744e1373597a5731ff7a6e3",
         "type": "github"
       },
       "original": {
