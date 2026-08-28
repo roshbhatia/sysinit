@@ -1,6 +1,6 @@
 final: _prev:
 let
-  version = "1.10.0";
+  version = "1.11.0";
 
   pnpm22 = final.pnpm.override { nodejs-slim = final.nodejs-slim_22; };
 in
