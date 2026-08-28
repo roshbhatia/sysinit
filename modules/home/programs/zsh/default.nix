@@ -24,6 +24,7 @@ let
   integrationsExtras = shellUtils.stripHeaders ./integrations/extras.zsh;
   seshyWezterm = shellUtils.stripHeaders ./integrations/seshy-wezterm.zsh;
   askCapture = shellUtils.stripHeaders ./integrations/ask.zsh;
+  orcaPrompt = shellUtils.stripHeaders ./integrations/orca.zsh;
   libCache = shellUtils.stripHeaders ./lib/cache.zsh;
 in
 {
@@ -150,6 +151,7 @@ in
       (lib.mkOrder 700 ''
         ${seshyWezterm}
         ${askCapture}
+        ${orcaPrompt}
       '')
     ];
   };

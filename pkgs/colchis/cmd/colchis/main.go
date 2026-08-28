@@ -21,6 +21,7 @@ import (
 	"github.com/roshbhatia/sysinit/pkgs/colchis/internal/broker"
 	"github.com/roshbhatia/sysinit/pkgs/colchis/internal/config"
 	"github.com/roshbhatia/sysinit/pkgs/colchis/internal/domain"
+	"github.com/roshbhatia/sysinit/pkgs/colchis/internal/instance"
 	"github.com/roshbhatia/sysinit/pkgs/colchis/internal/plugin"
 	"github.com/roshbhatia/sysinit/pkgs/colchis/internal/store/sqlite"
 	workflowmodel "github.com/roshbhatia/sysinit/pkgs/colchis/internal/workflow"
@@ -32,10 +33,12 @@ func main() {
 
 func run(args []string, stdout io.Writer, stderr io.Writer) int {
 	if len(args) == 0 {
-		fmt.Fprintln(stderr, "usage: colchis <serve|inspect|export|CATEGORY ACTION> [options]")
-		return 2
+		return runOrcaUI(stdout, stderr)
 	}
 	command := args[0]
+	if isOrcaCommand(command) {
+		return runOrcaCommand(args, stdout, stderr)
+	}
 	if command == "mcp" {
 		return runMCP(args[1:], os.Stdin, stdout, stderr)
 	}
@@ -56,6 +59,8 @@ func run(args []string, stdout io.Writer, stderr io.Writer) int {
 	flags.SetOutput(stderr)
 	stateDirectory := flags.String("state-dir", "", "state directory")
 	outputPath := flags.String("output", "", "export database path")
+	workspace := flags.String("workspace", "", "workspace scope")
+	service := flags.String("service", "", "background service identity")
 	if err := flags.Parse(args[1:]); err != nil {
 		return 2
 	}
@@ -67,20 +72,57 @@ func run(args []string, stdout io.Writer, stderr io.Writer) int {
 		fmt.Fprintf(stderr, "%s does not accept --output\n", command)
 		return 2
 	}
+	if command != "serve" && (*workspace != "" || *service != "") {
+		fmt.Fprintf(stderr, "%s does not accept --workspace or --service\n", command)
+		return 2
+	}
 	if command == "export" && *outputPath == "" {
 		fmt.Fprintln(stderr, "export requires --output")
 		return 2
 	}
-	paths, err := config.ResolvePaths(*stateDirectory)
+	paths, err := resolveOrcaPaths(*stateDirectory)
 	if err != nil {
 		fmt.Fprintf(stderr, "resolve state paths: %v\n", err)
 		return 1
 	}
 	if command == "serve" {
+		scope := *workspace
+		if scope == "" {
+			scope, err = os.Getwd()
+		}
+		if err == nil {
+			scope, err = instance.Physical(scope)
+		}
+		if err != nil {
+			fmt.Fprintf(stderr, "resolve workspace: %v\n", err)
+			return 1
+		}
+		if err := os.Chdir(scope); err != nil {
+			fmt.Fprintf(stderr, "enter workspace: %v\n", err)
+			return 1
+		}
+		record, _, err := instance.NewRecord(scope, *service)
+		if err != nil {
+			fmt.Fprintf(stderr, "prepare instance record: %v\n", err)
+			return 1
+		}
+		record.StateDirectory = paths.StateDirectory
+		record.Socket = paths.Socket
 		ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 		defer stop()
-		if err := serve(ctx, paths); err != nil {
-			fmt.Fprintf(stderr, "serve broker: %v\n", err)
+		published := false
+		serveErr := serveWithReady(ctx, paths, func() error {
+			if err := instance.Write(record); err != nil {
+				return err
+			}
+			published = true
+			return nil
+		})
+		if published {
+			_ = instance.Remove(record)
+		}
+		if serveErr != nil {
+			fmt.Fprintf(stderr, "serve broker: %v\n", serveErr)
 			return 1
 		}
 		return 0
@@ -289,7 +331,7 @@ func executeNativeCommand(
 	if err != nil {
 		return domain.CommandRecord{}, err
 	}
-	paths, err := config.ResolvePaths(stateDirectory)
+	paths, err := resolveOrcaPaths(stateDirectory)
 	if err != nil {
 		return domain.CommandRecord{}, err
 	}
@@ -423,7 +465,7 @@ func runControlCommand(kind string, args []string, stdout io.Writer, stderr io.W
 	if *idempotencyKey == "" {
 		*idempotencyKey = "cli-" + *commandID
 	}
-	paths, err := config.ResolvePaths(*stateDirectory)
+	paths, err := resolveOrcaPaths(*stateDirectory)
 	if err != nil {
 		fmt.Fprintf(stderr, "resolve state paths: %v\n", err)
 		return 1
@@ -505,7 +547,7 @@ func runEvents(args []string, stdout io.Writer, stderr io.Writer) int {
 		fmt.Fprintln(stderr, "events requires a limit from 1 through 1000")
 		return 2
 	}
-	paths, err := config.ResolvePaths(*stateDirectory)
+	paths, err := resolveOrcaPaths(*stateDirectory)
 	if err != nil {
 		fmt.Fprintf(stderr, "resolve state paths: %v\n", err)
 		return 1
@@ -533,6 +575,10 @@ func runEvents(args []string, stdout io.Writer, stderr io.Writer) int {
 }
 
 func serve(ctx context.Context, paths config.Paths) error {
+	return serveWithReady(ctx, paths, nil)
+}
+
+func serveWithReady(ctx context.Context, paths config.Paths, ready func() error) error {
 	if err := sqlite.PrepareStateDirectory(paths.StateDirectory); err != nil {
 		return err
 	}
@@ -587,6 +633,12 @@ func serve(ctx context.Context, paths config.Paths) error {
 	server, err := socket.OpenOwned(paths.Socket, ownership, commands, store)
 	if err != nil {
 		return err
+	}
+	if ready != nil {
+		if err := ready(); err != nil {
+			_ = server.Close(context.Background())
+			return err
+		}
 	}
 	serveErrors := make(chan error, 1)
 	go func() {

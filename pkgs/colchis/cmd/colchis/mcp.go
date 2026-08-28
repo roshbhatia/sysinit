@@ -9,10 +9,12 @@ import (
 	"flag"
 	"fmt"
 	"io"
+	"os"
 
 	"github.com/roshbhatia/sysinit/pkgs/colchis/internal/api/socket"
 	"github.com/roshbhatia/sysinit/pkgs/colchis/internal/config"
 	"github.com/roshbhatia/sysinit/pkgs/colchis/internal/domain"
+	"github.com/roshbhatia/sysinit/pkgs/colchis/internal/instance"
 )
 
 const (
@@ -162,17 +164,46 @@ func runMCP(args []string, stdin io.Reader, stdout io.Writer, stderr io.Writer) 
 		fmt.Fprintln(stderr, "mcp accepts no positional arguments")
 		return 2
 	}
-	paths, err := config.ResolvePaths(*stateDirectory)
-	if err != nil {
-		fmt.Fprintf(stderr, "resolve state paths: %v\n", err)
-		return 1
+	var client *socket.Client
+	active := false
+	if *stateDirectory != "" {
+		paths, err := config.ResolvePaths(*stateDirectory)
+		if err != nil {
+			fmt.Fprintf(stderr, "resolve state paths: %v\n", err)
+			return 1
+		}
+		record := instance.Record{StateDirectory: paths.StateDirectory, Socket: paths.Socket}
+		active = instance.Live(record)
+		if active {
+			client, err = socket.NewClient(paths.Socket)
+			if err != nil {
+				fmt.Fprintf(stderr, "create broker client: %v\n", err)
+				return 1
+			}
+		}
+	} else {
+		directory, err := os.Getwd()
+		if err != nil {
+			fmt.Fprintf(stderr, "resolve current directory: %v\n", err)
+			return 1
+		}
+		record, found, err := instance.Active(directory)
+		if err != nil {
+			fmt.Fprintf(stderr, "resolve Orca instance: %v\n", err)
+			return 1
+		}
+		active = found
+		if active {
+			client, err = socket.NewClient(record.Socket)
+			if err != nil {
+				fmt.Fprintf(stderr, "create broker client: %v\n", err)
+				return 1
+			}
+		}
 	}
-	client, err := socket.NewClient(paths.Socket)
-	if err != nil {
-		fmt.Fprintf(stderr, "create broker client: %v\n", err)
-		return 1
+	if client != nil {
+		defer client.Close()
 	}
-	defer client.Close()
 	scanner := bufio.NewScanner(stdin)
 	scanner.Buffer(make([]byte, 4096), 1<<20)
 	encoder := json.NewEncoder(stdout)
@@ -189,7 +220,7 @@ func runMCP(args []string, stdin io.Reader, stdout io.Writer, stderr io.Writer) 
 			}
 			continue
 		}
-		response, send := handleMCPRequest(context.Background(), client, request)
+		response, send := handleMCPRequest(context.Background(), client, active, request)
 		if send {
 			if err := encoder.Encode(response); err != nil {
 				fmt.Fprintf(stderr, "write MCP response: %v\n", err)
@@ -207,6 +238,7 @@ func runMCP(args []string, stdin io.Reader, stdout io.Writer, stderr io.Writer) 
 func handleMCPRequest(
 	ctx context.Context,
 	client *socket.Client,
+	active bool,
 	request mcpRequest,
 ) (mcpResponse, bool) {
 	if request.JSONRPC != mcpJSONRPCVersion || request.Method == "" {
@@ -228,20 +260,23 @@ func handleMCPRequest(
 		result := json.RawMessage(`{
   "protocolVersion":"` + protocolVersion + `",
   "capabilities":{"tools":{"listChanged":false}},
-  "serverInfo":{"name":"colchis","version":"0.1.0"}
+  "serverInfo":{"name":"orca","version":"0.1.0"}
 }`)
 		return mcpSuccess(request.ID, result), true
 	case "server/discover":
 		result := json.RawMessage(`{
   "supportedVersions":["` + mcpCurrentVersion + `"],
   "capabilities":{"tools":{"listChanged":false}},
-  "instructions":"Use Colchis tools to run durable broker commands.",
+  "instructions":"Use Orca tools when a local broker is active.",
   "ttlMs":300000,"cacheScope":"private"
 }`)
 		return mcpRequestSuccess(request, result), true
 	case "ping":
 		return mcpRequestSuccess(request, json.RawMessage(`{}`)), true
 	case "tools/list":
+		if !active {
+			return mcpRequestSuccess(request, json.RawMessage(`{"tools":[]}`)), true
+		}
 		tools := make([]mcpTool, len(mcpToolDefinitions))
 		copy(tools, mcpToolDefinitions)
 		result, err := json.Marshal(struct {
@@ -252,6 +287,9 @@ func handleMCPRequest(
 		}
 		return mcpRequestSuccess(request, result), true
 	case "tools/call":
+		if !active || client == nil {
+			return mcpToolError(request, errors.New("orca is inactive for this directory")), true
+		}
 		return callMCPTool(ctx, client, request), true
 	default:
 		return mcpProtocolError(request.ID, -32601, "method is not supported"), true
@@ -360,7 +398,7 @@ func mcpRequestSuccess(request mcpRequest, result json.RawMessage) mcpResponse {
 	}
 	object["resultType"] = json.RawMessage(`"complete"`)
 	object["_meta"] = json.RawMessage(`{
-  "io.modelcontextprotocol/serverInfo":{"name":"colchis","version":"0.1.0"}
+  "io.modelcontextprotocol/serverInfo":{"name":"orca","version":"0.1.0"}
 }`)
 	decorated, err := json.Marshal(object)
 	if err != nil {

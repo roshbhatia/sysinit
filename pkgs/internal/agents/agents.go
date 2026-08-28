@@ -23,6 +23,9 @@ type Agent struct {
 	Glyph   string `json:"glyph"`
 	Command string `json:"command"`
 	ACP     bool   `json:"acp"`
+	Launch  struct {
+		ModelFlag string `json:"modelFlag"`
+	} `json:"launch"`
 
 	Notify         string `json:"notify"`
 	EditBus        bool   `json:"editBus"`

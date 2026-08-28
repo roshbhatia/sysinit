@@ -51,55 +51,9 @@ let
       python -m computer_server "$@"
   '';
 
-  colchisState = ''
-    workspace="$(${lib.getExe pkgs.git} rev-parse --path-format=absolute --show-toplevel)"
-    workspace="$(cd "$workspace" && pwd -P)"
-    workspace_digest="$(printf '%s' "$workspace" | ${lib.getExe' pkgs.coreutils "sha256sum"})"
-    workspace_digest="''${workspace_digest%% *}"
-    # Keep the socket path below Colchis's portable Unix limit when XDG_STATE_HOME is long.
-    workspace_key="''${workspace_digest:0:16}"
-    state_home="''${XDG_STATE_HOME:-$HOME/.local/state}"
-    state_directory="$state_home/colchis/w/$workspace_key"
-  '';
-
-  colchisBroker = pkgs.writeShellApplication {
-    name = "colchis-broker";
-    runtimeInputs = [
-      pkgs.ask
-      pkgs.colchis
-      pkgs.openspec
-      pkgs.pi-coding-agent
-      pkgs.seshy
-      pkgs.sysinit-utils
-      pkgs.traces
-    ];
-    text = ''
-      ${colchisState}
-      # Colchis scopes plugin isolation to its startup directory, so use the physical worktree root.
-      cd "$workspace"
-      exec colchis serve --state-dir "$state_directory" "$@"
-    '';
-  };
-
-  colchisMcp = pkgs.writeShellApplication {
-    name = "colchis-mcp";
-    runtimeInputs = [
-      pkgs.colchis
-      pkgs.coreutils
-      pkgs.git
-    ];
-    text = ''
-      ${colchisState}
-      exec colchis mcp --state-dir "$state_directory" "$@"
-    '';
-  };
 in
 {
-  home.packages = [
-    pkgs.colchis
-    colchisBroker
-    colchisMcp
-  ];
+  home.packages = [ pkgs.orca ];
 
   sysinit.llm.mcp.additionalServers = {
     ast-grep = {
@@ -141,9 +95,10 @@ in
       description = "Computer use on this machine: screenshot the screen and run a task against the desktop";
     };
 
-    colchis = {
-      command = "${lib.getExe colchisMcp}";
-      description = "Durable local agent workflows through a repository-scoped Colchis broker";
+    orca = {
+      command = "${lib.getExe pkgs.orca}";
+      args = [ "mcp" ];
+      description = "Optional local agent orchestration, active only after orca start";
     };
   };
 

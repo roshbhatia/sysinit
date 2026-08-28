@@ -157,29 +157,34 @@ in
         ''
       );
 
-  colchis =
+  orca =
     let
       runtimePackages = [
+        final.ask
         final.git
         final.nix
+        final.openspec
+        final.pi-coding-agent
+        final.seshy
+        final.sysinit-utils
+        final.traces
       ]
       ++ final.lib.optionals final.stdenv.hostPlatform.isLinux [ final.bubblewrap ];
       runtimePath = final.lib.makeBinPath runtimePackages;
     in
-    final.runCommand "colchis-${sysinit-gotools.version}"
+    final.runCommand "orca-${sysinit-gotools.version}"
       {
         nativeBuildInputs = [ final.makeBinaryWrapper ];
         meta = {
-          description = "Durable local agent workflows through a Unix socket";
-          mainProgram = "colchis";
+          description = "Optional local agent orchestration through a Unix socket";
+          mainProgram = "orca";
           platforms = final.lib.platforms.unix;
         };
       }
       ''
         mkdir -p "$out/bin"
-        makeWrapper "${sysinit-gotools}/bin/colchis" "$out/bin/colchis" \
-          --prefix PATH : "${runtimePath}"
-        makeWrapper "${sysinit-gotools}/bin/colchis-plugin-sysinit" "$out/bin/colchis-plugin-sysinit" \
+        makeWrapper "${sysinit-gotools}/bin/colchis" "$out/bin/orca" \
+          --set ORCA_EXECUTABLE "$out/bin/orca" \
           --prefix PATH : "${runtimePath}"
       '';
 

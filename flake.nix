@@ -201,7 +201,7 @@
             "traces"
             "ask"
             "sysinit-utils"
-            "colchis"
+            "orca"
             "ioskeleyMono"
             "wumpusMono"
             "bookerly"

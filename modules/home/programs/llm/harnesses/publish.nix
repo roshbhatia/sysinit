@@ -28,6 +28,7 @@ let
     }
     // {
       deck = deck.${name};
+      launch = h.launch or { };
     }
   ) registry;
 in

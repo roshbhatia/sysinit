@@ -741,7 +741,7 @@ func TestRunSmokeWorkflowFromCleanState(t *testing.T) {
 	}
 }
 
-func TestMCPAdvertisesModernAndCompatibleProtocols(t *testing.T) {
+func TestInactiveMCPAdvertisesProtocolsWithoutTools(t *testing.T) {
 	input := strings.NewReader(strings.Join([]string{
 		`{"jsonrpc":"2.0","id":1,"method":"server/discover"}`,
 		`{"jsonrpc":"2.0","id":2,"method":"initialize","params":{"protocolVersion":"2025-11-25"}}`,
@@ -782,7 +782,7 @@ func TestMCPAdvertisesModernAndCompatibleProtocols(t *testing.T) {
 	var listed struct {
 		Tools []mcpTool `json:"tools"`
 	}
-	if err := json.Unmarshal(toolsResponse.Result, &listed); err != nil || len(listed.Tools) != len(mcpToolDefinitions) {
+	if err := json.Unmarshal(toolsResponse.Result, &listed); err != nil || len(listed.Tools) != 0 {
 		t.Fatalf("tools list count = %d, %v", len(listed.Tools), err)
 	}
 }

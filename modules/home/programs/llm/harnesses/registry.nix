@@ -58,6 +58,7 @@
     package = null;
     glyph = "";
     command = "claude";
+    launch.modelFlag = "--model";
     acp = true;
     openspecTool = [ "claude" ];
     guard = "hook";
@@ -78,6 +79,7 @@
     package = null;
     glyph = "󱗿";
     command = "codex";
+    launch.modelFlag = "--model";
     acp = true;
     openspecTool = [ "codex" ];
     guard = "hook";
