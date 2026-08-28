@@ -5,6 +5,11 @@ run:
 
 linters:
   default: standard
+  exclusions:
+    rules:
+      - path: ^pkgs/colchis/
+        linters:
+          - errcheck
 
 formatters:
   enable:

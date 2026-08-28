@@ -48,7 +48,7 @@ jobs:
       # `nix fmt -- --check` is not reachable from `nix flake check`.
       - name: nix fmt -- --check
         env:
-          NIX_CONFIG: "access-tokens = github.com=${{ secrets.WORKFLOWS_PAT || secrets.GITHUB_TOKEN }}"
+          NIX_CONFIG: "access-tokens = github.com=${{ secrets.GITHUB_TOKEN }}"
         run: nix fmt -- --check
 
       # Before `nix flake check`, so a lint failure is not masked by an
@@ -56,25 +56,25 @@ jobs:
       # runs, over the whole tree rather than the staged paths.
       - name: Lint
         env:
-          NIX_CONFIG: "access-tokens = github.com=${{ secrets.WORKFLOWS_PAT || secrets.GITHUB_TOKEN }}"
+          NIX_CONFIG: "access-tokens = github.com=${{ secrets.GITHUB_TOKEN }}"
         run: nix develop --command bash hack/lint.sh --all
 
       - name: nix flake check
         env:
-          NIX_CONFIG: "access-tokens = github.com=${{ secrets.WORKFLOWS_PAT || secrets.GITHUB_TOKEN }}"
+          NIX_CONFIG: "access-tokens = github.com=${{ secrets.GITHUB_TOKEN }}"
         run: nix flake check --print-build-logs
 
       # Evaluate every host because the current runner cannot build Linux outputs.
       - name: Evaluate host configurations
         env:
-          NIX_CONFIG: "access-tokens = github.com=${{ secrets.WORKFLOWS_PAT || secrets.GITHUB_TOKEN }}"
+          NIX_CONFIG: "access-tokens = github.com=${{ secrets.GITHUB_TOKEN }}"
         run: |
           nix eval --raw ".#darwinConfigurations.lv426.system.drvPath"
           nix eval --raw ".#nixosConfigurations.arrakis.config.system.build.toplevel.drvPath"
 
       - name: Evaluate standalone home configurations
         env:
-          NIX_CONFIG: "access-tokens = github.com=${{ secrets.WORKFLOWS_PAT || secrets.GITHUB_TOKEN }}"
+          NIX_CONFIG: "access-tokens = github.com=${{ secrets.GITHUB_TOKEN }}"
         run: |
           for profile in dev minimal; do
             for system in aarch64-darwin x86_64-linux aarch64-linux; do

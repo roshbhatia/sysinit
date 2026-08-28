@@ -1,0 +1,101 @@
+{
+  "schemaVersion": "colchis.workflow/v2",
+  "evaluatorVersion": "cue-0.17.1+colchis-policy-v2",
+  "name": "verified-change",
+  "budgets": {
+    "maxConcurrentNodes": 4,
+    "maxConcurrentProcesses": 4,
+    "maxMaterializedSnapshots": 2,
+    "maxSnapshotBytes": 1073741824,
+    "maxVerificationSeconds": 900
+  },
+  "effects": { "mode": "deny" },
+  "jobDefaults": {
+    "approvals": "never",
+    "filesystem": "workspace-write",
+    "network": "deny"
+  },
+  "templates": {
+    "implement": {
+      "kind": "task",
+      "inputSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object"
+      },
+      "inputSchemaDigest": "sha256:ccb5a9d66e068ea8f4e205788589675a48e9e3754a840d8ac10120d14238e914",
+      "outputSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object"
+      },
+      "outputSchemaDigest": "sha256:ccb5a9d66e068ea8f4e205788589675a48e9e3754a840d8ac10120d14238e914",
+      "capabilities": {
+        "required": ["structured-result"],
+        "optional": ["live-input"]
+      },
+      "verification": [{
+        "key": "unit-tests",
+        "required": true,
+        "environment": "nix",
+        "command": ["go", "test", "./..."],
+        "timeoutSeconds": 900
+      }],
+      "effects": { "mode": "deny" },
+      "maxAttempts": 2
+    },
+    "judge": {
+      "kind": "judge",
+      "inputSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object"
+      },
+      "inputSchemaDigest": "sha256:ccb5a9d66e068ea8f4e205788589675a48e9e3754a840d8ac10120d14238e914",
+      "outputSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object"
+      },
+      "outputSchemaDigest": "sha256:ccb5a9d66e068ea8f4e205788589675a48e9e3754a840d8ac10120d14238e914",
+      "capabilities": { "required": ["structured-result"], "optional": [] },
+      "verification": [],
+      "effects": { "mode": "deny" },
+      "maxAttempts": 2
+    }
+  },
+  "nodes": {
+    "implement": {
+      "template": "implement",
+      "adapter": "pi",
+      "policy": { "approvals": "never", "filesystem": "workspace-write", "network": "deny" },
+      "budget": { "maxAttempts": 2 }
+    },
+    "judge": {
+      "template": "judge",
+      "adapter": "pi",
+      "policy": { "approvals": "never", "filesystem": "workspace-write", "network": "deny" },
+      "budget": { "maxAttempts": 2 }
+    }
+  },
+  "edges": [{
+    "id": "implement-to-judge",
+    "from": "implement",
+    "fromPort": "result",
+    "to": "judge",
+    "toPort": "candidate",
+    "valueSchemaDigest": "sha256:ccb5a9d66e068ea8f4e205788589675a48e9e3754a840d8ac10120d14238e914",
+    "required": true
+  }, {
+    "id": "judge-to-implement",
+    "from": "judge",
+    "fromPort": "revision",
+    "to": "implement",
+    "toPort": "feedback",
+    "valueSchemaDigest": "sha256:ccb5a9d66e068ea8f4e205788589675a48e9e3754a840d8ac10120d14238e914",
+    "required": true
+  }],
+  "loops": [{
+    "id": "judge-loop",
+    "backEdge": "judge-to-implement",
+    "stop": { "kind": "validation", "validation": "unit-tests" },
+    "iterationLimit": 3,
+    "stallLimit": 2
+  }]
+}

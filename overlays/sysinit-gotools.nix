@@ -8,7 +8,7 @@ let
 
     src = ../pkgs;
 
-    vendorHash = "sha256-EOg+81XREEckJekm0YePGZsrPbuP8EZnCknP1p+Oacc=";
+    vendorHash = "sha256-WZASIPTyPzxOminR9A4VosOq2SMFWwlL6ydB8jq0YJQ=";
 
     nativeCheckInputs = [ final.git ];
 
@@ -156,6 +156,32 @@ in
           done
         ''
       );
+
+  colchis =
+    let
+      runtimePackages = [
+        final.git
+        final.nix
+      ]
+      ++ final.lib.optionals final.stdenv.hostPlatform.isLinux [ final.bubblewrap ];
+      runtimePath = final.lib.makeBinPath runtimePackages;
+    in
+    final.runCommand "colchis-${sysinit-gotools.version}"
+      {
+        nativeBuildInputs = [ final.makeBinaryWrapper ];
+        meta = {
+          description = "Durable local agent workflows through a Unix socket";
+          mainProgram = "colchis";
+          platforms = final.lib.platforms.unix;
+        };
+      }
+      ''
+        mkdir -p "$out/bin"
+        makeWrapper "${sysinit-gotools}/bin/colchis" "$out/bin/colchis" \
+          --prefix PATH : "${runtimePath}"
+        makeWrapper "${sysinit-gotools}/bin/colchis-plugin-sysinit" "$out/bin/colchis-plugin-sysinit" \
+          --prefix PATH : "${runtimePath}"
+      '';
 
   sysinit-utils =
     let

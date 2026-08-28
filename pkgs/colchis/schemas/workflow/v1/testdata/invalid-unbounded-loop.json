@@ -1,0 +1,23 @@
+{
+  "schemaVersion": "colchis.workflow/v2",
+  "evaluatorVersion": "cue-0.17.1+colchis-policy-v2",
+  "name": "unbounded-loop",
+  "budgets": {
+    "maxConcurrentNodes": 1,
+    "maxConcurrentProcesses": 1,
+    "maxMaterializedSnapshots": 1,
+    "maxSnapshotBytes": 1024,
+    "maxVerificationSeconds": 10
+  },
+  "effects": { "mode": "deny" },
+  "templates": {},
+  "nodes": {},
+  "edges": [],
+  "loops": [{
+    "id": "forever",
+    "backEdge": "missing",
+    "stop": { "kind": "validation", "validation": "never" },
+    "iterationLimit": 0,
+    "stallLimit": 0
+  }]
+}

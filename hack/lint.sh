@@ -228,7 +228,9 @@ while IFS= read -r file; do
   [ -n "${file}" ] && cue_files+=("${file}")
 done < <(files_for '\.cue$')
 if [ "${#cue_files[@]}" -gt 0 ] && command -v cue > /dev/null 2>&1; then
-  run "cue vet" cue vet "${cue_files[@]}"
+  while IFS= read -r directory; do
+    run "cue vet ${directory}" cue vet "./${directory}"
+  done < <(printf '%s\n' "${cue_files[@]}" | xargs -n 1 dirname | sort -u)
 fi
 
 c_files=()

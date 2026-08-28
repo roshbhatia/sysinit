@@ -2,7 +2,7 @@
 
 Read this before changing anything under `pkgs/`.
 
-## One module, six tools
+## One module, seven tools
 
 `pkgs/go.mod` declares `github.com/roshbhatia/sysinit/pkgs`. Every Go tool here
 is a directory inside it, not a module of its own. There is one `go.sum` and one
@@ -18,6 +18,7 @@ pkgs/
     diffview/       a diff drawn as a symbol tree, with call edges
     workspace/      the declared boundary, and the repositories under it
   ask/              main package + ask/internal/
+  colchis/          broker, MCP facade, sysinit plugin, schema, and tests
   changes/          main package + changes/internal/
   traces/           main package + traces/internal/  (source/ holds the provider
                     contract, transcript/ what Claude Code writes to disk,
@@ -32,6 +33,10 @@ Go's `internal/` rule does the enforcement. `pkgs/internal/x` is reachable from
 every tool. `pkgs/seshy/internal/x` is reachable from seshy alone. So put a
 thing in `pkgs/internal/` only when a second tool needs it, and leave it in the
 tool otherwise.
+
+Colchis keeps its existing output and cleanup semantics. Its scoped `errcheck`
+exclusion avoids a mechanical rewrite of 354 ignored results. Every other Go
+linter still covers it.
 
 ## What belongs in pkgs/internal/
 

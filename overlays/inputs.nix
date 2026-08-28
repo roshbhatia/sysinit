@@ -6,7 +6,6 @@
 final: _prev: {
   firefox-addons = inputs.firefox-addons.packages.${final.stdenv.hostPlatform.system};
   claude-code = inputs.nix-claude-code.packages.${final.stdenv.hostPlatform.system}.default;
-  colchis = inputs.colchis.packages.${final.stdenv.hostPlatform.system}.default;
   nur = {
     repos = {
       rycee = {

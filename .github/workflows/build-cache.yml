@@ -65,5 +65,5 @@ jobs:
 
       - name: Build cache bundle (${{ matrix.system }})
         env:
-          NIX_CONFIG: "access-tokens = github.com=${{ secrets.WORKFLOWS_PAT || secrets.GITHUB_TOKEN }}"
+          NIX_CONFIG: "access-tokens = github.com=${{ secrets.GITHUB_TOKEN }}"
         run: nix build --print-build-logs ".#packages.${{ matrix.system }}.cacheBundle"

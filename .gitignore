@@ -1,6 +1,9 @@
 # Nix build outputs
 result
 result-*
+# `result` is a Colchis Go package, so keep that exact source directory.
+!pkgs/colchis/internal/result/
+!pkgs/colchis/internal/result/**
 **/dist/
 switch.err
 
