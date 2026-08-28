@@ -27,6 +27,8 @@ in
     stateHome = config.sysinit.paths.resolved.stateHome;
   };
 
+  manual.manpages.enable = false;
+
   home = {
     stateVersion = "26.05";
 
