@@ -42,7 +42,7 @@ jobs:
 
       - name: Build ${{ matrix.profile }}-${{ matrix.system }}
         env:
-          NIX_CONFIG: "access-tokens = github.com=${{ secrets.GITHUB_TOKEN }}"
+          NIX_CONFIG: "access-tokens = github.com=${{ secrets.WORKFLOWS_PAT || secrets.GITHUB_TOKEN }}"
         run: |
           nix build --no-link -L \
             ".#homeConfigurations.${{ matrix.profile }}-${{ matrix.system }}.activationPackage"

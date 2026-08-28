@@ -27,19 +27,19 @@ jobs:
       - name: Update nvfetcher sources
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NIX_CONFIG: "access-tokens = github.com=${{ secrets.GITHUB_TOKEN }}"
+          NIX_CONFIG: "access-tokens = github.com=${{ secrets.WORKFLOWS_PAT || secrets.GITHUB_TOKEN }}"
         run: |
           nix run nixpkgs#nvfetcher -- -c nvfetcher.toml -o _sources --keep-going
 
       - name: Update flake inputs
         env:
-          NIX_CONFIG: "access-tokens = github.com=${{ secrets.GITHUB_TOKEN }}"
+          NIX_CONFIG: "access-tokens = github.com=${{ secrets.WORKFLOWS_PAT || secrets.GITHUB_TOKEN }}"
         run: |
           nix flake update
 
       - name: Update Go vendorHash values
         env:
-          NIX_CONFIG: "access-tokens = github.com=${{ secrets.GITHUB_TOKEN }}"
+          NIX_CONFIG: "access-tokens = github.com=${{ secrets.WORKFLOWS_PAT || secrets.GITHUB_TOKEN }}"
         run: |
           ./hack/update-vendor-hash.sh
 

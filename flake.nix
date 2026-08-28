@@ -74,6 +74,11 @@
       inputs.nixpkgs.url = "github:NixOS/nixpkgs/0954f7ee2f6bb3dc7d4e3d0d8bcb8fd4bde4cfc5";
     };
 
+    colchis = {
+      url = "github:roshbhatia/colchis";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
   };
 
   outputs =
@@ -205,6 +210,7 @@
             "wumpusMono"
             "bookerly"
           ];
+          inputPkgsFor = system: [ inputs.colchis.packages.${system}.default ];
         in
         lib.genAttrs cacheSystems (
           system:
@@ -214,7 +220,8 @@
           {
             cacheBundle = pkgs.symlinkJoin {
               name = "sysinit-cache-bundle-${system}";
-              paths = builtins.filter (p: p != null) (map (name: pkgs.${name} or null) cacheAttrs);
+              paths =
+                builtins.filter (p: p != null) (map (name: pkgs.${name} or null) cacheAttrs) ++ inputPkgsFor system;
             };
           }
         );

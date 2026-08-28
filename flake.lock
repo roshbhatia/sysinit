@@ -84,6 +84,26 @@
         "type": "github"
       }
     },
+    "colchis": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1787944691,
+        "narHash": "sha256-lNMcNcRhV2F2Nd3QqlaIpxy4TZWc2ldZLuz6peBdzXk=",
+        "owner": "roshbhatia",
+        "repo": "colchis",
+        "rev": "b6c542017272f8528a217063199c9d59e80991fa",
+        "type": "github"
+      },
+      "original": {
+        "owner": "roshbhatia",
+        "repo": "colchis",
+        "type": "github"
+      }
+    },
     "crane": {
       "locked": {
         "lastModified": 1762189950,
@@ -903,6 +923,7 @@
     "root": {
       "inputs": {
         "ast-grep-skills": "ast-grep-skills",
+        "colchis": "colchis",
         "cupcake": "cupcake",
         "darwin": "darwin",
         "determinate": "determinate",
