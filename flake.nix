@@ -227,13 +227,6 @@
         }
       );
 
-      lib = {
-        inherit
-          builders
-          hostConfigs
-          ;
-      };
-
       devShells = lib.genAttrs cacheSystems (
         system:
         let

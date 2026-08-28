@@ -66,11 +66,5 @@
         extraModules = [ ./modules/nixos ];
       };
 
-      lib = {
-        inherit
-          builders
-          hostConfigs
-          ;
-      };
     };
 }
