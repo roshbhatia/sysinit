@@ -304,11 +304,10 @@ func runOrcPrompt(args []string, stdout io.Writer, stderr io.Writer) int {
 		fmt.Fprintln(stderr, "prompt accepts no arguments")
 		return 2
 	}
-	record, active, err := activeOrc("")
-	if err != nil || !active {
+	if os.Getenv("ORC_SCOPE") == "" {
 		return 0
 	}
-	fmt.Fprintf(stdout, "orc(%s)", filepath.Base(record.Scope))
+	fmt.Fprint(stdout, "|⚔|")
 	return 0
 }
 

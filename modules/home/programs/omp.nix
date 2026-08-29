@@ -96,7 +96,9 @@ in
             {
               foreground = "p:accent";
               style = "plain";
-              template = "{{ if .Env.ORC_PROMPT }}{{ .Env.ORC_PROMPT }} {{ end }}";
+              # ORC_SCOPE belongs to processes launched through orc. Reading it
+              # keeps prompt rendering independent of the broker lifecycle.
+              template = "{{ if .Env.ORC_SCOPE }}|⚔| {{ end }}";
               type = "text";
             }
           ];

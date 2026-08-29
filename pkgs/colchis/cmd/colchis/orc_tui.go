@@ -505,7 +505,7 @@ func (model orcUIModel) header(width int) string {
 	if model.active {
 		status = orcActiveStyle.Render("broker running")
 	}
-	left := orcTitleStyle.Render("🫍 orc") + "  " + orcTagStyle.Render("local orchestrator")
+	left := orcTitleStyle.Render("⚔ orc") + "  " + orcTagStyle.Render("local orchestrator")
 	gap := width - lipgloss.Width(left) - lipgloss.Width(status)
 	if gap < 1 {
 		gap = 1
@@ -1356,7 +1356,7 @@ func (model orcWorkerUIModel) View() string {
 		statusStyle = orcErrorStyle
 	}
 	status := statusStyle.Render(string(session.State))
-	left := orcTitleStyle.Render("🫍 orc") + "  " + orcTagStyle.Render("worker attachment")
+	left := orcTitleStyle.Render("⚔ orc") + "  " + orcTagStyle.Render("worker attachment")
 	gap := model.width - lipgloss.Width(left) - lipgloss.Width(status)
 	if gap < 1 {
 		gap = 1

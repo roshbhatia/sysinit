@@ -1149,6 +1149,19 @@ func shortStateDirectory(t *testing.T) string {
 	return directory
 }
 
+func TestOrcPromptUsesControllerEnvironment(t *testing.T) {
+	t.Setenv("ORC_SCOPE", "")
+	var output bytes.Buffer
+	if code := runOrcPrompt(nil, &output, io.Discard); code != 0 || output.Len() != 0 {
+		t.Fatalf("inactive prompt = %q with code %d", output.String(), code)
+	}
+
+	t.Setenv("ORC_SCOPE", "/workspace/project")
+	if code := runOrcPrompt(nil, &output, io.Discard); code != 0 || output.String() != "|⚔|" {
+		t.Fatalf("active prompt = %q with code %d", output.String(), code)
+	}
+}
+
 func TestOrcPickerUsesRecentAgentAndResponsiveLayout(t *testing.T) {
 	t.Setenv("XDG_STATE_HOME", t.TempDir())
 	available := []agents.Agent{
@@ -1174,7 +1187,7 @@ func TestOrcPickerUsesRecentAgentAndResponsiveLayout(t *testing.T) {
 	resized, _ := model.Update(tea.WindowSizeMsg{Width: 110, Height: 30})
 	model = resized.(orcUIModel)
 	view := ansi.Strip(model.View())
-	for _, expected := range []string{"🫍 orc", "running", "controllers 2", "Codex", "pid 42", "enter open"} {
+	for _, expected := range []string{"⚔ orc", "running", "controllers 2", "Codex", "pid 42", "enter open"} {
 		if !strings.Contains(view, expected) {
 			t.Fatalf("View() omitted %q:\n%s", expected, view)
 		}
