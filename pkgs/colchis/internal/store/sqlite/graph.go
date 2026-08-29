@@ -297,6 +297,12 @@ func (store *Store) CreateRestartPoint(
 		if err != nil {
 			return err
 		}
+		restartDefinition, err := transaction.workflowDefinitionAtEventCursor(
+			ctx, run.ID, snapshotCursor,
+		)
+		if err != nil {
+			return err
+		}
 		if request.NodeRunID != nil {
 			node, found, err := transaction.nodeRun(ctx, *request.NodeRunID)
 			if err != nil {
@@ -306,6 +312,14 @@ func (store *Store) CreateRestartPoint(
 				return &domain.Error{
 					Code: domain.ErrorCodeInvalidArgument, Op: "create", Resource: string(*request.NodeRunID),
 					Message: "restart node does not belong to the workflow run",
+				}
+			}
+			if request.Kind == domain.RestartPointNodeAdmission &&
+				(node.State != domain.NodeRunStateSucceeded || node.AdmissionID == nil ||
+					!containsAdmission(request.AdmissionIDs, *node.AdmissionID)) {
+				return &domain.Error{
+					Code: domain.ErrorCodeInvalidArgument, Op: "create", Resource: string(*request.NodeRunID),
+					Message: "node restart point requires the node's admitted result",
 				}
 			}
 		}
@@ -359,7 +373,8 @@ func (store *Store) CreateRestartPoint(
 			if err != nil {
 				return err
 			}
-			if !found || session.WorkflowRunID != run.ID || checkpoint.WorkflowVersion != run.DefinitionVersion {
+			if !found || session.WorkflowRunID != run.ID ||
+				checkpoint.WorkflowVersion != restartDefinition.DefinitionVersion {
 				return &domain.Error{
 					Code: domain.ErrorCodeInvalidArgument, Op: "create", Resource: string(checkpointID),
 					Message: "restart checkpoint does not belong to this workflow version",
@@ -369,8 +384,8 @@ func (store *Store) CreateRestartPoint(
 		now := time.Now().UTC()
 		point = domain.RestartPoint{
 			Metadata: newRecordMetadata(now), ID: request.ID, Kind: request.Kind,
-			WorkflowRunID: run.ID, WorkflowDefinitionID: run.WorkflowDefinition,
-			DefinitionVersion: run.DefinitionVersion, EventCursor: snapshotCursor,
+			WorkflowRunID: run.ID, WorkflowDefinitionID: restartDefinition.ID,
+			DefinitionVersion: restartDefinition.DefinitionVersion, EventCursor: snapshotCursor,
 			SnapshotID: request.SnapshotID, NodeRunID: request.NodeRunID,
 			AdmissionIDs:  append([]domain.AdmissionID(nil), request.AdmissionIDs...),
 			CheckpointIDs: append([]domain.CheckpointID(nil), request.CheckpointIDs...),
@@ -867,6 +882,65 @@ func (transaction *Tx) snapshotEventCursor(
 		return 0, wrap("read restart snapshot cursor", string(snapshotID), err)
 	}
 	return cursor, nil
+}
+
+func (transaction *Tx) workflowDefinitionAtEventCursor(
+	ctx context.Context,
+	runID domain.WorkflowRunID,
+	cursor domain.EventCursor,
+) (domain.WorkflowDefinition, error) {
+	var eventType string
+	var payload []byte
+	err := transaction.tx.QueryRowContext(
+		ctx,
+		`SELECT event_type, payload FROM events
+         WHERE aggregate_kind = ? AND aggregate_id = ? AND cursor <= ?
+           AND event_type IN (?, ?)
+         ORDER BY cursor DESC LIMIT 1`,
+		workflowRunRecordKind, string(runID), cursor,
+		"workflow.run.created", "workflow.graph.patched",
+	).Scan(&eventType, &payload)
+	if errors.Is(err, sql.ErrNoRows) {
+		return domain.WorkflowDefinition{}, &domain.Error{
+			Code: domain.ErrorCodeInvalidArgument, Op: "create", Resource: string(runID),
+			Message: "restart snapshot predates the workflow run",
+		}
+	}
+	if err != nil {
+		return domain.WorkflowDefinition{}, wrap("read restart workflow definition", string(runID), err)
+	}
+	var reference struct {
+		CreatedID domain.WorkflowDefinitionID `json:"workflowDefinitionId"`
+		PatchedID domain.WorkflowDefinitionID `json:"definitionId"`
+		Version   uint64                      `json:"definitionVersion"`
+	}
+	if err := json.Unmarshal(payload, &reference); err != nil {
+		return domain.WorkflowDefinition{}, wrap("decode restart workflow definition", string(runID), err)
+	}
+	definitionID := reference.CreatedID
+	if eventType == "workflow.graph.patched" {
+		definitionID = reference.PatchedID
+	}
+	definition, found, err := transaction.workflowDefinition(ctx, definitionID)
+	if err != nil {
+		return domain.WorkflowDefinition{}, err
+	}
+	if !found || reference.Version != 0 && definition.DefinitionVersion != reference.Version {
+		return domain.WorkflowDefinition{}, &domain.Error{
+			Code: domain.ErrorCodeInternal, Op: "create", Resource: string(definitionID),
+			Message: "restart workflow definition is unavailable",
+		}
+	}
+	return definition, nil
+}
+
+func containsAdmission(ids []domain.AdmissionID, target domain.AdmissionID) bool {
+	for _, id := range ids {
+		if id == target {
+			return true
+		}
+	}
+	return false
 }
 
 func newWorkflowRunRecords(

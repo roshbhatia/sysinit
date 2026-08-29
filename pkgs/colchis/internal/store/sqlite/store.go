@@ -2546,7 +2546,7 @@ func (store *Store) RecoverRunningCommands(ctx context.Context) ([]domain.Comman
 	if err != nil {
 		return nil, wrap("read running commands", store.path, err)
 	}
-	var running []domain.CommandID
+	var running []domain.CommandRecord
 	for rows.Next() {
 		var payload []byte
 		if err := rows.Scan(&payload); err != nil {
@@ -2559,7 +2559,7 @@ func (store *Store) RecoverRunningCommands(ctx context.Context) ([]domain.Comman
 			return nil, wrap("decode running command", store.path, err)
 		}
 		if record.State == domain.CommandStateRunning {
-			running = append(running, record.ID)
+			running = append(running, record)
 		}
 	}
 	if err := rows.Err(); err != nil {
@@ -2571,10 +2571,26 @@ func (store *Store) RecoverRunningCommands(ctx context.Context) ([]domain.Comman
 	}
 
 	recovered := make([]domain.CommandRecord, 0, len(running))
-	for _, id := range running {
+	for _, command := range running {
+		if command.Kind == "workflow.replay" {
+			result, found, err := store.completedReplayCommandResult(ctx, command.ID)
+			if err != nil {
+				return nil, err
+			}
+			if found {
+				record, err := store.FinishCommand(
+					ctx, command.ID, domain.CommandStateSucceeded, result,
+				)
+				if err != nil {
+					return nil, err
+				}
+				recovered = append(recovered, record)
+				continue
+			}
+		}
 		record, changed, err := store.transitionCommand(
 			ctx,
-			id,
+			command.ID,
 			domain.CommandStateRunning,
 			domain.CommandStateIndeterminate,
 		)
@@ -2586,6 +2602,53 @@ func (store *Store) RecoverRunningCommands(ctx context.Context) ([]domain.Comman
 		}
 	}
 	return recovered, nil
+}
+
+func (store *Store) completedReplayCommandResult(
+	ctx context.Context,
+	commandID domain.CommandID,
+) (json.RawMessage, bool, error) {
+	var result json.RawMessage
+	var found bool
+	err := store.Transaction(ctx, func(transaction *Tx) error {
+		forks, err := typedRecords[domain.RunFork](transaction, ctx, runForkRecordKind)
+		if err != nil {
+			return err
+		}
+		var match domain.RunFork
+		for _, fork := range forks {
+			if fork.CommandID != commandID {
+				continue
+			}
+			if found {
+				return &domain.Error{
+					Code: domain.ErrorCodeInternal, Op: "recover", Resource: string(commandID),
+					Message: "replay command produced multiple forks",
+				}
+			}
+			match = fork
+			found = true
+		}
+		if !found {
+			return nil
+		}
+		run, runFound, err := transaction.workflowRun(ctx, match.ChildWorkflowRunID)
+		if err != nil {
+			return err
+		}
+		if !runFound {
+			return &domain.Error{
+				Code: domain.ErrorCodeInternal, Op: "recover", Resource: string(commandID),
+				Message: "replay child workflow run is unavailable",
+			}
+		}
+		result, err = json.Marshal(struct {
+			Run  domain.WorkflowRun `json:"run"`
+			Fork domain.RunFork     `json:"fork"`
+		}{Run: run, Fork: match})
+		return err
+	})
+	return result, found, err
 }
 
 func (store *Store) FinishCommand(

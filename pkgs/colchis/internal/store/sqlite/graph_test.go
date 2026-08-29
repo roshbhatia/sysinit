@@ -167,6 +167,19 @@ func TestReplayWorkflowCreatesChildAndPreservesParent(t *testing.T) {
 	if point.EventCursor != snapshotCursor {
 		t.Fatalf("restart cursor = %d, want snapshot cursor %d", point.EventCursor, snapshotCursor)
 	}
+	if err := store.EnableEmergencyReserve(); err != nil {
+		t.Fatalf("EnableEmergencyReserve() returned %v", err)
+	}
+	commandRequest := domain.CommandRequest{
+		ID: "command-replay", IdempotencyKey: "request-replay", Kind: "workflow.replay",
+		Payload: json.RawMessage(`{}`),
+	}
+	if _, created, err := store.AcceptCommand(ctx, "owner", commandRequest); err != nil || !created {
+		t.Fatalf("AcceptCommand() = %v, %v", created, err)
+	}
+	if _, claimed, err := store.ClaimCommand(ctx, commandRequest.ID); err != nil || !claimed {
+		t.Fatalf("ClaimCommand() = %v, %v", claimed, err)
+	}
 	child, fork, err := store.ReplayWorkflow(ctx, ReplayRequest{
 		ID: "fork-1", ParentWorkflowRunID: parent.ID, ChildWorkflowRunID: "run-child",
 		RestartPointID: point.ID, TargetDefinitionID: parent.WorkflowDefinition,
@@ -181,6 +194,18 @@ func TestReplayWorkflowCreatesChildAndPreservesParent(t *testing.T) {
 		fork.StartingSnapshotID != point.SnapshotID || fork.TargetDefinitionVersion != 1 {
 		t.Fatalf("replay result = %#v, %#v", child, fork)
 	}
+	recovered, err := store.RecoverRunningCommands(ctx)
+	if err != nil || len(recovered) != 1 || recovered[0].State != domain.CommandStateSucceeded {
+		t.Fatalf("RecoverRunningCommands() = %#v, %v", recovered, err)
+	}
+	var recoveredResult struct {
+		Run  domain.WorkflowRun `json:"run"`
+		Fork domain.RunFork     `json:"fork"`
+	}
+	if err := json.Unmarshal(recovered[0].Result, &recoveredResult); err != nil ||
+		recoveredResult.Run.ID != child.ID || recoveredResult.Fork.ID != fork.ID {
+		t.Fatalf("recovered replay result = %#v, %v", recoveredResult, err)
+	}
 	restoredParent, _, err := store.WorkflowRun(ctx, parent.ID)
 	if err != nil {
 		t.Fatalf("WorkflowRun() returned %v", err)
@@ -194,6 +219,73 @@ func TestReplayWorkflowCreatesChildAndPreservesParent(t *testing.T) {
 	} else if root := nodeByKey(t, nodes, "implement"); len(root.InputSnapshotIDs) != 1 ||
 		root.InputSnapshotIDs[0] != point.SnapshotID {
 		t.Fatalf("child root inputs = %#v", root.InputSnapshotIDs)
+	}
+}
+
+func TestRestartPointUsesDefinitionAtSnapshotCursor(t *testing.T) {
+	t.Parallel()
+
+	ctx := context.Background()
+	store, evaluator := openGraphTestStore(t, ctx)
+	defer store.Close()
+	parent, _ := createGraphTestRun(t, ctx, store, evaluator, "definition-cursor", "run-cursor")
+	workspace := t.TempDir()
+	writeSnapshotTestFile(t, filepath.Join(workspace, "input.txt"), "before patch")
+	if _, err := store.CreateWorkspaceSnapshot(ctx, "snapshot-cursor", "workspace-cursor", workspace); err != nil {
+		t.Fatalf("CreateWorkspaceSnapshot() returned %v", err)
+	}
+	patched, _, err := store.ApplyGraphPatch(ctx, GraphPatchRequest{
+		ID: "patch-cursor", RunID: parent.ID, ResultDefinitionID: "definition-cursor-patched",
+		ExpectedDefinitionVersion: parent.DefinitionVersion, CommandID: "command-cursor-patch",
+		Operations: []domain.GraphPatchOperation{graphTestInsertOperation(t)},
+	}, evaluator, graphTestCapabilities())
+	if err != nil {
+		t.Fatalf("ApplyGraphPatch() returned %v", err)
+	}
+	parent, _, err = store.WorkflowRun(ctx, parent.ID)
+	if err != nil {
+		t.Fatalf("WorkflowRun() returned %v", err)
+	}
+	point, err := store.CreateRestartPoint(ctx, RestartPointRequest{
+		ID: "restart-cursor", Kind: domain.RestartPointRunAdmission,
+		WorkflowRunID: parent.ID, SnapshotID: "snapshot-cursor",
+	})
+	if err != nil {
+		t.Fatalf("CreateRestartPoint() returned %v", err)
+	}
+	if point.WorkflowDefinitionID != "definition-cursor" || point.DefinitionVersion != 1 {
+		t.Fatalf("restart definition = %s@%d", point.WorkflowDefinitionID, point.DefinitionVersion)
+	}
+	if _, _, err := store.ReplayWorkflow(ctx, ReplayRequest{
+		ID: "fork-cursor", ParentWorkflowRunID: parent.ID, ChildWorkflowRunID: "run-cursor-child",
+		RestartPointID: point.ID, TargetDefinitionID: patched.ID,
+		TargetDefinitionVersion: patched.DefinitionVersion,
+		ExpectedParentVersion:   parent.Metadata.ResourceVersion,
+		CommandID:               "command-cursor-replay", Principal: "owner",
+	}); err != nil {
+		t.Fatalf("ReplayWorkflow() returned %v", err)
+	}
+}
+
+func TestNodeRestartPointRequiresAdmittedNode(t *testing.T) {
+	t.Parallel()
+
+	ctx := context.Background()
+	store, evaluator := openGraphTestStore(t, ctx)
+	defer store.Close()
+	parent, _ := createGraphTestRun(t, ctx, store, evaluator, "definition-pending", "run-pending")
+	workspace := t.TempDir()
+	writeSnapshotTestFile(t, filepath.Join(workspace, "input.txt"), "pending")
+	if _, err := store.CreateWorkspaceSnapshot(ctx, "snapshot-pending", "workspace-pending", workspace); err != nil {
+		t.Fatalf("CreateWorkspaceSnapshot() returned %v", err)
+	}
+	nodeID := nodeRunID(parent.ID, "implement")
+	_, err := store.CreateRestartPoint(ctx, RestartPointRequest{
+		ID: "restart-pending", Kind: domain.RestartPointNodeAdmission,
+		WorkflowRunID: parent.ID, SnapshotID: "snapshot-pending", NodeRunID: &nodeID,
+	})
+	if !domain.IsErrorCode(err, domain.ErrorCodeInvalidArgument) {
+		t.Fatalf("CreateRestartPoint() error = %v", err)
 	}
 }
 
