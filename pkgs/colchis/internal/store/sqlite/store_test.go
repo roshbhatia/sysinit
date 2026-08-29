@@ -572,8 +572,8 @@ func TestEffectiveOwnerTrusted(t *testing.T) {
 }
 
 func TestNixBuildSandboxRootOwnerAccepted(t *testing.T) {
-	if runtime.GOOS != "linux" || os.Getenv("NIX_BUILD_TOP") == "" {
-		t.Skip("requires a Linux Nix build sandbox")
+	if runtime.GOOS != "linux" {
+		t.Skip("requires Linux")
 	}
 	info, err := os.Lstat(string(os.PathSeparator))
 	if err != nil {
