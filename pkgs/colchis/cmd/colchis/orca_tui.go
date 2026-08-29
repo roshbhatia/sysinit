@@ -109,34 +109,36 @@ var orcaKeys = orcaKeyMap{
 }
 
 type orcaUIModel struct {
-	record            instance.Record
-	active            bool
-	agents            []agents.Agent
-	cursor            int
-	message           string
-	messageError      bool
-	selected          string
-	selectedResume    bool
-	selectedWorker    domain.SessionID
-	width             int
-	height            int
-	help              help.Model
-	view              int
-	workflows         []domain.WorkflowRun
-	workflow          workflowViewResult
-	definition        workflowmodel.Definition
-	workflowCursor    int
-	restartPoints     []domain.RestartPoint
-	restartCursor     int
-	forks             []domain.RunFork
-	workers           []domain.Session
-	workerHistory     sqlite.SessionHistory
-	workerCursor      int
-	confirmReplay     bool
-	graphOffset       int
-	refreshing        bool
-	refreshRevision   uint64
-	requestedWorkflow domain.WorkflowRunID
+	record               instance.Record
+	active               bool
+	agents               []agents.Agent
+	cursor               int
+	message              string
+	messageError         bool
+	selected             string
+	selectedResume       bool
+	selectedWorker       domain.SessionID
+	width                int
+	height               int
+	help                 help.Model
+	view                 int
+	workflows            []domain.WorkflowRun
+	workflow             workflowViewResult
+	definition           workflowmodel.Definition
+	workflowCursor       int
+	restartPoints        []domain.RestartPoint
+	restartCursor        int
+	forks                []domain.RunFork
+	workers              []domain.Session
+	workerHistory        sqlite.SessionHistory
+	workerCursor         int
+	confirmReplay        bool
+	graphOffset          int
+	refreshing           bool
+	refreshRevision      uint64
+	requestedWorkflow    domain.WorkflowRunID
+	pendingWorkerHistory bool
+	pendingRefreshStatus string
 }
 
 const (
@@ -238,7 +240,7 @@ func (model orcaUIModel) Update(message tea.Msg) (tea.Model, tea.Cmd) {
 				model.messageError = false
 			}
 		}
-		if typed.revision != model.refreshRevision {
+		if typed.revision != model.refreshRevision || model.pendingWorkerHistory || model.pendingRefreshStatus != "" {
 			return model, model.beginRefresh(false, "")
 		}
 	case orcaActionMessage:
@@ -431,10 +433,20 @@ func orcaRefreshCommand() tea.Cmd {
 }
 
 func (model *orcaUIModel) beginRefresh(loadWorkerHistory bool, success string) tea.Cmd {
+	if loadWorkerHistory {
+		model.pendingWorkerHistory = true
+	}
+	if success != "" {
+		model.pendingRefreshStatus = success
+	}
 	if model.refreshing {
 		return nil
 	}
 	model.refreshing = true
+	loadWorkerHistory = model.pendingWorkerHistory
+	success = model.pendingRefreshStatus
+	model.pendingWorkerHistory = false
+	model.pendingRefreshStatus = ""
 	snapshot := *model
 	revision := model.refreshRevision
 	return func() tea.Msg {

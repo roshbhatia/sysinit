@@ -1401,6 +1401,21 @@ func TestOrcaRefreshTickClearsStoppedBrokerState(t *testing.T) {
 	}
 }
 
+func TestOrcaRefreshPreservesCoalescedWorkerHistoryRequest(t *testing.T) {
+	model := orcaUIModel{
+		view: orcaWorkersView, refreshing: true, refreshRevision: 2,
+		workers: []domain.Session{{ID: "worker-b"}}, workerCursor: 0,
+	}
+	if command := model.beginRefresh(true, ""); command != nil || !model.pendingWorkerHistory {
+		t.Fatalf("coalesced refresh = %#v, command = %#v", model, command)
+	}
+	updated, command := model.Update(orcaRefreshResult{revision: 1})
+	model = updated.(orcaUIModel)
+	if command == nil || !model.refreshing || model.pendingWorkerHistory {
+		t.Fatalf("retried refresh = %#v, command = %#v", model, command)
+	}
+}
+
 func TestPlanningPrimitivesAreNotPublicCLICommands(t *testing.T) {
 	for _, args := range [][]string{{"planning", "discover"}, {"planning", "snapshot"}, {"planning", "action"}} {
 		if kind, _, found := controlCommandKind(args); found || kind != "" {
