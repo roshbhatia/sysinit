@@ -324,8 +324,8 @@ func (model orcaUIModel) Update(message tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (model orcaUIModel) View() string {
-	if model.width < 82 || model.height < 20 {
-		return fmt.Sprintf("orca needs 82x20\nthis pane is %dx%d\nq quits", model.width, model.height)
+	if model.width < 76 || model.height < 20 {
+		return fmt.Sprintf("orca needs 76x20\nthis pane is %dx%d\nq quits", model.width, model.height)
 	}
 	contentWidth := model.width
 
@@ -438,7 +438,7 @@ func (model orcaUIModel) workflowView(width int) string {
 	detailHeight := max(6, model.height-10)
 	details := model.workflowDetails(detailWidth, detailHeight)
 	body := lipgloss.JoinHorizontal(lipgloss.Top, list, "  ", details)
-	if width < 82 {
+	if width < 76 {
 		list = orcaBox("runs", width-2, strings.Join(rows, "\n"), model.view == orcaWorkflowsView)
 		detailHeight = max(4, model.height-11-lipgloss.Height(list))
 		details = model.workflowDetails(width-2, detailHeight)
@@ -559,7 +559,7 @@ func (model orcaUIModel) workerView(width int) string {
 	detailWidth := width - lipgloss.Width(list) - 4
 	details := model.workerDetails(detailWidth)
 	body := lipgloss.JoinHorizontal(lipgloss.Top, list, "  ", details)
-	if width < 82 {
+	if width < 76 {
 		list = orcaBox("workers", width-2, strings.Join(rows, "\n"), model.view == orcaWorkersView)
 		details = model.workerDetails(width - 2)
 		body = lipgloss.JoinVertical(lipgloss.Left, list, "", details)

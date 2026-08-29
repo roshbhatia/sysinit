@@ -1168,7 +1168,7 @@ func TestOrcaWorkflowGraphUsesViewport(t *testing.T) {
 func TestOrcaUIRejectsPaneThatHidesControls(t *testing.T) {
 	model := orcaUIModel{width: 40, height: 10, help: help.New()}
 	view := ansi.Strip(model.View())
-	if strings.Count(view, "\n") != 2 || !strings.Contains(view, "orca needs 82x20") ||
+	if strings.Count(view, "\n") != 2 || !strings.Contains(view, "orca needs 76x20") ||
 		!strings.Contains(view, "q quits") {
 		t.Fatalf("small main UI = %q", view)
 	}
