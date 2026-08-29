@@ -820,8 +820,8 @@ func acquireOrcaLease() (orcaLease, error) {
 				return err
 			}
 			if !current.Automatic {
-				lease.record = current
-				return nil
+				lease.record, err = refreshPinnedOrca(candidate, startOrcaInstance)
+				return err
 			}
 		}
 		directory := orcaLeaseDirectory(candidate.StateDirectory)
@@ -845,6 +845,16 @@ func acquireOrcaLease() (orcaLease, error) {
 		return nil
 	})
 	return lease, err
+}
+
+func refreshPinnedOrca(
+	candidate instance.Record,
+	start func(instance.Record, bool) (bool, string, error),
+) (instance.Record, error) {
+	if _, _, err := start(candidate, false); err != nil {
+		return instance.Record{}, err
+	}
+	return instance.Read(filepath.Join(candidate.StateDirectory, "instance.json"))
 }
 
 func (lease orcaLease) release() error {

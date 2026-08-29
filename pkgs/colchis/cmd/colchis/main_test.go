@@ -1645,6 +1645,27 @@ func TestScopedStatusResolvesBrokerOutsideItsWorkspace(t *testing.T) {
 	}
 }
 
+func TestPinnedLeaseChecksBrokerExecutable(t *testing.T) {
+	t.Setenv("XDG_STATE_HOME", t.TempDir())
+	candidate, _, err := instance.Candidate(t.TempDir())
+	if err != nil {
+		t.Fatalf("Candidate() returned %v", err)
+	}
+	called := false
+	record, err := refreshPinnedOrca(candidate, func(record instance.Record, automatic bool) (bool, string, error) {
+		called = true
+		if automatic {
+			t.Fatal("pinned broker started as automatic")
+		}
+		record.PID = os.Getpid()
+		record.StartedAt = time.Now().UTC().Format(time.RFC3339Nano)
+		return true, "test", instance.Write(record)
+	})
+	if err != nil || !called || record.PID != os.Getpid() {
+		t.Fatalf("refreshPinnedOrca() = %#v, %v, called = %v", record, err, called)
+	}
+}
+
 func waitForSocket(t *testing.T, path string, cancel context.CancelFunc, serveErrors <-chan error) {
 	t.Helper()
 	deadline := time.Now().Add(5 * time.Second)
