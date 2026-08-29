@@ -414,18 +414,7 @@ func TestServeCreatesBrokerSocket(t *testing.T) {
 	go func() {
 		errors <- serve(ctx, paths)
 	}()
-	deadline := time.Now().Add(5 * time.Second)
-	for {
-		if info, err := os.Stat(paths.Socket); err == nil && info.Mode()&os.ModeSocket != 0 {
-			break
-		}
-		if time.Now().After(deadline) {
-			cancel()
-			<-errors
-			t.Fatal("serve() did not create the broker socket")
-		}
-		time.Sleep(10 * time.Millisecond)
-	}
+	waitForSocket(t, paths.Socket, cancel, errors)
 	cancel()
 	if err := <-errors; err != nil {
 		t.Fatalf("serve() returned %v", err)
@@ -1891,10 +1880,15 @@ func waitForSocket(t *testing.T, path string, cancel context.CancelFunc, serveEr
 		if info, err := os.Stat(path); err == nil && info.Mode()&os.ModeSocket != 0 {
 			return
 		}
+		select {
+		case err := <-serveErrors:
+			t.Fatalf("serve() returned before creating the broker socket: %v", err)
+		default:
+		}
 		if time.Now().After(deadline) {
 			cancel()
-			<-serveErrors
-			t.Fatal("serve() did not create the broker socket")
+			err := <-serveErrors
+			t.Fatalf("serve() did not create the broker socket: %v", err)
 		}
 		time.Sleep(10 * time.Millisecond)
 	}

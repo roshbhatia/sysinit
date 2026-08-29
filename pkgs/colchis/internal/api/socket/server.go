@@ -18,6 +18,7 @@ import (
 	"time"
 
 	"github.com/roshbhatia/sysinit/pkgs/colchis/internal/domain"
+	"github.com/roshbhatia/sysinit/pkgs/colchis/internal/pathguard"
 	"golang.org/x/sys/unix"
 )
 
@@ -417,6 +418,8 @@ func validateSocketAncestorChain(path string, allowRootSymlinks bool) error {
 			return socketError("inspect socket directory ancestor", current, err)
 		}
 		stat, ok := info.Sys().(*syscall.Stat_t)
+		parent := filepath.Dir(current)
+		isFilesystemRoot := parent == current
 		if info.Mode()&os.ModeSymlink != 0 {
 			if !allowRootSymlinks || !ok || stat.Uid != 0 {
 				return &domain.Error{
@@ -424,7 +427,7 @@ func validateSocketAncestorChain(path string, allowRootSymlinks bool) error {
 					Message: "socket directory ancestor is an untrusted symbolic link",
 				}
 			}
-		} else if !ok || (stat.Uid != 0 && stat.Uid != uint32(os.Geteuid())) {
+		} else if !ok || !pathguard.TrustedAncestorOwner(stat.Uid, isFilesystemRoot) {
 			return &domain.Error{
 				Code: domain.ErrorCodeUnauthorized, Resource: current,
 				Message: "socket directory ancestor has an untrusted owner",
@@ -435,8 +438,7 @@ func validateSocketAncestorChain(path string, allowRootSymlinks bool) error {
 				Message: "socket directory ancestor permits replacement",
 			}
 		}
-		parent := filepath.Dir(current)
-		if parent == current {
+		if isFilesystemRoot {
 			return nil
 		}
 	}
