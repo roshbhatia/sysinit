@@ -195,7 +195,21 @@ func TestReplayWorkflowRejectsUnrelatedDefinition(t *testing.T) {
 	store, evaluator := openGraphTestStore(t, ctx)
 	defer store.Close()
 	parent, _ := createGraphTestRun(t, ctx, store, evaluator, "definition-parent", "run-parent-lineage")
-	unrelated, _ := createGraphTestRun(t, ctx, store, evaluator, "definition-unrelated", "run-unrelated")
+	document, err := os.ReadFile("../../../schemas/workflow/v1/testdata/valid.json")
+	if err != nil {
+		t.Fatalf("ReadFile() returned %v", err)
+	}
+	resolved, err := evaluator.Resolve(document, graphTestCapabilities())
+	if err != nil {
+		t.Fatalf("Resolve() returned %v", err)
+	}
+	predecessor := parent.WorkflowDefinition
+	unrelated, err := store.CreateWorkflowDefinition(
+		ctx, "definition-unrelated", &predecessor, document, resolved,
+	)
+	if err != nil {
+		t.Fatalf("CreateWorkflowDefinition() returned %v", err)
+	}
 	workspace := t.TempDir()
 	writeSnapshotTestFile(t, filepath.Join(workspace, "input.txt"), "lineage")
 	if _, err := store.CreateWorkspaceSnapshot(ctx, "snapshot-lineage", "workspace-lineage", workspace); err != nil {
@@ -211,7 +225,7 @@ func TestReplayWorkflowRejectsUnrelatedDefinition(t *testing.T) {
 	}
 	_, _, err = store.ReplayWorkflow(ctx, ReplayRequest{
 		ID: "fork-unrelated", ParentWorkflowRunID: parent.ID, ChildWorkflowRunID: "run-unrelated-child",
-		RestartPointID: point.ID, TargetDefinitionID: unrelated.WorkflowDefinition,
+		RestartPointID: point.ID, TargetDefinitionID: unrelated.ID,
 		TargetDefinitionVersion: unrelated.DefinitionVersion,
 		ExpectedParentVersion:   parent.Metadata.ResourceVersion,
 		CommandID:               "command-unrelated", Principal: "owner",
@@ -240,23 +254,6 @@ func TestOrchestrationRestartPointRequiresOwnedCheckpoint(t *testing.T) {
 	})
 	if !domain.IsErrorCode(err, domain.ErrorCodeNotFound) {
 		t.Fatalf("CreateRestartPoint() error = %v", err)
-	}
-}
-
-func TestReusableAdmissionTopologyRequiresCurrentDependencies(t *testing.T) {
-	t.Parallel()
-
-	reused := []reusableAdmission{{ID: "admission-judge", NodeKey: "judge"}}
-	seen := map[domain.NodeKey]struct{}{"judge": {}}
-	target := workflowmodel.Definition{
-		Edges: []workflowmodel.Edge{{
-			ID: "critic-to-judge", From: "critic", To: "judge", Required: true,
-		}},
-	}
-	if err := validateReusableAdmissionTopology(reused, seen, target); !domain.IsErrorCode(
-		err, domain.ErrorCodeConflict,
-	) {
-		t.Fatalf("validateReusableAdmissionTopology() error = %v", err)
 	}
 }
 

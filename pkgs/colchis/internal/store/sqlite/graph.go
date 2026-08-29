@@ -47,8 +47,6 @@ type ReplayRequest struct {
 	TargetDefinitionID      domain.WorkflowDefinitionID `json:"targetWorkflowDefinitionId"`
 	TargetDefinitionVersion uint64                      `json:"targetDefinitionVersion"`
 	ExpectedParentVersion   domain.ResourceVersion      `json:"expectedParentVersion"`
-	ReusedAdmissionIDs      []domain.AdmissionID        `json:"reusedAdmissionIds"`
-	EnvironmentIDs          map[string]string           `json:"environmentIds"`
 	CommandID               domain.CommandID            `json:"commandId"`
 	Principal               string                      `json:"principal"`
 }
@@ -471,12 +469,6 @@ func (store *Store) ReplayWorkflow(
 				Message: "restart point does not belong to the parent run",
 			}
 		}
-		if !admissionsAreReusable(request.ReusedAdmissionIDs, point.AdmissionIDs) {
-			return &domain.Error{
-				Code: domain.ErrorCodeInvalidArgument, Op: "replay", Resource: string(request.ID),
-				Message: "reused admission is absent from the restart point",
-			}
-		}
 		if point.Kind == domain.RestartPointOrchestrationCheckpoint {
 			return &domain.Error{
 				Code: domain.ErrorCodeUnsupportedVersion, Op: "replay", Resource: string(point.ID),
@@ -515,21 +507,12 @@ func (store *Store) ReplayWorkflow(
 		if err != nil {
 			return err
 		}
-		reused, err := transaction.reusableAdmissions(
-			ctx, request.ReusedAdmissionIDs, definition, request.EnvironmentIDs,
-		)
-		if err != nil {
-			return err
-		}
 		now := time.Now().UTC()
 		var nodes []domain.NodeRun
 		child, nodes, err = newWorkflowRunRecords(
 			store, request.ChildWorkflowRunID, target, definition, nil, now,
 		)
 		if err != nil {
-			return err
-		}
-		if err := applyReusedAdmissions(nodes, reused, definition); err != nil {
 			return err
 		}
 		seedRestartSnapshot(nodes, point.SnapshotID)
@@ -544,7 +527,6 @@ func (store *Store) ReplayWorkflow(
 			TargetDefinitionVersion: target.DefinitionVersion,
 			ExpectedParentVersion:   request.ExpectedParentVersion,
 			StartingSnapshotID:      point.SnapshotID,
-			ReusedAdmissionIDs:      append([]domain.AdmissionID(nil), request.ReusedAdmissionIDs...),
 			CommandID:               request.CommandID, Principal: request.Principal,
 		}
 		forkPayload, err := json.Marshal(fork)
@@ -610,6 +592,20 @@ func (transaction *Tx) workflowDefinitionDescendsFrom(
 	targetID domain.WorkflowDefinitionID,
 	ancestorID domain.WorkflowDefinitionID,
 ) (bool, error) {
+	patches, err := typedRecords[domain.GraphPatch](transaction, ctx, graphPatchRecordKind)
+	if err != nil {
+		return false, err
+	}
+	byResult := make(map[domain.WorkflowDefinitionID]domain.GraphPatch, len(patches))
+	for _, patch := range patches {
+		if _, found := byResult[patch.ResultWorkflowDefinitionID]; found {
+			return false, &domain.Error{
+				Code: domain.ErrorCodeInternal, Op: "replay", Resource: string(patch.ResultWorkflowDefinitionID),
+				Message: "workflow definition has multiple graph patch origins",
+			}
+		}
+		byResult[patch.ResultWorkflowDefinitionID] = patch
+	}
 	seen := make(map[domain.WorkflowDefinitionID]struct{})
 	for targetID != "" {
 		if targetID == ancestorID {
@@ -622,173 +618,13 @@ func (transaction *Tx) workflowDefinitionDescendsFrom(
 			}
 		}
 		seen[targetID] = struct{}{}
-		definition, found, err := transaction.workflowDefinition(ctx, targetID)
-		if err != nil {
-			return false, err
-		}
-		if !found || definition.PredecessorID == nil {
+		patch, found := byResult[targetID]
+		if !found {
 			return false, nil
 		}
-		targetID = *definition.PredecessorID
+		targetID = patch.BaseWorkflowDefinitionID
 	}
 	return false, nil
-}
-
-type reusableAdmission struct {
-	ID               domain.AdmissionID
-	NodeKey          domain.NodeKey
-	TaskResultID     domain.TaskResultID
-	SnapshotID       domain.SnapshotID
-	InputSnapshotIDs []domain.SnapshotID
-}
-
-func (transaction *Tx) reusableAdmissions(
-	ctx context.Context,
-	ids []domain.AdmissionID,
-	target workflowmodel.Definition,
-	environmentIDs map[string]string,
-) ([]reusableAdmission, error) {
-	reused := make([]reusableAdmission, 0, len(ids))
-	seenNodes := make(map[domain.NodeKey]struct{}, len(ids))
-	for _, id := range ids {
-		payload, found, err := transaction.recordPayload(ctx, admissionRecordKind, string(id))
-		if err != nil {
-			return nil, err
-		}
-		if !found {
-			return nil, &domain.Error{
-				Code: domain.ErrorCodeNotFound, Op: "reuse admission", Resource: string(id),
-				Message: "admission does not exist",
-			}
-		}
-		var admission domain.Admission
-		if err := json.Unmarshal(payload, &admission); err != nil {
-			return nil, wrap("decode reused admission", string(id), err)
-		}
-		if admission.State != domain.AdmissionStateAdmitted {
-			return nil, staleReplayAdmission(id)
-		}
-		evidence, err := transaction.loadTaskContext(ctx, admission.TaskRecordID)
-		if err != nil {
-			return nil, err
-		}
-		validations, err := transaction.validations(ctx, admission.ValidationIDs)
-		if err != nil {
-			return nil, err
-		}
-		current, err := admissionMatchesEnvironment(evidence, validations, admission, environmentIDs)
-		if err != nil {
-			return nil, err
-		}
-		if !current {
-			return nil, staleReplayAdmission(id)
-		}
-		targetNode, found := target.Nodes[evidence.node.NodeKey]
-		if !found {
-			return nil, staleReplayAdmission(id)
-		}
-		targetTemplate := target.Templates[targetNode.Template]
-		targetDigest, err := nodeDefinitionDigest(targetNode, targetTemplate)
-		if err != nil {
-			return nil, err
-		}
-		if targetDigest != evidence.node.NodeDefinitionDigest ||
-			targetTemplate.OutputSchemaDigest != evidence.result.SchemaDigest {
-			return nil, staleReplayAdmission(id)
-		}
-		if _, found := seenNodes[evidence.node.NodeKey]; found {
-			return nil, &domain.Error{
-				Code: domain.ErrorCodeInvalidArgument, Op: "reuse admission", Resource: string(id),
-				Message: "reused admissions target the same node",
-			}
-		}
-		seenNodes[evidence.node.NodeKey] = struct{}{}
-		reused = append(reused, reusableAdmission{
-			ID: id, NodeKey: evidence.node.NodeKey, TaskResultID: evidence.result.ID,
-			SnapshotID:       evidence.snapshot.ID,
-			InputSnapshotIDs: append([]domain.SnapshotID(nil), evidence.node.InputSnapshotIDs...),
-		})
-	}
-	if err := validateReusableAdmissionTopology(reused, seenNodes, target); err != nil {
-		return nil, err
-	}
-	return reused, nil
-}
-
-func validateReusableAdmissionTopology(
-	reused []reusableAdmission,
-	seenNodes map[domain.NodeKey]struct{},
-	target workflowmodel.Definition,
-) error {
-	for _, admission := range reused {
-		for _, edge := range target.Edges {
-			if edge.To != admission.NodeKey || !edge.Required || isBackEdge(target.Loops, edge.ID) {
-				continue
-			}
-			if _, found := seenNodes[edge.From]; !found {
-				return staleReplayAdmission(admission.ID)
-			}
-		}
-	}
-	return nil
-}
-
-func applyReusedAdmissions(
-	nodes []domain.NodeRun,
-	reused []reusableAdmission,
-	definition workflowmodel.Definition,
-) error {
-	byKey := make(map[domain.NodeKey]*domain.NodeRun, len(nodes))
-	for index := range nodes {
-		byKey[nodes[index].NodeKey] = &nodes[index]
-	}
-	reusedSnapshots := make(map[domain.NodeKey]domain.SnapshotID, len(reused))
-	for _, admission := range reused {
-		node, found := byKey[admission.NodeKey]
-		if !found {
-			return staleReplayAdmission(admission.ID)
-		}
-		node.State = domain.NodeRunStateSucceeded
-		node.AdmissionID = &admission.ID
-		node.TaskResultID = &admission.TaskResultID
-		node.InputSnapshotIDs = append([]domain.SnapshotID(nil), admission.InputSnapshotIDs...)
-		reusedSnapshots[admission.NodeKey] = admission.SnapshotID
-	}
-	for index := range nodes {
-		node := &nodes[index]
-		if node.State != domain.NodeRunStatePending {
-			continue
-		}
-		ready := true
-		snapshots := make(map[domain.SnapshotID]struct{})
-		for _, edge := range definition.Edges {
-			if edge.To != node.NodeKey || isBackEdge(definition.Loops, edge.ID) {
-				continue
-			}
-			upstream := byKey[edge.From]
-			if upstream == nil || upstream.State != domain.NodeRunStateSucceeded || upstream.AdmissionID == nil {
-				if edge.Required {
-					ready = false
-				}
-				continue
-			}
-			if snapshotID, found := reusedSnapshots[edge.From]; found {
-				snapshots[snapshotID] = struct{}{}
-			}
-		}
-		if !ready {
-			continue
-		}
-		node.State = domain.NodeRunStateReady
-		node.InputSnapshotIDs = make([]domain.SnapshotID, 0, len(snapshots))
-		for snapshotID := range snapshots {
-			node.InputSnapshotIDs = append(node.InputSnapshotIDs, snapshotID)
-		}
-		sort.Slice(node.InputSnapshotIDs, func(first int, second int) bool {
-			return node.InputSnapshotIDs[first] < node.InputSnapshotIDs[second]
-		})
-	}
-	return nil
 }
 
 func staleReplayAdmission(id domain.AdmissionID) error {
@@ -1165,17 +1001,6 @@ func validateReplayRequest(request ReplayRequest) error {
 			Message: "expected parent version, distinct child run, and principal are required",
 		}
 	}
-	for _, id := range request.ReusedAdmissionIDs {
-		if err := id.Validate(); err != nil {
-			return err
-		}
-	}
-	if !uniqueAdmissionIDs(request.ReusedAdmissionIDs) {
-		return &domain.Error{
-			Code: domain.ErrorCodeInvalidArgument, Op: "replay", Resource: string(request.ID),
-			Message: "reused admission identifiers must be unique",
-		}
-	}
 	return nil
 }
 
@@ -1202,19 +1027,6 @@ func workflowRunIsTerminal(state domain.WorkflowRunState) bool {
 	default:
 		return false
 	}
-}
-
-func admissionsAreReusable(reused []domain.AdmissionID, available []domain.AdmissionID) bool {
-	set := make(map[domain.AdmissionID]struct{}, len(available))
-	for _, id := range available {
-		set[id] = struct{}{}
-	}
-	for _, id := range reused {
-		if _, found := set[id]; !found {
-			return false
-		}
-	}
-	return true
 }
 
 func uniqueAdmissionIDs(ids []domain.AdmissionID) bool {

@@ -172,7 +172,6 @@ type RunFork struct {
 	TargetDefinitionVersion    uint64               `json:"targetDefinitionVersion"`
 	ExpectedParentVersion      ResourceVersion      `json:"expectedParentVersion"`
 	StartingSnapshotID         SnapshotID           `json:"startingSnapshotId"`
-	ReusedAdmissionIDs         []AdmissionID        `json:"reusedAdmissionIds"`
 	CommandID                  CommandID            `json:"commandId"`
 	Principal                  string               `json:"principal"`
 }

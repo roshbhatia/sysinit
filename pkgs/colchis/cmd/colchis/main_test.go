@@ -662,13 +662,10 @@ func TestRunSmokeWorkflowFromCleanState(t *testing.T) {
 		TargetDefinitionID      domain.WorkflowDefinitionID `json:"targetWorkflowDefinitionId"`
 		TargetDefinitionVersion uint64                      `json:"targetDefinitionVersion"`
 		ExpectedParentVersion   domain.ResourceVersion      `json:"expectedParentVersion"`
-		ReusedAdmissionIDs      []domain.AdmissionID        `json:"reusedAdmissionIds"`
-		EnvironmentIDs          map[string]string           `json:"environmentIds"`
 	}{
 		ID: "fork-smoke", ParentWorkflowRunID: "run-smoke", ChildWorkflowRunID: "run-smoke-replay",
 		RestartPointID: "restart-smoke", TargetDefinitionID: "definition-smoke-patched",
 		TargetDefinitionVersion: 2, ExpectedParentVersion: parent.Run.Metadata.ResourceVersion,
-		ReusedAdmissionIDs: []domain.AdmissionID{}, EnvironmentIDs: map[string]string{},
 	}
 	replayPayload, err := json.Marshal(replayRequest)
 	if err != nil {

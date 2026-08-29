@@ -213,7 +213,7 @@ func TestAdmissionKeepsAdvisoryVerificationPending(t *testing.T) {
 	}
 }
 
-func TestReplayReusesOnlyCurrentAdmission(t *testing.T) {
+func TestReplayRerunsNodesFromRestartSnapshot(t *testing.T) {
 	t.Parallel()
 
 	ctx := context.Background()
@@ -239,25 +239,12 @@ func TestReplayReusesOnlyCurrentAdmission(t *testing.T) {
 	if err != nil {
 		t.Fatalf("CreateRestartPoint() returned %v", err)
 	}
-	_, _, err = store.ReplayWorkflow(ctx, ReplayRequest{
-		ID: "fork-missing-environment", ParentWorkflowRunID: parent.ID,
-		ChildWorkflowRunID: "run-missing-environment", RestartPointID: point.ID,
-		TargetDefinitionID: parent.WorkflowDefinition, TargetDefinitionVersion: parent.DefinitionVersion,
-		ExpectedParentVersion: parent.Metadata.ResourceVersion,
-		ReusedAdmissionIDs:    []domain.AdmissionID{admission.ID},
-		CommandID:             "command-missing-environment", Principal: "owner",
-	})
-	if !domain.IsErrorCode(err, domain.ErrorCodeInvalidArgument) {
-		t.Fatalf("ReplayWorkflow(missing environment) error = %v", err)
-	}
 	child, _, err := store.ReplayWorkflow(ctx, ReplayRequest{
-		ID: "fork-current-admission", ParentWorkflowRunID: parent.ID,
+		ID: "fork-rerun", ParentWorkflowRunID: parent.ID,
 		ChildWorkflowRunID: "run-admission-child", RestartPointID: point.ID,
 		TargetDefinitionID: parent.WorkflowDefinition, TargetDefinitionVersion: parent.DefinitionVersion,
 		ExpectedParentVersion: parent.Metadata.ResourceVersion,
-		ReusedAdmissionIDs:    []domain.AdmissionID{admission.ID},
-		EnvironmentIDs:        map[string]string{"nix": "nix:environment-1"},
-		CommandID:             "command-current-admission", Principal: "owner",
+		CommandID:             "command-rerun", Principal: "owner",
 	})
 	if err != nil {
 		t.Fatalf("ReplayWorkflow() returned %v", err)
@@ -268,24 +255,10 @@ func TestReplayReusesOnlyCurrentAdmission(t *testing.T) {
 	}
 	implement := nodeByKey(t, nodes, "implement")
 	judge := nodeByKey(t, nodes, "judge")
-	if implement.State != domain.NodeRunStateSucceeded || implement.AdmissionID == nil ||
-		*implement.AdmissionID != admission.ID || judge.State != domain.NodeRunStateReady ||
-		len(judge.InputSnapshotIDs) != 1 || judge.InputSnapshotIDs[0] != restartSnapshot.ID {
+	if implement.State != domain.NodeRunStateReady || implement.AdmissionID != nil ||
+		len(implement.InputSnapshotIDs) != 1 || implement.InputSnapshotIDs[0] != restartSnapshot.ID ||
+		judge.State != domain.NodeRunStatePending {
 		t.Fatalf("replayed nodes = %#v, %#v", implement, judge)
-	}
-	if _, current, err := store.RefreshAdmission(ctx, AdmissionFreshnessRequest{
-		ID: admission.ID, EnvironmentIDs: map[string]string{"nix": "nix:environment-2"},
-	}); err != nil || current {
-		t.Fatalf("stale RefreshAdmission() = %v, %v", current, err)
-	}
-	_, nodes, err = store.WorkflowRun(ctx, child.ID)
-	if err != nil {
-		t.Fatalf("stale child WorkflowRun() returned %v", err)
-	}
-	implement = nodeByKey(t, nodes, "implement")
-	judge = nodeByKey(t, nodes, "judge")
-	if implement.State != domain.NodeRunStateWaiting || judge.State != domain.NodeRunStatePending {
-		t.Fatalf("stale replayed nodes = %#v, %#v", implement, judge)
 	}
 }
 

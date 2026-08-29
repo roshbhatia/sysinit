@@ -1323,7 +1323,8 @@ func (store *Store) SessionHistory(ctx context.Context, id domain.SessionID) (Se
 type sessionStoredRecord interface {
 	domain.Session | domain.WorkflowRun | domain.AdapterHandle | domain.PromptArtifact | domain.Activity |
 		domain.Checkpoint | domain.Intervention | domain.CommitObservation |
-		domain.ProvenanceRelation | domain.Annotation | domain.AnnotationReply | domain.RestartPoint | domain.RunFork
+		domain.ProvenanceRelation | domain.Annotation | domain.AnnotationReply | domain.RestartPoint | domain.RunFork |
+		domain.GraphPatch
 }
 
 func typedRecord[Record sessionStoredRecord](

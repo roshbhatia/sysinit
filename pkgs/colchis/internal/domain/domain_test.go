@@ -206,7 +206,6 @@ func TestReplayContractsRoundTrip(t *testing.T) {
 		TargetDefinitionVersion:    3,
 		ExpectedParentVersion:      4,
 		StartingSnapshotID:         restart.SnapshotID,
-		ReusedAdmissionIDs:         restart.AdmissionIDs,
 		CommandID:                  "command-1",
 		Principal:                  "owner",
 	}

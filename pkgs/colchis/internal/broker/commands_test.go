@@ -43,7 +43,7 @@ func (runtime *fixtureAdapterRuntime) Invoke(
 	}, nil
 }
 
-func TestPlanningCommandSelectsNegotiatedAdapter(t *testing.T) {
+func TestPlanningCommandRequiresWorkflowExecution(t *testing.T) {
 	t.Parallel()
 
 	ctx := context.Background()
@@ -53,18 +53,6 @@ func TestPlanningCommandSelectsNegotiatedAdapter(t *testing.T) {
 	}
 	defer store.Close()
 	runtime := defaultFixtureSessionRuntime()
-	baseInvoke := runtime.invoke
-	var invokedPlugin domain.PluginID
-	var invokedOperation plugin.OperationEnvelope
-	runtime.invoke = func(
-		ctx context.Context,
-		pluginID domain.PluginID,
-		envelope plugin.OperationEnvelope,
-	) (plugin.OperationResult, error) {
-		invokedPlugin = pluginID
-		invokedOperation = envelope
-		return baseInvoke(ctx, pluginID, envelope)
-	}
 	adapters, err := NewAdapterService(store, runtime)
 	if err != nil {
 		t.Fatalf("NewAdapterService() returned %v", err)
@@ -78,13 +66,11 @@ func TestPlanningCommandSelectsNegotiatedAdapter(t *testing.T) {
 		t.Fatalf("NewControlExecutor() returned %v", err)
 	}
 	payload := json.RawMessage(`{"pluginId":"planning-plugin","adapterId":"custom-planner","input":{}}`)
-	if _, err := executor.ExecuteCommandResult(ctx, socket.Principal{}, domain.CommandRequest{
+	_, err = executor.ExecuteCommandResult(ctx, socket.Principal{}, domain.CommandRequest{
 		ID: "planning-command", Kind: "planning.discover", Payload: payload,
-	}); err != nil {
-		t.Fatalf("planning.discover returned %v", err)
-	}
-	if invokedPlugin != "planning-plugin" || invokedOperation.AdapterID != "custom-planner" {
-		t.Fatalf("planning invocation = %q, %#v", invokedPlugin, invokedOperation)
+	})
+	if !domain.IsErrorCode(err, domain.ErrorCodeInvalidArgument) {
+		t.Fatalf("planning.discover error = %v", err)
 	}
 }
 

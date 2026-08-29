@@ -6,7 +6,6 @@ import (
 	"encoding/json"
 	"errors"
 	"io"
-	"time"
 
 	"github.com/roshbhatia/sysinit/pkgs/colchis/internal/api/socket"
 	"github.com/roshbhatia/sysinit/pkgs/colchis/internal/domain"
@@ -25,12 +24,6 @@ type ControlExecutor struct {
 	sessions     *SessionService
 	evaluator    *workflowmodel.Evaluator
 	capabilities AdapterCapabilitySource
-}
-
-type planningCommand struct {
-	PluginID  domain.PluginID `json:"pluginId"`
-	AdapterID string          `json:"adapterId"`
-	Input     json.RawMessage `json:"input"`
 }
 
 type adapterCommand struct {
@@ -83,8 +76,6 @@ type replayCommand struct {
 	TargetDefinitionID      domain.WorkflowDefinitionID `json:"targetWorkflowDefinitionId"`
 	TargetDefinitionVersion uint64                      `json:"targetDefinitionVersion"`
 	ExpectedParentVersion   domain.ResourceVersion      `json:"expectedParentVersion"`
-	ReusedAdmissionIDs      []domain.AdmissionID        `json:"reusedAdmissionIds"`
-	EnvironmentIDs          map[string]string           `json:"environmentIds"`
 }
 
 type sessionHistoryCommand struct {
@@ -168,8 +159,6 @@ func (executor *ControlExecutor) ExecuteCommandResult(
 	request domain.CommandRequest,
 ) (json.RawMessage, error) {
 	switch request.Kind {
-	case "planning.discover", "planning.snapshot", "planning.action":
-		return executor.invokePlanning(ctx, request)
 	case "adapter.invoke":
 		return executor.invokeAdapter(ctx, request)
 	case "workflow.create":
@@ -376,33 +365,6 @@ func (executor *ControlExecutor) ExecuteCommandResult(
 	}
 }
 
-func (executor *ControlExecutor) invokePlanning(
-	ctx context.Context,
-	request domain.CommandRequest,
-) (json.RawMessage, error) {
-	var command planningCommand
-	if err := decodeControlPayload(request, &command); err != nil {
-		return nil, err
-	}
-	if command.PluginID == "" {
-		command.PluginID = "sysinit"
-	}
-	if command.AdapterID == "" {
-		command.AdapterID = "openspec"
-	}
-	if command.Input == nil {
-		command.Input = json.RawMessage(`{}`)
-	}
-	operation := plugin.OperationEnvelope{
-		ID: domain.OperationID(request.ID), AdapterID: command.AdapterID, Port: domain.AdapterPortPlanning,
-		Operation: request.Kind, Input: command.Input, Deadline: time.Now().Add(30 * time.Second),
-	}
-	result, err := executor.adapters.Invoke(ctx, AdapterInvocationRequest{
-		PluginID: command.PluginID, Operation: operation,
-	})
-	return encodeControlResult(result.Operation.Output, err)
-}
-
 func (executor *ControlExecutor) invokeAdapter(
 	ctx context.Context,
 	request domain.CommandRequest,
@@ -523,8 +485,7 @@ func (executor *ControlExecutor) replayWorkflow(
 		TargetDefinitionID:      command.TargetDefinitionID,
 		TargetDefinitionVersion: command.TargetDefinitionVersion,
 		ExpectedParentVersion:   command.ExpectedParentVersion,
-		ReusedAdmissionIDs:      command.ReusedAdmissionIDs, EnvironmentIDs: command.EnvironmentIDs,
-		CommandID: request.ID, Principal: principal.Identifier(),
+		CommandID:               request.ID, Principal: principal.Identifier(),
 	})
 	return encodeControlResult(replayResult{Run: run, Fork: fork}, err)
 }
@@ -546,7 +507,7 @@ func decodeEffectObservation(payload json.RawMessage) (effectObservationResult, 
 }
 
 func decodeControlPayload[Value interface {
-	*planningCommand | *adapterCommand | *workflowCreateCommand | *workflowRunCommand | *workflowScheduleCommand |
+	*adapterCommand | *workflowCreateCommand | *workflowRunCommand | *workflowScheduleCommand |
 		*workflowInspectCommand | *workflowExportCommand | *graphPatchCommand | *replayCommand |
 		*sqlite.RestartPointRequest | *StartSessionRequest | *ForwardInterventionRequest |
 		*ForwardAttachmentRequest | *sqlite.InterventionRequest |
