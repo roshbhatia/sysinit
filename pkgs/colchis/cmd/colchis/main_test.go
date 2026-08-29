@@ -9,10 +9,14 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"runtime"
 	"strings"
 	"testing"
 	"time"
 
+	"github.com/charmbracelet/bubbles/help"
+	tea "github.com/charmbracelet/bubbletea"
+	"github.com/charmbracelet/x/ansi"
 	"github.com/roshbhatia/sysinit/pkgs/colchis/internal/adapter/nix"
 	openspecadapter "github.com/roshbhatia/sysinit/pkgs/colchis/internal/adapter/openspec"
 	piadapter "github.com/roshbhatia/sysinit/pkgs/colchis/internal/adapter/pi"
@@ -21,9 +25,11 @@ import (
 	"github.com/roshbhatia/sysinit/pkgs/colchis/internal/broker"
 	"github.com/roshbhatia/sysinit/pkgs/colchis/internal/config"
 	"github.com/roshbhatia/sysinit/pkgs/colchis/internal/domain"
+	"github.com/roshbhatia/sysinit/pkgs/colchis/internal/instance"
 	"github.com/roshbhatia/sysinit/pkgs/colchis/internal/plugin"
 	"github.com/roshbhatia/sysinit/pkgs/colchis/internal/store/sqlite"
 	workflowmodel "github.com/roshbhatia/sysinit/pkgs/colchis/internal/workflow"
+	"github.com/roshbhatia/sysinit/pkgs/internal/agents"
 	_ "modernc.org/sqlite"
 )
 
@@ -787,6 +793,25 @@ func TestInactiveMCPAdvertisesProtocolsWithoutTools(t *testing.T) {
 	}
 }
 
+func TestMCPUsesWorkflowAndWorkerVocabulary(t *testing.T) {
+	names := make(map[string]bool, len(mcpToolDefinitions))
+	for _, tool := range mcpToolDefinitions {
+		names[tool.Name] = true
+	}
+	for _, expected := range []string{
+		"workflow_list", "workflow_restart_points", "workflow_forks", "worker_list", "worker_attach",
+	} {
+		if !names[expected] {
+			t.Fatalf("MCP tools omitted %q", expected)
+		}
+	}
+	for _, rejected := range []string{"planning_discover", "planning_snapshot", "planning_action", "agent_list", "agent_attach"} {
+		if names[rejected] {
+			t.Fatalf("MCP tools retained %q", rejected)
+		}
+	}
+}
+
 func TestMCPCallsNativeBrokerCommand(t *testing.T) {
 	stateDirectory := shortStateDirectory(t)
 	paths, err := config.ResolvePaths(stateDirectory)
@@ -964,12 +989,161 @@ func TestServeRejectsSecondBrokerOwner(t *testing.T) {
 
 func shortStateDirectory(t *testing.T) string {
 	t.Helper()
-	directory, err := os.MkdirTemp("/tmp", "colchis-state-")
+	parent := ""
+	if runtime.GOOS == "darwin" {
+		parent = "/tmp"
+	}
+	directory, err := os.MkdirTemp(parent, "colchis-state-")
 	if err != nil {
 		t.Fatalf("MkdirTemp() returned %v", err)
 	}
 	t.Cleanup(func() { os.RemoveAll(directory) })
 	return directory
+}
+
+func TestOrcaPickerUsesRecentAgentAndResponsiveLayout(t *testing.T) {
+	t.Setenv("XDG_STATE_HOME", t.TempDir())
+	available := []agents.Agent{
+		{Name: "claude", Label: "Claude", Command: "claude"},
+		{Name: "codex", Label: "Codex", Command: "codex"},
+	}
+	available[0].Launch.ResumeArgs = []string{"--resume"}
+	available[1].Launch.ResumeArgs = []string{"resume"}
+	if err := recordAgentUse("codex"); err != nil {
+		t.Fatalf("recordAgentUse() returned %v", err)
+	}
+	sortAgentsByRecency(available)
+	if available[0].Name != "codex" {
+		t.Fatalf("first agent = %q, want codex", available[0].Name)
+	}
+
+	model := orcaUIModel{
+		record: instance.Record{Scope: "/workspace/project", PID: 42},
+		active: true,
+		agents: available,
+		help:   help.New(),
+	}
+	resized, _ := model.Update(tea.WindowSizeMsg{Width: 110, Height: 30})
+	model = resized.(orcaUIModel)
+	view := ansi.Strip(model.View())
+	for _, expected := range []string{"🫍 orca", "running", "controllers 2", "Codex", "pid 42", "enter open"} {
+		if !strings.Contains(view, expected) {
+			t.Fatalf("View() omitted %q:\n%s", expected, view)
+		}
+	}
+	selected, command := model.Update(tea.KeyMsg{Type: tea.KeyEnter})
+	if command == nil || selected.(orcaUIModel).selected != "codex" {
+		t.Fatalf("enter selected %#v", selected)
+	}
+	resumed, command := model.Update(tea.KeyMsg{Type: tea.KeyRunes, Runes: []rune{'R'}})
+	if command == nil || resumed.(orcaUIModel).selected != "codex" || !resumed.(orcaUIModel).selectedResume {
+		t.Fatalf("resume selected %#v", resumed)
+	}
+
+	model.view = 1
+	model.workflows = []domain.WorkflowRun{{ID: "plan-42", State: domain.WorkflowRunStateRunning}}
+	model.workflow = workflowViewResult{
+		Run:   model.workflows[0],
+		Nodes: []domain.NodeRun{{NodeKey: "draft", State: domain.NodeRunStateRunning}},
+	}
+	model.definition = workflowmodel.Definition{
+		Edges: []workflowmodel.Edge{{From: "research", FromPort: "notes", To: "draft", ToPort: "context"}},
+	}
+	graph := ansi.Strip(model.View())
+	for _, expected := range []string{"workflows 1", "plan-42", "draft", "research.notes -> draft.context"} {
+		if !strings.Contains(graph, expected) {
+			t.Fatalf("workflow View() omitted %q:\n%s", expected, graph)
+		}
+	}
+	model.restartPoints = []domain.RestartPoint{{
+		ID: "restart-42", WorkflowRunID: "plan-42", EventCursor: 7,
+	}}
+	model.forks = []domain.RunFork{{
+		ParentWorkflowRunID: "plan-original", ChildWorkflowRunID: "plan-42", RestartPointID: "restart-42",
+	}}
+	lineage := ansi.Strip(model.View())
+	if !strings.Contains(lineage, "parent plan-original via restart-42") {
+		t.Fatalf("workflow View() omitted lineage:\n%s", lineage)
+	}
+	confirmation, command := model.Update(tea.KeyMsg{Type: tea.KeyRunes, Runes: []rune{'f'}})
+	if command != nil || !confirmation.(orcaUIModel).confirmReplay {
+		t.Fatalf("first replay key = %#v, command = %#v", confirmation, command)
+	}
+	confirmed, command := confirmation.(orcaUIModel).Update(tea.KeyMsg{Type: tea.KeyRunes, Runes: []rune{'f'}})
+	if command == nil || confirmed.(orcaUIModel).confirmReplay {
+		t.Fatalf("second replay key = %#v, command = %#v", confirmed, command)
+	}
+
+	model.view = orcaWorkersView
+	model.workers = []domain.Session{{
+		ID: "worker-42", WorkflowRunID: "plan-42", NodeRunID: "node-42",
+		RuntimeAdapterID: "pi", State: domain.SessionStateRunning,
+	}}
+	model.workerHistory = sqlite.SessionHistory{
+		Session: model.workers[0],
+		RuntimeEvents: []domain.RuntimeEvent{{
+			Sequence: 3, Kind: "tool_call", ProviderEventType: "tool_execution_start",
+		}},
+	}
+	workerView := ansi.Strip(model.View())
+	for _, expected := range []string{"workers 1", "worker-42", "plan-42", "tool_execution_start", "enter attaches"} {
+		if !strings.Contains(workerView, expected) {
+			t.Fatalf("worker View() omitted %q:\n%s", expected, workerView)
+		}
+	}
+}
+
+func TestOrcaWorkerRequestsTargetRuntimeAndAttachment(t *testing.T) {
+	handle := domain.AdapterHandleID("handle-worker")
+	session := domain.Session{
+		ID: "worker-42", RuntimePluginID: "pi-plugin", RuntimeAdapterID: "pi",
+		RuntimeHandle: &handle, State: domain.SessionStateRunning,
+	}
+	attachment, err := workerAttachmentRequest(
+		session, domain.InterventionKindAttach, "attachment.open",
+		json.RawMessage(`{"sessionId":"worker-42","cursor":0}`),
+	)
+	if err != nil || attachment.PluginID != "pi-plugin" ||
+		attachment.Operation.AdapterID != "pi.attachment" ||
+		attachment.Operation.Port != domain.AdapterPortAttachment ||
+		attachment.Intervention.Kind != domain.InterventionKindAttach {
+		t.Fatalf("workerAttachmentRequest() = %#v, %v", attachment, err)
+	}
+	message, err := workerMessageRequest(session, "Check the failing test.")
+	if err != nil || message.Operation.AdapterID != "pi" ||
+		message.Operation.Port != domain.AdapterPortAgentRuntime ||
+		message.Operation.Operation != "agent-runtime.input" ||
+		message.Operation.HandleID == nil || *message.Operation.HandleID != handle {
+		t.Fatalf("workerMessageRequest() = %#v, %v", message, err)
+	}
+	if !strings.Contains(string(message.Operation.Input), `"behavior":"steer"`) {
+		t.Fatalf("worker message input = %s", message.Operation.Input)
+	}
+}
+
+func TestCleanOrcaLeasesRemovesExitedProcesses(t *testing.T) {
+	stateDirectory := t.TempDir()
+	directory := orcaLeaseDirectory(stateDirectory)
+	if err := os.Mkdir(directory, 0o700); err != nil {
+		t.Fatalf("Mkdir() returned %v", err)
+	}
+	active := filepath.Join(directory, fmt.Sprintf("%d-active", os.Getpid()))
+	stale := filepath.Join(directory, "2147483647-stale")
+	for _, path := range []string{active, stale} {
+		if err := os.WriteFile(path, nil, 0o600); err != nil {
+			t.Fatalf("WriteFile() returned %v", err)
+		}
+	}
+	remaining, err := cleanOrcaLeases(stateDirectory)
+	if err != nil {
+		t.Fatalf("cleanOrcaLeases() returned %v", err)
+	}
+	if remaining != 1 {
+		t.Fatalf("remaining leases = %d, want 1", remaining)
+	}
+	if _, err := os.Stat(stale); !errors.Is(err, os.ErrNotExist) {
+		t.Fatalf("stale lease stat error = %v", err)
+	}
 }
 
 func waitForSocket(t *testing.T, path string, cancel context.CancelFunc, serveErrors <-chan error) {

@@ -75,10 +75,11 @@ type InterventionRequest struct {
 }
 
 type SessionHistory struct {
-	Session       domain.Session
-	Activities    []domain.Activity
-	Checkpoints   []domain.Checkpoint
-	Interventions []domain.Intervention
+	Session       domain.Session        `json:"session"`
+	Activities    []domain.Activity     `json:"activities"`
+	Checkpoints   []domain.Checkpoint   `json:"checkpoints"`
+	Interventions []domain.Intervention `json:"interventions"`
+	RuntimeEvents []domain.RuntimeEvent `json:"runtimeEvents"`
 }
 
 func (store *Store) CreateSession(
@@ -762,6 +763,22 @@ func (store *Store) Session(ctx context.Context, id domain.SessionID) (domain.Se
 	return session, err
 }
 
+func (store *Store) Sessions(ctx context.Context) ([]domain.Session, error) {
+	var sessions []domain.Session
+	err := store.Transaction(ctx, func(transaction *Tx) error {
+		var err error
+		sessions, err = typedRecords[domain.Session](transaction, ctx, sessionRecordKind)
+		return err
+	})
+	if err != nil {
+		return nil, err
+	}
+	sort.Slice(sessions, func(first int, second int) bool {
+		return sessions[first].Metadata.UpdatedAt.After(sessions[second].Metadata.UpdatedAt)
+	})
+	return sessions, nil
+}
+
 func (store *Store) ActiveSessions(ctx context.Context) ([]domain.Session, error) {
 	return store.sessionsForRecovery(ctx, false)
 }
@@ -1275,6 +1292,29 @@ func (store *Store) SessionHistory(ctx context.Context, id domain.SessionID) (Se
 				history.Interventions = append(history.Interventions, intervention)
 			}
 		}
+		rows, err := transaction.tx.QueryContext(
+			ctx,
+			"SELECT payload FROM events WHERE aggregate_kind = ? AND aggregate_id = ? AND event_type = ? ORDER BY cursor",
+			sessionRecordKind, string(id), "session.runtime.event",
+		)
+		if err != nil {
+			return wrap("read session runtime events", string(id), err)
+		}
+		defer rows.Close()
+		for rows.Next() {
+			var payload []byte
+			if err := rows.Scan(&payload); err != nil {
+				return wrap("scan session runtime event", string(id), err)
+			}
+			var event domain.RuntimeEvent
+			if err := json.Unmarshal(payload, &event); err != nil {
+				return wrap("decode session runtime event", string(id), err)
+			}
+			history.RuntimeEvents = append(history.RuntimeEvents, event)
+		}
+		if err := rows.Err(); err != nil {
+			return wrap("iterate session runtime events", string(id), err)
+		}
 		return nil
 	})
 	return history, err
@@ -1283,7 +1323,7 @@ func (store *Store) SessionHistory(ctx context.Context, id domain.SessionID) (Se
 type sessionStoredRecord interface {
 	domain.Session | domain.WorkflowRun | domain.AdapterHandle | domain.PromptArtifact | domain.Activity |
 		domain.Checkpoint | domain.Intervention | domain.CommitObservation |
-		domain.ProvenanceRelation | domain.Annotation | domain.AnnotationReply
+		domain.ProvenanceRelation | domain.Annotation | domain.AnnotationReply | domain.RestartPoint | domain.RunFork
 }
 
 func typedRecord[Record sessionStoredRecord](

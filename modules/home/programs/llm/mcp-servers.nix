@@ -98,7 +98,7 @@ in
     orca = {
       command = "${lib.getExe pkgs.orca}";
       args = [ "mcp" ];
-      description = "Optional local agent orchestration, active only after orca start";
+      description = "Optional local agent orchestration, with tools only inside an active Orca workspace";
     };
   };
 

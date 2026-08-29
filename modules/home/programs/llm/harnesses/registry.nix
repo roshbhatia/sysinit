@@ -59,6 +59,7 @@
     glyph = "";
     command = "claude";
     launch.modelFlag = "--model";
+    launch.resumeArgs = [ "--resume" ];
     acp = true;
     openspecTool = [ "claude" ];
     guard = "hook";
@@ -80,6 +81,7 @@
     glyph = "󱗿";
     command = "codex";
     launch.modelFlag = "--model";
+    launch.resumeArgs = [ "resume" ];
     acp = true;
     openspecTool = [ "codex" ];
     guard = "hook";

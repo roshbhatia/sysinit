@@ -176,6 +176,27 @@ func (executor *ControlExecutor) ExecuteCommandResult(
 		return executor.createWorkflow(ctx, request)
 	case "workflow.run":
 		return executor.createWorkflowRun(ctx, request)
+	case "workflow.list":
+		var command provenanceInspectCommand
+		if err := decodeControlPayload(request, &command); err != nil {
+			return nil, err
+		}
+		result, err := executor.store.WorkflowRuns(ctx)
+		return encodeControlResult(result, err)
+	case "workflow.restart-points":
+		var command workflowInspectCommand
+		if err := decodeControlPayload(request, &command); err != nil {
+			return nil, err
+		}
+		result, err := executor.store.RestartPoints(ctx, command.RunID)
+		return encodeControlResult(result, err)
+	case "workflow.forks":
+		var command workflowInspectCommand
+		if err := decodeControlPayload(request, &command); err != nil {
+			return nil, err
+		}
+		result, err := executor.store.WorkflowForks(ctx, command.RunID)
+		return encodeControlResult(result, err)
 	case "workflow.schedule":
 		var command workflowScheduleCommand
 		if err := decodeControlPayload(request, &command); err != nil {
@@ -204,6 +225,13 @@ func (executor *ControlExecutor) ExecuteCommandResult(
 			return nil, err
 		}
 		result, err := executor.sessions.StartSession(ctx, command)
+		return encodeControlResult(result, err)
+	case "agent.list":
+		var command provenanceInspectCommand
+		if err := decodeControlPayload(request, &command); err != nil {
+			return nil, err
+		}
+		result, err := executor.store.Sessions(ctx)
 		return encodeControlResult(result, err)
 	case "agent.intervene", "agent.policy":
 		var command ForwardInterventionRequest
@@ -541,7 +569,8 @@ func decodeControlPayload[Value interface {
 }
 
 type controlResult interface {
-	json.RawMessage | []domain.NodeRun | AdapterInvocationResult | StartSessionResult |
+	json.RawMessage | []domain.NodeRun | []domain.WorkflowRun | []domain.RestartPoint | []domain.RunFork | []domain.Session |
+		AdapterInvocationResult | StartSessionResult |
 		ForwardInterventionResult | ForwardAttachmentResult |
 		sessionCancelResult | sqlite.SessionHistory | workflowRunResult | graphPatchResult | replayResult |
 		effectReconcileResult |

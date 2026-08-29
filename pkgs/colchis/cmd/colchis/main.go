@@ -33,7 +33,7 @@ func main() {
 
 func run(args []string, stdout io.Writer, stderr io.Writer) int {
 	if len(args) == 0 {
-		return runOrcaUI(stdout, stderr)
+		return runOrcaAutoUI(stdout, stderr)
 	}
 	command := args[0]
 	if isOrcaCommand(command) {
@@ -61,6 +61,7 @@ func run(args []string, stdout io.Writer, stderr io.Writer) int {
 	outputPath := flags.String("output", "", "export database path")
 	workspace := flags.String("workspace", "", "workspace scope")
 	service := flags.String("service", "", "background service identity")
+	automatic := flags.Bool("automatic", false, "stop after temporary clients exit")
 	if err := flags.Parse(args[1:]); err != nil {
 		return 2
 	}
@@ -72,8 +73,8 @@ func run(args []string, stdout io.Writer, stderr io.Writer) int {
 		fmt.Fprintf(stderr, "%s does not accept --output\n", command)
 		return 2
 	}
-	if command != "serve" && (*workspace != "" || *service != "") {
-		fmt.Fprintf(stderr, "%s does not accept --workspace or --service\n", command)
+	if command != "serve" && (*workspace != "" || *service != "" || *automatic) {
+		fmt.Fprintf(stderr, "%s does not accept serve options\n", command)
 		return 2
 	}
 	if command == "export" && *outputPath == "" {
@@ -101,7 +102,7 @@ func run(args []string, stdout io.Writer, stderr io.Writer) int {
 			fmt.Fprintf(stderr, "enter workspace: %v\n", err)
 			return 1
 		}
-		record, _, err := instance.NewRecord(scope, *service)
+		record, _, err := instance.NewRecord(scope, *service, *automatic)
 		if err != nil {
 			fmt.Fprintf(stderr, "prepare instance record: %v\n", err)
 			return 1
@@ -110,6 +111,9 @@ func run(args []string, stdout io.Writer, stderr io.Writer) int {
 		record.Socket = paths.Socket
 		ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 		defer stop()
+		if *automatic {
+			go monitorAutomaticBroker(ctx, paths.StateDirectory, stop)
+		}
 		published := false
 		serveErr := serveWithReady(ctx, paths, func() error {
 			if err := instance.Write(record); err != nil {
@@ -406,6 +410,7 @@ func controlCommandKind(args []string) (string, int, bool) {
 		"adapter invoke":           "adapter.invoke",
 		"workflow create":          "workflow.create",
 		"workflow run":             "workflow.run",
+		"workflow list":            "workflow.list",
 		"workflow schedule":        "workflow.schedule",
 		"workflow inspect":         "workflow.inspect",
 		"workflow export":          "workflow.export",

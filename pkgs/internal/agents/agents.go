@@ -24,7 +24,8 @@ type Agent struct {
 	Command string `json:"command"`
 	ACP     bool   `json:"acp"`
 	Launch  struct {
-		ModelFlag string `json:"modelFlag"`
+		ModelFlag  string   `json:"modelFlag"`
+		ResumeArgs []string `json:"resumeArgs"`
 	} `json:"launch"`
 
 	Notify         string `json:"notify"`

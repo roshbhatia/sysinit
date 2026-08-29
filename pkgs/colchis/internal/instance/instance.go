@@ -28,6 +28,7 @@ type Record struct {
 	StateDirectory string `json:"stateDirectory"`
 	Socket         string `json:"socket"`
 	Service        string `json:"service,omitempty"`
+	Automatic      bool   `json:"automatic,omitempty"`
 	PID            int    `json:"pid"`
 	StartedAt      string `json:"startedAt"`
 }
@@ -220,12 +221,13 @@ func Contains(scope string, directory string) bool {
 	return relative == "." || (relative != ".." && !strings.HasPrefix(relative, ".."+string(filepath.Separator)))
 }
 
-func NewRecord(scope string, service string) (Record, config.Paths, error) {
+func NewRecord(scope string, service string, automatic bool) (Record, config.Paths, error) {
 	record, resolved, err := Candidate(scope)
 	if err != nil {
 		return Record{}, config.Paths{}, err
 	}
 	record.Service = service
+	record.Automatic = automatic
 	record.PID = os.Getpid()
 	record.StartedAt = time.Now().UTC().Format(time.RFC3339Nano)
 	return record, resolved, nil

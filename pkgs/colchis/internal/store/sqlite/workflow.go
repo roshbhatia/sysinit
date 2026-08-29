@@ -22,6 +22,19 @@ const (
 
 type AdapterCapacity map[string]uint32
 
+func (store *Store) WorkflowRuns(ctx context.Context) ([]domain.WorkflowRun, error) {
+	var runs []domain.WorkflowRun
+	err := store.Transaction(ctx, func(transaction *Tx) error {
+		var err error
+		runs, err = typedRecords[domain.WorkflowRun](transaction, ctx, workflowRunRecordKind)
+		return err
+	})
+	sort.Slice(runs, func(first int, second int) bool {
+		return runs[first].Metadata.UpdatedAt.After(runs[second].Metadata.UpdatedAt)
+	})
+	return runs, err
+}
+
 func (store *Store) CreateWorkflowDefinition(
 	ctx context.Context,
 	id domain.WorkflowDefinitionID,

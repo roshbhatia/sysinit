@@ -164,6 +164,10 @@ func TestRuntimeEventsAdvanceSessionCursorAtomically(t *testing.T) {
 	if updated.RuntimeEventCursor != 2 {
 		t.Fatalf("runtime event cursor = %d", updated.RuntimeEventCursor)
 	}
+	history, err := store.SessionHistory(ctx, updated.ID)
+	if err != nil || len(history.RuntimeEvents) != 2 || history.RuntimeEvents[1].ProviderEventType != "message_end" {
+		t.Fatalf("SessionHistory() runtime events = %#v, %v", history.RuntimeEvents, err)
+	}
 	if _, err := store.RecordSessionRuntimeEvents(
 		ctx, updated.ID, updated.Metadata.ResourceVersion, events,
 	); !domain.IsErrorCode(err, domain.ErrorCodeInvalidArgument) {

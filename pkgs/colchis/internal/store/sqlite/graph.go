@@ -821,6 +821,62 @@ func (transaction *Tx) restartPoint(
 	return point, found, err
 }
 
+func (store *Store) RestartPoints(
+	ctx context.Context,
+	runID domain.WorkflowRunID,
+) ([]domain.RestartPoint, error) {
+	if err := runID.Validate(); err != nil {
+		return nil, err
+	}
+	var points []domain.RestartPoint
+	err := store.Transaction(ctx, func(transaction *Tx) error {
+		var err error
+		points, err = typedRecords[domain.RestartPoint](transaction, ctx, restartPointRecordKind)
+		return err
+	})
+	if err != nil {
+		return nil, err
+	}
+	matching := points[:0]
+	for _, point := range points {
+		if point.WorkflowRunID == runID {
+			matching = append(matching, point)
+		}
+	}
+	sort.Slice(matching, func(first int, second int) bool {
+		return matching[first].EventCursor > matching[second].EventCursor
+	})
+	return matching, nil
+}
+
+func (store *Store) WorkflowForks(
+	ctx context.Context,
+	runID domain.WorkflowRunID,
+) ([]domain.RunFork, error) {
+	if err := runID.Validate(); err != nil {
+		return nil, err
+	}
+	var forks []domain.RunFork
+	err := store.Transaction(ctx, func(transaction *Tx) error {
+		var err error
+		forks, err = typedRecords[domain.RunFork](transaction, ctx, runForkRecordKind)
+		return err
+	})
+	if err != nil {
+		return nil, err
+	}
+	matching := forks[:0]
+	for _, fork := range forks {
+		if fork.ParentWorkflowRunID == runID || fork.ChildWorkflowRunID == runID {
+			matching = append(matching, fork)
+		}
+	}
+	sort.Slice(matching, func(first int, second int) bool {
+		return matching[first].Metadata.UpdatedAt.After(matching[second].Metadata.UpdatedAt)
+	})
+	return matching, nil
+}
+
 func (transaction *Tx) nodeRun(
 	ctx context.Context,
 	id domain.NodeRunID,

@@ -271,6 +271,26 @@ func TestControlExecutorCreatesAndInspectsWorkflow(t *testing.T) {
 	if err != nil || !strings.Contains(string(restart), `"id":"restart-control"`) {
 		t.Fatalf("workflow.restart-point = %s, %v", restart, err)
 	}
+	restartPoints, err := executor.ExecuteCommandResult(ctx, principal, domain.CommandRequest{
+		ID: "command-restart-list", Kind: "workflow.restart-points",
+		Payload: json.RawMessage(`{"runId":"run-control"}`),
+	})
+	if err != nil || !strings.Contains(string(restartPoints), `"id":"restart-control"`) {
+		t.Fatalf("workflow.restart-points = %s, %v", restartPoints, err)
+	}
+	forks, err := executor.ExecuteCommandResult(ctx, principal, domain.CommandRequest{
+		ID: "command-fork-list", Kind: "workflow.forks",
+		Payload: json.RawMessage(`{"runId":"run-control"}`),
+	})
+	if err != nil || string(forks) != "[]" {
+		t.Fatalf("workflow.forks = %s, %v", forks, err)
+	}
+	workers, err := executor.ExecuteCommandResult(ctx, principal, domain.CommandRequest{
+		ID: "command-agent-list", Kind: "agent.list", Payload: json.RawMessage(`{}`),
+	})
+	if err != nil || string(workers) != "[]" {
+		t.Fatalf("agent.list = %s, %v", workers, err)
+	}
 	result, err := executor.ExecuteCommandResult(ctx, principal, domain.CommandRequest{
 		ID: "command-inspect", Kind: "workflow.inspect",
 		Payload: json.RawMessage(`{"runId":"run-control"}`),
@@ -279,6 +299,12 @@ func TestControlExecutorCreatesAndInspectsWorkflow(t *testing.T) {
 		!strings.Contains(string(result), `"nodeKey":"implement"`) ||
 		!strings.Contains(string(result), `"definitionVersion":1`) {
 		t.Fatalf("workflow.inspect = %s, %v", result, err)
+	}
+	runs, err := executor.ExecuteCommandResult(ctx, principal, domain.CommandRequest{
+		ID: "command-list", Kind: "workflow.list", Payload: json.RawMessage(`{}`),
+	})
+	if err != nil || !strings.Contains(string(runs), `"id":"run-control"`) {
+		t.Fatalf("workflow.list = %s, %v", runs, err)
 	}
 	provenance, err := executor.ExecuteCommandResult(ctx, principal, domain.CommandRequest{
 		ID: "command-provenance", Kind: "provenance.inspect", Payload: json.RawMessage(`{}`),
