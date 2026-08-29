@@ -910,6 +910,37 @@ func TestMCPNotifiesWhenBrokerToolsBecomeAvailable(t *testing.T) {
 	}
 }
 
+func TestMCPAcknowledgesModernToolSubscription(t *testing.T) {
+	input := strings.NewReader(strings.Join([]string{
+		`{"jsonrpc":"2.0","id":"tools","method":"subscriptions/listen","params":{"notifications":{"toolsListChanged":true},"_meta":{"io.modelcontextprotocol/protocolVersion":"2026-07-28","io.modelcontextprotocol/clientCapabilities":{}}}}`,
+		`{"jsonrpc":"2.0","method":"notifications/cancelled","params":{"requestId":"tools"}}`,
+	}, "\n"))
+	var stdout bytes.Buffer
+	var stderr bytes.Buffer
+	if exit := runMCP([]string{"--state-dir", shortStateDirectory(t)}, input, &stdout, &stderr); exit != 0 {
+		t.Fatalf("runMCP() exit = %d, stderr = %q", exit, stderr.String())
+	}
+	var acknowledgement struct {
+		Method string `json:"method"`
+		Params struct {
+			Notifications mcpSubscriptionFilter `json:"notifications"`
+			Meta          map[string]string     `json:"_meta"`
+		} `json:"params"`
+	}
+	decoder := json.NewDecoder(&stdout)
+	if err := decoder.Decode(&acknowledgement); err != nil {
+		t.Fatalf("Decode() returned %v", err)
+	}
+	if acknowledgement.Method != "notifications/subscriptions/acknowledged" ||
+		!acknowledgement.Params.Notifications.ToolsListChanged ||
+		acknowledgement.Params.Meta["io.modelcontextprotocol/subscriptionId"] != "tools" {
+		t.Fatalf("subscription acknowledgement = %#v", acknowledgement)
+	}
+	if err := decoder.Decode(&struct{}{}); !errors.Is(err, io.EOF) {
+		t.Fatalf("subscription emitted an extra response: %v", err)
+	}
+}
+
 func TestMCPUsesWorkflowAndWorkerVocabulary(t *testing.T) {
 	names := make(map[string]bool, len(mcpToolDefinitions))
 	for _, tool := range mcpToolDefinitions {

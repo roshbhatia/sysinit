@@ -40,8 +40,21 @@ type mcpResponse struct {
 }
 
 type mcpNotification struct {
-	JSONRPC string `json:"jsonrpc"`
-	Method  string `json:"method"`
+	JSONRPC string      `json:"jsonrpc"`
+	Method  string      `json:"method"`
+	Params  interface{} `json:"params,omitempty"`
+}
+
+type mcpSubscriptionFilter struct {
+	ToolsListChanged      bool     `json:"toolsListChanged,omitempty"`
+	PromptsListChanged    bool     `json:"promptsListChanged,omitempty"`
+	ResourcesListChanged  bool     `json:"resourcesListChanged,omitempty"`
+	ResourceSubscriptions []string `json:"resourceSubscriptions,omitempty"`
+}
+
+type mcpListenParams struct {
+	Notifications mcpSubscriptionFilter      `json:"notifications"`
+	Meta          map[string]json.RawMessage `json:"_meta"`
 }
 
 type mcpError struct {
@@ -188,7 +201,8 @@ func runMCP(args []string, stdin io.Reader, stdout io.Writer, stderr io.Writer) 
 		stopWatch()
 		watchGroup.Wait()
 	}()
-	watching := false
+	legacyWatching := false
+	subscriptions := make(map[string]context.CancelFunc)
 	for scanner.Scan() {
 		var request mcpRequest
 		if err := json.Unmarshal(scanner.Bytes(), &request); err != nil {
@@ -198,6 +212,67 @@ func runMCP(args []string, stdin io.Reader, stdout io.Writer, stderr io.Writer) 
 			}); err != nil {
 				fmt.Fprintf(stderr, "write MCP response: %v\n", err)
 				return 1
+			}
+			continue
+		}
+		if request.Method == "notifications/cancelled" {
+			var params struct {
+				RequestID json.RawMessage `json:"requestId"`
+			}
+			if json.Unmarshal(request.Params, &params) == nil {
+				if cancel, found := subscriptions[string(params.RequestID)]; found {
+					cancel()
+					delete(subscriptions, string(params.RequestID))
+				}
+			}
+			continue
+		}
+		if request.Method == "subscriptions/listen" {
+			if len(request.ID) == 0 {
+				continue
+			}
+			var params mcpListenParams
+			if err := decodeMCPStrict(request.Params, &params); err != nil {
+				if err := encode(mcpProtocolError(request.ID, -32602, "subscription parameters are invalid")); err != nil {
+					fmt.Fprintf(stderr, "write MCP response: %v\n", err)
+					return 1
+				}
+				continue
+			}
+			key := string(request.ID)
+			if _, found := subscriptions[key]; found {
+				if err := encode(mcpProtocolError(request.ID, -32600, "subscription identifier is already active")); err != nil {
+					fmt.Fprintf(stderr, "write MCP response: %v\n", err)
+					return 1
+				}
+				continue
+			}
+			accepted := mcpSubscriptionFilter{ToolsListChanged: params.Notifications.ToolsListChanged}
+			if err := encode(mcpSubscriptionNotification(
+				"notifications/subscriptions/acknowledged", request.ID,
+				map[string]interface{}{"notifications": accepted},
+			)); err != nil {
+				fmt.Fprintf(stderr, "write MCP response: %v\n", err)
+				return 1
+			}
+			subscriptionContext, cancel := context.WithCancel(watchContext)
+			subscriptions[key] = cancel
+			if accepted.ToolsListChanged {
+				watchClient, initial, watchErr := resolveMCPClient(*stateDirectory)
+				if watchClient != nil {
+					watchClient.Close()
+				}
+				if watchErr == nil {
+					watchGroup.Add(1)
+					go func(id json.RawMessage) {
+						defer watchGroup.Done()
+						watchMCPToolList(subscriptionContext, *stateDirectory, initial, func() error {
+							return encode(mcpSubscriptionNotification(
+								"notifications/tools/list_changed", id, nil,
+							))
+						})
+					}(append(json.RawMessage(nil), request.ID...))
+				}
 			}
 			continue
 		}
@@ -227,17 +302,21 @@ func runMCP(args []string, stdin io.Reader, stdout io.Writer, stderr io.Writer) 
 				return 1
 			}
 		}
-		if request.Method == "notifications/initialized" && !watching {
+		if request.Method == "notifications/initialized" && !legacyWatching {
 			watchClient, initial, watchErr := resolveMCPClient(*stateDirectory)
 			if watchClient != nil {
 				watchClient.Close()
 			}
 			if watchErr == nil {
-				watching = true
+				legacyWatching = true
 				watchGroup.Add(1)
 				go func() {
 					defer watchGroup.Done()
-					watchMCPToolList(watchContext, *stateDirectory, initial, encode)
+					watchMCPToolList(watchContext, *stateDirectory, initial, func() error {
+						return encode(mcpNotification{
+							JSONRPC: mcpJSONRPCVersion, Method: "notifications/tools/list_changed",
+						})
+					})
 				}()
 			}
 		}
@@ -257,7 +336,7 @@ func watchMCPToolList(
 	ctx context.Context,
 	stateDirectory string,
 	active bool,
-	encode func(interface{}) error,
+	notify func() error,
 ) {
 	ticker := time.NewTicker(time.Second)
 	defer ticker.Stop()
@@ -274,13 +353,26 @@ func watchMCPToolList(
 				continue
 			}
 			active = current
-			if err := encode(mcpNotification{
-				JSONRPC: mcpJSONRPCVersion, Method: "notifications/tools/list_changed",
-			}); err != nil {
+			if err := notify(); err != nil {
 				return
 			}
 		}
 	}
+}
+
+func mcpSubscriptionNotification(
+	method string,
+	id json.RawMessage,
+	fields map[string]interface{},
+) mcpNotification {
+	params := make(map[string]interface{}, len(fields)+1)
+	for key, value := range fields {
+		params[key] = value
+	}
+	params["_meta"] = map[string]json.RawMessage{
+		"io.modelcontextprotocol/subscriptionId": append(json.RawMessage(nil), id...),
+	}
+	return mcpNotification{JSONRPC: mcpJSONRPCVersion, Method: method, Params: params}
 }
 
 func resolveMCPClient(stateDirectory string) (*socket.Client, bool, error) {
@@ -430,7 +522,7 @@ func callMCPTool(ctx context.Context, client *socket.Client, request mcpRequest)
 	return mcpRequestSuccess(request, result)
 }
 
-func decodeMCPStrict[T mcpCallParams | mcpToolArguments](payload json.RawMessage, target *T) error {
+func decodeMCPStrict[T mcpCallParams | mcpToolArguments | mcpListenParams](payload json.RawMessage, target *T) error {
 	decoder := json.NewDecoder(bytes.NewReader(payload))
 	decoder.DisallowUnknownFields()
 	if err := decoder.Decode(target); err != nil {
