@@ -16,6 +16,7 @@ import (
 	"time"
 
 	"github.com/charmbracelet/bubbles/help"
+	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/x/ansi"
 	"github.com/roshbhatia/sysinit/pkgs/colchis/internal/adapter/nix"
@@ -1251,6 +1252,54 @@ func TestOrcaUIRejectsPaneThatHidesControls(t *testing.T) {
 	if strings.Count(view, "\n") != 2 || !strings.Contains(view, "orca needs 60x16") ||
 		!strings.Contains(view, "q detaches") {
 		t.Fatalf("small worker UI = %q", view)
+	}
+}
+
+func TestOrcaFullHelpOnlyShowsActionsForCurrentView(t *testing.T) {
+	model := orcaUIModel{help: help.New()}
+	model.help.ShowAll = true
+	model.help.Width = 120
+	controllerHelp := model.help.View(model.helpKeys())
+	if !strings.Contains(controllerHelp, "resume controller") || strings.Contains(controllerHelp, "fork from restart point") {
+		t.Fatalf("controller help = %q", controllerHelp)
+	}
+	model.view = orcaWorkersView
+	workerHelp := model.help.View(model.helpKeys())
+	if strings.Contains(workerHelp, "resume controller") || strings.Contains(workerHelp, "graph down") {
+		t.Fatalf("worker help = %q", workerHelp)
+	}
+}
+
+func TestRestartPointCursorDoesNotLeakAcrossWorkflows(t *testing.T) {
+	points := []domain.RestartPoint{{ID: "new-first"}, {ID: "new-second"}}
+	if cursor := restartPointCursor(points, "old-second"); cursor != 0 {
+		t.Fatalf("restart point cursor = %d, want 0", cursor)
+	}
+	if cursor := restartPointCursor(points, "new-second"); cursor != 1 {
+		t.Fatalf("preserved restart point cursor = %d, want 1", cursor)
+	}
+}
+
+func TestOrcaWorkerPreventsDuplicateSendAndShowsFailure(t *testing.T) {
+	input := textinput.New()
+	input.SetValue("Review this failure")
+	model := orcaWorkerUIModel{
+		typing: true, input: input,
+		history: sqlite.SessionHistory{Session: domain.Session{ID: "worker-send"}},
+	}
+	updated, command := model.Update(tea.KeyMsg{Type: tea.KeyEnter})
+	model = updated.(orcaWorkerUIModel)
+	if command == nil || model.typing || model.message != "Sending message" {
+		t.Fatalf("first enter = %#v, command = %#v", model, command)
+	}
+	updated, duplicate := model.Update(tea.KeyMsg{Type: tea.KeyEnter})
+	if duplicate != nil {
+		t.Fatalf("second enter returned command %#v", duplicate)
+	}
+	failed, _ := updated.(orcaWorkerUIModel).Update(orcaWorkerActionMessage{err: errors.New("send failed")})
+	model = failed.(orcaWorkerUIModel)
+	if !model.messageError || model.message != "send failed" || model.typing {
+		t.Fatalf("failed send state = %#v", model)
 	}
 }
 

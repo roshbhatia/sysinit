@@ -70,10 +70,15 @@ func (keys orcaKeyMap) FullHelp() [][]key.Binding {
 type orcaHelpKeyMap struct {
 	orcaKeyMap
 	short []key.Binding
+	full  [][]key.Binding
 }
 
 func (keys orcaHelpKeyMap) ShortHelp() []key.Binding {
 	return keys.short
+}
+
+func (keys orcaHelpKeyMap) FullHelp() [][]key.Binding {
+	return keys.full
 }
 
 var orcaKeys = orcaKeyMap{
@@ -355,14 +360,31 @@ func (model orcaUIModel) View() string {
 
 func (model orcaUIModel) helpKeys() orcaHelpKeyMap {
 	short := []key.Binding{orcaKeys.switchView, orcaKeys.refresh, orcaKeys.showHelp, orcaKeys.quit}
-	if model.view == orcaControllersView || model.view == orcaWorkersView {
+	full := [][]key.Binding{
+		{orcaKeys.up, orcaKeys.down},
+		{orcaKeys.switchView, orcaKeys.toggle, orcaKeys.refresh, orcaKeys.showHelp, orcaKeys.quit},
+	}
+	switch model.view {
+	case orcaControllersView:
 		short = []key.Binding{orcaKeys.switchView, orcaKeys.open, orcaKeys.refresh, orcaKeys.showHelp, orcaKeys.quit}
+		full = [][]key.Binding{
+			{orcaKeys.up, orcaKeys.down, orcaKeys.open, orcaKeys.resume},
+			{orcaKeys.switchView, orcaKeys.toggle, orcaKeys.refresh, orcaKeys.showHelp, orcaKeys.quit},
+		}
+	case orcaWorkflowsView:
+		full = [][]key.Binding{
+			{orcaKeys.up, orcaKeys.down, orcaKeys.left, orcaKeys.right},
+			{orcaKeys.pageUp, orcaKeys.pageDown, orcaKeys.replay},
+			{orcaKeys.switchView, orcaKeys.toggle, orcaKeys.refresh, orcaKeys.showHelp, orcaKeys.quit},
+		}
+	case orcaWorkersView:
+		short = []key.Binding{orcaKeys.switchView, orcaKeys.open, orcaKeys.refresh, orcaKeys.showHelp, orcaKeys.quit}
+		full = [][]key.Binding{
+			{orcaKeys.up, orcaKeys.down, orcaKeys.open},
+			{orcaKeys.switchView, orcaKeys.toggle, orcaKeys.refresh, orcaKeys.showHelp, orcaKeys.quit},
+		}
 	}
-	keys := orcaKeys
-	if model.view == orcaWorkflowsView {
-		keys.open.SetEnabled(false)
-	}
-	return orcaHelpKeyMap{orcaKeyMap: keys, short: short}
+	return orcaHelpKeyMap{orcaKeyMap: orcaKeys, short: short, full: full}
 }
 
 func (model orcaUIModel) header(width int) string {
@@ -895,18 +917,17 @@ func (model *orcaUIModel) loadRestartPoints() error {
 	if err := json.Unmarshal(command.Result, &model.restartPoints); err != nil {
 		return err
 	}
-	if selected != "" {
-		for index := range model.restartPoints {
-			if model.restartPoints[index].ID == selected {
-				model.restartCursor = index
-				break
-			}
+	model.restartCursor = restartPointCursor(model.restartPoints, selected)
+	return nil
+}
+
+func restartPointCursor(points []domain.RestartPoint, selected domain.RestartPointID) int {
+	for index := range points {
+		if selected != "" && points[index].ID == selected {
+			return index
 		}
 	}
-	if model.restartCursor >= len(model.restartPoints) {
-		model.restartCursor = max(0, len(model.restartPoints)-1)
-	}
-	return nil
+	return 0
 }
 
 func (model *orcaUIModel) loadWorkflowForks() error {
@@ -1149,13 +1170,13 @@ func (model orcaWorkerUIModel) Update(message tea.Msg) (tea.Model, tea.Cmd) {
 		}
 	case orcaWorkerActionMessage:
 		model.messageError = typed.err != nil
+		model.typing = false
+		model.input.Blur()
 		if typed.err != nil {
 			model.message = typed.err.Error()
 		} else {
 			model.message = typed.text
 			model.input.SetValue("")
-			model.typing = false
-			model.input.Blur()
 		}
 	case tea.WindowSizeMsg:
 		model.width = typed.Width
@@ -1173,6 +1194,8 @@ func (model orcaWorkerUIModel) Update(message tea.Msg) (tea.Model, tea.Cmd) {
 					return model, nil
 				}
 				model.message = "Sending message"
+				model.typing = false
+				model.input.Blur()
 				return model, model.sendMessage(message)
 			}
 			var command tea.Cmd
