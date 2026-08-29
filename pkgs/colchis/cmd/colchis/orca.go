@@ -122,14 +122,8 @@ func runOrcaStart(args []string, stdout io.Writer, stderr io.Writer) int {
 	var started bool
 	var service string
 	err = withOrcaLeaseLock(record.StateDirectory, func() error {
-		if err := setOrcaPinned(record.StateDirectory, true); err != nil {
-			return err
-		}
 		var startErr error
-		started, service, startErr = startOrcaInstance(record, false)
-		if startErr != nil {
-			_ = setOrcaPinned(record.StateDirectory, false)
-		}
+		started, service, startErr = startPinnedOrca(record, startOrcaInstance)
 		return startErr
 	})
 	if err != nil {
@@ -142,6 +136,24 @@ func runOrcaStart(args []string, stdout io.Writer, stderr io.Writer) int {
 	}
 	fmt.Fprintf(stdout, "orca started for %s (%s)\n", record.Scope, service)
 	return 0
+}
+
+func startPinnedOrca(
+	record instance.Record,
+	start func(instance.Record, bool) (bool, string, error),
+) (bool, string, error) {
+	wasPinned, err := orcaPinned(record.StateDirectory)
+	if err != nil {
+		return false, "", err
+	}
+	if err := setOrcaPinned(record.StateDirectory, true); err != nil {
+		return false, "", err
+	}
+	started, service, err := start(record, false)
+	if err != nil && !wasPinned {
+		_ = setOrcaPinned(record.StateDirectory, false)
+	}
+	return started, service, err
 }
 
 func runOrcaStop(args []string, stdout io.Writer, stderr io.Writer) int {
@@ -171,7 +183,7 @@ func runOrcaStop(args []string, stdout io.Writer, stderr io.Writer) int {
 			return presentErr
 		}
 		if !instance.Live(current) && !present {
-			return nil
+			return instance.Remove(current)
 		}
 		current.Stopping = true
 		if err := instance.Write(current); err != nil {

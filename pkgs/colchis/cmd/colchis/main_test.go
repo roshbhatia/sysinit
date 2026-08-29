@@ -1436,6 +1436,53 @@ func TestPinnedBrokerIgnoresAutomaticServiceArgument(t *testing.T) {
 	}
 }
 
+func TestStartFailurePreservesExistingPin(t *testing.T) {
+	record := instance.Record{StateDirectory: t.TempDir()}
+	if err := setOrcaPinned(record.StateDirectory, true); err != nil {
+		t.Fatalf("setOrcaPinned() returned %v", err)
+	}
+	startError := errors.New("start failed")
+	_, _, err := startPinnedOrca(record, func(instance.Record, bool) (bool, string, error) {
+		return false, "", startError
+	})
+	if !errors.Is(err, startError) {
+		t.Fatalf("startPinnedOrca() error = %v", err)
+	}
+	if pinned, err := orcaPinned(record.StateDirectory); err != nil || !pinned {
+		t.Fatalf("orcaPinned() = %v, %v", pinned, err)
+	}
+}
+
+func TestStopRemovesInactiveInstanceRecord(t *testing.T) {
+	t.Setenv("XDG_STATE_HOME", t.TempDir())
+	t.Setenv("ORCA_STATE_DIR", "")
+	scope := t.TempDir()
+	record, _, err := instance.Candidate(scope)
+	if err != nil {
+		t.Fatalf("Candidate() returned %v", err)
+	}
+	record.PID = 2147483647
+	record.StartedAt = time.Now().UTC().Format(time.RFC3339Nano)
+	if err := instance.Write(record); err != nil {
+		t.Fatalf("Write() returned %v", err)
+	}
+	if err := setOrcaPinned(record.StateDirectory, true); err != nil {
+		t.Fatalf("setOrcaPinned() returned %v", err)
+	}
+	t.Setenv("ORCA_STATE_DIR", record.StateDirectory)
+	var stdout bytes.Buffer
+	var stderr bytes.Buffer
+	if exit := runOrcaStop(nil, &stdout, &stderr); exit != 0 {
+		t.Fatalf("runOrcaStop() exit = %d, stderr = %q", exit, stderr.String())
+	}
+	if _, err := instance.Read(filepath.Join(record.StateDirectory, "instance.json")); !errors.Is(err, os.ErrNotExist) {
+		t.Fatalf("instance record read error = %v", err)
+	}
+	if pinned, err := orcaPinned(record.StateDirectory); err != nil || pinned {
+		t.Fatalf("orcaPinned() = %v, %v", pinned, err)
+	}
+}
+
 func waitForSocket(t *testing.T, path string, cancel context.CancelFunc, serveErrors <-chan error) {
 	t.Helper()
 	deadline := time.Now().Add(5 * time.Second)
