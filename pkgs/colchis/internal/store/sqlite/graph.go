@@ -285,9 +285,11 @@ func (store *Store) CreateRestartPoint(
 				Message: "workflow run does not exist",
 			}
 		}
-		if _, found, err := transaction.snapshot(ctx, request.SnapshotID); err != nil {
+		restartSnapshot, found, err := transaction.snapshot(ctx, request.SnapshotID)
+		if err != nil {
 			return err
-		} else if !found {
+		}
+		if !found {
 			return &domain.Error{
 				Code: domain.ErrorCodeNotFound, Op: "create", Resource: string(request.SnapshotID),
 				Message: "restart snapshot does not exist",
@@ -348,10 +350,22 @@ func (store *Store) CreateRestartPoint(
 					Message: "restart admission belongs to a different workflow run",
 				}
 			}
-			if _, current, err := transaction.currentAdmissionSnapshot(ctx, admissionID); err != nil {
+			admissionSnapshotID, current, err := transaction.currentAdmissionSnapshot(ctx, admissionID)
+			if err != nil {
 				return err
-			} else if !current {
+			}
+			if !current {
 				return staleReplayAdmission(admissionID)
+			}
+			admissionSnapshot, found, err := transaction.snapshot(ctx, admissionSnapshotID)
+			if err != nil {
+				return err
+			}
+			if !found || admissionSnapshot.WorkspaceID != restartSnapshot.WorkspaceID {
+				return &domain.Error{
+					Code: domain.ErrorCodeInvalidArgument, Op: "create", Resource: string(admissionID),
+					Message: "restart snapshot belongs to a different workspace",
+				}
 			}
 		}
 		for _, checkpointID := range request.CheckpointIDs {
@@ -578,9 +592,14 @@ func (store *Store) ReplayWorkflow(
 			return err
 		}
 		payload, err := json.Marshal(struct {
-			ForkID   domain.RunForkID     `json:"forkId"`
-			ParentID domain.WorkflowRunID `json:"parentWorkflowRunId"`
-		}{ForkID: fork.ID, ParentID: parent.ID})
+			ForkID            domain.RunForkID            `json:"forkId"`
+			ParentID          domain.WorkflowRunID        `json:"parentWorkflowRunId"`
+			DefinitionID      domain.WorkflowDefinitionID `json:"definitionId"`
+			DefinitionVersion uint64                      `json:"definitionVersion"`
+		}{
+			ForkID: fork.ID, ParentID: parent.ID,
+			DefinitionID: target.ID, DefinitionVersion: target.DefinitionVersion,
+		})
 		if err != nil {
 			return wrap("encode run fork event", string(fork.ID), err)
 		}
@@ -895,10 +914,10 @@ func (transaction *Tx) workflowDefinitionAtEventCursor(
 		ctx,
 		`SELECT event_type, payload FROM events
          WHERE aggregate_kind = ? AND aggregate_id = ? AND cursor <= ?
-           AND event_type IN (?, ?)
+		   AND event_type IN (?, ?, ?)
          ORDER BY cursor DESC LIMIT 1`,
 		workflowRunRecordKind, string(runID), cursor,
-		"workflow.run.created", "workflow.graph.patched",
+		"workflow.run.created", "workflow.run.forked", "workflow.graph.patched",
 	).Scan(&eventType, &payload)
 	if errors.Is(err, sql.ErrNoRows) {
 		return domain.WorkflowDefinition{}, &domain.Error{
@@ -913,12 +932,29 @@ func (transaction *Tx) workflowDefinitionAtEventCursor(
 		CreatedID domain.WorkflowDefinitionID `json:"workflowDefinitionId"`
 		PatchedID domain.WorkflowDefinitionID `json:"definitionId"`
 		Version   uint64                      `json:"definitionVersion"`
+		ForkID    domain.RunForkID            `json:"forkId"`
 	}
 	if err := json.Unmarshal(payload, &reference); err != nil {
 		return domain.WorkflowDefinition{}, wrap("decode restart workflow definition", string(runID), err)
 	}
 	definitionID := reference.CreatedID
-	if eventType == "workflow.graph.patched" {
+	if eventType == "workflow.run.forked" && reference.PatchedID == "" {
+		fork, found, err := typedRecord[domain.RunFork](
+			transaction, ctx, runForkRecordKind, string(reference.ForkID),
+		)
+		if err != nil {
+			return domain.WorkflowDefinition{}, err
+		}
+		if !found {
+			return domain.WorkflowDefinition{}, &domain.Error{
+				Code: domain.ErrorCodeInternal, Op: "create", Resource: string(reference.ForkID),
+				Message: "restart workflow fork is unavailable",
+			}
+		}
+		reference.PatchedID = fork.TargetWorkflowDefinitionID
+		reference.Version = fork.TargetDefinitionVersion
+	}
+	if eventType == "workflow.run.forked" || eventType == "workflow.graph.patched" {
 		definitionID = reference.PatchedID
 	}
 	definition, found, err := transaction.workflowDefinition(ctx, definitionID)

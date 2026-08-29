@@ -220,6 +220,51 @@ func TestReplayWorkflowCreatesChildAndPreservesParent(t *testing.T) {
 		root.InputSnapshotIDs[0] != point.SnapshotID {
 		t.Fatalf("child root inputs = %#v", root.InputSnapshotIDs)
 	}
+	writeSnapshotTestFile(t, filepath.Join(workspace, "input.txt"), "child restart")
+	childSnapshot, err := store.CreateWorkspaceSnapshot(
+		ctx, "snapshot-replay-child", "workspace-replay", workspace,
+	)
+	if err != nil {
+		t.Fatalf("CreateWorkspaceSnapshot(child) returned %v", err)
+	}
+	childPoint, err := store.CreateRestartPoint(ctx, RestartPointRequest{
+		ID: "restart-replay-child", Kind: domain.RestartPointRunAdmission,
+		WorkflowRunID: child.ID, SnapshotID: childSnapshot.ID,
+	})
+	if err != nil || childPoint.WorkflowDefinitionID != child.WorkflowDefinition {
+		t.Fatalf("child restart point = %#v, %v", childPoint, err)
+	}
+}
+
+func TestReplayRecoveryRetriesBeforeForkCommit(t *testing.T) {
+	t.Parallel()
+
+	ctx := context.Background()
+	store, _ := openGraphTestStore(t, ctx)
+	defer store.Close()
+	if err := store.EnableEmergencyReserve(); err != nil {
+		t.Fatalf("EnableEmergencyReserve() returned %v", err)
+	}
+	request := domain.CommandRequest{
+		ID: "command-replay-before", IdempotencyKey: "request-replay-before",
+		Kind: "workflow.replay", Payload: json.RawMessage(`{}`),
+	}
+	if _, created, err := store.AcceptCommand(ctx, "owner", request); err != nil || !created {
+		t.Fatalf("AcceptCommand() = %v, %v", created, err)
+	}
+	if _, claimed, err := store.ClaimCommand(ctx, request.ID); err != nil || !claimed {
+		t.Fatalf("ClaimCommand() = %v, %v", claimed, err)
+	}
+	recovered, err := store.RecoverRunningCommands(ctx)
+	if err != nil || len(recovered) != 1 || recovered[0].State != domain.CommandStateAccepted {
+		t.Fatalf("RecoverRunningCommands() = %#v, %v", recovered, err)
+	}
+	if _, created, err := store.AcceptCommand(ctx, "owner", request); err != nil || created {
+		t.Fatalf("retry AcceptCommand() = %v, %v", created, err)
+	}
+	if _, claimed, err := store.ClaimCommand(ctx, request.ID); err != nil || !claimed {
+		t.Fatalf("retry ClaimCommand() = %v, %v", claimed, err)
+	}
 }
 
 func TestRestartPointUsesDefinitionAtSnapshotCursor(t *testing.T) {
@@ -283,6 +328,35 @@ func TestNodeRestartPointRequiresAdmittedNode(t *testing.T) {
 	_, err := store.CreateRestartPoint(ctx, RestartPointRequest{
 		ID: "restart-pending", Kind: domain.RestartPointNodeAdmission,
 		WorkflowRunID: parent.ID, SnapshotID: "snapshot-pending", NodeRunID: &nodeID,
+	})
+	if !domain.IsErrorCode(err, domain.ErrorCodeInvalidArgument) {
+		t.Fatalf("CreateRestartPoint() error = %v", err)
+	}
+}
+
+func TestNodeRestartPointRejectsAnotherWorkspace(t *testing.T) {
+	t.Parallel()
+
+	ctx := context.Background()
+	store, admission, _, _ := openAdmittedResultTest(t, ctx)
+	defer store.Close()
+	otherWorkspace := t.TempDir()
+	writeSnapshotTestFile(t, filepath.Join(otherWorkspace, "input.txt"), "other")
+	otherSnapshot, err := store.CreateWorkspaceSnapshot(
+		ctx, "snapshot-other-workspace", "workspace-other", otherWorkspace,
+	)
+	if err != nil {
+		t.Fatalf("CreateWorkspaceSnapshot() returned %v", err)
+	}
+	parent, _, err := store.WorkflowRun(ctx, "run-admission")
+	if err != nil {
+		t.Fatalf("WorkflowRun() returned %v", err)
+	}
+	nodeID := nodeRunID(parent.ID, "implement")
+	_, err = store.CreateRestartPoint(ctx, RestartPointRequest{
+		ID: "restart-other-workspace", Kind: domain.RestartPointNodeAdmission,
+		WorkflowRunID: parent.ID, SnapshotID: otherSnapshot.ID, NodeRunID: &nodeID,
+		AdmissionIDs: []domain.AdmissionID{admission.ID},
 	})
 	if !domain.IsErrorCode(err, domain.ErrorCodeInvalidArgument) {
 		t.Fatalf("CreateRestartPoint() error = %v", err)

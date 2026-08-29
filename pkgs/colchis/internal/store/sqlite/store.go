@@ -2587,6 +2587,16 @@ func (store *Store) RecoverRunningCommands(ctx context.Context) ([]domain.Comman
 				recovered = append(recovered, record)
 				continue
 			}
+			record, changed, err := store.transitionCommand(
+				ctx, command.ID, domain.CommandStateRunning, domain.CommandStateAccepted,
+			)
+			if err != nil {
+				return nil, err
+			}
+			if changed {
+				recovered = append(recovered, record)
+			}
+			continue
 		}
 		record, changed, err := store.transitionCommand(
 			ctx,
