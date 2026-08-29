@@ -1605,7 +1605,11 @@ func TestAutomaticMonitorMarksBrokerStoppingBeforeCancellation(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 	stopped := make(chan instance.Record, 1)
-	go monitorAutomaticBroker(ctx, stateDirectory, func() {
+	retired := make(chan instance.Record, 1)
+	go monitorAutomaticBrokerWithRetire(ctx, stateDirectory, func(record instance.Record) error {
+		retired <- record
+		return nil
+	}, func() {
 		current, _ := instance.Read(filepath.Join(stateDirectory, "instance.json"))
 		stopped <- current
 		cancel()
@@ -1614,6 +1618,14 @@ func TestAutomaticMonitorMarksBrokerStoppingBeforeCancellation(t *testing.T) {
 	case current := <-stopped:
 		if !current.Stopping {
 			t.Fatalf("monitor cancellation record = %#v", current)
+		}
+		select {
+		case retiredRecord := <-retired:
+			if !retiredRecord.Stopping {
+				t.Fatalf("retired broker record = %#v", retiredRecord)
+			}
+		default:
+			t.Fatal("automatic monitor did not retire its service")
 		}
 	case <-time.After(3 * time.Second):
 		t.Fatal("automatic monitor did not stop an idle broker")

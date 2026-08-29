@@ -1029,6 +1029,15 @@ func createOrcaLease(directory string) (string, error) {
 }
 
 func monitorAutomaticBroker(ctx context.Context, stateDirectory string, stop context.CancelFunc) {
+	monitorAutomaticBrokerWithRetire(ctx, stateDirectory, stopOrcaService, stop)
+}
+
+func monitorAutomaticBrokerWithRetire(
+	ctx context.Context,
+	stateDirectory string,
+	retire func(instance.Record) error,
+	stop context.CancelFunc,
+) {
 	ticker := time.NewTicker(2 * time.Second)
 	defer ticker.Stop()
 	for {
@@ -1037,6 +1046,7 @@ func monitorAutomaticBroker(ctx context.Context, stateDirectory string, stop con
 			return
 		case <-ticker.C:
 			stopBroker := false
+			var stoppedRecord instance.Record
 			err := withOrcaLeaseLock(stateDirectory, func() error {
 				record, readErr := instance.Read(filepath.Join(stateDirectory, "instance.json"))
 				if readErr == nil && !record.Automatic {
@@ -1054,13 +1064,14 @@ func monitorAutomaticBroker(ctx context.Context, stateDirectory string, stop con
 					return err
 				}
 				stopBroker = true
-				stop()
+				stoppedRecord = record
 				return nil
 			})
 			if errors.Is(err, errBrokerPinned) {
 				return
 			}
-			if err == nil && stopBroker {
+			if err == nil && stopBroker && retire(stoppedRecord) == nil {
+				stop()
 				return
 			}
 		}
