@@ -400,7 +400,7 @@ func renderWorkflowView(stdout io.Writer, view workflowViewResult, definition wo
 			)
 		}
 	}
-	fmt.Fprintln(stdout, "controls: graph patch | replay run | agent attach | agent detach | agent intervene | agent policy | provenance relation | effect reconcile")
+	fmt.Fprintln(stdout, "controls: graph patch | replay run | worker attach | worker detach | worker intervene | worker policy | provenance relation | effect reconcile")
 }
 
 func controlCommandKind(args []string) (string, int, bool) {
@@ -428,6 +428,14 @@ func controlCommandKind(args []string) (string, int, bool) {
 		"agent policy":             "agent.policy",
 		"agent cancel":             "agent.cancel",
 		"agent history":            "agent.history",
+		"worker start":             "agent.start",
+		"worker list":              "agent.list",
+		"worker attach":            "agent.attach",
+		"worker detach":            "agent.detach",
+		"worker intervene":         "agent.intervene",
+		"worker policy":            "agent.policy",
+		"worker cancel":            "agent.cancel",
+		"worker history":           "agent.history",
 		"workspace snapshot":       "workspace.snapshot",
 		"artifact resolve":         "artifact.resolve",
 		"verification submit":      "verification.submit",

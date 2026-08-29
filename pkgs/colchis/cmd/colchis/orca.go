@@ -39,6 +39,15 @@ Usage:
   orca resume <controller> [--model <model>] [-- <controller arguments>]
   orca attach <worker-id>
 
+Native commands:
+  orca workflow <create|run|list|schedule|inspect|export|restart-point|restart-points|forks>
+  orca graph patch
+  orca replay run
+  orca worker <start|list|attach|detach|intervene|policy|cancel|history>
+  orca <workspace|artifact|verification|effect|provenance|broker> <action>
+
+Native commands accept --payload <json|@file>, --id, --idempotency-key, and --state-dir.
+
 Controller means the interactive Claude, Codex, or other top-level process.
 Workflow means a durable execution graph. Worker means one broker-managed workflow node session.
 The bare command, run, resume, and attach hold a broker lease for their lifetime.

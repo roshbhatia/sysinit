@@ -1084,7 +1084,7 @@ func TestRunWorkflowViewRendersPinnedGraphAndControls(t *testing.T) {
 		"implement [ready] adapter=pi",
 		"implement.result -> judge.candidate [required]",
 		"loops:",
-		"controls: graph patch | replay run | agent attach | agent detach",
+		"controls: graph patch | replay run | worker attach | worker detach",
 	} {
 		if !strings.Contains(stdout.String(), expected) {
 			t.Fatalf("workflow view = %q, missing %q", stdout.String(), expected)
@@ -1386,6 +1386,27 @@ func TestWorkflowRestartMetadataHasNativeCLICommands(t *testing.T) {
 		kind, offset, found := controlCommandKind(strings.Fields(args))
 		if !found || kind != expected || offset != 2 {
 			t.Fatalf("controlCommandKind(%q) = %q, %d, %v", args, kind, offset, found)
+		}
+	}
+}
+
+func TestWorkerTerminologyHasNativeCLIAliases(t *testing.T) {
+	for args, expected := range map[string]string{
+		"worker start": "agent.start", "worker list": "agent.list", "worker attach": "agent.attach",
+		"worker detach": "agent.detach", "worker intervene": "agent.intervene", "worker policy": "agent.policy",
+		"worker cancel": "agent.cancel", "worker history": "agent.history",
+	} {
+		kind, offset, found := controlCommandKind(strings.Fields(args))
+		if !found || kind != expected || offset != 2 {
+			t.Fatalf("controlCommandKind(%q) = %q, %d, %v", args, kind, offset, found)
+		}
+	}
+}
+
+func TestOrcaHelpListsNativeCommands(t *testing.T) {
+	for _, command := range []string{"workflow <create|run", "graph patch", "replay run", "worker <start|list"} {
+		if !strings.Contains(orcaUsage, command) {
+			t.Fatalf("orca help omits %q", command)
 		}
 	}
 }

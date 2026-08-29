@@ -214,7 +214,7 @@ func (model orcaUIModel) Init() tea.Cmd {
 func (model orcaUIModel) Update(message tea.Msg) (tea.Model, tea.Cmd) {
 	switch typed := message.(type) {
 	case orcaRefreshTick:
-		if err := model.refresh(); err != nil {
+		if err := model.refreshState(false); err != nil {
 			model.message = err.Error()
 			model.messageError = true
 		}
@@ -265,6 +265,10 @@ func (model orcaUIModel) Update(message tea.Msg) (tea.Model, tea.Cmd) {
 		case key.Matches(typed, orcaKeys.switchView):
 			model.view = (model.view + 1) % 3
 			model.message = ""
+			if err := model.refresh(); err != nil {
+				model.message = err.Error()
+				model.messageError = true
+			}
 		case key.Matches(typed, orcaKeys.showHelp):
 			model.help.ShowAll = !model.help.ShowAll
 		case key.Matches(typed, orcaKeys.refresh):
@@ -851,6 +855,10 @@ func orcaFit(value string, width int) string {
 }
 
 func (model *orcaUIModel) refresh() error {
+	return model.refreshState(true)
+}
+
+func (model *orcaUIModel) refreshState(loadWorkerHistory bool) error {
 	record, active, err := activeOrca("")
 	if err != nil {
 		return err
@@ -867,10 +875,14 @@ func (model *orcaUIModel) refresh() error {
 		model.workerHistory = sqlite.SessionHistory{}
 		return nil
 	}
-	if err := model.loadWorkflows(); err != nil {
-		return err
+	switch model.view {
+	case orcaWorkflowsView:
+		return model.loadWorkflows()
+	case orcaWorkersView:
+		return model.loadWorkers(loadWorkerHistory)
+	default:
+		return nil
 	}
-	return model.loadWorkers()
 }
 
 func (model *orcaUIModel) moveCursor(delta int) error {
@@ -1004,7 +1016,7 @@ func (model *orcaUIModel) loadWorkflowForks() error {
 	return json.Unmarshal(command.Result, &model.forks)
 }
 
-func (model *orcaUIModel) loadWorkers() error {
+func (model *orcaUIModel) loadWorkers(loadHistory bool) error {
 	var selected domain.SessionID
 	if model.workerCursor >= 0 && model.workerCursor < len(model.workers) {
 		selected = model.workers[model.workerCursor].ID
@@ -1031,6 +1043,9 @@ func (model *orcaUIModel) loadWorkers() error {
 	}
 	if model.workerCursor >= len(model.workers) {
 		model.workerCursor = len(model.workers) - 1
+	}
+	if !loadHistory {
+		return nil
 	}
 	return model.loadSelectedWorker()
 }
