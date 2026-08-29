@@ -1532,6 +1532,27 @@ func TestStopRemovesInactiveInstanceRecord(t *testing.T) {
 	}
 }
 
+func TestScopedStatusResolvesBrokerOutsideItsWorkspace(t *testing.T) {
+	t.Setenv("XDG_STATE_HOME", t.TempDir())
+	t.Setenv("ORCA_STATE_DIR", "")
+	scope := t.TempDir()
+	record, _, err := instance.Candidate(scope)
+	if err != nil {
+		t.Fatalf("Candidate() returned %v", err)
+	}
+	record.PID = 2147483647
+	record.StartedAt = time.Now().UTC().Format(time.RFC3339Nano)
+	if err := instance.Write(record); err != nil {
+		t.Fatalf("Write() returned %v", err)
+	}
+	outside := t.TempDir()
+	t.Chdir(outside)
+	resolved, active, err := activeOrca(scope)
+	if err != nil || active || resolved.StateDirectory != record.StateDirectory {
+		t.Fatalf("activeOrca(%q) = %#v, %v, %v", scope, resolved, active, err)
+	}
+}
+
 func waitForSocket(t *testing.T, path string, cancel context.CancelFunc, serveErrors <-chan error) {
 	t.Helper()
 	deadline := time.Now().Add(5 * time.Second)

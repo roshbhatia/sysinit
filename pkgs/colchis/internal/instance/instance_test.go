@@ -40,3 +40,21 @@ func TestContainsHonorsPathBoundaries(t *testing.T) {
 		}
 	}
 }
+
+func TestNewRecordCapturesBrokerExecutable(t *testing.T) {
+	record, _, err := NewRecord(t.TempDir(), "manual", false)
+	if err != nil {
+		t.Fatalf("NewRecord() returned %v", err)
+	}
+	executable, err := os.Executable()
+	if err != nil {
+		t.Fatalf("os.Executable() returned %v", err)
+	}
+	executable, err = filepath.EvalSymlinks(executable)
+	if err != nil {
+		t.Fatalf("EvalSymlinks() returned %v", err)
+	}
+	if record.Executable != executable {
+		t.Fatalf("executable = %q, want %q", record.Executable, executable)
+	}
+}

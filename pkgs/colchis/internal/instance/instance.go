@@ -28,6 +28,7 @@ type Record struct {
 	StateDirectory string `json:"stateDirectory"`
 	Socket         string `json:"socket"`
 	Service        string `json:"service,omitempty"`
+	Executable     string `json:"executable,omitempty"`
 	Automatic      bool   `json:"automatic,omitempty"`
 	Stopping       bool   `json:"stopping,omitempty"`
 	PID            int    `json:"pid"`
@@ -235,7 +236,16 @@ func NewRecord(scope string, service string, automatic bool) (Record, config.Pat
 	if err != nil {
 		return Record{}, config.Paths{}, err
 	}
+	executable, err := os.Executable()
+	if err != nil {
+		return Record{}, config.Paths{}, err
+	}
+	executable, err = filepath.EvalSymlinks(executable)
+	if err != nil {
+		return Record{}, config.Paths{}, err
+	}
 	record.Service = service
+	record.Executable = executable
 	record.Automatic = automatic
 	record.PID = os.Getpid()
 	record.StartedAt = time.Now().UTC().Format(time.RFC3339Nano)

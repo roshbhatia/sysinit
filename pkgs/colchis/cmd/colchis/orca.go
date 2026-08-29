@@ -31,8 +31,8 @@ const orcaUsage = `orca: optional local agent orchestration
 Usage:
   orca
   orca start [--scope <path>]
-  orca stop
-  orca status [--json]
+  orca stop [--scope <path>]
+  orca status [--scope <path>] [--json]
   orca list [--json]
   orca prompt
   orca run <controller> [--model <model>] [-- <controller arguments>]
@@ -157,11 +157,17 @@ func startPinnedOrca(
 }
 
 func runOrcaStop(args []string, stdout io.Writer, stderr io.Writer) int {
-	if len(args) != 0 {
+	flags := flag.NewFlagSet("stop", flag.ContinueOnError)
+	flags.SetOutput(stderr)
+	scopeFlag := flags.String("scope", "", "workspace scope")
+	if err := flags.Parse(args); err != nil {
+		return 2
+	}
+	if flags.NArg() != 0 {
 		fmt.Fprintln(stderr, "stop accepts no arguments")
 		return 2
 	}
-	record, _, err := activeOrca()
+	record, _, err := activeOrca(*scopeFlag)
 	if err != nil {
 		fmt.Fprintf(stderr, "resolve instance: %v\n", err)
 		return 1
@@ -196,6 +202,9 @@ func runOrcaStop(args []string, stdout io.Writer, stderr io.Writer) int {
 		if !waitForOrca(current, false, 5*time.Second) {
 			return fmt.Errorf("broker did not stop for %s", current.Scope)
 		}
+		if !waitForOrcaService(current, false, 5*time.Second) {
+			return fmt.Errorf("broker service did not stop for %s", current.Scope)
+		}
 		return instance.Remove(current)
 	})
 	if err != nil {
@@ -213,6 +222,7 @@ func runOrcaStop(args []string, stdout io.Writer, stderr io.Writer) int {
 func runOrcaStatus(args []string, stdout io.Writer, stderr io.Writer) int {
 	flags := flag.NewFlagSet("status", flag.ContinueOnError)
 	flags.SetOutput(stderr)
+	scopeFlag := flags.String("scope", "", "workspace scope")
 	jsonOutput := flags.Bool("json", false, "write JSON")
 	if err := flags.Parse(args); err != nil {
 		return 2
@@ -221,7 +231,7 @@ func runOrcaStatus(args []string, stdout io.Writer, stderr io.Writer) int {
 		fmt.Fprintln(stderr, "status accepts no positional arguments")
 		return 2
 	}
-	record, active, err := activeOrca()
+	record, active, err := activeOrca(*scopeFlag)
 	if err != nil {
 		fmt.Fprintf(stderr, "resolve instance: %v\n", err)
 		return 1
@@ -283,7 +293,7 @@ func runOrcaPrompt(args []string, stdout io.Writer, stderr io.Writer) int {
 		fmt.Fprintln(stderr, "prompt accepts no arguments")
 		return 2
 	}
-	record, active, err := activeOrca()
+	record, active, err := activeOrca("")
 	if err != nil || !active {
 		return 0
 	}
@@ -445,7 +455,25 @@ func orcaStartCandidate(configured string) (instance.Record, error) {
 	return record, err
 }
 
-func activeOrca() (instance.Record, bool, error) {
+func activeOrca(configured string) (instance.Record, bool, error) {
+	if configured != "" {
+		scope, err := orcaScope(configured)
+		if err != nil {
+			return instance.Record{}, false, err
+		}
+		record, _, err := instance.Candidate(scope)
+		if err != nil {
+			return instance.Record{}, false, err
+		}
+		current, readErr := instance.Read(filepath.Join(record.StateDirectory, "instance.json"))
+		if readErr == nil {
+			return current, instance.Live(current), nil
+		}
+		if !errors.Is(readErr, os.ErrNotExist) {
+			return instance.Record{}, false, readErr
+		}
+		return record, false, nil
+	}
 	directory, err := os.Getwd()
 	if err != nil {
 		return instance.Record{}, false, err
@@ -483,13 +511,9 @@ func resolveOrcaPaths(override string) (config.Paths, error) {
 }
 
 func startOrcaService(record instance.Record, automatic bool) (string, error) {
-	executable := os.Getenv("ORCA_EXECUTABLE")
-	if executable == "" {
-		var err error
-		executable, err = os.Executable()
-		if err != nil {
-			return "", err
-		}
+	executable, err := orcaExecutable()
+	if err != nil {
+		return "", err
 	}
 	logPath := filepath.Join(record.StateDirectory, "broker.log")
 	errorPath := filepath.Join(record.StateDirectory, "broker.error.log")
@@ -643,6 +667,12 @@ func startOrcaInstance(record instance.Record, automatic bool) (bool, string, er
 		if !waitForOrca(current, false, 5*time.Second) {
 			return false, "", fmt.Errorf("stopping broker did not exit for %s", current.Scope)
 		}
+		if !waitForOrcaService(current, false, 5*time.Second) {
+			return false, "", fmt.Errorf("stopping broker service remains registered for %s", current.Scope)
+		}
+		if err := instance.Remove(current); err != nil {
+			return false, "", err
+		}
 		current = instance.Record{}
 		readErr = os.ErrNotExist
 	}
@@ -650,13 +680,38 @@ func startOrcaInstance(record instance.Record, automatic bool) (bool, string, er
 		if readErr != nil {
 			return false, "", readErr
 		}
-		if !automatic && current.Automatic {
-			current.Automatic = false
+		executable, err := orcaExecutable()
+		if err != nil {
+			return false, "", err
+		}
+		if current.Executable != executable {
+			current.Stopping = true
 			if err := instance.Write(current); err != nil {
 				return false, "", err
 			}
+			if err := stopOrcaService(current); err != nil {
+				return false, "", err
+			}
+			if !waitForOrca(current, false, 5*time.Second) {
+				return false, "", fmt.Errorf("outdated broker did not stop for %s", current.Scope)
+			}
+			if !waitForOrcaService(current, false, 5*time.Second) {
+				return false, "", fmt.Errorf("outdated broker service remains registered for %s", current.Scope)
+			}
+			if err := instance.Remove(current); err != nil {
+				return false, "", err
+			}
+			current = instance.Record{}
+			readErr = os.ErrNotExist
+		} else {
+			if !automatic && current.Automatic {
+				current.Automatic = false
+				if err := instance.Write(current); err != nil {
+					return false, "", err
+				}
+			}
+			return false, current.Service, nil
 		}
-		return false, current.Service, nil
 	}
 	if readErr == nil {
 		present, err := orcaServicePresent(current)
@@ -692,6 +747,24 @@ func startOrcaInstance(record instance.Record, automatic bool) (bool, string, er
 		return false, "", errors.New(message)
 	}
 	return true, service, nil
+}
+
+func orcaExecutable() (string, error) {
+	executable := os.Getenv("ORCA_EXECUTABLE")
+	if executable == "" {
+		var err error
+		executable, err = os.Executable()
+		if err != nil {
+			return "", err
+		}
+	} else {
+		var err error
+		executable, err = filepath.Abs(executable)
+		if err != nil {
+			return "", err
+		}
+	}
+	return filepath.EvalSymlinks(executable)
 }
 
 func waitForOrcaService(record instance.Record, wantPresent bool, timeout time.Duration) bool {
@@ -802,6 +875,9 @@ func (lease orcaLease) release() error {
 		}
 		if !waitForOrca(current, false, 5*time.Second) {
 			return fmt.Errorf("broker did not stop for %s", current.Scope)
+		}
+		if !waitForOrcaService(current, false, 5*time.Second) {
+			return fmt.Errorf("broker service did not stop for %s", current.Scope)
 		}
 		return nil
 	})
